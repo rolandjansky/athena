@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
  */
 
 /**
@@ -252,18 +252,17 @@ CP::CorrectionCode
 AsgElectronEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD::Electron &inputObject,
         double &efficiencyScaleFactor) const {
 
+    efficiencyScaleFactor = 1;
     //Retrieve the proper random Run Number
     unsigned int runnumber = m_defaultRandomRunNumber;
     if (m_useRandomRunNumber) {
         const xAOD::EventInfo *eventInfo = evtStore()->retrieve< const xAOD::EventInfo> (m_eventInfoCollectionName);
         if (!eventInfo) {
             ATH_MSG_ERROR("Could not retrieve EventInfo object!");
-            efficiencyScaleFactor = 1;
             return CP::CorrectionCode::Error;
         }
         static const SG::AuxElement::Accessor<unsigned int> randomrunnumber("RandomRunNumber");
         if (!randomrunnumber.isAvailable(*eventInfo)) {
-            efficiencyScaleFactor = 1;
             ATH_MSG_WARNING(
                     "Pileup tool not run before using ElectronEfficiencyTool! SFs do not reflect PU distribution in data");
             return CP::CorrectionCode::Error;
@@ -275,12 +274,13 @@ AsgElectronEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD::Electr
     double cluster_eta(-9999.9);
     double et(0.0);
 
-
     et = inputObject.pt();
     const xAOD::CaloCluster *cluster = inputObject.caloCluster();
-    if (cluster) {
-        cluster_eta = cluster->etaBE(2);
+    if (!cluster){
+        ATH_MSG_ERROR("ERROR no cluster associated to the Electron \n"); 
+        return CP::CorrectionCode::Error; 
     }
+    cluster_eta = cluster->etaBE(2);
 
     size_t CorrIndex{0};
     size_t MCToysIndex{0};
@@ -714,9 +714,11 @@ int AsgElectronEfficiencyCorrectionTool::systUncorrVariationIndex( const xAOD::E
 
     et = inputObject.pt();
     const xAOD::CaloCluster *cluster = inputObject.caloCluster();
-    if (cluster) {
-        cluster_eta = cluster->etaBE(2);
+    if (!cluster){
+        ATH_MSG_ERROR("ERROR no cluster associated to the Electron \n"); 
+        return currentSystRegion; 
     }
+    cluster_eta = cluster->etaBE(2);
     switch(m_correlation_model){
     case  correlationModel::SIMPLIFIED:{
         currentSystRegion = currentSimplifiedUncorrSystRegion( cluster_eta, et);

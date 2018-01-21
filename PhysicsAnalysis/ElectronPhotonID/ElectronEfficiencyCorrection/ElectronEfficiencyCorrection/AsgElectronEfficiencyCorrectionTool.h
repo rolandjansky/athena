@@ -184,7 +184,7 @@ private:
 
   //use RandomRun Number
   bool m_useRandomRunNumber;
-  unsigned int m_defaultRandomRunNumber;
+  int m_defaultRandomRunNumber;
 
   //The data type
   PATCore::ParticleDataType::DataType m_dataType;

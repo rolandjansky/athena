@@ -38,6 +38,8 @@ int Root::TPhotonEfficiencyCorrectionTool::initialize(){
     //Apparently the TResult needs a "specific convention" for the 1st  2
     m_result.addResult("efficiency_SF", "efficiency scale factor");
     m_result.addResult("efficiency_SF_err", "efficiency scale factor uncertainty");
+    m_result.setResult(0, -999.0);
+    m_result.setResult(1, 1.0);
     return Root::TElectronEfficiencyCorrectionTool::initialize();
 }
 
