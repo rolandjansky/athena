@@ -7,41 +7,81 @@
 import sys, subprocess, random, os, shlex, ROOT, shutil
 from PathResolver import PathResolver
 
-# -- Settings --
-cutfilename   = "validation-cuts.txt"
-inputfilename = "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/AnalysisTop/ContinuousIntegration/MC/p3390/mc16_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.deriv.DAOD_TOPQ1.e6337_e5984_s3126_r9364_r9315_p3390/DAOD_TOPQ1.12720282._000339.pool.root.1"
 
-# -- Move to a unique directory --
-rundir = str(random.randrange(10**8))
-os.mkdir(rundir)
-os.chdir(rundir)
+def CITest(testname, cutfile, cutfilepath, inputfile, sedreplace):
+    """ Templated test to allow extension """
+    print "CI Integration Test :",testname
 
-# -- Get the validation file path from the most recent location --
-cutfilepath   = ROOT.PathResolver.find_file(cutfilename,
-                                            "DATAPATH", 
-                                            ROOT.PathResolver.RecursiveSearch)
+    # -- Settings --
+    cutfilename   = cutfile
+    inputfilename = inputfile
 
-# -- Print the file location for debugging --
-print "CI Integration Test : Using cutfile (%s) from %s"%(cutfilename, cutfilepath)
-print "CI Integration Test : Using inputfile %s"%(inputfilename)
+    # -- Move to a unique directory --
+    cwd = os.getcwd()
+    rundir = str(random.randrange(10**8))
+    os.mkdir(rundir)
+    os.chdir(rundir)
 
-# -- Copy the cutfile locally to be updated -- 
-shutil.copyfile(cutfilepath, cutfilename)
+    # -- Get the validation file path from the most recent location --
 
-# -- Write the input file path to a temporary file --
-inputfilepath = open("input.txt","w")
-inputfilepath.write(inputfilename+"\n")
-inputfilepath.close()
+    # -- Print the file location for debugging --
+    print "CI Integration Test : Using cutfile %s"%(cutfilepath)
+    print "CI Integration Test : Using inputfile %s"%(inputfilename)
 
-# -- Edit the cutfile to set NEvents to 100 --
-cmd  = "sed -i -e 's/#NEvents.*/NEvents 100/g' %s"%(cutfilename)
-proc = subprocess.Popen(shlex.split(cmd))
-proc.wait()
+    # -- Copy the cutfile locally to be updated -- 
+    shutil.copyfile(cutfilepath, cutfilename)
 
-# -- Run top-xaod --
-cmd  = "top-xaod %s input.txt"%(cutfilename)
-proc = subprocess.Popen(shlex.split(cmd))
-proc.wait()
+    # -- Write the input file path to a temporary file --
+    inputfilepath = open("input.txt","w")
+    inputfilepath.write(inputfilename+"\n")
+    inputfilepath.close()
 
-# -- Check the return code and exit this script with that --
-sys.exit( proc.returncode )
+    # -- Edit the cutfile to set any provided options --
+    for (old, new) in sedreplace:
+        cmd  = "sed -i -e 's/"+old+"/"+new+"/g' %s"%(cutfilename)
+        proc = subprocess.Popen(shlex.split(cmd))
+        proc.wait()
+
+    # -- Run top-xaod --
+    cmd  = "top-xaod %s input.txt"%(cutfilename)
+    proc = subprocess.Popen(shlex.split(cmd))
+    proc.wait()
+
+    # Return to starting directory
+    os.chdir(cwd)
+
+    # -- Check the return code and exit this script with that --
+    return proc.returncode
+
+# -- Main script -- #
+
+# -- Get the validation file path from the most recent location --                                                                                                               
+cutfilename = "validation-cuts.txt"
+cutfilepath = ROOT.PathResolver.find_file(cutfilename,
+                                          "DATAPATH",
+                                          ROOT.PathResolver.RecursiveSearch)
+
+returnCode = CITest("TOPQ1 MC",
+                    cutfilename,
+                    cutfilepath,
+                    "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/AnalysisTop/ContinuousIntegration/MC/p3390/"+
+                    "mc16_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.deriv.DAOD_TOPQ1.e6337_e5984_s3126_r9364_r9315_p3390/DAOD_TOPQ1.12720282._000339.pool.root.1",
+                    [("#NEvents.*","NEvents 100")])
+
+if returnCode != 0:
+    print "Error in TOPQ1 MC"
+    sys.exit(returnCode)
+
+returnCode = CITest("TOPQ1 DATA",
+                    cutfilename,
+                    cutfilepath,
+                    "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/AnalysisTop/ContinuousIntegration/Data/p3388/"+
+                    "data16_13TeV.00297730.physics_Main.deriv.DAOD_TOPQ1.r9264_p3083_p3388/DAOD_TOPQ1.12646828._000040.pool.root.1",
+                    [("#NEvents.*","NEvents 3000")])
+
+if returnCode != 0:
+    print "Error in TOPQ1 Data"
+    sys.exit(returnCode)
+
+# -- Return 0 as all tests were successful -- #
+sys.exit(0)
