@@ -9,6 +9,7 @@
 <class name="JetInputElRemovalTool"/>
 <class name="JetTrackSelectionTool"/>
 <class name="PFlowPseudoJetGetter"/>
+<class name="PuppiWeightTool"/>
 <class name="SimpleJetTrackSelectionTool"/>
 <class name="SoftKillerWeightTool"/>
 <class name="TrackPseudoJetGetter"/>

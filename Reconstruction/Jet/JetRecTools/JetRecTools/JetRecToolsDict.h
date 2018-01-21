@@ -16,6 +16,7 @@
 #include "JetRecTools/JetInputElRemovalTool.h"
 #include "JetRecTools/JetTrackSelectionTool.h"
 #include "JetRecTools/PFlowPseudoJetGetter.h"
+#include "JetRecTools/PuppiWeightTool.h"
 #include "JetRecTools/SimpleJetTrackSelectionTool.h"
 #include "JetRecTools/SoftKillerWeightTool.h"
 #include "JetRecTools/TrackPseudoJetGetter.h"
