@@ -1,6 +1,6 @@
 /*
    Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
- */
+   */
 
 /**
   @class TElectronEfficiencyCorrectionTool
@@ -140,14 +140,13 @@ int Root::TElectronEfficiencyCorrectionTool::initialize() {
     ATH_MSG_DEBUG(" (file: " << __FILE__ << ", line: "
             << __LINE__ << ") " << "Debug flag set. Printing verbose output!");
 
-
     //Check if files are present
     if (m_corrFileNameList.size() == 0) {
         ATH_MSG_ERROR(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << " No file added!");
         return 0;
     }
     ATH_MSG_INFO("Initializing tool with " << m_corrFileNameList.size() << " configuration file(s)");
-    //
+
     // Check if the first file can be opened (needed for auto-setting of the seed based on the md5-sum of the file)
     const std::unique_ptr<char> fname(gSystem->ExpandPathName(m_corrFileNameList[0].c_str()));
     std::unique_ptr<TFile> rootFile_tmp = CxxUtils::make_unique<TFile> (fname.get(), "READ");
@@ -165,8 +164,11 @@ int Root::TElectronEfficiencyCorrectionTool::initialize() {
                 << " Only use one!");
         return 0;
     }
-
-    // initialize the random number generator if toyMC propagation booked
+    /*
+     * initialize the random number generator if toyMC propagation booked
+     * Use the 1st 4 bytes of the CheckSum of the reccomendation file
+     * as seed
+     */
     if (m_doToyMC || m_doCombToyMC) {
         if (m_seed == 0) {
             std::unique_ptr<TMD5> tmd=CxxUtils::make_unique<TMD5>();
@@ -178,14 +180,13 @@ int Root::TElectronEfficiencyCorrectionTool::initialize() {
         }
         m_Rndm= TRandom3(m_seed);
     }
-    //
     // Load the needed histograms
     if (0 == getHistograms()) {
         ATH_MSG_ERROR(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << "! Problem when calling getHistograms()");
         return 0;
     }
-    unsigned int nRunNumbersFull = m_begRunNumberList.size();
-    unsigned int nRunNumbersFast = m_begRunNumberListFastSim.size();
+    const unsigned int nRunNumbersFull = m_begRunNumberList.size();
+    const unsigned int nRunNumbersFast = m_begRunNumberListFastSim.size();
 
     ATH_MSG_DEBUG(" (file: " << __FILE__ << ", line: " << __LINE__ << ") "
             << "Found " << nRunNumbersFast << " run number ranges for fast sim with a total of " <<
@@ -235,7 +236,7 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
     }
     //
     //See if fastsim
-    bool isFastSim=(dataType == PATCore::ParticleDataType::Fast) ? true: false;
+    const bool isFastSim=(dataType == PATCore::ParticleDataType::Fast) ? true: false;
     //Find the corresponding run index for this period
     int runnumberIndex = -1;
     if (isFastSim) {
@@ -271,8 +272,8 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
      * The 2D Histo has the number we want.
      */
     const std::map<int, std::vector< TObjArray > >& currentmap = (isFastSim)? m_fastHistList : m_histList;
-     std::map<int, std::vector< TObjArray > >::const_iterator currentVector_itr = currentmap.find(mapkey::sf); //find the vector
-     //See if we can find a SF vector in the map and the corresponding TobjArray for this run period
+    std::map<int, std::vector< TObjArray > >::const_iterator currentVector_itr = currentmap.find(mapkey::sf); //find the vector
+    //See if we can find a SF vector in the map and the corresponding TobjArray for this run period
     if (currentVector_itr == currentmap.end()) {
         if (this->msgLvl(MSG::DEBUG)){	
             printDefaultReturnMessage(TString::Format(
@@ -284,7 +285,7 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
     }
     //Get a reference (synonym) to this vector 
     const std::vector<TObjArray>& currentVector=currentVector_itr->second;
-    if (currentVector.size()<=0 || runnumberIndex>= static_cast <signed> (currentVector.size())) {
+    if (currentVector.size()<=0 || runnumberIndex>= static_cast <int> (currentVector.size())) {
         if (this->msgLvl(MSG::DEBUG)){
             printDefaultReturnMessage(TString::Format(
                         "No valid sf ObjArrays found for the current run number: %i for simulation type: %i",
@@ -293,7 +294,6 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
         }
         return result;
     }
-    //
     //
     //Now we can get the corresponding Object array 
     const TObjArray& currentObjectArray = currentVector.at(runnumberIndex);
@@ -346,7 +346,6 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
         }
     }
     //We are out of bounds 
-    //
     if (smallEt == entries) {
         if (this->msgLvl(MSG::DEBUG)){
             printDefaultReturnMessage(TString::Format("No correction factor provided for et=%f", xValue), __LINE__);
@@ -365,7 +364,6 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
                 " . Please check your input files!");
     }
     //
-    //
     //Now we have the index of the histogram for this region in the TObjectarray 
     TH2* currentHist(0);
     if (index >= 0) {
@@ -378,9 +376,9 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
         }
         return result;
     }
-    ///
+
     // If SF is only given in Abs(eta) convert eta input to TMath::Abs()
-    float epsilon = 1e-6;
+    constexpr double epsilon = 1e-6;
     if (currentHist->GetYaxis()->GetBinLowEdge(1) >= 0 - epsilon) {
         if (yValue < 0) {
             ATH_MSG_DEBUG(" (file: " << __FILE__ << ", line: " << __LINE__ << ") "
@@ -389,9 +387,9 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
         }
         yValue = TMath::Abs(yValue);
     }
-    int globalBinNumber = currentHist->FindFixBin(xValue, yValue);
-    double scaleFactor = currentHist->GetBinContent(globalBinNumber);
-    double scaleFactorErr = currentHist->GetBinError(globalBinNumber);
+    const int globalBinNumber = currentHist->FindFixBin(xValue, yValue);
+    const double scaleFactor = currentHist->GetBinContent(globalBinNumber);
+    const double scaleFactorErr = currentHist->GetBinError(globalBinNumber);
     //
     // Write the retrieved values into the return object
     result[static_cast<size_t> (Position::SF)]=scaleFactor;
@@ -404,7 +402,7 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
     if (currentVector_itr != currentmap.end()) {
         //itr at the location of the vector, .second get the vector, at(runnumberIndex is the TObjectArray 
         // for the period , finaly get the hist at index (from above).
-        TH1 *stat = static_cast<TH1*>(currentVector_itr->second.at(runnumberIndex).At(index));
+        const TH1 *stat = static_cast<TH1*>(currentVector_itr->second.at(runnumberIndex).At(index));
         statErr = stat->GetBinContent(globalBinNumber);
         result[static_cast<size_t> (Position::Stat)]=statErr;
     }
@@ -416,7 +414,7 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
         if (currentVector_itr->second.at(runnumberIndex).GetEntriesFast()> 0) {
             //itr at the location of the vector, .second get the vector, at(runnumberIndex is the TObjectArray 
             // for the period , finaly get the hist at index (from above).
-            TH1 *eig = static_cast<TH1*>(currentVector_itr->second.at(runnumberIndex).At(index)); 
+            const TH1 *eig = static_cast<TH1*>(currentVector_itr->second.at(runnumberIndex).At(index)); 
             int sLevel[Root::TElectronEfficiencyCorrectionTool::detailLevelEnd]={0,0,0};
             int nSys = eig->GetNbinsX() - 1;
             double sign = 0;
@@ -442,12 +440,12 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
      * We need to see if we can do something better here ...
      */
     const std::vector< std::vector< TObjArray > > &sysList = (isFastSim) ? m_fastSysList : m_sysList;
-    static std::vector<double> corrSys(10); // Avoid some re-allocations of  memory
+    std::vector<double> corrSys; 
+    corrSys.reserve(10); 
     corrSys.clear();
-    if (sysList.size() > (unsigned int) index) {
-        if (sysList.at(index).size() > (unsigned int) runnumberIndex) {
+    if (sysList.size() > static_cast<unsigned int> (index)) {
+        if (sysList.at(index).size() > static_cast<unsigned int> (runnumberIndex)) {
             const int sys_entries = sysList.at(index).at( runnumberIndex).GetEntries();
-
             for (int sys = 0; sys < sys_entries; ++sys) {
                 tmpHist = (TH2 *) sysList.at(index).at(runnumberIndex).At(sys_entries - 1 - sys);
                 corrSys.push_back(tmpHist->GetBinContent(globalBinNumber));
@@ -468,11 +466,11 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
         //Check on the ObjArray
         if (currentVector_itr->second.at(runnumberIndex).GetEntriesFast()>0) {
             TH1 *uncorr = static_cast<TH1*>(currentVector_itr->second.at(runnumberIndex).At(index));
-            double valAdd = uncorr->GetBinContent(globalBinNumber);
+            const double valAdd = uncorr->GetBinContent(globalBinNumber);
             val = sqrt(val * val + valAdd * valAdd);
             for (int i = 0; i < m_sLevel[m_detailLevel]; ++i) {
-                double valAdd = corrSys.at(corrSys.size() - 1 - i);
-                val = sqrt(val * val + valAdd * valAdd);
+                const double valAdd1 = corrSys.at(corrSys.size() - 1 - i);
+                val = sqrt(val * val + valAdd1 * valAdd1);
             }
         }
     }
@@ -566,7 +564,7 @@ Root::TElectronEfficiencyCorrectionTool::buildSingleCombToyMC(TH2D *sf, TH2D *st
     ATH_MSG_DEBUG(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << "entering function buildSingleCombToyMC");
 
     TH2D *tmpHist;
-    int nBins = (stat->GetNbinsX() + 2) * (stat->GetNbinsY() + 2);
+    const int nBins = (stat->GetNbinsX() + 2) * (stat->GetNbinsY() + 2);
     tmpHist = (TH2D *) corr.At(0)->Clone();
 
     // Create random numbers for the corr. uncertainties
