@@ -447,6 +447,13 @@ public:
 	    m_combined_tracks = combined_tracks; 
 	    m_pix_tracks = pix_tracks;
 	}
+    //stripped-down version for the standard case, where we only need the combined tracks
+    inline virtual void  fillTracks(
+	const TrackCollection* combined_tracks) 
+	{  
+	    m_combined_tracks = combined_tracks; 
+	}
+
    
     /// Filling the detector managers
     inline virtual void  fillDetectorManagers( const TRT_ID *trtID, 

@@ -21,6 +21,8 @@
 
 //Local
 #include "InDetGlobalMotherMonTool.h"
+//Framework
+#include "StoreGate/ReadHandleKey.h"
 //Standard c++
 #include <string>
 //Predeclarations
@@ -43,6 +45,8 @@ public:
     
     ///Virtual desturctor
     virtual ~InDetGlobalTopBottomMonTool() {}
+
+    virtual StatusCode initialize();
 
     ///@name histos Book, fill and proc histograms
     ///@{
@@ -137,15 +141,7 @@ private:
     float m_Bottom_dphi[s_nMaxTracks];
     float m_Bottom_dd0[s_nMaxTracks];
     float m_Bottom_dz0[s_nMaxTracks];
-	
-	const TrackCollection *m_sct_tracks_up;
-    const TrackCollection *m_trt_tracks_up;
-    const TrackCollection *m_pix_tracks_up; 
-    const TrackCollection *m_combined_tracks_up;
-    const TrackCollection *m_sct_tracks_low;
-    const TrackCollection *m_trt_tracks_low;
-    const TrackCollection *m_pix_tracks_low;  
-    const TrackCollection *m_combined_tracks_low;
+
 	/// Name of SCT tracks container
     std::string m_SCTTracksName;
 	
@@ -157,8 +153,16 @@ private:
 	
     /// Name of combined inner detector tracks container
     std::string m_CombinedTracksName;
-	/// Name of trt drift circle container
-    std::string m_TRT_DriftCircleName;
+
+    SG::ReadHandleKey<TrackCollection> m_sctTracksUpKey{this,"SCTTracksUpName",m_SCTTracksName + "Up","Upwards-going SCT Tracks for Global Monitoring"};
+    SG::ReadHandleKey<TrackCollection> m_sctTracksLowKey{this,"SCTTracksLowName",m_SCTTracksName + "Low","Downwards-going SCT Tracks for Global Monitoring"};
+    SG::ReadHandleKey<TrackCollection> m_trtTracksUpKey{this,"TRTTracksUpName",m_TRTTracksName + "Up","Upwards-going TRT Tracks for Global Monitoring"};
+    SG::ReadHandleKey<TrackCollection> m_trtTracksLowKey{this,"TRTTracksLowName",m_TRTTracksName + "Low","Downwards-going TRT Tracks for Global Monitoring"};
+    SG::ReadHandleKey<TrackCollection> m_pixTracksUpKey{this,"PixelTracksUpName",m_PIXTracksName + "Up","Upwards-going Pixel Tracks for Global Monitoring"};
+    SG::ReadHandleKey<TrackCollection> m_pixTracksLowKey{this,"PixelTracksLowName",m_PIXTracksName + "Low","Downwards-going Pixel Tracks for Global Monitoring"};
+    SG::ReadHandleKey<TrackCollection> m_combinedTracksUpKey{this,"CombinedTracksUpName",m_CombinedTracksName + "Up","Upwards-going Tracks for Global Monitoring"};
+    SG::ReadHandleKey<TrackCollection> m_combinedTracksLowKey{this,"CombinedTracksLowName",m_CombinedTracksName + "Low","Downwards-going Tracks for Global Monitoring"};
+
 	bool m_doTopBottom;
 };
 
