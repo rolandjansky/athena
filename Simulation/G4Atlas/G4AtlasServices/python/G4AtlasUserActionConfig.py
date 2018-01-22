@@ -24,7 +24,7 @@ def getDefaultEventActions():
     if jobproperties.Beam.beamType() == 'cosmics' and hasattr(simFlags, 'CavernBG') and not simFlags.CavernBG.statusOn:
         defaultUA+=['G4UA::CosmicPerigeeActionTool']
     if hasattr(simFlags, 'StoppedParticleFile') and simFlags.StoppedParticleFile.statusOn:
-        defaultUA+=['G4UA::G4CosmicFilterTool']
+        defaultUA+=['G4UA::StoppedParticleFilterTool']
     if jobproperties.Beam.beamType() == 'cosmics' and not simFlags.ISFRun:
         defaultUA+=['G4UA::G4CosmicFilterTool']
     if hasattr(simFlags, 'CalibrationRun') and simFlags.CalibrationRun() == 'LAr+Tile':

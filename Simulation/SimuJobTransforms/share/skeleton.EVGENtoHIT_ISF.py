@@ -108,7 +108,8 @@ if hasattr(runArgs, "inputEVNT_STOPPEDFile"):
     include('SimulationJobOptions/preInclude.ReadStoppedParticles.py')
 
 # Avoid command line preInclude for cavern background
-if jobproperties.Beam.beamType.get_Value() != 'cosmics':
+if jobproperties.Beam.beamType.get_Value() != 'cosmics' and\
+    not (hasattr(simFlags,'StoppedParticleFile') and simFlags.StoppedParticleFile.statusOn and simFlags.StoppedParticleFile.get_Value()!=''):
     if hasattr(runArgs, "inputEVNT_TRFile"):
         include('SimulationJobOptions/preInclude.G4ReadCavern.py')
     if hasattr(runArgs, "outputEVNT_TRFile"):

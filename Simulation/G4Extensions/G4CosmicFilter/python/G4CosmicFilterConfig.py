@@ -9,10 +9,6 @@ def configCosmicFilterVolumeNames():
     # returns a list with volume names
     # depending on how many names are returned different filters must be called
 
-    # easier config, if StoppedParticleFile is on, use plain filter
-    if simFlags.StoppedParticleFile.statusOn:
-        return ['StoppingPositions']
-
     # more complex configs, in case real cosmic simulation is done
     collectionName="CaloEntryLayer"
     if simFlags.CosmicFilterVolumeName=="Muon":
@@ -67,14 +63,12 @@ def getCosmicFilterTool(name="G4UA::G4CosmicFilterTool", **kwargs):
     # use simple  cosmic filter
     if len(volumes)==1:
 
-        # Stopped particle filter is a special case; will not have cosmic flags set
-        if volumes[0]!='StoppingPositions':
-            if simFlags.CosmicFilterID.statusOn:
-                kwargs.setdefault("PDGId", simFlags.CosmicFilterID.get_Value())
-            if simFlags.CosmicFilterPTmin.statusOn:
-                kwargs.setdefault("PtMin", simFlags.CosmicFilterPTmin.get_Value())
-            if simFlags.CosmicFilterPTmax.statusOn:
-                kwargs.setdefault("PtMax", simFlags.CosmicFilterPTmax.get_Value())
+        if simFlags.CosmicFilterID.statusOn:
+            kwargs.setdefault("PDGId", simFlags.CosmicFilterID.get_Value())
+        if simFlags.CosmicFilterPTmin.statusOn:
+            kwargs.setdefault("PtMin", simFlags.CosmicFilterPTmin.get_Value())
+        if simFlags.CosmicFilterPTmax.statusOn:
+            kwargs.setdefault("PtMax", simFlags.CosmicFilterPTmax.get_Value())
         kwargs.setdefault("CollectionName",volumes[0])
 
         print 'G4CosmicFilter: Filter volume is %s' % volumes[0]
@@ -93,3 +87,7 @@ def getCosmicFilterTool(name="G4UA::G4CosmicFilterTool", **kwargs):
         kwargs.setdefault("CollectionName2",volumes[1])
         kwargs.setdefault("CollectionName3",volumes[2])
         return  CfgMgr.G4UA__G4CosmicOrFilterTool(name, **kwargs)
+
+def getStoppedParticleFilterTool(name="G4UA::StoppedParticleFilterTool", **kwargs):
+    kwargs.setdefault("CollectionName",'StoppingPositions')
+    return  CfgMgr.G4UA__G4CosmicFilterTool(name, **kwargs)
