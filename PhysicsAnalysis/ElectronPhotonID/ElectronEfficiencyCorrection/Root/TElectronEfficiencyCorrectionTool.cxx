@@ -76,6 +76,7 @@ Root::TElectronEfficiencyCorrectionTool::TElectronEfficiencyCorrectionTool(const
     m_toyMCSF(-1),
     m_nToyMC(0),
     m_seed(0),
+    m_sLevel{0},
     m_nSys(0),
     m_nSysMax(0),
     m_runNumBegin(0),
@@ -216,16 +217,17 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
     // Reset the results to default values
     //SF,Total,Stat,Num Corr, Uncorr,GlobalBinNumber
     std::vector<double> result{-999.0,1.0,0.0,0.0,0.0,0.0}; 
-    ATH_MSG_DEBUG("(file: " << __FILE__ << ", line: " << __LINE__ << ") "  << " n Systematics: " << m_nSysMax);
     //Correlated
 
+    ATH_MSG_DEBUG("(file: " << __FILE__ << ", line: " << __LINE__ << ") "  << " n Systematics: " << m_nSysMax);
     index_of_corr=result.size();
     std::vector<size_t> position_corrSys{};
     for (int sys = 0; sys < m_nSysMax; ++sys) {
         position_corrSys.push_back(result.size());
         result.push_back(0);
-
-    }
+    } 
+    ATH_MSG_DEBUG("(file: " << __FILE__ << ", line: " << __LINE__ << ") "  << " result size " 
+                    << result.size() << " position syst size " << position_corrSys.size());
     //Toys
     index_of_toys=result.size();
     std::vector<size_t> position_uncorrToyMCSF{}; 
@@ -233,6 +235,9 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
         position_uncorrToyMCSF.push_back(result.size());
         result.push_back(0);
     }
+    ATH_MSG_DEBUG("(file: " << __FILE__ << ", line: " << __LINE__ << ") "  << " result size " 
+                    << result.size() << " position toys size " << position_uncorrToyMCSF.size());
+    
     //
     //See if fastsim
     const bool isFastSim=(dataType == PATCore::ParticleDataType::Fast) ? true: false;
@@ -407,6 +412,7 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
     }
     //
     //Do the eigen values
+    int sLevel[Root::TElectronEfficiencyCorrectionTool::detailLevelEnd]={0,0,0};
     currentVector_itr = currentmap.find(mapkey::eig); //find the vector
     if (currentVector_itr != currentmap.end()) {
         //Check on the ObjArray
@@ -414,7 +420,6 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
             //itr at the location of the vector, .second get the vector, at(runnumberIndex is the TObjectArray 
             // for the period , finaly get the hist at index (from above).
             const TH1 *eig = static_cast<TH1*>(currentVector_itr->second.at(runnumberIndex).At(index)); 
-            int sLevel[Root::TElectronEfficiencyCorrectionTool::detailLevelEnd]={0,0,0};
             int nSys = eig->GetNbinsX() - 1;
             double sign = 0;
             // Exclude small ones based on the  detail level
@@ -467,7 +472,7 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
             TH1 *uncorr = static_cast<TH1*>(currentVector_itr->second.at(runnumberIndex).At(index));
             const double valAdd = uncorr->GetBinContent(globalBinNumber);
             val = sqrt(val * val + valAdd * valAdd);
-            for (int i = 0; i < m_sLevel[m_detailLevel]; ++i) {
+            for (int i = 0; i < sLevel[m_detailLevel]; ++i) {
                 const double valAdd1 = corrSys.at(corrSys.size() - 1 - i);
                 val = sqrt(val * val + valAdd1 * valAdd1);
             }
