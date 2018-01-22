@@ -11,7 +11,6 @@ met_triggers_l1_expert = [
     ]
 
 # hlt triggers to monitor
- 
 met_triggers_hlt_shifter = [
     "HLT_xe110_pufit_L1XE50",
     "HLT_xe110_pufit_xe70_L1XE50",
@@ -26,6 +25,9 @@ met_triggers_hlt_expert = [
     "HLT_xe120_pufit_L1XE50",
     "HLT_xe120_pufit_L1XE55",
     "HLT_xe120_pufit_L1XE60",
+]
+
+# Trigger chins in 2015-2017
     #"HLT_xe120_mht_xe80_L1XE60",
         #"HLT_mu30",
         #"HLT_xs30",    
@@ -43,7 +45,7 @@ met_triggers_hlt_expert = [
         #"HLT_xe35_xeNOcut_pueta",
         #"HLT_xe35_xeNOcut_pufit",
         #"HLT_xe35_xeNOcut_mht",
-]
+
 
 monitoring_met_shifter = met_triggers_l1_shifter + met_triggers_hlt_shifter
 monitoring_met_expert = met_triggers_l1_expert + met_triggers_hlt_expert

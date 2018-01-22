@@ -43,11 +43,6 @@ private:
   
   StatusCode fillMETHist();
   
-  /** methods called by book() */
-  //void bookExpertL1Histograms();
-  //void bookExpertHLTHistograms();
-  void bookExpertEfficHistograms();
-  
   /** methods to make booking easier */
   void addL1BasicHistograms();
   void addL1ProfileHistograms(std::map<std::string, int> met_signatures_tolook);
@@ -116,16 +111,12 @@ private:
   
   bool m_print_met_trig_stats; 
   bool m_make_expert_histograms;
-  //bool m_doRecMET;
   
   std::string m_mon_path;
   std::string m_shifter_path;
   std::string m_expert_path;
   
-  //bool m_is_do_trigger_effic;
-  
   std::string m_lvl1_roi_key;
-  //std::string m_hlt_main_met_key; 
   std::string m_hlt_cell_met_key; 
   std::string m_hlt_mht_met_key; 
   std::string m_hlt_mhtem_met_key; 
@@ -150,8 +141,7 @@ private:
   // for the efficiencies                                                                                                    
   std::string m_denominator_trigger;
   TH1F *h_denominator = 0;
-
-  std::string m_numerator_trigger[4]; // = {"HLT_xe80", "HLT_xe100"};                                                        
+  std::string m_numerator_trigger[4];                                                       
   TH1F *trig_eff_num[4] = {0};
 
   // for MET significance

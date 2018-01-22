@@ -392,7 +392,6 @@ StatusCode HLTMETMonTool::proc() {
 
   std::string eff_name;
   std::string monGroupName;
-  //TH1 *h_numerator;
 
   ATH_MSG_DEBUG("in HLTMETMonTool::proc()");
 
@@ -400,32 +399,12 @@ StatusCode HLTMETMonTool::proc() {
     print_trigger_stats();
 
   // efficiency histo shifter/L1     
-
   monGroupName = m_shifter_path + "/L1";
   setCurrentMonGroup(monGroupName);
 
-
-  //eff_name = "Effh_" + m_numerator_trigger[0];
-  //h_numerator = trig_eff_num[0];
-  //h_numerator->Sumw2();
-  //h_denominator->Sumw2();
-  //if(h_denominator->GetEntries() != 0) {
-  //  ATH_MSG_DEBUG(" performing division ");
-    //hist(eff_name)->Divide(h_numerator, h_denominator);
-  //}
-
   // efficiency histos shifter/HLT   
-
   monGroupName = m_shifter_path + "/HLT";
   setCurrentMonGroup(monGroupName);
-
-
-  //for (int i_eff = 1; i_eff < 4; i_eff++){
-    //eff_name = "Effh_" + m_numerator_trigger[i_eff];
-    //hist(eff_name)->Divide(trig_eff_num[i_eff], h_denominator);
-    //ATH_MSG_DEBUG("in HLTMETMonTool::proc() filling efficiency for trigger " << m_numerator_trigger[i_eff]);
-  //}
-
 
   return StatusCode::SUCCESS;
 }
@@ -479,7 +458,6 @@ StatusCode HLTMETMonTool::fillMETHist() {
   }
   else {
     ATH_MSG_DEBUG("Accessing met(mht) with " << m_hlt_mht_met_cont->size() << " elements");
-    //std::cout << "Found mht = " << m_hlt_mht_met_key << std::endl;
   }
 
   // Get HLT mhtem container
@@ -490,7 +468,6 @@ StatusCode HLTMETMonTool::fillMETHist() {
   }
   else {
     ATH_MSG_DEBUG("Accessing met(mhtem) with " << m_hlt_mhtem_met_cont->size() << " elements");
-    //std::cout << "Found mhtem = " << m_hlt_mhtem_met_key << std::endl;
   }
 
   // Get HLT trkmht container
@@ -501,7 +478,6 @@ StatusCode HLTMETMonTool::fillMETHist() {
   }
   else {
     ATH_MSG_DEBUG("Accessing met(trkmht) with " << m_hlt_trkmht_met_cont->size() << " elements");
-    //std::cout << "Found trkmht = " << m_hlt_trkmht_met_key << std::endl;
   }
 
   // Get HLT trkmhtFTK container
@@ -512,7 +488,6 @@ StatusCode HLTMETMonTool::fillMETHist() {
   }
   else {
     ATH_MSG_DEBUG("Accessing met(trkmhtFTK) with " << m_hlt_trkmhtFTK_met_cont->size() << " elements");
-    //std::cout << "Found trkmhtFTK = " << m_hlt_trkmhtFTK_met_key << std::endl;
   }
 
   // Get HLT topocl container
@@ -610,7 +585,6 @@ StatusCode HLTMETMonTool::fillMETHist() {
     muonCollection.clear();
   } else {
     ATH_MSG_DEBUG("HLT EF Muon container DNE or is empty");
-    //return StatusCode::SUCCESS;
   }
 
   // Check if signal-like electron exists
@@ -623,26 +597,15 @@ StatusCode HLTMETMonTool::fillMETHist() {
     //ATH_MSG_INFO("HLT EF electron container exists and is not empty. Going to loop over container.");
     electronContEmpty = false;
     for (auto eg : *m_hlt_electronEFcontainer) {
-	  //ATH_MSG_INFO("--------------");
-	  //ATH_MSG_INFO("electron found in electronEFContainer");
-	  
-	  //ATH_MSG_INFO("Electron Pt: " << eg->pt()/CLHEP::GeV << " Eta: " << eg->eta() << " Phi: " << eg->phi());
-      
-      //unsigned int isEMbit = 0;
-      //ATH_MSG_INFO("Electron is loose: " << eg->selectionisEM(isEMbit,"isEMLoose"));
-      //ATH_MSG_INFO("Electron is medium: " << eg->selectionisEM(isEMbit,"isEMMedium"));
-      //ATH_MSG_INFO("Electron is tight: " << eg->selectionisEM(isEMbit,"isEMTight"));
       
       electronEtaReq = ( fabsf(eg->eta()) < 1.37 || fabsf(eg->eta()) > 1.52 ) && fabsf(eg->eta()) < 2.47; 
 
-      //if (eg->pt()/CLHEP::GeV > m_electron_pt_thresh && electronEtaReq && eg->trackParticle()) {
       if (eg->pt()/CLHEP::GeV > m_electron_pt_thresh && electronEtaReq) {
         METElectronFilled = true;
       }
     }
   } else {
     ATH_MSG_DEBUG("HLT EF electron container DNE or is empty");
-    //return StatusCode::SUCCESS;
   }
 
 
@@ -712,9 +675,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
 
   // Set primary trigger Algorithm
   std::string primary_name = m_primary_met[0];
-  //std::cout << "primary_name = " << primary_name << std::endl;
   std::string primary_algo = get_trigger_algo(primary_name);
-  //std::cout << "primary_algo = " << primary_algo << std::endl;
   ATH_MSG_DEBUG("Primary Selected Alg : " << primary_algo);
   if (primary_algo == "cell" && m_hlt_cell_met_cont && m_hlt_cell_met_cont->size()>0) {
     ATH_MSG_DEBUG("Primary Alg : Cell");
@@ -750,14 +711,11 @@ StatusCode HLTMETMonTool::fillMETHist() {
     ATH_MSG_DEBUG("Primary Alg : NONE");
     m_hlt_met = 0;
   }
-  //if(m_hlt_topocl_PUC_met_cont && m_hlt_topocl_PUC_met_cont->size()){
-  //m_hlt_met = m_hlt_topocl_PUC_met_cont->at(0);
   if (m_hlt_met) {
     hlt_ex = m_hlt_met->ex()/CLHEP::GeV; 
     hlt_ey = m_hlt_met->ey()/CLHEP::GeV; 
     hlt_ez = m_hlt_met->ez()/CLHEP::GeV;
     hlt_met = sqrt(hlt_ex*hlt_ex+hlt_ey*hlt_ey); 
-    //hlt_me  = sqrt(hlt_ex*hlt_ex+hlt_ey*hlt_ey+hlt_ez*hlt_ez);
     hlt_sumet = m_hlt_met->sumEt()/CLHEP::GeV;
     hlt_sume  = m_hlt_met->sumE()/CLHEP::GeV; 
 
@@ -766,7 +724,6 @@ StatusCode HLTMETMonTool::fillMETHist() {
     hlt_phi = v.phi();
     
     float epsilon = 1e-6;  // 1 keV
-    //if (hlt_me > epsilon)  hlt_me_log  = log10(fabsf(hlt_me)); // underflow otherwise
 
     epsilon = 1.189;
     hlt_ex_log = signed_log(hlt_ex, epsilon);
@@ -905,10 +862,8 @@ StatusCode HLTMETMonTool::fillMETHist() {
       unsigned mask = (1<<i);
       if (missETEF->flag() & mask) {
 	if(m_fill_stat && h1i) h1i->Fill(i,1.);
-	//m_status_flag[i] = 1;
       } else {
 	if(m_fill_stat && h1i) h1i->Fill(i,0);
-	//m_status_flag[i] = 0;
       }
     }
     
@@ -947,9 +902,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
     setCurrentMonGroup(monFolderName);
 
     std::string name = *it2;
-    //std::cout << "name = " << name << std::endl;
     std::string algo = get_trigger_algo(name);
-    //std::cout << "algo = " << algo << std::endl;
     ATH_MSG_DEBUG("Alternative Selected Alg : " << algo);
     if (algo == "cell" && m_hlt_cell_met_cont && m_hlt_cell_met_cont->size()>0) {
       ATH_MSG_DEBUG("Alternative Alg : Cell");
@@ -1010,7 +963,6 @@ StatusCode HLTMETMonTool::fillMETHist() {
       float tmp_hlt_significance = -9e9;
       
       float epsilon = 1e-6;  // 1 keV
-      //if (tmp_hlt_me > epsilon)  tmp_hlt_me_log  = log10(fabsf(tmp_hlt_me)); // underflow otherwise
       
       epsilon = 1.189;
       tmp_hlt_ex_log = signed_log(tmp_hlt_ex, epsilon);
@@ -1058,7 +1010,6 @@ StatusCode HLTMETMonTool::fillMETHist() {
   for (it = m_l1_met_signatures_tolook_shifter.begin(); it != m_l1_met_signatures_tolook_shifter.end(); it++) {
     std::string name = it->first;
     ATH_MSG_DEBUG("TriggerLoop: name = " << name);
-    //if (name == m_denominator_trigger) continue;
 
     if (getTDT()->isPassed(name, TrigDefs::eventAccepted)) {
       ATH_MSG_DEBUG("Passed L1 Trigger : " << name);
@@ -1152,7 +1103,6 @@ StatusCode HLTMETMonTool::fillMETHist() {
 	  m_comp_et_log = -100; // underflow
 	
 	m_comp_sum_et_lin = sumEt;
-	//m_comp_sum_e_lin = sumE;
         
 	if (fabsf(sumEt)>epsilon)
 	  m_comp_sum_et_log = copysign(log10f(fabsf(sumEt)), sumEt);
@@ -1171,7 +1121,6 @@ StatusCode HLTMETMonTool::fillMETHist() {
 	if((h2 = hist2("compN_compSumE")))      h2->Fill(i,m_comp_sum_e_log);
 	if((h2 = hist2("compN_compEt_lin")))      h2->Fill(i,m_comp_et_lin);
 	if((h2 = hist2("compN_compSumEt_lin")))      h2->Fill(i,m_comp_sum_et_lin);
-	//if((h2 = hist2("compN_compSumE_lin")))      h2->Fill(i,m_comp_sum_e_lin);
         
 	bool m_fill_stat = false;
 	if((h2 = hist2("compN_HLT_MET_status"))) m_fill_stat = true;
@@ -1192,10 +1141,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
 	double eta = v.eta();
 	double phi = v.phi();
 	
-	//if((h2 = hist2(Form("compN_EtaPhi_%02d", i))))      h2->Fill(eta, phi);
 	if((h2 = hist2(Form("compEt_lin_EtaPhi_%02d", i))))      h2->Fill(eta, phi, m_comp_et_lin);
-	//if((h2 = hist2(Form("compSumEt_lin_EtaPhi_%02d", i))))      h2->Fill(eta, phi, m_comp_sum_et_lin);
-	//if((h2 = hist2(Form("compSumE_lin_EtaPhi_%02d", i))))      h2->Fill(eta, phi, m_comp_sum_e_lin);
       }
     }
   }
@@ -1208,9 +1154,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
     setCurrentMonGroup(monFolderName);
 
     std::string name = *it2;
-    //std::cout << "name = " << name << std::endl;
     std::string algo = get_trigger_algo(name);
-    //std::cout << "algo = " << algo << std::endl;
     ATH_MSG_DEBUG("Alternative Selected Alg : " << algo);
     if (algo == "cell" && m_hlt_cell_met_cont && m_hlt_cell_met_cont->size()>0) {
       ATH_MSG_DEBUG("Alternative Alg : Cell");
@@ -1271,7 +1215,6 @@ StatusCode HLTMETMonTool::fillMETHist() {
       float tmp_hlt_significance = -9e9;
       
       float epsilon = 1e-6;  // 1 keV
-      //if (tmp_hlt_me > epsilon)  tmp_hlt_me_log  = log10(fabsf(tmp_hlt_me)); // underflow otherwise
       
       epsilon = 1.189;
       tmp_hlt_ex_log = signed_log(tmp_hlt_ex, epsilon);
@@ -1352,10 +1295,8 @@ StatusCode HLTMETMonTool::fillMETHist() {
   int electronMult = 0;
   if (electronContEmpty == false) {
     for (auto eg : *m_hlt_electronEFcontainer) {
-      //if (eg->trackParticle()) {
       if((h = hist("HLT_electronpt") )) h->Fill(eg->pt()/CLHEP::GeV);
       electronMult += 1;
-      //}
     }
     ATH_MSG_DEBUG("Electron multiciplicity: " << electronMult);
     if((h = hist("HLT_electronmult") )) h->Fill(electronMult);
@@ -1531,7 +1472,6 @@ void HLTMETMonTool::fillHLTProfileHistograms(float off_met,std::map<std::string,
     std::string name = it->first;
     std::string profname = "Eff_"+name;
     if (getTDT()->isPassed(name, TrigDefs::eventAccepted)) {
-      //trig_eff_num[i_eff]->Fill(off_met);
       if ((p = profile(profname))) p->Fill(off_met,1.0,1.0);
     } else {
       if ((p = profile(profname))) p->Fill(off_met,0.0,1.0);
@@ -1603,13 +1543,7 @@ void HLTMETMonTool::addHLTCompHistograms() {
       h2f[k]->GetYaxis()->SetLabelSize(0.03);
     }
     if (k == 9) {
-      // 10^x (x = 0.5, 1.0 1.5 ....)
-      /*std::string binlb_nc[13] = { "none", "[0-3]", "[4-9]", "[10-31]", 
-        "[32-99]", "[100-316]", "[317-999]", "[1-3.16]10^{3}", "[0.32 - 1]10^{4}", 
-        "[1 - 3.2]10^{4}", "[0.32 - 1]10^{5}", "[1 - 3.2]10^{5}", "[0.32 - 1]10^{6}" };
-        for(size_t l = 0; l < 13; l++) {*/
       h2f[k]->GetYaxis()->SetBinLabel(1,"none");
-      //}
     }
     addHistogram(h2f[k]);
   }
@@ -1623,25 +1557,6 @@ void HLTMETMonTool::addHLTCompHistograms() {
     title += ": MissingE_{T}(#eta, #phi); #eta; #phi [rad];ME_{T}/GeV";
     TH2F* h = new TH2F(name.c_str(), title.c_str(), etabins, etamin, etamax, phibins, phimin, phimax);
     addHistogram(h);
-
-    //name = Form("compN_EtaPhi_%02d", j);
-    //title = m_compNames[j];
-    //title += ": N(#eta, #phi);#eta;#phi [rad];";
-    //h = new TH2F(name.c_str(), title.c_str(), etabins, etamin, etamax, phibins, phimin, phimax);
-    //addHistogram(h);
-    
-    //name = Form("compSumEt_lin_EtaPhi_%02d", j);
-    //title = m_compNames[j];
-    //title += ": Sum |E_{T}|(#eta, #phi); #eta; #phi [rad];Sum|E_{T}|/GeV";
-    //h = new TH2F(name.c_str(), title.c_str(), etabins, etamin, etamax, phibins, phimin, phimax);
-    //addHistogram(h);
-    
-    //name = Form("compSumE_lin_EtaPhi_%02d", j);
-    //title = m_compNames[j];
-    //title += ": Sum |E|(#eta, #phi); #eta; #phi [rad];Sum|E|/GeV";
-    //h = new TH2F(name.c_str(), title.c_str(), etabins, etamin, etamax, phibins, phimin, phimax);
-    //addHistogram(h);
-    
   }
 
 }
@@ -1762,12 +1677,10 @@ void HLTMETMonTool::addElMuHistograms() {
 
   // muon histograms
   addHistogram(new TH1F("HLT_electronpt", "HLT Electron Pt (GeV)", 50, 0, 100));
-  //addHistogram(new TH1F("HLT_electroneta", "HLT Electron Eta", 25, -5, 5));
   addHistogram(new TH1F("HLT_electronmult", "HLT Electron Multiplicity", 10, 0, 10));
 
   // electron histograms
   addHistogram(new TH1F("HLT_muonpt", "HLT Muon Pt (GeV)", 200, 0, 100));
-  //addHistogram(new TH1F("HLT_muoneta", "HLT Muon Eta", 25, -5, -5));
   addHistogram(new TH1F("HLT_muonmult", "HLT Muon Multiplicity", 10, 0, 10));
 
 }

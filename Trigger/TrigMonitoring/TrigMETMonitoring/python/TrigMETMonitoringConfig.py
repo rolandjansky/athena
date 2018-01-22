@@ -66,17 +66,15 @@ met_alt_algorithms_shifter = [
 ]
 
 met_alt_algorithms_expert = [
-        #"mht_lcw",
         "mht_em",
-        #"tc_lcw",
-        #"cell",
         "pueta",
-        #"pufit",
         "trkmht_FS",
         "trkmht_FTK"
+]
+
+# algorithms in Run1
         #"feb",
         #"fex",
-]
 
 
 def HLTMETMonitoringTool():
