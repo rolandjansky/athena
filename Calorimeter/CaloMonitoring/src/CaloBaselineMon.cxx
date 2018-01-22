@@ -33,7 +33,8 @@ CaloBaselineMon::CaloBaselineMon(const std::string& type, const std::string& nam
   CaloMonToolBase(type, name, parent),
   //  m_caloMgr(nullptr),
   m_calo_id(nullptr),
-  m_bunchCrossingTool("BunchCrossingTool")
+  m_bunchCrossingTool("Trig::TrigConfBunchCrossingTool/BunchCrossingTool")
+  //  m_bunchCrossingTool("BunchCrossingTool")
 {
   declareInterface<IMonitorToolBase>(this);
 
@@ -176,32 +177,34 @@ void CaloBaselineMon::bookPartitionHistos(partitionHistos& partition, uint partN
   
   int lb_nbins = 3000;
 
+  std::string yAxisTitle = "< #Sigma E_{"+m_partNames[partNumber]+"} > [MeV]";
+
   if (m_bool_pedestalMon) {
-    std::string str_auxTitle = " Empty BCID > "+ std::to_string(m_pedestalMon_BCIDmin) +"BCID away from last train";
+    std::string str_auxTitle = " Empty bunch - BCID > "+ std::to_string(m_pedestalMon_BCIDmin) +"BCIDs away from last train";
     
     partition.hProf_pedestalMon_vs_EtaBCID.resize(m_nbOfEtaBins[partNumber]);
     for (uint iEta = 0; iEta < m_nbOfEtaBins[partNumber]; iEta ++){
-      hName  = "hprof_pedestalMon_"+m_partNames[partNumber]+"_eta"+std::to_string(iEta);
+      hName  = "hprof1d_pedestalMon_"+m_partNames[partNumber]+"_eta"+std::to_string(iEta);
       std::string str_eta0 = std::to_string( ((float) iEta)*m_etaBinWidth[partNumber]+m_etaMin[partNumber] );
       std::string str_eta1 = std::to_string( ((float) iEta + 1)*m_etaBinWidth[partNumber]+m_etaMin[partNumber] );
-      hTitle = "Pedestal baseline ( "+str_auxTitle+") - "+m_partNames[partNumber]+" - " + str_eta0 +" < eta < " + str_eta1;
+      hTitle = str_auxTitle+ " - " + str_eta0 +" < #eta < " + str_eta1;
       partition.hProf_pedestalMon_vs_EtaBCID[iEta] = TProfile_LW::create(hName.c_str(), hTitle.c_str(),m_BCID0_nbins,m_BCID0_min,m_BCID0_max);
       partition.hProf_pedestalMon_vs_EtaBCID[iEta]->GetXaxis()->SetTitle("BCID");
-      partition.hProf_pedestalMon_vs_EtaBCID[iEta]->GetYaxis()->SetTitle("");
+      partition.hProf_pedestalMon_vs_EtaBCID[iEta]->GetYaxis()->SetTitle(yAxisTitle.c_str());
       group.regHist(partition.hProf_pedestalMon_vs_EtaBCID[iEta]).ignore();  
     }      
     
     hName  = "hprof1d_pedestalMon"+m_partNames[partNumber]+"_AllEta";
-    hTitle = "Pedestal baseline ( "+str_auxTitle+") - "+m_partNames[partNumber];
+    hTitle = str_auxTitle;
     partition.hProf_pedestalMon_vs_Eta = TProfile_LW::create(hName.c_str(), hTitle.c_str(),m_nbOfEtaBins[partNumber],m_etaMin[partNumber],m_etaMax[partNumber]);
-    partition.hProf_pedestalMon_vs_Eta->GetXaxis()->SetTitle("Eta");
-    partition.hProf_pedestalMon_vs_Eta->GetYaxis()->SetTitle("Average over BCID");
+    partition.hProf_pedestalMon_vs_Eta->GetXaxis()->SetTitle("#eta");
+    partition.hProf_pedestalMon_vs_Eta->GetYaxis()->SetTitle(yAxisTitle.c_str());
     group.regHist(partition.hProf_pedestalMon_vs_Eta).ignore();  
     
     hName  = "hprof1d_pedestalMon_"+m_partNames[partNumber]+"_LB";
     partition.hProf_pedestalMon_vs_LB = TProfile_LW::create(hName.c_str(), hTitle.c_str(),lb_nbins,0,(float) lb_nbins);
     partition.hProf_pedestalMon_vs_LB->GetXaxis()->SetTitle("Luminosity block");
-    partition.hProf_pedestalMon_vs_LB->GetYaxis()->SetTitle("Average over BCID and eta");
+    partition.hProf_pedestalMon_vs_LB->GetYaxis()->SetTitle(yAxisTitle.c_str());
     group.regHist(partition.hProf_pedestalMon_vs_LB).ignore();  
   }
 
@@ -209,32 +212,32 @@ void CaloBaselineMon::bookPartitionHistos(partitionHistos& partition, uint partN
     int BCID_nbins = (int) m_bcidtoolMon_BCIDmax;
     float BCID_min = 0.;
     float BCID_max = m_bcidtoolMon_BCIDmax;
-    std::string str_auxTitle = "BCID in bunch train";
+    std::string str_auxTitle = "Filled bunch";
     
     partition.hProf_bcidtoolMon_vs_EtaBCID.resize(m_nbOfEtaBins[partNumber]);
     for (uint iEta = 0; iEta < m_nbOfEtaBins[partNumber]; iEta ++){
-      hName  = "hprof_bcidtoolMon_"+m_partNames[partNumber]+"_eta"+std::to_string(iEta);
+      hName  = "hprof1d_bcidtoolMon_"+m_partNames[partNumber]+"_eta"+std::to_string(iEta);
       std::string str_eta0 = std::to_string( ((float) iEta)*m_etaBinWidth[partNumber]+m_etaMin[partNumber] );
       std::string str_eta1 = std::to_string( ((float) iEta + 1)*m_etaBinWidth[partNumber]+m_etaMin[partNumber] );
-      hTitle = "BCIDtool baseline ( "+str_auxTitle+")-"+m_partNames[partNumber]+" - " + str_eta0 +" < eta < " + str_eta1;
+      hTitle = str_auxTitle + " - " + str_eta0 +" < #eta < " + str_eta1;
       partition.hProf_bcidtoolMon_vs_EtaBCID[iEta] = TProfile_LW::create(hName.c_str(), hTitle.c_str(),BCID_nbins,BCID_min,BCID_max);
       partition.hProf_bcidtoolMon_vs_EtaBCID[iEta]->GetXaxis()->SetTitle("BCID");
-      partition.hProf_bcidtoolMon_vs_EtaBCID[iEta]->GetYaxis()->SetTitle("");
+      partition.hProf_bcidtoolMon_vs_EtaBCID[iEta]->GetYaxis()->SetTitle(yAxisTitle.c_str());
       group.regHist(partition.hProf_bcidtoolMon_vs_EtaBCID[iEta]).ignore();  
     }
 
     
     hName  = "hprof1d_bcidtoolMon"+m_partNames[partNumber]+"_AllEta";
-    hTitle = "BCIDtool baseline ( "+str_auxTitle+") - "+m_partNames[partNumber];
+    hTitle = str_auxTitle;
     partition.hProf_bcidtoolMon_vs_Eta = TProfile_LW::create(hName.c_str(), hTitle.c_str(),m_nbOfEtaBins[partNumber],m_etaMin[partNumber],m_etaMax[partNumber]);
-    partition.hProf_bcidtoolMon_vs_Eta->GetXaxis()->SetTitle("Eta");
-    partition.hProf_bcidtoolMon_vs_Eta->GetYaxis()->SetTitle("Average over BCID");
+    partition.hProf_bcidtoolMon_vs_Eta->GetXaxis()->SetTitle("#eta");
+    partition.hProf_bcidtoolMon_vs_Eta->GetYaxis()->SetTitle(yAxisTitle.c_str());
     group.regHist(partition.hProf_bcidtoolMon_vs_Eta).ignore();  
 
     hName  = "hprof1d_bcidtoolMon"+m_partNames[partNumber]+"_LB";
     partition.hProf_bcidtoolMon_vs_LB = TProfile_LW::create(hName.c_str(), hTitle.c_str(),lb_nbins,0,(float) lb_nbins);
     partition.hProf_bcidtoolMon_vs_LB->GetXaxis()->SetTitle("Luminosity block");
-    partition.hProf_bcidtoolMon_vs_LB->GetYaxis()->SetTitle("Average over BCID and eta");
+    partition.hProf_bcidtoolMon_vs_LB->GetYaxis()->SetTitle(yAxisTitle.c_str());
     group.regHist(partition.hProf_bcidtoolMon_vs_LB).ignore();  
   }
 
@@ -260,7 +263,7 @@ StatusCode CaloBaselineMon::fillHistograms() {
 
   // Fill pedestalMon only when the bunch is empty and far away enough from the last train.
   if (m_bool_pedestalMon){
-    if ((not m_bunchCrossingTool->isFilled(bcid)) and (m_bunchCrossingTool->gapAfterBunch(bcid) >= m_pedestalMon_BCIDmin*25.)) thisEvent_bool_pedestalMon = true;
+    if ((not m_bunchCrossingTool->isFilled(bcid)) and (m_bunchCrossingTool->gapBeforeBunch(bcid) >= m_pedestalMon_BCIDmin*25.)) thisEvent_bool_pedestalMon = true;
   }
   // Fill bcidtoolMon only when the bunch is in a bunch train and within accepted BCID range.
   if (m_bool_bcidtoolMon){
