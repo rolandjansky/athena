@@ -24,7 +24,7 @@ RoadFinder::RoadFinder() :
   m_verbosity(0),
   m_datainput(0), m_roadoutput(0),
   m_nbanks(0), m_nsubs(1), m_sub(0), m_banks(0),
-  m_goodRegion(0), m_roadwarrior(0), 
+  m_goodRegion(0),
   m_SCTtrk_nlayers(11), m_SCTtrk_nsubs(1), m_SCTtrk_lastlayer(3),
   m_SCTtrk_maxMissingPlanes(0), m_sector_map(0), 
   m_SSsearch_unused(false)

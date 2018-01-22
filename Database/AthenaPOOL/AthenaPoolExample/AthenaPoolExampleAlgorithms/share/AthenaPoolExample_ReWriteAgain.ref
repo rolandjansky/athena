@@ -1,8 +1,4 @@
-Warning in <TInterpreter::ReadRootmapFile>: class  TUnfold found in libUnfold.so  is already in libHist.so 
-Warning in <TInterpreter::ReadRootmapFile>: class  TUnfoldBinning found in libUnfold.so  is already in libHist.so 
-Warning in <TInterpreter::ReadRootmapFile>: class  TUnfoldDensity found in libUnfold.so  is already in libHist.so 
-Warning in <TInterpreter::ReadRootmapFile>: class  TUnfoldSys found in libUnfold.so  is already in libHist.so 
-Tue Jan 16 09:43:11 CST 2018
+Mon Jan 22 13:12:15 CST 2018
 Preloading tcmalloc_minimal.so
 Athena               INFO including file "AthenaCommon/Preparation.py"
 Athena               INFO including file "AthenaCommon/Bootstrap.py"
@@ -10,14 +6,14 @@ Athena               INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Athena               INFO executing ROOT6Setup
 Athena               INFO including file "AthenaCommon/Execution.py"
 Athena               INFO including file "AthenaPoolExampleAlgorithms/AthenaPoolExample_ReWriteAgainJobOptions.py"
-Py:ConfigurableDb    INFO Read module info for 5435 configurables from 51 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5435 configurables from 52 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Athena               INFO including file "AthenaCommon/runbatch.py"
 [?1034hApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v30r1)
-                                          running on atlas1.hep.anl.gov on Tue Jan 16 09:43:26 2018
+                                          running on atlas1.hep.anl.gov on Mon Jan 22 13:12:30 2018
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -25,7 +21,7 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 2318 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 2319 CLIDRegistry entries for module ALL
 ChronoStatSvc        INFO  Number of skipped events for MemStat-1
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
@@ -122,7 +118,6 @@ MetaDataHdrForm...  DEBUG Branch container 'DataHeaderForm'
 MetaDataHdrForm...  DEBUG Opened container MetaDataHdrForm(DataHeaderForm) of type ROOT_Tree
 MetaDataSvc         DEBUG Loaded input meta data store proxies
 AthenaPoolAddre...  DEBUG Property update for OutputLevel : new value = 2
-AthenaPoolAddre...   INFO Initializing AthenaPoolAddressProviderSvc - package version EventSelectorAthenaPool-00-00-00
 ReadData            DEBUG input handles: 0
 ReadData            DEBUG output handles: 0
 ReadData            DEBUG Data Deps for ReadData
@@ -252,6 +247,7 @@ MetaDataHdr(Dat...  DEBUG    attributes# = 1
 MetaDataHdr(Dat...  DEBUG Branch container 'DataHeader'
 MetaDataHdr(Dat...  DEBUG Opened container MetaDataHdr(DataHeader) of type ROOT_Tree
 MetaDataSvc         DEBUG Loaded input meta data store proxies
+MetaDataSvc         DEBUG  calling beginInputFile for ToolSvc.IOVDbMetaDataTool
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 0
 EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000000].
@@ -1981,6 +1977,7 @@ MetaDataSvc         DEBUG handle() EndInputFile for FID:????
 MetaDataSvc         DEBUG handle() EndTagFile for SimplePoolReplica1.root
 MetaDataSvc         DEBUG handle() LastInputFile for end
 AthenaEventLoopMgr   INFO No more events in event selection 
+MetaDataSvc         DEBUG  calling metaDataStop for ToolSvc.IOVDbMetaDataTool
 MetaDataSvc         DEBUG Releasing MetaDataTools
 Stream1             DEBUG handle() incident type: MetaDataStop
 Stream1             DEBUG addItemObjects(167728019,"Stream1") called
@@ -2037,13 +2034,13 @@ ToolSvc              INFO Removing all tools created by ToolSvc
 *****Chrono*****     INFO ****************************************************************************************************
 *****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****     INFO ****************************************************************************************************
+commitOutput         INFO Time User   : Tot=    0 [us] Ave/Min/Max=    0(+-    0)/    0/    0 [us] #= 21
 fRep_ALL             INFO Time User   : Tot=    0 [us] Ave/Min/Max=    0(+-    0)/    0/    0 [us] #= 82
-commitOutput         INFO Time User   : Tot=   10 [ms] Ave/Min/Max=0.476(+- 2.13)/    0/   10 [ms] #= 21
 cRepR_ALL            INFO Time User   : Tot=   20 [ms] Ave/Min/Max=0.0985(+-  1.4)/    0/   20 [ms] #=203
-cRep_ALL             INFO Time User   : Tot=   30 [ms] Ave/Min/Max=0.366(+- 2.44)/    0/   20 [ms] #= 82
-cObjR_ALL            INFO Time User   : Tot=   30 [ms] Ave/Min/Max=0.462(+- 2.73)/    0/   20 [ms] #= 65
-cObj_ALL             INFO Time User   : Tot=   50 [ms] Ave/Min/Max=0.794(+- 4.47)/    0/   30 [ms] #= 63
-ChronoStatSvc        INFO Time User   : Tot= 1.15  [s]                                             #=  1
+cRep_ALL             INFO Time User   : Tot=   40 [ms] Ave/Min/Max=0.488(+- 2.66)/    0/   20 [ms] #= 82
+cObjR_ALL            INFO Time User   : Tot=   10 [ms] Ave/Min/Max=0.154(+- 1.23)/    0/   10 [ms] #= 65
+cObj_ALL             INFO Time User   : Tot=   40 [ms] Ave/Min/Max=0.635(+- 3.02)/    0/   20 [ms] #= 63
+ChronoStatSvc        INFO Time User   : Tot= 1.17  [s]                                             #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully

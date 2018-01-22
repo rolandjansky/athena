@@ -1,7 +1,7 @@
 #ifndef TRIGT1CAL_CMXEtSumsCOLLECTION_H
 #define TRIGT1CAL_CMXEtSumsCOLLECTION_H
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "TrigT1CaloEvent/CMXEtSums.h"
 
 /** Container class for CMXEtSums objects */

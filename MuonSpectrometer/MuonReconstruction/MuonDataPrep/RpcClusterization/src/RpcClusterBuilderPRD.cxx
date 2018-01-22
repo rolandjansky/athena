@@ -291,7 +291,7 @@ void RpcClusterBuilderPRD::buildClusters(Identifier elementId) {
     
     for(;dig_it!=m_digits[panelId].end();++dig_it){ // loop over patterns
 
-      const RpcReadoutElement* descriptor=m_muonMgr->getRpcReadoutElement((*dig_it).second->identify());
+      const MuonGM::RpcReadoutElement* descriptor=m_muonMgr->getRpcReadoutElement((*dig_it).second->identify());
     
       if(lastStrip==-999){ // first hit of a cluster..
 	

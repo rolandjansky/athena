@@ -26,7 +26,7 @@ FTKSetup::FTKSetup() :
    m_tot_events(0), m_EnableFTKSim(0), m_RawMode(1),
    m_SectorsAsPatterns(0),
    m_MaxMissingPlanes(1), m_MaskLayers(0), m_RoadWarrior(1),
-   m_KeepRemoved(0), m_HWModeSS(0), m_event(-1), m_MaxMissingSctPairs(0),
+   m_KeepRemoved(0), m_HWModeSS(0), m_MaxMissingSctPairs(0),
    m_restrictSctPairLayer(0), m_restrictSctPairModule(0),
    m_usage_ncalls(0),m_fixEndcapL0(false)
 {

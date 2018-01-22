@@ -257,7 +257,7 @@ namespace CP {
       bool setIso = eg.setIsolationValue(iso,type);
       setIso = (setIso && eg.setIsolationCaloCorrection(newleak,type,xAOD::Iso::ptCorrection));
       if (!setIso) {
-	      ATH_MSG_WARNING("Can't correct leakage for " << xAOD::Iso::toString(type));
+	      ATH_MSG_WARNING("Can't correct leakage for " << xAOD::Iso::toCString(type));
 	      return CP::CorrectionCode::Error;
       }
     }
@@ -293,7 +293,7 @@ namespace CP {
       bool gotIso   = eg.isolationValue(oldiso,type);
       if (!gotIso) continue;
       if (eg.pt() > 25e3) 
-	ATH_MSG_DEBUG("pt = " << eg.pt() << " eta = " << eg.eta() << ", def Iso " << xAOD::Iso::toString(type) << " = " << oldiso
+	ATH_MSG_DEBUG("pt = " << eg.pt() << " eta = " << eg.eta() << ", def Iso " << xAOD::Iso::toCString(type) << " = " << oldiso
 		      << " old leak = " << oldleak << " new leak = " << newleak);
       float iso     = oldiso + (oldleak-newleak);
       float ddcorr  = 0;
@@ -310,7 +310,7 @@ namespace CP {
       bool setIso = eg.setIsolationValue(iso,type);
       setIso = (setIso && eg.setIsolationCaloCorrection(newleak-ddcorr,type,xAOD::Iso::ptCorrection));
       if (!setIso) {
-	ATH_MSG_WARNING("Can't correct leakage for " << xAOD::Iso::toString(type));
+	ATH_MSG_WARNING("Can't correct leakage for " << xAOD::Iso::toCString(type));
       	return CP::CorrectionCode::Error;
       }
     }

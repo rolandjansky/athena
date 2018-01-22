@@ -208,19 +208,19 @@ class MuFastSteering : public HLT::FexAlgo,
 
   //WriteHandle <xAOD::L2StandAloneMuonContainer>
   SG::WriteHandleKey<xAOD::L2StandAloneMuonContainer> m_muFastContainerKey{
-	this, "MuFastDecisions", "MuFastAlg_MuonData", "Name of the output data on xAOD::L2StandAloneMuonContainer"};
+	this, "MuonL2SAInfo", "MuonL2SAInfo", "Name of the output data on xAOD::L2StandAloneMuonContainer"};
 
   //WriteHandle <xAOD::L2StandAloneMuonContainer>
   SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_muCompositeContainerKey{
-	this, "MuFastComposite", "MuFastAlg_Decisions", "Name of the decisions object attached by MuFastSteering"};
+	this, "MuonCalibrationStream", "MuonCalibrationStream", "Name of the decisions object attached by MuFastSteering"};
 
   //WriteHandle <TrigRoiDescriptor> for ID
   SG::WriteHandleKey<TrigRoiDescriptorCollection> m_muIdContainerKey{
-	this, "MuFastForID", "MuFastAlg_IdData", "Name of the output data for Inner Detector"};
+	this, "forID", "forID", "Name of the output data for Inner Detector"};
 
   //WriteHandle <TrigRoiDescriptor> for MS
   SG::WriteHandleKey<TrigRoiDescriptorCollection> m_muMsContainerKey{
-	this, "MuFastForMS", "MuFastAlg_MsData", "Name of the output data for MS"};
+	this, "forMS", "forMS", "Name of the output data for MS"};
 
   // Monitor system
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };

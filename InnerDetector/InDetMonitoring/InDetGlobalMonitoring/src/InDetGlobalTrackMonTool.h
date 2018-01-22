@@ -33,6 +33,7 @@
 #include "TrkMeasurementBase/MeasurementBase.h"
 
 #include "PixelGeoModel/IBLParameterSvc.h"
+#include "xAODJet/JetContainer.h"
 
 //Detector Managers
 #include "AtlasDetDescr/AtlasDetectorID.h"
@@ -42,6 +43,7 @@
 
 //Local
 //Framework
+#include "StoreGate/ReadHandleKey.h"
 
 #include "TrkTrack/TrackCollection.h"
 //Standard c++
@@ -143,9 +145,9 @@ private:
     ToolHandle< Trk::ITrackToVertexIPEstimator >  m_trackToVertexIPEstimator;
     ToolHandle<Trk::IUpdator>             m_iUpdator;
     
-    std::string m_CombinedTracksName;
-    std::string m_ForwardTracksName;
-    std::string m_JetsName;
+    SG::ReadHandleKey<TrackCollection> m_CombinedTracksName{this,"TrackCollection","Tracks","Combined Track Collection for Global Monitoring"};
+    SG::ReadHandleKey<TrackCollection> m_ForwardTracksName{this,"ForwardTrackCollection","ResolvedForwardTracks","Forward Track Collection for Global Monitoring"};
+    SG::ReadHandleKey<xAOD::JetContainer> m_JetsName{this,"JetCollection","AntiKt4EMTopoJets","Jet Collection for Global Track Monitoring"};
     
     //--- Shift histograms ----------------------------------------
     

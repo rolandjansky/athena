@@ -17,7 +17,6 @@
 #include "MuonCalibEventBase/MuonCalibRawMdtHit.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "MuonIdHelpers/MdtIdHelper.h"
-#include "xAODEventInfo/EventInfo.h"
 #include <vector>
 
 using CLHEP::GeV;
@@ -49,6 +48,8 @@ MuonMeanMDTdADCFillerTool::~MuonMeanMDTdADCFillerTool (void)
 StatusCode MuonMeanMDTdADCFillerTool::initialize()
 {
   ATH_MSG_INFO( "Initializing MuonMeanMDTdADCFillerTool - package version " << PACKAGE_VERSION );
+
+  ATH_CHECK(m_eventInfo.initialize());
 
   return StatusCode::SUCCESS;
 }
@@ -112,8 +113,7 @@ MuonMeanMDTdADCFillerTool::meanMDTdADCFiller (const Trk::Track& track) const
 	bool doMdtGasGainCorrectionForMc=false;// default value for DATA
 	
 	// Event information
-	const xAOD::EventInfo* eventInfo = 0; 
-	ATH_CHECK( evtStore()->retrieve( eventInfo), -9999. );
+	SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfo); 
 
 	// check if data or MC
 	if(eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION ) ){

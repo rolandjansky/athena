@@ -70,4 +70,4 @@ atlas_install_joboptions( share/*.py )
 
 atlas_add_test( TestService 
 		SCRIPT test/test_dataaccess.sh
-		PROPERTIES TIMEOUT 300)
+		PROPERTIES TIMEOUT 600)

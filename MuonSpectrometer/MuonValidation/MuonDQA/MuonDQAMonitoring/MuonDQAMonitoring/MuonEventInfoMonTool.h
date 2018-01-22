@@ -32,8 +32,6 @@
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "MuonDQAMonitoring/MuonDQAEvent.h"
  
-using namespace std;
-
 class TFile;
 template <class ConcreteAlgorithm> class AlgFactory;
 
@@ -65,20 +63,11 @@ namespace MuonDQA {
   
       StoreGateSvc* m_eventStore;
   
-      ActiveStoreSvc* m_activeStore;
-
-      int m_mdt_eventstotal; 
-      int m_mdt_event_inarea;
-  
-      bool m_in_area;
-      int m_testcounter;
-   
       //Declare Properties
  
       int m_lastEvent;
       bool m_TriggerTagAdd;             //!< property toggling if the Trigger type should be added to the EventTag 
 
-      unsigned int m_eventNumber;       //!< counter keeping track of the event
       std::string  m_eventTag;          //!< tag of the event, describing reconstruction mechanism 
     
       TH1F* m_hTriggerType; 

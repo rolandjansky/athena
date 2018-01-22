@@ -6,7 +6,7 @@
 #include "TrigT1CaloEvent/EnergyTopoData.h"
 #endif
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 CLASS_DEF( LVL1::EnergyTopoData , 134062015 , 1 )
 

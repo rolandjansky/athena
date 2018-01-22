@@ -203,13 +203,13 @@ void ForwardTransportSvc::addMcVertex(G4ThreeVector pos, double tim, G4ThreeVect
   if (m_tree) m_tree->Fill();
 }
 
-HepMC::GenEvent* ForwardTransportSvc::getEvent() {
+const HepMC::GenEvent* ForwardTransportSvc::getEvent() {
   
   const McEventCollection* mcCollptr;
   
   if (m_StoreGate->retrieve(mcCollptr, m_MCkey).isFailure()) { ATH_MSG_WARNING(" Unable to retrieve the McEventCollection! "); return 0; } 
 
-  HepMC::GenEvent* gEvent = 0;
+  const HepMC::GenEvent* gEvent = 0;
   
   for (McEventCollection::const_iterator itr = mcCollptr->begin(); itr != mcCollptr->end(); ++itr) {
     

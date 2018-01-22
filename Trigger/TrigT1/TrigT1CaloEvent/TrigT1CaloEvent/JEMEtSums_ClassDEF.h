@@ -6,8 +6,8 @@
 #include "TrigT1CaloEvent/JEMEtSums.h"
 #endif
 
-#include "CLIDSvc/CLASS_DEF.h"
-#include "DataModel/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
 
 CLASS_DEF( LVL1::JEMEtSums , 9623557 , 1 )
 CLASS_DEF( DataVector<LVL1::JEMEtSums> , 3490292 , 1 )

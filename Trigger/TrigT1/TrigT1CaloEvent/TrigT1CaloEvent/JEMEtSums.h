@@ -19,7 +19,7 @@
   #ifndef JEMEtSums_H
   #define JEMEtSums_H
   
-  #include "CLIDSvc/CLASS_DEF.h"
+  #include "AthenaKernel/CLASS_DEF.h"
 
 
   #include <iostream>

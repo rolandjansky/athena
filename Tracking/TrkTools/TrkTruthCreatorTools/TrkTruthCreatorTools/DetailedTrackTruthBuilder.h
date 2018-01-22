@@ -10,7 +10,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "TrkEventUtils/InverseMultiMap.h"

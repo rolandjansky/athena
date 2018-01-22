@@ -169,10 +169,9 @@ if InDetFlags.doMonitoringGlobal():
   if jobproperties.Beam.beamType() != 'cosmics':
       InDetGlobalManager.AthenaMonTools += [ InDetGlobalBeamSpotMonTool ]
 
-  InDetGlobalManager.PixelTrackName      = InDetKeys.PixelTracks()
-  InDetGlobalManager.SCTTrackName        = InDetKeys.SCTTracks()
-  InDetGlobalManager.TRTTrackName        = InDetKeys.TRTTracks()
   InDetGlobalManager.CombinedTrackName   = InDetKeys.UnslimmedTracks()
+  InDetGlobalManager.doTRTPhase = (InDetFlags.doTRTPhaseCalculation() and jobproperties.Beam.beamType() == 'cosmics')
+  InDetGlobalManager.doTiming = (globalflags.DataSource == 'data')
 
 if InDetFlags.doMonitoringGlobal() or InDetFlags.doMonitoringPrimaryVertexingEnhanced():
   ####################################################

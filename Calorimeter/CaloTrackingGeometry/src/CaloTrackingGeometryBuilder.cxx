@@ -38,6 +38,7 @@
 #include "TrkSurfaces/TrapezoidBounds.h"
 #include "TrkSurfaces/DiscSurface.h"
 #include "TrkSurfaces/PlaneSurface.h"
+#include <memory>
 // CLHEP
 //#include "CLHEP/Geometry/Transform3D.h"
 
@@ -748,17 +749,19 @@ const Trk::TrackingGeometry* Calo::CaloTrackingGeometryBuilder::trackingGeometry
    if (endcapBP.first)  volsEndcapPos.push_back(endcapBP.first);
    volsEndcapPos.push_back(positiveEEP);
 
-   const Trk::TrackingVolume* positiveEndcap = m_trackingVolumeCreator->createContainerTrackingVolume(volsEndcapPos,
-												      *m_caloMaterial,
-												      "Calo::Container::PositiveEndcap"); 
+   std::unique_ptr<const Trk::TrackingVolume> positiveEndcap
+     (m_trackingVolumeCreator->createContainerTrackingVolume(volsEndcapPos,
+                                                             *m_caloMaterial,
+                                                             "Calo::Container::PositiveEndcap")); 
 
    std::vector<const Trk::TrackingVolume*> volsEndcapNeg;
    if (endcapBP.second)  volsEndcapNeg.push_back(endcapBP.second);
    volsEndcapNeg.push_back(negativeEEP);
 
-   const Trk::TrackingVolume* negativeEndcap =m_trackingVolumeCreator->createContainerTrackingVolume(volsEndcapNeg,
-												     *m_caloMaterial,
-												     "Calo::Container::NegativeEndcap"); 
+   std::unique_ptr<const Trk::TrackingVolume> negativeEndcap
+     (m_trackingVolumeCreator->createContainerTrackingVolume(volsEndcapNeg,
+                                                             *m_caloMaterial,
+                                                             "Calo::Container::NegativeEndcap")); 
 
    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    // Hec sector + beam pipe + lAr cover
@@ -814,9 +817,10 @@ const Trk::TrackingGeometry* Calo::CaloTrackingGeometryBuilder::trackingGeometry
    volsHecPos.push_back(lArPositiveHec);
    volsHecPos.push_back(lArPositiveHecOuterGap);
 
-   const Trk::TrackingVolume* positiveHec = m_trackingVolumeCreator->createContainerTrackingVolume(volsHecPos,
-												   *m_caloMaterial,
-												   "Calo::Container::PositiveHec"); 
+   std::unique_ptr<const Trk::TrackingVolume> positiveHec
+     (m_trackingVolumeCreator->createContainerTrackingVolume(volsHecPos,
+                                                             *m_caloMaterial,
+                                                             "Calo::Container::PositiveHec"));
 
    std::vector<const Trk::TrackingVolume*> volsHecNeg;
    if (hecBP.second)  volsHecNeg.push_back(hecBP.second);
@@ -824,9 +828,10 @@ const Trk::TrackingGeometry* Calo::CaloTrackingGeometryBuilder::trackingGeometry
    volsHecNeg.push_back(lArNegativeHec);
    volsHecNeg.push_back(lArNegativeHecOuterGap);
 
-   const Trk::TrackingVolume* negativeHec =m_trackingVolumeCreator->createContainerTrackingVolume(volsHecNeg,
-												  *m_caloMaterial,
-												  "Calo::Container::NegativeHec"); 
+   std::unique_ptr<const Trk::TrackingVolume> negativeHec
+     (m_trackingVolumeCreator->createContainerTrackingVolume(volsHecNeg,
+                                                             *m_caloMaterial,
+                                                             "Calo::Container::NegativeHec"));
 
    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    // Fcal sector + beam pipe + lAr cover
@@ -891,9 +896,10 @@ const Trk::TrackingGeometry* Calo::CaloTrackingGeometryBuilder::trackingGeometry
    volsFcalPos.push_back(lArPositiveHecFcalCover);
    volsFcalPos.push_back(lArPositiveFcalOuterGap);
 
-   const Trk::TrackingVolume* positiveFcal = m_trackingVolumeCreator->createContainerTrackingVolume(volsFcalPos,
-												   *m_caloMaterial,
-												   "Calo::Container::PositiveFcal"); 
+   std::unique_ptr<const Trk::TrackingVolume> positiveFcal
+     (m_trackingVolumeCreator->createContainerTrackingVolume(volsFcalPos,
+                                                             *m_caloMaterial,
+                                                             "Calo::Container::PositiveFcal"));
 
    std::vector<const Trk::TrackingVolume*> volsFcalNeg;
    if (fcalBP.second)  volsFcalNeg.push_back(fcalBP.second);
@@ -902,9 +908,10 @@ const Trk::TrackingGeometry* Calo::CaloTrackingGeometryBuilder::trackingGeometry
    volsFcalNeg.push_back(lArNegativeHecFcalCover);
    volsFcalNeg.push_back(lArNegativeFcalOuterGap);
 
-   const Trk::TrackingVolume* negativeFcal =m_trackingVolumeCreator->createContainerTrackingVolume(volsFcalNeg,
-												  *m_caloMaterial,
-												  "Calo::Container::NegativeFcal"); 
+   std::unique_ptr<const Trk::TrackingVolume> negativeFcal
+     (m_trackingVolumeCreator->createContainerTrackingVolume(volsFcalNeg,
+                                                             *m_caloMaterial,
+                                                             "Calo::Container::NegativeFcal"));
 
    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    // Outer endcap sector + beam pipe
@@ -954,23 +961,23 @@ const Trk::TrackingGeometry* Calo::CaloTrackingGeometryBuilder::trackingGeometry
 							  "Calo::GapVolumes::LAr::NegativeSectorOuterGap");
 
    // glue OuterGap with beam pipe volumes
-   const Trk::TrackingVolume* positiveOuterGap = 0;
    std::vector<const Trk::TrackingVolume*> volsOuterGapP;
    if (outBP.first) volsOuterGapP.push_back(outBP.first);
    volsOuterGapP.push_back(lArPositiveSectorOuterGap0);
    volsOuterGapP.push_back(lArPositiveSectorOuterGap);
-   positiveOuterGap = m_trackingVolumeCreator->createContainerTrackingVolume(volsOuterGapP,
-									     *m_caloMaterial,
-									     "Calo::Container::PositiveOuterGap"); 
+   std::unique_ptr<const Trk::TrackingVolume> positiveOuterGap
+     (m_trackingVolumeCreator->createContainerTrackingVolume(volsOuterGapP,
+                                                             *m_caloMaterial,
+                                                             "Calo::Container::PositiveOuterGap"));
 
-   const Trk::TrackingVolume* negativeOuterGap = 0;
    std::vector<const Trk::TrackingVolume*> volsOuterGapN;
    if (outBP.second) volsOuterGapN.push_back(outBP.second);
    volsOuterGapN.push_back(lArNegativeSectorOuterGap0);
    volsOuterGapN.push_back(lArNegativeSectorOuterGap);
-   negativeOuterGap = m_trackingVolumeCreator->createContainerTrackingVolume(volsOuterGapN,
-									       *m_caloMaterial,
-									       "Calo::Container::NegativeOuterGap"); 
+   std::unique_ptr<const Trk::TrackingVolume> negativeOuterGap
+     (m_trackingVolumeCreator->createContainerTrackingVolume(volsOuterGapN,
+                                                             *m_caloMaterial,
+                                                             "Calo::Container::NegativeOuterGap"));
 
    ATH_MSG_DEBUG( "Endcap volumes ready" );
 
@@ -979,13 +986,13 @@ const Trk::TrackingGeometry* Calo::CaloTrackingGeometryBuilder::trackingGeometry
    // +++ has 4 sub volumes in Z
    std::vector<const Trk::TrackingVolume*> lArNegativeSectorVolumes;
    // +++ (A) -> Outer sector 
-   lArNegativeSectorVolumes.push_back(negativeOuterGap);	 
+   lArNegativeSectorVolumes.push_back(negativeOuterGap.release());
    // +++ (B) -> Fcal sector
-   lArNegativeSectorVolumes.push_back(negativeFcal);	 
+   lArNegativeSectorVolumes.push_back(negativeFcal.release());
    // +++ (C) -> Hec sector
-   lArNegativeSectorVolumes.push_back(negativeHec);
+   lArNegativeSectorVolumes.push_back(negativeHec.release());
    // +++ (D) -> Endcap sector
-   lArNegativeSectorVolumes.push_back(negativeEndcap);
+   lArNegativeSectorVolumes.push_back(negativeEndcap.release());
    // +++ all exists : create super volume (ii)
    lArNegativeSector = m_trackingVolumeCreator->createContainerTrackingVolume( lArNegativeSectorVolumes,
 									       *m_caloMaterial,
@@ -996,13 +1003,13 @@ const Trk::TrackingGeometry* Calo::CaloTrackingGeometryBuilder::trackingGeometry
    // +++ has 4 sub volumes in Z
    std::vector<const Trk::TrackingVolume*> lArPositiveSectorVolumes;
    // +++ (A) -> Endcap sector
-   lArPositiveSectorVolumes.push_back(positiveEndcap);	 
+   lArPositiveSectorVolumes.push_back(positiveEndcap.release());	 
    // +++ (B) -> Hec sector
-   lArPositiveSectorVolumes.push_back(positiveHec);
+   lArPositiveSectorVolumes.push_back(positiveHec.release());
    // +++ (C) -> Fcal sector
-   lArPositiveSectorVolumes.push_back(positiveFcal);
+   lArPositiveSectorVolumes.push_back(positiveFcal.release());
    // +++ (D) -> OuterGap
-   lArPositiveSectorVolumes.push_back(positiveOuterGap);
+   lArPositiveSectorVolumes.push_back(positiveOuterGap.release());
    // +++ all exists : create super volume (ii)
    lArPositiveSector = m_trackingVolumeCreator->createContainerTrackingVolume( lArPositiveSectorVolumes,
 									       *m_caloMaterial,

@@ -14,9 +14,9 @@
 #ifndef TRKV0VERTEX_V0CONTAINER_H
 #define TRKV0VERTEX_V0CONTAINER_H
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "TrkV0Vertex/V0Candidate.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
   class V0Container : public DataVector<Trk::V0Candidate> 
   {

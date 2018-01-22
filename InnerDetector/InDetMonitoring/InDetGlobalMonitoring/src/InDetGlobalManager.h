@@ -26,7 +26,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
-
+#include "StoreGate/ReadHandleKey.h"
 
 //Standard c++
 #include <string>
@@ -54,25 +54,36 @@ private:
     ///@name storegatenames
     ///Names of objects to retrieve and feed into the monitoring AlgTools
     ///@{
-
-    /// Name of SCT tracks container
-    std::string m_SCTTracksName;
-
-    /// Name of TRT tracks container
-    std::string m_TRTTracksName;
-
-    /// Name of pixel tracks container
-    std::string m_PIXTracksName;
-
     /// Name of combined inner detector tracks container
-    std::string m_CombinedTracksName;
+    SG::ReadHandleKey<TrackCollection> m_CombinedTracksName{this,"CombinedTrackName", "ExtendedTracks", "Combined Track Collection For Monitoring"};
+ 
     const TrackCollection *m_CombinedTracks;
 
     /// Name of trt drift circle container
-    std::string m_TRT_DriftCircleName;
+    SG::ReadHandleKey<InDet::TRT_DriftCircleContainer> m_TRT_DriftCircleName{this,"TRT_DriftCircleName", "TRT_DriftCircles", "TRT Drift Circle Collection For Monitoring"};
+
+    SG::ReadHandleKey<BCM_RDO_Container> m_BCM_RDOs{this, "BCMRDOName", "BCM_RDOs", "BCM Clusters for Monitoring"};
+    SG::ReadHandleKey<PixelRDO_Container> m_PixelRDOs{this, "PixelRDOName", "PixelRDOs", "Pixel Clusters for Monitoring"};
+    SG::ReadHandleKey<SCT_RDO_Container> m_SCT_RDOs{this, "SCTRDOName", "SCT_RDOs", "SCT Clusters for monitoring"};
+    SG::ReadHandleKey<InDetTimeCollection> m_PixelLVL1ID{this, "PixelLVL1IDName", "PixelLVL1ID", "Pixel LVL1 ID for Monitoring"};
+    SG::ReadHandleKey<InDetTimeCollection> m_SCT_LVL1ID{this, "SCTLVL1IDName", "SCT_LVL1ID", "SCT LVL1 ID for Monitoring"};
+    SG::ReadHandleKey<InDetTimeCollection> m_TRT_LVL1ID{this, "TRTLVL1IDName", "TRT_LVL1ID", "TRT LVL1 ID for Monitoring"};
+    SG::ReadHandleKey<InDetTimeCollection> m_PixelBCID{this, "PixelBCIDName", "PixelBCID", "Pixel BCID for Monitoring"};
+    SG::ReadHandleKey<InDetTimeCollection> m_SCT_BCID{this, "SCTBCIDName", "SCT_BCID", "SCT BCID for Monitoring"};
+    SG::ReadHandleKey<InDetTimeCollection> m_TRT_BCID{this, "TRTBCIDName", "TRT_BCID", "TRT BCID For Monitoring"};
+    SG::ReadHandleKey<ComTime> m_TRT_Phase{this, "TRTPhaseName", "TRT_Phase", "TRT Phase for Monitoring"};
+    
+    
     ///@}
 
-    bool m_doTopBottom;   
+    //bool m_doTopBottom;   
+    Gaudi::Property<bool> m_doTopBottom{this,"doTopBottom", false, "Check differences between top and bottom of detector (seems deprecated...)"};
+    Gaudi::Property<bool> m_doPixel{this, "doPixel", true, "Pixel is available in this data"};
+    Gaudi::Property<bool> m_doSCT{this, "doSCT", true, "SCT is available in this data"};
+    Gaudi::Property<bool> m_doTRT{this, "doTRT", true, "TRT is available in this data"};
+   Gaudi::Property<bool> m_doBCM{this, "doBCM", true, "BCM is available in this data"};  
+   Gaudi::Property<bool> m_doTiming{this, "doTiming", true, "Timing containers are available (data, not MC)"};
+   Gaudi::Property<bool> m_doTRTPhase{this, "doTRTPhase", false, "TRT Phase Information available (cosmics)"};
 
 }; //end of class
 

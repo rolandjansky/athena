@@ -1,7 +1,7 @@
 #ifndef TRIGT1CAL_CMXCPHitsCOLLECTION_H
 #define TRIGT1CAL_CMXCPHitsCOLLECTION_H
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "TrigT1CaloEvent/CMXCPHits.h"
 
 /** Container class for CMXCPHits objects */

@@ -101,9 +101,11 @@ namespace Trk
 	FastVertexFitter::FastVertexFitter ( const std::string& t, const std::string& n, const IInterface*  p ) : AthAlgTool ( t,n,p ),
 														  m_maxIterations ( 3 ),
 														  m_maxDchi2PerNdf ( 0.000001 ),
+														  m_error (NOTRKS),
 														  m_extrapolator ( "Trk::Extrapolator" ),
 														  m_linFactory ( "Trk::FullLinearizedTrackFactory" ),
-														   m_xaodConverter("Trk::VxCandidateXAODVertex")
+														  m_xaodConverter("Trk::VxCandidateXAODVertex")
+														  
 														  
 	{
 	  declareProperty ( "MaxIterations",        m_maxIterations );

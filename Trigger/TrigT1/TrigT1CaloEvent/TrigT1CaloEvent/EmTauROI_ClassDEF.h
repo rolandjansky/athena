@@ -2,8 +2,8 @@
 #define EmTauROI_ClassDEF_H
 //Put here the CLASS_DEF macros for the STL containers you put in StoreGate
 #include "TrigT1CaloEvent/EmTauROI.h"
-#include "CLIDSvc/CLASS_DEF.h"
-#include "DataModel/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
 
 
 CLASS_DEF(LVL1::EmTauROI,  6200, 1)

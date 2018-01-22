@@ -1,7 +1,7 @@
 #ifndef TRIGT1CAL_CMXCPTobCOLLECTION_H
 #define TRIGT1CAL_CMXCPTobCOLLECTION_H
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "TrigT1CaloEvent/CMXCPTob.h"
 
 /** Container class for CMXCPTob objects */

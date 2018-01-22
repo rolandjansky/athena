@@ -13,7 +13,6 @@
 #include <memory>
 
 // Gaudi/Athena include(s):
-#include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaPoolKernel/IMetaDataTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -37,7 +36,6 @@ namespace xAODMaker {
    /// $Date: 2015-03-05 15:16:19 +0100 (Thu, 05 Mar 2015) $
    ///
    class EventFormatMetaDataTool : public virtual ::IMetaDataTool,
-                                   public virtual ::IIncidentListener,
                                    public ::AthAlgTool {
 
    public:
@@ -48,9 +46,16 @@ namespace xAODMaker {
       /// Function initialising the tool
       virtual StatusCode initialize();
 
-      /// Function called by the incident service
-      virtual void handle( const Incident& inc );
-
+      /// Function called when a new input file is opened
+      virtual StatusCode beginInputFile();
+  
+      /// Function called when the currently open input file got completely
+      /// processed
+      virtual StatusCode endInputFile();
+  
+      /// Function called when the tool should write out its metadata
+      virtual StatusCode metaDataStop();
+  
    private:
       /// Function collecting the event format metadata from the input file
       StatusCode collectMetaData();

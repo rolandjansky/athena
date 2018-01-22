@@ -75,12 +75,14 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", athFile=None, seq=None, addAlgInPlac
     from EventBookkeeperTools.EventBookkeeperToolsConf import BookkeeperTool
 
     # Standard event bookkeepers
+    print "BLARG 1"
     inname = "CutBookkeepers"
     outname = "CutBookkeepers"
-    cutflowtool = BookkeeperTool(outname,
+    cutflowtool = BookkeeperTool(outname+"Tool",
                                  InputCollName = inname,
                                  OutputCollName= outname) 
     svcMgr.ToolSvc += cutflowtool
+    print "BLARG 2",inname,outname
 
     # Add tool to MetaDataSvc
     svcMgr.MetaDataSvc.MetaDataTools += [cutflowtool]
@@ -170,6 +172,6 @@ def CreateBookkeeperTool( name="CutBookkeepers" ):
   svcMgr.ToolSvc += cutflowtool
 
   # Add tool to MetaDataSvc
-  svcMgr.MetaDataSvc.MetaDataTools += [cutflowtool]
+  #svcMgr.MetaDataSvc.MetaDataTools += [cutflowtool]
 
   return

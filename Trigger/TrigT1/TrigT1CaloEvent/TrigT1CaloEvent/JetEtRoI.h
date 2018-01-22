@@ -20,7 +20,7 @@
 
 // Gaudi kernel stuff.
 #include "GaudiKernel/DataObject.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 namespace LVL1 {
 

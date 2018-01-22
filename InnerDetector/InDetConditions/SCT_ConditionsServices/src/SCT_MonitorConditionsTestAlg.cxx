@@ -37,7 +37,6 @@ SCT_MonitorConditionsTestAlg::SCT_MonitorConditionsTestAlg( const std::string& n
 
 SCT_MonitorConditionsTestAlg::~SCT_MonitorConditionsTestAlg()
 { 
-  msg(MSG::INFO) << "Calling destructor" << endmsg;
 }
 
 // -------------------------------------------------------------------------

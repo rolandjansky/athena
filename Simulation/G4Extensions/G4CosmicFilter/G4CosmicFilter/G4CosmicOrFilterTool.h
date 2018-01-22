@@ -6,27 +6,33 @@
 #define G4COSMICFILTER_G4UA__G4COSMICORFILTERTOOL_H
 
 #include "G4AtlasInterfaces/IG4EventActionTool.h"
-#include "G4AtlasTools/ActionToolBase.h"
+#include "G4AtlasTools/UserActionToolBase.h"
 #include "G4CosmicFilter/G4CosmicOrFilter.h"
 
 namespace G4UA
 {
 
-  class G4CosmicOrFilterTool : public ActionToolBaseReport<G4CosmicOrFilter>,
-                               public IG4EventActionTool
+  class G4CosmicOrFilterTool : public UserActionToolBase<G4CosmicOrFilter>
   {
+
     public:
-      G4CosmicOrFilterTool(const std::string& type, const std::string& name,const IInterface* parent);
 
-      virtual G4UserEventAction* getEventAction() override final
-      { return static_cast<G4UserEventAction*>( getAction() ); }
+      /// Standard constructor
+      G4CosmicOrFilterTool(const std::string& type, const std::string& name,
+                           const IInterface* parent);
 
-      virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
       virtual StatusCode finalize() override;
+
     protected:
-      virtual std::unique_ptr<G4CosmicOrFilter> makeAction() override final;
+
+      /// Create action for this thread
+      virtual std::unique_ptr<G4CosmicOrFilter>
+      makeAndFillAction(G4AtlasUserActions&) override final;
+
     private:
+
       G4CosmicOrFilter::Config m_config;
+
   }; // class G4CosmicOrFilterTool
 
 } // namespace G4UA

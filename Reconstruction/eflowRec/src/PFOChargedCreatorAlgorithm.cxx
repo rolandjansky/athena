@@ -31,7 +31,7 @@ void PFOChargedCreatorAlgorithm::execute(const eflowCaloObject& energyFlowCaloOb
 
   SG::ReadHandle<xAOD::VertexContainer> vertexContainerReadHandle(m_vertexContainerReadHandleKey);
   const xAOD::VertexContainer* theVertexContainer = vertexContainerReadHandle.ptr();  
-  addVertexLinksToChargedPFO(*theVertexContainer, chargedPFOContainerWriteHandle);
+  addVertexLinksToChargedPFO(theVertexContainer, chargedPFOContainerWriteHandle);
   
 }
 
@@ -126,13 +126,13 @@ void PFOChargedCreatorAlgorithm::createChargedPFO(const eflowCaloObject& energyF
   }//loop over the tracks on the eflowCaloObject
 }
 
-void PFOChargedCreatorAlgorithm::addVertexLinksToChargedPFO(const xAOD::VertexContainer& theVertexContainer, SG::WriteHandle<xAOD::PFOContainer>& chargedPFOContainerWriteHandle){
+void PFOChargedCreatorAlgorithm::addVertexLinksToChargedPFO(const xAOD::VertexContainer* theVertexContainer, SG::WriteHandle<xAOD::PFOContainer>& chargedPFOContainerWriteHandle){
 
   //This is a loop on all xAOD::PFO with non-zero charge
   for (auto theChargedPFO : *(chargedPFOContainerWriteHandle.ptr())){
     const xAOD::TrackParticle* theTrack = theChargedPFO->track(0);
     if (theTrack){
-      ElementLink< xAOD::VertexContainer> theVertexLink = m_trackVertexAssociationTool->getUniqueMatchVertexLink(*theTrack,theVertexContainer);
+      ElementLink< xAOD::VertexContainer> theVertexLink = m_trackVertexAssociationTool->getUniqueMatchVertexLink(*theTrack,*theVertexContainer);
       bool haveSetLink = theChargedPFO->setVertexLink(theVertexLink);
       if (!haveSetLink) ATH_MSG_WARNING(" Could not set vertex link on charged PFO");
     }//if valid pointer to xAOD::TrackParticle

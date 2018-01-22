@@ -6,8 +6,8 @@
 #include "TrigT1CaloEvent/CPCMXTopoData.h"
 #endif
 
-#include "CLIDSvc/CLASS_DEF.h"
-#include "DataModel/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
 
 CLASS_DEF( LVL1::CPCMXTopoData , 195717641 , 1 )
 CLASS_DEF( DataVector<LVL1::CPCMXTopoData> , 51414472 , 1 )
