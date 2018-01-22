@@ -41,17 +41,7 @@ class AnaAlgorithmConfig( ROOT.EL.AnaAlgorithmConfig ):
         """
 
         # Call the base class's constructor:
-        super( AnaAlgorithmConfig, self ).__init__()
-
-        # Interpret the typeAndName argument:
-        pos = typeAndName.find( '/' )
-        if pos == -1:
-            self.setType( typeAndName )
-            self.setName( typeAndName )
-        else:
-            self.setType( typeAndName[ 0 : pos ] )
-            self.setName( typeAndName[ pos + 1 : ] )
-            pass
+        super( AnaAlgorithmConfig, self ).__init__( typeAndName )
 
         # Initialise the properties of the algorihm:
         self._props = {}
