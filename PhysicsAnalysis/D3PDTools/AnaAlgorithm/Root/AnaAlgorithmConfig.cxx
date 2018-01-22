@@ -41,6 +41,17 @@ namespace EL
 
 
 
+  AnaAlgorithmConfig ::
+  AnaAlgorithmConfig (const std::string& val_typeAndName)
+    : AnaAlgorithmConfig ()
+  {
+    setTypeAndName (val_typeAndName);
+
+    // no invariant used
+  }
+
+
+
   const std::string& AnaAlgorithmConfig ::
   type () const noexcept
   {
@@ -73,6 +84,24 @@ namespace EL
   {
     RCU_CHANGE_INVARIANT (this);
     m_name = val_name;
+  }
+
+
+
+  void AnaAlgorithmConfig ::
+  setTypeAndName (const std::string& val_typeAndName)
+  {
+    // no invariant used
+    const auto split = val_typeAndName.find ('/');
+    if (split == std::string::npos)
+    {
+      setType (val_typeAndName);
+      setName (val_typeAndName);
+    } else
+    {
+      setType (val_typeAndName.substr (0,split));
+      setName (val_typeAndName.substr (split+1));
+    }
   }
 
 
