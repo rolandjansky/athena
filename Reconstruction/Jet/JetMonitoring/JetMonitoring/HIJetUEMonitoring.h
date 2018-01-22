@@ -18,8 +18,6 @@
 #include "TH2.h"
 #include "TProfile.h"
 
-using namespace xAOD;
-
 class HIJetUEMonitoring : public JetHistoBase {
   ASG_TOOL_CLASS0(HIJetUEMonitoring);
  public:
