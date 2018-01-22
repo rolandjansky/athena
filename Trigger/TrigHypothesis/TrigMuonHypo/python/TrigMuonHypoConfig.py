@@ -1806,10 +1806,6 @@ class TrigMuonEFMSonlyHypoConfig(TrigMuonEFMSonlyHypoAlg) :
             th = re.findall(r'[0-9]+', bname[1])           
             threshold = str(th[0]) + 'GeV'
             TrigMuonEFMSonlyHypoConfig().ConfigrationHypoTool( name, nath, threshold )
-        #if len(bname) == 3:
-        #    th = re.findall(r'[0-9]+', bname[1])           
-        #    threshold = str(th[0]) + 'GeV_' + str(bname[2])
-        #    TrigMufastHypoConfig().ConfigrationHypoTool( name, nath, threshold )
         else:
             print """ Configration ERROR: Can't configure threshold at TrigMuonEFMSonlyHypoTool """
             return tool
