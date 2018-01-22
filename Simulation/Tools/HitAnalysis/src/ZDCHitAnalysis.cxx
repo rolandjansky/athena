@@ -20,14 +20,14 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ZDCHitAnalysis::ZDCHitAnalysis(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator)
-  , h_zdc_sidea_0(0)
-  , h_zdc_sidea_1(0)
-  , h_zdc_sidea_2(0)
-  , h_zdc_sidea_3(0)
-  , h_zdc_sidec_0(0)
-  , h_zdc_sidec_1(0)
-  , h_zdc_sidec_2(0)
-  , h_zdc_sidec_3(0)
+  , m_h_zdc_sidea_0(0)
+  , m_h_zdc_sidea_1(0)
+  , m_h_zdc_sidea_2(0)
+  , m_h_zdc_sidea_3(0)
+  , m_h_zdc_sidec_0(0)
+  , m_h_zdc_sidec_1(0)
+  , m_h_zdc_sidec_2(0)
+  , m_h_zdc_sidec_3(0)
   , m_zdc_strip_side(0)
   , m_zdc_strip_mod(0)
   , m_zdc_strip_energy(0)
@@ -50,37 +50,37 @@ StatusCode ZDCHitAnalysis::initialize() {
   CHECK(m_thistSvc.retrieve());
  
   /** Histograms*/
-  h_zdc_sidea_0 = new TH1D("m_edep_side_a0","edep_side_a0", 100,0, 1000);
-  h_zdc_sidea_0->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_zdc_sidea_0->GetName(), h_zdc_sidea_0));
+  m_h_zdc_sidea_0 = new TH1D("m_edep_side_a0","edep_side_a0", 100,0, 1000);
+  m_h_zdc_sidea_0->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_zdc_sidea_0->GetName(), m_h_zdc_sidea_0));
 
-  h_zdc_sidea_1 = new TH1D("m_edep_side_a1","edep_side_a1", 100,0, 1000);
-  h_zdc_sidea_1->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_zdc_sidea_1->GetName(), h_zdc_sidea_1));
+  m_h_zdc_sidea_1 = new TH1D("m_edep_side_a1","edep_side_a1", 100,0, 1000);
+  m_h_zdc_sidea_1->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_zdc_sidea_1->GetName(), m_h_zdc_sidea_1));
 
-  h_zdc_sidea_2 = new TH1D("m_edep_side_a2","edep_side_a2", 100,0, 1000);
-  h_zdc_sidea_2->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_zdc_sidea_2->GetName(), h_zdc_sidea_2));
+  m_h_zdc_sidea_2 = new TH1D("m_edep_side_a2","edep_side_a2", 100,0, 1000);
+  m_h_zdc_sidea_2->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_zdc_sidea_2->GetName(), m_h_zdc_sidea_2));
 
-  h_zdc_sidea_3 = new TH1D("m_edep_side_a3","edep_side_a3", 100,0, 1000);
-  h_zdc_sidea_3->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_zdc_sidea_3->GetName(), h_zdc_sidea_3));
+  m_h_zdc_sidea_3 = new TH1D("m_edep_side_a3","edep_side_a3", 100,0, 1000);
+  m_h_zdc_sidea_3->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_zdc_sidea_3->GetName(), m_h_zdc_sidea_3));
 
-  h_zdc_sidec_0 = new TH1D("m_edep_side_c0","edep_side_c0", 100,0, 1000);
-  h_zdc_sidec_0->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_zdc_sidec_0->GetName(), h_zdc_sidec_0));
+  m_h_zdc_sidec_0 = new TH1D("m_edep_side_c0","edep_side_c0", 100,0, 1000);
+  m_h_zdc_sidec_0->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_zdc_sidec_0->GetName(), m_h_zdc_sidec_0));
 
-  h_zdc_sidec_1 = new TH1D("m_edep_side_c1","edep_side_c1", 100,0, 1000);
-  h_zdc_sidec_1->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_zdc_sidec_1->GetName(), h_zdc_sidec_1));
+  m_h_zdc_sidec_1 = new TH1D("m_edep_side_c1","edep_side_c1", 100,0, 1000);
+  m_h_zdc_sidec_1->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_zdc_sidec_1->GetName(), m_h_zdc_sidec_1));
 
-  h_zdc_sidec_2 = new TH1D("m_edep_side_c2","edep_side_c2", 100,0, 1000);
-  h_zdc_sidec_2->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_zdc_sidec_2->GetName(), h_zdc_sidec_2));
+  m_h_zdc_sidec_2 = new TH1D("m_edep_side_c2","edep_side_c2", 100,0, 1000);
+  m_h_zdc_sidec_2->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_zdc_sidec_2->GetName(), m_h_zdc_sidec_2));
 
-  h_zdc_sidec_3 = new TH1D("m_edep_side_c3","edep_side_c3", 100,0, 1000);
-  h_zdc_sidec_3->StatOverflows();
-  CHECK(m_thistSvc->regHist(m_path + h_zdc_sidec_3->GetName(), h_zdc_sidec_3));
+  m_h_zdc_sidec_3 = new TH1D("m_edep_side_c3","edep_side_c3", 100,0, 1000);
+  m_h_zdc_sidec_3->StatOverflows();
+  CHECK(m_thistSvc->regHist(m_path + m_h_zdc_sidec_3->GetName(), m_h_zdc_sidec_3));
 
 
   /** now add branches and leaves to the tree */
@@ -134,32 +134,32 @@ StatusCode ZDCHitAnalysis::execute() {
     if (side_pix==1) {
       switch (mod_strip) {
       case 0:
-	h_zdc_sidea_0->Fill(ene_strip);
+	m_h_zdc_sidea_0->Fill(ene_strip);
 	break;
       case 1:
-	h_zdc_sidea_1->Fill(ene_strip);
+	m_h_zdc_sidea_1->Fill(ene_strip);
 	break;
       case 2:
-	h_zdc_sidea_2->Fill(ene_strip);
+	m_h_zdc_sidea_2->Fill(ene_strip);
 	break;
       case 3:
-	h_zdc_sidea_3->Fill(ene_strip);
+	m_h_zdc_sidea_3->Fill(ene_strip);
 	break;
       }
     }
     else {
       switch (mod_strip) {
       case 0:
-	h_zdc_sidec_0->Fill(ene_strip);
+	m_h_zdc_sidec_0->Fill(ene_strip);
 	break;
       case 1:
-	h_zdc_sidec_1->Fill(ene_strip);
+	m_h_zdc_sidec_1->Fill(ene_strip);
 	break;
       case 2:
-	h_zdc_sidec_2->Fill(ene_strip);
+	m_h_zdc_sidec_2->Fill(ene_strip);
 	break;
       case 3:
-	h_zdc_sidec_3->Fill(ene_strip);
+	m_h_zdc_sidec_3->Fill(ene_strip);
 	break;
       }
     }
@@ -177,32 +177,32 @@ StatusCode ZDCHitAnalysis::execute() {
     if (side_pix==1) {
       switch (mod_pix) {
       case 0:
-	h_zdc_sidea_0->Fill(ene_pix);
+	m_h_zdc_sidea_0->Fill(ene_pix);
 	break;
       case 1:
-	h_zdc_sidea_1->Fill(ene_pix);
+	m_h_zdc_sidea_1->Fill(ene_pix);
 	break;
       case 2:
-	h_zdc_sidea_2->Fill(ene_pix);
+	m_h_zdc_sidea_2->Fill(ene_pix);
 	break;
       case 3:
-	h_zdc_sidea_3->Fill(ene_pix);
+	m_h_zdc_sidea_3->Fill(ene_pix);
 	break;
       }
     }
     else {
       switch (mod_pix) {
       case 0:
-	h_zdc_sidec_0->Fill(ene_pix);
+	m_h_zdc_sidec_0->Fill(ene_pix);
 	break;
       case 1:
-	h_zdc_sidec_1->Fill(ene_pix);
+	m_h_zdc_sidec_1->Fill(ene_pix);
 	break;
       case 2:
-	h_zdc_sidec_2->Fill(ene_pix);
+	m_h_zdc_sidec_2->Fill(ene_pix);
 	break;
       case 3:
-	h_zdc_sidec_3->Fill(ene_pix);
+	m_h_zdc_sidec_3->Fill(ene_pix);
 	break;
       }
     }

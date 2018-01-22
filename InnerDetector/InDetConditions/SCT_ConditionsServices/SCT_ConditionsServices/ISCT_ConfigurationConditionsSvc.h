@@ -52,7 +52,7 @@ public:
   /** Map of chips status for all modules with at least one bad chip (packed as 1st 12 bits of unsigned int)*/
   virtual std::map<Identifier, unsigned int>*            badChips()                                                                                          = 0;  
   /** Chips status for a particular module (packed as 1st 12 bits of unsigned int)*/ 
-  virtual unsigned int                                   badChips(const Identifier & moduleId)                                                                       = 0;  
+  virtual unsigned int                                   badChips(const Identifier & moduleId) const                                                                      = 0;
 
   /** Set of bad strip Identifiers */ 
   virtual void                                           badStrips(std::set<Identifier>& strips, bool ignoreBadModules = false, bool ignoreBadChips = false) = 0;  
@@ -60,7 +60,7 @@ public:
   virtual void                                           badStrips(const Identifier & moduleId, std::set<Identifier>& strips, bool ignoreBadModules = false, bool ignoreBadChips = false) = 0;
 
   /** Get the chip number containing a particular strip*/
-  virtual int                                            getChip(const Identifier & stripId) = 0;
+  virtual int                                            getChip(const Identifier & stripId) const = 0;
 
 private:
 

@@ -142,6 +142,9 @@ parser.add_option('', '--scans', dest='scans', default='', help='comma-separated
 parser.add_option('', '--acqFlag', dest='acqFlag', default = False, action='store_true', help='Cut on AcquistionFlag=1.0 for stationary points of VdM scan')
 parser.add_option('', '--overlayScans', dest='overlayScans', default = False, action='store_true', help='overlay VdM scans on same plot')
 parser.add_option('', '--useAve', dest='useAve', action='store_true', default=False, help='Average over poor fits in the beamspot -- performed during merging step')
+parser.add_option('', '--database', dest='database', default='COOLOFL_INDET/CONDBR2', help='DB to read beamspot info from when -s BeamSpotCOOL is enabled and running merge')
+parser.add_option('', '--dbfolder', dest='dbfolder', default='/Indet/Beampos', help='Folder to read beamspot info from when -s BeamSpotCOOL is enabled and running merge')
+
 (options,args) = parser.parse_args()
 if len(args) < 1:
     parser.error('wrong number of command line arguments')
@@ -1162,7 +1165,12 @@ if cmd=='inspect' and len(args)==1:
 #
 if cmd=='merge' and len(args)==2:
     srcNtClass = locals()[options.srctype]
-    srcNt = srcNtClass(args[1],fullCorrelations=options.fullCorrelations)
+    if (options.srctype == 'BeamSpotCOOL'):
+      print '\n Reading in from database '
+      srcNt = srcNtClass(args[1],database=options.database,folder=options.dbfolder,fullCorrelations=options.fullCorrelations)
+    else :
+      srcNt = srcNtClass(args[1],fullCorrelations=options.fullCorrelations)
+
     setCuts(srcNt)
     print '\nImporting from '+srcNt.summary()
     print srcNt.cutSummary()

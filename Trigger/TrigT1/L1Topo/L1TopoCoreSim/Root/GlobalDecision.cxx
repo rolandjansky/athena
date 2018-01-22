@@ -8,6 +8,7 @@
 #include "L1TopoCoreSim/GlobalDecision.h"
 #include "L1TopoCoreSim/DecisionConnector.h"
 #include "L1TopoCommon/Exception.h"
+#include "L1TopoInterfaces/DecisionAlg.h"
 
 using namespace std;
 using namespace TCS;
@@ -112,8 +113,7 @@ operator<<(std::ostream& o, const TCS::GlobalDecision & dec) {
    
    return o;
 }
-
-
+//----------------------------------------------------------
 void
 GlobalDecision::print() const {
 
@@ -133,6 +133,4 @@ GlobalDecision::print() const {
    }
    
 }
-
-
 }

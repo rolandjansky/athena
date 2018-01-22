@@ -62,7 +62,7 @@ class ForwardRegionGeoModelFactory : public GeoVDetectorFactory  {
   
  private:
 
-  StoreGateSvc             *detectorStore;
+  StoreGateSvc             *m_detectorStore;
 
   // map of defined materials
   std::map<std::string,const GeoMaterial*> m_MapMaterials;
@@ -103,7 +103,7 @@ class ForwardRegionGeoModelFactory : public GeoVDetectorFactory  {
   ForwardRegionGeoModelFactory(const ForwardRegionGeoModelFactory &right);
   
   // The manager:
-  ForwardRegionGeoModelManager       *detectorManager;
+  ForwardRegionGeoModelManager       *m_detectorManager;
 };
 
 // Class ForwardRegionGeoModelFactory

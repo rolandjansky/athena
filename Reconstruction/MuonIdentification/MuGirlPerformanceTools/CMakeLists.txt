@@ -13,7 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Reconstruction/iPat/iPatInterfaces
                           Trigger/TrigEvent/TrigMuonEvent
                           PRIVATE
-                          Generators/GenAnalysisTools/TruthTools
+                          Generators/GenInterfaces
                           Generators/GeneratorObjects
                           Reconstruction/MuonIdentification/MuGirlCandidate
                           Reconstruction/iPat/iPatTrackParameters

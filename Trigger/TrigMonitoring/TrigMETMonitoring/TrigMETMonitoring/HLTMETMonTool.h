@@ -21,6 +21,8 @@
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/Electron.h"
 
+#include "TLorentzVector.h"
+
 #include <string>
 #include <vector>
 
@@ -77,13 +79,17 @@ private:
   bool m_debuglevel; //!< private member to control debug messages
   
   std::vector<std::string> m_primary_met;
-  std::vector<std::string> m_monitoring_met;
+  std::vector<std::string> m_monitoring_met_shifter;
+  std::vector<std::string> m_monitoring_met_expert;
   std::vector<std::string> m_monitoring_alg;
   std::vector<std::string> m_prescaled_met;
   
-  std::vector<std::string> m_met_triggers_l1, m_met_triggers_hlt;
-  std::map<std::string, int> m_l1_met_signatures_tolook;
-  std::map<std::string, int> m_hlt_met_signatures_tolook;
+  std::vector<std::string> m_met_triggers_l1_expert, m_met_triggers_hlt_expert;
+  std::vector<std::string> m_met_triggers_l1_shifter, m_met_triggers_hlt_shifter;
+  std::map<std::string, int> m_l1_met_signatures_tolook_shifter;
+  std::map<std::string, int> m_hlt_met_signatures_tolook_shifter;
+  std::map<std::string, int> m_l1_met_signatures_tolook_expert;
+  std::map<std::string, int> m_hlt_met_signatures_tolook_expert;
   
   bool m_print_met_trig_stats; 
   bool m_make_expert_histograms;

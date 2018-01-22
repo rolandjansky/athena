@@ -177,7 +177,6 @@ HLT::ErrorCode InDetTrkRoiMaker::hltExecute(const HLT::TriggerElement* inputTE, 
 	    lasttrack = (*theTrackColl)->end();
       
 	  for ( ; track != lasttrack; ++track ) {//Tracks Loop
-	    ATH_MSG_INFO("here!!!");
 	    //Select tracks
 	    ++nIDtracks;
 	    
@@ -200,7 +199,7 @@ HLT::ErrorCode InDetTrkRoiMaker::hltExecute(const HLT::TriggerElement* inputTE, 
 	    //	    double dtheta_id = Amg::error(covMat,Trk::theta);
 	    double deta_id = 0.1;
 	    //	    if(fabs(sin(theta))>0) deta_id = dtheta_id/sin(theta);
-	    //	    ATH_MSG_INFO("dphi: "<<dphi_id<<" deta: "<<deta_id);
+	    //	    ATH_MSG_DEBUG("dphi: "<<dphi_id<<" deta: "<<deta_id);
 	    ATH_MSG_DEBUG( "Found track: "
 			   << m_ID_algo_to_use
 			   << "  with pt= " << pt_id

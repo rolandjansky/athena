@@ -32,14 +32,14 @@ class ZDCHitAnalysis : public AthAlgorithm {
  private:
 
    /** Some variables**/
-   TH1*  h_zdc_sidea_0;
-   TH1*  h_zdc_sidea_1;
-   TH1*  h_zdc_sidea_2;
-   TH1*  h_zdc_sidea_3;
-   TH1*  h_zdc_sidec_0;
-   TH1*  h_zdc_sidec_1;
-   TH1*  h_zdc_sidec_2;
-   TH1*  h_zdc_sidec_3;
+   TH1*  m_h_zdc_sidea_0;
+   TH1*  m_h_zdc_sidea_1;
+   TH1*  m_h_zdc_sidea_2;
+   TH1*  m_h_zdc_sidea_3;
+   TH1*  m_h_zdc_sidec_0;
+   TH1*  m_h_zdc_sidec_1;
+   TH1*  m_h_zdc_sidec_2;
+   TH1*  m_h_zdc_sidec_3;
 
    std::vector<int>* m_zdc_strip_side;
    std::vector<int>* m_zdc_strip_mod;

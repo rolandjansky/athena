@@ -21,7 +21,7 @@
 #include "xAODEgamma/Photon.h"
 
 #include "egammaInterfaces/IegammaBaseTool.h" 
-#include "ElectronPhotonSelectorTools/IEGammaAmbiguityTool.h"
+#include "EgammaAnalysisInterfaces/IEGammaAmbiguityTool.h"
 #include "egammaInterfaces/IEMTrackMatchBuilder.h"
 #include "egammaInterfaces/IEMConversionBuilder.h"
 #include "egammaInterfaces/IegammaCheckEnergyDepositTool.h"

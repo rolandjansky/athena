@@ -98,13 +98,7 @@ TCS::DeltaPhiIncl2::processBitCorrect( const std::vector<TCS::TOBArray const *> 
                              Decision & decison )
 {
     if( input.size() == 2) {
-        // gcc-4.9.1
-        // bool iaccept[numberOutputBits()] = {};
-        // gcc-4.8.1
-        bool iaccept[numberOutputBits()];
-        for (auto& i : iaccept){
-            i=false;
-        }
+        std::vector<bool> iaccept (numberOutputBits());
         for( TOBArray::const_iterator tob1 = input[0]->begin(); 
              tob1 != input[0]->end() && distance(input[0]->begin(), tob1) < p_NumberLeading1;
              ++tob1)
@@ -151,10 +145,7 @@ TCS::DeltaPhiIncl2::process( const std::vector<TCS::TOBArray const *> & input,
                              Decision & decison )
 {
     if( input.size() == 2) {
-        bool iaccept[numberOutputBits()];
-        for (auto& i : iaccept){
-            i=false;
-        }
+        std::vector<bool> iaccept (numberOutputBits());
         for( TOBArray::const_iterator tob1 = input[0]->begin(); 
              tob1 != input[0]->end() && distance(input[0]->begin(), tob1) < p_NumberLeading1;
              ++tob1)

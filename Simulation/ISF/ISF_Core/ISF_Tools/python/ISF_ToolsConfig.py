@@ -11,8 +11,8 @@ from AthenaCommon.SystemOfUnits import *
 from AthenaCommon.DetFlags import DetFlags
 
 def getParticleHelper(name="ISF_ParticleHelper", **kwargs):
-    from ISF_Config.ISF_jobProperties import ISF_Flags
-    kwargs.setdefault("BarcodeSvc"             , ISF_Flags.BarcodeService())
+    from G4AtlasApps.SimFlags import simFlags
+    kwargs.setdefault("BarcodeSvc"             , simFlags.TruthStrategy.BarcodeServiceName())
     return CfgMgr.ISF__ParticleHelper(name, **kwargs)
 
 def getMemoryMonitor(name="ISF_MemoryMonitor", **kwargs):
@@ -49,6 +49,12 @@ def getMC16EntryLayerFilter(name="ISF_MC16EntryLayerFilter", **kwargs):
     return getMC15aPlusEntryLayerFilter(name, **kwargs)
 
 def getMC16LLPEntryLayerFilter(name="ISF_MC16LLPEntryLayerFilter", **kwargs):
+    return getMC15aPlusLLPEntryLayerFilter(name, **kwargs)
+
+def getMC18EntryLayerFilter(name="ISF_MC18EntryLayerFilter", **kwargs):
+    return getMC15aPlusEntryLayerFilter(name, **kwargs)
+
+def getMC18LLPEntryLayerFilter(name="ISF_MC18LLPEntryLayerFilter", **kwargs):
     return getMC15aPlusLLPEntryLayerFilter(name, **kwargs)
 
 def getValidationEntryLayerFilter(name="ISF_ValidationEntryLayerFilter", **kwargs):

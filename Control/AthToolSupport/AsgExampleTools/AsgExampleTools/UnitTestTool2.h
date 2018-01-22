@@ -35,7 +35,11 @@ namespace asg
     StatusCode initialize () override;
 
   public:
-    virtual IUnitTestTool1 *
+    virtual bool
+    toolHandleEmpty (const std::string& handleName) const override;
+
+  public:
+    virtual const IUnitTestTool1 *
     getToolHandle (const std::string& handleName) const override;
 
   public:
@@ -63,6 +67,9 @@ namespace asg
 
   private:
     bool m_wasUserConfiguredPrivate = false;
+
+  private:
+    bool m_allowEmpty = false;
   };
 }
 

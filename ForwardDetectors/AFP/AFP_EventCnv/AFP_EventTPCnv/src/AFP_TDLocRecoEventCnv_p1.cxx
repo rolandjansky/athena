@@ -13,7 +13,7 @@
 
 void AFP_TDLocRecoEventCnv_p1::persToTrans(const AFP_TDLocRecoEvent_p1* persObj, AFP_TDLocRecoEvent* transObj, MsgStream &log)
 {
-	log << MSG::DEBUG << "AFP_TDLocRecoEventCnv_p1::persToTrans called " << endreq;
+	log << MSG::DEBUG << "AFP_TDLocRecoEventCnv_p1::persToTrans called " << endmsg;
 
 	transObj->m_iAlgoNum	= persObj->m_iAlgoNum;
 	transObj->m_nStationID	= persObj->m_nStationID;
@@ -28,7 +28,7 @@ void AFP_TDLocRecoEventCnv_p1::persToTrans(const AFP_TDLocRecoEvent_p1* persObj,
  
 void AFP_TDLocRecoEventCnv_p1::transToPers(const AFP_TDLocRecoEvent* transObj, AFP_TDLocRecoEvent_p1* persObj, MsgStream &log)
 {
-	log << MSG::DEBUG << "AFP_TDLocRecoEventCnv_p1::transToPers called " << endreq;
+	log << MSG::DEBUG << "AFP_TDLocRecoEventCnv_p1::transToPers called " << endmsg;
 
 	persObj->m_iAlgoNum	= transObj->m_iAlgoNum;
 	persObj->m_nStationID	= transObj->m_nStationID;

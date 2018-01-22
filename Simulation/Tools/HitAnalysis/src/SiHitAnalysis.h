@@ -33,19 +33,19 @@ class SiHitAnalysis : public AthAlgorithm {
  private:
 
    /** Some variables**/
-   TH1* h_hits_x;
-   TH1* h_hits_y;
-   TH1* h_hits_z;
-   TH1* h_hits_r;
-   TH2* h_xy;
-   TH2* h_zr;
-   TH1* h_hits_time;
-   TH1* h_hits_eloss;
-   TH1* h_hits_step;
-   TH1* h_hits_barcode;
-   TH2* h_time_eloss;
-   TH2* h_z_eloss;
-   TH2* h_r_eloss;
+   TH1* m_h_hits_x;
+   TH1* m_h_hits_y;
+   TH1* m_h_hits_z;
+   TH1* m_h_hits_r;
+   TH2* m_h_xy;
+   TH2* m_h_zr;
+   TH1* m_h_hits_time;
+   TH1* m_h_hits_eloss;
+   TH1* m_h_hits_step;
+   TH1* m_h_hits_barcode;
+   TH2* m_h_time_eloss;
+   TH2* m_h_z_eloss;
+   TH2* m_h_r_eloss;
    
    std::vector<float>* m_hits_x;
    std::vector<float>* m_hits_y;

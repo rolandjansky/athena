@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigMETMonitoring/HLTMETMonTool.h"
@@ -17,6 +17,7 @@
 #include <cmath>
 #include <functional>
 
+#include "TLorentzVector.h"
 #include "TH1.h"
 #include "TH2.h"
 #include "TH1F.h"
@@ -37,7 +38,8 @@ HLTMETMonTool::HLTMETMonTool(const std::string & type, const std::string & name,
 
   // Triggers to monitor
   declareProperty("primary_met", m_primary_met);
-  declareProperty("monitoring_met", m_monitoring_met);
+  declareProperty("monitoring_met_shifter", m_monitoring_met_shifter);
+  declareProperty("monitoring_met_expert", m_monitoring_met_expert);
   declareProperty("monitoring_alg", m_monitoring_alg);
   declareProperty("prescaled_met", m_prescaled_met);
 
@@ -106,6 +108,13 @@ HLTMETMonTool::~HLTMETMonTool() {
 }
 
 
+class High2LowByPt {
+public:
+  bool operator () (const TLorentzVector &a, const TLorentzVector &b) const {
+    return (a.Perp()>b.Perp());
+  }
+};
+
 //___________________________________________________________________________________________________________
 StatusCode HLTMETMonTool::init() {
 
@@ -120,13 +129,21 @@ StatusCode HLTMETMonTool::init() {
     ATH_MSG_DEBUG("HLTMETMonTool: Off_METKey = " << m_off_met_key);
   }
 
-  // put all trigger names into one arry
-  for (std::vector<std::string>::iterator it = m_monitoring_met.begin(); it != m_monitoring_met.end(); ++it) {
+  // put all trigger names into one array for shifter
+  for (std::vector<std::string>::iterator it = m_monitoring_met_shifter.begin(); it != m_monitoring_met_shifter.end(); ++it) {
     if (get_trigger_level(*it) == "L1")
-      m_met_triggers_l1.push_back(*it);
+      m_met_triggers_l1_shifter.push_back(*it);
     else if (get_trigger_level(*it) == "HLT")
-      m_met_triggers_hlt.push_back(*it);
+      m_met_triggers_hlt_shifter.push_back(*it);
   }
+  //put all trigger names into one array for expert 
+  for (std::vector<std::string>::iterator it = m_monitoring_met_expert.begin(); it != m_monitoring_met_expert.end(); ++it) {
+    if (get_trigger_level(*it) == "L1")
+      m_met_triggers_l1_expert.push_back(*it);
+    else if (get_trigger_level(*it) == "HLT")
+      m_met_triggers_hlt_expert.push_back(*it);
+  }
+
 
   
   return StatusCode::SUCCESS;
@@ -140,10 +157,16 @@ StatusCode HLTMETMonTool::book() {
     ATH_MSG_DEBUG("in HLTMETMonTool::book()");
 
   // check if input met triggers are in trigger configuration and add them to signatures_to look vectors
-  if (m_met_triggers_l1.size())
-    check_triggers(m_met_triggers_l1, m_l1_met_signatures_tolook);
-  if (m_met_triggers_hlt.size())
-    check_triggers(m_met_triggers_hlt, m_hlt_met_signatures_tolook);
+  if (m_met_triggers_l1_shifter.size())
+    check_triggers(m_met_triggers_l1_shifter, m_l1_met_signatures_tolook_shifter);
+  if (m_met_triggers_hlt_shifter.size())
+    check_triggers(m_met_triggers_hlt_shifter, m_hlt_met_signatures_tolook_shifter);
+  
+  //Do the same for expert
+  if (m_met_triggers_l1_expert.size())
+    check_triggers(m_met_triggers_l1_expert, m_l1_met_signatures_tolook_expert);
+  if (m_met_triggers_hlt_expert.size())
+    check_triggers(m_met_triggers_hlt_expert, m_hlt_met_signatures_tolook_expert);//
   
   // Create Shifter and Expert folders
   m_shifter_path = m_mon_path + "/Shifter";
@@ -174,13 +197,34 @@ StatusCode HLTMETMonTool::book() {
 
   std::map<std::string,int>::const_iterator it;
 
-  /// Efficiencies for the L1 triggers 
-  for (it = m_l1_met_signatures_tolook.begin(); it != m_l1_met_signatures_tolook.end(); it++) {
+  // Efficiencies for the shifter L1 triggers 
+  for (it = m_l1_met_signatures_tolook_shifter.begin(); it != m_l1_met_signatures_tolook_shifter.end(); it++) {
+    std::string prof_name = "Eff_" + it->first;
+    std::string prof_title = prof_name + " Efficiency Missing E_{T};ME_{T} (GeV)";
+    addProfile(new TProfile(prof_name.c_str(), prof_title.c_str(), m_eff_bins, m_eff_min, m_eff_max));
+    
+    prof_name = "Eff_mu_" + it->first;
+    prof_title = prof_name + " Efficiency Missing E_{T};ME_{T} (GeV)";
+    addProfile(new TProfile(prof_name.c_str(), prof_title.c_str(), m_eff_bins, m_eff_min, m_eff_max));
+
+    prof_name = "Eff_mumu_" + it->first;
+    prof_title = prof_name + " Efficiency Missing E_{T};ME_{T} (GeV)";
+    addProfile(new TProfile(prof_name.c_str(), prof_title.c_str(), m_eff_bins, m_eff_min, m_eff_max));
+
+  }
+
+  mongroupName = m_expert_path + "/L1";
+  setCurrentMonGroup(mongroupName);
+
+  // Efficiencies for the expert L1 triggers 
+  for (it = m_l1_met_signatures_tolook_expert.begin(); it != m_l1_met_signatures_tolook_expert.end(); it++) {
     std::string prof_name = "Eff_" + it->first;
     std::string prof_title = prof_name + " Efficiency Missing E_{T};ME_{T} (GeV)";
     addProfile(new TProfile(prof_name.c_str(), prof_title.c_str(), m_eff_bins, m_eff_min, m_eff_max));
   }
 
+  mongroupName = m_shifter_path + "/L1";
+  setCurrentMonGroup(mongroupName);
     
   //***********************
   // Shifter HLT histograms
@@ -203,13 +247,36 @@ StatusCode HLTMETMonTool::book() {
   addHistogram(new TH2F("HLT_MET_etaphi_etweight", "HLT MET #eta/#phi(|Missing E_{T}|);#eta;#phi (rad)", 24, -4.8, 4.8, m_phi_bins, m_phi_min, m_phi_max));
 
   /// Efficiencies for the HLT triggers 
-  for (it = m_hlt_met_signatures_tolook.begin(); it != m_hlt_met_signatures_tolook.end(); it++) {
+  for (it = m_hlt_met_signatures_tolook_shifter.begin(); it != m_hlt_met_signatures_tolook_shifter.end(); it++) {
     std::string prof_name = "Eff_" + it->first;
     std::string prof_title = prof_name + " Efficiency Missing E_{T};ME_{T} (GeV)";
     addProfile(new TProfile(prof_name.c_str(), prof_title.c_str(), m_eff_bins, m_eff_min, m_eff_max));
   }
   // Signal like electron and muon efficiency
-  for (it = m_hlt_met_signatures_tolook.begin(); it != m_hlt_met_signatures_tolook.end(); it++) {
+  for (it = m_hlt_met_signatures_tolook_shifter.begin(); it != m_hlt_met_signatures_tolook_shifter.end(); it++) {
+    std::string name = it->first;
+    std::string mu_profname = "Eff_mu_"+name;
+    std::string mu_prof_title = mu_profname + " Efficiency Missing E_{T};ME_{T} (GeV) (Wmunu-like events)";
+    addProfile(new TProfile(mu_profname.c_str(), mu_prof_title.c_str(), m_eff_bins, m_eff_min, m_eff_max));
+    
+    std::string mumu_profname = "Eff_mumu_"+name;
+    std::string mumu_prof_title = mu_profname + " Efficiency Missing E_{T};ME_{T} (GeV) (Wmunu-like events)";
+    addProfile(new TProfile(mumu_profname.c_str(), mumu_prof_title.c_str(), m_eff_bins, m_eff_min, m_eff_max));
+
+    std::string el_profname = "Eff_el_"+name;
+    std::string el_prof_title = el_profname + " Efficiency Missing E_{T};ME_{T} (GeV) (Wenu-like events)";
+    addProfile(new TProfile(el_profname.c_str(), el_prof_title.c_str(), m_eff_bins, m_eff_min, m_eff_max));
+  }
+
+  mongroupName = m_expert_path + "/HLT";
+  /// Efficiencies for the HLT triggers                                                                                                                     
+  for (it = m_hlt_met_signatures_tolook_expert.begin(); it != m_hlt_met_signatures_tolook_expert.end(); it++) {
+    std::string prof_name = "Eff_" + it->first;
+    std::string prof_title = prof_name + " Efficiency Missing E_{T};ME_{T} (GeV)";
+    addProfile(new TProfile(prof_name.c_str(), prof_title.c_str(), m_eff_bins, m_eff_min, m_eff_max));
+  }
+  // Signal like electron and muon efficiency                                                                                                               
+  for (it = m_hlt_met_signatures_tolook_expert.begin(); it != m_hlt_met_signatures_tolook_expert.end(); it++) {
     std::string name = it->first;
     std::string mu_profname = "Eff_mu_"+name;
     std::string mu_prof_title = mu_profname + " Efficiency Missing E_{T};ME_{T} (GeV) (Wmunu-like events)";
@@ -218,6 +285,8 @@ StatusCode HLTMETMonTool::book() {
     std::string el_prof_title = el_profname + " Efficiency Missing E_{T};ME_{T} (GeV) (Wenu-like events)";
     addProfile(new TProfile(el_profname.c_str(), el_prof_title.c_str(), m_eff_bins, m_eff_min, m_eff_max));
   }
+
+  mongroupName = m_shifter_path + "/HLT";
 
   // muon histograms
   addHistogram(new TH1F("HLT_MEx_mu", "HLT Missing E_{x};E_{x} Signal-like #mu (GeV)", 199, -298.5,  298.5));
@@ -294,7 +363,7 @@ StatusCode HLTMETMonTool::book() {
 
 
   /// With trigger rquirement:  L1_XE50 etc.
-  for (it = m_l1_met_signatures_tolook.begin(); it != m_l1_met_signatures_tolook.end(); it++) {
+  for (it = m_l1_met_signatures_tolook_shifter.begin(); it != m_l1_met_signatures_tolook_shifter.end(); it++) {
 
     std::string m_trigger_path = monGroupName + "/" + it->first;
 
@@ -331,7 +400,7 @@ StatusCode HLTMETMonTool::book() {
   addHLTCompHistograms();
   
   /// With trigger requiriment: xe35, xe80, xe100 etc.
-  for (it = m_hlt_met_signatures_tolook.begin(); it != m_hlt_met_signatures_tolook.end(); it++) {
+  for (it = m_hlt_met_signatures_tolook_shifter.begin(); it != m_hlt_met_signatures_tolook_shifter.end(); it++) {
 
     std::string m_expert_path_trigger = monGroupName + "/" + it->first;
     addMonGroup(new MonGroup(this, m_expert_path_trigger, run));
@@ -602,14 +671,14 @@ void HLTMETMonTool::addL1vsOffHistograms() {
 //___________________________________________________________________________________________________________
 void HLTMETMonTool::trigger_decision() {
 
-  std::vector<std::map<std::string,int>> m_met_signatures_tolook;
-  m_met_signatures_tolook.push_back(m_l1_met_signatures_tolook);
-  m_met_signatures_tolook.push_back(m_hlt_met_signatures_tolook);
+  std::vector<std::map<std::string,int>> m_met_signatures_tolook_shifter;
+  m_met_signatures_tolook_shifter.push_back(m_l1_met_signatures_tolook_shifter);
+  m_met_signatures_tolook_shifter.push_back(m_hlt_met_signatures_tolook_shifter);
 
   if (m_print_met_trig_stats) {
     std::map<std::string,int>::iterator iter;
-    for (unsigned int i = 0; i<m_met_signatures_tolook.size(); i++) {
-      for (iter = m_met_signatures_tolook[i].begin(); iter != m_met_signatures_tolook[i].end(); ++iter) {
+    for (unsigned int i = 0; i<m_met_signatures_tolook_shifter.size(); i++) {
+      for (iter = m_met_signatures_tolook_shifter[i].begin(); iter != m_met_signatures_tolook_shifter[i].end(); ++iter) {
         std::string name = iter->first;
         if (getTDT()->isPassed(name, TrigDefs::eventAccepted)) {
           iter->second +=1;
@@ -794,6 +863,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
   float l1_mey_log = -9e9;
   float l1_met_log = -9e9;
   float l1_sumet_log = -9e9;
+  float saturated = false; 
 
   if (m_l1_roi_cont) {
     if ((m_l1_roi_cont->energyX())>-9e12 && (m_l1_roi_cont->energyX())<9e12 && (m_l1_roi_cont->energyY())>-9e12 && (m_l1_roi_cont->energyY())<9e12) { 
@@ -807,6 +877,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
       l1_mey_log = signed_log(l1_mey, epsilon);
       l1_met_log = signed_log(l1_met, epsilon);
       l1_sumet_log = signed_log(l1_sumet, epsilon);
+      saturated = (fabs(l1_mex)>16383 || fabs(l1_mey)>16383 ); //this is a hacked way to see if Ex/Ey saturated. There may be better. 
     } else {
       ATH_MSG_WARNING("L1 POI enegy too large");
     }
@@ -835,12 +906,9 @@ StatusCode HLTMETMonTool::fillMETHist() {
   //######################################################
   //##### Set main trigger Algorithm  ####################
   //######################################################
-  //if (m_hlt_cell_met_cont && m_hlt_cell_met_cont->size()) {  
-  //m_hlt_met = m_hlt_cell_met_cont->at(0);
-  //if (m_hlt_topocl_met_cont && m_hlt_topocl_met_cont->size()) {  
-  //m_hlt_met = m_hlt_topocl_met_cont->at(0);
-  if (m_hlt_mht_met_cont && m_hlt_mht_met_cont->size()) {  
-    m_hlt_met = m_hlt_mht_met_cont->at(0);
+  if(m_hlt_topocl_PUC_met_cont && m_hlt_topocl_PUC_met_cont->size()){
+    //Replace mht with pufit 
+    m_hlt_met = m_hlt_topocl_PUC_met_cont->at(0);
     
     hlt_ex = m_hlt_met->ex()/CLHEP::GeV; 
     hlt_ey = m_hlt_met->ey()/CLHEP::GeV; 
@@ -911,8 +979,8 @@ StatusCode HLTMETMonTool::fillMETHist() {
     if ((h = hist("L1_METy")))      h->Fill(l1_mey);
     if ((h = hist("L1_MET")))       h->Fill(l1_met);
     if ((h = hist("L1_SumEt")))     h->Fill(l1_sumet);
-    if ((h = hist("L1_MET_phi")) && l1_met>0)   h->Fill(l1_phi);
-    if ((h = hist("L1_MET_phi_etweight")) && l1_met>0)  h->Fill(l1_phi, l1_met);
+    if ((h = hist("L1_MET_phi")) && l1_met>0 && !saturated)   h->Fill(l1_phi);
+    if ((h = hist("L1_MET_phi_etweight")) && l1_met>0 && !saturated)  h->Fill(l1_phi, l1_met);
     if ((h = hist("L1_MET_log")))   h->Fill(l1_met_log);
     if ((h = hist("L1_SumEt_log"))) h->Fill(l1_sumet_log);
   }
@@ -921,7 +989,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
   TProfile *p(0);
 
   // L1 efficiency
-  for (it = m_l1_met_signatures_tolook.begin(); it != m_l1_met_signatures_tolook.end(); it++) {
+  for (it = m_l1_met_signatures_tolook_shifter.begin(); it != m_l1_met_signatures_tolook_shifter.end(); it++) {
     std::string name = it->first;
     std::string profname = "Eff_"+ name;
     if (getTDT()->isPassed(name, TrigDefs::eventAccepted)) {
@@ -931,6 +999,22 @@ StatusCode HLTMETMonTool::fillMETHist() {
       if ((p = profile(profname))) p->Fill(off_met,0.0,1.0);
     }
   }
+
+  //expert histograms for L1 
+  mongroupName = m_expert_path + "/L1";
+  setCurrentMonGroup(mongroupName.c_str());
+  // L1 efficiency                                                                                                                                                                                           
+  for (it = m_l1_met_signatures_tolook_expert.begin(); it != m_l1_met_signatures_tolook_expert.end(); it++) {
+    std::string name = it->first;
+    std::string profname = "Eff_"+ name;
+    if (getTDT()->isPassed(name, TrigDefs::eventAccepted)) {
+      //trig_eff_num[0]->Fill(off_met);                                                                                                                                                                      
+      if ((p = profile(profname))) p->Fill(off_met,1.0,1.0);
+    } else {
+      if ((p = profile(profname))) p->Fill(off_met,0.0,1.0);
+    }
+  }
+
   
   
 
@@ -955,7 +1039,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
 
 
   // HLT efficiency histos  
-  for (it = m_hlt_met_signatures_tolook.begin(); it != m_hlt_met_signatures_tolook.end(); it++) {
+  for (it = m_hlt_met_signatures_tolook_shifter.begin(); it != m_hlt_met_signatures_tolook_shifter.end(); it++) {
     std::string name = it->first;
     std::string profname = "Eff_"+name;
     if (getTDT()->isPassed(name, TrigDefs::eventAccepted)) {
@@ -966,21 +1050,42 @@ StatusCode HLTMETMonTool::fillMETHist() {
    }
   }
 
+  setCurrentMonGroup(m_expert_path + "/HLT");
+
+  // HLT efficiency histos expert                                                                                                                                                      
+  for (it = m_hlt_met_signatures_tolook_expert.begin(); it != m_hlt_met_signatures_tolook_expert.end(); it++) {
+    std::string name = it->first;
+    std::string profname = "Eff_"+name;
+    if (getTDT()->isPassed(name, TrigDefs::eventAccepted)) {
+      //trig_eff_num[i_eff]->Fill(off_met);                                                                                                                                             
+      if ((p = profile(profname))) p->Fill(off_met,1.0,1.0);
+    } else {
+      if ((p = profile(profname))) p->Fill(off_met,0.0,1.0);
+    }
+  }
+  setCurrentMonGroup(m_shifter_path + "/HLT");
+
 
   ///////////////////////////////////////////
   //## fill in signal-like selection histograms ###############
   ATH_MSG_DEBUG("Going to iterate through muon container");
   bool METMuonFilled = false; // flag is set to true if event satisfies signal-like requirement 
+  float pT_mumu = 0; 
   bool muonContEmpty = true;
   if (m_hlt_muonEFcontainer && m_hlt_muonEFcontainer->size()>0) {
     ATH_MSG_DEBUG("HLT EF Muon container exists and is not empty. Going to loop over container.");
     muonContEmpty = false;
+    std::vector<TLorentzVector> muonCollection; 
     for (auto muon : *m_hlt_muonEFcontainer) {
       // If a muon in this event satifies the requirements, we will fill in MET for this event.
       if(muon->muonType() == xAOD::Muon::Combined && (muon->pt()/CLHEP::GeV > m_muon_pt_thresh)) {
 	    METMuonFilled = true;
+	    muonCollection.push_back(muon->p4()); 
       }
     }
+    std::sort(muonCollection.begin(),muonCollection.end(),High2LowByPt());
+    if(muonCollection.size()>=2)pT_mumu = (muonCollection.at(0)+muonCollection.at(1)).Perp()/CLHEP::GeV;
+    muonCollection.clear();
   } else {
     ATH_MSG_DEBUG("HLT EF Muon container DNE or is empty");
     //return StatusCode::SUCCESS;
@@ -1000,7 +1105,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
     if((h = hist("HLT_SumE_mu") )) h->Fill(hlt_sume);
 
     TProfile *pmu(0);
-    for (it = m_hlt_met_signatures_tolook.begin(); it != m_hlt_met_signatures_tolook.end(); it++) {
+    for (it = m_hlt_met_signatures_tolook_shifter.begin(); it != m_hlt_met_signatures_tolook_shifter.end(); it++) {
       std::string name = it->first;
       std::string mu_profname = "Eff_mu_"+name;
       if (getTDT()->isPassed(name, TrigDefs::eventAccepted)) {
@@ -1008,7 +1113,50 @@ StatusCode HLTMETMonTool::fillMETHist() {
       } else {
           if ((pmu = profile(mu_profname))) pmu->Fill(off_met, 0.0, 1.0);
       }
+      //Fill mumu 
+      if(pT_mumu>0){
+	std::string mumu_name = it->first;
+	std::string mumu_profname = "Eff_mumu_"+name;
+	if (getTDT()->isPassed(mumu_name, TrigDefs::eventAccepted)) {
+	  if ((pmu = profile(mumu_profname))) pmu->Fill(pT_mumu, 1.0, 1.0);
+	} else {
+	  if ((pmu = profile(mumu_profname))) pmu->Fill(pT_mumu, 0.0, 1.0);
+	}
+      }//must be filled
     }
+    
+    setCurrentMonGroup(m_shifter_path + "/L1");
+ 
+    for (it = m_l1_met_signatures_tolook_shifter.begin(); it != m_l1_met_signatures_tolook_shifter.end(); it++) {
+      std::string name = it->first;
+      std::string mu_profname = "Eff_mu_"+name;
+      if (getTDT()->isPassed(name, TrigDefs::eventAccepted)) {
+	if ((pmu = profile(mu_profname))) pmu->Fill(off_met, 1.0, 1.0);
+      } else {
+	if ((pmu = profile(mu_profname))) pmu->Fill(off_met, 0.0, 1.0);
+      }
+      if(pT_mumu>0){
+	std::string mumu_name = it->first;
+	std::string mumu_profname = "Eff_mumu_"+name;
+	if (getTDT()->isPassed(mumu_name, TrigDefs::eventAccepted)) {
+	  if ((pmu = profile(mumu_profname))) pmu->Fill(pT_mumu, 1.0, 1.0);
+	} else {
+	  if ((pmu = profile(mumu_profname))) pmu->Fill(pT_mumu, 0.0, 1.0);
+	}
+      }//pT_mumu > 0
+    }//loop over signatures                                                                                                                              
+    setCurrentMonGroup(m_expert_path + "/HLT");
+    
+    for (it = m_hlt_met_signatures_tolook_expert.begin(); it != m_hlt_met_signatures_tolook_expert.end(); it++) {
+      std::string name = it->first;
+      std::string mu_profname = "Eff_mu_"+name;
+      if (getTDT()->isPassed(name, TrigDefs::eventAccepted)) {
+	if ((pmu = profile(mu_profname))) pmu->Fill(off_met, 1.0, 1.0);
+      } else {
+	if ((pmu = profile(mu_profname))) pmu->Fill(off_met, 0.0, 1.0);
+      }
+    }
+    setCurrentMonGroup(m_shifter_path + "/HLT");
 
   }
 
@@ -1057,7 +1205,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
     if((h = hist("HLT_SumE_e") )) h->Fill(hlt_sume);
 
     TProfile *pele(0);
-    for (it = m_hlt_met_signatures_tolook.begin(); it != m_hlt_met_signatures_tolook.end(); it++) {
+    for (it = m_hlt_met_signatures_tolook_shifter.begin(); it != m_hlt_met_signatures_tolook_shifter.end(); it++) {
       std::string name = it->first;
       std::string el_profname = "Eff_el_"+name;
       if (getTDT()->isPassed(name, TrigDefs::eventAccepted)) {
@@ -1066,6 +1214,19 @@ StatusCode HLTMETMonTool::fillMETHist() {
 	if ((pele = profile(el_profname))) pele->Fill(off_met, 0.0, 1.0);
       }
     }
+
+    setCurrentMonGroup(m_expert_path + "/HLT");
+    for (it = m_hlt_met_signatures_tolook_expert.begin(); it != m_hlt_met_signatures_tolook_expert.end(); it++) {
+      std::string name = it->first;
+      std::string el_profname = "Eff_el_"+name;
+      if (getTDT()->isPassed(name, TrigDefs::eventAccepted)) {
+        if ((pele = profile(el_profname))) pele->Fill(off_met, 1.0, 1.0);
+      } else {
+        if ((pele = profile(el_profname))) pele->Fill(off_met, 0.0, 1.0);
+      }
+    }
+    setCurrentMonGroup(m_shifter_path + "/HLT");
+
   }
   
   // End of signal-like selection histograms #################
@@ -1228,7 +1389,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
   /// L1 Triggers
   
   std::string expert_partial_path = m_expert_path + "/L1/";
-  for (it = m_l1_met_signatures_tolook.begin(); it != m_l1_met_signatures_tolook.end(); it++) {
+  for (it = m_l1_met_signatures_tolook_shifter.begin(); it != m_l1_met_signatures_tolook_shifter.end(); it++) {
     std::string name = it->first;
     ATH_MSG_DEBUG("TriggerLoop: name = " << name);
     //if (name == m_denominator_trigger) continue;
@@ -1241,8 +1402,8 @@ StatusCode HLTMETMonTool::fillMETHist() {
       if ((h = hist("L1_METx")))       h->Fill(l1_mex);
       if ((h = hist("L1_METy")))       h->Fill(l1_mey);
       if ((h = hist("L1_SumEt")))      h->Fill(l1_sumet);
-      if ((h = hist("L1_MET_phi")) && l1_met>0)    h->Fill(l1_phi);
-      if ((h = hist("L1_MET_phi_etweight")) && l1_met>0)   h->Fill(l1_phi, l1_met);
+      if ((h = hist("L1_MET_phi")) && l1_met>0 && !saturated)    h->Fill(l1_phi);
+      if ((h = hist("L1_MET_phi_etweight")) && l1_met>0 && !saturated)   h->Fill(l1_phi, l1_met);
       if ((h = hist("L1_MET_log")))    h->Fill(l1_met_log);
       if ((h = hist("L1_METx_log")))   h->Fill(l1_mex_log);
       if ((h = hist("L1_METy_log")))   h->Fill(l1_mey_log);
@@ -1393,7 +1554,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
   //////////////////////////
   // fill HLT histograms passing monitored triggers
   expert_partial_path = m_expert_path + "/HLT/";
-  for (it = m_hlt_met_signatures_tolook.begin(); it != m_hlt_met_signatures_tolook.end(); it++) {
+  for (it = m_hlt_met_signatures_tolook_shifter.begin(); it != m_hlt_met_signatures_tolook_shifter.end(); it++) {
      std::string name = it->first;
     ATH_MSG_DEBUG("Trig : " << name);
     if (getTDT()->isPassed(name, TrigDefs::eventAccepted)) {
@@ -1441,7 +1602,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
   if (m_l1_roi_cont) {
     if ((h2 = hist2("L1_HLT_EtCor")))     h2->Fill(hlt_met, l1_met);
     if ((h2 = hist2("L1_HLT_SumEtCor")))  h2->Fill(hlt_sumet, l1_sumet);
-    if ((h2 = hist2("L1_HLT_PhiCor")) && hlt_met>0)    h2->Fill(hlt_phi, l1_phi);
+    if ((h2 = hist2("L1_HLT_PhiCor")) && hlt_met>0 && !saturated)    h2->Fill(hlt_phi, l1_phi);
     
     if ((h = hist("L1_HLT_dEt")))         h->Fill(l1_met - hlt_met);
     double dphi = signed_delta_phi(l1_phi, hlt_phi);
@@ -1604,15 +1765,15 @@ void HLTMETMonTool::check_triggers(std::vector<std::string>& m_triggers, std::ma
 void HLTMETMonTool::print_trigger_stats() {
 
   // L1
-  ATH_MSG_DEBUG("Level-1 Met Triggers to look: " << m_l1_met_signatures_tolook.size());
+  ATH_MSG_DEBUG("Level-1 Met Triggers to look: " << m_l1_met_signatures_tolook_shifter.size());
   std::map<std::string,int>::iterator iter;
-  for (iter = m_l1_met_signatures_tolook.begin(); iter!= m_l1_met_signatures_tolook.end(); ++iter) {
+  for (iter = m_l1_met_signatures_tolook_shifter.begin(); iter!= m_l1_met_signatures_tolook_shifter.end(); ++iter) {
     ATH_MSG_DEBUG("Events passing " << iter->first << ": " << iter->second);
   }
 
   // EF
-  ATH_MSG_DEBUG("HLT Met Triggers to look: "  << m_hlt_met_signatures_tolook.size());
-  for (iter = m_hlt_met_signatures_tolook.begin(); iter != m_hlt_met_signatures_tolook.end(); ++iter) {
+  ATH_MSG_DEBUG("HLT Met Triggers to look: "  << m_hlt_met_signatures_tolook_shifter.size());
+  for (iter = m_hlt_met_signatures_tolook_shifter.begin(); iter != m_hlt_met_signatures_tolook_shifter.end(); ++iter) {
     ATH_MSG_DEBUG("Events passing " << iter->first << ": " << iter->second);
   }
 }

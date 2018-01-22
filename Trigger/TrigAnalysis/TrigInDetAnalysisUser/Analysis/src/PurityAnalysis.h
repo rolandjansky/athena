@@ -20,7 +20,7 @@
 #include "TrigInDetAnalysis/Track.h"
 #include "TrigInDetAnalysis/TIDDirectory.h"
 #include "TrigInDetAnalysis/Efficiency.h"
-#include "TrigInDetAnalysis/Efficiency2D.h"
+// #include "TrigInDetAnalysis/Efficiency2D.h"
 
 #include "Resplot.h"
 
@@ -107,8 +107,8 @@ private:
   Efficiency* purity_d0;
   Efficiency* purity_a0;
 
-  Efficiency2D* eff_pteta; 
-  Efficiency2D* eff_etapt; 
+  //  Efficiency2D* eff_pteta; 
+  //  Efficiency2D* eff_etapt; 
 
   TH1F* hDeltaR;
 

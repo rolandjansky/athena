@@ -1,11 +1,13 @@
 package AsgTools
-# $Id: requirements 745006 2016-05-05 10:40:32Z will $
+# $Id: requirements 790389 2016-12-18 13:39:12Z krumnack $
 
 author David Adams
 
 public
 
 use AtlasPolicy      AtlasPolicy-*
+
+use  xAODRootAccess             xAODRootAccess-*                Control
 
 use GaudiInterface   GaudiInterface-*   External
 #use  AtlasGoogleTest                 AtlasGoogleTest-*                    External

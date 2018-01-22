@@ -32,7 +32,7 @@ class MpEvtLoopMgr(AthMpEvtLoopMgr):
         self.MemSamplingInterval = jp.AthenaMPFlags.MemSamplingInterval()
 
         from AthenaCommon.DetFlags import DetFlags
-        if DetFlags.pileup.any_on():
+        if DetFlags.pileup.any_on() or DetFlags.overlay.any_on():
             self.IsPileup = True
         else:
             self.IsPileup = False
@@ -75,7 +75,7 @@ class MpEvtLoopMgr(AthMpEvtLoopMgr):
                 if sys.modules.has_key('AthenaPoolCnvSvc.WriteAthenaPool'):
                     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
                     from AthenaServices.AthenaServicesConf import AthenaSharedMemoryTool
-                    svcMgr.AthenaPoolCnvSvc.OutputStreamingTool = AthenaSharedMemoryTool("OutputStreamingTool")
+                    svcMgr.AthenaPoolCnvSvc.OutputStreamingTool = [ AthenaSharedMemoryTool("OutputStreamingTool_0") ]
 
             from AthenaMPTools.AthenaMPToolsConf import SharedEvtQueueProvider
             self.Tools += [ SharedEvtQueueProvider(UseSharedReader=use_shared_reader,

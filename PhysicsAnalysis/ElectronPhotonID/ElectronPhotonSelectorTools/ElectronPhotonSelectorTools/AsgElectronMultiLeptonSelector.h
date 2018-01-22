@@ -20,7 +20,7 @@
 
 // Atlas includes
 #include "AsgTools/AsgTool.h"
-#include "ElectronPhotonSelectorTools/IAsgElectronMultiLeptonSelector.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronMultiLeptonSelector.h"
 
 // Include the return object and ROOT tool
 #include "PATCore/TAccept.h"

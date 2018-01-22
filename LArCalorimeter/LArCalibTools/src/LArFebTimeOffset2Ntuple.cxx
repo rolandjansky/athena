@@ -41,7 +41,7 @@ StatusCode LArFebTimeOffset2Ntuple::stop() {
   const LArFEBTimeOffset* feboffsets;
   //if (detStore()->retrieve(feboffsets,m_inputContainer).isFailure()) {
   if (detStore()->retrieve(feboffsets).isFailure()) {
-    msg(MSG::ERROR) << "Failed to retrieve LArFEBTimeOffset with key " << m_inputContainer << endreq;
+    ATH_MSG_ERROR( "Failed to retrieve LArFEBTimeOffset with key " << m_inputContainer );
     return StatusCode::FAILURE;
   }
   
@@ -62,7 +62,7 @@ StatusCode LArFebTimeOffset2Ntuple::stop() {
 
       StatusCode sc=ntupleSvc()->writeRecord(m_nt);
       if (sc!=StatusCode::SUCCESS) {
-	msg(MSG::ERROR) << "writeRecord failed" << endreq;
+	ATH_MSG_ERROR( "writeRecord failed" );
 	return StatusCode::FAILURE;
       }
     }//end if have value

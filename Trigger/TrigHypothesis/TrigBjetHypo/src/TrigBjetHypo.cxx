@@ -7,8 +7,8 @@
 // NAME:     TrigBjetHypo.cxx
 // PACKAGE:  Trigger/TrigHypothesis/TrigBjetHypo
 //
-// AUTHOR:   Andrea Coccaro
-// EMAIL:    Andrea.Coccaro@ge.infn.it
+// AUTHORs:   John Alison    johnda@uchicago.edu
+//            Andrea Coccaro Andrea.Coccaro@ge.infn.it
 // 
 // ************************************************
 
@@ -43,7 +43,8 @@ TrigBjetHypo::TrigBjetHypo(const std::string& name, ISvcLocator* pSvcLocator) :
   declareProperty ("MethodTag", m_methodTag  = ""   );
   declareProperty ("Instance",  m_instance          );
 
-  declareProperty ("UseBeamSpotFlag", m_useBeamSpotFlag = false);
+  declareProperty ("UseBeamSpotFlag",       m_useBeamSpotFlag = false);
+  declareProperty ("OverrideBeamSpotValid", m_overRideBeamSpotValid = false);
 
   declareMonitoredVariable("Method", m_monitorMethod);
   declareMonitoredVariable("CutCounter", m_cutCounter);
@@ -123,7 +124,7 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
       beamSpotStatus = ((beamSpotBitMap & 0x4) == 0x4);  
       if (beamSpotStatus) beamSpotStatus = ((beamSpotBitMap & 0x3) == 0x3);
       
-      if (!beamSpotStatus) {
+      if (!beamSpotStatus && !m_overRideBeamSpotValid) {
 	
 	m_cutCounter=0;
 	pass = false;
@@ -158,7 +159,7 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
 
   // Retrieve xAOD b-jet object 
   const xAOD::BTaggingContainer* trigBTaggingContainer=0;
- 
+  
   if((getFeature(outputTE, trigBTaggingContainer, "HLTBjetFex") != HLT::OK) && trigBTaggingContainer) {
     if (msgLvl() <= MSG::WARNING)
       msg() << MSG::WARNING << "Failed to get BTaggingContainer" << endmsg;

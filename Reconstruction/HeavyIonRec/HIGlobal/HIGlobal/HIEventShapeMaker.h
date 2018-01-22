@@ -35,7 +35,8 @@ private:
   bool        m_use_calo_cell      ;//use cells instead of towers to fill the EventShape
   int         m_NumOrders          ;//The number of Orders of harmonic flow to store in the EventShape
   std::string m_summary_key;
-     
+  bool m_summary_only;
+
   ToolHandle<IHIEventShapeFiller> m_HIEventShapeFillerTool;
   ToolHandle<IHIEventShapeSummaryTool> m_summary_tool;
   void PrintHIEventShapeContainer(const xAOD::HIEventShapeContainer *Container);

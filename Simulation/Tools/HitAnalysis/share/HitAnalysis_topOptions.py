@@ -1,72 +1,62 @@
 #from AthenaCommon.AppMgr import ToolSvc
-from AthenaCommon.AppMgr import ServiceMgr
-import AthenaPoolCnvSvc.ReadAthenaPool
+#from AthenaCommon.AppMgr import ServiceMgr
+#import AthenaPoolCnvSvc.ReadAthenaPool
 
 from PartPropSvc.PartPropSvcConf import PartPropSvc
 
 include("ParticleBuilderOptions/McAOD_PoolCnv_jobOptions.py")
 include("EventAthenaPool/EventAthenaPool_joboptions.py" )
 
-#import os
-#from glob import glob
-#from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
-#athenaCommonFlags.FilesInput = glob( "/tmp/" + os.environ['USER'] + "/" + "HITS*root*" )
-#ServiceMgr.EventSelector.InputCollections = athenaCommonFlags.FilesInput()
+from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
+GeoModelSvc = GeoModelSvc()
+GeoModelSvc.MuonVersionOverride="MuonSpectrometer-R.07.00-NSW"
 
+import os
+from glob import glob
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
-
-
 from HitAnalysis.HitAnalysisConf import *
+
 topSequence += SiHitAnalysis('PixelHitAnalysis')
-topSequence.PixelHitAnalysis.CollectionName = 'PixelHits'
-topSequence.PixelHitAnalysis.HistPath = '/HitAnalysis/Pixel/'
-
+topSequence.PixelHitAnalysis.CollectionName='PixelHits'
 topSequence += SiHitAnalysis('SCTHitAnalysis')
-topSequence.SCTHitAnalysis.CollectionName = 'SCT_Hits'
-topSequence.SCTHitAnalysis.HistPath = '/HitAnalysis/SCT/'
-
+topSequence.SCTHitAnalysis.CollectionName='SCT_Hits'
 topSequence += SiHitAnalysis('BCMHitAnalysis')
-topSequence.BCMHitAnalysis.CollectionName = 'BCMHits'
-topSequence.BCMHitAnalysis.HistPath = '/HitAnalysis/BCM/'
-
+topSequence.BCMHitAnalysis.CollectionName='BCMHits'
 topSequence += SiHitAnalysis('BLMHitAnalysis')
-topSequence.BLMHitAnalysis.CollectionName = 'BLMHits'
-topSequence.BLMHitAnalysis.HistPath = '/HitAnalysis/BLM/'
-
+topSequence.BLMHitAnalysis.CollectionName='BLMHits'
 topSequence += TRTHitAnalysis('TRTHitAnalysis')
-topSequence.TRTHitAnalysis.HistPath = '/HitAnalysis/TRT/'
-
 topSequence += RPCHitAnalysis('RPCHitAnalysis')
-topSequence.RPCHitAnalysis.HistPath = '/HitAnalysis/RPC/'
-
 topSequence += MDTHitAnalysis('MDTHitAnalysis')
-topSequence.MDTHitAnalysis.HistPath = '/HitAnalysis/MDT/'
-
 topSequence += CSCHitAnalysis('CSCHitAnalysis')
-topSequence.CSCHitAnalysis.HistPath = '/HitAnalysis/CSC/'
-
 topSequence += TGCHitAnalysis('TGCHitAnalysis')
-topSequence.TGCHitAnalysis.HistPath = '/HitAnalysis/TGC/'
-
 #topSequence += ALFAHitAnalysis('ALFAHitAnalysis')
-#topSequence.ALFAHitAnalysis.HistPath = '/HitAnalysis/ALFA/'
-
 #topSequence += LucidHitAnalysis('LucidHitAnalysis')
-#topSequence.LucidHitAnalysis.HistPath = '/HitAnalysis/Lucid/'
-
 #topSequence += ZDCHitAnalysis('ZDCHitAnalysis')
-#topSequence.ZDCHitAnalysis.HistPath = '/HitAnalysis/ZDC/'
-
 topSequence += TrackRecordAnalysis('TrackRecordAnalysis')
-topSequence.TrackRecordAnalysis.HistPath = '/HitAnalysis/Track/'
-
 topSequence += TruthHitAnalysis('TruthHitAnalysis')
-topSequence.TruthHitAnalysis.HistPath = '/HitAnalysis/Truth/'
-
 topSequence += CaloHitAnalysis('CaloHitAnalysis')
-topSequence.CaloHitAnalysis.HistPath = '/HitAnalysis/Calo'           
-                                                                                                     
+topSequence += MMHitAnalysis('MMHitAnalysis')
+topSequence += sTGCHitAnalysis('sTGCHitAnalysis')
+
+
+topSequence.PixelHitAnalysis.HistPath='/HitAnalysis/'
+topSequence.SCTHitAnalysis.HistPath='/HitAnalysis/'
+topSequence.BCMHitAnalysis.HistPath='/HitAnalysis/'
+topSequence.BLMHitAnalysis.HistPath='/HitAnalysis/'
+topSequence.TRTHitAnalysis.HistPath='/HitAnalysis/'
+topSequence.RPCHitAnalysis.HistPath='/HitAnalysis/'
+topSequence.MDTHitAnalysis.HistPath='/HitAnalysis/'
+topSequence.CSCHitAnalysis.HistPath='/HitAnalysis/'
+topSequence.TGCHitAnalysis.HistPath='/HitAnalysis/'
+#topSequence.ALFAHitAnalysis.HistPath='/HitAnalysis/'
+#topSequence.LucidHitAnalysis.HistPath='/HitAnalysis/'
+#topSequence.ZDCHitAnalysis.HistPath='/HitAnalysis/'
+topSequence.TrackRecordAnalysis.HistPath='/HitAnalysis/'
+topSequence.TruthHitAnalysis.HistPath = '/HitAnalysis/'
+topSequence.CaloHitAnalysis.HistPath = '/HitAnalysis/'
+topSequence.MMHitAnalysis.HistPath='/HitAnalysis/'
+topSequence.sTGCHitAnalysis.HistPath='/HitAnalysis/'
 #Add some more TH2 histograms
 
 
@@ -75,7 +65,11 @@ topSequence.SCTHitAnalysis.ExpertMode= "off"
 topSequence.BCMHitAnalysis.ExpertMode= "off"
 topSequence.BLMHitAnalysis.ExpertMode= "off"
 topSequence.CaloHitAnalysis.ExpertMode = "off"
-topSequence.CaloHitAnalysis.CalibHits = "off" 
+topSequence.CaloHitAnalysis.CalibHits = "off"
+
+#from GaudiSvc.GaudiSvcConf import THistSvc
+#ServiceMgr += THistSvc()
+#ServiceMgr.THistSvc.Output += ["CaloHitAnalysis DATAFILE='CaloHitAnalysis_v2.root' OPT='RECREATE'" ]
 
 
 ServiceMgr.MessageSvc.OutputLevel = INFO
@@ -92,4 +86,4 @@ AthenaPoolCnvSvc.UseDetailChronoStat = TRUE
 from RecExConfig.AutoConfiguration import *
 ConfigureFieldAndGeo() # Configure the settings for the geometry
 include("RecExCond/AllDet_detDescr.py") # Actually load the geometry
-#include( "TrkDetDescrSvc/AtlasTrackingGeometrySvc.py" ) # Tracking geometry, handy for ID work
+#include("TrkDetDescrSvc/AtlasTrackingGeometrySvc.py" ) # Tracking geometry, handy for ID work

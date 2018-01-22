@@ -168,6 +168,27 @@ class EFBMuMuHypo_Jpsi (TrigEFBMuMuHypo):
         online = TrigEFBMuMuHypoOnlineMonitoring()
         self.AthenaMonTools = [ validation, online, time ]
 
+class EFBMuMuHypo_Jpsi_noId (TrigEFBMuMuHypo):
+    __slots__ = []
+    def __init__(self, name = "EFBMuMuHypo_Jpsi_noId"):
+        super( EFBMuMuHypo_Jpsi_noId, self ).__init__( name )
+
+        # AcceptAll flag: if true take events regardless of cuts
+        self.AcceptAll = False
+
+        # EF Bmumu cuts
+        self.LowerMassCut      = 2500.
+        self.UpperMassCut      = 4300.
+        self.ApplyUpperMassCut = True
+        self.ApplyChi2Cut      = False
+
+        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+        time = TrigTimeHistToolConfig("Time")
+
+        validation = TrigEFBMuMuHypoValidationMonitoring()
+        online = TrigEFBMuMuHypoOnlineMonitoring()
+        self.AthenaMonTools = [ validation, online, time ]
+
 class EFBMuMuHypo_Upsi (TrigEFBMuMuHypo):
     __slots__ = []
     def __init__(self, name = "EFBMuMuHypo_Upsi"):
@@ -354,7 +375,7 @@ class EFBMuMuHypo_Z (TrigEFBMuMuHypo):
         self.LowerMassCut      = 60000.
         self.UpperMassCut      = 120000.
         self.ApplyUpperMassCut = True
-        self.Chi2VtxCut        = 20.
+        self.ApplyChi2Cut      = False
 
         from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
         time = TrigTimeHistToolConfig("Time")

@@ -19,7 +19,7 @@ def getFastCaloSimCaloExtrapolation(name="FastCaloSimCaloExtrapolation", **kwarg
     kwargs.setdefault("CaloSurfaceHelper"         , "CaloSurfaceHelper" )
     kwargs.setdefault("CaloGeometryHelper"        , "FastCaloSimGeometryHelper" )
     kwargs.setdefault("CaloEntrance"              , "InDet::Containers::InnerDetector"     )
-
+    
     return CfgMgr.FastCaloSimCaloExtrapolation(name, **kwargs)
 
 def getFastCaloSimGeometryHelper(name="FastCaloSimGeometryHelper", **kwargs):

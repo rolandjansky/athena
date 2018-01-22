@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: ToolHandle.h 724296 2016-02-16 16:24:42Z will $
+// $Id: ToolHandle.h 804869 2017-05-15 20:14:34Z krumnack $
 #ifndef ASGTOOLS_TOOLHANDLE_H
 #define ASGTOOLS_TOOLHANDLE_H
 
@@ -17,9 +17,7 @@
 // Local include(s):
 #include "AsgTools/StatusCode.h"
 
-namespace asg {
-   class IAsgTool;
-}
+class INamedInterface;
 
 /// Non-templated base class for the ToolHandle types
 ///
@@ -29,14 +27,14 @@ namespace asg {
 ///
 /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 ///
-/// $Revision: 724296 $
-/// $Date: 2016-02-16 17:24:42 +0100 (Tue, 16 Feb 2016) $
+/// $Revision: 804869 $
+/// $Date: 2017-05-15 22:14:34 +0200 (Mon, 15 May 2017) $
 ///
 class ToolHandleBase {
 
 public:
    /// Constructor with a type/name string
-   ToolHandleBase( const std::string& typeAndName = "", asg::IAsgTool* parent = 0 );
+   ToolHandleBase( const std::string& typeAndName = "", INamedInterface* parent = 0 );
 
    /// Return the type/name string specified by the user
    const std::string& typeAndName() const;
@@ -59,8 +57,8 @@ protected:
    std::string m_type;
    /// The instance name of the target tool
    std::string m_name;
-   /// The name of the parent ool
-   std::string m_parentName;
+   /// The parent tool
+   INamedInterface *m_parent;
 
 }; // class ToolHandleBase
 
@@ -72,8 +70,8 @@ protected:
 /// @author David Adams <dladams@bnl.gov>
 /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 ///
-/// $Revision: 724296 $
-/// $Date: 2016-02-16 17:24:42 +0100 (Tue, 16 Feb 2016) $
+/// $Revision: 804869 $
+/// $Date: 2017-05-15 22:14:34 +0200 (Mon, 15 May 2017) $
 ///
 template< class T >
 class ToolHandle : public ToolHandleBase {
@@ -86,12 +84,16 @@ public:
    ToolHandle( T* ptool = 0 );
 
    /// Constructor from a tool name.
-   ToolHandle( const std::string& toolname, asg::IAsgTool* parent = 0 );
+   ToolHandle( const std::string& toolname, INamedInterface* parent = 0 );
 
    /// Dereferencing operator
-   T& operator*() const;
+   T& operator*();
    /// Dereferencing operator
-   T* operator->() const;
+   const T& operator*() const;
+   /// Dereferencing operator
+   T* operator->();
+   /// Dereferencing operator
+   const T* operator->() const;
 
    /// Retrieve tool.
    /// For compatibility with Gaudi.

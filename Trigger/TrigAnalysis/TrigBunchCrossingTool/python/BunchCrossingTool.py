@@ -120,10 +120,6 @@ def TrigConfBunchCrossingTool():
     __tool = Trig__TrigConfBunchCrossingTool( __defaultToolName )
 
     # Create a default configuration for it:
-    __tool.MaxBunchSpacing = 150
-    __tool.FrontLength = 300
-    __tool.TailLength = 300
-#    __tool.FilledBunchNames = [ "Paired", "Filled" ]
     __logger.info( "Set the default values for the TrigConfBunchCrossingTool "
                    "configuration" )
 
@@ -187,10 +183,6 @@ def MCBunchCrossingTool():
     __tool = Trig__MCBunchCrossingTool( __defaultToolName )
 
     # Create a default configuration for it:
-    __tool.MaxBunchSpacing = 150
-    __tool.FrontLength = 300
-    __tool.TailLength = 300
-    __tool.MinBunchIntensity = 0.1
     __logger.info( "Set the default values for the MCBunchCrossingTool configuration" )
 
     # Add the tool to ToolSvc:
@@ -252,10 +244,6 @@ def LHCBunchCrossingTool():
     __tool = Trig__LHCBunchCrossingTool( __defaultToolName )
 
     # Create a default configuration for it:
-    __tool.MaxBunchSpacing = 150
-    __tool.FrontLength = 300
-    __tool.TailLength = 300
-    __tool.IntensityChannel = 1
     __logger.info( "Set the default values for the LHCBunchCrossingTool configuration" )
 
     # Now make sure the tool has access to the metadata folders:
@@ -309,9 +297,6 @@ def WebBunchCrossingTool():
     __tool = Trig__WebBunchCrossingTool( __defaultToolName )
 
     # Create a default configuration for it:
-    __tool.MaxBunchSpacing = 150
-    __tool.FrontLength = 300
-    __tool.TailLength = 300
     __logger.info( "Set the default values for the WebBunchCrossingTool configuration" )
 
     # Add the tool to ToolSvc and return it to the user:
@@ -338,6 +323,10 @@ def StaticBunchCrossingTool():
     # The default name of the tool:
     __defaultToolName = "BunchCrossingTool"
 
+    # Get ourselves a logger:
+    from AthenaCommon.Logging import logging
+    __logger = logging.getLogger( "StaticBunchCrossingTool" )
+
     # Check if the tool already exists. If it does, let's just return it without
     # any modifications:
     from AthenaCommon.AppMgr import ToolSvc
@@ -350,9 +339,7 @@ def StaticBunchCrossingTool():
     __tool = Trig__StaticBunchCrossingTool( __defaultToolName )
 
     # Create a default configuration for it:
-    __tool.MaxBunchSpacing = 150
-    __tool.FrontLength = 300
-    __tool.TailLength = 300
+    __logger.info( "Set the default values for the StaticBunchCrossingTool configuration" )
 
     # Add the tool to ToolSvc and return it to the user:
     ToolSvc += __tool
@@ -376,6 +363,10 @@ def D3PDBunchCrossingTool():
     # The default name of the tool:
     __defaultToolName = "BunchCrossingTool"
 
+    # Get ourselves a logger:
+    from AthenaCommon.Logging import logging
+    __logger = logging.getLogger( "D3PDBunchCrossingTool" )
+
     # Check if the tool already exists. If it does, let's just return it without
     # any modifications:
     from AthenaCommon.AppMgr import ToolSvc
@@ -388,9 +379,7 @@ def D3PDBunchCrossingTool():
     __tool = Trig__D3PDBunchCrossingTool( __defaultToolName )
 
     # Create a default configuration for it:
-    __tool.MaxBunchSpacing = 150
-    __tool.FrontLength = 300
-    __tool.TailLength = 300
+    __logger.info( "Set the default values for the D3PDBunchCrossingTool configuration" )
 
     # Add the tool to ToolSvc and return it to the user:
     ToolSvc += __tool

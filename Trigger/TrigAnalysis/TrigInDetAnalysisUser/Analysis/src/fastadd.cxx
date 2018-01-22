@@ -20,6 +20,7 @@
 #include "TKey.h"
 #include "TH1D.h"
 #include "TH2D.h"
+#include "TProfile.h"
 #include "TFile.h"
 #include "TClass.h"
 
@@ -183,8 +184,9 @@ void search(TDirectory* td=0, const std::string& s="") {
       
       //      if ( std::string(tobj->GetClassName()).find("TH1")!=std::string::npos )  status = add<TH1>( objname.c_str(), tobj );
       //      if ( std::string(tobj->GetClassName()).find("TH2")!=std::string::npos )  status = add<TH2>( objname.c_str(), tobj );
-      if ( std::string(tobj->GetClassName()).find("TH1")!=std::string::npos )  add<TH1>( objname.c_str(), tobj );
-      if ( std::string(tobj->GetClassName()).find("TH2")!=std::string::npos )  add<TH2>( objname.c_str(), tobj );
+      if ( std::string(tobj->GetClassName()).find("TH1")!=std::string::npos )       add<TH1>( objname.c_str(), tobj );
+      if ( std::string(tobj->GetClassName()).find("TH2")!=std::string::npos )       add<TH2>( objname.c_str(), tobj );
+      if ( std::string(tobj->GetClassName()).find("TProfile")!=std::string::npos )  add<TProfile>( objname.c_str(), tobj );
       
       //      if ( !status ) std::cerr << "bad status" << std::endl;
     }
@@ -338,8 +340,7 @@ int main(int argc, char** argv) {
   for ( int i=1 ; i<argc ; i++ ) { 
     if      ( std::string(argv[i])=="--verbose" ) verbose = true;
     else if ( std::string(argv[i])=="-o" ) { 
-      ++i;
-      if ( i<argc ) output_file = argv[i];
+      if ( ++i<argc ) output_file = argv[i];
       else  return usage( std::cerr, argc, argv );
     }
     else { 
@@ -359,7 +360,7 @@ int main(int argc, char** argv) {
 
   if ( files.size()<1 ) return usage( std::cerr, argc, argv );
 
-
+  for ( size_t i=files.size() ; i-- ; ) if ( files[i]==output_file ) return usage( std::cerr, argc, argv ); 
   
   //  time the actual running of the cost() routine
   

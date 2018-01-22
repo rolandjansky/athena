@@ -37,7 +37,7 @@ namespace G4UA {
     CalibrationDefaultProcessing::CalibrationDefaultProcessing(const Config& config):AthMessaging(Gaudi::svcLocator()->service< IMessageSvc >( "MessageSvc" ),"CalibrationDefaultProcessing"),m_config(config), m_defaultSD(0){;
     }
 
-    void CalibrationDefaultProcessing::beginOfEvent(const G4Event*){
+    void CalibrationDefaultProcessing::BeginOfEventAction(const G4Event*){
 
       // retrieve the SD from G4SDManager
       // done here instead of in initialize to leave more flexibility to the rest of the G4 init
@@ -47,7 +47,7 @@ namespace G4UA {
       if(!m_defaultSD) ATH_MSG_ERROR("No valid SD name specified. The job will continue, but you should check your configuration");
     }
 
-    void CalibrationDefaultProcessing::processStep(const G4Step* a_step){
+    void CalibrationDefaultProcessing::UserSteppingAction(const G4Step* a_step){
 
 
       // Do we have a sensitive detector?

@@ -8,7 +8,7 @@
 
 AFP_TDSimHitCollection_PERS* AFP_TDSimHitCollectionCnv::createPersistent(AFP_TDSimHitCollection* transCont)
 {
-	MsgStream mlog(messageService(), "AFP_TDSimHitCollectionConverter" );
+	MsgStream mlog(msgSvc(), "AFP_TDSimHitCollectionConverter" );
 
 	AFP_TDSimHitCollectionCnv_p1 TPConverter;
 	AFP_TDSimHitCollection_PERS *pPersColl = TPConverter.createPersistent( transCont, mlog );
@@ -18,7 +18,7 @@ AFP_TDSimHitCollection_PERS* AFP_TDSimHitCollectionCnv::createPersistent(AFP_TDS
 
 AFP_TDSimHitCollection* AFP_TDSimHitCollectionCnv::createTransient()
 {
-	MsgStream mlog(messageService(), "AFP_TDSimHitCollectionConverter" );
+	MsgStream mlog(msgSvc(), "AFP_TDSimHitCollectionConverter" );
 
 	//GUID of persistence collection class (see selection.xml in AFP_EventTPCnv, class item AFP_TDSimHitCollection_p1
 	static const pool::Guid p1_guid("F38ED236-94F3-483B-A015-C95EA7B194AE");

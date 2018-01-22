@@ -122,7 +122,7 @@ const SG::auxid_set_t& AuxDiscoverySvc::getAuxIDs(const void* obj, const Guid& c
    if (m_store == nullptr) {
       return s_emptySet;
    }
-   return m_store->getDynamicAuxIDs();
+   return m_store->getSelectedAuxIDs();
 }
 
 const void* AuxDiscoverySvc::getData(SG::auxid_t auxid) {

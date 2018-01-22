@@ -14,6 +14,10 @@ atlas_depends_on_subdirs( PUBLIC
                           Generators/GeneratorObjects
                           Tools/PathResolver )
 
+#set( PYTHIA8_VERSION 226.pdf6plugin )
+#set( PYTHIA8_ROOT
+#   /cvmfs/sft.cern.ch/lcg/releases/LCG_88/MCGenerators/pythia8/${PYTHIA8_VERSION}/${LCG_PLATFORM} )
+
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( CLHEP )
@@ -28,6 +32,7 @@ atlas_disable_as_needed()
 # Component(s) in the package:
 atlas_add_library( Pythia8_iLib
                    src/Pythia8_i.cxx
+                   src/CompoundUserHook.cxx
                    src/UserProcessFactory.cxx
                    src/UserHooksFactory.cxx
                    src/UserResonanceFactory.cxx

@@ -15,11 +15,13 @@ public:
 
   HIUEModulatorTool(const std::string& myname);
 
-  float getModulation(float phi) const;
-  StatusCode setEventShapeForModulation(const xAOD::HIEventShape* shape);
-  void setHarmonics(const std::vector<unsigned int>& v);
-  StatusCode retrieveShape();
-  StatusCode initialize();
+  virtual float getModulation(float phi, const xAOD::HIEventShape* shape = nullptr) const override;
+  virtual StatusCode setEventShapeForModulation(const xAOD::HIEventShape* shape) override;
+  virtual void setHarmonics(const std::vector<unsigned int>& v) override;
+  virtual StatusCode retrieveShape() override;
+  virtual StatusCode initialize() override;
+
+  virtual StatusCode getShape(const xAOD::HIEventShape* & shape) const override;
 
   static float modulate(const std::vector<unsigned int>& nh_vector, const xAOD::HIEventShape* shape, float phi);
   

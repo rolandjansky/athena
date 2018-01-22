@@ -44,6 +44,11 @@ EgammaChainsToKeepMonitoring={
 "g35_loose",
 "g35_medium",
 "g200_loose_L1EM24VHIM",
+#ringer items
+"e28_lhtight_nod0_ringer_ivarloose",
+"e17_lhvloose_nod0_ringer_L1EM15VHI",
+"e60_lhmedium_nod0_ringer_L1EM24VHI",
+"e140_lhloose_nod0_ringer_L1EM24VHI",
 # Support triggers
 "e10_etcut_L1EM7",
 "e15_etcut_L1EM7",

@@ -52,8 +52,6 @@ from PrimaryDPDMaker.ElectronFilter import ElectronFilter
 # ---- Load the egammaPID and egammaParameters information
 # This is needed to always be up-to-date with the egamma
 # IsEM selections and also the author selections
-import PyCintex
-PyCintex.loadDictionary('egammaEnumsDict')
 from ROOT import egammaPID
 from ROOT import egammaParameters
 

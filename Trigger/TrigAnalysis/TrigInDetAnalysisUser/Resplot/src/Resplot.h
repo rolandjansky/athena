@@ -65,7 +65,7 @@ public:
   //     try to clean up properly afterwards - LIKE WE SHOULD BE ABLE TO!
   // NB: NB!! Actually, now we explicitly *remove* them from root managerment
   //          so we can do *proper* garbage collection, not like the 
-  //          ***REMOVED***
+  //          alleged garbage collection in root
 
   Resplot() : 
     mSet(false),  m_Nentries(NULL), 
@@ -580,7 +580,6 @@ private:
 private:
 
   // stop the root default histogram ownership nonsense  
-  // rene brun is an idiot. 
   void skip(TH1D* t)       { if ( t ) t->SetDirectory(0); }
   void delskip(TH1D* t)    { if ( t ) { t->SetDirectory(0); delete t; } }
   void deletehist(TH1D* t) { if ( t ) delete t; }

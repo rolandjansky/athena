@@ -13,12 +13,12 @@ from AthenaCommon.SystemOfUnits import GeV
 
 from TriggerMenu.jet.JetDef import generateHLTChainDef
 
-from TriggerMenu.menu.MenuUtils import *
+from TriggerMenu.menu.MenuUtils import splitChainDict
 
 from JetDef import dump_chaindef
 from exc2string import exc2string2
 from TriggerMenu.menu.ChainDef import ErrorChainDef
-import os, inspect
+import os
 
 from TriggerMenu.commonUtils.makeCaloSequences import getFullScanCaloSequences
 # TrigEFHLTJetMassDEta_Config = __import__("TrigHLTJetHypo.TrigEFHLTJetMassDEtaConfig",fromlist=[""])
@@ -80,15 +80,7 @@ def _addTopoInfo(theChainDef,chainDict, topoAlgs, doAtL2AndEF=True):
     
     inputTEsL2 = theChainDef.signatureList[maxL2SignatureIndex]['listOfTriggerElements'] 
     inputTEsEF = theChainDef.signatureList[-1]['listOfTriggerElements']
-
-    L2ChainName = "L2_" + chainDict['chainName']
-    EFChainName = "EF_" + chainDict['chainName']
-    HLTChainName = "HLT_" + chainDict['chainName']   
-    #topoAlgs = chainDict["topo"]
-
-    listOfChainDicts = splitChainDict(chainDict)
-    listOfChainDefs = []
-
+ 
     if ('muvtx' in topoAlgs):
        # import pdb;pdb.set_trace()
         theChainDef = generateMuonClusterLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoAlgs)
@@ -117,7 +109,7 @@ def generateMuonClusterLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, 
 
     # tracking
     from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
-    [trkcore,trkiso,trkprec] = TrigInDetSequence("Muon", "muon", "IDTrig", "2step").getSequence()
+    [trkcore,trkiso,trkprec] = TrigInDetSequence("Muon", "muon", "IDTrig", sequenceFlavour=["2step"]).getSequence()
 
     # muon cluster 
     from TrigL2LongLivedParticles.TrigL2LongLivedParticlesConfig import MuonClusterConfig
@@ -140,7 +132,6 @@ def generateMuonClusterLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, 
     TE_muonClusters = HLTChainName+'_muonClusters'
     TEmuonIsoB = HLTChainName+'_muIsoB'
     TEmuonClusterFex = HLTChainName+'_muClusFex'
-    TEmuonClusterHypo = HLTChainName+'_muClusHypo'
 
     # make clusters, then test if they pass the hypo
     theChainDef.addSequence([fexes_l2_MuonCluster,hypos_l2_MuonCluster], l1item, TE_muonClusters)
@@ -176,7 +167,7 @@ def generateCaloRatioLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, to
 
     # tracking
     from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
-    [trkcore, trkiso, trkprec] = TrigInDetSequence("Tau", "tau", "IDTrig", "2step").getSequence()
+    [trkcore, trkiso, trkprec] = TrigInDetSequence("Tau", "tau", "IDTrig", sequenceFlavour=["2step"]).getSequence()
 
     # calo-ratio
     from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConfig import getCaloRatioHypoInstance
@@ -238,7 +229,7 @@ def generateReversedCaloRatioLLPchain(theChainDef, chainDict, inputTEsL2, inputT
 
     # tracking
     from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
-    [trkcore, trkiso, trkprec] = TrigInDetSequence("Tau", "tau", "IDTrig", "2step").getSequence()
+    [trkcore, trkiso, trkprec] = TrigInDetSequence("Tau", "tau", "IDTrig", sequenceFlavour=["2step"]).getSequence()
 
     # reversed calo-ratio
     from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConfig import getCaloRatioHypoInstance
@@ -312,6 +303,7 @@ def addDetaInvmTopo(theChainDef,chainDicts,inputTEsL2, inputTEsEF,topoAlgs):
     
     logJet.debug("Configuration of EFHLTJetMassDeta hypo for chain %s: Hypo %s, AlgoName: %s " %(chainDicts['chainName'],hypo,algoName))
     # import pdb;pdb.set_trace()
+    TrigEFHLTJetMassDEta_Config = None
     try:
         detamjjet_hypo = getattr(TrigEFHLTJetMassDEta_Config,hypo ) 
     except:  

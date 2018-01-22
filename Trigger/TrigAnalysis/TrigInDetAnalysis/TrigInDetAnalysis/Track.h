@@ -167,7 +167,10 @@ inline std::ostream& operator<<( std::ostream& s, const TIDA::Track& t) {
       // << "\thpb="  << hextobin(t.hitPattern(),20)
 	    << "\tchi2=" << t.chi2() << "/" << t.dof()  
 	    << "\talgo=" << t.author()
-	    << "\tid=0x" << std::hex << t.id() << std::dec
+            << "\tbl="   << t.bLayerHits() 
+            << ":"  << ( t.expectBL() ? "t" : "f" )
+            << ":"  << ( t.hasTruth() ? "t" : "f" )
+	    << "\tid=0x" << std::hex << t.id() << std::dec << ":0x" << std::hex << t.barcode() << std::dec
 	    << "\t] ";
 }
 

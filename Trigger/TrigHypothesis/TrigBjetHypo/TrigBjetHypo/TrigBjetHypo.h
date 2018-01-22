@@ -25,6 +25,7 @@ class TriggerElement;
 /**
  * @brief Hypo class for HLT b-jet selection.
  *
+ * @author John Alison <johnda@uchicago.edu>
  * @author Andrea Coccaro <Andrea.Coccaro@ge.infn.it>
  *
  * This is the base hypothesis class for the b-jet selection. 
@@ -86,6 +87,10 @@ class TrigBjetHypo : public HLT::HypoAlgo {
   /** @brief to check the beam spot flag status. */
   bool m_useBeamSpotFlag;
 
+  /** @brief Overide the requirement that the BS is valid. */
+  /** @brief Used to not apply the correction to the GSC chains */
+  bool m_overRideBeamSpotValid;
+  
   /** @brief DeclareProperty: to monitor method used to perform the cut. */
   float m_monitorMethod;
 

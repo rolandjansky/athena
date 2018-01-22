@@ -1,13 +1,13 @@
+## Get the logger
+from AthenaCommon.Logging import *
+atlasG4log = logging.getLogger('ISF')
+atlasG4log.info('****************** STARTING ISF ******************')
+
 ## Include common skeleton
 include("SimuJobTransforms/skeleton.EVGENtoHIT.py")
 
 if hasattr(runArgs, 'useISF') and not runArgs.useISF:
     raise RuntimeError("Unsupported configuration! If you want to run with useISF=False, please use AtlasG4_tf.py!")
-
-## Get the logger
-from AthenaCommon.Logging import *
-atlasG4log = logging.getLogger('ISF')
-atlasG4log.info('****************** STARTING ISF ******************')
 
 ## Simulation flags need to be imported first
 from G4AtlasApps.SimFlags import simFlags
@@ -46,10 +46,8 @@ if hasattr(runArgs, "inputFile"):
 # We don't expect both inputFile and inputEVNT*File to be specified
 if hasattr(runArgs, "inputEVNTFile"):
     setInputEvgenFileJobProperties( runArgs.inputEVNTFile )
-elif hasattr(runArgs, "inputEVNT_COSMICSFile"):
-    setInputEvgenFileJobProperties( runArgs.inputEVNT_COSMICSFile )
-elif hasattr(runArgs, "inputEVNT_CAVERNFile"):
-    setInputEvgenFileJobProperties( runArgs.inputEVNT_CAVERNFile )
+elif hasattr(runArgs, "inputEVNT_TRFile"):
+    setInputEvgenFileJobProperties( runArgs.inputEVNT_TRFile )
 elif hasattr(runArgs, "inputEVNT_STOPPEDFile"):
     setInputEvgenFileJobProperties( runArgs.inputEVNT_STOPPEDFile )
 elif jobproperties.Beam.beamType.get_Value() == 'cosmics':
@@ -62,7 +60,7 @@ else:
 ## Handle cosmics configs
 if jobproperties.Beam.beamType.get_Value() == 'cosmics':
     simFlags.load_cosmics_flags()
-    if hasattr(runArgs, "inputEVNT_COSMICSFile"):
+    if hasattr(runArgs, "inputEVNT_TRFile"):
         if simFlags.CosmicFilterVolumeName.statusOn and simFlags.CosmicFilterVolumeName.get_Value() != "Muon":
             atlasG4log.warning("Filtering was already done. Using CosmicFilterVolumeName=Muon rather than "
                                "provided value (%s)" % str(runArgs.CosmicFilterVolumeName))
@@ -110,10 +108,11 @@ if hasattr(runArgs, "inputEVNT_STOPPEDFile"):
     include('SimulationJobOptions/preInclude.ReadStoppedParticles.py')
 
 # Avoid command line preInclude for cavern background
-if hasattr(runArgs, "inputEVNT_CAVERNFile"):
-    include('SimulationJobOptions/preInclude.G4ReadCavern.py')
-if hasattr(runArgs, "outputEVNT_CAVERNTRFile"):
-    include('SimulationJobOptions/preInclude.G4WriteCavern.py')
+if jobproperties.Beam.beamType.get_Value() != 'cosmics':
+    if hasattr(runArgs, "inputEVNT_TRFile"):
+        include('SimulationJobOptions/preInclude.G4ReadCavern.py')
+    if hasattr(runArgs, "outputEVNT_TRFile"):
+        include('SimulationJobOptions/preInclude.G4WriteCavern.py')
 
 # Avoid command line preInclude for event service
 if hasattr(runArgs, "eventService") and runArgs.eventService:
@@ -219,11 +218,11 @@ elif hasattr(runArgs,'jobNumber'):
 ## Handle cosmics track record
 from AthenaCommon.BeamFlags import jobproperties
 if jobproperties.Beam.beamType.get_Value() == 'cosmics':
-    if hasattr(runArgs, "inputEVNT_COSMICSFile"):
+    if hasattr(runArgs, "inputEVNT_TRFile"):
         simFlags.ReadTR = athenaCommonFlags.PoolEvgenInput()[0]
     else:
-        if hasattr(runArgs, "outputEVNT_COSMICSTRFile"):
-            simFlags.WriteTR = runArgs.outputEVNT_COSMICSTRFile
+        if hasattr(runArgs, "outputEVNT_TRFile"):
+            simFlags.WriteTR = runArgs.outputEVNT_TRFile
         #include( 'CosmicGenerator/jobOptions_ConfigCosmicProd.py' )
 
 ## Add filters for non-cosmics simulation
@@ -247,33 +246,6 @@ try:
     topSeq+=TimingAlg("SimTimerBegin", TimingObjOutputName = "EVNTtoHITS_timings")
 except:
     atlasG4log.warning('Could not add TimingAlg, no timing info will be written out.')
-
-if hasattr(runArgs, 'truthStrategy'):
-    ISF_Flags.BarcodeService   = 'Barcode_' + runArgs.truthStrategy + 'BarcodeSvc'
-    ISF_Flags.TruthService     = 'ISF_'     + runArgs.truthStrategy + 'TruthService'
-    ISF_Flags.EntryLayerFilter = 'ISF_'     + runArgs.truthStrategy + 'EntryLayerFilter'
-    ISF_Flags.TruthStrategy    = runArgs.truthStrategy
-    try:
-        from BarcodeServices.BarcodeServicesConfig import barcodeOffsetForTruthStrategy
-        simFlags.SimBarcodeOffset  = barcodeOffsetForTruthStrategy(runArgs.truthStrategy)
-    except RuntimeError:
-        if 'MC12' in runArgs.truthStrategy or 'MC15a' in runArgs.truthStrategy:
-            simFlags.SimBarcodeOffset  = 200000 #MC12 setting
-        else:
-            simFlags.SimBarcodeOffset  = 1000000 #MC15 setting
-        atlasG4log.warning('Using unknown truth strategy '+str(runArgs.truthStrategy)+' guessing that barcode offset is '+str(simFlags.SimBarcodeOffset))
-    except ImportError:
-        # Temporary back-compatibility
-        if 'MC12' in runArgs.truthStrategy or 'MC15a' in runArgs.truthStrategy:
-            simFlags.SimBarcodeOffset  = 200000 #MC12 setting
-        else:
-            simFlags.SimBarcodeOffset  = 1000000 #MC15 setting
-else:
-    ISF_Flags.BarcodeService   = 'Barcode_MC12BarcodeSvc'
-    ISF_Flags.TruthService     = 'ISF_TruthService'
-    ISF_Flags.EntryLayerFilter = 'ISF_MC12EntryLayerFilter'
-    ISF_Flags.TruthStrategy    = 'MC12'
-    simFlags.SimBarcodeOffset  = 200000 #MC12 setting
 
 ## Always enable the looper killer, unless it's been disabled
 if not hasattr(runArgs, "enableLooperKiller") or runArgs.enableLooperKiller:

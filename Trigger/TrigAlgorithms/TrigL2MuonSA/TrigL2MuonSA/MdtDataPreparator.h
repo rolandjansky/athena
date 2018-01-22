@@ -83,7 +83,7 @@ namespace TrigL2MuonSA {
     void setRoIBasedDataAccess(bool use_RoIBasedDataAccess);
 
   public:
-    float etaMinChamber[10],etaMaxChamber[10],phiMinChamber[10],phiMaxChamber[10];
+    float etaMinChamber[11],etaMaxChamber[11],phiMinChamber[11],phiMaxChamber[11];
 
   private:
     
@@ -114,6 +114,8 @@ namespace TrigL2MuonSA {
 					  std::vector<uint32_t>& v_robIds,
 					  TrigL2MuonSA::MdtHits& mdtHits,
 					  const TrigL2MuonSA::MuonRoad& muonRoad);
+
+    void initDeadChannels(const MuonGM::MdtReadoutElement* mydetEl);
 
   private:
 
@@ -151,6 +153,9 @@ namespace TrigL2MuonSA {
 
     bool m_use_mdtcsm;
     bool m_use_RoIBasedDataAccess;
+    bool m_BMGpresent;
+    int  m_BMGid;
+    std::map<Identifier, std::vector<Identifier> > m_DeadChannels;
 
   };
 

@@ -59,9 +59,11 @@ simFlags.MagneticField.set_Off()
 ## Don't release geometry (still needed)
 simFlags.ReleaseGeoModel = False
 
+include("G4AtlasApps/G4Atlas.flat.configuration.py")
+
 ## Add sim framework to the alg sequence (sim pre-init happens on construction)
-from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
-job += PyG4AtlasAlg()
+from AthenaCommon.CfgGetter import getAlgorithm
+job += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 
 # User algorithms
 from AthenaCommon.AppMgr import ServiceMgr
@@ -105,7 +107,3 @@ atRndmGenSvc.OutputLevel = INFO
 from G4AtlasApps.atlas_utilities import MemorySnooper
 job += MemorySnooper()
 
-## For saving seeds
-#from G4AtlasApps import AtlasG4Eng
-#pp = AtlasG4Eng.G4Eng.menu_G4RandomNrMenu()
-#pp.set_SaveOn()

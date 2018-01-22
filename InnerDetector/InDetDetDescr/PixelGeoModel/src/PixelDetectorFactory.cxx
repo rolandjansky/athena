@@ -34,7 +34,8 @@ using InDetDD::SiCommonItems;
 PixelDetectorFactory::PixelDetectorFactory(const PixelGeoModelAthenaComps * athenaComps,
 					   const PixelSwitches & switches)
   : InDetDD::DetectorFactoryBase(athenaComps),
-    m_detectorManager(0)
+    m_detectorManager(0),
+    m_useDynamicAlignFolders(false)
 {
   // Create the detector manager
   m_detectorManager = new PixelDetectorManager(detStore());
@@ -96,6 +97,8 @@ PixelDetectorFactory::PixelDetectorFactory(const PixelGeoModelAthenaComps * athe
 			   versionMinorNumber,
 			   versionPatchNumber);
   m_detectorManager->setVersion(version);
+
+  m_useDynamicAlignFolders = switches.dynamicAlignFolders();
 
 }
 
@@ -162,10 +165,8 @@ void PixelDetectorFactory::create(GeoPhysVol *world)
   // Register the callbacks and keys and the level corresponding to the key.
   if (m_geometryManager->Alignable()) {
 
-    InDetDD::AlignFolderType AlignFolder = getAlignFolderType();
-    m_detectorManager->addAlignFolderType(AlignFolder);
-
-    if (AlignFolder==InDetDD::static_run1){
+    if (!m_useDynamicAlignFolders){
+      m_detectorManager->addAlignFolderType(InDetDD::static_run1);
       m_detectorManager->addFolder("/Indet/Align");
       m_detectorManager->addChannel("/Indet/Align/ID",     2, InDetDD::global);
       m_detectorManager->addChannel("/Indet/Align/PIX",    1, InDetDD::global);
@@ -181,7 +182,8 @@ void PixelDetectorFactory::create(GeoPhysVol *world)
       m_detectorManager->addChannel("/Indet/Align/PIXEC3", 0, InDetDD::local);
     }
     
-    if (AlignFolder==InDetDD::timedependent_run2){
+    else {
+      m_detectorManager->addAlignFolderType(InDetDD::timedependent_run2);
       m_detectorManager->addGlobalFolder("/Indet/AlignL1/ID");
       m_detectorManager->addGlobalFolder("/Indet/AlignL2/PIX");
       m_detectorManager->addChannel("/Indet/AlignL1/ID",     2, InDetDD::global);
@@ -363,33 +365,6 @@ PixelDetectorFactory::doChecks()
      msg(MSG::INFO) << "Number of endcap elements (DBM) : " << endcapCountDBM << endmsg;
      msg(MSG::INFO) << "Total                           : " << barrelCount+endcapCount+endcapCountDBM << endmsg;
      msg(MSG::INFO) << "MaxHash                         : " << maxHash << endmsg;
-
-}
-
-// Determine which alignment folders are loaded to decide if we register old or new folders
-InDetDD::AlignFolderType PixelDetectorFactory::getAlignFolderType() const
-{
-
-  bool static_folderStruct = false;
-  bool timedep_folderStruct = false;
-  if (detStore()->contains<CondAttrListCollection>("/Indet/AlignL1/ID") &&
-      detStore()->contains<CondAttrListCollection>("/Indet/AlignL2/PIX") &&
-      detStore()->contains<AlignableTransformContainer>("/Indet/AlignL3") ) timedep_folderStruct = true;
-
-  if (detStore()->contains<AlignableTransformContainer>("/Indet/Align") ) static_folderStruct = true;
-
-  if (static_folderStruct && !timedep_folderStruct){
-    msg(MSG::INFO) << " Static run1 type alignment folder structure found" << endmsg; 
-    return InDetDD::static_run1;
-  }
-  else if (!static_folderStruct && timedep_folderStruct){
-    msg(MSG::INFO) << " Time dependent run2 type alignment folder structure found" << endmsg;
-    return InDetDD::timedependent_run2;
-  }
-  else if (static_folderStruct && timedep_folderStruct){
-    throw std::runtime_error("Old and new alignment folders are loaded at the same time! This should not happen!");    
-  }
-  else return InDetDD::none;
 
 }
 

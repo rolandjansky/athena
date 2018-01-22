@@ -4,39 +4,51 @@
 
 #ifndef PIXELMON2DLUMIMAPS_H_
 #define PIXELMON2DLUMIMAPS_H_
-#include "AthenaMonitoring/ManagedMonitorToolBase.h"
-#include <string.h>
+#include "PixelMonitoring/HolderTemplate.h"
 
+class string;
 class TH2F_LW;
 class Identifier;
 class PixelID;
 class StatusCode;
+namespace PixMon { enum class HistConf; }
 
-// A helper class to remove a lot of the code duplication.
-// This is a collection of 5 2D histograms which make up the '2D maps' used a lot of in the monitoring.
-// Each of the 2D maps correspond to a detector region (B0, B1, B2, ECA, ECC).
-// This books and formats the histograms in the constructor. The fill method will take the identifier 
-// as the input and fill the correct histogram and bin. The histograms are also public so that they
-// can be formated/accessed like any other histograms in the monitoring.
- 
-class PixelMon2DLumiMaps
-{
-   public:
-      PixelMon2DLumiMaps(std::string name, std::string title, std::string zlabel, bool doIBL, bool errorHist = false);
-      ~PixelMon2DLumiMaps();
-      TH2F_LW* IBLlbm;
-      TH2F_LW* B0lbm;
-      TH2F_LW* B1lbm;
-      TH2F_LW* B2lbm;
-      TH2F_LW* Albm;
-      TH2F_LW* Clbm;
-      void Fill(double LB,Identifier &id, const PixelID* pixID, double weight = 1);
-      StatusCode regHist(ManagedMonitorToolBase::MonGroup &group);
-private:
-      void formatHist();
-      const bool m_doIBL;
-      const bool m_errorHist;
-      
+/**
+ * PixelMon2DLumiMaps histogram holder class
+ *   --> Base type: 2D Maps (TH2F_LW)
+ *   --> Supports:  IBL
+ *                  B0, B1, B2
+ *                  ECA/C
+ *                  DBMA/C
+ *
+ * Collection of 2D pixel component maps, based on the TH2F_LW histogram class.
+ * The initialisation of the components is controlled by the HistConf object.
+ * The fill method will take the identifier as the input and fill the correct
+ * histogram and bin. The histograms are also public so that they can be
+ * formatted/accessed like any other histograms in the monitoring.
+ *
+ * N.B. Currently no support for IBL2D/3D histograms. Should this be added?
+ * Also, if the histogram configuration contains unsupported histograms, this is
+ * completely ignored. Should we do anything against it?
+ */
+class PixelMon2DLumiMaps : public PixMon::HolderTemplate<TH2F_LW> {
+ public:
+  //! Constructor for 2D lumi objects
+  PixelMon2DLumiMaps(std::string name, std::string title, std::string zlabel, const PixMon::HistConf& config);
+
+  /**
+   * Standard method to fill the histograms of this container.
+   *
+   * @param LB: the luminosity block number
+   * @param id: the identifier of the pixel unit
+   * @param pixID: instance of the class which translates the above ID
+   *        into readable info (e.g. eta/phi module index)
+   * @param weight: optional weighting factor
+   */
+  void fill(double LB, Identifier &id, const PixelID* pixID, float weight = 1.0);
+
+  //! Formatting function for histograms (reimplemented from template)
+  virtual void formatHist() override;
 };
 
-#endif
+#endif  // PIXELMON2DLUMIMAPS_H_

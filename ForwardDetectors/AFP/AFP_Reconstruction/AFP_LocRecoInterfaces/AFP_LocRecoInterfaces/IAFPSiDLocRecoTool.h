@@ -32,11 +32,8 @@ class IAFPSiDLocRecoTool : virtual public ::IAlgTool
 
   /// @brief run tracks reconstruction
   /// 
-  /// The method that does the actual tracks reconstruction. It reads
-  /// silicon detector hits from StoreGate, reconstructs tracks and
-  /// saves result to StoreGate.
-  virtual StatusCode reconstructTracks() = 0;
-
+  /// The method calls tools that reconstruct tracks.
+  virtual StatusCode execute() = 0;
 }; 
 
 inline const InterfaceID& IAFPSiDLocRecoTool::interfaceID() 

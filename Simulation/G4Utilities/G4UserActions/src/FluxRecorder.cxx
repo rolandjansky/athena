@@ -20,16 +20,16 @@
 #include "G4StepPoint.hh"
 
 
-namespace G4UA{
-
+namespace G4UA
+{
 
   FluxRecorder::FluxRecorder()
     : m_nev(0.0)
   {
   }
-  
-  void FluxRecorder::beginOfRun(const G4Run*){
 
+  void FluxRecorder::BeginOfRunAction(const G4Run*)
+  {
     char nom[120];
     double timebins[101],ebins[101];
     for (int i=0;i<101;++i){
@@ -49,12 +49,12 @@ namespace G4UA{
 
   }
 
-  void FluxRecorder::endOfEvent(const G4Event*){;
-
+  void FluxRecorder::EndOfEventAction(const G4Event*)
+  {
     m_nev+=1.;
   }
 
-  void FluxRecorder::endOfRun(const G4Run*){
+  void FluxRecorder::EndOfRunAction(const G4Run*){
     TFile * f = new TFile("flux.root","RECREATE");
     f->cd();
     char nom[80];
@@ -73,7 +73,7 @@ namespace G4UA{
     f->Close();
   }
 
-  void FluxRecorder::processStep(const G4Step* aStep){
+  void FluxRecorder::UserSteppingAction(const G4Step* aStep){
     int pdgid = 8, energy=(aStep->GetTrack()->GetKineticEnergy()>10.)?1:0;
     if (aStep->GetTrack()->GetDefinition()==G4Gamma::Definition()){
       pdgid=0;
@@ -120,6 +120,7 @@ namespace G4UA{
   void FluxRecorder::findVolume( const double r1 , const double z1 , const double r2 , const double z2 )
   {
 
+    // This horrible code should be fixed
     const static double dim[lastVol][4] = {
       {980.,1000.,0.,400.} , {980.,1000.,400.,800.} , {980.,1000.,800.,1200.} ,
       {750.,770.,0.,200.} , {750.,770.,200.,450.} , {750.,770.,450.,850.} ,
@@ -179,4 +180,5 @@ namespace G4UA{
       } // if we scored
     } // Loop over all volumes
   }
+
 } // namespace G4UA

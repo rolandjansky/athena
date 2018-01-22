@@ -34,19 +34,19 @@ class TRTHitAnalysis : public AthAlgorithm {
  private:
 
    /** Some variables**/
-   TH1* h_TRT_x;
-   TH1* h_TRT_y;
-   TH1* h_TRT_z;
-   TH1* h_TRT_r;
-   TH2* h_TRT_xy;
-   TH2* h_TRT_zr;
-   TH1* h_TRT_time_photons;
-   TH1* h_TRT_time_nonphotons;
-   TH1* h_TRT_edep_photons;
-   TH1* h_TRT_edep_nonphotons;
-   TH1* h_TRT_kine_photons;
-   TH1* h_TRT_kine_nonphotons;
-   TH1* h_TRT_barcode;
+   TH1* m_h_TRT_x;
+   TH1* m_h_TRT_y;
+   TH1* m_h_TRT_z;
+   TH1* m_h_TRT_r;
+   TH2* m_h_TRT_xy;
+   TH2* m_h_TRT_zr;
+   TH1* m_h_TRT_time_photons;
+   TH1* m_h_TRT_time_nonphotons;
+   TH1* m_h_TRT_edep_photons;
+   TH1* m_h_TRT_edep_nonphotons;
+   TH1* m_h_TRT_kine_photons;
+   TH1* m_h_TRT_kine_nonphotons;
+   TH1* m_h_TRT_barcode;
 
    std::vector<float>* m_TRT_x;
    std::vector<float>* m_TRT_y;

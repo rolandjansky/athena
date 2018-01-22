@@ -2,10 +2,15 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef CALODETECTORELEMENT_H
-#define CALODETECTORELEMENT_H
+#ifndef ISF_FASTCALOSIMPARAMETRIZATION_CALODETDESCRELEMENT_H
+#define ISF_FASTCALOSIMPARAMETRIZATION_CALODETDESCRELEMENT_H
 
 class CaloGeometry;
+
+#include "../Identifier/Identifier.h"
+#include <iostream>
+#include <iomanip>
+#include <cmath>
 
 class CaloDetDescrElement
 {
@@ -13,6 +18,7 @@ class CaloDetDescrElement
  public:
   CaloDetDescrElement() {
     m_identify = 0;
+    m_hash_id = 0;
     m_calosample = 0;
     m_eta = 0;
     m_phi = 0;
@@ -65,7 +71,7 @@ class CaloDetDescrElement
   /** @brief cell dr
    */
   float dr() const;
-    
+
   /** @brief cell x
    */
   float x() const;
@@ -93,19 +99,22 @@ class CaloDetDescrElement
   /** @brief cell dz
    */
   float dz() const;
-  
+
   /** @brief cell identifier
    */
-  Long64_t identify() const;
+  Identifier identify() const;
 
-  Int_t getSampling() const ;
+  unsigned long long calo_hash() const;
 
- //ACH protected:  
+  int getSampling() const ;
+
+ //ACH protected:
  //
-  Long64_t m_identify;
-  
-  Int_t m_calosample;
-   
+  long long m_identify;
+  long long m_hash_id;
+
+  int m_calosample;
+
   /** @brief cylindric coordinates : eta
    */
   float m_eta;
@@ -113,12 +122,32 @@ class CaloDetDescrElement
    */
   float m_phi;
 
+ /** @brief this one is cached for algorithm working in transverse Energy
+    */
+  float m_sinTh;
+   /** @brief this one is cached for algorithm working in transverse Energy
+   */
+  float m_cosTh;
+
   /** @brief cylindric coordinates : delta eta
    */
   float m_deta;
   /** @brief cylindric coordinates : delta phi
    */
   float m_dphi;
+
+  /** @brief cylindric coordinates : r
+   */
+
+  float m_volume;
+
+  /** @brief cache to allow fast px py pz computation
+   */
+  float m_sinPhi;
+
+  /** @brief cache to allow fast px py pz computation
+  */
+  float m_cosPhi;
 
   /** @brief cylindric coordinates : r
    */
@@ -135,7 +164,7 @@ class CaloDetDescrElement
   /** @brief cylindric coordinates : delta r
    */
   float m_dr;
-  
+
   /** @brief cartesian coordinates : X
    */
   float m_x;
@@ -163,12 +192,21 @@ class CaloDetDescrElement
   /** @brief cartesian coordinates : delta Z
    */
   float m_dz;
-  
+
 };
 
-inline Long64_t CaloDetDescrElement::identify() const
-{ return m_identify;}
-inline Int_t CaloDetDescrElement::getSampling() const
+inline Identifier CaloDetDescrElement::identify() const
+{
+	Identifier id((unsigned long long) m_identify);
+	return id;
+}
+
+inline unsigned long long CaloDetDescrElement::calo_hash() const
+{
+	return m_hash_id;
+}
+
+inline int CaloDetDescrElement::getSampling() const
 { return m_calosample;}
 inline float CaloDetDescrElement::eta() const
 { return m_eta;}

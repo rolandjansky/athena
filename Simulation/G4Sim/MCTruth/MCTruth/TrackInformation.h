@@ -20,15 +20,15 @@ public:
 	int GetParticleBarcode() const;
 	void SetParticle(const HepMC::GenParticle*);
 	void SetBaseISFParticle(const ISF::ISFParticle*);
-	void SetReturnedToISF(bool returned) {returnedToISF=returned;};
-	bool GetReturnedToISF() const {return returnedToISF;};
-	void SetRegenerationNr(int i) {regenerationNr=i;};
-	int GetRegenerationNr() const {return regenerationNr;};
+	void SetReturnedToISF(bool returned) {m_returnedToISF=returned;};
+	bool GetReturnedToISF() const {return m_returnedToISF;};
+	void SetRegenerationNr(int i) {m_regenerationNr=i;};
+	int GetRegenerationNr() const {return m_regenerationNr;};
 private:
-	int regenerationNr;
-	const HepMC::GenParticle *theParticle;
-	const ISF::ISFParticle *theBaseISFParticle;
-	bool returnedToISF;
+	int m_regenerationNr;
+	const HepMC::GenParticle *m_theParticle;
+	const ISF::ISFParticle *m_theBaseISFParticle;
+	bool m_returnedToISF;
 };
 
 #endif

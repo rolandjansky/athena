@@ -149,14 +149,24 @@ namespace LVL1 {
 
 CPCMXTopoData& CPCMXTopoData::checkCpmOverflow()
 {
-    using std::cout;
-    using std::endl;
     const size_t max_cpm_index = 14; // as indicated in CPTopoTOB::cpm(), but we start from 0, not 1
     std::vector<uint32_t> counters_tob_per_cpm(max_cpm_index, 0);
     for(const uint32_t word : m_tobWords) {
         CPTopoTOB tob(m_crate, m_cmx, word);
         const size_t iCpm = tob.cpm()-1;
-        counters_tob_per_cpm[iCpm] += 1;
+        const bool icpmValid = iCpm < counters_tob_per_cpm.size();
+        if(icpmValid) {
+            counters_tob_per_cpm[iCpm] += 1;
+        } else {
+            /*
+              // cout discouraged in athena, but this occurrence is
+              // rare and not deemed to deserve Athena::MsgStreamMember
+            cout<<"CPCMXTopoData::checkCpmOverflow :"
+                <<" invalid iCpm "<<iCpm<<","
+                <<" vector size is "<<counters_tob_per_cpm.size()
+                <<endl;
+            */
+        }
     }
     m_cpm_overflow = (m_cpm_overflow ||
                       std::any_of(counters_tob_per_cpm.begin(),

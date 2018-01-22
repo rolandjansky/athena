@@ -56,13 +56,12 @@ genSeq.Pythia8.Commands += [
 # nonStandard/Pythia8_A2_MSTW2008LO_Common.py configuration
 genSeq.Pythia8.Commands += [
     "Tune:pp = 5",
-    "PDF:useLHAPDF = on",
-    "PDF:LHAPDFset = MSTW2008lo68cl.LHgrid",
+    "PDF:pSet=LHAPDF6:MSTW2008lo68cl",
     "MultipartonInteractions:bProfile = 4",
     "MultipartonInteractions:a1 = 0.03",
     "MultipartonInteractions:pT0Ref = 1.90",
     "MultipartonInteractions:ecmPow = 0.30",
-    "BeamRemnants:reconnectRange = 2.28",
+    "ColourReconnection:range = 2.28",
     "SpaceShower:rapidityOrder=0"]
 evgenConfig.tune = "A2 MSTW2008LO"
 

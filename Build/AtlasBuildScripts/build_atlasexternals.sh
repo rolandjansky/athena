@@ -14,7 +14,7 @@ set -o pipefail
 # Function printing the usage information for the script
 usage() {
     echo "Usage: build_atlasexternals.sh <-s source dir> <-b build dir> " \
-        "<-i install dir> [-p project] [-r RPM dir] [-t build type]"
+        "<-i install dir> [-p project] [-r RPM dir] [-t build type] [-l LCG version number]"
 }
 
 # Parse the command line arguments:
@@ -25,7 +25,8 @@ PROJECT="AthenaExternals"
 RPMDIR=""
 BUILDTYPE="Release"
 PROJECTVERSION=""
-while getopts ":s:b:i:p:r:t:v:h" opt; do
+LCGVERSION="88"
+while getopts ":s:b:i:p:r:t:v:l:h" opt; do
     case $opt in
         s)
             SOURCEDIR=$OPTARG
@@ -47,6 +48,9 @@ while getopts ":s:b:i:p:r:t:v:h" opt; do
             ;;
         v)
             PROJECTVERSION=$OPTARG
+            ;;
+        l)
+            LCGVERSION=$OPTARG
             ;;
         :)
             echo "Argument -$OPTARG requires a parameter!"
@@ -86,6 +90,7 @@ fi
 error_stamp=`mktemp .tmp.error.XXXXX` ; rm -f $error_stamp
 {
  cmake -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} -DCTEST_USE_LAUNCHERS:BOOL=TRUE \
+    -DLCG_VERSION_NUMBER:STRING=${LCGVERSION} \
     ${EXTRACONF} \
     ${SOURCEDIR}/Projects/${PROJECT}/ || touch $error_stamp
 } 2>&1 | tee cmake_config.log 

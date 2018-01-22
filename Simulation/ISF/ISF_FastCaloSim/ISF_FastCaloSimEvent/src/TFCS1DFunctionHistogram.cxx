@@ -54,7 +54,7 @@ double* TFCS1DFunctionHistogram::histo_to_array(TH1* hist)
  {
   histoVals[i]=histoVals[i-1] + h_clone->GetBinContent(i+1);
  }
-
+ delete h_clone;
  return histoVals;
 
 }
@@ -97,8 +97,7 @@ TH1* TFCS1DFunctionHistogram::vector_to_histo()
   for(int b=1;b<=h_out->GetNbinsX();b++)
     h_out->SetBinContent(b,m_HistoContents[b-1]);
 
-
-  delete bins;
+  delete[] bins;
 
   return h_out;
 
@@ -122,15 +121,17 @@ void TFCS1DFunctionHistogram::smart_rebin_loop(TH1* hist, int verbose, double cu
     TH1D* h_out=smart_rebin(h_input,change); h_out->SetName("h_out");
 
     maxdev=get_maxdev(hist,h_out);
-    if(verbose==2) cout<<"Iteration nr. "<<i<<" change "<<change<<" bins "<<h_out->GetNbinsX()<<"-> maxdev="<<maxdev<<endl;
+    if(verbose>0 && i%100==0)cout<<"Iteration nr. "<<i<<" change "<<change<<" bins "<<h_out->GetNbinsX()<<"-> maxdev="<<maxdev<<endl;
 
-    if(maxdev<cut_maxdev)
+
+    if(maxdev<cut_maxdev && i < 10000 && h_out->GetNbinsX()>5 )
     {
+      delete h_input;
       h_input=(TH1D*)h_out->Clone("h_input");
       change+=step;
       i++;
     }
-    if(maxdev>cut_maxdev)
+    else
     {
       change-=step;
       h_output=(TH1D*)h_input->Clone("h_output");
@@ -142,6 +143,12 @@ void TFCS1DFunctionHistogram::smart_rebin_loop(TH1* hist, int verbose, double cu
   }
 
   cout<<"Info: Rebinned histogram has "<<h_output->GetNbinsX()<<" bins."<<endl;
+
+  //correct normalization (last bin content must be 1)
+  double sf=1.0/h_output->GetBinContent(h_output->GetNbinsX());
+  h_output->Scale(sf);
+
+  //store:
 
   for(int b=1;b<=h_output->GetNbinsX();b++)
     m_HistoContents.push_back(h_output->GetBinContent(b));
@@ -228,7 +235,6 @@ TH1D* TFCS1DFunctionHistogram::smart_rebin(TH1D* h_input, double change)
 
 double TFCS1DFunctionHistogram::rnd_to_fct(double rnd)
 {
-
   //double value1=sample_from_histovalues(rnd);
   double value2=get_inverse(rnd);
   return value2;
@@ -275,6 +281,6 @@ double TFCS1DFunctionHistogram::get_inverse(double rnd)
       b=hist->GetNbinsX()+1;
     }
   }
-
+  delete hist;
   return value;
 }

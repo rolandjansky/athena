@@ -25,6 +25,48 @@ formatter = logging.Formatter('%(levelname)-8s %(message)s')
 console.setFormatter(formatter)
 logging.getLogger('').addHandler(console)
 
+def RunCleanSTest(stest,input_file,pwd,release,extraArg,CleanRunHeadDir,UniqID):
+    s=stest 
+    logging.info("Running clean in rel "+release+" \"Sim_tf.py --AMIConfig "+s+" --inputEVNTFile "+ input_file + " --outputHITSFile myHITS.pool.root " + extraArg+"\"")
+
+    CleanDirName="clean_run_"+s+"_"+UniqID
+
+    cmd = ( " mkdir -p " + CleanRunHeadDir +" ;" + 
+            " cd "       + CleanRunHeadDir +" ;" + 
+            " mkdir -p " + CleanDirName    +" ;" + 
+            " cd "       + CleanDirName    +" ;" + 
+            " source $AtlasSetup/scripts/asetup.sh "+release+" >& /dev/null ;" +
+            " Sim_tf.py --AMIConfig="+s+" --inputEVNTFile "+input_file + " --outputHITSFile myHITS.pool.root " +extraArg+" > "+s+".log 2>&1"
+           )
+    subprocess.call(cmd,shell=True)
+
+    logging.info("Finished clean in rel "+release+" \"Sim_tf.py --AMIConfig "+s+" --inputEVNTFile "+ input_file + " --outputHITSFile myHITS.pool.root " + extraArg+"\"")
+    pass
+
+def RunPatchedSTest(stest,input_file,pwd,release,extraArg):
+    s=stest 
+    logging.info("Running patched in rel "+release+" \"Sim_tf.py --AMIConfig "+s+" --inputEVNTFile "+ input_file + " --outputHITSFile myHITS.pool.root " + extraArg+"\"")
+
+    if 'WorkDir_DIR' in os.environ:
+        cmake_build_dir = (os.environ['WorkDir_DIR'])
+        cmd = ( " cd "+pwd+" ;" + 
+                " source $AtlasSetup/scripts/asetup.sh "+release+"  >& /dev/null;" + 
+                " source "+cmake_build_dir+"/setup.sh ;" + 
+                " mkdir -p run_"+s+"; cd run_"+s+";" + 
+                " Sim_tf.py --AMIConfig="+s+" --inputEVNTFile "+input_file + " --outputHITSFile myHITS.pool.root " +extraArg+" > "+s+".log 2>&1"
+              )
+        subprocess.call(cmd,shell=True)
+    else :
+        cmd = ( " cd "+pwd+" ;" + 
+                " source $AtlasSetup/scripts/asetup.sh "+release+"  >& /dev/null;" + 
+                " mkdir -p run_"+s+"; cd run_"+s+";" + 
+                " Sim_tf.py --AMIConfig="+s+" --inputEVNTFile "+input_file + " --outputHITSFile myHITS.pool.root " +extraArg+" > "+s+".log 2>&1"
+              )
+        subprocess.call(cmd,shell=True)
+
+    logging.info("Finished patched in rel "+release+" \"Sim_tf.py --AMIConfig "+s+" --inputEVNTFile "+ input_file + " --outputHITSFile myHITS.pool.root " + extraArg+"\"")
+    pass
+
 def RunCleanQTest(qtest,pwd,release,extraArg,CleanRunHeadDir,UniqID, doR2A=False, trigConfig="2017"):
     q=qtest
     if q == 'q431' and doR2A:
@@ -172,7 +214,7 @@ def RunFrozenTier0PolicyTest(q,inputFormat,maxEvents,CleanRunHeadDir,UniqID,RunP
     if RunPatchedOnly: #overwrite
         clean_dir = '/afs/cern.ch/work/g/gencomm/public/referenceFiles/'+q
 
-    comparison_command = "acmd.py diff-root "+clean_dir+"/my"+inputFormat+".pool.root run_"+q+"/my"+inputFormat+".pool.root --error-mode resilient --ignore-leaves  RecoTimingObj_p1_HITStoRDO_timings  RecoTimingObj_p1_RAWtoESD_mems  RecoTimingObj_p1_RAWtoESD_timings  RAWtoESD_mems  RAWtoESD_timings  ESDtoAOD_mems  ESDtoAOD_timings  HITStoRDO_mems  HITStoRDO_timings --entries "+str(maxEvents)+" > run_"+q+"/diff-root-"+q+"."+inputFormat+".log 2>&1"   
+    comparison_command = "acmd.py diff-root "+clean_dir+"/my"+inputFormat+".pool.root run_"+q+"/my"+inputFormat+".pool.root --error-mode resilient --ignore-leaves  RecoTimingObj_p1_EVNTtoHITS_timings  RecoTimingObj_p1_HITStoRDO_timings  RecoTimingObj_p1_RAWtoESD_mems  RecoTimingObj_p1_RAWtoESD_timings  RAWtoESD_mems  RAWtoESD_timings  ESDtoAOD_mems  ESDtoAOD_timings  HITStoRDO_mems  HITStoRDO_timings --entries "+str(maxEvents)+" > run_"+q+"/diff-root-"+q+"."+inputFormat+".log 2>&1"   
     output,error = subprocess.Popen(['/bin/bash', '-c', comparison_command], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
 
     # We want to catch/print both container additions/subtractions as well as
@@ -375,7 +417,7 @@ def main():
     parser.add_option("-r","--ref"     ,type="string"        ,dest="ref"   ,default=None    ,help="define a particular reference release")
     parser.add_option("-v","--val"     ,type="string"        ,dest="val"   ,default=None    ,help="define a particular validation release")
     parser.add_option("-t","--trigRun2Config", type="string", dest="trigRun2Config_flag", default="2017"       ,help="specify the value of run2Config variable used by trigger. Allowed values are \"2016\" and \"2017\" (default)")
-
+    parser.add_option("-s","--sim", action="store_true", dest="sim_flag", default=False, help="sim will run the Sim_tf.py test")
     parser.add_option("-p","--patched"     ,action="store_true"       ,dest="patched_flag"        ,default=False    ,help="patched option will run q-tests just on your patched version of packages. Be warned! File output comparisons will only be performed against pre-defined reference files stored in the directory /afs/cern.ch/work/g/gencomm/public/referenceFiles and performance comparison tests will not be run.")
 
 
@@ -387,6 +429,7 @@ def main():
     else:
         extraArg = options.extraArgs
 
+    RunSim  = options.sim_flag
     RunFast = options.fast_flag
     RunPatchedOnly = options.patched_flag
     CleanRunHeadDir=options.cleanDir
@@ -441,7 +484,11 @@ def main():
 ########### Define which q-tests to run
 
         qTestsToRun = {}
-        if r2aMode:
+        if RunSim:
+            qTestsToRun = { 
+            's3126':[ 'EVNTtoHITS' ]
+            }
+        elif r2aMode:
             qTestsToRun = { 
             'q221':[ 'HITtoRDO','RAWtoESD','ESDtoAOD','AODtoTAG'],
             'q431':[ 'RAWtoALL']
@@ -454,9 +501,10 @@ def main():
 
         
 ########### Get release info
-        mysetup = GetReleaseSetup() 
+        if not (options.ref and options.val):
+            mysetup = GetReleaseSetup()
+            cleanSetup = mysetup
         mypwd   = pwd()
-        cleanSetup = mysetup
 
 ########### List the packages in the local InstallArea                                                                                                                                                                                                                           
         if options.ref and options.val:
@@ -475,16 +523,24 @@ def main():
 #        mysetup=mysetup+",builds"
         logging.info("------------------ Run Athena q-test jobs---------------"                )
 
+        sim_input_file = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/ttbar_muplusjets-pythia6-7000.evgen.pool.root" # For sim test
+
         if RunFast:
             for qtest in qTestsToRun:
                 q=str(qtest)
 
                 def mycleanqtest():
-                    RunCleanQTest(q,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName, doR2A=r2aMode, trigConfig=trigRun2Config)
+                    if RunSim:
+                        RunCleanSTest(q,sim_input_file,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName)
+                    else:   
+                        RunCleanQTest(q,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName, doR2A=r2aMode, trigConfig=trigRun2Config)
                     pass
 
                 def mypatchedqtest():
-                    RunPatchedQTest(q,mypwd,mysetup,extraArg, doR2A=r2aMode, trigConfig=trigRun2Config)
+                    if RunSim:
+                        RunPatchedSTest(q,sim_input_file,mypwd,cleanSetup,extraArg)
+                    else:
+                        RunPatchedQTest(q,mypwd,mysetup,extraArg, doR2A=r2aMode, trigConfig=trigRun2Config)
                     pass
             
                 mythreads[q+"_clean"]   = threading.Thread(target=mycleanqtest)
@@ -500,9 +556,11 @@ def main():
             for qtest in qTestsToRun:
                 q=str(qtest)
 
-
                 def mypatchedqtest():
-                    RunPatchedQTest(q,mypwd,mysetup,extraArg, doR2A=r2aMode, trigConfig=trigRun2Config)
+                    if RunSim:
+                        RunPatchedSTest(q,sim_input_file,mypwd,cleanSetup,extraArg)
+                    else:
+                        RunPatchedQTest(q,mypwd,mysetup,extraArg, doR2A=r2aMode, trigConfig=trigRun2Config)
                     pass
             
                 mythreads[q+"_patched"] = threading.Thread(target=mypatchedqtest)
@@ -518,11 +576,17 @@ def main():
                 q=str(qtest)
 
                 def mycleanqtest():
-                    RunCleanQTest(q,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName,trigConfig=trigRun2Config)
+                    if RunSim:
+                        RunCleanSTest(q,sim_input_file,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName)
+                    else:   
+                        RunCleanQTest(q,mypwd,cleanSetup,extraArg,CleanRunHeadDir,UniqName,trigConfig=trigRun2Config)
                     pass
                 
                 def mypatchedqtest():
-                    RunPatchedQTest(q,mypwd,mysetup,extraArg,trigConfig=trigRun2Config)
+                    if RunSim:
+                        RunPatchedSTest(q,sim_input_file,mypwd,cleanSetup,extraArg)
+                    else:   
+                        RunPatchedQTest(q,mypwd,mysetup,extraArg,trigConfig=trigRun2Config)
                     pass
 
                 mythreads[q+"_clean"]   = threading.Thread(target=mycleanqtest)
@@ -534,7 +598,6 @@ def main():
                 mythreads[q+"_patched"].join()
 
 #Run post-processing tests
-
 
         All_Tests_Passed = True
 
@@ -549,11 +612,15 @@ def main():
                 All_Tests_Passed = False
                 continue
 
-            if not RunFrozenTier0PolicyTest(q,"ESD",10,CleanRunHeadDir,UniqName,RunPatchedOnly):
-                All_Tests_Passed = False
+            if RunSim:
+                if not RunFrozenTier0PolicyTest(q,"HITS",10,CleanRunHeadDir,UniqName,RunPatchedOnly):
+                    All_Tests_Passed = False
+            else:
+                if not RunFrozenTier0PolicyTest(q,"ESD",10,CleanRunHeadDir,UniqName,RunPatchedOnly):
+                    All_Tests_Passed = False
 
-            if not RunFrozenTier0PolicyTest(q,"AOD",20,CleanRunHeadDir,UniqName,RunPatchedOnly):
-                All_Tests_Passed = False
+                if not RunFrozenTier0PolicyTest(q,"AOD",20,CleanRunHeadDir,UniqName,RunPatchedOnly):
+                    All_Tests_Passed = False
 
             if RunPatchedOnly: continue  # Performance checks against static references not possible
     
@@ -590,4 +657,3 @@ def main():
 
 if __name__ == '__main__':
         main()
-

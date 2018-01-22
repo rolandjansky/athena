@@ -163,7 +163,7 @@ namespace Trig {
   }
 
   StatusCode DecisionUnpackerEventInfo::unpackNavigation(HLT::TrigNavStructure* /*nav*/){
-    ATH_MSG_ERROR("This is the EventInfo Unpacker, there is no Navigation available.");
+    ATH_MSG_WARNING("This is the EventInfo Unpacker, there is no Navigation available -- but someone seems to try to access features triggering a navi unpacking");
     this->unpacked_navigation(true);
     return StatusCode::SUCCESS;
   }

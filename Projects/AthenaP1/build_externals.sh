@@ -72,6 +72,7 @@ fi
 
 # Stop on errors from here on out:
 set -e
+set -o pipefail
 
 # We are in BASH, get the path of this script in a simple way:
 thisdir=$(dirname ${BASH_SOURCE[0]})
@@ -95,7 +96,7 @@ if [ "$FORCE" = "1" ]; then
 fi
 
 # Create some directories:
-mkdir -p ${BUILDDIR}/install
+mkdir -p ${BUILDDIR}/{src,install}
 
 # Set some environment variables that the builds use internally:
 export NICOS_PROJECT_VERSION=`cat ${thisdir}/version.txt`
@@ -118,10 +119,13 @@ fi
 # Read in the tag/branch to use for AthenaExternals:
 AthenaExternalsVersion=$(awk '/^AthenaExternalsVersion/{print $3}' ${thisdir}/externals.txt)
 
+# Read in the LCG version 
+LCGVersion=`cat ${thisdir}/LCG_version.txt`
+
 # Check out AthenaExternals from the right branch/tag:
 ${scriptsdir}/checkout_atlasexternals.sh \
     -t ${AthenaExternalsVersion} \
-    -s ${BUILDDIR}/src/AthenaExternals
+    -s ${BUILDDIR}/src/AthenaExternals 2>&1 | tee ${BUILDDIR}/src/checkout.AthenaExternals.log
 
 # Build AthenaExternals:
 export NICOS_PROJECT_HOME=$(cd ${BUILDDIR}/install;pwd)/AthenaExternals
@@ -130,6 +134,7 @@ ${scriptsdir}/build_atlasexternals.sh \
     -b ${BUILDDIR}/build/AthenaExternals \
     -i ${BUILDDIR}/install/AthenaExternals/${NICOS_PROJECT_VERSION} \
     -p AthenaExternals ${RPMOPTIONS} -t ${BUILDTYPE} \
+    -l ${LCGVersion} \
     -v ${NICOS_PROJECT_VERSION}
 
 # Get the "platform name" from the directory created by the AthenaExternals
@@ -142,7 +147,7 @@ GaudiVersion=$(awk '/^GaudiVersion/{print $3}' ${thisdir}/externals.txt)
 # Check out Gaudi from the right branch/tag:
 ${scriptsdir}/checkout_Gaudi.sh \
     -t ${GaudiVersion} \
-    -s ${BUILDDIR}/src/GAUDI
+    -s ${BUILDDIR}/src/GAUDI 2>&1 | tee ${BUILDDIR}/src/checkout.GAUDI.log
 
 # Build Gaudi:
 export NICOS_PROJECT_HOME=$(cd ${BUILDDIR}/install;pwd)/GAUDI

@@ -1,5 +1,5 @@
 #ServiceMgr.PixelCablingSvc.UseIBLParameterSvc = False
-#ServiceMgr.PixelCablingSvc.MappingFile = "Pixels_Atlas_IdMapping_inclIBL_DBM.dat"
+#ServiceMgr.PixelCablingSvc.MappingFile = "PixelCabling/Pixels_Atlas_IdMapping_inclIBL_DBM.dat"
 #ServiceMgr.PixelCablingSvc.LayerColumnsPerFE = [80]
 #ServiceMgr.PixelCablingSvc.LayerRowsPerFE = [336]
 #ServiceMgr.PixelCablingSvc.LayerFEsPerHalfModule = [2]

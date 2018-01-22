@@ -201,15 +201,8 @@ SCTErrMonTool::SCTErrMonTool(const std::string &type, const std::string &name, c
   m_rangeEta( 2.5 ),
   m_nBinsPhi( 100 ),
   m_ModulesThreshold( 2.5 ),
-  m_TotalDetectorCoverageVsLB{},
-  tmp_allErrs{},
-  tmp_pallErrs{},
-  tmp_ByteStreamVsLB{},
-  tmp_ByteStreamWithSctFlagVsLB{},
-  tmp_LinksWithAnyErrorsVsLB{},
-  tmp_LinksWithBadErrorsVsLB{},
-  tmp_LinksWithLnkErrorsVsLB{},
-  tmp_LinksWithRODErrorsVsLB{} {
+  m_TotalDetectorCoverageVsLB{}//,
+  {
     /**
      *  sroe 3 Sept 2015:
      *  histoPathBase is declared as a property in the base class, assigned to m_path
@@ -297,6 +290,9 @@ SCTErrMonTool::errorsString(int errtype) {
   if (errtype == RODLEVEL) {
     return "RODLevelErrors";
   }
+  if (errtype == MASKEDCHIP) {
+    return "MaskedChipALL";
+  }
   return "";
 }
 
@@ -320,146 +316,6 @@ SCTErrMonTool::copyHistograms() {
 	for(int ientry=0; ientry<nentry; ientry++){
 	  m_LinksWithRODErrorsVsLB_check[reg]->Fill(m_LinksWithCategorisedErrorsVsLB[CategoryErrors::RODLEVEL][reg]->GetXaxis()->GetBinCenter(xb),
 						    m_LinksWithCategorisedErrorsVsLB[CategoryErrors::RODLEVEL][reg]->GetBinContent(xb));
-	}
-      }
-    }
-  }
-
-  // Copy histograms
-  {
-    int nERR=28;
-    int tmp_errorIndex[] = {
-      SCT_ByteStreamErrors::ABCDError, SCT_ByteStreamErrors::RawError, SCT_ByteStreamErrors::TimeOutError,
-      SCT_ByteStreamErrors::LVL1IDError, SCT_ByteStreamErrors::BCIDError,
-      SCT_ByteStreamErrors::PreambleError, SCT_ByteStreamErrors::FormatterError, SCT_ByteStreamErrors::MaskedLink,
-      SCT_ByteStreamErrors::RODClockError, SCT_ByteStreamErrors::TruncatedROD, SCT_ByteStreamErrors::ROBFragmentError,
-      SCT_ByteStreamErrors::ByteStreamParseError,SCT_ByteStreamErrors::MissingLinkHeaderError, SCT_ByteStreamErrors::MaskedROD,
-      CategoryErrors::MASKEDLINKALL+100, SCT_ByteStreamErrors::ABCDError_Chip0,SCT_ByteStreamErrors::ABCDError_Chip1, 
-      SCT_ByteStreamErrors::ABCDError_Chip2, SCT_ByteStreamErrors::ABCDError_Chip3, SCT_ByteStreamErrors::ABCDError_Chip4, 
-      SCT_ByteStreamErrors::ABCDError_Chip5, SCT_ByteStreamErrors::ABCDError_Error1, SCT_ByteStreamErrors::ABCDError_Error2,
-      SCT_ByteStreamErrors::ABCDError_Error4, CategoryErrors::SUMMARY+100, CategoryErrors::BADERR+100, 
-      CategoryErrors::LINKLEVEL+100, CategoryErrors::RODLEVEL+100
-    };
-
-    for(int reg=0; reg<N_REGIONS; reg++){
-      for (int errType(0); errType != nERR; ++errType) {
-	int nLayers = n_layers[reg]*2;
-	for (int layer(0); layer != nLayers; ++layer) {
-	  if(tmp_errorIndex[errType]>=100){
-	    int xbins = (m_allErrsCate[tmp_errorIndex[errType]-100][reg][layer]->GetNbinsX() + 1);
-	    int ybins = (m_allErrsCate[tmp_errorIndex[errType]-100][reg][layer]->GetNbinsY() + 1);
-	    for (int xb(1); xb != xbins; ++xb) {
-	      for (int yb(1); yb != ybins; ++yb) {
-		double nentry=m_allErrsCate[tmp_errorIndex[errType]-100][reg][layer]->GetBinContent(xb,yb);
-		for(int ientry=0; ientry<nentry; ientry++){
-		  tmp_allErrs[errType][reg][layer]->Fill(m_allErrsCate[tmp_errorIndex[errType]-100][reg][layer]->GetXaxis()->GetBinCenter(xb),
-							 m_allErrsCate[tmp_errorIndex[errType]-100][reg][layer]->GetYaxis()->GetBinCenter(yb),
-							 m_allErrsCate[tmp_errorIndex[errType]-100][reg][layer]->GetBinContent(xb,yb));
-		  tmp_pallErrs[errType][reg][layer]->Fill(m_pallErrsCate[tmp_errorIndex[errType]-100][reg][layer]->GetXaxis()->GetBinCenter(xb),
-							  m_pallErrsCate[tmp_errorIndex[errType]-100][reg][layer]->GetYaxis()->GetBinCenter(yb));
-		}
-	      }
-	    }
-	  }
-	  else{
-	    int xbins = (m_allErrs[tmp_errorIndex[errType]][reg][layer]->GetNbinsX() + 1);
-	    int ybins = (m_allErrs[tmp_errorIndex[errType]][reg][layer]->GetNbinsY() + 1);
-	    for (int xb(1); xb != xbins; ++xb) {
-	      for (int yb(1); yb != ybins; ++yb) {
-		double nentry=m_allErrs[tmp_errorIndex[errType]][reg][layer]->GetBinContent(xb,yb);
-		for(int ientry=0; ientry<nentry; ientry++){
-		  tmp_allErrs[errType][reg][layer]->Fill(m_allErrs[tmp_errorIndex[errType]][reg][layer]->GetXaxis()->GetBinCenter(xb),
-							 m_allErrs[tmp_errorIndex[errType]][reg][layer]->GetYaxis()->GetBinCenter(yb),
-							 m_allErrs[tmp_errorIndex[errType]][reg][layer]->GetBinContent(xb,yb));
-		  tmp_pallErrs[errType][reg][layer]->Fill(m_pallErrs[tmp_errorIndex[errType]][reg][layer]->GetXaxis()->GetBinCenter(xb),
-							  m_pallErrs[tmp_errorIndex[errType]][reg][layer]->GetYaxis()->GetBinCenter(yb));
-		}
-	      }
-	    }
-	  }
-	}
-      }
-    }
-  }
-
-  {
-    enum tmp_ErrorTypes {
-      ABCD=0, RAW, TIMEOUT, LVL1ID, BCID, PREAMBLE, FORMATTER, MASKEDLINKS, RODCLOCK, TRUNCATEDROD, ROBFRAG, BSPARSE, MISSINGLINK, MASKEDRODS, // individual errors
-      MASKEDLINKALL, // combined errors
-      ABCDChip0, ABCDChip1, ABCDChip2, ABCDChip3, ABCDChip4, ABCDChip5, ABCDError1, ABCDError2, ABCDError4, // detailed ABCD errors
-      SUMMARY, BADERR, LINKLEVEL, RODLEVEL, // categorized errors
-      N_ERRTYPES
-    };
-    int nERR=28;
-    int tmp_errorIndex[] = {
-      SCT_ByteStreamErrors::ABCDError, SCT_ByteStreamErrors::RawError, SCT_ByteStreamErrors::TimeOutError,
-      SCT_ByteStreamErrors::LVL1IDError, SCT_ByteStreamErrors::BCIDError,
-      SCT_ByteStreamErrors::PreambleError, SCT_ByteStreamErrors::FormatterError, SCT_ByteStreamErrors::MaskedLink,
-      SCT_ByteStreamErrors::RODClockError, SCT_ByteStreamErrors::TruncatedROD, SCT_ByteStreamErrors::ROBFragmentError,
-      SCT_ByteStreamErrors::ByteStreamParseError,SCT_ByteStreamErrors::MissingLinkHeaderError, SCT_ByteStreamErrors::MaskedROD,
-      CategoryErrors::MASKEDLINKALL+100, SCT_ByteStreamErrors::ABCDError_Chip0,SCT_ByteStreamErrors::ABCDError_Chip1, 
-      SCT_ByteStreamErrors::ABCDError_Chip2, SCT_ByteStreamErrors::ABCDError_Chip3, SCT_ByteStreamErrors::ABCDError_Chip4, 
-      SCT_ByteStreamErrors::ABCDError_Chip5, SCT_ByteStreamErrors::ABCDError_Error1, SCT_ByteStreamErrors::ABCDError_Error2,
-      SCT_ByteStreamErrors::ABCDError_Error4, CategoryErrors::SUMMARY+100, CategoryErrors::BADERR+100, 
-      CategoryErrors::LINKLEVEL+100, CategoryErrors::RODLEVEL+100
-    };
-
-    for (int reg = 0; reg != NREGIONS_INC_GENERAL; ++reg) {
-      for (int errType = 0; errType != nERR; ++errType) {
-	if(tmp_errorIndex[errType]>=100){
-	  int xbins = (m_ByteStreamCategorisedVsLB[tmp_errorIndex[errType]-100][reg]->GetNbinsX() + 1);
-	  for (int xb(1); xb != xbins; ++xb) {
-	    double nentry=m_ByteStreamCategorisedVsLB[tmp_errorIndex[errType]-100][reg]->GetBinContent(xb);
-	    for(int ientry=0; ientry<nentry; ientry++){
-	      tmp_ByteStreamVsLB[errType][reg]->Fill(m_ByteStreamCategorisedVsLB[tmp_errorIndex[errType]-100][reg]->GetXaxis()->GetBinCenter(xb),
-						     m_ByteStreamCategorisedVsLB[tmp_errorIndex[errType]-100][reg]->GetBinContent(xb));
-	    }
-	  }
-	}
-	else{
-	  int xbins = (m_ByteStreamVsLB[tmp_errorIndex[errType]][reg]->GetNbinsX() + 1);
-	  for (int xb(1); xb != xbins; ++xb) {
-	    double nentry=m_ByteStreamVsLB[tmp_errorIndex[errType]][reg]->GetBinContent(xb);
-	    for(int ientry=0; ientry<nentry; ientry++){
-	      tmp_ByteStreamVsLB[errType][reg]->Fill(m_ByteStreamVsLB[tmp_errorIndex[errType]][reg]->GetXaxis()->GetBinCenter(xb),
-						     m_ByteStreamVsLB[tmp_errorIndex[errType]][reg]->GetBinContent(xb));
-	      tmp_ByteStreamWithSctFlagVsLB[errType][reg]->Fill(m_ByteStreamWithSctFlagVsLB[tmp_errorIndex[errType]][reg]->GetXaxis()->GetBinCenter(xb),
-								m_ByteStreamWithSctFlagVsLB[tmp_errorIndex[errType]][reg]->GetBinContent(xb));
-	    }
-	  }
-	}
-      }
-      int xbins = 0;
-      xbins = (m_LinksWithCategorisedErrorsVsLB[CategoryErrors::SUMMARY][reg]->GetNbinsX() + 1);
-      for (int xb(1); xb != xbins; ++xb) {
-	double nentry=m_LinksWithCategorisedErrorsVsLB[CategoryErrors::SUMMARY][reg]->GetBinContent(xb);
-	for(int ientry=0; ientry<nentry; ientry++){
-	  tmp_LinksWithAnyErrorsVsLB[reg]->Fill(m_LinksWithCategorisedErrorsVsLB[CategoryErrors::SUMMARY][reg]->GetXaxis()->GetBinCenter(xb),
-						m_LinksWithCategorisedErrorsVsLB[CategoryErrors::SUMMARY][reg]->GetBinContent(xb));
-	}
-      }
-      xbins = (m_LinksWithCategorisedErrorsVsLB[CategoryErrors::BADERR][reg]->GetNbinsX() + 1);
-      for (int xb(1); xb != xbins; ++xb) {
-	double nentry=m_LinksWithCategorisedErrorsVsLB[CategoryErrors::BADERR][reg]->GetBinContent(xb);
-	for(int ientry=0; ientry<nentry; ientry++){
-	  tmp_LinksWithBadErrorsVsLB[reg]->Fill(m_LinksWithCategorisedErrorsVsLB[CategoryErrors::BADERR][reg]->GetXaxis()->GetBinCenter(xb),
-						m_LinksWithCategorisedErrorsVsLB[CategoryErrors::BADERR][reg]->GetBinContent(xb));
-	}
-      }
-      xbins = (m_LinksWithCategorisedErrorsVsLB[CategoryErrors::LINKLEVEL][reg]->GetNbinsX() + 1);
-      for (int xb(1); xb != xbins; ++xb) {
-	double nentry=m_LinksWithCategorisedErrorsVsLB[CategoryErrors::LINKLEVEL][reg]->GetBinContent(xb);
-	for(int ientry=0; ientry<nentry; ientry++){
-	  tmp_LinksWithLnkErrorsVsLB[reg]->Fill(m_LinksWithCategorisedErrorsVsLB[CategoryErrors::LINKLEVEL][reg]->GetXaxis()->GetBinCenter(xb),
-						m_LinksWithCategorisedErrorsVsLB[CategoryErrors::LINKLEVEL][reg]->GetBinContent(xb));
-	}
-      }
-      xbins = (m_LinksWithCategorisedErrorsVsLB[CategoryErrors::RODLEVEL][reg]->GetNbinsX() + 1);
-      for (int xb(1); xb != xbins; ++xb) {
-	double nentry=m_LinksWithCategorisedErrorsVsLB[CategoryErrors::RODLEVEL][reg]->GetBinContent(xb);
-	for(int ientry=0; ientry<nentry; ientry++){
-	  tmp_LinksWithRODErrorsVsLB[reg]->Fill(m_LinksWithCategorisedErrorsVsLB[CategoryErrors::RODLEVEL][reg]->GetXaxis()->GetBinCenter(xb),
-						m_LinksWithCategorisedErrorsVsLB[CategoryErrors::RODLEVEL][reg]->GetBinContent(xb));
 	}
       }
     }
@@ -508,143 +364,6 @@ SCTErrMonTool::copyHistograms_book() {
       }
     }
 
-    //Copy histograms
-    {
-      TString regLabel[4] = {
-    	"EndcapC", "Barrel", "EndcapA", ""
-      };
-      TString regTitle[4] = {
-    	"EndcapC", "Barrel", "EndcapA", "All Region"
-      };
-      std::string regDir[4] = {
-    	"SCTEC", "SCTB", "SCTEA", "GENERAL"
-      };
-      std::string regSuf[4] = {
-    	"ECm", "", "ECp", ""
-      };
-
-      int nERR=28;
-      std::string tmp_errorsNames[] = {
-    	"ABCD", "Raw", "TimeOut", "LVL1ID", "BCID", "Preamble", "Formatter", "MaskedLinkLink", "RODClock", "TruncROD",
-    	"ROBFrag", "BSParse", "MissingLink", "MaskedROD", "MaskedLink", "ABCDChip0", "ABCDChip1", "ABCDChip2",
-    	"ABCDChip3", "ABCDChip4", "ABCDChip5", "ABCDError1", "ABCDError2", "ABCDError4", "summary", "badError", "LinkLevel", "RODLevel"
-      };
-      // int tmp_errorIndex[] = {
-      // 	SCT_ByteStreamErrors::ABCDError, SCT_ByteStreamErrors::RawError, SCT_ByteStreamErrors::TimeOutError, SCT_ByteStreamErrors::LVL1IDError, SCT_ByteStreamErrors::BCIDError,
-      // 	SCT_ByteStreamErrors::PreambleError, SCT_ByteStreamErrors::FormatterError, SCT_ByteStreamErrors::MaskedLink, 
-      // 	SCT_ByteStreamErrors::RODClockError, SCT_ByteStreamErrors::TruncatedROD, SCT_ByteStreamErrors::ROBFragmentError, SCT_ByteStreamErrors::ByteStreamParseError,
-      // 	SCT_ByteStreamErrors::MissingLinkHeaderError, SCT_ByteStreamErrors::MaskedROD, CategoryErrors::MASKEDLINKALL+100, SCT_ByteStreamErrors::ABCDError_Chip0,
-      // 	SCT_ByteStreamErrors::ABCDError_Chip1, SCT_ByteStreamErrors::ABCDError_Chip2, SCT_ByteStreamErrors::ABCDError_Chip3, SCT_ByteStreamErrors::ABCDError_Chip4, 
-      // 	SCT_ByteStreamErrors::ABCDError_Chip5, SCT_ByteStreamErrors::ABCDError_Error1, SCT_ByteStreamErrors::ABCDError_Error2, SCT_ByteStreamErrors::ABCDError_Error4, 
-      // 	CategoryErrors::SUMMARY+100, CategoryErrors::BADERR+100, CategoryErrors::LINKLEVEL+100, CategoryErrors::RODLEVEL+100
-      // };
-
-      for(int reg=0; reg<N_REGIONS; reg++){
-    	std::string tmp_errorsNamesMG[] = {
-    	  "SCT/"+regDir[reg]+"/errors", "SCT/"+regDir[reg]+"/errors", "SCT/"+regDir[reg]+"/errors", "SCT/"+regDir[reg]+"/errors/LVL1ID", "SCT/"+regDir[reg]+"/errors/BCID",
-    	  "SCT/"+regDir[reg]+"/errors/Preamble", "SCT/"+regDir[reg]+"/errors/Formatter", "SCT/"+regDir[reg]+"/errors/MaskedLinkLink",
-    	  "SCT/"+regDir[reg]+"/errors/RODClock", "SCT/"+regDir[reg]+"/errors/TruncROD", "SCT/"+regDir[reg]+"/errors/ROBFrag", "SCT/"+regDir[reg]+"/errors",
-    	  "SCT/"+regDir[reg]+"/errors", "SCT/"+regDir[reg]+"/errors/maskedROD", "SCT/"+regDir[reg]+"/errors/MaskedLink", "SCT/"+regDir[reg]+"/errors/ABCDChip0",
-    	  "SCT/"+regDir[reg]+"/errors/ABCDChip1", "SCT/"+regDir[reg]+"/errors/ABCDChip2", "SCT/"+regDir[reg]+"/errors/ABCDChip3", "SCT/"+regDir[reg]+"/errors/ABCDChip4",
-    	  "SCT/"+regDir[reg]+"/errors/ABCDChip5", "SCT/"+regDir[reg]+"/errors/ABCDError1", "SCT/"+regDir[reg]+"/errors/ABCDError2", "SCT/"+regDir[reg]+"/errors/ABCDError4",
-    	  "SCT/"+regDir[reg]+"/errors", "SCT/"+regDir[reg]+"/errors","SCT/"+regDir[reg]+"/errors/LinkLevel", "SCT/"+regDir[reg]+"/errors/RODLevel"
-    	};
-    	int nLayers = n_layers[reg]*2;
-    	for (int layer(0); layer != nLayers; ++layer) {
-    	  for (int errType(0); errType != nERR; ++errType) {
-    	    MonGroup err2(this, tmp_errorsNamesMG[errType], lumiBlock, ATTRIB_UNMANAGED);
-    	    std::string name1 = tmp_errorsNames[errType] + "Errs" + regSuf[reg] + "_";
-    	    std::string title = tmp_errorsNames[errType] + " errors layer ";
-    	    std::string name2 = std::string("T") + tmp_errorsNames[errType] + "Errs" + regSuf[reg] + "_";
-    	    bookErrHistosHelper(err2, name1, title, name2, tmp_allErrs[errType][reg][layer],
-    				tmp_pallErrs[errType][reg][layer], layer, reg==iBARREL).isFailure();
-    	    tmp_allErrs[errType][reg][layer]->GetXaxis()->SetTitle("Index in the direction of #eta");
-    	    tmp_allErrs[errType][reg][layer]->GetYaxis()->SetTitle("Index in the direction of #phi");
-    	  }
-    	}
-      }
-    }
-
-    {
-      enum tmp_ErrorTypes {
-    	ABCD=0, RAW, TIMEOUT, LVL1ID, BCID, PREAMBLE, FORMATTER, MASKEDLINKS, RODCLOCK, TRUNCATEDROD, ROBFRAG, BSPARSE, MISSINGLINK, MASKEDRODS, // individual errors
-    	MASKEDLINKALL, // combined errors
-    	ABCDChip0, ABCDChip1, ABCDChip2, ABCDChip3, ABCDChip4, ABCDChip5, ABCDError1, ABCDError2, ABCDError4, // detailed ABCD errors
-    	SUMMARY, BADERR, LINKLEVEL, RODLEVEL, // categorized errors
-    	N_ERRTYPES
-      };
-      TString tmp_ErrorTypeString[] {
-    	"ABCDerrs","Rawerrs","TimeOut","LVL1IDerrs","BCIDerrs","Preamble","Formattererrs","MaskedLinkLink","RODClockerrs","TruncatedROD",
-    	  "ROBFragment","BSParseerrs","MissingLink","MaskedROD","MaskedLink","ABCDChip0","ABCDChip1","ABCDChip2","ABCDChip3","ABCDChip4",
-    	  "ABCDChip5","ABCDError1","ABCDError2","ABCDError4","NumberOfErrors","NumberOfBadErrors","NumberOfLinkLevelErrors","NumberOfRODLevelErrors",""
-    	  };
-      TString regLabel[4] = {
-    	"EndcapC", "Barrel", "EndcapA", ""
-      };
-      TString regTitle[4] = {
-    	"EndcapC", "Barrel", "EndcapA", "All Region"
-      };
-
-      for (int reg = 0; reg != NREGIONS_INC_GENERAL; ++reg) {
-    	for (int errType = 0; errType != tmp_ErrorTypes::SUMMARY; ++errType) {
-    	  tmp_ByteStreamVsLB[errType][reg] = TProfile_LW::create("SCT" + tmp_ErrorTypeString[errType] + "VsLbs" + regLabel[reg],
-    								 "Ave. " + tmp_ErrorTypeString[errType] + " per LB in " + regTitle[reg],
-    								 NBINS_LBs, 0.5, NBINS_LBs + 0.5);
-    	  tmp_ByteStreamVsLB[errType][reg]->GetXaxis()->SetTitle("LumiBlock");
-    	  tmp_ByteStreamVsLB[errType][reg]->GetYaxis()->SetTitle("Num of " + tmp_ErrorTypeString[errType]);
-    	  if(ConfHist[reg].regHist(tmp_ByteStreamVsLB[errType][reg]).isFailure()){
-    	    msg(MSG::WARNING)<<"Couldn't book hist"<<endmsg;
-    	  }
-    	  tmp_ByteStreamWithSctFlagVsLB[errType][reg] = TProfile_LW::create("SCT" + tmp_ErrorTypeString[errType] + "WithSctFlagVsLbs" + regLabel[reg],
-    									    "Ave. " + tmp_ErrorTypeString[errType] + " with SCT flag per LB in " + regTitle[reg],
-    									    NBINS_LBs, 0.5, NBINS_LBs + 0.5);
-    	  tmp_ByteStreamWithSctFlagVsLB[errType][reg]->GetXaxis()->SetTitle("LumiBlock");
-    	  tmp_ByteStreamWithSctFlagVsLB[errType][reg]->GetYaxis()->SetTitle("Num of " + tmp_ErrorTypeString[errType]);
-    	  if(ConfHist[reg].regHist(tmp_ByteStreamWithSctFlagVsLB[errType][reg]).isFailure()){
-    	    msg(MSG::WARNING)<<"Couldn't book hist"<<endmsg;
-    	  }
-    	}
-    	for (int errType = SUMMARY; errType != tmp_ErrorTypes::N_ERRTYPES; ++errType) {
-    	  tmp_ByteStreamVsLB[errType][reg] = TProfile_LW::create("SCT" + tmp_ErrorTypeString[errType] + regLabel[reg],
-    								 "Ave. " + tmp_ErrorTypeString[errType] + " per LB in " + regTitle[reg],
-    								 NBINS_LBs, 0.5, NBINS_LBs + 0.5);
-    	  tmp_ByteStreamVsLB[errType][reg]->GetXaxis()->SetTitle("LumiBlock");
-    	  tmp_ByteStreamVsLB[errType][reg]->GetYaxis()->SetTitle(tmp_ErrorTypeString[errType]);
-    	  if(ConfHist[reg].regHist(tmp_ByteStreamVsLB[errType][reg]).isFailure()){
-    	    msg(MSG::WARNING)<<"Couldn't book hist"<<endmsg;
-    	  }
-    	}
-
-    	tmp_LinksWithAnyErrorsVsLB[reg] = TProfile_LW::create("SCTModulesWithErrors" + regLabel[reg],
-    							      "Ave. num of links with errors per LB in " + regTitle[reg],
-    							      NBINS_LBs, 0.5, NBINS_LBs + 0.5);
-    	tmp_LinksWithAnyErrorsVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
-    	if(ConfHist[reg].regHist(tmp_LinksWithAnyErrorsVsLB[reg]).isFailure()){
-    	  msg(MSG::WARNING)<<"Couldn't book hist"<<endmsg;
-    	}
-    	tmp_LinksWithBadErrorsVsLB[reg] = TProfile_LW::create("SCTModulesWithBadErrors" + regLabel[reg],
-    							      "Ave. num of links with bad errors per LB in " +
-    							      regTitle[reg], NBINS_LBs, 0.5, NBINS_LBs + 0.5);
-    	tmp_LinksWithBadErrorsVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
-    	if(ConfHist[reg].regHist(tmp_LinksWithBadErrorsVsLB[reg]).isFailure()){
-    	  msg(MSG::WARNING)<<"Couldn't book hist"<<endmsg;
-    	}
-    	tmp_LinksWithLnkErrorsVsLB[reg] = TProfile_LW::create("SCTModulesWithLinkLevelErrors" + regLabel[reg],
-    							      "Ave. num of links with Link-level errors per LB in " +
-    							      regTitle[reg], NBINS_LBs, 0.5, NBINS_LBs + 0.5);
-    	tmp_LinksWithLnkErrorsVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
-    	if(ConfHist[reg].regHist(tmp_LinksWithLnkErrorsVsLB[reg]).isFailure()){
-    	  msg(MSG::WARNING)<<"Couldn't book hist"<<endmsg;
-    	}
-    	tmp_LinksWithRODErrorsVsLB[reg] = TProfile_LW::create("SCTModulesWithRODLevelErrors" + regLabel[reg],
-    							      "Ave. num of links with ROD-level errors per LB in " +
-    							      regTitle[reg], NBINS_LBs, 0.5, NBINS_LBs + 0.5);
-    	tmp_LinksWithRODErrorsVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
-    	if(ConfHist[reg].regHist(tmp_LinksWithRODErrorsVsLB[reg]).isFailure()){
-    	  msg(MSG::WARNING)<<"Couldn't book hist"<<endmsg;
-    	}
-      }
-    }
   }
 
   return StatusCode::SUCCESS;
@@ -1027,6 +746,12 @@ SCTErrMonTool::fillByteStreamErrorsHelper(const std::set<IdentifierHash> *errors
     (err_type == SCT_ByteStreamErrors::RODClockError) || (err_type == SCT_ByteStreamErrors::TruncatedROD) ||
     (err_type == SCT_ByteStreamErrors::ROBFragmentError) || (err_type == SCT_ByteStreamErrors::MaskedROD);
 
+  b_category[CategoryErrors::MASKEDCHIP] = false;
+  b_category[CategoryErrors::MASKEDCHIP] =
+    (err_type == SCT_ByteStreamErrors::TempMaskedChip0) || (err_type == SCT_ByteStreamErrors::TempMaskedChip1) ||
+    (err_type == SCT_ByteStreamErrors::TempMaskedChip2) || (err_type == SCT_ByteStreamErrors::TempMaskedChip3) ||
+    (err_type == SCT_ByteStreamErrors::TempMaskedChip4) || (err_type == SCT_ByteStreamErrors::TempMaskedChip5);
+
   //--- Count BS errors
   int nerrors = 0;
   std::set<IdentifierHash>::iterator fit = errors->begin();
@@ -1064,6 +789,7 @@ SCTErrMonTool::fillByteStreamErrorsHelper(const std::set<IdentifierHash> *errors
 	if (b_category[CategoryErrors::BADERR])       m_pallErrsCatePerLumi[CategoryErrors::BADERR][regionIndex][layer]->Fill(ieta, iphi);
 	if (b_category[CategoryErrors::LINKLEVEL])    m_pallErrsCatePerLumi[CategoryErrors::LINKLEVEL][regionIndex][layer]->Fill(ieta, iphi);
 	if (b_category[CategoryErrors::RODLEVEL])     m_pallErrsCatePerLumi[CategoryErrors::RODLEVEL][regionIndex][layer]->Fill(ieta, iphi);
+	if (b_category[CategoryErrors::MASKEDCHIP])   m_pallErrsCatePerLumi[CategoryErrors::MASKEDCHIP][regionIndex][layer]->Fill(ieta, iphi);
       }
     }else {
       if (m_doPerLumiErrors) m_numErrorsPerLumi[regionIndex]->Fill(err_type, layer);
@@ -1072,6 +798,7 @@ SCTErrMonTool::fillByteStreamErrorsHelper(const std::set<IdentifierHash> *errors
       if (b_category[CategoryErrors::BADERR])       m_pallErrsCate[CategoryErrors::BADERR][regionIndex][layer]->Fill(ieta, iphi);
       if (b_category[CategoryErrors::LINKLEVEL])    m_pallErrsCate[CategoryErrors::LINKLEVEL][regionIndex][layer]->Fill(ieta, iphi);
       if (b_category[CategoryErrors::RODLEVEL])     m_pallErrsCate[CategoryErrors::RODLEVEL][regionIndex][layer]->Fill(ieta, iphi);
+      if (b_category[CategoryErrors::MASKEDCHIP])   m_pallErrsCate[CategoryErrors::MASKEDCHIP][regionIndex][layer]->Fill(ieta, iphi);
     }
   }
 

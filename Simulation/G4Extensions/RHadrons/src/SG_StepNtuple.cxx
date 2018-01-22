@@ -22,7 +22,7 @@ namespace G4UA{
 SG_StepNtuple::SG_StepNtuple():AthMessaging(Gaudi::svcLocator()->service< IMessageSvc >( "MessageSvc" ),"SG_StepNtuple"){;
 }
 
-  void SG_StepNtuple::beginOfRun(const G4Run*){
+  void SG_StepNtuple::BeginOfRunAction(const G4Run*){
     
     
     NTupleFilePtr file1(ntupleSvc(), "/NTUPLES/FILE1");
@@ -74,7 +74,7 @@ SG_StepNtuple::SG_StepNtuple():AthMessaging(Gaudi::svcLocator()->service< IMessa
     }
     
     //set initial values
-    nevents=0;
+    m_nevents=0;
     
     //These are the RHadron pdg_id
     
@@ -130,14 +130,14 @@ SG_StepNtuple::SG_StepNtuple():AthMessaging(Gaudi::svcLocator()->service< IMessa
     
   }
   
-  void SG_StepNtuple::beginOfEvent(const G4Event*){
+  void SG_StepNtuple::BeginOfEventAction(const G4Event*){
     m_nsteps=0;
-    rhid=0;//the rhadron index (either the first or second rhadon, usually)
-    nevents++; m_evtid=nevents;//since it gets cleared out after every fill...
+    m_rhadronIndex=0;//the rhadron index (either the first or second rhadon, usually)
+    m_nevents++; m_evtid=m_nevents;//since it gets cleared out after every fill...
     
   }
   
-  void SG_StepNtuple::endOfEvent(const G4Event*){
+  void SG_StepNtuple::EndOfEventAction(const G4Event*){
 
     if(! ntupleSvc()->writeRecord("/NTUPLES/FILE1/StepNtuple/10").isSuccess())
       ATH_MSG_ERROR( " failed to write record for this event" );
@@ -145,7 +145,7 @@ SG_StepNtuple::SG_StepNtuple():AthMessaging(Gaudi::svcLocator()->service< IMessa
     //this also seems to zero out all the arrays... so beware!
   }
   
-  void SG_StepNtuple::processStep(const G4Step* aStep){
+  void SG_StepNtuple::UserSteppingAction(const G4Step* aStep){
     if(m_nsteps<50000){
       int pdg = aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
       bool rhad=false;
@@ -175,7 +175,7 @@ SG_StepNtuple::SG_StepNtuple():AthMessaging(Gaudi::svcLocator()->service< IMessa
 	bool firstslow = aStep->GetPostStepPoint()->GetVelocity()<0.15*std::pow(minA,-2./3.)*CLHEP::c_light;
 	//just save the first slow step for the rhadron
 	for (int i=0; i<m_nsteps; ++i){
-	  if (m_rhid[i]==rhid && m_vbelowthresh[i]>0) firstslow=false;
+	  if (m_rhid[i]==m_rhadronIndex && m_vbelowthresh[i]>0) firstslow=false;
 	}
 	if (firstslow || aStep->GetTrack()->GetCurrentStepNumber()<=1 || aStep->GetPostStepPoint()->GetKineticEnergy()==0.){
 	  
@@ -190,8 +190,8 @@ SG_StepNtuple::SG_StepNtuple():AthMessaging(Gaudi::svcLocator()->service< IMessa
 	  }
 	  //
 	  
-	  if (aStep->GetPreStepPoint()->GetGlobalTime()==0) rhid++;
-	  m_rhid[m_nsteps]=rhid;
+	  if (aStep->GetPreStepPoint()->GetGlobalTime()==0) m_rhadronIndex++;
+	  m_rhid[m_nsteps]=m_rhadronIndex;
 	  
 	  m_pdg[m_nsteps]=aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
 	  m_charge[m_nsteps]=aStep->GetTrack()->GetDefinition()->GetPDGCharge();

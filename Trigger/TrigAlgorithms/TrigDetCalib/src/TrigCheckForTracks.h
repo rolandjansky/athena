@@ -60,7 +60,7 @@ ToolHandle<ITrigROBSelector> m_robSelector;
 
   // Switch on Monitoring:
 
-  int                           n_IsoTracks ;
+  int                           m_n_IsoTracks ;
   std::vector<double>           m_pT ;
   std::vector<double>           m_pT_Iso ;
   std::vector<double>           m_dR ;
@@ -80,9 +80,9 @@ ToolHandle<ITrigROBSelector> m_robSelector;
   double           m_etaLowEdge ;
   double           m_etaWidth ;
   double           m_phiWidth ;
-  std::string      tracksName ;
-  bool             doNotPass ;
-  bool             lookForAnyTracks ;
+  std::string      m_tracksName ;
+  bool             m_doNotPass ;
+  bool             m_lookForAnyTracks ;
 
   
   std::string m_pebLabel;

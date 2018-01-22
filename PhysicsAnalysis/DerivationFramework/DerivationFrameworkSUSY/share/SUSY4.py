@@ -201,9 +201,9 @@ TrackIsoTool500.TrackSelectionTool.CutLevel= "Loose"
 ToolSvc += TrackIsoTool500
 
 from DerivationFrameworkSUSY.DerivationFrameworkSUSYConf import DerivationFramework__trackIsolationDecorator
-import ROOT, PyCintex
-PyCintex.loadDictionary('xAODCoreRflxDict')
-PyCintex.loadDictionary('xAODPrimitivesDict')
+import ROOT, cppyy
+cppyy.loadDictionary('xAODCoreRflxDict')
+cppyy.loadDictionary('xAODPrimitivesDict')
 isoPar = ROOT.xAOD.Iso
 Pt1000IsoTrackDecorator = DerivationFramework__trackIsolationDecorator(name = "Pt1000IsoTrackDecorator",
                                                                 TrackIsolationTool = TrackIsoTool,

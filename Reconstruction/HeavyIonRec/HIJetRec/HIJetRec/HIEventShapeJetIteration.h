@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __HIEVENTSHAPEJETITERATION_H__
-#define __HIEVENTSHAPEJETITERATION_H__
+#ifndef HIJETREC_HIEVENTSHAPEJETITERATION_H
+#define HIJETREC_HIEVENTSHAPEJETITERATION_H
 
 #include "AsgTools/AsgTool.h"
 #include <string>
@@ -37,7 +37,6 @@ public:
   StatusCode makeClusterList(std::vector<const xAOD::CaloCluster*>& particleList, const std::vector<const xAOD::JetContainer*>& theJets_vector) const;
   void updateShape(xAOD::HIEventShapeContainer* output_shape, const std::vector<const xAOD::CaloCluster*>& assoc_clusters, const HIEventShapeIndex* es_index=nullptr ) const;
   StatusCode fillModulatorShape(xAOD::HIEventShape* ms, const xAOD::HIEventShapeContainer* output_shape, const std::set<unsigned int>& used_indices, unsigned int scheme) const;
-  StatusCode remodulate(xAOD::HIEventShapeContainer* output_shape, const std::set<unsigned int>& used_indices) const;
   StatusCode remodulate(xAOD::HIEventShapeContainer* output_shape, const xAOD::HIEventShape* ms, const std::set<unsigned int>& used_indices) const;
   StatusCode getShapes(const xAOD::HIEventShapeContainer*& input_shape, xAOD::HIEventShapeContainer*& output_shape, bool record_aux=false) const;
 
@@ -71,7 +70,7 @@ private:
   bool m_do_remodulation;
   unsigned int m_modulation_scheme;
   std::string m_modulation_key;
-  
+  bool m_shallowCopy;
 };
 
 #endif

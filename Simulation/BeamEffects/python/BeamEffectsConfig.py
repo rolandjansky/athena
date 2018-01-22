@@ -32,6 +32,9 @@ def getVertexBeamCondPositioner(name="VertexBeamCondPositioner", **kwargs):
     kwargs.setdefault('RandomSvc'               , simFlags.RandomSvc.get_Value())
     if not simFlags.RandomSeedList.checkForExistingSeed("VERTEX"):
         simFlags.RandomSeedList.addSeed( "VERTEX", 2040160768, 443921183 )
+    # TODO This should really be with the BeamCondSvc configuration.
+    from IOVDbSvc.CondDB import conddb
+    conddb.addFolderSplitOnline("INDET","/Indet/Onl/Beampos","/Indet/Beampos")
     return CfgMgr.Simulation__VertexBeamCondPositioner(name, **kwargs)
 
 def getLongBeamspotVertexPositioner(name="LongBeamspotVertexPositioner", **kwargs):
@@ -86,6 +89,8 @@ def getGenEventRotator(name="GenEventRotator", **kwargs):
 #--------------------------------------------------------------------------------------------------
 ## Algorithms
 def getBeamEffectsAlg(name="BeamEffectsAlg", **kwargs):
+    kwargs.setdefault('InputMcEventCollection', 'GEN_EVENT')
+    kwargs.setdefault('OutputMcEventCollection', 'BeamTruthEvent')
     from G4AtlasApps.SimFlags import simFlags
     kwargs.setdefault("ISFRun", simFlags.ISFRun()) #FIXME Temporary property so that we don't change the output in the initial switch to this code.
     manipulatorList = ['GenEventValidityChecker']

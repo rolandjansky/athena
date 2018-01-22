@@ -16,6 +16,7 @@
 */
 
 #include "ElectronPhotonSelectorTools/AsgElectronIsEMSelector.h"
+#include "ElectronPhotonSelectorTools/ElectronSelectorHelpers.h"
 #include "AsgElectronPhotonIsEMSelectorConfigHelper.h"
 #include "TElectronIsEMSelector.h"
 #include "EGSelectorConfigurationMapping.h"
@@ -47,34 +48,9 @@ AsgElectronIsEMSelector::AsgElectronIsEMSelector(std::string myname) :
 		  m_rootTool->isEMMask=egammaPID::EgPidUndefined, //All pass by default, if not specified
 		  "The mask to use");
 
-  // Boolean to use b-layer prediction
-  declareProperty("useBLayerHitPrediction", 
-		  m_rootTool->useBLayerHitPrediction = true,
-		  "Boolean to use b-layer prediction");
-
   // Boolean to use TRT outliers
   declareProperty("useTRTOutliers",m_rootTool->useTRTOutliers=false,
 		  "Boolean to use TRT outliers");
-
-  // Boolean to use BL outliers
-  declareProperty("useBLOutliers",
-		  m_rootTool->useBLOutliers = true,
-		  "Boolean to use b-layer outliers");
-
-  // Boolean to use PIX outliers
-  declareProperty("usePIXOutliers",
-		  m_rootTool->usePIXOutliers = true,
-		  "Boolean to use PIX outliers");
-    
-  // Boolean to use PIX dead sensor
-  declareProperty("usePIXDeadSensors",
-		  m_rootTool->usePIXDeadSensors = true,
-		  "Boolean to use PIX dead sensors");
-
-  // Boolean to use SCT outliers
-  declareProperty("useSCTOutliers",
-		  m_rootTool->useSCTOutliers = true,
-		  "Boolean to use SCT outliers");
 
   // Boolean to use TRT Xenon Hits 
   declareProperty("useTRTXenonHits",
@@ -208,7 +184,7 @@ StatusCode AsgElectronIsEMSelector::initialize()
   StatusCode sc = StatusCode::SUCCESS ;
 
   if(!m_WorkingPoint.empty()){
-    m_configFile=AsgConfigHelper::findConfigFile(m_WorkingPoint,EgammaSelectors::m_ElectronCutPointToConfFile);
+    m_configFile=AsgConfigHelper::findConfigFile(m_WorkingPoint,EgammaSelectors::ElectronCutPointToConfFile);
   }
 
   if(!m_configFile.empty()) {    
@@ -238,18 +214,8 @@ StatusCode AsgElectronIsEMSelector::initialize()
     //From here on the conf ovverides all other properties
     bool useTRTOutliers(env.GetValue("useTRTOutliers", true));
     m_rootTool->useTRTOutliers =useTRTOutliers;
-    bool useBLOutliers(env.GetValue("useBLOutliers", true));
-    m_rootTool->useBLOutliers =useBLOutliers;
-    bool usePIXOutliers(env.GetValue("usePIXOutliers", true));
-    m_rootTool->usePIXOutliers =usePIXOutliers;
-    bool usePIXDeadSensors(env.GetValue("usePIXDeadSensors", true));
-    m_rootTool->usePIXDeadSensors =usePIXDeadSensors;
-    bool useSCTOutliers(env.GetValue("useSCTOutliers", true));
-    m_rootTool->useSCTOutliers =useSCTOutliers;
     bool  useTRTXenonHits(env.GetValue(" useTRTXenonHits", false));
     m_rootTool->useTRTXenonHits =useTRTXenonHits;
-    bool useBLayerHitPrediction (env.GetValue("useBLayerHitPrediction", true));
-    m_rootTool->useBLayerHitPrediction =useBLayerHitPrediction;
     
     ///------- Use helpers to read in the cut arrays ------///
     m_rootTool->CutBinEta  =AsgConfigHelper::HelperFloat("CutBinEta",env);
@@ -554,51 +520,27 @@ unsigned int AsgElectronIsEMSelector::TrackCut(const xAOD::Electron* eg,
     return StatusCode::SUCCESS; 
   }
  
-  // Track quality cut
-  // number of B-layer hits
-  uint8_t nBL = 0;
-  uint8_t nBLOutliers = 0;
-  // number of next to inner most B-layer hits
-  uint8_t nNextToInnerMostLayer = 0;
-  uint8_t nNextToInnerMostLayerOutliers = 0;
-  // number of Pixel hits
-  uint8_t nPi = 0;
-  uint8_t nPiOutliers = 0;
-  uint8_t nPiDeadSensors = 0;
-  // number of SCT hits
-  uint8_t nSCT = 0;
-  uint8_t nSCTOutliers = 0;
-  uint8_t nSCTDeadSensors = 0;
+  // Track quality cuts
+  uint8_t nSiHitsPlusDeadSensors = ElectronSelectorHelpers::numberOfSiliconHitsAndDeadSensors(t);
+  uint8_t nPixHitsPlusDeadSensors = ElectronSelectorHelpers::numberOfPixelHitsAndDeadSensors(t);
+  bool passBLayerRequirement = ElectronSelectorHelpers::passBLayerRequirement(t);
+
+  // TRT information
   uint8_t nTRThigh          = 0;
   uint8_t nTRThighOutliers  = 0;
-  uint8_t nTRT         = 0;
-  uint8_t nTRTOutliers = 0;
-  uint8_t nTRTXenonHits = 0;
-  uint8_t expectHitInBLayer = true;
-  uint8_t expectHitNextInBLayer = true;
-  float   TRT_PID = 0.0; 
+  uint8_t nTRT              = 0;
+  uint8_t nTRTOutliers      = 0;
+  uint8_t nTRTXenonHits     = 0;
+  float   TRT_PID           = 0.0; 
 
   bool allFound = true;
 
-  allFound = allFound && t->summaryValue(nBL, xAOD::numberOfBLayerHits);
-  allFound = allFound && t->summaryValue(nNextToInnerMostLayer, xAOD::numberOfNextToInnermostPixelLayerHits);
-  allFound = allFound && t->summaryValue(nPi, xAOD::numberOfPixelHits);
-  allFound = allFound && t->summaryValue(nSCT, xAOD::numberOfSCTHits);
-  allFound = allFound && t->summaryValue(nBLOutliers, xAOD::numberOfBLayerOutliers);
-  allFound = allFound && t->summaryValue(nNextToInnerMostLayerOutliers, xAOD::numberOfNextToInnermostPixelLayerOutliers);
-  allFound = allFound && t->summaryValue(nPiOutliers, xAOD::numberOfPixelOutliers);
-  allFound = allFound && t->summaryValue(nPiDeadSensors, xAOD::numberOfPixelDeadSensors);
-  allFound = allFound && t->summaryValue(nSCTOutliers, xAOD::numberOfSCTOutliers); 
-  allFound = allFound && t->summaryValue(nSCTDeadSensors, xAOD::numberOfSCTDeadSensors);
   allFound = allFound && t->summaryValue(nTRThigh, xAOD::numberOfTRTHighThresholdHits);
   allFound = allFound && t->summaryValue(nTRThighOutliers, xAOD::numberOfTRTHighThresholdOutliers);
   allFound = allFound && t->summaryValue(nTRT, xAOD::numberOfTRTHits);
   allFound = allFound && t->summaryValue(nTRTOutliers, xAOD::numberOfTRTOutliers);
   allFound = allFound && t->summaryValue(nTRTXenonHits, xAOD::numberOfTRTXenonHits);
   allFound = allFound && t->summaryValue(TRT_PID, xAOD::eProbabilityHT);
-  allFound = allFound && t->summaryValue(expectHitInBLayer, xAOD::expectBLayerHit);
-  allFound = allFound && t->summaryValue(expectHitNextInBLayer, xAOD::expectNextToInnermostPixelLayerHit);
-  
 
   const float trackd0 = fabsf(t->d0());
   
@@ -620,16 +562,9 @@ unsigned int AsgElectronIsEMSelector::TrackCut(const xAOD::Electron* eg,
 
   return m_rootTool->TrackCut(eta2,
 			      et,
-			      nBL,
-			      nBLOutliers,
-			      nNextToInnerMostLayer,
-			      nNextToInnerMostLayerOutliers,
-			      nPi,
-			      nPiOutliers,
-			      nPiDeadSensors,
-			      nSCT,
-			      nSCTOutliers,
-			      nSCTDeadSensors,
+                              passBLayerRequirement,
+                              nPixHitsPlusDeadSensors,
+                              nSiHitsPlusDeadSensors,
 			      nTRThigh,
 			      nTRThighOutliers,
 			      nTRT,
@@ -640,8 +575,6 @@ unsigned int AsgElectronIsEMSelector::TrackCut(const xAOD::Electron* eg,
 			      deltaeta,
 			      deltaphi,
 			      ep,
-			      expectHitInBLayer,
-			      expectHitNextInBLayer,
 			      iflag);
 }
 

@@ -24,6 +24,7 @@
 #include <TKey.h>
 #include <TBox.h>
 #include <TLine.h>
+#include <TROOT.h>
 
 #include "dqm_core/LibraryManager.h"
 #include "dqm_core/Parameter.h"
@@ -256,6 +257,42 @@ GetReference( std::string& groupName, std::string& name )
   return 0;
 }
 
+std::string 
+SplitReference(std::string refPath, std::string refName )
+{
+  //Split comma sepated inputs into individual file names
+  std::string delimiter = ",";
+  std::vector<std::string> refFileList;
+  size_t pos = 0;
+  std::string token;
+  while ((pos = refPath.find(delimiter)) != std::string::npos) {
+    token = refPath.substr(0, pos);
+    refFileList.push_back(token);
+    refPath.erase(0, pos + delimiter.length());
+  }
+  refFileList.push_back(refPath);
+
+  //Try to open each file in the list
+  for(std::size_t i=0; i<refFileList.size(); i++){
+    std::string fileName=refFileList.at(i)+refName;
+    size_t first = fileName.find_first_not_of(" ");
+    fileName.erase(0, first);
+    if (gROOT->GetListOfFiles()->FindObject(fileName.c_str()) ) {
+      return fileName;
+    } 
+    else {
+      if(TFile::Open(fileName.c_str())){
+	return fileName;
+      }
+      else{
+	std::cerr << "Unable to open " << fileName << ", trying next reference file" << std::endl;
+      }
+    }
+  }
+  std::cerr << "Unable to open any reference file, reference will not be included" << std::endl;
+  return "";
+}
+
 const HanConfigAssessor*
 HanConfig::
 GetAssessor( std::string& groupName, std::string& name ) const
@@ -302,6 +339,7 @@ Visit( const MiniConfigTreeNode* node ) const
   TObject* obj;
   std::string name = node->GetAttribute("name");
   std::string fileName = node->GetAttribute("file");
+  fileName = SplitReference(node->GetAttribute("location"), fileName);
   std::string refInfo = node->GetAttribute("info");
   if( fileName != "" && name != "" && name != "same_name" ) {
     std::auto_ptr<TFile> infile( TFile::Open(fileName.c_str()) );
@@ -468,6 +506,8 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
 	    algRefName = assessorName;
 	    absAlgRefName += algRefName;
 	    std::string algRefFile( refConfig.GetStringAttribute(thisRefID,"file") );
+	    algRefFile = SplitReference( refConfig.GetStringAttribute(thisRefID,"location"), algRefFile);
+
 	    if( algRefFile != "" ) {
 	      std::shared_ptr<TFile> infile = GetROOTFile(algRefFile);
 	      if ( ! infile.get() ) {
@@ -821,6 +861,7 @@ Visit( const MiniConfigTreeNode* node ) const
       std::string objPath("");
       std::string absObjPath("");
       
+      refFile = SplitReference( refConfig.GetStringAttribute(refID,"location"), refFile);
       //std::auto_ptr<TFile> infile( TFile::Open(refFile.c_str()) );
       std::shared_ptr<TFile> infile( GetROOTFile(refFile) );
       TDirectory* basedir(0);
@@ -835,7 +876,7 @@ Visit( const MiniConfigTreeNode* node ) const
         refPathForSearch += "/dummyName";
         basedir = ChangeInputDir( infile.get(), refPathForSearch );
         if( basedir == 0 ) {
-          std::cerr << "Cannot find \"" << refPath << "\" in file\n";
+          std::cerr << "Cannot find  \"" << refPath << "\" in file\n";
           continue;
         }
       }
@@ -1199,7 +1240,13 @@ ChangeOutputDir( TFile* file, std::string path, DirMap_t& directories )
       std::string dirName;
       std::string::size_type k = subPath.find_last_of('/');
       dirName = (k != std::string::npos) ? std::string( subPath, k+1, std::string::npos ) : subPath;
-      TDirectory* dir = parDir->mkdir( dirName.c_str() );
+      TDirectory* dir;
+      if (!parDir->FindKey(dirName.c_str())) {
+	dir = parDir->mkdir( dirName.c_str() );
+      }
+      else{
+	std::cout << "Failed to make directory " << dirName.c_str() << std::endl;
+      }
       DirMap_t::value_type dirVal( subPath, dir );
       directories.insert( dirVal );
       return dir;

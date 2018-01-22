@@ -21,7 +21,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigSteer/TrigInterfaces
                           Trigger/TrigSteer/TrigSteering
                           Trigger/TrigT1/TrigT1Result
-                          Trigger/TrigTools/TrigTimeAlgs )
+                          Trigger/TrigTools/TrigTimeAlgs 
+                          Trigger/TrigEvent/TrigMuonEvent )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint )
@@ -32,7 +33,7 @@ atlas_add_component( TrigDetCalib
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} IRegionSelector GaudiKernel TrigInDetEvent TrigSteeringEvent AthenaBaseComps AthenaKernel EventInfo TrkTrack TrigInterfacesLib TrigSteeringLib TrigT1Result TrigTimeAlgsLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} IRegionSelector GaudiKernel TrigInDetEvent TrigSteeringEvent AthenaBaseComps AthenaKernel EventInfo TrkTrack TrigInterfacesLib TrigSteeringLib TrigT1Result TrigTimeAlgsLib TrigMuonEvent)
 
 # Install files from the package:
 atlas_install_headers( TrigDetCalib )

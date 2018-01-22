@@ -4,8 +4,6 @@
 
 import sys
 import os
-import commands
-import time
 
 #-----------------------------------------------------------------------------
 # Create and configure option parser

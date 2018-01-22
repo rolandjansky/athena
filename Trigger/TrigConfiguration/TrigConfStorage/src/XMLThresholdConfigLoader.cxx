@@ -17,7 +17,7 @@ using namespace TrigConf;
 
 XMLThresholdConfigLoader::XMLThresholdConfigLoader( XMLStorageMgr& sm, const ptree::value_type* pt ) : 
    XMLLoader("XMLThresholdConfigLoader", sm, pt)
-{};
+{}
 
 
 bool

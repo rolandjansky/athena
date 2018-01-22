@@ -2,7 +2,7 @@
 
 """ Common slices flags  """
 
-from AthenaCommon.JobProperties import JobProperty, jobproperties
+from AthenaCommon.JobProperties import JobProperty
 
 
 __author__  = 'T. Bold'

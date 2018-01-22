@@ -8,4 +8,4 @@ def getG4HitFilterTool(name="G4UA::G4HitFilterTool", **kwargs):
     return G4UA__G4HitFilterTool(name, **kwargs)
 
 def addG4HitFilterTool(name="G4UA::G4HitFilterTool",system=False):
-    G4AtlasServicesConfig.addAction(name,['BeginOfRun','EndOfEvent'],system)
+    G4AtlasServicesConfig.addAction(name,['Run','Event'],system)

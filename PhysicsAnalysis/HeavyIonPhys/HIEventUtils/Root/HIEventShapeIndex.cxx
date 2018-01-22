@@ -8,6 +8,8 @@
 #include <sstream>
 #include <iostream>
 #include <cmath>
+#include <algorithm>
+#include <iterator>
 
 HIEventShapeIndex::HIEventShapeIndex() : m_shape_container(nullptr),
 					 m_size(0)
@@ -154,11 +156,14 @@ unsigned int HIEventShapeIndex::getIndex_Internal(float eta, int layer, bool eta
   }
 
   float eta_c=eta;
-  float abs_eta=std::abs(eta);
-  float rmin=HICaloRange::getRange().getRangeMin(layer);
-  float rmax=HICaloRange::getRange().getRangeMax(layer);
-  if(abs_eta < rmin) eta_c=rmin-std::copysign(1e-2,eta);
-  else if(abs_eta > rmax) eta_c=rmax-std::copysign(1e-2,eta);
+  if(m_edges.size()>1)
+  {
+    float abs_eta=std::abs(eta);
+    float rmin=HICaloRange::getRange().getRangeMin(layer);
+    float rmax=HICaloRange::getRange().getRangeMax(layer);
+    if(abs_eta < rmin) eta_c=rmin-std::copysign(1e-2,eta);
+    else if(abs_eta > rmax) eta_c=rmax-std::copysign(1e-2,eta);
+  }
 
   unsigned int pIndex=0;
   for(; pIndex < vsize-1; pIndex++)
@@ -167,6 +172,11 @@ unsigned int HIEventShapeIndex::getIndex_Internal(float eta, int layer, bool eta
     if(p(eta_c)) break;
   }
   return (etaIndex) ? pIndex : vec.at(pIndex).index;
+
+  
+  // std::vector<range_index_t>::iterator r=std::lower_bound(vec.begin(),vec.end(),range_index_t(eta_c,eta_c+1,0));
+  // return (etaIndex) ? std::distance(vec.begin(),r) : r->index();
+  
   
 }
 

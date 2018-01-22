@@ -65,16 +65,6 @@ package a detailed documentation would not make much sense.
 
 
 
-@ref used_TileCalibAlgs
-@ref requirements_TileCalibAlgs
  
 
-*/
-
-/**
-@page used_TileCalibAlgs Used Packages
-*/
-
-/**
-@page requirements_TileCalibAlgs Requirements
 */

@@ -12,7 +12,6 @@
 
 #define MAXTOWER 64
 #define MAXL 8
-
 ///#define HIST_MAXBINS 35
 
 #define HIST_MAXBINS 100

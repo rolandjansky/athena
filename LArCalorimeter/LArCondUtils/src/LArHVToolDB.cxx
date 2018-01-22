@@ -83,7 +83,7 @@ StatusCode LArHVToolDB::LoadCalibration(IOVSVC_CALLBACK_ARGS_K( keys)) {
        doPathology=true;
     }
     else if(*itr == "/LAR/IdentifierOfl/HVLineToElectrodeMap") { //FIXME hardcoded foldername .The name is actually a jobO of LArHVCablingTool
-      msg(MSG::INFO) << "Received a callback on HV Cable Map. Need to (re)laod all HV DCS folders" << endmsg;
+      ATH_MSG_INFO( "Received a callback on HV Cable Map. Need to (re)laod all HV DCS folders" );
       for(size_t i=0;i<m_DCSFolderNames.size();++i) {
 	DCSfolderIndices.insert(i);
 	m_voltageCache[i].clear(); //Clear voltage cache
@@ -101,7 +101,7 @@ StatusCode LArHVToolDB::LoadCalibration(IOVSVC_CALLBACK_ARGS_K( keys)) {
   if (DCSfolderIndices.size()) {
     ATH_MSG_DEBUG("Received a callback for " << DCSfolderIndices.size() << " HV folders.");
     if (fillUpdatedHVChannelsVec(DCSfolderIndices).isFailure()) {
-      msg(MSG::ERROR) << "Call to fillUpdatedHVChannelsVec failed." << endmsg;
+      ATH_MSG_ERROR( "Call to fillUpdatedHVChannelsVec failed." );
       return StatusCode::FAILURE;
     }
   }
@@ -113,12 +113,12 @@ StatusCode LArHVToolDB::LoadCalibration(IOVSVC_CALLBACK_ARGS_K( keys)) {
   }
 
   if (doPathology) {
-    msg(MSG::INFO) << " LArHVToolDB::LoadCalibration: Load HV pathology database " << endmsg;
+    ATH_MSG_INFO( " LArHVToolDB::LoadCalibration: Load HV pathology database " );
     if (m_pathologyContainer) delete m_pathologyContainer;
     if (detStore()->contains<AthenaAttributeList>(m_HVPathologiesFolderName)) {
       if (m_pathologiesHandle.isValid()) {
 	m_pathologyContainer = m_pathologyTool->attrList2HvPathology((*m_pathologiesHandle));
-          msg (MSG::INFO) << " Number of HV pathologies found " << m_pathologyContainer->m_v.size() << endmsg;
+          ATH_MSG_INFO( " Number of HV pathologies found " << m_pathologyContainer->m_v.size() );
           for(unsigned i=0; i<m_pathologyContainer->m_v.size(); ++i) {
          
               LArHVPathologiesDb::LArHVElectPathologyDb electPath = m_pathologyContainer->m_v[i];
@@ -128,7 +128,8 @@ StatusCode LArHVToolDB::LoadCalibration(IOVSVC_CALLBACK_ARGS_K( keys)) {
                   unsigned int index = (unsigned int)(idHash);
                   if (index<m_hasPathologyEM.size()) {
                      if(m_hasPathologyEM[index].size()) {
-                        if(m_hasPathologyEM[index].size()<electPath.electInd+1) m_hasPathologyEM[index].resize(electPath.electInd+1);
+                       if(m_hasPathologyEM[index].size()<static_cast<size_t>(abs(electPath.electInd+1)))
+                         m_hasPathologyEM[index].resize(electPath.electInd+1);
                         m_hasPathologyEM[index][electPath.electInd]=electPath.pathologyType;
                      } else {
                         std::vector<unsigned short> svec;
@@ -143,7 +144,8 @@ StatusCode LArHVToolDB::LoadCalibration(IOVSVC_CALLBACK_ARGS_K( keys)) {
                   unsigned int index = (unsigned int)(idHash);
                   if (index<m_hasPathologyHEC.size()) {
                      if(m_hasPathologyHEC[index].size()) {
-                        if(m_hasPathologyHEC[index].size()<electPath.electInd+1) m_hasPathologyHEC[index].resize(electPath.electInd+1);
+                       if(m_hasPathologyHEC[index].size()<static_cast<size_t>(abs(electPath.electInd+1)))
+                         m_hasPathologyHEC[index].resize(electPath.electInd+1);
                         m_hasPathologyHEC[index][electPath.electInd]=electPath.pathologyType;
                      } else {
                         std::vector<unsigned short> svec;
@@ -158,8 +160,9 @@ StatusCode LArHVToolDB::LoadCalibration(IOVSVC_CALLBACK_ARGS_K( keys)) {
                   unsigned int index = (unsigned int)(idHash);
                   if (index<m_hasPathologyFCAL.size()) {
                      if(m_hasPathologyFCAL[index].size()) {
-                        if(m_hasPathologyFCAL[index].size()<electPath.electInd+1) m_hasPathologyFCAL[index].resize(electPath.electInd+1);
-                        m_hasPathologyFCAL[index][electPath.electInd]=electPath.pathologyType;
+                       if(m_hasPathologyFCAL[index].size()<static_cast<size_t>(abs(electPath.electInd+1)))
+                         m_hasPathologyFCAL[index].resize(electPath.electInd+1);
+                       m_hasPathologyFCAL[index][electPath.electInd]=electPath.pathologyType;
                      } else {
                         std::vector<unsigned short> svec;
                         svec.resize(electPath.electInd+1);
@@ -181,10 +184,9 @@ StatusCode LArHVToolDB::LoadCalibration(IOVSVC_CALLBACK_ARGS_K( keys)) {
 
 StatusCode LArHVToolDB::finalize() {
   for (size_t i=0;i<m_nUpdatesPerFolder.size();++i) {
-    msg(MSG::INFO) << "Folder: " << m_DCSFolderNames[i] 
+    ATH_MSG_INFO( "Folder: " << m_DCSFolderNames[i] 
 		   << ": # of Callbacks:" << m_nUpdatesPerFolder[i].m_nCallbacks
-		   << ", # of actual voltage changes:" << m_nUpdatesPerFolder[i].m_nVoltageUpdates 
-		   << endmsg;
+		   << ", # of actual voltage changes:" << m_nUpdatesPerFolder[i].m_nVoltageUpdates );
   }
   if (m_pathologyContainer) delete m_pathologyContainer;
   return StatusCode::SUCCESS;
@@ -215,10 +217,10 @@ StatusCode LArHVToolDB::initialize(){
   for (size_t i=0;i<m_DCSFolderNames.size();++i) {
     const DataHandle<CondAttrListCollection> cHdl;
     if ((detStore()->regFcn(&ILArHVTool::LoadCalibration,dynamic_cast<ILArHVTool*>(this),cHdl,m_DCSFolderNames[i])).isFailure()) {
-      msg(MSG::ERROR) << "cannot register callback to " << m_DCSFolderNames[i] << endmsg;  
+      ATH_MSG_ERROR( "cannot register callback to " << m_DCSFolderNames[i] );  
     }
     else
-      msg(MSG::INFO) << "Registered callback to DCS folder " << m_DCSFolderNames[i] << endmsg;
+      ATH_MSG_INFO( "Registered callback to DCS folder " << m_DCSFolderNames[i] );
   }
 
   m_pathologyContainer = 0;
@@ -229,28 +231,28 @@ StatusCode LArHVToolDB::initialize(){
   if (detStore()->contains<AthenaAttributeList>( m_HVPathologiesFolderName)) {
     StatusCode sc=detStore()->regFcn(&ILArHVTool::LoadCalibration,dynamic_cast<ILArHVTool*>(this),m_pathologiesHandle,m_HVPathologiesFolderName);
     if (sc.isFailure())
-      msg(MSG::ERROR) << "cannot register callback to " << m_HVPathologiesFolderName  << endmsg;
+      ATH_MSG_ERROR( "cannot register callback to " << m_HVPathologiesFolderName );
     else
-      msg(MSG::INFO) << "registered callback to " << m_HVPathologiesFolderName  << endmsg;
+      ATH_MSG_INFO( "registered callback to " << m_HVPathologiesFolderName  );
   }
   else
-    msg(MSG::INFO) << " no information for HV pathology available " << endmsg;
+    ATH_MSG_INFO( " no information for HV pathology available " );
 
 
   // Get HVPathology tool
   StatusCode sc = m_pathologyTool.retrieve();
   if(!sc.isSuccess()) {
-    msg(MSG::ERROR) << "Unable to initialize LArHVPathologyDbTool" << endmsg;
+    ATH_MSG_ERROR( "Unable to initialize LArHVPathologyDbTool" );
     return sc;
   }
   else {
-    msg(MSG::INFO) << "Retrieved LArHVPathologyDbTool"  << endmsg;
+    ATH_MSG_INFO( "Retrieved LArHVPathologyDbTool"  );
   }
 
 
   sc=m_hvCablingTool.retrieve();
   if(!sc.isSuccess()) {
-    msg(MSG::ERROR) << "Unable to retrieve LArHVCablingTool" << endmsg;
+    ATH_MSG_ERROR( "Unable to retrieve LArHVCablingTool" );
     return sc;
   }
   
@@ -258,31 +260,31 @@ StatusCode LArHVToolDB::initialize(){
   sc=detStore()->regFcn(&LArHVCablingTool::iovCallback,&(*m_hvCablingTool),
 			&ILArHVTool::LoadCalibration,dynamic_cast<ILArHVTool*>(this));
   if (!sc.isSuccess()) {
-    msg(MSG::ERROR) << "Unable to register callback on LArHVCablingTool::iovCallback" << endmsg;
+    ATH_MSG_ERROR( "Unable to register callback on LArHVCablingTool::iovCallback" );
     return sc;
   }
   else
-    msg(MSG::INFO) << "registered callback to LArHVCablingTool" << endmsg;
+    ATH_MSG_INFO( "registered callback to LArHVCablingTool" );
   return StatusCode::SUCCESS;
 }
 
 
 StatusCode LArHVToolDB::getHV(const Identifier& id,
-         std::vector< HV_t > & v  ) 
+         std::vector< HV_t > & v  )  
 {
  std::vector< CURRENT_t> ihv;
  return getPayload(id,v,ihv);
 }
 
 StatusCode LArHVToolDB::getCurrent(const Identifier&  id,
-         std::vector< CURRENT_t > & ihv  )
+         std::vector< CURRENT_t > & ihv  ) 
 {
  std::vector< HV_t> v;  
  return getPayload(id,v,ihv);
 }
 
 
-StatusCode LArHVToolDB::getPayload(const Identifier& id, std::vector< HV_t > & v, std::vector< CURRENT_t > & ihv)
+StatusCode LArHVToolDB::getPayload(const Identifier& id, std::vector< HV_t > & v, std::vector< CURRENT_t > & ihv) const
 {
 
   if (id==m_id) {
@@ -306,10 +308,10 @@ StatusCode LArHVToolDB::getPayload(const Identifier& id, std::vector< HV_t > & v
         unsigned int index = (unsigned int)(m_larem_id->channel_hash(id));
         bool hasPathology=false; 
         if (index<m_hasPathologyEM.size()) {
-          if (m_hasPathologyEM[index].size()) {
-           hasPathology=true;
-           listElec = getElecList(id);
-          }
+         if (m_hasPathologyEM[index].size()) {
+          hasPathology=true;
+          listElec = getElecList(id);
+         }
         }
         const EMBDetectorElement* embElement = dynamic_cast<const EMBDetectorElement*>(m_calodetdescrmgr->get_element(id));
         if (!embElement) std::abort();
@@ -328,16 +330,15 @@ StatusCode LArHVToolDB::getPayload(const Identifier& id, std::vector< HV_t > & v
                 double curr;
                 electrode->voltage_current(igap,hv,curr);
                 if (hasPathology) {
-                   //msg(MSG::DEBUG) << "Has pathology for id: "<< m_larem_id->print_to_string(id)<<" "<<m_hasPathologyEM[index]<<endmsg;
-                   msg(MSG::DEBUG) << "Has pathology for id: "<<id.get_identifier32().get_compact()<<" "<<m_hasPathologyEM[index].size()<<endmsg;
-                   msg(MSG::DEBUG) << "Original hv: "<<hv<<" ";
+                   ATH_MSG_DEBUG( "Has pathology for id: "<< m_larem_id->print_to_string(id)<<" "<<m_hasPathologyEM[index]);
+                   ATH_MSG_DEBUG( "Original hv: "<<hv<<" ");
                    for (unsigned int ii=0;ii<listElec.size();ii++) {
                       if (listElec[ii]==(2*i+igap) && listElec[ii]<m_hasPathologyEM[index].size() && m_hasPathologyEM[index][listElec[ii]]) {
                          if(m_hasPathologyEM[index][listElec[ii]]&0xF) hv=0.; else hv=((m_hasPathologyEM[index][listElec[ii]]&0xFFF0)>>4);
                          curr=0.;
                       }
                    }
-                   msg(MSG::DEBUG) << "set hv: "<<hv<<endmsg;
+                   ATH_MSG_DEBUG( "set hv: "<<hv);
                 }
                 //std::cout << "     hv value " << hv << std::endl;
                 //if (igap==1 && hv>1.) std::cout << " --- non zero value found for gap1 in barrel " << std::endl;
@@ -376,7 +377,7 @@ StatusCode LArHVToolDB::getPayload(const Identifier& id, std::vector< HV_t > & v
                double curr;
                electrode->voltage_current(igap,hv,curr);
                 if (hasPathology) {
-                   msg(MSG::DEBUG) << "Has pathology for id: "<< m_larem_id->print_to_string(id)<<" "<<m_hasPathologyEM[index].size()<<endmsg;
+                   ATH_MSG_DEBUG( "Has pathology for id: "<< m_larem_id->print_to_string(id)<<" "<<m_hasPathologyEM[index] );
                    for (unsigned int ii=0;ii<listElec.size();ii++) {
                       if (listElec[ii]==(2*i+igap) && listElec[ii]<m_hasPathologyEM[index].size() && m_hasPathologyEM[index][listElec[ii]]) {
                          if(m_hasPathologyEM[index][listElec[ii]]&0xF) hv=0.; else hv=((m_hasPathologyEM[index][listElec[ii]]&0xFFF0)>>4);
@@ -417,9 +418,9 @@ StatusCode LArHVToolDB::getPayload(const Identifier& id, std::vector< HV_t > & v
           subgap->voltage_current(hv,curr);
           //std::cout << "     hv value " << hv << std::endl;
           if (hasPathology) {
-             msg(MSG::DEBUG) << "Has pathology for id: "<< m_larhec_id->print_to_string(id)<<" "<<m_hasPathologyHEC[index].size()<<endmsg;
+             ATH_MSG_DEBUG( "Has pathology for id: "<< m_larhec_id->print_to_string(id)<<" "<<m_hasPathologyHEC[index] );
              for (unsigned int ii=0;ii<listElec.size();ii++) {
-                if (listElec[ii]==i  && listElec[ii]<m_hasPathologyHEC[index].size() && m_hasPathologyHEC[index][listElec[ii]]) {
+                if (listElec[ii]==i && listElec[ii]<m_hasPathologyHEC[index].size() && m_hasPathologyHEC[index][listElec[ii]]) {
                      if(m_hasPathologyHEC[index][listElec[ii]]&0xF) hv=0.; else hv=((m_hasPathologyHEC[index][listElec[ii]]&0xFFF0)>>4);
                      curr=0.;
                 }
@@ -465,7 +466,7 @@ StatusCode LArHVToolDB::getPayload(const Identifier& id, std::vector< HV_t > & v
           double curr;
           line->voltage_current(hv,curr);
           if (hasPathology) {
-             msg(MSG::DEBUG) << "Has pathology for id: "<< m_larfcal_id->print_to_string(id)<<" "<<m_hasPathologyFCAL[index].size()<<endmsg;
+             ATH_MSG_DEBUG( "Has pathology for id: "<< m_larfcal_id->print_to_string(id)<<" "<<m_hasPathologyFCAL[index] );
              for (unsigned int ii=0;ii<listElec.size();ii++) {
                 if (listElec[ii]==i && listElec[ii]<m_hasPathologyFCAL[index].size() && m_hasPathologyFCAL[index][listElec[ii]]) {
                      if(m_hasPathologyFCAL[index][listElec[ii]]&0xF) hv=0.; else hv=((m_hasPathologyFCAL[index][listElec[ii]]&0xFFF0)>>4);
@@ -521,7 +522,7 @@ StatusCode LArHVToolDB::getPayload(const Identifier& id, std::vector< HV_t > & v
      }
   }
   else {
-    msg(MSG::WARNING) << " cell neither in EM nor HEC nor FCAL !!!!!  return empty HV " << endmsg;
+    ATH_MSG_WARNING( " cell neither in EM nor HEC nor FCAL !!!!!  return empty HV " );
   }
 
   m_v = v;
@@ -530,7 +531,7 @@ StatusCode LArHVToolDB::getPayload(const Identifier& id, std::vector< HV_t > & v
   return StatusCode::SUCCESS; 
 }
 
-void LArHVToolDB::addHV(std::vector< HV_t > & v , double hv, double wt)
+void LArHVToolDB::addHV(std::vector< HV_t > & v , double hv, double wt) const
 {
          bool found=false;
          for (unsigned int i=0;i<v.size();i++) {
@@ -548,7 +549,7 @@ void LArHVToolDB::addHV(std::vector< HV_t > & v , double hv, double wt)
          }     // not already in the list
 }
 
-void LArHVToolDB::addCurr(std::vector< CURRENT_t > & ihv , double current, double wt)
+void LArHVToolDB::addCurr(std::vector< CURRENT_t > & ihv , double current, double wt) const
 {
          bool found=false;
          for (unsigned int i=0;i<ihv.size();i++) {
@@ -566,7 +567,7 @@ void LArHVToolDB::addCurr(std::vector< CURRENT_t > & ihv , double current, doubl
          }     // not already in the list
 }
 
-std::vector<unsigned int> LArHVToolDB::getElecList(const Identifier& id)
+std::vector<unsigned int> LArHVToolDB::getElecList(const Identifier& id) const
 {
     std::vector<unsigned int> myList;
     myList.clear();
@@ -594,12 +595,12 @@ StatusCode LArHVToolDB::fillUpdatedHVChannelsVec(const std::set<size_t>& folderI
     //Get the internal cache and the AttributeListCollection for this folder
     std::vector<std::pair<unsigned,float> >& voltageCache=m_voltageCache[idx];
     //if (!m_DCSHandles[idx].isValid()) {
-    //  msg(MSG::ERROR) << "DataHandle for folder " << m_DCSFolderNames[idx] << " not valid!" << endmsg;
+    //  ATH_MSG_ERROR( "DataHandle for folder " << m_DCSFolderNames[idx] << " not valid!" );
     //  return StatusCode::FAILURE;
     //}
     const CondAttrListCollection* attrlist=NULL; //m_DCSHandles[idx].cptr();
     if (detStore()->retrieve(attrlist,m_DCSFolderNames[idx]).isFailure()) {
-      msg(MSG::ERROR) << "Failed to retrieve CondAttrListCollection with key " <<  m_DCSFolderNames[idx] << "." << endmsg;
+      ATH_MSG_ERROR( "Failed to retrieve CondAttrListCollection with key " <<  m_DCSFolderNames[idx] << "." );
       return StatusCode::FAILURE;
     }
 
@@ -626,9 +627,9 @@ StatusCode LArHVToolDB::fillUpdatedHVChannelsVec(const std::set<size_t>& folderI
       size_t cacheIdx=0;
       unsigned voltageHasChanged=0;
       if (cacheIdx+attrlist->size() > cacheSize) {
-	msg(MSG::ERROR) << "Folder: " << m_DCSFolderNames[idx] 
+	ATH_MSG_ERROR( "Folder: " << m_DCSFolderNames[idx] 
 			<< ": Got more COOL channels than in previous callback (" << cacheSize << " -> " << cacheIdx+attrlist->size() << ")." 
-			<< endmsg;
+			);
 	return StatusCode::FAILURE;
       }
       CondAttrListCollection::const_iterator citr=attrlist->begin(); 
@@ -636,9 +637,9 @@ StatusCode LArHVToolDB::fillUpdatedHVChannelsVec(const std::set<size_t>& folderI
       for(;citr!=citr_e;++citr,++cacheIdx) {
 	std::pair<unsigned,float>& currChanCache=voltageCache[cacheIdx];
 	if (currChanCache.first != citr->first) {
-	  msg(MSG::ERROR) << "Folder: " << m_DCSFolderNames[idx] 
+	  ATH_MSG_ERROR( "Folder: " << m_DCSFolderNames[idx] 
 			  << ": COOL channel in unexpected order! Got channel #" << citr->first << " expected #" <<  currChanCache.first 
-			  << endmsg;
+			  );
 	  return StatusCode::FAILURE;
 	}
 	const coral::Attribute& attr=((citr)->second)["R_VMEAS"];

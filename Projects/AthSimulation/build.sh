@@ -85,7 +85,8 @@ if [ -z "$BUILDDIR" ]; then
 fi
 mkdir -p ${BUILDDIR}
 BUILDDIR=$(cd ${BUILDDIR} && pwd)
-source $AthSimulationSrcDir/build_env.sh -b $BUILDDIR
+source $AthSimulationSrcDir/build_env.sh -b $BUILDDIR >& $BUILDDIR/build_env.log
+cat $BUILDDIR/build_env.log
 
 # create the actual build directory
 mkdir -p ${BUILDDIR}/build/AthSimulation

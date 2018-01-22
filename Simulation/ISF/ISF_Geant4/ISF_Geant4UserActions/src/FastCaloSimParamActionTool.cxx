@@ -28,6 +28,7 @@ namespace G4UA{
   {
     declareProperty("shift_lar_subhit",m_config.shift_lar_subhit, "");
     declareProperty("shorten_lar_step",m_config.shorten_lar_step, "");
+    declareProperty("stepInfoCollName",m_config.stepInfoCollName, "");
 
     declareProperty("maxRadius",m_config.m_maxRadius, "");
     declareProperty("maxRadiusLAr",m_config.m_maxRadiusLAr, "");
@@ -41,6 +42,22 @@ namespace G4UA{
     declareProperty("maxTimeFCAL",m_config.m_maxTimeFCAL, "");
     declareProperty("maxTimeTile",m_config.m_maxTimeTile, "");
 
+    declareProperty("maxEtaPS", m_config.m_maxEtaPS, "");
+    declareProperty("maxPhiPS", m_config.m_maxPhiPS, "");
+    declareProperty("maxrPS", m_config.m_maxrPS, "");
+
+    declareProperty("maxEtaEM1", m_config.m_maxEtaEM1, "");
+    declareProperty("maxPhiEM1", m_config.m_maxPhiEM1, "");
+    declareProperty("maxrEM1", m_config.m_maxrEM1, "");
+
+    declareProperty("maxEtaEM2", m_config.m_maxEtaEM2, "");
+    declareProperty("maxPhiEM2", m_config.m_maxPhiEM2, "");
+    declareProperty("maxrEM2", m_config.m_maxrEM2, "");
+
+    declareProperty("maxEtaEM3", m_config.m_maxEtaEM3, "");
+    declareProperty("maxPhiEM3", m_config.m_maxPhiEM3, "");
+    declareProperty("maxrEM3", m_config.m_maxrEM3, "");
+
     declareProperty("EMECPosIWCalculator", m_emepiwcalc);
     declareProperty("EMECNegIWCalculator", m_emeniwcalc);
     declareProperty("EMECPosOWCalculator", m_emepowcalc);
@@ -53,8 +70,8 @@ namespace G4UA{
     declareProperty("HECWheelCalculator", m_heccalc);
     declareProperty("EMBPSCalculator",m_pscalc);
     declareProperty("EMECPSCalculator", m_emepscalc);
-    declareProperty( "TileCalculator", m_tileCalculator);
-    }
+    declareProperty("TileCalculator", m_tileCalculator);
+  }
 
   StatusCode FastCaloSimParamActionTool::initialize()
   {
@@ -84,28 +101,18 @@ namespace G4UA{
 
   StatusCode FastCaloSimParamActionTool::queryInterface(const InterfaceID& riid, void** ppvIf){
 
-    if(riid == IBeginRunActionTool::interfaceID()) {
-      *ppvIf = (IBeginRunActionTool*) this;
+    if(riid == IG4RunActionTool::interfaceID()) {
+      *ppvIf = (IG4RunActionTool*) this;
       addRef();
       return StatusCode::SUCCESS;
     }
-    if(riid == IEndRunActionTool::interfaceID()) {
-      *ppvIf = (IEndRunActionTool*) this;
+    if(riid == IG4EventActionTool::interfaceID()) {
+      *ppvIf = (IG4EventActionTool*) this;
       addRef();
       return StatusCode::SUCCESS;
     }
-    if(riid == IBeginEventActionTool::interfaceID()) {
-      *ppvIf = (IBeginEventActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    if(riid == IEndEventActionTool::interfaceID()) {
-      *ppvIf = (IEndEventActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    if(riid == ISteppingActionTool::interfaceID()) {
-      *ppvIf = (ISteppingActionTool*) this;
+    if(riid == IG4SteppingActionTool::interfaceID()) {
+      *ppvIf = (IG4SteppingActionTool*) this;
       addRef();
       return StatusCode::SUCCESS;
     }

@@ -4,48 +4,60 @@
 
 #ifndef PIXELMON2DPROFILESLW_H_
 #define PIXELMON2DPROFILESLW_H_
-#include "AthenaMonitoring/ManagedMonitorToolBase.h"
-#include <string.h>
+#include "PixelMonitoring/HolderTemplate.h"
 
+class string;
 class TProfile2D_LW;
 class Identifier;
 class PixelID;
 class StatusCode;
+namespace PixMon { enum class HistConf; }
 class PixelMon2DMapsLW;
 
-// A helper class to facilitate definition of per-layer 2D profile maps.
-// It defines a collection of TProfile2D_LW histograms for each pixel layer, which then can be declared or
-// filled in a single call.
-// This books and formats the histograms in the constructor. The fill method will take the identifier 
-// as the input and fill the correct histogram and bin. The histograms are also public so that they
-// can be formated/accessed like any other histograms in the monitoring.
-
-class PixelMon2DProfilesLW
-{
+/**
+ * PixelMon2DProfilesLW histogram holder class
+ *   --> Base type: 2D Profiles (TProfile2D_LW)
+ *   --> Supports:  IBL
+ *                  IBL 2D/3D
+ *                  B0, B1, B2
+ *                  ECA/C
+ *                  DBMA/C
+ *
+ * Collection of 2D pixel component maps, based on the TH2F_LW histogram class.
+ * The initialisation of the components is controlled by the HistConf object.
+ * The fill method will take the identifier as the input and fill the correct
+ * histogram and bin. The histograms are also public so that they can be
+ * formatted/accessed like any other histograms in the monitoring.
+ */
+class PixelMon2DProfilesLW : public PixMon::HolderTemplate<TProfile2D_LW> {
 public:
-  PixelMon2DProfilesLW(std::string name, std::string title, bool doIBL, bool errorHist = false, bool copy2DFEval = false);
-  ~PixelMon2DProfilesLW();
-  TProfile2D_LW* IBL;
-  TProfile2D_LW* IBL2D;
-  TProfile2D_LW* IBL3D;
-  TProfile2D_LW* B0;
-  TProfile2D_LW* B1;
-  TProfile2D_LW* B2;
-  TProfile2D_LW* A;
-  TProfile2D_LW* C;
-  //TProfile2D_LW* DBMA;
-  //TProfile2D_LW* DBMC;
-  void Fill(Identifier &id, const PixelID* pixID, float value);
-  void Fill2DMon(PixelMon2DProfilesLW* oldmap);
-  void FillFromMap(PixelMon2DMapsLW* inputmap, bool clear_inputmap);
-  void SetMaxValue(float max);
-  void Reset();
-  StatusCode regHist(ManagedMonitorToolBase::MonGroup &group);
-private:
-  void formatHist();
-  const bool m_doIBL;
-  const bool m_errorHist;
-  const bool m_copy2DFEval;
+  //! Constructor for 2D map profiles
+  PixelMon2DProfilesLW(std::string name, std::string title, const PixMon::HistConf& config, bool copy2DFEval = false);
+
+  /**
+   * Standard method to fill the histograms of this container.
+   *
+   * @param id: the identifier of the pixel unit
+   * @param pixID: instance of the class which translates the above ID
+   *        into readable info (e.g. eta/phi module index)
+   * @param value: the fill value
+   */
+  void fill(Identifier &id, const PixelID* pixID, float value);
+
+  //! Fill method which takes values from another 2D profile
+  void fill2DMon(PixelMon2DProfilesLW* oldmap);
+
+  //! Fill method which takes values from a 2D map object
+  void fillFromMap(PixelMon2DMapsLW* inputmap, bool clear_inputmap);
+
+  //! Set maximal value of the 2D profile bins
+  void setMaxValue(float max);
+
+  //! Reset the 2D profiles
+  void reset();
+
+  //! Formatting function for histograms (reimplemented from template)
+  virtual void formatHist() override;
 };
 
-#endif
+#endif  // PIXELMON2DPROFILESLW_H_

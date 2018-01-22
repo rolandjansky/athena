@@ -2,8 +2,8 @@
 
 ## Any arguments are considered overrides, and will be added at the end
 export TRF_ECHO=True;
-Generate_tf.py --ecmEnergy=8000 --runNumber=147800 --maxEvents=10 \
-    --jobConfig=$JODIR/share/tests/MC14.147800.PowhegPythia8_AU2CT10_Wplusenu.py \
+Generate_tf.py --ecmEnergy=8000 --runNumber=429695 --maxEvents=10 \
+    --jobConfig=$JODIR15/share/DSID429xxx/MC15.429695.PowhegPythia8EvtGen_A14NNPDF23LO_Wplusenu.py \
     --inputGeneratorFile=$TESTDATA/group.phys-gener.Powheg_CT10.147800.Wplusenu_8TeV.TXT.mc12_v2._00001.tar.gz \
     --outputEVNTFile=test_powhegpythia8_Wpluswnu.EVNT.pool.root \
     $@

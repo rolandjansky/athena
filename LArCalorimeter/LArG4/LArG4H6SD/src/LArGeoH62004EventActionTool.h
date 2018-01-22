@@ -9,7 +9,7 @@
 #include <string>
 
 // Infrastructure includes
-#include "G4AtlasInterfaces/IEndEventActionTool.h"
+#include "G4AtlasInterfaces/IG4EventActionTool.h"
 #include "G4AtlasTools/ActionToolBase.h"
 
 // Local includes
@@ -26,7 +26,7 @@ namespace G4UA
   /// @author Andrea Di Simone
   ///
   class LArGeoH62004EventActionTool : public ActionToolBase<LArGeoH62004EventAction>,
-                                      public IEndEventActionTool
+                                      public IG4EventActionTool
   {
 
   public:
@@ -39,8 +39,8 @@ namespace G4UA
     StatusCode initialize() override final;
 
     /// Retrieve the event action interface
-    virtual IEndEventAction* getEndEventAction() override final
-    { return static_cast<IEndEventAction*>( getAction() ); }
+    virtual G4UserEventAction* getEventAction() override final
+    { return static_cast<G4UserEventAction*>( getAction() ); }
 
     /// Query interface for gaudi
     virtual StatusCode
