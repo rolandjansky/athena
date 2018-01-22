@@ -1106,9 +1106,6 @@ def setupMenu():
         ['2g20_tight_icalotight',            'L1_2EM15VH', [], [PhysicsStream], ['RATE:MultiPhoton', 'BW:Egamma'],-1], 
 
         ['2g22_tight_icaloloose',            'L1_2EM15VH', [], [PhysicsStream], ['RATE:MultiPhoton', 'BW:Egamma'],-1], 
-        ['2g22_tight_sc',            'L1_2EM15VH', [], [PhysicsStream], ['RATE:MultiPhoton', 'BW:Egamma'],-1], 
-        ['2g22_tight_sc_icalovloose',            'L1_2EM15VH', [], [PhysicsStream], ['RATE:MultiPhoton', 'BW:Egamma'],-1], 
-        ['2g22_tight_sc_icalovloose_L12EM15VHI',            'L1_2EM15VHI', [], [PhysicsStream], ['RATE:MultiPhoton', 'BW:Egamma'],-1], 
 
         ['2g24_tight',                   'L1_2EM20VH', [], [PhysicsStream], ['RATE:MultiPhoton', 'BW:Egamma'],-1], 
         ['2g24_tight_icalovloose',           'L1_2EM20VH', [], [PhysicsStream], ['RATE:MultiPhoton', 'BW:Egamma'],-1], 
@@ -1122,10 +1119,6 @@ def setupMenu():
         ['g20_tight_icalotight',             'L1_EM15VH', [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
 
         ['g22_tight_icaloloose',             'L1_EM15VH', [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
-        
-        ['g22_tight_sc',             'L1_EM15VH', [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
-        ['g22_tight_sc_icalovloose',             'L1_EM15VH', [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
-        ['g22_tight_sc_icalovloose_L1EM15VHI',             'L1_EM15VHI', [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
 
         ['g24_tight',                    'L1_EM20VH', [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1], 
         ['g24_tight_icalovloose',            'L1_EM20VH', [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
@@ -1197,11 +1190,8 @@ def setupMenu():
         ['e28_lhmedium_nod0_L1EM20VH',                'L1_EM20VH',    [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
 
         ['e26_lhtight_nod0_ringer_ivarloose',  'L1_EM22VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
-        ['e28_lhtight_nod0_sc_ivarloose', 'L1_EM24VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
-        ['e28_lhtight_nod0_ringer_ivarloose', 'L1_EM24VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e28_lhtight_nod0_ringer_ivarloose_L1EM24VHIM', 'L1_EM24VHIM', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
 
-        ['e60_medium_sc',                           'L1_EM22VHI',     [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e60_medium',                           'L1_EM22VHI',     [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e60_medium_L1EM24VHI',               	 'L1_EM24VHI',     [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1], 
         ['e120_lhloose_nod0', 'L1_EM22VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
@@ -1222,7 +1212,7 @@ def setupMenu():
 	
 
         # support for g+tau chains (ATR-13841)
-        ['g35_medium_sc',                    'L1_EM15VH', [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
+        ['g35_medium_L1EM22VHI',                    'L1_EM22VHI', [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
         ['g35_medium_L1EM24VHI',                    'L1_EM24VHI', [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
 
 #Rerun:         
@@ -1299,6 +1289,16 @@ def setupMenu():
         ['e9_bloose_bBeexM2700_L1BPH-0DR4-EM7J15', 'L1_BPH-0DR4-EM7J15',    ['L1_EM7'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
         ['e9_bloose_bBeexv2_L1bBPH-0DR4-EM7J15',      'L1_BPH-0DR4-EM7J15',   ['L1_EM7'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
         ['e9_bloose_bBeexM6000_L1BPH-0DR4-EM7J15',  'L1_BPH-0DR4-EM7J15',   ['L1_EM7'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag],-1],
+
+
+        # test SuperCluster chains. Implementatino discussed in ATR-17176
+        ['g140_loose_sc_L1EM24VHI',        'L1_EM24VHI', [], [PhysicsStream, 'express'], ['RATE:SinglePhoton','BW:Egamma'],-1],
+        ['g22_tight_sc_icalocloose',             'L1_EM15VH', [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
+        ['e28_lhtight_nod0_sc_ivarloose', 'L1_EM24VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+        ['e60_lhmedium_nod0_sc',           'L1_EM22VHI', [], [PhysicsStream], ['RATE:SingleElectron', 'BW:Egamma'],-1],
+        ['2e24_lhvloose_nod0_sc',                   'L1_2EM20VH', [], [PhysicsStream, 'express'], ['Primary:20000','RATE:MultiElectron', 'BW:Egamma'],-1],
+        ['g35_medium_sc_L1EM20VH',                    'L1_EM20VH', [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
+
 			 ]
 
 
@@ -2297,6 +2297,12 @@ def setupMenu():
         
         ]
 
+    if TriggerFlags.doFTK():
+        TriggerFlags.StreamingSlice.signatures = TriggerFlags.StreamingSlice.signatures() + [
+            ['noalg_ftk_L1FTK-EM',           'L1_FTK-EM',    [], ['FTK'], ['RATE:SeededStreamers', 'BW:Egamma'], -1], 
+            ['noalg_ftk_L1FTK-J',            'L1_FTK-J',     [], ['FTK'], ['RATE:SeededStreamers', 'BW:Egamma'], -1], 
+            ['noalg_ftk_L1FTK-MU',           'L1_FTK-MU',    [], ['FTK'], ['RATE:SeededStreamers', 'BW:Egamma'], -1], 
+            ]
  
     #TriggerFlags.GenericSlice.signatures = TriggerFlags.GenericSlice.signatures() + []
 
