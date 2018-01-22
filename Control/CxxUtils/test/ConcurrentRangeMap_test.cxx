@@ -100,8 +100,10 @@ public:
 
   void quiescent (int slot)
   {
+    unsigned int mask = (1<<slot);
+    if ((m_inGrace & mask) == 0) return;
     std::lock_guard<std::mutex> g (m_mutex);
-    m_inGrace &= ~(1<<slot);
+    m_inGrace &= ~mask;
     if (!m_inGrace) {
       for (T* p : m_garbage) delete p;
       m_garbage.clear();
