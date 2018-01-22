@@ -673,10 +673,11 @@ unsigned int PixelMainMon::getEventBitLength(const Identifier& WaferID, const un
   //  - 22 bits for each hit word
   //  - 22 bits for each error word
   const int layer = getPixLayerID(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_doIBL);
-  if (layer == PixLayer::kIBL) return 0.;
 
   unsigned int num_hits = 0;
-  if (layer == PixLayer::kB0) {
+  if (layer == PixLayer::kIBL) {
+    num_hits = m_HitPerEventArray_lI[m_pixelid->phi_module(WaferID)][static_cast<int>(fabs(10 + m_pixelid->eta_module(WaferID)))];
+  } else if (layer == PixLayer::kB0) {
     num_hits = m_HitPerEventArray_l0[m_pixelid->phi_module(WaferID)][static_cast<int>(fabs(6 + m_pixelid->eta_module(WaferID)))];
   } else if (layer == PixLayer::kB1) {
     num_hits = m_HitPerEventArray_l1[m_pixelid->phi_module(WaferID)][static_cast<int>(fabs(6 + m_pixelid->eta_module(WaferID)))];
@@ -693,14 +694,21 @@ unsigned int PixelMainMon::getEventBitLength(const Identifier& WaferID, const un
     return 0;
   }
 
-  int total_bits = 45;
-  if (num_hits >= 16) {
-    total_bits += 16 * 9;
+  int total_bits{0};
+  if (layer == PixLayer::kIBL) {
+    total_bits = 64;
+    total_bits += num_hits * 32;
+    total_bits += num_femcc_errwords * 32;
   } else {
-    total_bits += std::max(num_hits, num_femcc_errwords) * 9;
+    total_bits = 45;
+    if (num_hits >= 16) {
+      total_bits += 16 * 9;
+    } else {
+      total_bits += std::max(num_hits, num_femcc_errwords) * 9;
+    }
+    total_bits += num_hits * 22;
+    total_bits += num_femcc_errwords * 22;
   }
-  total_bits += num_hits * 22;
-  total_bits += num_femcc_errwords * 22;
   return total_bits;
 }
 
