@@ -11,16 +11,15 @@
 #define AFP_DBTOOLS_SILOCALIGNDBTOOL_H
 
 // Local includes
-#include "AFP_DBTools/AlignmentData.h"
+#include "AFP_DBTools/ISiLocAlignDBTool.h"
 
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgTool.h"
-//#include "GaudiKernel/ServiceHandle.h"
 
 // database access
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-//#include "AthenaPoolUtilities/AthenaAttributeList.h"
+#include "AthenaPoolUtilities/AthenaAttributeList.h"
 
 // general includes
 #include <cassert>
@@ -29,9 +28,12 @@
 
 namespace AFP
 {
+  // forward declaration
+  class SiLocAlignData;
 
   /// Tool providing local alignment of silicon detectors from the conditions database.
-  class SiLocAlignDBTool : public ::AthAlgTool
+  class SiLocAlignDBTool : virtual public AFP::ISiLocAlignDBTool, 
+			   public AthAlgTool
   {
   public:
     SiLocAlignDBTool(const std::string& type,
@@ -48,7 +50,7 @@ namespace AFP
     virtual StatusCode finalize() override {return StatusCode::SUCCESS;}
 
     /// Provide alignment parameters for a given plane. Returns nullptr if no data available.
-    const AlignmentData* alignment (const int stationID, const int planeID) const;
+    const SiLocAlignData* alignment (const int stationID, const int planeID) const override;
 
     /// Returns reference to a vector of alignments for a given station.
     ///
@@ -58,7 +60,7 @@ namespace AFP
     ///
     /// @warning if in database there was no data about the given
     /// layer a nullptr will be stored in the vector.
-    const std::vector<const AlignmentData*>& alignment (const int stationID) const
+    const std::vector<const SiLocAlignData*>& alignment (const int stationID) const override
     {assert (stationID < s_numberOfStations); return m_alignments.at(stationID);}
 
 
@@ -66,21 +68,31 @@ namespace AFP
     /// @brief Method called when new conditions are loaded
     ///
     /// The method copies information from #m_conditionsData to 
-    StatusCode update (IOVSVC_CALLBACK_ARGS);
+    StatusCode update (IOVSVC_CALLBACK_ARGS) override;
 
     /// Deletes all objects from #m_alignments and sets pointers to nullptr
     void clearAlignments ();
 
-    /// Attributes list storing bare information from the database
-    const DataHandle<CondAttrListCollection> m_conditionsData;
+    /// @brief Resizes #m_alignments to size of maxLayers and sets size of layers for each station
+    ///
+    /// @warning The method first deletes existing alignments by
+    /// calling SiLocAlignDBTool::clearAlignments(). This is done in
+    /// order to prevent memory leaks originating from shrinking
+    /// #m_alignments
+    ///
+    /// @param maxLayers vector with numbers of layers in each station
+    void resizeAlignments (const std::vector<int>& maxLayers);
 
-    /// @brief Information about alignments represented with AlignmentData objects
+    /// Attributes list storing bare information from the database
+    const DataHandle<AthenaAttributeList> m_conditionsData;
+
+    /// @brief Information about alignments represented with SiLocAlignData objects
     ///
     /// Main variable storing information about alignment. The index
     /// of the first vector represents stationID number. The index of
     /// the second vector represents plane number in the station. If
     /// there is no information about plane a nullptr is stored.
-    std::vector<std::vector<const AlignmentData*> > m_alignments;
+    std::vector<std::vector<const SiLocAlignData*> > m_alignments;
 
     /// Name of the database folder with alignment information
     std::string m_folderName;

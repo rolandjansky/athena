@@ -14,14 +14,14 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel)
 
 # External dependencies:
+find_package( Boost )
 
 # Component(s) in the package:
 atlas_add_component( AFP_DBTools
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps AthenaKernel StoreGateLib SGtests AthenaPoolUtilities GaudiKernel)
+                     LINK_LIBRARIES AthenaBaseComps AthenaKernel StoreGateLib SGtests AthenaPoolUtilities GaudiKernel ${Boost_LIBRARIES})
 
 # Install files from the package:
 atlas_install_headers( AFP_DBTools )
-atlas_install_joboptions( share/*.py )
-
+atlas_install_python_modules( python/*.py )
