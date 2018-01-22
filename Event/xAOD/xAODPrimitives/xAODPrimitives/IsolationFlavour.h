@@ -34,7 +34,7 @@ namespace xAOD {
 
      }; // enum IsolationFlavour
 
-     static inline const char* toString(IsolationFlavour type) {
+     static inline const char* toCString(IsolationFlavour type) {
        switch (type) {
        case etcone:     return "etcone";
        case ptcone:     return "ptcone";

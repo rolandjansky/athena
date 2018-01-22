@@ -105,7 +105,7 @@ StatusCode IsolationBuilder::initialize()
       xAOD::Iso::IsolationType isoType = static_cast<xAOD::Iso::IsolationType>(egIso);
       isoTypes.push_back(isoType);
       isoFlav = xAOD::Iso::isolationFlavour(isoType);
-      std::string isoName = xAOD::Iso::toString(isoType);
+      std::string isoName (xAOD::Iso::toString(isoType));
       if (m_customConfig != "") {
 	isoName += "_"; isoName += m_customConfig;
 	Deco.push_back(new SG::AuxElement::Decorator<float>(isoName));
@@ -142,7 +142,7 @@ StatusCode IsolationBuilder::initialize()
       tisoH.CorrList = corrlist;
       m_egTrackIso.insert(std::make_pair(isoFlav,tisoH));
     } else 
-      ATH_MSG_WARNING("Isolation flavour " << xAOD::Iso::toString(isoFlav) << " does not exist ! Check your inputs");
+      ATH_MSG_WARNING("Isolation flavour " << xAOD::Iso::toCString(isoFlav) << " does not exist ! Check your inputs");
     if (runIsoType.find(isoFlav) == runIsoType.end()) runIsoType.insert(isoFlav);
   }
 
@@ -162,7 +162,7 @@ StatusCode IsolationBuilder::initialize()
       xAOD::Iso::IsolationType isoType = static_cast<xAOD::Iso::IsolationType>(egIso);
       isoTypes.push_back(isoType);
       isoFlav = xAOD::Iso::isolationFlavour(isoType);
-      std::string isoName = xAOD::Iso::toString(isoType);
+      std::string isoName (xAOD::Iso::toString(isoType));
       if (m_customConfig != "") {
 	isoName += "_"; isoName += m_customConfig;
 	Deco.push_back(new SG::AuxElement::Decorator<float>(isoName));
@@ -181,7 +181,7 @@ StatusCode IsolationBuilder::initialize()
       cisoH.CorrList = corrlist;
       m_feCaloIso.insert(std::make_pair(isoFlav,cisoH));
     } else 
-      ATH_MSG_WARNING("Isolation flavour " << xAOD::Iso::toString(isoFlav) << " does not exist ! Check your inputs");
+      ATH_MSG_WARNING("Isolation flavour " << xAOD::Iso::toCString(isoFlav) << " does not exist ! Check your inputs");
     if (runIsoType.find(isoFlav) == runIsoType.end()) runIsoType.insert(isoFlav);
   }
 
@@ -201,7 +201,7 @@ StatusCode IsolationBuilder::initialize()
       xAOD::Iso::IsolationType isoType = static_cast<xAOD::Iso::IsolationType>(muIso);
       isoTypes.push_back(isoType);
       isoFlav = xAOD::Iso::isolationFlavour(isoType);
-      std::string isoName = xAOD::Iso::toString(isoType);
+      std::string isoName = xAOD::Iso::toCString(isoType);
       if (m_customConfigMu != "") {
 	isoName += "_"; isoName += m_customConfigMu;
 	Deco.push_back(new SG::AuxElement::Decorator<float>(isoName));
@@ -231,9 +231,9 @@ StatusCode IsolationBuilder::initialize()
 	if (m_customConfigMu != "" && (isoCor == xAOD::Iso::coreCone || isoCor == xAOD::Iso::coreMuon) ) {
 	  std::string isoCorName = "";
 	  if (isoFlav == xAOD::Iso::topoetcone || isoFlav == xAOD::Iso::neflowisol)
-	    isoCorName = xAOD::Iso::toString(isoFlav);
-	  isoCorName += xAOD::Iso::toString(isoCor);
-	  isoCorName += xAOD::Iso::toString(xAOD::Iso::coreEnergy); isoCorName += "Correction"; // hard coded since we never store the core area in fact
+	  isoCorName =xAOD::Iso::toCString(isoFlav);
+	  isoCorName += xAOD::Iso::toCString(isoCor);
+	  isoCorName += xAOD::Iso::toCString(xAOD::Iso::coreEnergy); isoCorName += "Correction"; // hard coded since we never store the core area in fact
 	  isoCorName += "_"; isoCorName += m_customConfigMu;
 	  cisoH.coreCorisoDeco = new SG::AuxElement::Decorator<float>(isoCorName);
       }
@@ -249,7 +249,7 @@ StatusCode IsolationBuilder::initialize()
       tisoH.CorrList = corrlist;
       m_muTrackIso.insert(std::make_pair(isoFlav,tisoH));
     } else 
-      ATH_MSG_WARNING("Isolation flavour " << xAOD::Iso::toString(isoFlav) << " does not exist ! Check your inputs");
+      ATH_MSG_WARNING("Isolation flavour " << xAOD::Iso::toCString(isoFlav) << " does not exist ! Check your inputs");
     if (runIsoType.find(isoFlav) == runIsoType.end()) runIsoType.insert(isoFlav);
   }
 
@@ -487,12 +487,12 @@ StatusCode IsolationBuilder::IsolateEgamma(std::string egType) {
 	  float iso = 0;
 	  bool gotIso  = eg->isolationValue(iso,isoH.isoTypes[i]);
 	  if (gotIso)
-	    ATH_MSG_DEBUG("Iso " << xAOD::Iso::toString(isoH.isoTypes[i]) << " = " << iso/1e3);
+	    ATH_MSG_DEBUG("Iso " << xAOD::Iso::toCString(isoH.isoTypes[i]) << " = " << iso/1e3);
 	  else
 	    ATH_MSG_WARNING("Missing isolation result for " << isoH.isoTypes[i]);
 	}
       } else
-	ATH_MSG_WARNING("Call to CaloIsolationTool failed for flavour " << xAOD::Iso::toString(flav));
+	ATH_MSG_WARNING("Call to CaloIsolationTool failed for flavour " << xAOD::Iso::toCString(flav));
     }
     if (egType == "fwdelectron")
       return StatusCode::SUCCESS;
@@ -529,7 +529,7 @@ StatusCode IsolationBuilder::IsolateEgamma(std::string egType) {
 	  bool gotIso  = eg->isolationValue(iso,isoH.isoTypes[i]);
 	  bool gotIsoV = eg->isolationValue(isoV,varIsoType);
 	  if (gotIso && gotIsoV)
-	    ATH_MSG_DEBUG("Iso " << xAOD::Iso::toString(isoH.isoTypes[i]) << " = " << iso/1e3 << ", var cone = " << isoV/1e3);
+	    ATH_MSG_DEBUG("Iso " << xAOD::Iso::toCString(isoH.isoTypes[i]) << " = " << iso/1e3 << ", var cone = " << isoV/1e3);
 	  else
 	    ATH_MSG_WARNING("Missing isolation result " << gotIso << " " << gotIsoV);
 	}
@@ -572,12 +572,12 @@ StatusCode IsolationBuilder::IsolateMuon() {
 	  float iso = 0;
 	  bool gotIso  = mu->isolation(iso,isoH.isoTypes[i]);
 	  if (gotIso)
-	    ATH_MSG_DEBUG("Iso " << xAOD::Iso::toString(isoH.isoTypes[i]) << " = " << iso/1e3);
+	    ATH_MSG_DEBUG("Iso " << xAOD::Iso::toCString(isoH.isoTypes[i]) << " = " << iso/1e3);
 	  else
-	    ATH_MSG_WARNING("Missing isolation result for " << xAOD::Iso::toString(isoH.isoTypes[i]));
+	    ATH_MSG_WARNING("Missing isolation result for " << xAOD::Iso::toCString(isoH.isoTypes[i]));
 	}
       } else
-	ATH_MSG_WARNING("Call to CaloIsolationTool failed for flavour " << xAOD::Iso::toString(flav));
+	ATH_MSG_WARNING("Call to CaloIsolationTool failed for flavour " << xAOD::Iso::toCString(flav));
     }
     // 
     // Track Isolation types
@@ -595,7 +595,7 @@ StatusCode IsolationBuilder::IsolateMuon() {
 	  bool gotIso  = mu->isolation(iso,isoH.isoTypes[i]);
 	  bool gotIsoV = mu->isolation(isoV,varIsoType);
 	  if (gotIso && gotIsoV)
-	    ATH_MSG_DEBUG("Iso " << xAOD::Iso::toString(isoH.isoTypes[i]) << " = " << iso/1e3 << ", var cone = " << isoV/1e3);
+	    ATH_MSG_DEBUG("Iso " << xAOD::Iso::toCString(isoH.isoTypes[i]) << " = " << iso/1e3 << ", var cone = " << isoV/1e3);
 	  else
 	    ATH_MSG_WARNING("Missing isolation result " << gotIso << " " << gotIsoV);
 	}
@@ -674,11 +674,11 @@ StatusCode IsolationBuilder::DecorateEgamma(std::string egType) {
       if (bsc) {
 	for (unsigned int i = 0; i < isoH.isoTypes.size(); i++) {
 	  float iso = CaloIsoResult.etcones[i];
-	  ATH_MSG_DEBUG("custom Iso " << xAOD::Iso::toString(isoH.isoTypes[i]) << " = " << iso/1e3);
+	  ATH_MSG_DEBUG("custom Iso " << xAOD::Iso::toCString(isoH.isoTypes[i]) << " = " << iso/1e3);
 	  (*isoH.isoDeco[i])(*eg) = iso;
 	}
       } else
-	ATH_MSG_WARNING("Call to CaloIsolationTool failed for custom flavour " << xAOD::Iso::toString(flav));
+	ATH_MSG_WARNING("Call to CaloIsolationTool failed for custom flavour " << xAOD::Iso::toCString(flav));
     }
     if (egType == "fwdelectron")
       return StatusCode::SUCCESS;
@@ -696,7 +696,7 @@ StatusCode IsolationBuilder::DecorateEgamma(std::string egType) {
 	unsigned int nI = isoH.isoTypes.size();
 	for (unsigned int i = 0; i < nI; i++) {
 	  float iso = TrackIsoResult.ptcones[i], isoV = TrackIsoResult.ptvarcones_10GeVDivPt[i];
-	  ATH_MSG_DEBUG("custom Iso " << xAOD::Iso::toString(isoH.isoTypes[i]) << " = " << iso/1e3 << ", var cone = " << isoV/1e3);
+	  ATH_MSG_DEBUG("custom Iso " << xAOD::Iso::toCString(isoH.isoTypes[i]) << " = " << iso/1e3 << ", var cone = " << isoV/1e3);
 	  (*isoH.isoDeco[2*i])(*eg)   = iso;
 	  (*isoH.isoDeco[2*i+1])(*eg) = isoV;
 	}
@@ -738,7 +738,7 @@ StatusCode IsolationBuilder::DecorateMuon() {
       if (bsc) {
 	for (unsigned int i = 0; i < isoH.isoTypes.size(); i++) {
 	  float iso = CaloIsoResult.etcones[i];
-	  ATH_MSG_DEBUG("custom Iso " << xAOD::Iso::toString(isoH.isoTypes[i]) << " = " << iso/1e3);
+	  ATH_MSG_DEBUG("custom Iso " << xAOD::Iso::toCString(isoH.isoTypes[i]) << " = " << iso/1e3);
 	  (*isoH.isoDeco[i])(*mu) = iso;
 	}
 	// not that nice. I expect a single core correction (e.g. for topoetcone, not coreMuon and coreCone together...)
@@ -754,12 +754,12 @@ StatusCode IsolationBuilder::DecorateMuon() {
 	    if (CaloIsoResult.coreCorrections[icc].find(xAOD::Iso::coreEnergy) != CaloIsoResult.coreCorrections[icc].end())
 	      (*isoH.coreCorisoDeco)(*mu) = CaloIsoResult.coreCorrections[icc][xAOD::Iso::coreEnergy];
 	    else
-	      ATH_MSG_WARNING("Cannot find the core energy correction for custom flavour " << xAOD::Iso::toString(flav));
+	      ATH_MSG_WARNING("Cannot find the core energy correction for custom flavour " << xAOD::Iso::toCString(flav));
 	  } else
-	    ATH_MSG_WARNING("Cannot find the core correction for custom flavour " << xAOD::Iso::toString(flav));
+	    ATH_MSG_WARNING("Cannot find the core correction for custom flavour " << xAOD::Iso::toCString(flav));
 	}
       } else
-	ATH_MSG_WARNING("Call to CaloIsolationTool failed for custom flavour " << xAOD::Iso::toString(flav));
+	ATH_MSG_WARNING("Call to CaloIsolationTool failed for custom flavour " << xAOD::Iso::toCString(flav));
     }
     // 
     // Track Isolation types
@@ -773,7 +773,7 @@ StatusCode IsolationBuilder::DecorateMuon() {
 	unsigned int nI = isoH.isoTypes.size();
 	for (unsigned int i = 0; i < nI; i++) {
 	  float iso = TrackIsoResult.ptcones[i], isoV = TrackIsoResult.ptvarcones_10GeVDivPt[i];
-	  ATH_MSG_DEBUG("custom Iso " << xAOD::Iso::toString(isoH.isoTypes[i]) << " = " << iso/1e3 << ", var cone = " << isoV/1e3);
+	  ATH_MSG_DEBUG("custom Iso " << xAOD::Iso::toCString(isoH.isoTypes[i]) << " = " << iso/1e3 << ", var cone = " << isoV/1e3);
 	  (*isoH.isoDeco[2*i])(*mu)   = iso;
 	  (*isoH.isoDeco[2*i+1])(*mu) = isoV;
 	}

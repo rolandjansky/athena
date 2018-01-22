@@ -148,7 +148,7 @@ namespace xAOD {
     for( auto isoType : isoTypes ){
       Iso::IsolationFlavour flavour = Iso::isolationFlavour(isoType);
       if( flavour != Iso::ptcone ) {
-        ATH_MSG_WARNING("Unsupported isolation type passed, cannot calculate isolation " << Iso::toString(isoType));
+        ATH_MSG_WARNING("Unsupported isolation type passed, cannot calculate isolation " << Iso::toCString(isoType));
         return false;
       }
       float conesize = Iso::coneSize(isoType);
@@ -156,7 +156,7 @@ namespace xAOD {
     }
 
     for(size_t i=1; i<input.coneSizesSquared.size(); i++){
-      if(input.coneSizesSquared[i]>input.coneSizesSquared[i-1]) ATH_MSG_ERROR("Isolation Cone should be in decreasing order. "<< i << "th variable is " << Iso::toString(isoTypes[i]) << " is larger than the one before it: " << Iso::toString(isoTypes[i-1]));
+      if(input.coneSizesSquared[i]>input.coneSizesSquared[i-1]) ATH_MSG_ERROR("Isolation Cone should be in decreasing order. "<< i << "th variable is " << Iso::toCString(isoTypes[i]) << " is larger than the one before it: " << Iso::toCString(isoTypes[i-1]));
     }
 
     std::sort(input.coneSizesSquared.begin(),input.coneSizesSquared.end(),[](float i, float j) { return i>j; });
@@ -219,7 +219,7 @@ namespace xAOD {
     for( auto ctype : correctionTypes ){
       auto el = result.coreCorrections.find(ctype);
       if( el == result.coreCorrections.end() ){
-	ATH_MSG_WARNING("Correction value not found " << Iso::toString(ctype) );         
+	ATH_MSG_WARNING("Correction value not found " << Iso::toCString(ctype) );         
 	continue;
       }
       SG::AuxElement::Decorator< float >* isoCorAcc = getIsolationCorrectionDecorator( Iso::isolationFlavour(cones[0]), ctype );
