@@ -9,7 +9,7 @@
 # art-output: cost-perEvent
 # art-output: cost-perCall-chain
 # art-output: cost-perEvent-chain
-# art-input:  user.jahreda.valid1.147408.PowhegPythia8_AZNLO_Ztautau.recon.RDO.e3099_s2578_r7611.beamspotJohn.v6_EXT2
+# art-input:  mc16_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.digit.RDO_FTK.e3601_s3126_d1455_d1457
 # art-output: *.dat 
 # art-output: *.root
 # art-output: *.log
