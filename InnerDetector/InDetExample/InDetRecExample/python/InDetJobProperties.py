@@ -301,7 +301,7 @@ class cutLevel(InDetFlagsJobProperty):
     """
     statusOn     = True
     allowedTypes = ['int']
-    allowedValues= [1,2,3,4,5,6,7,8,9,10,11,12,13,14]
+    allowedValues= [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
     StoredValue  = 14
 
 class doBremRecovery(InDetFlagsJobProperty):
