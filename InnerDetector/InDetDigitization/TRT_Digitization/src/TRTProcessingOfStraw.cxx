@@ -646,16 +646,19 @@ void TRTProcessingOfStraw::ClustersToDeposits (const int& hitID,
       // The active gas volume along the straw z-axis is: Barrel long +-349.315 mm; Barrel short +-153.375 mm; End caps +-177.150 mm.
       // Here we give a warning for clusters that are outside of the straw gas volume in in z. Since T/P version 3 cluster z values
       // can go several mm outside these ranges; 30 mm is plenty allowance in the checks below.
-      if ( isLong  && fabs(cluster_z)>349.315+30 ) {
-        double d = cluster_z<0 ? cluster_z+349.315: cluster_z-349.315;
+      const double  longBarrelStrawHalfLength(349.315*CLHEP::mm);
+      const double shortBarrelStrawHalfLength(153.375*CLHEP::mm);
+      const double      EndcapStrawHalfLength(177.150*CLHEP::mm);
+      if ( isLong  && fabs(cluster_z)>longBarrelStrawHalfLength+30 ) {
+        double d = cluster_z<0 ? cluster_z+longBarrelStrawHalfLength : cluster_z-longBarrelStrawHalfLength;
         ATH_MSG_WARNING ("Long barrel straw cluster is outside the active gas volume z = +- 349.315 mm by " << d << " mm.");
       }
-      if ( isShort && fabs(cluster_z)>153.375+30 ) {
-        double d = cluster_z<0 ? cluster_z+153.375: cluster_z-153.375;
+      if ( isShort && fabs(cluster_z)>shortBarrelStrawHalfLength+30 ) {
+        double d = cluster_z<0 ? cluster_z+shortBarrelStrawHalfLength : cluster_z-shortBarrelStrawHalfLength;
         ATH_MSG_WARNING ("Short barrel straw cluster is outside the active gas volume z = +- 153.375 mm by " << d << " mm.");
       }
-      if ( isEC    && fabs(cluster_z)>177.150+30 ) {
-        double d = cluster_z<0 ? cluster_z+177.150: cluster_z-177.150;
+      if ( isEC    && fabs(cluster_z)>EndcapStrawHalfLength+30 ) {
+        double d = cluster_z<0 ? cluster_z+EndcapStrawHalfLength : cluster_z-EndcapStrawHalfLength;
         ATH_MSG_WARNING ("End cap straw cluster is outside the active gas volume z = +- 177.150 mm by " << d << " mm.");
       }
 
