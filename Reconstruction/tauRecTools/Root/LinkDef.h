@@ -17,6 +17,7 @@
 #include "tauRecTools/TauChargedPFOCreator.h"
 #include "tauRecTools/TauWPDecorator.h"
 #include "tauRecTools/TauJetBDTEvaluator.h"
+#include "tauRecTools/TauJetRNNEvaluator.h"
 #include "tauRecTools/TauIDVarCalculator.h"
 #include "tauRecTools/TauEleOLRDecorator.h"
 
@@ -48,6 +49,7 @@
 #pragma link C++ class TauChargedPFOCreator+;
 #pragma link C++ class TauWPDecorator+;
 #pragma link C++ class TauJetBDTEvaluator+;
+#pragma link C++ class TauJetRNNEvaluator+;
 #pragma link C++ class TauIDVarCalculator+;
 #pragma link C++ class TauEleOLRDecorator+;
 
