@@ -16,8 +16,8 @@
 #include "FileCatalog/FCException.h"
 #include "FileCatalog/IFCAction.h"
 #include "FileCatalog/IFCContainer.h"
+#include "FileCatalog/FCSystemTools.h"
 #include "POOLCore/Exception.h"
-#include "CoralBase/MessageStream.h"
 #include "CoralBase/MessageStream.h"
 #include <memory>
 #include <vector>
@@ -71,7 +71,7 @@ int main(int argc, char** argv)
     if( commands.Exists("u") ){
       myuri=commands.GetByName("u");
     }else{
-      myuri=std::string(::getenv("POOL_CATALOG"));
+      myuri=FCSystemTools::GetEnvStr("POOL_CATALOG");
     }       
     if( commands.Exists("p") ){
       mypfn=commands.GetByName("p");
