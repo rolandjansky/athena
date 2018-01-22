@@ -67,12 +67,14 @@ def getCosmicFilterTool(name="G4UA::G4CosmicFilterTool", **kwargs):
     # use simple  cosmic filter
     if len(volumes)==1:
 
-        if simFlags.CosmicFilterID.statusOn:
-            kwargs.setdefault("PDGId", simFlags.CosmicFilterID.get_Value())
-        if simFlags.CosmicFilterPTmin.statusOn:
-            kwargs.setdefault("PtMin", simFlags.CosmicFilterPTmin.get_Value())
-        if simFlags.CosmicFilterPTmax.statusOn:
-            kwargs.setdefault("PtMax", simFlags.CosmicFilterPTmax.get_Value())
+        # Stopped particle filter is a special case; will not have cosmic flags set
+        if volumes[0]!='StoppingPositions':
+            if simFlags.CosmicFilterID.statusOn:
+                kwargs.setdefault("PDGId", simFlags.CosmicFilterID.get_Value())
+            if simFlags.CosmicFilterPTmin.statusOn:
+                kwargs.setdefault("PtMin", simFlags.CosmicFilterPTmin.get_Value())
+            if simFlags.CosmicFilterPTmax.statusOn:
+                kwargs.setdefault("PtMax", simFlags.CosmicFilterPTmax.get_Value())
         kwargs.setdefault("CollectionName",volumes[0])
 
         print 'G4CosmicFilter: Filter volume is %s' % volumes[0]

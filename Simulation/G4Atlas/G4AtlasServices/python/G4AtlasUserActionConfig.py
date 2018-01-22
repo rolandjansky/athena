@@ -8,8 +8,6 @@ from AthenaCommon import CfgGetter,CfgMgr,Logging
 def getDefaultRunActions():
     from G4AtlasApps.SimFlags import simFlags
     defaultUA=[]
-    if hasattr(simFlags, 'StoppedParticleFile') and simFlags.StoppedParticleFile.statusOn:
-        defaultUA+=['G4UA::StoppedParticleActionTool']
     return defaultUA
 
 # begin of event
@@ -26,7 +24,6 @@ def getDefaultEventActions():
     if jobproperties.Beam.beamType() == 'cosmics' and hasattr(simFlags, 'CavernBG') and not simFlags.CavernBG.statusOn:
         defaultUA+=['G4UA::CosmicPerigeeActionTool']
     if hasattr(simFlags, 'StoppedParticleFile') and simFlags.StoppedParticleFile.statusOn:
-        defaultUA+=['G4UA::StoppedParticleActionTool']
         defaultUA+=['G4UA::G4CosmicFilterTool']
     if jobproperties.Beam.beamType() == 'cosmics' and not simFlags.ISFRun:
         defaultUA+=['G4UA::G4CosmicFilterTool']
@@ -47,6 +44,8 @@ def getDefaultSteppingActions():
         defaultUA+=['G4UA::CaloG4::CalibrationDefaultProcessingTool']
     if simFlags.PhysicsList == 'QGSP_BERT_HP':
         defaultUA+=['G4UA::PhotonKillerTool']
+    if hasattr(simFlags, 'StoppedParticleFile') and simFlags.StoppedParticleFile.statusOn:
+        defaultUA+=['G4UA::StoppedParticleActionTool']
     return defaultUA
 
 # tracking
