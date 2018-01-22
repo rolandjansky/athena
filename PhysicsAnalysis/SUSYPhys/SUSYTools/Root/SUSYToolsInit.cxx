@@ -57,6 +57,7 @@ using namespace ST;
 
 #include "METInterface/IMETMaker.h"
 #include "METInterface/IMETSystematicsTool.h"
+#include "METInterface/IMETSignificance.h"
 
 #include "TrigConfInterfaces/ITrigConfigTool.h"
 #include "TriggerMatchingTool/IMatchingTool.h"
@@ -1052,22 +1053,20 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 ///////////////////////////////////////////////////////////////////////////////////////////
 // Initialise B-tagging tools
   std::string jetcollBTag = jetcoll;
-  if (jetcoll == "AntiKt4EMPFlowJets") {
-    ATH_MSG_WARNING("  *** HACK *** Treating EMPFlow jets as EMTopo -- use at your own risk!");
-    jetcollBTag = "AntiKt4EMTopoJets";
-  }
   if (jetcoll == "AntiKt4LCTopoJets") {
     ATH_MSG_WARNING("  *** HACK *** Treating LCTopoJets jets as EMTopo -- use at your own risk!");
     jetcollBTag = "AntiKt4EMTopoJets";
   }
+
   if (!m_btagSelTool.isUserConfigured() && !m_BtagWP.empty()) {
-    if (jetcoll != "AntiKt4EMTopoJets" && jetcoll != "AntiKt4EMPFlowJets") {
-      ATH_MSG_WARNING("** Only AntiKt4EMTopoJets and AntiKt3PV0TrackJets are supported with scale factors!");
-      if( jetcoll == "AntiKt3PV0TrackJets" ){
-        ATH_MSG_ERROR("AntiKt3PV0TrackJets not yet implemented in SUSYTools. Please inform the Background Forum Conveners if you wish to use these.");
+    if (jetcoll != "AntiKt4EMTopoJets" && jetcoll != "AntiKt4EMPFlowJets" && jetcoll != "AntiKt2PV0TrackJets" && jetcoll != "AntiKtVR30Rmax4Rmin02TrackJets") {
+      ATH_MSG_WARNING("** Only AntiKt4EMTopoJets, AntiKt4EMPFlowJets, AntiKt2PV0TrackJets, and AntiKtVR30Rmax4Rmin02TrackJets are supported with scale factors!");
+      if( jetcoll == "AntiKt2PV0TrackJets" || jetcoll == "AntiKt2PV0TrackJets"){
+        ATH_MSG_ERROR("Neither AntiKt2PV0TrackJets nor AntiKtVR30Rmax4Rmin02TrackJets are yet implemented in SUSYTools. Please inform the Background Forum Conveners if you wish to use these.");
         return StatusCode::FAILURE;
       }
     }
+
     toolName = "BTagSel_" + jetcollBTag + m_BtagWP;
     m_btagSelTool.setTypeAndName("BTaggingSelectionTool/"+toolName);    
     ATH_CHECK( m_btagSelTool.setProperty("TaggerName",     m_BtagTagger ) );
@@ -1078,10 +1077,10 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   }
 
   if (!m_btagSelTool_OR.isUserConfigured() && !m_orBtagWP.empty()) {
-    if (jetcoll != "AntiKt4EMTopoJets" && jetcoll != "AntiKt4EMPFlowJets") {
-      ATH_MSG_WARNING("** Only AntiKt4EMTopoJets and AntiKt3PV0TrackJets are supported with scale factors!");
-      if( jetcoll == "AntiKt3PV0TrackJets" ){
-        ATH_MSG_ERROR("AntiKt3PV0TrackJets not yet implemented in SUSYTools. Please inform the Background Forum Conveners if you wish to use these.");
+    if (jetcoll != "AntiKt4EMTopoJets" && jetcoll != "AntiKt4EMPFlowJets" && jetcoll != "AntiKt2PV0TrackJets" && jetcoll != "AntiKtVR30Rmax4Rmin02TrackJets") {
+      ATH_MSG_WARNING("** Only AntiKt4EMTopoJets, AntiKt4EMPFlowJets, AntiKt2PV0TrackJets, and AntiKtVR30Rmax4Rmin02TrackJets are supported with scale factors!");
+      if( jetcoll == "AntiKt2PV0TrackJets" || jetcoll == "AntiKt2PV0TrackJets"){
+        ATH_MSG_ERROR("Neither AntiKt2PV0TrackJets nor AntiKtVR30Rmax4Rmin02TrackJets are yet implemented in SUSYTools. Please inform the Background Forum Conveners if you wish to use these.");
         return StatusCode::FAILURE;
       }
     }
@@ -1096,10 +1095,10 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   }
 
   if (!m_btagEffTool.isUserConfigured() && !m_BtagWP.empty()) {
-    if (jetcoll != "AntiKt4EMTopoJets") {
-      ATH_MSG_WARNING("** Only AntiKt4EMTopoJets and AntiKt3PV0TrackJets are supported with scale factors!");
-      if( jetcoll == "AntiKt3PV0TrackJets" ){
-        ATH_MSG_ERROR("AntiKt3PV0TrackJets not yet implemented in SUSYTools. Please inform the Background Forum Conveners if you wish to use these.");
+    if (jetcoll != "AntiKt4EMTopoJets" && jetcoll != "AntiKt4EMPFlowJets" && jetcoll != "AntiKt2PV0TrackJets" && jetcoll != "AntiKtVR30Rmax4Rmin02TrackJets") {
+      ATH_MSG_WARNING("** Only AntiKt4EMTopoJets, AntiKt4EMPFlowJets, AntiKt2PV0TrackJets, and AntiKtVR30Rmax4Rmin02TrackJets are supported with scale factors!");
+      if( jetcoll == "AntiKt2PV0TrackJets" || jetcoll == "AntiKt2PV0TrackJets"){
+        ATH_MSG_ERROR("Neither AntiKt2PV0TrackJets nor AntiKtVR30Rmax4Rmin02TrackJets are yet implemented in SUSYTools. Please inform the Background Forum Conveners if you wish to use these.");
         return StatusCode::FAILURE;
       }
     }
@@ -1173,6 +1172,16 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       }
     }
     ATH_CHECK( m_metSystTool.retrieve());
+  }
+
+  if (!m_metSignif.isUserConfigured()) {
+    m_metSignif.setTypeAndName("met::METSignificance/metSignificance");
+    ATH_CHECK( m_metSignif.setProperty("SoftTermParam", m_softTermParam) );
+    ATH_CHECK( m_metSignif.setProperty("TreatPUJets", m_treatPUJets) );
+    ATH_CHECK( m_metSignif.setProperty("DoPhiReso", m_doPhiReso) );
+    //ATH_CHECK( m_metSignif.setProperty("IsData", isData()) ); 
+    //ATH_CHECK( m_metSignif.setProperty("IsAFII", isAtlfast()) ); 
+    ATH_CHECK( m_metSignif.retrieve() );
   }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
