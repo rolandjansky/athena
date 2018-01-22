@@ -11,18 +11,7 @@
 #include <cstring>
 #include <algorithm>
 #include <stdexcept>
-
-//Since we are single-threaded and never calls outself recursively, we
-//can use a global data area to do our work.
-//FIXME: We do it like this to avoid adding new member data (because I
-//am not 100% sure this class is not persistified somewhere). 
-//{Thomas Kittelmann}
-namespace TTN_internal {
-  const static int MAX_LAYER_LENGTH = 1000; 
-  static double tmpdata[2*MAX_LAYER_LENGTH];
-  static double * tmp_array[2] = { 
-    &(tmpdata[0]), &(tmpdata[MAX_LAYER_LENGTH]) };
-}
+#include "TargetBuffer_t.h"
 
 
 TTrainedNetwork::TTrainedNetwork()
@@ -127,10 +116,7 @@ TTrainedNetwork::TTrainedNetwork(std::vector<TTrainedNetwork::Input> inputs,
   int nlayer_max(mnOutput);
   for (unsigned i = 0; i < mnHiddenLayerSize.size(); ++i)
     nlayer_max = std::max(nlayer_max, mnHiddenLayerSize[i]);
-  if (nlayer_max >= TTN_internal::MAX_LAYER_LENGTH) { 
-    std::cout<<"TTrainedNetwork ERROR Maximal layer size exceeded"<<std::endl;
-    assert(false);
-  }
+  m_bufferSizeMax=nlayer_max;
 
   unsigned n_zero = std::count(m_input_node_scale.begin(), 
 			       m_input_node_scale.end(), 0); 
@@ -301,7 +287,6 @@ TTrainedNetwork::calculateOutputValues(const std::vector<Double_t>& input)
   // anything here since it is used heavily in reconstruction during
   // Pixel clusterization - Thomas Kittelmann, Oct 2011.
 
-  using namespace TTN_internal; 
 
   if (input.size() != mnInput)
   {
@@ -310,13 +295,15 @@ TTrainedNetwork::calculateOutputValues(const std::vector<Double_t>& input)
     return std::vector<double>();
   }
 
+  TTN::DoubleBuffer_t tmp_array;
+  tmp_array.clear(m_bufferSizeMax);          // make sure it is big enough and initialise with zero
+
   const unsigned nTargetLayers(mnHidden+1);
   const unsigned lastTargetLayer(mnHidden);
   unsigned nSource = mnInput, nTarget(0);
-  const double * source = &(input[0]);
-  double * target(0);
-  const double * weights(0);
-  const double * thresholds(0);
+  TTN::Buffer_t source(input);
+  const double * weights(nullptr);
+  const double * thresholds(nullptr);
   double nodeVal(0);
 
   for (unsigned iLayer = 0; iLayer < nTargetLayers; ++iLayer) {
@@ -324,7 +311,7 @@ TTrainedNetwork::calculateOutputValues(const std::vector<Double_t>& input)
     nTarget = ( iLayer == lastTargetLayer ? 
 		mnOutput : 
 		mnHiddenLayerSize[iLayer] );
-    target = tmp_array[iLayer%2];
+    TTN::Buffer_t target( tmp_array[iLayer] );
 
     //Transfer the input nodes to the output nodes in this layer transition:
     weights = mWeightMatrices[iLayer]->GetMatrixArray();
@@ -335,8 +322,8 @@ TTrainedNetwork::calculateOutputValues(const std::vector<Double_t>& input)
 		    //get exactly the same results that an earlier
 		    //version of the package gave.
       const double * weights_tmp = weights++;
-      const double * source_end(&(source[nSource]));
-      for (const double* source_iter = source; 
+      const double * source_end(&(source.upper_bound_at(nSource)));
+      for (const double* source_iter = &source[0];
 	   source_iter != source_end; ++source_iter)
 	{
 	  nodeVal += (*weights_tmp) * (*source_iter);
@@ -351,18 +338,26 @@ TTrainedNetwork::calculateOutputValues(const std::vector<Double_t>& input)
     nSource = nTarget;
   }
 
-  std::vector<double> result(nTarget);
+  //std::vector<double> result(nTarget);
   if (!mNormalizeOutput) {
-    std::memcpy(&result[0], target, sizeof(*target)*nTarget);
+    //    std::memcpy(&result[0], target, sizeof(*target)*nTarget);
+    // the result is already in the buffer half with index (nTargetLayers-1)%2
+    // copy this to the front of the full buffer and shrink the array
+    return tmp_array.releaseData(nTarget,(nTargetLayers-1));
   } else {
+    // take the other half buffer to store the normalised output
+    TTN::Buffer_t norm_target=tmp_array[nTargetLayers];
+    TTN::Buffer_t target=tmp_array[(nTargetLayers-1)];
     const double sumLastLayer = 
       std::accumulate(&target[0], &target[nTarget], 0.0 );
     const double normFact = sumLastLayer ? 1.0/sumLastLayer : 0.0;
     for (unsigned i = 0; i < nTarget; ++i)
-      result[i] = normFact * target[i];
+      norm_target[i] = normFact * target[i];
+    // copy the half buffer to the front of the full buffer
+    // if necessary and shrink the array
+    return tmp_array.releaseData(nTarget,nTargetLayers);
   }
   
-  return result;
 }
 
 
