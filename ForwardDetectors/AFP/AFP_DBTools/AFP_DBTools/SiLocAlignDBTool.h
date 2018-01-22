@@ -25,6 +25,7 @@
 #include <cassert>
 #include <string>
 #include <vector>
+#include <memory>
 
 namespace AFP
 {
@@ -40,8 +41,8 @@ namespace AFP
 		     const std::string& name,
 		     const IInterface* parent);
 
-    /// Deletes all objects stored in #m_alignments
-    virtual ~SiLocAlignDBTool() override {clearAlignments();}
+    /// Does nothing
+    virtual ~SiLocAlignDBTool() override {}
 
     /// Register method SiLocAlignDBTool::update() to be called when conditions change
     virtual StatusCode initialize() override;
@@ -50,7 +51,7 @@ namespace AFP
     virtual StatusCode finalize() override {return StatusCode::SUCCESS;}
 
     /// Provide alignment parameters for a given plane. Returns nullptr if no data available.
-    const SiLocAlignData* alignment (const int stationID, const int planeID) const override;
+    std::shared_ptr<const SiLocAlignData> alignment (const int stationID, const int planeID) const override;
 
     /// Returns reference to a vector of alignments for a given station.
     ///
@@ -60,7 +61,7 @@ namespace AFP
     ///
     /// @warning if in database there was no data about the given
     /// layer a nullptr will be stored in the vector.
-    const std::vector<const SiLocAlignData*>& alignment (const int stationID) const override
+    const std::vector<std::shared_ptr<const SiLocAlignData> >& alignment (const int stationID) const override
     {assert (stationID < s_numberOfStations); return m_alignments.at(stationID);}
 
 
@@ -69,9 +70,6 @@ namespace AFP
     ///
     /// The method copies information from #m_conditionsData to 
     StatusCode update (IOVSVC_CALLBACK_ARGS) override;
-
-    /// Deletes all objects from #m_alignments and sets pointers to nullptr
-    void clearAlignments ();
 
     /// @brief Resizes #m_alignments to size of maxLayers and sets size of layers for each station
     ///
@@ -92,7 +90,7 @@ namespace AFP
     /// of the first vector represents stationID number. The index of
     /// the second vector represents plane number in the station. If
     /// there is no information about plane a nullptr is stored.
-    std::vector<std::vector<const SiLocAlignData*> > m_alignments;
+    std::vector<std::vector<std::shared_ptr<const SiLocAlignData> > > m_alignments;
 
     /// Name of the database folder with alignment information
     std::string m_folderName;

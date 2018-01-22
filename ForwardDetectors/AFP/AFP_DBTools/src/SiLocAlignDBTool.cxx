@@ -45,7 +45,7 @@ namespace AFP
     return StatusCode::SUCCESS;
   }
 
-  const SiLocAlignData* SiLocAlignDBTool::alignment (const int stationID, const int planeID) const
+  std::shared_ptr<const SiLocAlignData> SiLocAlignDBTool::alignment (const int stationID, const int planeID) const
   {
     assert (stationID < s_numberOfStations);
     
@@ -62,8 +62,6 @@ namespace AFP
 
   void SiLocAlignDBTool::resizeAlignments (const std::vector<int>& maxLayers)
   {
-    clearAlignments();
-
     m_alignments.resize (maxLayers.size());
 
     int stationID = 0;
@@ -74,9 +72,6 @@ namespace AFP
 
   StatusCode SiLocAlignDBTool::update (IOVSVC_CALLBACK_ARGS)
   {
-    // clear old alignments
-    clearAlignments();
-
     // read database content
     boost::property_tree::ptree inputData;
     const coral::AttributeList attrList = m_conditionsData->coralList();
@@ -91,14 +86,14 @@ namespace AFP
       ATH_MSG_WARNING(builderWarning);
 
     // Create alignment objects based on parsed information from database. Also find number of stations and layers
-    std::list<const SiLocAlignData*> alignmentsList;
+    std::list<std::shared_ptr<const SiLocAlignData> > alignmentsList;
     int maxStationID = 0;
     std::vector<int> maxLayers (maxStationID+1, 0);
     for (boost::property_tree::ptree::value_type node : payload)
       for (boost::property_tree::ptree::value_type nodeData : node.second) {
 
 	// create new alignment object and read station and layer ID
-	const SiLocAlignData* newAlignment = new SiLocAlignData (builder.build(nodeData));
+	std::shared_ptr<const SiLocAlignData> newAlignment = std::make_shared<const SiLocAlignData> (builder.build(nodeData));
 	const int stationID = newAlignment->stationID();
 	const int layerID = newAlignment->layerID();
 	
@@ -118,19 +113,9 @@ namespace AFP
     resizeAlignments (maxLayers);
 
     // rewrite new alignments to the output vector
-    for (const SiLocAlignData* locAlign : alignmentsList)
+    for (std::shared_ptr<const SiLocAlignData> locAlign : alignmentsList)
       m_alignments[locAlign->stationID()][locAlign->layerID()] = locAlign;
 
     return StatusCode::SUCCESS;
   }
-
-  void SiLocAlignDBTool::clearAlignments ()
-  {
-    for (std::vector<const SiLocAlignData*>& dataVector : m_alignments)
-      for (const SiLocAlignData*& data : dataVector) {
-	delete data;
-	data = nullptr;
-      }
-  }
-
 }
