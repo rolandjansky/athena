@@ -621,9 +621,9 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
     //     return HLT::OK;
     // }
 
-    // Get the last ClusterContainerTopo
-    const xAOD::CaloClusterContainer* input_topoclusters = vectorClusterContainerTopo.back();   // Now Cluster Container have Clusters from Topo
-    if(!input_topoclusters){
+    // Get the last ClusterContainer
+    const xAOD::CaloClusterContainer* clusContainer = vectorClusterContainer.back();
+    if(!clusContainer){
         if ( msgLvl() <= MSG::ERROR )
             msg() << MSG::ERROR
                 << " REGTEST: Retrieval of CaloClusterContainer from vector failed"
@@ -647,16 +647,16 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
         }
         // Get the last ClusterContainer
         if ( !vectorClusterContainerTopo.empty() ) {
-            const xAOD::CaloClusterContainer* input_topoclustersTopo = vectorClusterContainerTopo.back();
-            if (input_topoclustersTopo->size() > 0) topoClusTrue = true;
-            ATH_MSG_DEBUG("REGTEST: Number of topo containers : " << input_topoclustersTopo->size());
+            const xAOD::CaloClusterContainer* clusContainerTopo = vectorClusterContainerTopo.back();
+            if (clusContainerTopo->size() > 0) topoClusTrue = true;
+            ATH_MSG_DEBUG("REGTEST: Number of topo containers : " << clusContainerTopo->size());
         } // vector of Cluster Container empty?!
 
 
     if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG 
-        << input_topoclusters->size() << " calo clusters in container" << endreq;
+        << clusContainer->size() << " calo clusters in container" << endreq;
 
-    if(input_topoclusters->size() < 1){
+    if(clusContainer->size() < 1){
         return HLT::OK;
     }
 
@@ -713,7 +713,7 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
         if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " REGTEST: Got " << vectorCellContainer.size()
             << " CaloCellContainers associated to the TE " << endreq;
         
-        if ( getStoreGateKey( input_topoclusters, clusCollKey) != HLT::OK) {
+        if ( getStoreGateKey( clusContainer, clusCollKey) != HLT::OK) {
             ATH_MSG_ERROR("Failed to get key for ClusterContainer");
         }
         else ATH_MSG_DEBUG("Cluster Collection key in SG: " << clusCollKey);
@@ -742,7 +742,7 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
                 if ( msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "Running m_showerBuilder: " << m_showerBuilder << endreq;
             } //pCaloCellContainer
         }
-        pTopoClusterContainer = vectorClusterContainerTopo.back(); // <---- Fix names. This seems to be the same as input_topoclustersTopo
+        if(topoClusTrue) pTopoClusterContainer = vectorClusterContainerTopo.back();
     }
 
     //**********************************************************************
@@ -879,9 +879,9 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
     // loop over clusters. 
     // Add egammaRec into container
     // then do next steps
-    for( unsigned int i = 0; i<input_topoclusters->size(); i++){
+    for( unsigned int i = 0; i<clusContainer->size(); i++){
         // create a new egamma object + corresponding egDetail container
-        const ElementLink< xAOD::CaloClusterContainer > clusterLink( *input_topoclusters, i );
+        const ElementLink< xAOD::CaloClusterContainer > clusterLink( *clusContainer, i );
         const std::vector< ElementLink<xAOD::CaloClusterContainer> > elClusters {clusterLink}; 
         egammaRec* egRec = new egammaRec(); 
         egRec->setCaloClusters( elClusters );
