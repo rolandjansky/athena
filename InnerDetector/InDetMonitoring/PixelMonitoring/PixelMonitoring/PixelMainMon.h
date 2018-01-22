@@ -277,12 +277,12 @@ class PixelMainMon : public ManagedMonitorToolBase {
   int m_ClusPerEventArray_l1[38][13];
   int m_ClusPerEventArray_l2[52][13];
 
-  int m_HitPerEventArray_disksA[48][3] = {0};
-  int m_HitPerEventArray_disksC[48][3] = {0};
-  int m_HitPerEventArray_lI[14][20] = {0};
-  int m_HitPerEventArray_l0[22][13] = {0};
-  int m_HitPerEventArray_l1[38][13] = {0};
-  int m_HitPerEventArray_l2[52][13] = {0};
+  int m_HitPerEventArray_disksA[48][3] = {{0}};
+  int m_HitPerEventArray_disksC[48][3] = {{0}};
+  int m_HitPerEventArray_lI[14][20] = {{0}};
+  int m_HitPerEventArray_l0[22][13] = {{0}};
+  int m_HitPerEventArray_l1[38][13] = {{0}};
+  int m_HitPerEventArray_l2[52][13] = {{0}};
 
   //////////////////////Histograms///////////////////////////
 
