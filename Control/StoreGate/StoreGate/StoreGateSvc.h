@@ -208,72 +208,50 @@ public:
 
   /// Retrieve the default object into a const T*
   template <typename T> 
-  StatusCode retrieve(const T*& ptr);
+  StatusCode retrieve(const T*& ptr) const;
 
   /// Retrieve the default object into a T*
   template <typename T>
-  StatusCode retrieve(T*& ptr);
+  StatusCode retrieve(T*& ptr) const;
 
   /// Variant of the above which doesn't return a status code.
   /// Just returns null if the object isn't found.
   template <typename T>
-  T* retrieve ();
+  T* retrieve () const;
 
   /// Variant of the above which doesn't print a warning message.
   /// Just returns null if the object isn't found. Compare to contains
   template <typename T>
-  T* tryRetrieve ();
+  T* tryRetrieve () const;
   template <typename T>
-  const T* tryConstRetrieve();
+  const T* tryConstRetrieve() const;
 
   /// Retrieve an object with "key", into a const T*
   template <typename T, typename TKEY> 
-  StatusCode retrieve(const T*& ptr, const TKEY& key);
+  StatusCode retrieve(const T*& ptr, const TKEY& key) const;
 
   /// Retrieve an object with "key", into a T*
   template <typename T, typename TKEY>
-  StatusCode retrieve(T*& ptr, const TKEY& key);
+  StatusCode retrieve(T*& ptr, const TKEY& key) const;
 
   /// Variant of the above which doesn't return a status code.
   /// Just returns null if the object isn't found.
   template <typename T, class TKEY>
-  T* retrieve (const TKEY& key);
+  T* retrieve (const TKEY& key) const;
 
   /// Variant of the above which doesn't print a warning message.
   /// Just returns null if the object isn't found. Compare to contains
   template <typename T, class TKEY>
-  T* tryRetrieve (const TKEY& key);
+  T* tryRetrieve (const TKEY& key) const;
   template <typename T, class TKEY>
-  const T* tryConstRetrieve(const TKEY& key);
-
-  /**
-   * @brief try to associate a data object to its auxiliary store
-   *        if ignoreMissing=false @returns false if the aux store is not found.
-   * @param key The key to use for the lookup.
-   **/
-  template <class DOBJ>
-  bool associateAux (DataHandle<DOBJ>&, bool ignoreMissing=true);
-  template <class DOBJ>
-  bool associateAux (const DataHandle<DOBJ>&, bool ignoreMissing=true);
-
-  /// retrieve a data object deriving from DataVectorAuxBase,
-  /// associate the data object to its matching IAuxStore.
-  /// The matching is done by name, with the IAuxStore assumed to have key
-  /// key + "Aux"
-  /// returns null if the object or its IAuxStore isn't found.
-  template <typename T, class TKEY>
-  T* retrieveAux (const TKEY& key);
-  template <typename T, class TKEY>
-  const T* constRetrieveAux (const TKEY& key);
-
-
+  const T* tryConstRetrieve(const TKEY& key) const;
 
 
 
   /// Retrieve all objects of type T: returns an SG::ConstIterator range
   template <typename T> 
   StatusCode retrieve(SG::ConstIterator<T>& begin, 
-                      SG::ConstIterator<T>& end);
+                      SG::ConstIterator<T>& end) const;
 
   /** Look up a keyed object in TDS (compare also tryRetrieve)
    *  returns false if object not available in TDS or persistent stores 
@@ -389,7 +367,7 @@ public:
   /// @returns StatusCode::FAILURE if no dataObject found
   template <typename T, class TKEY>
   StatusCode retrieveHighestVersion(SG::ObjectWithVersion<T>& dobjWithVersion, 
-                                    const TKEY& requestedKey);
+                                    const TKEY& requestedKey) const;
 
   /// Retrieve all versions of a given T,KEY combination
   /// sets allVersions, a ref to a vector of ObjectWithVersion<T>
@@ -404,7 +382,7 @@ public:
   template <typename T, class TKEY>
   StatusCode
   retrieveAllVersions(std::list< SG::ObjectWithVersion<T> >& allVersions,
-                      const TKEY& requestedKey);
+                      const TKEY& requestedKey) const;
 
   
 
@@ -987,15 +965,6 @@ private:
   /// callback for output level property 
   void msg_update_handler(Property& outputLevel);
 
-  template <class DOBJ, class AUXSTORE>
-  bool associateAux_impl(DataHandle<DOBJ>& handle, const AUXSTORE*);
-  template <class DOBJ, class AUXSTORE>
-  bool associateAux_impl(const DataHandle<DOBJ>& handle, const AUXSTORE*);
-  template <class DOBJ>
-  bool associateAux_impl(DataHandle<DOBJ>& , const SG::NoAuxStore*) { return true; }
-  template <class DOBJ>
-  bool associateAux_impl(const DataHandle<DOBJ>&, const SG::NoAuxStore*) { return true; }
-
   /// Add automatically-made symlinks for DP.
   void addAutoSymLinks (const std::string& key, CLID clid, SG::DataProxy* dp,
                         const std::type_info* tinfo,
@@ -1024,23 +993,23 @@ public:
   //@{
   /// DEPRECATED: Retrieve the default object into a const DataHandle
   template <typename T> 
-  StatusCode SG_DEPRECATED retrieve(const DataHandle<T>& handle);
+  StatusCode SG_DEPRECATED retrieve(const DataHandle<T>& handle) const;
 
   /// DEPRECATED: Retrieve the default object into a DataHandle
   template <typename T> 
-  StatusCode SG_DEPRECATED retrieve(DataHandle<T>& handle);
+  StatusCode SG_DEPRECATED retrieve(DataHandle<T>& handle) const;
 
   /// DEPRECATED: Retrieve an object with "key", into a const DataHandle
   template <typename T, typename TKEY> 
-  StatusCode SG_DEPRECATED retrieve(const DataHandle<T>& handle, const TKEY& key);
+  StatusCode SG_DEPRECATED retrieve(const DataHandle<T>& handle, const TKEY& key) const;
   /// DEPRECATED: Retrieve an object with "key", into a DataHandle
   template <typename T, typename TKEY> 
-  StatusCode SG_DEPRECATED retrieve(DataHandle<T>& handle, const TKEY& key);
+  StatusCode SG_DEPRECATED retrieve(DataHandle<T>& handle, const TKEY& key) const;
 
   /// DEPRECATED Retrieve all objects of type T: use iterators version instead
   template <typename T> 
   StatusCode SG_DEPRECATED retrieve(const DataHandle<T>& begin, 
-                                                  const DataHandle<T>& end);
+                                                  const DataHandle<T>& end) const;
   /// DEPRECATED, use version taking ref to vector
   template <typename T>
   std::vector<std::string> //FIXME inefficient. Should take ref to vector
