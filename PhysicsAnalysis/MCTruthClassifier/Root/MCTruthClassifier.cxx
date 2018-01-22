@@ -508,7 +508,7 @@ std::pair<ParticleType,ParticleOrigin>
 MCTruthClassifier::particleTruthClassifier(const xAOD::Jet* jet, bool DR,
                                            Info* info /*= nullptr*/) const {
   //-----------------------------------------------------------------------------------------
-  
+
   ATH_MSG_DEBUG( "Executing Classifier with jet Input" );
 
   if (info){
@@ -519,6 +519,7 @@ MCTruthClassifier::particleTruthClassifier(const xAOD::Jet* jet, bool DR,
   ParticleOrigin partorig     = NonDefined;
   ParticleType   tempparttype = UnknownJet;
   std::set<const xAOD::TruthParticle*>     allJetMothers;
+  std::set<const xAOD::TruthParticle*>     constituents;
   std::pair<ParticleType,ParticleOrigin>   res;
 
   if(!jet){
@@ -526,62 +527,151 @@ MCTruthClassifier::particleTruthClassifier(const xAOD::Jet* jet, bool DR,
   }
 
   allJetMothers.clear();
+  constituents.clear();
+  findJetConstituents(jet,constituents,DR);
 
-  if (!DR) { 
+  // find the matching truth particles
+  std::set<const xAOD::TruthParticle*>::iterator it;
+  for (it=constituents.begin(); it!=constituents.end(); ++it) {
+    const xAOD::TruthParticle* thePart = (*it);
+    // determine jet origin
+    findAllJetMothers(thePart,allJetMothers);
+    // determine jet type
+    if(thePart->status()==3) continue;
+    // determine jet type
+    tempparttype = particleTruthClassifier(thePart, info).first;
+    if(tempparttype==Hadron) tempparttype=defTypeOfHadron(thePart->pdgId());
+    // classify the jet
+    if (tempparttype==BBbarMesonPart || tempparttype==BottomMesonPart || tempparttype==BottomBaryonPart) {
+      parttype = BJet;
+    }
+    else if (tempparttype==CCbarMesonPart || tempparttype==CharmedMesonPart || tempparttype==CharmedBaryonPart ) {
+      if (parttype==BJet) {}
+      else { parttype = CJet;}
+    }
+    else if (tempparttype==StrangeBaryonPart||tempparttype==LightBaryonPart||tempparttype==StrangeMesonPart||tempparttype==LightMesonPart) {
+      if (parttype==BJet||parttype==CJet) {}
+      else { parttype = LJet;}
+    }
+    else {
+      if (parttype==BJet||parttype==CJet||parttype==LJet) {}
+      else { parttype = UnknownJet;}
+    }
+  } // end loop over jet constituents
 
-  } else { 
+  // clasify the jet origin
+  partorig = defJetOrig(allJetMothers);
+
+  allJetMothers.clear();
+  constituents.clear();
+
+  ATH_MSG_DEBUG( " jet Classifier succeeded" );
+  return std::make_pair(parttype,partorig);
+}
+
+
+// Now that we use TLorentzVector for the momentum base class, this is straightforward
+double MCTruthClassifier::deltaR(const xAOD::TruthParticle& v1, const xAOD::Jet& v2){
+  // Should this use delta y though?
+  return v1.p4().DeltaR(v2.p4());
+}
+
+
+void MCTruthClassifier::findJetConstituents(const xAOD::Jet* jet, std::set<const xAOD::TruthParticle*>& constituents, bool DR) const{
+
+  if(DR){
     // use a DR matching scheme (default)
-    // retrieve collection and get a pointer 
+    // retrieve collection and get a pointer
     const xAOD::TruthParticleContainer  * xTruthParticleContainer;
     StatusCode sc = evtStore()->retrieve(xTruthParticleContainer, m_xaodTruthParticleContainerName);
     if (sc.isFailure()||!xTruthParticleContainer){
-      ATH_MSG_WARNING( "No  xAODTruthParticleContainer "<<m_xaodTruthParticleContainerName<<" found" ); 
-      return std::make_pair(parttype,partorig);
+      ATH_MSG_WARNING( "No xAODTruthParticleContainer "<<m_xaodTruthParticleContainerName<<" found" );
+      return;
     }
 
     ATH_MSG_DEBUG( "xAODTruthParticleContainer  " << m_xaodTruthParticleContainerName<<" successfully retrieved " );
 
     // find the matching truth particles
     for(const auto thePart : *xTruthParticleContainer){
-      // do not look at intermediate particles
-      if(thePart->status()!=2&&thePart->status()!=3&&thePart->status()!=10902) continue;
-      // match truth particles to the jet
-      if (deltaR((*thePart),(*jet)) > m_jetPartDRMatch) continue;
-      // determine jet origin
-      findAllJetMothers(thePart,allJetMothers);
-      // determine jet type
-      if(thePart->status()==3) continue;
-      // determine jet type
-      tempparttype = particleTruthClassifier(thePart, info).first;
-      if(tempparttype==Hadron) tempparttype=defTypeOfHadron(thePart->pdgId());
-      // classify the jet
-      if (tempparttype==BBbarMesonPart || tempparttype==BottomMesonPart || tempparttype==BottomBaryonPart) 
-            {parttype = BJet;}
-      else if (tempparttype==CCbarMesonPart || tempparttype==CharmedMesonPart || tempparttype==CharmedBaryonPart ) 
-            {if (parttype==BJet) {} else { parttype = CJet;}}
-      else if (tempparttype==StrangeBaryonPart||tempparttype==LightBaryonPart||tempparttype==StrangeMesonPart||tempparttype==LightMesonPart) 
-            {if (parttype==BJet||parttype==CJet) {} else { parttype = LJet;}}
-      else {if (parttype==BJet||parttype==CJet||parttype==LJet) {} else { parttype = UnknownJet;}}
-
-    } // end loop over truth particles  
-
-  }// end DR scheme
-  
-  // clasify the jet origin
-  partorig = defJetOrig(allJetMothers);
-
-  allJetMothers.clear();
-
-  ATH_MSG_DEBUG( " jet Classifier succeeded" );  
-  return std::make_pair(parttype,partorig);
+      // match truth particles to the jet 
+      if (thePart->status() == 1 &&
+          deltaR((*thePart),(*jet)) < m_jetPartDRMatch){
+        constituents.insert(thePart);
+      }
+    }
+  } // end if DR
+  else {
+    xAOD::JetConstituentVector vec = jet->getConstituents();
+    for(auto it = vec.begin(); it != vec.end(); ++it){
+      const xAOD::JetConstituent* particle0 = *it;
+      const xAOD::TruthParticle* thePart = dynamic_cast<const xAOD::TruthParticle*>(particle0->rawConstituent());
+      if(thePart->status() == 1){
+        constituents.insert(thePart);
+      }
+    }
+  } // end if !DR
+  return;
 }
 
-double MCTruthClassifier::deltaR(const xAOD::TruthParticle& v1, const xAOD::Jet & v2) {
-  double dphi = std::fabs(v1.phi()-v2.phi()) ;
-  dphi = (dphi<=M_PI)? dphi : 2*M_PI-dphi;
-  double deta = std::fabs(v1.eta()-v2.eta()) ;
-  return std::sqrt(dphi*dphi+deta*deta) ;
+
+void MCTruthClassifier::findParticleDaughters(const xAOD::TruthParticle* thePart, std::set<const xAOD::TruthParticle*>& daughters) const {
+
+  // Get descendants
+  const xAOD::TruthVertex* endVtx = thePart->decayVtx();
+  if(endVtx!=0){
+    for(unsigned int i=0;i<endVtx->nOutgoingParticles();i++){
+      const xAOD::TruthParticle* theDaughter=endVtx->outgoingParticle(i);
+      if( theDaughter == 0 ) continue;
+      if( theDaughter->status() == 1 && theDaughter->barcode() < 200000){
+        // Add descendants with status code 1
+        daughters.insert(theDaughter);
+      }
+      findParticleDaughters(theDaughter,daughters);
+    }
+  }
+  return;
 }
+
+
+double MCTruthClassifier::fracParticleInJet(const xAOD::TruthParticle* thePart, const xAOD::Jet* jet, bool DR, bool nparts) const {
+
+  // Get jet constituents
+  std::set<const xAOD::TruthParticle*> constituents;
+  constituents.clear();
+  findJetConstituents(jet,constituents,DR);
+
+  // Get all particle daughters
+  std::set<const xAOD::TruthParticle*> daughters;
+  daughters.clear();
+  findParticleDaughters(thePart,daughters);
+  if( daughters.size() == 0 ) daughters.insert(thePart);
+
+  // Get the intersection of constituents and daughters
+  std::set<const xAOD::TruthParticle*> intersect;
+  std::set_intersection(constituents.begin(),constituents.end(),
+                        daughters.begin(),daughters.end(),
+                        std::inserter(intersect,intersect.begin()));
+
+  double frac = 0;
+  if( nparts ){
+    frac = 1.0*intersect.size()/daughters.size();
+  }
+  else{
+    double tot = 0;
+    for(auto it=daughters.begin(); it!=daughters.end(); ++it) {
+      const xAOD::TruthParticle* daughter = (*it);
+      tot+=1.0*daughter->pt();
+    }
+    for(auto it=intersect.begin(); it!=intersect.end(); ++it) {
+      const xAOD::TruthParticle* particle = (*it);
+
+      frac += 1.0*particle->pt()/tot;
+    }
+  }
+
+  return frac;
+}
+
 
 //---------------------------------------------------------------------------------
 ParticleOrigin MCTruthClassifier::defJetOrig(std::set<const xAOD::TruthParticle*> allJetMothers) const {

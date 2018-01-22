@@ -60,7 +60,8 @@ class MDT_RawDataProviderTool : virtual public IMuonRawDataProviderTool, virtual
   std::set<uint32_t>                m_robIdSet;
   //unsigned int                      m_lastLvl1ID;
   ToolHandle<MdtROD_Decoder>        m_decoder; 
-  SG::WriteHandleKey<MdtCsmContainer>   m_rdoContainerKey;
+  SG::WriteHandleKey<MdtCsmContainer>   m_rdoContainerKey{
+	this, "RdoLocation", "MDTCSM", "Name of the MDTCSM produced by RawDataProvider"};
   const MuonGM::MuonDetectorManager* m_muonMgr;    
   ActiveStoreSvc*                   m_activeStore;
   unsigned int m_maxhashtoUse;

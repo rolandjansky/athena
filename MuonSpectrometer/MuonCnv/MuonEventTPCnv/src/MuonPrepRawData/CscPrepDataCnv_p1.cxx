@@ -27,8 +27,8 @@ persToTrans( const Muon::CscPrepData_p1 *persObj, Muon::CscPrepData *transObj,Ms
                                   nullptr, // detEl
                                   persObj->m_charge,
                                   persObj->m_time,
-                                  static_cast<const Muon::CscClusterStatus>((persObj->m_status)&0xFF), // First 8 bits reserved for ClusterStatus.
-                                  static_cast<const Muon::CscTimeStatus>((persObj->m_status)>>8)
+                                  static_cast<Muon::CscClusterStatus>((persObj->m_status)&0xFF), // First 8 bits reserved for ClusterStatus.
+                                  static_cast<Muon::CscTimeStatus>((persObj->m_status)>>8)
                                   );
 
    fillTransFromPStore( &m_prdCnv, persObj->m_prd, transObj, log );

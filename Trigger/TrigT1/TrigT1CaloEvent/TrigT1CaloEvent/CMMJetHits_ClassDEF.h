@@ -6,8 +6,8 @@
 #include "TrigT1CaloEvent/CMMJetHits.h"
 #endif
 
-#include "CLIDSvc/CLASS_DEF.h"
-#include "DataModel/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
 
 CLASS_DEF( LVL1::CMMJetHits , 45481339 , 1 )
 CLASS_DEF( DataVector<LVL1::CMMJetHits> , 240136234 , 1 )

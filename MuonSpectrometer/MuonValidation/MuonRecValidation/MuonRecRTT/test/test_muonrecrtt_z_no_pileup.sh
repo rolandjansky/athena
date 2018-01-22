@@ -7,4 +7,6 @@
 # art-input-nfiles: 10
 # art-input-split: 10
 
-Reco_tf.py --maxEvents=10000 --inputRDOFile=*.root --outputAODFile=valid1.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu_no_pileup.AOD.pool.root --outputNTUP_PHYSVALFile valid1.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu_no_pileup.PHYSVAL.root --validationFlags noExample doMuon --preExec 'from RecExConfig.RecFlags  import rec; rec.doTrigger=False; import MuonCombinedRecExample.MuonCombinedRecOnlySetup'
+echo "List of files = " ${ArtInFile}
+
+Reco_tf.py --maxEvents=10000 --inputRDOFile=${ArtInFile} --outputAODFile=valid1.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu_no_pileup.AOD.pool.root --outputNTUP_PHYSVALFile valid1.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu_no_pileup.PHYSVAL.root --validationFlags noExample doMuon --preExec 'from RecExConfig.RecFlags  import rec; rec.doTrigger=False; import MuonCombinedRecExample.MuonCombinedRecOnlySetup'

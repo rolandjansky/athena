@@ -20,7 +20,6 @@ Muon::MDT_RawDataProviderTool::MDT_RawDataProviderTool(const std::string& t,
   //m_rdoContainer(0),
   //m_lastLvl1ID(0),
   m_decoder("MdtROD_Decoder"),
-  m_rdoContainerKey("MDTCSM"),
   m_muonMgr(0),
   m_mdtCabling(0),
   m_robDataProvider ("ROBDataProviderSvc",n)
@@ -29,7 +28,6 @@ Muon::MDT_RawDataProviderTool::MDT_RawDataProviderTool(const std::string& t,
   
   //  template for property declaration
   declareProperty ("Decoder", m_decoder);
-  declareProperty ("RdoLocation", m_rdoContainerKey);  
 }
 
 

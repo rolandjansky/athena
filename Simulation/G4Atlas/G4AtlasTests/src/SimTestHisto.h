@@ -6,6 +6,7 @@
 
 #ifndef G4ATLASTESTS_SIMTESTHISTO_H
 #define G4ATLASTESTS_SIMTESTHISTO_H
+
 /** @file SimTestHisto.h
  * @author John Chapman - ATLAS Collaboration
  */
@@ -20,29 +21,36 @@ class TProfile;
 class TH1;
 class TH2;
 
-class SimTestHisto{
+/// Utility helper class for dealing with histograms in the sim tests.
+/// @fixme Is this class really needed?
+///
+class SimTestHisto
+{
+
 public:
 
-  SimTestHisto():m_path("/truth/"){};
+  SimTestHisto() : m_path("/truth/") {};
   ~SimTestHisto(){};
 
-  IMessageSvc* msgSvc(){
+  /// Retrieve the message service.
+  /// @fixme there are better ways to do this in Athena.
+  IMessageSvc* msgSvc()
+  {
     static IMessageSvc* mS = 0;
-    if (!mS)
-      {
-	StatusCode status;
-	ISvcLocator* svcLocator = Gaudi::svcLocator();
-	status=svcLocator->service("MessageSvc", mS);
-	if (status.isFailure())
-	  std::cout<<" msgSvc(); could not access MessageSvc"<<std::endl;
-	
-      }
-    return mS;     
-    
-  } 
+    if (!mS) {
+      StatusCode status;
+      ISvcLocator* svcLocator = Gaudi::svcLocator();
+      status = svcLocator->service("MessageSvc", mS);
+      if (status.isFailure())
+        std::cout << " msgSvc(); could not access MessageSvc" << std::endl;
+    }
+    return mS;
+  }
 
-
-  ITHistSvc* tHistSvc() {
+  /// Retrieve the histogram service
+  /// @fixme this should be done with a ServiceHandle instead
+  ITHistSvc* tHistSvc()
+  {
     static ITHistSvc* hSvc = 0;
     if (!hSvc) {
       ISvcLocator* svcLocator = Gaudi::svcLocator();
@@ -53,15 +61,17 @@ public:
     }
     return hSvc;
   }
-  StatusCode registerHistogram(const std::string& path, TH1* hist) {
 
+  StatusCode registerHistogram(const std::string& path, TH1* hist)
+  {
     if(tHistSvc()->regHist(path, hist).isFailure())
       return StatusCode::FAILURE;
     return StatusCode::SUCCESS;
   }
-  
-  
-  StatusCode registerHistogram(const std::string& path, TH2* hist) {
+
+
+  StatusCode registerHistogram(const std::string& path, TH2* hist)
+  {
     if(tHistSvc()->regHist(path, hist).isFailure())
       return StatusCode::FAILURE;
     return StatusCode::SUCCESS;
@@ -146,6 +156,6 @@ protected:
 //
 // }
 // axis->Set(bins, new_bins);
-// delete new_bins; 
+// delete new_bins;
 
 #endif //G4ATLASTESTS_SIMTESTHISTO_H

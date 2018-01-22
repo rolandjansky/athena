@@ -12,6 +12,9 @@
 #include "GaudiKernel/DataObjID.h"
 
 class CondContBase;
+namespace Athena {
+  class IRCUSvc;
+}
 
 namespace CondContainer {
   template <typename T>
@@ -23,11 +26,11 @@ namespace CondContainer {
     
     virtual
     SG::DataObjectSharedPtr<DataObject>
-    Create(const CLID& clid, const std::string& key)  const {
+    Create(Athena::IRCUSvc& rcusvc, const CLID& clid, const std::string& key)  const {
       DataObjID id(clid,key);
       
       return SG::DataObjectSharedPtr<DataObject>
-        (SG::asStorable (new CondCont<T>(id)));
+        (SG::asStorable (new CondCont<T>(rcusvc, id)));
     }
   };
 }

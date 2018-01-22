@@ -12,11 +12,16 @@
 #include "GaudiKernel/DataObject.h"
 
 
+namespace Athena {
+  class IRCUSvc;
+}
+
+
 namespace CondContainer {
 
   class ICondContMaker {
   public:
-    virtual SG::DataObjectSharedPtr<DataObject> Create(const CLID& clid, const std::string& key) const = 0;
+    virtual SG::DataObjectSharedPtr<DataObject> Create(Athena::IRCUSvc& rcusvc, const CLID& clid, const std::string& key) const = 0;
     virtual ~ICondContMaker() {}
   };
 }

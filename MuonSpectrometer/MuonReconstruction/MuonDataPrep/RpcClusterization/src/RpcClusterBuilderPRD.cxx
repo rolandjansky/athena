@@ -180,9 +180,6 @@ StatusCode RpcClusterBuilderPRD::fill_rpcClusterContainer() {
   
   //before returning, store collections into container:
 
-  std::vector<Muon::RpcPrepDataCollection*>::iterator coll_begin=m_coll_vect.begin();
-  std::vector<Muon::RpcPrepDataCollection*>::iterator coll_end=m_coll_vect.end();
-  
   for(unsigned int k=0;k<m_coll_vect.size();k++){
 
     sc = m_rpcClusterContainer->addCollection(m_coll_vect[k], m_coll_vect[k]->identifyHash());
@@ -294,7 +291,7 @@ void RpcClusterBuilderPRD::buildClusters(Identifier elementId) {
     
     for(;dig_it!=m_digits[panelId].end();++dig_it){ // loop over patterns
 
-      const RpcReadoutElement* descriptor=m_muonMgr->getRpcReadoutElement((*dig_it).second->identify());
+      const MuonGM::RpcReadoutElement* descriptor=m_muonMgr->getRpcReadoutElement((*dig_it).second->identify());
     
       if(lastStrip==-999){ // first hit of a cluster..
 	

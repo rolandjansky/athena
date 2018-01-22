@@ -32,14 +32,11 @@ Muon::RPC_RawDataProviderTool::RPC_RawDataProviderTool(
     const IInterface*  p) :
     AthAlgTool(t, n, p),
     m_decoder("Muon__RpcROD_Decoder"),
-    m_RpcPadC("RPCPAD"),
-    m_sec("RPC_SECTORLOGIC"),
     m_AllowCreation(false),
     m_robDataProvider ("ROBDataProviderSvc",n)
 {
     declareInterface<IMuonRawDataProviderTool>(this);
     declareProperty("Decoder",     m_decoder);
-    declareProperty("RdoLocation", m_RpcPadC);
 }
 
 

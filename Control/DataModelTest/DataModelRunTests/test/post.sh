@@ -201,6 +201,12 @@ PP="$PP"'|Got release version'
 # Messages depending on environment settings.
 PP="$PP"'|COOL_DISABLE_CORALCONNECTION|INFO Cache alignment'
 
+# Root version
+PP="$PP"'|File version:'
+
+# Ignore annoying error from root 6.10.06
+PP="$PP"'|no interpreter information for class TSelectorCint'
+
 
 test=$1
 if [ -z "$testStatus" ]; then

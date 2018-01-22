@@ -208,6 +208,8 @@ namespace Analysis
       ATH_MSG_INFO("#BTAG# Retrieved tool " << m_muonSelectorTool);  
     }
 
+    ATH_CHECK( m_TrackParticles.initialize() );
+
     /** retrieving TrackToVertex: */
     /*
       if ( m_trackToVertexTool.retrieve().isFailure() ) {
@@ -742,10 +744,15 @@ namespace Analysis
       //std::cout << " trk: " <<  tmpMuon->primaryTrackParticle()->z0() << "  PVZ: " << m_priVtx->z() << "  and z: " << z0 << std::endl;
 
       //Finding SV with a muon
-      const xAOD::TrackParticleContainer *trackParticles = 0;
-      CHECK( evtStore()->retrieve(trackParticles, "InDetTrackParticles") );
-      xAOD::TrackParticleContainer::const_iterator trackItr   = trackParticles->begin();
-      xAOD::TrackParticleContainer::const_iterator trackItrE =  trackParticles->end();
+      SG::ReadHandle<xAOD::TrackParticleContainer> h_TrackParticles (m_TrackParticles);
+      ATH_MSG_DEBUG( " retrieve track particle container with key " << m_TrackParticles.key()  );
+      if (!h_TrackParticles.isValid()) {
+        ATH_MSG_ERROR( " cannot retrieve track particle container with key " << m_TrackParticles.key()  );
+        return StatusCode::FAILURE;
+      }
+
+      xAOD::TrackParticleContainer::const_iterator trackItr   = h_TrackParticles->begin();
+      xAOD::TrackParticleContainer::const_iterator trackItrE =  h_TrackParticles->end();
       std::vector<const xAOD::TrackParticle*> my_trkparticles(0);
       for( ; trackItr != trackItrE; ++trackItr ) {
 	const xAOD::TrackParticle* trackParticle = ( *trackItr );
@@ -774,6 +781,7 @@ namespace Analysis
 	for(int kt=0; kt<(int)SVtx->nTrackParticles(); kt++) d_jet_mu_sv_dmaxPt=TMath::Max(d_jet_mu_sv_dmaxPt,(SVtx->trackParticle(kt)->p4()).Perp(tlv.Vect()));
 	jet_mu_sv_dmaxPt=(float)d_jet_mu_sv_dmaxPt;
 	ATH_MSG_DEBUG("**********ANDREA: SV mass= "<< jet_mu_sv_mass <<" efrc= "<< jet_mu_sv_efrc <<" ntrk= "<< jet_mu_sv_ntrk<<" VtxnormDist= "<< jet_mu_sv_VtxnormDist);
+    delete SVtx;  
       }   
       
 

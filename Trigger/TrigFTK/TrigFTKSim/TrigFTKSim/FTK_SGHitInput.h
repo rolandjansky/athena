@@ -68,15 +68,12 @@ private:
   AtlasDetectorID* m_idHelper;
   StoreGateSvc*  m_storeGate;
   StoreGateSvc*  m_detStore;
-  StoreGateSvc*  m_evtStore;
 
   const PixelID*   m_pixelId;
   const SCT_ID*    m_sctId;
-  const TRT_ID*    m_trtId;
 
   const InDetDD::SiDetectorManager*     m_PIX_mgr;
   const InDetDD::SiDetectorManager*     m_SCT_mgr;    
-  const InDetDD::SiDetectorManager*     m_TRT_mgr;    
 
   const InDet::SiClusterContainer*  m_pixelContainer;
   const InDet::SiClusterContainer*  m_sctContainer;

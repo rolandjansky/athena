@@ -32,7 +32,6 @@ SCT_RODVetoTestAlg::SCT_RODVetoTestAlg(
 
 SCT_RODVetoTestAlg::~SCT_RODVetoTestAlg()
 { 
-  msg(MSG::INFO) << "Calling destructor" << endmsg;
 }
 
 //Initialize

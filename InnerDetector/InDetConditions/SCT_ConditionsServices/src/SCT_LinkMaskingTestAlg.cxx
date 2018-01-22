@@ -28,7 +28,6 @@ SCT_LinkMaskingTestAlg::SCT_LinkMaskingTestAlg(const std::string& name, ISvcLoca
 }
 
 SCT_LinkMaskingTestAlg::~SCT_LinkMaskingTestAlg() { 
-  ATH_MSG_INFO("Calling destructor");
 }
 
 //Initialize

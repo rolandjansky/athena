@@ -971,8 +971,6 @@ namespace Athena_test {
     assert(rSG.retrieve(cpVec, "CVec").isSuccess());    
     // a regular retrieve ignores a missing aux store
     assert( 0 != (cpVec=rSG.retrieve<const TestVector<BX> >("ErrorVec")) );    
-    // while a retrieveAux fails
-    SGASSERTERROR( (cpVec=rSG.constRetrieveAux<TestVector<BX> >("ErrorVec")) ); 
     
     //deprecated but we need to test it nonetheless...
 #ifdef TEST_DEPRECATED

@@ -1,5 +1,6 @@
 
 
+from AthenaCommon.JobProperties import jobproperties
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 def HelloWorldCfg(ConfigFlags=None):
@@ -46,9 +47,29 @@ def HelloWorldCfg(ConfigFlags=None):
     HelloWorld.MyMatrix += [ [ 7, 8, 9 ] ]
 
     from AthExHelloWorld.AthExHelloWorldConf import HelloTool
-    HelloWorld.MyPrivateHelloTool = HelloTool( "HelloTool" )
+    ht=HelloTool( "HelloTool" )
+    HelloWorld.MyPrivateHelloTool = ht #HelloTool( "HelloTool" )
     HelloWorld.MyPrivateHelloTool.MyMessage = "A Private Message!"
 
+    pt=HelloTool( "PublicHello")
+    pt.MyMessage="A public Message!"    
+
+    result.addPublicTool(pt)
+    print pt
+
+
+    HelloWorld.MyPublicHelloTool=pt
+
+
+    #print HelloWorld
 
     result.addEventAlgo(HelloWorld)
     return result
+
+
+if __name__=="__main__":
+    cfg=HelloWorldCfg()
+    f=open("HelloWorld.pkl","w")
+    cfg.store(f)
+    f.close()
+

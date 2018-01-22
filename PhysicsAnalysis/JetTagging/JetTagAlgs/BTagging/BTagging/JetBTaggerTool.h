@@ -15,6 +15,10 @@
 #include "BTagging/IJetBTaggerTool.h"
 
 #include "GaudiKernel/ToolHandle.h"
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
+#include "StoreGate/WriteDecorHandleKey.h"
+
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 
 namespace Analysis{
@@ -32,18 +36,18 @@ class  JetBTaggerTool:
   public:
   
   virtual StatusCode initialize();
+  StatusCode execute();
 
   JetBTaggerTool(const std::string & n);
-  //JetBTaggerTool(const std::string&, const IInterface*, const std::string&);
   virtual ~JetBTaggerTool();
   virtual int modify(xAOD::JetContainer& jets) const;
 
 
  private:
-  
-  std::string m_BTagName;
-  std::string m_BTagSVName; 
-  std::string m_BTagJFVtxName; 
+
+  SG::ReadHandleKey<xAOD::JetContainer > m_JetCollectionName { this, "JetCollectionName", "", "Input jet container"};
+  Gaudi::Property<SG::WriteDecorHandleKey<xAOD::JetContainer> >m_jetBTaggingLinkName{this,"JetContainerName","","Element link form jet to BTagging container"};
+  SG::WriteHandleKey<xAOD::BTaggingContainer> m_BTaggingCollectionName { this, "BTaggingCollectionName", "", "Output BTagging container"} ;
 
   // FIXME: mutable
   mutable ToolHandle< IBTagTool > m_bTagTool; 
@@ -54,12 +58,6 @@ class  JetBTaggerTool:
   bool m_PtRescale;
   ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc;
 
-  // Utility functions to be used in case of container overwriting.
-  // Note that they do not need to be defined here, as they can only be called from code in JetBTaggerTool.cxx.
-  template< class CONTAINER, class AUXSTORE >
-    StatusCode overwrite(const std::string& key, bool doCopy = true) const;
-  template< class CONTAINER, class AUXSTORE >
-    StatusCode overwriteImp(const std::string& key, bool doCopy = true) const;
 };
 
 }

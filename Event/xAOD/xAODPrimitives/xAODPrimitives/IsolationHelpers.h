@@ -55,6 +55,12 @@ namespace xAOD {
        return static_cast<IsolationType>( 10*static_cast<int>(flavour) + static_cast<int>(coneSize) );
      }
    
+     template< class IsoType>
+     std::string toString( const IsoType& iso ) {
+         return toCString(iso);
+     }
+
+   
    } // namespace Iso
 
 

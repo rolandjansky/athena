@@ -21,10 +21,7 @@ TrigmuCombHypoAlg::TrigmuCombHypoAlg( const std::string& name,
 				      ISvcLocator* pSvcLocator ) :
   ::AthReentrantAlgorithm( name, pSvcLocator )
 {
-   declareProperty("Decisions", m_decisionsKey = std::string("Decisions"), "Decision on muCombHypo to write in");
-   declareProperty("MuonSADecisions", m_muonDecisionsKey = std::string("MuonSADecisions"), "Decisions from MufastHypo to read in");
-   declareProperty("ViewRoIs", m_viewsKey = std::string("ViewRoIs"), "MUViewRoIs to read in");
-   declareProperty("MuCombContainer", m_combinedKey = std::string("MuCombContainer"), "xAOD::L2CombinedMuonContainer to read in");
+
 } 
 
 TrigmuCombHypoAlg::~TrigmuCombHypoAlg() 

@@ -93,6 +93,11 @@ namespace xAODMaker {
       return StatusCode::SUCCESS;
    }
 
+   StatusCode FileMetaDataCreatorTool::endInputFile() {
+      // Return gracefully:
+      return StatusCode::SUCCESS;
+   }
+
    StatusCode FileMetaDataCreatorTool::metaDataStop() {
 
       // Don't be offended if the metadata already exists in the output:

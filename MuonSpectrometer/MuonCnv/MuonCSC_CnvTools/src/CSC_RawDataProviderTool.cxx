@@ -34,7 +34,6 @@ Muon::CSC_RawDataProviderTool::CSC_RawDataProviderTool(const std::string& t,
   m_log(msgSvc(), n),
   m_decoder("Muon::CscROD_Decoder"),
   m_muonMgr(0),
-  m_containerKey("CSCRDO"),
   m_robDataProvider("ROBDataProviderSvc",n),
   m_cabling("CSCcablingSvc", n)
 {

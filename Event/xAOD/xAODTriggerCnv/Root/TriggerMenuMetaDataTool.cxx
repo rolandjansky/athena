@@ -39,6 +39,10 @@ namespace xAODMaker {
       return StatusCode::SUCCESS;
    }
 
+   StatusCode TriggerMenuMetaDataTool::endInputFile() {
+      // Return gracefully:
+      return StatusCode::SUCCESS;
+   }
    StatusCode TriggerMenuMetaDataTool::beginInputFile() {
 
       // Whatever happens, we've seen the first BeginInputFile incident now.

@@ -5,12 +5,10 @@
 #include "BTagging/IBTagSecVertexing.h"
 #include "BTagging/BTagSecVertexing.h"
 
+#include "xAODCore/ShallowCopy.h"
 #include "VxVertex/VxContainer.h"
 #include "VxVertex/RecVertex.h"
 #include "VxVertex/PrimaryVertexSelector.h" // new since rel 17.2
-
-// migration to new ParticleJet class
-//#include "JetEvent/Jet.h"
 
 //general interface for secondary vertex finders
 #include "InDetRecToolInterfaces/ISecVertexInJetFinder.h"
@@ -39,15 +37,13 @@
 #include "JetTagTools/MSVVariablesFactory.h"
 
 #include "xAODBTagging/BTagging.h"
-#include "xAODBTagging/BTaggingContainer.h"
-//#include "xAODBTagging/BTaggingAuxContainer.h"
-//#include "xAODBTagging/SecVtxHelper.h"
 
 #include "xAODBTagging/BTagVertex.h"
 #include "xAODBTagging/BTagVertexContainer.h"
-//#include "xAODBTagging/BTagVertexAuxContainer.h"
+#include "xAODBTagging/BTagVertexAuxContainer.h"
 
 #include "xAODTracking/VertexContainer.h"
+#include "xAODTracking/VertexAuxContainer.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODBase/IParticle.h" 
@@ -77,6 +73,12 @@ namespace Analysis {
 
   StatusCode BTagSecVertexing::initialize()
   {
+    // This will check that the properties were initialized properly
+    // by job configuration.
+    ATH_CHECK( m_VertexCollectionName.initialize() );
+    ATH_CHECK( m_BTagSVCollectionName.initialize() );
+    ATH_CHECK( m_BTagJFVtxCollectionName.initialize() );
+
     /* ----------------------------------------------------------------------------------- */
     /*                        RETRIEVE SERVICES FROM STOREGATE                             */
     /* ----------------------------------------------------------------------------------- */
@@ -340,7 +342,6 @@ namespace Analysis {
         newBTag->setSV1_TrackParticleLinks(TrkList);
       }
       else if ("SV0" == basename){
-        //newBTag->setTaggerInfo(npprm, xAOD::BTagInfo::SV0_NGTinJet);
         newBTag->setTaggerInfo(mass, xAOD::BTagInfo::SV0_masssvx);
         newBTag->setTaggerInfo(energyfrc, xAOD::BTagInfo::SV0_efracsvx);
         newBTag->setTaggerInfo(n2trk, xAOD::BTagInfo::SV0_N2Tpair);
@@ -348,7 +349,6 @@ namespace Analysis {
         newBTag->setSV0_TrackParticleLinks(TrkList);
       } 
       else{
-        // newBTag->setVariable<int>(basename, "NGTinJet", npprm);
         newBTag->setVariable<float>(basename, "masssvx", mass);
         newBTag->setVariable<float>(basename, "efracsvx", energyfrc);
         newBTag->setVariable<int>(basename, "N2Tpair", n2trk);
@@ -375,7 +375,6 @@ namespace Analysis {
       }
       newBTag->setVariable<std::vector<ElementLink<xAOD::TrackParticleContainer> > >(basename, "badTracksIP", badtrackEL);
       newBTag->setDynTPELName(basename, "badTracksIP");
-      // newBTag->auxdata<std::vector<ElementLink<xAOD::TrackParticleContainer> > >(basename+"_badTracksIP") = badtrackEL;
     } else {
       ATH_MSG_WARNING("#BTAG# pointer to track particle container not available -> can't create EL to bad tracks IP");
     }
@@ -445,7 +444,6 @@ namespace Analysis {
        float comptoPV(0.);
        double chi2(0.);
        int   ndf(0);
-       //ATH_MSG_INFO("#BTAGJetFitter# size of Vtxonjetaxes: " <<  Vtxonjetaxes.size());
        nVtx = Vtxonjetaxes.size(); 
        std::vector< ElementLink< xAOD::BTagVertexContainer > > JFVerticesLinks;
        std::vector<xAOD::BTagVertex*> JFVertices;
@@ -640,6 +638,154 @@ namespace Analysis {
 
   }
 
+ 
+  StatusCode BTagSecVertexing::BTagSecVtx_exec(const xAOD::JetContainer * jetContainer, xAOD::BTaggingContainer * btaggingContainer) const {
 
+    const xAOD::Vertex* primaryVertex(0);
+
+    //retrieve primary vertex
+    SG::ReadHandle<xAOD::VertexContainer> h_VertexCollectionName (m_VertexCollectionName);
+    if (!h_VertexCollectionName.isValid()) {
+        ATH_MSG_ERROR( " cannot retrieve primary vertex container with key " << m_VertexCollectionName.key()  );
+        return StatusCode::FAILURE;
+    }
+    unsigned int nVertexes = h_VertexCollectionName->size();
+    if (nVertexes == 0) {
+      ATH_MSG_DEBUG("#BTAG#  Vertex container is empty");
+      return StatusCode::SUCCESS;
+    }
+    for (xAOD::VertexContainer::const_iterator fz = h_VertexCollectionName->begin(); fz != h_VertexCollectionName->end(); ++fz) {
+      if ((*fz)->vertexType() == xAOD::VxType::PriVtx) {
+	primaryVertex = *fz;
+	break;
+      }
+    }
+
+
+    if (! primaryVertex) {
+      ATH_MSG_DEBUG("#BTAG#  No vertex labeled as VxType::PriVtx!");
+      xAOD::VertexContainer::const_iterator fz = h_VertexCollectionName->begin();
+      primaryVertex = *fz;
+        if (primaryVertex->nTrackParticles() == 0) {
+	  ATH_MSG_DEBUG("#BTAG#  PV==BeamSpot: probably poor tagging");
+      }
+    }
+
+    const xAOD::Vertex& PrimaryVtx = *primaryVertex;
+
+    /* Record the BTagging JF Vertex  output container */
+    ATH_MSG_DEBUG("#BTAG# Record the BTagging JF Vertex  output container");
+    SG::WriteHandle<xAOD::BTagVertexContainer> h_BTagJFVtxCollectionName (m_BTagJFVtxCollectionName);
+    ATH_CHECK( h_BTagJFVtxCollectionName.record(std::make_unique<xAOD::BTagVertexContainer>(),
+                                        std::make_unique<xAOD::BTagVertexAuxContainer>()) );
+
+    /* Record the BTagging Secondary Vertex output container */
+    ATH_MSG_DEBUG("#BTAG# Record the BTagging Secondary Vertex output container");
+    SG::WriteHandle<xAOD::VertexContainer> h_BTagSVCollectionName (m_BTagSVCollectionName);
+    ATH_CHECK( h_BTagSVCollectionName.record(std::make_unique<xAOD::VertexContainer>(),
+                                        std::make_unique<xAOD::VertexAuxContainer>()) );
+
+    xAOD::BTaggingContainer::iterator btagIter=btaggingContainer->begin();
+    for (xAOD::JetContainer::const_iterator jetIter = jetContainer->begin(); jetIter != jetContainer->end(); ++jetIter, ++btagIter) {
+      //temporary const_cast
+      xAOD::Jet& jetToTag = const_cast<xAOD::Jet&>( **jetIter );
+      ToolHandleArray< InDet::ISecVertexInJetFinder >::const_iterator itSecVtxFinders = m_secVertexFinderToolsHandleArray.begin();
+      ToolHandleArray< InDet::ISecVertexInJetFinder >::const_iterator itSecVtxFindersEnd = m_secVertexFinderToolsHandleArray.end();
+
+      const xAOD::TrackParticleContainer* theTrackParticleContainer = 0;
+
+      int nameiter = 0;
+      for (  ; itSecVtxFinders != itSecVtxFindersEnd; ++itSecVtxFinders ) {
+        if (*itSecVtxFinders==0) {
+	  ATH_MSG_WARNING("#BTAG#  could not run the SecVertexFinder:" <<  *itSecVtxFinders);
+          ++nameiter;
+	  continue;
+        }
+
+        std::string trackname = m_secVertexFinderTrackNameList[nameiter];
+        std::string basename =  m_secVertexFinderBaseNameList[nameiter];
+        ++nameiter;
+
+        std::vector<ElementLink< xAOD::TrackParticleContainer > > tracksInJet;
+        tracksInJet = (*btagIter)->auxdata< std::vector<ElementLink< xAOD::TrackParticleContainer > > >(trackname);
+
+        std::vector<const xAOD::IParticle*> inputIParticles;
+
+        std::vector<ElementLink< xAOD::TrackParticleContainer > >::iterator itEL = tracksInJet.begin();
+        std::vector<ElementLink< xAOD::TrackParticleContainer > >::iterator itELend = tracksInJet.end();
+
+        if(tracksInJet.size()==0){
+          ATH_MSG_DEBUG("#BTAG# no tracks associated to the jet" << trackname);
+          if("SV1" == basename){
+            std::vector<ElementLink<xAOD::TrackParticleContainer> > TrkList;
+            (*btagIter)->setSV1_TrackParticleLinks(TrkList);
+            std::vector<ElementLink<xAOD::TrackParticleContainer> > badtrackEL;
+            (*btagIter)->setVariable<std::vector<ElementLink<xAOD::TrackParticleContainer> > >(basename, "badTracksIP", badtrackEL);
+      	    (*btagIter)->setDynTPELName(basename, "badTracksIP");
+            std::vector< ElementLink< xAOD::VertexContainer > > SVertexLinks;
+            (*btagIter)->setVariable<std::vector<ElementLink<xAOD::VertexContainer> > >(basename, "vertices", SVertexLinks);
+            (*btagIter)->setDynVxELName(basename, "vertices");		
+          }
+	  else if("MSV" == basename){ 
+            std::vector<ElementLink<xAOD::TrackParticleContainer> > badtrackEL;
+            (*btagIter)->setVariable<std::vector<ElementLink<xAOD::TrackParticleContainer> > >(basename, "badTracksIP", badtrackEL);
+      	    (*btagIter)->setDynTPELName(basename, "badTracksIP");
+            std::vector< ElementLink< xAOD::VertexContainer > > SVertexLinks;
+            (*btagIter)->setVariable<std::vector<ElementLink<xAOD::VertexContainer> > >(basename, "vertices", SVertexLinks);
+            (*btagIter)->setDynVxELName(basename, "vertices");
+	  }
+	  else if("JetFitter" == basename) {
+            std::vector< ElementLink< xAOD::TrackParticleContainer > > tracksAtPVlinks;
+            (*btagIter)->setVariable<std::vector< ElementLink< xAOD::TrackParticleContainer > > >(basename, "tracksAtPVlinks", tracksAtPVlinks);  
+            (*btagIter)->setDynTPELName(basename, "tracksAtPVlinks");
+          }
+          //return StatusCode::SUCCESS;
+          //MANU break to mimick what was done before. To be fixed. AFT-297
+          break;
+        }
+        
+        for (  ; itEL != itELend; ++itEL ) {
+          const xAOD::TrackParticle* const *inputTrackParticle ;
+          inputTrackParticle = (*itEL).cptr(); //ElementConstPointer cptr
+
+	  /// warning -> will not work if at some point we decide to associate to several track collections at the same time (in the same assoc object)
+
+          theTrackParticleContainer = (*itEL).getStorableObjectPointer();
+          inputIParticles.push_back(*inputTrackParticle);
+        }
+
+        ATH_MSG_DEBUG("#BTAG#  Running " << *itSecVtxFinders);
+
+        const Trk::VxSecVertexInfo* myVertexInfo = (*itSecVtxFinders)->findSecVertex(PrimaryVtx, (*jetIter)->p4(), inputIParticles);
+
+        ATH_MSG_DEBUG("#BTAG#  Storing result ");
+
+        if (const Trk::VxSecVKalVertexInfo* myVertexInfoVKal = dynamic_cast<const Trk::VxSecVKalVertexInfo*>(myVertexInfo)) {
+	  ATH_MSG_DEBUG("#BTAG# Found VKalVertexInfo information");
+	  StatusCode sc = fillVkalVariables(jetToTag, *btagIter, &(*h_BTagSVCollectionName), myVertexInfoVKal, theTrackParticleContainer, PrimaryVtx, basename);
+	  if(sc.isFailure()){
+	    ATH_MSG_ERROR("#BTAG# error filling variables from VxSecVKalVertexInfo for tool " << *itSecVtxFinders);
+            delete myVertexInfo;
+	    return sc;
+	  }
+        } else if (const Trk::VxJetFitterVertexInfo* myVertexInfoJetFitter = dynamic_cast<const Trk::VxJetFitterVertexInfo*>(myVertexInfo)) {
+          ATH_MSG_DEBUG("#BTAG# Found VxJetFitterVertexInfo information");
+          StatusCode sc = fillJFVariables(jetToTag, *btagIter, &(*h_BTagJFVtxCollectionName), myVertexInfoJetFitter, theTrackParticleContainer, basename);
+          if(sc.isFailure()){
+            ATH_MSG_ERROR("#BTAG# error filling variables from VxJetFitterVertexInfo for tool " << *itSecVtxFinders);
+            delete myVertexInfo;
+            return sc;
+          }
+        } else {
+	  ATH_MSG_WARNING("#BTAG# VxSecVertexInfo pointer cannot be interpreted for tool " << *itSecVtxFinders);
+        }
+
+        delete myVertexInfo;
+      } /// for loop on vertex tools
+    }// for loop on jets
+
+    return StatusCode::SUCCESS;
+
+   }
 
 } // namespace

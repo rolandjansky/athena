@@ -21,6 +21,7 @@
 //Framework
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/StatusCode.h"
+#include "StoreGate/ReadHandle.h"
 //Root
 #include "TMath.h"
 #include "TH1F.h"
@@ -28,14 +29,12 @@
 
 //Primary Vertex
 #include "TrkEventPrimitives/ParamDefs.h"
-#include "VxVertex/VxContainer.h"
 #include "VxVertex/VxCandidate.h"
 #include "VxVertex/VxTrackAtVertex.h"
 #include "InDetGlobalPrimaryVertexMonTool.h"
 //Pixel and SCT stuff
 #include "InDetRawData/PixelRDORawData.h"
 //EventInfo
-#include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
 using namespace TMath;
@@ -90,9 +89,15 @@ InDetGlobalBCMTool::InDetGlobalBCMTool(
     m_sct_vs_pix_bkg{nullptr,nullptr}
 {
   declareProperty("Detector", m_detector); 
-  declareProperty("vxContainerName",m_vxContainerName="VxPrimaryCandidate");
-  //   declareProperty("triggerChainName", m_triggerChainName = "NoTriggerSelection");
   declareProperty("histFolder",m_histFolder= "InDetGlobal/PrimaryVertex");
+}
+
+StatusCode InDetGlobalBCMTool::initialize()
+{
+    ATH_CHECK(m_vxContainerName.initialize());
+    ATH_CHECK(m_eventInfoKey.initialize());
+
+    return StatusCode::SUCCESS;
 }
 
 //---------------------------------------------------------
@@ -602,8 +607,8 @@ StatusCode InDetGlobalBCMTool::fillHistograms(){
   m_nExamplePlot->Fill(m_nExampleInt);
 
   //retrieve LB number for plots vs LB
-  const EventInfo * evtInfo;
-  if ( evtStore()->retrieve(evtInfo).isFailure() ){
+  SG::ReadHandle<EventInfo> evtInfo(m_eventInfoKey);
+  if (!evtInfo.isValid()) {
     m_current_LB = 0;
     if ( msgLvl(MSG::WARNING) ){
       msg(MSG::WARNING) << "Could not retrieve the event information container" << endmsg;
@@ -620,10 +625,10 @@ StatusCode InDetGlobalBCMTool::fillHistograms(){
   double z = 1001; //that it can not mix with data if primary vertex calculation fails, z_max = 1000
   
   // Primary vertex monitoring
-  const VxContainer* vxContainer = 0;
-  if (evtStore()->contains<VxContainer>(m_vxContainerName)) {
-    if (evtStore()->retrieve(vxContainer,m_vxContainerName).isFailure() ) {
-      ATH_MSG_DEBUG ("Could not retrieve primary vertex container with key "+m_vxContainerName);
+  SG::ReadHandle<VxContainer> vxContainer(m_vxContainerName);
+  if (evtStore()->contains<VxContainer>(m_vxContainerName.key())) {
+    if (!vxContainer.isValid()) {
+      ATH_MSG_DEBUG ("Could not retrieve primary vertex container with key "+m_vxContainerName.key());
       return StatusCode::SUCCESS;
     } else {
 	  
@@ -649,7 +654,7 @@ StatusCode InDetGlobalBCMTool::fillHistograms(){
 	}
     }
   } else {
-      ATH_MSG_DEBUG ("StoreGate doesn't contain primary vertex container with key "+m_vxContainerName);
+      ATH_MSG_DEBUG ("StoreGate doesn't contain primary vertex container with key "+m_vxContainerName.key());
   }
 
   
@@ -755,8 +760,8 @@ StatusCode InDetGlobalBCMTool::fillHistograms(){
 	        
 	    //Event information to get ECR
 	    ecr = 0;
-	    const EventInfo * evtInfo;
-	    if ( evtStore()->retrieve(evtInfo).isFailure() ){
+	    SG::ReadHandle<EventInfo> evtInfo(m_eventInfoKey);
+	    if (!evtInfo.isValid()) {
 	      if ( msgLvl(MSG::WARNING) ){
 		msg(MSG::WARNING) << "Could not retrieve the event information container" << endmsg;
 	      }

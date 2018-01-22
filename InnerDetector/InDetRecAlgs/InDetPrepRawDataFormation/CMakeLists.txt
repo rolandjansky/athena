@@ -18,11 +18,12 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigEvent/TrigSteeringEvent
                           PRIVATE
                           DetectorDescription/AtlasDetDescr
-                          InnerDetector/InDetConditions/InDetConditionsSummaryService
+                          InnerDetector/InDetConditions/SCT_ConditionsServices
                           InnerDetector/InDetConditions/SCT_ConditionsServices
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetRecTools/TRT_DriftCircleTool
+                          InnerDetector/InDetConditions/PixelConditionsData
                           InnerDetector/InDetConditions/SCT_ConditionsData
                         )
 
@@ -30,7 +31,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( InDetPrepRawDataFormation
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps StoreGateLib SGtests IRegionSelector Identifier GaudiKernel InDetRawData InDetPrepRawData SiClusterizationToolLib TrigSteeringEvent AtlasDetDescr InDetIdentifier InDetReadoutGeometry SCT_ConditionsData )
+                     LINK_LIBRARIES AthenaBaseComps StoreGateLib SGtests IRegionSelector Identifier GaudiKernel InDetRawData InDetPrepRawData SiClusterizationToolLib TrigSteeringEvent AtlasDetDescr InDetIdentifier InDetReadoutGeometry SCT_ConditionsData PixelConditionsData )
 
 # Install files from the package:
 atlas_install_headers( InDetPrepRawDataFormation )

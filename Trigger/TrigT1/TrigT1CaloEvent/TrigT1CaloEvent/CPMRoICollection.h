@@ -1,7 +1,7 @@
 #ifndef TRIGT1CAL_CPMRoICOLLECTION_H
 #define TRIGT1CAL_CPMRoICOLLECTION_H
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "TrigT1CaloEvent/CPMRoI.h"
 
 /** Container class for CPMRoI objects */
