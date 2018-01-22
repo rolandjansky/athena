@@ -731,9 +731,9 @@ StatusCode JetObjectCollectionMaker::decorateHSJets() {
 
 StatusCode JetObjectCollectionMaker::decorateDL1() {
   // initialise decorators
-  static SG::AuxElement::Decorator<float> DL1("AnalysisTop_DL1");
-  static SG::AuxElement::Decorator<float> DL1mu("AnalysisTop_DL1mu");
-  static SG::AuxElement::Decorator<float> DL1rnn("AnalysisTop_DL1rnn");
+  static const SG::AuxElement::Decorator<float> DL1("AnalysisTop_DL1");
+  static const SG::AuxElement::Decorator<float> DL1mu("AnalysisTop_DL1mu");
+  static const SG::AuxElement::Decorator<float> DL1rnn("AnalysisTop_DL1rnn");
 
   // Default value
   double DL1_weight, DL1mu_weight, DL1rnn_weight = -999;
