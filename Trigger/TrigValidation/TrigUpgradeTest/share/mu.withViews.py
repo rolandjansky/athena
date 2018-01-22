@@ -484,8 +484,8 @@ if TriggerFlags.doMuon:
  
   if doL2SA:
     ### set up MuFastSteering ###
-    from TrigL2MuonSA.TrigL2MuonSAConfig import TrigL2MuonSAConfig
-    muFastAlg = TrigL2MuonSAConfig("Muon")
+    from TrigL2MuonSA.TrigL2MuonSAConfig import TrigL2MuonSAMTConfig
+    muFastAlg = TrigL2MuonSAMTConfig("Muon")
     muFastAlg.OutputLevel = DEBUG
 
     svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection = False
