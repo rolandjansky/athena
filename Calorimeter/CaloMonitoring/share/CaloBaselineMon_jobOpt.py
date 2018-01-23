@@ -14,37 +14,32 @@ if not 'rec' in dir():
 from AthenaMonitoring.BadLBFilterTool import GetLArBadLBFilterTool
 include ("AthenaMonitoring/AtlasReadyFilterTool_jobOptions.py")
 
-if (DQMonFlags.monManEnvironment == 'online' or globalflags.DataSource.get_Value() == 'geant4' or globalflags.DataSource.get_Value() == 'geant3'):
-  tmp_useBadLBTool=FALSE
-  tmp_useReadyFilterTool=FALSE
-  tmp_useLArNoisyAlg = FALSE
-  tmp_useBeamBackgroundRemoval = FALSE
-else:
-  tmp_useBadLBTool=TRUE
-  tmp_useReadyFilterTool=TRUE
-  tmp_useLArNoisyAlg = TRUE
-  tmp_useBeamBackgroundRemoval = FALSE
+tmp_CaloBaselineMon = {"useBadLBTool":FALSE,
+                       "useReadyFilterTool":FALSE,
+                       "useLArNoisyAlg":FALSE,
+                       "useBeamBackgroundRemoval":FALSE,
+                       "useLArCollisionFilter":FALSE}
+
+if not (DQMonFlags.monManEnvironment == 'online' or globalflags.DataSource.get_Value() == 'geant4' or globalflags.DataSource.get_Value() == 'geant3'):
+  tmp_CaloBaselineMon{"useBadLBTool"}=TRUE
+  tmp_CaloBaselineMon{"useReadyFilterTool"}=TRUE
+  tmp_CaloBaselineMon{"useLArNoisyAlg"} = TRUE
 
 if rec.triggerStream()=='CosmicCalo':
-  tmp_useLArCollisionFilter = TRUE
-else:
-  tmp_useLArCollisionFilter = FALSE
+  tmp_CaloBaselineMon{"useLArCollisionFilter"} = TRUE
 
 CaloBaseline = CaloBaselineMon(
    name           = "CaloBaseline",
 
-   useBadLBTool=tmp_useBadLBTool,
+   useBadLBTool=tmp_CaloBaselineMon{"useBadLBTool"},
    BadLBTool = GetLArBadLBFilterTool(),
-   useReadyFilterTool = tmp_useReadyFilterTool,
+   useReadyFilterTool = tmp_CaloBaselineMon{"useReadyFilterTool"},
    ReadyFilterTool = monAtlasReadyFilterTool,
-   useLArCollisionFilterTool = tmp_useLArCollisionFilter,
-   useLArNoisyAlg = tmp_useLArNoisyAlg,
-   useBeamBackgroundRemoval = tmp_useBeamBackgroundRemoval,
+   useLArCollisionFilterTool = tmp_CaloBaselineMon{"useLArCollisionFilter"},
+   useLArNoisyAlg = tmp_CaloBaselineMon{"useLArNoisyAlg"},
+   useBeamBackgroundRemoval = tmp_CaloBaselineMon{"useBeamBackgroundRemoval"},
 
 )
 
 ToolSvc += CaloBaseline 
 CaloMon.AthenaMonTools += [ CaloBaseline ]
-
-
-
