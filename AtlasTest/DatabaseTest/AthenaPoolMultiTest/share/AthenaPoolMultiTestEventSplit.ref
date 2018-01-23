@@ -71,8 +71,6 @@ DecisionSvc          INFO Inserting stream: Coll1and7 with no Algs
 DecisionSvc          INFO Inserting stream: Coll348 with no Algs
 DecisionSvc          INFO Inserting stream: CollTrig with no Algs
 DecisionSvc          INFO Inserting stream: CollBad with no Algs
-ToolSvc.copyTool    DEBUG handle() saw BeginTagFile incident for PFN:SplittableCollection.root
-ToolSvc.copyTool     INFO No CollectionMetadata in Input Metadata store
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 0 run: 0
 Splitter1           DEBUG Trigmask = 1
