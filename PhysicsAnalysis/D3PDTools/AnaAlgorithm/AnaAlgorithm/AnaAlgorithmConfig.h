@@ -70,7 +70,7 @@ namespace EL
     /// \par Failures
     ///   out of memory II
   public:
-    void setType (const std::string val_type) noexcept;
+    void setType (const std::string& val_type) noexcept;
 
 
     /// \brief the name of the algorithm
@@ -85,7 +85,7 @@ namespace EL
     /// \par Failures
     ///   out of memory II
   public:
-    void setName (const std::string val_name) noexcept;
+    void setName (const std::string& val_name) noexcept;
 
 
     /// \brief set \ref type and \ref name at the same time

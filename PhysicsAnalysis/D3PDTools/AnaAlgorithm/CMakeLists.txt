@@ -49,4 +49,6 @@ atlas_add_dictionary( AnaAlgorithmDict
 # Install files from the package:
 if( XAOD_STANDALONE )
    atlas_install_python_modules( python/*.py )
+   atlas_add_test( PythonUnitTests
+      SCRIPT python -m unittest AnaAlgorithm.AnaAlgorithmConfig )
 endif()
