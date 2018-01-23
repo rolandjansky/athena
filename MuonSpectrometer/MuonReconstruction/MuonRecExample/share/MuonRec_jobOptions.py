@@ -99,6 +99,14 @@ if rec.doTruth() and DetFlags.makeRIO.Muon_on():
    from MuonTruthAlgs.MuonTruthAlgsConf import Muon__MuonTruthDecorationAlg
    topSequence += Muon__MuonTruthDecorationAlg("MuonTruthDecorationAlg")
 
+   try:
+       from RecExConfig.InputFilePeeker import inputFileSummary
+       truthStrategy = inputFileSummary['metadata']['/Simulation/Parameters']['TruthStrategy']
+       if truthStrategy in ['MC15','MC18','MC18LLP']:
+           topSequence.MuonTruthDecorationAlg.BarcodeOffset=10000000
+   except:
+       print "Failed to read /Simulation/Parameters/ metadata"
+       pass
 
 #load default tools:
 if muonRecFlags.doStandalone() or muonRecFlags.doPseudoTracking():
@@ -130,6 +138,15 @@ if muonRecFlags.doStandalone():
                                              TrackParticleName = "MuonSpectrometerTrackParticles" )
 
         topSequence += Muon__MuonSegmentTruthAssociationAlg("MuonSegmentTruthAssociationAlg")
+
+        try:
+            from RecExConfig.InputFilePeeker import inputFileSummary
+            truthStrategy = inputFileSummary['metadata']['/Simulation/Parameters']['TruthStrategy']
+            if truthStrategy in ['MC15','MC18','MC18LLP']:
+                topSequence.MuonSegmentTruthAssociationAlg.BarcodeOffset=10000000
+        except:
+            print "Failed to read /Simulation/Parameters/ metadata"
+            pass
 
 #--------------------------------------------------------------------------
 # Apply alignment corrections to geometry
