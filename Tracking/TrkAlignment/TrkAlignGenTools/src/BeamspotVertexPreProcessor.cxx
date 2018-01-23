@@ -13,7 +13,7 @@
 #include "TrkVertexOnTrack/VertexOnTrack.h"
 
 #include "TrkEventPrimitives/ParticleHypothesis.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "GaudiKernel/SmartDataPtr.h"
 
 // new xAOD, seems we need to keep old as well
