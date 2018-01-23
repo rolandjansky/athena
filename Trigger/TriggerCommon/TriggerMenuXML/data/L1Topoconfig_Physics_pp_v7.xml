@@ -5,7 +5,7 @@
   <OutputList>
     <Output algname="INVM_AJ_HighMass" triggerline="900INVM9999-AJ30s6-AJ20s6,800INVM9999-AJ30s6-AJ20s6,700INVM9999-AJ30s6-AJ20s6,500INVM9999-AJ30s6-AJ20s6" algoId="0" module="0" fpga="0" firstbit="0" clock="0"/>
     <Output algname="INVM_AJ_LowMass" triggerline="400INVM9999-AJ30s6-AJ20s6,300INVM9999-AJ30s6-AJ20s6,200INVM9999-AJ30s6-AJ20s6,100INVM9999-AJ30s6-AJ20s6" algoId="1" module="0" fpga="0" firstbit="4" clock="0"/>
-    <Output algname="INVM_NFF" triggerline="600INVM9999-J30s6-AJ15s6,500INVM9999-J30s6-AJ15s6,400INVM9999-J30s6-AJ15s6,200INVM9999-J30s6-AJ15s6" algoId="93" module="0" fpga="1" firstbit="12" clock="1"/>
+    <Output algname="INVM_NFF" triggerline="600INVM9999-J30s6-AJ20s6,500INVM9999-J30s6-AJ20s6,400INVM9999-J30s6-AJ20s6,200INVM9999-J30s6-AJ20s6" algoId="93" module="0" fpga="1" firstbit="12" clock="1"/>
     <Output algname="63DETA127-FJ20s1-FJ20s2" triggerline="63DETA127-FJ20s1-FJ20s2" algoId="39" module="1" fpga="1" firstbit="14" clock="0"/>
     <Output algname="0DETA20-J50s1-Js2" triggerline="0DETA20-J50s1-Js2" algoId="40" module="1" fpga="1" firstbit="12" clock="0"/>
     <Output algname="27DPHI31-EMs1-EMs6" triggerline="27DPHI31-EMs1-EMs6" algoId="94" module="0" fpga="0" firstbit="12" clock="1"/>
@@ -518,10 +518,10 @@
       <Input name="Tob1" value="Js" position="0"/>
       <Input name="Tob2" value="AJs" position="1"/>
       <Output name="Results" bits="4">
-        <Bit selection="0" name="600INVM9999-J30s6-AJ15s6"/>
-        <Bit selection="1" name="500INVM9999-J30s6-AJ15s6"/>
-        <Bit selection="2" name="400INVM9999-J30s6-AJ15s6"/>
-        <Bit selection="3" name="200INVM9999-J30s6-AJ15s6"/>
+        <Bit selection="0" name="600INVM9999-J30s6-AJ20s6"/>
+        <Bit selection="1" name="500INVM9999-J30s6-AJ20s6"/>
+        <Bit selection="2" name="400INVM9999-J30s6-AJ20s6"/>
+        <Bit selection="3" name="200INVM9999-J30s6-AJ20s6"/>
       </Output>
       <Generic name="InputWidth1" value=":OutputWidthSortJET:"/>
       <Generic name="InputWidth2" value=":OutputWidthSortJET:"/>
@@ -531,19 +531,19 @@
     </Fixed>
     <Variable>
       <Parameter pos="0" name="MinET1" selection="0" value="30"/>
-      <Parameter pos="1" name="MinET2" selection="0" value="15"/>
+      <Parameter pos="1" name="MinET2" selection="0" value="20"/>
       <Parameter pos="2" name="MinMSqr" selection="0" value="360000"/>
       <Parameter pos="3" name="MaxMSqr" selection="0" value="99980001"/>
       <Parameter pos="4" name="MinET1" selection="1" value="30"/>
-      <Parameter pos="5" name="MinET2" selection="1" value="15"/>
+      <Parameter pos="5" name="MinET2" selection="1" value="20"/>
       <Parameter pos="6" name="MinMSqr" selection="1" value="250000"/>
       <Parameter pos="7" name="MaxMSqr" selection="1" value="99980001"/>
       <Parameter pos="8" name="MinET1" selection="2" value="30"/>
-      <Parameter pos="9" name="MinET2" selection="2" value="15"/>
+      <Parameter pos="9" name="MinET2" selection="2" value="20"/>
       <Parameter pos="10" name="MinMSqr" selection="2" value="160000"/>
       <Parameter pos="11" name="MaxMSqr" selection="2" value="99980001"/>
       <Parameter pos="12" name="MinET1" selection="3" value="30"/>
-      <Parameter pos="13" name="MinET2" selection="3" value="15"/>
+      <Parameter pos="13" name="MinET2" selection="3" value="20"/>
       <Parameter pos="14" name="MinMSqr" selection="3" value="40000"/>
       <Parameter pos="15" name="MaxMSqr" selection="3" value="99980001"/>
     </Variable>

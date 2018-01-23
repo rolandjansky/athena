@@ -804,9 +804,9 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="108" partition="1" name="L1_MJJ-500-NFF" complex_deadtime="0" definition="(500INVM9999-J30s6-AJ15s6[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="108" partition="1" name="L1_MJJ-500-NFF" complex_deadtime="0" definition="(500INVM9999-J30s6-AJ20s6[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
-        <TriggerCondition multi="1" name="500INVM9999-J30s6-AJ15s6_x1" triggerthreshold="500INVM9999-J30s6-AJ15s6"/>
+        <TriggerCondition multi="1" name="500INVM9999-J30s6-AJ20s6_x1" triggerthreshold="500INVM9999-J30s6-AJ20s6"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -939,9 +939,9 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="127" partition="1" name="L1_MJJ-600-NFF" complex_deadtime="0" definition="(600INVM9999-J30s6-AJ15s6[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="127" partition="1" name="L1_MJJ-600-NFF" complex_deadtime="0" definition="(600INVM9999-J30s6-AJ20s6[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
-        <TriggerCondition multi="1" name="600INVM9999-J30s6-AJ15s6_x1" triggerthreshold="600INVM9999-J30s6-AJ15s6"/>
+        <TriggerCondition multi="1" name="600INVM9999-J30s6-AJ20s6_x1" triggerthreshold="600INVM9999-J30s6-AJ20s6"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -953,9 +953,9 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="129" partition="1" name="L1_MJJ-400-NFF" complex_deadtime="0" definition="(400INVM9999-J30s6-AJ15s6[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="129" partition="1" name="L1_MJJ-400-NFF" complex_deadtime="0" definition="(400INVM9999-J30s6-AJ20s6[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
-        <TriggerCondition multi="1" name="400INVM9999-J30s6-AJ15s6_x1" triggerthreshold="400INVM9999-J30s6-AJ15s6"/>
+        <TriggerCondition multi="1" name="400INVM9999-J30s6-AJ20s6_x1" triggerthreshold="400INVM9999-J30s6-AJ20s6"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -981,9 +981,9 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="133" partition="1" name="L1_MJJ-200-NFF" complex_deadtime="0" definition="(200INVM9999-J30s6-AJ15s6[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="133" partition="1" name="L1_MJJ-200-NFF" complex_deadtime="0" definition="(200INVM9999-J30s6-AJ20s6[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
-        <TriggerCondition multi="1" name="200INVM9999-J30s6-AJ15s6_x1" triggerthreshold="200INVM9999-J30s6-AJ15s6"/>
+        <TriggerCondition multi="1" name="200INVM9999-J30s6-AJ20s6_x1" triggerthreshold="200INVM9999-J30s6-AJ20s6"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -7067,22 +7067,22 @@
         <Signal range_begin="27" range_end="27" clock="1"/>
       </Cable>
     </TriggerThreshold>
-    <TriggerThreshold active="1" bitnum="1" id="213" mapping="60" name="600INVM9999-J30s6-AJ15s6" type="TOPO" input="ctpcore" version="1">
+    <TriggerThreshold active="1" bitnum="1" id="213" mapping="60" name="600INVM9999-J30s6-AJ20s6" type="TOPO" input="ctpcore" version="1">
       <Cable connector="CON1" input="CTPCORE" name="TOPO1">
         <Signal range_begin="28" range_end="28" clock="1"/>
       </Cable>
     </TriggerThreshold>
-    <TriggerThreshold active="1" bitnum="1" id="214" mapping="61" name="500INVM9999-J30s6-AJ15s6" type="TOPO" input="ctpcore" version="1">
+    <TriggerThreshold active="1" bitnum="1" id="214" mapping="61" name="500INVM9999-J30s6-AJ20s6" type="TOPO" input="ctpcore" version="1">
       <Cable connector="CON1" input="CTPCORE" name="TOPO1">
         <Signal range_begin="29" range_end="29" clock="1"/>
       </Cable>
     </TriggerThreshold>
-    <TriggerThreshold active="1" bitnum="1" id="215" mapping="62" name="400INVM9999-J30s6-AJ15s6" type="TOPO" input="ctpcore" version="1">
+    <TriggerThreshold active="1" bitnum="1" id="215" mapping="62" name="400INVM9999-J30s6-AJ20s6" type="TOPO" input="ctpcore" version="1">
       <Cable connector="CON1" input="CTPCORE" name="TOPO1">
         <Signal range_begin="30" range_end="30" clock="1"/>
       </Cable>
     </TriggerThreshold>
-    <TriggerThreshold active="1" bitnum="1" id="216" mapping="63" name="200INVM9999-J30s6-AJ15s6" type="TOPO" input="ctpcore" version="1">
+    <TriggerThreshold active="1" bitnum="1" id="216" mapping="63" name="200INVM9999-J30s6-AJ20s6" type="TOPO" input="ctpcore" version="1">
       <Cable connector="CON1" input="CTPCORE" name="TOPO1">
         <Signal range_begin="31" range_end="31" clock="1"/>
       </Cable>

@@ -1571,22 +1571,6 @@ def setupMenu():
         ['mu4_ivarloose_mu4_7invm9_noos_novtx_L1MU6_2MU4',           'L1_MU6_2MU4',                         ['L1_MU4','L1_MU4'], [PhysicsStream],  [RATE_DYTag,BW_DYTag], -1],
 
 
-#New for 2018: mu11_mu6 triggers seeded from LFV-MU11
-        ['mu11_mu6_bNocut_L1LFV-MU11',                'L1_LFV-MU11', ['L1_MU11','L1_MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1, False],
-        ['mu11_mu6_bDimu_noinvm_novtx_ss_L1LFV-MU11', 'L1_LFV-MU11', ['L1_MU11','L1_MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1, False],
-        ['mu11_mu6_bDimu_novtx_noos_L1LFV-MU11',      'L1_LFV-MU11', ['L1_MU11','L1_MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1, False],
-        ['mu11_mu6_bDimu_L1LFV-MU11',                 'L1_LFV-MU11', ['L1_MU11','L1_MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1, False],
-        ['mu11_mu6_bDimu2700_L1LFV-MU11',             'L1_LFV-MU11', ['L1_MU11','L1_MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1, False],
-        ['mu11_mu6_bJpsimumu_L1LFV-MU11',             'L1_LFV-MU11', ['L1_MU11','L1_MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1, False],
-        ['mu11_mu6_bBmumu_L1LFV-MU11',                'L1_LFV-MU11', ['L1_MU11','L1_MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1, False],
-        ['mu11_mu6_bUpsimumu_L1LFV-MU11',             'L1_LFV-MU11', ['L1_MU11','L1_MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1, False],
-        ['mu11_mu6_bTau_L1LFV-MU11',                  'L1_LFV-MU11', ['L1_MU11','L1_MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1, False],
-        ['mu11_mu6_bPhi_L1LFV-MU11',                  'L1_LFV-MU11', ['L1_MU11','L1_MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1, False],
-        ['mu11_mu6_bBmumuxv2_L1LFV-MU11',             'L1_LFV-MU11', ['L1_MU11','L1_MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1, False],
-        ['mu11_mu6_bBmumux_BpmumuKp_L1LFV-MU11',      'L1_LFV-MU11', ['L1_MU11','L1_MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1, False],
-        ['mu11_mu6_bJpsimumu_Lxy0_L1LFV-MU11',        'L1_LFV-MU11', ['L1_MU11','L1_MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1, False],
-        ['mu11_mu6_bDimu2700_Lxy0_L1LFV-MU11',        'L1_LFV-MU11', ['L1_MU11','L1_MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1, False],
-        ['mu11_mu6_bDimu_Lxy0_L1LFV-MU11',            'L1_LFV-MU11', ['L1_MU11','L1_MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1, False],
       ]
 
     if TriggerFlags.doFTK():
