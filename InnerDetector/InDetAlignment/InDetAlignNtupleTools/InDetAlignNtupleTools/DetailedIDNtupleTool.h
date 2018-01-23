@@ -75,8 +75,6 @@ namespace InDet
 			ToolHandle <Trk::ITruthToTrack>             m_truthToTrack;    //!< the truth to track Tool
 			ToolHandle <Trk::IExtrapolator>             m_extrapolator;    //!< track extrapolator
 
-			const TRT_ID * m_idHelper;
-
 			bool m_storeNormalRefittedOnly;     //!< only store the AlignTrack which is normally refitted
 			bool m_storeConstrainedOnly;       //!< onlystore the AlignTrack which is normally refitted
 			bool m_storeTruth;                  //!< retrieve the truth information
