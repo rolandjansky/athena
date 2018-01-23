@@ -145,6 +145,7 @@ private: // data
    EventContextAthenaPool*      m_endIter;
 
    ServiceHandle<ActiveStoreSvc> m_activeStoreSvc;
+   ServiceHandle<StoreGateSvc> m_tagDataStore;
 
    mutable PoolCollectionConverter* m_poolCollectionConverter;
    mutable pool::ICollectionCursor* m_headerIterator;

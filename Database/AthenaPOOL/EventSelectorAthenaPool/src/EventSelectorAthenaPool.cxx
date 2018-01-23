@@ -48,6 +48,7 @@ EventSelectorAthenaPool::EventSelectorAthenaPool(const std::string& name, ISvcLo
 	m_beginIter(0),
 	m_endIter(0),
 	m_activeStoreSvc("ActiveStoreSvc", name),
+	m_tagDataStore("StoreGateSvc/TagMetaDataStore", name),
 	m_poolCollectionConverter(0),
 	m_headerIterator(0),
 	m_guid(),
@@ -156,6 +157,11 @@ StatusCode EventSelectorAthenaPool::initialize() {
    // Get AthenaPoolCnvSvc
    if (!m_athenaPoolCnvSvc.retrieve().isSuccess()) {
       ATH_MSG_FATAL("Cannot get " << m_athenaPoolCnvSvc.typeAndName() << ".");
+      return(StatusCode::FAILURE);
+   }
+   // Get TagMetaDataStore
+   if (!m_tagDataStore.retrieve().isSuccess()) {
+      ATH_MSG_FATAL("Cannot get " << m_tagDataStore.typeAndName() << ".");
       return(StatusCode::FAILURE);
    }
    // Get CounterTool (if configured)
@@ -272,8 +278,8 @@ StatusCode EventSelectorAthenaPool::reinit() {
    if (m_poolCollectionConverter == 0) {
       ATH_MSG_INFO("No Events found in any Input Collections");
       if (m_processMetadata.value()) {
-	m_inputCollectionsIterator = m_inputCollectionsProp.value().end();
-	if (m_inputCollectionsProp.value().size() > 0) m_inputCollectionsIterator--;
+	 m_inputCollectionsIterator = m_inputCollectionsProp.value().end();
+	 if (m_inputCollectionsProp.value().size() > 0) m_inputCollectionsIterator--;
 	//NOTE (wb may 2016): this will make the FirstInputFile incident correspond to last file in the collection ... if want it to be first file then move iterator to begin and then move above two lines below this incident firing
          if (m_collectionType.value() == "ImplicitROOT" && !m_firedIncident && m_inputCollectionsProp.value().size() > 0) {
             FileIncident firstInputFileIncident(name(), "FirstInputFile", *m_inputCollectionsIterator);
@@ -445,9 +451,9 @@ StatusCode EventSelectorAthenaPool::finalize() {
          ATH_MSG_WARNING("Failed to preFinalize() CounterTool");
       }
       for (const auto& tool : m_helperTools) {
-        if (!tool->preFinalize().isSuccess()) {
-          ATH_MSG_WARNING("Failed to preFinalize() " << tool->name());
-        }
+         if (!tool->preFinalize().isSuccess()) {
+            ATH_MSG_WARNING("Failed to preFinalize() " << tool->name());
+         }
       }
    }
    delete m_beginIter; m_beginIter = 0;
@@ -467,6 +473,10 @@ StatusCode EventSelectorAthenaPool::finalize() {
    // Release HelperTools
    if (!m_helperTools.release().isSuccess()) {
       ATH_MSG_WARNING("Cannot release " << m_helperTools);
+   }
+   // Release TagMetaDataStore
+   if (!m_tagDataStore.release().isSuccess()) {
+      ATH_MSG_WARNING("Cannot release " << m_tagDataStore.typeAndName() << ".");
    }
    // Release AthenaPoolCnvSvc
    if (!m_athenaPoolCnvSvc.release().isSuccess()) {
