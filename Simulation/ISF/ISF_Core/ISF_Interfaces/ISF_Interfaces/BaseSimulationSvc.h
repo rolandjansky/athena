@@ -143,11 +143,13 @@ namespace ISF {
       /** wrapper call to start chrono with given tag */
       const ChronoEntity* chronoStart(const IChronoSvc::ChronoTag& tag ) {
         if (m_chrono) return m_chrono->chronoStart( tag);
+        return nullptr;
       }
 
       /** wrapper call to stop chrono with given tag */
       const ChronoEntity* chronoStop(const IChronoSvc::ChronoTag& tag ) {
         if (m_chrono) return m_chrono->chronoStop( tag);
+        return nullptr;
       }
 
       typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
