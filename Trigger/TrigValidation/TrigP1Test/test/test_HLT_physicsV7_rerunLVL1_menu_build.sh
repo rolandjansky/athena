@@ -8,32 +8,31 @@
 # art-include: 21.0-TrigMC/AthenaP1
 # art-include: master/AthenaP1
 
-if [ -z ${JOB_LOG} ]; then
-  export JOB_LOG="athena.log"
-fi
-
 if [ -z ${TEST} ]; then
   export TEST="TrigP1Test"
 fi
 
-export JOB_LOG="HLT_physicsV7_rerunLVL1_menu.log"
+export NAME=HLT_physicsV7_rerunLVL1_menu
+export JOB_LOG="${NAME}.log"
 
-timeout 100m trigtest.pl --cleardir --test HLT_physicsV7_rerunLVL1_menu --rundir HLT_physicsV7_rerunLVL1_menu --conf TrigP1Test_ART.conf | tee ${JOB_LOG}
-
-ATH_RETURN=${PIPESTATUS[0]}
-echo "art-result: ${ATH_RETURN} ${JOB_LOG%%.*}"
-
-export JOB_LOG="UploadMenuKeys_rerunLVL1.log"
-
-timeout 120m trigtest.pl --cleardir  --test UploadMenuKeys_rerunLVL1 --rundir UploadMenuKeys_rerunLVL1 --conf TrigP1Test_ART.conf | tee ${JOB_LOG}
+timeout 100m trigtest_ART.pl --cleardir --test ${NAME} --rundir ${NAME} --conf TrigP1Test_ART.conf | tee ${JOB_LOG}
 
 ATH_RETURN=${PIPESTATUS[0]}
-echo "art-result: ${ATH_RETURN} ${JOB_LOG%%.*}"
+echo "art-result: ${ATH_RETURN} ${NAME}"
 
-export JOB_LOG="HLT_physicsV7_rerunLVL1_menu_rerundb.log"
+export NAME=UploadMenuKeys_rerunLVL1
+export JOB_LOG="${NAME}.log"
 
-timeout 100m trigtest.pl --cleardir  --test HLT_physicsV7_rerunLVL1_menu_rerundb --rundir HLT_physicsV7_rerunLVL1_menu_rerundb --conf TrigP1Test_ART.conf | tee ${JOB_LOG}
+timeout 120m trigtest_ART.pl --cleardir --test ${NAME} --rundir ${NAME} --conf TrigP1Test_ART.conf | tee ${JOB_LOG}
 
 ATH_RETURN=${PIPESTATUS[0]}
-echo "art-result: ${ATH_RETURN} ${JOB_LOG%%.*}"
+echo "art-result: ${ATH_RETURN} ${NAME}"
+
+export NAME=HLT_physicsV7_rerunLVL1_menu_rerundb
+export JOB_LOG="${NAME}.log"
+
+timeout 100m trigtest_ART.pl --cleardir --test ${NAME} --rundir ${NAME} --conf TrigP1Test_ART.conf | tee ${JOB_LOG}
+
+ATH_RETURN=${PIPESTATUS[0]}
+echo "art-result: ${ATH_RETURN} ${NAME}"
 
