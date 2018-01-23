@@ -111,13 +111,13 @@ UnusedCaloVariables = ["N_BAD_CELLS","BADLARQ_FRAC","ENG_BAD_CELLS","N_BAD_HV_CE
 RemoveCaloVariables = ".-"+identifier.join(UnusedCaloVariables)
 
 #Special list to keep some moments needed for taus (ATR-17608)
-TauCaloVariablestoAdd= ["CENTER_LAMBDA","FIRST_ENG_DENS","EM_PROBABILITY","SECOND_LAMBDA"]
+TauCaloVariablestoAdd= ["CENTER_LAMBDA","FIRST_ENG_DENS","EM_PROBABILITY","SECOND_LAMBDA","SECOND_R"]
 TauCaloVariablestoRemove= ["N_BAD_CELLS","BADLARQ_FRAC","ENG_BAD_CELLS","N_BAD_HV_CELLS",
                         "BAD_CELLS_CORR_E","BadChannelList","CELL_SIG_SAMPLING",
                         "AVG_TILE_Q","AVG_LAR_Q","ENG_FRAC_EM","ISOLATION",
                         "etasize_sampl","phisize_sampl", "ENG_POS",
                         "CELL_SIGNIFICANCE","DM_WEIGHT","HAD_WEIGHT","LATERAL",
-                        "SECOND_R","CENTER_MAG","FIRST_PHI","CENTER_Z","OOC_WEIGHT",
+                        "CENTER_MAG","FIRST_PHI","CENTER_Z","OOC_WEIGHT",
                         "LONGITUDINAL","DELTA_ALPHA","CENTER_Y","CENTER_X","FIRST_ETA",
                         "DELTA_PHI","ENG_FRAC_MAX","ENG_FRAC_CORE", "SIGNIFICANCE", "DELTA_THETA",
                         "SECOND_ENG_DENS","emax_sampl","CellLink","phimax_sampl","etamax_sampl",]
