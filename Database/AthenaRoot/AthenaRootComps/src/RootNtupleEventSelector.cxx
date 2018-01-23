@@ -56,6 +56,8 @@ CLASS_DEF( TObject,    74939790 , 1 )
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventType.h"
 #include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "xAODEventInfo/EventAuxInfo.h"
 
 
 // Package includes
@@ -532,6 +534,23 @@ RootNtupleEventSelector::next( IEvtSelector::Context& ctx ) const
       delete evtInfo; evtInfo = 0;
       return StatusCode::FAILURE;
     }
+
+    {
+      auto ei = std::make_unique<xAOD::EventInfo>();
+      auto ei_store = std::make_unique<xAOD::EventAuxInfo>();
+      ei->setStore (ei_store.get());
+      ei->setRunNumber (runNbr);
+      ei->setEventNumber (global_entry);
+
+      static const SG::AuxElement::Accessor<std::string> tupleName ("tupleName");
+      static const SG::AuxElement::Accessor<std::string> collName ("collectionName");
+      tupleName(*ei) = m_tupleName;
+      collName(*ei) = m_inputCollectionsName.value()[m_collIdx];
+      
+      CHECK( m_dataStore->record (std::move(ei), "EventInfo") );
+      CHECK( m_dataStore->record (std::move(ei_store), "EventInfoAux.") );
+    }
+
     // now the data has been loaded into the store, we can
     // notify clients and fire the BeginInputFile incident
    //MOVED TO handle method
@@ -867,7 +886,16 @@ RootNtupleEventSelector::createRootBranchAddresses(StoreID::type storeID,
         ti = cls->GetTypeInfo();
         // first, try to load a dict for that class...
         if (ti) {
-          m_dictsvc->load_type(*ti);
+          // This causes crashes in 21.2.
+          // When the typeinfo name for vector<string> is demangled in
+          // AthDictLoaderSvc, the std::string typeinfo is expanded.
+          // We can then be trying to lookup vector<string> using different
+          // names, which can crash root.  In master, the typeinfo name
+          // is demangled into std::vector<std::string>, which seems
+          // to work ok.
+          // Not sure why this is needed in the first place, though, so just
+          // try getting rid of it.
+          //m_dictsvc->load_type(*ti);
         }
         if (!ti) {
           ATH_MSG_WARNING("could not find a type-info for [" << 
