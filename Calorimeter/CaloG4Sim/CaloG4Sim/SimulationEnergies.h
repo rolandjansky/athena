@@ -49,7 +49,6 @@ namespace CaloG4
 
     /// The simple method to call from a calibration calculator:
     /// Examine the G4Step and return the energies required for a
-    ///
     /// calibration hit.
     void Energies( const G4Step* , std::vector<G4double> & ) const;
 
