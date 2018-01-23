@@ -62,7 +62,7 @@ namespace EL
 
 
   void AnaAlgorithmConfig ::
-  setType (const std::string val_type) noexcept
+  setType (const std::string& val_type) noexcept
   {
     RCU_CHANGE_INVARIANT (this);
     m_type = val_type;
@@ -80,7 +80,7 @@ namespace EL
 
 
   void AnaAlgorithmConfig ::
-  setName (const std::string val_name) noexcept
+  setName (const std::string& val_name) noexcept
   {
     RCU_CHANGE_INVARIANT (this);
     m_name = val_name;
