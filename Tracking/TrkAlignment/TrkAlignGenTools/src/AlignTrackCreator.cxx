@@ -128,23 +128,21 @@ namespace Trk {
 
     ATH_MSG_DEBUG("nDoF: "<<at->fitQuality()->numberDoF()<<", tsos size: "<<at->trackStateOnSurfaces()->size());
 
-    std::vector<const TrackStateOnSurface *>::const_iterator tsos     = at->trackStateOnSurfaces()->begin();
-    std::vector<const TrackStateOnSurface *>::const_iterator tsos_end = at->trackStateOnSurfaces()->end();
-    for ( ; tsos!=tsos_end; ++tsos,ntsos++) {
+    for (const TrackStateOnSurface* tsos : *at->trackStateOnSurfaces()) {
 
       AlignTSOS * atsos(0);
       AlignModule * module(0);
 
-      if ((*tsos)->type(TrackStateOnSurface::Outlier) ||
-          (*tsos)->type(TrackStateOnSurface::Perigee) ||
-          (*tsos)->type(TrackStateOnSurface::Hole))
+      if (tsos->type(TrackStateOnSurface::Outlier) ||
+          tsos->type(TrackStateOnSurface::Perigee) ||
+          tsos->type(TrackStateOnSurface::Hole))
         continue;
-      else if ((*tsos)->type(TrackStateOnSurface::Measurement)) {
+      else if (tsos->type(TrackStateOnSurface::Measurement)) {
 
 	ATH_MSG_DEBUG("checking ntsos: "<<ntsos);
 
-        const MeasurementBase      * mesb  = (*tsos)->measurementOnTrack();
-        const TrackParameters      * tparp = (*tsos)->trackParameters();
+        const MeasurementBase      * mesb  = tsos->measurementOnTrack();
+        const TrackParameters      * tparp = tsos->trackParameters();
         const RIO_OnTrack          * rio   = dynamic_cast<const RIO_OnTrack *>(mesb);
         const CompetingRIOsOnTrack * crio  = dynamic_cast<const CompetingRIOsOnTrack *>(mesb);
 
@@ -182,9 +180,9 @@ namespace Trk {
 	  
           // create AlignTSOS using CompetingRIOsOnTrack or RIO_OnTrack
           if (crio) 
-            atsos = new AlignTSOS(**tsos,module,crio,measType);	  
+            atsos = new AlignTSOS(*tsos,module,crio,measType);	  
           else 
-            atsos = new AlignTSOS(**tsos,module,rio,measType);
+            atsos = new AlignTSOS(*tsos,module,rio,measType);
 
           if (module)
             ATH_MSG_DEBUG("module id "<<module->identify());
@@ -196,8 +194,8 @@ namespace Trk {
       }
 
       // scatterer with no associated measurement
-      else if ((*tsos)->type(TrackStateOnSurface::Scatterer) && m_includeScatterers) {
-        atsos=new AlignTSOS(**tsos,TrackState::unidentified);
+      else if (tsos->type(TrackStateOnSurface::Scatterer) && m_includeScatterers) {
+        atsos=new AlignTSOS(*tsos,TrackState::unidentified);
         atsos->setValid(true);
       }
 

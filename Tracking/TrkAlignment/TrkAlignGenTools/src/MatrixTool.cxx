@@ -1731,7 +1731,7 @@ namespace Trk {
       DataVector<AlignPar>::const_iterator ipar     = alignPars->begin();
       DataVector<AlignPar>::const_iterator ipar_end = alignPars->end();
       for ( ; ipar != ipar_end; ++ipar) {
-        AlignPar * par = *ipar;
+        const AlignPar * par = *ipar;
         os << std::setw(10) << par->dumpType()
            << std::setw(12) << par->par() << " +/- " << std::setw(12) << par->err()
            << std::endl;
