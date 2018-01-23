@@ -45,12 +45,12 @@ namespace AFP
     return StatusCode::SUCCESS;
   }
 
-  std::shared_ptr<const SiLocAlignData> SiLocAlignDBTool::alignment (const int stationID, const int planeID) const
+  const SiLocAlignData* SiLocAlignDBTool::alignment (const int stationID, const int planeID) const
   {
     assert (stationID < s_numberOfStations);
     
     try {
-      return m_alignments[stationID].at(planeID);
+      return m_alignments[stationID].at(planeID).get();
     }
     catch (const std::out_of_range& excpetion) {
       ATH_MSG_WARNING ("Access to SiLocAlignDBTool::m_alignments["<<stationID<<"].at("<<planeID<<") is out of range.");
@@ -66,7 +66,7 @@ namespace AFP
 
     int stationID = 0;
     for (int layersN : maxLayers)
-      m_alignments[stationID++].resize(layersN, nullptr);
+      m_alignments[stationID++].resize(layersN);
   }
 
 
@@ -86,14 +86,14 @@ namespace AFP
       ATH_MSG_WARNING(builderWarning);
 
     // Create alignment objects based on parsed information from database. Also find number of stations and layers
-    std::list<std::shared_ptr<const SiLocAlignData> > alignmentsList;
+    std::list<std::unique_ptr<const SiLocAlignData> > alignmentsList;
     int maxStationID = 0;
     std::vector<int> maxLayers (maxStationID+1, 0);
     for (boost::property_tree::ptree::value_type node : payload)
       for (boost::property_tree::ptree::value_type nodeData : node.second) {
 
 	// create new alignment object and read station and layer ID
-	std::shared_ptr<const SiLocAlignData> newAlignment = std::make_shared<const SiLocAlignData> (builder.build(nodeData));
+	std::unique_ptr<const SiLocAlignData> newAlignment = std::make_unique<const SiLocAlignData> (builder.build(nodeData));
 	const int stationID = newAlignment->stationID();
 	const int layerID = newAlignment->layerID();
 	
@@ -107,14 +107,14 @@ namespace AFP
 	  maxLayers[stationID] = layerID+1;
 
 	// add alignment object to output list
-	alignmentsList.push_back(newAlignment);
+	alignmentsList.push_back(std::move(newAlignment));
       }
 
     resizeAlignments (maxLayers);
 
     // rewrite new alignments to the output vector
-    for (std::shared_ptr<const SiLocAlignData> locAlign : alignmentsList)
-      m_alignments[locAlign->stationID()][locAlign->layerID()] = locAlign;
+    for (std::unique_ptr<const SiLocAlignData>& locAlign : alignmentsList)
+      m_alignments[locAlign->stationID()][locAlign->layerID()] = std::move(locAlign);
 
     return StatusCode::SUCCESS;
   }

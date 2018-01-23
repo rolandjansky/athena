@@ -12,6 +12,7 @@
 
 // Local includes
 #include "AFP_DBTools/ISiLocAlignDBTool.h"
+#include "AFP_DBTools/SiLocAlignData.h"
 
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -20,7 +21,6 @@
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
-
 // general includes
 #include <cassert>
 #include <string>
@@ -29,9 +29,6 @@
 
 namespace AFP
 {
-  // forward declaration
-  class SiLocAlignData;
-
   /// Tool providing local alignment of silicon detectors from the conditions database.
   class SiLocAlignDBTool : virtual public AFP::ISiLocAlignDBTool, 
 			   public AthAlgTool
@@ -51,8 +48,8 @@ namespace AFP
     virtual StatusCode finalize() override {return StatusCode::SUCCESS;}
 
     /// Provide alignment parameters for a given plane. Returns nullptr if no data available.
-    std::shared_ptr<const SiLocAlignData> alignment (const int stationID, const int planeID) const override;
-
+    const SiLocAlignData* alignment (const int stationID, const int planeID) const override;
+    
     /// Returns reference to a vector of alignments for a given station.
     ///
     /// It is enough to get this reference only once, because the
@@ -61,7 +58,7 @@ namespace AFP
     ///
     /// @warning if in database there was no data about the given
     /// layer a nullptr will be stored in the vector.
-    const std::vector<std::shared_ptr<const SiLocAlignData> >& alignment (const int stationID) const override
+    const std::vector<std::unique_ptr<const SiLocAlignData> >& alignment (const int stationID) const override
     {assert (stationID < s_numberOfStations); return m_alignments.at(stationID);}
 
 
@@ -90,7 +87,7 @@ namespace AFP
     /// of the first vector represents stationID number. The index of
     /// the second vector represents plane number in the station. If
     /// there is no information about plane a nullptr is stored.
-    std::vector<std::vector<std::shared_ptr<const SiLocAlignData> > > m_alignments;
+    std::vector<std::vector<std::unique_ptr<const SiLocAlignData> > > m_alignments;
 
     /// Name of the database folder with alignment information
     std::string m_folderName;

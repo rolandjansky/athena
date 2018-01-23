@@ -46,7 +46,7 @@ namespace AFP
     virtual StatusCode finalize() = 0;
 
     /// Provide alignment parameters for a given plane. Returns nullptr if no data available.
-    virtual std::shared_ptr<const SiLocAlignData> alignment (const int stationID, const int planeID) const = 0;
+    virtual const SiLocAlignData* alignment (const int stationID, const int planeID) const = 0;
 
     /// Returns reference to a vector of alignments for a given station.
     ///
@@ -56,7 +56,7 @@ namespace AFP
     ///
     /// @warning if in database there was no data about the given
     /// layer a nullptr will be stored in the vector.
-    virtual const std::vector<std::shared_ptr<const SiLocAlignData> >& alignment (const int stationID) const = 0;
+    virtual const std::vector<std::unique_ptr<const SiLocAlignData> >& alignment (const int stationID) const = 0;
 
 
   protected:
