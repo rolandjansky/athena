@@ -1,17 +1,29 @@
-#ifndef TAURECTOOLS_TAUJETRNNUTILS_H
-#define TAURECTOOLS_TAUJETRNNUTILS_H
+#ifndef TAUREC_TAUJETRNNUTILS_H
+#define TAUREC_TAUJETRNNUTILS_H
 
 #include <unordered_map>
+
+#include "AsgTools/AsgMessaging.h"
 
 #include "xAODTau/TauJet.h"
 
 
 namespace TauJetRNNUtils {
 
-// String-based lookup of variables to calculate them on-the-fly
-class VarCalc {
+/**
+ * @brief Tool to calculate input variables for the RNN-based tau identification
+ *
+ *   Used to calculate input variables of the RNN-based tau identification on
+ *   the fly by providing a mapping between variable names (strings) and
+ *   functions to calculate these variables.
+ *
+ * @author C. Deutsch
+ * @author W. Davey
+ *
+ */
+class VarCalc : public asg::AsgMessaging {
 public:
-    // Functional signature of the calculator functions
+    // Pointers to calculator functions
     using ScalarCalc = bool (*)(const xAOD::TauJet &, double &);
 
     using TrackCalc = bool (*)(const xAOD::TauJet &, const xAOD::TauTrack &,
@@ -21,16 +33,20 @@ public:
                                  const xAOD::CaloCluster &, double &);
 
 public:
-    VarCalc() = default;
+    VarCalc();
     ~VarCalc() = default;
 
-    // Methods to compute the output (vector) based on variable name
+    // Methods to compute the output (vector) based on the variable name
+
+    // Computes high-level ID variables
     bool compute(const std::string &name, const xAOD::TauJet &tau, double &out);
 
+    // Computes track variables
     bool compute(const std::string &name, const xAOD::TauJet &tau,
                  const std::vector<const xAOD::TauTrack *> &tracks,
                  std::vector<double> &out);
 
+    // Computes cluster variables
     bool compute(const std::string &name, const xAOD::TauJet &tau,
                  const std::vector<const xAOD::CaloCluster *> &clusters,
                  std::vector<double> &out);
@@ -47,7 +63,8 @@ private:
     std::unordered_map<std::string, ClusterCalc> m_cluster_map;
 };
 
-
+// Factory function to create a variable calculator populated with default
+// variables
 std::unique_ptr<VarCalc> get_default_calculator();
 
 
@@ -104,9 +121,6 @@ bool dEta(
 bool dPhi(
     const xAOD::TauJet &tau, const xAOD::TauTrack &track, double &out);
 
-bool eProbabilityHT(
-    const xAOD::TauJet &tau, const xAOD::TauTrack &track, double &out);
-
 bool nInnermostPixelHits(
     const xAOD::TauJet &tau, const xAOD::TauTrack &track, double &out);
 
@@ -148,4 +162,4 @@ bool CENTER_LAMBDA(
 } // namespace Variables
 } // namespace TauJetRNNUtils
 
-#endif // TAURECTOOLS_TAUJETRNNUTILS_H
+#endif // TAUREC_TAUJETRNNUTILS_H

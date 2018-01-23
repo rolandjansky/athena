@@ -8,12 +8,15 @@
 
 TauJetRNNEvaluator::TauJetRNNEvaluator(const std::string &name)
     : TauRecToolBase(name), m_net_1p(nullptr), m_net_3p(nullptr) {
+    // Network weight files for 1- and 3-prong taus
+    // If the filename is an empty string a default value is decorated
     declareProperty("NetworkFile1P", m_weightfile_1p = "");
     declareProperty("NetworkFile3P", m_weightfile_3p = "");
     declareProperty("OutputVarname", m_output_varname = "RNNJetScore");
     declareProperty("MaxTracks", m_max_tracks = 10);
     declareProperty("MaxClusters", m_max_clusters = 6);
 
+    // Naming conventions for the network weight files:
     declareProperty("InputLayerScalar", m_input_layer_scalar = "scalar");
     declareProperty("InputLayerTracks", m_input_layer_tracks = "tracks");
     declareProperty("InputLayerClusters", m_input_layer_clusters = "clusters");
@@ -24,7 +27,7 @@ TauJetRNNEvaluator::TauJetRNNEvaluator(const std::string &name)
 TauJetRNNEvaluator::~TauJetRNNEvaluator() {}
 
 StatusCode TauJetRNNEvaluator::initialize() {
-    // Search for network weight files
+    // Use PathResolver to search for the weight files
     if (!m_weightfile_1p.empty()) {
         auto weightfile_1p = find_file(m_weightfile_1p);
         if (weightfile_1p.empty()) {
@@ -45,7 +48,7 @@ StatusCode TauJetRNNEvaluator::initialize() {
         m_weightfile_3p = weightfile_3p;
     }
 
-    // Configure networks
+    // Set the layer and node names in the weight file
     TauJetRNN::Config config;
     config.input_layer_scalar = m_input_layer_scalar;
     config.input_layer_tracks = m_input_layer_tracks;
@@ -53,6 +56,7 @@ StatusCode TauJetRNNEvaluator::initialize() {
     config.output_layer = m_output_layer;
     config.output_node = m_output_node;
 
+    // Load the weights and create the network
     m_net_1p = std::make_unique<TauJetRNN>(m_weightfile_1p, config);
     if (!m_net_1p) {
         ATH_MSG_WARNING("No network configured for 1-prong taus. "
@@ -77,12 +81,11 @@ StatusCode TauJetRNNEvaluator::execute(xAOD::TauJet &tau) {
 
     // Only apply RNN to 1- and multi-prong taus
     const auto nTracksCharged = tau.nTracksCharged();
-
     if (nTracksCharged == 0) {
         return StatusCode::SUCCESS;
     }
 
-    // Get input objects and associated variables
+    // Get input objects
     std::vector<const xAOD::TauTrack *> tracks;
     ATH_CHECK(get_tracks(tau, tracks));
     std::vector<const xAOD::CaloCluster *> clusters;
@@ -133,14 +136,14 @@ StatusCode TauJetRNNEvaluator::get_clusters(
 
     const xAOD::Jet *jet_seed = *tau.jetLink();
     if (!jet_seed) {
-        ATH_MSG_WARNING("Tau jet link is invalid.");
+        ATH_MSG_ERROR("Tau jet link is invalid.");
         return StatusCode::FAILURE;
     }
 
     for (const auto jc : jet_seed->getConstituents()) {
         auto cl = dynamic_cast<const xAOD::CaloCluster *>(jc->rawConstituent());
         if (!cl) {
-            ATH_MSG_WARNING("Calorimeter cluster is invalid.");
+            ATH_MSG_ERROR("Calorimeter cluster is invalid.");
             return StatusCode::FAILURE;
         }
         clusters.push_back(cl);

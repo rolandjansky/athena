@@ -2,6 +2,9 @@
 
 namespace TauJetRNNUtils {
 
+VarCalc::VarCalc() : asg::AsgMessaging("TauJetRNNUtils::VarCalc") {
+}
+
 bool VarCalc::compute(const std::string &name, const xAOD::TauJet &tau,
                       double &out) {
     // Retrieve calculator function
@@ -9,7 +12,7 @@ bool VarCalc::compute(const std::string &name, const xAOD::TauJet &tau,
     try {
         func = m_scalar_map.at(name);
     } catch (const std::out_of_range &e) {
-        std::cerr << "Cannot compute " << name << std::endl;
+        ATH_MSG_ERROR("Variable '" << name << "' not defined");
         throw;
     }
 
@@ -27,7 +30,7 @@ bool VarCalc::compute(const std::string &name, const xAOD::TauJet &tau,
     try {
         func = m_track_map.at(name);
     } catch (const std::out_of_range &e) {
-        std::cerr << "Cannot compute " << name << std::endl;
+        ATH_MSG_ERROR("Variable '" << name << "' not defined");
         throw;
     }
 
@@ -52,7 +55,7 @@ bool VarCalc::compute(const std::string &name, const xAOD::TauJet &tau,
     try {
         func = m_cluster_map.at(name);
     } catch (const std::out_of_range &e) {
-        std::cerr << "Cannot compute " << name << std::endl;
+        ATH_MSG_ERROR("Variable '" << name << "' not defined");
         throw;
     }
 
@@ -112,7 +115,6 @@ std::unique_ptr<VarCalc> get_default_calculator() {
     calc->insert("z0sinThetaTJVA_abs_log", Variables::Track::z0sinThetaTJVA_abs_log);
     calc->insert("dEta", Variables::Track::dEta);
     calc->insert("dPhi", Variables::Track::dPhi);
-    calc->insert("eProbabilityHT", Variables::Track::eProbabilityHT);
     calc->insert("nInnermostPixelHits", Variables::Track::nInnermostPixelHits);
     calc->insert("nPixelHits", Variables::Track::nPixelHits);
     calc->insert("nSCTHits", Variables::Track::nSCTHits);
@@ -258,16 +260,6 @@ bool dEta(const xAOD::TauJet &tau, const xAOD::TauTrack &track, double &out) {
 bool dPhi(const xAOD::TauJet &tau, const xAOD::TauTrack &track, double &out) {
     out = track.p4().DeltaPhi(tau.p4());
     return true;
-}
-
-bool eProbabilityHT(const xAOD::TauJet &tau, const xAOD::TauTrack &track,
-                    double &out) {
-    (void)tau;
-    float e_probability_ht;
-    const auto success = track.track()->summaryValue(
-        e_probability_ht, xAOD::eProbabilityHT);
-    out = e_probability_ht;
-    return success;
 }
 
 bool nInnermostPixelHits(const xAOD::TauJet &tau, const xAOD::TauTrack &track,
