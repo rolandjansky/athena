@@ -133,7 +133,6 @@ namespace Trk {
     bool m_refitTracks;                       //!< flag to refit tracks
     bool m_storeFitMatrices;  			         //!< flag to store derivative and covariance matrices after refit
     bool m_useSingleFitter;                   //!< only use 1 fitter for refitting track
-    bool m_selectTracks;                    //!< do the track selection
     double m_BSScalingFactor;               //!< scaling factor on beasmpot width
     double m_PVScalingFactor;               //!< scaling factor on primary vertex position error
 

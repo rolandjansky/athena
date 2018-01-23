@@ -72,7 +72,6 @@ BeamspotVertexPreProcessor::BeamspotVertexPreProcessor(const std::string & type,
   , m_refitTracks(true)
   , m_storeFitMatrices(true)
   , m_useSingleFitter(false)
-  , m_selectTracks(true)
   , m_BSScalingFactor(1.)
   , m_PVScalingFactor(1.)
   , m_minTrksInVtx(3)
