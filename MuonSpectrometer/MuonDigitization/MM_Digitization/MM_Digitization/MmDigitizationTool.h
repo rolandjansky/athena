@@ -15,19 +15,19 @@
     //   Konstantinos Karakostas <Konstantinos.Karakostas@cern.ch>
     ////////////////////////////////////////////////////////////////////////////////
 
-    In the initialize() method, the PileUpMerge and StoreGate services are initialized, and a pointer to an instance of the class 
+    In the initialize() method, the PileUpMerge and StoreGate services are initialized, and a pointer to an instance of the class
     MuonDetectorManager is retrieved from the detector store and used to obtain a MmIdHelper.
-    The MMDigitContainer is initialized and the simulation identifier helper retrieved, together with the pointer to the digitization tool. 
-    Random numbers are obtained in the code from a dedicated stream via AtRndmSvc, 
-    which is also initialized in the initialize() method. 
+    The MMDigitContainer is initialized and the simulation identifier helper retrieved, together with the pointer to the digitization tool.
+    Random numbers are obtained in the code from a dedicated stream via AtRndmSvc,
+    which is also initialized in the initialize() method.
     In the execute() method, the digits and the SDOs (Simulation Data Object,
-    container for simulation data to be preserved after the digitization procedue, and persistified together with the RDOs) 
-    containers are created and recorded on StoreGate; the GenericMuonSimHit collection are merged using the 
-    TimedHitCollection sorted container (done in handleMicroMegasSimhit(TimedHitPtr<GenericMuonSimHit>& hit)) method); 
-    into a loop over the TimedHitCollection for the given DetectorElement, 
-    the handleMicroMegasSimhit() method converts the SimID into the Offline ID to be associated to the Digit and pass to the 
+    container for simulation data to be preserved after the digitization procedue, and persistified together with the RDOs)
+    containers are created and recorded on StoreGate; the GenericMuonSimHit collection are merged using the
+    TimedHitCollection sorted container (done in handleMicroMegasSimhit(TimedHitPtr<GenericMuonSimHit>& hit)) method);
+    into a loop over the TimedHitCollection for the given DetectorElement,
+    the handleMicroMegasSimhit() method converts the SimID into the Offline ID to be associated to the Digit and pass to the
     digitization tool the drift radius and the distance to the chamber RO side (for the propagation delay computation).
-    The digitization tool returns a drift time, charge and strip position which are used together with the Offline ID, 
+    The digitization tool returns a drift time, charge and strip position which are used together with the Offline ID,
     to create the digit object (in doDigitization() method).
     The finalize() method returns a SUCCESS StatusCode if the digitization procedure ends succesfully.
 
@@ -45,19 +45,19 @@
 #include "MuonSimEvent/GenericMuonSimHit.h"
 #include "PileUpTools/PileUpToolBase.h"
 #include "Identifier/Identifier.h"
- 
+
 #include "MM_Digitization/MmSortedHitVector.h"
 
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Geometry/Point3D.h"
 #include "CLHEP/Vector/ThreeVector.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
- 
+
 #include "MuonDigToolInterfaces/IMuonDigitizationTool.h"
 #include "MM_Digitization/StripsResponse.h"
 #include "MM_Digitization/ElectronicsResponse.h"
 #include "MM_Digitization/MMStripVmmMappingTool.h"
-   
+
 #include "xAODEventInfo/EventInfo.h"   // SubEventIterator
 #include "xAODEventInfo/EventAuxInfo.h"// SubEventIterator
 
@@ -65,7 +65,7 @@
 #include <sstream>
 #include <vector>
 #include <map>
-/*******************************************************************************/ 
+/*******************************************************************************/
 namespace MuonGM{
   class MuonDetectorManager;
   class MMReadoutElement;
@@ -94,8 +94,8 @@ class ElectronicsResponse;
 
 class TTree;
 class TFile;
- 
-/*******************************************************************************/ 	
+
+/*******************************************************************************/
 
 class MmDigitizationTool : virtual public IMuonDigitizationTool, public PileUpToolBase {
 
@@ -107,7 +107,7 @@ public:
 
   /** When being run from PileUpToolsAlgs, this method is called at the start of the subevts loop. Not able to access SubEvents */
   StatusCode prepareEvent(const unsigned int /*nInputEvents*/) override final;
-  
+
   /** When being run from PileUpToolsAlgs, this method is called for each active bunch-crossing to process current SubEvents bunchXing is in ns */
   StatusCode  processBunchXing(int bunchXing,
                                SubEventIterator bSubEvents,
@@ -118,12 +118,12 @@ public:
 
   /** When being run from MM_Digitizer, this method is called during the event loop */
 
-  /** alternative interface which uses the PileUpMergeSvc to obtain 
-      all the required SubEvents. */ 
-  virtual StatusCode processAllSubEvents(); 
- 		 
-  /** Just calls processAllSubEvents - leaving for back-compatibility 
-      (IMuonDigitizationTool) */ 
+  /** alternative interface which uses the PileUpMergeSvc to obtain
+      all the required SubEvents. */
+  virtual StatusCode processAllSubEvents();
+
+  /** Just calls processAllSubEvents - leaving for back-compatibility
+      (IMuonDigitizationTool) */
   StatusCode digitize() override;
 
   /** Finalize */
@@ -133,9 +133,9 @@ public:
   ServiceHandle<IAtRndmGenSvc> getRndmSvc() const { return m_rndmSvc; }    // Random number service
   CLHEP::HepRandomEngine  *getRndmEngine() const { return m_rndmEngine; } // Random number engine used
 
-  void setAmplification(const double amplification) { 
-    m_amplification = amplification; 
-  } 
+  void setAmplification(const double amplification) {
+    m_amplification = amplification;
+  }
 
   void set (const double bunchTime);
 
@@ -147,23 +147,23 @@ private:
   ActiveStoreSvc*             m_activeStore;
 
   ServiceHandle<MagField::IMagFieldSvc>            m_magFieldSvc;
-  
+
   /** Record MmDigitContainer and MuonSimDataCollection */
   StatusCode recordDigitAndSdoContainers();
-   
+
   MmDigitContainer*      m_digitContainer;
   MuonSimDataCollection* m_sdoContainer;
   MmSortedHitVector      m_hits;
-	 
+
   const MmIdHelper*       m_idHelper;
   MicromegasHitIdHelper*  muonHelper;
-  
+
   const MuonGM::MuonDetectorManager* m_MuonGeoMgr;
- 
+
   ToolHandle <IMM_DigitizationTool> m_digitTool;
   std::list<GenericMuonSimHitCollection*> m_MMHitCollList;
-  bool  checkMMSimHit(const GenericMuonSimHit& /* hit */ ) const; 
-    
+  bool  checkMMSimHit(const GenericMuonSimHit& /* hit */ ) const;
+
   //CONFIGURATION
   bool m_validationSetup;
   double m_energyThreshold;
@@ -172,7 +172,7 @@ private:
   bool m_useTof;
   bool m_useAttenuation;
   bool m_useProp;
- 
+
   //pile-up
   TimedHitCollection<GenericMuonSimHit>* m_thpcMM; // the hits
 
@@ -182,7 +182,7 @@ private:
   // Get next event and extract collection of hit collections:
   StatusCode getNextEvent();
   StatusCode doDigitization();
-  
+
   void  fillMaps(const GenericMuonSimHit * mmHit, const Identifier digitId, const double driftR);
   int   digitizeTime(double time) const;
   bool outsideWindow(double time) const; // default +-50...
@@ -193,14 +193,14 @@ private:
   double m_inv_c_light;
   double m_DiffMagSecondMuonHit;
 
-  //TDC ELECTRONICS  
+  //TDC ELECTRONICS
   double m_ns2TDC;
   double m_resTDC;
 
   // RandomGenerators
   //  double m_FlatDist;
-  //  double m_GaussDist;  
-  //  double m_PoissonDist;  
+  //  double m_GaussDist;
+  //  double m_PoissonDist;
   //  double m_GammaDist;
   double m_Polya;
   double m_timeWindowLowerOffset;
@@ -217,15 +217,16 @@ private:
 
   // ElectronicsResponse stuff...
   ElectronicsResponse *m_ElectronicsResponse;
-  float m_alpha;// power of responce function 
-  float m_RC ;// time constant of responce function
+  float m_alpha;// power of responce function
+  // float m_RC ;// time constant of responce function
+  float m_peakTime; // VMM setting
   float m_electronicsThreshold; // threshold "Voltage" for histoBNL
   float m_stripdeadtime; // dead-time for strip
   float m_ARTdeadtime; // dead-time for ART
   TFile *m_file;
   TTree *m_ntuple;
   TH1I *m_AngleDistr, *m_AbsAngleDistr, *m_ClusterLength2D, *m_ClusterLength, *m_gasGap,  *m_gasGapDir ;
-  
+
   int m_n_Station_side, m_n_Station_eta, m_n_Station_phi, m_n_Station_multilayer, m_n_Station_layer, m_n_hitStripID, m_n_StrRespTrg_ID, m_n_strip_multiplicity, m_n_strip_multiplicity_2;
   int exitcode, m_n_hitPDGId;
   double m_n_hitOnSurface_x, m_n_hitOnSurface_y, m_n_hitDistToChannel, m_n_hitIncomingAngle,m_n_StrRespTrg_Time, m_n_hitIncomingAngleRads, m_n_hitKineticEnergy, m_n_hitDepositEnergy;
@@ -234,17 +235,17 @@ private:
   std::vector<float> m_n_StrRespCharge, m_n_StrRespTime;
 
   // vector <TH1F*> m_histoBNL;
-   
+
   // private methods need to compute the induce charge on the strip
   double qStrip        (const int & nElectrons, const double & gammaDist) const;
   double qStripR       (const double x) const;
   double qStripR       (const double x, const std::string stationType) const;
   double qStripPhi     (const double x, const std::string stationType) const;
-  double fparamPhi     (const double x, const int N, const double * p) const;   
+  double fparamPhi     (const double x, const int N, const double * p) const;
   //	  double getDriftTime(const MMReadoutElement* descriptor, const Amg::Vector3D& pos) const;
 
 
-protected:  
+protected:
 
   PileUpMergeSvc *m_mergeSvc; // Pile up service
   std::string m_inputObjectName; // name of the input objects
@@ -265,18 +266,18 @@ inline bool MmDigitizationTool::outsideWindow(double driftTime) const {
 }
 /*******************************************************************************/
 inline double MmDigitizationTool::qStrip (const int & nElectrons, const double& gammaDist) const {
- 
+
   // find the charge on the wire
- 
+
   //  double amplification = 0.58e5;
   double amplification = m_amplification;
-  double stripCharge = 0.0; 
- 
+  double stripCharge = 0.0;
+
   for (int i=0; i<nElectrons; i++) {
     double RNDpol = 0.0;
     if (m_Polya > -1.0) {
       RNDpol = gammaDist/(1.0+m_Polya);
-    } 
+    }
     stripCharge += amplification*RNDpol;
   }
   return stripCharge;
