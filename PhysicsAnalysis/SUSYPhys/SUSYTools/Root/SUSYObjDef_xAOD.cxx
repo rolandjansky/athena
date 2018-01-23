@@ -432,7 +432,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "TauId", m_tauId);
   declareProperty( "TauIdConfigPathBaseline", m_tauConfigPathBaseline);
   declareProperty( "TauIdConfigPath", m_tauConfigPath);
-  declareProperty( "TauMVACalibration", m_tauMVACalib);
   declareProperty( "TauDoTruthMatching", m_tauDoTTM);
   declareProperty( "TauRecalcElOLR", m_tauRecalcOLR);
   declareProperty( "TauIDRedecorate", m_tauIDrecalc); 
@@ -984,7 +983,6 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   m_conf_to_prop["MET.DoCaloSyst"] = "METDoCaloSyst";
   m_conf_to_prop["MET.GreedyPhotons"] = "METGreedyPhotons";
 
-  m_conf_to_prop["Tau.MVACalibration"] = "TauMVACalibration";
   m_conf_to_prop["Tau.DoTruthMatching"] = "TauDoTruthMatching";
   m_conf_to_prop["Tau.RecalcElOLR"] = "TauRecalcElOLR";
   m_conf_to_prop["Tau.IDRedecorate"] = "TauIDRedecorate";  
@@ -1050,7 +1048,6 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_tauConfigPath, "Tau.ConfigPath", rEnv, "default");
   configFromFile(m_tauIdBaseline, "TauBaseline.Id", rEnv, "Medium");
   configFromFile(m_tauConfigPathBaseline, "TauBaseline.ConfigPath", rEnv, "default");
-  configFromFile(m_tauMVACalib, "Tau.MVACalibration", rEnv, false);
   configFromFile(m_tauDoTTM, "Tau.DoTruthMatching", rEnv, false);
   configFromFile(m_tauRecalcOLR, "Tau.RecalcElOLR", rEnv, false);
   configFromFile(m_tauIDrecalc, "Tau.IDRedecorate", rEnv, false);
