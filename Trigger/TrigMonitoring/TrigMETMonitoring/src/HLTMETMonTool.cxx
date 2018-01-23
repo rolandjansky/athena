@@ -329,6 +329,8 @@ StatusCode HLTMETMonTool::book() {
 
   }
 
+  monGroupName = m_expert_path;
+
   // Book Offline MET histograms *********
   monFolderName = monGroupName + "/Offline";
   addMonGroup(new MonGroup(this, monFolderName.c_str(), run));
@@ -1235,6 +1237,8 @@ StatusCode HLTMETMonTool::fillMETHist() {
   }
 
 
+
+  monGroupName = m_expert_path;
   
   //////////////////////////
   // Offline MET
