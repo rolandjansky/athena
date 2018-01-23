@@ -27,6 +27,8 @@ TauJetRNNEvaluator::TauJetRNNEvaluator(const std::string &name)
 TauJetRNNEvaluator::~TauJetRNNEvaluator() {}
 
 StatusCode TauJetRNNEvaluator::initialize() {
+    ATH_MSG_INFO("Initializing TauJetRNNEvaluator");
+
     // Use PathResolver to search for the weight files
     if (!m_weightfile_1p.empty()) {
         auto weightfile_1p = find_file(m_weightfile_1p);
@@ -34,6 +36,8 @@ StatusCode TauJetRNNEvaluator::initialize() {
             ATH_MSG_ERROR("Could not find network weights: "
                           << m_weightfile_1p);
             return StatusCode::FAILURE;
+        } else {
+            ATH_MSG_INFO("Using network config [1-prong]: " << weightfile_1p);
         }
         m_weightfile_1p = weightfile_1p;
     }
@@ -44,6 +48,8 @@ StatusCode TauJetRNNEvaluator::initialize() {
             ATH_MSG_ERROR("Could not find network weights: "
                           << m_weightfile_3p);
             return StatusCode::FAILURE;
+        } else {
+            ATH_MSG_INFO("Using network config [3-prong]: " << weightfile_3p);
         }
         m_weightfile_3p = weightfile_3p;
     }
