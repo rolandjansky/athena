@@ -29,22 +29,6 @@ using Analysis::None;
 
 using xAOD::IParticle;
 
-#define ANA_CHECK_CPCORR(EXP)					       \
-  { const CP::CorrectionCode sc__ = EXP;			       \
-    if (!(sc__==CP::CorrectionCode::Ok)) {			       \
-      ANA_MSG_ERROR ("Failed to call \"" << #EXP << "\"");		\
-      return ::asg::CheckHelper<AsgToolsCheckResultType>::failureCode(); \
-    }									\
-  }
-
-#define ANA_CHECK_CPSYS(EXP)						\
-  { const CP::SystematicCode sc__ = EXP;                                \
-    if (!(sc__==CP::SystematicCode::Ok)) {					\
-      ANA_MSG_ERROR ("Failed to call \"" << #EXP << "\"");              \
-      return ::asg::CheckHelper<AsgToolsCheckResultType>::failureCode(); \
-    }									\
-  }
-
 
 BTaggingTruthTaggingTool::BTaggingTruthTaggingTool( const std::string & name)
   : asg::AsgTool( name ){
@@ -429,7 +413,7 @@ StatusCode BTaggingTruthTaggingTool::getAllEffMC(){
   }
   for(unsigned int i=0; i<m_jets->size(); i++){
     eff=1.;
-    ANA_CHECK_CPCORR(m_effTool->getMCEfficiency(m_jets->at(i).flav, m_jets->at(i).vars, eff));
+    m_effTool->getMCEfficiency(m_jets->at(i).flav, m_jets->at(i).vars, eff);
     m_trfRes.effMC.push_back(eff);
     if(m_useQuntile){
       // loop on OP
@@ -439,7 +423,7 @@ StatusCode BTaggingTruthTaggingTool::getAllEffMC(){
 	  continue;
 	}
 	eff_all=1.;
-	ANA_CHECK_CPCORR(m_effTool_allOP[op_appo]->getMCEfficiency(m_jets->at(i).flav, m_jets->at(i).vars, eff_all));
+	m_effTool_allOP[op_appo]->getMCEfficiency(m_jets->at(i).flav, m_jets->at(i).vars, eff_all);
 	m_trfRes.effMC_allOP[op_appo].push_back(eff_all);
       } // end loop on OP
     } // if useQuantile
@@ -481,18 +465,18 @@ StatusCode BTaggingTruthTaggingTool::getAllEffSF(int sys){
   float SF_all =1.;
 
   if(sys!=0){
-    ANA_CHECK_CPSYS(m_effTool->applySystematicVariation(m_eff_syst[sys]));
+    m_effTool->applySystematicVariation(m_eff_syst[sys]);
     if(m_useQuntile){
       for(auto op_appo: m_availableOP){
 	if (op_appo==m_OP) continue;
-	ANA_CHECK_CPSYS(m_effTool_allOP[op_appo]->applySystematicVariation(m_eff_syst[sys]));
+	m_effTool_allOP[op_appo]->applySystematicVariation(m_eff_syst[sys]);
       }
     }
   }
 
   for(unsigned int i=0; i<m_jets->size(); i++){
     SF=1.;
-    ANA_CHECK_CPCORR(m_effTool->getScaleFactor(m_jets->at(i).flav, m_jets->at(i).vars, SF));
+    m_effTool->getScaleFactor(m_jets->at(i).flav, m_jets->at(i).vars, SF);
     m_trfRes.eff.at(i) = m_trfRes.effMC.at(i)*SF;
     if(m_useQuntile){
       // loop on OP
@@ -502,17 +486,17 @@ StatusCode BTaggingTruthTaggingTool::getAllEffSF(int sys){
 	  continue;
 	}
 	SF_all=1.;
-	ANA_CHECK_CPCORR(m_effTool_allOP[op_appo]->getScaleFactor(m_jets->at(i).flav, m_jets->at(i).vars, SF_all));
+	m_effTool_allOP[op_appo]->getScaleFactor(m_jets->at(i).flav, m_jets->at(i).vars, SF_all);
 	m_trfRes.eff_allOP[op_appo].at(i) = m_trfRes.effMC_allOP[op_appo].at(i)*SF_all;
       } // end loop on OP
     } // if useQuantile
   }
 
   CP::SystematicSet defaultSet;
-  ANA_CHECK_CPSYS(m_effTool->applySystematicVariation(defaultSet));
+  m_effTool->applySystematicVariation(defaultSet);
   if(m_useQuntile){
     for(auto op_appo: m_availableOP){
-      ANA_CHECK_CPSYS(m_effTool_allOP[op_appo]->applySystematicVariation(defaultSet));
+      m_effTool_allOP[op_appo]->applySystematicVariation(defaultSet);
     }
   }
 
@@ -927,7 +911,7 @@ double BTaggingTruthTaggingTool::getEvtSF(int sys){
 
   if(sys!=0) {
     //    ANA_CHECK_SET_TYPE(CP::SystematicCode);
-    ANA_CHECK_CPSYS(m_effTool->applySystematicVariation(m_eff_syst[sys]));
+    m_effTool->applySystematicVariation(m_eff_syst[sys]);
   }
 
   //  for(const auto jet : *m_jets) {
@@ -937,7 +921,7 @@ double BTaggingTruthTaggingTool::getEvtSF(int sys){
     float effSF=1;
     //    ANA_CHECK_SET_TYPE(CP::CorrectionCode);
     if(is_btagged){    // tagged --> look at sf
-      ANA_CHECK_CPCORR(m_effTool->getScaleFactor(m_jets->at(i).flav, m_jets->at(i).vars, ineffSF));
+      m_effTool->getScaleFactor(m_jets->at(i).flav, m_jets->at(i).vars, ineffSF);
       SF*=ineffSF;
     }
     else{    // not tagged --> loop at ineff SF
@@ -949,7 +933,7 @@ double BTaggingTruthTaggingTool::getEvtSF(int sys){
   if(sys!=0) {  // reset syst to nominal
     CP::SystematicSet defaultSet;
     //    ANA_CHECK_SET_TYPE(CP::SystematicCode);
-    ANA_CHECK_CPSYS(m_effTool->applySystematicVariation(defaultSet));
+    m_effTool->applySystematicVariation(defaultSet);
   }
   return SF;
 }
