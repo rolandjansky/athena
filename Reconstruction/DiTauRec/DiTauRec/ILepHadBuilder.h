@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DITAUREC_ILEPHADBUILDER_H
@@ -8,23 +8,23 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #include "AsgTools/IAsgTool.h"
 namespace DiTauRec
 {
-class ILepHadBuilder :
+  class ILepHadBuilder :
     public virtual asg::IAsgTool
-{
+  {
   
-  // Declare the interface that the class provides
-  ASG_TOOL_INTERFACE( DiTauRec::ILepHadBuilder )
+    // Declare the interface that the class provides
+    ASG_TOOL_INTERFACE( DiTauRec::ILepHadBuilder )
   
-  public:
-  // initialize the tool
-  virtual StatusCode initialize() = 0;
+    public:
+    // initialize the tool
+    virtual StatusCode initialize() = 0;
 
-  // set pointer to event
-  virtual StatusCode initializeEvent() = 0;
+    // set pointer to event
+    virtual StatusCode initializeEvent() = 0;
 
-  virtual StatusCode execute() = 0;
+    virtual StatusCode execute() = 0;
   
-}; //class ILepHadBuilder
+  }; //class ILepHadBuilder
 } // namespace DiTauRec
 
 

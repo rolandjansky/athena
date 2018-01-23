@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DITAUREC_HADELBUILDER_H
@@ -12,31 +12,31 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 namespace DiTauRec
 {
   
-class HadElBuilder
-  : public DiTauRec::ILepHadBuilder
-  , public asg::AsgTool
-{
+  class HadElBuilder
+    : public DiTauRec::ILepHadBuilder
+    , public asg::AsgTool
+  {
 
-  ASG_TOOL_CLASS( HadElBuilder,
-		  DiTauRec::ILepHadBuilder )
+    ASG_TOOL_CLASS( HadElBuilder,
+                    DiTauRec::ILepHadBuilder )
  
-public:
+    public:
 
-  HadElBuilder( const std::string& name );
+    HadElBuilder( const std::string& name );
 
-  virtual ~HadElBuilder() override;
+    virtual ~HadElBuilder() override;
 
-  virtual StatusCode initialize() override;
+    virtual StatusCode initialize() override;
 
-  virtual StatusCode initializeEvent() override;
+    virtual StatusCode initializeEvent() override;
 
-  virtual StatusCode execute() override;
-private:
-  std::string m_sHadHadDiTauContainerName;
-  std::string m_sDiTauHadElContainerName;
-  std::string m_sDiTauHadElAuxContainerName;
-  std::string m_sElectronContainerName;
-  int m_iElectronMinPt;
-};
+    virtual StatusCode execute() override;
+  private:
+    std::string m_sHadHadDiTauContainerName;
+    std::string m_sDiTauHadElContainerName;
+    std::string m_sDiTauHadElAuxContainerName;
+    std::string m_sElectronContainerName;
+    int m_iElectronMinPt;
+  };
 }
 #endif // DITAUREC_HADELBUILDER_H
