@@ -20,7 +20,7 @@ from AthenaCommon.GlobalFlags  import globalflags
 from AthenaMonitoring.BadLBFilterTool import GetLArBadLBFilterTool
 include ("AthenaMonitoring/AtlasReadyFilterTool_jobOptions.py")
 
-tmp_CaloClusterVecMonCollisions = {"timeGran"= "lowStat",
+tmp_CaloClusterVecMonCollisions = {"timeGran":"lowStat",
                                    "useBadLBTool":FALSE,
                                    "useReadyFilterTool":FALSE,
                                    "useLArNoisyAlg":FALSE,

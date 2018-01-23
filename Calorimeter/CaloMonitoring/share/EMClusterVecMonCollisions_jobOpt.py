@@ -24,7 +24,7 @@ include ("AthenaMonitoring/AtlasReadyFilterTool_jobOptions.py")
 
 tmp_CaloClusterContainer = "LArClusterEM"
 
-tmp_EMClusterVecMonCollisions = {"timeGran"= "lowStat",
+tmp_EMClusterVecMonCollisions = {"timeGran":"lowStat",
                                    "useBadLBTool":FALSE,
                                    "useReadyFilterTool":FALSE,
                                    "useLArNoisyAlg":FALSE,

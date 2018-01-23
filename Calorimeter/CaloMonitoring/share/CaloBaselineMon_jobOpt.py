@@ -21,23 +21,23 @@ tmp_CaloBaselineMon = {"useBadLBTool":FALSE,
                        "useLArCollisionFilter":FALSE}
 
 if not (DQMonFlags.monManEnvironment == 'online' or globalflags.DataSource.get_Value() == 'geant4' or globalflags.DataSource.get_Value() == 'geant3'):
-  tmp_CaloBaselineMon{"useBadLBTool"}=TRUE
-  tmp_CaloBaselineMon{"useReadyFilterTool"}=TRUE
-  tmp_CaloBaselineMon{"useLArNoisyAlg"} = TRUE
+  tmp_CaloBaselineMon["useBadLBTool"]=TRUE
+  tmp_CaloBaselineMon["useReadyFilterTool"]=TRUE
+  tmp_CaloBaselineMon["useLArNoisyAlg"] = TRUE
 
 if rec.triggerStream()=='CosmicCalo':
-  tmp_CaloBaselineMon{"useLArCollisionFilter"} = TRUE
+  tmp_CaloBaselineMon["useLArCollisionFilter"] = TRUE
 
 CaloBaseline = CaloBaselineMon(
    name           = "CaloBaseline",
 
-   useBadLBTool=tmp_CaloBaselineMon{"useBadLBTool"},
+   useBadLBTool=tmp_CaloBaselineMon["useBadLBTool"],
    BadLBTool = GetLArBadLBFilterTool(),
-   useReadyFilterTool = tmp_CaloBaselineMon{"useReadyFilterTool"},
+   useReadyFilterTool = tmp_CaloBaselineMon["useReadyFilterTool"],
    ReadyFilterTool = monAtlasReadyFilterTool,
-   useLArCollisionFilterTool = tmp_CaloBaselineMon{"useLArCollisionFilter"},
-   useLArNoisyAlg = tmp_CaloBaselineMon{"useLArNoisyAlg"},
-   useBeamBackgroundRemoval = tmp_CaloBaselineMon{"useBeamBackgroundRemoval"},
+   useLArCollisionFilterTool = tmp_CaloBaselineMon["useLArCollisionFilter"],
+   useLArNoisyAlg = tmp_CaloBaselineMon["useLArNoisyAlg"],
+   useBeamBackgroundRemoval = tmp_CaloBaselineMon["useBeamBackgroundRemoval"],
 
 )
 
