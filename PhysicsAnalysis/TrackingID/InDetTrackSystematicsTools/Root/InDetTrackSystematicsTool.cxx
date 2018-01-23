@@ -115,14 +115,11 @@ namespace InDet {
       ("InDetTrackSystematicsTools/CalibData_21.2_2018-v14/" + filename);
     TFile* file =  TFile::Open(filenameWithPath.data(), "READ");
     if (file != nullptr) return file;
+
     ATH_MSG_WARNING( "Could not find file " << filename << " in the calibration database." );
-    ATH_MSG_WARNING( "Will now look in ../source/athena/PhysicsAnalysis/TrackingID/InDetTrackSystematicsTools/data/ ." );
+    ATH_MSG_WARNING( "Will now look in InDetTrackSystematicsTools/data/ under the current working directory." );
     ATH_MSG_WARNING( "You should not see this message unless you are a dev testing a new file." );
-#ifdef XAOD_STANDALONE
-    filenameWithPath = PathResolverFindCalibFile("../source/athena/PhysicsAnalysis/TrackingID/InDetTrackSystematicsTools/" + filename);
-#else
-    filenameWithPath = PathResolverFindDataFile("../source/athena/PhysicsAnalysis/TrackingID/InDetTrackSystematicsTools/data/" + filename);
-#endif
+    filenameWithPath = PathResolverFindCalibFile("InDetTrackSystematicsTools/data/" + filename);
     file = TFile::Open(filenameWithPath.data(), "READ");
     return file;
   }
