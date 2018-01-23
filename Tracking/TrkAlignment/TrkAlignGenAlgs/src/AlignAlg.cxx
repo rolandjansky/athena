@@ -304,14 +304,12 @@ StatusCode AlignAlg::execute()
 
   // loop over AlignTracks and pass to AlignTrackCreator and Dresser for more processing
   int itrk = 0;
-  DataVector<Track>::const_iterator it     = alignTracks->begin();
-  DataVector<Track>::const_iterator it_end = alignTracks->end();
-  for ( ;it != it_end ; ++it, ++itrk) {                               //  first loop over AlignTracks
+  for (Track* trk : *alignTracks) {                               //  first loop over AlignTracks
 
     ATH_MSG_DEBUG("1st loop: Processing track "<<itrk);
 
     // each track in the collection HAS to be an AlignTrack
-    AlignTrack * alignTrack = dynamic_cast<AlignTrack*>(*it);
+    AlignTrack * alignTrack = dynamic_cast<AlignTrack*>(trk);
     if(!alignTrack) {
       msg(MSG::FATAL)<<"Track is not an AlignTrack. PreProcessor returns TrackCollection but"
                      <<"it has to be filled with AlignTracks. Otherwise the code doesn't work."<<endmsg;
@@ -350,13 +348,12 @@ StatusCode AlignAlg::execute()
   m_alignTrackPreProcessor->solveVTX();   
 
                                     
-  it = alignTracks->begin();
-  for ( ;it != it_end ; ++it) {                                       //  second loop over AlignTracks
+  for (Track* trk : *alignTracks) {                               //  second loop over AlignTracks
 
     ATH_MSG_DEBUG("2nd loop: Processing tracks");
 
     // each track in the collection HAS to be an AlignTrack
-    AlignTrack * alignTrack = dynamic_cast<AlignTrack*>(*it);
+    AlignTrack * alignTrack = dynamic_cast<AlignTrack*>(trk);
     if(!alignTrack) {
       msg(MSG::FATAL)<<"Track is not an AlignTrack. PreProcessor returns TrackCollection but"
                      <<"it has to be filled with AlignTracks. Otherwise the code doesn't work."<<endmsg;
