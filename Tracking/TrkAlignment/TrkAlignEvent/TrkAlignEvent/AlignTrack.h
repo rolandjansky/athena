@@ -69,7 +69,7 @@ namespace Trk {
     AlignTrack& operator= (const AlignTrack& alignTrack);
 
     /** sets collection of AlignTSOS */
-    void setAlignTSOSCollection(const AlignTSOSCollection * atsosColl);
+    void setAlignTSOSCollection(AlignTSOSCollection * atsosColl);
 
     /** returns collection of alignTSOS */
     const AlignTSOSCollection* alignTSOSCollection() const;
@@ -79,6 +79,12 @@ namespace Trk {
 
     /** returns iterator pointer to last element in collection */
     AlignTSOSCollection::const_iterator lastAtsos() const;
+
+    /** retrieve non-const iterator pointer to first element in collection */
+    AlignTSOSCollection::iterator firstAtsos();
+
+    /** returns non-const iterator pointer to last element in collection */
+    AlignTSOSCollection::iterator lastAtsos();
 
     /** retrieve pointer to original track */
     const Track * originalTrack() const { return  m_originalTrack; }
@@ -213,7 +219,7 @@ namespace Trk {
     int m_nAlignTSOSMeas;
 
     /** collection of alignTSOS that make up the alignTrack */
-    const AlignTSOSCollection * m_alignTSOSCollection;
+    AlignTSOSCollection * m_alignTSOSCollection;
 
     /** matrix containing local error matrices along diagonal */
     Amg::SymMatrixX * m_localErrorMat;               //Symmetric Matrix
@@ -271,6 +277,9 @@ namespace Trk {
 
   inline AlignTSOSCollection::const_iterator AlignTrack::firstAtsos() const { return m_alignTSOSCollection->begin(); }
   inline AlignTSOSCollection::const_iterator AlignTrack::lastAtsos()  const { return m_alignTSOSCollection->end(); }
+
+  inline AlignTSOSCollection::iterator AlignTrack::firstAtsos() { return m_alignTSOSCollection->begin(); }
+  inline AlignTSOSCollection::iterator AlignTrack::lastAtsos()  { return m_alignTSOSCollection->end(); }
 
 } // end namespace
 
