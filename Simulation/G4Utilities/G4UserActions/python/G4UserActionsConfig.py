@@ -113,3 +113,14 @@ def getFluxRecorderTool(name="G4UA::FluxRecorderTool", **kwargs):
         #theApp.exit(1)
         return False
     return CfgMgr.G4UA__FluxRecorderTool(name, **kwargs)
+
+
+def getRadiationMapsMakerTool(name="G4UA::RadiationMapsMakerTool", **kwargs):
+    from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
+    if concurrencyProps.ConcurrencyFlags.NumThreads() >1:
+        log=Logging.logging.getLogger(name)
+        log.fatal(' Attempt to run '+name+' with more than one thread, which is not supported')
+        #from AthenaCommon.AppMgr import theApp
+        #theApp.exit(1)
+        return False
+    return CfgMgr.G4UA__RadiationMapsMakerTool(name, **kwargs)
