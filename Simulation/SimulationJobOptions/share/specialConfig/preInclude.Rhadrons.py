@@ -76,9 +76,13 @@ def create_rhadron_particles_file(CASE, MASS, MODEL, MASSX):
         '      -1009321   %3.3f   # ~g_K-'       % ( MASS + 100.460),
         '       1093122   %3.3f   # ~g_Lambda0'  % ( MASS + 100.280),
         '       1092212   %3.3f   # ~g_proton'   % ( MASS + 100.660),
+        '      -1092212   %3.3f   # ~g_aproton'  % ( MASS + 100.660),
         '       1092112   %3.3f   # ~g_neutron'  % ( MASS + 100.660),
+        '      -1092112   %3.3f   # ~g_aneutron' % ( MASS + 100.660),
         '       1092214   %3.3f   # ~g_Delta+'   % ( MASS + 100.530),
+        '      -1092214   %3.3f   # ~g_Delta-'   % ( MASS + 100.530),
         '       1092114   %3.3f   # ~g_Delta0'   % ( MASS + 100.530),
+        '      -1092114   %3.3f   # ~g_aDelta0'  % ( MASS + 100.530),
         '       1000039   %3.3f   # ~Gravitino'  % ( MASSX ),
         '       1000022   %3.3f   # ~chi_10'     % ( MASSX )
       ]
