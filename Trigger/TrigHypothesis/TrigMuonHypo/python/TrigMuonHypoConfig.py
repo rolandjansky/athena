@@ -1787,3 +1787,53 @@ class TrigMuonIDTrackMultiHypoConfig(TrigMuonIDTrackMultiHypo) :
 	
         self.AthenaMonTools = [ online ]
 
+
+########MT EF hypo 
+class TrigMuonEFMSonlyHypoConfig(TrigMuonEFMSonlyHypoAlg) :
+
+    __slots__ = []
+
+    # nath: name threshold, for example HLT_mu6 etc
+    def TrigMuonEFMSonlyHypoToolFromName( self, name, nath ):	
+
+        from AthenaCommon.Constants import DEBUG
+        tool = TrigMuonEFMSonlyHypoTool( nath )  
+        tool.OutputLevel = DEBUG
+        bname = nath.split('_') 
+
+        # this needs to be correctly defined, as this is defined for test run
+        if len(bname) == 2: 
+            th = re.findall(r'[0-9]+', bname[1])           
+            threshold = str(th[0]) + 'GeV'
+            TrigMuonEFMSonlyHypoConfig().ConfigrationHypoTool( name, nath, threshold )
+        else:
+            print """ Configration ERROR: Can't configure threshold at TrigMuonEFMSonlyHypoTool """
+            return tool
+    
+        # Setup MonTool for monitored variables in AthenaMonitoring package
+        try:
+            TriggerFlags.enableMonitoring = ["Validation"]
+            if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in TriggerFlags.enableMonitoring() or 'Cosmic' in TriggerFlags.enableMonitoring():
+                tool.MonTool = TrigMufastHypoMonitoring() 
+        except AttributeError:
+            tool.MonTool = ""
+            print name, ' Monitoring Tool failed'
+    
+        return tool
+    
+    def ConfigrationHypoTool( self, name, nath, threshold ): 
+        
+        tool = TrigMuonEFMSonlyHypoTool( nath )  
+    
+        try:
+            tool.AcceptAll = False
+            values = trigMuonEFSAThresholds[threshold]
+            tool.PtBins = values[0]
+            tool.PtThresholds = [ x * GeV for x in values[1] ]
+        except LookupError:
+            if (threshold=='passthrough'):
+                tool.PtBins = [-10000.,10000.]
+                tool.PtThresholds = [ -1. * GeV ]
+            else:
+                raise Exception('MuonEFMSonly Hypo Misconfigured: threshold %r not supported' % threshold)
+        return threshold
