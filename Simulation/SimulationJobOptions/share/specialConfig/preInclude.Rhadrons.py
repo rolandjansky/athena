@@ -61,6 +61,8 @@ def create_rhadron_particles_file(CASE, MASS, MODEL, MASSX):
         '      -1009213   %3.3f   # ~g_rho-'     % (MASS + 100.700 ),
         '      -1009313   %3.3f   # ~g_K0bar'    % (MASS + 100.700 ),
         '      -1009323   %3.3f   # ~g_K-'       % (MASS + 100.700 ),
+        '      -1093212   %3.3f   # ~g_Sigma0'   % (MASS + 100.700 ), # guess
+        '       1093212   %3.3f   # ~g_aSigma0'  % (MASS + 100.700 ), # guess
         '       1000039   %3.3f   # ~Gravitino'  % ( MASSX ),
         '       1000022   %3.3f   # ~chi_10'     % ( MASSX )
       ],
