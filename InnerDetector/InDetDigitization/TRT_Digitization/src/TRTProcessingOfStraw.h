@@ -139,9 +139,6 @@ private:
 
   double m_innerRadiusOfStraw;
   double m_outerRadiusOfWire;
-  double m_outerRadiusEndcap;
-  double m_innerRadiusEndcap;
-  double m_strawLengthBarrel;
 
   double m_solenoidFieldStrength;
 
