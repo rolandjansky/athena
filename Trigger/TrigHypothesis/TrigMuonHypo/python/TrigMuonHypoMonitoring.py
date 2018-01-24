@@ -632,6 +632,28 @@ class TrigMuonEFTrackIsolationHypoValidationMonitoring(TrigGenericMonitoringTool
         self.Histograms  += [ defineHistogram('PtCone03', type='TH1F', title="Sum pT in 0.3 cone #TrigMuonEFTrackIsolationHypo; P_{T} (GeV)",
                                             xbins=50, xmin=0.0, xmax=25.0) ]
 
+class TrigMuonEFTrackIsolationMultiHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
+    def __init__ (self, name="TrigMuonEFTrackIsolationMultiHypoOnlineMonitoring"):
+        super(TrigMuonEFTrackIsolationMultiHypoOnlineMonitoring, self).__init__(name)
+        self.defineTarget("Online")
+
+        self.Histograms  = [ defineHistogram('PtCone02', type='TH1F', title="Sum pT in 0.2 cone #TrigMuonEFTrackIsolationMultiHypo; Sum p_{T} [GeV]",
+                                            xbins=50, xmin=0.0, xmax=25.0) ]
+        self.Histograms  += [ defineHistogram('PtCone03', type='TH1F', title="Sum pT in 0.3 cone #TrigMuonEFTrackIsolationMultiHypo; Sum p_{T} [GeV]",
+                                            xbins=50, xmin=0.0, xmax=25.0) ]
+        pass
+
+
+class TrigMuonEFTrackIsolationMultiHypoValidationMonitoring(TrigGenericMonitoringToolConfig):
+    def __init__ (self, name="TrigMuonEFTrackIsolationMultiHypoValidationMonitoring"):
+        super(TrigMuonEFTrackIsolationMultiHypoValidationMonitoring, self).__init__(name)
+        self.defineTarget("Validation")
+
+        self.Histograms  = [ defineHistogram('PtCone02', type='TH1F', title="Sum pT in 0.2 cone #TrigMuonEFTrackIsolationMultiHypo; P_{T} (GeV)",
+                                            xbins=50, xmin=0.0, xmax=25.0) ]
+        self.Histograms  += [ defineHistogram('PtCone03', type='TH1F', title="Sum pT in 0.3 cone #TrigMuonEFTrackIsolationMultiHypo; P_{T} (GeV)",
+                                            xbins=50, xmin=0.0, xmax=25.0) ]
+        
 class TrigMuonEFCombinerDiMuonMassHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
     def __init__ (self, name="TrigMuonEFCombinerDiMuonMassHypoOnlineMonitoring"):
         super(TrigMuonEFCombinerDiMuonMassHypoOnlineMonitoring, self).__init__(name)

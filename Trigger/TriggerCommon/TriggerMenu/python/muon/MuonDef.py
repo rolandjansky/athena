@@ -28,6 +28,7 @@ from TrigMuonEF.TrigMuonEFConfig import (TrigMuonEFTrackIsolationConfig,
                                          TrigMuonEFIDTrackRoiMakerConfig)
 
 from TrigMuonHypo.TrigMuonHypoConfig import (TrigMuonEFTrackIsolationHypoConfig,
+                                             TrigMuonEFTrackIsolationMultiHypoConfig,
                                              TrigMuonEFCombinerHypoConfig,
                                              TrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig,
                                              TrigMuonEFCaloIsolationHypoConfig)
@@ -1179,7 +1180,24 @@ class L2EFChain_mu(L2EFChainDef):
       hypocutEF="MultiComb"     
       for i in range(0,len(self.allMuThrs)):        
         hypocutEF +=  "_%s" %(self.allMuThrs[i])
-
+    run_isolation = False
+    if self.chainPart['isoInfo'] == "ivarloose" or self.chainPart['isoInfo'] == "ivarmedium" or self.chainPart['isoInfo'] == "ivartight" or self.chainPart['isoInfo'] == "ivarverytight" or self.chainPart['isoInfo'] == "ivarloosecalo" or self.chainPart['isoInfo'] == "ivarmediumcalo":
+      run_isolation = True
+      if self.chainPart['isoInfo'] == "iloose":
+        theTrigMuonEFTrackIsolationMultiHypoConfig = TrigMuonEFTrackIsolationMultiHypoConfig("Muon","RelEFOnlyMedium", self.allMuThrs)
+      elif self.chainPart['isoInfo'] == "imedium":
+        theTrigMuonEFTrackIsolationMultiHypoConfig = TrigMuonEFTrackIsolationMultiHypoConfig("Muon","RelEFOnlyTightWide")
+      elif self.chainPart['isoInfo'] == "ivarloose":
+        theTrigMuonEFTrackIsolationMultiHypoConfig = TrigMuonEFTrackIsolationMultiHypoConfig("Muon","RelEFOnlyVarMedium")
+      elif self.chainPart['isoInfo'] == "ivarmedium":
+        theTrigMuonEFTrackIsolationMultiHypoConfig = TrigMuonEFTrackIsolationMultiHypoConfig("Muon","RelEFOnlyVarTightWide", self.allMuThrs)
+      elif self.chainPart['isoInfo'] == "ivartight":
+        theTrigMuonEFTrackIsolationMultiHypoConfig = TrigMuonEFTrackIsolationMultiHypoConfig("Muon","RelEFOnlyVarTighterWide")
+      elif self.chainPart['isoInfo'] == "ivarverytight":
+        theTrigMuonEFTrackIsolationMultiHypoConfig = TrigMuonEFTrackIsolationMultiHypoConfig("Muon","RelEFOnlyVarVeryTightWide")
+      else:
+        log.error("Isolation %s not yet supported." % (self.chainPart['isoInfo']))
+        return False
 
     ########### Sequence List ##############
     if 'msonly' in self.chainPart['reccalibInfo']:
@@ -1220,7 +1238,15 @@ class L2EFChain_mu(L2EFChainDef):
       self.EFsequenceList += [['EF_CB_ROI',
                                 [theTrigMuonEFCombinerMultiHypoConfig],
                                'EF_CB_FS']]
-
+      if run_isolation:
+        isoAlgoName = "TrigMuonEFTrackIsolationVar"
+        self.EFsequenceList += [[['EF_CB_FS'],
+                                 [TrigMuonEFTrackIsolationVarConfig(isoAlgoName)],
+                                 'EF_ISO_FS']]
+        self.EFsequenceList += [[['EF_ISO_FS'],
+                                 [theTrigMuonEFTrackIsolationMultiHypoConfig],
+                                 'EF_ISO_HYPO']]
+        
     ########### Signatures ###########
       
     self.EFsignatureList += [ [['EF_dummy']] ]
@@ -1232,7 +1258,9 @@ class L2EFChain_mu(L2EFChainDef):
       self.EFsignatureList += [ [['EF_CB_FS_single']] ]
       self.EFsignatureList += [ [['EF_CB_ROI']] ]
       self.EFsignatureList += [ [['EF_CB_FS','EF_SA_FS2']] ]
-
+      if run_isolation:
+        self.EFsignatureList += [ [['EF_ISO_FS']] ]
+        self.EFsignatureList += [ [['EF_ISO_HYPO']] ]
     ########### TE renaming ##########
 
     if 'msonly' in self.chainPart['reccalibInfo']:
@@ -1248,11 +1276,13 @@ class L2EFChain_mu(L2EFChainDef):
         'EF_FStracksMuon': mergeRemovingOverlap('EF_FStracksMuon_', 'SAFSHypo'),
         'EF_CB_FS_single': mergeRemovingOverlap('EF_CB_FS_single_','SAFSHypo'), 
         'EF_CB_ROI': mergeRemovingOverlap('EF_CB_ROI_','SAFSRoi'), 
-        'EF_CB_FS': mergeRemovingOverlap('EF_CB_FS_', 'SAFSHypo'+hypocut+'_'+hypocutEF),
-
+        'EF_CB_FS': mergeRemovingOverlap('EF_CB_FS_', 'SAFSHypo'+hypocut+'_'+hypocutEF),        
       }
-
-
+      if run_isolation:
+        self.TErenamingDict['EF_ISO_FS'] = mergeRemovingOverlap('EF_ISO_FS_', 'EFFSISO')
+        self.TErenamingDict['EF_ISO_HYPO'] = mergeRemovingOverlap('EF_ISO_FS_', 'EFFSISOHypo')
+      print self.TErenamingDict
+      
  #################################################################################################
   #################################################################################################
   def setup_muXX_noL1FTK(self):
