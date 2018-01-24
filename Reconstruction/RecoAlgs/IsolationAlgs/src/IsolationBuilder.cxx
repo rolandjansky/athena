@@ -8,6 +8,53 @@
 // Implementation file for class IsolationBuilder
 /////////////////////////////////////////////////////////////////// 
 
+// Add a parser for vector<vector<int>>
+
+// Includes needed for the custom type
+#include <vector>
+#include <string>
+// A typedef may save a lot of mistakes
+typedef std::vector<std::vector<int> > MyCustomType;
+
+// Define the parser
+#include "GaudiKernel/ParsersFactory.h"
+
+namespace Gaudi
+{
+  namespace Parsers
+  {
+
+    // // Parser grammar
+    // template <typename Iterator, typename Skipper>
+    // struct Grammar_<Iterator, MyCustomType, Skipper> {
+    //   // In this case, the type is a mapping type, so it requires the MapGrammar.
+    //   // For other grammars see GaudiKernel/GrammarsV2.h
+    //   typedef VectorGrammar<Iterator, MyCustomType, Skipper> Grammar;
+    // };
+
+    // Parse function... nothing special, but it must be done explicitely.
+    StatusCode parse( MyCustomType& result, const std::string& input ) { return parse_( result, input ); }
+  }
+}
+
+// We also need to be able to print an object of our type as a string that both
+// Python and our parser can understand,
+#include "GaudiKernel/ToStream.h"
+namespace std
+{
+  // This is an example valid for any mapping type.
+  ostream& operator<<( ostream& s, const MyCustomType& vecvec )
+  {
+    s << '{';
+    for ( const auto& vec : vecvec ) {
+      Gaudi::Utils::toStream( vec, s );
+    }
+    s << '}';
+    return s;
+  }
+}
+
+
 // Isolation includes
 #include "IsolationBuilder.h"
 
@@ -195,7 +242,7 @@ StatusCode IsolationBuilder::initializeIso(std::set<xAOD::Iso::IsolationFlavour>
 					   std::vector<std::pair<xAOD::Iso::IsolationFlavour,TrackIsoHelpKey> >* trackIsoMap, // out
 					   const std::string& containerName,
 					   const std::vector<std::vector<int> >& isoInts,
-					   const std::vector<std::vector<unsigned int> >& corInts,
+					   const std::vector<std::vector<int> >& corInts,
 					   const std::string& customConfig,
 					   bool addCoreCorr)
 {
@@ -249,7 +296,7 @@ StatusCode IsolationBuilder::initializeIso(std::set<xAOD::Iso::IsolationFlavour>
     if (isoFlav == xAOD::Iso::etcone || isoFlav == xAOD::Iso::topoetcone || isoFlav == xAOD::Iso::neflowisol) {
       
       for (size_t corrType = 0; corrType < corInts[flavor].size(); corrType++) {
-	const unsigned int cor = corInts[flavor][corrType];
+	const auto cor = static_cast<unsigned int>(corInts[flavor][corrType]);
 	cisoH.CorrList.calobitset.set(cor);
 	const xAOD::Iso::IsolationCaloCorrection isoCor = static_cast<xAOD::Iso::IsolationCaloCorrection>(cor);
 	if (addCoreCorr && (isoCor == xAOD::Iso::coreCone || isoCor == xAOD::Iso::coreMuon) ) {

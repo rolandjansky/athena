@@ -16,6 +16,17 @@
 #include <vector>
 #include <utility>
 
+#include "GaudiKernel/StatusCode.h"
+namespace Gaudi
+{
+  namespace Parsers
+  {
+
+    // Parse function... nothing special, but it must be done explicitely.
+    StatusCode parse( std::vector<std::vector<int> > & result, const std::string& input );
+  }
+}
+
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -40,7 +51,6 @@
 #include "RecoToolInterfaces/INeutralEFlowIsolationTool.h"
 
 #include "CaloEvent/CaloCellContainer.h"
-
 
 
 class IsolationBuilder
@@ -124,7 +134,7 @@ class IsolationBuilder
       "ElIsoTypes", {}, 
       "The isolation types to do for electrons: vector of vector of enum type Iso::IsolationType, stored as float"};
 
-  Gaudi::Property<std::vector<std::vector<unsigned int> > > m_elcorInts {this,
+  Gaudi::Property<std::vector<std::vector<int> > > m_elcorInts {this,
       "ElCorTypes", {}, 
       "The correction types to do for electron iso: vector of vector of enum type Iso::IsolationCalo/TrackCorrection, stored as float"};
 
@@ -133,7 +143,7 @@ class IsolationBuilder
       "PhIsoTypes", {}, 
       "The isolation types to do for photons: vector of vector of enum type Iso::IsolationType, stored as float"};
 
-  Gaudi::Property<std::vector<std::vector<unsigned int> > > m_phcorInts {this,
+  Gaudi::Property<std::vector<std::vector<int> > > m_phcorInts {this,
       "PhCorTypes", {}, 
       "The correction types to do for photons iso: vector of vector of enum type Iso::IsolationCalo/TrackCorrection, stored as float"};
 
@@ -141,10 +151,10 @@ class IsolationBuilder
       "MuIsoTypes", {}, 
       "The isolation types to do for Muons : vector of vector of enum type Iso::IsolationType, stored as float"};
 
-  Gaudi::Property<std::vector<std::vector<unsigned int> > > m_mucorInts {this,
+  Gaudi::Property<std::vector<std::vector<int> > > m_mucorInts {this,
       "MuCorTypes", {}, 
       "The correction types to do for Muon iso: vector of vector of enum type Iso::IsolationCalo/TrackCorrection, stored as float"};
-  Gaudi::Property<std::vector<std::vector<unsigned int> > > m_fecorInts {this,
+  Gaudi::Property<std::vector<std::vector<int> > > m_fecorInts {this,
       "FeCorTypes", {}, 
       "The correction types to do for forward electron iso: vector of vector of enum type Iso::IsolationCalo/TrackCorrection, stored as float"};
 
@@ -222,7 +232,7 @@ class IsolationBuilder
 			   std::vector<std::pair<xAOD::Iso::IsolationFlavour,TrackIsoHelpKey > >* trackIsoMap, // out
 			   const std::string& containerName,
 			   const std::vector<std::vector<int> >& isoInts,
-			   const std::vector<std::vector<unsigned int> >& corInts,
+			   const std::vector<std::vector<int> >& corInts,
 			   const std::string& customConfig,
 			   bool addCoreCorr);
 
