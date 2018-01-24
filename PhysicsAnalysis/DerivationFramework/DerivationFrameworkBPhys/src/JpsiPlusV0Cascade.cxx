@@ -123,9 +123,9 @@ namespace DerivationFramework {
          CHECK(evtStore()->record(Vtxwritehandlesaux[i], m_cascadeOutputsKeys[i] + "Aux."));
       }
 
-//    //----------------------------------------------------
-//    // retrieve primary vertices
-//    //----------------------------------------------------
+      //----------------------------------------------------
+      // retrieve primary vertices
+      //----------------------------------------------------
       const xAOD::Vertex * primaryVertex(nullptr);
       const xAOD::VertexContainer *pvContainer(nullptr);
       CHECK(evtStore()->retrieve(pvContainer, m_VxPrimaryCandidateName));
@@ -165,6 +165,8 @@ namespace DerivationFramework {
 
       // Decorators for the main vertex: chi2, ndf, pt and pt error, plus the V0 vertex variables
       SG::AuxElement::Decorator<VertexLinkVector> CascadeLinksDecor("CascadeVertexLinks"); 
+      SG::AuxElement::Decorator<VertexLinkVector> JpsiLinksDecor("JpsiVertexLinks"); 
+      SG::AuxElement::Decorator<VertexLinkVector> V0LinksDecor("V0VertexLinks"); 
       SG::AuxElement::Decorator<float> chi2_decor("ChiSquared");
       SG::AuxElement::Decorator<float> ndof_decor("NumberDoF");
       SG::AuxElement::Decorator<float> Pt_decor("Pt");
@@ -208,16 +210,48 @@ namespace DerivationFramework {
         for(int i =0;i<topoN;i++) Vtxwritehandles[i]->push_back(cascadeVertices[i]);
         
         x->getSVOwnership(false); // Prevent Container from deleting vertices
-        const auto mainVertex = cascadeVertices[1]; // this is the Bd (Lambda_b, Lambda_bbar) vertex
+        const auto mainVertex = cascadeVertices[1];   // this is the Bd (Bd, Lambda_b, Lambda_bbar) vertex
         //const auto v0Vertex = cascadeVertices[0];   // this is the V0 (Kshort, Lambda, Lambdabar) vertex
         const std::vector< std::vector<TLorentzVector> > &moms = x->getParticleMoms();
 
+        // Set links to cascade vertices
         std::vector<xAOD::Vertex*> verticestoLink;
         verticestoLink.push_back(cascadeVertices[0]);
         if(Vtxwritehandles[1] == nullptr) ATH_MSG_ERROR("Vtxwritehandles[1] is null");
         if(!LinkVertices(CascadeLinksDecor, verticestoLink, Vtxwritehandles[0], cascadeVertices[1]))
-            ATH_MSG_ERROR("Error decorating vertices");
+            ATH_MSG_ERROR("Error decorating with cascade vertices");
 
+        // Get Jpsi container and identify the input Jpsi
+        const xAOD::VertexContainer  *jpsiContainer(nullptr);
+        CHECK(evtStore()->retrieve(jpsiContainer   , m_vertexContainerKey       ));
+        xAOD::Vertex* jpsiVertex;
+        for (auto ajpsi : *jpsiContainer) { //Iterate over Jpsi vertices
+          if ((ajpsi->trackParticle(0) == cascadeVertices[1]->trackParticle(0) && ajpsi->trackParticle(1) == cascadeVertices[1]->trackParticle(1)) ||
+              (ajpsi->trackParticle(0) == cascadeVertices[1]->trackParticle(1) && ajpsi->trackParticle(1) == cascadeVertices[1]->trackParticle(0))) jpsiVertex = ajpsi;
+        }
+        ATH_MSG_DEBUG("1 pt Jpsi tracks " << cascadeVertices[1]->trackParticle(0)->pt() << ", " << cascadeVertices[1]->trackParticle(1)->pt());
+        if (jpsiVertex) ATH_MSG_DEBUG("2 pt Jpsi tracks " << jpsiVertex->trackParticle(0)->pt() << ", " << jpsiVertex->trackParticle(1)->pt());
+        // Get V0 container and identify the input V0
+        const xAOD::VertexContainer  *v0Container(nullptr);
+        CHECK(evtStore()->retrieve(v0Container   , m_vertexV0ContainerKey       ));
+        xAOD::Vertex* v0Vertex;
+        for (auto av0 : *v0Container) { //Iterate over V0 vertices
+          if ((av0->trackParticle(0) == cascadeVertices[0]->trackParticle(0) && av0->trackParticle(1) == cascadeVertices[0]->trackParticle(1)) ||
+              (av0->trackParticle(0) == cascadeVertices[0]->trackParticle(1) && av0->trackParticle(1) == cascadeVertices[0]->trackParticle(0))) v0Vertex = av0;
+        }
+        ATH_MSG_DEBUG("1 pt V0 tracks " << cascadeVertices[0]->trackParticle(0)->pt() << ", " << cascadeVertices[0]->trackParticle(1)->pt());
+        if (v0Vertex) ATH_MSG_DEBUG("2 pt V0 tracks " << v0Vertex->trackParticle(0)->pt() << ", " << v0Vertex->trackParticle(1)->pt());
+        // Set links to input vertices
+        std::vector<xAOD::Vertex*> jpsiVerticestoLink;
+        if (jpsiVertex) jpsiVerticestoLink.push_back(jpsiVertex);
+        if(!LinkVertices(JpsiLinksDecor, jpsiVerticestoLink, jpsiContainer, cascadeVertices[1]))
+            ATH_MSG_ERROR("Error decorating with Jpsi vertices");
+        std::vector<xAOD::Vertex*> v0VerticestoLink;
+        if (v0Vertex) v0VerticestoLink.push_back(v0Vertex);
+        if(!LinkVertices(V0LinksDecor, v0VerticestoLink, v0Container, cascadeVertices[1]))
+            ATH_MSG_ERROR("Error decorating with V0 vertices");
+
+        // Collect the tracks that should be excluded from the PV
         std::vector<const xAOD::TrackParticle*> exclTrk; exclTrk.clear();
         for( unsigned int jt=0; jt<cascadeVertices.size(); jt++) {
           for( unsigned int it=0; it<cascadeVertices[jt]->vxTrackAtVertex().size(); it++) {
@@ -264,7 +298,7 @@ namespace DerivationFramework {
 
         xAOD::BPhysHypoHelper vtx(m_hypoName, mainVertex);
 
-        // get refitted track momenta from all vertices, charged tracks only
+        // Get refitted track momenta from all vertices, charged tracks only
         std::vector<float> px;
         std::vector<float> py;
         std::vector<float> pz;
@@ -279,7 +313,7 @@ namespace DerivationFramework {
         vtx.setRefTrks(px,py,pz);
         ATH_MSG_DEBUG("number of refitted tracks " << px.size());
 
-        // decorate main vertex
+        // Decorate main vertex
         //
         // 1.a) mass, mass error
         BPHYS_CHECK( vtx.setMass(m_CascadeTools->invariantMass(moms[1])) );
@@ -303,7 +337,7 @@ namespace DerivationFramework {
             refPVvertexes_toDelete.reserve(pVmax);
             exitCode.reserve(pVmax);
 
-            // refit the primary vertex and set the related decorations.
+            // Refit the primary vertex and set the related decorations.
 
             for (size_t i =0; i < pVmax ; i++) {
               const xAOD::Vertex* oldPV = GoodPVs.at(i);
@@ -452,6 +486,7 @@ namespace DerivationFramework {
         Tau_svdecor(*mainVertex) = m_CascadeTools->tau(moms[0],cascadeVertices[0],cascadeVertices[1]);
         TauErr_svdecor(*mainVertex) = m_CascadeTools->tauError(moms[0],x->getCovariance()[0],cascadeVertices[0],cascadeVertices[1]);
 
+        // Some checks in DEBUG mode
         ATH_MSG_DEBUG("chi2 " << x->fitChi2()
                   << " chi2_1 " << m_V0Tools->chisq(cascadeVertices[0])
                   << " chi2_2 " << m_V0Tools->chisq(cascadeVertices[1])
@@ -603,12 +638,15 @@ namespace DerivationFramework {
         ATH_MSG_DEBUG( "JpsiPlusV0Cascade::performSearch" );
         assert(cascadeinfoContainer!=nullptr);
 
+        // Get TrackParticle container (for setting links to the original tracks)
+        const xAOD::TrackParticleContainer  *trackContainer(nullptr);
+        CHECK(evtStore()->retrieve(trackContainer   , "InDetTrackParticles"      ));
+
         // Get Jpsi container
         const xAOD::VertexContainer  *jpsiContainer(nullptr);
         CHECK(evtStore()->retrieve(jpsiContainer   , m_vertexContainerKey       ));
 
         // Get V0 container
-        
         const xAOD::VertexContainer  *v0Container(nullptr);
         CHECK(evtStore()->retrieve(v0Container   , m_vertexV0ContainerKey       ));
 
@@ -658,8 +696,6 @@ namespace DerivationFramework {
               for( unsigned int it=0; it<v0TrkNum; it++) tracksV0.push_back(v0->trackParticle(it));
               if (tracksV0.size() != 2 || massesV0.size() != 2 ) {
                 ATH_MSG_INFO("problems with V0 input");
-                //ATH_MSG_FATAL("problems with V0 input");
-                //return StatusCode::FAILURE;
               }
               double mass_V0 = m_V0Tools->invariantMass(v0,massesV0);
               ATH_MSG_DEBUG("V0 mass " << mass_V0);
@@ -668,13 +704,19 @@ namespace DerivationFramework {
                                << mass_V0 << " != (" << m_V0MassLower << ", " << m_V0MassUpper << ")" );
                 continue;
               }
-
+              ATH_MSG_DEBUG("using tracks" << tracksJpsi[0] << ", " << tracksJpsi[1] << ", " << tracksV0[0] << ", " << tracksV0[1]);
               if (tracksJpsi[0] == tracksJpsi[1] || tracksV0[0] == tracksV0[1] ||
                   tracksJpsi[0] == tracksV0[0] || tracksJpsi[0] == tracksV0[1] ||
                   tracksJpsi[1] == tracksV0[0] || tracksJpsi[1] == tracksV0[1]) {
                 ATH_MSG_DEBUG("identical tracks in input");
                 continue;
               }
+
+              //if (std::find(trackContainer->begin(), trackContainer->end(), tracksJpsi[0]) == trackContainer->end()) {
+              //   ATH_MSG_ERROR("Track is not in standard container");
+              //} else {
+              //   ATH_MSG_DEBUG("Track " << tracksJpsi[0] << " is at position " << std::distance(trackContainer->begin(), std::find(trackContainer->begin(), trackContainer->end(), tracksJpsi[0])) );
+              //}
               //ATH_MSG_DEBUG("using tracks " << tracksJpsi[0] << ", " << tracksJpsi[1] << ", " << tracksV0[0] << ", " << tracksV0[1]);
 
               // Apply the user's settings to the fitter
@@ -708,11 +750,21 @@ namespace DerivationFramework {
               std::unique_ptr<Trk::VxCascadeInfo> result(m_iVertexFitter->fitCascade());
 
               if (result != NULL) {
-                //ATH_MSG_DEBUG("storing tracks " << ((result->vertices())[0])->trackParticle(0) << ", "
-                //                                << ((result->vertices())[0])->trackParticle(1) << ", "
-                //                                << ((result->vertices())[1])->trackParticle(0) << ", "
-                //                                << ((result->vertices())[1])->trackParticle(1));
-                //necessary to prevent memory leak
+                // reset links to original tracks
+                for(auto v : result->vertices()){
+                  std::vector<ElementLink<DataVector<xAOD::TrackParticle> > > newLinkVector;
+                  for(unsigned int i=0; i< v->trackParticleLinks().size(); i++)
+                  { ElementLink<DataVector<xAOD::TrackParticle> > mylink=v->trackParticleLinks()[i]; // makes a copy (non-const) 
+                  mylink.setStorableObject(*trackContainer, true);
+                  newLinkVector.push_back( mylink ); }
+                  v->clearTracks();
+                  v->setTrackParticleLinks( newLinkVector );
+                }
+                ATH_MSG_DEBUG("storing tracks " << ((result->vertices())[0])->trackParticle(0) << ", "
+                                                << ((result->vertices())[0])->trackParticle(1) << ", "
+                                                << ((result->vertices())[1])->trackParticle(0) << ", "
+                                                << ((result->vertices())[1])->trackParticle(1));
+                // necessary to prevent memory leak
                 result->getSVOwnership(true);
                 const std::vector< std::vector<TLorentzVector> > moms = result->getParticleMoms();
                 double mass = m_CascadeTools->invariantMass(moms[1]);

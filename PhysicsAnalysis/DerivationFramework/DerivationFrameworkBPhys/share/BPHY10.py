@@ -310,7 +310,8 @@ if not isSimulation: #Only Skim Data
    from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
    BPHY10_SelectBdJpsiKstEvent = DerivationFramework__xAODStringSkimmingTool(
      name = "BPHY10_SelectBdJpsiKstEvent",
-     expression = "(count(BdJpsiKstCandidates.passed_Bd > 0) + count(BdJpsiKstCandidates.passed_BdBar > 0) + count(RecoV0Candidates) + count(RecoKshortContainerName) + count(RecoLambdaContainerName) + count(RecoLambdabarContainerName) ) > 0")
+     #expression = "(count(BdJpsiKstCandidates.passed_Bd > 0) + count(BdJpsiKstCandidates.passed_BdBar > 0) + count(RecoV0Candidates) + count(RecoKshortContainerName) + count(RecoLambdaContainerName) + count(RecoLambdabarContainerName) ) > 0")
+     expression = "(count(BdJpsiKstCandidates.passed_Bd > 0) + count(BdJpsiKstCandidates.passed_BdBar > 0) + count(JpsiKshortCascadeSV1) + count(JpsiLambdaCascadeSV1) + count(JpsiLambdabarCascadeSV1) ) > 0")
    
    ToolSvc += BPHY10_SelectBdJpsiKstEvent
    print BPHY10_SelectBdJpsiKstEvent
@@ -331,9 +332,9 @@ if not isSimulation: #Only Skim Data
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Thin_vtxTrk
 BPHY10_thinningTool_Tracks = DerivationFramework__Thin_vtxTrk(
   name                       = "BPHY10_thinningTool_Tracks",
-  ThinningService            = "BPHY10ThinningSvc",
+  ThinningService            = "BPHY10ThinningSvc", OutputLevel = DEBUG,
   TrackParticleContainerName = "InDetTrackParticles",
-  VertexContainerNames       = ["BdJpsiKstCandidates"],
+  VertexContainerNames       = ["BdJpsiKstCandidates","JpsiKshortCascadeSV1","JpsiKshortCascadeSV2","JpsiLambdaCascadeSV1","JpsiLambdaCascadeSV2","JpsiLambdabarCascadeSV1","JpsiLambdabarCascadeSV2"],
   PassFlags                  = ["passed_Bd", "passed_Bdbar"] )
 
 ToolSvc += BPHY10_thinningTool_Tracks
@@ -342,7 +343,7 @@ from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFram
 BPHY10_thinningTool_PV = DerivationFramework__BPhysPVThinningTool(
   name                       = "BPHY10_thinningTool_PV",
   ThinningService            = "BPHY10ThinningSvc",
-  CandidateCollections       = ["BdJpsiKstCandidates"],
+  CandidateCollections       = ["BdJpsiKstCandidates","JpsiKshortCascadeSV1","JpsiKshortCascadeSV2","JpsiLambdaCascadeSV1","JpsiLambdaCascadeSV2","JpsiLambdabarCascadeSV1","JpsiLambdabarCascadeSV2"],
   KeepPVTracks  =True
  )
 
@@ -367,6 +368,8 @@ ToolSvc += BPHY10MuonTPThinningTool
 thiningCollection = [] 
 
 print thiningCollection
+
+
 # The name of the kernel (BPHY10Kernel in this case) must be unique to this derivation
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel(
