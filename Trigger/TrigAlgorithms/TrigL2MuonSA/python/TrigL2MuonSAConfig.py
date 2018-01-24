@@ -222,7 +222,8 @@ class TrigL2MuonSAConfig(MuFastSteering):
         cosmic     = TrigL2MuonSACosmicMonitoring()
         time       = TrigTimeHistToolConfig('TimeHisto')
 
-        self.AthenaMonTools = [ validation, online, cosmic, time ]
+        #self.AthenaMonTools = [ validation, online, cosmic, time ]
+        self.AthenaMonTools = [ ]
 
 
         def setDefaults(cls,handle):
