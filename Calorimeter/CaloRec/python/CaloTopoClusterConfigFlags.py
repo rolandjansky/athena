@@ -1,13 +1,6 @@
-from AthenaConfiguration.ConfigFlags import ConfigFlag
+from AthenaConfiguration.ConfigFlags import makeFlag
 
-class doTwoGaussianNoise(ConfigFlag):
-    @staticmethod
-    def getDefault(prevFlags):
-        return True
+doTwoGaussianNoise=makeFlag("doTwoGaussianNoise",True)
 
-
-class doTreatEnergyCutAsAbsolute(ConfigFlag):
-    @staticmethod
-    def getDefault(prevFlags):
-        return False
+doTreatEnergyCutAsAbsolute=makeFlag("doTreatEnergyCutAsAbsolute",False)
 
