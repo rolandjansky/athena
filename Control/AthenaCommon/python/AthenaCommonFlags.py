@@ -53,6 +53,9 @@ class FilesInput(JobProperty):
     StoredValue  = []
 
     def _do_action( self, *args, **kwds ):
+        #first remove any blanks
+        if "" in self.StoredValue: 
+           self.StoredValue = list(filter(None,self.StoredValue))
         import AppMgr
         if hasattr(AppMgr.ServiceMgr,"EventSelector") and hasattr(AppMgr.ServiceMgr.EventSelector,"InputCollections"):
             AppMgr.ServiceMgr.EventSelector.InputCollections = self.StoredValue
@@ -67,7 +70,9 @@ class TreeName(JobProperty):
 
     def _do_action( self, *args, **kwds ):
         import AppMgr
-        if not hasattr(AppMgr.ServiceMgr,"EventSelector"): return
+        if not hasattr(AppMgr.ServiceMgr,"EventSelector"): 
+            #assume the TreeAccess mode then ..
+            jobproperties.AthenaCommonFlags.AccessMode="TreeAccess"
 
         if not hasattr(AppMgr.ServiceMgr.EventSelector,"TupleName"):
             if self.StoredValue != "CollectionTree":
