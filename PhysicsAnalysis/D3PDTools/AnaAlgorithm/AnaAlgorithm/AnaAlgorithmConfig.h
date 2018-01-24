@@ -49,6 +49,15 @@ namespace EL
     AnaAlgorithmConfig ();
 
 
+    /// \brief initializing constructor
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   out of memory II
+  public:
+    explicit AnaAlgorithmConfig (const std::string& val_typeAndName);
+
+
     /// \brief the type of the algorithm
     /// \par Guarantee
     ///   no-fail
@@ -61,7 +70,7 @@ namespace EL
     /// \par Failures
     ///   out of memory II
   public:
-    void setType (const std::string val_type) noexcept;
+    void setType (const std::string& val_type) noexcept;
 
 
     /// \brief the name of the algorithm
@@ -76,7 +85,16 @@ namespace EL
     /// \par Failures
     ///   out of memory II
   public:
-    void setName (const std::string val_name) noexcept;
+    void setName (const std::string& val_name) noexcept;
+
+
+    /// \brief set \ref type and \ref name at the same time
+    /// \par Guarantee
+    ///   basic
+    /// \par Failures
+    ///   out of memory II
+  public:
+    void setTypeAndName (const std::string& val_typeAndName);
 
 
     /// \brief whether we use XAODs
