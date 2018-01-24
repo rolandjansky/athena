@@ -11,6 +11,7 @@ from DerivationFrameworkMuons.MuonsCommon import *
 if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   addStandardTruthContents()
+  from DerivationFrameworkMCTruth.HFHadronsCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import *
@@ -39,6 +40,24 @@ DerivationFrameworkJob += SeqSUSY7
 from DerivationFrameworkSUSY.SUSY7TriggerList import * 
 SUSY7ThinningHelper.TriggerChains = '|'.join(SUSY7ThinTriggers) #'HLT_e.*|HLT_g.*|HLT_mu.*|HLT_2e.*|HLT_2mu.*|HLT_3mu.*'
 SUSY7ThinningHelper.AppendToStream( SUSY7Stream )
+
+
+#==============================================================================
+# HEAVY FLAVOR DECORATION
+#==============================================================================
+# PhysicsAnalysis/DerivationFramework/DerivationFrameworkTop/trunk/src/TTbarPlusHeavyFlavorFilterTool.cxx
+# PhysicsAnalysis/DerivationFramework/DerivationFrameworkTop/trunk/src/TopHeavyFlavorFilterAugmentation.cxx
+if DerivationFrameworkIsMonteCarlo:
+  from DerivationFrameworkTop.DerivationFrameworkTopConf import DerivationFramework__TTbarPlusHeavyFlavorFilterTool
+  SUSY7tthffiltertool = DerivationFramework__TTbarPlusHeavyFlavorFilterTool("SUSY7TTbarPlusHeavyFlavorFilterTool")
+  ToolSvc += SUSY7tthffiltertool
+
+  from DerivationFrameworkTop.DerivationFrameworkTopConf import DerivationFramework__TopHeavyFlavorFilterAugmentation
+  SUSY7TopHFFilterAugmentation = DerivationFramework__TopHeavyFlavorFilterAugmentation(name = "SUSY7TopHFFilterAugmentation")
+  SUSY7TopHFFilterAugmentation.FilterTool = SUSY7tthffiltertool
+  ToolSvc += SUSY7TopHFFilterAugmentation
+  AugmentationTools.append(SUSY7TopHFFilterAugmentation)
+  print "SUSY7TopHFFilterAugmentationTool: ", SUSY7TopHFFilterAugmentation
 
 
 #====================================================================
@@ -134,7 +153,8 @@ thinningTools.append(SUSY7MuonCCThinningTool)
 #                                                                     ThinningService         = SUSY7ThinningHelper.ThinningSvc(),
 #                                                                      SGKey                   = "AntiKt4LCTopoJets",
 #                                                                      TopoClCollectionSGKey   = "CaloCalTopoClusters",
-#                                                                      SelectionString         = "AntiKt4LCTopoJets.pt > 20*GeV")
+#                                                                      SelectionString         = "AntiKt4LCTopoJets.pt > 20*GeV",
+#                                                                      ConeSize                = 0)
 #ToolSvc += SUSY7aKt4CCThinningTool
 #thinningTools.append(SUSY7aKt4CCThinningTool)
 
@@ -162,6 +182,7 @@ if DerivationFrameworkIsMonteCarlo:
                                                        WriteLeptonsNotFromHadrons   = False,
                                                        WriteStatus3                 = False,
                                                        WriteFirstN                  = -1,
+                                                       WritettHFHadrons             = True,
                                                        PreserveAncestors            = True,
                                                        PreserveGeneratorDescendants = False,
                                                        SimBarcodeOffset             = DerivationFrameworkSimBarcodeOffset)
@@ -295,6 +316,9 @@ replaceAODReducedJets(reducedJetList, SeqSUSY7, "SUSY7")
 # re-tag PFlow jets so they have b-tagging info.
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = SeqSUSY7)
 
+# AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDefaultTrimmedJets
+addDefaultTrimmedJets(SeqSUSY7, "SUSY7")
 
 #==============================================================================
 # Tau truth building/matching
@@ -320,7 +344,7 @@ SeqSUSY7 += CfgMgr.DerivationFramework__DerivationKernel(
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 SUSY7SlimmingHelper = SlimmingHelper("SUSY7SlimmingHelper")
-SUSY7SlimmingHelper.SmartCollections = ["Electrons","Photons","MET_Reference_AntiKt4EMTopo","Muons","TauJets","AntiKt4EMTopoJets", "BTagging_AntiKt4EMTopo", "InDetTrackParticles", "PrimaryVertices","AntiKt4EMPFlowJets", "MET_Reference_AntiKt4EMPFlow"]
+SUSY7SlimmingHelper.SmartCollections = ["Electrons","Photons","MET_Reference_AntiKt4EMTopo","Muons","TauJets","AntiKt4EMTopoJets", "BTagging_AntiKt4EMTopo", "InDetTrackParticles", "PrimaryVertices","AntiKt4EMPFlowJets", "MET_Reference_AntiKt4EMPFlow","AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
 SUSY7SlimmingHelper.AllVariables = ["TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth", "MET_Track","METAssoc_AntiKt4EMPFlow","MET_Core_AntiKt4EMPFlow"]
 SUSY7SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.MV1c_discriminant",
 				      "Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag",
