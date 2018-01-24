@@ -234,11 +234,8 @@ def FlavorTagInit(DoReduceInfo   =False,
 ######################################################################
 
 def applyBTagging(jetalg,algname,sequence):
-    btagWPlist = [ 'FixedCutBEff_30', 'FixedCutBEff_50', 'FixedCutBEff_60',
-                   'FixedCutBEff_70', 'FixedCutBEff_77', 'FixedCutBEff_80',
-                   'FixedCutBEff_85', 'FixedCutBEff_90',
-                   'FlatBEff_30', 'FlatBEff_50', 'FlatBEff_60',
-                   'FlatBEff_70', 'FlatBEff_77', 'FlatBEff_85' ]
+    btagWPlist = [ 'FixedCutBEff_60', 'FixedCutBEff_70', 'FixedCutBEff_77', 'FixedCutBEff_85',
+                   'HybBEff_60', 'HybBEff_70', 'HybBEff_77', 'HybBEff_85' ]
 
     btagtooldict = {}
     from AthenaCommon.AppMgr import ToolSvc
@@ -251,12 +248,22 @@ def applyBTagging(jetalg,algname,sequence):
         else:
             btagtool = CfgMgr.BTaggingSelectionTool(btagtoolname)
             ToolSvc += btagtool
-            btagtool.TaggerName = "MV2c10"
+            bTagAlgorithm = "MV2c10"
+            btagtool.TaggerName = bTagAlgorithm
+            # btagtool.TaggerName = "DL1"
             # In the absence of properly defined FlatBEff WP we alias them on the flat cut ones
             btagtool.OperatingPoint = btagWP
             btagtool.JetAuthor = jetalg+"Jets"
-            btagtool.FlvTagCutDefinitionsFileName = "xAODBTaggingEfficiency/13TeV/2016-20_7-13TeV-MC15-CDI-May31_v1.root"
+            btagtool.FlvTagCutDefinitionsFileName = "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2017-12-22_v1.root"
+        btagWP += "_"+bTagAlgorithm
         btagtooldict[btagWP] = btagtool
+
+    print '*** VANGELIS - START ***'
+    for key in btagtooldict:
+        print "(*)"
+        print key
+        print btagtooldict[key]
+    print '*** VANGELIS - END ***'
 
     from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
     applyBTaggingAugmentation(jetalg,algname,sequence,btagtooldict)

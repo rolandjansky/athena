@@ -203,14 +203,14 @@ diLepExpr = '(count(%s) + count (%s)) > 1' % (muonsRequirements, electronsRequir
 
 #btagging selection 
 # cut value from https://twiki.cern.ch/twiki/bin/view/AtlasProtected/BTaggingBenchmarks#b_tagging_Benchmarks_for_tag_AN1
-bfix77='AntiKt4EMTopoJets.DFCommonJets_FixedCutBEff_77'
-bfix85='AntiKt4EMTopoJets.DFCommonJets_FixedCutBEff_85'
-bflat77='AntiKt4EMTopoJets.DFCommonJets_FlatBEff_77'
-bflat85='AntiKt4EMTopoJets.DFCommonJets_FlatBEff_85'
+bfix77='AntiKt4EMTopoJets.DFCommonJets_FixedCutBEff_77_MV2c10'
+bfix85='AntiKt4EMTopoJets.DFCommonJets_FixedCutBEff_85_MV2c10'
+bhyb77='AntiKt4EMTopoJets.DFCommonJets_HybBEff_77_MV2c10'
+bhyb85='AntiKt4EMTopoJets.DFCommonJets_HybBEff_85_MV2c10'
 jetpt='AntiKt4EMTopoJets.DFCommonJets_Calib_pt'
 
-bjet77='(%s || %s)' % (bfix77, bflat77)
-bjet85='(%s || %s)' % (bfix85, bflat85)
+bjet77='(%s || %s)' % (bfix77, bhyb77)
+bjet85='(%s || %s)' % (bfix85, bhyb85)
 
 onebtagExpr = "count(%s && (%s>50.*GeV))>0" % (bjet77, jetpt)
 
@@ -218,8 +218,8 @@ multibExpr  = "count(%s && (%s>20.*GeV))>1" % (bjet85, jetpt)
 
 #ISR-selection (non-btagged high-pt + btagged low-pt)
 isrBFixExpr  = "(count(!%s && (%s>150.*GeV))>0 && count(%s && (%s>20.*GeV))>0)" % (bfix77,jetpt,bfix85,jetpt)
-isrBFlatExpr = "(count(!%s && (%s>150.*GeV))>0 && count(%s && (%s>20.*GeV))>0)" % (bflat77,jetpt,bflat85,jetpt)
-isrExpr = "(%s || %s)" % (isrBFixExpr, isrBFlatExpr)
+isrBHybExpr = "(count(!%s && (%s>150.*GeV))>0 && count(%s && (%s>20.*GeV))>0)" % (bhyb77,jetpt,bhyb85,jetpt)
+isrExpr = "(%s || %s)" % (isrBFixExpr, isrBHybExpr)
 
 ### skimming 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
@@ -240,7 +240,7 @@ SUSY7isrSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY
 ToolSvc += SUSY7isrSkimmingTool
 
 #SUSY7isrBFixSkimmingTool  = DerivationFramework__xAODStringSkimmingTool( name = "SUSY7isrBFixSkimmingTool", expression = isrBFixExpr)
-#SUSY7isrBFlatSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY7isrBFlatSkimmingTool", expression = isrBFlatExpr)
+#SUSY7isrBFlatSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY7isrBFlatSkimmingTool", expression = isrBHybExpr)
 #ToolSvc += SUSY7isrBFixSkimmingTool
 #ToolSvc += SUSY7isrBFlatSkimmingTool
 
