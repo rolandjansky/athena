@@ -716,11 +716,10 @@ double PixelMainMon::getBitStreamFraction(const Identifier& WaferID, const unsig
   // Assuming a trigger rate of 100k, this function returns the fraction of the
   // bit stream consumed by the inputted number of bits.
   const int layer = getPixLayerID(m_pixelid->barrel_ec(WaferID), m_pixelid->layer_disk(WaferID), m_doIBL);
-  if (layer == PixLayer::kIBL) return 0.;
 
   // Assumed available bandwidth per layer
   double mbits_sec = 80.;
-  if (layer == PixLayer::kB0 || layer == PixLayer::kB1) mbits_sec = 160.;
+  if (layer == PixLayer::kB0 || layer == PixLayer::kB1 || layer == PixLayer::kIBL) mbits_sec = 160.;
 
   // Average bits available per event, assuming 100k trigger rate
   double avg_available_bits = mbits_sec / 0.1;
