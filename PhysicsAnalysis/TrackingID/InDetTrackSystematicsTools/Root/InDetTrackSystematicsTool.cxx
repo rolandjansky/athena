@@ -119,7 +119,7 @@ namespace InDet {
     ATH_MSG_WARNING( "Could not find file " << filename << " in the calibration database." );
     ATH_MSG_WARNING( "Will now look in InDetTrackSystematicsTools/data/ under the current working directory." );
     ATH_MSG_WARNING( "You should not see this message unless you are a dev testing a new file." );
-    filenameWithPath = PathResolverFindCalibFile("InDetTrackSystematicsTools/data/" + filename);
+    filenameWithPath = PathResolverFindCalibFile("InDetTrackSystematicsTools/" + filename);
     file = TFile::Open(filenameWithPath.data(), "READ");
     return file;
   }
