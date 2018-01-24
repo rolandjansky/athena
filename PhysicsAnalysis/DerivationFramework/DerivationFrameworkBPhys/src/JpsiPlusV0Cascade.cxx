@@ -181,6 +181,13 @@ namespace DerivationFramework {
       SG::AuxElement::Decorator<float> TauErr_svdecor("V0_TauErr");
 
       ATH_MSG_DEBUG("cascadeinfoContainer size " << cascadeinfoContainer.size());
+
+      // Get Jpsi container and identify the input Jpsi
+      const xAOD::VertexContainer  *jpsiContainer(nullptr);
+      CHECK(evtStore()->retrieve(jpsiContainer   , m_vertexContainerKey       ));
+      const xAOD::VertexContainer  *v0Container(nullptr);
+      CHECK(evtStore()->retrieve(v0Container   , m_vertexV0ContainerKey       ));
+
       for (Trk::VxCascadeInfo* x : cascadeinfoContainer) {
         if(x==nullptr) ATH_MSG_ERROR("cascadeinfoContainer is null");
 
@@ -221,33 +228,30 @@ namespace DerivationFramework {
         if(!LinkVertices(CascadeLinksDecor, verticestoLink, Vtxwritehandles[0], cascadeVertices[1]))
             ATH_MSG_ERROR("Error decorating with cascade vertices");
 
-        // Get Jpsi container and identify the input Jpsi
-        const xAOD::VertexContainer  *jpsiContainer(nullptr);
-        CHECK(evtStore()->retrieve(jpsiContainer   , m_vertexContainerKey       ));
-        xAOD::Vertex* jpsiVertex;
-        for (auto ajpsi : *jpsiContainer) { //Iterate over Jpsi vertices
-          if ((ajpsi->trackParticle(0) == cascadeVertices[1]->trackParticle(0) && ajpsi->trackParticle(1) == cascadeVertices[1]->trackParticle(1)) ||
-              (ajpsi->trackParticle(0) == cascadeVertices[1]->trackParticle(1) && ajpsi->trackParticle(1) == cascadeVertices[1]->trackParticle(0))) jpsiVertex = ajpsi;
-        }
+
+        xAOD::Vertex* jpsiVertex = BPhysPVCascadeTools::FindVertex<2>(jpsiContainer, cascadeVertices[1]);
+
         ATH_MSG_DEBUG("1 pt Jpsi tracks " << cascadeVertices[1]->trackParticle(0)->pt() << ", " << cascadeVertices[1]->trackParticle(1)->pt());
         if (jpsiVertex) ATH_MSG_DEBUG("2 pt Jpsi tracks " << jpsiVertex->trackParticle(0)->pt() << ", " << jpsiVertex->trackParticle(1)->pt());
         // Get V0 container and identify the input V0
-        const xAOD::VertexContainer  *v0Container(nullptr);
-        CHECK(evtStore()->retrieve(v0Container   , m_vertexV0ContainerKey       ));
-        xAOD::Vertex* v0Vertex;
-        for (auto av0 : *v0Container) { //Iterate over V0 vertices
-          if ((av0->trackParticle(0) == cascadeVertices[0]->trackParticle(0) && av0->trackParticle(1) == cascadeVertices[0]->trackParticle(1)) ||
-              (av0->trackParticle(0) == cascadeVertices[0]->trackParticle(1) && av0->trackParticle(1) == cascadeVertices[0]->trackParticle(0))) v0Vertex = av0;
-        }
+
+        xAOD::Vertex* v0Vertex = BPhysPVCascadeTools::FindVertex<2>(v0Container, cascadeVertices[0]);;
+
         ATH_MSG_DEBUG("1 pt V0 tracks " << cascadeVertices[0]->trackParticle(0)->pt() << ", " << cascadeVertices[0]->trackParticle(1)->pt());
         if (v0Vertex) ATH_MSG_DEBUG("2 pt V0 tracks " << v0Vertex->trackParticle(0)->pt() << ", " << v0Vertex->trackParticle(1)->pt());
         // Set links to input vertices
         std::vector<xAOD::Vertex*> jpsiVerticestoLink;
+
         if (jpsiVertex) jpsiVerticestoLink.push_back(jpsiVertex);
+        else ATH_MSG_WARNING("Could not find linking Jpsi");
+
         if(!LinkVertices(JpsiLinksDecor, jpsiVerticestoLink, jpsiContainer, cascadeVertices[1]))
             ATH_MSG_ERROR("Error decorating with Jpsi vertices");
         std::vector<xAOD::Vertex*> v0VerticestoLink;
+
         if (v0Vertex) v0VerticestoLink.push_back(v0Vertex);
+        else ATH_MSG_WARNING("Could not find linking V0");
+
         if(!LinkVertices(V0LinksDecor, v0VerticestoLink, v0Container, cascadeVertices[1]))
             ATH_MSG_ERROR("Error decorating with V0 vertices");
 
@@ -302,8 +306,8 @@ namespace DerivationFramework {
         std::vector<float> px;
         std::vector<float> py;
         std::vector<float> pz;
-        for( unsigned int jt=0; jt<moms.size(); jt++) {
-          for( unsigned int it=0; it<cascadeVertices[jt]->vxTrackAtVertex().size(); it++) {
+        for( size_t jt=0; jt<moms.size(); jt++) {
+          for( size_t it=0; it<cascadeVertices[jt]->vxTrackAtVertex().size(); it++) {
             px.push_back( moms[jt][it].Px() );
             py.push_back( moms[jt][it].Py() );
             pz.push_back( moms[jt][it].Pz() );

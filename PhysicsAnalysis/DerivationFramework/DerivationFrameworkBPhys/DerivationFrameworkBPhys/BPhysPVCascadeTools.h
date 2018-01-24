@@ -67,6 +67,12 @@ namespace DerivationFramework {
        
        static size_t FindHighPtIndex(const std::vector<const xAOD::Vertex*> &PVlist);
        
+       template< size_t NTracks> //NTracks = number of tracks in this type of vertex, if this is not known do not use this method
+       static bool VerticesMatchTracks(const xAOD::Vertex* v1, const xAOD::Vertex* v2); 
+
+       template< size_t NTracks>
+       static xAOD::Vertex* FindVertex(const xAOD::VertexContainer* c, const xAOD::Vertex* v); 
+
        // Static method call with
        // DerivationFramework::BPhysDerHelpers::GetGoodPV
        // Returns a std::vector containing only PVs of type 1 and 3 - HighPt
@@ -107,4 +113,28 @@ namespace DerivationFramework {
 } // namespace DerivationFramework
 
 
+//added by ab
+template< size_t NTracks>
+bool DerivationFramework::BPhysPVCascadeTools::VerticesMatchTracks(const xAOD::Vertex* v1, const xAOD::Vertex* v2)
+{
+    if(v1->nTrackParticles() != v2->nTrackParticles()) return false;
+    assert(v1->nTrackParticles() == NTracks);
+    std::array<const xAOD::TrackParticle*, NTracks> a1;
+    std::array<const xAOD::TrackParticle*, NTracks> a2;
+    for(size_t i=0;i<NTracks;i++){
+       a1[i] = v1->trackParticle(i);
+       a2[i] = v2->trackParticle(i);
+    }
+    std::sort(a1.begin(), a1.end());
+    std::sort(a2.begin(), a2.end());
+    return a1 == a2;
+}
+
+template< size_t NTracks>
+xAOD::Vertex* DerivationFramework::BPhysPVCascadeTools::FindVertex(const xAOD::VertexContainer* c, const xAOD::Vertex* v){
+   for (xAOD::Vertex* a : *c){
+      if(VerticesMatchTracks<NTracks>(a,v)) return a;
+   }
+   return nullptr;
+}
 #endif // DERIVATIONFRAMEWORK_PVCASCADETOOLS_H
