@@ -8,6 +8,7 @@
 #   athena.py <myJobOptions.py> runbatch.py
 
 try:
+   from AthenaCommonFlags import jobproperties as jps
    #check if user has specified input files but there is no EventSelector
    #or ByteStreamInputSvc
    if len(jps.AthenaCommonFlags.FilesInput()) and not hasattr(svcMgr,"EventSelector") and not hasattr(svcMgr,"ByteStreamInputSvc"):
