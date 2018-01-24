@@ -10,22 +10,14 @@
 #ifndef ISOLATIONALGS_ISOLATIONBUILDER_H
 #define ISOLATIONALGS_ISOLATIONBUILDER_H 1
 
+// to allow vector<vector<int>> properties
+#include "VectorVectorIntParser.h"
+
 // STL includes
 #include <string>
 #include <set>
 #include <vector>
 #include <utility>
-
-#include "GaudiKernel/StatusCode.h"
-namespace Gaudi
-{
-  namespace Parsers
-  {
-
-    // Parse function... nothing special, but it must be done explicitely.
-    StatusCode parse( std::vector<std::vector<int> > & result, const std::string& input );
-  }
-}
 
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgorithm.h"
