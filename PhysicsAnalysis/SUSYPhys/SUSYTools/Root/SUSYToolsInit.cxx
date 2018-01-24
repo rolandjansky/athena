@@ -226,7 +226,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     m_jetFatCalibTool.setTypeAndName("JetCalibrationTool/"+toolName);
 
     // pick the right config file for the JES tool
-    std::string JES_config_file("JES_MC16recommendation_FatJet_JMS_calo_29Nov2017.config");
+    std::string JES_config_file("JES_MC16recommendation_FatJet_JMS_comb_19Jan2018.config");
     //Supported/recommended if you are performing an analysis intending to tag W/Z/H/top jets 
 
     // form the string describing the calibration sequence to use
