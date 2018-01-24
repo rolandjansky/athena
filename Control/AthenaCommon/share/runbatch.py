@@ -8,7 +8,14 @@
 #   athena.py <myJobOptions.py> runbatch.py
 
 try:
-   #first check if command-line evtMax or skipEvents options were provided
+   #check if user has specified input files but there is no EventSelector
+   #or ByteStreamInputSvc
+   if len(jps.AthenaCommonFlags.FilesInput()) and not hasattr(svcMgr,"EventSelector") and not hasattr(svcMgr,"ByteStreamInputSvc"):
+      #assume xAOD reading with class access mode
+      log.debug("Assuming jps.AthenaCommonFlags.AccessMode = 'ClassAccess'")
+      jps.AthenaCommonFlags.AccessMode = "ClassAccess" #will create EventSelector .. see AthenaCommonFlags.py
+
+   #check if command-line evtMax or skipEvents options were provided
    if opts.evtMax != None:
       theApp.EvtMax = jps.AthenaCommonFlags.EvtMax()
    if opts.skipEvents != None:
