@@ -237,6 +237,9 @@ StatusCode EMBremCollectionBuilder::contExecute()
   ATH_MSG_DEBUG("TrackParticle container successfully retrieved");
 
   sc = hltExecute( clusterTES, trackTES, m_finalTracks, m_finalTrkPartContainer);
+  if (sc.isFailure()){
+    ATH_MSG_WARNING("BrembuilderTool did not succeed");
+  }
   
   // Make readable from INav4mom
   const INavigable4MomentumCollection* theNav4s(0);
@@ -254,7 +257,6 @@ StatusCode EMBremCollectionBuilder::hltExecute(const xAOD::CaloClusterContainer 
 					       xAOD::TrackParticleContainer *refitTrackParticles)
 {
   //======================================================================================================
-  StatusCode sc;
   
   // Record the final Track Particle container in StoreGate
   //
@@ -302,7 +304,7 @@ StatusCode EMBremCollectionBuilder::hltExecute(const xAOD::CaloClusterContainer 
       if(Select((*clus_iter), isTRT, (*track_iter))){
         
 	ATH_MSG_DEBUG ("Track Matched");
-        sc = refitTrack(*track_iter, refitTracks, refitTrackParticles);	    
+          StatusCode sc = refitTrack(*track_iter, refitTracks, refitTrackParticles);	    
 	if(sc.isFailure()) {
           ATH_MSG_WARNING("Problem in EMBreCollection Builder Refit");
         }	
