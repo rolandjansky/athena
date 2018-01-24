@@ -1,4 +1,4 @@
-Tue Jan  9 14:03:48 CST 2018
+Mon Jan 22 13:11:03 CST 2018
 Preloading tcmalloc_minimal.so
 Athena               INFO including file "AthenaCommon/Preparation.py"
 Athena               INFO including file "AthenaCommon/Bootstrap.py"
@@ -6,14 +6,14 @@ Athena               INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Athena               INFO executing ROOT6Setup
 Athena               INFO including file "AthenaCommon/Execution.py"
 Athena               INFO including file "AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadTagJobOptions.py"
-Py:ConfigurableDb    INFO Read module info for 5433 configurables from 15 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5435 configurables from 52 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Athena               INFO including file "AthenaCommon/runbatch.py"
 [?1034hApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v30r1)
-                                          running on atlas2.hep.anl.gov on Tue Jan  9 14:03:58 2018
+                                          running on atlas1.hep.anl.gov on Mon Jan 22 13:11:17 2018
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -21,7 +21,7 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 2318 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 2319 CLIDRegistry entries for module ALL
 ChronoStatSvc        INFO  Number of skipped events for MemStat-1
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
@@ -34,8 +34,8 @@ PoolSvc             DEBUG Property update for OutputLevel : new value = 2
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
 DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://frontier-atlas.lcg.triumf.ca:3128/ATLAS_frontier)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-01-05T2303/Athena/22.0.0/InstallArea/x86_64-slc6-gcc62-opt/share/dbreplica.config
-DBReplicaSvc         INFO Total of 1 servers found for host atlas2.hep.anl.gov [ATLF ]
+DBReplicaSvc         INFO Read replica configuration from /users/gemmeren/workarea/build/x86_64-slc6-gcc62-opt/share/dbreplica.config
+DBReplicaSvc         INFO Total of 1 servers found for host atlas1.hep.anl.gov [ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc             DEBUG OutputLevel is 
 PoolSvc              INFO Setting up APR FileCatalog and Streams
@@ -128,7 +128,6 @@ MetaDataHdrForm...  DEBUG Branch container 'DataHeaderForm'
 MetaDataHdrForm...  DEBUG Opened container MetaDataHdrForm(DataHeaderForm) of type ROOT_Tree
 MetaDataSvc         DEBUG Loaded input meta data store proxies
 AthenaPoolAddre...  DEBUG Property update for OutputLevel : new value = 2
-AthenaPoolAddre...   INFO Initializing AthenaPoolAddressProviderSvc - package version EventSelectorAthenaPool-00-00-00
 ReadData            DEBUG input handles: 0
 ReadData            DEBUG output handles: 0
 ReadData            DEBUG Data Deps for ReadData
@@ -136,7 +135,6 @@ HistogramPersis...WARNING Histograms saving not required.
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ApplicationMgr       INFO Application Manager Initialized successfully
 EventSelector       DEBUG Try item: "EmptyPoolCollection.root" from the collection list.
-ClassIDSvc           INFO  getRegistryEntries: read 2679 CLIDRegistry entries for module ALL
 MetaDataSvc         DEBUG handle() BeginTagFile for EmptyPoolCollection.root
 ApplicationMgr       INFO Application Manager Started successfully
 MetaDataSvc         DEBUG handle() EndTagFile for EmptyPoolCollection.root
@@ -148,6 +146,7 @@ MetaDataSvc         DEBUG Loaded input meta data store proxies
 MetaDataSvc         DEBUG  calling beginInputFile for ToolSvc.IOVDbMetaDataTool
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
+ClassIDSvc           INFO  getRegistryEntries: read 2674 CLIDRegistry entries for module ALL
 EventSelector       DEBUG record AthenaAttribute, name = Stream1_ref = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000000].
 EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000000].
 EventSelector        INFO Request skipping event from: EventSelector.QueryTag
@@ -235,8 +234,6 @@ ClassIDSvc           INFO  getRegistryEntries: read 11 CLIDRegistry entries for 
 AthenaEventLoopMgr   INFO   ===>>>  start of run 1    <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #10, run #1 0 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection1.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 SimplePoolFile1...  DEBUG --> Access   DbContainer  READ      [ROOT_Tree] MetaData(EventStreamInfo_p3/Stream1)
 MetaData(EventS...  DEBUG Opening
 MetaData(EventS...  DEBUG    attributes# = 1
@@ -279,8 +276,6 @@ AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name =
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #11, run #1 1 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection1.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -312,8 +307,6 @@ AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name =
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #12, run #1 2 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection1.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -345,8 +338,6 @@ AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name =
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #13, run #1 3 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection1.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -378,8 +369,6 @@ AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name =
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #14, run #1 4 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection1.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -411,8 +400,6 @@ AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name =
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #15, run #1 5 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection1.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -444,8 +431,6 @@ AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name =
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #16, run #1 6 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection1.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -477,8 +462,6 @@ AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name =
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #17, run #1 7 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection1.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -510,8 +493,6 @@ AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name =
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #18, run #1 8 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection1.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -543,8 +524,6 @@ AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name =
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #19, run #1 9 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection1.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -674,8 +653,6 @@ CollectionTree(...  DEBUG Branch container 'EventInfo_p4_McEventInfo'
 CollectionTree(...  DEBUG Opened container CollectionTree(EventInfo_p4/McEventInfo) of type ROOT_Tree
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #0, run #1 10 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection2.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 SimplePoolFile2...  DEBUG --> Access   DbContainer  READ      [ROOT_Tree] MetaData(EventStreamInfo_p3/Stream1)
 MetaData(EventS...  DEBUG Opening
 MetaData(EventS...  DEBUG    attributes# = 1
@@ -712,8 +689,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #1 11 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection2.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -740,8 +715,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #1 12 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection2.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -768,8 +741,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #3, run #1 13 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection2.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -796,8 +767,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #1 14 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection2.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -824,8 +793,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #5, run #1 15 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection2.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -852,8 +819,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #6, run #1 16 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection2.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -880,8 +845,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #7, run #1 17 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection2.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -908,8 +871,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #8, run #1 18 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection2.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -936,8 +897,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #9, run #1 19 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection2.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -964,8 +923,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #10, run #1 20 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection2.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -992,8 +949,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #11, run #1 21 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection2.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1020,8 +975,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #12, run #1 22 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection2.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1048,8 +1001,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #13, run #1 23 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection2.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1076,8 +1027,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #14, run #1 24 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection2.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1104,8 +1053,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #15, run #1 25 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection2.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1132,8 +1079,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #16, run #1 26 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection2.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1160,8 +1105,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #17, run #1 27 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection2.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1188,8 +1131,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #18, run #1 28 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection2.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1216,8 +1157,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #19, run #1 29 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection2.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1245,8 +1184,6 @@ AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name =
 AthenaEventLoopMgr   INFO   ===>>>  start of run 2    <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #20, run #2 30 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection2.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1273,8 +1210,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #21, run #2 31 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection2.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1301,8 +1236,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #22, run #2 32 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection2.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1329,8 +1262,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #23, run #2 33 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection2.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1357,8 +1288,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #24, run #2 34 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection2.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1385,8 +1314,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #25, run #2 35 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection2.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1413,8 +1340,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #26, run #2 36 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection2.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1441,8 +1366,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #27, run #2 37 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection2.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1469,8 +1392,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #28, run #2 38 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection2.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1497,8 +1418,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #29, run #2 39 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection2.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1525,8 +1444,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #30, run #2 40 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection2.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1553,8 +1470,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #31, run #2 41 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection2.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1581,8 +1496,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #32, run #2 42 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection2.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1609,8 +1522,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #33, run #2 43 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection2.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1637,8 +1548,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #34, run #2 44 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection2.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1665,8 +1574,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #35, run #2 45 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection2.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1693,8 +1600,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #36, run #2 46 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection2.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1721,8 +1626,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #37, run #2 47 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection2.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1749,8 +1652,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #38, run #2 48 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection2.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1777,8 +1678,6 @@ AthenaPoolAddre...  DEBUG The current Event contains: 2 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #39, run #2 49 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection2.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -1965,8 +1864,6 @@ CollectionTree(...  DEBUG Opened container CollectionTree(EventInfo_p4/McEventIn
 AthenaEventLoopMgr   INFO   ===>>>  start of run 1    <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #10, run #1 50 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection3.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 SimplePoolFile3...  DEBUG --> Access   DbContainer  READ      [ROOT_Tree] MetaData(EventStreamInfo_p3/Stream1)
 MetaData(EventS...  DEBUG Opening
 MetaData(EventS...  DEBUG    attributes# = 1
@@ -2098,8 +1995,6 @@ AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name =
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9103, name = MyTracks
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #11, run #1 51 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection3.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -2145,8 +2040,6 @@ AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name =
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9103, name = MyTracks
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #12, run #1 52 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection3.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -2192,8 +2085,6 @@ AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name =
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9103, name = MyTracks
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #13, run #1 53 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection3.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -2239,8 +2130,6 @@ AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name =
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9103, name = MyTracks
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #14, run #1 54 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection3.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -2286,8 +2175,6 @@ AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name =
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9103, name = MyTracks
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #15, run #1 55 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection3.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -2333,8 +2220,6 @@ AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name =
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9103, name = MyTracks
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #16, run #1 56 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection3.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -2380,8 +2265,6 @@ AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name =
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9103, name = MyTracks
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #17, run #1 57 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection3.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -2427,8 +2310,6 @@ AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name =
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9103, name = MyTracks
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #18, run #1 58 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection3.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -2474,8 +2355,6 @@ AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name =
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9103, name = MyTracks
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #19, run #1 59 events processed so far  <<<===
 ReadData            DEBUG in execute()
-ReadData             INFO CollectionMetadata, key = Name, value = PFN:SimplePoolCollection3.root
-ReadData             INFO CollectionMetadata, key = POOLCollectionID, value = ????
 ReadData             INFO EventStreamInfo: Number of events = 20
 ReadData             INFO EventStreamInfo: ItemList:
 ReadData             INFO CLID = 2101, key = McEventInfo
@@ -2530,9 +2409,9 @@ EventSelector.Q...   INFO in finalize()
 *****Chrono*****     INFO ****************************************************************************************************
 *****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****     INFO ****************************************************************************************************
-cObjR_ALL            INFO Time User   : Tot=   40 [ms] Ave/Min/Max=0.203(+- 1.73)/    0/   20 [ms] #=197
-cObj_ALL             INFO Time User   : Tot=   70 [ms] Ave/Min/Max=0.414(+- 2.95)/    0/   30 [ms] #=169
-ChronoStatSvc        INFO Time User   : Tot= 1.07  [s]                                             #=  1
+cObjR_ALL            INFO Time User   : Tot=   20 [ms] Ave/Min/Max=0.102(+- 1.42)/    0/   20 [ms] #=197
+cObj_ALL             INFO Time User   : Tot=   40 [ms] Ave/Min/Max=0.237(+- 2.42)/    0/   30 [ms] #=169
+ChronoStatSvc        INFO Time User   : Tot= 1.16  [s]                                             #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully
