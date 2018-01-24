@@ -5,54 +5,97 @@
 #ifndef G4UserActions_RadiationMapsMaker_H
 #define G4UserActions_RadiationMapsMaker_H
 
+#include <vector>
 #include "G4UserRunAction.hh"
-#include "G4UserEventAction.hh"
 #include "G4UserSteppingAction.hh"
 
-class TH1D;
-class TH2D;
-class TH3D;
 class TGraph;
-class TFile;
 
 namespace G4UA
 {
   
   class RadiationMapsMaker: 
     public G4UserRunAction,
-    public G4UserEventAction,
     public G4UserSteppingAction
     {
     
     public:
-      RadiationMapsMaker();
-      virtual void BeginOfRunAction(const G4Run*) override;
-      virtual void EndOfRunAction(const G4Run*) override;
-      virtual void EndOfEventAction(const G4Event*) override;
-      virtual void UserSteppingAction(const G4Step*) override;
+
+      /// @brief Simple struct for holding the radiation maps
+      struct Report
+      {
+	const int nBinsr = 120;
+	const int nBinsz = 240;
+	
+	const double rMinZoom =    0.; // cm
+	const double rMinFull =    0.; // cm
+	
+	const double rMaxZoom =  480.; // cm
+	const double rMaxFull = 1200.; // cm
+	
+	const double zMinZoom =    0.; // cm
+	const double zMinFull =    0.; // cm
+	
+	const double zMaxZoom =  960.; // cm
+	const double zMaxFull = 2400.; // cm
+
+	const int nBinsr3d   = 30;
+	const int nBinsz3d   = 60;
+	const int nBinsphi3d = 32;
+	
+	const double phiMinZoom = -180.; // degrees
+	const double phiMaxZoom =  180.; // degrees
+
+        /// vector of tid seen by thread in zoomed area
+	std::vector<double> m_rz_tid;
+        /// vector of ionizing energy density seen by thread in zoomed area
+	std::vector<double> m_rz_eion;
+        /// vector of 1 MeV neutron equivalent flux seen by thread in zoomed area
+	std::vector<double> m_rz_niel;
+        /// vector of >20 MeV hadron flux seen by thread in zoomed area
+	std::vector<double> m_rz_h20;
+
+        /// vector of tid seen by thread in full area
+	std::vector<double> m_full_rz_tid;
+        /// vector of ionizing energy density seen by thread in full area
+	std::vector<double> m_full_rz_eion;
+        /// vector of 1 MeV neutron equivalent flux seen by thread in full area
+	std::vector<double> m_full_rz_niel;
+        /// vector of >20 MeV hadron flux seen by thread in full area
+	std::vector<double> m_full_rz_h20;
+
+        /// vector of tid seen by thread in 3d
+	std::vector<double> m_3d_tid;
+        /// vector of ionizing energy density seen by thread in 3d
+	std::vector<double> m_3d_eion;
+        /// vector of 1 MeV neutron equivalent flux seen by thread in 3d
+	std::vector<double> m_3d_niel;
+        /// vector of >20 MeV hadron flux seen by thread in 3d
+	std::vector<double> m_3d_h20;
+
+	void merge(const Report& maps);
+      };
+
+      // initialize maps to 0
+      virtual void BeginOfRunAction(const G4Run*) override final;
+
+      // increment radiation maps
+      virtual void UserSteppingAction(const G4Step*) override final;
+
+      /// Retrieve my maps
+      const Report& getReport() const
+      { return m_maps; }
+
     private:
-      TFile * m_f;
 
-      TH2D * m_rz_tid;
-      TH2D * m_rz_eion;
-      TH2D * m_rz_niel;
-      TH2D * m_rz_h20;
-      TH2D * m_full_rz_tid;
-      TH2D * m_full_rz_eion;
-      TH2D * m_full_rz_niel;
-      TH2D * m_full_rz_h20;
-      TH3D * m_3d_tid;
-      TH3D * m_3d_eion;
-      TH3D * m_3d_niel;
-      TH3D * m_3d_h20;
-      TGraph * m_tgpSiA;
-      TGraph * m_tgpSiB;
-      TGraph * m_tgnSiA;
-      TGraph * m_tgnSiB;
-      TGraph * m_tgpiSi;
+      Report m_maps;
+
+      TGraph * m_tgpSiA = 0;
+      TGraph * m_tgpSiB = 0;
+      TGraph * m_tgnSiA = 0;
+      TGraph * m_tgnSiB = 0;
+      TGraph * m_tgpiSi = 0;
       
-      double m_nev;
-
     }; // class RadiationMapsMaker
   
   

@@ -6,7 +6,6 @@
 #define G4USERACTIONS_G4UA__RADIATIONMAPSMAKERTOOL_H 
 
 #include "G4AtlasInterfaces/IG4RunActionTool.h"
-#include "G4AtlasInterfaces/IG4EventActionTool.h"
 #include "G4AtlasInterfaces/IG4SteppingActionTool.h"
 #include "G4AtlasTools/ActionToolBase.h"
 #include "G4UserActions/RadiationMapsMaker.h"
@@ -24,9 +23,8 @@ namespace G4UA
   ///
 
 class RadiationMapsMakerTool: 
-  public ActionToolBase<RadiationMapsMaker>,
+  public ActionToolBaseReport<RadiationMapsMaker>,
   public IG4RunActionTool,  
-  public IG4EventActionTool, 
   public IG4SteppingActionTool
   {
 
@@ -35,12 +33,13 @@ class RadiationMapsMakerTool:
     RadiationMapsMakerTool(const std::string& type, 
 			   const std::string& name,
 			   const IInterface* parent);
+
+    /// Finalize and merge results from all threads
+    virtual StatusCode finalize() override final;
+
     /// retrieves the run action
     virtual G4UserRunAction* getRunAction() override final
     { return static_cast<G4UserRunAction*>( getAction() ); }
-    /// retrieves the event action
-    virtual G4UserEventAction* getEventAction() override final
-    { return static_cast<G4UserEventAction*>( getAction() ); }
     /// retrieves the stepping action
     virtual G4UserSteppingAction* getSteppingAction() override final
     { return static_cast<G4UserSteppingAction*>( getAction() ); }
