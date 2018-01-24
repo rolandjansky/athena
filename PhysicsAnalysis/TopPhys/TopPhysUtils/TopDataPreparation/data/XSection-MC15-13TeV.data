@@ -248,6 +248,9 @@
 410398   0.1873    1.0   pythia8
 410399   0.01885   1.0   pythia8
 
+# POWHEG ttbar with hdamp=mtop
+410392    379.242475     1.0   pythia8
+410393	  379.242475	 1.0   pythia8
 
 
 # 4 tops, 3 tops SM

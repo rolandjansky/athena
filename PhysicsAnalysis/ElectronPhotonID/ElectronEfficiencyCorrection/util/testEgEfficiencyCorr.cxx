@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
  */
 
 // System include(s):
@@ -36,7 +36,7 @@ int main( int argc, char* argv[] ) {
     // The application's name:
     const char* APP_NAME = argv[ 0 ];
 
-    MSG::Level mylevel=MSG::DEBUG;
+    MSG::Level mylevel=MSG::INFO;
     MSGHELPERS::getMsgStream().msg().setLevel(mylevel);
     MSGHELPERS::getMsgStream().msg().setName(APP_NAME);
 
@@ -52,7 +52,7 @@ int main( int argc, char* argv[] ) {
 
     // Open the input file:
     const TString fileName = argv[ 1 ];
-    Info( APP_NAME, "Opening file: %s", fileName.Data() );
+    MSG_INFO("Opening file: " << fileName.Data() );
     std::auto_ptr< TFile > ifile( TFile::Open( fileName, "READ" ) );
     CHECK( ifile.get() );
 
@@ -60,11 +60,10 @@ int main( int argc, char* argv[] ) {
     //xAOD::TEvent event( xAOD::TEvent::kBranchAccess );
     xAOD::TEvent event( xAOD::TEvent::kClassAccess );
     CHECK( event.readFrom( ifile.get() ) );
-    Info( APP_NAME, "Number of events in the file: %i",
+    MSG_INFO( "Number of events in the file:  " <<
             static_cast< int >( event.getEntries() ) );
 
     std::cout << "=="<<std::endl;
-
 
     // Decide how many events to run over:
     Long64_t entries = event.getEntries();
@@ -75,34 +74,28 @@ int main( int argc, char* argv[] ) {
         }
     }
 
-    //Likelihood
-    AsgElectronEfficiencyCorrectionTool myEgCorrections ("myEgCorrections");
-    //std::vector<std::string> inputFiles{"ElectronEfficiencyCorrection/efficiencySF.offline.Loose.2012.8TeV.rel17p2.v07.root"} ;
-    std::vector<std::string> inputFiles{"efficiencySF.offline.MediumLLH_d0z0_v11.root"} ;
-    CHECK( myEgCorrections.setProperty("CorrectionFileNameList",inputFiles) );
-    myEgCorrections.msg().setLevel(mylevel);
-
-    CHECK( myEgCorrections.setProperty("ForceDataType",3) );
-    CHECK( myEgCorrections.setProperty("CorrelationModel", "SIMPLIFIED" ));
-    CHECK( myEgCorrections.setProperty("UseRandomRunNumber", false ));
-    CHECK( myEgCorrections.setProperty("DefaultRandomRunNumber", 299999));
-
-    CHECK( myEgCorrections.initialize() );
+    AsgElectronEfficiencyCorrectionTool ElEffCorrectionTool ("ElEffCorrectionTool");   
+    CHECK( ElEffCorrectionTool.setProperty("IdKey", "Medium"));
+    CHECK( ElEffCorrectionTool.setProperty("ForceDataType",1));
+    CHECK( ElEffCorrectionTool.setProperty("OutputLevel", mylevel ));
+    CHECK( ElEffCorrectionTool.setProperty("CorrelationModel", "SIMPLIFIED" )); 
+    CHECK( ElEffCorrectionTool.setProperty("UseRandomRunNumber", false ));
+    CHECK( ElEffCorrectionTool.setProperty("DefaultRandomRunNumber", 371000));
+    CHECK( ElEffCorrectionTool.initialize());  
+    asg::ToolStore::dumpToolConfig();
 
     // Get a list of systematics
-    CP::SystematicSet recSysts = myEgCorrections.recommendedSystematics();
+    CP::SystematicSet recSysts = ElEffCorrectionTool.recommendedSystematics();
     // Convert into a simple list
     std::vector<CP::SystematicSet> sysList = CP::make_systematics_vector(recSysts);
-    std::cout << "=="<<std::endl;
     // Loop over the events:
-    Long64_t entry = 10;
-    entries = entry+1;
+    Long64_t entry = 1;
     for(  ; entry < entries; ++entry ) {
 
         // Tell the object which entry to look at:
         event.getEntry( entry );
 
-        std::cout << "=================NEXT EVENT==========================" << std::endl;
+        MSG_INFO( "=================NEXT EVENT==========================");
         //  Info (APP_NAME,"Electron 6" );
 
 
@@ -116,12 +109,12 @@ int main( int argc, char* argv[] ) {
         // Loop over systematics
         for(const auto& sys : sysList){
 
-            Info(APP_NAME, "Processing syst: %s", sys.name().c_str());
+            MSG_INFO("Processing syst: " << sys.name().c_str());
 
             // Configure the tool for this systematic
-            CHECK( myEgCorrections.applySystematicVariation(sys) );
-            Info(APP_NAME, "Applied syst: %s", 
-                    myEgCorrections.appliedSystematics().name().c_str());
+            CHECK( ElEffCorrectionTool.applySystematicVariation(sys) );
+            MSG_INFO("Applied syst: "<< 
+                    ElEffCorrectionTool.appliedSystematics().name().c_str());
 
             // Create shallow copy for this systematic
             std::pair< xAOD::ElectronContainer*, xAOD::ShallowAuxContainer* > electrons_shallowCopy =
@@ -129,51 +122,44 @@ int main( int argc, char* argv[] ) {
 
             //Iterate over the shallow copy
             xAOD::ElectronContainer* elsCorr = electrons_shallowCopy.first;
-            xAOD::ElectronContainer::iterator el_it      = elsCorr->begin();
-            xAOD::ElectronContainer::iterator el_it_last      = elsCorr->end();
+            xAOD::ElectronContainer::iterator el_it = elsCorr->begin();
+            xAOD::ElectronContainer::iterator el_it_last = elsCorr->end();
 
             unsigned int i = 0;
             double SF = 0; 
             for (; el_it != el_it_last; ++el_it, ++i) { 
-
                 xAOD::Electron* el = *el_it;
+                if(!el->caloCluster()){
+                    MSG_ERROR( "No cluster associated to the electron");
+                    return EXIT_FAILURE;
+                }
                 if(el->pt() < 7000) continue;//skip electrons outside of recommendations
 
-                std::cout << "Electron " << i << std::endl; 
-                std::cout << "xAOD/raw pt = " << el->pt() << ", eta: "
-                    << el->caloCluster()->etaBE(2) << std::endl; 
+                MSG_INFO("Electron " << i); 
+                MSG_INFO("xAOD/raw pt = " << el->pt() << ", eta: "
+                        << el->caloCluster()->etaBE(2));
+                MSG_INFO("Electron # "<< i); 
 
-                Info (APP_NAME,"Electron #%d", i); 
+                int sysreg = ElEffCorrectionTool.systUncorrVariationIndex(*el);
+                MSG_INFO( "sysregion " <<sysreg);
 
-                int sysreg = myEgCorrections.systUncorrVariationIndex(*el);
-                Info (APP_NAME,"sysregion %d ", sysreg);
-
-
-                if(myEgCorrections.getEfficiencyScaleFactor(*el,SF) != CP::CorrectionCode::Ok){
-                    Error( APP_NAME, "Problem in getEfficiencyScaleFactor");
+                if(ElEffCorrectionTool.getEfficiencyScaleFactor(*el,SF) == CP::CorrectionCode::Error){
+                    MSG_ERROR("Problem in getEfficiencyScaleFactor");
                     return EXIT_FAILURE;
                 }
 
-                if(myEgCorrections.applyEfficiencyScaleFactor(*el) != CP::CorrectionCode::Ok){
-                    Error( APP_NAME, "Problem in applyEfficiencyScaleFactor");
+                if(ElEffCorrectionTool.applyEfficiencyScaleFactor(*el) == CP::CorrectionCode::Error){
+                    MSG_INFO( "Problem in applyEfficiencyScaleFactor");
                     return EXIT_FAILURE;
                 }
-
-                Info( APP_NAME, "===>>> Resulting SF (from get function) %f, (from apply function) %f",
-                        SF, el->auxdata< float >("SF"));       
-
+                MSG_INFO( "===>>> Resulting SF (from get function) " <<SF <<" (from apply function) " <<
+                        el->auxdata< float >("SF"));       
             }
-
         }
-
-        Info( APP_NAME,
-                "===>>>  done processing event #%lld ",entry);
+        MSG_INFO("===>>>  done processing event # " <<entry);
 
     }
-
-
-    CHECK( myEgCorrections.finalize() );
-
+    CHECK( ElEffCorrectionTool.finalize() );
     // Return gracefully:
     return 0;
 }

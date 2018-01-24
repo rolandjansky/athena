@@ -11,29 +11,25 @@
    @class AthElectronEfficiencyCorrectionTool
    @brief Calculate the egamma scale factors in Athena
 
-   @author Kristin Lohwasser (Rob Roy Fletcher, Karsten Koeneke)
+   @author Kristin Lohwasser , Rob Roy Fletcher, Karsten Koeneke
    @date   May 2014
 */
-
+class TH2F;
+#include "EgammaAnalysisInterfaces/IAsgElectronEfficiencyCorrectionTool.h"
 // STL includes
 #include <vector>
 #include <string>
 #include <iterator>
 #include <map>
-// Utility includes
-#include "boost/unordered_map.hpp"
-// Include the return object and the underlying ROOT tool
-#include "PATCore/TResult.h"
-#include "AthContainers/AuxElement.h"
-//xAOD includes
-#include "AsgTools/AsgTool.h"
+#include <unordered_map>
+//PAT includes
 #include "AsgTools/AsgMetadataTool.h"
-#include "EgammaAnalysisInterfaces/IAsgElectronEfficiencyCorrectionTool.h"
-
 #include "PATInterfaces/ISystematicsTool.h"
 #include "PATInterfaces/SystematicRegistry.h"
 #include "PATInterfaces/CorrectionCode.h"
+// Include the underlying ROOT tool
 #include "ElectronEfficiencyCorrection/TElectronEfficiencyCorrectionTool.h"
+//xAOD includes
 #include "xAODEgamma/ElectronFwd.h"
 
 class AsgElectronEfficiencyCorrectionTool
@@ -115,7 +111,6 @@ private:
 
 
   /// The main calculate method: the actual correction factors are determined here
-  const Root::TResult& calculate( const double cluster_eta, const double et, const unsigned int runnumber ) const ;
   CP::SystematicCode InitSystematics();
 
   // struct for toys
@@ -149,11 +144,8 @@ private:
   /// Pointer to the underlying ROOT based tool
   Root::TElectronEfficiencyCorrectionTool* m_rootTool;
 
-  /// A dummy return TResult object
-  Root::TResult m_resultDummy;
-
   /// Systematics filter map
-  boost::unordered_map<CP::SystematicSet, CP::SystematicSet> m_systFilter;
+  std::unordered_map<CP::SystematicSet, CP::SystematicSet> m_systFilter;
 
   ///Affected systematic, should be done only once
   CP::SystematicSet m_affectedSys;
@@ -192,7 +184,7 @@ private:
 
   //use RandomRun Number
   bool m_useRandomRunNumber;
-  unsigned int m_defaultRandomRunNumber;
+  int m_defaultRandomRunNumber;
 
   //The data type
   PATCore::ParticleDataType::DataType m_dataType;
@@ -217,8 +209,6 @@ private:
   // simplified uncorrelation regions
   TH2F * m_UncorrRegions;
   int m_nSimpleUncorrSyst;
-
-
 
 }; // End: class definition
 
