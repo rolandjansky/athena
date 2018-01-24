@@ -30,14 +30,10 @@ public:
 private:
   std::string m_container_key;
   const xAOD::HIEventShapeContainer* m_eventShape;
-  const xAOD::Jet* m_refContainer;
 
   /// Centrality
   float m_FCalET;
-  float m_minCut;
-  float m_maxCut;
   float m_psiN_FCal;
-  float m_vN_fcal;
   unsigned int m_n;
   unsigned int m_harmonic;
 
