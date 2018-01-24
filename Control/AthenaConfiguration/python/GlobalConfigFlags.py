@@ -1,66 +1,28 @@
-from AthenaConfiguration.ConfigFlags import ConfigFlag
+from AthenaConfiguration.ConfigFlags import ConfigFlag,makeFlag
+from AthenaCommon.SystemOfUnits import TeV
 
-class isMC(ConfigFlag):
-    @staticmethod
-    def getDefault(prevFlags):
-        return True
+isMC=makeFlag('isMC',True)
 
+isOnline=makeFlag('isOnline',False)
 
-class isOnline(ConfigFlag):
-    @staticmethod
-    def getDefault(prevFlags):
-        return False
+GeoLayout=makeFlag('GeoLayout',"atlas")
 
-class GeoLayout(ConfigFlag):
-    @staticmethod
-    def getDefault(prevFlags):
-        return "atlas"
+projectName=makeFlag("ProjectName","data17_13TeV")     #should autoconfigure! 
 
-class projectName(ConfigFlag):
-    #should autoconfigure! 
-    @staticmethod 
-    def getDefault(prevFlags):
-        return "data17_13TeV"
-
-class InputFiles(ConfigFlag):
-    @staticmethod
-    def getDefault(prevFlags):
-        return ["_ATHENA_GENERIC_INPUFILE_NAME_"]
+InputFiles=makeFlag("InputFiles",["_ATHENA_GENERIC_INPUTFILE_NAME_",])
 
 
 #Beam-related flags:
-class bunchSpacing(ConfigFlag):
-    """ Bunch spacing in ns"""
-    @staticmethod
-    def getDefault(prevFlags):
-        return 25
+bunchSpacing=makeFlag("BunchSpacing",25,"Bunch spacing in ns")
 
-class numberOfCollisions(ConfigFlag):
-    """ Number of collisions per beam crossing
-    Should be 2.3*(L/10**33)*(bunchSpacing/25 ns)
-    """
-    @staticmethod
-    def getDefault(prevFlags):
-        return 0
+numberOfCollisions=makeFlag("numberOfCollisions",0, "Number of collisions per beam crossing. Should be 2.3*(L/10**33)*(bunchSpacing/25 ns)")
 
-class beamType(ConfigFlag):
-    """ Specify data taking type : with colliding beams (default),
-    single beam or cosmics 
-    """  
-    @staticmethod
-    def getDefault(prevFlags):
-        return 'collisions'
+beamType=makeFlag("beamType",'collisions', "Specify data taking type: 'collisions' (default), 'singlebeam','cosmics'")
 
-class energy (ConfigFlag):
-    """ Specify beam energy (MeV)     """ 
-    @staticmethod
-    def getDefault(prevFlags):
-        from AthenaCommon.SystemOfUnits import TeV
-        return 7*TeV
+beamEnergy=makeFlag("beamEnergy",7*TeV)
 
 class estimatedLuminosity(ConfigFlag):
-    @staticmethod
-    def getDefault(prevFlags):
+    def getDefault(self,prevFlags):
         return 1E33*(prevFlags.get("AthenaConfiguration.GlobalConfigFlags.numberOfCollisions")/2.3)* \
             (25./prevFlags.get("AthenaConfiguration.GlobalConfigFlags.bunchSpacing"))
                      

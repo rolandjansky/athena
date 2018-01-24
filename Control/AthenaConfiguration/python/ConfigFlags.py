@@ -7,16 +7,17 @@ class ConfigFlag(object):
         self._alreadySet=False
         pass
 
-    @staticmethod
-    def getDefault(prevContainer):
-        pass
+    #def getDefault(self,prevContainer):
+    #    pass
 
     def set_Value(self,newvalue):
         if not self._alreadySet:
             self._value=newvalue
             self._alreadySet=True
+            return True
         else:
-            print "Config Flag '%s' already set" % self.__class__.__name__
+            print("Config Flag '%s' already set" % self.__class__.__name__)
+            return False
 
     def get_Value(self):
         return deepcopy(self._value)
@@ -67,9 +68,15 @@ class ConfigFlagContainer(object):
 
     def get(self,name):
         if not self._flagdict.has_key(name):
-            newFlag=self.importFlag(name)
-            self._flagdict[name]=newFlag()
-            self._flagdict[name]._value=newFlag.getDefault(self)
+            newFlag_t=self.importFlag(name)
+            newFlag=newFlag_t()
+
+            #"Simple"-flags have no getDefault function but a _defaultvalue attr
+            if hasattr(newFlag_t,'_defaultvalue'):
+                newFlag._value=newFlag_t._defaultvalue
+            if hasattr(newFlag,"getDefault"):
+                newFlag._value=newFlag.getDefault(self)
+            self._flagdict[name]=newFlag
             pass
         f=self._flagdict[name]
         return f.get_Value()
@@ -95,3 +102,10 @@ def cloneflags( configFunc ):
 
         return configFunc( *cargs )
     return copied_flags
+
+
+
+#A function returning a class to create a job config-class in one line
+def makeFlag(name, defaultvalue,doc=None):
+    return type(name,(ConfigFlag,),{'_defaultvalue':defaultvalue,'__doc__':doc})
+
