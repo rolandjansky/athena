@@ -100,6 +100,7 @@ def setupMenu():
         ['3mu8_msonly',            'L1_3MU6',           [], [PhysicsStream], ['Primary:20000','RATE:MultiMuon', 'BW:Muon'], -1],
         ['mu24_mu8noL1',           'L1_MU20MU21', ['L1_MU20',''], [PhysicsStream, 'express'], ['Primary:20000','RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu24','mu8noL1']]],
         ['mu24_mu10noL1',          'L1_MU20MU21', ['L1_MU20',''], [PhysicsStream], ['Primary:20000','RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu24','mu10noL1']]],
+        ['mu24_mu12noL1' ,         'L1_MU20MU21', ['L1_MU20',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu24','mu12noL1']]],
         ['mu24_2mu4noL1',          'L1_MU20MU21', ['L1_MU20',''], [PhysicsStream], ['Primary:20000','RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu24','2mu4noL1']]],
         ['mu26_mu8noL1',           'L1_MU20MU21', ['L1_MU20',''], [PhysicsStream], ['Primary:20000','RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu26','mu8noL1']]],
         ['mu26_mu10noL1',          'L1_MU20MU21', ['L1_MU20',''], [PhysicsStream], ['Primary:20000','RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu26','mu10noL1']]],
@@ -3188,6 +3189,10 @@ def setupMenu():
         ['j110_mb_sp1200_trk80_hmt', 'L1_J30',  ['', ''], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['j110', 'mb_sp1200_trk80_hmt'],False]],
         ['j110_mb_sp1400_trk90_hmt', 'L1_J30',  ['', ''], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['j110', 'mb_sp1400_trk90_hmt'],False]],
         ['j110_mb_sp1600_trk100_hmt', 'L1_J30',  ['', ''], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1, ['serial', -1, ['j110', 'mb_sp1600_trk100_hmt'],False]],
+
+        #ATR-17462 low pt photon triggers
+        ['2g6_tight_icalotight_L1J100', 'L1_J100', ['L1_2EM3'],  [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'],-1],
+        ['2g6_loose_L1J100', 'L1_J100', ['L1_2EM3'],  [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'],-1],
 			 
 			 ]
 
