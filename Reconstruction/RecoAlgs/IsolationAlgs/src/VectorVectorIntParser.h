@@ -14,14 +14,18 @@
 #include <string>
 #include <vector>
 
+
 #include "GaudiKernel/StatusCode.h"
 namespace Gaudi
 {
   namespace Parsers
   {
 
+    // A typedef may save a lot of mistakes
+    typedef std::vector<std::vector<int> > VecVecInt_t;
+
     // Parse function... nothing special, but it must be done explicitely.
-    StatusCode parse( std::vector<std::vector<int> > & result, const std::string& input );
+    StatusCode parse( VecVecInt_t & result, const std::string& input );
   }
 }
 

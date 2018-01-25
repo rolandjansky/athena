@@ -161,8 +161,7 @@ CaloIsolationTool = ToolFactory(xAOD__CaloIsolationTool,name = "CaloIsolationToo
                                 IsoLeakCorrectionTool           = IsoCorrectionTool,
                                 EMCaloNums                      = [SUBCALO.LAREM],
                                 HadCaloNums                     = [SUBCALO.LARHEC, SUBCALO.TILE],
-                                UseEMScale                      = True,
-                                OutputLevel                     = 3)
+                                UseEMScale                      = True)
 
 TrackIsolationTool = ToolFactory(xAOD__TrackIsolationTool, name = 'TrackIsolationTool')
 from AthenaCommon import CfgMgr
@@ -229,12 +228,12 @@ isoBuilder = AlgFactory(IsolationBuilder,
                         TrackIsolationTool    = TrackIsolationTool, 
                         FeIsoTypes            = [[]] if not rec.doEgamma() else IsoTypesFe,
                         FeCorTypes            = IsoCorFe,
-			EgIsoTypes            = [[]] if not rec.doEgamma() else IsoTypes,
-                        EgCorTypes            = IsoCorEg,
+			ElIsoTypes            = [[]] if not rec.doEgamma() else IsoTypes,
+                        ElCorTypes            = IsoCorEg,
+			PhIsoTypes            = [[]] if not rec.doEgamma() else IsoTypes,
+                        PhCorTypes            = IsoCorEg,
 			MuIsoTypes            = IsoTypes if rec.doMuon() and muonRecFlags.doMuonIso() else [[]],
-                        MuCorTypes            = IsoCorMu,
-                        LeakageTool           = None,
-                        OutputLevel           = 3)
+                        MuCorTypes            = IsoCorMu)
 
 from RecExConfig.Configured import Configured
 class isoGetter ( Configured ) :

@@ -124,35 +124,35 @@ class IsolationBuilder
   /** @brief Isolation types (for the alg. properties, only vector<vector<double>> available */
   Gaudi::Property<std::vector<std::vector<int> > > m_elisoInts {this,
       "ElIsoTypes", {}, 
-      "The isolation types to do for electrons: vector of vector of enum type Iso::IsolationType, stored as float"};
+      "The isolation types to do for electrons: vector of vector of enum type Iso::IsolationType"};
 
   Gaudi::Property<std::vector<std::vector<int> > > m_elcorInts {this,
       "ElCorTypes", {}, 
-      "The correction types to do for electron iso: vector of vector of enum type Iso::IsolationCalo/TrackCorrection, stored as float"};
+      "The correction types to do for electron iso: vector of vector of enum type Iso::IsolationCalo/TrackCorrection"};
 
   /** @brief Isolation types (for the alg. properties, only vector<vector<double>> available */
   Gaudi::Property<std::vector<std::vector<int> > > m_phisoInts {this,
       "PhIsoTypes", {}, 
-      "The isolation types to do for photons: vector of vector of enum type Iso::IsolationType, stored as float"};
+      "The isolation types to do for photons: vector of vector of enum type Iso::IsolationType"};
 
   Gaudi::Property<std::vector<std::vector<int> > > m_phcorInts {this,
       "PhCorTypes", {}, 
-      "The correction types to do for photons iso: vector of vector of enum type Iso::IsolationCalo/TrackCorrection, stored as float"};
+      "The correction types to do for photons iso: vector of vector of enum type Iso::IsolationCalo/TrackCorrection"};
 
   Gaudi::Property<std::vector<std::vector<int> > > m_muisoInts {this,
       "MuIsoTypes", {}, 
-      "The isolation types to do for Muons : vector of vector of enum type Iso::IsolationType, stored as float"};
+      "The isolation types to do for Muons : vector of vector of enum type Iso::IsolationType"};
 
   Gaudi::Property<std::vector<std::vector<int> > > m_mucorInts {this,
       "MuCorTypes", {}, 
-      "The correction types to do for Muon iso: vector of vector of enum type Iso::IsolationCalo/TrackCorrection, stored as float"};
+      "The correction types to do for Muon iso: vector of vector of enum type Iso::IsolationCalo/TrackCorrection"};
   Gaudi::Property<std::vector<std::vector<int> > > m_fecorInts {this,
       "FeCorTypes", {}, 
-      "The correction types to do for forward electron iso: vector of vector of enum type Iso::IsolationCalo/TrackCorrection, stored as float"};
+      "The correction types to do for forward electron iso: vector of vector of enum type Iso::IsolationCalo/TrackCorrection"};
 
   Gaudi::Property<std::vector<std::vector<int> > > m_feisoInts {this,
       "FeIsoTypes", {},
-      "The isolation types to do for forward electron: vector of vector of enum type Iso::IsolationType, stored as float"};
+      "The isolation types to do for forward electron: vector of vector of enum type Iso::IsolationType"};
 
   Gaudi::Property<bool> m_addCoreCorr{this, "AddCoreCorr", true, 
       "Add core correction for muon calo isolation"};

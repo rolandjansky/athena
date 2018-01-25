@@ -10,8 +10,8 @@
 // Includes needed for the custom type
 #include <vector>
 #include <string>
-// A typedef may save a lot of mistakes
-typedef std::vector<std::vector<int> > MyCustomType;
+
+#include "VectorVectorIntParser.h"
 
 // Define the parser
 #include "GaudiKernel/ParsersFactory.h"
@@ -22,7 +22,7 @@ namespace Gaudi
   {
 
     // Parse function... nothing special, but it must be done explicitely.
-    StatusCode parse( MyCustomType& result, const std::string& input ) { return parse_( result, input ); }
+    StatusCode parse( VecVecInt_t& result, const std::string& input ) { return parse_( result, input ); }
   }
 }
 
@@ -32,7 +32,7 @@ namespace Gaudi
 namespace std
 {
   // This is an example valid for any mapping type.
-  ostream& operator<<( ostream& s, const MyCustomType& vecvec )
+  ostream& operator<<( ostream& s, const Gaudi::Parsers::VecVecInt_t& vecvec )
   {
     s << '{';
     for ( const auto& vec : vecvec ) {
