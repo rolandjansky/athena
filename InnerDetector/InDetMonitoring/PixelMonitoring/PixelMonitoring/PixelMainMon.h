@@ -507,8 +507,8 @@ class PixelMainMon : public ManagedMonitorToolBase {
   std::unique_ptr<PixelMon2DProfilesLW> m_errhist_femcc_errwords_map;
   std::unique_ptr<PixelMon2DProfilesLW> m_errhist_bitstr_occ_errors;
   std::unique_ptr<PixelMon2DProfilesLW> m_errhist_bitstr_occ_tot;
-  TProfile_LW* m_errhist_bitstr_occ_errors_avg[PixLayer::COUNT - 1];  // exclude IBL
-  TProfile_LW* m_errhist_bitstr_occ_tot_avg[PixLayer::COUNT - 1];     // exclude IBL
+  TProfile_LW* m_errhist_bitstr_occ_errors_avg[PixLayer::COUNT];
+  TProfile_LW* m_errhist_bitstr_occ_tot_avg[PixLayer::COUNT];
 
   // Histograms in 'ErrorsExpert' folder
   std::unique_ptr<PixelMon2DMapsLW> m_errhist_expert_maps[kNumErrorStates + kNumErrorStatesIBL];

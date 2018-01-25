@@ -243,13 +243,13 @@ StatusCode PixelMainMon::bookRODErrorMon(void) {
   if (m_do2DMaps) {
     m_errhist_femcc_errwords_map = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("femcc_errorwords", ("Average FE/MCC Error Words" + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL2D3D));
     sc = m_errhist_femcc_errwords_map->regHist(rodHistos);
-    m_errhist_bitstr_occ_errors = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("Bitstr_Occ_Errors", ("Average Bit-Stream Occupancy (FE/MCC Errors, at 100k L1)" + m_histTitleExt).c_str(), PixMon::HistConf::kPix));
+    m_errhist_bitstr_occ_errors = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("Bitstr_Occ_Errors", ("Average Bit-Stream Occupancy (FE/MCC Errors, at 100k L1)" + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL, true));
     sc = m_errhist_bitstr_occ_errors->regHist(rodHistos);
-    m_errhist_bitstr_occ_tot = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("Bitstr_Occ_Tot", ("Average Bit-Stream Occupancy (at 100k L1)" + m_histTitleExt).c_str(), PixMon::HistConf::kPix));
+    m_errhist_bitstr_occ_tot = std::make_unique<PixelMon2DProfilesLW>(PixelMon2DProfilesLW("Bitstr_Occ_Tot", ("Average Bit-Stream Occupancy (at 100k L1)" + m_histTitleExt).c_str(), PixMon::HistConf::kPixIBL, true));
     sc = m_errhist_bitstr_occ_tot->regHist(rodHistos);
   }
 
-  for (int i = 0; i < PixLayer::COUNT - 1; ++i) {
+  for (int i = 0; i < PixLayer::COUNT; ++i) {
     hname = makeHistname(("Bitstr_Occ_Errors_LB_" + modlabel2[i]), false);
     htitles = makeHisttitle(("Average Bit-Stream Occupancy per Module (FE/MCC Errors, at 100k L1), "+modlabel2[i]), (atext_LB + ";bitstream occ./module/event"), false);
     sc = rodHistos.regHist(m_errhist_bitstr_occ_errors_avg[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
@@ -566,10 +566,17 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
     }
 
     m_errhist_femcc_errwords_map->fill(WaferID, m_pixelid, num_femcc_errwords);
-    m_errhist_bitstr_occ_errors->fill(WaferID, m_pixelid, getBitStreamFraction(WaferID, num_femcc_errwords * 22));
-    m_errhist_bitstr_occ_tot->fill(WaferID, m_pixelid, getBitStreamFraction(WaferID, getEventBitLength(WaferID, num_femcc_errwords)));
-    bitstream_occ_errors[kLayer] += getBitStreamFraction(WaferID, num_femcc_errwords * 22);
-    bitstream_occ_tot[kLayer] += getBitStreamFraction(WaferID, getEventBitLength(WaferID, num_femcc_errwords));
+    if (kLayer == PixLayer::kIBL) {
+      m_errhist_bitstr_occ_errors->fill(WaferID, m_pixelid, getBitStreamFraction(WaferID, 30));
+      m_errhist_bitstr_occ_tot->fill(WaferID, m_pixelid, getBitStreamFraction(WaferID, getEventBitLength(WaferID, 1)));
+      bitstream_occ_errors[kLayer] += getBitStreamFraction(WaferID, 30);
+      bitstream_occ_tot[kLayer] += getBitStreamFraction(WaferID, getEventBitLength(WaferID, 1));
+    } else {
+      m_errhist_bitstr_occ_errors->fill(WaferID, m_pixelid, getBitStreamFraction(WaferID, num_femcc_errwords * 22));
+      m_errhist_bitstr_occ_tot->fill(WaferID, m_pixelid, getBitStreamFraction(WaferID, getEventBitLength(WaferID, num_femcc_errwords)));
+      bitstream_occ_errors[kLayer] += getBitStreamFraction(WaferID, num_femcc_errwords * 22);
+      bitstream_occ_tot[kLayer] += getBitStreamFraction(WaferID, getEventBitLength(WaferID, num_femcc_errwords));
+    }
 
     if (m_doLumiBlock) {
       if (m_errors_ModSync_mod && has_err_type[0]) m_errors_ModSync_mod->fill(WaferID, m_pixelid);
@@ -635,7 +642,7 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
     }
   }
 
-  for (int i = 0; i < PixLayer::COUNT - 1; ++i) {
+  for (int i = 0; i < PixLayer::COUNT; ++i) {
     if (m_errhist_bitstr_occ_errors_avg[i]) m_errhist_bitstr_occ_errors_avg[i]->Fill(kLumiBlock, (float) bitstream_occ_errors[i]/m_nActive_mod[i]);
     if (m_errhist_bitstr_occ_tot_avg[i]) m_errhist_bitstr_occ_tot_avg[i]->Fill(kLumiBlock, (float) bitstream_occ_tot[i]/m_nActive_mod[i]);
   }
