@@ -110,13 +110,13 @@ namespace G4UA
 	EventInformation* eventInfo=static_cast<EventInformation*>
     (G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation());
 
-	//int primaryBarcode(0);
-	int currentBarcode(0);
+        int currentBarcode(0);
 
         if (trackHelper.IsPrimary() || trackHelper.IsRegisteredSecondary()) {
-          //primaryBarcode=eventInfo->GetCurrentPrimary()->barcode();
-          // ADS this code crashes in MT runs, since eventInfo->GetCurrentlyTraced() is NULL untill we migrate the truth
-          currentBarcode=eventInfo->GetCurrentlyTraced()->barcode();
+          // FIXME: re-evaluate this comment below.
+          // ADS this code crashes in MT runs, since eventInfo->GetCurrentlyTraced()
+          // is NULL untill we migrate the truth
+          currentBarcode = eventInfo->GetCurrentlyTraced()->barcode();
         }
 
 	bool p1=m_config.targetTrack<0 && m_config.targetBarcode<0;
