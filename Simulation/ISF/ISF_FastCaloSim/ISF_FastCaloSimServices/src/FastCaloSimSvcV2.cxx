@@ -109,7 +109,7 @@ StatusCode ISF::FastCaloSimSvcV2::initialize()
   ATH_MSG_INFO("------> file = " << m_paramsFile);
   m_paramsFile_photons = TFile::Open("/afs/cern.ch/atlas/groups/Simulation/FastCaloSimV2/secondPCA_photons_july17.root");
   ATH_MSG_INFO("------> photon file = " << m_paramsFile_photons);
-  m_photonFile = TFile::Open("/afs/cern.ch/atlas/groups/Simulation/FastCaloSimV2/photons_test_norm1.root");
+  m_photonFile = TFile::Open("/eos/atlas/atlascerngroupdisk/proj-simul/InputSamplesLocalProd2017/rel_21_0_47/shapePara/mc16_13TeV.photon.E65536.eta020_025.merged_default.shapepara.root");
   ATH_MSG_INFO("------> file = " << m_photonFile);
   m_elFile = TFile::Open("/afs/cern.ch/atlas/groups/Simulation/FastCaloSimV2/InputDistribution_el_50.000000GeV_eta_0.200000_0.250000.root");
   ATH_MSG_INFO("------> file = " << m_elFile);
@@ -395,8 +395,8 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
   
   ATH_MSG_INFO("NOW RUNNING ON LAYER "<<layer);
   
-  inputHistoName = "hEnergy_layer"+std::to_string(layer)+"_pca"+std::to_string(pcabin);
-  
+  inputHistoName = "h_r_alpha_layer"+std::to_string(layer)+"_pca"+std::to_string(pcabin);
+
   if(pdgid==11)  //el
    m_histEnergyDensity2D = (TH2F*)m_elFile->Get(inputHistoName.c_str());
   if(pdgid==211) //pion
@@ -445,9 +445,10 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
   ATH_MSG_INFO("number of HITS = "<<m_nHits);
   
   R=sqrt(r_layer*r_layer + z_particle*z_particle);
-  findEtaMMRange(R,eta,deltaEtaMMmin,deltaEtaMMmax);
-  deltaEtaMMmin*=0.999;
-  deltaEtaMMmax*=0.999;
+  //findEtaMMRange(R,eta,deltaEtaMMmin,deltaEtaMMmax);
+  //deltaEtaMMmin*=0.999;
+  //deltaEtaMMmax*=0.999;
+  ATH_MSG_INFO("Particle position: R: " << R << " TTC_z: " << z_particle << " z_particle: " << particle_position.z() << " r_layer: " << r_layer << " eta: " << eta);
   
   /*
   std::cout<<"Range for Delta eta[mm]: " << "[" << deltaEtaMMmin << "," << deltaEtaMMmax << "]" << std::endl;
@@ -457,7 +458,7 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
   
   if(m_useOneDShapeParametrisation)
   {
-   TH1D* proj = m_histEnergyDensity2D->ProjectionY("proj",0,-1,"e");
+   TH1D* proj = m_histEnergyDensity2D->ProjectionX("proj",0,-1,"e");
    
    for (int i = 1; i <= proj->GetNbinsX(); ++i)
    {      
@@ -477,6 +478,7 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
     LoopOverHits(energyInBin, minR, maxR);
     if(cellcheck) TestCell();
    }
+   delete proj;
   }
   if(!m_useOneDShapeParametrisation)
   {
@@ -502,27 +504,33 @@ void ISF::FastCaloSimSvcV2::LoopOverHits(double totalEnergy, double minR, double
   double delta_eta_mm;
   
   const CaloDetDescrElement* mcell = 0;
-  do
-  {
+  
+  
+  
+  
+  //do
+  //{
    if(m_useOneDShapeParametrisation)
    {
     r = CLHEP::RandFlat::shoot(m_randomEngine,minR,maxR);
     alpha = CLHEP::RandFlat::shoot(m_randomEngine,2*TMath::Pi());
    }
-   if(!m_useOneDShapeParametrisation)
-   {
-    this->getRandom2(m_histEnergyDensity2D,alpha,r);
-    //m_histEnergyDensity2D->GetRandom2(alpha, r);
-   }
+   else this->getRandom2(m_histEnergyDensity2D,r,alpha);
+   
+   //if(alpha>TMath::Pi()) alpha = -(alpha - TMath::Pi());
    delta_eta_mm=r * cos(alpha);
-  }
-  while(delta_eta_mm<deltaEtaMMmin || delta_eta_mm>deltaEtaMMmax);
+  //}
+  //while(delta_eta_mm<deltaEtaMMmin || delta_eta_mm>deltaEtaMMmax);
   
   double delta_phi_mm = r * sin(alpha);
   //std::cout<<"got a hit positon from the histogram!"<<" r "<<r<<" alpha "<<alpha<<" r_layer "<<r_layer<<" z_particle "<<z_particle<<" eta "<<eta<<std::endl;
   //double r_layer=m_rlayers[ilayer*n_pcabins+pcabin-1];
   
-  double hit_eta=findHitEta(delta_eta_mm,R,eta);
+  double jacobian=TMath::Exp(-eta);
+  jacobian=TMath::Abs(2.0 * jacobian / (1.0 + jacobian*jacobian));
+  double hit_eta=eta + delta_eta_mm/(R*jacobian);
+  
+  //double hit_eta=findHitEta(delta_eta_mm,R,eta);
   //std::cout<<"hit_eta "<<hit_eta<<std::endl;
   
   double delta_phi=delta_phi_mm/r_layer;
