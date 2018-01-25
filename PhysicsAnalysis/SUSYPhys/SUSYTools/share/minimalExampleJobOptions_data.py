@@ -28,8 +28,9 @@ ToolSvc.SUSYTools.PRWConfigFiles = [
     "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc15c_v2_defaults.NotRecommended.prw.root"
     ]
 ToolSvc.SUSYTools.PRWLumiCalcFiles = [
-    "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data16_13TeV/20160720/physics_25ns_20.7.lumicalc.OflLumi-13TeV-005.root",
-    "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data16_13TeV/20160803/physics_25ns_20.7.lumicalc.OflLumi-13TeV-005.root"
+    "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data15_13TeV/20170619/PHYS_StandardGRL_All_Good_25ns_276262-284484_OflLumi-13TeV-008.root",
+    "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data16_13TeV/20170720/physics_25ns_20.7.lumicalc.OflLumi-13TeV-009.root"
+    #"/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data17_13TeV/20171130/physics_25ns_Triggerno17e33prim.lumicalc.OflLumi-13TeV-001.root"
     ]
 
 ToolSvc.SUSYTools.DataSource = 0  #configure to run on data

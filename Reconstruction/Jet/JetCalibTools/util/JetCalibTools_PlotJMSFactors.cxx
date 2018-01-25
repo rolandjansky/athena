@@ -73,6 +73,7 @@ int main (int argc, char* argv[])
     const bool isData = false; // doesn't actually matter for JMS, which is always active
     const float massForScan = 80.385e3; // W-boson
     const float etaForScan = 0; // central jets
+    const float etaRange = (doCombMass || doTAMass) ? 2 : 3; // how far to go in |eta| (-etaRange,etaRange)
     const float trackMassFactor = 2./3.; // Recall: mTA = ptCalo * (mTrack/ptTrack), this multiplies mTrack
     const float trackPtFactor = 2./3.;   // Recall: mTA = ptCalo * (mTrack/ptTrack), this multiplies ptTrack
 
@@ -152,17 +153,17 @@ int main (int argc, char* argv[])
     std::vector<TH2D*> hists_pt_mpt;
     if (doCaloMass)
     {
-        hists_pt_eta.push_back(new TH2D("JMS_calo_pt_eta",Form("JMS (calo) for jets with mass=%.1f GeV",massForScan/1.e3),1150,200,2500,60,-3,3));
+        hists_pt_eta.push_back(new TH2D("JMS_calo_pt_eta",Form("JMS (calo) for jets with mass=%.1f GeV",massForScan/1.e3),1150,200,2500,20*etaRange,-etaRange,etaRange));
         hists_pt_mpt.push_back(new TH2D("JMS_calo_pt_mpt",Form("JMS (calo): for jets with #eta=%.1f",etaForScan),1150,200,2500,100,0,1));
     }
     if (doTAMass)
     {
-        hists_pt_eta.push_back(new TH2D("JMS_TA_pt_eta",Form("JMS (TA) for jets with mass=%.1f GeV (TA factor = %.1f)",massForScan/1.e3,trackMassFactor/trackPtFactor),1150,200,2500,60,-3,3));
+        hists_pt_eta.push_back(new TH2D("JMS_TA_pt_eta",Form("JMS (TA) for jets with mass=%.1f GeV (TA factor = %.1f)",massForScan/1.e3,trackMassFactor/trackPtFactor),1150,200,2500,20*etaRange,-etaRange,etaRange));
         hists_pt_mpt.push_back(new TH2D("JMS_TA_pt_mpt",Form("JMS (TA) for jets with #eta=%.1f",etaForScan),1150,200,2500,100,0,1));
     }
     if (doCombMass)
     {
-        hists_pt_eta.push_back(new TH2D("JMS_comb_pt_eta",Form("JMS (comb) for jets with mass=%.1f GeV",massForScan/1.e3),1150,200,2500,60,-3,3));
+        hists_pt_eta.push_back(new TH2D("JMS_comb_pt_eta",Form("JMS (comb) for jets with mass=%.1f GeV",massForScan/1.e3),1150,200,2500,20*etaRange,-etaRange,etaRange));
         hists_pt_mpt.push_back(new TH2D("JMS_comb_pt_mpt",Form("JMS (comb) for jets with eta=%.1f",etaForScan),1150,200,2500,100,0,1));
     }
     

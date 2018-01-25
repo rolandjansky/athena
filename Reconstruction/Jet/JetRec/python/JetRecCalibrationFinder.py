@@ -55,7 +55,9 @@ class JetRecCalibrationFinder:
     "pflow"           : "JES_MC15cRecommendation_PFlow_Aug2016_rel21.config"
   }
 
-  def find(self, alg, rad, inpin, seq, configkeyin, evsprefix):
+  # Default the calibration area tag to that used for T0 reconstruction for consistency
+  # This is based on the initial R21 production in 2016
+  def find(self, alg, rad, inpin, seq, configkeyin, evsprefix, calibareatag="00-04-77"):
     from JetCalibTools.JetCalibToolsConf import JetCalibrationTool
     from JetRec.JetRecStandardToolManager import jtm
     inp = inpin
@@ -117,11 +119,9 @@ class JetRecCalibrationFinder:
         raise KeyError
       evskey = evsprefix + evssuf
       jetlog.info( myname + "  Event shape key: " + evskey )
-      # Fix the calibration area tag to that used for T0 reconstruction for consistency
-      T0CalibArea = "00-04-77"
       # ...create the tool.
-      jtm += JetCalibrationTool(tname, JetCollection=jetdefn, ConfigFile=configfile, RhoKey=evskey,
-                                CalibSequence=fullseq, CalibArea=T0CalibArea)
+      jtm += JetCalibrationTool(tname, JetCollection=jetdefn, ConfigFile=configfile, CalibSequence=fullseq, RhoKey=evskey,
+                                CalibArea=calibareatag)
 
     return jtm.tools[tname]
 

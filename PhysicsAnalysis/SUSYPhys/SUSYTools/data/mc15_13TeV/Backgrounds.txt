@@ -7,9 +7,9 @@ dataset_number/I:physics_short/C:crossSection_pb/D:kFactor/D:genFiltEff/D:crossS
 ##########################################################################################################################
 # ttbar
 #110351 PowhegPythia_P2012_ttbar_allhad                               831.76            1.              0.45684            1.0
-410470  PhPy8EG_A14_ttbar_hdamp258p75_nonallhad                       729.77            1.0             5.4379E-01         0.0
-410471  PhPy8EG_A14_ttbar_hdamp258p75_allhad                          729.78            1.0             4.5628E-01         0.0
-410472  PhPy8EG_A14_ttbar_hdamp258p75_dil                             729.77            1.0             1.0546E-01         0.0
+410470  PhPy8EG_A14_ttbar_hdamp258p75_nonallhad                       729.77            1.1397          5.4379E-01         0.0
+410471  PhPy8EG_A14_ttbar_hdamp258p75_allhad                          729.78            1.1397          4.5628E-01         0.0
+410472  PhPy8EG_A14_ttbar_hdamp258p75_dil                             729.77            1.1397          1.0546E-01         0.0
 
 410001  PowhegPythiaEvtGen_P2012radHi_ttbar_hdamp345_down_nonallhad   783.73            1.06128386051   0.5442             0.0    
 410002  PowhegPythiaEvtGen_P2012radLo_ttbar_hdamp172_up_nonallhad     611.1             1.36108656521   0.5442             0.0    
@@ -682,7 +682,6 @@ dataset_number/I:physics_short/C:crossSection_pb/D:kFactor/D:genFiltEff/D:crossS
 363434  Sherpa_NNPDF30NNLO_Znunu_Pt2000_E_CMS_CFilterBVeto            2.4924e-05        0.9728          2.6532E-01         0.0    
 363435  Sherpa_NNPDF30NNLO_Znunu_Pt2000_E_CMS_BFilter                 2.443e-05         0.9728          5.3827E-01         0.0    
 
-
 ####################################################
 # Sherpa v2.2.1 Z
 # (same NNLO k-factors as for 2.2.0 (Monica)) //MT
@@ -729,7 +728,6 @@ dataset_number/I:physics_short/C:crossSection_pb/D:kFactor/D:genFiltEff/D:crossS
 364149  Sherpa_221_NNPDF30NNLO_Znunu_MAXHTPTV140_280_CFilterBVeto     222.31            0.9728          2.3371E-01         0.0    
 364152  Sherpa_221_NNPDF30NNLO_Znunu_MAXHTPTV280_500_CFilterBVeto     47.401            0.9728          2.6496E-01         0.0    
 
-
 364100  Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV0_70_CVetoBVeto          1982.3            0.9751          8.2179E-01         0.0    
 364103  Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV70_140_CVetoBVeto        109.07            0.9751          6.8978E-01         0.0    
 364106  Sherpa_221_NNPDF30NNLO_Zmumu_MAXHTPTV140_280_CVetoBVeto       39.884            0.9751          6.0179E-01         0.0    
@@ -747,6 +745,14 @@ dataset_number/I:physics_short/C:crossSection_pb/D:kFactor/D:genFiltEff/D:crossS
 364148  Sherpa_221_NNPDF30NNLO_Znunu_MAXHTPTV140_280_CVetoBVeto       222.33            0.9728          6.1702E-01         0.0    
 364151  Sherpa_221_NNPDF30NNLO_Znunu_MAXHTPTV280_500_CVetoBVeto       47.423            0.9728          5.6127E-01         0.0    
 
+364216  Sherpa_221_NNPDF30NNLO_Zmumu_PTV500_1000                      0.059273          1.0             1.0000E+00         0.0
+364217  Sherpa_221_NNPDF30NNLO_Zmumu_PTV1000_E_CMS                    0.0011812         1.0             1.0000E+00         0.0 
+364218  Sherpa_221_NNPDF30NNLO_Zee_PTV500_1000                        0.059206          1.0             1.0000E+00         0.0 
+364219  Sherpa_221_NNPDF30NNLO_Zee_PTV1000_E_CMS                      0.0011771         1.0             1.0000E+00         0.0 
+364220  Sherpa_221_NNPDF30NNLO_Ztautau_PTV500_1000                    0.058905          1.0             1.0000E+00         0.0 
+364221  Sherpa_221_NNPDF30NNLO_Ztautau_PTV1000_E_CMS                  0.0011840         1.0             1.0000E+00         0.0 
+364222  Sherpa_221_NNPDF30NNLO_Znunu_PTV500_1000                      0.30438           1.0             1.0000E+00         0.0 
+364223  Sherpa_221_NNPDF30NNLO_Znunu_PTV1000_E_CMS                    0.0058378         1.0             1.0000E+00         0.0 
 
 ####################################################
 # Sherpa 2.2.1 Z->tau tau with different lepton cuts
@@ -1488,6 +1494,14 @@ dataset_number/I:physics_short/C:crossSection_pb/D:kFactor/D:genFiltEff/D:crossS
 304019  Sherpa_CT10_Zee2JetsEW1JetQCD15GeVM40                         2.5443            1.0             1.0000E+00         0.0    
 304020  Sherpa_CT10_Zmumu2JetsEW1JetQCD15GeVM40                       2.5412            1.0             1.0000E+00         0.0    
 304021  Sherpa_CT10_Ztautau2JetsEW1JetQCD15GeVM40                     2.5408            1.0             1.0000E+00         0.0    
+
+308092  Sherpa_221_NNPDF30NNLO_Zee2jets_Min_N_TChannel         	      0.63051           1.0             1.0000E+00         0.0
+308093  Sherpa_221_NNPDF30NNLO_Zmm2jets_Min_N_TChannel                0.63591           1.0             1.0000E+00         0.0
+308094  Sherpa_221_NNPDF30NNLO_Ztautau2jets_Min_N_TChannel            0.63287           1.0             1.0000E+00         0.0
+308095  Sherpa_221_NNPDF30NNLO_Znunu2jets_Min_N_TChannel              2.9327            1.0             1.0000E+00         0.0
+308096  Sherpa_221_NNPDF30NNLO_Wenu2jets_Min_N_TChannel               6.8072            1.0             1.0000E+00         0.0
+308097  Sherpa_221_NNPDF30NNLO_Wmunu2jets_Min_N_TChannel              6.8100            1.0             1.0000E+00	   0.0
+308098  Sherpa_221_NNPDF30NNLO_Wtaunu2jets_Min_N_TChannel             6.7910            1.0             1.0000E+00         0.0
 
 ################################################################################################################
 # MadGraph Low Mass DY
@@ -2354,6 +2368,11 @@ dataset_number/I:physics_short/C:crossSection_pb/D:kFactor/D:genFiltEff/D:crossS
 364254  Sherpa_222_NNPDF30NNLO_llvv                                   12.5              1.0             1.0                0.0    
 364255  Sherpa_222_NNPDF30NNLO_lvvv                                   3.2327            1.0             1.0                0.0    
 
+345705  Sherpa_222_NNPDF30NNLO_ggllll_0M4l130                         0.0099556         1.0             1.0000E+00	   0.0
+345706  Sherpa_222_NNPDF30NNLO_ggllll_130M4l                          0.010091          1.0             1.0000E+00	   0.0
+345723  Sherpa_222_NNPDF30NNLO_ggllvvZZ                               0.0071034         1.0             1.0000E+00	   0.0
+364251  Sherpa_222_NNPDF30NNLO_llll_m4l100_300_filt100_150            0.35274           1.0             1.2759E-01         0.0
+364252  Sherpa_222_NNPDF30NNLO_llll_m4l300                            0.061740          1.0             1.0                0.0
 
 # Very low mll
 364288  Sherpa_222_NNPDF30NNLO_llll_lowMllPtComplement                1.4555            1.0             1.0000E+00         0.0    
@@ -2381,6 +2400,11 @@ dataset_number/I:physics_short/C:crossSection_pb/D:kFactor/D:genFiltEff/D:crossS
 363507  Sherpa_222_NNPDF30NNLO_WWZ_3l1v2j_EW6                         0.017047          1.0             4.3938E-01         0.0
 363508  Sherpa_222_NNPDF30NNLO_WZZ_4l2j_EW6                           0.00038998        1.0             1.0000E+00         0.0
 363509  Sherpa_222_NNPDF30NNLO_WZZ_3l1v2j_EW6                         0.011815          1.0             2.2058E-01         0.0
+
+364283  Sherpa_222_NNPDF30NNLO_lllljj_EW6                             0.010451          1.0             1.0000E+00         0.0
+364284  Sherpa_222_NNPDF30NNLO_lllvjj_EW6                             0.046921          1.0             1.0000E+00         0.0
+364285  Sherpa_222_NNPDF30NNLO_llvvjj_EW6                             0.11612           1.0             1.0000E+00         0.0
+364287  Sherpa_222_NNPDF30NNLO_llvvjj_ss_EW6                          0.040825          1.0             1.0000E+00         0.0
 
 ################################################################################################################
 # Sherpa Vgamma
@@ -2590,6 +2614,13 @@ dataset_number/I:physics_short/C:crossSection_pb/D:kFactor/D:genFiltEff/D:crossS
 343365  aMcAtNloPythia8EvtGen_A14_NNPDF23_NNPDF30ME_ttH125_dilep      0.05343           1.0             1.0                0.0    
 343366  aMcAtNloPythia8EvtGen_A14_NNPDF23_NNPDF30ME_ttH125_semilep    0.22276           1.0             1.0                0.0    
 343367  aMcAtNloPythia8EvtGen_A14_NNPDF23_NNPDF30ME_ttH125_allhad     0.23082           1.0             1.0                0.0    
+
+345074  PowhegPy8EG_NNPDF30_AZNLOCTEQ6L1_VBFH125_tautaulm15hp20       3.7365            1.0             1.7685E-01         0.0          
+345075  PowhegPy8EG_NNPDF30_AZNLOCTEQ6L1_VBFH125_tautaulp15hm20       3.7365            1.0             1.7679E-01         0.0
+345076  PowhegPy8EG_NNPDF30_AZNLOCTEQ6L1_VBFH125_tautauh30h20         3.7366            1.0             4.7293E-01         0.0
+345121  PowhegPy8EG_NNLOPS_nnlo_30_ggH125_tautaulm15hp20              28.303            1.0             1.6607E-01         0.0
+345122  PowhegPy8EG_NNLOPS_nnlo_30_ggH125_tautaulp15hm20              28.302            1.0             1.6617E-01         0.0
+345123  PowhegPy8EG_NNLOPS_nnlo_30_ggH125_tautauh30h20                28.302            1.0             4.5052E-01         0.0
 
 ################################################################################################################
 # Madgraph ttbar+X

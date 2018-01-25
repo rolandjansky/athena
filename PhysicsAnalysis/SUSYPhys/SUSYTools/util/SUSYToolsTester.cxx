@@ -285,8 +285,8 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
   if ( autoconfigPRW != 1 ) {
     std::vector<std::string> prw_conf;
     if (prw_file == "DUMMY") {
-      prw_conf.push_back("dev/PileupReweighting/mc15ab_defaults.NotRecommended.prw.root");
-      prw_conf.push_back("dev/PileupReweighting/mc15c_v2_defaults.NotRecommended.prw.root");
+      prw_conf.push_back("dev/SUSYTools/merged_prw_mc16a_latest.root");
+      //prw_conf.push_back("dev/SUSYTools/merged_prw_mc16c_latest.root");
     }
     else {
       prw_conf = getTokens(prw_file,",");
@@ -297,8 +297,8 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
 
   std::vector<std::string> prw_lumicalc;
   if (ilumicalc_file == "DUMMY") {
-    prw_lumicalc.push_back(PathResolverFindCalibFile("GoodRunsLists/data15_13TeV/20160720/physics_25ns_20.7.lumicalc.OflLumi-13TeV-005.root"));
-    prw_lumicalc.push_back(PathResolverFindCalibFile("GoodRunsLists/data16_13TeV/20160720/physics_25ns_20.7.lumicalc.OflLumi-13TeV-005.root"));
+    prw_lumicalc.push_back(PathResolverFindCalibFile("GoodRunsLists/data15_13TeV/20170619/PHYS_StandardGRL_All_Good_25ns_276262-284484_OflLumi-13TeV-008.root"));
+    prw_lumicalc.push_back(PathResolverFindCalibFile("GoodRunsLists/data16_13TeV/20170720/physics_25ns_20.7.lumicalc.OflLumi-13TeV-009.root"));
     //prw_lumicalc.push_back(PathResolverFindCalibFile("GoodRunsLists/data17_13TeV/20171130/physics_25ns_Triggerno17e33prim.lumicalc.OflLumi-13TeV-001.root"));
   }
   else {
@@ -606,10 +606,14 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
     metcst_nominal->setStore(metcst_nominal_aux);
     metcst_nominal->reserve(10);
 
+    double metsig_cst (0.);
+
     xAOD::MissingETContainer* mettst_nominal = new xAOD::MissingETContainer;
     xAOD::MissingETAuxContainer* mettst_nominal_aux = new xAOD::MissingETAuxContainer;
     mettst_nominal->setStore(mettst_nominal_aux);
     mettst_nominal->reserve(10);
+
+    double metsig_tst (0.);
 
     // Set up the event weights
     // Base should include all weights that do not depend on individual objects
@@ -879,6 +883,17 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
                                     false, // CST
 				    false) ); // No JVT if you use CST
 
+	  if (debug) Info(APP_NAME, "METSignificance CST?");
+	  ANA_CHECK( objTool.GetMETSig(*metcst,
+				       metsig_cst,
+	  			       jets,
+	  			       electrons,
+	  			       muons,
+	  			       photons,
+	  			       taus, // taus
+				       false,
+				       false) );
+
 	  if (debug) Info(APP_NAME, "METTST?");
 	  ANA_CHECK( objTool.GetMET(*mettst,
 				    jets,
@@ -887,6 +902,18 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
 				    photons,
 				    taus,
 				    true) );
+
+	  if (debug) Info(APP_NAME, "METSignificance TST?");
+	  ANA_CHECK( objTool.GetMETSig(*mettst,
+				       metsig_tst,
+	  			       jets,
+	  			       electrons,
+	  			       muons,
+	  			       photons,
+	  			       taus, // taus
+				       true,
+				       true) );
+
 	}
 	else{
 	  if (debug) Info(APP_NAME, "METCST?");
@@ -899,6 +926,17 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
 	  			    false, // CST
 	  			    false) ); // No JVT if you use CST
 
+	  if (debug) Info(APP_NAME, "METSignificance CST?");
+	  ANA_CHECK( objTool.GetMETSig(*metcst,
+				       metsig_cst,
+	  			       jets,
+	  			       electrons,
+	  			       muons,
+	  			       photons,
+	  			       0, // taus
+				       false,
+				       false) );
+
           if (debug) Info(APP_NAME, "METTST?");
           ANA_CHECK( objTool.GetMET(*mettst,
                                     jets,
@@ -907,6 +945,18 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
                                     photons,
                                     0, // taus,
                                     true) );
+
+	  if (debug) Info(APP_NAME, "METSignificance TST?");
+	  ANA_CHECK( objTool.GetMETSig(*mettst,
+				       metsig_tst,
+	  			       jets,
+	  			       electrons,
+	  			       muons,
+	  			       photons,
+	  			       0, // taus
+				       true,
+				       true) );
+
 
         }
         if (debug) Info(APP_NAME, "MET done");
@@ -1151,7 +1201,6 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
     //  Unfortunately, this manipulation is needed in order for the METMaker to find all of its
     //  objects.  See also ATLASG-801
     //event.fill();
-
 
     // The containers created by the shallow copy are owned by you. Remember to delete them.
     // In our case, all of these were put into the store

@@ -423,7 +423,7 @@ class ArtGrid(ArtBase):
             cmd = ' '.join((cmd,
                             '--inds ' + inds if inds != '' else '',
                             '--n-files ' + str(n_files) if n_files > 0 else '',
-                            '--split ' + str(split) if split > 0 else ''
+                            '--split ' + str(split) if split > 0 else '',
                             '--in' if in_file else ''))
 
         cmd = ' '.join((cmd,
@@ -448,9 +448,12 @@ class ArtGrid(ArtBase):
 
         # run task from Bash Script as is needed in ATLAS setup
         # FIXME we need to parse the output
+        log.info("Grid_options: %s", grid_options)
         env = os.environ.copy()
         env['PATH'] = '.:' + env['PATH']
         env['ART_GRID_OPTIONS'] = grid_options
+
+        log.info("ART_GRID_OPTIONS %s", env['ART_GRID_OPTIONS'])
 
         jedi_id = -1
         # run the command, no_action is forwarded and used inside the script
@@ -467,12 +470,14 @@ class ArtGrid(ArtBase):
 
     def get_grid_options(self, package, config_file):
         """Return grid options for a package."""
+        log = logging.getLogger(MODULE)
         if self.skip_setup:
             return ''
 
         configuration = ArtConfiguration(config_file)
         grid_options = configuration.get_option(self.nightly_release, self.project, self.platform, package, 'exclude-sites', '--excludedSite=')
         grid_options += ' ' + configuration.get_option(self.nightly_release, self.project, self.platform, package, 'sites', '--site=')
+        log.info('grid_options: %s', grid_options)
         return grid_options
 
     def task(self, script_directory, package, job_type, sequence_tag, no_action=False, config_file=None):

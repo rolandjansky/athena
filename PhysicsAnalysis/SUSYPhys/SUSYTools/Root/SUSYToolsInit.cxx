@@ -57,6 +57,7 @@ using namespace ST;
 
 #include "METInterface/IMETMaker.h"
 #include "METInterface/IMETSystematicsTool.h"
+#include "METInterface/IMETSignificance.h"
 
 #include "TrigConfInterfaces/ITrigConfigTool.h"
 #include "TriggerMatchingTool/IMatchingTool.h"
@@ -159,7 +160,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     toolName = "JetCalibTool_" + jetname;
     m_jetCalibTool.setTypeAndName("JetCalibrationTool/"+toolName); 
 
-    // pick the right config file for the JES tool
+    // pick the right config file for the JES tool : https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/ApplyJetCalibrationR21
     std::string JES_config_file("JES_MC16Recommendation_28Nov2017.config");
     if(!m_JMScalib.empty()){ //with JMS calibration (if requested)
       JES_config_file = "JES_data2016_data2015_Recommendation_Dec2016_JMS_rel21.config";
@@ -190,9 +191,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
     // finally, PFlow jets need special care
     if (m_jetInputType == xAOD::JetInput::EMPFlow) {
-      //Following : https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/ApplyJetCalibration2016#Calibration_of_PFlow_jets_in_20
-      //Note! : There is no origin correction explicitly included in the PFlow JES
-      //
       
       JES_config_file = "JES_MC16Recommendation_PFlow_28Nov2017.config"; 
 
@@ -225,8 +223,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     m_jetFatCalibTool.setTypeAndName("JetCalibrationTool/"+toolName);
 
     // pick the right config file for the JES tool
-    std::string JES_config_file("JES_MC16recommendation_FatJet_JMS_calo_29Nov2017.config");
-    //Supported/recommended if you are performing an analysis intending to tag W/Z/H/top jets 
+    std::string JES_config_file("JES_MC16recommendation_FatJet_JMS_comb_19Jan2018.config");
 
     // form the string describing the calibration sequence to use
     std::string calibseq("EtaJES_JMS");
@@ -236,7 +233,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_jetFatCalibTool.setProperty("ConfigFile", JES_config_file) );
     ATH_CHECK( m_jetFatCalibTool.setProperty("CalibSequence", calibseq) );
     ATH_CHECK( m_jetFatCalibTool.setProperty("CalibArea", calibArea) );
-    ATH_CHECK( m_jetFatCalibTool.setProperty("IsData", isData()) );
+    // always set to false : https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/ApplyJetCalibrationR21
+    ATH_CHECK( m_jetFatCalibTool.setProperty("IsData", false) ); 
     ATH_CHECK( m_jetFatCalibTool.retrieve() );
   }
 
@@ -1026,9 +1024,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   
   if (!m_tauSmearingTool.isUserConfigured()) {
     m_tauSmearingTool.setTypeAndName("TauAnalysisTools::TauSmearingTool/TauSmearingTool");
-    if (m_tauMVACalib) { // Apply the MVA calibration?
-      ATH_MSG_WARNING("'TauMVACalibration' set to true in SUSYTools config file, but 'ApplyMVATES' is not supperted anymore in R21. Just ignoring 'TauMVACalibration' for now; please remove it from your config file!");
-    }
+    ATH_MSG_INFO("'TauMVACalibration' is the default procedure in R21");
     ATH_CHECK( m_tauSmearingTool.retrieve() );
   }
 
@@ -1052,22 +1048,20 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 ///////////////////////////////////////////////////////////////////////////////////////////
 // Initialise B-tagging tools
   std::string jetcollBTag = jetcoll;
-  if (jetcoll == "AntiKt4EMPFlowJets") {
-    ATH_MSG_WARNING("  *** HACK *** Treating EMPFlow jets as EMTopo -- use at your own risk!");
-    jetcollBTag = "AntiKt4EMTopoJets";
-  }
   if (jetcoll == "AntiKt4LCTopoJets") {
     ATH_MSG_WARNING("  *** HACK *** Treating LCTopoJets jets as EMTopo -- use at your own risk!");
     jetcollBTag = "AntiKt4EMTopoJets";
   }
+
   if (!m_btagSelTool.isUserConfigured() && !m_BtagWP.empty()) {
-    if (jetcoll != "AntiKt4EMTopoJets" && jetcoll != "AntiKt4EMPFlowJets") {
-      ATH_MSG_WARNING("** Only AntiKt4EMTopoJets and AntiKt3PV0TrackJets are supported with scale factors!");
-      if( jetcoll == "AntiKt3PV0TrackJets" ){
-        ATH_MSG_ERROR("AntiKt3PV0TrackJets not yet implemented in SUSYTools. Please inform the Background Forum Conveners if you wish to use these.");
+    if (jetcoll != "AntiKt4EMTopoJets" && jetcoll != "AntiKt4EMPFlowJets" && jetcoll != "AntiKt2PV0TrackJets" && jetcoll != "AntiKtVR30Rmax4Rmin02TrackJets") {
+      ATH_MSG_WARNING("** Only AntiKt4EMTopoJets, AntiKt4EMPFlowJets, AntiKt2PV0TrackJets, and AntiKtVR30Rmax4Rmin02TrackJets are supported with scale factors!");
+      if( jetcoll == "AntiKt2PV0TrackJets" || jetcoll == "AntiKt2PV0TrackJets"){
+        ATH_MSG_ERROR("Neither AntiKt2PV0TrackJets nor AntiKtVR30Rmax4Rmin02TrackJets are yet implemented in SUSYTools. Please inform the Background Forum Conveners if you wish to use these.");
         return StatusCode::FAILURE;
       }
     }
+
     toolName = "BTagSel_" + jetcollBTag + m_BtagWP;
     m_btagSelTool.setTypeAndName("BTaggingSelectionTool/"+toolName);    
     ATH_CHECK( m_btagSelTool.setProperty("TaggerName",     m_BtagTagger ) );
@@ -1078,10 +1072,10 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   }
 
   if (!m_btagSelTool_OR.isUserConfigured() && !m_orBtagWP.empty()) {
-    if (jetcoll != "AntiKt4EMTopoJets" && jetcoll != "AntiKt4EMPFlowJets") {
-      ATH_MSG_WARNING("** Only AntiKt4EMTopoJets and AntiKt3PV0TrackJets are supported with scale factors!");
-      if( jetcoll == "AntiKt3PV0TrackJets" ){
-        ATH_MSG_ERROR("AntiKt3PV0TrackJets not yet implemented in SUSYTools. Please inform the Background Forum Conveners if you wish to use these.");
+    if (jetcoll != "AntiKt4EMTopoJets" && jetcoll != "AntiKt4EMPFlowJets" && jetcoll != "AntiKt2PV0TrackJets" && jetcoll != "AntiKtVR30Rmax4Rmin02TrackJets") {
+      ATH_MSG_WARNING("** Only AntiKt4EMTopoJets, AntiKt4EMPFlowJets, AntiKt2PV0TrackJets, and AntiKtVR30Rmax4Rmin02TrackJets are supported with scale factors!");
+      if( jetcoll == "AntiKt2PV0TrackJets" || jetcoll == "AntiKt2PV0TrackJets"){
+        ATH_MSG_ERROR("Neither AntiKt2PV0TrackJets nor AntiKtVR30Rmax4Rmin02TrackJets are yet implemented in SUSYTools. Please inform the Background Forum Conveners if you wish to use these.");
         return StatusCode::FAILURE;
       }
     }
@@ -1096,10 +1090,10 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   }
 
   if (!m_btagEffTool.isUserConfigured() && !m_BtagWP.empty()) {
-    if (jetcoll != "AntiKt4EMTopoJets") {
-      ATH_MSG_WARNING("** Only AntiKt4EMTopoJets and AntiKt3PV0TrackJets are supported with scale factors!");
-      if( jetcoll == "AntiKt3PV0TrackJets" ){
-        ATH_MSG_ERROR("AntiKt3PV0TrackJets not yet implemented in SUSYTools. Please inform the Background Forum Conveners if you wish to use these.");
+    if (jetcoll != "AntiKt4EMTopoJets" && jetcoll != "AntiKt4EMPFlowJets" && jetcoll != "AntiKt2PV0TrackJets" && jetcoll != "AntiKtVR30Rmax4Rmin02TrackJets") {
+      ATH_MSG_WARNING("** Only AntiKt4EMTopoJets, AntiKt4EMPFlowJets, AntiKt2PV0TrackJets, and AntiKtVR30Rmax4Rmin02TrackJets are supported with scale factors!");
+      if( jetcoll == "AntiKt2PV0TrackJets" || jetcoll == "AntiKt2PV0TrackJets"){
+        ATH_MSG_ERROR("Neither AntiKt2PV0TrackJets nor AntiKtVR30Rmax4Rmin02TrackJets are yet implemented in SUSYTools. Please inform the Background Forum Conveners if you wish to use these.");
         return StatusCode::FAILURE;
       }
     }
@@ -1173,6 +1167,16 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       }
     }
     ATH_CHECK( m_metSystTool.retrieve());
+  }
+
+  if (!m_metSignif.isUserConfigured()) {
+    m_metSignif.setTypeAndName("met::METSignificance/metSignificance");
+    ATH_CHECK( m_metSignif.setProperty("SoftTermParam", m_softTermParam) );
+    ATH_CHECK( m_metSignif.setProperty("TreatPUJets", m_treatPUJets) );
+    ATH_CHECK( m_metSignif.setProperty("DoPhiReso", m_doPhiReso) );
+    //ATH_CHECK( m_metSignif.setProperty("IsData", isData()) ); 
+    //ATH_CHECK( m_metSignif.setProperty("IsAFII", isAtlfast()) ); 
+    ATH_CHECK( m_metSignif.retrieve() );
   }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
