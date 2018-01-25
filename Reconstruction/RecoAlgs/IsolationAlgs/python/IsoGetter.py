@@ -232,8 +232,9 @@ isoBuilder = AlgFactory(IsolationBuilder,
                         ElCorTypes            = IsoCorEg,
 			PhIsoTypes            = [[]] if not rec.doEgamma() else IsoTypes,
                         PhCorTypes            = IsoCorEg,
-			MuIsoTypes            = IsoTypes if rec.doMuon() and muonRecFlags.doMuonIso() else [[]],
-                        MuCorTypes            = IsoCorMu)
+			MuIsoTypes            = IsoTypes if rec.doMuon() and muonRecFlags.doMuonIso() else [],
+                        MuCorTypes            = IsoCorMu
+                        )
 
 from RecExConfig.Configured import Configured
 class isoGetter ( Configured ) :

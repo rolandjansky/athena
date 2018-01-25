@@ -219,6 +219,7 @@ StatusCode IsolationBuilder::initializeIso(std::set<xAOD::Iso::IsolationFlavour>
     for (size_t type = 0; type < isoInts[flavor].size();type++) { // the cone size
       xAOD::Iso::IsolationType isoType = static_cast<xAOD::Iso::IsolationType>(isoInts[flavor][type]);
       isoFlav = xAOD::Iso::isolationFlavour(isoType);
+      ATH_MSG_DEBUG("Saw isoType " << isoType << " and isoFlav " << isoFlav);
       if (oldIsoFlav != xAOD::Iso::numIsolationFlavours && oldIsoFlav != isoFlav) {
 	ATH_MSG_FATAL("Configuration error:  can only have one type of isolation in inner vector");
 	return StatusCode::FAILURE;
@@ -231,22 +232,32 @@ StatusCode IsolationBuilder::initializeIso(std::set<xAOD::Iso::IsolationFlavour>
       if (isoFlav == xAOD::Iso::etcone || isoFlav == xAOD::Iso::topoetcone || isoFlav == xAOD::Iso::neflowisol) {
 	cisoH.isoTypes.push_back(isoType);
 	cisoH.isoDeco.emplace_back(isoName);
+	ATH_MSG_DEBUG("initializing " << cisoH.isoDeco.back().key());
 	ATH_CHECK(cisoH.isoDeco.back().initialize());
       } else if (isoFlav == xAOD::Iso::ptcone) {
 	tisoH.isoTypes.push_back(isoType);
 	tisoH.isoDeco.emplace_back(isoName);
+	ATH_MSG_DEBUG("initializing " << tisoH.isoDeco.back().key());
 	ATH_CHECK(tisoH.isoDeco.back().initialize());
-	std::string isoNameV = prefix + "ptvarcone" + std::to_string(100*xAOD::Iso::coneSize(isoType));
+	auto coneSize = static_cast<int>(round(100*xAOD::Iso::coneSize(isoType)));
+	std::string isoNameV = prefix + "ptvarcone" + std::to_string(coneSize);
 	if (customConfig != "") {
 	  isoNameV += "_" + customConfig;
 	}
 	tisoH.isoDecoV.emplace_back(isoNameV);
+	ATH_MSG_DEBUG("initializing " << tisoH.isoDecoV.back().key());
 	ATH_CHECK(tisoH.isoDeco.back().initialize());
       } else {
 	ATH_MSG_FATAL("Configuration error: Isolation flavor " << isoFlav << " not supported.");
 	return StatusCode::FAILURE;
       }	
     }
+
+    if (isoFlav == xAOD::Iso::numIsolationFlavours) {
+      ATH_MSG_WARNING("The configuration was malformed: an empty inner vector was added; ignoring");
+      continue;
+    }
+
     if (isoFlav == xAOD::Iso::etcone || isoFlav == xAOD::Iso::topoetcone || isoFlav == xAOD::Iso::neflowisol) {
       
       for (size_t corrType = 0; corrType < corInts[flavor].size(); corrType++) {
@@ -265,6 +276,7 @@ StatusCode IsolationBuilder::initializeIso(std::set<xAOD::Iso::IsolationFlavour>
 	  }
 	  cisoH.addCoreCorr = true;
 	  cisoH.coreCorisoDeco = isoCorName;
+	  ATH_MSG_DEBUG("initializing " << cisoH.coreCorisoDeco.key());
 	  ATH_CHECK(cisoH.coreCorisoDeco.initialize());
 	}
       }
@@ -282,8 +294,9 @@ StatusCode IsolationBuilder::initializeIso(std::set<xAOD::Iso::IsolationFlavour>
 	ATH_MSG_FATAL("trackIsoMap was nullptr but the configuration attempted to use it");
 	return StatusCode::FAILURE;
       }	
-    } else 
+    } else {
       ATH_MSG_WARNING("Isolation flavour " << xAOD::Iso::toCString(isoFlav) << " does not exist ! Check your inputs");
+    }
     runIsoType.insert(isoFlav);
   }
   return StatusCode::SUCCESS;
