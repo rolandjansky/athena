@@ -23,7 +23,6 @@ if( XAOD_STANDALONE OR XAOD_ANALYSIS )
       Reconstruction/Jet/JetInterface
       Reconstruction/Jet/JetRec
       Reconstruction/Jet/JetUtils
-      Reconstruction/PFlow/PFlowUtils
       PRIVATE
       Calorimeter/CaloGeoHelpers
       Event/xAOD/xAODEventInfo
@@ -47,7 +46,6 @@ else()
       Reconstruction/Jet/JetRecCalo
       Reconstruction/Jet/JetUtils
       PRIVATE
-      Reconstruction/PFlow/PFlowUtils
       Calorimeter/CaloDetDescr
       Calorimeter/CaloEvent
       Calorimeter/CaloGeoHelpers

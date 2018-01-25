@@ -8,7 +8,6 @@
 
 #include "xAODJet/JetConstituentVector.h"
 #include "JetUtils/JetDistances.h"
-#include "PFlowUtils/IWeightPFOTool.h"
 
 //**********************************************************************
 

@@ -15,8 +15,6 @@
 #include "JetRec/JetModifierBase.h"
 #include "AsgTools/ToolHandle.h"
 
-#include "PFlowUtils/IWeightPFOTool.h"
-
 class JetWidthTool : public JetModifierBase {
   ASG_TOOL_CLASS(JetWidthTool, IJetModifier)
     
