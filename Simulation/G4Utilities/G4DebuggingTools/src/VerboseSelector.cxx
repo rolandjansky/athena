@@ -52,7 +52,7 @@ namespace G4UA
   {
     if(m_evtCount==(uint64_t)m_config.targetEvent||m_config.targetEvent<0){
 
-      G4ThreeVector myPos = aStep->GetPostStepPoint()->GetPosition();
+      const G4ThreeVector& myPos = aStep->GetPostStepPoint()->GetPosition();
       if ( ( myPos.x() < m_config.Xmax && myPos.x() > m_config.Xmin &&
 	     myPos.y() < m_config.Ymax && myPos.y() > m_config.Ymin &&
 	     myPos.z() < m_config.Zmax && myPos.z() > m_config.Zmin ) ||
@@ -68,7 +68,7 @@ namespace G4UA
 	rmk->GetStackManager()->SetVerboseLevel(m_config.verboseLevel);
 	
 	G4Track *tr = aStep->GetTrack();
-	G4ThreeVector mom = tr->GetMomentumDirection();
+       const G4ThreeVector& mom = tr->GetMomentumDirection();
 	
 	std::cout << "Moving " << tr->GetDefinition()->GetParticleName() << " at (" << myPos.x()
 		  << ", " << myPos.y() << ", " << myPos.z() << ") to (" << mom.x() << ", " << mom.y()
