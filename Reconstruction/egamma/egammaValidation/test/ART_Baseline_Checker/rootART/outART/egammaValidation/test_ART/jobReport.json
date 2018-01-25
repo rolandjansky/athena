@@ -1,0 +1,244 @@
+{
+  "cmdLine": "'/cvmfs/atlas-nightlies.cern.ch/repo/sw/21.0/2018-01-23T0022/Athena/21.0.61/InstallArea/x86_64-slc6-gcc62-opt/share/Reco_tf.py' '--inputRDOFile=/afs/.cern.ch/work/m/mscodegg/public/QualiTask/mc16_13TeV.423001.ParticleGun_single_photon_egammaET.recon.RDO.e3566_s3113_r9388/RDO.11223039._000027.pool.root.1' '--outputAODFile=/afs/cern.ch/work/m/mscodegg/public/QualiTask/athena/Reconstruction/egamma/egammaValidation/test/ART_Baseline_Checker/rootART/ART_Rec.root' '--autoConfiguration=everything' '--preExec=rec.doTrigger=False; rec.doTau=False ; from RecExConfig.RecAlgsFlags import recAlgs; recAlgs.doMuonSpShower=False ; rec.doBTagging=False ; recAlgs.doEFlow=False ; recAlgs.doEFlowJet=False ; recAlgs.doMissingET=False ; recAlgs.doMissingETSig=False ; from JetRec.JetRecFlags import jetFlags ; jetFlags.Enabled=False ; '", 
+  "created": "2018-01-23T10:24:51", 
+  "executor": [
+    {
+      "asetup": null, 
+      "errMsg": "", 
+      "exeConfig": {
+        "inputs": [
+          "RDO"
+        ], 
+        "outputs": [
+          "ESD"
+        ], 
+        "script": "athena.py", 
+        "substep": "r2e"
+      }, 
+      "logfileReport": {
+        "countSummary": {
+          "CATASTROPHE": 0, 
+          "CRITICAL": 0, 
+          "DEBUG": 0, 
+          "ERROR": 0, 
+          "FATAL": 0, 
+          "IGNORED": 0, 
+          "INFO": 9157, 
+          "UNKNOWN": 5249, 
+          "VERBOSE": 1, 
+          "WARNING": 2033
+        }, 
+        "details": {}
+      }, 
+      "metaData": {}, 
+      "name": "RAWtoESD", 
+      "rc": 0, 
+      "statusOK": true, 
+      "validation": true
+    }, 
+    {
+      "asetup": null, 
+      "errMsg": "", 
+      "exeConfig": {
+        "inputs": [
+          "ESD"
+        ], 
+        "outputs": [
+          "AOD"
+        ], 
+        "script": "athena.py", 
+        "substep": "e2a"
+      }, 
+      "logfileReport": {
+        "countSummary": {
+          "CATASTROPHE": 0, 
+          "CRITICAL": 0, 
+          "DEBUG": 0, 
+          "ERROR": 0, 
+          "FATAL": 0, 
+          "IGNORED": 0, 
+          "INFO": 3655, 
+          "UNKNOWN": 2406, 
+          "VERBOSE": 0, 
+          "WARNING": 560
+        }, 
+        "details": {}
+      }, 
+      "metaData": {}, 
+      "name": "ESDtoAOD", 
+      "rc": 0, 
+      "statusOK": true, 
+      "validation": true
+    }
+  ], 
+  "exitAcronym": "OK", 
+  "exitCode": 0, 
+  "exitMsg": "OK", 
+  "exitMsgExtra": "", 
+  "files": {
+    "input": [
+      {
+        "dataset": null, 
+        "nentries": 2000, 
+        "subFiles": [
+          {
+            "file_guid": "B9B1E341-9E35-1641-9DF2-A15A4DDD1E67", 
+            "name": "RDO.11223039._000027.pool.root.1"
+          }
+        ], 
+        "type": "RDO"
+      }
+    ], 
+    "output": [
+      {
+        "argName": "outputAODFile", 
+        "dataset": null, 
+        "subFiles": [
+          {
+            "file_guid": "02B7EB81-9562-A048-A204-D4139BEB75B7", 
+            "file_size": 15333625, 
+            "name": "ART_Rec.root", 
+            "nentries": 2000
+          }
+        ], 
+        "type": "AOD"
+      }
+    ]
+  }, 
+  "name": "Reco_tf", 
+  "reportVersion": "2.0.9", 
+  "resource": {
+    "dbDataTotal": 44255646, 
+    "dbTimeTotal": 223.16, 
+    "executor": {
+      "ESDtoAOD": {
+        "cpuTime": 185.57, 
+        "dbData": 8750007, 
+        "dbTime": 51.91, 
+        "memory": {
+          "Avg": {
+            "avgPSS": 785539, 
+            "avgRSS": 789778, 
+            "avgSwap": 0, 
+            "avgVMEM": 1287213, 
+            "rateRBYTES": 5398448, 
+            "rateRCHAR": 2193602, 
+            "rateWBYTES": 71673, 
+            "rateWCHAR": 58269
+          }, 
+          "Max": {
+            "maxPSS": 1300671, 
+            "maxRSS": 1305136, 
+            "maxSwap": 0, 
+            "maxVMEM": 1908040, 
+            "totRBYTES": 1678917632, 
+            "totRCHAR": 682210390, 
+            "totWBYTES": 22290432, 
+            "totWCHAR": 18121770
+          }
+        }, 
+        "nevents": 2000, 
+        "postExe": {
+          "cpuTime": 323.98, 
+          "wallTime": 1.0
+        }, 
+        "preExe": {
+          "cpuTime": 0.0, 
+          "wallTime": 0.02
+        }, 
+        "total": {
+          "cpuTime": 509.55, 
+          "wallTime": 325.79
+        }, 
+        "validation": {
+          "cpuTime": 0.0, 
+          "wallTime": 0.28
+        }, 
+        "wallTime": 324.49
+      }, 
+      "RAWtoESD": {
+        "cpuTime": 924.03, 
+        "dbData": 35505639, 
+        "dbTime": 171.25, 
+        "memory": {
+          "Avg": {
+            "avgPSS": 1290967, 
+            "avgRSS": 1295411, 
+            "avgSwap": 0, 
+            "avgVMEM": 2016177, 
+            "rateRBYTES": 1107331, 
+            "rateRCHAR": 1578589, 
+            "rateWBYTES": 535067, 
+            "rateWCHAR": 523790
+          }, 
+          "Max": {
+            "maxPSS": 1578953, 
+            "maxRSS": 1583492, 
+            "maxSwap": 0, 
+            "maxVMEM": 2332816, 
+            "totRBYTES": 1442852864, 
+            "totRCHAR": 2056902317, 
+            "totWBYTES": 697192448, 
+            "totWCHAR": 682498453
+          }
+        }, 
+        "nevents": 2000, 
+        "postExe": {
+          "cpuTime": 1328.04, 
+          "wallTime": 7.55
+        }, 
+        "preExe": {
+          "cpuTime": 0.0, 
+          "wallTime": 0.05
+        }, 
+        "total": {
+          "cpuTime": 2252.07, 
+          "wallTime": 1340.17
+        }, 
+        "validation": {
+          "cpuTime": 0.0, 
+          "wallTime": 1.7
+        }, 
+        "wallTime": 1330.87
+      }
+    }, 
+    "machine": {
+      "cpu_family": "6", 
+      "linux_distribution": [
+        "Scientific Linux CERN SLC", 
+        "6.9", 
+        "Carbon"
+      ], 
+      "model": "94", 
+      "model_name": "Intel Core Processor (Skylake)", 
+      "node": "lxplus110.cern.ch", 
+      "platform": "Linux-2.6.32-696.18.7.el6.x86_64-x86_64-with-redhat-6.9-Carbon"
+    }, 
+    "transform": {
+      "cpuEfficiency": 0.6673, 
+      "cpuPWEfficiency": 0.6673, 
+      "cpuTime": 9.97, 
+      "cpuTimeTotal": 2761.62, 
+      "externalCpuTime": 1652.31, 
+      "inFileValidation": {
+        "cpuTime": 0.14, 
+        "wallTime": 5.86
+      }, 
+      "outFileValidation": {
+        "cpuTime": 0.0, 
+        "wallTime": 1.89
+      }, 
+      "processedEvents": 2000, 
+      "reportGeneration": {
+        "cpuTime": 0.14, 
+        "wallTime": 3.17
+      }, 
+      "transformSetup": {
+        "cpuTime": 0.0, 
+        "wallTime": 0.78
+      }, 
+      "trfPredata": null, 
+      "wallTime": 1677.67
+    }
+  }
+}

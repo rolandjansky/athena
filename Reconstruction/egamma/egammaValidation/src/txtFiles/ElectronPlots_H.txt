@@ -1,0 +1,28 @@
+#ifndef EGAMMAVALIDATION_ELECTRONPLOTS_H
+#define EGAMMAVALIDATION_ELECTRONPLOTS_H
+
+
+#include "GaudiKernel/ToolHandle.h"
+#include "TrkValHistUtils/PlotBase.h"
+#include "TrkValHistUtils/ParamPlots.h"
+#include "xAODEgamma/Electron.h"
+
+
+class ElectronPlots:public PlotBase {
+ public:
+  ElectronPlots(PlotBase* pParent, std::string sDir);
+  void fill(const xAOD::Electron& electron); //, bool isLLH, bool isMLH, bool isTLH);
+
+  TH1* pT_ElTrk_All;
+  /*
+  TH1* pT_ElTrk_LLH;
+  TH1* pT_ElTrk_MLH;
+  TH1* pT_ElTrk_TLH;
+  */
+
+ private:
+  virtual void initializePlots();
+
+};
+
+#endif

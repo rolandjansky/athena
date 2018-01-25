@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<!-- Edited By POOL -->
+<!DOCTYPE POOLFILECATALOG SYSTEM "InMemory">
+<POOLFILECATALOG>
+  <File ID="037CCADD-9357-2846-8353-52BD29C23AA2">
+    <physical>
+      <pfn filetype="ROOT_All" name="/afs/cern.ch/work/m/mscodegg/public/QualiTask/outARTcheck/check.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="037CCADD-9357-2846-8353-52BD29C23AA2">
+    <physical>
+      <pfn filetype="ROOT_All" name="rootART/ART_Rec.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="34EC33A1-45C7-0C41-A009-7DFC0F692FBF">
+    <physical>
+      <pfn filetype="ROOT_All" name="rootBaseline/Base_Rec.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="34EC33A1-45C7-0C41-A009-7DFC0F692FBF">
+    <physical>
+      <pfn filetype="ROOT_All" name="/afs/cern.ch/work/m/mscodegg/public/QualiTask/athena/Reconstruction/egamma/egammaValidation/test/ART_Baseline_Checker/rootBaseline/Base_Rec.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+  <File ID="02B7EB81-9562-A048-A204-D4139BEB75B7">
+    <physical>
+      <pfn filetype="ROOT_All" name="/afs/cern.ch/work/m/mscodegg/public/QualiTask/athena/Reconstruction/egamma/egammaValidation/test/ART_Baseline_Checker/rootART/ART_Rec.root"/>
+    </physical>
+    <logical/>
+  </File>
+
+</POOLFILECATALOG>

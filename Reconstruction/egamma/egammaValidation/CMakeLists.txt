@@ -15,21 +15,28 @@ atlas_depends_on_subdirs( PUBLIC
 			  Event/xAOD/xAODTracking
 			  PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
 			  PRIVATE
-                          Control/AthenaBaseComps
-                          Control/AthenaMonitoring 
-			  TestPolicy )
+			  Control/AthenaBaseComps
+#                         Control/AthenaMonitoring 
+			  TestPolicy 
+			  Tracking/TrkValidation/TrkValHistUtils )
 
 atlas_add_library (ArtTestLib src/*.h src/*.ihh src/*.cxx src/components/*.cxx
    PUBLIC_HEADERS ArtTest
    INCLUDE_DIRS
-   LINK_LIBRARIES GaudiKernel AthenaBaseComps AthenaMonitoringLib AsgTools xAODEventInfo xAODEgamma xAODTracking ElectronPhotonSelectorToolsLib)
+   LINK_LIBRARIES GaudiKernel AthenaBaseComps AsgTools xAODEventInfo xAODEgamma xAODTracking ElectronPhotonSelectorToolsLib TrkValHistUtils)
+
+# For MT 
+# LINK_LIBRARIES AthenaMonitoringLib
 
 # add the library itself:
 atlas_add_component (ArtTest
    src/*.h src/*.ihh src/*.cxx src/components/*.cxx
    PUBLIC_HEADERS ArtTest
    INCLUDE_DIRS 
-   LINK_LIBRARIES ArtTestLib GaudiKernel AthenaBaseComps AthenaMonitoringLib AsgTools xAODEventInfo xAODEgamma xAODTracking ElectronPhotonSelectorToolsLib)
+   LINK_LIBRARIES ArtTestLib GaudiKernel AthenaBaseComps AsgTools xAODEventInfo xAODEgamma xAODTracking ElectronPhotonSelectorToolsLib TrkValHistUtils)
+
+# For MT
+# LINK_LIBRARIES AthenaMonitoringLib
 
 # Install files from the package:
 atlas_install_headers( egammaValidation )

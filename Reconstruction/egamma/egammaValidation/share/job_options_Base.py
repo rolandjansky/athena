@@ -5,8 +5,8 @@ from GaudiSvc.GaudiSvcConf                  import THistSvc
 
 import AthenaRootComps.ReadAthenaxAODHybrid
 
-# ART File
-testFile = '/afs/cern.ch/work/m/mscodegg/public/QualiTask/athena/Reconstruction/egamma/egammaValidation/test/ART_Baseline_Checker/rootART/ART_Rec.root'
+# Baseline File
+testFile = '/afs/cern.ch/work/m/mscodegg/public/QualiTask/athena/Reconstruction/egamma/egammaValidation/test/ART_Baseline_Checker/rootBaseline/Base_Rec.root'
 
 svcMgr.EventSelector.InputCollections = [testFile]
 

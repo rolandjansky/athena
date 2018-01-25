@@ -4,34 +4,17 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/Property.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaMonitoring/GenericMonitoringTool.h"
 
 #include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
 
-#include "TFile.h"
-#include "TH1.h"
-
 #include <string>
 
-using namespace std;
 
 class ArtTest : public AthAlgorithm
 {
  public:
-
-  // Output File
-  TFile *myfile; //!
-
-  // Histos
-  
-  // General Info
-  TH1D *evtNmb; //!
-
-  // Electron
-  TH1D *pT_ElTrk_All; //!
-  TH1D *pT_ElTrk_LLH; //! 
-  TH1D *pT_ElTrk_MLH; //!
-  TH1D *pT_ElTrk_TLH; //!
-
+ 
   ArtTest (const std::string& name, ISvcLocator* pSvcLocator);
   
   virtual StatusCode initialize ();
@@ -41,6 +24,8 @@ class ArtTest : public AthAlgorithm
   virtual StatusCode finalize ();
 
  private:
+  
+  ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
 
   AsgElectronLikelihoodTool* m_LooseLH;
   AsgElectronLikelihoodTool* m_MediumLH;

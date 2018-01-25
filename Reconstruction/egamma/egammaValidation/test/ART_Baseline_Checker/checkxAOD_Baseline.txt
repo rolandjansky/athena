@@ -1,0 +1,137 @@
+[?1034h## opening file [rootBaseline/Base_Rec.root]...
+## importing ROOT...
+## importing ROOT... [DONE]
+## opening file [OK]
+
+================================================================================
+         Event data
+================================================================================
+     Mem Size       Disk Size        Size/Evt      Compression  Items  Container Name (Type)
+--------------------------------------------------------------------------------
+       2.501 kb        0.120 kb        0.000 kb       20.821     2000  IsTestBeam (()) [EvtId]
+       2.505 kb        0.122 kb        0.000 kb       20.520     2000  IsSimulation (()) [EvtId]
+       2.507 kb        0.123 kb        0.000 kb       20.373     2000  IsCalibration (()) [EvtId]
+       8.470 kb        0.242 kb        0.000 kb       34.972     2000  BunchId (()) [EvtId]
+       8.479 kb        0.252 kb        0.000 kb       33.651     2000  LumiBlockN (()) [EvtId]
+       8.461 kb        0.258 kb        0.000 kb       32.818     2000  EventWeight (()) [EvtId]
+       8.476 kb        0.258 kb        0.000 kb       32.875     2000  RunNumber (()) [EvtId]
+       8.476 kb        0.260 kb        0.000 kb       32.628     2000  EventTime (()) [EvtId]
+       8.467 kb        0.262 kb        0.000 kb       32.351     2000  AvgIntPerXing (()) [EvtId]
+       8.487 kb        0.266 kb        0.000 kb       31.952     2000  ConditionsRun (()) [EvtId]
+       0.973 kb        0.306 kb        0.000 kb        3.182        1  DataHeader (()) [MetaData]
+       8.591 kb        0.362 kb        0.000 kb       23.712     2000  EventTimeNanoSec (()) [EvtId]
+       8.570 kb        0.362 kb        0.000 kb       23.655     2000  ActualIntPerXing (()) [EvtId]
+      16.499 kb        4.725 kb        0.002 kb        3.492     2000  EventNumber (()) [EvtId]
+      41.947 kb        6.328 kb        0.003 kb        6.629     2000  MuonCaloEnergyCollection (MuonCaloEnergyContainer_p1) [Muon]
+      41.838 kb        6.354 kb        0.003 kb        6.585     2000  TileMuObj (TileMuContainer_p1) [Muon]
+       8.464 kb        7.270 kb        0.004 kb        1.164     2000  RandomNumber (()) [EvtId]
+     112.096 kb        8.105 kb        0.004 kb       13.830     2000  LArNoisyROSummary (LArNoisyROSummary_p4) [Calo]
+     125.674 kb        9.308 kb        0.005 kb       13.502     2000  ESDtoAOD_mems (RecoTimingObj_p1) [MetaData]
+     115.479 kb       16.223 kb        0.008 kb        7.118     2000  MuonClusterCollection_links (CaloClusterCellLinkContainer_p1) [Muon]
+     384.441 kb       18.105 kb        0.009 kb       21.233     2000  MSDisplacedVertex (DataVector<xAOD::Vertex_v1>) [Muon]
+     125.674 kb       18.189 kb        0.009 kb        6.909     2000  RAWtoESD_mems (RecoTimingObj_p1) [MetaData]
+     501.582 kb       18.652 kb        0.009 kb       26.891     2000  NCB_MuonSegments (DataVector<xAOD::MuonSegment_v1>) [*Unknown*]
+     501.629 kb       18.750 kb        0.009 kb       26.754     2000  MuonTruthSegments (DataVector<xAOD::MuonSegment_v1>) [Muon]
+     246.551 kb       18.989 kb        0.009 kb       12.984     2000  ElectronCaloRings (DataVector<xAOD::CaloRings_v1>) [egamma]
+     233.277 kb       19.784 kb        0.010 kb       11.791     2000  InDetTrackParticlesClusterAssociations (DataVector<xAOD::TrackParticleClusterAssociation_v1>) [InDet]
+     591.098 kb       19.863 kb        0.010 kb       29.758     2000  SlowMuons (DataVector<xAOD::SlowMuon_v1>) [Muon]
+      47.768 kb       20.171 kb        0.010 kb        2.368     2000  HITStoRDO_timings (RecoTimingObj_p1) [MetaData]
+     122.705 kb       21.810 kb        0.011 kb        5.626     2000  InDetTrackParticlesAssociatedClusters_links (CaloClusterCellLinkContainer_p1) [InDet]
+      47.791 kb       22.700 kb        0.011 kb        2.105     2000  EVNTtoHITS_timings (RecoTimingObj_p1) [MetaData]
+     387.346 kb       23.675 kb        0.012 kb       16.361     2000  McEventInfo (EventInfo_p4) [EvtId]
+    1607.246 kb       24.521 kb        0.012 kb       65.544     2000  MSonlyTracklets (DataVector<xAOD::TrackParticle_v1>) [Muon]
+    1607.783 kb       24.880 kb        0.012 kb       64.622     2000  CombinedStauTrackParticles (DataVector<xAOD::TrackParticle_v1>) [tau]
+    1607.783 kb       24.880 kb        0.012 kb       64.622     2000  CombinedMuonTrackParticles (DataVector<xAOD::TrackParticle_v1>) [Muon]
+    1607.979 kb       25.039 kb        0.013 kb       64.219     2000  ExtrapolatedStauTrackParticles (DataVector<xAOD::TrackParticle_v1>) [tau]
+    1607.979 kb       25.039 kb        0.013 kb       64.219     2000  MuonSpectrometerTrackParticles (DataVector<xAOD::TrackParticle_v1>) [Muon]
+    1607.979 kb       25.039 kb        0.013 kb       64.219     2000  ExtrapolatedMuonTrackParticles (DataVector<xAOD::TrackParticle_v1>) [Muon]
+    1608.271 kb       25.323 kb        0.013 kb       63.510     2000  MSOnlyExtrapolatedMuonTrackParticles (DataVector<xAOD::TrackParticle_v1>) [Muon]
+    1608.369 kb       25.425 kb        0.013 kb       63.260     2000  InDetPixelPrdAssociationTrackParticles (DataVector<xAOD::TrackParticle_v1>) [InDet]
+     211.465 kb       25.683 kb        0.013 kb        8.234     2000  TopoClusterIsoVeryForwardEventShape (xAOD::EventShape_v1) [PFO]
+     211.031 kb       26.919 kb        0.013 kb        7.840     2000  TopoClusterIsoCentralEventShape (xAOD::EventShape_v1) [PFO]
+     211.031 kb       27.028 kb        0.014 kb        7.808     2000  TopoClusterIsoForwardEventShape (xAOD::EventShape_v1) [PFO]
+      63.260 kb       30.826 kb        0.015 kb        2.052     2000  ESDtoAOD_timings (RecoTimingObj_p1) [MetaData]
+     549.445 kb       32.034 kb        0.016 kb       17.152     2000  PrimaryVertices (DataVector<xAOD::Vertex_v1>) [InDet]
+      63.260 kb       34.028 kb        0.017 kb        1.859     2000  RAWtoESD_timings (RecoTimingObj_p1) [MetaData]
+     350.262 kb       34.143 kb        0.017 kb       10.259     2000  Token (()) [MetaData]
+     571.965 kb       39.674 kb        0.020 kb       14.417     2000  InDetTrackParticlesAssociatedClusters (DataVector<xAOD::CaloCluster_v1>) [InDet]
+    2683.314 kb       42.783 kb        0.021 kb       62.719     2000  Staus (DataVector<xAOD::Muon_v1>) [Muon]
+     131.533 kb       54.562 kb        0.027 kb        2.411     2000  E4prContainer (TileCellVec) [Calo]
+     618.383 kb       56.021 kb        0.028 kb       11.039     2000  MuonClusterCollection (DataVector<xAOD::CaloCluster_v1>) [Muon]
+     682.495 kb       62.165 kb        0.031 kb       10.979     2000  EventInfo (xAOD::EventInfo_v1) [EvtId]
+     680.797 kb       64.002 kb        0.032 kb       10.637     2000  MuonSegments (DataVector<xAOD::MuonSegment_v1>) [Muon]
+    2272.047 kb       85.988 kb        0.043 kb       26.423     2000  TruthEvents (DataVector<xAOD::TruthEvent_v1>) [Truth]
+    1882.951 kb       94.483 kb        0.047 kb       19.929     2000  InDetForwardTrackParticles (DataVector<xAOD::TrackParticle_v1>) [InDet]
+    1246.499 kb      107.586 kb        0.054 kb       11.586     2000  ForwardElectrons (DataVector<xAOD::Electron_v1>) [egamma]
+     311.965 kb      119.750 kb        0.060 kb        2.605     2000  ElectronRingSets (DataVector<xAOD::RingSet_v1>) [egamma]
+     745.469 kb      149.591 kb        0.075 kb        4.983     2000  egammaTruthParticles (DataVector<xAOD::TruthParticle_v1>) [egamma]
+     385.604 kb      155.885 kb        0.078 kb        2.474     2000  RawInfoSummaryForTag (RawInfoSummaryForTag_p1) [MetaData]
+   17675.023 kb      207.956 kb        0.104 kb       84.994        1  DataHeaderForm (()) [MetaData]
+     475.201 kb      211.700 kb        0.106 kb        2.245     2000  MBTSContainer (TileCellVec) [Calo]
+    1148.902 kb      225.479 kb        0.113 kb        5.095     2000  TruthVertices (DataVector<xAOD::TruthVertex_v1>) [Truth]
+    1995.401 kb      384.940 kb        0.192 kb        5.184     2000  MuonTruthParticles (DataVector<xAOD::TruthParticle_v1>) [Muon]
+    1223.900 kb      405.496 kb        0.203 kb        3.018     2000  TruthParticles (DataVector<xAOD::TruthParticle_v1>) [Truth]
+    1274.840 kb      435.141 kb        0.218 kb        2.930     2000  egammaClusters_links (CaloClusterCellLinkContainer_p1) [egamma]
+    1213.388 kb      455.578 kb        0.228 kb        2.663     2000  GSFConversionVertices (DataVector<xAOD::Vertex_v1>) [egamma]
+    4394.324 kb      455.974 kb        0.228 kb        9.637     2000  Muons (DataVector<xAOD::Muon_v1>) [Muon]
+    2351.061 kb      458.817 kb        0.229 kb        5.124     2000  ForwardElectronClusters (DataVector<xAOD::CaloCluster_v1>) [egamma]
+    1638.683 kb      573.312 kb        0.287 kb        2.858     2000  CaloCalTopoClusters (DataVector<xAOD::CaloCluster_v1>) [CaloTopo]
+    1591.533 kb      583.398 kb        0.292 kb        2.728     2000  egammaClusters (DataVector<xAOD::CaloCluster_v1>) [egamma]
+    3021.789 kb      673.229 kb        0.337 kb        4.488     2000  Electrons (DataVector<xAOD::Electron_v1>) [egamma]
+    2937.727 kb      802.119 kb        0.401 kb        3.662     2000  GSFTrackParticles (DataVector<xAOD::TrackParticle_v1>) [egamma]
+    3309.676 kb     1081.659 kb        0.541 kb        3.060     2000  InDetTrackParticles (DataVector<xAOD::TrackParticle_v1>) [InDet]
+    3239.773 kb     1091.539 kb        0.546 kb        2.968     2000  Photons (DataVector<xAOD::Photon_v1>) [egamma]
+    7755.046 kb     4914.674 kb        2.457 kb        1.578     2000  AODCellContainer (CaloCompactCellContainer) [Calo]
+--------------------------------------------------------------------------------
+   85719.250 kb    14686.504 kb        7.343 kb        0.000     2000  Total
+
+================================================================================
+         Categorized data
+================================================================================
+     Disk Size         Fraction    Category Name
+--------------------------------------------------------------------------------
+       0.009 kb        0.001       *Unknown*
+       0.025 kb        0.003       tau
+       0.040 kb        0.005       PFO
+       0.050 kb        0.007       EvtId
+       0.267 kb        0.036       MetaData
+       0.287 kb        0.039       CaloTopo
+       0.358 kb        0.049       Truth
+       0.607 kb        0.083       Muon
+       0.657 kb        0.090       InDet
+       2.448 kb        0.333       egamma
+       2.595 kb        0.353       Calo
+       7.343 kb        1.000       Total
+
+================================================================================
+CSV for categories disk size/evt and fraction:
+Total,Calo,egamma,InDet,Muon,Truth,CaloTopo,MetaData,EvtId,PFO,tau,*Unknown*
+7.343,2.595,2.448,0.657,0.607,0.358,0.287,0.267,0.050,0.040,0.025,0.009
+1.000,0.353,0.333,0.090,0.083,0.049,0.039,0.036,0.007,0.005,0.003,0.001
+================================================================================
+
+================================================================================
+         Meta data
+================================================================================
+     Mem Size       Disk Size         Container Name
+--------------------------------------------------------------------------------
+       1.297 kb        0.271 kb       TruthMetaData
+       1.459 kb        0.287 kb       PDFSumOfWeights
+       1.398 kb        0.294 kb       SuspectLumiBlocks
+       1.824 kb        0.302 kb       ElectronRingSetsConf
+       1.547 kb        0.305 kb       IncompleteCutBookkeepers
+       1.557 kb        0.307 kb       IncompletePDFSumOfWeights
+       1.557 kb        0.307 kb       IncompleteFileBookkeepers
+       1.063 kb        0.309 kb       _LAR_LArAffectedRegionInfo
+       1.567 kb        0.377 kb       FileBookkeepers
+       1.666 kb        0.400 kb       CutBookkeepers
+       1.473 kb        0.522 kb       _GLOBAL_BField_Maps
+       1.844 kb        0.867 kb       _TagInfo
+       3.232 kb        1.097 kb       StreamAOD
+       5.547 kb        1.357 kb       EventFormat
+       3.268 kb        1.362 kb       _Digitization_Parameters
+       3.117 kb        1.537 kb       _Simulation_Parameters
+--------------------------------------------------------------------------------
+      33.416 kb        9.900 kb       Total
+================================================================================
+## Bye.

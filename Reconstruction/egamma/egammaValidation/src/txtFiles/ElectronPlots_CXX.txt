@@ -1,0 +1,32 @@
+#include "ElectronPlots.h"
+#include "xAODEgamma/EgammaDefs.h"
+
+ElectronPlots::ElectronPlots(PlotBase* pParent, std::string sDir):PlotBase(pParent, sDir),
+										      pT_ElTrk_All(0)
+								  /*,
+										      pT_ElTrk_LLH(0),
+										      pT_ElTrk_MLH(0),
+										      pT_ElTrk_TLH(0)*/
+
+{}
+
+void ElectronPlots::initializePlots(){
+
+  pT_ElTrk_All = Book1D("pT_ElTrk_All", "Electron Pt Track All", 200, 0, 200);
+  /*
+  pT_ElTrk_LLH = Book1D("pT_ElTrk_LLH", "Electron Pt Track LLH", 200, 0, 200);
+  pT_ElTrk_MLH = Book1D("pT_ElTrk_MLH", "Electron Pt Track MLH", 200, 0, 200);
+  pT_ElTrk_TLH = Book1D("pT_ElTrk_TLH", "Electron Pt Track TLH", 200, 0, 200);
+  */
+}
+ 
+void ElectronPlots::fill(const xAOD::Electron& electron) { //, bool isLLH, bool isMLH, bool isTLH) {
+
+  pT_ElTrk_All->Fill((electron.trackParticle()->pt())/1000.);
+
+  /*
+  if(isLLH) pT_ElTrk_LLH->Fill((electron.trackParticle()->pt())/1000.);
+  if(isMLH) pT_ElTrk_MLH->Fill((electron.trackParticle()->pt())/1000.);
+  if(isTLH) pT_ElTrk_TLH->Fill((electron.trackParticle()->pt())/1000.);
+  */
+}

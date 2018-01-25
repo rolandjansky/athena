@@ -1,0 +1,10 @@
+{
+    "egammaValidation": {
+        "test_ART.sh": {
+            "description": "", 
+            "exit_code": 0, 
+            "result": [], 
+            "test_directory": "/afs/cern.ch/work/m/mscodegg/public/QualiTask/athena/Reconstruction/egamma/egammaValidation/test"
+        }
+    }
+}

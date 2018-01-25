@@ -1,0 +1,30 @@
+1c1
+< [?1034h## opening file [rootART/ART_Rec.root]...
+---
+> [?1034h## opening file [rootBaseline/Base_Rec.root]...
+29c29
+<      125.674 kb        9.367 kb        0.005 kb       13.416     2000  ESDtoAOD_mems (RecoTimingObj_p1) [MetaData]
+---
+>      125.674 kb        9.308 kb        0.005 kb       13.502     2000  ESDtoAOD_mems (RecoTimingObj_p1) [MetaData]
+31a32
+>      125.674 kb       18.189 kb        0.009 kb        6.909     2000  RAWtoESD_mems (RecoTimingObj_p1) [MetaData]
+34d34
+<      125.674 kb       18.877 kb        0.009 kb        6.658     2000  RAWtoESD_mems (RecoTimingObj_p1) [MetaData]
+53c53
+<       63.260 kb       30.334 kb        0.015 kb        2.085     2000  ESDtoAOD_timings (RecoTimingObj_p1) [MetaData]
+---
+>       63.260 kb       30.826 kb        0.015 kb        2.052     2000  ESDtoAOD_timings (RecoTimingObj_p1) [MetaData]
+55,56c55,56
+<       63.260 kb       33.983 kb        0.017 kb        1.861     2000  RAWtoESD_timings (RecoTimingObj_p1) [MetaData]
+<      350.262 kb       34.236 kb        0.017 kb       10.231     2000  Token (()) [MetaData]
+---
+>       63.260 kb       34.028 kb        0.017 kb        1.859     2000  RAWtoESD_timings (RecoTimingObj_p1) [MetaData]
+>      350.262 kb       34.143 kb        0.017 kb       10.259     2000  Token (()) [MetaData]
+69c69
+<    17675.023 kb      207.940 kb        0.104 kb       85.000        1  DataHeaderForm (()) [MetaData]
+---
+>    17675.023 kb      207.956 kb        0.104 kb       84.994        1  DataHeaderForm (()) [MetaData]
+86c86
+<    85719.250 kb    14686.792 kb        7.343 kb        0.000     2000  Total
+---
+>    85719.250 kb    14686.504 kb        7.343 kb        0.000     2000  Total
