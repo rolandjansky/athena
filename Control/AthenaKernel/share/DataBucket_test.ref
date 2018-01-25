@@ -1,0 +1,43 @@
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
+                                          running on karma on Thu Aug  3 13:08:08 2017
+====================================================================================================================================
+ApplicationMgr       INFO Application Manager Configured successfully
+EventLoopMgr      WARNING Unable to locate service "EventSelector" 
+EventLoopMgr      WARNING No events will be processed from external input.
+HistogramPersis...WARNING Histograms saving not required.
+ApplicationMgr       INFO Application Manager Initialized successfully
+ApplicationMgr Ready
+int has_classID 244260744 version 1 and does not inherit from DataObject
+const int* has_classID 244260744
+vector<int> has_classID 22592129
+GaudiDataObj has_classID 8010 and does inherit from DataObject
+MyDataObj has_classID 8000 and does not inherit from DataObject
+AbstractDataObj has_classID 8011
+AbstractType has_classID 8004
+Now we expect to see an error message:
+----Error Message Starts--->>
+SG::fromStorable  WARNING can't convert stored DataObject 0xc8ea70 to type (WrongType)
+ Unless you are following a symlink, it probably means you have a duplicate CLID = 8000
+<<---Error Message Ends-------
+Now we expect to see an error message:
+----Error Message Starts--->>
+SG::fromStorable  WARNING can't convert stored DataObject 0xc8ea70 to type (WrongType)
+ Unless you are following a symlink, it probably means you have a duplicate CLID = 8000
+<<---Error Message Ends-------
+Now we expect to see an error message:
+----Error Message Starts--->>
+SG::fromStorable  WARNING null input pointer 
+<<---Error Message Ends-------
+Now we expect to see an error message:
+----Error Message Starts--->>
+SG::fromStorable  WARNING can't convert stored DataObject 0xc8ea70 to type (WrongType)
+ Unless you are following a symlink, it probably means you have a duplicate CLID = 8010
+<<---Error Message Ends-------
+test2
+SG::fromStorable  WARNING can't convert stored DataObject 0xc8ea70 to type (X3)
+ Unless you are following a symlink, it probably means you have a duplicate CLID = 8011
+test3
+lock
+*** DataBucket_test OK ***

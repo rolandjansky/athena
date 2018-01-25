@@ -1,0 +1,4 @@
+<lcgdict>
+<!--Add Helper Functions -->
+<function pattern="PhotonHelpers::*"/>
+</lcgdict>
