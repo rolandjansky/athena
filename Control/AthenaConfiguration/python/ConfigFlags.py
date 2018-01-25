@@ -7,9 +7,7 @@ class ConfigFlag(object):
         self._alreadySet=False
         pass
 
-    #def getDefault(self,prevContainer):
-    #    pass
-
+   
     def set_Value(self,newvalue):
         if not self._alreadySet:
             self._value=newvalue
@@ -52,20 +50,31 @@ class ConfigFlagContainer(object):
             self._flagdict=deepcopy(otherFlags._flagdict)
 
     def importFlag(self,fullname):
-        if not len(fullname.split(".")):
+        if len(fullname.split("."))==1:
+            from AthenaConfiguration.ConfigFlagCatalog import configFlagCatalog
+            #abbrevated path, try get the flag from the catalog
+            if configFlagCatalog.has_key(fullname):
+                cfgLogMsg.debug("Getting flag %s for flag-catalog" % fullname)
+                return configFlagCatalog[fullname]
+            else:
+                raise KeyError("Flag '%s' is not known")
+            pass
+        
+        elif len(fullname.split("."))==3:
+            (p,m,f)=fullname.split(".")
+            cfgLogMsg.debug("Importing flag %s from module %s.%s" % (f,p,m))
+            exec "import %s.%s as newmodule" % (p,m)
+            if not hasattr(newmodule,f):
+                raise ImportError("Module %s.%s has no class called %s" % (p,m,f))
+
+            flagclass=getattr(newmodule,f)
+            if not issubclass(flagclass,ConfigFlag):
+                raise TypeError("Class %s is not a subclass of ConfigFlag" % f)
+            return flagclass
+        else:
             raise KeyError("Flag name format is <package>.<module>.<flag>")
-        (p,m,f)=fullname.split(".")
-        cfgLogMsg.debug("Importing flag %s from module %s.%s" % (f,p,m))
-        exec "import %s.%s as newmodule" % (p,m)
-        if not hasattr(newmodule,f):
-            raise ImportError("Module %s.%s has no class called %s" % (p,m,f))
-
-        flagclass=getattr(newmodule,f)
-        if not issubclass(flagclass,ConfigFlag):
-            raise TypeError("Class %s is not a subclass of ConfigFlag" % f)
-        return flagclass
-
-
+        pass
+    
     def get(self,name):
         if not self._flagdict.has_key(name):
             newFlag_t=self.importFlag(name)
