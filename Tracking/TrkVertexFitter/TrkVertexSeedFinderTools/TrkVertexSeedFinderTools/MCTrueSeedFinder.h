@@ -7,8 +7,9 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkVertexFitterInterfaces/IVertexSeedFinder.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "GeneratorObjects/McEventCollection.h"
 
-class McEventCollection;
 class IPartPropSvc;
 
 namespace HepMC {
@@ -58,9 +59,9 @@ namespace Trk
     virtual std::vector<Amg::Vector3D> findMultiSeeds(const std::vector<const Trk::TrackParameters*>& perigeeList,const xAOD::Vertex * constraint=0);
 
   private:
+    SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey { this, "EventInfo", "EventInfo", "key to retrieve EventInfo" };
    
-    const McEventCollection* m_McEventCollection;
-    std::string m_McEventCollectionName;
+    SG::ReadHandleKey<McEventCollection> m_mcEventCollectionKey { this, "McTruthCollection", "G4Truth", "MC Event Collection Name" };
 
     /// Get particle properties
     ServiceHandle< IPartPropSvc > m_partPropSvc;
