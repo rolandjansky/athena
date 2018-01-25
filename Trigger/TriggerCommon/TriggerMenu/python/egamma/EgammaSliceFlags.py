@@ -61,6 +61,16 @@ class doRinger(JobProperty):
 
 _flags.append(doRinger) 
 
+
+class doRingerBelow15GeV(JobProperty):
+    '''apply ringer selection for Electron chains below 15GeV'''
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
+_flags.append(doRingerBelow15GeV) 
+
+
 class doSuperClusters(JobProperty):
     '''Use Superclusters to build Egamma trigger objects'''
     statusOn=True
