@@ -448,7 +448,7 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
   //findEtaMMRange(R,eta,deltaEtaMMmin,deltaEtaMMmax);
   //deltaEtaMMmin*=0.999;
   //deltaEtaMMmax*=0.999;
-  ATH_MSG_INFO("Particle position: R: " << R << " TTC_z: " << z_particle << " z_particle: " << particle_position.z() << " r_layer: " << r_layer << " eta: " << eta);
+  ATH_MSG_DEBUG("Particle position: R: " << R << " TTC_z: " << z_particle << " z_particle: " << particle_position.z() << " r_layer: " << r_layer << " eta: " << eta);
   
   /*
   std::cout<<"Range for Delta eta[mm]: " << "[" << deltaEtaMMmin << "," << deltaEtaMMmax << "]" << std::endl;
@@ -526,8 +526,8 @@ void ISF::FastCaloSimSvcV2::LoopOverHits(double totalEnergy, double minR, double
   //std::cout<<"got a hit positon from the histogram!"<<" r "<<r<<" alpha "<<alpha<<" r_layer "<<r_layer<<" z_particle "<<z_particle<<" eta "<<eta<<std::endl;
   //double r_layer=m_rlayers[ilayer*n_pcabins+pcabin-1];
   
-  double jacobian=TMath::Exp(-eta);
-  jacobian=TMath::Abs(2.0 * jacobian / (1.0 + jacobian*jacobian));
+  double jacobian=exp(-eta);
+  jacobian=2.0 * jacobian / (1.0 + jacobian*jacobian);
   double hit_eta=eta + delta_eta_mm/(R*jacobian);
   
   //double hit_eta=findHitEta(delta_eta_mm,R,eta);
