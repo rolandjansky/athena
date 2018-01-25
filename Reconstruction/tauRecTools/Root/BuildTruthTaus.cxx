@@ -47,7 +47,7 @@ BuildTruthTaus::BuildTruthTaus( const std::string& name )
   , m_iNNeutralOthers(0)
   , m_iNChargedDaughters(0)
   , m_bIsHadronicTau(false)
-  , m_tMCTruthClassifier("MCTruthClassifierTool", this)
+  , m_tMCTruthClassifier("MCTruthClassifier", this)
 {
   declareProperty( "WriteTruthTaus", m_bWriteTruthTaus = false);
 
