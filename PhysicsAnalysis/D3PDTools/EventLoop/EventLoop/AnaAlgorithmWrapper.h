@@ -85,6 +85,10 @@ namespace EL
   private:
     AnaAlgorithmConfig m_config;
 
+    /// \brief the cleanup objects (once we are running
+  private:
+    std::vector<std::shared_ptr<void> > m_cleanup; //!
+
     /// \brief the AnaAlgorithm (once we are running)
   private:
     std::unique_ptr<AnaAlgorithm> m_algorithm; //!

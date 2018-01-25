@@ -57,6 +57,7 @@ namespace EL
   {
     declareProperty ("property", m_property, "test property");
     declareProperty ("string_property", m_string_property, "test string property");
+    declareProperty ("toolHandle", m_toolHandle, "ToolHandle property");
 
     RCU_NEW_INVARIANT (this);
   }

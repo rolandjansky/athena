@@ -39,8 +39,9 @@ TEST (AnaAlgorithmTest, create_basic)
   AnaAlgorithmConfig config;
   config.setName ("name");
   config.setType ("EL::AnaAlgorithm");
+  std::vector<std::shared_ptr<void> > cleanup;
   std::unique_ptr<AnaAlgorithm> alg;
-  ASSERT_SUCCESS (config.makeAlgorithm (alg));
+  ASSERT_SUCCESS (config.makeAlgorithm (alg, cleanup));
   ASSERT_NE (nullptr, alg.get());
   ASSERT_EQ ("name", alg->name());
 }
@@ -55,8 +56,9 @@ TEST (AnaAlgorithmTest, create)
   AnaAlgorithmConfig config;
   config.setName ("name");
   config.setType ("EL::UnitTestAlg2");
+  std::vector<std::shared_ptr<void> > cleanup;
   std::unique_ptr<AnaAlgorithm> alg;
-  ASSERT_SUCCESS (config.makeAlgorithm (alg));
+  ASSERT_SUCCESS (config.makeAlgorithm (alg, cleanup));
   ASSERT_NE (nullptr, alg.get());
   ASSERT_EQ ("name", alg->name());
 }
@@ -68,7 +70,8 @@ TEST (AnaAlgorithmTest, setProperty_string)
   config.setType ("EL::UnitTestAlg2");
   ASSERT_SUCCESS (config.setProperty ("string_property", "42"));
   std::unique_ptr<AnaAlgorithm> alg;
-  ASSERT_SUCCESS (config.makeAlgorithm (alg));
+  std::vector<std::shared_ptr<void> > cleanup;
+  ASSERT_SUCCESS (config.makeAlgorithm (alg, cleanup));
   UnitTestAlg2 *myalg = dynamic_cast<UnitTestAlg2*>(alg.get());
   ASSERT_NE (nullptr, myalg);
   ASSERT_EQ ("42", myalg->m_string_property);
@@ -80,11 +83,26 @@ TEST (AnaAlgorithmTest, setProperty)
   config.setName ("name");
   config.setType ("EL::UnitTestAlg2");
   ASSERT_SUCCESS (config.setProperty ("property", 42));
+  std::vector<std::shared_ptr<void> > cleanup;
   std::unique_ptr<AnaAlgorithm> alg;
-  ASSERT_SUCCESS (config.makeAlgorithm (alg));
+  ASSERT_SUCCESS (config.makeAlgorithm (alg, cleanup));
   UnitTestAlg2 *myalg = dynamic_cast<UnitTestAlg2*>(alg.get());
   ASSERT_NE (nullptr, myalg);
   ASSERT_EQ (42, myalg->m_property);
+}
+
+TEST (AnaAlgorithmTest, setSubTool)
+{
+  AnaAlgorithmConfig config;
+  config.setName ("name");
+  config.setType ("EL::UnitTestAlg2");
+  ASSERT_SUCCESS (config.createPrivateTool ("toolHandle", "asg::AsgTool"));
+  std::vector<std::shared_ptr<void> > cleanup;
+  std::unique_ptr<AnaAlgorithm> alg;
+  ASSERT_SUCCESS (config.makeAlgorithm (alg, cleanup));
+  UnitTestAlg2 *myalg = dynamic_cast<UnitTestAlg2*>(alg.get());
+  ASSERT_NE (nullptr, myalg);
+  ASSERT_NE (nullptr, &*myalg->m_toolHandle);
 }
 
 ATLAS_GOOGLE_TEST_MAIN
