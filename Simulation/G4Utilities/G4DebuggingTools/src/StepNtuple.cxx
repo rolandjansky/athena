@@ -35,7 +35,7 @@ namespace G4UA
 
   void StepNtuple::EndOfEventAction(const G4Event*)
   {
-    //std::cout<<"start end of event, size is  "<<eventSteps.size()<<std::endl;
+    ATH_MSG_DEBUG("Start end of event; size is " << eventSteps.size());
     m_nsteps = eventSteps.size();
 
     for(unsigned int k=0; k<eventSteps.size(); k++){
@@ -67,7 +67,7 @@ namespace G4UA
       theInfo.z=pos.z();
 
       eventSteps.push_back(theInfo);
-      //std::cout<<"stepping, size is "<<eventSteps.size()<<std::endl;
+      ATH_MSG_VERBOSE("Stepping; size is " << eventSteps.size());
     }
   }
 
