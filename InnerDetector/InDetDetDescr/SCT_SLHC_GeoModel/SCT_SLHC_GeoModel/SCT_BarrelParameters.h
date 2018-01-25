@@ -75,13 +75,13 @@ public:
   std::map<int, std::vector<double> *> m_zpositionMap;
   std::map<int, std::vector<int> *> m_moduleIdMap;
 
-  IRDBRecordset_ptr SctBrlSensor;
-  IRDBRecordset_ptr SctBrlLayer;
+  IRDBRecordset_ptr m_SctBrlSensor;
+  IRDBRecordset_ptr m_SctBrlLayer;
   //IRDBRecordset_ptr SctBrlSki; 
-  IRDBRecordset_ptr SctBrlLadder; 
-  IRDBRecordset_ptr SctBrlServPerLayer; 
-  IRDBRecordset_ptr SctBrlSkiZ;
-  IRDBRecordset_ptr SctBrlGeneral;
+  IRDBRecordset_ptr m_SctBrlLadder; 
+  IRDBRecordset_ptr m_SctBrlServPerLayer; 
+  IRDBRecordset_ptr m_SctBrlSkiZ;
+  IRDBRecordset_ptr m_SctBrlGeneral;
 
   
 };
