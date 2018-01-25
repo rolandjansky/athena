@@ -33,21 +33,25 @@ using namespace std;
 using namespace SCT_ConditionsServices;
 
 SCT_ConditionsParameterTestAlg::SCT_ConditionsParameterTestAlg(const std::string& name, ISvcLocator* pSvcLocator ) : 
-  AthAlgorithm( name, pSvcLocator ),m_currentEventKey(std::string("EventInfo")),
-    m_conditionsParameterSvc("SCT_ConditionsParameterSvc",name) //use SCT_ConditionsParameterSvc if you are not running with InDetRecExample
+  AthAlgorithm(name, pSvcLocator),
+  m_currentEventKey{std::string("EventInfo")},
+  m_conditionsParameterSvc{"SCT_ConditionsParameterSvc", name} //use SCT_ConditionsParameterSvc if you are not running with InDetRecExample
 { //nop
 }
 //
-SCT_ConditionsParameterTestAlg::~SCT_ConditionsParameterTestAlg(){ }
+SCT_ConditionsParameterTestAlg::~SCT_ConditionsParameterTestAlg(){}
 
 //----------------------------------------------------------------------
-StatusCode SCT_ConditionsParameterTestAlg::initialize(){  
+StatusCode SCT_ConditionsParameterTestAlg::initialize() {
   // Get the messaging service, print where you are
-  msg(MSG::INFO) << "in initialize()" << endmsg;
+  ATH_MSG_INFO("in initialize()");
   //
-  StatusCode sc(StatusCode::SUCCESS);
+  StatusCode sc{StatusCode::SUCCESS};
   sc = m_conditionsParameterSvc.retrieve();
-  if (StatusCode::SUCCESS not_eq sc) return (msg(MSG::ERROR) << "Unable to get the parameter conditions service" << endmsg), sc;
+  if (StatusCode::SUCCESS not_eq sc) {
+    ATH_MSG_ERROR("Unable to get the parameter conditions service");
+    return sc;
+  }
 
   // Read Handle
   ATH_CHECK(m_currentEventKey.initialize());
@@ -56,79 +60,89 @@ StatusCode SCT_ConditionsParameterTestAlg::initialize(){
 } // SCT_ConditionsParameterTestAlg::execute()
 
 //----------------------------------------------------------------------
-StatusCode SCT_ConditionsParameterTestAlg::execute(){
+StatusCode SCT_ConditionsParameterTestAlg::execute() {
   //This method is only used to test the service, and only used within this package,
   // so the INFO level messages have no impact on performance of these services when used by clients
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in execute()" << endmsg;
+  ATH_MSG_DEBUG("in execute()");
   //
-  StatusCode sc(StatusCode::SUCCESS);
+  StatusCode sc{StatusCode::SUCCESS};
   
   // Get the current event
-  SG::ReadHandle<xAOD::EventInfo> currentEvent(m_currentEventKey);
-  if ( not currentEvent.isValid() ) return (msg(MSG::ERROR) << "Could not get event info" << endmsg), sc;
+  SG::ReadHandle<xAOD::EventInfo> currentEvent{m_currentEventKey};
+  if (not currentEvent.isValid()) {
+    ATH_MSG_WARNING("Could not get event info");
+    return sc;
+  }
   //
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Current Run.Event,Time: "
-  << "[" << currentEvent->runNumber()
-  << "." << currentEvent->eventNumber()
-  << "," << currentEvent->timeStamp()
-  << "]" << endmsg;
+  ATH_MSG_DEBUG("Current Run.Event,Time: "
+                << "[" << currentEvent->runNumber()
+                << "." << currentEvent->eventNumber()
+                << "," << currentEvent->timeStamp()
+                << "]");
   
-  bool paramFilled(false);
-  msg(MSG::INFO) << m_conditionsParameterSvc << endmsg;
+  bool paramFilled{false};
+  ATH_MSG_INFO(m_conditionsParameterSvc);
   
-  try{
-      paramFilled =(m_conditionsParameterSvc->filled());
-  }catch(...){
-    msg(MSG::FATAL) << "Exception caught while trying to determine whether the data object was filled" << endmsg;
+  try {
+    paramFilled =(m_conditionsParameterSvc->filled());
+  } catch (...) {
+    ATH_MSG_FATAL("Exception caught while trying to determine whether the data object was filled");
     return StatusCode::FAILURE;
   }
-  
-  try{
-     float maxval =m_conditionsParameterSvc->max(AVG_THRESHOLD);
-     float minval=m_conditionsParameterSvc->min(AVG_THRESHOLD);
-     float avg=m_conditionsParameterSvc->avg(AVG_THRESHOLD);
-     float sd=m_conditionsParameterSvc->sd(AVG_THRESHOLD);
-     unsigned int n=m_conditionsParameterSvc->n(AVG_THRESHOLD);
-     float thresh=m_conditionsParameterSvc->value(IdentifierHash(1760), AVG_THRESHOLD);
-     msg(MSG::INFO) << "   value element 1760: "<<thresh<<endmsg;
-     msg(MSG::INFO) << "        max threshold: "<<maxval<<endmsg;
-     msg(MSG::INFO) << "        min threshold: "<<minval<<endmsg;
-     msg(MSG::INFO) << "        avg threshold: "<<avg<<endmsg;
-     msg(MSG::INFO) << "   standard deviation: "<<sd<<endmsg;
-     msg(MSG::INFO) << "          no measured: "<<n<<endmsg;
-  }catch(...){
-    msg(MSG::FATAL) << "Exception caught while trying to access the thresholds" << endmsg;
+
+  try {
+    float maxval{m_conditionsParameterSvc->max(AVG_THRESHOLD)};
+    float minval{m_conditionsParameterSvc->min(AVG_THRESHOLD)};
+    float avg{m_conditionsParameterSvc->avg(AVG_THRESHOLD)};
+    float sd{m_conditionsParameterSvc->sd(AVG_THRESHOLD)};
+    unsigned int n{m_conditionsParameterSvc->n(AVG_THRESHOLD)};
+    float thresh{m_conditionsParameterSvc->value(IdentifierHash{1760}, AVG_THRESHOLD)};
+    ATH_MSG_INFO("   value element 1760: " << thresh);
+    ATH_MSG_INFO("        max threshold: " << maxval);
+    ATH_MSG_INFO("        min threshold: " << minval);
+    ATH_MSG_INFO("        avg threshold: " << avg);
+    ATH_MSG_INFO("   standard deviation: " << sd);
+    ATH_MSG_INFO("          no measured: " << n);
+  } catch (...) {
+    ATH_MSG_FATAL("Exception caught while trying to access the thresholds");
     return StatusCode::FAILURE;
   }
   //simple histogram
   SCT_ConditionsServices::S_t histo;
-  init(histo,0.0,8.0,100);
+  init(histo, 0.0, 8.0, 100);
   std::vector<float> values;
-  m_conditionsParameterSvc->getValues(values,AVG_THRESHOLD);
-  for (std::vector<float>::const_iterator i=values.begin();i!=values.end();++i){
-    fill(histo,*i); 
+  m_conditionsParameterSvc->getValues(values, AVG_THRESHOLD);
+  for (float i: values) {
+    fill(histo, i);
   }
-  m_histoString=asXmlString(histo);
-  cout<<m_histoString<<endl;
+  m_histoString = asXmlString(histo);
+
+  ATH_MSG_INFO(m_histoString);
+
   if (not paramFilled) sc = StatusCode::FAILURE;
+
   return sc;
 } // SCT_ConditionsParameterTestAlg::execute()
 
 //----------------------------------------------------------------------
-StatusCode SCT_ConditionsParameterTestAlg::finalize(){
+StatusCode SCT_ConditionsParameterTestAlg::finalize() {
   // Get the messaging service, print where you are
-  msg(MSG::INFO) << "in finalize()" << endmsg;
-  string testAreaPath=CoveritySafe::getenv("TestArea");
-  string stylePath="./histo.xsl";
-  string filename=testAreaPath+"/InnerDetector/InDetConditions/SCT_ConditionsServices/share/thresholds.xml";
-  msg(MSG::INFO)<<"Filename: "<<filename<<endmsg;
-  cout<<m_histoString<<endl;
-  cout<<"------------"<<endl;
-  ofstream opFile(filename.c_str(),ios::out);
-  opFile<<xmlHeader();
-  opFile<<stylesheet(stylePath);
-  opFile<<m_histoString<<endl;
+  ATH_MSG_INFO("in finalize()");
+
+  //  string xmlPath{CoveritySafe::getenv("XMLPATH")};
+  //  size_t found{xmlPath.find(":")};
+  //  if (found!=std::string::npos) xmlPath = xmlPath.substr(0, found);
+  string stylePath{"./histo.xsl"};
+  string filename{"./thresholds.xml"};
+  ATH_MSG_INFO("Filename: " << filename);
+
+  ATH_MSG_INFO(m_histoString);
+  ATH_MSG_INFO("------------");
+
+  ofstream opFile{filename.c_str(), ios::out};
+  opFile << xmlHeader();
+  opFile << stylesheet(stylePath);
+  opFile << m_histoString << endl;
+
   return StatusCode::SUCCESS;
 } // SCT_ConditionsParameterTestAlg::finalize()
-
-
