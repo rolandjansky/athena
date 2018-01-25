@@ -131,6 +131,19 @@ namespace EL
                                 const std::string& value);
 
 
+    /// \brief create a private tool of the given name and type
+    ///
+    /// The naming convention is somewhat inverted compared to
+    /// setTypeAndName() calls, but otherwise they would be inverted
+    /// compared to the setProperty() calls. :(
+    ///
+    /// \par Failures
+    ///   out of memory II
+  public:
+    ::StatusCode createPrivateTool (const std::string& name,
+                                    const std::string& value);
+
+
     /// \brief make an algorithm with the given configuration
     /// \par Guarantee
     ///   strong
@@ -138,7 +151,9 @@ namespace EL
     ///   configuration errors\n
     ///   algorithm creation/initialization errors
   public:
-    ::StatusCode makeAlgorithm (std::unique_ptr<AnaAlgorithm>& algorithm) const;
+    ::StatusCode
+    makeAlgorithm (std::unique_ptr<AnaAlgorithm>& algorithm,
+                   std::vector<std::shared_ptr<void> >& cleanup) const;
 
 
 
@@ -157,6 +172,10 @@ namespace EL
     /// \brief the value of \ref useXAODs
   private:
     bool m_useXAODs = true;
+
+    /// \brief the map of private tools to create
+  private:
+    std::map<std::string,std::string> m_privateTools;
 
     /// \brief the map of property values
   private:

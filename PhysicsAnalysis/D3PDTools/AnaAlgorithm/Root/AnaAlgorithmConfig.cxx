@@ -15,6 +15,8 @@
 #include <AnaAlgorithm/AnaAlgorithmConfig.h>
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
+#include <AsgTools/AsgTool.h>
+#include <AsgTools/AnaToolHandle.h>
 #include <RootCoreUtils/Assert.h>
 #include <TInterpreter.h>
 #include <regex>
@@ -25,6 +27,52 @@
 
 namespace EL
 {
+  namespace
+  {
+    /// \brief set a property on an algorithm or sub-tool
+    /// \par Guarantee
+    ///   basic
+    /// \par Failures
+    ///   could not set property\n
+    ///   property not found\n
+    ///   sub-tool not found
+
+    StatusCode doSetProperty (EL::AnaAlgorithm& alg,
+                              const std::map<std::string,std::shared_ptr<asg::AsgTool> >& tools,
+                              const std::string& name,
+                              const std::string& value)
+    {
+      using namespace msgAlgorithmConfig;
+
+      const auto split = name.rfind (".");
+      if (split == std::string::npos)
+      {
+        if (!alg.setProperty (name, value).isSuccess())
+        {
+          ANA_MSG_ERROR ("failed to set property \"" << name << "\" with value \"" << value << "\"");
+          return StatusCode::FAILURE;
+        }
+      } else
+      {
+        const std::string toolName = name.substr (0, split);
+        const std::string propertyName = name.substr (split+1);
+        const auto tool = tools.find (toolName);
+        if (tool == tools.end())
+        {
+          ANA_MSG_ERROR ("trying to set property \"" << propertyName << "\" on tool \"" << toolName << "\" which has not been configured");
+          return StatusCode::FAILURE;
+        }
+        if (!tool->second->setProperty (propertyName, value).isSuccess())
+        {
+          ANA_MSG_ERROR ("failed to set property \"" << propertyName << "\" with value \"" << value << "\" on tool \"" << toolName << "\"");
+          return StatusCode::FAILURE;
+        }
+      }
+      return StatusCode::SUCCESS;
+    }
+  }
+
+
   void AnaAlgorithmConfig :: 
   testInvariant () const
   {
@@ -135,7 +183,19 @@ namespace EL
 
 
   ::StatusCode AnaAlgorithmConfig ::
-  makeAlgorithm (std::unique_ptr<AnaAlgorithm>& algorithm) const
+  createPrivateTool (const std::string& name,
+                     const std::string& value)
+  {
+    RCU_CHANGE_INVARIANT (this);
+    m_privateTools[name] = value;
+    return StatusCode::SUCCESS;
+  }
+
+
+
+  ::StatusCode AnaAlgorithmConfig ::
+  makeAlgorithm (std::unique_ptr<AnaAlgorithm>& algorithm,
+                 std::vector<std::shared_ptr<void> >& cleanup) const
   {
     RCU_READ_INVARIANT (this);
     using namespace msgAlgorithmConfig;
@@ -175,16 +235,42 @@ namespace EL
     }
     algorithm.reset (alg);
 
-    for (auto& property : m_propertyValues)
+    std::map<std::string,std::shared_ptr<asg::AsgTool> > tools;
+    for (auto& toolInfo : m_privateTools)
     {
-      if (!alg->setProperty (property.first, property.second).isSuccess())
-      {
-        ANA_MSG_ERROR ("failed to set property \"" << property.first << "\" with value \"" << property.second << "\"");
-        return StatusCode::FAILURE;
-      }
+      // ideally we move the makeToolRootCore out of the detail
+      // namespace, but for now I just want to make this work.
+      asg::AsgTool *rawTool = nullptr;
+      ANA_CHECK (asg::detail::makeToolRootCore
+                 (toolInfo.second, m_name + "." + toolInfo.first, rawTool));
+      std::shared_ptr<asg::AsgTool> managedTool (rawTool);
+      tools.insert (std::make_pair (toolInfo.first, managedTool));
+      cleanup.push_back (managedTool);
     }
 
-    ANA_MSG_DEBUG ("Created tool of type " << m_type);
+    for (auto& property : m_propertyValues)
+    {
+      ANA_CHECK (doSetProperty (*alg, tools, property.first, property.second));
+    }
+
+    // need to create the tools inside out, i.e. sub-sub-tools before
+    // sub-tools, etc.  the general assumption is that the longer the
+    // name of the tool the more nested it is...
+    std::vector<std::pair<std::string,std::shared_ptr<asg::AsgTool> > >
+      sortedTools (tools.begin(), tools.end());
+    std::sort (sortedTools.begin(), sortedTools.end(), [] (auto& a, auto& b) {
+        return a.first.size() > b.first.size();});
+    for (const auto& tool : sortedTools)
+    {
+      ANA_CHECK (tool.second->initialize());
+
+      // using that a ToolHandle initialized with a tool name will
+      // retrieve that tool, not sure if that is the best strategy
+      ANA_CHECK (doSetProperty (*alg, tools, tool.first, tool.second->name()));
+    }
+    
+
+    ANA_MSG_DEBUG ("Created algorithm of type " << m_type);
     return StatusCode::SUCCESS;
   }
 }
