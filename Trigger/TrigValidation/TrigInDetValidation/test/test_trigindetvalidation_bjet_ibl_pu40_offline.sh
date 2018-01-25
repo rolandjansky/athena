@@ -14,7 +14,7 @@
 # art-output: *.dat 
 # art-output: *.root
 # art-output: *.log
-# art-input-nfiles: 25
+# art-input-nfiles: 10
 
 
 
