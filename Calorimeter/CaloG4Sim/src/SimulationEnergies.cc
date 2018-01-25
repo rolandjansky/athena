@@ -81,11 +81,9 @@
 #include "G4Track.hh"
 #include "G4TrackStatus.hh"
 #include "G4ParticleDefinition.hh"
-#include "G4ParticleTable.hh"
 #include "G4ThreeVector.hh"
 #include "G4VProcess.hh"
 #include "G4RunManager.hh"
-// #include "G4EmProcessSubType.hh"
 
 // Particle definitions
 #include "G4Electron.hh"
@@ -122,8 +120,6 @@
 #include "G4TouchableHistory.hh"
 
 #include "G4ios.hh"
-#include <vector>
-#include <string>
 
 
 namespace CaloG4

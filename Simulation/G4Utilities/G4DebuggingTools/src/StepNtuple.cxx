@@ -12,8 +12,6 @@
 
 #include "G4Step.hh"
 
-#include <iostream>
-
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IMessageSvc.h"
