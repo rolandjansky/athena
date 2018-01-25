@@ -24,6 +24,7 @@
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <AsgTools/IAsgTool.h>
+#include <EventLoopTest/IUnitTestTool.h>
 
 class TBranch;
 class TH1;
@@ -97,7 +98,7 @@ namespace EL
 
     /// \brief the tool handle property our owner sets
   public:
-    ToolHandle<asg::IAsgTool> m_toolHandle;
+    ToolHandle<IUnitTestTool> m_toolHandle;
 
     /// description: the name of the variable we are using
   private:
