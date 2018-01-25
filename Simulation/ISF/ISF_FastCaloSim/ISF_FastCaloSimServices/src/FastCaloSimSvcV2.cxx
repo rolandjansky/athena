@@ -109,11 +109,11 @@ StatusCode ISF::FastCaloSimSvcV2::initialize()
   ATH_MSG_INFO("------> file = " << m_paramsFile);
   m_paramsFile_photons = TFile::Open("/afs/cern.ch/atlas/groups/Simulation/FastCaloSimV2/secondPCA_photons_july17.root");
   ATH_MSG_INFO("------> photon file = " << m_paramsFile_photons);
-  m_photonFile = TFile::Open("/eos/atlas/atlascerngroupdisk/proj-simul/InputSamplesLocalProd2017/rel_21_0_47/shapePara/mc16_13TeV.photon.E65536.eta020_025.merged_default.shapepara.root");
+  m_photonFile = TFile::Open("root://eosatlas//eos/atlas/atlascerngroupdisk/proj-simul/InputSamplesLocalProd2017/rel_21_0_55/shapePara/mc16_13TeV.photon.E65536.eta020_025.merged_default_z0.shapepara.root");
   ATH_MSG_INFO("------> file = " << m_photonFile);
   m_elFile = TFile::Open("/afs/cern.ch/atlas/groups/Simulation/FastCaloSimV2/InputDistribution_el_50.000000GeV_eta_0.200000_0.250000.root");
   ATH_MSG_INFO("------> file = " << m_elFile);
-  m_pionFile = TFile::Open("/afs/cern.ch/atlas/groups/Simulation/FastCaloSimV2/InputDistribution_pion_50.000000GeV_eta_0.200000_0.250000.root");
+  m_pionFile = TFile::Open("root://eosatlas//eos/atlas/atlascerngroupdisk/proj-simul/InputSamplesLocalProd2017/rel_21_0_55/shapePara/mc16_13TeV.pionplus.E65536.eta020_025.merged_default_z0.shapepara.root");
   ATH_MSG_INFO("------> file = " << m_pionFile);
   
   TFCSPCAEnergyParametrization* epara_pions    =new TFCSPCAEnergyParametrization("pions","pions");
@@ -445,16 +445,10 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
   ATH_MSG_INFO("number of HITS = "<<m_nHits);
   
   R=sqrt(r_layer*r_layer + z_particle*z_particle);
-  //findEtaMMRange(R,eta,deltaEtaMMmin,deltaEtaMMmax);
-  //deltaEtaMMmin*=0.999;
-  //deltaEtaMMmax*=0.999;
-  ATH_MSG_DEBUG("Particle position: R: " << R << " TTC_z: " << z_particle << " z_particle: " << particle_position.z() << " r_layer: " << r_layer << " eta: " << eta);
   
-  /*
-  std::cout<<"Range for Delta eta[mm]: " << "[" << deltaEtaMMmin << "," << deltaEtaMMmax << "]" << std::endl;
-  std::cout << "Particle position: R: " << R << " eta: " << eta << std::endl;
-  std::cout<<"layer "<<layer<<" number of HITS = "<<m_nHits<<std::endl;
-  */
+  ATH_MSG_DEBUG("Particle position: R: " << R << " TTC_z: " << z_particle << " z_particle: " << particle_position.z() << " r_layer: " << r_layer << " eta: " << eta);
+  ATH_MSG_DEBUG("layer "<<layer<<" number of HITS = "<<m_nHits);
+  
   
   if(m_useOneDShapeParametrisation)
   {
@@ -465,7 +459,7 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
     double mean, err, energyDensityInBin, energyInBin;      
     mean = proj->GetBinContent(i);
     err = proj->GetBinError(i);
-    //std::cout << "Bin: " << i << " mean: " << mean << "  err: " << err << std::endl;
+    ATH_MSG_DEBUG("Bin: " << i << " mean: " << mean << "  err: " << err);
     
     energyDensityInBin = CLHEP::RandGauss::shoot(m_randomEngine,mean,err);
 
@@ -474,7 +468,7 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
     double minR = proj->GetBinLowEdge(i);
     double maxR = proj->GetBinLowEdge(i) + proj->GetBinWidth(i);
     
-    //std::cout << "Energy in layer: " << layerE << " energyDensityInBin: " << energyDensityInBin << "  energyInBin: " << energyInBin << std::endl;
+    ATH_MSG_DEBUG("Energy in layer: " << layerE << " energyDensityInBin: " << energyDensityInBin << "  energyInBin: " << energyInBin);
     LoopOverHits(energyInBin, minR, maxR);
     if(cellcheck) TestCell();
    }
@@ -488,7 +482,7 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
     
  } //loop layer
  
- if(cellcheck) std::cout<<"ECHECK etot "<<esum<<" epara "<<simulstate.E()<<" nCells "<<nCells<<" nCells_Tile "<<nCells_Tile<<std::endl;
+ if(cellcheck) ATH_MSG_DEBUG("ECHECK etot "<<esum<<" epara "<<simulstate.E()<<" nCells "<<nCells<<" nCells_Tile "<<nCells_Tile);
  
  delete m_histEnergyDensity2D;
  return StatusCode::SUCCESS;
@@ -508,30 +502,23 @@ void ISF::FastCaloSimSvcV2::LoopOverHits(double totalEnergy, double minR, double
   
   
   
-  //do
-  //{
-   if(m_useOneDShapeParametrisation)
-   {
-    r = CLHEP::RandFlat::shoot(m_randomEngine,minR,maxR);
-    alpha = CLHEP::RandFlat::shoot(m_randomEngine,2*TMath::Pi());
-   }
-   else this->getRandom2(m_histEnergyDensity2D,r,alpha);
-   
-   //if(alpha>TMath::Pi()) alpha = -(alpha - TMath::Pi());
-   delta_eta_mm=r * cos(alpha);
-  //}
-  //while(delta_eta_mm<deltaEtaMMmin || delta_eta_mm>deltaEtaMMmax);
   
+  if(m_useOneDShapeParametrisation)
+  {
+   r = CLHEP::RandFlat::shoot(m_randomEngine,minR,maxR);
+   alpha = CLHEP::RandFlat::shoot(m_randomEngine,2*TMath::Pi());
+  }
+  else this->getRandom2(m_histEnergyDensity2D,r,alpha);
+   
+  delta_eta_mm=r * cos(alpha);
+    
   double delta_phi_mm = r * sin(alpha);
-  //std::cout<<"got a hit positon from the histogram!"<<" r "<<r<<" alpha "<<alpha<<" r_layer "<<r_layer<<" z_particle "<<z_particle<<" eta "<<eta<<std::endl;
-  //double r_layer=m_rlayers[ilayer*n_pcabins+pcabin-1];
+  ATH_MSG_DEBUG("got a hit positon from the histogram!"<<" r "<<r<<" alpha "<<alpha<<" r_layer "<<r_layer<<" z_particle "<<z_particle<<" eta "<<eta);
   
   double jacobian=exp(-eta);
   jacobian=2.0 * jacobian / (1.0 + jacobian*jacobian);
   double hit_eta=eta + delta_eta_mm/(R*jacobian);
   
-  //double hit_eta=findHitEta(delta_eta_mm,R,eta);
-  //std::cout<<"hit_eta "<<hit_eta<<std::endl;
   
   double delta_phi=delta_phi_mm/r_layer;
   double hit_phi = phi+delta_phi;
@@ -543,7 +530,7 @@ void ISF::FastCaloSimSvcV2::LoopOverHits(double totalEnergy, double minR, double
    if(layer < 4 && layer > 0)
    {
     wiggle = doWiggle(layer);
-    //std::cout << "wiggle is " << wiggle << std::endl;
+    ATH_MSG_DEBUG("wiggle is " << wiggle);
    }
    hit_phi_shifted=hit_phi-wiggle;
    hit_phi_shifted=TVector2::Phi_mpi_pi(hit_phi_shifted);
@@ -563,15 +550,13 @@ void ISF::FastCaloSimSvcV2::LoopOverHits(double totalEnergy, double minR, double
   CaloCell* theCell = (CaloCell*)m_theContainer->findCell(mcell->calo_hash());
   theCell->addEnergy(totalEnergy / m_nHits);
   
-  /*
-  if(hit<10)
+  
+  if(cellcheck && hit<10)
   {
-   ATH_MSG_INFO("Hit nr "<<i<<" eta: " << hit_eta << " phi: " << hit_phi << " Particle eta: " << eta << " phi: " << phi << " delta_eta: " << hit_eta - eta << " delta_phi: " << hit_phi - phi);
-   ATH_MSG_INFO(" Cell from CaloGeometry: eta: " << mcell->eta() << " phi: " << mcell->phi() << " |CELL_eta - HIT_eta| " << abs(mcell->eta() - hit_eta)  << " |CELL_phi - HIT_phi| " << abs(mcell->phi() - hit_phi));
-   ATH_MSG_INFO(" energy density in layer: "<<energyDensityInBin);
-   ATH_MSG_INFO(" energy input into cell: "<<energyInBin / m_nHits);
+   ATH_MSG_DEBUG("Hit nr "<<hit<<" eta: " << hit_eta << " phi: " << hit_phi << " Particle eta: " << eta << " phi: " << phi << " delta_eta: " << hit_eta - eta << " delta_phi: " << hit_phi - phi);
+   ATH_MSG_DEBUG(" Cell from CaloGeometry: eta: " << mcell->eta() << " phi: " << mcell->phi() << " |CELL_eta - HIT_eta| " << abs(mcell->eta() - hit_eta)  << " |CELL_phi - HIT_phi| " << abs(mcell->phi() - hit_phi));
   }
-  */
+  
   
   if(cellcheck){
    const CaloDetDescrElement* DDE = theCell->caloDDE();
@@ -585,10 +570,7 @@ void ISF::FastCaloSimSvcV2::LoopOverHits(double totalEnergy, double minR, double
    }
 
    // Hit-to-cell assignment check
-   
-   //double delta_phi_check=abs(std::fmod(DDE->phi() - hit_phi_shifted,TMath::Pi()*2.));
    double delta_phi_check=abs(TVector2::Phi_mpi_pi(DDE->phi() - hit_phi_shifted));
-   //if(delta_phi_check>TMath::Pi())delta_phi_check=TMath::Pi()*2.-delta_phi_check;
    if(abs(DDE->eta() - hit_eta) > DDE->deta()/2*1.01 || abs(delta_phi_check) > DDE->dphi()/2*1.01) {
      ATH_MSG_ERROR("Error in hit-to-cell assignment: Hit is too far from the cell.");
      ATH_MSG_ERROR(" Cell from CaloGeometry: eta: " << DDE->eta() << " deta: " << DDE->deta() << " phi: " << DDE->phi() << " dphi: " << DDE->dphi() << " |CELL_eta - HIT_eta|/(0.5*deta) " << abs(DDE->eta() - hit_eta)*2./ DDE->deta() 
@@ -598,9 +580,9 @@ void ISF::FastCaloSimSvcV2::LoopOverHits(double totalEnergy, double minR, double
 
    if(hit<10)
    {
-    ATH_MSG_INFO("Hit nr "<<hit<<" eta: " << hit_eta << " phi: " << hit_phi << " Particle eta: " << eta << " phi: " << phi << " delta_eta: " << hit_eta - eta << " delta_phi: " << hit_phi - phi);
-    ATH_MSG_INFO(" Cell from CaloGeometry: eta: " << mcell->eta() << " phi: " << mcell->phi() << " |CELL_eta - HIT_eta|/(0.5*CELL_deta) " << abs(mcell->eta() - hit_eta)*2/mcell->deta()  << " |CELL_phi - HIT_phi|/(0.5*CELL_dphi) " << abs(mcell->phi() - hit_phi_shifted)*2./mcell->dphi());
-    ATH_MSG_INFO(" energy input into cell: "<<layerE / m_nHits);
+    ATH_MSG_DEBUG("Hit nr "<<hit<<" eta: " << hit_eta << " phi: " << hit_phi << " Particle eta: " << eta << " phi: " << phi << " delta_eta: " << hit_eta - eta << " delta_phi: " << hit_phi - phi);
+    ATH_MSG_DEBUG(" Cell from CaloGeometry: eta: " << mcell->eta() << " phi: " << mcell->phi() << " |CELL_eta - HIT_eta|/(0.5*CELL_deta) " << abs(mcell->eta() - hit_eta)*2/mcell->deta()  << " |CELL_phi - HIT_phi|/(0.5*CELL_dphi) " << abs(mcell->phi() - hit_phi_shifted)*2./mcell->dphi());
+    ATH_MSG_DEBUG(" energy input into cell: "<<layerE / m_nHits);
    }
 }  //if cellcheck
   
@@ -622,7 +604,6 @@ void ISF::FastCaloSimSvcV2::TestCell()
  for(;it!=it_e;++it)
  {
   CaloCell* theCell=(*it);
-  //const unsigned int hash_id=theCell->caloDDE()->calo_hash();
   const Identifier cell_id=theCell->ID();
   esum+=theCell->energy();
   if(theCell->energy()>cut)
@@ -634,13 +615,11 @@ void ISF::FastCaloSimSvcV2::TestCell()
    if(detID->is_lar_fcal(cell_id)==1) isFCAL=1;
    if(detID->is_tile(cell_id)==1)     isTile=1;
    
-   std::cout<<"cell_id "<<cell_id<<" energy "<<theCell->energy()<<" eta "<<theCell->eta()<<" phi "<<phi;
-   if(isLAr)  { std::cout<<"  LArEM sampling "<<larID->sampling(cell_id); }
-   if(isHEC)  { std::cout<<"  HEC sampling   "<<hecID->sampling(cell_id); }
-   if(isFCAL) { std::cout<<"  FCAL module    "<<fcalID->module(cell_id); }
-   if(isTile) { std::cout<<"  TILE sampling  "<<tileID->sampling(cell_id); nCells_Tile++; }
-   
-   std::cout<<" "<<std::endl;
+   ATH_MSG_DEBUG("cell_id "<<cell_id<<" energy "<<theCell->energy()<<" eta "<<theCell->eta()<<" phi "<<phi);
+   if(isLAr)  { ATH_MSG_DEBUG("  LArEM sampling "<<larID->sampling(cell_id)); }
+   if(isHEC)  { ATH_MSG_DEBUG("  HEC sampling   "<<hecID->sampling(cell_id)); }
+   if(isFCAL) { ATH_MSG_DEBUG("  FCAL module    "<<fcalID->module(cell_id)); }
+   if(isTile) { ATH_MSG_DEBUG("  TILE sampling  "<<tileID->sampling(cell_id)); nCells_Tile++; }
    nCells++;
   }
  }
@@ -648,7 +627,7 @@ void ISF::FastCaloSimSvcV2::TestCell()
  double sum_epara=0.0;
  for(int a=0;a<=ilayer;a++) sum_epara+=simulstate.E(m_layers->GetAt(a));
  
- std::cout<<"ECHECK layer "<<layer<<" esum "<<esum<<" epara "<<sum_epara<<" (this layer: "<<simulstate.E(layer)<<") nCells "<<nCells<<" nCells_Tile "<<nCells_Tile<<std::endl;
+ ATH_MSG_DEBUG("ECHECK layer "<<layer<<" esum "<<esum<<" epara "<<sum_epara<<" (this layer: "<<simulstate.E(layer)<<") nCells "<<nCells<<" nCells_Tile "<<nCells_Tile);
 }
 
 //-----HITS:-----
@@ -659,7 +638,6 @@ int ISF::FastCaloSimSvcV2::hitCalc(double energy, int calolayer,int pcabin, int 
  int hits=1;
 
  std::vector<std::vector<int> > hitVectorPions(24);
- //for(int i=0;i<24;i++)hitVector[i].resize(5);
  hitVectorPions[0]={105,62,30,9,4};
  hitVectorPions[1]={569,283,117,31,7};
  hitVectorPions[2]={2320,1859,1189,380,35};
@@ -687,29 +665,6 @@ int ISF::FastCaloSimSvcV2::hitCalc(double energy, int calolayer,int pcabin, int 
   if(pdgid == 211)
   {
    return hitVectorPions[calolayer][pcabin-1];
-   
-   /*
-   if(calolayer >= 0 && calolayer<= 7)
-   {
-    stochastic=0.101;     //LAr      10.1%/sqrt(E)
-    constant=0.002;
-   }
-   if(calolayer >= 8 && calolayer <= 11)
-   {
-    stochastic=0.706;     //HadEC  70.6%/sqrt(E) for pions
-    constant=0.058;
-   }
-   if(calolayer >= 12 && calolayer <= 20)
-   {
-    stochastic=0.564;     //TileCal 56.4%/sqrt(E)
-    constant=0.055;
-   }
-   if(calolayer >= 21 && calolayer <= 23)
-   {
-    stochastic=0.942;     //FCAL    94.2%/sqrt(E) for pions
-    constant=0.075;
-   }
-   */
   }
 
   if(pdgid != 211)
@@ -755,8 +710,6 @@ double ISF::FastCaloSimSvcV2::findHitEta(const double delta_eta_mm,const double 
 {
   double x=eta_particle; // approximation of hit_eta, starting point for iterations
   
-  //std::cout<<"in findHitEta: delta_eta_mm "<<delta_eta_mm<<" R "<<R<<" x "<<x<<std::endl;
-  
   double a,b;
   double c,d;
   double delta;
@@ -775,12 +728,9 @@ double ISF::FastCaloSimSvcV2::findHitEta(const double delta_eta_mm,const double 
     b = transformationEtaToMMFirstDerivative(R,delta,sech,tanh);// first derivative of the transformation
     x = x - a/b;
     count++;
-    
-    //std::cout<<"count "<<count<<" a "<<a<<" b "<<b<<" c "<<c<<" d "<<d<<" delta "<<delta<<" x "<<x<<std::endl;
   }
   while((abs(a) > epsilon) && count<1000);
   if(x!=x || count>=1000) ATH_MSG_ERROR("Error: Hit eta not found.");
-  //std::cout << "hit_eta: " << x << " error: " << a/b << std::endl;
   return x;
 }
 
@@ -794,8 +744,6 @@ double ISF::FastCaloSimSvcV2::findStartingPoint(const double R,const double eta_
   double y=0,max=0;
   
   const double epsilon=sign*0.2;
-  //std::cout << "Serching for starting point" << std::endl;
-  //std::cout << "Epsilon" << epsilon << std::endl;
   int count=0;
   for(;count<1000;count++)
   {
@@ -805,7 +753,6 @@ double ISF::FastCaloSimSvcV2::findStartingPoint(const double R,const double eta_
    d=1./c;
    sech=2./(c+d);
    y=transformationEtaToMM(R,delta,sech);
-   //std::cout << "y " << y << " max " << max << " sign*(y - max) " << sign*(y - max) << std::endl;
    if(sign*(y - max)>0)max=y;
    else break;
   }
@@ -816,11 +763,8 @@ double ISF::FastCaloSimSvcV2::findStartingPoint(const double R,const double eta_
 
 void ISF::FastCaloSimSvcV2::findEtaMMRange(const double R,const double eta_particle,double & etaMin,double & etaMax)
 {
-  
-  // const double epsilon1=0.1;
   double delta;
   double x=eta_particle;
-  // double secondDerivative(0);
   double c,d,sech,tanh;
   
   double startingPointForMaximum=findStartingPoint(R,eta_particle,true);
@@ -832,10 +776,6 @@ void ISF::FastCaloSimSvcV2::findEtaMMRange(const double R,const double eta_parti
   sech=2./(c+d);
   tanh=(c-d)/2.*sech;
   delta=startingPointForMaximum-eta_particle;
-  //std::cout<< "Starting point for maximum: " << startingPointForMaximum << std::endl;
-  //std::cout<< "Function evaluated in starting point for maximum: " << transformationEtaToMM(R,delta,sech) << std::endl;
-  //std::cout<< "First derivative in starting point for maximum: " << transformationEtaToMMFirstDerivative(R,delta,sech,tanh) << std::endl;
-  //std::cout<< "Second derivative in starting point for maximum: " << transformationEtaToMMSecondDerivative(R,delta,sech,tanh) << std::endl;
   
   
   c=exp(startingPointForMinimum);
@@ -843,19 +783,13 @@ void ISF::FastCaloSimSvcV2::findEtaMMRange(const double R,const double eta_parti
   sech=2./(c+d);
   tanh=(c-d)/2.*sech;
   delta=startingPointForMinimum-eta_particle;
-  //std::cout<< "Starting point for minimum: " << startingPointForMinimum << std::endl;
-  //std::cout<< "Function evaluated in starting point for minimum: " << transformationEtaToMM(R,delta,sech) << std::endl;
-  //std::cout<< "First derivative in starting point for minimum: " << transformationEtaToMMFirstDerivative(R,delta,sech,tanh) << std::endl;
-  //std::cout<< "Second derivative in starting point for minimum: " << transformationEtaToMMSecondDerivative(R,delta,sech,tanh) << std::endl;
   
   x=startingPointForMaximum;
   const double epsilon=0.001;
   int count =0;
   double a,b;
-  //double e;
   double gamma=1;
   
-  //std::cout << "Searching for maximum" << std::endl;
   do
   {
     c=exp(x);
@@ -865,11 +799,9 @@ void ISF::FastCaloSimSvcV2::findEtaMMRange(const double R,const double eta_parti
     delta=x-eta_particle;
     a = transformationEtaToMMFirstDerivative(R,delta,sech,tanh);// transformation
     b = transformationEtaToMMSecondDerivative(R,delta,sech,tanh);// first derivative of the transformation
-    //e = transformationEtaToMM(R,delta,sech);
     x = x - gamma*a/b;
     count++;
     
-    //std::cout<<"count "<<count<<" a "<<a<<" b "<<b<< " value " << e <<" c "<<c<<" d "<<d<<" delta "<<delta<<" x "<<x<<std::endl;
   } while((abs(a) > epsilon) && count<1000);
   if(x!=x || count>=1000) ATH_MSG_ERROR("Error: Maximum for delta eta[mm] range not found.");
   
@@ -878,12 +810,10 @@ void ISF::FastCaloSimSvcV2::findEtaMMRange(const double R,const double eta_parti
   d=1./c;
   sech=2./(c+d);
   etaMax=transformationEtaToMM(R,delta,sech);
-  //std::cout << " Position of maximum " << x << " Eta particle " << eta_particle << " Delta Eta max[mm] " << etaMax << std::endl;
 
   
   x=startingPointForMinimum;
   count =0;
-  //std::cout << "Searching for minimum" << std::endl;
   do
   {
     c=exp(x);
@@ -893,11 +823,9 @@ void ISF::FastCaloSimSvcV2::findEtaMMRange(const double R,const double eta_parti
     delta=x-eta_particle;
     a = transformationEtaToMMFirstDerivative(R,delta,sech,tanh);// transformation
     b = transformationEtaToMMSecondDerivative(R,delta,sech,tanh);// first derivative of the transformation
-    //e = transformationEtaToMM(R,delta,sech);
     x = x - gamma*a/b;
     count++;
     
-    //std::cout<<"count "<<count<<" a "<<a<<" b "<<b<< " value " << e <<" c "<<c<<" d "<<d<<" delta "<<delta<<" x "<<x<<std::endl;
   } while((abs(a) > epsilon) && count<1000);
   if(x!=x || count>=1000) ATH_MSG_ERROR("Error: Minimum for delta eta[mm] range not found.");
   delta=x-eta_particle;
@@ -905,7 +833,6 @@ void ISF::FastCaloSimSvcV2::findEtaMMRange(const double R,const double eta_parti
   d=1./c;
   sech=2./(c+d);
   etaMin=transformationEtaToMM(R,delta,sech);
-  //std::cout << " Position of minimum " << x << " Eta particle " << eta_particle << " Delta Eta min[mm] " << etaMin << std::endl;
   
 }
 
@@ -956,7 +883,6 @@ double ISF::FastCaloSimSvcV2::doWiggle(int layer)
 }
 
 void ISF::FastCaloSimSvcV2::getRandom2(TH2* h,double &x,double &y){
-  //ATH_MSG_INFO("Running ISF::FastCaloSimSvcV2::getRandom2"); 
   TAxis* fXaxis = h->GetXaxis();
   TAxis* fYaxis = h->GetYaxis();
   const int nbinsx = h->GetNbinsX();
