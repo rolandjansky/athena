@@ -1,8 +1,7 @@
 
 /*
   Skeleton for in progress Event Filter Z_mu+mu- Online Tag and Probe algorithm
-  Possible names: TrigMuonEFTagandProbe
-  Authors: JJamieson, University of Glasgow, 09/10/2017, Edit: 24/11/2017
+  Authors: JJamieson, University of Glasgow, 09/10/2017, Last edit: 25/01/2018
   
   
 
@@ -204,6 +203,43 @@ TrigMuonEFTagandProbe::TrigMuonEFTagandProbe(const std::string &name, ISvcLocato
   declareMonitoredStdContainer("EF_Eta_Total_thr6",         m_eta_total_thr6,            IMonitoredAlgo::AutoClear);
   declareMonitoredStdContainer("EF_Eta_Passing_thr6",       m_eta_passing_thr6,          IMonitoredAlgo::AutoClear);
 
+
+
+  //Need three seperate eff vectors as Totals are different sizes for Eta unsplit, phi&eta split and pT split
+  declareMonitoredStdContainer("EF_Eta_Eff_thr1",           m_eta_eff_thr1,              IMonitoredAlgo::AutoClear);
+  declareMonitoredStdContainer("EF_Eta_Eff_thr2",           m_eta_eff_thr2,              IMonitoredAlgo::AutoClear);
+  declareMonitoredStdContainer("EF_Eta_Eff_thr3",           m_eta_eff_thr3,              IMonitoredAlgo::AutoClear);
+  declareMonitoredStdContainer("EF_Eta_Eff_thr4",           m_eta_eff_thr4,              IMonitoredAlgo::AutoClear);
+  declareMonitoredStdContainer("EF_Eta_Eff_thr5",           m_eta_eff_thr5,              IMonitoredAlgo::AutoClear);
+  declareMonitoredStdContainer("EF_Eta_Eff_thr6",           m_eta_eff_thr6,              IMonitoredAlgo::AutoClear);
+
+  declareMonitoredStdContainer("EF_Etaphi_Eff_thr1_b",      m_etaphi_eff_thr1_b,         IMonitoredAlgo::AutoClear);
+  declareMonitoredStdContainer("EF_Etaphi_Eff_thr1_e",      m_etaphi_eff_thr1_e,         IMonitoredAlgo::AutoClear);
+  declareMonitoredStdContainer("EF_Etaphi_Eff_thr2_b",      m_etaphi_eff_thr2_b,         IMonitoredAlgo::AutoClear);
+  declareMonitoredStdContainer("EF_Etaphi_Eff_thr2_e",      m_etaphi_eff_thr2_e,         IMonitoredAlgo::AutoClear);
+  declareMonitoredStdContainer("EF_Etaphi_Eff_thr3_b",      m_etaphi_eff_thr3_b,         IMonitoredAlgo::AutoClear);
+  declareMonitoredStdContainer("EF_Etaphi_Eff_thr3_e",      m_etaphi_eff_thr3_e,         IMonitoredAlgo::AutoClear);
+  declareMonitoredStdContainer("EF_Etaphi_Eff_thr4_b",      m_etaphi_eff_thr4_b,         IMonitoredAlgo::AutoClear);
+  declareMonitoredStdContainer("EF_Etaphi_Eff_thr4_e",      m_etaphi_eff_thr4_e,         IMonitoredAlgo::AutoClear);
+  declareMonitoredStdContainer("EF_Etaphi_Eff_thr5_b",      m_etaphi_eff_thr5_b,         IMonitoredAlgo::AutoClear);
+  declareMonitoredStdContainer("EF_Etaphi_Eff_thr5_e",      m_etaphi_eff_thr5_e,         IMonitoredAlgo::AutoClear);
+  declareMonitoredStdContainer("EF_Etaphi_Eff_thr6_b",      m_etaphi_eff_thr6_b,         IMonitoredAlgo::AutoClear);
+  declareMonitoredStdContainer("EF_Etaphi_Eff_thr6_e",      m_etaphi_eff_thr6_e,         IMonitoredAlgo::AutoClear);
+
+  
+  declareMonitoredStdContainer("EF_Pt_Eff_thr1_b",          m_pt_eff_thr1_b,             IMonitoredAlgo::AutoClear);
+  declareMonitoredStdContainer("EF_Pt_Eff_thr1_e",          m_pt_eff_thr1_e,             IMonitoredAlgo::AutoClear);
+  declareMonitoredStdContainer("EF_Pt_Eff_thr2_b",          m_pt_eff_thr2_b,             IMonitoredAlgo::AutoClear);
+  declareMonitoredStdContainer("EF_Pt_Eff_thr2_e",          m_pt_eff_thr2_e,             IMonitoredAlgo::AutoClear);
+  declareMonitoredStdContainer("EF_Pt_Eff_thr3_b",          m_pt_eff_thr3_b,             IMonitoredAlgo::AutoClear);
+  declareMonitoredStdContainer("EF_Pt_Eff_thr3_e",          m_pt_eff_thr3_e,             IMonitoredAlgo::AutoClear);
+  declareMonitoredStdContainer("EF_Pt_Eff_thr4_b",          m_pt_eff_thr4_b,             IMonitoredAlgo::AutoClear);
+  declareMonitoredStdContainer("EF_Pt_Eff_thr4_e",          m_pt_eff_thr4_e,             IMonitoredAlgo::AutoClear);
+  declareMonitoredStdContainer("EF_Pt_Eff_thr5_b",          m_pt_eff_thr5_b,             IMonitoredAlgo::AutoClear);
+  declareMonitoredStdContainer("EF_Pt_Eff_thr5_e",          m_pt_eff_thr5_e,             IMonitoredAlgo::AutoClear);
+  declareMonitoredStdContainer("EF_Pt_Eff_thr6_b",          m_pt_eff_thr6_b,             IMonitoredAlgo::AutoClear);
+  declareMonitoredStdContainer("EF_Pt_Eff_thr6_e",          m_pt_eff_thr6_e,             IMonitoredAlgo::AutoClear);
+
 }
 
 TrigMuonEFTagandProbe::~TrigMuonEFTagandProbe(){} //Destructor
@@ -313,20 +349,74 @@ HLT::ErrorCode TrigMuonEFTagandProbe::hltInitialize()
   Thresh_Mon.push_back(&m_delta_r_thresh5);
   Thresh_Mon.push_back(&m_delta_r_thresh6);
 
-
+  
   //Merged Barrel and Endcap stats for eta plots
-  Thresh_Mon.push_back(&m_eta_total_thr1);
+  Thresh_Mon.push_back(&m_eta_total_thr1); //79
   Thresh_Mon.push_back(&m_eta_passing_thr1);
+
   Thresh_Mon.push_back(&m_eta_total_thr2);
   Thresh_Mon.push_back(&m_eta_passing_thr2);
+
   Thresh_Mon.push_back(&m_eta_total_thr3);
   Thresh_Mon.push_back(&m_eta_passing_thr3);
+
   Thresh_Mon.push_back(&m_eta_total_thr4);
   Thresh_Mon.push_back(&m_eta_passing_thr4);
+
   Thresh_Mon.push_back(&m_eta_total_thr5);
   Thresh_Mon.push_back(&m_eta_passing_thr5);
+
   Thresh_Mon.push_back(&m_eta_total_thr6);
   Thresh_Mon.push_back(&m_eta_passing_thr6);
+
+
+  
+  
+  Thresh_Mon.push_back(&m_etaphi_eff_thr1_b);//91
+  Thresh_Mon.push_back(&m_pt_eff_thr1_b);  
+
+  Thresh_Mon.push_back(&m_etaphi_eff_thr2_b);
+  Thresh_Mon.push_back(&m_pt_eff_thr2_b);
+
+  Thresh_Mon.push_back(&m_etaphi_eff_thr3_b);
+  Thresh_Mon.push_back(&m_pt_eff_thr3_b);  
+
+  Thresh_Mon.push_back(&m_etaphi_eff_thr4_b);
+  Thresh_Mon.push_back(&m_pt_eff_thr4_b);  
+
+  Thresh_Mon.push_back(&m_etaphi_eff_thr5_b);
+  Thresh_Mon.push_back(&m_pt_eff_thr5_b);  
+
+  Thresh_Mon.push_back(&m_etaphi_eff_thr6_b);
+  Thresh_Mon.push_back(&m_pt_eff_thr6_b);  
+
+
+  Thresh_Mon.push_back(&m_etaphi_eff_thr1_e);
+  Thresh_Mon.push_back(&m_pt_eff_thr1_e);
+
+  Thresh_Mon.push_back(&m_etaphi_eff_thr2_e);
+  Thresh_Mon.push_back(&m_pt_eff_thr2_e);
+
+  Thresh_Mon.push_back(&m_etaphi_eff_thr3_e);
+  Thresh_Mon.push_back(&m_pt_eff_thr3_e);
+
+  Thresh_Mon.push_back(&m_etaphi_eff_thr4_e);
+  Thresh_Mon.push_back(&m_pt_eff_thr4_e);
+
+  Thresh_Mon.push_back(&m_etaphi_eff_thr5_e);
+  Thresh_Mon.push_back(&m_pt_eff_thr5_e);
+
+  Thresh_Mon.push_back(&m_etaphi_eff_thr6_e);
+  Thresh_Mon.push_back(&m_pt_eff_thr6_e);
+
+
+
+  Thresh_Mon.push_back(&m_eta_eff_thr1);//115 
+  Thresh_Mon.push_back(&m_eta_eff_thr2); 
+  Thresh_Mon.push_back(&m_eta_eff_thr3); 
+  Thresh_Mon.push_back(&m_eta_eff_thr4); 
+  Thresh_Mon.push_back(&m_eta_eff_thr5); 
+  Thresh_Mon.push_back(&m_eta_eff_thr6); 
 
 
   //Might need to use setup to apply pre cuts to reduce data for tag and probe
@@ -368,6 +458,7 @@ HLT::ErrorCode TrigMuonEFTagandProbe::hltFinalize()
 
   ATH_MSG_INFO("testphrase TrigMuonEFTagandProbe::hltFinalize(): Merge Successful"); 
   */
+
   return HLT::OK;
 }
 
@@ -656,9 +747,19 @@ void TrigMuonEFTagandProbe::match_thresh (TaPMuon tap ,std::vector<std::vector <
 	thresh_mon[3+i*12]->push_back(tap.Mu->phi()); //phi barrel passed 
 	thresh_mon[78+i*2]->push_back(tap.Mu->eta()); //eta merged total
 	thresh_mon[79+i*2]->push_back(tap.Mu->eta()); //eta merged passed
+       
+	thresh_mon[114+i]->push_back(1.0); //eta merged eff
+	thresh_mon[90+i*2]->push_back(1.0); //etaphi_b eff
+	
+
       }
       thresh_mon[4+i*12]->push_back(tap.Mu->pt()/CLHEP::GeV); //pT barrel Total
       thresh_mon[5+i*12]->push_back(tap.Mu->pt()/CLHEP::GeV); //pT barrel Passed
+
+      
+      thresh_mon[91+i*2]->push_back(1.0); //pt_b merged eff
+      
+
       thresh_mon[72+i]->push_back(tap.DR); //DR merged 
 
     }
@@ -673,9 +774,19 @@ void TrigMuonEFTagandProbe::match_thresh (TaPMuon tap ,std::vector<std::vector <
 	thresh_mon[9+i*12]->push_back(tap.Mu->phi()); //phi endcap passed
 	thresh_mon[78+i*2]->push_back(tap.Mu->eta()); //eta merged total
 	thresh_mon[79+i*2]->push_back(tap.Mu->eta()); //eta merged passed
+
+	
+	thresh_mon[114+i]->push_back(1.0); //eta merged eff
+	thresh_mon[102+i*2]->push_back(1.0); //etaphi_e merged eff
+	  
+
       }
       thresh_mon[10+i*12]->push_back(tap.Mu->pt()/CLHEP::GeV); //pT endcap Total
       thresh_mon[11+i*12]->push_back(tap.Mu->pt()/CLHEP::GeV); //pT endcap Passed
+      
+      
+      thresh_mon[103+i*2]->push_back(1.0); //pt_e merged eff
+
       thresh_mon[72+i]->push_back(tap.DR); //DR merged
     }
   }
@@ -718,8 +829,19 @@ void TrigMuonEFTagandProbe::match_thresh (const xAOD::Muon* muon ,std::vector<st
 
 	thresh_mon[78+i*2]->push_back(muon->eta()); //eta merged total
 
+	
+	thresh_mon[114+i]->push_back(0.0); //eta merged eff
+	thresh_mon[90+i*2]->push_back(0.0); //etaphi_b eff
+	
+
+
       }
       thresh_mon[4+i*12]->push_back(muon->pt()/CLHEP::GeV); //pT barrel Total
+
+
+      
+      thresh_mon[91+i*2]->push_back(0.0); //pt_b merged eff
+      
       
     }
   }
@@ -731,9 +853,17 @@ void TrigMuonEFTagandProbe::match_thresh (const xAOD::Muon* muon ,std::vector<st
 	thresh_mon[8+i*12]->push_back(muon->phi()); //phi endcap total
 
 	thresh_mon[78+i*2]->push_back(muon->eta()); //eta merged total
+
+	thresh_mon[114+i]->push_back(0.0); //eta merged eff
+	thresh_mon[102+i*2]->push_back(0.0); //etaphi_e merged eff
+	
       }
       thresh_mon[10+i*12]->push_back(muon->pt()/CLHEP::GeV); //pT endcap Total
 
+      
+      thresh_mon[103+i*2]->push_back(0.0); //pt_e merged eff
+      
+	
     }
   }
 }

@@ -177,6 +177,46 @@ class TrigMuonEFTagandProbe: public virtual HLT::FexAlgo { //TaP algorithm will 
   std::vector<float> m_eta_passing_thr6;
 
 
+
+  std::vector<float> m_etaphi_eff_thr1_b;
+  std::vector<float> m_pt_eff_thr1_b;
+  std::vector<float> m_etaphi_eff_thr2_b;
+  std::vector<float> m_pt_eff_thr2_b;
+  std::vector<float> m_etaphi_eff_thr3_b;
+  std::vector<float> m_pt_eff_thr3_b;
+  std::vector<float> m_etaphi_eff_thr4_b;
+  std::vector<float> m_pt_eff_thr4_b;
+  std::vector<float> m_etaphi_eff_thr5_b;
+  std::vector<float> m_pt_eff_thr5_b;
+  std::vector<float> m_etaphi_eff_thr6_b;
+  std::vector<float> m_pt_eff_thr6_b;
+
+
+  std::vector<float> m_etaphi_eff_thr1_e;
+  std::vector<float> m_pt_eff_thr1_e;
+  std::vector<float> m_etaphi_eff_thr2_e;
+  std::vector<float> m_pt_eff_thr2_e;
+  std::vector<float> m_etaphi_eff_thr3_e;
+  std::vector<float> m_pt_eff_thr3_e;
+  std::vector<float> m_etaphi_eff_thr4_e;
+  std::vector<float> m_pt_eff_thr4_e;
+  std::vector<float> m_etaphi_eff_thr5_e;
+  std::vector<float> m_pt_eff_thr5_e;
+  std::vector<float> m_etaphi_eff_thr6_e;
+  std::vector<float> m_pt_eff_thr6_e;
+
+
+  std::vector<float> m_eta_eff_thr1;
+  std::vector<float> m_eta_eff_thr2;
+  std::vector<float> m_eta_eff_thr3;
+  std::vector<float> m_eta_eff_thr4;
+  std::vector<float> m_eta_eff_thr5;
+  std::vector<float> m_eta_eff_thr6;
+
+
+
+
+
   std::vector<std::vector <float>* > Thresh_Mon; 
 
   
