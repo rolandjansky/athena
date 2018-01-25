@@ -23,7 +23,7 @@ find_package( GTest )
 # Component(s) in the package:
 atlas_add_root_dictionary( EventLoopTestLib
    EventLoopTestDictSource
-   ROOT_HEADERS EventLoopTest/UnitTestAlg.h EventLoopTest/UnitTestAlg1.h EventLoopTest/UnitTestAlg2.h
+   ROOT_HEADERS EventLoopTest/UnitTestAlg.h EventLoopTest/UnitTestAlg1.h EventLoopTest/UnitTestAlg2.h EventLoopTest/UnitTestTool.h
    Root/LinkDef.h
    EXTERNAL_PACKAGES ROOT )
 

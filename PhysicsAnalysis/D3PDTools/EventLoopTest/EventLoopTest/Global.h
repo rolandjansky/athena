@@ -17,6 +17,7 @@
 namespace EL
 {
   struct UnitTest;
+  class IUnitTestTool;
   class UnitTestAlg;
   class UnitTestAlg1;
   struct UnitTestConfig;
