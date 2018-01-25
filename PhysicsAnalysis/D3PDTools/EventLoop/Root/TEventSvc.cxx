@@ -150,10 +150,6 @@ namespace EL
     if (wk()->metaData()->castDouble (Job::optXAODSummaryReport, 1) == 0)
       xAOD::TFileAccessTracer::enableDataSubmission (false);
 
-    m_useStats = wk()->metaData()->castBool (Job::optXAODPerfStats, false);
-    if (m_useStats)
-      xAOD::PerfStats::instance().start();
-
     RCU_ASSERT (m_store == nullptr);
     m_store.reset (new xAOD::TStore);
 
@@ -164,9 +160,16 @@ namespace EL
 
 
   StatusCode TEventSvc ::
-  changeInput (bool /*firstFile*/)
+  changeInput (bool firstFile)
   {
     RCU_CHANGE_INVARIANT (this);
+
+    if (firstFile)
+    {
+      m_useStats = wk()->metaData()->castBool (Job::optXAODPerfStats, false);
+      if (m_useStats)
+        xAOD::PerfStats::instance().start();
+    }
 
     if (fileExecute() != StatusCode::SUCCESS)
       return StatusCode::FAILURE;
