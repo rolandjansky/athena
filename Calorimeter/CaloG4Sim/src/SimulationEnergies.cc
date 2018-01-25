@@ -543,6 +543,7 @@ namespace CaloG4
   }
 
 
+  // FIXME: can we change the `G4ThreeVector` arg to `const G4ThreeVector&`?
   G4bool SimulationEnergies::ProcessEscapedEnergy(G4ThreeVector a_point,
                                                   G4double a_energy ) const
   {
