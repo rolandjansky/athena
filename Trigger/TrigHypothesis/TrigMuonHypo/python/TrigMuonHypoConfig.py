@@ -382,6 +382,7 @@ muFastThresholdsForECWeakBRegion = {
     '60GeV_barrelOnly_v15a' : [ 1000., 1000. ],
     }
 
+# This class is copied from MufastHypoConfig.
 class TrigMufastHypoConfig(TrigMufastHypoAlg) :
 
     __slots__ = []
@@ -399,10 +400,6 @@ class TrigMufastHypoConfig(TrigMufastHypoAlg) :
             th = re.findall(r'[0-9]+', bname[1])           
             threshold = str(th[0]) + 'GeV'
             TrigMufastHypoConfig().ConfigrationHypoTool( name, nath, threshold )
-        #if len(bname) == 3:
-        #    th = re.findall(r'[0-9]+', bname[1])           
-        #    threshold = str(th[0]) + 'GeV_' + str(bname[2])
-        #    TrigMufastHypoConfig().ConfigrationHypoTool( name, nath, threshold )
         else:
             print """ Configration ERROR: Can't configure threshold at TrigMufastHypoTool """
             return tool
@@ -452,6 +449,7 @@ class TrigMufastHypoConfig(TrigMufastHypoAlg) :
         return threshold
 
 
+# This class is copied from MucombHypoConfig.
 class TrigmuCombHypoConfig(TrigmuCombHypoAlg):
 
     __slots__ = []
@@ -562,16 +560,6 @@ class MufastHypoConfig(MufastHypo) :
         cosmic     = MufastHypoCosmicMonitoring()
 	
         self.AthenaMonTools = [ validation, online, cosmic ]
-        #if len(args) == 4:
-        #    if args[2] != 9999:
-        #        
-        #        self.SelectPV = True
-        #        self.Z_PV_Bins = args[2]
-        #        self.R_PV_Bins = args[3]
-        #    else:
-        #        self.SelectPV = False
-        #        self.Z_PV_Bins = 99999
-        #        self.R_PV_Bins = 99999
     
     def setDefaults(cls,handle):
         if hasattr(handle,'PtThresholds') and hasattr(handle,'PtBins'):
@@ -611,16 +599,6 @@ class MufastStauHypoConfig(MufastStauHypo) :
         cosmic     = MufastStauHypoCosmicMonitoring()
 	
         self.AthenaMonTools = [ validation, online, cosmic ]
-        #if len(args) == 4:
-        #    if args[2] != 9999:
-        #        
-        #        self.SelectPV = True
-        #        self.Z_PV_Bins = args[2]
-        #        self.R_PV_Bins = args[3]
-        #    else:
-        #        self.SelectPV = False
-        #        self.Z_PV_Bins = 99999
-        #        self.R_PV_Bins = 99999
         if (args[0]=='Tight'):
             print "sofia OK"
             self.EtaCut = True
