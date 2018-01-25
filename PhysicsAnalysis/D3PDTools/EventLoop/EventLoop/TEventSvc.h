@@ -143,9 +143,9 @@ namespace EL
 
     /// description: the event structure used
   private:
-    xAOD::TEvent *m_event; //!
+    std::unique_ptr<xAOD::TEvent> m_event; //!
   private:
-    xAOD::TStore *m_store; //!
+    std::unique_ptr<xAOD::TStore> m_store; //!
 
     /// description: whether we collect D3PDPerfStats statistics
   private:
