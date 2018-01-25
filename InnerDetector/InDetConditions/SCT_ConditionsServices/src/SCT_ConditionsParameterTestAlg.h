@@ -29,24 +29,23 @@ class StatusCode;
 class ISvcLocator;
 namespace InDetDD{class SCT_DetectorManager;}
 
-  /** This class acts as a test/sample client the ConditionsParameter class. 
-  */
-  class SCT_ConditionsParameterTestAlg : public AthAlgorithm {
-public:
-    // Structors
-    SCT_ConditionsParameterTestAlg (const std::string& name, ISvcLocator* pSvcLocator); 
-    ~SCT_ConditionsParameterTestAlg();                                                  
+/** This class acts as a test/sample client the ConditionsParameter class.
+ */
+class SCT_ConditionsParameterTestAlg : public AthAlgorithm {
+ public:
+  // Structors
+  SCT_ConditionsParameterTestAlg(const std::string& name, ISvcLocator* pSvcLocator);
+  ~SCT_ConditionsParameterTestAlg();
     
-    // Standard Gaudi functions
-    StatusCode initialize(); //!< Gaudi initialiser
-    StatusCode execute();    //!< Gaudi executer
-    StatusCode finalize();   //!< Gaudi finaliser
+  // Standard Gaudi functions
+  StatusCode initialize(); //!< Gaudi initialiser
+  StatusCode execute();    //!< Gaudi executer
+  StatusCode finalize();   //!< Gaudi finaliser
     
-private:
-    SG::ReadHandleKey<xAOD::EventInfo> m_currentEventKey;  //!< Current event
-    ServiceHandle<ISCT_ConditionsParameterSvc> m_conditionsParameterSvc;
-    std::string m_histoString;
-   };
+ private:
+  SG::ReadHandleKey<xAOD::EventInfo> m_currentEventKey;  //!< Current event
+  ServiceHandle<ISCT_ConditionsParameterSvc> m_conditionsParameterSvc;
+  std::string m_histoString;
+};
 
-#endif //
-
+#endif // SCT_ConditionsParameterTestAlg_H
