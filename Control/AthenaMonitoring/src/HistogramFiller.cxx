@@ -1,7 +1,8 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-
+#include <iostream>
+#include <algorithm>
 #include "AthenaMonitoring/HistogramFiller.h"
 
 using namespace std;
@@ -9,18 +10,10 @@ using namespace Monitored;
 
 HistogramFillerFactory::HistogramFillerFactory(const ServiceHandle<ITHistSvc>& histSvc,
                                                std::string groupName)
-    : m_histSvc(histSvc), m_groupName(std::move(groupName)), m_histogramCategory({
-      { "EXPERT", new MonitoringGroup(m_histSvc, m_groupName, MonitoringGroup::expert) },
-      { "SHIFT", new MonitoringGroup(m_histSvc, m_groupName, MonitoringGroup::shift) },
-      { "DEBUG", new MonitoringGroup(m_histSvc, m_groupName, MonitoringGroup::debug) },
-      { "RUNSTAT", new MonitoringGroup(m_histSvc, m_groupName, MonitoringGroup::runstat) },
-      { "EXPRESS", new MonitoringGroup(m_histSvc, m_groupName, MonitoringGroup::express) },
-    }) { }
+    : m_histSvc(histSvc), m_groupName(std::move(groupName)) { 
+}
     
 HistogramFillerFactory::~HistogramFillerFactory() {
-    for(auto monGroup : m_histogramCategory) {
-        delete monGroup.second;
-    }
 }
 
 HistogramFiller* HistogramFillerFactory::create(const HistogramDef& def) {
@@ -54,9 +47,10 @@ HistogramFiller* HistogramFillerFactory::create(const HistogramDef& def) {
   }
   
   if (histo == 0) {
-    throw HistogramFillerCreateException("Can not create yet histogram of type: " + def.type + "\n" +
+    throw HistogramFillerCreateException("Can not create yet histogram of type: >" + def.type + "<\n" +
                                          "Try one of: TH1[F,D,I], TH2[F,D,I], TProfile, TProfile2D");
   }
+  histo->GetYaxis()->SetTitleOffset( 1.25 );// magic shift to make histograms readable even if no post-procesing is done
 
   setLabels(histo, def.labels);
   setOpts(histo, def.opt);
@@ -93,21 +87,44 @@ HistogramFiller* HistogramFillerFactory::create(const HistogramDef& def) {
  * Args   : remaining arguments to TH constructor (except name, title)
  */
 template<class H, class HBASE, typename... Types> 
-HBASE* HistogramFillerFactory::create(const HistogramDef& def, Types&&... hargs) {
+HBASE* HistogramFillerFactory::create(const HistogramDef& def, Types&&... hargs) {    
+  // invent path name
+  // if def path contains any of: EXPERT, SHIFT, DEBUG, RUNSTAT, EXPRES this is online convention
+  // this becomes the first element of the path followed by the group name
+  // else if the def.path is DEFAULT then only the group name is used
+  // if the path jet different is is concatenated with the group name
+  //
+  const static std::set<std::string> online( { "EXPERT", "SHIFT", "DEBUG", "RUNSTAT", "EXPRES" } );
+  std::string path;
+  if( online.count( def.path) != 0 )
+      path =  "/" + def.path + "/" + m_groupName;
+  else if ( def.path == "DEFAULT" )
+    path = "/" + m_groupName;
+  else
+    path = "/" + m_groupName + "/"+def.path; 
+  // remove duplicate //
+  std::string fullName = path + "/" + def.alias;
+  fullName.erase( std::unique( fullName.begin(), fullName.end(), 
+			       [](const char a, const char b){ 
+				 return a == b and a == '/'; 
+			       } ), fullName.end() );
+  
+  std::cout << "Full path " << fullName << std::endl;
   // Check if histogram exists already
-  HBASE* histo = m_histogramCategory[def.path]->template getHist<HBASE>(def.alias);
-
-  if (histo) {
+  HBASE* histo = nullptr;
+  if ( m_histSvc->exists( fullName ) ) {
+    if ( m_histSvc->getHist( fullName, histo ).isFailure() ) {
+      throw HistogramFillerCreateException("Histogram >"+ fullName + "< seems to exist but can not be obtained from THistSvc");
+    }    
     return histo;
   }
 
   // Create the histogram and register it
   H* h = new H(def.alias.c_str(), def.title.c_str(), std::forward<Types>(hargs)...);
-  StatusCode sc = m_histogramCategory[def.path]->regHist(static_cast<TH1*>(h));
-
-  if (sc.isFailure()) {
+  if ( m_histSvc->regHist( fullName, static_cast<TH1*>( h ) ).isFailure() ) {    
+    throw HistogramFillerCreateException("Histogram >"+ fullName + "< can not be registered in THistSvc");
     delete h;
-    h = nullptr;
+
   }
   
   return h;
@@ -163,17 +180,17 @@ void HistogramFillerFactory::setLabels(TH1* hist, const vector<string>& labels) 
   }
 }
 
-HistogramFillerFactory::MonitoringGroup::MonitoringGroup(const ServiceHandle<ITHistSvc>& histSvc, std::string groupName, Level l)
-  : m_histSvc(histSvc), m_groupName(std::move(groupName)), m_level(l) { }
+// HistogramFillerFactory::MonitoringGroup::MonitoringGroup(const ServiceHandle<ITHistSvc>& histSvc, std::string groupName)
+//   : m_histSvc(histSvc), m_groupName(std::move(groupName)) { }
 
-StatusCode HistogramFillerFactory::MonitoringGroup::regHist(TH1* h){
-  return m_histSvc->regHist(level2string(m_level)+m_groupName+"/"+h->GetName(), h);
-}
+// StatusCode HistogramFillerFactory::MonitoringGroup::regHist(TH1* h){
+//   return m_histSvc->regHist(m_groupName+"/"+h->GetName(), h);
+// }
 
-StatusCode HistogramFillerFactory::MonitoringGroup::deregHist(TH1* h) {
-  return m_histSvc->deReg(h);
-}
-
+// StatusCode HistogramFillerFactory::MonitoringGroup::deregHist(TH1* h) {
+//   return m_histSvc->deReg(h);
+// }
+/*
 std::string HistogramFillerFactory::MonitoringGroup::level2string(Level l) const {
   string result = "/UNSPECIFIED_NONE_OF_EXPERT_DEBUG_SHIFT_EXPRESS_RUNSUM/";
 
@@ -197,7 +214,8 @@ std::string HistogramFillerFactory::MonitoringGroup::level2string(Level l) const
 
   return result;
 }
-  
+*/
+
 unsigned HistogramFiller1D::fill() {
   if (m_monVariables.size() != 1) {
     return 0;
