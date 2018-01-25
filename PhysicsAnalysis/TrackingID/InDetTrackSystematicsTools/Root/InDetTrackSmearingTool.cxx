@@ -65,14 +65,14 @@ namespace InDet {
     
     ATH_CHECK( initObject<TH1>(m_smearD0Dead, "res_diff_d0_vs_pt.hist.root", "res_pt_d0_0") );
     ATH_CHECK( initObject<TH1>(m_smearZ0Dead, "res_diff_z0_vs_pt.hist.root", "res_pt_z0_0") );
-   
-    string rootfile = "trackIPAlign_r21.root";
-    ATH_CHECK( initObject<TH2>(m_smearD0, rootfile, "quad_diff/d0quaddiff_comb_Pt_Eta" ) );
-    ATH_CHECK( initObject<TH2>(m_smearZ0, rootfile, "quad_diff/z0quaddiff_comb_Pt_Eta" ) );
-    ATH_CHECK( initObject<TH2>(m_smearD0_sys_up, rootfile, "quad_diff/d0quaddiff_comb_Pt_Eta_sys_up" ) );
-    ATH_CHECK( initObject<TH2>(m_smearZ0_sys_up, rootfile, "quad_diff/z0quaddiff_comb_Pt_Eta_sys_up" ) );
-    ATH_CHECK( initObject<TH2>(m_smearD0_sys_dw, rootfile, "quad_diff/d0quaddiff_comb_Pt_Eta_sys_dw" ) );
-    ATH_CHECK( initObject<TH2>(m_smearZ0_sys_dw, rootfile, "quad_diff/z0quaddiff_comb_Pt_Eta_sys_dw" ) );
+
+    string rootfile = "trackIPAlign_dec2017.root";
+    ATH_CHECK( initObject<TH2>(m_smearD0, rootfile, "d0quaddiff_comb_Pt_Eta" ) );
+    ATH_CHECK( initObject<TH2>(m_smearZ0, rootfile, "z0quaddiff_comb_Pt_Eta" ) );
+    ATH_CHECK( initObject<TH2>(m_smearD0_sys_up, rootfile, "d0quaddiff_comb_Pt_Eta_sys_up" ) );
+    ATH_CHECK( initObject<TH2>(m_smearZ0_sys_up, rootfile, "z0quaddiff_comb_Pt_Eta_sys_up" ) );
+    ATH_CHECK( initObject<TH2>(m_smearD0_sys_dw, rootfile, "d0quaddiff_comb_Pt_Eta_sys_dw" ) );
+    ATH_CHECK( initObject<TH2>(m_smearZ0_sys_dw, rootfile, "z0quaddiff_comb_Pt_Eta_sys_dw" ) );
 
     ATH_MSG_INFO( "Using seed of " << m_seed << " to initialize RNG" );
     m_rnd = make_unique<TRandom3>(m_seed);
