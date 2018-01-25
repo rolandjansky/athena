@@ -33,17 +33,14 @@ namespace G4UA
   {
     //std::cout<<"start end of event, size is  "<<eventSteps.size()<<std::endl;
     m_nsteps = eventSteps.size();
-    //std::cout<<"in end of event"<<std::endl;
 
-    for(unsigned int k=0;k<eventSteps.size();k++){
-      //std::cout<<"in loop end of event "<<k<<std::endl;
-
-      m_pdgcode[k]=eventSteps[k].code;
-      m_step_x[k]=eventSteps[k].x;
-      m_step_y[k]=eventSteps[k].y;
-      m_step_z[k]=eventSteps[k].z;
-      m_time[k]=eventSteps[k].time;
-      m_dep[k]=eventSteps[k].dep;
+    for(unsigned int k=0; k<eventSteps.size(); k++){
+      m_pdgcode[k] = eventSteps[k].code;
+      m_step_x[k] = eventSteps[k].x;
+      m_step_y[k] = eventSteps[k].y;
+      m_step_z[k] = eventSteps[k].z;
+      m_time[k] = eventSteps[k].time;
+      m_dep[k] = eventSteps[k].dep;
     }
 
     if(! ntupleSvc()->writeRecord("/NTUPLES/FILE1/StepNtuple/10").isSuccess()){
