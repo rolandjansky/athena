@@ -1,3 +1,4 @@
+
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from collections import Counter
@@ -249,8 +250,6 @@ def _mergeChainDefsSerial(ChainDicts,listOfChainDefs,offset,preserveL2EFOrder=Tr
                 if not offset == -1:
                     log.error("L2/EF preserving serial merging with offset not yet implemented.")
                 else:
-                    print signature
-                    print signature['listOfTriggerElements']
                     if signature['listOfTriggerElements'][0].startswith("L2"):
                         mergedChainDef.addSignatureL2(signatureToAdd)
                     elif signature['listOfTriggerElements'][0].startswith("EF") or signature['listOfTriggerElements'][0].startswith("HLT"):
