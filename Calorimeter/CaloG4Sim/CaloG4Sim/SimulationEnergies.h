@@ -113,6 +113,7 @@ namespace CaloG4
                                 G4double kineticEnergy) const;
 
     /// Escaped energy requires special processing.
+    /// FIXME: can we change the `G4ThreeVector` arg to `const G4ThreeVector&`?
     G4bool ProcessEscapedEnergy( G4ThreeVector point, G4double energy ) const;
 
   }; // class SimulationEnergies
