@@ -25,7 +25,7 @@ namespace PFO {
     m_Cluster_clusterSize = Book1D("Cluster_clusterSize",m_sClusterContainerName + "_clusterSize (Entries/1)",20,0.0,20.0);
 
     m_Cluster_eta_lowpt = Book1D("Cluster_Eta_lowPt",m_sClusterContainerName + "_Eta_lowPt (Entries/0.1)",100,-5.0,5.0);
-    m_Cluster_pt_interval = Book1D("Cluster_Pt_interval",m_sClusterContainerName + "_Pt_interval (Entries/1 GeV)", 1020, -20.0, 1000.0);
+    m_Cluster_pt_interval = Book1D("Cluster_Pt_interval",m_sClusterContainerName + "_Pt_interval (Entries/1 GeV)", 980, 20.0, 1000.0);
 
   }
 
