@@ -100,49 +100,49 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
 	m_LonTrack_E(),
 	m_nTrack_E(),
 	m_nTrackwithHL_E(),
-	nTRTHits(),
+	m_nTRTHits(),
 	m_doDCS(false),
-	EventPhaseScale(1.0),
+	m_EventPhaseScale(1.0),
 	m_nStrawHits_B(),
 	m_nStrawHits_E(),
-	DriftTimeonTrkDistScale_B(),
-	HLhitOnTrackScale_B(),
-	HtoLRatioOnTrackScale_B(),
-	HtoLRatioOnTrackScale_B_Ar(),
-	HtoLRatioOnTrackScale_B_Xe(),
-	NumSwLLWoTScale_B(),
-	WireToTrkPositionScale_B(),
-	WireToTrkPositionScale_B_Ar(),
-	TronTDistScale_B(),
-	ResidualScale_B(),
-	ResidualScale_B_20GeV(),
-	TimeResidualScale_B(),
-	DriftTimeonTrkDistScale_B_Ar(),
-	TronTDistScale_B_Ar(),
-	ResidualScale_B_Ar(),
-	ResidualScale_B_Ar_20GeV(),
-	TimeResidualScale_B_Ar(),
-	nTrkvPhiScale_B(),
-	DriftTimeonTrkDistScale_E(),
-	HLhitOnTrackScale_E(),
-	HtoLRatioOnTrackScale_E(),
-	HtoLRatioOnTrackScale_E_Ar(),
-	HtoLRatioOnTrackScale_E_Xe(),
-	NumSwLLWoTScale_E(),
-	WireToTrkPositionScale_E(),
-	WireToTrkPositionScale_E_Ar(),
-	TronTDistScale_E(),
-	ResidualScale_E(),
-	ResidualScale_E_20GeV(),
-	TimeResidualScale_E(),
-	DriftTimeonTrkDistScale_E_Ar(),
-	ResidualScale_E_Ar(),
-	ResidualScale_E_Ar_20GeV(),
-	TimeResidualScale_E_Ar(),
-	nTrkvPhiScale_E(),
+	m_DriftTimeonTrkDistScale_B(),
+	m_HLhitOnTrackScale_B(),
+	m_HtoLRatioOnTrackScale_B(),
+	m_HtoLRatioOnTrackScale_B_Ar(),
+	m_HtoLRatioOnTrackScale_B_Xe(),
+	m_NumSwLLWoTScale_B(),
+	m_WireToTrkPositionScale_B(),
+	m_WireToTrkPositionScale_B_Ar(),
+	m_TronTDistScale_B(),
+	m_ResidualScale_B(),
+	m_ResidualScale_B_20GeV(),
+	m_TimeResidualScale_B(),
+	m_DriftTimeonTrkDistScale_B_Ar(),
+	m_TronTDistScale_B_Ar(),
+	m_ResidualScale_B_Ar(),
+	m_ResidualScale_B_Ar_20GeV(),
+	m_TimeResidualScale_B_Ar(),
+	m_nTrkvPhiScale_B(),
+	m_DriftTimeonTrkDistScale_E(),
+	m_HLhitOnTrackScale_E(),
+	m_HtoLRatioOnTrackScale_E(),
+	m_HtoLRatioOnTrackScale_E_Ar(),
+	m_HtoLRatioOnTrackScale_E_Xe(),
+	m_NumSwLLWoTScale_E(),
+	m_WireToTrkPositionScale_E(),
+	m_WireToTrkPositionScale_E_Ar(),
+	m_TronTDistScale_E(),
+	m_ResidualScale_E(),
+	m_ResidualScale_E_20GeV(),
+	m_TimeResidualScale_E(),
+	m_DriftTimeonTrkDistScale_E_Ar(),
+	m_ResidualScale_E_Ar(),
+	m_ResidualScale_E_Ar_20GeV(),
+	m_TimeResidualScale_E_Ar(),
+	m_nTrkvPhiScale_E(),
 	//m_propagator(0),
 	//m_extrapolator(0),
-	DEBUG(false),
+	m_DEBUG(false),
 	m_longToTCut(9.375),
 	m_EventBurstCut(200),
 	m_lumiBlocksToResetOcc(20),
@@ -198,7 +198,7 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
 	declareProperty("MIN_TOT_Hits",             m_MIN_TOT_Hits        = 2);//obsolete
 	declareProperty("NoiseSuppressionLevel_30pc", m_NoiseSuppressionLevel_30pc = false);//obsolete
 	declareProperty("NoiseSuppressionMap",      m_NoiseSuppressionMap = false);//obsolete
-	declareProperty("Debug",                    DEBUG);//obsolete
+	declareProperty("Debug",                    m_DEBUG);//obsolete
 	declareProperty("PrintEventInfo",           m_printEventInfo);//obsolete
 	declareProperty("ITRT_CalDbSvc",            m_TRTCalDbSvc);
 	declareProperty("LongToTCut",               m_longToTCut);
@@ -318,9 +318,9 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
 		} //for (int i = 0; i < 64; i++)
 	} // for (int ibe=0; ibe<2; ibe++)
 
-	nTrksperLB_B = 0;
-	nHitsperLB_B = 0;
-	nHLHitsperLB_B = 0;
+	m_nTrksperLB_B = 0;
+	m_nHitsperLB_B = 0;
+	m_nHLHitsperLB_B = 0;
 	m_hNumTrksDetPhi_B = 0;
 	m_hNumHoTDetPhi_B = 0;
 	m_hAvgTroTDetPhi_B = 0;
@@ -358,9 +358,9 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
 	m_Pull_Biased_EndCap = 0;
 
 	for (int iside = 0; iside < 2; iside++) {
-		nTrksperLB_E[iside] = 0;
-		nHitsperLB_E[iside] = 0;
-		nHLHitsperLB_E[iside] = 0;
+		m_nTrksperLB_E[iside] = 0;
+		m_nHitsperLB_E[iside] = 0;
+		m_nHLHitsperLB_E[iside] = 0;
 		m_hNumTrksDetPhi_E[iside] = 0;
 		m_hNumHoTDetPhi_E[iside] = 0;
 		m_hAvgTroTDetPhi_E[iside] = 0;
@@ -560,8 +560,8 @@ StatusCode TRT_Monitoring_Tool::initialize() {
 							if (tempStrawNumber < 0 || tempStrawNumber > (s_Straw_max[ibe] - 1)) {
 								ATH_MSG_WARNING("Found tempStrawNumber = " << tempStrawNumber << " out of range.");
 							} else {
-								mat_chip_B[idPhiModule][tempStrawNumber]    = i_chip;
-								mat_chip_B[idPhiModule + 32][tempStrawNumber] = i_chip;
+								m_mat_chip_B[idPhiModule][tempStrawNumber]    = i_chip;
+								m_mat_chip_B[idPhiModule + 32][tempStrawNumber] = i_chip;
 							}
 						} else if (ibe == 1) { //endcap
 							//              i_chip -= 104;
@@ -571,8 +571,8 @@ StatusCode TRT_Monitoring_Tool::initialize() {
 							if (tempStrawNumber < 0 || tempStrawNumber > (s_Straw_max[ibe] - 1)) {
 								ATH_MSG_WARNING("Found tempStrawNumber = " << tempStrawNumber << " out of range.");
 							} else {
-								mat_chip_E[idPhiModule][tempStrawNumber]    = i_chip;
-								mat_chip_E[idPhiModule + 32][tempStrawNumber] = i_chip;
+								m_mat_chip_E[idPhiModule][tempStrawNumber]    = i_chip;
+								m_mat_chip_E[idPhiModule + 32][tempStrawNumber] = i_chip;
 							}
 						}
 					}
@@ -1448,218 +1448,218 @@ StatusCode TRT_Monitoring_Tool::procHistograms() {
 			if (m_doShift && endOfRunFlag()) {
 				if (m_doTracksMon) {
 					if (ibe == 0) {
-						EventPhaseScale = m_hEvtPhase->GetEntries() * 3.125;
+						m_EventPhaseScale = m_hEvtPhase->GetEntries() * 3.125;
 
-						if (EventPhaseScale > 0) {
-							scale_LWHist(m_hEvtPhase, 1. / EventPhaseScale);
+						if (m_EventPhaseScale > 0) {
+							scale_LWHist(m_hEvtPhase, 1. / m_EventPhaseScale);
 						}
 
-						DriftTimeonTrkDistScale_B = m_hDriftTimeonTrkDist_B->GetEntries() * 3.125;
+						m_DriftTimeonTrkDistScale_B = m_hDriftTimeonTrkDist_B->GetEntries() * 3.125;
 
-						if (DriftTimeonTrkDistScale_B > 0) {
-							scale_LWHist(m_hDriftTimeonTrkDist_B, 1. / DriftTimeonTrkDistScale_B);
+						if (m_DriftTimeonTrkDistScale_B > 0) {
+							scale_LWHist(m_hDriftTimeonTrkDist_B, 1. / m_DriftTimeonTrkDistScale_B);
 						}
 
-						HLhitOnTrackScale_B = m_hHLhitOnTrack_B->GetEntries();
+						m_HLhitOnTrackScale_B = m_hHLhitOnTrack_B->GetEntries();
 
-						if (HLhitOnTrackScale_B > 0) {
-							scale_LWHist(m_hHLhitOnTrack_B, 1. / HLhitOnTrackScale_B);
+						if (m_HLhitOnTrackScale_B > 0) {
+							scale_LWHist(m_hHLhitOnTrack_B, 1. / m_HLhitOnTrackScale_B);
 						}
 
-						HtoLRatioOnTrackScale_B = m_hHtoLRatioOnTrack_B->GetEntries() * 0.02;
+						m_HtoLRatioOnTrackScale_B = m_hHtoLRatioOnTrack_B->GetEntries() * 0.02;
 
-						if (HtoLRatioOnTrackScale_B > 0) {
-							scale_LWHist(m_hHtoLRatioOnTrack_B, 1. / HtoLRatioOnTrackScale_B);
+						if (m_HtoLRatioOnTrackScale_B > 0) {
+							scale_LWHist(m_hHtoLRatioOnTrack_B, 1. / m_HtoLRatioOnTrackScale_B);
 						}
 
-						NumSwLLWoTScale_B = m_hNumSwLLWoT_B->GetEntries();
+						m_NumSwLLWoTScale_B = m_hNumSwLLWoT_B->GetEntries();
 
-						if (NumSwLLWoTScale_B > 0) {
-							scale_LWHist(m_hNumSwLLWoT_B, 1. / NumSwLLWoTScale_B);
+						if (m_NumSwLLWoTScale_B > 0) {
+							scale_LWHist(m_hNumSwLLWoT_B, 1. / m_NumSwLLWoTScale_B);
 						}
 
-						WireToTrkPositionScale_B = m_hWireToTrkPosition_B->GetEntries() * 0.1;
+						m_WireToTrkPositionScale_B = m_hWireToTrkPosition_B->GetEntries() * 0.1;
 
-						if (WireToTrkPositionScale_B > 0) {
-							scale_LWHist(m_hWireToTrkPosition_B, 1. / WireToTrkPositionScale_B);
+						if (m_WireToTrkPositionScale_B > 0) {
+							scale_LWHist(m_hWireToTrkPosition_B, 1. / m_WireToTrkPositionScale_B);
 						}
 
-						TronTDistScale_B = m_hTronTDist_B->GetEntries() * 3.125;
+						m_TronTDistScale_B = m_hTronTDist_B->GetEntries() * 3.125;
 
-						if (TronTDistScale_B > 0) {
-							scale_LWHist(m_hTronTDist_B, 1. / TronTDistScale_B);
+						if (m_TronTDistScale_B > 0) {
+							scale_LWHist(m_hTronTDist_B, 1. / m_TronTDistScale_B);
 						}
 
-						ResidualScale_B = m_hResidual_B->GetEntries() * 0.025;
+						m_ResidualScale_B = m_hResidual_B->GetEntries() * 0.025;
 
-						if (ResidualScale_B > 0) {
-							scale_LWHist(m_hResidual_B, 1. / ResidualScale_B);
+						if (m_ResidualScale_B > 0) {
+							scale_LWHist(m_hResidual_B, 1. / m_ResidualScale_B);
 						}
 
-						ResidualScale_B_20GeV = m_hResidual_B_20GeV->GetEntries() * 0.025;
+						m_ResidualScale_B_20GeV = m_hResidual_B_20GeV->GetEntries() * 0.025;
 
-						if (ResidualScale_B_20GeV > 0) {
-							scale_LWHist(m_hResidual_B_20GeV, 1. / ResidualScale_B_20GeV);
+						if (m_ResidualScale_B_20GeV > 0) {
+							scale_LWHist(m_hResidual_B_20GeV, 1. / m_ResidualScale_B_20GeV);
 						}
 
-						TimeResidualScale_B = m_hTimeResidual_B->GetEntries() * 0.2;
+						m_TimeResidualScale_B = m_hTimeResidual_B->GetEntries() * 0.2;
 
-						if (TimeResidualScale_B > 0) {
-							scale_LWHist(m_hTimeResidual_B, 1. / TimeResidualScale_B);
+						if (m_TimeResidualScale_B > 0) {
+							scale_LWHist(m_hTimeResidual_B, 1. / m_TimeResidualScale_B);
 						}
 
 						if (m_ArgonXenonSplitter) {
-							DriftTimeonTrkDistScale_B_Ar = m_hDriftTimeonTrkDist_B_Ar->GetEntries() * 3.125;
+							m_DriftTimeonTrkDistScale_B_Ar = m_hDriftTimeonTrkDist_B_Ar->GetEntries() * 3.125;
 
-							if (DriftTimeonTrkDistScale_B_Ar > 0) {
-								scale_LWHist(m_hDriftTimeonTrkDist_B_Ar, 1. / DriftTimeonTrkDistScale_B_Ar);
+							if (m_DriftTimeonTrkDistScale_B_Ar > 0) {
+								scale_LWHist(m_hDriftTimeonTrkDist_B_Ar, 1. / m_DriftTimeonTrkDistScale_B_Ar);
 							}
 
-							WireToTrkPositionScale_B_Ar = m_hWireToTrkPosition_B_Ar->GetEntries() * 0.1;
+							m_WireToTrkPositionScale_B_Ar = m_hWireToTrkPosition_B_Ar->GetEntries() * 0.1;
 
-							if (WireToTrkPositionScale_B_Ar > 0) {
-								scale_LWHist(m_hWireToTrkPosition_B_Ar, 1. / WireToTrkPositionScale_B_Ar);
+							if (m_WireToTrkPositionScale_B_Ar > 0) {
+								scale_LWHist(m_hWireToTrkPosition_B_Ar, 1. / m_WireToTrkPositionScale_B_Ar);
 							}
 
-							HtoLRatioOnTrackScale_B_Ar = m_hHtoLRatioOnTrack_B_Ar->GetEntries() * 0.02;
+							m_HtoLRatioOnTrackScale_B_Ar = m_hHtoLRatioOnTrack_B_Ar->GetEntries() * 0.02;
 
-							if (HtoLRatioOnTrackScale_B_Ar > 0) {
-								scale_LWHist(m_hHtoLRatioOnTrack_B_Ar, 1. / HtoLRatioOnTrackScale_B_Ar);
+							if (m_HtoLRatioOnTrackScale_B_Ar > 0) {
+								scale_LWHist(m_hHtoLRatioOnTrack_B_Ar, 1. / m_HtoLRatioOnTrackScale_B_Ar);
 							}
 
-							TronTDistScale_B_Ar = m_hTronTDist_B_Ar->GetEntries() * 3.125;
+							m_TronTDistScale_B_Ar = m_hTronTDist_B_Ar->GetEntries() * 3.125;
 
-							if (TronTDistScale_B_Ar > 0) {
-								scale_LWHist(m_hTronTDist_B_Ar, 1. / TronTDistScale_B_Ar);
+							if (m_TronTDistScale_B_Ar > 0) {
+								scale_LWHist(m_hTronTDist_B_Ar, 1. / m_TronTDistScale_B_Ar);
 							}
 
-							ResidualScale_B_Ar = m_hResidual_B_Ar->GetEntries() * 0.025;
+							m_ResidualScale_B_Ar = m_hResidual_B_Ar->GetEntries() * 0.025;
 
-							if (ResidualScale_B_Ar > 0) {
-								scale_LWHist(m_hResidual_B_Ar, 1. / ResidualScale_B_Ar);
+							if (m_ResidualScale_B_Ar > 0) {
+								scale_LWHist(m_hResidual_B_Ar, 1. / m_ResidualScale_B_Ar);
 							}
 
-							ResidualScale_B_Ar_20GeV = m_hResidual_B_Ar_20GeV->GetEntries() * 0.025;
+							m_ResidualScale_B_Ar_20GeV = m_hResidual_B_Ar_20GeV->GetEntries() * 0.025;
 
-							if (ResidualScale_B_Ar_20GeV > 0) {
-								scale_LWHist(m_hResidual_B_Ar_20GeV, 1. / ResidualScale_B_Ar_20GeV);
+							if (m_ResidualScale_B_Ar_20GeV > 0) {
+								scale_LWHist(m_hResidual_B_Ar_20GeV, 1. / m_ResidualScale_B_Ar_20GeV);
 							}
 
-							TimeResidualScale_B_Ar = m_hTimeResidual_B_Ar->GetEntries() * 0.2;
+							m_TimeResidualScale_B_Ar = m_hTimeResidual_B_Ar->GetEntries() * 0.2;
 
-							if (TimeResidualScale_B_Ar > 0) {
-								scale_LWHist(m_hTimeResidual_B_Ar, 1. / TimeResidualScale_B_Ar);
+							if (m_TimeResidualScale_B_Ar > 0) {
+								scale_LWHist(m_hTimeResidual_B_Ar, 1. / m_TimeResidualScale_B_Ar);
 							}
 						}
 
-						HtoLRatioOnTrackScale_B_Xe = m_hHtoLRatioOnTrack_B_Xe->GetEntries() * 0.02;
+						m_HtoLRatioOnTrackScale_B_Xe = m_hHtoLRatioOnTrack_B_Xe->GetEntries() * 0.02;
 
-						if (HtoLRatioOnTrackScale_B_Xe > 0) {
-							scale_LWHist(m_hHtoLRatioOnTrack_B_Xe, 1. / HtoLRatioOnTrackScale_B_Xe);
+						if (m_HtoLRatioOnTrackScale_B_Xe > 0) {
+							scale_LWHist(m_hHtoLRatioOnTrack_B_Xe, 1. / m_HtoLRatioOnTrackScale_B_Xe);
 						}
 					} else if (ibe == 1) {
 						for (int iside = 0; iside < 2; iside++) {
-							DriftTimeonTrkDistScale_E[iside] = m_hDriftTimeonTrkDist_E[iside]->GetEntries() * 3.125;
+							m_DriftTimeonTrkDistScale_E[iside] = m_hDriftTimeonTrkDist_E[iside]->GetEntries() * 3.125;
 
-							if (DriftTimeonTrkDistScale_E[iside] > 0) {
-								scale_LWHist(m_hDriftTimeonTrkDist_E[iside], 1. / DriftTimeonTrkDistScale_E[iside]);
+							if (m_DriftTimeonTrkDistScale_E[iside] > 0) {
+								scale_LWHist(m_hDriftTimeonTrkDist_E[iside], 1. / m_DriftTimeonTrkDistScale_E[iside]);
 							}
 
-							HLhitOnTrackScale_E[iside] = m_hHLhitOnTrack_E[iside]->GetEntries();
+							m_HLhitOnTrackScale_E[iside] = m_hHLhitOnTrack_E[iside]->GetEntries();
 
-							if (HLhitOnTrackScale_E[iside] > 0) {
-								scale_LWHist(m_hHLhitOnTrack_E[iside], 1. / HLhitOnTrackScale_E[iside]);
+							if (m_HLhitOnTrackScale_E[iside] > 0) {
+								scale_LWHist(m_hHLhitOnTrack_E[iside], 1. / m_HLhitOnTrackScale_E[iside]);
 							}
 
-							HtoLRatioOnTrackScale_E[iside] = m_hHtoLRatioOnTrack_E[iside]->GetEntries() * 0.02;
+							m_HtoLRatioOnTrackScale_E[iside] = m_hHtoLRatioOnTrack_E[iside]->GetEntries() * 0.02;
 
-							if (HtoLRatioOnTrackScale_E[iside] > 0) {
-								scale_LWHist(m_hHtoLRatioOnTrack_E[iside], 1. / HtoLRatioOnTrackScale_E[iside]);
+							if (m_HtoLRatioOnTrackScale_E[iside] > 0) {
+								scale_LWHist(m_hHtoLRatioOnTrack_E[iside], 1. / m_HtoLRatioOnTrackScale_E[iside]);
 							}
 
-							NumSwLLWoTScale_E[iside] = m_hNumSwLLWoT_E[iside]->GetEntries();
+							m_NumSwLLWoTScale_E[iside] = m_hNumSwLLWoT_E[iside]->GetEntries();
 
-							if (NumSwLLWoTScale_E[iside] > 0) {
-								scale_LWHist(m_hNumSwLLWoT_E[iside], 1. / NumSwLLWoTScale_E[iside]);
+							if (m_NumSwLLWoTScale_E[iside] > 0) {
+								scale_LWHist(m_hNumSwLLWoT_E[iside], 1. / m_NumSwLLWoTScale_E[iside]);
 							}
 
-							WireToTrkPositionScale_E[iside] = m_hWireToTrkPosition_E[iside]->GetEntries() * 0.1;
+							m_WireToTrkPositionScale_E[iside] = m_hWireToTrkPosition_E[iside]->GetEntries() * 0.1;
 
-							if (WireToTrkPositionScale_E[iside] > 0) {
-								scale_LWHist(m_hWireToTrkPosition_E[iside], 1. / WireToTrkPositionScale_E[iside]);
+							if (m_WireToTrkPositionScale_E[iside] > 0) {
+								scale_LWHist(m_hWireToTrkPosition_E[iside], 1. / m_WireToTrkPositionScale_E[iside]);
 							}
 
-							TronTDistScale_E[iside] = m_hTronTDist_E[iside]->GetEntries() * 3.125;
+							m_TronTDistScale_E[iside] = m_hTronTDist_E[iside]->GetEntries() * 3.125;
 
-							if (TronTDistScale_E[iside] > 0) {
-								scale_LWHist(m_hTronTDist_E[iside], 1. / TronTDistScale_E[iside]);
+							if (m_TronTDistScale_E[iside] > 0) {
+								scale_LWHist(m_hTronTDist_E[iside], 1. / m_TronTDistScale_E[iside]);
 							}
 
-							ResidualScale_E[iside] = m_hResidual_E[iside]->GetEntries() * 0.025;
+							m_ResidualScale_E[iside] = m_hResidual_E[iside]->GetEntries() * 0.025;
 
-							if (ResidualScale_E[iside] > 0) {
-								scale_LWHist(m_hResidual_E[iside], 1. / ResidualScale_E[iside]);
+							if (m_ResidualScale_E[iside] > 0) {
+								scale_LWHist(m_hResidual_E[iside], 1. / m_ResidualScale_E[iside]);
 							}
 
-							ResidualScale_E_20GeV[iside] = m_hResidual_E_20GeV[iside]->GetEntries() * 0.025;
+							m_ResidualScale_E_20GeV[iside] = m_hResidual_E_20GeV[iside]->GetEntries() * 0.025;
 
-							if (ResidualScale_E_20GeV[iside] > 0) {
-								scale_LWHist(m_hResidual_E_20GeV[iside], 1. / ResidualScale_E_20GeV[iside]);
+							if (m_ResidualScale_E_20GeV[iside] > 0) {
+								scale_LWHist(m_hResidual_E_20GeV[iside], 1. / m_ResidualScale_E_20GeV[iside]);
 							}
 
-							TimeResidualScale_E[iside] = m_hTimeResidual_E[iside]->GetEntries() * 0.2;
+							m_TimeResidualScale_E[iside] = m_hTimeResidual_E[iside]->GetEntries() * 0.2;
 
-							if (TimeResidualScale_E[iside] > 0) {
-								scale_LWHist(m_hTimeResidual_E[iside], 1. / TimeResidualScale_E[iside]);
+							if (m_TimeResidualScale_E[iside] > 0) {
+								scale_LWHist(m_hTimeResidual_E[iside], 1. / m_TimeResidualScale_E[iside]);
 							}
 
-							HtoLRatioOnTrackScale_E_Xe[iside] = m_hHtoLRatioOnTrack_E_Xe[iside]->GetEntries() * 0.02;
+							m_HtoLRatioOnTrackScale_E_Xe[iside] = m_hHtoLRatioOnTrack_E_Xe[iside]->GetEntries() * 0.02;
 
-							if (HtoLRatioOnTrackScale_E_Xe[iside] > 0) {
-								scale_LWHist(m_hHtoLRatioOnTrack_E_Xe[iside], 1. / HtoLRatioOnTrackScale_E_Xe[iside]);
+							if (m_HtoLRatioOnTrackScale_E_Xe[iside] > 0) {
+								scale_LWHist(m_hHtoLRatioOnTrack_E_Xe[iside], 1. / m_HtoLRatioOnTrackScale_E_Xe[iside]);
 							}
 
 							if (m_ArgonXenonSplitter) {
-								DriftTimeonTrkDistScale_E_Ar[iside] = m_hDriftTimeonTrkDist_E_Ar[iside]->GetEntries() * 3.125;
+								m_DriftTimeonTrkDistScale_E_Ar[iside] = m_hDriftTimeonTrkDist_E_Ar[iside]->GetEntries() * 3.125;
 
-								if (DriftTimeonTrkDistScale_E_Ar[iside] > 0) {
-									scale_LWHist(m_hDriftTimeonTrkDist_E_Ar[iside], 1. / DriftTimeonTrkDistScale_E_Ar[iside]);
+								if (m_DriftTimeonTrkDistScale_E_Ar[iside] > 0) {
+									scale_LWHist(m_hDriftTimeonTrkDist_E_Ar[iside], 1. / m_DriftTimeonTrkDistScale_E_Ar[iside]);
 								}
 
-								WireToTrkPositionScale_E_Ar[iside] = m_hWireToTrkPosition_E_Ar[iside]->GetEntries() * 0.1;
+								m_WireToTrkPositionScale_E_Ar[iside] = m_hWireToTrkPosition_E_Ar[iside]->GetEntries() * 0.1;
 
-								if (WireToTrkPositionScale_E_Ar[iside] > 0) {
-									scale_LWHist(m_hWireToTrkPosition_E_Ar[iside], 1. / WireToTrkPositionScale_E_Ar[iside]);
+								if (m_WireToTrkPositionScale_E_Ar[iside] > 0) {
+									scale_LWHist(m_hWireToTrkPosition_E_Ar[iside], 1. / m_WireToTrkPositionScale_E_Ar[iside]);
 								}
 
-								HtoLRatioOnTrackScale_E_Ar[iside] = m_hHtoLRatioOnTrack_E_Ar[iside]->GetEntries() * 0.02;
+								m_HtoLRatioOnTrackScale_E_Ar[iside] = m_hHtoLRatioOnTrack_E_Ar[iside]->GetEntries() * 0.02;
 
-								if (HtoLRatioOnTrackScale_E_Ar[iside] > 0) {
-									scale_LWHist(m_hHtoLRatioOnTrack_E_Ar[iside], 1. / HtoLRatioOnTrackScale_E_Ar[iside]);
+								if (m_HtoLRatioOnTrackScale_E_Ar[iside] > 0) {
+									scale_LWHist(m_hHtoLRatioOnTrack_E_Ar[iside], 1. / m_HtoLRatioOnTrackScale_E_Ar[iside]);
 								}
 
-								TronTDistScale_E_Ar[iside] = m_hTronTDist_E_Ar[iside]->GetEntries() * 3.125;
+								m_TronTDistScale_E_Ar[iside] = m_hTronTDist_E_Ar[iside]->GetEntries() * 3.125;
 
-								if (TronTDistScale_E_Ar[iside] > 0) {
-									scale_LWHist(m_hTronTDist_E_Ar[iside], 1. / TronTDistScale_E_Ar[iside]);
+								if (m_TronTDistScale_E_Ar[iside] > 0) {
+									scale_LWHist(m_hTronTDist_E_Ar[iside], 1. / m_TronTDistScale_E_Ar[iside]);
 								}
 
-								ResidualScale_E_Ar[iside] = m_hResidual_E_Ar[iside]->GetEntries() * 0.025;
+								m_ResidualScale_E_Ar[iside] = m_hResidual_E_Ar[iside]->GetEntries() * 0.025;
 
-								if (ResidualScale_E_Ar[iside] > 0) {
-									scale_LWHist(m_hResidual_E_Ar[iside], 1. / ResidualScale_E_Ar[iside]);
+								if (m_ResidualScale_E_Ar[iside] > 0) {
+									scale_LWHist(m_hResidual_E_Ar[iside], 1. / m_ResidualScale_E_Ar[iside]);
 								}
 
-								ResidualScale_E_Ar_20GeV[iside] = m_hResidual_E_Ar_20GeV[iside]->GetEntries() * 0.025;
+								m_ResidualScale_E_Ar_20GeV[iside] = m_hResidual_E_Ar_20GeV[iside]->GetEntries() * 0.025;
 
-								if (ResidualScale_E_Ar_20GeV[iside] > 0) {
-									scale_LWHist(m_hResidual_E_Ar_20GeV[iside], 1. / ResidualScale_E_Ar_20GeV[iside]);
+								if (m_ResidualScale_E_Ar_20GeV[iside] > 0) {
+									scale_LWHist(m_hResidual_E_Ar_20GeV[iside], 1. / m_ResidualScale_E_Ar_20GeV[iside]);
 								}
 
-								TimeResidualScale_E_Ar[iside] = m_hTimeResidual_E_Ar[iside]->GetEntries() * 0.2;
+								m_TimeResidualScale_E_Ar[iside] = m_hTimeResidual_E_Ar[iside]->GetEntries() * 0.2;
 
-								if (TimeResidualScale_E_Ar[iside] > 0) {
-									scale_LWHist(m_hTimeResidual_E_Ar[iside], 1. / TimeResidualScale_E_Ar[iside]);
+								if (m_TimeResidualScale_E_Ar[iside] > 0) {
+									scale_LWHist(m_hTimeResidual_E_Ar[iside], 1. / m_TimeResidualScale_E_Ar[iside]);
 								}
 							}
 						}
@@ -1699,24 +1699,24 @@ StatusCode TRT_Monitoring_Tool::procHistograms() {
 			const float endcapConst = 1. / 122880;
 
 			if (m_doTracksMon && m_evtLumiBlock > 0) {
-				m_hNHitsperLB_B->Fill(m_lastLumiBlock,   (float)nHitsperLB_B * lumiBlockScale * barrelConst);
-				m_hNTrksperLB_B->Fill(m_lastLumiBlock,   (float)nTrksperLB_B * lumiBlockScale);
-				m_hNHLHitsperLB_B->Fill(m_lastLumiBlock, (float)nHLHitsperLB_B * lumiBlockScale * barrelConst);
+				m_hNHitsperLB_B->Fill(m_lastLumiBlock,   (float)m_nHitsperLB_B * lumiBlockScale * barrelConst);
+				m_hNTrksperLB_B->Fill(m_lastLumiBlock,   (float)m_nTrksperLB_B * lumiBlockScale);
+				m_hNHLHitsperLB_B->Fill(m_lastLumiBlock, (float)m_nHLHitsperLB_B * lumiBlockScale * barrelConst);
 
 				for (int iside = 0; iside < 2; iside++) {
-					m_hNHitsperLB_E[iside]->Fill(m_lastLumiBlock, (float)nHitsperLB_E[iside] * lumiBlockScale * endcapConst);
-					m_hNTrksperLB_E[iside]->Fill(m_lastLumiBlock,  (float)nTrksperLB_E[iside] * lumiBlockScale);
-					m_hNHLHitsperLB_E[iside]->Fill(m_lastLumiBlock, (float)nHLHitsperLB_E[iside] * lumiBlockScale * endcapConst);
+					m_hNHitsperLB_E[iside]->Fill(m_lastLumiBlock, (float)m_nHitsperLB_E[iside] * lumiBlockScale * endcapConst);
+					m_hNTrksperLB_E[iside]->Fill(m_lastLumiBlock,  (float)m_nTrksperLB_E[iside] * lumiBlockScale);
+					m_hNHLHitsperLB_E[iside]->Fill(m_lastLumiBlock, (float)m_nHLHitsperLB_E[iside] * lumiBlockScale * endcapConst);
 				}
 
-				nTrksperLB_B = 0;
-				nHitsperLB_B = 0;
-				nHLHitsperLB_B = 0;
+				m_nTrksperLB_B = 0;
+				m_nHitsperLB_B = 0;
+				m_nHLHitsperLB_B = 0;
 
 				for (int iside = 0; iside < 2; iside++) {
-					nTrksperLB_E[iside] = 0;
-					nHitsperLB_E[iside] = 0;
-					nHLHitsperLB_E[iside] = 0;
+					m_nTrksperLB_E[iside] = 0;
+					m_nHitsperLB_E[iside] = 0;
+					m_nHLHitsperLB_E[iside] = 0;
 				}
 
 				// ibe = 0 (Barrel), ibe = 1 (Endcap)
@@ -1893,7 +1893,7 @@ StatusCode TRT_Monitoring_Tool::fillTRTRDOs(const TRT_RDO_Container& rdoContaine
 
 	// ibe = 0 (Barrel), ibe = 1 (Endcap)
 	for (int ibe = 0; ibe < 2; ibe++) {
-		nTRTHits[ibe] = 0;
+		m_nTRTHits[ibe] = 0;
 
 		//Take out normalization from previous event for online environment
 		//Explanation: While online monitoring running we need to present out histograms repeatedly so we need to pay attention to normalization.
@@ -1985,17 +1985,17 @@ StatusCode TRT_Monitoring_Tool::fillTRTRDOs(const TRT_RDO_Container& rdoContaine
 
 			if (m_doMaskStraws && m_sumSvc->get_status(TRT_Identifier)) continue;
 
-			int m_barrel_ec = m_pTRTHelper->barrel_ec(TRT_Identifier);
+			int barrel_ec = m_pTRTHelper->barrel_ec(TRT_Identifier);
 			//ToDo: Check TRT_LoLumRawData object
 			const TRT_LoLumRawData *p_lolum = dynamic_cast<const TRT_LoLumRawData *>(*p_rdo);
 
 			if (!p_lolum) continue;
 
 			nhitsall++;
-			int ibe = abs(m_barrel_ec) - 1;
-			int iside = m_barrel_ec > 0 ? 0 : 1;
+			int ibe = abs(barrel_ec) - 1;
+			int iside = barrel_ec > 0 ? 0 : 1;
 
-			//if m_barrel_ec is outof range go to next measurement in rdo_collection
+			//if barrel_ec is outof range go to next measurement in rdo_collection
 			if (ibe != 1 && ibe != 0) {
 				ATH_MSG_DEBUG("TRT part retrieved from TRT Identifier is not a barrel or an endcap");
 				continue;
@@ -2012,173 +2012,172 @@ StatusCode TRT_Monitoring_Tool::fillTRTRDOs(const TRT_RDO_Container& rdoContaine
 			TRT_Identifier = p_lolum->identify();
 			//inline function checks m_ArgonXenonSplitter
 			const bool isArgonStraw = (Straw_Gastype( m_sumSvc->getStatusHT(TRT_Identifier) ) == GasType::Ar);
-			int m_phi_module     = m_pTRTHelper->phi_module(TRT_Identifier);
-			int m_layer_or_wheel = m_pTRTHelper->layer_or_wheel(TRT_Identifier);
-			int m_straw_layer    = m_pTRTHelper->straw_layer(TRT_Identifier);
-			int m_straw          = m_pTRTHelper->straw(TRT_Identifier);
-			int m_strawNumber;
-			int m_chip = 0;
-			int m_board = -1;
+			int phi_module     = m_pTRTHelper->phi_module(TRT_Identifier);
+			int layer_or_wheel = m_pTRTHelper->layer_or_wheel(TRT_Identifier);
+			int straw_layer    = m_pTRTHelper->straw_layer(TRT_Identifier);
+			int straw          = m_pTRTHelper->straw(TRT_Identifier);
+			int thisStrawNumber;
+			int chip = 0;
+			int board = -1;
 			//ToDo: Check if that is really neccessary
 			bool is_barrel = m_pTRTHelper->is_barrel(TRT_Identifier);
 
-			//check straw number and find the correct m_chip and m_ board values
+			//check straw number and find the correct chip and m_ board values
 			if ( is_barrel && ibe == 0 ) {
-				m_strawNumber = strawNumber(m_straw, m_straw_layer, m_layer_or_wheel);
+				thisStrawNumber = strawNumber(straw, straw_layer, layer_or_wheel);
 
-				if (m_strawNumber >= 0 && m_strawNumber < s_Straw_max[ibe]) {
-					m_chip = mat_chip_B[m_phi_module][m_strawNumber];
+				if (thisStrawNumber >= 0 && thisStrawNumber < s_Straw_max[ibe]) {
+					chip = m_mat_chip_B[phi_module][thisStrawNumber];
 				}
 
-				m_board = chipToBoard(m_chip);
+				board = chipToBoard(chip);
 			} else if ( !is_barrel && ibe == 1 ) {
-				m_strawNumber = strawNumberEndCap(m_straw, m_straw_layer, m_layer_or_wheel, m_phi_module, m_barrel_ec);
+				thisStrawNumber = strawNumberEndCap(straw, straw_layer, layer_or_wheel, phi_module, barrel_ec);
 
-				if (m_strawNumber >= 0 && m_strawNumber < s_Straw_max[ibe]) {
-					m_chip = mat_chip_E[m_phi_module][m_strawNumber];
+				if (thisStrawNumber >= 0 && thisStrawNumber < s_Straw_max[ibe]) {
+					chip = m_mat_chip_E[phi_module][thisStrawNumber];
 				}
 
-				m_board = chipToBoard_EndCap(m_chip);
+				board = chipToBoard_EndCap(chip);
 			} else {
-				m_strawNumber = -1;
+				thisStrawNumber = -1;
 			}
 
-			if (m_strawNumber < 0 || m_strawNumber >= s_Straw_max[ibe]) {
-				ATH_MSG_WARNING("Found m_strawNumber = " << m_strawNumber << " out of range.");
+			if (thisStrawNumber < 0 || thisStrawNumber >= s_Straw_max[ibe]) {
+				ATH_MSG_WARNING("Found m_strawNumber = " << thisStrawNumber << " out of range.");
 				continue;
 			}
 
-			//ToDo: rename them (They are clearly not member but have "m_" prefix)
-			const int m_driftTimeBin  = p_lolum->driftTimeBin();
-			const int m_trailingEdge  = p_lolum->trailingEdge();
-			const bool m_highlevel    = is_middleHTbit_high;//Hardcoded Middle Bit
-			const bool m_firstBinHigh = p_lolum->firstBinHigh(); // if the first time bin is up then the hit is out of time window
-			const bool m_lastBinHigh  = p_lolum->lastBinHigh(); // if the last bin is up then the hit is out of time window.
-			const float m_timeOverThreshold = p_lolum->timeOverThreshold();
-			moduleNumber_barrel1[0] = m_phi_module;
-			moduleNumber_barrel1[1] = m_phi_module + 96;
-			moduleNumber_barrel2[0] = m_phi_module + s_numberOfBarrelStacks;
-			moduleNumber_barrel2[1] = m_phi_module + s_numberOfBarrelStacks + 96;
-			moduleNumber_barrel3[0] = m_phi_module + 2 * s_numberOfBarrelStacks;
-			moduleNumber_barrel3[1] = m_phi_module + 2 * s_numberOfBarrelStacks + 96;
-			moduleNumber_endcapA[0] = m_phi_module;
-			moduleNumber_endcapA[1] = m_phi_module + 64;
-			moduleNumber_endcapB[0] = m_phi_module + s_numberOfEndCapStacks;
-			moduleNumber_endcapB[1] = m_phi_module + s_numberOfEndCapStacks + 64;
+			const int driftTimeBin  = p_lolum->driftTimeBin();
+			const int trailingEdge  = p_lolum->trailingEdge();
+			const bool highlevel    = is_middleHTbit_high;//Hardcoded Middle Bit
+			const bool firstBinHigh = p_lolum->firstBinHigh(); // if the first time bin is up then the hit is out of time window
+			const bool lastBinHigh  = p_lolum->lastBinHigh(); // if the last bin is up then the hit is out of time window.
+			const float timeOverThreshold = p_lolum->timeOverThreshold();
+			moduleNumber_barrel1[0] = phi_module;
+			moduleNumber_barrel1[1] = phi_module + 96;
+			moduleNumber_barrel2[0] = phi_module + s_numberOfBarrelStacks;
+			moduleNumber_barrel2[1] = phi_module + s_numberOfBarrelStacks + 96;
+			moduleNumber_barrel3[0] = phi_module + 2 * s_numberOfBarrelStacks;
+			moduleNumber_barrel3[1] = phi_module + 2 * s_numberOfBarrelStacks + 96;
+			moduleNumber_endcapA[0] = phi_module;
+			moduleNumber_endcapA[1] = phi_module + 64;
+			moduleNumber_endcapB[0] = phi_module + s_numberOfEndCapStacks;
+			moduleNumber_endcapB[1] = phi_module + s_numberOfEndCapStacks + 64;
 			int iphi_module = -999;
 
 			if (iside == 0) {
-				iphi_module = m_phi_module;
+				iphi_module = phi_module;
 			} else if (iside == 1) {
-				iphi_module = m_phi_module + 32;
+				iphi_module = phi_module + 32;
 			}
 
 			if (ibe == 0) {
-				nTRTHits[ibe]++;
+				m_nTRTHits[ibe]++;
 
 				if (m_doStraws) {
 					if (isArgonStraw) {
-						m_hHitWMap_B_Ar->Fill(m_strawNumber);
+						m_hHitWMap_B_Ar->Fill(thisStrawNumber);
 					} else {
-						m_hHitWMap_B->Fill(m_strawNumber);
+						m_hHitWMap_B->Fill(thisStrawNumber);
 					}
 				}
 
 				if (m_doShift) {
-					nHitsperLB_B++;
+					m_nHitsperLB_B++;
 
-					if (m_highlevel) {
-						nHLHitsperLB_B++;
+					if (highlevel) {
+						m_nHLHitsperLB_B++;
 					}
 				}
 			} else if (ibe == 1) {
-				nTRTHits[ibe]++;
+				m_nTRTHits[ibe]++;
 
 				if (m_doStraws) {
 					if (isArgonStraw) {
-						m_hHitWMap_E_Ar[iside]->Fill(m_strawNumber);
+						m_hHitWMap_E_Ar[iside]->Fill(thisStrawNumber);
 					} else {
-						m_hHitWMap_E[iside]->Fill(m_strawNumber);
+						m_hHitWMap_E[iside]->Fill(thisStrawNumber);
 					}
 				}
 
 				if (m_doShift) {
-					nHitsperLB_E[iside]++;
+					m_nHitsperLB_E[iside]++;
 
-					if (m_highlevel) {
-						nHLHitsperLB_E[iside]++;
+					if (highlevel) {
+						m_nHLHitsperLB_E[iside]++;
 					}
 				}
 			}
 
 			if (m_doExpert) {
-				if ( (m_driftTimeBin > 2) && (m_driftTimeBin < 17) ) {
-					if (m_doStraws) m_hHitWMapS[ibe][iphi_module]->Fill(m_strawNumber);
+				if ( (driftTimeBin > 2) && (driftTimeBin < 17) ) {
+					if (m_doStraws) m_hHitWMapS[ibe][iphi_module]->Fill(thisStrawNumber);
 
-					if (m_doChips) m_hHitWMapC[ibe][iphi_module]->Fill(m_chip - 1);
+					if (m_doChips) m_hHitWMapC[ibe][iphi_module]->Fill(chip - 1);
 				}
 
-				float trailingEdgeScaled = (m_trailingEdge + 1) * 3.125;
+				float trailingEdgeScaled = (trailingEdge + 1) * 3.125;
 
-				if ((m_trailingEdge < 23) && !m_lastBinHigh && !m_firstBinHigh) {
-					if (m_doStraws) m_hHitTrWMapS[ibe][iphi_module]->Fill(m_strawNumber, trailingEdgeScaled);
+				if ((trailingEdge < 23) && !lastBinHigh && !firstBinHigh) {
+					if (m_doStraws) m_hHitTrWMapS[ibe][iphi_module]->Fill(thisStrawNumber, trailingEdgeScaled);
 
-					if (m_doChips) m_hHitTrWMapC[ibe][iphi_module]->Fill((m_chip - 1), trailingEdgeScaled);
+					if (m_doChips) m_hHitTrWMapC[ibe][iphi_module]->Fill((chip - 1), trailingEdgeScaled);
 				}
 
-				if (m_doStraws) m_hHitTrMapS[ibe][iphi_module]->Fill(m_strawNumber, trailingEdgeScaled);
+				if (m_doStraws) m_hHitTrMapS[ibe][iphi_module]->Fill(thisStrawNumber, trailingEdgeScaled);
 
-				if (m_doChips) m_hHitTrMapC[ibe][iphi_module]->Fill((m_chip - 1), trailingEdgeScaled);
+				if (m_doChips) m_hHitTrMapC[ibe][iphi_module]->Fill((chip - 1), trailingEdgeScaled);
 
-				if (m_highlevel) {
-					if (m_doStraws) m_hHitHMapS[ibe][iphi_module]->Fill(m_strawNumber);
+				if (highlevel) {
+					if (m_doStraws) m_hHitHMapS[ibe][iphi_module]->Fill(thisStrawNumber);
 
-					if (m_doChips) m_hHitHMapC[ibe][iphi_module]->Fill(m_chip - 1);
+					if (m_doChips) m_hHitHMapC[ibe][iphi_module]->Fill(chip - 1);
 
 					if (is_middleHTbit_high) {
-						if (m_doStraws) m_hHitHWMapS[ibe][iphi_module]->Fill(m_strawNumber);
+						if (m_doStraws) m_hHitHWMapS[ibe][iphi_module]->Fill(thisStrawNumber);
 
-						if (m_doChips) m_hHitHWMapC[ibe][iphi_module]->Fill(m_chip - 1);
+						if (m_doChips) m_hHitHWMapC[ibe][iphi_module]->Fill(chip - 1);
 					}
 				}
 
-				if (m_firstBinHigh || m_lastBinHigh || m_driftTimeBin > 0 || m_trailingEdge < 23) {
-					if (m_doStraws) m_hHitAMapS[ibe][iphi_module]->Fill(m_strawNumber);
+				if (firstBinHigh || lastBinHigh || driftTimeBin > 0 || trailingEdge < 23) {
+					if (m_doStraws) m_hHitAMapS[ibe][iphi_module]->Fill(thisStrawNumber);
 
-					if (m_doChips) m_hHitAMapC[ibe][iphi_module]->Fill(m_chip - 1);
+					if (m_doChips) m_hHitAMapC[ibe][iphi_module]->Fill(chip - 1);
 				}
 
 				if ( is_anybininVgate_high) {
-					if (m_doStraws) m_hHitAWMapS[ibe][iphi_module]->Fill(m_strawNumber);
+					if (m_doStraws) m_hHitAWMapS[ibe][iphi_module]->Fill(thisStrawNumber);
 
-					if (m_doChips) m_hHitAWMapC[ibe][iphi_module]->Fill(m_chip - 1);
+					if (m_doChips) m_hHitAWMapC[ibe][iphi_module]->Fill(chip - 1);
 				}
 
 				if (m_doStraws) {
-					m_hHitToTMapS[ibe][iphi_module]->Fill(m_strawNumber, m_timeOverThreshold);
+					m_hHitToTMapS[ibe][iphi_module]->Fill(thisStrawNumber, timeOverThreshold);
 
-					if (m_timeOverThreshold > m_longToTCut) {
-						m_hHitToTLongMapS[ibe][iphi_module]->Fill(m_strawNumber, m_timeOverThreshold);
-						m_hHitToTLongTrMapS[ibe][iphi_module]->Fill(m_strawNumber, trailingEdgeScaled);
+					if (timeOverThreshold > m_longToTCut) {
+						m_hHitToTLongMapS[ibe][iphi_module]->Fill(thisStrawNumber, timeOverThreshold);
+						m_hHitToTLongTrMapS[ibe][iphi_module]->Fill(thisStrawNumber, trailingEdgeScaled);
 					}
 				}
 
-				if (m_doChips) m_hHitToTMapC[ibe][iphi_module]->Fill((m_chip - 1), m_timeOverThreshold);
+				if (m_doChips) m_hHitToTMapC[ibe][iphi_module]->Fill((chip - 1), timeOverThreshold);
 
 				if (m_doChips) {
 					if (p_lolum->highLevel(1)) {
-						m_hHtoBCMapC[ibe][iphi_module]->Fill(0., m_chip - 1);
-						m_hHtoBCMapB[ibe][iphi_module]->Fill(0., m_board - 1);
+						m_hHtoBCMapC[ibe][iphi_module]->Fill(0., chip - 1);
+						m_hHtoBCMapB[ibe][iphi_module]->Fill(0., board - 1);
 					}
 
 					if (p_lolum->highLevel(2)) {
-						m_hHtoBCMapC[ibe][iphi_module]->Fill(1., m_chip - 1);
-						m_hHtoBCMapB[ibe][iphi_module]->Fill(1., m_board - 1);
+						m_hHtoBCMapC[ibe][iphi_module]->Fill(1., chip - 1);
+						m_hHtoBCMapB[ibe][iphi_module]->Fill(1., board - 1);
 					}
 
 					if (p_lolum->highLevel(3)) {
-						m_hHtoBCMapC[ibe][iphi_module]->Fill(2., m_chip - 1);
-						m_hHtoBCMapB[ibe][iphi_module]->Fill(2., m_board - 1);
+						m_hHtoBCMapC[ibe][iphi_module]->Fill(2., chip - 1);
+						m_hHtoBCMapB[ibe][iphi_module]->Fill(2., board - 1);
 					}
 				}
 			}
@@ -2187,43 +2186,43 @@ StatusCode TRT_Monitoring_Tool::fillTRTRDOs(const TRT_RDO_Container& rdoContaine
 			int moduleNumber = -1;
 
 			if (ibe == 0) {
-				if (m_layer_or_wheel == 0) {
+				if (layer_or_wheel == 0) {
 					moduleNumber = moduleNumber_barrel1[iside];
 					moduleHits_B[moduleNumber]++;
-				} else if (m_layer_or_wheel == 1) {
+				} else if (layer_or_wheel == 1) {
 					moduleNumber = moduleNumber_barrel2[iside];
 					moduleHits_B[moduleNumber]++;
-				} else if (m_layer_or_wheel == 2) {
+				} else if (layer_or_wheel == 2) {
 					moduleNumber = moduleNumber_barrel3[iside];
 					moduleHits_B[moduleNumber]++;
 				}
 
-				if (m_highlevel) {
-					if (m_layer_or_wheel == 0) {
+				if (highlevel) {
+					if (layer_or_wheel == 0) {
 						moduleNumber = moduleNumber_barrel1[iside];
 						HLmoduleHits_B[moduleNumber]++;
-					} else if (m_layer_or_wheel == 1) {
+					} else if (layer_or_wheel == 1) {
 						moduleNumber = moduleNumber_barrel2[iside];
 						HLmoduleHits_B[moduleNumber]++;
-					} else if (m_layer_or_wheel == 2) {
+					} else if (layer_or_wheel == 2) {
 						moduleNumber = moduleNumber_barrel3[iside];
 						HLmoduleHits_B[moduleNumber]++;
 					}
 				}
 			} else if (ibe == 1) {
-				if (m_layer_or_wheel < 6) {
+				if (layer_or_wheel < 6) {
 					moduleNumber = moduleNumber_endcapA[iside];
 					moduleHits_E[moduleNumber]++;
-				} else if (m_layer_or_wheel > 5) {
+				} else if (layer_or_wheel > 5) {
 					moduleNumber = moduleNumber_endcapB[iside];
 					moduleHits_E[moduleNumber]++;
 				}
 
-				if (m_highlevel) {
-					if (m_layer_or_wheel < 6) {
+				if (highlevel) {
+					if (layer_or_wheel < 6) {
 						moduleNumber = moduleNumber_endcapA[iside];
 						HLmoduleHits_E[moduleNumber]++;
-					} else if (m_layer_or_wheel > 5) {
+					} else if (layer_or_wheel > 5) {
 						moduleNumber = moduleNumber_endcapB[iside];
 						HLmoduleHits_E[moduleNumber]++;
 					}
@@ -2238,9 +2237,9 @@ StatusCode TRT_Monitoring_Tool::fillTRTRDOs(const TRT_RDO_Container& rdoContaine
 	for (int ibe = 0; ibe < 2; ibe++) {
 		if (m_doShift) {
 			if (ibe == 0) {
-				m_hBCIDvsOcc[ibe]->Fill(m_good_bcid, nTRTHits[ibe] / 105088.0);
+				m_hBCIDvsOcc[ibe]->Fill(m_good_bcid, m_nTRTHits[ibe] / 105088.0);
 			} else if (ibe == 1) {
-				m_hBCIDvsOcc[ibe]->Fill(m_good_bcid, nTRTHits[ibe] / 245760.0);
+				m_hBCIDvsOcc[ibe]->Fill(m_good_bcid, m_nTRTHits[ibe] / 245760.0);
 			}
 
 			for (int iside = 0; iside < 2; iside++) {
@@ -2398,7 +2397,7 @@ StatusCode TRT_Monitoring_Tool::fillTRTTracks(const TrackCollection& trackCollec
 	//Initialize a bunch of stuff before looping over the track collection. Fill some basic histograms.
 	const float timeCor =  comTimeObject ? comTimeObject->getTime() : 0;
 	auto p_trk = trackCollection.begin();
-	const Trk::Perigee *m_mPer = nullptr;
+	const Trk::Perigee *mPer = nullptr;
 	const DataVector<const Trk::TrackParameters> *AllTrkPar(0);
 	DataVector<const Trk::TrackParameters>::const_iterator p_trkpariter;
 
@@ -2452,44 +2451,44 @@ StatusCode TRT_Monitoring_Tool::fillTRTTracks(const TrackCollection& trackCollec
 		}
 
 		if (m_doShift) {
-			scale_LWHist(m_hEvtPhase, EventPhaseScale);
-			scale_LWHist(m_hDriftTimeonTrkDist_B, DriftTimeonTrkDistScale_B);
-			scale_LWHist(m_hHLhitOnTrack_B, HLhitOnTrackScale_B);
-			scale_LWHist(m_hHtoLRatioOnTrack_B, HtoLRatioOnTrackScale_B);
-			scale_LWHist(m_hNumSwLLWoT_B, NumSwLLWoTScale_B);
-			scale_LWHist(m_hWireToTrkPosition_B, WireToTrkPositionScale_B);
-			scale_LWHist(m_hTronTDist_B, TronTDistScale_B);
-			scale_LWHist(m_hResidual_B, ResidualScale_B);
-			scale_LWHist(m_hResidual_B_20GeV, ResidualScale_B_20GeV);
-			scale_LWHist(m_hTimeResidual_B, TimeResidualScale_B);
+			scale_LWHist(m_hEvtPhase, m_EventPhaseScale);
+			scale_LWHist(m_hDriftTimeonTrkDist_B, m_DriftTimeonTrkDistScale_B);
+			scale_LWHist(m_hHLhitOnTrack_B, m_HLhitOnTrackScale_B);
+			scale_LWHist(m_hHtoLRatioOnTrack_B, m_HtoLRatioOnTrackScale_B);
+			scale_LWHist(m_hNumSwLLWoT_B, m_NumSwLLWoTScale_B);
+			scale_LWHist(m_hWireToTrkPosition_B, m_WireToTrkPositionScale_B);
+			scale_LWHist(m_hTronTDist_B, m_TronTDistScale_B);
+			scale_LWHist(m_hResidual_B, m_ResidualScale_B);
+			scale_LWHist(m_hResidual_B_20GeV, m_ResidualScale_B_20GeV);
+			scale_LWHist(m_hTimeResidual_B, m_TimeResidualScale_B);
 
 			if (m_ArgonXenonSplitter) {
-				scale_LWHist(m_hDriftTimeonTrkDist_B_Ar, DriftTimeonTrkDistScale_B_Ar);
-				scale_LWHist(m_hWireToTrkPosition_B_Ar, WireToTrkPositionScale_B_Ar);
-				scale_LWHist(m_hTronTDist_B_Ar, TronTDistScale_B_Ar);
-				scale_LWHist(m_hResidual_B_Ar, ResidualScale_B_Ar);
-				scale_LWHist(m_hResidual_B_Ar_20GeV, ResidualScale_B_Ar_20GeV);
-				scale_LWHist(m_hTimeResidual_B_Ar, TimeResidualScale_B_Ar);
+				scale_LWHist(m_hDriftTimeonTrkDist_B_Ar, m_DriftTimeonTrkDistScale_B_Ar);
+				scale_LWHist(m_hWireToTrkPosition_B_Ar, m_WireToTrkPositionScale_B_Ar);
+				scale_LWHist(m_hTronTDist_B_Ar, m_TronTDistScale_B_Ar);
+				scale_LWHist(m_hResidual_B_Ar, m_ResidualScale_B_Ar);
+				scale_LWHist(m_hResidual_B_Ar_20GeV, m_ResidualScale_B_Ar_20GeV);
+				scale_LWHist(m_hTimeResidual_B_Ar, m_TimeResidualScale_B_Ar);
 			}
 
 			for (int iside = 0; iside < 2; iside++) {
-				scale_LWHist(m_hDriftTimeonTrkDist_E[iside], DriftTimeonTrkDistScale_E[iside]);
-				scale_LWHist(m_hHLhitOnTrack_E[iside], HLhitOnTrackScale_E[iside]);
-				scale_LWHist(m_hHtoLRatioOnTrack_E[iside], HtoLRatioOnTrackScale_E[iside]);
-				scale_LWHist(m_hNumSwLLWoT_E[iside], NumSwLLWoTScale_E[iside]);
-				scale_LWHist(m_hWireToTrkPosition_E[iside], WireToTrkPositionScale_E[iside]);
-				scale_LWHist(m_hTronTDist_E[iside], TronTDistScale_E[iside]);
-				scale_LWHist(m_hResidual_E[iside], ResidualScale_E[iside]);
-				scale_LWHist(m_hResidual_E_20GeV[iside], ResidualScale_E_20GeV[iside]);
-				scale_LWHist(m_hTimeResidual_E[iside], TimeResidualScale_E[iside]);
+				scale_LWHist(m_hDriftTimeonTrkDist_E[iside], m_DriftTimeonTrkDistScale_E[iside]);
+				scale_LWHist(m_hHLhitOnTrack_E[iside], m_HLhitOnTrackScale_E[iside]);
+				scale_LWHist(m_hHtoLRatioOnTrack_E[iside], m_HtoLRatioOnTrackScale_E[iside]);
+				scale_LWHist(m_hNumSwLLWoT_E[iside], m_NumSwLLWoTScale_E[iside]);
+				scale_LWHist(m_hWireToTrkPosition_E[iside], m_WireToTrkPositionScale_E[iside]);
+				scale_LWHist(m_hTronTDist_E[iside], m_TronTDistScale_E[iside]);
+				scale_LWHist(m_hResidual_E[iside], m_ResidualScale_E[iside]);
+				scale_LWHist(m_hResidual_E_20GeV[iside], m_ResidualScale_E_20GeV[iside]);
+				scale_LWHist(m_hTimeResidual_E[iside], m_TimeResidualScale_E[iside]);
 
 				if (m_ArgonXenonSplitter) {
-					scale_LWHist(m_hDriftTimeonTrkDist_E_Ar[iside], DriftTimeonTrkDistScale_E_Ar[iside]);
-					scale_LWHist(m_hWireToTrkPosition_E_Ar[iside], WireToTrkPositionScale_E_Ar[iside]);
-					scale_LWHist(m_hTronTDist_E_Ar[iside], TronTDistScale_E_Ar[iside]);
-					scale_LWHist(m_hResidual_E_Ar[iside], ResidualScale_E_Ar[iside]);
-					scale_LWHist(m_hResidual_E_Ar_20GeV[iside], ResidualScale_E_Ar_20GeV[iside]);
-					scale_LWHist(m_hTimeResidual_E_Ar[iside], TimeResidualScale_E_Ar[iside]);
+					scale_LWHist(m_hDriftTimeonTrkDist_E_Ar[iside], m_DriftTimeonTrkDistScale_E_Ar[iside]);
+					scale_LWHist(m_hWireToTrkPosition_E_Ar[iside], m_WireToTrkPositionScale_E_Ar[iside]);
+					scale_LWHist(m_hTronTDist_E_Ar[iside], m_TronTDistScale_E_Ar[iside]);
+					scale_LWHist(m_hResidual_E_Ar[iside], m_ResidualScale_E_Ar[iside]);
+					scale_LWHist(m_hResidual_E_Ar_20GeV[iside], m_ResidualScale_E_Ar_20GeV[iside]);
+					scale_LWHist(m_hTimeResidual_E_Ar[iside], m_TimeResidualScale_E_Ar[iside]);
 				}
 			}
 		}
@@ -2503,9 +2502,9 @@ StatusCode TRT_Monitoring_Tool::fillTRTTracks(const TrackCollection& trackCollec
 
 	for (; p_trk != trackCollection.end(); ++p_trk) {
 		const std::auto_ptr<const Trk::TrackSummary> summary(m_TrackSummaryTool->createSummary(*(*p_trk)));
-		int m_nTRTHits = summary->get(Trk::numberOfTRTHits);
+		int nTRTHits = summary->get(Trk::numberOfTRTHits);
 
-		if (m_nTRTHits < m_minTRThits) continue;
+		if (nTRTHits < m_minTRThits) continue;
 
 		AllTrkPar = (*p_trk)->trackParameters();
 
@@ -2515,17 +2514,17 @@ StatusCode TRT_Monitoring_Tool::fillTRTTracks(const TrackCollection& trackCollec
 		// But no check is done to see if there is more than one perigee measurement.
 		for (p_trkpariter = AllTrkPar->begin(); p_trkpariter != AllTrkPar->end(); ++p_trkpariter) {
 			//if track parameter does have a measured perigee then the track parameter is a keeper and break out of the loop
-			if ((m_mPer = dynamic_cast<const Trk::Perigee *>(*p_trkpariter))) break;
+			if ((mPer = dynamic_cast<const Trk::Perigee *>(*p_trkpariter))) break;
 		}
 
-		if (!m_mPer) continue;
+		if (!mPer) continue;
 
-		float m_theta   =  m_mPer->parameters()[Trk::theta];
-		float m_p       =  (m_mPer->parameters()[Trk::qOverP] != 0.) ? fabs(1. / (m_mPer->parameters()[Trk::qOverP])) : 10e7;
-		float m_pT      =  (m_p * sin(m_theta));
-		m_pT = m_pT * 1e-3;  // GeV
+		float theta   =  mPer->parameters()[Trk::theta];
+		float p       =  (mPer->parameters()[Trk::qOverP] != 0.) ? fabs(1. / (mPer->parameters()[Trk::qOverP])) : 10e7;
+		float pT      =  (p * sin(theta));
+		pT = pT * 1e-3;  // GeV
 
-		if (m_p < m_minP) continue;
+		if (p < m_minP) continue;
 
 		const DataVector<const Trk::TrackStateOnSurface> *trackStates = (**p_trk).trackStateOnSurfaces();
 
@@ -2541,7 +2540,7 @@ StatusCode TRT_Monitoring_Tool::fillTRTTracks(const TrackCollection& trackCollec
 		const int n_si_hits = n_pixel_hits + n_sct_hits;
 		bool is_pT_over_20GeV = false;
 
-		if (m_mPer->pT() > 20 * CLHEP::GeV) {
+		if (mPer->pT() > 20 * CLHEP::GeV) {
 			is_pT_over_20GeV = true;
 		} else {
 			is_pT_over_20GeV = false;
@@ -2556,8 +2555,8 @@ StatusCode TRT_Monitoring_Tool::fillTRTTracks(const TrackCollection& trackCollec
 		}
 
 		const bool passed_track_preselection =
-			(m_mPer->pT() > min_pt_new) &&
-			(m_p > m_minP) &&
+			(mPer->pT() > min_pt_new) &&
+			(p > m_minP) &&
 			(n_si_hits >= m_min_si_hits) &&
 			(n_pixel_hits >= m_min_pixel_hits) &&
 			(n_sct_hits >= m_min_sct_hits) &&
@@ -2569,45 +2568,45 @@ StatusCode TRT_Monitoring_Tool::fillTRTTracks(const TrackCollection& trackCollec
 		int checkB[2] = {0, 0};
 		int checkEC[2] = {0, 0};
 		int checkEC_B[2] = {0, 0};
-		int m_nTRTHitsW[2][2];
-		int m_nTRTHitsW_Ar[2][2];
-		int m_nTRTHitsW_Xe[2][2];
-		int m_nTRTHLHitsW[2][2];
-		int m_nTRTHLHitsW_Ar[2][2];
-		int m_nTRTHLHitsW_Xe[2][2];
-		int m_nTRTHits_side[2][2];
-		int m_nTRTHitsW_perwheel[2][18];
+		int nTRTHitsW[2][2];
+		int nTRTHitsW_Ar[2][2];
+		int nTRTHitsW_Xe[2][2];
+		int nTRTHLHitsW[2][2];
+		int nTRTHLHitsW_Ar[2][2];
+		int nTRTHLHitsW_Xe[2][2];
+		int nTRTHits_side[2][2];
+		int nTRTHitsW_perwheel[2][18];
 		int hitontrack[2] = {0, 0};
 		int hitontrack_E_side[2] = {0, 0};
 
 		for (int ibe = 0; ibe < 2; ibe++) {
 			for (int iside = 0; iside < 2; iside++) {
-				m_nTRTHits_side[ibe][iside] = -1;
-				m_nTRTHitsW[ibe][iside] = 0;
-				m_nTRTHitsW_Ar[ibe][iside] = 0;
-				m_nTRTHitsW_Xe[ibe][iside] = 0;
-				m_nTRTHLHitsW[ibe][iside] = 0;
-				m_nTRTHLHitsW_Ar[ibe][iside] = 0;
-				m_nTRTHLHitsW_Xe[ibe][iside] = 0;
+				nTRTHits_side[ibe][iside] = -1;
+				nTRTHitsW[ibe][iside] = 0;
+				nTRTHitsW_Ar[ibe][iside] = 0;
+				nTRTHitsW_Xe[ibe][iside] = 0;
+				nTRTHLHitsW[ibe][iside] = 0;
+				nTRTHLHitsW_Ar[ibe][iside] = 0;
+				nTRTHLHitsW_Xe[ibe][iside] = 0;
 			}
 
-			std::fill(m_nTRTHitsW_perwheel[ibe], m_nTRTHitsW_perwheel[ibe] + 18, 0);
+			std::fill(nTRTHitsW_perwheel[ibe], nTRTHitsW_perwheel[ibe] + 18, 0);
 		}
 
 		bool isBarrelOnly = true;
 		bool ECAhit = false;
 		bool ECChit = false;
 		bool Bhit = false;
-		int m_barrel_ec = 0;
-		int m_layer_or_wheel = 0;
-		int m_phi_module = 0;
-		int m_straw_layer = 0;
-		int m_straw = 0;
-		int m_nearest_straw_layer[2] = {100, 100};
-		int m_nearest_straw[2] = {0, 0};
+		int barrel_ec = 0;
+		int layer_or_wheel = 0;
+		int phi_module = 0;
+		int straw_layer = 0;
+		int straw = 0;
+		int nearest_straw_layer[2] = {100, 100};
+		int nearest_straw[2] = {0, 0};
 		int testLayer[2] = {100, 100};
 		int innerstack[2] = {-999, -999};
-		float m_phi2D[2] = {-100, -100};
+		float phi2D[2] = {-100, -100};
 
 		for (TSOSItBeginTemp = TSOSItBegin0; TSOSItBeginTemp != TSOSItEnd; ++TSOSItBeginTemp) {
 			if ((*TSOSItBeginTemp) == 0) continue;
@@ -2623,42 +2622,42 @@ StatusCode TRT_Monitoring_Tool::fillTRTTracks(const TrackCollection& trackCollec
 			if (!aTrackParam) continue;
 
 			Identifier DCoTId = trtCircle->identify();
-			m_barrel_ec = m_pTRTHelper->barrel_ec(DCoTId);
-			int ibe = abs(m_barrel_ec) - 1;
-			m_layer_or_wheel = m_pTRTHelper->layer_or_wheel (DCoTId);
-			m_straw_layer = m_pTRTHelper->straw_layer(DCoTId);
-			m_straw = m_pTRTHelper->straw(DCoTId);
+			barrel_ec = m_pTRTHelper->barrel_ec(DCoTId);
+			int ibe = abs(barrel_ec) - 1;
+			layer_or_wheel = m_pTRTHelper->layer_or_wheel (DCoTId);
+			straw_layer = m_pTRTHelper->straw_layer(DCoTId);
+			straw = m_pTRTHelper->straw(DCoTId);
 
 			//restrict ourselves to the inner most TRT layers To get detector phi.
-			if (m_layer_or_wheel >= testLayer[ibe]) continue;
+			if (layer_or_wheel >= testLayer[ibe]) continue;
 
-			testLayer[ibe] = m_layer_or_wheel;
+			testLayer[ibe] = layer_or_wheel;
 
-			if (m_straw_layer < m_nearest_straw_layer[ibe]) {
-				m_nearest_straw_layer[ibe] = m_straw_layer;
-				m_nearest_straw[ibe] = m_straw;
+			if (straw_layer < nearest_straw_layer[ibe]) {
+				nearest_straw_layer[ibe] = straw_layer;
+				nearest_straw[ibe] = straw;
 				const InDetDD::TRT_BaseElement *circleElement = nullptr;
 				circleElement = trtCircle->detectorElement();
-				m_phi2D[ibe] = radToDegrees(circleElement->strawCenter(m_nearest_straw[ibe]).phi());
+				phi2D[ibe] = radToDegrees(circleElement->strawCenter(nearest_straw[ibe]).phi());
 				circleElement = nullptr;
 				innerstack[ibe] = m_pTRTHelper->phi_module(DCoTId);
 			}
 		}
 
-		if (m_phi2D[0] == -999) {
+		if (phi2D[0] == -999) {
 			ATH_MSG_DEBUG("Track did not go through inner layer of Barrel.");
 		} else {
 			ATH_MSG_VERBOSE("Track's closest approach is m_layer_or_wheel: " <<
 			                testLayer[0] << " m_straw_layer: " <<
-			                m_nearest_straw_layer[0] << " (in the Barrel).");
+			                nearest_straw_layer[0] << " (in the Barrel).");
 		}
 
-		if (m_phi2D[1] == -999) {
+		if (phi2D[1] == -999) {
 			ATH_MSG_DEBUG("Track did not go through any inner layer of EndCap A or C.");
 		} else {
 			ATH_MSG_VERBOSE("Track's closest approach is m_layer_or_wheel: " <<
 			                testLayer[1] << " m_straw_layer: " <<
-			                m_nearest_straw_layer[1] << " (in the EndCaps).");
+			                nearest_straw_layer[1] << " (in the EndCaps).");
 		}
 
 		bool trackfound[2][64];
@@ -2682,35 +2681,35 @@ StatusCode TRT_Monitoring_Tool::fillTRTTracks(const TrackCollection& trackCollec
 			if (!aTrackParam) continue;
 
 			Identifier DCoTId = trtCircle->identify();
-			m_barrel_ec = m_pTRTHelper->barrel_ec(DCoTId);
-			m_layer_or_wheel = m_pTRTHelper->layer_or_wheel(DCoTId);
-			m_phi_module = m_pTRTHelper->phi_module(DCoTId);
-			m_straw_layer = m_pTRTHelper->straw_layer(DCoTId);
-			m_straw = m_pTRTHelper->straw(DCoTId);
+			barrel_ec = m_pTRTHelper->barrel_ec(DCoTId);
+			layer_or_wheel = m_pTRTHelper->layer_or_wheel(DCoTId);
+			phi_module = m_pTRTHelper->phi_module(DCoTId);
+			straw_layer = m_pTRTHelper->straw_layer(DCoTId);
+			straw = m_pTRTHelper->straw(DCoTId);
 			// ibe = 0 (Barrel), ibe = 1 (Endcap)
-			int ibe = abs(m_barrel_ec) - 1;
+			int ibe = abs(barrel_ec) - 1;
 			// iside = 0 (Side A), iside = 1 (Side C)
-			int iside = m_barrel_ec > 0 ? 0 : 1;
-			int m_strawNumber[2] = {-1, -1};
-			int m_chip[2] = {0, 0};
+			int iside = barrel_ec > 0 ? 0 : 1;
+			int thisStrawNumber[2] = {-1, -1};
+			int chip[2] = {0, 0};
 
 			if (ibe == 0) {
-				m_strawNumber[ibe] = strawNumber(m_straw, m_straw_layer, m_layer_or_wheel);
+				thisStrawNumber[ibe] = strawNumber(straw, straw_layer, layer_or_wheel);
 
-				if (m_strawNumber[ibe] >= 0 && m_strawNumber[ibe] < s_Straw_max[ibe]) {
-					m_chip[ibe] = mat_chip_B[m_phi_module][m_strawNumber[ibe]];
+				if (thisStrawNumber[ibe] >= 0 && thisStrawNumber[ibe] < s_Straw_max[ibe]) {
+					chip[ibe] = m_mat_chip_B[phi_module][thisStrawNumber[ibe]];
 				}
 			} else if (ibe == 1) {
-				m_strawNumber[ibe] = strawNumberEndCap(m_straw, m_straw_layer, m_layer_or_wheel, m_phi_module, m_barrel_ec);
+				thisStrawNumber[ibe] = strawNumberEndCap(straw, straw_layer, layer_or_wheel, phi_module, barrel_ec);
 
-				if (m_strawNumber[ibe] >= 0 && m_strawNumber[ibe] < s_Straw_max[ibe]) {
-					m_chip[ibe] = mat_chip_E[m_phi_module][m_strawNumber[ibe]];
+				if (thisStrawNumber[ibe] >= 0 && thisStrawNumber[ibe] < s_Straw_max[ibe]) {
+					chip[ibe] = m_mat_chip_E[phi_module][thisStrawNumber[ibe]];
 				}
 			} else {
-				m_strawNumber[ibe] = -1;
+				thisStrawNumber[ibe] = -1;
 			}
 
-			if (m_strawNumber[ibe] < 0 || m_strawNumber[ibe] >= s_Straw_max[ibe]) continue;
+			if (thisStrawNumber[ibe] < 0 || thisStrawNumber[ibe] >= s_Straw_max[ibe]) continue;
 
 			if (checkB[iside] == 0 && ibe == 0) {
 				m_nTracksB[iside]++;
@@ -2729,10 +2728,10 @@ StatusCode TRT_Monitoring_Tool::fillTRTTracks(const TrackCollection& trackCollec
 
 			if (ibe == 0) {
 				Bhit = true;
-			} else if (m_barrel_ec == 2) {
+			} else if (barrel_ec == 2) {
 				isBarrelOnly = false;
 				ECAhit = true;
-			} else if (m_barrel_ec == -2) {
+			} else if (barrel_ec == -2) {
 				isBarrelOnly = false;
 				ECChit = true;
 			}
@@ -2746,8 +2745,8 @@ StatusCode TRT_Monitoring_Tool::fillTRTTracks(const TrackCollection& trackCollec
 			TRTCond::RtRelation const *rtr = m_TRTCalDbSvc->getRtRelation(surfaceID);
 			int iphi_module = -9999;
 
-			if (iside == 0) iphi_module = m_phi_module;
-			else if (iside == 1) iphi_module = m_phi_module + 32;
+			if (iside == 0) iphi_module = phi_module;
+			else if (iside == 1) iphi_module = phi_module + 32;
 
 			trackfound[ibe][iphi_module] = true;
 
@@ -2761,59 +2760,59 @@ StatusCode TRT_Monitoring_Tool::fillTRTTracks(const TrackCollection& trackCollec
 						hitontrack[ibe]++;
 
 						if (m_doShift) {
-							m_hStrawEffDetPhi_B->Fill(m_phi_module, 1.0);
+							m_hStrawEffDetPhi_B->Fill(phi_module, 1.0);
 						}
 
 						if (m_doStraws && m_doShift) {
-							m_nStrawHits_B[m_strawNumber[ibe]]++;
+							m_nStrawHits_B[thisStrawNumber[ibe]]++;
 						}
 					} else if (ibe == 1) {
 						hitontrack[ibe]++;
 						hitontrack_E_side[iside]++;
 
 						if (m_doShift) {
-							m_hStrawEffDetPhi_E[iside]->Fill(m_phi_module, 1.0);
+							m_hStrawEffDetPhi_E[iside]->Fill(phi_module, 1.0);
 						}
 
 						if (m_doStraws && m_doShift) {
-							m_nStrawHits_E[iside][m_strawNumber[ibe]]++;
+							m_nStrawHits_E[iside][thisStrawNumber[ibe]]++;
 						}
 					}
 
 					if (m_doStraws && m_doExpert) {
-						m_hStrawsEff[ibe][iphi_module]->Fill(m_strawNumber[ibe], 1.0);
+						m_hStrawsEff[ibe][iphi_module]->Fill(thisStrawNumber[ibe], 1.0);
 					}
 
 					if (m_doChips && m_doExpert) {
-						m_hChipsEff[ibe][iphi_module]->Fill((m_chip[ibe] - 1), 1.0);
+						m_hChipsEff[ibe][iphi_module]->Fill((chip[ibe] - 1), 1.0);
 					}
 				}
 			} else {
 				if (m_idHelper->is_trt(DCoTId)) { //ToDo:Is this really needed
 					if (ibe == 0) {
 						if (m_doShift) {
-							m_hStrawEffDetPhi_B->Fill(m_phi_module, 0.0);
+							m_hStrawEffDetPhi_B->Fill(phi_module, 0.0);
 						}
 
 						if (m_doStraws && m_doShift) {
-							m_nStrawHits_B[m_strawNumber[ibe]]++;
+							m_nStrawHits_B[thisStrawNumber[ibe]]++;
 						}
 					} else if (ibe == 1) {
 						if (m_doShift) {
-							m_hStrawEffDetPhi_E[iside]->Fill(m_phi_module, 0.0);
+							m_hStrawEffDetPhi_E[iside]->Fill(phi_module, 0.0);
 						}
 
 						if (m_doStraws && m_doShift) {
-							m_nStrawHits_E[iside][m_strawNumber[ibe]]++;
+							m_nStrawHits_E[iside][thisStrawNumber[ibe]]++;
 						}
 					}
 
 					if (m_doStraws && m_doExpert) {
-						m_hStrawsEff[ibe][iphi_module]->Fill(m_strawNumber[ibe], 0.0);
+						m_hStrawsEff[ibe][iphi_module]->Fill(thisStrawNumber[ibe], 0.0);
 					}
 
 					if (m_doChips  && m_doExpert) {
-						m_hChipsEff[ibe][iphi_module]->Fill((m_chip[ibe] - 1), 0.0);
+						m_hChipsEff[ibe][iphi_module]->Fill((chip[ibe] - 1), 0.0);
 					}
 				}
 			}
@@ -2822,48 +2821,48 @@ StatusCode TRT_Monitoring_Tool::fillTRTTracks(const TrackCollection& trackCollec
 			bool isTubeHit = (mesb->localCovariance()(Trk::locX, Trk::locX) > 1.0) ? 1 : 0;
 
 			if (RawDriftCircle) {
-				m_nTRTHits_side[ibe][iside]++;
+				nTRTHits_side[ibe][iside]++;
 				int middleHTbit       = RawDriftCircle->getWord() & 0x00020000;
 				//0x00020000 = 0000 0000 0000 0000 0000 0010 0000 0000 0000 0000
 				int hitinvaliditygate = RawDriftCircle->getWord() & 0x000DFE80;
 				//0x000DFE80 = 0000 0000 0000 0000 0000 1101 1111 1110 1000 0000 //
 				bool is_middleHTbit_high = (middleHTbit != 0);
 				bool is_anybininVgate_high = (hitinvaliditygate != 0);
-				float m_timeOverThreshold = RawDriftCircle->timeOverThreshold();
+				float timeOverThreshold = RawDriftCircle->timeOverThreshold();
 				double t0 = m_TRTCalDbSvc->getT0(DCoTId, TRTCond::ExpandedIdentifier::STRAW);
 				//				auto rc = m_TRTCalDbSvc->getT0Container();
 				//				auto valWithContainer = rc->getWithContainer(ITRT_CalDbSvc::trtcondid(DCoTId, TRTCond::ExpandedIdentifier::STRAW);
 
 				if (m_doExpert && m_doStraws) {
-					m_hHitToTonTMapS[ibe][iphi_module]->Fill(m_strawNumber[ibe], m_timeOverThreshold);
+					m_hHitToTonTMapS[ibe][iphi_module]->Fill(thisStrawNumber[ibe], timeOverThreshold);
 					// NOTE: this looks redundant
-					m_hHitHonTMapS[ibe][iphi_module]->Fill(m_strawNumber[ibe], 1.0);
+					m_hHitHonTMapS[ibe][iphi_module]->Fill(thisStrawNumber[ibe], 1.0);
 
 					if (is_middleHTbit_high) {
-						m_hHitHonTMapS[ibe][iphi_module]->Fill(m_strawNumber[ibe], 1.0);
-						m_hHitHWonTMapS[ibe][iphi_module]->Fill(m_strawNumber[ibe], 1.0);
+						m_hHitHonTMapS[ibe][iphi_module]->Fill(thisStrawNumber[ibe], 1.0);
+						m_hHitHWonTMapS[ibe][iphi_module]->Fill(thisStrawNumber[ibe], 1.0);
 					}
 				}
 
 				if (m_doExpert && m_doChips) {
-					m_hHitToTonTMapC[ibe][iphi_module]->Fill((m_chip[ibe] - 1), m_timeOverThreshold);
+					m_hHitToTonTMapC[ibe][iphi_module]->Fill((chip[ibe] - 1), timeOverThreshold);
 
 					if (is_middleHTbit_high) {
-						m_hHitHWonTMapC[ibe][iphi_module]->Fill(m_chip[ibe] - 1);
-						m_hHitHonTMapC[ibe][iphi_module]->Fill(m_chip[ibe] - 1);
+						m_hHitHWonTMapC[ibe][iphi_module]->Fill(chip[ibe] - 1);
+						m_hHitHonTMapC[ibe][iphi_module]->Fill(chip[ibe] - 1);
 					}
 				}
 
-				const bool m_driftTimeValid = RawDriftCircle->driftTimeValid();
+				const bool driftTimeValid = RawDriftCircle->driftTimeValid();
 
-				if (m_driftTimeValid) {
-					const float m_validRawDriftTime = RawDriftCircle->rawDriftTime();
+				if (driftTimeValid) {
+					const float validRawDriftTime = RawDriftCircle->rawDriftTime();
 
 					if (m_doExpert && m_doStraws)
-						m_hValidRawDriftTimeonTrk[ibe][iphi_module]->Fill(m_strawNumber[ibe], m_validRawDriftTime);
+						m_hValidRawDriftTimeonTrk[ibe][iphi_module]->Fill(thisStrawNumber[ibe], validRawDriftTime);
 
 					if (m_doExpert && m_doChips)
-						m_hValidRawDriftTimeonTrkC[ibe][iphi_module]->Fill((m_chip[ibe] - 1), m_validRawDriftTime);
+						m_hValidRawDriftTimeonTrkC[ibe][iphi_module]->Fill((chip[ibe] - 1), validRawDriftTime);
 				}
 
 				if (m_doShift && m_doStraws) {
@@ -3005,106 +3004,106 @@ StatusCode TRT_Monitoring_Tool::fillTRTTracks(const TrackCollection& trackCollec
 					}
 				}
 
-				const int m_driftTimeBin = RawDriftCircle->driftTimeBin();
+				const int driftTimeBin = RawDriftCircle->driftTimeBin();
 
-				if ( (m_driftTimeBin < 24) &&
+				if ( (driftTimeBin < 24) &&
 				     !(RawDriftCircle->lastBinHigh()) &&
 				     !(RawDriftCircle->firstBinHigh()) ) {
 					if (m_doStraws) {
 						if (ibe == 0) {
-							m_hHitWonTMap_B->Fill(m_strawNumber[ibe]);
+							m_hHitWonTMap_B->Fill(thisStrawNumber[ibe]);
 						} else if (ibe == 1) {
-							m_hHitWonTMap_E[iside]->Fill(m_strawNumber[ibe]);
+							m_hHitWonTMap_E[iside]->Fill(thisStrawNumber[ibe]);
 						}
 					}
 				}
 
-				if ((m_driftTimeBin > 2) && (m_driftTimeBin < 17)) {
+				if ((driftTimeBin > 2) && (driftTimeBin < 17)) {
 					if (m_doExpert && m_doStraws)
-						m_hHitWonTMapS[ibe][iphi_module]->Fill(m_strawNumber[ibe], 1.0);
+						m_hHitWonTMapS[ibe][iphi_module]->Fill(thisStrawNumber[ibe], 1.0);
 
 					if (m_doExpert && m_doChips)
-						m_hHitWonTMapC[ibe][iphi_module]->Fill(m_chip[ibe] - 1, 1.0);
+						m_hHitWonTMapC[ibe][iphi_module]->Fill(chip[ibe] - 1, 1.0);
 				}
 
-				const int m_trailingEdge = RawDriftCircle->trailingEdge();
-				float trailingEdgeScaled = (m_trailingEdge + 1) * 3.125;
+				const int trailingEdge = RawDriftCircle->trailingEdge();
+				float trailingEdgeScaled = (trailingEdge + 1) * 3.125;
 
-				if ((m_trailingEdge < 23) &&
+				if ((trailingEdge < 23) &&
 				    !(RawDriftCircle->lastBinHigh()) &&
 				    !(RawDriftCircle->firstBinHigh())) {
 					if (m_doExpert && m_doStraws)
-						m_hHitTronTMapS[ibe][iphi_module]->Fill(m_strawNumber[ibe], trailingEdgeScaled);
+						m_hHitTronTMapS[ibe][iphi_module]->Fill(thisStrawNumber[ibe], trailingEdgeScaled);
 
 					if (m_doExpert && m_doChips)
-						m_hHitTronTMapC[ibe][iphi_module]->Fill(m_chip[ibe] - 1, trailingEdgeScaled);
+						m_hHitTronTMapC[ibe][iphi_module]->Fill(chip[ibe] - 1, trailingEdgeScaled);
 
 					if (m_doExpert && m_doStraws)
-						m_hHitTronTwEPCMapS[ibe][iphi_module]->Fill(m_strawNumber[ibe], trailingEdgeScaled - timeCor);// Mean TE on Track (with Event Phase correction): Straws
+						m_hHitTronTwEPCMapS[ibe][iphi_module]->Fill(thisStrawNumber[ibe], trailingEdgeScaled - timeCor);// Mean TE on Track (with Event Phase correction): Straws
 
 					if (m_doExpert && m_doChips)
-						m_hHitTronTwEPCMapC[ibe][iphi_module]->Fill((m_chip[ibe] - 1), trailingEdgeScaled - timeCor); // Mean TE on Track (with Event Phase correction): Chips
+						m_hHitTronTwEPCMapC[ibe][iphi_module]->Fill((chip[ibe] - 1), trailingEdgeScaled - timeCor); // Mean TE on Track (with Event Phase correction): Chips
 
 					if (m_doShift && m_doStraws) {
 						if (RawDriftCircle->driftTimeValid()) {
 							if (ibe == 0) {
 								if (isArgonStraw) {
 									m_hTronTDist_B_Ar->Fill(trailingEdgeScaled);
-									m_hAvgTroTDetPhi_B_Ar->Fill(m_phi2D[ibe], trailingEdgeScaled);
+									m_hAvgTroTDetPhi_B_Ar->Fill(phi2D[ibe], trailingEdgeScaled);
 								} else {
 									m_hTronTDist_B->Fill(trailingEdgeScaled);
-									m_hAvgTroTDetPhi_B->Fill(m_phi2D[ibe], trailingEdgeScaled);
+									m_hAvgTroTDetPhi_B->Fill(phi2D[ibe], trailingEdgeScaled);
 								}
 							} else if (ibe == 1) {
 								if (isArgonStraw) {
 									m_hTronTDist_E_Ar[iside]->Fill(trailingEdgeScaled);
-									m_hAvgTroTDetPhi_E_Ar[iside]->Fill(m_phi2D[ibe], trailingEdgeScaled);
+									m_hAvgTroTDetPhi_E_Ar[iside]->Fill(phi2D[ibe], trailingEdgeScaled);
 								} else {
 									m_hTronTDist_E[iside]->Fill(trailingEdgeScaled);
-									m_hAvgTroTDetPhi_E[iside]->Fill(m_phi2D[ibe], trailingEdgeScaled);
+									m_hAvgTroTDetPhi_E[iside]->Fill(phi2D[ibe], trailingEdgeScaled);
 								}
 							}
 						}
 					}
 				}
 
-				const bool m_firstBinHigh = RawDriftCircle->firstBinHigh();
-				const bool m_lastBinHigh = RawDriftCircle->lastBinHigh();
+				const bool firstBinHigh = RawDriftCircle->firstBinHigh();
+				const bool lastBinHigh = RawDriftCircle->lastBinHigh();
 
-				if (m_firstBinHigh || m_lastBinHigh || m_driftTimeBin > 0 || m_trailingEdge < 23) {
+				if (firstBinHigh || lastBinHigh || driftTimeBin > 0 || trailingEdge < 23) {
 					if (m_doExpert && m_doStraws)
-						m_hHitAonTMapS[ibe][iphi_module]->Fill(m_strawNumber[ibe]);
+						m_hHitAonTMapS[ibe][iphi_module]->Fill(thisStrawNumber[ibe]);
 
 					if (m_doExpert && m_doChips)
-						m_hHitAonTMapC[ibe][iphi_module]->Fill(m_chip[ibe] - 1);
+						m_hHitAonTMapC[ibe][iphi_module]->Fill(chip[ibe] - 1);
 
-					m_nTRTHitsW[ibe][iside]++;
+					nTRTHitsW[ibe][iside]++;
 
 					if (isArgonStraw) {
-						m_nTRTHitsW_Ar[ibe][iside]++;
+						nTRTHitsW_Ar[ibe][iside]++;
 					} else {
-						m_nTRTHitsW_Xe[ibe][iside]++;
+						nTRTHitsW_Xe[ibe][iside]++;
 					}
 
-					m_nTRTHitsW_perwheel[iside][m_layer_or_wheel]++;
+					nTRTHitsW_perwheel[iside][layer_or_wheel]++;
 
 					if (is_middleHTbit_high) {
-						m_nTRTHLHitsW[ibe][iside]++;
+						nTRTHLHitsW[ibe][iside]++;
 
 						if (isArgonStraw) {
-							m_nTRTHLHitsW_Ar[ibe][iside]++;
+							nTRTHLHitsW_Ar[ibe][iside]++;
 						} else {
-							m_nTRTHLHitsW_Xe[ibe][iside]++;
+							nTRTHLHitsW_Xe[ibe][iside]++;
 						}
 					}
 				}
 
 				if (is_anybininVgate_high) {
 					if (m_doExpert && m_doStraws)
-						m_hHitAWonTMapS[ibe][iphi_module]->Fill(m_strawNumber[ibe]);
+						m_hHitAWonTMapS[ibe][iphi_module]->Fill(thisStrawNumber[ibe]);
 
 					if (m_doExpert && m_doChips)
-						m_hHitAWonTMapC[ibe][iphi_module]->Fill(m_chip[ibe] - 1);
+						m_hHitAWonTMapC[ibe][iphi_module]->Fill(chip[ibe] - 1);
 				}
 			}
 		}
@@ -3118,47 +3117,47 @@ StatusCode TRT_Monitoring_Tool::fillTRTTracks(const TrackCollection& trackCollec
 			if (m_doShift) {
 				if (ibe == 0) {
 					if (hitontrack[ibe] >= m_minTRThits)
-						m_hNumHoTDetPhi_B->Fill(m_phi2D[ibe], hitontrack[ibe]);
+						m_hNumHoTDetPhi_B->Fill(phi2D[ibe], hitontrack[ibe]);
 				}
 
 				if (ibe == 1) {
 					if (hitontrack_E_side[0] >= m_minTRThits)
-						m_hNumHoTDetPhi_E[0]->Fill(m_phi2D[ibe], hitontrack_E_side[0]);
+						m_hNumHoTDetPhi_E[0]->Fill(phi2D[ibe], hitontrack_E_side[0]);
 
 					if (hitontrack_E_side[1] >= m_minTRThits)
-						m_hNumHoTDetPhi_E[1]->Fill(m_phi2D[ibe], hitontrack_E_side[1]);
+						m_hNumHoTDetPhi_E[1]->Fill(phi2D[ibe], hitontrack_E_side[1]);
 				}
 			}
 
-			if (m_phi2D[ibe] < 0) continue;
+			if (phi2D[ibe] < 0) continue;
 
 			if (m_doShift) {
 				if (ibe == 0) {
-					if (m_nTRTHitsW[ibe][0] + m_nTRTHitsW[ibe][1] > 0)
-						m_hNumTrksDetPhi_B->Fill(m_phi2D[ibe]);
+					if (nTRTHitsW[ibe][0] + nTRTHitsW[ibe][1] > 0)
+						m_hNumTrksDetPhi_B->Fill(phi2D[ibe]);
 				} else if (ibe == 1) {
-					if (m_nTRTHitsW[ibe][0] > 0)
-						m_hNumTrksDetPhi_E[0]->Fill(m_phi2D[ibe]);
+					if (nTRTHitsW[ibe][0] > 0)
+						m_hNumTrksDetPhi_E[0]->Fill(phi2D[ibe]);
 
-					if (m_nTRTHitsW[ibe][1] > 0)
-						m_hNumTrksDetPhi_E[1]->Fill(m_phi2D[ibe]);
+					if (nTRTHitsW[ibe][1] > 0)
+						m_hNumTrksDetPhi_E[1]->Fill(phi2D[ibe]);
 				}
 			}
 
 			if (m_doShift) {
 				if (innerstack[ibe] >= 0 && innerstack[ibe] < s_iStack_max[ibe]) {
 					if (ibe == 0) {
-						m_LonTrack_B[innerstack[ibe]] += m_nTRTHitsW[ibe][0] + m_nTRTHitsW[ibe][1];
+						m_LonTrack_B[innerstack[ibe]] += nTRTHitsW[ibe][0] + nTRTHitsW[ibe][1];
 
-						if (m_nTRTHitsW[ibe][0] + m_nTRTHitsW[ibe][1] > 0) {
-							m_HTfraconTrack_B[innerstack[ibe]] += (float)(m_nTRTHLHitsW[ibe][0] + m_nTRTHLHitsW[ibe][1]) / (m_nTRTHitsW[ibe][0] + m_nTRTHitsW[ibe][1]);
+						if (nTRTHitsW[ibe][0] + nTRTHitsW[ibe][1] > 0) {
+							m_HTfraconTrack_B[innerstack[ibe]] += (float)(nTRTHLHitsW[ibe][0] + nTRTHLHitsW[ibe][1]) / (nTRTHitsW[ibe][0] + nTRTHitsW[ibe][1]);
 							m_nTrack_B[innerstack[ibe]] = m_nTrack_B[innerstack[ibe]] + 1;
 						}
 					} else if (ibe == 1) {
-						m_LonTrack_E[innerstack[ibe]] += m_nTRTHitsW[ibe][0] + m_nTRTHitsW[ibe][1];
+						m_LonTrack_E[innerstack[ibe]] += nTRTHitsW[ibe][0] + nTRTHitsW[ibe][1];
 
-						if ((m_nTRTHitsW[ibe][0] + m_nTRTHitsW[ibe][1]) > 0) {
-							m_HTfraconTrack_E[innerstack[ibe]] += (float)(m_nTRTHLHitsW[ibe][0] + m_nTRTHLHitsW[ibe][1]) / (m_nTRTHitsW[ibe][0] + m_nTRTHitsW[ibe][1]);
+						if ((nTRTHitsW[ibe][0] + nTRTHitsW[ibe][1]) > 0) {
+							m_HTfraconTrack_E[innerstack[ibe]] += (float)(nTRTHLHitsW[ibe][0] + nTRTHLHitsW[ibe][1]) / (nTRTHitsW[ibe][0] + nTRTHitsW[ibe][1]);
 							m_nTrack_E[innerstack[ibe]] = m_nTrack_E[innerstack[ibe]] + 1;
 						}
 					}
@@ -3168,70 +3167,70 @@ StatusCode TRT_Monitoring_Tool::fillTRTTracks(const TrackCollection& trackCollec
 			if (m_doShift) {
 				if (ibe == 0) {
 					if (isBarrelOnly) {
-						if (m_nTRTHitsW[ibe][0] > 0) {
-							if (m_nTRTHitsW[ibe][1] > 0) m_hNumSwLLWoT_B->Fill(m_nTRTHitsW[ibe][0] + m_nTRTHitsW[ibe][1]);
-							else m_hNumSwLLWoT_B->Fill(m_nTRTHitsW[ibe][0]);
-						} else if (m_nTRTHitsW[ibe][1] > 0) {
-							m_hNumSwLLWoT_B->Fill(m_nTRTHitsW[ibe][1]);
+						if (nTRTHitsW[ibe][0] > 0) {
+							if (nTRTHitsW[ibe][1] > 0) m_hNumSwLLWoT_B->Fill(nTRTHitsW[ibe][0] + nTRTHitsW[ibe][1]);
+							else m_hNumSwLLWoT_B->Fill(nTRTHitsW[ibe][0]);
+						} else if (nTRTHitsW[ibe][1] > 0) {
+							m_hNumSwLLWoT_B->Fill(nTRTHitsW[ibe][1]);
 						}
 					}
 
-					if (m_nTRTHLHitsW[ibe][0] > 0) {
-						if (m_nTRTHLHitsW[ibe][1] > 0) {
-							m_hHLhitOnTrack_B->Fill(m_nTRTHLHitsW[ibe][0] + m_nTRTHLHitsW[ibe][1]);
+					if (nTRTHLHitsW[ibe][0] > 0) {
+						if (nTRTHLHitsW[ibe][1] > 0) {
+							m_hHLhitOnTrack_B->Fill(nTRTHLHitsW[ibe][0] + nTRTHLHitsW[ibe][1]);
 						} else {
-							m_hHLhitOnTrack_B->Fill(m_nTRTHLHitsW[ibe][0]);
+							m_hHLhitOnTrack_B->Fill(nTRTHLHitsW[ibe][0]);
 						}
-					} else if (m_nTRTHLHitsW[ibe][1] > 0) {
-						m_hHLhitOnTrack_B->Fill(m_nTRTHLHitsW[ibe][1]);
+					} else if (nTRTHLHitsW[ibe][1] > 0) {
+						m_hHLhitOnTrack_B->Fill(nTRTHLHitsW[ibe][1]);
 					}
 
-					if (m_nTRTHitsW[ibe][0] + m_nTRTHitsW[ibe][1] > 0) {
-						m_hHtoLRatioOnTrack_B->Fill((float)(m_nTRTHLHitsW[ibe][0] + m_nTRTHLHitsW[ibe][1]) / (m_nTRTHitsW[ibe][0] + m_nTRTHitsW[ibe][1]));
+					if (nTRTHitsW[ibe][0] + nTRTHitsW[ibe][1] > 0) {
+						m_hHtoLRatioOnTrack_B->Fill((float)(nTRTHLHitsW[ibe][0] + nTRTHLHitsW[ibe][1]) / (nTRTHitsW[ibe][0] + nTRTHitsW[ibe][1]));
 					}
 
-					if (m_nTRTHitsW_Ar[ibe][0] + m_nTRTHitsW_Ar[ibe][1] > 0) {
-						m_hHtoLRatioOnTrack_B_Ar->Fill((float)(m_nTRTHLHitsW_Ar[ibe][0] + m_nTRTHLHitsW_Ar[ibe][1]) / (m_nTRTHitsW_Ar[ibe][0] + m_nTRTHitsW_Ar[ibe][1]));
+					if (nTRTHitsW_Ar[ibe][0] + nTRTHitsW_Ar[ibe][1] > 0) {
+						m_hHtoLRatioOnTrack_B_Ar->Fill((float)(nTRTHLHitsW_Ar[ibe][0] + nTRTHLHitsW_Ar[ibe][1]) / (nTRTHitsW_Ar[ibe][0] + nTRTHitsW_Ar[ibe][1]));
 					}
 
-					if (m_nTRTHitsW_Xe[ibe][0] + m_nTRTHitsW_Xe[ibe][1] > 0) {
-						m_hHtoLRatioOnTrack_B_Xe->Fill((float)(m_nTRTHLHitsW_Xe[ibe][0] + m_nTRTHLHitsW_Xe[ibe][1]) / (m_nTRTHitsW_Xe[ibe][0] + m_nTRTHitsW_Xe[ibe][1]));
+					if (nTRTHitsW_Xe[ibe][0] + nTRTHitsW_Xe[ibe][1] > 0) {
+						m_hHtoLRatioOnTrack_B_Xe->Fill((float)(nTRTHLHitsW_Xe[ibe][0] + nTRTHLHitsW_Xe[ibe][1]) / (nTRTHitsW_Xe[ibe][0] + nTRTHitsW_Xe[ibe][1]));
 					}
 				} else if (ibe == 1) {
-					if (m_nTRTHitsW[ibe][0] > 0) {
-						if (m_nTRTHitsW[ibe][1] > 0) {
+					if (nTRTHitsW[ibe][0] > 0) {
+						if (nTRTHitsW[ibe][1] > 0) {
 							if (ECAhit && !ECChit && !Bhit) {
-								m_hNumSwLLWoT_E[0]->Fill(m_nTRTHitsW[ibe][0]);
+								m_hNumSwLLWoT_E[0]->Fill(nTRTHitsW[ibe][0]);
 							}
 
 							if (ECChit && !ECAhit && !Bhit) {
-								m_hNumSwLLWoT_E[1]->Fill(m_nTRTHitsW[ibe][1]);
+								m_hNumSwLLWoT_E[1]->Fill(nTRTHitsW[ibe][1]);
 							}
 						}
 
 						if (ECAhit && !ECChit && !Bhit) {
-							m_hNumSwLLWoT_E[0]->Fill(m_nTRTHitsW[ibe][0]);
+							m_hNumSwLLWoT_E[0]->Fill(nTRTHitsW[ibe][0]);
 						}
-					} else if (m_nTRTHitsW[ibe][1] > 0) {
+					} else if (nTRTHitsW[ibe][1] > 0) {
 						if (ECChit && !ECAhit && !Bhit) {
-							m_hNumSwLLWoT_E[1]->Fill(m_nTRTHitsW[ibe][1]);
+							m_hNumSwLLWoT_E[1]->Fill(nTRTHitsW[ibe][1]);
 						}
 					}
 
 					for (int iside = 0; iside < 2; iside++) {
-						if (m_nTRTHLHitsW[ibe][iside] > 0) {
-							m_hHLhitOnTrack_E[iside]->Fill(m_nTRTHLHitsW[ibe][iside]);
+						if (nTRTHLHitsW[ibe][iside] > 0) {
+							m_hHLhitOnTrack_E[iside]->Fill(nTRTHLHitsW[ibe][iside]);
 						}
 
-						if ((m_nTRTHitsW[ibe][iside]) > 0) {
-							m_hHtoLRatioOnTrack_E[iside]->Fill((float)(m_nTRTHLHitsW[ibe][iside]) / m_nTRTHitsW[ibe][iside]);
+						if ((nTRTHitsW[ibe][iside]) > 0) {
+							m_hHtoLRatioOnTrack_E[iside]->Fill((float)(nTRTHLHitsW[ibe][iside]) / nTRTHitsW[ibe][iside]);
 
-							if ((m_nTRTHitsW_Ar[ibe][iside]) > 0) {
-								m_hHtoLRatioOnTrack_E_Ar[iside]->Fill((float)(m_nTRTHLHitsW_Ar[ibe][iside]) / m_nTRTHitsW_Ar[ibe][iside]);
+							if ((nTRTHitsW_Ar[ibe][iside]) > 0) {
+								m_hHtoLRatioOnTrack_E_Ar[iside]->Fill((float)(nTRTHLHitsW_Ar[ibe][iside]) / nTRTHitsW_Ar[ibe][iside]);
 							}
 
-							if ((m_nTRTHitsW_Xe[ibe][iside]) > 0) {
-								m_hHtoLRatioOnTrack_E_Xe[iside]->Fill((float)(m_nTRTHLHitsW_Xe[ibe][iside]) / m_nTRTHitsW_Xe[ibe][iside]);
+							if ((nTRTHitsW_Xe[ibe][iside]) > 0) {
+								m_hHtoLRatioOnTrack_E_Xe[iside]->Fill((float)(nTRTHLHitsW_Xe[ibe][iside]) / nTRTHitsW_Xe[ibe][iside]);
 							}
 						}
 					}
@@ -3239,21 +3238,21 @@ StatusCode TRT_Monitoring_Tool::fillTRTTracks(const TrackCollection& trackCollec
 			}
 
 			if (ibe == 0) {
-				if ((m_nTRTHitsW[ibe][0] + m_nTRTHitsW[ibe][1]) > 0) {
-					nTrksperLB_B++;
+				if ((nTRTHitsW[ibe][0] + nTRTHitsW[ibe][1]) > 0) {
+					m_nTrksperLB_B++;
 				}
 				if (comTimeObject) {
-					if (m_doShift && (m_phi2D[ibe] > 0) && (std::fabs(timeCor) > 1e-8)) {
-						m_hEvtPhaseDetPhi_B->Fill(m_phi2D[ibe], timeCor);
+					if (m_doShift && (phi2D[ibe] > 0) && (std::fabs(timeCor) > 1e-8)) {
+						m_hEvtPhaseDetPhi_B->Fill(phi2D[ibe], timeCor);
 					}
 				}
 			} else if (ibe == 1) {
 				for (int iside = 0; iside < 2; iside++) {
-					if (m_nTRTHitsW[ibe][iside] > 0) nTrksperLB_E[iside]++;
+					if (nTRTHitsW[ibe][iside] > 0) m_nTrksperLB_E[iside]++;
 					if (comTimeObject) {
-						if (m_nTRTHits_side[ibe][iside] > 5 && (std::fabs(timeCor)
+						if (nTRTHits_side[ibe][iside] > 5 && (std::fabs(timeCor)
 						                                        > 1e-8)) {
-							if (m_doShift) m_hEvtPhaseDetPhi_E[iside]->Fill(m_phi2D[ibe], timeCor);
+							if (m_doShift) m_hEvtPhaseDetPhi_E[iside]->Fill(phi2D[ibe], timeCor);
 						}
 					}
 				}
@@ -3386,194 +3385,194 @@ StatusCode TRT_Monitoring_Tool::fillTRTTracks(const TrackCollection& trackCollec
 					m_hSummary->SetBinContent(6, m_nTracksEC[1]);
 					m_hSummary->SetBinContent(7, m_nTracksEC_B[0]);
 					m_hSummary->SetBinContent(8, m_nTracksEC_B[1]);
-					EventPhaseScale = m_hEvtPhase->GetEntries() * 3.125;
+					m_EventPhaseScale = m_hEvtPhase->GetEntries() * 3.125;
 
-					if (EventPhaseScale > 0) {
-						scale_LWHist(m_hEvtPhase, 1. / EventPhaseScale);
+					if (m_EventPhaseScale > 0) {
+						scale_LWHist(m_hEvtPhase, 1. / m_EventPhaseScale);
 					}
 
-					DriftTimeonTrkDistScale_B = m_hDriftTimeonTrkDist_B->GetEntries() * 3.125;
+					m_DriftTimeonTrkDistScale_B = m_hDriftTimeonTrkDist_B->GetEntries() * 3.125;
 
-					if (DriftTimeonTrkDistScale_B > 0) {
-						scale_LWHist(m_hDriftTimeonTrkDist_B, 1. / DriftTimeonTrkDistScale_B);
+					if (m_DriftTimeonTrkDistScale_B > 0) {
+						scale_LWHist(m_hDriftTimeonTrkDist_B, 1. / m_DriftTimeonTrkDistScale_B);
 					}
 
-					HLhitOnTrackScale_B = m_hHLhitOnTrack_B->GetEntries();
+					m_HLhitOnTrackScale_B = m_hHLhitOnTrack_B->GetEntries();
 
-					if (HLhitOnTrackScale_B > 0) {
-						scale_LWHist(m_hHLhitOnTrack_B, 1. / HLhitOnTrackScale_B);
+					if (m_HLhitOnTrackScale_B > 0) {
+						scale_LWHist(m_hHLhitOnTrack_B, 1. / m_HLhitOnTrackScale_B);
 					}
 
-					HtoLRatioOnTrackScale_B = m_hHtoLRatioOnTrack_B->GetEntries() * 0.02;
+					m_HtoLRatioOnTrackScale_B = m_hHtoLRatioOnTrack_B->GetEntries() * 0.02;
 
-					if (HtoLRatioOnTrackScale_B > 0) {
-						scale_LWHist(m_hHtoLRatioOnTrack_B, 1. / HtoLRatioOnTrackScale_B);
+					if (m_HtoLRatioOnTrackScale_B > 0) {
+						scale_LWHist(m_hHtoLRatioOnTrack_B, 1. / m_HtoLRatioOnTrackScale_B);
 					}
 
-					NumSwLLWoTScale_B = m_hNumSwLLWoT_B->GetEntries();
+					m_NumSwLLWoTScale_B = m_hNumSwLLWoT_B->GetEntries();
 
-					if (NumSwLLWoTScale_B > 0) {
-						scale_LWHist(m_hNumSwLLWoT_B, 1. / NumSwLLWoTScale_B);
+					if (m_NumSwLLWoTScale_B > 0) {
+						scale_LWHist(m_hNumSwLLWoT_B, 1. / m_NumSwLLWoTScale_B);
 					}
 
-					WireToTrkPositionScale_B = m_hWireToTrkPosition_B->GetEntries() * 0.1;
+					m_WireToTrkPositionScale_B = m_hWireToTrkPosition_B->GetEntries() * 0.1;
 
-					if (WireToTrkPositionScale_B > 0) {
-						scale_LWHist(m_hWireToTrkPosition_B, 1. / WireToTrkPositionScale_B);
+					if (m_WireToTrkPositionScale_B > 0) {
+						scale_LWHist(m_hWireToTrkPosition_B, 1. / m_WireToTrkPositionScale_B);
 					}
 
-					TronTDistScale_B = m_hTronTDist_B->GetEntries() * 3.125;
+					m_TronTDistScale_B = m_hTronTDist_B->GetEntries() * 3.125;
 
-					if (TronTDistScale_B > 0) {
-						scale_LWHist(m_hTronTDist_B, 1. / TronTDistScale_B);
+					if (m_TronTDistScale_B > 0) {
+						scale_LWHist(m_hTronTDist_B, 1. / m_TronTDistScale_B);
 					}
 
-					ResidualScale_B = m_hResidual_B->GetEntries() * 0.025;
+					m_ResidualScale_B = m_hResidual_B->GetEntries() * 0.025;
 
-					if (ResidualScale_B > 0) {
-						scale_LWHist(m_hResidual_B, 1. / ResidualScale_B);
+					if (m_ResidualScale_B > 0) {
+						scale_LWHist(m_hResidual_B, 1. / m_ResidualScale_B);
 					}
 
-					ResidualScale_B_20GeV = m_hResidual_B_20GeV->GetEntries() * 0.025;
+					m_ResidualScale_B_20GeV = m_hResidual_B_20GeV->GetEntries() * 0.025;
 
-					if (ResidualScale_B_20GeV > 0) {
-						scale_LWHist(m_hResidual_B_20GeV, 1. / ResidualScale_B_20GeV);
+					if (m_ResidualScale_B_20GeV > 0) {
+						scale_LWHist(m_hResidual_B_20GeV, 1. / m_ResidualScale_B_20GeV);
 					}
 
-					TimeResidualScale_B = m_hTimeResidual_B->GetEntries() * 0.2;
+					m_TimeResidualScale_B = m_hTimeResidual_B->GetEntries() * 0.2;
 
-					if (TimeResidualScale_B > 0) {
-						scale_LWHist(m_hTimeResidual_B, 1. / TimeResidualScale_B);
+					if (m_TimeResidualScale_B > 0) {
+						scale_LWHist(m_hTimeResidual_B, 1. / m_TimeResidualScale_B);
 					}
 
 					if (m_ArgonXenonSplitter) {
-						DriftTimeonTrkDistScale_B_Ar = m_hDriftTimeonTrkDist_B_Ar->GetEntries() * 3.125;
+						m_DriftTimeonTrkDistScale_B_Ar = m_hDriftTimeonTrkDist_B_Ar->GetEntries() * 3.125;
 
-						if (DriftTimeonTrkDistScale_B_Ar > 0) {
-							scale_LWHist(m_hDriftTimeonTrkDist_B_Ar, 1. / DriftTimeonTrkDistScale_B_Ar);
+						if (m_DriftTimeonTrkDistScale_B_Ar > 0) {
+							scale_LWHist(m_hDriftTimeonTrkDist_B_Ar, 1. / m_DriftTimeonTrkDistScale_B_Ar);
 						}
 
-						WireToTrkPositionScale_B_Ar = m_hWireToTrkPosition_B_Ar->GetEntries() * 0.1;
+						m_WireToTrkPositionScale_B_Ar = m_hWireToTrkPosition_B_Ar->GetEntries() * 0.1;
 
-						if (WireToTrkPositionScale_B_Ar > 0) {
-							scale_LWHist(m_hWireToTrkPosition_B_Ar, 1. / WireToTrkPositionScale_B_Ar);
+						if (m_WireToTrkPositionScale_B_Ar > 0) {
+							scale_LWHist(m_hWireToTrkPosition_B_Ar, 1. / m_WireToTrkPositionScale_B_Ar);
 						}
 
-						TronTDistScale_B_Ar = m_hTronTDist_B_Ar->GetEntries() * 3.125;
+						m_TronTDistScale_B_Ar = m_hTronTDist_B_Ar->GetEntries() * 3.125;
 
-						if (TronTDistScale_B_Ar > 0) {
-							scale_LWHist(m_hTronTDist_B_Ar, 1. / TronTDistScale_B_Ar);
+						if (m_TronTDistScale_B_Ar > 0) {
+							scale_LWHist(m_hTronTDist_B_Ar, 1. / m_TronTDistScale_B_Ar);
 						}
 
-						ResidualScale_B_Ar = m_hResidual_B_Ar->GetEntries() * 0.025;
+						m_ResidualScale_B_Ar = m_hResidual_B_Ar->GetEntries() * 0.025;
 
-						if (ResidualScale_B_Ar > 0) {
-							scale_LWHist(m_hResidual_B_Ar, 1. / ResidualScale_B_Ar);
+						if (m_ResidualScale_B_Ar > 0) {
+							scale_LWHist(m_hResidual_B_Ar, 1. / m_ResidualScale_B_Ar);
 						}
 
-						ResidualScale_B_Ar_20GeV = m_hResidual_B_Ar_20GeV->GetEntries() * 0.025;
+						m_ResidualScale_B_Ar_20GeV = m_hResidual_B_Ar_20GeV->GetEntries() * 0.025;
 
-						if (ResidualScale_B_Ar_20GeV > 0) {
-							scale_LWHist(m_hResidual_B_Ar_20GeV, 1. / ResidualScale_B_Ar_20GeV);
+						if (m_ResidualScale_B_Ar_20GeV > 0) {
+							scale_LWHist(m_hResidual_B_Ar_20GeV, 1. / m_ResidualScale_B_Ar_20GeV);
 						}
 
-						TimeResidualScale_B_Ar = m_hTimeResidual_B_Ar->GetEntries() * 0.2;
+						m_TimeResidualScale_B_Ar = m_hTimeResidual_B_Ar->GetEntries() * 0.2;
 
-						if (TimeResidualScale_B_Ar > 0) {
-							scale_LWHist(m_hTimeResidual_B_Ar, 1. / TimeResidualScale_B_Ar);
+						if (m_TimeResidualScale_B_Ar > 0) {
+							scale_LWHist(m_hTimeResidual_B_Ar, 1. / m_TimeResidualScale_B_Ar);
 						}
 					}
 				} else if (ibe == 1) {
 					for (int iside = 0; iside < 2; iside++) {
-						DriftTimeonTrkDistScale_E[iside] = m_hDriftTimeonTrkDist_E[iside]->GetEntries() * 3.125;
+						m_DriftTimeonTrkDistScale_E[iside] = m_hDriftTimeonTrkDist_E[iside]->GetEntries() * 3.125;
 
-						if (DriftTimeonTrkDistScale_E[iside] > 0) {
-							scale_LWHist(m_hDriftTimeonTrkDist_E[iside], 1. / DriftTimeonTrkDistScale_E[iside]);
+						if (m_DriftTimeonTrkDistScale_E[iside] > 0) {
+							scale_LWHist(m_hDriftTimeonTrkDist_E[iside], 1. / m_DriftTimeonTrkDistScale_E[iside]);
 						}
 
-						HLhitOnTrackScale_E[iside] = m_hHLhitOnTrack_E[iside]->GetEntries();
+						m_HLhitOnTrackScale_E[iside] = m_hHLhitOnTrack_E[iside]->GetEntries();
 
-						if (HLhitOnTrackScale_E[iside] > 0) {
-							scale_LWHist(m_hHLhitOnTrack_E[iside], 1. / HLhitOnTrackScale_E[iside]);
+						if (m_HLhitOnTrackScale_E[iside] > 0) {
+							scale_LWHist(m_hHLhitOnTrack_E[iside], 1. / m_HLhitOnTrackScale_E[iside]);
 						}
 
-						HtoLRatioOnTrackScale_E[iside] = m_hHtoLRatioOnTrack_E[iside]->GetEntries() * 0.02;
+						m_HtoLRatioOnTrackScale_E[iside] = m_hHtoLRatioOnTrack_E[iside]->GetEntries() * 0.02;
 
-						if (HtoLRatioOnTrackScale_E[iside] > 0) {
-							scale_LWHist(m_hHtoLRatioOnTrack_E[iside], 1. / HtoLRatioOnTrackScale_E[iside]);
+						if (m_HtoLRatioOnTrackScale_E[iside] > 0) {
+							scale_LWHist(m_hHtoLRatioOnTrack_E[iside], 1. / m_HtoLRatioOnTrackScale_E[iside]);
 						}
 
-						NumSwLLWoTScale_E[iside] = m_hNumSwLLWoT_E[iside]->GetEntries();
+						m_NumSwLLWoTScale_E[iside] = m_hNumSwLLWoT_E[iside]->GetEntries();
 
-						if (NumSwLLWoTScale_E[iside] > 0) {
-							scale_LWHist(m_hNumSwLLWoT_E[iside], 1. / NumSwLLWoTScale_E[iside]);
+						if (m_NumSwLLWoTScale_E[iside] > 0) {
+							scale_LWHist(m_hNumSwLLWoT_E[iside], 1. / m_NumSwLLWoTScale_E[iside]);
 						}
 
-						WireToTrkPositionScale_E[iside] = m_hWireToTrkPosition_E[iside]->GetEntries() * 0.1;
+						m_WireToTrkPositionScale_E[iside] = m_hWireToTrkPosition_E[iside]->GetEntries() * 0.1;
 
-						if (WireToTrkPositionScale_E[iside] > 0) {
-							scale_LWHist(m_hWireToTrkPosition_E[iside], 1. / WireToTrkPositionScale_E[iside]);
+						if (m_WireToTrkPositionScale_E[iside] > 0) {
+							scale_LWHist(m_hWireToTrkPosition_E[iside], 1. / m_WireToTrkPositionScale_E[iside]);
 						}
 
-						TronTDistScale_E[iside] = m_hTronTDist_E[iside]->GetEntries() * 3.125;
+						m_TronTDistScale_E[iside] = m_hTronTDist_E[iside]->GetEntries() * 3.125;
 
-						if (TronTDistScale_E[iside] > 0) {
-							scale_LWHist(m_hTronTDist_E[iside], 1. / TronTDistScale_E[iside]);
+						if (m_TronTDistScale_E[iside] > 0) {
+							scale_LWHist(m_hTronTDist_E[iside], 1. / m_TronTDistScale_E[iside]);
 						}
 
-						ResidualScale_E[iside] = m_hResidual_E[iside]->GetEntries() * 0.025;
+						m_ResidualScale_E[iside] = m_hResidual_E[iside]->GetEntries() * 0.025;
 
-						if (ResidualScale_E[iside] > 0) {
-							scale_LWHist(m_hResidual_E[iside], 1. / ResidualScale_E[iside]);
+						if (m_ResidualScale_E[iside] > 0) {
+							scale_LWHist(m_hResidual_E[iside], 1. / m_ResidualScale_E[iside]);
 						}
 
-						ResidualScale_E_20GeV[iside] = m_hResidual_E_20GeV[iside]->GetEntries() * 0.025;
+						m_ResidualScale_E_20GeV[iside] = m_hResidual_E_20GeV[iside]->GetEntries() * 0.025;
 
-						if (ResidualScale_E_20GeV[iside] > 0) {
-							scale_LWHist(m_hResidual_E_20GeV[iside], 1. / ResidualScale_E_20GeV[iside]);
+						if (m_ResidualScale_E_20GeV[iside] > 0) {
+							scale_LWHist(m_hResidual_E_20GeV[iside], 1. / m_ResidualScale_E_20GeV[iside]);
 						}
 
-						TimeResidualScale_E[iside] = m_hTimeResidual_E[iside]->GetEntries() * 0.2;
+						m_TimeResidualScale_E[iside] = m_hTimeResidual_E[iside]->GetEntries() * 0.2;
 
-						if (TimeResidualScale_E[iside] > 0) {
-							scale_LWHist(m_hTimeResidual_E[iside], 1. / TimeResidualScale_E[iside]);
+						if (m_TimeResidualScale_E[iside] > 0) {
+							scale_LWHist(m_hTimeResidual_E[iside], 1. / m_TimeResidualScale_E[iside]);
 						}
 
 						if (m_ArgonXenonSplitter) {
-							DriftTimeonTrkDistScale_E_Ar[iside] = m_hDriftTimeonTrkDist_E_Ar[iside]->GetEntries() * 3.125;
+							m_DriftTimeonTrkDistScale_E_Ar[iside] = m_hDriftTimeonTrkDist_E_Ar[iside]->GetEntries() * 3.125;
 
-							if (DriftTimeonTrkDistScale_E_Ar[iside] > 0) {
-								scale_LWHist(m_hDriftTimeonTrkDist_E_Ar[iside], 1. / DriftTimeonTrkDistScale_E_Ar[iside]);
+							if (m_DriftTimeonTrkDistScale_E_Ar[iside] > 0) {
+								scale_LWHist(m_hDriftTimeonTrkDist_E_Ar[iside], 1. / m_DriftTimeonTrkDistScale_E_Ar[iside]);
 							}
 
-							WireToTrkPositionScale_E_Ar[iside] = m_hWireToTrkPosition_E_Ar[iside]->GetEntries() * 0.1;
+							m_WireToTrkPositionScale_E_Ar[iside] = m_hWireToTrkPosition_E_Ar[iside]->GetEntries() * 0.1;
 
-							if (WireToTrkPositionScale_E_Ar[iside] > 0) {
-								scale_LWHist(m_hWireToTrkPosition_E_Ar[iside], 1. / WireToTrkPositionScale_E_Ar[iside]);
+							if (m_WireToTrkPositionScale_E_Ar[iside] > 0) {
+								scale_LWHist(m_hWireToTrkPosition_E_Ar[iside], 1. / m_WireToTrkPositionScale_E_Ar[iside]);
 							}
 
-							TronTDistScale_E_Ar[iside] = m_hTronTDist_E_Ar[iside]->GetEntries() * 3.125;
+							m_TronTDistScale_E_Ar[iside] = m_hTronTDist_E_Ar[iside]->GetEntries() * 3.125;
 
-							if (TronTDistScale_E_Ar[iside] > 0) {
-								scale_LWHist(m_hTronTDist_E_Ar[iside], 1. / TronTDistScale_E_Ar[iside]);
+							if (m_TronTDistScale_E_Ar[iside] > 0) {
+								scale_LWHist(m_hTronTDist_E_Ar[iside], 1. / m_TronTDistScale_E_Ar[iside]);
 							}
 
-							ResidualScale_E_Ar[iside] = m_hResidual_E_Ar[iside]->GetEntries() * 0.025;
+							m_ResidualScale_E_Ar[iside] = m_hResidual_E_Ar[iside]->GetEntries() * 0.025;
 
-							if (ResidualScale_E_Ar[iside] > 0) {
-								scale_LWHist(m_hResidual_E_Ar[iside], 1. / ResidualScale_E_Ar[iside]);
+							if (m_ResidualScale_E_Ar[iside] > 0) {
+								scale_LWHist(m_hResidual_E_Ar[iside], 1. / m_ResidualScale_E_Ar[iside]);
 							}
 
-							ResidualScale_E_Ar_20GeV[iside] = m_hResidual_E_Ar_20GeV[iside]->GetEntries() * 0.025;
+							m_ResidualScale_E_Ar_20GeV[iside] = m_hResidual_E_Ar_20GeV[iside]->GetEntries() * 0.025;
 
-							if (ResidualScale_E_Ar_20GeV[iside] > 0) {
-								scale_LWHist(m_hResidual_E_Ar_20GeV[iside], 1. / ResidualScale_E_Ar_20GeV[iside]);
+							if (m_ResidualScale_E_Ar_20GeV[iside] > 0) {
+								scale_LWHist(m_hResidual_E_Ar_20GeV[iside], 1. / m_ResidualScale_E_Ar_20GeV[iside]);
 							}
 
-							TimeResidualScale_E_Ar[iside] = m_hTimeResidual_E_Ar[iside]->GetEntries() * 0.2;
+							m_TimeResidualScale_E_Ar[iside] = m_hTimeResidual_E_Ar[iside]->GetEntries() * 0.2;
 
-							if (TimeResidualScale_E_Ar[iside] > 0) {
-								scale_LWHist(m_hTimeResidual_E_Ar[iside], 1. / TimeResidualScale_E_Ar[iside]);
+							if (m_TimeResidualScale_E_Ar[iside] > 0) {
+								scale_LWHist(m_hTimeResidual_E_Ar[iside], 1. / m_TimeResidualScale_E_Ar[iside]);
 							}
 						}
 					}
@@ -3635,10 +3634,10 @@ StatusCode TRT_Monitoring_Tool::fillTRTEfficiency(const TrackCollection& combTra
 		int n_trt_hits = summary->get(Trk::numberOfTRTHits);
 		int n_sct_hits = summary->get(Trk::numberOfSCTHits);
 		int n_pixel_hits = summary->get(Trk::numberOfPixelHits);
-		float m_p = 1.0e+08;
+		float p = 1.0e+08;
 
 		if (perigee) {
-			m_p = (perigee->parameters()[Trk::qOverP] != 0.) ? fabs(1. / (perigee->parameters()[Trk::qOverP])) : 1.0e+08;
+			p = (perigee->parameters()[Trk::qOverP] != 0.) ? fabs(1. / (perigee->parameters()[Trk::qOverP])) : 1.0e+08;
 		}
 
 		float min_pt_new = m_min_pT;
@@ -3652,7 +3651,7 @@ StatusCode TRT_Monitoring_Tool::fillTRTEfficiency(const TrackCollection& combTra
 			(fabs(perigee->parameters()[Trk::d0]) < m_max_abs_d0) &&
 			(fabs(perigee->parameters()[Trk::z0]) < m_max_abs_z0) &&
 			(perigee->pT() > min_pt_new) &&
-			(m_p > m_minP) &&
+			(p > m_minP) &&
 			(fabs(perigee->eta()) < m_max_abs_eta) &&
 			(n_pixel_hits >= m_min_pixel_hits) &&
 			(n_sct_hits >= m_min_sct_hits) &&
@@ -3680,17 +3679,17 @@ StatusCode TRT_Monitoring_Tool::fillTRTEfficiency(const TrackCollection& combTra
 			if ( !((m_pTRTHelper->is_trt(id)) )) continue;
 
 			float locR = track_parameters->parameters()[Trk::driftRadius];
-			int m_barrel_ec       = m_pTRTHelper->barrel_ec(id);
-			int m_layer_or_wheel  = m_pTRTHelper->layer_or_wheel(id);
-			int m_phi_module      = m_pTRTHelper->phi_module(id);
-			int m_straw_layer     = m_pTRTHelper->straw_layer(id);
-			int m_straw           = m_pTRTHelper->straw(id);
+			int barrel_ec       = m_pTRTHelper->barrel_ec(id);
+			int layer_or_wheel  = m_pTRTHelper->layer_or_wheel(id);
+			int phi_module      = m_pTRTHelper->phi_module(id);
+			int straw_layer     = m_pTRTHelper->straw_layer(id);
+			int straw           = m_pTRTHelper->straw(id);
 			const bool isArgonStraw = (Straw_Gastype( m_sumSvc->getStatusHT(id) ) == GasType::Ar);
 			// assume always Xe if m_ArgonXenonSplitter is not enabled, otherwise check the straw status (good is Xe, non-good is Ar)
 			// ibe = 0 (Barrel), ibe = 1 (Endcap)
-			int ibe   = abs(m_barrel_ec) - 1;
+			int ibe   = abs(barrel_ec) - 1;
 			// iside = 0 (Side A), iside = 1 (Side C)
-			int iside = m_barrel_ec > 0 ? 0 : 1;
+			int iside = barrel_ec > 0 ? 0 : 1;
 
 			if (ibe == 0) {
 				if (isArgonStraw) {
@@ -3708,30 +3707,30 @@ StatusCode TRT_Monitoring_Tool::fillTRTEfficiency(const TrackCollection& combTra
 
 			if (fabs(locR) >= 1.3) continue;
 
-			int m_strawNumber = 0;
-			int m_chip = 0;
+			int thisStrawNumber = 0;
+			int chip = 0;
 
 			if (ibe == 0) {
-				m_strawNumber = strawNumber(m_straw, m_straw_layer, m_layer_or_wheel);
+				thisStrawNumber = strawNumber(straw, straw_layer, layer_or_wheel);
 
-				if (m_strawNumber >= 0 && m_strawNumber < s_Straw_max[ibe])
-					m_chip = mat_chip_B[m_phi_module][m_strawNumber];
+				if (thisStrawNumber >= 0 && thisStrawNumber < s_Straw_max[ibe])
+					chip = m_mat_chip_B[phi_module][thisStrawNumber];
 			} else if (ibe == 1) {
-				m_strawNumber = strawNumberEndCap(m_straw, m_straw_layer, m_layer_or_wheel, m_phi_module, m_barrel_ec);
+				thisStrawNumber = strawNumberEndCap(straw, straw_layer, layer_or_wheel, phi_module, barrel_ec);
 
-				if (m_strawNumber >= 0 && m_strawNumber < s_Straw_max[ibe])
-					m_chip = mat_chip_E[m_phi_module][m_strawNumber];
+				if (thisStrawNumber >= 0 && thisStrawNumber < s_Straw_max[ibe])
+					chip = m_mat_chip_E[phi_module][thisStrawNumber];
 			}
 
-			m_hefficiencyMap[ibe]->Fill(m_strawNumber, 1.0);
+			m_hefficiencyMap[ibe]->Fill(thisStrawNumber, 1.0);
 
 			if (m_doExpert) {
 				if (iside == 0) {
-					m_hefficiencyS[ibe][m_phi_module]->Fill(m_strawNumber, 1.0);
-					m_hefficiencyC[ibe][m_phi_module]->Fill(m_chip, 1.0);
+					m_hefficiencyS[ibe][phi_module]->Fill(thisStrawNumber, 1.0);
+					m_hefficiencyC[ibe][phi_module]->Fill(chip, 1.0);
 				} else if (iside == 1) {
-					m_hefficiencyS[ibe][m_phi_module + 32]->Fill(m_strawNumber, 1.0);
-					m_hefficiencyC[ibe][m_phi_module + 32]->Fill(m_chip, 1.0);
+					m_hefficiencyS[ibe][phi_module + 32]->Fill(thisStrawNumber, 1.0);
+					m_hefficiencyC[ibe][phi_module + 32]->Fill(chip, 1.0);
 				}
 			}
 
@@ -3762,17 +3761,17 @@ StatusCode TRT_Monitoring_Tool::fillTRTEfficiency(const TrackCollection& combTra
 					if ( !(m_pTRTHelper->is_trt(id)) ) continue;
 
 					float locR = track_parameters->parameters()[Trk::driftRadius];
-					int m_barrel_ec = m_pTRTHelper->barrel_ec(id);
-					int m_layer_or_wheel = m_pTRTHelper->layer_or_wheel(id);
-					int m_phi_module = m_pTRTHelper->phi_module(id);
-					int m_straw_layer = m_pTRTHelper->straw_layer(id);
-					int m_straw = m_pTRTHelper->straw(id);
+					int barrel_ec = m_pTRTHelper->barrel_ec(id);
+					int layer_or_wheel = m_pTRTHelper->layer_or_wheel(id);
+					int phi_module = m_pTRTHelper->phi_module(id);
+					int straw_layer = m_pTRTHelper->straw_layer(id);
+					int straw = m_pTRTHelper->straw(id);
 					const bool isArgonStraw = Straw_Gastype( m_sumSvc->getStatusHT(id) ) == GasType::Ar;
 					// assume always Xe if m_ArgonXenonSplitter is not enabled, otherwise check the straw status (good is Xe, non-good is Ar)
 					// ibe = 0 (Barrel), ibe = 1 (Endcap)
-					int ibe = abs(m_barrel_ec) - 1;
+					int ibe = abs(barrel_ec) - 1;
 					// iside = 0 (Side A), iside = 1 (Side C)
-					int iside = m_barrel_ec > 0 ? 0 : 1;
+					int iside = barrel_ec > 0 ? 0 : 1;
 
 					if (ibe == 0) {
 						if (isArgonStraw) {
@@ -3790,32 +3789,32 @@ StatusCode TRT_Monitoring_Tool::fillTRTEfficiency(const TrackCollection& combTra
 
 					if (fabs(locR) >= 1.3) continue;
 
-					int m_strawNumber = 0;
-					int m_chip = 0;
+					int thisStrawNumber = 0;
+					int chip = 0;
 
 					if (ibe == 0) {
-						m_strawNumber = strawNumber(m_straw, m_straw_layer, m_layer_or_wheel);
+						thisStrawNumber = strawNumber(straw, straw_layer, layer_or_wheel);
 
-						if (m_strawNumber >= 0 && m_strawNumber < s_Straw_max[ibe]) {
-							m_chip = mat_chip_B[m_phi_module][m_strawNumber];
+						if (thisStrawNumber >= 0 && thisStrawNumber < s_Straw_max[ibe]) {
+							chip = m_mat_chip_B[phi_module][thisStrawNumber];
 						}
 					} else if (ibe == 1) {
-						m_strawNumber = strawNumberEndCap(m_straw, m_straw_layer, m_layer_or_wheel, m_phi_module, m_barrel_ec);
+						thisStrawNumber = strawNumberEndCap(straw, straw_layer, layer_or_wheel, phi_module, barrel_ec);
 
-						if (m_strawNumber >= 0 && m_strawNumber < s_Straw_max[ibe]) {
-							m_chip = mat_chip_E[m_phi_module][m_strawNumber];
+						if (thisStrawNumber >= 0 && thisStrawNumber < s_Straw_max[ibe]) {
+							chip = m_mat_chip_E[phi_module][thisStrawNumber];
 						}
 					}
 
-					m_hefficiencyMap[ibe]->Fill(m_strawNumber, 0.0);
+					m_hefficiencyMap[ibe]->Fill(thisStrawNumber, 0.0);
 
 					if (m_doExpert) {
 						if (iside == 0) {
-							m_hefficiencyS[ibe][m_phi_module]->Fill(m_strawNumber, 0.0);
-							m_hefficiencyC[ibe][m_phi_module]->Fill(m_chip, 0.0);
+							m_hefficiencyS[ibe][phi_module]->Fill(thisStrawNumber, 0.0);
+							m_hefficiencyC[ibe][phi_module]->Fill(chip, 0.0);
 						} else if (iside == 1) {
-							m_hefficiencyS[ibe][m_phi_module + 32]->Fill(m_strawNumber, 0.0);
-							m_hefficiencyC[ibe][m_phi_module + 32]->Fill(m_chip, 0.0);
+							m_hefficiencyS[ibe][phi_module + 32]->Fill(thisStrawNumber, 0.0);
+							m_hefficiencyC[ibe][phi_module + 32]->Fill(chip, 0.0);
 						}
 					}
 
@@ -4064,12 +4063,12 @@ StatusCode TRT_Monitoring_Tool::checkTRTReadoutIntegrity(const xAOD::EventInfo& 
 //-------------------------------------------------------------------------------------------------//
 	StatusCode sc = StatusCode::SUCCESS;
 
-	const unsigned int m_lumiBlock = eventInfo.lumiBlock();
-	ATH_MSG_VERBOSE("This is lumiblock : " << m_lumiBlock);
+	const unsigned int lumiBlock = eventInfo.lumiBlock();
+	ATH_MSG_VERBOSE("This is lumiblock : " << lumiBlock);
 	m_good_bcid = eventInfo.bcid();
 
-	if ((int)m_lumiBlock != m_lastLumiBlock) {
-		m_lastLumiBlock = m_lumiBlock;
+	if ((int)lumiBlock != m_lastLumiBlock) {
+		m_lastLumiBlock = lumiBlock;
 	}
 
 	//Get BSConversion Errors from BSConditionsServices:
@@ -4081,8 +4080,8 @@ StatusCode TRT_Monitoring_Tool::checkTRTReadoutIntegrity(const xAOD::EventInfo& 
 	const unsigned int rod_id_base[2][2] = { { 0x310000, 0x320000 }, { 0x330000, 0x340000 } };
 	const unsigned int nChipsTotal[2][2] = { {     3328,     3328 }, {     7680,     7680 } };
 	const unsigned int nRobsTotal[2][2]  = { {       32,       32 }, {       64,       64 } };
-	float m_nBSErrors[2][2]  = { { 0, 0 }, { 0, 0 } };
-	float m_nRobErrors[2][2] = { { 0, 0 }, { 0, 0 } };
+	float nBSErrors[2][2]  = { { 0, 0 }, { 0, 0 } };
+	float nRobErrors[2][2] = { { 0, 0 }, { 0, 0 } };
 	const std::set<std::pair<uint32_t, uint32_t> > *errorset1[2] = { BCIDErrorSet, L1IDErrorSet };
 
 	for (int iset = 0; iset < 2; ++iset) {
@@ -4090,7 +4089,7 @@ StatusCode TRT_Monitoring_Tool::checkTRTReadoutIntegrity(const xAOD::EventInfo& 
 			for (int ibe = 0; ibe < 2; ++ibe) {
 				for (int iside = 0; iside < 2; ++iside) {
 					if (((setIt->first >> 8) & 0xFF0000) == rod_id_base[ibe][iside]) {
-						m_nBSErrors[ibe][iside] += 1. / nChipsTotal[ibe][iside];
+						nBSErrors[ibe][iside] += 1. / nChipsTotal[ibe][iside];
 					}
 				}
 			}
@@ -4104,7 +4103,7 @@ StatusCode TRT_Monitoring_Tool::checkTRTReadoutIntegrity(const xAOD::EventInfo& 
 			for (int ibe = 0; ibe < 2; ++ibe) {
 				for (int iside = 0; iside < 2; ++iside) {
 					if (((*setIt >> 8) & 0xFF0000) == rod_id_base[ibe][iside]) {
-						m_nBSErrors[ibe][iside] += 1. / nChipsTotal[ibe][iside];
+						nBSErrors[ibe][iside] += 1. / nChipsTotal[ibe][iside];
 					}
 				}
 			}
@@ -4113,8 +4112,8 @@ StatusCode TRT_Monitoring_Tool::checkTRTReadoutIntegrity(const xAOD::EventInfo& 
 
 	for (int ibe = 0; ibe < 2; ++ibe) {
 		for (int iside = 0; iside < 2; ++iside) {
-			m_hChipBSErrorsVsLB[ibe][iside]->Fill(m_lumiBlock, m_nBSErrors[ibe][iside]);
-			m_hChipBSErrorsVsLB[ibe][iside]->SetEntries(m_lumiBlock); // we need this so the LastBinThreshold algorithm can find the last bin
+			m_hChipBSErrorsVsLB[ibe][iside]->Fill(lumiBlock, nBSErrors[ibe][iside]);
+			m_hChipBSErrorsVsLB[ibe][iside]->SetEntries(lumiBlock); // we need this so the LastBinThreshold algorithm can find the last bin
 		}
 	}
 
@@ -4122,7 +4121,7 @@ StatusCode TRT_Monitoring_Tool::checkTRTReadoutIntegrity(const xAOD::EventInfo& 
 		for (int ibe = 0; ibe < 2; ++ibe) {
 			for (int iside = 0; iside < 2; ++iside) {
 				if (setIt->first % rod_id_base[ibe][iside] < 0xffff) {
-					m_nRobErrors[ibe][iside] += 1. / nRobsTotal[ibe][iside];
+					nRobErrors[ibe][iside] += 1. / nRobsTotal[ibe][iside];
 				}
 			}
 		}
@@ -4130,8 +4129,8 @@ StatusCode TRT_Monitoring_Tool::checkTRTReadoutIntegrity(const xAOD::EventInfo& 
 
 	for (int ibe = 0; ibe < 2; ++ibe) {
 		for (int iside = 0; iside < 2; ++iside) {
-			m_hRobBSErrorsVsLB[ibe][iside]->Fill(m_lumiBlock, m_nRobErrors[ibe][iside]);
-			m_hRobBSErrorsVsLB[ibe][iside]->SetEntries(m_lumiBlock); // we need this so the LastBinThreshold algorithm can find the last bin
+			m_hRobBSErrorsVsLB[ibe][iside]->Fill(lumiBlock, nRobErrors[ibe][iside]);
+			m_hRobBSErrorsVsLB[ibe][iside]->SetEntries(lumiBlock); // we need this so the LastBinThreshold algorithm can find the last bin
 		}
 	}
 
