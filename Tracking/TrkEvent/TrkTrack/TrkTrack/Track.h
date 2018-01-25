@@ -8,8 +8,8 @@
 #include <vector>
 #include <iostream>
 
-#include "DataModel/DataVector.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkTrack/TrackInfo.h"
 #include "TrkParameters/TrackParameters.h"
