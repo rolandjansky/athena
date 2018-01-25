@@ -228,30 +228,26 @@ namespace DerivationFramework {
         if(!LinkVertices(CascadeLinksDecor, verticestoLink, Vtxwritehandles[0], cascadeVertices[1]))
             ATH_MSG_ERROR("Error decorating with cascade vertices");
 
-
+        // Identify the input Jpsi
         xAOD::Vertex* jpsiVertex = BPhysPVCascadeTools::FindVertex<2>(jpsiContainer, cascadeVertices[1]);
-
         ATH_MSG_DEBUG("1 pt Jpsi tracks " << cascadeVertices[1]->trackParticle(0)->pt() << ", " << cascadeVertices[1]->trackParticle(1)->pt());
         if (jpsiVertex) ATH_MSG_DEBUG("2 pt Jpsi tracks " << jpsiVertex->trackParticle(0)->pt() << ", " << jpsiVertex->trackParticle(1)->pt());
-        // Get V0 container and identify the input V0
 
+        // Identify the input V0
         xAOD::Vertex* v0Vertex = BPhysPVCascadeTools::FindVertex<2>(v0Container, cascadeVertices[0]);;
-
         ATH_MSG_DEBUG("1 pt V0 tracks " << cascadeVertices[0]->trackParticle(0)->pt() << ", " << cascadeVertices[0]->trackParticle(1)->pt());
         if (v0Vertex) ATH_MSG_DEBUG("2 pt V0 tracks " << v0Vertex->trackParticle(0)->pt() << ", " << v0Vertex->trackParticle(1)->pt());
+
         // Set links to input vertices
         std::vector<xAOD::Vertex*> jpsiVerticestoLink;
-
         if (jpsiVertex) jpsiVerticestoLink.push_back(jpsiVertex);
         else ATH_MSG_WARNING("Could not find linking Jpsi");
-
         if(!LinkVertices(JpsiLinksDecor, jpsiVerticestoLink, jpsiContainer, cascadeVertices[1]))
             ATH_MSG_ERROR("Error decorating with Jpsi vertices");
-        std::vector<xAOD::Vertex*> v0VerticestoLink;
 
+        std::vector<xAOD::Vertex*> v0VerticestoLink;
         if (v0Vertex) v0VerticestoLink.push_back(v0Vertex);
         else ATH_MSG_WARNING("Could not find linking V0");
-
         if(!LinkVertices(V0LinksDecor, v0VerticestoLink, v0Container, cascadeVertices[1]))
             ATH_MSG_ERROR("Error decorating with V0 vertices");
 

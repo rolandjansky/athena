@@ -205,11 +205,17 @@ else:
   include("DerivationFrameworkBPhys/configureV0Finder.py")
 
 BPHY10_V0FinderTools = BPHYV0FinderTools("BPHY10")
+print BPHY10_V0FinderTools
 
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Reco_V0Finder
 BPHY10_Reco_V0Finder   = DerivationFramework__Reco_V0Finder(
     name                   = "BPHY10_Reco_V0Finder",
     V0FinderTool           = BPHY10_V0FinderTools.V0FinderTool,
+    #OutputLevel            = DEBUG,
+    V0ContainerName        = "RecoV0Candidates",
+    KshortContainerName    = "RecoKshortCandidates",
+    LambdaContainerName    = "RecoLambdaCandidates",
+    LambdabarContainerName = "RecoLambdabarCandidates",
     CheckVertexContainers  = ['BPHY10JpsiCandidates'])
 
 ToolSvc += BPHY10_Reco_V0Finder
@@ -442,12 +448,12 @@ StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % BPHY10BdKs
 
 StaticContent += ["xAOD::VertexContainer#%s"        %                 'RecoV0Candidates']
 StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % 'RecoV0Candidates']
-StaticContent += ["xAOD::VertexContainer#%s"        %                 'RecoKshortContainerName']
-StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % 'RecoKshortContainerName']
-StaticContent += ["xAOD::VertexContainer#%s"        %                 'RecoLambdaContainerName']
-StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % 'RecoLambdaContainerName']
-StaticContent += ["xAOD::VertexContainer#%s"        %                 'RecoLambdabarContainerName']
-StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % 'RecoLambdabarContainerName']
+StaticContent += ["xAOD::VertexContainer#%s"        %                 'RecoKshortCandidates']
+StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % 'RecoKshortCandidates']
+StaticContent += ["xAOD::VertexContainer#%s"        %                 'RecoLambdaCandidates']
+StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % 'RecoLambdaCandidates']
+StaticContent += ["xAOD::VertexContainer#%s"        %                 'RecoLambdabarCandidates']
+StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % 'RecoLambdabarCandidates']
 
 for cascades in CascadeCollections:
    StaticContent += ["xAOD::VertexContainer#%s"   %     cascades]
