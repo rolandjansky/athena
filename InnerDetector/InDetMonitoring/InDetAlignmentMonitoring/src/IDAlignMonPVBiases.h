@@ -144,6 +144,8 @@ private:
   std::string m_VxPrimContainerName;
   ToolHandle< Trk::ITrackToVertexIPEstimator >  m_trackToVertexIPEstimator;
   const xAOD::VertexContainer* m_vertices;
+  bool m_do3dplots;  
+  bool m_dolowpt;
 
   mutable unsigned int            m_runNumber;
   mutable unsigned int            m_evtNumber;
