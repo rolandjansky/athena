@@ -803,16 +803,22 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
 	return HLT::ERROR;  
       }
 
-      // Make readable from INav4mom
-      //const INavigable4MomentumCollection* theNav4s(0);
-      /*
-      sc = evtStore()->symLink(m_finalTrkPartContainer,theNav4s);
-      if (sc.isFailure()){
-	ATH_MSG_WARNING("Could not symLink TrackParticleContainer to INavigable4MomentumCollection");
-      } 
-      */
-
-      //MISSING - interaction with the navigation
+      //Interaction with the navigation
+      std::string refitTracksContSGKey = "";
+      std::string refitTracksKey = "";
+      HLT::ErrorCode sc = getUniqueKey( refitTrackParticles, refitTracksContSGKey, refitTracksKey);
+      if (sc != HLT::OK) {
+         msg() << MSG::DEBUG << "Could not retrieve the refitted tracks collection key" << endmsg;
+         return sc;
+      }
+      
+      if (store()->record (refitTrackParticles, refitTracksContSGKey).isFailure()) {
+         msg() << MSG::ERROR << "recording refitTrackParticles with key <" << refitTracksContSGKey << "> failed" << endmsg;
+         delete refitTrackParticles;
+         return HLT::TOOL_FAILURE;
+      }
+      std::string aliasKey = "";
+      stat = reAttachFeature(outputTE, refitTrackParticles, aliasKey, refitTracksKey );
     }
 
     //**********************************************************************
