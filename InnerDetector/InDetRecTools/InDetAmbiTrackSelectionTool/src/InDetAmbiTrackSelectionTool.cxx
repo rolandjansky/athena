@@ -102,6 +102,9 @@ StatusCode InDet::InDetAmbiTrackSelectionTool::initialize()
       msg(MSG::INFO) << "Retrieved tool " << m_selectortool << endmsg;
     }
   }
+  else {
+    m_selectortool.disable(); 
+  }
 
   sc = detStore()->retrieve(m_detID, "SiliconID" );
   if (sc.isFailure()) 
