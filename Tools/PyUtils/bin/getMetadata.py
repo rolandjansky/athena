@@ -430,7 +430,7 @@ def main():
                     if int(r[u'subprocessID']) != sp: continue
                     if str(r[u'paramName'])=="physicsStatus" and str(r[u'paramValue'])!="good":
                         isGoodStatus=str(r[u'paramValue'])
-                        continue
+                        if not args.allowBadStatus: continue
                     if str(r[u'paramName']) != param and not (param=="crossSection_pb" and str(r[u'paramName'])=="crossSection"): continue
                     if str(r[u'physicsGroup']) not in args.physicsGroups: 
                         groupsWithVals[param] += [(str(r[u'physicsGroup']),str(r[u'paramValue']))]
