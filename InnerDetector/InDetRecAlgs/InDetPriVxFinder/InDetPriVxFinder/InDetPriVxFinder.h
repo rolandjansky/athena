@@ -39,7 +39,6 @@ namespace Trk
 {
   class IVertexMergingTool;
   class IVertexCollectionSortingTool;
-  class IVxCandidateXAODVertex;  
 }
 
 namespace InDet
@@ -62,7 +61,6 @@ namespace InDet
     ToolHandle< IVertexFinder > m_VertexFinderTool;
     ToolHandle<Trk::IVertexMergingTool > m_VertexMergingTool;
     ToolHandle<Trk::IVertexCollectionSortingTool > m_VertexCollectionSortingTool;
-    ToolHandle< Trk::IVxCandidateXAODVertex > m_VertexEdmFactory;
     
     bool m_doVertexMerging;
     bool m_doVertexSorting;

@@ -30,7 +30,6 @@ namespace InDet
       m_VertexFinderTool ( "InDet::InDetPriVxFinderTool" ),
       m_VertexMergingTool( "Trk::VertexMergingTool" ),
       m_VertexCollectionSortingTool ("Trk::VertexCollectionSortingTool"),
-      m_VertexEdmFactory("Trk::VertexInternalEdmFactory"),
       m_doVertexMerging(false),
       m_doVertexSorting(false),
       m_useTrackParticles(true),
@@ -42,7 +41,6 @@ namespace InDet
     declareProperty ( "VertexFinderTool",m_VertexFinderTool );
     declareProperty ( "VertexMergingTool",m_VertexMergingTool );
     declareProperty ( "VertexCollectionSortingTool",m_VertexCollectionSortingTool );
-    declareProperty ( "InternalEdmFactory", m_VertexEdmFactory);
     declareProperty ( "doVertexMerging",m_doVertexMerging );
     declareProperty ( "doVertexSorting",m_doVertexSorting );
     declareProperty ( "useTrackParticles", m_useTrackParticles);
@@ -90,10 +88,6 @@ namespace InDet
       {
         msg(MSG::INFO) << "Retrieved tool " << m_VertexCollectionSortingTool << endmsg;
       }
-    }
-    if ( m_VertexEdmFactory.retrieve().isFailure() ) {
-      ATH_MSG_ERROR("Failed to retrievel tool " << m_VertexEdmFactory);
-      return StatusCode::FAILURE;
     }
    
     ATH_CHECK(m_trkTracksName.initialize(!m_useTrackParticles));
