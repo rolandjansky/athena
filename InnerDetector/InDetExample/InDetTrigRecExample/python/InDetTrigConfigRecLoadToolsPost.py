@@ -124,7 +124,6 @@ if InDetTrigFlags.doNewTracking():
                                                    LinearizedTrackFactory       = InDetTrigLinFactory,
                                                    Extrapolator = InDetTrigExtrapolator )
 
-  InDetTrigVxFitterTool.XAODConverter = InDetTrigVxEdmCnv
   ToolSvc += InDetTrigVxFitterTool
   if (InDetTrigFlags.doPrintConfigurables()):
      print  InDetTrigVxFitterTool    
