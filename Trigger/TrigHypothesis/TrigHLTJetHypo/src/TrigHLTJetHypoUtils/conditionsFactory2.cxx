@@ -84,7 +84,7 @@ Conditions conditionsFactoryDijet(const std::vector<double>& etThresholds1,
   Conditions conditions;
 
   
-  for(std::size_t i = 0; i << etThresholds1.size(); ++i){
+  for(std::size_t i = 0; i < etThresholds1.size(); ++i){
     std::shared_ptr<ICondition>
       pCondition(new DijetCondition(etThresholds1[i],
                                     etThresholds2[i],

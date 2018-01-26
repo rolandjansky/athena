@@ -18,6 +18,7 @@
 
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CombinationsGrouper.h"
 
+#include <limits>
 
 TrigHLTJetHypo_Dijet::TrigHLTJetHypo_Dijet(const std::string& name,
 			       ISvcLocator* pSvcLocator):
@@ -50,6 +51,32 @@ TrigHLTJetHypoBase(name, pSvcLocator) {
 TrigHLTJetHypo_Dijet::~TrigHLTJetHypo_Dijet(){
 }
 
+HLT::ErrorCode TrigHLTJetHypo_Dijet::hltInitialize()
+{
+  ATH_MSG_INFO("in initialize()");
+  // positive inifinities are carrid over from the python config as -1.
+  for(auto& d :  m_etaMaxs1) {
+    if (d < 0){d = std::numeric_limits<double>::max();}
+  }
+
+  for(auto& d :  m_etaMaxs2) {
+    if (d < 0){d = std::numeric_limits<double>::max();}
+  }
+
+  for(auto& d :  m_massMaxs) {
+    if (d < 0){d = std::numeric_limits<double>::max();}
+  }
+
+  for(auto& d :  m_dEtaMaxs) {
+    if (d < 0){d = std::numeric_limits<double>::max();}
+  }
+
+  for(auto& d :  m_dPhiMaxs) {
+    if (d < 0){d = std::numeric_limits<double>::max();}
+  }
+
+  return TrigHLTJetHypoBase::hltInitialize();
+}
 
  Conditions TrigHLTJetHypo_Dijet::getConditions() const {
    
@@ -67,6 +94,11 @@ TrigHLTJetHypo_Dijet::~TrigHLTJetHypo_Dijet(){
                                             m_dPhiMaxs);
    
    std::sort(conditions.begin(), conditions.end(), ConditionsSorter());
+
+   ATH_MSG_DEBUG("getConditions() no of conditions "
+                 << conditions.size()
+                 << " no of thresholds "
+                 << m_EtThresholds1.size());
    
    for(auto& c : conditions){ATH_MSG_DEBUG(c.toString());} 
 
@@ -82,6 +114,8 @@ std::shared_ptr<IJetGrouper> TrigHLTJetHypo_Dijet::getJetGrouper()  const{
 
 
 bool TrigHLTJetHypo_Dijet::checkVals() const {
+
+
 
   std::size_t n_dijets = m_EtThresholds1.size();
   if (n_dijets  != m_EtThresholds2.size() or
@@ -110,15 +144,32 @@ bool TrigHLTJetHypo_Dijet::checkVals() const {
                   << m_dPhiMins.size() << " "
                   << m_dPhiMaxs.size()
                   );
-    
+
     return false;
   }
 
   bool multOK = n_dijets > 0;
   
-  if (not multOK){ATH_MSG_ERROR(name() << "no dijet cuts specified ");}
+  if (not multOK){
+    ATH_MSG_ERROR(name() << "no dijet cuts specified ");
+    return false;
+  }
+
+  bool orderOK = true;
+  for(std::size_t i = 0; i < n_dijets;  ++i){
+    if (m_etaMins1[i] > m_etaMaxs1[i]) {orderOK = false;}
+    if (m_etaMins2[i] > m_etaMaxs2[i]) {orderOK = false;}
+    if (m_massMins[i] > m_massMaxs[i]) {orderOK = false;}
+    if (m_dEtaMins[i] > m_dEtaMaxs[i]) {orderOK = false;}
+    if (m_dPhiMins[i] > m_dPhiMaxs[i]) {orderOK = false;}
+  }
   
-  return multOK;
+  if(!orderOK){
+    ATH_MSG_ERROR("a lower cut value exceeds an upper cut value ");
+    return false;
+  }
+  
+  return true;
 }
 
 

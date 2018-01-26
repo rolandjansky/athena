@@ -24,6 +24,7 @@ class TrigHLTJetHypo_Dijet : public TrigHLTJetHypoBase {
 
   TrigHLTJetHypo_Dijet(const std::string& name, 
                                ISvcLocator* pSvcLocator);
+  HLT::ErrorCode hltInitialize();
 
   ~TrigHLTJetHypo_Dijet();
 
