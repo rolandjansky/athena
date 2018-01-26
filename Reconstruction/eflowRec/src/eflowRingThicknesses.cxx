@@ -10,6 +10,7 @@ double eflowRingThicknesses::ringThickness(const eflowCaloENUM& layer) const{
   double HEC = 0.0700683;   
   double Tile1Or2 = HEC;   
   double Tile3 =  0.111398;
+  double FCal = 0.141421;
 
   switch(layer){
 
@@ -26,6 +27,9 @@ double eflowRingThicknesses::ringThickness(const eflowCaloENUM& layer) const{
     case eflowCalo::Tile1 : return Tile1Or2;   
     case eflowCalo::Tile2 : return Tile1Or2;   
     case eflowCalo::Tile3 : return Tile3;   
+    case eflowCalo::FCAL0 : return FCal;   
+    case eflowCalo::FCAL1 : return FCal;   
+    case eflowCalo::FCAL2 : return FCal;  
     case eflowCalo::Unknown : return 0.0;
   }
   //if no case was found return 0.0   
