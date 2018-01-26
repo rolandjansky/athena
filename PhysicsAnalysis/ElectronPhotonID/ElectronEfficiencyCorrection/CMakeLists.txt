@@ -91,10 +91,11 @@ if( XAOD_STANDALONE )
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo xAODEgamma
       xAODCore ElectronPhotonSelectorToolsLib ElectronEfficiencyCorrectionLib )
+      
    #Tests
    atlas_add_test(ut_RunOnASGAOD
-	         SCRIPT EgEfficiencyCorr_testEgEfficiencyCorr  $ASG_TEST_FILE_MC 40)
-
+	          SCRIPT EgEfficiencyCorr_testEgEfficiencyCorr  $ASG_TEST_FILE_MC 40)
+ 
 endif()
 
 
