@@ -714,7 +714,7 @@ namespace Muon {
 	  float mdt_z = mdts.at(i)->globalPosition().z();
 	  float yPi = -(mdt_z-zc)*sin(alpha) + (mdt_y-yc)*cos(alpha) - d;
 	  float signR;
-	  if(yPi < 1.0e-8) signR = 1.;
+	  if(fabs(yPi) < 1.0e-8) signR = 1.;
 	  else signR = -1.*yPi/fabs(yPi);
 	  float sigma2 = sq(Amg::error(mdts.at(i)->localCovariance(),Trk::locR));
 	  float ri = signR*mdts.at(i)->localPosition()[Trk::locR];
