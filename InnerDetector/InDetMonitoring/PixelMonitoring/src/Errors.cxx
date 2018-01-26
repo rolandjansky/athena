@@ -677,7 +677,7 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
   return StatusCode::SUCCESS;
 }
 
-unsigned int PixelMainMon::getEventBitLength(const Identifier& WaferID, const unsigned int& num_femcc_errwords) {
+unsigned int PixelMainMon::getEventBitLength(const Identifier& WaferID, const unsigned int& num_errwords) {
   // The bit lengths for FE-I4-based components are (after 8b/10b conversion):
   //  - 50 bits for start/end words and data header
   //  - 30 bits for each data record (hits)
@@ -707,24 +707,24 @@ unsigned int PixelMainMon::getEventBitLength(const Identifier& WaferID, const un
   }
 
   // Return here if we have neither hits nor errors
-  if (num_hits == 0 && num_femcc_errwords == 0) {
+  if (num_hits == 0 && num_errwords == 0) {
     return 0;
   }
 
   int total_bits{0};
-  if (layer == PixLayer::kIBL) {
+  if (layer == PixLayer::kIBL && num_hits > 0) {
     total_bits = 50;
     total_bits += num_hits * 30;
-    total_bits += num_femcc_errwords * 30;
+    total_bits += num_errwords * 30;
   } else {
     total_bits = 45;
     if (num_hits >= 16) {
       total_bits += 16 * 9;
     } else {
-      total_bits += std::max(num_hits, num_femcc_errwords) * 9;
+      total_bits += std::max(num_hits, num_errwords) * 9;
     }
     total_bits += num_hits * 22;
-    total_bits += num_femcc_errwords * 22;
+    total_bits += num_errwords * 22;
   }
   return total_bits;
 }
