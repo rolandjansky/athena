@@ -483,14 +483,14 @@ StatusCode JetMETCPTools::setupJetsScaleFactors() {
 
 StatusCode JetMETCPTools::setupMET()
 {
+  // See https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/EtmissRecommendationsRel21p2
+  // METMaker tool
   if ( asg::ToolStore::contains<IMETMaker>("met::METMaker") ) {
-      m_met_maker = asg::ToolStore::get<IMETMaker>("met::METMaker");
-  } else {
+    m_met_maker = asg::ToolStore::get<IMETMaker>("met::METMaker");
+  } 
+  else {
     met::METMaker* metMaker = new met::METMaker("met::METMaker");
     top::check( metMaker->setProperty("JetJvtMomentName", "AnalysisTop_JVT"), "Failed to set METMaker JVT moment name" );
-    // following instructions from:
-    // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EtmissRecommendationsRel20p7Temp#Working_Points_NEW
-    // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/METUtilities#MET_with_forward_JVT
     if (m_config->fwdJetAndMET() == "Tight") {
       top::check( metMaker->setProperty("JetSelection", "Tight"), "Failed to set METMaker JetSelection to Tight" );
     }
@@ -502,21 +502,25 @@ StatusCode JetMETCPTools::setupMET()
     m_met_maker = metMaker;
   }
 
-
+  // MET Systematics tool
   if ( asg::ToolStore::contains<IMETSystematicsTool>("met::METSystematicsTool") ) {
-      m_met_systematics = asg::ToolStore::get<IMETSystematicsTool>("met::METSystematicsTool");
-  } else {
-    met::METSystematicsTool* metSyst = new met::METSystematicsTool("met::METSystematicsTool");
-    
+    m_met_systematics = asg::ToolStore::get<IMETSystematicsTool>("met::METSystematicsTool");
+  } 
+  else {    
+    met::METSystematicsTool* metSyst = new met::METSystematicsTool("met::METSystematicsTool");    
     // TST (Track soft terms)
-    top::check( metSyst->setProperty("ConfigSoftTrkFile", "TrackSoftTerms.config"), "Failed to set property" );
-
-    // Turn off soft calo term systematics... if left on we get some warnings
+    if (m_config->useParticleFlowJets()){
+      top::check( metSyst->setProperty("ConfigSoftTrkFile", "TrackSoftTerms-pflow.config"), "Failed to set property");
+    }
+    else{
+      top::check( metSyst->setProperty("ConfigSoftTrkFile", "TrackSoftTerms.config"), "Failed to set property" );
+    }
+    // Deactivate CST terms
     top::check( metSyst->setProperty("ConfigSoftCaloFile", "" ), "Failed to set property" );
     top::check( metSyst->initialize() , "Failed to initialize" );
     m_met_systematics = metSyst;
   }
-
+  
   return StatusCode::SUCCESS;
 }
 
