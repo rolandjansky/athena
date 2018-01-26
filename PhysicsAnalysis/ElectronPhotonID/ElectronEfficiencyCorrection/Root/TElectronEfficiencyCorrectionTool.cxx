@@ -144,7 +144,7 @@ int Root::TElectronEfficiencyCorrectionTool::initialize() {
         ATH_MSG_ERROR(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << " No file added!");
         return 0;
     }
-    ATH_MSG_INFO("Initializing tool with " << m_corrFileNameList.size() << " configuration file(s)");
+    ATH_MSG_DEBUG("Initializing tool with " << m_corrFileNameList.size() << " configuration file(s)");
 
     // Check if the first file can be opened (needed for auto-setting of the seed based on the md5-sum of the file)
     const std::unique_ptr<char> fname(gSystem->ExpandPathName(m_corrFileNameList[0].c_str()));
@@ -173,9 +173,9 @@ int Root::TElectronEfficiencyCorrectionTool::initialize() {
             std::unique_ptr<TMD5> tmd=CxxUtils::make_unique<TMD5>();
             const char* tmd_as_string=tmd->FileChecksum(fname.get())->AsString();
             m_seed = *(reinterpret_cast<const unsigned long int*>(tmd_as_string));
-            ATH_MSG_INFO("Seed (automatically) set to " << m_seed);
+            ATH_MSG_DEBUG("Seed (automatically) set to " << m_seed);
         }else {
-            ATH_MSG_INFO("Seed set to " << m_seed);
+            ATH_MSG_DEBUG("Seed set to " << m_seed);
         }
         m_Rndm= TRandom3(m_seed);
     }
@@ -195,7 +195,7 @@ int Root::TElectronEfficiencyCorrectionTool::initialize() {
             << "Found " << nRunNumbersFull << " run number ranges for full sim with a total of " <<
             m_histList[mapkey::sf].size() << " scale factor histograms.");
     // --------------------------------------------------------------------------
-    ATH_MSG_INFO("Tool succesfully initialized!");
+    ATH_MSG_DEBUG("Tool succesfully initialized!");
     return sc;
 }
 
@@ -967,7 +967,7 @@ int Root::TElectronEfficiencyCorrectionTool::setupHistogramsInFolder(const TObjA
                                 dummy, sysObjsFull));
                     fullToysBooked = kTRUE;
                 }else {
-                    ATH_MSG_INFO(
+                    ATH_MSG_DEBUG(
                             "! Toy MC error propagation booked, but not all needed histograms found in the output (For full sim). Skipping toy creation!");
                 }
             }else {
@@ -987,7 +987,7 @@ int Root::TElectronEfficiencyCorrectionTool::setupHistogramsInFolder(const TObjA
                                 dummy, sysObjsFast));
                     fastToysBooked = kTRUE;
                 }else {
-                    ATH_MSG_INFO(
+                    ATH_MSG_DEBUG(
                             "! Toy MC error propagation booked, but not all needed histograms found in the output (For fast sim). Skipping toy creation!");
                 }
             }else {
@@ -1000,10 +1000,10 @@ int Root::TElectronEfficiencyCorrectionTool::setupHistogramsInFolder(const TObjA
 
         if (fullToysBooked || fastToysBooked) {
             if (m_doToyMC) {
-                ATH_MSG_INFO("Created tables for " << m_nToyMC << " ToyMC systematics ");
+                ATH_MSG_DEBUG("Created tables for " << m_nToyMC << " ToyMC systematics ");
             }
             if (m_doCombToyMC) {
-                ATH_MSG_INFO("Created tables for " << m_nToyMC << " combined ToyMC systematics ");
+                ATH_MSG_DEBUG("Created tables for " << m_nToyMC << " combined ToyMC systematics ");
             }
         }
     }
