@@ -205,7 +205,7 @@ void test_proxy()
 
   SG::DataProxy* dp3 = make_proxy (123, "dp3");
   assert (store.addToStore (123, dp3).isSuccess());
-  assert (store.proxy (123, "") == 0);
+  assert (store.proxy (123, "") == nullptr);
   assert (store.proxy (123, "dp3") == dp3);
 }
 

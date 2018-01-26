@@ -337,28 +337,31 @@ DataProxy* DataStore::proxy(const CLID& id, const std::string& key) const
     } else if (key == SG::DEFAULTKEY && !pmap.empty()) {
       // we did not find the object using key.
       // Now check for default object.
-      // Simple case first --- single object.
-      if (pmap.size() == 1) {
-        p = pmap.begin()->second;
-      } else {
-        // Otherwise, match only the exact type requested.
-        ConstProxyIterator p_match = pmap.end();
-        size_t nmatch = 0;
-        for (p_iter = pmap.begin(); p_iter != pmap.end(); ++p_iter) {
-          if (p_iter->second->clID() == id) {
-            ++nmatch;
-            if (p_match == pmap.end()) p_match = p_iter;
-          }
+      // If there are multiple entries, they must all be
+      // referring to the same proxy (aliases).
+      for (const auto& ent : pmap) {
+        if (!p) {
+          p = ent.second;
         }
+        else if (p != ent.second) {
+          p = nullptr;
+          break;
+        }
+      }
 
-        // We must have matched only one object, not counting its aliases.
-        // Notice: we test that there are less than two matches: symlinked objects
-        // may carry aliases from the concrete class. In that case nmatch
-        // may be equal to or even smaller than the number of aliases
-        if (nmatch > 0 &&
-            (int(nmatch - p_match->second->alias().size()) < 2))
-        {
-          p = pmap.begin()->second;
+      // If that didn't work, try it again, considering only objects that
+      // are exactly the type being requested.
+      if (!p) {
+        for (const auto& ent : pmap) {
+          if (ent.second->clID() == id) {
+            if (!p) {
+              p = ent.second;
+            }
+            else if (p != ent.second) {
+              p = nullptr;
+              break;
+            }
+          }
         }
       }
     }
