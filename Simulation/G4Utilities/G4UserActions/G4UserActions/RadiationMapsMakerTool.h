@@ -34,6 +34,9 @@ class RadiationMapsMakerTool:
 			   const std::string& name,
 			   const IInterface* parent);
 
+    /// Initialize configurable properties 
+    virtual StatusCode initialize() override final;
+
     /// Finalize and merge results from all threads
     virtual StatusCode finalize() override final;
 
@@ -47,6 +50,10 @@ class RadiationMapsMakerTool:
   protected:
     /// create action for this thread
     virtual std::unique_ptr<RadiationMapsMaker> makeAction() override final;
+
+  private:
+    /// Output Filename for the Radiation Maps
+    std::string m_radMapsFileName;
 
   }; // class RadiationMapsMakerTool
  

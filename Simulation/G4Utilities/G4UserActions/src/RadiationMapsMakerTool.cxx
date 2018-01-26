@@ -13,11 +13,25 @@ namespace G4UA{
   RadiationMapsMakerTool::RadiationMapsMakerTool(const std::string& type, 
 						 const std::string& name,
 						 const IInterface* parent)
-    : ActionToolBaseReport<RadiationMapsMaker>(type, name, parent)
+    : ActionToolBaseReport<RadiationMapsMaker>(type, name, parent),
+      m_radMapsFileName("RadMaps.root")  
   {
     declareInterface<IG4RunActionTool>(this);
     declareInterface<IG4SteppingActionTool>(this);
+
+    /// Output Filename for the Radiation Maps
+    declareProperty("RadMapsFileName", m_radMapsFileName);
   }
+
+  //---------------------------------------------------------------------------
+  // Merge results from all threads
+  //---------------------------------------------------------------------------
+  StatusCode RadiationMapsMakerTool::initialize()
+  {
+    ATH_MSG_INFO( "Initializing " << name() << " with Output File " << m_radMapsFileName);
+    return StatusCode::SUCCESS;
+  }
+    // first make sure the vectors are empty
 
   //---------------------------------------------------------------------------
   // Merge results from all threads
@@ -63,7 +77,7 @@ namespace G4UA{
     // merge radiation map vectors from threads
     mergeReports();
 
-    TFile * f = new TFile("RadMaps.root","RECREATE");
+    TFile * f = new TFile(m_radMapsFileName.c_str(),"RECREATE");
 
     TH2D * h_rz_tid  = new TH2D("rz_tid" ,"rz_tid" ,m_report.nBinsz,m_report.zMinZoom,m_report.zMaxZoom,m_report.nBinsr,m_report.rMinZoom,m_report.rMaxZoom);
     TH2D * h_rz_eion = new TH2D("rz_eion","rz_eion",m_report.nBinsz,m_report.zMinZoom,m_report.zMaxZoom,m_report.nBinsr,m_report.rMinZoom,m_report.rMaxZoom);

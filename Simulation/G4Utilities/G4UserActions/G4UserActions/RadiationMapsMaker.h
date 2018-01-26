@@ -24,6 +24,11 @@ namespace G4UA
       /// @brief Simple struct for holding the radiation maps
       struct Report
       {
+	/// bin sizes and ranges match the requirements for the
+	/// Radiation Estimate Web tool and thus are hardcoded here
+	/// for now. 
+	/// These could be made configurable at some point ...
+	///
 	const int nBinsr = 120;
 	const int nBinsz = 240;
 	

@@ -90,6 +90,12 @@ namespace G4UA{
     m_maps.m_3d_niel.resize(m_maps.nBinsz3d*m_maps.nBinsr3d*m_maps.nBinsphi3d,0.0);
     m_maps.m_3d_h20 .resize(m_maps.nBinsz3d*m_maps.nBinsr3d*m_maps.nBinsphi3d,0.0);
 
+    /// data files for NIEL damage factors in Si
+    ///
+    /// The data resides in the share directory of the package and should not be
+    /// changed. To prevent modification of the damage factors by accident
+    /// the file names are not configurable
+    ///
     std::string fpSiA = PathResolver::find_file("protons_Si_Gunnar_Summers.dat"   ,"DATAPATH");//E_kin < 15 MeV
     std::string fpSiB = PathResolver::find_file("protons_Si_Gunnar_Huhtinen.dat"  ,"DATAPATH");//E_kin > 15 MeV
     std::string fnSiA = PathResolver::find_file("neutrons_Si_Gunnar_Griffin.dat"  ,"DATAPATH");//E_kin < 20 MeV
