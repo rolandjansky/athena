@@ -58,7 +58,6 @@
 #include "xAODTracking/VertexAuxContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
-#include "TrkVxEdmCnv/IVxCandidateXAODVertex.h"
 
 
 namespace InDet
@@ -70,7 +69,6 @@ InDetMultiPriVxFinderTool::InDetMultiPriVxFinderTool(const std::string& t, const
 	  m_trkFilter("InDet::InDetTrackSelection"),
           m_SeedFinder("Trk::ImagingSeedFinder"),
           m_ImpactPoint3dEstimator("Trk::ImpactPoint3dEstimator"),
-	  m_VertexEdmFactory("Trk::VertexInternalEdmFactory"),
           m_iBeamCondSvc("BeamCondSvc",n),
           m_useBeamConstraint(false),
           m_significanceCutSeeding(10),
@@ -87,7 +85,6 @@ InDetMultiPriVxFinderTool::InDetMultiPriVxFinderTool(const std::string& t, const
     declareProperty("BeamPositionSvc", m_iBeamCondSvc);
     declareProperty("SeedFinder", m_SeedFinder);
     declareProperty("ImpactPoint3dEstimator",m_ImpactPoint3dEstimator);
-    declareProperty("InternalEdmFactory", m_VertexEdmFactory);
 
     declareProperty("useBeamConstraint",m_useBeamConstraint);
     declareProperty("significanceCutSeeding",m_significanceCutSeeding);
@@ -125,12 +122,6 @@ StatusCode InDetMultiPriVxFinderTool::initialize()
 
     if ( m_ImpactPoint3dEstimator.retrieve().isFailure() ) {
       msg(MSG::FATAL) << "Failed to retrieve tool " << m_ImpactPoint3dEstimator << endmsg;
-      return StatusCode::FAILURE;
-    }
-
-
-    if ( m_VertexEdmFactory.retrieve().isFailure() ) {
-      ATH_MSG_ERROR("Failed to retrievel tool " << m_VertexEdmFactory);
       return StatusCode::FAILURE;
     }
 

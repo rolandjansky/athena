@@ -21,7 +21,6 @@
 
 // normal includes
 #include "TrkParticleBase/TrackParticleBaseCollection.h"
-#include "TrkVxEdmCnv/IVxCandidateXAODVertex.h"
 
 namespace InDet
 {
