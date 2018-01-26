@@ -18,7 +18,8 @@ from TrigEFMissingET.TrigEFMissingETConfig import (EFMissingET_Fex_2sidednoiseSu
                                                    EFMissingET_Fex_FTKTrackAndJets,
                                                    EFMissingET_Fex_topoClusters,
                                                    EFMissingET_Fex_topoClustersPS, 
-                                                   EFMissingET_Fex_topoClustersPUC)
+                                                   EFMissingET_Fex_topoClustersPUC,
+                                                   EFMissingET_Fex_topoClustersTracksPUC)
 
 from TrigL2MissingET.TrigL2MissingETConfig import L2MissingET_Fex
 
@@ -27,6 +28,7 @@ from TrigMissingETHypo.TrigMissingETHypoConfig import (EFMetHypoJetsXE,
                                                        EFMetHypoFTKTrackAndJetsXE,
                                                        EFMetHypoTCPSXE,
                                                        EFMetHypoTCPUCXE, 
+                                                       EFMetHypoTCTrkPUCXE,
                                                        EFMetHypoTCXE,
                                                        EFMetHypoTE,
                                                        EFMetHypoXE, 
@@ -166,6 +168,14 @@ class L2EFChain_met(L2EFChainDef):
                 mucorr= '_wMu' if EFmuon else '' 
                 theEFMETHypo = EFMetHypoTCPUCXE('EFMetHypo_TCPUC_xe%s_tc%s%s'%(threshold,calibration,mucorr),ef_thr=float(threshold)*GeV)
 
+            if EFrecoAlg=='pufittrack':
+                #MET fex
+                theEFMETFex = EFMissingET_Fex_topoClustersTracksPUC()
+                #Muon correction fex
+                theEFMETMuonFex = EFTrigMissingETMuon_Fex_topoclPUC()
+                mucorr= '_wMu' if EFmuon else ''
+                theEFMETHypo = EFMetHypoTCTrkPUCXE('EFMetHypo_TCTrkPUC_xe%s_tc%s%s'%(threshold,calibration,mucorr),ef_thr=float(threshold)*GeV)
+
             ##MET based on trigger jets
             if EFrecoAlg=='mht':
                 calibCorr = ('_{0}'.format(calibration) if calibration != METChainParts_Default['calib'] else '') + ('_{0}'.format(jetCalib) if jetCalib != METChainParts_Default['jetCalib'] else '')
@@ -189,7 +199,6 @@ class L2EFChain_met(L2EFChainDef):
                 #mucorr= '_wMu' if EFmuon else ''                                                                                                                           
                 if "FTK" in addInfo: theEFMETHypo = EFMetHypoFTKTrackAndJetsXE('EFMetHypo_FTKTrackAndJets_xe%s_tc%s%s'%(threshold,calibration,mucorr),ef_thr=float(threshold)*GeV)
                 else: theEFMETHypo = EFMetHypoTrackAndJetsXE('EFMetHypo_TrackAndJets_xe%s_tc%s%s'%(threshold,calibration,mucorr),ef_thr=float(threshold)*GeV)
- 
 
                 
         
@@ -314,7 +323,24 @@ class L2EFChain_met(L2EFChainDef):
             self.EFsequenceList +=[[ input3,algo3,  output3 ]]            
             self.EFsequenceList +=[[ [output3],          [theEFMETFex],  'EF_xe_step1' ]]            
             self.EFsequenceList +=[[ ['EF_xe_step1',muonSeed],     [theEFMETMuonFex, theEFMETHypo],  'EF_xe_step2' ]]
-            
+
+
+        elif EFrecoAlg=='pufittrack':
+            self.EFsequenceList +=[[ input0,algo0,  output0 ]]
+            self.EFsequenceList +=[[ input1,algo1,  output1 ]]
+            self.EFsequenceList +=[[ input2,algo2,  output2 ]]
+            self.EFsequenceList +=[[ input3,algo3,  output3 ]]
+            self.EFsequenceList +=[[ [output3,output4],      [theEFMETFex],  'EF_xe_step1' ]]
+            self.EFsequenceList +=[[ ['EF_xe_step1',muonSeed],     [theEFMETMuonFex, theEFMETHypo],  'EF_xe_step2' ]]
+            if "FStracks" in addInfo:
+                from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
+                trk_algs = TrigInDetSequence("FullScan", "fullScan", "IDTrig", sequenceFlavour=["FTF"]).getSequence()
+                print "XXXXXXXXXXXXXXXXXX"
+                print trk_algs[0]
+                dummyAlg = PESA__DummyUnseededAllTEAlgo("EF_DummyFEX_xe")
+                self.EFsequenceList +=[[ [''], [dummyAlg]+trk_algs[0], 'EF_xe_step3' ]]
+
+
         #trigger-jet based MET
         elif EFrecoAlg=='mht': 
             self.EFsequenceList +=[[ input0,algo0,  output0 ]]            
