@@ -673,7 +673,12 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
 }
 
 unsigned int PixelMainMon::getEventBitLength(const Identifier& WaferID, const unsigned int& num_femcc_errwords) {
-  // The assumed bit lengths are:
+  // The bit lengths for FE-I4-based components are (after 8b/10b conversion):
+  //  - 50 bits for start/end words and data header
+  //  - 30 bits for each data record (hits)
+  //  - 30 bits for each service record (errors)
+  //
+  // The bit lengths for FE-I3-based components are:
   //  - 45 bits for event ID, header, trailer
   //  - 9 bits for each FE ID. If more than 16 hits:, count 16 FE ID blocks;
   //    otherwise calculate max(number of hits, number of error words).
@@ -703,9 +708,9 @@ unsigned int PixelMainMon::getEventBitLength(const Identifier& WaferID, const un
 
   int total_bits{0};
   if (layer == PixLayer::kIBL) {
-    total_bits = 64;
-    total_bits += num_hits * 32;
-    total_bits += num_femcc_errwords * 32;
+    total_bits = 50;
+    total_bits += num_hits * 30;
+    total_bits += num_femcc_errwords * 30;
   } else {
     total_bits = 45;
     if (num_hits >= 16) {
