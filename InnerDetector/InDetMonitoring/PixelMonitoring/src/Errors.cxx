@@ -731,7 +731,14 @@ double PixelMainMon::getBitStreamFraction(const Identifier& WaferID, const unsig
 
   // Assumed available bandwidth per layer
   double mbits_sec = 80.;
-  if (layer == PixLayer::kB0 || layer == PixLayer::kB1 || layer == PixLayer::kIBL) mbits_sec = 160.;
+  if (layer == PixLayer::kB0 || layer == PixLayer::kB1) mbits_sec = 160.;
+  if (layer == PixLayer::kIBL) {
+    if (m_pixelid->eta_module(WaferID) < 6 && m_pixelid->eta_module(WaferID) > -7) {
+      mbits_sec = 320.;  // 2D modules are 2 FEs with 160 Mbit/s each
+    } else {
+      mbits_sec = 160.;
+    }
+  }
 
   // Average bits available per event, assuming 100k trigger rate
   double avg_available_bits = mbits_sec / 0.1;
