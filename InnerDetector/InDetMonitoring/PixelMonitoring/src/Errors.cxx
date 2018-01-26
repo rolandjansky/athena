@@ -569,8 +569,12 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
     if (kLayer == PixLayer::kIBL) {
       m_errhist_bitstr_occ_errors->fill(WaferID, m_pixelid, getBitStreamFraction(WaferID, 30));
       m_errhist_bitstr_occ_tot->fill(WaferID, m_pixelid, getBitStreamFraction(WaferID, getEventBitLength(WaferID, 1)));
-      bitstream_occ_errors[kLayer] += getBitStreamFraction(WaferID, 30);
-      bitstream_occ_tot[kLayer] += getBitStreamFraction(WaferID, getEventBitLength(WaferID, 1));
+      // Determine whether we are looking at a 2D or 3D module. If 2D, we need
+      // to double-count hits in the following arrays. This is because
+      // m_nActive_mod counts individual FEs for IBL.
+      bool is_ibl2d = (m_pixelid->eta_module(WaferID) < 6 && m_pixelid->eta_module(WaferID) > -7);
+      bitstream_occ_errors[kLayer] += (is_ibl2d ? 2 : 1) * getBitStreamFraction(WaferID, 30);
+      bitstream_occ_tot[kLayer] += (is_ibl2d ? 2 : 1) * getBitStreamFraction(WaferID, getEventBitLength(WaferID, 1));
     } else {
       m_errhist_bitstr_occ_errors->fill(WaferID, m_pixelid, getBitStreamFraction(WaferID, num_femcc_errwords * 22));
       m_errhist_bitstr_occ_tot->fill(WaferID, m_pixelid, getBitStreamFraction(WaferID, getEventBitLength(WaferID, num_femcc_errwords)));
