@@ -235,35 +235,28 @@ def FlavorTagInit(DoReduceInfo   =False,
 
 def applyBTagging(jetalg,algname,sequence):
     btagWPlist = [ 'FixedCutBEff_60', 'FixedCutBEff_70', 'FixedCutBEff_77', 'FixedCutBEff_85',
-                   'HybBEff_60', 'HybBEff_70', 'HybBEff_77', 'HybBEff_85' ]
+                   'HybBEff_60', 'HybBEff_70', 'HybBEff_77', 'HybBEff_85' ]    
+    btagAlglist = [ 'MV2c10', 'DL1' ]
 
     btagtooldict = {}
     from AthenaCommon.AppMgr import ToolSvc
     for btagWP in btagWPlist:
-        btagtoolname = 'DFBtagSel'+btagWP+'_'+jetalg
-        print 'FlavourTagCommon: Add B-tag WP '+btagWP+' for '+jetalg
-        btagtool = None
-        if hasattr(ToolSvc,btagtoolname):
-            btagtool = getattr(ToolSvc,btagtoolname)
-        else:
-            btagtool = CfgMgr.BTaggingSelectionTool(btagtoolname)
-            ToolSvc += btagtool
-            bTagAlgorithm = "MV2c10"
-            btagtool.TaggerName = bTagAlgorithm
-            # btagtool.TaggerName = "DL1"
-            # In the absence of properly defined FlatBEff WP we alias them on the flat cut ones
-            btagtool.OperatingPoint = btagWP
-            btagtool.JetAuthor = jetalg+"Jets"
-            btagtool.FlvTagCutDefinitionsFileName = "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2017-12-22_v1.root"
-        btagWP += "_"+bTagAlgorithm
-        btagtooldict[btagWP] = btagtool
-
-    print '*** VANGELIS - START ***'
-    for key in btagtooldict:
-        print "(*)"
-        print key
-        print btagtooldict[key]
-    print '*** VANGELIS - END ***'
+        for btagAlg in btagAlglist:
+            btagtoolname = 'DFBtagSel'+btagWP+'_'+btagAlg+'_'+jetalg
+            print 'FlavourTagCommon: Add B-tag WP '+btagWP+' of the '+btagAlg+' algorithm for '+jetalg
+            btagtool = None
+            if hasattr(ToolSvc,btagtoolname):
+                btagtool = getattr(ToolSvc,btagtoolname)
+            else:
+                btagtool = CfgMgr.BTaggingSelectionTool(btagtoolname)
+                ToolSvc += btagtool
+                btagtool.TaggerName = btagAlg
+                # In the absence of properly defined FlatBEff WP we alias them on the flat cut ones
+                btagtool.OperatingPoint = btagWP
+                btagtool.JetAuthor = jetalg+"Jets"
+                btagtool.FlvTagCutDefinitionsFileName = "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2017-12-22_v1.root"
+            btagKey = btagWP+'_'+btagAlg
+            btagtooldict[btagKey] = btagtool
 
     from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
     applyBTaggingAugmentation(jetalg,algname,sequence,btagtooldict)
