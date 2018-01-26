@@ -6,6 +6,7 @@
 
 #include "CxxUtils/make_unique.h"
 #include "FourMomUtils/xAODP4Helpers.h"
+#include "PathResolver/PathResolver.h"
 
 #include <TH2.h>
 #include <TRandom3.h>
@@ -31,6 +32,9 @@ namespace InDet {
     declareProperty("Seed", m_seed, "Seed used to initialize the RNG");
     declareProperty("DeltaR", m_deltaR, "Delta-R cut in which to apply jet-track efficiency rejection");
     declareProperty("trkEffSystScale", m_trkEffSystScale, "Option to scale the effect of the systematic (default 1)");
+
+    declareProperty("calibFileNomEff", m_calibFileNomEff = "InDetTrackSystematicsTools/CalibData_21.2_2018-v14/TrackingRecommendations_pre_rel21.root");
+    declareProperty("calibFileJetEff", m_calibFileJetEff = "InDetTrackSystematicsTools/CalibData_21.2_2018-v14/TIDErejectProbv3.root");
   }
 
   StatusCode JetTrackFilterTool::initialize()
@@ -40,11 +44,14 @@ namespace InDet {
 
     ATH_CHECK ( initTIDEEffSystHistogram( m_trkEffSystScale,
     					 m_effForJetPt,
-    					 "TIDErejectProbv3.root",
+    					 m_calibFileJetEff,
     					 "h1") );
-    ATH_CHECK( initObject<TH2>( m_trkNomEff,
-				"TrackingRecommendations_pre_rel21.root", 
-				"EfficiencyVSEtaPt_AfterRebinningNominal_Loose" ) );
+    ATH_CHECK ( initObject<TH2>( m_trkNomEff,
+				       m_calibFileNomEff,
+				       "EfficiencyVSEtaPt_AfterRebinningNominal_Loose" ) );
+
+    ATH_MSG_INFO( "Using for nominal track efficiency the calibration file " << PathResolverFindCalibFile(m_calibFileNomEff) );
+    ATH_MSG_INFO( "Using for jet track efficiency the calibration file " << PathResolverFindCalibFile(m_calibFileJetEff) );
     
     ATH_CHECK ( InDetTrackSystematicsTool::initialize() );
 

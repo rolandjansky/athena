@@ -111,16 +111,11 @@ namespace InDet {
   TFile* InDetTrackSystematicsTool::getFile(const string& filename) const
   {
     // now the files are stored in the calibration area
-    string filenameWithPath = PathResolverFindCalibFile
-      ("InDetTrackSystematicsTools/CalibData_21.2_2018-v14/" + filename);
-    TFile* file =  TFile::Open(filenameWithPath.data(), "READ");
-    if (file != nullptr) return file;
+    // filename is configurable in each tool and should include the path starting from the package name
+    // but defaults to recommendation for current release
+    string filenameWithFullPath = PathResolverFindCalibFile(filename);
+    TFile* file =  TFile::Open(filenameWithFullPath.data(), "READ");
 
-    ATH_MSG_WARNING( "Could not find file " << filename << " in the calibration database." );
-    ATH_MSG_WARNING( "Will now look in InDetTrackSystematicsTools/data/ under the current working directory." );
-    ATH_MSG_WARNING( "You should not see this message unless you are a dev testing a new file." );
-    filenameWithPath = PathResolverFindCalibFile("InDetTrackSystematicsTools/" + filename);
-    file = TFile::Open(filenameWithPath.data(), "READ");
     return file;
   }
 

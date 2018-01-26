@@ -54,45 +54,47 @@ namespace InDet {
     declareProperty("fFromB", m_fFromB);
     declareProperty("trkEffSystScale", m_trkEffSystScale);
 
+    declareProperty("calibFileNomEff", m_calibFileNomEff = "InDetTrackSystematicsTools/CalibData_21.2_2018-v14/TrackingRecommendations_pre_rel21.root");
   }
 
   StatusCode InDetTrackTruthFilterTool::initialize() {
 
     m_rnd = make_unique<TRandom3>(m_seed);
 
-    string trkEffFilename = "TrackingRecommendations_pre_rel21.root";
     ATH_CHECK ( initTrkEffSystHistogram( m_trkEffSystScale,
 					 m_trkEffHistLooseGlobal,
-					 trkEffFilename,
+					 m_calibFileNomEff,
 					 "OneMinusRatioEfficiencyVSEtaPt_AfterRebinning_NominalVSOverall_5_Loose") );
     ATH_CHECK ( initTrkEffSystHistogram( m_trkEffSystScale,
 					 m_trkEffHistLooseIBL,
-					 trkEffFilename,
+					 m_calibFileNomEff,
 					 "OneMinusRatioEfficiencyVSEtaPt_AfterRebinning_NominalVSIBL_10_Loose") );
     ATH_CHECK ( initTrkEffSystHistogram( m_trkEffSystScale,
 					 m_trkEffHistLoosePP0,
-					 trkEffFilename,
+					 m_calibFileNomEff,
 					 "OneMinusRatioEfficiencyVSEtaPt_AfterRebinning_NominalVSPP0_25_Loose") );
     ATH_CHECK ( initTrkEffSystHistogram( m_trkEffSystScale,
 					 m_trkEffHistLoosePhysModel,
-					 trkEffFilename,
+					 m_calibFileNomEff,
 					 "OneMinusRatioEfficiencyVSEtaPt_AfterRebinning_NominalVSQGS_BIC_Loose") );
     ATH_CHECK ( initTrkEffSystHistogram( m_trkEffSystScale,
 					 m_trkEffHistTightGlobal,
-					 trkEffFilename,
+					 m_calibFileNomEff,
 					 "OneMinusRatioEfficiencyVSEtaPt_AfterRebinning_NominalVSOverall_5_TightPrimary") );
     ATH_CHECK ( initTrkEffSystHistogram( m_trkEffSystScale,
 					 m_trkEffHistTightIBL,
-					 trkEffFilename,
+					 m_calibFileNomEff,
 					 "OneMinusRatioEfficiencyVSEtaPt_AfterRebinning_NominalVSIBL_10_TightPrimary") );
     ATH_CHECK ( initTrkEffSystHistogram( m_trkEffSystScale,
 					 m_trkEffHistTightPP0,
-					 trkEffFilename,
+					 m_calibFileNomEff,
 					 "OneMinusRatioEfficiencyVSEtaPt_AfterRebinning_NominalVSPP0_25_TightPrimary") );
     ATH_CHECK ( initTrkEffSystHistogram( m_trkEffSystScale,
 					 m_trkEffHistTightPhysModel,
-					 trkEffFilename,
+					 m_calibFileNomEff,
 					 "OneMinusRatioEfficiencyVSEtaPt_AfterRebinning_NominalVSQGS_BIC_TightPrimary") );
+
+    ATH_MSG_INFO( "Using for nominal track efficiency the calibration file " << PathResolverFindCalibFile(m_calibFileNomEff) );
 
     ATH_CHECK ( m_trackOriginTool.retrieve() );
 
