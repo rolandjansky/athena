@@ -312,7 +312,8 @@ class ItemDef:
         LVL1MenuItem('L1_MU15_FTK').setLogic( MU15  & physcond).setTriggerType(TT.ftk)             # noqa: F821
         LVL1MenuItem('L1_MU20_FTK').setLogic( MU20  & physcond).setTriggerType(TT.ftk)             # noqa: F821
         LVL1MenuItem('L1_MU21_FTK').setLogic( MU21  & physcond).setTriggerType(TT.ftk)             # noqa: F821
-            
+        LVL1MenuItem('L1_RD3_FTK').setLogic( RNDM3 & physcond).setTriggerType(TT.ftk)    # noqa: F821
+    
         # EM and MU
         LVL1MenuItem('L1_EM6_MU10'   ).setLogic( EM6        & MU10     & physcond).setTriggerType(TT.muon)    # noqa: F821
         LVL1MenuItem('L1_EM7_MU10'   ).setLogic( EM7        & MU10     & physcond).setTriggerType(TT.muon)    # noqa: F821
