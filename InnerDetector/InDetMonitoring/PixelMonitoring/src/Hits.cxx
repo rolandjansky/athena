@@ -500,6 +500,11 @@ StatusCode PixelMainMon::fillHitsMon(void)  // Called once per event
   PixelRDO_Container::const_iterator lastCol = m_rdocontainer->end();
   DataVector<PixelRDORawData>::const_iterator p_rdo;
 
+  int last_ibl_eta_module = -50;
+  int last_ibl_phi_module = -50;
+  int last_ibl_eta_index = -1;
+  int last_ibl_phi_index = -1;
+
   for (; colNext != lastCol; ++colNext) {
     const InDetRawDataCollection<PixelRDORawData>* PixelCollection(*colNext);
     if (!PixelCollection) {
@@ -606,7 +611,22 @@ StatusCode PixelMainMon::fillHitsMon(void)  // Called once per event
       if (m_pixelid->barrel_ec(rdoID) == -2) m_HitPerEventArray_disksC[m_pixelid->phi_module(rdoID)][m_pixelid->layer_disk(rdoID)]++;
       if (m_pixelid->barrel_ec(rdoID) == 0) {
         if (m_doIBL && m_pixelid->layer_disk(rdoID) == 0) {
-          m_HitPerEventArray_lI_phi_paired[m_pixelid->phi_module(rdoID)][m_pixelid->eta_module(rdoID) + 10]++;
+          bool same_module = (m_pixelid->eta_module(rdoID) == last_ibl_eta_module && m_pixelid->phi_module(rdoID) == last_ibl_phi_module);
+          bool neighboring_pixel = (m_pixelid->eta_index(rdoID) == last_ibl_eta_index && m_pixelid->phi_index(rdoID) == last_ibl_phi_index - 1);
+          if (same_module && neighboring_pixel) {
+            last_ibl_eta_index = -1;
+            last_ibl_phi_index = -1;
+          } else if (same_module) {
+            last_ibl_eta_index = m_pixelid->eta_index(rdoID);
+            last_ibl_phi_index = m_pixelid->phi_index(rdoID);
+            m_HitPerEventArray_lI_phi_paired[m_pixelid->phi_module(rdoID)][m_pixelid->eta_module(rdoID) + 10]++;
+          } else {
+            last_ibl_eta_module = m_pixelid->eta_module(rdoID);
+            last_ibl_phi_module = m_pixelid->phi_module(rdoID);
+            last_ibl_eta_index = m_pixelid->eta_index(rdoID);
+            last_ibl_phi_index = m_pixelid->phi_index(rdoID);
+            m_HitPerEventArray_lI_phi_paired[m_pixelid->phi_module(rdoID)][m_pixelid->eta_module(rdoID) + 10]++;
+          }
         }
         if (m_doIBL && m_pixelid->layer_disk(rdoID) == 0) m_HitPerEventArray_lI[m_pixelid->phi_module(rdoID)][m_pixelid->eta_module(rdoID) + 10]++;
         if (m_pixelid->layer_disk(rdoID) == 0 + m_doIBL) m_HitPerEventArray_l0[m_pixelid->phi_module(rdoID)][m_pixelid->eta_module(rdoID) + 6]++;
