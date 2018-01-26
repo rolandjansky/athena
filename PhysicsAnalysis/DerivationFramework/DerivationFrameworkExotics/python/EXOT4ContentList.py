@@ -36,7 +36,7 @@ EXOT4ExtraVariables = [
     "AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.eta.phi.m.Tau2_wta.Tau3_wta.ECF1.ECF2.ECF3",
     "AntiKt4EMTopoJets.EMFrac",
 #    "AntiKt4LCTopoJets.EMFrac",
-    "TruthEvents.PDFID1.PDFID2.PDGID1.PDGID2.Q.X1.X2.XF1.XF2.weights.crossSection.crossSectionError.truthParticleLinks.truthVertexLinks",
+    "TruthEvents.PDFID1.PDFID2.PDGID1.PDGID2.Q.X1.X2.XF1.XF2.weights.crossSection.crossSectionError",
     "TruthVertices.barcode.x.y.z.t.id.incomingParticleLinks.outgoingParticleLinks",
     "TruthParticles.px.py.pz.e.m.decayVtxLink.prodVtxLink.barcode.pdgId.status.TopHadronOriginFlag.classifierParticleOrigin.classifierParticleType.classifierParticleOutCome.dressedPhoton.polarizationTheta.polarizationPhi",
 ]
