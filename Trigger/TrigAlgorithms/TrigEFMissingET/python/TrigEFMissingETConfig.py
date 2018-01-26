@@ -1303,7 +1303,7 @@ class EFMissingET_Fex_topoClustersTracksPUC (EFMissingETBase):
         self.ComponentFlags += [ 0,0,0 ]   # TileExt0, TileExt1, TileExt2
         self.ComponentFlags += [ 0,0,0 ]   # FCalEM, FCalHad1, FCalHad2
         self.ComponentFlags += [ 0 ]       # EM Topo
-       self.ComponentFlags += [ 0,0 ]
+        self.ComponentFlags += [ 0,0 ]
         self.ComponentFlags += [ 0,0 ]
         self.ComponentFlags += [ 0 ]       # Had Topo
         self.ComponentFlags += [ 0,0 ]
