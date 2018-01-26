@@ -16,7 +16,10 @@ find_package( AtlasCMake QUIET )
 # Find the base project(s):
 find_package( AthSimulationExternals REQUIRED )
 find_package( Gaudi REQUIRED )
+
+# External(s) needed at runtime:
 find_package( Frontier_Client )
+find_package( PNG )
 
 # Temporarily setting additional compile flags here:
 add_definitions( -DSIMULATIONBASE )

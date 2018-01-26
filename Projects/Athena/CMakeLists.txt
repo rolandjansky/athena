@@ -45,6 +45,7 @@ find_package( Gaudi REQUIRED )
 
 # Find some auxiliary packages:
 find_package( Doxygen )
+find_package( PNG )
 
 # Load all the files from the externals/ subdirectory:
 file( GLOB _externals "${CMAKE_CURRENT_SOURCE_DIR}/externals/*.cmake" )
