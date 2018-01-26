@@ -19,9 +19,17 @@ http://valgrind.org/docs/manual/faq.html#faq.deflost
 #include "AsgAnalysisInterfaces/IEfficiencyScaleFactorTool.h"
 #include "AsgTools/AsgMessaging.h"
 #include "AsgTools/AnaToolHandle.h"
+#ifdef ASGTOOL_STANDALONE
+// xAOD include(s):
+#   include "xAODRootAccess/TEvent.h"
+#endif // ASGTOOL_STANDALONE
 
 int main( ) {
 
+#ifdef ASGTOOL_STANDALONE
+    xAOD::TEvent event;
+#endif
+    
     using namespace asg::msgUserCode;
     ANA_CHECK_SET_TYPE (int);
 
