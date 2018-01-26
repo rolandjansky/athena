@@ -688,7 +688,7 @@ unsigned int PixelMainMon::getEventBitLength(const Identifier& WaferID, const un
 
   unsigned int num_hits = 0;
   if (layer == PixLayer::kIBL) {
-    num_hits = m_HitPerEventArray_lI[m_pixelid->phi_module(WaferID)][static_cast<int>(fabs(10 + m_pixelid->eta_module(WaferID)))];
+    num_hits = m_HitPerEventArray_lI_phi_paired[m_pixelid->phi_module(WaferID)][static_cast<int>(fabs(10 + m_pixelid->eta_module(WaferID)))];
   } else if (layer == PixLayer::kB0) {
     num_hits = m_HitPerEventArray_l0[m_pixelid->phi_module(WaferID)][static_cast<int>(fabs(6 + m_pixelid->eta_module(WaferID)))];
   } else if (layer == PixLayer::kB1) {

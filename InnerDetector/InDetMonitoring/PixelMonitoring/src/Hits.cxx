@@ -424,6 +424,7 @@ StatusCode PixelMainMon::fillHitsMon(void)  // Called once per event
   memset(m_HitPerEventArray_l1, 0, sizeof(m_HitPerEventArray_l1[0][0]) * nmod_phi[PixLayer::kB1] * nmod_eta[PixLayer::kB1]);
   memset(m_HitPerEventArray_l2, 0, sizeof(m_HitPerEventArray_l2[0][0]) * nmod_phi[PixLayer::kB2] * nmod_eta[PixLayer::kB2]);
   memset(m_HitPerEventArray_lI, 0, sizeof(m_HitPerEventArray_lI[0][0]) * nmod_phi[PixLayer::kIBL] * nmod_eta[PixLayer::kIBL]);
+  memset(m_HitPerEventArray_lI_phi_paired, 0, sizeof(m_HitPerEventArray_lI_phi_paired[0][0]) * nmod_phi[PixLayer::kIBL] * nmod_eta[PixLayer::kIBL]);
 
   double nhits = 0;
   double nhits_mod[PixLayerIBL2D3D::COUNT] = {0};
@@ -604,6 +605,9 @@ StatusCode PixelMainMon::fillHitsMon(void)  // Called once per event
       if (m_pixelid->barrel_ec(rdoID) == 2) m_HitPerEventArray_disksA[m_pixelid->phi_module(rdoID)][m_pixelid->layer_disk(rdoID)]++;
       if (m_pixelid->barrel_ec(rdoID) == -2) m_HitPerEventArray_disksC[m_pixelid->phi_module(rdoID)][m_pixelid->layer_disk(rdoID)]++;
       if (m_pixelid->barrel_ec(rdoID) == 0) {
+        if (m_doIBL && m_pixelid->layer_disk(rdoID) == 0) {
+          m_HitPerEventArray_lI_phi_paired[m_pixelid->phi_module(rdoID)][m_pixelid->eta_module(rdoID) + 10]++;
+        }
         if (m_doIBL && m_pixelid->layer_disk(rdoID) == 0) m_HitPerEventArray_lI[m_pixelid->phi_module(rdoID)][m_pixelid->eta_module(rdoID) + 10]++;
         if (m_pixelid->layer_disk(rdoID) == 0 + m_doIBL) m_HitPerEventArray_l0[m_pixelid->phi_module(rdoID)][m_pixelid->eta_module(rdoID) + 6]++;
         if (m_pixelid->layer_disk(rdoID) == 1 + m_doIBL) m_HitPerEventArray_l1[m_pixelid->phi_module(rdoID)][m_pixelid->eta_module(rdoID) + 6]++;
