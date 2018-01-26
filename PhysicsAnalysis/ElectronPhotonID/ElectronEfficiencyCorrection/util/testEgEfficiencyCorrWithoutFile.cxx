@@ -162,7 +162,7 @@ int main( int argc, char* argv[] ) {
     double totalPos{}; 
     CHECK(SFHelpers::result(ElEffCorrectionTool,el,nominalSF, totalPos,totalNeg,isToys)==0);
 
-    MSG_INFO("===> Model :  " <<model << " electron : Pt = " << el.pt() << " : eta = " << el.eta() 
+    MSG_INFO("===> Model : " <<model << "| electron : Pt = " << el.pt() << " : eta = " << el.eta() 
             << " : Bin index = " <<index   <<" : SF = "<< nominalSF 
             << " + " << totalPos << " - " <<totalNeg << " <===");
     return 0;
