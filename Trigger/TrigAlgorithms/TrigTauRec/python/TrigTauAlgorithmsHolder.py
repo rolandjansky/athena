@@ -252,8 +252,7 @@ def getTauAdaptiveVertexFitter():
                                                         ImpactPoint3dEstimator=TauInDetImpactPoint3dEstimator, 
                                                         VertexSmoother=TauSequentialVertexSmoother, 
                                                         AnnealingMaker=TauDetAnnealingMaker,
-                                                        LinearizedTrackFactory=getTauFullLinearizedTrackFactory(),
-                                                        XAODConverter=InDetTrigVxEdmCnv)
+                                                        LinearizedTrackFactory=getTauFullLinearizedTrackFactory())
     
     cached_instances[_name] = TauAdaptiveVertexFitter
     ToolSvc +=TauAdaptiveVertexFitter
