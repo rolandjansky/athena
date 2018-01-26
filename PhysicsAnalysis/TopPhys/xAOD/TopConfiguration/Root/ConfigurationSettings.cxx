@@ -41,6 +41,8 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("GRLDir","Location of GRL File","TopAnalysis");
     registerParameter("GRLFile","Name of GRL File", " ");
 
+    registerParameter("TDPPath","Path to TopDataPreparation file (accessible via PathResolver)","TopDataPreparation/XSection-MC15-13TeV.data");
+
     registerParameter("DumpBtagSystsInSystTrees", "Dump systematics-shifted b-tagging SFs in systematic TTrees, True or False (default: False)","False");
 
     registerParameter("ElectronID", "Type of electron. IsEM : Loose, Medium, Tight or Likelihood LooseAndBLayerLH, MediumLH, TightLH","TightLH");
