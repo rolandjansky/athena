@@ -166,7 +166,7 @@ private:
   // Defines the depths for DD and User surfaces : 
   ToolHandle<CaloDepthTool>                     m_calodepth;
  
-  ToolHandle<Trk::ITrackingVolumeBuilder>       m_tileVolumeBuilder;             //!< Volume Builder for the Tile Calorimeter
+  //ToolHandle<Trk::ITrackingVolumeBuilder>       m_tileVolumeBuilder;             //!< Volume Builder for the Tile Calorimeter
 
 
   //IToolSvc* m_toolsvc;
