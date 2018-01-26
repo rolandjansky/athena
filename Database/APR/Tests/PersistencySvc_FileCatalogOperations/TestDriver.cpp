@@ -14,10 +14,8 @@
 #include "PersistentDataModel/Token.h"
 
 #include "StorageSvc/DbType.h"
-
-#include "FileCatalog/IFileCatalog.h"
-#include "FileCatalog/IFCAction.h"
-#include "FileCatalog/URIParser.h"
+#include "POOLCore/URIParser.h"
+#include "POOLCore/IFileCatalog.h"
 
 #include "PersistencySvc/ISession.h"
 #include "PersistencySvc/ITransaction.h"
@@ -120,12 +118,9 @@ pool::TestDriver::write()
 void
 pool::TestDriver::addlfns()
 {
-  pool::IFileCatalog& catalog = *m_fileCatalog;
-  catalog.start();
-  pool::FCregister action;
-  catalog.setAction( action );
-  action.registerLFN( m_fileName1, m_lfn1 );
-  catalog.commit();
+  m_fileCatalog->start(); 
+  m_fileCatalog->registerLFN( m_fileCatalog->lookupPFN(m_fileName1), m_lfn1 );
+  m_fileCatalog->commit();
 }
 
 void

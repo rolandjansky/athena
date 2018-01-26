@@ -18,11 +18,11 @@ class Token;
     pool namespace
 */
 namespace pool {
-  // Forward declarations
-  class IFileCatalog;
-  class ISession;
 
-  /** @class IPersistencySvc IPersistencySvc.h PersistencySvc/IPersistencySvc.h
+   class ISession;
+   class IFileCatalog;
+
+   /** @class IPersistencySvc IPersistencySvc.h PersistencySvc/IPersistencySvc.h
    * 
    *  IPersistencySvc is the abstract interface for all services which execute
    *  the conversion between transient and persistent objects.
@@ -37,12 +37,12 @@ namespace pool {
     /// Empty destructor
     virtual ~IPersistencySvc() {}
 
-    /// Returns the file catalog in use
+/*    /// Returns the file catalog in use
     virtual IFileCatalog& fileCatalog() = 0;
 
     /// Set the attached file catalog
     virtual void setFileCatalog( IFileCatalog& catalog ) = 0;
-
+*/
     /** Retrieves an object from persistent store and return with type information
      *  The handle to the reflection class is necessary to later delete the object.
      *  The Guid of the transient class is assumed to be the classID of the token

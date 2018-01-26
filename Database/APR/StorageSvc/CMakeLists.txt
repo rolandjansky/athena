@@ -13,6 +13,7 @@ atlas_depends_on_subdirs(
    Control/DataModelRoot
    Database/PersistentDataModel
    PRIVATE
+   Database/APR/POOLCore
    AtlasTest/TestTools
    Control/AthContainers
    GaudiKernel )
@@ -29,7 +30,7 @@ atlas_add_library( StorageSvc src/*.cpp
    LINK_LIBRARIES ${UUID_LIBRARIES} CxxUtils DataModelRoot
    PersistentDataModel
    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} TestTools AthContainers
-   GaudiKernel )
+   POOLCore GaudiKernel )
 
 atlas_add_dictionary( StorageSvcDict StorageSvc/dict.h StorageSvc/dict.xml
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${UUID_INCLUDE_DIRS}

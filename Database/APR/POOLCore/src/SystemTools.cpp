@@ -2,29 +2,25 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "FileCatalog/FCSystemTools.h"
+#include "POOLCore/SystemTools.h"
 #include <sys/stat.h>
 #include <cstdlib>
-#ifndef POOL_URIPARSER_H
-#include "FileCatalog/URIParser.h"
-#endif
 #include <sstream>
 #include <libgen.h>
 #include <string.h>
 
 namespace pool
 {
-
-   const char* FCSystemTools::GetEnv(const char* key){
+   const char* SystemTools::GetEnv(const char* key){
       return getenv(key);
    }
   
-   std::string FCSystemTools::GetEnvStr(const std::string& key) {
+   std::string SystemTools::GetEnvStr(const std::string& key) {
       const char *var = GetEnv( key.c_str() );
       return var? std::string(var) : std::string();
    }
    
-   bool FCSystemTools::FileExists(const char* filename){
+   bool SystemTools::FileExists(const char* filename){
       struct stat fs;
       if(stat(filename, &fs) != 0) {
          return false;
@@ -33,7 +29,7 @@ namespace pool
       }
    }
 
-   std::string FCSystemTools::FCBasename(const std::string& path) {
+   std::string SystemTools::FCBasename(const std::string& path) {
       size_t dl_pos = path.find_last_of("/\\");
       if( dl_pos == std::string::npos )
          // delimiter not found
@@ -41,42 +37,43 @@ namespace pool
       return path.substr(dl_pos+1);
    }
    
-   std::string FCSystemTools::itostr(const int i){
+   std::string SystemTools::itostr(const int i){
       std::ostringstream ost;
       ost<<i;
       return ost.str();
    }
 
 
-   static MSG::Level FCOutputLevel = MSG::NIL;
+   static MSG::Level OutputLevel = MSG::NIL;
    
-   MSG::Level FCSystemTools::SetOutputLvl(MSG::Level new_ol) {
-      MSG::Level old_ol = FCOutputLevel;
-      FCOutputLevel = new_ol;
+   MSG::Level SystemTools::SetOutputLvl(MSG::Level new_ol) {
+      MSG::Level old_ol = OutputLevel;
+      OutputLevel = new_ol;
       return old_ol;
    }
 
    
-   MSG::Level FCSystemTools::GetOutputLvl()
+   MSG::Level SystemTools::GetOutputLvl()
    {
       // Priority to the ENV setting so debugging is easy
-      MSG::Level ol = GetOutputLvlFromEnv();
+      static MSG::Level ol = GetOutputLvlFromEnv();
       if( ol != MSG::NIL )
          return ol;
-      if( FCOutputLevel!= MSG::NIL )
-         return FCOutputLevel;
-      return MSG::WARNING;    // This is the current default!
+      // Next programatically set level
+      if( OutputLevel!= MSG::NIL )
+         return OutputLevel;
+      // Last the default
+      return MSG::WARNING;
    }
 
    
-   MSG::Level FCSystemTools::GetOutputLvlFromEnv()
+   MSG::Level SystemTools::GetOutputLvlFromEnv()
    {
-      if( getenv( "PFC_MSGLEVEL" ) )
-      {
-         // Check only the first char of the environment variable
-         switch ( *getenv( "PFC_MSGLEVEL" ) )
-         {
-            // NOTE:  NIL is used as 'no setting'
+      const char *msg_var = getenv( "POOL_OUTMSG_LEVEL" );
+      // Check only the first char of the environment variable
+      if( msg_var ) switch( *msg_var ) {
+            // NOTE:  NIL is used as 'no setting'            
+          case 0  :
           case '0':
           case 'n':
           case 'N': return MSG::NIL;
@@ -111,8 +108,7 @@ namespace pool
 	
           default: break;
          }
-      }
-      return MSG::NIL;
+   return MSG::NIL; 
    }
 
 

@@ -7,7 +7,7 @@
 
 #include "CollectionBase/ICollection.h"
 #include "CollectionBase/CollectionDescription.h"
-#include "FileCatalog/FCCommon.h"
+#include "POOLCore/IFileCatalog.h"
 
 #include <string>
 #include <vector>
@@ -19,7 +19,6 @@ namespace pool {
    class ISession;
    class MetaDataEntry;
    class ICollectionCursor;
-   class IFileCatalog;
 
    /**
    * @class CollectionFactory CollectionFactory.h CollectionFactory/CollectionFactory.h
@@ -166,30 +165,6 @@ namespace pool {
     virtual CollectionDescription descFromGuid( const FileCatalog::FileID& guid,
                                                 IFileCatalog* collectionCatalog,
                                                 bool readOnly ) const;
-
-   /**
-     * Returns a cursor for the navigation over collections registered in a collection catalog. 
-     * Queries are possible at both the collection and row levels.
-     *
-     * @param collectionCatalog Collection catalog manager.
-     * @param collectionLevelQuery Predicates for collection level query.
-     * @param rowLevelQuery Predicates for row level query.
-     * @param tokenOutputList Names of Token columns to be retrieved by row level query.
-     * @param attribOutputList Names of attribute columns to be retrieved by row level query.
-     * @param rowCacheSize Size of cache used to store rows retrieved by row level query.
-     * @param session Reference to database session (place holder for factory).
-     */
-    virtual ICollectionCursor* getCatalogCollectionCursor( IFileCatalog* collectionCatalog,
-                                                           std::string collectionLevelQuery = "",
-                                                           std::string rowLevelQuery = "",
-                                                           std::vector<std::string>* tokenOutputList = 0,
-                                                           std::vector<std::string>* attribOutputList = 0,
-                                                           int rowCacheSize = 0,
-                                                           ISession* session = 0 ) const;
-
-
-    /// Read POOL_OUTMSG_LEVEL variable and set logging level accordingly
-    virtual void                setOutputLevel() const;
 
     /// set external file catalog (it will not be deleted)
     /// pass 0 to reset the existing file catalog

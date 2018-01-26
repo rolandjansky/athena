@@ -2,14 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: poolDb.cpp 726071 2016-02-25 09:23:05Z krasznaa $
 //====================================================================
-//  DbFileFactory implementation
-//--------------------------------------------------------------------
-//
 //  Package    : System (The POOL project)
 //
-//  Description: Management of the open Db files
+//  Description: Misc methods
 //
 //  @author      M.Frank
 //====================================================================
@@ -17,6 +13,7 @@
 #include "StorageSvc/pool.h"
 #include "StorageSvc/DbType.h"
 #include "StorageSvc/DbPrint.h"
+#include "POOLCore/SystemTools.h"
 #include <stdexcept>
 #include <iostream>
 #include <iomanip>
@@ -25,7 +22,7 @@
 using namespace std;
 
 using namespace pool;
-DbPrintLvl::MsgLevel DbPrintLvl::outputLvl = None;
+DbPrintLvl::MsgLevel DbPrintLvl::outputLvl = SystemTools::GetOutputLvl();
 
 static bool s_debug = (0 != ::getenv("POOL_TRACE")) || (0 != ::getenv("POOLDB_TRACE"));
 

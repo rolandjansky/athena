@@ -3,7 +3,6 @@
 */
 
 #include "RootCollection.h"
-#include "FileCatalogMap.h"
 #include "RootCollectionQuery.h"
 #include "RootCollectionMetadata.h"
 
@@ -12,12 +11,6 @@
 #include "CollectionBase/ICollectionColumn.h"
 #include "CollectionBase/ICollectionFragment.h"
 #include "CollectionBase/CollectionBaseNames.h"
-
-#include "FileCatalog/IFileCatalog.h"
-#include "FileCatalog/IFCContainer.h"
-#include "FileCatalog/IFCAction.h"
-
-#include "POOLCore/Exception.h"
 
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
@@ -30,10 +23,6 @@
 #include "TSocket.h"
 #include "TMessage.h"
 #include "TDirectory.h"
-
-#ifdef XAOD_ANALYSIS
-#include "TError.h"
-#endif
 
 #define corENDL coral::MessageStream::endmsg
 
@@ -187,13 +176,9 @@ namespace pool {
                 // probably supposed to unregister if the collection was not created
                 m_mode = ICollection::CREATE_AND_OVERWRITE;
                 if(m_fileCatalog){
-                   FCAdmin act;
-                   m_fileCatalog->setAction(act);
-                   //m_fileCatalog->connect();
                    m_fileCatalog->start();
-                   act.deletePFN(m_fileName);
+                   m_fileCatalog->deleteFID( m_fileCatalog->lookupPFN(m_fileName) );
                    m_fileCatalog->commit();
-                   //m_fileCatalog->disconnect();
                 }
              }
           }
@@ -245,8 +230,8 @@ namespace pool {
         m_fileName = "";
 
         if(!m_fileCatalog)
-          retrieveFileCatalog();
-
+           m_fileCatalog = new pool::IFileCatalog;
+        
         if( m_mode == ICollection::CREATE ){
           string fid = retrieveFID();
           if(fid!="")
@@ -256,13 +241,9 @@ namespace pool {
           else{
             m_fileName = retrievePFN();
             FileCatalog::FileID dummy;
-            IFCAction act;
-            m_fileCatalog->setAction(act);
-            //m_fileCatalog->connect();
             m_fileCatalog->start();
-            act.registerPFN( m_fileName, myFileType, dummy);
+            m_fileCatalog->registerPFN( m_fileName, myFileType, dummy);
             m_fileCatalog->commit();
-            //m_fileCatalog->disconnect();
           }
         }
 
@@ -273,13 +254,9 @@ namespace pool {
           else{
             m_fileName = retrievePFN();
             FileCatalog::FileID dummy;
-            IFCAction act;
-            m_fileCatalog->setAction(act);
-            //m_fileCatalog->connect();
             m_fileCatalog->start();
-            act.registerPFN( m_fileName, myFileType, dummy);
+            m_fileCatalog->registerPFN( m_fileName, myFileType, dummy);
             m_fileCatalog->commit();
-            //m_fileCatalog->disconnect();
           }
         }
 
@@ -293,14 +270,17 @@ namespace pool {
             "RootCollection");
         }
 
-        else if(m_mode == ICollection::READ){
+        else if(m_mode == ICollection::READ) {
           string fid = retrieveFID();
-          if(fid!="")
-            m_fileName = retrieveBestPFN(fid);
-          else
-            throw pool::Exception( "Cannot READ non registered collections",
-            "RootCollection::open", 
-            "RootCollection");
+          if(fid!="") {
+             string dummy;
+             m_fileCatalog->start();
+             m_fileCatalog->getFirstPFN(fid, dummy, dummy);
+             m_fileCatalog->commit();
+          }else
+             throw pool::Exception( "Cannot READ non registered collections",
+                                    "RootCollection::open", 
+                                    "RootCollection");
         }
       }
 
@@ -359,15 +339,7 @@ namespace pool {
 	      if (io_mode.isWrite()) {
 		SHARED = true;
 	      }	       
-#ifdef XAOD_ANALYSIS
-long tmpError = gErrorIgnoreLevel;
-gErrorIgnoreLevel=kError; //silences the warnings we get about missing classes when opening files in AthAnalysisBase
-#endif
 	      int r = m_fileMgr->open(Io::ROOT,"RootCollection",m_fileName,io_mode,vf,"TAG",SHARED);
-#ifdef XAOD_ANALYSIS
-gErrorIgnoreLevel=tmpError;
-#endif
-
 	      if (r < 0) {
 		m_poolOut << coral::Error << "unable to open \"" << m_fileName
 			  << "\" for " << root_mode
@@ -383,13 +355,6 @@ gErrorIgnoreLevel=tmpError;
                                    "RootCollection" );
          }
          m_poolOut << coral::Info << "File " << m_fileName << " opened" << coral::MessageStream::endmsg;
-
-         // if the collection is read via "rootd" a cache might be useful
-         if(dynamic_cast<TNetFile*>(m_file)) {
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
-            m_file->UseCache();
-#endif            
-         }
       }
 
       if( m_mode == ICollection::READ || m_mode == ICollection::UPDATE ) {
@@ -491,24 +456,14 @@ gErrorIgnoreLevel=tmpError;
 
       if(m_name.find("PFN:")==0){
         string pfn = m_name.substr(4,string::npos);
-        IFCAction act;
-        m_fileCatalog->setAction(act);
-        //m_fileCatalog->connect();
         m_fileCatalog->start();
-        //m_fileCatalog->lookupFileByPFN(pfn,fid,fileType);
-        act.lookupFileByPFN(pfn,fid,fileType);
+        m_fileCatalog->lookupFileByPFN(pfn,fid,fileType);
         m_fileCatalog->commit();
-        //m_fileCatalog->disconnect();
       }else if(m_name.find("LFN:")==0){
         string lfn = m_name.substr(4,string::npos);
-        IFCAction act;
-        m_fileCatalog->setAction(act);
-        //m_fileCatalog->connect();
         m_fileCatalog->start();
-        //m_fileCatalog->lookupFileByLFN(lfn,fid);
-        act.lookupFileByLFN(lfn,fid);
+        m_fileCatalog->lookupFileByLFN(lfn,fid);
         m_fileCatalog->commit();
-        //m_fileCatalog->disconnect();
       }else if(m_name.find("FID:")==0){
         fid = m_name.substr(4,string::npos);
       }else
@@ -518,55 +473,25 @@ gErrorIgnoreLevel=tmpError;
       return fid;
     }
 
-    string RootCollection::retrieveUniquePFN(const FileCatalog::FileID& fid)const{
-      //m_fileCatalog->start();
-      //IPFNContainer& pfns = *m_fileCatalog->getPFNContainer();
-      PFNContainer pfns(m_fileCatalog);
-      FClookup act;
-      m_fileCatalog->setAction(act);
-      //m_fileCatalog->connect();
+
+   string RootCollection::retrieveUniquePFN(const FileCatalog::FileID& fid) const
+   {
+      IFileCatalog::Files       pfns;
       m_fileCatalog->start();
-      act.lookupPFN(fid,pfns);
-      if(!pfns.hasNext())
-        throw pool::Exception( "This exception should never have been thrown, please send a bug report",
-        "RootCollection::retrieveUniquePFN", 
-        "RootCollection"); 
-      string pfn = pfns.Next().pfname();
-      if(pfns.hasNext()){
-        m_fileCatalog->commit();
-        //m_fileCatalog->disconnect();
-        throw pool::Exception( "Cannot UPDATE or CREATE_AND_OVERWRITE since there are replicas",
-          "RootCollection::retrieveUniquePFN", 
-          "RootCollection");
-      }
+      m_fileCatalog->getPFNs(fid, pfns);
       m_fileCatalog->commit();
-      //m_fileCatalog->disconnect();
-      return pfn;
+      if( pfns.empty() )
+         throw pool::Exception( "This exception should never have been thrown, please send a bug report",
+                                "RootCollection::retrieveUniquePFN", 
+                                "RootCollection"); 
+      if( pfns.size() > 1 )
+         throw pool::Exception( "Cannot UPDATE or CREATE_AND_OVERWRITE since there are replicas",
+                                "RootCollection::retrieveUniquePFN", 
+                                "RootCollection");
+      return pfns[0].first;
     }
 
-    string RootCollection::retrieveBestPFN(const FileCatalog::FileID& fid)const{
-      string pfn;
-      string dummy;
-      IFCAction act;
-      m_fileCatalog->setAction(act);
-      //m_fileCatalog->connect();
-      m_fileCatalog->start();
-      act.lookupBestPFN( fid, FileCatalog::READ, FileCatalog::SEQUENTIAL, pfn, dummy);
-      m_fileCatalog->commit();
-      //m_fileCatalog->disconnect();
-      return pfn;
-    }
-
-    void RootCollection::retrieveFileCatalog() const
-    {
-      FileCatalogMap::instance()->setDefaultFileCatalog("xmlcatalog_file:PoolCollectionCatalog.xml");
-      m_fileCatalog = FileCatalogMap::instance()->getFileCatalog( m_description.connection() );
-      if(!m_fileCatalog)
-        throw pool::Exception( "cannot create file catalog from URI: "+ m_description.connection(),
-        "RootCollection::open", 
-        "RootCollection");
-    }
-
+   
     const ICollectionDescription& RootCollection::description() const
     {
       return m_description;

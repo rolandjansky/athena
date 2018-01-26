@@ -11,7 +11,6 @@ atlas_depends_on_subdirs( PRIVATE
                           Control/AthenaKernel
                           Control/RootUtils
                           Database/APR/CollectionBase
-                          Database/APR/FileCatalog
                           Database/APR/POOLCore
                           Database/APR/PersistencySvc
                           Database/PersistentDataModel
@@ -34,7 +33,7 @@ atlas_add_library( RootCollection
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} RootUtilsPyROOT
-                   PRIVATE_LINK_LIBRARIES ${CORAL_LIBRARIES} TestTools AthenaKernel RootUtils CollectionBase FileCatalog POOLCore PersistencySvc PersistentDataModel GaudiKernel )
+                   PRIVATE_LINK_LIBRARIES ${CORAL_LIBRARIES} TestTools AthenaKernel RootUtils CollectionBase POOLCore PersistencySvc PersistentDataModel GaudiKernel )
 
 atlas_add_library( RootCollectionComponents
                    src/components/*.cpp
@@ -42,19 +41,24 @@ atlas_add_library( RootCollectionComponents
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} RootUtilsPyROOT RootCollection
-                   PRIVATE_LINK_LIBRARIES ${CORAL_LIBRARIES} TestTools AthenaKernel RootUtils CollectionBase FileCatalog POOLCore PersistencySvc PersistentDataModel GaudiKernel )
+                   PRIVATE_LINK_LIBRARIES ${CORAL_LIBRARIES} TestTools AthenaKernel RootUtils CollectionBase POOLCore PersistencySvc PersistentDataModel GaudiKernel )
 
 atlas_add_test( read_test
                 SOURCES
                 test/read_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} TestTools AthenaKernel RootUtils RootUtilsPyROOT CollectionBase FileCatalog POOLCore PersistencySvc PersistentDataModel GaudiKernel RootCollection RootCollectionComponents )
+                LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} TestTools AthenaKernel RootUtils RootUtilsPyROOT CollectionBase POOLCore PersistencySvc PersistentDataModel GaudiKernel RootCollection RootCollectionComponents )
 
 atlas_add_test( update_test
                 SOURCES
                 test/update_test.cxx
                 INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} TestTools AthenaKernel RootUtils RootUtilsPyROOT CollectionBase FileCatalog POOLCore PersistencySvc PersistentDataModel GaudiKernel RootCollection RootCollectionComponents )
+                LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES}
+                TestTools AthenaKernel RootUtils RootUtilsPyROOT
+                CollectionBase  POOLCore PersistencySvc
+                PersistentDataModel GaudiKernel RootCollection
+                RootCollectionComponents )
+                
 set_tests_properties( RootCollection_update_test_ctest
                       PROPERTIES DEPENDS RootCollection_read_test_ctest )
 

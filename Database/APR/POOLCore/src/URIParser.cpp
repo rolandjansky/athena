@@ -2,9 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef POOL_URIPARSER_H
-#include "FileCatalog/URIParser.h"
-#endif
+#include "POOLCore/Exception.h"
+#include "POOLCore/URIParser.h"
 #include <iostream>
 #include <cstdlib>
 
@@ -52,7 +51,7 @@ namespace pool{
     if(prefixpos == m_contactstr.npos || prefixpos>tmppos){
       m_url=m_contactstr;
       if(tmppos != m_contactstr.npos && m_contactstr.substr(0,5)!="file:"){
-        throw FCillegalContactStringException("URIParser::parse","only file: protocol is allowed for contactstring with no prefix.");
+         throw Exception("only file: protocol is allowed for PFC contactstring with no prefix.", "URIParser::parse", "APR");
       }
     }else{
       //have prefix

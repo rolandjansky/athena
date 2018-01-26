@@ -5,7 +5,6 @@
 #include <cstdio>
 #include "DatabaseRegistry.h"
 #include "DatabaseHandler.h"
-#include "FileCatalog/IFileCatalog.h"
 
 pool::PersistencySvc::DatabaseRegistry::DatabaseRegistry()
 {}

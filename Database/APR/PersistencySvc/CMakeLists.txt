@@ -14,6 +14,7 @@ atlas_depends_on_subdirs(
    Database/APR/StorageSvc
    PRIVATE
    Control/AthenaKernel
+   GaudiUtils
    Database/APR/FileCatalog
    Database/PersistentDataModel )
 
@@ -25,9 +26,9 @@ atlas_add_library( PersistencySvc
    PersistencySvc/*.h PersistencySvc/*.inl
    src/*.cpp src/*.h src/*.inl
    PUBLIC_HEADERS PersistencySvc
-   PRIVATE_INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
+   PRIVATE_INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} GaudiUtils
    LINK_LIBRARIES DataModelRoot POOLCore StorageSvc
-   PRIVATE_LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaKernel FileCatalog
+   PRIVATE_LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaKernel 
    PersistentDataModel )
 
 
@@ -41,4 +42,17 @@ atlas_add_executable( pool_extractFileIdentifier
 
 atlas_add_executable( pool_insertFileToCatalog
    utilities/pool_insertFileToCatalog.cpp
-   LINK_LIBRARIES FileCatalog PersistencySvc )
+   LINK_LIBRARIES PersistencySvc FileCatalog)
+
+
+
+
+
+
+
+
+
+
+
+
+

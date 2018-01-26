@@ -5,21 +5,16 @@
 #include "CollectionBase/CollectionFactory.h"
 #include "CollectionBase/CollectionDescription.h"
 #include "CollectionBase/ICollectionCursor.h"
-#include "CollectionBase/CatalogCollectionCursor.h"
 #include "CollectionBase/ICollectionMetadata.h"
 #include "CollectionBase/CollectionBaseNames.h"
 #include "CollectionBase/boost_tokenizer_headers.h"
 
-#include "FileCatalog/FCEntry.h"
-#include "FileCatalog/IFCContainer.h"
-#include "FileCatalog/IFCAction.h"
-#include "FileCatalog/FCException.h"
-#include "FileCatalog/IFileCatalog.h"
+#include "POOLCore/IFileCatalog.h"
+#include "POOLCore/Exception.h"
 
 #include "Gaudi/PluginService.h"
 
-#include "PersistencySvc/ISession.h"
-#include "POOLCore/Exception.h"
+//#include "PersistencySvc/ISession.h"
 
 #include "CoralBase/MessageStream.h"
 
@@ -158,12 +153,9 @@ pool::CollectionFactory::createAndRegister( const pool::ICollectionDescription& 
   }
   
   if( !collectionCatalog) collectionCatalog = getDefaultCatalog();
-  pool::FileCatalog::FileID guid;
-  std::string fileType;
-  pool::IFCAction fcAction;
-  collectionCatalog->setAction( fcAction );
+  std::string fileType, guid;
   collectionCatalog->start();
-  fcAction.lookupFileByPFN( physicalName, guid, fileType );
+  collectionCatalog->lookupFileByPFN( physicalName, guid, fileType );
   collectionCatalog->commit();
   
   if( guid.length() )  {
@@ -187,21 +179,15 @@ pool::CollectionFactory::createAndRegister( const pool::ICollectionDescription& 
 
   pool::ICollection* collection = create_callPlugin( description, openMode, session );
   
-  pool::FCregister fcRegister;
-  collectionCatalog->setAction( fcRegister );
   collectionCatalog->start();
   if( !guid.length() ) {
-     fcRegister.registerPFN( physicalName, c_fileType, guid );
+     collectionCatalog->registerPFN( physicalName, c_fileType, guid );
   }
   if( logicalName.length() ) {
-     try {
-        fcRegister.registerLFN( physicalName, logicalName );
-     } 
-     catch( const pool::FCduplicateLFNException& )
-     {}
+     collectionCatalog->registerLFN( guid, logicalName );
   }
   if( metadata ) {
-     fcRegister.registerMetaData( guid, *metadata );
+     // fcRegister.registerMetaData( guid, *metadata );
   }
   // add collection ID
   collection->metadata().setValueForKey( CollectionBaseNames::CollIDMdataKey(), guid );
@@ -284,18 +270,15 @@ pool::CollectionFactory::registerExisting( pool::ICollection* collection,
                                            pool::ISession* ) const
 {
    if( !collectionCatalog) collectionCatalog = getDefaultCatalog();
-   pool::FileCatalog::FileID guid;
-   std::string fileType;
-   pool::IFCAction fcAction;
    std::string physicalName = collection->description().type() + "|" + collection->description().connection() + "|" + collection->description().name();
   
    coral::MessageStream log( thisModule ); 
    log << coral::Debug << "Registering existing collection PFN=" << physicalName
        << ", LFN=" << logicalName  << coral::MessageStream::endmsg;
 
-   collectionCatalog->setAction( fcAction );
    collectionCatalog->start();
-   fcAction.lookupFileByPFN( physicalName, guid, fileType );
+   std::string fileType, guid;
+   collectionCatalog->lookupFileByPFN( physicalName, guid, fileType );
    collectionCatalog->commit();
 
    if( !collection->isOpen() )
@@ -322,10 +305,8 @@ pool::CollectionFactory::registerExisting( pool::ICollection* collection,
       }
       // attempt to remove the existing GUID from the catalog (no GUID reuse)
       log << coral::Info  << " -- removing " << guid << " from the catalog " <<  coral::MessageStream::endmsg;
-      FCAdmin	fcAction;
-      collectionCatalog->setAction( fcAction );
       collectionCatalog->start();
-      fcAction.deleteEntry( guid );
+      collectionCatalog->deleteFID( guid );
       collectionCatalog->commit();
    }
 
@@ -333,18 +314,13 @@ pool::CollectionFactory::registerExisting( pool::ICollection* collection,
    // - if not, the catalog will generate one
    guid = coll_id;
    
-   pool::FCregister fcRegister;
-   collectionCatalog->setAction( fcRegister );
    collectionCatalog->start();
-   fcRegister.registerPFN( physicalName, c_fileType, guid );
+   collectionCatalog->registerPFN( physicalName, c_fileType, guid );
    if( logicalName.length() )  {
-      try    {
-	 fcRegister.registerLFN( physicalName, logicalName );
-      } 
-      catch( const pool::FCduplicateLFNException& ){};
+      collectionCatalog->registerLFN( guid, logicalName );
    }
    if( metadata )  {
-      fcRegister.registerMetaData( guid, *metadata );
+      // fcRegister.registerMetaData( guid, *metadata );
    }
    collectionCatalog->commit();
    if( !has_id && collection->openMode() != ICollection::READ ) try {
@@ -407,12 +383,9 @@ CollectionFactory::descFromPhysicalName( const std::string& physicalName,
                                          bool readOnly ) const
 {
    if( !collectionCatalog ) collectionCatalog = getDefaultCatalog();
-   FileCatalog::FileID guid;
-   string       fileType;
-   IFCAction    fcAction;
-   collectionCatalog->setAction( fcAction );
+   string       fileType, guid;
    collectionCatalog->start();
-   fcAction.lookupFileByPFN( physicalName, guid, fileType );
+   collectionCatalog->lookupFileByPFN( physicalName, guid, fileType );
    collectionCatalog->commit();
 
    if( guid.length() )  {
@@ -431,11 +404,8 @@ CollectionFactory::descFromLogicalName( const std::string& logicalName,
                                         bool readOnly ) const
 {
   if( !collectionCatalog ) collectionCatalog = getDefaultCatalog();
-  pool::FileCatalog::FileID guid;
-  pool::IFCAction fcAction;
-  collectionCatalog->setAction( fcAction );
   collectionCatalog->start();
-  fcAction.lookupFileByLFN( logicalName, guid );
+  std::string guid = collectionCatalog->lookupLFN( logicalName );
   collectionCatalog->commit();
   if( !guid.length() )  {
      std::string errorMsg = "No collection registered with logical name `" + logicalName + "' in  collection catalog.";
@@ -461,33 +431,17 @@ CollectionFactory::descFromGuid( const pool::FileCatalog::FileID& guid,
 			    "CollectionBase" );
   }
 
-  pool::PFNContainer pfns( collectionCatalog );
-  pool::FClookup fcLookup;
-  collectionCatalog->setAction( fcLookup );
-  collectionCatalog->start();
-  fcLookup.lookupPFN( guid, pfns );
-  bool found_PFN = pfns.hasNext();
-  collectionCatalog->commit();
-  if( !found_PFN )  {
-     throw pool::Exception( "No collection registered with GUID `" + guid + "' in collection catalog.",
-                           "CollectionFactory::openWithGuid", 
-                           "CollectionBase" );
-  }
-
-
   std::string physicalName;
   std::string fileType;
-  pool::IFCAction fcAction;
-  collectionCatalog->setAction( fcAction );
   collectionCatalog->start();
-  fcAction.lookupBestPFN( guid,
-                          readOnly ? pool::FileCatalog::READ : pool::FileCatalog::UPDATE,
-                          pool::FileCatalog::SEQUENTIAL, // ...?
-                          physicalName,
-                          fileType );
+  collectionCatalog->getFirstPFN( guid, physicalName, fileType );
   collectionCatalog->commit();
-  
-  if ( fileType != c_fileType )  {
+  if( physicalName.empty() )  {
+     throw pool::Exception( "No collection registered with GUID `" + guid + "' in collection catalog.",
+                            "CollectionFactory::openWithGuid", 
+                            "CollectionBase" );
+  } 
+  if( fileType != c_fileType )  {
      std::string errorMsg = "Entries in collection catalog must be of type `" + c_fileType + "'.";
      throw pool::Exception( errorMsg,
 			    "CollectionFactory::openWithGuid",
@@ -500,58 +454,21 @@ CollectionFactory::descFromGuid( const pool::FileCatalog::FileID& guid,
 }
 
 
-
-pool::ICollectionCursor* 
-pool::CollectionFactory::getCatalogCollectionCursor( pool::IFileCatalog* collectionCatalog,
-                                                     std::string collectionLevelQuery,
-                                                     std::string rowLevelQuery,
-                                                     std::vector<std::string>* tokenOutputList,
-                                                     std::vector<std::string>* attribOutputList,
-                                                     int rowCacheSize,
-                                                     pool::ISession* session ) const
-{
-  if( !collectionCatalog) collectionCatalog = getDefaultCatalog();
-  return new pool::CatalogCollectionCursor( *collectionCatalog,
-                                            collectionLevelQuery,
-                                            rowLevelQuery,
-                                            tokenOutputList,
-                                            attribOutputList,
-                                            rowCacheSize,
-                                            session );
-}
-
-
 bool 
 pool::CollectionFactory::isUnique( const pool::FileCatalog::FileID& guid,
                                    pool::IFileCatalog& collectionCatalog ) const
 {
-  pool::PFNContainer pfns( &collectionCatalog );
-  pool::FClookup fcLookup;
-  collectionCatalog.setAction( fcLookup );
-  collectionCatalog.start();
-  fcLookup.lookupPFN( guid, pfns );
-  if( !pfns.hasNext() )
-  {
-    collectionCatalog.commit();
-    std::string errorMsg = "A Collection with GUID `" + guid + "' is not registered in the collection catalog.";
-    throw pool::Exception( errorMsg,
-                           "CollectionFactory::isUnique", 
-                           "CollectionBase" );
-  }
-  PFNEntry x =   pfns.Next();
-  //cout << "FCLookup for:" << guid << endl;
-  //cout << " *****  PFN= " << x.pfname() << "  guid=" << x.guid() << endl;
-  bool result = !pfns.hasNext();
-
-  /*
-  while( pfns.hasNext() ) {
-     x = pfns.Next();
-     cout << " *****  extra PFN= " << x.pfname()  << "  guid=" << x.guid() <<  endl;
-  }
-  */
-  collectionCatalog.commit();
-
-  return result;
+   IFileCatalog::Files  pfns;
+   collectionCatalog.start();
+   collectionCatalog.getPFNs( guid, pfns );
+   collectionCatalog.commit();
+   if( pfns.empty() ) {
+      std::string errorMsg = "A Collection with GUID `" + guid + "' is not registered in the collection catalog.";
+      throw pool::Exception( errorMsg,
+                             "CollectionFactory::isUnique", 
+                             "CollectionBase" );
+   }
+   return pfns.size()==1;
 }
 
 
@@ -639,37 +556,3 @@ pool::CollectionFactory::getDefaultCatalog() const
 }
 
 
-
-void
-pool::CollectionFactory::setOutputLevel() const
-{
-   const char* out_levl = getenv("POOL_OUTMSG_LEVEL");
-   if( out_levl ) {
-      coral::MsgLevel       mLvL = coral::Info;
-      std::string outLvl( out_levl );
-      for( size_t i = 0; i < outLvl.size(); i++ )
-         outLvl[i] = tolower( outLvl[i] );
-      if( outLvl == "verbose" ) {
-         mLvL = coral::Verbose;
-      } else
-         if( outLvl == "debug" ) {
-            mLvL = coral::Debug;
-         } else
-            if( outLvl == "info" ) {
-               mLvL = coral::Info;
-            } else
-               if( outLvl == "warning" ) {
-                  mLvL = coral::Warning;
-               } else
-                  if( outLvl == "error" ) {
-                     mLvL = coral::Error;
-                  } else
-                     if( outLvl == "fatal" ) {
-                        mLvL = coral::Fatal;
-                     } else
-                        if( outLvl == "always" ) {
-                           mLvL = coral::Always;
-                        }
-      coral::MessageStream::setMsgVerbosity( mLvL );
-   }
-}

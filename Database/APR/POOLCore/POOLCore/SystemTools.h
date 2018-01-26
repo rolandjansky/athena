@@ -2,19 +2,17 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//$Id: FCSystemTools.h 778462 2016-10-14 12:29:52Z mnowak $
-#ifndef POOL_FCSYSTEMTOOLS_H
-#define POOL_FCSYSTEMTOOLS_H
+#ifndef POOL_SYSTEMTOOLS_H
+#define POOL_SYSTEMTOOLS_H
 
 #include "GaudiKernel/IMessageSvc.h"
 
 namespace pool{
   
-  /** @class FCSystemTools  FCSystemTools.h FileCatalog/FCSystemTools.h
-      FileCatalog Utility methods
-      @author Zhen Xie
+  /** @class SystemTools SystemTools.h POOLCore/SystemTools.h
+      Misc utility methods
   */
-  class FCSystemTools
+  class SystemTools
   {
   public:
     /** Read an environment variable.  */

@@ -2,22 +2,19 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//$Id: URIParser.h 457829 2011-09-08 13:13:25Z mnowak $
-
-#ifndef POOL_URIPARSER_H
-#define  POOL_URIPARSER_H
+#ifndef POOLCORE_URIPARSER_H
+#define POOLCORE_URIPARSER_H
 
 #include <string>
-#include "FileCatalog/FCException.h"
 namespace pool{
-  /**@class URIParser URIParser.h pool/URIParser.h
+
+   /**@class URIParser URIParser.h Database/APR/POOLCore/URIParser.h
      URI parsing utility class.
      The URI string can be read from environment variable POOL_CATALOG 
      or from the URIParser constructor. 
      Protocol, host, path MUST be specified. 
      @author Zhen Xie
   */
-  
   class URIParser{
   public:
     /** Constructor. Contact string will be read from the environment variable
@@ -42,6 +39,7 @@ namespace pool{
     std::string m_url;
   };
 }/* ns pool */
+
 #endif
 
 

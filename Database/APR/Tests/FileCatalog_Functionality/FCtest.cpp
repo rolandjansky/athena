@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//$Id: FCtest.cpp 740758 2016-04-16 07:11:28Z krasznaa $
 /*
   @file a test driver for FileCatalog.
   @author: Zhen Xie
@@ -12,32 +11,19 @@
 #include <string>
 #include <iostream>
 #include <cstdlib>
-#include "FileCatalog/IFileCatalog.h"
-#include "FileCatalog/FCSystemTools.h"
-//#ifndef POOL_URIPARSER_H
-//#include "FileCatalog/URIParser.h"
-//#endif
-#ifndef POOL_FCEXCEPTION_H
-#include "FileCatalog/FCException.h"
-#endif
-#ifndef POOL_IFCCONTAINER_H
-#include "FileCatalog/IFCContainer.h"
-#endif
-#include "FileCatalog/IFCAction.h"
-
+#include "POOLCore/IFileCatalog.h"
 
 using namespace pool;
 
-class FCtest: public CppUnit::TestFixture{
+class FCtest: public CppUnit::TestFixture
+{
   CPPUNIT_TEST_SUITE( FCtest );
   CPPUNIT_TEST( testregisterFile );
   CPPUNIT_TEST( testimport );
   CPPUNIT_TEST_SUITE_END();
+
 public:
-  //URIParser p;
   IFileCatalog* mycatalog, *source, *dest;
-  FileCatalog::FileID fid;
-  std::string pfn;  std::string filetype;
   std::string sourcecatalogtype;
   std::string sourcecatalogurl;
   std::string destcatalogtype;
@@ -102,33 +88,38 @@ public:
       mycatalog->setWriteCatalog(mycatalogurl);
       mycatalog->connect();
       mycatalog->start();
-      FCregister r;
-      mycatalog->setAction(r);
-      FClookup l;
-      mycatalog->setAction(l);
-      PFNContainer mypfns(mycatalog);
+      std::set<std::string>     registered_pfns;
+      const std::string         new_filetype = "root/tree";
       for(size_t i=0; i<names.size(); i++){
-        r.registerPFN(std::string("pfn:")+names[i],"root/tree",fid);
-        std::cout<<"fid"<<fid<<std::endl;
-        r.lookupBestPFN(fid,FileCatalog::READ,FileCatalog::SEQUENTIAL,pfn,filetype);
-        CPPUNIT_ASSERT_MESSAGE("wrong pfn",(std::string("pfn:")+names[i])==pfn);  
-        CPPUNIT_ASSERT_MESSAGE("wrong filetype","root/tree"==filetype);      
-        //register LFN 
-        r.registerLFN(pfn,std::string("lfn:")+names[i]);
-        //test addReplicaFilename
-        r.addReplicaPFN(pfn,std::string("replicapfn:")+names[i]);
-        //test iterator
-        mypfns.reset();
-        l.lookupPFN(fid,mypfns);
-        unsigned int j=0;
-        while(mypfns.hasNext()){
-          PFNEntry pentry=mypfns.Next();
-          //numberguid[i]=pentry.guid;
-          std::cout<<pentry<<std::endl;
-          CPPUNIT_ASSERT_MESSAGE("Error in the filename",(pentry.pfname()==std::string("pfn:")+names[i])||(pentry.pfname()==std::string("replicapfn:")+names[i]));
-          j++;
-        }
+        //register PFN
+         std::string new_pfn = std::string("pfn:") + names[i];
+         std::string fid;
+         mycatalog->registerPFN( new_pfn, new_filetype, fid );
+         std::cout << "Registering PFN: " << new_pfn << " of type: " << new_filetype
+                   << " FID assigned by the FC: " << fid <<std::endl;
+         // read back PFN
+         std::string pfn, filetype;
+         mycatalog->getFirstPFN(fid, pfn, filetype);
+         CPPUNIT_ASSERT_MESSAGE("wrong pfn", new_pfn==pfn );  
+         CPPUNIT_ASSERT_MESSAGE("wrong filetype", new_filetype==filetype );
+         registered_pfns.insert( new_pfn );
+         //register LFN 
+         // mycatalog->registerLFN(pfn,std::string("lfn:")+names[i]);
+         mycatalog->registerLFN(fid, std::string("lfn:")+names[i]);
+
+         //test addReplicaFilename
+         // addReplicaPFN(pfn,std::string("replicapfn:")+names[i]);
       }
+      //test reading back
+      /*
+      IFileCatalog::Files     mypfns;
+      mycatalog->getPFN(fid, mypfns);
+      for( const auto& attr_pair: mypfns ) {
+         std::string pfn = attr_pair.first, ftype = attr_pair.second;
+         std::cout  << "PFN: " << pfn <<  "  type: " << ftype << std::endl;
+         CPPUNIT_ASSERT_MESSAGE("Error in the filename", registered_pfns.count(pfn) );
+      }
+      */
       //CPPUNIT_ASSERT_MESSAGE("The guid is not the same",numberguid[0]==numberguid[1]);
       //commmit changes
       mycatalog->commit();
@@ -142,7 +133,7 @@ public:
   }
   
   void testimport() {
-    
+/* MN: not supporting FC import with Gaudi FC     
     try{
       importsetUp(xml2xml);
       std::cout<<"TEST --> testimport"<<std::endl;
@@ -159,7 +150,7 @@ public:
       source->setAction(a);
       try{
         a.createMetaDataSpec(meta);
-      }catch(const pool::FCduplicatemetadataspecException& /* er */){
+      }catch(const pool::FCduplicatemetadataspecException& ){
         std::cout<<"metadata schema already exists, drop it and create it again"<<std::endl;
         a.dropMetaDataSpec();
         a.createMetaDataSpec(meta);
@@ -171,7 +162,7 @@ public:
       dest->setAction(ad);
       try{
         ad.createMetaDataSpec(meta);
-      }catch(const pool::FCduplicatemetadataspecException& /* er */ ){
+      }catch(const pool::FCduplicatemetadataspecException& ){
         std::cout<<"metadata schema already exists, drop it and create it again"<<std::endl;
         ad.dropMetaDataSpec();
         ad.createMetaDataSpec(meta);
@@ -204,6 +195,7 @@ public:
       std::cerr << er.what() << std::endl;
       exit(1);
     }
+*/
   }
 
 };

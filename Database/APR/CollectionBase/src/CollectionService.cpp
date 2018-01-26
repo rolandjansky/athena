@@ -8,26 +8,21 @@
 #include "CollectionBase/ICollectionCursor.h"
 #include "CollectionBase/boost_tokenizer_headers.h"
 
-#include "FileCatalog/IFileCatalog.h"
-#include "FileCatalog/FCEntry.h"
-
+#include "POOLCore/IFileCatalog.h"
 #include "CoralBase/MessageStream.h"
-
-namespace pool { class ISession; }
-
-#include "POOLCore/Exception.h"
 
 #include <cstring>
 
-#include <iostream>
 using namespace std;
 using namespace pool;
+namespace pool { class ISession; }
 
-static std::string	moduleName("CollectionService");
+
+static const std::string	moduleName("CollectionService");
+
 
 pool::CollectionService::CollectionService( ) 
 {
-   pool::CollectionFactory::get()->setOutputLevel();
 }
 
 
@@ -317,27 +312,9 @@ pool::CollectionService::getCatalog( )
 }
 
 
-
-
 void
 pool::CollectionService::setCatalog( IFileCatalog* collCat )
 {
    CollectionFactory::get()->setDefaultCatalog( collCat );   
 }
 
-
-
-pool::ICollectionCursor*
-pool::CollectionService::getCatalogCollectionCursor( std::string collectionLevelQuery,
-	                                             std::string rowLevelQuery,
-	                                             std::vector<std::string>* tokenOutputList,
-	                                             std::vector<std::string>* attribOutputList,
-	                                             int rowCacheSize ) const
-{
-   return pool::CollectionFactory::get()->getCatalogCollectionCursor( 0,
-								      collectionLevelQuery,
-								      rowLevelQuery,
-								      tokenOutputList,
-								      attribOutputList,
-								      rowCacheSize );
-}

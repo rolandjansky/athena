@@ -4,13 +4,9 @@
 
 #include <memory>
 
-#include "FileCatalog/IFileCatalog.h"
-#include "FileCatalog/FCLeaf.h"
-#include "FileCatalog/FCImpl.h"
-#include "FileCatalog/FCEntry.h"
-#include "FileCatalog/URIParser.h"
-
 #include "PersistencySvc/SimpleUtilityBase.h"
+#include "POOLCore/URIParser.h"
+#include "POOLCore/IFileCatalog.h"
 
 using namespace pool;
 
@@ -62,32 +58,28 @@ InsertFileToCatalogApplication::parseArguments()
   return SimpleUtilityBase::parseArguments();
 }
 
-
+#include "StorageSvc/DbPrint.h"
 
 void
 InsertFileToCatalogApplication::execute()
 {
    startSession();
    readFileGUIDs();
-   
+  
   // Open the file catalog and insert the pfn/fid/technology
-  pool::URIParser p( m_URL );
-  p.parse();
-  std::auto_ptr<pool::IFileCatalog> catalog( new pool::IFileCatalog );
-  catalog->setWriteCatalog( p.contactstring() );
-  catalog->connect();
-  catalog->start();    
-  pool::FCLeaf* leaf = dynamic_cast< pool::FCLeaf* >( catalog->getWriteCatalog() );
-  if (!leaf)
-    std::cerr << "InsertFileToCatalogApplication: dynamic_cast failed.\n";
-  else {
-    for ( std::vector< std::pair< std::string, std::string > >::const_iterator iFile = fidAndPfn.begin();
-          iFile != fidAndPfn.end(); ++iFile ) {
-      pool::PFNEntry entry( iFile->second, iFile->first, technologyName );
-      leaf->getImpl()->insertPFN( entry );
+   pool::URIParser p( m_URL );
+   p.parse();
+   pool::IFileCatalog   catalog;
+   catalog.setWriteCatalog( p.contactstring() );
+
+   catalog.connect();
+   catalog.start();
+   
+   for( std::vector< std::pair< std::string, std::string > >::const_iterator iFile = fidAndPfn.begin();
+        iFile != fidAndPfn.end(); ++iFile ) {
+      catalog.registerPFN( iFile->first, iFile->second, technologyName );
     }    
-  }
-  catalog->commit();
+   catalog.commit();
 }
 
 

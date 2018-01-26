@@ -14,9 +14,8 @@
 #include "PersistentDataModel/Token.h"
 
 #include "StorageSvc/DbType.h"
-
-#include "FileCatalog/URIParser.h"
-#include "FileCatalog/IFileCatalog.h"
+#include "POOLCore/URIParser.h"
+#include "POOLCore/IFileCatalog.h"
 
 #include "PersistencySvc/ISession.h"
 #include "PersistencySvc/ITransaction.h"
@@ -24,7 +23,6 @@
 #include "PersistencySvc/IDatabase.h"
 #include "PersistencySvc/IContainer.h"
 #include "PersistencySvc/ITokenIterator.h"
-
 #include "PersistencySvc/IPersistencySvc.h"
 
 #include "MyTestClass.h"
