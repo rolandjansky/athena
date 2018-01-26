@@ -245,8 +245,6 @@ exot8Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT8Kernel", Thinning
 streamName  = derivationFlags.WriteDAOD_EXOT8Stream.StreamName
 fileName    = buildFileName( derivationFlags.WriteDAOD_EXOT8Stream )
 EXOT8Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-EXOT8Stream.AddItem("xAOD::JetContainer_v1#*")
-EXOT8Stream.AddItem("xAOD::JetAuxContainer_v1#*")
 EXOT8Stream.AcceptAlgs(["EXOT8Kernel"])
 
 
