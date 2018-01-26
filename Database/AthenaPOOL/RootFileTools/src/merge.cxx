@@ -485,6 +485,7 @@ DbStatus DbDatabaseMerger::merge(const string& fid, const std::set<std::string>&
          }
          src_blinks->ResetAddress();
          m_output->cd();
+         std::set<std::string> copiedTrees;
          TIter nextkey(source->GetListOfKeys());
          for(TKey* key = (TKey*)nextkey(); key; key = (TKey*)nextkey() ) {
             const char *classname = key->GetClassName();
@@ -493,6 +494,8 @@ DbStatus DbDatabaseMerger::merge(const string& fid, const std::set<std::string>&
             if (cl->InheritsFrom("TTree")) {
                const string name = key->GetName();
                if (exclTrees.find(name) != exclTrees.end()) continue;
+               if (copiedTrees.find(name) != copiedTrees.end()) continue;
+               copiedTrees.insert(name);
                source->cd();
                TTree *src_tree = (TTree*)source->Get(key->GetName());
                Long64_t src_entries = src_tree->GetEntries();
