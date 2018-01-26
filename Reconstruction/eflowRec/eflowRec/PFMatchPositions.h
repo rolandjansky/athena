@@ -87,8 +87,8 @@ private:
 
 class TrackEtaPhiInFixedLayersProvider: public TrackPositionProvider<EtaPhi> {
 public:
-  TrackEtaPhiInFixedLayersProvider(LayerType barrelLayer, LayerType endcapLayer):
-    m_barrelLayer(barrelLayer), m_endcapLayer(endcapLayer) { }
+  TrackEtaPhiInFixedLayersProvider(LayerType barrelLayer, LayerType endcapLayer, LayerType fcalLayer):
+    m_barrelLayer(barrelLayer), m_endcapLayer(endcapLayer), m_fcalLayer(fcalLayer) { }
   virtual ~TrackEtaPhiInFixedLayersProvider() { }
 
   EtaPhi* getPosition(const ITrack* track);
@@ -96,6 +96,7 @@ public:
 private:
   LayerType m_barrelLayer;
   LayerType m_endcapLayer;
+  LayerType m_fcalLayer;
 };
 
 
@@ -105,9 +106,9 @@ class TrackPositionFactory {
 public:
   static IPositionProvider* Get(std::string positionType) {
     if (positionType == "EM1EtaPhi") {
-      return new TrackEtaPhiInFixedLayersProvider(TrackLayer::EMB1, TrackLayer::EME1);
+      return new TrackEtaPhiInFixedLayersProvider(TrackLayer::EMB1, TrackLayer::EME1, TrackLayer::FCAL0);
     } else if (positionType == "EM2EtaPhi") {
-      return new TrackEtaPhiInFixedLayersProvider(TrackLayer::EMB2, TrackLayer::EME2);
+      return new TrackEtaPhiInFixedLayersProvider(TrackLayer::EMB2, TrackLayer::EME2, TrackLayer::FCAL0);
     } else {
       std::cerr << "TrackPositionFactory\tERROR\tInvalid track position type: \"" << positionType << "\"" << std::endl;
       assert(false);
