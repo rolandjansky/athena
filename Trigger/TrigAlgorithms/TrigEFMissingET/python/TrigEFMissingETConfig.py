@@ -1201,9 +1201,9 @@ class EFMissingET_Fex_topoClustersTracksPUC (EFMissingETBase):
         helperTool.ParentFexName = name
 
         clusterTool.SubtractPileup = True
-       is2016 = (TriggerFlags.run2Config() == '2016')
-
-
+        is2016 = (TriggerFlags.run2Config() == '2016')
+        
+        '''
         clusterTool.use2016Algo = is2016
 # N.B. - defaults for 2016 running: nSigma = 3.2 and varRhoScale = 4.0
 # N.B. - defaults for 2017 running: nSigma = 5.0 and varRhoScale = 1.0
@@ -1215,7 +1215,7 @@ class EFMissingET_Fex_topoClustersTracksPUC (EFMissingETBase):
         clusterTool.resE = 15.81
         clusterTool.resEfloor = 50.0
         clusterTool.trimFactor = 0.90
-
+        '''
         # fraction of energy deposited in EM samplings
         flagTool.MaxEMfraction = 1.0
         flagTool.MinEMfraction = 0.0
@@ -1356,7 +1356,7 @@ class EFMissingET_Fex_topoClustersTracksPUC (EFMissingETBase):
         self.ComponentCalib1 += [ 1.00 ]                # PUC
         self.ComponentCalib1 += [ 1.00 ]                # PUC prior correction
         self.ComponentCalib1 += [ 1.00 ]                # Muons
-
+        
 
         from TrigEFMissingET.TrigEFMissingETMonitoring import TrigEFMissingETValidationMonitoring_other, TrigEFMissingETOnlineMonitoring_other, TrigEFMissingETCosmicMonitoring_other
         validation = TrigEFMissingETValidationMonitoring_other()
