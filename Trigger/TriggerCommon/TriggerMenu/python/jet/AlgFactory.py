@@ -408,6 +408,45 @@ class AlgFactory(object):
         return [Alg(algType,(), kargs)]
 
 
+    def dijet_kargs(self, algType): 
+
+        kargs = {}
+
+        kargs['name'] = '"%s_%s"' % (algType, self.hypo_params.dijet_string.replace('!', '-'))
+        
+        kargs['aet_mins'] = self.hypo_params.aet_mins
+        # kargs['aet_maxs'] = self.hypo_params.aet_maxs
+
+        kargs['aeta_mins'] = self.hypo_params.aeta_mins
+        kargs['aeta_maxs'] = self.hypo_params.aeta_maxs
+
+        kargs['bet_mins'] = self.hypo_params.bet_mins
+        # kargs['bet_maxs'] = self.hypo_params.bet_maxs
+
+        kargs['beta_mins'] = self.hypo_params.beta_mins
+        kargs['beta_maxs'] = self.hypo_params.beta_maxs
+        
+        kargs['m_mins'] = self.hypo_params.m_mins
+        kargs['m_maxs'] = self.hypo_params.m_maxs
+               
+        kargs['deta_mins'] = self.hypo_params.deta_mins
+        kargs['deta_maxs'] = self.hypo_params.deta_maxs
+               
+        kargs['dphi_mins'] = self.hypo_params.dphi_mins
+        kargs['dphi_maxs'] = self.hypo_params.dphi_maxs
+
+        kargs['chain_name'] =  "'%s'" % self.chain_config.chain_name
+
+        return kargs
+
+    
+    def hlthypo2_dijet(self):
+
+        algType = 'TrigHLTJetHypo_Dijet'
+        kargs = self.dijet_kargs(algType)
+        return [Alg(algType,(), kargs)]
+
+
     def dimass_deta_kargs(self, algType): 
         kargs = self.etaet_kargs(algType)
         

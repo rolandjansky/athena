@@ -25,19 +25,19 @@ TrigHLTJetHypoBase(name, pSvcLocator) {
 
   //Cuts on the individual jets in a pair
 
-  declareProperty("etThresholds1",  m_EtThresholds1);
-  declareProperty("etThresholds2",  m_EtThresholds2);
+  declareProperty("aet_mins",  m_EtThresholds1);
+  declareProperty("bet_mins",  m_EtThresholds2);
 
-  declareProperty("eta_mins1", m_etaMins1);
-  declareProperty("eta_maxs1", m_etaMaxs1);
+  declareProperty("aeta_mins", m_etaMins1);
+  declareProperty("aeta_maxs", m_etaMaxs1);
 
-  declareProperty("eta_mins2", m_etaMins2);
-  declareProperty("eta_maxs2", m_etaMaxs2);
+  declareProperty("beta_mins", m_etaMins2);
+  declareProperty("beta_maxs", m_etaMaxs2);
 
   // cuts on the dijet properties.
 
-  declareProperty("mass_mins", m_massMins);
-  declareProperty("mass_maxs", m_massMaxs);
+  declareProperty("m_mins", m_massMins);
+  declareProperty("m_maxs", m_massMaxs);
   
   declareProperty("deta_mins", m_dEtaMins);
   declareProperty("deta_maxs", m_dEtaMaxs);

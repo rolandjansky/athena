@@ -11,6 +11,7 @@ def hypo_factory(key, args):
         'HLThypo2_tla': HLThypo2_tla,
         'HLThypo2_dimass_deta': HLThypo2_dimass_deta,
         'HLThypo2_dimass_deta_dphi': HLThypo2_dimass_deta_dphi,
+        'HLThypo2_dijet': HLThypo2_dijet,
          }.get(key)
 
     if klass == None:
@@ -282,7 +283,6 @@ class HLThypo2_dimass_deta(HypoAlg):
         return s
 
 
-
 class HLThypo2_dimass_deta_dphi(HLThypo2_dimass_deta):
     """ Store parameters for the dijet mass DEtaDPhi hypoAlg"""
 
@@ -306,5 +306,76 @@ class HLThypo2_dimass_deta_dphi(HLThypo2_dimass_deta):
         s = HLThypo2_dimass_deta.attributes_toString(self)
 
         s +=  '_dphi_' + str(int(self.dPhi_max))
+
+        return s
+
+
+class HLThypo2_dijet(HypoAlg):
+    """ Store parameters for the dijet hypo"""
+
+    def __init__(self, ddict):
+        HypoAlg.__init__(self, ddict)
+        self.hypo_type = 'HLThypo2_dijet'
+
+    def _check_args(self, ddict):
+        """check the constructor args"""
+        
+        must_have = (
+            'aet_mins',
+            'aet_maxs',
+
+            'aeta_mins',
+            'aeta_maxs',
+
+            'bet_mins',
+            'bet_maxs',
+
+            'beta_mins',
+            'beta_maxs',
+            
+            'm_mins',
+            'm_maxs',
+
+            'deta_mins',
+            'deta_maxs',
+
+            'dphi_mins',
+            'dphi_maxs',
+        )
+
+        HypoAlg.check_missing_args(self, must_have, ddict)
+
+    def attributes_toString(self):
+        # use ints for invm, deta as this string is used
+        # in the Algorithm name, and Gausi does not allow '.'
+        # in names.
+
+        s = HLThypo2_dimass_deta.attributes_toString(self)
+
+        todump = (
+            'aet_mins',
+            'aet_maxs',
+            
+            'aeta_mins',
+            'aeta_maxs',
+
+            'bet_mins',
+            'bet_maxs',
+
+            'beta_mins',
+            'beta_maxs',
+            
+            'm_mins',
+            'm_maxs',
+
+            'deta_mins',
+            'deta_maxs',
+
+            'dphi_mins',
+            'dphi_maxs',
+        )
+
+        for td in todump:
+            s +=  '\n%s %s' (td, str(self.__dict__[td]))
 
         return s

@@ -11,6 +11,7 @@ from smc_string_conversions import smc_string_to_strings
 from clusterparams_factory import clusterparams_factory
 from fexparams_factory import fexparams_factory
 from hypo_factory import hypo_factory
+from dijet_parser import dijet_parser
 
 # from lxml import etree as et
 from ChainConfig import ChainConfig
@@ -74,12 +75,13 @@ class JetAttributes(object):
 
 
 hypo_type_dict = {
-    ('j', '', False, False, False, False): 'HLThypo2_etaet',
-    ('j', '', False, False, False, True): 'HLThypo2_singlemass',
-    ('j', '', False, True, False, False): 'HLThypo2_dimass_deta',
-    ('j', '', False, True, True, False): 'HLThypo2_dimass_deta_dphi',
-    ('ht', '', False, False, False, False):'HLThypo2_ht',
-    ('j', '', True, False, False, False): 'HLThypo2_tla',}
+    ('j', False, False, False, False, False, False): 'HLThypo2_etaet',
+    ('j', False, False, False, False, True, False): 'HLThypo2_singlemass',
+    ('j', False, False, True, False, False, False): 'HLThypo2_dimass_deta',
+    ('j', False, False, True, True, False, False): 'HLThypo2_dimass_deta_dphi',
+    ('ht', False, False, False, False, False, False):'HLThypo2_ht',
+    ('j', False, True, False, False, False, False): 'HLThypo2_tla',
+    ('j', False, False, False, False, False, True): 'HLThypo2_dijet',}
 
     
 cleaner_names = {
@@ -125,10 +127,10 @@ def _get_test_flag(parts):
             vals.add(extra)
 
     if not vals:
-        _update_cache('test_flag', '')
-        return ''
+        _update_cache('test_flag', False)
+        return False
     if len(vals) == 1:
-        flag = vals.pop()
+        flag = bool(vals.pop())
         _update_cache('test_flag', flag)
         return flag
 
@@ -228,6 +230,21 @@ def _get_tla_string(parts):
     raise RuntimeError(msg)
 
 
+def _get_dijet_string(parts):
+
+    x = cache.get('dijet_string')
+    if x: return x
+
+    vals = set([part['dj'] for part in parts])
+    if len(vals) == 1:
+        s = vals.pop()
+        _update_cache('dijet_string', s)
+        return s
+
+    msg = '%s: multiple dijet string set' % err_hdr
+    raise RuntimeError(msg)
+
+
 def _get_cluster_calib(parts):
 
     x = cache.get('cluster_calib')
@@ -323,7 +340,7 @@ def _get_data_scouting(parts):
         msg = '%s error setting data scouting flag ' % (err_hdr)
 
     data_scouting = vals.pop()
-    _update_cache('data_souting', data_scouting)
+    _update_cache('data_scouting', data_scouting)
     return data_scouting
 
 
@@ -331,6 +348,7 @@ def _get_hypo_type(parts):
 
     test_flag = _get_test_flag(parts)
     tla_flag = bool(_get_tla_string(parts))
+    dijet_flag = bool(_get_dijet_string(parts))
 
     invm_string = _get_invm_string(parts)
     deta_string = _get_deta_string(parts)
@@ -344,19 +362,26 @@ def _get_hypo_type(parts):
                                    tla_flag,
                                    dimass_deta_flag,
                                    dimass_deta_dphi_flag,
-                                   jetmass_flag), None) for part in parts]
+                                   jetmass_flag,
+                                   dijet_flag), None) for part in parts]
 
     if not htypes or None in htypes:
         part = parts[htypes.index(None)]
-        msg = '%s: cannot determine hypo type '\
-              'from trigger type: %s test flag: %s ' \
-              'TLA: %s dimass_eta %s dimass_deta_dphi: %s jetmass flag: %s' % (
-            err_hdr, part['trigType'],
-            test_flag,
-            tla_flag,
-            dimass_deta_flag,
-            dimass_deta_dphi_flag,
-            str(jetmass_flag))
+        msg = '%s: cannot determine hypo type from\n' \
+              'trigger type: %s \n'\
+              'test flag: %s \n' \
+              'TLA: %s \n' \
+              'dimass_eta: %s \n'\
+              'dimass_deta_dphi: %s \n' \
+              'jetmass flag: %s \n' \
+              'dijet flag: %s' % (err_hdr,
+                                 part['trigType'],
+                                 test_flag,
+                                 tla_flag,
+                                 dimass_deta_flag,
+                                 dimass_deta_dphi_flag,
+                                 str(jetmass_flag),
+                                 dijet_flag)
 
         raise RuntimeError(msg)
 
@@ -810,6 +835,21 @@ def _setup_tla_vars(parts):
     return hypo_factory('HLThypo2_tla', args)
 
 
+            
+def _setup_dijet_vars(parts):
+
+    dijet_string = _get_dijet_string(parts)
+
+    args = {}
+    if dijet_parser(dijet_string, args):
+        raise RuntimeError('error passing dijet string ' + dijet_string)
+
+    args['chain_name'] = cache['chain_name']
+    args['dijet_string'] = dijet_string
+
+    return hypo_factory('HLThypo2_dijet', args)
+
+
 def _get_hypo_params(parts):
 
     hypo_type = _get_hypo_type(parts)
@@ -820,7 +860,8 @@ def _get_hypo_params(parts):
         'HLThypo2_dimass_deta_dphi': _setup_dimass_deta_dphi_vars,
         'HLThypo2_singlemass': _setup_singlemass_vars,
         'HLThypo2_tla': _setup_tla_vars,
-        'HLThypo2_ht': _setup_ht_vars,}.get(hypo_type, None)
+        'HLThypo2_ht': _setup_ht_vars,
+        'HLThypo2_dijet': _setup_dijet_vars,}.get(hypo_type, None)
 
     if hypo_setup_fn is None:
         msg = '%s: unknown hypo type (JetDef bug) %s' % (

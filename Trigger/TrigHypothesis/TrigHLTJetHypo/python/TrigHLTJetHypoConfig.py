@@ -137,4 +137,22 @@ class TrigHLTJetHypo_TLA (TrigHLTJetHypoConf.TrigHLTJetHypo_TLA):
             
             self.AthenaMonTools = [ time, validation, online, cosmic ]
 
+
+
+
+class TrigHLTJetHypo_Dijet (TrigHLTJetHypoConf.TrigHLTJetHypo_Dijet):
+    __slots__ = []
+    def __init__(self, name, **kwargs):
+        super( TrigHLTJetHypo_Dijet, self ).__init__( name, **kwargs )
+
+        if  KeepMonitoring(self.chain_name,
+                           JetChainsToKeepMonitoring,
+                           strictComparison=True):
+            validation = TrigHLTJetHypo2ValidationMonitoring()
+            online = TrigHLTJetHypo2OnlineMonitoring()
+            cosmic = TrigHLTJetHypo2CosmicMonitoring()
             
+            time = TrigTimeHistToolConfig("HLTJetHypo_Dijet_Time")
+            
+            self.AthenaMonTools = [ time, validation, online, cosmic ]
+

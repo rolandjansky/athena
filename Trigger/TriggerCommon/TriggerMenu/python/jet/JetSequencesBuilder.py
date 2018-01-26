@@ -101,6 +101,7 @@ class JetSequencesBuilder(object):
                        'jh': self.make_jh,  # jet hypo
                        'jh_ht': self.make_jh_ht,  # HT hypo
                        'jh_tla': self.make_jh_tla,  # TLA hypo
+                       'jh_dijet': self.make_jh_dijet,  # TLA hypo
                        'jh_dimass_deta': self.make_jh_dimass_deta, # dijets
                        'jh_dimass_deta_dphi': self.make_jh_dimass_deta_dphi, # dijets
                        'ps': self.make_ps,  # partial scan Roi maker
@@ -221,6 +222,8 @@ class JetSequencesBuilder(object):
                 seq_order.append('jh_dimass_deta')
             elif hypo_type in ('HLThypo2_dimass_deta_dphi',):
                 seq_order.append('jh_dimass_deta_dphi')
+            elif hypo_type in ('HLThypo2_dijet',):
+                seq_order.append('jh_dijet')
                 
             else:
                 
@@ -509,6 +512,18 @@ class JetSequencesBuilder(object):
         return AlgList(algs, alias)
 
 
+    def make_jh_dijet(self):
+
+        menu_data = self.chain_config.menu_data
+        hypo = menu_data.hypo_params
+        f = self.alg_factory.hlthypo2_dijet
+
+        hypo = menu_data.hypo_params
+        # alias = hypo.hypo_type+ '_%s' % str(hypo.tla_string)
+        alias = '%s_%s' % (hypo.hypo_type, self.chain_name_esc)
+
+        return AlgList(f(), alias)
+        
 
     def make_jh_tla(self):
         """Create an alg_list for the TLA hypo"""

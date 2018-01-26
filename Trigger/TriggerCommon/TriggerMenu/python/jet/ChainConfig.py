@@ -8,20 +8,23 @@ def to_dict(o):
 
     d = {}
 
-    for k, v in o.__dict__.items():
-        if hasattr(v, '__dict__'):
-            d[k] = to_dict(v)
-        elif isinstance(v, tuple):
-            for e in v:
-                if hasattr(e, '__dict__'):
-                    d[k] = to_dict(e)
-                else:
-                    d[k] = str(e)
-        elif isinstance(v, list):
-            d[k] = [to_dict(e) for e in v]
-        else:
-            d[k] = v
-
+    try:
+        for k, v in o.__dict__.items():
+            if hasattr(v, '__dict__'):
+                d[k] = to_dict(v)
+            elif isinstance(v, tuple):
+                for e in v:
+                    if hasattr(e, '__dict__'):
+                        d[k] = to_dict(e)
+                    else:
+                        d[k] = str(e)
+            elif isinstance(v, list):
+                d[k] = [to_dict(e) for e in v]
+            else:
+                d[k] = v
+    except AttributeError:
+        pass
+    
     return d
 
 
