@@ -1131,7 +1131,10 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     
     ATH_CHECK( m_metMaker.setProperty("ORCaloTaggedMuons", m_metRemoveOverlappingCaloTaggedMuons) );
     ATH_CHECK( m_metMaker.setProperty("DoSetMuonJetEMScale", m_metDoSetMuonJetEMScale) );
-    //ATH_CHECK( m_metMaker.setProperty("DoMuonJetOR", m_metDoMuonJetOR) );
+    ATH_CHECK( m_metMaker.setProperty("DoRemoveMuonJets", m_metDoRemoveMuonJets) );
+    ATH_CHECK( m_metMaker.setProperty("UseGhostMuons", m_metUseGhostMuons) );
+    ATH_CHECK( m_metMaker.setProperty("DoMuonEloss", m_metDoMuonEloss) );
+
     // set the jet selection if default empty string is overridden through config file
     if (m_metJetSelection.size()) 
       ATH_CHECK( m_metMaker.setProperty("JetSelection", m_metJetSelection) );
@@ -1145,19 +1148,27 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
   if (!m_metSystTool.isUserConfigured()) {
     m_metSystTool.setTypeAndName("met::METSystematicsTool/METSystTool");
+    ATH_CHECK( m_metSystTool.setProperty("ConfigPrefix", m_metsysConfigPrefix) );
     
-    if (!m_trkMETsyst) {
-      ATH_CHECK( m_metSystTool.setProperty("ConfigSoftTrkFile", "") );
-    }
-    if (!m_caloMETsyst) {
-      ATH_CHECK( m_metSystTool.setProperty("ConfigSoftCaloFile", "") );
-    }
-
     if (m_trkMETsyst && m_caloMETsyst){
       ATH_MSG_ERROR( "Can only have CST *or* TST configured for MET maker.  Please unset either METDoCaloSyst or METDoTrkSyst in your config file" );
       return StatusCode::FAILURE;
     }
+
+    if (m_trkMETsyst) {
+      ATH_CHECK( m_metSystTool.setProperty("ConfigSoftCaloFile", "") );
+      ATH_CHECK( m_metSystTool.setProperty("ConfigSoftTrkFile", "TrackSoftTerms.config") );
+      if (m_jetInputType == xAOD::JetInput::EMPFlow) {
+        ATH_CHECK( m_metSystTool.setProperty("ConfigSoftTrkFile", "TrackSoftTerms-pflow.config") );
+      }
+      if (isAtlfast()) {
+        ATH_CHECK( m_metSystTool.setProperty("ConfigSoftTrkFile", "TrackSoftTerms_AFII.config") );
+      }	
+    }
+
     if (m_caloMETsyst) {
+      ATH_MSG_WARNING( "CST is no longer recommended by Jet/MET group");
+      ATH_CHECK( m_metSystTool.setProperty("ConfigSoftTrkFile", "") );
       // Recommendations from a thread with TJ.  CST is not officially supported, but might be used for cross-checks
       ATH_CHECK( m_metSystTool.setProperty("DoIsolMuonEloss",true) );
       ATH_CHECK( m_metSystTool.setProperty("DoMuonEloss",true) );
@@ -1174,8 +1185,6 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_metSignif.setProperty("SoftTermParam", m_softTermParam) );
     ATH_CHECK( m_metSignif.setProperty("TreatPUJets", m_treatPUJets) );
     ATH_CHECK( m_metSignif.setProperty("DoPhiReso", m_doPhiReso) );
-    //ATH_CHECK( m_metSignif.setProperty("IsData", isData()) ); 
-    //ATH_CHECK( m_metSignif.setProperty("IsAFII", isAtlfast()) ); 
     ATH_CHECK( m_metSignif.retrieve() );
   }
 
