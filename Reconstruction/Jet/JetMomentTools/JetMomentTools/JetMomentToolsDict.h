@@ -5,14 +5,12 @@
 #ifndef JETMOMENTTOOLS_JETMOMENTTOOLSDICT_H
 #define JETMOMENTTOOLS_JETMOMENTTOOLSDICT_H
 
-#ifdef XAOD_STANDALONE
-#include "PFlowUtils/IWeightPFOTool.h"
-#else
+// #ifndef XAOD_STANDALONE
 // #include "JetMomentTools/JetBadChanCorrTool.h"
 // #include "JetMomentTools/JetIsolationTool.h"
 // #include "JetMomentTools/JetVoronoiDiagramHelpers.h"
 // #include "JetMomentTools/JetVoronoiMomentsTool.h"
-#endif
+// #endif
 
 #include "JetMomentTools/JetOriginCorrectionTool.h"
 #include "JetMomentTools/JetCaloEnergies.h"
