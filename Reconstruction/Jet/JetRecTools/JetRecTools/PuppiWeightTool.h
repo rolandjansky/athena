@@ -38,7 +38,7 @@ class PuppiWeightTool: public JetConstituentModifierBase {
   bool m_includeCentralNeutralsInAlpha;
   bool m_applyWeight;
 
-  SG::ReadHandleKey<xAOD::VertexContainer> m_vertexContainer_key{"PrimaryVertices"};
+  std::string m_vertexContainer_key{"PrimaryVertices"};
 
 };
 

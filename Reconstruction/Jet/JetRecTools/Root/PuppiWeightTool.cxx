@@ -29,6 +29,7 @@ PuppiWeightTool::PuppiWeightTool(const std::string& name) : JetConstituentModifi
 
   declareProperty("ApplyWeight",m_applyWeight=true);
   declareProperty("IncludeCentralNeutralsInAlpha",m_includeCentralNeutralsInAlpha=false);
+  declareProperty("VertexContainerKey", m_vertexContainer_key);
   
   m_puppi = new Puppi(m_R0, m_Rmin, m_beta, m_centralPTCutOffset, m_centralPTCutSlope, m_forwardPTCutOffset, m_forwardPTCutSlope, m_etaBoundary);
 }
@@ -38,8 +39,6 @@ PuppiWeightTool::PuppiWeightTool(const std::string& name) : JetConstituentModifi
 StatusCode PuppiWeightTool::initialize() {
   ATH_MSG_INFO("Initializing tool " << name() << "...");
   
-  ATH_CHECK(m_vertexContainer_key.initialize());
-
   return StatusCode::SUCCESS;
 }
 
@@ -96,13 +95,7 @@ StatusCode PuppiWeightTool::process_impl(xAOD::PFOContainer* cont) const{
 
   //Count the number of primary vertices
   const xAOD::VertexContainer* pvtxs = nullptr;
-  auto handle = SG::makeHandle(m_vertexContainer_key);
-  if (!handle.isValid()){
-    ATH_MSG_WARNING(" This event has no primary vertices " );
-    return StatusCode::FAILURE;
-  }
-    
-  pvtxs = handle.cptr();
+  ATH_CHECK( evtStore()->retrieve(pvtxs,m_vertexContainer_key) );
   if(pvtxs->empty()){
     ATH_MSG_WARNING(" This event has no primary vertices " );
     return StatusCode::FAILURE;
