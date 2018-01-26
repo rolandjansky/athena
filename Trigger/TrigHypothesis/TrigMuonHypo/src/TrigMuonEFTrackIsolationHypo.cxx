@@ -113,7 +113,6 @@ HLT::ErrorCode TrigMuonEFTrackIsolationHypo::hltExecute(const HLT::TriggerElemen
 
   // result of the hypo
   bool result = false;
-  int nGoodMuons = 0;
   // loop over objects (muons) in the container
   for(auto muon : *muonContainer) {
     
@@ -184,7 +183,6 @@ HLT::ErrorCode TrigMuonEFTrackIsolationHypo::hltExecute(const HLT::TriggerElemen
     
     
     if(goodmu) {
-      nGoodMuons++;
       xBits->markPassing(muon, muonContainer,true); // set bit for this muon in TrigPassBits mask
       result=true;
     }//muon passed

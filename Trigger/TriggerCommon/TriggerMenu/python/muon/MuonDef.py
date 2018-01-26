@@ -1241,25 +1241,21 @@ class L2EFChain_mu(L2EFChainDef):
       self.EFsequenceList += [['EF_FStracksMuon',
                                [CfgGetter.getAlgorithm("TrigMuSuperEF_TMEFCombinerOnly")],
                                'EF_CB_FS_single']]
-      if not run_isolation:
-        self.EFsequenceList += [['EF_CB_FS_single',
-                                 [TrigMuonEFRoiAggregatorConfig('TrigMuonEFFSRoiAggregator')],
-                                 'EF_CB_ROI']]
-        self.EFsequenceList += [['EF_CB_ROI',
-                                 [theTrigMuonEFCombinerMultiHypoConfig],
-                                 'EF_CB_FS']]
+      self.EFsequenceList += [['EF_CB_FS_single',
+                               [TrigMuonEFRoiAggregatorConfig('TrigMuonEFFSRoiAggregator')],
+                               'EF_CB_ROI']]
+      self.EFsequenceList += [['EF_CB_ROI',
+                               [theTrigMuonEFCombinerMultiHypoConfig],
+                               'EF_CB_FS']]
       if run_isolation:
         self.EFsequenceList += [['EF_CB_FS_single',
                                  trkiso,
-                                 'EF_ID_FS_single']]
-        self.EFsequenceList += [['EF_ID_FS_single',
+                                 'EF_ID_FS']]
+        self.EFsequenceList += [['EF_ID_FS',
                                  [TrigMuonEFRoiAggregatorConfig('TrigMuonEFFSRoiAggregator')],
-                                 'EF_CB_ROI']]
-        self.EFsequenceList += [['EF_CB_ROI',
-                                 [theTrigMuonEFCombinerMultiHypoConfig],
-                                 'EF_CB_FS']]
+                                 'EF_ID_FS_single']]
         isoAlgoName = "TrigMuonEFTrackIsolationVar"
-        self.EFsequenceList += [[['EF_CB_FS'],
+        self.EFsequenceList += [[['EF_ID_FS_single'],
                                  [TrigMuonEFTrackIsolationVarConfig(isoAlgoName)],
                                  'EF_ISO_FS']]
         self.EFsequenceList += [[['EF_ISO_FS'],
@@ -1275,13 +1271,11 @@ class L2EFChain_mu(L2EFChainDef):
       self.EFsignatureList += [ [['EF_SAR_FS']] ]
       self.EFsignatureList += [ [['EF_FStracksMuon']] ]
       self.EFsignatureList += [ [['EF_CB_FS_single']] ]
-      if not run_isolation:
-        self.EFsignatureList += [ [['EF_CB_ROI']] ]
-        self.EFsignatureList += [ [['EF_CB_FS','EF_SA_FS2']] ]
+      self.EFsignatureList += [ [['EF_CB_ROI']] ]
+      self.EFsignatureList += [ [['EF_CB_FS','EF_SA_FS2']] ]
       if run_isolation:
+        self.EFsignatureList += [ [['EF_ID_FS']] ]
         self.EFsignatureList += [ [['EF_ID_FS_single']] ]
-        self.EFsignatureList += [ [['EF_CB_ROI']] ]
-        self.EFsignatureList += [ [['EF_CB_FS','EF_SA_FS2']] ]
         self.EFsignatureList += [ [['EF_ISO_FS']] ]
         self.EFsignatureList += [ [['EF_ISO_HYPO']] ]
     ########### TE renaming ##########
@@ -1299,16 +1293,13 @@ class L2EFChain_mu(L2EFChainDef):
         'EF_FStracksMuon': mergeRemovingOverlap('EF_FStracksMuon_', 'SAFSHypo'),
         'EF_CB_FS_single': mergeRemovingOverlap('EF_CB_FS_single_','SAFSHypo'), 
       }
-      if not run_isolation:
-        self.TErenamingDict['EF_CB_ROI'] = mergeRemovingOverlap('EF_CB_ROI_','SAFSRoi')
-        self.TErenamingDict['EF_CB_FS'] = mergeRemovingOverlap('EF_CB_FS_', 'SAFSHypo'+hypocut+'_'+hypocutEF)
+      self.TErenamingDict['EF_CB_ROI'] = mergeRemovingOverlap('EF_CB_ROI_','SAFSRoi')
+      self.TErenamingDict['EF_CB_FS'] = mergeRemovingOverlap('EF_CB_FS_', 'SAFSHypo'+hypocut+'_'+hypocutEF)
       if run_isolation:
         self.TErenamingDict['EF_ID_FS_single'] = mergeRemovingOverlap('EF_trkIso_', chainPartNameNoMultNoDS+'EFFSID')
-        self.TErenamingDict['EF_CB_ROI'] = mergeRemovingOverlap('EF_CB_ROI_',chainPartNameNoMultNoDS+'SAFSRoi')
-        self.TErenamingDict['EF_CB_FS'] = mergeRemovingOverlap('EF_CB_FS_', 'SAFSHypo'+hypocut+'_'+hypocutEF + "_ID")
+        self.TErenamingDict['EF_ID_FS'] = mergeRemovingOverlap('EF_ID_FS_', 'SAFSHypo'+hypocut+'_'+hypocutEF + "_ID")
         self.TErenamingDict['EF_ISO_FS'] = mergeRemovingOverlap('EF_ISO_FS_', chainPartNameNoMultNoDS+'EFFSISO')
         self.TErenamingDict['EF_ISO_HYPO'] = mergeRemovingOverlap('EF_ISO_FS_', chainPartNameNoMultNoDS+'EFFSISOHypo')
-      print self.TErenamingDict
       
  #################################################################################################
   #################################################################################################
