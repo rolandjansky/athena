@@ -39,10 +39,7 @@ if hasattr(MergeMcEventCollection, 'MergeMcEventCollTool'):
 else:
     MergeMcEventCollection.TruthCollKey = "GEN_EVENT"
 
-try:
-    itemlist = StreamRDO_FH.ItemList
-except:
-    itemlist = StreamRDO.MetaDataItemList
+itemlist = StreamRDO.MetaDataItemList
 
 if itemlist.count( "IOVMetaDataContainer#*" ):
     print 'ZLM found it!'
@@ -54,9 +51,6 @@ print 'ZLM container thingy:',itemlist
 
 itemlist += [ "IOVMetaDataContainer#_Digitization_Parameters" ]
 
-try:
-    print StreamRDO_FH.ItemList
-except:
-    print StreamRDO.MetaDataItemList
+print StreamRDO.MetaDataItemList
 
 

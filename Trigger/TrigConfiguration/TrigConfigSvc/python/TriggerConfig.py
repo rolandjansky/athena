@@ -186,7 +186,7 @@ def _setupConfig():
 
         
         if not hasattr( svcMgr, 'MetaDataSvc' ):
-            from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import MetaDataSvc
+            from AthenaServices.AthenaServicesConf import MetaDataSvc
             svcMgr += MetaDataSvc( "MetaDataSvc" )
             svcMgr.MetaDataSvc.MetaDataContainer = "MetaDataHdr"
             svcMgr.MetaDataSvc.MetaDataTools += [ "IOVDbMetaDataTool" ]
