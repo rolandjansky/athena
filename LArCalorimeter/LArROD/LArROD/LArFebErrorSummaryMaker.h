@@ -18,6 +18,10 @@ NAME:     LArFebSummaryMaker
 #include <GaudiKernel/ToolHandle.h>
 
 #include "LArRawEvent/LArFebHeaderContainer.h"
+#include "LArRawEvent/LArFebErrorSummary.h"
+
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 
 #include <vector>
 #include <set>
@@ -62,6 +66,8 @@ class LArFebErrorSummaryMaker : public AthAlgorithm
 
   ToolHandle<ILArBadChanTool> m_badChannelTool;
 
+  SG::ReadHandleKey<LArFebHeaderContainer> m_readKey;
+  SG::WriteHandleKey<LArFebErrorSummary> m_writeKey;
 };
 #endif
 
