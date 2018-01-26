@@ -1249,7 +1249,7 @@ class EFMissingET_Fex_topoClustersTracksPUC (EFMissingETBase):
         flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # PreSamplE, EME1, EME2, EME3
         flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV,0.0*GeV ] # HEC0, HEC1, HEC2, HEC3
         flagTool.MinCompE += [ 0.0*GeV,0.0*GeV,0.0*GeV ] # TileBar0, TileBar1, TileBar2
-    flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileGap0, TileGap1, TileGap2
+        flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileGap0, TileGap1, TileGap2
         flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # TileExt0, TileExt1, TileExt2
         flagTool.MaxCellE += [ 1e4*GeV,1e4*GeV,1e4*GeV ] # FCalEM, FCalHad1, FCalHad2
         flagTool.MinCellE = []
