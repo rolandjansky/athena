@@ -158,8 +158,8 @@ metaJetFitterSequentialVertexFitter = { 'DependsOn'      : ['JetFitterSequential
                                                             'JetFitterFullLinearizedTrackFactory',
                                                             'VxInternalEdmFactory'],
                                         'PassByPointer'  : {'VertexSmoother'         : 'JetFitterSequentialVertexSmoother',
-                                                            'LinearizedTrackFactory' : 'JetFitterFullLinearizedTrackFactory',
-                                                            'XAODConverter'          : 'VxInternalEdmFactory' },
+                                                            'LinearizedTrackFactory' : 'JetFitterFullLinearizedTrackFactory'},
+
                                         'ToolCollection' : 'JetFitterCollection' }
 
 def toolJetFitterSequentialVertexFitter(name, useBTagFlagsDefaults = True, **options):
