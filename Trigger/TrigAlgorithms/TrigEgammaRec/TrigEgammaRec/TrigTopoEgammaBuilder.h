@@ -170,6 +170,18 @@ private:
   //Monitoring vectors
   std::vector<float> m_lhval;
   std::vector<float> m_lhcaloval;
+  /** Given an egammaRec object, a pointer to the electron container and the author,
+   * create and dress an electron, pushing it back to the container and
+   * calling the relevant tools **/
+
+  bool getElectron(const egammaRec* egRec, xAOD::ElectronContainer *electronContainer,
+		   const unsigned int author, const uint8_t type);
+
+  /** Given an egammaRec object, a pointer to the photon container and the author,
+   * create and dress a photon, pushing it back to the container and
+   * calling the relevant tools **/
+  bool getPhoton(const egammaRec* egRec, xAOD::PhotonContainer *photonContainer,
+		 const unsigned int author, uint8_t type);
 
   // Methods to dump reconstruction info for debugging 
   void PrintElectron(xAOD::Electron *); 
