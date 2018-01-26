@@ -1645,6 +1645,7 @@ void VP1ExaminerViewer::setAntialiasing(SbBool smoothing, int numPasses)
     VP1Msg::messageDebug("VP1ExaminerViewer::setAntialiasing()");
 
     SoQtExaminerViewer::setAntialiasing(smoothing, numPasses); // Needed for offscreen rendering (i.e. snapshots).
+    
 
     // --- OLD AA method ---
     //	QGLWidget* qglw = (QGLWidget*)getGLWidget();
@@ -1659,8 +1660,20 @@ void VP1ExaminerViewer::setAntialiasing(SbBool smoothing, int numPasses)
     //    else
     //        glDisable(GL_MULTISAMPLE);
 
-    // --- NEW AA method (26Sep2017) ---
-    if (smoothing) {
+    bool printWarning = false;
+    const char* env_aa = std::getenv("VP1_ADVANCED_ANTIALIASING");
+    if (env_aa != NULL) {
+     std::string env_aa_string( env_aa );
+     if(env_aa_string == "1") {
+    
+      // print a warning message, on the first time
+      if ( ! std::getenv("VP1_ADVANCED_ANTIALIASING_PRINTMSG")) {
+        VP1Msg::messageWarningRed("You switched ON advanced anti-aliasing. That's very good, but please notice that this method DOES NOT WORK on LXPLUS machines, currently, because of their old graphics drivers! If you are on LXPLUS, this will likely freeze VP1... If that's the case, please restart VP1 without the '-advanced-aa' flag.");
+      }
+      ::setenv("VP1_ADVANCED_ANTIALIASING_PRINTMSG", "1", 1/*override present value*/); // TODO: move to Qt settings
+
+      // --- NEW AA method (26Sep2017) --- it works, but not on LXPLUS!!
+      if (smoothing) {
 		VP1Msg::message("VP1ExaminerViewer: turning AA on.");
 
         VP1Msg::message("Sep 2017: AA is now done using a new technique so please let hn-atlas-vp1-help@cern.ch know of any problems.");
@@ -1677,12 +1690,24 @@ void VP1ExaminerViewer::setAntialiasing(SbBool smoothing, int numPasses)
             if (buffers > 1)
                 VP1Msg::message("Multisampling is not supported by SoQT < 1.5, this anti-aliasing mode is disabled");
         #endif
-    }
-    else {
+      }
+      else {
 		VP1Msg::message("VP1ExaminerViewer: turning AA off.");
         getGLRenderAction()->setSmoothing(smoothing);
         setSampleBuffers(0);
+      }
+     }
+     else {
+        printWarning = true;
+     }
     }
+    else {
+        printWarning = true;
+    }
+
+    if (printWarning) {
+        VP1Msg::messageWarningRed("Anti-aliasing is using low-quality mode only, because of problems with the graphic drivers installed on LXPLUS machines. If you are not running VP1 on LXPLUS machine (for example, if you are running it on a custom SLC6 machine), you can start VP1 again using the command-line flag '-advanced-aa'.");
+        }
 
     m_d->isantialias=smoothing;
 }

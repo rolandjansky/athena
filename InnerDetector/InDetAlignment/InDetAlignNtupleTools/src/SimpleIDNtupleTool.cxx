@@ -429,7 +429,7 @@ void SimpleIDNtupleTool::fillHits(const Trk::AlignTrack * alignTrack)
   DataVector<Trk::AlignTSOS>::const_iterator atsit_end = alignTSOSCollection->end();
   for ( ; atsit!=atsit_end; ++atsit)
   {
-    Trk::AlignTSOS * atsos = *atsit;
+    const Trk::AlignTSOS * atsos = *atsit;
     ATH_MSG_DEBUG("in loop over AlignTSOS, nhits="<<nhits);
     if (nhits == m_max_hits)
       break;

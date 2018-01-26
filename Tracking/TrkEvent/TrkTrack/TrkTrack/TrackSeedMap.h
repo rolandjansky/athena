@@ -7,7 +7,7 @@
 
 #include <map>
 #include "TrkTrack/Track.h"
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
  /** @brief multimap to be used for TrackAmbiguity/Seed validation */
 namespace Trk {

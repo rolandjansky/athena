@@ -74,3 +74,25 @@ StatusCode IProxyDict::createObj (IConverter* cvt,
   return cvt->createObj (addr, refpObject);
 }
 
+
+/**
+ * @brief Return the current event-slot-specific store.
+ *
+ * The default version just returns this.
+ */
+IProxyDict* IProxyDict::hiveProxyDict()
+{
+  return this;
+}
+
+
+/**
+ * @brief Return the metadata source ID for the current event slot.
+ *        Returns an empty string if no source has been set.
+ *
+ *        The default version always returns an empty string.
+ */
+SG::SourceID IProxyDict::sourceID() const
+{
+  return SG::SourceID();
+}

@@ -1,4 +1,4 @@
-Tue Jan  9 14:03:30 CST 2018
+Mon Jan 22 13:10:45 CST 2018
 Preloading tcmalloc_minimal.so
 Athena               INFO including file "AthenaCommon/Preparation.py"
 Athena               INFO including file "AthenaCommon/Bootstrap.py"
@@ -6,14 +6,14 @@ Athena               INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Athena               INFO executing ROOT6Setup
 Athena               INFO including file "AthenaCommon/Execution.py"
 Athena               INFO including file "AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadJobOptions.py"
-Py:ConfigurableDb    INFO Read module info for 5433 configurables from 15 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5435 configurables from 52 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Athena               INFO including file "AthenaCommon/runbatch.py"
 [?1034hApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v30r1)
-                                          running on atlas2.hep.anl.gov on Tue Jan  9 14:03:40 2018
+                                          running on atlas1.hep.anl.gov on Mon Jan 22 13:10:58 2018
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -21,7 +21,7 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 2318 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 2319 CLIDRegistry entries for module ALL
 ChronoStatSvc        INFO  Number of skipped events for MemStat-1
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
@@ -34,8 +34,8 @@ PoolSvc             DEBUG Property update for OutputLevel : new value = 2
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
 DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://frontier-atlas.lcg.triumf.ca:3128/ATLAS_frontier)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2018-01-05T2303/Athena/22.0.0/InstallArea/x86_64-slc6-gcc62-opt/share/dbreplica.config
-DBReplicaSvc         INFO Total of 1 servers found for host atlas2.hep.anl.gov [ATLF ]
+DBReplicaSvc         INFO Read replica configuration from /users/gemmeren/workarea/build/x86_64-slc6-gcc62-opt/share/dbreplica.config
+DBReplicaSvc         INFO Total of 1 servers found for host atlas1.hep.anl.gov [ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc             DEBUG OutputLevel is 
 PoolSvc              INFO Setting up APR FileCatalog and Streams
@@ -85,7 +85,6 @@ EmptyPoolFile.root  DEBUG --->Reading Param:FORMAT_VSN=[1.1]
 ##Params            DEBUG No objects passing selection criteria... Container has 4 Entries in total.
 PoolSvc              INFO Failed to find container POOLContainer(DataHeader) to create POOL collection.
 PoolSvc              INFO Failed to find container POOLContainer_DataHeader to create POOL collection.
-PoolCollectionC...   INFO Unable to create Collection: PFN:EmptyPoolFile.root container: POOLContainer_DataHeader
 EventSelector       DEBUG No events found in: EmptyPoolFile.root skipped!!!
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] ????
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
@@ -168,7 +167,6 @@ MetaDataHdrForm...  DEBUG Branch container 'DataHeaderForm'
 MetaDataHdrForm...  DEBUG Opened container MetaDataHdrForm(DataHeaderForm) of type ROOT_Tree
 MetaDataSvc         DEBUG Loaded input meta data store proxies
 AthenaPoolAddre...  DEBUG Property update for OutputLevel : new value = 2
-AthenaPoolAddre...   INFO Initializing AthenaPoolAddressProviderSvc - package version EventSelectorAthenaPool-00-00-00
 ReadData            DEBUG input handles: 0
 ReadData            DEBUG output handles: 0
 ReadData            DEBUG Data Deps for ReadData
@@ -213,7 +211,6 @@ EmptyPoolFile.root  DEBUG --->Reading Param:FORMAT_VSN=[1.1]
 ##Params            DEBUG No objects passing selection criteria... Container has 4 Entries in total.
 PoolSvc              INFO Failed to find container POOLContainer(DataHeader) to create POOL collection.
 PoolSvc              INFO Failed to find container POOLContainer_DataHeader to create POOL collection.
-PoolCollectionC...   INFO Unable to create Collection: PFN:EmptyPoolFile.root container: POOLContainer_DataHeader
 EventSelector       DEBUG No events found in: EmptyPoolFile.root skipped!!!
 MetaDataSvc         DEBUG handle() BeginInputFile for EmptyPoolFile.root
 MetaDataSvc         DEBUG initInputMetaDataStore: file name EmptyPoolFile.root
@@ -257,7 +254,7 @@ EventSelector        INFO skipping event 9
 EventSelector        INFO skipping event 10
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
-ClassIDSvc           INFO  getRegistryEntries: read 2679 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 2674 CLIDRegistry entries for module ALL
 EventSelector       DEBUG record AthenaAttribute, name = Token = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000000A].
 EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000000A].
 EventSelector       DEBUG found AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-0000000A]
@@ -316,7 +313,7 @@ ReadData             INFO Hit x = 1023.7 y = 57.9027 z = -953.684 detector = Dum
 ReadData             INFO Hit x = 1026.91 y = 52.2238 z = -955.073 detector = DummyHitDetector
 ReadData             INFO Hit x = 1030.12 y = 46.5449 z = -956.169 detector = DummyHitDetector
 ClassIDSvc           INFO  getRegistryEntries: read 10 CLIDRegistry entries for module ALL
-PoolSvc              INFO Database (SimplePoolFile1.root) attribute [BYTES_READ]: 28001
+PoolSvc              INFO Database (SimplePoolFile1.root) attribute [BYTES_READ]: 27995
 PoolSvc              INFO Database (SimplePoolFile1.root) attribute [READ_CALLS]: 24
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #10, run #1 1 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -349,7 +346,7 @@ ReadData             INFO Hit x = 1120.49 y = 63.5816 z = -1051.86 detector = Du
 ReadData             INFO Hit x = 1123.7 y = 57.9027 z = -1053.68 detector = DummyHitDetector
 ReadData             INFO Hit x = 1126.91 y = 52.2238 z = -1055.07 detector = DummyHitDetector
 ReadData             INFO Hit x = 1130.12 y = 46.5449 z = -1056.17 detector = DummyHitDetector
-PoolSvc              INFO Database (SimplePoolFile1.root) attribute [BYTES_READ]: 28001
+PoolSvc              INFO Database (SimplePoolFile1.root) attribute [BYTES_READ]: 27995
 PoolSvc              INFO Database (SimplePoolFile1.root) attribute [READ_CALLS]: 24
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #11, run #1 2 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -382,7 +379,7 @@ ReadData             INFO Hit x = 1220.49 y = 63.5816 z = -1151.86 detector = Du
 ReadData             INFO Hit x = 1223.7 y = 57.9027 z = -1153.68 detector = DummyHitDetector
 ReadData             INFO Hit x = 1226.91 y = 52.2238 z = -1155.07 detector = DummyHitDetector
 ReadData             INFO Hit x = 1230.12 y = 46.5449 z = -1156.17 detector = DummyHitDetector
-PoolSvc              INFO Database (SimplePoolFile1.root) attribute [BYTES_READ]: 28001
+PoolSvc              INFO Database (SimplePoolFile1.root) attribute [BYTES_READ]: 27995
 PoolSvc              INFO Database (SimplePoolFile1.root) attribute [READ_CALLS]: 24
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #12, run #1 3 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -415,7 +412,7 @@ ReadData             INFO Hit x = 1320.49 y = 63.5816 z = -1251.86 detector = Du
 ReadData             INFO Hit x = 1323.7 y = 57.9027 z = -1253.68 detector = DummyHitDetector
 ReadData             INFO Hit x = 1326.91 y = 52.2238 z = -1255.07 detector = DummyHitDetector
 ReadData             INFO Hit x = 1330.12 y = 46.5449 z = -1256.17 detector = DummyHitDetector
-PoolSvc              INFO Database (SimplePoolFile1.root) attribute [BYTES_READ]: 28001
+PoolSvc              INFO Database (SimplePoolFile1.root) attribute [BYTES_READ]: 27995
 PoolSvc              INFO Database (SimplePoolFile1.root) attribute [READ_CALLS]: 24
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #13, run #1 4 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -448,7 +445,7 @@ ReadData             INFO Hit x = 1420.49 y = 63.5816 z = -1351.86 detector = Du
 ReadData             INFO Hit x = 1423.7 y = 57.9027 z = -1353.68 detector = DummyHitDetector
 ReadData             INFO Hit x = 1426.91 y = 52.2238 z = -1355.07 detector = DummyHitDetector
 ReadData             INFO Hit x = 1430.12 y = 46.5449 z = -1356.17 detector = DummyHitDetector
-PoolSvc              INFO Database (SimplePoolFile1.root) attribute [BYTES_READ]: 28001
+PoolSvc              INFO Database (SimplePoolFile1.root) attribute [BYTES_READ]: 27995
 PoolSvc              INFO Database (SimplePoolFile1.root) attribute [READ_CALLS]: 24
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #14, run #1 5 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -481,7 +478,7 @@ ReadData             INFO Hit x = 1520.49 y = 63.5816 z = -1451.86 detector = Du
 ReadData             INFO Hit x = 1523.7 y = 57.9027 z = -1453.68 detector = DummyHitDetector
 ReadData             INFO Hit x = 1526.91 y = 52.2238 z = -1455.07 detector = DummyHitDetector
 ReadData             INFO Hit x = 1530.12 y = 46.5449 z = -1456.17 detector = DummyHitDetector
-PoolSvc              INFO Database (SimplePoolFile1.root) attribute [BYTES_READ]: 28001
+PoolSvc              INFO Database (SimplePoolFile1.root) attribute [BYTES_READ]: 27995
 PoolSvc              INFO Database (SimplePoolFile1.root) attribute [READ_CALLS]: 24
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #15, run #1 6 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -514,7 +511,7 @@ ReadData             INFO Hit x = 1620.49 y = 63.5816 z = -1551.86 detector = Du
 ReadData             INFO Hit x = 1623.7 y = 57.9027 z = -1553.68 detector = DummyHitDetector
 ReadData             INFO Hit x = 1626.91 y = 52.2238 z = -1555.07 detector = DummyHitDetector
 ReadData             INFO Hit x = 1630.12 y = 46.5449 z = -1556.17 detector = DummyHitDetector
-PoolSvc              INFO Database (SimplePoolFile1.root) attribute [BYTES_READ]: 28001
+PoolSvc              INFO Database (SimplePoolFile1.root) attribute [BYTES_READ]: 27995
 PoolSvc              INFO Database (SimplePoolFile1.root) attribute [READ_CALLS]: 24
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #16, run #1 7 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -547,7 +544,7 @@ ReadData             INFO Hit x = 1720.49 y = 63.5816 z = -1651.86 detector = Du
 ReadData             INFO Hit x = 1723.7 y = 57.9027 z = -1653.68 detector = DummyHitDetector
 ReadData             INFO Hit x = 1726.91 y = 52.2238 z = -1655.07 detector = DummyHitDetector
 ReadData             INFO Hit x = 1730.12 y = 46.5449 z = -1656.17 detector = DummyHitDetector
-PoolSvc              INFO Database (SimplePoolFile1.root) attribute [BYTES_READ]: 28001
+PoolSvc              INFO Database (SimplePoolFile1.root) attribute [BYTES_READ]: 27995
 PoolSvc              INFO Database (SimplePoolFile1.root) attribute [READ_CALLS]: 24
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #17, run #1 8 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -580,7 +577,7 @@ ReadData             INFO Hit x = 1820.49 y = 63.5816 z = -1751.86 detector = Du
 ReadData             INFO Hit x = 1823.7 y = 57.9027 z = -1753.68 detector = DummyHitDetector
 ReadData             INFO Hit x = 1826.91 y = 52.2238 z = -1755.07 detector = DummyHitDetector
 ReadData             INFO Hit x = 1830.12 y = 46.5449 z = -1756.17 detector = DummyHitDetector
-PoolSvc              INFO Database (SimplePoolFile1.root) attribute [BYTES_READ]: 28001
+PoolSvc              INFO Database (SimplePoolFile1.root) attribute [BYTES_READ]: 27995
 PoolSvc              INFO Database (SimplePoolFile1.root) attribute [READ_CALLS]: 24
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #18, run #1 9 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -613,7 +610,7 @@ ReadData             INFO Hit x = 1920.49 y = 63.5816 z = -1851.86 detector = Du
 ReadData             INFO Hit x = 1923.7 y = 57.9027 z = -1853.68 detector = DummyHitDetector
 ReadData             INFO Hit x = 1926.91 y = 52.2238 z = -1855.07 detector = DummyHitDetector
 ReadData             INFO Hit x = 1930.12 y = 46.5449 z = -1856.17 detector = DummyHitDetector
-PoolSvc              INFO Database (SimplePoolFile1.root) attribute [BYTES_READ]: 28001
+PoolSvc              INFO Database (SimplePoolFile1.root) attribute [BYTES_READ]: 27995
 PoolSvc              INFO Database (SimplePoolFile1.root) attribute [READ_CALLS]: 24
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #1 10 events processed so far  <<<===
 MetaDataSvc         DEBUG handle() EndInputFile for FID:????
@@ -660,7 +657,6 @@ EmptyPoolFile.root  DEBUG --->Reading Param:FORMAT_VSN=[1.1]
 ##Params            DEBUG No objects passing selection criteria... Container has 4 Entries in total.
 PoolSvc              INFO Failed to find container POOLContainer(DataHeader) to create POOL collection.
 PoolSvc              INFO Failed to find container POOLContainer_DataHeader to create POOL collection.
-PoolCollectionC...   INFO Unable to create Collection: PFN:EmptyPoolFile.root container: POOLContainer_DataHeader
 EventSelector       DEBUG No events found in: EmptyPoolFile.root skipped!!!
 MetaDataSvc         DEBUG handle() BeginInputFile for EmptyPoolFile.root
 MetaDataSvc         DEBUG initInputMetaDataStore: file name EmptyPoolFile.root
@@ -813,7 +809,7 @@ ReadData             INFO EventInfo event: 0 run: 1
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Could not find ExampleHitContainer/MyHits
-PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 26594
+PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 26591
 PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]: 27
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #0, run #1 11 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -841,7 +837,7 @@ ReadData             INFO EventInfo event: 1 run: 1
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Could not find ExampleHitContainer/MyHits
-PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 26594
+PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 26591
 PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]: 27
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #1 12 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -869,7 +865,7 @@ ReadData             INFO EventInfo event: 2 run: 1
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Could not find ExampleHitContainer/MyHits
-PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 26594
+PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 26591
 PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]: 27
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #1 13 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -897,7 +893,7 @@ ReadData             INFO EventInfo event: 3 run: 1
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Could not find ExampleHitContainer/MyHits
-PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 26594
+PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 26591
 PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]: 27
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #1 14 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -925,7 +921,7 @@ ReadData             INFO EventInfo event: 4 run: 1
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Could not find ExampleHitContainer/MyHits
-PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 26594
+PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 26591
 PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]: 27
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #4, run #1 15 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -953,7 +949,7 @@ ReadData             INFO EventInfo event: 5 run: 1
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Could not find ExampleHitContainer/MyHits
-PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 26594
+PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 26591
 PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]: 27
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #5, run #1 16 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -981,7 +977,7 @@ ReadData             INFO EventInfo event: 6 run: 1
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Could not find ExampleHitContainer/MyHits
-PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 26594
+PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 26591
 PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]: 27
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #6, run #1 17 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -1009,7 +1005,7 @@ ReadData             INFO EventInfo event: 7 run: 1
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Could not find ExampleHitContainer/MyHits
-PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 26594
+PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 26591
 PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]: 27
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #7, run #1 18 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -1037,7 +1033,7 @@ ReadData             INFO EventInfo event: 8 run: 1
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Could not find ExampleHitContainer/MyHits
-PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 26594
+PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 26591
 PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]: 27
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #8, run #1 19 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -1065,7 +1061,7 @@ ReadData             INFO EventInfo event: 9 run: 1
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Could not find ExampleHitContainer/MyHits
-PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 26594
+PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 26591
 PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]: 27
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #9, run #1 20 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -1093,7 +1089,7 @@ ReadData             INFO EventInfo event: 10 run: 1
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Could not find ExampleHitContainer/MyHits
-PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 26594
+PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 26591
 PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]: 27
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #10, run #1 21 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -1121,7 +1117,7 @@ ReadData             INFO EventInfo event: 11 run: 1
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Could not find ExampleHitContainer/MyHits
-PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 26594
+PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 26591
 PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]: 27
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #11, run #1 22 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -1149,7 +1145,7 @@ ReadData             INFO EventInfo event: 12 run: 1
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Could not find ExampleHitContainer/MyHits
-PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 26594
+PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 26591
 PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]: 27
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #12, run #1 23 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -1177,7 +1173,7 @@ ReadData             INFO EventInfo event: 13 run: 1
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Could not find ExampleHitContainer/MyHits
-PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 26594
+PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 26591
 PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]: 27
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #13, run #1 24 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -1205,7 +1201,7 @@ ReadData             INFO EventInfo event: 14 run: 1
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Could not find ExampleHitContainer/MyHits
-PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 26594
+PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 26591
 PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]: 27
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #14, run #1 25 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -1233,7 +1229,7 @@ ReadData             INFO EventInfo event: 15 run: 1
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Could not find ExampleHitContainer/MyHits
-PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 26594
+PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 26591
 PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]: 27
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #15, run #1 26 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -1261,7 +1257,7 @@ ReadData             INFO EventInfo event: 16 run: 1
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Could not find ExampleHitContainer/MyHits
-PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 26594
+PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 26591
 PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]: 27
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #16, run #1 27 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -1289,7 +1285,7 @@ ReadData             INFO EventInfo event: 17 run: 1
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Could not find ExampleHitContainer/MyHits
-PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 26594
+PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 26591
 PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]: 27
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #17, run #1 28 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -1317,7 +1313,7 @@ ReadData             INFO EventInfo event: 18 run: 1
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Could not find ExampleHitContainer/MyHits
-PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 26594
+PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 26591
 PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]: 27
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #18, run #1 29 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -1345,7 +1341,7 @@ ReadData             INFO EventInfo event: 19 run: 1
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Could not find ExampleHitContainer/MyHits
-PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 26594
+PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 26591
 PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]: 27
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #1 30 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -1374,7 +1370,7 @@ ReadData             INFO EventInfo event: 20 run: 2
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Could not find ExampleHitContainer/MyHits
-PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 28482
+PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 28480
 PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]: 31
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #20, run #2 31 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -1402,7 +1398,7 @@ ReadData             INFO EventInfo event: 21 run: 2
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Could not find ExampleHitContainer/MyHits
-PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 28482
+PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 28480
 PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]: 31
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #21, run #2 32 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -1430,7 +1426,7 @@ ReadData             INFO EventInfo event: 22 run: 2
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Could not find ExampleHitContainer/MyHits
-PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 28482
+PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 28480
 PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]: 31
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #22, run #2 33 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -1458,7 +1454,7 @@ ReadData             INFO EventInfo event: 23 run: 2
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Could not find ExampleHitContainer/MyHits
-PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 28482
+PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 28480
 PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]: 31
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #23, run #2 34 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -1486,7 +1482,7 @@ ReadData             INFO EventInfo event: 24 run: 2
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Could not find ExampleHitContainer/MyHits
-PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 28482
+PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 28480
 PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]: 31
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #24, run #2 35 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -1514,7 +1510,7 @@ ReadData             INFO EventInfo event: 25 run: 2
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Could not find ExampleHitContainer/MyHits
-PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 28482
+PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 28480
 PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]: 31
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #25, run #2 36 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -1542,7 +1538,7 @@ ReadData             INFO EventInfo event: 26 run: 2
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Could not find ExampleHitContainer/MyHits
-PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 28482
+PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 28480
 PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]: 31
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #26, run #2 37 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -1570,7 +1566,7 @@ ReadData             INFO EventInfo event: 27 run: 2
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Could not find ExampleHitContainer/MyHits
-PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 28482
+PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 28480
 PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]: 31
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #27, run #2 38 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -1598,7 +1594,7 @@ ReadData             INFO EventInfo event: 28 run: 2
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Could not find ExampleHitContainer/MyHits
-PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 28482
+PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 28480
 PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]: 31
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #28, run #2 39 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -1626,7 +1622,7 @@ ReadData             INFO EventInfo event: 29 run: 2
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Could not find ExampleHitContainer/MyHits
-PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 28482
+PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 28480
 PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]: 31
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #29, run #2 40 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -1654,7 +1650,7 @@ ReadData             INFO EventInfo event: 30 run: 2
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Could not find ExampleHitContainer/MyHits
-PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 28482
+PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 28480
 PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]: 31
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #30, run #2 41 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -1682,7 +1678,7 @@ ReadData             INFO EventInfo event: 31 run: 2
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Could not find ExampleHitContainer/MyHits
-PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 28482
+PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 28480
 PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]: 31
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #31, run #2 42 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -1710,7 +1706,7 @@ ReadData             INFO EventInfo event: 32 run: 2
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Could not find ExampleHitContainer/MyHits
-PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 28482
+PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 28480
 PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]: 31
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #32, run #2 43 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -1738,7 +1734,7 @@ ReadData             INFO EventInfo event: 33 run: 2
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Could not find ExampleHitContainer/MyHits
-PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 28482
+PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 28480
 PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]: 31
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #33, run #2 44 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -1766,7 +1762,7 @@ ReadData             INFO EventInfo event: 34 run: 2
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Could not find ExampleHitContainer/MyHits
-PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 28482
+PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 28480
 PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]: 31
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #34, run #2 45 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -1794,7 +1790,7 @@ ReadData             INFO EventInfo event: 35 run: 2
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Could not find ExampleHitContainer/MyHits
-PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 28482
+PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 28480
 PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]: 31
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #35, run #2 46 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -1822,7 +1818,7 @@ ReadData             INFO EventInfo event: 36 run: 2
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Could not find ExampleHitContainer/MyHits
-PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 28482
+PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 28480
 PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]: 31
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #36, run #2 47 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -1850,7 +1846,7 @@ ReadData             INFO EventInfo event: 37 run: 2
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Could not find ExampleHitContainer/MyHits
-PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 28482
+PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 28480
 PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]: 31
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #37, run #2 48 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -1878,7 +1874,7 @@ ReadData             INFO EventInfo event: 38 run: 2
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Could not find ExampleHitContainer/MyHits
-PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 28482
+PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 28480
 PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]: 31
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #38, run #2 49 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -1906,7 +1902,7 @@ ReadData             INFO EventInfo event: 39 run: 2
 ReadData             INFO Get Smart data ptr 1
 ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Could not find ExampleHitContainer/MyHits
-PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 28482
+PoolSvc              INFO Database (SimplePoolFile2.root) attribute [BYTES_READ]: 28480
 PoolSvc              INFO Database (SimplePoolFile2.root) attribute [READ_CALLS]: 31
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #39, run #2 50 events processed so far  <<<===
 MetaDataSvc         DEBUG handle() EndInputFile for FID:????
@@ -2145,7 +2141,7 @@ ReadData             INFO Hit x = 20.4945 y = 63.5816 z = 48.1358 detector = Dum
 ReadData             INFO Hit x = 23.7045 y = 57.9027 z = 46.3159 detector = DummyHitDetector
 ReadData             INFO Hit x = 26.9145 y = 52.2238 z = 44.9265 detector = DummyHitDetector
 ReadData             INFO Hit x = 30.1245 y = 46.5449 z = 43.831 detector = DummyHitDetector
-PoolSvc              INFO Database (SimplePoolFile3.root) attribute [BYTES_READ]: 27198
+PoolSvc              INFO Database (SimplePoolFile3.root) attribute [BYTES_READ]: 27200
 PoolSvc              INFO Database (SimplePoolFile3.root) attribute [READ_CALLS]: 23
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #0, run #1 51 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -2192,7 +2188,7 @@ ReadData             INFO Hit x = 120.494 y = 63.5816 z = -51.8642 detector = Du
 ReadData             INFO Hit x = 123.704 y = 57.9027 z = -53.6841 detector = DummyHitDetector
 ReadData             INFO Hit x = 126.915 y = 52.2238 z = -55.0735 detector = DummyHitDetector
 ReadData             INFO Hit x = 130.125 y = 46.5449 z = -56.169 detector = DummyHitDetector
-PoolSvc              INFO Database (SimplePoolFile3.root) attribute [BYTES_READ]: 27198
+PoolSvc              INFO Database (SimplePoolFile3.root) attribute [BYTES_READ]: 27200
 PoolSvc              INFO Database (SimplePoolFile3.root) attribute [READ_CALLS]: 23
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #1 52 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -2239,7 +2235,7 @@ ReadData             INFO Hit x = 220.494 y = 63.5816 z = -151.864 detector = Du
 ReadData             INFO Hit x = 223.704 y = 57.9027 z = -153.684 detector = DummyHitDetector
 ReadData             INFO Hit x = 226.915 y = 52.2238 z = -155.073 detector = DummyHitDetector
 ReadData             INFO Hit x = 230.125 y = 46.5449 z = -156.169 detector = DummyHitDetector
-PoolSvc              INFO Database (SimplePoolFile3.root) attribute [BYTES_READ]: 27198
+PoolSvc              INFO Database (SimplePoolFile3.root) attribute [BYTES_READ]: 27200
 PoolSvc              INFO Database (SimplePoolFile3.root) attribute [READ_CALLS]: 23
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #1 53 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -2286,7 +2282,7 @@ ReadData             INFO Hit x = 320.495 y = 63.5816 z = -251.864 detector = Du
 ReadData             INFO Hit x = 323.705 y = 57.9027 z = -253.684 detector = DummyHitDetector
 ReadData             INFO Hit x = 326.915 y = 52.2238 z = -255.073 detector = DummyHitDetector
 ReadData             INFO Hit x = 330.125 y = 46.5449 z = -256.169 detector = DummyHitDetector
-PoolSvc              INFO Database (SimplePoolFile3.root) attribute [BYTES_READ]: 27198
+PoolSvc              INFO Database (SimplePoolFile3.root) attribute [BYTES_READ]: 27200
 PoolSvc              INFO Database (SimplePoolFile3.root) attribute [READ_CALLS]: 23
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #1 54 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -2333,7 +2329,7 @@ ReadData             INFO Hit x = 420.495 y = 63.5816 z = -351.864 detector = Du
 ReadData             INFO Hit x = 423.705 y = 57.9027 z = -353.684 detector = DummyHitDetector
 ReadData             INFO Hit x = 426.915 y = 52.2238 z = -355.073 detector = DummyHitDetector
 ReadData             INFO Hit x = 430.125 y = 46.5449 z = -356.169 detector = DummyHitDetector
-PoolSvc              INFO Database (SimplePoolFile3.root) attribute [BYTES_READ]: 27198
+PoolSvc              INFO Database (SimplePoolFile3.root) attribute [BYTES_READ]: 27200
 PoolSvc              INFO Database (SimplePoolFile3.root) attribute [READ_CALLS]: 23
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #4, run #1 55 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -2380,7 +2376,7 @@ ReadData             INFO Hit x = 520.495 y = 63.5816 z = -451.864 detector = Du
 ReadData             INFO Hit x = 523.705 y = 57.9027 z = -453.684 detector = DummyHitDetector
 ReadData             INFO Hit x = 526.914 y = 52.2238 z = -455.073 detector = DummyHitDetector
 ReadData             INFO Hit x = 530.125 y = 46.5449 z = -456.169 detector = DummyHitDetector
-PoolSvc              INFO Database (SimplePoolFile3.root) attribute [BYTES_READ]: 27198
+PoolSvc              INFO Database (SimplePoolFile3.root) attribute [BYTES_READ]: 27200
 PoolSvc              INFO Database (SimplePoolFile3.root) attribute [READ_CALLS]: 23
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #5, run #1 56 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -2427,7 +2423,7 @@ ReadData             INFO Hit x = 620.495 y = 63.5816 z = -551.864 detector = Du
 ReadData             INFO Hit x = 623.705 y = 57.9027 z = -553.684 detector = DummyHitDetector
 ReadData             INFO Hit x = 626.914 y = 52.2238 z = -555.073 detector = DummyHitDetector
 ReadData             INFO Hit x = 630.125 y = 46.5449 z = -556.169 detector = DummyHitDetector
-PoolSvc              INFO Database (SimplePoolFile3.root) attribute [BYTES_READ]: 27198
+PoolSvc              INFO Database (SimplePoolFile3.root) attribute [BYTES_READ]: 27200
 PoolSvc              INFO Database (SimplePoolFile3.root) attribute [READ_CALLS]: 23
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #6, run #1 57 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -2474,7 +2470,7 @@ ReadData             INFO Hit x = 720.495 y = 63.5816 z = -651.864 detector = Du
 ReadData             INFO Hit x = 723.705 y = 57.9027 z = -653.684 detector = DummyHitDetector
 ReadData             INFO Hit x = 726.914 y = 52.2238 z = -655.073 detector = DummyHitDetector
 ReadData             INFO Hit x = 730.125 y = 46.5449 z = -656.169 detector = DummyHitDetector
-PoolSvc              INFO Database (SimplePoolFile3.root) attribute [BYTES_READ]: 27198
+PoolSvc              INFO Database (SimplePoolFile3.root) attribute [BYTES_READ]: 27200
 PoolSvc              INFO Database (SimplePoolFile3.root) attribute [READ_CALLS]: 23
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #7, run #1 58 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -2521,7 +2517,7 @@ ReadData             INFO Hit x = 820.495 y = 63.5816 z = -751.864 detector = Du
 ReadData             INFO Hit x = 823.705 y = 57.9027 z = -753.684 detector = DummyHitDetector
 ReadData             INFO Hit x = 826.914 y = 52.2238 z = -755.073 detector = DummyHitDetector
 ReadData             INFO Hit x = 830.125 y = 46.5449 z = -756.169 detector = DummyHitDetector
-PoolSvc              INFO Database (SimplePoolFile3.root) attribute [BYTES_READ]: 27198
+PoolSvc              INFO Database (SimplePoolFile3.root) attribute [BYTES_READ]: 27200
 PoolSvc              INFO Database (SimplePoolFile3.root) attribute [READ_CALLS]: 23
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #8, run #1 59 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -2568,7 +2564,7 @@ ReadData             INFO Hit x = 920.495 y = 63.5816 z = -851.864 detector = Du
 ReadData             INFO Hit x = 923.705 y = 57.9027 z = -853.684 detector = DummyHitDetector
 ReadData             INFO Hit x = 926.914 y = 52.2238 z = -855.073 detector = DummyHitDetector
 ReadData             INFO Hit x = 930.125 y = 46.5449 z = -856.169 detector = DummyHitDetector
-PoolSvc              INFO Database (SimplePoolFile3.root) attribute [BYTES_READ]: 27198
+PoolSvc              INFO Database (SimplePoolFile3.root) attribute [BYTES_READ]: 27200
 PoolSvc              INFO Database (SimplePoolFile3.root) attribute [READ_CALLS]: 23
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #9, run #1 60 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -2615,7 +2611,7 @@ ReadData             INFO Hit x = 1020.49 y = 63.5816 z = -951.864 detector = Du
 ReadData             INFO Hit x = 1023.7 y = 57.9027 z = -953.684 detector = DummyHitDetector
 ReadData             INFO Hit x = 1026.91 y = 52.2238 z = -955.073 detector = DummyHitDetector
 ReadData             INFO Hit x = 1030.12 y = 46.5449 z = -956.169 detector = DummyHitDetector
-PoolSvc              INFO Database (SimplePoolFile3.root) attribute [BYTES_READ]: 27198
+PoolSvc              INFO Database (SimplePoolFile3.root) attribute [BYTES_READ]: 27200
 PoolSvc              INFO Database (SimplePoolFile3.root) attribute [READ_CALLS]: 23
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #10, run #1 61 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -2662,7 +2658,7 @@ ReadData             INFO Hit x = 1120.49 y = 63.5816 z = -1051.86 detector = Du
 ReadData             INFO Hit x = 1123.7 y = 57.9027 z = -1053.68 detector = DummyHitDetector
 ReadData             INFO Hit x = 1126.91 y = 52.2238 z = -1055.07 detector = DummyHitDetector
 ReadData             INFO Hit x = 1130.12 y = 46.5449 z = -1056.17 detector = DummyHitDetector
-PoolSvc              INFO Database (SimplePoolFile3.root) attribute [BYTES_READ]: 27198
+PoolSvc              INFO Database (SimplePoolFile3.root) attribute [BYTES_READ]: 27200
 PoolSvc              INFO Database (SimplePoolFile3.root) attribute [READ_CALLS]: 23
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #11, run #1 62 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -2709,7 +2705,7 @@ ReadData             INFO Hit x = 1220.49 y = 63.5816 z = -1151.86 detector = Du
 ReadData             INFO Hit x = 1223.7 y = 57.9027 z = -1153.68 detector = DummyHitDetector
 ReadData             INFO Hit x = 1226.91 y = 52.2238 z = -1155.07 detector = DummyHitDetector
 ReadData             INFO Hit x = 1230.12 y = 46.5449 z = -1156.17 detector = DummyHitDetector
-PoolSvc              INFO Database (SimplePoolFile3.root) attribute [BYTES_READ]: 27198
+PoolSvc              INFO Database (SimplePoolFile3.root) attribute [BYTES_READ]: 27200
 PoolSvc              INFO Database (SimplePoolFile3.root) attribute [READ_CALLS]: 23
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #12, run #1 63 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -2756,7 +2752,7 @@ ReadData             INFO Hit x = 1320.49 y = 63.5816 z = -1251.86 detector = Du
 ReadData             INFO Hit x = 1323.7 y = 57.9027 z = -1253.68 detector = DummyHitDetector
 ReadData             INFO Hit x = 1326.91 y = 52.2238 z = -1255.07 detector = DummyHitDetector
 ReadData             INFO Hit x = 1330.12 y = 46.5449 z = -1256.17 detector = DummyHitDetector
-PoolSvc              INFO Database (SimplePoolFile3.root) attribute [BYTES_READ]: 27198
+PoolSvc              INFO Database (SimplePoolFile3.root) attribute [BYTES_READ]: 27200
 PoolSvc              INFO Database (SimplePoolFile3.root) attribute [READ_CALLS]: 23
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #13, run #1 64 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -2803,7 +2799,7 @@ ReadData             INFO Hit x = 1420.49 y = 63.5816 z = -1351.86 detector = Du
 ReadData             INFO Hit x = 1423.7 y = 57.9027 z = -1353.68 detector = DummyHitDetector
 ReadData             INFO Hit x = 1426.91 y = 52.2238 z = -1355.07 detector = DummyHitDetector
 ReadData             INFO Hit x = 1430.12 y = 46.5449 z = -1356.17 detector = DummyHitDetector
-PoolSvc              INFO Database (SimplePoolFile3.root) attribute [BYTES_READ]: 27198
+PoolSvc              INFO Database (SimplePoolFile3.root) attribute [BYTES_READ]: 27200
 PoolSvc              INFO Database (SimplePoolFile3.root) attribute [READ_CALLS]: 23
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #14, run #1 65 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -2850,7 +2846,7 @@ ReadData             INFO Hit x = 1520.49 y = 63.5816 z = -1451.86 detector = Du
 ReadData             INFO Hit x = 1523.7 y = 57.9027 z = -1453.68 detector = DummyHitDetector
 ReadData             INFO Hit x = 1526.91 y = 52.2238 z = -1455.07 detector = DummyHitDetector
 ReadData             INFO Hit x = 1530.12 y = 46.5449 z = -1456.17 detector = DummyHitDetector
-PoolSvc              INFO Database (SimplePoolFile3.root) attribute [BYTES_READ]: 27198
+PoolSvc              INFO Database (SimplePoolFile3.root) attribute [BYTES_READ]: 27200
 PoolSvc              INFO Database (SimplePoolFile3.root) attribute [READ_CALLS]: 23
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #15, run #1 66 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -2897,7 +2893,7 @@ ReadData             INFO Hit x = 1620.49 y = 63.5816 z = -1551.86 detector = Du
 ReadData             INFO Hit x = 1623.7 y = 57.9027 z = -1553.68 detector = DummyHitDetector
 ReadData             INFO Hit x = 1626.91 y = 52.2238 z = -1555.07 detector = DummyHitDetector
 ReadData             INFO Hit x = 1630.12 y = 46.5449 z = -1556.17 detector = DummyHitDetector
-PoolSvc              INFO Database (SimplePoolFile3.root) attribute [BYTES_READ]: 27198
+PoolSvc              INFO Database (SimplePoolFile3.root) attribute [BYTES_READ]: 27200
 PoolSvc              INFO Database (SimplePoolFile3.root) attribute [READ_CALLS]: 23
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #16, run #1 67 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -2944,7 +2940,7 @@ ReadData             INFO Hit x = 1720.49 y = 63.5816 z = -1651.86 detector = Du
 ReadData             INFO Hit x = 1723.7 y = 57.9027 z = -1653.68 detector = DummyHitDetector
 ReadData             INFO Hit x = 1726.91 y = 52.2238 z = -1655.07 detector = DummyHitDetector
 ReadData             INFO Hit x = 1730.12 y = 46.5449 z = -1656.17 detector = DummyHitDetector
-PoolSvc              INFO Database (SimplePoolFile3.root) attribute [BYTES_READ]: 27198
+PoolSvc              INFO Database (SimplePoolFile3.root) attribute [BYTES_READ]: 27200
 PoolSvc              INFO Database (SimplePoolFile3.root) attribute [READ_CALLS]: 23
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #17, run #1 68 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -2991,7 +2987,7 @@ ReadData             INFO Hit x = 1820.49 y = 63.5816 z = -1751.86 detector = Du
 ReadData             INFO Hit x = 1823.7 y = 57.9027 z = -1753.68 detector = DummyHitDetector
 ReadData             INFO Hit x = 1826.91 y = 52.2238 z = -1755.07 detector = DummyHitDetector
 ReadData             INFO Hit x = 1830.12 y = 46.5449 z = -1756.17 detector = DummyHitDetector
-PoolSvc              INFO Database (SimplePoolFile3.root) attribute [BYTES_READ]: 27198
+PoolSvc              INFO Database (SimplePoolFile3.root) attribute [BYTES_READ]: 27200
 PoolSvc              INFO Database (SimplePoolFile3.root) attribute [READ_CALLS]: 23
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #18, run #1 69 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
@@ -3038,7 +3034,7 @@ ReadData             INFO Hit x = 1920.49 y = 63.5816 z = -1851.86 detector = Du
 ReadData             INFO Hit x = 1923.7 y = 57.9027 z = -1853.68 detector = DummyHitDetector
 ReadData             INFO Hit x = 1926.91 y = 52.2238 z = -1855.07 detector = DummyHitDetector
 ReadData             INFO Hit x = 1930.12 y = 46.5449 z = -1856.17 detector = DummyHitDetector
-PoolSvc              INFO Database (SimplePoolFile3.root) attribute [BYTES_READ]: 27198
+PoolSvc              INFO Database (SimplePoolFile3.root) attribute [BYTES_READ]: 27200
 PoolSvc              INFO Database (SimplePoolFile3.root) attribute [READ_CALLS]: 23
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #1 70 events processed so far  <<<===
 MetaDataSvc         DEBUG handle() EndInputFile for FID:????
@@ -3059,9 +3055,9 @@ ToolSvc              INFO Removing all tools created by ToolSvc
 *****Chrono*****     INFO ****************************************************************************************************
 *****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****     INFO ****************************************************************************************************
-cObjR_ALL            INFO Time User   : Tot=   10 [ms] Ave/Min/Max=0.0368(+-0.605)/    0/   10 [ms] #=272
+cObjR_ALL            INFO Time User   : Tot=   30 [ms] Ave/Min/Max= 0.11(+- 1.04)/    0/   10 [ms] #=272
 cObj_ALL             INFO Time User   : Tot=   60 [ms] Ave/Min/Max=0.271(+- 1.88)/    0/   20 [ms] #=221
-ChronoStatSvc        INFO Time User   : Tot= 1.06  [s]                                             #=  1
+ChronoStatSvc        INFO Time User   : Tot= 1.14  [s]                                             #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully

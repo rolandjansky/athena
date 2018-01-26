@@ -1717,3 +1717,17 @@ void SG_dump (SGImplSvc* sg, const char* fname)
 }
 
 
+/**
+ * @brief Return the metadata source ID for the current event slot.
+ *        Returns an empty string if no source has been set.
+ *
+ *        The default version always returns an empty string.
+ */
+SG::SourceID SGImplSvc::sourceID() const
+{
+  const DataHeader* dh = nullptr;
+  if (this->retrieve (dh, "EventSelector").isFailure()) {
+    return "";
+  }
+  return dh->begin()->getToken()->dbID().toString();
+}

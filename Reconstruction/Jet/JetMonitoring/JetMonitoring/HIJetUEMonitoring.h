@@ -31,7 +31,6 @@ class HIJetUEMonitoring : public JetHistoBase {
  private:
   std::string m_container_key;
   const xAOD::HIEventShapeContainer* m_eventShape;
-  const xAOD::Jet* m_refContainer;
 
   /// Centrality
   float m_FCalET;

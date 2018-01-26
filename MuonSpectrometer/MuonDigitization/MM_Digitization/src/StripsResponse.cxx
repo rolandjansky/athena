@@ -124,8 +124,8 @@ void StripsResponse::initializationFrom()
   //  log << MSG::DEBUG << "StripsResponse::initializationFrom getRandom: " << polya->GetRandom() << endmsg;
 }
 /*******************************************************************************/
-MmStripToolOutput StripsResponse::GetResponceFrom(const MmDigitToolInput & digiInput) 
-//MmElectronicsToolInput StripsResponse::GetResponceFrom(const MmDigitToolInput & digiInput) 
+MmStripToolOutput StripsResponse::GetResponseFrom(const MmDigitToolInput & digiInput) 
+//MmElectronicsToolInput StripsResponse::GetResponseFrom(const MmDigitToolInput & digiInput) 
 {
   Athena::MsgStreamMember log("StripsResponse::GetResponseFrom"); 
   log << MSG::DEBUG << "\t \t StripsResponse::GetResponseFrom start " << endmsg;
