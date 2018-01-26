@@ -133,7 +133,7 @@ AsgElectronEfficiencyCorrectionTool::initialize() {
             ATH_MSG_ERROR("Could NOT resolve file name " << m_corrFileNameList.at(i));
             return StatusCode::FAILURE;
         }else {
-            ATH_MSG_INFO(" Path found = " << filename);
+            ATH_MSG_DEBUG(" Path found = " << filename);
         }
         m_rootTool->addFileName(filename);
         // Determine the systematics substring according to the name of the input file
@@ -184,7 +184,7 @@ AsgElectronEfficiencyCorrectionTool::initialize() {
         ATH_MSG_ERROR("Unknown correlation model " + m_correlation_model_name);
         return StatusCode::FAILURE;
     }
-    ATH_MSG_INFO("Correlation model: " + m_correlation_model_name << " Enum " << m_correlation_model);
+    ATH_MSG_DEBUG("Correlation model: " + m_correlation_model_name << " Enum " << m_correlation_model);
 
     //Finish the preaparation of the underlying tool
     if (m_correlation_model == correlationModel::SIMPLIFIED) {

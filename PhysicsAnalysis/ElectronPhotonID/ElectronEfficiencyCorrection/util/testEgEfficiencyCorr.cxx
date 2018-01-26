@@ -4,14 +4,8 @@
 
 // System include(s):
 #include <memory>
-#include <cstdlib>
-#include "Messaging.h"
-
 // ROOT include(s):
 #include <TFile.h>
-#include <TError.h>
-#include <TString.h>
-
 // Infrastructure include(s):
 #ifdef ROOTCORE
 #   include "xAODRootAccess/Init.h"
@@ -20,19 +14,17 @@
 #endif // ROOTCORE
 
 // EDM include(s):
-#include "xAODEventInfo/EventInfo.h"
 #include "xAODEgamma/ElectronContainer.h" 
-#include "xAODEgamma/Egamma.h"
+#include "xAODEgamma/Electron.h"
 #include "ElectronEfficiencyCorrection/AsgElectronEfficiencyCorrectionTool.h"
-#include "xAODCore/ShallowCopy.h"
-#include "AsgTools/AsgMessaging.h"
+#include "Messaging.h"
+#include "SFHelpers.h"
 
-
-#include <string>
-#include "PATInterfaces/SystematicsUtil.h"
-
+//To disable sending data
+#include "xAODRootAccess/tools/TFileAccessTracer.h"
 int main( int argc, char* argv[] ) {
 
+    xAOD::TFileAccessTracer::enableDataSubmission( false );
     // The application's name:
     const char* APP_NAME = argv[ 0 ];
 
@@ -42,8 +34,8 @@ int main( int argc, char* argv[] ) {
 
     // Check if we received a file name:
     if( argc < 2 ) {
-        Error( APP_NAME, "No file name received!" );
-        Error( APP_NAME, "  Usage: %s [xAOD file name]", APP_NAME );
+        MSG_ERROR( APP_NAME << "No file name received!" );
+        MSG_ERROR( APP_NAME <<"  Usage: <<APP_NAME <<  [xAOD file name] [Num of events to use]" );
         return 1;
     }
 
@@ -58,108 +50,57 @@ int main( int argc, char* argv[] ) {
 
     // Create a TEvent object:
     //xAOD::TEvent event( xAOD::TEvent::kBranchAccess );
-    xAOD::TEvent event( xAOD::TEvent::kClassAccess );
+    xAOD::TEvent event;
     CHECK( event.readFrom( ifile.get() ) );
-    MSG_INFO( "Number of events in the file:  " <<
-            static_cast< int >( event.getEntries() ) );
+    MSG_INFO( "Number of available events to read in:  " <<
+            static_cast< long long int >( event.getEntries() ) );
 
-    std::cout << "=="<<std::endl;
 
     // Decide how many events to run over:
-    Long64_t entries = event.getEntries();
+    long long int entries = event.getEntries();
     if( argc > 2 ) {
-        const Long64_t e = atoll( argv[ 2 ] );
+        const long long int e = atoll( argv[ 2 ] );
         if( e < entries ) {
             entries = e;
         }
     }
+    MSG_INFO( "Number actual events to read in:  " <<entries );
+
 
     AsgElectronEfficiencyCorrectionTool ElEffCorrectionTool ("ElEffCorrectionTool");   
     CHECK( ElEffCorrectionTool.setProperty("IdKey", "Medium"));
     CHECK( ElEffCorrectionTool.setProperty("ForceDataType",1));
     CHECK( ElEffCorrectionTool.setProperty("OutputLevel", mylevel ));
-    CHECK( ElEffCorrectionTool.setProperty("CorrelationModel", "SIMPLIFIED" )); 
+    CHECK( ElEffCorrectionTool.setProperty("CorrelationModel", "FULL" )); 
     CHECK( ElEffCorrectionTool.setProperty("UseRandomRunNumber", false ));
-    CHECK( ElEffCorrectionTool.setProperty("DefaultRandomRunNumber", 371000));
     CHECK( ElEffCorrectionTool.initialize());  
-    asg::ToolStore::dumpToolConfig();
 
-    // Get a list of systematics
-    CP::SystematicSet recSysts = ElEffCorrectionTool.recommendedSystematics();
-    // Convert into a simple list
-    std::vector<CP::SystematicSet> sysList = CP::make_systematics_vector(recSysts);
     // Loop over the events:
-    Long64_t entry = 1;
-    for(  ; entry < entries; ++entry ) {
-
-        // Tell the object which entry to look at:
+    for(long  long int entry=0  ; entry < entries; ++entry ) {
         event.getEntry( entry );
-
-        MSG_INFO( "=================NEXT EVENT==========================");
-        //  Info (APP_NAME,"Electron 6" );
-
-
-        const xAOD::EventInfo* event_info = 0;  
-        CHECK( event.retrieve( event_info, "EventInfo" ) ); 
+        MSG_INFO( " \n ==> Event " << entry);
 
         const xAOD::ElectronContainer* electrons = 0;  
-        //CHECK( event.retrieve(electrons, "ElectronCollection") ); //For DAOD
         CHECK( event.retrieve(electrons, "Electrons") );
 
-        // Loop over systematics
-        for(const auto& sys : sysList){
+        for (const xAOD::Electron* el : *electrons){
+            if(el->pt() < 7000) continue; //skip electrons outside of recommendations
+            int index =ElEffCorrectionTool.systUncorrVariationIndex(*el);
+            /*
+             * Set up the systematic variations
+             */
+            bool isToys = false;
+            double nominalSF{};
+            double totalNeg{};
+            double totalPos{}; 
+            CHECK(SFHelpers::result(ElEffCorrectionTool,*el,nominalSF, totalPos,totalNeg,isToys)==0);
 
-            MSG_INFO("Processing syst: " << sys.name().c_str());
-
-            // Configure the tool for this systematic
-            CHECK( ElEffCorrectionTool.applySystematicVariation(sys) );
-            MSG_INFO("Applied syst: "<< 
-                    ElEffCorrectionTool.appliedSystematics().name().c_str());
-
-            // Create shallow copy for this systematic
-            std::pair< xAOD::ElectronContainer*, xAOD::ShallowAuxContainer* > electrons_shallowCopy =
-                xAOD::shallowCopyContainer( *electrons );
-
-            //Iterate over the shallow copy
-            xAOD::ElectronContainer* elsCorr = electrons_shallowCopy.first;
-            xAOD::ElectronContainer::iterator el_it = elsCorr->begin();
-            xAOD::ElectronContainer::iterator el_it_last = elsCorr->end();
-
-            unsigned int i = 0;
-            double SF = 0; 
-            for (; el_it != el_it_last; ++el_it, ++i) { 
-                xAOD::Electron* el = *el_it;
-                if(!el->caloCluster()){
-                    MSG_ERROR( "No cluster associated to the electron");
-                    return EXIT_FAILURE;
-                }
-                if(el->pt() < 7000) continue;//skip electrons outside of recommendations
-
-                MSG_INFO("Electron " << i); 
-                MSG_INFO("xAOD/raw pt = " << el->pt() << ", eta: "
-                        << el->caloCluster()->etaBE(2));
-                MSG_INFO("Electron # "<< i); 
-
-                int sysreg = ElEffCorrectionTool.systUncorrVariationIndex(*el);
-                MSG_INFO( "sysregion " <<sysreg);
-
-                if(ElEffCorrectionTool.getEfficiencyScaleFactor(*el,SF) == CP::CorrectionCode::Error){
-                    MSG_ERROR("Problem in getEfficiencyScaleFactor");
-                    return EXIT_FAILURE;
-                }
-
-                if(ElEffCorrectionTool.applyEfficiencyScaleFactor(*el) == CP::CorrectionCode::Error){
-                    MSG_INFO( "Problem in applyEfficiencyScaleFactor");
-                    return EXIT_FAILURE;
-                }
-                MSG_INFO( "===>>> Resulting SF (from get function) " <<SF <<" (from apply function) " <<
-                        el->auxdata< float >("SF"));       
-            }
+            MSG_INFO("===> electron : Pt = " << el->pt() << " : eta = " << el->eta() 
+                    << " : Bin index = " <<index   <<" : SF = "<< nominalSF 
+                    << " + " << totalPos << " - " <<totalNeg << " <===");
         }
-        MSG_INFO("===>>>  done processing event # " <<entry);
-
     }
-    CHECK( ElEffCorrectionTool.finalize() );
-    // Return gracefully:
+    
+    MSG_INFO("===> DONE <===\n"); 
     return 0;
 }
