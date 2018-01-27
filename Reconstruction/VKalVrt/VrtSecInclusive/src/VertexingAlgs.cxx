@@ -1280,14 +1280,11 @@ namespace VKalVrtAthena {
       //  Store good vertices into StoreGate 
       //
       if( m_jp.FillNtuple ) m_ntupleVars->get<unsigned int>( "NumSecVrt" )++;
-
-      double vert_mass=0; double vert_pt=0; double vert_pz=0;
-      double vert_masse=0; //assuming tracks are electrons
-      double vert_massp=0; //assuming tracks are protons
-      double vx=0; double vy=0; double vz=0; double ve=0; double vee=0; double vep=0;
-      int AllBLay = 1;
-      int SumBLay=0;
-
+      
+      TLorentzVector sumP4_pion;
+      TLorentzVector sumP4_electron;
+      TLorentzVector sumP4_proton;
+      
       // Pre-check before storing vertex if the SV perigee is available
       bool good_flag = true;
       
@@ -1341,12 +1338,8 @@ namespace VKalVrtAthena {
       }
       
       
-      TLorentzVector vsum_total;
-      TLorentzVector vsum_selected;
-      TLorentzVector vsum_ptAbove1GeV;
-      unsigned mult_total       { 0 };
+      TLorentzVector sumP4_selected;
       unsigned mult_selected    { 0 };
-      unsigned mult_ptAbove1GeV { 0 };
       
       bool badIPflag { false };
       
@@ -1362,49 +1355,17 @@ namespace VKalVrtAthena {
         track_summary trk_summary;
         fillTrackSummary( trk_summary, trk );
 
-        if( ! (trk->hitPattern() & (1<<Trk::pixelBarrel0)) ) AllBLay = 0;
-
         //
         // calculate mass/pT of tracks and track parameters
         //
 
-        double trk_phi   = trk->phi();
-        double trk_theta = trk->theta();
-        double trk_eta   = trk->eta();
+        double trk_pt  = trk->pt();
+        double trk_eta = trk->eta();
+        double trk_phi = trk->phi();
 
-        double trk_p  = 1.0/fabs( trk->qOverP() );
-        double trk_pz = trk_p*cos(trk_theta);  
-        double trk_pt = trk->pt();
-        double trk_px = trk_pt*cos( trk_phi );  
-        double trk_py = trk_pt*sin( trk_phi);  
-
-        double trk_e  = hypot(trk_p, VKalVrtAthena::PhysConsts::mass_chargedPion); 
-        
-        // for all tracks
-        vsum_total += trk->p4();
-        mult_total++;
-        
-        // for selected tracks only
-        if( trk->isAvailable<char>("is_selected" + m_jp.augVerString ) ) {
-          if( trk->auxdataConst<char>("is_selected" + m_jp.augVerString ) ) {
-            vsum_selected += trk->p4();
-            mult_selected++;
-          }
-        }
-        
-        // for pT > 1 GeV tracks only
-        if( trk->pt() > 1.e3 ) {
-          vsum_ptAbove1GeV += trk->p4();
-          mult_ptAbove1GeV++;
-        }
-        
-        ATH_MSG_VERBOSE(" > " << __FUNCTION__ << ": > Track index " << trk->index() << ": in vrt chg/px/py/pz/pt/e/phi/eta = "
+        ATH_MSG_VERBOSE(" > " << __FUNCTION__ << ": > Track index " << trk->index() << ": in vrt chg/pt/phi/eta = "
             << trk->charge() <<","
-            <<trk_px<<","
-            <<trk_py<<","
-            <<trk_pz<<","
             <<trk_pt<<","
-            <<trk_e<<","
             <<trk_phi<<","
             <<trk_eta);
 
@@ -1431,16 +1392,10 @@ namespace VKalVrtAthena {
         double phi_wrtSV       = sv_perigee->parameters() [Trk::phi];
         double d0_wrtSV        = sv_perigee->parameters() [Trk::d0];
         double z0_wrtSV        = sv_perigee->parameters() [Trk::z0];
-        double errd0_wrtSV     = (*sv_perigee->covariance())( Trk::d0 );
-        double errz0_wrtSV     = (*sv_perigee->covariance())( Trk::z0 );
-        //double errQoverP_wrtSV = (*sv_perigee->covariance())( Trk::qOverP );
-        double errP_wrtSV      = (*sv_perigee->covariance())( Trk::qOverP );
+        double errd0_wrtSV     = (*sv_perigee->covariance())( Trk::d0, Trk::d0 );
+        double errz0_wrtSV     = (*sv_perigee->covariance())( Trk::z0, Trk::z0 );
+        double errP_wrtSV      = (*sv_perigee->covariance())( Trk::qOverP, Trk::qOverP );
         
-        if( fabs( d0_wrtSV ) / sqrt( errd0_wrtSV ) > 5.0 ) badIPflag = true;
-        if( fabs( z0_wrtSV ) / sqrt( errz0_wrtSV ) > 5.0 ) badIPflag = true;
-        
-        if( badIPflag ) continue;
-
         // xAOD::Track augmentation
         ( trkDecors.at(kPt)    )( *trk ) = pt_wrtSV;
         ( trkDecors.at(kEta)   )( *trk ) = eta_wrtSV;
@@ -1454,15 +1409,22 @@ namespace VKalVrtAthena {
         
         decor_svtrk( *trk ) = true;
         
+        TLorentzVector p4wrtSV_pion;
+        TLorentzVector p4wrtSV_electron;
+        TLorentzVector p4wrtSV_proton;
         
-        vert_pt += pt_wrtSV;
-        vert_pz += p_wrtSV * cos(theta_wrtSV);
-        vx      += p_wrtSV * sin(theta_wrtSV) * cos(phi_wrtSV);
-        vy      += p_wrtSV * sin(theta_wrtSV) * sin(phi_wrtSV);
-        vz      += p_wrtSV * cos(theta_wrtSV);
-        ve      += hypot( p_wrtSV, PhysConsts::mass_chargedPion );
-        vee     += hypot( p_wrtSV, PhysConsts::mass_electron );
-        vep     += hypot( p_wrtSV, PhysConsts::mass_proton );
+        p4wrtSV_pion    .SetPtEtaPhiM( pt_wrtSV, eta_wrtSV, phi_wrtSV, PhysConsts::mass_chargedPion );
+        p4wrtSV_electron.SetPtEtaPhiM( pt_wrtSV, eta_wrtSV, phi_wrtSV, PhysConsts::mass_electron    );
+        
+        // for selected tracks only
+        if( ! trk->isAvailable<char>("is_associated" + m_jp.augVerString ) ) {
+          sumP4_selected += p4wrtSV_pion;
+          mult_selected++;
+        }
+        
+        sumP4_pion     += p4wrtSV_pion;
+        sumP4_electron += p4wrtSV_electron;
+        sumP4_proton   += p4wrtSV_proton;
         
         delete sv_perigee;
 
@@ -1471,17 +1433,9 @@ namespace VKalVrtAthena {
 
       ATH_MSG_VERBOSE(" > " << __FUNCTION__ << ": Track loop end. ");
 
-      //nVrtVx->emplace_back(tmpVx);
-
-      // Make vertex mass
-      vert_mass  = sqrt(ve*ve - vx*vx -vy*vy -vz*vz);
-      vert_masse = sqrt(vee*vee - vx*vx -vy*vy -vz*vz);
-      vert_massp = sqrt(vep*vep - vx*vx -vy*vy -vz*vz);
-
-
       ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": Final Sec.Vertex=" << wrkvrt.nTracksTotal() <<", "
-          <<wrkvrt.vertex[0]<<", "<<wrkvrt.vertex[1]<<", "
-          <<wrkvrt.vertex[2]<<","<<vert_mass<<","<<vert_pt<<","<<vert_masse);
+                    <<wrkvrt.vertex.perp() <<", "<<wrkvrt.vertex.z() <<", "
+                    <<wrkvrt.vertex.phi() <<", mass = "<< sumP4_pion.M() << "," << sumP4_electron.M() );
 
 
       //
@@ -1533,31 +1487,22 @@ namespace VKalVrtAthena {
       vertex->setCovariance(fCov);
 
       // Registering the vertex momentum and charge
-      vertex->auxdata<float>("vtx_px")                  = wrkvrt.vertexMom.Px();
-      vertex->auxdata<float>("vtx_py")                  = wrkvrt.vertexMom.Py();
-      vertex->auxdata<float>("vtx_pz")                  = wrkvrt.vertexMom.Pz();
+      vertex->auxdata<float>("vtx_px")                   = wrkvrt.vertexMom.Px();
+      vertex->auxdata<float>("vtx_py")                   = wrkvrt.vertexMom.Py();
+      vertex->auxdata<float>("vtx_pz")                   = wrkvrt.vertexMom.Pz();
 
-      vertex->auxdata<float>("vtx_mass")                = wrkvrt.vertexMom.M();
-      vertex->auxdata<float>("vtx_charge")              = wrkvrt.Charge;
+      vertex->auxdata<float>("vtx_mass")                 = wrkvrt.vertexMom.M();
+      vertex->auxdata<float>("vtx_charge")               = wrkvrt.Charge;
 
       // Other SV properties
-      vertex->auxdata<float>("mass")                    = vert_mass;
-      vertex->auxdata<float>("mass_e")                  = vert_masse;
-      vertex->auxdata<float>("mass_proton")             = vert_massp;
-      vertex->auxdata<float>("pT")                      = vert_pt;
-      vertex->auxdata<float>("pz")                      = vert_pz;
-      vertex->auxdata<float>("sumBLayHits")             = SumBLay;
-      vertex->auxdata<float>("allTrksBLayHits")         = AllBLay;
-      vertex->auxdata<float>("minOpAng")                = minOpAng;
-      vertex->auxdata<float>("num_trks")                = ( wrkvrt.selectedTrackIndices.size() + wrkvrt.associatedTrackIndices.size() );
-      vertex->auxdata<float>("num_selectedTracks")      = wrkvrt.selectedTrackIndices.size();
-      vertex->auxdata<float>("num_associatedTracks")    = wrkvrt.associatedTrackIndices.size();
-      vertex->auxdata<float>("dCloseVrt")               = wrkvrt.closestWrkVrtValue;
-      vertex->auxdata<float>("mass_selectedTracks")     = vsum_selected.M();
-      vertex->auxdata<float>("mass_ptAbove1GeV")        = vsum_ptAbove1GeV.M();
-      vertex->auxdata<float>("num_trks_selectedTracks") = mult_selected;
-      vertex->auxdata<float>("num_trks_ptAbove1GeV")    = mult_ptAbove1GeV;
-      
+      vertex->auxdata<float> ("mass")                    = sumP4_pion.M();
+      vertex->auxdata<float> ("mass_e")                  = sumP4_electron.M();
+      vertex->auxdata<float> ("mass_selectedTracks")     = sumP4_selected.M();
+      vertex->auxdata<float> ("minOpAng")                = minOpAng;
+      vertex->auxdata<int>   ("num_trks")                = wrkvrt.nTracksTotal();
+      vertex->auxdata<int>   ("num_selectedTracks")      = wrkvrt.selectedTrackIndices.size();
+      vertex->auxdata<int>   ("num_associatedTracks")    = wrkvrt.associatedTrackIndices.size();
+      vertex->auxdata<float> ("dCloseVrt")               = wrkvrt.closestWrkVrtValue;
       
       // Registering tracks comprising the vertex to xAOD::Vertex
       // loop over the tracks comprising the vertex
