@@ -14,7 +14,6 @@
 #include "TrkVertexFitterInterfaces/IVertexFitter.h"
 #include "TrkVertexFitterInterfaces/IVertexSeedFinder.h"
 #include "TrkVertexFitters/AdaptiveVertexFitter.h"
-#include "TrkVxEdmCnv/IVxCandidateXAODVertex.h"
 #include "TrkLinks/LinkToXAODTrackParticle.h"
 
 #include "tauRecTools/TauEventData.h"
@@ -28,10 +27,8 @@
 TauVertexVariables::TauVertexVariables(const std::string &name ) :
   TauRecToolBase(name),
   m_primaryVertexKey("PrimaryVertices"),
-  // m_useOldSeedFinderAPI(false),
   m_fitTool("Trk::AdaptiveVertexFitter"),
   m_SeedFinder("Trk::CrossDistancesSeedFinder"),
-  m_xaodConverter("Trk::VxCandidateXAODVertex"),
   m_pSecVtxContainer(0),
   m_pSecVtxAuxContainer(0){
   declareProperty("PrimaryVertexKey", m_primaryVertexKey);
@@ -39,8 +36,6 @@ TauVertexVariables::TauVertexVariables(const std::string &name ) :
   declareProperty("TrackToVertexIPEstimator", m_trackToVertexIPEstimator);
   declareProperty("VertexFitter", m_fitTool);
   declareProperty("SeedFinder", m_SeedFinder);
-  declareProperty("XAODConverter",m_xaodConverter);
-  declareProperty("useOldSeedFinderAPI",m_useOldSeedFinderAPI=false);
   declareProperty("runOnAOD", m_AODmode=false);//AODS are input file 
 }
 
@@ -60,14 +55,6 @@ StatusCode TauVertexVariables::initialize() {
   CHECK( m_trackToVertexIPEstimator.retrieve() );
   CHECK( m_fitTool.retrieve() );
   CHECK( m_SeedFinder.retrieve() );
-  // if (m_useOldSeedFinderAPI) CHECK( m_xaodConverter.retrieve() );
-
-  // if (m_useOldSeedFinderAPI) {
-  //   ATH_MSG_INFO("using AOD-style API of the AdaptiveVertexFitter");
-  // }
-  // else {
-  //   ATH_MSG_INFO("using new xAOD-style API of the AdaptiveVertexFitter");
-  // }
 
   return StatusCode::SUCCESS;
 }
@@ -236,47 +223,12 @@ StatusCode TauVertexVariables::execute(xAOD::TauJet& pTau) {
 
   // fitting the vertex itself
   xAOD::Vertex* xAODvertex(0);
-  //  if (!m_useOldSeedFinderAPI) { // use new xAOD API of VertexFitter
     xAODvertex = m_fitTool->fit(xaodTracks, seedPoint);
     if (xAODvertex && !inTrigger) {
       ATH_MSG_VERBOSE("using new xAOD API: Secondary Vertex found and recorded! x="<<xAODvertex->position().x()<< ", y="<<xAODvertex->position().y()<<", perp="<<xAODvertex->position().perp());
       m_pSecVtxContainer->push_back(xAODvertex);
       xAODvertex->setVertexType(xAOD::VxType::NotSpecified);
     }
-    //  }
-  // else { // use standard AOD-style API of VertexFitter
-  //   Trk::VxCandidate*  = m_fitTool->fit(origTracks, *seedPoint);
-  //   if (tmpVxCandidate) {
-  //     ATH_MSG_VERBOSE("using old AOD API:Secondary Vertex found and recorded! x="<<tmpVxCandidate->recVertex().position().x()<< ", y="<<tmpVxCandidate->recVertex().position().y()<<", perp="<<tmpVxCandidate->recVertex().position().perp());
-
-  //     //******************************************************************
-  //     // convert VxCandidate to xAOD::Vertex
-  //     //******************************************************************
-
-  //     // assigning the input xAOD tracks to the fitted vertex
-  //     // this means: after that procedure the Trk::VxCandidate knows already the links to the xAOD tracks (which have to be identical with the Trk:Tracks used in the VertexFitter!)
-  //     // this is needed for the converting, otherwise the new xAODVertex don't have the track links
-  //     if(tmpVxCandidate->vxTrackAtVertex() != 0 && tmpVxCandidate->vxTrackAtVertex()->size() !=0) {
-  // 	for(unsigned int i = 0; i <xaodTracks.size(); ++i) {
-  // 	  Trk::LinkToXAODTrackParticle * linkTT = new Trk::LinkToXAODTrackParticle;
-  // 	  linkTT->setElement(xaodTracks[i]);
-  // 	  linkTT->setStorableObject(*trackParticleCont);
-  // 	  // vxtrackatvertex takes ownership!
-  // 	  (*(tmpVxCandidate->vxTrackAtVertex()))[i]->setOrigTrack(linkTT);
-  // 	}
-  //     }
-
-  //     xAODvertex = new xAOD::Vertex();
-  //     if (!inTrigger) m_pSecVtxContainer->push_back(xAODvertex);
-  //     // perform the final converting now
-  //     if( m_xaodConverter->createXAODVertex(*tmpVxCandidate,xAODvertex).isFailure() ) {
-  // 	ATH_MSG_ERROR("Failed to create xAODVertex for VxCandidate. Don't set any secondary vertex for tau!");
-  // 	return StatusCode::SUCCESS;
-  //     }
-  //     delete tmpVxCandidate;
-  //   }
-  // }
-    //  delete seedPoint;
 
   if (!xAODvertex) {
     ATH_MSG_WARNING("no secondary vertex found!");
