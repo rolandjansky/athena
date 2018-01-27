@@ -48,6 +48,13 @@ class LArFebErrorSummaryMaker : public AthAlgorithm
   int m_missingFebsWarns; //counter for missing FEB warnings
   std::vector<int> m_errors;  //error types accumulator
   std::set<unsigned int> m_all_febs ; 
+  bool m_isHec;
+  bool m_isFcal;
+  bool m_isEmb;
+  bool m_isEmec;
+  bool m_isEmPS;
+  bool m_isAside;
+  bool m_isCside;
 
   // properties:
   Gaudi::Property<int> m_warnLimit{ this, "warnLimit", 10, "Limit the number of warning messages for missing input" };
@@ -60,7 +67,7 @@ class LArFebErrorSummaryMaker : public AthAlgorithm
   const LArOnlineID* m_onlineHelper;
   ToolHandle<ILArBadChanTool> m_badChannelTool;
 
-  SG::ReadHandleKey<LArFebHeaderContainer> m_readKey;
+  //SG::ReadHandleKey<LArFebHeaderContainer> m_readKey;  // read handle migration preparation
   SG::WriteHandleKey<LArFebErrorSummary> m_writeKey;
 
   // methods:

@@ -21,18 +21,19 @@
 #include <bitset>
 
 
-bool isHec, isFcal, isEmb, isEmec, isEmPS, isAside, isCside;
 /////////////////////////////////////////////////////////////////////
 // CONSTRUCTOR:
 /////////////////////////////////////////////////////////////////////
 
 LArFebErrorSummaryMaker::LArFebErrorSummaryMaker(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),m_nwarns(0),m_missingFebsWarns(0),
+  m_isHec(false), m_isFcal(false), m_isEmb(false), m_isEmec(false),
+  m_isEmPS(false), m_isAside(false), m_isCside(false),
   m_checkAllFeb(true), m_partition(""),m_onlineHelper(0),m_badChannelTool("")
 {
   declareProperty("BadChannelTool",m_badChannelTool,"Bad channel tool to get info on Feb errors to ignore from database");
 
-  declareProperty ("ReadKey", m_readKey = "LArFebHeaderContainer");
+  //declareProperty ("ReadKey", m_readKey = "LArFebHeaderContainer"); // read handle migration preparation
   declareProperty ("WriteKey", m_writeKey = "StoreGateSvc+LArFebErrorSummary");
 }
 
@@ -53,7 +54,6 @@ StatusCode LArFebErrorSummaryMaker::initialize()
 
   m_errors.resize(LArFebErrorSummary::N_LArFebErrorType,0 ); 
 
-  isHec = isFcal = isEmb = isEmec = isEmPS = isAside = isCside = false;
 
   if (m_checkAllFeb)
     {
@@ -68,26 +68,26 @@ StatusCode LArFebErrorSummaryMaker::initialize()
   else { // We should chack partition id
      if(m_partition.size() > 0) {
         unsigned length = m_partition.size();
-        if(m_partition.value().find("LArgHecFcal") < length && m_partition.value().find("EB-HEC") < length) isHec=true;
-        if(m_partition.value().find("LArgHecFcal") < length && m_partition.value().find("EB-FCAL") < length) isFcal=true;
+        if(m_partition.value().find("LArgHecFcal") < length && m_partition.value().find("EB-HEC") < length) m_isHec=true;
+        if(m_partition.value().find("LArgHecFcal") < length && m_partition.value().find("EB-FCAL") < length) m_isFcal=true;
         if(m_partition.value().find("LArgBarrelPS") < length)  {
-           isEmPS = true;
-           if(m_partition.value().find("EB-EMBA") < length) isAside = true;
-           if(m_partition.value().find("EB-EMBC") < length) isCside = true;
+           m_isEmPS = true;
+           if(m_partition.value().find("EB-EMBA") < length) m_isAside = true;
+           if(m_partition.value().find("EB-EMBC") < length) m_isCside = true;
         }
         if(m_partition.value().find("LArgEm") < length && m_partition.value().find("EB-EMB") < length)  {
-           isEmb = true;
-           if(m_partition.value().find("EB-EMBA") < length) isAside = true;
-           if(m_partition.value().find("EB-EMBC") < length) isCside = true;
+           m_isEmb = true;
+           if(m_partition.value().find("EB-EMBA") < length) m_isAside = true;
+           if(m_partition.value().find("EB-EMBC") < length) m_isCside = true;
         }
         if(m_partition.value().find("LArgEm") < length && m_partition.value().find("EB-EMEC") < length)  {
-           isEmec = true;
-           if(m_partition.value().find("EB-EMECA") < length) isAside = true;
-           if(m_partition.value().find("EB-EMECC") < length) isCside = true;
+           m_isEmec = true;
+           if(m_partition.value().find("EB-EMECA") < length) m_isAside = true;
+           if(m_partition.value().find("EB-EMECC") < length) m_isCside = true;
         }
      }
-     if(isHec || isFcal || isEmb || isEmec || isEmPS) {
-       ATH_MSG_DEBUG("isHec: "<<isHec<<" isFcal: "<< isFcal <<" isEmb: "<< isEmb <<" isEmec: "<< isEmec <<" isEmbPS: "<<  isEmPS );
+     if(m_isHec || m_isFcal || m_isEmb || m_isEmec || m_isEmPS) {
+       ATH_MSG_DEBUG("m_isHec: "<<m_isHec<<" m_isFcal: "<< m_isFcal <<" m_isEmb: "<< m_isEmb <<" m_isEmec: "<< m_isEmec <<" m_isEmbPS: "<<  m_isEmPS );
      } else {
        ATH_MSG_WARNING("Wrong PartitionId property: "<<m_partition.value() );
        ATH_MSG_WARNING("Missing FEB's will be not checked " );
@@ -97,13 +97,13 @@ StatusCode LArFebErrorSummaryMaker::initialize()
      std::vector<HWIdentifier>::const_iterator it_e = m_onlineHelper->feb_end();
 
      for (;it!=it_e;++it){
-        if(isHec && m_onlineHelper->isHECchannel(*it)) { m_all_febs.insert((*it).get_identifier32().get_compact()); continue; }
-        if(isFcal && m_onlineHelper->isFCALchannel(*it)) { m_all_febs.insert((*it).get_identifier32().get_compact()); continue; }
-        if((isEmb && m_onlineHelper->isEMBchannel(*it) && (!m_onlineHelper->isPS(*it))) 
-              || (isEmec && m_onlineHelper->isEMECchannel(*it)) 
-              || (isEmPS && m_onlineHelper->isPS(*it) && (!m_onlineHelper->isEMBchannel(*it)))  ) { 
-           if(isAside && m_onlineHelper->pos_neg(*it) == 1) {m_all_febs.insert((*it).get_identifier32().get_compact()); continue; }
-           if(isCside && m_onlineHelper->pos_neg(*it) == 0) {m_all_febs.insert((*it).get_identifier32().get_compact()); continue; }
+        if(m_isHec && m_onlineHelper->isHECchannel(*it)) { m_all_febs.insert((*it).get_identifier32().get_compact()); continue; }
+        if(m_isFcal && m_onlineHelper->isFCALchannel(*it)) { m_all_febs.insert((*it).get_identifier32().get_compact()); continue; }
+        if((m_isEmb && m_onlineHelper->isEMBchannel(*it) && (!m_onlineHelper->isPS(*it))) 
+              || (m_isEmec && m_onlineHelper->isEMECchannel(*it)) 
+              || (m_isEmPS && m_onlineHelper->isPS(*it) && (!m_onlineHelper->isEMBchannel(*it)))  ) { 
+           if(m_isAside && m_onlineHelper->pos_neg(*it) == 1) {m_all_febs.insert((*it).get_identifier32().get_compact()); continue; }
+           if(m_isCside && m_onlineHelper->pos_neg(*it) == 0) {m_all_febs.insert((*it).get_identifier32().get_compact()); continue; }
         }
      }
   }
@@ -115,7 +115,7 @@ StatusCode LArFebErrorSummaryMaker::initialize()
     ATH_CHECK( m_badChannelTool.retrieve() );
   }
 
-  ATH_CHECK( m_readKey.initialize() );
+  //ATH_CHECK( m_readKey.initialize() ); // read handle migration preparation
   ATH_CHECK( m_writeKey.initialize() );
 
   return StatusCode::SUCCESS ; 
@@ -127,11 +127,12 @@ StatusCode LArFebErrorSummaryMaker::execute()
 {
   ATH_MSG_DEBUG(" execute " );
 
-  //const LArFebHeaderContainer* hdrCont;
-  //StatusCode sc = evtStore()->retrieve(hdrCont);
-  SG::ReadHandle<LArFebHeaderContainer> h_read (m_readKey);
-  //if (sc.isFailure() || !hdrCont) {
-  if(!h_read.isValid()) {
+  const LArFebHeaderContainer* hdrCont;
+  StatusCode sc = evtStore()->retrieve(hdrCont);
+  // read handle migration preparation:
+  //SG::ReadHandle<LArFebHeaderContainer> h_read (m_readKey);
+  //if(!h_read.isValid()) {
+  if (sc.isFailure() || !hdrCont) {
      if (m_nwarns < m_warnLimit) 
       {
   	m_nwarns++;
@@ -140,8 +141,8 @@ StatusCode LArFebErrorSummaryMaker::execute()
     return StatusCode::SUCCESS;
   }
   
-  const LArFebHeaderContainer* hdrCont = h_read.cptr();
-  /*
+  // const LArFebHeaderContainer* hdrCont = h_read.cptr(); //preparation for read handle migration
+  /* 
   auto febErrorSummary_ptr = CxxUtils::make_unique<LArFebErrorSummary>();
   LArFebErrorSummary* febErrorSummary = febErrorSummary_ptr.get();
   ATH_CHECK( evtStore()->record(std::move(febErrorSummary_ptr),"LArFebErrorSummary") );
@@ -151,7 +152,7 @@ StatusCode LArFebErrorSummaryMaker::execute()
     ATH_MSG_ERROR( "Can not set const for LArFebErrorSummary"  );
     // return sc;
   }
-  */
+  */ 
   SG::WriteHandle<LArFebErrorSummary> febErrorSummary = SG::makeHandle(m_writeKey);
   ATH_CHECK(  febErrorSummary.record (std::make_unique<LArFebErrorSummary>()) );
 
@@ -164,7 +165,7 @@ StatusCode LArFebErrorSummaryMaker::execute()
   LArFebHeaderContainer::const_iterator it_e = hdrCont->end(); 
 
   std::set<unsigned int> all_febs;
-  if(m_checkAllFeb || isHec || isFcal || isEmb || isEmec || isEmPS){
+  if(m_checkAllFeb || m_isHec || m_isFcal || m_isEmb || m_isEmec || m_isEmPS){
 
     all_febs= m_all_febs;
     
@@ -176,7 +177,7 @@ StatusCode LArFebErrorSummaryMaker::execute()
       HWIdentifier febid=(*it)->FEBId();
       unsigned int int_id =  febid.get_identifier32().get_compact();
    
-      if (m_checkAllFeb || isHec || isFcal || isEmb || isEmec || isEmPS){
+      if (m_checkAllFeb || m_isHec || m_isFcal || m_isEmb || m_isEmec || m_isEmPS){
 	all_febs.erase(int_id);
       }
       // ctrl3 
@@ -322,7 +323,7 @@ StatusCode LArFebErrorSummaryMaker::execute()
 
     }
   
-  if (m_checkAllFeb || isHec || isFcal || isEmb || isEmec || isEmPS){
+  if (m_checkAllFeb || m_isHec || m_isFcal || m_isEmb || m_isEmec || m_isEmPS){
     const uint16_t errw = 1<< LArFebErrorSummary::MissingHeader; 
     bool warn=false;
     std::set<unsigned int>::const_iterator it =  all_febs.begin();
