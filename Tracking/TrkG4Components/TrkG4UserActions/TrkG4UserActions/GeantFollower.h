@@ -37,6 +37,7 @@ namespace G4UA
 
     struct Config
     {
+      /// FIXME: Public tool handle. See ATLASSIM-3561.
       ToolHandle<Trk::IGeantFollowerHelper> helper =
         ToolHandle<Trk::IGeantFollowerHelper>("Trk::GeantFollowerHelper/GeantFollowerHelper");
     };
@@ -51,6 +52,7 @@ namespace G4UA
 
     Config m_config;
 
+    /// FIXME: mutable helper! See ATLASSIM-3561.
     mutable const Trk::IGeantFollowerHelper* m_helperPointer;
 
   }; // class GeantFollower

@@ -14,6 +14,7 @@
 #include "TrkG4UserActions/IGeantFollowerHelper.h"
 #include "G4ThreeVector.hh" //typedef, can't fwd declare
 
+// FIXME: header-global macro for an array size constant!
 #ifndef MAXPROBES
 #define MAXPROBES 50000
 #endif

@@ -28,6 +28,7 @@ namespace G4UA
 
   }
 
+  // FIXME: Why implement run action if empty?
   void EnergyLossRecorder::BeginOfRunAction(const G4Run*)
   {
     return;
@@ -46,6 +47,8 @@ namespace G4UA
   void EnergyLossRecorder::EndOfEventAction(const G4Event*)
   {
     if (m_config.pmWriter) {
+      // FIXME: thread-unsafe usage of a component in a thread-local action?
+      // See ATLASSIM-3562.
       m_config.pmWriter->finalizeTrack();
     }
     m_entries = 0;

@@ -16,6 +16,7 @@
 #include "TrkG4UserActions/IGeantFollowerMSHelper.h"
 #include "G4ThreeVector.hh"
 
+// FIXME: header-global macro for an array size constant!
 #ifndef MAXPROBES
 #define MAXPROBES 50000
 #endif
@@ -52,6 +53,7 @@ namespace Trk
       void trackParticle(const G4ThreeVector& pos, const G4ThreeVector& mom, int pdg, double charge, float t, float X0) const;
 
       /// modify TSOS vector
+      /// FIXME: const by-value vector argument!
       const std::vector<const Trk::TrackStateOnSurface*>
       modifyTSOSvector(const std::vector<const Trk::TrackStateOnSurface*> matvec,
                        double scaleX0, double scaleEloss, bool reposition,

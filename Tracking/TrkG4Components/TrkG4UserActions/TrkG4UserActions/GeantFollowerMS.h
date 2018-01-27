@@ -37,6 +37,8 @@ namespace G4UA
 
     struct Config
     {
+      // FIXME: public tool handle in thread-local action!
+      // See ATLASSIM-3561.
       ToolHandle<Trk::IGeantFollowerMSHelper> helper =
         ToolHandle<Trk::IGeantFollowerMSHelper>("Trk::GeantFollowerMSHelper/GeantFollowerMSHelper");
       ServiceHandle<Trk::ITrackingGeometrySvc> trackingGeometrySvc =
@@ -52,7 +54,10 @@ namespace G4UA
   private:
 
     Config m_config;
-    /** tracking geometry */
+
+    /** tracking geometry
+        FIXME: mutables in thread-local action! ATLASSIM-3561.
+    */
     mutable const Trk::TrackingGeometry*         m_trackingGeometry;
     mutable const Trk::IGeantFollowerMSHelper*   m_helperPointer;
 

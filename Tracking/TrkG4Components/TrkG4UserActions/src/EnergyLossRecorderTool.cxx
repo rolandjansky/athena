@@ -23,6 +23,8 @@ namespace G4UA
   {
     if(!m_pmWriter.empty()) {
       ATH_CHECK(m_pmWriter.retrieve());
+      // FIXME: thread-unsafe usage of a component in a thread-local action?
+      // See ATLASSIM-3562.
       m_config.pmWriter = &(*m_pmWriter);
     }
     return StatusCode::SUCCESS;

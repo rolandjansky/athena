@@ -31,11 +31,13 @@ namespace G4UA
 
   void GeantFollowerMS::BeginOfEventAction(const G4Event*)
   {
+    // FIXME: thread-unsafe tool usage in thread-local action? ATLASSIM-3562.
     m_helperPointer->beginEvent();
   }
 
   void GeantFollowerMS::EndOfEventAction(const G4Event*)
   {
+    // FIXME: thread-unsafe tool usage in thread-local action? ATLASSIM-3562.
     m_helperPointer->endEvent();
   }
 
