@@ -155,8 +155,7 @@ def toolVxInternalEdmFactory(name, useBTagFlagsDefaults = True, **options):
 #--------------------------------------------------------------------------
 
 metaJetFitterSequentialVertexFitter = { 'DependsOn'      : ['JetFitterSequentialVertexSmoother',
-                                                            'JetFitterFullLinearizedTrackFactory',
-                                                            'VxInternalEdmFactory'],
+                                                            'JetFitterFullLinearizedTrackFactory'] ,
                                         'PassByPointer'  : {'VertexSmoother'         : 'JetFitterSequentialVertexSmoother',
                                                             'LinearizedTrackFactory' : 'JetFitterFullLinearizedTrackFactory'},
 
