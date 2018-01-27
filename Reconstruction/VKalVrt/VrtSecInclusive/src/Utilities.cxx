@@ -1129,7 +1129,8 @@ namespace VKalVrtAthena {
       return AlgConsts::invalidUnsigned;
     };
     
-    uint32_t expectedHitPattern { 0 };
+    enum { kShouldNotHaveHit, kShouldHaveHit, kMayHaveHit };
+    std::vector<unsigned> expectedHitPattern(Trk::numberOfDetectorTypes, kShouldNotHaveHit);
     
     auto minExpectedRadius = AlgConsts::maxValue;
     
@@ -1142,14 +1143,32 @@ namespace VKalVrtAthena {
       
       ATH_MSG_VERBOSE( " > " <<  __FUNCTION__ << ": isActive = " << std::get<isActive>( point ) );
       
-      // if the front-end module is not active, then the hit is not expected.
-      if( false == std::get<isActive>( point ) ) continue;
-      
       auto& thisPos = std::get<position>( point );
       auto& nextPos = std::get<position>( nextPoint );
       
       auto sectionVector = nextPos - thisPos;
       auto vertexVector  = TVector3( vertex.x(), vertex.y(), vertex.z() ) - thisPos;
+      
+      
+      const auto& detectorType = getDetectorType( point );
+      
+      ATH_MSG_VERBOSE( " > " <<  __FUNCTION__ << ": detType = " << detectorType );
+      
+      if( detectorType == AlgConsts::invalidUnsigned ) continue;
+      if( detectorType >= Trk::numberOfDetectorTypes ) continue;
+      
+      // if the vertex is nearby (within 10 mm), the hit may be presnet ("X")
+      if( vertexVector.Mag() < 10. ) {
+        expectedHitPattern.at( detectorType ) = kMayHaveHit;
+        continue;
+      }
+      
+      // if the front-end module is not active, then the hit is not expected,
+      // which means the hit may be present
+      if( false == std::get<isActive>( point ) ) {
+        expectedHitPattern.at( detectorType ) = kMayHaveHit;
+        continue;
+      }
       
       // if the inner product of the above two vectors is positive,
       // then point is inner than the vertex.
@@ -1170,15 +1189,7 @@ namespace VKalVrtAthena {
       
       // now, the hit is expected to present.
       
-      const auto& detectorType = getDetectorType( point );
-      
-      ATH_MSG_VERBOSE( " > " <<  __FUNCTION__ << ": detType = " << detectorType );
-      
-      if( detectorType == AlgConsts::invalidUnsigned ) continue;
-      
-      if( ! (expectedHitPattern & (1 << detectorType)) ) {
-        expectedHitPattern += ( 1 << detectorType );
-      }
+      expectedHitPattern.at( detectorType ) = kShouldHaveHit;
     }
     
     // If the first expected point's radius is smaller than the vertex radius,
@@ -1186,20 +1197,38 @@ namespace VKalVrtAthena {
     // to the track outgoing direction. Such a case should be rejected.
     bool oppositeFlag = ( minExpectedRadius < vertex.perp() );
     
-    std::vector<unsigned> expectedLayers;
-    std::vector<unsigned> recordedLayers;
-    
     std::string msg = "Expected hit pattern: ";
     for( unsigned i=0; i<Trk::numberOfDetectorTypes; i++) {
-      msg += Form("%u", ( expectedHitPattern >> i ) & 1 );
-      if( ( expectedHitPattern >> i ) & 1 ) expectedLayers.emplace_back( i );
+      msg += Form("%s", expectedHitPattern.at(i) < kMayHaveHit? Form("%u", expectedHitPattern.at(i)) : "X" );
     }
     ATH_MSG_DEBUG( " > " << __FUNCTION__ << ": " << msg );
     
     msg = "Recorded hit pattern: ";
     for( unsigned i=0; i<Trk::numberOfDetectorTypes; i++) {
       msg += Form("%u", ( trk->hitPattern() >> i ) & 1 );
-      if( ( trk->hitPattern() >> i ) & 1 ) recordedLayers.emplace_back( i );
+    }
+    ATH_MSG_DEBUG( " > " << __FUNCTION__ << ": " << msg );
+    
+    unsigned nMatchedLayers { 0 };
+    std::vector<unsigned> matchedLayers;
+    
+    for( unsigned i=0; i<Trk::numberOfDetectorTypes; i++) {
+      const unsigned recordedPattern = ( (trk->hitPattern()>>i) & 1 );
+      
+      if( expectedHitPattern.at(i) == kMayHaveHit ) {
+        matchedLayers.emplace_back( i );
+      } else if( expectedHitPattern.at(i) == kShouldHaveHit ) {
+        if( expectedHitPattern.at(i) != recordedPattern ) {
+          break;
+        } else {
+          matchedLayers.emplace_back( i );
+        }
+      } else {
+        if( expectedHitPattern.at(i) != recordedPattern ) {
+          break;
+        }
+      }
+      
     }
     
     uint8_t PixelHits = 0;
@@ -1213,12 +1242,17 @@ namespace VKalVrtAthena {
     while( dphi >  TMath::Pi() ) dphi -= TMath::TwoPi();
     while( dphi < -TMath::Pi() ) dphi += TMath::TwoPi();
     
-    ATH_MSG_DEBUG( " > " << __FUNCTION__ << ": " << msg );
     ATH_MSG_DEBUG( " > " << __FUNCTION__ << ": vtx phi = " << vertex.phi() << ", track phi = " << trk->phi() << ", dphi = " << dphi
                    << ", oppositeFlag = " << oppositeFlag
                    << ", nPixelHits = " << static_cast<int>(PixelHits)
                    << ", nSCTHits = " << static_cast<int>(SctHits)
-                   << ", nTRTHits = " << static_cast<int>(TRTHits) );
+                   << ", nTRTHits = " << static_cast<int>(TRTHits)
+                   << ", nMatchedLayers = " << nMatchedLayers);
+    
+    if( PixelHits == 0 && vertex.perp() > 300. ) {
+      ATH_MSG_DEBUG( " > " << __FUNCTION__ << ": vertex r > 300 mm, w/o no pixel hits" );
+    }
+    
     
     // Sometimes the vertex is reconstructed at the opposite phi direction.
     // In this case, the pattern match may pass.
@@ -1226,18 +1260,22 @@ namespace VKalVrtAthena {
     if( oppositeFlag ) return false;
     
     // Requires the first 2 layers with the hit matches.
-    if( expectedLayers.size() < 2 || recordedLayers.size() < 2 ) return false;
+    if( matchedLayers.size() < 2 ) return false;
     
-    if( recordedLayers.at(0) >= Trk::sctEndCap0 && recordedLayers.size() < 5 ) return false;
-    if( recordedLayers.at(0) >= Trk::sctBarrel1 && SctHits < 6 ) return false;
+    // In case of the first matched layer is not within pixel barrel, requires the first 4 layers with the hit match
+    if( matchedLayers.at(0) >= Trk::pixelEndCap0 ) {
+      if( matchedLayers.size() < 4 ) return false;
+    }
     
+    // If the dphi (defined above) is opposite, reject.
     if( fabs( dphi ) > TMath::Pi()/2.0 ) return false;
     
+    // If the track is not within the forward hemisphere to the vertex, reject.
     TVector3 trkP; trkP.SetPtEtaPhi( trk->pt(), trk->eta(), trk->phi() );
     TVector3 vtx; vtx.SetXYZ( vertex.x(), vertex.y(), vertex.z() );
     if( trkP.Dot( vtx ) < 0. ) return false;
     
-    return ( expectedLayers.at(0) == recordedLayers.at(0) && expectedLayers.at(1) == recordedLayers.at(1) );
+    return true;
   }
     
 
