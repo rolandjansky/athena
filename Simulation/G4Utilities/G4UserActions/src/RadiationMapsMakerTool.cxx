@@ -24,14 +24,13 @@ namespace G4UA{
   }
 
   //---------------------------------------------------------------------------
-  // Merge results from all threads
+  // Initialize Configurable Properties
   //---------------------------------------------------------------------------
   StatusCode RadiationMapsMakerTool::initialize()
   {
     ATH_MSG_INFO( "Initializing " << name() << " with Output File " << m_radMapsFileName);
     return StatusCode::SUCCESS;
   }
-    // first make sure the vectors are empty
 
   //---------------------------------------------------------------------------
   // Merge results from all threads
