@@ -38,36 +38,33 @@ class LArFebErrorSummaryMaker : public AthAlgorithm
   LArFebErrorSummaryMaker(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~LArFebErrorSummaryMaker();
 
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize();
+  virtual StatusCode initialize() override final;
+  virtual StatusCode execute() override final;
+  virtual StatusCode finalize() override final;
 
  private:
 
-  bool masked (unsigned int hid, const std::vector<unsigned int>& v_feb) const; 
-
-  const LArOnlineID* m_onlineHelper ; 
-
-  int m_nwarns;
-  int m_warnLimit;
-
-  int m_missingFebsWarns;
-
-  std::vector<int> m_errors; 
-
-  // ignore these FEBs for these errors
-  std::vector<unsigned int> m_knownEvtId;
-  std::vector<unsigned int> m_knownSCACStatus;
-  std::vector<unsigned int> m_knownZeroSample;
-
-  bool m_checkAllFeb; 
-  std::string m_partition;
+  int m_nwarns; //counter for warnings
+  int m_missingFebsWarns; //counter for missing FEB warnings
+  std::vector<int> m_errors;  //error types accumulator
   std::set<unsigned int> m_all_febs ; 
 
+  // properties:
+  Gaudi::Property<int> m_warnLimit{ this, "warnLimit", 10, "Limit the number of warning messages for missing input" };
+  Gaudi::Property<bool> m_checkAllFeb{ this, "CheckAllFEB", true, "Check all FEBS ?" };
+  Gaudi::Property<std::string> m_partition{ this, "PartitionId", "", "Should contain DAQ partition (+ eventually the EventBuilder)" };
+  Gaudi::Property<std::vector<unsigned int> > m_knownEvtId{ this, "MaskFebEvtId", {}, "ignore these FEBs for EvtId" };
+  Gaudi::Property<std::vector<unsigned int> > m_knownSCACStatus{ this, "MaskFebScacStatus", {}, "ignore these FEBs for ScacStatus" };
+  Gaudi::Property<std::vector<unsigned int> > m_knownZeroSample{ this, "MaskFebZeroSample", {}, "ignore these FEBs for ZeroSample" };
+
+  const LArOnlineID* m_onlineHelper;
   ToolHandle<ILArBadChanTool> m_badChannelTool;
 
   SG::ReadHandleKey<LArFebHeaderContainer> m_readKey;
   SG::WriteHandleKey<LArFebErrorSummary> m_writeKey;
+
+  // methods:
+  bool masked (unsigned int hid, const std::vector<unsigned int>& v_feb) const; 
 };
 #endif
 

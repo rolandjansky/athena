@@ -27,18 +27,13 @@ bool isHec, isFcal, isEmb, isEmec, isEmPS, isAside, isCside;
 /////////////////////////////////////////////////////////////////////
 
 LArFebErrorSummaryMaker::LArFebErrorSummaryMaker(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),m_onlineHelper(NULL),m_nwarns(0),m_missingFebsWarns(0),
-  m_checkAllFeb(true), m_partition(""), m_badChannelTool("")
+  AthAlgorithm(name, pSvcLocator),m_nwarns(0),m_missingFebsWarns(0),
+  m_checkAllFeb(true), m_partition(""),m_onlineHelper(0),m_badChannelTool("")
 {
-  declareProperty("warnLimit", m_warnLimit=10);
-
-  declareProperty("CheckAllFEB",m_checkAllFeb);
-  declareProperty("PartitionId", m_partition); //Should contain DAQ partition (+ eventually the EventBuilder)
-
-  declareProperty("MaskFebEvtId",m_knownEvtId);
-  declareProperty("MaskFebScacStatus",m_knownSCACStatus);
-  declareProperty("MaskFebZeroSample",m_knownZeroSample);
   declareProperty("BadChannelTool",m_badChannelTool,"Bad channel tool to get info on Feb errors to ignore from database");
+
+  declareProperty ("ReadKey", m_readKey = "LArFebHeaderContainer");
+  declareProperty ("WriteKey", m_writeKey = "StoreGateSvc+LArFebErrorSummary");
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -54,8 +49,7 @@ StatusCode LArFebErrorSummaryMaker::initialize()
 {
   ATH_MSG_DEBUG(" initialize " );
 
-
-  ATH_CHECK( detStore()->retrieve( m_onlineHelper ) );
+  ATH_CHECK(detStore()->retrieve( m_onlineHelper ) );
 
   m_errors.resize(LArFebErrorSummary::N_LArFebErrorType,0 ); 
 
@@ -74,28 +68,28 @@ StatusCode LArFebErrorSummaryMaker::initialize()
   else { // We should chack partition id
      if(m_partition.size() > 0) {
         unsigned length = m_partition.size();
-        if(m_partition.find("LArgHecFcal") < length && m_partition.find("EB-HEC") < length) isHec=true;
-        if(m_partition.find("LArgHecFcal") < length && m_partition.find("EB-FCAL") < length) isFcal=true;
-        if(m_partition.find("LArgBarrelPS") < length)  {
+        if(m_partition.value().find("LArgHecFcal") < length && m_partition.value().find("EB-HEC") < length) isHec=true;
+        if(m_partition.value().find("LArgHecFcal") < length && m_partition.value().find("EB-FCAL") < length) isFcal=true;
+        if(m_partition.value().find("LArgBarrelPS") < length)  {
            isEmPS = true;
-           if(m_partition.find("EB-EMBA") < length) isAside = true;
-           if(m_partition.find("EB-EMBC") < length) isCside = true;
+           if(m_partition.value().find("EB-EMBA") < length) isAside = true;
+           if(m_partition.value().find("EB-EMBC") < length) isCside = true;
         }
-        if(m_partition.find("LArgEm") < length && m_partition.find("EB-EMB") < length)  {
+        if(m_partition.value().find("LArgEm") < length && m_partition.value().find("EB-EMB") < length)  {
            isEmb = true;
-           if(m_partition.find("EB-EMBA") < length) isAside = true;
-           if(m_partition.find("EB-EMBC") < length) isCside = true;
+           if(m_partition.value().find("EB-EMBA") < length) isAside = true;
+           if(m_partition.value().find("EB-EMBC") < length) isCside = true;
         }
-        if(m_partition.find("LArgEm") < length && m_partition.find("EB-EMEC") < length)  {
+        if(m_partition.value().find("LArgEm") < length && m_partition.value().find("EB-EMEC") < length)  {
            isEmec = true;
-           if(m_partition.find("EB-EMECA") < length) isAside = true;
-           if(m_partition.find("EB-EMECC") < length) isCside = true;
+           if(m_partition.value().find("EB-EMECA") < length) isAside = true;
+           if(m_partition.value().find("EB-EMECC") < length) isCside = true;
         }
      }
      if(isHec || isFcal || isEmb || isEmec || isEmPS) {
        ATH_MSG_DEBUG("isHec: "<<isHec<<" isFcal: "<< isFcal <<" isEmb: "<< isEmb <<" isEmec: "<< isEmec <<" isEmbPS: "<<  isEmPS );
      } else {
-       ATH_MSG_WARNING("Wrong PartitionId property: "<<m_partition );
+       ATH_MSG_WARNING("Wrong PartitionId property: "<<m_partition.value() );
        ATH_MSG_WARNING("Missing FEB's will be not checked " );
      }
      // Now let's build the list of FEB's according partition
@@ -121,6 +115,9 @@ StatusCode LArFebErrorSummaryMaker::initialize()
     ATH_CHECK( m_badChannelTool.retrieve() );
   }
 
+  ATH_CHECK( m_readKey.initialize() );
+  ATH_CHECK( m_writeKey.initialize() );
+
   return StatusCode::SUCCESS ; 
 
 } 
@@ -130,18 +127,21 @@ StatusCode LArFebErrorSummaryMaker::execute()
 {
   ATH_MSG_DEBUG(" execute " );
 
-  const LArFebHeaderContainer* hdrCont;
-  StatusCode sc = evtStore()->retrieve(hdrCont);
-  if (sc.isFailure() || !hdrCont) {
-    if (m_nwarns < m_warnLimit) 
+  //const LArFebHeaderContainer* hdrCont;
+  //StatusCode sc = evtStore()->retrieve(hdrCont);
+  SG::ReadHandle<LArFebHeaderContainer> h_read (m_readKey);
+  //if (sc.isFailure() || !hdrCont) {
+  if(!h_read.isValid()) {
+     if (m_nwarns < m_warnLimit) 
       {
-	m_nwarns++;
+  	m_nwarns++;
 	ATH_MSG_WARNING( "No LArFebHeaderContainer found in TDS, LArFebErrorSummary not created "  );
       }
     return StatusCode::SUCCESS;
   }
   
-
+  const LArFebHeaderContainer* hdrCont = h_read.cptr();
+  /*
   auto febErrorSummary_ptr = CxxUtils::make_unique<LArFebErrorSummary>();
   LArFebErrorSummary* febErrorSummary = febErrorSummary_ptr.get();
   ATH_CHECK( evtStore()->record(std::move(febErrorSummary_ptr),"LArFebErrorSummary") );
@@ -151,6 +151,10 @@ StatusCode LArFebErrorSummaryMaker::execute()
     ATH_MSG_ERROR( "Can not set const for LArFebErrorSummary"  );
     // return sc;
   }
+  */
+  SG::WriteHandle<LArFebErrorSummary> febErrorSummary = SG::makeHandle(m_writeKey);
+  ATH_CHECK(  febErrorSummary.record (std::make_unique<LArFebErrorSummary>()) );
+
   unsigned int nbSamplesFirst=0;
   uint32_t eventTypeFirst = 999;
 
