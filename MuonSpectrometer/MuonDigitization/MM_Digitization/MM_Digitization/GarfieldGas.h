@@ -48,7 +48,7 @@ class GarfieldGas {
 
     // from Medium.hh
     double ScaleElectricField(const double e) {
-      return e * pressureTable / pressure;
+      return e * m_pressureTable / m_pressure;
     }
 
     virtual 
@@ -71,51 +71,51 @@ class GarfieldGas {
     // from Medium.hh
 
     // Name
-    std::string name;
+    std::string m_name;
     // Temperature [K]
-    double temperature;
+    double m_temperature;
     // Pressure [Torr]
-    double pressure;
+    double m_pressure;
     // Number of components
-    int nComponents;
+    int m_nComponents;
 
-    int nExcListElements;
-    int nIonListElements;
+    int m_nExcListElements;
+    int m_nIonListElements;
 
-    int nEfields;
-    int nBfields;
-    int nAngles;
+    int m_nEfields;
+    int m_nBfields;
+    int m_nAngles;
 
-    std::vector<double> eFields;
-    std::vector<double> bFields;
-    std::vector<double> bAngles;
+    std::vector<double> m_eFields;
+    std::vector<double> m_bFields;
+    std::vector<double> m_bAngles;
 
-    bool map2d;
+    bool m_map2d;
 
-    bool hasElectronVelocityE, hasElectronVelocityB, hasElectronVelocityExB;
-    bool hasElectronDiffLong, hasElectronDiffTrans;
-    std::vector<std::vector<std::vector<double> > > tabElectronVelocityE;
-    std::vector<std::vector<std::vector<double> > > tabElectronVelocityExB;
-    std::vector<std::vector<std::vector<double> > > tabElectronVelocityB;
-    std::vector<std::vector<std::vector<double> > > tabElectronDiffLong;
-    std::vector<std::vector<std::vector<double> > > tabElectronDiffTrans;
+    bool m_hasElectronVelocityE, m_hasElectronVelocityB, m_hasElectronVelocityExB;
+    bool m_hasElectronDiffLong, m_hasElectronDiffTrans;
+    std::vector<std::vector<std::vector<double> > > m_tabElectronVelocityE;
+    std::vector<std::vector<std::vector<double> > > m_tabElectronVelocityExB;
+    std::vector<std::vector<std::vector<double> > > m_tabElectronVelocityB;
+    std::vector<std::vector<std::vector<double> > > m_tabElectronDiffLong;
+    std::vector<std::vector<std::vector<double> > > m_tabElectronDiffTrans;
 
 
     // Extrapolation methods
-    int extrLowVelocity, extrHighVelocity;
-    int extrLowDiffusion, extrHighDiffusion;
-    int extrLowTownsend, extrHighTownsend;
-    int extrLowAttachment, extrHighAttachment;
-    int extrLowMobility, extrHighMobility;
-    int extrLowDissociation, extrHighDissociation;
+    int m_extrLowVelocity, m_extrHighVelocity;
+    int m_extrLowDiffusion, m_extrHighDiffusion;
+    int m_extrLowTownsend, m_extrHighTownsend;
+    int m_extrLowAttachment, m_extrHighAttachment;
+    int m_extrLowMobility, m_extrHighMobility;
+    int m_extrLowDissociation, m_extrHighDissociation;
 
     // Interpolation methods
-    int intpVelocity;
-    int intpDiffusion;
-    int intpTownsend;
-    int intpAttachment;
-    int intpMobility;
-    int intpDissociation;
+    int m_intpVelocity;
+    int m_intpDiffusion;
+    int m_intpTownsend;
+    int m_intpAttachment;
+    int m_intpMobility;
+    int m_intpDissociation;
 
     double Interpolate1D(const double e,
 			 const std::vector<double>& table, 
@@ -129,13 +129,13 @@ class GarfieldGas {
 
 
     // from MediumGas.hh
-    static const int nMaxGases=6;
+    static const int s_nMaxGases=6;
 
-    std::string gas[nMaxGases];
-    double fraction[nMaxGases];
+    std::string m_gas[s_nMaxGases];
+    double m_fraction[s_nMaxGases];
 
 
-    double pressureTable, temperatureTable;
+    double m_pressureTable, m_temperatureTable;
 
 
 

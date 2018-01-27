@@ -76,7 +76,7 @@ private:
   float m_StripResponse_driftGap;
   float m_StripResponse_driftVelocity;
 
-  TF1 *h_intFn;
+  TF1 *m_intFn;
   StripsResponse* m_stripObject ;
   ElectronicsResponse & operator=(const ElectronicsResponse &right);
   ElectronicsResponse(const ElectronicsResponse&);
@@ -98,16 +98,16 @@ public :
   MmElectronicsToolTriggerOutput ApplyARTTiming(const MmElectronicsToolTriggerOutput & ElectronicsTriggerOutput, float jitter, float offset);
   bool DeadChannel(int id, float time, std::vector<int> & v_id, const std::vector<float> & v_time, float deadtime);
 
-  vector <float> tStripElectronicsAbThr;
-  vector <float> qStripElectronics;
-  vector <int> nStripElectronics;
+  vector <float> m_tStripElectronicsAbThr;
+  vector <float> m_qStripElectronics;
+  vector <int> m_nStripElectronics;
 
   inline void set_peakTime(float val) {
     m_peakTime = val;
     float peakTimeMultiplier = sqrt(m_peakTime / 50.);
     m_alpha = 2.5 * peakTimeMultiplier;
-    h_intFn->SetParameter( 0, 2.5 * peakTimeMultiplier ); // previously split into the alpha parameter
-    h_intFn->SetParameter( 1, 20. * peakTimeMultiplier ); // ... and RC parameter
+    m_intFn->SetParameter( 0, 2.5 * peakTimeMultiplier ); // previously split into the alpha parameter
+    m_intFn->SetParameter( 1, 20. * peakTimeMultiplier ); // ... and RC parameter
   };
   inline void set_timeWindowLowerOffset(float val) { m_timeWindowLowerOffset = val;};
   inline void set_timeWindowUpperOffset(float val) { m_timeWindowUpperOffset = val;};
@@ -124,9 +124,9 @@ public :
   float get_ARTdeadtime() const { return m_ARTdeadtime;};
 
 
-  vector <float>  get_tStripElectronicsAbThr () const { return tStripElectronicsAbThr;};
-  vector <float>  get_qStripElectronics () const { return qStripElectronics;};
-  vector <int>  get_nStripElectronics () const { return nStripElectronics;};
+  vector <float>  get_tStripElectronicsAbThr () const { return m_tStripElectronicsAbThr;};
+  vector <float>  get_qStripElectronics () const { return m_qStripElectronics;};
+  vector <int>  get_nStripElectronics () const { return m_nStripElectronics;};
 
 
 };

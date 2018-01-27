@@ -17,21 +17,21 @@
 
 class MM_Electron {
 
-  TVector2 initialPosition;  
-  TVector2 offsetPosition;
+  TVector2 m_initialPosition;  
+  TVector2 m_offsetPosition;
   
-  float time;
-  float charge;      
+  float m_time;
+  float m_charge;      
 
  public:
 
-  std::unique_ptr<TF1> PolyaFunction;
-  std::unique_ptr<TF1> LongitudinalDiffusionFunction;
-  std::unique_ptr<TF1> TransverseDiffusionFunction;
+  std::unique_ptr<TF1> m_PolyaFunction;
+  std::unique_ptr<TF1> m_LongitudinalDiffusionFunction;
+  std::unique_ptr<TF1> m_TransverseDiffusionFunction;
 
   MM_Electron();  
-  MM_Electron(float _x, float _y);  
-  MM_Electron(const MM_Electron& _MM_Electron);
+  MM_Electron(float x, float y);  
+  MM_Electron(const MM_Electron& other);
   
   void diffuseElectron(float LongitudinalSigma, float TransverseSigma, TRandom3* rndm);    
   void setOffsetPosition(float x, float y);

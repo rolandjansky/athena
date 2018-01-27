@@ -137,8 +137,6 @@ public:
     m_amplification = amplification;
   }
 
-  void set (const double bunchTime);
-
 
 
 private:
@@ -156,7 +154,7 @@ private:
   MmSortedHitVector      m_hits;
 
   const MmIdHelper*       m_idHelper;
-  MicromegasHitIdHelper*  muonHelper;
+  MicromegasHitIdHelper*  m_muonHelper;
 
   const MuonGM::MuonDetectorManager* m_MuonGeoMgr;
 
@@ -205,7 +203,6 @@ private:
   double m_Polya;
   double m_timeWindowLowerOffset;
   double m_timeWindowUpperOffset;
-  double m_bunchTime;
   double * m_sprob;
   double m_amplification;
 
@@ -228,9 +225,9 @@ private:
   TH1I *m_AngleDistr, *m_AbsAngleDistr, *m_ClusterLength2D, *m_ClusterLength, *m_gasGap,  *m_gasGapDir ;
 
   int m_n_Station_side, m_n_Station_eta, m_n_Station_phi, m_n_Station_multilayer, m_n_Station_layer, m_n_hitStripID, m_n_StrRespTrg_ID, m_n_strip_multiplicity, m_n_strip_multiplicity_2;
-  int exitcode, m_n_hitPDGId;
+  int m_exitcode, m_n_hitPDGId;
   double m_n_hitOnSurface_x, m_n_hitOnSurface_y, m_n_hitDistToChannel, m_n_hitIncomingAngle,m_n_StrRespTrg_Time, m_n_hitIncomingAngleRads, m_n_hitKineticEnergy, m_n_hitDepositEnergy;
-  float  tofCorrection, bunchTime, globalHitTime, eventTime;
+  float  m_tofCorrection, m_bunchTime, m_globalHitTime, m_eventTime;
   std::vector<int> m_n_StrRespID;
   std::vector<float> m_n_StrRespCharge, m_n_StrRespTime;
 
@@ -260,8 +257,7 @@ protected:
 };
 /*******************************************************************************/
 inline bool MmDigitizationTool::outsideWindow(double driftTime) const {
-  double time = driftTime; //m_bunchTime is included already....updated one..
-  //  double time = driftTime+m_bunchTime;
+  double time = driftTime;
   return time < m_timeWindowLowerOffset || time > m_timeWindowUpperOffset;
 }
 /*******************************************************************************/
@@ -282,7 +278,4 @@ inline double MmDigitizationTool::qStrip (const int & nElectrons, const double& 
   }
   return stripCharge;
 }
-/*******************************************************************************/
-inline void MmDigitizationTool::set (const double bunchTime) {m_bunchTime = bunchTime;}
-
 #endif // MmDigitizationTool

@@ -42,17 +42,17 @@ ElectronicsResponse::ElectronicsResponse()
 
   m_electronicsThreshold = (m_StripResponse_qThreshold * ( TMath::Power(m_alpha,m_alpha)*TMath::Exp(-m_alpha)) ) ;
   //---------------------------------------------------------
-  h_intFn = new TF1("intFn",shaperResponse, m_timeWindowLowerOffset, m_timeWindowUpperOffset, 2 ); // T.Saito
-  h_intFn->SetParameter( 0, 2.5 * peakTimeMultiplier ); // previously split into the alpha parameter
-  h_intFn->SetParameter( 1, 20. * peakTimeMultiplier ); // ... and RC parameter
+  m_intFn = new TF1("intFn",shaperResponse, m_timeWindowLowerOffset, m_timeWindowUpperOffset, 2 ); // T.Saito
+  m_intFn->SetParameter( 0, 2.5 * peakTimeMultiplier ); // previously split into the alpha parameter
+  m_intFn->SetParameter( 1, 20. * peakTimeMultiplier ); // ... and RC parameter
 
 }
 /*******************************************************************************/
 void ElectronicsResponse::clearValues()
 {
-  tStripElectronicsAbThr.clear();
-  qStripElectronics.clear();
-  nStripElectronics.clear();
+  m_tStripElectronicsAbThr.clear();
+  m_qStripElectronics.clear();
+  m_nStripElectronics.clear();
 }
 /*******************************************************************************/
 MmDigitToolOutput ElectronicsResponse::GetPeakResponseFrom(const MmElectronicsToolInput & digiInput)
@@ -63,7 +63,7 @@ MmDigitToolOutput ElectronicsResponse::GetPeakResponseFrom(const MmElectronicsTo
 
     /// ToDo: include loop for calculating Trigger study vars
     // MmDigitToolOutput(bool hitWasEff, std::vector <int> strpos, std::vector<float> time, std::vector<int> charge, int strTrig, float strTimeTrig ):
-    MmDigitToolOutput tmp(true, nStripElectronics, tStripElectronicsAbThr, qStripElectronics, 5, 0.3);
+    MmDigitToolOutput tmp(true, m_nStripElectronics, m_tStripElectronicsAbThr, m_qStripElectronics, 5, 0.3);
 
     return tmp;
 }
@@ -72,7 +72,7 @@ MmDigitToolOutput ElectronicsResponse::GetThresholdResponseFrom(const MmElectron
 {
     clearValues();
     bnlThresholdResponseFunction(digiInput.NumberOfStripsPos(), digiInput.chipCharge(), digiInput.chipTime() );
-    MmDigitToolOutput tmp(true, nStripElectronics, tStripElectronicsAbThr, qStripElectronics, 5, 0.3);
+    MmDigitToolOutput tmp(true, m_nStripElectronics, m_tStripElectronicsAbThr, m_qStripElectronics, 5, 0.3);
     return tmp;
 }
 /*******************************************************************************/
@@ -91,23 +91,23 @@ void ElectronicsResponse::bnlPeakResponseFunction(const vector <int> & numberofS
             log << MSG::DEBUG << "for Left neighbor:   tStrip.at(ii-1) "<< tStrip.at(ii-1) << " qStrip.at(ii-1) " << qStrip.at(ii-1) << endmsg;
             shaperInputTime = tStrip.at(ii-1);
             shaperInputCharge = qStrip.at(ii-1);
-            maxChargeLeftNeighbor = h_intFn->GetMaximum(m_timeWindowLowerOffset,m_timeWindowUpperOffset);
-	    //            maxChargeLeftNeighbor = h_intFn->GetMaximum(0,3*(m_StripResponse_driftGap/m_StripResponse_driftVelocity));
+            maxChargeLeftNeighbor = m_intFn->GetMaximum(m_timeWindowLowerOffset,m_timeWindowUpperOffset);
+	    //            maxChargeLeftNeighbor = m_intFn->GetMaximum(0,3*(m_StripResponse_driftGap/m_StripResponse_driftVelocity));
         }
 
         if ( ii+1 < numberofStrip.size() ) {
             log << MSG::DEBUG << "for Right neighbor:   tStrip.at(ii+1) "<< tStrip.at(ii+1) << " qStrip.at(ii+1) " << qStrip.at(ii+1) << endmsg;
             shaperInputTime = tStrip.at(ii+1);
             shaperInputCharge = qStrip.at(ii+1);
-            maxChargeRightNeighbor = h_intFn->GetMaximum(m_timeWindowLowerOffset,m_timeWindowUpperOffset);
-	    //            maxChargeRightNeighbor = h_intFn->GetMaximum(0,3*(m_StripResponse_driftGap/m_StripResponse_driftVelocity));
+            maxChargeRightNeighbor = m_intFn->GetMaximum(m_timeWindowLowerOffset,m_timeWindowUpperOffset);
+	    //            maxChargeRightNeighbor = m_intFn->GetMaximum(0,3*(m_StripResponse_driftGap/m_StripResponse_driftVelocity));
         }
 
 	log << MSG::DEBUG << "for This strip:    tStrip.at(ii) "<< tStrip.at(ii) << " qStrip.at(ii) " << qStrip.at(ii) << endmsg;
 	shaperInputTime = tStrip.at(ii);
 	shaperInputCharge = qStrip.at(ii);
-	maxChargeThisStrip = h_intFn->GetMaximum(m_timeWindowLowerOffset,m_timeWindowUpperOffset);
-	//	maxChargeThisStrip = h_intFn->GetMaximum(0,3*(m_StripResponse_driftGap/m_StripResponse_driftVelocity));
+	maxChargeThisStrip = m_intFn->GetMaximum(m_timeWindowLowerOffset,m_timeWindowUpperOffset);
+	//	maxChargeThisStrip = m_intFn->GetMaximum(0,3*(m_StripResponse_driftGap/m_StripResponse_driftVelocity));
 
 
         log << MSG::DEBUG << "Check if a strip or its neighbors were above electronics threshold (" << m_electronicsThreshold << "):   maxChargeLeftNeighbor: " << maxChargeLeftNeighbor << ", maxChargeRightNeighbor: " << maxChargeRightNeighbor << ", maxChargeThisStrip: " << maxChargeThisStrip << endmsg;
@@ -132,17 +132,17 @@ void ElectronicsResponse::bnlPeakResponseFunction(const vector <int> & numberofS
 		//                if (localPeak == 0 ) {  //haven't found a local peak yet
 
 		  //check if the charge for the next points is less than the current step and the derivative of the first point is positive or 0 and the next point is negative:
-	      if ( ( h_intFn->Eval(thisStep,0,0) < h_intFn->Eval(nextStep,0,0) ) && ( h_intFn->Eval(nextStep,0,0) > h_intFn->Eval(oneAfterStep,0,0) ) && (h_intFn->Eval(thisStep+0.001)-h_intFn->Eval(thisStep-0.001))/0.001 > 0.0 && (h_intFn->Eval(oneAfterStep+0.001)-h_intFn->Eval(oneAfterStep-0.001))/0.001 < 0.0 ){ // h_intFn->Derivative() does not work. WHY? 2016/07/18
-		//	      if ( ( h_intFn->Eval(thisStep,0,0) < h_intFn->Eval(nextStep,0,0) ) && ( h_intFn->Eval(nextStep,0,0) > h_intFn->Eval(oneAfterStep,0,0) ) && (h_intFn->Derivative(thisStep,0,0.001) > 0 && h_intFn->Derivative(oneAfterStep,0,0.001) < 0 ) ) {
+	      if ( ( m_intFn->Eval(thisStep,0,0) < m_intFn->Eval(nextStep,0,0) ) && ( m_intFn->Eval(nextStep,0,0) > m_intFn->Eval(oneAfterStep,0,0) ) && (m_intFn->Eval(thisStep+0.001)-m_intFn->Eval(thisStep-0.001))/0.001 > 0.0 && (m_intFn->Eval(oneAfterStep+0.001)-m_intFn->Eval(oneAfterStep-0.001))/0.001 < 0.0 ){ // m_intFn->Derivative() does not work. WHY? 2016/07/18
+		//	      if ( ( m_intFn->Eval(thisStep,0,0) < m_intFn->Eval(nextStep,0,0) ) && ( m_intFn->Eval(nextStep,0,0) > m_intFn->Eval(oneAfterStep,0,0) ) && (m_intFn->Derivative(thisStep,0,0.001) > 0 && m_intFn->Derivative(oneAfterStep,0,0.001) < 0 ) ) {
 
 		// localPeak = 1;
 		localPeakt = nextStep;
-		localPeakq = h_intFn->Eval(nextStep,0,0);
+		localPeakq = m_intFn->Eval(nextStep,0,0);
 
-		//		log << MSG::DEBUG << "found a peak!    for strip number: " << numberofStrip.at(ii) << " at time: " << nextStep << " with charge: " << h_intFn->Eval(nextStep,0,0) << endmsg;
-		nStripElectronics.push_back(numberofStrip.at(ii));
-		tStripElectronicsAbThr.push_back(localPeakt);
-		qStripElectronics.push_back(localPeakq);
+		//		log << MSG::DEBUG << "found a peak!    for strip number: " << numberofStrip.at(ii) << " at time: " << nextStep << " with charge: " << m_intFn->Eval(nextStep,0,0) << endmsg;
+		m_nStripElectronics.push_back(numberofStrip.at(ii));
+		m_tStripElectronicsAbThr.push_back(localPeakt);
+		m_qStripElectronics.push_back(localPeakq);
 	      }
 		  //                }
             }
@@ -173,20 +173,20 @@ void ElectronicsResponse::bnlThresholdResponseFunction(const vector <int> & numb
 	float thisStep = m_timeWindowLowerOffset+jj*stepSize;
 	float preStep = (jj>0) ? m_timeWindowLowerOffset+(jj-1)*stepSize: 0.0;
 
-	if ( ( h_intFn->Eval(thisStep,0,0) >  m_electronicsThreshold) && (h_intFn->Eval(thisStep+0.001)-h_intFn->Eval(thisStep-0.001))/0.001 > 0.0  && ( h_intFn->Eval(preStep,0,0) <  m_electronicsThreshold) ) {
-	  // h_intFn->Derivative() does not work. why? 2016/07/18
-	  //	if ( ( h_intFn->Eval(thisStep,0,0) >  m_electronicsThreshold) && (h_intFn->Derivative(thisStep,0,0.001) > 0 ) && ( h_intFn->Eval(preStep,0,0) <  m_electronicsThreshold) ) {
+	if ( ( m_intFn->Eval(thisStep,0,0) >  m_electronicsThreshold) && (m_intFn->Eval(thisStep+0.001)-m_intFn->Eval(thisStep-0.001))/0.001 > 0.0  && ( m_intFn->Eval(preStep,0,0) <  m_electronicsThreshold) ) {
+	  // m_intFn->Derivative() does not work. why? 2016/07/18
+	  //	if ( ( m_intFn->Eval(thisStep,0,0) >  m_electronicsThreshold) && (m_intFn->Derivative(thisStep,0,0.001) > 0 ) && ( m_intFn->Eval(preStep,0,0) <  m_electronicsThreshold) ) {
 	  localThresholdt = thisStep;
-	  localThresholdq = h_intFn->Eval(thisStep,0,0);
+	  localThresholdq = m_intFn->Eval(thisStep,0,0);
 	  /*
 	  if (tmp_Stript > localThresholdt) {
 	    tmp_Stript      = localThresholdt;
 	    tmp_Stripq      = localThresholdq;
 	  }
 	  */
-	  nStripElectronics.push_back(numberofStrip.at(ii));
-	  tStripElectronicsAbThr.push_back(localThresholdt);
-	  qStripElectronics.push_back(localThresholdq);
+	  m_nStripElectronics.push_back(numberofStrip.at(ii));
+	  m_tStripElectronicsAbThr.push_back(localThresholdt);
+	  m_qStripElectronics.push_back(localThresholdq);
 	}
       }
     }
@@ -197,12 +197,12 @@ MmElectronicsToolTriggerOutput ElectronicsResponse::GetTheFastestSignalInVMM(
       const int chMax,
       const int stationEta){
 
-  const std::vector<int>  & m_ElectronicsThreshold_stripPos    = ElectronicThresholdOutput.stripPos();
-  const std::vector<float> & m_ElectronicsThreshold_stripTime   = ElectronicThresholdOutput.stripTime();
-  const std::vector<float> & m_ElectronicsThreshold_stripCharge = ElectronicThresholdOutput.stripCharge();
+  const std::vector<int>  & ElectronicsThreshold_stripPos_vec    = ElectronicThresholdOutput.stripPos();
+  const std::vector<float> & ElectronicsThreshold_stripTime_vec   = ElectronicThresholdOutput.stripTime();
+  const std::vector<float> & ElectronicsThreshold_stripCharge_vec = ElectronicThresholdOutput.stripCharge();
   std::vector<int> trigger_MMFE_VMM_id;
   std::vector<int> trigger_VMM_id;
-  GetVMMId(m_ElectronicsThreshold_stripPos, chMax, stationEta, trigger_VMM_id, trigger_MMFE_VMM_id);
+  GetVMMId(ElectronicsThreshold_stripPos_vec, chMax, stationEta, trigger_VMM_id, trigger_MMFE_VMM_id);
 
   std::vector<int>   ElectronicsTrigger_stripPos;
   std::vector<float> ElectronicsTrigger_stripTime;
@@ -224,9 +224,9 @@ MmElectronicsToolTriggerOutput ElectronicsResponse::GetTheFastestSignalInVMM(
     float timeWindowUpper = (float) m_timeWindowLowerOffset+(istep+1)*BXtime;
 
     std::vector<int> tmp_VMM_id; tmp_VMM_id.clear();
-    for(size_t i = 0; i<m_ElectronicsThreshold_stripPos.size(); i++){
-      if(m_ElectronicsThreshold_stripTime[i] >= timeWindowLower &&
-	 m_ElectronicsThreshold_stripTime[i] < timeWindowUpper){
+    for(size_t i = 0; i<ElectronicsThreshold_stripPos_vec.size(); i++){
+      if(ElectronicsThreshold_stripTime_vec[i] >= timeWindowLower &&
+	 ElectronicsThreshold_stripTime_vec[i] < timeWindowUpper){
 
 	int VMM_id = trigger_VMM_id[i];
 	std::vector< int >::iterator VMM_flag = std::find(tmp_VMM_id.begin(), tmp_VMM_id.end(), VMM_id);
@@ -235,17 +235,17 @@ MmElectronicsToolTriggerOutput ElectronicsResponse::GetTheFastestSignalInVMM(
 
 	// Get id for the fastest signal in a VMM
 	int theFastestSignal = GetIdTheFastestSignalInVMM(
-				m_ElectronicsThreshold_stripTime[i],
+				ElectronicsThreshold_stripTime_vec[i],
 				VMM_id,
 				trigger_VMM_id,
-				m_ElectronicsThreshold_stripTime,
+				ElectronicsThreshold_stripTime_vec,
 				(float)m_timeWindowLowerOffset+istep*BXtime,
 				(float)m_timeWindowLowerOffset+(istep+1)*BXtime);
 
 
-        ElectronicsTrigger_stripPos.push_back(m_ElectronicsThreshold_stripPos[theFastestSignal]);
-        ElectronicsTrigger_stripTime.push_back(m_ElectronicsThreshold_stripTime[theFastestSignal]);
-        ElectronicsTrigger_stripCharge.push_back(m_ElectronicsThreshold_stripCharge[theFastestSignal]);
+        ElectronicsTrigger_stripPos.push_back(ElectronicsThreshold_stripPos_vec[theFastestSignal]);
+        ElectronicsTrigger_stripTime.push_back(ElectronicsThreshold_stripTime_vec[theFastestSignal]);
+        ElectronicsTrigger_stripCharge.push_back(ElectronicsThreshold_stripCharge_vec[theFastestSignal]);
         ElectronicsTrigger_VMMid.push_back(trigger_VMM_id[theFastestSignal]);
         ElectronicsTrigger_MMFEid.push_back(trigger_MMFE_VMM_id[theFastestSignal]);
 
@@ -267,14 +267,14 @@ int ElectronicsResponse::GetIdTheFastestSignalInVMM(
       float time,
       int VMM_id,
       std::vector<int> trigger_VMM_id,
-      const std::vector<float> m_ElectronicsThreshold_stripTime,
+      const std::vector<float> ElectronicsThreshold_stripTime_vec,
       float timeWindowLower,
       float timeWindowUpper){
   int theFastestSignal = -1;
   float min_time = 9999.0;
   for(size_t ii = 0; ii<trigger_VMM_id.size(); ii++){
-    if(m_ElectronicsThreshold_stripTime[ii]>= timeWindowLower &&
-       m_ElectronicsThreshold_stripTime[ii] < timeWindowUpper){
+    if(ElectronicsThreshold_stripTime_vec[ii]>= timeWindowLower &&
+       ElectronicsThreshold_stripTime_vec[ii] < timeWindowUpper){
 
       if(trigger_VMM_id[ii]==VMM_id){
 	if(time<min_time){
@@ -289,7 +289,7 @@ int ElectronicsResponse::GetIdTheFastestSignalInVMM(
   return theFastestSignal;
 }
 
-void ElectronicsResponse::GetVMMId(const std::vector< int > & m_ElectronicsThreshold_stripPos,
+void ElectronicsResponse::GetVMMId(const std::vector< int > & ElectronicsThreshold_stripPos_vec,
 				   const int chMax,
 				   const int stationEta,
 				   std::vector< int > & trigger_VMM_id,
@@ -299,9 +299,9 @@ void ElectronicsResponse::GetVMMId(const std::vector< int > & m_ElectronicsThres
   trigger_VMM_id.clear();
   const int VMMch = 64;
   electronics VmmMapping;
-  for (size_t i=0;i<m_ElectronicsThreshold_stripPos.size(); i++){
-    int vmm_id = (int) m_ElectronicsThreshold_stripPos.at(i)/VMMch;
-    int mmfe_vmm_id = VmmMapping.elec(m_ElectronicsThreshold_stripPos.at(i), "VMM", stationEta, chMax);
+  for (size_t i=0;i<ElectronicsThreshold_stripPos_vec.size(); i++){
+    int vmm_id = (int) ElectronicsThreshold_stripPos_vec.at(i)/VMMch;
+    int mmfe_vmm_id = VmmMapping.elec(ElectronicsThreshold_stripPos_vec.at(i), "VMM", stationEta, chMax);
     trigger_MMFE_VMM_id.push_back(mmfe_vmm_id);
     trigger_VMM_id.push_back(vmm_id);
   }
@@ -457,7 +457,7 @@ bool ElectronicsResponse::DeadChannel(int id, float time, std::vector<int> & v_i
 ElectronicsResponse::~ElectronicsResponse()
 {
   if (m_stripObject) delete m_stripObject;
-  if (h_intFn) delete h_intFn;
+  if (m_intFn) delete m_intFn;
   clearValues();
 }
 /*******************************************************************************/
