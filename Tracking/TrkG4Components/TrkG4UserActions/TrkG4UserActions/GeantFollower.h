@@ -19,15 +19,16 @@
     @author Andreas.Salzburger@cern.ch
 */
 
+#include "G4UserEventAction.hh"
+#include "G4UserRunAction.hh"
+#include "G4UserSteppingAction.hh"
+
 namespace Trk {
   class IGeantFollowerHelper;
 }
 
-#include "G4UserEventAction.hh"
-#include "G4UserRunAction.hh"
-#include "G4UserSteppingAction.hh"
-namespace G4UA{
-
+namespace G4UA
+{
 
   class GeantFollower: public G4UserEventAction, public G4UserRunAction, public G4UserSteppingAction
   {
@@ -36,7 +37,8 @@ namespace G4UA{
 
     struct Config
     {
-      ToolHandle<Trk::IGeantFollowerHelper>  helper=ToolHandle<Trk::IGeantFollowerHelper>("Trk::GeantFollowerHelper/GeantFollowerHelper");
+      ToolHandle<Trk::IGeantFollowerHelper> helper =
+        ToolHandle<Trk::IGeantFollowerHelper>("Trk::GeantFollowerHelper/GeantFollowerHelper");
     };
 
     GeantFollower(const Config& config);
@@ -48,10 +50,10 @@ namespace G4UA{
   private:
 
     Config m_config;
-    mutable const Trk::IGeantFollowerHelper*  m_helperPointer;
+
+    mutable const Trk::IGeantFollowerHelper* m_helperPointer;
 
   }; // class GeantFollower
-
 
 } // namespace G4UA
 

@@ -9,8 +9,7 @@
 #include "TrkG4UserActions/GeantFollowerMS.h"
 #include "TrkG4UserActions/IGeantFollowerMSHelper.h"
 #include "CxxUtils/AthUnlikelyMacros.h"
-#include <iostream>
-#include <stdexcept>
+
 #include "G4Event.hh"
 #include "G4Step.hh"
 #include "G4Material.hh"
@@ -18,18 +17,11 @@
 #include "G4StepPoint.hh"
 #include "G4TouchableHistory.hh"
 #include "G4LogicalVolume.hh"
-#include "G4TrajectoryContainer.hh"
-#include "G4VTrajectory.hh"
-#include "G4VTrajectoryPoint.hh"
 #include "G4DynamicParticle.hh"
 #include "G4Track.hh"
-#include "TrkGeometry/TrackingGeometry.h"
 
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/ISvcLocator.h"
-
-namespace G4UA{
-
+namespace G4UA
+{
 
   GeantFollowerMS::GeantFollowerMS(const Config& config)
     : m_config(config)

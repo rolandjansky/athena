@@ -8,7 +8,6 @@
 
 #include "TrkG4UserActions/MaterialStepRecorder.h"
 #include "TrkGeometry/MaterialStep.h"
-#include <iostream>
 #include "GaudiKernel/IDataProviderSvc.h"
 #include "GaudiKernel/INTupleSvc.h"
 #include "GaudiKernel/NTuple.h"

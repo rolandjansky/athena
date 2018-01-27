@@ -50,10 +50,16 @@ namespace Trk
       void beginEvent() const;
       // b) track the particle
       void trackParticle(const G4ThreeVector& pos, const G4ThreeVector& mom, int pdg, double charge, float t, float X0) const;
-      // modify TSOS vector 
-      const std::vector<const Trk::TrackStateOnSurface*> modifyTSOSvector(const std::vector<const Trk::TrackStateOnSurface*> matvec, double scaleX0, double scaleEloss, bool reposition, bool aggregate, bool updateEloss, double caloEnergy, double caloEnergyError, double pCaloEntry, double momentumError, double & Eloss_tot) const;
 
-      // c) end event - ntuple writing      
+      /// modify TSOS vector
+      const std::vector<const Trk::TrackStateOnSurface*>
+      modifyTSOSvector(const std::vector<const Trk::TrackStateOnSurface*> matvec,
+                       double scaleX0, double scaleEloss, bool reposition,
+                       bool aggregate, bool updateEloss, double caloEnergy,
+                       double caloEnergyError, double pCaloEntry,
+                       double momentumError, double & Eloss_tot) const;
+
+      // c) end event - ntuple writing
       void endEvent() const;
 
     private:

@@ -12,8 +12,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
-#include <string>
-#include <vector>
 
 #include "G4UserEventAction.hh"
 #include "G4UserRunAction.hh"
@@ -39,8 +37,10 @@ namespace G4UA
 
     struct Config
     {
-      ToolHandle<Trk::IGeantFollowerMSHelper>  helper=ToolHandle<Trk::IGeantFollowerMSHelper>("Trk::GeantFollowerMSHelper/GeantFollowerMSHelper");
-      ServiceHandle<Trk::ITrackingGeometrySvc> trackingGeometrySvc=ServiceHandle<Trk::ITrackingGeometrySvc>("AtlasTrackingGeometrySvc","GeantFollowerMS");
+      ToolHandle<Trk::IGeantFollowerMSHelper> helper =
+        ToolHandle<Trk::IGeantFollowerMSHelper>("Trk::GeantFollowerMSHelper/GeantFollowerMSHelper");
+      ServiceHandle<Trk::ITrackingGeometrySvc> trackingGeometrySvc =
+        ServiceHandle<Trk::ITrackingGeometrySvc>("AtlasTrackingGeometrySvc","GeantFollowerMS");
     };
 
     GeantFollowerMS(const Config& config);

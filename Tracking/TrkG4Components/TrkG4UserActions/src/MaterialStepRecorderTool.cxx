@@ -8,11 +8,16 @@
 namespace G4UA
 {
 
-  MaterialStepRecorderTool::MaterialStepRecorderTool(const std::string& type, const std::string& name,const IInterface* parent):
-    ActionToolBase<MaterialStepRecorder>(type, name, parent){
+  MaterialStepRecorderTool::MaterialStepRecorderTool(const std::string& type,
+                                                     const std::string& name,
+                                                     const IInterface* parent)
+    : ActionToolBase<MaterialStepRecorder>(type, name, parent)
+  {
   }
-  std::unique_ptr<MaterialStepRecorder>  MaterialStepRecorderTool::makeAction(){
-    ATH_MSG_DEBUG("makeAction");
+
+  std::unique_ptr<MaterialStepRecorder> MaterialStepRecorderTool::makeAction()
+  {
+    ATH_MSG_DEBUG("Constructing a MaterialStepRecorder action");
     auto action = CxxUtils::make_unique<MaterialStepRecorder>();
     return std::move(action);
   }

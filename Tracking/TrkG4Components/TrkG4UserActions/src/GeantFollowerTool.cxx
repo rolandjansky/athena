@@ -5,16 +5,20 @@
 #include "CxxUtils/make_unique.h"
 #include "TrkG4UserActions/GeantFollowerTool.h"
 
-namespace G4UA{
+namespace G4UA
+{
 
-
-  GeantFollowerTool::GeantFollowerTool(const std::string& type, const std::string& name,const IInterface* parent):
-    ActionToolBase<GeantFollower>(type, name, parent), m_config(){
+  GeantFollowerTool::GeantFollowerTool(const std::string& type,
+                                       const std::string& name,
+                                       const IInterface* parent)
+    : ActionToolBase<GeantFollower>(type, name, parent)
+  {
     declareProperty("HelperTool",m_config.helper);
   }
 
-  std::unique_ptr<GeantFollower>  GeantFollowerTool::makeAction(){
-    ATH_MSG_DEBUG("makeAction");
+  std::unique_ptr<GeantFollower> GeantFollowerTool::makeAction()
+  {
+    ATH_MSG_DEBUG("Constructing a GeantFollower action");
     auto action = CxxUtils::make_unique<GeantFollower>(m_config);
     return std::move(action);
   }

@@ -8,12 +8,10 @@
 
 #include "TrkG4UserActions/EnergyLossRecorder.h"
 #include "G4Step.hh"
-//#include "G4Material.hh"
 #include "G4StepPoint.hh"
 #include "G4ThreeVector.hh"
 #include "G4Material.hh"
 #include "G4Element.hh"
-#include "G4StepPoint.hh"
 #include "G4TouchableHistory.hh"
 #include "G4LogicalVolume.hh"
 // TrkValInterfaces
@@ -47,10 +45,9 @@ namespace G4UA
 
   void EnergyLossRecorder::EndOfEventAction(const G4Event*)
   {
-    if (m_config.pmWriter)
-      {
-        m_config.pmWriter->finalizeTrack();
-      }
+    if (m_config.pmWriter) {
+      m_config.pmWriter->finalizeTrack();
+    }
     m_entries = 0;
     return;
   }

@@ -10,7 +10,6 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-//#include "GaudiKernel/ServiceHandle.h"
 #include "TrkParameters/TrackParameters.h" //typedef, can't fwd declare
 #include "TrkG4UserActions/IGeantFollowerHelper.h"
 #include "G4ThreeVector.hh" //typedef, can't fwd declare
