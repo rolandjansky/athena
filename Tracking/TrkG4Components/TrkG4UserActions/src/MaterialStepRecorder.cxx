@@ -28,8 +28,8 @@
 #include <climits>
 #include <cmath>
 
-namespace G4UA{
-
+namespace G4UA
+{
 
   MaterialStepRecorder::MaterialStepRecorder():
     AthMessaging(Gaudi::svcLocator()->service< IMessageSvc >( "MessageSvc" ),"MaterialStepRecorder"),
@@ -47,20 +47,17 @@ namespace G4UA{
   {
   }
 
-  void MaterialStepRecorder::BeginOfEventAction(const G4Event*){
-
-
+  void MaterialStepRecorder::BeginOfEventAction(const G4Event*)
+  {
     ATH_MSG_DEBUG(" BeginOfEventAction");
 
     // create a new Collection
     m_matStepCollection = new Trk::MaterialStepCollection;
-
     //    m_eventStepLength = 0;
-
   }
 
-  void MaterialStepRecorder::EndOfEventAction(const G4Event*){
-
+  void MaterialStepRecorder::EndOfEventAction(const G4Event*)
+  {
     ATH_MSG_DEBUG(" EndOfEventAction");
 
     ++m_eventID;
@@ -76,17 +73,15 @@ namespace G4UA{
         delete m_elementTable;
       }
     m_elementTable = nullptr;
-
   }
 
-  void MaterialStepRecorder::BeginOfRunAction(const G4Run*){
-
+  void MaterialStepRecorder::BeginOfRunAction(const G4Run*)
+  {
     ATH_MSG_DEBUG(" BeginOfRunAction");
 
     // initialize
     m_totalSteps = 0;
     m_eventID = 0;
-
   }
 
   void MaterialStepRecorder::UserSteppingAction(const G4Step* aStep)
@@ -221,6 +216,5 @@ namespace G4UA{
     }
     return;
   }
-
 
 } // namespace G4UA

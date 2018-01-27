@@ -29,7 +29,7 @@ namespace Trk {
 namespace G4UA{
 
 
-  class GeantFollower: public G4UserEventAction, public G4UserRunAction,  public G4UserSteppingAction
+  class GeantFollower: public G4UserEventAction, public G4UserRunAction, public G4UserSteppingAction
   {
 
   public:

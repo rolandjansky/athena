@@ -107,8 +107,6 @@ namespace G4UA{
         G4Exception("GeantFollower", "GeantFollower3", FatalException, description);
       }
     return;
-
-
   }
 
 } // namespace G4UA

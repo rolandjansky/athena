@@ -5,7 +5,8 @@
 #include "CxxUtils/make_unique.h"
 #include "TrkG4UserActions/MaterialStepRecorderTool.h"
 
-namespace G4UA{ 
+namespace G4UA
+{
 
   MaterialStepRecorderTool::MaterialStepRecorderTool(const std::string& type, const std::string& name,const IInterface* parent):
     ActionToolBase<MaterialStepRecorder>(type, name, parent){
@@ -15,8 +16,9 @@ namespace G4UA{
     auto action = CxxUtils::make_unique<MaterialStepRecorder>();
     return std::move(action);
   }
-  StatusCode MaterialStepRecorderTool::queryInterface(const InterfaceID& riid, void** ppvIf){
-    
+
+  StatusCode MaterialStepRecorderTool::queryInterface(const InterfaceID& riid, void** ppvIf)
+  {
     if(riid == IG4EventActionTool::interfaceID()) {
       *ppvIf = (IG4EventActionTool*) this;
       addRef();
@@ -34,5 +36,5 @@ namespace G4UA{
     }
     return ActionToolBase<MaterialStepRecorder>::queryInterface(riid, ppvIf);
   }
-  
-} // namespace G4UA 
+
+} // namespace G4UA

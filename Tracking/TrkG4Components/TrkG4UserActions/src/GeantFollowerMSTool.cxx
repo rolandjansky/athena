@@ -20,8 +20,8 @@ namespace G4UA{
     return std::move(action);
   }
 
-  StatusCode GeantFollowerMSTool::queryInterface(const InterfaceID& riid, void** ppvIf){
-
+  StatusCode GeantFollowerMSTool::queryInterface(const InterfaceID& riid, void** ppvIf)
+  {
     if(riid == IG4EventActionTool::interfaceID()) {
       *ppvIf = (IG4EventActionTool*) this;
       addRef();

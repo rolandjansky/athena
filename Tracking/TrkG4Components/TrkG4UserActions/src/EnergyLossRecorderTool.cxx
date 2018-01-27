@@ -15,6 +15,7 @@ namespace G4UA{
   {
     declareProperty("PositionMomentumWriter", m_pmWriter, "");
   }
+
   StatusCode EnergyLossRecorderTool::initialize()
   {
     if(!m_pmWriter.empty())
@@ -29,8 +30,9 @@ namespace G4UA{
     auto action = CxxUtils::make_unique<EnergyLossRecorder>(m_config);
     return std::move(action);
   }
+
   StatusCode EnergyLossRecorderTool::queryInterface(const InterfaceID& riid, void** ppvIf){
-    
+
     if(riid == IG4RunActionTool::interfaceID()) {
       *ppvIf = (IG4RunActionTool*) this;
       addRef();
@@ -48,5 +50,5 @@ namespace G4UA{
     }
     return ActionToolBase<EnergyLossRecorder>::queryInterface(riid, ppvIf);
   }
-  
-} // namespace G4UA 
+
+} // namespace G4UA

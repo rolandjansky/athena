@@ -49,22 +49,20 @@ namespace G4UA{
 
   void GeantFollowerMS::BeginOfRunAction(const G4Run*)
   {
-    if(m_config.helper.retrieve()!=StatusCode::SUCCESS)
-      {
-        G4ExceptionDescription description;
-        description << "Cannot retrieve GeantFollowerMS helper";
-        G4Exception("GeantFollowerMS", "GeantFollowerMS1", FatalException, description);
-        return;
-      }
+    if(m_config.helper.retrieve()!=StatusCode::SUCCESS) {
+      G4ExceptionDescription description;
+      description << "Cannot retrieve GeantFollowerMS helper";
+      G4Exception("GeantFollowerMS", "GeantFollowerMS1", FatalException, description);
+      return;
+    }
     m_helperPointer = (&(*m_config.helper));
 
-    if(m_config.trackingGeometrySvc.retrieve()!=StatusCode::SUCCESS)
-      {
-        G4ExceptionDescription description;
-        description << "Cannot retrieve TrackingGeometrySvc in GeantFollowerMS";
-        G4Exception("GeantFollowerMS", "GeantFollowerMS2", FatalException, description);
-        return;
-      }
+    if(m_config.trackingGeometrySvc.retrieve()!=StatusCode::SUCCESS) {
+      G4ExceptionDescription description;
+      description << "Cannot retrieve TrackingGeometrySvc in GeantFollowerMS";
+      G4Exception("GeantFollowerMS", "GeantFollowerMS2", FatalException, description);
+      return;
+    }
 
     return;
   }
@@ -72,11 +70,10 @@ namespace G4UA{
   void GeantFollowerMS::UserSteppingAction(const G4Step* aStep)
   {
     // kill secondaries
-    if (aStep->GetTrack()->GetParentID())
-      {
-        aStep->GetTrack()->SetTrackStatus(fStopAndKill);
-        return;
-      }
+    if (aStep->GetTrack()->GetParentID()) {
+      aStep->GetTrack()->SetTrackStatus(fStopAndKill);
+      return;
+    }
 
     // get the prestep point and follow this guy
     G4StepPoint * g4PreStep  = aStep->GetPreStepPoint();
@@ -87,35 +84,37 @@ namespace G4UA{
     const G4DynamicParticle* g4DynParticle = g4Track->GetDynamicParticle();
 
     // the material information
-    const G4TouchableHistory* touchHist = static_cast<const G4TouchableHistory*>(aStep->GetPreStepPoint()->GetTouchable());
-    if(ATH_LIKELY(touchHist))
-      {
-        // G4LogicalVolume
-        const G4LogicalVolume *lv= touchHist->GetVolume()->GetLogicalVolume();
-        if(ATH_LIKELY(lv))
-          {
-            const G4Material *mat    = lv->GetMaterial();
-            // the step information
-            double steplength     = aStep->GetStepLength();
-            // the position information
-            double X0             = mat->GetRadlen();
-            // update the track follower
-            //std::cout << " particle PDG " << g4DynParticle->GetPDGcode() << " charge " << g4DynParticle->GetCharge() << std::endl;
-            m_helperPointer->trackParticle(g4Position,g4Momentum,g4DynParticle->GetPDGcode(),g4DynParticle->GetCharge(),steplength,X0);
-          }
-        else
-          {
-            G4ExceptionDescription description;
-            description << "GeantFollowerMS::SteppingAction NULL G4LogicalVolume pointer.";
-            G4Exception("GeantFollowerMS", "GeantFollowerMS3", FatalException, description);
-          }
+    const G4TouchableHistory* touchHist =
+      static_cast<const G4TouchableHistory*>(aStep->GetPreStepPoint()->GetTouchable());
+
+    if(ATH_LIKELY(touchHist)) {
+      // G4LogicalVolume
+      const G4LogicalVolume *lv= touchHist->GetVolume()->GetLogicalVolume();
+
+      if(ATH_LIKELY(lv)) {
+        const G4Material *mat    = lv->GetMaterial();
+        // the step information
+        double steplength     = aStep->GetStepLength();
+        // the position information
+        double X0             = mat->GetRadlen();
+        // update the track follower
+        //std::cout << " particle PDG " << g4DynParticle->GetPDGcode() << " charge " << g4DynParticle->GetCharge() << std::endl;
+        m_helperPointer->trackParticle(g4Position, g4Momentum,
+                                       g4DynParticle->GetPDGcode(),
+                                       g4DynParticle->GetCharge(),
+                                       steplength, X0);
       }
-    else
-      {
+      else {
         G4ExceptionDescription description;
-        description << "GeantFollowerMS::SteppingAction NULL G4TouchableHistory pointer.";
-        G4Exception("GeantFollowerMS", "GeantFollowerMS4", FatalException, description);
+        description << "GeantFollowerMS::SteppingAction NULL G4LogicalVolume pointer.";
+        G4Exception("GeantFollowerMS", "GeantFollowerMS3", FatalException, description);
       }
+    }
+    else {
+      G4ExceptionDescription description;
+      description << "GeantFollowerMS::SteppingAction NULL G4TouchableHistory pointer.";
+      G4Exception("GeantFollowerMS", "GeantFollowerMS4", FatalException, description);
+    }
     return;
   }
 

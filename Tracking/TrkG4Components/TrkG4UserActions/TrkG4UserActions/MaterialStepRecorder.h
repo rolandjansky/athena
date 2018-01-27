@@ -70,7 +70,6 @@ namespace G4UA{
 
   }; // class MaterialStepRecorder
 
-
 } // namespace G4UA
 
 #endif

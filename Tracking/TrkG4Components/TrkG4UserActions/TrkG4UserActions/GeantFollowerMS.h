@@ -29,10 +29,10 @@ namespace Trk {
   class TrackingGeometry;
 }
 
-namespace G4UA{
+namespace G4UA
+{
 
-
-  class GeantFollowerMS: public G4UserEventAction, public G4UserRunAction,  public G4UserSteppingAction
+  class GeantFollowerMS: public G4UserEventAction, public G4UserRunAction, public G4UserSteppingAction
   {
 
   public:
@@ -48,14 +48,15 @@ namespace G4UA{
     virtual void EndOfEventAction(const G4Event*) override;
     virtual void BeginOfRunAction(const G4Run*) override;
     virtual void UserSteppingAction(const G4Step*) override;
+
   private:
+
     Config m_config;
     /** tracking geometry */
     mutable const Trk::TrackingGeometry*         m_trackingGeometry;
     mutable const Trk::IGeantFollowerMSHelper*   m_helperPointer;
 
   }; // class GeantFollowerMS
-
 
 } // namespace G4UA
 

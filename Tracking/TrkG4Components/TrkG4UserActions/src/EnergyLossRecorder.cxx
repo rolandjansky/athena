@@ -23,7 +23,6 @@
 namespace G4UA
 {
 
-
   EnergyLossRecorder::EnergyLossRecorder(const Config& config)
     : m_config(config)
     , m_entries(0)
@@ -59,11 +58,10 @@ namespace G4UA
   void EnergyLossRecorder::UserSteppingAction(const G4Step* aStep)
   {
     // kill secondary particles
-    if (aStep->GetTrack()->GetParentID())
-      {
-        aStep->GetTrack()->SetTrackStatus(fStopAndKill);
-        return;
-      }
+    if (aStep->GetTrack()->GetParentID()) {
+      aStep->GetTrack()->SetTrackStatus(fStopAndKill);
+      return;
+    }
     if(!m_config.pmWriter) return;
     // we require a minimum amount of material for recording the step
 
@@ -74,30 +72,27 @@ namespace G4UA
     G4Material *mat    = lv ? lv->GetMaterial() : 0;
 
     // log the information // cut off air
-    if (mat && mat->GetRadlen() < 200000.)
-      {
-        // keep primary particles - calculate the kinematics for them
-        G4ThreeVector pos   = aStep->GetPreStepPoint()->GetPosition();
-        double px = aStep->GetPreStepPoint()->GetMomentum().x();
-        double py = aStep->GetPreStepPoint()->GetMomentum().y();
-        double pz = aStep->GetPreStepPoint()->GetMomentum().z();
-        Amg::Vector3D position(pos.x(),pos.y(),pos.z());
-        Amg::Vector3D momentum(px ,py, pz);
+    if (mat && mat->GetRadlen() < 200000.) {
+      // keep primary particles - calculate the kinematics for them
+      G4ThreeVector pos   = aStep->GetPreStepPoint()->GetPosition();
+      double px = aStep->GetPreStepPoint()->GetMomentum().x();
+      double py = aStep->GetPreStepPoint()->GetMomentum().y();
+      double pz = aStep->GetPreStepPoint()->GetMomentum().z();
+      Amg::Vector3D position(pos.x(),pos.y(),pos.z());
+      Amg::Vector3D momentum(px ,py, pz);
 
-
-        // record the starting parameters at the first step
-        if (m_entries==0)
-          {
-            // increase the counter
-            ++m_entries;
-            double  m   = aStep->GetTrack()->GetDynamicParticle()->GetMass();
-            int pdgCode = aStep->GetTrack()->GetDynamicParticle()->GetPDGcode();
-            m_config.pmWriter->initializeTrack(position,momentum,m,pdgCode);
-          }
-        else
-          {
-            m_config.pmWriter->recordTrackState(position,momentum);
-          }
+      // record the starting parameters at the first step
+      if (m_entries==0) {
+        // increase the counter
+        ++m_entries;
+        double  m   = aStep->GetTrack()->GetDynamicParticle()->GetMass();
+        int pdgCode = aStep->GetTrack()->GetDynamicParticle()->GetPDGcode();
+        m_config.pmWriter->initializeTrack(position,momentum,m,pdgCode);
       }
+      else {
+        m_config.pmWriter->recordTrackState(position,momentum);
+      }
+    }
   }
+
 } // namespace G4UA
