@@ -61,6 +61,12 @@ namespace VKalVrtAthena {
     ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": Selected Tracks = "<< m_selectedTracks->size());
     
     std::string msg;
+    
+    enum recoStep { kStart, kInitVtxPosition, kImpactParamCheck, kVKalVrtFit, kChi2, kVposCut, kPatternMatch };
+    
+    const double maxR { 563. };         // r = 563 mm is the TRT inner surface
+    const double roughD0Cut { 20. };
+    const double roughZ0Cut { 40. };
 
     // first make all 2-track vertices
     for( auto itrk = m_selectedTracks->begin(); itrk != m_selectedTracks->end(); ++itrk ) {
@@ -83,15 +89,36 @@ namespace VKalVrtAthena {
         baseTracks.emplace_back( *itrk );
         baseTracks.emplace_back( *jtrk );
 
-        // new code to find initial approximate vertex
-        Amg::Vector3D IniVertex;
-
-        StatusCode sc = m_fitSvc->VKalVrtFitFast( baseTracks, IniVertex );/* Fast crude estimation */
-        if(sc.isFailure()) ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": fast crude estimation fails ");
-
-        m_fitSvc->setApproximateVertex( IniVertex.x(), IniVertex.y(), IniVertex.z() );
+        if( m_jp.FillHist ) m_hists["incompMonitor"]->Fill( kStart );
         
-        if( m_jp.FillHist ) m_hists["incompMonitor"]->Fill( 0 );
+        // new code to find initial approximate vertex
+        Amg::Vector3D iniVertex;
+
+        StatusCode sc = m_fitSvc->VKalVrtFitFast( baseTracks, iniVertex );/* Fast crude estimation */
+        if( sc.isFailure() ) {
+          ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": fast crude estimation fails ");
+          continue;
+        }
+        
+        if( iniVertex.perp() > maxR ) {
+          continue;
+        }
+        if( m_jp.FillHist ) m_hists["incompMonitor"]->Fill( kInitVtxPosition );
+
+        std::vector<double> impactParameters;
+        std::vector<double> impactParErrors;
+        
+        m_fitSvc->VKalGetImpact( *itrk, iniVertex, static_cast<long int>( (*itrk)->charge() ), impactParameters, impactParErrors);
+        if( fabs( impactParameters.at(0) ) > roughD0Cut || fabs( impactParameters.at(1) ) > roughZ0Cut ) {
+          continue;
+        }
+        m_fitSvc->VKalGetImpact( *jtrk, iniVertex, static_cast<long int>( (*jtrk)->charge() ), impactParameters, impactParErrors);
+        if( fabs( impactParameters.at(0) ) > roughD0Cut || fabs( impactParameters.at(1) ) > roughZ0Cut ) {
+          continue;
+        }
+        if( m_jp.FillHist ) m_hists["incompMonitor"]->Fill( kImpactParamCheck );
+        
+        m_fitSvc->setApproximateVertex( iniVertex.x(), iniVertex.y(), iniVertex.z() );
         
         // Vertex VKal Fitting
         sc = m_fitSvc->VKalVrtFit( baseTracks,
@@ -101,9 +128,9 @@ namespace VKalVrtAthena {
                                    wrkvrt.TrkAtVrt, wrkvrt.Chi2  );
         
         if( sc.isFailure() ) {
-          if( m_jp.FillHist ) m_hists["incompMonitor"]->Fill( 1 );
           continue;          /* No fit */ 
         }
+        if( m_jp.FillHist ) m_hists["incompMonitor"]->Fill( kVKalVrtFit );
         
         // Compatibility to the primary vertex.
         Amg::Vector3D vDist = wrkvrt.vertex - m_thePV->position();
@@ -162,12 +189,11 @@ namespace VKalVrtAthena {
         if( m_jp.FillHist ) m_hists["2trkChi2Dist"]->Fill( log10( wrkvrt.Chi2 ) );
         
         if( wrkvrt.fitQuality() > m_jp.SelVrtChi2Cut) {
-          
           ATH_MSG_VERBOSE(" > " << __FUNCTION__ << ": failed to pass chi2 threshold." );
-          
-          if( m_jp.FillHist ) m_hists["incompMonitor"]->Fill( 2 );
           continue;          /* Bad Chi2 */
         }
+        if( m_jp.FillHist ) m_hists["incompMonitor"]->Fill( kChi2 );
+        
         
         ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": attempting form vertex from ( " << itrk_id << ", " << jtrk_id << " )." );
         ATH_MSG_DEBUG( " > " << __FUNCTION__ << ": candidate vertex: "
@@ -179,16 +205,23 @@ namespace VKalVrtAthena {
                        << ", (r, z) = ("           << wrkvrt.vertex.perp()
                        <<", "                      << wrkvrt.vertex.z() << ")" );
         
+        if( m_jp.doPVcompatibilityCut ) {
+          if( vPos < m_jp.pvCompatibilityCut ) {
+            ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": failed to pass the vPos cut." );
+            continue;
+          }
+        }
+        if( m_jp.FillHist ) m_hists["incompMonitor"]->Fill( kVposCut );
+        
         // fake rejection cuts with track hit pattern consistencies
         if( m_jp.removeFakeVrt && !m_jp.removeFakeVrtLate ) {
           if( !this->passedFakeReject( wrkvrt.vertex, (*itrk), (*jtrk) ) ) {
             
             ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": failed to pass fake rejection algorithm." );
-            
-            if( m_jp.FillHist ) m_hists["incompMonitor"]->Fill( 3 );
             continue;
           }
         }
+        if( m_jp.FillHist ) m_hists["incompMonitor"]->Fill( kPatternMatch );
         
         ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": passed fake rejection." );
         
@@ -212,14 +245,6 @@ namespace VKalVrtAthena {
         }
 
         
-        if( m_jp.doPVcompatibilityCut ) {
-          if( vPos < m_jp.pvCompatibilityCut ) {
-            if( m_jp.FillHist ) m_hists["incompMonitor"]->Fill( 3 );
-            ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": failed to pass the vPos cut." );
-            continue;
-          }
-        }
-
         // Now this vertex passed all criteria and considred to be a compatible vertices.
         // Therefore the track pair is removed from the incompatibility list.
         m_incomp.pop_back();
@@ -324,13 +349,13 @@ namespace VKalVrtAthena {
         }
 
         // Perform vertex fitting
-        Amg::Vector3D IniVertex;
+        Amg::Vector3D iniVertex;
         
-        StatusCode sc = m_fitSvc->VKalVrtFitFast( baseTracks, IniVertex );/* Fast crude estimation */
+        StatusCode sc = m_fitSvc->VKalVrtFitFast( baseTracks, iniVertex );/* Fast crude estimation */
         if(sc.isFailure()) ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": fast crude estimation fails ");
 
         m_fitSvc->setDefault();
-        m_fitSvc->setApproximateVertex( IniVertex.x(), IniVertex.y(), IniVertex.z() );
+        m_fitSvc->setApproximateVertex( iniVertex.x(), iniVertex.y(), iniVertex.z() );
         
         sc = m_fitSvc->VKalVrtFit(baseTracks, dummyNeutrals,
                                   wrkvrt.vertex,
@@ -423,13 +448,13 @@ namespace VKalVrtAthena {
         }
         
         // Perform vertex fitting
-        Amg::Vector3D IniVertex;
+        Amg::Vector3D iniVertex;
         
-        StatusCode sc = m_fitSvc->VKalVrtFitFast( baseTracks, IniVertex );/* Fast crude estimation */
+        StatusCode sc = m_fitSvc->VKalVrtFitFast( baseTracks, iniVertex );/* Fast crude estimation */
         if(sc.isFailure()) ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": fast crude estimation fails ");
 
         m_fitSvc->setDefault();
-        m_fitSvc->setApproximateVertex( IniVertex.x(), IniVertex.y(), IniVertex.z() );
+        m_fitSvc->setApproximateVertex( iniVertex.x(), iniVertex.y(), iniVertex.z() );
         
         sc = m_fitSvc->VKalVrtFit(baseTracks, dummyNeutrals,
                                   wrkvrt.vertex,
