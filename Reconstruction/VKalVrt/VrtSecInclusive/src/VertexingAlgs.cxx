@@ -821,7 +821,7 @@ namespace VKalVrtAthena {
     const xAOD::VertexContainer *pvs (nullptr);
     ATH_CHECK( evtStore()->retrieve( pvs, "PrimaryVertices") );
     
-    static SG::AuxElement::Decorator<char> decor_isAssociated( "is_associated" + m_jp.augVerString );
+    if( !m_decor_isAssociated ) m_decor_isAssociated = std::make_unique< SG::AuxElement::Decorator<char> >( "is_associated" + m_jp.augVerString );
     
     ATH_MSG_DEBUG( " >> " << __FUNCTION__ << ": #verticess = " << workVerticesContainer->size() );
     
@@ -989,7 +989,7 @@ namespace VKalVrtAthena {
         wrkvrt.associatedTrackIndices.emplace_back( m_associatedTracks->size() );
         
         m_associatedTracks->emplace_back( trk );
-        decor_isAssociated( *trk ) = true;
+        (*m_decor_isAssociated)( *trk ) = true;
         
       }
 
@@ -1017,8 +1017,8 @@ namespace VKalVrtAthena {
       for( auto ritr = workVerticesContainer->rbegin(); ritr != workVerticesContainer->rend(); ++ritr ) {
         auto& vertexToMerge = *ritr;
         
-        if( !vertexToMerge.isGood               )                                                 continue;
-        if(  vertexToMerge.selectedTrackIndices.size() <= 1 )                                     continue;
+        if( !vertexToMerge.isGood               )                                             continue;
+        if(  vertexToMerge.selectedTrackIndices.size() <= 1 )                                 continue;
         if( &wrkvrt == &vertexToMerge     )                                                   continue;
         if(  vertexToMerge.selectedTrackIndices.size() < wrkvrt.selectedTrackIndices.size() ) continue;
         
@@ -1181,19 +1181,18 @@ namespace VKalVrtAthena {
     ATH_CHECK( evtStore()->retrieve( trackParticleContainer, m_jp.TrackLocation) );
     
     enum { kPt, kEta, kPhi, kD0, kZ0, kErrP, kErrD0, kErrZ0, kChi2SV };
-    static std::map< unsigned, SG::AuxElement::Decorator<float> > trkDecors
-    {
-       { kPt,     SG::AuxElement::Decorator<float>("pt_wrtSV"    + m_jp.augVerString) },
-       { kEta,    SG::AuxElement::Decorator<float>("eta_wrtSV"   + m_jp.augVerString) }, 
-       { kPhi,    SG::AuxElement::Decorator<float>("phi_wrtSV"   + m_jp.augVerString) },
-       { kD0,     SG::AuxElement::Decorator<float>("d0_wrtSV"    + m_jp.augVerString) },
-       { kZ0,     SG::AuxElement::Decorator<float>("z0_wrtSV"    + m_jp.augVerString) },
-       { kErrP,   SG::AuxElement::Decorator<float>("errP_wrtSV"  + m_jp.augVerString) },
-       { kErrD0,  SG::AuxElement::Decorator<float>("errd0_wrtSV" + m_jp.augVerString) },
-       { kErrZ0,  SG::AuxElement::Decorator<float>("errz0_wrtSV" + m_jp.augVerString) },
-       { kChi2SV, SG::AuxElement::Decorator<float>("chi2_toSV"   + m_jp.augVerString) }
-    };
-    static SG::AuxElement::Decorator<char> decor_svtrk( "is_svtrk_final" + m_jp.augVerString );
+    if( 0 == m_trkDecors.size() ) {
+      m_trkDecors.emplace( kPt,     SG::AuxElement::Decorator<float>("pt_wrtSV"    + m_jp.augVerString) );
+      m_trkDecors.emplace( kEta,    SG::AuxElement::Decorator<float>("eta_wrtSV"   + m_jp.augVerString) ); 
+      m_trkDecors.emplace( kPhi,    SG::AuxElement::Decorator<float>("phi_wrtSV"   + m_jp.augVerString) );
+      m_trkDecors.emplace( kD0,     SG::AuxElement::Decorator<float>("d0_wrtSV"    + m_jp.augVerString) );
+      m_trkDecors.emplace( kZ0,     SG::AuxElement::Decorator<float>("z0_wrtSV"    + m_jp.augVerString) );
+      m_trkDecors.emplace( kErrP,   SG::AuxElement::Decorator<float>("errP_wrtSV"  + m_jp.augVerString) );
+      m_trkDecors.emplace( kErrD0,  SG::AuxElement::Decorator<float>("errd0_wrtSV" + m_jp.augVerString) );
+      m_trkDecors.emplace( kErrZ0,  SG::AuxElement::Decorator<float>("errz0_wrtSV" + m_jp.augVerString) );
+      m_trkDecors.emplace( kChi2SV, SG::AuxElement::Decorator<float>("chi2_toSV"   + m_jp.augVerString) );
+    }
+    if( !m_decor_is_svtrk_final ) m_decor_is_svtrk_final = std::make_unique< SG::AuxElement::Decorator<char> >( "is_svtrk_final" + m_jp.augVerString );
 
     std::map<const WrkVrt*, const xAOD::Vertex*> wrkvrtLinkMap;
     
@@ -1377,10 +1376,10 @@ namespace VKalVrtAthena {
         if( !sv_perigee ) {
           ATH_MSG_WARNING(" > " << __FUNCTION__ << ": > Track index " << trk->index() << ": Failed in obtaining the SV perigee!" );
           
-          for( auto& pair : trkDecors ) {
+          for( auto& pair : m_trkDecors ) {
             pair.second( *trk ) = AlgConsts::invalidFloat;
           }
-          decor_svtrk( *trk ) = true;
+          (*m_decor_is_svtrk_final)( *trk ) = true;
           continue;
         }
 
@@ -1397,17 +1396,17 @@ namespace VKalVrtAthena {
         double errP_wrtSV      = (*sv_perigee->covariance())( Trk::qOverP, Trk::qOverP );
         
         // xAOD::Track augmentation
-        ( trkDecors.at(kPt)    )( *trk ) = pt_wrtSV;
-        ( trkDecors.at(kEta)   )( *trk ) = eta_wrtSV;
-        ( trkDecors.at(kPhi)   )( *trk ) = phi_wrtSV;
-        ( trkDecors.at(kD0)    )( *trk ) = d0_wrtSV;
-        ( trkDecors.at(kZ0)    )( *trk ) = z0_wrtSV;
-        ( trkDecors.at(kErrP)  )( *trk ) = errP_wrtSV;
-        ( trkDecors.at(kErrD0) )( *trk ) = errd0_wrtSV;
-        ( trkDecors.at(kErrZ0) )( *trk ) = errz0_wrtSV;
-        ( trkDecors.at(kChi2SV))( *trk ) = chi2AtSV;
+        ( m_trkDecors.at(kPt)    )( *trk ) = pt_wrtSV;
+        ( m_trkDecors.at(kEta)   )( *trk ) = eta_wrtSV;
+        ( m_trkDecors.at(kPhi)   )( *trk ) = phi_wrtSV;
+        ( m_trkDecors.at(kD0)    )( *trk ) = d0_wrtSV;
+        ( m_trkDecors.at(kZ0)    )( *trk ) = z0_wrtSV;
+        ( m_trkDecors.at(kErrP)  )( *trk ) = errP_wrtSV;
+        ( m_trkDecors.at(kErrD0) )( *trk ) = errd0_wrtSV;
+        ( m_trkDecors.at(kErrZ0) )( *trk ) = errz0_wrtSV;
+        ( m_trkDecors.at(kChi2SV))( *trk ) = chi2AtSV;
         
-        decor_svtrk( *trk ) = true;
+        (*m_decor_is_svtrk_final)( *trk ) = true;
         
         TLorentzVector p4wrtSV_pion;
         TLorentzVector p4wrtSV_electron;

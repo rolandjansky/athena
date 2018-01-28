@@ -245,6 +245,23 @@ namespace VKalVrtAthena {
     using PatternStrategyFunc = bool (VrtSecInclusive::*) ( const xAOD::TrackParticle *trk, const Amg::Vector3D& vertex );
     std::map<std::string, PatternStrategyFunc> m_patternStrategyFuncs;
     
+    // AuxElement decorators
+    std::unique_ptr< SG::AuxElement::Decorator< char > > m_decor_isSelected;
+    std::unique_ptr< SG::AuxElement::Decorator< char > > m_decor_isAssociated;
+    std::unique_ptr< SG::AuxElement::Decorator< char > > m_decor_is_svtrk_final;
+    std::map< unsigned, SG::AuxElement::Decorator<float> > m_trkDecors;
+    
+    using IPDecoratorType = SG::AuxElement::Decorator< std::vector< std::vector<float> > >;
+    std::unique_ptr< IPDecoratorType > m_decor_d0_wrtSVs;
+    std::unique_ptr< IPDecoratorType > m_decor_z0_wrtSVs;
+    std::unique_ptr< IPDecoratorType > m_decor_pt_wrtSVs;
+    std::unique_ptr< IPDecoratorType > m_decor_eta_wrtSVs;
+    std::unique_ptr< IPDecoratorType > m_decor_phi_wrtSVs;
+    std::unique_ptr< IPDecoratorType > m_decor_d0err_wrtSVs;
+    std::unique_ptr< IPDecoratorType > m_decor_z0err_wrtSVs;
+    
+    using VertexELType = SG::AuxElement::Decorator< std::vector<ElementLink< xAOD::VertexContainer > > >;
+    std::unique_ptr< VertexELType > m_decor_svLink;
     
     //////////////////////////////////////////////////////////////////////////////////////
     //
@@ -315,12 +332,17 @@ namespace VKalVrtAthena {
     ///
     
     /** select tracks which become seeds for vertex finding */
-    StatusCode selectTracks();
+    void selectTrack( const xAOD::TrackParticle* );
+    StatusCode selectTracksInDet();
     StatusCode selectTracksFromMuons();
     StatusCode selectTracksFromElectrons();
     
     using TrackSelectionAlg = StatusCode (VrtSecInclusive::*)();
     std::vector<TrackSelectionAlg> m_trackSelectionAlgs;
+    
+    /** track selection */
+    using CutFunc = bool (VrtSecInclusive::*) ( const xAOD::TrackParticle* ) const;
+    std::vector<CutFunc> m_trackSelectionFuncs;
     
     /** track-by-track selection strategies */
     bool selectTrack_notPVassociated ( const xAOD::TrackParticle* ) const;

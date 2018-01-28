@@ -150,21 +150,13 @@ namespace VKalVrtAthena {
     }
     
     // Track selection algorithm configuration
-    if( m_jp.doSelectTracksFromMuons ) {
-      
-      m_trackSelectionAlgs.emplace_back( &VrtSecInclusive::selectTracksFromMuons );
-      
-    }
+    if( m_jp.doSelectTracksFromMuons )     { m_trackSelectionAlgs.emplace_back( &VrtSecInclusive::selectTracksFromMuons );     }
+    if( m_jp.doSelectTracksFromElectrons ) { m_trackSelectionAlgs.emplace_back( &VrtSecInclusive::selectTracksFromElectrons ); }
     
-    if( m_jp.doSelectTracksFromElectrons ) {
-      
-      m_trackSelectionAlgs.emplace_back( &VrtSecInclusive::selectTracksFromElectrons );
-      
-    }
-    
+    // if none of the above two flags are activated, use ID tracks (default)
     if( !m_jp.doSelectTracksFromMuons && !m_jp.doSelectTracksFromElectrons ) {
       
-      m_trackSelectionAlgs.emplace_back( &VrtSecInclusive::selectTracks );
+      m_trackSelectionAlgs.emplace_back( &VrtSecInclusive::selectTracksInDet );
       
     }
     
