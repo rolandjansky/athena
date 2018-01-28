@@ -52,9 +52,46 @@ namespace InDet
     StatusCode resetStatistics();
 
   protected:
+    // input primary vertices
+    SG::ReadHandleKey<xAOD::VertexContainer>        m_vertexKey { this, "VxPrimaryCandidateName", "PrimaryVertices", 
+                                                                  "key for retrieving vertices" };
+    // V0 candidate output containers
+    SG::WriteHandleKey<xAOD::VertexContainer>       m_v0Key { this, "V0ContainerName", "V0Candidates", "V0 container" };
+    SG::WriteHandleKey<xAOD::VertexContainer>       m_ksKey { this, "KshortContainerName", "KshortCandidates", "Ks container" };
+    SG::WriteHandleKey<xAOD::VertexContainer>       m_laKey { this, "LambdaContainerName", "LambdaCandidates",
+                                                              "Lambda container" };
+    SG::WriteHandleKey<xAOD::VertexContainer>       m_lbKey { this, "LambdabarContainerName", "LambdabarCandidates", 
+                                                              "Lambdabar container" };
+
+    // Decorator keys will be modified at run-time to conform to the correct container name
+    // For the run-time update to work, the decoration key name properties must start with a period (".")
+    // V0 decorators
+    Gaudi::Property<SG::WriteDecorHandleKey<xAOD::VertexContainer> > m_decorKsMass 
+                    { this, "KsMass_v0", ".Kshort_mass", "Ks mass for v0" };
+    Gaudi::Property<SG::WriteDecorHandleKey<xAOD::VertexContainer> > m_decorLaMass 
+                    { this, "LaMass_v0", ".Lambda_mass", "Lambda mass for v0" };
+    Gaudi::Property<SG::WriteDecorHandleKey<xAOD::VertexContainer> > m_decorLbMass 
+                    { this, "LbMass_v0", ".Lambdabar_mass", "Lambdabar mass for v0" };
+
+    // Ks decorators
+    Gaudi::Property<SG::WriteDecorHandleKey<xAOD::VertexContainer> > m_decorMass_ks 
+                    { this, "Mass_ks", ".mass", "mass for Ks" };
+
+    // Lambda decorators
+    Gaudi::Property<SG::WriteDecorHandleKey<xAOD::VertexContainer> > m_decorMass_la 
+                    { this, "Mass_la", ".mass", "mass for Lambda" };
+
+    // Lambdabar decorators
+    Gaudi::Property<SG::WriteDecorHandleKey<xAOD::VertexContainer> > m_decorMass_lb 
+                    { this, "Mass_lb", ".mass", "mass for Lambdabar" };
+
+    // Tools
 
     ToolHandle<InDet::InDetV0FinderTool> m_v0FinderTool;
     ToolHandle < Trk::V0Tools >          m_V0Tools;
+
+    // Other members
+
     const HepPDT::ParticleDataTable *m_particleDataTable;
 
     bool          m_decorate;                 //!< decorate V0 containers
@@ -64,8 +101,6 @@ namespace InDet
     double        m_masse;                    //!< electron mass (0.510999 MeV)
     double        m_massK0S;                  //!< Kshort mass (497.672 MeV)
     double        m_massLambda;               //!< Lambda mass (1115.68 MeV)
-
-    std::string   m_VxPrimaryCandidateName;   //!< Name of primary vertex container
 
     long          m_events_processed;
     long          m_V0s_stored;
