@@ -680,6 +680,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
     std::string electronContSGKey="";
     std::string electronKey="";
     HLT::ErrorCode sc = getUniqueKey( m_electron_container, electronContSGKey, electronKey);
+    ATH_MSG_DEBUG("The electron container SG key created is: " << electronContSGKey);
     if (sc != HLT::OK) {
         msg() << MSG::DEBUG << "Could not retrieve the electron container key" << endreq;
         return sc;
@@ -798,31 +799,34 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
 
       //output collections
       TrackCollection *refitTracks = new TrackCollection(0);
-      xAOD::TrackParticleContainer *refitTrackParticles = new xAOD::TrackParticleContainer();
-      xAOD::TrackParticleAuxContainer* refitTPaux = new xAOD::TrackParticleAuxContainer();
-      refitTrackParticles->setStore(refitTPaux);
+      xAOD::TrackParticleContainer *GSFTrigTrackParticles = new xAOD::TrackParticleContainer();
+      xAOD::TrackParticleAuxContainer* GSFTPaux = new xAOD::TrackParticleAuxContainer();
+      GSFTrigTrackParticles->setStore(GSFTPaux);
 	
-      if (m_BremCollectionBuilderTool->hltExecute(clusContainer,tracks,refitTracks, refitTrackParticles ).isFailure()){
+      if (m_BremCollectionBuilderTool->hltExecute(clusContainer,tracks,refitTracks, GSFTrigTrackParticles ).isFailure()){
 	ATH_MSG_ERROR("Problem executing " << m_BremCollectionBuilderTool);
 	return HLT::ERROR;  
       }
 
       //Interaction with the navigation
-      std::string refitTracksContSGKey = "";
-      std::string refitTracksKey = "";
-      HLT::ErrorCode sc = getUniqueKey( refitTrackParticles, refitTracksContSGKey, refitTracksKey);
+      std::string GSFTrigTracksContSGKey = "TrigGSFTrackParticlesColl";
+      std::string GSFTrigTracksKey = "TrigGSFTrackParticles";
+      HLT::ErrorCode sc = getUniqueKey( GSFTrigTrackParticles, GSFTrigTracksContSGKey, GSFTrigTracksKey);
       if (sc != HLT::OK) {
-         msg() << MSG::DEBUG << "Could not retrieve the refitted tracks collection key" << endmsg;
+         msg() << MSG::ERROR << "Could not retrieve the refitted tracks collection key" << endmsg;
          return sc;
       }
-      
-      if (store()->record (refitTrackParticles, refitTracksContSGKey).isFailure()) {
-         msg() << MSG::ERROR << "recording refitTrackParticles with key <" << refitTracksContSGKey << "> failed" << endmsg;
-         delete refitTrackParticles;
-         return HLT::TOOL_FAILURE;
+      else {
+        ATH_MSG_DEBUG("GSF Track Collection key is: " << GSFTrigTracksContSGKey);
       }
-      std::string aliasKey = "";
-      stat = reAttachFeature(outputTE, refitTrackParticles, aliasKey, refitTracksKey );
+      
+      if (HLT::OK != attachFeature( outputTE, GSFTrigTrackParticles, "GSFTrigTrackParticles,") ){
+        ATH_MSG_ERROR("REGTEST: trigger xAOD::TrackParticleContainer for GSF attach to TE and record into StoreGate failed");
+        return HLT::NAV_ERROR;
+      }
+
+
+
     }
 
     //**********************************************************************
