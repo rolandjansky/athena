@@ -338,8 +338,7 @@ namespace top{
     m_systAllTTreeLooseIndex(nullptr),
     m_saveBootstrapWeights(false),
     m_BootstrapReplicas(100),
-    m_useEventLevelJetCleaningTool(false),
-    m_topDataPreparationPath("TopDataPreparation/XSection-MC15-13TeV.data")
+    m_useEventLevelJetCleaningTool(false)
   {
     m_allSelectionNames = std::shared_ptr<std::vector<std::string>> ( new std::vector<std::string> );
 
