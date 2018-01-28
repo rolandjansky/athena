@@ -193,8 +193,7 @@ namespace VKalVrtAthena {
     static SG::AuxElement::Decorator< char > decor_isSelected( "is_selected" + m_jp.augVerString );
     
     for( const auto& muon : *muons ) {
-      const auto& inDetTrackLink = muon->inDetTrackParticleLink();
-      const auto* trk = *inDetTrackLink;
+      const auto* trk = muon->trackParticle( xAOD::Muon::InnerDetectorTrackParticle );
       if( trk ) {
         decor_isSelected( *trk ) = true;
         m_selectedTracks->emplace_back( trk );
