@@ -14,30 +14,22 @@ namespace G4UA
     MCTruthUserActionTool::MCTruthUserActionTool(const std::string& type,
                                                  const std::string& name,
                                                  const IInterface* parent)
-      : ActionToolBase<MCTruthUserAction>(type, name, parent)
+      : UserActionToolBase<MCTruthUserAction>(type, name, parent)
     {
       declareProperty("TruthRecordSvc", m_config.truthRecordSvc,
                       "ISF Particle Truth Svc");
       declareProperty("SecondarySavingLevel", m_config.ilevel=2);
     }
 
-    std::unique_ptr<MCTruthUserAction> MCTruthUserActionTool::makeAction()
+    std::unique_ptr<MCTruthUserAction>
+    MCTruthUserActionTool::makeAndFillAction(G4AtlasUserActions& actionList)
     {
       ATH_MSG_DEBUG("Constructing an MCTruthUserAction");
       if(msgLvl(MSG::VERBOSE))    { m_config.verboseLevel = 10; }
       else if(msgLvl(MSG::DEBUG)) { m_config.verboseLevel = 5;  }
       auto action = CxxUtils::make_unique<MCTruthUserAction>(m_config);
-      return std::move(action);
-    }
-
-    StatusCode MCTruthUserActionTool::queryInterface(const InterfaceID& riid, void** ppvIf){
-
-      if(riid == IG4TrackingActionTool::interfaceID()) {
-	*ppvIf = (IG4TrackingActionTool*) this;
-	addRef();
-	return StatusCode::SUCCESS;
-      }
-      return ActionToolBase<MCTruthUserAction>::queryInterface(riid, ppvIf);
+      actionList.trackingActions.push_back( action.get() );
+      return action;
     }
 
   } // iGeant4

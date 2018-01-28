@@ -12,8 +12,11 @@ namespace G4UA
   namespace iGeant4
   {
 
-    TrackProcessorUserActionPassBackTool::TrackProcessorUserActionPassBackTool(const std::string& type, const std::string& name,const IInterface* parent):
-      ActionToolBase<TrackProcessorUserActionPassBack>(type, name, parent)
+    TrackProcessorUserActionPassBackTool::
+    TrackProcessorUserActionPassBackTool(const std::string& type,
+                                         const std::string& name,
+                                         const IInterface* parent)
+      : UserActionToolBase<TrackProcessorUserActionPassBack>(type, name, parent)
     {
       declareProperty("ParticleBroker", m_config.particleBroker, "ISF Particle Broker Svc");
       declareProperty("GeoIDSvc"      , m_config.geoIDSvc      , "ISF GeoID Svc"          );
@@ -27,34 +30,19 @@ namespace G4UA
     }
 
     std::unique_ptr<TrackProcessorUserActionPassBack>
-    TrackProcessorUserActionPassBackTool::makeAction()
+    TrackProcessorUserActionPassBackTool::
+    makeAndFillAction(G4AtlasUserActions& actionList)
     {
       ATH_MSG_DEBUG("Constructing a TrackProcessorUserActionPassBack");
       if(msgLvl(MSG::VERBOSE))    { m_config.verboseLevel = 10; }
       else if(msgLvl(MSG::DEBUG)) { m_config.verboseLevel = 5;  }
       auto action = CxxUtils::make_unique<TrackProcessorUserActionPassBack>(m_config);
-      return std::move(action);
-    }
-
-    StatusCode TrackProcessorUserActionPassBackTool::queryInterface(const InterfaceID& riid, void** ppvIf){
-
-      if(riid == IG4TrackingActionTool::interfaceID()) {
-        *ppvIf = (IG4TrackingActionTool*) this;
-        addRef();
-        return StatusCode::SUCCESS;
-      }
-      if(riid == IG4SteppingActionTool::interfaceID()) {
-        *ppvIf = (IG4SteppingActionTool*) this;
-        addRef();
-        return StatusCode::SUCCESS;
-      }
-      if(riid == IG4EventActionTool::interfaceID()) {
-        *ppvIf = (IG4EventActionTool*) this;
-        addRef();
-        return StatusCode::SUCCESS;
-      }
-      return ActionToolBase<TrackProcessorUserActionPassBack>::queryInterface(riid, ppvIf);
+      actionList.eventActions.push_back( action.get() );
+      actionList.trackingActions.push_back( action.get() );
+      actionList.steppingActions.push_back( action.get() );
+      return action;
     }
 
   } // iGeant4
+
 } // namespace G4UA
