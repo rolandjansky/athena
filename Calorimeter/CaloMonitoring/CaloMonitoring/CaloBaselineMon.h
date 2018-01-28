@@ -70,7 +70,6 @@ class CaloBaselineMon : public CaloMonToolBase {
    bool m_bool_bcidtoolMon;
 
    // Services
-   //const CaloIdManager* m_caloIdMgr;
    const CaloCell_ID*   m_calo_id;
 
    // Tools
@@ -87,12 +86,9 @@ class CaloBaselineMon : public CaloMonToolBase {
      TProfile_LW* hProf_bcidtoolMon_vs_Eta=nullptr;
      TProfile_LW* hProf_bcidtoolMon_vs_LB=nullptr;
      std::vector<TProfile_LW*> hProf_bcidtoolMon_vs_EtaBCID;
-     //     TProfile2D_LW* hProf2d_bcidtoolMon_vs_EtaBCID=nullptr;
-
      TProfile_LW* hProf_pedestalMon_vs_Eta=nullptr;
      TProfile_LW* hProf_pedestalMon_vs_LB=nullptr;
      std::vector<TProfile_LW*> hProf_pedestalMon_vs_EtaBCID;
-     //TProfile2D_LW* hProf2d_pedestalMon_vs_EtaBCID=nullptr;
    };
 
    // List of partitions given in job options;

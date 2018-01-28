@@ -31,10 +31,8 @@ using Athena::Units::GeV;
 
 CaloBaselineMon::CaloBaselineMon(const std::string& type, const std::string& name, const IInterface* parent) :
   CaloMonToolBase(type, name, parent),
-  //  m_caloMgr(nullptr),
   m_calo_id(nullptr),
   m_bunchCrossingTool("Trig::TrigConfBunchCrossingTool/BunchCrossingTool")
-  //  m_bunchCrossingTool("BunchCrossingTool")
 {
   declareInterface<IMonitorToolBase>(this);
 
@@ -55,7 +53,6 @@ CaloBaselineMon::~CaloBaselineMon() {
 ////////////////////////////////////////////////////////////////////////////
 StatusCode CaloBaselineMon::initialize() {
 
-  //  ATH_MSG_WARNING("Entering CaloBaselineMon::initialize");
   StatusCode sc = StatusCode::SUCCESS;
   sc = retrieveTools();
 
@@ -102,14 +99,6 @@ StatusCode CaloBaselineMon::initialize() {
 StatusCode CaloBaselineMon::retrieveTools(){
 
   StatusCode sc = StatusCode::SUCCESS;
-//  sc = detStore()->retrieve(m_caloMgr);
-//  if (sc.isFailure()) {
-//    ATH_MSG_ERROR( "Unable to retrieve CaloIdManager from DetectorStore" );
-//    return sc;
-//  }
-//  else{
-//   ATH_MSG_INFO("CaloMgr is retrieved");
-//  }
 
 
   ATH_CHECK( detStore()->retrieve(m_calo_id) );
@@ -124,7 +113,6 @@ StatusCode CaloBaselineMon::retrieveTools(){
    ATH_MSG_INFO("CaloMgr is retrieved");
   }
     
-    //  ATH_CHECK( m_bunchCrossingTool.retrieve());
  
   return sc;
 }
@@ -296,7 +284,6 @@ StatusCode CaloBaselineMon::fillHistograms() {
     Identifier id = cell->ID();
     float energy = cell->energy();
     double eta = cell->eta();
-    //std::cout << energy << " " << eta << " " << std::endl;
 
     int partThisAlgo = 0;
     if  (m_calo_id->is_em(id)) partThisAlgo = m_partMap[0];
