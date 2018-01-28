@@ -150,7 +150,9 @@ StatusCode  CaloLCDeadMaterialTool::weight(CaloCluster* theCluster) const
 
    
   double weightMom (1);
-  theCluster->retrieveMoment(CaloCluster::DM_WEIGHT,weightMom);
+  if (!theCluster->retrieveMoment(CaloCluster::DM_WEIGHT,weightMom)) {
+    ATH_MSG_WARNING ("Cannot find cluster moment DM_WEIGHT");
+  }
   /* WTF?? re-setting the same moment??
   theCluster->insertMoment(CaloClusterMoment::DM_WEIGHT,CaloClusterMoment(new_weight),true); 
   */
