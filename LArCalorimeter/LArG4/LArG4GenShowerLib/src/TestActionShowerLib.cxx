@@ -36,12 +36,6 @@ namespace G4UA
     m_calculator_EMB("EMBCalculator","TestActionShowerLib"),
     m_eventSteps(nullptr)
   {
-    //declareProperty("EMECIWCalculator", m_calculator_EMECIW);
-    //declareProperty("EMECOWCalculator", m_calculator_EMECOW);
-    //declareProperty("FCAL1Calculator", m_calculator_FCAL1);
-    //declareProperty("FCAL2Calculator", m_calculator_FCAL2);
-    //declareProperty("FCAL3Calculator", m_calculator_FCAL3);
-    //declareProperty("EMBCalculator",m_calculator_EMB);
 #ifdef _myDEBUG_
     G4cout << "#########################################" << G4endl
 	   << "##  TestActionShowerLib - Constructor  ##" << G4endl
