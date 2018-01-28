@@ -6,13 +6,15 @@
 #include "TrackProcessorUserActionPassBackTool.h"
 #include "ISF_Interfaces/IParticleBroker.h"
 
-namespace G4UA{
+namespace G4UA
+{
 
-  namespace iGeant4{
+  namespace iGeant4
+  {
 
     TrackProcessorUserActionPassBackTool::TrackProcessorUserActionPassBackTool(const std::string& type, const std::string& name,const IInterface* parent):
-      ActionToolBase<TrackProcessorUserActionPassBack>(type, name, parent), m_config(){
-
+      ActionToolBase<TrackProcessorUserActionPassBack>(type, name, parent)
+    {
       declareProperty("ParticleBroker", m_config.particleBroker, "ISF Particle Broker Svc");
       declareProperty("GeoIDSvc"      , m_config.geoIDSvc      , "ISF GeoID Svc"          );
 
@@ -22,12 +24,12 @@ namespace G4UA{
       declareProperty("KillBoundaryParticlesBelowThreshold",
                       m_config.killBoundaryParticlesBelowThreshold=false,
                       "Kill particles at boundary which are below Ekin cut-off rather than continue their simulation in G4");
-
     }
 
-    std::unique_ptr<TrackProcessorUserActionPassBack>  TrackProcessorUserActionPassBackTool::makeAction(){
-
-      ATH_MSG_DEBUG("makeAction");
+    std::unique_ptr<TrackProcessorUserActionPassBack>
+    TrackProcessorUserActionPassBackTool::makeAction()
+    {
+      ATH_MSG_DEBUG("Constructing a TrackProcessorUserActionPassBack");
       if(msgLvl(MSG::VERBOSE))    { m_config.verboseLevel = 10; }
       else if(msgLvl(MSG::DEBUG)) { m_config.verboseLevel = 5;  }
       auto action = CxxUtils::make_unique<TrackProcessorUserActionPassBack>(m_config);

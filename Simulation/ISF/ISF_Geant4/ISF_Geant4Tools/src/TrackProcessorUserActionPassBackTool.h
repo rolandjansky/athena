@@ -4,22 +4,24 @@
 
 #ifndef ISF_GEANT4TOOLS_G4UA__TRACKPROCESSORUSERACTIONPASSBACKTOOL_H
 #define ISF_GEANT4TOOLS_G4UA__TRACKPROCESSORUSERACTIONPASSBACKTOOL_H
+
 #include "G4AtlasInterfaces/IG4TrackingActionTool.h"
 #include "G4AtlasInterfaces/IG4SteppingActionTool.h"
 #include "G4AtlasInterfaces/IG4EventActionTool.h"
 #include "G4AtlasTools/ActionToolBase.h"
 #include "TrackProcessorUserActionPassBack.h"
 
-namespace G4UA{
+namespace G4UA
+{
 
-  namespace iGeant4{
+  namespace iGeant4
+  {
 
     /// @class TrackProcessorUserActionPassBackTool
     /// @brief Tool which manages the TrackProcessorUserActionPassBack
     ///
     /// @author Andrea Di Simone
     ///
-
     class TrackProcessorUserActionPassBackTool:
       public ActionToolBase<TrackProcessorUserActionPassBack>,
       public IG4TrackingActionTool, public IG4SteppingActionTool, public IG4EventActionTool
@@ -52,4 +54,5 @@ namespace G4UA{
   }  // iGeant4
 
 } // namespace G4UA
+
 #endif

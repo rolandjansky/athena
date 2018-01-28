@@ -4,21 +4,25 @@
 
 #include "CxxUtils/make_unique.h"
 #include "TrackProcessorUserActionFullG4Tool.h"
-namespace G4UA{
 
-  namespace iGeant4{
+namespace G4UA
+{
+
+  namespace iGeant4
+  {
 
     TrackProcessorUserActionFullG4Tool::TrackProcessorUserActionFullG4Tool(const std::string& type, const std::string& name,const IInterface* parent):
-      ActionToolBase<TrackProcessorUserActionFullG4>(type, name, parent), m_config(name){
-
+      ActionToolBase<TrackProcessorUserActionFullG4>(type, name, parent), m_config(name)
+    {
       declareProperty("EntryLayerTool",   m_config.entryLayerTool, "ISF Entry Layer Tool");
       declareProperty("GeoIDSvc",         m_config.geoIDSvc,       "ISF GeoIDService"                            );
       declareProperty("TruthVolumeLevel", m_config.truthVolLevel,  "Level in geo hierarchy for the truth volumes");
-
     }
 
-    std::unique_ptr<TrackProcessorUserActionFullG4>  TrackProcessorUserActionFullG4Tool::makeAction(){
-      ATH_MSG_DEBUG("makeAction");
+    std::unique_ptr<TrackProcessorUserActionFullG4>
+    TrackProcessorUserActionFullG4Tool::makeAction()
+    {
+      ATH_MSG_DEBUG("Constructing a TrackProcessorUserActionFullG4");
       if(msgLvl(MSG::VERBOSE))    { m_config.verboseLevel = 10; }
       else if(msgLvl(MSG::DEBUG)) { m_config.verboseLevel = 5;  }
       auto action = CxxUtils::make_unique<TrackProcessorUserActionFullG4>(m_config);

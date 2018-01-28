@@ -41,7 +41,9 @@ namespace G4UA{
 
       struct Config
       {
-        ServiceHandle<ISF::ITruthSvc> truthRecordSvc=ServiceHandle<ISF::ITruthSvc>("ISF_TruthRecordSvc", "MCTruthUserAction");
+        ServiceHandle<ISF::ITruthSvc> truthRecordSvc =
+          ServiceHandle<ISF::ITruthSvc>("ISF_TruthRecordSvc", "MCTruthUserAction");
+
         int ilevel=2;
         unsigned int verboseLevel=0;
       };
@@ -51,7 +53,7 @@ namespace G4UA{
       virtual void PostUserTrackingAction(const G4Track*) override;
     private:
       Config m_config;
-      ISF::ITruthSvc                  *m_truthRecordSvcQuick; //!< used for faster access
+      ISF::ITruthSvc* m_truthRecordSvcQuick; //!< used for faster access
     }; // class MCTruthUserAction
 
   } // namespace iGeant4

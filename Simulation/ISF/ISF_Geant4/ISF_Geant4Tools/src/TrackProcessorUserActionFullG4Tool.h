@@ -4,23 +4,24 @@
 
 #ifndef ISF_GEANT4TOOLS_G4UA__TRACKPROCESSORUSERACTIONFULLG4TOOL_H
 #define ISF_GEANT4TOOLS_G4UA__TRACKPROCESSORUSERACTIONFULLG4TOOL_H
+
 #include "G4AtlasInterfaces/IG4TrackingActionTool.h"
 #include "G4AtlasInterfaces/IG4SteppingActionTool.h"
 #include "G4AtlasInterfaces/IG4EventActionTool.h"
 #include "G4AtlasTools/ActionToolBase.h"
 #include "TrackProcessorUserActionFullG4.h"
 
-namespace G4UA{
+namespace G4UA
+{
 
-  namespace iGeant4{
+  namespace iGeant4
+  {
 
     /// @class TrackProcessorUserActionFullG4Tool
     /// @brief Tool which manages the TrackProcessorUserActionFullG4
     ///
     /// @author Andrea Di Simone
     ///
-
-
     class TrackProcessorUserActionFullG4Tool:
     public ActionToolBase<TrackProcessorUserActionFullG4>,
       public IG4TrackingActionTool, public IG4SteppingActionTool, public IG4EventActionTool
@@ -53,4 +54,5 @@ namespace G4UA{
   }// iGeant4
 
 } // namespace G4UA
+
 #endif

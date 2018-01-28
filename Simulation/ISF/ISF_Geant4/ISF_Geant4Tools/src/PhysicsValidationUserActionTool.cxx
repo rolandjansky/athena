@@ -5,16 +5,16 @@
 #include "CxxUtils/make_unique.h"
 #include "PhysicsValidationUserActionTool.h"
 
-namespace G4UA{
-  
-  namespace iGeant4{
-    
+namespace G4UA
+{
+
+  namespace iGeant4
+  {
+
     PhysicsValidationUserActionTool::PhysicsValidationUserActionTool(const std::string& type, const std::string& name,const IInterface* parent)
       : ActionToolBase<PhysicsValidationUserAction>(type, name, parent)
       , m_config()
     {
-      
-      
       declareProperty( "ValidationOutput",
 		       m_config.validationOutput,
 		       "If turned on, write out a ROOT tree.");
@@ -36,12 +36,12 @@ namespace G4UA{
       declareProperty("MuonZmean",m_config.muonZmean);
       declareProperty("CavernRmean",m_config.cavernRmean);
       declareProperty("CavernZmean",m_config.cavernZmean);
-      
     }
-    
-    std::unique_ptr<PhysicsValidationUserAction>  PhysicsValidationUserActionTool::makeAction()
+
+    std::unique_ptr<PhysicsValidationUserAction>
+    PhysicsValidationUserActionTool::makeAction()
     {
-      ATH_MSG_DEBUG("makeAction");
+      ATH_MSG_DEBUG("Constructing a PhysicsValidationUserAction");
       if(msgLvl(MSG::VERBOSE))      { m_config.verboseLevel = MSG::VERBOSE; }
       else if(msgLvl(MSG::DEBUG))   { m_config.verboseLevel = MSG::DEBUG;   }
       else if(msgLvl(MSG::INFO))    { m_config.verboseLevel = MSG::INFO;    }
