@@ -68,22 +68,90 @@ namespace InDet
     // V0 decorators
     Gaudi::Property<SG::WriteDecorHandleKey<xAOD::VertexContainer> > m_decorKsMass 
                     { this, "KsMass_v0", ".Kshort_mass", "Ks mass for v0" };
+    Gaudi::Property<SG::WriteDecorHandleKey<xAOD::VertexContainer> > m_decorKsMassErr 
+                    { this, "KsMassErr_v0", ".Kshort_massError", "Ks mass error for v0" };
     Gaudi::Property<SG::WriteDecorHandleKey<xAOD::VertexContainer> > m_decorLaMass 
                     { this, "LaMass_v0", ".Lambda_mass", "Lambda mass for v0" };
+    Gaudi::Property<SG::WriteDecorHandleKey<xAOD::VertexContainer> > m_decorLaMassErr 
+                    { this, "LaMassErr_v0", ".Lambda_massError", "Lambda mass error for v0" };
     Gaudi::Property<SG::WriteDecorHandleKey<xAOD::VertexContainer> > m_decorLbMass 
                     { this, "LbMass_v0", ".Lambdabar_mass", "Lambdabar mass for v0" };
+    Gaudi::Property<SG::WriteDecorHandleKey<xAOD::VertexContainer> > m_decorLbMassErr 
+                    { this, "LbMassErr_v0", ".Lambdabar_massError", "Lambdabar mass error for v0" };
+    Gaudi::Property<SG::WriteDecorHandleKey<xAOD::VertexContainer> > m_decorPt_v0 
+                    { this, "Pt_v0", ".pT", "Transverse momentum for v0" };
+    Gaudi::Property<SG::WriteDecorHandleKey<xAOD::VertexContainer> > m_decorPtErr_v0 
+                    { this, "PtErr_v0", ".pTError", "Transverse momentum error for v0" };
+    Gaudi::Property<SG::WriteDecorHandleKey<xAOD::VertexContainer> > m_decorRxy_v0 
+                    { this, "Rxy_v0", ".Rxy", "Rxy for v0" };
+    Gaudi::Property<SG::WriteDecorHandleKey<xAOD::VertexContainer> > m_decorRxyErr_v0 
+                    { this, "RxyErr_v0", ".RxyError", "Rxy error for v0" };
+    Gaudi::Property<SG::WriteDecorHandleKey<xAOD::VertexContainer> > m_decorPx_v0 
+                    { this, "Px_v0", ".px", "Px for v0" };
+    Gaudi::Property<SG::WriteDecorHandleKey<xAOD::VertexContainer> > m_decorPy_v0 
+                    { this, "Py_v0", ".py", "Py for v0" };
+    Gaudi::Property<SG::WriteDecorHandleKey<xAOD::VertexContainer> > m_decorPz_v0 
+                    { this, "Pz_v0", ".pz", "Pz for v0" };
 
     // Ks decorators
     Gaudi::Property<SG::WriteDecorHandleKey<xAOD::VertexContainer> > m_decorMass_ks 
                     { this, "Mass_ks", ".mass", "mass for Ks" };
+    Gaudi::Property<SG::WriteDecorHandleKey<xAOD::VertexContainer> > m_decorMassErr_ks 
+                    { this, "MassErr_ks", ".massError", "mass error for Ks" };
+    Gaudi::Property<SG::WriteDecorHandleKey<xAOD::VertexContainer> > m_decorPt_ks
+                    { this, "Pt_ks", ".pT", "Transverse momentum for Ks" };
+    Gaudi::Property<SG::WriteDecorHandleKey<xAOD::VertexContainer> > m_decorPtErr_ks
+                    { this, "PtErr_ks", ".pTError", "Transverse momentum error for Ks" };
+    Gaudi::Property<SG::WriteDecorHandleKey<xAOD::VertexContainer> > m_decorRxy_ks 
+                    { this, "Rxy_ks", ".Rxy", "Rxy for Ks" };
+    Gaudi::Property<SG::WriteDecorHandleKey<xAOD::VertexContainer> > m_decorRxyErr_ks 
+                    { this, "RxyErr_ks", ".RxyError", "Rxy error for Ks" };
+    Gaudi::Property<SG::WriteDecorHandleKey<xAOD::VertexContainer> > m_decorPx_ks 
+                    { this, "Px_ks", ".px", "Px for Ks" };
+    Gaudi::Property<SG::WriteDecorHandleKey<xAOD::VertexContainer> > m_decorPy_ks
+                    { this, "Py_ks", ".py", "Py for Ks" };
+    Gaudi::Property<SG::WriteDecorHandleKey<xAOD::VertexContainer> > m_decorPz_ks 
+                    { this, "Pz_ks", ".pz", "Pz for Ks" };
 
     // Lambda decorators
     Gaudi::Property<SG::WriteDecorHandleKey<xAOD::VertexContainer> > m_decorMass_la 
                     { this, "Mass_la", ".mass", "mass for Lambda" };
+    Gaudi::Property<SG::WriteDecorHandleKey<xAOD::VertexContainer> > m_decorMassErr_la 
+                    { this, "MassErr_la", ".massError", "mass error for Lambda" };
+    Gaudi::Property<SG::WriteDecorHandleKey<xAOD::VertexContainer> > m_decorPt_la 
+                    { this, "Pt_la", ".pT", "Transverse momentum for Lambda" };
+    Gaudi::Property<SG::WriteDecorHandleKey<xAOD::VertexContainer> > m_decorPtErr_la 
+                    { this, "PtErr_la", ".pTError", "Transverse momentum error for Lambda" };
+    Gaudi::Property<SG::WriteDecorHandleKey<xAOD::VertexContainer> > m_decorRxy_la
+                    { this, "Rxy_la", ".Rxy", "Rxy for la" };
+    Gaudi::Property<SG::WriteDecorHandleKey<xAOD::VertexContainer> > m_decorRxyErr_la
+                    { this, "RxyErr_la", ".RxyError", "Rxy error for Lambda" };
+    Gaudi::Property<SG::WriteDecorHandleKey<xAOD::VertexContainer> > m_decorPx_la 
+                    { this, "Px_la", ".px", "Px for Lambda" };
+    Gaudi::Property<SG::WriteDecorHandleKey<xAOD::VertexContainer> > m_decorPy_la 
+                    { this, "Py_la", ".py", "Py for Lambda" };
+    Gaudi::Property<SG::WriteDecorHandleKey<xAOD::VertexContainer> > m_decorPz_la 
+                    { this, "Pz_la", ".pz", "Pz for Lambda" };
 
     // Lambdabar decorators
     Gaudi::Property<SG::WriteDecorHandleKey<xAOD::VertexContainer> > m_decorMass_lb 
                     { this, "Mass_lb", ".mass", "mass for Lambdabar" };
+    Gaudi::Property<SG::WriteDecorHandleKey<xAOD::VertexContainer> > m_decorMassErr_lb 
+                    { this, "MassErr_lb", ".massError", "mass error for Lambdabar" };
+    Gaudi::Property<SG::WriteDecorHandleKey<xAOD::VertexContainer> > m_decorPt_lb 
+                    { this, "Pt_lb", ".pT", "Transverse momentum for Lambdabar" };
+    Gaudi::Property<SG::WriteDecorHandleKey<xAOD::VertexContainer> > m_decorPtErr_lb 
+                    { this, "PtErr_lb", ".pTError", "Transverse momentum error for Lambdabar" };
+    Gaudi::Property<SG::WriteDecorHandleKey<xAOD::VertexContainer> > m_decorRxy_lb 
+                    { this, "Rxy_lb", ".Rxy", "Rxy for Lambdabar" };
+    Gaudi::Property<SG::WriteDecorHandleKey<xAOD::VertexContainer> > m_decorRxyErr_lb 
+                    { this, "RxyErr_lb", ".RxyError", "Rxy error for Lambdabar" };
+    Gaudi::Property<SG::WriteDecorHandleKey<xAOD::VertexContainer> > m_decorPx_lb
+                    { this, "Px_lb", ".px", "Px for Lambdabar" };
+    Gaudi::Property<SG::WriteDecorHandleKey<xAOD::VertexContainer> > m_decorPy_lb 
+                    { this, "Py_lb", ".py", "Py for Lambdabar" };
+    Gaudi::Property<SG::WriteDecorHandleKey<xAOD::VertexContainer> > m_decorPz_lb 
+                    { this, "Pz_lb", ".pz", "Pz for Lambdabar" };
 
     // Tools
 
