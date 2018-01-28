@@ -14,10 +14,11 @@
 
  ***************************************************************************/
 
+#include "InDetV0Finder.h"
+
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 
-#include "InDetV0Finder/InDetV0Finder.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
 #include "TrkVertexAnalysisUtils/V0Tools.h"
@@ -66,8 +67,6 @@ InDetV0Finder::~InDetV0Finder() {}
 
 StatusCode InDetV0Finder::initialize()
 {
-  StatusCode sc;
-
   ATH_CHECK( resetStatistics() );
 
   ATH_CHECK( m_vertexKey.initialize() );
@@ -130,7 +129,6 @@ StatusCode InDetV0Finder::initialize()
 
 StatusCode InDetV0Finder::execute()
 {
-  StatusCode sc;
 
   m_events_processed++;
 
