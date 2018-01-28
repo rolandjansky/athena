@@ -14,7 +14,6 @@
 # art-output: *.log
 # art-input-nfiles: 10
 
-
 export RTTJOBNAME=TrigInDetValidation_cosmic
 
 
