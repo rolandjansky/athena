@@ -9,51 +9,101 @@ topSequence = AlgSequence()
 
 # instantiate the vertexing alg
 from VrtSecInclusive.VrtSecInclusive import VrtSecInclusive
-topSequence.insert(-1, VrtSecInclusive())
+VrtSecInclusive_InDet = VrtSecInclusive("VrtSecInclusive_InDet")
+VrtSecInclusive_leptons  = VrtSecInclusive("VrtSecInclusive_leptons")
+
+topSequence.insert(-1, VrtSecInclusive_InDet)
+topSequence.insert(-1, VrtSecInclusive_leptons)
 
 # set options for vertexing
-topSequence.VrtSecInclusive.do_PVvetoCut                           = True
-topSequence.VrtSecInclusive.do_d0Cut                               = False
-topSequence.VrtSecInclusive.do_z0Cut                               = False
-topSequence.VrtSecInclusive.do_d0errCut                            = False
-topSequence.VrtSecInclusive.do_z0errCut                            = False
-topSequence.VrtSecInclusive.do_d0signifCut                         = False
-topSequence.VrtSecInclusive.do_z0signifCut                         = False
-topSequence.VrtSecInclusive.doTRTPixCut                            = True
-topSequence.VrtSecInclusive.DoSAloneTRT                            = False
-topSequence.VrtSecInclusive.ImpactWrtBL                            = True
-topSequence.VrtSecInclusive.doPVcompatibilityCut                   = True
-topSequence.VrtSecInclusive.RemoveFake2TrkVrt                      = True
-topSequence.VrtSecInclusive.CheckHitPatternStrategy                = 'Extrapolation' # Classical or Extrapolation
-topSequence.VrtSecInclusive.doReassembleVertices                   = True
-topSequence.VrtSecInclusive.doMergeByShuffling                     = True
-topSequence.VrtSecInclusive.doMergeFinalVerticesDistance           = True
-topSequence.VrtSecInclusive.doAssociateNonSelectedTracks           = True
-topSequence.VrtSecInclusive.doFinalImproveChi2                     = True
-topSequence.VrtSecInclusive.DoTruth                                = (globalflags.DataSource == 'geant4' and globalflags.InputFormat == "pool")
-topSequence.VrtSecInclusive.FillHist                               = True
-topSequence.VrtSecInclusive.FillIntermediateVertices               = False
-topSequence.VrtSecInclusive.CutPixelHits                           = 0
-topSequence.VrtSecInclusive.CutSctHits                             = 2
-topSequence.VrtSecInclusive.TrkA0ErrCut                            = 200000
-topSequence.VrtSecInclusive.TrkZErrCut                             = 200000
-topSequence.VrtSecInclusive.a0TrkPVDstMinCut                       = 2.0    # track d0 min
-topSequence.VrtSecInclusive.a0TrkPVDstMaxCut                       = 300.0  # track d0 max: default is 1000.0
-topSequence.VrtSecInclusive.zTrkPVDstMinCut                        = 0.0    # track z0 min: default is 0.0, just for clarification
-topSequence.VrtSecInclusive.zTrkPVDstMaxCut                        = 1500.0 # track z0 max: default is 1000.0
-topSequence.VrtSecInclusive.TrkPtCut                               = 1000
-topSequence.VrtSecInclusive.SelVrtChi2Cut                          = 5.
-topSequence.VrtSecInclusive.CutSharedHits                          = 2
-topSequence.VrtSecInclusive.TrkChi2Cut                             = 50
-topSequence.VrtSecInclusive.TruthTrkLen                            = 1
-topSequence.VrtSecInclusive.SelTrkMaxCutoff                        = 2000
-topSequence.VrtSecInclusive.mergeByShufflingAllowance              = 5.
-topSequence.VrtSecInclusive.associatePtCut                         = 1000.
-topSequence.VrtSecInclusive.MergeFinalVerticesDist                 = 1.
-topSequence.VrtSecInclusive.MergeFinalVerticesScaling              = 0.
-topSequence.VrtSecInclusive.improveChi2ProbThreshold               = 0.00001
-topSequence.VrtSecInclusive.doAugmentDVimpactParametersToMuons     = True
-topSequence.VrtSecInclusive.doAugmentDVimpactParametersToElectrons = True
+VrtSecInclusive_InDet.do_PVvetoCut                           = True
+VrtSecInclusive_InDet.do_d0Cut                               = False
+VrtSecInclusive_InDet.do_z0Cut                               = False
+VrtSecInclusive_InDet.do_d0errCut                            = False
+VrtSecInclusive_InDet.do_z0errCut                            = False
+VrtSecInclusive_InDet.do_d0signifCut                         = False
+VrtSecInclusive_InDet.do_z0signifCut                         = False
+VrtSecInclusive_InDet.doTRTPixCut                            = True
+VrtSecInclusive_InDet.DoSAloneTRT                            = False
+VrtSecInclusive_InDet.ImpactWrtBL                            = True
+VrtSecInclusive_InDet.doPVcompatibilityCut                   = True
+VrtSecInclusive_InDet.RemoveFake2TrkVrt                      = True
+VrtSecInclusive_InDet.CheckHitPatternStrategy                = 'Extrapolation' # Classical or Extrapolation
+VrtSecInclusive_InDet.doReassembleVertices                   = True
+VrtSecInclusive_InDet.doMergeByShuffling                     = True
+VrtSecInclusive_InDet.doMergeFinalVerticesDistance           = True
+VrtSecInclusive_InDet.doAssociateNonSelectedTracks           = True
+VrtSecInclusive_InDet.doFinalImproveChi2                     = True
+VrtSecInclusive_InDet.DoTruth                                = (globalflags.DataSource == 'geant4' and globalflags.InputFormat == "pool")
+VrtSecInclusive_InDet.FillHist                               = False
+VrtSecInclusive_InDet.FillIntermediateVertices               = False
+VrtSecInclusive_InDet.CutPixelHits                           = 0
+VrtSecInclusive_InDet.CutSctHits                             = 2
+VrtSecInclusive_InDet.TrkA0ErrCut                            = 200000
+VrtSecInclusive_InDet.TrkZErrCut                             = 200000
+VrtSecInclusive_InDet.a0TrkPVDstMinCut                       = 2.0    # track d0 min
+VrtSecInclusive_InDet.a0TrkPVDstMaxCut                       = 300.0  # track d0 max: default is 1000.0
+VrtSecInclusive_InDet.zTrkPVDstMinCut                        = 0.0    # track z0 min: default is 0.0, just for clarification
+VrtSecInclusive_InDet.zTrkPVDstMaxCut                        = 1500.0 # track z0 max: default is 1000.0
+VrtSecInclusive_InDet.TrkPtCut                               = 1000
+VrtSecInclusive_InDet.SelVrtChi2Cut                          = 5.
+VrtSecInclusive_InDet.CutSharedHits                          = 2
+VrtSecInclusive_InDet.TrkChi2Cut                             = 50
+VrtSecInclusive_InDet.TruthTrkLen                            = 1
+VrtSecInclusive_InDet.SelTrkMaxCutoff                        = 2000
+VrtSecInclusive_InDet.mergeByShufflingAllowance              = 5.
+VrtSecInclusive_InDet.associatePtCut                         = 1000.
+VrtSecInclusive_InDet.MergeFinalVerticesDist                 = 1.
+VrtSecInclusive_InDet.MergeFinalVerticesScaling              = 0.
+VrtSecInclusive_InDet.improveChi2ProbThreshold               = 0.00001
+VrtSecInclusive_InDet.doAugmentDVimpactParametersToMuons     = True
+VrtSecInclusive_InDet.doAugmentDVimpactParametersToElectrons = True
+
+
+VrtSecInclusive_leptons.doSelectTracksFromMuons                = True
+VrtSecInclusive_leptons.doSelectTracksFromElectrons            = True
+VrtSecInclusive_leptons.AugmentingVersionString                = "_Leptons"
+VrtSecInclusive_leptons.do_PVvetoCut                           = True
+VrtSecInclusive_leptons.do_d0Cut                               = True
+VrtSecInclusive_leptons.do_z0Cut                               = False
+VrtSecInclusive_leptons.do_d0errCut                            = False
+VrtSecInclusive_leptons.do_z0errCut                            = False
+VrtSecInclusive_leptons.do_d0signifCut                         = False
+VrtSecInclusive_leptons.do_z0signifCut                         = False
+VrtSecInclusive_leptons.doTRTPixCut                            = False
+VrtSecInclusive_leptons.DoSAloneTRT                            = False
+VrtSecInclusive_leptons.ImpactWrtBL                            = False
+VrtSecInclusive_leptons.doPVcompatibilityCut                   = False
+VrtSecInclusive_leptons.RemoveFake2TrkVrt                      = True
+VrtSecInclusive_leptons.CheckHitPatternStrategy                = 'Extrapolation' # Classical or Extrapolation
+VrtSecInclusive_leptons.doReassembleVertices                   = True
+VrtSecInclusive_leptons.doMergeByShuffling                     = True
+VrtSecInclusive_leptons.doMergeFinalVerticesDistance           = True
+VrtSecInclusive_leptons.doAssociateNonSelectedTracks           = False
+VrtSecInclusive_leptons.doFinalImproveChi2                     = True
+VrtSecInclusive_leptons.DoTruth                                = (globalflags.DataSource == 'geant4' and globalflags.InputFormat == "pool")
+VrtSecInclusive_leptons.FillHist                               = False
+VrtSecInclusive_leptons.FillIntermediateVertices               = False
+VrtSecInclusive_leptons.CutPixelHits                           = 0
+VrtSecInclusive_leptons.CutSctHits                             = 2
+VrtSecInclusive_leptons.TrkA0ErrCut                            = 200000
+VrtSecInclusive_leptons.TrkZErrCut                             = 200000
+VrtSecInclusive_leptons.a0TrkPVDstMinCut                       = 1.0    # track d0 min
+VrtSecInclusive_leptons.a0TrkPVDstMaxCut                       = 300.0  # track d0 max: default is 1000.0
+VrtSecInclusive_leptons.zTrkPVDstMinCut                        = 0.0    # track z0 min: default is 0.0, just for clarification
+VrtSecInclusive_leptons.zTrkPVDstMaxCut                        = 1500.0 # track z0 max: default is 1000.0
+VrtSecInclusive_leptons.TrkPtCut                               = 1000
+VrtSecInclusive_leptons.SelVrtChi2Cut                          = 5.
+VrtSecInclusive_leptons.CutSharedHits                          = 2
+VrtSecInclusive_leptons.TrkChi2Cut                             = 50
+VrtSecInclusive_leptons.TruthTrkLen                            = 1
+VrtSecInclusive_leptons.SelTrkMaxCutoff                        = 2000
+VrtSecInclusive_leptons.mergeByShufflingAllowance              = 5.
+VrtSecInclusive_leptons.associatePtCut                         = 1000.
+VrtSecInclusive_leptons.MergeFinalVerticesDist                 = 1.
+VrtSecInclusive_leptons.MergeFinalVerticesScaling              = 0.
+VrtSecInclusive_leptons.improveChi2ProbThreshold               = 0.00001
+
 
 # set options related to the vertex fitter
 from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
@@ -64,13 +114,19 @@ InclusiveVxFitterTool = Trk__TrkVKalVrtFitter(name                = "InclusiveVx
                                              )
 ToolSvc +=  InclusiveVxFitterTool;
 InclusiveVxFitterTool.OutputLevel = INFO
-topSequence.VrtSecInclusive.VertexFitterTool=InclusiveVxFitterTool
-topSequence.VrtSecInclusive.Extrapolator = ToolSvc.AtlasExtrapolator
+
+VrtSecInclusive_InDet.VertexFitterTool=InclusiveVxFitterTool
+VrtSecInclusive_InDet.Extrapolator = ToolSvc.AtlasExtrapolator
+
+VrtSecInclusive_leptons.VertexFitterTool=InclusiveVxFitterTool
+VrtSecInclusive_leptons.Extrapolator = ToolSvc.AtlasExtrapolator
 
 # tell VrtSecInclusive the interface name for Trk::IVertexMapper
 from TrkDetDescrTestTools.TrkDetDescrTestToolsConf import Trk__VertexMapper
 HadronicVertexMapper = Trk__VertexMapper("HadronicVertexMapper")
 ToolSvc += HadronicVertexMapper
-topSequence.VrtSecInclusive.VertexMapper = HadronicVertexMapper
+
+VrtSecInclusive_InDet.VertexMapper    = HadronicVertexMapper
+VrtSecInclusive_leptons.VertexMapper  = HadronicVertexMapper
 
 include("VrtSecInclusive/VrtSecInclusive_DV_postInclude.py")
