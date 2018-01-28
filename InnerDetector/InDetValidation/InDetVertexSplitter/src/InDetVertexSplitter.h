@@ -44,11 +44,11 @@ namespace InDet {
     
     std::vector<std::string> m_trackKeys;
     
-    bool isMatchedOdd;
-    bool isUnmatchOdd;
-    int  addToVxMatched;
-    int  addToVxUnmatch;
-    int  eventN;
+    bool m_isMatchedOdd;
+    bool m_isUnmatchOdd;
+    int  m_addToVxMatched;
+    int  m_addToVxUnmatch;
+    int  m_eventN;
 
     StatusCode split_vertices();
     
