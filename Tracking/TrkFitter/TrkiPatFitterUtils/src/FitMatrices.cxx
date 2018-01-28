@@ -249,7 +249,7 @@ FitMatrices::printDerivativeMatrix (void)
     int firstCol	= 0;
     int lastCol		= 0;
     if (! m_measurements)		return;
-    std::list<FitMeasurement*>::iterator m = m_measurements->begin();
+    std::vector<FitMeasurement*>::iterator m = m_measurements->begin();
     std::vector<FitMeasurement*> alignmentfm;
     FitMeasurement* fm	= *m;
     bool singleRow	= true;
@@ -398,8 +398,8 @@ FitMatrices::releaseMemory (void)
 }
     
 int
-FitMatrices::setDimensions (std::list<FitMeasurement*>&	measurements,
-			    FitParameters*		parameters)
+FitMatrices::setDimensions (std::vector<FitMeasurement*>&	measurements,
+			    FitParameters*		        parameters)
 {
     // keep pointer for debug purposes
     m_measurements		= &measurements;
@@ -426,7 +426,7 @@ FitMatrices::setDimensions (std::list<FitMeasurement*>&	measurements,
  
     // keep first row with measurements up to each number of parameters
     m_firstRowForParameter	= std::vector<int>(numberParameters,-1);
-    std::list<FitMeasurement*>::iterator m = measurements.begin();
+    std::vector<FitMeasurement*>::iterator m = measurements.begin();
     if ((**m).isVertex())
     {
 	haveVertex			= true;

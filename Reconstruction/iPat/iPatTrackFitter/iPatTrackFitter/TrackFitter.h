@@ -13,7 +13,7 @@
 
 //<<<<<< INCLUDES                                                       >>>>>>
 
-#include <list>
+#include <vector>
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -120,7 +120,7 @@ protected:
     Trk::FitProcedureQuality*		m_fitProcedureQuality;
     int					m_hit_pt3;
     ToolHandle<Trk::IMaterialAllocator>	m_materialAllocator;
-    std::list<Trk::FitMeasurement*>	m_measurements;
+    std::vector<Trk::FitMeasurement*>	m_measurements;
     Trk::FitParameters*			m_parameters;
     int					m_planarHits;
     ToolHandle<Trk::IIntersector>	m_rungeKuttaIntersector;
