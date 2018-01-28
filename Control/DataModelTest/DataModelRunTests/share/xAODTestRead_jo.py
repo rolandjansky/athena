@@ -31,6 +31,15 @@ import AthenaPoolCnvSvc.ReadAthenaPool
 #--------------------------------------------------------------
 svcMgr.EventSelector.InputCollections        = [ "xaoddata.root" ]
 
+from IOVSvc.IOVSvcConf import MetaInputLoader
+metain = MetaInputLoader()
+metain.Dump = True
+metain.Load = [('DMTest::S1', 'MetaS1'),
+               ('DMTest::C', 'MetaC'),
+               ('DMTest::CInfoAuxContainer', 'MetaCAux.'),
+              ]
+topSequence += metain
+
 #--------------------------------------------------------------
 # Define output
 #--------------------------------------------------------------
@@ -102,7 +111,8 @@ theApp.EvtMax = 20
 #--------------------------------------------------------------
 
 from DataModelTestDataCommon.DataModelTestDataCommonConf import \
-     DMTest__xAODTestDecor
+     DMTest__xAODTestDecor, \
+     DMTest__MetaReaderAlg
 from DataModelTestDataRead.DataModelTestDataReadConf import \
      DMTest__xAODTestReadCVec, \
      DMTest__xAODTestReadCInfo, \
@@ -112,6 +122,8 @@ from DataModelTestDataRead.DataModelTestDataReadConf import \
      DMTest__xAODTestClearDecor, \
      DMTest__xAODTestShallowCopy
 
+
+topSequence += DMTest__MetaReaderAlg()
 
 topSequence += DMTest__xAODTestReadCVec ('xAODTestReadCVec',
                                          WriteKey = 'copy_cvec')
