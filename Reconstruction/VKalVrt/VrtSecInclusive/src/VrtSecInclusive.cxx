@@ -229,7 +229,7 @@ namespace VKalVrtAthena {
       m_hists["finalVtxR"]         = new TH1F("finalVtxR",         ";r [mm];Vertices",                          rbins.size()-1, &(rbins[0])                              );
       m_hists["finalVtxNtrkR"]     = new TH2F("finalVtxNtrkR",     ";N_{trk};r [mm];Vertices",                  nbins.size()-1, &(nbins[0]), rbins.size()-1, &(rbins[0]) );
       
-      std::string histDir("/AANT/VrtSecInclusive/");
+      std::string histDir("/AANT/VrtSecInclusive" + m_jp.augVerString + "/");
       
       for( auto& pair : m_hists ) {
         ATH_CHECK( hist_root->regHist( histDir + pair.first, pair.second ) );
@@ -321,8 +321,8 @@ namespace VKalVrtAthena {
     
     secondaryVertexContainer ->setStore( secondaryVertexAuxContainer );
     
-    ATH_CHECK( evtStore()->record( secondaryVertexContainer,    "VrtSecInclusive_" + m_jp.secondaryVerticesContainerName          ) );
-    ATH_CHECK( evtStore()->record( secondaryVertexAuxContainer, "VrtSecInclusive_" + m_jp.secondaryVerticesContainerName + "Aux." ) );
+    ATH_CHECK( evtStore()->record( secondaryVertexContainer,    "VrtSecInclusive_" + m_jp.secondaryVerticesContainerName + m_jp.augVerString          ) );
+    ATH_CHECK( evtStore()->record( secondaryVertexAuxContainer, "VrtSecInclusive_" + m_jp.secondaryVerticesContainerName + m_jp.augVerString + "Aux." ) );
     
     if( m_jp.FillIntermediateVertices ) {
       auto *twoTrksVertexContainer      = new xAOD::VertexContainer;
@@ -330,8 +330,8 @@ namespace VKalVrtAthena {
       
       twoTrksVertexContainer   ->setStore( twoTrksVertexAuxContainer );
       
-      ATH_CHECK( evtStore()->record( twoTrksVertexContainer,      "VrtSecInclusive_" + m_jp.all2trksVerticesContainerName           ) );
-      ATH_CHECK( evtStore()->record( twoTrksVertexAuxContainer,   "VrtSecInclusive_" + m_jp.all2trksVerticesContainerName + "Aux."  ) );
+      ATH_CHECK( evtStore()->record( twoTrksVertexContainer,      "VrtSecInclusive_" + m_jp.all2trksVerticesContainerName + m_jp.augVerString          ) );
+      ATH_CHECK( evtStore()->record( twoTrksVertexAuxContainer,   "VrtSecInclusive_" + m_jp.all2trksVerticesContainerName + m_jp.augVerString + "Aux."  ) );
     
       for( auto itr = m_vertexingAlgorithms.begin(); itr!=m_vertexingAlgorithms.end(); ++itr ) {
       
@@ -342,8 +342,8 @@ namespace VKalVrtAthena {
       
         intermediateVertexContainer   ->setStore( intermediateVertexAuxContainer );
       
-        ATH_CHECK( evtStore()->record( intermediateVertexContainer,      "VrtSecInclusive_IntermediateVertices_" + name           ) );
-        ATH_CHECK( evtStore()->record( intermediateVertexAuxContainer,   "VrtSecInclusive_IntermediateVertices_" + name + "Aux."  ) );
+        ATH_CHECK( evtStore()->record( intermediateVertexContainer,      "VrtSecInclusive_IntermediateVertices_" + name + m_jp.augVerString           ) );
+        ATH_CHECK( evtStore()->record( intermediateVertexAuxContainer,   "VrtSecInclusive_IntermediateVertices_" + name + m_jp.augVerString + "Aux."  ) );
       }
     
     }

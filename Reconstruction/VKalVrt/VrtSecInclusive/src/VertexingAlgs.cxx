@@ -49,7 +49,7 @@ namespace VKalVrtAthena {
    
     xAOD::VertexContainer *twoTrksVertexContainer( nullptr );
     if( m_jp.FillIntermediateVertices ) {
-      ATH_CHECK( evtStore()->retrieve( twoTrksVertexContainer, "VrtSecInclusive_" + m_jp.all2trksVerticesContainerName ) );
+      ATH_CHECK( evtStore()->retrieve( twoTrksVertexContainer, "VrtSecInclusive_" + m_jp.all2trksVerticesContainerName + m_jp.augVerString ) );
     }
     
     m_incomp.clear();
@@ -1175,7 +1175,7 @@ namespace VKalVrtAthena {
     // The supposed form of the function will be as follows:
 
     xAOD::VertexContainer *secondaryVertexContainer( nullptr );
-    ATH_CHECK( evtStore()->retrieve( secondaryVertexContainer, "VrtSecInclusive_" + m_jp.secondaryVerticesContainerName ) );
+    ATH_CHECK( evtStore()->retrieve( secondaryVertexContainer, "VrtSecInclusive_" + m_jp.secondaryVerticesContainerName + m_jp.augVerString ) );
     
     const xAOD::TrackParticleContainer* trackParticleContainer ( nullptr );
     ATH_CHECK( evtStore()->retrieve( trackParticleContainer, m_jp.TrackLocation) );
@@ -1585,7 +1585,7 @@ namespace VKalVrtAthena {
       
       xAOD::VertexContainer* intermediateVertexContainer { nullptr };
       
-      ATH_CHECK( evtStore()->retrieve( intermediateVertexContainer,      "VrtSecInclusive_IntermediateVertices_" + name           ) );
+      ATH_CHECK( evtStore()->retrieve( intermediateVertexContainer, "VrtSecInclusive_IntermediateVertices_" + name + m_jp.augVerString ) );
       
       for( auto& wrkvrt : *workVerticesContainer ) {
         
