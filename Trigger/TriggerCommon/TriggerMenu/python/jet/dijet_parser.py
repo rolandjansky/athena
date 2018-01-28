@@ -1,7 +1,7 @@
-import re
+import re, sys
 
 
-cut_re = re.compile(r'^(?P<min>\d*)(?P<var>[a-z]+)(?P<max>\d*$)')
+cut_re = re.compile(r'^(?P<min>\d{0,3})(?P<var>[a-z]+)(?P<max>\d{0,3}$)')
 
 def _dj_parse(s):
     """Parse the incoming string to find the variable names and the optional
@@ -58,8 +58,17 @@ def _dj_decode_one(s):
                     'deta': 0.01,
                     'dphi': 0.01}
     
+    assert unit_factors.keys() == result.keys()
+    
     for k, v in result.items():
-        uf = unit_factors[k]
+        uf = unit_factors[k]  # result and unit_factors must have the same jk
+        if uf is None:
+            m='dijet_parser: unknown variable: %s not in %s' (
+                str(k),
+                str(unit_factors.keys()
+                )
+            )
+            raise RuntimeError(m)
         for kk in v:
             v[kk] = float(v[kk])
             if v[kk] > 0: v[kk] = uf * v[kk]
@@ -102,22 +111,71 @@ def dijet_parser(s, args):
     args['dphi_mins'] = [d['dphi']['min'] for d in dijet_params]
     args['dphi_maxs'] = [d['dphi']['max'] for d in dijet_params]
 
+    return False
 if __name__ == '__main__':
     good = (
-        '80aet!120bet!100m150!50deta!dphi40?90aet120!120bet240!100m150!50deta!dphi40',
+        'dj80aet!120bet!100m150!50deta!dphi40?90aet120!120bet240!100m150!50deta!dphi40',
+        'dj10aet20',
+        'djaeta20',
+        'dj10bet20',
+        'djbeta20',
+        'djaet100!320aeta450!deta10!150m'
     )
 
-    
+    bad = ('dj10aet2000', # too many digits
+           'dj10Xet20', # bad variable
+    )
+
+    n = 0
+    errs = n
     for i in good:
+        n += 1
         args = {}
         err = dijet_parser(i, args)
         if err:
-            print err
+            print 'error, expext ok', i
+            errs += 1
         else:
-            print i.split('?')
-            for k in sorted(args.keys()):
-                print k
-                print ' ', args[k]
+            print 'ok, expect ok   ', i
+
+    print 'tests : %d expected errors  %d, otained errors %d' % (n,
+                                                                 errs,
+                                                                 0)
+
+    n = 0
+    errs = 0
+    exp_errs = 0 
+    for i in bad:
+        n += 1
+        args = {}
+        err = dijet_parser(i, args)
+        if err:
+            errs += 1
+            print 'error expect error ', i
+        else:
+            print 'ok, expect error   ', i
+
+
+    print 'tests : %d expected errors  %d, otained errors %d' % (n,
+                                                                 errs,
+                                                                 n)
+    
+
+    s = 'dj30aet!50bet!900m!dphi260'
+    args = {}
+    err =  dijet_parser(s, args)
+    if err:
+        print 'Error parsing', s
+        sys.exit(0)
+
+    wid = max(len(k) for k in args.keys())
+    for k in sorted(args.keys()):
+        print (k.ljust(wid), args[k])
+            # else:
+        #    print i.split('?')
+        #    for k in sorted(args.keys()):
+        #        print k
+        #        print ' ', args[k]
 #        tokens = i.split('?')
 #        for t in tokens:
 #            print t
