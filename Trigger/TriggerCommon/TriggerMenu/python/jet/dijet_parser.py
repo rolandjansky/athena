@@ -22,14 +22,16 @@ def _dj_parse(s):
 
 def _dj_decode_one(s):
     """Decode the incoming string with dijet hypo parameters. The string
-    will have variable anmes an optional low and max limits. If a limit
+    will have variable names and optional low and max limits. If a limit
     is missing, use a default value. If the default value is +infinity,
     set to a non-physical value that can be converted to a float.
-    For some variables, -1 fits the needs.
+    For some variables, -1 fits the needs. This will be converted
+    to the max C++ double in the C++ Algorithm.
 
     Convert the values to floats, taking into account the units (eg
     deta = 120 -> 1.2)
     """
+
     
     result = {
         'aet': {'min': '0', 'max': '-1'},
