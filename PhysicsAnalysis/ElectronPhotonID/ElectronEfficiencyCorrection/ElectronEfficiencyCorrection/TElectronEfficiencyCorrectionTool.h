@@ -70,15 +70,16 @@ namespace Root {
             const;
 
         /// Add an input file
-        inline void addFileName ( const std::string& val ) 
-        { m_corrFileNameList.push_back(val); }
+        inline void addFileName ( const std::string& val ) { 
+            m_corrFileNameList.push_back(val); 
+        }
          ///MC Toys Helper functions
         inline void bookToyMCScaleFactors(const int nToyMC) {
-            m_doToyMC = kTRUE;
+            m_doToyMC = true;
             m_nToyMC = nToyMC;
         }
         inline void bookCombToyMCScaleFactors(const int nToyMC) {
-            m_doCombToyMC = kTRUE;
+            m_doCombToyMC = true;
             m_nToyMC = nToyMC;
         }
 
@@ -115,9 +116,7 @@ namespace Root {
 
         int setupSys( std::vector<TObjArray> & hist,
                 std::vector< std::vector< TObjArray>> & histList);
-
-        void printDefaultReturnMessage(const TString& reason, int line) const;
-    private :
+       private :
         ///Private data members
         int m_randomCounter;
         /// The detail level
@@ -136,8 +135,11 @@ namespace Root {
         int m_nSysMax;
         int m_runNumBegin;
         int m_runNumEnd;
-
-        ///Uncorrelated toy systematics
+        /// The positions of the efficiency scale factor correlated sustematic uncertainties in the result
+        std::vector<int> m_position_corrSys; 
+        /// The positions of the toy MC scale factors
+        std::vector<int> m_position_uncorrToyMCSF; ///Uncorrelated toy systematics
+        ///
         std::vector< std::vector<TObjArray>> m_uncorrToyMCSystFull;
         std::vector< std::vector<TObjArray>> m_uncorrToyMCSystFast;
         /// The list of file name(s)
