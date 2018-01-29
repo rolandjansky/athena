@@ -62,6 +62,7 @@
 + Database/RegistrationServices
 + Database/TPTools
 + Database/AthenaRoot/.*
++ Database/AtlasSTLAddReflex
 
 # DQ package(s):
 + DataQuality/GoodRunsLists
