@@ -1,7 +1,6 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-#include <iostream>
 #include <algorithm>
 #include "AthenaMonitoring/HistogramFiller.h"
 
@@ -108,8 +107,7 @@ HBASE* HistogramFillerFactory::create(const HistogramDef& def, Types&&... hargs)
 			       [](const char a, const char b){ 
 				 return a == b and a == '/'; 
 			       } ), fullName.end() );
-  
-  std::cout << "Full path " << fullName << std::endl;
+   
   // Check if histogram exists already
   HBASE* histo = nullptr;
   if ( m_histSvc->exists( fullName ) ) {
@@ -180,41 +178,6 @@ void HistogramFillerFactory::setLabels(TH1* hist, const vector<string>& labels) 
   }
 }
 
-// HistogramFillerFactory::MonitoringGroup::MonitoringGroup(const ServiceHandle<ITHistSvc>& histSvc, std::string groupName)
-//   : m_histSvc(histSvc), m_groupName(std::move(groupName)) { }
-
-// StatusCode HistogramFillerFactory::MonitoringGroup::regHist(TH1* h){
-//   return m_histSvc->regHist(m_groupName+"/"+h->GetName(), h);
-// }
-
-// StatusCode HistogramFillerFactory::MonitoringGroup::deregHist(TH1* h) {
-//   return m_histSvc->deReg(h);
-// }
-/*
-std::string HistogramFillerFactory::MonitoringGroup::level2string(Level l) const {
-  string result = "/UNSPECIFIED_NONE_OF_EXPERT_DEBUG_SHIFT_EXPRESS_RUNSUM/";
-
-  switch (l){
-  case debug:
-    result = "/DEBUG/";
-    break;
-  case expert:
-    result = "/EXPERT/";
-    break;
-  case shift:
-    result = "/SHIFT/";
-    break;
-  case express:
-    result = "/EXPRESS/";
-    break;
-  case runsum:
-    result = "/RUNSUM/";
-    break;
-  }
-
-  return result;
-}
-*/
 
 unsigned HistogramFiller1D::fill() {
   if (m_monVariables.size() != 1) {
