@@ -396,9 +396,9 @@ void SetMetadata(bool useAodMetaData, std::string usethisfile, std::string input
     unsigned int DSID = top::getDSID(testFile.get(), topConfig->sgKeyEventInfo());
     topConfig -> setDSID(DSID);
     // now need to get and set the parton shower generator from TopDataPrep
-    SampleXsection tdp;    
-    // Package/filename - XS file we want to use                                                           
-    std::string tdp_filename = "TopDataPreparation/XSection-MC15-13TeV.data";
+    SampleXsection tdp;
+    // Package/filename - XS file we want to use (can now be configured via cutfile)                                                                                                                              
+    const std::string tdp_filename = settings->value("TDPPath");
     // Use the path resolver to find the first file in the list of possible paths ($CALIBPATH)                          
     std::string fullpath = PathResolverFindCalibFile(tdp_filename);
 
