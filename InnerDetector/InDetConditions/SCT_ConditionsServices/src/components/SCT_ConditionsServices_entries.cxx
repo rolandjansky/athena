@@ -51,6 +51,7 @@
 #include "../SCT_TdaqEnabledTestAlg.h"
 
 #include "../SCT_ConditionsParameterSvc.h"
+#include "../SCT_ConditionsParameterCondAlg.h"
 #include "../SCT_ConditionsParameterTestAlg.h"
 
 #include "../SCT_SensorsSvc.h"
@@ -99,6 +100,7 @@ DECLARE_COMPONENT( SCT_ConfigurationConditionsTestAlg )
 DECLARE_COMPONENT( SCT_ConfigurationCondAlg )
 DECLARE_COMPONENT( SCT_MajorityCondAlg )
 DECLARE_COMPONENT( SCT_MajorityConditionsTestAlg )
+DECLARE_COMPONENT( SCT_ConditionsParameterCondAlg )
 DECLARE_COMPONENT( SCT_ConditionsParameterTestAlg )
 DECLARE_COMPONENT( SCT_SensorsCondAlg )
 DECLARE_COMPONENT( SCT_SensorsTestAlg )
