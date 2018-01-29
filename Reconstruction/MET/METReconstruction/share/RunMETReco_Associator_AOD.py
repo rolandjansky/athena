@@ -6,7 +6,7 @@ from AthenaCommon import CfgMgr
 from RecExConfig.RecFlags import rec
 
 from glob import glob
-filelist = glob("/atlas/data1/userdata/khoo/Data16/AOD_r21/data16_13TeV.00302347.express_express.recon.AOD.r9112/*")
+filelist = ["/r03/atlas/sarahw/Rel21AODs/mc16_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.merge.AOD.e3601_s2997_r8903_r8906/AOD.10226642._001388.pool.root.1"]
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput = filelist
@@ -67,6 +67,17 @@ from METReconstruction.METRecoFlags import metFlags
 from METReconstruction.METAssocConfig import AssocConfig, METAssocConfig
 JetType = 'EMJet'
 
+modConstKey = ""
+modClusColls = {}
+if metFlags.UseTracks():
+	modConstKey="OriginCorr"
+	modClusColls={
+	'LCOriginCorrClusters':'LCOriginTopoClusters',
+	'EMOriginCorrClusters':'EMOriginTopoClusters'
+        }
+
+
+
 associators = [AssocConfig(JetType),
                AssocConfig('Muon'),
                AssocConfig('Ele'),
@@ -76,7 +87,8 @@ associators = [AssocConfig(JetType),
 cfg_akt4em = METAssocConfig('NewAntiKt4EMTopo',
                             associators,
                             doPFlow=False,
-                            doOriginCorrClus=True
+                            modConstKey=modConstKey,
+			    modClusColls=modClusColls
                             )
 
 metFlags.METAssocConfigs()[cfg_akt4em.suffix] = cfg_akt4em
@@ -109,11 +121,11 @@ filterseq += metAlg
 
 from METUtilities.METMakerConfig import getMETMakerAlg
 makerAlgEM = getMETMakerAlg("NewAntiKt4EMTopo",jetColl="AntiKt4EMTopoJets")
-# ToolSvc.METMaker_NewAntiKt4EMTopo.OutputLevel=VERBOSE
+ToolSvc.METMaker_NewAntiKt4EMTopo.OutputLevel=VERBOSE
 ToolSvc.METMaker_NewAntiKt4EMTopo.DoRemoveElecTrks=False
 filterseq += makerAlgEM
 makerAlgPF = getMETMakerAlg("NewAntiKt4EMPFlow",jetColl="AntiKt4EMPFlowJets")
-# ToolSvc.METMaker_NewAntiKt4EMPFlow.OutputLevel=VERBOSE
+ToolSvc.METMaker_NewAntiKt4EMPFlow.OutputLevel=VERBOSE
 ToolSvc.METMaker_NewAntiKt4EMPFlow.DoRemoveElecTrks=False
 filterseq += makerAlgPF
 
@@ -146,6 +158,6 @@ if write_xAOD:
     xaodStream.AddItem('xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux.')
 
     # xaodStream.AddAcceptAlgs( "PVSoftTrkTail" )
-theApp.EvtMax = 200
+theApp.EvtMax = 10
 ServiceMgr.EventSelector.SkipEvents = 0
 ServiceMgr.MessageSvc.defaultLimit = 9999
