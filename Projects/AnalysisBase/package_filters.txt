@@ -47,6 +47,7 @@
 + PhysicsAnalysis/JetMissingEtID/JetSelectorTools
 + PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/CalibrationDataInterface
 + PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/xAODBTaggingEfficiency
++ PhysicsAnalysis/JetTagging/JetTagTraining/HDF5Utils
 + PhysicsAnalysis/MCTruthClassifier
 + PhysicsAnalysis/MuonID/MuonIDAnalysis/.*
 + PhysicsAnalysis/MuonID/MuonSelectorTools

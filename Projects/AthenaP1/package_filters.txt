@@ -115,6 +115,7 @@
 - PhysicsAnalysis/AnalysisCommon/ReweightUtils
 + PhysicsAnalysis/DerivationFramework/DerivationFrameworkInterfaces
 - PhysicsAnalysis/DerivationFramework/.*
+- PhysicsAnalysis/JetTagging/JetTagTraining/HDF5Utils
 
 # Temporarily disabled
 - HLT/HLToks

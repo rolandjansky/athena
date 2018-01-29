@@ -34,6 +34,7 @@
 - PhysicsAnalysis/SUSYPhys/SUSYTools
 - PhysicsAnalysis/TauID/DiTauMassTools
 - PhysicsAnalysis/TauID/TauCorrUncert
+- PhysicsAnalysis/JetTagging/JetTagTraining/HDF5Utils
 - PhysicsAnalysis/TopPhys/QuickAna
 - PhysicsAnalysis/TrackingID/InDetTrackSystematicsTools
 - Reconstruction/Jet/JetAnalysisTools/JetTileCorrection
