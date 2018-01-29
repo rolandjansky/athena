@@ -91,6 +91,7 @@ void LArNoisyROSummaryCnv_p5::persToTrans(const LArNoisyROSummary_p5* pers, LArN
   trans->SetSatTightFlaggedPartitions (pers->m_SatTightFlaggedPartitions);
   trans->SetBadFEB_WFlaggedPartitions (pers->m_BadFEB_WFlaggedPartitions);
   trans->SetMNBLooseFlaggedPartitions (pers->m_MNBLooseFlaggedPartitions);
+  trans->SetMNBTightFlaggedPartitions (pers->m_MNBTightFlaggedPartitions);
   trans->SetMNBTightFlaggedPartitions_PsVeto (pers->m_MNBTightFlaggedPartitions_PsVeto);
 
 }
