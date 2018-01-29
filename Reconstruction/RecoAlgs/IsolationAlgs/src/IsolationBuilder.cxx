@@ -246,7 +246,7 @@ StatusCode IsolationBuilder::initializeIso(std::set<xAOD::Iso::IsolationFlavour>
 	}
 	tisoH.isoDecoV.emplace_back(isoNameV);
 	ATH_MSG_DEBUG("initializing " << tisoH.isoDecoV.back().key());
-	ATH_CHECK(tisoH.isoDeco.back().initialize());
+	ATH_CHECK(tisoH.isoDecoV.back().initialize());
       } else {
 	ATH_MSG_FATAL("Configuration error: Isolation flavor " << isoFlav << " not supported.");
 	return StatusCode::FAILURE;
