@@ -1,4 +1,4 @@
->/*
+/*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
@@ -10,8 +10,10 @@ This code should be edited as necessary and then placed in the TrigEFMissingET/s
 #include "TrigEFMissingET/EFMissingETFromClustersTracksPUC.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
+#include <TMatrixD.h>
 #include <string>
 
+using namespace std;
 namespace {
   // Helper class
   struct Tower {
@@ -31,7 +33,7 @@ namespace {
       py += Et * sinPhi;
       return *this;
     }
-  }
+  };
 }
 
 
@@ -82,6 +84,13 @@ StatusCode EFMissingETFromClustersTracksPUC::initialize()
   // I think probably this system needs a big rework but I've just not had the time to do it
   // Maybe you should make up your own position? I don't know :(
   m_methelperposition = 3;
+
+  m_nPhiBins = TMath::TwoPi() / m_targetTowerWidth;
+  m_nEtaBins = 2 * m_maxEta / m_targetTowerWidth;
+  m_nTowers = m_nPhiBins * m_nEtaBins;
+
+  m_towerEtaWidth = 2 * m_maxEta / m_nEtaBins;
+  m_towerPhiWidth = TMath::TwoPi() / m_nPhiBins;
 
   return StatusCode::SUCCESS;
 }
@@ -145,12 +154,22 @@ StatusCode EFMissingETFromClustersTracksPUC::execute(xAOD::TrigMissingET * /* me
   // set status to Processing
   metComp->m_status |= m_maskProcessing;
 
-  ConstDataVector<xAOD::JetContainer> hardScatterJets(SG::VIEW_ELEMENTS);
-  ConstDataVector<xAOD::JetContainer> pileupJets(SG::VIEW_ELEMENTS);
+  std::vector<const xAOD::Jet*> JetsVec(jetContainer->begin(), jetContainer->end());
+  ATH_MSG_DEBUG( "num of jets: " << JetsVec.size() );
+
+  std::vector<const xAOD::TrackParticle*> TracksVec(trackContainer->begin(), trackContainer->end());
+  ATH_MSG_DEBUG( "num of tracks: " << TracksVec.size() );
+
+  std::vector<const xAOD::Vertex*> VertexVec(vertexContainer->begin(), vertexContainer->end());
+  ATH_MSG_DEBUG( "num of vertices: " << VertexVec.size() );
+
+  std::vector<const xAOD::CaloCluster*> clusters(caloCluster->begin(), caloCluster->end());
+
+  std::vector<const xAOD::Jet*> hardScatterJets(0);
+  std::vector<const xAOD::Jet*> pileupJets(0);
   
   const xAOD::Vertex* primaryVertex =  nullptr;
-  for (const auto& vertex : *vertexContainer) {
-    //  for (const xAOD::Vertex* vertex : VertexVec) {
+  for (const xAOD::Vertex* vertex : VertexVec) {
 
     ATH_MSG_DEBUG( "\tx: " << vertex->x() << "\ty: " << vertex->y() << "\tz: " << vertex->z()
                    << "\tntracks: " <<  vertex->nTrackParticles()
@@ -165,21 +184,21 @@ StatusCode EFMissingETFromClustersTracksPUC::execute(xAOD::TrigMissingET * /* me
     }
   }
 
-  for (const auto& jet : *jetContainer) {
+  for (const xAOD::Jet* jet : JetsVec) {
     if (primaryVertex) {
-      if (fabs(jet.eta() ) < 2.4) {
+      if (fabs(jet->eta() ) < 2.4) {
 	double ptsum_pv = 0;
-	for (const auto& itrk : *trackContainer) {
+	for (const xAOD::TrackParticle* itrk : TracksVec) {
 	  bool accept = (itrk->pt()> m_track_ptcut && m_trackselTool->accept(*itrk, primaryVertex));
 	  if (accept && (itrk->vertex() && itrk->vertex()==primaryVertex)) ptsum_pv += itrk->pt();
 	}
-	double Rpt = ptsum_pv/jet->pt();
-	if (jet.pt() > m_minJetPtJvt && (Rpt > m_RptCut || jet.pt() > m_maxJetPtJvt)){
+	double RpT = ptsum_pv/jet->pt();
+	if (jet->pt() > m_minJetPtJvt && (RpT > m_jetRpTCut || jet->pt() > m_maxJetPtJvt)){
 	  hardScatterJets.push_back(jet);
 	} else {
 	  pileupJets.push_back(jet);
 	}
-      } else if (jet.pt() >= m_forward_ptcut) {
+      } else if (jet->pt() >= m_forward_ptcut) {
 	hardScatterJets.push_back(jet);
       } else {
 	pileupJets.push_back(jet);
@@ -191,20 +210,24 @@ StatusCode EFMissingETFromClustersTracksPUC::execute(xAOD::TrigMissingET * /* me
 
   if (hardScatterJets.size() == 0) return StatusCode::SUCCESS;
 
-  ConstDataVector<xAOD::CaloClusterContainer> pileupClusters(SG::VIEW_ELEMENTS);
-  ConstDataVector<xAOD::CaloClusterContainer> hardScatterClusters(SG::VIEW_ELEMENTS);
+  std::vector<const xAOD::CaloCluster*> pileupClusters(0);
+  std::vector<const xAOD::CaloCluster*> hardScatterClusters(0);
   std::set<unsigned int> hardScatterIndices; // The indices of clusters associated with pileup jets
+
+  // Assume all of our jets have the same radius - the rest of the algorithm basically
+  // relies on this anyway.
+  float jetRadiusParameter = hardScatterJets.front()->getSizeParameter();
 
   for (const xAOD::Jet* ijet : hardScatterJets)
     for (const auto& link : ijet->constituentLinks() )
       hardScatterIndices.insert(link.index() );
-  for (unsigned int ii = 0; ii < clusters->size(); ++ii) {
-    if (fabs(clusters->at(ii)->eta(xAOD::CaloCluster::CALIBRATED) ) > m_maxEta)
+  for (unsigned int ii = 0; ii < clusters.size(); ++ii) {
+    if (fabs(clusters.at(ii)->eta(xAOD::CaloCluster::CALIBRATED) ) > m_maxEta)
       continue;
     if (hardScatterIndices.count(ii) )
-      hardScatterClusters.push_back(clusters->at(ii) );
+      hardScatterClusters.push_back(clusters.at(ii) );
     else
-      pileupClusters.push_back(clusters->at(ii) );
+      pileupClusters.push_back(clusters.at(ii) );
   }
 
   // Calculate covariance of pileup deposits, collect into towers and calculate pileup 2-vector
@@ -303,7 +326,7 @@ StatusCode EFMissingETFromClustersTracksPUC::execute(xAOD::TrigMissingET * /* me
     float pt = iclus->pt(xAOD::CaloCluster::CALIBRATED);
     float sinPhi;
     float cosPhi;
-    float eta = clus->eta(xAOD::CaloCluster::CALIBRATED);
+    float eta = iclus->eta(xAOD::CaloCluster::CALIBRATED);
     sincosf(iclus->phi(xAOD::CaloCluster::CALIBRATED), &sinPhi, &cosPhi);
     ex -= pt * cosPhi;
     ey -= pt * sinPhi;

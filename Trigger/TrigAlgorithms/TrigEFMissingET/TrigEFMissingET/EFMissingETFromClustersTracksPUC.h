@@ -41,6 +41,13 @@ class EFMissingETFromClustersTracksPUC : public EFMissingETBaseTool
                                const xAOD::MuonContainer *muon);
 
   private:
+    //internal
+    unsigned int m_nPhiBins;
+    unsigned int m_nEtaBins;
+    unsigned int m_nTowers;
+    double m_towerEtaWidth;
+    double m_towerPhiWidth;
+
     int  m_methelperposition;
     // Tower
     double m_targetTowerWidth;
