@@ -198,13 +198,13 @@ IsoTypesFe =  [
 IsoCorEg = [
   [ isoPar.core57cells, isoPar.ptCorrection ],
   [ isoPar.core57cells, isoPar.ptCorrection, isoPar.pileupCorrection ],
-  [ isoPar.coreTrackPtr ] #still hard-coded
+  [ isoPar.coreTrackPtr ]
   ]
 IsoCorMu = [
   #[ isoPar.coreCone ], 
   [ isoPar.coreMuon ],
   [ isoPar.coreCone, isoPar.pileupCorrection ],
-  [ isoPar.coreTrackPtr ] #still hard-coded
+  [ isoPar.coreTrackPtr ]
   ]
 IsoCorFe = [
   [ isoPar.coreCone, isoPar.pileupCorrection ] 

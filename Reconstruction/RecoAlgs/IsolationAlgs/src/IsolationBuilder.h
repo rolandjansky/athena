@@ -163,6 +163,7 @@ class IsolationBuilder
     SG::WriteDecorHandleKey<xAOD::IParticleContainer> coreCorisoDeco;
     std::vector<xAOD::Iso::IsolationType> isoTypes;
     xAOD::CaloCorrection CorrList;
+    SG::WriteDecorHandleKey<xAOD::IParticleContainer> corrBitsetDeco;
   };
 
   std::vector<std::pair<xAOD::Iso::IsolationFlavour,CaloIsoHelpKey> > m_elCaloIso;
@@ -175,6 +176,7 @@ class IsolationBuilder
     std::vector<SG::WriteDecorHandleKey<xAOD::IParticleContainer> > isoDecoV;
     std::vector<xAOD::Iso::IsolationType> isoTypes;
     xAOD::TrackCorrection CorrList;
+    SG::WriteDecorHandleKey<xAOD::IParticleContainer> corrBitsetDeco;
   };
 
   std::vector<std::pair<xAOD::Iso::IsolationFlavour,TrackIsoHelpKey> > m_elTrackIso;
@@ -186,7 +188,7 @@ class IsolationBuilder
     CaloIsoHelpHandles(const CaloIsoHelpKey& keys);
 
     std::vector<SG::WriteDecorHandle<xAOD::IParticleContainer, float> > isoDeco;
-    // SG::WriteDecorHandle<xAOD::IParticleContainer, float> coreCorisoDeco; // try moving it
+    SG::WriteDecorHandle<xAOD::IParticleContainer, uint32_t> corrBitsetDeco;
   };
 
 
@@ -196,6 +198,7 @@ class IsolationBuilder
 
     std::vector<SG::WriteDecorHandle<xAOD::IParticleContainer, float> > isoDeco;
     std::vector<SG::WriteDecorHandle<xAOD::IParticleContainer, float> > isoDecoV;
+    SG::WriteDecorHandle<xAOD::IParticleContainer, uint32_t> corrBitsetDeco;
   };
 
 

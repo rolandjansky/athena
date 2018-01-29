@@ -12,8 +12,6 @@
 // Isolation includes
 #include "IsolationBuilder.h"
 
-
-
 IsolationBuilder::IsolationBuilder( const std::string& name, 
 				    ISvcLocator* pSvcLocator ) : 
   ::AthAlgorithm( name, pSvcLocator )
@@ -174,14 +172,16 @@ StatusCode IsolationBuilder::execute()
   return StatusCode::SUCCESS;
 }
 
-IsolationBuilder::CaloIsoHelpHandles::CaloIsoHelpHandles(const IsolationBuilder::CaloIsoHelpKey& keys)
+IsolationBuilder::CaloIsoHelpHandles::CaloIsoHelpHandles(const IsolationBuilder::CaloIsoHelpKey& keys) :
+  corrBitsetDeco(keys.corrBitsetDeco)
 {
   for (const auto& key : keys.isoDeco) {
     isoDeco.emplace_back(key);
   }
 }
 
-IsolationBuilder::TrackIsoHelpHandles::TrackIsoHelpHandles(const IsolationBuilder::TrackIsoHelpKey& keys)
+IsolationBuilder::TrackIsoHelpHandles::TrackIsoHelpHandles(const IsolationBuilder::TrackIsoHelpKey& keys) :
+  corrBitsetDeco(keys.corrBitsetDeco)
 {
   for (const auto& key : keys.isoDeco) {
     isoDeco.emplace_back(key);
@@ -258,8 +258,17 @@ StatusCode IsolationBuilder::initializeIso(std::set<xAOD::Iso::IsolationFlavour>
       continue;
     }
 
+    std::string bitsetName = prefix + xAOD::Iso::toString(isoFlav) + "CorrBitset";
+    if (customConfig != "") {
+      bitsetName += "_" + customConfig;
+    }
+
     if (isoFlav == xAOD::Iso::etcone || isoFlav == xAOD::Iso::topoetcone || isoFlav == xAOD::Iso::neflowisol) {
-      
+  
+      cisoH.corrBitsetDeco = bitsetName;
+      ATH_CHECK(cisoH.corrBitsetDeco.initialize());
+ 
+
       for (size_t corrType = 0; corrType < corInts[flavor].size(); corrType++) {
 	const auto cor = static_cast<unsigned int>(corInts[flavor][corrType]);
 	cisoH.CorrList.calobitset.set(cor);
@@ -287,7 +296,15 @@ StatusCode IsolationBuilder::initializeIso(std::set<xAOD::Iso::IsolationFlavour>
 	return StatusCode::FAILURE;
       }
     } else if (isoFlav == xAOD::Iso::ptcone) {
-      tisoH.CorrList.trackbitset.set(static_cast<unsigned int>(xAOD::Iso::coreTrackPtr));
+
+      tisoH.corrBitsetDeco = bitsetName;
+      ATH_CHECK(tisoH.corrBitsetDeco.initialize());
+
+      for (size_t corrType = 0; corrType < corInts[flavor].size(); corrType++) {
+	const auto cor = static_cast<unsigned int>(corInts[flavor][corrType]);
+	tisoH.CorrList.trackbitset.set(cor);
+      }
+
       if (trackIsoMap) {
 	trackIsoMap->push_back(std::make_pair(isoFlav,tisoH));
       } else {
@@ -336,6 +353,10 @@ StatusCode IsolationBuilder::executeCaloIso(const std::vector<std::pair<xAOD::Is
 	  ATH_MSG_DEBUG("custom Iso " << xAOD::Iso::toCString(keys.isoTypes[i]) << " = " << iso/1e3);
 	  (handles.isoDeco[i])(*part) = iso;
 	}
+	// corrections
+	(handles.corrBitsetDeco)(*part) = keys.CorrList.calobitset.to_ulong();
+
+
 	// not that nice. I expect a single core correction (e.g. for topoetcone, not coreMuon and coreCone together...)
 	if (keys.addCoreCorr) {
 	  SG::WriteDecorHandle<xAOD::IParticleContainer, float> coreCorisoDeco(keys.coreCorisoDeco);
@@ -352,15 +373,15 @@ StatusCode IsolationBuilder::executeCaloIso(const std::vector<std::pair<xAOD::Is
 	      if (CaloIsoResult.coreCorrections[icc].find(xAOD::Iso::coreEnergy) != CaloIsoResult.coreCorrections[icc].end()) {
 		coreCorisoDeco(*part) = CaloIsoResult.coreCorrections[icc][xAOD::Iso::coreEnergy];
 	      } else {
-		ATH_MSG_WARNING("Cannot find the core energy correction for custom flavour " << xAOD::Iso::toCString(flav));
+		ATH_MSG_WARNING("Cannot find the core energy correction for flavor " << xAOD::Iso::toCString(flav));
 	      }
 	    } else {
-	      ATH_MSG_WARNING("Cannot find the core correction for custom flavour " << xAOD::Iso::toCString(flav));
+	      ATH_MSG_WARNING("Cannot find the core correction for flavor " << xAOD::Iso::toCString(flav));
 	    }
 	  }
 	}
       } else {
-	ATH_MSG_ERROR("Call to CaloIsolationTool failed for custom flavour " << xAOD::Iso::toCString(flav));
+	ATH_MSG_ERROR("Call to CaloIsolationTool failed for flavor " << xAOD::Iso::toCString(flav));
 	return StatusCode::RECOVERABLE;
       }
     }
@@ -397,8 +418,12 @@ StatusCode IsolationBuilder::executeTrackIso(const std::vector<std::pair<xAOD::I
 	  (handles.isoDeco[i])(*part) = iso;
 	  (handles.isoDecoV[i])(*part) = isoV;
 	}
+
+	// corrections
+	(handles.corrBitsetDeco)(*part) = keys.CorrList.trackbitset.to_ulong();
+
       } else {
-	ATH_MSG_ERROR("Call to TrackIsolationTool failed for custom flavour " << xAOD::Iso::toCString(flav));
+	ATH_MSG_ERROR("Call to TrackIsolationTool failed for flavor " << xAOD::Iso::toCString(flav));
 	return StatusCode::RECOVERABLE;
       }
     }
