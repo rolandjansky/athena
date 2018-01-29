@@ -99,6 +99,8 @@ namespace VKalVrtAthena {
       
     }
     
+    if(  std::find( m_selectedTracks->begin(), m_selectedTracks->end(), trk ) != m_selectedTracks->end() ) return;
+    
     std::vector<bool> cutBits;
     
     for( auto func : m_trackSelectionFuncs ) cutBits.emplace_back( (this->*func)( trk ) );
