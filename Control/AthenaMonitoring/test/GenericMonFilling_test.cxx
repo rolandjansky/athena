@@ -328,6 +328,10 @@ public:
     return StatusCode::FAILURE;
   }
 
+  virtual StatusCode retrieve( DisableTool ) override {
+    return StatusCode::FAILURE;
+  }
+
 };
 
 
