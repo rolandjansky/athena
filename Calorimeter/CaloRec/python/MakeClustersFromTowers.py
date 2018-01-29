@@ -105,7 +105,6 @@ def MakeClustersFromTowers(clusterMakerName='CaloClusterMaker',clusterContainerK
                                    ,"ENG_FRAC_EM" 
                                    ,"ENG_FRAC_MAX" 
                                    ,"ENG_FRAC_CORE" 
-                                   ,"FIRST_ENG_DENS" 
                                    ,"SECOND_ENG_DENS" 
                                    ,"ISOLATION"
                                    ,"ENG_BAD_CELLS"
@@ -121,7 +120,6 @@ def MakeClustersFromTowers(clusterMakerName='CaloClusterMaker',clusterContainerK
                                    ,"CELL_SIG_SAMPLING"
                                    ,"AVG_LAR_Q"
                                    ,"AVG_TILE_Q"
-                                   ,"EM_PROBABILITY"
                                    ,"PTD"
                                    ,"MASS"
                                    ]
