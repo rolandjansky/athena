@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
    */
 
 /**
@@ -43,8 +43,8 @@ namespace mapkey{
         stat=2,
         eig=3,
         uncorr=4,	      
-        sys=5
-
+        sys=5,
+        end=6
     };
     const char* keytostring (int input){
         switch(input){
@@ -194,53 +194,70 @@ int Root::TElectronEfficiencyCorrectionTool::initialize() {
     ATH_MSG_DEBUG(" (file: " << __FILE__ << ", line: " << __LINE__ << ") "
             << "Found " << nRunNumbersFull << " run number ranges for full sim with a total of " <<
             m_histList[mapkey::sf].size() << " scale factor histograms.");
-    // --------------------------------------------------------------------------
+
+    /* 
+     * Set up the vector of the position of the corr syst 
+     * At this stage we should have the m_nSysMax and we know
+     * the beginning
+     * */
+    const size_t index_of_corr=static_cast<size_t> (Position::End);  
+    m_position_corrSys.resize(m_nSysMax);
+    for (int sys = 0; sys < m_nSysMax; ++sys) { 
+        m_position_corrSys[sys] = (index_of_corr + sys);
+    }  
+    /* 
+     * The same as above by now for the toys if applicable
+     */
+    const size_t index_of_toys=static_cast<size_t> (Position::End)+m_nSysMax;
+    m_position_uncorrToyMCSF.resize(m_nToyMC); 
+    for (int toy=0; toy < m_nToyMC; ++toy) {
+        m_position_uncorrToyMCSF[toy]=(index_of_toys+toy);
+    }
     ATH_MSG_DEBUG("Tool succesfully initialized!");
     return sc;
 }
 
-// =============================================================================
-// Calculate the actual accept of each cut individually.
-// =============================================================================
 const std::vector<double>
 Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataType::DataType dataType,
         const unsigned int runnumber,
         const double cluster_eta,
         const double et, /* in MeV */
         size_t& index_of_corr,
-        size_t& index_of_toys
-        ) const {
+        size_t& index_of_toys) const {
 
     ATH_MSG_DEBUG(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " 
             << "  entering function calculate");
-    // Reset the results to default values
-    //SF,Total,Stat,Num Corr, Uncorr,GlobalBinNumber
-    std::vector<double> result{-999.0,1.0,0.0,0.0,0.0,0.0}; 
-    //Correlated
+    /* 
+     * At this point , since this is after initialize,
+     * we know the size of the vector we want to construct.
+     * it is :
+     * Position::End + m_nSysMax + m_nToyMC
+     * The starting index of the sys is Position::End 
+     * The starting point of the toys is Position::End+m_nSysMax
+     */
+    std::vector<double> result(
+            (static_cast<size_t> (Position::End)+m_nSysMax+m_nToyMC),0
+            );
+    //Set up the non-0 defaults
+    result[static_cast<size_t> (Position::SF)]=-999;
+    result[static_cast<size_t> (Position::Total)]=1;
 
-    ATH_MSG_DEBUG("(file: " << __FILE__ << ", line: " << __LINE__ << ") "  << " n Systematics: " << m_nSysMax);
-    index_of_corr=result.size();
-    std::vector<size_t> position_corrSys{};
-    for (int sys = 0; sys < m_nSysMax; ++sys) {
-        position_corrSys.push_back(result.size());
-        result.push_back(0);
-    } 
-    ATH_MSG_DEBUG("(file: " << __FILE__ << ", line: " << __LINE__ << ") "  << " result size " 
-                    << result.size() << " position syst size " << position_corrSys.size());
-    //Toys
-    index_of_toys=result.size();
-    std::vector<size_t> position_uncorrToyMCSF{}; 
-    for (int toy = 0; toy < m_nToyMC; ++toy) {
-        position_uncorrToyMCSF.push_back(result.size());
-        result.push_back(0);
+    /*
+     * Set the known indices
+     */
+    ATH_MSG_DEBUG(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " 
+            << "Set the indices"); 
+    if (m_nSysMax) {
+        index_of_corr=m_position_corrSys.at(0);
     }
-    ATH_MSG_DEBUG("(file: " << __FILE__ << ", line: " << __LINE__ << ") "  << " result size " 
-                    << result.size() << " position toys size " << position_uncorrToyMCSF.size());
-    
-    //
-    //See if fastsim
+    if (m_nToyMC) {
+        index_of_toys=m_position_uncorrToyMCSF.at(0);
+    } 
+    /* 
+     * Determine Simulation flavour
+     * And find the run period
+     */
     const bool isFastSim=(dataType == PATCore::ParticleDataType::Fast) ? true: false;
-    //Find the corresponding run index for this period
     int runnumberIndex = -1;
     if (isFastSim) {
         for (unsigned int i = 0; i < m_begRunNumberListFastSim.size(); ++i) {
@@ -257,77 +274,68 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
             }
         }
     }
-    //
-    if(runnumberIndex <0 ){
-        if (this->msgLvl(MSG::DEBUG)){
-            printDefaultReturnMessage(TString::Format(
-                        "No valid run number period  found for the current run number: %i for simulation type: %i",
-                        runnumber, dataType),
-                    __LINE__);
-        }    
+    if(runnumberIndex <0 ){  
+        ATH_MSG_DEBUG("(file: " << __FILE__ << ", line: " << __LINE__ << ") "<<
+                "No valid run number period  found for the current run number: " 
+                << runnumber <<" for simulation type: " << dataType); 
         return result;
     }
-
-    /*What we have is a map 
-     * key is sf,stat,eigen, uncorr
-     * The vector has as many entries as supported run period
-     * The TobjArray has 2D histos for  high, low et, or forward
-     * The 2D Histo has the number we want.
+    /* What we have is a map key:std::vector<TObjArray> 
+     * Key: sf,stat,eigen, uncorr
+     * The vector<TObArray> has as many entries as supported run periods
+     * The TobjArray has 2D histos for  high, low et, or forward electrons
+     * The 2D Histo then has the number we want.
+     * What follows is the logic to get to this number
      */
     const std::map<int, std::vector< TObjArray > >& currentmap = (isFastSim)? m_fastHistList : m_histList;
     std::map<int, std::vector< TObjArray > >::const_iterator currentVector_itr = currentmap.find(mapkey::sf); //find the vector
     //See if we can find a SF vector in the map and the corresponding TobjArray for this run period
     if (currentVector_itr == currentmap.end()) {
-        if (this->msgLvl(MSG::DEBUG)){	
-            printDefaultReturnMessage(TString::Format(
-                        "No valid vector of sf ObjArray found for the current run number: %i for simulation type: %i",
-                        runnumber, dataType),
-                    __LINE__);
-        }
+        ATH_MSG_DEBUG("(file: " << __FILE__ << ", line: " << __LINE__ << ") "<<
+                "No valid vector of sf ObjArray found for the current run number " 
+                << runnumber<<" for simulation type: " << dataType);  
         return result;
     }
     //Get a reference (synonym) to this vector 
     const std::vector<TObjArray>& currentVector=currentVector_itr->second;
     if (currentVector.size()<=0 || runnumberIndex>= static_cast <int> (currentVector.size())) {
-        if (this->msgLvl(MSG::DEBUG)){
-            printDefaultReturnMessage(TString::Format(
-                        "No valid sf ObjArrays found for the current run number: %i for simulation type: %i",
-                        runnumber, dataType),
-                    __LINE__);
-        }
+        ATH_MSG_DEBUG("(file: " << __FILE__ << ", line: " << __LINE__ << ") "<<
+                "No valid  sf ObjArray found for the current run number " 
+                << runnumber<<" for simulation type: " << dataType);  
         return result;
     }
-    //
-    //Now we can get the corresponding Object array 
-    const TObjArray& currentObjectArray = currentVector.at(runnumberIndex);
-    //
-    //This is the number of entries in the TObjArray  
+    /* 
+     * At this stage we have found the relevant TobjArray
+     * So we need to locate the right histogram
+     */
+    const TObjArray& currentObjectArray = currentVector.at(runnumberIndex);  
     const int entries = currentObjectArray.GetEntries();
-    //Find the correct histogram in the TObjArray (Low, high Et or forward)
-    double xValue, yValue;
-    xValue = et;
-    yValue = cluster_eta;
+    /* 
+     * Now the logic of finding the histogram
+     * Perhaps one the points of the code that
+     * could be improved given some "feedback"
+     */
+    double xValue(et);
+    double yValue(cluster_eta);
     int smallEt(0), etaCov(0), nSF(0);
-    bool block = kFALSE;
-    bool changed = kFALSE;
+    bool block = false;
+    bool changed = false;
     int index = -1;
     TH2 *tmpHist(0);
     for (int i = 0; i < entries ; ++i) {
         block = kFALSE;
         tmpHist = (TH2 *) (currentObjectArray.At(i));
-
         //block if we are below minimum et 
         if (et < tmpHist->GetXaxis()->GetXmin()) {
             smallEt++;
             block = kTRUE;
         }
-
         //block if we are above max eta 
         if (TMath::Abs(yValue) >= tmpHist->GetYaxis()->GetXmax()) {
             etaCov++;
             block = kTRUE;
         }
-        // Blocj if we are less than minimum (fwd electrons)
+        // Block if we are less than minimum (fwd electrons)
         if (TMath::Abs(yValue) < tmpHist->GetYaxis()->GetXmin()) {
             etaCov++;
             block = kTRUE;
@@ -350,36 +358,30 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
     }
     //We are out of bounds 
     if (smallEt == entries) {
-        if (this->msgLvl(MSG::DEBUG)){
-            printDefaultReturnMessage(TString::Format("No correction factor provided for et=%f", xValue), __LINE__);
-        }
+        ATH_MSG_DEBUG("(file: " << __FILE__ << ", line: " << __LINE__ << ") "<<
+                "No correction factor provided for et " << xValue);  
         return result;
     }
     if (etaCov == entries) {
-        if (this->msgLvl(MSG::DEBUG)){
-            printDefaultReturnMessage(TString::Format("No correction factor provided for eta=%f", yValue), __LINE__);
-        }
+        ATH_MSG_DEBUG("(file: " << __FILE__ << ", line: " << __LINE__ << ") "<<
+                "No correction factor provided for eta " << yValue);  
         return result;
     }
     if (nSF > 1) {
         ATH_MSG_WARNING(
                 "More than 1 SF found for eta=" << yValue << " , et = " << et << " , run number = " << runnumber <<
-                " . Please check your input files!");
+                ". Please check your input files!");
     }
-    //
     //Now we have the index of the histogram for this region in the TObjectarray 
     TH2* currentHist(0);
     if (index >= 0) {
         currentHist = static_cast<TH2*> (currentObjectArray.At(index));
     }
     else {
-        if (this->msgLvl(MSG::DEBUG)){
-            printDefaultReturnMessage(TString::Format(
-                        "No correction factor provided because there was an index problem"), __LINE__);
-        }
+        ATH_MSG_DEBUG("(file: " << __FILE__ << ", line: " << __LINE__ << ") "<<
+                "No correction factor provided because of an invalid index" << yValue);
         return result;
     }
-
     // If SF is only given in Abs(eta) convert eta input to TMath::Abs()
     constexpr double epsilon = 1e-6;
     if (currentHist->GetYaxis()->GetBinLowEdge(1) >= 0 - epsilon) {
@@ -409,8 +411,13 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
         statErr = stat->GetBinContent(globalBinNumber);
         result[static_cast<size_t> (Position::Stat)]=statErr;
     }
-    //
-    //Do the eigen values
+    /*
+     * C.A I think I understand why this is needed.
+     * Perhaps though we should see if this is something we can determine
+     * in initialization
+     * Or at least avoid having it both here and as a method
+     * One needs to see the interplay with the Toys
+     */
     int sLevel[Root::TElectronEfficiencyCorrectionTool::detailLevelEnd]={0,0,0};
     currentVector_itr = currentmap.find(mapkey::eig); //find the vector
     if (currentVector_itr != currentmap.end()) {
@@ -452,11 +459,11 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
             for (int sys = 0; sys < sys_entries; ++sys) {
                 tmpHist = (TH2 *) sysList.at(index).at(runnumberIndex).At(sys_entries - 1 - sys);
                 corrSys.push_back(tmpHist->GetBinContent(globalBinNumber));
-                result[position_corrSys[(sys_entries - 1 - sys)]] =corrSys[sys];
+                result[m_position_corrSys[(sys_entries - 1 - sys)]] =corrSys[sys];
             }
-            if (position_corrSys.size() > 0 && sys_entries<=1) {
-                if (result[position_corrSys[0]] == 0) {
-                    result[position_corrSys[0]]=scaleFactorErr;
+            if (m_position_corrSys.size() > 0 && sys_entries<=1) {
+                if (result[m_position_corrSys[0]] == 0) {
+                    result[m_position_corrSys[0]]=scaleFactorErr;
                 }
             }
         }
@@ -481,15 +488,15 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
         val = 0;
     }
     result[static_cast<size_t> (Position::UnCorr)]=val;
-    ///
-    //Here are the toys 
-    ////////////////////////// 
+    /* 
+     * Do the toys
+     */
     if (m_doToyMC || m_doCombToyMC) {
         const std::vector<std::vector<TObjArray > >& toyMCList = ((isFastSim) ? m_uncorrToyMCSystFast : m_uncorrToyMCSystFull);
         if (toyMCList.size() > (unsigned int) runnumberIndex) {
             for (int toy = 0; toy < m_nToyMC; toy++) {
                 if (toyMCList.at(runnumberIndex).at(toy).GetLast() >= index) {
-                    result[position_uncorrToyMCSF.at(toy)]=
+                    result[m_position_uncorrToyMCSF.at(toy)]=
                         ((TH2 *) toyMCList.at(runnumberIndex).at(toy).At(index))->GetBinContent(globalBinNumber);
                 }
             }
@@ -498,6 +505,7 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
     result[static_cast<size_t> (Position::GlobalBinNumber)]=globalBinNumber;
     return result;
 }
+
 // =============================================================================
 // Calculate the detail levels for a given eigenvector histogram
 // =============================================================================
@@ -527,7 +535,8 @@ Root::TElectronEfficiencyCorrectionTool::calcDetailLevels(TH1D *eig) {
 // =============================================================================
 std::vector<TH2D *>
 Root::TElectronEfficiencyCorrectionTool::buildSingleToyMC(TH2D *sf, TH2D *stat, TH2D *uncorr, const TObjArray& corr) {
-    ATH_MSG_DEBUG(" (file: " << __FILE__ << ", line: " << __LINE__ << ")! " << "entering function buildSingleToyMC");
+    ATH_MSG_DEBUG(" (file: " << __FILE__ << ", line: " << __LINE__ << ")! " 
+            << "entering function buildSingleToyMC");
 
     std::vector<TH2D*> tmpHists;
     int nBins = (stat->GetNbinsX() + 2) * (stat->GetNbinsY() + 2);
@@ -1045,11 +1054,4 @@ Root::TElectronEfficiencyCorrectionTool::setup(const TObjArray& hists,
     }
     return 1;
 }
-// =============================================================================
-// print a message that the default scale factor is returned
-// =============================================================================
-void
-Root::TElectronEfficiencyCorrectionTool::printDefaultReturnMessage(const TString& reason, int line) const{
-    ATH_MSG_DEBUG( " (file: " << __FILE__ << ", line: " << line << ")  " << reason << "\n" <<
-            "Returning scale factor -999 ");
-}
+
