@@ -16,10 +16,11 @@ find_package( ROOT COMPONENTS Core PyROOT Tree MathCore Hist RIO pthread )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py python/AthFile python/scripts )
-atlas_install_scripts( bin/abootstrap-wkarea.py bin/acmd.py bin/atl-gen-athena-d3pd-reader bin/avn.py bin/build_cmt_pkg_db.py bin/checkFile.py bin/checkPlugins.py bin/checkSG.py bin/checkMetaSG.py bin/checkTP.py bin/checkTag.py bin/checkxAOD.py bin/cmtClients.py bin/diff-athfile bin/diff-jobo-cfg.py bin/diffConfigs.py bin/diffPoolFiles.py bin/diffTAGTree.py bin/dlldep.py bin/dso-stats.py bin/dump-athfile.py bin/dumpAthfilelite.py bin/filter-and-merge-d3pd.py bin/getMetadata.py bin/gen-typereg-dso.py bin/gen_klass.py bin/get-tag-diff.py bin/gprof2dot bin/issues bin/lstags bin/magnifyPoolFile.py bin/merge-poolfiles.py bin/pep8.py bin/pkgco.py bin/pool_extractFileIdentifier.py bin/pool_insertFileToCatalog.py bin/print_auditor_callgraph.py bin/pyroot.py bin/setupWorkArea.py bin/tabnanny-checker.py bin/tcSubmitTag.py bin/vmem-sz.py )
+atlas_install_scripts( bin/abootstrap-wkarea.py bin/acmd.py bin/atl-gen-athena-d3pd-reader bin/avn.py bin/build_cmt_pkg_db.py bin/checkFile.py bin/checkPlugins.py bin/checkSG.py bin/checkMetaSG.py bin/checkTP.py bin/checkTag.py bin/checkxAOD.py bin/cmtClients.py bin/diff-athfile bin/diff-jobo-cfg.py bin/diffConfigs.py bin/diffPoolFiles.py bin/diffTAGTree.py bin/dlldep.py bin/dso-stats.py bin/dump-athfile.py bin/dumpAthfilelite.py bin/filter-and-merge-d3pd.py bin/getMetadata.py bin/gen-typereg-dso.py bin/gen_klass.py bin/get-tag-diff.py bin/gprof2dot bin/issues bin/lstags bin/magnifyPoolFile.py bin/merge-poolfiles.py bin/pep8.py bin/pkgco.py bin/pool_extractFileIdentifier.py bin/pool_insertFileToCatalog.py bin/print_auditor_callgraph.py bin/pyroot.py bin/setupWorkArea.py bin/tabnanny-checker.py bin/tcSubmitTag.py bin/vmem-sz.py bin/checkForPrescaling.py )
 
 # Aliases:
 atlas_add_alias( checkFile "checkFile.py" )
+atlas_add_alias( checkForPrescaling "checkForPrescaling.py" )
 atlas_add_alias( checkMetaSG "checkMetaSG.py" )
 atlas_add_alias( dso-stats "dso-stats.py" )
 atlas_add_alias( gen_klass "gen_klass.py" )
