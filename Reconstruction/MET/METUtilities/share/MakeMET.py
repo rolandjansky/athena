@@ -18,7 +18,7 @@ if nThreads>=1:
 	AlgScheduler.OutputLevel( INFO )
 	AlgScheduler.ShowControlFlow( True )
 	AlgScheduler.ShowDataDependencies( True )
-	AlgScheduler.setDataLoaderAlg( 'SGInputLoader' )	
+	AlgScheduler.setDataLoaderAlg( 'SGInputLoader' )
 	from SGComps.SGCompsConf import SGInputLoader
 	topSequence+=SGInputLoader(OutputLevel=DEBUG, ShowEventDump=False)
 
@@ -72,3 +72,17 @@ ServiceMgr.EventSelector.SkipEvents = 0
 
 printint = max(theApp.EvtMax/250,1) if theApp.EvtMax>0 else 1000
 svcMgr += CfgMgr.AthenaEventLoopMgr(EventPrintoutInterval=printint)
+
+#  set algCardinality = 1 to disable cloning for algs with thread unsafe features
+"""
+algCardinality = nThreads
+if (algCardinality > 1):
+	for alg in topSequence:
+		name = alg.name()
+		print " -> looking at ",name
+		if (name==metAlg.name()):
+			alg.Cardinality = 1
+			print " -> suppressing cloning for ", name
+		else:
+			alg.Cardinality = algCardinality			
+"""
