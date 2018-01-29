@@ -182,6 +182,11 @@ StatusCode TileCondToolEmscale::initialize() {
   } else {
     ATH_MSG_INFO( "Loading of online calibration folders not requested, "
                   << "since OnlCacheUnit=" << m_onlCacheUnitStr  );
+
+    m_pryOnlCis.disable();
+    m_pryOnlLas.disable();
+    m_pryOnlCes.disable();
+    m_pryOnlEms.disable();
   }
 
   return StatusCode::SUCCESS;
