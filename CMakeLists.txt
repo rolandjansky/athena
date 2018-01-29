@@ -45,7 +45,6 @@ install( FILES ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/env_setup.sh
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-pedantic")
 include(GNUInstallDirs)
 set(ACTS_BUILD_EXAMPLES OFF)
-set(ACTS_BUILD_GEOMODEL_PLUGIN ON)
 set(ACTS_BUILD_TESTS OFF)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/acts-core)
 
