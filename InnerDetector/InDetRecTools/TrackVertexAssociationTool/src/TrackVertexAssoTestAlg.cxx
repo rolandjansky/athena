@@ -88,17 +88,6 @@ StatusCode TrackVertexAssoTestAlg::execute()
     return StatusCode::FAILURE;
   }
 
-  // The following block of code crashes the algorithm because vx_test is never set to anything
-  //  const xAOD::Vertex *vx_test=0;
-
-  // Check compitable 
-  ////bool isMatched=m_tighttrackvertexassoTool->isCompatible(*(trkCont->at(0)), *(vxCont->at(0)));
-  //if(trkCont->size()!=0)
-  //{
-  //bool isMatched=m_loosetrackvertexassoTool->isCompatible(*(trkCont->at(0)), *vx_test);
-  //ATH_MSG_INFO("compitable? "<< isMatched);
-  //}
-
   // do Match, match to all compitable vertices
   xAOD::TrackVertexAssociationMap trkvxassoMap_tight = m_tighttrackvertexassoTool->getMatchMap(*trkCont, *vxCont);
   xAOD::TrackVertexAssociationMap trkvxassoMap_loose = m_loosetrackvertexassoTool->getMatchMap(*trkCont, *vxCont);
