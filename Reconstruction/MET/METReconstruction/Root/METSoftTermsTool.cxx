@@ -238,18 +238,15 @@ namespace met {
 
     // First retrieve the necessary container
     // Currently rely on only one: either CaloClusterContainer or TrackParticleContainer
-    const CaloClusterContainer*   caloClusCont = 0;
-    const TrackParticleContainer* trackParCont = 0;
     const PFOContainer* pfoCont = 0;
     vector<const IParticle*> signalList;
     CaloClusterChangeSignalStateList stateHelperList;
 
     if( m_st_objtype == 0 ) {
-
       // Retrieve the calo container
-      if( evtStore()->retrieve(caloClusCont, m_input_data_key).isFailure() ) {
-        ATH_MSG_WARNING("Unable to retrieve input calo cluster container");
-        return StatusCode::SUCCESS;
+      SG::ReadHandle<xAOD::CaloClusterContainer> caloClusCont(m_input_data_key);
+      if (!caloClusCont.isValid()) {
+	  ATH_MSG_WARNING("Unable to retrieve input calo cluster container");
       }
       signalList.reserve(caloClusCont->size());
       //stateHelperList.reserve(caloClusCont->size());
@@ -285,9 +282,9 @@ namespace met {
     else if( m_st_objtype == 1 ) {
 
       // Retrieve the track container
-      if ( evtStore()->retrieve(trackParCont, m_input_data_key).isFailure() ) {
+      SG::ReadHandle<xAOD::TrackParticleContainer> trackParCont(m_input_data_key);
+      if (!trackParCont.isValid()) {
         ATH_MSG_WARNING("Unable to retrieve input track particle container");
-        return StatusCode::SUCCESS;
       }
       signalList.reserve(trackParCont->size());
 
@@ -321,9 +318,8 @@ namespace met {
         ATH_MSG_WARNING("Unable to retrieve input pfo container");
         return StatusCode::SUCCESS;
       }
-
-      const xAOD::VertexContainer* pv_cont(0);
-      if( evtStore()->retrieve( pv_cont, m_pv_inputkey).isFailure() ) {
+      SG::ReadHandle<xAOD::VertexContainer> pv_cont(m_pv_inputkey);
+      if (!pv_cont.isValid()) {
         ATH_MSG_WARNING("Unable to retrieve input primary vertex container");
         return StatusCode::SUCCESS;
       }

@@ -15,6 +15,8 @@
 // METReconstruction includes
 #include "METReconstruction/METTruthTool.h"
 
+#include "StoreGate/DataHandle.h"
+
 // MET EDM
 #include "xAODMissingET/MissingETComposition.h"
 #include "xAODMissingET/MissingETAuxContainer.h"
@@ -195,13 +197,12 @@ namespace met {
 
     ATH_MSG_DEBUG ("In execute: " << name() << "...");
 
-    const TruthEventContainer* truthEvents = 0;
-
     metTerm->setSource(m_truth_type);
 
     // Retrieve the truth container
-    if ( evtStore()->retrieve(truthEvents, m_input_data_key).isFailure() ) {
-      ATH_MSG_WARNING("Unable to retrieve input truth event container");
+    SG::ReadHandle<xAOD::TruthEventContainer> truthEvents(m_input_data_key);
+    if (!truthEvents.isValid()) {
+      ATH_MSG_WARNING("Unable to retrieve input truth event container ");
       return StatusCode::SUCCESS;
     }
 

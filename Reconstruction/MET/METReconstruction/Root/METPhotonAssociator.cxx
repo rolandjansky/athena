@@ -69,15 +69,15 @@ namespace met {
   {
     ATH_MSG_VERBOSE ("In execute: " << name() << "...");
 
-    const xAOD::PhotonContainer* phCont(0);
-    if( evtStore()->retrieve(phCont, m_input_data_key).isFailure() ) {
+    SG::ReadHandle<xAOD::PhotonContainer> phCont(m_input_data_key);
+    if (!phCont.isValid()) {
       ATH_MSG_WARNING("Unable to retrieve input photon container " << m_input_data_key);
       return StatusCode::FAILURE;
     }
 
     ATH_MSG_DEBUG("Successfully retrieved photon collection");
 
-    if (fillAssocMap(metMap,phCont).isFailure()) {
+    if (fillAssocMap(metMap,phCont.cptr()).isFailure()) {
       ATH_MSG_WARNING("Unable to fill map with photon container " << m_input_data_key);
       return StatusCode::FAILURE;
     }

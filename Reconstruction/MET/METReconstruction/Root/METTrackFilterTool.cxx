@@ -223,18 +223,21 @@ namespace met {
 
     if(m_doLepRecovery)
       {
-	const ElectronContainer* elCont(0);
-	const MuonContainer* muCont(0);
-	if(evtStore()->retrieve(elCont,m_el_inputkey).isFailure()) { 
-	  ATH_MSG_WARNING("Failed to retrieve electron container"); 
-	} else { 
+        SG::ReadHandle<xAOD::ElectronContainer> elCont(m_el_inputkey);
+        if (!elCont.isValid()) {
+          ATH_MSG_WARNING("Unable to retrieve electron container " << m_el_inputkey);
+          return StatusCode::SUCCESS;
+        } else { 
 	  selectElectrons(*elCont, selElectrons); 
 	} 
-	if(evtStore()->retrieve(muCont,m_mu_inputkey).isFailure()) { 
-	  ATH_MSG_WARNING("Failed to retrieve muon container"); 
-	} else { 
+        SG::ReadHandle<xAOD::MuonContainer> muCont(m_mu_inputkey);
+        if (!muCont.isValid()) {
+          ATH_MSG_WARNING("Unable to retrieve muon container " << m_mu_inputkey);
+          return StatusCode::SUCCESS;
+        } else { 
 	  selectMuons(*muCont, selMuons); 
-	}
+	} 
+
       }     
 
     MissingETComponentMap::iterator iter = MissingETComposition::find(metMap,metTerm);
@@ -265,13 +268,13 @@ namespace met {
     }
 
     const Vertex* pv=0;
-    const VertexContainer* vxCont = 0;
+    SG::ReadHandle<xAOD::VertexContainer> vxCont(m_pv_inputkey);
+    if (!vxCont.isValid()) {
+      ATH_MSG_WARNING("Unable to retrieve input primary vertex container");
+    }
     vector<const Vertex*> vertices;
+
     if(m_trk_doPVsel) {
-      if( evtStore()->retrieve( vxCont, m_pv_inputkey).isFailure() ) {
-        ATH_MSG_WARNING("Unable to retrieve input primary vertex container");
-        return StatusCode::FAILURE;
-      }
       if(vxCont->size()>0) {
 	vertices.reserve(vxCont->size());
 	for(const auto& vx : *vxCont) {
@@ -341,12 +344,11 @@ namespace met {
     for( const auto& trk : softTracks ) {
       // Could/should use common implementation of addToMET here -- derive builder and refiner from a common base tool?
       bool passFilters = true;
-      const CaloClusterContainer* tcCont(0);
-      if( evtStore()->retrieve(tcCont, m_cl_inputkey).isFailure() ) {
-	ATH_MSG_WARNING("Unable to retrieve topocluster container " << m_cl_inputkey << " for overlap removal");
-	return StatusCode::FAILURE;
+      SG::ReadHandle<xAOD::CaloClusterContainer> tcCont(m_cl_inputkey);
+      if (!tcCont.isValid()) {
+	  ATH_MSG_WARNING("Unable to retrieve topocluster container " << m_cl_inputkey << " for overlap removal");
       }
-      if(m_trk_doEoverPsel && !isGoodEoverP(trk,softTracks,tcCont)) passFilters = false;
+      if(m_trk_doEoverPsel && !isGoodEoverP(trk,softTracks,tcCont.cptr())) passFilters = false;
       if(m_trk_doPVsel) {
 	if(!(m_trkseltool->accept( *trk, pv ))) passFilters=false;
       } else {

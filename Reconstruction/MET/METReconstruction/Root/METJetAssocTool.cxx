@@ -84,11 +84,12 @@ namespace met {
     ATH_MSG_VERBOSE ("In execute: " << name() << "...");
 
     // Retrieve the jet container
-    const JetContainer* jetCont = 0;
-    if( evtStore()->retrieve(jetCont, m_input_data_key).isFailure() ) {
+    SG::ReadHandle<xAOD::JetContainer> jetCont(m_input_data_key);
+    if (!jetCont.isValid()) {
       ATH_MSG_WARNING("Unable to retrieve input jet container " << m_input_data_key);
       return StatusCode::FAILURE;
     }
+
     ATH_MSG_DEBUG("Successfully retrieved jet collection");
 
     ConstitHolder constits;

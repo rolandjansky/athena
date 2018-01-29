@@ -140,34 +140,54 @@ namespace met {
   {
     ATH_MSG_DEBUG ("In execute: " << name() << "...");
     if (!m_skipconst || m_forcoll.empty()) {
-      if( evtStore()->retrieve(constits.tcCont, m_clcoll).isFailure() ) {
+
+      SG::ReadHandle<IParticleContainer> trackclusterCont(m_clcoll);
+      if (!trackclusterCont.isValid()) {
         ATH_MSG_WARNING("Unable to retrieve topocluster container " << m_clcoll << " for overlap removal");
         return StatusCode::FAILURE;
       }
+      constits.tcCont=trackclusterCont.cptr();
       ATH_MSG_DEBUG("Successfully retrieved topocluster collection");
     } else {
       std::string hybridname = "Etmiss";
       hybridname += m_clcoll;
       hybridname += m_foreta;
       hybridname += m_forcoll;
-      if( evtStore()->contains<IParticleContainer>(hybridname) ) {
-        ATH_CHECK(evtStore()->retrieve(constits.tcCont,hybridname));
-      } else {
-        ConstDataVector<IParticleContainer> *hybridCont = new ConstDataVector<IParticleContainer>(SG::VIEW_ELEMENTS);
+      SG::ReadHandle<IParticleContainer> hybridCont(hybridname);
 
-        const IParticleContainer *centCont = 0;
-        const IParticleContainer *forCont = 0;
-        if( evtStore()->retrieve(centCont, m_clcoll).isFailure() ) {
+      if( hybridCont.isValid()) {
+        constits.tcCont=hybridCont.cptr();
+      } else {
+
+        // Trying to do this using write handles (need to get some input here)
+        std::unique_ptr<ConstDataVector<IParticleContainer>> hybridCont = std::make_unique<ConstDataVector<IParticleContainer>>();
+        SG::WriteHandle<ConstDataVector<IParticleContainer>> hybridContHandle(hybridname);
+
+        StatusCode sc = hybridContHandle.record(std::make_unique<ConstDataVector<IParticleContainer>>(*hybridCont));
+
+        if (sc.isFailure()) {
+          ATH_MSG_WARNING("Unable to record container");
+         return StatusCode::SUCCESS;
+
+        }
+
+        //ConstDataVector<IParticleContainer> *hybridCont = new ConstDataVector<IParticleContainer>(SG::VIEW_ELEMENTS);
+
+        SG::ReadHandle<IParticleContainer> centCont(m_clcoll);
+        if (!centCont.isValid()) {
           ATH_MSG_WARNING("Unable to retrieve central container " << m_clcoll << " for overlap removal");
           return StatusCode::FAILURE;
         }
-        if( evtStore()->retrieve(forCont, m_forcoll).isFailure() ) {
+
+        SG::ReadHandle<IParticleContainer> forCont(m_forcoll);
+        if (!forCont.isValid()) {
           ATH_MSG_WARNING("Unable to retrieve forward container " << m_forcoll << " for overlap removal");
           return StatusCode::FAILURE;
         }
-        for(const auto& clus : *centCont) if (fabs(clus->eta())<m_foreta) hybridCont->push_back(clus);
-        for(const auto& clus : *forCont) if (fabs(clus->eta())>=m_foreta) hybridCont->push_back(clus);
-        ATH_CHECK( evtStore()->record(hybridCont,hybridname));
+
+        for(const auto& clus : *centCont) if (fabs(clus->eta())<m_foreta) hybridContHandle->push_back(clus);
+        for(const auto& clus : *forCont) if (fabs(clus->eta())>=m_foreta) hybridContHandle->push_back(clus);
+        //ATH_CHECK( evtStore()->record(hybridCont,hybridname));
         constits.tcCont = hybridCont->asDataVector();
       }
     }
@@ -176,12 +196,13 @@ namespace met {
       //if you want to skip tracks, set the track collection empty manually
       ATH_MSG_DEBUG("Skipping tracks");
     }else{
-      const VertexContainer *vxCont = 0;
-      if( evtStore()->retrieve(vxCont, m_pvcoll).isFailure() ) {
+      SG::ReadHandle<VertexContainer> vxCont(m_pvcoll);
+      if (!vxCont.isValid()) {
 	ATH_MSG_WARNING("Unable to retrieve primary vertex container " << m_pvcoll);
 	//this is actually really bad.  If it's empty that's okay
-	return StatusCode::FAILURE;
+        return StatusCode::FAILURE;
       }
+
       ATH_MSG_DEBUG("Successfully retrieved primary vertex container");
       ATH_MSG_DEBUG("Container holds " << vxCont->size() << " vertices");
 
@@ -198,12 +219,22 @@ namespace met {
 
       constits.trkCont=0;
       ATH_MSG_DEBUG("Retrieving Track collection " << m_trkcoll);
-      ATH_CHECK( evtStore()->retrieve(constits.trkCont, m_trkcoll) );
+      SG::ReadHandle<TrackParticleContainer> trCont(m_trkcoll);
+      if (!trCont.isValid()) {
+	ATH_MSG_WARNING("Unable to retrieve track particle container");
+        return StatusCode::FAILURE;
+      }
+      constits.trkCont=trCont.cptr();
 
       if(m_pflow) {
 	ATH_MSG_DEBUG("Retrieving PFlow collection " << m_pfcoll);
 	constits.pfoCont = 0;
-	ATH_CHECK( evtStore()->retrieve(constits.pfoCont, m_pfcoll ) );
+        SG::ReadHandle<PFOContainer> pfCont(m_pfcoll);
+        if (!pfCont.isValid()) {
+	  ATH_MSG_WARNING("Unable to PFlow object container");
+          return StatusCode::FAILURE;
+        }
+        constits.pfoCont=pfCont.cptr();
       }//pflow
     }//retrieve track/pfo containers
 

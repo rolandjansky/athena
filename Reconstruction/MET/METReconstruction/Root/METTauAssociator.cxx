@@ -79,14 +79,14 @@ namespace met {
   {
     ATH_MSG_VERBOSE ("In execute: " << name() << "...");
 
-    const TauJetContainer* tauCont(0);
-    if( evtStore()->retrieve(tauCont, m_input_data_key).isFailure() ) {
+    SG::ReadHandle<xAOD::TauJetContainer> tauCont(m_input_data_key);
+    if (!tauCont.isValid()) {
       ATH_MSG_WARNING("Unable to retrieve input tau container " << m_input_data_key);
       return StatusCode::FAILURE;
     }
 
     ATH_MSG_DEBUG("Successfully retrieved tau collection");
-    if (fillAssocMap(metMap,tauCont).isFailure()) {
+    if (fillAssocMap(metMap,tauCont.cptr()).isFailure()) {
       ATH_MSG_WARNING("Unable to fill map with tau container " << m_input_data_key);
       return StatusCode::FAILURE;
     }

@@ -15,6 +15,8 @@
 // METReconstruction includes
 #include "METReconstruction/METTruthAssociator.h"
 
+#include "StoreGate/DataHandle.h"
+
 // xAOD EDM
 #include "xAODMissingET/MissingETComposition.h"
 #include "xAODJet/JetContainer.h"
@@ -94,46 +96,49 @@ namespace met {
 
     ATH_CHECK( associateJets(metMap) );
 
-    const ElectronContainer* electronCont(0);
-    if( evtStore()->retrieve(electronCont, m_recoElKey).isFailure() ) {
+    SG::ReadHandle<xAOD::ElectronContainer> electronCont(m_recoElKey);
+    if (!electronCont.isValid()) {
       ATH_MSG_WARNING("Unable to retrieve input electron container " << m_recoElKey);
-      return StatusCode::FAILURE;
+      return StatusCode::SUCCESS;
     }
+
     ATH_MSG_DEBUG("Successfully retrieved electron collection");
-    if(fillAssocMap(metMap,electronCont).isFailure()) {
+    if(fillAssocMap(metMap,electronCont.cptr()).isFailure()) {
       ATH_MSG_WARNING("Unable to fill map with electron container " << m_recoElKey);
       return StatusCode::FAILURE;
     }
 
-    const PhotonContainer* photonCont(0);
-    if( evtStore()->retrieve(photonCont, m_recoGamKey).isFailure() ) {
+    SG::ReadHandle<xAOD::PhotonContainer> photonCont(m_recoGamKey);
+    if (!photonCont.isValid()) {
       ATH_MSG_WARNING("Unable to retrieve input photon container " << m_recoGamKey);
       return StatusCode::FAILURE;
     }
+
     ATH_MSG_DEBUG("Successfully retrieved photon collection");
-    if(fillAssocMap(metMap,photonCont).isFailure()) {
+    if(fillAssocMap(metMap,photonCont.cptr()).isFailure()) {
       ATH_MSG_WARNING("Unable to fill map with photon container " << m_recoGamKey);
       return StatusCode::FAILURE;
     }
 
-    const MuonContainer* muonCont(0);
-    if( evtStore()->retrieve(muonCont, m_recoMuKey).isFailure() ) {
+    SG::ReadHandle<xAOD::MuonContainer> muonCont(m_recoMuKey);
+    if (!muonCont.isValid()) {
       ATH_MSG_WARNING("Unable to retrieve input muon container " << m_recoMuKey);
       return StatusCode::FAILURE;
     }
+
     ATH_MSG_DEBUG("Successfully retrieved muon collection");
-    if(fillAssocMap(metMap,muonCont).isFailure()) {
+    if(fillAssocMap(metMap,muonCont.cptr()).isFailure()) {
       ATH_MSG_WARNING("Unable to fill map with muon container " << m_recoMuKey);
       return StatusCode::FAILURE;
     }
 
-    const TauJetContainer* tauCont(0);
-    if( evtStore()->retrieve(tauCont, m_recoTauKey).isFailure() ) {
+    SG::ReadHandle<xAOD::TauJetContainer> tauCont(m_recoTauKey);
+    if (!tauCont.isValid()) {
       ATH_MSG_WARNING("Unable to retrieve input tau container " << m_recoTauKey);
       return StatusCode::FAILURE;
     }
     ATH_MSG_DEBUG("Successfully retrieved tau collection");
-    if(fillAssocMap(metMap,tauCont).isFailure()) {
+    if(fillAssocMap(metMap,tauCont.cptr()).isFailure()) {
       ATH_MSG_WARNING("Unable to fill map with tau container " << m_recoTauKey);
       return StatusCode::FAILURE;
     }
@@ -152,8 +157,8 @@ namespace met {
   StatusCode METTruthAssociator::associateJets(xAOD::MissingETAssociationMap* metMap) const
   {
     // Retrieve the jet container
-    const JetContainer* jetCont = 0;
-    if( evtStore()->retrieve(jetCont, m_recoJetKey).isFailure() ) {
+    SG::ReadHandle<xAOD::JetContainer> jetCont(m_recoJetKey);
+    if (!jetCont.isValid()) {
       ATH_MSG_WARNING("Unable to retrieve input jet container " << m_recoJetKey);
       return StatusCode::FAILURE;
     }
@@ -217,10 +222,11 @@ namespace met {
 
     ATH_MSG_VERBOSE("Added core terms.");
 
-    const TruthEventContainer* truthEventCont(0);
-    if( evtStore()->retrieve(truthEventCont, m_truthEventKey).isFailure() ) {
+    // Retrieve the truth container
+    SG::ReadHandle<xAOD::TruthEventContainer> truthEventCont(m_truthEventKey);
+    if (!truthEventCont.isValid()) {
       ATH_MSG_WARNING("Unable to retrieve input truthEvent container " << m_truthEventKey);
-      return StatusCode::FAILURE;
+      return StatusCode::SUCCESS;
     }
 
     // First truth event is the hard scatter
@@ -296,11 +302,13 @@ namespace met {
     //   if(truth && truth!=eltruth) truthlist.push_back(truth);
     // }
 
-    const TruthEventContainer* truthEventCont(0);
-    if( evtStore()->retrieve(truthEventCont, m_truthEventKey).isFailure() ) {
+    // Retrieve the truth container
+    SG::ReadHandle<xAOD::TruthEventContainer> truthEventCont(m_truthEventKey);
+    if (!truthEventCont.isValid()) {
       ATH_MSG_WARNING("Unable to retrieve input truthEvent container " << m_truthEventKey);
-      return StatusCode::FAILURE;
+      return StatusCode::SUCCESS;
     }
+
 
     // First truth event is the hard scatter
     const TruthEvent* hsevent = truthEventCont->front();
@@ -388,10 +396,11 @@ namespace met {
     //   }
     // }
 
-    const TruthEventContainer* truthEventCont(0);
-    if( evtStore()->retrieve(truthEventCont, m_truthEventKey).isFailure() ) {
+    // Retrieve the truth container
+    SG::ReadHandle<xAOD::TruthEventContainer> truthEventCont(m_truthEventKey);
+    if (!truthEventCont.isValid()) {
       ATH_MSG_WARNING("Unable to retrieve input truthEvent container " << m_truthEventKey);
-      return StatusCode::FAILURE;
+      return StatusCode::SUCCESS;
     }
 
     // First truth event is the hard scatter
