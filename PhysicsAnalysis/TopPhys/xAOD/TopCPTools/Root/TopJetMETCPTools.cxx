@@ -126,19 +126,19 @@ StatusCode JetMETCPTools::setupJetsCalibration() {
     ATH_MSG_INFO("Insitu corrections for data are not yet available and not neglible");
 
     // Data
-    m_jetAntiKt4_Data_ConfigFile          = "JES_MC16Recommendation_Nov2017.config";
+    m_jetAntiKt4_Data_ConfigFile          = "JES_MC16Recommendation_28Nov2017.config";
     m_jetAntiKt4_Data_CalibSequence       = "JetArea_Residual_EtaJES_GSC";
     // FS EM/LC
-    m_jetAntiKt4_MCFS_ConfigFile          = "JES_MC16Recommendation_Nov2017.config";
+    m_jetAntiKt4_MCFS_ConfigFile          = "JES_MC16Recommendation_28Nov2017.config";
     m_jetAntiKt4_MCFS_CalibSequence       = "JetArea_Residual_EtaJES_GSC";
     // AFII EM/LC
-    m_jetAntiKt4_MCAFII_ConfigFile        = ""; // No Rel21
-    m_jetAntiKt4_MCAFII_CalibSequence     = ""; 
+    m_jetAntiKt4_MCAFII_ConfigFile        = "JES_MC15Prerecommendation_AFII_June2015_rel21.config";
+    m_jetAntiKt4_MCAFII_CalibSequence     = "JetArea_Residual_EtaJES_GSC";
     // FS PFlow
-    m_jetAntiKt4_PFlow_MCFS_ConfigFile    = "JES_MC16Recommendation_PFlow_Nov2017.config"; // MC15c?
+    m_jetAntiKt4_PFlow_MCFS_ConfigFile    = "JES_MC16Recommendation_PFlow_28Nov2017.config"; // MC15c?
     m_jetAntiKt4_PFlow_MCFS_CalibSequence = "JetArea_Residual_EtaJES_GSC"; 
 
-    m_jetAntiKt4_Data_PFlow_ConfigFile    =  "JES_MC16Recommendation_PFlow_Nov2017.config";
+    m_jetAntiKt4_Data_PFlow_ConfigFile    =  "JES_MC16Recommendation_PFlow_28Nov2017.config";
     m_jetAntiKt4_Data_PFlow_CalibSequence =  "JetArea_Residual_EtaJES_GSC"; 
   }
 
