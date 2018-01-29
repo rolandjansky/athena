@@ -7,7 +7,8 @@ Branches that contain basic types (one value per entry in the tree)
 are stored as a 1D array of compound data type. Branches that store
 `vector<T>` are stored in a 2D array, while branches of type
 `vector<vector<T> >` are stored in a 3D array. If you want more
-dimensions feel free to [file an issue][1].
+dimensions feel free to [file an issue][1] with the original project
+(which is hosted in github).
 
 Note that **we only support the types listed above**. The purpose of
 this package is _not_ to provide a generic converter from ROOT to
@@ -41,10 +42,6 @@ The main algorithm `ttree2hdf5` is a thin wrapper on
 be a decent introduction to the higher level classes you'll need to
 interact with.
 
-As for compiling: anything in `src/` which starts with `ttree2hdf*`
-will compile into an executable by default, whereas anything in `src/`
-will compile and link to the executables by default.
-
 To Do
 -----
 
@@ -54,7 +51,15 @@ Other things I might do sometime:
  - Give the option to supply a TCut string to skim the ntuple
  - Merge with the other [root to hdf5 converter][2] I made for histograms.
 
-If you want these things, or anything else, [file an issue][1].
+Versions of this code
+=====================
+
+This code was originally a non-ATLAS project [hosted on github][3]. It
+wasn't sufficiently complicated to merit including as an external
+package, and some modifications were required to build in the ATLAS
+environment. As such the two projects may diverge.
 
 [1]: https://github.com/dguest/ttree2hdf5/issues
 [2]: https://github.com/dguest/th2hdf5
+[3]: https://github.com/dguest/ttree2hdf5
+
