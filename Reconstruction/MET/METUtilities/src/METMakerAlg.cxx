@@ -12,7 +12,7 @@
 #include "xAODMissingET/MissingETAssociationMap.h"
 
 #include "MuonSelectorTools/IMuonSelectionTool.h"
-#include "EgammaAnalysisInterfaces/IAsgElectronIsEMSelector.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronLikelihoodTool.h"
 #include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
 #include "PATCore/AcceptData.h"
 #include "TauAnalysisTools/ITauSelectionTool.h"
@@ -34,7 +34,8 @@ namespace met {
     m_PhotonContainerKey(""),
     m_TauJetContainerKey(""),
     m_MuonContainerKey(""),
-    m_JetContainerKey(""),
+    m_JetContainerKey(""), 
+    m_CoreMetKey(""),
     m_metKey(""),
     m_metMap("METAssoc"),
     m_muonSelTool(""),
@@ -46,7 +47,6 @@ namespace met {
     declareProperty( "METCoreName",    m_corename  = "MET_Core"          );
     declareProperty("METName",         m_metKey = std::string("MET_Reference"),"MET container");
     declareProperty("METMapName",      m_metMap );
-
 
     declareProperty( "METSoftClName",  m_softclname  = "SoftClus"        );
     declareProperty( "METSoftTrkName", m_softtrkname = "PVSoftTrk"       );
@@ -111,6 +111,8 @@ namespace met {
     ATH_CHECK( m_MuonContainerKey.initialize() );
     ATH_CHECK( m_JetContainerKey.assign(m_jetColl) );
     ATH_CHECK( m_JetContainerKey.initialize() );
+    ATH_CHECK( m_CoreMetKey.assign(m_corename) );
+    ATH_CHECK( m_CoreMetKey.initialize() );
     ATH_CHECK( m_metKey.initialize() );
 
     return StatusCode::SUCCESS;
@@ -130,7 +132,7 @@ namespace met {
 
     // Create a MissingETContainer with its aux store
     auto ctx = getContext();
-    auto metHandle= SG::makeHandle (m_metKey, ctx);
+    auto metHandle= SG::makeHandle (m_metKey,ctx);
     ATH_CHECK( metHandle.record (std::make_unique<xAOD::MissingETContainer>(),                      std::make_unique<xAOD::MissingETAuxContainer>()) );
     xAOD::MissingETContainer* newMet=metHandle.ptr();
 
@@ -142,11 +144,12 @@ namespace met {
     // Retrieve containers ***********************************************
 
     /// MET
-    const MissingETContainer* coreMet(0);
-    if( evtStore()->retrieve(coreMet, m_corename).isFailure() ) {
-      ATH_MSG_WARNING("Unable to retrieve MissingETContainer: " << m_corename);
-      return StatusCode::SUCCESS;
+    SG::ReadHandle<xAOD::MissingETContainer> coreMet(m_CoreMetKey);
+    if (!coreMet.isValid()) {
+      ATH_MSG_WARNING("Unable to retrieve MissingETContainer: " << m_CoreMetKey.key());
+      return StatusCode::FAILURE;
     }
+
 
     /// Jets
     SG::ReadHandle<xAOD::JetContainer> Jets(m_JetContainerKey);
@@ -190,10 +193,8 @@ namespace met {
     // Electrons
     if(!Electrons->empty()) {
       ConstDataVector<ElectronContainer> metElectrons(SG::VIEW_ELEMENTS);
-      //m_metElectrons = std::make_unique<xAOD::ElectronContainer>(SG::VIEW_ELEMENTS);//Create the object and register it with storegate
       for(const auto& el : *Electrons) {
     	if(accept(el)) {
-    	  //m_metElectrons->push_back(*el);
     	  metElectrons.push_back(el);
 
     	}
@@ -261,7 +262,7 @@ namespace met {
     }
 
     if( m_metmaker->rebuildJetMET("RefJet", m_softclname, m_softtrkname, newMet,
-				  Jets.cptr(), coreMet, metMap, false ).isFailure() ) {
+				  Jets.cptr(), coreMet.cptr(), metMap, false ).isFailure() ) {
       ATH_MSG_WARNING("Failed to build jet and soft terms.");
     }
     ATH_MSG_DEBUG("Of " << Jets.cptr()->size()  << " jets, "

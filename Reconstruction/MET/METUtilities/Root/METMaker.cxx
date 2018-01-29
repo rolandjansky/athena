@@ -159,8 +159,10 @@ namespace met {
       return StatusCode::FAILURE;
     }
 
-    // ReadHandleKey(s)
-    ATH_CHECK( m_PVkey.initialize() );
+    // ReadHandleKey(s)
+
+    ATH_CHECK( m_PVkey.initialize() );
+
     return StatusCode::SUCCESS;
   }
 
@@ -1096,23 +1098,38 @@ namespace met {
 
   const xAOD::Vertex* METMaker::getPV() const {
 
-    const xAOD::Vertex *pv = 0;
+    const xAOD::Vertex *pv = 0;
+
     SG::ReadHandle<xAOD::VertexContainer> h_PV(m_PVkey);
 
-    if (!h_PV.isValid()) {
-      ATH_MSG_WARNING("Unable to retrieve primary vertex container PrimaryVertices");
-    } else if(h_PV->empty()) {
-      ATH_MSG_WARNING("Event has no primary vertices!");
-    } else {
-      ATH_MSG_DEBUG("Successfully retrieved primary vertex container");
-      for(const auto& vx : *h_PV) {
-	       if(vx->vertexType()==xAOD::VxType::PriVtx) {
-           pv = vx; break;
-         }
-      }
-    }
-    return pv;
-  }
+    if (!h_PV.isValid()) {
+
+      ATH_MSG_WARNING("Unable to retrieve primary vertex container PrimaryVertices");
+
+    } else if(h_PV->empty()) {
+
+      ATH_MSG_WARNING("Event has no primary vertices!");
+
+    } else {
+
+      ATH_MSG_DEBUG("Successfully retrieved primary vertex container");
+
+      for(const auto& vx : *h_PV) {
+
+	       if(vx->vertexType()==xAOD::VxType::PriVtx) {
+
+           pv = vx; break;
+
+         }
+
+      }
+
+    }
+
+    return pv;
+
+  }
+
 
 
   ///////////////////////////////////////////////////////////////////

@@ -76,16 +76,15 @@ namespace met {
     SG::ReadHandleKey<xAOD::MuonContainer>          m_MuonContainerKey;
     SG::ReadHandleKey<xAOD::JetContainer>           m_JetContainerKey;
 
+    SG::ReadHandleKey<xAOD::MissingETContainer>           m_CoreMetKey;
+
     std::string m_eleColl;
     std::string m_gammaColl;
     std::string m_tauColl;
     std::string m_jetColl;
     std::string m_muonColl;
 
-
-
     SG::WriteHandleKey<xAOD::MissingETContainer> m_metKey;
-
     SG::ReadHandle<xAOD::MissingETAssociationMap> m_metMap;
 
 
