@@ -35,6 +35,8 @@
 #include "../SCT_ReadCalibChipNoiseCondAlg.h"
 
 #include "../SCT_SiliconConditionsSvc.h"
+#include "../SCT_SiliconTempCondAlg.h"
+#include "../SCT_SiliconHVCondAlg.h"
 #include "../SCT_SiliconConditionsTestAlg.h"
 
 #include "../SCT_ReadoutTool.h"
@@ -86,6 +88,8 @@ DECLARE_COMPONENT( SCT_ReadCalibDataTestAlg )
 DECLARE_COMPONENT( SCT_ReadCalibChipDataTestAlg )
 DECLARE_COMPONENT( SCT_ReadCalibChipGainCondAlg )
 DECLARE_COMPONENT( SCT_ReadCalibChipNoiseCondAlg )
+DECLARE_COMPONENT( SCT_SiliconTempCondAlg )
+DECLARE_COMPONENT( SCT_SiliconHVCondAlg )
 DECLARE_COMPONENT( SCT_SiliconConditionsTestAlg )
 DECLARE_COMPONENT( SCT_ReadoutTestAlg )
 DECLARE_COMPONENT( SCT_ReadCalibDataCondAlg )
