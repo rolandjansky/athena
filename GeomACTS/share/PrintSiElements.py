@@ -15,6 +15,7 @@ DetFlags.ID_setOn()
 DetFlags.detdescr.pixel_setOn()
 DetFlags.detdescr.SCT_setOn()
 
+
 # MC or data - affects which conditions database instance is used
 globalflags.DataSource='geant4'
 #globalflags.DataSource='data'
@@ -26,6 +27,7 @@ globalflags.DetDescrVersion = 'ATLAS-R2-2016-00-00-00'
 # print globalflags.DetDescrVersion
 
 # Initialize geometry
+# THIS ACTUALLY DOES STUFF!!
 from AtlasGeoModel import GeoModelInit
 from AtlasGeoModel import SetGeometryVersion
 

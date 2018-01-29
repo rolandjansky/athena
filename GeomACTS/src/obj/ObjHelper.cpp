@@ -104,7 +104,7 @@ ObjHelper::writePlanarFace(std::ofstream& stream,
     std::string ntphr = "/" + std::to_string(vtnCounter.ncounter);
     // now write the face
     stream << "f ";
-    for (auto v : vertices) stream << ++cvc << vtphr << ntphr << " ";
+    for (size_t i=0;i<vertices.size();++i) stream << ++cvc << vtphr << ntphr << " ";
     stream << '\n';
   }
   // now process the vertical sides
