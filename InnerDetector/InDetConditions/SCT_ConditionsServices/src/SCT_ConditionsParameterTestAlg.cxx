@@ -10,6 +10,7 @@
 #include "SCT_ConditionsParameterTestAlg.h"
 #include "SCT_ConditionsServices/ISCT_ConditionsParameterSvc.h"
 #include "SCT_ConditionsServices/SCT_ConditionsParameters.h"
+#include "SCT_ConditionsData/SCT_CondParameterData.h"
 #include "SCT_SimpleHisto.h"
 #include "SCT_ConditionsUtilities.h"
 
@@ -91,12 +92,12 @@ StatusCode SCT_ConditionsParameterTestAlg::execute() {
   }
 
   try {
-    float maxval{m_conditionsParameterSvc->max(AVG_THRESHOLD)};
-    float minval{m_conditionsParameterSvc->min(AVG_THRESHOLD)};
-    float avg{m_conditionsParameterSvc->avg(AVG_THRESHOLD)};
-    float sd{m_conditionsParameterSvc->sd(AVG_THRESHOLD)};
-    unsigned int n{m_conditionsParameterSvc->n(AVG_THRESHOLD)};
-    float thresh{m_conditionsParameterSvc->value(IdentifierHash{1760}, AVG_THRESHOLD)};
+    float maxval{m_conditionsParameterSvc->max(SCT_CondParameterData::AVG_THRESHOLD)};
+    float minval{m_conditionsParameterSvc->min(SCT_CondParameterData::AVG_THRESHOLD)};
+    float avg{m_conditionsParameterSvc->avg(SCT_CondParameterData::AVG_THRESHOLD)};
+    float sd{m_conditionsParameterSvc->sd(SCT_CondParameterData::AVG_THRESHOLD)};
+    unsigned int n{m_conditionsParameterSvc->n(SCT_CondParameterData::AVG_THRESHOLD)};
+    float thresh{m_conditionsParameterSvc->value(IdentifierHash{1760}, SCT_CondParameterData::AVG_THRESHOLD)};
     ATH_MSG_INFO("   value element 1760: " << thresh);
     ATH_MSG_INFO("        max threshold: " << maxval);
     ATH_MSG_INFO("        min threshold: " << minval);
@@ -111,7 +112,7 @@ StatusCode SCT_ConditionsParameterTestAlg::execute() {
   SCT_ConditionsServices::S_t histo;
   init(histo, 0.0, 8.0, 100);
   std::vector<float> values;
-  m_conditionsParameterSvc->getValues(values, AVG_THRESHOLD);
+  m_conditionsParameterSvc->getValues(values, SCT_CondParameterData::AVG_THRESHOLD);
   for (float i: values) {
     fill(histo, i);
   }
