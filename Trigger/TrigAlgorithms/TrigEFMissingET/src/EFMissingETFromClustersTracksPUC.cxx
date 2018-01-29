@@ -145,18 +145,6 @@ StatusCode EFMissingETFromClustersTracksPUC::execute(xAOD::TrigMissingET * /* me
   // set status to Processing
   metComp->m_status |= m_maskProcessing;
 
-  // std::vector<const xAOD::Jet*> JetsVec(jetContainer->begin(), jetContainer->end());
-  // ATH_MSG_DEBUG( "num of jets: " << JetsVec.size() );
-
-  // std::vector<const xAOD::TrackParticle*> TracksVec(trackContainer->begin(), trackContainer->end());
-  // ATH_MSG_DEBUG( "num of tracks: " << TracksVec.size() );
-
-  // std::vector<const xAOD::Vertex*> VertexVec(vertexContainer->begin(), vertexContainer->end());
-  // ATH_MSG_DEBUG( "num of vertices: " << VertexVec.size() );
-
-  //  std::vector<const xAOD::Jet*> hardScatterJets;
-  //  std::vector<const xAOD::Jet*> pileupJets;
-
   ConstDataVector<xAOD::JetContainer> hardScatterJets(SG::VIEW_ELEMENTS);
   ConstDataVector<xAOD::JetContainer> pileupJets(SG::VIEW_ELEMENTS);
   
@@ -176,12 +164,12 @@ StatusCode EFMissingETFromClustersTracksPUC::execute(xAOD::TrigMissingET * /* me
       break;
     }
   }
-  //  for (const xAOD::Jet* jet : JetsVec) {  
+
   for (const auto& jet : *jetContainer) {
     if (primaryVertex) {
       if (fabs(jet.eta() ) < 2.4) {
 	double ptsum_pv = 0;
-	for (const auto& itrk : *trackContainer) {//xAOD::TrackParticle* itrk : TrackVec) {
+	for (const auto& itrk : *trackContainer) {
 	  bool accept = (itrk->pt()> m_track_ptcut && m_trackselTool->accept(*itrk, primaryVertex));
 	  if (accept && (itrk->vertex() && itrk->vertex()==primaryVertex)) ptsum_pv += itrk->pt();
 	}
@@ -315,10 +303,13 @@ StatusCode EFMissingETFromClustersTracksPUC::execute(xAOD::TrigMissingET * /* me
     float pt = iclus->pt(xAOD::CaloCluster::CALIBRATED);
     float sinPhi;
     float cosPhi;
+    float eta = clus->eta(xAOD::CaloCluster::CALIBRATED);
     sincosf(iclus->phi(xAOD::CaloCluster::CALIBRATED), &sinPhi, &cosPhi);
     ex -= pt * cosPhi;
     ey -= pt * sinPhi;
+    ez += pt * sinhf(eta);
     sumEt  += pt;
+    sumE += iclus->p4(xAOD::CaloCluster::CALIBRATED).E();
   }
   // Apply corrections
   for (unsigned int ii = 0; ii < hardScatterJets.size(); ++ii) {
@@ -329,10 +320,6 @@ StatusCode EFMissingETFromClustersTracksPUC::execute(xAOD::TrigMissingET * /* me
     ey += corrections[ii][0] * sinPhi;
     sumEt  -= corrections[ii][0];
   }
-  //  component->setEx(ex);
-  //  component->setEy(ey);
-  //  component->setSumEt(sumEt);
-
   
   // At the end make sure that you stored your calculated met values in the component
   metComp->m_ex = ex;
