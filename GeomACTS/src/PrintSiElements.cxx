@@ -38,10 +38,12 @@
 #include "ACTS/Tools/TrackingGeometryBuilder.hpp"
 #include "ACTS/Tools/TrackingVolumeArrayCreator.hpp"
 #include "ACTS/Tools/ITrackingVolumeBuilder.hpp"
-#include "ACTS/Plugins/GeoModelPlugin/GeoModelLayerBuilder.hpp"
 
+#include "GeomACTS/GeoModelLayerBuilder.hpp"
 #include "GeomACTS/obj/ObjSurfaceWriter.hpp"
 #include "GeomACTS/obj/ObjTrackingGeometryWriter.hpp"
+
+#include "GeoModelKernel/GeoPrintGraphAction.h"
 
 #include <iostream>
 #include <sstream>
@@ -110,6 +112,9 @@ StatusCode PrintSiElements::initialize() {
 }
 
 StatusCode PrintSiElements::printElements(const std::string& managerName) {
+  const InDetDD::SiDetectorManager* siDetManager;
+  ATH_CHECK(detStore()->retrieve(siDetManager, managerName));
+
   const InDetDD::SiDetectorManager* manager;
   ATH_CHECK(detStore()->retrieve(manager, managerName));
 
@@ -276,91 +281,6 @@ StatusCode PrintSiElements::printElements(const std::string& managerName) {
 
 
 
-
-  return StatusCode::SUCCESS;
-
-  InDetDD::SiDetectorElementCollection::const_iterator iter;
-  for (iter = manager->getDetectorElementBegin();
-       iter != manager->getDetectorElementEnd(); ++iter) {
-    const InDetDD::SiDetectorElement* element = *iter;
-    if (element) {
-      Amg::Transform3D trans;
-      Amg::Transform3D defTrans;
-
-      trans = element->transform();
-      defTrans = element->defTransform();
-
-      auto center = element->center();
-
-      Identifier id = element->identify();
-      int det = 0;
-      int bec = 0;
-      int layer_disk = 0;
-      int phi_module = 0;
-      int eta_module = 0;
-      int side = 0;
-      int layer_disk_max = 0;
-
-      //// Get identifier fields.
-      if (element->isPixel()) {
-        const PixelID* pixIdHelper =
-            dynamic_cast<const PixelID*>(element->getIdHelper());
-        if (pixIdHelper) {
-          det = 1;
-          bec = pixIdHelper->barrel_ec(id);
-          layer_disk = pixIdHelper->layer_disk(id);
-          phi_module = pixIdHelper->phi_module(id);
-          eta_module = pixIdHelper->eta_module(id);
-          layer_disk_max = pixIdHelper->layer_disk_max(id);
-          side = 0;
-        }
-      } else {  // SCT
-        const SCT_ID* sctIdHelper =
-            dynamic_cast<const SCT_ID*>(element->getIdHelper());
-        if (sctIdHelper) {
-          det = 2;
-          bec = sctIdHelper->barrel_ec(id);
-          layer_disk = sctIdHelper->layer_disk(id);
-          phi_module = sctIdHelper->phi_module(id);
-          eta_module = sctIdHelper->eta_module(id);
-          layer_disk_max = sctIdHelper->layer_disk_max(id);
-          side = sctIdHelper->side(id);
-        }
-      }
-
-      InDetDD::DetectorShape shape = element->design().shape();
-
-      // Eigen::Vector3d ctr;
-      // ctr << center.x(), center.y(), center.z();
-      // std::cout << ctr << std::endl;
-
-      if (bec == 0) {
-        // ctrAvg += ctr;
-        // nlem += 1;
-        std::cout << DUMP(det) << " " << DUMP(bec) << " " << DUMP(layer_disk)
-                  << " " << DUMP(phi_module) << " ";
-        std::cout << DUMP(eta_module) << " " << DUMP(side) << " " << PRV(center)
-                  << std::endl;
-        std::cout << DUMP(layer_disk_max) << std::endl;
-      }
-
-      // if(shape == InDetDD::Trapezoid) {
-      ////const Trk::SurfaceBounds *bounds = &element->bounds();
-      // auto trap = dynamic_cast<const
-      // Trk::TrapezoidBounds*>(&element->bounds());
-      // double minHLX = trap->minHalflengthX();
-      // double maxHLX = trap->maxHalflengthX();
-      // double hlY = trap->halflengthY();
-      // std::cout << minHLX << ", " << maxHLX << ", " << hlY << std::endl;
-
-      //}
-    }
-  }
-
-  // ctrAvg /= nElem;
-
-  // std::cout << DUMP(nElem) << std::endl;
-  // std::cout << DUMP(ctrAvg) << std::endl;
 
   return StatusCode::SUCCESS;
 }

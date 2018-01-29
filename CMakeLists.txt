@@ -7,13 +7,6 @@
 # Set the minimum required CMake version:
 cmake_minimum_required( VERSION 3.2 FATAL_ERROR )
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-pedantic")
-include(GNUInstallDirs)
-set(ACTS_BUILD_EXAMPLES OFF)
-set(ACTS_BUILD_GEOMODEL_PLUGIN ON)
-set(ACTS_BUILD_TESTS OFF)
-add_subdirectory(${CMAKE_SOURCE_DIR}/acts-core)
-
 
 # If there's a directory called AtlasCMake in the project,
 # and the user didn't specify AtlasCMake_DIR yet, then let's
@@ -41,14 +34,20 @@ find_package( Athena )
 atlas_ctest_setup()
 
 # Set up a work directory project:
-atlas_project( WorkDir 21.0.39
-   USE Athena 21.0.39
+atlas_project( WorkDir 21.0.39 USE Athena 21.0.39
    FORTRAN )
 
 # Set up the runtime environment setup script(s):
 lcg_generate_env( SH_FILE ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/env_setup.sh )
 install( FILES ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/env_setup.sh
    DESTINATION . )
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-pedantic")
+include(GNUInstallDirs)
+set(ACTS_BUILD_EXAMPLES OFF)
+set(ACTS_BUILD_GEOMODEL_PLUGIN ON)
+set(ACTS_BUILD_TESTS OFF)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/acts-core)
 
 # Set up CPack:
 atlas_cpack_setup()
