@@ -15,7 +15,8 @@ This code should be edited as necessary and then placed in the TrigEFMissingET/T
 
 #include "TrigEFMissingET/EFMissingETBaseTool.h"
 #include "TrigMissingEtEvent/TrigMissingET.h"
-
+#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
+#include "GaudiKernel/ToolHandle.h"
 
 class EFMissingETFromClustersTracksPUC : public EFMissingETBaseTool
 {
@@ -41,8 +42,24 @@ class EFMissingETFromClustersTracksPUC : public EFMissingETBaseTool
 
   private:
     int  m_methelperposition;
+    // Tower
+    double m_targetTowerWidth;
+    double m_maxEta;
 
-    // Put internals here
+    // For jet selection
+    double m_forward_ptcut;
+    double m_track_ptcut;
+    double m_minJetPtJvt;
+    double m_maxJetPtJvt;
+    double m_jetRpTCut;
+    ToolHandle<InDet::IInDetTrackSelectionTool> m_trackselTool;
+
+    //Covariance variables
+    double m_caloResSqrtTerm;
+    double m_caloResFloor;
+
+    // Pufit variables
+    double m_constraintWeight;
 };
 
 #endif // TRIGEFMISSINGET_EFMissingETFromClustersTracksPUC_H
