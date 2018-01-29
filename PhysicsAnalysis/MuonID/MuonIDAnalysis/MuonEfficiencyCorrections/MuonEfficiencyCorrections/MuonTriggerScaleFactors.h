@@ -60,6 +60,8 @@ namespace CP {
             // for single lepton triggers
             virtual CorrectionCode getTriggerScaleFactor(const xAOD::MuonContainer& mucont, Double_t& triggersf, const std::string& trigger);
 
+            virtual CorrectionCode getTriggerScaleFactor(const xAOD::Muon& muon, Double_t& triggersf, const std::string& trigger);
+
             virtual CorrectionCode getTriggerEfficiency(const xAOD::Muon& mu, Double_t& efficiency, const std::string& trigger, Bool_t dataType);
 
             virtual bool isAffectedBySystematic(const CP::SystematicVariation& systematic) const;
@@ -70,6 +72,8 @@ namespace CP {
 
             virtual CP::SystematicCode applySystematicVariation(const CP::SystematicSet& systConfig);
 
+            virtual int getBinNumber(const xAOD::Muon& muon, const std::string& trigger);
+      
             virtual double dR(const double eta1, const double phi1, const double eta2, const double phi2) const;
 
             //
@@ -81,6 +85,8 @@ namespace CP {
             virtual CorrectionCode GetTriggerSF_dimu(Double_t& TriggerSF, TrigMuonEff::Configuration& configuration, const xAOD::MuonContainer& mucont, const std::string& trigger);
 
             virtual CorrectionCode GetTriggerSF(Double_t& TriggerSF, TrigMuonEff::Configuration& configuration, const xAOD::MuonContainer& mucont, const std::string& trigger);
+
+            virtual CorrectionCode GetTriggerSF(Double_t& TriggerSF, TrigMuonEff::Configuration& configuration, const xAOD::Muon& muon, const std::string& trigger);
 
             virtual CorrectionCode getDimuonEfficiency(Double_t& eff, const TrigMuonEff::Configuration& configuration, const xAOD::MuonContainer& mucont, const std::string& chain, const std::string& systematic);
 
@@ -140,6 +146,7 @@ namespace CP {
             std::string m_binning;
 
             bool m_allowZeroSF;
+            bool m_experimental;
             //Variables for toy replicas setup
             std::vector<std::string> m_replicaTriggerList;
             std::set<std::string> m_replicaSet; //set of triggers for replicas, for fast searching
