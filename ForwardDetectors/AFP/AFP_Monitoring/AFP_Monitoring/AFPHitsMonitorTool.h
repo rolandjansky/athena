@@ -5,12 +5,16 @@
 #ifndef AFPHITSMONITORTOOL_H
 #define AFPHITSMONITORTOOL_H
 
-#include <vector>
-#include <string>
+#include "AFPSiStationMonitor.h"
 
 #include <AthenaMonitoring/ManagedMonitorToolBase.h>
 
-#include "AFPSiStationMonitor.h"
+#include <vector>
+#include <string>
+
+#include "AFP_Monitoring/AFPSiStationMonitor.h"
+#include "AFP_Monitoring/AFPSiLayerMonitor.h"
+
 
 class AFPHitsMonitorTool : public ManagedMonitorToolBase
 {
@@ -21,24 +25,25 @@ public:
 
   virtual ~AFPHitsMonitorTool();
 
-  virtual StatusCode bookHistogramsRecurrent();
-  virtual StatusCode bookHistograms();
-  virtual StatusCode fillHistograms();
-  virtual StatusCode procHistograms();
+  StatusCode bookHistogramsRecurrent() override;
+  StatusCode bookHistograms() override;
+  StatusCode fillHistograms() override;
+  StatusCode procHistograms() override;
 
   ///@brief name of directory to store histograms
   std::string histsDirectoryName() {return m_histsDirectoryName;}
 
 protected:
-  static const int s_cNearStationIndex;
-  static const int s_cFarStationIndex;
-  const std::string m_histsDirectoryName;
+  const std::string m_histsDirectoryName; ///< name of directory for all histograms
   
   AFPSiStationMonitor m_cNearStation;		///< station on C side that is closer to the interaction point
   AFPSiStationMonitor m_cFarStation;		///< station on C side that is further away from the interaction point
+  AFPSiStationMonitor m_aNearStation;		///< station on A side that is closer to the interaction point
+  AFPSiStationMonitor m_aFarStation;		///< station on A side that is further away from the interaction point
 
   std::vector<AFPSiStationMonitor*> m_stationsMonitors;
   
+  void makeLayerSummaryHist (const std::string inputHistName, const std::string outputHistName, const std::string outputHistTitle);
 };
 
 #endif

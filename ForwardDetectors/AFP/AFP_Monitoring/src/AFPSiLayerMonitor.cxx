@@ -9,6 +9,8 @@
 #include <LWHists/TH1F_LW.h>
 #include <LWHists/TH2F_LW.h>
 
+#include "xAODForward/AFPStationID.h"
+
 #include "../AFP_Monitoring/AFPSiLayerMonitor.h"
 
 AFPSiLayerMonitor::AFPSiLayerMonitor(const int pixelLayerID, const int stationID)
@@ -19,7 +21,19 @@ AFPSiLayerMonitor::AFPSiLayerMonitor(const int pixelLayerID, const int stationID
    ,m_hitMultiplicity(nullptr)
    ,m_timeOverThreshold(nullptr)
 {
+  m_hotSpotStartRow  = 0;
+  m_hotSpotEndRow = 50;
 
+  if (m_stationID == xAOD::AFPStationID::nearC || m_stationID == xAOD::AFPStationID::farC) {
+    m_hotSpotStartCol = 0;
+    m_hotSpotEndCol = 30;
+  }
+  else {
+    m_hotSpotStartCol = 50;
+    m_hotSpotEndCol = 80;
+  }
+
+  m_hitMultiplicityHotSpot = nullptr;
 }
 
 
@@ -30,6 +44,7 @@ AFPSiLayerMonitor::~AFPSiLayerMonitor()
 // Description: Used for re-booking managed histograms       
 void AFPSiLayerMonitor::bookHistograms(ManagedMonitorToolBase* toolToStoreHistograms, const std::string histsDirName)
 {
+  m_histsDirName = histsDirName;
   
   // ********** Per lumi block **********
   ManagedMonitorToolBase::MonGroup managed_booking_lumiBlock( toolToStoreHistograms, histsDirName.data(), toolToStoreHistograms->lumiBlock);   // to re-booked every luminosity block
@@ -39,8 +54,8 @@ void AFPSiLayerMonitor::bookHistograms(ManagedMonitorToolBase* toolToStoreHistog
   std::string hitMapName = makeHistName("h_hitMap");
   std::string hitMapTitle = makeHistName("Map of hits");
 
-  const int nRows = 80;
-  const int nColumns = 336;
+  constexpr int nRows = 80;
+  constexpr int nColumns = 336;
 
 
   // create and register histogram
@@ -57,11 +72,24 @@ void AFPSiLayerMonitor::bookHistograms(ManagedMonitorToolBase* toolToStoreHistog
   std::string hitMultiplicityName = makeHistName("h_hitMultiplicity");
   std::string hitMultiplicityTitle = makeHistTitle("Number of hits per event");
 
-  m_hitMultiplicity = TH1F_LW::create(hitMultiplicityName.data(),
-				      hitMultiplicityTitle.data(),
-				      40, -0.5, 39.5);
+  m_hitMultiplicity = new TH1F(hitMultiplicityName.data(),
+			       hitMultiplicityTitle.data(),
+			       40, -0.5, 39.5);
+  m_hitMultiplicity->StatOverflows(); // need to use overflows for calculation of mean
 
   toolToStoreHistograms->regHist( m_hitMultiplicity, managed_booking_lumiBlock ).ignore();
+
+
+  // create histogram name and title
+  std::string hitMultiplicityNameHotSpot = makeHistName("h_hitMultiplicityHotSpot");
+  std::string hitMultiplicityTitleHotSpot = makeHistTitle("Number of hits per event in the hot spot");
+
+  m_hitMultiplicityHotSpot = new TH1F(hitMultiplicityNameHotSpot.data(),
+				      hitMultiplicityTitleHotSpot.data(),
+				      40, -0.5, 39.5);
+  m_hitMultiplicityHotSpot->StatOverflows(); // need to use overflows for calculation of mean
+
+  toolToStoreHistograms->regHist( m_hitMultiplicityHotSpot, managed_booking_lumiBlock ).ignore();
 
 
   // ----- hit charge -----
@@ -69,9 +97,10 @@ void AFPSiLayerMonitor::bookHistograms(ManagedMonitorToolBase* toolToStoreHistog
   std::string timeOverThresholdName = makeHistName("h_timeOverThreshold");
   std::string timeOverThresholdTitle = makeHistTitle("Time over threshold");
 
-  m_timeOverThreshold = TH1F_LW::create(timeOverThresholdName.data(),
-				      timeOverThresholdTitle.data(),
-					16, -0.5, 15.5);
+  m_timeOverThreshold = new TH1F(timeOverThresholdName.data(),
+				 timeOverThresholdTitle.data(),
+				 16, -0.5, 15.5);
+  m_timeOverThreshold->StatOverflows();  // need to use overflows for calculation of mean
 
   toolToStoreHistograms->regHist( m_timeOverThreshold, managed_booking_lumiBlock ).ignore();
 }
@@ -82,10 +111,9 @@ void AFPSiLayerMonitor::fillHistograms(const xAOD::AFPSiHit& hit)
   // update variables
   m_hitsInEvent++;
 
-  if (m_hitsInEvent <= 2) {
-    m_rowIDs.push_back(hit.pixelRowIDChip());
-    m_colIDs.push_back(hit.pixelColIDChip());
-  }
+  if (hit.pixelColIDChip() > m_hotSpotStartCol && hit.pixelColIDChip() < m_hotSpotEndCol)
+    if (hit.pixelRowIDChip() > m_hotSpotStartRow && hit.pixelRowIDChip() < m_hotSpotEndRow)
+      m_hitsInEventHotSpot++;
 
   // fill histograms
   m_hitMap->Fill(hit.pixelColIDChip(), hit.pixelRowIDChip());
@@ -96,11 +124,11 @@ void AFPSiLayerMonitor::eventEnd()
 {
   // fill histograms
   m_hitMultiplicity->Fill(m_hitsInEvent);
+  m_hitMultiplicityHotSpot->Fill(m_hitsInEventHotSpot);
 
   // reset variables
   m_hitsInEvent = 0;
-  m_rowIDs.clear();
-  m_colIDs.clear();
+  m_hitsInEventHotSpot = 0;
 }
 
 void AFPSiLayerMonitor::endOfLumiBlock(ManagedMonitorToolBase* /* toolToStoreHistograms */)

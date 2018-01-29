@@ -5,13 +5,11 @@
 #ifndef AFP_MONITORING_AFPSILAYERMONITOR_H
 #define AFP_MONITORING_AFPSILAYERMONITOR_H
 
-#include <list>
-
 #include <xAODForward/AFPSiHit.h>
 
 // forward declarations for lightweight histograms
-class LWHist1D;
 class LWHist2D;
+class TH1;
 
 class ManagedMonitorToolBase;
 
@@ -30,27 +28,37 @@ public:
 
   /// number of hits counted so far in the event
   unsigned int hitsInEvent() const {return m_hitsInEvent;}
-  const std::list<int> rowIDs() const {return m_rowIDs;}
-  const std::list<int> colIDs() const {return m_colIDs;}
 
-protected:
+  int layerID () const {return m_pixelLayerID;}
+
   std::string makeHistName (const std::string name) const; ///< create a name suffixed with station and layer numbers
   std::string makeHistTitle (const std::string title) const; ///< create a title suffixed with station and layer numbers
 
+  const std::string& histsDirName () const {return m_histsDirName;}
+
+protected:
   // internal variables
   const int m_pixelLayerID;
   const int m_stationID;
 
+  std::string m_histsDirName;
+  
   unsigned int m_hitsInEvent;
-  std::list<int> m_rowIDs;
-  std::list<int> m_colIDs;
 
   // histograms
   LWHist2D* m_hitMap;
-  LWHist1D* m_hitMultiplicity;
-  LWHist1D* m_timeOverThreshold;
 
-  
+  // must be TH1 because overflows need to be included in mean
+  TH1* m_hitMultiplicity;
+  TH1* m_timeOverThreshold;
+
+  int m_hotSpotStartRow;
+  int m_hotSpotEndRow;
+  int m_hotSpotStartCol;
+  int m_hotSpotEndCol;
+  unsigned int m_hitsInEventHotSpot;
+  //  must be TH1 because overflows need to be included in mean
+  TH1* m_hitMultiplicityHotSpot; 
 };
 
 #endif
