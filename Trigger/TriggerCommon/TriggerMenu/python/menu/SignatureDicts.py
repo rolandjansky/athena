@@ -140,7 +140,7 @@ JetChainParts = {
     
     # Et cut by the jet build tool (ptminFilter)
     'recoCutCalib': ['rccDefault', 'rcc0', 'rcc5'],
-    'dj': ['dj80aet!120bet!100m150!50deta!dphi40', 'dj30aet!50bet!900m!dphi260'],
+    'dj': ['dj30aetZ50betZ900mZdphi260'],
 
 }
 

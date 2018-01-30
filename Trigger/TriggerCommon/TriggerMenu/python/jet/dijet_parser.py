@@ -8,7 +8,7 @@ def _dj_parse(s):
     low and max limits. """
     
     error =  False
-    tokens = s.split('!')
+    tokens = s.split('Z')
     result = {}
     for t in tokens:
         m = cut_re.match(t)
@@ -84,7 +84,7 @@ def dijet_parser(s, args):
 
     assert s.startswith('dj')
     s = s[2:]
-    dijet_params = [_dj_decode_one(t) for t in s.split('?')]
+    dijet_params = [_dj_decode_one(t) for t in s.split('ZZ')]
     errors = [e[0] for e in dijet_params]
     if any(errors): return True
     
@@ -116,12 +116,12 @@ def dijet_parser(s, args):
     return False
 if __name__ == '__main__':
     good = (
-        'dj80aet!120bet!100m150!50deta!dphi40?90aet120!120bet240!100m150!50deta!dphi40',
+        'dj80aetZ120betZ100m150Z50detaZdphi40ZZ90aet120Z120bet240Z100m150Z50detaZdphi40',
         'dj10aet20',
         'djaeta20',
         'dj10bet20',
         'djbeta20',
-        'djaet100!320aeta450!deta10!150m'
+        'djaet100Z320aeta450Zdeta10Z150m'
     )
 
     bad = ('dj10aet2000', # too many digits
@@ -140,7 +140,7 @@ if __name__ == '__main__':
         else:
             print 'ok, expect ok   ', i
 
-    print 'tests : %d expected errors  %d, otained errors %d' % (n,
+    print 'tests : %d expected errors  %d, obtained errors %d' % (n,
                                                                  errs,
                                                                  0)
 
@@ -158,12 +158,12 @@ if __name__ == '__main__':
             print 'ok, expect error   ', i
 
 
-    print 'tests : %d expected errors  %d, otained errors %d' % (n,
+    print 'tests : %d expected errors  %d, obtained errors %d' % (n,
                                                                  errs,
                                                                  n)
     
 
-    s = 'dj30aet!50bet!900m!dphi260'
+    s = 'dj30aetZ50betZ900mZdphi260'
     args = {}
     err =  dijet_parser(s, args)
     if err:
