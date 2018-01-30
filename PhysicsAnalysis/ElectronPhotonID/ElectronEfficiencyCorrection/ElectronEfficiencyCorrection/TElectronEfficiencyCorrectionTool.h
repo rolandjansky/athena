@@ -85,11 +85,15 @@ namespace Root {
 
         ///Helpers to get the binning of the uncertainties
         int getNbins(std::map<float, std::vector<float> >&) const; 
-        inline int getNSyst() const {return m_nSysMax;}  ;
+        inline int getNSyst() const {
+            return m_nSysMax;
+        }
         ///Detail Level
         enum detailLevel{simple,medium,detailed,detailLevelEnd};
         /// Set the detail level 
-        inline void setDetailLevel ( const int input_detailLevel ) { m_detailLevel = input_detailLevel; }
+        inline void setDetailLevel ( const int input_detailLevel ) { 
+            m_detailLevel = input_detailLevel; 
+        }
         ///Set the Random Seed
         inline void setSeed( const unsigned long int seed) { m_seed = seed; }
 
@@ -98,11 +102,15 @@ namespace Root {
         /// Load all histograms from the input file(s)
         int getHistograms();
         int getHistogramInDirectory( TKey *key );
-        int setupHistogramsInFolder( const TObjArray& dirNameArray, int lastIdx );
+        int setupHistogramsInFolder( const TObjArray& dirNameArray, 
+                int lastIdx );
         void calcDetailLevels(TH1D *eig) ;
 
-        std::vector<TObjArray> buildToyMCTable (const TObjArray &sf, const TObjArray &eig, 
-                const TObjArray& stat, const TObjArray& uncorr, const std::vector<TObjArray> &corr);
+        std::vector<TObjArray> buildToyMCTable (const TObjArray &sf, 
+                const TObjArray &eig, 
+                const TObjArray& stat, 
+                const TObjArray& uncorr, 
+                const std::vector<TObjArray> &corr);
 
         std::vector<TH2D*> buildSingleToyMC(TH2D *sf, TH2D* stat, TH2D* uncorr, const TObjArray& corr);
 
@@ -112,9 +120,11 @@ namespace Root {
         int setup( const TObjArray& hist,
                 std::vector< TObjArray >& histList,
                 std::vector< unsigned int >& beginRunNumberList,
-                std::vector< unsigned int >& endRunNumberList );
+                std::vector< unsigned int >& endRunNumberList,
+                const int runNumBegin,
+                const int runNumEnd) const ;
 
-        int setupSys( std::vector<TObjArray> & hist,
+        int setupSys(std::vector<TObjArray> & hist,
                 std::vector< std::vector< TObjArray>> & histList);
        private :
         ///Private data members
@@ -123,34 +133,30 @@ namespace Root {
         int m_detailLevel;
         bool m_doToyMC;
         bool m_doCombToyMC;
-        ///
-        int m_toyMCSF;
+        //The number of toys
         int m_nToyMC;
-        //
-        /// The seed
+        /// The Random seed
         unsigned long int m_seed;
         ///
         int m_sLevel[detailLevelEnd];
         int m_nSys;
         int m_nSysMax;
-        int m_runNumBegin;
-        int m_runNumEnd;
-        /// The positions of the efficiency scale factor correlated sustematic uncertainties in the result
+        // The positions of the efficiency scale factor correlated sustematic uncertainties in the result
         std::vector<int> m_position_corrSys; 
         /// The positions of the toy MC scale factors
         std::vector<int> m_position_uncorrToyMCSF; ///Uncorrelated toy systematics
-        ///
+        ///The representation of the prepared toy SF tables
         std::vector< std::vector<TObjArray>> m_uncorrToyMCSystFull;
         std::vector< std::vector<TObjArray>> m_uncorrToyMCSystFast;
         /// The list of file name(s)
         std::vector< std::string > m_corrFileNameList;
-        /// List of run numbers where histgrams become valid for full simulation
+        /// List of run numbers where histograms become valid for full simulation
         std::vector< unsigned int > m_begRunNumberList;
-        /// List of run numbers where histgrams stop being valid for full simulation
+        /// List of run numbers where histograms stop being valid for full simulation
         std::vector< unsigned int > m_endRunNumberList;
-        /// List of run numbers where histgrams become valid for fast simulation
+        /// List of run numbers where histograms become valid for fast simulation
         std::vector< unsigned int > m_begRunNumberListFastSim;
-        /// List of run numbers where histgrams stop being valid for fast simulation
+        /// List of run numbers where histograms stop being valid for fast simulation
         std::vector< unsigned int > m_endRunNumberListFastSim;    
         //The vector holding the keys
         std::vector<int> m_keys;
@@ -160,7 +166,7 @@ namespace Root {
         /// List of histograms for fast simulation
         std::map<int, std::vector< TObjArray > > m_fastHistList;
         std::vector< std::vector< TObjArray > > m_fastSysList;
-     
+        //The Randomw generator class   
         TRandom3 m_Rndm;
     }; // End: class definition
 

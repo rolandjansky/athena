@@ -72,14 +72,11 @@ Root::TElectronEfficiencyCorrectionTool::TElectronEfficiencyCorrectionTool(const
     m_detailLevel(2),
     m_doToyMC(false),
     m_doCombToyMC(false),
-    m_toyMCSF(-1),
     m_nToyMC(0),
     m_seed(0),
     m_sLevel{0},
     m_nSys(0),
     m_nSysMax(0),
-    m_runNumBegin(0),
-    m_runNumEnd(0),
     m_Rndm()
 {
     //Setup the keys
@@ -778,24 +775,27 @@ int Root::TElectronEfficiencyCorrectionTool::getHistograms() {
 // =============================================================================
 int Root::TElectronEfficiencyCorrectionTool::setupHistogramsInFolder(const TObjArray& dirNameArray, int lastIdx) {
 
-    ATH_MSG_DEBUG(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << "entering funtion setupHistogramsInFolder");
+    ATH_MSG_DEBUG(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " 
+            << "entering funtion setupHistogramsInFolder");
 
-    m_runNumBegin = -1;
+    int runNumBegin(-1);
     TString myBegRunNumString = ((TObjString *) dirNameArray.At(lastIdx - 1))->GetString();
     if (myBegRunNumString.IsDigit()) {
-        m_runNumBegin = myBegRunNumString.Atoi();
+        runNumBegin = myBegRunNumString.Atoi();
     }
-    m_runNumEnd = -1;
+    int runNumEnd(-1);
     TString myEndRunNumString = ((TObjString *) dirNameArray.At(lastIdx))->GetString();
     if (myEndRunNumString.IsDigit()) {
-        m_runNumEnd = myEndRunNumString.Atoi();
+        runNumEnd = myEndRunNumString.Atoi();
     }
-    if (m_runNumBegin < 0 || m_runNumEnd < 0 || m_runNumEnd < m_runNumBegin) {
-        ATH_MSG_ERROR(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << "Could NOT interpret the run number range: " << m_runNumBegin
-                << " - " << m_runNumEnd);
+    if (runNumBegin < 0 || runNumEnd < 0 || runNumEnd < runNumBegin) {
+        ATH_MSG_ERROR(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " 
+                << "Could NOT interpret the run number range: " << runNumBegin
+                << " - " << runNumEnd);
         return 0;
     }
-    ATH_MSG_DEBUG(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << m_runNumBegin << "  " << m_runNumEnd);
+    ATH_MSG_DEBUG(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " 
+            << runNumBegin << "  " << runNumEnd);
     //
     /// setup pairs of obj arrays and keys --> e.g. "sf", new Array to take all SF Histos
     std::map<int, TObjArray> objsFull;
@@ -810,7 +810,6 @@ int Root::TElectronEfficiencyCorrectionTool::setupHistogramsInFolder(const TObjA
     objsFull.insert(std::make_pair(mapkey::sys, dummyFull));
     TObjArray dummyFast;
     objsFast.insert(std::make_pair(mapkey::sys, dummyFast));
-    //---------------------------------------------------------
     //
     std::vector<TObjArray > sysObjsFull;
     std::vector<TObjArray > sysObjsFast;
@@ -908,33 +907,35 @@ int Root::TElectronEfficiencyCorrectionTool::setupHistogramsInFolder(const TObjA
                 }
             } else {
                 ATH_MSG_ERROR(
-                        " (file: " << __FILE__ << ", line: " << __LINE__ << ") " << "Could NOT interpret if the histogram: " << obj->GetName()
+                        " (file: " << __FILE__ << ", line: " << __LINE__ << ") " 
+                        << "Could NOT interpret if the histogram: " << obj->GetName()
                         << " is full or fast simulation!");
                 return 0;
             }
         }
     }
 
-    ATH_MSG_DEBUG(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << "setting up histograms for run ranges  " <<
-            m_runNumEnd);
+    ATH_MSG_DEBUG(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " 
+            << "setting up histograms for run ranges  " <<
+            runNumEnd);
     //
     //The setup here copies from the temporaties created in this function , 
     //to the actual class member variables.
     for (unsigned int ikey = 0; ikey < m_keys.size(); ++ikey) {
         if (objsFull.find(m_keys.at(ikey))->second.GetEntries() != 0) {
-            if (0 ==
-                    setup(objsFull.find(m_keys.at(ikey))->second, m_histList[m_keys.at(ikey)], 
-                        m_begRunNumberList,m_endRunNumberList)) {
-                ATH_MSG_ERROR(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << "! Could NOT setup histogram " 
+            if (0 == setup(objsFull.find(m_keys.at(ikey))->second, m_histList[m_keys.at(ikey)], 
+                        m_begRunNumberList,m_endRunNumberList,runNumBegin,runNumEnd)) {
+                ATH_MSG_ERROR(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " 
+                        << "! Could NOT setup histogram " 
                         << m_keys.at(ikey)<< " for full sim!");
                 return 0;
             }
         }
         if (objsFast.find(m_keys.at(ikey))->second.GetEntries() != 0) {
-            if (0 ==
-                    setup(objsFast.find(m_keys.at(ikey))->second, m_fastHistList[m_keys.at(ikey)],
-                        m_begRunNumberListFastSim, m_endRunNumberListFastSim)) {
-                ATH_MSG_ERROR(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " << "! Could NOT setup histogram " << m_keys.at(ikey)
+            if (0 == setup(objsFast.find(m_keys.at(ikey))->second, m_fastHistList[m_keys.at(ikey)],
+                        m_begRunNumberListFastSim, m_endRunNumberListFastSim,runNumBegin,runNumEnd)) {
+                ATH_MSG_ERROR(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " 
+                        << "! Could NOT setup histogram " << m_keys.at(ikey)
                         << " for fast sim");
                 return 0;
             }
@@ -942,7 +943,8 @@ int Root::TElectronEfficiencyCorrectionTool::setupHistogramsInFolder(const TObjA
     }
     for (unsigned int sys = 0; sys < sysObjsFast.size(); sys++) {
         m_fastSysList.resize(sysObjsFast.size());
-        if (0 == setup(sysObjsFast.at(sys), m_fastSysList[sys], m_begRunNumberListFastSim, m_endRunNumberListFastSim)) {
+        if (0 == setup(sysObjsFast.at(sys), m_fastSysList[sys], m_begRunNumberListFastSim, 
+                    m_endRunNumberListFastSim,runNumBegin,runNumEnd)) {
             ATH_MSG_ERROR(" (file: " << __FILE__ << ", line: " << __LINE__ << ") " <<
                     "! Could NOT setup systematic histograms for fast sim");
             return 0;
@@ -950,7 +952,8 @@ int Root::TElectronEfficiencyCorrectionTool::setupHistogramsInFolder(const TObjA
     }
     for (unsigned int sys = 0; sys < sysObjsFull.size(); sys++) {
         m_sysList.resize(sysObjsFull.size());
-        if (0 == setup(sysObjsFull.at(sys), m_sysList[sys], m_begRunNumberList, m_endRunNumberList)) {
+        if (0 == setup(sysObjsFull.at(sys), m_sysList[sys], m_begRunNumberList, 
+                    m_endRunNumberList,runNumBegin,runNumEnd)) {
             ATH_MSG_ERROR(
                     " (file: " << __FILE__ << ", line: " << __LINE__ << ") " <<
                     "! Could NOT setup systematic histograms for fast sim");
@@ -1025,7 +1028,9 @@ int
 Root::TElectronEfficiencyCorrectionTool::setup(const TObjArray& hists,
         std::vector< TObjArray> &histList,
         std::vector< unsigned int > &beginRunNumberList,
-        std::vector< unsigned int > &endRunNumberList) {
+        std::vector< unsigned int > &endRunNumberList,
+        const int runNumBegin,
+        const int runNumEnd) const {
     if (hists.GetEntriesFast()==0) {
         ATH_MSG_ERROR(
                 "(file: " << __FILE__ << ", line: " << __LINE__ << ") " << "! Could NOT find histogram with name *_sf in folder");
@@ -1039,18 +1044,18 @@ Root::TElectronEfficiencyCorrectionTool::setup(const TObjArray& hists,
     // Now, we have all the needed info. Fill the vectors accordingly
     histList.push_back(hists);
     if (beginRunNumberList.size() > 0) {
-        if (m_runNumBegin != (int) beginRunNumberList.back()) {
-            beginRunNumberList.push_back(m_runNumBegin);
+        if (runNumBegin != (int) beginRunNumberList.back()) {
+            beginRunNumberList.push_back(runNumBegin);
         }
     }else {
-        beginRunNumberList.push_back(m_runNumBegin);
+        beginRunNumberList.push_back(runNumBegin);
     }
     if (endRunNumberList.size() > 0) {
-        if (m_runNumEnd != (int) endRunNumberList.back()) {
-            endRunNumberList.push_back(m_runNumEnd);
+        if (runNumEnd != (int) endRunNumberList.back()) {
+            endRunNumberList.push_back(runNumEnd);
         }
     }else {
-        endRunNumberList.push_back(m_runNumEnd);
+        endRunNumberList.push_back(runNumEnd);
     }
     return 1;
 }
