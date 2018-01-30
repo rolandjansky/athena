@@ -299,7 +299,7 @@ def getTauVertexVariables():
                                             VertexFitter = getTauAdaptiveVertexFitter(),
                                             #VertexFitter = "Trk::AdaptiveVertexFitter/InDetAdaptiveVxFitterTool",
                                             SeedFinder = getTauCrossDistancesSeedFinder(),
-                                            XAODConverter = "Trk::VxCandidateXAODVertex/VertexInternalEdmFactory", # ATM only needed in case old API is used
+                                            #XAODConverter = "Trk::VxCandidateXAODVertex/VertexInternalEdmFactory", # ATM only needed in case old API is used
                                             TrackParticleContainer = _DefaultTrackContainer, # ATM only needed in case old API is used
                                             useOldSeedFinderAPI = useOldSeedFinderAPI,
                                             runOnAOD = bAODmode,
