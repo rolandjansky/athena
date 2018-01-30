@@ -762,6 +762,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
 
 
     //********************************************************************************
+    std::vector<const xAOD::TrackParticleContainer*> vectorGSFTrackParticleContainer;
     if (m_doBremCollection){ 
 
       ATH_MSG_DEBUG("In m_doBremCollection");
@@ -802,12 +803,13 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
       xAOD::TrackParticleContainer *GSFTrigTrackParticles = new xAOD::TrackParticleContainer();
       xAOD::TrackParticleAuxContainer* GSFTPaux = new xAOD::TrackParticleAuxContainer();
       GSFTrigTrackParticles->setStore(GSFTPaux);
-	
+
       if (m_BremCollectionBuilderTool->hltExecute(clusContainer,tracks,refitTracks, GSFTrigTrackParticles ).isFailure()){
 	ATH_MSG_ERROR("Problem executing " << m_BremCollectionBuilderTool);
 	return HLT::ERROR;  
       }
 
+      vectorGSFTrackParticleContainer.push_back(GSFTrigTrackParticles);
       for (const xAOD::TrackParticle *trk:*GSFTrigTrackParticles) {
             ATH_MSG_DEBUG("GSFTrigTrackParticles pt is: " << trk->pt());
       }
@@ -827,7 +829,13 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
         ATH_MSG_ERROR("REGTEST: trigger xAOD::TrackParticleContainer for GSF attach to TE and record into StoreGate failed");
         return HLT::NAV_ERROR;
       }
-
+      // test:
+      std::vector<const xAOD::TrackParticleContainer*> testTrackParticleContainer;
+      stat = getFeatures(outputTE, testTrackParticleContainer);
+      const xAOD::TrackParticleContainer *testTracks = testTrackParticleContainer.back();
+      for (const xAOD::TrackParticle *trk:*testTracks) {
+            ATH_MSG_DEBUG("test track pt is: " << trk->pt());
+      }
 
 
     }
@@ -856,8 +864,11 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
                     << " REGTEST: empty TrackParticleContainer from TE, m_trackMatchBuilder: " << m_trackMatchBuilder << endreq;
 
             } else {
-                // Get the pointer to last TrackParticleContainer 
-                pTrackParticleContainer = vectorTrackParticleContainer.back();
+                // Get the pointer to last TrackParticleContainer
+                if(m_doBremCollection){
+                    pTrackParticleContainer = vectorGSFTrackParticleContainer.back();
+                } 
+                else pTrackParticleContainer = vectorTrackParticleContainer.back();
                 m_doTrackMatching = true;
                 if(!pTrackParticleContainer){
                     m_doTrackMatching = false;
@@ -976,7 +987,10 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
     }
                 
     ElementLinkVector<xAOD::TrackParticleContainer> trackLinks;
-    stat=getFeaturesLinks< xAOD::TrackParticleContainer, xAOD::TrackParticleContainer > (inputTE, trackLinks, "");
+    if(m_doBremCollection){
+        stat=getFeaturesLinks< xAOD::TrackParticleContainer, xAOD::TrackParticleContainer > (outputTE, trackLinks, "");
+    }
+    else stat=getFeaturesLinks< xAOD::TrackParticleContainer, xAOD::TrackParticleContainer > (inputTE, trackLinks, "");
     if ( stat != HLT::OK ) {
         ATH_MSG_ERROR("REGTEST: No TrackParticleLinks retrieved for the trigger element");
             //May need to add ERROR codes for online debugging
