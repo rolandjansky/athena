@@ -440,14 +440,14 @@ namespace Athena_test
     D1* d1Alias = 0;
     assert (sg.retrieve(d1Alias, "d1Alias").isSuccess());
     assert(d1Alias == d1);
-    assert (dp->refCount() == 3); // add one alias
+    assert (dp->refCount() == 4); // add one alias
 
     // create alias with pointer
     assert (sg.setAlias(d1, "d1AnotherAlias").isSuccess());
     D1* d1AnotherAlias = 0;
     assert (sg.retrieve(d1AnotherAlias, "d1AnotherAlias").isSuccess());
     assert (d1AnotherAlias == d1);
-    assert (dp->refCount() == 4); // add another alias
+    assert (dp->refCount() == 6); // add another alias
 
     // record another object
     D1* d2 = new D1;
@@ -467,11 +467,11 @@ namespace Athena_test
 
     // Check refcount handling for making duplicate symlinks.
 
-    assert (dp->refCount() == 3);
+    assert (dp->refCount() == 4);
 
     assert (sg.symLink (d1, (B1*)0).isSuccess());
     // Refcount should be the same.
-    assert (dp->refCount() == 3);
+    assert (dp->refCount() == 4);
 
     // Loop up by transient addr.  Both should work.
     assert (dp == sg.proxy (d1));
