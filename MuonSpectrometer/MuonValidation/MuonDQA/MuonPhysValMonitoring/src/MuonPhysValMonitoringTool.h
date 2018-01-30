@@ -117,7 +117,7 @@ class MuonPhysValMonitoringTool
   const xAOD::MuonSegment* findRecoMuonSegment(const xAOD::MuonSegment* truthMuSeg);
   xAOD::Muon* getCorrectedMuon(const xAOD::Muon &mu);
     
-  const xAOD::TrackParticleContainer* MSTracks;
+  const xAOD::TrackParticleContainer* m_MSTracks;
   
   TH1F* findHistogram(std::vector<HistData> hists,std::string hnameTag,std::string hdirTag,std::string hNewName);
   void modifyHistogram(TH1* hist);
@@ -152,7 +152,7 @@ class MuonPhysValMonitoringTool
   std::vector<std::string> m_muonItems;
   std::vector<std::string> m_L1Seed;
   std::vector<std::string> m_L1MuonItems;
-  int SelectedAuthor;
+  int m_SelectedAuthor;
   std::vector<unsigned int> m_selectMuonCategories;  
   bool m_doBinnedResolutionPlots;
   bool m_doTrigMuonValidation;
@@ -199,13 +199,13 @@ class MuonPhysValMonitoringTool
   std::vector<SlowMuonValidationPlots*> m_slowMuonValidationPlots;
   
   //overview hists
-  std::vector<TH1F*> h_overview_nObjects;
-  TH1F* h_overview_reco_category;
-  std::vector<TH1F*> h_overview_reco_authors;
+  std::vector<TH1F*> m_h_overview_nObjects;
+  TH1F* m_h_overview_reco_category;
+  std::vector<TH1F*> m_h_overview_reco_authors;
 
-  TH1F *h_overview_Z_mass;
-  TH1F *h_overview_Z_mass_ME;
-  TH1F *h_overview_Z_mass_ID;
+  TH1F *m_h_overview_Z_mass;
+  TH1F *m_h_overview_Z_mass_ME;
+  TH1F *m_h_overview_Z_mass_ID;
 
   std::vector<const xAOD::TruthParticle*> m_vMatchedTruthMuons;
   std::vector<const xAOD::Muon*> m_vMatchedMuons;
