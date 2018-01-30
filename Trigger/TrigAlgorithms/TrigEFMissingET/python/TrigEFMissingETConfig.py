@@ -1190,6 +1190,8 @@ class EFMissingET_Fex_topoClustersTracksPUC (EFMissingETBase):
         self.MissingETOutputKey = "TrigEFMissingET_topocltrk_PUC"
         self.doTopoClusters = True
         self.doPUC = True
+        self.doJets = True
+        self.doTracks = True
 
         # tools
         clusterTool = EFMissingETFromClustersTracksPUC("TheClusterToolTracksPUC")
