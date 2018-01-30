@@ -5,4 +5,4 @@
 # an "origin/" prefix before it. For tags however this is explicitly
 # forbidden.
 
-AtlasExternalsVersion = e4b7dde3
+AtlasExternalsVersion = ff8564ed
