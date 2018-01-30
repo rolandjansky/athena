@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef __TELECTRONEFFICIENCYCORRECTIONTOOL__
@@ -18,6 +18,7 @@
 // STL includes
 #include <vector>
 #include <string>
+#include <array>
 #include <map>
 //Root fwd declares
 class TKey;
@@ -66,8 +67,7 @@ namespace Root {
                 const double cluster_eta,
                 const double et, /* in MeV */
                 size_t& index_of_corr,
-                size_t& index_of_toys)
-            const;
+                size_t& index_of_toys) const;
 
         /// Add an input file
         inline void addFileName ( const std::string& val ) { 
@@ -91,7 +91,7 @@ namespace Root {
         ///Detail Level
         enum detailLevel{simple,medium,detailed,detailLevelEnd};
         /// Set the detail level 
-        inline void setDetailLevel ( const int input_detailLevel ) { 
+        inline void setDetailLevel (const int input_detailLevel ) { 
             m_detailLevel = input_detailLevel; 
         }
         ///Set the Random Seed
@@ -103,10 +103,15 @@ namespace Root {
         // Private methods
         /// Load all histograms from the input file(s)
         int getHistograms();
+
         int getHistogramInDirectory( TKey *key );
+
         int setupHistogramsInFolder( const TObjArray& dirNameArray, 
                 int lastIdx );
-        void calcDetailLevels(TH1D *eig) ;
+
+        void calcDetailLevels(const TH1D *eig,
+                std::array<int,detailLevelEnd>& sLevel,
+                int& nSys) const ;
 
         std::vector<TObjArray> buildToyMCTable (const TObjArray &sf, 
                 const TObjArray &eig, 
@@ -114,16 +119,19 @@ namespace Root {
                 const TObjArray& uncorr, 
                 const std::vector<TObjArray> &corr);
 
-        std::vector<TH2D*> buildSingleToyMC(TH2D *sf, 
-                TH2D* stat, 
-                TH2D* uncorr, 
+        std::vector<TH2D*> buildSingleToyMC(const TH2D* sf, 
+                const TH2D* stat, 
+                const TH2D* uncorr, 
                 const TObjArray& corr,
+                const std::array<int,detailLevelEnd> sLevel,
                 int& randomCounter);
 
-        TH2D* buildSingleCombToyMC(TH2D *sf, 
-                TH2D* stat, 
-                TH2D* uncorr, 
+        TH2D* buildSingleCombToyMC(const TH2D *sf, 
+                const TH2D* stat, 
+                const TH2D* uncorr, 
                 const TObjArray& corr,
+                const std::array<int,detailLevelEnd> sLevel,
+                const int nSys,
                 int& randomCounter);
 
         /// Fill and interpret the setup, depending on which histograms are found in the input file(s)
@@ -134,8 +142,6 @@ namespace Root {
                 const int runNumBegin,
                 const int runNumEnd) const ;
 
-        int setupSys(std::vector<TObjArray> & hist,
-                std::vector< std::vector< TObjArray>> & histList);
     private :
         ///Private data members
         bool m_doToyMC;
@@ -146,9 +152,7 @@ namespace Root {
         int m_nToyMC;
         /// The Random seed
         unsigned long int m_seed;
-        ///
-        int m_sLevel[detailLevelEnd];
-        int m_nSys;
+        ///Maximum number of systematics
         int m_nSysMax;
         // The positions of the efficiency scale factor correlated sustematic uncertainties in the result
         std::vector<int> m_position_corrSys; 
