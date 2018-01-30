@@ -13,6 +13,7 @@
 #                   
 ######################################################################### 
 
+SHELL = /bin/bash
 
 
 
@@ -72,7 +73,7 @@ move :
 	mv ../test/$(XMLFILE) ../test/$(XMLFILE).bak
 	mv $(XMLFILE) ../test	
 
-all: $(XMLFILE)
+all: $(XMLFILE) artfiles
 
 $(FILES) : $(JOBS)
 
@@ -89,6 +90,8 @@ scripts : $(patsubst %.xml,$(SCRIPTDIR)/%.sh,$(JOBS))
 $(SCRIPTDIR)/%.sh : %.xml
 	../utils/mkargs -o $(SCRIPTDIR) $< 
 
+artfiles : 
+	../utils/mkartlist
 
 duff: 
 	echo $(patsubst %.xml,../scripts/%.sh,$(JOBS))

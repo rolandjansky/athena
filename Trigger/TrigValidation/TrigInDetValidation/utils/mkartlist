@@ -1,0 +1,45 @@
+#!/bin/bash
+
+cd ..
+
+files=
+
+i=0
+
+for job in $(grep include TIDAbuild/TrigInDetValidation_TestConfiguration_main.xml  | grep -v \! | awk '{print $3}' | sed 's|\"||g') ; do 
+
+    file=$(echo $job | tr '[:upper:]' '[:lower:]' | sed 's|\.xml|\.sh|g')
+
+    BUILD=0
+
+    [ -e test/$file ] && continue
+
+    file=test_$file
+
+    if [ -e test/$file ]; then 
+	[ TIDAbuild/$job -nt test/$file ] && BUILD=1 && files="$files $job"
+    else
+	BUILD=1
+	files="$files $job"
+    fi 
+ 	
+    if [ $BUILD -eq 1 ]; then
+	echo "will build: TIDAbuild/$job -> test/$file"
+	utils/mkart -c TIDAbuild/$job -o test
+#	ls -l TIDAbuild/$job test/$file
+#	echo
+    fi
+
+    ((i++))
+
+done
+
+[ -z "$files" ] && exit 
+
+
+echo 
+echo "rebuilt art scripts:"
+echo $files
+
+
+
