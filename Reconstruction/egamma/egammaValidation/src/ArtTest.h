@@ -3,6 +3,9 @@
 
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/Property.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ITHistSvc.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 
 #include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
@@ -18,19 +21,18 @@ class ArtTest : public AthAlgorithm
 {
  public:
 
-  // Output File
-  TFile *myfile; //!
+  /// Tools and services ///
+  ITHistSvc*    rootHistSvc;
 
   // Histos
-  
   // General Info
-  TH1D *evtNmb; //!
+  TH1D *m_evtNmb = 0; //!
 
   // Electron
-  TH1D *pT_ElTrk_All; //!
-  TH1D *pT_ElTrk_LLH; //! 
-  TH1D *pT_ElTrk_MLH; //!
-  TH1D *pT_ElTrk_TLH; //!
+  TH1D *m_pT_ElTrk_All = 0; //!
+  TH1D *m_pT_ElTrk_LLH = 0; //! 
+  TH1D *m_pT_ElTrk_MLH = 0; //!
+  TH1D *m_pT_ElTrk_TLH = 0; //!
 
   ArtTest (const std::string& name, ISvcLocator* pSvcLocator);
   

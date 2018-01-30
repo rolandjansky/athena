@@ -54,12 +54,8 @@ print " BEGINNING "
 c1 = ROOT.TCanvas("c1", "c1", 1200, 900)
 c1.Divide(2, 2)
 
-print "CIAO 0"
-
 style=ROOT.gStyle
 style.SetOptStat(0)
-
-print "CIAO 1"
 
 el_LLH_Eff_Base.Divide(el_pt_LLH_Base, el_pt_All_Base)
 el_LLH_Eff_ART.Divide(el_pt_LLH_ART, el_pt_All_ART)
