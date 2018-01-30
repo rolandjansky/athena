@@ -104,8 +104,6 @@ namespace Root {
         /// Load all histograms from the input file(s)
         int getHistograms();
 
-        int getHistogramInDirectory( TKey *key );
-
         int setupHistogramsInFolder( const TObjArray& dirNameArray, 
                 int lastIdx );
 
