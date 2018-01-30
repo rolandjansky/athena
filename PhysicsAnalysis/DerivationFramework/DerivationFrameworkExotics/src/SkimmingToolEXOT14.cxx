@@ -125,7 +125,7 @@ bool DerivationFramework::SkimmingToolEXOT14::eventPassesFilter() const
   bool writeEvent(false);
 
   const xAOD::EventInfo *eventInfo(0);
-  ATH_CHECK(evtStore()->retrieve(eventInfo));
+  ATH_CHECK(evtStore()->retrieve(eventInfo), false);
   m_isMC = eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION);   
 
   // int *leading    = new int(0);
@@ -173,7 +173,7 @@ bool DerivationFramework::SkimmingToolEXOT14::SubcutLArError() const {
 
   // Retrieve EventInfo
   const xAOD::EventInfo *eventInfo(0);
-  ATH_CHECK(evtStore()->retrieve(eventInfo)); 
+  ATH_CHECK(evtStore()->retrieve(eventInfo), false);
 
   e_passLArError = !(eventInfo->errorState(xAOD::EventInfo::LAr) == xAOD::EventInfo::Error);
   
@@ -186,7 +186,7 @@ bool DerivationFramework::SkimmingToolEXOT14::SubcutLArError() const {
 bool DerivationFramework::SkimmingToolEXOT14::SubcutTrigger() const {
 
   const xAOD::EventInfo *eventInfo(0);
-  ATH_CHECK(evtStore()->retrieve(eventInfo));
+  ATH_CHECK(evtStore()->retrieve(eventInfo), false);
 
   e_passTrigger = false;
 
@@ -210,7 +210,7 @@ bool DerivationFramework::SkimmingToolEXOT14::SubcutPreselect() const {
 
   // xAOD::TStore store;
   const xAOD::JetContainer *jets(0); 
-  ATH_CHECK(evtStore()->retrieve(jets, m_jetSGKey));
+  ATH_CHECK(evtStore()->retrieve(jets, m_jetSGKey), false);
   xAOD::JetContainer::const_iterator jet_itr(jets->begin());
   xAOD::JetContainer::const_iterator jet_end(jets->end());
 

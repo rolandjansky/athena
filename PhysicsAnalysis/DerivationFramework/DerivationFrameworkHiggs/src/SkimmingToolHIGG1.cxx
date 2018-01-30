@@ -165,7 +165,7 @@ bool DerivationFramework::SkimmingToolHIGG1::eventPassesFilter() const
   bool writeEvent(false);
 
   const xAOD::EventInfo *eventInfo(0);
-  ATH_CHECK(evtStore()->retrieve(eventInfo));
+  ATH_CHECK(evtStore()->retrieve(eventInfo), false);
   m_isMC = eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION);   
 
   if (!SubcutGoodRunList() && m_reqGRL      ) return false;
@@ -217,7 +217,7 @@ bool DerivationFramework::SkimmingToolHIGG1::SubcutLArError() const {
 
   // Retrieve EventInfo
   const xAOD::EventInfo *eventInfo(0);
-  ATH_CHECK(evtStore()->retrieve(eventInfo)); 
+  ATH_CHECK(evtStore()->retrieve(eventInfo), false);
 
   e_passLArError = !(eventInfo->errorState(xAOD::EventInfo::LAr) == xAOD::EventInfo::Error);
   
@@ -249,7 +249,7 @@ bool DerivationFramework::SkimmingToolHIGG1::SubcutTrigger() const {
 bool DerivationFramework::SkimmingToolHIGG1::SubcutPreselect() const {
 
   const xAOD::PhotonContainer *photons(0); 
-  ATH_CHECK(evtStore()->retrieve(photons, m_photonSGKey));
+  ATH_CHECK(evtStore()->retrieve(photons, m_photonSGKey), false);
   xAOD::PhotonContainer::const_iterator ph_itr(photons->begin());
   xAOD::PhotonContainer::const_iterator ph_end(photons->end());
 
@@ -475,12 +475,12 @@ double DerivationFramework::SkimmingToolHIGG1::ReturnRZ_1stSampling_cscopt2(doub
 bool DerivationFramework::SkimmingToolHIGG1::SubcutOnePhotonOneElectron() const {
 
   const xAOD::PhotonContainer *photons(0); 
-  ATH_CHECK(evtStore()->retrieve(photons, m_photonSGKey));
+  ATH_CHECK(evtStore()->retrieve(photons, m_photonSGKey), false);
   xAOD::PhotonContainer::const_iterator ph_itr(photons->begin());
   xAOD::PhotonContainer::const_iterator ph_end(photons->end());
 
   const xAOD::ElectronContainer *electrons(0);
-  ATH_CHECK(evtStore()->retrieve(electrons, m_electronSGKey));
+  ATH_CHECK(evtStore()->retrieve(electrons, m_electronSGKey), false);
   xAOD::ElectronContainer::const_iterator el_itr(electrons->begin());
   xAOD::ElectronContainer::const_iterator el_end(electrons->end());
 
@@ -504,7 +504,7 @@ bool DerivationFramework::SkimmingToolHIGG1::SubcutOnePhotonOneElectron() const 
 bool DerivationFramework::SkimmingToolHIGG1::SubcutTwoElectrons() const {
 
   const xAOD::ElectronContainer *electrons(0);
-  ATH_CHECK(evtStore()->retrieve(electrons, m_electronSGKey));
+  ATH_CHECK(evtStore()->retrieve(electrons, m_electronSGKey), false);
   xAOD::ElectronContainer::const_iterator el_itr(electrons->begin());
   xAOD::ElectronContainer::const_iterator el_end(electrons->end());
 
@@ -526,12 +526,12 @@ bool DerivationFramework::SkimmingToolHIGG1::SubcutTwoElectrons() const {
 bool DerivationFramework::SkimmingToolHIGG1::SubcutOnePhotonOneMuon() const {
 
   const xAOD::PhotonContainer *photons(0); 
-  ATH_CHECK(evtStore()->retrieve(photons, m_photonSGKey));
+  ATH_CHECK(evtStore()->retrieve(photons, m_photonSGKey), false);
   xAOD::PhotonContainer::const_iterator ph_itr(photons->begin());
   xAOD::PhotonContainer::const_iterator ph_end(photons->end());
 
   const xAOD::MuonContainer *muons(0);
-  ATH_CHECK(evtStore()->retrieve(muons, m_muonSGKey));
+  ATH_CHECK(evtStore()->retrieve(muons, m_muonSGKey), false);
   xAOD::MuonContainer::const_iterator mu_itr(muons->begin());
   xAOD::MuonContainer::const_iterator mu_end(muons->end());
 
