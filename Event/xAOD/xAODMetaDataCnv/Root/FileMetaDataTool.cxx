@@ -6,6 +6,7 @@
 
 // Local include(s):
 #include "xAODMetaDataCnv/FileMetaDataTool.h"
+#include "xAODCore/tools/PrintHelpers.h"
 
 namespace xAODMaker {
 
@@ -68,6 +69,8 @@ namespace xAODMaker {
          ATH_MSG_WARNING( "Processing input files with differing conditions" );
          ATH_MSG_WARNING( "Consistent xAOD::FileMetaData can't be provided for "
                         "the output" );
+         ATH_MSG_INFO("Reference metadata " << *m_md);
+         ATH_MSG_INFO("New file metadata " << input);
       }
 
       // Return gracefully:
