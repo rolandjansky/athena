@@ -73,7 +73,7 @@ namespace Root {
         inline void addFileName ( const std::string& val ) { 
             m_corrFileNameList.push_back(val); 
         }
-         ///MC Toys Helper functions
+        ///MC Toys Helper functions
         inline void bookToyMCScaleFactors(const int nToyMC) {
             m_doToyMC = true;
             m_nToyMC = nToyMC;
@@ -95,7 +95,9 @@ namespace Root {
             m_detailLevel = input_detailLevel; 
         }
         ///Set the Random Seed
-        inline void setSeed( const unsigned long int seed) { m_seed = seed; }
+        inline void setSeed( const unsigned long int seed) { 
+            m_seed = seed; 
+        }
 
     private:
         // Private methods
@@ -112,9 +114,17 @@ namespace Root {
                 const TObjArray& uncorr, 
                 const std::vector<TObjArray> &corr);
 
-        std::vector<TH2D*> buildSingleToyMC(TH2D *sf, TH2D* stat, TH2D* uncorr, const TObjArray& corr);
+        std::vector<TH2D*> buildSingleToyMC(TH2D *sf, 
+                TH2D* stat, 
+                TH2D* uncorr, 
+                const TObjArray& corr,
+                int& randomCounter);
 
-        TH2D* buildSingleCombToyMC(TH2D *sf, TH2D* stat, TH2D* uncorr, const TObjArray& corr);
+        TH2D* buildSingleCombToyMC(TH2D *sf, 
+                TH2D* stat, 
+                TH2D* uncorr, 
+                const TObjArray& corr,
+                int& randomCounter);
 
         /// Fill and interpret the setup, depending on which histograms are found in the input file(s)
         int setup( const TObjArray& hist,
@@ -126,13 +136,12 @@ namespace Root {
 
         int setupSys(std::vector<TObjArray> & hist,
                 std::vector< std::vector< TObjArray>> & histList);
-       private :
+    private :
         ///Private data members
-        int m_randomCounter;
-        /// The detail level
-        int m_detailLevel;
         bool m_doToyMC;
         bool m_doCombToyMC;
+        //// The detail level
+        int m_detailLevel;
         //The number of toys
         int m_nToyMC;
         /// The Random seed
