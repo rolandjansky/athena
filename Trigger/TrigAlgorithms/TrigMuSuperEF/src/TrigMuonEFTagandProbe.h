@@ -48,12 +48,14 @@ class TrigMuonEFTagandProbe: public virtual HLT::FexAlgo { //TaP algorithm will 
   void match_thresh(TaPMuon tap,std::vector<std::vector <float>* >& thresh_mon);
   void match_thresh(const xAOD::Muon* muon,std::vector<std::vector <float>* >& thresh_mon);
 
+  //Soon to be depreciated 
   unsigned int mu_count=0;                                                                                                  
   unsigned int hit=0; // Tracks total number of LVL2 muons with matching level 1 triggers
   unsigned int total=0; // Total number of LVL2 muons
-
+  //
 
   std::vector<const xAOD::Muon*> m_good_muons;
+  //Soon to be depreciated
   std::vector<float> m_dimuon_invmass;
   std::vector<float> m_delta_r_tag;
   std::vector<float> m_delta_r_probepass;
@@ -66,7 +68,7 @@ class TrigMuonEFTagandProbe: public virtual HLT::FexAlgo { //TaP algorithm will 
   std::vector<float> m_delta_r_thresh4;
   std::vector<float> m_delta_r_thresh5;
   std::vector<float> m_delta_r_thresh6;
-
+  //
   
 
   //Ideally I would want to change this to have each histogram set in it's own TDirectory but I don't know how yet
@@ -221,8 +223,6 @@ class TrigMuonEFTagandProbe: public virtual HLT::FexAlgo { //TaP algorithm will 
 
   
   const DataVector<LVL1::RecMuonRoI>* m_l1_muon_RoIs; //To access Storegate need to use DataVector pointer which always assumes pointer elements
-  
-  //std::vector<const LVL1::RecMuonRoI*> m_l1_muon_RoIs; //Keep in case we need a container of good RoIs
   
   bool m_debug; //Flag for conditional DEBUG output
   bool m_verbose;
