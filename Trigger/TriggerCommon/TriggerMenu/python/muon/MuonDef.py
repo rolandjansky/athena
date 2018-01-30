@@ -1222,14 +1222,15 @@ class L2EFChain_mu(L2EFChainDef):
                                'EF_CB_ROI']]
       self.EFsequenceList += [['EF_CB_ROI',
                                 [theTrigMuonEFCombinerMultiHypoConfig],
-                               'EF_CB_FS']] #Can I leave this the same? - no
-      # testphrase
-      TrigMuonEFTagandProbeInstance = TrigMuonEFTagandProbeConfig()
-      self.EFsequenceList += [['EF_CB_FS',
-                               [TrigMuonEFTagandProbeInstance],
-                               'EF_CB_FSTaP']]
+                               'EF_CB_FS']] 
 
-
+      if 'TagandProbe' in self.chainPart['FSinfo']:
+        TrigMuonEFTagandProbeInstance = TrigMuonEFTagandProbeConfig()
+        self.EFsequenceList += [['EF_CB_FS',
+                                 [TrigMuonEFTagandProbeInstance],
+                                 'EF_CB_FSTaP']]
+        
+        
     ########### Signatures ###########
       
     self.EFsignatureList += [ [['EF_dummy']] ]
@@ -1241,7 +1242,9 @@ class L2EFChain_mu(L2EFChainDef):
       self.EFsignatureList += [ [['EF_CB_FS_single']] ]
       self.EFsignatureList += [ [['EF_CB_ROI']] ]
       self.EFsignatureList += [ [['EF_CB_FS','EF_SA_FS2']] ]
-      self.EFsignatureList += [ [['EF_CB_FSTaP']] ]
+      if 'TagandProbe' in self.chainPart['FSinfo']:
+        self.EFsignatureList += [ [['EF_CB_FSTaP']] ]
+
 
     ########### TE renaming ##########
 
@@ -1260,11 +1263,14 @@ class L2EFChain_mu(L2EFChainDef):
         'EF_CB_ROI': mergeRemovingOverlap('EF_CB_ROI_','SAFSRoi'), 
  #       'EF_CB_FS_ma': mergeRemovingOverlap('EF_CB_FS_ma_', 'SAFSHypo'+hypocut+'_'+hypocutEF),
         'EF_CB_FS': mergeRemovingOverlap('EF_CB_FS_', 'SAFSHypo'+hypocut+'_'+hypocutEF),
-        'EF_CB_FSTaP': mergeRemovingOverlap('EF_CB_FSTaP_', 'SAFSHypo'+hypocut+'_'+hypocutEF), #testphrase, what am I doing?
+#        'EF_CB_FSTaP': mergeRemovingOverlap('EF_CB_FSTaP_', 'SAFSHypo'+hypocut+'_'+hypocutEF), #testphrase, what am I doing?
 
-      }
-
-
+        }
+    if 'msonly' not in self.chainPart['reccalibInfo'] and 'TagandProbe' in self.chainPart['FSinfo']:
+      self.TErenamingDict['EF_CB_FSTaP'] = mergeRemovingOverlap('EF_CB_FSTaP_', 'SAFSHypo'+hypocut+'_'+hypocutEF)
+      
+      
+      
  #################################################################################################
   #################################################################################################
   def setup_muXX_noL1FTK(self):
