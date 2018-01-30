@@ -14,6 +14,8 @@ namespace pool {
   // forward declarations
   class DatabaseConnectionPolicy;
   class ITransaction;
+  class IFileCatalog;
+   
 
   namespace PersistencySvc {
     // forward declarations

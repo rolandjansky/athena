@@ -12,13 +12,13 @@
 */
 #include "FileCatalog/CommandLine.h"
 #include "FileCatalog/IFileCatalog.h"
-#include "FileCatalog/FCException.h"
-#include "FileCatalog/IFCAction.h"
+#include "FileCatalog/URIParser.h"
 #include "POOLCore/Exception.h"
-#include "CoralBase/MessageStream.h"
-#include "CoralBase/MessageStream.h"
+#include "POOLCore/SystemTools.h"
 #include <memory>
+
 using namespace pool;
+
 void printUsage(){
   std::cout<<"usage: FCregisterLFN -l lfname -p pfname [-u contactstring -h]" <<std::endl;
 }
@@ -37,6 +37,8 @@ int main(int argc, char** argv)
 
     if( commands.Exists("u") ){
       myuri=commands.GetByName("u");
+    }else{
+       myuri=SystemTools::GetEnvStr("POOL_CATALOG");
     }    
     if( commands.Exists("p") ){
       mypfn=commands.GetByName("p");
@@ -60,17 +62,15 @@ int main(int argc, char** argv)
   }
   try{
     std::auto_ptr<IFileCatalog> mycatalog(new IFileCatalog);
-    mycatalog->setWriteCatalog(myuri);
-    FCregister r;
-    mycatalog->setAction(r);
+    pool::URIParser p( myuri );
+    p.parse();
+    mycatalog->setWriteCatalog( p.contactstring() );
     mycatalog->connect();
     mycatalog->start();
-    r.registerLFN(mypfn,mylfn);
+    mycatalog->registerLFN( mycatalog->lookupPFN(mypfn), mylfn );
     mycatalog->commit();  
     mycatalog->disconnect();
   }catch (const pool::Exception& er){
-    //er.printOut(std::cerr);
-    //std::cerr << std::endl;
     std::cerr<<er.what()<<std::endl;
     exit(1);
   }catch (const std::exception& er){

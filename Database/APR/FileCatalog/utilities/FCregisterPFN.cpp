@@ -15,12 +15,11 @@
  */
 #include "FileCatalog/CommandLine.h"
 #include "FileCatalog/IFileCatalog.h"
-#include "FileCatalog/FCException.h"
-#include "FileCatalog/IFCAction.h"
+#include "FileCatalog/URIParser.h"
 #include "POOLCore/Exception.h"
-#include "CoralBase/MessageStream.h"
-#include "CoralBase/MessageStream.h"
+#include "POOLCore/SystemTools.h"
 #include <memory>
+
 using namespace pool;
 void printUsage(){
   std::cout<< "usage: registerPFN -p pfname [ -u contactstring -t filetype -g guid -h ]" <<std::endl;
@@ -40,6 +39,8 @@ int main(int argc, char** argv)
 
     if( commands.Exists("u") ){
       myuri=commands.GetByName("u");
+    }else{
+      myuri=SystemTools::GetEnvStr("POOL_CATALOG");
     } 
     if( commands.Exists("p") ){
       mypfn=commands.GetByName("p");
@@ -66,19 +67,16 @@ int main(int argc, char** argv)
   }
   try{  
     std::auto_ptr<IFileCatalog> mycatalog(new IFileCatalog);
-    mycatalog->setWriteCatalog(myuri);
-    IFCAction a;
-    mycatalog->setAction(a);
+    pool::URIParser p( myuri );
+    p.parse();
+    mycatalog->setWriteCatalog(p.contactstring());
     mycatalog->connect();
     mycatalog->start();
-    FileCatalog::FileID fid = myguid;
-    a.registerPFN(mypfn,myfiletype,fid);
+    mycatalog->registerPFN(mypfn, myfiletype, myguid);
     mycatalog->commit();  
     mycatalog->disconnect();
-    std::cout<<fid<<std::endl;
+    std::cout<<myguid<<std::endl;
   }catch (const pool::Exception& er){
-    //er.printOut(std::cerr);
-    //std::cerr << std::endl;
     std::cerr<<er.what()<<std::endl;
     exit(1);
   }catch (const std::exception& er){

@@ -9,9 +9,9 @@
 */
 #include <string>
 #include <iostream>
-#include <cstdlib>
 #include "FileCatalog/URIParser.h"
-#include "FileCatalog/FCException.h"
+#include "POOLCore/Exception.h"
+
 using namespace pool;
 
 int main(){

@@ -5,8 +5,8 @@
 #include <memory>
 
 #include "PersistencySvc/SimpleUtilityBase.h"
-#include "POOLCore/URIParser.h"
-#include "POOLCore/IFileCatalog.h"
+#include "FileCatalog/URIParser.h"
+#include "FileCatalog/IFileCatalog.h"
 
 using namespace pool;
 
@@ -75,10 +75,10 @@ InsertFileToCatalogApplication::execute()
    catalog.connect();
    catalog.start();
    
-   for( std::vector< std::pair< std::string, std::string > >::const_iterator iFile = fidAndPfn.begin();
-        iFile != fidAndPfn.end(); ++iFile ) {
-      catalog.registerPFN( iFile->first, iFile->second, technologyName );
-    }    
+   for( const auto& fp : fidAndPfn ) {
+      std::string fid = fp.first; // can't be const
+      catalog.registerPFN(fp.second, technologyName, fid);
+   }    
    catalog.commit();
 }
 

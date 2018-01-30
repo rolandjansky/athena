@@ -14,16 +14,11 @@
 */
 #include "FileCatalog/CommandLine.h"
 #include "FileCatalog/IFileCatalog.h"
-#include "FileCatalog/FCException.h"
-#include "FileCatalog/IFCAction.h"
-#include "FileCatalog/FCLeaf.h"
-#include "FileCatalog/FCImpl.h"
-#include "FileCatalog/FCException.h"
 #include "POOLCore/Exception.h"
-#include "CoralBase/MessageStream.h"
-#include "CoralBase/MessageStream.h"
 #include <memory>
+
 using namespace pool;
+
 void printUsage(){
   std::cout<<"usage: FCaddReplica -r replica [-p pfname -g guid -u contactstring -h]" <<std::endl;
 }
@@ -33,25 +28,6 @@ static const char* opts[] = {"r","p","g","u","h",0};
 
 int main(int argc, char** argv) {
 
-  if(!::getenv( "POOL_OUTMSG_LEVEL" )){ //if not set, default to warning
-    //    // pool::POOLContext::setMessageVerbosityLevel(coral::Warning);
-  }else{
-    coral::MessageStream pms("get threshold");
-    //// pool::POOLContext::setMessageVerbosityLevel( pms.threshold() );
-  }
-
-  /*
-  if( mesgsvc ){
-    //all logging go to cerr
-    mesgsvc->setOutputStream( std::cerr, seal::Msg::Nil );
-    mesgsvc->setOutputStream( std::cerr, coral::Verbose );
-    mesgsvc->setOutputStream( std::cerr, coral::Debug );
-    mesgsvc->setOutputStream( std::cerr, coral::Info );
-    mesgsvc->setOutputStream( std::cerr, coral::Fatal );
-    mesgsvc->setOutputStream( std::cerr, coral::Error );
-    mesgsvc->setOutputStream( std::cerr, coral::Warning );
-  } 
-  */
   std::string  myuri;
   std::string  mypfn;
   std::string  myrpf;
@@ -94,24 +70,16 @@ int main(int argc, char** argv) {
   try{
     std::auto_ptr<IFileCatalog> mycatalog(new IFileCatalog);
     mycatalog->setWriteCatalog(myuri);
-    FCregister r;
-    mycatalog->setAction(r);
     if( !mypfn.empty() ){
       mycatalog->connect();
       mycatalog->start();
-      r.addReplicaPFN(mypfn,myrpf);
+      mycatalog->addReplicaPFN(mypfn,myrpf);
       mycatalog->commit();  
       mycatalog->disconnect();
     }else if( !myguid.empty() ){
       mycatalog->connect();
       mycatalog->start();
-      FCLeaf* l=static_cast<FCLeaf*>(mycatalog->getWriteCatalog());
-      try{
-        l->getImpl()->addPFNtoGuid(myguid,myrpf,"");//dummy filetype!
-      }catch (const pool::FCnonexistentFileException& /* e */){
-        std::cerr<<"Error: cannot add replica to a non existent file "<<myguid<<std::endl;
-        exit(1);
-      }
+      mycatalog->addReplicaFID(myguid, myrpf);
       mycatalog->commit();  
       mycatalog->disconnect();
     }

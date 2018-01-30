@@ -3,9 +3,9 @@
 */
 
 #include "POOLCore/Exception.h"
-#include "POOLCore/URIParser.h"
+#include "POOLCore/DbPrint.h"
+#include "FileCatalog/URIParser.h"
 #include <iostream>
-#include <cstdlib>
 
 namespace pool{
   
@@ -33,10 +33,9 @@ namespace pool{
       std::string mystr;
       char* me= getenv("POOL_CATALOG");
       if (!me){
-        mystr = "xmlcatalog_file:PoolFileCatalog.xml";
-        std::cerr << "WARNING: $POOL_CATALOG is not defined\nusing default `" 
-                  << mystr << "'" 
-                  <<std::endl;
+         mystr = "xmlcatalog_file:PoolFileCatalog.xml";
+         DbPrint log("APR.URIParser");
+         log << DbPrintLvl::Info << "$POOL_CATALOG is not defined - using default `" << mystr << "'" <<endmsg;
       }else{
         mystr=me;
       }

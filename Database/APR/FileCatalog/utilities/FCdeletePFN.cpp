@@ -2,25 +2,17 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//$Id: FCdeletePFN.cpp 509054 2012-07-05 13:33:16Z mnowak $
 /** FCdeletePFN.cpp -- FileCatalog command line tool to delete the selected PFN 
     @author: Zhen Xie
-    @date: 02/03/2005 Z.X.
-    set default logging to Warning if no POOL_OUTMSG_LEVEL is set; 
-    separate logging stream to std::cerr, output stream to std::cout.
-    @date: 07/04/2005 Z.X.
-    adopt to split interface
 */
+
 #include "FileCatalog/CommandLine.h"
 #include "FileCatalog/IFileCatalog.h"
-#include "FileCatalog/FCException.h"
+#include "FileCatalog/URIParser.h"
 #include "POOLCore/Exception.h"
-#include "FileCatalog/IFCAction.h"
-#include "FileCatalog/FCEntry.h"
-#include "FileCatalog/IFCContainer.h"
-#include "CoralBase/MessageStream.h"
-#include "CoralBase/MessageStream.h"
+#include "POOLCore/SystemTools.h"
 #include <memory>
+
 using namespace pool;
 
 void printUsage(){
@@ -41,6 +33,8 @@ int main(int argc, char** argv)
 
     if( commands.Exists("u") ){
       myuri=commands.GetByName("u");
+    }else{
+      myuri=SystemTools::GetEnvStr("POOL_CATALOG");
     }    
     if( commands.Exists("q") ){
       myquery=commands.GetByName("q");
@@ -64,29 +58,20 @@ int main(int argc, char** argv)
   }
   try{
     std::auto_ptr<IFileCatalog> mycatalog(new IFileCatalog);
-    mycatalog->setWriteCatalog(myuri);
-    FCAdmin a;
-    mycatalog->setAction(a);
-    FClookup l;
-    mycatalog->setAction(l);
+    pool::URIParser p( myuri );
+    p.parse();
+    mycatalog->setWriteCatalog(p.contactstring());
     mycatalog->connect();
     mycatalog->start();
     if( !myquery.empty() ){
-      PFNContainer pfns(mycatalog.get());
-      FileCatalog::FileID fid;
-      l.lookupPFNByQuery(myquery,pfns);
-      while(pfns.hasNext()){
-        PFNEntry pentry=pfns.Next();
-        a.deletePFN(pentry.pfname());
-      }
+      std::cerr << "Query option not supported" << std::endl;
+      exit(2); 
     }else if( !mypfn.empty() ) {
-      a.deletePFN(mypfn);
+      mycatalog->deletePFN(mypfn);
     }
     mycatalog->commit();  
     mycatalog->disconnect();
   }catch (const pool::Exception& er){
-    //er.printOut(std::cerr);
-    //std::cerr << std::endl;
     std::cerr<<er.what()<<std::endl;
     exit(1);
   }catch (const std::exception& er){

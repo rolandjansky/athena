@@ -7,7 +7,6 @@
 
 #include <string>
 #include <vector>
-#include "POOLCore/IFileCatalog.h"
 #include "PersistencySvc/DatabaseSpecification.h"
 
 namespace pool {
@@ -17,6 +16,7 @@ namespace pool {
   class ITransaction;
   class IDatabase;
   class ITechnologySpecificAttributes;
+  class IFileCatalog; 
 
   /** @class ISession ISession.h PersistencySvc/ISession.h
    *

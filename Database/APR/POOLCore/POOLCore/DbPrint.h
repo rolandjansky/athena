@@ -2,24 +2,18 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DbPrint.h 458019 2011-09-09 10:11:57Z mnowak $
 //====================================================================
-//  Storage Service Printer object
+//  APR Printer object
 //--------------------------------------------------------------------
-//
-//  @author      M.Frank
-//====================================================================
-#ifndef POOL_STORAGESVC_DBPRINT_H
-#define POOL_STORAGESVC_DBPRINT_H 1
 
-// Framework customization file
+#ifndef POOL_DBPRINT_H
+#define POOL_DBPRINT_H 1
+
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
 
-/*
- *   POOL namespace declaration
- */
+
 namespace pool {
 
    namespace  DbPrintLvl {
@@ -53,4 +47,4 @@ namespace pool {
    };
 
 }       // End namespace pool
-#endif  // POOL_STORAGESVC_DBPRINT_H
+#endif  // POOL_DBPRINT_H

@@ -26,9 +26,9 @@ atlas_add_library( PersistencySvc
    PersistencySvc/*.h PersistencySvc/*.inl
    src/*.cpp src/*.h src/*.inl
    PUBLIC_HEADERS PersistencySvc
-   PRIVATE_INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} GaudiUtils
+   PRIVATE_INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} GaudiUtils FileCatalog
    LINK_LIBRARIES DataModelRoot POOLCore StorageSvc
-   PRIVATE_LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaKernel 
+   PRIVATE_LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaKernel FileCatalog
    PersistentDataModel )
 
 

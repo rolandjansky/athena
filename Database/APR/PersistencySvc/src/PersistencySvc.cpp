@@ -11,7 +11,7 @@
 #include "DatabaseHandler.h"
 #include "PersistentDataModel/Token.h"
 #include "PersistentDataModel/Placement.h"
-#include "POOLCore/IFileCatalog.h"
+#include "FileCatalog/IFileCatalog.h"
 #include "PersistencySvc/DatabaseConnectionPolicy.h"
 #include "PersistencySvc/DatabaseSpecification.h"
 #include "PersistencySvc/ITransaction.h"

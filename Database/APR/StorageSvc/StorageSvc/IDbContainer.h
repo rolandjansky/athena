@@ -11,12 +11,13 @@
 //====================================================================
 #ifndef POOL_IDBCONTAINER_H
 #define POOL_IDBCONTAINER_H
-// $Header: /cvs/PF/pool/StorageSvc/StorageSvc/IDbContainer.h,v 1.22 2009/09/15 12:08:42 frankb Exp $
 
 // Framework include files
 #include "PersistentDataModel/Token.h"
 #include "StorageSvc/DbObject.h"
 #include "StorageSvc/DbSection.h"
+
+#include <vector>
 
 /*
  *   POOL namespace declaration

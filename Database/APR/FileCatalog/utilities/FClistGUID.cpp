@@ -2,38 +2,29 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//$Id: FClistGUID.cpp 509054 2012-07-05 13:33:16Z mnowak $
 /**FClistGUID.cpp -- FileCatalog command line tool to list guid
    @author Yujun Wu
    @author Zhen Xie
-   @date: 02/03/2005 Z.X.
-   set default logging to Warning if no POOL_OUTMSG_LEVEL is set; 
-   separate logging stream to std::cerr, output stream to std::cout.
 */
 
 #include "FileCatalog/CommandLine.h"
 #include "FileCatalog/IFileCatalog.h"
-#include "FileCatalog/FCException.h"
-#include "FileCatalog/IFCAction.h"
-#include "FileCatalog/IFCContainer.h"
+#include "FileCatalog/URIParser.h"
 #include "POOLCore/Exception.h"
-#include "CoralBase/MessageStream.h"
-#include "CoralBase/MessageStream.h"
-
+#include "POOLCore/SystemTools.h"
 #include <memory>
 #include <vector>
 #include <string>
-#include <cstdlib>
 
 using namespace pool;
 using namespace std;
 
 
 void printUsage(){
-  std::cout<<"usage: FClistGUID [-p pfname -l lfname -q query -u contactstring -m maxcache(default 1000) -h]" <<std::endl; 
+  std::cout<<"usage: FClistGUID [-p pfname -l lfname -q query -u contactstring -h]" <<std::endl; 
 }
 
-static const char* opts[] = {"p","l","q","u","m","h",0};
+static const char* opts[] = {"p","l","q","u","h",0};
 
 class contactParser{
 public:
@@ -69,22 +60,20 @@ int main(int argc, char** argv)
   std::string  mypfn;
   std::string  mylfn;
   std::string  query;
-  unsigned int maxcache=1000; 
   try{
     CommandLine commands(argc,argv);
     commands.CheckOptions(opts);
     
     if( commands.Exists("u") ){
       myuri=commands.GetByName("u");
+    }else{
+      myuri=SystemTools::GetEnvStr("POOL_CATALOG");
     }    
     if( commands.Exists("p") ){
       mypfn=commands.GetByName("p");
     }
     if( commands.Exists("l") ){
       mylfn=commands.GetByName("l");
-    }
-    if( commands.Exists("m") ){
-      maxcache=atoi(commands.GetByName("m").c_str());
     }
     if( commands.Exists("q") ){
       query=commands.GetByName("q");
@@ -103,7 +92,10 @@ int main(int argc, char** argv)
   }
   std::auto_ptr<IFileCatalog> mycatalog(new IFileCatalog);
   if(myuri.empty()){
-    mycatalog->addReadCatalog(myuri);
+     // get default
+     pool::URIParser p;
+     p.parse();
+     mycatalog->addReadCatalog(p.contactstring());
   }else{
     contactParser parser(myuri);
     std::vector<std::string> uris;
@@ -112,29 +104,26 @@ int main(int argc, char** argv)
       mycatalog->addReadCatalog(*i);
     }
   }
-  FClookup l;
-  mycatalog->setAction(l);
   try{
     mycatalog->connect();
     mycatalog->start();
-    GuidContainer myguids( mycatalog.get(), maxcache );
-    std::string delimitor="'";
-    if( !mypfn.empty() ){
-      query = "pfname=" + delimitor + mypfn + delimitor;
-    }else if( !mylfn.empty() ){
-      query = "lfname=" + delimitor + mylfn + delimitor;
+    pool::IFileCatalog::Strings fids;
+    if( !query.empty() ){
+       std::cerr << "Query option not supported" << std::endl;
+       exit(2); 
+    } else if( !mypfn.empty() ){
+       fids.push_back( mycatalog->lookupPFN( mypfn ) );
+    } else if( !mylfn.empty() ){
+       fids.push_back( mycatalog->lookupLFN( mylfn ) );
+    } else {
+       mycatalog->getFIDs( fids );
     }
-    l.lookupFileByQuery(query,myguids);
-    while(myguids.hasNext()){
-      std::string guid;
-      guid=myguids.Next();
-      std::cout<<guid<<std::endl;
+    for( const auto& fid: fids ) {
+       std::cout << fid << std::endl;
     }
     mycatalog->commit();  
     mycatalog->disconnect();
   }catch (const pool::Exception& er){
-    //er.printOut(std::cerr);
-    //std::cerr << std::endl;
     std::cerr<<er.what()<<std::endl;
     exit(1);
   }catch (const std::exception& er){

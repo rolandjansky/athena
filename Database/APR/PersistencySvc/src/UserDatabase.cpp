@@ -13,7 +13,7 @@
 #include "StorageSvc/DbType.h"
 #include "StorageSvc/pool.h"
 #include "CoralBase/MessageStream.h"
-#include "POOLCore/IFileCatalog.h"
+#include "FileCatalog/IFileCatalog.h"
 
 #include <iostream>
 using namespace std;

@@ -11,12 +11,10 @@
 */
 #include "FileCatalog/CommandLine.h"
 #include "FileCatalog/IFileCatalog.h"
-#include "FileCatalog/FCException.h"
-#include "FileCatalog/IFCAction.h"
+#include "FileCatalog/URIParser.h"
 #include "POOLCore/Exception.h"
-#include "CoralBase/MessageStream.h"
-#include "CoralBase/MessageStream.h"
 #include <memory>
+
 using namespace pool;
 
 void printUsage(){
@@ -60,17 +58,17 @@ int main(int argc, char** argv)
   }
   try{
     std::auto_ptr<IFileCatalog> mycatalog(new IFileCatalog);
-    mycatalog->setWriteCatalog(myuri);
-    FCregister r;
-    mycatalog->setAction(r);
+    pool::URIParser p( myuri );
+    p.parse();
+    mycatalog->setWriteCatalog( p.contactstring() );
     mycatalog->connect();
     mycatalog->start();
-    r.renamePFN(mypfn,mynewpfn);
+
+    //MN: There is no renamePFN method in Gaudi::IFileCatalog - implement if needed
+    mycatalog->renamePFN(mypfn,mynewpfn);
     mycatalog->commit();  
     mycatalog->disconnect();
   }catch (const pool::Exception& er){
-    //er.printOut(std::cerr);
-    //std::cerr << std::endl;
     std::cerr<<er.what()<<std::endl;
     exit(1);
   }catch (const std::exception& er){
