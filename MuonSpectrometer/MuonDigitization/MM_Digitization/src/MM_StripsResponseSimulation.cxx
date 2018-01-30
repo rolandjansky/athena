@@ -3,10 +3,10 @@
 */
 
 /// PROJECTS
-#include "MM_Digitization/StripsResponseSimulation.h"
+#include "MM_Digitization/MM_StripsResponseSimulation.h"
 #include "GaudiKernel/MsgStream.h"
 #include "MM_Digitization/MM_IonizationCluster.h"
-#include "MM_Digitization/StripResponse.h"
+#include "MM_Digitization/MM_StripResponse.h"
 #include "PathResolver/PathResolver.h"
 
 #include<map>
@@ -24,7 +24,7 @@ Check Lorentz Angle is in correct direction...
 
 
 /*******************************************************************************/
-StripsResponseSimulation::StripsResponseSimulation():
+MM_StripsResponseSimulation::MM_StripsResponseSimulation():
 
 	// Variables that should be set externally (MmDigitizationTool)
 	m_qThreshold(0),                 // 0.001
@@ -55,7 +55,7 @@ StripsResponseSimulation::StripsResponseSimulation():
 	{
 	}
 /*******************************************************************************/
-void StripsResponseSimulation::initHistos()
+void MM_StripsResponseSimulation::initHistos()
 {
 	if(m_writeOutputFile){
 		m_outputFile = new TFile("MM_StripsResponse_Plots.root","RECREATE");
@@ -81,7 +81,7 @@ void StripsResponseSimulation::initHistos()
 
 }
 /*******************************************************************************/
-void StripsResponseSimulation::writeHistos()
+void MM_StripsResponseSimulation::writeHistos()
 {
 
 	if(m_outputFile){
@@ -91,7 +91,7 @@ void StripsResponseSimulation::writeHistos()
 
 }
 /*******************************************************************************/
-void StripsResponseSimulation::initFunctions()
+void MM_StripsResponseSimulation::initFunctions()
 {
 
 	// Probability of having an interaction (per unit length traversed) is sampled from a gaussian provided by G. Iakovidis
@@ -116,33 +116,33 @@ void StripsResponseSimulation::initFunctions()
 
 	m_random = new TRandom3(0);
 
-	Athena::MsgStreamMember log("StripsResponseSimulation::initFunctions");
-	log << MSG::DEBUG << "StripsResponseSimulation::initFunctions DONE" << endmsg;
+	Athena::MsgStreamMember log("MM_StripsResponseSimulation::initFunctions");
+	log << MSG::DEBUG << "MM_StripsResponseSimulation::initFunctions DONE" << endmsg;
 
 }
 /*******************************************************************************/
-void StripsResponseSimulation::clearValues()
+void MM_StripsResponseSimulation::clearValues()
 {
 }
 
 /*******************************************************************************/
-void StripsResponseSimulation::initialize()
+void MM_StripsResponseSimulation::initialize()
 {
 
 	initHistos ();
 	initFunctions();
 
-	Athena::MsgStreamMember log("StripsResponseSimulation::initializationFrom");
-	log << MSG::DEBUG << "StripsResponseSimulation::initializationFrom set values" << endmsg;
+	Athena::MsgStreamMember log("MM_StripsResponseSimulation::initializationFrom");
+	log << MSG::DEBUG << "MM_StripsResponseSimulation::initializationFrom set values" << endmsg;
 
 }
 
 /*******************************************************************************/
-MmStripToolOutput StripsResponseSimulation::GetResponseFrom(const MmDigitToolInput & digiInput)
+MM_StripToolOutput MM_StripsResponseSimulation::GetResponseFrom(const MM_DigitToolInput & digiInput)
 {
 
-	Athena::MsgStreamMember log("StripsResponseSimulation::GetResponseFrom");
-	log << MSG::DEBUG << "\t \t StripsResponseSimulation::GetResponseFrom start " << endmsg;
+	Athena::MsgStreamMember log("MM_StripsResponseSimulation::GetResponseFrom");
+	log << MSG::DEBUG << "\t \t MM_StripsResponseSimulation::GetResponseFrom start " << endmsg;
 
 	IonizationClusters.clear();
 	finalNumberofStrip.clear();
@@ -157,9 +157,9 @@ MmStripToolOutput StripsResponseSimulation::GetResponseFrom(const MmDigitToolInp
 		digiInput
 		);
 
-	log << MSG::DEBUG << "\t \t StripsResponseSimulation::GetResponseFrom creating MmDigitToolOutput object " << endmsg;
+	log << MSG::DEBUG << "\t \t MM_StripsResponseSimulation::GetResponseFrom creating MmDigitToolOutput object " << endmsg;
 
-	MmStripToolOutput tmpStripToolOutput(finalNumberofStrip, finalqStrip, finaltStrip);
+	MM_StripToolOutput tmpStripToolOutput(finalNumberofStrip, finalqStrip, finaltStrip);
 
 	return tmpStripToolOutput;
 
@@ -169,16 +169,16 @@ MmStripToolOutput StripsResponseSimulation::GetResponseFrom(const MmDigitToolInp
 //==================================================================================================
 // calculate the strips that got fired, charge and time. Assume any angle thetaDegrees....
 //==================================================================================================
-void StripsResponseSimulation::whichStrips( const float & hitx,
+void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 											const int & stripID,
 											const float & incidentAngleXZ,
 											const float & incidentAngleYZ,
 											const int & stripMaxID,
-											const MmDigitToolInput & digiInput)
+											const MM_DigitToolInput & digiInput)
 {
 
-	Athena::MsgStreamMember msglog("StripsResponseSimulation::whichStrips");
-	msglog << MSG::DEBUG << "\t \t StripsResponseSimulation::whichStrips start " << endmsg;
+	Athena::MsgStreamMember msglog("MM_StripsResponseSimulation::whichStrips");
+	msglog << MSG::DEBUG << "\t \t MM_StripsResponseSimulation::whichStrips start " << endmsg;
 
 	float eventTime = digiInput.eventTime();
 	float theta = incidentAngleXZ * M_PI/180.0; // Important for path length and strip distribution
@@ -199,8 +199,8 @@ void StripsResponseSimulation::whichStrips( const float & hitx,
 	m_mapOf2DHistograms["lorentzAngleVsBy"]->Fill(lorentzAngle,b.y());
 
 
-	msglog << MSG::DEBUG << "StripsResponseSimulation::lorentzAngle vs theta: " << lorentzAngle << " " << theta << endmsg;
-	msglog << MSG::DEBUG << "StripsResponseSimulation::function pointer points to " << m_interactionDensityFunction << endmsg;
+	msglog << MSG::DEBUG << "MM_StripsResponseSimulation::lorentzAngle vs theta: " << lorentzAngle << " " << theta << endmsg;
+	msglog << MSG::DEBUG << "MM_StripsResponseSimulation::function pointer points to " << m_interactionDensityFunction << endmsg;
 
 	float pathLengthTraveled = ( 1. / m_interactionDensityFunction->GetRandom() ) * -1. * log( m_random->Uniform() );
 
@@ -222,7 +222,7 @@ void StripsResponseSimulation::whichStrips( const float & hitx,
 		TVector2 initialPosition = IonizationCluster.getIonizationStart();
 
 		msglog << MSG::DEBUG
-			<< "StripsResponseSimulation:: New interaction starting at x,y, pathLengthTraveled: "
+			<< "MM_StripsResponseSimulation:: New interaction starting at x,y, pathLengthTraveled: "
 			<< initialPosition.X()
 			<< " "
 			<< initialPosition.Y()
@@ -260,7 +260,7 @@ void StripsResponseSimulation::whichStrips( const float & hitx,
 			Electron->setCharge( effectiveCharge );
 
 			msglog << MSG::DEBUG
-				<< "StripsResponseSimulation::Electron's effective charge is  "
+				<< "MM_StripsResponseSimulation::Electron's effective charge is  "
 				<< effectiveCharge
 				<< endmsg;
 
@@ -281,7 +281,7 @@ void StripsResponseSimulation::whichStrips( const float & hitx,
 
 		pathLengthTraveled +=  (1. / m_interactionDensityFunction->GetRandom() ) * -1. * log( m_random->Uniform() );
 
-		msglog << MSG::DEBUG << "StripsResponseSimulation:: path length traveled: " << pathLengthTraveled << endmsg;
+		msglog << MSG::DEBUG << "MM_StripsResponseSimulation:: path length traveled: " << pathLengthTraveled << endmsg;
 
 		nPrimaryIons++;
 		if (nPrimaryIons >= m_maxPrimaryIons) break; //don't create more than "MaxPrimaryIons" along a track....
@@ -290,7 +290,7 @@ void StripsResponseSimulation::whichStrips( const float & hitx,
 
 	float timeresolution = 0.01; //ns
 
-	StripResponse stripResponseObject(IonizationClusters, timeresolution, m_pitch, stripID, stripMaxID);
+	MM_StripResponse stripResponseObject(IonizationClusters, timeresolution, m_pitch, stripID, stripMaxID);
 	stripResponseObject.timeOrderElectrons();
 	stripResponseObject.calculateTimeSeries(incidentAngleXZ, digiInput.gasgap());
 	stripResponseObject.simulateCrossTalk( m_crossTalk1,  m_crossTalk2);
@@ -332,7 +332,7 @@ void StripsResponseSimulation::whichStrips( const float & hitx,
 } // end of whichStrips()
 
 /*******************************************************************************/
-StripsResponseSimulation::~StripsResponseSimulation()
+MM_StripsResponseSimulation::~MM_StripsResponseSimulation()
 {
 	if(m_outputFile){
 		writeHistos();

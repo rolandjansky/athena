@@ -4,7 +4,7 @@
 
 #ifndef MM_DIGITIZATIONTOOL_H
 #define MM_DIGITIZATIONTOOL_H
-/** @class MmDigitizationTool
+/** @class MM_DigitizationTool
 
 	@section MM_DigitizerDetails Class methods and properties
 	// ------------
@@ -44,7 +44,7 @@
 #include "PileUpTools/PileUpToolBase.h"
 #include "Identifier/Identifier.h"
 
-#include "MM_Digitization/MmSortedHitVector.h"
+#include "MM_Digitization/MM_SortedHitVector.h"
 
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Geometry/Point3D.h"
@@ -52,9 +52,9 @@
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
 #include "MuonDigToolInterfaces/IMuonDigitizationTool.h"
-#include "MM_Digitization/StripsResponseSimulation.h"
-#include "MM_Digitization/ElectronicsResponseSimulation.h"
-#include "MM_Digitization/MMStripVmmMappingTool.h"
+#include "MM_Digitization/MM_StripsResponseSimulation.h"
+#include "MM_Digitization/MM_ElectronicsResponseSimulation.h"
+#include "MM_Digitization/MM_StripVmmMappingTool.h"
 
 #include "xAODEventInfo/EventInfo.h"   // SubEventIterator
 #include "xAODEventInfo/EventAuxInfo.h"// SubEventIterator
@@ -97,10 +97,10 @@ class TFile;
 
 /*******************************************************************************/
 
-class MmDigitizationTool : virtual public IMuonDigitizationTool, public PileUpToolBase {
+class MM_DigitizationTool : virtual public IMuonDigitizationTool, public PileUpToolBase {
 
 	public:
-		MmDigitizationTool(const std::string& type, const std::string& name, const IInterface* parent);
+		MM_DigitizationTool(const std::string& type, const std::string& name, const IInterface* parent);
 
 		/** Initialize */
 		virtual StatusCode initialize() override final;
@@ -143,7 +143,7 @@ class MmDigitizationTool : virtual public IMuonDigitizationTool, public PileUpTo
 		StatusCode doDigitization();
 
 		bool  checkMMSimHit(const GenericMuonSimHit& /* hit */ ) const;
-		MmElectronicsToolInput combinedStripResponseAllHits(const std::vector< MmElectronicsToolInput > & v_stripDigitOutput);
+		MM_ElectronicsToolInput combinedStripResponseAllHits(const std::vector< MM_ElectronicsToolInput > & v_stripDigitOutput);
 
 		// Services
 		ServiceHandle<StoreGateSvc> m_storeGateService;
@@ -193,7 +193,7 @@ class MmDigitizationTool : virtual public IMuonDigitizationTool, public PileUpTo
 		// double m_resTDC;
 
 		// StripsResponse stuff...
-		StripsResponseSimulation *m_StripsResponseSimulation;
+		MM_StripsResponseSimulation *m_StripsResponseSimulation;
 		float m_qThreshold;
 		float m_transverseDiffusionSigma;
 		float m_longitudinalDiffusionSigma;
@@ -203,7 +203,7 @@ class MmDigitizationTool : virtual public IMuonDigitizationTool, public PileUpTo
 		float m_crossTalk2;
 
 		// ElectronicsResponse stuff...
-		ElectronicsResponseSimulation *m_ElectronicsResponseSimulation;
+		MM_ElectronicsResponseSimulation *m_ElectronicsResponseSimulation;
 		float m_alpha;// power of responce function
 		float m_peakTime; // VMM setting
 		float m_electronicsThreshold; // threshold "Voltage" for histoBNL
@@ -244,4 +244,4 @@ class MmDigitizationTool : virtual public IMuonDigitizationTool, public PileUpTo
 
 };
 
-#endif // MmDigitizationTool
+#endif // MM_DigitizationTool

@@ -4,7 +4,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// MmDigitizationTool
+// MM_DigitizationTool
 // ------------
 // Authors: Nektarios Chr. Benekos <nectarios.benekos@cern.ch>
 //          Konstantinos Karakostas <Konstantinos.Karakostas@cern.ch>
@@ -25,9 +25,9 @@
 #include "MuonDigitContainer/MmDigitContainer.h"
 
 //MM digitization includes
-#include "MM_Digitization/MmDigitizationTool.h"
+#include "MM_Digitization/MM_DigitizationTool.h"
 #include "MM_Digitization/IMM_DigitizationTool.h"
-#include "MM_Digitization/MmDigitToolInput.h"
+#include "MM_Digitization/MM_DigitToolInput.h"
 #include "MuonSimEvent/MM_SimIdToOfflineId.h"
 
 //Geometry
@@ -74,7 +74,7 @@
 #include "MuonAGDDDescription/MMDetectorHelper.h"
 
 //VMM Mapping
-#include "MM_Digitization/MMStripVmmMappingTool.h"
+#include "MM_Digitization/MM_StripVmmMappingTool.h"
 
 //ROOT
 // #include "TH1.h"
@@ -90,7 +90,7 @@
 using namespace MuonGM;
 
 /*******************************************************************************/
-MmDigitizationTool::MmDigitizationTool(const std::string& type, const std::string& name, const IInterface* parent):
+MM_DigitizationTool::MM_DigitizationTool(const std::string& type, const std::string& name, const IInterface* parent):
 	PileUpToolBase(type, name, parent),
 
 	// Services
@@ -201,7 +201,7 @@ MmDigitizationTool::MmDigitizationTool(const std::string& type, const std::strin
 	declareProperty("WindowUpperOffset",   m_timeWindowUpperOffset = +300.);
 	declareProperty("DiffMagSecondMuonHit",m_DiffMagSecondMuonHit = 0.1);
 
-	// Constants vars for the StripsResponseSimulation class
+	// Constants vars for the MM_StripsResponseSimulation class
 	// qThreshold=2e, we accept a good strip if the charge is >=2e
 	declareProperty("qThreshold",                 m_qThreshold = 0.001);     // Charge Threshold
 	declareProperty("TransverseDiffusionSigma",   m_transverseDiffusionSigma = 0.360/10.);   // Diffusion Constants for electron propagation
@@ -214,7 +214,7 @@ MmDigitizationTool::MmDigitizationTool(const std::string& type, const std::strin
 	declareProperty("vmmReadoutMode",             m_vmmReadoutMode = "peak"      ); // For readout (DAQ) path. Can be "peak" or "threshold"
 	declareProperty("vmmARTMode",                 m_vmmARTMode     = "threshold" ); // For ART (trigger) path. Can be "peak" or "threshold"
 
-	// Constants vars for the ElectronicsResponseSimulation
+	// Constants vars for the MM_ElectronicsResponseSimulation
 	declareProperty("peakTime",                m_peakTime = 50.);                 // The VMM peak time setting.
 	declareProperty("electronicsThreshold",    m_electronicsThreshold = 6000.0);  // 2*(Intrinsic noise ~3k e)
 	declareProperty("StripDeadTime",           m_stripdeadtime = 200.0);          // default value 200 ns = 8 BCs
@@ -225,10 +225,10 @@ MmDigitizationTool::MmDigitizationTool(const std::string& type, const std::strin
 /*******************************************************************************/
 // member function implementation
 //--------------------------------------------
-StatusCode MmDigitizationTool::initialize() {
+StatusCode MM_DigitizationTool::initialize() {
 
-	ATH_MSG_DEBUG ("MmDigitizationTool:: in initialize()") ;
-	ATH_MSG_DEBUG ( "Configuration  MmDigitizationTool " );
+	ATH_MSG_DEBUG ("MM_DigitizationTool:: in initialize()") ;
+	ATH_MSG_DEBUG ( "Configuration  MM_DigitizationTool " );
 	ATH_MSG_DEBUG ( "RndmSvc                " << m_rndmSvc             );
 	ATH_MSG_DEBUG ( "RndmEngine             " << m_rndmEngineName      );
 	ATH_MSG_DEBUG ( "MCStore                " << m_storeGateService               );
@@ -325,7 +325,7 @@ StatusCode MmDigitizationTool::initialize() {
 	}
 
 	// StripsResponseSimulation Creation
-	m_StripsResponseSimulation = new StripsResponseSimulation();
+	m_StripsResponseSimulation = new MM_StripsResponseSimulation();
 	m_StripsResponseSimulation->setQThreshold(m_qThreshold);
 	m_StripsResponseSimulation->setTransverseDiffusionSigma(m_transverseDiffusionSigma);
 	m_StripsResponseSimulation->setLongitudinalDiffusionSigma(m_longitudinalDiffusionSigma);
@@ -336,7 +336,7 @@ StatusCode MmDigitizationTool::initialize() {
 	m_StripsResponseSimulation->initialize();
 
 	// ElectronicsResponseSimulation Creation
-	m_ElectronicsResponseSimulation = new ElectronicsResponseSimulation();
+	m_ElectronicsResponseSimulation = new MM_ElectronicsResponseSimulation();
 	m_ElectronicsResponseSimulation->setPeakTime(m_peakTime); // VMM peak time parameter
 	m_ElectronicsResponseSimulation->setTimeWindowLowerOffset(m_timeWindowLowerOffset);
 	m_ElectronicsResponseSimulation->setTimeWindowUpperOffset(m_timeWindowUpperOffset);
@@ -354,13 +354,13 @@ StatusCode MmDigitizationTool::initialize() {
 	if(      TString(m_vmmReadoutMode).Contains("peak",     TString::kIgnoreCase) ) m_vmmReadoutMode = "peak";
 	else if( TString(m_vmmReadoutMode).Contains("threshold",TString::kIgnoreCase) ) m_vmmReadoutMode = "threshold";
 	else {
-		ATH_MSG_ERROR("MmDigitizationTool can't interperet vmmReadoutMode option! (Should be 'peak' or 'threshold'.) Contains: "
+		ATH_MSG_ERROR("MM_DigitizationTool can't interperet vmmReadoutMode option! (Should be 'peak' or 'threshold'.) Contains: "
 						<< m_vmmReadoutMode);
 	}
 	if(      TString(m_vmmARTMode).Contains("peak",     TString::kIgnoreCase) ) m_vmmARTMode = "peak";
 	else if( TString(m_vmmARTMode).Contains("threshold",TString::kIgnoreCase) ) m_vmmARTMode = "threshold";
 	else {
-		ATH_MSG_ERROR("MmDigitizationTool can't interperet vmmReadoutMode option! (Should be 'peak' or 'threshold'.) Contains: "
+		ATH_MSG_ERROR("MM_DigitizationTool can't interperet vmmReadoutMode option! (Should be 'peak' or 'threshold'.) Contains: "
 						<< m_vmmARTMode);
 	}
 
@@ -370,9 +370,9 @@ StatusCode MmDigitizationTool::initialize() {
 //----------------------------------------------------------------------
 // PrepareEvent method:
 //----------------------------------------------------------------------
-StatusCode MmDigitizationTool::prepareEvent(unsigned int nInputEvents) {
+StatusCode MM_DigitizationTool::prepareEvent(unsigned int nInputEvents) {
 
-	ATH_MSG_DEBUG("MmDigitizationTool::prepareEvent() called for " << nInputEvents << " input events" );
+	ATH_MSG_DEBUG("MM_DigitizationTool::prepareEvent() called for " << nInputEvents << " input events" );
 
 	m_MMHitCollList.clear();
 
@@ -386,11 +386,11 @@ StatusCode MmDigitizationTool::prepareEvent(unsigned int nInputEvents) {
 	return StatusCode::SUCCESS;
 }
 /*******************************************************************************/
-StatusCode MmDigitizationTool::processBunchXing(int bunchXing,
+StatusCode MM_DigitizationTool::processBunchXing(int bunchXing,
 	SubEventIterator bSubEvents,
 	SubEventIterator eSubEvents) {
 
-	ATH_MSG_DEBUG ( "MmDigitizationTool::in processBunchXing()"  << bunchXing );
+	ATH_MSG_DEBUG ( "MM_DigitizationTool::in processBunchXing()"  << bunchXing );
 
 	SubEventIterator iEvt = bSubEvents;
 
@@ -431,12 +431,12 @@ StatusCode MmDigitizationTool::processBunchXing(int bunchXing,
 }
 
 /*******************************************************************************/
-StatusCode MmDigitizationTool::getNextEvent() {
+StatusCode MM_DigitizationTool::getNextEvent() {
 
 // Get next event and extract collection of hit collections:
 // This is applicable to non-PileUp Event...
 
-	ATH_MSG_DEBUG ( "MmDigitizationTool::getNextEvent()" );
+	ATH_MSG_DEBUG ( "MM_DigitizationTool::getNextEvent()" );
 
 	if (!m_mergeSvc) {
 		ATH_CHECK(service("PileUpMergeSvc", m_mergeSvc, true));
@@ -481,9 +481,9 @@ StatusCode MmDigitizationTool::getNextEvent() {
 
 }
 /*******************************************************************************/
-StatusCode MmDigitizationTool::mergeEvent() {
+StatusCode MM_DigitizationTool::mergeEvent() {
 
-	// ATH_MSG_DEBUG ( "MmDigitizationTool::in mergeEvent()" );
+	// ATH_MSG_DEBUG ( "MM_DigitizationTool::in mergeEvent()" );
 
 	// Cleanup and record the Digit container in StoreGate
 	ATH_CHECK( recordDigitAndSdoContainers() );
@@ -506,13 +506,13 @@ StatusCode MmDigitizationTool::mergeEvent() {
 	return StatusCode::SUCCESS;
 }
 /*******************************************************************************/
-StatusCode MmDigitizationTool::digitize() {
+StatusCode MM_DigitizationTool::digitize() {
 	return this->processAllSubEvents();
 }
 /*******************************************************************************/
-StatusCode MmDigitizationTool::processAllSubEvents() {
+StatusCode MM_DigitizationTool::processAllSubEvents() {
 
-	ATH_MSG_DEBUG ("MmDigitizationTool::processAllSubEvents()");
+	ATH_MSG_DEBUG ("MM_DigitizationTool::processAllSubEvents()");
 
 	ATH_CHECK( recordDigitAndSdoContainers() );
 
@@ -530,7 +530,7 @@ StatusCode MmDigitizationTool::processAllSubEvents() {
 	return StatusCode::SUCCESS;
 }
 /*******************************************************************************/
-StatusCode MmDigitizationTool::finalize() {
+StatusCode MM_DigitizationTool::finalize() {
 	m_digitContainer->release();
 
 	if (m_writeOutputFile) {
@@ -548,7 +548,7 @@ StatusCode MmDigitizationTool::finalize() {
 	return StatusCode::SUCCESS;
 }
 /*******************************************************************************/
-StatusCode MmDigitizationTool::recordDigitAndSdoContainers() {
+StatusCode MM_DigitizationTool::recordDigitAndSdoContainers() {
 
 	// cleanup digit container
 	m_digitContainer->cleanup();
@@ -565,7 +565,7 @@ StatusCode MmDigitizationTool::recordDigitAndSdoContainers() {
 }
 
 /*******************************************************************************/
-StatusCode MmDigitizationTool::doDigitization() {
+StatusCode MM_DigitizationTool::doDigitization() {
 
 
 	GenericMuonSimHitCollection* inputSimHitColl=NULL;
@@ -586,7 +586,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 		return StatusCode::FAILURE;
 	}
 
-	std::vector<MmElectronicsToolInput> v_stripDigitOutput;
+	std::vector<MM_ElectronicsToolInput> v_stripDigitOutput;
 	v_stripDigitOutput.clear();
 
 	//iterate over hits and fill id-keyed drift time map
@@ -980,7 +980,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 			// Strip Response Simulation For This Hit
 			//
 
-			const MmDigitToolInput stripDigitInput( stripNumber,
+			const MM_DigitToolInput stripDigitInput( stripNumber,
 													distToChannel,
 													inAngle_XZ,
 													inAngle_YZ,
@@ -1014,8 +1014,8 @@ StatusCode MmDigitizationTool::doDigitization() {
 			m_n_hitOnSurface_x=positionOnSurface.x();
 			m_n_hitOnSurface_y = positionOnSurface.y();
 
-			MmStripToolOutput tmpStripOutput = m_StripsResponseSimulation->GetResponseFrom(stripDigitInput);
-			MmElectronicsToolInput stripDigitOutput( tmpStripOutput.NumberOfStripsPos(), tmpStripOutput.chipCharge(), tmpStripOutput.chipTime(), digitID , hit.kineticEnergy());
+			MM_StripToolOutput tmpStripOutput = m_StripsResponseSimulation->GetResponseFrom(stripDigitInput);
+			MM_ElectronicsToolInput stripDigitOutput( tmpStripOutput.NumberOfStripsPos(), tmpStripOutput.chipCharge(), tmpStripOutput.chipTime(), digitID , hit.kineticEnergy());
 
 			// This block is purely validation
 			for(size_t i = 0; i<tmpStripOutput.NumberOfStripsPos().size(); i++){
@@ -1050,7 +1050,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 		// Now at Detector Element Level (VMM)
 
 		if(v_stripDigitOutput.size()==0){
-			ATH_MSG_DEBUG ( "MmDigitizationTool::doDigitization() -- there is no strip response on this VMM." );
+			ATH_MSG_DEBUG ( "MM_DigitizationTool::doDigitization() -- there is no strip response on this VMM." );
 			continue;
 		}
 
@@ -1063,27 +1063,27 @@ StatusCode MmDigitizationTool::doDigitization() {
 
 		// Combine all strips (for this VMM) into a single VMM-level object
 		//
-		MmElectronicsToolInput stripDigitOutputAllHits = combinedStripResponseAllHits(v_stripDigitOutput);
+		MM_ElectronicsToolInput stripDigitOutputAllHits = combinedStripResponseAllHits(v_stripDigitOutput);
 
 
 
 		// Create Electronics Output with peak finding setting
 		//
-		MmDigitToolOutput electronicsPeakOutput( m_ElectronicsResponseSimulation->getPeakResponseFrom(stripDigitOutputAllHits) );
+		MM_DigitToolOutput electronicsPeakOutput( m_ElectronicsResponseSimulation->getPeakResponseFrom(stripDigitOutputAllHits) );
 		if(!electronicsPeakOutput.isValid())
-			ATH_MSG_DEBUG ( "MmDigitizationTool::doDigitization() -- there is no electronics response (peak finding mode) even though there is a strip response." );
+			ATH_MSG_DEBUG ( "MM_DigitizationTool::doDigitization() -- there is no electronics response (peak finding mode) even though there is a strip response." );
 
 		// Create Electronics Output with threshold setting
 		//
-		MmDigitToolOutput electronicsThresholdOutput( m_ElectronicsResponseSimulation->getThresholdResponseFrom(stripDigitOutputAllHits) );
+		MM_DigitToolOutput electronicsThresholdOutput( m_ElectronicsResponseSimulation->getThresholdResponseFrom(stripDigitOutputAllHits) );
 		if(!electronicsThresholdOutput.isValid())
-			ATH_MSG_DEBUG ( "MmDigitizationTool::doDigitization() -- there is no electronics response (threshold mode) even though there is a strip response." );
+			ATH_MSG_DEBUG ( "MM_DigitizationTool::doDigitization() -- there is no electronics response (threshold mode) even though there is a strip response." );
 
 
 
 		// Choose which of the above outputs is used for readout
 		//
-		MmDigitToolOutput * electronicsOutputForReadout(0);
+		MM_DigitToolOutput * electronicsOutputForReadout(0);
 		if (m_vmmReadoutMode      ==   "peak"     ) electronicsOutputForReadout = & electronicsPeakOutput;
 		else if (m_vmmReadoutMode ==   "threshold") electronicsOutputForReadout = & electronicsThresholdOutput;
 		else ATH_MSG_ERROR("Failed to setup readout signal from VMM. Readout mode incorrectly set");
@@ -1091,7 +1091,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 
 		// Choose which of the above outputs is used for triggering
 		//
-		MmDigitToolOutput * electronicsOutputForTriggerPath(0);
+		MM_DigitToolOutput * electronicsOutputForTriggerPath(0);
 		if (m_vmmARTMode          ==   "peak"     ) electronicsOutputForTriggerPath = & electronicsPeakOutput;
 		else if (m_vmmARTMode     ==   "threshold") electronicsOutputForTriggerPath = & electronicsThresholdOutput;
 		else ATH_MSG_ERROR("Failed to setup trigger signal from VMM. Readout mode incorrectly set");
@@ -1101,23 +1101,23 @@ StatusCode MmDigitizationTool::doDigitization() {
 
 		// Apply Dead-time for strip
 		//
-		MmDigitToolOutput electronicsOutputForTriggerPathWStripDeadTime (m_ElectronicsResponseSimulation->applyDeadTimeStrip(*electronicsOutputForTriggerPath));
+		MM_DigitToolOutput electronicsOutputForTriggerPathWStripDeadTime (m_ElectronicsResponseSimulation->applyDeadTimeStrip(*electronicsOutputForTriggerPath));
 
 		// ART: The fastest strip signal per VMM id should be selected for trigger
 		//
 		int chMax = m_idHelper->channelMax(layerID);
 		int stationEta = m_idHelper->stationEta(layerID);
-		MmElectronicsToolTriggerOutput electronicsTriggerOutput (m_ElectronicsResponseSimulation->getTheFastestSignalInVMM(electronicsOutputForTriggerPathWStripDeadTime, chMax, stationEta));
+		MM_ElectronicsToolTriggerOutput electronicsTriggerOutput (m_ElectronicsResponseSimulation->getTheFastestSignalInVMM(electronicsOutputForTriggerPathWStripDeadTime, chMax, stationEta));
 
 		// Apply Dead-time in ART
 		//
-		MmElectronicsToolTriggerOutput electronicsTriggerOutputAppliedARTDeadTime (m_ElectronicsResponseSimulation->applyDeadTimeART(electronicsTriggerOutput));
+		MM_ElectronicsToolTriggerOutput electronicsTriggerOutputAppliedARTDeadTime (m_ElectronicsResponseSimulation->applyDeadTimeART(electronicsTriggerOutput));
 
 		// To apply an arbitrary time-smearing of VMM signals
 		//
-		MmElectronicsToolTriggerOutput electronicsTriggerOutputAppliedARTTiming (m_ElectronicsResponseSimulation->applyARTTiming(electronicsTriggerOutputAppliedARTDeadTime,0.,0.));
+		MM_ElectronicsToolTriggerOutput electronicsTriggerOutputAppliedARTTiming (m_ElectronicsResponseSimulation->applyARTTiming(electronicsTriggerOutputAppliedARTDeadTime,0.,0.));
 
-		MmElectronicsToolTriggerOutput finalElectronicsTriggerOutput( electronicsTriggerOutputAppliedARTTiming );
+		MM_ElectronicsToolTriggerOutput finalElectronicsTriggerOutput( electronicsTriggerOutputAppliedARTTiming );
 
 
 		//
@@ -1177,7 +1177,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 
 	}
 
-	ATH_MSG_DEBUG ( "MmDigitization Done!"  );
+	ATH_MSG_DEBUG ( "MM_Digitization Done!"  );
 
 	if (m_timedHitCollection_MM){
 		delete m_timedHitCollection_MM;
@@ -1187,7 +1187,7 @@ StatusCode MmDigitizationTool::doDigitization() {
 	return StatusCode::SUCCESS;
 }
 
-MmElectronicsToolInput MmDigitizationTool::combinedStripResponseAllHits(const std::vector< MmElectronicsToolInput > & v_stripDigitOutput){
+MM_ElectronicsToolInput MM_DigitizationTool::combinedStripResponseAllHits(const std::vector< MM_ElectronicsToolInput > & v_stripDigitOutput){
 
 	std::vector <int> v_stripStripResponseAllHits;
 	std::vector < std::vector <float> > v_timeStripResponseAllHits;
@@ -1229,7 +1229,7 @@ MmElectronicsToolInput MmDigitizationTool::combinedStripResponseAllHits(const st
 		}
 	}
 
-	MmElectronicsToolInput stripDigitOutputAllHits( v_stripStripResponseAllHits,
+	MM_ElectronicsToolInput stripDigitOutputAllHits( v_stripStripResponseAllHits,
 													v_qStripResponseAllHits,
 													v_timeStripResponseAllHits,
 													digitID,
@@ -1239,6 +1239,6 @@ MmElectronicsToolInput MmDigitizationTool::combinedStripResponseAllHits(const st
 	return stripDigitOutputAllHits;
 }
 /*******************************************************************************/
-bool MmDigitizationTool::checkMMSimHit( const GenericMuonSimHit& /*hit*/ ) const {
+bool MM_DigitizationTool::checkMMSimHit( const GenericMuonSimHit& /*hit*/ ) const {
 	return true;
 }

@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef MM_DIGITIZATION_MMDIGITTOOLINPUT_H
-#define MM_DIGITIZATION_MMDIGITTOOLINPUT_H
+#ifndef MM_DIGITIZATION_MM_DIGITTOOLINPUT_H
+#define MM_DIGITIZATION_MM_DIGITTOOLINPUT_H
 #include "Identifier/Identifier.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 /*-----------------------------------------------
@@ -22,10 +22,10 @@ Class to store input needed for the MM_Digitization tools:
 
 -----------------------------------------------*/
 /*******************************************************************************/
-class MmDigitToolInput {
+class MM_DigitToolInput {
  public:
 
- MmDigitToolInput(int stripIdLocal, double posx, double incomingAngleXZ, double incomingAngleYZ, const Amg::Vector3D& magneticField, int stripMaxId, int gasgap, float eventTime)
+ MM_DigitToolInput(int stripIdLocal, double posx, double incomingAngleXZ, double incomingAngleYZ, const Amg::Vector3D& magneticField, int stripMaxId, int gasgap, float eventTime)
 
    :  m_stripIDLocal(stripIdLocal),
       m_xpos(posx),
@@ -38,7 +38,7 @@ class MmDigitToolInput {
   { }
 
 
-  ~MmDigitToolInput() {}
+  ~MM_DigitToolInput() {}
 
       int    stripIDLocal()        const { return m_stripIDLocal; }
       double positionWithinStrip() const { return m_xpos; }

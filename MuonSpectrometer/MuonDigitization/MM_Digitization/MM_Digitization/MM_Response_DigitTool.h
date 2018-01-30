@@ -6,7 +6,7 @@
 #define MM_DIGITIZATION_MM_RESPONSE_DIGITTOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "MM_Digitization/MmDigitToolOutput.h"
+#include "MM_Digitization/MM_DigitToolOutput.h"
 #include "MM_Digitization/IMM_DigitizationTool.h"
 
 #include "GaudiKernel/ServiceHandle.h"
@@ -35,7 +35,7 @@ class MM_Response_DigitTool : public AthAlgTool, virtual public IMM_Digitization
 			const std::string& name,
 			const IInterface* parent );
 
-  MmDigitToolOutput digitize(/* const MmDigitToolInput& input */ );
+  MM_DigitToolOutput digitize(/* const MmDigitToolInput& input */ );
   StatusCode initialize();
   bool initializeStrip();
 

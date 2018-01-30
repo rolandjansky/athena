@@ -2,15 +2,15 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef MM_DIGITIZATION_MMELECTRONICSTOOLTRIGGEROUTPUT_H
-#define MM_DIGITIZATION_MMELECTRONICSTOOLTRIGGEROUTPUT_H
+#ifndef MM_DIGITIZATION_MM_ELECTRONICSTOOLTRIGGEROUTPUT_H
+#define MM_DIGITIZATION_MM_ELECTRONICSTOOLTRIGGEROUTPUT_H
 #include "Identifier/Identifier.h"
 /*******************************************************************************/
-class MmElectronicsToolTriggerOutput {
+class MM_ElectronicsToolTriggerOutput {
 
  public:
 
- MmElectronicsToolTriggerOutput(
+ MM_ElectronicsToolTriggerOutput(
 				const std::vector<int>& NumberOfStripsPos,
 				const std::vector<float>& chipCharge,
 				const std::vector<float>& chipTime,
@@ -22,7 +22,7 @@ class MmElectronicsToolTriggerOutput {
     m_VMMid(VMMid),
     m_MMFEVMMid(MMFEVMMid) {}
 
-  ~ MmElectronicsToolTriggerOutput() {}
+  ~ MM_ElectronicsToolTriggerOutput() {}
 
   std::vector<int> NumberOfStripsPos() const { return m_NumberOfStripsPos; }
   std::vector<float> chipCharge() const { return m_chipCharge; }

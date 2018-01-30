@@ -2,9 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef MM_DIGITIZATION_ELECTRONICSRESPONSESIMULATION_H
-#define MM_DIGITIZATION_ELECTRONICSRESPONSESIMULATION_H
-/** @class ElectronicsResponseSimulation
+#ifndef MM_DIGITIZATION_MM_ELECTRONICSRESPONSESIMULATION_H
+#define MM_DIGITIZATION_MM_ELECTRONICSRESPONSESIMULATION_H
+/** @class MM_ElectronicsResponseSimulation
 
 // ------------
 // Authors:
@@ -51,13 +51,13 @@
 #include <sys/stat.h>
 
 /// Projects
-#include "MM_Digitization/MmElectronicsToolInput.h"
-#include "MM_Digitization/MmElectronicsToolTriggerOutput.h"
-#include "MM_Digitization/MmDigitToolOutput.h"
+#include "MM_Digitization/MM_ElectronicsToolInput.h"
+#include "MM_Digitization/MM_ElectronicsToolTriggerOutput.h"
+#include "MM_Digitization/MM_DigitToolOutput.h"
 // #include "MM_Digitization/StripsResponseSimulation.h"
 
 //VMM Mapping
-#include "MM_Digitization/MMStripVmmMappingTool.h"
+#include "MM_Digitization/MM_StripVmmMappingTool.h"
 
 using std::vector;
 using std::cout;
@@ -69,7 +69,7 @@ class TH1;
 class TH1F;
 class TH2F;
 
-class ElectronicsResponseSimulation {
+class MM_ElectronicsResponseSimulation {
 
 private:
   /** power of responce function */
@@ -92,27 +92,27 @@ private:
 
   TF1 *h_intFn;
   // StripsResponseSimulation* m_stripObject ;
-  ElectronicsResponseSimulation & operator=(const ElectronicsResponseSimulation &right);
-  ElectronicsResponseSimulation(const ElectronicsResponseSimulation&);
+  MM_ElectronicsResponseSimulation & operator=(const MM_ElectronicsResponseSimulation &right);
+  MM_ElectronicsResponseSimulation(const MM_ElectronicsResponseSimulation&);
 public :
 
-  ElectronicsResponseSimulation();
-  virtual ~ElectronicsResponseSimulation();
+  MM_ElectronicsResponseSimulation();
+  virtual ~MM_ElectronicsResponseSimulation();
 
   void initialize();
 
   void clearValues ();
   void vmmPeakResponseFunction(const vector <int> & numberofStrip, const vector<vector <float>> & qStrip, const vector<vector <float>> & tStrip);
   void vmmThresholdResponseFunction(const vector <int> & numberofStrip, const vector<vector <float>> & qStrip, const vector<vector <float>> & tStrip);
-  MmDigitToolOutput getPeakResponseFrom(const MmElectronicsToolInput & digiInput);
-  MmDigitToolOutput getThresholdResponseFrom(const MmElectronicsToolInput & digiInput);
+  MM_DigitToolOutput getPeakResponseFrom(const MM_ElectronicsToolInput & digiInput);
+  MM_DigitToolOutput getThresholdResponseFrom(const MM_ElectronicsToolInput & digiInput);
 
-  MmElectronicsToolTriggerOutput getTheFastestSignalInVMM(const MmDigitToolOutput & ElectronicThresholdOutput, const int chMax, const int stationEta);
+  MM_ElectronicsToolTriggerOutput getTheFastestSignalInVMM(const MM_DigitToolOutput & ElectronicThresholdOutput, const int chMax, const int stationEta);
   int getIdTheFastestSignalInVMM(float time, int VMM_id, std::vector<int> trigger_VMM_id, const std::vector<float> ElectronicsThreshold_stripTime, float timeWindowLower, float timeWindowUpper);
   void getVMMId(const std::vector< int > & ElectronicsThreshold_stripPos, const int chMax, const int stationEta, std::vector< int > & trigger_VMM_id, std::vector< int > & trigger_MMFE_VMM_id);
-  MmDigitToolOutput applyDeadTimeStrip(const MmDigitToolOutput & ElectronicsTriggerOutput);
-  MmElectronicsToolTriggerOutput applyDeadTimeART(const MmElectronicsToolTriggerOutput & ElectronicsTriggerOutput);
-  MmElectronicsToolTriggerOutput applyARTTiming(const MmElectronicsToolTriggerOutput & ElectronicsTriggerOutput, float jitter, float offset);
+  MM_DigitToolOutput applyDeadTimeStrip(const MM_DigitToolOutput & ElectronicsTriggerOutput);
+  MM_ElectronicsToolTriggerOutput applyDeadTimeART(const MM_ElectronicsToolTriggerOutput & ElectronicsTriggerOutput);
+  MM_ElectronicsToolTriggerOutput applyARTTiming(const MM_ElectronicsToolTriggerOutput & ElectronicsTriggerOutput, float jitter, float offset);
   bool deadChannel(int id, float time, std::vector<int> & v_id, const std::vector<float> & v_time, float deadtime);
 
   inline void setPeakTime(float val) { m_peakTime = val;  };

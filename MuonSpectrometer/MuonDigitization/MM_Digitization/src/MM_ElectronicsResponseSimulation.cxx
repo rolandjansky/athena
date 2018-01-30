@@ -3,14 +3,14 @@
 */
 
 /**
-*  ElectronicsResponseSimulation.cxx
+*  MM_ElectronicsResponseSimulation.cxx
 *  MC for micromegas athena integration
 *
 **/
 //~
 /// PROJECTS
 #include "GaudiKernel/MsgStream.h"
-#include "MM_Digitization/ElectronicsResponseSimulation.h"
+#include "MM_Digitization/MM_ElectronicsResponseSimulation.h"
 
 // #include <random>
 #include "TF1.h"
@@ -28,7 +28,7 @@ double shaperResponseFunction(double *x, double *par){
 }
 
 /*******************************************************************************/
-ElectronicsResponseSimulation::ElectronicsResponseSimulation():
+MM_ElectronicsResponseSimulation::MM_ElectronicsResponseSimulation():
 	m_peakTime(0),
 	m_alpha(0),
 	m_timeWindowLowerOffset(0),
@@ -43,7 +43,7 @@ ElectronicsResponseSimulation::ElectronicsResponseSimulation():
 {
 }
 /*******************************************************************************/
-void ElectronicsResponseSimulation::initialize()
+void MM_ElectronicsResponseSimulation::initialize()
 {
 
 	float peakTimeMultiplier = 0;
@@ -72,35 +72,35 @@ void ElectronicsResponseSimulation::initialize()
 
 }
 /*******************************************************************************/
-void ElectronicsResponseSimulation::clearValues()
+void MM_ElectronicsResponseSimulation::clearValues()
 {
 	m_tStripElectronicsAbThr.clear();
 	m_qStripElectronics.clear();
 	m_nStripElectronics.clear();
 }
 /*******************************************************************************/
-MmDigitToolOutput ElectronicsResponseSimulation::getPeakResponseFrom(const MmElectronicsToolInput & digiInput)
+MM_DigitToolOutput MM_ElectronicsResponseSimulation::getPeakResponseFrom(const MM_ElectronicsToolInput & digiInput)
 {
 	clearValues();
 
 	vmmPeakResponseFunction(digiInput.NumberOfStripsPos(), digiInput.chipCharge(), digiInput.chipTime() );
 
 	/// ToDo: include loop for calculating Trigger study vars
-	// MmDigitToolOutput(bool hitWasEff, std::vector <int> strpos, std::vector<float> time, std::vector<int> charge, int strTrig, float strTimeTrig ):
-	MmDigitToolOutput tmp(true, m_nStripElectronics, m_tStripElectronicsAbThr, m_qStripElectronics, 5, 0.3);
+	// MM_DigitToolOutput(bool hitWasEff, std::vector <int> strpos, std::vector<float> time, std::vector<int> charge, int strTrig, float strTimeTrig ):
+	MM_DigitToolOutput tmp(true, m_nStripElectronics, m_tStripElectronicsAbThr, m_qStripElectronics, 5, 0.3);
 
 	return tmp;
 }
 /*******************************************************************************/
-MmDigitToolOutput ElectronicsResponseSimulation::getThresholdResponseFrom(const MmElectronicsToolInput & digiInput)
+MM_DigitToolOutput MM_ElectronicsResponseSimulation::getThresholdResponseFrom(const MM_ElectronicsToolInput & digiInput)
 {
 	clearValues();
 	vmmThresholdResponseFunction(digiInput.NumberOfStripsPos(), digiInput.chipCharge(), digiInput.chipTime() );
-	MmDigitToolOutput tmp(true, m_nStripElectronics, m_tStripElectronicsAbThr, m_qStripElectronics, 5, 0.3);
+	MM_DigitToolOutput tmp(true, m_nStripElectronics, m_tStripElectronicsAbThr, m_qStripElectronics, 5, 0.3);
 	return tmp;
 }
 /*******************************************************************************/
-void ElectronicsResponseSimulation::vmmPeakResponseFunction(const vector <int> & numberofStrip, const vector<vector <float>> & qStrip, const vector<vector <float>> & tStrip){
+void MM_ElectronicsResponseSimulation::vmmPeakResponseFunction(const vector <int> & numberofStrip, const vector<vector <float>> & qStrip, const vector<vector <float>> & tStrip){
 
 	for (unsigned int ii = 0; ii < numberofStrip.size(); ii++) {
 
@@ -109,7 +109,7 @@ void ElectronicsResponseSimulation::vmmPeakResponseFunction(const vector <int> &
 		double maxChargeLeftNeighbor = 0;
 		double maxChargeRightNeighbor = 0;
 
-		// Athena::MsgStreamMember log("ElectronicsResponseSimulation::VMMResponseFunction");
+		// Athena::MsgStreamMember log("MM_ElectronicsResponseSimulation::VMMResponseFunction");
 		// find the maximum charge:
 		if ( ii > 0 ) {
 			// log << MSG::DEBUG << "for Left neighbor:   tStrip.at(ii-1) "<< tStrip.at(ii-1) << " qStrip.at(ii-1) " << qStrip.at(ii-1) << endmsg;
@@ -178,14 +178,14 @@ void ElectronicsResponseSimulation::vmmPeakResponseFunction(const vector <int> &
 
 
 
-void ElectronicsResponseSimulation::vmmThresholdResponseFunction(const vector <int> & numberofStrip, const vector<vector <float>> & qStrip, const vector<vector <float>> & tStrip){
+void MM_ElectronicsResponseSimulation::vmmThresholdResponseFunction(const vector <int> & numberofStrip, const vector<vector <float>> & qStrip, const vector<vector <float>> & tStrip){
 
 	//    float tmp_Stripq = 0;
 	//    float tmp_Stript = 9999.0;
 
 	for (unsigned int ii = 0; ii < numberofStrip.size(); ii++) {
 
-		// Athena::MsgStreamMember log("ElectronicsResponseSimulation::VMMTriggerResponseFunction");
+		// Athena::MsgStreamMember log("MM_ElectronicsResponseSimulation::VMMTriggerResponseFunction");
 
 		shaperInputTime = tStrip.at(ii);
 		shaperInputCharge = qStrip.at(ii);
@@ -214,8 +214,8 @@ void ElectronicsResponseSimulation::vmmThresholdResponseFunction(const vector <i
 /*******************************************************************************/
 
 
-MmElectronicsToolTriggerOutput ElectronicsResponseSimulation::getTheFastestSignalInVMM(
-	const MmDigitToolOutput & ElectronicThresholdOutput,
+MM_ElectronicsToolTriggerOutput MM_ElectronicsResponseSimulation::getTheFastestSignalInVMM(
+	const MM_DigitToolOutput & ElectronicThresholdOutput,
 	const int chMax,
 	const int stationEta){
 
@@ -274,7 +274,7 @@ MmElectronicsToolTriggerOutput ElectronicsResponseSimulation::getTheFastestSigna
 		}
 	}
 
-	MmElectronicsToolTriggerOutput ElectronicsTriggerOutput (
+	MM_ElectronicsToolTriggerOutput ElectronicsTriggerOutput (
 		electronicsTriggerStripPos,
 		electronicsTriggerStripCharge,
 		electronicsTriggerStripTime,
@@ -284,7 +284,7 @@ MmElectronicsToolTriggerOutput ElectronicsResponseSimulation::getTheFastestSigna
 	return ElectronicsTriggerOutput;
 }
 
-int ElectronicsResponseSimulation::getIdTheFastestSignalInVMM(
+int MM_ElectronicsResponseSimulation::getIdTheFastestSignalInVMM(
 	float time,
 	int VMM_id,
 	std::vector<int> trigger_VMM_id,
@@ -310,7 +310,7 @@ int ElectronicsResponseSimulation::getIdTheFastestSignalInVMM(
 	return theFastestSignal;
 }
 
-void ElectronicsResponseSimulation::getVMMId(const std::vector< int > & m_electronicsThresholdStripPos,
+void MM_ElectronicsResponseSimulation::getVMMId(const std::vector< int > & m_electronicsThresholdStripPos,
 	const int chMax,
 	const int stationEta,
 	std::vector< int > & trigger_VMM_id,
@@ -332,7 +332,7 @@ void ElectronicsResponseSimulation::getVMMId(const std::vector< int > & m_electr
 	}
 }
 
-MmDigitToolOutput ElectronicsResponseSimulation::applyDeadTimeStrip(const MmDigitToolOutput & electronicsTriggerOutput){
+MM_DigitToolOutput MM_ElectronicsResponseSimulation::applyDeadTimeStrip(const MM_DigitToolOutput & electronicsTriggerOutput){
 
 	const std::vector<int>   & electronicsStripPos    = electronicsTriggerOutput.stripPos();
 	const std::vector<float> & electronicsStripTime   = electronicsTriggerOutput.stripTime();
@@ -359,7 +359,7 @@ MmDigitToolOutput ElectronicsResponseSimulation::applyDeadTimeStrip(const MmDigi
 	//    else std::cout <<  "Killed due to the strip dead time" << std::endl;
 	}
 
-	MmDigitToolOutput ElectronicsTriggerOutputAppliedDeadTime(
+	MM_DigitToolOutput ElectronicsTriggerOutputAppliedDeadTime(
 		true,  // meaningless
 		electronicsAppliedDeadtimeStripPos,
 		electronicsAppliedDeadtimeStripTime,
@@ -371,7 +371,7 @@ MmDigitToolOutput ElectronicsResponseSimulation::applyDeadTimeStrip(const MmDigi
 }
 
 
-MmElectronicsToolTriggerOutput ElectronicsResponseSimulation::applyARTTiming(const MmElectronicsToolTriggerOutput & electronicsTriggerOutput, float jitter, float offset){
+MM_ElectronicsToolTriggerOutput MM_ElectronicsResponseSimulation::applyARTTiming(const MM_ElectronicsToolTriggerOutput & electronicsTriggerOutput, float jitter, float offset){
 
 
 
@@ -412,7 +412,7 @@ MmElectronicsToolTriggerOutput ElectronicsResponseSimulation::applyARTTiming(con
 
 	}
 
-	MmElectronicsToolTriggerOutput electronicsTriggerOutputAppliedTiming(
+	MM_ElectronicsToolTriggerOutput electronicsTriggerOutputAppliedTiming(
 		electronicsTriggerAppliedTimingStripPos,
 		electronicsTriggerAppliedTimingStripCharge,
 		electronicsTriggerAppliedTimingStripTime,
@@ -423,7 +423,7 @@ MmElectronicsToolTriggerOutput ElectronicsResponseSimulation::applyARTTiming(con
 }
 
 
-MmElectronicsToolTriggerOutput ElectronicsResponseSimulation::applyDeadTimeART(const MmElectronicsToolTriggerOutput & electronicsTriggerOutput){
+MM_ElectronicsToolTriggerOutput MM_ElectronicsResponseSimulation::applyDeadTimeART(const MM_ElectronicsToolTriggerOutput & electronicsTriggerOutput){
 
 	const std::vector<int>  & electronicsTriggerStripPos     = electronicsTriggerOutput.NumberOfStripsPos();
 	const std::vector<float> & electronicsTriggerStripTime   = electronicsTriggerOutput.chipTime();
@@ -462,7 +462,7 @@ MmElectronicsToolTriggerOutput ElectronicsResponseSimulation::applyDeadTimeART(c
 		}
 	}
 
-	MmElectronicsToolTriggerOutput electronicsTriggerOutputAppliedDeadTime(
+	MM_ElectronicsToolTriggerOutput electronicsTriggerOutputAppliedDeadTime(
 		electronicsTriggerAppliedDeadtimeStripPos,
 		electronicsTriggerAppliedDeadtimeStripCharge,
 		electronicsTriggerAppliedDeadtimeStripTime,
@@ -471,7 +471,7 @@ MmElectronicsToolTriggerOutput ElectronicsResponseSimulation::applyDeadTimeART(c
 
 	return electronicsTriggerOutputAppliedDeadTime;
 }
-bool ElectronicsResponseSimulation::deadChannel(int id, float time, std::vector<int> & v_id, const std::vector<float> & v_time, float deadtime){
+bool MM_ElectronicsResponseSimulation::deadChannel(int id, float time, std::vector<int> & v_id, const std::vector<float> & v_time, float deadtime){
 	bool DEAD = false;
 	for(size_t ii = 0; ii<v_id.size(); ii++){
 		if(id == v_id[ii]){
@@ -484,7 +484,7 @@ bool ElectronicsResponseSimulation::deadChannel(int id, float time, std::vector<
 	return DEAD;
 }
 
-ElectronicsResponseSimulation::~ElectronicsResponseSimulation()
+MM_ElectronicsResponseSimulation::~MM_ElectronicsResponseSimulation()
 {
 	if (h_intFn) delete h_intFn;
 	clearValues();

@@ -5,7 +5,7 @@
 #ifndef MM_DIGITIZATION_MM_STRIPRESPONSE_H
 #define MM_DIGITIZATION_MM_STRIPRESPONSE_H
 //
-// MM_StripResponse.cxx
+// MM_MM_StripResponse.cxx
 //     Simulate strip response
 //
 
@@ -17,7 +17,7 @@
 #include <algorithm>
 #include <memory>
 
-class StripResponse {
+class MM_StripResponse {
 
   float timeResolution;
   float stripPitch;
@@ -44,8 +44,8 @@ class StripResponse {
 
  public:
 
-  StripResponse();
-  StripResponse(std::vector<MM_IonizationCluster> IonizationClusters, float _timeResolution, float _stripPitch, int _stripID, int _maxstripID);
+  MM_StripResponse();
+  MM_StripResponse(std::vector<MM_IonizationCluster> IonizationClusters, float _timeResolution, float _stripPitch, int _stripID, int _maxstripID);
   void timeOrderElectrons();
   void calculateTimeSeries(float thetaD, int gasgap);
   //  void calculateTimeSeries();

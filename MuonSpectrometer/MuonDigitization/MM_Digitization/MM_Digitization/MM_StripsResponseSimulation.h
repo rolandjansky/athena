@@ -43,10 +43,9 @@ Comments to be added here...
 #include <TGraph.h>
 
 /// Projects
-#include "MM_Digitization/MmDigitToolInput.h"
-#include "MM_Digitization/MmStripToolOutput.h"
+#include "MM_Digitization/MM_DigitToolInput.h"
+#include "MM_Digitization/MM_StripToolOutput.h"
 #include "MM_Digitization/MM_IonizationCluster.h"
-// #include "MM_Digitization/GarfieldGas.h"
 
 /// STD'S
 #include <algorithm>
@@ -68,11 +67,10 @@ class TF1;
 class TRandom;
 class TRandom3;
 
-class MmDigitToolInput;
-class MmStripToolOutput;
+class MM_DigitToolInput;
+class MM_StripToolOutput;
 
-
-class StripsResponseSimulation {
+class MM_StripsResponseSimulation {
 
 private:
 
@@ -115,25 +113,25 @@ private:
 
   // GarfieldGas* gas;
 
-  StripsResponseSimulation & operator=(const StripsResponseSimulation &right);
-  StripsResponseSimulation(const StripsResponseSimulation&);
+  MM_StripsResponseSimulation & operator=(const MM_StripsResponseSimulation &right);
+  MM_StripsResponseSimulation(const MM_StripsResponseSimulation&);
 
   std::vector<MM_IonizationCluster> IonizationClusters;
 
 public :
 
 
-  StripsResponseSimulation();
+  MM_StripsResponseSimulation();
 
-  virtual ~StripsResponseSimulation();
-  MmStripToolOutput GetResponseFrom(const MmDigitToolInput & digiInput);
+  virtual ~MM_StripsResponseSimulation();
+  MM_StripToolOutput GetResponseFrom(const MM_DigitToolInput & digiInput);
 
   void initialize ();
   void writeHistos();
   void initHistos ();
   void clearValues ();
   void initFunctions ();
-  void whichStrips(const float & hitx, const int & stripOffest, const float & incidentAngleXZ, const float & incidentAngleYZ, const int & stripMaxID, const MmDigitToolInput & digiInput);
+  void whichStrips(const float & hitx, const int & stripOffest, const float & incidentAngleXZ, const float & incidentAngleYZ, const int & stripMaxID, const MM_DigitToolInput & digiInput);
 
   inline void setQThreshold (float val) { m_qThreshold = val; };
   inline void setTransverseDiffusionSigma (float val) { m_transverseDiffusionSigma = val; };

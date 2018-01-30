@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef MM_DIGITIZATION_MMDIGITTOOLOUTPUT_H
-#define MM_DIGITIZATION_MMDIGITTOOLOUTPUT_H
+#ifndef MM_DIGITIZATION_MM_DIGITTOOLOUTPUT_H
+#define MM_DIGITIZATION_MM_DIGITTOOLOUTPUT_H
 
 /*-----------------------------------------------
 
@@ -20,9 +20,9 @@ Class to store output produced by MDT_Digitization tools:
 
 -----------------------------------------------*/
 
-class MmDigitToolOutput {
+class MM_DigitToolOutput {
  public:
-    MmDigitToolOutput(bool hitWasEff, std::vector <int> strpos, std::vector<float> time, std::vector<float> charge, int strTrig, float strTimeTrig )
+    MM_DigitToolOutput(bool hitWasEff, std::vector <int> strpos, std::vector<float> time, std::vector<float> charge, int strTrig, float strTimeTrig )
      :  m_hitWasEff(hitWasEff),
         m_strpos(strpos),
         m_time(time),
@@ -34,7 +34,7 @@ class MmDigitToolOutput {
         if(m_strpos.size() > 0 && m_time.size() > 0 && m_charge.size() > 0) m_isValid = true;
     }
 
-    ~MmDigitToolOutput() {}
+    ~MM_DigitToolOutput() {}
 
     bool hitWasEfficient()  const { return m_hitWasEff; }
     std::vector<int> stripPos() const { return m_strpos; }
