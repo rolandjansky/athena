@@ -21,6 +21,7 @@ SCT_SiliconTempCondAlg::SCT_SiliconTempCondAlg(const std::string& name, ISvcLoca
   declareProperty("ReadKeyState", m_readKeyState, "Key of input state conditions folder");
   declareProperty("ReadKeyTemp", m_readKeyTemp0, "Key of input (hybrid) temperature conditions folder");
   declareProperty("WriteKey", m_writeKey, "Key of output (sensor) temperature conditions folder");
+  declareProperty("DCSConditionsSvc", m_sctDCSSvc, "SCT_DCSConditionsSvc");
 }
 
 SCT_SiliconTempCondAlg::~SCT_SiliconTempCondAlg() {

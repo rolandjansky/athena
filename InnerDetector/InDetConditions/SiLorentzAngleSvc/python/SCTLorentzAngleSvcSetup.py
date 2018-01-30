@@ -83,6 +83,10 @@ class SCTLorentzAngleSvcSetup:
             if not hasattr(condSeq, "SCT_SiliconTempCondAlg"):
                 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SiliconTempCondAlg
                 condSeq += SCT_SiliconTempCondAlg(name = "SCT_SiliconTempCondAlg")
+            if not hasattr(svcMgr, "InDetSCT_DCSConditionsSvc"):
+                from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsSvc
+                InDetSCT_DCSConditionsSvc = SCT_DCSConditionsSvc(name = "InDetSCT_DCSConditionsSvc")
+                svcMgr += InDetSCT_DCSConditionsSvc
 
         # Pass the silicon conditions services to the Lorentz angle service
         # Also make sure UseMagFieldTool is True as AtlasGeoModel sets this to False
