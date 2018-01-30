@@ -69,8 +69,9 @@ namespace xAODMaker {
 
    StatusCode EventFormatMetaDataTool::beginInputFile()
    {
-      if( collectMetaData().isFailure() ) {
-         REPORT_ERROR( MSG::FATAL )
+      StatusCode sc = collectMetaData();
+      if( sc.isFailure() ) {
+         REPORT_ERROR( sc )
             << "Failed to collect metadata from the input file";
          throw std::runtime_error( "Failed to collect trigger configuration "
                                    "metadata from the input" );
@@ -87,8 +88,9 @@ namespace xAODMaker {
 
    StatusCode EventFormatMetaDataTool::metaDataStop()
    {
-      if( writeMetaData().isFailure() ) {
-         REPORT_ERROR( MSG::FATAL )
+      StatusCode sc = writeMetaData();
+      if( sc.isFailure() ) {
+         REPORT_ERROR( sc )
             << "Failed to write metadata to the output store";
          throw std::runtime_error( "Failed write xAOD::EventFormat "
                                    "to the output" );
