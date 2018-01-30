@@ -1203,8 +1203,8 @@ sub run_test($){
           $newfile = substr($newfile, $lslash+1 );
           # in this case ref-file for an existing test will end in .new
           $reffile = $reffile . ".new";
-	}  elsif      ( substr($newfile, 0, 5) eq "/afs/" ){
-          # should be usual case: ref file is in afs  
+	}  elsif      ( substr($newfile, 0, 7) eq "/cvmfs/" ){
+          # should be usual case: ref file is in cvmfs for ART (was /afs/ for ATN)  
           my $lslash = rindex $newfile, '/';
           $newfile = substr($newfile, $lslash+1 );
           if( $nightly ne "" ) {
