@@ -56,6 +56,19 @@ EFMissingETFromClustersTracksPUC::EFMissingETFromClustersTracksPUC(const std::st
   declareProperty("CaloResSqrtTerm", m_caloResSqrtTerm = 15.81, "The coefficient of the sqrt term in the calorimeter resolution (in MeV)");
   declareProperty("CaloResFloor", m_caloResFloor = 50, "Floor for calorimeter resolution (in MeV)");
   declareProperty("ConstraintWeight", m_constraintWeight = 1., "The relative weighting applied to the constraints");
+
+  // declare configurables
+
+  m_fextype = FexType::TOPO;
+  m_methelperposition = 3;
+
+  // Determine number of phi & eta bins, and number of towers
+  m_nPhiBins = TMath::TwoPi() / m_targetTowerWidth;
+  m_nEtaBins = 2 * m_maxEta / m_targetTowerWidth;
+  m_nTowers = m_nPhiBins * m_nEtaBins;
+
+  m_towerEtaWidth = 2 * m_maxEta / m_nEtaBins;
+  m_towerPhiWidth = TMath::TwoPi() / m_nPhiBins;
 }
 
 
@@ -79,18 +92,6 @@ StatusCode EFMissingETFromClustersTracksPUC::initialize()
     std::string basename=name()+".TotalTime";
     m_glob_timer = m_timersvc->addItem(basename);
   } // if timing service
-
-  // This is the position used by tc_lcw.
-  // I think probably this system needs a big rework but I've just not had the time to do it
-  // Maybe you should make up your own position? I don't know :(
-  m_methelperposition = 3;
-
-  m_nPhiBins = TMath::TwoPi() / m_targetTowerWidth;
-  m_nEtaBins = 2 * m_maxEta / m_targetTowerWidth;
-  m_nTowers = m_nPhiBins * m_nEtaBins;
-
-  m_towerEtaWidth = 2 * m_maxEta / m_nEtaBins;
-  m_towerPhiWidth = TMath::TwoPi() / m_nPhiBins;
 
   return StatusCode::SUCCESS;
 }
