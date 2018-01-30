@@ -177,7 +177,7 @@ namespace Root {
         /// List of histograms for fast simulation
         std::map<int, std::vector< TObjArray > > m_fastHistList;
         std::vector< std::vector< TObjArray > > m_fastSysList;
-        //The Randomw generator class   
+        //The Random generator class   
         TRandom3 m_Rndm;
     }; // End: class definition
 
