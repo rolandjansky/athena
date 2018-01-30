@@ -111,6 +111,7 @@ StatusCode TileCondToolEmscale::initialize() {
     ATH_MSG_INFO("ProxyOflLasFib is set up and can be used");
   } else {
     ATH_MSG_INFO("ProxyOflLasFib is not set up and cannot be used");
+    m_pryOflLasFib.disable();
   }
 
   //=== Attempt to load online folders only if online cache unit is valid

@@ -74,6 +74,8 @@ StatusCode FullCaloCellContMaker::initialize(){
       std::cout << name() << "     Two-Gaussian noise for Tile set to " << (m_twogaussiannoise ? "true" : "false") << std::endl;
       std::cout << name() << "     Asbolute E in sigma         set to " << (m_absEinSigma      ? "true" : "false") << std::endl;
    // }
+  } else {
+    m_noiseTool.disable();
   }
   else {
     m_noiseTool.disable();
