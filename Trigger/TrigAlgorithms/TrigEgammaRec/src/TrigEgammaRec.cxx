@@ -796,6 +796,10 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
       if (!tracks || tracks->size()<1){
        return HLT::OK;
       }
+      for (const xAOD::TrackParticle *trk:*tracks) {
+            ATH_MSG_DEBUG("track pt is: " << trk->pt());
+      }
+            
 
       //output collections
       TrackCollection *refitTracks = new TrackCollection(0);
@@ -808,6 +812,9 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
 	return HLT::ERROR;  
       }
 
+      for (const xAOD::TrackParticle *trk:*GSFTrigTrackParticles) {
+            ATH_MSG_DEBUG("GSFTrigTrackParticles pt is: " << trk->pt());
+      }
       //Interaction with the navigation
       std::string GSFTrigTracksContSGKey = "TrigGSFTrackParticlesColl";
       std::string GSFTrigTracksKey = "TrigGSFTrackParticles";
@@ -876,6 +883,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
         float leadTrkpt=0.0;
         const xAOD::TrackParticle *leadTrk=NULL;
         for (const xAOD::TrackParticle *trk:*pTrackParticleContainer) {
+        ATH_MSG_DEBUG("In track matching, track pt: " << trk->pt());
             if(trk->pt() > leadTrkpt) {
                 leadTrkpt = trk->pt();
                 leadTrk=trk;
