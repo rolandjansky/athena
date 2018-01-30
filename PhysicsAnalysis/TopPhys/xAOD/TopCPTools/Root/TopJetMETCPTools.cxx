@@ -370,22 +370,22 @@ StatusCode JetMETCPTools::setupLargeRJetsCalibration() {
     // so just put it here for now.
     std::string calibConfigLargeR = "";
     const std::string calibChoice = m_config->largeRJESJMSConfig();	
-    //to be added in next update
-    /*if (calibChoice == "CombinedMass") {
-      calibConfigLargeR = "JES_MC15recommendation_FatJet_Nov2016_QCDCombinationUncorrelatedWeights_rel21.config";
-    }*/
-    if (calibChoice == "TrackAssistedMass") {
+    if (calibChoice == "CombinedMass") {
+      //calibConfigLargeR = "JES_MC15recommendation_FatJet_Nov2016_QCDCombinationUncorrelatedWeights_rel21.config";
+      calibConfigLargeR = "JES_MC16recommendation_FatJet_JMS_comb_19Jan2018.config";
+    }
+    else if (calibChoice == "TrackAssistedMass") {
       calibConfigLargeR = "JES_MC16recommendation_FatJet_JMS_TA_29Nov2017.config";
     }
     else if (calibChoice == "CaloMass") {
       calibConfigLargeR = "JES_MC16recommendation_FatJet_JMS_calo_29Nov2017.config";
     }
     else {
-      ATH_MSG_ERROR("Unknown largeRJESJMSConfig (Only TrackAssistedMass and CaloMass available. CombinedMass will be available soon) : "+calibChoice);
+      ATH_MSG_ERROR("Unknown largeRJESJMSConfig (Available options: TrackAssistedMass, CaloMass and CombinedMass) : "+calibChoice);
       return StatusCode::FAILURE;
     }
     const std::string calibSequenceLargeR = "EtaJES_JMS";
-    
+    const std::string calibAreaLargeR = "00-04-81";
     JetCalibrationTool* jetCalibrationToolLargeR
       = new JetCalibrationTool("JetCalibrationToolLargeR");
     top::check(asg::setProperty(jetCalibrationToolLargeR, "JetCollection", jetCalibrationNameLargeR),
@@ -394,9 +394,10 @@ StatusCode JetMETCPTools::setupLargeRJetsCalibration() {
                 "Failed to set ConfigFile " + calibConfigLargeR);
     top::check(asg::setProperty(jetCalibrationToolLargeR, "CalibSequence", calibSequenceLargeR),
                 "Failed to set CalibSequence " + calibSequenceLargeR);
+    top::check(asg::setProperty(jetCalibrationToolLargeR, "CalibArea", calibAreaLargeR),
+                "Failed to set CalibArea " + calibAreaLargeR);
     top::check(asg::setProperty(jetCalibrationToolLargeR, "IsData", !m_config->isMC()),
-                "Failed to set IsData " + !m_config->isMC());
-
+                "Failed to set IsData " + !m_config->isMC());    
     top::check(jetCalibrationToolLargeR->initializeTool(jetCalibrationNameLargeR),
                 "Failed to initialize JetCalibrationToolLargeR");
     m_jetCalibrationToolLargeR = jetCalibrationToolLargeR;
