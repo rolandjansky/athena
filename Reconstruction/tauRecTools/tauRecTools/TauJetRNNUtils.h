@@ -95,6 +95,10 @@ bool trFlightPathSig(const xAOD::TauJet &tau, double &out);
 
 bool massTrkSys(const xAOD::TauJet &tau, double &out);
 
+bool pt(const xAOD::TauJet &tau, double &out);
+
+bool ptDetectorAxis(const xAOD::TauJet &tau, double &out);
+
 bool ptIntermediateAxis(const xAOD::TauJet &tau, double &out);
 
 

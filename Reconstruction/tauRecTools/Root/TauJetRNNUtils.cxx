@@ -106,6 +106,8 @@ std::unique_ptr<VarCalc> get_default_calculator() {
     calc->insert("dRmax", Variables::dRmax);
     calc->insert("trFlightPathSig", Variables::trFlightPathSig);
     calc->insert("massTrkSys", Variables::massTrkSys);
+    calc->insert("pt", Variables::pt);
+    calc->insert("ptDetectorAxis", Variables::ptDetectorAxis);
     calc->insert("ptIntermediateAxis", Variables::ptIntermediateAxis);
 
     // Track variable calculator functions
@@ -119,7 +121,7 @@ std::unique_ptr<VarCalc> get_default_calculator() {
     calc->insert("nPixelHits", Variables::Track::nPixelHits);
     calc->insert("nSCTHits", Variables::Track::nSCTHits);
 
-    // Cluster calculator functions
+    // Cluster variable calculator functions
     calc->insert("et_log", Variables::Cluster::et_log);
     calc->insert("pt_jetseed_log", Variables::Cluster::pt_jetseed_log);
     calc->insert("dEta", Variables::Cluster::dEta);
@@ -214,6 +216,16 @@ bool massTrkSys(const xAOD::TauJet &tau, double &out) {
     const auto success = tau.detail(TauDetail::massTrkSys, massTrkSys);
     out = TMath::Log10(std::max(massTrkSys, 140.0f));
     return success;
+}
+
+bool pt(const xAOD::TauJet &tau, double &out) {
+    out = TMath::Log10(std::min(tau.pt() / 1000.0, 100.0));
+    return true;
+}
+
+bool ptDetectorAxis(const xAOD::TauJet &tau, double &out) {
+    out = TMath::Log10(std::min(tau.ptDetectorAxis() / 1000.0, 100.0));
+    return true;
 }
 
 bool ptIntermediateAxis(const xAOD::TauJet &tau, double &out) {
