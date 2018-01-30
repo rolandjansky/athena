@@ -313,8 +313,10 @@ HLT::ErrorCode EFMissingET::hltBeginRun() {
   }
 
   if(m_doJets && !foundJets) {
-    ATH_MSG_ERROR( "found jet config but no JetTool .. aborting " );
-    return HLT::ERROR;
+    if (!m_doTopoClusters){
+      ATH_MSG_ERROR( "found jet config but no JetTool .. aborting " );
+      return HLT::ERROR;
+    }
   }
 
 
