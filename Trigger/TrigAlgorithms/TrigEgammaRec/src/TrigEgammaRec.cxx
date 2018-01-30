@@ -762,10 +762,6 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
 
 
     //********************************************************************************
-    // create container to be passed to other functions
-    std::vector<const xAOD::TrackParticleContainer*> vectorTrackParticleContainer;
-
-    // Start track refitting using GSF
     if (m_doBremCollection){ 
 
       ATH_MSG_DEBUG("In m_doBremCollection");
@@ -784,7 +780,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
       ATH_MSG_DEBUG (clusContainer->size() << " calo clusters in container");
       
       
-      //std::vector<const xAOD::TrackParticleContainer*> vectorTrackParticleContainer;
+      std::vector<const xAOD::TrackParticleContainer*> vectorTrackParticleContainer;
       stat = getFeatures(inputTE, vectorTrackParticleContainer);
       
       if (stat != HLT::OK) {
@@ -845,10 +841,8 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
     leadTrkVtx.makePrivateStore();
     std::string TrkCollKey="";
     if (m_doTrackMatching){
-        //std::vector<const xAOD::TrackParticleContainer*> vectorTrackParticleContainer;
-        if(!m_doBremCollection){
-            stat = getFeatures(inputTE, vectorTrackParticleContainer);
-        }
+        std::vector<const xAOD::TrackParticleContainer*> vectorTrackParticleContainer;
+        stat = getFeatures(inputTE, vectorTrackParticleContainer);
         // in case a TrackParticleContainer is retrieved from the TE
         if (stat != HLT::OK) {
             m_doTrackMatching=false;
