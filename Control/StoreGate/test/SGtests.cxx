@@ -523,19 +523,11 @@ namespace Athena_test
     virtual const CLID& objType() const { abort(); }
     virtual long repSvcType() const { abort(); }
     virtual StatusCode setDataProvider(IDataProviderSvc*) { abort(); }
-#ifdef ATLAS_GAUDI_V21
     virtual SmartIF<IDataProviderSvc>& dataProvider() const { abort(); }
     virtual StatusCode setConversionSvc(IConversionSvc*) { abort(); }
     virtual SmartIF<IConversionSvc>& conversionSvc()    const { abort(); }
     virtual StatusCode setAddressCreator(IAddressCreator*) { abort(); }
     virtual SmartIF<IAddressCreator>& addressCreator()    const { abort(); }
-#else
-    virtual IDataProviderSvc* dataProvider() const { abort(); }
-    virtual StatusCode setConversionSvc(IConversionSvc*) { abort(); }
-    virtual IConversionSvc* conversionSvc()    const { abort(); }
-    virtual StatusCode setAddressCreator(IAddressCreator*) { abort(); }
-    virtual IAddressCreator* addressCreator()    const { abort(); }
-#endif
     virtual StatusCode fillObjRefs(IOpaqueAddress*, DataObject*) { abort(); }
     virtual StatusCode updateObj(IOpaqueAddress*, DataObject*) { abort(); }
     virtual StatusCode updateObjRefs(IOpaqueAddress*, DataObject*) { abort(); }
