@@ -499,10 +499,12 @@ class SCT_ConditionsServicesSetup:
     condSeq = AthSequencer("AthCondSeq")
     if not hasattr(condSeq, "SCT_SiliconTempCondAlg"):
       from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SiliconTempCondAlg
-      condSeq += SCT_SiliconTempCondAlg(name = "SCT_SiliconTempCondAlg")
+      condSeq += SCT_SiliconTempCondAlg(name = "SCT_SiliconTempCondAlg",
+                                        DCSConditionsSvc=self.dcsSvc)
     if not hasattr(condSeq, "SCT_SiliconHVCondAlg"):
       from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SiliconHVCondAlg
-      condSeq += SCT_SiliconHVCondAlg(name = "SCT_SiliconHVCondAlg")
+      condSeq += SCT_SiliconHVCondAlg(name = "SCT_SiliconHVCondAlg",
+                                      DCSConditionsSvc=self.dcsSvc)
     from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SiliconConditionsSvc
     sctSiliconConditionsSvc= SCT_SiliconConditionsSvc(name=self.instanceName('InDetSCT_SiliconConditionsSvc'),
                                                       DCSConditionsSvc=self.dcsSvc)

@@ -21,6 +21,7 @@ SCT_SiliconHVCondAlg::SCT_SiliconHVCondAlg(const std::string& name, ISvcLocator*
   declareProperty("ReadKeyState", m_readKeyState, "Key of input state conditions folder");
   declareProperty("ReadKeyHV", m_readKeyHV, "Key of input HV conditions folder");
   declareProperty("WriteKey", m_writeKey, "Key of output bias voltage conditions folder");
+  declareProperty("DCSConditionsSvc", m_sctDCSSvc, "SCT_DCSConditionsSvc");
 }
 
 SCT_SiliconHVCondAlg::~SCT_SiliconHVCondAlg() {
