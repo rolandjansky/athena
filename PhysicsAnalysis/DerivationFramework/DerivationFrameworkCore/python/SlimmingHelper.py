@@ -38,6 +38,7 @@ from DerivationFrameworkCore.CompulsoryContent import *
 from DerivationFrameworkCore.ContentHandler import *
 from DerivationFrameworkCore.ContainersForExpansion import ContainersForExpansion
 from DerivationFrameworkCore.ContainersOnTheFly import ContainersOnTheFly
+from DerivationFrameworkCore.AllVariablesDisallowed import AllVariablesDisallowed
 from AthenaCommon.BeamFlags import jobproperties
 from AthenaCommon.GlobalFlags  import globalflags
 import PyUtils.Logging as L
@@ -132,6 +133,11 @@ class SlimmingHelper:
                 allVariablesList = []          
                 # Add all-variable collections
                 if len(self.AllVariables)>0:
+                        formatName = Stream.Name.strip("Stream_DAOD")
+                        # Block AllVariables for those formats for which it is disallowed
+                        if formatName in AllVariablesDisallowed:
+                                msg.error("AllVariables is not permitted for the format "+formatName+" - please use smart slimming and/or ExtraVariables")
+                                raise RuntimeError("AllVariables not permitted for requested DAOD format")
                         for item in self.AllVariables:
                                 masterItemList.extend(self.GetWholeContentItems(item))
                 for item in masterItemList:
