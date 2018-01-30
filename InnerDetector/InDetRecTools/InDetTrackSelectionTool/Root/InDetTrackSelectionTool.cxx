@@ -213,8 +213,8 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
     ATH_CHECK( m_extrapolator.retrieve() );
     ATH_MSG_INFO( "Retrieved tool " << m_extrapolator );
   } else {
-    m_trackSumTool.disable();
     m_extrapolator.disable();
+    m_trackSumTool.disable();
   }
   else {
     m_trackSumTool.disable();

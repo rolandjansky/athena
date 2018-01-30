@@ -76,15 +76,15 @@ StatusCode T2CaloJetCalibTool::initialize()
 
   StatusCode sc;
   // Retrieve the jet calibration tool:
-  ATH_CHECK( m_t2JetCalibTool.retrieve( DisableTool( !m_doJetCalib ) ) );
+  ATH_CHECK( m_t2JetCalibTool.retrieve(      DisableTool {!m_doJetCalib}  ));
   
   // Retrieve the layer correction tools:
-  ATH_CHECK( m_t2JetCorrToolTile1.retrieve(  DisableTool (!m_doJetCorrTile1) ));
-  ATH_CHECK( m_t2JetCorrToolFcal1.retrieve(  DisableTool (!m_doJetCorrFcal1) ));
-  ATH_CHECK( m_t2JetCorrToolEm3Bar.retrieve( DisableTool (!m_doJetCorrEm3Bar) ));
-  ATH_CHECK( m_t2JetCorrToolHec0.retrieve(   DisableTool (!m_doJetCorrHec0) ));
-  ATH_CHECK( m_t2JetCorrToolEm3Fwd.retrieve( DisableTool (!m_doJetCorrEm3Fwd) ));
-  ATH_CHECK( m_t2JetCorrToolPsBar.retrieve(  DisableTool (!m_doJetCorrPsBar) ));
+  ATH_CHECK( m_t2JetCorrToolTile1.retrieve(  DisableTool {!m_doJetCorrTile1} ));
+  ATH_CHECK( m_t2JetCorrToolFcal1.retrieve(  DisableTool {!m_doJetCorrFcal1} ));
+  ATH_CHECK( m_t2JetCorrToolEm3Bar.retrieve( DisableTool {!m_doJetCorrEm3Bar} ));
+  ATH_CHECK( m_t2JetCorrToolHec0.retrieve(   DisableTool {!m_doJetCorrHec0} ));
+  ATH_CHECK( m_t2JetCorrToolEm3Fwd.retrieve( DisableTool {!m_doJetCorrEm3Fwd} ));
+  ATH_CHECK( m_t2JetCorrToolPsBar.retrieve(  DisableTool {!m_doJetCorrPsBar} ));
 
   // from IAlgToolCalo
   m_geometryTool.disable();
