@@ -2,7 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigMuonHypo/TrigMuonEFTrackIsolationHypo.h"
+#include <algorithm>
+#include "TrigMuonHypo/TrigMuonEFTrackIsolationMultiHypo.h"
 
 #include "xAODMuon/MuonContainer.h"
 
@@ -15,32 +16,31 @@ class ISvcLocator;
  * Declare variables to get from job options and
  * the monitored variables.
  */ 
-TrigMuonEFTrackIsolationHypo::TrigMuonEFTrackIsolationHypo(const std::string & name, ISvcLocator* pSvcLocator):
-	HLT::HypoAlgo(name, pSvcLocator){
+TrigMuonEFTrackIsolationMultiHypo::TrigMuonEFTrackIsolationMultiHypo(const std::string & name, ISvcLocator* pSvcLocator):
+  HLT::HypoAlgo(name, pSvcLocator){
   
-	declareProperty("AcceptAll", m_acceptAll=true);
-	declareProperty("DoAbsCut", m_abscut=true); //true for absolute cuts, false for sumpt/pt
-	declareProperty("useVarIso", m_useVarIso=false); //true for offline isolation variables, false for online
-	declareProperty("RequireCombinedMuon", m_requireCombined=true); // true unless doing ms-only iso
-	declareProperty("PtCone02Cut",m_ptcone02_cut=-1.0); //convention is < 0 means don't cut
-	declareProperty("PtCone03Cut",m_ptcone03_cut=-1.0); //convention is < 0 means don't cut
+  declareProperty("AcceptAll", m_acceptAll=true);
+  declareProperty("DoAbsCut", m_abscut=true); //true for absolute cuts, false for sumpt/pt
+  declareProperty("useVarIso", m_useVarIso=false); //true for offline isolation variables, false for online
+  declareProperty("RequireCombinedMuon", m_requireCombined=true); // true unless doing ms-only iso
+  declareProperty("PtCone02Cut",m_ptcone02_cut=-1.0); //convention is < 0 means don't cut
+  declareProperty("PtCone03Cut",m_ptcone03_cut=-1.0); //convention is < 0 means don't cut
+  declareProperty("PtThresholds",m_ptThresholds); //convention is < 0 means don't cut
 	
-	declareMonitoredStdContainer("PtCone02", m_fex_ptcone02,  IMonitoredAlgo::AutoClear);
-	declareMonitoredStdContainer("PtCone03", m_fex_ptcone03,  IMonitoredAlgo::AutoClear);
+  declareMonitoredStdContainer("PtCone02", m_fex_ptcone02,  IMonitoredAlgo::AutoClear);
+  declareMonitoredStdContainer("PtCone03", m_fex_ptcone03,  IMonitoredAlgo::AutoClear);
 }
 
 /**
- * Destructor. Nothing to do for now.
+ * Destructor. 
  */
-TrigMuonEFTrackIsolationHypo::~TrigMuonEFTrackIsolationHypo() {
-
-}
+TrigMuonEFTrackIsolationMultiHypo::~TrigMuonEFTrackIsolationMultiHypo() {}
 
 /**
  * Initialize the algorithm.
  * Here we print out the cut values.
  */
-HLT::ErrorCode TrigMuonEFTrackIsolationHypo::hltInitialize(){
+HLT::ErrorCode TrigMuonEFTrackIsolationMultiHypo::hltInitialize(){
 
   if(m_acceptAll) {
     ATH_MSG_INFO("Accepting all the events with not cut!");
@@ -72,9 +72,9 @@ HLT::ErrorCode TrigMuonEFTrackIsolationHypo::hltInitialize(){
 /**
  * Finalize the algorithm - nothing to do here yet.
  */
-HLT::ErrorCode TrigMuonEFTrackIsolationHypo::hltFinalize()
+HLT::ErrorCode TrigMuonEFTrackIsolationMultiHypo::hltFinalize()
 {	
-	return HLT::OK;
+  return HLT::OK;
 }
 
 /**
@@ -82,7 +82,7 @@ HLT::ErrorCode TrigMuonEFTrackIsolationHypo::hltFinalize()
  * Here we apply the cuts to the muon(s).
  * The hypo passes if at least one muon passes the cuts.
  */
-HLT::ErrorCode TrigMuonEFTrackIsolationHypo::hltExecute(const HLT::TriggerElement* outputTE, bool& pass) {
+HLT::ErrorCode TrigMuonEFTrackIsolationMultiHypo::hltExecute(const HLT::TriggerElement* outputTE, bool& pass) {
 
   if(msgLvl() <= MSG::DEBUG) ATH_MSG_DEBUG("in execute()");
 
@@ -110,10 +110,7 @@ HLT::ErrorCode TrigMuonEFTrackIsolationHypo::hltExecute(const HLT::TriggerElemen
 
   // make pass bits object to store the result per muon
   std::unique_ptr<xAOD::TrigPassBits> xBits = xAOD::makeTrigPassBits<xAOD::MuonContainer>(muonContainer);
-
-  // result of the hypo
-  bool result = false;
-  // loop over objects (muons) in the container
+  std::deque<float> passedPts;
   for(auto muon : *muonContainer) {
     
     const xAOD::Muon::MuonType muontype = muon->muonType();
@@ -155,7 +152,8 @@ HLT::ErrorCode TrigMuonEFTrackIsolationHypo::hltExecute(const HLT::TriggerElemen
 	if( ptcone20 >= m_ptcone02_cut ) goodmu=false;
       }
       if(m_ptcone03_cut > 0.0) {
-	if( ptcone30 >= m_ptcone03_cut ) goodmu=false;
+	if( ptcone30 >= m_ptcone03_cut )
+	  goodmu=false;
       }
       
       if(debug) {
@@ -183,17 +181,16 @@ HLT::ErrorCode TrigMuonEFTrackIsolationHypo::hltExecute(const HLT::TriggerElemen
     
     
     if(goodmu) {
+      passedPts.push_back(muon->pt());
       xBits->markPassing(muon, muonContainer,true); // set bit for this muon in TrigPassBits mask
-      result=true;
     }//muon passed
   }//loop over isolation objects
-
-  if(debug) {
-    ATH_MSG_DEBUG("Algo result = " << (result?"true":"false"));
-  }
-
-  pass = result;
   
+  pass = checkThresholds(passedPts);
+  if(debug) {
+    ATH_MSG_DEBUG("Algo result = " << (pass?"true":"false"));
+  }
+			 
   // store TrigPassBits result
   if ( attachFeature(outputTE, xBits.release(),"passbits") != HLT::OK ) {
     ATH_MSG_ERROR("Could not store TrigPassBits! ");
@@ -201,3 +198,14 @@ HLT::ErrorCode TrigMuonEFTrackIsolationHypo::hltExecute(const HLT::TriggerElemen
 
   return HLT::OK;
 }//hltExecute
+
+bool TrigMuonEFTrackIsolationMultiHypo::checkThresholds(std::deque<float>& passedPts){
+  if(passedPts.size() < m_ptThresholds.size())
+    return false;
+  std::sort(passedPts.begin(), passedPts.end(), std::greater<>());
+  for(size_t i = 0; i < m_ptThresholds.size(); ++i){
+    if(passedPts.at(i) < m_ptThresholds.at(i))
+      return false;
+  }
+  return true;
+}
