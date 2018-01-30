@@ -41,7 +41,6 @@ public:
     
 private:
     
-    bool m_useRndmGenSvc;
     unsigned int m_had, m_dec;
     int m_trigCode; 
     unsigned int m_nSignalRequired;
