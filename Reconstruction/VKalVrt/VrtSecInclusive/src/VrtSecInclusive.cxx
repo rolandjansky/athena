@@ -22,6 +22,7 @@
 #include <iostream>
 #include <tuple>
 #include <functional>
+#include <chrono>
 
 using namespace std;
 
@@ -203,7 +204,9 @@ namespace VKalVrtAthena {
       ATH_MSG_INFO("initialize: Filling Histograms");
       //
       m_hists["trkSelCuts"]        = new TH1F("trkSelCuts",        ";Cut Order;Tracks",                         10, -0.5, 10-0.5                                         );
+      m_hists["selTracksDist"]     = new TH1F("selTracksDist",     ";Selected Tracks;Events",                   2000, -0.5, 2000-0.5                                     );
       m_hists["incompMonitor"]     = new TH1F("incompMonitor",     ";Setp;Track Pairs",                         10, -0.5, 10-0.5                                         );
+      m_hists["2trkVerticesDist"]  = new TH1F("2trkVerticesDist",  ";2-track Vertices;Events",                  1000, -0.5, 1000-0.5                                     );
       m_hists["2trkChi2Dist"]      = new TH1F("2trkChi2Dist",      ";log10(#chi^{2}/N_{dof});Entries",          100, -3, 7                                               );
       m_hists["NtrkChi2Dist"]      = new TH1F("NtrkChi2Dist",      ";log10(#chi^{2}/N_{dof});Entries",          100, -3, 7                                               );
       m_hists["vPosDist"]          = new TH2F("vPosDist",          ";r;#vec{x}*#vec{p}/p_{T} [mm]",             rbins.size()-1, &(rbins[0]), 200, -1000, 1000            );
@@ -220,6 +223,7 @@ namespace VKalVrtAthena {
       m_hists["finalVtxNtrk"]      = new TH1F("finalVtxNtrk",      ";N_{trk};Vertices",                         nbins.size()-1, &(nbins[0])                              );
       m_hists["finalVtxR"]         = new TH1F("finalVtxR",         ";r [mm];Vertices",                          rbins.size()-1, &(rbins[0])                              );
       m_hists["finalVtxNtrkR"]     = new TH2F("finalVtxNtrkR",     ";N_{trk};r [mm];Vertices",                  nbins.size()-1, &(nbins[0]), rbins.size()-1, &(rbins[0]) );
+      m_hists["CPUTime"]           = new TH1F("CPUTime",           ";Step;Accum. CPU Time [s]",                 10, -0.5, 10-0.5                                         );
       
       std::string histDir("/AANT/VrtSecInclusive" + m_jp.augVerString + "/");
       
@@ -401,11 +405,20 @@ namespace VKalVrtAthena {
       auto& name = itr->first;
       auto alg   = itr->second;
       
+      auto t_start = std::chrono::system_clock::now();
+      
       ATH_CHECK( (this->*alg)( workVerticesContainer ) );
+      
+      auto t_end = std::chrono::system_clock::now();
+      
+      if( m_jp.FillHist ) {
+        auto sec = std::chrono::duration_cast<std::chrono::microseconds>( t_end - t_start ).count();
+        m_hists["CPUTime"]->Fill( m_vertexingAlgorithmStep, sec/1.e6 );
+      }
       
       auto end = std::remove_if( workVerticesContainer->begin(), workVerticesContainer->end(),
                                  []( WrkVrt& wrkvrt ) {
-                                   return wrkvrt.isGood == false || wrkvrt.nTracksTotal() < 2 || wrkvrt.fitQuality() > 10.; }
+                                   return ( wrkvrt.isGood == false || wrkvrt.nTracksTotal() < 2 || wrkvrt.fitQuality() > 100. ); }
                                  );
       
       workVerticesContainer->erase( end, workVerticesContainer->end() );

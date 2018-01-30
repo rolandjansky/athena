@@ -261,7 +261,9 @@ namespace VKalVrtAthena {
     //  Iterate track removal until vertex get good Chi2
     //
     
-    ATH_MSG_DEBUG( " >>> " << __FUNCTION__ << ": begin: chi2 = " << vertex.Chi2);
+    auto fitQuality_begin = vertex.fitQuality();
+    
+    auto removeCounter = 0;
     
     if( vertex.nTracksTotal() <= 2 ) return 0.;
     
@@ -285,10 +287,11 @@ namespace VKalVrtAthena {
       size_t index   = maxChi2 - vertex.Chi2PerTrk.begin();
       
       
-      ATH_MSG_DEBUG( " >>> " << __FUNCTION__ << ": maxChi2 index = " << index << " / " << vertex.Chi2PerTrk.size() );
+      ATH_MSG_DEBUG( " >>> " << __FUNCTION__ << ": worst chi2 trk index = " << index << ", #trks = " << vertex.Chi2PerTrk.size() );
       
       if( index < vertex.selectedTrackIndices.size() ) {
         vertex.selectedTrackIndices.erase( vertex.selectedTrackIndices.begin() + index ); //remove track
+        removeCounter++;
       } else {
         index -= vertex.selectedTrackIndices.size();
         if( index >= vertex.associatedTrackIndices.size() ) {
@@ -296,19 +299,27 @@ namespace VKalVrtAthena {
           break;
         }
         vertex.associatedTrackIndices.erase( vertex.associatedTrackIndices.begin() + index ); //remove track
+        removeCounter++;
       }
       
       StatusCode sc = refitVertexWithSuggestion( vertex, vertex.vertex );
       
-      if( sc.isFailure() ) {
+      if( sc.isFailure() || vertex_backup.fitQuality() < vertex.fitQuality() ) {
         vertex = vertex_backup;
-        return 0.;
+        chi2Probability = 0;
+        break;
       }
       
       chi2Probability = TMath::Prob( vertex.Chi2, vertex.ndof() );
     }
     
-    ATH_MSG_DEBUG( " >>> " << __FUNCTION__ << ": end: chi2 = " << vertex.Chi2);
+    auto fitQuality_end = vertex.fitQuality();
+    
+    if( 0 == removeCounter ) {
+      ATH_MSG_DEBUG( " >>> " << __FUNCTION__ << ": no improvement was found." );
+    } else {
+      ATH_MSG_DEBUG( " >>> " << __FUNCTION__ << ": Removed " << removeCounter << " tracks; Fit quality improvement: " << fitQuality_begin << " ==> " << fitQuality_end );
+    }
     
     return chi2Probability;
   }
@@ -884,7 +895,7 @@ namespace VKalVrtAthena {
     
     if( maxSharedTrackToVertices == trackToVertexMap.end() ) return worstChi2;
     
-    ATH_MSG_DEBUG( " > " << __FUNCTION__ << ": max-shared track index = " << maxSharedTrackToVertices->first << ", number of shared vertices = " << maxSharedTrackToVertices->second.size() );
+    ATH_MSG_VERBOSE( " > " << __FUNCTION__ << ": max-shared track index = " << maxSharedTrackToVertices->first << ", number of shared vertices = " << maxSharedTrackToVertices->second.size() );
     
     if( maxSharedTrackToVertices->second.size() < 2 ) return worstChi2;
     
@@ -928,14 +939,15 @@ namespace VKalVrtAthena {
   //____________________________________________________________________________________________________
   void VrtSecInclusive::printWrkSet(const std::vector<WrkVrt> *workVerticesContainer, const std::string name)
   {
+    ATH_MSG_DEBUG( " >> " << __FUNCTION__ << ": ===============================================================" );
     ATH_MSG_DEBUG( " >> " << __FUNCTION__ << ": " << name << ": #vertices = " << workVerticesContainer->size() );
     
-    std::set<long int> usedTracks;
+    std::set<const xAOD::TrackParticle*> usedTracks;
     
-    auto concatenateVectorToString = []( auto vector ) -> std::string {
-      if( 0 == vector.size() ) return "";
-      return std::accumulate( std::next(vector.begin()), vector.end(), std::to_string( vector.at(0) ),
-                              []( std::string str, auto& index ) { return str + ", " + std::to_string(index); } );
+    auto concatenateIndicesToString = []( auto indices, auto& collection ) -> std::string {
+      if( 0 == indices.size() ) return "";
+      return std::accumulate( std::next(indices.begin()), indices.end(), std::to_string( indices.at(0) ),
+                              [&collection]( std::string str, auto& index ) { return str + ", " + std::to_string( collection.at(index)->index() ); } );
     };
     
     for(size_t iv=0; iv<workVerticesContainer->size(); iv++) {
@@ -943,17 +955,15 @@ namespace VKalVrtAthena {
       
       if( wrkvrt.nTracksTotal() < 2 ) continue;
       
-      std::string sels    = concatenateVectorToString( wrkvrt.selectedTrackIndices   );
-      std::string assocs  = concatenateVectorToString( wrkvrt.associatedTrackIndices );
+      std::string sels    = concatenateIndicesToString( wrkvrt.selectedTrackIndices,   *m_selectedTracks   );
+      std::string assocs  = concatenateIndicesToString( wrkvrt.associatedTrackIndices, *m_associatedTracks );
       
-      for( auto& index : wrkvrt.selectedTrackIndices )   { usedTracks.insert( index ); }
-      for( auto& index : wrkvrt.associatedTrackIndices ) { usedTracks.insert( index ); }
+      for( auto& index : wrkvrt.selectedTrackIndices )   { usedTracks.insert( m_selectedTracks->at(index) );   }
+      for( auto& index : wrkvrt.associatedTrackIndices ) { usedTracks.insert( m_associatedTracks->at(index) ); }
       
-      ATH_MSG_DEBUG( " >> " << __FUNCTION__ << ": " << name << " vertex [" <<  iv << "]: "
-                     << " isGood  = "            << (wrkvrt.isGood? "true" : "false")
-                     << ", #ntrks = "            << wrkvrt.nTracksTotal()
-                     << ", #selectedTracks = "   << wrkvrt.selectedTrackIndices.size()
-                     << ", #associatedTracks = " << wrkvrt.associatedTrackIndices.size()
+      ATH_MSG_DEBUG( " >> " << __FUNCTION__ << ": " << name << " vertex [" <<  iv << "]: " << &wrkvrt
+                     << ", isGood  = "           << (wrkvrt.isGood? "true" : "false")
+                     << ", #ntrks(tot, sel, assoc) = (" << wrkvrt.nTracksTotal() << ", " << wrkvrt.selectedTrackIndices.size() << ", " << wrkvrt.associatedTrackIndices.size() << "), "
                      << ", chi2/ndof = "         << wrkvrt.fitQuality()
                      << ", (r, z) = ("           << wrkvrt.vertex.perp()
                      << ", "                     << wrkvrt.vertex.z() << ")"
@@ -964,8 +974,10 @@ namespace VKalVrtAthena {
     ATH_MSG_DEBUG( " >> " << __FUNCTION__ << ": number of used tracks = " << usedTracks.size() );
     
     std::string msg;
-    for( auto& index : usedTracks ) { msg += Form("%ld, ", index); }
+    for( auto* trk : usedTracks ) { msg += Form("%ld, ", trk->index() ); }
+    
     ATH_MSG_DEBUG( " >> " << __FUNCTION__ << ": used tracks = " << msg );
+    ATH_MSG_DEBUG( " >> " << __FUNCTION__ << ": ===============================================================" );
     
   }
   
