@@ -141,7 +141,7 @@ class L2EFChain_met(L2EFChainDef):
 
         mucorr=  '_wMu' if EFmuon else ''          
         ##MET with topo-cluster
-        if EFrecoAlg=='tc' or EFrecoAlg=='pueta' or EFrecoAlg=='pufit' or EFrecoAlg=='mht' or EFrecoAlg=='trkmht':
+        if EFrecoAlg=='tc' or EFrecoAlg=='pueta' or EFrecoAlg=='pufit' or EFrecoAlg=='mht' or EFrecoAlg=='trkmht' or EFrecoAlg=='pufittrack':
 
             ##Topo-cluster
             if EFrecoAlg=='tc':
@@ -170,9 +170,13 @@ class L2EFChain_met(L2EFChainDef):
 
             if EFrecoAlg=='pufittrack':
                 #MET fex
+                print "PUFITTRACK XXXXXXXXXX"
                 theEFMETFex = EFMissingET_Fex_topoClustersTracksPUC()
+                print "PUFITTRACK XXXXXXXXXX"
+                print theEFMETFex
                 #Muon correction fex
                 theEFMETMuonFex = EFTrigMissingETMuon_Fex_topoclPUC()
+                print theEFMETMuonFex
                 mucorr= '_wMu' if EFmuon else ''
                 theEFMETHypo = EFMetHypoTCTrkPUCXE('EFMetHypo_TCTrkPUC_xe%s_tc%s%s'%(threshold,calibration,mucorr),ef_thr=float(threshold)*GeV)
 
@@ -330,16 +334,18 @@ class L2EFChain_met(L2EFChainDef):
             self.EFsequenceList +=[[ input1,algo1,  output1 ]]
             self.EFsequenceList +=[[ input2,algo2,  output2 ]]
             self.EFsequenceList +=[[ input3,algo3,  output3 ]]
-            self.EFsequenceList +=[[ [output3,output4],      [theEFMETFex],  'EF_xe_step1' ]]
-            self.EFsequenceList +=[[ ['EF_xe_step1',muonSeed],     [theEFMETMuonFex, theEFMETHypo],  'EF_xe_step2' ]]
-            if "FStracks" in addInfo:
-                from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
-                trk_algs = TrigInDetSequence("FullScan", "fullScan", "IDTrig", sequenceFlavour=["FTF"]).getSequence()
-                print "XXXXXXXXXXXXXXXXXX"
-                print trk_algs[0]
-                dummyAlg = PESA__DummyUnseededAllTEAlgo("EF_DummyFEX_xe")
-                self.EFsequenceList +=[[ [''], [dummyAlg]+trk_algs[0], 'EF_xe_step3' ]]
-
+            self.EFsequenceList +=[[ input4,algo4,  output4 ]]
+            #self.EFsequenceList +=[[ [output3,output4],      [theEFMETFex],  'EF_xe_step1' ]]
+            #self.EFsequenceList +=[[ ['EF_xe_step1',muonSeed],     [theEFMETMuonFex, theEFMETHypo],  'EF_xe_step2' ]]
+            from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
+            trk_algs = TrigInDetSequence("FullScan", "fullScan", "IDTrig", sequenceFlavour=["FTF"]).getSequence()
+            print "PUFITTRACK XXXXXXXXXXXXXXXXXX"
+            print trk_algs[0]
+            dummyAlg = PESA__DummyUnseededAllTEAlgo("EF_DummyFEX_xe")
+            #self.EFsequenceList +=[[ [''], [dummyAlg]+trk_algs[0], 'EF_xe_step3' ]]
+            self.EFsequenceList +=[[ [''], [dummyAlg]+trk_algs[0], 'EF_xe_step0' ]]
+            self.EFsequenceList +=[[ [output4,'EF_xe_step0',muonSeed], [theEFMETFex], 'EF_xe_step1' ]]
+            self.EFsequenceList +=[[ ['EF_xe_step1',muonSeed], [theEFMETMuonFex, theEFMETHypo], 'EF_xe_step2' ]]
 
         #trigger-jet based MET
         elif EFrecoAlg=='mht': 
