@@ -68,6 +68,11 @@ class TopConfig final {
   void setGrlFile( const std::string& s );
   inline const std::vector<std::string> grlFile() const {return m_grlFile;}
 
+  // TDP path
+  void setTDPPath( const std::string& s);
+  inline const std::string& getTDPPath() const { return m_topDataPreparationPath; }
+
+
   // What objects are we using
   inline bool usePhotons()    const {return m_usePhotons;   }
   inline bool useElectrons()  const {return m_useElectrons; }
@@ -863,6 +868,9 @@ class TopConfig final {
   // GRL file
   std::string m_grlDir;
   std::vector<std::string> m_grlFile = {};
+
+  // TDP
+  std::string m_topDataPreparationPath;
 
   // Use which objects
   bool m_usePhotons;

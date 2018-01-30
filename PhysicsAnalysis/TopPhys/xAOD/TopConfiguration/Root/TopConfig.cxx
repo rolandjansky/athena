@@ -448,6 +448,9 @@ namespace top{
     this->setGrlDir( settings->value("GRLDir") );
     this->setGrlFile( settings->value("GRLFile") );
 
+    // Set TDP file name
+    this->setTDPPath( settings->value("TDPPath") );
+
     //we need storegate keys so people can pick different collections / met / jets etc.
     this->sgKeyPhotons( settings->value("PhotonCollectionName") );
     this->sgKeyElectrons( settings->value("ElectronCollectionName") );
@@ -976,6 +979,12 @@ namespace top{
         grl.erase(remove_if(grl.begin(), grl.end(), isspace), grl.end());
         m_grlFile.push_back(grl);
       }
+    }
+  }
+
+  void TopConfig::setTDPPath( const std::string& s){
+    if (!m_configFixed) {
+      m_topDataPreparationPath = s;
     }
   }
 
