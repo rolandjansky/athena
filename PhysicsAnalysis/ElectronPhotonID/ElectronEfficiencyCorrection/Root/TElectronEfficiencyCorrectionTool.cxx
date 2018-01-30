@@ -770,7 +770,6 @@ int Root::TElectronEfficiencyCorrectionTool::getHistograms() {
             obj = dir->ReadObj();
             if (obj->IsA()->InheritsFrom("TDirectory")) {
                 // splits string by delimiter --> e.g RunNumber1_RunNumber2
-                //std::unique_ptr<TObjArray> dirNameArray(TString(obj->GetName()).Tokenize("_"));
                 TObjArray dirNameArray = *(TString(obj->GetName()).Tokenize("_"));
                 //// returns index of last string --> if one, the directory name does not contain any run numbers
                 int lastIdx = dirNameArray.GetLast();
