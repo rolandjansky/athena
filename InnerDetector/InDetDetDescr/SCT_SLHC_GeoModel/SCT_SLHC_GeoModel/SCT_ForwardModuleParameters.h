@@ -54,9 +54,9 @@ public:
   
  private:
 
-  IRDBRecordset_ptr SctFwdModule;
-  IRDBRecordset_ptr SctFwdSensor;
-  IRDBRecordset_ptr SctFwdSpine; 
+  IRDBRecordset_ptr m_SctFwdModule;
+  IRDBRecordset_ptr m_SctFwdSensor;
+  IRDBRecordset_ptr m_SctFwdSpine; 
 
 };
 }

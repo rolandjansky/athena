@@ -808,11 +808,11 @@ AlignTrack* BeamspotVertexPreProcessor::doTrackRefit(const Track* track) {
     if( m_doFullVertexConstraint && vtx!=0 && type == AlignTrack::VertexConstrained ){
     // try to log the track-vertex association in the AlignVertex object:
       bool ifound=false;
-      std::vector<AlignVertex*>::const_iterator ivtx=AlignVertices.begin();
-      std::vector<AlignVertex*>::const_iterator evtx=AlignVertices.end();
-      for ( ; ivtx != evtx ; ++ivtx)  if( ((*ivtx)->originalVertex())==vtx ) {
-        ifound = true;
-        (*ivtx)->addAlignTrack(alignTrack);
+      for (AlignVertex* ivtx : m_AlignVertices) {
+        if( (ivtx->originalVertex())==vtx ) {
+          ifound = true;
+          ivtx->addAlignTrack(alignTrack);
+        }
       }
       if( !ifound ) {
         AlignVertex*  avtx=new AlignVertex(vtx);
@@ -829,7 +829,7 @@ AlignTrack* BeamspotVertexPreProcessor::doTrackRefit(const Track* track) {
         }
       
         avtx->addAlignTrack(alignTrack);
-        AlignVertices.push_back(avtx);
+        m_AlignVertices.push_back(avtx);
       }
     }
      // increment counters
@@ -855,7 +855,7 @@ DataVector<Track> * BeamspotVertexPreProcessor::processTrackCollection(const Dat
     return 0;
 
   // Clear the AlignVertex container (will destruct the objects it owns as well!)
-  AlignVertices.clear();
+  m_AlignVertices.clear();
 
 
   if(m_doPrimaryVertexConstraint) 
@@ -1100,19 +1100,16 @@ void BeamspotVertexPreProcessor::accumulateVTX(const AlignTrack* alignTrack) {
 void BeamspotVertexPreProcessor::solveVTX() {
 
   if( m_doFullVertexConstraint ){
-    ATH_MSG_DEBUG("In solveVTX. Number of vertices = " << AlignVertices.size() );
-    std::vector<AlignVertex*>::const_iterator ivtx=AlignVertices.begin();
-    std::vector<AlignVertex*>::const_iterator evtx=AlignVertices.end();
-
-    for ( ; ivtx != evtx ; ++ivtx)  {
-      if( (*ivtx)->Ntracks()>1 ) {
-        (*ivtx)->fitVertex();
+    ATH_MSG_DEBUG("In solveVTX. Number of vertices = " << m_AlignVertices.size() );
+    for (AlignVertex* ivtx : m_AlignVertices) {
+      if( ivtx->Ntracks()>1 ) {
+        ivtx->fitVertex();
        } else {
-         msg(MSG::WARNING) << "This vertex contains " << (*ivtx)->Ntracks() << " tracks. No solution possible." <<endmsg;
+         msg(MSG::WARNING) << "This vertex contains " << ivtx->Ntracks() << " tracks. No solution possible." <<endmsg;
        }
 
-       ATH_MSG_DEBUG( "This vertex contains " << (*ivtx)->Ntracks() << " tracks.");
-       if( msgLvl(MSG::DEBUG) )  (*ivtx)->dump(msg(MSG::DEBUG));
+       ATH_MSG_DEBUG( "This vertex contains " << ivtx->Ntracks() << " tracks.");
+       if( msgLvl(MSG::DEBUG) )  ivtx->dump(msg(MSG::DEBUG));
     }
   }
 }

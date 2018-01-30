@@ -83,9 +83,9 @@ void SegmentRefitter::prepareSegments(const MuonCalibEvent *& /*event*/, std::ma
     }
   }
   for(std::set<NtupleStationId>::iterator it=dropped_segments.begin(); it!=dropped_segments.end(); it++) {
-    std::map<NtupleStationId, MuonCalibSegment *>::iterator m_it(segments.find(*it));
-    if(m_it!=segments.end()) {
-      segments.erase(m_it);
+    std::map<NtupleStationId, MuonCalibSegment *>::iterator map_it(segments.find(*it));
+    if(map_it!=segments.end()) {
+      segments.erase(map_it);
     }
   }
 }  //end SegmentRefitter::prepareSegments

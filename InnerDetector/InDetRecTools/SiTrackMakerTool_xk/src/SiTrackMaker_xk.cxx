@@ -181,6 +181,9 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
       msg(MSG::INFO) << "Retrieved tool " << m_seedtrack << endmsg;
     }
   }
+  else {
+    m_seedtrack.disable();
+  }
 
   m_heavyion = false;
 

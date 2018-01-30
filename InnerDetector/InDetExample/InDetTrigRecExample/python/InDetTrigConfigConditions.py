@@ -493,10 +493,19 @@ class SCT_ConditionsServicesSetup:
     from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleSvc
     SCTLorentzAngleSvc = SiLorentzAngleSvc(name=instanceName,
                                            DetectorName="SCT")
+    # For SCT_SiliconConditionsSvc
+    from IOVDbSvc.CondDB import conddb
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSeq = AthSequencer("AthCondSeq")
+    if not hasattr(condSeq, "SCT_SiliconTempCondAlg"):
+      from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SiliconTempCondAlg
+      condSeq += SCT_SiliconTempCondAlg(name = "SCT_SiliconTempCondAlg")
+    if not hasattr(condSeq, "SCT_SiliconHVCondAlg"):
+      from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SiliconHVCondAlg
+      condSeq += SCT_SiliconHVCondAlg(name = "SCT_SiliconHVCondAlg")
     from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SiliconConditionsSvc
-    sctSiliconConditionsSvc=\
-                              SCT_SiliconConditionsSvc(name=self.instanceName('InDetSCT_SiliconConditionsSvc'),
-                                                       DCSConditionsSvc=self.dcsSvc)
+    sctSiliconConditionsSvc= SCT_SiliconConditionsSvc(name=self.instanceName('InDetSCT_SiliconConditionsSvc'),
+                                                      DCSConditionsSvc=self.dcsSvc)
     sctSiliconConditionsSvc.CheckGeoModel = False
     sctSiliconConditionsSvc.ForceUseGeoModel = False
     #sctSiliconConditionsSvc.OutputLevel=1

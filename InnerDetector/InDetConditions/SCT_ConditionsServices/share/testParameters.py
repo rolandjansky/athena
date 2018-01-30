@@ -118,8 +118,16 @@ from IOVDbSvc.CondDB import conddb
 conddb.dbdata="COMP200"
 IOVDbSvc.GlobalTag=globalflags.ConditionsTag()
 IOVDbSvc.OutputLevel = 3
-conddb.addFolder('',"<db>COOLONL_SCT/COMP200</db> /SCT/DAQ/Configuration/Chip")
+conddb.addFolder('',"<db>COOLONL_SCT/COMP200</db> /SCT/DAQ/Configuration/Chip", className="CondAttrListVec")
 conddb.addFolder("","<db>COOLONL_SCT/COMP200</db> /SCT/DAQ/Configuration/ROD")
 conddb.addFolder("","<db>COOLONL_SCT/COMP200</db> /SCT/DAQ/Configuration/Geog")
 conddb.addFolder("","<db>COOLONL_SCT/COMP200</db> /SCT/DAQ/Configuration/RODMUR")
 conddb.addFolder("","<db>COOLONL_SCT/COMP200</db> /SCT/DAQ/Configuration/MUR")
+
+from IOVSvc.IOVSvcConf import CondSvc
+ServiceMgr += CondSvc()
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+
+from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConditionsParameterCondAlg
+condSeq += SCT_ConditionsParameterCondAlg( "SCT_ConditionsParameterCondAlg" )

@@ -19,25 +19,26 @@
 #include "InDetConditionsSummaryService/ISiliconConditionsSvc.h"
 #include "SCT_ConditionsServices/ISCT_DCSConditionsSvc.h"
 
+#include "SCT_ConditionsData/SCT_DCSFloatCondData.h"
+#include "StoreGate/ReadCondHandleKey.h"
+
 class ISvcLocator;
-class StatusCode;
-class InterfaceID; 
 class IGeoModelSvc;
 class IRDBAccessSvc;
 class StoreGateSvc;
 class ISCT_DCSConditionsSvc;
-class IBLParameterSvc;
+class SCT_ID;
 
 /**
  * @class SCT_SiliconConditionsSvc
  * Class for conditions data about the SCT silicon
  * Allows one to obtain temperature and bias + depletion voltages
  * These are currenlty static values but in future will be obtained for the DB
-**/
+ **/
 
 class SCT_SiliconConditionsSvc: public AthService,
-  virtual public ISiliconConditionsSvc{
-public:
+  virtual public ISiliconConditionsSvc {
+ public:
 
   /** Constructor */
   SCT_SiliconConditionsSvc(const std::string& type, ISvcLocator* sl);
@@ -51,14 +52,14 @@ public:
   /** Service queryInterface method */
   virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvIf); 
   /** Obtain service's interface ID */
-  static const InterfaceID & interfaceID();
+  static const InterfaceID& interfaceID();
 
   /** Silicon temperature by Identifier */
   virtual float temperature(const Identifier& elementId);
   /** Silicon bias voltage by Identifier */
   virtual float biasVoltage(const Identifier& elementId);
   /** Silicon depletion voltage by Identifier */
-  virtual float depletionVoltage(const Identifier & elementId);
+  virtual float depletionVoltage(const Identifier& elementId);
 
   /** Silicon temperature by IdentifierHash */
   virtual float temperature(const IdentifierHash& elementHash);
@@ -72,7 +73,7 @@ public:
   /** Query whether a CallBack has been registered. */
   virtual bool hasCallBack();
 
-private:
+ private:
  
   bool setConditionsFromGeoModel();
 
@@ -83,7 +84,7 @@ private:
   bool                                        m_checkGeoModel;
   bool                                        m_forceUseGeoModel;
 
-  ServiceHandle< StoreGateSvc >               m_detStore;
+  ServiceHandle<StoreGateSvc>                 m_detStore;
   ServiceHandle<ISCT_DCSConditionsSvc >       m_sctDCSSvc;
   ServiceHandle<IGeoModelSvc>                 m_geoModelSvc;
   ServiceHandle<IRDBAccessSvc>                m_rdbSvc;
@@ -93,11 +94,17 @@ private:
   float                                       m_geoModelDepletionVoltage;
   bool                                        m_useGeoModel;
 
+  SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKeyHV;
+  SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKeyTemp;
 
-};
+  const SCT_ID* m_sct_id;
 
-inline const InterfaceID & SCT_SiliconConditionsSvc::interfaceID(){
+  const SCT_DCSFloatCondData* getCondDataHV() const;
+  const SCT_DCSFloatCondData* getCondDataTemp() const;
+  };
+
+inline const InterfaceID& SCT_SiliconConditionsSvc::interfaceID(){
   return ISiliconConditionsSvc::interfaceID();
 }
 
-#endif
+#endif // SCT_SiliconConditionsSvc_h

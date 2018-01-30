@@ -79,8 +79,8 @@ StatusCode CalibrationDbIOTool::initialize() {
     log << MSG::ERROR <<"Cannot retrieve RegionSelectionSvc!" <<endmsg;
     return sc;
   }
-  region_ids=p_reg_sel_svc->GetStationsInRegions();
-  log<< MSG::INFO << " CalibrationDbIOTool::initialize() - number of selected regions: "<<region_ids.size()<<endmsg;
+  m_region_ids=p_reg_sel_svc->GetStationsInRegions();
+  log<< MSG::INFO << " CalibrationDbIOTool::initialize() - number of selected regions: "<<m_region_ids.size()<<endmsg;
 	    
   log<< MSG::INFO << "open connection" <<endmsg;
   m_connection = new CalibDbConnection(m_db_ConnectionString, m_db_WorkingSchema);
@@ -163,7 +163,7 @@ StatusCode  CalibrationDbIOTool::LoadT0(std::map<NtupleStationId, MdtStationT0Co
     t0s.clear();
  
     //loop on all the ids in the selected calibration region
-    for (std::vector<MuonCalib::NtupleStationId>::iterator it=region_ids.begin(); it!=region_ids.end(); it++) {
+    for (std::vector<MuonCalib::NtupleStationId>::iterator it=m_region_ids.begin(); it!=m_region_ids.end(); it++) {
       log << MSG::INFO << "Reading t0s for region " << it->regionId() << endmsg;
       MdtStationT0Container * t0;
       t0=t0_op.LoadT0Calibration(*it, m_headid, m_sitename);
@@ -217,7 +217,7 @@ StatusCode CalibrationDbIOTool::LoadRt(std::map<NtupleStationId, IRtRelation *> 
     //loop on all the ids in the selected calibration region
     RtFromPoints rt_from_points;
     RtResolutionFromPoints res_from_points;
-    for (std::vector<MuonCalib::NtupleStationId>::iterator it=region_ids.begin(); it!=region_ids.end(); it++) {
+    for (std::vector<MuonCalib::NtupleStationId>::iterator it=m_region_ids.begin(); it!=m_region_ids.end(); it++) {
       std::vector<SamplePoint> in_points;
       RtFullInfo full_info;
       if(!rt_op.LoadRt(*it, m_headid, m_use_validated_rt, m_sitename, in_points, &full_info))

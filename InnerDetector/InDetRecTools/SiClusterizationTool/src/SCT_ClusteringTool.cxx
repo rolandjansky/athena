@@ -147,6 +147,8 @@ namespace InDet{
     ATH_MSG_INFO("Initialize clustering tool");
     static const StatusCode fail(StatusCode::FAILURE);
 
+    ATH_CHECK(m_clusterMaker.retrieve());
+
 
     if (m_checkBadChannels){
       ATH_MSG_INFO("Clustering has been asked to look at bad channel info");

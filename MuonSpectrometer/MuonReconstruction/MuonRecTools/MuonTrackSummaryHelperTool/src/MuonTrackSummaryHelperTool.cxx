@@ -283,9 +283,9 @@ void Muon::MuonTrackSummaryHelperTool::searchForHoles (
   }
   // 
   if (!m_trackingGeometry) {   
-    StoreGateSvc* m_detStore = 0;
-    StatusCode sc = service( "DetectorStore", m_detStore );
-    sc = m_detStore->retrieve(m_trackingGeometry, m_trackingGeometryName);
+    StoreGateSvc* detStore = 0;
+    StatusCode sc = service( "DetectorStore", detStore );
+    sc = detStore->retrieve(m_trackingGeometry, m_trackingGeometryName);
     if (sc.isFailure()) {
       msg (MSG::FATAL)<<"Could not find geometry "<< m_trackingGeometryName<<". Exiting."
 		      << endmsg;

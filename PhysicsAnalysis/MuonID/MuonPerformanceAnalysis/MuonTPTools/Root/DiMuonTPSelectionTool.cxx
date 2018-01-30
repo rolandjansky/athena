@@ -400,7 +400,7 @@ bool DiMuonTPSelectionTool::PassProbeIsoCuts (const xAOD::IParticle* probe) cons
     const xAOD::Muon* probemu = dynamic_cast<const xAOD::Muon*>(probe);
     // ID probes: check ptcone 
     if (!probemu){
-        ATH_CHECK(m_trk_iso_tool->decorate(probe));
+        ATH_CHECK(m_trk_iso_tool->decorate(probe), false);
     }
     if (m_probe_iso){
         if (!probemu){
