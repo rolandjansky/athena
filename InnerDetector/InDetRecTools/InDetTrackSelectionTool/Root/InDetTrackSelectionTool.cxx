@@ -216,10 +216,6 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
     m_extrapolator.disable();
     m_trackSumTool.disable();
   }
-  else {
-    m_trackSumTool.disable();
-    m_extrapolator.disable();
-  }
 #endif // XAOD_ANALYSIS
 
   // local helper functions to determine if a maximum cut should be set.
