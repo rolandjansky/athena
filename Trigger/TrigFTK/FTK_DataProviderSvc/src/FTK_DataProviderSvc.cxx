@@ -346,7 +346,7 @@ unsigned int FTK_DataProviderSvc::nTrackParticleErrors(const bool withRefit) {
 
 unsigned int FTK_DataProviderSvc::nRawTracks() {
   if (!m_gotRawTracks) getFTK_RawTracksFromSG();
-  return m_ftk_tracks->size();
+  return (m_gotRawTracks ? m_ftk_tracks->size() : 0);
 }
 
 
@@ -1838,7 +1838,12 @@ const Trk::RIO_OnTrack*  FTK_DataProviderSvc::createPixelCluster(const FTK_RawPi
   // zero is center of the row coordinates, so to find the cell we can use it, units of 6.25 microns
   // zero is edge of the column coordinates, so to find the cell we add 0.5, units of 25 microns
   double phiPos = ((double) rawLocalPhiCoord) * 6.25e-3 + phi0; // rawLocalPhiCoord=0 is the centre of the zeroth pixel
-  double etaPos = ((double) rawLocalEtaCoord) * 25.0e-3 + eta0 - 0.3; // rawLocalEtaCoord=0 is the edge (-0.3mm) of the zeroth pixel.
+  double etaPos = 0;
+  if (isBarrel && layer==0) {
+    etaPos = ((double) rawLocalEtaCoord) * 25.0e-3 + eta0 - 0.25; // rawLocalEtaCoord=0 is the edge (-0.25mm) of the zeroth IBL pixel.
+  } else {
+    etaPos = ((double) rawLocalEtaCoord) * 25.0e-3 + eta0 - 0.3; // rawLocalEtaCoord=0 is the edge (-0.3mm) of the zeroth non-IBL pixel.
+  }
 
   if (isBarrel)  {
     phiPos += m_pixelBarrelPhiOffsets[layer];
