@@ -75,6 +75,9 @@ StatusCode FullCaloCellContMaker::initialize(){
       std::cout << name() << "     Asbolute E in sigma         set to " << (m_absEinSigma      ? "true" : "false") << std::endl;
    // }
   }
+  else {
+    m_noiseTool.disable();
+  }
   
 
   if( service( "TrigTimerSvc", m_timersvc).isFailure() ) {
