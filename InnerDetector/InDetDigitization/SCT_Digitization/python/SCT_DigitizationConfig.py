@@ -102,6 +102,8 @@ def getSCT_SurfaceChargesGenerator(name="SCT_SurfaceChargesGenerator", **kwargs)
     from AthenaCommon.GlobalFlags import globalflags
     kwargs.setdefault("isOverlay", globalflags.isOverlay())
 
+    # kwargs.setdefault("doTrapping", True) # ATL-INDET-INT-2016-019
+
     from Digitization.DigitizationFlags import digitizationFlags
     if 'doDetailedSurfChargesGen' in digitizationFlags.experimentalDigi():
         kwargs.setdefault("ChargeDriftModel", 1)
