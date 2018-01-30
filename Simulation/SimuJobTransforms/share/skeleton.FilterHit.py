@@ -246,14 +246,6 @@ if hasattr(runArgs,'TruthReductionScheme'):
     topSequence += McEventCollectionFilter
 
 
-if releaseIsOlderThan(17,6):
-    #--------------------------------------------------------------
-    # Copy InFile MetaData using MetaDataTools
-    #-------------------------------------------------------------
-    from AthenaServices.AthenaServicesConf import AthenaOutputStream
-    Stream1_FH = AthenaOutputStream( "StreamHITS_FH" )
-    Stream1_FH.ItemList += [ "IOVMetaDataContainer#*" ]
-
 #--------------------------------------------------------------
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
 #-------------------------------------------------------------

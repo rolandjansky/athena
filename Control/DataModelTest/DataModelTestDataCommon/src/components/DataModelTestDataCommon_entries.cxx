@@ -20,6 +20,8 @@
 #include "../CondReaderAlg.h"
 #include "../xAODTestReadSymlinkTool.h"
 #include "../CondAlg1.h"
+#include "../MetaWriterAlg.h"
+#include "../MetaReaderAlg.h"
 
 DECLARE_COMPONENT( DMTest::xAODTestReadSymlink )
 DECLARE_COMPONENT( DMTest::xAODTestReadDecor )
@@ -29,6 +31,8 @@ DECLARE_COMPONENT( DMTest::xAODTestWriteCInfo )
 DECLARE_COMPONENT( DMTest::CondWriterAlg )
 DECLARE_COMPONENT( DMTest::CondReaderAlg )
 DECLARE_COMPONENT( DMTest::CondAlg1 )
+DECLARE_COMPONENT( DMTest::MetaWriterAlg )
+DECLARE_COMPONENT( DMTest::MetaReaderAlg )
 
 DECLARE_COMPONENT( DMTest::xAODTestReadSymlinkTool )
 

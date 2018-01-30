@@ -13,10 +13,13 @@
 // FrameWork includes
 #include "GaudiKernel/Property.h"
 #include "StoreGate/ReadHandle.h"
+#include "AthContainersInterfaces/IConstAuxStoreMeta.h"
 #include "SGTools/DataProxy.h"
+#include "SGTools/CurrentEventStore.h"
 #include "AthenaKernel/errorcheck.h"
 
 #include "PersistentDataModel/DataHeader.h"
+#include <set>
 
 /////////////////////////////////////////////////////////////////// 
 // Public methods: 
@@ -74,7 +77,9 @@ MetaInputLoader::initialize()
   StatusCode sc(StatusCode::SUCCESS);
   std::ostringstream str;
   str << "Will create WriteCondHandle dependencies for the following DataObjects:";
-  for (auto &e : m_load) {
+  // Make sure output is sorted in a reproducible manner.
+  std::set<DataObjID> ordered (m_load.begin(), m_load.end());
+  for (const DataObjID& e : ordered) {
     str << "\n    + " << e;
     if (e.key() == "") {
       sc = StatusCode::FAILURE;
@@ -109,8 +114,27 @@ MetaInputLoader::execute()
   if (m_first) {
     DataObjIDColl::iterator itr;
     for (itr = m_load.begin(); itr != m_load.end(); ) {
-      if ( ! m_metaStore->contains<MetaContBase>( "MetaDataStore+"+itr->key() ) ){
-        ATH_MSG_INFO("ConditionStore does not contain a MetaCont<> of "
+      std::string key = itr->key();
+      bool found = m_metaStore->contains<MetaContBase>( key );
+      // If the MetaCont<> is not found for an aux store object, then
+      // go ahead and create one with a payload type of SG::IConstAuxStore.
+      if (!found && key.size() > 4 && key.substr (key.size()-4) == "Aux.") {
+        auto cont = new MetaCont<SG::IConstAuxStore> (*itr);
+        if (m_metaStore->record (std::move (cont), itr->key()).isFailure()) {
+          ATH_MSG_ERROR ("Could not record aux store MetaCont<> " <<
+                         itr->key());
+        }
+        // Need to symlink it as IConstAuxStore.
+        if (m_metaStore->symLink (ClassID_traits<MetaCont<SG::IConstAuxStore> >::ID(),
+                                  itr->key(),
+                                  ClassID_traits<SG::IConstAuxStore >::ID()).isFailure()) {
+          ATH_MSG_ERROR ("Could not symlink aux store MetaCont<> " <<
+                         itr->key());
+        }
+      }
+
+      if ( ! m_metaStore->contains<MetaContBase>( itr->key() ) ){
+        ATH_MSG_INFO("MetaDataStore does not contain a MetaCont<> of "
                      << *itr
                      << ". Either a ReadMetaHandle was not initialized or "
                      << "no other Algorithm is using this Handle");
@@ -123,7 +147,7 @@ MetaInputLoader::execute()
   }
 
   const DataHeader* thisDH;
-  if(evtStore()->retrieve(thisDH)!=StatusCode::SUCCESS) {
+  if(evtStore()->retrieve(thisDH, "EventSelector")!=StatusCode::SUCCESS) {
     ATH_MSG_ERROR("Unable to get Event Info");
     return StatusCode::FAILURE;
   }
@@ -140,7 +164,7 @@ MetaInputLoader::execute()
     ATH_MSG_DEBUG( "handling id: " << obj );
 
     MetaContBase* mcb(0);
-    if (! m_metaStore->retrieve(mcb, "MetaDataStore+"+obj.key()).isSuccess()) {
+    if (! m_metaStore->retrieve(mcb, obj.key()).isSuccess()) {
       ATH_MSG_ERROR( "unable to get MetaContBase* for " << obj 
                      << " from MetaDataStore" );
       continue;
@@ -202,13 +226,18 @@ StatusCode MetaInputLoader::createMetaObj(MetaContBase* mcb,
     if (dp!=0) {
       mcb->setProxy(dp);
       SG::DataProxy* dpcont = mcb->proxy();
-      DataObject* dobj(0);
-      void* v(0);
-      if (dpcont->loader()->createObj(dpcont->address(), dobj).isFailure()) {
-        ATH_MSG_ERROR(" could not create new DataObject");
-        return StatusCode::FAILURE;
+      DataObject* dobj = nullptr;
+      {
+        SG::CurrentEventStore::Push push (&*m_inputStore);
+        if (m_inputStore->createObj (dpcont->loader(),
+                                     dpcont->address(),
+                                     dobj).isFailure())
+        {
+          ATH_MSG_ERROR(" could not create new DataObject");
+          return StatusCode::FAILURE;
+        }
       }
-      v = SG::Storable_cast(dobj,clid);
+      void* v = SG::Storable_cast(dobj,clid);
       if (!mcb->insert(sid,v)) {
         ATH_MSG_ERROR("Could not insert object " << clid << " with key " << key << " for SID=" << sid);
         return StatusCode::FAILURE;

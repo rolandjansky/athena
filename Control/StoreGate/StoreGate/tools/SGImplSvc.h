@@ -671,6 +671,15 @@ public:
   IProxyProviderSvc* proxyProviderSvc();
   //@}
 
+
+  /**
+   * @brief Return the metadata source ID for the current event slot.
+   *        Returns an empty string if no source has been set.
+   *
+   *        The default version always returns an empty string.
+   */
+  virtual SG::SourceID sourceID() const override;
+
   /////////////////////////////////////////////////////////////////////////
   /// \name String <-> int key conversions. IStringPool implementation
   //@{

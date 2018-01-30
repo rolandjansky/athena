@@ -171,6 +171,10 @@ StatusCode TileROD_Decoder::initialize() {
     //=== get TileToolTiming
     CHECK( m_tileToolTiming.retrieve() );
   }
+  else {
+    m_tileCondToolOfcCool.disable();
+    m_tileToolTiming.disable();
+  }
   
   //=== get TileCondToolEmscale
   CHECK( m_tileToolEmscale.retrieve() );

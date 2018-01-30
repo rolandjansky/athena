@@ -10,11 +10,11 @@
 
 
 
-SCT_ElectricFieldTool::SCT_ElectricFieldTool(const std::string& t, const std::string& n, const IInterface*  p) : 
+SCT_ElectricFieldTool::SCT_ElectricFieldTool(const std::string& t, const std::string& n, const IInterface* p) : 
         AthAlgTool(t,n,p),
         m_model{nullptr}{
   declareInterface<ISCT_ElectricFieldTool> ( this );
-  declareProperty("EFieldModel",m_eFieldModel=0);           //!< uniform E solution as default
+  declareProperty("EFieldModel", m_eFieldModel=1); //!< flat diode model as default
 }
 
 SCT_ElectricFieldTool::~SCT_ElectricFieldTool(){
@@ -42,11 +42,6 @@ double SCT_ElectricFieldTool::getElectricField(double positionZ,
                                           double depletionVoltage,
                                           double sensorThickness,
                                           double biasVoltage){
-  //(void) fluence;
-  if (depletionVoltage<=0){
-    ATH_MSG_FATAL( "Depletion voltage is zero or negative: " << depletionVoltage );
-    return 0;
-  }
   enum FieldModel{UNIFORM_FIELD, FLAT_DIODE};
   if (m_eFieldModel == UNIFORM_FIELD || m_eFieldModel == FLAT_DIODE){
     //--------------------------------------------------------------
@@ -63,7 +58,7 @@ double SCT_ElectricFieldTool::getElectricField(double positionZ,
     //------------ find depletion depth for model=0 and 1 -------------
     // ATH_MSG_INFO ("\tmodel= "<< m_eFieldModel<<" VB= "<< biasVoltage);
     double depletionDepth{bulkDepth};
-    if (biasVoltage < depletionVoltage) depletionDepth = sqrt(biasVoltage/depletionVoltage) * bulkDepth;
+    if (biasVoltage < fabs(depletionVoltage)) depletionDepth = sqrt(biasVoltage/fabs(depletionVoltage)) * bulkDepth;
     if (y<=depletionDepth){
       //---------- case for uniform electric field ------------------------
       if( m_eFieldModel ==UNIFORM_FIELD ) {
@@ -74,7 +69,7 @@ double SCT_ElectricFieldTool::getElectricField(double positionZ,
       
       //---------- case for flat diode model ------------------------------
       if(m_eFieldModel==FLAT_DIODE) {       
-        if(biasVoltage > depletionVoltage) {
+        if(biasVoltage > fabs(depletionVoltage)) {
           Ey = (biasVoltage+depletionVoltage)/depletionDepth - 2.*depletionVoltage*(bulkDepth-y)/(bulkDepth*bulkDepth);
         }else {
           double Emax = 2.* depletionDepth * depletionVoltage / (bulkDepth*bulkDepth);

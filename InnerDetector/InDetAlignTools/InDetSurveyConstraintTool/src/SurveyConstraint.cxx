@@ -45,9 +45,9 @@ SurveyConstraint::SurveyConstraint(const std::string& type,
     m_pixid(0),
     m_sctid(0),
     m_toolsvc(0),     
-    current_IDAlignDBTool(0),
-    survey_IDAlignDBTool(0),
-    randsvc(0), 
+    m_current_IDAlignDBTool(0),
+    m_survey_IDAlignDBTool(0),
+    m_randsvc(0), 
     m_SurveyWeightX(1.0),
     m_SurveyWeightY(1.0),
     m_SurveyWeightZ(1.0),
@@ -183,16 +183,16 @@ StatusCode SurveyConstraint::initialize(){
   msg(MSG::INFO) << "got ToolSvc" << endmsg;
   
   // Get current InDetAlignDataBaseTool from ToolService
-  sc = m_toolsvc->retrieveTool("InDetAlignDBTool",m_aligndbtoolinst,current_IDAlignDBTool);
+  sc = m_toolsvc->retrieveTool("InDetAlignDBTool",m_aligndbtoolinst,m_current_IDAlignDBTool);
   if (sc.isFailure()) {
     msg(MSG::FATAL) <<"Could not find InDetAlignDBTool. Exiting."<<endmsg;
     return sc;
   }
   msg(MSG::INFO) << "got current_IDAlignDBTool" << endmsg;
-  msg(MSG::INFO) << "current_IDAlignDBTool name = " << current_IDAlignDBTool->name() << endmsg;
+  msg(MSG::INFO) << "current_IDAlignDBTool name = " << m_current_IDAlignDBTool->name() << endmsg;
   
   // Get survey InDetAlignDataBaseTool from ToolService
-  sc = m_toolsvc->retrieveTool("InDetAlignDBTool",m_surveydbtoolinst,survey_IDAlignDBTool);
+  sc = m_toolsvc->retrieveTool("InDetAlignDBTool",m_surveydbtoolinst,m_survey_IDAlignDBTool);
   if (sc.isFailure()) {
     msg(MSG::FATAL) <<"Could not find InDetAlignDBTool. Exiting."<<endmsg;
     return sc;
@@ -233,7 +233,7 @@ StatusCode SurveyConstraint::initialize(){
   msg(MSG::INFO) << "got m_SCT_Manager" << endmsg; 
 
   // random number service
-  if (StatusCode::SUCCESS!=service("RndmGenSvc",randsvc,true))
+  if (StatusCode::SUCCESS!=service("RndmGenSvc",m_randsvc,true))
     msg(MSG::ERROR) << "Cannot find RndmGenSvc" << endmsg;
   
   // Protection against singular weight matrix
@@ -323,7 +323,7 @@ StatusCode SurveyConstraint::computeConstraint(const Identifier& ModuleID,
   //Define the transform which minimizes the distance between the set of
   //point pairs: this effectively defines the transform between the survey
   //and current alignment of the SOW.
-  SimpleConstraintPointMinimizer _minimizer(m_proximity);
+  SimpleConstraintPointMinimizer minimizer(m_proximity);
   Amg::Vector3D stavetrans;
   Amg::Vector3D staveangles;
   std::vector< SurveyConstraintPoint > Stavepoints;
@@ -343,7 +343,7 @@ StatusCode SurveyConstraint::computeConstraint(const Identifier& ModuleID,
   }
 
   if (msgLvl(MSG::DEBUG)) msg() << "SurveyConstraint().computeConstraint: Now fitting the 2 Staves" << endmsg;
-  double stavemin = _minimizer.findMinimum(Stavepoints,staveangles,stavetrans);
+  double stavemin = minimizer.findMinimum(Stavepoints,staveangles,stavetrans);
 
   
   
@@ -387,7 +387,7 @@ StatusCode SurveyConstraint::computeConstraint(const Identifier& ModuleID,
   Amg::Vector3D modtrans;
   Amg::Vector3D modangles;
   if (msgLvl(MSG::DEBUG)) msg() << "SurveyConstraint().computeConstraint: Now fitting the 2 Modules" << endmsg;
-  double modmin = _minimizer.findMinimum(Modulepoints,modangles,modtrans);
+  double modmin = minimizer.findMinimum(Modulepoints,modangles,modtrans);
   if(modmin < 0.0){
     msg(MSG::FATAL) << "insufficient Points for Module Fitting" << endmsg;
     return StatusCode::FAILURE;
@@ -444,29 +444,29 @@ StatusCode SurveyConstraint::computeConstraint(const Identifier& ModuleID,
 
 void SurveyConstraint::setup_SurveyConstraintModules()
 {
-  Rndm::Numbers gauss(randsvc,Rndm::Gauss(0.,1.));
+  Rndm::Numbers gauss(m_randsvc,Rndm::Gauss(0.,1.));
   
   // read in or write an alignment file for the survey alignment, 
   // either a text file (SurveyText.txt) or an ntuple (reading in and writing out
   // an ntuple does not work at the moment). For this create a DB 
   // an set DBRoot to "/Indet/SiSurvey"
-  if (m_surveyrfile!="" || m_surveywfile!="") survey_IDAlignDBTool->createDB();
+  if (m_surveyrfile!="" || m_surveywfile!="") m_survey_IDAlignDBTool->createDB();
   if (m_surveyrfile!=""){ 
-    if(m_ntuple) survey_IDAlignDBTool->readNtuple(m_surveyrfile);
-    else survey_IDAlignDBTool->readTextFile(m_surveyrfile);
+    if(m_ntuple) m_survey_IDAlignDBTool->readNtuple(m_surveyrfile);
+    else m_survey_IDAlignDBTool->readTextFile(m_surveyrfile);
   }
   
   // create some displacements at level 1/2/3, using only one parameter m_TransLayerRand
   if(m_TransLayerRand > 0){
     // displace all layers randomly
     if(m_misaligncase == 0) 
-      survey_IDAlignDBTool->dispGroup(-1, -1, -1, -1, -1, m_TransLayerRand, m_TransLayerRand, m_TransLayerRand, 2, 2, 0);
+      m_survey_IDAlignDBTool->dispGroup(-1, -1, -1, -1, -1, m_TransLayerRand, m_TransLayerRand, m_TransLayerRand, 2, 2, 0);
     // displace pixel EC layer 0 in x
     else if(m_misaligncase == 1) 
-      survey_IDAlignDBTool->dispGroup(1, 2, 0, -1, -1, m_TransLayerRand, 0, 0, 1, 2, 0);
+      m_survey_IDAlignDBTool->dispGroup(1, 2, 0, -1, -1, m_TransLayerRand, 0, 0, 1, 2, 0);
     // displace pixel EC layer 2 in x
     else if(m_misaligncase == 2) 
-      survey_IDAlignDBTool->dispGroup(1, 2, 2, -1, -1, m_TransLayerRand, 0, 0, 1, 2, 0);
+      m_survey_IDAlignDBTool->dispGroup(1, 2, 2, -1, -1, m_TransLayerRand, 0, 0, 1, 2, 0);
   }
 
   int nSCT(0), nPixel(0);
@@ -501,8 +501,8 @@ void SurveyConstraint::setup_SurveyConstraintModules()
       else if(m_sctid->barrel_ec(SCT_ModuleID) == 0) getSurveyCoordsSCTB(//SCT_ModuleID,
 									 localSurveyCoords);
       // get the survey, current transformations from nominal
-      Amg::Transform3D SurveyTrans = survey_IDAlignDBTool->getTrans(SCT_ModuleID,3);
-      Amg::Transform3D CurrentTrans = current_IDAlignDBTool->getTrans(SCT_ModuleID,3);
+      Amg::Transform3D SurveyTrans = m_survey_IDAlignDBTool->getTrans(SCT_ModuleID,3);
+      Amg::Transform3D CurrentTrans = m_current_IDAlignDBTool->getTrans(SCT_ModuleID,3);
 
       if(m_gaus){
         if(abs(m_sctid->barrel_ec(SCT_ModuleID)) == 2){
@@ -546,8 +546,8 @@ void SurveyConstraint::setup_SurveyConstraintModules()
         Amg::Vector3D temp = localSurveyCoords[iCorn];
         // Transform the local points into the MUT's (survey and current) local coordinate system	
         Amg::Vector3D surveyPoint = (SurveyTrans*SurveyTransRand) * localSurveyCoords[iCorn];
-        if(m_TransLayerRand <= 0) survey_IDAlignDBTool->setTrans(SCT_ModuleID,3,SurveyTrans*SurveyTransRand);
-        //survey_IDAlignDBTool->tweakTrans(SCT_ModuleID,3,SurveyTransRand);
+        if(m_TransLayerRand <= 0) m_survey_IDAlignDBTool->setTrans(SCT_ModuleID,3,SurveyTrans*SurveyTransRand);
+        //m_survey_IDAlignDBTool->tweakTrans(SCT_ModuleID,3,SurveyTransRand);
         Amg::Vector3D currentPoint = CurrentTrans * temp;
         // Transform the local (survey and current) constraint points into the global coordinate system
         Amg::VectorX globalSurveyPoint  = (*iter)->globalPosition( surveyPoint );	  
@@ -582,8 +582,8 @@ void SurveyConstraint::setup_SurveyConstraintModules()
         getSurveyCoordsPixEC(//Pixel_ModuleID,
                  localSurveyCoords);
         // get the survey, current transformations from nominal
-        Amg::Transform3D SurveyTrans = survey_IDAlignDBTool->getTrans(Pixel_ModuleID,3);
-        Amg::Transform3D CurrentTrans = current_IDAlignDBTool->getTrans(Pixel_ModuleID,3);
+        Amg::Transform3D SurveyTrans = m_survey_IDAlignDBTool->getTrans(Pixel_ModuleID,3);
+        Amg::Transform3D CurrentTrans = m_current_IDAlignDBTool->getTrans(Pixel_ModuleID,3);
 
 
         // ********************************************
@@ -644,8 +644,8 @@ void SurveyConstraint::setup_SurveyConstraintModules()
           Amg::Vector3D temp = localSurveyCoords[iCorn];
           // Transform the local points into the MUT's (survey and current) local coordinate system
           Amg::Vector3D surveyPoint = (SurveyTrans*SurveyTransRand) * localSurveyCoords[iCorn];
-          if(m_TransLayerRand <= 0) survey_IDAlignDBTool->setTrans(Pixel_ModuleID,3,SurveyTrans*SurveyTransRand);
-          //survey_IDAlignDBTool->tweakTrans(Pixel_ModuleID,3,SurveyTransRand);
+          if(m_TransLayerRand <= 0) m_survey_IDAlignDBTool->setTrans(Pixel_ModuleID,3,SurveyTrans*SurveyTransRand);
+          //m_survey_IDAlignDBTool->tweakTrans(Pixel_ModuleID,3,SurveyTransRand);
           Amg::Vector3D currentPoint = CurrentTrans *temp;
           //Amg::Vector3D currentPoint = temp.transform(CurrentTrans);
           // Transform the local (survey and current) constraint points into the global coordinate system
@@ -692,8 +692,8 @@ void SurveyConstraint::setup_SurveyConstraintModules()
               getSurveyCoordsPixB(//Pixel_ModuleID,
                       localSurveyCoords);
               // get the survey, current transformations from nominal
-              Amg::Transform3D SurveyTrans = survey_IDAlignDBTool->getTrans(Pixel_ModuleID,3);
-              Amg::Transform3D CurrentTrans = current_IDAlignDBTool->getTrans(Pixel_ModuleID,3);
+              Amg::Transform3D SurveyTrans = m_survey_IDAlignDBTool->getTrans(Pixel_ModuleID,3);
+              Amg::Transform3D CurrentTrans = m_current_IDAlignDBTool->getTrans(Pixel_ModuleID,3);
 
               if(m_gaus){
                 double m1 = m_TransXRandPixB*gauss();
@@ -719,8 +719,8 @@ void SurveyConstraint::setup_SurveyConstraintModules()
                 Amg::Vector3D temp = localSurveyCoords[iCorn];
                 // Transform the local points into the MUT's (survey and current) local coordinate system
                 Amg::Vector3D surveyPoint = (SurveyTrans*SurveyTransRand) *localSurveyCoords[iCorn] ;
-                if(m_TransLayerRand <= 0) survey_IDAlignDBTool->setTrans(Pixel_ModuleID,3,SurveyTrans*SurveyTransRand);
-                //survey_IDAlignDBTool->tweakTrans(Pixel_ModuleID,3,SurveyTransRand);
+                if(m_TransLayerRand <= 0) m_survey_IDAlignDBTool->setTrans(Pixel_ModuleID,3,SurveyTrans*SurveyTransRand);
+                //m_survey_IDAlignDBTool->tweakTrans(Pixel_ModuleID,3,SurveyTransRand);
                 Amg::Vector3D currentPoint = CurrentTrans *temp;
                 // Transform the local (survey and current) constraint points into the global coordinate system
                 Amg::VectorX globalSurveyPoint  = (*iter)->globalPosition( surveyPoint );	  
@@ -902,9 +902,9 @@ void SurveyConstraint::setup_SurveyConstraintModules()
 
   // write out to Condstream1 and write out ntuple or textfile 
   if (m_surveywfile!=""){ 
-    if(m_ntuple) survey_IDAlignDBTool->writeFile(true,m_surveywfile);
-    else survey_IDAlignDBTool->writeFile(false,m_surveywfile);
-    if (StatusCode::SUCCESS!=survey_IDAlignDBTool->outputObjs()) 
+    if(m_ntuple) m_survey_IDAlignDBTool->writeFile(true,m_surveywfile);
+    else m_survey_IDAlignDBTool->writeFile(false,m_surveywfile);
+    if (StatusCode::SUCCESS!=m_survey_IDAlignDBTool->outputObjs()) 
       msg(MSG::ERROR) << "Write of AlignableTransforms fails" << endmsg;
   }
 }
@@ -986,52 +986,52 @@ int SurveyConstraint::getWeightSCTB(//const Identifier& ModuleID,
 void SurveyConstraint::getSurveyCoordsPixEC(//const Identifier& ModuleID,
 					    std::vector< Amg::Vector3D > & coords) {
   coords.clear();
-  const double m_SurveyTargetX = 17.8/2.0;
-  const double m_SurveyTargetY = 59.8/2.0; 
+  const double SurveyTargetX = 17.8/2.0;
+  const double SurveyTargetY = 59.8/2.0; 
  // 4 points
-  coords.push_back(Amg::Vector3D(-m_SurveyTargetX,-m_SurveyTargetY,0.0));
-  coords.push_back(Amg::Vector3D(-m_SurveyTargetX, m_SurveyTargetY,0.0));
-  coords.push_back(Amg::Vector3D( m_SurveyTargetX,-m_SurveyTargetY,0.0));
-  coords.push_back(Amg::Vector3D( m_SurveyTargetX, m_SurveyTargetY,0.0));
+  coords.push_back(Amg::Vector3D(-SurveyTargetX,-SurveyTargetY,0.0));
+  coords.push_back(Amg::Vector3D(-SurveyTargetX, SurveyTargetY,0.0));
+  coords.push_back(Amg::Vector3D( SurveyTargetX,-SurveyTargetY,0.0));
+  coords.push_back(Amg::Vector3D( SurveyTargetX, SurveyTargetY,0.0));
 }
 
 //stupid implementation of Pixel barrel survey coordinates
 void SurveyConstraint::getSurveyCoordsPixB(//const Identifier& ModuleID,
 					   std::vector< Amg::Vector3D > & coords) {
   coords.clear();
-  const double m_SurveyTargetX = 17.8/2.0;
-  const double m_SurveyTargetY = 59.8/2.0; 
+  const double SurveyTargetX = 17.8/2.0;
+  const double SurveyTargetY = 59.8/2.0; 
  // 4 points
-  coords.push_back(Amg::Vector3D(-m_SurveyTargetX,-m_SurveyTargetY,0.0));
-  coords.push_back(Amg::Vector3D(-m_SurveyTargetX, m_SurveyTargetY,0.0));
-  coords.push_back(Amg::Vector3D( m_SurveyTargetX,-m_SurveyTargetY,0.0));
-  coords.push_back(Amg::Vector3D( m_SurveyTargetX, m_SurveyTargetY,0.0));
+  coords.push_back(Amg::Vector3D(-SurveyTargetX,-SurveyTargetY,0.0));
+  coords.push_back(Amg::Vector3D(-SurveyTargetX, SurveyTargetY,0.0));
+  coords.push_back(Amg::Vector3D( SurveyTargetX,-SurveyTargetY,0.0));
+  coords.push_back(Amg::Vector3D( SurveyTargetX, SurveyTargetY,0.0));
 } 
 
 //stupid implementation of SCT EC survey coordinates
 void SurveyConstraint::getSurveyCoordsSCTEC(//const Identifier& ModuleID,
 					    std::vector< Amg::Vector3D > & coords) {
   coords.clear();
-  const double m_SurveyTargetX = 63.6/2.0;
-  const double m_SurveyTargetY = 128.2/2.0; 
+  const double SurveyTargetX = 63.6/2.0;
+  const double SurveyTargetY = 128.2/2.0; 
  // 4 points
-  coords.push_back(Amg::Vector3D(-m_SurveyTargetX,-m_SurveyTargetY,0.0));
-  coords.push_back(Amg::Vector3D(-m_SurveyTargetX, m_SurveyTargetY,0.0));
-  coords.push_back(Amg::Vector3D( m_SurveyTargetX,-m_SurveyTargetY,0.0));
-  coords.push_back(Amg::Vector3D( m_SurveyTargetX, m_SurveyTargetY,0.0));
+  coords.push_back(Amg::Vector3D(-SurveyTargetX,-SurveyTargetY,0.0));
+  coords.push_back(Amg::Vector3D(-SurveyTargetX, SurveyTargetY,0.0));
+  coords.push_back(Amg::Vector3D( SurveyTargetX,-SurveyTargetY,0.0));
+  coords.push_back(Amg::Vector3D( SurveyTargetX, SurveyTargetY,0.0));
 }
 
 //stupid implementation of SCT barrel survey coordinates
 void SurveyConstraint::getSurveyCoordsSCTB(//const Identifier& ModuleID,
 					   std::vector< Amg::Vector3D > & coords) {
   coords.clear();
-  const double m_SurveyTargetX = 63.6/2.0;
-  const double m_SurveyTargetY = 128.2/2.0; 
+  const double SurveyTargetX = 63.6/2.0;
+  const double SurveyTargetY = 128.2/2.0; 
  // 4 points
-  coords.push_back(Amg::Vector3D(-m_SurveyTargetX,-m_SurveyTargetY,0.0));
-  coords.push_back(Amg::Vector3D(-m_SurveyTargetX, m_SurveyTargetY,0.0));
-  coords.push_back(Amg::Vector3D( m_SurveyTargetX,-m_SurveyTargetY,0.0));
-  coords.push_back(Amg::Vector3D( m_SurveyTargetX, m_SurveyTargetY,0.0));
+  coords.push_back(Amg::Vector3D(-SurveyTargetX,-SurveyTargetY,0.0));
+  coords.push_back(Amg::Vector3D(-SurveyTargetX, SurveyTargetY,0.0));
+  coords.push_back(Amg::Vector3D( SurveyTargetX,-SurveyTargetY,0.0));
+  coords.push_back(Amg::Vector3D( SurveyTargetX, SurveyTargetY,0.0));
 }
 
 

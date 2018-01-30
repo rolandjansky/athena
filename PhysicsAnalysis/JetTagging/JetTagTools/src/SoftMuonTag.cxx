@@ -97,8 +97,8 @@ namespace Analysis
     declareProperty("TaggingAlgType", m_algMode                = "L1D");
     declareProperty("BTagJetPTmin",   m_pTjetmin               = 15.*Gaudi::Units::GeV);
     declareProperty("BTagJetEtamin",  m_etajetmin              = 2.7);
-    declareProperty("LikelihoodTool", m_likelihoodTool);
-    declareProperty("TrackToVertexTool"       , m_trackToVertexTool);
+    declareProperty("LikelihoodTool", m_likelihoodTool=nullptr);
+    declareProperty("TrackToVertexTool"       , m_trackToVertexTool=nullptr);
     declareProperty("TrackToVertexIPEstimator", m_trackToVertexIPEstimator);   
     declareProperty("muonSelectorTool", 	m_muonSelectorTool);
     declareProperty("checkOverflows", m_checkOverflows         = false);
@@ -242,6 +242,8 @@ namespace Analysis
     /* ------------------------------------------------------------------------- */
     /*                 READ IN REFHISTOS IF IN ANALYSIS MODE                     */
     /* ------------------------------------------------------------------------- */
+    m_likelihoodTool.disable(); //WL Disable this tools since it's not used as long as the section below is commented out
+
     /* // VD: commenting out
        if (m_runModus == "analysis") {
        ATH_MSG_INFO("#BTAG# Reading histos...");
@@ -345,7 +347,7 @@ namespace Analysis
 	}
       }
       m_histoHelper->print();
-	
+
     }
   
     return StatusCode::SUCCESS;
