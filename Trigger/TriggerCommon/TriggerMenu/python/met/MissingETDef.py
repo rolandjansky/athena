@@ -344,7 +344,7 @@ class L2EFChain_met(L2EFChainDef):
             dummyAlg = PESA__DummyUnseededAllTEAlgo("EF_DummyFEX_xe")
             #self.EFsequenceList +=[[ [''], [dummyAlg]+trk_algs[0], 'EF_xe_step3' ]]
             self.EFsequenceList +=[[ [''], [dummyAlg]+trk_algs[0], 'EF_xe_step0' ]]
-            self.EFsequenceList +=[[ [output4,'EF_xe_step0',muonSeed], [theEFMETFex], 'EF_xe_step1' ]]
+            self.EFsequenceList +=[[ [output3,output4,'EF_xe_step0'], [theEFMETFex], 'EF_xe_step1' ]]
             self.EFsequenceList +=[[ ['EF_xe_step1',muonSeed], [theEFMETMuonFex, theEFMETHypo], 'EF_xe_step2' ]]
 
         #trigger-jet based MET

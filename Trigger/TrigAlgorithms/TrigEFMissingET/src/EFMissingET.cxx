@@ -558,7 +558,49 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
          }
 
       } // end loop over topoclusters
-   } // fetched all topo. clusters
+      if (m_doJets  && m_doTracks && tes_in.size() > 0) {
+	for (const auto& te_in : tes_in.at(1) ) {
+	  HLT::ErrorCode status = getFeature(  te_in , m_jets );
+
+	  if(status!=HLT::OK || !m_jets) {
+            ATH_MSG_ERROR( "Failed to get Jets" ); return HLT::NAV_ERROR;
+	  } else {
+            if (msgLvl(MSG::DEBUG) ) {
+	      ATH_MSG_DEBUG( "size of jet container " << m_jets->size() );
+	      for (const auto& ijet : *m_jets)
+		ATH_MSG_DEBUG( " Jet E, eta, phi: " << ijet->e()<<", "<< ijet->eta()<<", "<< ijet->phi() );
+            }
+	  }
+	}
+	for (const auto& te_in : tes_in.at(2) ) {
+	  HLT::ErrorCode status_trk = getFeature(  te_in , m_tracks );
+
+	  if(status_trk!=HLT::OK || !m_tracks) {
+            ATH_MSG_ERROR( "Failed to get tracks" ); return HLT::NAV_ERROR;
+	  } else {
+            if (msgLvl(MSG::DEBUG) ) {
+	      ATH_MSG_DEBUG( "size of track container " << m_tracks->size() );
+	      for (const auto& itrack : *m_tracks)
+		ATH_MSG_DEBUG( " Track pt, eta, phi, vertex, z0, vz: " << itrack->pt()<<", "<< itrack->eta()<<", "<< itrack->phi() << ", "
+			       << itrack->vertex() << ", " <<  fabs(itrack->z0()) << ", " << itrack->vz() );
+            }
+	  }
+
+	  HLT::ErrorCode status_vtx = getFeature(  te_in , m_vertices );
+
+	  if(status_vtx!=HLT::OK || !m_vertices) {
+            ATH_MSG_ERROR( "Failed to get vertices" ); return HLT::NAV_ERROR;
+	  } else {
+            if (msgLvl(MSG::DEBUG) ) {
+	      ATH_MSG_DEBUG( "size of vertex container " << m_vertices->size() );
+	      for (auto& ivtx : *m_vertices)
+		ATH_MSG_DEBUG( " Vertex x, y, z, ntracks: " << ivtx->x()<<", "<< ivtx->y()<<", "<< ivtx->z() << ", "
+			       << ivtx->nTrackParticles() );
+            }
+	  }
+	}
+      }
+   } else { // fetched all topo. clusters
 
    // fetch jets for later use
    if (m_doJets && tes_in.size() > 0) { // safe-guard
@@ -636,7 +678,7 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
       } // end loop over topoclusters
    } // fetched all topo. clusters
 
-
+   }
 
 
   if(m_doTopoClusters && !m_caloCluster) {  // check if one should process topo. clusters and if pointer is present
