@@ -85,12 +85,7 @@ AthenaEventLoopMgr::AthenaEventLoopMgr(const std::string& nam,
 		  "(DEFAULT). 2: RECOVERABLE and FAILURE skip to next events");
   declareProperty("EventPrintoutInterval", m_eventPrintoutInterval=1,
                   "Print event heartbeat printouts every m_eventPrintoutInterval events");
-  declareProperty("IntervalInSeconds", 
-#ifdef XAOD_ANALYSIS
-		  m_intervalInSeconds = 60, 
-#else
-		  m_intervalInSeconds = 0, 
-#endif
+  declareProperty("IntervalInSeconds",  m_intervalInSeconds = 0, 
 		  "heartbeat time interval is seconds rather than events"
 		  "you also get a nice event rate printout then");
   declareProperty("UseDetailChronoStat",m_doChrono=false);
