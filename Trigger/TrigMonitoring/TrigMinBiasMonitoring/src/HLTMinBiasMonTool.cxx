@@ -308,6 +308,7 @@ StatusCode HLTMinBiasMonTool::init()
 	  ATH_CHECK(th->retrieve());
 	}
 
+	ATH_CHECK(m_purSelTool.retrieve());
 	return sc;
 }
 
