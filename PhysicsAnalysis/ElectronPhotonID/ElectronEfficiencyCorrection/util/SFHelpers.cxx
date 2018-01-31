@@ -57,6 +57,8 @@ int SFHelpers::result(AsgElectronEfficiencyCorrectionTool& tool,
         };
 
         //Do the work 
+        //Empty variation is the nominal
+        CHECK(tool.applySystematicVariation({}));
         CHECK(tool.getEfficiencyScaleFactor(el,nominalSF) == CP::CorrectionCode::Ok);
         CHECK(totalSyst(el,negativeVar,nominalSF,totalNeg));
         CHECK(totalSyst(el,positiveVar,nominalSF,totalPos));

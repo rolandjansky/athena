@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef __TELECTRONEFFICIENCYCORRECTIONTOOL__
@@ -18,6 +18,7 @@
 // STL includes
 #include <vector>
 #include <string>
+#include <array>
 #include <map>
 //Root fwd declares
 class TKey;
@@ -66,89 +67,107 @@ namespace Root {
                 const double cluster_eta,
                 const double et, /* in MeV */
                 size_t& index_of_corr,
-                size_t& index_of_toys)
-            const;
+                size_t& index_of_toys) const;
 
         /// Add an input file
-        inline void addFileName ( const std::string& val ) 
-        { m_corrFileNameList.push_back(val); }
-         ///MC Toys Helper functions
+        inline void addFileName ( const std::string& val ) { 
+            m_corrFileNameList.push_back(val); 
+        }
+        ///MC Toys Helper functions
         inline void bookToyMCScaleFactors(const int nToyMC) {
-            m_doToyMC = kTRUE;
+            m_doToyMC = true;
             m_nToyMC = nToyMC;
         }
         inline void bookCombToyMCScaleFactors(const int nToyMC) {
-            m_doCombToyMC = kTRUE;
+            m_doCombToyMC = true;
             m_nToyMC = nToyMC;
         }
 
         ///Helpers to get the binning of the uncertainties
         int getNbins(std::map<float, std::vector<float> >&) const; 
-        inline int getNSyst() const {return m_nSysMax;}  ;
+        inline int getNSyst() const {
+            return m_nSysMax;
+        }
         ///Detail Level
         enum detailLevel{simple,medium,detailed,detailLevelEnd};
         /// Set the detail level 
-        inline void setDetailLevel ( const int input_detailLevel ) { m_detailLevel = input_detailLevel; }
+        inline void setDetailLevel (const int input_detailLevel ) { 
+            m_detailLevel = input_detailLevel; 
+        }
         ///Set the Random Seed
-        inline void setSeed( const unsigned long int seed) { m_seed = seed; }
+        inline void setSeed( const unsigned long int seed) { 
+            m_seed = seed; 
+        }
 
     private:
         // Private methods
         /// Load all histograms from the input file(s)
         int getHistograms();
-        int getHistogramInDirectory( TKey *key );
-        int setupHistogramsInFolder( const TObjArray& dirNameArray, int lastIdx );
-        void calcDetailLevels(TH1D *eig) ;
 
-        std::vector<TObjArray> buildToyMCTable (const TObjArray &sf, const TObjArray &eig, 
-                const TObjArray& stat, const TObjArray& uncorr, const std::vector<TObjArray> &corr);
+        int setupHistogramsInFolder( const TObjArray& dirNameArray, 
+                int lastIdx );
 
-        std::vector<TH2D*> buildSingleToyMC(TH2D *sf, TH2D* stat, TH2D* uncorr, const TObjArray& corr);
+        void calcDetailLevels(const TH1D *eig,
+                std::array<int,detailLevelEnd>& sLevel,
+                int& nSys) const ;
 
-        TH2D* buildSingleCombToyMC(TH2D *sf, TH2D* stat, TH2D* uncorr, const TObjArray& corr);
+        std::vector<TObjArray> buildToyMCTable (const TObjArray &sf, 
+                const TObjArray &eig, 
+                const TObjArray& stat, 
+                const TObjArray& uncorr, 
+                const std::vector<TObjArray> &corr);
+
+        std::vector<TH2D*> buildSingleToyMC(const TH2D* sf, 
+                const TH2D* stat, 
+                const TH2D* uncorr, 
+                const TObjArray& corr,
+                const std::array<int,detailLevelEnd> sLevel,
+                int& randomCounter);
+
+        TH2D* buildSingleCombToyMC(const TH2D *sf, 
+                const TH2D* stat, 
+                const TH2D* uncorr, 
+                const TObjArray& corr,
+                const std::array<int,detailLevelEnd> sLevel,
+                const int nSys,
+                int& randomCounter);
 
         /// Fill and interpret the setup, depending on which histograms are found in the input file(s)
         int setup( const TObjArray& hist,
                 std::vector< TObjArray >& histList,
                 std::vector< unsigned int >& beginRunNumberList,
-                std::vector< unsigned int >& endRunNumberList );
+                std::vector< unsigned int >& endRunNumberList,
+                const int runNumBegin,
+                const int runNumEnd) const ;
 
-        int setupSys( std::vector<TObjArray> & hist,
-                std::vector< std::vector< TObjArray>> & histList);
-
-        void printDefaultReturnMessage(const TString& reason, int line) const;
     private :
         ///Private data members
-        int m_randomCounter;
-        /// The detail level
-        int m_detailLevel;
         bool m_doToyMC;
         bool m_doCombToyMC;
-        ///
-        int m_toyMCSF;
+        //// The detail level
+        int m_detailLevel;
+        //The number of toys
         int m_nToyMC;
-        //
-        /// The seed
+        /// The Random seed
         unsigned long int m_seed;
-        ///
-        int m_sLevel[detailLevelEnd];
-        int m_nSys;
+        ///Maximum number of systematics
         int m_nSysMax;
-        int m_runNumBegin;
-        int m_runNumEnd;
-
-        ///Uncorrelated toy systematics
+        // The positions of the efficiency scale factor correlated sustematic uncertainties in the result
+        std::vector<int> m_position_corrSys; 
+        /// The positions of the toy MC scale factors
+        std::vector<int> m_position_uncorrToyMCSF; ///Uncorrelated toy systematics
+        ///The representation of the prepared toy SF tables
         std::vector< std::vector<TObjArray>> m_uncorrToyMCSystFull;
         std::vector< std::vector<TObjArray>> m_uncorrToyMCSystFast;
         /// The list of file name(s)
         std::vector< std::string > m_corrFileNameList;
-        /// List of run numbers where histgrams become valid for full simulation
+        /// List of run numbers where histograms become valid for full simulation
         std::vector< unsigned int > m_begRunNumberList;
-        /// List of run numbers where histgrams stop being valid for full simulation
+        /// List of run numbers where histograms stop being valid for full simulation
         std::vector< unsigned int > m_endRunNumberList;
-        /// List of run numbers where histgrams become valid for fast simulation
+        /// List of run numbers where histograms become valid for fast simulation
         std::vector< unsigned int > m_begRunNumberListFastSim;
-        /// List of run numbers where histgrams stop being valid for fast simulation
+        /// List of run numbers where histograms stop being valid for fast simulation
         std::vector< unsigned int > m_endRunNumberListFastSim;    
         //The vector holding the keys
         std::vector<int> m_keys;
@@ -158,7 +177,7 @@ namespace Root {
         /// List of histograms for fast simulation
         std::map<int, std::vector< TObjArray > > m_fastHistList;
         std::vector< std::vector< TObjArray > > m_fastSysList;
-     
+        //The Random generator class   
         TRandom3 m_Rndm;
     }; // End: class definition
 
