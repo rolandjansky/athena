@@ -317,7 +317,7 @@ if not isSimulation: #Only Skim Data
    BPHY10_SelectBdJpsiKstEvent = DerivationFramework__xAODStringSkimmingTool(
      name = "BPHY10_SelectBdJpsiKstEvent",
      #expression = "(count(BdJpsiKstCandidates.passed_Bd > 0) + count(BdJpsiKstCandidates.passed_BdBar > 0) + count(RecoV0Candidates) + count(RecoKshortContainerName) + count(RecoLambdaContainerName) + count(RecoLambdabarContainerName) ) > 0")
-     expression = "(count(BdJpsiKstCandidates.passed_Bd > 0) + count(BdJpsiKstCandidates.passed_BdBar > 0) + count(JpsiKshortCascadeSV1) + count(JpsiLambdaCascadeSV1) + count(JpsiLambdabarCascadeSV1) ) > 0")
+     expression = "(count(BdJpsiKstCandidates.passed_Bd > 0) + count(BdJpsiKstCandidates.passed_Bdbar > 0) + count(JpsiKshortCascadeSV1.x > -999) + count(JpsiLambdaCascadeSV1.x > -999) + count(JpsiLambdabarCascadeSV1.x > -999) ) > 0")
    
    ToolSvc += BPHY10_SelectBdJpsiKstEvent
    print BPHY10_SelectBdJpsiKstEvent
@@ -338,7 +338,7 @@ if not isSimulation: #Only Skim Data
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Thin_vtxTrk
 BPHY10_thinningTool_Tracks = DerivationFramework__Thin_vtxTrk(
   name                       = "BPHY10_thinningTool_Tracks",
-  ThinningService            = "BPHY10ThinningSvc", OutputLevel = DEBUG,
+  ThinningService            = "BPHY10ThinningSvc",
   TrackParticleContainerName = "InDetTrackParticles",
   VertexContainerNames       = ["BdJpsiKstCandidates","JpsiKshortCascadeSV1","JpsiKshortCascadeSV2","JpsiLambdaCascadeSV1","JpsiLambdaCascadeSV2","JpsiLambdabarCascadeSV1","JpsiLambdabarCascadeSV2"],
   PassFlags                  = ["passed_Bd", "passed_Bdbar"] )
