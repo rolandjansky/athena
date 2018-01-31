@@ -70,7 +70,7 @@ StatusCode TauJetRNNEvaluator::initialize() {
     }
 
     m_net_3p = std::make_unique<TauJetRNN>(m_weightfile_3p, config);
-    if (!m_net_1p) {
+    if (!m_net_3p) {
         ATH_MSG_WARNING("No network configured for multi-prong taus. "
                         "Decorating defaults...");
     }
