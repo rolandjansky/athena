@@ -481,7 +481,7 @@ class Configuration:
                           'thisBTagTrackAssociation_'+jetcol+self.GeneralToolSuffix(),
                           AssociatedTrackLinks = "MatchedTracks",
                           AssociatedMuonLinks = "MatchedMuons",
-                          TrackContainerName = "InDetTracks",
+                          TrackContainerName = "InDetTrackParticles",
                           MuonContainerName = "Muons",
                           TrackAssociationName = "BTagTracks",
                           MuonAssociationName = "BTagMuons"

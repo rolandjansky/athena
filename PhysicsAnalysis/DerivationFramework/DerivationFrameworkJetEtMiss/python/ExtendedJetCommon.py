@@ -72,7 +72,7 @@ def addAntiKt2PV0TrackJets(sequence, outputlist):
         trackassoc = \
             JetParticleShrinkingConeAssociation(
                 "TrackAssocAntiKt2PV0TrackJets",
-                InputParticleCollectionName="InDetTracks",
+                InputParticleCollectionName="InDetTrackParticles",
                 OutputCollectionName="MatchedTracks",
                 ConeSizeFitPar1=+0.239,
                 ConeSizeFitPar2=-1.220,

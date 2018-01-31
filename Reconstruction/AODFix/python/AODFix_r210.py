@@ -88,7 +88,7 @@ class AODFix_r210(AODFix_base):
         trackassoc = \
             JetParticleShrinkingConeAssociation(
                 "BTaggingTrackAssoc",
-                InputParticleCollectionName="InDetTracks",
+                InputParticleCollectionName="InDetTrackParticles",
                 OutputCollectionName="MatchedTracks",
                 ConeSizeFitPar1=+0.239,
                 ConeSizeFitPar2=-1.220,

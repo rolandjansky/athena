@@ -83,7 +83,7 @@ def ReTag(Taggers, JetCollections = ['AntiKt4EMTopoJets' ], Sequencer=None, DoFu
     trackassoc = \
         JetParticleShrinkingConeAssociation(
             "BTaggingTrackAssoc",
-            InputParticleCollectionName="InDetTracks",
+            InputParticleCollectionName="InDetTrackParticles",
             OutputCollectionName="MatchedTracks",
             ConeSizeFitPar1=+0.239,
             ConeSizeFitPar2=-1.220,
@@ -93,7 +93,7 @@ def ReTag(Taggers, JetCollections = ['AntiKt4EMTopoJets' ], Sequencer=None, DoFu
 
     muonassoc = \
         JetParticleShrinkingConeAssociation(
-            "BTaggingTrackAssoc",
+            "BTaggingMuonAssoc",
             InputParticleCollectionName="Muons",
             OutputCollectionName="MatchedMuons",
             ConeSizeFitPar1=0.4,

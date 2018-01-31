@@ -59,11 +59,15 @@ namespace Analysis {
                 return StatusCode::FAILURE;
             }
 
-            std::vector< ElementLink< xAOD::IParticleContainer > > tmp;
-            if (!jet->getAttribute(m_AssociatedTrackLinks, tmp)) {
-                ATH_MSG_FATAL("Unable to read track collection " + m_AssociatedTrackLinks + " from jets for b-tagging.");
-                return StatusCode::FAILURE;
-            }
+            SG::AuxElement::ConstAccessor<std::vector<ElementLink<xAOD::IParticleContainer> > > acc(m_AssociatedTrackLinks);
+
+            std::vector< ElementLink< xAOD::IParticleContainer > > tmp = acc(*jet);
+            ATH_MSG_INFO("hello chris");
+
+            // if (!jet->getAttribute(m_AssociatedTrackLinks, tmp)) {
+            //     ATH_MSG_FATAL("Unable to read track collection " + m_AssociatedTrackLinks + " from jets for b-tagging.");
+            //     return StatusCode::FAILURE;
+            // }
 
             std::vector< ElementLink< xAOD::TrackParticleContainer > > associationLinks;
             const xAOD::TrackParticleContainer * tpContainer(0);
