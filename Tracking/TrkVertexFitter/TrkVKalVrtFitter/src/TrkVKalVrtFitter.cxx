@@ -232,6 +232,7 @@ StatusCode TrkVKalVrtFitter::initialize()
 //
     if (m_extPropagator.name() == "DefaultVKalPropagator" ){
       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "External propagator is not supplied - use internal one"<<endmsg;
+      m_extPropagator.disable();
     }else{
       if (m_extPropagator.retrieve().isFailure()) {
         if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Could not find external propagator=" <<m_extPropagator<<endmsg;
