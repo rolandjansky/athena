@@ -18,7 +18,9 @@ tmp_CaloBaselineMon = {"useBadLBTool":FALSE,
                        "useReadyFilterTool":FALSE,
                        "useLArNoisyAlg":FALSE,
                        "useBeamBackgroundRemoval":FALSE,
-                       "useLArCollisionFilter":FALSE}
+                       "useLArCollisionFilter":FALSE,
+                       "pedestalMon_BCIDmin":0,
+                       "bcidtoolMon_BCIDmax":0}
 
 if not (DQMonFlags.monManEnvironment == 'online' or globalflags.DataSource.get_Value() == 'geant4' or globalflags.DataSource.get_Value() == 'geant3'):
   tmp_CaloBaselineMon["useBadLBTool"]=TRUE
@@ -27,6 +29,11 @@ if not (DQMonFlags.monManEnvironment == 'online' or globalflags.DataSource.get_V
 
 if rec.triggerStream()=='CosmicCalo':
   tmp_CaloBaselineMon["useLArCollisionFilter"] = TRUE
+  tmp_CaloBaselineMon["pedestalMon_BCIDmin"] = 20
+
+if rec.triggerStream()=='ZeroBias':
+  tmp_CaloBaselineMon["bcidtoolMon_BCIDmax"] = 144
+
 
 CaloBaseline = CaloBaselineMon(
    name           = "CaloBaseline",
@@ -38,7 +45,8 @@ CaloBaseline = CaloBaselineMon(
    useLArCollisionFilterTool = tmp_CaloBaselineMon["useLArCollisionFilter"],
    useLArNoisyAlg = tmp_CaloBaselineMon["useLArNoisyAlg"],
    useBeamBackgroundRemoval = tmp_CaloBaselineMon["useBeamBackgroundRemoval"],
-
+   pedestalMon_BCIDmin = tmp_CaloBaselineMon["pedestalMon_BCIDmin"],
+   bcidtoolMon_BCIDmax = tmp_CaloBaselineMon["bcidtoolMon_BCIDmax"],
 )
 
 ToolSvc += CaloBaseline 
