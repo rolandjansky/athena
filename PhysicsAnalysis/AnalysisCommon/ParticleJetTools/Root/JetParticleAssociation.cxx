@@ -11,7 +11,7 @@ using namespace std;
 using namespace xAOD;
 
 JetParticleAssociation::JetParticleAssociation(const string& name)
-    : AsgTool(name), dec("JETPARTASSNBROKEN") {
+    : AsgTool(name), dec(NULL) {
 
         declareProperty("OutputCollectionName", m_OutputCollectionName);
 
@@ -19,7 +19,12 @@ JetParticleAssociation::JetParticleAssociation(const string& name)
     }
 
 StatusCode JetParticleAssociation::initialize() {
-    dec = SG::AuxElement::Decorator<vector<ElementLink<IParticleContainer> > >(m_OutputCollectionName);
+    dec = new SG::AuxElement::Decorator<vector<ElementLink<IParticleContainer> > >(m_OutputCollectionName);
+    return StatusCode::SUCCESS;
+}
+
+StatusCode JetParticleAssociation::finalize() {
+    delete dec;
     return StatusCode::SUCCESS;
 }
 
@@ -28,7 +33,7 @@ int JetParticleAssociation::modify(xAOD::JetContainer& jets) const {
     const vector<vector<ElementLink<IParticleContainer> > >* matches = match(jets);
 
     for (unsigned int iJet = 0; iJet < jets.size(); iJet++)
-        dec(*jets.at(iJet)) = (*matches)[iJet];
+        (*dec)(*jets.at(iJet)) = (*matches)[iJet];
 
     delete matches;
 

@@ -23,6 +23,7 @@ class JetParticleAssociation : public IJetModifier, public asg::AsgTool {
         JetParticleAssociation(const std::string& name);
 
         StatusCode initialize();
+        StatusCode finalize();
 
         // obvs to be provided by the deriving class
         virtual const std::vector<std::vector<ElementLink<xAOD::IParticleContainer> > >*
@@ -32,7 +33,7 @@ class JetParticleAssociation : public IJetModifier, public asg::AsgTool {
 
     private:
         std::string m_OutputCollectionName;
-        SG::AuxElement::Decorator<std::vector<ElementLink<xAOD::IParticleContainer> > > dec;
+        SG::AuxElement::Decorator<std::vector<ElementLink<xAOD::IParticleContainer> > > *dec;
 };
 
 #endif

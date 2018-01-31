@@ -34,7 +34,7 @@ class JetModifierAlg : public AthAlgorithm {
 
         StatusCode initialize() {
             if ( m_modifiers.retrieve().isFailure() ) {
-                ATH_MSG_FATAL("jet modifier retrieval failed.");
+                ATH_MSG_FATAL(name() + " jet modifier retrieval failed.");
                 return StatusCode::FAILURE;
             }
 
@@ -53,12 +53,12 @@ class JetModifierAlg : public AthAlgorithm {
                 xAOD::JetContainer* jets = NULL;
                 if ( evtStore()->retrieve( jets, jetContainerName ).isFailure() ) {
                     ATH_MSG_FATAL(name() + 
-                            "failed to retrieve jet collection \"" +
+                            " failed to retrieve jet collection \"" +
                             jetContainerName + "\"");
                     return StatusCode::FAILURE;
                 } else {
                     ATH_MSG_INFO(name() + 
-                            "retrieved jet collection \"" +
+                            " retrieved jet collection \"" +
                             jetContainerName + "\"");
                 }
 
