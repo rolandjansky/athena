@@ -95,7 +95,7 @@ namespace xAOD {
 
     // Choose whether TileGap3 cells are excluded 
     declareProperty("ExcludeTG3", m_ExcludeTG3 = true, "Exclude the TileGap3 cells");
-    declareProperty("addCaloExtensionDecoration", m_addCaloDeco = true, "Add the calo decorations");
+    declareProperty("addCaloExtensionDecoration", m_addCaloDeco = false, "Add the calo decorations"); // not sure this is thread-safe, so made false (JM)
   }
 
   CaloIsolationTool::~CaloIsolationTool() { }

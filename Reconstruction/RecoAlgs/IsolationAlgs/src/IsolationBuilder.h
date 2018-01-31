@@ -118,8 +118,12 @@ class IsolationBuilder
   ToolHandle<xAOD::ITrackIsolationTool> m_trackIsolationTool {this,
       "TrackIsolationTool", "", "Handle of the track IsolationTool"};
 
+  // FIXME:  need to add the electron bremAssoc stuff
   Gaudi::Property<bool> m_useBremAssoc {this, 
       "useBremAssoc", true, "use track to track assoc after brem"};
+
+  Gaudi::Property<bool> m_allTrackRemoval {this, 
+      "AllTrackRemoval", true};
 
   /** @brief Isolation types (for the alg. properties, only vector<vector<double>> available */
   Gaudi::Property<std::vector<std::vector<int> > > m_elisoInts {this,
@@ -154,13 +158,12 @@ class IsolationBuilder
       "FeIsoTypes", {},
       "The isolation types to do for forward electron: vector of vector of enum type Iso::IsolationType"};
 
-  Gaudi::Property<bool> m_addCoreCorr{this, "AddCoreCorr", true, 
-      "Add core correction for muon calo isolation"};
-
   struct CaloIsoHelpKey {
     std::vector<SG::WriteDecorHandleKey<xAOD::IParticleContainer> > isoDeco;
-    bool addCoreCorr = false;
-    SG::WriteDecorHandleKey<xAOD::IParticleContainer> coreCorisoDeco;
+    std::map<xAOD::Iso::IsolationCaloCorrection, 
+	     SG::WriteDecorHandleKey<xAOD::IParticleContainer> > coreCorDeco;
+    std::map<xAOD::Iso::IsolationCaloCorrection, 
+	     std::vector<SG::WriteDecorHandleKey<xAOD::IParticleContainer> > > noncoreCorDeco;
     std::vector<xAOD::Iso::IsolationType> isoTypes;
     xAOD::CaloCorrection CorrList;
     SG::WriteDecorHandleKey<xAOD::IParticleContainer> corrBitsetDeco;
@@ -174,6 +177,8 @@ class IsolationBuilder
   struct TrackIsoHelpKey {
     std::vector<SG::WriteDecorHandleKey<xAOD::IParticleContainer> > isoDeco;
     std::vector<SG::WriteDecorHandleKey<xAOD::IParticleContainer> > isoDecoV;
+    std::map<xAOD::Iso::IsolationTrackCorrection, 
+	     SG::WriteDecorHandleKey<xAOD::IParticleContainer> > coreCorDeco;
     std::vector<xAOD::Iso::IsolationType> isoTypes;
     xAOD::TrackCorrection CorrList;
     SG::WriteDecorHandleKey<xAOD::IParticleContainer> corrBitsetDeco;
@@ -188,6 +193,10 @@ class IsolationBuilder
     CaloIsoHelpHandles(const CaloIsoHelpKey& keys);
 
     std::vector<SG::WriteDecorHandle<xAOD::IParticleContainer, float> > isoDeco;
+    std::map<xAOD::Iso::IsolationCaloCorrection, 
+	     SG::WriteDecorHandle<xAOD::IParticleContainer, float> > coreCorDeco;
+    std::map<xAOD::Iso::IsolationCaloCorrection, 
+	     std::vector<SG::WriteDecorHandle<xAOD::IParticleContainer, float> > > noncoreCorDeco;
     SG::WriteDecorHandle<xAOD::IParticleContainer, uint32_t> corrBitsetDeco;
   };
 
@@ -198,6 +207,8 @@ class IsolationBuilder
 
     std::vector<SG::WriteDecorHandle<xAOD::IParticleContainer, float> > isoDeco;
     std::vector<SG::WriteDecorHandle<xAOD::IParticleContainer, float> > isoDecoV;
+    std::map<xAOD::Iso::IsolationTrackCorrection, 
+	     SG::WriteDecorHandle<xAOD::IParticleContainer, float> > coreCorDeco;
     SG::WriteDecorHandle<xAOD::IParticleContainer, uint32_t> corrBitsetDeco;
   };
 
@@ -219,8 +230,6 @@ class IsolationBuilder
       "CustomConfigurationNameMu", "",
       "use a custom configuration for muon"}; 
 
-  Gaudi::Property<bool> m_allTrackRemoval {this, 
-      "AllTrackRemoval", true};
 
   StatusCode initializeIso(std::set<xAOD::Iso::IsolationFlavour>& runIsoType, // out
 			   std::vector<std::pair<xAOD::Iso::IsolationFlavour,CaloIsoHelpKey > >* caloIsoMap, // out
@@ -228,24 +237,11 @@ class IsolationBuilder
 			   const std::string& containerName,
 			   const std::vector<std::vector<int> >& isoInts,
 			   const std::vector<std::vector<int> >& corInts,
-			   const std::string& customConfig,
-			   bool addCoreCorr);
+			   const std::string& customConfig);
 
   StatusCode executeCaloIso(const std::vector<std::pair<xAOD::Iso::IsolationFlavour,CaloIsoHelpKey> >& caloIsoMap);
 
   StatusCode executeTrackIso(const std::vector<std::pair<xAOD::Iso::IsolationFlavour,TrackIsoHelpKey> >& trackIsoMap);
-
-  // For an AODFix
-  // JM:  Not yet supported
-  // Gaudi::Property<bool> m_isAODFix{this, "IsAODFix", false};
-  // ToolHandle<CP::IIsolationCorrectionTool> m_leakTool {this,
-  //     "LeakageTool", "", "Handle of the leakage Tool"};
-  // StatusCode runLeakage();
-
-  // From Attila, for a deep copy
-  //  -- JM: these will have to change in the new code, and I propose moving them to a helper
-  // template< class CONTAINER, class AUXSTORE > StatusCode deepCopy( const std::string& key ) const;
-  // template< class CONTAINER, class AUXSTORE > StatusCode deepCopyImp( const std::string& key ) const;
   
   
 }; 

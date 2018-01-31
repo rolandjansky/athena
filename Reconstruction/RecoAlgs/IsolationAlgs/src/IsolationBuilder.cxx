@@ -30,25 +30,25 @@ StatusCode IsolationBuilder::initialize()
   ATH_CHECK(initializeIso(runIsoType, &m_elCaloIso, &m_elTrackIso, 
 			  m_ElectronContainerName,
 			  m_elisoInts, m_elcorInts,
-			  m_customConfigEl, false));
+			  m_customConfigEl));
   
   ATH_MSG_DEBUG("Initializing central photons");
   ATH_CHECK(initializeIso(runIsoType, &m_phCaloIso, &m_phTrackIso, 
 			  m_PhotonContainerName,
 			  m_phisoInts, m_phcorInts,
-			  m_customConfigPh, false));
+			  m_customConfigPh));
   
   ATH_MSG_DEBUG("Initializing forward electrons");
   ATH_CHECK(initializeIso(runIsoType, &m_feCaloIso, nullptr, 
 			  m_FwdElectronContainerName,
 			  m_feisoInts, m_fecorInts,
-			  m_customConfigFwd, false));
+			  m_customConfigFwd));
 
   ATH_MSG_DEBUG("Initializing muons");
   ATH_CHECK(initializeIso(runIsoType, &m_muCaloIso, &m_muTrackIso, 
 			  m_MuonContainerName,
 			  m_muisoInts, m_mucorInts,
-			  m_customConfigMu, m_addCoreCorr));
+			  m_customConfigMu));
 			  
 
   // Retrieve the tools (there three Calo ones are the same in fact)
@@ -78,14 +78,6 @@ StatusCode IsolationBuilder::initialize()
   
   //initialise data handles
   ATH_CHECK(m_cellsKey.initialize(!m_cellIsolationTool.empty()));
-	    
-  // // Also can apply leakage correction if AODFix :
-  // // be carefull ! There is a leakage in topoetcone, etcone, ... : do not run this !!!!!! (useless)
-  // if (m_isAODFix && !m_leakTool.empty()) {
-  //   ATH_MSG_INFO("Will run leakage corrections for photons and electrons");
-  //   ATH_CHECK(m_leakTool.retrieve());
-  // }
-
 
   return StatusCode::SUCCESS;
 }
@@ -116,44 +108,6 @@ StatusCode IsolationBuilder::execute()
     m_cellColl = nullptr;
   }
 
-  // If AODFix, first deep copy  -- 
-  // JM: Let's leave this to later. From what I understand we will rename inputs
-  //     and create new objects, but I don't know if it makes sense to do it here
-  //     like this. Maybe there can be an external utility to copy renamed xAOD objects?
-  // if (m_isAODFix) {
-  //   if (m_ElectronContainerName.size()) {
-  //     if (!evtStore()->tryRetrieve<xAOD::ElectronContainer>(m_ElectronContainerName)) {
-  // 	if( deepCopy<xAOD::ElectronContainer,xAOD::ElectronAuxContainer>(m_ElectronContainerName).isFailure()) {
-  // 	  ATH_MSG_FATAL( "Couldn't deep copy electrons" );
-  // 	  return StatusCode::FAILURE;
-  // 	}
-  //     }
-  //   }
-  //   if (m_FwdElectronContainerName.size()) {
-  //     if (!evtStore()->tryRetrieve<xAOD::ElectronContainer>(m_FwdElectronContainerName)) {
-  // 	if( deepCopy<xAOD::ElectronContainer,xAOD::ElectronAuxContainer>(m_FwdElectronContainerName).isFailure()) {
-  // 	  ATH_MSG_FATAL( "Couldn't deep copy forward electrons" );
-  // 	  return StatusCode::FAILURE;
-  // 	}
-  //     }
-  //   }
-  //   if (m_PhotonContainerName.size()) {
-  //     if (!evtStore()->tryRetrieve<xAOD::PhotonContainer>(m_PhotonContainerName)) {
-  // 	if( deepCopy<xAOD::PhotonContainer,xAOD::PhotonAuxContainer>(m_PhotonContainerName).isFailure()) {
-  // 	  ATH_MSG_FATAL( "Couldn't deep copy photons" );
-  // 	  return StatusCode::FAILURE;
-  // 	}
-  //     }
-  //   }
-  //   SG::ReadHandle <xAOD::MuonContainer>h_muon(m_MuonContainerName);
-  //   if (h_muon.isValid()) {
-  //     if( deepCopy<xAOD::MuonContainer,xAOD::MuonAuxContainer>(m_MuonContainerName.key()).isFailure()) {
-  // 	ATH_MSG_FATAL( "Couldn't deep copy muons" );
-  // 	return StatusCode::FAILURE;
-  //     }
-  //   }
-  // }
-
   // Compute isolations
 
   ATH_CHECK(executeCaloIso(m_elCaloIso));
@@ -164,10 +118,6 @@ StatusCode IsolationBuilder::execute()
   ATH_CHECK(executeTrackIso(m_elTrackIso));
   ATH_CHECK(executeTrackIso(m_phTrackIso));
   ATH_CHECK(executeTrackIso(m_muTrackIso));
-
-  // if (m_isAODFix && !m_leakTool.empty())
-  //   CHECK(runLeakage());
-
   
   return StatusCode::SUCCESS;
 }
@@ -177,6 +127,15 @@ IsolationBuilder::CaloIsoHelpHandles::CaloIsoHelpHandles(const IsolationBuilder:
 {
   for (const auto& key : keys.isoDeco) {
     isoDeco.emplace_back(key);
+  }
+  for (const auto& coreCor : keys.coreCorDeco) {
+    coreCorDeco.emplace(coreCor);
+  }
+  for (const auto& noncoreCor : keys.noncoreCorDeco) {
+    noncoreCorDeco.emplace(noncoreCor.first, 
+			   std::vector<SG::WriteDecorHandle<xAOD::IParticleContainer, float> >{
+			     std::begin(noncoreCor.second),
+			       std::end(noncoreCor.second)});
   }
 }
 
@@ -189,6 +148,9 @@ IsolationBuilder::TrackIsoHelpHandles::TrackIsoHelpHandles(const IsolationBuilde
   for (const auto& key : keys.isoDecoV) {
     isoDecoV.emplace_back(key);
   }
+  for (const auto& coreCor : keys.coreCorDeco) {
+    coreCorDeco.emplace(coreCor);
+  }
 }
 
 StatusCode IsolationBuilder::initializeIso(std::set<xAOD::Iso::IsolationFlavour>& runIsoType, // out
@@ -197,8 +159,7 @@ StatusCode IsolationBuilder::initializeIso(std::set<xAOD::Iso::IsolationFlavour>
 					   const std::string& containerName,
 					   const std::vector<std::vector<int> >& isoInts,
 					   const std::vector<std::vector<int> >& corInts,
-					   const std::string& customConfig,
-					   bool addCoreCorr)
+					   const std::string& customConfig)
 {
   
   std::string prefix = containerName + ".";
@@ -266,6 +227,7 @@ StatusCode IsolationBuilder::initializeIso(std::set<xAOD::Iso::IsolationFlavour>
     if (isoFlav == xAOD::Iso::etcone || isoFlav == xAOD::Iso::topoetcone || isoFlav == xAOD::Iso::neflowisol) {
   
       cisoH.corrBitsetDeco = bitsetName;
+      ATH_MSG_DEBUG("Initializing " << cisoH.corrBitsetDeco.key());
       ATH_CHECK(cisoH.corrBitsetDeco.initialize());
  
 
@@ -273,20 +235,38 @@ StatusCode IsolationBuilder::initializeIso(std::set<xAOD::Iso::IsolationFlavour>
 	const auto cor = static_cast<unsigned int>(corInts[flavor][corrType]);
 	cisoH.CorrList.calobitset.set(cor);
 	const xAOD::Iso::IsolationCaloCorrection isoCor = static_cast<xAOD::Iso::IsolationCaloCorrection>(cor);
-	if (addCoreCorr && (isoCor == xAOD::Iso::coreCone || isoCor == xAOD::Iso::coreMuon) ) {
-	  std::string isoCorName = prefix;
-	  if (isoFlav == xAOD::Iso::topoetcone || isoFlav == xAOD::Iso::neflowisol) {
-	    isoCorName += xAOD::Iso::toString(isoFlav);
-	  }
+
+	// ATH_MSG_DEBUG("for corrections, prefix = " << prefix << ", flavor = " << xAOD::Iso::toString(isoFlav)
+	// 	      << ", cor = " << xAOD::Iso::toString(isoCor) << ", coreEnergy " << xAOD::Iso::toString(xAOD::Iso::coreEnergy));
+
+	std::string isoCorName = prefix + xAOD::Iso::toString(isoFlav);
+
+	if (isoCor == xAOD::Iso::coreCone || isoCor == xAOD::Iso::coreConeSC || isoCor == xAOD::Iso::coreMuon) {
+	  // a core correction; only store core energy, not the core area
 	  isoCorName += xAOD::Iso::toString(isoCor) + xAOD::Iso::toString(xAOD::Iso::coreEnergy)
-	    + "Correction"; // hard coded since we never store the core area in fact
+	    + "Correction";
 	  if (customConfig != "") {
 	    isoCorName += "_" + customConfig;
 	  }
-	  cisoH.addCoreCorr = true;
-	  cisoH.coreCorisoDeco = isoCorName;
-	  ATH_MSG_DEBUG("initializing " << cisoH.coreCorisoDeco.key());
-	  ATH_CHECK(cisoH.coreCorisoDeco.initialize());
+	  cisoH.coreCorDeco.emplace(isoCor, isoCorName);
+	  ATH_MSG_DEBUG("initializing " << cisoH.coreCorDeco[isoCor].key());
+	  ATH_CHECK(cisoH.coreCorDeco[isoCor].initialize());
+	} else if (isoCor == xAOD::Iso::pileupCorrection) {
+	  // do not store pileup corrections as they are rho * pi * (R**2 - areaCore) and rho is stored...
+	  continue;
+	} else {	  
+	  // noncore correction
+	  cisoH.noncoreCorDeco.emplace(isoCor, std::vector<SG::WriteDecorHandleKey<xAOD::IParticleContainer> >{});
+	  auto& vec = cisoH.noncoreCorDeco[isoCor];
+	  for (auto type : cisoH.isoTypes) {
+	    std::string corName = prefix + xAOD::Iso::toString(type) + xAOD::Iso::toString(isoCor) + "Correction";
+	    if (customConfig != "") {
+	      corName += "_" + customConfig;
+	    }
+	    vec.emplace_back(corName);
+	    ATH_MSG_DEBUG("initializing " << vec.back().key());
+	    ATH_CHECK(vec.back().initialize());
+	  }
 	}
       }
       if (caloIsoMap) {
@@ -298,11 +278,24 @@ StatusCode IsolationBuilder::initializeIso(std::set<xAOD::Iso::IsolationFlavour>
     } else if (isoFlav == xAOD::Iso::ptcone) {
 
       tisoH.corrBitsetDeco = bitsetName;
+      ATH_MSG_DEBUG("Initializing " << tisoH.corrBitsetDeco.key());
       ATH_CHECK(tisoH.corrBitsetDeco.initialize());
 
       for (size_t corrType = 0; corrType < corInts[flavor].size(); corrType++) {
 	const auto cor = static_cast<unsigned int>(corInts[flavor][corrType]);
 	tisoH.CorrList.trackbitset.set(cor);
+	const xAOD::Iso::IsolationTrackCorrection isoCor = static_cast<xAOD::Iso::IsolationTrackCorrection>(cor);
+
+	// all pt corrections are core type
+	std::string isoCorName = prefix + xAOD::Iso::toString(isoFlav) + 
+	  xAOD::Iso::toString(isoCor) + "Correction";
+
+	if (customConfig != "") {
+	  isoCorName += "_" + customConfig;
+	}
+	tisoH.coreCorDeco.emplace(isoCor, isoCorName);
+	ATH_MSG_DEBUG("initializing " << tisoH.coreCorDeco[isoCor].key());
+	ATH_CHECK(tisoH.coreCorDeco[isoCor].initialize());
       }
 
       if (trackIsoMap) {
@@ -336,7 +329,7 @@ StatusCode IsolationBuilder::executeCaloIso(const std::vector<std::pair<xAOD::Is
       return StatusCode::FAILURE;
     }
 
-    for (const auto& part : *readHandle) {
+    for (auto part : *readHandle) {
       xAOD::CaloIsolation CaloIsoResult;
       bool successfulCalc = false;
       if (flav == xAOD::Iso::IsolationFlavour::etcone && m_cellColl) {
@@ -356,28 +349,25 @@ StatusCode IsolationBuilder::executeCaloIso(const std::vector<std::pair<xAOD::Is
 	// corrections
 	(handles.corrBitsetDeco)(*part) = keys.CorrList.calobitset.to_ulong();
 
-
-	// not that nice. I expect a single core correction (e.g. for topoetcone, not coreMuon and coreCone together...)
-	if (keys.addCoreCorr) {
-	  SG::WriteDecorHandle<xAOD::IParticleContainer, float> coreCorisoDeco(keys.coreCorisoDeco);
-	  xAOD::Iso::IsolationCaloCorrection icc = xAOD::Iso::coreCone;
-	  bool ison = false;
-	  if (CaloIsoResult.corrlist.calobitset.test(static_cast<unsigned int>(xAOD::Iso::coreMuon))) {
-	    icc  = xAOD::Iso::coreMuon;
-	    ison = true;
-	  } else if (CaloIsoResult.corrlist.calobitset.test(static_cast<unsigned int>(xAOD::Iso::coreCone))) {
-	    ison = true;
+	// let's do the core corrections
+	for (const auto& coreCorPr : CaloIsoResult.coreCorrections) {
+	  std::map<xAOD::Iso::IsolationCorrectionParameter,float>::const_iterator it = 
+	    coreCorPr.second.find(xAOD::Iso::coreEnergy);
+	  if (it != coreCorPr.second.end()) {
+	    (handles.coreCorDeco.at(coreCorPr.first))(*part) = it->second;
 	  }
-	  if (ison) {
-	    if (CaloIsoResult.coreCorrections.find(icc) != CaloIsoResult.coreCorrections.end()) {
-	      if (CaloIsoResult.coreCorrections[icc].find(xAOD::Iso::coreEnergy) != CaloIsoResult.coreCorrections[icc].end()) {
-		coreCorisoDeco(*part) = CaloIsoResult.coreCorrections[icc][xAOD::Iso::coreEnergy];
-	      } else {
-		ATH_MSG_WARNING("Cannot find the core energy correction for flavor " << xAOD::Iso::toCString(flav));
-	      }
-	    } else {
-	      ATH_MSG_WARNING("Cannot find the core correction for flavor " << xAOD::Iso::toCString(flav));
-	    }
+	}
+
+	// let's do the noncore corrections
+	for (const auto& noncoreCorPr : CaloIsoResult.noncoreCorrections) {
+	  auto& vecHandles = handles.noncoreCorDeco[noncoreCorPr.first];
+	  if (vecHandles.size() != noncoreCorPr.second.size()) {
+	    ATH_MSG_ERROR("Got back the wrong number of corrections for " << noncoreCorPr.first);
+	    ATH_MSG_ERROR("  Expected: " << vecHandles.size() << ", received: " << noncoreCorPr.second.size());
+	    return StatusCode::RECOVERABLE;
+	  }
+	  for (size_t i = 0; i < vecHandles.size(); i++) {
+	    (vecHandles[i])(*part) = noncoreCorPr.second[i];
 	  }
 	}
       } else {
@@ -389,6 +379,7 @@ StatusCode IsolationBuilder::executeCaloIso(const std::vector<std::pair<xAOD::Is
   return StatusCode::SUCCESS;
 }
 
+// FIXME:  need to add the electron bremAssoc
 StatusCode IsolationBuilder::executeTrackIso(const std::vector<std::pair<xAOD::Iso::IsolationFlavour,TrackIsoHelpKey > >& trackIsoMap)
 {
   for (const auto& pr : trackIsoMap) {
@@ -406,7 +397,7 @@ StatusCode IsolationBuilder::executeTrackIso(const std::vector<std::pair<xAOD::I
       return StatusCode::FAILURE;
     }
 
-    for (const auto& part : *readHandle) {
+    for (auto part : *readHandle) {
       xAOD::TrackIsolation TrackIsoResult;
       bool successfulCalc = m_trackIsolationTool->trackIsolation(TrackIsoResult, *part, keys.isoTypes, keys.CorrList);
 
@@ -422,6 +413,10 @@ StatusCode IsolationBuilder::executeTrackIso(const std::vector<std::pair<xAOD::I
 	// corrections
 	(handles.corrBitsetDeco)(*part) = keys.CorrList.trackbitset.to_ulong();
 
+	// let's do the core corrections
+	for (const auto& coreCorPr : TrackIsoResult.coreCorrections) {
+	  (handles.coreCorDeco.at(coreCorPr.first))(*part) = coreCorPr.second;
+	}
       } else {
 	ATH_MSG_ERROR("Call to TrackIsolationTool failed for flavor " << xAOD::Iso::toCString(flav));
 	return StatusCode::RECOVERABLE;
@@ -431,97 +426,3 @@ StatusCode IsolationBuilder::executeTrackIso(const std::vector<std::pair<xAOD::I
   return StatusCode::SUCCESS;
 }
 
-
-
- 
-// JM:  of AODFix, so commenting out for now
-
-// StatusCode IsolationBuilder::runLeakage() {
-  
-//   // Retrieve data
-//   if (m_PhotonContainerName.size()) {
-//     xAOD::PhotonContainer* photons = evtStore()->retrieve< xAOD::PhotonContainer >(m_PhotonContainerName);
-//     if( !photons ) {
-//       ATH_MSG_ERROR("Couldn't retrieve photon container with key: " << m_PhotonContainerName);
-//       return StatusCode::FAILURE;
-//     }
-//     for (auto ph : *photons)           
-//       m_leakTool->applyCorrection(*ph);
-//   }
-    
-//   if (m_ElectronContainerName.size()) {
-//     xAOD::ElectronContainer* electrons = evtStore()->retrieve< xAOD::ElectronContainer >(m_ElectronContainerName);
-//     if( !electrons ) {
-//       ATH_MSG_ERROR("Couldn't retrieve electron container with key: " << m_ElectronContainerName);
-//       return StatusCode::FAILURE;
-//     }
-//     for (auto el : *electrons)
-//       m_leakTool->applyCorrection(*el);
-//   }
-
-//   return StatusCode::SUCCESS;
-// }
- 
-
-// template< class CONTAINER, class AUXSTORE > StatusCode IsolationBuilder::deepCopy( const std::string& key ) const {
-    
-//   // Let the user know what's happening:
-//   ATH_MSG_VERBOSE( "Running deepCopy on container: " << key );
-  
-//   // Decide which implementation to call:
-//   if( evtStore()->template contains< AUXSTORE >( key + "Aux." ) ) {
-//     if( deepCopyImp< CONTAINER, AUXSTORE >( key ).isFailure() ) {
-//       ATH_MSG_FATAL( "Couldn't call deepCopyImp with concrete "
-// 		     "auxiliary store" );
-//       return StatusCode::FAILURE;
-//     }
-//   } else if( evtStore()->template contains< xAOD::AuxContainerBase >( key +
-// 								      "Aux." ) ) {
-//     if( deepCopyImp< CONTAINER,
-// 	xAOD::AuxContainerBase >( key ).isFailure() ) {
-//       ATH_MSG_FATAL( "Couldn't call deepCopyImp with generic "
-// 		     "auxiliary store" );
-//       return StatusCode::FAILURE;
-//     }
-//   } else {
-//     ATH_MSG_FATAL( "Couldn't discover auxiliary store type for container \""
-// 		   << key << "\"" );
-//     return StatusCode::FAILURE;
-//   }
-  
-//   // Return gracefully:
-//   return StatusCode::SUCCESS;
-// }
-  
-// template< class CONTAINER, class AUXSTORE > StatusCode IsolationBuilder::deepCopyImp( const std::string& key ) const {
-  
-//   // Retrieve the const container:
-//   ATH_MSG_VERBOSE( "Will retrieve " << key);
-//   const CONTAINER* c = 0;
-//   ATH_CHECK( evtStore()->retrieve( c, key ) );
-  
-//   // Create the new container:
-//   ATH_MSG_VERBOSE( "Will create new containers" );
-//   CONTAINER* copy = new CONTAINER();
-//   AUXSTORE* copyAux = new AUXSTORE();
-//   copy->setStore( copyAux );
-  
-//   // Do the deep copy:
-//   ATH_MSG_VERBOSE( "Will copy the object" );
-//   for( auto oldObj : *c ) {
-//     ATH_MSG_VERBOSE( "Now working on object " << oldObj);
-//     auto newObj = new typename CONTAINER::base_value_type();
-//     copy->push_back( newObj );
-//     *newObj = *oldObj;
-//   }
-  
-//   // Do the overwrite:
-//   ATH_MSG_VERBOSE( "Will overwrite the container" );
-//   ATH_CHECK( evtStore()->overwrite( copy, key, true, false ) );
-//   ATH_MSG_VERBOSE( "Will overwrite the aux container" );
-//   ATH_CHECK( evtStore()->overwrite( copyAux, key + "Aux.", true, false ) );
-//   ATH_MSG_VERBOSE( "Done" );
-  
-//   // Return gracefully:
-//   return StatusCode::SUCCESS;
-// }
