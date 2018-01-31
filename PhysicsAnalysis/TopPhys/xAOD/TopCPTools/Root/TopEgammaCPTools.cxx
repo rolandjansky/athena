@@ -309,7 +309,7 @@ StatusCode EgammaCPTools::setupScaleFactors() {
   // Charge ID cannot use maps at the moment so we defualt to the old method
   // for the moment only for MediumLH and FixedCutTight isolation
   // either at Tight or Loose level
-  if ( ( electronIDLoose == "MediumLLH" && electronIsolationLoose == "FixedCutTight" ) || ( electronID == "MediumLLH" && electronIsolation == "FixedCutTight" ) ) {
+  if (  electronIDLoose == "MediumLLH" || electronID == "MediumLLH"  ) {
     // Charge ID file (no maps)
     m_electronEffSFChargeIDFile = electronSFFilePath("ChargeID", "MediumLLH");
     // The tools want the files in vectors: remove this with function
@@ -399,8 +399,6 @@ std::string EgammaCPTools::electronSFFilePath(const std::string& type, const std
   if (type == "reco") {
     ATH_MSG_ERROR("Moved to using egamma maps for configuring scale factor tools - electronSFMapFilePath");
   } else if (type == "ID") {
-    ATH_MSG_ERROR("Moved to using egamma maps for configuring scale factor tools - electronSFMapFilePath");
-  } else if (type == "isolation") {
     ATH_MSG_ERROR("Moved to using egamma maps for configuring scale factor tools - electronSFMapFilePath");
   } else if (type == "triggerSF") {
     ATH_MSG_ERROR("Moved to using egamma maps for configuring scale factor tools - electronSFMapFilePath");
