@@ -32,7 +32,7 @@ HistoryStore  = svcMgr.HistoryStore
 #--------------------------------------------------------------
 # Main alg sequence
 #--------------------------------------------------------------
-AthAlgSeq = CfgMgr.AthSequencer("AthAlgSeq")
+from AthenaCommon.AppMgr import athAlgSeq
 
 #==============================================================
 #
