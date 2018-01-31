@@ -58,10 +58,10 @@ namespace InDet {
 
     declareProperty("Seed", m_seed);
 
-    declareProperty("calibFileD0Dead", m_calibFileD0Dead = "InDetTrackSystematicsTools/CalibData_21.2_2018-v14/res_diff_d0_vs_pt.hist.root");
-    declareProperty("calibFileZ0Dead", m_calibFileZ0Dead = "InDetTrackSystematicsTools/CalibData_21.2_2018-v14/res_diff_z0_vs_pt.hist.root");
+    declareProperty("calibFileD0Dead", m_calibFileD0Dead = "InDetTrackSystematicsTools/CalibData_21.2_2018-v15/res_diff_d0_vs_pt.hist.root");
+    declareProperty("calibFileZ0Dead", m_calibFileZ0Dead = "InDetTrackSystematicsTools/CalibData_21.2_2018-v15/res_diff_z0_vs_pt.hist.root");
 
-    declareProperty("calibFileIP", m_calibFileIP = "InDetTrackSystematicsTools/CalibData_21.2_2018-v14/trackIPAlign_dec2017.root");
+    declareProperty("calibFileIP", m_calibFileIP = "InDetTrackSystematicsTools/CalibData_21.2_2018-v15/trackIPAlign_dec2017.root");
   }
     
 

@@ -33,8 +33,8 @@ namespace InDet {
     declareProperty("DeltaR", m_deltaR, "Delta-R cut in which to apply jet-track efficiency rejection");
     declareProperty("trkEffSystScale", m_trkEffSystScale, "Option to scale the effect of the systematic (default 1)");
 
-    declareProperty("calibFileNomEff", m_calibFileNomEff = "InDetTrackSystematicsTools/CalibData_21.2_2018-v14/TrackingRecommendations_pre_rel21.root");
-    declareProperty("calibFileJetEff", m_calibFileJetEff = "InDetTrackSystematicsTools/CalibData_21.2_2018-v14/TIDErejectProbv3.root");
+    declareProperty("calibFileNomEff", m_calibFileNomEff = "InDetTrackSystematicsTools/CalibData_21.2_2018-v15/TrackingRecommendations_final_rel21.root");
+    declareProperty("calibFileJetEff", m_calibFileJetEff = "InDetTrackSystematicsTools/CalibData_21.2_2018-v15/TIDErejectProbv3.root");
   }
 
   StatusCode JetTrackFilterTool::initialize()
