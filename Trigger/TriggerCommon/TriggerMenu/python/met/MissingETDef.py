@@ -417,7 +417,9 @@ class L2EFChain_met(L2EFChainDef):
 
         if EFrecoAlg=='trkmht':
             self.TErenamingDict['EF_xe_step0']= mergeRemovingOverlap('EF_', self.sig_id_noMult+"_step0")                                                                    
-              
+        if EFrecoAlg=='pufittrack':
+            self.TErenamingDict['EF_xe_step0']= mergeRemovingOverlap('EF_', self.sig_id_noMult+"_step0")
+            
         self.TErenamingDict['EF_xe_step1']= mergeRemovingOverlap('EF_', self.sig_id_noMult+'_step1')
         if "FStracks" in addInfo:
             self.TErenamingDict['EF_xe_step2']= mergeRemovingOverlap('EF_', self.sig_id_noMult+"_step2")

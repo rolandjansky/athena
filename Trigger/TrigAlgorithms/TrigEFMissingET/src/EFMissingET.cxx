@@ -526,6 +526,8 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
 
   if(m_doTopoClusters == false && m_doJets == false && m_doJets == false)
      m_n_sizePers = 25;
+  else if(m_doTopoClusters == true && m_doJets == true && m_doTracks==true)
+    m_n_sizePers = 3;
    else if(m_doJets == true)
      m_n_sizePers = 6;
    else if(m_doPUC == true)
