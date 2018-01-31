@@ -203,7 +203,8 @@ StatusCode InDetGlobalTrackMonTool::initialize() {
   
   ATH_CHECK( m_baseline_selTool.retrieve() );
   ATH_CHECK( m_tight_selTool.retrieve() );
-  
+  ATH_CHECK( m_holes_search_tool.retrieve());
+
   sc = ManagedMonitorToolBase::initialize();
   if(!sc.isSuccess()) return sc;
 
