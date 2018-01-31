@@ -77,7 +77,6 @@ StatusCode FullCaloCellContMaker::initialize(){
   } else {
     m_noiseTool.disable();
   }
-  
 
   if( service( "TrigTimerSvc", m_timersvc).isFailure() ) {
      std::cout << ": Unable to locate TrigTimer Service" << std::endl;
