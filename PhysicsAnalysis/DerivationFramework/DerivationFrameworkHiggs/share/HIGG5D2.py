@@ -357,14 +357,10 @@ if not "HIGG5D2Jets" in OutputJets:
       #AntiKt4TruthWZJets
       addStandardJets("AntiKt", 0.4, "TruthWZ", 5000, mods="truth_ungroomed", algseq=higg5d2Seq, outputGroup="HIGG5D2Jets")
       OutputJets["HIGG5D2Jets"].append("AntiKt4TruthWZJets")
-      # OutputJets["HIGG5D2Jets"].append("AntiKt10TruthWZJets")
-      # OutputJets["HIGG5D2Jets"].append("AntiKt10TruthJets")
-      # OutputJets["HIGG5D2Jets"].append("CamKt12TruthJets")
+
       addTrimmedJets("AntiKt", 1.0, "TruthWZ", rclus=0.2, ptfrac=0.05, includePreTools=False, algseq=higg5d2Seq,outputGroup="HIGG5D2Jets")
 
-    # addFilteredJets("CamKt", 1.2, "LCTopo", mumax=1.0, ymin=0.15, includePreTools=False, algseq=higg5d2Seq,outputGroup="HIGG5D2Jets")
-    addTrimmedJets("AntiKt", 1.0, "LCTopo", rclus=0.2, ptfrac=0.05, includePreTools=False, algseq=higg5d2Seq,outputGroup="HIGG5D2Jets")
-#    addDefaultTrimmedJets(higg5d2Seq,"HIGG5D2Jets")
+    addDefaultTrimmedJets(higg5d2Seq,"HIGG5D2");
 
 #====================================================================
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 

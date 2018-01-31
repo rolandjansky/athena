@@ -316,11 +316,10 @@ if not "HIGG2D4Jets" in OutputJets:
 #====================================================================
 # Special jets
 #====================================================================
-
     if jetFlags.useTruth:
-        addTrimmedJets("AntiKt", 1.0, "TruthWZ", rclus=0.2, ptfrac=0.05, mods="groomed", includePreTools=False, algseq=higg2d4Seq,outputGroup="HIGG2D4Jets")
+          addTrimmedJets("AntiKt", 1.0, "TruthWZ", rclus=0.2, ptfrac=0.05, mods="groomed", includePreTools=False, algseq=higg2d4Seq,outputGroup="HIGG2D4Jets")
 
-    addTrimmedJets("AntiKt", 1.0, "LCTopo", rclus=0.2, ptfrac=0.05, mods="lctopo_groomed", includePreTools=False, algseq=higg2d4Seq,outputGroup="HIGG2D4Jets")
+    addDefaultTrimmedJets(higg2d4Seq,"HIGG2D4");
 
 #====================================================================
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
