@@ -20,6 +20,25 @@
 #include "xAODTau/DiTauJetAuxContainer.h"
 #include "xAODTau/TauJetContainer.h"
 
+#include "xAODEgamma/ElectronContainer.h"
+
+#include "xAODMuon/MuonContainer.h"
+
+#include "IsolationSelection/IIsolationSelectionTool.h"
+#include "IsolationSelection/IsolationSelectionTool.h"
+#include "MuonSelectorTools/IMuonSelectionTool.h"
+#include "MuonSelectorTools/MuonSelectionTool.h"
+#include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
+#include "MuonMomentumCorrections/MuonCalibrationAndSmearingTool.h"
+
+#include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
+#include "ElectronPhotonSelectorTools/ElectronSelectorHelpers.h"
+
+#include "tauRecTools/MuonTrackRemoval.h"
+#include "tauRecTools/TauSubstructureVariables.h"
+#include "tauRecTools/TauCommonCalcVars.h"
+
+#include "PATCore/TResult.h"
 // fastjet
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/JetDefinition.hh"
@@ -27,6 +46,8 @@
 #include "fastjet/ClusterSequenceArea.hh"
 #include "fastjet/tools/Filter.hh"
 #include "fastjet/tools/MassDropTagger.hh"
+
+//#include "TResult.h"
 
 using namespace tauRecTools;
 using namespace fastjet;
@@ -52,10 +73,13 @@ typedef ElementLink< xAOD::JetContainer > JetLink_t;
 DiTauIDVarCalculator::DiTauIDVarCalculator( const std::string& name )
   : AsgTool(name)
   , m_sDiTauContainerName("DiTauJets")
+  , m_eDecayChannel(DecayChannel::Default)  
 {
   declareProperty( "DefaultValue", m_dDefault = 0);
   declareProperty( "DiTauContainerName", m_sDiTauContainerName = "DiTauJets");
   declareProperty( "doCalcCluserVariables", m_bCalcCluserVariables = false);
+  declareProperty( "DiTauDecayChannel", m_sDecayChannel = "HadHad");
+  declareProperty( "MuonTrackRemoval", m_bMuonTrackRemoval = true);
 }
 
 //______________________________________________________________________________
@@ -68,7 +92,100 @@ StatusCode DiTauIDVarCalculator::initialize()
 {
   ATH_MSG_INFO( "Initializing DiTauIDVarCalculator" );
   m_DiTauContainerNameAux = m_sDiTauContainerName + "Aux.";
+  if(m_sDecayChannel == "HadHad")
+    m_eDecayChannel = DecayChannel::HadHad;
+  if(m_sDecayChannel == "HadEl")
+    m_eDecayChannel = DecayChannel::HadEl;
+  if(m_sDecayChannel == "HadMu")
+    m_eDecayChannel = DecayChannel::HadMu;
+  if(m_eDecayChannel == DecayChannel::Default){
+    ATH_MSG_ERROR( "No Valid DecayChannel initialized. Valid options are: HadHad, HadEl and HadMu" );
+    return StatusCode::FAILURE;
+  }
+  
+  if(m_eDecayChannel == DecayChannel::HadMu || m_eDecayChannel == DecayChannel::HadEl){
+    m_isoSelTool = new asg::AnaToolHandle<CP::IIsolationSelectionTool>("IsoSelTool");
+    ATH_CHECK(ASG_MAKE_ANA_TOOL(*m_isoSelTool, CP::IsolationSelectionTool));
+    ANA_CHECK(m_isoSelTool->setProperty("ElectronWP","GradientLoose"));
+    ANA_CHECK(m_isoSelTool->setProperty("MuonWP","GradientLoose"));
+    ANA_CHECK(m_isoSelTool->initialize());
+  }
+  
+  if(m_eDecayChannel == DecayChannel::HadMu){
+      m_muSelTool_loose = new asg::AnaToolHandle<CP::IMuonSelectionTool>("MuSelTool_loose");
+      ATH_CHECK(ASG_MAKE_ANA_TOOL(*m_muSelTool_loose, CP::MuonSelectionTool));
+      ANA_CHECK(m_muSelTool_loose->setProperty("MuQuality", 2));
+      ANA_CHECK(m_muSelTool_loose->initialize());
 
+      m_muSelTool_medium = new asg::AnaToolHandle<CP::IMuonSelectionTool>("MuSelTool_medium");
+      ATH_CHECK(ASG_MAKE_ANA_TOOL(*m_muSelTool_medium, CP::MuonSelectionTool));
+      ANA_CHECK(m_muSelTool_medium->setProperty("MuQuality", 1));
+      ANA_CHECK(m_muSelTool_medium->initialize());
+
+      m_muSelTool_tight = new asg::AnaToolHandle<CP::IMuonSelectionTool>("MuSelTool_tight");
+      ATH_CHECK(ASG_MAKE_ANA_TOOL(*m_muSelTool_tight, CP::MuonSelectionTool));
+      ANA_CHECK(m_muSelTool_tight->setProperty("MuQuality", 0)); 
+      ANA_CHECK(m_muSelTool_tight->initialize());
+
+      m_muSelTool_veryloose = new asg::AnaToolHandle<CP::IMuonSelectionTool>("MuSelTool_veryloose");
+      ATH_CHECK(ASG_MAKE_ANA_TOOL(*m_muSelTool_veryloose, CP::MuonSelectionTool));
+      ANA_CHECK(m_muSelTool_veryloose->setProperty("MuQuality", 3));
+      ANA_CHECK(m_muSelTool_veryloose->initialize());
+
+      m_muSelTool_highpt = new asg::AnaToolHandle<CP::IMuonSelectionTool>("MuSelTool_highpt");
+      ATH_CHECK(ASG_MAKE_ANA_TOOL(*m_muSelTool_highpt, CP::MuonSelectionTool));
+      ANA_CHECK(m_muSelTool_highpt->setProperty("MuQuality", 4));
+      ANA_CHECK(m_muSelTool_highpt->initialize());
+
+      ANA_CHECK(m_muonCalibrationTool = new asg::AnaToolHandle<CP::IMuonCalibrationAndSmearingTool>( "MuonCorrectionTool" ));
+      ATH_CHECK(ASG_MAKE_ANA_TOOL(*m_muonCalibrationTool, CP::MuonCalibrationAndSmearingTool));
+      //m_muonCalibrationTool->msg().setLevel( MSG::INFO);
+      ANA_CHECK(m_muonCalibrationTool->setProperty( "Year", "Data16" ));
+      ANA_CHECK(m_muonCalibrationTool->setProperty("Release","Recs2016_15_07"));
+      ANA_CHECK(m_muonCalibrationTool->setProperty("StatComb",false));
+      ANA_CHECK(m_muonCalibrationTool->setProperty("SagittaCorr",true));
+      ANA_CHECK(m_muonCalibrationTool->setProperty("SagittaRelease", "sagittaBiasDataAll_02_08_17"));
+      ANA_CHECK(m_muonCalibrationTool->setProperty("doSagittaMCDistortion",false));
+      ANA_CHECK(m_muonCalibrationTool->initialize());
+
+      if(m_bMuonTrackRemoval){
+        m_muonTrackRemoval = new asg::AnaToolHandle<ITauToolBase>("MuonTrackRemoval");
+        ATH_CHECK(ASG_MAKE_ANA_TOOL(*m_muonTrackRemoval, tauRecTools::MuonTrackRemoval));
+        ATH_CHECK(m_muonTrackRemoval->initialize());
+
+        m_tauSubstructureVariables = new asg::AnaToolHandle<ITauToolBase>("TauSubstructureVariables");
+        ATH_CHECK(ASG_MAKE_ANA_TOOL(*m_tauSubstructureVariables, TauSubstructureVariables));
+        ATH_CHECK(m_tauSubstructureVariables->initialize());
+        (*m_tauSubstructureVariables)->setTauEventData(&m_data);
+
+        m_tauCommonCalcVars = new asg::AnaToolHandle<ITauToolBase>("TauCommonCalcVars");
+        ATH_CHECK(ASG_MAKE_ANA_TOOL(*m_tauCommonCalcVars, TauCommonCalcVars));
+        ATH_CHECK(m_tauCommonCalcVars->initialize());
+      }
+  }
+  if(m_eDecayChannel == DecayChannel::HadEl){
+    std::string confDir = "ElectronPhotonSelectorTools/offline/mc16_20170828/";
+    m_electronLikeliHoodTool_medium = new asg::AnaToolHandle<AsgElectronLikelihoodTool>( "ElectronLikeliHoodToolMedium" );
+    ATH_CHECK(ASG_MAKE_ANA_TOOL(*m_electronLikeliHoodTool_medium, AsgElectronLikelihoodTool));
+    ATH_CHECK(m_electronLikeliHoodTool_medium->setProperty("ConfigFile",confDir+"ElectronLikelihoodMediumOfflineConfig2017_Smooth.conf"));
+
+    m_electronLikeliHoodTool_loose = new asg::AnaToolHandle<AsgElectronLikelihoodTool>( "ElectronLikeliHoodTool" );
+    ATH_CHECK(ASG_MAKE_ANA_TOOL(*m_electronLikeliHoodTool_loose, AsgElectronLikelihoodTool));
+    ATH_CHECK(m_electronLikeliHoodTool_loose->setProperty("ConfigFile",confDir+"ElectronLikelihoodLooseOfflineConfig2017_Smooth.conf"));
+    
+    m_electronLikeliHoodTool_loose_CutBL = new asg::AnaToolHandle<AsgElectronLikelihoodTool>( "ElectronLikeliHoodTool" );
+    ATH_CHECK(ASG_MAKE_ANA_TOOL(*m_electronLikeliHoodTool_loose_CutBL, AsgElectronLikelihoodTool));
+    ATH_CHECK(m_electronLikeliHoodTool_loose_CutBL->setProperty("ConfigFile",confDir+"ElectronLikelihoodLooseOfflineConfig2017_CutBL_Smooth.conf"));
+
+    m_electronLikeliHoodTool_tight = new asg::AnaToolHandle<AsgElectronLikelihoodTool>( "ElectronLikeliHoodToolMedium" );
+    ATH_CHECK(ASG_MAKE_ANA_TOOL(*m_electronLikeliHoodTool_tight, AsgElectronLikelihoodTool));
+    ATH_CHECK(m_electronLikeliHoodTool_tight->setProperty("ConfigFile",confDir+"ElectronLikelihoodTightOfflineConfig2017_Smooth.conf"));
+
+    m_electronLikeliHoodTool_veryloose = new asg::AnaToolHandle<AsgElectronLikelihoodTool>( "ElectronLikeliHoodTool" );
+    ATH_CHECK(ASG_MAKE_ANA_TOOL(*m_electronLikeliHoodTool_veryloose, AsgElectronLikelihoodTool));
+    ATH_CHECK(m_electronLikeliHoodTool_veryloose->setProperty("ConfigFile",confDir+"ElectronLikelihoodVeryLooseOfflineConfig2017_Smooth.conf"));
+  }
+  
   return StatusCode::SUCCESS;
 }
 
@@ -82,7 +199,30 @@ StatusCode DiTauIDVarCalculator::initializeEvent()
 ////////////////////////////////////////////////////////////////////////////////
 //                              Wrapper functions                             //
 ////////////////////////////////////////////////////////////////////////////////
-StatusCode DiTauIDVarCalculator::calculateIDVariables(const xAOD::DiTauJet& xDiTau)
+
+StatusCode DiTauIDVarCalculator::calculateIDVariables(const xAOD::DiTauJet& xDiTau){
+  return execute(xDiTau);
+}
+
+StatusCode DiTauIDVarCalculator::execute(const xAOD::DiTauJet& xDiTau)
+{
+  switch(m_eDecayChannel) {
+  case(DecayChannel::HadHad):
+    return calculateHadHadIDVariables(xDiTau);
+    break;
+  case(DecayChannel::HadEl):
+    return calculateHadElIDVariables(xDiTau);
+    break;
+  case(DecayChannel::HadMu):
+    return calculateHadMuIDVariables(xDiTau);
+    break;
+  default:
+    return StatusCode::FAILURE;
+  }
+  return StatusCode::FAILURE;
+}
+
+StatusCode DiTauIDVarCalculator::calculateHadHadIDVariables(const xAOD::DiTauJet& xDiTau)
 {
   ATH_MSG_DEBUG("Calculate DiTau ID variables");
   
@@ -111,13 +251,13 @@ StatusCode DiTauIDVarCalculator::calculateIDVariables(const xAOD::DiTauJet& xDiT
   xDiTau.auxdecor< double >( "R_core_subl" ) = R_core(xDiTau, 1);
   xDiTau.auxdecor< double >( "R_tracks_lead" ) = R_tracks(xDiTau, 0);
   xDiTau.auxdecor< double >( "R_tracks_subl" ) = R_tracks(xDiTau, 1);
-  xDiTau.auxdecor< double >( "m_track" ) = mass_track(xDiTau);
-  xDiTau.auxdecor< double >( "m_track_core" ) = mass_track_core(xDiTau);
-  xDiTau.auxdecor< double >( "m_core_lead" ) = mass_core(xDiTau, 0);
-  xDiTau.auxdecor< double >( "m_core_subl" ) = mass_core(xDiTau, 1);
-  xDiTau.auxdecor< double >( "m_track_all" ) = mass_track_all(xDiTau);
-  xDiTau.auxdecor< double >( "m_tracks_lead" ) = mass_tracks(xDiTau, 0);
-  xDiTau.auxdecor< double >( "m_tracks_subl" ) = mass_tracks(xDiTau, 1);
+  xDiTau.auxdecor< double >( "m_track" ) = m_track(xDiTau);
+  xDiTau.auxdecor< double >( "m_track_core" ) = m_track_core(xDiTau);
+  xDiTau.auxdecor< double >( "m_core_lead" ) = m_core(xDiTau, 0);
+  xDiTau.auxdecor< double >( "m_core_subl" ) = m_core(xDiTau, 1);
+  xDiTau.auxdecor< double >( "m_track_all" ) = m_track_all(xDiTau);
+  xDiTau.auxdecor< double >( "m_tracks_lead" ) = m_tracks(xDiTau, 0);
+  xDiTau.auxdecor< double >( "m_tracks_subl" ) = m_tracks(xDiTau, 1);
   xDiTau.auxdecor< double >( "E_frac_subl" ) = E_frac(xDiTau,1);
   xDiTau.auxdecor< double >( "E_frac_subsubl") = E_frac(xDiTau, 2);
   xDiTau.auxdecor< double >( "R_subjets_subl") = R_subjets(xDiTau, 1);
@@ -149,10 +289,415 @@ StatusCode DiTauIDVarCalculator::calculateIDVariables(const xAOD::DiTauJet& xDiT
   return StatusCode::SUCCESS;
 }
 
+StatusCode DiTauIDVarCalculator::calculateHadMuIDVariables(const xAOD::DiTauJet& xDiTau){
+  
+  static SG::AuxElement::ConstAccessor<float>  acc_centFrac           ("centFrac")          ;
+  static SG::AuxElement::ConstAccessor<float>  acc_etOverPtLeadTrk    ("etOverPtLeadTrk")   ;
+  static SG::AuxElement::ConstAccessor<float>  acc_innerTrkAvgDist    ("innerTrkAvgDist")   ;
+  static SG::AuxElement::ConstAccessor<float>  acc_absipSigLeadTrk    ("absipSigLeadTrk")   ;
+  static SG::AuxElement::ConstAccessor<float>  acc_SumPtTrkFrac       ("SumPtTrkFrac")      ;
+  static SG::AuxElement::ConstAccessor<float>  acc_EMPOverTrkSysP     ("EMPOverTrkSysP")    ;
+  static SG::AuxElement::ConstAccessor<float>  acc_ptRatioEflowApprox ("ptRatioEflowApprox");
+  static SG::AuxElement::ConstAccessor<float>  acc_mEflowApprox       ("mEflowApprox")      ;
+  static SG::AuxElement::ConstAccessor<float>  acc_dRmax              ("dRmax")             ;
+  static SG::AuxElement::ConstAccessor<float>  acc_trFlightPathSig    ("trFlightPathSig")   ;
+  static SG::AuxElement::ConstAccessor<float>  acc_massTrkSys         ("massTrkSys")        ;
+  static SG::AuxElement::ConstAccessor<float>  acc_ChPiEMEOverCaloEME ("ChPiEMEOverCaloEME");
+  
+  static SG::AuxElement::Decorator<float>  dec_centFrac           ("centFrac")          ;
+  static SG::AuxElement::Decorator<float>  dec_massTrkSys         ("massTrkSys")        ;
+  static SG::AuxElement::Decorator<float>  dec_etOverPtLeadTrk    ("etOverPtLeadTrk")   ;
+  static SG::AuxElement::Decorator<float>  dec_innerTrkAvgDist    ("innerTrkAvgDist")   ;
+  static SG::AuxElement::Decorator<float>  dec_absipSigLeadTrk    ("absipSigLeadTrk")   ;
+  static SG::AuxElement::Decorator<float>  dec_SumPtTrkFrac       ("SumPtTrkFrac")      ;
+  static SG::AuxElement::Decorator<float>  dec_EMPOverTrkSysP     ("EMPOverTrkSysP")    ;
+  static SG::AuxElement::Decorator<float>  dec_ptRatioEflowApprox ("ptRatioEflowApprox");
+  static SG::AuxElement::Decorator<float>  dec_mEflowApprox       ("mEflowApprox")      ;
+  static SG::AuxElement::Decorator<float>  dec_dRmax              ("dRmax")             ;
+  static SG::AuxElement::Decorator<float>  dec_trFlightPathSig    ("trFlightPathSig")   ;
+  static SG::AuxElement::Decorator<float>  dec_ChPiEMEOverCaloEME ("ChPiEMEOverCaloEME");
+
+  static SG::AuxElement::Decorator<int>    dec_tau_ntrack         ("tau_ntrack");
+  
+  static SG::AuxElement::Decorator<char>   acc_mu_isoGL     ("mu_isoGL");
+  
+  static SG::AuxElement::Decorator<float> dec_MeasEnergyLoss            ("mu_MeasEnergyLoss")          ;
+  static SG::AuxElement::Decorator<float> dec_ParamEnergyLoss           ("mu_ParamEnergyLoss")         ;
+  static SG::AuxElement::Decorator<float> dec_MeasEnergyLossSigma       ("mu_MeasEnergyLossSigma")     ;
+  static SG::AuxElement::Decorator<float> dec_ParamEnergyLossSigmaPlus  ("mu_ParamEnergyLossSigmaPlus");
+  static SG::AuxElement::Decorator<float> dec_ParamEnergyLossSigmaMinus ("mu_ParamEnergyLossSigmaMinus")    ;
+        
+  static SG::AuxElement::Accessor<ElementLink<xAOD::MuonContainer>>   acc_muonLink ("muonLink");
+  static SG::AuxElement::Accessor<ElementLink<xAOD::TauJetContainer>> acc_tauLink  ("tauLink");
+
+  static SG::AuxElement::Decorator<char>  acc_muonVeryLoose ("muonVeryLoose");
+  static SG::AuxElement::Decorator<char>  acc_muonLoose     ("muonLoose");
+  static SG::AuxElement::Decorator<char>  acc_muonMedium    ("muonMedium");
+  static SG::AuxElement::Decorator<char>  acc_muonTight     ("muonTight");
+  static SG::AuxElement::Decorator<char>  acc_muonHighpt    ("muonHighpt");
+  static SG::AuxElement::Decorator<int>   acc_MuonQuality   ("MuonQuality");
+  static SG::AuxElement::Decorator<int>   acc_MuonType      ("MuonType");
+  static SG::AuxElement::Decorator<char>  acc_validMuon     ("validMuon");
+
+  
+  const xAOD::TauJet* pTau  = *acc_tauLink(xDiTau);
+  const xAOD::Muon*   pMuon = *acc_muonLink(xDiTau);
+
+  xAOD::TauJet* pTauCopy = nullptr;
+
+  if(m_bMuonTrackRemoval){
+    pTauCopy = new xAOD::TauJet();
+    pTauCopy->makePrivateStore(*pTau);
+    m_data.clear();
+    ATH_CHECK((*m_muonTrackRemoval)->execute(*pTauCopy));
+    ATH_CHECK((*m_tauSubstructureVariables)->execute(*pTauCopy));
+    ATH_CHECK((*m_tauCommonCalcVars)->execute(*pTauCopy));
+    pTau = pTauCopy;
+  }
+    
+  // Decorate MuonQuality and Tau-ID-Vars to DiTauCandidate:
+
+  dec_centFrac          (xDiTau) = acc_centFrac          (*pTau);
+  dec_etOverPtLeadTrk   (xDiTau) = acc_etOverPtLeadTrk   (*pTau);
+  dec_innerTrkAvgDist   (xDiTau) = acc_innerTrkAvgDist   (*pTau);
+  dec_absipSigLeadTrk   (xDiTau) = acc_absipSigLeadTrk   (*pTau);
+  dec_SumPtTrkFrac      (xDiTau) = acc_SumPtTrkFrac      (*pTau);
+  dec_EMPOverTrkSysP    (xDiTau) = acc_EMPOverTrkSysP    (*pTau);
+  dec_ptRatioEflowApprox(xDiTau) = acc_ptRatioEflowApprox(*pTau);
+  dec_mEflowApprox      (xDiTau) = acc_mEflowApprox      (*pTau);
+  dec_dRmax             (xDiTau) = acc_dRmax             (*pTau);
+  dec_trFlightPathSig   (xDiTau) = acc_trFlightPathSig   (*pTau);
+  dec_massTrkSys        (xDiTau) = acc_massTrkSys        (*pTau);
+  dec_ChPiEMEOverCaloEME(xDiTau) = acc_ChPiEMEOverCaloEME(*pTau);
+  dec_tau_ntrack        (xDiTau) = pTau->nTracks();
+
+  if(pTauCopy) delete pTauCopy;
+  
+  xAOD::Muon* mu = 0;
+  //callibrate Muon:
+  if( !(*m_muonCalibrationTool)->correctedCopy( *pMuon, mu ) ) {
+    ATH_MSG_ERROR( "MuonCalibrationTool can not be applied" );
+    acc_validMuon(xDiTau) = false;
+    return StatusCode::FAILURE;
+  }
+  acc_validMuon(xDiTau) = true;
+  acc_mu_isoGL      (xDiTau) = (bool)((*m_isoSelTool)->accept(*mu));
+
+  float MeasEnergyLoss            = 0;
+  float ParamEnergyLoss           = 0;
+  float MeasEnergyLossSigma       = 0;
+  float ParamEnergyLossSigmaPlus  = 0;
+  float ParamEnergyLossSigmaMinus = 0;
+  
+  if( ! mu->parameter (MeasEnergyLoss           , xAOD::Muon::MeasEnergyLoss           ) )
+    Info("DiTaulepHadVarCalc", "MuonParameter not available");
+  if( ! mu->parameter (ParamEnergyLoss          , xAOD::Muon::ParamEnergyLoss          ) )
+    Info("DiTaulepHadVarCalc", "MuonParameter not available");
+  if( ! mu->parameter (MeasEnergyLossSigma      , xAOD::Muon::MeasEnergyLossSigma      ) )
+    Info("DiTaulepHadVarCalc", "MuonParameter not available");
+  if( ! mu->parameter (ParamEnergyLossSigmaPlus , xAOD::Muon::ParamEnergyLossSigmaPlus ) )
+    Info("DiTaulepHadVarCalc", "MuonParameter not available");
+  if( ! mu->parameter (ParamEnergyLossSigmaMinus, xAOD::Muon::ParamEnergyLossSigmaMinus) )
+    Info("DiTaulepHadVarCalc", "MuonParameter not available");
+  
+  dec_MeasEnergyLoss            (xDiTau) =  MeasEnergyLoss           ; 
+  dec_ParamEnergyLoss           (xDiTau) =  ParamEnergyLoss          ;
+  dec_MeasEnergyLossSigma       (xDiTau) =  MeasEnergyLossSigma      ;
+  dec_ParamEnergyLossSigmaPlus  (xDiTau) =  ParamEnergyLossSigmaPlus ;
+  dec_ParamEnergyLossSigmaMinus (xDiTau) =  ParamEnergyLossSigmaMinus;
+
+  acc_muonVeryLoose (xDiTau) = (*m_muSelTool_veryloose)->accept(*mu);
+  acc_muonLoose     (xDiTau) = (*m_muSelTool_medium   )->accept(*mu);
+  acc_muonMedium    (xDiTau) = (*m_muSelTool_tight    )->accept(*mu);  
+  acc_muonTight     (xDiTau) = (*m_muSelTool_loose    )->accept(*mu);
+  acc_muonHighpt    (xDiTau) = (*m_muSelTool_highpt   )->accept(*mu);
+  acc_MuonQuality   (xDiTau) = (*m_muSelTool_veryloose)->getQuality(*mu);
+  acc_MuonType      (xDiTau) = mu->muonType(); 
+
+  delete mu;
+  
+  return StatusCode::SUCCESS;
+}
+
+StatusCode DiTauIDVarCalculator::calculateHadElIDVariables(const xAOD::DiTauJet& xDiTau){
+  static SG::AuxElement::ConstAccessor<ElementLink<xAOD::DiTauJetContainer>> acc_origDitau("origDiTauLink");
+  static SG::AuxElement::ConstAccessor<ElementLink<xAOD::ElectronContainer>>  acc_electron ("elLink");
+  static SG::AuxElement::ConstAccessor<int> acc_origDiTauSubjet("origSubjetIndex");
+
+  if(!acc_origDitau(xDiTau).isValid())
+    return StatusCode::FAILURE;
+  if(!acc_electron(xDiTau).isValid())
+    return StatusCode::FAILURE;
+  
+  const xAOD::DiTauJet* origDiTau = *(acc_origDitau(xDiTau));
+  const xAOD::Electron* electron  = *(acc_electron(xDiTau));
+    
+  static SG::AuxElement::Decorator< double >  acc_tau_f_core          ( "tau_f_core"       );      
+  static SG::AuxElement::Decorator< double >  acc_tau_f_subjet        ( "tau_f_subjet"     );
+  static SG::AuxElement::Decorator< double >  acc_tau_f_track         ( "tau_f_track"      );
+  static SG::AuxElement::Decorator< double >  acc_tau_R_max           ( "tau_R_max"        );
+  static SG::AuxElement::Decorator< int >     acc_tau_n_tracks        ( "tau_n_tracks"     );
+  static SG::AuxElement::Decorator< double >  acc_tau_R_core          ( "tau_R_core"       );
+  static SG::AuxElement::Decorator< double >  acc_tau_R_tracks        ( "tau_R_tracks"     );
+  static SG::AuxElement::Decorator< double >  acc_tau_m_core          ( "tau_m_core"       );
+  static SG::AuxElement::Decorator< double >  acc_tau_m_tracks        ( "tau_m_tracks"     );
+  static SG::AuxElement::Decorator< double >  acc_tau_d0_leadtrack    ( "tau_d0_leadtrack" );
+                                                                                              
+  static SG::AuxElement::Decorator< double >  acc_f_subjets           ( "f_subjets"    );
+  static SG::AuxElement::Decorator< int >     acc_n_track             ( "n_track"      );
+  static SG::AuxElement::Decorator< int >     acc_n_isotrack          ( "n_isotrack"   );
+  static SG::AuxElement::Decorator< int >     acc_n_othertrack        ( "n_othertrack" );
+  static SG::AuxElement::Decorator< double >  acc_R_track             ( "R_track"      );
+  static SG::AuxElement::Decorator< double >  acc_R_track_core        ( "R_track_core" );
+  static SG::AuxElement::Decorator< double >  acc_R_track_all         ( "R_track_all"  );
+  static SG::AuxElement::Decorator< double >  acc_R_isotrack          ( "R_isotrack"   );
+  static SG::AuxElement::Decorator< double >  acc_m_track             ( "m_track"      );  
+  static SG::AuxElement::Decorator< double >  acc_m_track_core        ( "m_track_core" );
+  static SG::AuxElement::Decorator< double >  acc_m_track_all         ( "m_track_all"  );
+                                                                                              
+  static SG::AuxElement::Decorator< double >  acc_E_frac_subl         ( "E_frac_subl"       );    
+  static SG::AuxElement::Decorator< double >  acc_E_frac_subsubl      ( "E_frac_subsubl"    ); 
+  static SG::AuxElement::Decorator< double >  acc_R_subjets_subl      ( "R_subjets_subl"    ); 
+  static SG::AuxElement::Decorator< double >  acc_R_subjets_subsubl   ( "R_subjets_subsubl" );
+  static SG::AuxElement::Decorator< double >  acc_f_isotracks         ( "f_isotracks"       );    
+  static SG::AuxElement::Decorator< int >     acc_n_iso_ellipse       ( "n_iso_ellipse"     );  
+                                                                                          
+  static SG::AuxElement::Decorator< double >  acc_E_frac_HadEl        ( "E_frac_HadEl"      );     
+
+  static SG::AuxElement::Decorator< float > acc_el_f1core              ( "el_f1core"           );
+  static SG::AuxElement::Decorator< float > acc_el_f3core              ( "el_f3core"           );
+  static SG::AuxElement::Decorator< float > acc_el_weta1               ( "el_weta1"            );
+  static SG::AuxElement::Decorator< float > acc_el_fracs1              ( "el_fracs1"           );
+  static SG::AuxElement::Decorator< float > acc_el_poscs1              ( "el_poscs1"           );
+  static SG::AuxElement::Decorator< float > acc_el_poscs2              ( "el_poscs2"           );
+  static SG::AuxElement::Decorator< float > acc_el_asy1                ( "el_asy1"             );
+  static SG::AuxElement::Decorator< float > acc_el_pos                 ( "el_pos"              );
+  static SG::AuxElement::Decorator< float > acc_el_pos7                ( "el_pos7"             );
+  static SG::AuxElement::Decorator< float > acc_el_barys1              ( "el_barys1"           );
+  static SG::AuxElement::Decorator< float > acc_el_wtots1              ( "el_wtots1"           );
+  static SG::AuxElement::Decorator< float > acc_el_r33over37allcalo    ( "el_r33over37allcalo" );
+  static SG::AuxElement::Decorator< char >  acc_el_isoGL               ( "el_isoGL"            );
+
+  
+  acc_tau_f_core       (xDiTau) = f_core      (xDiTau, 0);
+  acc_tau_f_subjet     (xDiTau) = f_subjet    (xDiTau, 0);
+  acc_tau_f_track      (xDiTau) = f_track     (xDiTau, 0);
+  acc_tau_R_max        (xDiTau) = R_max       (xDiTau, 0);
+  acc_tau_n_tracks     (xDiTau) = n_tracks    (xDiTau, 0);
+  acc_tau_R_core       (xDiTau) = R_core      (xDiTau, 0);
+  acc_tau_R_tracks     (xDiTau) = R_tracks    (xDiTau, 0);
+  acc_tau_m_core       (xDiTau) = m_core      (xDiTau, 0);
+  acc_tau_m_tracks     (xDiTau) = m_tracks    (xDiTau, 0);
+  acc_tau_d0_leadtrack (xDiTau) = d0_leadtrack(xDiTau, 0);
+                                  
+  acc_f_subjets        (xDiTau) = f_subjets(*origDiTau);           
+  acc_n_track          (xDiTau) = n_track(*origDiTau);               
+  acc_n_isotrack       (xDiTau) = n_isotrack(*origDiTau);         
+  acc_n_othertrack     (xDiTau) = n_othertrack(*origDiTau);     
+  acc_R_track          (xDiTau) = R_track(*origDiTau);               
+  acc_R_track_core     (xDiTau) = R_track_core(*origDiTau);     
+  acc_R_track_all      (xDiTau) = R_track_all(*origDiTau);       
+  acc_R_isotrack       (xDiTau) = R_isotrack(*origDiTau);         
+  acc_m_track          (xDiTau) = m_track(*origDiTau);               
+  acc_m_track_core     (xDiTau) = m_track_core(*origDiTau);     
+  acc_m_track_all      (xDiTau) = m_track_all(*origDiTau);       
+                      
+  acc_E_frac_subl      (xDiTau) = E_frac(*origDiTau,1);           
+  acc_E_frac_subsubl   (xDiTau) = E_frac(*origDiTau, 2);       
+  acc_R_subjets_subl   (xDiTau) = R_subjets(*origDiTau, 1);    
+  acc_R_subjets_subsubl(xDiTau) = R_subjets(*origDiTau, 2); 
+  acc_f_isotracks      (xDiTau) = f_isotracks(*origDiTau);          
+  acc_n_iso_ellipse    (xDiTau) = n_iso_ellipse(*origDiTau);    
+
+  acc_el_f1core          (xDiTau) = getElectronInfo(electron, xAOD::EgammaParameters::ShowerShapeType::f1core          );
+  acc_el_f3core          (xDiTau) = getElectronInfo(electron, xAOD::EgammaParameters::ShowerShapeType::f3core          );
+  acc_el_weta1           (xDiTau) = getElectronInfo(electron, xAOD::EgammaParameters::ShowerShapeType::weta1           );
+  acc_el_fracs1          (xDiTau) = getElectronInfo(electron, xAOD::EgammaParameters::ShowerShapeType::fracs1          );
+  acc_el_poscs1          (xDiTau) = getElectronInfo(electron, xAOD::EgammaParameters::ShowerShapeType::poscs1          );
+  acc_el_poscs2          (xDiTau) = getElectronInfo(electron, xAOD::EgammaParameters::ShowerShapeType::poscs2          );
+  acc_el_asy1            (xDiTau) = getElectronInfo(electron, xAOD::EgammaParameters::ShowerShapeType::asy1            );
+  acc_el_pos             (xDiTau) = getElectronInfo(electron, xAOD::EgammaParameters::ShowerShapeType::pos             );
+  acc_el_pos7            (xDiTau) = getElectronInfo(electron, xAOD::EgammaParameters::ShowerShapeType::pos7            );
+  acc_el_barys1          (xDiTau) = getElectronInfo(electron, xAOD::EgammaParameters::ShowerShapeType::barys1          );
+  acc_el_wtots1          (xDiTau) = getElectronInfo(electron, xAOD::EgammaParameters::ShowerShapeType::wtots1          );
+  acc_el_r33over37allcalo(xDiTau) = getElectronInfo(electron, xAOD::EgammaParameters::ShowerShapeType::r33over37allcalo);
+  acc_el_isoGL           (xDiTau) = (bool)((*m_isoSelTool)->accept(*electron));
+  
+  acc_E_frac_HadEl       (xDiTau) = (xDiTau.subjetPt(0) + electron->pt()) / (origDiTau->pt());
+
+  static SG::AuxElement::Decorator< double > acc_el_likelihood            ( "el_likelihood" );
+  static SG::AuxElement::Decorator< int >    acc_el_IDSelection           ( "el_IDSelection" );
+  static SG::AuxElement::Decorator< double > acc_tau_leadingElLikelihood  ( "tau_leadingElLikelihood" );
+  static SG::AuxElement::Decorator< double > acc_tau_leadingElDeltaR      ( "tau_leadingElDeltaR" );
+  static SG::AuxElement::Decorator< int >    acc_tau_leadingElIDSelection ( "tau_leadingElIDSelection" );
+
+  static SG::AuxElement::Decorator< double > acc_el_f3                    ( "el_f3" );
+  static SG::AuxElement::Decorator< double > acc_el_Rhad                  ( "el_Rhad" );
+  static SG::AuxElement::Decorator< double > acc_el_Rhad1                 ( "el_Rhad1" );
+  static SG::AuxElement::Decorator< double > acc_el_Reta                  ( "el_Reta" );
+  static SG::AuxElement::Decorator< double > acc_el_w2                    ( "el_w2" );
+  static SG::AuxElement::Decorator< double > acc_el_f1                    ( "el_f1" );
+  static SG::AuxElement::Decorator< double > acc_el_Eratio                ( "el_Eratio" );
+  static SG::AuxElement::Decorator< double > acc_el_deltaEta              ( "el_deltaEta" );
+  static SG::AuxElement::Decorator< double > acc_el_d0                    ( "el_d0" );
+  static SG::AuxElement::Decorator< double > acc_el_d0sigma               ( "el_d0sigma" );
+  static SG::AuxElement::Decorator< double > acc_el_Rphi                  ( "el_Rphi" );
+  static SG::AuxElement::Decorator< double > acc_el_dpOverp               ( "el_dpOverp" );
+  static SG::AuxElement::Decorator< double > acc_el_deltaPhiRescaled2     ( "el_deltaPhiRescaled2" );
+  static SG::AuxElement::Decorator< double > acc_el_trans_TRT_PID         ( "el_trans_TRT_PID" );
+
+  static SG::AuxElement::Decorator< double > acc_nSiHitsPlusDeadSensors   ( "el_nSiHitsPlusDeadSensors" );
+  static SG::AuxElement::Decorator< double > acc_nPixHitsPlusDeadSensors  ( "el_nPixHitsPlusDeadSensors" );
+  static SG::AuxElement::Decorator< double > acc_passBLayerRequirement    ( "el_passBLayerRequirement" );
+        
+  acc_el_f3     (xDiTau) = getElectronInfo(electron, xAOD::EgammaParameters::ShowerShapeType::f3); 
+  acc_el_Rhad   (xDiTau) = getElectronInfo(electron, xAOD::EgammaParameters::ShowerShapeType::Rhad);
+  acc_el_Rhad1  (xDiTau) = getElectronInfo(electron, xAOD::EgammaParameters::ShowerShapeType::Rhad1);
+  acc_el_Reta   (xDiTau) = getElectronInfo(electron, xAOD::EgammaParameters::ShowerShapeType::Reta); 
+  acc_el_w2     (xDiTau) = getElectronInfo(electron, xAOD::EgammaParameters::ShowerShapeType::weta2); 
+  acc_el_f1     (xDiTau) = getElectronInfo(electron, xAOD::EgammaParameters::ShowerShapeType::f1); 
+  acc_el_Eratio (xDiTau) = getElectronInfo(electron, xAOD::EgammaParameters::ShowerShapeType::Eratio);
+  acc_el_Rphi   (xDiTau) = getElectronInfo(electron, xAOD::EgammaParameters::ShowerShapeType::Rphi);
+
+  float deltaEta(0);
+  if(!electron->trackCaloMatchValue(deltaEta, xAOD::EgammaParameters::deltaEta1))
+    ATH_MSG_WARNING("failed to retrieve deltaEta1 from electron");
+  acc_el_deltaEta          (xDiTau) = deltaEta;
+
+  float deltaPhiRescaled2(0);
+  if(!electron->trackCaloMatchValue(deltaPhiRescaled2, xAOD::EgammaParameters::deltaPhiRescaled2))
+    ATH_MSG_WARNING("failed to rerieve deltaPhiRescaled2 from electron");
+  acc_el_deltaPhiRescaled2 (xDiTau) = deltaPhiRescaled2;
+  
+  const xAOD::TrackParticle* track = electron->trackParticle();
+  float d0(0);
+  float trackqoverp(0);
+  float d0sigma(0);
+  float TRT_PID(0);
+  float trans_TRT_PID(0);
+  float dpOverp(0);
+  uint8_t nSiHitsPlusDeadSensors(0);
+  uint8_t nPixHitsPlusDeadSensors(0);
+  bool passBLayerRequirement(false);
+  
+  if (track)
+  {
+    trackqoverp = track->qOverP();
+    d0 = track->d0();
+    float vard0 = track->definingParametersCovMatrix()(0,0);
+    if (vard0 > 0) {
+      d0sigma=sqrtf(vard0);
+    }
+
+    if(!track->summaryValue(TRT_PID, xAOD::eProbabilityHT))
+      ATH_MSG_WARNING("Could not retrieve eProbablityHT from electron track");
+
+    //Transform the TRT PID output for use in the LH tool.
+    double tau = 15.0;
+    double fEpsilon = 1.0e-30;  // to avoid zero division
+    double pid_tmp = TRT_PID;
+    if (pid_tmp >= 1.0) pid_tmp = 1.0 - 1.0e-15;  //this number comes from TMVA
+    else if (pid_tmp <= fEpsilon) pid_tmp = fEpsilon;
+    trans_TRT_PID = - log(1.0/pid_tmp - 1.0)*(1./double(tau));
+
+    unsigned int index;
+    if( track->indexOfParameterAtPosition(index, xAOD::LastMeasurement) ) {
+
+            double refittedTrack_LMqoverp  =
+              track->charge() / sqrt(std::pow(track->parameterPX(index), 2) +
+                                     std::pow(track->parameterPY(index), 2) +
+                                     std::pow(track->parameterPZ(index), 2));
+
+            dpOverp = 1 - trackqoverp/(refittedTrack_LMqoverp);
+    }
+    else
+      ATH_MSG_WARNING("Could not retrieve indexOfParameterAtPosition from electron track");
+
+    nSiHitsPlusDeadSensors  = ElectronSelectorHelpers::numberOfSiliconHitsAndDeadSensors(track);
+    nPixHitsPlusDeadSensors = ElectronSelectorHelpers::numberOfPixelHitsAndDeadSensors(track);
+    passBLayerRequirement   = ElectronSelectorHelpers::passBLayerRequirement(track);
+  }
+  
+  acc_el_d0                (xDiTau) = d0;
+  acc_el_d0sigma           (xDiTau) = d0sigma;
+  acc_el_dpOverp           (xDiTau) = dpOverp;
+  acc_el_trans_TRT_PID     (xDiTau) = trans_TRT_PID;
+  acc_nSiHitsPlusDeadSensors  (xDiTau) = nSiHitsPlusDeadSensors;
+  acc_nPixHitsPlusDeadSensors (xDiTau) = nPixHitsPlusDeadSensors;
+  acc_passBLayerRequirement   (xDiTau) = passBLayerRequirement;
+
+  Root::TResult likelihood = (*m_electronLikeliHoodTool_medium)->calculate(electron);
+  acc_el_likelihood(xDiTau) = likelihood.getResult("likelihood");
+  int IDSelection = 0;
+  if((*m_electronLikeliHoodTool_veryloose)->accept(electron))
+    IDSelection++;
+  if((*m_electronLikeliHoodTool_loose)->accept(electron))
+    IDSelection++;
+  if((*m_electronLikeliHoodTool_loose_CutBL)->accept(electron))
+    IDSelection++;
+  if((*m_electronLikeliHoodTool_medium)->accept(electron))
+    IDSelection++;
+  if((*m_electronLikeliHoodTool_tight)->accept(electron))
+    IDSelection++;
+  acc_el_IDSelection(xDiTau) = IDSelection;
+
+  // get leading electron in core cone of tau subjet:
+  const xAOD::ElectronContainer* electrons = evtStore()->retrieve<const xAOD::ElectronContainer>("Electrons");
+  TLorentzVector p4LeadElectron;
+  p4LeadElectron.SetPtEtaPhiM(5000,0,0,0);
+  const xAOD::Electron* leadElectron = 0;
+  TLorentzVector p4Subjet;
+  p4Subjet.SetPtEtaPhiE(xDiTau.subjetPt(0),
+                        xDiTau.subjetEta(0),
+                        xDiTau.subjetPhi(0),
+                        xDiTau.subjetE(0));
+  for(auto electron : *electrons){
+    TLorentzVector p4Electron = electron->p4();
+    if(p4Subjet.DeltaR(p4Electron) < 0.1){
+      if(p4Electron.Pt() > p4LeadElectron.Pt()){
+        p4LeadElectron = p4Electron;
+        leadElectron = electron;
+      }
+    }
+  }
+
+  if(leadElectron){
+    acc_tau_leadingElDeltaR (xDiTau) = p4LeadElectron.DeltaR(p4Subjet);
+    likelihood = (*m_electronLikeliHoodTool_medium)->calculate(leadElectron);
+    acc_tau_leadingElLikelihood (xDiTau) = likelihood.getResult("likelihood");
+    IDSelection = 0;
+    if((*m_electronLikeliHoodTool_veryloose)->accept(leadElectron))
+      IDSelection++;
+    if((*m_electronLikeliHoodTool_loose)->accept(leadElectron))
+      IDSelection++;
+    if((*m_electronLikeliHoodTool_loose_CutBL)->accept(leadElectron))
+      IDSelection++;
+    if((*m_electronLikeliHoodTool_medium)->accept(leadElectron))
+      IDSelection++;
+    if((*m_electronLikeliHoodTool_tight)->accept(leadElectron))
+      IDSelection++;
+    acc_tau_leadingElIDSelection (xDiTau) = IDSelection;
+  }
+  else{
+    acc_tau_leadingElDeltaR (xDiTau) = -1;
+    acc_tau_leadingElIDSelection (xDiTau) = 0;
+    acc_tau_leadingElLikelihood (xDiTau) = -10.0;
+  }
+
+  return StatusCode::SUCCESS;
+}
 
 
 //=================================PRIVATE-PART=================================
 //______________________________________________________________________________
+
+float DiTauIDVarCalculator::getElectronInfo(const xAOD::Electron* el, const xAOD::EgammaParameters::ShowerShapeType information){
+  float val = -1111;
+  if(!el->showerShapeValue(val, information))
+    ATH_MSG_WARNING("Could not retrieve Electron Info with Enum:" << information);
+  return val;
+}
+
 double DiTauIDVarCalculator::n_subjets(const xAOD::DiTauJet& xDiTau) const
 {
   int nSubjet = 0;
@@ -193,6 +738,8 @@ double DiTauIDVarCalculator::f_subjet(const xAOD::DiTauJet& xDiTau, int iSubjet)
     return m_dDefault;
   }
 
+  ///const xAOD::Jet* xSeed = (*xDiTau.jetLink());
+
   return xDiTau.subjetPt(iSubjet) / xDiTau.pt();
 }
 
@@ -203,6 +750,8 @@ double DiTauIDVarCalculator::f_subjets(const xAOD::DiTauJet& xDiTau) const
   if (xDiTau.auxdata<int>("n_subjets") < 2 ) {
     return m_dDefault;
   }
+
+  //const xAOD::Jet* xSeed = (*xDiTau.jetLink());
 
   return (xDiTau.subjetPt(0) + xDiTau.subjetPt(1))/ xDiTau.pt();
 }
@@ -310,7 +859,7 @@ int DiTauIDVarCalculator::n_tracks(const xAOD::DiTauJet& xDiTau, int iSubjet) co
 
   if (!xDiTau.isAvailable<std::vector<int>>("n_tracks"))
   {
-    ATH_MSG_WARNING("n_tracks decoration not available. Try with track links.");
+    ATH_MSG_DEBUG("n_tracks decoration not available. Try with track links.");
 
     if (!xDiTau.isAvailable< TrackParticleLinks_t >("trackLinks") )
     {
@@ -647,7 +1196,7 @@ double DiTauIDVarCalculator::R_isotrack(const xAOD::DiTauJet& xDiTau) const
 }
 
 //______________________________________________________________________________;
-double DiTauIDVarCalculator::mass_track_core(const xAOD::DiTauJet& xDiTau) const
+double DiTauIDVarCalculator::m_track_core(const xAOD::DiTauJet& xDiTau) const
 {
 
   if (!xDiTau.isAvailable< TrackParticleLinks_t >("trackLinks") )
@@ -696,7 +1245,7 @@ double DiTauIDVarCalculator::mass_track_core(const xAOD::DiTauJet& xDiTau) const
 }
 
 //______________________________________________________________________________;
-double DiTauIDVarCalculator::mass_core(const xAOD::DiTauJet& xDiTau, int iSubjet) const
+double DiTauIDVarCalculator::m_core(const xAOD::DiTauJet& xDiTau, int iSubjet) const
 {
 
   if (!xDiTau.isAvailable< TrackParticleLinks_t >("trackLinks") )
@@ -743,7 +1292,7 @@ double DiTauIDVarCalculator::mass_core(const xAOD::DiTauJet& xDiTau, int iSubjet
 }
 
 //______________________________________________________________________________;
-double DiTauIDVarCalculator::mass_tracks(const xAOD::DiTauJet& xDiTau, int iSubjet) const
+double DiTauIDVarCalculator::m_tracks(const xAOD::DiTauJet& xDiTau, int iSubjet) const
 {
 
   if (!xDiTau.isAvailable< TrackParticleLinks_t >("trackLinks") )
@@ -787,7 +1336,7 @@ double DiTauIDVarCalculator::mass_tracks(const xAOD::DiTauJet& xDiTau, int iSubj
   return tlvallTracks.M();
 }
 //______________________________________________________________________________;
-double DiTauIDVarCalculator::mass_track(const xAOD::DiTauJet& xDiTau) const
+double DiTauIDVarCalculator::m_track(const xAOD::DiTauJet& xDiTau) const
 {
 
   if (!xDiTau.isAvailable< TrackParticleLinks_t >("trackLinks") )
@@ -818,7 +1367,7 @@ double DiTauIDVarCalculator::mass_track(const xAOD::DiTauJet& xDiTau) const
   return tlvallTracks.M();
 }
 //______________________________________________________________________________;
-double DiTauIDVarCalculator::mass_track_all(const xAOD::DiTauJet& xDiTau) const
+double DiTauIDVarCalculator::m_track_all(const xAOD::DiTauJet& xDiTau) const
 {
 
   if (!xDiTau.isAvailable< TrackParticleLinks_t >("trackLinks") )

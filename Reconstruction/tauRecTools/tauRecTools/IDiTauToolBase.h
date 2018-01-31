@@ -4,32 +4,29 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAURECTOOLS_DITAUDISCRIMINANTTOOL_H
-#define TAURECTOOLS_DITAUDISCRIMINANTTOOL_H
+#ifndef TAURECTOOLS_IDITAUTOOLBASE_H
+#define TAURECTOOLS_IDITAUTOOLBASE_H
 
 /**
- * @brief Implementation of boosted di-tau ID.
+ * @brief interface for DiTau variable calculator and discriminant tools
  * 
- * @author David Kirchmeier (david.kirchmeier@cern.ch)
- *                                                                              
  */
-
+ 
 // Framework include(s):
 #include "AsgTools/IAsgTool.h"
 
 // EDM include(s):
 #include "xAODTau/DiTauJet.h"
 
-
 namespace tauRecTools
 {
 
-class IDiTauDiscriminantTool :
+class IDiTauToolBase :
   public virtual asg::IAsgTool
 {
 
   /// Declare the interface that the class provides
-  ASG_TOOL_INTERFACE( tauRecTools::IDiTauDiscriminantTool )
+  ASG_TOOL_INTERFACE( tauRecTools::IDiTauToolBase )
 
 public:
   // initialize the tool
@@ -39,12 +36,14 @@ public:
   virtual StatusCode initializeEvent() = 0;
 
   // calculate ID variables
-  virtual double getJetBDTScore(const xAOD::DiTauJet& xDiTau) = 0;
+  virtual StatusCode execute(const xAOD::DiTauJet& xDiTau) = 0;
 
-}; // class IDiTauDiscriminantTool
+
+
+}; // class IDiTauToolBase
 
 } // namespace tauRecTools
 
-#endif // TAURECTOOLS_DITAUDISCRIMINANTTOOL_H
+#endif // TAURECTOOLS_IDITAUTOOLBASE_H
 
 
