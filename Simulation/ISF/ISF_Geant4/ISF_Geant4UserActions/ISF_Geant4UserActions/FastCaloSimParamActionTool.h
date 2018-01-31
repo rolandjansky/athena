@@ -41,6 +41,7 @@ namespace G4UA
     /// Configuration parameters
     FastCaloSimParamAction::Config m_config;
 
+    // FIXME: no need to duplicate service handles.
     ServiceHandle<ILArCalculatorSvc> m_emepiwcalc;  //!< EMEC positive inner wheel calculator
     ServiceHandle<ILArCalculatorSvc> m_emeniwcalc;  //!< EMEC negative inner wheel calculator
     ServiceHandle<ILArCalculatorSvc> m_emepowcalc;  //!< EMEC positive outer wheel calculator

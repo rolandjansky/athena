@@ -61,6 +61,7 @@ namespace G4UA
     declareProperty("maxPhiEM3", m_config.m_maxPhiEM3, "");
     declareProperty("maxrEM3", m_config.m_maxrEM3, "");
 
+    // FIXME: no need to duplicate service handles.
     declareProperty("EMECPosIWCalculator", m_emepiwcalc);
     declareProperty("EMECNegIWCalculator", m_emeniwcalc);
     declareProperty("EMECPosOWCalculator", m_emepowcalc);
@@ -78,6 +79,7 @@ namespace G4UA
 
   StatusCode FastCaloSimParamActionTool::initialize()
   {
+    // FIXME: no need to duplicate service handles.
     m_config.calculator_EMECIW_pos.setTypeAndName(m_emepiwcalc.typeAndName());
     m_config.calculator_EMECIW_neg.setTypeAndName(m_emeniwcalc.typeAndName());
     m_config.calculator_EMECOW_pos.setTypeAndName(m_emepowcalc.typeAndName());
