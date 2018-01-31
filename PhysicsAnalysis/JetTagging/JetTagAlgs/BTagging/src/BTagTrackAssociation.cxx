@@ -62,7 +62,6 @@ namespace Analysis {
             SG::AuxElement::ConstAccessor<std::vector<ElementLink<xAOD::IParticleContainer> > > acc(m_AssociatedTrackLinks);
 
             std::vector< ElementLink< xAOD::IParticleContainer > > tmp = acc(*jet);
-            ATH_MSG_INFO("hello chris");
 
             // if (!jet->getAttribute(m_AssociatedTrackLinks, tmp)) {
             //     ATH_MSG_FATAL("Unable to read track collection " + m_AssociatedTrackLinks + " from jets for b-tagging.");
@@ -88,7 +87,6 @@ namespace Analysis {
                 ElementLink<xAOD::TrackParticleContainer> EL;
                 EL.toContainedElement(*tpContainer, tpart);
                 associationLinks.push_back(EL);
-
             }
 
             tagInfo->auxdata<std::vector<ElementLink<xAOD::TrackParticleContainer> > >(m_TrackAssociationName) = associationLinks;
@@ -123,6 +121,7 @@ namespace Analysis {
                 if( ipart->type() != xAOD::Type::Muon ) {
                     ATH_MSG_ERROR("#BTAG# Failed to change xAOD::IParticle type to xAOD::Type::Muon ");
                 }
+
                 const xAOD::Muon* tpart = static_cast< const xAOD::Muon* >( ipart );
                 ElementLink<xAOD::MuonContainer> EL;
                 EL.toContainedElement(*tpContainer, tpart);
