@@ -160,7 +160,7 @@ int main(int argc, char* argv[])
     for(int j=0;j<2;++j) /// two instances: 0 -> MC efficiencies, 1 -> SFs
     {
         string name = "AsgElectronEfficiencyCorrectionTool/"
-                + ((j? "ElTrigEff-" : "ElTrigSF-")
+                + ((j? "ElTrigEff_" : "ElTrigSF_")
                 + std::to_string(factory.size()/2));
         auto t = factory.emplace(factory.end(), name);
         t->setProperty("MapFilePath", mapPath).ignore();

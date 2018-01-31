@@ -65,6 +65,7 @@ public:
 	virtual ~SimpleMuonTriggerScaleFactors() {}
 	virtual StatusCode initialize(void) override { return StatusCode::SUCCESS; }
 	virtual CP::CorrectionCode getTriggerScaleFactor(const xAOD::MuonContainer&, Double_t&, const std::string&) override { return CP::CorrectionCode::Ok; }
+	virtual CP::CorrectionCode getTriggerScaleFactor(const xAOD::Muon&, Double_t&, const std::string&) override { return CP::CorrectionCode::Ok; }
 	virtual CP::CorrectionCode getTriggerEfficiency(const xAOD::Muon& muon, Double_t& efficiency, const std::string& trig, Bool_t) override
 	{
 		auto itr = m_efficiencies.find(trig);
@@ -75,6 +76,7 @@ public:
 		}
 		return CP::CorrectionCode::Error;
 	}
+	virtual int getBinNumber(const xAOD::Muon&, const std::string&) override { return 0; };
     virtual bool isAffectedBySystematic(const CP::SystematicVariation&) const override { return false; }
 	virtual CP::SystematicSet affectingSystematics() const override { return CP::SystematicSet(); }
 	virtual CP::SystematicSet recommendedSystematics() const override { return CP::SystematicSet(); }
@@ -344,7 +346,7 @@ bool run_test(const Config& cfg, int toy_to_debug)
 	std::vector<SimpleMuonTriggerScaleFactors*> muonTools;
 	muonTools.emplace_back(new SimpleMuonTriggerScaleFactors("EFF-muons", cfg.efficiencies));
 	ToolHandleArray<CP::IMuonTriggerScaleFactors> muonToolsHandles = {muonTools.back()};
-	std::string suffix = ((toy_to_debug>=0)? "-debug" : "");
+	std::string suffix = ((toy_to_debug>=0)? "_debug" : "");
 	asg::AnaToolHandle<ITrigGlobalEfficiencyCorrectionTool> trigGlobTool("TrigGlobalEfficiencyCorrectionTool/trigGlobTool" + suffix);
 	asg::AnaToolHandle<ITrigGlobalEfficiencyCorrectionTool> trigGlobTool_toys("TrigGlobalEfficiencyCorrectionTool/trigGlobTool_toys" + suffix);
 	bool debug = cfg.debug || (toy_to_debug>=0);

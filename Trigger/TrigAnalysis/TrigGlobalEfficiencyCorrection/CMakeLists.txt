@@ -9,8 +9,6 @@ if( NOT XAOD_STANDALONE )
   set( athena_subdirs GaudiKernel PhysicsAnalysis/POOLRootAccess Control/AthAnalysisBaseComps )
 endif()
 
-#add_definitions( -DTRIGGLOBALEFFICIENCYCORRECTION_RELEASE21 )
-
 atlas_depends_on_subdirs(
   PUBLIC
   Control/AthToolSupport/AsgTools
@@ -32,7 +30,8 @@ find_package( ROOT COMPONENTS RIO )
 
 atlas_add_library( TrigGlobalEfficiencyCorrectionLib
   TrigGlobalEfficiencyCorrection/*.h Root/*.cxx
-  PUBLIC_HEADERS TrigGlobalEfficiencyCorrection/TrigGlobalEfficiencyCorrectionTool.h
+  #PUBLIC_HEADERS TrigGlobalEfficiencyCorrection/TrigGlobalEfficiencyCorrectionTool.h
+  PUBLIC_HEADERS TrigGlobalEfficiencyCorrection
   PRIVATE_INCLUDE_DIRS ${BOOST_INCLUDE_DIRS}
   LINK_LIBRARIES AsgTools xAODEgamma xAODMuon EgammaAnalysisInterfacesLib MuonAnalysisInterfacesLib TriggerAnalysisInterfacesLib xAODEventInfo PathResolver
   PRIVATE_LINK_LIBRARIES ${BOOST_LIBRARIES}

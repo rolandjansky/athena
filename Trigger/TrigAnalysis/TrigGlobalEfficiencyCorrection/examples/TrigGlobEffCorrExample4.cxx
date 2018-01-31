@@ -89,7 +89,7 @@ int main(int argc, char* argv[])
 		const std::string& trigKey = kv.first;
 		for(int j=0;j<2;++j) // one tool instance for efficiencies, another for scale factors
 		{
-			auto t = electronToolsFactory.emplace(electronToolsFactory.end(), "AsgElectronEfficiencyCorrectionTool/ElTrigEff-"+std::to_string(nTools++));
+			auto t = electronToolsFactory.emplace(electronToolsFactory.end(), "AsgElectronEfficiencyCorrectionTool/ElTrigEff_"+std::to_string(nTools++));
 			t->setProperty("MapFilePath", "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/ElectronEfficiencyCorrection/2015_2016/rel20.7/Moriond_February2017_v3/map1.txt").ignore();
 			t->setProperty("TriggerKey", (j? trigKey : "Eff_"+trigKey)).ignore();
 			t->setProperty("IdKey","Tight").ignore();
