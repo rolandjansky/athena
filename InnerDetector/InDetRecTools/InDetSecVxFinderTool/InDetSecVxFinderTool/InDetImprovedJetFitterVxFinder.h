@@ -14,8 +14,6 @@
             christian.weiser@cern.ch
     changes: second version in January 2008!
  
-  2008 (c) Atlas Detector Software
-
   This class implements the finder functionality for using 
   the JetFitter algorithm. It uses as input a ParticleJet and 
   then gives the VxJetCandidate out after having performed the 

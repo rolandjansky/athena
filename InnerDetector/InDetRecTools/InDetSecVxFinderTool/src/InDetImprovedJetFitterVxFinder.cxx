@@ -11,8 +11,6 @@
     email : nicola.giacinto.piacquadio@cern.ch
     changes: new version in January 2008!
     
- 
-  2008 (c) Atlas Detector Software
 
   Look at the header file for more information.
      
