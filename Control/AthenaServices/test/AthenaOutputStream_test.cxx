@@ -57,11 +57,7 @@ int main() {
   assert( pStore.retrieve().isSuccess() );
   assert( pStore );
 
-#ifdef ATLAS_GAUDI_V21
   SmartIF<IAlgManager> algMan(pSvcLoc);
-#else
-  SmartIF<IAlgManager> algMan(IAlgManager::interfaceID(), pSvcLoc);
-#endif
   assert( algMan.isValid() );
   IAlgorithm* pAlg(nullptr);
   assert( (algMan->createAlgorithm( "AthenaOutputStream", "AthenaOutputStream", pAlg)).isSuccess() );
