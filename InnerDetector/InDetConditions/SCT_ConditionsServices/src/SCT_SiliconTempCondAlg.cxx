@@ -11,6 +11,7 @@
 
 SCT_SiliconTempCondAlg::SCT_SiliconTempCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
+  , m_useState{true}
   , m_readKeyState{"SCT_DCSStatCondData"}
   , m_readKeyTemp0{"SCT_DCSTemp0CondData"}
   , m_writeKey{"SCT_SiliconTempCondData"}
@@ -18,6 +19,7 @@ SCT_SiliconTempCondAlg::SCT_SiliconTempCondAlg(const std::string& name, ISvcLoca
   , m_sctDCSSvc{"InDetSCT_DCSConditionsSvc", name}
   , m_pHelper{nullptr}
 {
+  declareProperty("UseState", m_useState, "Flag to use state conditions folder");
   declareProperty("ReadKeyState", m_readKeyState, "Key of input state conditions folder");
   declareProperty("ReadKeyTemp", m_readKeyTemp0, "Key of input (hybrid) temperature conditions folder");
   declareProperty("WriteKey", m_writeKey, "Key of output (sensor) temperature conditions folder");
@@ -38,7 +40,9 @@ StatusCode SCT_SiliconTempCondAlg::initialize() {
   // CondSvc
   ATH_CHECK(m_condSvc.retrieve());
   // Read Cond Handle
-  ATH_CHECK(m_readKeyState.initialize());
+  if (m_useState) {
+    ATH_CHECK(m_readKeyState.initialize());
+  }
   ATH_CHECK(m_readKeyTemp0.initialize());
   // Write Cond Handles
   ATH_CHECK(m_writeKey.initialize());
@@ -66,20 +70,6 @@ StatusCode SCT_SiliconTempCondAlg::execute() {
     return StatusCode::SUCCESS; 
   }
 
-  // Read Cond Handle (state)
-  SG::ReadCondHandle<SCT_DCSStatCondData> readHandleState{m_readKeyState};
-  const SCT_DCSStatCondData* readCdoState{*readHandleState};
-  if (readCdoState==nullptr) {
-    ATH_MSG_FATAL("Null pointer to the read conditions object");
-    return StatusCode::FAILURE;
-  }
-  EventIDRange rangeState;
-  if (not readHandleState.range(rangeState)) {
-    ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleState.key());
-    return StatusCode::FAILURE;
-  }
-  ATH_MSG_INFO("Input is " << readHandleState.fullKey() << " with the range of " << rangeState);
-
   // Read Cond Handle (temperature)
   SG::ReadCondHandle<SCT_DCSFloatCondData> readHandleTemp0{m_readKeyTemp0};
   const SCT_DCSFloatCondData* readCdoTemp0{*readHandleTemp0};
@@ -94,13 +84,31 @@ StatusCode SCT_SiliconTempCondAlg::execute() {
   }
   ATH_MSG_INFO("Input is " << readHandleTemp0.fullKey() << " with the range of " << rangeTemp0);
 
-  // Combined the validity ranges of state and range
-  EventIDRange rangeW{EventIDRange::intersect(rangeState, rangeTemp0)};
-  if(rangeW.start()>rangeW.stop()) {
-    ATH_MSG_FATAL("Invalid intersection range: " << rangeW);
-    return StatusCode::FAILURE;
+  EventIDRange rangeW{rangeTemp0};
+
+  if (m_useState) {
+    // Read Cond Handle (state)
+    SG::ReadCondHandle<SCT_DCSStatCondData> readHandleState{m_readKeyState};
+    const SCT_DCSStatCondData* readCdoState{*readHandleState};
+    if (readCdoState==nullptr) {
+      ATH_MSG_FATAL("Null pointer to the read conditions object");
+      return StatusCode::FAILURE;
+    }
+    EventIDRange rangeState;
+    if (not readHandleState.range(rangeState)) {
+      ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleState.key());
+      return StatusCode::FAILURE;
+    }
+    ATH_MSG_INFO("Input is " << readHandleState.fullKey() << " with the range of " << rangeState);
+
+    // Combined the validity ranges of state and range
+    rangeW = EventIDRange::intersect(rangeState, rangeTemp0);
+    if(rangeW.start()>rangeW.stop()) {
+      ATH_MSG_FATAL("Invalid intersection range: " << rangeW);
+      return StatusCode::FAILURE;
+    }
   }
-  
+
   // Construct the output Cond Object and fill it in
   SCT_DCSFloatCondData* writeCdo{new SCT_DCSFloatCondData()};
   const SCT_ID::size_type wafer_hash_max{m_pHelper->wafer_hash_max()};
