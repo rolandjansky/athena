@@ -250,7 +250,7 @@ bool JetFlavorPlots::apply(const top::Event& event) const {
     }
 
     if (throwWarning)
-       std::cout<<"Warning! Number of jets in the event is "<<event.m_jets.size()<<", but histograms have been booked up to "<<m_nJetsMax<<". Histogram versus the number of jets have not been filled for this event!\n";
+       std::cout<<"Warning! Number of jets in the event is "<<event.m_jets.size()<<", but histograms have been booked up to "<<m_nJetsMax<<". Exclusive histograms in number of jets have not been filled.\n";
     return true;
 }
 
