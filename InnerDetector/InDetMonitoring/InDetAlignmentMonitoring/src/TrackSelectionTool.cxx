@@ -63,6 +63,7 @@ StatusCode InDetAlignMon::TrackSelectionTool::initialize()
       } else {
 	if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Retrieved tool " << m_trackSelectorTool << endmsg;
       }
+      m_idtrackSelectionTool.disable();
     }
   else
     {
@@ -72,6 +73,7 @@ StatusCode InDetAlignMon::TrackSelectionTool::initialize()
       } else {
 	if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Retrieved tool " << m_idtrackSelectionTool << endmsg;
       }
+      m_trackSelectorTool.disable();
     }
   
   
