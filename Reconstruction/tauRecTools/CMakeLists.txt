@@ -68,7 +68,9 @@ else()
       Tracking/TrkTools/TrkToolInterfaces
       Tracking/TrkVertexFitter/TrkVertexFitterInterfaces
       Tracking/TrkVertexFitter/TrkVertexFitters
-      Tracking/TrkVertexFitter/TrkVxEdmCnv )
+      Tracking/TrkVertexFitter/TrkVxEdmCnv
+      PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
+      )
 endif()
 
 # External dependencies:
@@ -118,7 +120,7 @@ if( XAOD_STANDALONE OR XAOD_ANALYSIS )
       xAODTracking MCTruthClassifierLib
       PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} FourMomUtils xAODJet
       PathResolver MVAUtils ElectronPhotonSelectorToolsLib IsolationSelectionLib
-      MuonSelectorToolsLib MuonMomentumCorrectionsLib)
+      MuonSelectorToolsLib MuonMomentumCorrectionsLib MuonAnalysisInterfacesLib)
 else()
    atlas_add_library( tauRecToolsLib
       tauRecTools/*.h Root/*.cxx  ${tauRecToolsLibCintDict}
@@ -131,7 +133,7 @@ else()
       xAODTracking MCTruthClassifierLib CaloUtilsLib Particle
       PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} FourMomUtils xAODJet
       PathResolver MVAUtils ElectronPhotonSelectorToolsLib IsolationSelectionLib
-      MuonSelectorToolsLib MuonMomentumCorrectionsLib)
+      MuonSelectorToolsLib MuonMomentumCorrectionsLib MuonAnalysisInterfacesLib)
 endif()
 
 if( NOT XAOD_STANDALONE )
@@ -142,7 +144,7 @@ if( NOT XAOD_STANDALONE )
          LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} xAODTau
          xAODTracking xAODEgamma AthContainers FourMomUtils xAODCaloEvent xAODJet 
          xAODPFlow MVAUtils ElectronPhotonSelectorToolsLib GaudiKernel tauRecToolsLib
-	 IsolationSelectionLib MuonSelectorToolsLib MuonMomentumCorrectionsLib)
+	 IsolationSelectionLib MuonSelectorToolsLib MuonMomentumCorrectionsLib MuonAnalysisInterfacesLib)
    else()
       atlas_add_component( tauRecTools
          src/*.h src/*.cxx src/components/*.cxx
@@ -154,7 +156,8 @@ if( NOT XAOD_STANDALONE )
          RecoToolInterfaces TrkLinks TrkParametersIdentificationHelpers
          TrkTrackSummary VxVertex TrkToolInterfaces TrkVertexFitterInterfaces
          TrkVertexFittersLib TrkVxEdmCnvLib InDetTrackSelectionToolLib
-         tauRecToolsLib IsolationSelectionLib MuonSelectorToolsLib MuonMomentumCorrectionsLib)
+         tauRecToolsLib IsolationSelectionLib MuonSelectorToolsLib MuonMomentumCorrectionsLib
+	 MuonAnalysisInterfacesLib)
    endif()
 endif()
 

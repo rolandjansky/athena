@@ -4,8 +4,8 @@
 #include "AsgTools/AnaToolHandle.h"
 #include "tauRecTools/TauRecToolBase.h"
 #include "xAODTau/TauJet.h"
-#include "MuonSelectorTools/MuonSelectionTool.h"
-#include "MuonMomentumCorrections/MuonCalibrationAndSmearingTool.h"
+#include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 
 namespace CP{
   class IMuonSelectionTool;

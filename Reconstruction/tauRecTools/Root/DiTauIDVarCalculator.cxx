@@ -26,9 +26,10 @@
 
 #include "IsolationSelection/IIsolationSelectionTool.h"
 #include "IsolationSelection/IsolationSelectionTool.h"
-#include "MuonSelectorTools/IMuonSelectionTool.h"
+
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
+#include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
 #include "MuonSelectorTools/MuonSelectionTool.h"
-#include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
 #include "MuonMomentumCorrections/MuonCalibrationAndSmearingTool.h"
 
 #include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"

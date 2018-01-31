@@ -1,10 +1,9 @@
 #include "tauRecTools/MuonTrackRemoval.h"
 #include "xAODMuon/MuonContainer.h"
 
-#include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
+#include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 #include "MuonMomentumCorrections/MuonCalibrationAndSmearingTool.h"
-
-#include "MuonSelectorTools/IMuonSelectionTool.h"
 #include "MuonSelectorTools/MuonSelectionTool.h"
 
 using namespace tauRecTools;
