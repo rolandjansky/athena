@@ -1534,7 +1534,7 @@ Float_t CP::TPileupReweighting::GetPrimaryWeight(Int_t periodNumber, Int_t chann
    if(p->sumOfWeights.find(channelNumber) == p->sumOfWeights.end()) channelNumber = GetDefaultChannel(periodNumber);//p->defaultChannel;
 
    if(!p->primaryHists[channelNumber]) {
-      Error("GetPrimaryWeight","Unrecognised channelNumber: %d",oChanNumber);
+      Error("GetPrimaryWeight","Unrecognised channelNumber %d for periodNumber %d",oChanNumber,periodNumber);
       throw std::runtime_error("Throwing 2: Unrecognised channelNumber");
    }
 

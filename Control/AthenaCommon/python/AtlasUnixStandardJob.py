@@ -33,8 +33,13 @@ def _setupAtlasUnixStandardJob():
               "Reflex::NewDelFunctionsT<StatusCode>::delete_T(void*)",
         "ROOT::Reflex::NewDelFunctionsT<StatusCode>::delete_T(void*)",
         ]
+        
     # make sure StatusCodes are always checked
-    svcMgr.StatusCodeSvc.AbortOnError=True
+    # except in AthAnalysis, since AnalysisBase by default does not require
+    # checking of status code
+    import os
+    if "AthAnalysis_DIR" not in os.environ:
+      svcMgr.StatusCodeSvc.AbortOnError=True
 
 
     

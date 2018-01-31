@@ -102,7 +102,7 @@ Btag.enable: true
 #
 Btag.Tagger: MV2c10
 Btag.WP: ${BTAG_WP}
-Btag.CalibPath: xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2017-07-02_v1.root
+Btag.CalibPath: xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2017-12-22_v1.root
 #
 # set the -999. to positive number to override default
 OR.DoBoostedElectron: true
@@ -143,9 +143,17 @@ MET.MuonTerm: Muons
 MET.OutputTerm: Final
 MET.JetSelection: Tight
 MET.RemoveOverlappingCaloTaggedMuons: 1
-MET.DoMuonJetOR: 1
+MET.DoRemoveMuonJets: 1
+MET.UseGhostMuons: false
+MET.DoMuonEloss: false
 MET.DoTrkSyst: 1
 MET.DoCaloSyst: 0
+#
+METSys.ConfigPrefix: METUtilities/data17_13TeV/prerec_Jan16
+#
+#METSig.SoftTermParam: met::Random 
+METSig.TreatPUJets: true
+METSig.DoPhiReso: true
 #
 PRW.MuUncertainty: 0.2
 #

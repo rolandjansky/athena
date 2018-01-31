@@ -205,8 +205,8 @@ int main(int argc, char** argv) {
 
             // now need to get and set the parton shower generator from TopDataPrep
             SampleXsection tdp;	   
-	    // Package/filename - XS file we want to use                                                           
-	    std::string tdp_filename = "TopDataPreparation/XSection-MC15-13TeV.data";
+	    // Package/filename - XS file we want to use (can now be configured via cutfile)                                                    
+	    const std::string tdp_filename = settings->value("TDPPath");
 	    // Use the path resolver to find the first file in the list of possible paths ($CALIBPATH)
 	    std::string fullpath = PathResolverFindCalibFile(tdp_filename);
 	    if (!tdp.readFromFile(fullpath.c_str())) {

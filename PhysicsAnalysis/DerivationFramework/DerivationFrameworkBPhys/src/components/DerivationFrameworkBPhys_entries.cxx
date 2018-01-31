@@ -26,7 +26,7 @@
 #include "DerivationFrameworkBPhys/BmumuThinningTool.h"
 #include "DerivationFrameworkBPhys/VertexPlus1TrackCascade.h"
 #include "DerivationFrameworkBPhys/TriggerCountToMetadata.h"
-
+#include "DerivationFrameworkBPhys/MuonExtrapolationTool.h"
 
 using namespace DerivationFramework;
 
@@ -57,7 +57,7 @@ DECLARE_TOOL_FACTORY( Select_Bmumu )
 DECLARE_TOOL_FACTORY( BmumuThinningTool )
 DECLARE_TOOL_FACTORY( VertexPlus1TrackCascade )
 DECLARE_TOOL_FACTORY( TriggerCountToMetadata )
-
+DECLARE_TOOL_FACTORY( MuonExtrapolationTool )
 
 DECLARE_FACTORY_ENTRIES( DerivationFrameworkBPhys ) {
    DECLARE_TOOL( Reco_mumu )
@@ -87,6 +87,6 @@ DECLARE_FACTORY_ENTRIES( DerivationFrameworkBPhys ) {
    DECLARE_TOOL( BmumuThinningTool )
    DECLARE_TOOL( VertexPlus1TrackCascade )
    DECLARE_TOOL( TriggerCountToMetadata )
-
+   DECLARE_TOOL( MuonExtrapolationTool )
 }
 

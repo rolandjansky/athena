@@ -11,6 +11,7 @@
 #include "PATInterfaces/CorrectionTool.h"
 #include "InDetTrackSystematicsTools/InDetTrackSystematicsTool.h"
 #include "xAODTracking/TrackParticleContainer.h"
+#include "PathResolver/PathResolver.h"
 #include <string>
 #include <vector>
 
@@ -91,6 +92,11 @@ namespace InDet {
     bool m_doD0Bias = true;
     bool m_doZ0Bias = true;
     bool m_doQoverPBias = true;
+
+    // allow the user to configure which calibration files to use if desired
+    std::string m_calibFileData15;
+    std::string m_calibFileData16_preTS1;
+    std::string m_calibFileData16_postTS1;
 
   }; // class InDetTrackBiasingTool
 

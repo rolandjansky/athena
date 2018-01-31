@@ -57,16 +57,14 @@ CP::CorrectionCode getThreshold(Int_t& threshold, const std::string& trigger) {
 int main(int argc, char* argv[]) {
 
     const char* APP_NAME = argv[0];
-    
+    CP::CorrectionCode::enableFailure();
     // Read the config provided by the user
     const char* xAODFileName = "";
     std::string customInputFolder = "";
     std::string customFileName = "";
     std::string year = "";
-    std::string mc = "";
     const char* nrOfEntries = "";
     std::string trigger = "";
-    const char* runNumber = "";
     for (int i = 1; i < argc - 1; i++) {
         std::string arg = std::string(argv[i]);
         if (arg == "-x") {
@@ -81,17 +79,11 @@ int main(int argc, char* argv[]) {
         else if (arg == "-y") {
             year = argv[i + 1];
         }
-        else if (arg == "-mc") {
-            mc = argv[i + 1];
-        }
         else if (arg == "-e") {
             nrOfEntries = argv[i + 1];
         }
         else if (arg == "-t") {
             trigger = argv[i + 1];
-        }
-        else if (arg == "-r") {
-            runNumber = argv[i + 1];
         }
     }
     
@@ -104,20 +96,12 @@ int main(int argc, char* argv[]) {
         Error(APP_NAME, "year missing!");
         error = true;
     }
-    if (mc == "") {
-        Error(APP_NAME, "mc missing!");
-        error = true;
-    }
     if (trigger == "") {
         Error(APP_NAME, "trigger missing!");
         error = true;
     }
-    if (runNumber[0] == '\0') {
-        Error(APP_NAME, "run number missing!");
-        error = true;
-    }
     if (error) {
-        Error(APP_NAME, "  Usage: %s -x [xAOD file name] -y [year] -mc [mc] -t [trigger] -r [run number] -d [custom input folder] -f [custom file name] -e [number of events to process]", APP_NAME);
+        Error(APP_NAME, "  Usage: %s -x [xAOD file name] -y [year] -t [trigger] -d [custom input folder] -f [custom file name] -e [number of events to process]", APP_NAME);
         return 1;
     }
 
@@ -155,6 +139,8 @@ int main(int argc, char* argv[]) {
             //ASG_CHECK_SA(APP_NAME, tool->setProperty("MC", mc)); 
             ASG_CHECK_SA(APP_NAME, tool->setProperty("filename", customFileName));
             ASG_CHECK_SA(APP_NAME, tool->setProperty("CustomInputFolder", customInputFolder));
+	    ASG_CHECK_SA(APP_NAME, tool->setProperty("UseExperimental", true));
+	    tool->msg().setLevel( MSG::ERROR );
             ASG_CHECK_SA(APP_NAME, tool->initialize());
             //CP::CorrectionCode result = tool->setRunNumber(atoi(runNumber));
             //if (result != CP::CorrectionCode::Ok){
@@ -189,8 +175,9 @@ int main(int argc, char* argv[]) {
                         for (size_t l = 0; l < types.size(); l++) {
                             if (types[l] != "data" || systematics[k].name().find("TrigSystUncertainty") == std::string::npos) {
                                 Double_t eff;
+				auto binNumber = triggerSFTools[i][j]->getBinNumber(**mu_itr, trigger);
                                 result = triggerSFTools[i][j]->getTriggerEfficiency(**mu_itr, eff, trigger, types[l] == "data");
-                                if (result != CP::CorrectionCode::Ok) {
+				if (result != CP::CorrectionCode::Ok) {
                                     Error(APP_NAME, "Could not retrieve trigger efficiency. Paramaters:\n        Event number = %i,\n        Quality = %s,\n        Binning = %s,\n        Systematic = %s,\n        Type = %s", static_cast<int>(ei->eventNumber()), qualities[i].c_str(), binnings[j].c_str(), systematics[k].name().c_str(), types[l].c_str());
                                     errorsCount++;
                                 }
@@ -198,11 +185,16 @@ int main(int argc, char* argv[]) {
                                     Warning(APP_NAME, "Retrieved trigger efficiency %.3f is outside of expected range from 0 to 1. Paramaters:\n        Event number = %i,\n        Quality = %s,\n        Binning = %s,\n        Systematic = %s", eff, static_cast<int>(ei->eventNumber()), qualities[i].c_str(), binnings[j].c_str(), systematics[k].name().c_str());
                                     warningsCount++;
                                 }
+				if (binNumber < 0 || binNumber > 208) {
+                                    Warning(APP_NAME, "Retrieved bin number %.i is outside of expected range from 0 to 208. Paramaters:\n        Event number = %i,\n        Quality = %s,\n        Binning = %s,\n        Systematic = %s", binNumber, static_cast<int>(ei->eventNumber()), qualities[i].c_str(), binnings[j].c_str(), systematics[k].name().c_str());
+                                    warningsCount++;
+                                }
+				
                             }
                         }
                     }
 
-                    double triggerSF = 0;
+                    double triggerSF = 0.;
                     result = triggerSFTools[i][j]->getTriggerScaleFactor(*muons, triggerSF, trigger);
                     if (result != CP::CorrectionCode::Ok) {
                         Error(APP_NAME, "Could not retrieve trigger scale factors. Paramaters:\n        Event number = %i,\n        Quality = %s,\n        Binning = %s,\n        Systematic = %s", static_cast<int>(ei->eventNumber()), qualities[i].c_str(), binnings[j].c_str(), systematics[k].name().c_str());
@@ -227,7 +219,43 @@ int main(int argc, char* argv[]) {
                             warningsCount++;
                         }
                     }
-                }
+		    double tmpEffData = 1.;
+		    double tmpEffMC = 1.;
+                    for (auto muon: *muons) {
+		      double effData = 0.;
+		      double effMC = 0.;
+		      double scaleFactor = 0.;
+		      if (triggerSFTools[i][j]->getTriggerEfficiency(*muon, effData, trigger, true) != CP::CorrectionCode::Ok) {
+			Error("MuonTriggerSFRootCoreTest", "Could not extract data trigger efficiency for %s", trigger.c_str());
+			return 1;
+		      }
+		      if (triggerSFTools[i][j]->getTriggerEfficiency(*muon, effMC, trigger, false) != CP::CorrectionCode::Ok) {
+			Error("MuonTriggerSFRootCoreTest", "Could not extract MC trigger efficiency for %s", trigger.c_str());
+			return 1;
+		      }
+		      if (triggerSFTools[i][j]->getTriggerScaleFactor(*muon, scaleFactor, trigger) != CP::CorrectionCode::Ok) {
+			Error("MuonTriggerSFRootCoreTest", "Could not extract MC trigger efficiency for %s", trigger.c_str());
+			return 1;
+		      }
+		      if (scaleFactor < 0.2 || scaleFactor > 1.2 ) {
+			Int_t threshold = 0;
+			if (getThreshold(threshold, trigger) != CP::CorrectionCode::Ok) {
+                            Error("MuonTriggerSFRootCoreTest", "Could not extract threshold for trigger %s", trigger.c_str());
+                            return 1;
+                        }
+			if(muon->pt() >= threshold)
+			  Warning(APP_NAME, "Retrieved single muon trigger scale factor %.3f is outside of expected range from 0.2 to 1.2. Paramaters:\n        Event number = %i,\n        Quality = %s,\n        Binning = %s,\n        Systematic = %s \n muon pt: %f", scaleFactor, static_cast<int>(ei->eventNumber()), qualities[i].c_str(), binnings[j].c_str(), systematics[k].name().c_str(), muon->pt());
+		      }
+		      tmpEffData *= 1.-effData;
+		      tmpEffMC *= 1.-effMC;
+		    }
+		    auto sfSingleCalc = (1. - tmpEffData)/(1. - tmpEffMC);
+		    if (sfSingleCalc != triggerSF && triggerSF > 0.2) {
+
+		      Warning(APP_NAME, "Invalid single muon SF result. Paramaters:\n        Event number = %i,\n        Quality = %s,\n        Binning = %s \n Systematic = %s \n single SF: %f \n combined SF %f \n ", static_cast<int>(ei->eventNumber()), qualities[i].c_str(), binnings[j].c_str(), systematics[k].name().c_str(), sfSingleCalc, triggerSF);
+		      warningsCount++;
+		    }
+		}
             }
         }
     }

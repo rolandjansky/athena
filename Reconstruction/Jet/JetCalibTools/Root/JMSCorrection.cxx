@@ -256,7 +256,8 @@ StatusCode JMSCorrection::initializeTool(const std::string&) {
       return StatusCode::FAILURE;
     }
 
-    setMassCombinationEtaBins( JetCalibUtils::VectorizeD( m_config->GetValue("MassCombinationEtaBins","") ) );
+    if (!m_use3Dhisto)
+        setMassCombinationEtaBins( JetCalibUtils::VectorizeD( m_config->GetValue("MassCombinationEtaBins","") ) );
 
     // Identify which object is being tagged (QCD, Top, WZ, Hbb)
     TString combObj = "";
@@ -276,21 +277,56 @@ StatusCode JMSCorrection::initializeTool(const std::string&) {
     TIter ikeys_combination(keys_combination);
     while ( TKey *iterobj = (TKey*)ikeys_combination() ) {
       TString histoName = iterobj->GetName();
-      if ( histoName.Contains("CaloMass") && histoName.Contains(combObj.Data()) ) m_caloResolutionMassCombination.push_back( (TH2D*)JetCalibUtils::GetHisto2(inputFile_combination,histoName.Data()) );
-      if ( histoName.Contains("TAMass") && histoName.Contains(combObj.Data()) )  m_taResolutionMassCombination.push_back( (TH2D*)JetCalibUtils::GetHisto2(inputFile_combination,histoName.Data()) );
-      if ( histoName.Contains("Correlation") && histoName.Contains(combObj.Data()) )  m_correlationMapMassCombination.push_back( (TH2D*)JetCalibUtils::GetHisto2(inputFile_combination,histoName.Data()) );
+      if ( histoName.Contains("CaloMass") && histoName.Contains(combObj.Data()) )
+      {
+        if (!m_use3Dhisto) 
+          m_caloResolutionMassCombination.push_back( (TH2D*)JetCalibUtils::GetHisto2(inputFile_combination,histoName.Data()) );
+        else
+          m_caloResolutionMassCombination3D = (TH3D*)JetCalibUtils::GetHisto3(inputFile_combination,histoName.Data());
+      }
+      if ( histoName.Contains("TAMass") && histoName.Contains(combObj.Data()) )
+      {
+        if (!m_use3Dhisto)
+          m_taResolutionMassCombination.push_back( (TH2D*)JetCalibUtils::GetHisto2(inputFile_combination,histoName.Data()) );
+        else
+          m_taResolutionMassCombination3D = (TH3D*)JetCalibUtils::GetHisto3(inputFile_combination,histoName.Data());
+      }
+      if ( histoName.Contains("Correlation") && histoName.Contains(combObj.Data()) )
+      {
+        if (!m_use3Dhisto)
+          m_correlationMapMassCombination.push_back( (TH2D*)JetCalibUtils::GetHisto2(inputFile_combination,histoName.Data()) );
+        else
+          m_correlationMapMassCombination3D = (TH3D*)JetCalibUtils::GetHisto3(inputFile_combination,histoName.Data());
+      }
     }
 
-    //Make sure we put something in the vector of TH2Ds
-    if ( m_caloResolutionMassCombination.size() < 1 ) {
-      ATH_MSG_FATAL("Vector of mass combination histograms with calo factors may be empty. Please check your mass combination file: " << JMSFile);
-      return StatusCode::FAILURE;
+    //Make sure we put something in the vector of TH2Ds OR filled the TH3s
+    if ( !m_use3Dhisto)
+    {
+      if ( m_caloResolutionMassCombination.size() < 1 ) {
+        ATH_MSG_FATAL("Vector of mass combination histograms with calo factors may be empty. Please check your mass combination file: " << JMSFile);
+        return StatusCode::FAILURE;
+      }
+      else if ( m_taResolutionMassCombination.size() < 1 ) {
+        ATH_MSG_FATAL("Vector of mass combination histograms with trk-assisted factors may be empty. Please check your mass combination file: " << JMSFile);
+        return StatusCode::FAILURE;
+      }
     }
-    else if ( m_taResolutionMassCombination.size() < 1 ) {
-      ATH_MSG_FATAL("Vector of mass combination histograms with trk-assisted factors may be empty. Please check your mass combination file: " << JMSFile);
-      return StatusCode::FAILURE;
+    else
+    {
+      if (!m_caloResolutionMassCombination3D)
+      {
+        ATH_MSG_FATAL("Mass combination 3D histogram with calo factors was not filled.  Please check your mass combination file: " << JMSFile);
+        return StatusCode::FAILURE;
+      }
+      else if (!m_taResolutionMassCombination3D)
+      {
+        ATH_MSG_FATAL("Mass combination 3D histogram with trk-assisted factors was not filled.  Please check your mass combination file: " << JMSFile);
+        return StatusCode::FAILURE;
+      }
     }
-    else ATH_MSG_INFO("JMS Tool has been initialized with mass combination weights from: " << file_combination_Name);
+    
+    ATH_MSG_INFO("JMS Tool has been initialized with mass combination weights from: " << file_combination_Name);
   }
 
   // Determine the binning strategy

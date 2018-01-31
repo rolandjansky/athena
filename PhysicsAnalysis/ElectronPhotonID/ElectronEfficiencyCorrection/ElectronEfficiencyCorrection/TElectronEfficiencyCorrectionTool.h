@@ -1,217 +1,186 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef __TELECTRONEFFICIENCYCORRECTIONTOOL__
 #define __TELECTRONEFFICIENCYCORRECTIONTOOL__
 
 /**
-   @class TElectronEfficiencyCorrectionTool
-   @brief Calculate the egamma scale factors in pure ROOT
-   For each scale factor declare a tool and use addFileName to add root files containing scale factors. 
-   After adding root files call initialize()
-   In the event loop use calculate(const PATCore::ParticleDataType::DataType dataType, const unsigned int runnumber, const double cluster_eta, const double et)
-   This returns a TResult. The scale factor and its uncertainty are obtained by calling getScaleFactor() or getTotalUncertainty (See header file of TResult in package PATCore)
-   For a short documentation see the included README file
+  @class TElectronEfficiencyCorrectionTool
+  @brief Calculate the egamma scale factors 
+  Implementation class for the e/gamma Efficiency Scale Factors. This code implements
+  the underlying logic of accessign the ROOT files containing the recommendations.
 
-   @author Karsten Koeneke, Felix Buehrer
-   @date   January 2013
-*/
-
-
-#include <sstream>
+  @author Kristin Lohwasser, Karsten Koeneke, Felix Buehrer
+  @date   January 2013
+  */
 
 // STL includes
 #include <vector>
 #include <string>
-
+#include <array>
+#include <map>
+//Root fwd declares
+class TKey;
+class TH1D;
+class TH2D;
 // ROOT includes
-#include <TString.h>
-#include "TKey.h"
-#include "TObjArray.h"
-#include "TH1.h"
-#include "TH2.h"
 #include "TRandom3.h"
-// Include the return object and the base class
-#include "PATCore/TResult.h"
-#include "PATCore/TCalculatorToolBase.h"
+#include "TObjArray.h"
+// Core includes
 #include "PATCore/PATCoreEnums.h"
 #include "AsgTools/AsgMessaging.h"
 
-
 namespace Root {
-  class TElectronEfficiencyCorrectionTool : public Root::TCalculatorToolBase,public asg::AsgMessaging
+    class TElectronEfficiencyCorrectionTool : public asg::AsgMessaging
     {
-
     public: 
-      /** Standard constructor */
-      TElectronEfficiencyCorrectionTool( const char* name="TElectronEfficiencyCorrectionTool" );
+        /**
+         * The position of each result
+         */
+        enum struct Position{
+            SF=0,
+            Total=1,
+            Stat=2,
+            NSys=3,
+            UnCorr=4,
+            GlobalBinNumber=5,
+            End=6
+        };
 
-      /** Standard destructor */
-      ~TElectronEfficiencyCorrectionTool();
+        /** Standard constructor */
+        TElectronEfficiencyCorrectionTool( const char* name="TElectronEfficiencyCorrectionTool" );
 
-      // Main methods
-      /** Initialize this class */
-      int initialize();
+        /** Standard destructor */
+        ~TElectronEfficiencyCorrectionTool();
 
-      /** Finalize this class; everything that should be done after the event loop should go here */
-      inline int finalize() { return 1; }
+        // Main methods
+        /** Initialize this class */
+        int initialize();
 
-      /** The main salculate method: the actual cuts are applied here */
-      const Root::TResult& calculate( const PATCore::ParticleDataType::DataType dataType,
-				      const unsigned int runnumber,
-				      const double cluster_eta,
-				      const double et /* in MeV */
-				      );
+        /** Finalize this class; everything that should be done after the event loop should go here */
+        inline int finalize() { return 1; }
 
+        /** The main salculate method: the actual cuts are applied here */
+        const std::vector<double> calculate( const PATCore::ParticleDataType::DataType dataType,
+                const unsigned int runnumber,
+                const double cluster_eta,
+                const double et, /* in MeV */
+                size_t& index_of_corr,
+                size_t& index_of_toys) const;
 
-      /// Add an input file
-      inline void addFileName ( const std::string& val ) 
-      { m_corrFileNameList.push_back(val); }
-        
-      /// Set the prefix of the result name
-      inline void setResultPrefix ( const std::string& val ) { m_resultPrefix = val; }
+        /// Add an input file
+        inline void addFileName ( const std::string& val ) { 
+            m_corrFileNameList.push_back(val); 
+        }
+        ///MC Toys Helper functions
+        inline void bookToyMCScaleFactors(const int nToyMC) {
+            m_doToyMC = true;
+            m_nToyMC = nToyMC;
+        }
+        inline void bookCombToyMCScaleFactors(const int nToyMC) {
+            m_doCombToyMC = true;
+            m_nToyMC = nToyMC;
+        }
 
-      /// The string for the result
-      inline void setResultName ( const std::string& val ) { m_resultName = val; }
+        ///Helpers to get the binning of the uncertainties
+        int getNbins(std::map<float, std::vector<float> >&) const; 
+        inline int getNSyst() const {
+            return m_nSysMax;
+        }
+        ///Detail Level
+        enum detailLevel{simple,medium,detailed,detailLevelEnd};
+        /// Set the detail level 
+        inline void setDetailLevel (const int input_detailLevel ) { 
+            m_detailLevel = input_detailLevel; 
+        }
+        ///Set the Random Seed
+        inline void setSeed( const unsigned long int seed) { 
+            m_seed = seed; 
+        }
 
-      inline void bookToyMCScaleFactors(const int nToyMC) {
-	m_doToyMC = kTRUE;
-	m_nToyMC = nToyMC;
-      }
-
-      inline void bookCombToyMCScaleFactors(const int nToyMC) {
-	m_doCombToyMC = kTRUE;
-	m_nToyMC = nToyMC;
-      }
-  
-      /// helper functions to retrieve the position of the first/last toy MC scale factors and correlated systematics in the result
-      int getFirstToyMCPosition() const ;
-      int getLastToyMCPosition() const ;
-      int getFirstCorrSysPosition() const ;
-      int getLastCorrSysPosition() const ;
-      int getGlobalBinNumberPosition() const ;
-      int getNbins(std::map<float, std::vector<float> >&) const; 
-      int getNSyst() const {return m_nSysMax;}  ;
-
-      void printResultMap() const;
-
-      enum detailLevel{simple,medium,detailed};
-
-      /// Set the detail level 
-      inline void setDetailLevel ( const int input_detailLevel ) { m_detailLevel = input_detailLevel; }
-
-      inline void setSeed( const int seed) { m_seed = seed; }
-
-      /** Get the name of the class instance */
-      inline const char* getName() const { return m_name; }
-
-      // Private methods
     private:
+        // Private methods
+        /// Load all histograms from the input file(s)
+        int getHistograms();
 
-      /// Load all histograms from the input file(s)
-      int getHistograms();
-      int getHistogramInDirectory( TKey *key );
-      int setupHistogramsInFolder( const TObjArray& dirNameArray, int lastIdx );
-      void calcDetailLevels(TH1D *eig) ;
+        int setupHistogramsInFolder( const TObjArray& dirNameArray, 
+                int lastIdx );
 
-      std::vector<TObjArray> buildToyMCTable (const TObjArray &sf, const TObjArray &eig, 
-					      const TObjArray& stat, const TObjArray& uncorr, const std::vector<TObjArray> &corr);
+        void calcDetailLevels(const TH1D *eig,
+                std::array<int,detailLevelEnd>& sLevel,
+                int& nSys) const ;
 
-      std::vector<TH2D*> buildSingleToyMC(TH2D *sf, TH2D* stat, TH2D* uncorr, const TObjArray& corr);
+        std::vector<TObjArray> buildToyMCTable (const TObjArray &sf, 
+                const TObjArray &eig, 
+                const TObjArray& stat, 
+                const TObjArray& uncorr, 
+                const std::vector<TObjArray> &corr);
 
-      TH2D* buildSingleCombToyMC(TH2D *sf, TH2D* stat, TH2D* uncorr, const TObjArray& corr);
+        std::vector<TH2D*> buildSingleToyMC(const TH2D* sf, 
+                const TH2D* stat, 
+                const TH2D* uncorr, 
+                const TObjArray& corr,
+                const std::array<int,detailLevelEnd> sLevel,
+                int& randomCounter);
 
-      /// Fill and interpret the setup, depending on which histograms are found in the input file(s)
-      int setup( const TObjArray& hist,
-		 std::vector< TObjArray >& histList,
-		 std::vector< unsigned int >& beginRunNumberList,
-		 std::vector< unsigned int >& endRunNumberList );
-    
-      int setupSys( std::vector<TObjArray> & hist,
-		    std::vector< std::vector< TObjArray>> & histList);
+        TH2D* buildSingleCombToyMC(const TH2D *sf, 
+                const TH2D* stat, 
+                const TH2D* uncorr, 
+                const TObjArray& corr,
+                const std::array<int,detailLevelEnd> sLevel,
+                const int nSys,
+                int& randomCounter);
 
-      void printDefaultReturnMessage(const TString& reason, int line) const;
+        /// Fill and interpret the setup, depending on which histograms are found in the input file(s)
+        int setup( const TObjArray& hist,
+                std::vector< TObjArray >& histList,
+                std::vector< unsigned int >& beginRunNumberList,
+                std::vector< unsigned int >& endRunNumberList,
+                const int runNumBegin,
+                const int runNumEnd) const ;
 
-      TRandom3 m_Rndm;
-      int m_randomCounter;
-      ///
-      bool m_isInitialized;
-      /// The detail level
-      int m_detailLevel;
-      ///
-      int m_toyMCSF;
-      //
-      /// The seed
-      int m_seed;
-      ///
-      bool m_doToyMC;
-      bool m_doCombToyMC;
-      int m_nToyMC;
-      int m_sLevel[3];
-      int m_nSys;
-      int m_nSysMax;
-      int m_runNumBegin;
-      int m_runNumEnd;
-
-      /// The prefix string for the result
-      std::string m_resultPrefix;
-
-      /// The string for the result
-      std::string m_resultName;
-
-      /// The position of the efficiency scale factor in the result
-      int m_position_eff; 
-
-      /// The position of the efficiency scale factor uncertainty in the result
-      int m_position_err; 
-
-      /// The position of the efficiency scale factor statistical uncertainty in the result
-      int m_position_statErr; 
-
-      /// The position of the number of systematic uncertainties in the result
-      int m_position_nSys; 
-
-      /// The position of the efficiency scale factor uncorrelated systematic uncertainty in the result
-      int m_position_uncorrSys; 
-
-      /// total number of bins in the efficiency tables
-      int m_nbins; 
-
-      /// Number of uncorelated systematucs
-      int m_nSimpleUncorrSyst;
-
-      /// The position of the efficiency scale factor uncorrelated systematic uncertainty in the result
-      int m_position_globalBinNumber; 
-
-      ///Uncorrelated toy systematics
-      std::vector< std::vector<TObjArray>> m_uncorrToyMCSystFull;
-      std::vector< std::vector<TObjArray>> m_uncorrToyMCSystFast;
-      /// The list of file name(s)
-      std::vector< std::string > m_corrFileNameList;
-      /// List of run numbers where histgrams become valid for full simulation
-      std::vector< unsigned int > m_begRunNumberList;
-      /// List of run numbers where histgrams stop being valid for full simulation
-      std::vector< unsigned int > m_endRunNumberList;
-      /// List of run numbers where histgrams become valid for fast simulation
-      std::vector< unsigned int > m_begRunNumberListFastSim;
-      /// List of run numbers where histgrams stop being valid for fast simulation
-      std::vector< unsigned int > m_endRunNumberListFastSim;    
-      /// List of histograms for full Geant4 simulation
-      std::map<int, std::vector< TObjArray > > m_histList;
-      std::vector< std::vector< TObjArray > > m_sysList;
-      /// List of histograms for fast simulation
-      std::map<int, std::vector< TObjArray > > m_fastHistList;
-      std::vector< std::vector< TObjArray > > m_fastSysList;
-      /// The positions of the efficiency scale factor correlated sustematic uncertainties in the result
-      std::vector<int> m_position_corrSys; 
-      /// The positions of the toy MC scale factors
-      std::vector<int> m_position_uncorrToyMCSF; 
-      ///The vector holding the keys
-      std::vector<int> m_keys;
-    
+    private :
+        ///Private data members
+        bool m_doToyMC;
+        bool m_doCombToyMC;
+        //// The detail level
+        int m_detailLevel;
+        //The number of toys
+        int m_nToyMC;
+        /// The Random seed
+        unsigned long int m_seed;
+        ///Maximum number of systematics
+        int m_nSysMax;
+        // The positions of the efficiency scale factor correlated sustematic uncertainties in the result
+        std::vector<int> m_position_corrSys; 
+        /// The positions of the toy MC scale factors
+        std::vector<int> m_position_uncorrToyMCSF; ///Uncorrelated toy systematics
+        ///The representation of the prepared toy SF tables
+        std::vector< std::vector<TObjArray>> m_uncorrToyMCSystFull;
+        std::vector< std::vector<TObjArray>> m_uncorrToyMCSystFast;
+        /// The list of file name(s)
+        std::vector< std::string > m_corrFileNameList;
+        /// List of run numbers where histograms become valid for full simulation
+        std::vector< unsigned int > m_begRunNumberList;
+        /// List of run numbers where histograms stop being valid for full simulation
+        std::vector< unsigned int > m_endRunNumberList;
+        /// List of run numbers where histograms become valid for fast simulation
+        std::vector< unsigned int > m_begRunNumberListFastSim;
+        /// List of run numbers where histograms stop being valid for fast simulation
+        std::vector< unsigned int > m_endRunNumberListFastSim;    
+        //The vector holding the keys
+        std::vector<int> m_keys;
+        /// List of histograms for full Geant4 simulation
+        std::map<int, std::vector< TObjArray > > m_histList;
+        std::vector< std::vector< TObjArray > > m_sysList;
+        /// List of histograms for fast simulation
+        std::map<int, std::vector< TObjArray > > m_fastHistList;
+        std::vector< std::vector< TObjArray > > m_fastSysList;
+        //The Random generator class   
+        TRandom3 m_Rndm;
     }; // End: class definition
-  
+
 } // End: namespace Root
 
 #endif
