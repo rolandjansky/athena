@@ -1,3 +1,7 @@
+/*
+Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef TAUREC_DITAUPROCESSORTOOL_H
 #define TAUREC_DITAUPROCESSORTOOL_H
 
@@ -19,7 +23,6 @@ class DiTauProcessorTool : public asg::AsgTool, virtual public ITauToolExecBase 
   virtual StatusCode finalize();
 
  private:
-  std::string find_file(const std::string& fname) const;
   std :: string                 m_sDiTauContainerNameHadHad;
   std :: string                 m_sDiTauContainerNameHadEl;
   std :: string                 m_sDiTauContainerNameHadMu;
@@ -34,7 +37,5 @@ class DiTauProcessorTool : public asg::AsgTool, virtual public ITauToolExecBase 
 
   StatusCode processContainer(std::string& diTauContainerName, 
                               ToolHandleArray<tauRecTools::IDiTauToolBase>& varCalculatorTools);
-  
-  enum DecayChannel{ HadHad, HadEl, HadMu, Default };
 };
 #endif //TAUREC_DITAUPROCESSORTOOL_H

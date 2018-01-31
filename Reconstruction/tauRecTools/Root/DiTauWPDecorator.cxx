@@ -2,18 +2,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
-//c++
-#include <utility>
-
 // root
 #include "TFile.h"
 #include "TH2.h"
 #include "TString.h"
 
 #include "tauRecTools/DiTauWPDecorator.h"
-
-#include "xAODEventInfo/EventInfo.h"
 #include "PathResolver/PathResolver.h"
 
 using namespace tauRecTools;

@@ -10,8 +10,6 @@
 #include "tauRecTools/IDiTauToolBase.h"
 #include "xAODTau/DiTauJet.h"
 
-#include <map>
-
 class TH2;
 
 namespace tauRecTools{

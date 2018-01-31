@@ -1,11 +1,13 @@
+/*
+Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef TAURECTOOLS_MUONTRACKREMOVAL_H
 #define TAURECTOOLS_MUONTRACKREMOVAL_H
 
 #include "AsgTools/AnaToolHandle.h"
 #include "tauRecTools/TauRecToolBase.h"
 #include "xAODTau/TauJet.h"
-#include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
-#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 
 namespace CP{
   class IMuonSelectionTool;
