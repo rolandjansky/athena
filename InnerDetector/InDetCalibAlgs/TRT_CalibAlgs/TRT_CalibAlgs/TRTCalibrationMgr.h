@@ -74,7 +74,7 @@ private:
 
   ToolHandleArray<IFillAlignTrkInfo>  m_TrackInfoTools;
   PublicToolHandleArray<ITRTCalibrator>     m_TRTCalibTools
-     {this,"TRTCalibrator",{"TRTCalibrator"},"" };
+     {this,"TRTCalibrator",{ /* "TRTCalibrator"*/ },"" };
   ToolHandleArray<IAccumulator>       m_AccumulatorTools;
   ToolHandleArray<IFitTool>           m_FitTools;
   ToolHandle<Trk::ITrackFitter>       m_trackFitter;
