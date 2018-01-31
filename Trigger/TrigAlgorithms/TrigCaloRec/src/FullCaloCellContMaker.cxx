@@ -77,9 +77,6 @@ StatusCode FullCaloCellContMaker::initialize(){
   } else {
     m_noiseTool.disable();
   }
-  else {
-    m_noiseTool.disable();
-  }
   
 
   if( service( "TrigTimerSvc", m_timersvc).isFailure() ) {
