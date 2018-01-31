@@ -7,10 +7,13 @@
 #include "LArG4Code/ILArCalculatorSvc.h"
 #include "TileG4Interfaces/ITileCalculator.h"
 
-namespace G4UA{
+namespace G4UA
+{
 
-  FastCaloSimParamActionTool::FastCaloSimParamActionTool(const std::string& type, const std::string& name,const IInterface* parent)
-    : ActionToolBase<FastCaloSimParamAction>(type, name, parent)
+  FastCaloSimParamActionTool::FastCaloSimParamActionTool(const std::string& type,
+                                                         const std::string& name,
+                                                         const IInterface* parent)
+    : UserActionToolBase<FastCaloSimParamAction>(type, name, parent)
     , m_config()
     , m_emepiwcalc("EMECPosInnerWheelCalculator", name)
     , m_emeniwcalc("EMECNegInnerWheelCalculator", name)
@@ -92,31 +95,15 @@ namespace G4UA{
     return StatusCode::SUCCESS;
   }
 
-  std::unique_ptr<FastCaloSimParamAction>  FastCaloSimParamActionTool::makeAction()
+  std::unique_ptr<FastCaloSimParamAction>
+  FastCaloSimParamActionTool::makeAndFillAction(G4AtlasUserActions& actionList)
   {
-    ATH_MSG_DEBUG("makeAction");
+    ATH_MSG_DEBUG("Constructing a FastCaloSimParamAction");
     auto action = CxxUtils::make_unique<FastCaloSimParamAction>(m_config);
+    actionList.runActions.push_back( action.get() );
+    actionList.eventActions.push_back( action.get() );
+    actionList.steppingActions.push_back( action.get() );
     return std::move(action);
-  }
-
-  StatusCode FastCaloSimParamActionTool::queryInterface(const InterfaceID& riid, void** ppvIf){
-
-    if(riid == IG4RunActionTool::interfaceID()) {
-      *ppvIf = (IG4RunActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    if(riid == IG4EventActionTool::interfaceID()) {
-      *ppvIf = (IG4EventActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    if(riid == IG4SteppingActionTool::interfaceID()) {
-      *ppvIf = (IG4SteppingActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    return ActionToolBase<FastCaloSimParamAction>::queryInterface(riid, ppvIf);
   }
 
 } // namespace G4UA
