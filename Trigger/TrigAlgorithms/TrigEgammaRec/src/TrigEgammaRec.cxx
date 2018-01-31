@@ -829,14 +829,6 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
         ATH_MSG_ERROR("REGTEST: trigger xAOD::TrackParticleContainer for GSF attach to TE and record into StoreGate failed");
         return HLT::NAV_ERROR;
       }
-      // test:
-      std::vector<const xAOD::TrackParticleContainer*> testTrackParticleContainer;
-      stat = getFeatures(outputTE, testTrackParticleContainer);
-      const xAOD::TrackParticleContainer *testTracks = testTrackParticleContainer.back();
-      for (const xAOD::TrackParticle *trk:*testTracks) {
-            ATH_MSG_DEBUG("test track pt is: " << trk->pt());
-      }
-
 
     }
 
