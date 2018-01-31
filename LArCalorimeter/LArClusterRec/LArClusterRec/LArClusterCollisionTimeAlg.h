@@ -19,7 +19,7 @@
 class LArClusterCollisionTimeAlg : public AthAlgorithm {
  public:
   LArClusterCollisionTimeAlg(const std::string& name, ISvcLocator* pSvcLocator);
-  ~LArClusterCollisionTimeAlg();
+  virtual ~LArClusterCollisionTimeAlg();
     
   /** standard Athena-Algorithm method */
   StatusCode          initialize() override final;
