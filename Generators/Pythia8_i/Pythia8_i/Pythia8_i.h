@@ -79,9 +79,11 @@ public:
   static std::string    pythia_stream;
     
 protected:
+
+  bool useRndmGenSvc() const { return m_useRndmGenSvc; }
   
   // make these protected so that Pythia8B can access them
-  Pythia8::Pythia m_pythia;
+  std::unique_ptr<Pythia8::Pythia> m_pythia;
   HepMC::Pythia8ToHepMC m_pythiaToHepMC;
 
 private:
