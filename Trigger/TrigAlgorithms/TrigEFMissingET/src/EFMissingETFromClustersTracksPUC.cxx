@@ -188,17 +188,10 @@ StatusCode EFMissingETFromClustersTracksPUC::execute(xAOD::TrigMissingET * /* me
     if (primaryVertex) {
       if (fabs(jet->eta() ) < 2.4) {
 	double ptsum_pv = 0;
-	std::cout << "Rui: jet eta: " << jet->eta() << std::endl;
-	std::cout << "Rui: jet phi: " << jet->phi() << std::endl;
 	for (const xAOD::TrackParticle* itrk : TracksVec) {
-	  std::cout << "Rui: trk pT: " << itrk->pt() << std::endl;
-	  if (m_trackselTool->accept(*itrk, primaryVertex)) std::cout << "Rui: accepted" << std::endl;
 	  bool accept = (itrk->pt()> m_track_ptcut && m_trackselTool->accept(*itrk, primaryVertex));
-	  if (accept) std::cout << "Rui: accepted" << std::endl;
 	  if (accept && (((!itrk->vertex()) && (fabs((itrk->z0() + itrk->vz() - primaryVertex->z())*sin(itrk->theta())) <= 1.0))||(itrk->vertex() && itrk->vertex()==primaryVertex))) ptsum_pv += itrk->pt();
 	  if (accept && (((!itrk->vertex()) && (fabs((itrk->z0() + itrk->vz() - primaryVertex->z())*sin(itrk->theta())) <= 1.0))||(itrk->vertex() && itrk->vertex()==primaryVertex))) {
-	    std::cout << "Rui: trk eta: " << itrk->eta() << std::endl;
-	    std::cout << "Rui: trk phi: " << itrk->phi() << std::endl;
 	  }
 	}
 	double RpT = ptsum_pv/jet->pt();
@@ -362,7 +355,6 @@ StatusCode EFMissingETFromClustersTracksPUC::execute(xAOD::TrigMissingET * /* me
   metComp->m_usedChannels += 1;
 
 
-  std::cout << "Rui: pufittrack: MET: " << sqrt((metComp->m_ex)*(metComp->m_ex)+(metComp->m_ey)*(metComp->m_ey)) << std::endl;
   // You *can* store bits in other components (either spreading the met over several components or recording extra information that might be useful)
   // However you need to be very sure that the helper is adding up the right bits
   /****************************************************************************************
