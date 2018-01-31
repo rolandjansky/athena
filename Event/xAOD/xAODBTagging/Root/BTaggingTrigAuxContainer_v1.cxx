@@ -42,6 +42,7 @@ namespace xAOD {
 
      AUX_VARIABLE( MV2c00_discriminant );
      AUX_VARIABLE( MV2c10_discriminant );
+     AUX_VARIABLE( MV2c10_hybrid_discriminant );
      AUX_VARIABLE( MV2c20_discriminant );
 
      AUX_VARIABLE( IP2D_valD0wrtPVofTracks );

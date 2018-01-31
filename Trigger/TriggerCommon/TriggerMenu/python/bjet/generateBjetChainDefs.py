@@ -506,6 +506,9 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
     elif ('bmv2c20' in chainParts['bTag']  ):
         # MV2c20 tagger series
         theBtagReq = getBjetHypoSplitInstance(algoInstance,"2015", btagcut)
+    elif ('hybrid' in chainParts['bTag']) :
+        # MV2c10hybrid tagger series 
+        theBtagReq = getBjetHypoSplitInstance(algoInstance,"2018", btagcut)
     elif ('bmv2c10' in chainParts['bTag']  ):
         # MV2c10 tagger series
         theBtagReq = getBjetHypoSplitInstance(algoInstance,"2017", btagcut)
@@ -663,6 +666,8 @@ def myBjetConfig1(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=1):
         ef_hypo = getBjetHypoNoCutInstance("EF")
     elif ('bmv2c20' in chainParts['bTag']):
         ef_hypo = getBjetHypoInstance("EF","2015", btagcut)
+    elif ('hybrid' in chainParts['bTag']):
+        ef_hypo = getBjetHypoInstance("EF","2018", btagcut)
     elif ('bmv2c10' in chainParts['bTag']):
         ef_hypo = getBjetHypoInstance("EF","2017", btagcut)
     else:
