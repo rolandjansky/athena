@@ -1,3 +1,7 @@
+/*
+Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef TREE_COPY_OPTS_HH
 #define TREE_COPY_OPTS_HH
 
