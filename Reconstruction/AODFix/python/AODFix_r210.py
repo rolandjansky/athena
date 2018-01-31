@@ -83,7 +83,7 @@ class AODFix_r210(AODFix_base):
         JetCollectionList = [ 'AntiKt4EMTopoJets',]
 
         from AthenaCommon.AppMgr import ToolSvc
-        from ParticleJetTools.ParticleJetToolsConf import JetParticleShrinkingConeAssociation, JetModifierAlg
+        from ParticleJetTools.ParticleJetToolsConf import JetParticleShrinkingConeAssociation, JetAssocConstAlg
 
         trackassoc = \
             JetParticleShrinkingConeAssociation(
@@ -109,10 +109,10 @@ class AODFix_r210(AODFix_base):
         ToolSvc += muonassoc
 
         assocalg = \
-            JetModifierAlg(
+            JetAssocConstAlg(
                 "BTaggingParticleAssocAlg",
-                JetContainerNames=JetCollectionList,
-                Modifiers=[trackassoc, muonassoc]
+                JetCollections=JetCollectionList,
+                Associators=[trackassoc, muonassoc]
             )
 
         topSequence += assocalg

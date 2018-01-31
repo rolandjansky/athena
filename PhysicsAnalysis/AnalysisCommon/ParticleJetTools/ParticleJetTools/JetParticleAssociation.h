@@ -31,6 +31,11 @@ class JetParticleAssociation : public IJetModifier, public asg::AsgTool {
 
         int modify(xAOD::JetContainer& jets) const;
 
+        std::string outputCollectionName() const {
+          return m_OutputCollectionName;
+        }
+
+
     private:
         std::string m_OutputCollectionName;
         SG::AuxElement::Decorator<std::vector<ElementLink<xAOD::IParticleContainer> > > *dec;
