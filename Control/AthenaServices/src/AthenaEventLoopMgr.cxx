@@ -865,14 +865,16 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
   }  // end of toolsPassed test
   ++m_nev;
 
-  if (doEvtHeartbeat && !m_intervalInSeconds) {
-   if(!m_useTools) m_msg << MSG::INFO
+  if (doEvtHeartbeat) {
+    if(!m_intervalInSeconds) {
+      if(!m_useTools) m_msg << MSG::INFO
 	<< "  ===>>>  done processing event #" << evtNumber << ", run #" << m_currentRun 
 	<< " " << m_nev << " events processed so far  <<<===" << endreq;
-   else m_msg << MSG::INFO
+      else m_msg << MSG::INFO
 	<< "  ===>>>  done processing event #" << evtNumber << ", run #" << m_currentRun 
 	<< " " << m_nev << " events read and " << m_proc 
         << " events processed so far <<<===" << endreq;
+    }
    std::ofstream outfile( "eventLoopHeartBeat.txt");
    if ( !outfile ) {
      m_msg << MSG::ERROR << " unable to open: eventLoopHeartBeat.txt" << endreq;
