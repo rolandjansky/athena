@@ -1,7 +1,3 @@
-/*
-Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 #include "copy_root_tree.hh"
 #include "get_tree.hh"
 #include "tree_copy_opts.hh"
