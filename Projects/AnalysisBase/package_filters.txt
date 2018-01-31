@@ -22,6 +22,7 @@
 + Event/xAOD/xAODTruthCnv
 - Event/xAOD/.*Cnv
 + Event/xAOD/.*
++ External/AtlasPyFwdBwdPorts
 + Generators/TruthUtils
 + InnerDetector/InDetRecTools/InDetTrackSelectionTool
 + InnerDetector/InDetRecTools/TrackVertexAssociationTool
@@ -89,6 +90,7 @@
 + Trigger/TrigEvent/TrigRoiConversion
 + Trigger/TrigEvent/TrigSteeringEvent
 + Trigger/TrigValidation/TrigAnalysisTest
++ Trigger/TriggerSimulation/TrigBtagEmulationTool
 + Reconstruction/RecoTools/IsolationTool
 + Reconstruction/RecoTools/RecoToolInterfaces
 - .*

@@ -10,9 +10,7 @@
 # art-output: mem.full.*      
 
 BSOverlayFilter_tf.py --jobNumber 23 --inputBSCONFIGFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/test23.tar --inputFileValidation False --outputBS_TRIGSKIMFile trigskim.RAW --triggerBit 240 --inputFilterFile trigs_tar.txt 
-JOBSTATUS_1=$?
-
-echo "art-result: [${JOBSTATUS_1}]"
+echo "art-result: $?"
 
 rm -f *.RAW
 

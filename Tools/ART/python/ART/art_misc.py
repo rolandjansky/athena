@@ -1,18 +1,59 @@
 #!/usr/bin/env python
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-"""TBD."""
+"""Miscellaneous functions."""
 
 __author__ = "Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>"
 
 import errno
+import logging
 import os
 import shlex
 import subprocess
+import sys
+
+MODULE = "art.misc"
 
 
-def run_command(cmd, dir=None, shell=False, env=None):
-    """Run the given command locally and returns the output, err and exit_code."""
-    # print "Execute: " + cmd
+def set_log(kwargs):
+    """Set the default log level and message format depending on --verbose or --quiet options."""
+    level = logging.DEBUG if kwargs['verbose'] else logging.WARN if kwargs['quiet'] else logging.INFO
+    log = logging.getLogger("art")
+    log.setLevel(level)
+
+    # create and attach new handler, disable propagation to root logger to avoid double messages
+    handler = logging.StreamHandler(sys.stdout)
+    format_string = "%(asctime)s %(name)15s.%(funcName)-15s %(levelname)8s %(message)s"
+    date_format_string = None
+    formatter = logging.Formatter(format_string, date_format_string)
+    handler.setFormatter(formatter)
+    log.addHandler(handler)
+    log.propagate = False
+
+
+def get_atlas_env():
+    """Get all environment variables."""
+    log = logging.getLogger(MODULE)
+    try:
+        nightly_release = os.environ['AtlasBuildBranch']
+        project = os.environ['AtlasProject']
+        platform = os.environ[project + '_PLATFORM']
+        nightly_tag = os.environ['AtlasBuildStamp']
+        return (nightly_release, project, platform, nightly_tag)
+    except KeyError, e:
+        log.critical("Environment variable not set %s", e)
+        sys.exit(1)
+
+
+def run_command(cmd, dir=None, shell=False, env=None, verbose=True):
+    """
+    Run the given command locally.
+
+    The command runs as separate subprocesses for every piped command.
+    Returns tuple of exit_code, output and err.
+    """
+    # leave at print for basic debugging, log sometimes lost
+    if verbose:
+        print "Execute:", cmd
     if "|" in cmd:
         cmd_parts = cmd.split('|')
     else:
@@ -33,37 +74,9 @@ def run_command(cmd, dir=None, shell=False, env=None):
     return exit_code, str(output), str(err)
 
 
-def check((exitcode, out, err)):
-    """Check exitcode and print statement and exit if needed."""
-    if exitcode == 0:
-        print err
-        return out
-
-    print "Error:", exitcode
-    print "StdOut:", out
-    print "StdErr:", err
-
-    print 'art-status: error'
-
-    exit(exitcode)
-
-
-def verify((exitcode, out, err)):
-    """Check exitcode and print statement."""
-    if exitcode == 0:
-        print out
-        return exitcode
-
-    print "Error:", exitcode
-    print "StdOut:", out
-    print "StdErr:", err
-
-    return exitcode
-
-
-def redirect((exitcode, out, err)):
-    """Check exitcode."""
-    return exitcode
+def is_exe(path):
+    """Return True if path is executable."""
+    return os.path.isfile(path) and os.access(path, os.X_OK)
 
 
 def make_executable(path):
@@ -85,13 +98,7 @@ def mkdir_p(path):
 
 
 def which(program):
-    """TBD."""
-    import os
-
-    def is_exe(fpath):
-        """TBD."""
-        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
-
+    """Show which program is actually found on the PATH."""
     fpath, fname = os.path.split(program)
     if fpath:
         if is_exe(program):

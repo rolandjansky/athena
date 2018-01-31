@@ -72,7 +72,7 @@ AsgElectronEfficiencyCorrectionTool::AsgElectronEfficiencyCorrectionTool(std::st
   // Declare the needed properties
   declareProperty("CorrectionFileNameList", m_corrFileNameList,
 		  "List of file names that store the correction factors for simulation.");
-  declareProperty("MapFilePath", m_mapFile = "ElectronEfficiencyCorrection/2015_2016/rel20.7/Moriond_February2017_v2/map0.txt" ,
+  declareProperty("MapFilePath", m_mapFile = "ElectronEfficiencyCorrection/2015_2017/rel21.2/Summer2017_Prerec_v1/map0.txt" ,
 		  "Full path to the map file");
   declareProperty("RecoKey", m_recoKey = "" ,
 		  "Key associated with reconstruction");
@@ -240,7 +240,7 @@ AsgElectronEfficiencyCorrectionTool::initialize() {
     ATH_MSG_ERROR("Could not initialize the TElectronEfficiencyCorrectionTool!");
     return StatusCode::FAILURE;
   }
- 
+
   // Copy the now filled TResult to the dummy
   m_resultDummy = m_rootTool->getTResult();
   // get Nsyst
@@ -249,7 +249,7 @@ AsgElectronEfficiencyCorrectionTool::initialize() {
   if (m_correlation_model == correlationModel::FULL) {
     m_nUncorrSyst = m_rootTool->getNbins(m_pteta_bins);
   }
- 
+
   //Initialize the systematics
   if (InitSystematics() != CP::SystematicCode::Ok) {
     ATH_MSG_ERROR("(InitSystematics() != CP::SystematicCode::Ok)");
@@ -439,6 +439,7 @@ AsgElectronEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD::Electr
     }
   }
   return CP::CorrectionCode::Ok;
+
 }
 
 CP::CorrectionCode
@@ -612,6 +613,7 @@ StatusCode AsgElectronEfficiencyCorrectionTool::beginInputFile(){
       else {ATH_MSG_DEBUG("Use should set the dataType, otherwise it will take FullSim Type");}
     }
   }
+
   else { // not able to retrieve metadata
     m_metadata_retrieved = false;
     ATH_MSG_DEBUG("not able to retrieve metadata, please set the dataType");
@@ -740,13 +742,19 @@ int AsgElectronEfficiencyCorrectionTool::systUncorrVariationIndex( const xAOD::E
   if (cluster) {
     cluster_eta = cluster->etaBE(2);
   }
-
-  if (m_correlation_model == correlationModel::SIMPLIFIED) {
+  switch(m_correlation_model){
+  case  correlationModel::SIMPLIFIED:{
     currentSystRegion = currentSimplifiedUncorrSystRegion( cluster_eta, et);
-  }
-
-  if (m_correlation_model == correlationModel::FULL) {
+    break;
+    }
+  case correlationModel::FULL:{
     currentSystRegion = currentUncorrSystRegion( cluster_eta, et);
+    break;
+    }
+  default:{
+    //not there for the other models
+      break;
+    }
   }
   return currentSystRegion;
 }
@@ -777,6 +785,7 @@ AsgElectronEfficiencyCorrectionTool::getFile(const std::string& recokey, const s
   ATH_MSG_DEBUG("Full File Name is " + value);
   return StatusCode::SUCCESS;
 }
+
 // Convert reco, ID, iso and trigger key values into a
 // single key according to the map file key format
 std::string

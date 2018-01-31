@@ -9,7 +9,7 @@
 """
 
 import importlib
-import sys, re
+import sys
 
 tag = "pp_v6"
 if len(sys.argv) > 1:

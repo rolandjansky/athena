@@ -13,6 +13,8 @@ if DerivationFrameworkIsMonteCarlo:
   addStandardTruthContents()
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
+from DerivationFrameworkFlavourTag.FlavourTagCommon import *
+
 
 ### Set up stream
 streamName = derivationFlags.WriteDAOD_SUSY2Stream.StreamName
@@ -100,7 +102,7 @@ SUSY2ElectronCCThinningTool = DerivationFramework__CaloClusterThinning( name    
                                                                                      SGKey                   = "Electrons",
                                                                                      #CaloClCollectionSGKey   = "egammaClusters",
                                                                                      TopoClCollectionSGKey   = "CaloCalTopoClusters",
-                                                                                     SelectionString         = "Electrons.pt > 9.0*GeV",
+                                                                                     #SelectionString         = "Electrons.pt > 9.0*GeV",
                                                                                      ConeSize                = 0.4)
 
 ToolSvc += SUSY2ElectronCCThinningTool
@@ -124,7 +126,7 @@ SUSY2MuonCCThinningTool = DerivationFramework__CaloClusterThinning( name        
                                                                    SGKey                   = "Muons",
                                                                    #CaloClCollectionSGKey   = "MuonClusterCollection",
                                                                    TopoClCollectionSGKey   = "CaloCalTopoClusters",
-                                                                   SelectionString         = "Muons.pt > 9.0*GeV",
+                                                                   #SelectionString         = "Muons.pt > 9.0*GeV",
                                                                    ConeSize                = 0.4)
 
 ToolSvc += SUSY2MuonCCThinningTool
@@ -233,6 +235,10 @@ SeqSUSY2 += CfgMgr.DerivationFramework__DerivationKernel(
 #==============================================================================
 # Jet building
 #==============================================================================
+#re-tag PFlow jets so they have b-tagging info.
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = SeqSUSY2)
+
+#==============================================================================
 # now part of MCTruthCommon
 #if DerivationFrameworkIsMonteCarlo:
 #
@@ -260,6 +266,19 @@ SeqSUSY2 += CfgMgr.DerivationFramework__DerivationKernel(
 	ThinningTools = thinningTools,
 )
 
+#====================================================================
+# Prompt Lepton Tagger
+#====================================================================
+
+import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
+
+# simple call to replaceAODReducedJets(["AntiKt4PV0TrackJets"], SeqSUSY2, "SUSY2")
+JetTagConfig.ConfigureAntiKt4PV0TrackJets(SeqSUSY2, "SUSY2")
+
+# add decoration
+SeqSUSY2 += JetTagConfig.GetDecoratePromptLeptonAlgs()
+SeqSUSY2 += JetTagConfig.GetDecoratePromptTauAlgs()
+
 
 #====================================================================
 # CONTENT LIST
@@ -271,9 +290,15 @@ SUSY2SlimmingHelper.SmartCollections = ["Electrons",
                                         "Muons",
                                         "TauJets",
                                         "MET_Reference_AntiKt4EMTopo",
-                                        "AntiKt4EMTopoJets", 
+"MET_Reference_AntiKt4EMPFlow",
+
+                                        "AntiKt4EMTopoJets",
+"AntiKt4EMPFlowJets",
+ 
                                         #"AntiKt4LCTopoJets", 
-                                        "BTagging_AntiKt4EMTopo", 
+                                        "BTagging_AntiKt4EMTopo",
+"BTagging_AntiKt4EMPFlow",
+ 
                                         "InDetTrackParticles", 
                                         "PrimaryVertices"]
 SUSY2SlimmingHelper.AllVariables = ["TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth", "MET_Track"]
@@ -291,6 +316,14 @@ SUSY2SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.M
                                       "CaloCalTopoClusters.rawE.rawEta.rawPhi.rawM.calE.calEta.calPhi.calM.e_sampl",
                                       "MuonClusterCollection.eta_sampl.phi_sampl",
                                       "Muons.quality.etcone20.ptconecoreTrackPtrCorrection","Electrons.quality.etcone20.ptconecoreTrackPtrCorrection"]
+
+# Saves BDT and input variables for light lepton algorithms. 
+# Can specify just electrons or just muons by adding 'name="Electrons"' or 'name="Muons"' as the argument.
+SUSY2SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
+# Saves BDT and input variables tau algorithm
+SUSY2SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptTauVariablesForDxAOD()
+
+
 SUSY2SlimmingHelper.IncludeMuonTriggerContent = True
 SUSY2SlimmingHelper.IncludeEGammaTriggerContent = True
 #SUSY2SlimmingHelper.IncludeBPhysTriggerContent = True
@@ -300,7 +333,8 @@ SUSY2SlimmingHelper.IncludeEGammaTriggerContent = True
 # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
 if DerivationFrameworkIsMonteCarlo:
 
-  SUSY2SlimmingHelper.AppendToDictionary = {'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
+  SUSY2SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4EMPFlow':'xAOD::BTaggingContainer','BTagging_AntiKt4EMPFlowAux':'xAOD::BTaggingAuxContainer',
+'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
                                             'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
                                             'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
 

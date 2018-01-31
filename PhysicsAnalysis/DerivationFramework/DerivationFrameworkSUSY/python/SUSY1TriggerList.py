@@ -145,12 +145,16 @@ SinglePhoton_2015 = [
 'HLT_g200_etcut',
 ]
 
+JetTrigger_2016 = [
+    "HLT_noalg_L1J400"
+    ]
+
 SUSY1LeptonTriggers = SingleLepton_2015+SingleLepton_2016+SingleLepton_2017+DiLepton_2015+DiLepton_2016+DiLepton_2017
 SUSY1PhotonTriggers = SinglePhoton_2015+SinglePhoton_2016+SinglePhoton_2017
 SUSY1XETriggers = MET_2015+MET_2016+MET_2017
 
 #all triggers
-SUSY1AllTriggers = SUSY1LeptonTriggers + SUSY1PhotonTriggers + SUSY1XETriggers# + SUSY1CombinedXETriggers + SUSY1BjetTriggers + SUSY1RazorTriggers + SUSY1JetTriggers
+SUSY1AllTriggers = SUSY1LeptonTriggers + SUSY1PhotonTriggers + SUSY1XETriggers+JetTrigger_2016
 
 #just those we need the navigation thinning for
 SUSY1ThinTriggers = SUSY1LeptonTriggers + SUSY1PhotonTriggers

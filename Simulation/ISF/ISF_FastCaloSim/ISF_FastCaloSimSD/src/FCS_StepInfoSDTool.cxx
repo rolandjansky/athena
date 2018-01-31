@@ -36,7 +36,7 @@ namespace FCS_Param
   FCS_StepInfoSDTool::FCS_StepInfoSDTool(const std::string& type, const std::string& name,
                              const IInterface* parent)
     : SensitiveDetectorBase(type, name, parent)
-    , m_hitCollName("EventSteps")
+    , m_hitCollName("MergedEventSteps")
     , m_bpsmodcalc("EMBPresamplerCalculator", name)
     , m_embcalc("EMBCalculator", name)
     , m_emepiwcalc("EMECPosInnerWheelCalculator", name)
@@ -92,6 +92,7 @@ namespace FCS_Param
     declareProperty("shorten_lar_step",m_config.shorten_lar_step, "");
 
     declareProperty("maxRadius",m_config.m_maxRadius, "");
+    declareProperty("maxRadiusFine",m_config.m_maxRadiusFine, "");
     declareProperty("maxRadiusLAr",m_config.m_maxRadiusLAr, "");
     declareProperty("maxRadiusHEC",m_config.m_maxRadiusHEC, "");
     declareProperty("maxRadiusFCAL",m_config.m_maxRadiusFCAL, "");

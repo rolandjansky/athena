@@ -193,9 +193,7 @@ double DiTauIDVarCalculator::f_subjet(const xAOD::DiTauJet& xDiTau, int iSubjet)
     return m_dDefault;
   }
 
-  const xAOD::Jet* xSeed = (*xDiTau.jetLink());
-
-  return xDiTau.subjetPt(iSubjet) / xSeed->pt();
+  return xDiTau.subjetPt(iSubjet) / xDiTau.pt();
 }
 
 
@@ -206,9 +204,7 @@ double DiTauIDVarCalculator::f_subjets(const xAOD::DiTauJet& xDiTau) const
     return m_dDefault;
   }
 
-  const xAOD::Jet* xSeed = (*xDiTau.jetLink());
-
-  return (xDiTau.subjetPt(0) + xDiTau.subjetPt(1))/ xSeed->pt();
+  return (xDiTau.subjetPt(0) + xDiTau.subjetPt(1))/ xDiTau.pt();
 }
 
 

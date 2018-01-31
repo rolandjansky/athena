@@ -137,6 +137,8 @@ StatusCode EgammaCPTools::setupCalibration() {
     // for MC15 samples, which are based on a geometry derived from GEO-21 from 2015+2016 data
     top::check(asg::setProperty(fudge_tool, "Preselection", 21),
                 "Failed to set " + fudgeName + " property: Preselection");
+    top::check(asg::setProperty(fudge_tool,"FFCalibFile","ElectronPhotonShowerShapeFudgeTool/v1/PhotonFudgeFactors.root"),
+                "Failed to set ElectronPhotonShowerShapeFudgeTool");
     top::check(fudge_tool->initialize(),
                 "Failed to initialize PhotonFudgeTool");
     m_photonFudgeTool = fudge_tool;
@@ -414,19 +416,24 @@ std::string EgammaCPTools::electronSFFilePath(const std::string& type, const std
 std::string EgammaCPTools::electronSFMapFilePath(const std::string& type) {
     // Store here the paths to maps which may be updated with new recommendations
     // Currently can use maps for reco, id, iso, trigger but not ChargeID
-    const std::string el_calib_path = "ElectronEfficiencyCorrection/2015_2016/rel20.7/";
+    // Temporary: Take away constness of path since we have a mixture for rel20 and 21 at the moment.
+    std::string el_calib_path = "ElectronEfficiencyCorrection/2015_2017/rel21.2/Summer2017_Prerec_v1/";
+
     std::string file_path;
     if(type == "reco") {
-      file_path = "Moriond_February2017_v1/map0.txt";
+      file_path = "map0.txt";
     }
     else if(type == "ID"){
-      file_path = "Moriond_February2017_v1/map0.txt";
+      file_path = "map0.txt";
     }
     else if(type == "isolation"){
-      file_path = "Moriond_February2017_v2/map0.txt";
+      file_path = "map0.txt";
     }
     else if(type == "trigger"){
-      file_path = "Moriond_February2017_v3/map1.txt";
+      // Need to still use old path for triggers
+      el_calib_path = "ElectronEfficiencyCorrection/2015_2016/rel20.7/Moriond_February2017_v3/";
+      file_path = "map1.txt";
+      ATH_MSG_WARNING("Still using rel20 trigger maps.");
     }
     else if(type == "ChargeID") {
       ATH_MSG_ERROR("Use electronSFFilePath method until ChargeID is supported by maps");

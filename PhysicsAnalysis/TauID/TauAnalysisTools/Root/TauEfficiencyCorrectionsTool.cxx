@@ -478,7 +478,7 @@ StatusCode TauEfficiencyCorrectionsTool::initializeTools_mc16_prerec()
     if (iEfficiencyCorrectionType == SFJetIDHadTau)
     {
       // only set vars if they differ from "", which means they have been configured by the user
-      if (m_sInputFilePathJetIDHadTau.empty()) m_sInputFilePathJetIDHadTau = sDirectory+"JetID_TrueHadTau_2017-moriond.root";
+      if (m_sInputFilePathJetIDHadTau.empty()) m_sInputFilePathJetIDHadTau = sDirectory+"JetID_TrueHadTau_mc16-prerec.root";
       if (m_sVarNameJetIDHadTau.length() == 0) m_sVarNameJetIDHadTau = "TauScaleFactorJetIDHadTau";
 
       asg::AnaToolHandle<ITauEfficiencyCorrectionsTool>* tTool = new asg::AnaToolHandle<ITauEfficiencyCorrectionsTool>("JetIDHadTauTool", this);

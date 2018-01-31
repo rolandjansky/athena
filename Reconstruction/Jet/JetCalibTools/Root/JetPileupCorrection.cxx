@@ -44,7 +44,7 @@ JetPileupCorrection::~JetPileupCorrection() {
 //bool JetPileupCorrection::initializeTool(const std::string& name, TEnv * config, TString jetAlgo, bool doResidual, bool isData) {
 StatusCode JetPileupCorrection::initializeTool(const std::string& name) {
 
-  ATH_MSG_INFO("OriginScale: " << m_originScale);
+  if (m_doOrigin) ATH_MSG_INFO("OriginScale: " << m_originScale);
 
   m_jetStartScale = m_config->GetValue("PileupStartingScale","JetConstitScaleMomentum");
   ATH_MSG_INFO("JetPileupCorrection: Starting scale: " << m_jetStartScale);

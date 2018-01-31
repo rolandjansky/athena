@@ -25,6 +25,7 @@
 #include <JetRec/MuonSegmentPseudoJetGetter.h>
 #include <JetRec/PseudoJetGetter.h>
 #include <JetRec/PseudoJetGetterRegistry.h>
+#include <JetRec/JetSJCalibrationGroomer.h>
 
 #ifdef __CINT__
 
@@ -58,5 +59,6 @@
 #pragma link C++ class MuonSegmentPseudoJetGetter+;
 #pragma link C++ class PseudoJetGetter+;
 #pragma link C++ class PseudoJetGetterRegistry+;
+#pragma link C++ class JetSJCalibrationGroomer+;
 
 #endif

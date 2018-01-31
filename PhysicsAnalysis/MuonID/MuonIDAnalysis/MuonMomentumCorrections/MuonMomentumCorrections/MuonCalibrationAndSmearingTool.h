@@ -111,6 +111,9 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     double ExpectedResolution( const std::string& DetType, xAOD::Muon& mu, const bool mc ) const;
     double ExpectedResolution( const int DetType, xAOD::Muon& mu, const bool mc ) const;
 
+    // Expert method to apply the MC correction on a modifyable trackParticle for ID- or MS-only corrections
+    virtual CorrectionCode applyCorrectionTrkOnly( xAOD::TrackParticle& inTrk, const int DetType ) const;
+
     virtual CorrectionCode applyStatCombination( const ElementLink< xAOD::TrackParticleContainer >& inDetTrackParticle,
                                                  const ElementLink< xAOD::TrackParticleContainer >& extrTrackParticle ,
                                                  int charge,
@@ -132,8 +135,9 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     float        GetRegionInnerEta( const int r_i ) const; //Return Eta closer to the origin
     std::string  GetRegionName( const int r_i ) const;
     std::string  GetRegionName( const double eta, const double phi ) const;
-    double GetSmearing( int DetType, xAOD::Muon&, InfoHelper& muonInfo ) const;
+    double GetSmearing( int DetType, InfoHelper& muonInfo ) const;
     double GetSystVariation( int DetType, double var, InfoHelper& muonInfo ) const;
+    StatusCode SetInfoHelperCorConsts(InfoHelper& inMuonInfo) const;
     void CalcCBWeights( xAOD::Muon&, InfoHelper& muonInfo ) const;
     double CalculatePt( const int DetType, const double inSmearID, const double inSmearMS, const double scaleVar, InfoHelper& muonInfo ) const;
     StatusCode FillValues();

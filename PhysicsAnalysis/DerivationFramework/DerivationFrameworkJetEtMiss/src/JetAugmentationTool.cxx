@@ -259,10 +259,10 @@ namespace DerivationFramework {
       }
 
       if(m_decorateorigincorrection) {  
-	(*dec_originpt)(jet_orig)  = jet->pt();
-        (*dec_origineta)(jet_orig) = jet->eta();
-        (*dec_originphi)(jet_orig) = jet->phi();
-        (*dec_originm)(jet_orig)   = jet->m();
+        (*dec_originpt)(jet_orig)  = (*dec_originpt)(*jet);
+        (*dec_origineta)(jet_orig) = (*dec_origineta)(*jet);
+        (*dec_originphi)(jet_orig) = (*dec_originphi)(*jet);
+        (*dec_originm)(jet_orig)   = (*dec_originm)(*jet);
         (*dec_origincorrection)(jet_orig) = jet->getAttribute<ElementLink<xAOD::VertexContainer> >("OriginVertex");
 	ATH_MSG_VERBOSE("OriginCorrection: " << (*dec_origincorrection)(jet_orig) );
       }

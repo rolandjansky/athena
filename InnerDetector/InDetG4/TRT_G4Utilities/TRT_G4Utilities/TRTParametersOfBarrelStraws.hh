@@ -29,40 +29,38 @@ class TRTParametersOfBarrelStraws
     void DefineParameters();
     void PrintParameters() const;
 
-    int printMessages;
+    double m_outerRadiusOfStrawHole;
+    double m_lengthOfStrawHole;
 
-    double outerRadiusOfStrawHole;
-    double lengthOfStrawHole;
+    double m_outerRadiusOfStraw;
+    double m_lengthOfStraw;
 
-    double outerRadiusOfStraw;
-    double lengthOfStraw;
+    double m_innerRadiusOfGas;
+    double m_outerRadiusOfGas;
+    double m_lengthOfGasL;
+    double m_lengthOfGasS;
 
-    double innerRadiusOfGas;
-    double outerRadiusOfGas;
-    double lengthOfGasL;
-    double lengthOfGasS;
+    double m_positionOfGasL;
+    double m_positionOfGasS;
 
-    double positionOfGasL;
-    double positionOfGasS;
+    double m_innerRadiusOfDeadRegion;
+    double m_outerRadiusOfDeadRegion;
+    double m_lengthOfDeadRegion;
+    double m_lengthOfLongDeadRegion;
 
-    double innerRadiusOfDeadRegion;
-    double outerRadiusOfDeadRegion;
-    double lengthOfDeadRegion;
-    double lengthOfLongDeadRegion;
+    double m_positionOfDeadRegionLA;
+    double m_positionOfDeadRegionLB;
+    double m_positionOfDeadRegionSA;
+    double m_positionOfLongDeadRegionSB;
 
-    double positionOfDeadRegionLA;
-    double positionOfDeadRegionLB;
-    double positionOfDeadRegionSA;
-    double positionOfLongDeadRegionSB;
+    double m_innerRadiusOfTwister;
+    double m_outerRadiusOfTwister;
+    double m_lengthOfTwister;
 
-    double innerRadiusOfTwister;
-    double outerRadiusOfTwister;
-    double lengthOfTwister;
+    double m_outerRadiusOfWire;
+    double m_lengthOfWire;
 
-    double outerRadiusOfWire;
-    double lengthOfWire;
-
-    TRTParameters* pParameters;
+    TRTParameters* m_pParameters;
 
     mutable Athena::MsgStreamMember m_msg;
 

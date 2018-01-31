@@ -410,16 +410,84 @@ namespace EL
 
 
 
+  std::string BatchDriver ::
+  batchReleaseSetup (bool sharedFileSystem) const
+  {
+    RCU_READ_INVARIANT (this);
+
+    // name of tarball being made (this needs to match CondorDriver.cxx)
+    const std::string tarballName("AnalysisPackage.tar.gz");
+
+    std::ostringstream file;
+
+    // <path of build dir>/x86_64-slc6-gcc62-opt (comes from CMake, we need this)
+    const char *WORKDIR_DIR         = getenv ("WorkDir_DIR");
+    if (WORKDIR_DIR == nullptr)
+      RCU_THROW_MSG ("could not find environment variable $WorkDir_DIR");
+
+    if(!sharedFileSystem)
+    {
+      file << "mkdir -p build && tar -C build/ -xf " << tarballName << " || abortJob\n";
+      file << "\n";
+    }
+
+
+    file << "\n";
+    // /cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/x86_64/AtlasSetup/.config/.asetup.site
+    if(getenv("AtlasSetupSite"))  file << "export AtlasSetupSite=" << getenv("AtlasSetupSite") << "\n";
+    // /cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/x86_64/AtlasSetup/V00-07-75/AtlasSetup
+    if(getenv("AtlasSetup"))      file << "export AtlasSetup=" << getenv("AtlasSetup") << "\n";
+    // for now, needed because of errors like:
+    //  /cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/swConfig/asetup/asetupEpilog.sh: line 38:
+    //      /swConfig/python/pythonFix-Linux.sh: No such file or directory
+    file << "export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase\n";
+    file << "source $ATLAS_LOCAL_ROOT_BASE/user/atlasLocalSetup.sh --quiet\n";
+
+    // default setup command
+    std::ostringstream defaultSetupCommand;
+    {
+      // AnalysisBase
+      if(getenv("AtlasProject"))     defaultSetupCommand << "export AtlasProject=" << getenv("AtlasProject") << "\n";
+      // 21.2.3
+      if(getenv("AtlasVersion"))     defaultSetupCommand << "export AtlasVersion=" << getenv("AtlasVersion") << "\n";
+      // 2017-08-16T2249 (only set if using a nightly release)
+      if(getenv("AtlasBuildStamp"))  defaultSetupCommand << "export AtlasBuildStamp=" << getenv("AtlasBuildStamp") << "\n";
+      // 21.2
+      if(getenv("AtlasBuildBranch")) defaultSetupCommand << "export AtlasBuildBranch=" << getenv("AtlasBuildBranch") << "\n";
+      // stable vs nightly
+      if(getenv("AtlasReleaseType")) defaultSetupCommand << "export AtlasReleaseType=" << getenv("AtlasReleaseType") << "\n";
+      defaultSetupCommand << "if [ \"${AtlasReleaseType}\" == \"stable\" ]; then\n";
+      defaultSetupCommand << "     source ${AtlasSetup}/scripts/asetup.sh ${AtlasProject},${AtlasVersion} || abortJob\n";
+      defaultSetupCommand << "else\n";
+      defaultSetupCommand << "     source ${AtlasSetup}/scripts/asetup.sh ${AtlasProject},${AtlasBuildBranch},${AtlasBuildStamp} || abortJob\n";
+      defaultSetupCommand << "fi\n";
+      defaultSetupCommand << "echo \"Using default setup command\"";
+    }
+
+    file << options()->castString(Job::optBatchSetupCommand, defaultSetupCommand.str()) << " || abortJob\n";
+    if(sharedFileSystem) file << "source " << WORKDIR_DIR << "/setup.sh || abortJob\n";
+    else                 file << "source build/setup.sh || abortJob\n";
+    file << "\n";
+
+    if(!sharedFileSystem)
+    {
+      std::ostringstream cmd;
+      cmd << "tar --dereference -C " << WORKDIR_DIR << " -czf " << tarballName << " .";
+      // suppress the output from the tarball command
+      if (gSystem->Exec (cmd.str().c_str()) != 0){
+        RCU_THROW_MSG (("failed to execute: " + cmd.str()).c_str());
+      }
+    }
+
+    return file.str();
+  }
+
+
+
   void BatchDriver ::
   makeScript (const std::string& location, std::size_t njobs, bool sharedFileSystem) const
   {
     RCU_READ_INVARIANT (this);
-
-    // <path of build dir>/x86_64-slc6-gcc62-opt (comes from CMake, we need this)
-    const char *WORKDIR_DIR         = getenv ("WorkDir_DIR");
-
-    // name of tarball being made (this needs to match CondorDriver.cxx)
-    const std::string tarballName("AnalysisPackage.tar.gz");
 
     const std::string writeLocation=getWriteLocation(location);
     const std::string submitLocation=getSubmitLocation(location);
@@ -457,64 +525,23 @@ namespace EL
         file << shellInit << "\n";
 
         if(!sharedFileSystem)
-          { // Create output transfer directories
-            file << "mkdir \"${TMPDIR}/fetch\" || abortJob\n";
-            file << "mkdir \"${TMPDIR}/status\" || abortJob\n";
-            file << "\n";
-          }
+        { // Create output transfer directories
+          file << "mkdir \"${TMPDIR}/fetch\" || abortJob\n";
+          file << "mkdir \"${TMPDIR}/status\" || abortJob\n";
+          file << "\n";
+        }
 
         if(sharedFileSystem)
-          {
-            file << "RUNDIR=${TMPDIR}/EventLoop-Worker-$EL_JOBSEG-`date +%s`-$$\n";
-            file << "mkdir \"$RUNDIR\" || abortJob\n";
-          }
-        else
-          {
-            file << "RUNDIR=${TMPDIR}\n";
-          }
+        {
+          file << "RUNDIR=${TMPDIR}/EventLoop-Worker-$EL_JOBSEG-`date +%s`-$$\n";
+          file << "mkdir \"$RUNDIR\" || abortJob\n";
+        } else
+        {
+          file << "RUNDIR=${TMPDIR}\n";
+        }
         file << "cd \"$RUNDIR\" || abortJob\n";
 
-        if(!sharedFileSystem)
-          {
-            file << "mkdir -p build && tar -C build/ -xf " << tarballName << " || abortJob\n";
-            file << "\n";
-          }
-
-        file << "\n";
-        // /cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/x86_64/AtlasSetup/.config/.asetup.site
-        if(getenv("AtlasSetupSite"))  file << "export AtlasSetupSite=" << getenv("AtlasSetupSite") << "\n";
-        // /cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/x86_64/AtlasSetup/V00-07-75/AtlasSetup
-        if(getenv("AtlasSetup"))      file << "export AtlasSetup=" << getenv("AtlasSetup") << "\n";
-        // for now, needed because of errors like:
-        //  /cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/swConfig/asetup/asetupEpilog.sh: line 38:
-        //      /swConfig/python/pythonFix-Linux.sh: No such file or directory
-        file << "export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase\n";
-        file << "source $ATLAS_LOCAL_ROOT_BASE/user/atlasLocalSetup.sh --quiet\n";
-
-        // default setup command
-        std::ostringstream defaultSetupCommand;
-        {
-          // AnalysisBase
-          if(getenv("AtlasProject"))     defaultSetupCommand << "export AtlasProject=" << getenv("AtlasProject") << "\n";
-          // 21.2.3
-          if(getenv("AtlasVersion"))     defaultSetupCommand << "export AtlasVersion=" << getenv("AtlasVersion") << "\n";
-          // 2017-08-16T2249 (only set if using a nightly release)
-          if(getenv("AtlasBuildStamp"))  defaultSetupCommand << "export AtlasBuildStamp=" << getenv("AtlasBuildStamp") << "\n";
-          // 21.2
-          if(getenv("AtlasBuildBranch")) defaultSetupCommand << "export AtlasBuildBranch=" << getenv("AtlasBuildBranch") << "\n";
-          // stable vs nightly
-          if(getenv("AtlasReleaseType")) defaultSetupCommand << "export AtlasReleaseType=" << getenv("AtlasReleaseType") << "\n";
-          defaultSetupCommand << "if [ \"${AtlasReleaseType}\" == \"stable\" ]; then\n";
-          defaultSetupCommand << "     source ${AtlasSetup}/scripts/asetup.sh ${AtlasProject},${AtlasVersion} || abortJob\n";
-          defaultSetupCommand << "else\n";
-          defaultSetupCommand << "     source ${AtlasSetup}/scripts/asetup.sh ${AtlasProject},${AtlasBuildBranch},${AtlasBuildStamp} || abortJob\n";
-          defaultSetupCommand << "fi\n";
-          defaultSetupCommand << "echo \"Using default setup command\"";
-        }
-        file << options()->castString(Job::optBatchSetupCommand, defaultSetupCommand.str()) << " || abortJob\n";
-        if(sharedFileSystem) file << "source " << WORKDIR_DIR << "/setup.sh || abortJob\n";
-        else                 file << "source build/setup.sh || abortJob\n";
-        file << "\n";
+        file << batchReleaseSetup(sharedFileSystem);
 
         file << "eventloop_batch_worker $EL_JOBID '" << submitLocation << "/config.root' || abortJob\n";
 
@@ -530,18 +557,6 @@ namespace EL
         if (gSystem->Exec (cmd.str().c_str()) != 0)
           RCU_THROW_MSG (("failed to execute: " + cmd.str()).c_str());
       }
-    }
-
-    {
-      std::ostringstream cmd;
-      cmd << "tar --dereference -C " << WORKDIR_DIR << " -czvf " << tarballName << " .";
-      // suppress the output from the tarball command
-      gSystem->RedirectOutput("/dev/null");
-      if (gSystem->Exec (cmd.str().c_str()) != 0){
-        gSystem->RedirectOutput(0);
-        RCU_THROW_MSG (("failed to execute: " + cmd.str()).c_str());
-      }
-      gSystem->RedirectOutput(0);
     }
   }
 

@@ -96,7 +96,7 @@ namespace Analysis
 				   const std::vector<std::string>& jetAliases,
 				   const std::map<std::string, std::string>& SFNames,
 				   const std::map<std::string, std::vector<std::string> >& EffNames,
-				   const std::vector<std::string>& excludeFromEV,
+				   const std::map<std::string, std::vector<std::string> >& excludeFromEV,
 				   const std::map<std::string, Analysis::EVReductionStrategy> EVReductions,
 				   bool useEV = true, bool useMCMCSF = true, bool useTopologyRescaling = false);
 
@@ -407,7 +407,7 @@ namespace Analysis
       std::map<std::string, Analysis::EVReductionStrategy> m_EVReductions;
       
       /** store the uncertainties which should be excluded from building the full covariance matrix **/
-      std::vector<std::string> m_excludeFromCovMatrix;
+      std::map<std::string, std::vector<std::string> > m_excludeFromCovMatrix;
 
       // ------------------------------------------------------------------------------------------
 

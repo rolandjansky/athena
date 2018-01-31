@@ -48,7 +48,7 @@ namespace iFatras {
      @author Noemi.Calace -at- cern.ch
    */
      
-  class PRD_PlanarTruthTrajectoryBuilder : public AthAlgTool, virtual public Trk::IPRD_TruthTrajectoryBuilder {
+  class PRD_PlanarTruthTrajectoryBuilder : public extends<AthAlgTool, Trk::IPRD_TruthTrajectoryBuilder> {
 
      public:     
         //** Constructor with parameters */

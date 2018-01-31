@@ -90,10 +90,9 @@ protected:
   typedef std::tuple<TObject*,
           CP::CorrectionCode (*)(const TObject* oObject,
                                  double& dEfficiencyScaleFactor,
-                                 double dPt,
-                                 double dEta) > tTupleObjectFunc;
+                                 double dVars[] ) > tTupleObjectFunc;
   typedef std::map<std::string, tTupleObjectFunc > tSFMAP;
-  tSFMAP* m_mSF;
+  std::unique_ptr< tSFMAP > m_mSF;
 
   std::unordered_map < CP::SystematicSet, std::string > m_mSystematicSets;
   const CP::SystematicSet* m_sSystematicSet;
@@ -104,7 +103,7 @@ protected:
   double (*m_fX)(const xAOD::TauJet& xTau);
   double (*m_fY)(const xAOD::TauJet& xTau);
 
-  void ReadInputs(TFile* fFile);
+  void ReadInputs(std::unique_ptr<TFile> &fFile);
   void addHistogramToSFMap(TKey* kKey, const std::string& sKeyName);
 
   virtual CP::CorrectionCode getValue(const std::string& sHistName,
@@ -113,18 +112,19 @@ protected:
 
   static CP::CorrectionCode getValueTH2F(const TObject* oObject,
                                          double& dEfficiencyScaleFactor,
-                                         double dPt,
-                                         double dEta
+                                         double dVars[]
                                         );
   static CP::CorrectionCode getValueTH2D(const TObject* oObject,
                                          double& dEfficiencyScaleFactor,
-                                         double dPt,
-                                         double dEta
+                                         double dVars[]
+                                        );
+  static CP::CorrectionCode getValueTH3D(const TObject* oObject,
+                                         double& dEfficiencyScaleFactor,
+                                         double dVars[]
                                         );
   static CP::CorrectionCode getValueTF1(const TObject* oObject,
                                         double& dEfficiencyScaleFactor,
-                                        double dPt,
-                                        double dEta
+                                        double dVars[]
                                        );
 
   e_TruthMatchedParticleType checkTruthMatch(const xAOD::TauJet& xTau) const;

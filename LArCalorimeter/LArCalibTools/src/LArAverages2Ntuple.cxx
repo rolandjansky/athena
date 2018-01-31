@@ -45,7 +45,7 @@ StatusCode LArAverages2Ntuple::initialize()
     const LArOnline_SuperCellID* ll;
     sc = detStore()->retrieve(ll, "LArOnline_SuperCellID");
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endreq;
+      ATH_MSG_ERROR( "Could not get LArOnlineID helper !" );
       return StatusCode::FAILURE;
     }
     else {
@@ -56,14 +56,14 @@ StatusCode LArAverages2Ntuple::initialize()
     ToolHandle<LArSuperCellCablingTool> tool("LArSuperCellCablingTool");
     sc = tool.retrieve();
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << " Can't get LArCablingSvc." << endreq;
+      ATH_MSG_ERROR( " Can't get LArCablingSvc." );
       return sc;
     } else m_larCablingSvc = (LArCablingBase*)&(*tool);
   } else { // m_isSC
     const LArOnlineID* ll;
     sc = detStore()->retrieve(ll, "LArOnlineID");
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endreq;
+      ATH_MSG_ERROR( "Could not get LArOnlineID helper !" );
       return StatusCode::FAILURE;
     }
     else {
@@ -74,7 +74,7 @@ StatusCode LArAverages2Ntuple::initialize()
     ToolHandle<LArCablingService> tool("LArCablingService");
     sc = tool.retrieve();
     if (sc!=StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << " Can't get LArCablingSvc." << endreq;
+      ATH_MSG_ERROR( " Can't get LArCablingSvc." );
       return sc;
     } else m_larCablingSvc = (LArCablingBase*)&(*tool);
   } // end of m_isSC if

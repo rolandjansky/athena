@@ -15,8 +15,6 @@
 #include "G4TransportationManager.hh"
 #include "G4VUserDetectorConstruction.hh"
 
-#include "FadsKinematics/GeneratorCenter.h"
-
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
@@ -30,22 +28,22 @@
 static std::mutex _workerInitMutex;
 
 G4AtlasWorkerRunManager::G4AtlasWorkerRunManager()
-  : G4WorkerRunManager(),
-    m_msg("G4AtlasWorkerRunManager"),
+  : G4WorkerRunManager()
+  , m_msg("G4AtlasWorkerRunManager")
     // TODO: what if we need to make these configurable?
-    m_detGeoSvc("DetectorGeometrySvc", "G4AtlasWorkerRunManager"),
-    m_senDetTool("SensitiveDetectorMasterTool"),
-    m_fastSimTool("FastSimulationMasterTool"),
-    m_userActionSvc("G4UA::UserActionSvc", "G4AtlasWorkerRunManager")
+  , m_detGeoSvc("DetectorGeometrySvc", "G4AtlasWorkerRunManager")
+  , m_senDetTool("SensitiveDetectorMasterTool")
+  , m_fastSimTool("FastSimulationMasterTool")
+  , m_userActionSvc("G4UA::UserActionSvc", "G4AtlasWorkerRunManager")
 {}
 
 
 G4AtlasWorkerRunManager* G4AtlasWorkerRunManager::GetG4AtlasWorkerRunManager()
 {
   // Grab thread-local pointer from base class
-  auto wrm = G4RunManager::GetRunManager();
-  if(wrm) return static_cast<G4AtlasWorkerRunManager*>(wrm);
-  else return new G4AtlasWorkerRunManager;
+  auto* wrm = G4RunManager::GetRunManager();
+  if(wrm) { return static_cast<G4AtlasWorkerRunManager*>(wrm); }
+  else { return new G4AtlasWorkerRunManager; }
 }
 
 
@@ -93,11 +91,11 @@ void G4AtlasWorkerRunManager::InitializeGeometry()
   kernel->SetNumberOfParallelWorld(masterKernel->GetNumberOfParallelWorld());
 
   // Setup the sensitive detectors on each worker.
-  if(m_senDetTool.retrieve().isFailure()){
+  if(m_senDetTool.retrieve().isFailure()) {
     throw GaudiException("Could not retrieve SD master tool",
                          methodName, StatusCode::FAILURE);
   }
-  if(m_senDetTool->initializeSDs().isFailure()){
+  if(m_senDetTool->initializeSDs().isFailure()) {
     throw GaudiException("Failed to initialize SDs for worker thread",
                          methodName, StatusCode::FAILURE);
   }
@@ -128,46 +126,24 @@ void G4AtlasWorkerRunManager::InitializePhysics()
   G4RunManager::InitializePhysics();
 
   // Setup the fast simulations
-  if(m_fastSimTool.retrieve().isFailure()){
+  if(m_fastSimTool.retrieve().isFailure()) {
     throw GaudiException("Could not retrieve FastSims master tool",
                          methodName, StatusCode::FAILURE);
   }
-  if(m_fastSimTool->initializeFastSims().isFailure()){
+  if(m_fastSimTool->initializeFastSims().isFailure()) {
     throw GaudiException("Failed to initialize FastSims for worker thread",
                          methodName, StatusCode::FAILURE);
   }
 }
 
 
-G4Event* G4AtlasWorkerRunManager::GenerateEvent(G4int iEvent)
+bool G4AtlasWorkerRunManager::ProcessEvent(G4Event* event)
 {
-  static FADS::GeneratorCenter* generatorCenter =
-    FADS::GeneratorCenter::GetGeneratorCenter();
-  currentEvent = new G4Event(iEvent);
-  generatorCenter->GenerateAnEvent(currentEvent);
-  return currentEvent;
-}
 
-
-bool G4AtlasWorkerRunManager::SimulateFADSEvent()
-{
   G4StateManager* stateManager = G4StateManager::GetStateManager();
   stateManager->SetNewState(G4State_GeomClosed);
 
-  // Invoke SDs for any begin-event requirements
-  const std::string methodName = "G4AtlasWorkerRunManager::SimulateFADSEvent";
-  if (m_senDetTool->BeginOfAthenaEvent().isFailure()) {
-    throw GaudiException("Failure in SD BeginOfAthenaEvent",
-                         methodName, StatusCode::FAILURE);
-  }
-
-  GenerateEvent(1);
-  if (currentEvent->IsAborted()) {
-    ATH_MSG_WARNING( "G4AtlasWorkerRunManager::SimulateFADSEvent: " <<
-                     "Event Aborted at Generator level" );
-    currentEvent=0;
-    return true;
-  }
+  currentEvent = event;
 
   //eventManager->SetVerboseLevel(3);
   //eventManager->GetTrackingManager()->SetVerboseLevel(3);
@@ -175,27 +151,22 @@ bool G4AtlasWorkerRunManager::SimulateFADSEvent()
   if (currentEvent->IsAborted()) {
     ATH_MSG_WARNING( "G4AtlasWorkerRunManager::SimulateFADSEvent: " <<
                      "Event Aborted at Detector Simulation level" );
-    currentEvent=0;
+    currentEvent = nullptr;
     return true;
   }
 
-  AnalyzeEvent(currentEvent);
+  this->AnalyzeEvent(currentEvent);
   if (currentEvent->IsAborted()) {
     ATH_MSG_WARNING( "G4AtlasWorkerRunManager::SimulateFADSEvent: " <<
                      "Event Aborted at Analysis level" );
-    currentEvent=0;
+    currentEvent = nullptr;
     return true;
   }
 
-  // Invoke SDs for end-event requirements, like finalizing hit collections
-  if (m_senDetTool->EndOfAthenaEvent().isFailure()) {
-    throw GaudiException("Failure in SD EndOfAthenaEvent",
-                         methodName, StatusCode::FAILURE);
-  }
-
-  StackPreviousEvent(currentEvent);
+  this->StackPreviousEvent(currentEvent);
   bool abort = currentEvent->IsAborted();
-  currentEvent = 0;
+  currentEvent = nullptr;
+
   return abort;
 }
 

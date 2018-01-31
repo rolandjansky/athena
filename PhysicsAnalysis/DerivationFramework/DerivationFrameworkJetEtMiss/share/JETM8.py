@@ -268,9 +268,11 @@ JETM8SlimmingHelper.AllVariables = ["CaloCalTopoClusters",
                                     "JetETMissChargedParticleFlowObjects", "JetETMissNeutralParticleFlowObjects",
                                     "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape"]
 
-JETM8SlimmingHelper.AppendToDictionary.update({"LCOriginTopoClusters":"xAOD::CaloClusterContainer",
-                                               "LCOriginTopoClustersAux":"xAOD::ShallowAuxContainer"})
-JETM8SlimmingHelper.ExtraVariables =['LCOriginTopoClusters.calE.calEta.calM.calPhi']
+#JETM8SlimmingHelper.AppendToDictionary.update({"LCOriginTopoClusters":"xAOD::CaloClusterContainer",
+#                                               "LCOriginTopoClustersAux":"xAOD::ShallowAuxContainer"})
+#JETM8SlimmingHelper.ExtraVariables =['LCOriginTopoClusters.calE.calEta.calM.calPhi']
+
+addOriginCorrectedClusters(JETM8SlimmingHelper,writeLC=True,writeEM=False)
 
 #JETM8SlimmingHelper.ExtraVariables = []
 

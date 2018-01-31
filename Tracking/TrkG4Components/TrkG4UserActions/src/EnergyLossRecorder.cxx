@@ -31,22 +31,22 @@ namespace G4UA
 
   }
 
-  void EnergyLossRecorder::beginOfRun(const G4Run*)
+  void EnergyLossRecorder::BeginOfRunAction(const G4Run*)
   {
     return;
   }
 
-  void EnergyLossRecorder::endOfRun(const G4Run*)
+  void EnergyLossRecorder::EndOfRunAction(const G4Run*)
   {
     return;
   }
 
-  void EnergyLossRecorder::beginOfEvent(const G4Event*)
+  void EnergyLossRecorder::BeginOfEventAction(const G4Event*)
   {
     return;
   }
 
-  void EnergyLossRecorder::endOfEvent(const G4Event*)
+  void EnergyLossRecorder::EndOfEventAction(const G4Event*)
   {
     if (m_config.pmWriter)
       {
@@ -56,7 +56,7 @@ namespace G4UA
     return;
   }
 
-  void EnergyLossRecorder::processStep(const G4Step* aStep)
+  void EnergyLossRecorder::UserSteppingAction(const G4Step* aStep)
   {
     // kill secondary particles
     if (aStep->GetTrack()->GetParentID())

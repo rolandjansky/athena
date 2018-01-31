@@ -607,7 +607,11 @@ void TrigEgammaEmulationTool::setTrigInfo(const std::string trigger){
 
 
   std::string decorator="is"+pidname; 
-  if (boost::contains(trigger,"iloose") || boost::contains(trigger, "ivarloose")) isolation = true;
+  // isolation types
+  if (boost::contains(trigger,"iloose") || boost::contains(trigger, "ivarloose") || 
+      boost::contains(trigger,"ivarmedium") || boost::contains(trigger, "ivartight") || 
+      boost::contains(trigger,"icaloloose") || boost::contains(trigger, "icalomedium") ||
+      boost::contains(trigger,"icalotight") ) isolation = true;
   if (boost::contains(trigger,"idperf") ) idperf    = true;
   if (boost::contains(trigger,"HLTCalo")) hltcalo   = true;
   

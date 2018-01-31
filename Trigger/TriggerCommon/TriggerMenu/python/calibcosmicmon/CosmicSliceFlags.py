@@ -2,7 +2,7 @@
 
 """ Cosmics slice specific flags  """
 
-from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer, jobproperties
+from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from TriggerMenu.menu.CommonSliceHelper import CommonSliceHelper
 
 __author__  = 'A. Cerri, after X. Wu example'
@@ -455,7 +455,6 @@ class EFPayload(JobProperty):
 _flags.append(EFPayload)
 
 # create container
-from TriggerMenu.menu.CommonSliceHelper import CommonSliceHelper
 
 class CosmicSlice(JobPropertyContainer, CommonSliceHelper):
     """ Cosmic Slice Flags """

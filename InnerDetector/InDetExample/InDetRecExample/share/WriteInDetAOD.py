@@ -65,6 +65,12 @@ if InDetFlags.doxAOD():
   if InDetFlags.doTrackSegmentsPixelPrdAssociation():
     InDetAODList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODPixelPrdAssociationTrackParticleContainer()]
     InDetAODList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODPixelPrdAssociationTrackParticleContainer()+'Aux.' + excludedAuxData]
+  if InDetFlags.doTrackSegmentsPixelFourLayer():
+    InDetAODList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODPixelFourLayerTrackParticleContainer()]
+    InDetAODList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODPixelFourLayerTrackParticleContainer()+'Aux.' + excludedAuxData]
+  if InDetFlags.doTrackSegmentsPixelThreeLayer():
+    InDetAODList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODPixelThreeLayerTrackParticleContainer()]
+    InDetAODList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODPixelThreeLayerTrackParticleContainer()+'Aux.' + excludedAuxData]
   if InDetFlags.doTrackSegmentsSCT():
     InDetAODList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODSCTTrackParticleContainer()]
     InDetAODList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODSCTTrackParticleContainer()+'Aux.' + excludedAuxData]

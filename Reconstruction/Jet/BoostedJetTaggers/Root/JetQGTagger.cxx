@@ -15,11 +15,11 @@
 #include "PathResolver/PathResolver.h"
 
 #include "CxxUtils/make_unique.h"
-using CxxUtils::make_unique;
+
 
 namespace CP {
 
-  JetQGTagger::JetQGTagger( const std::string& name): asg::AsgTool( name ),
+  JetQGTagger::JetQGTagger( const std::string& name): JSSTaggerBase( name ),
                   m_appliedSystEnum(QG_NONE),
                   m_hquark(nullptr),
                   m_hgluon(nullptr),
@@ -55,14 +55,23 @@ namespace CP {
     declareProperty( "ExpWeightFile", m_expfile = "qgsyst_exp.root");
     declareProperty( "MEWeightFile",  m_mefile  = "qgsyst_me.root");
     declareProperty( "PDFWeightFile", m_pdffile = "qgsyst_pdf.root");
-    declareProperty( "MinPt", m_minpt = 50e3);
-    declareProperty( "MaxEta", m_maxeta = 2.1);
+    declareProperty( "MinPt", m_jetPtMin = 50e3);
+    declareProperty( "MaxEta", m_jetEtaMax = 2.1);
     declareProperty( "WeightDecorationName", m_weight_decoration_name = "qgTaggerWeight");
     declareProperty( "TaggerDecorationName", m_tagger_decoration_name = "qgTagger");
 
 
     applySystematicVariation(SystematicSet()).ignore();
   }
+
+  void JetQGTagger::checkAndThrow(StatusCode sc, const std::string& message) const {
+    if (sc.isSuccess() )
+      return;
+    if (!message.empty() )
+      ATH_MSG_ERROR(message);
+    throw std::runtime_error( name() + " returned a StatusCode::FAILURE!" );
+  }
+
 
   StatusCode JetQGTagger::initialize(){
 
@@ -118,44 +127,44 @@ namespace CP {
     m_weightdec = SG::AuxElement::Decorator< float>(m_weight_decoration_name);
 
     // set up InDet selection tool
-    assert( ASG_MAKE_ANA_TOOL( m_trkSelectionTool,  InDet::InDetTrackSelectionTool ) );
-    assert( m_trkSelectionTool.setProperty( "CutLevel", "Loose" ) );
-    assert( m_trkSelectionTool.retrieve() );
+    ANA_CHECK( ASG_MAKE_ANA_TOOL( m_trkSelectionTool,  InDet::InDetTrackSelectionTool ) );
+    ANA_CHECK( m_trkSelectionTool.setProperty( "CutLevel", "Loose" ) );
+    ANA_CHECK( m_trkSelectionTool.retrieve() );
 
     // set up InDet truth track selection tools
-    assert( ASG_MAKE_ANA_TOOL( m_trkTruthFilterTool, InDet::InDetTrackTruthFilterTool ) );
-    assert( ASG_MAKE_ANA_TOOL( m_trkFakeTool, InDet::InDetTrackTruthFilterTool ) );
+    ANA_CHECK( ASG_MAKE_ANA_TOOL( m_trkTruthFilterTool, InDet::InDetTrackTruthFilterTool ) );
+    ANA_CHECK( ASG_MAKE_ANA_TOOL( m_trkFakeTool, InDet::InDetTrackTruthFilterTool ) );
 
-    assert( ASG_MAKE_ANA_TOOL( m_originTool, InDet::InDetTrackTruthOriginTool ) );
-    assert( m_originTool.retrieve() );
+    ANA_CHECK( ASG_MAKE_ANA_TOOL( m_originTool, InDet::InDetTrackTruthOriginTool ) );
+    ANA_CHECK( m_originTool.retrieve() );
 
-    assert( m_trkTruthFilterTool.setProperty( "Seed", 1234 ) );
-    assert( m_trkTruthFilterTool.setProperty( "trackOriginTool", m_originTool ) );
-    assert( m_trkTruthFilterTool.retrieve() );
+    ANA_CHECK( m_trkTruthFilterTool.setProperty( "Seed", 1234 ) );
+    ANA_CHECK( m_trkTruthFilterTool.setProperty( "trackOriginTool", m_originTool ) );
+    ANA_CHECK( m_trkTruthFilterTool.retrieve() );
     CP::SystematicSet systSetTrk = {
       InDet::TrackSystematicMap[InDet::TRK_EFF_LOOSE_GLOBAL],
       InDet::TrackSystematicMap[InDet::TRK_EFF_LOOSE_IBL],
       InDet::TrackSystematicMap[InDet::TRK_EFF_LOOSE_PP0],
       InDet::TrackSystematicMap[InDet::TRK_EFF_LOOSE_PHYSMODEL]
     };
-    assert( m_trkTruthFilterTool->applySystematicVariation(systSetTrk) );
+    ANA_CHECK( m_trkTruthFilterTool->applySystematicVariation(systSetTrk) );
 
     // set up tools used for systematic variations of tracks
-    assert( m_trkFakeTool.setProperty( "Seed", 1234 ) );
-    assert( m_trkFakeTool.setProperty( "trackOriginTool", m_originTool ) );
-    assert( m_trkFakeTool.retrieve() );
+    ANA_CHECK( m_trkFakeTool.setProperty( "Seed", 1234 ) );
+    ANA_CHECK( m_trkFakeTool.setProperty( "trackOriginTool", m_originTool ) );
+    ANA_CHECK( m_trkFakeTool.retrieve() );
     CP::SystematicSet systSetTrkFake = {
       InDet::TrackSystematicMap[InDet::TRK_FAKE_RATE_LOOSE]
     };
-    assert( m_trkFakeTool->applySystematicVariation(systSetTrkFake) );
+    ANA_CHECK( m_trkFakeTool->applySystematicVariation(systSetTrkFake) );
 
-    assert( ASG_MAKE_ANA_TOOL( m_jetTrackFilterTool, InDet::JetTrackFilterTool ) );
-    assert( m_jetTrackFilterTool.setProperty( "Seed", 1234 ) );
-    assert( m_jetTrackFilterTool.retrieve() );
+    ANA_CHECK( ASG_MAKE_ANA_TOOL( m_jetTrackFilterTool, InDet::JetTrackFilterTool ) );
+    ANA_CHECK( m_jetTrackFilterTool.setProperty( "Seed", 1234 ) );
+    ANA_CHECK( m_jetTrackFilterTool.retrieve() );
     CP::SystematicSet systSetJet = {
       InDet::TrackSystematicMap[InDet::TRK_EFF_LOOSE_TIDE]
     };
-    assert( m_jetTrackFilterTool->applySystematicVariation(systSetJet) );
+    ANA_CHECK( m_jetTrackFilterTool->applySystematicVariation(systSetJet) );
 
     // specify systematic variations relevant for this tool
     if (!addAffectingSystematic(QGntrackSyst::trackfakes,true) ||
@@ -175,25 +184,25 @@ namespace CP {
 
     // load in the histograms that store the ntrack systematics
     if(m_topofile!="")//load topology file only if explicitly configured (default is "")
-    assert( this->loadHist(m_topo_hquark,    m_topofile,"h2dquark") );
-    assert( this->loadHist(m_exp_hquark_up,  m_expfile,"h2dquark_up")  );
-    assert( this->loadHist(m_exp_hquark_down,m_expfile,"h2dquark_down"));
-    assert( this->loadHist(m_exp_hgluon_up,  m_expfile,"h2dgluon_up")  );
-    assert( this->loadHist(m_exp_hgluon_down,m_expfile,"h2dgluon_down"));
-    assert( this->loadHist(m_me_hquark_up,   m_mefile, "h2dquark_up")  );
-    assert( this->loadHist(m_me_hquark_down, m_mefile, "h2dquark_down"));
-    assert( this->loadHist(m_me_hgluon_up,   m_mefile, "h2dgluon_up")  );
-    assert( this->loadHist(m_me_hgluon_down, m_mefile, "h2dgluon_down"));
-    assert( this->loadHist(m_pdf_hquark_up,  m_pdffile,"h2dquark_up")  );
-    assert( this->loadHist(m_pdf_hquark_down,m_pdffile,"h2dquark_down"));
-    assert( this->loadHist(m_pdf_hgluon_up,  m_pdffile,"h2dgluon_up")  );
-    assert( this->loadHist(m_pdf_hgluon_down,m_pdffile,"h2dgluon_down"));
+    ANA_CHECK( this->loadHist(m_topo_hquark,    m_topofile,"h2dquark") );
+    ANA_CHECK( this->loadHist(m_exp_hquark_up,  m_expfile,"h2dquark_up")  );
+    ANA_CHECK( this->loadHist(m_exp_hquark_down,m_expfile,"h2dquark_down"));
+    ANA_CHECK( this->loadHist(m_exp_hgluon_up,  m_expfile,"h2dgluon_up")  );
+    ANA_CHECK( this->loadHist(m_exp_hgluon_down,m_expfile,"h2dgluon_down"));
+    ANA_CHECK( this->loadHist(m_me_hquark_up,   m_mefile, "h2dquark_up")  );
+    ANA_CHECK( this->loadHist(m_me_hquark_down, m_mefile, "h2dquark_down"));
+    ANA_CHECK( this->loadHist(m_me_hgluon_up,   m_mefile, "h2dgluon_up")  );
+    ANA_CHECK( this->loadHist(m_me_hgluon_down, m_mefile, "h2dgluon_down"));
+    ANA_CHECK( this->loadHist(m_pdf_hquark_up,  m_pdffile,"h2dquark_up")  );
+    ANA_CHECK( this->loadHist(m_pdf_hquark_down,m_pdffile,"h2dquark_down"));
+    ANA_CHECK( this->loadHist(m_pdf_hgluon_up,  m_pdffile,"h2dgluon_up")  );
+    ANA_CHECK( this->loadHist(m_pdf_hgluon_down,m_pdffile,"h2dgluon_down"));
 
     ATH_MSG_INFO( ": JetQGTagger tool initialized" );
     ATH_MSG_INFO( "  NTrackCut   : "<< m_NTrackCut );
 
     //initialize the tagger states
-    m_accept.addCut( "ValidPtRangeHigh"    , "True if the jet is not too high pT"  );
+    //m_accept.addCut( "ValidPtRangeHigh"    , "True if the jet is not too high pT"  ); JBurr - this is never set to false
     m_accept.addCut( "ValidPtRangeLow"     , "True if the jet is not too low pT"   );
     m_accept.addCut( "ValidEtaRange"       , "True if the jet is not too forward"     );
     m_accept.addCut( "ValidJetContent"     , "True if the jet is alright technicall (e.g. all attributes necessary for tag)"        );
@@ -204,9 +213,6 @@ namespace CP {
     //loop over and print out the cuts that have been configured
     ATH_MSG_INFO( "After tagging, you will have access to the following cuts as a Root::TAccept : (<NCut>) <cut> : <description>)" );
     showCuts();
-
-
-
 
     return StatusCode::SUCCESS;
   }
@@ -233,42 +239,37 @@ namespace CP {
     return StatusCode::SUCCESS;
   }
 
-  Root::TAccept JetQGTagger::tag(const xAOD::Jet& jet) const {
 
-    ATH_MSG_DEBUG( "Obtaining JetQGTagger decision default" );
+  Root::TAccept JetQGTagger::tag(const xAOD::Jet& jet, const xAOD::Vertex * pv) const {
 
-    // call the IJetQGTagger version of tag
-    // uses the 0th primary vertex by default
-    m_accept = tag(jet, NULL);
+    if (pv)
+      ATH_MSG_DEBUG( "Obtaining JetQGTagger decision with user specific primary vertex" );
+    else
+      ATH_MSG_DEBUG( "Obtaining JetQGTagger decision default" );
 
-    return m_accept;
-  }
-
-  Root::TAccept JetQGTagger::tag(const xAOD::Jet& jet, const xAOD::Vertex * _pv) const {
-
-    ATH_MSG_DEBUG( "Obtaining JetQGTagger decision with user specific primary vertex" );
 
     // reset the TAccept cut results to false
     m_accept.clear();
 
     // set the jet validity bits to 1 by default
-    m_accept.setCutResult( "ValidPtRangeHigh", true);
     m_accept.setCutResult( "ValidPtRangeLow" , true);
     m_accept.setCutResult( "ValidEtaRange"   , true);
     m_accept.setCutResult( "ValidJetContent" , true);
     m_accept.setCutResult( "ValidEventContent" , true);
+    bool isValid = true;
 
     // if no primary vertex is specified, then the 0th primary vertex is used
-    const xAOD::Vertex *pv = _pv ;
     if(! pv){
       const xAOD::VertexContainer* vxCont = 0;
       if(evtStore()->retrieve( vxCont, "PrimaryVertices" ).isFailure()){
         ATH_MSG_WARNING("Unable to retrieve primary vertex container PrimaryVertices");
         m_accept.setCutResult("ValidEventContent", false);
+        isValid = false;
       }
       else if(vxCont->empty()){
         ATH_MSG_WARNING("Event has no primary vertices!");
         m_accept.setCutResult("ValidEventContent", false);
+        isValid = false;
       }
       else{
         for(const auto& vx : *vxCont){
@@ -279,29 +280,39 @@ namespace CP {
           }
         }
       }
+      // Now we have to make sure that we did ID one as PV
+      // I think this can happen in physics events (though they've got to be removed in order to perform a lot of calibrations)
+      // so I've elected to not spit out a warning message here
+      if (!pv) {
+        m_accept.setCutResult("ValidEventContent", false);
+        isValid = false;
+      }
     }
+
+
+    // check basic kinematic selection
+    if (std::fabs(jet.eta()) > m_jetEtaMax) {
+      ATH_MSG_DEBUG("Jet does not pass basic kinematic selection (|eta| < " << m_jetEtaMax << "). Jet eta = " << jet.eta());
+      m_accept.setCutResult("ValidEtaRange", false);
+      isValid = false;
+    }
+    if (jet.pt() < m_jetPtMin) {
+      ATH_MSG_DEBUG("Jet does not pass basic kinematic selection (pT > " << m_jetPtMin << "). Jet pT = " << jet.pt()/1.e3);
+      m_accept.setCutResult("ValidPtRangeLow", false);
+      isValid = false;
+    }
+
+    // If the object isn't valid there's no point applying the remaining cuts
+    if (!isValid)
+      return m_accept;
 
     // obtain the relevant information for tagging
     // 1) the number of tracks
     // 2) jet-by-jet event weight
     double jetWeight = -1;
     int    jetNTrack = -1;
-
-    // check basic kinematic selection
-    if (std::fabs(jet.eta()) > m_jetEtaMax) {
-      ATH_MSG_DEBUG("Jet does not pass basic kinematic selection (|eta| < " << m_jetEtaMax << "). Jet eta = " << jet.eta());
-      m_accept.setCutResult("ValidEtaRange", false);
-    }
-    if (jet.pt() < m_jetPtMin) {
-      ATH_MSG_DEBUG("Jet does not pass basic kinematic selection (pT > " << m_jetPtMin << "). Jet pT = " << jet.pt()/1.e3);
-      m_accept.setCutResult("ValidPtRangeLow", false);
-    }
-
-    std::cout<<m_accept.getCutResult("ValidEtaRange")<<"  "<<m_accept.getCutResult("ValidPtRangeLow")<<std::endl;
-    if( m_accept.getCutResult("ValidEtaRange") && m_accept.getCutResult("ValidPtRangeLow") ){
-      assert( getNTrack(&jet, pv, jetNTrack)  );
-      assert( getNTrackWeight(&jet, jetWeight));
-    }
+    checkAndThrow(getNTrack(&jet, pv, jetNTrack) );
+    checkAndThrow(getNTrackWeight(&jet, jetWeight) );
 
     // decorate the cut value if specified
     if(m_decorate){
@@ -312,11 +323,9 @@ namespace CP {
     // fill the TAccept
     ATH_MSG_DEBUG("NTrack       = "<<jetNTrack);
     ATH_MSG_DEBUG("NTrackWeight = "<<jetWeight);
-    if(jetNTrack<0){
-      ATH_MSG_WARNING("This jet has a negative number of tracks");
-      m_accept.setCutResult("ValidJetContent", false);
-    }
-    else if(jetNTrack<m_NTrackCut){
+
+    // JBurr: I've removed the n track < 0 check - it's now impossible for it to ever be satisfied
+    if(jetNTrack<m_NTrackCut){
       m_accept.setCutResult("QuarkJetTag", true);
     }
     else{
@@ -556,21 +565,6 @@ namespace CP {
     hist->SetDirectory(0);
     return StatusCode::SUCCESS;
   }
-
-
-  void JetQGTagger::showCuts() const{
-    int nCuts = m_accept.getNCuts();
-    for(int iCut=0; iCut<nCuts; iCut++){
-      std::string cut_string = "";
-      cut_string += "  (";
-      cut_string += std::to_string(iCut);
-      cut_string += ")  ";
-      cut_string += m_accept.getCutName(iCut).Data();
-      cut_string += " : ";
-      cut_string += m_accept.getCutDescription(iCut).Data();
-      ATH_MSG_INFO( cut_string );
-    }
-}
 
 
 } /* namespace CP */

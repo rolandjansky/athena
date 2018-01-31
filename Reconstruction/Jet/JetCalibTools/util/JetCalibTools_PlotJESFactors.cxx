@@ -41,9 +41,9 @@ namespace jet
 int main (int argc, char* argv[])
 {
     // Check argument usage
-    if (argc != 4 && argc != 5)
+    if (argc < 4 || argc > 6)
     {
-        std::cout << "USAGE: " << argv[0] << " <JetCollection> <ConfigFile> <OutputFile> (dev mode switch)" << std::endl;
+        std::cout << "USAGE: " << argv[0] << " <JetCollection> <ConfigFile> <OutputFile> (dev mode switch) (JES_vs_E switch)" << std::endl;
         return 1;
     }
 
@@ -52,6 +52,7 @@ int main (int argc, char* argv[])
     const TString config  = argv[2];
     const TString outFile = argv[3];
     const bool isDevMode  = ( argc > 4 && (TString(argv[4]) == "true" || TString(argv[4]) == "dev") ) ? true : false;
+    const bool vsE        = ( argc > 5 && (TString(argv[5]) == "true") ) ? true : false;
     
     // Derived information
     const bool outFileIsExtensible = outFile.EndsWith(".pdf") || outFile.EndsWith(".ps") || outFile.EndsWith(".root");
@@ -59,10 +60,12 @@ int main (int argc, char* argv[])
     // Assumed constants
     const TString calibSeq = "EtaJES"; // only want to apply the JES here
     const bool isData = false; // doesn't actually matter for JES, which is always active
-    const float massForScan = 80.385e3; // W-boson
+    float massForScan = 80.385e3; // W-boson
+    if ( !jetAlgo.Contains("AntiKt10") ) massForScan = 0;
 
     // Accessor strings
-    const TString startingScaleString = "JetConstitScaleMomentum";
+    TString startingScaleString = "JetConstitScaleMomentum";
+    if ( !jetAlgo.Contains("AntiKt10") ) startingScaleString = "JetPileupScaleMomentum";
     const TString endingScaleString   = "JetEtaJESScaleMomentum";
     const TString detectorEtaString   = "DetectorEta";
     
@@ -125,20 +128,30 @@ int main (int argc, char* argv[])
     
     
     // Make the histogram to fill
-    TH2D* hist_pt_eta = new TH2D("JES_pt_eta",Form("JES for jets with mass=%.1f GeV",massForScan/1.e3),1200,100,2500,60,-3,3);
+    TH2D* hist_pt_eta;
+    if ( jetAlgo.Contains("AntiKt10") ) hist_pt_eta = new TH2D("JES_pt_eta",Form("JES for jets with mass=%.1f GeV",massForScan/1.e3),1200,100,2500,60,-3,3);
+    else { hist_pt_eta = new TH2D("JES_pt_eta",Form("JES for jets with mass=%.1f GeV",massForScan/1.e3),2500,20,5000,90,-4.5,4.5); }
     
     // Fill the histogram
     for (int xBin = 1; xBin <= hist_pt_eta->GetNbinsX(); ++xBin)
     {
-        const double pt = hist_pt_eta->GetXaxis()->GetBinCenter(xBin)*1.e3;
+        const double pt = hist_pt_eta->GetXaxis()->GetBinCenter(xBin)*1.e3; // E if vsE
         for (int yBin = 1; yBin <= hist_pt_eta->GetNbinsY(); ++yBin)
         {
             const double eta = hist_pt_eta->GetYaxis()->GetBinCenter(yBin);
-            
+
             // Set the main 4-vector and scale 4-vector
-            jet->setJetP4(xAOD::JetFourMom_t(pt,eta,0,massForScan));
-            detectorEta(*jet) = eta;
-            startingScale.setAttribute(*jet,xAOD::JetFourMom_t(pt,eta,0,massForScan));
+	    if ( !vsE ){
+              jet->setJetP4(xAOD::JetFourMom_t(pt,eta,0,massForScan));
+              detectorEta(*jet) = eta;
+              startingScale.setAttribute(*jet,xAOD::JetFourMom_t(pt,eta,0,massForScan));
+	    } else {
+              const double E = pt; // pt is actually E if vsE
+	      const double pT = sqrt((E*E)-(massForScan*massForScan))/cosh(eta);
+              jet->setJetP4(xAOD::JetFourMom_t(pT,eta,0,massForScan));
+              detectorEta(*jet) = eta;
+              startingScale.setAttribute(*jet,xAOD::JetFourMom_t(pT,eta,0,massForScan));
+	    }
 
             // Jet kinematics set, now apply calibration
             xAOD::Jet* calibJet = nullptr;
@@ -170,20 +183,30 @@ int main (int argc, char* argv[])
     
     // Now labels/etc
     hist_pt_eta->SetStats(false);
-    hist_pt_eta->GetXaxis()->SetTitle("Jet #it{p}_{T} [GeV]");
+    if ( !vsE ) hist_pt_eta->GetXaxis()->SetTitle("Jet #it{p}_{T} [GeV]");
+    else { hist_pt_eta->GetXaxis()->SetTitle("Jet E [GeV]"); }
     hist_pt_eta->GetXaxis()->SetTitleOffset(1.35);
     hist_pt_eta->GetXaxis()->SetMoreLogLabels();
     hist_pt_eta->GetYaxis()->SetTitle("#eta");
     hist_pt_eta->GetYaxis()->SetTitleOffset(0.9);
-    hist_pt_eta->GetZaxis()->SetTitle("E_{JES} / E_{constit}");
+    hist_pt_eta->GetZaxis()->SetTitle("JES_{Factor}");
 
     // Now write them out
     if (outFileIsExtensible)
     {
-        canvas->Print(outFile+"[");
-        hist_pt_eta->Draw("colz");
-        canvas->Print(outFile);
-        canvas->Print(outFile+"]");
+
+        if ( outFile.EndsWith(".pdf") || outFile.EndsWith(".ps") ){
+          canvas->Print(outFile+"[");
+          hist_pt_eta->Draw("colz");
+          canvas->Print(outFile);
+          canvas->Print(outFile+"]");
+	} else if ( outFile.EndsWith(".root") ){
+	  TFile *fout = new TFile(outFile.Data(),"RECREATE");
+	  hist_pt_eta->Write();
+	  fout->Close();
+	  delete fout;
+	}
+
     }
     else
     {
@@ -192,6 +215,7 @@ int main (int argc, char* argv[])
         canvas->Print(Form("%u-fixMass-%s",counter++,outFile.Data()));
     }
 
+    delete hist_pt_eta;
 
     return 0;
 }

@@ -725,7 +725,50 @@ def getTauGenericPi0Cone():
     cached_instances[_name] = TauGenericPi0Cone
     return TauGenericPi0Cone
 
-#end
+########################################################################
+# TauGenericPi0Cone
+def getTauTrackClassifier():
+
+    _name = sPrefix + 'TauTrackClassifier'
+
+    if _name in cached_instances:
+        return cached_instances[_name]
+    
+    from AthenaCommon.AppMgr import ToolSvc
+    from tauRecTools.tauRecToolsConf import tauRecTools__TauTrackClassifier as TauTrackClassifier
+    from tauRecTools.tauRecToolsConf import tauRecTools__TrackMVABDT as TrackMVABDT
+
+    import PyUtils.RootUtils as ru
+    ROOT = ru.import_root()
+    import cppyy
+    cppyy.loadDictionary('xAODTau_cDict')
+
+    input_file_name = 'ftf_tracks_mva_classifier.root'
+    threshold = 0.5
+    # =========================================================================
+    _ftf_tracks_mva_bdt = TrackMVABDT(
+        name = _name + "_0",
+        # calibFolder='data/TrigTauRec',
+        calibFolder='TrigTauRec/00-11-01/',
+        inTrigger=True,
+        InputWeightsPath=input_file_name,
+        Threshold=threshold,
+        ExpectedFlag   = ROOT.xAOD.TauJetParameters.unclassified, 
+        SignalType     = ROOT.xAOD.TauJetParameters.classifiedIsolation, 
+        BackgroundType = ROOT.xAOD.TauJetParameters.classifiedCharged)
+    ToolSvc += _ftf_tracks_mva_bdt
+
+    classifier = TauTrackClassifier(
+        name=_name, 
+        Classifiers=[_ftf_tracks_mva_bdt])
+        # TauTrackContainerName=_DefaultTrigTauTrackContainer)
+    cached_instances[_name] = classifier
+    return classifier
+
+# end
+
+
+
 
 """ obsolete methods
 

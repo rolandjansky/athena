@@ -220,7 +220,7 @@ protected:
 
     std::map<unsigned int, TProfile*> m_map_offline_coolIDProfile_ValueVsLumi;
 
-    bool isOnline;
+    bool m_isOnline;
     bool m_firstRun;
     bool m_doRunHistograms;
     int m_ppmAdcMinValue;

@@ -1235,18 +1235,18 @@ class WriteDAOD_EXOT13Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT13Stream)
 listAODtoDPD.append(WriteDAOD_EXOT13Stream.StreamName)
 
-#class WriteDAOD_EXOT14Stream(JobProperty):
-#    """EXOT14 derivation"""
-#    statusOn = True
-#    allowedTypes = ['bool']
-#    StoredValue = False
-#    StreamName = 'StreamDAOD_EXOT14'
-#    FileName = ''
-#    isVirtual = False
-#    DPDMakerScript = "DerivationFrameworkExotics/EXOT14.py"
-#    pass
-#jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT14Stream)
-#listAODtoDPD.append(WriteDAOD_EXOT14Stream.StreamName)
+class WriteDAOD_EXOT14Stream(JobProperty):
+    """EXOT14 derivation"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_EXOT14'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkExotics/EXOT14.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT14Stream)
+listAODtoDPD.append(WriteDAOD_EXOT14Stream.StreamName)
 
 class WriteDAOD_EXOT15Stream(JobProperty):
     """EXOT15 derivation"""
@@ -1287,18 +1287,18 @@ class WriteDAOD_EXOT17Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT17Stream)
 listAODtoDPD.append(WriteDAOD_EXOT17Stream.StreamName)
 
-class WriteDAOD_EXOT18Stream(JobProperty):
-    """EXOT18 derivation"""
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = False
-    StreamName = 'StreamDAOD_EXOT18'
-    FileName = ''
-    isVirtual = False
-    DPDMakerScript = "DerivationFrameworkExotics/EXOT18.py"
-    pass
-jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT18Stream)
-listAODtoDPD.append(WriteDAOD_EXOT18Stream.StreamName)
+#class WriteDAOD_EXOT18Stream(JobProperty):
+#    """EXOT18 derivation"""
+#    statusOn = True
+#    allowedTypes = ['bool']
+#    StoredValue = False
+#    StreamName = 'StreamDAOD_EXOT18'
+#    FileName = ''
+#    isVirtual = False
+#    DPDMakerScript = "DerivationFrameworkExotics/EXOT18.py"
+#    pass
+#jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT18Stream)
+#listAODtoDPD.append(WriteDAOD_EXOT18Stream.StreamName)
 
 class WriteDAOD_EXOT19Stream(JobProperty):
     """EXOT19 derivation"""
@@ -1722,18 +1722,18 @@ class WriteDAOD_FTAG4Stream (JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_FTAG4Stream)
 listAODtoDPD.append(WriteDAOD_FTAG4Stream.StreamName)
 
-#class WriteDAOD_FTAG5Stream (JobProperty):
-#     """FTAG5 derivation"""
-#     statusOn = True
-#     allowedTypes = ['bool']
-#     StoredValue = False
-#     StreamName = 'StreamDAOD_FTAG5'
-#     FileName = ''
-#     isVirtual = False
-#     DPDMakerScript = "DerivationFrameworkFlavourTag/FTAG5.py"
-#     pass
-#jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_FTAG5Stream)
-#listAODtoDPD.append(WriteDAOD_FTAG5Stream.StreamName)
+class WriteDAOD_FTAG5Stream (JobProperty):
+    """FTAG5 derivation"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_FTAG5'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkFlavourTag/FTAG5.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_FTAG5Stream)
+listAODtoDPD.append(WriteDAOD_FTAG5Stream.StreamName)
 
 ######################################
 # Defined by the B-physics group
@@ -1894,6 +1894,19 @@ class WriteDAOD_BPHY12Stream (JobProperty):
      pass
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_BPHY12Stream)
 listAODtoDPD.append(WriteDAOD_BPHY12Stream.StreamName)
+
+class WriteDAOD_BPHY15Stream (JobProperty):
+     """BPHY15 derivation"""
+     statusOn = True
+     allowedTypes = ['bool']
+     StoredValue = False
+     StreamName = 'StreamDAOD_BPHY15'
+     FileName = ''
+     isVirtual = False
+     DPDMakerScript = "DerivationFrameworkBPhys/BPHY15.py"
+     pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_BPHY15Stream)
+listAODtoDPD.append(WriteDAOD_BPHY15Stream.StreamName)
 
 ######################################
 # Defined by the MCP group

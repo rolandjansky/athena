@@ -34,7 +34,9 @@
 #include "MuonEventTPCnv/MuonDigitContainer/MuonDigitContainer_p1.h"
 #include "MuonEventTPCnv/MuonDigitContainer/MuonDigitContainer_p2.h"
 #include "MuonEventTPCnv/MuonDigitContainer/MuonSimDataCollection_p1.h"
+#include "MuonEventTPCnv/MuonDigitContainer/MuonSimDataCollection_p2.h"
 #include "MuonEventTPCnv/MuonDigitContainer/CscSimDataCollection_p1.h"
+#include "MuonEventTPCnv/MuonDigitContainer/CscSimDataCollection_p2.h"
 
 struct MuonEventTPCnvDict 
 {

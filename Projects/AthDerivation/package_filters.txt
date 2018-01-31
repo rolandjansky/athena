@@ -4,6 +4,7 @@
 
 # Testing package(s):
 + AtlasTest/TestTools
++ AsgExternal/Asg_Test
 
 # Common geometry package(s):
 + AtlasGeometryCommon/BeamPipeGeoModel
@@ -244,6 +245,7 @@
 
 # Reconstruction package(s):
 + Reconstruction/AODFix
++ Reconstruction/RecoFix
 + Reconstruction/DiTauRec
 + Reconstruction/eflowRec
 + Reconstruction/egamma/egammaCaloTools
@@ -380,6 +382,7 @@
 + Trigger/TrigFTK/TrigFTK_RawDataTPCnv
 + Trigger/TrigMonitoring/TrigMonitorBase
 + Trigger/TrigSteer/TrigInterfaces
++ Trigger/TrigT1/L1Common
 + Trigger/TrigT1/L1Topo/L1TopoCommon
 + Trigger/TrigT1/L1Topo/L1TopoConfig
 + Trigger/TrigT1/TrigT1CaloCalibConditions

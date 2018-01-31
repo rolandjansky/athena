@@ -2,7 +2,7 @@
 
 __all__ = ['Logic', 'Not']
 
-from copy import copy,deepcopy
+from copy import copy
 
 from Lvl1MenuUtil import log
 

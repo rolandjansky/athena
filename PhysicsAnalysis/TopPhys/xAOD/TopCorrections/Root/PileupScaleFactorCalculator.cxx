@@ -71,7 +71,7 @@ namespace top{
       eventInfo->auxdecor<float>("PileupWeight_UP") = pileupWeight;
     }
     else {
-      float lumiBlockMu = m_pileupReweightingTool->getCorrectedMu( *eventInfo );
+      float lumiBlockMu = m_pileupReweightingTool->getCorrectedAverageInteractionsPerCrossing( *eventInfo );
       eventInfo->auxdecor<float>("corrected_averageInteractionsPerCrossing_UP") = lumiBlockMu;
     }
     
@@ -84,7 +84,7 @@ namespace top{
       eventInfo->auxdecor<float>("PileupWeight_DOWN") = pileupWeight;
     }
     else {
-      float lumiBlockMu = m_pileupReweightingTool->getCorrectedMu( *eventInfo );
+      float lumiBlockMu = m_pileupReweightingTool->getCorrectedAverageInteractionsPerCrossing( *eventInfo );
       eventInfo->auxdecor<float>("corrected_averageInteractionsPerCrossing_DOWN") = lumiBlockMu;
     }
     

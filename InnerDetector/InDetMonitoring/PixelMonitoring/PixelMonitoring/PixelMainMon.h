@@ -45,7 +45,10 @@ class TProfile2D;
 class TProfile_LW;
 class TProfile2D_LW;
 namespace InDetDD { class PixelDetectorManager; }
-namespace InDet { class PixelCluster; }
+namespace InDet {
+class PixelCluster;
+class IInDetTrackSelectionTool;
+}  // namespace InDet
 namespace Trk {
 class SpacePoint;
 class ITrackHoleSearchTool;
@@ -119,6 +122,7 @@ class PixelMainMon : public ManagedMonitorToolBase {
   void fillSummaryHistos(PixelMon2DMapsLW* occupancy, TH1F_LW* A, TH1F_LW* C, TH1F_LW* IBL, TH1F_LW* B0, TH1F_LW* B1, TH1F_LW* B2);
   int parseDetailsString(std::string& detailsMod);
   bool isOnTrack(Identifier id, bool isCluster);
+  bool isOnTrack(Identifier id, double& cosalpha);
   double getErrorBitFraction(const Identifier& WaferID, const unsigned int& num_femcc_errorwords);
   int getErrorState(int bit, bool isibl);
   std::string makeHistname(std::string set, bool ontrk);
@@ -162,11 +166,11 @@ class PixelMainMon : public ManagedMonitorToolBase {
   ServiceHandle<IPixelCablingSvc> m_pixelCableSvc;
   ServiceHandle<IBLParameterSvc> m_IBLParameterSvc;
   ToolHandle<Trk::ITrackHoleSearchTool> m_holeSearchTool;
+  ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelTool;
   ToolHandle<ILuminosityTool> m_lumiTool;
 
   const PixelID* m_pixelid;
   uint64_t m_event;
-  uint64_t m_event2;
 
   time_t m_startTime;
   bool m_majorityDisabled;  // check for each event, true if >50% modules disabled
@@ -190,7 +194,7 @@ class PixelMainMon : public ManagedMonitorToolBase {
   const AtlasDetectorID* m_idHelper;
 
   std::vector<Identifier> m_RDOIDs;
-  std::vector<Identifier> m_ClusterIDs;
+  std::vector<std::pair<Identifier, double> > m_ClusterIDs;
 
   const DataHandle<PixelRDO_Container> m_rdocontainer;
   const InDet::PixelClusterContainer* m_Pixel_clcontainer;
@@ -250,7 +254,6 @@ class PixelMainMon : public ManagedMonitorToolBase {
   bool m_doRefresh;
   bool m_doRefresh5min;
   bool m_isFirstBook;
-  bool m_doOfflineAnalysis;
 
   bool m_doHeavyIonMon;
 
@@ -304,7 +307,6 @@ class PixelMainMon : public ManagedMonitorToolBase {
   TProfile_LW* m_avgocc_ratioIBLB0_per_lumi;
   TProfile_LW* m_avgocc_per_lumi_mod[PixLayerIBL2D3D::COUNT];
   TProfile_LW* m_avgocc_per_bcid_mod[PixLayerIBL2D3D::COUNT];
-  TProfile2D_LW* m_avgocc_per_bcid_per_lumi_mod[PixLayerIBL2D3D::COUNT];
   TProfile_LW* m_avgocc_active_per_lumi_mod[PixLayerIBL2D3D::COUNT];
   TH2F_LW* m_maxocc_per_lumi_mod[PixLayerIBL2D3D::COUNT];
   TH2F_LW* m_modocc_per_lumi[PixLayer::COUNT];
@@ -321,10 +323,8 @@ class PixelMainMon : public ManagedMonitorToolBase {
 
   // hit tot
   TH1F_LW* m_hit_ToT[PixLayerIBL2D3DDBM::COUNT];
-  TH2F_LW* m_hit_ToT_per_lumi_mod[PixLayerIBL2D3D::COUNT];
   TH1F_LW* m_hit_ToT_tmp_mod[PixLayer::COUNT];
   TH1F_LW* m_hit_ToT_Mon_mod[PixLayer::COUNT];
-  TProfile2D_LW* m_ToT_etaphi_mod[PixLayer::COUNT];
   TProfile_LW* m_hit_ToTMean_mod[PixLayer::COUNT];
 
   // timing
@@ -342,12 +342,7 @@ class PixelMainMon : public ManagedMonitorToolBase {
   std::unique_ptr<PixelMon2DLumiProfiles> m_Lvl1ID_diff_mod_ATLAS_per_LB;
   std::unique_ptr<PixelMon2DLumiProfiles> m_Lvl1ID_absdiff_mod_ATLAS_per_LB;
 
-  // quick status
-  TH2F_LW* m_nhits_L0_B11_S2_C6;
-  TProfile2D_LW* m_occupancy_L0_B11_S2_C6;
-
   // module histograms
-  std::unique_ptr<PixelMonModules1D> m_hit_num_mod;
   std::unique_ptr<PixelMonModulesProf> m_hiteff_mod;
   std::unique_ptr<PixelMonModules1D> m_FE_chip_hit_summary;
   std::unique_ptr<PixelMonModules2D> m_pixel_occupancy;
@@ -399,22 +394,6 @@ class PixelMainMon : public ManagedMonitorToolBase {
   TH1F_LW* m_clusize_ontrack_mod[PixLayerIBL2D3D::COUNT];
   TH1F_LW* m_clusize_offtrack_mod[PixLayerIBL2D3D::COUNT];
 
-  // module histograms
-  TH1F_LW* m_track_chi2_bcl1;
-  TH1F_LW* m_track_chi2_bcl0;
-  TH1F_LW* m_track_chi2_bclgt1;
-  TH1F_LW* m_track_chi2_bcl1_highpt;
-  TH1F_LW* m_track_chi2_bcl0_highpt;
-  TH1F_LW* m_track_chi2_bclgt1_highpt;
-  TH2F_LW* m_clustot_vs_pt;
-  TH1F_LW* m_clustot_lowpt;
-  TH1F_LW* m_1hitclustot_lowpt;
-  TH1F_LW* m_2hitclustot_lowpt;
-  TH1F_LW* m_clustot_highpt;
-  TH1F_LW* m_1hitclustot_highpt;
-  TH1F_LW* m_2hitclustot_highpt;
-  std::unique_ptr<PixelMonModulesProf> m_tsos_hiteff_vs_lumi;
-
   // cluster histograms
   TProfile_LW* m_clusters_per_lumi;
   TProfile_LW* m_clusters_per_lumi_mod[PixLayer::COUNT];
@@ -429,11 +408,13 @@ class PixelMainMon : public ManagedMonitorToolBase {
   TH1I_LW* m_totalclusters_per_bcid_mod[PixLayerIBL2D3D::COUNT];
   TH1I_LW* m_highNclusters_per_lumi;
   TH1F_LW* m_cluster_ToT1d_mod[PixLayerIBL2D3DDBM::COUNT];
+  TH1F_LW* m_cluster_ToT1d_corr[PixLayerIBL2D3DDBM::COUNT];
   TH1F_LW* m_1cluster_ToT_mod[PixLayer::COUNT];
   TH1F_LW* m_2cluster_ToT_mod[PixLayer::COUNT];
   TH1F_LW* m_3cluster_ToT_mod[PixLayer::COUNT];
   TH1F_LW* m_bigcluster_ToT_mod[PixLayer::COUNT];
   TH1F_LW* m_cluster_Q_mod[PixLayerIBL2D3DDBM::COUNT];
+  TH1F_LW* m_cluster_Q_corr[PixLayerIBL2D3DDBM::COUNT];
   TH1F_LW* m_1cluster_Q_mod[PixLayer::COUNT];
   TH1F_LW* m_2cluster_Q_mod[PixLayer::COUNT];
   TH1F_LW* m_3cluster_Q_mod[PixLayer::COUNT];
@@ -475,12 +456,7 @@ class PixelMainMon : public ManagedMonitorToolBase {
   std::unique_ptr<PixelMon2DProfilesLW> m_clus_LVL1A_sizenot1;
   TProfile_LW* m_clustersOnOffTrack_per_lumi;
 
-  // quick status
-  TH2F_LW* m_clusters_onTrack_L0_B11_S2_C6;
-  TH2F_LW* m_clusters_offTrack_L0_B11_S2_C6;
-
   // status histograms
-  std::unique_ptr<PixelMonModules1D> m_Status_modules;
   std::unique_ptr<PixelMon2DProfilesLW> m_status;
   std::unique_ptr<PixelMon2DProfilesLW> m_status_mon;
   std::unique_ptr<PixelMon2DProfilesLW> m_status_LB;
@@ -511,7 +487,6 @@ class PixelMainMon : public ManagedMonitorToolBase {
   std::unique_ptr<PixelMon2DProfilesLW> m_errhist_femcc_errwords_map;
 
   // Histograms in 'ErrorsExpert' folder
-  std::unique_ptr<PixelMon2DLumiMaps> m_errhist_expert_LB_maps[kNumErrorStates + kNumErrorStatesIBL];
   std::unique_ptr<PixelMon2DMapsLW> m_errhist_expert_maps[kNumErrorStates + kNumErrorStatesIBL];
   TProfile_LW* m_errhist_expert_LB[PixLayer::COUNT - 1][kNumErrorStates];
   TProfile_LW* m_errhist_expert_IBL_LB[kNumErrorStatesIBL];

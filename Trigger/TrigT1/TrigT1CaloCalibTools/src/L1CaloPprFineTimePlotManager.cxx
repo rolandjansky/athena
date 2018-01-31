@@ -101,7 +101,7 @@ float L1CaloPprFineTimePlotManager::LArQuality(const xAOD::TriggerTower* trigTow
   
     Identifier id(0);
 
-    if(isOnline){
+    if(m_isOnline){
       id = m_ttToolOnline->identifier(trigTower->eta(), trigTower->phi(), layer); 
     }else{
       if(layer == 0) id = m_ttToolOffline->emID(trigTower->eta(),trigTower->phi());
@@ -229,7 +229,7 @@ void L1CaloPprFineTimePlotManager::loadTools()
 {
     StatusCode sc;
     
-    if (isOnline) {
+    if (m_isOnline) {
         sc = m_caloTool.retrieve();
 	if ( sc.isFailure()) {
 	    *m_log<<MSG::WARNING<<"Unable to locate tool L1CaloMonitoringCaloTool" << endmsg;

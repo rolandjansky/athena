@@ -58,19 +58,6 @@ EXOT8Ak10r2JetTPThinningTool = DerivationFramework__JetTrackParticleThinning(nam
 ToolSvc += EXOT8Ak10r2JetTPThinningTool
 thinningTools.append(EXOT8Ak10r2JetTPThinningTool)
 
-#############################################
-# clusters associated with large-R jets (0.2)
-#############################################
-from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__JetCaloClusterThinning
-EXOT8Ak10r2CCThinningTool = DerivationFramework__JetCaloClusterThinning(name                    = "EXOT8Ak10r2CCThinningTool",
-                                                                        ThinningService         = "EXOT8ThinningSvc",
-                                                                        SGKey                   = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-                                                                        TopoClCollectionSGKey   = "CaloCalTopoClusters",
-                                                                        SelectionString         = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 200*GeV",
-                                                                        ConeSize                = 0)
-ToolSvc += EXOT8Ak10r2CCThinningTool
-thinningTools.append(EXOT8Ak10r2CCThinningTool)
-
 #########################################
 # truth thinning
 #########################################
@@ -326,11 +313,12 @@ EXOT8SlimmingHelper.AppendToDictionary = {
                                
 # Add all variabless for VR track-jets
 EXOT8SlimmingHelper.AllVariables  += ["AntiKtVR30Rmax4Rmin02TrackJets"]
+EXOT8SlimmingHelper.SmartCollections  += ["BTagging_AntiKtVR30Rmax4Rmin02Track"]
 
 # Save certain b-tagging variables for VR track-jet
 EXOT8SlimmingHelper.ExtraVariables += [
     "BTagging_AntiKtVR30Rmax4Rmin02Track.SV1_pb.SV1_pu.IP3D_pb.IP3D_pu",
-    "BTagging_AntiKtVR30Rmax4Rmin02Track.MV2c10_discriminant.MV2c100_discriminant",
+    "BTagging_AntiKtVR30Rmax4Rmin02Track.MV2c100_discriminant",
     "BTagging_AntiKtVR30Rmax4Rmin02Track.SV1_badTracksIP.SV1_vertices.BTagTrackToJetAssociator.MSV_vertices",
     "BTagging_AntiKtVR30Rmax4Rmin02Track.BTagTrackToJetAssociatorBB.JetFitter_JFvertices.JetFitter_tracksAtPVlinks.MSV_badTracksIP",
 ]

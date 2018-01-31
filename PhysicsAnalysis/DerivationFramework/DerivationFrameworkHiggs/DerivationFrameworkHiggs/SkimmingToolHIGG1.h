@@ -27,6 +27,7 @@
 
 #include "TrigDecisionTool/TrigDecisionTool.h"
 
+class IAsgElectronIsEMSelector;
 
 namespace DerivationFramework {
 
@@ -78,6 +79,11 @@ namespace DerivationFramework {
       bool m_incSingleElectron;
       bool m_incDoubleElectron;
       bool m_incSingleMuon;
+      bool m_incDoubleMuon;          
+      bool m_incDoubleElectronPhoton;
+      bool m_incMergedElectron;
+      bool m_incHighPtElectronPhoton;
+      bool m_incTwoPhotons;
       bool m_reqKinematic;
       bool m_reqQuality;
       bool m_reqIsolation;
@@ -90,6 +96,7 @@ namespace DerivationFramework {
 
       std::string m_defaultTrigger;
       std::vector<std::string> m_triggers;
+      std::vector<std::string> m_mergedtriggers;
 
       mutable bool m_isMC;
 
@@ -120,6 +127,11 @@ namespace DerivationFramework {
       bool   SubcutOnePhotonOneElectron() const;
       bool   SubcutTwoElectrons() const;
       bool   SubcutOnePhotonOneMuon() const;
+      bool   SubcutOnePhotonTwoElectrons() const;
+      bool   SubcutOnePhotonTwoMuons() const;
+      bool   SubcutOnePhotonMergedElectrons() const;
+      bool   SubcutHighPtOnePhotonOneElectron() const;
+
       bool   SubcutKinematic() const;
       bool   SubcutQuality() const;
       bool   SubcutIsolation() const;
@@ -128,6 +140,7 @@ namespace DerivationFramework {
       // Calculators
       bool   PhotonPreselect(const xAOD::Photon *ph) const;
       bool   ElectronPreselect(const xAOD::Electron *el) const;
+      bool   MergedElectronPreselect(const xAOD::Electron *el) const;
       bool   MuonPreselect(const xAOD::Muon *mu) const;
       void   CalculateInvariantMass() const;
       void   GetDiphotonVertex() const;
@@ -147,6 +160,10 @@ namespace DerivationFramework {
       mutable unsigned int n_passSingleElectronPreselect;
       mutable unsigned int n_passDoubleElectronPreselect;
       mutable unsigned int n_passSingleMuonPreselect;
+      mutable unsigned int n_passSinglePhotonDoubleMuonPreselect;
+      mutable unsigned int n_passSinglePhotonDoubleElectronPreselect;
+      mutable unsigned int n_passSinglePhotonMergedElectronPreselect;
+      mutable unsigned int n_passHighPtPhotonMergedElectronPreselect;
       mutable unsigned int n_passKinematic;
       mutable unsigned int n_passQuality;
       mutable unsigned int n_passIsolation;
@@ -191,6 +208,11 @@ namespace DerivationFramework {
       ///// FUNCTIONS
 
       static const double s_MZ;
+
+      ////////////////////////////
+      ///// TOOLS
+
+      ToolHandle<IAsgElectronIsEMSelector> m_mergedCutTools;
 
   }; 
 

@@ -5,14 +5,14 @@ GRLDir  GoodRunsLists
 GRLFile data15_13TeV/20170619/physics_25ns_21.0.19.xml data16_13TeV/20170605/physics_25ns_21.0.19.xml data17_13TeV/20170714/physics_25ns_HLTNo17e33primaries_21.0.30.xml
 
 ### Pile-up reweighting tool - this is now mandatory
-PRWConfigFiles dev/SUSYTools/merged_prw_mc16a_latest.root
+PRWConfigFiles dev/AnalysisTop/PileupReweighting/user.iconnell.Top.PRW.MC16a.v1/prw.merged.root
 PRWLumiCalcFiles GoodRunsLists/data15_13TeV/20170619/PHYS_StandardGRL_All_Good_25ns_276262-284484_OflLumi-13TeV-008.root GoodRunsLists/data16_13TeV/20170605/PHYS_StandardGRL_All_Good_25ns_297730-311481_OflLumi-13TeV-008.root GoodRunsLists/data17_13TeV/20170714/physics_25ns_HLTNo17e33primaries_21.0.30.lumicalc.OflLumi-13TeV-001.root
 
 ElectronCollectionName Electrons
 MuonCollectionName Muons
 JetCollectionName AntiKt4EMTopoJets
-# Turning off LargeR jets until ctest uses updated derivation file AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets
-LargeJetCollectionName None 
+LargeJetCollectionName AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets 
+LargeRJESJMSConfig CaloMass
 LargeRJetPt 200000
 LargeRJetEta 2
 LargeJetSubstructure None
@@ -74,7 +74,7 @@ DoLoose Data
 UseAodMetaData False
 IsAFII False
 
-BTaggingWP FixedCutBEff_77
+BTaggingWP MV2c10:FixedCutBEff_77 DL1:HybBEff_60
 
 # Example of how to remove systematics from b-tag EV
 #BTaggingSystExcludedFromEV FT_EFF_JET_BJES_Response;FT_EFF_JET_EffectiveNP_1;FT_EFF_EG_RESOLUTION_ALL
@@ -180,6 +180,18 @@ SELECTION ejets_2016
 . ejets_basic
 SAVE
 
+SELECTION ejets_wbjets_2015
+. EL_2015
+. ejets_basic
+JET_N_BTAG MV2c10:FixedCutBEff_77 >= 1
+SAVE
+
+SELECTION ejets_wbjets_2016
+. EL_2016
+. ejets_basic
+JET_N_BTAG MV2c10:FixedCutBEff_77 >= 1
+SAVE
+
 SELECTION ejets_particle
 PRIVTX
 PARTICLE_LEVEL
@@ -217,6 +229,18 @@ SAVE
 SELECTION mujets_2016
 . MU_2016
 . mujets_basic
+SAVE
+
+SELECTION mujets_wbjets_2015
+. MU_2015
+. mujets_basic
+JET_N_BTAG MV2c10:FixedCutBEff_77 >= 1
+SAVE
+
+SELECTION mujets_wbjets_2016
+. MU_2016
+. mujets_basic
+JET_N_BTAG MV2c10:FixedCutBEff_77 >= 1
 SAVE
 
 SELECTION mujets_particle

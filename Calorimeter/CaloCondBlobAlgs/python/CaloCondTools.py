@@ -8,10 +8,10 @@
 Python helper module for managing COOL DB connections and CaloCondBlobs. 
 """
 
-import PyCintex
+import cppyy
 from PyCool import cool
 import time, types, re
-g = PyCintex.gbl
+g = cppyy.gbl
 
 
 #=== get a logger
@@ -188,7 +188,7 @@ def iovFromRunLumi(runNum, lbkNum):
 #______________________________________________________________________
 def decodeTimeString(timeString):
     """
-    Retruns UNIX time stamp given an input time string
+    Returns UNIX time stamp given an input time string
     """
     return int(time.mktime(time.strptime(timeString,"%Y-%m-%d %H:%M:%S")))
 

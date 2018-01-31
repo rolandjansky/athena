@@ -38,7 +38,7 @@ namespace G4UA{
   }
 
 
-  void G4HitFilter::beginOfRun(const G4Run*){;
+  void G4HitFilter::BeginOfRunAction(const G4Run*){
 
     if(m_config.volumenames.size()==0){
 
@@ -85,7 +85,7 @@ namespace G4UA{
   }
 
 
-  void G4HitFilter::endOfEvent(const G4Event*){;
+  void G4HitFilter::EndOfEventAction(const G4Event*){
     unsigned int counter = 0;
 
     m_report.ntot++;

@@ -422,6 +422,9 @@ class SlimmingHelper:
                 elif collectionName=="BTagging_AntiKt4Track":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
                         items.extend(BTaggingStandardContent("AntiKt4TrackJets"))
+                elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02Track":
+                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
+                        items.extend(BTaggingStandardContent("AntiKtVR30Rmax4Rmin02TrackJets"))
                 elif collectionName=="InDetTrackParticles":
                         #from DerivationFrameworkInDet.InDetTrackParticlesCPContent import InDetTrackParticlesCPContent
                         from DerivationFrameworkCore.InDetTrackParticlesCPContent import InDetTrackParticlesCPContent

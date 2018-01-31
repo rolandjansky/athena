@@ -39,6 +39,7 @@ public:
   
 private:
   // Options for storate
+  bool m_includeNonInt; //!< Include non-interacting particles in particles
   bool m_includeNu; //!< Include neutrinos in particles
   bool m_includeMu; //!< Include muons in particles
   bool m_includePromptLeptons; //!< Include particles from prompt decays, i.e. not from hadrons

@@ -51,6 +51,12 @@ def getMC16EntryLayerFilter(name="ISF_MC16EntryLayerFilter", **kwargs):
 def getMC16LLPEntryLayerFilter(name="ISF_MC16LLPEntryLayerFilter", **kwargs):
     return getMC15aPlusLLPEntryLayerFilter(name, **kwargs)
 
+def getMC18EntryLayerFilter(name="ISF_MC18EntryLayerFilter", **kwargs):
+    return getMC15aPlusEntryLayerFilter(name, **kwargs)
+
+def getMC18LLPEntryLayerFilter(name="ISF_MC18LLPEntryLayerFilter", **kwargs):
+    return getMC15aPlusLLPEntryLayerFilter(name, **kwargs)
+
 def getValidationEntryLayerFilter(name="ISF_ValidationEntryLayerFilter", **kwargs):
     return getMC12EntryLayerFilter(name, **kwargs)
 

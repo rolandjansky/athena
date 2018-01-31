@@ -366,10 +366,10 @@ namespace SH
     static const std::string separator = "------- SampleHandler Split -------";
     std::vector<RucioListFileReplicasEntry> result;
 
-    std::string command = rucioSetupCommand() + " && echo " + separator + " && rucio list-file-replicas " + sh::quote (dataset);
+    std::string command = rucioSetupCommand() + " && echo " + separator + " && rucio list-file-replicas --protocols root " + sh::quote (dataset);
 
     ANA_MSG_INFO ("querying rucio for dataset " << dataset);
-    std::string output = sh::exec_read (rucioSetupCommand() + " && echo " + separator + " && rucio list-file-replicas " + sh::quote (dataset));
+    std::string output = sh::exec_read ( command );
     auto split = output.rfind (separator + "\n");
     if (split == std::string::npos)
       RCU_THROW_MSG ("couldn't find separator in: " + output);

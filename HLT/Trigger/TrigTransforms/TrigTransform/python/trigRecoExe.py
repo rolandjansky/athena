@@ -16,7 +16,7 @@ import re
 from PyJobTransforms.trfExe import athenaExecutor
 
 #imports for preExecute
-from PyJobTransforms.trfUtils import asetupReport
+from PyJobTransforms.trfUtils import asetupReport, cvmfsDBReleaseCheck
 import PyJobTransforms.trfEnv as trfEnv
 import PyJobTransforms.trfExceptions as trfExceptions
 from PyJobTransforms.trfExitCodes import trfExit as trfExit

@@ -13,8 +13,8 @@ from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
 
 if DerivationFrameworkIsMonteCarlo: 
-  from DerivationFrameworkTau.TauTruthCommon import * 
-
+  from DerivationFrameworkTau.TauTruthCommon import scheduleTauTruthTools
+  scheduleTauTruthTools()
 
 # running on data or MC
 from AthenaCommon.GlobalFlags import globalflags

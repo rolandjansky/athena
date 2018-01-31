@@ -46,30 +46,6 @@ namespace Trig{
     }
 
     // CHAIN CONFIGURATION IN ATHENA IS PERFORMED VIA JOB OPTION
-    // EXAMPLE OF CONFIGURATION OF ADDITIONAL EMULATED CHAINS, ONLY VIA SET PROPERTY 
-#ifdef XAOD_STANDALONE
-    std::vector< std::vector<std::string> > emulatedChainDescription;
-
-    std::vector<std::string> emulatedChainDescription1;
-    emulatedChainDescription1.push_back("HLT_2j35_bmv2c2070_split_2j35_L13J25.0ETA23");
-    emulatedChainDescription1.push_back("L1_3J25.0ETA23");
-    emulatedChainDescription1.push_back("EMUL_HLT_4j35");
-    emulatedChainDescription1.push_back("EMUL_HLT_2j35_bmv2c2070_split");
-    emulatedChainDescription.push_back( emulatedChainDescription1 );
-
-    std::vector<std::string> emulatedChainDescription2;
-    emulatedChainDescription2.push_back("HLT_2j45_bmv2c2077_split_2j45_L13J25.0ETA23");
-    emulatedChainDescription2.push_back("L1_3J25.0ETA23");
-    emulatedChainDescription2.push_back("EMUL_HLT_4j45");
-    emulatedChainDescription2.push_back("EMUL_HLT_2j45_bmv2c2077_split");
-    emulatedChainDescription.push_back( emulatedChainDescription2 );
-
-    if( m_emulationTool->setProperty("EmulatedChainDefinitions",emulatedChainDescription).isFailure() ) {
-      ATH_MSG_ERROR( "Unable to add Trigger Chains to TrigBtagEmulation Tool" );
-      return sc;
-    }
-    
-#endif 
 
     return StatusCode::SUCCESS;
   }

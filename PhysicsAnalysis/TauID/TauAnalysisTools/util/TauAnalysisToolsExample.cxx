@@ -150,7 +150,7 @@ int main( int argc, char* argv[] )
   // ===========================================================================
   TauAnalysisTools::TauSmearingTool TauSmeTool( "TauSmearingTool" );
   TauSmeTool.msg().setLevel( MSG::DEBUG );
-  CHECK(TauSmeTool.setProperty("ApplyMVATES", true ));
+  // CHECK(TauSmeTool.setProperty("ApplyMVATES", true ));
   // CHECK(TauSmeTool.setProperty("ApplyCombinedTES", true ));
   CHECK(TauSmeTool.initialize());
 

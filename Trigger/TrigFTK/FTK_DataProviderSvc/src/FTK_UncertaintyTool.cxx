@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration 
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -39,7 +39,6 @@ FTK_UncertaintyTool::FTK_UncertaintyTool(const std::string& t,
 StatusCode FTK_UncertaintyTool::initialize() {
 
   StatusCode sc = AlgTool::initialize();
-  MsgStream athenaLog(msgSvc(), name());
 
   //
   //   Load Constants
@@ -50,7 +49,7 @@ StatusCode FTK_UncertaintyTool::initialize() {
     LoadConstants();
 
 
-  athenaLog << MSG::INFO << "FTK_UncertaintyTool initialized "<< endmsg;
+  ATH_MSG_INFO("FTK_UncertaintyTool initialized ");
   return sc;
 }
 
@@ -64,9 +63,7 @@ StatusCode FTK_UncertaintyTool::finalize() {
 //
 double FTK_UncertaintyTool::getParamCovMtx(const FTK_RawTrack &trk, bool hasIBL, int id0, int id1)
 {
-  MsgStream athenaLog(msgSvc(), name());
-  int outputLevel = msgSvc()->outputLevel( name() );
-  athenaLog << MSG::VERBOSE << "In getParamCovMtx: id0: " << id0 << " id1: " << id1 << endmsg; 
+  ATH_MSG_VERBOSE("In getParamCovMtx: id0: " << id0 << " id1: " << id1); 
 
 
   //
@@ -76,22 +73,19 @@ double FTK_UncertaintyTool::getParamCovMtx(const FTK_RawTrack &trk, bool hasIBL,
     return 0.;
   }
 
-  if(outputLevel <= MSG::DEBUG)
-    athenaLog << MSG::DEBUG << "FTK_UncertaintyTool:: has BL " << hasIBL << endmsg; 
+  ATH_MSG_DEBUG("FTK_UncertaintyTool:: has BL " << hasIBL); 
   
   double trkIpt = trk.getInvPt();  
   double trkTheta = atan2(1.0,trk.getCotTh());
   double trkEta = -log(tan(trkTheta/2));
 
-  if(outputLevel <= MSG::VERBOSE){
-    athenaLog << MSG::VERBOSE << "FTK_UncertaintyTool:: trkIpt " << trkIpt << endmsg; 
-    athenaLog << MSG::VERBOSE << "FTK_UncertaintyTool:: trkEta " << trkEta << endmsg; 
-  }
+  ATH_MSG_VERBOSE("FTK_UncertaintyTool:: trkIpt " << trkIpt);
+  ATH_MSG_VERBOSE("FTK_UncertaintyTool:: trkEta " << trkEta); 
 
   double sigmaTP = -1.0;
 
   //
-  //  Uncertianties are stored using eta and 1/pt
+  //  Uncertainties are stored using eta and 1/pt
   //
   int lookUpParam = id0;
 
@@ -111,28 +105,25 @@ double FTK_UncertaintyTool::getParamCovMtx(const FTK_RawTrack &trk, bool hasIBL,
   //
   if(allConsts[hasIBL].mode(lookUpParam,trkEta) == FTK_UncertaintyTool::sqroot){
     sigmaTP = sqrt(allConsts[hasIBL].par0(lookUpParam,trkEta)+allConsts[hasIBL].par1(lookUpParam,trkEta)*trkIpt*trkIpt);
-    if(outputLevel <= MSG::DEBUG){
-      athenaLog << MSG::DEBUG << "FTK_UncertaintyTool:: sigmaTP ("   
-		<< sigmaTP <<") = sqrt("<<allConsts[hasIBL].par0(lookUpParam,trkEta) 
-		<< "+" << allConsts[hasIBL].par1(lookUpParam,trkEta) << "*" << trkIpt << "**2)" <<  endmsg; 
-      athenaLog << MSG::DEBUG << "FTK_UncertaintyTool:: (sqrt)cov "   << sigmaTP*sigmaTP << endmsg; 
-    }
+    ATH_MSG_DEBUG("FTK_UncertaintyTool:: sigmaTP ("   
+		  << sigmaTP <<") = sqrt("<<allConsts[hasIBL].par0(lookUpParam,trkEta) 
+		  << "+" << allConsts[hasIBL].par1(lookUpParam,trkEta) << "*" << trkIpt << "**2)");
+    ATH_MSG_DEBUG("FTK_UncertaintyTool:: (sqrt)cov "   << sigmaTP*sigmaTP); 
+    
     
   //
   // linear model
   //
   }else{
     sigmaTP = allConsts[hasIBL].par0(lookUpParam,trkEta) + allConsts[hasIBL].par1(lookUpParam,trkEta)*fabs(trkIpt);
-    if(outputLevel <= MSG::DEBUG){
-      athenaLog << MSG::DEBUG << "FTK_UncertaintyTool:: sigmaTP ("   
-		<< sigmaTP <<") = "<<allConsts[hasIBL].par0(lookUpParam,trkEta) 
-		<< "+" << allConsts[hasIBL].par1(lookUpParam,trkEta) << "*" << fabs(trkIpt) <<  endmsg; 
-      athenaLog << MSG::DEBUG << "FTK_UncertaintyTool:: (linear)cov "   << sigmaTP*sigmaTP << endmsg; 
-    }
+    ATH_MSG_DEBUG("FTK_UncertaintyTool:: sigmaTP ("   
+		  << sigmaTP <<") = "<<allConsts[hasIBL].par0(lookUpParam,trkEta) 
+		  << "+" << allConsts[hasIBL].par1(lookUpParam,trkEta) << "*" << fabs(trkIpt)); 
+    ATH_MSG_DEBUG("FTK_UncertaintyTool:: (linear)cov "   << sigmaTP*sigmaTP); 
   }
 
   if(sigmaTP < 0)
-    athenaLog << MSG::ERROR << " sigma TP" << sigmaTP << endmsg;
+    ATH_MSG_ERROR(" sigma TP" << sigmaTP);
 
   //
   // Convert eta to theta

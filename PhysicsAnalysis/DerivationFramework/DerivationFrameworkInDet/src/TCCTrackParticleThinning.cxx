@@ -232,6 +232,10 @@ StatusCode DerivationFramework::TCCTrackParticleThinning::doThinning() const
                 ATH_MSG_ERROR("Application of thinning service failed! ");
                 return StatusCode::FAILURE;
         }
+        if (m_thinO && m_thinningSvc->filter(*importedOriginCaloClusters, maskClusters, IThinningSvc::Operator::Or).isFailure()) {
+                ATH_MSG_ERROR("Application of thinning service failed! ");
+                return StatusCode::FAILURE;
+        }
         if (m_thinningSvc->filter(*importedTCCs, maskTCCs, IThinningSvc::Operator::Or).isFailure()) {
                 ATH_MSG_ERROR("Application of thinning service failed! ");
                 return StatusCode::FAILURE;

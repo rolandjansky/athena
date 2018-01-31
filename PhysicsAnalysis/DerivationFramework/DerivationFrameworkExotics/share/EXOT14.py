@@ -232,6 +232,8 @@ EXOT14SlimmingHelper.AllVariables = EXOT14AllVariablesContent
 EXOT14SlimmingHelper.UserContent = EXOT14Content
 EXOT14SlimmingHelper.ExtraVariables = EXOT14ExtraVariablesContent
 
+addOriginCorrectedClusters(EXOT14SlimmingHelper, writeLC = False, writeEM = True)
+
 EXOT14SlimmingHelper.IncludeEGammaTriggerContent = True
 EXOT14SlimmingHelper.IncludeMuonTriggerContent = True
 #EXOT14SlimmingHelper.IncludeJetTriggerContent = True
