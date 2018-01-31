@@ -121,7 +121,7 @@ namespace InDet {
     ToolHandle<Trk::IVertexSeedFinder> m_CrossDistancesSeedFinder;
     ToolHandle<Trk::IMode3dFinder> m_mode3dfinder;
     ToolHandle<Trk::IVertexFitter> m_SequentialVertexFitter;
-    ToolHandle<Trk::INeutralParticleParameterCalculator> m_convUtils;
+    //ToolHandle<Trk::INeutralParticleParameterCalculator> m_convUtils;
     ToolHandle< Trk::IVxCandidateXAODVertex > m_VertexEdmFactory;
     
 
