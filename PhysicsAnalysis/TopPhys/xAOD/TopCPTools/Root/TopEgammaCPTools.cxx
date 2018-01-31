@@ -136,9 +136,9 @@ StatusCode EgammaCPTools::setupCalibration() {
     IFudgeTool* fudge_tool = new ElectronPhotonShowerShapeFudgeTool(fudgeName);
     // Set Preselection to 21 (was 16) according to http://cern.ch/go/trk9
     // for MC15 samples, which are based on a geometry derived from GEO-21 from 2015+2016 data
-    top::check(asg::setProperty(fudge_tool, "Preselection", 21),
+    top::check(asg::setProperty(fudge_tool, "Preselection", 22),
                 "Failed to set " + fudgeName + " property: Preselection");
-    top::check(asg::setProperty(fudge_tool,"FFCalibFile","ElectronPhotonShowerShapeFudgeTool/v1/PhotonFudgeFactors.root"),
+    top::check(asg::setProperty(fudge_tool,"FFCalibFile","ElectronPhotonShowerShapeFudgeTool/v2/PhotonFudgeFactors.root"),
                 "Failed to set ElectronPhotonShowerShapeFudgeTool");
     top::check(fudge_tool->initialize(),
                 "Failed to initialize PhotonFudgeTool");
