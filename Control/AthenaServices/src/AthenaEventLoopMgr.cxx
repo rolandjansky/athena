@@ -85,6 +85,14 @@ AthenaEventLoopMgr::AthenaEventLoopMgr(const std::string& nam,
 		  "(DEFAULT). 2: RECOVERABLE and FAILURE skip to next events");
   declareProperty("EventPrintoutInterval", m_eventPrintoutInterval=1,
                   "Print event heartbeat printouts every m_eventPrintoutInterval events");
+  declareProperty("IntervalInSeconds", 
+#ifdef XAOD_ANALYSIS
+		  m_intervalInSeconds = 60, 
+#else
+		  m_intervalInSeconds = 0, 
+#endif
+		  "heartbeat time interval is seconds rather than events"
+		  "you also get a nice event rate printout then");
   declareProperty("UseDetailChronoStat",m_doChrono=false);
   declareProperty("ClearStorePolicy",
 		  m_clearStorePolicy = "EndEvent",
@@ -763,14 +771,25 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
       }
   }
 
+  if(m_nev==0 && m_intervalInSeconds) {
+    m_lastTime = time(NULL); //initialize timer
+  }
 
   uint64_t evtNumber = pEvent->event_ID()->event_number();
-  bool doEvtHeartbeat(m_eventPrintoutInterval.value() > 0 && 
-                      0 == (m_nev % m_eventPrintoutInterval.value()));
-  if (doEvtHeartbeat)  {
-   if(!m_useTools) m_msg << MSG::INFO
+  bool doEvtHeartbeat( m_eventPrintoutInterval.value() > 0 && 
+		       ( (!m_intervalInSeconds && 0 == (m_nev % m_eventPrintoutInterval.value())) || 
+			 (m_intervalInSeconds && (time(NULL)-m_lastTime)>m_intervalInSeconds) ) );
+  if (doEvtHeartbeat) {
+    if(!m_useTools) {
+      m_msg << MSG::INFO
 	<< "  ===>>>  start processing event #" << evtNumber << ", run #" << m_currentRun 
-	<< " " << m_nev << " events processed so far  <<<===" << endreq;
+	    << " " << m_nev << " events processed so far  <<<===";
+      if(m_intervalInSeconds) {
+	m_msg << MSG::INFO << double(m_nev-m_lastNev)/(time(NULL)-m_lastTime) << " Hz";
+	m_lastNev = m_nev; m_lastTime = time(NULL);
+      }
+      m_msg << MSG::INFO << endreq;
+    }
    else m_msg << MSG::INFO
 	<< "  ===>>>  start processing event #" << evtNumber << ", run #" << m_currentRun 
 	<< " " << m_nev << " events read and " << m_proc 
@@ -845,7 +864,8 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
   ++m_proc;
   }  // end of toolsPassed test
   ++m_nev;
-  if (doEvtHeartbeat) {
+
+  if (doEvtHeartbeat && !m_intervalInSeconds) {
    if(!m_useTools) m_msg << MSG::INFO
 	<< "  ===>>>  done processing event #" << evtNumber << ", run #" << m_currentRun 
 	<< " " << m_nev << " events processed so far  <<<===" << endreq;
