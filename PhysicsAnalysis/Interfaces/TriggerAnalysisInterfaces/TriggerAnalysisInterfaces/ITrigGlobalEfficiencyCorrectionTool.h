@@ -1,65 +1,35 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 // contact: jmaurer@cern.ch
 
 #ifndef TRIGGERANALYSISINTERFACES_ITRIGGLOBALEFFICIENCYCORRECTIONTOOL_H
 #define TRIGGERANALYSISINTERFACES_ITRIGGLOBALEFFICIENCYCORRECTIONTOOL_H 1
 
-// EDM include(s):
+#include "PATInterfaces/ISystematicsTool.h"
+#include "PATInterfaces/CorrectionCode.h"
 #include "xAODEgamma/ElectronFwd.h"
 #include "xAODMuon/Muon.h"
 
-// Tool include(s):
-#include "AsgTools/IAsgTool.h"
-#include "PATInterfaces/CorrectionCode.h"
+#include <vector>
+#include <map>
 
-class ITrigGlobalEfficiencyCorrectionTool : public virtual asg::IAsgTool {
-
+class ITrigGlobalEfficiencyCorrectionTool : public virtual CP::ISystematicsTool
+{
 public:
-	ASG_TOOL_INTERFACE( ITrigGlobalEfficiencyCorrectionTool )
+	ASG_TOOL_INTERFACE(ITrigGlobalEfficiencyCorrectionTool)
 
-   /// Helper type definition
-   typedef std::vector< const xAOD::IParticle* > IParticleConstVector;
-   /// Helper type definition
-   typedef std::vector< const xAOD::Electron* > ElectronConstVector;
-   /// Helper type definition
-   typedef std::vector< const xAOD::Muon* > MuonConstVector;
-
-   virtual CP::CorrectionCode
-   getEfficiencyScaleFactor( const IParticleConstVector& particles,
-                             double& efficiencyScaleFactor ) = 0;
-	virtual CP::CorrectionCode
-   getEfficiencyScaleFactor( unsigned runNumber,
-                             const IParticleConstVector& particles,
-                             double& efficiencyScaleFactor ) = 0;
-	virtual CP::CorrectionCode
-   getEfficiency( const IParticleConstVector& particles, double& efficiencyData,
-                  double& efficiencyMc ) = 0;
-	virtual CP::CorrectionCode
-   getEfficiency( unsigned runNumber, const IParticleConstVector& particles,
-                  double& efficiencyData, double& efficiencyMc ) = 0;
+	virtual CP::CorrectionCode getEfficiencyScaleFactor(const std::vector<const xAOD::IParticle*>& particles, double& efficiencyScaleFactor) = 0;
+	virtual CP::CorrectionCode getEfficiencyScaleFactor(unsigned runNumber, const std::vector<const xAOD::IParticle*>& particles, double& efficiencyScaleFactor) = 0;
+	virtual CP::CorrectionCode getEfficiency(const std::vector<const xAOD::IParticle*>& particles, double& efficiencyData, double& efficiencyMc) = 0;
+	virtual CP::CorrectionCode getEfficiency(unsigned runNumber, const std::vector<const xAOD::IParticle*>& particles, double& efficiencyData, double& efficiencyMc) = 0;		
 	
-	virtual CP::CorrectionCode
-   getEfficiencyScaleFactor( const ElectronConstVector& electrons,
-                             const MuonConstVector& muons,
-                             double& efficiencyScaleFactor ) = 0;
-	virtual CP::CorrectionCode
-   getEfficiencyScaleFactor( unsigned runNumber,
-                             const ElectronConstVector& electrons,
-                             const MuonConstVector& muons,
-                             double& efficiencyScaleFactor ) = 0;
-	virtual CP::CorrectionCode
-   getEfficiency( const ElectronConstVector& electrons,
-                  const MuonConstVector& muons,
-                  double& efficiencyData, double& efficiencyMc ) = 0;
-	virtual CP::CorrectionCode
-   getEfficiency( unsigned runNumber,
-                  const ElectronConstVector& electrons,
-                  const MuonConstVector& muons,
-                  double& efficiencyData, double& efficiencyMc ) = 0;
-
-}; // class ITrigGlobalEfficiencyCorrectionTool
+	virtual CP::CorrectionCode getEfficiencyScaleFactor(const std::vector<const xAOD::Electron*>& electrons,
+			const std::vector<const xAOD::Muon*>& muons, double& efficiencyScaleFactor) = 0;
+	virtual CP::CorrectionCode getEfficiencyScaleFactor(unsigned runNumber, const std::vector<const xAOD::Electron*>& electrons,
+			const std::vector<const xAOD::Muon*>& muons, double& efficiencyScaleFactor) = 0;
+	virtual CP::CorrectionCode getEfficiency(const std::vector<const xAOD::Electron*>& electrons,
+			const std::vector<const xAOD::Muon*>& muons, double& efficiencyData, double& efficiencyMc) = 0;
+	virtual CP::CorrectionCode getEfficiency(unsigned runNumber, const std::vector<const xAOD::Electron*>& electrons,
+			const std::vector<const xAOD::Muon*>& muons, double& efficiencyData, double& efficiencyMc) = 0;
+};
 
 #endif //> !TRIGGERANALYSISINTERFACES_ITRIGGLOBALEFFICIENCYCORRECTIONTOOL_H
+
