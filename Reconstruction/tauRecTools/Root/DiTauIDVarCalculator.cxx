@@ -408,9 +408,9 @@ StatusCode DiTauIDVarCalculator::calculateHadMuIDVariables(const xAOD::DiTauJet&
   dec_ParamEnergyLossSigmaMinus (xDiTau) =  ParamEnergyLossSigmaMinus;
 
   acc_muonVeryLoose (xDiTau) = (*m_muSelTool_veryloose)->accept(*mu);
-  acc_muonLoose     (xDiTau) = (*m_muSelTool_medium   )->accept(*mu);
-  acc_muonMedium    (xDiTau) = (*m_muSelTool_tight    )->accept(*mu);  
-  acc_muonTight     (xDiTau) = (*m_muSelTool_loose    )->accept(*mu);
+  acc_muonMedium    (xDiTau) = (*m_muSelTool_medium   )->accept(*mu);
+  acc_muonTight     (xDiTau) = (*m_muSelTool_tight    )->accept(*mu);  
+  acc_muonLoose     (xDiTau) = (*m_muSelTool_loose    )->accept(*mu);
   acc_muonHighpt    (xDiTau) = (*m_muSelTool_highpt   )->accept(*mu);
   acc_MuonQuality   (xDiTau) = (*m_muSelTool_veryloose)->getQuality(*mu);
   acc_MuonType      (xDiTau) = mu->muonType(); 
