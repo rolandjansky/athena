@@ -8,34 +8,33 @@
 # art-include: 21.0-TrigMC/AthenaP1
 # art-include: master/AthenaP1
 
-if [ -z ${JOB_LOG} ]; then
-  export JOB_LOG="athena.log"
-fi
-
 if [ -z ${TEST} ]; then
   export TEST="TrigP1Test"
 fi
 
-export JOB_LOG="HLT_physicsV7.log"
+export NAME=HLT_physicsV7
+export JOB_LOG="${NAME}.log"
 
-timeout 100m trigtest.pl --cleardir --test HLT_physicsV7 --rundir HLT_physicsV7 --conf TrigP1Test_ART.conf | tee ${JOB_LOG}
-
-ATH_RETURN=${PIPESTATUS[0]}
-echo "art-result: ${ATH_RETURN} ${JOB_LOG%%.*}"
-
-export JOB_LOG="Reco_tf_physicsV7_savedBS.log"
-
-timeout 30m trigtest.pl --cleardir  --test Reco_tf_physicsV7_savedBS --rundir Reco_tf_physicsV7_savedBS --conf TrigP1Test_ART.conf | tee ${JOB_LOG}
+timeout 100m trigtest_ART.pl --cleardir --test ${NAME} --rundir ${NAME} --conf TrigP1Test_ART.conf | tee ${JOB_LOG}
 
 ATH_RETURN=${PIPESTATUS[0]}
-echo "art-result: ${ATH_RETURN} ${JOB_LOG%%.*}"
+echo "art-result: ${ATH_RETURN} ${NAME}"
 
-export JOB_LOG="AthenaP1BS_standalone.log"
+export NAME=Reco_tf_physicsV7_savedBS
+export JOB_LOG="${NAME}.log"
 
-timeout 45m trigtest.pl --cleardir  --test AthenaP1BS_standalone --rundir AthenaP1BS_standalone --conf TrigP1Test_ART.conf | tee ${JOB_LOG}
+timeout 30m trigtest_ART.pl --cleardir  --test ${NAME} --rundir ${NAME} --conf TrigP1Test_ART.conf | tee ${JOB_LOG}
 
 ATH_RETURN=${PIPESTATUS[0]}
-echo "art-result: ${ATH_RETURN} ${JOB_LOG%%.*}"
+echo "art-result: ${ATH_RETURN} ${NAME}"
+
+export NAME=AthenaP1BS_standalone
+export JOB_LOG="${NAME}.log"
+
+timeout 45m trigtest_ART.pl --cleardir  --test ${NAME} --rundir ${NAME} --conf TrigP1Test_ART.conf | tee ${JOB_LOG}
+
+ATH_RETURN=${PIPESTATUS[0]}
+echo "art-result: ${ATH_RETURN} ${NAME}"
 
 
 
