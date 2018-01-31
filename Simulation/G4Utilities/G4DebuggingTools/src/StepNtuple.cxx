@@ -23,9 +23,7 @@ namespace G4UA
     : AthMessaging(Gaudi::svcLocator()->service< IMessageSvc >( "MessageSvc" ),
                    "StepNtuple")
   {
-    // Set the message level.
-    // Warning: in release 22 this syntax changes.
-    msg().setLevel(lvl);
+    AthMessaging::setLevel(lvl);
   }
 
   void StepNtuple::BeginOfEventAction(const G4Event*)
