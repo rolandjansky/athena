@@ -31,7 +31,7 @@ class LArCollisionTimeAlg : public AthAlgorithm {
     /** Standard Athena-Algorithm Constructor */
     LArCollisionTimeAlg(const std::string& name, ISvcLocator* pSvcLocator);
     /** Default Destructor */
-    ~LArCollisionTimeAlg();
+    virtual ~LArCollisionTimeAlg();
     
     /** standard Athena-Algorithm method */
     virtual StatusCode          initialize() override final;
