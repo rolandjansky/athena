@@ -62,6 +62,9 @@ StatusCode RoILArEMCellContMaker::initialize(){
     if (sc!=StatusCode::SUCCESS) return sc;
 
   }
+  else {
+    m_noiseTool.disable();
+  }
 
   if( service( "TrigTimerSvc", m_timersvc).isFailure() ) {
      std::cout << ": Unable to locate TrigTimer Service" << std::endl;
