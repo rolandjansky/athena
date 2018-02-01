@@ -1956,7 +1956,7 @@ for tool in dir():
 
 
 from AthenaCommon.AppMgr import ToolSvc
-from ParticleJetTools.ParticleJetToolsConf import JetParticleShrinkingConeAssociation, JetParticleFixedConeAssociation, JetAssocConstAlg
+from ParticleJetTools.ParticleJetToolsConf import JetParticleShrinkingConeAssociation, JetParticleFixedConeAssociation
 
 defaultTrackAssoc = \
     JetParticleShrinkingConeAssociation(
