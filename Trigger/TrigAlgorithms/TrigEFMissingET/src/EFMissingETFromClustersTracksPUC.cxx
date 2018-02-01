@@ -4,9 +4,16 @@
 
 /********************************************************************
 
-This code should be edited as necessary and then placed in the TrigEFMissingET/src directory
+NAME:     EFMissingETFromClustersTracksPUC.cxx
+PACKAGE:  Trigger/TrigAlgorithms/TrigEFMissingET
 
- ********************************************************************/
+AUTHORS:  Rui Zou, Ben Carlson, Jonathan Burr
+CREATED:  Feb 01, 2018
+
+PURPOSE:  Pile-up fit + tracks
+
+********************************************************************/
+
 #include "TrigEFMissingET/EFMissingETFromClustersTracksPUC.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
@@ -188,10 +195,14 @@ StatusCode EFMissingETFromClustersTracksPUC::execute(xAOD::TrigMissingET * /* me
     if (primaryVertex) {
       if (fabs(jet->eta() ) < 2.4) {
 	double ptsum_pv = 0;
-	for (const xAOD::TrackParticle* itrk : TracksVec) {
-	  bool accept = (itrk->pt()> m_track_ptcut && m_trackselTool->accept(*itrk, primaryVertex));
-	  if (accept && (((!itrk->vertex()) && (fabs((itrk->z0() + itrk->vz() - primaryVertex->z())*sin(itrk->theta())) <= 1.0))||(itrk->vertex() && itrk->vertex()==primaryVertex))) ptsum_pv += itrk->pt();
-	  if (accept && (((!itrk->vertex()) && (fabs((itrk->z0() + itrk->vz() - primaryVertex->z())*sin(itrk->theta())) <= 1.0))||(itrk->vertex() && itrk->vertex()==primaryVertex))) {
+	const std::vector< ElementLink< xAOD::TrackParticleContainer> > tpLinks = primaryVertex->trackParticleLinks();
+	if(tpLinks.size() != 0) {
+	  for(const auto& tp_elem : tpLinks ) {
+	    if (tp_elem != nullptr && tp_elem.isValid()) {
+	      const xAOD::TrackParticle* itrk = *tp_elem;
+	      bool accept = (itrk->pt()> m_track_ptcut && m_trackselTool->accept(*itrk, primaryVertex));
+	      if (accept) ptsum_pv += itrk->pt();
+	    }
 	  }
 	}
 	double RpT = ptsum_pv/jet->pt();
