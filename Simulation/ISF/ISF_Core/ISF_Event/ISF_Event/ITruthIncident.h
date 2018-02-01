@@ -111,6 +111,12 @@ namespace ISF {
         enter the HepMC truth event) */
     virtual HepMC::GenParticle*       childParticle(unsigned short index,
                                                     Barcode::ParticleBarcode bc = Barcode::fUndefinedBarcode) const = 0;
+    /** Update the properties of a child particle from a pre-defined
+        interaction based on the properties of the ith child of the
+        current TruthIncident (only used in quasi-stable particle
+        simulation). */
+    virtual HepMC::GenParticle*       updateChildParticle(unsigned short index,
+                                                          HepMC::GenParticle *existingChild) const = 0;
     /** Set the the barcode of all child particles to the given bc */
     virtual void                      setAllChildrenBarcodes(Barcode::ParticleBarcode bc) = 0;
 

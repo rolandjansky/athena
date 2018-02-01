@@ -249,6 +249,48 @@ HepMC::GenParticle* iGeant4::Geant4TruthIncident::childParticle(unsigned short i
 }
 
 
+HepMC::GenParticle* iGeant4::Geant4TruthIncident::updateChildParticle(unsigned short index,
+                                                                      HepMC::GenParticle *existingChild) const {
+  prepareChildren();
+
+  // the G4Track instance for the current child particle
+  const G4Track* thisChildTrack = m_children[index];
+
+  // NB: NOT checking if secondary is actually alive. Even with zero momentum,
+  //     secondary could decay right away and create further particles which pass the
+  //     truth strategies.
+
+  const G4ThreeVector & mom =  thisChildTrack->GetMomentum();
+  const double energy =  thisChildTrack->GetTotalEnergy();
+  const int pdgCode = thisChildTrack->GetDefinition()->GetPDGEncoding();
+  const HepMC::FourVector fourMomentum( mom.x(), mom.y(), mom.z(), energy);
+
+  // This is the case for quasi-stable particle simulation
+  if(existingChild->pdg_id()!=pdgCode) {
+    G4ExceptionDescription description;
+    description << G4String("updateChildParticle: ") + "Wrong PDG ID mismatch between G4Track and GenParticle";
+    G4Exception("iGeant4::Geant4TruthIncident", "PDGIDMisMatch", FatalException, description);
+  }
+  existingChild->set_momentum(fourMomentum);
+
+  TrackHelper tHelper(thisChildTrack);
+  TrackInformation *trackInfo = tHelper.GetTrackInformation();
+
+  // needed to make AtlasG4 work with ISF TruthService
+  if(trackInfo==nullptr) {
+    trackInfo = new TrackInformation( existingChild );
+    thisChildTrack->SetUserInformation( trackInfo );
+  }
+
+  trackInfo->SetParticle(existingChild);
+  trackInfo->SetClassification(RegisteredSecondary);
+  trackInfo->SetRegenerationNr(0);
+
+  //FIXME!!
+  return existingChild;
+}
+
+
 bool iGeant4::Geant4TruthIncident::particleAlive(const G4Track *track) const {
   G4TrackStatus  trackStatus = track->GetTrackStatus();
 

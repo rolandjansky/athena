@@ -100,7 +100,12 @@ namespace iGeant4 {
           Barcode to the simulator particle */
       HepMC::GenParticle*       childParticle(unsigned short index,
                                               Barcode::ParticleBarcode bc) const override final;
-
+      /** Update the properties of a child particle from a pre-defined
+          interaction based on the properties of the ith child of the
+          current TruthIncident (only used in quasi-stable particle
+          simulation). */
+      HepMC::GenParticle* updateChildParticle(unsigned short index,
+                                              HepMC::GenParticle *existingChild) const override final;
     private:
       Geant4TruthIncident();
       /** prepare the child particles */
