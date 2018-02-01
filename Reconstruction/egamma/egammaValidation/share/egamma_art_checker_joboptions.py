@@ -5,14 +5,14 @@ from GaudiSvc.GaudiSvcConf                  import THistSvc
 import AthenaRootComps.ReadAthenaxAODHybrid
 
 # ART File
-testFile = 'ART_Rec.root'
+testFile = 'Base_Rec.pool.root'
 svcMgr.EventSelector.InputCollections = [testFile]
 
 job = CfgMgr.AthSequencer("AthAlgSeq")
 job += CfgMgr.ArtTest()
 
 theApp.EvtMax = 2000
-svcMgr.THistSvc.Output += ["MONITORING DATAFILE='ART-monitoring.root' OPT='RECREATE'"]
+svcMgr.THistSvc.Output += ["MONITORING DATAFILE='Base-monitoring.root' OPT='RECREATE'"]
 
 
 print ( "\n\nALL OK\n\n" )

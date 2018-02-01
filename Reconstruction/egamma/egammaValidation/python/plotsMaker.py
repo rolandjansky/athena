@@ -113,7 +113,7 @@ leg4.Draw()
 print " SAVING "
 
 c1.Update()
-c1.SaveAs("rootComparison/Comp.pdf")
-c1.SaveAs("rootComparison/Comp.root")
+c1.SaveAs("Comparison.pdf")
+c1.SaveAs("Comparison.root")
 
 print " FINISHED \n"
