@@ -767,21 +767,21 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
   }
 
   if(m_nev==0 && m_intervalInSeconds) {
-    m_lastTime = time(NULL); //initialize timer
+    m_lastTime = time(nullptr); //initialize timer
   }
 
   uint64_t evtNumber = pEvent->event_ID()->event_number();
   bool doEvtHeartbeat( m_eventPrintoutInterval.value() > 0 && 
 		       ( (!m_intervalInSeconds && 0 == (m_nev % m_eventPrintoutInterval.value())) || 
-			 (m_intervalInSeconds && (time(NULL)-m_lastTime)>m_intervalInSeconds) ) );
+			 (m_intervalInSeconds && (time(nullptr)-m_lastTime)>m_intervalInSeconds) ) );
   if (doEvtHeartbeat) {
     if(!m_useTools) {
       m_msg << MSG::INFO
 	<< "  ===>>>  start processing event #" << evtNumber << ", run #" << m_currentRun 
 	    << " " << m_nev << " events processed so far  <<<===";
       if(m_intervalInSeconds) {
-	m_msg << MSG::INFO << double(m_nev-m_lastNev)/(time(NULL)-m_lastTime) << " Hz";
-	m_lastNev = m_nev; m_lastTime = time(NULL);
+	m_msg << MSG::INFO << double(m_nev-m_lastNev)/(time(nullptr)-m_lastTime) << " Hz";
+	m_lastNev = m_nev; m_lastTime = time(nullptr);
       }
       m_msg << MSG::INFO << endreq;
     }
