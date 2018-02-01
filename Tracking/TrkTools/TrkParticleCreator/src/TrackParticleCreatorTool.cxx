@@ -175,6 +175,9 @@ namespace Trk
         ATH_MSG_DEBUG( "Retrieved tool " << m_trackSummaryTool );
       }
     }
+    else {
+      m_trackSummaryTool.disable();
+    }
     
     /* Retrieve track extrapolator from ToolService */
     if ( m_extrapolator.retrieve().isFailure() ) {
