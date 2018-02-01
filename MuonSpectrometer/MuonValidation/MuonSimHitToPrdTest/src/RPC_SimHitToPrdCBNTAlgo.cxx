@@ -166,7 +166,6 @@ public:
 
 RPC_SimHitToPrdCBNTAlgo::Clockwork::Clockwork() : nt(NULL)
 {
-    std::cout<<"HERE WE ARE - Clockwork constructor"<<std::endl;
 }
 
 
