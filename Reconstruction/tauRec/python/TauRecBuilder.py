@@ -312,7 +312,10 @@ class TauRecVariablesProcessor ( TauRecConfigured ) :
                                                            weightsFile="EleBDT1PEnd23.root", minNTracks=1, minAbsTrackEta=2.0, 
                                                            maxAbsTrackEta=3.0, outputVarName="BDTEleScore")) #update config?
                 tools.append(taualgs.getTauWPDecoratorEleBDT())
-                tools.append(taualgs.getTauJetRNNEvaluator(suffix="TauJetRNN", NetworkFile1P="", NetworkFile3P="", OutputVarname="RNNJetScore", MaxTracks=10, MaxClusters=6,)) # to be updated!!!
+                tools.append(taualgs.getTauJetRNNEvaluator(suffix="TauJetRNN",
+                                                           NetworkFile1P="rnnid_prelim_config_deep_1p.json",
+                                                           NetworkFile3P="rnnid_prelim_config_deep_3p.json",
+                                                           OutputVarname="RNNJetScore", MaxTracks=10, MaxClusters=6))
                 tools.append(taualgs.getTauWPDecoratorJetRNN())
                 tools.append(taualgs.getTauEleOLRDecorator())
                 pass

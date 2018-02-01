@@ -886,13 +886,13 @@ def getTauWPDecoratorJetRNN():
     _name = sPrefix + 'TauWPDecoratorJetRNN'
     from tauRecTools.tauRecToolsConf import TauWPDecorator
     myTauWPDecorator = TauWPDecorator( name=_name,
-                                       flatteningFile1Prong = "", # to be updated!!!
-                                       flatteningFile3Prong = "", # to be updated!!!
-                                       CutEnumVals = 
+                                       flatteningFile1Prong = "rnnid_prelim_flat_deep_1p.root",
+                                       flatteningFile3Prong = "rnnid_prelim_flat_deep_3p.root",
+                                       CutEnumVals =
                                        [ ROOT.xAOD.TauJetParameters.JetRNNSigVeryLoose, ROOT.xAOD.TauJetParameters.JetRNNSigLoose,
                                          ROOT.xAOD.TauJetParameters.JetRNNSigMedium, ROOT.xAOD.TauJetParameters.JetRNNSigTight ],
-                                       SigEff1P = [0.95, 0.85, 0.75, 0.60],          # to be updated!!!
-                                       SigEff3P = [0.95, 0.75, 0.60, 0.45],          # to be updated!!!
+                                       SigEff1P = [0.95, 0.85, 0.75, 0.60],
+                                       SigEff3P = [0.95, 0.75, 0.60, 0.45],
                                        ScoreName = "RNNJetScore",
                                        NewScoreName = "RNNJetScoreSigTrans",
                                        DefineWPs = True,
