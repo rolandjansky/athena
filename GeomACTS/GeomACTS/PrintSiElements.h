@@ -10,11 +10,24 @@
 //#include "CLHEP/Geometry/Transform3D.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 
+
 #include <fstream>
 
 class IGeoModelSvc;
 
 /////////////////////////////////////////////////////////////////////////////
+
+namespace Acts {
+  class TrackingGeometry;
+  class ITrackingVolumeBuilder;
+  class CylinderVolumeHelper;
+  class GeoModelDetectorElement;
+}
+
+namespace InDetDD {
+  class InDetDetectorManager;
+}
+
 
 class PrintSiElements : public AthAlgorithm {
 public:
@@ -23,12 +36,18 @@ public:
   StatusCode execute();
   StatusCode finalize();
 
-  StatusCode printElements(const std::string & managerName);
+  StatusCode buildTrackingGeometry();
+
+  void writeTrackingGeometry(const Acts::TrackingGeometry& trackingGeometry);
 
   std::string printTransform(const Amg::Transform3D & trans) const;
   void extractAlphaBetaGamma(const Amg::Transform3D & trans, double& alpha, double& beta, double &gamma) const;
 
+  std::shared_ptr<const Acts::ITrackingVolumeBuilder> 
+  makeVolumeBuilder(const InDetDD::InDetDetectorManager* manager, std::shared_ptr<const Acts::CylinderVolumeHelper> cvh);
+
 private:
+  std::shared_ptr<std::vector<std::shared_ptr<const Acts::GeoModelDetectorElement>>> m_elementStore;
   std::ofstream m_fileout;
   bool m_firstEvent;
   // Alg properties

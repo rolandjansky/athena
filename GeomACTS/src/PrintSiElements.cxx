@@ -17,6 +17,7 @@
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "InDetReadoutGeometry/SiDetectorManager.h"
+#include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "TrkSurfaces/TrapezoidBounds.h"
 
 #include <Eigen/Dense>
@@ -38,10 +39,13 @@
 #include "ACTS/Tools/TrackingGeometryBuilder.hpp"
 #include "ACTS/Tools/TrackingVolumeArrayCreator.hpp"
 #include "ACTS/Tools/ITrackingVolumeBuilder.hpp"
+#include "ACTS/Tools/ILayerBuilder.hpp"
 
 #include "GeomACTS/GeoModelLayerBuilder.hpp"
+#include "GeomACTS/GeoModelStrawLayerBuilder.hpp"
 #include "GeomACTS/obj/ObjSurfaceWriter.hpp"
 #include "GeomACTS/obj/ObjTrackingGeometryWriter.hpp"
+#include "GeomACTS/IdentityHelper.hpp"
 
 #include "GeoModelKernel/GeoPrintGraphAction.h"
 
@@ -54,14 +58,6 @@ namespace {
 const Amg::Vector3D origin(0., 0., 0.);
 }
 
-#define PRV(v)                           \
-  #v << "(x="                            \
-     << v.x() << ", y="                  \
-              << v.y() << ", z="         \
-                       << v.z() << " r=" \
-                                << v.perp() << ", phi=" << v.phi() << ")"
-
-#define DUMP(v) #v << "=" << v
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -108,89 +104,21 @@ StatusCode PrintSiElements::initialize() {
   m_fileout << "# Pixel tag: " << geoModel->pixelVersionOverride() << std::endl;
   m_fileout << "# SCT   tag: " << geoModel->SCT_VersionOverride() << std::endl;
   m_fileout << "# TRT   tag: " << geoModel->TRT_VersionOverride() << std::endl;
+
+  // prepare element store
+  m_elementStore = std::make_shared<std::vector<std::shared_ptr<const Acts::GeoModelDetectorElement>>>();
+
   return StatusCode::SUCCESS;
 }
 
-StatusCode PrintSiElements::printElements(const std::string& managerName) {
-  const InDetDD::SiDetectorManager* siDetManager;
-  ATH_CHECK(detStore()->retrieve(siDetManager, managerName));
-
-  const InDetDD::SiDetectorManager* manager;
-  ATH_CHECK(detStore()->retrieve(manager, managerName));
-
-  Eigen::Vector3d ctrAvg(0, 0, 0);
-  size_t nElem = 0;
-
-  using GMLB = Acts::GeoModelLayerBuilder;
-  GMLB::Config cfg;
-  
-  if(managerName == "Pixel") {
-    cfg.subdetector = Acts::GeoModelDetectorElement::Subdetector::Pixel;
-  }
-  else {
-    cfg.subdetector = Acts::GeoModelDetectorElement::Subdetector::SCT;
-  }
-
-  auto elementStore = std::make_shared<GMLB::ElementVector>();
-
-  cfg.mng = manager;
-  cfg.elementStore = elementStore;
-
-  auto matcher = [](Acts::BinningValue bValue, const Acts::Surface* aS,
-                    const Acts::Surface* bS) -> bool {
-
-    auto a = dynamic_cast<const Acts::GeoModelDetectorElement*>(
-        aS->associatedDetectorElement());
-    auto b = dynamic_cast<const Acts::GeoModelDetectorElement*>(
-        bS->associatedDetectorElement());
-
-    // check if same bec
-    // can't be same if not
-    if(a->bec() != b->bec()) return false;
-
-    if (bValue == Acts::binPhi) {
-      return a->phi_module() == b->phi_module();
-    }
-
-    if (bValue == Acts::binZ) {
-      return (a->eta_module() == b->eta_module())
-             && (a->layer_disk() == b->layer_disk())
-             && (a->bec() == b->bec());
-    }
-
-    if (bValue == Acts::binR) {
-      //std::cout << "eta " << a->eta_module() << " <-> " << b->eta_module() << std::endl;
-      //std::cout << "bec " << a->bec() << " <-> " << b->bec() << std::endl;
-      //std::cout << "ld " << a->layer_disk() << " <-> " << b->layer_disk() << std::endl;
-      return (a->eta_module() == b->eta_module()) 
-             && (a->layer_disk() == b->layer_disk()) 
-             && (a->bec() == b->bec());
-    }
-
-    return false;
-  };
-
-  Acts::SurfaceArrayCreator::Config sacCfg;
-  sacCfg.surfaceMatcher = matcher;
-
-  auto surfaceArrayCreator = std::make_shared<Acts::SurfaceArrayCreator>(
-      sacCfg,
-      Acts::getDefaultLogger("SurfaceArrayCreator", Acts::Logging::VERBOSE));
-  Acts::LayerCreator::Config lcCfg;
-  lcCfg.surfaceArrayCreator = surfaceArrayCreator;
-  auto layerCreator = std::make_shared<Acts::LayerCreator>(
-      lcCfg, Acts::getDefaultLogger("LayerCreator", Acts::Logging::VERBOSE));
-
-  cfg.layerCreator = layerCreator;
-
+StatusCode PrintSiElements::buildTrackingGeometry() {
+  //const InDetDD::SiDetectorManager* siDetManager;
+  //ATH_CHECK(detStore()->retrieve(siDetManager, managerName));
+      //if ( detStore()->retrieve(m_TRTGeoManager, "TRT").isFailure()) {
 
   Acts::Logging::Level loggingLevel = Acts::Logging::VERBOSE;
 
-  // auto gmLayerBuilder = GMLB(cfg);
-  //GMLB gmLayerBuilder(cfg);
-  auto gmLayerBuilder = std::make_shared<const GMLB>(cfg);
-
-
+  std::list<std::shared_ptr<const Acts::ITrackingVolumeBuilder>> volumeBuilders;
 
   auto layerArrayCreator = std::make_shared<const Acts::LayerArrayCreator>(
       Acts::getDefaultLogger("LayArrayCreator", loggingLevel));
@@ -208,10 +136,158 @@ StatusCode PrintSiElements::printElements(const std::string& managerName) {
         cvhConfig, Acts::getDefaultLogger("CylVolHelper", loggingLevel));
 
 
+  // PIXEL and SCT
+
+  //std::array<std::string, 2> siDetectors = {"Pixel", "SCT"};
+  //for(const auto& managerName : siDetectors) {
+    //const InDetDD::SiDetectorManager* manager;
+    //ATH_CHECK(detStore()->retrieve(manager, managerName));
+    //volumeBuilders.push_back(makeVolumeBuilder(manager, cylinderVolumeHelper));
+  //}
+
+
+  // TRT
+  const InDetDD::TRT_DetectorManager* trtMng;
+  ATH_CHECK(detStore()->retrieve(trtMng, "TRT"));
+  volumeBuilders.push_back(makeVolumeBuilder(trtMng, cylinderVolumeHelper));
+
+
+
+
+
+  Acts::TrackingGeometryBuilder::Config tgbConfig;
+  tgbConfig.trackingVolumeHelper   = cylinderVolumeHelper;
+  tgbConfig.trackingVolumeBuilders = volumeBuilders;
+  auto trackingGeometryBuilder
+      = std::make_shared<const Acts::TrackingGeometryBuilder>(tgbConfig);
+  
+
+  //std::unique_ptr<const Acts::TrackingGeometry> trackingGeometry = trackingGeometryBuilder->trackingGeometry();
+
+
+  //writeTrackingGeometry(*trackingGeometry);
+
+
+  return StatusCode::SUCCESS;
+}
+
+std::shared_ptr<const Acts::ITrackingVolumeBuilder> 
+PrintSiElements::makeVolumeBuilder(const InDetDD::InDetDetectorManager* manager, std::shared_ptr<const Acts::CylinderVolumeHelper> cvh)
+{
+  std::string managerName = manager->getName();
+
+  Eigen::Vector3d ctrAvg(0, 0, 0);
+  size_t nElem = 0;
+
+  using GMLB = Acts::GeoModelLayerBuilder;
+
+  Acts::Logging::Level loggingLevel = Acts::Logging::VERBOSE;
+
+  // auto gmLayerBuilder = GMLB(cfg);
+  //GMLB gmLayerBuilder(cfg);
+  std::shared_ptr<const Acts::ILayerBuilder> gmLayerBuilder;
+  if (manager->getName() == "TRT") {
+    auto matcher = [](Acts::BinningValue /*bValue*/, const Acts::Surface* /*aS*/,
+                      const Acts::Surface* /*bS*/) -> bool {
+      return false;
+    };
+
+    Acts::SurfaceArrayCreator::Config sacCfg;
+    sacCfg.surfaceMatcher = matcher;
+    sacCfg.doPhiBinningOptimization = false;
+
+    auto surfaceArrayCreator = std::make_shared<Acts::SurfaceArrayCreator>(
+        sacCfg,
+        Acts::getDefaultLogger("SurfaceArrayCreator", Acts::Logging::VERBOSE));
+    Acts::LayerCreator::Config lcCfg;
+    lcCfg.surfaceArrayCreator = surfaceArrayCreator;
+    auto layerCreator = std::make_shared<Acts::LayerCreator>(
+        lcCfg, Acts::getDefaultLogger("LayerCreator", Acts::Logging::VERBOSE));
+
+    Acts::GeoModelStrawLayerBuilder::Config cfg;
+    cfg.mng = static_cast<const InDetDD::TRT_DetectorManager*>(manager);
+    cfg.elementStore = m_elementStore;
+    cfg.layerCreator = layerCreator;
+    gmLayerBuilder = std::make_shared<const Acts::GeoModelStrawLayerBuilder>(cfg,
+      Acts::getDefaultLogger("GMSLayBldr", Acts::Logging::VERBOSE));
+    gmLayerBuilder->centralLayers();
+  }
+  else {
+    auto matcher = [](Acts::BinningValue bValue, const Acts::Surface* aS,
+                      const Acts::Surface* bS) -> bool {
+
+      auto a = dynamic_cast<const Acts::GeoModelDetectorElement*>(
+          aS->associatedDetectorElement());
+      auto b = dynamic_cast<const Acts::GeoModelDetectorElement*>(
+          bS->associatedDetectorElement());
+
+
+      //auto id_a = a->identify();
+      //auto id_b = b->identify();
+    
+      Acts::IdentityHelper idA = a->identityHelper();
+      Acts::IdentityHelper idB = b->identityHelper();
+
+      // check if same bec
+      // can't be same if not
+      if(idA.bec() != idB.bec()) return false;
+
+      if (bValue == Acts::binPhi) {
+        //std::cout << idA.phi_module() << " <-> " << idB.phi_module() << std::endl;
+        return idA.phi_module() == idB.phi_module();
+      }
+
+      if (bValue == Acts::binZ) {
+        return (idA.eta_module() == idB.eta_module())
+               && (idA.layer_disk() == idB.layer_disk())
+               && (idA.bec() == idB.bec());
+      }
+
+      if (bValue == Acts::binR) {
+        return (idA.eta_module() == idB.eta_module()) 
+               && (idA.layer_disk() == idB.layer_disk())
+               && (idB.bec() == idA.bec());
+      }
+
+      return false;
+    };
+
+    Acts::SurfaceArrayCreator::Config sacCfg;
+    sacCfg.surfaceMatcher = matcher;
+
+    auto surfaceArrayCreator = std::make_shared<Acts::SurfaceArrayCreator>(
+        sacCfg,
+        Acts::getDefaultLogger("SurfaceArrayCreator", Acts::Logging::VERBOSE));
+    Acts::LayerCreator::Config lcCfg;
+    lcCfg.surfaceArrayCreator = surfaceArrayCreator;
+    auto layerCreator = std::make_shared<Acts::LayerCreator>(
+        lcCfg, Acts::getDefaultLogger("LayerCreator", Acts::Logging::VERBOSE));
+
+
+
+    GMLB::Config cfg;
+    
+    if(managerName == "Pixel") {
+      cfg.subdetector = Acts::GeoModelDetectorElement::Subdetector::Pixel;
+    }
+    else {
+      cfg.subdetector = Acts::GeoModelDetectorElement::Subdetector::SCT;
+    }
+
+    cfg.mng = static_cast<const InDetDD::SiDetectorManager*>(manager);
+    // use class member element store
+    cfg.elementStore = m_elementStore;
+    cfg.layerCreator = layerCreator;
+    gmLayerBuilder = std::make_shared<const GMLB>(cfg,
+      Acts::getDefaultLogger("GMLayBldr", Acts::Logging::VERBOSE));
+  }
+
+
+
   Acts::CylinderVolumeBuilder::Config cvbConfig;
   cvbConfig.layerEnvelopeR = {2, 2};
   cvbConfig.layerEnvelopeZ       = 2;
-  cvbConfig.trackingVolumeHelper = cylinderVolumeHelper;
+  cvbConfig.trackingVolumeHelper = cvh;
   cvbConfig.volumeSignature      = 0;
   cvbConfig.volumeName           = managerName;
   //cvbConfig.volumeMaterial       = volumeMaterial;
@@ -222,42 +298,39 @@ StatusCode PrintSiElements::printElements(const std::string& managerName) {
         cvbConfig,
         Acts::getDefaultLogger("CylinderVolumeBuilder", loggingLevel));
 
-  std::list<std::shared_ptr<const Acts::ITrackingVolumeBuilder>> volumeBuilders;
-  volumeBuilders.push_back(cylinderVolumeBuilder);
+  return cylinderVolumeBuilder;
+}
 
-
-  Acts::TrackingGeometryBuilder::Config tgbConfig;
-  tgbConfig.trackingVolumeHelper   = cylinderVolumeHelper;
-  tgbConfig.trackingVolumeBuilders = volumeBuilders;
-  auto trackingGeometryBuilder
-      = std::make_shared<const Acts::TrackingGeometryBuilder>(tgbConfig);
-  
-
-  std::unique_ptr<const Acts::TrackingGeometry> trackingGeometry = trackingGeometryBuilder->trackingGeometry();
+void 
+PrintSiElements::writeTrackingGeometry(const Acts::TrackingGeometry& trackingGeometry)
+{
+  std::vector<std::string> subDetectors
+      = {"Pixel", "SCT"};
 
   std::vector<std::shared_ptr<ObjSurfaceWriter>> subWriters;
   std::vector<std::shared_ptr<std::ofstream>>           subStreams;
 
-  std::string sdet = managerName;
-  auto        sdStream = std::shared_ptr<std::ofstream>(new std::ofstream);
-  std::string sdOutputName = sdet + std::string(".obj");
-  sdStream->open(sdOutputName);
-  // object surface writers
-  ObjSurfaceWriter::Config sdObjWriterConfig(sdet,
-      Acts::Logging::INFO);
-  sdObjWriterConfig.filePrefix         = "";
-  sdObjWriterConfig.outputPhiSegemnts  = 72;
-  sdObjWriterConfig.outputPrecision    = 6;
-  sdObjWriterConfig.outputScalor       = 1.;
-  sdObjWriterConfig.outputThickness    = 1.;
-  sdObjWriterConfig.outputSensitive    = true;
-  sdObjWriterConfig.outputLayerSurface = true;
-  sdObjWriterConfig.outputStream       = sdStream;
-  auto sdObjWriter
-    = std::make_shared<ObjSurfaceWriter>(sdObjWriterConfig);
-  // push back
-  subWriters.push_back(sdObjWriter);
-  subStreams.push_back(sdStream);
+  for (const auto& sdet : subDetectors) {
+    auto        sdStream = std::shared_ptr<std::ofstream>(new std::ofstream);
+    std::string sdOutputName = sdet + std::string(".obj");
+    sdStream->open(sdOutputName);
+    // object surface writers
+    ObjSurfaceWriter::Config sdObjWriterConfig(sdet,
+        Acts::Logging::INFO);
+    sdObjWriterConfig.filePrefix         = "";
+    sdObjWriterConfig.outputPhiSegemnts  = 72;
+    sdObjWriterConfig.outputPrecision    = 6;
+    sdObjWriterConfig.outputScalor       = 1.;
+    sdObjWriterConfig.outputThickness    = 1.;
+    sdObjWriterConfig.outputSensitive    = true;
+    sdObjWriterConfig.outputLayerSurface = true;
+    sdObjWriterConfig.outputStream       = sdStream;
+    auto sdObjWriter
+      = std::make_shared<ObjSurfaceWriter>(sdObjWriterConfig);
+    // push back
+    subWriters.push_back(sdObjWriter);
+    subStreams.push_back(sdStream);
+  }
 
   // configure the tracking geometry writer
   ObjTrackingGeometryWriter::Config tgObjWriterConfig(
@@ -271,25 +344,16 @@ StatusCode PrintSiElements::printElements(const std::string& managerName) {
     = std::make_shared<ObjTrackingGeometryWriter>(tgObjWriterConfig);
 
   // write the tracking geometry object
-  tgObjWriter->write(*(trackingGeometry.get()));
+  tgObjWriter->write(trackingGeometry);
 
-  //gmLayerBuilder->centralLayers();
-  //gmLayerBuilder->negativeLayers();
-  //gmLayerBuilder->positiveLayers();
-  
-
-
-
-
-
-  return StatusCode::SUCCESS;
 }
 
 StatusCode PrintSiElements::execute() {
   if (m_firstEvent) {
     m_firstEvent = false;
     //ATH_CHECK(printElements("Pixel"));
-     ATH_CHECK( printElements("SCT") );
+     //ATH_CHECK( printElements("SCT") );
+    ATH_CHECK( buildTrackingGeometry() );
   }
   return StatusCode::SUCCESS;
 }
