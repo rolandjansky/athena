@@ -124,7 +124,6 @@ def getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='', ca
     
     from tauRecTools.tauRecToolsConf import TauCalibrateLC
     TauCalibrateLC = TauCalibrateLC(name = _name,
-                                    #calibrationFile = "EnergyCalibrationLC2012_retuned.root",
                                     calibrationFile = calibFileName,
                                     doEnergyCorrection = correctEnergy,
                                     doAxisCorrection = correctAxis)
@@ -133,6 +132,37 @@ def getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='', ca
             
     cached_instances[_name] = TauCalibrateLC                
     return TauCalibrateLC
+
+########################################################################
+# MvaTESVariableDecorator
+def getMvaTESVariableDecorator():
+
+    _name = sPrefix + 'MvaTESVariableDecorator'
+
+    if _name in cached_instances:
+        return cached_instances[_name]
+
+    from tauRecTools.tauRecToolsConf import MvaTESVariableDecorator
+    MvaTESVariableDecorator = MvaTESVariableDecorator(name = _name)
+
+    cached_instances[_name] = MvaTESVariableDecorator
+    return MvaTESVariableDecorator
+
+########################################################################
+# MvaTESEvaluator
+def getMvaTESEvaluator():
+
+    _name = sPrefix + 'MvaTESEvaluator'
+
+    if _name in cached_instances:
+        return cached_instances[_name]
+
+    from tauRecTools.tauRecToolsConf import MvaTESEvaluator
+    MvaTESEvaluator = MvaTESEvaluator(name = _name,
+                                      WeightFileName = 'OnlineMvaTES_BRT_v0.weights.root')
+
+    cached_instances[_name] = MvaTESEvaluator
+    return MvaTESEvaluator
 
 ########################################################################
 # Tau cell variables calculation
