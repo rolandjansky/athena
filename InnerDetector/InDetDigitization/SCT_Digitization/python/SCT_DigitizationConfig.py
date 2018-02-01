@@ -74,6 +74,10 @@ def getSCT_SurfaceChargesGenerator(name="SCT_SurfaceChargesGenerator", **kwargs)
     if not hasattr(condSeq, "SCT_SiliconHVCondAlg"):
         from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SiliconHVCondAlg
         condSeq += SCT_SiliconHVCondAlg(name = "SCT_SiliconHVCondAlg")
+    # For SCT_SiPropertiesSvc
+    if not hasattr(condSeq, "SCTSiPropertiesCondAlg"):
+        from SiPropertiesSvc.SiPropertiesSvcConf import SCTSiPropertiesCondAlg
+        condSeq += SCTSiPropertiesCondAlg(name = "SCTSiPropertiesCondAlg")
     ## SCT_SiPropertiesSvc - used by SCT_SurfaceChargesGenerator
     if not hasattr(ServiceMgr, "SCT_SiPropertiesSvc"):
         # Lorentz Angle Service
@@ -81,10 +85,10 @@ def getSCT_SurfaceChargesGenerator(name="SCT_SurfaceChargesGenerator", **kwargs)
         # Silicon conditions service (set up by LorentzAngleSvcSetup)
         sctSiliconConditionsSvc = ServiceMgr.SCT_SiliconConditionsSvc        
         # Silicon properties service
-        from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesSvc;
-        sctSiPropertiesSvc = SiPropertiesSvc(name = "SCT_SiPropertiesSvc",
-                                             DetectorName="SCT",
-                                             SiConditionsServices = sctSiliconConditionsSvc)
+        from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesCHSvc;
+        sctSiPropertiesSvc = SiPropertiesCHSvc(name = "SCT_SiPropertiesSvc",
+                                               DetectorName = "SCT",
+                                               ReadKey = "SCTSiliconPropertiesVector")
         ServiceMgr += sctSiPropertiesSvc
     ## Charge trapping service - used by SCT_SurfaceChargesGenerator
     if not hasattr(ServiceMgr, "InDetSCT_RadDamageSummarySvc"):
