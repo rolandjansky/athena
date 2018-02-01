@@ -637,7 +637,7 @@ namespace CP {
 
     // :: Access MS hits information 
     uint8_t nprecisionLayers(0), nGoodPrecLayers(0), innerSmallHits(0), innerLargeHits(0), middleSmallHits(0), middleLargeHits(0), 
-      outerSmallHits(0), outerLargeHits(0), extendedSmallHits(0), extendedLargeHits(0), extendedSmallHoles(0), isSmallGoodSectors(0);
+      outerSmallHits(0), outerLargeHits(0), extendedSmallHits(0), extendedLargeHits(0), extendedSmallHoles(0), isSmallGoodSectors(0), cscUnspoiledEtaHits(0);
     if ( !mu.summaryValue( nprecisionLayers, xAOD::SummaryType::numberOfPrecisionLayers ) || 
 	 !mu.summaryValue( nGoodPrecLayers, xAOD::numberOfGoodPrecisionLayers ) ||
 	 !mu.summaryValue(innerSmallHits, xAOD::MuonSummaryType::innerSmallHits) ||
@@ -649,7 +649,8 @@ namespace CP {
 	 !mu.summaryValue(extendedSmallHits, xAOD::MuonSummaryType::extendedSmallHits) ||
 	 !mu.summaryValue(extendedLargeHits, xAOD::MuonSummaryType::extendedLargeHits) ||
 	 !mu.summaryValue(extendedSmallHoles, xAOD::MuonSummaryType::extendedSmallHoles) ||
-	 !mu.summaryValue(isSmallGoodSectors, xAOD::MuonSummaryType::isSmallGoodSectors)
+	 !mu.summaryValue(isSmallGoodSectors, xAOD::MuonSummaryType::isSmallGoodSectors) ||
+	 !mu.summaryValue(cscUnspoiledEtaHits, xAOD::MuonSummaryType::cscUnspoiledEtaHits)
        ){
       ATH_MSG_WARNING("passedHighPtCuts - MS hits information missing!!! Failing High-pT selection...");
       return false;
@@ -681,6 +682,11 @@ namespace CP {
       float phiMS = MS_track->phi();
       float etaCB = CB_track->eta();
 
+      //::: no unspoiled clusters in CSC
+      if( fabs(etaMS)>2.0 || fabs(etaCB)>2.0  ) {
+	if( cscUnspoiledEtaHits==0 ) return false;
+      }
+      
       //::: Barrel/Endcap overlap region
       if( 1.01 < fabs( etaMS ) && fabs( etaMS ) < 1.1 ) return false;
       if( 1.01 < fabs( etaCB ) && fabs( etaCB ) < 1.1 ) return false;
