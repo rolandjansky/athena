@@ -40,17 +40,17 @@ class MuonCreatorAlg : public AthAlgorithm
   SG::WriteHandleKey<xAOD::MuonContainer> m_muonCollectionName{this,"MuonContainerLocation", "Muons", "Muon Container"};
   SG::WriteHandleKey<xAOD::SlowMuonContainer> m_slowMuonCollectionName{this, "SlowMuonContainerLocation", "SlowMuons", "Slow Muon Container"};
   SG::WriteHandleKey<xAOD::TrackParticleContainer> m_combinedCollectionName{this, "CombinedLocation", "CombinedMuon", "Combined muons"};
-  SG::WriteHandleKey<TrackCollection> m_combinedTrkCollectionName;
+  SG::WriteHandleKey<TrackCollection> m_combinedTrkCollectionName{this,"CombinedTrackLocation","CombinedMuon","Combined muon tracks"};
   SG::WriteHandleKey<xAOD::TrackParticleContainer> m_extrapolatedCollectionName{this, "ExtrapolatedLocation", "ExtrapolatedMuon", "Extrapolated muons"};
-  SG::WriteHandleKey<TrackCollection> m_extrapolatedTrkCollectionName;
+  SG::WriteHandleKey<TrackCollection> m_extrapolatedTrkCollectionName{this,"ExtrapolatedTrackLocation","ExtrapolatedMuon","Extrapolated muon tracks"};
   SG::WriteHandleKey<xAOD::TrackParticleContainer> m_msOnlyExtrapolatedCollectionName{this, "MSOnlyExtrapolatedLocation", "MSOnlyExtrapolatedMuon", "MS Extrapolated muons"};
-  SG::WriteHandleKey<TrackCollection> m_msOnlyExtrapolatedTrkCollectionName;
+  SG::WriteHandleKey<TrackCollection> m_msOnlyExtrapolatedTrkCollectionName{this,"MSOnlyExtrapolatedTrackLocation","MSOnlyExtrapolatedMuon","MS extrapolated muon tracks"};
   SG::ReadHandleKey<InDetCandidateCollection> m_indetCandidateCollectionName{this,"InDetCandidateLocation","InDetCandidates","ID candidates"};
   SG::ReadHandleKey<MuonCandidateCollection> m_muonCandidateCollectionName{this,"MuonCandidateLocation","MuonCandidates","Muon candidates"};
   SG::WriteHandleKey<xAOD::MuonSegmentContainer> m_segContainerName{this, "SegmentContainerName", "MuonSegments", "Segments"};
-  SG::WriteHandleKey<Trk::SegmentCollection> m_segTrkContainerName;
+  SG::WriteHandleKey<Trk::SegmentCollection> m_segTrkContainerName{this,"TrackSegmentContainerName","MuonSegments","Track segments"};
   SG::WriteHandleKey<xAOD::CaloClusterContainer> m_clusterContainerName{this, "ClusterContainerName", "MuonClusterCollection", "Clusters"};
-  SG::WriteHandleKey<CaloClusterCellLinkContainer> m_clusterContainerLinkName;
+  SG::WriteHandleKey<CaloClusterCellLinkContainer> m_clusterContainerLinkName{this,"CaloClusterCellLinkName","MuonClusterCollection","Cluster links"};
   bool m_buildSlowMuon;
   bool m_doSA;
 

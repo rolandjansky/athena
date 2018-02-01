@@ -25,18 +25,10 @@ StatusCode MTHelloWorld::initialize()
    ATH_MSG_INFO("initialize()");
 
 
-#ifdef ATLAS_GAUDI_V21
   SmartIF<IService> tmp_msgSvc(msgSvc()); 
   if(tmp_msgSvc.isValid()) {
      ATH_MSG_INFO(" Algorithm = " << name() << " is connected to Message Service = " << tmp_msgSvc->name());
   }
-#else
-  Service* tmp_msgSvc = dynamic_cast<Service*> (msgSvc()); 
-  if(tmp_msgSvc != 0) {
-    ATH_MSG_INFO(" Algorithm = " << name() << " is connected to Message Service = "
-                 << tmp_msgSvc->name());
-  }
-#endif
 
   // Part 2: Print out the property values
   ATH_MSG_INFO("  MyInt =    " << m_myInt);

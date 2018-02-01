@@ -3813,7 +3813,7 @@ void FTK_CompressedAMBank::sort_hits
       // pointer to the copy
       // get SSID
       expectedNHit++;
-      int tsp_ssid,coded_ssid;
+      int tsp_ssid=0,coded_ssid;
       if (FTKSetup::getFTKSetup().getSectorsAsPatterns()) {
          // Using a dummy pattern bank representing just the number of sectors, the IDs are the module IDs, for historical reason called sector.
          tsp_ssid = hit->getSector();

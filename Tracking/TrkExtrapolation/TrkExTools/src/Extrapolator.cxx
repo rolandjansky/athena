@@ -315,6 +315,14 @@ Trk::Extrapolator::initialize() {
                   << "  -- At least one IPropagator and IMaterialUpdator instance have to be given.! ");
   }
 
+  if (m_stepPropagator.retrieve().isFailure()) {
+    ATH_MSG_ERROR("Failed to retrieve tool " << m_stepPropagator);
+    ATH_MSG_ERROR("Configure STEP Propagator for extrapolation through active volumes");
+    return StatusCode::FAILURE;
+  } else {
+    ATH_MSG_INFO("Retrieved tool " << m_stepPropagator);
+  }
+  
   m_maxNavigSurf = 1000;
   m_navigSurfs.reserve(m_maxNavigSurf);
   m_maxNavigVol = 50;
@@ -4538,16 +4546,6 @@ Trk::Extrapolator::extrapolate(
 
   ATH_MSG_DEBUG("M-[" << ++m_methodSequence << "] extrapolate(through active volumes), from " << parm.position());
 
-  if (!m_stepPropagator) {
-    // Get the STEP_Propagator AlgTool
-    if (m_stepPropagator.retrieve().isFailure()) {
-      ATH_MSG_ERROR("Failed to retrieve tool " << m_stepPropagator);
-      ATH_MSG_ERROR("Configure STEP Propagator for extrapolation through active volumes");
-      return 0;
-    } else {
-      ATH_MSG_INFO("Retrieved tool " << m_stepPropagator);
-    }
-  }
 
   // reset the path
   m_path = 0.;

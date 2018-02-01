@@ -52,8 +52,8 @@ class WriteMdtGeometry : public AthAlgorithm {
   coral::IRelationalDomain& domain( const std::string &connectionString );
   void loadServices();
   coral::ISessionProxy *m_session;
-  std::string connectionString;
-  std::string WorkingSchema;
+  std::string m_connectionString;
+  std::string m_WorkingSchema;
   std::string m_username, m_password;
   std::string m_MDT_ID_helper; // name of the MDT ID helper
   std::string m_idToFixedIdToolType; // type of the muon fixed id tool

@@ -67,8 +67,8 @@ class ALFA_MDOverlap
 		Float_t m_fzMD[ALFALAYERSCNT*ALFAPLATESCNT][ALFAFIBERSCNT];
 
 	private:
-		TH2D* histU_PT;
-		TH2D* histV_PT;
+		TH2D* m_histU_PT;
+		TH2D* m_histV_PT;
 
 	private:
 		std::list<MDHIT> m_ListMDHits;

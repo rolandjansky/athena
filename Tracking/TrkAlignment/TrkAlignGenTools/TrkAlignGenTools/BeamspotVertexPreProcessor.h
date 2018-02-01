@@ -144,7 +144,7 @@ namespace Trk {
     int m_nFailedBSRefits;
     int m_nFailedPVRefits;
 
-    DataVector<AlignVertex> AlignVertices;	         //!< collection of AlignVertices used in FullVertex constraint option
+    DataVector<AlignVertex> m_AlignVertices;	         //!< collection of AlignVertices used in FullVertex constraint option
 
 
   };

@@ -12,7 +12,7 @@
 #include "HepMC/GenVertex.h"
 
 #include "GeneratorObjects/HepMcParticleLink.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 #include <stack>
 

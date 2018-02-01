@@ -22,7 +22,6 @@ namespace xAOD {
         m_int(), m_float(), m_vecInt(), m_vecFloat(),
         m_staticVecs(), m_dynamicVecs(),
         m_locked( false ),
-        m_tick( 0 ),
         m_name( "UNKNOWN" ) {
 
    }
@@ -37,7 +36,6 @@ namespace xAOD {
         // But the internal pointers are not:
         m_staticVecs(),
         m_dynamicVecs(), m_locked( false ),
-        m_tick( 1 ),
         m_name( parent.m_name ) {
 
    }
@@ -70,7 +68,6 @@ namespace xAOD {
 
         // Also copy the list of auxiliary IDs handled:
         m_auxids        = rhs.m_auxids;
-        ++m_tick;
 
         // The static variables should be left alone. Those should still
         // point to the correct places in memory. But the dynamic variables
@@ -197,9 +194,6 @@ namespace xAOD {
      }
      m_isDecoration.clear();
 
-     if (anycleared) {
-       ++m_tick;
-     }
      return anycleared;
    }
 
@@ -216,16 +210,14 @@ namespace xAOD {
 
    size_t ByteStreamAuxContainer_v1::size_noLock() const
    {
-     auxid_set_t::const_iterator i = m_auxids.begin();
-     auxid_set_t::const_iterator end = m_auxids.end();
-     for (; i != end; ++i) {
-       if (*i < m_staticVecs.size() && m_staticVecs[*i]) {
-         size_t sz = m_staticVecs[*i]->size();
+     for (SG::auxid_t i : m_auxids) {
+       if (i < m_staticVecs.size() && m_staticVecs[i]) {
+         size_t sz = m_staticVecs[i]->size();
          if (sz > 0)
            return sz;
        }
-       if (*i < m_dynamicVecs.size() && m_dynamicVecs[*i]) {
-         size_t sz = m_dynamicVecs[*i]->size();
+       if (i < m_dynamicVecs.size() && m_dynamicVecs[i]) {
+         size_t sz = m_dynamicVecs[i]->size();
          if (sz > 0)
            return sz;
        }
@@ -270,16 +262,7 @@ namespace xAOD {
    const ByteStreamAuxContainer_v1::auxid_set_t&
    ByteStreamAuxContainer_v1::getWritableAuxIDs() const {
 
-      // Return the full list of IDs:
-      guard_t guard (m_mutex);
-      if (m_tsAuxids.get() == 0) {
-        m_tsAuxids.reset (new TSAuxidSet (m_tick, m_auxids));
-      }
-      else if (m_tsAuxids->m_tick != m_tick) {
-        m_tsAuxids->m_set = m_auxids;  // May need to optimize this!
-        m_tsAuxids->m_tick = m_tick;
-      }
-      return m_tsAuxids->m_set;
+      return m_auxids;
    }
 
    bool ByteStreamAuxContainer_v1::resize( size_t size ) {
@@ -394,8 +377,8 @@ namespace xAOD {
 
       // Add any new variables not present in the original container.
       for (SG::auxid_t id : other.getAuxIDs()) {
-        if (m_auxids.find(id) == m_auxids.end() &&
-            ignore.find(id) == ignore.end())
+        if (!m_auxids.test(id) &&
+            !ignore.test(id))
         {
           if (other.getData (id)) {
             void* src_ptr = other.getData (id, other_size, other_size);
@@ -432,7 +415,6 @@ namespace xAOD {
       ADD_IDS(m_vecInt, std::vector<int>);
       ADD_IDS(m_vecFloat, std::vector<float>);
 #undef ADD_IDS
-      ++m_tick;
 
       return;
    }
@@ -511,7 +493,6 @@ namespace xAOD {
 
       // Remember that we are now handling this variable:
       m_auxids.insert( auxid );
-      ++m_tick;
 
       // Return the pointer to the array:
       return m_dynamicVecs[ auxid ]->toPtr();

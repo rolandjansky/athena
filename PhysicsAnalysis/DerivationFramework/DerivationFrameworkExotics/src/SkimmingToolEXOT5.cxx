@@ -72,11 +72,11 @@ bool DerivationFramework::SkimmingToolEXOT5::eventPassesFilter() const
   m_ntot++;
 
   const xAOD::EventInfo* eventInfo = nullptr;
-  ATH_CHECK(evtStore()->retrieve(eventInfo));
+  ATH_CHECK(evtStore()->retrieve(eventInfo), false);
   m_isMC = eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION);
 
   const xAOD::JetContainer* jets = nullptr;
-  ATH_CHECK(evtStore()->retrieve(jets, m_jetSGKey));
+  ATH_CHECK(evtStore()->retrieve(jets, m_jetSGKey), false);
 
   bool passUncalibMonojetCut = false;
   bool passRecoJetCuts = false;
@@ -112,7 +112,7 @@ bool DerivationFramework::SkimmingToolEXOT5::eventPassesFilter() const
 
   if (m_isMC) {
     const xAOD::JetContainer* truthJetContainer = nullptr;
-    ATH_CHECK(evtStore()->retrieve(truthJetContainer, "AntiKt4TruthJets"));
+    ATH_CHECK(evtStore()->retrieve(truthJetContainer, "AntiKt4TruthJets"), false);
 
     std::unique_ptr<xAOD::JetContainer> truthJets = make_unique<xAOD::JetContainer>();
     std::unique_ptr<xAOD::JetAuxContainer> truthJetsAux = make_unique<xAOD::JetAuxContainer>();

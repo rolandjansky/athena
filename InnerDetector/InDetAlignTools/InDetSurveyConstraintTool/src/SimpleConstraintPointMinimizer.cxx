@@ -15,7 +15,7 @@ using std::cout;
 using std::endl;
 
 SimpleConstraintPointMinimizer::SimpleConstraintPointMinimizer(double proximity) :
-  _proximity(proximity)
+  m_proximity(proximity)
 {;}
 
 SimpleConstraintPointMinimizer::~SimpleConstraintPointMinimizer()
@@ -96,7 +96,7 @@ double  SimpleConstraintPointMinimizer::secondMinimum(const std::vector<SurveyCo
   unsigned npoints = points.size();
   Amg::Vector3D wPoint(0,0,0);
   for(ipoint=0;ipoint<npoints;ipoint++){
-    if(points[ipoint].survey().mag() <= _proximity){
+    if(points[ipoint].survey().mag() <= m_proximity){
       const Amg::Vector3D& cur = points[ipoint].current();
       Amg::Vector3D dummy = points[ipoint].survey();
       Amg::Vector3D sur = Transform * dummy;
@@ -122,7 +122,7 @@ double  SimpleConstraintPointMinimizer::secondMinimum(const std::vector<SurveyCo
     Amg::MatrixX Tens(3,3);
     Amg::Vector3D theLcm(0,0,0);
     for(ipoint=0;ipoint<npoints;ipoint++){
-      if(points[ipoint].survey().mag() <= _proximity){
+      if(points[ipoint].survey().mag() <= m_proximity){
         const Amg::Vector3D& cur = points[ipoint].current();
         Amg::Vector3D dummy = points[ipoint].survey();
         Amg::Vector3D sur = Transform * dummy;
@@ -169,7 +169,7 @@ double  SimpleConstraintPointMinimizer::secondMinimum(const std::vector<SurveyCo
   
 
   for(ipoint=0;ipoint<npoints;ipoint++){
-    if(points[ipoint].survey().mag() <= _proximity){
+    if(points[ipoint].survey().mag() <= m_proximity){
       const Amg::Vector3D& cur  = points[ipoint].current();
             Amg::Vector3D dummy = points[ipoint].survey();
             Amg::Vector3D sur   = transform2*dummy;

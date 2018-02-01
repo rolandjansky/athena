@@ -124,10 +124,6 @@ class TRTDigSettings {
 
   /** Get inner radius of straw */
   double innerRadiusOfStraw() const;
-  double strawLengthBarrel() const;
-  double deadRegionLengthBarrel() const;
-  double innerRadiusEndcap() const;
-  double outerRadiusEndcap() const;
 
   /** Get radius of signal wire */
   double outerRadiusOfWire() const;
@@ -367,11 +363,6 @@ class TRTDigSettings {
   double m_relativeLowThresholdFluctuation;   /**< Relative low threshold fluctuation */
   double m_relativeHighThresholdFluctuation;  /**< Relative high threshold fluctuation */
   double m_solenoidFieldStrength;             /**< Solenoid field strength */
-
-  double m_strawLengthBarrel;
-  //  double m_deadRegionLengthBarrel;
-  double m_innerRadiusEndcap;
-  double m_outerRadiusEndcap;
 
   bool m_useAttenuation;
   double m_attenuationLength;

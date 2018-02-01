@@ -38,18 +38,18 @@ BCM_RDOAnalysis::BCM_RDOAnalysis(const std::string& name, ISvcLocator *pSvcLocat
   , m_eventIndex_vec(0)
   , m_charge_vec(0)
 
-  , h_word1(0)
-  , h_word2(0)
-  , h_chan(0)
-  , h_pulse1Pos(0)
-  , h_pulse1Width(0)
-  , h_pulse2Pos(0)
-  , h_pulse2Width(0)
-  , h_sdoID(0)
-  , h_sdoWord(0)
-  , h_barcode(0)
-  , h_eventIndex(0)
-  , h_charge(0)
+  , m_h_word1(0)
+  , m_h_word2(0)
+  , m_h_chan(0)
+  , m_h_pulse1Pos(0)
+  , m_h_pulse1Width(0)
+  , m_h_pulse2Pos(0)
+  , m_h_pulse2Width(0)
+  , m_h_sdoID(0)
+  , m_h_sdoWord(0)
+  , m_h_barcode(0)
+  , m_h_eventIndex(0)
+  , m_h_charge(0)
 
   , m_tree(0)
   , m_ntupleFileName("/ntuples/file1")
@@ -108,53 +108,53 @@ StatusCode BCM_RDOAnalysis::initialize() {
   }
 
   // HISTOGRAMS
-  h_word1 = new TH1F("h_word1", "word 1", 100, 0, 4.5e7);
-  h_word1->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_word1->GetName(), h_word1));
+  m_h_word1 = new TH1F("h_word1", "word 1", 100, 0, 4.5e7);
+  m_h_word1->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_word1->GetName(), m_h_word1));
 
-  h_word2 = new TH1F("h_word2", "word 2", 100, 0, 10);
-  h_word2->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_word2->GetName(), h_word2));
+  m_h_word2 = new TH1F("h_word2", "word 2", 100, 0, 10);
+  m_h_word2->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_word2->GetName(), m_h_word2));
 
-  h_chan = new TH1F("h_chan", "channel ID", 100, 0, 20);
-  h_chan->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_chan->GetName(), h_chan));
+  m_h_chan = new TH1F("h_chan", "channel ID", 100, 0, 20);
+  m_h_chan->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_chan->GetName(), m_h_chan));
 
-  h_pulse1Pos = new TH1F("h_pulse1Pos", "pulse 1 position", 100, 0, 70);
-  h_pulse1Pos->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_pulse1Pos->GetName(), h_pulse1Pos));
+  m_h_pulse1Pos = new TH1F("h_pulse1Pos", "pulse 1 position", 100, 0, 70);
+  m_h_pulse1Pos->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_pulse1Pos->GetName(), m_h_pulse1Pos));
 
-  h_pulse1Width = new TH1F("h_pulse1Width", "pulse 1 width", 100, 0, 30);
-  h_pulse1Width->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_pulse1Width->GetName(), h_pulse1Width));
+  m_h_pulse1Width = new TH1F("h_pulse1Width", "pulse 1 width", 100, 0, 30);
+  m_h_pulse1Width->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_pulse1Width->GetName(), m_h_pulse1Width));
 
-  h_pulse2Pos = new TH1F("h_pulse2Pos", "pulse 2 position", 100, 0, 70);
-  h_pulse2Pos->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_pulse2Pos->GetName(), h_pulse2Pos));
+  m_h_pulse2Pos = new TH1F("h_pulse2Pos", "pulse 2 position", 100, 0, 70);
+  m_h_pulse2Pos->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_pulse2Pos->GetName(), m_h_pulse2Pos));
 
-  h_pulse2Width = new TH1F("h_pulse2Width", "pulse 2 width", 100, 0, 30);
-  h_pulse2Width->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_pulse2Width->GetName(), h_pulse2Width));
+  m_h_pulse2Width = new TH1F("h_pulse2Width", "pulse 2 width", 100, 0, 30);
+  m_h_pulse2Width->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_pulse2Width->GetName(), m_h_pulse2Width));
 
-  h_sdoID = new TH1F("h_sdoID", "sdoID", 100, 0, 10);
-  h_sdoID->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_sdoID->GetName(), h_sdoID));
+  m_h_sdoID = new TH1F("h_sdoID", "sdoID", 100, 0, 10);
+  m_h_sdoID->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_sdoID->GetName(), m_h_sdoID));
 
-  h_sdoWord = new TH1F("h_sdoWord", "sdoWord", 100, 0, 10);
-  h_sdoWord->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_sdoWord->GetName(), h_sdoWord));
+  m_h_sdoWord = new TH1F("h_sdoWord", "sdoWord", 100, 0, 10);
+  m_h_sdoWord->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_sdoWord->GetName(), m_h_sdoWord));
 
-  h_barcode = new TH1F("h_barcode", "Barcode (SDO)", 100, 0, 2.2e9);
-  h_barcode->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_barcode->GetName(), h_barcode));
+  m_h_barcode = new TH1F("h_barcode", "Barcode (SDO)", 100, 0, 2.2e9);
+  m_h_barcode->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_barcode->GetName(), m_h_barcode));
 
-  h_eventIndex = new TH1F("h_eventIndex", "Event index (SDO)", 100, 0, 1000);
-  h_eventIndex->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_eventIndex->GetName(), h_eventIndex));
+  m_h_eventIndex = new TH1F("h_eventIndex", "Event index (SDO)", 100, 0, 1000);
+  m_h_eventIndex->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_eventIndex->GetName(), m_h_eventIndex));
 
-  h_charge = new TH1F("h_charge", "Charge (SDO)", 100, 0, 10);
-  h_charge->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_charge->GetName(), h_charge));
+  m_h_charge = new TH1F("h_charge", "Charge (SDO)", 100, 0, 10);
+  m_h_charge->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_charge->GetName(), m_h_charge));
 
   return StatusCode::SUCCESS;
 
@@ -220,13 +220,13 @@ StatusCode BCM_RDOAnalysis::execute() {
         m_LVL1ID->push_back(LVL1ID);
         m_err->push_back(err);
 
-        h_word1->Fill(word1);
-        h_word2->Fill(word2);
-        h_chan->Fill(chan);
-        h_pulse1Pos->Fill(pulse1Pos);
-        h_pulse1Width->Fill(pulse1Width);
-        h_pulse2Pos->Fill(pulse2Pos);
-        h_pulse2Width->Fill(pulse2Width);
+        m_h_word1->Fill(word1);
+        m_h_word2->Fill(word2);
+        m_h_chan->Fill(chan);
+        m_h_pulse1Pos->Fill(pulse1Pos);
+        m_h_pulse1Width->Fill(pulse1Width);
+        m_h_pulse2Pos->Fill(pulse2Pos);
+        m_h_pulse2Width->Fill(pulse2Width);
       }
     }
   }
@@ -251,8 +251,8 @@ StatusCode BCM_RDOAnalysis::execute() {
       m_sdoID->push_back(sdoID_int);
       m_sdoWord->push_back(sdoWord);
 
-      h_sdoID->Fill(sdoID_int);
-      h_sdoWord->Fill(sdoWord);
+      m_h_sdoID->Fill(sdoID_int);
+      m_h_sdoWord->Fill(sdoWord);
 
       // loop over deposits
       const std::vector<InDetSimData::Deposit>& deposits = sdo.getdeposits();
@@ -269,9 +269,9 @@ StatusCode BCM_RDOAnalysis::execute() {
         m_eventIndex->push_back(eventIx);
         m_charge->push_back(charge);
 
-        h_barcode->Fill(bar);
-        h_eventIndex->Fill(eventIx);
-        h_charge->Fill(charge);
+        m_h_barcode->Fill(bar);
+        m_h_eventIndex->Fill(eventIx);
+        m_h_charge->Fill(charge);
 
         barcode_vec.push_back(bar);
         eventIndex_vec.push_back(eventIx);

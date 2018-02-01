@@ -103,7 +103,7 @@ StatusCode AlignTrackCollSplitter::execute()
     ATH_MSG_DEBUG("Processing AlignTrack "<<itrk);
 
     // each track in the collection HAS to be an AlignTrack
-    AlignTrack * alignTrack = dynamic_cast<AlignTrack*>(*it);
+    const AlignTrack * alignTrack = dynamic_cast<const AlignTrack*>(*it);
     if(!alignTrack) {
       msg(MSG::FATAL)<<"Track is not an AlignTrack. The code only works with TrackCollection"
                      <<" filled with AlignTracks."<<endmsg;

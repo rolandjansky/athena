@@ -36,7 +36,6 @@ public:
 
 private:
    ServiceHandle<StoreGateSvc> p_SGinMeta;
-   ServiceHandle<StoreGateSvc> p_SGtagMeta;
    ServiceHandle<StoreGateSvc> p_SGmeta;
 };
 

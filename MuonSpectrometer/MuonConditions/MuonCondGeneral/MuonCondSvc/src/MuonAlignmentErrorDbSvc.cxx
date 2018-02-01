@@ -136,7 +136,6 @@ StatusCode MuonAlignmentErrorDbSvc::queryInterface(const InterfaceID& riid, void
 
 StatusCode MuonAlignmentErrorDbSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
 {
-  msg(MSG::INFO) << "queryInterface Start" << endmsg;
  
   if(IMuonAlignmentErrorDbSvc::interfaceID().versionMatch(riid) )
     {
@@ -144,7 +143,6 @@ StatusCode MuonAlignmentErrorDbSvc::queryInterface(const InterfaceID& riid, void
     } else {
     return AthService::queryInterface(riid, ppvInterface);
   }
-  msg(MSG::INFO) << "queryInterface succesfull" << endmsg;
   addRef(); 
   return StatusCode::SUCCESS;
 }

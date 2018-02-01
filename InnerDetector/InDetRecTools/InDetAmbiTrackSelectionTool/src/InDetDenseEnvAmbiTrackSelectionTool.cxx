@@ -141,6 +141,9 @@ StatusCode InDet::InDetDenseEnvAmbiTrackSelectionTool::initialize()
       ATH_MSG_INFO( "Retrieved tool " << m_selectortool );
     }
   }
+  else {
+    m_selectortool.disable();
+  }
 
   sc = detStore()->retrieve(m_detID, "SiliconID" );
   if (sc.isFailure()) 
@@ -161,6 +164,9 @@ StatusCode InDet::InDetDenseEnvAmbiTrackSelectionTool::initialize()
     }
     else 
       ATH_MSG_INFO( "Retrieved tool " << m_observerTool );
+  }
+  else {
+    m_observerTool.disable();
   }
 
   if (m_incidentSvc.retrieve().isFailure()){

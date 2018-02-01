@@ -27,8 +27,8 @@ TRTCondWrite::TRTCondWrite(const std::string& name, ISvcLocator* pSvcLocator)
    m_caldbtool("TRT_CalDbSvc",name),
    m_trtid(0),
    m_setup(false),
-   par_calfile(""),
-   par_caloutputfile(""), //set this to calibout_n, where n=0,1,2,3 refers to the format
+   m_par_calfile(""),
+   m_par_caloutputfile(""), //set this to calibout_n, where n=0,1,2,3 refers to the format
    m_condSvc("CondSvc",name),
    m_rtReadKey("/TRT/Calib/RT"),
    m_errReadKey("/TRT/Calib/errors2d"),
@@ -44,8 +44,8 @@ TRTCondWrite::TRTCondWrite(const std::string& name, ISvcLocator* pSvcLocator)
    m_lbl2(2147483647)
 {
   // declare algorithm parameters
-  declareProperty("CalibInputFile",par_calfile);
-  declareProperty("CalibOutputFile",par_caloutputfile);
+  declareProperty("CalibInputFile",m_par_calfile);
+  declareProperty("CalibOutputFile",m_par_caloutputfile);
   declareProperty("StartRunIOV",m_run1);
   declareProperty("StartLblIOV",m_lbl1);
   declareProperty("EndRunIOV",m_run2);
@@ -89,7 +89,7 @@ StatusCode TRTCondWrite::initialize() {
   ATH_CHECK( m_t0WriteKey.initialize() );
 
  
-  if (par_calfile!="") ATH_MSG_INFO("Calibration constants will be read from text file ");
+  if (m_par_calfile!="") ATH_MSG_INFO("Calibration constants will be read from text file ");
 
   return StatusCode::SUCCESS;
 }
@@ -106,17 +106,17 @@ StatusCode TRTCondWrite::execute_r(const EventContext& ctx) const {
     EventIDRange rangeW(runlbl(m_run1,m_lbl1),runlbl(m_run2,m_lbl2)); //IOV
 
 
-    if(!par_calfile.empty()) {
+    if(!m_par_calfile.empty()) {
       bool useit=true;
       m_caldbtool->useCachedPtr(useit);  //to avoid reading the pointers from CondStore before they are written
 
       msg(MSG::INFO) << " A calibration text file is supplied. Remember to block the relevant folders in InDetRecConditionsAccess.py" << endmsg;
       int format=0; // text file format
       //Read text file.
-      sc=m_caldbtool->readTextFile(par_calfile, format);
+      sc=m_caldbtool->readTextFile(m_par_calfile, format);
       if(sc!=StatusCode::SUCCESS) {
          msg(MSG::ERROR) << " Could not read TRT Calibration from "
-              << par_calfile << endmsg;
+              << m_par_calfile << endmsg;
          return sc;
       }
 
@@ -195,19 +195,19 @@ StatusCode TRTCondWrite::execute_r(const EventContext& ctx) const {
     }
     //Dump conditions containers
 
-    if (par_caloutputfile!="") {
-      std::ofstream outfile(par_caloutputfile.c_str());
+    if (m_par_caloutputfile!="") {
+      std::ofstream outfile(m_par_caloutputfile.c_str());
 
-      if(par_caloutputfile=="calibout_0.txt") {
+      if(m_par_caloutputfile=="calibout_0.txt") {
         outfile << "# Fileformat=" << 0 << std::endl ;
         sc=m_caldbtool->writeTextFile_Format0(outfile);
-      } else if (par_caloutputfile=="calibout_1.txt"){
+      } else if (m_par_caloutputfile=="calibout_1.txt"){
         outfile << "# Fileformat=" << 1 << std::endl ;
         sc=m_caldbtool->writeTextFile_Format1(outfile);
-      } else if(par_caloutputfile=="calibout_2.txt") {
+      } else if(m_par_caloutputfile=="calibout_2.txt") {
         outfile << "# Fileformat=" << 2 << std::endl ;
         sc=m_caldbtool->writeTextFile_Format2(outfile);
-      } else if (par_caloutputfile=="calibout_3.txt") {
+      } else if (m_par_caloutputfile=="calibout_3.txt") {
         outfile << "# Fileformat=" << 3 << std::endl ;
 	sc=m_caldbtool->writeTextFile_Format3(outfile);
       } else {
@@ -217,7 +217,7 @@ StatusCode TRTCondWrite::execute_r(const EventContext& ctx) const {
 
       if(sc!=StatusCode::SUCCESS) {
         msg(MSG::ERROR) << " Could not write TRT Calibration to "
-              << par_caloutputfile << endmsg;
+              << m_par_caloutputfile << endmsg;
         return sc;
       }
       outfile.close();
@@ -227,7 +227,7 @@ StatusCode TRTCondWrite::execute_r(const EventContext& ctx) const {
   // at each event:
   // cache an EventSpecificPtr in TRT_CalDbTool
 
-  if(par_calfile.empty()) {
+  if(m_par_calfile.empty()) {
     SG::ReadCondHandle<RtRelationContainer> rtc(m_rtReadKey, ctx);
     m_caldbtool->setRtContainer( const_cast<RtRelationContainer*>(*rtc) );
     SG::ReadCondHandle<StrawT0Container> t0c(m_t0ReadKey, ctx);

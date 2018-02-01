@@ -44,11 +44,11 @@ bool DerivationFramework::DiLepSkim::eventPassesFilter() const
 
   // retrieve particle containers
   const xAOD::ElectronContainer* elc = nullptr;
-  CHECK(evtStore()->retrieve(elc, "Electrons"));
+  CHECK(evtStore()->retrieve(elc, "Electrons"), false);
   const xAOD::MuonContainer* muc = nullptr;
-  CHECK(evtStore()->retrieve(muc, "Muons"));
+  CHECK(evtStore()->retrieve(muc, "Muons"), false);
   const xAOD::PhotonContainer* phc = nullptr;
-  CHECK(evtStore()->retrieve(phc, "Photons"));
+  CHECK(evtStore()->retrieve(phc, "Photons"), false);
 
   // loop over containers and check filters
   if(m_filter == Filters::SiEl)

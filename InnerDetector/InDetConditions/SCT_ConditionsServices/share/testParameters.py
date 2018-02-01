@@ -99,8 +99,7 @@ import AthenaCommon.AtlasUnixGeneratorJob
 #ServiceMgr.EventSelector.EventsPerRun = 5
 ServiceMgr.EventSelector.RunNumber = 215643
 # initial time stamp - this is number of seconds since 1st Jan 1970 GMT
-# run 310809 Recording start/end 2016-Oct-17 21:39:18 / 2016-Oct-18 16:45:23 UTC
-#ServiceMgr.EventSelector.InitialTimeStamp  = 1476741326 # LB 18 of run 310809, 10/17/2016 @ 9:55pm (UTC)
+ServiceMgr.EventSelector.InitialTimeStamp  = 1354748400 # LB 469 of run 215643, 2012-12-05 @ 11:00pm (UTC)
 # increment of 3 minutes
 ServiceMgr.EventSelector.TimeStampInterval = 180
 
@@ -119,8 +118,16 @@ from IOVDbSvc.CondDB import conddb
 conddb.dbdata="COMP200"
 IOVDbSvc.GlobalTag=globalflags.ConditionsTag()
 IOVDbSvc.OutputLevel = 3
-conddb.addFolder('',"<db>COOLONL_SCT/COMP200</db> /SCT/DAQ/Configuration/Chip")
+conddb.addFolder('',"<db>COOLONL_SCT/COMP200</db> /SCT/DAQ/Configuration/Chip", className="CondAttrListVec")
 conddb.addFolder("","<db>COOLONL_SCT/COMP200</db> /SCT/DAQ/Configuration/ROD")
 conddb.addFolder("","<db>COOLONL_SCT/COMP200</db> /SCT/DAQ/Configuration/Geog")
 conddb.addFolder("","<db>COOLONL_SCT/COMP200</db> /SCT/DAQ/Configuration/RODMUR")
 conddb.addFolder("","<db>COOLONL_SCT/COMP200</db> /SCT/DAQ/Configuration/MUR")
+
+from IOVSvc.IOVSvcConf import CondSvc
+ServiceMgr += CondSvc()
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+
+from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConditionsParameterCondAlg
+condSeq += SCT_ConditionsParameterCondAlg( "SCT_ConditionsParameterCondAlg" )

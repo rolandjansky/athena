@@ -51,19 +51,11 @@ StatusCode L2muCalibTest::initialize(){
 
   StatusCode sc;
 
-#ifdef ATLAS_GAUDI_V21
   SmartIF<IService> tmp_msgSvc(msgSvc());
   if(tmp_msgSvc.isValid()) {
     ATH_MSG_INFO(" Algorithm = " << name() << " is connected to Message Service = "
         << tmp_msgSvc->name());
   }
-#else
-  Service* tmp_msgSvc = dynamic_cast<Service*> (msgSvc());
-  if(tmp_msgSvc != 0) {
-    ATH_MSG_INFO(" Algorithm = " << name() << " is connected to Message Service = "
-        << tmp_msgSvc->name());
-  }
-#endif
 
   // Print out the property values after update from catalogue
   ATH_MSG_INFO(" ---------------------------------------------------------- ");

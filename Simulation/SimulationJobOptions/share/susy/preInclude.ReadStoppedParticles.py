@@ -21,25 +21,16 @@ from AthenaCommon.AppMgr import ServiceMgr
 from PartPropSvc.PartPropSvcConf import PartPropSvc
 ServiceMgr += PartPropSvc()
 
-
-def readStoppedParticles():
-    from G4AtlasApps.SimFlags import simFlags
-    if not simFlags.RandomSeedList.checkForExistingSeed( "COSMICS" ):
-        simFlags.RandomSeedList.addSeed( "COSMICS", 2040160768, 443921183 )
-    from AthenaCommon.AlgSequence import AlgSequence
-    topSequence = AlgSequence()
-    if not hasattr(topSequence, 'TrackRecordGenerator'):
-        from TrackRecordGenerator.TrackRecordGeneratorConf import TrackRecordGenerator
-        topSequence += TrackRecordGenerator()
-        
-    topSequence.TrackRecordGenerator.TRSmearing = -1 #in millimeters, e.g. 10
-    topSequence.TrackRecordGenerator.TRPSmearing = -1 #in radians, e.g. 0.01
-    topSequence.TrackRecordGenerator.TRCollection = "StoppingPositions"
-    topSequence.TrackRecordGenerator.StopParticles = True
-    topSequence.TrackRecordGenerator.AtRndmGenSvc = simFlags.RandomSvc.get_Value()
-    
-simFlags.InitFunctions.add_function("preInit", readStoppedParticles)
-
+from AthenaCommon.AlgSequence import AlgSequence
+topSequence = AlgSequence()
+from TrackRecordGenerator.TrackRecordGeneratorConf import TrackRecordGenerator
+topSequence += TrackRecordGenerator()
+topSequence.TrackRecordGenerator.TRSmearing = -1 #in millimeters, e.g. 10
+topSequence.TrackRecordGenerator.TRPSmearing = -1 #in radians, e.g. 0.01
+topSequence.TrackRecordGenerator.TRCollection = "StoppingPositions"
+topSequence.TrackRecordGenerator.StopParticles = True
+topSequence.TrackRecordGenerator.AtRndmGenSvc = simFlags.RandomSvc.get_Value()
+simFlags.RandomSeedList.addSeed( "COSMICS", 2040160768, 80 )
 
 #from Pythia_i.Pythia_iConf import Pythia
 #topSequence += Pythia()

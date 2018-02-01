@@ -27,14 +27,14 @@ class ReadWriteCoolStrFile: public AthAlgorithm
   ICoolStrFileSvc* p_coolsvc;
   bool m_done;
   // properties
-  bool par_read;
-  bool par_extract;
-  bool par_write;
-  int par_chan;
-  int par_tech;
-  std::string par_folder;
-  std::string par_rfile;
-  std::string par_wfile;
+  bool m_par_read;
+  bool m_par_extract;
+  bool m_par_write;
+  int m_par_chan;
+  int m_par_tech;
+  std::string m_par_folder;
+  std::string m_par_rfile;
+  std::string m_par_wfile;
 
   // methods
   void writeData();

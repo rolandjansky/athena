@@ -35,6 +35,8 @@
 #include "../SCT_ReadCalibChipNoiseCondAlg.h"
 
 #include "../SCT_SiliconConditionsSvc.h"
+#include "../SCT_SiliconTempCondAlg.h"
+#include "../SCT_SiliconHVCondAlg.h"
 #include "../SCT_SiliconConditionsTestAlg.h"
 
 #include "../SCT_ReadoutTool.h"
@@ -49,6 +51,7 @@
 #include "../SCT_TdaqEnabledTestAlg.h"
 
 #include "../SCT_ConditionsParameterSvc.h"
+#include "../SCT_ConditionsParameterCondAlg.h"
 #include "../SCT_ConditionsParameterTestAlg.h"
 
 #include "../SCT_SensorsSvc.h"
@@ -86,6 +89,8 @@ DECLARE_COMPONENT( SCT_ReadCalibDataTestAlg )
 DECLARE_COMPONENT( SCT_ReadCalibChipDataTestAlg )
 DECLARE_COMPONENT( SCT_ReadCalibChipGainCondAlg )
 DECLARE_COMPONENT( SCT_ReadCalibChipNoiseCondAlg )
+DECLARE_COMPONENT( SCT_SiliconTempCondAlg )
+DECLARE_COMPONENT( SCT_SiliconHVCondAlg )
 DECLARE_COMPONENT( SCT_SiliconConditionsTestAlg )
 DECLARE_COMPONENT( SCT_ReadoutTestAlg )
 DECLARE_COMPONENT( SCT_ReadCalibDataCondAlg )
@@ -95,6 +100,7 @@ DECLARE_COMPONENT( SCT_ConfigurationConditionsTestAlg )
 DECLARE_COMPONENT( SCT_ConfigurationCondAlg )
 DECLARE_COMPONENT( SCT_MajorityCondAlg )
 DECLARE_COMPONENT( SCT_MajorityConditionsTestAlg )
+DECLARE_COMPONENT( SCT_ConditionsParameterCondAlg )
 DECLARE_COMPONENT( SCT_ConditionsParameterTestAlg )
 DECLARE_COMPONENT( SCT_SensorsCondAlg )
 DECLARE_COMPONENT( SCT_SensorsTestAlg )

@@ -38,8 +38,6 @@ TrackVertexAssoTestAlg::TrackVertexAssoTestAlg( const std::string& name,
   // Property declaration
   // 
   //declareProperty( "Property", m_nProperty );
-  declareProperty( "TrackContainer", m_trkContname );
-  declareProperty( "VertexContainer", m_vertexContname );
   declareProperty( "TightTrackVertexAssoTool", m_tighttrackvertexassoTool);
   declareProperty( "LooseTrackVertexAssoTool", m_loosetrackvertexassoTool);
   declareProperty( "ElectronTrackVertexAssoTool", m_electrontrackvertexassoTool);
@@ -57,6 +55,8 @@ StatusCode TrackVertexAssoTestAlg::initialize()
 {
   ATH_MSG_INFO ("Initializing " << name() << "...");
 
+  ATH_CHECK( m_trkContname.initialize() );
+  ATH_CHECK( m_vertexContname.initialize() );
   //retrieve tool from ToolHandle
   CHECK(m_loosetrackvertexassoTool.retrieve());
   CHECK(m_tighttrackvertexassoTool.retrieve());
@@ -78,21 +78,14 @@ StatusCode TrackVertexAssoTestAlg::execute()
   ATH_MSG_DEBUG ("Executing " << name() << "...");
 
   // retrieve TrackContainer 
+  SG::ReadHandle<xAOD::TrackParticleContainer> trkCont(m_trkContname);
 
-  const xAOD::TrackParticleContainer *trkCont=0;
-  CHECK(evtStore()->retrieve(trkCont, m_trkContname));
+  SG::ReadHandle<xAOD::VertexContainer> vxCont(m_vertexContname);
 
-  const xAOD::VertexContainer *vxCont=0;
-  CHECK(evtStore()->retrieve(vxCont, m_vertexContname));
-
-  const xAOD::Vertex *vx_test=0;
-
-  // Check compitable 
-  //bool isMatched=m_tighttrackvertexassoTool->isCompatible(*(trkCont->at(0)), *(vxCont->at(0)));
-  if(trkCont->size()!=0)
-  {
-  bool isMatched=m_loosetrackvertexassoTool->isCompatible(*(trkCont->at(0)), *vx_test);
-  ATH_MSG_INFO("compitable? "<< isMatched);
+  if (!trkCont.isValid() || !vxCont.isValid()) {
+    if (!trkCont.isValid()) ATH_MSG_ERROR("TrackParticle container not found");
+    if (!vxCont.isValid()) ATH_MSG_ERROR("Vertex container not found");
+    return StatusCode::FAILURE;
   }
 
   // do Match, match to all compitable vertices

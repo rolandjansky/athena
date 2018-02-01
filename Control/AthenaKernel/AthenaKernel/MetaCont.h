@@ -6,7 +6,8 @@
 #define IOVSVC_METACONT_H 1
 
 #include <iostream>
-#include <set>
+#include <sstream>
+#include <map>
 #include <vector>
 #include <typeinfo>
 #include <mutex>
@@ -14,6 +15,11 @@
 
 #include "GaudiKernel/DataObject.h"
 #include "GaudiKernel/DataObjID.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthenaKernel/BaseInfo.h"
+#include "AthenaKernel/SourceID.h"
+#include "AthenaKernel/DataBucketTraitFwd.h"
+#include "AthenaKernel/MetaContDataBucket.h"
 
 //#include "PersistentDataModel/Guid.h"
 
@@ -28,7 +34,7 @@ namespace SG {
 class MetaContBase {
 //typedef Guid SourceID;
 public:
-  typedef std::string SourceID;
+  typedef SG::SourceID SourceID;
   MetaContBase() {};
   virtual ~MetaContBase(){};
 
@@ -53,6 +59,8 @@ private:
 template <typename T>
 class MetaCont: public MetaContBase {
 public:
+
+  typedef T Payload_t;
 
   friend SG::ReadMetaHandle<T>;
   friend SG::WriteMetaHandle<T>;
@@ -94,6 +102,27 @@ private:
   SG::DataProxy* m_proxy;
 
 };
+
+
+namespace SG {
+
+
+/**
+ * @brief Metafunction to find the proper @c DataBucket class for @c T.
+ *
+ * Specialize this for @c MetaCont.
+ * See AthenaKernel/StorableConversions.h for an explanation.
+ */
+template <class T, class U>
+struct DataBucketTrait<MetaCont<T>, U>
+{
+  typedef MetaContDataBucket<U> type;
+  static void init() {}
+};
+
+
+} // namespace SG
+
 
 //
 ///////////////////////////////////////////////////////////////////////////
@@ -258,8 +287,14 @@ MetaCont<T>::sources() const {
 
 #include "SGTools/CLASS_DEF.h"
 CLASS_DEF( MetaContBase , 34480469 , 1 )
-//#include "SGTools/BaseInfo.h"
-//SG_BASE( MetaCont<Cont>, MetaContBase )
+
+
+/// Declare a metadata container along with its CLID:
+//    METACONT_DEF(TYPE, CLID);
+//
+#define METACONT_DEF(T, CLID) \
+  CLASS_DEF( MetaCont<T>, CLID, 1 )             \
+  SG_BASE( MetaCont<T>, MetaContBase )
 
 #endif
 

@@ -7,8 +7,8 @@
 // Jan-2005 JPA
 // from LArDetectorConstructionTBEC
 
-#ifndef __LArDetectorConstructionH62003_H__
-#define __LArDetectorConstructionH62003_H__
+#ifndef LARGEOH62003ALGS_LARDETECTORCONSTRUCTIONH62003_H
+#define LARGEOH62003ALGS_LARDETECTORCONSTRUCTIONH62003_H
 
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
@@ -26,22 +26,22 @@ namespace LArGeo {
       virtual GeoVPhysVol* GetEnvelope();
       
       // Set a vis limit for the EC
-      void SetFCALVisLimit(int limit) {_fcalVisLimit=limit;}
-      void SetAxisVisState(bool state) {_axisVisState=state;}
+      void SetFCALVisLimit(int limit) {m_fcalVisLimit=limit;}
+      void SetAxisVisState(bool state) {m_axisVisState=state;}
       
     private:
       
       void  createAxis(GeoFullPhysVol* H62003MotherPhysical, GeoMaterial* mat);
       
-      GeoFullPhysVol*      H62003EnvelopePhysical;
+      GeoFullPhysVol*      m_H62003EnvelopePhysical;
       
-      int                  _fcalVisLimit;
-      bool                 _axisVisState;
+      int                  m_fcalVisLimit;
+      bool                 m_axisVisState;
       
-      IRDBAccessSvc        *pAccessSvc;
+      IRDBAccessSvc        *m_pAccessSvc;
       
     };
   
 } // namespace LArGeo
 
-#endif // __LArDetectorConstructionH62003_H__
+#endif // LARGEOH62003ALGS_LARDETECTORCONSTRUCTIONH62003_H

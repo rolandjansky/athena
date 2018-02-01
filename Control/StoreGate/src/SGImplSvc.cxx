@@ -36,6 +36,7 @@
 #include "SGTools/StringPool.h"
 #include "SGTools/TransientAddress.h"
 #include "SGTools/SGVersionedKey.h"
+#include "PersistentDataModel/DataHeader.h"
 #include "StoreGate/ActiveStoreSvc.h"
 #include "StoreGate/StoreClearedIncident.h"
 #include "AthAllocators/ArenaHeader.h"
@@ -1614,10 +1615,10 @@ SGImplSvc::commitNewDataObjects() {
 }
 
 #ifndef SLOW_NEWDATAOBJECTS
-void SGImplSvc::addedNewPersObject(CLID, DataProxy*) {}
+void SGImplSvc::addedNewPersObject(CLID, DataProxy*) const {}
 void SGImplSvc::addedNewTransObject(CLID, const std::string&) {}
 #else
-void SGImplSvc::addedNewPersObject(CLID clid, DataProxy* dp) {
+void SGImplSvc::addedNewPersObject(CLID clid, DataProxy* dp) const {
   lock_t lock (m_mutex);
   //if proxy is loading from persistency
   //add key of object to list of "newly recorded" objects
@@ -1637,7 +1638,7 @@ void SGImplSvc::addedNewPersObject(CLID clid, DataProxy* dp) {
     }
   }
 }
-void SGImplSvc::addedNewTransObject(CLID clid, const std::string& key) {
+void SGImplSvc::addedNewTransObject(CLID clid, const std::string& key) const {
   lock_t lock (m_mutex);
   s_newObjs.insert(DataObjID(clid,key));
 }
@@ -1716,3 +1717,17 @@ void SG_dump (SGImplSvc* sg, const char* fname)
 }
 
 
+/**
+ * @brief Return the metadata source ID for the current event slot.
+ *        Returns an empty string if no source has been set.
+ *
+ *        The default version always returns an empty string.
+ */
+SG::SourceID SGImplSvc::sourceID() const
+{
+  const DataHeader* dh = nullptr;
+  if (this->retrieve (dh, "EventSelector").isFailure()) {
+    return "";
+  }
+  return dh->begin()->getToken()->dbID().toString();
+}

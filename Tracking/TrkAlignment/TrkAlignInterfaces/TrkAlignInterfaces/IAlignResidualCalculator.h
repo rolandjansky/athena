@@ -45,11 +45,11 @@ namespace Trk {
     virtual double setResiduals(DataVector<AlignTSOS>* alignTSOSColl, 
 				const Track* track=0) = 0;
     
-    virtual double setResiduals(const AlignTrack* alignTrack, 
+    virtual double setResiduals(AlignTrack* alignTrack, 
 				const Track* track=0) = 0;
     
-    virtual double setResiduals(DataVector<AlignTSOS>::const_iterator firstAtsos,
-				DataVector<AlignTSOS>::const_iterator lastAtsos,
+    virtual double setResiduals(DataVector<AlignTSOS>::iterator firstAtsos,
+				DataVector<AlignTSOS>::iterator lastAtsos,
 				const Track* track, bool newTrack=false) = 0;
     virtual double chi2ForMeasType(int measType) const = 0;
 

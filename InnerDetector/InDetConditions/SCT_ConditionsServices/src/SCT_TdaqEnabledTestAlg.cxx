@@ -30,7 +30,6 @@ SCT_TdaqEnabledTestAlg::SCT_TdaqEnabledTestAlg(const std::string& name, ISvcLoca
 
 SCT_TdaqEnabledTestAlg::~SCT_TdaqEnabledTestAlg()
 { 
-  ATH_MSG_INFO("Calling destructor");
 }
 
 //Initialize

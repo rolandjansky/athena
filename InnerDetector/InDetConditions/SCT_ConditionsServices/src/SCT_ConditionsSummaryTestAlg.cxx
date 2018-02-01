@@ -34,7 +34,6 @@ m_pSummarySvc("SCT_ConditionsSummarySvc", name){
 
 SCT_ConditionsSummaryTestAlg::~SCT_ConditionsSummaryTestAlg()
 { 
-  msg(MSG::INFO) << "Calling destructor" << endmsg;
 }
 
 //Initialize

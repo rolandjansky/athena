@@ -27,8 +27,8 @@
 
 LArGeo::LArDetectorFactoryH62003::LArDetectorFactoryH62003()
   : m_detectorManager(0),
-    _fcalVisLimit(-1),
-    _axisVisState(-1)
+    m_fcalVisLimit(-1),
+    m_axisVisState(-1)
 {}
 
 
@@ -70,8 +70,8 @@ void LArGeo::LArDetectorFactoryH62003::create( GeoPhysVol* a_container )
   }
   
   LArDetectorConstructionH62003 BeamLineDets;
-  BeamLineDets.SetFCALVisLimit(_fcalVisLimit);
-  BeamLineDets.SetAxisVisState(_axisVisState);
+  BeamLineDets.SetFCALVisLimit(m_fcalVisLimit);
+  BeamLineDets.SetAxisVisState(m_axisVisState);
     
   GeoVPhysVol* Envelope = 0;
 

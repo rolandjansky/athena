@@ -73,6 +73,11 @@ class GsfMeasurementUpdator : public AthAlgTool, virtual public IMultiStateMeasu
   const MultiComponentState* calculateFilterStep( const MultiComponentState&, 
                                                   const MeasurementBase&, 
                                                   std::unique_ptr<FitQualityOnSurface>& fitQoS ) const;
+                                                  
+  bool invalidComponent(const Trk::TrackParameters* trackParameters ) const;
+  
+  Trk::MultiComponentState*  rebuildState(const Trk::MultiComponentState& stateBeforeUpdate) const;
+                                                  
 
  private:
   int                                      m_outputlevel;                      //!< to cache current output level

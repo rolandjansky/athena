@@ -14,7 +14,7 @@ using namespace Monitored;
 const HistogramDef HistogramDef::parse(const std::string& jobOpts) {
   /* Parse histogram defintion
      Example:
-     1D: "EXPERT, TH1I, Name, Title;Alias, nBins, xmin, xmax, BinLabel1:BinLabel2:BinLabel3, kCumulative"
+     1D: "EXPERT, TH1I, Name;Alias, Title, nBins, xmin, xmax, BinLabel1:BinLabel2:BinLabel3, kCumulative"
   */
 
   // convert histogram definition string to an array of strings
@@ -33,14 +33,9 @@ const HistogramDef HistogramDef::parse(const std::string& jobOpts) {
   list<string>::iterator itr = histProperty.begin();
   
   // stream
-  string word = (*itr);
-  boost::to_upper(word);
-  if (word == "EXPERT" || word == "SHIFT" || word == "DEBUG" || word == "RUNSTAT" ) {
-    histPar.path = word;
-    itr = histProperty.erase(itr);
-  }
-  else
-    histPar.path = "EXPERT";
+  const string word = (*itr);
+  histPar.path = word;
+  itr = histProperty.erase(itr);
   
   const char* warning = " NOT booked: ";
   histPar.ok   = false;
@@ -48,12 +43,15 @@ const HistogramDef HistogramDef::parse(const std::string& jobOpts) {
   histPar.zcut = false;
   
   if (histProperty.size() < 5) return histPar;   
-  
+  // extract type
   histPar.type = (*itr);
   itr = histProperty.erase(itr);
 
+  // extract name
   histPar.name.push_back(*itr);
   itr = histProperty.erase(itr);
+
+
   if (histPar.type.find("TH2") == 0 || histPar.type == "TProfile") {
     histPar.name.push_back(*itr);
     itr = histProperty.erase(itr);
@@ -81,14 +79,14 @@ const HistogramDef HistogramDef::parse(const std::string& jobOpts) {
       histPar.alias += "_vs_"+histPar.name[1]+"_vs_"+histPar.name[2];
     }
   }
-
+  // consume title
   histPar.title = (*itr);
   itr = histProperty.erase(itr);
   
   if (histProperty.size() < 2) {
     throw HistogramDefParseException(histPar.alias + warning + "NOT enough parameters for defining 1-D histogram");
   }
-  
+  // consume N x bins
   try {
     histPar.xbins = boost::lexical_cast<int>(*itr);
     itr = histProperty.erase(itr);
@@ -152,27 +150,7 @@ const HistogramDef HistogramDef::parse(const std::string& jobOpts) {
       throw HistogramDefParseException(histPar.name[0] + warning + "double expected for ymax");
     }
   } //-end of TH2
-  //TProfile
-  else if (histPar.type == "TProfile" && histProperty.size() >= 2) {
-    // limited y-range
-    try {
-      histPar.ymin = boost::lexical_cast<double>(*itr);
-      itr = histProperty.erase(itr);
-    }
-    catch (boost::bad_lexical_cast&) {
-      throw HistogramDefParseException(histPar.name[0] + warning + "double expected for ymin of TProfile");
-    }
-    
-    try {
-      histPar.ymax = boost::lexical_cast<double>(*itr);
-      itr = histProperty.erase(itr);
-    }
-    catch (boost::bad_lexical_cast&) {
-      throw HistogramDefParseException(histPar.name[0] + warning + "double expected for ymax of TProfile");
-    }
-    histPar.ybins = 0; // not used
-    histPar.ycut = true;
-  }
+
   //TProfile2D
   else if (histPar.type == "TProfile2D"){
 

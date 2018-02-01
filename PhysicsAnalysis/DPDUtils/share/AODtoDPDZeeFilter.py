@@ -103,13 +103,3 @@ StreamDPD.AddItem ('TruthParticleContainer#SpclMC')
 StreamDPD.AddItem ('McEventCollection#GEN_AOD')
 
 StreamDPD.ForceRead=TRUE;  #force read of output data objs
-
-
-#Write everything in the AOD
-#StreamDPD.Stream.TakeItemsFromInput=True
-#StreamDPD.Stream_FH.TakeItemsFromInput=True
-
-
-
-
-

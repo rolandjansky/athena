@@ -657,7 +657,7 @@ c        PRINT *,'Y,VINT:',SQRT(Y(NLJETS+1)),SQRT(VINT(390))
      $       (mektsc.eq.2.and.MAX(VINT(360),VINT(358)).GT.SQRT(YCUT))))
      $       THEN
           if(idbg.eq.1)
-     $       WRITE(LNHOUT,*),
+     $       WRITE(LNHOUT,*)
      $       'Failed due to ',max(VINT(357),VINT(358)),' > ',SQRT(YCUT)
           GOTO 999
         ENDIF
@@ -670,7 +670,7 @@ c     Highest multiplicity case
      $       THEN
 c     $     VINT(390).GT.PTCLUS(1)**2)THEN
           if(idbg.eq.1)
-     $       WRITE(LNHOUT,*),
+     $       WRITE(LNHOUT,*)
      $       'Failed due to ',max(VINT(357),VINT(358)),' > ',PTCLUS(1)
           GOTO 999
         ENDIF

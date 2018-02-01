@@ -107,21 +107,15 @@ StatusCode RPC_DCSConditionsSvc::finalize()
 
 StatusCode RPC_DCSConditionsSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
 {
-  msg(MSG::INFO) << "queryInterface Start" << endmsg;
   if(IRPC_DCSConditionsSvc::interfaceID().versionMatch(riid) )
     {
-      msg(MSG::INFO) << "versionMatch=true" << endmsg;
-      msg(MSG::INFO) << "OK***************************" << endmsg;
       *ppvInterface = this;      
     } else if ( IRPCConditionsSvc::interfaceID().versionMatch(riid) ) {
       *ppvInterface = dynamic_cast<IRPCConditionsSvc*>(this);
-      msg(MSG::INFO) << "service cast***************************" << endmsg;
     } else {
-      msg(MSG::INFO) << "cannot find the interface!***************************" << endmsg;
       
       return AthService::queryInterface(riid, ppvInterface);
     }
-  msg(MSG::INFO) << "queryInterface succesfull" << endmsg;
   addRef(); 
   return StatusCode::SUCCESS;
 }

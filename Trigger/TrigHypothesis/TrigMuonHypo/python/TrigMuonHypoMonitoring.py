@@ -18,6 +18,27 @@ class TrigMufastHypoMonitoring(GenericMonitoringTool):
                             defineHistogram('XatBe', type='TH1F', title="DCA along X; X (cm)",xbins=100, xmin=-1000, xmax=1000) ]
 
 
+class TrigmuCombHypoMonitoring(GenericMonitoringTool):
+    def __init__ (self, name="TrigmuCombHypoMonitoring"):
+        super(TrigmuCombHypoMonitoring, self).__init__(name)
+
+        self.HistPath = name  
+        self.Histograms = [ defineHistogram('Pt', type='TH1F', title="p_{T} reconstruction from #muComb; p_{T} (GeV)",
+                                            xbins=210, xmin=-105, xmax=105) ]
+        self.Histograms += [ defineHistogram('PtFL', type='TH1F', title="p_{T} of not selected muons from #muComb; p_{T} (GeV)",
+                                            xbins=210, xmin=-105., xmax=105.) ]
+        self.Histograms += [ defineHistogram('StrategyFlag', type='TH1F', title="Combination Strategy from #muComb; Strategy Code",
+                                            xbins=12, xmin=-1.5, xmax=10.5) ]
+        self.Histograms += [ defineHistogram('Eta', type='TH1F', title="Eta reconstruction from #muComb; Eta",
+                                             xbins=108, xmin=-2.7, xmax=2.7) ]
+        self.Histograms += [ defineHistogram('Phi', type='TH1F', title="Phi reconstruction from #muComb; Phi (rad)",
+                                             xbins=96, xmin=-3.1416, xmax=3.1416) ]
+        self.Histograms += [ defineHistogram('Z0', type='TH1F', title="PCA along Z from ID track from #muComb; PCA(Z0) (mm)",
+                                             xbins=100, xmin=-200, xmax=200) ]
+        self.Histograms += [ defineHistogram('A0', type='TH1F', title="PCA along x-y from ID track from #muComb; PCA(A0) (mm)",
+                                             xbins=100, xmin=-0.6, xmax=0.6) ]
+
+
 class MufastHypoValidationMonitoring(TrigGenericMonitoringToolConfig):
     def __init__ (self, name="MufastHypoValidationMonitoring"):
         super(MufastHypoValidationMonitoring, self).__init__(name)

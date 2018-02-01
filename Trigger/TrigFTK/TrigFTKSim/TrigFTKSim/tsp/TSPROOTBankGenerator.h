@@ -65,7 +65,6 @@ private:
 	std::vector<FTKSSMap*> m_ssMaps;
 	ftk_dcap::istream m_inputBank;
 	int m_maxPatterns;
-	int m_planes;
 	int m_mincoverage; // minimum coverage for the TSP patterns
 
 	TFile *m_bankfile;	
