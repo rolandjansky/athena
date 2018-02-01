@@ -351,7 +351,6 @@ namespace CP {
         return true;
     }
     bool EffiCollection::CollectionContainer::LoadPeriod(unsigned int RunNumber) {
-        m_currentSF = m_SF.end();
         if (m_currentSF == m_SF.end() || m_currentSF->first.first > RunNumber || m_currentSF->first.second < RunNumber) {
             for (m_currentSF = m_SF.begin(); m_currentSF != m_SF.end(); ++m_currentSF) {
                 if (m_currentSF->first.first <= RunNumber && m_currentSF->first.second >= RunNumber) return true;
