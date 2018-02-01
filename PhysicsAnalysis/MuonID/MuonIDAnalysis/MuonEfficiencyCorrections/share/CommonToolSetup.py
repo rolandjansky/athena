@@ -79,11 +79,12 @@ def GetMuonEfficiencyTool(MuonWP="Medium", Release=""):
     return getattr(ToolSvc,ToolName)
 
 def GetPRWTool(
+        # this default is for MC16a -> data2016
         PRWLumiCalcFiles = [
             "/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/ilumicalc_histograms_OflLumi-13TeV-009_data16_13TeV.periodAllYear_DetStatus-v89-pro21-01_DQDefects-00-02-04_PHYS_StandardGRL_All_Good_25ns.root",
 			],
         PRWMCConfigFiles = [
-            "/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/prwConfigFiles/NTUP_PILEUP_r9364_r9315.root",
+            "/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/prwConfigFiles/mc16_FULLSIM_r9364_r9315_NTUP_PILEUP.root",
             ]):
     from AthenaCommon.AppMgr import ToolSvc
     from AthenaCommon import CfgMgr, GlobalFlags
