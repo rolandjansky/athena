@@ -831,7 +831,7 @@ def getTauWPDecoratorJetBDT():
     import cppyy
     cppyy.loadDictionary('xAODTau_cDict')
 
-    _name = sPrefix + 'TauWPDecorator'
+    _name = sPrefix + 'TauWPDecoratorJetBDT'
     from tauRecTools.tauRecToolsConf import TauWPDecorator
     myTauWPDecorator = TauWPDecorator( name=_name,
                                        flatteningFile1Prong = "FlatJetBDT1Pv2.root", #update
@@ -883,7 +883,7 @@ def getTauWPDecoratorJetRNN():
     import cppyy
     cppyy.loadDictionary('xAODTau_cDict')
 
-    _name = sPrefix + 'TauWPDecorator'
+    _name = sPrefix + 'TauWPDecoratorJetRNN'
     from tauRecTools.tauRecToolsConf import TauWPDecorator
     myTauWPDecorator = TauWPDecorator( name=_name,
                                        flatteningFile1Prong = "", # to be updated!!!
@@ -902,8 +902,8 @@ def getTauWPDecoratorJetRNN():
 
 
 
-def getTauJetBDTEvaluator(_n, weightsFile="", minNTracks=0, maxNTracks=10000, outputVarName="BDTJetScore", GradiantBoost=True, minAbsTrackEta=-1, maxAbsTrackEta=-1):
-    _name = sPrefix + _n
+def getTauJetBDTEvaluator(suffix="TauJetBDT", weightsFile="", minNTracks=0, maxNTracks=10000, outputVarName="BDTJetScore", GradiantBoost=True, minAbsTrackEta=-1, maxAbsTrackEta=-1):
+    _name = sPrefix + suffix
     from tauRecTools.tauRecToolsConf import TauJetBDTEvaluator
     myTauJetBDTEvaluator = TauJetBDTEvaluator(name=_name,
                                               weightsFile=weightsFile, #update config?
@@ -916,8 +916,8 @@ def getTauJetBDTEvaluator(_n, weightsFile="", minNTracks=0, maxNTracks=10000, ou
     cached_instances[_name] = myTauJetBDTEvaluator
     return myTauJetBDTEvaluator
 
-def getTauJetRNNEvaluator(_n, NetworkFile1P="", NetworkFile3P="", OutputVarname="RNNJetScore", MaxTracks=10, MaxClusters=6, InputLayerScalar="scalar", InputLayerTracks="tracks", InputLayerClusters="clusters", OutputLayer="rnnid_output", OutputNode="sig_prob"):
-    _name = sPrefix + _n
+def getTauJetRNNEvaluator(suffix="TauJetRNN", NetworkFile1P="", NetworkFile3P="", OutputVarname="RNNJetScore", MaxTracks=10, MaxClusters=6, InputLayerScalar="scalar", InputLayerTracks="tracks", InputLayerClusters="clusters", OutputLayer="rnnid_output", OutputNode="sig_prob"):
+    _name = sPrefix + suffix
     from tauRecTools.tauRecToolsConf import TauJetRNNEvaluator
     myTauJetRNNEvaluator = TauJetRNNEvaluator(name=_name,
                                               NetworkFile1P=NetworkFile1P,
