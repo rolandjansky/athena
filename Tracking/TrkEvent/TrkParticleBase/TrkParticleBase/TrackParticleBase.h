@@ -15,7 +15,7 @@
 #define TRKPARTICLEBASE_TRKTRACKPARTICLEBASE_H
 
 // includes for datamembers
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 #include "TrkTrack/TrackCollection.h" // typedef
 #include "VxVertex/VxContainer.h"     // typedef
 #include "TrkEventPrimitives/VertexType.h"

@@ -1,4 +1,4 @@
-Thu Nov  2 15:49:51 EDT 2017
+Thu Jan 25 16:37:54 EST 2018
 WARNING: TCMALLOCDIR not defined, will use libc malloc
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
 Py:Athena            INFO using release [?-21.0.0] [i686-slc5-gcc43-dbg] [?/?] -- built on [?]
@@ -7,7 +7,7 @@ Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "DataModelRunTests/xAODTestReadRename_jo.py"
-Py:ConfigurableDb    INFO Read module info for 467 configurables from 2 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 468 configurables from 2 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
 # setting LC_ALL to "C"
@@ -15,7 +15,7 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
-                                          running on karma on Thu Nov  2 15:50:20 2017
+                                          running on karma on Thu Jan 25 16:38:05 2018
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -23,7 +23,7 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 10025 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 10097 CLIDRegistry entries for module ALL
 ChronoStatSvc        INFO  Number of skipped events for MemStat-1
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
@@ -42,25 +42,24 @@ PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
-EventSelector        INFO reinitialization...
-EventSelector        INFO EventSelection with query 
-Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] D45552C7-3AA1-9A49-A420-3F8F30601500
-Domain[ROOT_All]     INFO                           xaoddata.root
-RootDatabase.open    INFO xaoddata.root File version:60806
-EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
 EventSelector        INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-00-00
 EventSelector        INFO reinitialization...
 EventSelector        INFO EventSelection with query 
-AthenaPoolAddre...   INFO Initializing AthenaPoolAddressProviderSvc - package version EventSelectorAthenaPool-00-00-00
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 1DD07379-7863-064F-B9E1-FB1F91C46856
+Domain[ROOT_All]     INFO                           xaoddata.root
+RootDatabase.open    INFO xaoddata.root File version:60806
+EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
 ClassIDSvc           INFO  getRegistryEntries: read 1084 CLIDRegistry entries for module ALL
+AthenaPoolAddre...   INFO Initializing AthenaPoolAddressProviderSvc - package version EventSelectorAthenaPool-00-00-00
 HistogramPersis...WARNING Histograms saving not required.
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ApplicationMgr       INFO Application Manager Initialized successfully
 xaoddata.root        INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] D45552C7-3AA1-9A49-A420-3F8F30601500
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 1DD07379-7863-064F-B9E1-FB1F91C46856
+Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] D45552C7-3AA1-9A49-A420-3F8F30601500
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 1DD07379-7863-064F-B9E1-FB1F91C46856
 Domain[ROOT_All]     INFO                           xaoddata.root
 RootDatabase.open    INFO xaoddata.root File version:60806
 ApplicationMgr       INFO Application Manager Started successfully
@@ -114,6 +113,7 @@ RootAuxDynReader     INFO FILE:LINE (const RootAuxDynReader::BranchInfo& RootAux
   dpvFloat: [0.910 0.911 0.912 0.913 0.914 0.915 0.916 0.917 0.918 ]
 xAODTestReadDecor    INFO cvec_renamed.dInt1_renamed: 401 402 403 404 405 406 407 408 409 410
 xAODTestReadDecor    INFO cinfo.dInt1_renamed: 3000
+xAODTestReadDecor    INFO cinfo.dInt1_renamed: 3000
 ClassIDSvc           INFO  getRegistryEntries: read 54 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #0, run #0 1 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #0 1 events processed so far  <<<===
@@ -161,6 +161,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   dpvFloat: [0.920 0.921 0.922 0.923 0.924 0.925 0.926 0.927 0.928 ]
 xAODTestReadDecor    INFO cvec_renamed.dInt1_renamed: 801 802 803 804 805 806 807 808 809 810
 xAODTestReadDecor    INFO cinfo.dInt1_renamed: 6000
+xAODTestReadDecor    INFO cinfo.dInt1_renamed: 6000
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #0 2 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #0 2 events processed so far  <<<===
 cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -206,6 +207,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvFloat: [-0.407 -0.307 -0.207 -0.107 -0.007 0.093 0.193 0.293 0.393 ]
   dpvFloat: [0.930 0.931 0.932 0.933 0.934 0.935 0.936 0.937 0.938 ]
 xAODTestReadDecor    INFO cvec_renamed.dInt1_renamed: 1201 1202 1203 1204 1205 1206 1207 1208 1209 1210
+xAODTestReadDecor    INFO cinfo.dInt1_renamed: 9000
 xAODTestReadDecor    INFO cinfo.dInt1_renamed: 9000
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #0 3 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #3, run #0 3 events processed so far  <<<===
@@ -253,11 +255,13 @@ Type of aux store: DMTest::CAuxContainer_v1
   dpvFloat: [0.940 0.941 0.942 0.943 0.944 0.945 0.946 0.947 0.948 ]
 xAODTestReadDecor    INFO cvec_renamed.dInt1_renamed: 1601 1602 1603 1604 1605 1606 1607 1608 1609 1610
 xAODTestReadDecor    INFO cinfo.dInt1_renamed: 12000
+xAODTestReadDecor    INFO cinfo.dInt1_renamed: 12000
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #0 4 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #0 4 events processed so far  <<<===
 cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
 Type of aux store: DMTest::CAuxContainer_v1
 xAODTestReadDecor    INFO cvec_renamed.dInt1_renamed:
+xAODTestReadDecor    INFO cinfo.dInt1_renamed: 15000
 xAODTestReadDecor    INFO cinfo.dInt1_renamed: 15000
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #4, run #0 5 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #5, run #0 5 events processed so far  <<<===
@@ -305,6 +309,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   dpvFloat: [0.960 0.961 0.962 0.963 0.964 0.965 0.966 0.967 0.968 ]
 xAODTestReadDecor    INFO cvec_renamed.dInt1_renamed: 2401 2402 2403 2404 2405 2406 2407 2408 2409 2410
 xAODTestReadDecor    INFO cinfo.dInt1_renamed: 18000
+xAODTestReadDecor    INFO cinfo.dInt1_renamed: 18000
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #5, run #0 6 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #6, run #0 6 events processed so far  <<<===
 cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -350,6 +355,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvFloat: [-0.403 -0.303 -0.203 -0.103 -0.003 0.097 0.197 0.297 0.397 ]
   dpvFloat: [0.970 0.971 0.972 0.973 0.974 0.975 0.976 0.977 0.978 ]
 xAODTestReadDecor    INFO cvec_renamed.dInt1_renamed: 2801 2802 2803 2804 2805 2806 2807 2808 2809 2810
+xAODTestReadDecor    INFO cinfo.dInt1_renamed: 21000
 xAODTestReadDecor    INFO cinfo.dInt1_renamed: 21000
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #6, run #0 7 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #7, run #0 7 events processed so far  <<<===
@@ -397,6 +403,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   dpvFloat: [0.980 0.981 0.982 0.983 0.984 0.985 0.986 0.987 0.988 ]
 xAODTestReadDecor    INFO cvec_renamed.dInt1_renamed: 3201 3202 3203 3204 3205 3206 3207 3208 3209 3210
 xAODTestReadDecor    INFO cinfo.dInt1_renamed: 24000
+xAODTestReadDecor    INFO cinfo.dInt1_renamed: 24000
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #7, run #0 8 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #8, run #0 8 events processed so far  <<<===
 cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -442,6 +449,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvFloat: [-0.401 -0.301 -0.201 -0.101 -0.001 0.099 0.199 0.299 0.399 ]
   dpvFloat: [0.990 0.991 0.992 0.993 0.994 0.995 0.996 0.997 0.998 ]
 xAODTestReadDecor    INFO cvec_renamed.dInt1_renamed: 3601 3602 3603 3604 3605 3606 3607 3608 3609 3610
+xAODTestReadDecor    INFO cinfo.dInt1_renamed: 27000
 xAODTestReadDecor    INFO cinfo.dInt1_renamed: 27000
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #8, run #0 9 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #9, run #0 9 events processed so far  <<<===
@@ -489,6 +497,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
 xAODTestReadDecor    INFO cvec_renamed.dInt1_renamed: 4001 4002 4003 4004 4005 4006 4007 4008 4009 4010
 xAODTestReadDecor    INFO cinfo.dInt1_renamed: 30000
+xAODTestReadDecor    INFO cinfo.dInt1_renamed: 30000
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #9, run #0 10 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #10, run #0 10 events processed so far  <<<===
 cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -534,6 +543,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvFloat: [-0.399 -0.299 -0.199 -0.099 0.001 0.101 0.201 0.301 0.401 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
 xAODTestReadDecor    INFO cvec_renamed.dInt1_renamed: 4401 4402 4403 4404 4405 4406 4407 4408 4409 4410
+xAODTestReadDecor    INFO cinfo.dInt1_renamed: 33000
 xAODTestReadDecor    INFO cinfo.dInt1_renamed: 33000
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #10, run #0 11 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #11, run #0 11 events processed so far  <<<===
@@ -581,6 +591,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
 xAODTestReadDecor    INFO cvec_renamed.dInt1_renamed: 4801 4802 4803 4804 4805 4806 4807 4808 4809 4810
 xAODTestReadDecor    INFO cinfo.dInt1_renamed: 36000
+xAODTestReadDecor    INFO cinfo.dInt1_renamed: 36000
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #11, run #0 12 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #12, run #0 12 events processed so far  <<<===
 cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -626,6 +637,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvFloat: [-0.397 -0.297 -0.197 -0.097 0.003 0.103 0.203 0.303 0.403 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
 xAODTestReadDecor    INFO cvec_renamed.dInt1_renamed: 5201 5202 5203 5204 5205 5206 5207 5208 5209 5210
+xAODTestReadDecor    INFO cinfo.dInt1_renamed: 39000
 xAODTestReadDecor    INFO cinfo.dInt1_renamed: 39000
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #12, run #0 13 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #13, run #0 13 events processed so far  <<<===
@@ -673,6 +685,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
 xAODTestReadDecor    INFO cvec_renamed.dInt1_renamed: 5601 5602 5603 5604 5605 5606 5607 5608 5609 5610
 xAODTestReadDecor    INFO cinfo.dInt1_renamed: 42000
+xAODTestReadDecor    INFO cinfo.dInt1_renamed: 42000
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #13, run #0 14 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #14, run #0 14 events processed so far  <<<===
 cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -718,6 +731,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvFloat: [-0.395 -0.295 -0.195 -0.095 0.005 0.105 0.205 0.305 0.405 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
 xAODTestReadDecor    INFO cvec_renamed.dInt1_renamed: 6001 6002 6003 6004 6005 6006 6007 6008 6009 6010
+xAODTestReadDecor    INFO cinfo.dInt1_renamed: 45000
 xAODTestReadDecor    INFO cinfo.dInt1_renamed: 45000
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #14, run #0 15 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #15, run #0 15 events processed so far  <<<===
@@ -765,6 +779,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
 xAODTestReadDecor    INFO cvec_renamed.dInt1_renamed: 6401 6402 6403 6404 6405 6406 6407 6408 6409 6410
 xAODTestReadDecor    INFO cinfo.dInt1_renamed: 48000
+xAODTestReadDecor    INFO cinfo.dInt1_renamed: 48000
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #15, run #0 16 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #16, run #0 16 events processed so far  <<<===
 cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -810,6 +825,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvFloat: [-0.393 -0.293 -0.193 -0.093 0.007 0.107 0.207 0.307 0.407 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
 xAODTestReadDecor    INFO cvec_renamed.dInt1_renamed: 6801 6802 6803 6804 6805 6806 6807 6808 6809 6810
+xAODTestReadDecor    INFO cinfo.dInt1_renamed: 51000
 xAODTestReadDecor    INFO cinfo.dInt1_renamed: 51000
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #16, run #0 17 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #17, run #0 17 events processed so far  <<<===
@@ -857,6 +873,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
 xAODTestReadDecor    INFO cvec_renamed.dInt1_renamed: 7201 7202 7203 7204 7205 7206 7207 7208 7209 7210
 xAODTestReadDecor    INFO cinfo.dInt1_renamed: 54000
+xAODTestReadDecor    INFO cinfo.dInt1_renamed: 54000
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #17, run #0 18 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #18, run #0 18 events processed so far  <<<===
 cvec_renamed aux items: aFloat anInt anInt2 cEL dInt1_renamed dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -902,6 +919,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvFloat: [-0.391 -0.291 -0.191 -0.091 0.009 0.109 0.209 0.309 0.409 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
 xAODTestReadDecor    INFO cvec_renamed.dInt1_renamed: 7601 7602 7603 7604 7605 7606 7607 7608 7609 7610
+xAODTestReadDecor    INFO cinfo.dInt1_renamed: 57000
 xAODTestReadDecor    INFO cinfo.dInt1_renamed: 57000
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #18, run #0 19 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #19, run #0 19 events processed so far  <<<===
@@ -949,9 +967,10 @@ Type of aux store: DMTest::CAuxContainer_v1
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
 xAODTestReadDecor    INFO cvec_renamed.dInt1_renamed: 8001 8002 8003 8004 8005 8006 8007 8008 8009 8010
 xAODTestReadDecor    INFO cinfo.dInt1_renamed: 60000
+xAODTestReadDecor    INFO cinfo.dInt1_renamed: 60000
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #0 20 events processed so far  <<<===
 xaoddata.root        INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] D45552C7-3AA1-9A49-A420-3F8F30601500
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 1DD07379-7863-064F-B9E1-FB1F91C46856
 ApplicationMgr       INFO Application Manager Stopped successfully
 IncidentProcAlg1     INFO Finalize
 IncidentProcAlg2     INFO Finalize

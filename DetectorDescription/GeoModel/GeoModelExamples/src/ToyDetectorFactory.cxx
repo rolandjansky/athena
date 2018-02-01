@@ -32,8 +32,8 @@ using namespace GeoXF;
 
 
 ToyDetectorFactory::ToyDetectorFactory(StoreGateSvc *detStore)
-  :detectorManager(NULL),
-   detectorStore(detStore)
+  :m_detectorManager(NULL),
+   m_detectorStore(detStore)
 {
 }
 
@@ -48,10 +48,10 @@ ToyDetectorFactory::~ToyDetectorFactory()
 //## Other Operations (implementation)
 void ToyDetectorFactory::create(GeoPhysVol *world)
 {
-  detectorManager=new ToyDetectorManager();
+  m_detectorManager=new ToyDetectorManager();
 
   DataHandle<StoredMaterialManager> materialManager;
-  if (StatusCode::SUCCESS != detectorStore->retrieve(materialManager, std::string("MATERIALS"))) {
+  if (StatusCode::SUCCESS != m_detectorStore->retrieve(materialManager, std::string("MATERIALS"))) {
     return; 
   } 
   
@@ -78,7 +78,7 @@ void ToyDetectorFactory::create(GeoPhysVol *world)
   //                                                                                   //  
   // Add this to the list of top level physical volumes:                               //  
   //                                                                                   //  
-  detectorManager->addTreeTop(toyPhys);                                                //  
+  m_detectorManager->addTreeTop(toyPhys);                                                //  
   //-----------------------------------------------------------------------------------//  
   
   //-----------------------------------------------------------------------------------//  
@@ -100,7 +100,7 @@ void ToyDetectorFactory::create(GeoPhysVol *world)
     GeoAlignableTransform  *xform    = new GeoAlignableTransform(HepGeom::TranslateZ3D((i-50)*20*CLHEP::cm));  
     toyPhys->add(xform);                                                               //  
     toyPhys->add(ringPhys);                                                            //  
-    detectorManager->addCentralScrutinizer(new CentralScrutinizer(ringPhys));          //  
+    m_detectorManager->addCentralScrutinizer(new CentralScrutinizer(ringPhys));          //  
   }                                                                                    //
   //-----------------------------------------------------------------------------------//
 
@@ -157,7 +157,7 @@ void ToyDetectorFactory::create(GeoPhysVol *world)
 
 const ToyDetectorManager * ToyDetectorFactory::getDetectorManager() const
 {
-  return detectorManager;
+  return m_detectorManager;
 }
 
 

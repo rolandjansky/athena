@@ -76,6 +76,7 @@ StatusCode JetFinder::initialize() {
   if ( m_bld.empty() ) {
     ATH_MSG_ERROR("Unable to retrieve jet builder.");
   }
+  ATH_CHECK(m_bld.retrieve());
   fastjet::JetDefinition jetdef(m_fjalg, m_jetrad);
   PseudoJetVector empty;
   fastjet::ClusterSequence cs(empty, jetdef);

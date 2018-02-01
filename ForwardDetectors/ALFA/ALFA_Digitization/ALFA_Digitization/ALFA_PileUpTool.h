@@ -79,7 +79,7 @@ class ALFA_PileUpTool: public PileUpToolBase {
       
    //StatusCode Truth_info();
    
-   StatusCode recordCollection(ServiceHandle<StoreGateSvc>& evtStore, std::string m_key_digitCnt);
+   StatusCode recordCollection(ServiceHandle<StoreGateSvc>& evtStore, std::string key_digitCnt);
    //StatusCode fillDigitCollection();
    
    void ALFA_MD_info(const ALFA_HitCollection*);
@@ -90,7 +90,7 @@ class ALFA_PileUpTool: public PileUpToolBase {
    
    StatusCode fill_MD_DigitCollection(CLHEP::HepRandomEngine*);     
 
-   StatusCode recordODCollection(ServiceHandle<StoreGateSvc>& evtStore, std::string m_key_ODdigitCnt);
+   StatusCode recordODCollection(ServiceHandle<StoreGateSvc>& evtStore, std::string key_ODdigitCnt);
    //StatusCode fillODDigitCollection();
    
    void ALFA_OD_info(const ALFA_ODHitCollection*);
@@ -110,8 +110,8 @@ class ALFA_PileUpTool: public PileUpToolBase {
   ServiceHandle<IAtRndmGenSvc>  m_atRndmGenSvc;
   CLHEP::HepRandomEngine       *m_rndEngine;
 
-  double E_fib[8][20][64];
-  double E_ODfib[8][2][3][30];
+  double m_E_fib[8][20][64];
+  double m_E_ODfib[8][2][3][30];
 
   /*
   std::string m_SimStripHitCollectionName;
@@ -157,12 +157,12 @@ class ALFA_PileUpTool: public PileUpToolBase {
   ALFA_HitCollection      *m_mergedALFA_HitList;
   ALFA_ODHitCollection    *m_mergedALFA_ODHitList;
   
-  double cross_talk[8][127];
-  int fibres[8][20][64];
+  double m_cross_talk[8][127];
+  int m_fibres[8][20][64];
 		
-  std::ifstream fXTalk;
-  std::stringstream s;
-  std::string filename;
+  std::ifstream m_fXTalk;
+  std::stringstream m_s;
+  std::string m_filename;
   
 };
  

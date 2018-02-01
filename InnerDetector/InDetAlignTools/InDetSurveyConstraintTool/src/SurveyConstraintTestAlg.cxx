@@ -48,7 +48,7 @@ StatusCode SurveyConstraintTestAlg::initialize(){
   }
   
   // Get SurveyConstraint from ToolService
-  sc = m_toolsvc->retrieveTool("SurveyConstraint",SurvConstr);
+  sc = m_toolsvc->retrieveTool("SurveyConstraint",m_SurvConstr);
   if (sc.isFailure()) {
     msg(MSG::FATAL) <<"Could not find SurveyConstraint Tool. Exiting."<<endmsg;
     return sc;
@@ -117,12 +117,12 @@ return StatusCode::SUCCESS;
     
     m_AlignResults_nModules = 0;
     int SCT,barrel_ec,layer_disk,phi,eta;
-    std::map<Identifier, SurveyConstraintModule*, std::less<Identifier> > m_ModuleMap;
-    SurvConstr -> MMap(m_ModuleMap);
+    std::map<Identifier, SurveyConstraintModule*, std::less<Identifier> > ModuleMap;
+    m_SurvConstr -> MMap(ModuleMap);
     std::map<Identifier, SurveyConstraintModule*, std::less<Identifier> >::iterator it;
-    for (it = m_ModuleMap.begin(); it != m_ModuleMap.end(); it++) {
+    for (it = ModuleMap.begin(); it != ModuleMap.end(); it++) {
       const Identifier& ModuleID = (it->second)->moduleID();
-      SurveyConstraintModule* mut = m_ModuleMap[ModuleID];
+      SurveyConstraintModule* mut = ModuleMap[ModuleID];
       if(mut->isPixel()){
   SCT = 1;
   barrel_ec = m_pixid->barrel_ec(ModuleID);
@@ -169,7 +169,7 @@ StatusCode SurveyConstraintTestAlg::execute() {
 // Part 1: Get the messaging service, print where you are
 msg(MSG::INFO) << "execute()" << endmsg;
 
- float m_multipl=1.E3;
+ float multipl=1.E3;
 
  Amg::VectorX dparams(6);         // alignment parameters
  double deltachisq = 0;
@@ -181,11 +181,11 @@ msg(MSG::INFO) << "execute()" << endmsg;
  bool NewDisk = true, NewSector = true;
  int previous_disk = -1, previous_sector = -1;
  for(int i=0;i!=m_NLoop;++i){
-   if(i!=0){SurvConstr -> finalize();SurvConstr -> setup_SurveyConstraintModules();}
+   if(i!=0){m_SurvConstr -> finalize();m_SurvConstr -> setup_SurveyConstraintModules();}
    for (iter = m_pixelManager->getDetectorElementBegin(); iter != m_pixelManager->getDetectorElementEnd(); ++iter) {
      const Identifier Pixel_ModuleID = (*iter)->identify(); 
      if(abs(m_pixid->barrel_ec(Pixel_ModuleID)) == 2){
-       SurvConstr -> computeConstraint(Pixel_ModuleID,
+       m_SurvConstr -> computeConstraint(Pixel_ModuleID,
                                        dparams,        
                                        deltachisq,
                                        DOCA_Vector,  
@@ -193,17 +193,17 @@ msg(MSG::INFO) << "execute()" << endmsg;
        
        
        if(previous_disk == m_pixid->layer_disk(Pixel_ModuleID) && 
-          previous_sector == SurvConstr->SectorNumber(m_pixid->phi_module(Pixel_ModuleID)))
+          previous_sector == m_SurvConstr->SectorNumber(m_pixid->phi_module(Pixel_ModuleID)))
          NewSector=false;
        else NewSector=true;
        if(previous_disk == m_pixid->layer_disk(Pixel_ModuleID))
          NewDisk=false;
        else NewDisk=true;
-       if (NewDisk) for (unsigned int i=0;i!=6;++i) h_PixEC_Align_Disk[i] -> fill(m_multipl*dparams[i]);
-       if (NewSector) for (unsigned int i=0;i!=6;++i) h_PixEC_Align_first[i] -> fill(m_multipl*dparams[i]);
-       else for (unsigned int i=0;i!=6;++i) h_PixEC_Align[i] -> fill(m_multipl*dparams[i]);
+       if (NewDisk) for (unsigned int i=0;i!=6;++i) m_h_PixEC_Align_Disk[i] -> fill(multipl*dparams[i]);
+       if (NewSector) for (unsigned int i=0;i!=6;++i) m_h_PixEC_Align_first[i] -> fill(multipl*dparams[i]);
+       else for (unsigned int i=0;i!=6;++i) m_h_PixEC_Align[i] -> fill(multipl*dparams[i]);
        previous_disk = m_pixid->layer_disk(Pixel_ModuleID);
-       previous_sector = SurvConstr->SectorNumber(m_pixid->phi_module(Pixel_ModuleID)); 
+       previous_sector = m_SurvConstr->SectorNumber(m_pixid->phi_module(Pixel_ModuleID)); 
 
        if (msgLvl(MSG::DEBUG)) msg() 
      << "Pixel_ModuleID = " <<  Pixel_ModuleID
@@ -235,7 +235,7 @@ msg(MSG::INFO) << "execute()" << endmsg;
  for (iter = m_pixelManager->getDetectorElementBegin(); iter != m_pixelManager->getDetectorElementEnd(); ++iter) {
    const Identifier Pixel_ModuleID = (*iter)->identify(); 
    if(m_pixid->barrel_ec(Pixel_ModuleID) == 0){
-     SurvConstr -> computeConstraint(Pixel_ModuleID,
+     m_SurvConstr -> computeConstraint(Pixel_ModuleID,
              dparams,        
              deltachisq,
              DOCA_Vector,  
@@ -269,7 +269,7 @@ msg(MSG::INFO) << "execute()" << endmsg;
  for (iter = m_SCT_Manager->getDetectorElementBegin(); iter != m_SCT_Manager->getDetectorElementEnd(); ++iter) {
    const Identifier SCT_ModuleID = (*iter)->identify(); 
    if(abs(m_sctid->barrel_ec(SCT_ModuleID)) == 2){
-     SurvConstr -> computeConstraint(SCT_ModuleID,
+     m_SurvConstr -> computeConstraint(SCT_ModuleID,
              dparams,        
              deltachisq,
              DOCA_Vector,  
@@ -304,7 +304,7 @@ msg(MSG::INFO) << "execute()" << endmsg;
  for (iter = m_SCT_Manager->getDetectorElementBegin(); iter != m_SCT_Manager->getDetectorElementEnd(); ++iter) {
    const Identifier SCT_ModuleID = (*iter)->identify(); 
    if(m_sctid->barrel_ec(SCT_ModuleID) == 0){
-     SurvConstr -> computeConstraint(SCT_ModuleID,
+     m_SurvConstr -> computeConstraint(SCT_ModuleID,
              dparams,        
              deltachisq,
              DOCA_Vector,  
@@ -354,26 +354,26 @@ StatusCode SurveyConstraintTestAlg::finalize() {
 }
 
 void SurveyConstraintTestAlg::BookHist() {
-  h_PixEC_Align_Disk[0] = histoSvc()->book("/stat/MisAlign", "Misalignment Disk X [mu]", "Misalignment Disk X [mu]",100, -50.,50.);
-  h_PixEC_Align_Disk[1] = histoSvc()->book("/stat/MisAlign", "Misalignment Disk Y [mu]", "Misalignment Disk Y [mu]",100, -100.,100.);
-  h_PixEC_Align_Disk[2] = histoSvc()->book("/stat/MisAlign", "Misalignment Disk Z [mu]", "Misalignment Disk Z [mu]",100, -200.,200.);
-  h_PixEC_Align_Disk[3] = histoSvc()->book("/stat/MisAlign", "Misalignment Disk PhiX [mrad]", "Misalignment Disk PhiX [mrad]",100, -2.,2.);
-  h_PixEC_Align_Disk[4] = histoSvc()->book("/stat/MisAlign", "Misalignment Disk PhiY [mrad]", "Misalignment Disk PhiY [mrad]",100, -5.,5.);
-  h_PixEC_Align_Disk[5] = histoSvc()->book("/stat/MisAlign", "Misalignment Disk PhiZ [mrad]", "Misalignment Disk PhiZ [mrad]",100, -2.,2.);
+  m_h_PixEC_Align_Disk[0] = histoSvc()->book("/stat/MisAlign", "Misalignment Disk X [mu]", "Misalignment Disk X [mu]",100, -50.,50.);
+  m_h_PixEC_Align_Disk[1] = histoSvc()->book("/stat/MisAlign", "Misalignment Disk Y [mu]", "Misalignment Disk Y [mu]",100, -100.,100.);
+  m_h_PixEC_Align_Disk[2] = histoSvc()->book("/stat/MisAlign", "Misalignment Disk Z [mu]", "Misalignment Disk Z [mu]",100, -200.,200.);
+  m_h_PixEC_Align_Disk[3] = histoSvc()->book("/stat/MisAlign", "Misalignment Disk PhiX [mrad]", "Misalignment Disk PhiX [mrad]",100, -2.,2.);
+  m_h_PixEC_Align_Disk[4] = histoSvc()->book("/stat/MisAlign", "Misalignment Disk PhiY [mrad]", "Misalignment Disk PhiY [mrad]",100, -5.,5.);
+  m_h_PixEC_Align_Disk[5] = histoSvc()->book("/stat/MisAlign", "Misalignment Disk PhiZ [mrad]", "Misalignment Disk PhiZ [mrad]",100, -2.,2.);
 
-  h_PixEC_Align_first[0] = histoSvc()->book("/stat/MisAlign", "Misalignment first X [mu]", "Misalignment first X [mu]",100, -50.,50.);
-  h_PixEC_Align_first[1] = histoSvc()->book("/stat/MisAlign", "Misalignment first Y [mu]", "Misalignment first Y [mu]",100, -100.,100.);
-  h_PixEC_Align_first[2] = histoSvc()->book("/stat/MisAlign", "Misalignment first Z [mu]", "Misalignment first Z [mu]",100, -200.,200.);
-  h_PixEC_Align_first[3] = histoSvc()->book("/stat/MisAlign", "Misalignment first PhiX [mrad]", "Misalignment first PhiX [mrad]",100, -2.,2.);
-  h_PixEC_Align_first[4] = histoSvc()->book("/stat/MisAlign", "Misalignment first PhiY [mrad]", "Misalignment first PhiY [mrad]",100, -5.,5.);
-  h_PixEC_Align_first[5] = histoSvc()->book("/stat/MisAlign", "Misalignment first PhiZ [mrad]", "Misalignment first PhiZ [mrad]",100, -2.,2.);
+  m_h_PixEC_Align_first[0] = histoSvc()->book("/stat/MisAlign", "Misalignment first X [mu]", "Misalignment first X [mu]",100, -50.,50.);
+  m_h_PixEC_Align_first[1] = histoSvc()->book("/stat/MisAlign", "Misalignment first Y [mu]", "Misalignment first Y [mu]",100, -100.,100.);
+  m_h_PixEC_Align_first[2] = histoSvc()->book("/stat/MisAlign", "Misalignment first Z [mu]", "Misalignment first Z [mu]",100, -200.,200.);
+  m_h_PixEC_Align_first[3] = histoSvc()->book("/stat/MisAlign", "Misalignment first PhiX [mrad]", "Misalignment first PhiX [mrad]",100, -2.,2.);
+  m_h_PixEC_Align_first[4] = histoSvc()->book("/stat/MisAlign", "Misalignment first PhiY [mrad]", "Misalignment first PhiY [mrad]",100, -5.,5.);
+  m_h_PixEC_Align_first[5] = histoSvc()->book("/stat/MisAlign", "Misalignment first PhiZ [mrad]", "Misalignment first PhiZ [mrad]",100, -2.,2.);
 
-  h_PixEC_Align[0] = histoSvc()->book("/stat/MisAlign", "Misalignment X [mu]", "Misalignment X [mu]",100, -50.,50.);
-  h_PixEC_Align[1] = histoSvc()->book("/stat/MisAlign", "Misalignment Y [mu]", "Misalignment Y [mu]",100, -100.,100.);
-  h_PixEC_Align[2] = histoSvc()->book("/stat/MisAlign", "Misalignment Z [mu]", "Misalignment Z [mu]",100, -200.,200.);
-  h_PixEC_Align[3] = histoSvc()->book("/stat/MisAlign", "Misalignment PhiX [mrad]", "Misalignment PhiX [mrad]",100, -2.,2.);
-  h_PixEC_Align[4] = histoSvc()->book("/stat/MisAlign", "Misalignment PhiY [mrad]", "Misalignment PhiY [mrad]",100, -5.,5.);
-  h_PixEC_Align[5] = histoSvc()->book("/stat/MisAlign", "Misalignment PhiZ [mrad]", "Misalignment PhiZ [mrad]",100, -2.,2.);
+  m_h_PixEC_Align[0] = histoSvc()->book("/stat/MisAlign", "Misalignment X [mu]", "Misalignment X [mu]",100, -50.,50.);
+  m_h_PixEC_Align[1] = histoSvc()->book("/stat/MisAlign", "Misalignment Y [mu]", "Misalignment Y [mu]",100, -100.,100.);
+  m_h_PixEC_Align[2] = histoSvc()->book("/stat/MisAlign", "Misalignment Z [mu]", "Misalignment Z [mu]",100, -200.,200.);
+  m_h_PixEC_Align[3] = histoSvc()->book("/stat/MisAlign", "Misalignment PhiX [mrad]", "Misalignment PhiX [mrad]",100, -2.,2.);
+  m_h_PixEC_Align[4] = histoSvc()->book("/stat/MisAlign", "Misalignment PhiY [mrad]", "Misalignment PhiY [mrad]",100, -5.,5.);
+  m_h_PixEC_Align[5] = histoSvc()->book("/stat/MisAlign", "Misalignment PhiZ [mrad]", "Misalignment PhiZ [mrad]",100, -2.,2.);
 }
   //__________________________________________________________________________
 ////} // end of namespace bracket

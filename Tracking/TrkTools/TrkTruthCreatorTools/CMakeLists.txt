@@ -8,7 +8,8 @@ atlas_subdir( TrkTruthCreatorTools )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
-                          Control/DataModel
+                          Control/AthLinks
+                          Control/AthContainers
                           DetectorDescription/AtlasDetDescr
                           GaudiKernel
                           Tracking/TrkEvent/TrkEventUtils
@@ -30,7 +31,7 @@ atlas_add_component( TrkTruthCreatorTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${HEPMC_LIBRARIES} AthenaBaseComps DataModel AtlasDetDescr GaudiKernel TrkEventUtils TrkTruthData TrkToolInterfaces GeneratorObjects TrkCompetingRIOsOnTrack TrkMeasurementBase TrkPrepRawData TrkRIO_OnTrack TrkTrack )
+                     LINK_LIBRARIES ${HEPMC_LIBRARIES} AthenaBaseComps AthLinks AthContainers AtlasDetDescr GaudiKernel TrkEventUtils TrkTruthData TrkToolInterfaces GeneratorObjects TrkCompetingRIOsOnTrack TrkMeasurementBase TrkPrepRawData TrkRIO_OnTrack TrkTrack )
 
 # Install files from the package:
 atlas_install_headers( TrkTruthCreatorTools )

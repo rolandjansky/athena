@@ -342,7 +342,7 @@ namespace Trk {
   }
 
   //________________________________________________________________________
-  void AlignTrack::setAlignTSOSCollection(const AlignTSOSCollection* atsosColl)
+  void AlignTrack::setAlignTSOSCollection(AlignTSOSCollection* atsosColl)
   {
     m_alignTSOSCollection=atsosColl;
 

@@ -712,3 +712,4 @@ ByteStreamEventStorageInputSvc::EventCache::~EventCache() {
   delete rawEvent;
   rawEvent = 0;
 }
+

@@ -88,6 +88,8 @@ StatusCode HLTCaloFEBTool::init() {
                 ATH_MSG_INFO( "Retrieved " << m_data  );
         }
 
+	ATH_CHECK(m_noisetool.retrieve());
+
 	return StatusCode::SUCCESS;
 
 }

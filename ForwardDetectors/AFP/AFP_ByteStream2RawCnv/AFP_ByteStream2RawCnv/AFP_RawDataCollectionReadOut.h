@@ -27,20 +27,20 @@ private:
   uint16_t m_row;
   uint16_t m_column;
   uint32_t m_ToT1;
-  static const uint16_t headerPos = 24;
-  static const uint16_t headerBits = 0xff;
-  static const uint16_t headerPos2 = 20;
-  static const uint16_t headerBits2 = 0xfff;
-  static const uint16_t BOBvalue =
+  static const uint16_t HEADERPOS = 24;
+  static const uint16_t HEADERBITS = 0xff;
+  static const uint16_t HEADERPOS2 = 20;
+  static const uint16_t HEADERBITS2 = 0xfff;
+  static const uint16_t BOBVALUE =
       0x3; // Header identifier, getBits(31,28) == 0011 (I think)
-  static const uint16_t LWCvalue =
+  static const uint16_t LWCVALUE =
       0x3; // Have no idea what this is, let it be Data record id,
            // getBits(31,30) == 11. Could in princpile use BOBvalue, but need a
            // different boolean anyway, so for consistency define this again.;
-  static const uint16_t BOLvalue = 0x18;
-  static const uint16_t TLPvalue = 0x890;
-  static const uint16_t TWCvalue = 0x8a;
-  static const uint16_t EOBvalue = 0xf0;
+  static const uint16_t BOLVALUE = 0x18;
+  static const uint16_t TLPVALUE = 0x890;
+  static const uint16_t TWCVALUE = 0x8a;
+  static const uint16_t EOBVALUE = 0xf0;
 
 public:
   AFP_RawDataCollectionReadOut();
@@ -49,9 +49,9 @@ public:
   void decodeWord(uint32_t dataWord);
 
   bool is_BOB() {
-    return m_wordHeader == BOBvalue;
+    return m_wordHeader == BOBVALUE;
   }; // This is going to be is_Header
-  bool is_LWC() { return m_wordHeader2 == LWCvalue; };
+  bool is_LWC() { return m_wordHeader2 == LWCVALUE; };
   //  bool is_BOL() {return m_wordHeader == BOLvalue;};
   //  bool is_TLP() {return m_wordHeader2 == TLPvalue;};
   //  bool is_TWC() {return m_wordHeader == TWCvalue;};

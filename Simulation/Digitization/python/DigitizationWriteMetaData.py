@@ -2,16 +2,6 @@
 
 from AthenaCommon.Logging import logging
 logDigitizationWriteMetadata = logging.getLogger( 'DigitizationWriteMetadata' )
-#-------------------------------------------------
-# Setup MetaData Stream
-#-------------------------------------------------
-#if not hasattr(ServiceMgr, 'MetaDataStore'):
-### In future should probably do a check here
-
-#from AthenaServices.AthenaServicesConf import AthenaOutputStream
-#StreamRDO_FH =  AthenaOutputStream( "StreamRDO_FH" )
-#StreamRDO_FH.ItemList += [ "IOVMetaDataContainer#*" ]
-
 
 myRunNumber = 0
 myEndRunNumber = 2147483647 # the max run number

@@ -32,7 +32,7 @@ class SimpleConstraintPointMinimizer {
 			Amg::Vector3D& aRotat1,  Amg::Vector3D& translate1,
 			Amg::Vector3D& aRotat2,  Amg::Vector3D& translate2);
  private:
-  double _proximity;
+  double m_proximity;
 };
 
 #endif

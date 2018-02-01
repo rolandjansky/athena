@@ -163,11 +163,7 @@ def setupEvtSelForSeekOps():
    collectionType = svcMgr.EventSelector.properties()["CollectionType"]
 
    if collectionType in ( "ImplicitROOT", Configurable.propertyNoValue, ):
-      svcMgr.EventSelector.CollectionType = "SeekableROOT"
       msg.info   ( "=> Seeking enabled." )
-
-   elif collectionType in ( "SeekableROOT", ):
-      msg.verbose( "=> Seeking already enabled." )
 
    else:
       msg.warning( "Input seeking is not compatible with collection type of %s",

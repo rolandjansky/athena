@@ -7,9 +7,9 @@ atlas_subdir( VxMultiVertex )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
-                          Control/DataModel
-                          Control/SGTools
+                          Control/AthenaKernel
+                          Control/AthLinks
+                          Control/AthContainers
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkEvent/TrkParticleBase
                           Tracking/TrkEvent/TrkTrack
@@ -25,13 +25,13 @@ atlas_add_library( VxMultiVertex
                    src/*.cxx
                    PUBLIC_HEADERS VxMultiVertex
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES DataModel SGTools TrkParameters TrkParticleBase TrkTrack VxVertex xAODTracking
+                   LINK_LIBRARIES AthLinks AthContainers TrkParameters TrkParticleBase TrkTrack VxVertex xAODTracking
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_dictionary( VxMultiVertexDict
                       VxMultiVertex/VxMultiVertexDict.h
                       VxMultiVertex/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} DataModel SGTools TrkParameters TrkParticleBase TrkTrack VxVertex VxMultiVertex
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthLinks AthContainers TrkParameters TrkParticleBase TrkTrack VxVertex VxMultiVertex
                       ELEMENT_LINKS MVFVxContainer )
 

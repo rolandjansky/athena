@@ -80,7 +80,7 @@ simFlags.RandomSeedOffset = randint(1,443921180)
 #add G4 function
 
 from G4AtlasApps.SimFlags import simFlags
-simFlags.OptionalUserActionList.addAction('G4UA::TestActionShowerLibTool',['Event','Run','Step'])
+simFlags.OptionalUserActionList.addAction('G4UA::TestActionShowerLibTool')
 
 from AthenaCommon.CfgGetter import getAlgorithm
 topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)

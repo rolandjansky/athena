@@ -126,3 +126,7 @@ atlas_add_test( DataBucket_test
 atlas_add_test( RCUUpdater_test
    SOURCES test/RCUUpdater_test.cxx
    LINK_LIBRARIES AthenaKernel TestTools )
+
+atlas_add_test( MetaContDataBucket_test
+   SOURCES test/MetaContDataBucket_test.cxx
+   LINK_LIBRARIES AthenaKernel TestTools )

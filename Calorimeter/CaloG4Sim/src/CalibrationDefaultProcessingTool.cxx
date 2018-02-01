@@ -14,32 +14,19 @@ namespace G4UA
     CalibrationDefaultProcessingTool(const std::string& type,
                                      const std::string& name,
                                      const IInterface* parent)
-      : ActionToolBase<CalibrationDefaultProcessing>(type, name, parent)
+      : UserActionToolBase<CalibrationDefaultProcessing>(type, name, parent)
     {
       declareProperty("SDName", m_config.SDName);
     }
 
     std::unique_ptr<CalibrationDefaultProcessing>
-    CalibrationDefaultProcessingTool::makeAction()
+    CalibrationDefaultProcessingTool::makeAndFillAction(G4AtlasUserActions& actionList)
     {
-      ATH_MSG_DEBUG("makeAction");
-      return std::make_unique<CalibrationDefaultProcessing>(m_config);
-    }
-
-    StatusCode CalibrationDefaultProcessingTool::queryInterface(const InterfaceID& riid, void** ppvIf)
-    {
-
-      if(riid == IG4EventActionTool::interfaceID()) {
-	*ppvIf = (IG4EventActionTool*) this;
-	addRef();
-	return StatusCode::SUCCESS;
-      }
-      if(riid == IG4SteppingActionTool::interfaceID()) {
-	*ppvIf = (IG4SteppingActionTool*) this;
-	addRef();
-	return StatusCode::SUCCESS;
-      }
-      return ActionToolBase<CalibrationDefaultProcessing>::queryInterface(riid, ppvIf);
+      ATH_MSG_DEBUG("Constructing a CalibrationDefaultProcessing action");
+      auto action = std::make_unique<CalibrationDefaultProcessing>(m_config);
+      actionList.eventActions.push_back( action.get() );
+      actionList.steppingActions.push_back( action.get() );
+      return action;
     }
 
   } // namespace CaloG4

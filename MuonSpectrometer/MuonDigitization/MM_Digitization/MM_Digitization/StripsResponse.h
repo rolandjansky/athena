@@ -111,7 +111,7 @@ public :
   StripsResponse();
    
   virtual ~StripsResponse();
-  MmStripToolOutput GetResponceFrom(const MmDigitToolInput & digiInput);
+  MmStripToolOutput GetResponseFrom(const MmDigitToolInput & digiInput);
   //  MmElectronicsToolInput GetResponceFrom(const MmDigitToolInput & digiInput);
   //  MmDigitToolOutput GetResponseFrom(const MmDigitToolInput & digiInput);
     

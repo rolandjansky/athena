@@ -39,9 +39,9 @@
 InDet::InDetEventSplitter::InDetEventSplitter(const std::string& name,
   ISvcLocator* pSvcLocator) : 
   AthAlgorithm(name, pSvcLocator),
-  isOdd(false),
-  addToVx(0),
-  eventN(0){
+  m_isOdd(false),
+  m_addToVx(0),
+  m_eventN(0){
 
   /// switches to control the analysis through job options
   declareProperty("TPBContainerName", m_tpbContainerName = "TrackParticleCandidate");
@@ -65,9 +65,9 @@ InDet::InDetEventSplitter::~InDetEventSplitter() {}
 StatusCode InDet::InDetEventSplitter::initialize() {
   
   std::srand(m_rndSeed);
-  isOdd = false;
-  addToVx = 1;
-  eventN = 0;
+  m_isOdd = false;
+  m_addToVx = 1;
+  m_eventN = 0;
 
   for (int i = 1; i <=m_maxVtx; i++){
     std::stringstream ss;
@@ -180,16 +180,16 @@ StatusCode InDet::InDetEventSplitter::split_vertices() {
       //it looks like our track collection is actually sorted by the vertex that they're in
       //which means that just alternating odd vs even is equivalent to splitting the vertex first, then splitting the remining
       //instead, we will just put in rand() call
-      isOdd = std::rand() % 2;
+      m_isOdd = std::rand() % 2;
       std::string oeNameString;
-      if (isOdd)  oeNameString = "odd";
-      if (!isOdd) oeNameString = "even";
+      if (m_isOdd)  oeNameString = "odd";
+      if (!m_isOdd) oeNameString = "even";
       std::stringstream sss;
-      sss << oeNameString << "_" << addToVx << "_Tracks";
+      sss << oeNameString << "_" << m_addToVx << "_Tracks";
       std::string oecontainerName = sss.str();   		  	
       std::string allNameString = "all";
       sss.str("");
-      sss << allNameString << "_" << addToVx << "_Tracks";
+      sss << allNameString << "_" << m_addToVx << "_Tracks";
       std::string allcontainerName = sss.str();  
       Trk::TrackParticleBase *trkCopy1 = new Trk::TrackParticleBase((*(*tpbItr)));
       Trk::TrackParticleBase *trkCopy2 = new Trk::TrackParticleBase((*(*tpbItr)));
@@ -198,8 +198,8 @@ StatusCode InDet::InDetEventSplitter::split_vertices() {
       ATH_MSG_DEBUG("found a trackparticlebase, with momentum "<<(*tpbItr)->definingParameters().momentum()<<" giving it the key: "<< allcontainerName);	
       tpbmap[allcontainerName]->push_back(trkCopy2);	
       
-      addToVx++;
-      if (addToVx > m_maxVtx) addToVx = 1;
+      m_addToVx++;
+      if (m_addToVx > m_maxVtx) m_addToVx = 1;
     }
   }
   
@@ -222,7 +222,7 @@ StatusCode InDet::InDetEventSplitter::split_vertices() {
     
   ATH_MSG_DEBUG("split_vertices() succeeded");
   
-  eventN++;
+  m_eventN++;
   return StatusCode::SUCCESS;
 }
 

@@ -34,8 +34,8 @@ class ResoTriggerMuonPlots:public PlotBase {
   
  private:
   std::string m_sType;
-  std::vector<std::string> pt_slices;
-  std::vector<double> etaBins;
+  std::vector<std::string> m_pt_slices;
+  std::vector<double> m_etaBins;
 };
 
 

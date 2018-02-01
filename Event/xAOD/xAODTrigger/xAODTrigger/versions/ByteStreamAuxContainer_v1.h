@@ -177,23 +177,10 @@ namespace xAOD {
       /// Mark variables as decorations.
       std::vector<bool> m_isDecoration;
 
-      /// Count changes to @c m_auxids.
-      mutable size_t m_tick;
-
       /// Mutex for multithread synchronization.
       typedef AthContainers_detail::mutex mutex_t;
       typedef AthContainers_detail::lock_guard<mutex_t> guard_t;
       mutable mutex_t m_mutex;
-
-      /// Thread-local versions of the auxid set.
-      struct TSAuxidSet
-      {
-        size_t m_tick;
-        auxid_set_t m_set;
-        TSAuxidSet (size_t tick, const auxid_set_t& set)
-          : m_tick (tick), m_set (set) {}
-      };
-      mutable AthContainers_detail::thread_specific_ptr<TSAuxidSet> m_tsAuxids;
 
       /// @}
 

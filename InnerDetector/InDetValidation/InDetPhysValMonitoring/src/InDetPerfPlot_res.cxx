@@ -370,12 +370,12 @@ InDetPerfPlot_res::Refinement(TH1D* temp, IDPVM::GetMeanWidth::methods p_method,
 
   m_getMeanWidth.setResults(temp, p_method);
   // print out any warnings and errors
-  for (auto _it : m_getMeanWidth.getInfos())
-    ATH_MSG_INFO(_it);
-  for (auto _it : m_getMeanWidth.getWarnings())
-    ATH_MSG_WARNING(_it);
-  for (auto _it : m_getMeanWidth.getErrors())
-    ATH_MSG_ERROR(_it);
+  for (auto it : m_getMeanWidth.getInfos())
+    ATH_MSG_INFO(it);
+  for (auto it : m_getMeanWidth.getWarnings())
+    ATH_MSG_WARNING(it);
+  for (auto it : m_getMeanWidth.getErrors())
+    ATH_MSG_ERROR(it);
   // RMS and RMSerror
   (rvec[var])->SetBinContent(j, m_getMeanWidth.getRMS());
   (rvec[var])->SetBinError(j, m_getMeanWidth.getRMSError());

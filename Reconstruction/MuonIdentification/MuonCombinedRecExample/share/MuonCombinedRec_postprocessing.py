@@ -35,6 +35,14 @@ if rec.doTruth() and muonCombinedRecFlags.doxAOD() and rec.doMuonCombined():
     from MuonTruthAlgs.MuonTruthAlgsConf import MuonTruthAssociationAlg
     topSequence += MuonTruthAssociationAlg("MuonTruthAssociationAlg")
 
+    try:
+        from RecExConfig.InputFilePeeker import inputFileSummary
+        truthStrategy = inputFileSummary['metadata']['/Simulation/Parameters']['TruthStrategy']
+        if truthStrategy in ['MC15','MC18','MC18LLP']:
+            topSequence.MuonTruthAssociationAlg.BarcodeOffset=10000000
+    except:
+        print "Failed to read /Simulation/Parameters/ metadata"
+        pass
 
 if muonCombinedRecFlags.doTrackPerformance:
     include("MuonCombinedRecExample/MuonCombinedTrackPerformance_jobOptions.py")

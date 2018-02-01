@@ -243,28 +243,12 @@ namespace xAOD {
       /// Flags items as decorations
       mutable std::vector< ::Bool_t > m_isDecoration;
 
-      /// Count changes to @c m_auxIDs
-      mutable size_t m_tick;
-
       /// Mutex type for multithread synchronization
       typedef AthContainers_detail::mutex mutex_t;
       /// Guard type for multithreaded synchronisation
       typedef AthContainers_detail::lock_guard< mutex_t > guard_t;
       /// Mutexes object used for multithreaded synchronisation
       mutable mutex_t m_mutex1, m_mutex2;
-
-      /// Helper class for the thread-local auxid set implementation
-      struct TSAuxidSet {
-         size_t m_tick; ///< Counter's state when the object was last synced
-         auxid_set_t m_set; ///< Thread local auxiliary ID set
-         /// Constructor with counter and auxiliary ID set
-         TSAuxidSet( size_t tick, const auxid_set_t& set )
-         : m_tick( tick ), m_set( set ) {}
-      };
-
-      /// Thread-local versions of the auxid set
-      mutable AthContainers_detail::thread_specific_ptr< TSAuxidSet >
-         m_tsAuxids;
 
       /// Class used internally to implement just-in-time reading
       ///

@@ -264,7 +264,6 @@ namespace Trk
 	{
 		if ( originalPerigees.empty() )
 		{
-			m_error = NOTRKS;
 			ATH_MSG_VERBOSE("No tracks to fit in this event.");
 			return 0;
 		}
@@ -531,8 +530,7 @@ namespace Trk
 
 				if ( ( *BTIter ).chi2 < 0 )
 				{
-					std::cout << "FullVertexFitter::calculate: error in chi2_per_track\n";
-					m_error = NEGTRCHI2;
+					ATH_MSG_WARNING( "FullVertexFitter::calculate: error in chi2_per_track" );
 					return 0;
 				}
 				chi2New += ( *BTIter ).chi2;

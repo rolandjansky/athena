@@ -14,7 +14,6 @@
 
 // Forward declarations
 class IPoolSvc;
-class IMessageSvc;
 namespace pool {
    class ICollection;
    class ICollectionQuery;
@@ -30,17 +29,13 @@ class PoolCollectionConverter {
 
 public:
    /// Constructor
-   /// @param msgSvc [IN] pointer to the message service.
    /// @param collectionType [IN] type of the collection
    /// ("ExplicitROOT", "ExplicitMySQL", "ExplicitMySQLlt" or "ImplicitROOT").
-   /// @param connection [IN] connection string, only needed for MySQL.
    /// @param inputCollection [IN] name of the collection.
    /// @param query [IN] query string.
    /// @param svc [IN] pointer to the PoolSvc.
    /// @param contextId [IN] id for PoolSvc persistency service to use for input.
-   PoolCollectionConverter(IMessageSvc* msgSvc,
-		   const std::string& collectionType,
-		   const std::string& connection,
+   PoolCollectionConverter(const std::string& collectionType,
 		   const std::string& inputCollection,
 		   const std::string& query,
 		   const IPoolSvc* svc);
@@ -72,7 +67,6 @@ public:
    pool::ICollectionMetadata* retrieveMetadata() const;
 
 private: // data
-   IMessageSvc* m_msgSvc;
    std::string m_collectionType;
    std::string m_connection;
    std::string m_inputCollection;
