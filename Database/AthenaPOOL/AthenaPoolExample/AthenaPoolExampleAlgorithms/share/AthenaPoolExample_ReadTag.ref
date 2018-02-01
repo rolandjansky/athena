@@ -1,50 +1,22 @@
-Mon Jan 22 13:11:03 CST 2018
-Preloading tcmalloc_minimal.so
 Athena               INFO including file "AthenaCommon/Preparation.py"
 Athena               INFO including file "AthenaCommon/Bootstrap.py"
 Athena               INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Athena               INFO executing ROOT6Setup
 Athena               INFO including file "AthenaCommon/Execution.py"
 Athena               INFO including file "AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadTagJobOptions.py"
-Py:ConfigurableDb    INFO Read module info for 5435 configurables from 52 genConfDb files
-Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Athena               INFO including file "AthenaCommon/runbatch.py"
-[?1034hApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
-ApplicationMgr    SUCCESS 
-====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v30r1)
-                                          running on atlas1.hep.anl.gov on Mon Jan 22 13:11:17 2018
-====================================================================================================================================
-ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
-ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
-StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 2319 CLIDRegistry entries for module ALL
 ChronoStatSvc        INFO  Number of skipped events for MemStat-1
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
-AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
-ReadData            DEBUG Property update for OutputLevel : new value = 2
 ReadData             INFO in initialize()
-MetaDataSvc         DEBUG Property update for OutputLevel : new value = 2
-MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
-AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
-PoolSvc             DEBUG Property update for OutputLevel : new value = 2
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
-DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://frontier-atlas.lcg.triumf.ca:3128/ATLAS_frontier)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /users/gemmeren/workarea/build/x86_64-slc6-gcc62-opt/share/dbreplica.config
-DBReplicaSvc         INFO Total of 1 servers found for host atlas1.hep.anl.gov [ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc             DEBUG OutputLevel is 
 PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc              INFO POOL WriteCatalog is file:Catalog1.xml
-DbSession            INFO     Open     DbSession    
-Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
-EventSelector       DEBUG Property update for OutputLevel : new value = 2
-EventSelector        INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-00-00
-EventSelector.Q...  DEBUG Property update for OutputLevel : new value = 2
 EventSelector.Q...   INFO in initialize()
 IoComponentMgr       INFO IoComponent EventSelector has already had file EmptyPoolCollection.root registered with i/o mode READ
 EventSelector        INFO reinitialization...
@@ -54,7 +26,6 @@ EventSelector        INFO Using standard collection ref
 EventSelector       DEBUG Try item: "SimplePoolCollection1.root" from the collection list.
 MetaDataSvc         DEBUG handle() FirstInputFile for FID:????
 MetaDataSvc         DEBUG initInputMetaDataStore: file name FID:????
-Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] ????
 Domain[ROOT_All]     INFO                           SimplePoolFile1.root
 SimplePoolFile1...  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Shapes
 ##Shapes            DEBUG Opening
@@ -97,15 +68,13 @@ SimplePoolFile1...  DEBUG --->Reading Assoc:????/POOLCollectionTree(EventNumber)
 SimplePoolFile1...  DEBUG ---->ClassID:????
 SimplePoolFile1...  DEBUG --->Reading Assoc:????/POOLCollectionTree(MagicNumber) [202]  (a , ffffffff)
 SimplePoolFile1...  DEBUG ---->ClassID:????
-SimplePoolFile1...  DEBUG --->Reading Assoc:????/POOLContainer(basic/DataHeader) [202]  (b , ffffffff)
+SimplePoolFile1...  DEBUG --->Reading Assoc:????/MetaData(EventStreamInfo_p3/Stream1) [202]  (b , ffffffff)
 SimplePoolFile1...  DEBUG ---->ClassID:????
-SimplePoolFile1...  DEBUG --->Reading Assoc:????/MetaData(EventStreamInfo_p3/Stream1) [202]  (c , ffffffff)
+SimplePoolFile1...  DEBUG --->Reading Assoc:????/MetaDataHdrForm(DataHeaderForm) [202]  (c , ffffffff)
 SimplePoolFile1...  DEBUG ---->ClassID:????
-SimplePoolFile1...  DEBUG --->Reading Assoc:????/MetaDataHdrForm(DataHeaderForm) [202]  (d , ffffffff)
+SimplePoolFile1...  DEBUG --->Reading Assoc:????/MetaDataHdr(DataHeader) [202]  (d , ffffffff)
 SimplePoolFile1...  DEBUG ---->ClassID:????
-SimplePoolFile1...  DEBUG --->Reading Assoc:????/MetaDataHdr(DataHeader) [202]  (e , ffffffff)
-SimplePoolFile1...  DEBUG ---->ClassID:????
-##Links             DEBUG No objects passing selection criteria... Container has 13 Entries in total.
+##Links             DEBUG No objects passing selection criteria... Container has 12 Entries in total.
 SimplePoolFile1...  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Params
 ##Params            DEBUG Opening
 ##Params            DEBUG    attributes# = 1
@@ -127,10 +96,6 @@ MetaDataHdrForm...  DEBUG    attributes# = 1
 MetaDataHdrForm...  DEBUG Branch container 'DataHeaderForm'
 MetaDataHdrForm...  DEBUG Opened container MetaDataHdrForm(DataHeaderForm) of type ROOT_Tree
 MetaDataSvc         DEBUG Loaded input meta data store proxies
-AthenaPoolAddre...  DEBUG Property update for OutputLevel : new value = 2
-ReadData            DEBUG input handles: 0
-ReadData            DEBUG output handles: 0
-ReadData            DEBUG Data Deps for ReadData
 HistogramPersis...WARNING Histograms saving not required.
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ApplicationMgr       INFO Application Manager Initialized successfully
@@ -146,7 +111,6 @@ MetaDataSvc         DEBUG Loaded input meta data store proxies
 MetaDataSvc         DEBUG  calling beginInputFile for ToolSvc.IOVDbMetaDataTool
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
-ClassIDSvc           INFO  getRegistryEntries: read 2674 CLIDRegistry entries for module ALL
 EventSelector       DEBUG record AthenaAttribute, name = Stream1_ref = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000000].
 EventSelector       DEBUG record AthenaAttribute, name = eventRef = [DB=????][CNT=POOLContainer(DataHeader)][CLID=????][TECH=00000202][OID=00000006-00000000].
 EventSelector        INFO Request skipping event from: EventSelector.QueryTag
@@ -223,14 +187,11 @@ POOLContainerFo...  DEBUG Opened container POOLContainerForm(DataHeaderForm) of 
 AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
-AlgResourcePool      INFO TopAlg list empty. Recovering the one of Application Manager
 SimplePoolFile1...  DEBUG --> Access   DbContainer  READ      [ROOT_Tree] CollectionTree(EventInfo_p4/McEventInfo)
 CollectionTree(...  DEBUG Opening
 CollectionTree(...  DEBUG    attributes# = 1
 CollectionTree(...  DEBUG Branch container 'EventInfo_p4_McEventInfo'
 CollectionTree(...  DEBUG Opened container CollectionTree(EventInfo_p4/McEventInfo) of type ROOT_Tree
-AthenaPoolConve...   INFO massageEventInfo: unable to get OverrideRunNumberFromInput property from EventSelector 
-ClassIDSvc           INFO  getRegistryEntries: read 11 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO   ===>>>  start of run 1    <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #10, run #1 0 events processed so far  <<<===
 ReadData            DEBUG in execute()
@@ -264,7 +225,6 @@ ReadData             INFO Hit x = 1020.49 y = 63.5816 z = -951.864 detector = Du
 ReadData             INFO Hit x = 1023.7 y = 57.9027 z = -953.684 detector = DummyHitDetector
 ReadData             INFO Hit x = 1026.91 y = 52.2238 z = -955.073 detector = DummyHitDetector
 ReadData             INFO Hit x = 1030.12 y = 46.5449 z = -956.169 detector = DummyHitDetector
-ClassIDSvc           INFO  getRegistryEntries: read 10 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #10, run #1 1 events processed so far  <<<===
 EventSelector       DEBUG Get AttributeList from the collection
 EventSelector       DEBUG AttributeList size 3
@@ -547,7 +507,6 @@ ReadData             INFO Hit x = 1930.12 y = 46.5449 z = -1856.17 detector = Du
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #1 10 events processed so far  <<<===
 MetaDataSvc         DEBUG handle() EndInputFile for FID:????
 MetaDataSvc         DEBUG handle() EndTagFile for SimplePoolCollection1.root
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] ????
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 EventSelector       DEBUG Try item: "EmptyPoolCollection.root" from the collection list.
 MetaDataSvc         DEBUG handle() BeginTagFile for EmptyPoolCollection.root
@@ -556,9 +515,6 @@ EventSelector       DEBUG Try item: "SimplePoolCollection2.root" from the collec
 MetaDataSvc         DEBUG handle() BeginTagFile for SimplePoolCollection2.root
 MetaDataSvc         DEBUG handle() BeginInputFile for FID:????
 MetaDataSvc         DEBUG initInputMetaDataStore: file name FID:????
-DbSession            INFO     Open     DbSession    
-Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] ????
 Domain[ROOT_All]     INFO                           SimplePoolFile2.root
 SimplePoolFile2...  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Shapes
 ##Shapes            DEBUG Opening
@@ -597,17 +553,15 @@ SimplePoolFile2...  DEBUG --->Reading Assoc:????/POOLCollectionTree(EventNumber)
 SimplePoolFile2...  DEBUG ---->ClassID:????
 SimplePoolFile2...  DEBUG --->Reading Assoc:????/POOLCollectionTree(MagicNumber) [202]  (9 , ffffffff)
 SimplePoolFile2...  DEBUG ---->ClassID:????
-SimplePoolFile2...  DEBUG --->Reading Assoc:????/POOLContainer(basic/DataHeader) [202]  (a , ffffffff)
+SimplePoolFile2...  DEBUG --->Reading Assoc:????/MetaData(EventStreamInfo_p3/Stream2) [202]  (a , ffffffff)
 SimplePoolFile2...  DEBUG ---->ClassID:????
-SimplePoolFile2...  DEBUG --->Reading Assoc:????/MetaData(EventStreamInfo_p3/Stream2) [202]  (b , ffffffff)
+SimplePoolFile2...  DEBUG --->Reading Assoc:????/MetaDataHdrForm(DataHeaderForm) [202]  (b , ffffffff)
 SimplePoolFile2...  DEBUG ---->ClassID:????
-SimplePoolFile2...  DEBUG --->Reading Assoc:????/MetaDataHdrForm(DataHeaderForm) [202]  (c , ffffffff)
+SimplePoolFile2...  DEBUG --->Reading Assoc:????/MetaDataHdr(DataHeader) [202]  (c , ffffffff)
 SimplePoolFile2...  DEBUG ---->ClassID:????
-SimplePoolFile2...  DEBUG --->Reading Assoc:????/MetaDataHdr(DataHeader) [202]  (d , ffffffff)
+SimplePoolFile2...  DEBUG --->Reading Assoc:????/MetaData(EventStreamInfo_p3/Stream1) [202]  (d , ffffffff)
 SimplePoolFile2...  DEBUG ---->ClassID:????
-SimplePoolFile2...  DEBUG --->Reading Assoc:????/MetaData(EventStreamInfo_p3/Stream1) [202]  (e , ffffffff)
-SimplePoolFile2...  DEBUG ---->ClassID:????
-##Links             DEBUG No objects passing selection criteria... Container has 13 Entries in total.
+##Links             DEBUG No objects passing selection criteria... Container has 12 Entries in total.
 SimplePoolFile2...  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Params
 ##Params            DEBUG Opening
 ##Params            DEBUG    attributes# = 1
@@ -1697,15 +1651,11 @@ ReadData             INFO Could not find ExampleHitContainer/MyHits
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #39, run #2 50 events processed so far  <<<===
 MetaDataSvc         DEBUG handle() EndInputFile for FID:????
 MetaDataSvc         DEBUG handle() EndTagFile for SimplePoolCollection2.root
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] ????
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 EventSelector       DEBUG Try item: "SimplePoolCollection3.root" from the collection list.
 MetaDataSvc         DEBUG handle() BeginTagFile for SimplePoolCollection3.root
 MetaDataSvc         DEBUG handle() BeginInputFile for FID:????
 MetaDataSvc         DEBUG initInputMetaDataStore: file name FID:????
-DbSession            INFO     Open     DbSession    
-Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] ????
 Domain[ROOT_All]     INFO                           SimplePoolFile3.root
 SimplePoolFile3...  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Shapes
 ##Shapes            DEBUG Opening
@@ -1748,15 +1698,13 @@ SimplePoolFile3...  DEBUG --->Reading Assoc:????/POOLCollectionTree(EventNumber)
 SimplePoolFile3...  DEBUG ---->ClassID:????
 SimplePoolFile3...  DEBUG --->Reading Assoc:????/POOLCollectionTree(MagicNumber) [202]  (a , ffffffff)
 SimplePoolFile3...  DEBUG ---->ClassID:????
-SimplePoolFile3...  DEBUG --->Reading Assoc:????/POOLContainer(basic/DataHeader) [202]  (b , ffffffff)
+SimplePoolFile3...  DEBUG --->Reading Assoc:????/MetaData(EventStreamInfo_p3/Stream1) [202]  (b , ffffffff)
 SimplePoolFile3...  DEBUG ---->ClassID:????
-SimplePoolFile3...  DEBUG --->Reading Assoc:????/MetaData(EventStreamInfo_p3/Stream1) [202]  (c , ffffffff)
+SimplePoolFile3...  DEBUG --->Reading Assoc:????/MetaDataHdrForm(DataHeaderForm) [202]  (c , ffffffff)
 SimplePoolFile3...  DEBUG ---->ClassID:????
-SimplePoolFile3...  DEBUG --->Reading Assoc:????/MetaDataHdrForm(DataHeaderForm) [202]  (d , ffffffff)
+SimplePoolFile3...  DEBUG --->Reading Assoc:????/MetaDataHdr(DataHeader) [202]  (d , ffffffff)
 SimplePoolFile3...  DEBUG ---->ClassID:????
-SimplePoolFile3...  DEBUG --->Reading Assoc:????/MetaDataHdr(DataHeader) [202]  (e , ffffffff)
-SimplePoolFile3...  DEBUG ---->ClassID:????
-##Links             DEBUG No objects passing selection criteria... Container has 13 Entries in total.
+##Links             DEBUG No objects passing selection criteria... Container has 12 Entries in total.
 SimplePoolFile3...  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Params
 ##Params            DEBUG Opening
 ##Params            DEBUG    attributes# = 1
@@ -1884,7 +1832,6 @@ CollectionTree(...  DEBUG    attributes# = 1
 CollectionTree(...  DEBUG Branch container 'ExampleTrackContainer_p1_MyTracks'
 CollectionTree(...  DEBUG Opened container CollectionTree(ExampleTrackContainer_p1/MyTracks) of type ROOT_Tree
 ReadData             INFO Track pt = 1018.38 eta = -11.0052 phi = 149.134 detector = Track made in: DummyHitDetector
-Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] ????
 Domain[ROOT_All]     INFO                           SimplePoolFile1.root
 SimplePoolFile1...  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Shapes
 ##Shapes            DEBUG Opening
@@ -1927,15 +1874,13 @@ SimplePoolFile1...  DEBUG --->Reading Assoc:????/POOLCollectionTree(EventNumber)
 SimplePoolFile1...  DEBUG ---->ClassID:????
 SimplePoolFile1...  DEBUG --->Reading Assoc:????/POOLCollectionTree(MagicNumber) [202]  (a , ffffffff)
 SimplePoolFile1...  DEBUG ---->ClassID:????
-SimplePoolFile1...  DEBUG --->Reading Assoc:????/POOLContainer(basic/DataHeader) [202]  (b , ffffffff)
+SimplePoolFile1...  DEBUG --->Reading Assoc:????/MetaData(EventStreamInfo_p3/Stream1) [202]  (b , ffffffff)
 SimplePoolFile1...  DEBUG ---->ClassID:????
-SimplePoolFile1...  DEBUG --->Reading Assoc:????/MetaData(EventStreamInfo_p3/Stream1) [202]  (c , ffffffff)
+SimplePoolFile1...  DEBUG --->Reading Assoc:????/MetaDataHdrForm(DataHeaderForm) [202]  (c , ffffffff)
 SimplePoolFile1...  DEBUG ---->ClassID:????
-SimplePoolFile1...  DEBUG --->Reading Assoc:????/MetaDataHdrForm(DataHeaderForm) [202]  (d , ffffffff)
+SimplePoolFile1...  DEBUG --->Reading Assoc:????/MetaDataHdr(DataHeader) [202]  (d , ffffffff)
 SimplePoolFile1...  DEBUG ---->ClassID:????
-SimplePoolFile1...  DEBUG --->Reading Assoc:????/MetaDataHdr(DataHeader) [202]  (e , ffffffff)
-SimplePoolFile1...  DEBUG ---->ClassID:????
-##Links             DEBUG No objects passing selection criteria... Container has 13 Entries in total.
+##Links             DEBUG No objects passing selection criteria... Container has 12 Entries in total.
 SimplePoolFile1...  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Params
 ##Params            DEBUG Opening
 ##Params            DEBUG    attributes# = 1
@@ -2392,26 +2337,19 @@ ReadData             INFO Hit x = 1930.12 y = 46.5449 z = -1856.17 detector = Du
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #1 60 events processed so far  <<<===
 MetaDataSvc         DEBUG handle() EndInputFile for FID:????
 MetaDataSvc         DEBUG handle() EndTagFile for SimplePoolCollection3.root
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] ????
 MetaDataSvc         DEBUG handle() LastInputFile for end
 AthenaEventLoopMgr   INFO No more events in event selection 
 MetaDataSvc         DEBUG  calling metaDataStop for ToolSvc.IOVDbMetaDataTool
 MetaDataSvc         DEBUG Releasing MetaDataTools
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] ????
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 ApplicationMgr       INFO Application Manager Stopped successfully
-IncidentProcAlg1     INFO Finalize
 ReadData             INFO in finalize()
-IncidentProcAlg2     INFO Finalize
 AthDictLoaderSvc     INFO in finalize...
 ToolSvc              INFO Removing all tools created by ToolSvc
 EventSelector.Q...   INFO in finalize()
 *****Chrono*****     INFO ****************************************************************************************************
 *****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****     INFO ****************************************************************************************************
-cObjR_ALL            INFO Time User   : Tot=   20 [ms] Ave/Min/Max=0.102(+- 1.42)/    0/   20 [ms] #=197
-cObj_ALL             INFO Time User   : Tot=   40 [ms] Ave/Min/Max=0.237(+- 2.42)/    0/   30 [ms] #=169
-ChronoStatSvc        INFO Time User   : Tot= 1.16  [s]                                             #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully

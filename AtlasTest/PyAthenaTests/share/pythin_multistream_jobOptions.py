@@ -69,7 +69,7 @@ import AthenaPoolCnvSvc.WriteAthenaPool
 ## thinning of odds elements (1,3,5,...)
 #########################################
 job += CfgMgr.AthenaOutputStream("OutStream_0",
-                                  WritingTool="AthenaPoolOutputStreamTool")
+                                  WritingTool="AthenaOutputStreamTool")
 outStream = job.OutStream_0
 outStream.ItemList = [
      "EventInfo#*",
@@ -83,7 +83,7 @@ outStream.OutputFile = OUTPUT_0
 ## no-thinning
 #########################################
 job += CfgMgr.AthenaOutputStream("OutStream_nothinning",
-                                  WritingTool="AthenaPoolOutputStreamTool")
+                                  WritingTool="AthenaOutputStreamTool")
 outStream = job.OutStream_nothinning
 outStream.ItemList = [
      "EventInfo#*",
@@ -96,7 +96,7 @@ outStream.OutputFile = OUTPUT_NOTHINNING
 ## thinning of evens elements (0,2,4,...)
 #########################################
 job += CfgMgr.AthenaOutputStream("OutStream_1",
-                                  WritingTool="AthenaPoolOutputStreamTool")
+                                  WritingTool="AthenaOutputStreamTool")
 outStream = job.OutStream_1
 outStream.ItemList = [
      "EventInfo#*",

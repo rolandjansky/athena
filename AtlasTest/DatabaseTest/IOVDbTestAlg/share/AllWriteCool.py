@@ -104,5 +104,5 @@ theApp.OutStream = []
 
 from AthenaCommon.AppMgr import ToolSvc
 IOVDbTestAlg.StreamName = "CondStream2"
-from OutputStreamAthenaPool.OutputStreamAthenaPoolConf import AthenaPoolOutputStreamTool
-ToolSvc += AthenaPoolOutputStreamTool("CondStream2",OutputFile = str(IOVDbTestAlg.run) + "-inf.root")
+from AthenaServices.AthenaServicesConf import AthenaOutputStreamTool
+ToolSvc += AthenaOutputStreamTool("CondStream2",OutputFile = str(IOVDbTestAlg.run) + "-inf.root")

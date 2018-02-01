@@ -128,7 +128,7 @@ ToolSvc = Service( "ToolSvc" )
 Stream1 = AthenaOutputStream( "Stream1" )
 
 # Tool for output stream:
-Stream1.WritingTool = "AthenaPoolOutputStreamTool"
+Stream1.WritingTool = "AthenaOutputStreamTool"
 
 # Set processing stage name for <>_ref
 try:

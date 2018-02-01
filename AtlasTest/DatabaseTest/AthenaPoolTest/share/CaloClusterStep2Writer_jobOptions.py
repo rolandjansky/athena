@@ -74,7 +74,7 @@ theApp.TopAlg   += [ "AthenaOutputStream/Stream1" ]
 theApp.OutStream    = []; 
 # Stream's output file
 Stream1 = Algorithm( "AthenaOutputStream/Stream1" )
-Stream1.WritingTool = "AthenaPoolOutputStreamTool"
+Stream1.WritingTool = "AthenaOutputStreamTool"
 Stream1.OutputFile  = "SimplePoolFile2.root"
 # List of DO's to write out
 #Stream1.ItemList += ["CaloCellContainer#*"]
