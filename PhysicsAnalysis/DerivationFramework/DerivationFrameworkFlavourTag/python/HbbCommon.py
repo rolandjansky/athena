@@ -132,6 +132,8 @@ def addVRJets(sequence, VRJetName, VRGhostLabel, VRJetAlg="AntiKt", VRJetRadius=
     VRJetRecToolName = "%sJets" % (VRJetName)
     VRJetBTagName = "BTagging_%s" % (VRJetName)
 
+    from AthenaCommon.AppMgr import ToolSvc
+
     #make the btagging tool for VR jets
     btag_vrjets = ConfInst.setupJetBTaggerTool(ToolSvc, JetCollection=VRJetRecToolName, AddToToolSvc=True, Verbose=True,
                  options={"name"         : VRJetBTagName.lower(), 
@@ -143,6 +145,8 @@ def addVRJets(sequence, VRJetName, VRGhostLabel, VRJetAlg="AntiKt", VRJetRadius=
                  TaggerList = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu', 
                                'MV2c10', 'MV2c10mu', 'MV2c10rnn', 'JetVertexCharge', 'MV2cl100' , 'MVb', 'DL1', 'DL1rnn', 'DL1mu', 'RNNIP', 'MV2c10Flip']
                  )
+
+    from BTagging.BTaggingConfiguration import defaultTrackAssoc, defaultMuonAssoc
 
     if VRJetAlgName in DFJetAlgs:
         print "Algorithm", VRJetAlgName, "already built before"
@@ -161,9 +165,9 @@ def addVRJets(sequence, VRJetName, VRGhostLabel, VRJetAlg="AntiKt", VRJetRadius=
             print "   Create JetRecTool", VRJetRecToolName
             #can only run trackjetdrlabeler with truth labels, so MC only
             if globalflags.DataSource()!='data': 
-                jtm.addJetFinder(VRJetRecToolName, VRJetAlg, VRJetRadius, VRJetInputs, modifiersin=[btag_vrjets,jtm.trackjetdrlabeler], **VRJetOptions) 
+                jtm.addJetFinder(VRJetRecToolName, VRJetAlg, VRJetRadius, VRJetInputs, modifiersin=[defaultTrackAssoc, defaultMuonAssoc, btag_vrjets,jtm.trackjetdrlabeler], **VRJetOptions) 
             else:
-                jtm.addJetFinder(VRJetRecToolName, VRJetAlg, VRJetRadius, VRJetInputs, modifiersin=[btag_vrjets], **VRJetOptions)
+                jtm.addJetFinder(VRJetRecToolName, VRJetAlg, VRJetRadius, VRJetInputs, modifiersin=[defaultTrackAssoc, defaultMuonAssoc, btag_vrjets], **VRJetOptions)
 
         from JetRec.JetRecConf import JetAlgorithm
         jetalg_smallvr30_track = JetAlgorithm(VRJetAlgName, Tools = [ jtm[VRJetRecToolName] ])
@@ -241,6 +245,7 @@ def addVRJets(sequence, VRJetName, VRGhostLabel, VRJetAlg="AntiKt", VRJetRadius=
 def addVRJetsTCC(sequence, VRJetName, VRGhostLabel, VRJetAlg="AntiKt", VRJetRadius=0.4, VRJetInputs="pv0track", **VRJetOptions):
     from JetRec.JetRecStandard import jtm
 
+    from AthenaCommon.AppMgr import ToolSvc
     #==========================================================
     # Build VR jets
     #==========================================================
@@ -278,9 +283,9 @@ def addVRJetsTCC(sequence, VRJetName, VRGhostLabel, VRJetAlg="AntiKt", VRJetRadi
             print "   Create JetRecTool", VRJetRecToolName
             #can only run trackjetdrlabeler with truth labels, so MC only
             if globalflags.DataSource()!='data': 
-                jtm.addJetFinder(VRJetRecToolName, VRJetAlg, VRJetRadius, VRJetInputs, modifiersin=[btag_vrjets,jtm.trackjetdrlabeler], **VRJetOptions) 
+                jtm.addJetFinder(VRJetRecToolName, VRJetAlg, VRJetRadius, VRJetInputs, modifiersin=[trackassoc, muonassc, btag_vrjets,jtm.trackjetdrlabeler], **VRJetOptions) 
             else:
-                jtm.addJetFinder(VRJetRecToolName, VRJetAlg, VRJetRadius, VRJetInputs, modifiersin=[btag_vrjets], **VRJetOptions)
+                jtm.addJetFinder(VRJetRecToolName, VRJetAlg, VRJetRadius, VRJetInputs, modifiersin=[trackassoc, muonassoc, btag_vrjets], **VRJetOptions)
 
         from JetRec.JetRecConf import JetAlgorithm
         jetalg_smallvr30_track = JetAlgorithm(VRJetAlgName, Tools = [ jtm[VRJetRecToolName] ])

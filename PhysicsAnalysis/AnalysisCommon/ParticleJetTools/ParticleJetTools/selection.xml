@@ -5,8 +5,10 @@
     <class name="CopyFlavorLabelTruthParticles" />  
     <class name="CopyTruthJetParticles" />  
     <class name="ParticleJetDeltaRLabelTool" />  
-    <class name="JetParticleAssociationAlg" />  
+    <class name="JetModifierAlg" />  
+    <class name="JetAssocConstAlg" />  
     <class name="JetParticleAssociation" />  
     <class name="JetParticleShrinkingConeAssociation" />  
+    <class name="JetParticleFixedConeAssociation" />  
     <class name="JetParticleCenterOfMassAssociation" />  
 </lcgdict>

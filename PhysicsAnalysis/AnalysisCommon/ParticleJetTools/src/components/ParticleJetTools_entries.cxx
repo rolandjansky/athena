@@ -14,6 +14,7 @@
 #include "ParticleJetTools/JetModifierAlg.h"
 #include "ParticleJetTools/JetAssocConstAlg.h"
 #include "ParticleJetTools/JetParticleShrinkingConeAssociation.h"
+#include "ParticleJetTools/JetParticleFixedConeAssociation.h"
 #include "ParticleJetTools/JetParticleCenterOfMassAssociation.h"
 
 using namespace Analysis;
@@ -32,6 +33,7 @@ DECLARE_TOOL_FACTORY( CopyTruthPartons )
 DECLARE_TOOL_FACTORY( CopyTruthJetParticles )
 DECLARE_TOOL_FACTORY( ParticleJetDeltaRLabelTool )
 DECLARE_TOOL_FACTORY( JetParticleShrinkingConeAssociation )
+DECLARE_TOOL_FACTORY( JetParticleFixedConeAssociation )
 DECLARE_TOOL_FACTORY( JetParticleCenterOfMassAssociation )
 DECLARE_ALGORITHM_FACTORY( JetModifierAlg )
 DECLARE_ALGORITHM_FACTORY( JetAssocConstAlg )
@@ -52,6 +54,7 @@ DECLARE_FACTORY_ENTRIES( ParticleJetTools ) {
     DECLARE_TOOL( CopyTruthJetParticles )
     DECLARE_TOOL( ParticleJetDeltaRLabelTool )
     DECLARE_TOOL( JetParticleShrinkingConeAssociation )
+    DECLARE_TOOL( JetParticleFixedConeAssociation )
     DECLARE_TOOL( JetParticleCenterOfMassAssociation )
     DECLARE_ALGORITHM( JetModifierAlg )
     DECLARE_ALGORITHM( JetAssocConstAlg )

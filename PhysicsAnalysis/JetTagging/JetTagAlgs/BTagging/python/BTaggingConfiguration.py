@@ -1952,3 +1952,30 @@ for tool in dir():
         if 'ToolCollection' in metadict:
             tcoll = metadict['ToolCollection']
         addToolTypeToToolCollection(tname, tcoll)
+
+
+
+from AthenaCommon.AppMgr import ToolSvc
+from ParticleJetTools.ParticleJetToolsConf import JetParticleShrinkingConeAssociation, JetParticleFixedConeAssociation, JetAssocConstAlg
+
+defaultTrackAssoc = \
+    JetParticleShrinkingConeAssociation(
+        "DefaultBTaggingTrackAssoc",
+        InputParticleCollectionName="InDetTrackParticles",
+        OutputCollectionName="MatchedTracks",
+        ConeSizeFitPar1=+0.239,
+        ConeSizeFitPar2=-1.220,
+        ConeSizeFitPar3=-1.64e-5
+    )
+
+defaultMuonAssoc = \
+    JetParticleFixedConeAssociation(
+        "DefaultBTaggingMuonAssoc",
+        InputParticleCollectionName="Muons",
+        OutputCollectionName="MatchedMuons",
+        ConeSize=0.4,
+    )
+
+
+ToolSvc += defaultTrackAssoc
+ToolSvc += defaultMuonAssoc

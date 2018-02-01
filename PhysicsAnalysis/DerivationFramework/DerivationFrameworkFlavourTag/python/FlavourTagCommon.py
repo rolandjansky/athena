@@ -77,50 +77,27 @@ def ReTag(Taggers, JetCollections = ['AntiKt4EMTopoJets' ], Sequencer=None, DoFu
     tmpJFVxname = "JFVtx"
     SA = 'standalone_'
 
-    from AthenaCommon.AppMgr import ToolSvc
-    from ParticleJetTools.ParticleJetToolsConf import JetParticleShrinkingConeAssociation, JetModifierAlg
-
-    trackassoc = \
-        JetParticleShrinkingConeAssociation(
-            "BTaggingTrackAssoc",
-            InputParticleCollectionName="InDetTrackParticles",
-            OutputCollectionName="MatchedTracks",
-            ConeSizeFitPar1=+0.239,
-            ConeSizeFitPar2=-1.220,
-            ConeSizeFitPar3=-1.64e-5
+    from ParticleJetTools.ParticleJetToolsConf import JetAssocConstAlg
+    from BTagging.BTaggingConfiguration import defaultTrackAssoc, defaultMuonAssoc
+    assocalg = \
+        JetAssocConstAlg(
+            "BTaggingRetagAssocAlg",
+            JetCollections=JetCollections,
+            Associators=[defaultTrackAssoc, defaultMuonAssoc]
         )
 
-
-    muonassoc = \
-        JetParticleShrinkingConeAssociation(
-            "BTaggingMuonAssoc",
-            InputParticleCollectionName="Muons",
-            OutputCollectionName="MatchedMuons",
-            ConeSizeFitPar1=0.4,
-            ConeSizeFitPar2=0.0,
-            ConeSizeFitPar3=99999999,
-        )
-
-    ToolSvc += trackassoc
-    ToolSvc += muonassoc
-
-    trackassocalg = \
-        JetModifierAlg(
-            "BTaggingTrackAssocAlg",
-            JetContainerNames=JetCollections,
-            Modifiers=[trackassoc, muonassoc]
-        )
-
-    Sequencer += trackassocalg
+    Sequencer += assocalg
 
     for JetCollection in JetCollections:
         name = JetCollection.replace('ZTrack', 'Track').replace('PV0Track', 'Track')
         author= btag+name[:-4]+suffix_name
         algname = SA + author.lower()
 
+
         if algname in SAJetBTaggerAlgs:
             print " Tagger ", algname, " already exists. Add to ", Sequencer
             Sequencer += SAJetBTaggerAlgs[algname]
+
         else:
             JetCollectionList.append((JetCollection,name))
             BTaggingFlags.Jets.append(name[:-4])

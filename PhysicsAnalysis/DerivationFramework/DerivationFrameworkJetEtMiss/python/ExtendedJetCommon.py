@@ -69,30 +69,9 @@ def addAntiKt2PV0TrackJets(sequence, outputlist):
                                                     SetupScheme = "",
                                                     TaggerList = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu', 'MV2c10', 'MV2c10mu', 'MV2c10rnn', 'JetVertexCharge', 'MV2cl100' , 'MVb', 'DL1', 'DL1rnn', 'DL1mu', 'RNNIP', 'MV2c10Flip']
                                                     )
-        trackassoc = \
-            JetParticleShrinkingConeAssociation(
-                "TrackAssocAntiKt2PV0TrackJets",
-                InputParticleCollectionName="InDetTrackParticles",
-                OutputCollectionName="MatchedTracks",
-                ConeSizeFitPar1=+0.239,
-                ConeSizeFitPar2=-1.220,
-                ConeSizeFitPar3=-1.64e-5
-            )
 
-        muonassoc = \
-            JetParticleShrinkingConeAssociation(
-                "MuonAssocAntiKt2PV0TrackJets",
-                InputParticleCollectionName="Muons",
-                OutputCollectionName="MatchedMuons",
-                ConeSizeFitPar1=0.4,
-                ConeSizeFitPar2=0.0,
-                ConeSizeFitPar3=99999999,
-            )
-
-        ToolSvc += trackassoc
-        ToolSvc += muonassoc
-
-        jtm.modifiersMap["akt2track"] = jtm.modifiersMap["track_ungroomed"] + [trackassoc, muonassoc, btag_akt2trk]
+        from BTagging.BTaggingConfiguration import defaultTrackAssoc, defaultMuonAssoc
+        jtm.modifiersMap["akt2track"] = jtm.modifiersMap["track_ungroomed"] + [defaultTrackAssoc, defaultMuonAssoc, btag_akt2trk]
 
     addStandardJets("AntiKt", 0.2, "PV0Track", ptmin=2000, mods="akt2track",
                     algseq=sequence, outputGroup=outputlist)
@@ -110,7 +89,10 @@ def addAntiKt4PV0TrackJets(sequence, outputlist):
                                                     SetupScheme = "",
                                                     TaggerList = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu', 'MV2c10', 'MV2c10mu', 'MV2c10rnn', 'JetVertexCharge', 'MV2cl100' , 'MVb', 'DL1', 'DL1rnn', 'DL1mu', 'RNNIP', 'MV2c10Flip']
                                                     )
-        jtm.modifiersMap["akt4track"] = jtm.modifiersMap["track_ungroomed"] + [btag_akt4trk]
+
+        from BTagging.BTaggingConfiguration import defaultTrackAssoc, defaultMuonAssoc
+        jtm.modifiersMap["akt4track"] = jtm.modifiersMap["track_ungroomed"] + [defaultTrackAssoc, defaultMuonAssoc, btag_akt4trk]
+
     addStandardJets("AntiKt", 0.4, "PV0Track", ptmin=2000, mods="akt4track", algseq=sequence, outputGroup=outputlist)
 
 def addAntiKt10PV0TrackJets(sequence, outputlist):

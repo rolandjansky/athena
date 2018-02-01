@@ -60,15 +60,8 @@ namespace Analysis {
             }
 
             SG::AuxElement::ConstAccessor<std::vector<ElementLink<xAOD::IParticleContainer> > > acc(m_AssociatedTrackLinks);
-
             std::vector< ElementLink< xAOD::IParticleContainer > > tmp = acc(*jet);
 
-            // if (!jet->getAttribute(m_AssociatedTrackLinks, tmp)) {
-            //     ATH_MSG_FATAL("Unable to read track collection " + m_AssociatedTrackLinks + " from jets for b-tagging.");
-            //     return StatusCode::FAILURE;
-            // }
-
-            std::vector< ElementLink< xAOD::TrackParticleContainer > > associationLinks;
             const xAOD::TrackParticleContainer * tpContainer(0);
             sc = evtStore()->retrieve( tpContainer, m_TrackContainerName);
             if ( sc.isFailure() || tpContainer==0) {
@@ -77,6 +70,7 @@ namespace Analysis {
             }
 
             // we have to convert the IParticle*s to TrackParticle*s
+            std::vector< ElementLink< xAOD::TrackParticleContainer > > associationLinks;
             for( const auto& link : tmp ) {
                 const xAOD::IParticle* ipart = *link;
 
@@ -100,13 +94,8 @@ namespace Analysis {
                 return StatusCode::FAILURE;
             }
 
-            std::vector< ElementLink< xAOD::IParticleContainer > > tmp;
-            if (!jet->getAttribute(m_MuonContainerName, tmp)) {
-                ATH_MSG_FATAL("Unable to read track collection " + m_MuonContainerName + " from jets for b-tagging.");
-                return StatusCode::FAILURE;
-            }
-
-            std::vector< ElementLink< xAOD::MuonContainer > > associationLinks;
+            SG::AuxElement::ConstAccessor<std::vector<ElementLink<xAOD::IParticleContainer> > > acc(m_AssociatedMuonLinks);
+            std::vector< ElementLink< xAOD::IParticleContainer > > tmp = acc(*jet);
 
             const xAOD::MuonContainer * tpContainer( 0 );
             sc = evtStore()->retrieve( tpContainer, m_MuonContainerName);
@@ -116,6 +105,7 @@ namespace Analysis {
             }
 
             // we have to convert the IParticle*s to Muon*s
+            std::vector< ElementLink< xAOD::MuonContainer > > associationLinks;
             for( const auto& link : tmp ) {
                 const xAOD::IParticle* ipart = *link;
                 if( ipart->type() != xAOD::Type::Muon ) {
@@ -130,6 +120,7 @@ namespace Analysis {
 
             tagInfo->auxdata<std::vector<ElementLink<xAOD::MuonContainer> > >(m_MuonAssociationName) = associationLinks;
 
+            ATH_MSG_INFO("Attached mouns to jet as " + m_MuonAssociationName);
         }
 
 
