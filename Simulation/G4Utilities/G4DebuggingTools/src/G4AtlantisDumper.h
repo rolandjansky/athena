@@ -5,7 +5,6 @@
 #ifndef G4DEBUGGINGTOOLS_G4AtlantisDumper_H
 #define G4DEBUGGINGTOOLS_G4AtlantisDumper_H
 
-
 #include <fstream>
 #include <string>
 
@@ -16,15 +15,16 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-namespace G4UA{ 
-  
+namespace G4UA
+{
+
   class G4AtlantisDumper : public AthMessaging,
                            public G4UserSteppingAction,
                            public G4UserEventAction
   {
-    
+
   public:
-    
+
     struct Config
     {
       double tedep_cut=0.1,
@@ -37,9 +37,10 @@ namespace G4UA{
     virtual void UserSteppingAction(const G4Step*) override;
     virtual void EndOfEventAction(const G4Event*) override;
     virtual void BeginOfEventAction(const G4Event*) override;
+
   private:
     Config m_config;
-    
+
     typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
     /// Pointer to StoreGate (event store by default)
     mutable StoreGateSvc_t m_evtStore;
@@ -48,12 +49,9 @@ namespace G4UA{
     int m_nsteps;
     std::ofstream *m_file;
     std::string m_filename;
-    
-}; // class G4AtlantisDumper
 
+  }; // class G4AtlantisDumper
 
-} // namespace G4UA 
-
-
+} // namespace G4UA
 
 #endif //G4DEBUGGINGTOOLS_G4AtlantisDumper_H
