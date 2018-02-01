@@ -4,6 +4,7 @@
 #from AthenaCommon.Logging import logging
 from AthenaConfiguration.CfgLogMsg import cfgLogMsg
 from AthenaCommon.Configurable import Configurable,ConfigurableService,ConfigurableAlgorithm,ConfigurableAlgTool
+
 import GaudiKernel.GaudiHandles as GaudiHandles
 import ast
 from collections import defaultdict
@@ -16,11 +17,22 @@ class DeduplicatonFailed(RuntimeError):
 class ConfigurationError(RuntimeError):
     pass 
 
+class CurrentSequence:
+    sequence = 'AthAlgSeq'
+    @staticmethod
+    def set( newseq ):
+        CurrentSequence.sequence = newseq
+
+    @staticmethod
+    def get():
+        return CurrentSequence.sequence
+
+
 class ComponentAccumulator(object): 
-    
+
     def __init__(self):
         self._msg=cfgLogMsg  #logging.getLogger('ComponentAccumulator')
-        self._eventAlgs={}     #Unordered list of event processing algorithms per sequence + their private tools 
+        self._eventAlgs={}     #Unordered list of event processing algorithms per sequence + their private tools         
         self._conditionsAlgs=[]                #Unordered list of conditions algorithms + their private tools 
         self._services=[]                      #List of service, not yet sure if the order matters here in the MT age
         self._conditionsInput=set()            #List of database folder (as string), eventually passed to IOVDbSvc
@@ -32,10 +44,44 @@ class ComponentAccumulator(object):
 
         #Backward compatiblity hack: Allow also public tools:
         self._publicTools=[]
+        pass    
+
+    def printConfig(self, withDetails=False):
+        self._msg.info( "Event Inputs" )
+        self._msg.info( self._eventInputs )
+        self._msg.info( "Event algs" )
+        for seq, algs in self._eventAlgs.iteritems():
+            self._msg.info( " Sequence " +seq )            
+            self._msg.info( "   "+  ' '.join( map( lambda x: x.getFullName(), algs)) )
+        self._msg.info( "Conditions Inputs" )
+        self._msg.info( self._conditionsInput )
+        self._msg.info( "Conditions Algs" )
+        self._msg.info( [ a.getName() for a in self._conditionsAlgs ] )
+        self._msg.info( "Services" )
+        self._msg.info( [ s.getName() for s in self._services ] )
+        self._msg.info( "Outputs" )
+        self._msg.info( self._outputPerStream )
+
+    def addSequence(self, newseq, sequence = CurrentSequence.get() ):
+        """ Adds new sequence. If second argument is present then it is added under another sequence  """
+        
+        def __findInSequenceTree( start, seq ):
+            for sub in start
+
+        if newseq not in self._eventAlgs.keys():
+            self._msg.info("Adding Sequence sequence %s to the job" % sequence)
+            self._eventAlgs[newseq]=[]
+            
+
+
+            pass
+        else:
+            raise ConfigurationError("Sequence %s already present" % newseq )
+        
         pass
 
 
-    def addEventAlgo(self,algo,sequence="AthAlgSeq"):
+    def addEventAlgo(self, algo, sequence = CurrentSequence.get() ):                
         if not isinstance(algo, ConfigurableAlgorithm):
             raise TypeError("Attempt to add wrong type as event algorithm")
             pass
@@ -49,7 +95,7 @@ class ComponentAccumulator(object):
         pass
 
 
-    def getEventAlgo(self,name,sequence="AthAlgSeq"):
+    def getEventAlgo(self,name,sequence= CurrentSequence.get() ):
         hits=[a for a in self._eventAlgs[sequence] if a.getName()==name]
         if (len(hits)>1):
             print hits
@@ -180,8 +226,7 @@ class ComponentAccumulator(object):
         self._theAppProps[key]=value
         pass
 
-
-    def merge(self,other):
+    def __merge(self,other):        
         if not isinstance(other,ComponentAccumulator):
             raise TypeError("Attempt merge wrong type. Only instances of ComponentAccumulator can be added")
         
@@ -222,17 +267,17 @@ class ComponentAccumulator(object):
             self.setAppProperty(k,v)  #Will warn about overrides
 
     def __iadd__(self,other):
-        self.merge(other)
+        self.__merge(other)
         return self
 
-
-    def executeModule(self,fct,configFlags,*args,**kwargs):
+    def executeModule(self,fct,configFlags, withSequence=CurrentSequence.get(), *args,**kwargs):
+        currentDefaultSequence = CurrentSequence.get()
+        CurrentSequence.set( withSequence )
         cfconst=deepcopy(configFlags)
         self._msg.info("Excuting configuration function %s" % fct.__name__)
         cm=fct(cfconst,*args,**kwargs)
-        self.merge(cm)
-
-
+        self.__merge(cm)
+        CurrentSequence.set( currentDefaultSequence )
  
     def appendConfigurable(self,confElem):
         name=confElem.getJobOptName() #FIXME: Don't overwrite duplicates! 
