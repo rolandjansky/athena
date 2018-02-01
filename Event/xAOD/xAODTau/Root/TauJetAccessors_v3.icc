@@ -31,9 +31,11 @@ break;
       // DEFINE_TAUJETPARAMETER_ACCESSOR( float, SafeLikelihood );
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, EleMatchLikelihoodScore );
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, BDTJetScore );	
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, RNNJetScore );	
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, BDTEleScore );	
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, PanTauScore );   
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, BDTJetScoreSigTrans );   
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, RNNJetScoreSigTrans );   
       //DEFINE_TAUJETPARAMETER_ACCESSOR( float, BDTJetScoreBkgTrans );   
 
     default:
