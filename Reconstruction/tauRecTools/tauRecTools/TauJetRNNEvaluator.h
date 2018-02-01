@@ -48,8 +48,10 @@ private:
     std::string m_output_varname;
     std::string m_weightfile_1p;
     std::string m_weightfile_3p;
+    std::size_t m_min_charged_tracks;
     std::size_t m_max_tracks;
     std::size_t m_max_clusters;
+    float m_max_cluster_dr;
 
     // Configuration of the weight file
     std::string m_input_layer_scalar;

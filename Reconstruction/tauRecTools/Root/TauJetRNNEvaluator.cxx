@@ -13,8 +13,10 @@ TauJetRNNEvaluator::TauJetRNNEvaluator(const std::string &name)
     declareProperty("NetworkFile1P", m_weightfile_1p = "");
     declareProperty("NetworkFile3P", m_weightfile_3p = "");
     declareProperty("OutputVarname", m_output_varname = "RNNJetScore");
+    declareProperty("MinChargedTracks", m_min_charged_tracks = 1);
     declareProperty("MaxTracks", m_max_tracks = 10);
     declareProperty("MaxClusters", m_max_clusters = 6);
+    declareProperty("MaxClusterDR", m_max_cluster_dr = 1.0f);
 
     // Naming conventions for the network weight files:
     declareProperty("InputLayerScalar", m_input_layer_scalar = "scalar");
@@ -85,9 +87,9 @@ StatusCode TauJetRNNEvaluator::execute(xAOD::TauJet &tau) {
     // Set default score and overwrite later
     output(tau) = -1111.0f;
 
-    // Only apply RNN to 1- and multi-prong taus
+    // Only apply to taus exceeding the configured minimum number of tracks
     const auto nTracksCharged = tau.nTracksCharged();
-    if (nTracksCharged == 0) {
+    if (nTracksCharged < m_min_charged_tracks) {
         return StatusCode::SUCCESS;
     }
 
@@ -98,7 +100,7 @@ StatusCode TauJetRNNEvaluator::execute(xAOD::TauJet &tau) {
     ATH_CHECK(get_clusters(tau, clusters));
 
     // Evaluate networks
-    if (nTracksCharged == 1 && m_net_1p) {
+    if (nTracksCharged <= 1 && m_net_1p) {
         output(tau) = m_net_1p->compute(tau, tracks, clusters);
     }
 
@@ -152,7 +154,12 @@ StatusCode TauJetRNNEvaluator::get_clusters(
             ATH_MSG_ERROR("Calorimeter cluster is invalid.");
             return StatusCode::FAILURE;
         }
-        clusters.push_back(cl);
+
+        // Select clusters in cone centered on the tau detector axis
+        const auto lc_p4 = tau.p4(xAOD::TauJetParameters::DetectorAxis);
+        if (lc_p4.DeltaR(cl->p4()) < m_max_cluster_dr) {
+            clusters.push_back(cl);
+        }
     }
 
     // Sort by descending et

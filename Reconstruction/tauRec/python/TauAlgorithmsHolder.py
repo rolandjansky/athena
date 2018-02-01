@@ -916,15 +916,17 @@ def getTauJetBDTEvaluator(suffix="TauJetBDT", weightsFile="", minNTracks=0, maxN
     cached_instances[_name] = myTauJetBDTEvaluator
     return myTauJetBDTEvaluator
 
-def getTauJetRNNEvaluator(suffix="TauJetRNN", NetworkFile1P="", NetworkFile3P="", OutputVarname="RNNJetScore", MaxTracks=10, MaxClusters=6, InputLayerScalar="scalar", InputLayerTracks="tracks", InputLayerClusters="clusters", OutputLayer="rnnid_output", OutputNode="sig_prob"):
+def getTauJetRNNEvaluator(suffix="TauJetRNN", NetworkFile1P="", NetworkFile3P="", OutputVarname="RNNJetScore", MinChargedTracks=1, MaxTracks=10, MaxClusters=6, MaxClusterDR=1.0, InputLayerScalar="scalar", InputLayerTracks="tracks", InputLayerClusters="clusters", OutputLayer="rnnid_output", OutputNode="sig_prob"):
     _name = sPrefix + suffix
     from tauRecTools.tauRecToolsConf import TauJetRNNEvaluator
     myTauJetRNNEvaluator = TauJetRNNEvaluator(name=_name,
                                               NetworkFile1P=NetworkFile1P,
                                               NetworkFile3P=NetworkFile3P,
                                               OutputVarname=OutputVarname,
+                                              MinChargedTracks=MinChargedTracks,
                                               MaxTracks=MaxTracks,
                                               MaxClusters=MaxClusters,
+                                              MaxClusterDR=MaxClusterDR,
                                               InputLayerScalar=InputLayerScalar,
                                               InputLayerTracks=InputLayerTracks,
                                               InputLayerClusters=InputLayerClusters,
