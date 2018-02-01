@@ -13,6 +13,8 @@ from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
 #specify input file here
 athenaCommonFlags.FilesInput = ["/afs/cern.ch/work/a/ahasib/public/photon.50GeV.ESD.pool.root"]
 
+doG4Hits = False
+
 include("ISF_FastCaloSimParametrization/ISF_ntuple_core.py")
 
 theApp.EvtMax = 100 # Set to -1 for all events

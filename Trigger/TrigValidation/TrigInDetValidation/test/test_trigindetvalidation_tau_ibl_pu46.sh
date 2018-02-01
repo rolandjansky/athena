@@ -9,11 +9,11 @@
 # art-output: cost-perEvent
 # art-output: cost-perCall-chain
 # art-output: cost-perEvent-chain
-# art-input:  mc15_13TeV:mc15_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.recon.RDO.e3601_s2576_s2132_r8012
+# art-input:  mc16_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.recon.RDO.e3601_s3126_r9546
 # art-output: *.dat 
 # art-output: *.root
 # art-output: *.log
-# art-input-nfiles: 25
+# art-input-nfiles: 10
 
 
 
@@ -61,5 +61,4 @@ echo "art-result: $? TIDAcpucost_9"
 
 TIDAcpucost.exe costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perEvent-chain --auto -d "/Chain_Algorithm" -p "_Time_perEvent"
 echo "art-result: $? TIDAcpucost_10"
-
 

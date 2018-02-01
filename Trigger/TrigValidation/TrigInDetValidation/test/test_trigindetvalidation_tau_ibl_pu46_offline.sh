@@ -9,11 +9,11 @@
 # art-output: cost-perEvent
 # art-output: cost-perCall-chain
 # art-output: cost-perEvent-chain
-# art-input:  mc15_13TeV:mc15_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.recon.RDO.e3601_s2576_s2132_r8012
+# art-input:  mc16_13TeV.361108.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Ztautau.recon.RDO.e3601_s3126_r9546
 # art-output: *.dat 
 # art-output: *.root
 # art-output: *.log
-# art-input-nfiles: 25
+# art-input-nfiles: 10
 
 
 

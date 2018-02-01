@@ -9,9 +9,11 @@
 # art-include: master/AthenaP1
 
 export NAME="athenaHLT_LatestRun_MCV7_build"
-export ATHENAHLTCMD="trigp1test_athenaHLT.py"
-export ATHENAHLTOPT="--nevents=5 --nfiles=1 --dir='/eos/atlas/atlastier0/rucio/data17_13TeV/physics_Main/' --modifiers='testMCV7=True;fpeAuditor=True;from PerfMonComps.PerfMonFlags import jobproperties as pmon_properties ; pmon_properties.PerfMonFlags.doSemiDetailedMonitoring=True'"
 
-timeout 40m source exec_athenaHLT_art_trigger_validation.sh
-timeout 10m source exec_art_trigp1test_post.sh
+timeout 40m trigp1test_athenaHLT.py --nfiles=1 --dir='/eos/atlas/atlastier0/rucio/data17_13TeV/physics_Main/' --modifiers="testMCV7=True;fpeAuditor=True;from PerfMonComps.PerfMonFlags import jobproperties as pmon_properties ; pmon_properties.PerfMonFlags.doSemiDetailedMonitoring=True"
+
+ATH_RETURN=${PIPESTATUS[0]}
+echo "art-result: ${ATH_RETURN} ${NAME}"
+
+timeout 10m exec_art_trigp1test_post.sh
 
