@@ -13,6 +13,7 @@ namespace H5 {
   class Group;
 }
 
-void copy_root_tree(TTree& tt, H5::Group& fg, const TreeCopyOpts& opts);
-
+namespace h5 {
+  void copy_root_tree(TTree& tt, H5::Group& fg, const TreeCopyOpts& opts);
+}
 #endif

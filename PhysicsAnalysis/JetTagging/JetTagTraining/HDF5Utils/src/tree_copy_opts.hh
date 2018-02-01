@@ -8,31 +8,35 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #include <string>
 #include <vector>
 
-const size_t CHUNK_SIZE = 128;
+namespace h5 {
 
-struct TreeCopyOpts
-{
-  std::string branch_regex;
-  std::vector<size_t> vector_lengths;
-  size_t chunk_size;
-  size_t n_entries;
-  bool verbose;
-  int print_interval;
-};
+  const size_t CHUNK_SIZE = 128;
 
-struct IOOpts
-{
-  std::vector<std::string> in;
-  std::string out;
-  std::string tree;
-};
+  struct TreeCopyOpts
+  {
+    std::string branch_regex;
+    std::vector<size_t> vector_lengths;
+    size_t chunk_size;
+    size_t n_entries;
+    bool verbose;
+    int print_interval;
+  };
 
-struct AppOpts
-{
-  TreeCopyOpts tree;
-  IOOpts file;
-};
+  struct IOOpts
+  {
+    std::vector<std::string> in;
+    std::string out;
+    std::string tree;
+  };
 
-AppOpts get_tree_copy_opts(int argc, char* argv[]);
+  struct AppOpts
+  {
+    TreeCopyOpts tree;
+    IOOpts file;
+  };
+
+  AppOpts get_tree_copy_opts(int argc, char* argv[]);
+
+}
 
 #endif

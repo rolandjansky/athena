@@ -32,34 +32,36 @@ namespace {
   }
 }
 
-std::string get_tree(const std::string& file_name) {
-  if (!exists(file_name) && !is_remote(file_name)) {
-    throw std::logic_error(file_name + " doesn't exist");
-  }
-  std::unique_ptr<TFile> file(TFile::Open(file_name.c_str()));
-  if (!file || !file->IsOpen() || file->IsZombie()) {
-    throw std::logic_error("can't open " + file_name);
-  }
-  std::set<std::string> keys;
-  int n_keys = file->GetListOfKeys()->GetSize();
-  for (int keyn = 0; keyn < n_keys; keyn++) {
-    keys.insert(file->GetListOfKeys()->At(keyn)->GetName());
-  }
-  size_t n_unique = keys.size();
-  if (n_unique > 1) {
-    std::string prob = "Can't decide which tree to use, choose one of {";
-    size_t uniq_n = 0;
-    for (const auto& key: keys) {
-      prob.append(key);
-      uniq_n++;
-      if (uniq_n < n_unique) prob.append(", ");
+namespace h5 {
+  std::string get_tree(const std::string& file_name) {
+    if (!exists(file_name) && !is_remote(file_name)) {
+      throw std::logic_error(file_name + " doesn't exist");
     }
-    prob.append("} with the --tree-name option");
-    throw std::logic_error(prob);
+    std::unique_ptr<TFile> file(TFile::Open(file_name.c_str()));
+    if (!file || !file->IsOpen() || file->IsZombie()) {
+      throw std::logic_error("can't open " + file_name);
+    }
+    std::set<std::string> keys;
+    int n_keys = file->GetListOfKeys()->GetSize();
+    for (int keyn = 0; keyn < n_keys; keyn++) {
+      keys.insert(file->GetListOfKeys()->At(keyn)->GetName());
+    }
+    size_t n_unique = keys.size();
+    if (n_unique > 1) {
+      std::string prob = "Can't decide which tree to use, choose one of {";
+      size_t uniq_n = 0;
+      for (const auto& key: keys) {
+        prob.append(key);
+        uniq_n++;
+        if (uniq_n < n_unique) prob.append(", ");
+      }
+      prob.append("} with the --tree-name option");
+      throw std::logic_error(prob);
+    }
+    auto* key = dynamic_cast<TKey*>(file->GetListOfKeys()->At(0));
+    std::string name = key->GetName();
+    file->Close();
+    return name;
   }
-  auto* key = dynamic_cast<TKey*>(file->GetListOfKeys()->At(0));
-  std::string name = key->GetName();
-  file->Close();
-  return name;
-}
 
+}

@@ -3,12 +3,13 @@ atlas_subdir( HDF5Utils )
 
 # Grab HDF5 from AnalysisBaseExternals.
 # first try to use find_package
-find_package( HDF5 1.10.1 COMPONENTS CXX )
+find_package( HDF5 1.10.1 COMPONENTS C CXX )
 if (NOT HDF5_FOUND)
   # Assuming we don't find it, use an environment variable. We need
   # this until atlas externals is fixed, see here:
   #
-  # https://gitlab.cern.ch/atlas/atlasexternals/merge_requests/209
+  # https://gitlab.cern.ch/atlas/atlasexternals/merge_requests/226
+  # https://gitlab.cern.ch/atlas/athena/merge_requests/8469
   #
   message(STATUS "Reading HDF5 Location from $AnalysisBaseExternals_DIR")
   set( H5_LOC $ENV{AnalysisBaseExternals_DIR} )
