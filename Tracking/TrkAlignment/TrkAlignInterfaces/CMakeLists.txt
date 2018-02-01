@@ -7,7 +7,7 @@ atlas_subdir( TrkAlignInterfaces )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/DataModel
+                          Control/AthContainers
                           GaudiKernel
                           Tracking/TrkAlignment/TrkAlignEvent
                           Tracking/TrkEvent/TrkTrack )
