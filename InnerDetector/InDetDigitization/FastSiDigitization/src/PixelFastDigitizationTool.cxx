@@ -171,18 +171,27 @@ StatusCode PixelFastDigitizationTool::initialize()
     }
 
   // retrieve the offline cluster maker : for pixel and/or sct
-  if ( (m_pixUseClusterMaker) &&  m_clusterMaker.retrieve().isFailure()){
-    ATH_MSG_WARNING( "Could not retrieve " << m_clusterMaker );
-    ATH_MSG_WARNING( "-> Switching to simplified cluster creation!" );
-    m_pixUseClusterMaker = false;
+  if ( m_pixUseClusterMaker) {
+    if (m_clusterMaker.retrieve().isFailure()){
+      ATH_MSG_WARNING( "Could not retrieve " << m_clusterMaker );
+      ATH_MSG_WARNING( "-> Switching to simplified cluster creation!" );
+      m_pixUseClusterMaker = false;
+      m_clusterMaker.disable();
+    }
+  } else {
+    m_clusterMaker.disable();
   }
 
-  if (m_pixModuleDistortion)
+  if (m_pixModuleDistortion) {
     if (m_pixDistortionTool.retrieve().isFailure()){
       ATH_MSG_WARNING( "Could not retrieve " << m_pixDistortionTool );
       ATH_MSG_WARNING( "-> Switching stave distortion off!" );
       m_pixModuleDistortion = false;
+      m_pixDistortionTool.disable();
     }
+  } else {
+    m_pixDistortionTool.disable();
+  }
 
   //locate the PileUpMergeSvc and initialize our local ptr
   if (!m_mergeSvc.retrieve().isSuccess()) {
