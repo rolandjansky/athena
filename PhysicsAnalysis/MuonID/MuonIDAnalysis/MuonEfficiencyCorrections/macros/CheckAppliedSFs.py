@@ -99,11 +99,12 @@ if __name__ == "__main__":
     if len(calibReleases)==2: print "INFO: Found the following calibration releases to compare: %s"%(",".join(calibReleases))
     
     if len(Options.WP)>0:
-        print 'INFO: WPs given by user, only plot them'
         userWPs = []
         for wp in Options.WP:
             if wp in WPs: userWPs.append(wp)
         WPs = userWPs
+        print 'INFO: WPs given by user, only plot: %s'%(",".join(WPs))
+
         
     ROOT.gROOT.Macro("rootlogon.C")
     ROOT.gROOT.SetStyle("ATLAS")

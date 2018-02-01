@@ -75,7 +75,7 @@ int main(int argc, char* argv[]) {
     const char* APP_NAME = argv[0];
 
     std::string OutputFilename = "Applied_SFs.root";
-    std::string prwFilename = "/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/prwConfigFiles/NTUP_PILEUP_r9364_r9315.root";
+    std::string prwFilename = "/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/prwConfigFiles/mc16_FULLSIM_r9364_r9315_NTUP_PILEUP.root";
     std::string ilumiFilename = "/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/ilumicalc_histograms_OflLumi-13TeV-009_data16_13TeV.periodAllYear_DetStatus-v89-pro21-01_DQDefects-00-02-04_PHYS_StandardGRL_All_Good_25ns.root";
     std::string InDir = "";
     std::string DefaultCalibRelease = "";
