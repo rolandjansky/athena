@@ -762,7 +762,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
 
 
     //********************************************************************************
-    std::vector<const xAOD::TrackParticleContainer*> vectorGSFTrackParticleContainer;
+    xAOD::TrackParticleContainer *GSFTrigTrackParticles = new xAOD::TrackParticleContainer();
     if (m_doBremCollection){ 
 
       ATH_MSG_DEBUG("In m_doBremCollection");
@@ -800,7 +800,6 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
 
       //output collections
       TrackCollection *refitTracks = new TrackCollection(0);
-      xAOD::TrackParticleContainer *GSFTrigTrackParticles = new xAOD::TrackParticleContainer();
       xAOD::TrackParticleAuxContainer* GSFTPaux = new xAOD::TrackParticleAuxContainer();
       GSFTrigTrackParticles->setStore(GSFTPaux);
 
@@ -809,7 +808,6 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
 	return HLT::ERROR;  
       }
 
-      vectorGSFTrackParticleContainer.push_back(GSFTrigTrackParticles);
       for (const xAOD::TrackParticle *trk:*GSFTrigTrackParticles) {
             ATH_MSG_DEBUG("GSFTrigTrackParticles pt is: " << trk->pt());
       }
@@ -818,7 +816,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
       std::string GSFTrigTracksKey = "TrigGSFTrackParticles";
       HLT::ErrorCode sc = getUniqueKey( GSFTrigTrackParticles, GSFTrigTracksContSGKey, GSFTrigTracksKey);
       if (sc != HLT::OK) {
-         msg() << MSG::ERROR << "Could not retrieve the refitted tracks collection key" << endmsg;
+         ATH_MSG_ERROR("Could not retrieve the refitted tracks collection key");
          return sc;
       }
       else {
@@ -858,7 +856,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
             } else {
                 // Get the pointer to last TrackParticleContainer
                 if(m_doBremCollection){
-                    pTrackParticleContainer = vectorGSFTrackParticleContainer.back();
+                    pTrackParticleContainer = GSFTrigTrackParticles;
                 } 
                 else pTrackParticleContainer = vectorTrackParticleContainer.back();
                 m_doTrackMatching = true;
