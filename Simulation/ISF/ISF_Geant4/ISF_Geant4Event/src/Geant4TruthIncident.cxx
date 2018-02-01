@@ -272,10 +272,10 @@ HepMC::GenParticle* iGeant4::Geant4TruthIncident::convert(const G4Track *track, 
 
   const G4ThreeVector & mom =  track->GetMomentum();
   const double energy =  track->GetTotalEnergy();
-  int pdgCode = track->GetDefinition()->GetPDGEncoding();
-  HepMC::FourVector fourMomentum( mom.x(), mom.y(), mom.z(), energy);
+  const int pdgCode = track->GetDefinition()->GetPDGEncoding();
+  const HepMC::FourVector fourMomentum( mom.x(), mom.y(), mom.z(), energy);
 
-  int status = 1; // stable particle not decayed by EventGenerator
+  const int status = 1; // stable particle not decayed by EventGenerator
   HepMC::GenParticle* newParticle = new HepMC::GenParticle(fourMomentum, pdgCode, status);
 
   // This should be a *secondary* track.  If it has a primary, it was a decay and 
