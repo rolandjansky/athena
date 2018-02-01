@@ -40,7 +40,7 @@ public:
 		TrigDef(TriggerType type=TT_UNKNOWN, std::size_t leg0=0, std::size_t leg1=0, std::size_t leg2=0) : type(type), leg{leg0,leg1,leg2} {}
 	};	
 
-	ImportData(const asg::AsgMessaging* stream);
+	ImportData(const asg::AsgToolBase* caller);
 	ImportData(TrigGlobalEfficiencyCorrectionTool& tool);
 	~ImportData();
 	

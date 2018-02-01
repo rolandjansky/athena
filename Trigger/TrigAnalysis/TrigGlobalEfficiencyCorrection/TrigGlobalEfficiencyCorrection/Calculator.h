@@ -155,6 +155,7 @@ private:
 private:
 	MsgStream& msg() const { return m_parent->msg(); }	
 	MsgStream& msg(MSG::Level lvl) const { return m_parent->msg(lvl); }
+	bool msgLvl(MSG::Level lvl) const { return m_parent->msgLvl(lvl); }
 	
 private:
 	class Helper

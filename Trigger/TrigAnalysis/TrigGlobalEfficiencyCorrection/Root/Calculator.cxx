@@ -33,12 +33,12 @@ bool Calculator::Helper::bind_1x1L()
 	if(n1>1)
 	{
 		using fnptr = bool(Calculator::*)(const LeptonList&, unsigned, const flat_set<Trig1L>&, Efficiencies&);
-		m_func = std::bind<fnptr>(&Calculator::globalEfficiency_Several1L, _1, _2, _3, get_all<Trig1L>(), _4);
+		m_func = std::bind<fnptr>(&Calculator::globalEfficiency_Several1L, ::_1, ::_2, ::_3, get_all<Trig1L>(), ::_4);
 	}
 	else
 	{
 		using fnptr = bool(Calculator::*)(const LeptonList&, unsigned, const Trig1L, Efficiencies&);
-		m_func = std::bind<fnptr>(&Calculator::globalEfficiency_One1L, _1, _2, _3, get<Trig1L>(0), _4);
+		m_func = std::bind<fnptr>(&Calculator::globalEfficiency_One1L, ::_1, ::_2, ::_3, get<Trig1L>(0), ::_4);
 	}
 	return true;
 }
@@ -51,11 +51,11 @@ bool Calculator::Helper::bind_1x1L<void>()
 	if(nE>1 || nM>1)
 	{
 		using fnptr = bool(Calculator::*)(const LeptonList&, unsigned, const flat_set<Trig1E>&, const flat_set<Trig1MU>&, Efficiencies&);
-		m_func = std::bind<fnptr>(&Calculator::globalEfficiency_Several1L, _1, _2, _3, get_all<Trig1E>(), get_all<Trig1MU>(), _4);
+		m_func = std::bind<fnptr>(&Calculator::globalEfficiency_Several1L, ::_1, ::_2, ::_3, get_all<Trig1E>(), get_all<Trig1MU>(), ::_4);
 	}
 	else if(nE>0 && nM>0)
 	{
-		m_func = std::bind(&Calculator::globalEfficiency_Two1L, _1, _2, _3, get<Trig1E>(0), get<Trig1MU>(0), _4);
+		m_func = std::bind(&Calculator::globalEfficiency_Two1L, ::_1, ::_2, ::_3, get<Trig1E>(0), get<Trig1MU>(0), ::_4);
 	}
 	else if(!nE) return bind_1x1L<Trig1MU>();
 	else return bind_1x1L<Trig1E>();
@@ -71,17 +71,17 @@ bool Calculator::Helper::bind_1x2L()
 	if(n1L > n1)
 	{
 		using fnptr = bool(Calculator::*)(const LeptonList&, unsigned, const Trig2L, const flat_set<Trig1E>&, const flat_set<Trig1MU>&, Efficiencies&);
-		m_func = std::bind<fnptr>(&Calculator::globalEfficiency_One2LSeveral1L, _1, _2, _3, get<Trig2L>(0), get_all<Trig1E>(), get_all<Trig1MU>(), _4);
+		m_func = std::bind<fnptr>(&Calculator::globalEfficiency_One2LSeveral1L, ::_1, ::_2, ::_3, get<Trig2L>(0), get_all<Trig1E>(), get_all<Trig1MU>(), ::_4);
 	}
 	else if(n1 > 0)
 	{
 		using fnptr = bool(Calculator::*)(const LeptonList&, unsigned, const Trig2L, const flat_set<Trig1L>&, Efficiencies&);
-		m_func = std::bind<fnptr>(&Calculator::globalEfficiency_One2LSeveral1L, _1, _2, _3, get<Trig2L>(0), get_all<Trig1L>(), _4);
+		m_func = std::bind<fnptr>(&Calculator::globalEfficiency_One2LSeveral1L, ::_1, ::_2, ::_3, get<Trig2L>(0), get_all<Trig1L>(), ::_4);
 	}
 	else
 	{
 		using fnptr = bool(Calculator::*)(const LeptonList&, unsigned, const Trig2L, Efficiencies&);
-		m_func = std::bind<fnptr>(&Calculator::globalEfficiency_One2L, _1, _2, _3, get<Trig2L>(0), _4);
+		m_func = std::bind<fnptr>(&Calculator::globalEfficiency_One2L, ::_1, ::_2, ::_3, get<Trig2L>(0), ::_4);
 	}
 	return true;
 }
@@ -94,12 +94,12 @@ bool Calculator::Helper::bind_1x2L<TrigEMU>()
 	if(n1L > 0)
 	{
 		using fnptr = bool(Calculator::*)(const LeptonList&, unsigned, const TrigEMU, const flat_set<Trig1E>&, const flat_set<Trig1MU>&, Efficiencies&);
-		m_func = std::bind<fnptr>(&Calculator::globalEfficiency_One2LSeveral1L, _1, _2, _3, get<TrigEMU>(0), get_all<Trig1E>(), get_all<Trig1MU>(), _4);
+		m_func = std::bind<fnptr>(&Calculator::globalEfficiency_One2LSeveral1L, ::_1, ::_2, ::_3, get<TrigEMU>(0), get_all<Trig1E>(), get_all<Trig1MU>(), ::_4);
 	}
 	else
 	{
 		using fnptr = bool(Calculator::*)(const LeptonList&, unsigned, const TrigEMU, Efficiencies&);
-		m_func = std::bind<fnptr>(&Calculator::globalEfficiency_One2L, _1, _2, _3, get<TrigEMU>(0), _4);
+		m_func = std::bind<fnptr>(&Calculator::globalEfficiency_One2L, ::_1, ::_2, ::_3, get<TrigEMU>(0), ::_4);
 	}
 	return true;
 }
@@ -113,13 +113,13 @@ bool Calculator::Helper::bind_3x2L()
 	{
 		using fnptr = bool(Calculator::*)(const LeptonList&, unsigned, const Trig2E, const Trig2MU, 
 			const TrigEMU, const flat_set<Trig1E>&, const flat_set<Trig1MU>&, Efficiencies&);
-		m_func = std::bind<fnptr>(&Calculator::globalEfficiency_Three2LSeveral1L, _1, _2, _3, get<Trig2E>(0), get<Trig2MU>(0), 
-			get<TrigEMU>(0), get_all<Trig1E>(), get_all<Trig1MU>(), _4);
+		m_func = std::bind<fnptr>(&Calculator::globalEfficiency_Three2LSeveral1L, ::_1, ::_2, ::_3, get<Trig2E>(0), get<Trig2MU>(0), 
+			get<TrigEMU>(0), get_all<Trig1E>(), get_all<Trig1MU>(), ::_4);
 	}
 	else
 	{
 		using fnptr = bool(Calculator::*)(const LeptonList&, unsigned, const Trig2E, const Trig2MU, const TrigEMU, Efficiencies&);
-		m_func = std::bind<fnptr>(&Calculator::globalEfficiency_Three2L, _1, _2, _3, get<Trig2E>(0), get<Trig2MU>(0), get<TrigEMU>(0), _4);
+		m_func = std::bind<fnptr>(&Calculator::globalEfficiency_Three2L, ::_1, ::_2, ::_3, get<Trig2E>(0), get<Trig2MU>(0), get<TrigEMU>(0), ::_4);
 	}
 	return true;
 }
@@ -136,8 +136,8 @@ bool Calculator::Helper::bind_6x2L()
 	Trig2MUsym trig2MUsym = get<Trig2MUsym>(two2MUsym? 1 : 0);
 	using fnptr =  bool(Calculator::*)(const LeptonList&, unsigned, const Trig2E, const Trig2Esym, const Trig2MU, const Trig2MUsym, 
 		const TrigEMU, const TrigEMU, const flat_set<Trig1E>&, const flat_set<Trig1MU>&, Efficiencies&);
-	m_func = std::bind<fnptr>(&Calculator::globalEfficiency_Six2LSeveral1L, _1, _2, _3, get<Trig2E>(0), trig2Esym, get<Trig2MU>(0), trig2MUsym, 
-		get<TrigEMU>(0), get<TrigEMU>(1), get_all<Trig1E>(), get_all<Trig1MU>(), _4);
+	m_func = std::bind<fnptr>(&Calculator::globalEfficiency_Six2LSeveral1L, ::_1, ::_2, ::_3, get<Trig2E>(0), trig2Esym, get<Trig2MU>(0), trig2MUsym, 
+		get<TrigEMU>(0), get<TrigEMU>(1), get_all<Trig1E>(), get_all<Trig1MU>(), ::_4);
 	return true;
 }
 
@@ -147,7 +147,7 @@ bool Calculator::Helper::bind_1x3L()
 	std::size_t n3 = count<Trig3L>();
 	if(n3!=1 || n3!=m_defs.size()) return false;
 	using fnptr = bool(Calculator::*)(const LeptonList&, unsigned, const Trig3L, Efficiencies&);
-	m_func = std::bind<fnptr>(&Calculator::globalEfficiency_One3L, _1, _2, _3, get<Trig3L>(0), _4);
+	m_func = std::bind<fnptr>(&Calculator::globalEfficiency_One3L, ::_1, ::_2, ::_3, get<Trig3L>(0), ::_4);
 	return true;
 }
    
@@ -158,7 +158,7 @@ bool Calculator::Helper::bind_2x3L()
 	std::size_t n31 = count<Trig3L1>(), n32 = count<Trig3L2>();
 	if(n31!=1 || n32!=1 || n31+n32!=m_defs.size()) return false;
 	using fnptr = bool(Calculator::*)(const LeptonList&, unsigned, const Trig3L1, const Trig3L2, Efficiencies&);
-	m_func = std::bind<fnptr>(&Calculator::globalEfficiency_Two3L, _1, _2, _3, get<Trig3L1>(0), get<Trig3L2>(0), _4);
+	m_func = std::bind<fnptr>(&Calculator::globalEfficiency_Two3L, ::_1, ::_2, ::_3, get<Trig3L1>(0), get<Trig3L2>(0), ::_4);
 	return true;
 }
 
@@ -294,7 +294,7 @@ bool Calculator::initialize(ImportData& data, const std::string& combination, bo
 	}
 	else
 	{
-		m_globalEfficiency = std::bind(&Calculator::globalEfficiency_Toys, _1, _2, _3, triggers, _4);
+		m_globalEfficiency = std::bind(&Calculator::globalEfficiency_Toys, ::_1, ::_2, ::_3, triggers, ::_4);
 	}
 	if(!success) m_globalEfficiency = nullptr;
 	return success;

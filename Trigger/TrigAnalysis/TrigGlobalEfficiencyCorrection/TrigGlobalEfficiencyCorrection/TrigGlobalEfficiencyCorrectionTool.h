@@ -50,9 +50,9 @@ public:
 	virtual CP::SystematicSet affectingSystematics() const override;
 	virtual CP::SystematicSet recommendedSystematics() const override;
 	virtual CP::SystematicCode applySystematicVariation(const CP::SystematicSet& systConfig) override;
-	
+
 	static CP::CorrectionCode suggestElectronMapKeys(const std::map<std::string,std::string>& triggerCombination, const std::string& version, 
-		std::map<std::string,std::string>& legsPerKey, const asg::AsgMessaging* messaging = nullptr);
+		std::map<std::string,std::string>& legsPerKey, const asg::AsgToolBase* caller = nullptr);
 	
 private: 
 

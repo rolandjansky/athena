@@ -14,7 +14,7 @@ ToolHandle<CPTool>* CheckConfig::findToolByName(ToolHandleArray<CPTool>& supplie
 {
 	for(auto& tool : suppliedTools)
 	{
-		if(tool->name()==name)
+		if(tool.name()==name || tool->name()==name) // athena: not always the same
 		{
 			return &tool;
 		}
@@ -41,11 +41,14 @@ bool CheckConfig::basicConfigChecks()
 		success = false;
 		if(findToolByName(m_parent.m_suppliedMuonTools, name))
 		{
-			ATH_MSG_ERROR("Muon tool" << name << " mentioned in property 'ListOfLegsPerTool', which is only aimed at electron tools");
+			ATH_MSG_ERROR("Muon tool " << name << " mentioned in property 'ListOfLegsPerTool', which is only aimed at electron tools");
 		}
 		else
 		{
-			ATH_MSG_ERROR("Unknown tool" << name << " mentioned in property 'ListOfLegsPerTool'");
+			std::string all_tools = "; the known tools are";
+			for(auto& tool : m_parent.m_suppliedElectronEfficiencyTools) all_tools += " " + tool.name();
+			for(auto& tool : m_parent.m_suppliedElectronScaleFactorTools) all_tools += " " + tool.name();
+			ATH_MSG_ERROR("Unknown tool " << name << " mentioned in property 'ListOfLegsPerTool'" << all_tools);
 		}
 	}
 	if(!success) return false;
@@ -57,7 +60,7 @@ bool CheckConfig::basicConfigChecks()
 		{
 			for(auto& tool : (i? m_parent.m_suppliedElectronEfficiencyTools : m_parent.m_suppliedElectronScaleFactorTools))
 			{
-				const std::string& name = tool->name();
+				const std::string& name = tool.name();
 				if(m_parent.m_legsPerTool.find(name) == m_parent.m_legsPerTool.end())
 				{
 					success = false;
@@ -96,7 +99,10 @@ bool CheckConfig::basicConfigChecks()
 		else
 		{
 			success = false;
-			ATH_MSG_ERROR("Unknown tool" << name << " mentioned in property 'ListOfTagsPerTool'");
+			std::string all_tools = "; the known tools are";
+			for(auto& tool : m_parent.m_suppliedElectronEfficiencyTools) all_tools += " " + tool.name();
+			for(auto& tool : m_parent.m_suppliedElectronScaleFactorTools) all_tools += " " + tool.name();
+			ATH_MSG_ERROR("Unknown tool " << name << " mentioned in property 'ListOfTagsPerTool'");
 		}
 	}
 	/// Either all muon tools are associated to tags, either none

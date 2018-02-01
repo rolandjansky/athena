@@ -9,22 +9,22 @@
 
 using ImportData = TrigGlobEffCorr::ImportData;
 
-ImportData::ImportData(const asg::AsgMessaging* stream) :
+ImportData::ImportData(const asg::AsgToolBase* caller) :
 	/// the following two variables are owned by this tool and released in the destructor
 	m_parent(nullptr),
 	m_dictionary(*new std::map<std::size_t,std::string>),
 	m_hasher(*new std::hash<std::string>)
 {
-	if(stream)
+	if(caller)
 	{
-		msg = std::bind<MsgStream&(asg::AsgMessaging::*)(MSG::Level)const>(&asg::AsgMessaging::msg, stream, std::placeholders::_1); // 
+		msg = std::bind<MsgStream&(asg::AsgToolBase::*)(MSG::Level)const>(&asg::AsgToolBase::msg, caller, std::placeholders::_1); // 
 	}
 }
 
 ImportData::ImportData(TrigGlobalEfficiencyCorrectionTool& tool) :
 	m_parent(&tool), m_dictionary(tool.m_dictionary), m_hasher(tool.m_hasher)
 {
-	msg = std::bind<MsgStream&(asg::AsgMessaging::*)(MSG::Level)const>(&asg::AsgMessaging::msg, &tool, std::placeholders::_1);
+	msg = std::bind<MsgStream&(asg::AsgToolBase::*)(MSG::Level)const>(&asg::AsgToolBase::msg, &tool, std::placeholders::_1);
 }
 
 ImportData::~ImportData()

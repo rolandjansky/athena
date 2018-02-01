@@ -1,9 +1,7 @@
 // contact: jmaurer@cern.ch
 
-#ifdef XAOD_STANDALONE
-	#include "xAODRootAccess/Init.h"
-	#include "xAODRootAccess/TStore.h"
-#endif
+#include "xAODRootAccess/Init.h"
+#include "xAODRootAccess/TStore.h"
 #include "AsgTools/AnaToolHandle.h"
 #include "TriggerAnalysisInterfaces/ITrigGlobalEfficiencyCorrectionTool.h"
 #include "EgammaAnalysisInterfaces/IAsgElectronEfficiencyCorrectionTool.h"
@@ -48,7 +46,7 @@ class SimpleMuonTriggerScaleFactors : public CP::IMuonTriggerScaleFactors, publi
 	ASG_TOOL_CLASS(SimpleMuonTriggerScaleFactors, CP::IMuonTriggerScaleFactors)
 	std::map<std::string, std::function<double(float)>> m_efficiencies;
 public:
-	SimpleMuonTriggerScaleFactors(const std::string& name, const std::map<std::string,std::function<double(float)>>& efficiencies) : AsgTool(name)
+	SimpleMuonTriggerScaleFactors(const std::string& name, const std::map<std::string,std::function<double(float)>>& efficiencies = {}) : AsgTool(name)
 	{
 		for(auto& kv : efficiencies)
 		{
@@ -127,7 +125,7 @@ struct Config
 
 xAOD::ElectronContainer* electronContainer = nullptr;
 xAOD::MuonContainer* muonContainer = nullptr;
-bool quiet = false, fast = false;
+bool quiet = false, fast = false, skip = false;
 
 template<class Lepton>
 inline unsigned count(const std::vector<const Lepton*>& leptons, float ptmin, float ptmax = 1e12f)
@@ -140,19 +138,29 @@ bool run_test(const Config& cfg, int toy_to_debug = -1);
 using namespace asg::msgUserCode;
 
 int main(int argc, char* argv[])
-{
-	const std::string flagQuiet("--quiet"), flagFast("--fast");
+{	
+	const std::string flagQuiet("--quiet"), flagFast("--fast"), flagSkip("--skip-if-athena");
 	for(int i=1;i<argc;++i)
 	{
 		if(argv[i] == flagQuiet) quiet = true;
 		else if(argv[i] == flagFast) fast = true;
+	#ifndef XAOD_STANDALONE
+		else if(argv[i] == flagSkip) skip = true;
+	#endif
 	}
+	if(skip) return 0;
+	
+#ifndef XAOD_STANDALONE
+	Warning(MSGSOURCE, "This test doesn't work with athena for the moment.");
+	// the problem is that one can't initialize a ToolHandle from a pointer
+	// and the Simple* tools are not known to the athena framework.
+#endif
 	
 #ifdef XAOD_STANDALONE
 	StatusCode::enableFailure();
 	ANA_CHECK (xAOD::Init());
-	xAOD::TStore store;
 #endif
+	xAOD::TStore store;
 	CP::CorrectionCode::enableFailure();
 	
 	electronContainer = new xAOD::ElectronContainer();
@@ -337,15 +345,22 @@ bool run_test(const Config& cfg, int toy_to_debug)
 		{
 			electronTools.emplace_back(new SimpleElectronEfficiencyCorrectionTool("EFF-"+kv.first, kv.second));
 			legsPerTool.emplace(electronTools.back()->name(), kv.first);
-			electronEffToolsHandles.emplace_back(electronTools.back());
+			#ifdef XAOD_STANDALONE
+				electronEffToolsHandles.push_back(electronTools.back());
+			#endif
 			electronTools.emplace_back(new SimpleElectronEfficiencyCorrectionTool("SF-"+kv.first, 1.));
 			legsPerTool.emplace(electronTools.back()->name(), kv.first);
-			electronSFToolsHandles.emplace_back(electronTools.back());
+			#ifdef XAOD_STANDALONE
+				electronSFToolsHandles.push_back(electronTools.back());
+			#endif
 		}
 	}
 	std::vector<SimpleMuonTriggerScaleFactors*> muonTools;
 	muonTools.emplace_back(new SimpleMuonTriggerScaleFactors("EFF-muons", cfg.efficiencies));
-	ToolHandleArray<CP::IMuonTriggerScaleFactors> muonToolsHandles = {muonTools.back()};
+	ToolHandleArray<CP::IMuonTriggerScaleFactors> muonToolsHandles;
+	#ifdef XAOD_STANDALONE
+		muonToolsHandles.push_back(muonTools.back());
+	#endif
 	std::string suffix = ((toy_to_debug>=0)? "_debug" : "");
 	asg::AnaToolHandle<ITrigGlobalEfficiencyCorrectionTool> trigGlobTool("TrigGlobalEfficiencyCorrectionTool/trigGlobTool" + suffix);
 	asg::AnaToolHandle<ITrigGlobalEfficiencyCorrectionTool> trigGlobTool_toys("TrigGlobalEfficiencyCorrectionTool/trigGlobTool_toys" + suffix);

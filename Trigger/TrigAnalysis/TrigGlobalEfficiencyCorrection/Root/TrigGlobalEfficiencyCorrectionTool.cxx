@@ -161,12 +161,13 @@ bool TrigGlobalEfficiencyCorrectionTool::enumerateTools(ToolHandleArray<CPTool>&
 	bool success = true;
 	for(auto& handle : suppliedTools)
 	{
-		const std::string& name = handle.name();
+		const std::string& name = handle.name(), altname = handle->name(); // athena: not always the same
 		flat_set<std::size_t> listOfLegs;
 		/// Find the legs associated to this tool ("ListOfLegsPerTool" property)
 		if(suppliedTools.size()!=1 || m_legsPerTool.size()!=0)
 		{
 			auto itrLegs = m_legsPerTool.find(name);
+			if(itrLegs == m_legsPerTool.end())  itrLegs = m_legsPerTool.find(altname);
 			if(itrLegs != m_legsPerTool.end())
 			{
 				listOfLegs = listNonOrderedCSValues(itrLegs->second,success);
@@ -191,6 +192,7 @@ bool TrigGlobalEfficiencyCorrectionTool::enumerateTools(ToolHandleArray<CPTool>&
 		/// Find the tags associated to this tool ("ListOfTagsPerTool" property)
 		flat_set<std::size_t> tags;
 		auto itrTags = m_tagsPerTool.find(name);
+		if(itrTags == m_tagsPerTool.end()) itrTags = m_tagsPerTool.find(altname);
 		if(itrTags != m_tagsPerTool.end())
 		{
 			success = success && parseTagString(itrTags->second,tags);
@@ -920,15 +922,16 @@ std::vector<std::size_t> TrigGlobalEfficiencyCorrectionTool::getSortedLegs(const
 }
 
 CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::suggestElectronMapKeys(const std::map<std::string,std::string>& triggerCombination, 
-	const std::string& version, std::map<std::string,std::string>& legsPerKey, const asg::AsgMessaging* stream)
+	const std::string& version, std::map<std::string,std::string>& legsPerKey, const asg::AsgToolBase* caller)
 {
 	legsPerKey.clear();
 
-	ImportData data(stream);
+	ImportData data(caller);
 	if(!data.importAll()) return CP::CorrectionCode::Error;
 
-	auto msg = std::bind<MsgStream&(asg::AsgMessaging::*)(void)const>(&asg::AsgMessaging::msg,stream);
-
+	auto msg = std::bind<MsgStream&(asg::AsgToolBase::*)(void)const>(&asg::AsgToolBase::msg, caller);
+	// not using the ATH_MSG_* macros in this function: it would work fine with MsgStreamMacros.h (standalone) but not with AthMsgStreamMacros.h (athena)
+	
 	bool success = true;
 	std::map<std::size_t,int> legs;
 	auto& periods = data.getDataPeriods();
@@ -939,7 +942,9 @@ CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::suggestElectronMapKeys(co
 		auto itrPeriod = periods.find(kv.first);
 		if(itrPeriod == periods.end())
 		{
-			if(stream) ATH_MSG_ERROR("Unknown period " << kv.first);
+			#ifdef XAOD_STANDALONE
+				if(caller) msg(MSG::ERROR) << "Unknown period " << kv.first << endmsg;
+			#endif
 			success = false;
 			continue;
 		}
@@ -993,8 +998,8 @@ CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::suggestElectronMapKeys(co
 			}
 			else
 			{
-				if(stream) ATH_MSG_ERROR("Sorry, no idea what the map key should be for the trigger leg '" 
-					<< dictionary.at(leg) << "', manual configuration is needed");
+				if(caller) msg(MSG::ERROR) << "Sorry, no idea what the map key should be for the trigger leg '" 
+						<< dictionary.at(leg) << "', manual configuration is needed" << endmsg;
 				success = false;
 			}
 		}
