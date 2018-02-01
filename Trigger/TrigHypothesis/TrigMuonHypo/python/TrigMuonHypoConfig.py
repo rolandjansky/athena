@@ -39,6 +39,7 @@ trigMuonEFSAThresholds = {
     '50GeV_barrelOnly' : [ [0,1.05,1.5,2.0,9.9], [ 45.0,1000.0,1000.0,1000.0]], 
     '60GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 54.0, 54.0, 54.0, 54.0] ], 
     '60GeV_barrelOnly' : [ [0,1.05,1.5,2.0,9.9], [ 54.0,1000.0,1000.0,1000.0]], 
+    '60GeV_msonlyCut'  : [ [0,1.05,1.5,2.0,9.9], [ 54.0, 54.0, 54.0, 54.0] ], 
     '70GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 63.0, 63.0, 63.0, 63.0] ], 
     '80GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 72.0, 72.0, 72.0, 72.0] ],
     '100GeV'           : [ [0,1.05,1.5,2.0,9.9], [ 90.0, 90.0, 90.0, 90.0] ],
@@ -806,6 +807,9 @@ class TrigMuonEFExtrapolatorHypoConfig(TrigMuonEFExtrapolatorHypo) :
 
         threshold = args[1]
 
+        if "msonlyCut" in threshold:
+            self.MSonlyCut = True
+
         try:
             values = trigMuonEFSAThresholds[threshold]
             self.PtBins = values[0]
@@ -1318,7 +1322,9 @@ trigMuonEFTrkIsoThresholds = {
     'RelEFOnlyVarLooseWide'      : [-1.0 ,  0.2  ],
     'RelEFOnlyVarMediumWide'     : [-1.0 ,  0.12 ],
 #    'RelEFOnlyVarTightWide'      : [-1.0 ,  0.08 ] #MC15C 
-    'RelEFOnlyVarTightWide'      : [-1.0 ,  0.07 ]  #ivarmedium
+    'RelEFOnlyVarTightWide'      : [-1.0 ,  0.07 ], #ivarmedium
+    'RelEFOnlyVarTighterWide'    : [-1.0 ,  0.06 ], #ivartight
+    'RelEFOnlyVarVeryTightWide'  : [-1.0 ,  0.04 ]  #ivarverytight
     }
 
 

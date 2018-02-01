@@ -1535,8 +1535,8 @@ int main(int argc, char** argv)
     }
     
     
-    if ( vertices.size()>0 ) std::cout << "vertex " << vertices[0] << std::endl;
-    else                     std::cout << "NO vertex !!!" << std::endl;
+    //    if ( vertices.size()>0 ) std::cout << "vertex " << vertices[0] << std::endl;
+    //    else                     std::cout << "NO vertex !!!" << std::endl;
 
     /// always push back the vector - if required there will be only one vertex on it
     filter_vertex.setVertex( vertices );
@@ -1868,7 +1868,7 @@ int main(int argc, char** argv)
 	    for (unsigned itr=0; itr<refp.size(); itr++){
 	      TIDA::Track* tr = refp[itr];
 	      double theta_     = 2*std::atan(std::exp(-tr->eta())); 
-	      double dzsintheta = std::fabs(vx.z()-tr->z0()) * std::sin(theta_);
+	      double dzsintheta = std::fabs( (vx.z()-tr->z0()) * std::sin(theta_) );
 	      if( dzsintheta < 1.5 ) trackcount++;
 	    }
 

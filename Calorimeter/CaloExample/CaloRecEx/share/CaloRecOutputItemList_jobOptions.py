@@ -1,6 +1,7 @@
 #**************   ESD list  ************************************************
 
 from AthenaCommon.JobProperties import jobproperties
+from AthenaCommon.Logging import logging
 
 CaloESDList = []
 
@@ -106,7 +107,39 @@ AODMoments=[#"LATERAL"
             ,"EM_PROBABILITY"
             #,"PTD"
             ,"BadChannelList"
+            ,#"LATERAL"
             ]
+try:
+    from Digitization.DigitizationFlags import digitizationFlags
+    if digitizationFlags.doDigiTruth():
+
+      AODMoments+=["SECOND_R_Truth"
+                ,"SECOND_LAMBDA_Truth"
+                ,"CENTER_MAG_Truth"
+                ,"CENTER_LAMBDA_Truth"
+                ,"FIRST_ENG_DENS_Truth"
+                ,"ENG_FRAC_MAX_Truth"
+                ,"ISOLATION_Truth"
+                ,"ENG_BAD_CELLS_Truth"
+                ,"N_BAD_CELLS_Truth"
+                ,"BADLARQ_FRAC_Truth"
+                #,"ENG_BAD_HV_CELLS_Truth"
+                #,"N_BAD_HV_CELLS_Truth"
+                ,"ENG_POS_Truth"
+                #,"SIGNIFICANCE_Truth"
+                #,"CELL_SIGNIFICANCE_Truth"
+                #,"CELL_SIG_SAMPLING_Truth"
+                ,"AVG_LAR_Q_Truth"
+                ,"AVG_TILE_Q_Truth"
+                ,"EM_PROBABILITY_Truth"
+                #,"PTD_Truth"
+                ,"ENERGY_Truth"
+                ,"ETA_Truth"
+                ,"PHI_Truth"
+                ]
+except:
+    log = logging.getLogger('CaloRecOutputItemList')
+    log.info('Unable to import DigitizationFlags in CaloRecOutputItemList_jobOptions. Expected in AthenaP1')
 
 
 CaloAODList = []

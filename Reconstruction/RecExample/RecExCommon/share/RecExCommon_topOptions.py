@@ -90,6 +90,7 @@ excludeTracePattern.append("*/DQDefects/virtual*")
 excludeTracePattern.append("*/PanTauAnalysis/Class_FeatureHandler.py")
 excludeTracePattern.append("*/TrigEDMConfig/TriggerEDM.py")
 excludeTracePattern.append("*/TrigL2MissingET/TrigL2MissingETMonitoring.py")
+excludeTracePattern.append("*AthFile/impl.py")
 #####################
 # Flags (separated) #
 #####################

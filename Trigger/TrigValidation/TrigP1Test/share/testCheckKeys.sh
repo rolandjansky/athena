@@ -9,11 +9,7 @@ else
 fi
 
 #setup the TT
-export _JAVA_OPTIONS="-Xms512m -Xmx1048m"
 export DBConn="TRIGGERDBATN"
-
-export PATH=$PATH:$TDAQ_JAVA_HOME/bin
-
 export TNS_ADMIN=/afs/cern.ch/atlas/offline/external/oracle/latest/admin
 
 ##get the right pattern to load Lvl1 xml file
@@ -58,8 +54,10 @@ get_files -xmls LVL1config.dtd
 # - depending on implementation in ART may want to be done explicitly here
 ### #upload the first key
 ### echo "upload the first key"
+### #--name is set to the same name as in testUploadMenuKeys.sh to give the identical menu
+### #--release is set to CheckKeysTest so that it appears clearly in the TriggerTool which key was reuploaded by this test (appears in list of releases for a SMK)
 ### 
-### cmd1="/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -up -release 'AthenaP1' --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu1 --hlt_setup $hlt__setup1 --name 'AthenaP1Test' -l INFO --dbConn $DBConn -w_n 60 -w_t 60 "
+### cmd1="/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -up -release 'CheckKeysTest' --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu1 --hlt_setup $hlt__setup1 --name 'AthenaP1Test' -l INFO --dbConn $DBConn -w_n 60 -w_t 60 "
 ### 
 ### echo $cmd1
 ### eval $cmd1 &> uploadSMK1.log
@@ -93,8 +91,10 @@ hlt__setup2=ef_Default_setup_rerun.xml
 
 #upload the second key
 echo "upload the second key"
+#--name is set to the same name as in testUploadMenuKeys.sh to give the identical menu
+#--release is set to CheckKeysTest so that it appears clearly in the TriggerTool which key was reuploaded by this test (appears in list of releases for a SMK)
 
-cmd2="/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -up -release 'AthenaP1' --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu2 --hlt_setup $hlt__setup2 --name 'AthenaP1Test' -l INFO --dbConn $DBConn -w_n 60 -w_t 60 "
+cmd2="/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -up -release 'CheckKeysTest' --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu2 --hlt_setup $hlt__setup2 --name 'AthenaP1Test' -l INFO --dbConn $DBConn -w_n 60 -w_t 60 "
 
 echo $cmd2 "&> uploadSMK2.log"
 eval $cmd2 &> uploadSMK2.log

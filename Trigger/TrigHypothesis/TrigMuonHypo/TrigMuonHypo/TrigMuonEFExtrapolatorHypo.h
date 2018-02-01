@@ -27,6 +27,7 @@ class TrigMuonEFExtrapolatorHypo: public HLT::HypoAlgo {
   std::vector<float> m_ptBins;
   std::vector<float> m_ptThresholds; 
   BooleanProperty m_acceptAll;
+  BooleanProperty m_msonlyCut;
 
   // Other members:   
   StoreGateSvc* m_storeGate;

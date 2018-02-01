@@ -6,6 +6,7 @@ include ("RecExCond/RecExCommon_DetFlags.py")
 
 from AthenaCommon.Logging import logging
 from AthenaCommon.Resilience import treatException,protectedInclude
+from RecExConfig.RecFlags import rec
 
 logAllDet_detDescr = logging.getLogger( 'AllDet_detDescr' )
 
@@ -23,19 +24,19 @@ if DetFlags.detdescr.any_on():
     from AtlasGeoModel import GeoModelInit
     from AtlasGeoModel import SetupRecoGeometry
 
-    if DetFlags.detdescr.Tile_on():
+    if DetFlags.detdescr.Tile_on() and not rec.doAODMerging():
         
         protectedInclude( "TileConditions/TileConditions_jobOptions.py" )
         
 
 
-    if DetFlags.detdescr.Calo_on():
+    if DetFlags.detdescr.Calo_on() and not rec.doAODMerging():
         protectedInclude( "CaloIdCnv/CaloIdCnv_joboptions.py" )
         #FIXME tile and lar not independent
         protectedInclude( "TileIdCnv/TileIdCnv_jobOptions.py" )
 
 
-    if DetFlags.detdescr.LAr_on():
+    if DetFlags.detdescr.LAr_on() and not rec.doAODMerging():
         try:
             include( "LArDetDescr/LArDetDescr_joboptions.py" )
         except Exception:
@@ -53,11 +54,11 @@ if DetFlags.detdescr.any_on():
 # Beam Spot service (only if ID requested)
     from AthenaCommon.GlobalFlags import globalflags
     # use even if commisisoning and not globalflags.DetGeo=='commis' :
-    if DetFlags.detdescr.ID_on():
+    if DetFlags.detdescr.ID_on() and not rec.doAODMerging():
         protectedInclude("InDetBeamSpotService/BeamCondSvc.py" )        
 
 
-    if DetFlags.detdescr.Muon_on():
+    if DetFlags.detdescr.Muon_on() and not rec.doAODMerging():
         protectedInclude ("AmdcAth/AmdcAth_jobOptions.py")
 
         #if DetDescrVersion[0:3]=="DC2":
@@ -73,7 +74,7 @@ if DetFlags.detdescr.any_on():
 
 
     # MagneticField Service
-    if DetFlags.detdescr.BField_on():
+    if DetFlags.detdescr.BField_on() and not rec.doAODMerging():
         #protectedInclude( "BFieldAth/BFieldAth_jobOptions.py" )
         import MagFieldServices.SetupField
 
