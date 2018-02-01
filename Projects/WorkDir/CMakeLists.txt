@@ -68,12 +68,8 @@ install( FILES ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/env_setup.sh
 atlas_cpack_setup()
 
 # Remind to set up the environment
-string(ASCII 27 Esc)
-set(ColourReset "${Esc}[m")
-set(BoldRed   "${Esc}[1;31m")
-set(ColourBold  "${Esc}[1m")
-message( STATUS "${ColourBold}")
+message( STATUS "")
 message( STATUS "            In order to test your updates, please don't forget to" )
 message( STATUS "            set up the environment with e.g.:" )
-message( STATUS "            --->   ${BoldRed}source x86_64-slc6-gcc62-opt/setup.sh${ColourReset}" )
+message( STATUS "            --->   source x86_64-slc6-gcc62-opt/setup.sh" )
 message( STATUS "")
