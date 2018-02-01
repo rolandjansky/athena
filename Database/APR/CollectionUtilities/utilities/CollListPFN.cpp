@@ -20,7 +20,6 @@
 #include "CollectionBase/ICollection.h"
 
 #include "FileCatalog/IFileCatalog.h"
-#include "FileCatalog/IFCAction.h"
 #include "POOLCore/Exception.h"
 
 #include "CoralBase/MessageStream.h"
@@ -95,13 +94,7 @@ int main(int argc, const char *argv[])
 		  // new GUID
 		  std::string bestPFN;
 		  std::string fileType;
-		  pool::IFCAction action;
-		  FC.setAction( action );
-		  action.lookupBestPFN( dbFileId, 
-					pool::FileCatalog::READ, 
-					pool::FileCatalog::SEQUENTIAL, 
-					bestPFN, 
-					fileType );
+		  FC.getFirstPFN( dbFileId, bestPFN, fileType );
 		  if( bestPFN.size() ) {
 		     // found a name
 		     guidToPfn[ dbFileId ] = bestPFN;

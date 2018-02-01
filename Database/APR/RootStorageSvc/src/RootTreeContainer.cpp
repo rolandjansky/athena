@@ -21,7 +21,7 @@
 #include "StorageSvc/DbInstanceCount.h"
 #include "StorageSvc/DataCallBack.h"
 #include "StorageSvc/DbArray.h"
-#include "StorageSvc/DbPrint.h"
+#include "POOLCore/DbPrint.h"
 #include "StorageSvc/DbTransaction.h"
 #include "StorageSvc/DbReflex.h"
 

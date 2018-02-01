@@ -8,8 +8,8 @@
 #include "CollectionBase/ICollectionCursor.h"
 #include "CollectionBase/boost_tokenizer_headers.h"
 
-#include "POOLCore/IFileCatalog.h"
-#include "CoralBase/MessageStream.h"
+#include "POOLCore/Exception.h"
+#include "FileCatalog/IFileCatalog.h"
 
 #include <cstring>
 

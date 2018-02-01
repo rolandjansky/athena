@@ -17,7 +17,7 @@
 #include "PersistentDataModel/Token.h"
 #include "DbStorageSvc.h"
 #include "DbStorageExplorer.h"
-#include "StorageSvc/DbPrint.h"
+#include "POOLCore/DbPrint.h"
 #include "StorageSvc/DbToken.h"
 #include "StorageSvc/DbSelect.h"
 #include "StorageSvc/DbReflex.h"

@@ -11,7 +11,8 @@
 #include <string>
 #include <iostream>
 #include <cstdlib>
-#include "POOLCore/IFileCatalog.h"
+#include "POOLCore/Exception.h"
+#include "FileCatalog/IFileCatalog.h"
 
 using namespace pool;
 

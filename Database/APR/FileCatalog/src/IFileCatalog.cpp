@@ -11,12 +11,10 @@
 #include <algorithm>
 #include "POOLCore/SystemTools.h"
 #include "POOLCore/Exception.h"
-
 #include "FileCatalog/URIParser.h"
 #include "FileCatalog/IFileCatalog.h"
 
 #include "AthenaBaseComps/AthMessaging.h"
-#include "GaudiKernel/IMessageSvc.h"
 
 #include <iostream>
 
@@ -25,12 +23,9 @@ using namespace pool;
 pool::IFileCatalog::IFileCatalog()
   : AthMessaging( Gaudi::svcLocator()->service<IMessageSvc>("MessageSvc").get(), "APRFileCatalog" )
 {
-   Gaudi::svcLocator()->service<IMessageSvc>("MessageSvc")->setOutputLevel("XMLCatalog",  MSG::WARNING );
    _mgr = Gaudi::svcLocator()->service<Gaudi::IFileCatalogMgr>( "Gaudi::MultiFileCatalog" );
    _fc = _mgr;
-   msg().setLevel( SystemTools::GetOutputLvl() );
-   std::cout << "IFileCatalog MSGLVL=" << SystemTools::GetOutputLvl() << std::endl;
-   //Gaudi::svcLocator()->service<IMessageSvc>("MessageSvc")->setOutputLevel("XMLCatalog",  SystemTools::GetOutputLvl() );
+   setLevel( SystemTools::GetOutputLvl() );
 }
      
 
@@ -73,6 +68,7 @@ registerPFN( const std::string& pfn, const std::string& ftype, std::string& fid 
    if( existsPFN(pfn) ) {
       throw pool::Exception(std::string("PFN '") + pfn + "' already registered", "registerPFN", "FileCatalog");
    }
+//   std::cout << "msg() level" << msg().level() << std::endl;
    ATH_MSG_DEBUG("Registering PFN=" << pfn << " of type=" << ftype << " GUID=" << fid);
    if( fid.empty() ) fid = createFID();
    _fc->registerPFN(fid, pfn, ftype);

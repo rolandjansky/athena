@@ -9,6 +9,7 @@ atlas_subdir( CollectionBase )
 atlas_depends_on_subdirs( PUBLIC
                           Database/APR/POOLCore
                           PRIVATE
+                          Database/APR/FileCatalog
                           AtlasTest/TestTools
                           Database/APR/PersistencySvc
                           Database/PersistentDataModel
@@ -25,7 +26,9 @@ atlas_add_library( CollectionBase
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} 
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} TestTools POOLCore PersistencySvc PersistentDataModel GaudiKernel )
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} TestTools
+                   POOLCore PersistencySvc PersistentDataModel
+                   GaudiKernel FileCatalog )
 
 atlas_add_dictionary( CollectionDict
                       CollectionBase/CollectionDict.h

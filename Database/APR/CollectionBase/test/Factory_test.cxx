@@ -9,7 +9,7 @@
 
 #include "PersistentDataModel/Token.h"
 
-#include "POOLCore/IFileCatalog.h"
+#include "FileCatalog/IFileCatalog.h"
 
 #include "CollectionBase/ICollection.h"
 #include "CollectionBase/CollectionDescription.h"

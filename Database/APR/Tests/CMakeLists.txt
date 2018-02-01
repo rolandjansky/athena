@@ -9,6 +9,8 @@ atlas_subdir( Tests )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
    PRIVATE
+   Database/APR/POOLCore
+   Database/APR/FileCatalog
    Database/APR/PersistencySvc
    Database/APR/StorageSvc
    Database/PersistentDataModel
@@ -50,7 +52,7 @@ function( _add_test name )
       SOURCES ${name}/*.cpp
       INCLUDE_DIRS ${CPPUNIT_INCLUDE_DIRS}
       LINK_LIBRARIES ${CPPUNIT_LIBRARIES} PersistencySvc
-      StorageSvc AthContainers
+      StorageSvc AthContainers  FileCatalog
       PersistentDataModel TestTools
       PRE_EXEC_SCRIPT "rm -f pool*.root *xml"
       POST_EXEC_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/test/post.sh ${name}_test"

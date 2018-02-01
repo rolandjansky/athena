@@ -11,7 +11,7 @@
 //        Author     : M.Frank
 //====================================================================
 // Framework include files
-#include "StorageSvc/DbPrint.h"
+#include "POOLCore/DbPrint.h"
 
 #include "StorageSvc/DbOption.h"
 #include "StorageSvc/DbSelect.h"

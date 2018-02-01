@@ -58,7 +58,7 @@ InsertFileToCatalogApplication::parseArguments()
   return SimpleUtilityBase::parseArguments();
 }
 
-#include "StorageSvc/DbPrint.h"
+#include "POOLCore/DbPrint.h"
 
 void
 InsertFileToCatalogApplication::execute()

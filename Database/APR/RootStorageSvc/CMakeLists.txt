@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PRIVATE
                           Control/AthContainers
                           Control/AthContainersInterfaces
                           Control/RootUtils
+                          Database/APR/POOLCore
                           Database/APR/StorageSvc
                           Database/AthenaRoot/RootAuxDynIO
                           Database/PersistentDataModel
@@ -23,10 +24,10 @@ find_package( ROOT COMPONENTS Core RIO TreePlayer Tree MathCore Hist pthread )
 atlas_add_library( RootStorageSvc
                    src/*.cpp
                    NO_PUBLIC_HEADERS
-                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} POOLCore
                    LINK_LIBRARIES ${ROOT_LIBRARIES} RootUtilsPyROOT
                    PRIVATE_LINK_LIBRARIES TestTools AthContainers
-                   RootUtils StorageSvc RootAuxDynIO
+                   RootUtils StorageSvc RootAuxDynIO POOLCore
                    PersistentDataModel GaudiKernel )
 
 

@@ -9,8 +9,8 @@
 #include <memory>
 
 #include "StorageSvc/DbType.h"
-#include "POOLCore/URIParser.h"
-#include "POOLCore/IFileCatalog.h"
+#include "FileCatalog/URIParser.h"
+#include "FileCatalog/IFileCatalog.h"
 
 #include "PersistencySvc/ISession.h"
 #include "PersistencySvc/ITransaction.h"

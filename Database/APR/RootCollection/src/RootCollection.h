@@ -11,7 +11,7 @@
 #include "CollectionBase/ICollection.h"
 #include "CollectionBase/CollectionDescription.h"
 
-#include "POOLCore/IFileCatalog.h"
+#include "FileCatalog/IFileCatalog.h"
 #include "CoralBase/MessageStream.h"
 
 #include "GaudiKernel/IFileMgr.h"

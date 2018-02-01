@@ -16,7 +16,7 @@
 // Framework include files
 #include "DbContainerObj.h"
 
-#include "StorageSvc/DbPrint.h"
+#include "POOLCore/DbPrint.h"
 #include "StorageSvc/IOODatabase.h"
 #include "StorageSvc/IDbContainer.h"
 #include "StorageSvc/DbDomain.h"

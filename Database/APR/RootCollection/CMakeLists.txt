@@ -12,6 +12,7 @@ atlas_depends_on_subdirs( PRIVATE
                           Control/RootUtils
                           Database/APR/CollectionBase
                           Database/APR/POOLCore
+                          Database/APR/FileCatalog
                           Database/APR/PersistencySvc
                           Database/PersistentDataModel
                           GaudiKernel )
@@ -33,7 +34,10 @@ atlas_add_library( RootCollection
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} RootUtilsPyROOT
-                   PRIVATE_LINK_LIBRARIES ${CORAL_LIBRARIES} TestTools AthenaKernel RootUtils CollectionBase POOLCore PersistencySvc PersistentDataModel GaudiKernel )
+                   PRIVATE_LINK_LIBRARIES ${CORAL_LIBRARIES} TestTools
+                   AthenaKernel RootUtils CollectionBase POOLCore
+                   PersistencySvc PersistentDataModel GaudiKernel
+                   FileCatalog )
 
 atlas_add_library( RootCollectionComponents
                    src/components/*.cpp

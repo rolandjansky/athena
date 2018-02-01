@@ -9,7 +9,7 @@
 #include "CollectionBase/CollectionBaseNames.h"
 #include "CollectionBase/boost_tokenizer_headers.h"
 
-#include "POOLCore/IFileCatalog.h"
+#include "FileCatalog/IFileCatalog.h"
 #include "POOLCore/Exception.h"
 
 #include "Gaudi/PluginService.h"

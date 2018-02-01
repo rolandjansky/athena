@@ -8,7 +8,7 @@
 #include <string>
 namespace pool{
 
-   /**@class URIParser URIParser.h Database/APR/POOLCore/URIParser.h
+   /**@class URIParser URIParser.h Database/APR/FileCatalog/URIParser.h
      URI parsing utility class.
      The URI string can be read from environment variable POOL_CATALOG 
      or from the URIParser constructor. 
