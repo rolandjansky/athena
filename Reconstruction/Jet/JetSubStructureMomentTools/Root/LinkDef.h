@@ -8,12 +8,14 @@
 #include "JetSubStructureMomentTools/NSubjettinessRatiosTool.h"
 #include "JetSubStructureMomentTools/ShowerDeconstructionTool.h"
 #include "JetSubStructureMomentTools/EnergyCorrelatorRatiosTool.h"
+#include "JetSubStructureMomentTools/EnergyCorrelatorGeneralizedRatiosTool.h"
 #include "JetSubStructureMomentTools/JetPullTool.h"
 #include "JetSubStructureMomentTools/KTSplittingScaleTool.h"
 #include "JetSubStructureMomentTools/NSubjettinessTool.h"
 #include "JetSubStructureMomentTools/SubjetFinderTool.h"
 #include "JetSubStructureMomentTools/VolatilityTool.h"
 #include "JetSubStructureMomentTools/EnergyCorrelatorTool.h"
+#include "JetSubStructureMomentTools/EnergyCorrelatorGeneralizedTool.h"
 #include "JetSubStructureMomentTools/JetSubStructureMomentToolsBase.h"
 #include "JetSubStructureMomentTools/KtDeltaRTool.h"
 #include "JetSubStructureMomentTools/PlanarFlowTool.h"
@@ -39,6 +41,8 @@
 #pragma link C++ class DipolarityTool+;
 #pragma link C++ class EnergyCorrelatorRatiosTool+;
 #pragma link C++ class EnergyCorrelatorTool+;
+#pragma link C++ class EnergyCorrelatorGeneralizedRatiosTool+;
+#pragma link C++ class EnergyCorrelatorGeneralizedTool+;
 #pragma link C++ class ISubjetRecorderTool+;
 #pragma link C++ class JetChargeTool+;
 #pragma link C++ class JetPullTool+;
