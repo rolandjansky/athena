@@ -875,6 +875,33 @@ def getTauWPDecoratorEleBDT():
     cached_instances[_name] = TauScoreFlatteningTool
     return TauScoreFlatteningTool
 
+
+#                                                                                                                                                                                  
+def getTauWPDecoratorJetRNN():
+    import PyUtils.RootUtils as ru
+    ROOT = ru.import_root()
+    import cppyy
+    cppyy.loadDictionary('xAODTau_cDict')
+
+    _name = sPrefix + 'TauWPDecorator'
+    from tauRecTools.tauRecToolsConf import TauWPDecorator
+    myTauWPDecorator = TauWPDecorator( name=_name,
+                                       flatteningFile1Prong = "", # to be updated!!!
+                                       flatteningFile3Prong = "", # to be updated!!!
+                                       CutEnumVals = 
+                                       [ ROOT.xAOD.TauJetParameters.JetRNNSigVeryLoose, ROOT.xAOD.TauJetParameters.JetRNNSigLoose,
+                                         ROOT.xAOD.TauJetParameters.JetRNNSigMedium, ROOT.xAOD.TauJetParameters.JetRNNSigTight ],
+                                       SigEff1P = [0.95, 0.85, 0.75, 0.60],          # to be updated!!!
+                                       SigEff3P = [0.95, 0.75, 0.60, 0.45],          # to be updated!!!
+                                       ScoreName = "RNNJetScore",
+                                       NewScoreName = "RNNJetScoreSigTrans",
+                                       DefineWPs = True,
+                                       )
+    cached_instances[_name] = myTauWPDecorator
+    return myTauWPDecorator
+
+
+
 def getTauJetBDTEvaluator(_n, weightsFile="", minNTracks=0, maxNTracks=10000, outputVarName="BDTJetScore", GradiantBoost=True, minAbsTrackEta=-1, maxAbsTrackEta=-1):
     _name = sPrefix + _n
     from tauRecTools.tauRecToolsConf import TauJetBDTEvaluator
@@ -888,6 +915,23 @@ def getTauJetBDTEvaluator(_n, weightsFile="", minNTracks=0, maxNTracks=10000, ou
                                               GradiantBoost=GradiantBoost)
     cached_instances[_name] = myTauJetBDTEvaluator
     return myTauJetBDTEvaluator
+
+def getTauJetRNNEvaluator(_n, NetworkFile1P="", NetworkFile3P="", OutputVarname="RNNJetScore", MaxTracks=10, MaxClusters=6, InputLayerScalar="scalar", InputLayerTracks="tracks", InputLayerClusters="clusters", OutputLayer="rnnid_output", OutputNode="sig_prob"):
+    _name = sPrefix + _n
+    from tauRecTools.tauRecToolsConf import TauJetRNNEvaluator
+    myTauJetRNNEvaluator = TauJetRNNEvaluator(name=_name,
+                                              NetworkFile1P=NetworkFile1P,
+                                              NetworkFile3P=NetworkFile3P,
+                                              OutputVarname=OutputVarname,
+                                              MaxTracks=MaxTracks,
+                                              MaxClusters=MaxClusters,
+                                              InputLayerScalar=InputLayerScalar,
+                                              InputLayerTracks=InputLayerTracks,
+                                              InputLayerClusters=InputLayerClusters,
+                                              OutputLayer=OutputLayer,
+                                              OutputNode=OutputNode)
+    cached_instances[_name] = myTauJetRNNEvaluator
+    return myTauJetRNNEvaluator
 
 def getTauIDVarCalculator():
     _name = sPrefix + 'TauIDVarCalculator'
