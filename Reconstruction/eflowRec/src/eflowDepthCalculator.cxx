@@ -162,91 +162,96 @@ const double* eflowDepthCalculator::calcDepthArray(double eta, double filler)
   for (int i = 0; i <= m_nDepth; i++)  m_layerDepth[i] = 0.0;
   eta = fabs(eta);
 
-  const double theta = 2.0 * atan( exp(-eta) );
-  const double sinTheta = sin(theta);
-
-  if (theta > thetaEMBbottomRight) {
-    m_layerDepth[EMB1] = m_preEMBat0eta / sinTheta;
-    if (theta < thetaEMEtopLeft) m_layerDepth[EME1] = m_LArGap;
+  if (eta >= 4.0) {
+    return nullptr;
   }
   else {
-    m_layerDepth[EME1] = m_preEMEat19eta;
-    if (eta < 1.9) m_layerDepth[EME1] += (1.9 - eta) * (preEMBbottomRight - m_preEMEat19eta) / (1.9 - etaEMBbottomRight);
-  }
+    const double theta = 2.0 * atan( exp(-eta) );
+    const double sinTheta = sin(theta);
+
+    if (theta > thetaEMBbottomRight) {
+      m_layerDepth[EMB1] = m_preEMBat0eta / sinTheta;
+      if (theta < thetaEMEtopLeft) m_layerDepth[EME1] = m_LArGap;
+    }
+    else {
+      m_layerDepth[EME1] = m_preEMEat19eta;
+      if (eta < 1.9) m_layerDepth[EME1] += (1.9 - eta) * (preEMBbottomRight - m_preEMEat19eta) / (1.9 - etaEMBbottomRight);
+    }
   
-  if (theta < thetaHECtopLeft) m_layerDepth[HEC1] = m_preHEC;
-  if (theta < thetaFCALtopLeft) m_layerDepth[FCAL0] = m_preFCAL;
-  if (theta > thetaTileExtBottomRight)  m_layerDepth[Tile1] = m_cryostatAt0eta / sinTheta;
+    if (theta < thetaHECtopLeft) m_layerDepth[HEC1] = m_preHEC;
+    if (theta < thetaFCALtopLeft) m_layerDepth[FCAL0] = m_preFCAL;
+    if (theta > thetaTileExtBottomRight)  m_layerDepth[Tile1] = m_cryostatAt0eta / sinTheta;
   
-  for (int i = 0; i < 3; i++) {
-    m_layerDepth[EMB2+i] = m_EMBlambdaPerUnitLength * lengthThroughBox(theta, m_EMBzMin, m_EMBzMax, m_EMBlayerR[i], m_EMBlayerR[i+1]);
-    m_layerDepth[EME2+i] = m_EMBlambdaPerUnitLength * lengthThroughBox(theta, m_EMElayerZ[i], m_EMElayerZ[i+1], m_EMErMin, m_EMErMax);
-  }
-
-  for (int i = 0; i < 4; i++)  m_layerDepth[HEC2+i] = m_tileLambdaPerUnitLength * lengthThroughBox(theta, m_HEClayerZ[i], m_HEClayerZ[i+1], m_HECrMin, m_HECrMax);
-  for (int i = 0; i < 3; i++)  m_layerDepth[FCAL0+i] = m_fcalLambdaPerUnitLength[i] * lengthThroughBox(theta, m_FCALlayerZ[i], m_FCALlayerZ[i+1], m_FCALrMin, m_FCALrMax);
-
-  if (eta <= 0.7) {
-
-    for (int i = 0; i < 3; i++)
-      m_layerDepth[2*i+TileGap12] = m_tileLambdaPerUnitLength * lengthThroughBox(theta, m_tileBarZmin, m_tileBarZmax, m_tileBarLayerR[i], m_tileBarLayerR[i+1]);
-  }
-  else if (eta < 1.0) {
-    
-    bool haveIncludedGap = false;
-    double tileGap = m_tileGapAt1eta;
-    double tileBar, tileExt, temp;
-    
     for (int i = 0; i < 3; i++) {
+      m_layerDepth[EMB2+i] = m_EMBlambdaPerUnitLength * lengthThroughBox(theta, m_EMBzMin, m_EMBzMax, m_EMBlayerR[i], m_EMBlayerR[i+1]);
+      m_layerDepth[EME2+i] = m_EMBlambdaPerUnitLength * lengthThroughBox(theta, m_EMElayerZ[i], m_EMElayerZ[i+1], m_EMErMin, m_EMErMax);
+    }
 
-      tileBar = m_tileLambdaPerUnitLength * lengthThroughBox(theta, m_tileBarZmin, m_tileBarZmax, m_tileBarLayerR[i], m_tileBarLayerR[i+1]);
-      tileExt = m_tileLambdaPerUnitLength * lengthThroughBox(theta, m_tileExtZmin, m_tileExtZmax, m_tileExtLayerR[i], m_tileExtLayerR[i+1]);
-      
-      if (1 == i)
-	tileExt += m_tileLambdaPerUnitLength * lengthThroughBox(theta, m_itc1Zmin, m_itc1Zmax, m_itc1Rmin, m_itc1Rmax);
-      else if (2 == i)
-	tileExt += m_tileLambdaPerUnitLength * lengthThroughBox(theta, m_itc2Zmin, m_itc2Zmax, m_itc2Rmin, m_itc2Rmax);
-      
-      if (tileBar > 0.0 && tileExt > 0.0) {
+    for (int i = 0; i < 4; i++)  m_layerDepth[HEC2+i] = m_tileLambdaPerUnitLength * lengthThroughBox(theta, m_HEClayerZ[i], m_HEClayerZ[i+1], m_HECrMin, m_HECrMax);
+    for (int i = 0; i < 3; i++)  m_layerDepth[FCAL0+i] = m_fcalLambdaPerUnitLength[i] * lengthThroughBox(theta, m_FCALlayerZ[i], m_FCALlayerZ[i+1], m_FCALrMin, m_FCALrMax);
 
-	temp = tileBar + tileExt;
+    if (eta <= 0.7) {
+
+      for (int i = 0; i < 3; i++)
+	m_layerDepth[2*i+TileGap12] = m_tileLambdaPerUnitLength * lengthThroughBox(theta, m_tileBarZmin, m_tileBarZmax, m_tileBarLayerR[i], m_tileBarLayerR[i+1]);
+    }
+    else if (eta < 1.0) {
+    
+      bool haveIncludedGap = false;
+      double tileGap = m_tileGapAt1eta;
+      double tileBar, tileExt, temp;
+    
+      for (int i = 0; i < 3; i++) {
+
+	tileBar = m_tileLambdaPerUnitLength * lengthThroughBox(theta, m_tileBarZmin, m_tileBarZmax, m_tileBarLayerR[i], m_tileBarLayerR[i+1]);
+	tileExt = m_tileLambdaPerUnitLength * lengthThroughBox(theta, m_tileExtZmin, m_tileExtZmax, m_tileExtLayerR[i], m_tileExtLayerR[i+1]);
+      
+	if (1 == i)
+	  tileExt += m_tileLambdaPerUnitLength * lengthThroughBox(theta, m_itc1Zmin, m_itc1Zmax, m_itc1Rmin, m_itc1Rmax);
+	else if (2 == i)
+	  tileExt += m_tileLambdaPerUnitLength * lengthThroughBox(theta, m_itc2Zmin, m_itc2Zmax, m_itc2Rmin, m_itc2Rmax);
+      
+	if (tileBar > 0.0 && tileExt > 0.0) {
+
+	  temp = tileBar + tileExt;
 	
-	if (!haveIncludedGap) {
-	  temp += tileGap;
-	  haveIncludedGap = true;
+	  if (!haveIncludedGap) {
+	    temp += tileGap;
+	    haveIncludedGap = true;
+	  }
+	
+	  m_layerDepth[2*i+TileGap12] = temp;
 	}
+	else if (tileBar == 0.0 && tileExt > 0.0) {
 	
-	m_layerDepth[2*i+TileGap12] = temp;
-      }
-      else if (tileBar == 0.0 && tileExt > 0.0) {
+	  m_layerDepth[2*i+TileGap12] = tileExt;
 	
-	m_layerDepth[2*i+TileGap12] = tileExt;
-	
-	if (i > 0 && !haveIncludedGap) {
-	  m_layerDepth[2*i+Tile1] = tileGap;
-	  haveIncludedGap = true;
+	  if (i > 0 && !haveIncludedGap) {
+	    m_layerDepth[2*i+Tile1] = tileGap;
+	    haveIncludedGap = true;
+	  }
 	}
-      }
-      else {
+	else {
 	
-	m_layerDepth[2*i+TileGap12] = tileBar;
-      }
-    }      
-  }
-  else {
+	  m_layerDepth[2*i+TileGap12] = tileBar;
+	}
+      }      
+    }
+    else {
     
-    double temp = 0.0;
+      double temp = 0.0;
     
-    for (int i = ORIGIN; i <= Tile1; i++)  temp += m_layerDepth[i];
-    if (temp < m_inclusivePreTileExt)  m_layerDepth[Tile1] += m_inclusivePreTileExt - temp;
+      for (int i = ORIGIN; i <= Tile1; i++)  temp += m_layerDepth[i];
+      if (temp < m_inclusivePreTileExt)  m_layerDepth[Tile1] += m_inclusivePreTileExt - temp;
     
-    for (int i = 0; i < 3; i++)
-      m_layerDepth[2*i+TileGap12] = m_tileLambdaPerUnitLength * lengthThroughBox(theta, m_tileExtZmin, m_tileExtZmax, m_tileExtLayerR[i], m_tileExtLayerR[i+1]);
-  }
+      for (int i = 0; i < 3; i++)
+	m_layerDepth[2*i+TileGap12] = m_tileLambdaPerUnitLength * lengthThroughBox(theta, m_tileExtZmin, m_tileExtZmax, m_tileExtLayerR[i], m_tileExtLayerR[i+1]);
+    }
   
-  for (int i = 1; i <= m_nDepth; i++) {
-    if (m_layerDepth[i] == 0.0) m_layerDepth[i] = filler;
-    m_layerDepth[i] += m_layerDepth[i-1];
+    for (int i = 1; i <= m_nDepth; i++) {
+      if (m_layerDepth[i] == 0.0) m_layerDepth[i] = filler;
+      m_layerDepth[i] += m_layerDepth[i-1];
+    }
   }
   
   return m_layerDepth;
