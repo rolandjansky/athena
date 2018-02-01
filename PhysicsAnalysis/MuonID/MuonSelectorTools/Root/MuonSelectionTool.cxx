@@ -32,7 +32,7 @@ namespace CP {
     declareProperty( "SctCutOff", m_SctCutOff = false );
     declareProperty( "PixCutOff", m_PixCutOff = false );
     declareProperty( "SiHolesCutOff", m_SiHolesCutOff = false );
-    declareProperty( "UseAllAuthors", m_useAllAuthors = false );
+    declareProperty( "UseAllAuthors", m_useAllAuthors = true );
     //
     m_tightWP_lowPt_rhoCuts = 0;
     m_tightWP_lowPt_qOverPCuts = 0;
