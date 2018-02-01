@@ -237,6 +237,7 @@ StatusCode TrkVKalVrtFitter::initialize()
       if (m_extPropagator.retrieve().isFailure()) {
         if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Could not find external propagator=" <<m_extPropagator<<endmsg;
         if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "TrkVKalVrtFitter will uses internal propagator" << endmsg;
+        m_extPropagator.disable();
       }else{
         if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "External propagator="<<m_extPropagator<<" retrieved" << endmsg;
         const IExtrapolator * tmp =& (*m_extPropagator);
