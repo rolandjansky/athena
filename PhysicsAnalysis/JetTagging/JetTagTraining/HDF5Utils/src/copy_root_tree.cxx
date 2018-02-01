@@ -2,7 +2,7 @@
 Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "copy_root_tree.hh"
+#include "copy_root_tree.h"
 
 // Root tree copy function
 //
@@ -13,7 +13,7 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 // understand what is going on.
 //
 
-#include "HDF5Utils/HdfTuple.hh"
+#include "HDF5Utils/HdfTuple.h"
 
 #include "TFile.h"
 #include "TTree.h"

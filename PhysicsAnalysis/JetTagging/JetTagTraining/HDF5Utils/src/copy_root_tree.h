@@ -5,7 +5,7 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #ifndef COPY_ROOT_TREE_HH
 #define COPY_ROOT_TREE_HH
 
-#include "tree_copy_opts.hh"
+#include "tree_copy_opts.h"
 
 class TTree;
 

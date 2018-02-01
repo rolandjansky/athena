@@ -2,7 +2,7 @@
 Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "get_tree.hh"
+#include "get_tree.h"
 
 #include "TFile.h"
 #include <stdexcept>
