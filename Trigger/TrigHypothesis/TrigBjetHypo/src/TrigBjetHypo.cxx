@@ -228,11 +228,15 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
       }
     }
   } 
-  else if (m_methodTag == "MV2c10_hybrid") {
+  // Temporary use mv2c00 for hybrid tuning
+  //  else if (m_methodTag == "MV2c10_hybrid") {
+  else if (m_methodTag == "MV2c00") {
     
     for ( ; trigBTagging != trigBTaggingEnd; trigBTagging++) {
 
-      double x = (*trigBTagging)->auxdata<double>("MV2c10_hybrid_discriminant");
+      // Temporary use mv2c00 for hybrid tuning
+      //      double x = (*trigBTagging)->auxdata<double>("MV2c10_hybrid_discriminant");
+      double x = (*trigBTagging)->auxdata<double>("MV2c00_discriminant");
 
       if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "MV2c10_hybrid x =  " << x;
       if(x>m_xcutMV2c10_hybrid) {

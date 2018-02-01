@@ -73,7 +73,6 @@ namespace xAOD {
 
      std::vector<double> MV2c00_discriminant;
      std::vector<double> MV2c10_discriminant;
-     std::vector<double> MV2c10_hybrid_discriminant;
      std::vector<double> MV2c20_discriminant;
 
      std::vector< std::vector< float > > IP2D_valD0wrtPVofTracks;

@@ -443,7 +443,9 @@ HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::
   m_mon_tag_IP3DSV1 = trigBTagging->SV1plusIP3D_discriminant();
   m_mon_tag_MV2c00  = trigBTagging->auxdata<double>("MV2c00_discriminant");
   m_mon_tag_MV2c10  = trigBTagging->auxdata<double>("MV2c10_discriminant");
-  m_mon_tag_MV2c10  = trigBTagging->auxdata<double>("MV2c10_hybrid_discriminant");
+  // Temporary use mv2c00 for hybrid tuning
+  //  m_mon_tag_MV2c10_hybrid  = trigBTagging->auxdata<double>("MV2c10_hybrid_discriminant");
+  m_mon_tag_MV2c10_hybrid  = trigBTagging->auxdata<double>("MV2c00_discriminant");
   m_mon_tag_MV2c20  = trigBTagging->auxdata<double>("MV2c20_discriminant");
   if( trigBTagging->IP2D_pc() != 0 && trigBTagging->IP2D_pb() != 0 ) m_mon_tag_IP2_c   = log(( trigBTagging->IP2D_pb() )/( trigBTagging->IP2D_pc() ));
   else m_mon_tag_IP2_c   = -999.;
@@ -465,7 +467,9 @@ HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::
           << "   SV1 u/b: " << trigBTagging->SV1_pu() << "/" << trigBTagging->SV1_pb()
           << "   MV2c20 var: " << trigBTagging->auxdata<double>("MV2c20_discriminant") 
           << "   MV2c10 var: " << trigBTagging->auxdata<double>("MV2c10_discriminant")
-          << "   MV2c10_hybrid var: " << trigBTagging->auxdata<double>("MV2c10_hybrid_discriminant") << endmsg;
+  // Temporary use mv2c00 for hybrid tuning   
+	  << "   MV2c10_hybrid var: " << trigBTagging->auxdata<double>("MV2c00_discriminant") << endmsg;
+  //	  << "   MV2c10_hybrid var: " << trigBTagging->auxdata<double>("MV2c10_hybrid_discriminant") << endmsg;
 
   // ATTACH FEATURES AND CLEAR TEMPORARY OBJECTS
 

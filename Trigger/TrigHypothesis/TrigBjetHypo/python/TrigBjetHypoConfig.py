@@ -122,7 +122,8 @@ class BjetHypo (TrigBjetHypo):
                     self.CutMV2c10 = -0.494
 
             if version=="2018" :
-                self.MethodTag = "MV2c10_hybrid"
+#                self.MethodTag = "MV2c10_hybrid" # Temporary use mv2c00 for hybrid tuning   
+                self.MethodTag = "MV2c00"
                 # These are the offline working points
                 if cut=="mv2c1040_hybrid":
                     # Actually ~45% efficient
@@ -285,7 +286,8 @@ class BjetHypoSplit (TrigBjetHypo):
                     self.CutMV2c10 = -0.494
 
             if version=="2018" :
-                self.MethodTag = "MV2c10_hybrid"
+#                self.MethodTag = "MV2c10_hybrid" # Temporary use mv2c00 for hybrid tuning   
+                self.MethodTag = "MV2c00"
                 # These are the hybrid working points
                 if cut=="mv2c1040_hybrid":
                     # Actually ~45% efficient
