@@ -338,7 +338,8 @@ class L2EFChain_met(L2EFChainDef):
             #self.EFsequenceList +=[[ [output3,output4],      [theEFMETFex],  'EF_xe_step1' ]]
             #self.EFsequenceList +=[[ ['EF_xe_step1',muonSeed],     [theEFMETMuonFex, theEFMETHypo],  'EF_xe_step2' ]]
             from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
-            trk_algs = TrigInDetSequence("FullScan", "fullScan", "IDTrig", sequenceFlavour=["FTF"]).getSequence()
+#            trk_algs = TrigInDetSequence("FullScan", "fullScan", "IDTrig", sequenceFlavour=["FTF"]).getSequence()
+            trk_algs = TrigInDetSequence("Bjet", "bjet", "IDTrig", sequenceFlavour=["2step"]).getSequence()
             #print "PUFITTRACK XXXXXXXXXXXXXXXXXX"
             #print trk_algs[0]
             dummyAlg = PESA__DummyUnseededAllTEAlgo("EF_DummyFEX_xe")
