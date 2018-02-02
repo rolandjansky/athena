@@ -33,11 +33,6 @@ StatusCode HadMuBuilder::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode HadMuBuilder::initializeEvent()
-{
-  return StatusCode::SUCCESS;
-}
-
 StatusCode HadMuBuilder::execute()
 {
   xAOD::DiTauJetContainer* xDiTauJetContainerHadMu        = new xAOD::DiTauJetContainer();

@@ -34,11 +34,6 @@ StatusCode HadElBuilder::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode HadElBuilder::initializeEvent()
-{
-  return StatusCode::SUCCESS;
-}
-
 StatusCode HadElBuilder::execute()
 {
   ATH_MSG_DEBUG("execute HadElBuilder");
