@@ -15,7 +15,7 @@
 LArCollisionTimeAlg:: LArCollisionTimeAlg(const std::string& name, ISvcLocator* pSvcLocator):
     AthAlgorithm(name,pSvcLocator),
     m_nevt(0),
-    m_calo_id(NULL),m_noiseTool("CaloNoiseTool/calonoise")
+    m_calo_id(nullptr),m_noiseTool("CaloNoiseTool/calonoise")
   {
     declareProperty("NoiseTool", m_noiseTool);
     declareProperty("cellContainerName", m_cellsContName="AllCalo" );
