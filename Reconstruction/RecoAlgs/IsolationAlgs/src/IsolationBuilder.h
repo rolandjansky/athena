@@ -125,7 +125,7 @@ class IsolationBuilder
   Gaudi::Property<bool> m_allTrackRemoval {this, 
       "AllTrackRemoval", true};
 
-  /** @brief Isolation types (for the alg. properties, only vector<vector<double>> available */
+  /** @brief Isolation types */
   Gaudi::Property<std::vector<std::vector<int> > > m_elisoInts {this,
       "ElIsoTypes", {}, 
       "The isolation types to do for electrons: vector of vector of enum type Iso::IsolationType"};
@@ -133,6 +133,10 @@ class IsolationBuilder
   Gaudi::Property<std::vector<std::vector<int> > > m_elcorInts {this,
       "ElCorTypes", {}, 
       "The correction types to do for electron iso: vector of vector of enum type Iso::IsolationCalo/TrackCorrection"};
+
+  Gaudi::Property<std::vector<std::vector<int> > > m_elcorIntsExtra {this,
+      "ElCorTypesExtra", {}, 
+      "The extra correction types to store but not apply for electrons"};
 
   /** @brief Isolation types (for the alg. properties, only vector<vector<double>> available */
   Gaudi::Property<std::vector<std::vector<int> > > m_phisoInts {this,
@@ -143,6 +147,10 @@ class IsolationBuilder
       "PhCorTypes", {}, 
       "The correction types to do for photons iso: vector of vector of enum type Iso::IsolationCalo/TrackCorrection"};
 
+  Gaudi::Property<std::vector<std::vector<int> > > m_phcorIntsExtra {this,
+      "PhCorTypesExtra", {}, 
+      "The extra correction types to store but not apply for photons"};
+
   Gaudi::Property<std::vector<std::vector<int> > > m_muisoInts {this,
       "MuIsoTypes", {}, 
       "The isolation types to do for Muons : vector of vector of enum type Iso::IsolationType"};
@@ -150,13 +158,22 @@ class IsolationBuilder
   Gaudi::Property<std::vector<std::vector<int> > > m_mucorInts {this,
       "MuCorTypes", {}, 
       "The correction types to do for Muon iso: vector of vector of enum type Iso::IsolationCalo/TrackCorrection"};
-  Gaudi::Property<std::vector<std::vector<int> > > m_fecorInts {this,
-      "FeCorTypes", {}, 
-      "The correction types to do for forward electron iso: vector of vector of enum type Iso::IsolationCalo/TrackCorrection"};
+
+  Gaudi::Property<std::vector<std::vector<int> > > m_mucorIntsExtra {this,
+      "MuCorTypesExtra", {}, 
+      "The extra correction types to store but not apply for muons"};
 
   Gaudi::Property<std::vector<std::vector<int> > > m_feisoInts {this,
       "FeIsoTypes", {},
       "The isolation types to do for forward electron: vector of vector of enum type Iso::IsolationType"};
+
+  Gaudi::Property<std::vector<std::vector<int> > > m_fecorInts {this,
+      "FeCorTypes", {}, 
+      "The correction types to do for forward electron iso: vector of vector of enum type Iso::IsolationCalo/TrackCorrection"};
+
+  Gaudi::Property<std::vector<std::vector<int> > > m_fecorIntsExtra {this,
+      "FeCorTypesExtra", {}, 
+      "The extra correction types to store but not apply for forward electrons"};
 
   struct CaloIsoHelpKey {
     std::vector<SG::WriteDecorHandleKey<xAOD::IParticleContainer> > isoDeco;
@@ -166,6 +183,7 @@ class IsolationBuilder
 	     std::vector<SG::WriteDecorHandleKey<xAOD::IParticleContainer> > > noncoreCorDeco;
     std::vector<xAOD::Iso::IsolationType> isoTypes;
     xAOD::CaloCorrection CorrList;
+    // xAOD::CaloCorrection CorrListExtra; // should ideally pass this, but not possible yet
     SG::WriteDecorHandleKey<xAOD::IParticleContainer> corrBitsetDeco;
   };
 
@@ -181,6 +199,7 @@ class IsolationBuilder
 	     SG::WriteDecorHandleKey<xAOD::IParticleContainer> > coreCorDeco;
     std::vector<xAOD::Iso::IsolationType> isoTypes;
     xAOD::TrackCorrection CorrList;
+    // xAOD::TrackCorrection CorrListExtra; // should ideally pass this, but not possible yet
     SG::WriteDecorHandleKey<xAOD::IParticleContainer> corrBitsetDeco;
   };
 
@@ -231,12 +250,15 @@ class IsolationBuilder
       "use a custom configuration for muon"}; 
 
 
+  static bool isCoreCor(xAOD::Iso::IsolationCaloCorrection corr);
+
   StatusCode initializeIso(std::set<xAOD::Iso::IsolationFlavour>& runIsoType, // out
 			   std::vector<std::pair<xAOD::Iso::IsolationFlavour,CaloIsoHelpKey > >* caloIsoMap, // out
 			   std::vector<std::pair<xAOD::Iso::IsolationFlavour,TrackIsoHelpKey > >* trackIsoMap, // out
 			   const std::string& containerName,
 			   const std::vector<std::vector<int> >& isoInts,
 			   const std::vector<std::vector<int> >& corInts,
+			   const std::vector<std::vector<int> >& corIntsExtra,
 			   const std::string& customConfig);
 
   StatusCode executeCaloIso(const std::vector<std::pair<xAOD::Iso::IsolationFlavour,CaloIsoHelpKey> >& caloIsoMap);

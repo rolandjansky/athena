@@ -29,25 +29,25 @@ StatusCode IsolationBuilder::initialize()
   ATH_MSG_DEBUG("Initializing central electrons");
   ATH_CHECK(initializeIso(runIsoType, &m_elCaloIso, &m_elTrackIso, 
 			  m_ElectronContainerName,
-			  m_elisoInts, m_elcorInts,
+			  m_elisoInts, m_elcorInts, m_elcorIntsExtra,
 			  m_customConfigEl));
   
   ATH_MSG_DEBUG("Initializing central photons");
   ATH_CHECK(initializeIso(runIsoType, &m_phCaloIso, &m_phTrackIso, 
 			  m_PhotonContainerName,
-			  m_phisoInts, m_phcorInts,
+			  m_phisoInts, m_phcorInts, m_phcorIntsExtra,
 			  m_customConfigPh));
   
   ATH_MSG_DEBUG("Initializing forward electrons");
   ATH_CHECK(initializeIso(runIsoType, &m_feCaloIso, nullptr, 
 			  m_FwdElectronContainerName,
-			  m_feisoInts, m_fecorInts,
+			  m_feisoInts, m_fecorInts, m_fecorIntsExtra,
 			  m_customConfigFwd));
 
   ATH_MSG_DEBUG("Initializing muons");
   ATH_CHECK(initializeIso(runIsoType, &m_muCaloIso, &m_muTrackIso, 
 			  m_MuonContainerName,
-			  m_muisoInts, m_mucorInts,
+			  m_muisoInts, m_mucorInts, m_mucorIntsExtra,
 			  m_customConfigMu));
 			  
 
@@ -99,7 +99,7 @@ StatusCode IsolationBuilder::execute()
     
     // check is only used for serial running; remove when MT scheduler used
     if(!cellcoll.isValid()) {
-      ATH_MSG_ERROR("Failed to retrieve cell container: "<< m_cellsKey.key());
+      ATH_MSG_FATAL("Failed to retrieve cell container: "<< m_cellsKey.key());
       return StatusCode::FAILURE;
     }
     
@@ -110,13 +110,20 @@ StatusCode IsolationBuilder::execute()
 
   // Compute isolations
 
+  ATH_MSG_DEBUG("About to execute Electron calo iso");
   ATH_CHECK(executeCaloIso(m_elCaloIso));
+  ATH_MSG_DEBUG("About to execute Photon calo iso");
   ATH_CHECK(executeCaloIso(m_phCaloIso));
+  ATH_MSG_DEBUG("About to execute Forwerd Electron calo iso");
   ATH_CHECK(executeCaloIso(m_feCaloIso));
+  ATH_MSG_DEBUG("About to execute muon calo iso");
   ATH_CHECK(executeCaloIso(m_muCaloIso));
 
+  ATH_MSG_DEBUG("About to execute Electron track iso");
   ATH_CHECK(executeTrackIso(m_elTrackIso));
+  ATH_MSG_DEBUG("About to execute Photon track iso");
   ATH_CHECK(executeTrackIso(m_phTrackIso));
+  ATH_MSG_DEBUG("About to execute Muon track iso");
   ATH_CHECK(executeTrackIso(m_muTrackIso));
   
   return StatusCode::SUCCESS;
@@ -153,12 +160,21 @@ IsolationBuilder::TrackIsoHelpHandles::TrackIsoHelpHandles(const IsolationBuilde
   }
 }
 
+bool IsolationBuilder::isCoreCor(xAOD::Iso::IsolationCaloCorrection cor) {
+  return (cor == xAOD::Iso::coreCone || 
+	  cor == xAOD::Iso::coreConeSC || 
+	  cor == xAOD::Iso::coreMuon ||
+	  cor == xAOD::Iso::core57cells);
+}
+  
+
 StatusCode IsolationBuilder::initializeIso(std::set<xAOD::Iso::IsolationFlavour>& runIsoType, // out
 					   std::vector<std::pair<xAOD::Iso::IsolationFlavour,CaloIsoHelpKey> >*  caloIsoMap, // out
 					   std::vector<std::pair<xAOD::Iso::IsolationFlavour,TrackIsoHelpKey> >* trackIsoMap, // out
 					   const std::string& containerName,
 					   const std::vector<std::vector<int> >& isoInts,
 					   const std::vector<std::vector<int> >& corInts,
+					   const std::vector<std::vector<int> >& corIntsExtra,
 					   const std::string& customConfig)
 {
   
@@ -239,9 +255,57 @@ StatusCode IsolationBuilder::initializeIso(std::set<xAOD::Iso::IsolationFlavour>
 	// ATH_MSG_DEBUG("for corrections, prefix = " << prefix << ", flavor = " << xAOD::Iso::toString(isoFlav)
 	// 	      << ", cor = " << xAOD::Iso::toString(isoCor) << ", coreEnergy " << xAOD::Iso::toString(xAOD::Iso::coreEnergy));
 
-	std::string isoCorName = prefix + xAOD::Iso::toString(isoFlav);
 
-	if (isoCor == xAOD::Iso::coreCone || isoCor == xAOD::Iso::coreConeSC || isoCor == xAOD::Iso::coreMuon) {
+	if (isCoreCor(isoCor)) {
+	  std::string isoCorName = prefix;
+
+	  if (isoCor != xAOD::Iso::core57cells) {
+	    isoCorName += xAOD::Iso::toString(isoFlav); // since this doesn't depend on the flavor, just have one
+	  }
+
+	  // a core correction; only store core energy, not the core area
+	  isoCorName += xAOD::Iso::toString(isoCor) + xAOD::Iso::toString(xAOD::Iso::coreEnergy)
+	    + "Correction";
+	  if (customConfig != "") {
+	    isoCorName += "_" + customConfig;
+	  }
+	  cisoH.coreCorDeco.emplace(isoCor, isoCorName);
+	  ATH_MSG_DEBUG("initializing " << cisoH.coreCorDeco[isoCor].key());
+	  ATH_CHECK(cisoH.coreCorDeco[isoCor].initialize());
+	} else if (isoCor == xAOD::Iso::pileupCorrection) {
+	  // do not store pileup corrections as they are rho * pi * (R**2 - areaCore) and rho is stored...
+	  continue;
+	} else {	  
+	  // noncore correction
+	  cisoH.noncoreCorDeco.emplace(isoCor, std::vector<SG::WriteDecorHandleKey<xAOD::IParticleContainer> >{});
+	  auto& vec = cisoH.noncoreCorDeco[isoCor];
+	  for (auto type : cisoH.isoTypes) {
+	    std::string corName = prefix + xAOD::Iso::toString(type) + xAOD::Iso::toString(isoCor) + "Correction";
+	    if (customConfig != "") {
+	      corName += "_" + customConfig;
+	    }
+	    vec.emplace_back(corName);
+	    ATH_MSG_DEBUG("initializing " << vec.back().key());
+	    ATH_CHECK(vec.back().initialize());
+	  }
+	}
+      }
+      for (size_t corrType = 0; corrType < corIntsExtra[flavor].size(); corrType++) {
+	const auto cor = static_cast<unsigned int>(corIntsExtra[flavor][corrType]);
+	//cisoH.CorrListExtra.calobitset.set(cor); // not used for now
+	const xAOD::Iso::IsolationCaloCorrection isoCor = static_cast<xAOD::Iso::IsolationCaloCorrection>(cor);
+
+	// ATH_MSG_DEBUG("for corrections, prefix = " << prefix << ", flavor = " << xAOD::Iso::toString(isoFlav)
+	// 	      << ", cor = " << xAOD::Iso::toString(isoCor) << ", coreEnergy " << xAOD::Iso::toString(xAOD::Iso::coreEnergy));
+
+
+	if (isCoreCor(isoCor)) {
+	  std::string isoCorName = prefix;
+
+	  if (isoCor != xAOD::Iso::core57cells) {
+	    isoCorName += xAOD::Iso::toString(isoFlav); // since this doesn't depend on the flavor, just have one
+	  }
+
 	  // a core correction; only store core energy, not the core area
 	  isoCorName += xAOD::Iso::toString(isoCor) + xAOD::Iso::toString(xAOD::Iso::coreEnergy)
 	    + "Correction";
@@ -298,6 +362,23 @@ StatusCode IsolationBuilder::initializeIso(std::set<xAOD::Iso::IsolationFlavour>
 	ATH_CHECK(tisoH.coreCorDeco[isoCor].initialize());
       }
 
+      for (size_t corrType = 0; corrType < corIntsExtra[flavor].size(); corrType++) {
+	const auto cor = static_cast<unsigned int>(corIntsExtra[flavor][corrType]);
+	//tisoH.CorrListExtra.trackbitset.set(cor);
+	const xAOD::Iso::IsolationTrackCorrection isoCor = static_cast<xAOD::Iso::IsolationTrackCorrection>(cor);
+
+	// all pt corrections are core type
+	std::string isoCorName = prefix + xAOD::Iso::toString(isoFlav) + 
+	  xAOD::Iso::toString(isoCor) + "Correction";
+
+	if (customConfig != "") {
+	  isoCorName += "_" + customConfig;
+	}
+	tisoH.coreCorDeco.emplace(isoCor, isoCorName);
+	ATH_MSG_DEBUG("initializing " << tisoH.coreCorDeco[isoCor].key());
+	ATH_CHECK(tisoH.coreCorDeco[isoCor].initialize());
+      }
+
       if (trackIsoMap) {
 	trackIsoMap->push_back(std::make_pair(isoFlav,tisoH));
       } else {
@@ -315,9 +396,12 @@ StatusCode IsolationBuilder::initializeIso(std::set<xAOD::Iso::IsolationFlavour>
 StatusCode IsolationBuilder::executeCaloIso(const std::vector<std::pair<xAOD::Iso::IsolationFlavour,CaloIsoHelpKey> >& caloIsoMap)
 {
   for (const auto& pr : caloIsoMap) {
+
     const xAOD::Iso::IsolationFlavour flav = pr.first;
     const auto& keys =  pr.second;
     CaloIsoHelpHandles handles(keys);
+
+    ATH_MSG_DEBUG("Executing calo iso flavor: " << xAOD::Iso::toString(flav));
 
     if (handles.isoDeco.empty()) {
       ATH_MSG_FATAL("Have a CaloIsoHelpHandles with no actual isolations; something wrong happened");
@@ -349,30 +433,76 @@ StatusCode IsolationBuilder::executeCaloIso(const std::vector<std::pair<xAOD::Is
 	// corrections
 	(handles.corrBitsetDeco)(*part) = keys.CorrList.calobitset.to_ulong();
 
+	// // let's do the core corrections
+	// for (const auto& coreCorPr : CaloIsoResult.coreCorrections) {
+	//   std::map<xAOD::Iso::IsolationCorrectionParameter,float>::const_iterator it = 
+	//     coreCorPr.second.find(xAOD::Iso::coreEnergy);
+	//   if (it != coreCorPr.second.end()) {
+	//     ATH_MSG_DEBUG("About to write core correction: " << coreCorPr.first);
+	//     try {
+	//       (handles.coreCorDeco.at(coreCorPr.first))(*part) = it->second;
+	//     } catch (const std::exception& e) {
+	//       ATH_MSG_FATAL("Failed writing the core iso correction: " << e.what());
+	//       return StatusCode::FAILURE;
+	//     }
+	//   }
+	// }
+
 	// let's do the core corrections
-	for (const auto& coreCorPr : CaloIsoResult.coreCorrections) {
-	  std::map<xAOD::Iso::IsolationCorrectionParameter,float>::const_iterator it = 
-	    coreCorPr.second.find(xAOD::Iso::coreEnergy);
-	  if (it != coreCorPr.second.end()) {
-	    (handles.coreCorDeco.at(coreCorPr.first))(*part) = it->second;
+
+	// iterate over the values we want to store
+	for (const auto& coreCorDecoPr : handles.coreCorDeco) {
+	  // find the matching result
+	  auto corIter = CaloIsoResult.coreCorrections.find(coreCorDecoPr.first);
+	  if (corIter == CaloIsoResult.coreCorrections.end()) {
+	    ATH_MSG_FATAL("Could not find core correction of required type: " << xAOD::Iso::toCString(coreCorDecoPr.first));
+	    ATH_MSG_FATAL("Check configuration");
+	    return StatusCode::FAILURE;
 	  }
+	  // now that we have the match, let's find the energy
+	  std::map<xAOD::Iso::IsolationCorrectionParameter,float>::const_iterator it = 
+	    corIter->second.find(xAOD::Iso::coreEnergy);
+	  if (it == corIter->second.end()) {
+	    ATH_MSG_FATAL("Could not find coreEnergy correction for: "  << xAOD::Iso::toCString(coreCorDecoPr.first));
+	    ATH_MSG_FATAL("Check configuration");
+	    return StatusCode::FAILURE;
+	  }
+	  ATH_MSG_DEBUG("About to write core correction: " << xAOD::Iso::toCString(coreCorDecoPr.first));
+	  (coreCorDecoPr.second)(*part) = it->second;
 	}
 
+	// // let's do the noncore corrections
+	// for (const auto& noncoreCorPr : CaloIsoResult.noncoreCorrections) {
+	//   auto& vecHandles = handles.noncoreCorDeco[noncoreCorPr.first];
+	//   if (vecHandles.size() != noncoreCorPr.second.size()) {
+	//     ATH_MSG_FATAL("Got back the wrong number of corrections for " << noncoreCorPr.first);
+	//     ATH_MSG_FATAL("  Expected: " << vecHandles.size() << ", received: " << noncoreCorPr.second.size());
+	//     return StatusCode::FAILURE;
+	//   }
+	//   for (size_t i = 0; i < vecHandles.size(); i++) {
+	//     (vecHandles[i])(*part) = noncoreCorPr.second[i];
+	//   }
+	// }
+
 	// let's do the noncore corrections
-	for (const auto& noncoreCorPr : CaloIsoResult.noncoreCorrections) {
-	  auto& vecHandles = handles.noncoreCorDeco[noncoreCorPr.first];
-	  if (vecHandles.size() != noncoreCorPr.second.size()) {
-	    ATH_MSG_ERROR("Got back the wrong number of corrections for " << noncoreCorPr.first);
-	    ATH_MSG_ERROR("  Expected: " << vecHandles.size() << ", received: " << noncoreCorPr.second.size());
-	    return StatusCode::RECOVERABLE;
+	for (const auto& noncoreCorDecoPr : handles.noncoreCorDeco) {
+	  // find the matching result
+	  auto corIter = CaloIsoResult.noncoreCorrections.find(noncoreCorDecoPr.first);
+	  if (corIter == CaloIsoResult.noncoreCorrections.end()) {
+	    ATH_MSG_FATAL("Could not find noncore correction of required type: " << xAOD::Iso::toCString(noncoreCorDecoPr.first));
+	    ATH_MSG_FATAL("Check configuration");
+	    return StatusCode::FAILURE;
 	  }
+
+	  ATH_MSG_DEBUG("About to write noncore correction: " << xAOD::Iso::toCString(noncoreCorDecoPr.first));
+	  auto& vecHandles = noncoreCorDecoPr.second;
 	  for (size_t i = 0; i < vecHandles.size(); i++) {
-	    (vecHandles[i])(*part) = noncoreCorPr.second[i];
+	    (vecHandles[i])(*part) = corIter->second[i];
 	  }
 	}
       } else {
-	ATH_MSG_ERROR("Call to CaloIsolationTool failed for flavor " << xAOD::Iso::toCString(flav));
-	return StatusCode::RECOVERABLE;
+	ATH_MSG_FATAL("Call to CaloIsolationTool failed for flavor " << xAOD::Iso::toCString(flav));
+	return StatusCode::FAILURE;
       }
     }
   }
@@ -386,6 +516,8 @@ StatusCode IsolationBuilder::executeTrackIso(const std::vector<std::pair<xAOD::I
     const xAOD::Iso::IsolationFlavour flav = pr.first;
     const auto& keys =  pr.second;
     TrackIsoHelpHandles handles(keys);
+
+    ATH_MSG_DEBUG("Executing track iso flavor: " << xAOD::Iso::toString(flav));
 
     if (handles.isoDeco.empty()) {
       ATH_MSG_FATAL("Have a TrackIsoHelpHandles with no actual isolations; something wrong happened");
@@ -413,13 +545,35 @@ StatusCode IsolationBuilder::executeTrackIso(const std::vector<std::pair<xAOD::I
 	// corrections
 	(handles.corrBitsetDeco)(*part) = keys.CorrList.trackbitset.to_ulong();
 
+	// // let's do the core corrections
+	// for (const auto& coreCorPr : TrackIsoResult.coreCorrections) {
+	//   ATH_MSG_DEBUG("About to write track correction: " << coreCorPr.first);
+	//   try {
+	//     (handles.coreCorDeco.at(coreCorPr.first))(*part) = coreCorPr.second;
+	//   } catch (const std::exception& e) {
+	//     ATH_MSG_FATAL("Failed writing the track iso correction: " << e.what());
+	//     return StatusCode::FAILURE;
+	//   }
+	// }
+
 	// let's do the core corrections
-	for (const auto& coreCorPr : TrackIsoResult.coreCorrections) {
-	  (handles.coreCorDeco.at(coreCorPr.first))(*part) = coreCorPr.second;
+
+	// iterate over the values we want to store
+	for (const auto& coreCorDecoPr : handles.coreCorDeco) {
+	  // find the matching result
+	  auto corIter = TrackIsoResult.coreCorrections.find(coreCorDecoPr.first);
+	  if (corIter == TrackIsoResult.coreCorrections.end()) {
+	    ATH_MSG_FATAL("Could not find core correction of required type: " << xAOD::Iso::toCString(coreCorDecoPr.first));
+	    ATH_MSG_FATAL("Check configuration");
+	    return StatusCode::FAILURE;
+	  }
+	  ATH_MSG_DEBUG("About to write tracking core correction: " << xAOD::Iso::toCString(coreCorDecoPr.first));
+	  (coreCorDecoPr.second)(*part) = corIter->second;
 	}
+
       } else {
-	ATH_MSG_ERROR("Call to TrackIsolationTool failed for flavor " << xAOD::Iso::toCString(flav));
-	return StatusCode::RECOVERABLE;
+	ATH_MSG_FATAL("Call to TrackIsolationTool failed for flavor " << xAOD::Iso::toCString(flav));
+	return StatusCode::FAILURE;
       }
     }
   }

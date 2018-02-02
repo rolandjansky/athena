@@ -200,15 +200,30 @@ IsoCorEg = [
   [ isoPar.core57cells, isoPar.ptCorrection, isoPar.pileupCorrection ],
   [ isoPar.coreTrackPtr ]
   ]
+
+IsoCorEgExtra = [
+  [ ],
+  [ isoPar.coreCone, isoPar.coreConeSC],
+  [ ]
+  ]
+
 IsoCorMu = [
-  #[ isoPar.coreCone ], 
   [ isoPar.coreMuon ],
   [ isoPar.coreCone, isoPar.pileupCorrection ],
   [ isoPar.coreTrackPtr ]
   ]
+
+IsoCorMuExtra = [
+  [ ],
+  [ ],
+  [ ]
+  ]
+
 IsoCorFe = [
   [ isoPar.coreCone, isoPar.pileupCorrection ] 
   ]
+
+IsoCorFeExtra = [[]]
 
 if doPFlow:
   IsoTypes.append(  
@@ -216,7 +231,9 @@ if doPFlow:
       isoPar.neflowisol30,
       isoPar.neflowisol40 ] )
   IsoCorEg.append([ isoPar.coreCone, isoPar.pileupCorrection ])
+  IsoCorEgExtra.append([isoPar.ptCorrection])
   IsoCorMu.append([ isoPar.coreCone, isoPar.pileupCorrection ])
+  IsoCorMuExtra.append([isoPar.ptCorrection])
 
 
 from IsolationAlgs.IsolationAlgsConf import IsolationBuilder
@@ -226,14 +243,18 @@ isoBuilder = AlgFactory(IsolationBuilder,
                         CaloTopoIsolationTool = CaloIsolationTool,
                         PFlowIsolationTool    = CaloIsolationTool,
                         TrackIsolationTool    = TrackIsolationTool, 
-                        FeIsoTypes            = [[]] if not rec.doEgamma() else IsoTypesFe,
+                        FeIsoTypes            = [] if not rec.doEgamma() else IsoTypesFe,
                         FeCorTypes            = IsoCorFe,
-			ElIsoTypes            = [[]] if not rec.doEgamma() else IsoTypes,
+                        FeCorTypesExtra       = IsoCorFeExtra,
+			ElIsoTypes            = [] if not rec.doEgamma() else IsoTypes,
                         ElCorTypes            = IsoCorEg,
-			PhIsoTypes            = [[]] if not rec.doEgamma() else IsoTypes,
+                        ElCorTypesExtra       = IsoCorEgExtra,
+			PhIsoTypes            = [] if not rec.doEgamma() else IsoTypes,
                         PhCorTypes            = IsoCorEg,
+                        PhCorTypesExtra       = IsoCorEgExtra,
 			MuIsoTypes            = IsoTypes if rec.doMuon() and muonRecFlags.doMuonIso() else [],
-                        MuCorTypes            = IsoCorMu
+                        MuCorTypes            = IsoCorMu,
+                        MuCorTypesExtra       = IsoCorMuExtra
                         )
 
 from RecExConfig.Configured import Configured
