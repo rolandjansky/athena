@@ -67,6 +67,7 @@ namespace CP {
         declareProperty("filename", m_fileName);
         declareProperty("CustomInputFolder", m_custom_dir);
         declareProperty("Binning", m_binning); // fine or coarse
+        declareProperty("UseExperimental", m_experimental); // fine or coarse
 
         //Properties needed for TOY setup for a given trigger: No replicas if m_replicaTriggerList is empty
         declareProperty("ReplicaTriggerList", m_replicaTriggerList, "List of triggers on which we want to generate stat. uncertainty toy replicas.");
@@ -226,6 +227,27 @@ namespace CP {
     // Public functions  //
     ///////////////////////
 
+    CorrectionCode MuonTriggerScaleFactors::getTriggerScaleFactor(const xAOD::Muon& muon, Double_t& triggersf, const std::string& trigger) {
+      if(!m_experimental){
+	ATH_MSG_ERROR("MuonTriggerScaleFactors::getTriggerScaleFactor This is an experimental function. If you really know what you are doing set UseExperimental property.");
+      return CorrectionCode::Error;
+      }
+	
+      if (trigger.empty()) {
+	ATH_MSG_ERROR("MuonTriggerScaleFactors::getTriggerScaleFactor Trigger must have value.");
+	return CorrectionCode::Error;
+      }
+
+      TrigMuonEff::Configuration configuration;
+
+      if (trigger == "HLT_mu8noL1")
+	ATH_MSG_WARNING("What you are trying to do is not correct. For di-muon triggers you should get the efficiency with getTriggerEfficiency and compute the SF by yourself.");
+      else if (trigger.find("HLT_2mu10") != std::string::npos || trigger.find("HLT_2mu14") != std::string::npos)
+	ATH_MSG_WARNING("Di-muon trigger scale factors for single reco muons are not supported!");
+      else
+	return GetTriggerSF(triggersf, configuration, muon, trigger);
+      return CorrectionCode::Ok;
+    }
     
     // ==================================================================================
     // == MuonTriggerScaleFactors::getTriggerScaleFactor
@@ -349,7 +371,28 @@ namespace CP {
         return replica_v;
     }
 
-    // ==================================================================================
+  int MuonTriggerScaleFactors::getBinNumber(const xAOD::Muon& muon, const std::string& trigger){
+    if(!m_experimental){
+      ATH_MSG_ERROR("MuonTriggerScaleFactors::getTriggerScaleFactor This is an experimental function. If you really know what you are doing set UseExperimental property.");
+      return CorrectionCode::Error;
+    }
+
+    const double mu_eta = muon.eta();
+    const double mu_phi = muon.phi();
+    bool isBarrel = fabs(mu_eta) < muon_barrel_endcap_boundary;
+    TH1_Ptr cit = getEfficiencyHistogram(trigger, true, "nominal", isBarrel);
+    if(!cit.get()){
+      ATH_MSG_ERROR("Could not find efficiency map for muon with eta: " << mu_eta << " and phi: " << mu_phi << ". Something is inconsistent. Please check your settings for year, mc and trigger." );
+      return -1;
+    }
+    auto eff_h2 = cit;
+    double mu_phi_corr = mu_phi;
+    if (mu_phi_corr < eff_h2->GetYaxis()->GetXmin()) mu_phi_corr += 2.0 * TMath::Pi();
+    if (mu_phi_corr > eff_h2->GetYaxis()->GetXmax()) mu_phi_corr -= 2.0 * TMath::Pi();
+    return eff_h2->FindFixBin(mu_eta, mu_phi_corr);
+  }
+
+  // ==================================================================================
     // == MuonTriggerScaleFactors::getMuonEfficiency
     // ==================================================================================
     unsigned int MuonTriggerScaleFactors::encodeHistoName(const std::string& period, const std::string& Trigger, bool isData, const std::string& Systematic, bool isBarrel) const {
@@ -579,6 +622,77 @@ namespace CP {
 
         return CorrectionCode::Ok;
     }
+
+  // ==================================================================================
+  // == MuonTriggerScaleFactors::GetTriggerSF
+  // ==================================================================================
+  CorrectionCode MuonTriggerScaleFactors::GetTriggerSF(Double_t& TriggerSF, TrigMuonEff::Configuration& configuration, const xAOD::Muon& mu, const std::string& trigger) {
+        Int_t threshold;
+        CorrectionCode result = getThreshold(threshold, trigger);
+        if (result != CorrectionCode::Ok)
+	  return result;
+
+        double rate_not_fired_data = 1.;
+        double rate_not_fired_mc = 1.;
+	double eff_data = 0., eff_mc = 0.;
+
+	if (mu.pt() < threshold) {
+	  eff_data = 0.;
+	  eff_mc = 0.;
+	  TriggerSF = 1.;
+	  return CorrectionCode::Ok;
+	}
+
+	std::string muon_trigger_name = trigger;
+	std::string data_err = "";
+	std::string mc_err = "";
+
+	// Pre-define uncertainty variations
+	static const CP::SystematicVariation stat_up("MUON_EFF_TrigStatUncertainty", 1);
+	static const CP::SystematicVariation stat_down("MUON_EFF_TrigStatUncertainty", -1);
+	static const CP::SystematicVariation syst_up("MUON_EFF_TrigSystUncertainty", 1);
+	static const CP::SystematicVariation syst_down("MUON_EFF_TrigSystUncertainty", -1);
+	
+	if (appliedSystematics().matchSystematic(syst_down)) {
+	  data_err = "nominal";
+	  mc_err = "syst_up";
+	} else if (appliedSystematics().matchSystematic(syst_up)) {
+	  data_err = "nominal";
+	  mc_err = "syst_down";
+	} else if (appliedSystematics().matchSystematic(stat_down)) {
+	  data_err = "stat_down";
+	  mc_err = "nominal";
+	} else if (appliedSystematics().matchSystematic(stat_up)) {
+	  data_err = "stat_up";
+	  mc_err = "nominal";
+	} else {
+	  data_err = "nominal";
+	  mc_err = "nominal";
+	}
+
+	if (!appliedSystematics().empty()) {
+	  configuration.replicaIndex = getReplica_index(appliedSystematics().begin()->basename(), trigger);
+	  if (configuration.replicaIndex != -1) data_err = "replicas";
+	}
+
+	configuration.isData = true;
+	CorrectionCode result_data = getMuonEfficiency(eff_data, configuration, mu, muon_trigger_name, data_err);
+	if (result_data != CorrectionCode::Ok)
+	  return result_data;
+	configuration.isData = false;
+	configuration.replicaIndex = -1;
+	CorrectionCode result_mc = getMuonEfficiency(eff_mc, configuration, mu, muon_trigger_name, mc_err);
+	if (result_mc != CorrectionCode::Ok)
+	  return result_data;
+	if (1 - rate_not_fired_data == 0)
+	  TriggerSF =  0;
+        if (fabs(1. - rate_not_fired_mc) > 0.0001)
+	  TriggerSF = (1. - rate_not_fired_data) / (1. - rate_not_fired_mc);
+
+        return CorrectionCode::Ok;
+  }
+  
+
 
     // ==================================================================================
     // == MuonTriggerScaleFactors::getDimuonEfficiency

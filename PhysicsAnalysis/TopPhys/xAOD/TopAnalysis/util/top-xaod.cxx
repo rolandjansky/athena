@@ -50,6 +50,7 @@
 
 #include "TopPartons/CalcTtbarPartonHistory.h"
 #include "TopPartons/CalcTbbarPartonHistory.h"
+#include "TopPartons/CalcWtbPartonHistory.h"
 #include "TopPartons/CalcTopPartonHistory.h"
 
 #include "TopParticleLevel/ParticleLevelLoader.h"
@@ -205,8 +206,8 @@ int main(int argc, char** argv) {
 
             // now need to get and set the parton shower generator from TopDataPrep
             SampleXsection tdp;	   
-	    // Package/filename - XS file we want to use                                                           
-	    std::string tdp_filename = "TopDataPreparation/XSection-MC15-13TeV.data";
+	    // Package/filename - XS file we want to use (can now be configured via cutfile)                                                    
+	    const std::string tdp_filename = settings->value("TDPPath");
 	    // Use the path resolver to find the first file in the list of possible paths ($CALIBPATH)
 	    std::string fullpath = PathResolverFindCalibFile(tdp_filename);
 	    if (!tdp.readFromFile(fullpath.c_str())) {
@@ -292,6 +293,10 @@ int main(int argc, char** argv) {
     else if(settings->value("TopPartonHistory") == "tb"){
       topPartonHistory = std::unique_ptr<top::CalcTopPartonHistory> ( new top::CalcTbbarPartonHistory( "top::CalcTbbarPartonHistory" ) );
       top::check(topPartonHistory->setProperty( "config" , topConfig ) , "Failed to setProperty of top::CalcTbbarPartonHistory");
+    }
+    else if(settings->value("TopPartonHistory") == "Wtb"){
+      topPartonHistory = std::unique_ptr<top::CalcTopPartonHistory> ( new top::CalcWtbPartonHistory( "top::CalcWtbPartonHistory" ) );
+      top::check(topPartonHistory->setProperty( "config" , topConfig ) , "Failed to setProperty of top::CalcWtbPartonHistory");
     }
 
     //LHAPDF SF calculation

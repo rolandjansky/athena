@@ -54,7 +54,7 @@ namespace InDet {
     declareProperty("fFromB", m_fFromB);
     declareProperty("trkEffSystScale", m_trkEffSystScale);
 
-    declareProperty("calibFileNomEff", m_calibFileNomEff = "InDetTrackSystematicsTools/CalibData_21.2_2018-v14/TrackingRecommendations_pre_rel21.root");
+    declareProperty("calibFileNomEff", m_calibFileNomEff = "InDetTrackSystematicsTools/CalibData_21.2_2018-v15/TrackingRecommendations_final_rel21.root");
   }
 
   StatusCode InDetTrackTruthFilterTool::initialize() {

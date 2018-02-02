@@ -39,9 +39,9 @@ namespace InDet {
     declareProperty("isData", m_isData);
     declareProperty("isSimulation", m_isSimulation);
 
-    declareProperty("calibFileData15", m_calibFileData15 = "InDetTrackSystematicsTools/CalibData_21.2_2018-v14/data15_13TeV_all_CorrectionResult.root");
-    declareProperty("calibFileData16_preTS1", m_calibFileData16_preTS1 = "InDetTrackSystematicsTools/CalibData_21.2_2018-v14/data16_13TeV_preTS1_CorrectionResult.root");
-    declareProperty("calibFileData16_postTS1", m_calibFileData16_postTS1 = "InDetTrackSystematicsTools/CalibData_21.2_2018-v14/data16_13TeV_preTS1_CorrectionResult.root");
+    declareProperty("calibFileData15", m_calibFileData15 = "InDetTrackSystematicsTools/CalibData_21.2_2018-v15/data15_13TeV_all_CorrectionResult.root");
+    declareProperty("calibFileData16_preTS1", m_calibFileData16_preTS1 = "InDetTrackSystematicsTools/CalibData_21.2_2018-v15/data16_13TeV_preTS1_CorrectionResult.root");
+    declareProperty("calibFileData16_postTS1", m_calibFileData16_postTS1 = "InDetTrackSystematicsTools/CalibData_21.2_2018-v15/data16_13TeV_preTS1_CorrectionResult.root");
   }
 
   InDetTrackBiasingTool::~InDetTrackBiasingTool() = default;

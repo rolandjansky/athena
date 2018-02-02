@@ -26,6 +26,9 @@ from JetRecTools.JetRecToolsConf import JetInputElRemovalTool
 exot4Seq = CfgMgr.AthSequencer("EXOT4Sequence")
 
 
+from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+addStandardTruthContents()
+
 #====================================================================
 # SET UP STREAM
 #====================================================================
@@ -652,7 +655,8 @@ if globalflags.DataSource()=='geant4':
 
 # veto the truth jet, because we will add it in the ExtraVariables manually
 #addJetOutputs(EXOT4SlimmingHelper, ["EXOT4"], ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets", "AntiKt4LCTopoJets", "AntiKt4EMTopoJets"], ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets", "CamKt15LCTopoJets"])#FIX #ATLJETMET-744
-addJetOutputs(EXOT4SlimmingHelper, ["EXOT4"], ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets", "AntiKt4LCTopoJets", "AntiKt4EMTopoJets"], ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets"])#FIX #ATLJETMET-744
+#addJetOutputs(EXOT4SlimmingHelper, ["EXOT4"], ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets", "AntiKt4LCTopoJets", "AntiKt4EMTopoJets"], ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets"])#FIX #ATLJETMET-744
+addJetOutputs(EXOT4SlimmingHelper, ["EXOT4"], ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets", "AntiKt4EMTopoJets"], ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets"])#FIX #ATLJETMET-744
 
 #listJets = ['CamKt15LCTopoJets', 'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets']#FIX #ATLJETMET-744
 listJets = ['AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets']#FIX #ATLJETMET-744

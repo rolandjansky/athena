@@ -42,7 +42,7 @@ function( _add_gtest cxx_name )
    set (EXTRA ARGS)
    list (FIND SLOW_TESTS "${cxx_name}" slow_index)
    if (${slow_index} GREATER -1)
-     set (EXTRA_ARGS ${EXTRA_ARGS} PROPERTIES TIMEOUT 300)
+     set (EXTRA_ARGS ${EXTRA_ARGS} PROPERTIES TIMEOUT 900)
    endif ()
    get_filename_component( test_name ${cxx_name} NAME_WE )
    atlas_add_test (${test_name}
@@ -62,7 +62,7 @@ endfunction( _add_test )
 
 set (MANUAL_TESTS test/gt_LSFDriver_EOS.cxx test/gt_ProofDriver.cxx test/ut_background_driver.cxx test/ut_background_socket.cxx test/ut_driver_proof_lite.cxx test/make_test_file.cxx test/ut_driver_condor.cxx test/ut_driver_ll.cxx test/ut_driver_lsf.cxx test/ut_driver_proof_farm.cxx test/ut_driver_torque.cxx test/ut_xrootd_output.cxx test/ut_driver_proof_lite.cxx test/ut_xrootd_input.cxx)
 
-set (SLOW_TESTS test/gt_LocalDriver.cxx)
+set (SLOW_TESTS test/gt_DirectDriver.cxx test/gt_LocalDriver.cxx)
 
 
 file( GLOB _tests RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/test/[a-z]*.cxx" )

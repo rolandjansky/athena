@@ -114,7 +114,10 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_outMETTerm(""),
     m_metRemoveOverlappingCaloTaggedMuons(true),
     m_metDoSetMuonJetEMScale(true),
-    m_metDoMuonJetOR(true),
+    m_metDoRemoveMuonJets(true),
+    m_metUseGhostMuons(false),
+    m_metDoMuonEloss(false),
+    m_metsysConfigPrefix(""),
     m_softTermParam(met::Random),  
     m_treatPUJets(true),
     m_doPhiReso(true),
@@ -359,11 +362,14 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "METDoTrkSyst",   m_trkMETsyst  );
   declareProperty( "METDoCaloSyst",  m_caloMETsyst );
   declareProperty( "METJetSelection",  m_metJetSelection );
+  declareProperty( "METSysConfigPrefix",  m_metsysConfigPrefix );
 
   declareProperty( "METRemoveORCaloTaggedMuons", m_metRemoveOverlappingCaloTaggedMuons);
   declareProperty( "METDoSetMuonJetEMScale", m_metDoSetMuonJetEMScale);
-  declareProperty( "METDoMuonJetOR",  m_metDoMuonJetOR );
-  declareProperty( "METGreedyPhotons",  m_metGreedyPhotons );
+  declareProperty( "METDoRemoveMuonJets",  m_metDoRemoveMuonJets );
+  declareProperty( "METUseGhostMuons",  m_metUseGhostMuons );
+  declareProperty( "METDoMuonEloss",  m_metDoMuonEloss );
+
 
   declareProperty( "SoftTermParam",  m_softTermParam);
   declareProperty( "TreatPUJets",  m_treatPUJets);  
@@ -978,10 +984,12 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   m_conf_to_prop["SigLepPh.IsoCloseByOR"] = "SigLepPhIsoCloseByOR";
   m_conf_to_prop["MET.RemoveOverlappingCaloTaggedMuons"] = "METRemoveORCaloTaggedMuons";
   m_conf_to_prop["MET.DoSetMuonJetEMScale"] = "METDoSetMuonJetEMScale";
-  m_conf_to_prop["MET.DoMuonJetOR"] = "METDoMuonJetOR";
+  m_conf_to_prop["MET.DoRemoveMuonJets"] = "METDoRemoveMuonJets";
+  m_conf_to_prop["MET.DoUseGhostMuons"] = "METUseGhostMuons";
+  m_conf_to_prop["MET.DoMuonEloss"] = "METDoMuonEloss";
+
   m_conf_to_prop["MET.DoTrkSyst"] = "METDoTrkSyst";
   m_conf_to_prop["MET.DoCaloSyst"] = "METDoCaloSyst";
-  m_conf_to_prop["MET.GreedyPhotons"] = "METGreedyPhotons";
 
   m_conf_to_prop["Tau.DoTruthMatching"] = "TauDoTruthMatching";
   m_conf_to_prop["Tau.RecalcElOLR"] = "TauRecalcElOLR";
@@ -1119,11 +1127,14 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_outMETTerm, "MET.OutputTerm", rEnv, "Final");
   configFromFile(m_metRemoveOverlappingCaloTaggedMuons, "MET.RemoveOverlappingCaloTaggedMuons", rEnv, true);
   configFromFile(m_metDoSetMuonJetEMScale, "Met.DoSetMuonJetEMScale", rEnv, true);
-  configFromFile(m_metDoMuonJetOR, "MET.DoMuonJetOR", rEnv, true);
+  configFromFile(m_metDoRemoveMuonJets, "MET.DoRemoveMuonJets", rEnv, true);
+  configFromFile(m_metUseGhostMuons, "MET.UseGhostMuons", rEnv, false);
+  configFromFile(m_metDoMuonEloss, "MET.DoMuonEloss", rEnv, false);
+
   configFromFile(m_trkMETsyst, "MET.DoTrkSyst", rEnv, true);
   configFromFile(m_caloMETsyst, "MET.DoCaloSyst", rEnv, false);
-  configFromFile(m_metGreedyPhotons, "MET.GreedyPhotons", rEnv, false);
-  configFromFile(m_metJetSelection, "MET.JetSelection", rEnv, "Tight"); // set to non-empty to override default
+  configFromFile(m_metsysConfigPrefix, "METSys.ConfigPrefix", rEnv, "METUtilities/data17_13TeV/prerec_Jan16"); 
+  configFromFile(m_metJetSelection, "MET.JetSelection", rEnv, "Tight"); // Tight (default), Loose, etc
   configFromFile(m_softTermParam, "METSig.SoftTermParam", rEnv, met::Random);
   configFromFile(m_treatPUJets, "METSig.TreatPUJets", rEnv, true);
   configFromFile(m_doPhiReso, "METSig.DoPhiReso", rEnv, true);

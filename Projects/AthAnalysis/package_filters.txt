@@ -164,6 +164,7 @@
 + Database/PersistentDataModel.*
 + Database/TPTools
 + Database/CoraCool
++ Database/AtlasSTLAddReflex
 + Control/DataModelAthenaPool
 
 

@@ -51,6 +51,7 @@
 
 #include "TopPartons/CalcTtbarPartonHistory.h"
 #include "TopPartons/CalcTbbarPartonHistory.h"
+#include "TopPartons/CalcWtbPartonHistory.h"
 #include "TopPartons/CalcTopPartonHistory.h"
 
 #include "TopParticleLevel/ParticleLevelLoader.h"
@@ -396,9 +397,10 @@ void SetMetadata(bool useAodMetaData, std::string usethisfile, std::string input
     unsigned int DSID = top::getDSID(testFile.get(), topConfig->sgKeyEventInfo());
     topConfig -> setDSID(DSID);
     // now need to get and set the parton shower generator from TopDataPrep
-    SampleXsection tdp;    
-    // Package/filename - XS file we want to use                                                           
-    std::string tdp_filename = "TopDataPreparation/XSection-MC15-13TeV.data";
+    SampleXsection tdp;
+
+    // Package/filename - XS file we want to use (can now be configured via cutfile)
+    const std::string tdp_filename = topConfig->getTDPPath();
     // Use the path resolver to find the first file in the list of possible paths ($CALIBPATH)                          
     std::string fullpath = PathResolverFindCalibFile(tdp_filename);
 
@@ -512,6 +514,10 @@ std::shared_ptr<top::CalcTopPartonHistory> CreateTopPartonHistory(std::shared_pt
   else if(settings->value("TopPartonHistory") == "tb"){
     topPartonHistory = std::shared_ptr<top::CalcTopPartonHistory> ( new top::CalcTbbarPartonHistory( "top::CalcTbbarPartonHistory" ) );
     top::check(topPartonHistory->setProperty( "config" , topConfig ) , "Failed to setProperty of top::CalcTbbarPartonHistory");
+  }
+  else if(settings->value("TopPartonHistory") == "Wtb"){
+    topPartonHistory = std::shared_ptr<top::CalcTopPartonHistory> ( new top::CalcWtbPartonHistory( "top::CalcWtbPartonHistory" ) );
+    top::check(topPartonHistory->setProperty( "config" , topConfig ) , "Failed to setProperty of top::CalcWtbPartonHistory");
   }
 
   return topPartonHistory;
