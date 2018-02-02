@@ -28,8 +28,6 @@ namespace DiTauRec
 
     virtual StatusCode initialize() override;
 
-    virtual StatusCode initializeEvent() override;
-
     virtual StatusCode execute() override;
   private:
     std::string m_sDiTauHadMuContainerName;

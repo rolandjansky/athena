@@ -19,9 +19,6 @@ namespace DiTauRec
     // initialize the tool
     virtual StatusCode initialize() = 0;
 
-    // set pointer to event
-    virtual StatusCode initializeEvent() = 0;
-
     virtual StatusCode execute() = 0;
   
   }; //class ILepHadBuilder
