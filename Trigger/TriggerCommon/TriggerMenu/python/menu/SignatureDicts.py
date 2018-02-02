@@ -87,6 +87,9 @@ AllowedTopos_jet = ['muvtx',
                     'invm600',
                     'invm700',
                     'invm800',
+                    'invm900j0',
+                    'invm900j50dPhi240',
+                    'invm900j0dPhi240',
                     'invm1000']
 AllowedTopos_Tau = ['ditauL', 'ditauM', 'ditauT','tautsf','notautsf','50mVis10000','60mVis10000','03dR27','03dR30']
 AllowedTopos_comb = ['taumass', 'dr05', 'dz02','dz99']
@@ -141,6 +144,7 @@ JetChainParts = {
     # Et cut by the jet build tool (ptminFilter)
     'recoCutCalib': ['rccDefault', 'rcc0', 'rcc5'],
     'dj': ['dj30aetZ50betZ900mZdphi260'],
+    'dPhi': ['dPhi24'],
 
 }
 
@@ -172,7 +176,8 @@ JetChainParts_Default = {
     'trkopt'       : 'notrk',
     'recoCutUncalib': 'rcuDefault',
     'recoCutCalib': 'rccDefault',
-    'dj'           : ''
+    'dj'           : '',
+    'dPhi'         : ''
     }
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 

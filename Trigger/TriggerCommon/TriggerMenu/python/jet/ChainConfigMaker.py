@@ -11,7 +11,7 @@ from smc_string_conversions import smc_string_to_strings
 from clusterparams_factory import clusterparams_factory
 from fexparams_factory import fexparams_factory
 from hypo_factory import hypo_factory
-from dijet_parser import dijet_parser
+from dijet_parser2 import dijet_parser2 as dijet_parser
 
 # from lxml import etree as et
 from ChainConfig import ChainConfig
@@ -231,6 +231,8 @@ def _get_tla_string(parts):
 
 
 def _get_dijet_string(parts):
+    """1/2/2018 menu group temporarily (?) does not agree with this string
+    see JIRA report ATR-17554"""
 
     x = cache.get('dijet_string')
     if x: return x
@@ -243,6 +245,21 @@ def _get_dijet_string(parts):
 
     msg = '%s: multiple dijet string set' % err_hdr
     raise RuntimeError(msg)
+
+
+# def _get_dijet_string2(parts):
+
+def _get_dijet_string2(parts):
+    """2/2/2018 get the information for dijet chains from the 'topo' entry"""
+    
+    x = cache.get('dijet_string2')
+    if x: return x
+
+    dijet_string2 = _get_topo(parts, 'invm')
+    if dijet_string2_re.match(dijet_string2):
+        _update_cache('dijet_string2', dijet_string2)
+        return dijet_string2
+    return ''
 
 
 def _get_cluster_calib(parts):
@@ -280,8 +297,10 @@ def _get_invm_string(parts):
     if x: return x
 
     invm = _get_topo(parts, 'invm')
-    _update_cache('invm', invm)
-    return invm
+    if invm_re.match(invm):
+        _update_cache('invm', invm)
+        return invm
+    return ''
 
 def _get_deta_string(parts):
 
@@ -348,7 +367,7 @@ def _get_hypo_type(parts):
 
     test_flag = _get_test_flag(parts)
     tla_flag = bool(_get_tla_string(parts))
-    dijet_flag = bool(_get_dijet_string(parts))
+    dijet_flag = bool(_get_dijet_string2(parts))
 
     invm_string = _get_invm_string(parts)
     deta_string = _get_deta_string(parts)
@@ -385,15 +404,18 @@ def _get_hypo_type(parts):
 
         raise RuntimeError(msg)
 
+    second_hypos = (
+        'HLThypo2_etaet',
+        'HLThypo2_dimass_deta_dphi',
+        'HLThypo2_dijet',
+    )
+    
     htypes = set(htypes)
     if len(htypes) == 1: return htypes.pop()
     if len(htypes) == 2:
         if 'HLThypo2_etaet' in htypes:
-            if 'HLThypo2_dimass_deta_dphi' in htypes:
-                return 'HLThypo2_dimass_deta_dphi'
-            if 'HLThypo2_dimass_deta' in htypes:
-                return 'HLThypo2_dimass_deta'
-                
+            for h in second_hypos:
+                if h in htypes: return h
 
     msg = '%s: cannot determine hypo type, %s' %  (err_hdr, str(htypes))
     raise RuntimeError(msg)
@@ -838,7 +860,7 @@ def _setup_tla_vars(parts):
             
 def _setup_dijet_vars(parts):
 
-    dijet_string = _get_dijet_string(parts)
+    dijet_string = _get_dijet_string2(parts)
 
     args = {}
     if dijet_parser(dijet_string, args):

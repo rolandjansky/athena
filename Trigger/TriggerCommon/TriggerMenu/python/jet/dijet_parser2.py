@@ -1,6 +1,6 @@
-""" 2/2/2018 this module is currently not used due to
+""" 2/2/2018 this module currently replaces di_jetparser, due to
     objection to chain name conventions by th memu group,
-    hopefully tmporarily. For now use dijet_parser2.
+    hopefully tmporarily.
 
     Decode the incoming string with dijet hypo parameters. The string
     will have variable names and optional low and max limits. If a limit
@@ -17,23 +17,39 @@
 import re, sys
 
 
-cut_re = re.compile(r'^(?P<min>\d{0,3})(?P<var>[a-z]+)(?P<max>\d{0,3}$)')
+# cut_re = re.compile(r'^(?P<min>\d{0,3})(?P<var>[a-z]+)(?P<max>\d{0,3}$)')
+# cut_re = re.compile(r'^j(?P<etmin>\d{0,3})(dPhi(?P<dphimax>\d{0,3})?(dEta(?P<detamin>\d{0,3})?$)')
+
+cut_re = re.compile(r'^invm(?P<massmin>\d{0,3})j(?P<etmin>\d{0,3})(dPhi(?P<dphimax>\d{0,3}))?(dEta(?P<detamin>\d{0,3}))?$$')
 
 def _dj_parse(s):
     """Parse the incoming string to find the variable names and the optional
-    low and max limits. """
+    low and max limits. The code is this function is artificial - it intentionally
+    remains close to th code in dijet_parser.py"""
     
     error =  False
     tokens = s.split('Z')
+    assert len(tokens) == 1 # dijet_parser2 only
     result = {}
-    for t in tokens:
+    for t in tokens: # dijet_parser2: loop over 1 entry
         m = cut_re.match(t)
-        if m is None:
-            error = True
-            break
+        error = True
+        if m is None: return(error, {})
+
         d = m.groupdict()
-        result[d.pop('var')] = d
-        
+
+        key_map = {
+            'm': ('massmin', 'min'),
+            'aet': ('etmin', 'min'),
+            'bet': ('etmin', 'min'),
+            'dphi': ('dphimax','max'),
+            'deta': ('detamin', 'min'),
+        }
+
+        for k, v in key_map.items():
+            if d[v[0]] is not None: result[k] = {v[1]: d[v[0]]}
+
+    error = False
     return (error, result)
 
 def _dj_decode_one(s):
@@ -87,8 +103,8 @@ def dijet_parser(s, args):
     Split and process each dijet. Repack results by variable.
     """
 
-    assert s.startswith('dj')
-    s = s[2:]
+    assert s.startswith('invm')
+
     dijet_params = [_dj_decode_one(t) for t in s.split('ZZ')]
     errors = [e[0] for e in dijet_params]
     if any(errors): return True
@@ -121,34 +137,38 @@ def dijet_parser(s, args):
     return False
 if __name__ == '__main__':
     good = (
-        'dj80aetZ120betZ100m150Z50detaZdphi40ZZ90aet120Z120bet240Z100m150Z50detaZdphi40',
-        'dj10aet20',
-        'djaeta20',
-        'dj10bet20',
-        'djbeta20',
-        'djaet100Z320aeta450Zdeta10Z150m'
+        'invm900j50dPhi240',
+        'invm900j50dPhi240dEta100',
+        'invm900j0dPhi240dEta100',
     )
 
-    bad = ('dj10aet2000', # too many digits
-           'dj10Xet20', # bad variable
+    bad = (
+        'invm900',  # run1 hypo spec
+        'invm9000j50dPhi240', # too many digits
+        'invm900j50dEta240dPhi240', # wrong order
     )
 
+    print
     n = 0
     errs = n
     for i in good:
         n += 1
         args = {}
         err = dijet_parser(i, args)
+        for k in sorted(args.keys()): print k, args[k]
         if err:
-            print 'error, expext ok', i
+            print 'error, but expected ok', i
             errs += 1
         else:
-            print 'ok, expect ok   ', i
+            print 'ok, and expect ok   ', i
 
-    print 'tests : %d expected errors  %d, obtained errors %d' % (n,
-                                                                 errs,
-                                                                 0)
+    print 'no of tests: %d. Expected errors  %d. Obtained errors %d' % (n,
+                                                                        0,
+                                                                        errs)
 
+
+
+    print
     n = 0
     errs = 0
     exp_errs = 0 
@@ -158,37 +178,14 @@ if __name__ == '__main__':
         err = dijet_parser(i, args)
         if err:
             errs += 1
-            print 'error expect error ', i
+            print 'error, and expected error ', i
         else:
-            print 'ok, expect error   ', i
+            print 'ok, but expected  error   ', i
 
 
-    print 'tests : %d expected errors  %d, obtained errors %d' % (n,
-                                                                 errs,
-                                                                 n)
+    print 'no of tests: %d. Expected errors  %d. Obtained errors %d' % (n,
+                                                                        n,
+                                                                        errs)
+
     
 
-    s = 'dj30aetZ50betZ900mZdphi260'
-    args = {}
-    err =  dijet_parser(s, args)
-    if err:
-        print 'Error parsing', s
-        sys.exit(0)
-
-    wid = max(len(k) for k in args.keys())
-    for k in sorted(args.keys()):
-        print (k.ljust(wid), args[k])
-            # else:
-        #    print i.split('?')
-        #    for k in sorted(args.keys()):
-        #        print k
-        #        print ' ', args[k]
-#        tokens = i.split('?')
-#        for t in tokens:
-#            print t
-#            error, result = dj_decode(t)
-#            if error:
-#                print '   ERROR'
-#            else:
-#                for j, k in result.items():
-#                    print j, k
