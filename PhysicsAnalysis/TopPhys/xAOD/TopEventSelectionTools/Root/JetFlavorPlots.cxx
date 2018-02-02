@@ -127,6 +127,7 @@ JetFlavorPlots::JetFlavorPlots(const std::string& name,
 }
 
 bool JetFlavorPlots::apply(const top::Event& event) const {
+    bool throwWarning=false;
     // only nominal
     if (event.m_hashValue != m_nominalHashValue)
         return true;
@@ -153,39 +154,49 @@ bool JetFlavorPlots::apply(const top::Event& event) const {
       if (!status) continue;
 
       if(m_detailed){
-        // vs. nJets and flavour
-        char name[200];
-        if (jet_flavor == 21) {  // PDG ID for gluon is 21(9)
-          sprintf(name,"gluon_jets_njet%lu_%s", event.m_jets.size(), m_jetCollection.c_str());
-          static_cast<TH2D*>(hists->hist(name))->Fill(jetPtr->pt()*toGeV,
-                                                      jetPtr->eta(),
-                                                      eventWeight);
+        if((unsigned int) m_nJetsMax>=event.m_jets.size()){
+          // vs. nJets and flavour
+          char name[200];
+          if (jet_flavor == 21) {  // PDG ID for gluon is 21(9)
+            sprintf(name,"gluon_jets_njet%lu_%s", event.m_jets.size(), m_jetCollection.c_str());
+            static_cast<TH2D*>(hists->hist(name))->Fill(jetPtr->pt()*toGeV,
+                                                        jetPtr->eta(),
+                                                        eventWeight);
+          }
+          else if (jet_flavor >= 1 && jet_flavor <=3 ) {// PDG ID for d,u,s is 1,2,3
+            sprintf(name,"lightquark_jets_njet%lu_%s", event.m_jets.size(), m_jetCollection.c_str());
+            static_cast<TH2D*>(hists->hist(name))->Fill(jetPtr->pt()*toGeV,
+                                                        jetPtr->eta(),
+                                                        eventWeight);
+          }
+          else if (jet_flavor == 4) { // PDG ID for c is 4
+            sprintf(name,"cquark_jets_njet%lu_%s", event.m_jets.size(), m_jetCollection.c_str());
+            static_cast<TH2D*>(hists->hist(name))->Fill(jetPtr->pt()*toGeV,
+                                                        jetPtr->eta(),
+                                                        eventWeight);
+          }
+          else if (jet_flavor == 5) { // PDG ID for c is 5
+            sprintf(name,"bquark_jets_njet%lu_%s",  event.m_jets.size(), m_jetCollection.c_str());
+            static_cast<TH2D*>(hists->hist(name))->Fill(jetPtr->pt()*toGeV,
+                                                        jetPtr->eta(),
+                                                        eventWeight);
+          }
+          else {
+            sprintf(name,"other_jets_njet%lu_%s",  event.m_jets.size(), m_jetCollection.c_str());
+            static_cast<TH2D*>(hists->hist(name))->Fill(jetPtr->pt()*toGeV,
+                                                        jetPtr->eta(),
+                                                        eventWeight);
+          }
+          // if "detailed", also making the quark_jets one
+          if (jet_flavor >= 1 && jet_flavor <=4 ) {
+            sprintf(name,"quark_jets_%s", m_jetCollection.c_str());
+            static_cast<TH2D*>(hists->hist(name))->Fill(jetPtr->pt()*toGeV,
+                                                                jetPtr->eta(),
+                                                                eventWeight);
+          }
         }
-        else if (jet_flavor >= 1 && jet_flavor <=3 ) {// PDG ID for d,u,s is 1,2,3
-          sprintf(name,"lightquark_jets_njet%lu_%s", event.m_jets.size(), m_jetCollection.c_str());
-          static_cast<TH2D*>(hists->hist(name))->Fill(jetPtr->pt()*toGeV,
-                                                      jetPtr->eta(),
-                                                      eventWeight);
-        }
-        else if (jet_flavor == 4) { // PDG ID for c is 4
-          sprintf(name,"cquark_jets_njet%lu_%s", event.m_jets.size(), m_jetCollection.c_str());
-          static_cast<TH2D*>(hists->hist(name))->Fill(jetPtr->pt()*toGeV,
-                                                      jetPtr->eta(),
-                                                      eventWeight);
-        }
-        else if (jet_flavor == 5) { // PDG ID for c is 5
-          sprintf(name,"bquark_jets_njet%lu_%s",  event.m_jets.size(), m_jetCollection.c_str());
-          static_cast<TH2D*>(hists->hist(name))->Fill(jetPtr->pt()*toGeV,
-                                                      jetPtr->eta(),
-                                                      eventWeight);
-        }
-        else {
-          sprintf(name,"other_jets_njet%lu_%s",  event.m_jets.size(), m_jetCollection.c_str());
-          static_cast<TH2D*>(hists->hist(name))->Fill(jetPtr->pt()*toGeV,
-                                                      jetPtr->eta(),
-                                                      eventWeight);
-        }
-
+        else
+          throwWarning=true;
         // vs. flavour only
         char shortname[200];
         if (jet_flavor == 21) {  // PDG ID for gluon is 21(9)
@@ -219,13 +230,6 @@ bool JetFlavorPlots::apply(const top::Event& event) const {
                                                       eventWeight);
         }
 
-        // if "detailed", also making the quark_jets one
-        if (jet_flavor >= 1 && jet_flavor <=4 ) {
-          sprintf(name,"quark_jets_%s", m_jetCollection.c_str());
-          static_cast<TH2D*>(hists->hist(name))->Fill(jetPtr->pt()*toGeV,
-                                                              jetPtr->eta(),
-                                                              eventWeight);
-        }
       }
       else {
         // the simplest case, one for gluon, one for quarks
@@ -245,6 +249,8 @@ bool JetFlavorPlots::apply(const top::Event& event) const {
       }
     }
 
+    if (throwWarning)
+       std::cout<<"Warning! Number of jets in the event is "<<event.m_jets.size()<<", but histograms have been booked up to "<<m_nJetsMax<<". Exclusive histograms in number of jets have not been filled.\n";
     return true;
 }
 
