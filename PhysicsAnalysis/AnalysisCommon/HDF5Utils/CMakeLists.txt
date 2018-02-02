@@ -25,7 +25,7 @@ set( lib_sources
   src/copy_root_tree.cxx
   src/get_tree.cxx
   src/tree_copy_opts.cxx
-  src/ttree2hdf5.cxx)
+  util/ttree2hdf5.cxx)
 
 atlas_add_executable(ttree2hdf5 ${lib_sources}
   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HDF5_INCLUDE_DIRS}
