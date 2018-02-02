@@ -209,6 +209,7 @@ namespace VKalVrtAthena {
       m_hists["2trkChi2Dist"]      = new TH1F("2trkChi2Dist",      ";log10(#chi^{2}/N_{dof});Entries",          100, -3, 7                                               );
       m_hists["NtrkChi2Dist"]      = new TH1F("NtrkChi2Dist",      ";log10(#chi^{2}/N_{dof});Entries",          100, -3, 7                                               );
       m_hists["vPosDist"]          = new TH2F("vPosDist",          ";r;#vec{x}*#vec{p}/p_{T} [mm]",             rbins.size()-1, &(rbins[0]), 200, -1000, 1000            );
+      m_hists["vPosMomAngTDist"]   = new TH2F("vPosMomAngDistT",   ";r;cos(#vec{r},#vec{p}_{T})",               rbins.size()-1, &(rbins[0]), 200, -1.0, 1.0              );
       m_hists["disabledCount"]     = new TH1F("disabledCount",     ";N_{modules};Tracks",                       20, -0.5, 10-0.5                                         );
       m_hists["vertexYield"]       = new TH1F("vertexYield",       ";Algorithm Step;Vertices",                  nAlgs, -0.5, nAlgs-0.5                                   );
       m_hists["vertexYieldNtrk"]   = new TH2F("vertexYieldNtrk",   ";Ntrk;Algorithm Step;Vertices",             100, 0, 100, nAlgs, -0.5, nAlgs-0.5                      );

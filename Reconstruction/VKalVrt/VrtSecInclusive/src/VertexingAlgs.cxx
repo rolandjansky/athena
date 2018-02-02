@@ -143,7 +143,11 @@ namespace VKalVrtAthena {
         
         // Compatibility to the primary vertex.
         Amg::Vector3D vDist = wrkvrt.vertex - m_thePV->position();
-        double vPos = ( vDist.x()*wrkvrt.vertexMom.Px()+vDist.y()*wrkvrt.vertexMom.Py()+vDist.z()*wrkvrt.vertexMom.Pz() )/wrkvrt.vertexMom.Rho();
+        const double vPos = ( vDist.x()*wrkvrt.vertexMom.Px()+vDist.y()*wrkvrt.vertexMom.Py()+vDist.z()*wrkvrt.vertexMom.Pz() )/wrkvrt.vertexMom.Rho();
+        const double vPosMomAngT = ( vDist.x()*wrkvrt.vertexMom.Px()+vDist.y()*wrkvrt.vertexMom.Py() ) / vDist.perp() / wrkvrt.vertexMom.Pt();
+        
+        double dphi1 = vDist.phi() - (*itrk)->phi(); while( dphi1 > TMath::Pi() ) { dphi1 -= TMath::TwoPi(); } while( dphi1 < -TMath::Pi() ) { dphi1 += TMath::TwoPi(); }
+        double dphi2 = vDist.phi() - (*itrk)->phi(); while( dphi2 > TMath::Pi() ) { dphi2 -= TMath::TwoPi(); } while( dphi2 < -TMath::Pi() ) { dphi2 += TMath::TwoPi(); }
         
         if( m_jp.FillNtuple ) {
           // Fill the 2-track vertex properties to AANT
@@ -236,11 +240,18 @@ namespace VKalVrtAthena {
           }
         }
         
-        if( m_jp.FillHist ) dynamic_cast<TH2F*>( m_hists["vPosDist"] )->Fill( wrkvrt.vertex.perp(), vPos );
+        if( m_jp.FillHist ) {
+          dynamic_cast<TH2F*>( m_hists["vPosDist"] )->Fill( wrkvrt.vertex.perp(), vPos );
+          dynamic_cast<TH2F*>( m_hists["vPosMomAngTDist"] )->Fill( wrkvrt.vertex.perp(), vPosMomAngT );
+        }
         
         if( m_jp.doPVcompatibilityCut ) {
-          if( wrkvrt.vertex.perp() < 31.0 && vPos < 0. ) {
-            ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": failed to pass the vPos cut." );
+          if( fabs( dphi1 ) > TMath::Pi()/2.0 && fabs( dphi2 ) > TMath::Pi()/2.0 ) {
+            ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": failed to pass the vPos cut. (both tracks are opposite against the vertex pos)" );
+            continue;
+          }
+          if( vPosMomAngT < 0. ) {
+            ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": failed to pass the vPos cut. (pos-mom directions are opposite)" );
             continue;
           }
           if( vPos < m_jp.pvCompatibilityCut ) {
