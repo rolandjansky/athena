@@ -6,7 +6,7 @@ HIGG2D1ExtraContent=[
     "egammaClusters.rawE.phi_sampl.calM",
     "Muons.ptconecoreTrackPtrCorrection",
     "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m",
-    "TauJets.ptDetectorAxis,phiDetectorAxis,etaDetectorAxis,mDetectorAxis",
+    "TauJets.ptDetectorAxis,phiDetectorAxis,etaDetectorAxis,mDetectorAxis.IsTruthMatched.truthJetLink.truthParticleLink",
     "TauNeutralParticleFlowObjects.pt.eta.phi.m",
     "TauChargedParticleFlowObjects.pt.eta.phi.m"
     ]
