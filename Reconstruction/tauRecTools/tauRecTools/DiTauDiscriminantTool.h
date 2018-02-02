@@ -53,9 +53,6 @@ public:
   // initialize the tool
   virtual StatusCode initialize();
 
-  // set pointer to event
-  virtual StatusCode initializeEvent();
-
   // get ID score depricated
   virtual double getJetBDTScore(const xAOD::DiTauJet& xDiTau);
 

@@ -167,13 +167,6 @@ StatusCode DiTauDiscriminantTool::initialize()
    return StatusCode::SUCCESS;
 }
 
-//______________________________________________________________________________
-StatusCode DiTauDiscriminantTool::initializeEvent()
-{
-  return StatusCode::SUCCESS;
-}
-
-
 ////////////////////////////////////////////////////////////////////////////////
 //                              Wrapper functions                             //
 ////////////////////////////////////////////////////////////////////////////////

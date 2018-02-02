@@ -1,5 +1,3 @@
-// Dear emacs, this is -*- c++ -*-
-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -7,11 +5,6 @@
 #ifndef TAURECTOOLS_IDITAUTOOLBASE_H
 #define TAURECTOOLS_IDITAUTOOLBASE_H
 
-/**
- * @brief interface for DiTau variable calculator and discriminant tools
- * 
- */
- 
 // Framework include(s):
 #include "AsgTools/IAsgTool.h"
 
@@ -21,26 +14,21 @@
 namespace tauRecTools
 {
 
-class IDiTauToolBase :
-  public virtual asg::IAsgTool
-{
+  class IDiTauToolBase :
+    public virtual asg::IAsgTool
+  {
 
-  /// Declare the interface that the class provides
-  ASG_TOOL_INTERFACE( tauRecTools::IDiTauToolBase )
+    /// Declare the interface that the class provides
+    ASG_TOOL_INTERFACE( tauRecTools::IDiTauToolBase )
 
-public:
-  // initialize the tool
-  virtual StatusCode initialize() = 0;
+    public:
+    // initialize the tool
+    virtual StatusCode initialize() = 0;
 
-  // set pointer to event
-  virtual StatusCode initializeEvent() = 0;
+    // calculate ID variables
+    virtual StatusCode execute(const xAOD::DiTauJet& xDiTau) = 0;
 
-  // calculate ID variables
-  virtual StatusCode execute(const xAOD::DiTauJet& xDiTau) = 0;
-
-
-
-}; // class IDiTauToolBase
+  }; // class IDiTauToolBase
 
 } // namespace tauRecTools
 

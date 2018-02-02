@@ -64,9 +64,6 @@ public:
   // initialize the tool
   virtual StatusCode initialize();
 
-  // set pointer to event
-  virtual StatusCode initializeEvent();
-
   // calculate ID variables depricated
   virtual StatusCode calculateIDVariables(const xAOD::DiTauJet& xDiTau);
 

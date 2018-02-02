@@ -190,13 +190,6 @@ StatusCode DiTauIDVarCalculator::initialize()
   return StatusCode::SUCCESS;
 }
 
-//______________________________________________________________________________
-StatusCode DiTauIDVarCalculator::initializeEvent()
-{
-  return StatusCode::SUCCESS;
-}
-
-
 ////////////////////////////////////////////////////////////////////////////////
 //                              Wrapper functions                             //
 ////////////////////////////////////////////////////////////////////////////////

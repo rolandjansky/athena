@@ -32,8 +32,6 @@ public:
     virtual StatusCode retrieveHistos();
     virtual StatusCode storeLimits();
     virtual double transformScore(double score, double cut_lo, double eff_lo, double cut_hi, double eff_hi);
-    virtual StatusCode initializeEvent() { return StatusCode::SUCCESS; }
-
 
 private:
     std::string m_sFile; //!
