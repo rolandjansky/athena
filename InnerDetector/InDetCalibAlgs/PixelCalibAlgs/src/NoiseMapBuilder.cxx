@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // PixelCalibAlgs
@@ -9,7 +9,7 @@
 // PixelConditions
 #include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 #include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
-#include "PixelConditionsServices/ISpecialPixelMapSvc.h" // kazuki
+#include "PixelConditionsServices/ISpecialPixelMapSvc.h" 
 #include "PixelConditionsData/SpecialPixelMap.h"
 
 // Gaudi
@@ -17,10 +17,10 @@
 
 // EDM
 #include "InDetRawData/PixelRDO_Container.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h" // kazuki
-#include "InDetReadoutGeometry/SiDetectorElement.h" // kazuki
-#include "InDetReadoutGeometry/PixelModuleDesign.h" // kazuki
-#include "InDetReadoutGeometry/SiDetectorElementCollection.h" // kazuki
+#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "InDetReadoutGeometry/SiDetectorElement.h" 
+#include "InDetReadoutGeometry/PixelModuleDesign.h" 
+#include "InDetReadoutGeometry/SiDetectorElementCollection.h" 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
@@ -29,16 +29,15 @@
 
 // ROOT
 #include "TH2.h"
-#include "TString.h" // kazuki
+#include "TString.h" 
 
 // standard library
 #include <string>
 #include <sstream>
 #include <algorithm>
-#include <map> // kazuki
+#include <map> 
 #include <fstream>
-#include <cstdlib> // getenv
-
+#include <cstdlib> 
 
 NoiseMapBuilder::NoiseMapBuilder(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
@@ -47,7 +46,7 @@ NoiseMapBuilder::NoiseMapBuilder(const std::string& name, ISvcLocator* pSvcLocat
   m_BSErrorsSvc("PixelByteStreamErrorsSvc",name),
   m_specialPixelMapSvc("SpecialPixelMapSvc", name), // kazuki
   m_pixelRDOKey("PixelRDOs"),
-  m_isIBL(true), // kazuki
+  //  m_isIBL(true), // kazuki
   m_nEvents(0.),
   m_nEventsHist(nullptr),
   m_nEventsLBHist(nullptr),
@@ -56,22 +55,21 @@ NoiseMapBuilder::NoiseMapBuilder(const std::string& name, ISvcLocator* pSvcLocat
   m_overlayedIBLDCNoiseMap(nullptr),
   m_overlayedIBLSCNoiseMap(nullptr),
   m_pixelID(0),
-  m_pixman(0), // kazuki
+  m_pixman(0), 
   m_disk1ACut(1.e-3),
   m_disk2ACut(1.e-3),
   m_disk3ACut(1.e-3),
   m_disk1CCut(1.e-3),
   m_disk2CCut(1.e-3),
   m_disk3CCut(1.e-3),
-  m_iblCut(1.e-3), // kazuki
+  m_iblCut(1.e-3), 
   m_bLayerCut(1.e-3),
   m_layer1Cut(1.e-3),
   m_layer2Cut(1.e-3),
-  m_dbmCut(1.e-3), // kazuki
-  //m_longPixelMultiplier(1.),
-  m_longPixelMultiplier(1.5), // kazuki
-  //m_gangedPixelMultiplier(1.),
-  m_gangedPixelMultiplier(2.), // kazuki
+  m_dbmCut(1.e-3),
+  m_hist_lbMax(3001),
+  m_longPixelMultiplier(1.5), 
+  m_gangedPixelMultiplier(2.), 
   m_occupancyPerBC(true),
   m_nBCReadout(2),
   m_lbMin(0),
@@ -105,205 +103,253 @@ NoiseMapBuilder::NoiseMapBuilder(const std::string& name, ISvcLocator* pSvcLocat
 
 NoiseMapBuilder::~NoiseMapBuilder(){}
 
+std::string NoiseMapBuilder::getDCSIDFromPosition (int barrel_ec, int layer, int modPhi, int module_eta){
+  for(unsigned int ii = 0; ii < m_pixelMapping.size(); ii++) {
+    if (m_pixelMapping[ii].second.size() != 4) {
+      std::cout << "getDCSIDFromPosition: Vector size is not 4!" << std::endl;
+      return std::string("Error!");
+    }
+    if (m_pixelMapping[ii].second[0] != barrel_ec) continue;
+    if (m_pixelMapping[ii].second[1] != layer) continue;
+    if (m_pixelMapping[ii].second[2] != modPhi) continue;
+    if (m_pixelMapping[ii].second[3] != module_eta) continue;
+    return m_pixelMapping[ii].first;
+  }
+  std::cout << "Not found!" << std::endl;
+  return std::string("Error!");
+}
 
+const std::string NoiseMapBuilder::histoSuffix(const int bec, const int layer){
+  std::ostringstream out;
+  
+  switch(bec) {
+  case 0: 
+    out << "barrel/";  
+    if(layer==0)      { out << "IBL";              }
+    else if(layer==1) { out << "B-layer";          }
+    else              { out << "Layer" << layer-1; }
+    break;
+  case +2: out << "endcapA/Disk" << layer+1; break;
+  case -2: out << "endcapC/Disk" << layer+1; break;
+  case +4: out << "DBMA/Layer"   << layer+1; break;
+  case -4: out << "DBMC/Layer"   << layer+1; break;
+  default: break;
+  }  
+  return out.str();
+}
 
+std::vector<std::string>& NoiseMapBuilder::splitter(const std::string &str,
+						    char delim, 
+						    std::vector<std::string> &elems) {
+  std::stringstream ss(str);
+  std::string item;
+  while (std::getline(ss, item, delim)) {
+    elems.push_back(item);
+  }
+  return elems;
+}
+
+std::vector<std::string> NoiseMapBuilder::splitter(const std::string &str, 
+						   char delim) {
+  std::vector<std::string> elems;
+  splitter(str, delim, elems);
+  return elems;
+}
+
+//=========================================================
+//
+// initialize
+//
+//=========================================================
 StatusCode NoiseMapBuilder::initialize(){
-  ATH_MSG_INFO( "Initializing NoiseMapBuilder" );
+  ATH_MSG_INFO("Initializing NoiseMapBuilder");
 
-  StatusCode sc = detStore()->retrieve( m_pixelID, "PixelID" );
+  // retrieve THistSvc
+  StatusCode sc = m_tHistSvc.retrieve();
   if( !sc.isSuccess() ){
-    ATH_MSG_FATAL( "Unable to retrieve pixel ID helper" );
+    ATH_MSG_FATAL("Unable to retrieve THistSvc");
     return StatusCode::FAILURE;
   }
 
-  // kazuki ==>
-  sc = m_specialPixelMapSvc.retrieve();
-  if( !sc.isSuccess() ){
-    ATH_MSG_FATAL( "Unable to retrieve SpecialPixelMapSvc" );
-    return StatusCode::FAILURE;
-  }
-
-  sc = detStore()->retrieve( m_pixman, "Pixel" );
-  if( !sc.isSuccess() ){
-    ATH_MSG_FATAL( "Unable to retrieve pixel ID manager" );
-    return StatusCode::FAILURE;
-  }
-  // <== //
-
-  sc = m_tHistSvc.retrieve();
-  if( !sc.isSuccess() ){
-    ATH_MSG_FATAL( "Unable to retrieve THistSvc" );
-    return StatusCode::FAILURE;
-  }
-
+  // retrieve PixelConditionsSummarySvc
   sc = m_pixelConditionsSummarySvc.retrieve();
-  if( !sc.isSuccess() ){
-    ATH_MSG_FATAL( "Unable to retrieve PixelConditionsSummarySvc" );
+  if(!sc.isSuccess()){
+    ATH_MSG_FATAL("Unable to retrieve PixelConditionsSummarySvc");
     return StatusCode::FAILURE;
   }
 
+  // retrieve PixelByteStreamErrorsSvc
   sc = m_BSErrorsSvc.retrieve();
-  if( !sc.isSuccess() ){
-    ATH_MSG_FATAL( "Unable to retrieve bytestream errors service" );
+  if(!sc.isSuccess()){
+    ATH_MSG_FATAL("Unable to retrieve bytestream errors service");
     return StatusCode::FAILURE;
   }
 
-  m_hitMaps.resize(m_pixelID->wafer_hash_max());
-  m_LBdependence.resize(m_pixelID->wafer_hash_max());
-  m_BCIDdependence.resize(m_pixelID->wafer_hash_max());
-  m_TOTdistributions.resize(m_pixelID->wafer_hash_max());
+  // retrieve SpecialPixelMapSvc
+  sc = m_specialPixelMapSvc.retrieve();
+  if(!sc.isSuccess()){
+    ATH_MSG_FATAL("Unable to retrieve SpecialPixelMapSvc");
+    return StatusCode::FAILURE;
+  }
 
-  if( m_calculateNoiseMaps ){
-    m_noiseMaps.resize(m_pixelID->wafer_hash_max());
+  // retrieve PixelDetectorManager
+  sc = detStore()->retrieve(m_pixman,"Pixel");
+  if(!sc.isSuccess()){
+    ATH_MSG_FATAL("Unable to retrieve PixelDetectorManager");
+    return StatusCode::FAILURE;
+  }
+
+  // retrieve PixelID helper
+  sc = detStore()->retrieve(m_pixelID, "PixelID");
+  if(!sc.isSuccess()){
+    ATH_MSG_FATAL("Unable to retrieve PixelID helper");
+    return StatusCode::FAILURE;
+  }
+ 
+  // resize vectors of histograms
+  const Identifier::size_type maxHash = m_pixelID->wafer_hash_max();
+  ATH_MSG_DEBUG("PixelID maxHash = " << maxHash);
+  m_hitMaps.resize(maxHash);
+  m_LBdependence.resize(maxHash);
+  m_BCIDdependence.resize(maxHash);
+  m_TOTdistributions.resize(maxHash);
+  if(m_calculateNoiseMaps)
+    m_noiseMaps.resize(maxHash);
+
+  return (registerHistograms()); 
+}
+
+StatusCode NoiseMapBuilder::registerHistograms(){
+
+  const std::string mapFile = "PixelMapping_Run2.dat";
+ 
+  std::vector<std::string> paths = splitter(std::getenv("DATAPATH"), ':'); 
+  bool found(false);  
+  for(const auto& x : paths){
+    std::ifstream infile( (x+"/"+mapFile).c_str() );
+    if( infile.is_open() ){
+      ATH_MSG_INFO("Mapping file '" << mapFile << "' found in " << x);
+
+      int tmp_barrel_ec; int tmp_layer; int tmp_modPhi; int tmp_module_eta; std::string tmp_module_name;
+      std::vector<int> tmp_position;
+      tmp_position.resize(4);
+      while(infile >> tmp_barrel_ec >> tmp_layer >> tmp_modPhi >> tmp_module_eta >> tmp_module_name) {
+        tmp_position[0] = tmp_barrel_ec;
+        tmp_position[1] = tmp_layer;
+        tmp_position[2] = tmp_modPhi;
+        tmp_position[3] = tmp_module_eta;
+        m_pixelMapping.push_back(std::make_pair(tmp_module_name, tmp_position));
+      }
+
+      found=true;
+      infile.close();
+      break;
+    }
+  }
+  
+  if( !found ){
+    ATH_MSG_FATAL("Mapping file '" << mapFile << "' not found in DATAPATH !!!");
+    return StatusCode::FAILURE;
   }
 
   m_nEventsHist = new TH1D("NEvents", "NEvents", 1, 0, 1);
   m_tHistSvc->regHist("/histfile/NEvents", m_nEventsHist).setChecked();
-
-  const int nLBmax = 3001;
-  m_nEventsLBHist = new TH1D("NEventsLB", "NEventsLB", nLBmax, -0.5, nLBmax + 0.5);
+  
+  m_nEventsLBHist = new TH1D("NEventsLB", "NEventsLB", m_hist_lbMax, -0.5, m_hist_lbMax+0.5);
   m_tHistSvc->regHist("/histfile/NEventsLB", m_nEventsLBHist).setChecked();
+  
+  for(InDetDD::SiDetectorElementCollection::const_iterator iter=m_pixman->getDetectorElementBegin(); 
+      iter!=m_pixman->getDetectorElementEnd(); ++iter) {    
 
-  //std::string testarea = std::getenv("TestArea");
-  //ifstream ifs(testarea + "/InstallArea/share/PixelMapping_Run2.dat");
-  char* tmppath = std::getenv("DATAPATH");
-  if(tmppath == nullptr){
-      ATH_MSG_FATAL( "Unable to retrieve environmental DATAPATH" );
-      return StatusCode::FAILURE;
-  }
-  std::string cmtpath(tmppath);
-  std::vector<std::string> paths = splitter(cmtpath, ':');
-  std::ifstream ifs;
-  for (const auto& x : paths){
-    if(is_file_exist((x + "/PixelMapping_Run2.dat").c_str())){
-      if(m_isIBL){
-        ifs.open(x + "/PixelMapping_Run2.dat");
-      } else {
-        ifs.open(x + "/PixelMapping_May08.dat");
-      }
-      int tmp_barrel_ec; int tmp_layer; int tmp_module_phi; int tmp_module_eta; std::string tmp_module_name;
-      std::vector<int> tmp_position;
-      tmp_position.resize(4);
-      //int counter = 0; // debug
-      while(ifs >> tmp_barrel_ec >> tmp_layer >> tmp_module_phi >> tmp_module_eta >> tmp_module_name) {
-        tmp_position[0] = tmp_barrel_ec;
-        tmp_position[1] = tmp_layer;
-        tmp_position[2] = tmp_module_phi;
-        tmp_position[3] = tmp_module_eta;
-        m_pixelMapping.push_back(std::make_pair(tmp_module_name, tmp_position));
-      }
-      break;
-    }
-  }
+    const InDetDD::SiDetectorElement* element = *iter;
+    if(!element) continue;
+    
+    Identifier ident = element->identify();
+    if(!m_pixelID->is_pixel(ident)) continue; 
+    
+    //const InDetDD::PixelModuleDesign* design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
+    //if(!design) continue;    
+    //unsigned int mchips = design->numberOfCircuits();
 
-#if 0
-  // conversion map from position to DCS ID
-  // ECA
-  std::map<int, int> phi2M_ECA;
-  phi2M_ECA[0] = 1;
-  phi2M_ECA[1] = 6;
-  phi2M_ECA[2] = 2;
-  phi2M_ECA[3] = 5;
-  phi2M_ECA[4] = 3;
-  phi2M_ECA[5] = 4;
-  std::map<int, TString> phi2moduleID_ECA;
-  for(int phi = 0; phi < 48; phi++){
-    phi = phi + 6;
-    if (phi >= 48) phi = phi % 6;
-    phi2moduleID_ECA[phi] = Form("B%02d_S%d_M%d",(phi / 12) + 1, (phi % 12 < 6) ? 1 : 2, phi2M_ECA[phi % 6]);
-  }
-  // ECC
-  std::map<int, int> phi2M_ECC;
-  phi2M_ECC[0] = 4;
-  phi2M_ECC[1] = 3;
-  phi2M_ECC[2] = 5;
-  phi2M_ECC[3] = 2;
-  phi2M_ECC[4] = 6;
-  phi2M_ECC[5] = 1;
-  std::map<int, TString> phi2moduleID_ECC;
-  for(int phi = 0; phi < 48; phi++){
-    phi = phi + 6;
-    if (phi >= 48) phi = phi % 6;
-    phi2moduleID_ECC[phi] = Form("B%02d_S%d_M%d",(phi / 12) + 1, (phi % 12 < 6) ? 1 : 2, phi2M_ECC[phi % 6]);
-  }
-  // Barrel
-  int nlayer = 3;
-  if (m_isIBL) nlayer = 4;
-  //
-  std::vector<int> module_phi_max;
-  if (m_isIBL) module_phi_max.push_back(14);
-  module_phi_max.push_back(22);
-  module_phi_max.push_back(38);
-  module_phi_max.push_back(52);
-  // IBL
-  std::map<int, TString> eta2moduleID_IBL;
-  eta2moduleID_IBL[9] = TString("A_M4_A8_2");
-  eta2moduleID_IBL[8] = TString("A_M4_A8_1");
-  eta2moduleID_IBL[7] = TString("A_M4_A7_2");
-  eta2moduleID_IBL[6] = TString("A_M4_A7_1");
-  eta2moduleID_IBL[5] = TString("A_M3_A6");
-  eta2moduleID_IBL[4] = TString("A_M3_A5");
-  eta2moduleID_IBL[3] = TString("A_M2_A4");
-  eta2moduleID_IBL[2] = TString("A_M2_A3");
-  eta2moduleID_IBL[1] = TString("A_M1_A2");
-  eta2moduleID_IBL[0] = TString("A_M1_A1");
-  eta2moduleID_IBL[-1] = TString("C_M1_C1");
-  eta2moduleID_IBL[-2] = TString("C_M1_C2");
-  eta2moduleID_IBL[-3] = TString("C_M2_C3");
-  eta2moduleID_IBL[-4] = TString("C_M2_C4");
-  eta2moduleID_IBL[-5] = TString("C_M3_C5");
-  eta2moduleID_IBL[-6] = TString("C_M3_C6");
-  eta2moduleID_IBL[-7] = TString("C_M4_C7_1");
-  eta2moduleID_IBL[-8] = TString("C_M4_C7_2");
-  eta2moduleID_IBL[-9] = TString("C_M4_C8_1");
-  eta2moduleID_IBL[-10] = TString("C_M4_C8_2");
-  // Pixel
-  std::map<int, TString> eta2moduleID_PixelBarrel;
-  eta2moduleID_PixelBarrel[6] = TString("_M6A");
-  eta2moduleID_PixelBarrel[5] = TString("_M5A");
-  eta2moduleID_PixelBarrel[4] = TString("_M4A");
-  eta2moduleID_PixelBarrel[3] = TString("_M3A");
-  eta2moduleID_PixelBarrel[2] = TString("_M2A");
-  eta2moduleID_PixelBarrel[1] = TString("_M1A");
-  eta2moduleID_PixelBarrel[0] = TString("_M0");
-  eta2moduleID_PixelBarrel[-1] = TString("_M1C");
-  eta2moduleID_PixelBarrel[-2] = TString("_M2C");
-  eta2moduleID_PixelBarrel[-3] = TString("_M3C");
-  eta2moduleID_PixelBarrel[-4] = TString("_M4C");
-  eta2moduleID_PixelBarrel[-5] = TString("_M5C");
-  eta2moduleID_PixelBarrel[-6] = TString("_M6C");
-  //
-  std::map<int, TString> phi2moduleID_BLayer;
-  for(int phi = 0; phi < 22; phi++){
-    if(phi == 0) {
-      phi2moduleID_BLayer[phi] = TString("B11_S2");
-    } else {
-      phi2moduleID_BLayer[phi] = Form("B%02d_S%d",(phi + 1) / 2, (phi % 2) ? 1 : 2);
+    int bec        = m_pixelID->barrel_ec(ident);
+    int layer      = m_pixelID->layer_disk(ident); 
+    int modPhi = m_pixelID->phi_module(ident);
+    int module_eta = m_pixelID->eta_module(ident); 
+    int modHash = m_pixelID->wafer_hash(ident);
+
+    std::string onlineID = 
+      getDCSIDFromPosition(bec,layer,modPhi,module_eta);
+
+    std::ostringstream name;
+    
+    // hitmap
+    if( bec == 0 && layer == 0) // IBL
+      m_hitMaps[modHash] = new TH2D(onlineID.c_str(), onlineID.c_str(), 160, 0, 160, 336, 0, 336);
+    else if( abs(bec) == 4 ) // DBM
+      m_hitMaps[modHash] = new TH2D(onlineID.c_str(), onlineID.c_str(), 80,  0,  80, 336, 0, 336);
+    else
+      m_hitMaps[modHash] = new TH2D(onlineID.c_str(), onlineID.c_str(), 144, 0, 144, 328, 0, 328);    
+    name << "/histfile/hitMaps_" << histoSuffix(bec,layer) << "/" << onlineID;
+    m_tHistSvc->regHist(name.str().c_str(), m_hitMaps[modHash]).setChecked();
+    name.str(""); name.clear();
+
+
+    // LB dependence
+    m_LBdependence[modHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), m_hist_lbMax, -0.5, m_hist_lbMax + 0.5);
+    name  << "/histfile/LBdep_" << histoSuffix(bec,layer) << "/" << onlineID;
+    m_tHistSvc->regHist(name.str().c_str(), m_LBdependence[modHash]).setChecked();
+    name.str(""); name.clear();
+    
+    // BCID dependence
+    m_BCIDdependence[modHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 301, -0.5, 300.5);
+    name << "/histfile/BCIDdep_" << histoSuffix(bec,layer) << "/" << onlineID;
+    m_tHistSvc->regHist(name.str().c_str(), m_BCIDdependence[modHash]).setChecked();
+    name.str(""); name.clear();
+    
+    // TOT
+    if( bec == 0 && layer == 0) // IBL
+      m_TOTdistributions[modHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 19, -0.5, 18.5);
+    else
+      m_TOTdistributions[modHash] = new TH1D(onlineID.c_str(), onlineID.c_str(), 256, -0.5, 255.5);
+    name << "/histfile/TOT_" << histoSuffix(bec,layer) << "/" << onlineID;
+    m_tHistSvc->regHist(name.str().c_str(), m_TOTdistributions[modHash]).setChecked();
+    name.str(""); name.clear();
+    
+    // noisemap
+    if( m_calculateNoiseMaps ){
+      if( bec == 0 && layer == 0) // IBL
+	m_noiseMaps[modHash] = new TH2C(onlineID.c_str(), onlineID.c_str(), 160, 0, 160, 336, 0, 336);
+      else if( abs(bec) == 4 ) // DBM
+	m_noiseMaps[modHash] = new TH2C(onlineID.c_str(), onlineID.c_str(), 80, 0, 80, 336, 0, 336);
+      else
+	m_noiseMaps[modHash] = new TH2C(onlineID.c_str(), onlineID.c_str(), 144, 0, 144, 328, 0, 328);
+      name << "/histfile/noiseMaps_" << histoSuffix(bec,layer) << "/" << onlineID;
+      m_tHistSvc->regHist(name.str().c_str(), m_noiseMaps[modHash]).setChecked();
+      name.str(""); name.clear();
     }
-  }
-  //
-  std::map<int, TString> phi2moduleID_Layer1;
-  std::map<int, TString> phi2moduleID_Layer2;
-  for(int phi = 0; phi < 52; phi++){
-    phi2moduleID_Layer1[phi] = Form("B%02d_S%d", (phi / 2) + 1, (phi % 2) ? 2 : 1);
-    if (phi == 51) phi2moduleID_Layer2[phi] = TString("B01_S1");
-    else phi2moduleID_Layer2[phi] = Form("B%02d_S%d", (phi + 1) / 2 + 1, (phi % 2) ? 1 : 2);
-  }
-  // DBM
-  std::map<int, TString> phi2moduleID_DBM;
-  phi2moduleID_DBM[2] = "12_M1";
-  phi2moduleID_DBM[3] = "12_M2";
-  phi2moduleID_DBM[0] = "34_M3";
-  phi2moduleID_DBM[1] = "34_M4";
-  std::map<int, int> phi2moduleNum_DBM;
-  phi2moduleNum_DBM[2] = 1;
-  phi2moduleNum_DBM[3] = 4;
-  phi2moduleNum_DBM[0] = 7;
-  phi2moduleNum_DBM[1] = 10;
-#endif
+  } // end loop in detector elements 
+  
+  m_disabledModules = new TH1D("DisabledModules", "Number of events disabled vs. IdentifierHash", 2048, 0, 2048);
+  m_tHistSvc->regHist("/histfile/DisabledModules", m_disabledModules).setChecked();
+  
+  if (m_calculateNoiseMaps) {
+    m_overlayedPixelNoiseMap = new TH2D("overlayedPixelNoiseMap", "Noisy pixel map overlayed all Pixel modules", 144, 0, 144, 328, 0, 328);
+    m_tHistSvc->regHist("/histfile/overlayedPixelNoiseMap", m_overlayedPixelNoiseMap).setChecked();
+    
+    m_overlayedIBLDCNoiseMap = new TH2D("overlayedIBLDCNoiseMap", "Noisy pixel map overlayed all IBL Planar modules", 160, 0, 160, 336, 0, 336);
+    m_tHistSvc->regHist("/histfile/overlayedIBLDCNoiseMap", m_overlayedIBLDCNoiseMap).setChecked();
+    
+    m_overlayedIBLSCNoiseMap = new TH2D("overlayedIBLSCNoiseMap", "Noisy pixel map overlayed all IBL 3D modules", 80, 0, 80, 336, 0, 336);
+    m_tHistSvc->regHist("/histfile/overlayedIBLSCNoiseMap", m_overlayedIBLSCNoiseMap).setChecked();
+  }  
+  
+  return StatusCode::SUCCESS;
+} 
+
+
 
   // kazuki
-  InDetDD::SiDetectorElementCollection::const_iterator iter, itermin, itermax;
+/*  InDetDD::SiDetectorElementCollection::const_iterator iter, itermin, itermax;
   itermin = m_pixman->getDetectorElementBegin();
   itermax = m_pixman->getDetectorElementEnd();
   if(m_pixelID->wafer_hash_max() > 1744) m_isIBL = true; // #modules only Pixel is 1744
@@ -585,6 +631,7 @@ StatusCode NoiseMapBuilder::initialize(){
         }
       }
     } // end if m_isIBL
+*/
 
     //for (const auto& moduleHashInList : m_moduleHashList) {
     //  std::cout << "[DEBUG] moduleHash " << moduleHashInList << std::endl;
@@ -858,7 +905,7 @@ unsigned int hashID = ( ((m_pixelID->barrel_ec(moduleID) + 2) / 2) << 25 ) +
 //      }
 
 //m_disabledModules = new TH1D("DisabledModules", "Number of events disabled vs. IdentifierHash", 1744, 0, 1744);
-  }
+     /*  }
   m_disabledModules = new TH1D("DisabledModules", "Number of events disabled vs. IdentifierHash", 2048, 0, 2048);
   m_tHistSvc->regHist("/histfile/DisabledModules", m_disabledModules).setChecked();
 
@@ -876,9 +923,14 @@ unsigned int hashID = ( ((m_pixelID->barrel_ec(moduleID) + 2) / 2) << 25 ) +
 
   return StatusCode::SUCCESS;
 }
+     */
 
 
-
+//=========================================================
+//
+// execute
+//
+//=========================================================
 StatusCode NoiseMapBuilder::execute(){
 
   ATH_MSG_DEBUG( "Executing NoiseMapBuilder" );
@@ -1490,18 +1542,3 @@ StatusCode NoiseMapBuilder::finalize() {
   return StatusCode::SUCCESS;
 } // end finalize
 
-std::string NoiseMapBuilder::getDCSIDFromPosition (int barrel_ec, int layer, int module_phi, int module_eta){
-  for(unsigned int ii = 0; ii < m_pixelMapping.size(); ii++) {
-    if (m_pixelMapping[ii].second.size() != 4) {
-      std::cout << "getDCSIDFromPosition: Vector size is not 4!" << std::endl;
-      return std::string("Error!");
-    }
-    if (m_pixelMapping[ii].second[0] != barrel_ec) continue;
-    if (m_pixelMapping[ii].second[1] != layer) continue;
-    if (m_pixelMapping[ii].second[2] != module_phi) continue;
-    if (m_pixelMapping[ii].second[3] != module_eta) continue;
-    return m_pixelMapping[ii].first;
-  }
-  std::cout << "Not found!" << std::endl;
-  return std::string("Error!");
-}
