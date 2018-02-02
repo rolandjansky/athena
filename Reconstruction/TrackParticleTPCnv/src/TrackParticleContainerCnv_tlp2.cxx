@@ -41,6 +41,7 @@ TrackParticleContainerCnv_tlp2::TrackParticleContainerCnv_tlp2() {
     addTPConverter( &m_surfacesCnv);
     addTPConverter( &m_cylinderBoundsCnv);
     addTPConverter( &m_diamondBoundsCnv);
+    addTPConverter( &m_rotatedDiamondBoundsCnv);
     addTPConverter( &m_discBoundsCnv);
     addTPConverter( &m_rectangleBoundsCnv);
     addTPConverter( &m_trapesoidBoundsCnv);
@@ -99,8 +100,9 @@ void TrackParticleContainerCnv_tlp2::setPStorage( Rec::TrackParticleContainer_tl
 
     m_surfacesCnv.		setPStorage( &storage->m_surfaces );              
     m_cylinderBoundsCnv.	setPStorage( &storage->m_cylinderBounds );        
-    m_diamondBoundsCnv.	setPStorage( &storage->m_diamondBounds );         
-    m_discBoundsCnv.	setPStorage( &storage->m_discBounds );            
+    m_diamondBoundsCnv.	        setPStorage( &storage->m_diamondBounds );         
+    m_rotatedDiamondBoundsCnv.  setPStorage( &storage->m_rotatedDiamondBounds );         
+    m_discBoundsCnv.	        setPStorage( &storage->m_discBounds );            
     m_rectangleBoundsCnv.	setPStorage( &storage->m_rectangleBounds );       
     m_trapesoidBoundsCnv.	setPStorage( &storage->m_trapesoidBounds );      
     m_rotatedTrapesoidBoundsCnv.   setPStorage( &storage->m_rotatedTrapesoidBounds); 
