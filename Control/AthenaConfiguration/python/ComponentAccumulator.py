@@ -4,6 +4,8 @@
 #from AthenaCommon.Logging import logging
 from AthenaConfiguration.CfgLogMsg import cfgLogMsg
 from AthenaCommon.Configurable import Configurable,ConfigurableService,ConfigurableAlgorithm,ConfigurableAlgTool
+from AthenaCommon.CFElements import isSequence,findSubSequence,findAlgorithm
+from AthenaCommon.AlgSequence import AlgSequence
 
 import GaudiKernel.GaudiHandles as GaudiHandles
 import ast
@@ -18,13 +20,16 @@ class ConfigurationError(RuntimeError):
     pass 
 
 class CurrentSequence:
-    sequence = 'AthAlgSeq'
+    sequence = AlgSequence()
+
     @staticmethod
     def set( newseq ):
+        #print "CurrentSequence set.... ", newseq.name()
         CurrentSequence.sequence = newseq
 
     @staticmethod
-    def get():
+    def get(  ):
+        #print "CurrentSequence ....get %s " %  CurrentSequence.sequence.name()
         return CurrentSequence.sequence
 
 
@@ -32,7 +37,7 @@ class ComponentAccumulator(object):
 
     def __init__(self):
         self._msg=cfgLogMsg  #logging.getLogger('ComponentAccumulator')
-        self._eventAlgs={}     #Unordered list of event processing algorithms per sequence + their private tools         
+        self._sequence=CurrentSequence.get()
         self._conditionsAlgs=[]                #Unordered list of conditions algorithms + their private tools 
         self._services=[]                      #List of service, not yet sure if the order matters here in the MT age
         self._conditionsInput=set()            #List of database folder (as string), eventually passed to IOVDbSvc
@@ -49,63 +54,47 @@ class ComponentAccumulator(object):
     def printConfig(self, withDetails=False):
         self._msg.info( "Event Inputs" )
         self._msg.info( self._eventInputs )
-        self._msg.info( "Event algs" )
-        for seq, algs in self._eventAlgs.iteritems():
-            self._msg.info( " Sequence " +seq )            
-            self._msg.info( "   "+  ' '.join( map( lambda x: x.getFullName(), algs)) )
+        self._msg.info( "Event Algorithm Sequences" )
+        self._msg.info( self._sequence )        
         self._msg.info( "Conditions Inputs" )
         self._msg.info( self._conditionsInput )
-        self._msg.info( "Conditions Algs" )
+        self._msg.info( "Condition Algorithms" )
         self._msg.info( [ a.getName() for a in self._conditionsAlgs ] )
         self._msg.info( "Services" )
         self._msg.info( [ s.getName() for s in self._services ] )
         self._msg.info( "Outputs" )
         self._msg.info( self._outputPerStream )
 
-    def addSequence(self, newseq, sequence = CurrentSequence.get() ):
+    def addSequence(self, newseq, sequenceName = CurrentSequence.get().name() ):
         """ Adds new sequence. If second argument is present then it is added under another sequence  """
         
-        def __findInSequenceTree( start, seq ):
-            for sub in start
+        seq = findSubSequence(self._sequence, sequenceName )
+        if seq == None:
+            raise ConfigurationError("Missing sequence %s to add new sequence to" % sequenceName )                
+        if findSubSequence( self._sequence, newseq.name() ):
+            raise ConfigurationError("Sequence %s already present" % newseq.name() )
+        seq += newseq
 
-        if newseq not in self._eventAlgs.keys():
-            self._msg.info("Adding Sequence sequence %s to the job" % sequence)
-            self._eventAlgs[newseq]=[]
-            
-
-
-            pass
-        else:
-            raise ConfigurationError("Sequence %s already present" % newseq )
-        
-        pass
-
-
-    def addEventAlgo(self, algo, sequence = CurrentSequence.get() ):                
+    def addEventAlgo(self, algo ):                
         if not isinstance(algo, ConfigurableAlgorithm):
-            raise TypeError("Attempt to add wrong type as event algorithm")
+            raise TypeError("Attempt to add wrong type: %s as event algorithm" % type( algo ).__name__)
             pass
-
-        if sequence not in self._eventAlgs.keys():
-            self._msg.info("Adding EventAlg sequence %s to the job" % sequence)
-            self._eventAlgs[sequence]=[]
-            pass
-        self._msg.debug("Adding EventAlgo %s to sequence %s" % (algo.getFullName(), sequence))
-        self._eventAlgs[sequence].append(algo)
+        seq = CurrentSequence.get()
+        seq += algo
+        self._msg.debug("  Adding %s to sequence %s" % ( algo.getFullName(), seq.name()) )
         pass
 
 
-    def getEventAlgo(self,name,sequence= CurrentSequence.get() ):
-        hits=[a for a in self._eventAlgs[sequence] if a.getName()==name]
-        if (len(hits)>1):
-            print hits
-            raise ConfigurationError("More than one Algorithm with name %s found in sequence %s" %(name,sequence))
-        
-        return hits[0]
+    def getEventAlgo(self,name):
+        """ Looks for an algorithm given the name in all sequences """
+        algo = findAlgorithm( AlgSeqeunce(), name )
+        if algo == None:
+            raise ConfigurationError("Can not find an algorithm of name %d ", name)
+        return algo
 
     def addCondAlgo(self,algo):
         if not isinstance(algo, ConfigurableAlgorithm):
-            raise TypeError("Attempt to add wrong type as conditions algorithm")
+            raise TypeError("Attempt to add wrong type: %s as conditions algorithm" % type( algo ).__name__)
             pass
         self._deduplicate(algo,self._conditionsAlgs) #will raise on conflict
         return
@@ -119,7 +108,7 @@ class ComponentAccumulator(object):
 
     def addService(self,newSvc):
         if not isinstance(newSvc,ConfigurableService):
-            raise TypeError("Attempt to add wrong type as service")
+            raise TypeError("Attempt to add wrong type: %s as service" % type( newSvc ).__name__)
             pass
         self._deduplicate(newSvc,self._services)  #will raise on conflict
         return 
@@ -127,7 +116,7 @@ class ComponentAccumulator(object):
 
     def addPublicTool(self,newTool):
         if not isinstance(newTool,ConfigurableAlgTool):
-            raise TypeError("Attempt to add wrong type as AlgTool")
+            raise TypeError("Attempt to add wrong type: %s as AlgTool" % type( newTool ).__name__)
         newTool.setParent("ToolSvc")
         self._deduplicate(newTool,self._publicTools)
         return
@@ -155,11 +144,11 @@ class ComponentAccumulator(object):
                             #found property mismatch
                             if isinstance(oldprop,list): #if properties are concatinable, do that!
                                 oldprop+=newprop
-                                #print "concatinating list-property",comp.getJobOptname(),prop
+                                #print "concatenating list-property",comp.getJobOptname(),prop
                                 setattr(comp,prop,oldprop)
                             else:
-                                #self._msg.error("component '%s' defined mutiple times with mismatching configuraton" % svcs[i].getJobOptName())
-                                raise DeduplicationFailed("component '%s' defined mutiple times with mismatching property %s" % \
+                                #self._msg.error("component '%s' defined multiple times with mismatching configuration" % svcs[i].getJobOptName())
+                                raise DeduplicationFailed("component '%s' defined multiple times with mismatching property %s" % \
                                                                   comp.getJobOptName(),prop)
                             pass 
                             #end if prop-mismatch
@@ -227,18 +216,44 @@ class ComponentAccumulator(object):
         pass
 
     def __merge(self,other):        
+        """ Merging in the other accumulator """
         if not isinstance(other,ComponentAccumulator):
-            raise TypeError("Attempt merge wrong type. Only instances of ComponentAccumulator can be added")
+            raise TypeError("Attempt merge wrong type %s. Only instances of ComponentAccumulator can be added" % type(other).__name__)
+                
         
+        #destSubSeq = findSubSequence(self._sequence, sequence)
+        #if destSubSeq == None:
+        #    raise ConfigurationError( "Nonexistent sequence %s in %s (or its sub-sequences)" % ( sequence, self._sequence.name() ) )          #     
+        # def mergeSequences( dest, src ):        
+        #     for c in src.getChildren():
+        #         if isSequence( c ):
+        #             sub = findSubSequence( dest, c.name() )
+        #             if sub:
+        #                 mergeSequences(sub, c )
+        #             else:
+        #                 self._msg.debug("  Merging sequence %s to a sequnece %s" % ( c.name(), dest.name() ) )          
+        #                 dest += c
+        #         else: # an algorithm
+        #             existingAlg = findAlgorithm( dest, c.name(), depth=1 )
+        #             if existingAlg:
+        #                 if existingAlg != c: # if it is the same we can just skip it, else this indicates an error
+        #                     raise ConfigurationError( "Duplicate algorithm %s in source and destination sequences %s" % ( c.name(), src.name()  ) )           
+        #             else: # absent, adding
+        #                 self._msg.debug("  Merging algorithm %s to a sequnece %s" % ( c.name(), dest.name() ) )          
+        #                 dest += c
+                        
+        # mergeSequences( destSubSeq, other._sequence )
+        
+        #mergeSequences(self._sequences, other._sequences)
         # Merge Algorithms per sequence
-        allkeys=set(self._eventAlgs.keys()) | set(other._eventAlgs.keys())
-        for k in allkeys:
-            if not self._eventAlgs.has_key(k): 
-                self._eventAlgs[k]=other._eventAlgs[k] #sequence only known to other
-            elif not other._eventAlgs.has_key[k]: #sequence only known to self
-                pass 
-            else: #sequence known to both self and other
-                self._eventAlgs[k]+=other._eventAlgs[k] 
+        # allkeys=set(self._eventAlgs.keys()) | set(other._eventAlgs.keys())
+        # for k in allkeys:
+        #     if not self._eventAlgs.has_key(k): 
+        #         self._eventAlgs[k]=other._eventAlgs[k] #sequence only known to other
+        #     elif not other._eventAlgs.has_key[k]: #sequence only known to self
+        #         pass 
+        #     else: #sequence known to both self and other
+        #         self._eventAlgs[k]+=other._eventAlgs[k] 
 
 
         # Merge Conditions inputs
@@ -270,14 +285,31 @@ class ComponentAccumulator(object):
         self.__merge(other)
         return self
 
-    def executeModule(self,fct,configFlags, withSequence=CurrentSequence.get(), *args,**kwargs):
-        currentDefaultSequence = CurrentSequence.get()
-        CurrentSequence.set( withSequence )
+    
+    def executeModule(self,fct,configFlags, sequence=None, *args,**kwargs):
+        """ The heart and soul of configuration system. You need to read the whole documentation. 
+
+        This method eliminates possibility that a downstream configuration alters the upstream one. 
+        It is done by a two-fold measures:
+        - the flags are cloned so downstream access only the copy of the flags
+        - the sub-accumulators can not access the upstream accumulators and thus alter any configuration.
+          The combination process is defined in the __merge method of this class. Less flexibility == robustness.
+        """
+        
+        currentSeq = seq = CurrentSequence.get()
+        if sequence:            
+            seq = findSubSequence(seq, sequence )            
+            if seq == None:
+                raise ConfigurationError("Can not add algorithms to sequence %s as it does not exist" % sequence )            
+            CurrentSequence.set( seq )
+
         cfconst=deepcopy(configFlags)
-        self._msg.info("Excuting configuration function %s" % fct.__name__)
-        cm=fct(cfconst,*args,**kwargs)
-        self.__merge(cm)
-        CurrentSequence.set( currentDefaultSequence )
+        self._msg.info("Executing configuration function %s" % fct.__name__)
+        subAccumulator = fct( cfconst, *args,**kwargs )
+        self.__merge( subAccumulator )
+
+        CurrentSequence.set( currentSeq )
+        
  
     def appendConfigurable(self,confElem):
         name=confElem.getJobOptName() #FIXME: Don't overwrite duplicates! 
@@ -377,4 +409,66 @@ class ComponentAccumulator(object):
             theApp.TopAlg+=alg
 
         theApp.run()
-            
+
+# self test            
+if __name__ == "__main__":
+    # trivial case without any nested sequences
+    from AthenaCommon.Configurable import ConfigurablePyAlgorithm as Algo # guinea pig algorithms
+    from AthenaConfiguration.ConfigFlags import ConfigFlagContainer
+    from AthenaCommon.CFElements import *
+    cfgLogMsg.setLevel("debug")
+
+    def AlgsConf1(flags):
+        acc = ComponentAccumulator()
+        acc.addEventAlgo( Algo("Algo1")  )
+        acc.addEventAlgo( Algo("Algo2")  )
+        return acc
+
+    def AlgsConf2(flags):
+        acc = ComponentAccumulator()
+        acc.executeModule( AlgsConf1, flags )
+        acc.addEventAlgo( Algo("Algo3") )
+        return acc
+
+    acc = ComponentAccumulator()
+    flags=ConfigFlagContainer()
+    
+    acc.executeModule( AlgsConf2, flags )
+    # checks
+    assert findAlgorithm(AlgSequence(), "Algo1", 1), "Algorithm not added to a top sequence"
+    assert findAlgorithm(AlgSequence(), "Algo2", 1), "Algorithm not added to a top sequence"
+    assert findAlgorithm(AlgSequence(), "Algo3", 1), "Algorithm not added to a top sequence"
+    print( "Simple Configuration construction OK ")
+
+    def AlgsConf3(flags):
+        acc = ComponentAccumulator()
+        acc.addEventAlgo( Algo("NestedAlgo1") )
+        return acc
+
+    def AlgsConf4(flags):
+        acc = ComponentAccumulator()
+        acc.executeModule( AlgsConf3, flags )
+        acc.addEventAlgo( Algo("NestedAlgo2") )
+        return acc
+
+
+    acc.addSequence( seqAND("subSequence1") )
+    acc.addSequence( parOR("subSequence2") )
+    assert findSubSequence(AlgSequence(), "subSequence1"), "Adding sub-sequence failed"
+    assert findSubSequence(AlgSequence(), "subSequence2"), "Adding sub-sequence failed"
+
+    acc.addSequence( seqAND("sub2Sequence1"), "subSequence1")
+    assert findSubSequence(AlgSequence(), "sub2Sequence1"), "Adding sub-sequence failed"
+    assert findSubSequence( findSubSequence(AlgSequence(), "subSequence1"), "sub2Sequence1" ), "Adding sub-sequence doen in a wrong place"
+
+    acc.executeModule( AlgsConf4, flags, sequence="subSequence1" )    
+    assert findAlgorithm(AlgSequence(), "NestedAlgo1" ), "Algorithm added to nested seqeunce"
+    assert findAlgorithm(AlgSequence(), "NestedAlgo1", 1 ) == None, "Algorithm mistakenly in top sequence"
+    assert findAlgorithm( findSubSequence(AlgSequence(), "subSequence1"), "NestedAlgo1", 1 ), "Algorithm not in right sequence"
+    print( "Complex sequences construction also OK ")
+
+    
+    acc.printConfig()
+
+    print( "\nAll OK" )
+
