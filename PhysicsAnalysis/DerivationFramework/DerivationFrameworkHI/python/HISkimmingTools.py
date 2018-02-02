@@ -1,0 +1,122 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
+from DerivationFrameworkCore.DerivationFrameworkMaster import *
+
+HIGlobalVars=[ "CaloSums",
+              "ZdcModules",
+              "ZdcTriggerTowers",
+              "MBTSForwardEventInfo",
+              "MBTSModules"]
+
+def getHIEventSelector() : 
+    from AthenaCommon.AppMgr import ToolSvc
+    if hasattr(ToolSvc,"HIEventSelector") : return getattr(ToolSvc,"HIEventSelector")
+
+    from HIEventUtils.HIEventUtilsConf import HI__HIEventSelectionTool
+    HIEventSelector=HI__HIEventSelectionTool("HIEventSelector")
+    ToolSvc+=HIEventSelector
+    from HIEventUtils.HIEventUtilsConf import HI__HIVertexSelectionTool
+    HIVertexSelector=HI__HIVertexSelectionTool("HIVertexSelector")
+    ToolSvc+=HIVertexSelector
+
+    from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool 
+    HITrackSelector=InDet__InDetTrackSelectionTool("InDetTrackSelectionTool_HILoose")
+    HITrackSelector.CutLevel = "LoosePrimary"
+    ToolSvc+=HITrackSelector
+    HIVertexSelector.TrackSelectionTool=HITrackSelector
+    HIEventSelector.VertexSelectionTool=HIVertexSelector
+    
+    return HIEventSelector
+    
+    
+def GetConditionsFromMetaData() :
+
+    from PyUtils import AthFile
+    af = AthFile.fopen(svcMgr.EventSelector.InputCollections[0])
+    project_tag = af.fileinfos['metadata']['/TagInfo']['project_name']
+    beam_energy = af.fileinfos['metadata']['/TagInfo']['beam_energy']
+    physics_stream = af.fileinfos['metadata']['/TagInfo']['triggerStreamOfFile']
+    
+    
+    print '+++++++++++++++++++++++++++++++ project tag: ',project_tag,' +++++++++++++++++++++++++++++++'
+    print '+++++++++++++++++++++++++++++++ beam energy: ',beam_energy,' +++++++++++++++++++++++++++++++'
+    print '+++++++++++++++++++++++++++++++ physics stream: ',physics_stream,' +++++++++++++++++++++++++++++++'
+
+
+    from DerivationFrameworkHI.HIDerivationFlags import HIDerivationFlags
+    
+    #Set physics stream
+    if physics_stream=='MinBias':
+      HIDerivationFlags.doMinBiasSelection = True
+    else:
+      HIDerivationFlags.doMinBiasSelection = False
+    
+    #Set data/MC
+    isMC = IsMC()
+    if isMC :
+      print "Dataset Type: MC"
+      if HIDerivationFlags.isSimulation.is_locked() and not HIDerivationFlags.isSimulation :
+          print 'WARNING: Can not change locked simulation flag to True'
+      HIDerivationFlags.isSimulation = True
+      if IsHIMC(project_tag) : HIDerivationFlags.isPP = False
+      else : HIDerivationFlags.isPP = True
+    else :
+      if HIDerivationFlags.isSimulation.is_locked() and HIDerivationFlags.isSimulation :
+          print 'WARNING: Can not change locked simulation flag to False'
+      HIDerivationFlags.isSimulation = False
+    
+    #Set project     
+    if not HIDerivationFlags.isSimulation :
+      if project_tag=='data15_hi':
+        if HIDerivationFlags.isPP.is_locked() and HIDerivationFlags.isPP :
+          print 'WARNING: Can not change locked project tag to HI'  
+        HIDerivationFlags.isPP = False
+        print "Dataset Type: HeavyIon 2015"
+      elif project_tag=='data15_5TeV':
+        if HIDerivationFlags.isPP.is_locked() and not HIDerivationFlags.isPP :
+          print 'WARNING: Can not change locked project tag to pp' 
+        HIDerivationFlags.isPP = True
+        print "Dataset Type: pp 2015"   
+      elif project_tag=='data16_hip8TeV':
+        if HIDerivationFlags.isPPb.is_locked() and not HIDerivationFlags.isPPb :
+          print 'WARNING: Can not change locked project tag to pPb' 
+        HIDerivationFlags.isPPb = True
+        print "Dataset Type: proton-Ion 8.16TeV 2016" 
+      elif project_tag=='data16_hip5TeV':
+        if HIDerivationFlags.isPPb.is_locked() and not HIDerivationFlags.isPPb :
+          print 'WARNING: Can not change locked project tag to pPb' 
+        HIDerivationFlags.isPPb = True
+        print "Dataset Type: proton-Ion 5.02TeV 2016" 
+      else:
+        print "Unknown Dataset: Quitting" 
+        exit()
+    else:
+      if project_tag=='data16_hip8TeV':
+        if HIDerivationFlags.isPPb.is_locked() and not HIDerivationFlags.isPPb :
+          print 'WARNING: Can not change locked project tag to pPb' 
+        HIDerivationFlags.isPPb = True
+        print "Dataset Type: proton-Ion 8.16TeV data overlay MC" 
+      elif beam_energy==4080000.:
+        if HIDerivationFlags.isPPb.is_locked() and not HIDerivationFlags.isPPb :
+          print 'WARNING: Can not change locked project tag to pPb' 
+        HIDerivationFlags.isPPb = True
+        print "Dataset Type: proton-Ion 8.16TeV MC" 
+    print 'Running with ', HIDerivationFlags.isSimulation, ', ', HIDerivationFlags.isPP, ', ', HIDerivationFlags.isPPb, ', and ', HIDerivationFlags.doMinBiasSelection    
+
+def IsMC() :
+	if globalflags.DataSource()=='geant4': return True
+	from PyUtils import AthFile
+	af = AthFile.fopen(svcMgr.EventSelector.InputCollections[0])
+	containers=af.fileinfos['eventdata_items']
+	for c in containers:
+		if "Truth" in c[0] : return True
+	return False
+	
+def IsHIMC(project_tag="") :    
+	from RecExConfig.RecFlags import rec
+	isMC = IsMC()
+	if not globalflags.DataSource()=='geant4' and isMC: return True #=> Overlay
+	if 'hi' in project_tag : return True # =>  test for the key word in project tag (some validation samples)
+	if not rec.doHIP and isMC : return True #=> HIJING
+	return False     
+    

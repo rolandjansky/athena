@@ -220,6 +220,7 @@
 + PhysicsAnalysis/EventTag/TagEvent
 + PhysicsAnalysis/EventTag/EventTagTPCnv
 + PhysicsAnalysis/EventTag/EventTagAthenaPOOL
++ PhysicsAnalysis/HeavyIonPhys/HIEventUtils
 + PhysicsAnalysis/Interfaces/.*
 + PhysicsAnalysis/JetTagging/JetTagAlgs/.*
 + PhysicsAnalysis/JetTagging/JetTagCalibUtils/.*
@@ -261,6 +262,7 @@
 + Reconstruction/egamma/egammaTrackTools
 + Reconstruction/egamma/egammaUtils
 + Reconstruction/EventShapes/.*
++ Reconstruction/HeavyIonRec/HIRecExample  
 - Reconstruction/Jet/JetEvent.+
 + Reconstruction/Jet/.*
 + Reconstruction/MET/METRecoInterface
