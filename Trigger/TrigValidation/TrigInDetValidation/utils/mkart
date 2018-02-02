@@ -112,7 +112,7 @@ for xmlfile in $FILES; do
     echo "# art-output: *.root"   >>  $outfile 
     echo "# art-output: *.log"    >>  $outfile 
 
-    echo "# art-input-nfiles: 25" >> $outfile 
+    echo "# art-input-nfiles: 10" >> $outfile 
     echo ""                       >> $outfile 
     echo ""                       >> $outfile 
 
@@ -321,6 +321,7 @@ for xmlfile in $FILES; do
     fi
 
 done
+
 
 
 

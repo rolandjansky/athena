@@ -62,8 +62,12 @@ class CaloTopoClusterMaker: public AthAlgTool, virtual public CaloClusterCollect
 
   void getClusterSize();
 
+
  private: 
   
+ 
+  inline bool passCellTimeCut(const CaloCell*) const;
+
   const CaloDetDescrManager* m_calo_dd_man; 
   
   const CaloCell_ID* m_calo_id;
@@ -150,6 +154,13 @@ class CaloTopoClusterMaker: public AthAlgTool, virtual public CaloClusterCollect
       seed level */
   float m_seedThresholdOnEtorAbsEt;              
 
+
+  /**                                                                                                             
+   * threshold used for timing cut. Implemented as |seed_cell_time|<m_seedThresholdOnTAbs. No such cut on neighbouring cells.*/
+  float m_seedThresholdOnTAbs;
+
+
+
   /**
    * @brief switch to use the CaloNoiseTool 
    *
@@ -158,6 +169,8 @@ class CaloTopoClusterMaker: public AthAlgTool, virtual public CaloClusterCollect
    * according to the current conditions. In case this switch is set
    * to false a constant noise value for all cells will be used.  */
   bool m_useNoiseTool;
+
+
 
   /**
    * @brief switch to use the pile-up noise CaloNoiseTool 
@@ -264,6 +277,12 @@ class CaloTopoClusterMaker: public AthAlgTool, virtual public CaloClusterCollect
    * or \f$|E|_\perp\f$ of the cluster depending on the above switch)
    * in order to be inserted into the CaloClusterContainer.  */
   float m_clusterEtorAbsEtCut;                   
+
+  /**                                                                                              
+   * if set to true, time cut is applied to seed cells, no cut otherwise 
+   */
+  bool m_seedCutsInT;
+
                                                  
   /**
    * @brief if set to true use 2-gaussian noise description for 

@@ -12,7 +12,7 @@ if [ -z ${TEST} ]; then
   export TEST="TrigP1Test"
 fi
 
-export NAME= HLT_physicsV7_COS_2016MUONS
+export NAME=HLT_physicsV7_COS_2016MUONS
 export JOB_LOG="${NAME}.log"
 
 timeout 20m trigtest_ART.pl --cleardir --test ${NAME} --rundir ${NAME} --conf TrigP1Test_ART.conf | tee ${JOB_LOG}
