@@ -10,15 +10,8 @@ HIGG2D5ExtraContent=[
     "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m"
     ]
 
-HIGG2D5ExtraContentTruth=[
-    ]
+HIGG2D5ExtraContentTruth=[]
 
-HIGG2D5ExtraContainers=[
-    "MET_Track"]
+HIGG2D5ExtraContainers=[]
 
-HIGG2D5ExtraContainersTruth=[
-    "TruthEvents",
-    "TruthParticles",
-    "TruthVertices",
-    "AntiKt4TruthJets",
-    "MuonTruthParticles"]
+HIGG2D5ExtraContainersTruth=[]
