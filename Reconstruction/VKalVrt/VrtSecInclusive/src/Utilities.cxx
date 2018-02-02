@@ -1013,11 +1013,6 @@ namespace VKalVrtAthena {
       
     ATH_MSG_DEBUG( " >> " << __FUNCTION__ << ": number of used tracks = " << usedTracks.size() );
     
-    unsigned nmatched = 0;
-    if( matchMap.size() > 0 ) {
-      nmatched = std::count_if( matchMap.begin(), matchMap.end(), []( auto& pair ) { return pair.second; } );
-    }
-    
     if( previous.size() > 0 && previous.size() == matchMap.size() ) {
       for( auto& pair : matchMap ) {
         if( previous.find( pair.first ) == previous.end() ) continue;
@@ -1859,8 +1854,7 @@ namespace VKalVrtAthena {
     for( auto itr = exPattern_along.begin(); itr != exPattern_along.end(); ++itr ) {
       if( std::next( itr ) == exPattern_along.end() ) continue;
       
-      const auto& point      = *itr;
-      const auto& nextPoint  = *( std::next( itr ) );
+      const auto& point = *itr;
       
       ATH_MSG_VERBOSE( " > " <<  __FUNCTION__ << ": isActive = " << std::get<isActive>( point ) );
       
@@ -2030,7 +2024,7 @@ namespace VKalVrtAthena {
     
     if( m_jp.FillHist ) {
       for( auto* truthVertex : m_tracingTruthVertices ) {
-        m_hists["nMatchedTruths"]->Fill( m_vertexingAlgorithmStep, truthVertex->perp() );
+        m_hists["nMatchedTruths"]->Fill( 0., truthVertex->perp() );
       }
     }
     
