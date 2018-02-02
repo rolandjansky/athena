@@ -292,9 +292,9 @@ def setupMenu():
         ['j0_lcw_jes_L1J12',       'L1_J12', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1], 
 
         #ATR-17198
-        ['j0_perf_ds1_L1J50_DETA20-J50J ',     'L1_J50_DETA20-J50J',  [], ['DataScouting_05_Jets'], ['RATE:Jets_DS', 'BW:Jet'], -1],
+        ['j0_perf_ds1_L1J50_DETA20-J50J',     'L1_J50_DETA20-J50J',  [], ['DataScouting_05_Jets'], ['RATE:Jets_DS', 'BW:Jet'], -1],
         ['j110_ds1_L1J100',                    'L1_J100',             [], ['DataScouting_05_Jets'], ['RATE:Jets_DS', 'BW:Jet'], -1],
-        ['j60_ds1_L1J50_DETA20-J50J ',         'L1_J50_DETA20-J50J',  [], ['DataScouting_05_Jets'], ['RATE:Jets_DS', 'BW:Jet'], -1],
+        ['j60_ds1_L1J50_DETA20-J50J',         'L1_J50_DETA20-J50J',  [], ['DataScouting_05_Jets'], ['RATE:Jets_DS', 'BW:Jet'], -1],
 
         #####
         ######################### Single-jet small-R trigger chains
