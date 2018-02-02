@@ -61,3 +61,4 @@ atlas_add_test( SCT_RODVetoSvc_test
 
 # Install files from the package:
 atlas_install_headers( SCT_ConditionsServices )
+atlas_install_python_modules( python/*.py )

@@ -20,12 +20,7 @@
 #include "StorageSvc/IOODatabase.h"
 #include "StorageSvc/DbInstanceCount.h"
 
-#ifdef HAVE_GAUDI_PLUGINSVC
 #include "Gaudi/PluginService.h"
-#else
-#include "Reflex/PluginService.h"
-#endif
-#include "GAUDI_VERSION.h"
 
 // C++ include files
 #include <memory>
@@ -76,15 +71,7 @@ IOODatabase* DbSessionObj::db(const DbType& typ)  const   {
   DbTypeMap* types = (DbTypeMap*)m_dbTypes;
   if ( 0 == (*types)[typ] )   {
     const std::string nam = typ.storageName();
-#ifdef HAVE_GAUDI_PLUGINSVC
-#if GAUDI_VERSION > CALC_GAUDI_VERSION(25, 3) 
     IOODatabase* imp = Gaudi::PluginService::Factory<IOODatabase*>::create(nam);
-#else  
-    IOODatabase* imp = Gaudi::PluginService::Factory1<IOODatabase*>::create(nam);
-#endif
-#else
-    IOODatabase* imp = ROOT::Reflex::PluginService::Create<IOODatabase*>(nam);
-#endif
     if ( imp )  {
       DbStatus sc = imp->initialize(nam);
       if ( sc.isSuccess() )   {

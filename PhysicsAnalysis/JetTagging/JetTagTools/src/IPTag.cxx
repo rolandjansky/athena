@@ -393,6 +393,10 @@ namespace Analysis {
 	ATH_MSG_DEBUG("#BTAG# Retrieved tool " <<  m_TightTrackVertexAssociationTool);
       }
     }
+    else {
+      m_InDetTrackSelectorTool.disable();
+      m_TightTrackVertexAssociationTool.disable();
+    }
 
     return StatusCode::SUCCESS;
   }

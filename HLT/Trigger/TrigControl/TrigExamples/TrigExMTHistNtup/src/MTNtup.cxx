@@ -27,7 +27,6 @@ StatusCode MTNtup::initialize() {
 
    ATH_MSG_INFO("in initialize()");
 
-#ifdef ATLAS_GAUDI_V21
    SmartIF<IService> tmp_msgSvc(msgSvc());
    if(tmp_msgSvc.isValid()) {
       ATH_MSG_INFO(" Algorithm = " << name() << " is connected to Message Service = "
@@ -40,20 +39,6 @@ StatusCode MTNtup::initialize() {
       ATH_MSG_INFO(" Algorithm = " << name() << " is connected to Ntuple Service = "
                    << tmp_ntupSvc->name());
    }
-#else
-   Service* tmp_msgSvc = dynamic_cast<Service*> (msgSvc());
-   if(tmp_msgSvc != 0) {
-      ATH_MSG_INFO(" Algorithm = " << name() << " is connected to Message Service = "
-                   << tmp_msgSvc->name());
-   }
-  
-   // Create a column-wise ntuple
-   Service* tmp_ntupSvc = dynamic_cast<Service*> (ntupleSvc());
-   if(tmp_ntupSvc != 0) {
-      ATH_MSG_INFO(" Algorithm = " << name() << " is connected to Ntuple Service = "
-                   << tmp_ntupSvc->name());
-   }
-#endif
 
    /*
    //  TB try

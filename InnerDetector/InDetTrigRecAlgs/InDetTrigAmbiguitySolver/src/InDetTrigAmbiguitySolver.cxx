@@ -63,6 +63,7 @@ HLT::ErrorCode InDetTrigAmbiguitySolver::hltInitialize() {
 
   msg() << MSG::INFO << "InDetTrigAmbiguitySolver::initialize(). "<< endmsg;
 
+
   if (m_resolveTracks){
 
     StatusCode sc =  m_ambiTool.retrieve();
@@ -73,6 +74,8 @@ HLT::ErrorCode InDetTrigAmbiguitySolver::hltInitialize() {
     } 
     else
       msg() << MSG::INFO << "Retrieved tool " << m_ambiTool << endmsg;
+  } else {
+    m_ambiTool.disable();
   }
 
 

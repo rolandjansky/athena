@@ -29,22 +29,12 @@ print globalflags
 from RecExConfig.RecFlags import rec
 rec.projectName.set_Value_and_Lock("data12_8TeV")
 
-from IOVSvc.IOVSvcConf import CondSvc
-ServiceMgr += CondSvc()
-from AthenaCommon.AlgSequence import AthSequencer
-condSeq = AthSequencer("AthCondSeq")
-
-from IOVDbSvc.CondDB import conddb
-
-from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SensorsCondAlg
-condSeq += SCT_SensorsCondAlg( "SCT_SensorsCondAlg" )
-
 # Load IOVDbSvc
 IOVDbSvc = Service("IOVDbSvc")
 IOVDbSvc.GlobalTag=globalflags.ConditionsTag()
 IOVDbSvc.OutputLevel = 3
+from IOVDbSvc.CondDB import conddb
 conddb.dbdata="COMP200"
-conddb.addFolderWithTag("SCT_OFL","/SCT/Sensors","SctSensors-Sep03-14", className="CondAttrListCollection")
 
 #--------------------------------------------------------------
 # Set Detector setup
@@ -80,8 +70,9 @@ import AtlasGeoModel.GeoModelInit
 ServiceMgr.GeoModelSvc.DetectorTools['PixelDetectorTool'].LorentzAngleSvc=""
 ServiceMgr.GeoModelSvc.DetectorTools['SCT_DetectorTool'].LorentzAngleSvc=""
 
-from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SensorsSvc
-ServiceMgr +=SCT_SensorsSvc()
+from SCT_ConditionsServices.SCT_SensorsSvcSetup import sct_SensorsSvcSetup
+sct_SensorsSvcSetup.setFolderTag("SctSensors-Sep03-14")
+sct_SensorsSvcSetup.setup()
 
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()

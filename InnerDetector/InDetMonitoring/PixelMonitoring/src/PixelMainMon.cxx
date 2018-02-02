@@ -470,7 +470,7 @@ StatusCode PixelMainMon::initialize() {
   } else {
     msg(MSG::INFO) << "Retrieved tool " << m_lumiTool << endmsg;
   }
-
+  
   if (!m_doDCS) return StatusCode::SUCCESS;
 
   m_atrcollist.push_back(std::string("/PIXEL/DCS/TEMPERATURE"));

@@ -54,29 +54,23 @@ StatusCode InDetAlignMon::TrackSelectionTool::initialize()
   
   // get TrackSelectorTool
 
-  
-  if ( ! m_useIDTrackSelectionTool )
-    {
-      if ( m_trackSelectorTool.retrieve().isFailure() ) {
-	msg(MSG::FATAL) << "Failed to retrieve tool " << m_trackSelectorTool << endmsg;
-	return StatusCode::FAILURE;
-      } else {
-	if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Retrieved tool " << m_trackSelectorTool << endmsg;
-      }
-      m_idtrackSelectionTool.disable();
+  if ( ! m_useIDTrackSelectionTool ) {
+    if ( m_trackSelectorTool.retrieve().isFailure() ) {
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_trackSelectorTool << endmsg;
+      return StatusCode::FAILURE;
+    } else {
+      if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Retrieved tool " << m_trackSelectorTool << endmsg;
     }
-  else
-    {
-      if (   m_idtrackSelectionTool.retrieve().isFailure() ) {
-	msg(MSG::FATAL) << "Failed to retrieve tool " << m_idtrackSelectionTool << endmsg;
-	return StatusCode::FAILURE;
-      } else {
-	if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Retrieved tool " << m_idtrackSelectionTool << endmsg;
-      }
-      m_trackSelectorTool.disable();
+    m_idtrackSelectionTool.disable();
+  } else {
+    if (   m_idtrackSelectionTool.retrieve().isFailure() ) {
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_idtrackSelectionTool << endmsg;
+      return StatusCode::FAILURE;
+    } else {
+      if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Retrieved tool " << m_idtrackSelectionTool << endmsg;
     }
-  
-  
+    m_trackSelectorTool.disable();
+  }
 
   return StatusCode::SUCCESS;
 

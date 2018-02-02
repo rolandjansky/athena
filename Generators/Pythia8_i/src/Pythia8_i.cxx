@@ -30,7 +30,6 @@ using boost::assign::operator+=;
 ////////////////////////////////////////////////////////////////////////////////
 Pythia8_i::Pythia8_i(const string &name, ISvcLocator *pSvcLocator)
 : GenModule(name, pSvcLocator),
-m_pythia(xmlpath()),
 m_internal_event_number(0),
 m_version(-1.),
 m_atlasRndmEngine(0),
@@ -79,8 +78,9 @@ Pythia8_i::~Pythia8_i() {
 StatusCode Pythia8_i::genInitialize() {
 
   ATH_MSG_DEBUG("Pythia8_i from genInitialize()");
-  
-  m_version = m_pythia.settings.parm("Pythia:versionNumber");
+
+  m_pythia = std::make_unique<Pythia8::Pythia> (xmlpath());
+  m_version = m_pythia->settings.parm("Pythia:versionNumber");
   
   std::string pythiaVersion = boost::lexical_cast<std::string>(m_version + 0.00000000001);
   pythiaVersion.erase(5);
@@ -95,11 +95,11 @@ StatusCode Pythia8_i::genInitialize() {
   
   // We do explicitly set tune 4C, since it is the starting point for many other tunes
   // Tune 4C for pp collisions
-  m_pythia.readString("Tune:pp = 5");
+  m_pythia->readString("Tune:pp = 5");
 
   // also use CTEQ6L1 from LHAPDF 6 by default
   // can be over-written using JO
-  m_pythia.readString("PDF:pSet= LHAPDF6:cteq6ll.LHpdf");
+  m_pythia->readString("PDF:pSet= LHAPDF6:cteq6ll.LHpdf");
   
   // have to find any old-style Pythia 8.18x PDF commands and convert them
   foreach(string &cmd, m_commands){
@@ -135,7 +135,7 @@ StatusCode Pythia8_i::genInitialize() {
     }
     
     boost::erase_all(splits[0], " ");
-    m_pythia.settings.addParm(splits[0], 0., false, false, 0., 0.);
+    m_pythia->settings.addParm(splits[0], 0., false, false, 0., 0.);
     m_commands+=param;
   }
 
@@ -148,7 +148,7 @@ StatusCode Pythia8_i::genInitialize() {
     }
     
     boost::erase_all(splits[0], " ");
-    m_pythia.settings.addMode(splits[0], 0, false, false, 0, 0);
+    m_pythia->settings.addMode(splits[0], 0, false, false, 0, 0);
     m_commands+=mode;
   }
   
@@ -170,7 +170,7 @@ StatusCode Pythia8_i::genInitialize() {
       return StatusCode::FAILURE;
     }
     
-    bool read = m_pythia.readString(cmd);
+    bool read = m_pythia->readString(cmd);
     
     if(!read){
       ATH_MSG_ERROR("Pythia could not understand the command '"<< cmd<<"'");
@@ -199,7 +199,7 @@ StatusCode Pythia8_i::genInitialize() {
     m_atlasRndmEngine = new customRndm();
 
     m_atlasRndmEngine->init(atRndmGenSvc(),Pythia8_i::pythia_stream);
-    m_pythia.setRndmEnginePtr(m_atlasRndmEngine);
+    m_pythia->setRndmEnginePtr(m_atlasRndmEngine);
 
     // Save the PYTHIA_INIT stream seeds....
     CLHEP::HepRandomEngine* engine = atRndmGenSvc().GetEngine(Pythia8_i::pythia_stream);
@@ -231,7 +231,7 @@ StatusCode Pythia8_i::genInitialize() {
 
   if(m_userHook != ""){
     m_userHookPtr = Pythia8_UserHooks::UserHooksFactory::create(m_userHook);
-    if(!m_pythia.setUserHooksPtr(m_userHookPtr)){
+    if(!m_pythia->setUserHooksPtr(m_userHookPtr)){
       ATH_MSG_ERROR("Unable to set requested user hook: " + m_userHook + " !!");
       ATH_MSG_ERROR("Pythia 8 initialisation will FAIL!");
       canInit = false;
@@ -266,13 +266,13 @@ StatusCode Pythia8_i::genInitialize() {
     
     for(std::vector<Pythia8::ResonanceWidths*>::const_iterator resonance = m_userResonancePtrs.begin();
         resonance != m_userResonancePtrs.end(); ++resonance){
-      m_pythia.setResonancePtr(*resonance);
+      m_pythia->setResonancePtr(*resonance);
     }
     
   }
   
   if(m_particleDataFile != "") {
-    if(!m_pythia.particleData.reInit(m_particleDataFile, true)){
+    if(!m_pythia->particleData.reInit(m_particleDataFile, true)){
       ATH_MSG_ERROR("Unable to read requested particle data table: " + m_particleDataFile + " !!");
       ATH_MSG_ERROR("Pythia 8 initialisation will FAIL!");
       canInit = false;
@@ -286,21 +286,21 @@ StatusCode Pythia8_i::genInitialize() {
       canInit = false;
     }
     
-    canInit = canInit && m_pythia.readString("Beams:frameType = 4");
-    canInit = canInit && m_pythia.readString("Beams:LHEF = " + m_lheFile);
+    canInit = canInit && m_pythia->readString("Beams:frameType = 4");
+    canInit = canInit && m_pythia->readString("Beams:LHEF = " + m_lheFile);
     if(!canInit){
       ATH_MSG_ERROR("Unable to read requested LHE file: " + m_lheFile + " !");
       ATH_MSG_ERROR("Pythia 8 initialisation will FAIL!");
     }
   }else{
-    canInit = canInit && m_pythia.readString("Beams:frameType = 1");
-    canInit = canInit && m_pythia.readString("Beams:idA = " + boost::lexical_cast<string>(beam1));
-    canInit = canInit && m_pythia.readString("Beams:idB = " + boost::lexical_cast<string>(beam2));
-    canInit = canInit && m_pythia.readString("Beams:eCM = " + boost::lexical_cast<string>(m_collisionEnergy));
+    canInit = canInit && m_pythia->readString("Beams:frameType = 1");
+    canInit = canInit && m_pythia->readString("Beams:idA = " + boost::lexical_cast<string>(beam1));
+    canInit = canInit && m_pythia->readString("Beams:idB = " + boost::lexical_cast<string>(beam2));
+    canInit = canInit && m_pythia->readString("Beams:eCM = " + boost::lexical_cast<string>(m_collisionEnergy));
   }
   
   if(m_procPtr != 0){
-    if(!m_pythia.setSigmaPtr(m_procPtr)){
+    if(!m_pythia->setSigmaPtr(m_procPtr)){
       ATH_MSG_ERROR("Unable to set requested user process: " + m_userProcess + " !!");
       ATH_MSG_ERROR("Pythia 8 initialisation will FAIL!");
       canInit = false;
@@ -310,7 +310,7 @@ StatusCode Pythia8_i::genInitialize() {
   StatusCode returnCode = StatusCode::SUCCESS;
   
   if(canInit){
-    canInit = m_pythia.init();
+    canInit = m_pythia->init();
   }
   
   if(!canInit){
@@ -318,9 +318,9 @@ StatusCode Pythia8_i::genInitialize() {
     ATH_MSG_ERROR(" *** Unable to initialise Pythia !! ***");
   }
   
-  m_pythia.settings.listChanged();
-  m_pythia.particleData.listChanged();
-  m_pythia.particleData.listXML(m_outputParticleDataFile);
+  m_pythia->settings.listChanged();
+  m_pythia->particleData.listChanged();
+  m_pythia->particleData.listXML(m_outputParticleDataFile);
   
   //counter for event failures;
   m_failureCount = 0;
@@ -346,7 +346,7 @@ StatusCode Pythia8_i::callGenerator(){
     m_seeds.push_back(s[1]);
   }
 
-  bool status = m_pythia.next();
+  bool status = m_pythia->next();
 
   StatusCode returnCode = StatusCode::SUCCESS;
 
@@ -367,11 +367,11 @@ StatusCode Pythia8_i::callGenerator(){
   // some CKKWL merged events have zero weight (or unfilled event). 
   // start again with such events
   
-  double eventWeight = m_pythia.info.mergingWeight()*m_pythia.info.weight();
+  double eventWeight = m_pythia->info.mergingWeight()*m_pythia->info.weight();
   
   if(returnCode != StatusCode::FAILURE &&
      (fabs(eventWeight) < 1.e-18 ||
-      m_pythia.event.size() < 2)){
+      m_pythia->event.size() < 2)){
        
        returnCode = this->callGenerator();
      }else{
@@ -389,13 +389,13 @@ StatusCode Pythia8_i::fillEvt(HepMC::GenEvent *evt){
 
   evt->set_event_number(m_internal_event_number);
 
-  if(m_pythia.event.size() < 2){
+  if(m_pythia->event.size() < 2){
     ATH_MSG_ERROR("Something wrong with this event - it contains fewer than 2 particles!");
     ATH_MSG_ERROR("internal event number is "<<m_internal_event_number);
     return StatusCode::FAILURE;
   }
   
-  m_pythiaToHepMC.fill_next_event(m_pythia, evt, m_internal_event_number);
+  m_pythiaToHepMC.fill_next_event(*m_pythia, evt, m_internal_event_number);
 
   // in debug mode you can check whether the pdf information is stored
   if(evt->pdf_info()){
@@ -413,8 +413,8 @@ StatusCode Pythia8_i::fillEvt(HepMC::GenEvent *evt){
   // set the randomseeds
   if(m_useRndmGenSvc)evt->set_random_states(m_seeds);
   
-  double phaseSpaceWeight = m_pythia.info.weight();
-  double mergingWeight    = m_pythia.info.mergingWeight();
+  double phaseSpaceWeight = m_pythia->info.weight();
+  double mergingWeight    = m_pythia->info.mergingWeight();
   double eventWeight = phaseSpaceWeight*mergingWeight;
   
   ATH_MSG_DEBUG("Event weights: phase space weight, merging weight, total weight = "<<phaseSpaceWeight<<", "<<mergingWeight<<", "<<eventWeight);
@@ -424,9 +424,9 @@ StatusCode Pythia8_i::fillEvt(HepMC::GenEvent *evt){
   
   std::vector<string>::const_iterator id = m_weightIDs.begin();
   
-  if(m_pythia.info.getWeightsDetailedSize() != 0){
-    for(std::map<string, Pythia8::LHAwgt>::const_iterator wgt = m_pythia.info.rwgt->wgts.begin();
-        wgt != m_pythia.info.rwgt->wgts.end(); ++wgt){
+  if(m_pythia->info.getWeightsDetailedSize() != 0){
+    for(std::map<string, Pythia8::LHAwgt>::const_iterator wgt = m_pythia->info.rwgt->wgts.begin();
+        wgt != m_pythia->info.rwgt->wgts.end(); ++wgt){
       
       if(m_internal_event_number == 1){
         m_doLHE3Weights = true;
@@ -439,8 +439,8 @@ StatusCode Pythia8_i::fillEvt(HepMC::GenEvent *evt){
         ++id;
       }
       
-      std::map<string, Pythia8::LHAweight>::const_iterator weightName = m_pythia.info.init_weights->find(wgt->first);
-      if(weightName != m_pythia.info.init_weights->end()){
+      std::map<string, Pythia8::LHAweight>::const_iterator weightName = m_pythia->info.init_weights->find(wgt->first);
+      if(weightName != m_pythia->info.init_weights->end()){
         evt->weights()[weightName->second.contents] = mergingWeight * wgt->second.contents;
       }else{
         evt->weights()[wgt->first] = mergingWeight * wgt->second.contents;
@@ -479,9 +479,9 @@ StatusCode Pythia8_i::genFinalize(){
 
   ATH_MSG_INFO(">>> Pythia8_i from genFinalize");
 
-  m_pythia.stat();
+  m_pythia->stat();
   
-  Pythia8::Info info = m_pythia.info;
+  Pythia8::Info info = m_pythia->info;
   double xs = info.sigmaGen(); // in mb
   
   if(m_doCKKWLAcceptance){
@@ -498,9 +498,9 @@ StatusCode Pythia8_i::genFinalize(){
     std::cout<<"MetaData: weights = ";
     foreach(const string &id, m_weightIDs){
       
-      std::map<string, Pythia8::LHAweight>::const_iterator weight = m_pythia.info.init_weights->find(id);
+      std::map<string, Pythia8::LHAweight>::const_iterator weight = m_pythia->info.init_weights->find(id);
       
-      if(weight != m_pythia.info.init_weights->end()){
+      if(weight != m_pythia->info.init_weights->end()){
         std::cout<<weight->second.contents<<" | ";
       }else{
         std::cout<<"Unknown | ";
