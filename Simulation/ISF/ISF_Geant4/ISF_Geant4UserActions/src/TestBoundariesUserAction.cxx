@@ -85,10 +85,10 @@ namespace G4UA
       }
 
       if (postLV!=preLV) {
-        G4ThreeVector pos = aStep->GetPostStepPoint()->GetPosition();
+        const G4ThreeVector& pos = aStep->GetPostStepPoint()->GetPosition();
         data.Set(pos.x(),pos.y(),pos.z(),0);
         if (preLV) {
-          std::string preStepPointName = preLV->GetName();
+          const std::string& preStepPointName = preLV->GetName();
           SMap::const_iterator it = sel.find(preStepPointName);
           if (it!=sel.end()) {
             data.volume = it->second;
