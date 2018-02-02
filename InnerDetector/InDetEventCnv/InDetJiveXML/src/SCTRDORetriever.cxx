@@ -24,8 +24,8 @@ namespace JiveXML {
    **/
   SCTRDORetriever::SCTRDORetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    typeName("SCTRDO"),
-    geo("JiveXML::InDetGeoModelTool/InDetGeoModelTool",this){
+    m_typeName("SCTRDO"),
+    m_geo("JiveXML::InDetGeoModelTool/InDetGeoModelTool",this){
 
     //Declare the interface
     declareInterface<IDataRetriever>(this);
@@ -97,7 +97,7 @@ namespace JiveXML {
         Identifier id = rdoData->identify();
 
         //Get the hit detector element
-        const InDetDD::SiDetectorElement *element = geo->SCTGeoManager()->getDetectorElement(id);
+        const InDetDD::SiDetectorElement *element = m_geo->SCTGeoManager()->getDetectorElement(id);
         //Make sure we got the detector element
         if (element == NULL){
           msg(MSG::WARNING) << "Unable to obtain detector element for SCT_RDO hit with id " << id << endmsg;
@@ -114,8 +114,8 @@ namespace JiveXML {
         x1.push_back(DataType( endsOfStrip.second.x()*CLHEP::mm/CLHEP::cm));
         y1.push_back(DataType( endsOfStrip.second.y()*CLHEP::mm/CLHEP::cm));
         z1.push_back(DataType( endsOfStrip.second.z()*CLHEP::mm/CLHEP::cm));
-        phiModule.push_back(DataType( geo->SCTIDHelper()->phi_module(id) ));
-        etaModule.push_back(DataType( geo->SCTIDHelper()->eta_module(id) ));
+        phiModule.push_back(DataType( m_geo->SCTIDHelper()->phi_module(id) ));
+        etaModule.push_back(DataType( m_geo->SCTIDHelper()->eta_module(id) ));
 
         //Check if we have rdoData3
         const SCT3_RawData *rdoData3 = dynamic_cast<const SCT3_RawData *>(rdoData);
@@ -170,7 +170,7 @@ namespace JiveXML {
     // Read Handle Key
     ATH_CHECK( m_SCTRDOContainerName.initialize() );
 
-    return geo.retrieve();
+    return m_geo.retrieve();
   }
 
 } //namespace

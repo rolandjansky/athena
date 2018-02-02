@@ -154,7 +154,10 @@ StatusCode Trk::DenseEnvironmentsAmbiguityProcessorTool::initialize()
     else 
       ATH_MSG_INFO( "Retrieved tool " << m_observerTool );
   }
-  
+  else {
+    m_observerTool.disable();
+  }
+
   ATH_CHECK( m_selectionTool.retrieve());
   ATH_CHECK( m_fitterTool.retrieve());
   if (m_fitterTool.empty()){
@@ -1093,7 +1096,7 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::overlapppingTracks()
     if (msgLvl(MSG::VERBOSE)) {
       TString tracks("---- number of tracks with this shared Prd: ");
       tracks += numberOfTracksWithThisPrd;
-      for (Trk::IPRD_AssociationTool::PRD_MapIt it =range.first; it != range.second;++it ){
+      for (Trk::IPRD_AssociationTool::ConstPRD_MapIt it =range.first; it != range.second;++it ){
        tracks += "    ";
        tracks += Form( " %p",(void*)(it->second)); 
       }
@@ -1130,7 +1133,7 @@ void Trk::DenseEnvironmentsAmbiguityProcessorTool::overlapppingTracks()
     if (msgLvl(MSG::VERBOSE)) {
       TString tracks("---- number of tracks with this shared Prd: ");
       tracks += numberOfTracksWithThisPrd;
-      for (Trk::IPRD_AssociationTool::PRD_MapIt it =range.first; it != range.second;++it ){
+      for (Trk::IPRD_AssociationTool::ConstPRD_MapIt it =range.first; it != range.second;++it ){
        tracks += "    ";
        tracks += Form( " %p",(void*)(it->second)); 
       }

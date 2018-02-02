@@ -7,7 +7,7 @@
 
 #include "TrigInDetEvent/TrigHisto2D.h"
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 /** @class TrigTrackCounts
  * @author Regina Kwee <regina.kwee@cern.ch>

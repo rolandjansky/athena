@@ -2,16 +2,15 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef G4PROFILINGTOOLS_G4UA__TESTACTIONVPTIMERTOOL_H 
-#define G4PROFILINGTOOLS_G4UA__TESTACTIONVPTIMERTOOL_H 
-#include "G4AtlasInterfaces/IG4EventActionTool.h"
-#include "G4AtlasInterfaces/IG4RunActionTool.h"
-#include "G4AtlasInterfaces/IG4SteppingActionTool.h"
-#include "G4AtlasTools/ActionToolBase.h"
+#ifndef G4PROFILINGTOOLS_G4UA__TESTACTIONVPTIMERTOOL_H
+#define G4PROFILINGTOOLS_G4UA__TESTACTIONVPTIMERTOOL_H
+
+#include "G4AtlasTools/UserActionToolBase.h"
 #include "TestActionVPTimer.h"
 
 
-namespace G4UA{ 
+namespace G4UA
+{
 
   /// @class TestActionVPTimerTool
   /// @brief Tool which manages the TestActionVPTimer action.
@@ -20,51 +19,40 @@ namespace G4UA{
   /// finalization.
   ///
   /// @author Andrea Di Simone
-  
-class TestActionVPTimerTool:
-  
-  public ActionToolBaseReport<TestActionVPTimer>,
-    public IG4EventActionTool, public IG4RunActionTool,  public IG4SteppingActionTool
+  ///
+  class TestActionVPTimerTool : public UserActionToolBase<TestActionVPTimer>
   {
-    
+
   public:
-    /// constructor
-    TestActionVPTimerTool(const std::string& type, const std::string& name,const IInterface* parent);
-    /// Retrieve the event action interface
-    virtual G4UserEventAction* getEventAction() override final 
-    { return static_cast<G4UserEventAction*>( getAction() ); }
-    /// Retrieve the run action interface
-    virtual G4UserRunAction* getRunAction() override final 
-    { return static_cast<G4UserRunAction*>( getAction() ); }
-    /// Retrieve the stepping action interface
-    virtual G4UserSteppingAction* getSteppingAction() override final 
-    { return static_cast<G4UserSteppingAction*>( getAction() ); }
-    /// gaudi interface query
-    virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
-    /// triggers report merging from threads
+    /// Standard constructor
+    TestActionVPTimerTool(const std::string& type, const std::string& name,
+                          const IInterface* parent);
+
+    /// Triggers report merging from threads
     virtual StatusCode finalize() override;
 
   protected:
     /// Create action for this thread
-    virtual std::unique_ptr<TestActionVPTimer> makeAction() override final;
+    virtual std::unique_ptr<TestActionVPTimer>
+    makeAndFillAction(G4AtlasUserActions&) override final;
 
   private:
+
     /// holds the runtime configuration
     TestActionVPTimer::Config m_config;
     /// holds data to be reported at end of run
-    //TestActionVPTimer::Report m_report;
+    TestActionVPTimer::Report m_report;
 
-    void TimerPrint(std::pair<VolTree, TestActionVPTimer::volumeData>, 
-		    const double tTotal,
-		    const int depth = 0) const;
+    void TimerPrint(std::pair<VolTree, TestActionVPTimer::volumeData>,
+                    const double tTotal,
+                    const int depth = 0) const;
     //  void TimerPrint(std::ofstream&,
-    //		  std::pair<VolTree, volData>, 
-    //		  const int depth = 0) const;		//!< (Modifiable) print function for a map element
+    //            std::pair<VolTree, volData>,
+    //            const int depth = 0) const;           //!< (Modifiable) print function for a map element
     void TreeOut(VolTree, const double tAtlas, int depth = 0);
-    
-    
 
   }; // class TestActionVPTimerTool
-  
-} // namespace G4UA 
+
+} // namespace G4UA
+
 #endif

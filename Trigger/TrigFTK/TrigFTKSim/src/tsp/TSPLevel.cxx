@@ -22,8 +22,8 @@ using namespace std;
 /** This constructors provides a minimal initialization of the internal variable, it is meant
   for constructions where the FTKTSPBank object can set all the fields, as it happens for
   cached banks */
-TSPLevel::TSPLevel(int bankID, int nAMpatterns, unsigned threshold, FTKSSMap* ssTopMap, FTKSSMap* ssBottomMap, map<int,FTKSS> *ssmaps, bool onlydc) :
-  m_bankID(bankID), m_threshold(threshold), m_nroads(0), m_npatterns(0),
+TSPLevel::TSPLevel(int /*bankID*/, int nAMpatterns, unsigned threshold, FTKSSMap* ssTopMap, FTKSSMap* ssBottomMap, map<int,FTKSS> *ssmaps, bool onlydc) :
+  m_threshold(threshold), m_nroads(0), m_npatterns(0),
   m_dcOnly(onlydc),
   m_subPatternID(nAMpatterns), m_hbmask(nAMpatterns), m_dcmask(nAMpatterns),
   m_subssmasks(nAMpatterns), m_splitted_ssmap(ssmaps),
@@ -35,9 +35,9 @@ TSPLevel::TSPLevel(int bankID, int nAMpatterns, unsigned threshold, FTKSSMap* ss
 }
 
 /** ROOT file format constructor */
-TSPLevel::TSPLevel(TFile *file, int bankID, FTKTSPBank *AMbank,
+TSPLevel::TSPLevel(TFile *file, int /*bankID*/, FTKTSPBank *AMbank,
 		   const list<AMSelection> &AMlist, unsigned threshold, FTKSSMap* ssTopMap, FTKSSMap* ssBottomMap, map<int,FTKSS> *ssmaps, bool onlydc) :
-  m_bankID(bankID), m_threshold(threshold), m_nroads(0), m_npatterns(0),
+  m_threshold(threshold), m_nroads(0), m_npatterns(0),
   m_dcOnly(onlydc),
   m_splitted_ssmap(ssmaps),
   run_fatherID(0),

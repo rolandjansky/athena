@@ -15,6 +15,11 @@ rec.doWriteTAG=True
 #include ('EventTagAlgs/EventTagFlags.py')
 #EventTagFlags.set_TriggerOff()
 
+include ("RecExCond/RecExCommon_flags.py")
+rec.AutoConfiguration = ['everything']
+import RecExConfig.AutoConfiguration as auto
+auto.ConfigureFromListOfKeys(rec.AutoConfiguration())
+
 ######################## main jobOption
 include ("RecExCommon/RecExCommon_topOptions.py")
 ##############################

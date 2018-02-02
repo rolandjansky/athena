@@ -33,6 +33,8 @@
 #include "ICaloTrkMuIdTools/ITrackDepositInCaloTool.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 
+#include "StoreGate/ReadHandleKey.h"
+
 // - STL
 #include <vector>
 
@@ -66,7 +68,6 @@ namespace MuonCombined {
   private:
     
     void createMuon(InDetCandidate & muonCandidate, const std::vector<DepositInCalo>& deposits, int tag, float likelihood) const;
-    const Trk::Vertex* retrievePrimaryVertex() const;
     const Trk::TrackParameters* getTrackParameters(const Trk::Track* trk) const;
     //bool applyEnergyIsolation(const xAOD::IParticle* muon);
     bool selectTrack(const Trk::Track* trk, const Trk::Vertex* vertex) const;
@@ -76,10 +77,8 @@ namespace MuonCombined {
 //    std::vector<DepositInCalo> getDeposits(const xAOD::TrackParticle* tp, const CaloCellContainer* caloCellCont) const;
     
     // --- StoreGate keys ---
-    std::string m_TrackParticleName;                 //!< TrackParticle container name
-    std::string m_VertexContainerName;               //!< name of the vertex container
-    //std::string m_MuonContainerOutputName;           //!< Calo Muon Collection name
-    //std::string m_muonCaloEnergyCollectionName;      //!< Muon CaloEnergy Collection
+    SG::ReadHandleKey<xAOD::CaloClusterContainer> m_caloClusterCont{this,"CaloClusters","CaloTopoCluster","calo cluster container"};
+    SG::ReadHandleKey<CaloCellContainer> m_caloCellCont{this,"CaloCells","AllCalo","calo cell container"};
     
     // --- Internal cache ---
     mutable int m_nTrueMuons;          //!< Counts the number true muons

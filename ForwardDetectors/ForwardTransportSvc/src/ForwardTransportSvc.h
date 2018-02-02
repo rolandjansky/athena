@@ -34,7 +34,7 @@ class ForwardTransportSvc: public AthService, virtual public IForwardTransportSv
   virtual void fillMcInfo      (G4ThreeVector pos, double tim, G4ThreeVector mom, double ene);
   virtual void addMcVertex     (G4ThreeVector pos, double tim, G4ThreeVector mom, double ene, int pid, bool isTransported, HepMC::GenEvent*);
 
-  virtual HepMC::GenEvent* getEvent();
+  virtual const HepMC::GenEvent* getEvent();
 
   friend class SvcFactory<ForwardTransportSvc>;
   

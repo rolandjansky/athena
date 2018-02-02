@@ -5,7 +5,7 @@
 #ifndef TRIG_DIMUON_CONTAINER
 #define TRIG_DIMUON_CONTAINER
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "TrigMuonEvent/CombinedMuonFeature.h"
 
 typedef std::vector<std::pair<CombinedMuonFeature, CombinedMuonFeature> > TrigCombDiMuonContainer;

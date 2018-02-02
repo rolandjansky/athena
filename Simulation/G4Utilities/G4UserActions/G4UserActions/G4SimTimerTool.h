@@ -10,7 +10,7 @@
 
 // Infrastructure includes
 #include "G4AtlasInterfaces/IG4EventActionTool.h"
-#include "G4AtlasTools/ActionToolBase.h"
+#include "G4AtlasTools/UserActionToolBase.h"
 
 // Local includes
 #include "G4UserActions/G4SimTimer.h"
@@ -26,8 +26,7 @@ namespace G4UA
   ///
   /// @author Steve Farrell <Steven.Farrell@cern.ch>
   ///
-  class G4SimTimerTool : public ActionToolBaseReport<G4SimTimer>,
-                         public IG4EventActionTool
+  class G4SimTimerTool : public UserActionToolBase<G4SimTimer>
   {
 
     public:
@@ -36,20 +35,17 @@ namespace G4UA
       G4SimTimerTool(const std::string& type, const std::string& name,
                      const IInterface* parent);
 
-      /// Temporary, just for debugging
+      /// Initialize the tool
       virtual StatusCode initialize() override;
 
       /// Finalize and merge results from all worker threads
       virtual StatusCode finalize() override;
 
-      /// Retrieve the begin-event action interface
-      virtual G4UserEventAction* getEventAction() override final
-      { return static_cast<G4UserEventAction*>( getAction() ); }
-
     protected:
 
       /// Create aciton for this thread
-      virtual std::unique_ptr<G4SimTimer> makeAction() override final;
+      virtual std::unique_ptr<G4SimTimer>
+      makeAndFillAction(G4AtlasUserActions&) override final;
 
   }; // class G4SimTimerTool
 

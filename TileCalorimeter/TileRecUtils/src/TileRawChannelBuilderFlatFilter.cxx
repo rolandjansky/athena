@@ -46,7 +46,7 @@ TileRawChannelBuilderFlatFilter::TileRawChannelBuilderFlatFilter(const std::stri
   declareInterface< TileRawChannelBuilder >( this );
   declareInterface< TileRawChannelBuilderFlatFilter >(this);
     
-  m_TileRawChannelContainerID = "TileRawChannelFlat";
+  m_rawChannelContainerKey = "TileRawChannelFlat";
 
   //declare properties
   declareProperty("PedStart",m_pedStart = 0);

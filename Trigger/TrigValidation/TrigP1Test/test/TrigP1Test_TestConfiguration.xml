@@ -47,7 +47,7 @@
         
         
         <TEST name="HelloWorldHLT" type="script" suite="TP1core">
-            <options_atn>trigtest.pl --cleardir --test HelloWorldHLT --rundir HelloWorldHLT --conf TrigP1Test.conf</options_atn>
+            <options_atn>skip_if_libraryMissing.sh TrigKernel trigtest.pl --cleardir --test HelloWorldHLT --rundir HelloWorldHLT --conf TrigP1Test.conf</options_atn>
             <timelimit>5</timelimit>
             <expectations>
                 <returnValue>0</returnValue>
@@ -55,7 +55,7 @@
         </TEST>
         
         <TEST name="HelloWorldHLT_run_stop_run" type="script" suite="TP1core">
-            <options_atn>trigtest.pl --cleardir --test HelloWorldHLT_run_stop_run --rundir HelloWorldHLT_run_stop_run --conf TrigP1Test.conf</options_atn>
+            <options_atn>skip_if_libraryMissing.sh TrigKernel trigtest.pl --cleardir --test HelloWorldHLT_run_stop_run --rundir HelloWorldHLT_run_stop_run --conf TrigP1Test.conf</options_atn>
             <timelimit>10</timelimit>
             <expectations>
                 <returnValue>0</returnValue>
@@ -63,7 +63,7 @@
         </TEST>
         
         <TEST name="AthenaP1RDOtoBS" type="script" suite="TP1core"> 
-            <options_atn>trigtest.pl --cleardir --test AthenaP1RDOtoBS --rundir AthenaP1RDOtoBS --conf TrigP1Test.conf</options_atn> 
+            <options_atn>skip_if_libraryMissing.sh TrigKernel trigtest.pl --cleardir --test AthenaP1RDOtoBS --rundir AthenaP1RDOtoBS --conf TrigP1Test.conf</options_atn> 
             <timelimit>20</timelimit> 
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
@@ -72,7 +72,7 @@
         </TEST> 
         
         <TEST name="HLT_HIV4" type="script" suite="TP1hi"> 
-            <options_atn>trigtest.pl --cleardir --test HLT_HIV4  --rundir HLT_HIV4 --conf TrigP1Test.conf</options_atn> 
+            <options_atn>skip_if_libraryMissing.sh TrigKernel trigtest.pl --cleardir --test HLT_HIV4  --rundir HLT_HIV4 --conf TrigP1Test.conf</options_atn> 
             <timelimit>40</timelimit> 
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
@@ -80,7 +80,7 @@
             </expectations> 
         </TEST>  
         <TEST name="HLT_HIV3" type="script" suite="TP1hi"> 
-            <options_atn>trigtest.pl --cleardir --test HLT_HIV3  --rundir HLT_HIV3 --conf TrigP1Test.conf</options_atn> 
+            <options_atn>skip_if_libraryMissing.sh TrigKernel trigtest.pl --cleardir --test HLT_HIV3  --rundir HLT_HIV3 --conf TrigP1Test.conf</options_atn> 
             <timelimit>35</timelimit> 
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
@@ -92,7 +92,7 @@
         
         
         <TEST name="HLT_physicsV7_COS" type="script" suite="TP1cos1"> 
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV7_COS --rundir HLT_physicsV7_COS --conf TrigP1Test.conf</options_atn> 
+            <options_atn>skip_if_libraryMissing.sh TrigKernel trigtest.pl --cleardir --test HLT_physicsV7_COS --rundir HLT_physicsV7_COS --conf TrigP1Test.conf</options_atn> 
             <timelimit>20</timelimit> 
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
@@ -102,7 +102,7 @@
           
         
         <TEST name="HLT_physicsV7_COS_2016MUONS" type="script" suite="TP1cos2"> 
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV7_COS_2016MUONS --rundir HLT_physicsV7_COS_2016MUONS --conf TrigP1Test.conf</options_atn> 
+            <options_atn>skip_if_libraryMissing.sh TrigKernel trigtest.pl --cleardir --test HLT_physicsV7_COS_2016MUONS --rundir HLT_physicsV7_COS_2016MUONS --conf TrigP1Test.conf</options_atn> 
             <timelimit>20</timelimit> 
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
@@ -111,7 +111,7 @@
         </TEST>
         
         <TEST name="HLT_physicsV7_COS_2016IDCOSMICS" type="script" suite="TP1cos3"> 
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV7_COS_2016IDCOSMICS --rundir HLT_physicsV7_COS_2016IDCOSMICS --conf TrigP1Test.conf</options_atn> 
+            <options_atn>skip_if_libraryMissing.sh TrigKernel trigtest.pl --cleardir --test HLT_physicsV7_COS_2016IDCOSMICS --rundir HLT_physicsV7_COS_2016IDCOSMICS --conf TrigP1Test.conf</options_atn> 
             <timelimit>30</timelimit>  
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
@@ -130,7 +130,7 @@
         
         
         <TEST name="HLT_mcV6" type="script" suite="TP1mc">
-            <options_atn>trigtest.pl --cleardir --test HLT_mcV6 --rundir HLT_mcV6 --conf TrigP1Test.conf</options_atn>
+            <options_atn>skip_if_libraryMissing.sh TrigKernel trigtest.pl --cleardir --test HLT_mcV6 --rundir HLT_mcV6 --conf TrigP1Test.conf</options_atn>
             <timelimit>50</timelimit>      
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
@@ -139,7 +139,7 @@
         </TEST>
 
         <TEST name="HLT_mcV7" type="script" suite="TP1mc">
-            <options_atn>trigtest.pl --cleardir --test HLT_mcV7 --rundir HLT_mcV7 --conf TrigP1Test.conf</options_atn>
+            <options_atn>skip_if_libraryMissing.sh TrigKernel trigtest.pl --cleardir --test HLT_mcV7 --rundir HLT_mcV7 --conf TrigP1Test.conf</options_atn>
             <timelimit>50</timelimit>      
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
@@ -153,7 +153,7 @@
         
         
         <TEST name="HLT_physicsV7" type="script" suite="TP1phys1"> 
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV7 --rundir HLT_physicsV7 --conf TrigP1Test.conf</options_atn> 
+            <options_atn>skip_if_libraryMissing.sh TrigKernel trigtest.pl --cleardir --test HLT_physicsV7 --rundir HLT_physicsV7 --conf TrigP1Test.conf</options_atn> 
             <timelimit>30</timelimit> 
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
@@ -162,7 +162,7 @@
         </TEST> 
         
         <TEST name="Reco_tf_physicsV7_savedBS" type="script" suite="TP1phys1"> 
-            <options_atn>trigtest.pl --cleardir --test Reco_tf_physicsV7_savedBS --rundir Reco_tf_physicsV7_savedBS --conf TrigP1Test.conf</options_atn> 
+            <options_atn>skip_if_libraryMissing.sh TrigKernel trigtest.pl --cleardir --test Reco_tf_physicsV7_savedBS --rundir Reco_tf_physicsV7_savedBS --conf TrigP1Test.conf</options_atn> 
             <timelimit>30</timelimit> 
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
@@ -171,7 +171,7 @@
         </TEST> 
         
         <TEST name="RAWtoESD_physicsV7" type="script" suite="TP1phys1"> 
-            <options_atn>trigtest.pl --cleardir  --test RAWtoESD_physicsV7 --rundir RAWtoESD_physicsV7 --conf TrigP1Test.conf</options_atn> 
+            <options_atn>skip_if_libraryMissing.sh TrigKernel trigtest.pl --cleardir  --test RAWtoESD_physicsV7 --rundir RAWtoESD_physicsV7 --conf TrigP1Test.conf</options_atn> 
             <timelimit>30</timelimit> 
             <nightly_exclude> MIG LCG EXP CMAKE 22 21 20.99 </nightly_exclude>
             <expectations> 
@@ -181,7 +181,7 @@
         </TEST> 
         
         <TEST name="TrigEDMCheck_physicsV7" type="script" suite="TP1phys1"> 
-            <options_atn>trigtest.pl --cleardir  --test TrigEDMCheck_physicsV7 --rundir TrigEDMCheck_physicsV7 --conf TrigP1Test.conf</options_atn> 
+            <options_atn>skip_if_libraryMissing.sh TrigKernel trigtest.pl --cleardir  --test TrigEDMCheck_physicsV7 --rundir TrigEDMCheck_physicsV7 --conf TrigP1Test.conf</options_atn> 
             <timelimit>10</timelimit>           
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
@@ -190,7 +190,7 @@
         </TEST> 
         
         <TEST name="TrigDecTool_physicsV7" type="script" suite="TP1phys1"> 
-            <options_atn>trigtest.pl --cleardir  --test TrigDecTool_physicsV7 --rundir TrigDecTool_physicsV7 --conf TrigP1Test.conf</options_atn> 
+            <options_atn>skip_if_libraryMissing.sh TrigKernel trigtest.pl --cleardir  --test TrigDecTool_physicsV7 --rundir TrigDecTool_physicsV7 --conf TrigP1Test.conf</options_atn> 
             <timelimit>10</timelimit> 
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
@@ -199,7 +199,7 @@
         </TEST> 
         
         <TEST name="HLT_physicsV7_L1Topo_data" type="script" suite="TP1phys2"> 
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV7_L1Topo_data --rundir HLT_physicsV7_L1Topo_data --conf TrigP1Test.conf</options_atn> 
+            <options_atn>skip_if_libraryMissing.sh TrigKernel trigtest.pl --cleardir --test HLT_physicsV7_L1Topo_data --rundir HLT_physicsV7_L1Topo_data --conf TrigP1Test.conf</options_atn> 
             <timelimit>20</timelimit> 
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
@@ -208,7 +208,7 @@
         </TEST> 
         
         <TEST name="HLT_physicsV7_ALFAMon" type="script" suite="TP1phys2"> 
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV7_ALFAMon --rundir HLT_physicsV7_ALFAMon --conf TrigP1Test.conf</options_atn> 
+            <options_atn>skip_if_libraryMissing.sh TrigKernel trigtest.pl --cleardir --test HLT_physicsV7_ALFAMon --rundir HLT_physicsV7_ALFAMon --conf TrigP1Test.conf</options_atn> 
             <timelimit>20</timelimit> 
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
@@ -217,7 +217,7 @@
         </TEST> 
 
         <TEST name="HLT_physicsV7_DataScouting" type="script" suite="TP1phys2"> 
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV7_DataScouting --rundir HLT_physicsV7_DataScouting --conf TrigP1Test.conf</options_atn> 
+            <options_atn>skip_if_libraryMissing.sh TrigKernel trigtest.pl --cleardir --test HLT_physicsV7_DataScouting --rundir HLT_physicsV7_DataScouting --conf TrigP1Test.conf</options_atn> 
             <timelimit>20</timelimit> 
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
@@ -226,7 +226,7 @@
         </TEST> 
         
         <TEST name="HLT_physicsV7_rerunLVL1" type="script" suite="TP1phys3"> 
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV7_rerunLVL1 --rundir HLT_physicsV7_rerunLVL1 --conf TrigP1Test.conf</options_atn> 
+            <options_atn>skip_if_libraryMissing.sh TrigKernel trigtest.pl --cleardir --test HLT_physicsV7_rerunLVL1 --rundir HLT_physicsV7_rerunLVL1 --conf TrigP1Test.conf</options_atn> 
             <timelimit>45</timelimit> 
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
@@ -235,7 +235,7 @@
         </TEST> 
         
         <TEST name="AthenaP1BS_standalone" type="script" suite="TP1phys4">
-            <options_atn>trigtest.pl --cleardir --test AthenaP1BS_standalone  --rundir AthenaP1BS_standalone --conf TrigP1Test.conf</options_atn>
+            <options_atn>skip_if_libraryMissing.sh TrigKernel trigtest.pl --cleardir --test AthenaP1BS_standalone  --rundir AthenaP1BS_standalone --conf TrigP1Test.conf</options_atn>
             <timelimit>45</timelimit>
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
@@ -244,7 +244,7 @@
         </TEST>
         
         <TEST name="HLT_physicsV7_magField_on_off_on" type="script" suite="TP1phys4">
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV7_magField_on_off_on --rundir HLT_physicsV7_magField_on_off_on --conf TrigP1Test.conf</options_atn>
+            <options_atn>skip_if_libraryMissing.sh TrigKernel trigtest.pl --cleardir --test HLT_physicsV7_magField_on_off_on --rundir HLT_physicsV7_magField_on_off_on --conf TrigP1Test.conf</options_atn>
             <timelimit>35</timelimit> 
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
@@ -262,7 +262,7 @@
         <!--  chain of test with various data, menu and detector conditions -->
         
         <TEST name="HLT_physicsV7_run_stop_run" type="script" suite="TP1var3">
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV7_run_stop_run --rundir HLT_physicsV7_run_stop_run --conf TrigP1Test.conf</options_atn>
+            <options_atn>skip_if_libraryMissing.sh TrigKernel trigtest.pl --cleardir --test HLT_physicsV7_run_stop_run --rundir HLT_physicsV7_run_stop_run --conf TrigP1Test.conf</options_atn>
             <timelimit>40</timelimit>
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
@@ -271,7 +271,7 @@
         </TEST>
         
         <TEST name="HLT_physicsV7_beamspot" type="script" suite="TP1var3">
-            <options_atn>trigtest.pl --cleardir  --test HLT_physicsV7_beamspot --rundir HLT_physicsV7_beamspot --conf TrigP1Test.conf</options_atn>
+            <options_atn>skip_if_libraryMissing.sh TrigKernel trigtest.pl --cleardir  --test HLT_physicsV7_beamspot --rundir HLT_physicsV7_beamspot --conf TrigP1Test.conf</options_atn>
             <timelimit>25</timelimit>
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
@@ -290,7 +290,7 @@
         <!--  chain of test for automatic menu uploading to trigger DB  -->
         
         <TEST name="HLT_physicsV7_menu" type="script" suite="TP1menu">
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV7_menu --rundir HLT_physicsV7_menu --conf TrigP1Test.conf</options_atn>
+            <options_atn>skip_if_libraryMissing.sh TrigKernel trigtest.pl --cleardir --test HLT_physicsV7_menu --rundir HLT_physicsV7_menu --conf TrigP1Test.conf</options_atn>
             <timelimit>40</timelimit>
             <platform>opt</platform>
             <nightly_exclude> MIG LCG EXP CMAKE 22 20.99 </nightly_exclude>
@@ -302,7 +302,7 @@
         
         
         <TEST name="UploadMenuKeys" type="script" suite="TP1menu">
-            <options_atn>trigtest.pl --cleardir  --test UploadMenuKeys --rundir UploadMenuKeys --conf TrigP1Test.conf</options_atn>
+            <options_atn>skip_if_libraryMissing.sh TrigKernel trigtest.pl --cleardir  --test UploadMenuKeys --rundir UploadMenuKeys --conf TrigP1Test.conf</options_atn>
             <timelimit>40</timelimit>
             <platform>opt</platform>
             <nightly_exclude> MIG LCG EXP CMAKE 22 20.99 </nightly_exclude>
@@ -314,7 +314,7 @@
         </TEST>
         
         <TEST name="HLT_physicsV7_menu_rerundb" type="script" suite="TP1menu">
-            <options_atn>trigtest.pl --cleardir  --test HLT_physicsV7_menu_rerundb --rundir HLT_physicsV7_menu_rerundb --conf TrigP1Test.conf</options_atn>
+            <options_atn>skip_if_libraryMissing.sh TrigKernel trigtest.pl --cleardir  --test HLT_physicsV7_menu_rerundb --rundir HLT_physicsV7_menu_rerundb --conf TrigP1Test.conf</options_atn>
             <timelimit>40</timelimit>
             <platform>opt</platform>
             <nightly_exclude> MIG LCG EXP CMAKE 22 20.99 </nightly_exclude>
@@ -326,7 +326,7 @@
         
         
         <TEST name="HLT_physicsV7_rerun" type="script" suite="TP1menu">
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV7_rerun --rundir HLT_physicsV7_rerun --conf TrigP1Test.conf</options_atn>
+            <options_atn>skip_if_libraryMissing.sh TrigKernel trigtest.pl --cleardir --test HLT_physicsV7_rerun --rundir HLT_physicsV7_rerun --conf TrigP1Test.conf</options_atn>
             <timelimit>40</timelimit> 
             <platform>opt</platform>
             <nightly_exclude> MIG LCG EXP CMAKE 22 20.99 </nightly_exclude>
@@ -338,7 +338,7 @@
         
         <!-- CheckKeysV7 needs HLT_physicsV7_rerun -->
         <TEST name="CheckKeysV7" type="script" suite="TP1menu">
-            <options_atn>trigtest.pl --cleardir  --test CheckKeysV7 --rundir CheckKeysV7 --conf TrigP1Test.conf</options_atn>
+            <options_atn>skip_if_libraryMissing.sh TrigKernel trigtest.pl --cleardir  --test CheckKeysV7 --rundir CheckKeysV7 --conf TrigP1Test.conf</options_atn>
             <timelimit>120</timelimit>     
             <mailto>joerg.stelzer@cern.ch</mailto> 
             <platform>opt</platform>
@@ -350,7 +350,7 @@
         </TEST>
         
         <TEST name="HLT_physicsV7_rerunLVL1_menu" type="script" suite="TP1menuRL1">
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV7_rerunLVL1_menu --rundir HLT_physicsV7_rerunLVL1_menu --conf TrigP1Test.conf</options_atn>
+            <options_atn>skip_if_libraryMissing.sh TrigKernel trigtest.pl --cleardir --test HLT_physicsV7_rerunLVL1_menu --rundir HLT_physicsV7_rerunLVL1_menu --conf TrigP1Test.conf</options_atn>
             <timelimit>59</timelimit>
             <platform>opt</platform>
             <nightly_exclude> MIG LCG EXP CMAKE 22 20.99 </nightly_exclude>
@@ -362,7 +362,7 @@
         
         
         <TEST name="UploadMenuKeys_rerunLVL1" type="script" suite="TP1menuRL1">
-            <options_atn>trigtest.pl --cleardir  --test UploadMenuKeys_rerunLVL1 --rundir UploadMenuKeys_rerunLVL1 --conf TrigP1Test.conf</options_atn>
+            <options_atn>skip_if_libraryMissing.sh TrigKernel trigtest.pl --cleardir  --test UploadMenuKeys_rerunLVL1 --rundir UploadMenuKeys_rerunLVL1 --conf TrigP1Test.conf</options_atn>
             <timelimit>59</timelimit>
             <!--<mailto>joerg.stelzer@cern.ch</mailto>-->    
             <platform>opt</platform>
@@ -374,7 +374,7 @@
         </TEST>
         
         <TEST name="HLT_physicsV7_rerunLVL1_menu_rerundb" type="script" suite="TP1menuRL1">
-            <options_atn>trigtest.pl --cleardir  --test HLT_physicsV7_rerunLVL1_menu_rerundb --rundir HLT_physicsV7_rerunLVL1_menu_rerundb --conf TrigP1Test.conf</options_atn>
+            <options_atn>skip_if_libraryMissing.sh TrigKernel trigtest.pl --cleardir  --test HLT_physicsV7_rerunLVL1_menu_rerundb --rundir HLT_physicsV7_rerunLVL1_menu_rerundb --conf TrigP1Test.conf</options_atn>
             <timelimit>59</timelimit>
             <platform>opt</platform>
             <nightly_exclude> MIG LCG EXP CMAKE 22 20.99 </nightly_exclude>
@@ -400,7 +400,7 @@
         
         
         <TEST name="Trigreco_physicsV7_currentT0" type="script" suite="TP1var1"> 
-            <options_atn>trigtest.pl --cleardir --test Trigreco_physicsV7_currentT0 --rundir Trigreco_physicsV7_currentT0 --conf TrigP1Test.conf</options_atn> 
+            <options_atn>skip_if_libraryMissing.sh TrigKernel trigtest.pl --cleardir --test Trigreco_physicsV7_currentT0 --rundir Trigreco_physicsV7_currentT0 --conf TrigP1Test.conf</options_atn> 
             <timelimit>45</timelimit> 
             <nightly_exclude> MIG LCG EXP CMAKE 22 21 20.99 </nightly_exclude>
             <expectations> 
@@ -410,7 +410,7 @@
         </TEST> 
         
         <TEST name="TrigEDMCheck_physicsV7_currentT0_ESD" type="script" suite="TP1var1"> 
-            <options_atn>trigtest.pl --cleardir --test TrigEDMCheck_physicsV7_currentT0_ESD --rundir TrigEDMCheck_physicsV7_currentT0_ESD --conf TrigP1Test.conf</options_atn> 
+            <options_atn>skip_if_libraryMissing.sh TrigKernel trigtest.pl --cleardir --test TrigEDMCheck_physicsV7_currentT0_ESD --rundir TrigEDMCheck_physicsV7_currentT0_ESD --conf TrigP1Test.conf</options_atn> 
             <timelimit>10</timelimit> 
             <nightly_exclude> MIG LCG EXP CMAKE 22 21 20.99 </nightly_exclude>
             <expectations> 
@@ -420,7 +420,7 @@
         </TEST> 
         
         <TEST name="TrigEDMCheck_physicsV7_currentT0_AOD" type="script" suite="TP1var1"> 
-            <options_atn>trigtest.pl --cleardir --test TrigEDMCheck_physicsV7_currentT0_AOD --rundir TrigEDMCheck_physicsV7_currentT0_AOD --conf TrigP1Test.conf</options_atn> 
+            <options_atn>skip_if_libraryMissing.sh TrigKernel trigtest.pl --cleardir --test TrigEDMCheck_physicsV7_currentT0_AOD --rundir TrigEDMCheck_physicsV7_currentT0_AOD --conf TrigP1Test.conf</options_atn> 
             <timelimit>10</timelimit> 
             <nightly_exclude> MIG LCG EXP CMAKE 22 21 20.99 </nightly_exclude>
             <expectations> 
@@ -430,7 +430,7 @@
         </TEST> 
         
         <TEST name="Trigreco_dbgstream_T0" type="script" suite="TP1var2"> 
-            <options_atn>trigtest.pl --cleardir --test Trigreco_dbgstream_T0  --rundir Trigreco_dbgstream_T0 --conf TrigP1Test.conf</options_atn> 
+            <options_atn>skip_if_libraryMissing.sh TrigKernel trigtest.pl --cleardir --test Trigreco_dbgstream_T0  --rundir Trigreco_dbgstream_T0 --conf TrigP1Test.conf</options_atn> 
             <timelimit>30</timelimit> 
             <nightly_exclude> MIG LCG EXP CMAKE 22 21 20.99 </nightly_exclude>
             <expectations> 
@@ -452,7 +452,7 @@
         
         
         <TEST name="pureSteering_ecodes" type="script" suite="TP1pures">
-            <options_atn>trigtest.pl --cleardir --test pureSteering_ecodes --rundir pureSteering_ecodes --conf TrigP1Test.conf</options_atn>
+            <options_atn>skip_if_libraryMissing.sh TrigKernel trigtest.pl --cleardir --test pureSteering_ecodes --rundir pureSteering_ecodes --conf TrigP1Test.conf</options_atn>
             <timelimit>10</timelimit>
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
@@ -461,7 +461,7 @@
         </TEST>
         
         <TEST name="pureSteering_prescaling" type="script" suite="TP1pures">
-            <options_atn>trigtest.pl --cleardir --test pureSteering_prescaling --rundir pureSteering_prescaling --conf TrigP1Test.conf</options_atn>
+            <options_atn>skip_if_libraryMissing.sh TrigKernel trigtest.pl --cleardir --test pureSteering_prescaling --rundir pureSteering_prescaling --conf TrigP1Test.conf</options_atn>
             <timelimit>10</timelimit>
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
@@ -470,7 +470,7 @@
         </TEST>
         
         <TEST name="pureSteering" type="script" suite="TP1pures">
-            <options_atn>trigtest.pl --cleardir --test pureSteering --rundir pureSteering --conf TrigP1Test.conf</options_atn>
+            <options_atn>skip_if_libraryMissing.sh TrigKernel trigtest.pl --cleardir --test pureSteering --rundir pureSteering --conf TrigP1Test.conf</options_atn>
             <timelimit>10</timelimit>
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
@@ -479,7 +479,7 @@
         </TEST>
         
         <TEST name="AthenaTrigBS_L2EFMerging" type="script" suite="TP1L2EFmerg"> 
-            <options_atn>trigtest.pl --test AthenaTrigBS_L2EFMerging --run AthenaTrigBS_L2EFMerging --conf TrigP1Test.conf</options_atn> 
+            <options_atn>skip_if_libraryMissing.sh TrigKernel trigtest.pl --test AthenaTrigBS_L2EFMerging --run AthenaTrigBS_L2EFMerging --conf TrigP1Test.conf</options_atn> 
             <timelimit>60</timelimit> 
             <author>TAPM validation</author>
             <mailto> francesca.pastore@cern.ch </mailto> 
@@ -498,7 +498,7 @@
         
         <TEST name="atn_timeline" type="script" suite="TP1">
             <doc>ATN timeline</doc>
-            <options_atn>atn_timeline.py --atn -p TrigP1Test </options_atn>
+            <options_atn>skip_if_libraryMissing.sh TrigKernel atn_timeline.py --atn -p TrigP1Test </options_atn>
             <timelimit>2</timelimit>
             <author>Frank Winklmeier</author>
             <prerequisite>TP1mc</prerequisite>
@@ -525,7 +525,7 @@
         
         <TEST name="atn_xml_summary_table" type="script" suite="TP1">
             <doc>Summary table</doc>
-            <options_atn>atn_summary.pl</options_atn>
+            <options_atn>skip_if_libraryMissing.sh TrigKernel atn_summary.pl</options_atn>
             <timelimit>2</timelimit>
             <prerequisite>TP1mc</prerequisite>
             <prerequisite>TP1core</prerequisite>

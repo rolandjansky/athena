@@ -159,15 +159,6 @@ inline int TRTDigSettings::ltT0shiftECBwheels(int strawGasType) const {
 inline double TRTDigSettings::innerRadiusOfStraw() const {
   return m_innerRadiusOfStraw;
 }
-inline double TRTDigSettings::strawLengthBarrel() const {
-  return m_strawLengthBarrel;
-}
-inline double TRTDigSettings::innerRadiusEndcap() const {
-  return m_innerRadiusEndcap;
-}
-inline double TRTDigSettings::outerRadiusEndcap() const {
-  return m_outerRadiusEndcap;
-}
 inline double TRTDigSettings::outerRadiusOfWire() const {
   return m_outerRadiusOfWire;
 }

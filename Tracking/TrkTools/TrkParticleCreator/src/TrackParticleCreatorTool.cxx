@@ -175,6 +175,9 @@ namespace Trk
         ATH_MSG_DEBUG( "Retrieved tool " << m_trackSummaryTool );
       }
     }
+    else {
+      m_trackSummaryTool.disable();
+    }
     
     /* Retrieve track extrapolator from ToolService */
     if ( m_extrapolator.retrieve().isFailure() ) {
@@ -224,7 +227,10 @@ namespace Trk
 	} else {
 	  ATH_MSG_DEBUG( "Retrieved tool " << m_hitSummaryTool);
 	}
-      }
+    }
+    else{
+      m_hitSummaryTool.disable();
+    }
 
     /* MagneticFieldSvc handles updates itself */
     if (m_magFieldSvc.retrieve().isFailure()){

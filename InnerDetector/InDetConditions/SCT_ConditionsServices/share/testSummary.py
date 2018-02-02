@@ -2,15 +2,11 @@ import AthenaCommon.AtlasUnixStandardJob
 
 # use auditors
 from AthenaCommon.AppMgr import ServiceMgr
-
 from GaudiSvc.GaudiSvcConf import AuditorSvc
-
 ServiceMgr += AuditorSvc()
 theAuditorSvc = ServiceMgr.AuditorSvc
 theAuditorSvc.Auditors  += [ "ChronoAuditor"]
-#ChronoStatSvc = Service ( "ChronoStatSvc")
 theAuditorSvc.Auditors  += [ "MemStatAuditor" ]
-#MemStatAuditor = theAuditorSvc.auditor( "MemStatAuditor" )
 theApp.AuditAlgorithms=True
 
 
@@ -23,20 +19,6 @@ globalflags.DetGeo="atlas"
 globalflags.InputFormat="pool"
 globalflags.DataSource="data"
 print globalflags
-
-
-
-
-#from AthenaCommon.GlobalFlags import GlobalFlags
-# --- default is atlas geometry
-#GlobalFlags.DetGeo.set_atlas()
-#globalflags.DetGeo.set_Value_and_Lock(blah)
-# --- set defaults
-#GlobalFlags.DataSource.set_geant4()    
-#GlobalFlags.InputFormat.set_pool()    
-# --- default is zero luminosity
-#GlobalFlags.Luminosity.set_zero()
-#GlobalFlags.Print()
 
 #--------------------------------------------------------------
 # Set Detector setup
@@ -83,43 +65,32 @@ from IOVDbSvc.CondDB import conddb
 IOVDbSvc.GlobalTag="CONDBR2-BLKPA-2017-06"
 print "conddb.dbdata", conddb.dbdata
 IOVDbSvc.OutputLevel = 3
-#--------------------------------------------------------------
-# Load AthCondSeq
-#--------------------------------------------------------------
-from AthenaCommon.AlgSequence import AthSequencer
-condSeq = AthSequencer("AthCondSeq")
 
-conddb.addFolder("TDAQ", "/TDAQ/Resources/ATLAS/SCT/Robins", className="CondAttrListCollection")
-from  SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_TdaqEnabledCondAlg
-condSeq += SCT_TdaqEnabledCondAlg(name="SCT_TdaqEnabledCondAlg")
+from SCT_ConditionsServices.SCT_TdaqEnabledSvcSetup import sct_TdaqEnabledSvcSetup
+sct_TdaqEnabledSvcSetup.setup()
 
-conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/Chip", "/SCT/DAQ/Config/Chip", className="CondAttrListVec")
-conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/Module", "/SCT/DAQ/Config/Module", className="CondAttrListVec")
-conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/MUR", "/SCT/DAQ/Config/MUR", className="CondAttrListVec") # Also for cabling
-from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConfigurationCondAlg
-condSeq += SCT_ConfigurationCondAlg(name = "SCT_ConfigurationCondAlg",
-                                    ReadKeyChannel = "/SCT/DAQ/Config/Chip",
-                                    ReadKeyModule = "/SCT/DAQ/Config/Module",
-                                    ReadKeyMur = "/SCT/DAQ/Config/MUR")
+from SCT_ConditionsServices.SCT_ConfigurationConditionsSvcSetup import sct_ConfigurationConditionsSvcSetup
+sct_ConfigurationConditionsSvcSetup.setup()
 
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/Geog", "/SCT/DAQ/Config/Geog") # Needed for cabling
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/RODMUR", "/SCT/DAQ/Config/RODMUR") # Needed for cabling
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/ROD", "/SCT/DAQ/Config/ROD") # Needed for cabling
 
-from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ModuleVetoSvc
-ServiceMgr +=SCT_ModuleVetoSvc()
-SCT_ModuleVeto=ServiceMgr.SCT_ModuleVetoSvc
-SCT_ModuleVeto.BadModuleIdentifiers=["1","2"]
-
-from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConfigurationConditionsSvc
-ServiceMgr +=SCT_ConfigurationConditionsSvc()
-
+from SCT_ConditionsServices.SCT_ModuleVetoSvcSetup import sct_ModuleVetoSvcSetup
+sct_ModuleVetoSvcSetup.setUseDB(False)
+sct_ModuleVetoSvcSetup.setup()
+SCT_ModuleVetoSvc=sct_ModuleVetoSvcSetup.getSvc()
+SCT_ModuleVetoSvc.BadModuleIdentifiers=["1", "2"]
 
 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConditionsSummarySvc
 ServiceMgr +=SCT_ConditionsSummarySvc()
 
-SCT_ConditionsSummary=ServiceMgr.SCT_ConditionsSummarySvc
-SCT_ConditionsSummary.ConditionsServices=["SCT_ModuleVetoSvc", "SCT_ConfigurationConditionsSvc","SCT_TdaqEnabledSvc"]
+from SCT_ConditionsServices.SCT_ConditionsSummarySvcSetup import sct_ConditionsSummarySvcSetup
+sct_ConditionsSummarySvcSetup.setup()
+SCT_ConditionsSummarySvc = sct_ConditionsSummarySvcSetup.getSvc()
+SCT_ConditionsSummarySvc.ConditionsServices=[sct_ModuleVetoSvcSetup.getSvcName(),
+                                             sct_ConfigurationConditionsSvcSetup.getSvcName(),
+                                             sct_TdaqEnabledSvcSetup.getSvcName()]
 
 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConditionsSummaryTestAlg
 job+= SCT_ConditionsSummaryTestAlg()
@@ -128,11 +99,11 @@ import AthenaCommon.AtlasUnixGeneratorJob
 
 ServiceMgr.EventSelector.RunNumber  = 310809
 import time, calendar
-#time in seconds , now
-#ServiceMgr.EventSelector.InitialTimeStamp  = calendar.timegm(time.gmtime())
 # initial time stamp - this is number of seconds since 1st Jan 1970 GMT
 # run 310809 Recording start/end 2016-Oct-17 21:39:18 / 2016-Oct-18 16:45:23 UTC
 ServiceMgr.EventSelector.InitialTimeStamp  = 1476741326 # LB 18 of run 310809, 10/17/2016 @ 9:55pm (UTC)
+#time in seconds , now
+#ServiceMgr.EventSelector.InitialTimeStamp  = calendar.timegm(time.gmtime())
 theApp.EvtMax                   = 1
 
 ServiceMgr.MessageSvc.Format           = "% F%40W%S%7W%R%T %0W%M"

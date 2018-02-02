@@ -6,7 +6,7 @@
 #include "StoreGate/StoreGate.h"
 #include "TrkPrepRawData/PrepRawData.h"
 #include "Identifier/IdentifierHash.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include <typeinfo>
 

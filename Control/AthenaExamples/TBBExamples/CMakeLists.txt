@@ -12,7 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           AtlasTest/TestTools
                           Control/AthenaBaseComps
                           Control/AthenaKernel
-                          Control/DataModel
+                          Control/AthContainers
                           TestPolicy )
 
 # External dependencies:
@@ -24,7 +24,7 @@ atlas_add_component( TBBExamples
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${TBB_LIBRARIES} GaudiKernel AthenaBaseComps AthenaKernel DataModel )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${TBB_LIBRARIES} GaudiKernel AthenaBaseComps AthenaKernel AthContainers )
 
 # Install files from the package:
 atlas_install_headers( TBBExamples )

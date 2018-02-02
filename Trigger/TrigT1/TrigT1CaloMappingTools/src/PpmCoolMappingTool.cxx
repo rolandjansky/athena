@@ -160,7 +160,7 @@ bool PpmCoolMappingTool::mapping(const int crate, const int module,
         msg(MSG::VERBOSE) << "tower_id: " << ttId << endmsg;
       }
     }
-    catch (CaloID_Exception) { ttId = invalidId; }
+    catch (const CaloID_Exception&) { ttId = invalidId; }
     if (ttId == invalidId) return false;
 
     const int side   = (m_lvl1Helper->pos_neg_z(ttId) == 1) ? 1 : 2;
@@ -237,7 +237,7 @@ bool PpmCoolMappingTool::mapping(const double eta, const double phi,
       msg(MSG::VERBOSE) << "hardware_id: " << id << endmsg;
     }
   }
-  catch (CaloID_Exception) { id = invalidId; }
+  catch (const CaloID_Exception&) { id = invalidId; }
   if (id == invalidId) return false;
 
   const int slot = m_l1ttonlineHelper->module(id);

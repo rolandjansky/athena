@@ -1716,7 +1716,7 @@ StatusCode Candidate::fillSummaryFromBetaRefit(CandidateSummary* pSummary)
     if (m_pMuGirl->msgLvl(MSG::DEBUG))
         m_pMuGirl->msg() << "Candidate::fillSummaryFromBetaRefit" << endmsg;
 
-    memset(pSummary, 0, sizeof(CandidateSummary));
+    pSummary->clear();
     pSummary->startFromMF        = m_startFromMF;
     pSummary->startFromBetaRefit = m_startFromBetaRefit;
     pSummary->startFromEF        = m_startFromEF;
@@ -1744,7 +1744,7 @@ StatusCode Candidate::fillSummary(CandidateSummary* pSummary)
     if (m_pMuGirl->msgLvl(MSG::DEBUG))
         m_pMuGirl->msg() << "Candidate::fillSummary" << endmsg;
 
-    memset(pSummary, 0, sizeof(CandidateSummary));
+    pSummary->clear();
 
     //pSummary->eta = m_pIDPerigee->eta();
     //pSummary->pt = m_pIDPerigee->pT();

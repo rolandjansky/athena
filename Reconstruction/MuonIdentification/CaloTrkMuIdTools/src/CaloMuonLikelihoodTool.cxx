@@ -54,7 +54,6 @@ CaloMuonLikelihoodTool::CaloMuonLikelihoodTool(const std::string& type, const st
   
   declareProperty("RootFileNames", m_fileNames);
   declareProperty("TrackEnergyInCaloTool",m_trkEnergyInCalo);
-  declareProperty("CaloClusterContainerName", m_caloClusterContainerName = "CaloTopoCluster");
 }
 
 
@@ -320,17 +319,9 @@ double CaloMuonLikelihoodTool::getLHR( const Trk::TrackParameters* trkpar, const
       }
     }
 
+    if(!ClusContainer) return 0;
     
-    const xAOD::CaloClusterContainer* clusCont = ClusContainer;
-    if(clusCont == nullptr) {
-      if ( evtStore()->retrieve(clusCont, m_caloClusterContainerName).isFailure() ) {
-        ATH_MSG_WARNING("Could not retrieve CaloClusterContainer with key <" << m_caloClusterContainerName << " >");
-        return 0;
-      }
-    }
-    if(clusCont == nullptr) return 0;
-    
-    double LR = getLHR( clusCont, eta_trk, p_trk, eta_trkAtCalo, phi_trkAtCalo, dR_CUT);
+    double LR = getLHR( ClusContainer, eta_trk, p_trk, eta_trkAtCalo, phi_trkAtCalo, dR_CUT);
     return LR;
   }
     

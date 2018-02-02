@@ -210,7 +210,7 @@ public:
    */
   virtual bool insertMove (size_t pos,
                            IAuxStore& other,
-                           const SG::auxid_set_t& ignore = SG::auxid_set_t()) override;
+                           const SG::auxid_set_t& ignore = SG::auxid_set_t(0)) override;
 
 
   /**
@@ -396,15 +396,8 @@ private:
   /// Record which variables are decorations.
   std::vector<bool> m_isDecoration;
 
-  // Hide this from root --- otherwise we get errors about the dictionary
-  // for this guy's allocator.
-#ifndef __REFLEX__
   /// Set of @c auxid's for which we've created a vector.
   SG::auxid_set_t m_auxids;
-#endif
-
-  /// Count changes to @c m_auxids.
-  size_t m_tick;
 
   /// Has this container been locked?
   bool m_locked;
@@ -413,16 +406,6 @@ private:
   typedef AthContainers_detail::mutex mutex_t;
   typedef AthContainers_detail::lock_guard<mutex_t> guard_t;
   mutable mutex_t m_mutex;
-
-  /// Thread-local versions of the auxid set.
-  struct TSAuxidSet
-  {
-    size_t m_tick;
-    auxid_set_t m_set;
-    TSAuxidSet (size_t tick, const auxid_set_t& set)
-      : m_tick (tick), m_set (set) {}
-  };
-  mutable AthContainers_detail::thread_specific_ptr<TSAuxidSet> m_tsAuxids;
 };
 
 
@@ -432,8 +415,8 @@ private:
 
 #ifndef XAOD_STANDALONE
 
-#include "SGTools/BaseInfo.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/BaseInfo.h"
+#include "AthenaKernel/CLASS_DEF.h"
 SG_BASE( SG::AuxStoreInternal, SG::IAuxStore );
 CLASS_DEF( SG::AuxStoreInternal , 16428258 , 1 )
 

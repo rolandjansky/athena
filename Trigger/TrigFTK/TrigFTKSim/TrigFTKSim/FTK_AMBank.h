@@ -26,8 +26,8 @@
 // alternative ss_patt_lookup implementation using a GCC hashmap (controlled via m_use_lookup_map)
 // this is necessary for SCTtrk case, where (int)SS encodes 3 parameters
 // note: this makes road_finder ~30% slower, so use only when needed!
+// FIXME: Why not use unordered_map?
 #include <ext/hash_map>
-using namespace __gnu_cxx;
 
 /** class that define an associative memory */
 class FTK_AMBank : public FTK_AMsimulation_base {
@@ -71,7 +71,7 @@ private:
    const int * getPatterns() const {return m_patterns; }// list of the patterns
  protected:
    // lookup table between ss and patterns:
-   hash_map<int, std::vector<int> > *m_ss_patt_lookup_map;  /*[plane]*/
+   __gnu_cxx::hash_map<int, std::vector<int> > *m_ss_patt_lookup_map;  /*[plane]*/
    int m_lutsepplane;
    bool m_upperindex;
 

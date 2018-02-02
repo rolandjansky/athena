@@ -59,20 +59,20 @@ MuonAGDDToolHelper::MuonAGDDToolHelper()
     {
     	std::cout<<"unable to access RBDAccessSvc "<<std::endl;
     }
-	tagInfoKey="";
+	m_tagInfoKey="";
 	result=Gaudi::svcLocator()->service("TagInfoMgr",m_tagInfoMgr);
   	if (result.isFailure()) 
   	{
     	std::cout<<"Unable to retrieve TagInfoMgr!"<<std::endl;
   	}
   	else
-  		tagInfoKey=m_tagInfoMgr->tagInfoKey();
+  		m_tagInfoKey=m_tagInfoMgr->tagInfoKey();
 }
 
 std::vector<std::string>& MuonAGDDToolHelper::ReadAGDDFlags()
 {
-	static std::vector<std::string> m_structuresFromFlags;
-	m_structuresFromFlags.clear();
+	static std::vector<std::string> structuresFromFlags;
+	structuresFromFlags.clear();
    std::string agdd2geoVersion = p_RDBAccessSvc->getChildTag("AGDD2GeoSwitches",p_GeoModelSvc->muonVersion(),"MuonSpectrometer");
 
 //   m_AGDD2GeoSwitches.clear();
@@ -91,7 +91,7 @@ std::vector<std::string>& MuonAGDDToolHelper::ReadAGDDFlags()
        {
 //        std::cout<<"  Add to m_AGDD2GeoSwitches " << TheKEYNAME <<std::endl;
 //		 if (aliases->IsAliased(TheKEYNAME))
-         m_structuresFromFlags.push_back(TheKEYNAME);
+         structuresFromFlags.push_back(TheKEYNAME);
        }
      }
    }
@@ -99,7 +99,7 @@ std::vector<std::string>& MuonAGDDToolHelper::ReadAGDDFlags()
    {
       std::cout<<"  agdd2geoVersion is empty " <<std::endl;
    }	
-   return m_structuresFromFlags;
+   return structuresFromFlags;
 }
 
 

@@ -53,7 +53,7 @@ TileRawChannelBuilderMF::TileRawChannelBuilderMF(const std::string& type, const 
   declareInterface<TileRawChannelBuilder>(this);
   declareInterface<TileRawChannelBuilderMF>(this);
 
-  m_TileRawChannelContainerID = "TileRawChannelMF";
+  m_rawChannelContainerKey = "TileRawChannelMF";
 
   //declare properties
   declareProperty("TileCondToolTiming", m_tileToolTiming);
@@ -109,6 +109,8 @@ StatusCode TileRawChannelBuilderMF::initialize() {
   if (m_bestPhase) {
     //=== get TileToolTiming
     CHECK(m_tileToolTiming.retrieve());
+  } else {
+    m_tileToolTiming.disable();
   }
 
   //=== get TileCondToolNoiseSample

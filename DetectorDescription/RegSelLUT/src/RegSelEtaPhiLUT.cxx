@@ -44,7 +44,7 @@ RegSelEtaPhiLUT::RegSelEtaPhiLUT(int Neta, int Nphi) :
   m_ideta = m_Neta/(m_etamax-m_etamin);    
   m_idphi = m_Nphi/(m_phimax-m_phimin);
     
-  std::vector< std::vector< map_element > >& themap = m_grandmap.payload();
+  std::vector< std::vector< map_element > >& tmap = m_grandmap.payload();
   
   //  std::cout << "RegSelEtaPhiUT::RegSelEtaPhiLUT() Neta " << Neta << "\tNphi " << Nphi << std::endl;
 
@@ -52,27 +52,25 @@ RegSelEtaPhiLUT::RegSelEtaPhiLUT(int Neta, int Nphi) :
   
   for ( int i=0 ; i<m_Neta ; i++ ) { 
     
-    double etamin = m_etamin+i/m_ideta;
-    double etamax = m_etamin+(i+1)/m_ideta;
+    double tetamin = m_etamin+i/m_ideta;
+    double tetamax = m_etamin+(i+1)/m_ideta;
     
       std::vector< map_element > row;
       
       for ( int j=0 ; j<m_Nphi ; j++ ) { 
-	double phimin = m_phimin+j/m_idphi;
-	double phimax = m_phimin+(j+1)/m_idphi;
+	double tphimin = m_phimin+j/m_idphi;
+	double tphimax = m_phimin+(j+1)/m_idphi;
 	
-	map_element m( etamin, etamax, phimin, phimax, empty_set );
+	map_element m( tetamin, tetamax, tphimin, tphimax, empty_set );
 	
 	row.push_back( m ); 
 	
       }
       
-      themap.push_back( row ); 
+      tmap.push_back( row ); 
       
   }
-  
-  //    std::cout << "RegSelEtaPhiUT::RegSelEtaPhiLUT() done" << std::endl;
-  
+    
 }
 
 
@@ -89,7 +87,7 @@ bool RegSelEtaPhiLUT::addModule( EtaPhiModule& m ) {
 
   //    std::cout << "adding... " << m << std::endl;
 
-  static std::vector< std::vector< map_element > >& themap = m_grandmap.payload();
+  static std::vector< std::vector< map_element > >& tmap = m_grandmap.payload();
   
   int first_eta = (m.etamin()-m_etamin)*m_ideta;
   int last_eta  = (m.etamax()-m_etamin)*m_ideta;
@@ -115,13 +113,13 @@ bool RegSelEtaPhiLUT::addModule( EtaPhiModule& m ) {
   /// does it overlap phi boundary? 
   if ( first_phi<last_phi ) { 
     for ( int i=int(first_eta) ; i<=last_eta ; i++ ) { 
-      for ( int j=int(first_phi) ; j<=last_phi ; j++ ) themap[i][j].payload().insert( m );
+      for ( int j=int(first_phi) ; j<=last_phi ; j++ ) tmap[i][j].payload().insert( m );
     }
   }
   else { 
     for ( int i=int(first_eta) ; i<=last_eta ; i++ ) { 
-      for ( int j=0 ; j<=int(last_phi) ; j++ ) themap[i][j].payload().insert( m );
-      for ( int j=first_phi ; j<m_Nphi ; j++ ) themap[i][j].payload().insert( m );
+      for ( int j=0 ; j<=int(last_phi) ; j++ ) tmap[i][j].payload().insert( m );
+      for ( int j=first_phi ; j<m_Nphi ; j++ ) tmap[i][j].payload().insert( m );
     }
   }
   
@@ -202,18 +200,18 @@ const EtaPhiBase RegSelEtaPhiLUT::getElements( const RegSelRoI& roi,
     if ( last_phi<0 )       last_phi += m_Nphi;
     if ( last_phi>=m_Nphi ) last_phi -= m_Nphi;
 
-    static const std::vector< std::vector< map_element > >& themap = map();
+    static const std::vector< std::vector< map_element > >& tmap = map();
 
     /// does the roi overlap the phi boundary? 
     if ( first_phi<last_phi ) { 
       for ( int i=first_eta ; i<=last_eta ; i++ ) { 
-	getRowElements( virtual_roi, themap[i], first_phi, last_phi, modules );
+	getRowElements( virtual_roi, tmap[i], first_phi, last_phi, modules );
       }
     }
     else { 
       for ( int i=first_eta ; i<=last_eta ; i++ ) { 
-	getRowElements( virtual_roi, themap[i], 0,        last_phi, modules );
-	getRowElements( virtual_roi, themap[i], first_phi, m_Nphi-1,  modules );
+	getRowElements( virtual_roi, tmap[i], 0,        last_phi, modules );
+	getRowElements( virtual_roi, tmap[i], first_phi, m_Nphi-1,  modules );
       }
     }
     

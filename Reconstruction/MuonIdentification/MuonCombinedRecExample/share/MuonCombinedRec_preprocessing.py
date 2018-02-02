@@ -18,15 +18,6 @@ if rec.doMuonCombined() and muonCombinedRecFlags.doAnyMuons() and DetFlags.Muon_
         print InitializeMuonCaloEnergy
 
 if rec.doMuonCombined() and muonCombinedRecFlags.doMuonClusters() and ( rec.readAOD() or rec.readESD() or DetFlags.haveRIO.Calo_on() ):
-    # Needed by MuonIsolationTools
-    InitializeMuonClusters = CfgMgr.Rec__InitializeMuonClusters (
-        name                 = "InitializeMuonClusters",
-        MuonClusterContainer = "MuonClusterCollection"
-        )
-    topSequence += InitializeMuonClusters
-    if muonCombinedRecFlags.printConfigurables():
-        print InitializeMuonClusters
-    
     # hack until MuonClusterCollection is properly added to ObjKeyStore
     # Needed by CaloCellAODGetter.addClusterToCaloCellAOD()
     if jobproperties.Beam.beamType()!='cosmics' and jobproperties.Beam.beamType()!='singlebeam':

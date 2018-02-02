@@ -28,8 +28,8 @@ namespace JiveXML {
    **/
   SiClusterRetriever::SiClusterRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    typeName("STC"),
-    geo("JiveXML::InDetGeoModelTool/InDetGeoModelTool",this){
+    m_typeName("STC"),
+    m_geo("JiveXML::InDetGeoModelTool/InDetGeoModelTool",this){
 
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
@@ -98,7 +98,7 @@ namespace JiveXML {
       const InDet::SiClusterCollection* SiClusterColl = (*SiClusterCollItr);
 
       //Only run on silicon (SCT) clusters
-      if ( ! geo->SCTIDHelper()->is_sct(SiClusterColl->identify())) continue ;
+      if ( ! m_geo->SCTIDHelper()->is_sct(SiClusterColl->identify())) continue ;
 
       //Now loop over all clusters in that collection 
       InDet::SiClusterCollection::const_iterator SiClusterItr = SiClusterColl->begin();
@@ -108,8 +108,8 @@ namespace JiveXML {
         const InDet::SiCluster* cluster = (*SiClusterItr);
         
         //and the detector element for that cluster via the id
-        Identifier id = geo->SCTIDHelper()->wafer_id(cluster->identify());
-        InDetDD::SiDetectorElement* element = geo->SCTGeoManager()->getDetectorElement(id);
+        Identifier id = m_geo->SCTIDHelper()->wafer_id(cluster->identify());
+        InDetDD::SiDetectorElement* element = m_geo->SCTGeoManager()->getDetectorElement(id);
         if (!element){
           if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could not obtain Detector Element with ID " << id << endmsg;
           continue ;
@@ -134,9 +134,9 @@ namespace JiveXML {
         //Get the cluster id
         Identifier clusterId = cluster->identify();
         ident.push_back(DataType(clusterId.get_compact()));
-        phiModule.push_back(DataType(geo->SCTIDHelper()->phi_module(clusterId)));
-        etaModule.push_back(DataType(geo->SCTIDHelper()->eta_module(clusterId)));
-        side.push_back(DataType(geo->SCTIDHelper()->side(clusterId)));
+        phiModule.push_back(DataType(m_geo->SCTIDHelper()->phi_module(clusterId)));
+        etaModule.push_back(DataType(m_geo->SCTIDHelper()->eta_module(clusterId)));
+        side.push_back(DataType(m_geo->SCTIDHelper()->side(clusterId)));
         
         //Only process truth if its there
         if ( simClusterMap == NULL ) continue;

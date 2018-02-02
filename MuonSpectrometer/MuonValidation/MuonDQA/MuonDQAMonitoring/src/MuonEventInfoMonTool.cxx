@@ -44,8 +44,7 @@ namespace MuonDQA {
   // ********************************************************************* 
 
   MuonEventInfoMonTool::MuonEventInfoMonTool( const std::string & type, const std::string & name, const IInterface* parent )
-    : ManagedMonitorToolBase( type, name, parent ), m_eventStore(NULL), m_activeStore(NULL),
-      m_mdt_eventstotal(-1), m_mdt_event_inarea(-1), m_in_area(false), m_testcounter(-1), m_eventNumber(0),
+    : ManagedMonitorToolBase( type, name, parent ), m_eventStore(NULL),
       m_hTriggerType(NULL)
   {
     /*---------------------------------------------------------*/ 
@@ -161,7 +160,7 @@ namespace MuonDQA {
   { 
   
     StatusCode sc = StatusCode::SUCCESS;  
-    const EventInfo* eventInfo;
+    const EventInfo* eventInfo = nullptr;
     ATH_MSG_VERBOSE( "MuonEventInfoMonTool::retrieveEventInfo() called" );
 
    
@@ -202,7 +201,7 @@ namespace MuonDQA {
     ATH_MSG_DEBUG( "MuonDQAeventInfo" << MuonDQAeventInfo );
  
     // Retrieve trigger Info
-    TriggerInfo* trig = eventInfo->trigger_info(); 
+    const TriggerInfo* trig = eventInfo->trigger_info(); 
     //bitset<8> m_l1Trig = 0; 
     //uint m_l1Trig = 0;
    

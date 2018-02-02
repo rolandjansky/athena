@@ -44,8 +44,8 @@ class IegammaCheckEnergyDepositTool : virtual public IAlgTool
   /** @brief finalize method*/
   virtual StatusCode finalize() = 0;
   /** @brief execute method*/
-  virtual bool checkFractioninSampling(const xAOD::Egamma* eg) = 0;
-  virtual bool checkFractioninSamplingCluster(const xAOD::CaloCluster* cluster) = 0;
+  virtual bool checkFractioninSampling(const xAOD::Egamma* eg) const = 0;
+  virtual bool checkFractioninSamplingCluster(const xAOD::CaloCluster* cluster) const = 0;
 
 };
 

@@ -16,10 +16,9 @@
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "CoralBase/AttributeListSpecification.h"
 
-#include "POOLCore/Exception.h"
-
 #include <cassert>
 #include <stdlib.h>
+#include <exception>
 
 
 RunEventMetaWriter::RunEventMetaWriter(const std::string& name, 
@@ -84,7 +83,7 @@ StatusCode RunEventMetaWriter::start()
   {
     attribList = new AthenaAttributeList(*m_attribListSpec);
   } 
-  catch (pool::Exception e) 
+  catch (std::exception e) 
   {
     ATH_MSG_ERROR( "Caught exception during creation of AthenaAttributeList object."
                    << "Message: " << e.what()  );
@@ -103,7 +102,7 @@ StatusCode RunEventMetaWriter::start()
     (*attribList)["RunNumber"].data<unsigned int>() = 88;
     (*attribList)["EventNumber"].data<unsigned int>() = 99;
   } 
-  catch (pool::Exception e) 
+  catch (std::exception e) 
   {
     ATH_MSG_ERROR( "Caught exception from data() when setting AOD global "
                    << "attributes; Message: " << e.what() );

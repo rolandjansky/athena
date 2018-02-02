@@ -65,7 +65,7 @@ public:
     virtual Point*			       	outer_point (void) const = 0;
     virtual bool				pixelInterchange (void) const = 0;
     virtual void				setProperties (
-	const std::vector<Trk::SpacePoint*>&	spacePoints,
+	const std::vector<const Trk::SpacePoint*>&	spacePoints,
 	const Amg::Vector3D&			vertexRegionCentre) = 0;
     virtual void				set_tolerances (double minPt) = 0;
     virtual void				set_vertex_points (

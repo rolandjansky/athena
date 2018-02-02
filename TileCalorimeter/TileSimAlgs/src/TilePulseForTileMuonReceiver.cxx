@@ -29,44 +29,39 @@
 //
 //****************************************************************************************
 
-#include "GaudiKernel/ISvcLocator.h"
-#include "AthenaKernel/errorcheck.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
-
-// Calo includes
-
-#include "CaloIdentifier/TileID.h"
-
 // Tile includes
-
+#include "TileSimAlgs/TilePulseForTileMuonReceiver.h"
 #include "TileIdentifier/TileHWID.h"
 #include "TileConditions/TileInfo.h"
-#include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileConditions/TileCablingService.h"
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileConditions/TileCondToolNoiseSample.h"
 #include "TileConditions/TilePulseShapes.h"
 #include "TileConditions/TileCondToolPulseShape.h"
 #include "TileConditions/ITileBadChanTool.h"
-#include "TileEvent/TileHitContainer.h"
-#include "TileEvent/TileDigitsContainer.h"
-#include "TileEvent/TileRawChannel.h"
-#include "TileEvent/TileRawChannelContainer.h"
+#include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileRecUtils/TileRawChannelBuilder.h"
 #include "TileRecUtils/TileRawChannelBuilderMF.h"
-
 #include "TileRecUtils/TileBeamInfoProvider.h"
 
-#include "TileSimAlgs/TilePulseForTileMuonReceiver.h"
+// Calo includes
+#include "CaloIdentifier/TileID.h"
+
+// Atlas includes
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
+#include "AthenaKernel/errorcheck.h"
+#include "AthenaKernel/IAtRndmGenSvc.h"
 
 // external
-#include "cmath"
 #include <CLHEP/Random/Randomize.h>
 #include <CLHEP/Units/SystemOfUnits.h>
 
 using CLHEP::RandGaussQ;
 using CLHEP::RandFlat;
 using CLHEP::MeV;
+
+#include "cmath"
 
 // constructor
 //
@@ -92,12 +87,10 @@ TilePulseForTileMuonReceiver::TilePulseForTileMuonReceiver(std::string name, ISv
   , m_tileBadChanTool("TileBadChanTool")
   , m_beamInfo("TileBeamInfoProvider/TileBeamInfoProvider")
   , m_MuRcvBuildTool("TileRawChannelBuilderMF")
+  , m_run2(true)
 {
   // declare properties...
 
-  declareProperty("TileHitContainer"               , m_hitContainer         = "TileHitCnt");
-  declareProperty("MuonReceiverDigitsContainer"    , m_MuRcvDigitsContainer = "MuRcvDigitsCnt");
-  declareProperty("MuonReceiverRawChannelContainer", m_MuRcvRawChContainer  = "MuRcvRawChCnt");
   declareProperty("TileInfoName"                   , m_infoName             = "TileInfo");
   declareProperty("IntegerDigits"                  , m_integerDigits        = false, "Round digits (default=false)");
   declareProperty("TileBadChanTool"                , m_tileBadChanTool);
@@ -127,6 +120,7 @@ StatusCode TilePulseForTileMuonReceiver::initialize() {
 
   if (m_cablingService->getCablingType() != TileCablingService::RUN2Cabling) {
     ATH_MSG_INFO("TilePulseForTileMuonReceiver should not be used for RUN1 simulations");
+    m_run2 = false;
     return StatusCode::SUCCESS;
   } else {
     ATH_MSG_INFO("Initializing TilePulseForTileMuonReceiver");
@@ -190,6 +184,10 @@ StatusCode TilePulseForTileMuonReceiver::initialize() {
     m_tileBadChanTool.disable();
   }
 
+  ATH_CHECK( m_hitContainerKey.initialize(m_run2) );
+  ATH_CHECK( m_muRcvDigitsContainerKey.initialize(m_run2) );
+  ATH_CHECK( m_muRcvRawChannelContainerKey.initialize(m_run2) );
+
   ATH_MSG_VERBOSE("TilePulseForTileMuonReceiver initialization completed");
   return StatusCode::SUCCESS;
 }
@@ -199,12 +197,12 @@ StatusCode TilePulseForTileMuonReceiver::initialize() {
 
 StatusCode TilePulseForTileMuonReceiver::execute() {
 
-  if (m_cablingService->getCablingType() != TileCablingService::RUN2Cabling) {
-    ATH_MSG_VERBOSE( "ATT: RUN1 settings TilePulseForTileMuonReceiver will end now" );
-    return StatusCode::SUCCESS;
-  } else {
+  if (m_run2) {
     ATH_MSG_VERBOSE( "ATT: RUN2 settings TilePulseForTileMuonReceiver will run now" );
     ATH_MSG_DEBUG( "Executing TilePulseForTileMuonReceiver" );
+  } else {
+    ATH_MSG_VERBOSE( "ATT: RUN1 settings TilePulseForTileMuonReceiver will end now" );
+    return StatusCode::SUCCESS;
   }
 
   // Conversion from TMDB channel number to channel number in a drawer: EB (0-3) LB(0-13)
@@ -249,8 +247,8 @@ StatusCode TilePulseForTileMuonReceiver::execute() {
 
   // Get hit container from TES
   //
-  const TileHitContainer* hitCont;
-  CHECK(evtStore()->retrieve(hitCont, m_hitContainer));
+  SG::ReadHandle<TileHitContainer> hitContainer(m_hitContainerKey);
+  ATH_CHECK( hitContainer.isValid() );
 
   // Set up buffers for handling information in a single collection.
   //
@@ -259,11 +257,18 @@ StatusCode TilePulseForTileMuonReceiver::execute() {
 
   // Get a container for the digits
   //
-  TileDigitsContainer* MuonReceiverDigitsContainer = new TileDigitsContainer(true);
+  SG::WriteHandle<TileDigitsContainer> muRcvDigitsContainer(m_muRcvDigitsContainerKey);
+  ATH_CHECK( muRcvDigitsContainer.record(std::make_unique<TileDigitsContainer>(true)) );
     
   // Get a container for the raw channels
   //
-  TileRawChannelContainer* MuonReceiverRawChannelContainer = new TileRawChannelContainer(true, TileFragHash::MF, TileRawChannelUnit::MegaElectronVolts, SG::VIEW_ELEMENTS);
+  SG::WriteHandle<TileRawChannelContainer> muRcvRawChannelContainer(m_muRcvRawChannelContainerKey);
+  ATH_CHECK( muRcvRawChannelContainer.record(std::make_unique<TileRawChannelContainer>(true, 
+                                                                                       TileFragHash::MF, 
+                                                                                       TileRawChannelUnit::MegaElectronVolts, 
+                                                                                       SG::VIEW_ELEMENTS)) );
+  
+
 
   // Vector of digits to set into the container
   //
@@ -272,14 +277,12 @@ StatusCode TilePulseForTileMuonReceiver::execute() {
   /////////////////////////////////////////////////////////////////////////////////
   // (a.0) iterate over collections in the HIT container: access 'ros' and 'drawer'
   //
-  TileHitContainer::const_iterator collItr = hitCont->begin();
-  TileHitContainer::const_iterator lastColl = hitCont->end();
 
-  for (; collItr != lastColl; ++collItr) {
+  for (const TileHitCollection* hitCollection : *hitContainer) {
 
     // Get array of HWID's for this drawer (stored locally).
     //
-    HWIdentifier drawer_id = m_tileHWID->drawer_id((*collItr)->identify());
+    HWIdentifier drawer_id = m_tileHWID->drawer_id(hitCollection->identify());
     int ros = m_tileHWID->ros(drawer_id);
     int drawer = m_tileHWID->drawer(drawer_id);
     int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
@@ -306,16 +309,13 @@ StatusCode TilePulseForTileMuonReceiver::execute() {
     //////////////////////////////////////////////////////////////////////////////
     // (a.1) Iterate over all hits in a collection : access 'channel'
     //
-    TileHitCollection::const_iterator hitItr = (*collItr)->begin();
-    TileHitCollection::const_iterator lastHit = (*collItr)->end();
+    if ( hitCollection->empty() ) ATH_MSG_DEBUG("-- No hits in this drawer! Filling channels with noise and pedestal. --");
 
-    if ( !(*collItr)->size() ) ATH_MSG_DEBUG("-- No hits in this drawer! Filling channels with noise and pedestal. --");
-
-    for (; hitItr != lastHit; ++hitItr) {
+    for (const TileHit* tile_hit : *hitCollection) {
 
       // Get the pmt ID
       //
-      Identifier pmt_id = (*hitItr)->pmt_ID();
+      Identifier pmt_id = tile_hit->pmt_ID();
 
       // keep only D-cells and in addition cell BC8
       // 
@@ -376,7 +376,7 @@ StatusCode TilePulseForTileMuonReceiver::execute() {
       //       Calibrations are applied per subhit and energy added per subhit of a channel
       //
 
-      int n_hits = (*hitItr)->size();
+      int n_hits = tile_hit->size();
 
       ATH_MSG_VERBOSE("------ Number of hits in channel: " << n_hits);
 
@@ -384,7 +384,7 @@ StatusCode TilePulseForTileMuonReceiver::execute() {
 
         ATH_MSG_VERBOSE("(C.00) ++ Iterating over the hits of channel " << TILEchan  <<": hit #" << ihit);
 
-        double e_hit = (*hitItr)->energy(ihit); // [MeV] energy deposited in scintillator
+        double e_hit = tile_hit->energy(ihit); // [MeV] energy deposited in scintillator
         double e_pmt = e_hit * hit_calib;       // [MeV] true cell energy
 
         ATH_MSG_VERBOSE("(C.01) Energy in scintillator [MeV]: " << e_hit << " true cell energy [MeV]: " << e_pmt);
@@ -392,7 +392,7 @@ StatusCode TilePulseForTileMuonReceiver::execute() {
         // Need to pass the negative of t_hit, this is because the trigger returns the amplitude
         // at a given phase whereas the t_hit returns it from t=0 when the hit took place
         //
-        double t_hit = (*hitItr)->time(ihit);
+        double t_hit = tile_hit->time(ihit);
 
         ATH_MSG_VERBOSE("(C.02.01) Phase " << t_hit);
 
@@ -521,7 +521,12 @@ StatusCode TilePulseForTileMuonReceiver::execute() {
 
       ATH_MSG_VERBOSE( "(D.02.00)   Channel: "<<ros<<'/'<<drawer<<'/'<< TMDBchan
                       << " adc/pCb: "<< muRcv_Calib
-                      << " Mev/pCb: "<< m_tileToolEmscale->channelCalib( drawerIdx, TILEchan, TileID::LOWGAIN, 1., TileRawChannelUnit::PicoCoulombs, TileRawChannelUnit::MegaElectronVolts)
+                      << " Mev/pCb: "<< m_tileToolEmscale->channelCalib( drawerIdx, 
+                                                                         TILEchan, 
+                                                                         TileID::LOWGAIN, 
+                                                                         1., 
+                                                                         TileRawChannelUnit::PicoCoulombs, 
+                                                                         TileRawChannelUnit::MegaElectronVolts)
                       << " final calibration factor adc/MeV: "<< mev2ADC_factor);
 
       // Collecting pedestal from the database
@@ -587,12 +592,13 @@ StatusCode TilePulseForTileMuonReceiver::execute() {
       } else {
         ATH_MSG_VERBOSE( "(D.03)   Good Channel: "<< ros << '/' << drawer << '/' << TILEchan <<" ("<< TMDBchan <<") LowGain" );
       }
-      ATH_MSG_VERBOSE( "(D.04)   Changed to TMDB adc_id: " << m_tileHWID->to_string(adc_id) << " and create a TileDigits object and set it into a container." );
-      TileDigits* MuonReceiverDigits = new TileDigits(adc_id, digitsBuffer);
-      MuonReceiverDigitsContainer->push_back(MuonReceiverDigits);
+      ATH_MSG_VERBOSE( "(D.04)   Changed to TMDB adc_id: " << m_tileHWID->to_string(adc_id) 
+                       << " and create a TileDigits object and set it into a container." );
+      std::unique_ptr<TileDigits> muonReceiverDigits = std::make_unique<TileDigits>(adc_id, digitsBuffer);
       ATH_MSG_VERBOSE( "(D.05)   Create a TileRawChannelObject object and set it into a container " );
-      TileRawChannel* MuRcvRawChannel = m_MuRcvBuildTool->rawChannel(MuonReceiverDigits);
-      MuonReceiverRawChannelContainer->push_back(MuRcvRawChannel);
+      TileRawChannel* muRcvRawChannel = m_MuRcvBuildTool->rawChannel(muonReceiverDigits.get());
+      muRcvDigitsContainer->push_back(muonReceiverDigits.release());
+      muRcvRawChannelContainer->push_back(muRcvRawChannel);
       if (msgLvl(MSG::DEBUG)){
         ATH_MSG_DEBUG( " Channel " << m_tileHWID->to_string(adc_id,-1) 
                        << " Digitized pulse [ADC] "<< digitsBuffer[0]
@@ -603,18 +609,17 @@ StatusCode TilePulseForTileMuonReceiver::execute() {
                        << "/" << digitsBuffer[5]
                        << "/" << digitsBuffer[6]  );
         ATH_MSG_DEBUG( " Raw channel reconstruction Ch: "<< m_tileHWID->to_string(adc_id,-1)
-                       <<" E [ADC]: "<< MuRcvRawChannel->amplitude()
-                       <<" Time [ns]: "<< MuRcvRawChannel->time()
-                       <<" Qf: "<< MuRcvRawChannel->quality()  );
+                       <<" E [ADC]: "<< muRcvRawChannel->amplitude()
+                       <<" Time [ns]: "<< muRcvRawChannel->time()
+                       <<" Qf: "<< muRcvRawChannel->quality()  );
       }
     }
   } // END loop over all HIT collections in container
-  if (msgLvl(MSG::VERBOSE)) MuonReceiverDigitsContainer->print();
+  if (msgLvl(MSG::VERBOSE)) muRcvDigitsContainer->print();
   // (b) Register the digits container in the TES
   //
   ATH_MSG_VERBOSE ( "(A.05)   Send to event store all collected objects " );
-  CHECK(evtStore()->record(MuonReceiverDigitsContainer, m_MuRcvDigitsContainer, false));
-  CHECK(evtStore()->record(MuonReceiverRawChannelContainer, m_MuRcvRawChContainer, false));
+
   ATH_MSG_VERBOSE( "TilePulseForTileMuonReceiver execution completed" );
 
   return StatusCode::SUCCESS;

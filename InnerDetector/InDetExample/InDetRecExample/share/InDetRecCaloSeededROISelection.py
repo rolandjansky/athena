@@ -28,6 +28,16 @@ ToolSvc+=InDetROICheckEnergyDepositTool
 if (InDetFlags.doPrintConfigurables()):
     print InDetROICheckEnergyDepositTool
 
+def getEgammaMiddleShapeTool() :
+    from AthenaCommon.AppMgr import theApp, ToolSvc
+    if hasattr(ToolSvc,'Roiegammamiddleshape') :
+        return getattr(ToolSvc,'Roiegammamiddleshape')
+    from egammaCaloTools.egammaCaloToolsConf import egammaMiddleShape
+    tool =  egammaMiddleShape('Roiegammamiddleshape')
+    ToolSvc += tool
+    return tool
+
+
 #
 # --- get the builder tool
 #
@@ -46,13 +56,12 @@ InDetCaloClusterROISelector = InDet__CaloClusterROI_Selector (name              
                                                               InputClusterContainerName    = InDetKeys.CaloClusterContainer(),    # "LArClusterEM"
                                                               CellsName                    = InDetKeys.CaloCellContainer(),       # "AllCalo"
                                                               OutputClusterContainerName   = InDetKeys.CaloClusterROIContainer(), # "InDetCaloClusterROIs"
-                                                              CheckHadronicEnergy          = True,
-                                                              CheckReta                    = True,
                                                               HadRatioCut                  = 0.1,
                                                               RetaCut                      = 0.65,
                                                               CaloClusterROIBuilder        = InDetCaloClusterROIBuilder, 
-                                                              egammaCheckEnergyDepositTool = InDetROICheckEnergyDepositTool,
-                                                              EMCaloIsolationTool          = InDetROIegammaIsoTool)
+                                                              egammaCheckEnergyDepositTool = InDetROICheckEnergyDepositTool,          
+                                                              egammaMiddleShapeTool        = getEgammaMiddleShapeTool(),              # set to empty string to not check Reta
+                                                              EMCaloIsolationTool          = InDetROIegammaIsoTool)                   # set to empty string to not check had
 topSequence += InDetCaloClusterROISelector
 if (InDetFlags.doPrintConfigurables()):
     print InDetCaloClusterROISelector

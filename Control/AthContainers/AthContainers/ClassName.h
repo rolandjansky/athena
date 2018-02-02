@@ -10,8 +10,8 @@
 
 #ifndef XAOD_STANDALONE
 
-// Get the code from SGTools:
-#include "SGTools/ClassName.h"
+// Get the code from AthenaKernel:
+#include "AthenaKernel/ClassName.h"
 
 #else
 

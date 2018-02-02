@@ -993,7 +993,7 @@ StatusCode SpecialPixelMapSvc::createFromTextfiles( bool fillMissing ) const{
   std::map<unsigned int, unsigned int> moduleIDMap;
   std::vector<std::string> prodIDs;
   
-  CoralDB::CoralDB* db = new CoralDB::CoralDB(m_connectionString, coral::ReadOnly, coral::Info, true);
+   auto db = std::make_unique<CoralDB::CoralDB>(CoralDB::CoralDB(m_connectionString, coral::ReadOnly, coral::Info, true)); 
    if(!isIBL){
 
      db->setObjectDictionaryTag("PIXEL");
@@ -1086,7 +1086,18 @@ StatusCode SpecialPixelMapSvc::createFromTextfiles( bool fillMissing ) const{
       else{ // IBL
 	//
 	offset = filename.find("[");
-	std::istringstream ss(filename.substr(offset,20));
+        if(offset==std::string::npos){
+            ATH_MSG_ERROR( "Cound not find the token '['" );
+            return StatusCode::FAILURE;
+        }
+        std::string tmpstr;
+        try {
+          tmpstr = filename.substr(offset,20);
+        }
+        catch(std::exception &ex) {
+          ATH_MSG_ERROR( "Cound not get string, exception caught: " << ex.what() );
+        }
+	std::istringstream ss(tmpstr);
 	char c;
 	int system,subsystem,component, eta;
 	unsigned int layer,phi;
@@ -1151,8 +1162,6 @@ StatusCode SpecialPixelMapSvc::createFromTextfiles( bool fillMissing ) const{
     return StatusCode::FAILURE;
   }
   
-  delete db;
-
   return StatusCode::SUCCESS;
 }
 

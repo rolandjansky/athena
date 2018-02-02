@@ -29,7 +29,7 @@ DATE:		October 17th, 2005
 // t have quantities per sample
 #include "CaloGeoHelpers/CaloSampling.h"
 // CLID for persistency
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 const int MAXSIZE = CaloSampling::CaloSample::Unknown;
 

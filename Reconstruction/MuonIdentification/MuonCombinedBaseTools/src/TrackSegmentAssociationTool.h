@@ -13,7 +13,7 @@
 #include "xAODMuon/MuonSegment.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonRecHelperTools/MuonEDMHelperTool.h"
-
+#include "StoreGate/ReadHandleKey.h"
 
 /** @class TrackSegmentAssociationTool
     
@@ -52,8 +52,8 @@ namespace Muon{
     ToolHandle<Muon::MuonEDMHelperTool>  m_helper;
     ToolHandle<Muon::MuonEDMPrinterTool> m_printer;
 
-    std::string m_segmentLocation;
-    std::string m_stauSegmentLocation;
+    SG::ReadHandleKey<xAOD::MuonSegmentContainer> m_segments{this,"MuonSegmentLocation","MuonSegments","muon segments"};
+
   };
 }
 

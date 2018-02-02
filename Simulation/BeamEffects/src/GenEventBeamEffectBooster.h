@@ -15,7 +15,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "HepMC_Interfaces/IGenEventManipulator.h"
 // Athena headers
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaKernel/IAthRNGSvc.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 // Gaudi headers
 #include "GaudiKernel/ServiceHandle.h"
@@ -23,8 +23,8 @@
 #include "CLHEP/Geometry/Transform3D.h"
 #include "CLHEP/Vector/LorentzRotation.h"
 
-namespace CLHEP {
-  class HepRandomEngine;
+namespace ATHRNG {
+  class RNGWrapper;
 }
 
 namespace HepMC {
@@ -63,8 +63,8 @@ namespace Simulation {
     void boostParticle(HepMC::GenParticle* p, const CLHEP::HepLorentzRotation& transform) const;
 
     ServiceHandle<IBeamCondSvc>     m_beamCondSvc;
-    ServiceHandle<IAtRndmGenSvc>    m_rndGenSvc;
-    CLHEP::HepRandomEngine*         m_randomEngine;             /// TODO this will need to be per thread in the future
+    ServiceHandle<IAthRNGSvc>       m_rndGenSvc;
+    ATHRNG::RNGWrapper*             m_randomEngine;             //!< Slot-local RNG
     std::string                     m_randomEngineName;         //!< Name of the random number stream
     bool                            m_applyBoost;
     bool                            m_applyDivergence;

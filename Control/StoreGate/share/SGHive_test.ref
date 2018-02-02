@@ -2,15 +2,15 @@
 
 
 Initializing Gaudi ApplicationMgr using job opts ../share/SGHive_test.txt
-JobOptionsSvc        INFO # =======> /home/leggett/work/v30r0/src/Control/StoreGate/share/../share/SGHive_test.txt
+JobOptionsSvc        INFO # =======> /home/leggett/work/v30r1.002/src/Control/StoreGate/share/../share/SGHive_test.txt
 JobOptionsSvc        INFO # (1,1): StoreGateSvc.OutputLevel = 1
 JobOptionsSvc        INFO # (2,1): HiveMgrSvc.OutputLevel = 1
 JobOptionsSvc        INFO # (3,1): HiveMgrSvc.NSlots = 4
 JobOptionsSvc        INFO Job options successfully read in from ../share/SGHive_test.txt
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v29r0)
-                                          running on zeus.lbl.gov on Fri Nov 17 11:22:53 2017
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v30r1)
+                                          running on zeus on Tue Jan  2 16:20:50 2018
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 
@@ -25,20 +25,30 @@ StoreGateSvc        DEBUG Property update for OutputLevel : new value = 1
 StoreGateSvc        DEBUG Service base class initialized successfully
 StoreGateSvc      VERBOSE Initializing StoreGateSvc - package version StoreGate-00-00-00
 StoreGateSvc        DEBUG trying to create store SGImplSvc/StoreGateSvc_Impl
+StoreGateSvc_Impl   DEBUG Property update for OutputLevel : new value = 1
 StoreGateSvc_Impl VERBOSE Initializing StoreGateSvc_Impl - package version StoreGate-00-00-00
+StoreGateSvc_Impl   DEBUG Service base class initialized successfully
 StoreGateSvc_Impl VERBOSE ServiceLocatorHelper::service: found service EventPersistencySvc
 ClassIDSvc           INFO  getRegistryEntries: read 172 CLIDRegistry entries for module ALL
 StoreGateSvc_Impl VERBOSE ServiceLocatorHelper::service: found service ClassIDSvc
+0_StoreGateSvc_...  DEBUG Property update for OutputLevel : new value = 1
 0_StoreGateSvc_...VERBOSE Initializing 0_StoreGateSvc_Impl - package version StoreGate-00-00-00
+0_StoreGateSvc_...  DEBUG Service base class initialized successfully
 0_StoreGateSvc_...VERBOSE ServiceLocatorHelper::service: found service EventPersistencySvc
 0_StoreGateSvc_...VERBOSE ServiceLocatorHelper::service: found service ClassIDSvc
+1_StoreGateSvc_...  DEBUG Property update for OutputLevel : new value = 1
 1_StoreGateSvc_...VERBOSE Initializing 1_StoreGateSvc_Impl - package version StoreGate-00-00-00
+1_StoreGateSvc_...  DEBUG Service base class initialized successfully
 1_StoreGateSvc_...VERBOSE ServiceLocatorHelper::service: found service EventPersistencySvc
 1_StoreGateSvc_...VERBOSE ServiceLocatorHelper::service: found service ClassIDSvc
+2_StoreGateSvc_...  DEBUG Property update for OutputLevel : new value = 1
 2_StoreGateSvc_...VERBOSE Initializing 2_StoreGateSvc_Impl - package version StoreGate-00-00-00
+2_StoreGateSvc_...  DEBUG Service base class initialized successfully
 2_StoreGateSvc_...VERBOSE ServiceLocatorHelper::service: found service EventPersistencySvc
 2_StoreGateSvc_...VERBOSE ServiceLocatorHelper::service: found service ClassIDSvc
+3_StoreGateSvc_...  DEBUG Property update for OutputLevel : new value = 1
 3_StoreGateSvc_...VERBOSE Initializing 3_StoreGateSvc_Impl - package version StoreGate-00-00-00
+3_StoreGateSvc_...  DEBUG Service base class initialized successfully
 3_StoreGateSvc_...VERBOSE ServiceLocatorHelper::service: found service EventPersistencySvc
 3_StoreGateSvc_...VERBOSE ServiceLocatorHelper::service: found service ClassIDSvc
 Now we expect to see an error message:
@@ -67,37 +77,37 @@ HiveMgrSvc          DEBUG Freed slot 1
 HiveMgrSvc          DEBUG Slot 1 allocated to event number 333333
 
 *** SGHive_test noSlot BEGINS ***
-ClassIDSvc           INFO  getRegistryEntries: read 930 CLIDRegistry entries for module ALL
-StoreGateSvc_Impl VERBOSE committing dataObj "('SG::Foo','blassed')"
-StoreGateSvc_Impl   DEBUG Recorded object @0x1d4f900 with key pFoo1 of type SG::Foo(CLID 81010)
- in DataObject @0x1e0ce30
+ClassIDSvc           INFO  getRegistryEntries: read 931 CLIDRegistry entries for module ALL
+StoreGateSvc_Impl VERBOSE committing dataObj " ( 'SG::Foo' , 'blassed' ) "
+StoreGateSvc_Impl   DEBUG Recorded object @0x29b6750 with key pFoo1 of type SG::Foo(CLID 81010)
+ in DataObject @0x2994690
  object modifiable when retrieved
-StoreGateSvc_Impl   DEBUG Recorded object @0x1db42d0 with key pFoo2 of type SG::Foo(CLID 81010)
- in DataObject @0x1d96090
+StoreGateSvc_Impl   DEBUG Recorded object @0x2a29770 with key pFoo2 of type SG::Foo(CLID 81010)
+ in DataObject @0x2a99200
  object modifiable when retrieved
-StoreGateSvc_Impl VERBOSE committing dataObj "('SG::Foo','pFoo2')"
-StoreGateSvc_Impl VERBOSE committing dataObj "('SG::Foo','pFoo1')"
-StoreGateSvc_Impl   DEBUG Recorded object @0x1e3ebe0 with key pFoo3 of type SG::Foo(CLID 81010)
- in DataObject @0x1d61480
+StoreGateSvc_Impl VERBOSE committing dataObj " ( 'SG::Foo' , 'pFoo2' ) "
+StoreGateSvc_Impl VERBOSE committing dataObj " ( 'SG::Foo' , 'pFoo1' ) "
+StoreGateSvc_Impl   DEBUG Recorded object @0x2a999e0 with key pFoo3 of type SG::Foo(CLID 81010)
+ in DataObject @0x2a29140
  object modifiable when retrieved
-StoreGateSvc_Impl VERBOSE committing dataObj "('SG::Foo','pFoo3')"
+StoreGateSvc_Impl VERBOSE committing dataObj " ( 'SG::Foo' , 'pFoo3' ) "
 
 *** SGHive_test noSlot ENDS ***
 
 *** SGHive_test withSlot BEGINS ***
-0_StoreGateSvc_...VERBOSE committing dataObj "('SG::Foo','blassed')"
-0_StoreGateSvc_...  DEBUG Recorded object @0x1e41b20 with key pFoo1 of type SG::Foo(CLID 81010)
- in DataObject @0x1e7d530
+0_StoreGateSvc_...VERBOSE committing dataObj " ( 'SG::Foo' , 'blassed' ) "
+0_StoreGateSvc_...  DEBUG Recorded object @0x2a29790 with key pFoo1 of type SG::Foo(CLID 81010)
+ in DataObject @0x297b420
  object modifiable when retrieved
-0_StoreGateSvc_...  DEBUG Recorded object @0x1e43120 with key pFoo2 of type SG::Foo(CLID 81010)
- in DataObject @0x1e0d680
+0_StoreGateSvc_...  DEBUG Recorded object @0x2a5ea70 with key pFoo2 of type SG::Foo(CLID 81010)
+ in DataObject @0x298d210
  object modifiable when retrieved
-0_StoreGateSvc_...VERBOSE committing dataObj "('SG::Foo','pFoo2')"
-0_StoreGateSvc_...VERBOSE committing dataObj "('SG::Foo','pFoo1')"
-0_StoreGateSvc_...  DEBUG Recorded object @0x1e0d6d0 with key pFoo3 of type SG::Foo(CLID 81010)
- in DataObject @0x1e0d120
+0_StoreGateSvc_...VERBOSE committing dataObj " ( 'SG::Foo' , 'pFoo2' ) "
+0_StoreGateSvc_...VERBOSE committing dataObj " ( 'SG::Foo' , 'pFoo1' ) "
+0_StoreGateSvc_...  DEBUG Recorded object @0x2a5e7f0 with key pFoo3 of type SG::Foo(CLID 81010)
+ in DataObject @0x2a5ef20
  object modifiable when retrieved
-0_StoreGateSvc_...VERBOSE committing dataObj "('SG::Foo','pFoo3')"
+0_StoreGateSvc_...VERBOSE committing dataObj " ( 'SG::Foo' , 'pFoo3' ) "
 
 *** SGHive_test withSlot ENDS ***
 StoreGateSvc      VERBOSE Finalizing StoreGateSvc - package version StoreGate-00-00-00

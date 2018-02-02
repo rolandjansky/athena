@@ -334,16 +334,16 @@ namespace InDet {
       
     // Get skipetazero value for IBL layer if module with eta=0 value is set (e.g. ATLAS-IBL-03-00-00)
     // if noSkipEtaZero is set, loop over iEta stops earlier ( because eta=0 module is defined)
-    etaCorrection = 0;
+    m_etaCorrection = 0;
     int iLayer = 0;
     if (!m_detManager->numerology().useLayer(iLayer))
         ATH_MSG_INFO(" When checking for IBL-Layer, layer "<<iLayer<<" not present");
       
     int noSkipEtaZero=getNoSkipEtaValueFromGeometry();
     if (noSkipEtaZero>0 && m_detManager->numerology().skipEtaZeroForLayer(iLayer)){
-      etaCorrection = 1;
+      m_etaCorrection = 1;
     }
-    ATH_MSG_DEBUG("IBL-etaCorrection value set to: "<<etaCorrection);
+    ATH_MSG_DEBUG("IBL-etaCorrection value set to: "<<m_etaCorrection);
 
     if(!m_alignDBM && m_alignLevel == 1 && (m_alignLevelBarrel == -1 || m_alignLevelEndcaps == -1))
       buildL1();
@@ -634,12 +634,12 @@ namespace InDet {
         ATH_MSG_INFO("  Layer "<<iLayer<<" not present");
 
       // make sure that we do not correct if we are not looking at IBL
-      if(iLayer!=0) etaCorrection = 0;
+      if(iLayer!=0) m_etaCorrection = 0;
 
       for (int iPhi = 0; iPhi < m_detManager->numerology().numPhiModulesForLayer(iLayer); iPhi++) {
         ATH_MSG_DEBUG("iPhi "<<iPhi);
 
-        for (int iEta = m_detManager->numerology().beginEtaModuleForLayer(iLayer); iEta < m_detManager->numerology().endEtaModuleForLayer(iLayer)-etaCorrection; iEta++) {
+        for (int iEta = m_detManager->numerology().beginEtaModuleForLayer(iLayer); iEta < m_detManager->numerology().endEtaModuleForLayer(iLayer)-m_etaCorrection; iEta++) {
           ATH_MSG_DEBUG("iEta "<<iEta);
           const SiDetectorElement * element2 = m_detManager->getDetectorElement(0, iLayer, iPhi, iEta);
           const Trk::TrkDetElementBase * element = (const Trk::TrkDetElementBase*) element2;
@@ -712,7 +712,7 @@ namespace InDet {
         ATH_MSG_INFO("  Layer "<<iLayer<<" not present");
 
       // make sure that we do not correct if we are not looking at IBL
-      if(iLayer!=0) etaCorrection = 0;
+      if(iLayer!=0) m_etaCorrection = 0;
 
       for (int iPhi = 0; iPhi < m_detManager->numerology().numPhiModulesForLayer(iLayer); iPhi++) {
         ATH_MSG_DEBUG("iPhi "<<iPhi);
@@ -728,7 +728,7 @@ namespace InDet {
           mod = bottom;
         }
 
-        for (int iEta = m_detManager->numerology().beginEtaModuleForLayer(iLayer); iEta < m_detManager->numerology().endEtaModuleForLayer(iLayer)-etaCorrection; iEta++) {
+        for (int iEta = m_detManager->numerology().beginEtaModuleForLayer(iLayer); iEta < m_detManager->numerology().endEtaModuleForLayer(iLayer)-m_etaCorrection; iEta++) {
           ATH_MSG_DEBUG("iEta "<<iEta);
           const SiDetectorElement * element2 = m_detManager->getDetectorElement(0, iLayer, iPhi, iEta);
           const Trk::TrkDetElementBase * element = (const Trk::TrkDetElementBase*) element2;
@@ -884,7 +884,7 @@ namespace InDet {
         
       // make sure that we do not correct if we are not looking at IBL
       if(iLayer!=0){
-        etaCorrection = 0;
+        m_etaCorrection = 0;
         
         if(!moduleSelected(pixel_old)) {
           ATH_MSG_DEBUG("Module "<<pixel_old->name()<<" NOT selected");
@@ -895,7 +895,7 @@ namespace InDet {
       
         for (int iPhi = 0; iPhi < m_detManager->numerology().numPhiModulesForLayer(iLayer); iPhi++) {
           ATH_MSG_DEBUG("iPhi "<<iPhi);
-          for (int iEta = m_detManager->numerology().beginEtaModuleForLayer(iLayer); iEta < m_detManager->numerology().endEtaModuleForLayer(iLayer)-etaCorrection; iEta++) {
+          for (int iEta = m_detManager->numerology().beginEtaModuleForLayer(iLayer); iEta < m_detManager->numerology().endEtaModuleForLayer(iLayer)-m_etaCorrection; iEta++) {
             ATH_MSG_DEBUG("iEta "<<iEta);
             const SiDetectorElement * element2 = m_detManager->getDetectorElement(0, iLayer, iPhi, iEta);
             const Trk::TrkDetElementBase * element = (const Trk::TrkDetElementBase*) element2;
@@ -939,7 +939,7 @@ namespace InDet {
 
           ATH_MSG_DEBUG("Building module "<<mod->name());
 
-          for (int iEta = m_detManager->numerology().beginEtaModuleForLayer(iLayer); iEta < m_detManager->numerology().endEtaModuleForLayer(iLayer)-etaCorrection; iEta++) {
+          for (int iEta = m_detManager->numerology().beginEtaModuleForLayer(iLayer); iEta < m_detManager->numerology().endEtaModuleForLayer(iLayer)-m_etaCorrection; iEta++) {
             ATH_MSG_DEBUG("iEta "<<iEta);
             const SiDetectorElement * element2 = m_detManager->getDetectorElement(0, iLayer, iPhi, iEta);
             const Trk::TrkDetElementBase * element = (const Trk::TrkDetElementBase*) element2;
@@ -1014,7 +1014,7 @@ namespace InDet {
         ATH_MSG_INFO("  Layer "<<iLayer<<" not present");
 
       // make sure that we do not correct if we are not looking at IBL
-      if(iLayer!=0) etaCorrection = 0;
+      if(iLayer!=0) m_etaCorrection = 0;
 
       // create the AlignModule
       Trk::AlignModule * mod = new Trk::AlignModule(this);
@@ -1035,7 +1035,7 @@ namespace InDet {
       
       for (int iPhi = 0; iPhi < m_detManager->numerology().numPhiModulesForLayer(iLayer); iPhi++) {
         ATH_MSG_DEBUG("iPhi "<<iPhi);
-        for (int iEta = m_detManager->numerology().beginEtaModuleForLayer(iLayer); iEta < m_detManager->numerology().endEtaModuleForLayer(iLayer)-etaCorrection; iEta++) {
+        for (int iEta = m_detManager->numerology().beginEtaModuleForLayer(iLayer); iEta < m_detManager->numerology().endEtaModuleForLayer(iLayer)-m_etaCorrection; iEta++) {
           ATH_MSG_DEBUG("iEta "<<iEta);
           const SiDetectorElement * element2 = m_detManager->getDetectorElement(0, iLayer, iPhi, iEta);
           const Trk::TrkDetElementBase * element = (const Trk::TrkDetElementBase*) element2;
@@ -1118,7 +1118,7 @@ namespace InDet {
       ATH_MSG_DEBUG("Building module "<<top->name());
       ATH_MSG_DEBUG("Building module "<<bottom->name());
 
-      if(iLayer!=0) etaCorrection = 0;      
+      if(iLayer!=0) m_etaCorrection = 0;      
       
       for (int iPhi = 0; iPhi < m_detManager->numerology().numPhiModulesForLayer(iLayer); iPhi++) {
         ATH_MSG_DEBUG("iPhi "<<iPhi);
@@ -1134,7 +1134,7 @@ namespace InDet {
           mod = bottom;
         }
 
-        for (int iEta = m_detManager->numerology().beginEtaModuleForLayer(iLayer); iEta < m_detManager->numerology().endEtaModuleForLayer(iLayer)-etaCorrection; iEta++) {
+        for (int iEta = m_detManager->numerology().beginEtaModuleForLayer(iLayer); iEta < m_detManager->numerology().endEtaModuleForLayer(iLayer)-m_etaCorrection; iEta++) {
           ATH_MSG_DEBUG("iEta "<<iEta);
           const SiDetectorElement * element2 = m_detManager->getDetectorElement(0, iLayer, iPhi, iEta);
           const Trk::TrkDetElementBase * element = (const Trk::TrkDetElementBase*) element2;
@@ -1198,7 +1198,7 @@ namespace InDet {
         
       // make sure that we do not correct if we are not looking at IBL
       if(iLayer!=0){
-        etaCorrection = 0;
+        m_etaCorrection = 0;
               // create the AlignModule
         Trk::AlignModule * mod = new Trk::AlignModule(this);
         mod->setIdHash(getNextIDHash());
@@ -1218,7 +1218,7 @@ namespace InDet {
       
         for (int iPhi = 0; iPhi < m_detManager->numerology().numPhiModulesForLayer(iLayer); iPhi++) {
           ATH_MSG_DEBUG("iPhi "<<iPhi);
-          for (int iEta = m_detManager->numerology().beginEtaModuleForLayer(iLayer); iEta < m_detManager->numerology().endEtaModuleForLayer(iLayer)-etaCorrection; iEta++) {
+          for (int iEta = m_detManager->numerology().beginEtaModuleForLayer(iLayer); iEta < m_detManager->numerology().endEtaModuleForLayer(iLayer)-m_etaCorrection; iEta++) {
             ATH_MSG_DEBUG("iEta "<<iEta);
             const SiDetectorElement * element2 = m_detManager->getDetectorElement(0, iLayer, iPhi, iEta);
             const Trk::TrkDetElementBase * element = (const Trk::TrkDetElementBase*) element2;
@@ -1264,7 +1264,7 @@ namespace InDet {
 
           ATH_MSG_DEBUG("Building module "<<mod->name());
 
-          for (int iEta = m_detManager->numerology().beginEtaModuleForLayer(iLayer); iEta < m_detManager->numerology().endEtaModuleForLayer(iLayer)-etaCorrection; iEta++) {
+          for (int iEta = m_detManager->numerology().beginEtaModuleForLayer(iLayer); iEta < m_detManager->numerology().endEtaModuleForLayer(iLayer)-m_etaCorrection; iEta++) {
             ATH_MSG_DEBUG("iEta "<<iEta);
             const SiDetectorElement * element2 = m_detManager->getDetectorElement(0, iLayer, iPhi, iEta);
             const Trk::TrkDetElementBase * element = (const Trk::TrkDetElementBase*) element2;
@@ -1330,7 +1330,7 @@ namespace InDet {
         ATH_MSG_INFO("  Layer "<<iLayer<<" not present");
         
       // make sure that we do not correct if we are not looking at IBL
-      if(iLayer!=0) etaCorrection = 0;
+      if(iLayer!=0) m_etaCorrection = 0;
         
       for (int iPhi = 0; iPhi < m_detManager->numerology().numPhiModulesForLayer(iLayer); iPhi++) {
         ATH_MSG_DEBUG("iPhi "<<iPhi);
@@ -1354,7 +1354,7 @@ namespace InDet {
 
         ATH_MSG_DEBUG("Building module "<<mod->name());
 
-        for (int iEta = m_detManager->numerology().beginEtaModuleForLayer(iLayer); iEta < m_detManager->numerology().endEtaModuleForLayer(iLayer)-etaCorrection; iEta++) {
+        for (int iEta = m_detManager->numerology().beginEtaModuleForLayer(iLayer); iEta < m_detManager->numerology().endEtaModuleForLayer(iLayer)-m_etaCorrection; iEta++) {
           ATH_MSG_DEBUG("iEta "<<iEta);
           const SiDetectorElement * element2 = m_detManager->getDetectorElement(0, iLayer, iPhi, iEta);
           const Trk::TrkDetElementBase * element = (const Trk::TrkDetElementBase*) element2;
@@ -1498,11 +1498,11 @@ namespace InDet {
         ATH_MSG_INFO("  Layer "<<iLayer<<" not present");
         
       // make sure that we do not correct if we are not looking at IBL
-      if(iLayer!=0) etaCorrection = 0;
+      if(iLayer!=0) m_etaCorrection = 0;
       
       for (int iPhi = 0; iPhi < m_detManager->numerology().numPhiModulesForLayer(iLayer); iPhi++) {
         ATH_MSG_DEBUG("iPhi "<<iPhi);
-        for (int iEta = m_detManager->numerology().beginEtaModuleForLayer(iLayer); iEta < m_detManager->numerology().endEtaModuleForLayer(iLayer)-etaCorrection; iEta++) {
+        for (int iEta = m_detManager->numerology().beginEtaModuleForLayer(iLayer); iEta < m_detManager->numerology().endEtaModuleForLayer(iLayer)-m_etaCorrection; iEta++) {
           ATH_MSG_DEBUG("iEta "<<iEta);
 
           // just to be sure check for DBM module

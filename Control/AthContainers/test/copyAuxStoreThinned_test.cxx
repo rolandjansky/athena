@@ -19,7 +19,6 @@
 #include "AthContainers/AuxStoreInternal.h"
 #include "AthContainers/AuxTypeRegistry.h"
 #include "AthContainers/PackedContainer.h"
-#include "AthContainers/tools/foreach.h"
 #include <vector>
 #include <iostream>
 #include <cassert>
@@ -37,8 +36,8 @@ public:
   {
     m_suppressed.insert (auxid);
     m_selected = getAuxIDs();
-    ATHCONTAINERS_FOREACH(SG::auxid_t auxid, m_suppressed)
-      m_selected.erase (auxid);
+    for (SG::auxid_t supid : m_suppressed)
+      m_selected.erase (supid);
   }
 
   virtual const SG::auxid_set_t& getSelectedAuxIDs() const
@@ -79,7 +78,7 @@ void compare (const SG::AuxStoreInternal& a,
 
   const SG::AuxTypeRegistry& reg = SG::AuxTypeRegistry::instance();
 
-  ATHCONTAINERS_FOREACH(SG::auxid_t id, a.getAuxIDs()) {
+  for (SG::auxid_t id : a.getAuxIDs()) {
     if (id == suppressed) {
       assert (b.getAuxIDs().count(id) == 0);
       continue;

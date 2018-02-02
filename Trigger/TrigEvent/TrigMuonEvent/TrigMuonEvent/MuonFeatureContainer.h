@@ -5,13 +5,13 @@
 #ifndef TRIG_MUONFEATURECONTAINER
 #define TRIG_MUONFEATURECONTAINER
 
-#include "CLIDSvc/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 
 #ifndef TRIGMUONEVENT_MUON_FEATURE_H
 #include "TrigMuonEvent/MuonFeature.h"
 #endif
 
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 
 class MuonFeatureContainer : public DataVector<MuonFeature> { }; 
 

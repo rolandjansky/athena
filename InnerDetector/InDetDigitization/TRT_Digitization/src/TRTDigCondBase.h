@@ -33,7 +33,7 @@ public:
 		  const InDetDD::TRT_DetectorManager*,
 		  const TRT_ID*,
 		  int UseGasMix,
-		  ServiceHandle<ITRT_StrawStatusSummarySvc> sumSvc // added by Sasha for Argon
+		  ServiceHandle<ITRT_StrawStatusSummarySvc> sumSvc
 		);
 
   /** Destructor */
@@ -79,12 +79,8 @@ public:
 
 
   //Crosstalk noise
-  bool crossTalkNoise( CLHEP::HepRandomEngine* ); 
+  bool crossTalkNoise( CLHEP::HepRandomEngine* );
   bool crossTalkNoiseOtherEnd( CLHEP::HepRandomEngine* );
-  //FIXME - These two variables are defined but not used anywhere??
-  //double m_crosstalkNoiseLevel;               /**< Average cross talk noise level */
-  //double m_crosstalkNoiseLevelOtherEnd;       /**< Average cross talk noise level - other end*/
-
 
   //--- For looping over all straws (only to be used at initialization):
 

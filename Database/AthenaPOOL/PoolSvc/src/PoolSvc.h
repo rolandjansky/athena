@@ -12,13 +12,11 @@
 
 #include "PoolSvc/IPoolSvc.h"
 #include "GaudiKernel/IIoComponent.h"
-#include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthService.h"
 
 #include <string>
 #include <vector>
 #include <map>
-#include <memory>
 #include <mutex>
 
 // Forward declarations
@@ -26,7 +24,6 @@ namespace pool {
    class IContainer;
    class IDatabase;
    class IPersistencySvc;
-   class ISession;
 }
 class Guid;
 
@@ -42,7 +39,6 @@ class PoolSvc : public ::AthService, virtual public IPoolSvc, virtual public IIo
 public: // Non-static members
    /// Required of all Gaudi services:
    StatusCode initialize();
-   StatusCode reinit();
    StatusCode io_reinit();
    /// Required of all Gaudi services:
    StatusCode stop();

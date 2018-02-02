@@ -16,9 +16,6 @@
 
 #include <string>
 
-class MsgStream;
-class StoreGateSvc;
-
 /* namespace Muon { */
 /*   class MuonEDMHelperTool; */
 /* }     */
@@ -96,16 +93,12 @@ public:
     };
 	
 	//function to access tracks and update counters
-	//first version updates all track counters (for all selected algorithms), used by MuonTrackStatisticsAlg
-	//second version updates a single counter
-	//third version updates a single counter with the specified track collection   
-	//(useful for debugging within a reconstruction algorithm)  
-	
-	StatusCode updateTrackCounters() const;
-	StatusCode updateTrackCounters(TrackCounters& counters) const;
+	//First function is an interface to MuonTrackStatisticsAlg, which passes in the retrieved collection from SG and the name, which it uses to find the appropriate counter
+	//The counter and collection are then passed to the 2nd function, which does the updating
+	StatusCode updateTrackCounters(std::string name, const TrackCollection* tracks) const;
 	StatusCode updateTrackCounters(TrackCounters& counters, const TrackCollection& tracks) const;
 	
-	StatusCode updateTruthTrackCounters(TruthTrackCounters& counters) const;
+	StatusCode updateTruthTrackCounters(std::string name,const DetailedTrackTruthCollection* truthMap) const;
 	StatusCode updateTruthTrackCounters(TruthTrackCounters& counters, const DetailedTrackTruthCollection& TruthMap) const;
 	
 	void addTrackCounters( std::string trkLoc ) const;
@@ -114,18 +107,12 @@ public:
 	
 private:
 	
-	// Cache the StoreGateSvc ptr for efficiency
-	
 	// access to Id Helpers
 	ToolHandle<Muon::MuonEDMHelperTool>   m_helperTool;
 	ToolHandle<Trk::ITruthToTrack>        m_truthToTrack;
 	
 	
-    
-	
 	bool                m_doTruth;
-	//bool                m_debug;
-	//bool                m_verbose;
 	
 	mutable std::vector<MuonTrackStatisticsTool::TrackCounters* > m_allCounters;
 	mutable std::vector<MuonTrackStatisticsTool::TruthTrackCounters* > m_allTruthCounters;

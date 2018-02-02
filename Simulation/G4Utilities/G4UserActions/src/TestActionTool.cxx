@@ -89,7 +89,8 @@ namespace G4UA
 
     // Accumulate results across threads
     TestAction::Report results;
-    m_actions.accumulate(results, &TestAction::getReport, &TestAction::Report::merge);
+    m_actions.accumulate(results, &TestAction::getReport,
+                         &TestAction::Report::merge);
     ATH_MSG_INFO("Final accumulated results: " <<
                  results.numEvent << " events processed, " <<
                  results.numStep << " steps processed");

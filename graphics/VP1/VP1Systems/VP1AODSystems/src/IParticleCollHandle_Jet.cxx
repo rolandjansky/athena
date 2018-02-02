@@ -445,7 +445,10 @@ bool IParticleCollHandle_Jet::load()
   if (!VP1SGAccessHelper(systemBase()).retrieve(coll, name())) {
     message("Error: Could not retrieve Jet collection with key="+name());
     return false;
+  } else {
+     messageDebug("Jet collection '"+name()+"' loaded");
   }
+
 
   // // Retrieve the xAOD particles:
   //  const xAOD::JetContainer* xaod = evtStore()->retrieve<const xAOD::JetContainer>( m_JetCollection );

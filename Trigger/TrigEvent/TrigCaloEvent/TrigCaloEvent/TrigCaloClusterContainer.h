@@ -21,8 +21,8 @@ DATE:		May 31st, 2011
 ******************************************************/
 // includes section
 #include "TrigCaloEvent/TrigCaloCluster.h"
-#include "DataModel/DataVector.h"
-#include "SGTools/BaseInfo.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/BaseInfo.h"
 
 /** Container from TrigCaloCluster type objects.
 	See TrigCaloCluster for more details */

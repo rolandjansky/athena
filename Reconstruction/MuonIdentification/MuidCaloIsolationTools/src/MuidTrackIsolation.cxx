@@ -35,7 +35,6 @@ MuidTrackIsolation::MuidTrackIsolation (const std::string&type,
 					const IInterface*parent)
     :	AthAlgTool		(type, name, parent),
 	m_etaSafetyFactor	(0.1),
-	m_inDetTracksLocation	("Tracks"),
 	m_intersector		("Trk::RungeKuttaIntersector/RungeKuttaIntersector"),
 	m_minPt			(1.0*Gaudi::Units::GeV),
 	m_trackCone		(0.2),
@@ -44,7 +43,6 @@ MuidTrackIsolation::MuidTrackIsolation (const std::string&type,
     declareInterface<IMuidTrackIsolation>(this);
     declareProperty("MinPt",			m_minPt);
     declareProperty("RungeKuttaIntersector",	m_intersector);
-    declareProperty("InDetTracksLocation",     	m_inDetTracksLocation);
     declareProperty("TrackCone",		m_trackCone);
     declareProperty("TrackExtrapolation",	m_trackExtrapolation);
 }
@@ -90,6 +88,8 @@ MuidTrackIsolation::initialize()
     *transform          *= Amg::Translation3D(backwardDiscPosition);
     m_caloBackwardDisc	= new Trk::DiscSurface(transform, 0., radius);
 
+    ATH_CHECK(m_inDetTracksLocation.initialize());
+
     return StatusCode::SUCCESS;
 }
 
@@ -131,27 +131,27 @@ MuidTrackIsolation::trackIsolation(double eta, double phi) const
     std::pair<int,double> isolation = std::make_pair(0,0.);
 
     // retrieve track collection
-    const TrackCollection* inDetTracks = 0;
-    if (! evtStore()->contains<TrackCollection>(m_inDetTracksLocation))
+    SG::ReadHandle<TrackCollection> inDetTracks(m_inDetTracksLocation);
+    if (! inDetTracks.isPresent())
     {
-	ATH_MSG_DEBUG( " no ID Track container at location  " << m_inDetTracksLocation );
+      ATH_MSG_DEBUG( " no ID Track container at location  " << m_inDetTracksLocation.key() );
 	return isolation;
     }
 
-    if (StatusCode::SUCCESS != evtStore()->retrieve(inDetTracks,m_inDetTracksLocation))
+    if (!inDetTracks.isValid())
     {
-	ATH_MSG_WARNING( " Could not retrieve ID Track container from "	<< m_inDetTracksLocation );
+        ATH_MSG_WARNING( " ID Track container "	<< m_inDetTracksLocation.key()<<" not valid!" );
 	return isolation;
     }
 
     // evaluate isolation according to configuration
     if (m_trackExtrapolation)
     {
-	isolation = trackExtrapolated(inDetTracks,eta,phi);
+      isolation = trackExtrapolated(inDetTracks.cptr(),eta,phi);
     }
     else
     {
-	isolation = trackVertex(inDetTracks,eta,phi);
+      isolation = trackVertex(inDetTracks.cptr(),eta,phi);
     }
 
     // debug result

@@ -20,7 +20,7 @@ sTGCDetectorHelper::sTGCDetectorHelper()
 		sTGCDetectorDescription* st=dynamic_cast<sTGCDetectorDescription*>(vl_iter.second);
 		//AGDDMicromegas* st1=dynamic_cast<AGDDMicromegas*>(st);
 		if (st) 
-			sTGCList[vl_iter.first]=st;
+			m_sTGCList[vl_iter.first]=st;
 	}
 	
 }
@@ -99,6 +99,6 @@ AGDDPositionedDetector sTGCDetectorHelper::Get_sTGCPositionedDetector(char type,
 
 sTGCDetectorDescription* sTGCDetectorHelper::Get_sTGCDetectorType(std::string type)
 {
-	if (sTGCList.find(type) != sTGCList.end()) return sTGCList[type];
+	if (m_sTGCList.find(type) != m_sTGCList.end()) return m_sTGCList[type];
 	return nullptr;
 }

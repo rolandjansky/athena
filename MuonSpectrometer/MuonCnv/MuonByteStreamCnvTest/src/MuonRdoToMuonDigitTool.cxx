@@ -139,7 +139,7 @@ StatusCode MuonRdoToMuonDigitTool::initialize() {
 
   try{
     m_mdtContainer = new MdtDigitContainer(m_mdtHelper->module_hash_max());
-  } catch(std::bad_alloc){
+  } catch(const std::bad_alloc&){
     ATH_MSG_FATAL( "Could not create a new MdtDigitContainer!" );
     return StatusCode::FAILURE;
   }
@@ -147,7 +147,7 @@ StatusCode MuonRdoToMuonDigitTool::initialize() {
 
   try{
     m_cscContainer = new CscDigitContainer(m_cscHelper->module_hash_max());
-  } catch(std::bad_alloc){
+  } catch(const std::bad_alloc&){
     ATH_MSG_FATAL( "Could not create a new CscDigitContainer!" );
     return StatusCode::FAILURE;
   }
@@ -155,7 +155,7 @@ StatusCode MuonRdoToMuonDigitTool::initialize() {
 
   try{
     m_rpcContainer = new RpcDigitContainer(m_rpcHelper->module_hash_max());
-  } catch(std::bad_alloc){
+  } catch(const std::bad_alloc&){
     ATH_MSG_FATAL( "Could not create a new RpcDigitContainer!" );
     return StatusCode::FAILURE;
   }
@@ -163,7 +163,7 @@ StatusCode MuonRdoToMuonDigitTool::initialize() {
 
   try{
     m_tgcContainer = new TgcDigitContainer(m_tgcHelper->module_hash_max());
-  } catch(std::bad_alloc){
+  } catch(const std::bad_alloc&){
     ATH_MSG_FATAL( "Could not create a new TgcDigitContainer!" );
     return StatusCode::FAILURE;
   }

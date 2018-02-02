@@ -57,7 +57,7 @@ private:
     ToolHandle< Trk::ITrackToVertexIPEstimator > m_trackToVertexIPEstimator;
     ToolHandle< Trk::IVertexFitter >     m_fitTool; //!< Pointer to the base class of the fit algtools
     ToolHandle< Trk::IVertexSeedFinder > m_SeedFinder;
-    ToolHandle< Trk::IVxCandidateXAODVertex > m_xaodConverter;  // necessary to convert VxCandidate to xAOD::Vertex in case old API is used
+    //ToolHandle< Trk::IVxCandidateXAODVertex > m_xaodConverter;  // necessary to convert VxCandidate to xAOD::Vertex in case old API is used
 
     xAOD::VertexContainer* m_pSecVtxContainer;
     xAOD::VertexAuxContainer* m_pSecVtxAuxContainer;

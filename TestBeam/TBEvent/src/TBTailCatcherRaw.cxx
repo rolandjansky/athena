@@ -3,7 +3,7 @@
 */
 
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 #include "TBEvent/TBTailCatcherRaw.h"
 #include "TBEvent/TBScintillator.h"

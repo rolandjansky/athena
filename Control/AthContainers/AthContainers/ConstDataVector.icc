@@ -13,6 +13,7 @@
  */
 
 
+#include "CxxUtils/checker_macros.h"
 #include <boost/iterator/transform_iterator.hpp>
 #include <functional>
 
@@ -26,7 +27,10 @@ class remove_const
   : public std::unary_function<const T*, T*>
 {
 public:
-  T* operator() (const T* p) const { return const_cast<T*> (p); }
+  T* operator() (const T* p) const {
+    T* pp ATLAS_THREAD_SAFE = const_cast<T*> (p);
+    return pp;
+  }
 };
 
 
@@ -119,7 +123,6 @@ ConstDataVector<DV>::ConstDataVector
 }
 
 
-#if __cplusplus > 201100
 /**
  * @brief Move constructor.
  * @param rhs The container from which to move.
@@ -152,7 +155,6 @@ ConstDataVector<DV>::ConstDataVector
     : ConstDataVector (l.begin(), l.end(), ownPolicy)
 {
 }
-#endif
 
 
 /**
@@ -195,7 +197,6 @@ ConstDataVector<DV>::operator= (const ConstDataVector& rhs)
 }
 
 
-#if __cplusplus > 201100
 /**
  * @brief Move assignment.
  * @param rhs The container from which to move.
@@ -232,7 +233,6 @@ ConstDataVector<DV>::operator= (std::initializer_list<value_type> l)
   this->assign (l.begin(), l.end());
   return *this;
 }
-#endif
 
 
 /**
@@ -256,7 +256,6 @@ void ConstDataVector<DV>::assign(InputIterator first, InputIterator last)
 }
 
 
-#if __cplusplus > 201100
 /**
  * @brief Assign from an initializer list.
  * @param l An initializer list.
@@ -271,7 +270,6 @@ void ConstDataVector<DV>::assign(std::initializer_list<value_type> l)
 {
   this->assign (l.begin(), l.end());
 }
-#endif
 
 
 /**
@@ -458,7 +456,8 @@ template <class DV>
 inline
 void ConstDataVector<DV>::push_back(value_type pElem)
 {
-  DV::push_back (const_cast<typename DV::value_type> (pElem));
+  typename DV::value_type p ATLAS_THREAD_SAFE = const_cast<typename DV::value_type> (pElem);
+  DV::push_back (p);
 }
 
 
@@ -500,9 +499,9 @@ inline
 typename ConstDataVector<DV>::iterator
 ConstDataVector<DV>::insert(iterator position, value_type pElem)
 {
+  typename DV::value_type p ATLAS_THREAD_SAFE = const_cast<typename DV::value_type> (pElem);
   return to_my_iterator
-    (DV::insert (to_base_iterator (position), 
-                 const_cast<typename DV::value_type> (pElem)));
+    (DV::insert (to_base_iterator (position), p));
 }
 
 
@@ -559,8 +558,6 @@ void ConstDataVector<DV>::insert (iterator position,
 }
 
 
-#if __cplusplus > 201100
-#ifndef __REFLEX__
 /**
  * @brief Add an element to the end of the collection.
  * @param pElem The element to add to the collection.
@@ -602,7 +599,6 @@ ConstDataVector<DV>::insert(iterator position,
   return to_my_iterator
     (DV::insert (to_base_iterator (position), std::move (ptr)));
 }
-#endif
 
 
 /**
@@ -623,7 +619,6 @@ void ConstDataVector<DV>::insert (iterator position,
 {
   this->insert (position, l.begin(), l.end());
 }
-#endif
 
 
 //=== Erasure operations.
@@ -743,9 +738,9 @@ ConstDataVector<DV>::swapElement (size_type index,
                                   value_type newElem,
                                   reference oldElem)
 {
-  DV::swapElement (index,
-                   const_cast<typename DV::value_type>(newElem), 
-                   const_cast<typename DV::reference>(oldElem));
+  typename DV::value_type pnew ATLAS_THREAD_SAFE = const_cast<typename DV::value_type>(newElem);
+  typename DV::reference rold ATLAS_THREAD_SAFE = const_cast<typename DV::reference>(oldElem);
+  DV::swapElement (index, pnew, rold);
 }
 
 
@@ -773,14 +768,12 @@ ConstDataVector<DV>::swapElement (iterator pos,
                                   value_type newElem,
                                   reference oldElem)
 {
-  DV::swapElement (to_base_iterator(pos),
-                   const_cast<typename DV::value_type>(newElem), 
-                   const_cast<typename DV::reference>(oldElem));
+  typename DV::value_type pnew ATLAS_THREAD_SAFE = const_cast<typename DV::value_type>(newElem);
+  typename DV::reference rold ATLAS_THREAD_SAFE = const_cast<typename DV::reference>(oldElem);
+  DV::swapElement (to_base_iterator(pos), pnew, rold);
 }
 
 
-#if __cplusplus > 201100
-#ifndef __REFLEX__
 /**
  * @brief Swap one element out of the container.
  * @param index Index of the element in the container to swap.
@@ -807,8 +800,9 @@ ConstDataVector<DV>::swapElement (size_type index,
                                   std::unique_ptr<const base_value_type> newElem,
                                   std::unique_ptr<const base_value_type>& oldElem)
 {
-  std::unique_ptr<typename DV::base_value_type> new_u
-    (const_cast<typename DV::value_type> (newElem.release()));
+  typename DV::value_type pelem ATLAS_THREAD_SAFE =
+    const_cast<typename DV::value_type> (newElem.release());
+  std::unique_ptr<typename DV::base_value_type> new_u (pelem);
   std::unique_ptr<typename DV::base_value_type> old_u;
   DV::swapElement (index, std::move(new_u), old_u);
   oldElem = std::move (old_u);
@@ -841,14 +835,13 @@ ConstDataVector<DV>::swapElement (iterator pos,
                                   std::unique_ptr<const base_value_type> newElem,
                                   std::unique_ptr<const base_value_type>& oldElem)
 {
-  std::unique_ptr<typename DV::base_value_type> new_u
-    (const_cast<typename DV::value_type> (newElem.release()));
+  typename DV::value_type pelem ATLAS_THREAD_SAFE =
+    const_cast<typename DV::value_type> (newElem.release());
+  std::unique_ptr<typename DV::base_value_type> new_u (pelem);
   std::unique_ptr<typename DV::base_value_type> old_u;
   DV::swapElement (to_base_iterator(pos), std::move(new_u), old_u);
   oldElem = std::move (old_u);
 }
-#endif
-#endif
 
 
 /**
@@ -1037,12 +1030,12 @@ void
 ConstDataVector<DV>::assignElement (typename BaseContainer::iterator pos,
                                     value_type newElem)
 {
-  DV::assignElement (pos, const_cast<typename DV::value_type> (newElem));
+  typename DV::value_type pelem ATLAS_THREAD_SAFE =
+    const_cast<typename DV::value_type> (newElem);
+  DV::assignElement (pos, pelem);
 }
 
 
-#if __cplusplus > 201100
-#ifndef __REFLEX__
 /**
  * @brief Handle element assignment.
  * @param pos Position in the container to assign.
@@ -1057,12 +1050,11 @@ void
 ConstDataVector<DV>::assignElement (typename BaseContainer::iterator pos,
                                     std::unique_ptr<const base_value_type> newElem)
 {
-  std::unique_ptr<typename DV::base_value_type> new_u 
-    (const_cast<typename DV::value_type> (newElem.release()));
+  typename DV::value_type pelem ATLAS_THREAD_SAFE =
+    const_cast<typename DV::value_type> (newElem.release());
+  std::unique_ptr<typename DV::base_value_type> new_u (pelem);
   DV::assignElement (pos, std::move(new_u));
 }
-#endif
-#endif
 
 
 /**
@@ -1146,7 +1138,6 @@ DVLConstDataVectorBucket<DV>::DVLConstDataVectorBucket
 }
 
 
-#if __cplusplus > 201100
 /**
  * @brief Constructor from a payload object.
  * @param data Object to hold in the bucket.
@@ -1157,7 +1148,6 @@ DVLConstDataVectorBucket<DV>::DVLConstDataVectorBucket
   : DVLDataBucket<DV> (std::unique_ptr<DV> (const_cast<DV*> (data.release()->asDataVector())))
 {
 }
-#endif // C++11
 
 
 } // namespace SG

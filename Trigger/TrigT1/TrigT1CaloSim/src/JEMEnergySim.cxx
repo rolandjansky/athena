@@ -54,12 +54,6 @@ JEMEnergySim::JEMEnergySim
   declareProperty( "EnergyCMXDataLocation", m_energyCMXDataLocation );
 }
 
-// Destructor
-JEMEnergySim::~JEMEnergySim() {
-  ATH_MSG_INFO("Destructor called" );
-	
-}
-
 
 //---------------------------------
 // initialise()

@@ -9,7 +9,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "AthLinks/tools/GenerateIndexingPolicy.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 
 #include "Navigation/NavigableVectorIterator.h"
 

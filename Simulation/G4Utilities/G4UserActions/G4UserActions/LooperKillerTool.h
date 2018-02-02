@@ -10,7 +10,7 @@
 
 // Infrastructure includes
 #include "G4AtlasInterfaces/IG4SteppingActionTool.h"
-#include "G4AtlasTools/ActionToolBase.h"
+#include "G4AtlasTools/UserActionToolBase.h"
 
 // Local includes
 #include "G4UserActions/LooperKiller.h"
@@ -25,8 +25,7 @@ namespace G4UA
   ///
   /// @author Andrea Di Simone
   ///
-  class LooperKillerTool : public ActionToolBaseReport<LooperKiller>,
-                           public IG4SteppingActionTool
+  class LooperKillerTool : public UserActionToolBase<LooperKiller>
   {
 
     public:
@@ -35,20 +34,17 @@ namespace G4UA
       LooperKillerTool(const std::string& type, const std::string& name,
 		       const IInterface* parent);
 
-
       virtual StatusCode initialize() override;
       virtual StatusCode finalize() override;
-
-      /// Retrieve the begin-event action interface
-      virtual G4UserSteppingAction* getSteppingAction() override final
-      { return static_cast<G4UserSteppingAction*>( getAction() ); }
 
     protected:
 
       /// Create action for this thread
-      virtual std::unique_ptr<LooperKiller> makeAction() override final;
+      virtual std::unique_ptr<LooperKiller>
+      makeAndFillAction(G4AtlasUserActions&) override final;
 
     private:
+
       /// Configuration parameters
       G4UA::LooperKiller::Config m_config;
 

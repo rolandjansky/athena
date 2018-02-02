@@ -186,7 +186,7 @@ TrackFinder::setProperties (double		maxSecondaryImpact,
 }
 
 TrackList::track_list*
-TrackFinder::trackSearch (const std::vector<Trk::SpacePoint*>& spacePoints)
+TrackFinder::trackSearch (const std::vector<const Trk::SpacePoint*>& spacePoints)
 {
     m_trackManager->newTrackSearch();
 

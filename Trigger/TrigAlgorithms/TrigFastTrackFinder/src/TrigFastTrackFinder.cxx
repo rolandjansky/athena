@@ -341,7 +341,10 @@ HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
         ATH_MSG_ERROR("Could not retrieve "<<m_trigZFinder); 
         return HLT::BAD_JOB_SETUP;
       }
+    } else {
+      m_trigZFinder.disable();
     }
+
     if(m_doFTKZFinder ) {
       StatusCode sc= m_ftkDataProviderSvc.retrieve();
       if(sc.isFailure()) {
@@ -394,6 +397,8 @@ HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
       ATH_MSG_FATAL("Unable to locate SpacePoint-to-Truth associator tool " << m_TrigL2SpacePointTruthTool);
       return HLT::BAD_JOB_SETUP;
     }
+  } else {
+    m_TrigL2SpacePointTruthTool.disable();
   }
   
   ATH_MSG_DEBUG(" Feature set recorded with Key " << m_attachedFeatureName);
@@ -426,6 +431,12 @@ HLT::ErrorCode TrigFastTrackFinder::hltBeginRun()
 }
 
 StatusCode TrigFastTrackFinder::execute() {
+  if (m_tcs.m_layerGeometry.empty()) {
+    HLT::ErrorCode ec = hltBeginRun();
+    if(ec != HLT::OK) {
+      return StatusCode::FAILURE;
+    }
+  }
   //RoI preparation/update 
   SG::ReadHandle<TrigRoiDescriptorCollection> roiCollection(m_roiCollectionKey);
   ATH_CHECK(roiCollection.isValid());
@@ -451,6 +462,13 @@ StatusCode TrigFastTrackFinder::execute() {
 //-------------------------------------------------------------------------
 HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inputTE*/,
     HLT::TriggerElement* outputTE) {
+
+  if (m_tcs.m_layerGeometry.empty()) {
+    HLT::ErrorCode ec = hltBeginRun();
+    if(ec != HLT::OK) {
+      return ec;
+    }
+  }
   const IRoiDescriptor* internalRoI;
   HLT::ErrorCode ec = getRoI(outputTE, internalRoI);
   if(ec != HLT::OK) {

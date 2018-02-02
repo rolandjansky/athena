@@ -12,9 +12,10 @@
 #ifndef ATHENAKERNEL_CONDCONT_H
 #define ATHENAKERNEL_CONDCONT_H
 
-#include "AthenaKernel/IOVEntryT.h"
 #include "AthenaKernel/ClassID_traits.h"
 #include "AthenaKernel/BaseInfo.h"
+#include "AthenaKernel/RCUUpdater.h"
+#include "CxxUtils/ConcurrentRangeMap.h"
 
 #include "GaudiKernel/EventIDBase.h"
 #include "GaudiKernel/EventIDRange.h"
@@ -30,6 +31,9 @@
 
 namespace SG {
   class DataProxy;
+}
+namespace Athena {
+  class IRCUSvc;
 }
 
 
@@ -91,6 +95,7 @@ public:
    * @brief Insert a new conditions object.
    * @param r Range of validity of this object.
    * @param obj Pointer to the object being inserted.
+   * @param ctx Event context for the current thread.
    *
    * @c obj must point to an object of type @c T,
    * except in the case of inheritance, where the type of @c obj must
@@ -100,7 +105,9 @@ public:
    * Returns true if the object was successfully inserted; false otherwise
    * (ownership of the object will be taken in either case).
    */
-  virtual bool typelessInsert (const EventIDRange& r, void* obj) = 0;
+  virtual bool typelessInsert (const EventIDRange& r,
+                               void* obj,
+                               const EventContext& ctx = Gaudi::Hive::currentContext()) = 0;
 
 
   /**
@@ -120,15 +127,100 @@ public:
   virtual bool range (const EventIDBase& t, EventIDRange& r) const = 0;
 
 
+  /**
+   * @brief Erase the first element not less than @c t.
+   * @param IOV time of element to erase.
+   * @param ctx Event context for the current thread.
+   */
+  virtual void erase (const EventIDBase& t,
+                      const EventContext& ctx = Gaudi::Hive::currentContext()) = 0;
+
+
+  /**
+   * @brief Mark that this thread is no longer accessing data from this container.
+   * @param ctx Event context for the current thread.
+   *
+   * This would normally be done through RCU service.
+   * Defined here for purposes of testing.
+   */
+  virtual void quiescent (const EventContext& ctx = Gaudi::Hive::currentContext()) = 0;
+
+
+  /// Type used to store an IOV time internally.
+  /// For efficiency, we pack two 32-bit words into a 64-bit word
+  /// Can be either run+lbn or a timestamp.
+  typedef uint64_t key_type;
+
+
+  /**
+   * @brief Make a run+lbn key from an EventIDBase.
+   * @param Event ID to convert.
+   */
+  static
+  key_type keyFromRunLBN (const EventIDBase& b);
+
+
+  /**
+   * @brief Make a timestamp key from an EventIDBase.
+   * @param Event ID to convert.
+   */
+  static
+  key_type keyFromTimestamp (const EventIDBase& b);
+
+
+  /**
+   * @brief Range object to store in @c ConcurrentRangeMap.
+   *
+   * We need to store the original range as an @c EventIDRange.
+   * For efficiency of comparisons, we also store the start and stop
+   * times as packed key_types.
+   */
+  struct RangeKey
+  {
+    /// Default constructor.
+    RangeKey();
+
+    /// Constructor from range+start/stop.
+    RangeKey (const EventIDRange& r,
+              key_type start,
+              key_type stop);
+
+
+    /// Packed start time.
+    key_type m_start;
+
+    /// Packed stop time.
+    key_type m_stop;
+
+    /// Original range object.
+    EventIDRange m_range;
+  };
+
+
+  /**
+   * @brief Comparison object needed by ConcurrentRangeMap.
+   */
+  struct Compare
+  {
+    bool operator() (const RangeKey& r1, const RangeKey& r2) const
+    { return r1.m_start < r2.m_start; }
+    bool operator() (key_type t, const RangeKey& r2) const
+    { return t < r2.m_start; }
+  };
+
 
 protected:
   /**
    * @brief Internal constructor.
+   * @param rcusvc RCU service instance.
    * @param CLID of the most-derived @c CondCont.
    * @param id CLID+key for this object.
    * @param proxy @c DataProxy for this object.
    */
-  CondContBase(CLID clid, const DataObjID& id, SG::DataProxy* proxy);
+  CondContBase (Athena::IRCUSvc& rcusvc,
+                CLID clid,
+                const DataObjID& id,
+                SG::DataProxy* proxy);
 
 
   /**
@@ -155,7 +247,7 @@ protected:
    */
   virtual const void* findByCLID (CLID clid,
                                   const EventIDBase& t,
-                                  EventIDRange* r) const = 0;
+                                  EventIDRange const** r) const = 0;
 
   
 private:
@@ -258,10 +350,15 @@ public:
 
   /** 
    * @brief Constructor.
+   * @param rcusvc RCU service instance.
    * @param id CLID+key for this object.
    * @param proxy @c DataProxy for this object.
+   * @param capacity Initial capacity of the container.
    */
-  CondCont (const DataObjID& id, SG::DataProxy* proxy = nullptr);
+  CondCont (Athena::IRCUSvc& rcusvc,
+            const DataObjID& id,
+            SG::DataProxy* proxy = nullptr,
+            size_t capacity = 16);
 
 
   /// Destructor.
@@ -314,6 +411,7 @@ public:
    * @brief Insert a new conditions object.
    * @param r Range of validity of this object.
    * @param obj Pointer to the object being inserted.
+   * @param ctx Event context for the current thread.
    *
    * @c obj must point to an object of type @c T,
    * except in the case of inheritance, where the type of @c obj must
@@ -323,13 +421,16 @@ public:
    * Returns true if the object was successfully inserted; false otherwise
    * (ownership of the object will be taken in either case).
    */
-  virtual bool typelessInsert (const EventIDRange& r, void* obj) override;
+  virtual bool typelessInsert (const EventIDRange& r,
+                               void* obj,
+                               const EventContext& ctx = Gaudi::Hive::currentContext()) override;
 
 
   /** 
    * @brief Insert a new conditions object.
    * @param r Range of validity of this object.
    * @param obj Pointer to the object being inserted.
+   * @param ctx Event context for the current thread.
    *
    * @c obj must point to an object of type @c T.
    * This will give an error if this is not called
@@ -337,7 +438,9 @@ public:
    *
    * Returns true if the object was successfully inserted; false otherwise.
    */
-  bool insert (const EventIDRange& r, std::unique_ptr<T> obj);
+  bool insert (const EventIDRange& r,
+               std::unique_ptr<T> obj,
+               const EventContext& ctx = Gaudi::Hive::currentContext());
 
 
   /** 
@@ -350,7 +453,7 @@ public:
    */
   bool find (const EventIDBase& t,
              T const*& obj,
-             EventIDRange* r = nullptr) const;
+             EventIDRange const** r = nullptr) const;
 
 
   /**
@@ -369,15 +472,39 @@ public:
    */
   virtual bool range (const EventIDBase& t, EventIDRange& r) const override;
 
+
+  /**
+   * @brief Erase the first element not less than @c t.
+   * @param IOV time of element to erase.
+   * @param ctx Event context for the current thread.
+   */
+  virtual void erase (const EventIDBase& t,
+                      const EventContext& ctx = Gaudi::Hive::currentContext()) override;
+
   
+  /**
+   * @brief Mark that this thread is no longer accessing data from this container.
+   * @param ctx Event context for the current thread.
+   *
+   * This would normally be done through RCU service.
+   * Defined here for purposes of testing.
+   */
+  virtual void
+  quiescent (const EventContext& ctx /*= Gaudi::Hive::currentContext()*/) override;
+
+
 protected:
   /**
    * @brief Internal constructor.
+   * @param rcusvc RCU service instance.
    * @param CLID of the most-derived @c CondCont.
    * @param id CLID+key for this object.
    * @param proxy @c DataProxy for this object.
    */
-  CondCont (CLID clid, const DataObjID& id, SG::DataProxy* proxy);
+  CondCont (Athena::IRCUSvc& rcusvc,
+            CLID clid,
+            const DataObjID& id,
+            SG::DataProxy* proxy);
 
 
   /**
@@ -404,26 +531,24 @@ protected:
    */
   virtual const void* findByCLID (CLID clid,
                                   const EventIDBase& t,
-                                  EventIDRange* r) const override;
+                                  EventIDRange const** r) const override;
 
 
 public:
-
   /// Helper to ensure that the inheritance information for this class
   /// gets initialized.
   static void registerBaseInit();
 
-private:
 
-  /// Mutex used to protect the container.
-  typedef std::mutex mutex_t;
-  typedef std::lock_guard<mutex_t> lock_t;
-  mutable mutex_t m_mutex;
+private:
+  typedef CondContBase::RangeKey RangeKey;
+  typedef CondContBase::key_type key_type;
 
 
   /// Sets of mapped objects, by timestamp and run+LBN.
-  typedef std::set<IOVEntryT<T>,
-                   typename IOVEntryT<T>::IOVEntryTStartCritereon > CondContSet;
+  typedef CxxUtils::ConcurrentRangeMap<RangeKey, key_type, T, CondContBase::Compare,
+    Athena::RCUUpdater>
+    CondContSet;
   CondContSet m_condSet_clock, m_condSet_RE;
 
   /// CLID+key for this container.
@@ -435,7 +560,6 @@ private:
 
 
 #include "AthenaKernel/CondCont.icc"
-
 #include "AthenaKernel/CondContMaker.h"
 
 #define CONCATUNF_(x,y) x##y
@@ -459,5 +583,6 @@ private:
 #define CONDCONT_DEF(...)  \
   BOOST_PP_OVERLOAD(CONDCONT_DEF_, __VA_ARGS__)(__VA_ARGS__)
 
+  
 #endif // not ATHENAKERNEL_CONDCONT_H
 

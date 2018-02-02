@@ -94,14 +94,6 @@ MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc)
   declareProperty("RpcErrToDebugStream",m_rpcErrToDebugStream = false);
 
   declareProperty("UseEndcapInnerFromBarrel",m_use_endcapInnerFromBarrel = false);
-
-  //adding a part of DataHandle for AthenaMT
-  declareProperty("MuRoIs", m_roiCollectionKey = std::string("MURoIs"), "MuRoIs to read in"); 
-  declareProperty("RecMuonRoI", m_recRoiCollectionKey = std::string("RecMuonRoI"), "RecMuonRoI to read in"); 
-  declareProperty("MuFastDecisions",m_muFastContainerKey = std::string("xAOD::L2StandAloneMuonContainer"),"xAOD::L2StandAloneMuonContainer to record");	
-  declareProperty("MuFastComposite",m_muCompositeContainerKey = std::string("xAOD::TrigCompositeContainer"),"xAOD::TrigCompositeContainer to record");	
-  declareProperty("MuFastForID",m_muIdContainerKey = std::string("TrigRoiDescriptorCollection"),"TrigRoiDescriptor for ID to record");
-  declareProperty("MuFastForMS",m_muMsContainerKey = std::string("TrigRoiDescriptorCollection"),"TrigRoiDescriptor for MS to record");
 }
 
 // --------------------------------------------------------------------------------
@@ -380,9 +372,6 @@ StatusCode MuFastSteering::execute()
   }
   ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " size = " << internalRoI->size());
   ATH_MSG_DEBUG("REGTEST: " << m_roiCollectionKey.key() << " DONE");
-
-  DataVector<LVL1::RecMuonRoI>::const_iterator p_roi = recRoiCollection->begin();
-  DataVector<LVL1::RecMuonRoI>::const_iterator p_roiEn = recRoiCollection->end();
 
   // make RecMURoIs maching with MURoIs
   DataVector<const LVL1::RecMuonRoI> *recRoIVector = new DataVector<const LVL1::RecMuonRoI>;
@@ -1152,6 +1141,8 @@ bool MuFastSteering::updateOutput(const LVL1::RecMuonRoI*                  roi,
     muonSA->setRoiEta( roi->eta() );
     /// Set RoIp phi
     muonSA->setRoiPhi( roi->phi() );
+    /// Set RoI word
+    muonSA->setRoIWord( roi->roiWord() );
 
     /// Set size of storages to be reserved
     muonSA->setRpcHitsCapacity( m_esd_rpc_size );

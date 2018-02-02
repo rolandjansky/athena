@@ -49,6 +49,9 @@ StatusCode CollectionGetterToolImpl::initialize()
     CHECK( m_registry.retrieve() );
     CHECK( m_registry->add (m_label, this) );
   }
+  else {
+    m_registry.disable();
+  }
   return ObjGetterToolImpl::initialize();
 }
 

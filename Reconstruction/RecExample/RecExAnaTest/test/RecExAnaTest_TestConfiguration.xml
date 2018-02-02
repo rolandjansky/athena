@@ -82,7 +82,7 @@
     </TEST>
     
     <TEST name="notrig3_tagtoaod" type="athena" suite="reconotrig">
-      <options_atn> -c "jp.AthenaCommonFlags.EvtMax=5;rec.doDetailedAuditor=True;jp.AthenaCommonFlags.PoolInputQuery='(EventNumber == 2 || EventNumber == 4)'; rec.doNameAuditor=True" RecExCommon/tagtoaod.py </options_atn>
+      <options_atn> -c "jp.AthenaCommonFlags.EvtMax=5;rec.doDetailedAuditor=True;jp.AthenaCommonFlags.PoolInputQuery='(EventNumber == 22023 || EventNumber == 22037)'; rec.doNameAuditor=True" RecExCommon/tagtoaod.py </options_atn>
       <author> Xiaohu Sun </author>
       <mailto> atlas.rig@cern.ch </mailto>
     </TEST>

@@ -1649,10 +1649,10 @@ void Trk::RungeKuttaPropagator::globalOneSidePositions
     if(fabs(S) < 1. || ++niter > 1000) break;
 
     if(m_mcondition) {
-      W+=(S=rungeKuttaStep  (0,S,Pm,InS)); 
+      W+=rungeKuttaStep(0,S,Pm,InS); 
     }
     else {
-      W+=(S=straightLineStep(0,S,Pm)); 
+      W+=straightLineStep(0,S,Pm); 
     }       
     per = true;
   }

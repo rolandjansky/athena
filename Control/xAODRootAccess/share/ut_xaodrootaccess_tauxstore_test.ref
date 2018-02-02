@@ -14,8 +14,8 @@ ut_xaodrootaccess_taux... INFO    Environment initialised for data access
 *............................................................................*
 ut_xaodrootaccess_taux... INFO    Created transient input TTree for the test
 ut_xaodrootaccess_taux... INFO    Auxiliary variables found on the input:
-ut_xaodrootaccess_taux... INFO      - id: 1, name: var2, type: float
-ut_xaodrootaccess_taux... INFO      - id: 0, name: var1, type: float
+ut_xaodrootaccess_taux... INFO      - name: var1, type: float
+ut_xaodrootaccess_taux... INFO      - name: var2, type: float
 ******************************************************************************
 *Tree    :OutputTree: Output Tree                                            *
 *Entries :        1 : Total =            1953 bytes  File  Size =          0 *

@@ -96,12 +96,12 @@ StatusCode CoolInserter::initialize() {
   }		
 //connect to cool database
   try {
-    m_db = app.databaseService().openDatabase(m_cool_connection_string ,false );
+    m_db = m_app.databaseService().openDatabase(m_cool_connection_string ,false );
   }
   catch ( cool::DatabaseDoesNotExist  & e ) {
     log<<MSG::INFO<<"Creating new database."<<endmsg;
     try {
-      m_db = app.databaseService().createDatabase(m_cool_connection_string);
+      m_db = m_app.databaseService().createDatabase(m_cool_connection_string);
     }
     catch(cool::Exception & e) {
       log << MSG::FATAL << "Cannot create database and datbasae does not exist!" << endmsg;

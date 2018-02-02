@@ -11,13 +11,9 @@ atlas_depends_on_subdirs( PRIVATE
                           Control/AthenaKernel
                           Control/StoreGate
                           Database/APR/CollectionBase
-                          Database/APR/CollectionUtilities
-                          Database/APR/POOLCore
                           Database/APR/PersistencySvc
-                          Database/APR/StorageSvc
                           Database/AthenaPOOL/AthenaPoolCnvSvc
                           Database/AthenaPOOL/AthenaPoolUtilities
-                          Database/AthenaPOOL/DBDataModel
                           Database/AthenaPOOL/PoolSvc
                           Database/PersistentDataModel
                           GaudiKernel )
@@ -34,7 +30,7 @@ atlas_add_component( EventSelectorAthenaPool
                      src/registerKeys.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests CollectionBase CollectionUtilities POOLCore PersistencySvc StorageSvc AthenaPoolCnvSvcLib AthenaPoolUtilities DBDataModel PersistentDataModel GaudiKernel )
+                     LINK_LIBRARIES ${CORAL_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests CollectionBase PersistencySvc AthenaPoolCnvSvcLib AthenaPoolUtilities PersistentDataModel GaudiKernel )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

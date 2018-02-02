@@ -17,7 +17,7 @@ namespace JiveXML {
    * @param parent AlgTools parent owning this tool
    **/
   BeamSpotRetriever::BeamSpotRetriever(const std::string& type,const std::string& name,const IInterface* parent):
-    AthAlgTool(type,name,parent), typeName("BeamSpot"), m_beamSpotSvc("BeamCondSvc",name){
+    AthAlgTool(type,name,parent), m_typeName("BeamSpot"), m_beamSpotSvc("BeamCondSvc",name){
     
     //Declare the interface
     declareInterface<IDataRetriever>(this);

@@ -43,6 +43,7 @@
 #include "FTKPatternOneSector.h"
 
 class TDirectory;
+class FTKSSMap;
 
 class FTKPatternBySectorBase : public FTKLogging {
 public:
@@ -119,6 +120,11 @@ class FTKPatternBySectorReader : public virtual FTKPatternBySectorBase {
    int GetNextCoverage(int coverage) const;
    int GetCoverageFirstSector(int coverage) const;
    int GetCoverageNextSector(int coverage,int sector) const;
+
+   // consistency check of the bank data
+   // this checks whether all SSIDs of a sector/plane 
+   // are from the same module
+   virtual bool CheckConsistency(FTKSSMap *ssMap,int tower,int hwmodeid) const=0;
  protected:
    FTKPatternBySectorReader(char const *name);
    SectorByCoverage_t m_SectorByCoverage;
@@ -187,6 +193,7 @@ class FTKPatternBySectorForestReader : public FTKPatternBySectorReader {
    virtual int GetNextSector(int sector) const;
    virtual void RewindSector(int sector=-1);
    virtual FTKPatternOneSector *Read(int sector,int minCoverage); 
+   virtual bool CheckConsistency(FTKSSMap *ssMap,int tower,int hwmodeid) const;
  protected:
    typedef std::map<int,FTKPatternRootTreeReader *> PatternTreeBySectorRO_t;
    PatternTreeBySectorRO_t m_patterns;
@@ -321,6 +328,7 @@ class FTKPatternBySectorIndexedReader : public FTKPatternBySectorReader,
    virtual int ReadRaw(int firstSector,
                        std::list<FTKPatternOneSector *> &sectorList,
                        uint64_t maxPattern);
+   virtual bool CheckConsistency(FTKSSMap *ssMap,int tower,int hwmodeid) const;
  protected:
    TTree *m_dataTree;
    int InitializeIndex(TTree *indexTree,std::set<int> const *sectorList);
@@ -337,9 +345,8 @@ class FTKPatternBySectorIndexedReader : public FTKPatternBySectorReader,
       // number of patterns in this Block
       uint32_t m_nPattern;
    };
-   // first index: sector
-   // second index: coverage (multiple entries are possible - decoder change)
 
+   // indexed by coverage (multiple entries are possible - decoder change)
    typedef std::multimap<uint32_t,DataBlock_t> CoverageTable_t;
    typedef struct SectorInfo {
       // table ordered by coverage
@@ -348,6 +355,8 @@ class FTKPatternBySectorIndexedReader : public FTKPatternBySectorReader,
       CoverageTable_t::const_reverse_iterator m_coveragePtr;
       uint64_t m_nPattern;
    } SectorInfo_t;
+   
+   // indexed by Sector
    typedef std::map<uint32_t,SectorInfo_t> SectorTable_t;
    SectorTable_t m_sectorTable;
    FTKPatternWithCoverage *m_patternData;

@@ -187,23 +187,10 @@ namespace xAOD {
       /// Has the container been locked?
       bool m_locked;
 
-      /// Count changes to @c m_auxids.
-      mutable size_t m_tick;
-
       /// Mutex for multithread synchronization.
       typedef AthContainers_detail::mutex mutex_t;
       typedef AthContainers_detail::lock_guard< mutex_t > guard_t;
       mutable mutex_t m_mutex;
-
-      /// Helper class for the thread-local auxid set implementation
-      struct TSAuxidSet {
-         size_t m_tick;
-         auxid_set_t m_set;
-         TSAuxidSet( size_t tick, const auxid_set_t& set )
-            : m_tick( tick ), m_set( set ) { }
-      }; // class TSAuxidSet
-      /// Thread-local versions of the auxid set
-      mutable AthContainers_detail::thread_specific_ptr< TSAuxidSet > m_tsAuxids;
 
       /// Name of the container in memory. Set externally.
       std::string m_name;

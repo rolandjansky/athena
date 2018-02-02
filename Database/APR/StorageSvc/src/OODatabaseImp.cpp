@@ -20,11 +20,10 @@
 using namespace pool;
 
 // Standard Constructor
-OODatabaseImp::OODatabaseImp(void* ctxt, const DbType& typ)
+OODatabaseImp::OODatabaseImp(const DbType& typ)
 : m_refCount(0), 
   m_type(typ),
-  m_name(""),
-  m_context(ctxt)
+  m_name("")
 {
   DbInstanceCount::increment(this);
 }

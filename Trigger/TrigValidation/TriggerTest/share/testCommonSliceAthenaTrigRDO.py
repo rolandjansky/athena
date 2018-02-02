@@ -5,6 +5,11 @@
 from RecExConfig.RecFlags import rec
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf
 
+include ("RecExCond/RecExCommon_flags.py")
+rec.AutoConfiguration = ['everything']
+import RecExConfig.AutoConfiguration as auto
+auto.ConfigureFromListOfKeys(rec.AutoConfiguration())
+
 if not acf.EvtMax.is_locked():
     acf.EvtMax=10
 if not ('OutputLevel' in dir()):

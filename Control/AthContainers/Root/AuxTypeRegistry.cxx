@@ -14,7 +14,6 @@
 #include "AthContainers/AuxTypeRegistry.h"
 #include "AthContainers/exceptions.h"
 #include "AthContainers/normalizedTypeinfoName.h"
-#include "AthContainers/tools/foreach.h"
 #include "AthLinks/ElementLinkBase.h"
 #include "CxxUtils/checker_macros.h"
 #include <cassert>
@@ -652,9 +651,9 @@ AuxTypeRegistry::AuxTypeRegistry()
  */
 AuxTypeRegistry::~AuxTypeRegistry()
 {
-  ATHCONTAINERS_FOREACH (ti_map_t::value_type& p, m_factories)
+  for (ti_map_t::value_type& p : m_factories)
     delete p.second;
-  ATHCONTAINERS_FOREACH (const IAuxTypeVectorFactory* p, m_oldFactories)
+  for (const IAuxTypeVectorFactory* p : m_oldFactories)
     delete p;
 }
 

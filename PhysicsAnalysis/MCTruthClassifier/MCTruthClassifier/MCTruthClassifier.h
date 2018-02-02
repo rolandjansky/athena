@@ -65,13 +65,13 @@ class MCTruthClassifier : virtual public IMCTruthClassifier , public asg::AsgToo
   virtual
   std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(const xAOD::TrackParticle *, Info* info = nullptr) const override;
   virtual
-  std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(const xAOD::Electron*, Info* info = nullptr) /*const*/ override;
+  std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(const xAOD::Electron*, Info* info = nullptr) const override;
   virtual
-  std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(const xAOD::Photon*, Info* info = nullptr ) override;
+  std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(const xAOD::Photon*, Info* info = nullptr ) const override;
   virtual
   std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(const xAOD::Muon*, Info* info = nullptr) const override;
   virtual
-  std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(const xAOD::CaloCluster*, Info* info = nullptr) override;
+  std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(const xAOD::CaloCluster*, Info* info = nullptr) const override;
   virtual
   std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(const xAOD::Jet*, bool DR, Info* info = nullptr) const override;
 
@@ -129,11 +129,14 @@ class MCTruthClassifier : virtual public IMCTruthClassifier , public asg::AsgToo
 #ifndef XAOD_ANALYSIS
    bool genPartToCalo(const xAOD::CaloCluster* , const xAOD::TruthParticle* , bool, double&, bool& ) const;
    const xAOD::TruthParticle* egammaClusMatch(const xAOD::CaloCluster*, bool,
-                                              Info* info);
+                                              Info* info) const;
 #endif
    //
-   void findAllJetMothers(const xAOD::TruthParticle* thePart,std::set<const xAOD::TruthParticle*>&) const;
-   static double deltaR(const xAOD::TruthParticle& v1, const xAOD::Jet & v2) ;
+   void findAllJetMothers(const xAOD::TruthParticle*,std::set<const xAOD::TruthParticle*>&) const;
+   void findParticleDaughters(const xAOD::TruthParticle*, std::set<const xAOD::TruthParticle*>&) const;
+   double fracParticleInJet(const xAOD::TruthParticle*, const xAOD::Jet*, bool DR, bool nparts) const;
+   void findJetConstituents(const xAOD::Jet*, std::set<const xAOD::TruthParticle*>& constituents, bool DR) const;
+   static double deltaR(const xAOD::TruthParticle& v1, const xAOD::Jet & v2);
    MCTruthPartClassifier::ParticleOrigin defJetOrig(std::set<const xAOD::TruthParticle*>) const;
    //
   

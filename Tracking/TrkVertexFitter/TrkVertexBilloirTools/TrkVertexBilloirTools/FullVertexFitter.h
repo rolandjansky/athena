@@ -115,7 +115,6 @@ namespace Trk
     double m_maxDchi2PerNdf;
 
     /** Data members to store the results */
-    FitError                m_error;
 
     ToolHandle< Trk::IExtrapolator > m_extrapolator;
     ToolHandle< Trk::IVertexLinearizedTrackFactory > m_linFactory;

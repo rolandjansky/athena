@@ -21,14 +21,14 @@ SurveyConstraintPoint::SurveyConstraintPoint( ) {
 
 SurveyConstraintPoint::SurveyConstraintPoint( const Amg::Vector3D& survey, 
 					      const Amg::Vector3D& current )
-  :_survey(survey),
-   _current(current){
+  :m_survey(survey),
+   m_current(current){
 }
 
 // Copy Constructor
 SurveyConstraintPoint::SurveyConstraintPoint( const SurveyConstraintPoint& other )
-  :_survey(other.survey()),
-   _current(other.current()){
+  :m_survey(other.survey()),
+   m_current(other.current()){
 }
   
 //--------------
@@ -45,8 +45,8 @@ SurveyConstraintPoint::~SurveyConstraintPoint( ){
 SurveyConstraintPoint& 
 SurveyConstraintPoint::operator= ( const SurveyConstraintPoint& rhs){
   if(&rhs != this){
-    _survey = rhs.survey();
-    _current = rhs.current();
+    m_survey = rhs.survey();
+    m_current = rhs.current();
   }
   return *this;
 }   

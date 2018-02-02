@@ -17,11 +17,14 @@
 // FrameWork includes
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaKernel/IAthRNGSvc.h"
 #include "HepMC_Interfaces/ILorentzVectorGenerator.h"
 // InDetBeamSpotService
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 
+namespace ATHRNG {
+  class RNGWrapper;
+}
 namespace CLHEP {
   class HepRandomEngine;
 }
@@ -57,12 +60,12 @@ namespace Simulation {
     private:
 
       inline double heaviside(double val) const {return (val >= 0.0) ? 1.0 : 0.0;};
-      double getZpos() const;
+      double getZpos(CLHEP::HepRandomEngine*) const;
       double beamspotFunction(double z) const;
       double m_L; //!< Parameter in the Z distribution of the beamspot
       ServiceHandle<IBeamCondSvc>     m_beamCondSvc;
-      ServiceHandle<IAtRndmGenSvc>    m_rndGenSvc;
-      CLHEP::HepRandomEngine*         m_randomEngine;
+      ServiceHandle<IAthRNGSvc>       m_rndGenSvc;
+      ATHRNG::RNGWrapper*             m_randomEngine;             //!< Slot-local RNG
 
       std::string                     m_randomEngineName;         //!< Name of the random number stream
       bool                            m_timeSmearing;             //!< Do time smearing

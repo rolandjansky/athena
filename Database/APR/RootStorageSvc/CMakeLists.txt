@@ -11,7 +11,6 @@ atlas_depends_on_subdirs( PRIVATE
                           Control/AthContainers
                           Control/AthContainersInterfaces
                           Control/RootUtils
-                          Database/APR/POOLCore
                           Database/APR/StorageSvc
                           Database/AthenaRoot/RootAuxDynIO
                           Database/PersistentDataModel
@@ -27,7 +26,7 @@ atlas_add_library( RootStorageSvc
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES ${ROOT_LIBRARIES} RootUtilsPyROOT
                    PRIVATE_LINK_LIBRARIES TestTools AthContainers
-                   RootUtils POOLCore StorageSvc RootAuxDynIO
+                   RootUtils StorageSvc RootAuxDynIO
                    PersistentDataModel GaudiKernel )
 
 

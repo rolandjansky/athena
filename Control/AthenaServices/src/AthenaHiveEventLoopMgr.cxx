@@ -568,10 +568,10 @@ StatusCode AthenaHiveEventLoopMgr::writeHistograms(bool force) {
 //=========================================================================
 // Run the algorithms beginRun hook
 //=========================================================================
-StatusCode AthenaHiveEventLoopMgr::beginRunAlgorithms(const EventInfo& event) {
+StatusCode AthenaHiveEventLoopMgr::beginRunAlgorithms(const EventInfo& /*event */) {
 
   // Fire BeginRun "Incident"
-  m_incidentSvc->fireIncident(EventIncident(event, name(),"BeginRun"));
+  //  m_incidentSvc->fireIncident(EventIncident(event, name(),"BeginRun"));
 
   return StatusCode::SUCCESS;
 }
@@ -582,7 +582,7 @@ StatusCode AthenaHiveEventLoopMgr::beginRunAlgorithms(const EventInfo& event) {
 StatusCode AthenaHiveEventLoopMgr::endRunAlgorithms() {
 
   // Fire EndRun Incident
-  m_incidentSvc->fireIncident(Incident(name(),"EndRun"));
+  //  m_incidentSvc->fireIncident(Incident(name(),"EndRun"));
 
   return StatusCode::SUCCESS;
 }
@@ -655,15 +655,19 @@ StatusCode AthenaHiveEventLoopMgr::executeEvent(void* createdEvts_IntPtr )
   if (m_firstRun || (m_currentRun != pEvent->event_ID()->run_number()) ) {
     // Fire EndRun incident unless this is the first run
     if (!m_firstRun) {
-      if (!(this->endRunAlgorithms()).isSuccess()) return (StatusCode::FAILURE);
+      // FIXME!!!
+      m_incidentSvc->fireIncident(Incident(name(), IncidentType::EndRun));
     }
     m_firstRun=false;
     m_currentRun = pEvent->event_ID()->run_number();
 
     info() << "  ===>>>  start of run " << m_currentRun << "    <<<==="
            << endmsg;
- 
-    if (!(this->beginRunAlgorithms(*pEvent)).isSuccess()) return (StatusCode::FAILURE);
+
+    // FIXME!!! Fire BeginRun "Incident"
+    m_incidentSvc->fireIncident(EventIncident(*pEvent, name(),
+                                              IncidentType::BeginRun));
+
   }
 
   bool toolsPassed=true;
@@ -767,24 +771,15 @@ StatusCode AthenaHiveEventLoopMgr::executeRun(int maxevt)
   StatusCode  sc;
   bool eventfailed = false;
   
-  sc = m_algResourcePool->beginRun();
-  if (sc.isFailure()) 
-    eventfailed=true;
-
   // Call now the nextEvent(...)
   sc = nextEvent(maxevt);
   if (!sc.isSuccess())
     eventfailed = true;
 
-  sc = m_algResourcePool->endRun();
-  if (sc.isFailure())
-    eventfailed=true;
-
   if (eventfailed)
     return StatusCode::FAILURE;
 
   m_incidentSvc->fireIncident(Incident(name(),"EndEvtLoop"));
-  //    return this->endRunAlgorithms();
   return StatusCode::SUCCESS;
 }
 //-----------------------------------------------------------------------------
@@ -1004,12 +999,6 @@ void AthenaHiveEventLoopMgr::handle(const Incident& inc)
     error() << "Unable to retrieve Event root object" << endmsg;
     return;
   }
-
-  sc = beginRunAlgorithms(*pEvent);
-  if (!sc.isSuccess()) {
-    error() << "beginRunAlgorithms() failed" << endmsg;
-    return;
-  } 
 
   m_firstRun=false;
   m_currentRun = pEvent->event_ID()->run_number();

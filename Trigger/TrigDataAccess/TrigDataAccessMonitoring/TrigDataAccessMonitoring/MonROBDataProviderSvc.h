@@ -46,22 +46,22 @@ public:
 
     virtual ~MonROBDataProviderSvc(void);
   
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
 
-    virtual StatusCode finalize();
+    virtual StatusCode finalize() override;
 
-    virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
+    virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override;
 
     /// --- Implementation of IROBDataProviderSvc interface ---    
 
     /// Add ROBFragments to cache for given ROB ids, ROB fragments may be retrieved with DataCollector 
     using ROBDataProviderSvc::addROBData;
     virtual void addROBData(const std::vector<uint32_t>& robIds,
-			    const std::string callerName="UNKNOWN");
+			    const std::string callerName="UNKNOWN") override;
 
     /// Add a given LVL1/LVL2 ROBFragment to cache 
     using ROBDataProviderSvc::setNextEvent;
-    virtual void setNextEvent(const std::vector<ROBF>& result);
+    virtual void setNextEvent(const std::vector<ROBF>& result) override;
 
     /// Add all ROBFragments of a RawEvent to cache 
     virtual void setNextEvent(const RawEvent* re) override;
@@ -70,16 +70,16 @@ public:
     using ROBDataProviderSvc::getROBData;
     virtual void getROBData(const std::vector<uint32_t>& robIds, 
 			    std::vector<const ROBF*>& robFragments,
-                            const std::string callerName="UNKNOWN");
+                            const std::string callerName="UNKNOWN") override;
  
     /// Retrieve the whole event.
     using ROBDataProviderSvc::getEvent;
-    virtual const RawEvent* getEvent() ;
+    virtual const RawEvent* getEvent() override;
 
     /// --- Implementation of IIncidentListener interface ---
 
     // handler for BeginRun actions
-    void handle(const Incident& incident);
+    virtual void handle(const Incident& incident) override;
 
 protected:
     /**

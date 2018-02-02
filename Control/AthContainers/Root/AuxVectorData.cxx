@@ -29,7 +29,7 @@ size_t AuxVectorData::s_minCacheLen = 1024;
 
 
 /// Empty auxid set, used for a return value when we have no associated store.
-const SG::auxid_set_t AuxVectorData::s_emptySet;
+const SG::auxid_set_t AuxVectorData::s_emptySet(0);
 
 
 /**
@@ -42,7 +42,6 @@ AuxVectorData::AuxVectorData()
 }
 
 
-#if __cplusplus > 201100
 /**
  * @brief Move constructor.
  * @param rhs The container from which to move.
@@ -81,7 +80,6 @@ AuxVectorData& AuxVectorData::operator= (AuxVectorData&& rhs)
   }
   return *this;
 }
-#endif
 
 
 /**
@@ -259,8 +257,7 @@ bool AuxVectorData::isAvailableWritableOol (auxid_t id)
 {
   const SG::IAuxStore* store = getStore();
   if (!store) return false;
-  const SG::auxid_set_t& ids = store->getWritableAuxIDs();
-  return ( ids.find (id) != ids.end() );
+  return store->getWritableAuxIDs().test(id);
 }
 
 
@@ -420,7 +417,6 @@ AuxVectorData::Cache::Cache()
 }
 
 
-#if __cplusplus > 201100
 /**
  * @brief Cache manager move constructor.
  * @param rhs The cache from which to copy.
@@ -456,7 +452,6 @@ AuxVectorData::Cache& AuxVectorData::Cache::operator= (Cache&& rhs)
   }
   return *this;
 }
-#endif
 
 
 /**

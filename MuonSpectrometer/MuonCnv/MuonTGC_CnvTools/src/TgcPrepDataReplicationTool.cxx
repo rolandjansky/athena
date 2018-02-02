@@ -49,7 +49,7 @@ StatusCode Muon::TgcPrepDataReplicationTool::initialize()
   for(int ibc = 0; ibc < BC_NUM; ibc++) {
     try {
       m_tgcPrepDataContainer[ibc] = new TgcPrepDataContainer(m_tgcHelper->module_hash_max());
-    } catch(std::bad_alloc) {
+    } catch(const std::bad_alloc&) {
       ATH_MSG_FATAL("Could not create a new TGC PrepRawData container!");
       return StatusCode::FAILURE;
     }

@@ -29,8 +29,6 @@ class SPLayer {
   std::string name() const;
 
  private:
-  int m_hbase;
-  int m_hbase2;
   int m_dettype;
   int m_bec;
   int m_layer;

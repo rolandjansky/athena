@@ -15,7 +15,7 @@
 #include <utility>
 #include <map>
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "tbb/pipeline.h"
 
 /////////////////////////////////////////////////////////////////////////////

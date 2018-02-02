@@ -121,7 +121,7 @@ protected:
   /// I/O to HEPEVT
   void store_Atlas_HEPEVT();
 
-  static Atlas_HEPEVT* atlas_HEPEVT;
+  static Atlas_HEPEVT* s_atlas_HEPEVT;
 
 };
 

@@ -19,7 +19,8 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( VP1Algs
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel EventInfo PathResolver VP1Gui VP1UtilsBase )
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel EventInfo PathResolver 
+                     PRIVATE_LINK_LIBRARIES VP1Gui VP1UtilsBase )
 
 # Install files from the package:
 atlas_install_headers( VP1Algs )

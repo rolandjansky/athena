@@ -83,7 +83,7 @@ public:
   int m_histosBooked;
 
   enum m_eta_region { incl, barrel, eca, ecc, Nregions };
-  std::vector<std::string> region_strings;
+  std::vector<std::string> m_region_strings;
 
   // event histos
 
@@ -181,7 +181,6 @@ public:
   bool m_rejectSecondCluster;
   std::string m_electronIDLevel;
   bool m_doIDCuts;
-  xAOD::Iso::IsolationType m_isolationCone;
   //Likelihood tool:
   AsgElectronLikelihoodTool* m_LHTool2015; //!
 

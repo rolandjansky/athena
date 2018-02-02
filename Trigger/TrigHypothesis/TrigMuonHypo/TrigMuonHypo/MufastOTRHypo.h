@@ -24,7 +24,7 @@ class MufastOTRHypo: public HLT::HypoAlgo {
     
   private:
   
-    std::pair<unsigned int, int> getRoIFeature(uint32_t) const;
+    std::pair<unsigned int, int> getRoIFeature(uint32_t);
   
     ToolHandle<ITrigMuonRoITool> m_trigMuonRoITool;
     

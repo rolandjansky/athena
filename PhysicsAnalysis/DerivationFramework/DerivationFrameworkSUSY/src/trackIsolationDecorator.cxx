@@ -52,7 +52,7 @@ StatusCode DerivationFramework::trackIsolationDecorator::initialize()
   m_ptconeTypes.clear();
   for(auto c: m_ptcones){
     xAOD::Iso::IsolationType t = static_cast<xAOD::Iso::IsolationType>(c);
-    m_decorators[c] = new SG::AuxElement::Decorator< float >(m_prefix+xAOD::Iso::toString(t));
+    m_decorators[c] = new SG::AuxElement::Decorator< float >(m_prefix+xAOD::Iso::toCString(t));
     m_ptconeTypes.push_back(t);
   }
 

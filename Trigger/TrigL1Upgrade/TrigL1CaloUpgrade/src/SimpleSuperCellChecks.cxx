@@ -34,7 +34,7 @@ StatusCode SimpleSuperCellChecks::initialize(){
 	msg << MSG::DEBUG << "initializing SimpleSuperCellChecks" << endmsg;
 	std::string filename=name();
 	filename+=".BasicCheck.root";
-        counter=0;
+        m_counter=0;
 	m_file = new TFile (filename.c_str(),"RECREATE");
 	m_nSCells = new TH1I("nSCells","nSCells",400,0,40000);
 	m_EtSCells = new TH1F("EtSCells","EtSCells",60,0,30e3);
@@ -417,12 +417,12 @@ StatusCode SimpleSuperCellChecks::execute(){
 		msg << MSG::ERROR << "Nothing more to be done, finish here" << endmsg;
 		return StatusCode::SUCCESS;
 	}
-	const CaloIdManager* m_calo_id_manager;
-	if ( (detStore()->retrieve(m_calo_id_manager,"CaloIdManager")).isFailure() ){
+	const CaloIdManager* calo_id_manager;
+	if ( (detStore()->retrieve(calo_id_manager,"CaloIdManager")).isFailure() ){
 		msg << MSG::ERROR << "Not able to map Calo IDs." << endmsg;
 		return StatusCode::SUCCESS;
 	}
-	const CaloCell_SuperCell_ID* calo_sc_id = m_calo_id_manager->getCaloCell_SuperCell_ID();
+	const CaloCell_SuperCell_ID* calo_sc_id = calo_id_manager->getCaloCell_SuperCell_ID();
 	std::vector<float> sc_ets; sc_ets.resize(40000,0.);
 	std::vector<std::vector<float> > sc_etsk; sc_etsk.resize(40000);
 	std::vector<std::vector<float> > sc_times; sc_times.resize(40000);
@@ -472,7 +472,7 @@ StatusCode SimpleSuperCellChecks::execute(){
 		float res_timew = -110.0;
 		if ( (fabsf(sc_timew)>0.3) && (fabsf(scell->time() )>0.3) ) res_timew = 100.0*(scell->time()-sc_timew ) / scell->time();
 
-		if ( ( fabsf( scell->eta() )<2.49 ) && ( scell->caloDDE()->getSampling() <= CaloSampling::EME3 ) ){
+		if ( ( std::abs( scell->eta() )<2.49 ) && ( scell->caloDDE()->getSampling() <= CaloSampling::EME3 ) ){
 		m_TimeResol->Fill( res_time );
 		m_TimeResol_vs_pt->Fill( scell->et()/1e3,res_time );
 		m_TimeResol_vs_time->Fill( scell->time()*1e-3, res_time );
@@ -513,22 +513,22 @@ StatusCode SimpleSuperCellChecks::execute(){
 		if ( scell->caloDDE()->getSampling() == CaloSampling::PreSamplerE ){
 			count_sCells_Layer4++;
 			index=4;
-			if ( fabsf( scell->eta() ) > 2.49 ) index2=8;
+			if ( std::abs( scell->eta() ) > 2.49 ) index2=8;
 		}
 		if ( scell->caloDDE()->getSampling() == CaloSampling::EME1 ){
 			count_sCells_Layer5++;
 			index=5;
-			if ( fabsf( scell->eta() ) > 2.49 ) index2=8;
+			if ( std::abs( scell->eta() ) > 2.49 ) index2=8;
 		}
 		if ( scell->caloDDE()->getSampling() == CaloSampling::EME2 ){
 			count_sCells_Layer6++;
 			index=6;
-			if ( fabsf( scell->eta() ) > 2.49 ) index2=8;
+			if ( std::abs( scell->eta() ) > 2.49 ) index2=8;
 		}
 		if ( scell->caloDDE()->getSampling() == CaloSampling::EME3 ){
 			count_sCells_Layer7++;
 			index=7;
-			if ( fabsf( scell->eta() ) > 2.49 ) index2=8;
+			if ( std::abs( scell->eta() ) > 2.49 ) index2=8;
 		}
 		if ( scell->caloDDE()->getSampling() == CaloSampling::HEC0 ){
 			count_sCells_Layer8++;
@@ -568,7 +568,7 @@ StatusCode SimpleSuperCellChecks::execute(){
 	m_QualityNCells->Fill( ccQual );
 	
 	
-	counter++;
+	m_counter++;
 	return StatusCode::SUCCESS;
 }
 

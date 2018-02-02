@@ -109,7 +109,7 @@ ConfigurableAlg::setParameters(const ParameterSpace & parameters) {
       try {
          m_parameters.setParameter(p);
       }
-      catch(TCS::Exception e) {
+      catch(const TCS::Exception& e) {
          TCS_EXCEPTION("Algorithm configuration failed for " << name() << "! Caught exception: " << e.what());
       }
    }

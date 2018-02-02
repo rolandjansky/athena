@@ -79,7 +79,7 @@ Trig::FeatureContainer::navigation() const {
 
 bool 
 Trig::FeatureContainer::ordering_by_objects_attached2::weakOrder(const HLT::TriggerElement* a, const HLT::TriggerElement* b,
-                                                                 void* obj_a, void* obj_b) {
+                                                                 void* obj_a, void* obj_b) const {
   // returning False -> no insertion into set
   // returning True -> insertion into set
   // each pair of candidates is tested twice (if test returns False twice, then no insertion into set)
@@ -117,7 +117,7 @@ Trig::FeatureContainer::ordering_by_objects_attached2::weakOrder(const HLT::Trig
 //this is a helper method to weakly order feature access helpers.
 class order_by_clid_and_index {
 public:
-  bool operator()(const Trig::TypelessFeature& a,const Trig::TypelessFeature& b){
+  bool operator()(const Trig::TypelessFeature& a,const Trig::TypelessFeature& b) const {
     if ( a.accessHelper().getCLID() == b.accessHelper().getCLID()) {
       return a.accessHelper().getIndex() < b.accessHelper().getIndex();
     }

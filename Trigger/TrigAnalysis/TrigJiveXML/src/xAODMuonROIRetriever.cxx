@@ -20,9 +20,7 @@ namespace JiveXML {
   //--------------------------------------------------------------------------
 
   xAODMuonROIRetriever::xAODMuonROIRetriever(const std::string& type, const std::string& name, const IInterface* parent):
-    AthAlgTool(type, name, parent), m_typeName("MuonROI"),
-    m_readCPM(false),
-    m_maskLowerThresholds(false)
+    AthAlgTool(type, name, parent), m_typeName("MuonROI")
   {
 
     declareInterface<IDataRetriever>(this);

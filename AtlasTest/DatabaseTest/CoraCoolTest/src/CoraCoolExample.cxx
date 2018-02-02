@@ -56,8 +56,8 @@ class CoraCoolExample {
   CoraCoolDatabasePtr m_coradb;
   cool::IDatabasePtr m_cooldb;
 
-  cool::RecordSpecification payloadspec;
-  cool::RecordSpecification fkspec;
+  cool::RecordSpecification m_payloadspec;
+  cool::RecordSpecification m_fkspec;
   int m_blobsize;
 };
 
@@ -145,29 +145,29 @@ CoraCoolExample::CoraCoolExample(const std::string& dbstring,
 
   // create the AttributeListSpecification for the payload
   // primary / foreign keys
-  payloadspec.extend("PrimKey",cool::StorageType::Int32);
-  payloadspec.extend("ForeignKey",cool::StorageType::Int32);
+  m_payloadspec.extend("PrimKey",cool::StorageType::Int32);
+  m_payloadspec.extend("ForeignKey",cool::StorageType::Int32);
   // integers to check the data integrity on readback - keep details of the
   // object origin
-  payloadspec.extend("IntObj",cool::StorageType::Int32);
-  payloadspec.extend("IntChan",cool::StorageType::Int32);
-  payloadspec.extend("IntIOV",cool::StorageType::Int32);
+  m_payloadspec.extend("IntObj",cool::StorageType::Int32);
+  m_payloadspec.extend("IntChan",cool::StorageType::Int32);
+  m_payloadspec.extend("IntIOV",cool::StorageType::Int32);
   // other data members
-  payloadspec.extend("UInt1",cool::StorageType::UInt32);
-  payloadspec.extend("Float1",cool::StorageType::Float);
-  payloadspec.extend("Double1",cool::StorageType::Double);
-  payloadspec.extend("LongLong1",cool::StorageType::Int64);
-  payloadspec.extend("ULongLong1",cool::StorageType::UInt63);
-  payloadspec.extend("String1",cool::StorageType::String4k);
+  m_payloadspec.extend("UInt1",cool::StorageType::UInt32);
+  m_payloadspec.extend("Float1",cool::StorageType::Float);
+  m_payloadspec.extend("Double1",cool::StorageType::Double);
+  m_payloadspec.extend("LongLong1",cool::StorageType::Int64);
+  m_payloadspec.extend("ULongLong1",cool::StorageType::UInt63);
+  m_payloadspec.extend("String1",cool::StorageType::String4k);
   // optional declaration of CORAL Blob type object
   if (m_blob) {
-    payloadspec.extend("Blob1",cool::StorageType::Blob64k);
+    m_payloadspec.extend("Blob1",cool::StorageType::Blob64k);
     m_blobsize=1000;
     std::cout << "Including blob of size " << m_blobsize << " in data " << 
       std::endl;
   }
   // create COOL FK spec
-  fkspec.extend("CoolKey",cool::StorageType::Int32);
+  m_fkspec.extend("CoolKey",cool::StorageType::Int32);
 
   // set payload table names from foldername leaf name
   m_coraltable.clear();
@@ -263,7 +263,7 @@ bool CoraCoolExample::write() {
       std::string desc="<timeStamp>run-event</timeStamp><addrHeader><address_header service_type=\"71\" clid=\"55403898\" /></addrHeader><typeName>CondAttrListVec</typeName>";
       try {
         folder=m_coradb->createFolder(
-			 *fitr,*ctitr,fkspec,payloadspec,
+			 *fitr,*ctitr,m_fkspec,m_payloadspec,
 			 "ForeignKey","PrimKey",desc,
 			 cool::FolderVersioning::SINGLE_VERSION,true);
         std::cout << "Folder " << *fitr << " created" << std::endl;

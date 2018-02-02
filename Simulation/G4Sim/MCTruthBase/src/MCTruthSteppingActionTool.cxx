@@ -15,10 +15,8 @@ namespace G4UA
   MCTruthSteppingActionTool::
   MCTruthSteppingActionTool(const std::string& type, const std::string& name,
                             const IInterface* parent)
-    : ActionToolBase<MCTruthSteppingAction>(type, name, parent)
+    : UserActionToolBase<MCTruthSteppingAction>(type, name, parent)
   {
-    declareInterface<IG4EventActionTool>(this);
-    declareInterface<IG4SteppingActionTool>(this);
     declareProperty("VolumeCollectionMap", m_volumeCollectionMap,
                     "Map of volume name to output collection name");
   }
@@ -36,12 +34,14 @@ namespace G4UA
   // Create an MCTruthSteppingAction
   //---------------------------------------------------------------------------
   std::unique_ptr<MCTruthSteppingAction>
-  MCTruthSteppingActionTool::makeAction()
+  MCTruthSteppingActionTool::makeAndFillAction(G4AtlasUserActions& actionLists)
   {
     ATH_MSG_DEBUG("Constructing an MCTruthSteppingAction");
-    return
-      std::make_unique<MCTruthSteppingAction>
-        ( m_volumeCollectionMap, msgSvc(), msg().level() );
+    auto action = std::make_unique<MCTruthSteppingAction> (
+        m_volumeCollectionMap, msgSvc(), msg().level() );
+    actionLists.eventActions.push_back( action.get() );
+    actionLists.steppingActions.push_back( action.get() );
+    return action;
   }
 
 } // namespace G4UA

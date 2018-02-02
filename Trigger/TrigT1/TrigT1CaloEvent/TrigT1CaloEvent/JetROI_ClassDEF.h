@@ -4,8 +4,8 @@
 
 #include "TrigT1CaloEvent/JetROI.h"
 
-#include "CLIDSvc/CLASS_DEF.h"
-#include "DataModel/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
 
 CLASS_DEF(LVL1::JetROI, 6204, 1)
 CLASS_DEF(DataVector<LVL1::JetROI>, 6205, 1)

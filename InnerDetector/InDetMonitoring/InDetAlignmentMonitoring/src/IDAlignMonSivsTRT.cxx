@@ -302,7 +302,7 @@ StatusCode IDAlignMonSivsTRT::fillHistograms()
 
 
   //tracks that are fitted to Si hits only, before extension to TRT
-  DataVector<Trk::Track>* tracksSi = m_trackSelection->selectTracks("ResolvedTracks");
+  const DataVector<Trk::Track>* tracksSi = m_trackSelection->selectTracks("ResolvedTracks");
   if(!tracksSi) {
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Histograms not filled because TrackSelectionTool returned NULL track collection"<< endmsg;
     return StatusCode::SUCCESS;
@@ -313,7 +313,7 @@ StatusCode IDAlignMonSivsTRT::fillHistograms()
   } 
   
   //tracks that are fitted with Si and TRT hits
-  DataVector<Trk::Track>* tracksTRT = m_trackSelection->selectTracks("ExtendedTracks");
+  const DataVector<Trk::Track>* tracksTRT = m_trackSelection->selectTracks("ExtendedTracks");
   if(!tracksTRT) {
     if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Histograms not filled because TrackSelectionTool returned NULL track collection"<< endmsg;
     return StatusCode::SUCCESS;

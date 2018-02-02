@@ -8,9 +8,8 @@ atlas_subdir( MuonCombinedEvent )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthLinks
-                          Control/CLIDSvc
-                          Control/DataModel
-                          Control/SGTools
+                          Control/AthenaKernel
+                          Control/AthContainers
                           DetectorDescription/GeoPrimitives
                           DetectorDescription/Identifier
                           Event/xAOD/xAODMuon
@@ -34,6 +33,6 @@ atlas_add_library( MuonCombinedEvent
                    src/*.cxx
                    PUBLIC_HEADERS MuonCombinedEvent
                    INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthLinks DataModel SGTools GeoPrimitives Identifier xAODMuon xAODTracking MuidEvent muonEvent TrkEventPrimitives TrkMaterialOnTrack TrkParameters MuonLayerEvent
+                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthLinks AthContainers GeoPrimitives Identifier xAODMuon xAODTracking MuidEvent muonEvent TrkEventPrimitives TrkMaterialOnTrack TrkParameters MuonLayerEvent
                    PRIVATE_LINK_LIBRARIES GaudiKernel MuonSegment TrkTrack )
 

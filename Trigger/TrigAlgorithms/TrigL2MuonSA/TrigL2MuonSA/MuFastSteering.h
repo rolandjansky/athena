@@ -199,27 +199,32 @@ class MuFastSteering : public HLT::FexAlgo,
 
   //adding a part of DataHandle for AthenaMT
   //ReadHandle MURoIs
-  SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
+  SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey{
+	this, "MuRoIs", "MURoIs", "Name of the input data from L1Decoder"};
 
   //ReadHandle RecMuonRoIs
-  SG::ReadHandleKey<DataVector<LVL1::RecMuonRoI>> m_recRoiCollectionKey;
+  SG::ReadHandleKey<DataVector<LVL1::RecMuonRoI>> m_recRoiCollectionKey{
+	this, "RecMuonRoI", "RecMURoIs", "Name of the input data on LVL1::RecMuonRoI produced by L1Decoder"};
 
   //WriteHandle <xAOD::L2StandAloneMuonContainer>
-  SG::WriteHandleKey<xAOD::L2StandAloneMuonContainer> m_muFastContainerKey;
+  SG::WriteHandleKey<xAOD::L2StandAloneMuonContainer> m_muFastContainerKey{
+	this, "MuonL2SAInfo", "MuonL2SAInfo", "Name of the output data on xAOD::L2StandAloneMuonContainer"};
 
   //WriteHandle <xAOD::L2StandAloneMuonContainer>
-  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_muCompositeContainerKey;
+  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_muCompositeContainerKey{
+	this, "MuonCalibrationStream", "MuonCalibrationStream", "Name of the decisions object attached by MuFastSteering"};
 
   //WriteHandle <TrigRoiDescriptor> for ID
-  SG::WriteHandleKey<TrigRoiDescriptorCollection> m_muIdContainerKey;
+  SG::WriteHandleKey<TrigRoiDescriptorCollection> m_muIdContainerKey{
+	this, "forID", "forID", "Name of the output data for Inner Detector"};
 
   //WriteHandle <TrigRoiDescriptor> for MS
-  SG::WriteHandleKey<TrigRoiDescriptorCollection> m_muMsContainerKey;
+  SG::WriteHandleKey<TrigRoiDescriptorCollection> m_muMsContainerKey{
+	this, "forMS", "forMS", "Name of the output data for MS"};
 
   // Monitor system
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
 
-  unsigned int m_countTotalRoI;
   int m_currentStage;  // The last stage reached during the processing of a given RoI
 
   ECRegions whichECRegion(const float eta, const float phi) const;

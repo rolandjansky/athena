@@ -74,9 +74,17 @@ namespace JiveXML {
       return StatusCode::FAILURE;
     }
 
+// xdr_void is defined inconsistently in xdr.h and gets a warning from gcc8.
+#if __GNUC__ >= 8
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wcast-function-type"
+#endif
     //Now try pinging the server
     clnt_stat ret = clnt_call(m_client, NULLPROC, (xdrproc_t)xdr_void, NULL,
                              (xdrproc_t)xdr_void, NULL, GetTimeout());
+#if __GNUC__ >= 8
+# pragma GCC diagnostic pop
+#endif
 
     //And check for the result
     if (ret != RPC_SUCCESS){

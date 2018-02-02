@@ -48,10 +48,10 @@ class TrigTRT_DriftCircleProviderTool: public AthAlgTool, virtual public ITrigTR
 
   std::string trtContainerName(); 
 
-  inline double getTRTTotalTime(void) {return (double) m_time_total;}
-  inline double getTRTRobProvTime(void) {return (double) m_time_robprov;}
-  inline double getTRTRegSelTime(void) {return (double) m_time_regsel;}
-  inline double getTRTTrtCnvTime(void) {return (double) m_time_trtcnv;}
+  inline double getTRTTotalTime(void) const {return (double) m_time_total;}
+  inline double getTRTRobProvTime(void) const {return (double) m_time_robprov;}
+  inline double getTRTRegSelTime(void) const {return (double) m_time_regsel;}
+  inline double getTRTTrtCnvTime(void) const {return (double) m_time_trtcnv;}
 
   const std::vector<int>* fillTRT_DataErrors();
 

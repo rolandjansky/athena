@@ -45,7 +45,7 @@ public:
    virtual ~ROBDataProviderSvc();
 
    /// initialize the service
-   virtual StatusCode initialize();
+   virtual StatusCode initialize() override;
 
    /// Gaudi queryInterface method.
    //   virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
@@ -80,6 +80,14 @@ public:
    virtual const RawEvent* getEvent(const EventContext& context) override;
    virtual void setEventStatus(const EventContext& context, uint32_t status) override;
    virtual uint32_t getEventStatus(const EventContext& context) override;
+
+   virtual void processCachedROBs(const EventContext& context, 
+				  const std::function< void(const ROBF* )>& fn ) const override;
+
+   virtual bool isEventComplete(const EventContext& /*context*/) const override { return true; }
+   virtual int collectCompleteEventData(const EventContext& /*context*/, const std::string /*callerName*/ ) override {  return 0; }
+
+
 
 protected:
    /// vector of ROBFragment class

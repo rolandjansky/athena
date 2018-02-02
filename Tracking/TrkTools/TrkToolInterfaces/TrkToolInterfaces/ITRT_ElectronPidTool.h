@@ -41,8 +41,8 @@ namespace Trk {
     /** @brief return high threshold probability 
         @returns double of probability
     */
-    virtual double probHT( const double p, const Trk::ParticleHypothesis hypothesis, const int HitPart, const int Layer, const int Strawlayer) = 0;
-    virtual double probHTRun2( float pTrk, Trk::ParticleHypothesis hypothesis, int TrtPart, int GasType, int StrawLayer, float ZR, float rTrkWire, float Occupancy ) = 0;
+    virtual double probHT( const double p, const Trk::ParticleHypothesis hypothesis, const int HitPart, const int Layer, const int Strawlayer) const = 0;
+    virtual double probHTRun2( float pTrk, Trk::ParticleHypothesis hypothesis, int TrtPart, int GasType, int StrawLayer, float ZR, float rTrkWire, float Occupancy ) const = 0;
 
 
 

@@ -133,7 +133,7 @@ size_t HiveMgrSvc::getPartitionNumber(int evtNumber) const {
   return std::string::npos;
 }
 
-unsigned int HiveMgrSvc::freeSlots() {
+size_t HiveMgrSvc::freeSlots() {
   return m_freeSlots;
 }
 
@@ -155,7 +155,20 @@ bool HiveMgrSvc::exists( const DataObjID& id) {
   // don't care if it's slow
   std::string key = id.key();
   key.erase(0,key.find("+")+1);
-  return m_hiveStore->transientContains(id.clid(), id.key());
+
+  if (id.clid() == 0) {
+    // this is an ugly hack in case the DataObjID gets munged
+    // upstream, and we have to re-separate it into (class,key)
+    // from "class/key"
+    std::string cl = id.fullKey();
+    cl.erase(cl.find("/"),cl.length());
+
+    DataObjID d2(cl,key);
+    return m_hiveStore->transientContains(d2.clid(), key);
+  } else {    
+    return m_hiveStore->transientContains(id.clid(), key);
+  }
+ 
 } 
 
 StatusCode HiveMgrSvc::initialize() {

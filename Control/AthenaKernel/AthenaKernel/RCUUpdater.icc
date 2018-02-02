@@ -1,0 +1,78 @@
+/*
+ * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ */
+// $Id$
+/**
+ * @file AthenaKernel/RCUUpdater.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Nov, 2017
+ * @brief xxx
+ */
+
+
+namespace Athena {
+
+
+/**
+ * @brief Constructor.
+ * @param rcusvc RCU service instance.
+ * @param args Additional arguments to pass to the T constructor.
+ *
+ * Creates a new instance of T.
+ */
+template <class T>
+template <typename... Args>
+RCUUpdater<T>::RCUUpdater (IRCUSvc& rcusvc, Args&&... args)
+  : m_obj (rcusvc.newrcu<T> (std::forward<Args>(args)...))
+{
+}
+
+
+/**
+ * @brief Install a new object.
+ * @param p The new object to install.
+ * @param ctx Current execution context.
+ *
+ * The existing object should not be deleted until it can no longer
+ * be referenced by any thread.
+ */
+template <class T>
+void RCUUpdater<T>::update (std::unique_ptr<T> p, const Context_t& ctx)
+{
+  m_obj->updater(ctx).update (std::move (p));
+}
+
+
+/**
+ * @brief Return a reference to the current object.
+ */
+template <class T>
+inline
+const T& RCUUpdater<T>::get() const
+{
+  return *m_obj->reader();
+}
+
+
+/**
+ * @brief Mark that an event slot is not referencing this object.
+ */
+template <class T>
+void RCUUpdater<T>::quiescent (const Context_t& ctx)
+{
+  m_obj->quiescent (ctx);
+}
+
+
+/**
+ * @brief Return the current event context.
+ */
+template <class T>
+const typename RCUUpdater<T>::Context_t&
+RCUUpdater<T>::defaultContext()
+{
+  return Gaudi::Hive::currentContext();
+}
+
+
+} // namespace Athena

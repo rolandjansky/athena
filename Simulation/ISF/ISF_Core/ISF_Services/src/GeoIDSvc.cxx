@@ -281,7 +281,7 @@ ISF::InsideType ISF::GeoIDSvc::inside(const Amg::Vector3D &pos, AtlasDetDescr::A
   // inside/surface cases need to be resolved
   if ( (geoID == geoIDFwd) || (geoID == geoIDAft) ) {
     // 1. inside
-    if ( (geoIDFwd == geoIDAft)  ) {
+    if ( geoIDFwd == geoIDAft ) {
       where = ISF::fInside;
       // 2. surface
     } else if ( geoIDFwd != geoIDAft ) {

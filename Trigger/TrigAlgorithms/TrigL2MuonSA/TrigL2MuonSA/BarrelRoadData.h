@@ -29,7 +29,7 @@ namespace TrigL2MuonSA {
   inline BarrelRoadData::Roads
     BarrelRoadData::roads(void) const
   {
-    return (const BarrelRoadData::Roads) m_roads;
+    return (BarrelRoadData::Roads) m_roads;
   }
   
 }

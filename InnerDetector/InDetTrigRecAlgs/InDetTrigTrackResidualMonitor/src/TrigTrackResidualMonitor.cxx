@@ -504,13 +504,13 @@ namespace InDet
 		    const Identifier& OtherModuleSideID = m_SCT_Manager->getDetectorElement(id)->otherSide()->identify();
 		    //const Trk::RIO_OnTrack* hit(0);
 		    
-		    for (std::vector<const Trk::TrackStateOnSurface*>::const_iterator TempTsos=(*itResTrk)->trackStateOnSurfaces()->begin();TempTsos!=(*itResTrk)->trackStateOnSurfaces()->end(); ++TempTsos) {
-		      const Trk::RIO_OnTrack* hitOnTrack = dynamic_cast <const Trk::RIO_OnTrack*>((*TempTsos)->measurementOnTrack());
+		    for (const Trk::TrackStateOnSurface* TempTsos : *(*itResTrk)->trackStateOnSurfaces()) {
+		      const Trk::RIO_OnTrack* hitOnTrack = dynamic_cast <const Trk::RIO_OnTrack*>(TempTsos->measurementOnTrack());
 		      //hit = hitOnTrack;
 		      if (hitOnTrack != 0) {
 			const Identifier& trkID = hitOnTrack->identify();
 			if (m_idHelperSCT->wafer_id(trkID) == OtherModuleSideID) {
-			  OtherModuleSideHit = *TempTsos;
+			  OtherModuleSideHit = TempTsos;
 			}
 		      }
 		    }

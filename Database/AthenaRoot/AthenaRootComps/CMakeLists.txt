@@ -17,9 +17,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           Database/APR/CollectionBase
                           Database/APR/CollectionUtilities
-                          Database/APR/POOLCore
+                          Database/APR/FileCatalog
                           Database/APR/PersistencySvc
-                          Database/APR/StorageSvc
                           Database/AthenaRoot/AthenaRootKernel
                           Database/PersistentDataModel
                           Database/AthenaPOOL/PoolSvc
@@ -39,7 +38,7 @@ atlas_add_component( AthenaRootComps
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} SGTools AthenaBaseComps AthenaKernel DataModelRoot RootUtils RootUtilsPyROOT StoreGateLib SGtests CollectionBase CollectionUtilities POOLCore PersistencySvc StorageSvc AthenaRootKernel PersistentDataModel EventInfo GaudiKernel xAODRootAccess xAODEventInfo)
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} SGTools AthenaBaseComps AthenaKernel DataModelRoot RootUtils RootUtilsPyROOT StoreGateLib SGtests CollectionBase CollectionUtilities FileCatalog PersistencySvc AthenaRootKernel PersistentDataModel EventInfo GaudiKernel xAODRootAccess xAODEventInfo)
 
 # Install files from the package:
 atlas_install_headers( AthenaRootComps )

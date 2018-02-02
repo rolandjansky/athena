@@ -48,12 +48,12 @@ InDetHadCaloClusterROISelector = InDet__CaloClusterROI_Selector (name           
                                                               CellsName                    = InDetKeys.HadCaloCellContainer(),       # "AllCalo"
                                                               OutputClusterContainerName   = InDetKeys.HadCaloClusterROIContainer(), # "InDetCaloClusterROIs"
                                                               CheckHadronicEnergy          = False,
-                                                              CheckReta                    = False,
                                                               CheckEMSamples               = False, 
                                                               ClusterEtCut                 = 25000,
                                                               CaloClusterROIBuilder        = InDetCaloClusterROIBuilder, 
                                                               egammaCheckEnergyDepositTool = InDetHadROICheckEnergyDepositTool,
-                                                              EMCaloIsolationTool          = InDetHadROIegammaIsoTool)
+                                                              egammaMiddleShapeTool        = "",                                     # to not check Reta
+                                                              EMCaloIsolationTool          = "")                                     # to not check hadronic energy
 topSequence += InDetHadCaloClusterROISelector
 if (InDetFlags.doPrintConfigurables()):
     print InDetHadCaloClusterROISelector

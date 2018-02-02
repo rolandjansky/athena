@@ -40,8 +40,8 @@ public:
 
   template<typename T> 
   void insert( T* t,  const std::string& key ) { 
-    TIDA::Feature<T>* _t = new TIDA::Feature<T>(t); 
-    _insert( _t, key ); 
+    TIDA::Feature<T>* tt = new TIDA::Feature<T>(t); 
+    _insert( tt, key ); 
   }
 
 

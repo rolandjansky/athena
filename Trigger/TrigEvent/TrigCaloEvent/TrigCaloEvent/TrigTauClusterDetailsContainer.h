@@ -19,8 +19,8 @@ DATE:		January 21st, 2009
 ******************************************************/
 // includes section
 #include "TrigCaloEvent/TrigTauClusterDetails.h"
-#include "DataModel/DataVector.h"
-#include "SGTools/BaseInfo.h"
+#include "AthContainers/DataVector.h"
+#include "AthenaKernel/BaseInfo.h"
 
 /** Container from TrigTauClusterDetails type objects.
         See TrigTauClusterDetails and T2CaloTaus

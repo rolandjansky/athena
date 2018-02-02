@@ -154,19 +154,19 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
   // Get detector elements road maker tool
   //
   if ( m_roadmaker.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_roadmaker << endmsg;
+    ATH_MSG_FATAL( "Failed to retrieve tool " << m_roadmaker );
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_roadmaker << endmsg;
+    ATH_MSG_INFO( "Retrieved tool " << m_roadmaker );
   }
 
   // Get combinatorial track finder tool
   //
   if ( m_tracksfinder.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_tracksfinder << endmsg;
+    ATH_MSG_FATAL( "Failed to retrieve tool " << m_tracksfinder );
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_tracksfinder << endmsg;
+    ATH_MSG_INFO( "Retrieved tool " << m_tracksfinder );
   }
 
   // Get seed to track conversion tool
@@ -174,12 +174,15 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
   if(m_seedsegmentsWrite) {
 
     if(m_seedtrack.retrieve().isFailure()) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_seedtrack << endmsg;
+      ATH_MSG_FATAL( "Failed to retrieve tool " << m_seedtrack );
       return StatusCode::FAILURE;
 
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_seedtrack << endmsg;
+      ATH_MSG_INFO( "Retrieved tool " << m_seedtrack );
     }
+  }
+  else {
+    m_seedtrack.disable();
   }
 
   m_heavyion = false;
@@ -222,9 +225,9 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
     StatusCode  sc = detStore()->regFcn(&InDet::SiTrackMaker_xk::magneticFieldInit,this,currentHandle,folder);
     
     if(sc==StatusCode::SUCCESS) {
-      msg(MSG::INFO) << "Registered callback from MagneticFieldSvc for " << name() << endmsg;
+      ATH_MSG_INFO( "Registered callback from MagneticFieldSvc for " << name() );
     } else {
-      msg(MSG::ERROR) << "Could not book callback from MagneticFieldSvc for " << name () << endmsg;
+      ATH_MSG_ERROR( "Could not book callback from MagneticFieldSvc for " << name () );
       return StatusCode::FAILURE;
     }
   } 
@@ -232,6 +235,8 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
     magneticFieldInit();
     ATH_MSG_INFO("Folder " << folder << " not present, magnetic field callback not set up. Not a problem if AtlasFieldSvc.useDCS=False");
   }
+  ATH_CHECK( m_caloCluster.initialize(m_useBremModel && m_useCaloSeeds));
+  ATH_CHECK( m_caloHad.initialize( !m_useSSSfilter && m_useHClusSeed) );
   
   if(m_pTmin < 20.) m_pTmin = 20.;
   return StatusCode::SUCCESS;
@@ -404,15 +409,15 @@ void InDet::SiTrackMaker_xk::newEvent(bool PIX,bool SCT)
 //    const CaloClusterROI_Collection* calo = 0;    
 //    StatusCode sc = evtStore()->retrieve(calo,m_inputClusterContainerName);
  
-    if(m_caloCluster.isValid()) {
-
-      CaloClusterROI_Collection::const_iterator c = m_caloCluster->begin(), ce = m_caloCluster->end();
-
-      for(; c!=ce; ++c) {
-        m_caloF.push_back( (*c)->globalPosition().phi ());
-        m_caloR.push_back( (*c)->globalPosition().perp());
-	m_caloZ.push_back( (*c)->globalPosition().z   ());
-     }
+    if (!m_caloCluster.key().empty()) {
+      SG::ReadHandle<CaloClusterROI_Collection> calo_cluster(m_caloCluster);
+      if(calo_cluster.isValid()) {
+        for(const Trk::CaloClusterROI *c : * calo_cluster) {
+          m_caloF.push_back( c->globalPosition().phi ());
+          m_caloR.push_back( c->globalPosition().perp());
+          m_caloZ.push_back( c->globalPosition().z   ());
+        }
+      }
     }
   }
 
@@ -422,18 +427,18 @@ void InDet::SiTrackMaker_xk::newEvent(bool PIX,bool SCT)
     m_hadR.clear();
     m_hadZ.clear();
 
-//    const CaloClusterROI_Collection* calo = 0;    
+//    const CaloClusterROI_Collection* calo = 0;
 //    StatusCode sc = evtStore()->retrieve(calo,m_inputHadClusterContainerName);
   
-    if(m_caloHad.isValid()) {
-
-      CaloClusterROI_Collection::const_iterator c = m_caloHad->begin(), ce = m_caloHad->end();
-
-      for(; c!=ce; ++c) {
-        m_hadF.push_back( (*c)->globalPosition().phi ());
-        m_hadR.push_back( (*c)->globalPosition().perp());
-	m_hadZ.push_back( (*c)->globalPosition().z   ());
-     }
+    if (!m_caloHad.key().empty()) {
+      SG::ReadHandle<CaloClusterROI_Collection> calo_had(m_caloHad);
+      if(calo_had.isValid()) {
+        for(const Trk::CaloClusterROI *c : * calo_had) {
+          m_hadF.push_back( c->globalPosition().phi ());
+          m_hadR.push_back( c->globalPosition().perp());
+          m_hadZ.push_back( c->globalPosition().z   ());
+        }
+      }
     }
   }
   if(m_seedsegmentsWrite) m_seedtrack->newEvent(m_trackinfo,m_patternName);
@@ -486,7 +491,7 @@ void InDet::SiTrackMaker_xk::endEvent()
   // Print event information 
   //
   if (msgLevel()<=0) {
-    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
+    m_nprint=1; ATH_MSG_DEBUG((*this));
   }
 }
 

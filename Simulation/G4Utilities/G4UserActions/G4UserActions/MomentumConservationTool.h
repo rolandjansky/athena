@@ -7,7 +7,7 @@
 
 #include "G4AtlasInterfaces/IG4EventActionTool.h"
 #include "G4AtlasInterfaces/IG4SteppingActionTool.h"
-#include "G4AtlasTools/ActionToolBase.h"
+#include "G4AtlasTools/UserActionToolBase.h"
 #include "G4UserActions/MomentumConservation.h"
 
 namespace G4UA
@@ -15,9 +15,7 @@ namespace G4UA
 
   /// @brief Tool which manages the MomentumConservation user action.
   ///
-  class MomentumConservationTool : public ActionToolBase<MomentumConservation>,
-                                   public IG4EventActionTool,
-                                   public IG4SteppingActionTool
+  class MomentumConservationTool : public UserActionToolBase<MomentumConservation>
   {
 
     public:
@@ -26,15 +24,11 @@ namespace G4UA
       MomentumConservationTool(const std::string& type, const std::string& name,
                                const IInterface* parent);
 
-      virtual G4UserEventAction* getEventAction() override final
-      { return static_cast<G4UserEventAction*>( getAction() ); }
-
-      virtual G4UserSteppingAction* getSteppingAction() override final
-      { return static_cast<G4UserSteppingAction*>( getAction() ); }
-
     protected:
 
-      virtual std::unique_ptr<MomentumConservation> makeAction() override final;
+      /// Create the action for the current thread
+      virtual std::unique_ptr<MomentumConservation>
+      makeAndFillAction(G4AtlasUserActions&) override final;
 
   }; // class MomentumConservationTool
 

@@ -6,8 +6,8 @@
 #include "TrigT1CaloEvent/JetCMXData.h"
 #endif
 
-#include "CLIDSvc/CLASS_DEF.h"
-#include "DataModel/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
 
 CLASS_DEF( LVL1::JetCMXData , 162528320 , 1 )
 CLASS_DEF( DataVector<LVL1::JetCMXData> , 161226587 , 1 )

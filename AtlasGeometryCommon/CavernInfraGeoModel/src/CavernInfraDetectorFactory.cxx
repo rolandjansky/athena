@@ -30,9 +30,9 @@
 
 CavernInfraDetectorFactory::CavernInfraDetectorFactory(StoreGateSvc *detStore,
 						       IRDBAccessSvc *pAccess)
-  :detectorManager(NULL),
-   detectorStore(detStore),
-   access(pAccess)
+  :m_detectorManager(NULL),
+   m_detectorStore(detStore),
+   m_access(pAccess)
 {
 }
 
@@ -42,10 +42,10 @@ CavernInfraDetectorFactory::~CavernInfraDetectorFactory()
 
 void CavernInfraDetectorFactory::create(GeoPhysVol *world)
 { 
-  detectorManager=new CavernInfraDetectorManager();
+  m_detectorManager=new CavernInfraDetectorManager();
 
   const DataHandle<StoredMaterialManager> materialManager;
-  if (StatusCode::SUCCESS != detectorStore->retrieve(materialManager, std::string("MATERIALS"))) {
+  if (StatusCode::SUCCESS != m_detectorStore->retrieve(materialManager, std::string("MATERIALS"))) {
     return; 
   } 
 
@@ -56,7 +56,7 @@ void CavernInfraDetectorFactory::create(GeoPhysVol *world)
   const GeoMaterial *shieldSteel      = materialManager->getMaterial("shield::ShieldSteel");
 
   // Get Recordset CavernElements.
-  IRDBRecordset_ptr cavernElements = access->getRecordsetPtr("CavernElements",m_versionTag,m_versionNode);
+  IRDBRecordset_ptr cavernElements = m_access->getRecordsetPtr("CavernElements",m_versionTag,m_versionNode);
  
   std::map<std::string, unsigned int> elementMap;
  
@@ -436,14 +436,14 @@ void CavernInfraDetectorFactory::create(GeoPhysVol *world)
   
 
   //// NOW INSERT ALL OF THIS INTO THE WORLD.
-  detectorManager->addTreeTop(sx1);
-  detectorManager->addTreeTop(bedrock);  
+  m_detectorManager->addTreeTop(sx1);
+  m_detectorManager->addTreeTop(bedrock);  
   
 }
 
 const CavernInfraDetectorManager * CavernInfraDetectorFactory::getDetectorManager() const
 {
-  return detectorManager;
+  return m_detectorManager;
 }
 
 void CavernInfraDetectorFactory::setTagNode(std::string tag, std::string node)

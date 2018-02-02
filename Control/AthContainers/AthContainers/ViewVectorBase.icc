@@ -12,6 +12,7 @@
 
 
 #include "AthContainers/AuxElement.h"
+#include "CxxUtils/checker_macros.h"
 #include <type_traits>
 
 
@@ -187,7 +188,8 @@ void ViewVectorBase::doToTransient2 (DV& v, const std::true_type&)
   for (size_t i = 0; i < m_persKey.size(); i++) {
     ElementLink<DV> el (m_persKey[i], m_persIndex[i], store);
     // FIXME: const_cast
-    v.push_back (const_cast<typename DV::value_type> (*el));
+    typename DV::value_type p ATLAS_THREAD_SAFE = const_cast<typename DV::value_type> (*el);
+    v.push_back (p);
   }
 }
 

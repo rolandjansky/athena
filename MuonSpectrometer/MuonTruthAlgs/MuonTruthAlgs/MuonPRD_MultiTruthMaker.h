@@ -57,6 +57,10 @@ private:
   SG::WriteHandleKey<PRD_MultiTruthCollection> m_STGC_PRD_TruthName;
   SG::WriteHandleKey<PRD_MultiTruthCollection> m_MM_PRD_TruthName;
 
+  //flags to determine which technologies to use
+  bool m_useNSW;
+  bool m_useCSC;
+
   //ToolHandle<InDet::IPRD_MultiTruthBuilder> m_PRDTruthTool;
 
   //----------------------------------------------------------------

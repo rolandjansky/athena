@@ -31,7 +31,7 @@ TauVertexVariables::TauVertexVariables(const std::string &name ) :
   // m_useOldSeedFinderAPI(false),
   m_fitTool("Trk::AdaptiveVertexFitter"),
   m_SeedFinder("Trk::CrossDistancesSeedFinder"),
-  m_xaodConverter("Trk::VxCandidateXAODVertex"),
+  //m_xaodConverter("Trk::VxCandidateXAODVertex"),
   m_pSecVtxContainer(0),
   m_pSecVtxAuxContainer(0){
   declareProperty("PrimaryVertexKey", m_primaryVertexKey);
@@ -39,7 +39,7 @@ TauVertexVariables::TauVertexVariables(const std::string &name ) :
   declareProperty("TrackToVertexIPEstimator", m_trackToVertexIPEstimator);
   declareProperty("VertexFitter", m_fitTool);
   declareProperty("SeedFinder", m_SeedFinder);
-  declareProperty("XAODConverter",m_xaodConverter);
+  //declareProperty("XAODConverter",m_xaodConverter);
   declareProperty("useOldSeedFinderAPI",m_useOldSeedFinderAPI=false);
   declareProperty("runOnAOD", m_AODmode=false);//AODS are input file 
 }

@@ -162,15 +162,15 @@ namespace LVL1{
     return true;
   }
 
-  float L1CaloLArTowerEnergy::EtLArg(const Identifier& TTid) {
+  float L1CaloLArTowerEnergy::EtLArg(const Identifier& TTid) const {
 
     float energy = 0;
 
-    mapTT::iterator it_mapTT;
-    mapSum::iterator it_mapSum;
+    mapTT::const_iterator it_mapTT;
+    mapSum::const_iterator it_mapSum;
 
     int sampling = m_lvl1Helper->sampling(TTid);
-    double eta = this-> IDeta(TTid);
+    double eta = this->IDeta(TTid);
 
     //electromagnetic sampling
     if(sampling==0) {
@@ -209,7 +209,7 @@ namespace LVL1{
     return energy;
   }
 
-  double L1CaloLArTowerEnergy::IDeta(const Identifier& TTid) {
+  double L1CaloLArTowerEnergy::IDeta(const Identifier& TTid) const {
     int region = m_lvl1Helper->region(TTid);
     int ieta = m_lvl1Helper->eta(TTid);
     int sign = m_lvl1Helper->pos_neg_z(TTid);
@@ -228,7 +228,7 @@ namespace LVL1{
   }
 
 
-  bool L1CaloLArTowerEnergy::hasMissingFEB(const Identifier& TTid) {
+  bool L1CaloLArTowerEnergy::hasMissingFEB(const Identifier& TTid) const {
 
     bool result = false;
 

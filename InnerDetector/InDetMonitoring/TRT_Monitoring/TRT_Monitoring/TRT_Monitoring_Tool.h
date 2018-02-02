@@ -98,7 +98,7 @@ private:
 	                       const InDetTimeCollection* trtBCIDCollection);
 	// ComTime might be missing from file, have to use const pointer
 	StatusCode fillTRTTracks(const TrackCollection& trackCollection,
-	                         const xAOD::TrigDecision& trigDecision,
+	                         const xAOD::TrigDecision* trigDecision,
 	                         const ComTime* comTimeObject);
 	StatusCode fillTRTEfficiency(const TrackCollection& combTrackCollection);
 	StatusCode fillTRTHighThreshold(const TrackCollection& trackCollection,
@@ -499,7 +499,7 @@ private:
 	bool m_doGeoMon;
 	bool m_doTracksMon;
 	int m_usedEvents;
-	int nTRTHits[2];
+	int m_nTRTHits[2];
 	int m_totalEvents;
 
 	bool m_doDCS;
@@ -528,58 +528,58 @@ private:
 	int m_MIN_TOT_Hits;
 	bool m_NoiseSuppressionMap;
 
-	float EventPhaseScale;
+	float m_EventPhaseScale;
 
 
-	unsigned char mat_chip_B[64][1642];
+	unsigned char m_mat_chip_B[64][1642];
 	int m_nStrawHits_B[1642];
 
-	unsigned char mat_chip_E[64][3840];
+	unsigned char m_mat_chip_E[64][3840];
 	int m_nStrawHits_E[2][3840];
 
-	float DriftTimeonTrkDistScale_B;
-	float HLhitOnTrackScale_B;
-	float HtoLRatioOnTrackScale_B;
-	float HtoLRatioOnTrackScale_B_Ar;
-	float HtoLRatioOnTrackScale_B_Xe;
-	float NumSwLLWoTScale_B;
-	float WireToTrkPositionScale_B;
-	float WireToTrkPositionScale_B_Ar;
-	float TronTDistScale_B;
-	float ResidualScale_B;
-	float ResidualScale_B_20GeV;
-	float TimeResidualScale_B;
-	float DriftTimeonTrkDistScale_B_Ar;
-	float TronTDistScale_B_Ar;
-	float ResidualScale_B_Ar;
-	float ResidualScale_B_Ar_20GeV;
-	float TimeResidualScale_B_Ar;
-	float nTrkvPhiScale_B;//obsolete
-	int nTrksperLB_B;
-	int nHitsperLB_B;
-	int nHLHitsperLB_B;
+	float m_DriftTimeonTrkDistScale_B;
+	float m_HLhitOnTrackScale_B;
+	float m_HtoLRatioOnTrackScale_B;
+	float m_HtoLRatioOnTrackScale_B_Ar;
+	float m_HtoLRatioOnTrackScale_B_Xe;
+	float m_NumSwLLWoTScale_B;
+	float m_WireToTrkPositionScale_B;
+	float m_WireToTrkPositionScale_B_Ar;
+	float m_TronTDistScale_B;
+	float m_ResidualScale_B;
+	float m_ResidualScale_B_20GeV;
+	float m_TimeResidualScale_B;
+	float m_DriftTimeonTrkDistScale_B_Ar;
+	float m_TronTDistScale_B_Ar;
+	float m_ResidualScale_B_Ar;
+	float m_ResidualScale_B_Ar_20GeV;
+	float m_TimeResidualScale_B_Ar;
+	float m_nTrkvPhiScale_B;//obsolete
+	int m_nTrksperLB_B;
+	int m_nHitsperLB_B;
+	int m_nHLHitsperLB_B;
 
-	float DriftTimeonTrkDistScale_E[2];
-	float HLhitOnTrackScale_E[2];
-	float HtoLRatioOnTrackScale_E[2];
-	float HtoLRatioOnTrackScale_E_Ar[2];
-	float HtoLRatioOnTrackScale_E_Xe[2];
-	float NumSwLLWoTScale_E[2];
-	float WireToTrkPositionScale_E[2];
-	float WireToTrkPositionScale_E_Ar[2];
-	float TronTDistScale_E[2];
-	float ResidualScale_E[2];
-	float ResidualScale_E_20GeV[2];
-	float TimeResidualScale_E[2];
-	float DriftTimeonTrkDistScale_E_Ar[2];
-	float TronTDistScale_E_Ar[2];
-	float ResidualScale_E_Ar[2];
-	float ResidualScale_E_Ar_20GeV[2];
-	float TimeResidualScale_E_Ar[2];
-	float nTrkvPhiScale_E[2];//obsolete
-	int nTrksperLB_E[2];
-	int nHitsperLB_E[2];
-	int nHLHitsperLB_E[2];
+	float m_DriftTimeonTrkDistScale_E[2];
+	float m_HLhitOnTrackScale_E[2];
+	float m_HtoLRatioOnTrackScale_E[2];
+	float m_HtoLRatioOnTrackScale_E_Ar[2];
+	float m_HtoLRatioOnTrackScale_E_Xe[2];
+	float m_NumSwLLWoTScale_E[2];
+	float m_WireToTrkPositionScale_E[2];
+	float m_WireToTrkPositionScale_E_Ar[2];
+	float m_TronTDistScale_E[2];
+	float m_ResidualScale_E[2];
+	float m_ResidualScale_E_20GeV[2];
+	float m_TimeResidualScale_E[2];
+	float m_DriftTimeonTrkDistScale_E_Ar[2];
+	float m_TronTDistScale_E_Ar[2];
+	float m_ResidualScale_E_Ar[2];
+	float m_ResidualScale_E_Ar_20GeV[2];
+	float m_TimeResidualScale_E_Ar[2];
+	float m_nTrkvPhiScale_E[2];//obsolete
+	int m_nTrksperLB_E[2];
+	int m_nHitsperLB_E[2];
+	int m_nHLHitsperLB_E[2];
 
 	/*
 	  ToolHandle<Trk::IPropagator> m_propagatorTool;
@@ -591,7 +591,7 @@ private:
 	float m_DistToStraw;
 	bool m_trt_only_trks;
 	bool m_zero_field;
-	bool DEBUG;//obsolete
+	bool m_DEBUG;//obsolete
 	bool m_printEventInfo;//obsolete
 	float m_longToTCut;
 	int m_nphi_bins;

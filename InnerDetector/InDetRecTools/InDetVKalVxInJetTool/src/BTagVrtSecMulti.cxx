@@ -668,7 +668,7 @@ const double VrtBCMassLimit=6000.;  // Mass limit to consider a vertex not comom
     struct MatchedSV { int indVrt; double Signif3D;}; std::vector<MatchedSV> matchSV(0);
     double Signif=0.; std::vector<double> Impact,ImpactError;
     for(int it=0; it<(int)nonusedTrk.size(); it++){
-      MatchedSV tmpV; tmpV.Signif3D=1.e9;
+      MatchedSV tmpV = {0, 1.e9};
       for(int iv=0; iv<(int)GoodVertices.size(); iv++){
         if(GoodVertices[iv].SelTrk.size()<2) continue;
         if     (RECwork)Signif = m_fitSvc->VKalGetImpact(RECwork->listJetTracks[nonusedTrk[it]], GoodVertices[iv].vertex, 1, Impact, ImpactError);

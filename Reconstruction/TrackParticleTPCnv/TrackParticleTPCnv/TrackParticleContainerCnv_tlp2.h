@@ -78,7 +78,7 @@
 //-----------------------------------------------------------------------------
 // Element Link for track collection
 //-----------------------------------------------------------------------------
-#include "DataModel/ElementLink.h" 
+#include "AthLinks/ElementLink.h" 
 #include "TrkTrack/TrackCollection.h"
 #include "VxVertex/VxContainer.h"
 

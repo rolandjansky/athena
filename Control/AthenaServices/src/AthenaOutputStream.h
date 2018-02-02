@@ -33,7 +33,6 @@ class StoreGateSvc;
 class IAthenaOutputStreamTool;
 class IAthenaOutputTool;
 class IItemListSvc;
-class UserDataSvc;
 
 namespace SG {
    class DataProxy;
@@ -50,7 +49,6 @@ namespace SG {
 class AthenaOutputStream : public FilteredAlgorithm,
                            virtual public IIncidentListener,
                            virtual public IIoComponent {
-   friend class UserDataSvc;
 
 public:
    typedef std::vector<SG::DataProxy*>     Items;

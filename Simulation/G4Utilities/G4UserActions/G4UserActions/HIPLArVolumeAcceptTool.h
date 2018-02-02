@@ -7,7 +7,7 @@
 
 #include "G4AtlasInterfaces/IG4SteppingActionTool.h"
 #include "G4AtlasInterfaces/IG4EventActionTool.h"
-#include "G4AtlasTools/ActionToolBase.h"
+#include "G4AtlasTools/UserActionToolBase.h"
 #include "G4UserActions/HIPLArVolumeAccept.h"
 
 namespace G4UA
@@ -15,9 +15,7 @@ namespace G4UA
 
   /// Tool which manages the HIPLArVolumeAccept action
   ///
-  class HIPLArVolumeAcceptTool : public ActionToolBaseReport<HIPLArVolumeAccept>,
-                                 public IG4SteppingActionTool,
-                                 public IG4EventActionTool
+  class HIPLArVolumeAcceptTool : public UserActionToolBase<HIPLArVolumeAccept>
   {
 
     public:
@@ -26,21 +24,14 @@ namespace G4UA
       HIPLArVolumeAcceptTool(const std::string& type, const std::string& name,
                              const IInterface* parent);
 
-      virtual G4UserSteppingAction* getSteppingAction() override final
-      { return static_cast<G4UserSteppingAction*>( getAction() ); }
-
-      virtual G4UserEventAction* getEventAction() override final
-      { return static_cast<G4UserEventAction*>( getAction() ); }
-
+      /// Finalize the tool
       virtual StatusCode finalize() override;
 
     protected:
 
-      virtual std::unique_ptr<HIPLArVolumeAccept> makeAction() override final;
-
-    //private:
-
-    //  HIPLArVolumeAccept::Report m_report;
+      /// Create the action for the current thread
+      virtual std::unique_ptr<HIPLArVolumeAccept>
+      makeAndFillAction(G4AtlasUserActions&) override final;
 
   }; // class HIPLArVolumeAcceptTool
 

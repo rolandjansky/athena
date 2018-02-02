@@ -10,7 +10,7 @@
 #include "MuonPrepRawData/sTgcPrepData.h"
 // needed classes
 #include "MuonPrepRawData/sTgcPrepDataContainer.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 
 typedef ElementLink<Muon::sTgcPrepDataContainer> ElementLinkToIDC_STGC_Container;
 

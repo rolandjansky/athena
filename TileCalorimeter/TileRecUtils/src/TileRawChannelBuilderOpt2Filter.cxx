@@ -72,7 +72,7 @@ TileRawChannelBuilderOpt2Filter::TileRawChannelBuilderOpt2Filter(const std::stri
   declareInterface< TileRawChannelBuilder >( this );
   declareInterface< TileRawChannelBuilderOpt2Filter >(this);
 
-  m_TileRawChannelContainerID = "TileRawChannelOpt2";
+  m_rawChannelContainerKey = "TileRawChannelOpt2";
   
   //declare properties
   declareProperty("TileCondToolTiming", m_tileToolTiming);
@@ -160,6 +160,8 @@ StatusCode TileRawChannelBuilderOpt2Filter::initialize() {
   if (m_bestPhase) {
     //=== get TileToolTiming
     CHECK( m_tileToolTiming.retrieve() );
+  } else {
+    m_tileToolTiming.disable();
   }
   
   ATH_MSG_INFO( "initialization completed" );

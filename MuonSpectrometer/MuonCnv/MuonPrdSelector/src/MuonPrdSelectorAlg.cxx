@@ -80,7 +80,7 @@ StatusCode MuonPrdSelectorAlg::initialize()
   
   try {     
     m_mdtPRDs_out = new Muon::MdtPrepDataContainer(m_mdtIdHelper->module_hash_max());
-  } catch(std::bad_alloc) {
+  } catch(const std::bad_alloc&) {
     ATH_MSG_FATAL( "Could not create a new MDT PrepRawData container!" );
     return StatusCode::FAILURE;
   }
@@ -90,7 +90,7 @@ StatusCode MuonPrdSelectorAlg::initialize()
     
     try {
       m_rpcPRDs_out = new Muon::RpcPrepDataContainer(m_rpcIdHelper->module_hash_max());
-    } catch(std::bad_alloc) {
+    } catch(const std::bad_alloc&) {
       ATH_MSG_FATAL( "Could not create a new RPC PrepRawData container!" );
       return StatusCode::FAILURE;
     }
@@ -98,7 +98,7 @@ StatusCode MuonPrdSelectorAlg::initialize()
 
     try {
       m_tgcPRDs_out = new Muon::TgcPrepDataContainer(m_tgcIdHelper->module_hash_max());
-    } catch(std::bad_alloc) {
+    } catch(const std::bad_alloc&) {
       ATH_MSG_FATAL( "Could not create a new TGC PrepRawData container!" );
       return StatusCode::FAILURE;
     }
@@ -107,7 +107,7 @@ StatusCode MuonPrdSelectorAlg::initialize()
     
     try {
       m_cscPRDs_out = new Muon::CscStripPrepDataContainer(m_cscIdHelper->module_hash_max());
-    } catch(std::bad_alloc) {
+    } catch(const std::bad_alloc&) {
       ATH_MSG_FATAL( "Could not create a new CSC PrepRawData container!" );
       return StatusCode::FAILURE;
     }

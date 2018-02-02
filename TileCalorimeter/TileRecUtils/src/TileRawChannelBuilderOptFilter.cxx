@@ -66,7 +66,7 @@ TileRawChannelBuilderOptFilter::TileRawChannelBuilderOptFilter(const std::string
   declareInterface< TileRawChannelBuilder >( this );
   declareInterface< TileRawChannelBuilderOptFilter >(this);
 
-  m_TileRawChannelContainerID = "TileRawChannelOpt";
+  m_rawChannelContainerKey = "TileRawChannelOpt";
 
   //declare properties
   declareProperty("MaxIterations", m_maxIterations = 5);

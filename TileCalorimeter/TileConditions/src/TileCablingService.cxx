@@ -257,7 +257,6 @@ TileCablingService::setConnected(int ros, int draMin, int draMax)
 
 Identifier
 TileCablingService::cell2tt_id ( const Identifier & id ) const
-  throw (CaloID_Exception, TileID_Exception)
 {
   // take only first pmt - might be wrong for D-cells
   return pmt2tt_id(m_tileID->pmt_id(id,0));
@@ -265,7 +264,6 @@ TileCablingService::cell2tt_id ( const Identifier & id ) const
 
 Identifier
 TileCablingService::pmt2tt_id ( const Identifier & id ) const
-  throw (CaloID_Exception)
 {
   int mineta[4] = { 0, 0,  9,  9 };
   int maxeta[4] = { 0, 8, 14, 14 };
@@ -331,7 +329,6 @@ TileCablingService::pmt2tt_id ( const Identifier & id ) const
 
 Identifier
 TileCablingService::cell2mt_id ( const Identifier & id ) const
-  throw (CaloID_Exception, TileID_Exception)
 {
   // take only first pmt - might be wrong for D0 cell
   return pmt2mt_id(m_tileID->pmt_id(id,0));
@@ -339,7 +336,6 @@ TileCablingService::cell2mt_id ( const Identifier & id ) const
 
 Identifier
 TileCablingService::pmt2mt_id ( const Identifier & id ) const
-  throw (CaloID_Exception)
 {
 //  int section  = m_tileID->section  (id);
   int side     = m_tileID->side     (id);
@@ -390,7 +386,6 @@ TileCablingService::pmt2mt_id ( const Identifier & id ) const
 
 Identifier
 TileCablingService::drawer2MBTS_id ( const HWIdentifier & hwid ) const
-  throw (TileID_Exception)
 {
   int ros      = m_tileHWID->ros     (hwid);
   int drawer   = m_tileHWID->drawer  (hwid);
@@ -454,7 +449,6 @@ TileCablingService::drawer2MBTS_id ( const HWIdentifier & hwid ) const
 
 Identifier
 TileCablingService::h2s_cell_id ( const HWIdentifier & hwid ) const
-  throw (TileID_Exception)
 {
   int ros      = m_tileHWID->ros     (hwid);
   int drawer   = m_tileHWID->drawer  (hwid);
@@ -554,7 +548,6 @@ TileCablingService::h2s_cell_id ( const HWIdentifier & hwid ) const
 
 Identifier
 TileCablingService::h2s_cell_id_index_find ( int ros, int drawer, int channel, int & index, int & pmt ) const
-  throw (TileID_Exception)
 {
   if ( EB_special(ros,drawer) ) {
     if ( D4(channel) ) { index = pmt = -1; return m_invalid_id; }
@@ -685,7 +678,6 @@ TileCablingService::h2s_cell_id_index_find ( int ros, int drawer, int channel, i
 
 Identifier
 TileCablingService::h2s_pmt_id ( const HWIdentifier & hwid ) const
-  throw (TileID_Exception)
 {
   int ros      = m_tileHWID->ros     (hwid);
   int drawer   = m_tileHWID->drawer  (hwid);
@@ -793,7 +785,6 @@ TileCablingService::h2s_pmt_id ( const HWIdentifier & hwid ) const
 
 Identifier
 TileCablingService::h2s_adc_id ( const HWIdentifier & hwid ) const
-  throw (TileID_Exception)
 {
   int ros      = m_tileHWID->ros     (hwid);
   int drawer   = m_tileHWID->drawer  (hwid);
@@ -972,7 +963,6 @@ TileCablingService::s2h_drawer_id ( const Identifier & swid ) const
 
 HWIdentifier
 TileCablingService::s2h_channel_id ( const Identifier & swid ) const
-  throw (TileID_Exception)
 {
   int section  = m_tileID->section  (swid);
   int ros, drawer, channel;
@@ -1055,7 +1045,6 @@ TileCablingService::s2h_channel_id ( const Identifier & swid ) const
 
 HWIdentifier
 TileCablingService::s2h_adc_id ( const Identifier & swid ) const
-  throw (TileID_Exception)
 {
   int section  = m_tileID->section  (swid);
   int ros, drawer, channel;
@@ -2216,7 +2205,7 @@ TileCablingService::fillH2SIdCache(void) {
 
 Identifier
 TileCablingService::h2s_cell_id_index ( const HWIdentifier & hwid, int & index, int & pmt ) const
-  throw (TileID_Exception) {
+{
   int ros      = m_tileHWID->ros     (hwid);
   int drawer   = m_tileHWID->drawer  (hwid);
   int channel  = m_tileHWID->channel (hwid);  
@@ -2230,7 +2219,7 @@ TileCablingService::h2s_cell_id_index ( const HWIdentifier & hwid, int & index, 
 
 Identifier
 TileCablingService::h2s_cell_id_index (int ros, int drawer, int channel, int& index, int& pmt ) const  
-  throw (TileID_Exception) {
+{
 
   if (m_isCacheFilled && ros != TileHWID::BEAM_ROS) {
     return h2s_cell_id_index_from_cache(ros, drawer, channel, index, pmt);

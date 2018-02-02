@@ -64,9 +64,6 @@
 
    CPCMX( const std::string& name, ISvcLocator* pSvcLocator ) ;
 
-   virtual ~CPCMX();
-
-
    //------------------------------------------------------
    // Methods used by Athena to run the algorithm
    //------------------------------------------------------

@@ -19,7 +19,7 @@
   #ifndef CPMCMXDATA_H
   #define CPMCMXDATA_H
   
-  #include "CLIDSvc/CLASS_DEF.h"
+  #include "AthenaKernel/CLASS_DEF.h"
   #include "TrigT1CaloEvent/CPMTobRoI.h"
 
   namespace LVL1 {

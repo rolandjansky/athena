@@ -110,7 +110,7 @@ StatusCode VarHandleKey::assign (const std::string& sgkey)
 StatusCode VarHandleKey::initialize (bool used /*= true*/)
 {
   if (!used) {
-    Gaudi::DataHandle::updateKey (m_storeHandle.name() + storeSeparator);
+    Gaudi::DataHandle::updateKey ( "" );
     m_sgKey = "";
     return StatusCode::SUCCESS;
   }

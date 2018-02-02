@@ -83,12 +83,7 @@ TRTProcessingOfStraw::TRTProcessingOfStraw(const TRTDigSettings* digset,
 
 {
   ATH_MSG_VERBOSE ( "TRTProcessingOfStraw::Constructor begin" );
-
   Initialize(atRndmGenSvc);
-
-  //m_clusterlist.reserve(400); //distribution peaks much lower, but this is about the max size seen at <mu>=40.
-  //m_depositList.reserve(400);  //distribution peaks much lower, but this is about the max size seen at <mu>=40.
-
   ATH_MSG_VERBOSE ( "Constructor done" );
 }
 
@@ -110,23 +105,18 @@ void TRTProcessingOfStraw::Initialize(ServiceHandle <IAtRndmGenSvc> atRndmGenSvc
   m_useAttenuation         = m_settings->useAttenuation();
   m_innerRadiusOfStraw     = m_settings->innerRadiusOfStraw();
   m_outerRadiusOfWire      = m_settings->outerRadiusOfWire();
-  m_outerRadiusEndcap      = m_settings->outerRadiusEndcap();
-  m_innerRadiusEndcap      = m_settings->innerRadiusEndcap();
-  m_strawLengthBarrel      = m_settings->strawLengthBarrel();
   m_timeCorrection         = m_settings->timeCorrection();        // false for beamType='cosmics'
   m_solenoidFieldStrength  = m_settings->solenoidFieldStrength();
-
   m_ionisationPotential    = m_settings->ionisationPotential(0);  // strawGasType=0 here just to initialize
   m_smearingFactor         = m_settings->smearingFactor(0);       // to keep coverity happy. Reset correctly later.
   m_trEfficiencyBarrel     = m_settings->trEfficiencyBarrel(0);   //
-  m_trEfficiencyEndCapA     = m_settings->trEfficiencyEndCapA(0);   //
-  m_trEfficiencyEndCapB     = m_settings->trEfficiencyEndCapB(0);
+  m_trEfficiencyEndCapA    = m_settings->trEfficiencyEndCapA(0);  //
+  m_trEfficiencyEndCapB    = m_settings->trEfficiencyEndCapB(0);  //
 
   m_maxelectrons = 100; // 100 gives good Gaussian approximation
 
   if (m_pPAItoolXe==NULL) {
     ATH_MSG_FATAL ( "TRT_PAITool for Xenon not defined! no point in continuing!" );
-    // throw?
   }
   if (m_pPAItoolKr==NULL) {
     ATH_MSG_ERROR ( "TRT_PAITool for Krypton is not defined!!! Xenon TRT_PAITool will be used for Krypton straws!" );
@@ -158,20 +148,16 @@ void TRTProcessingOfStraw::Initialize(ServiceHandle <IAtRndmGenSvc> atRndmGenSvc
   //Create our own engine with own seeds:
   m_pHRengine = atRndmGenSvc->GetEngine("TRT_ProcessStraw");
 
-  // Tabulate exp(-dist/m_attenuationLength) as a function of
-  // dist = time*m_signalPropagationSpeed [0.0 mm ,1419.9 mm]
-  // otherwise we are doing an exp() for every cluster!
-  // > 99.9% of output digits are the same, saves 13% CPU time.
-  m_expattenuation.reserve(142);
-  for (unsigned int k=0; k<142; k++) {
+  // Tabulate exp(-dist/m_attenuationLength) as a function of dist = time*m_signalPropagationSpeed [0.0 mm, 1500 mm)
+  // otherwise we are doing an exp() for every cluster! > 99.9% of output digits are the same, saves 13% CPU time.
+  m_expattenuation.reserve(150);
+  for (unsigned int k=0; k<150; k++) {
     double dist = 10.0*(k+0.5); // [5mm, 1415mm] max 5 mm error (sigma = 3 mm)
     m_expattenuation.push_back(exp(-dist/m_attenuationLength));
   }
 
-  //For the field effect on drifttimes in this class we will assume
-  //that the local x,y coordinates of endcap straws are such that the
-  //local y-direction is parallel to the global z-direction. As a
-  //sanity check against future code developments we will test this
+  //For the field effect on drifttimes in this class we will assume that the local x,y coordinates of endcap straws are such that the
+  //local y-direction is parallel to the global z-direction. As a sanity check against future code developments we will test this
   //assumption on one straw from each endcap layer.
 
   if (m_solenoidFieldStrength!=0.0)
@@ -290,17 +276,20 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i,
                                           double cosmicEventPhase, // const ComTime* m_ComTime,
                                           int strawGasType,
 					  bool emulationArflag,
-					  bool emulationKrflag,
-                                          unsigned short & particleFlag )
+					  bool emulationKrflag)
 {
 
   //////////////////////////////////////////////////////////
   // We need the straw id several times in the following  //
   //////////////////////////////////////////////////////////
   const int hitID((*i)->GetHitID());
-  const bool isBarrel(!(hitID & 0x00200000));
-  const bool isECA(getRegion(hitID)==3);
-  const bool isECB(getRegion(hitID)==4);
+  unsigned int region(getRegion(hitID));
+  const bool isBarrel(region<3 );
+  //const bool isEC    (!isBarrel);
+  //const bool isShort (region==1);
+  //const bool isLong  (region==2);
+  const bool isECA   (region==3);
+  const bool isECB   (region==4);
 
   //////////////////////////////////////////////////////////
   //======================================================//
@@ -369,18 +358,11 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i,
 	{
 
           const double energyDeposit = (*theHit)->GetEnergyDeposit(); // keV (see comment below)
-
-          // particleFlag
-          if (energyDeposit<30.0) {
-            particleFlagSetBit(1, particleFlag); // mostly TR
-          } else {
-            particleFlagSetBit(2, particleFlag); // mostly brem.
-          }
-
           // Apply radiator efficiency "fudge factor" to ignore some TR photons (assuming they are over produced in the sim. step.
           // The fraction removed is based on tuning pHT for electrons to data, after tuning pHT for muons (which do not produce TR).
           // The efficiency is different for Xe, Kr and Ar. Avoid fudging non-TR photons (TR is < 30 keV).
           // Also: for |eta|<0.5 apply parabolic scale; see "Parabolic Fudge" https://indico.cern.ch/event/304066/
+
           if ( energyDeposit<30.0 ) {
 
 	    double ArEmulationScaling_BA = 0.15;
@@ -436,37 +418,11 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i,
                  (static_cast<int>(abs(particleEncoding)/100000) == 100) &&
                  (static_cast<int>((abs(particleEncoding))-10000000)/100>10)) )
         {
-          particleFlagSetBit(15, particleFlag); // HIP
 	  m_clusterlist.push_back(
              cluster((*theHit)->GetEnergyDeposit()*CLHEP::keV, timeOfHit, (*theHit)->GetPostStepX(), (*theHit)->GetPostStepY(), (*theHit)->GetPostStepZ() )
              );
         }
       else { // It's not a photon, monopole or Qball with charge > 10, so we proceed with regular ionization using the PAI model
-
-          // particleFlag for charged particles
-          if (abs(particleEncoding)==11) {
-            if (particleEncoding== 11) particleFlagSetBit(3, particleFlag); // any electron
-            if (particleEncoding==-11) particleFlagSetBit(4, particleFlag); // any positron
-            if (particleEncoding== 11 && (*theHit)->GetKineticEnergy() > 10000.*CLHEP::MeV ) particleFlagSetBit(5, particleFlag); // hard electron
-            if (particleEncoding==-11 && (*theHit)->GetKineticEnergy() > 10000.*CLHEP::MeV ) particleFlagSetBit(6, particleFlag); // hard positron
-           }
-          else if (abs(particleEncoding)==13) {
-              particleFlagSetBit(7, particleFlag); // muon
-              if ((*theHit)->GetKineticEnergy() > 10000.*CLHEP::MeV) particleFlagSetBit(8, particleFlag); // hard muon
-            }
-          else if (abs(particleEncoding)==211)  {
-              particleFlagSetBit( 9, particleFlag); // pion
-              if ((*theHit)->GetKineticEnergy() > 10000.*CLHEP::MeV) particleFlagSetBit(10, particleFlag); // hard pion
-            }
-          else if (abs(particleEncoding)==321)  {
-              particleFlagSetBit(11, particleFlag); // kaon
-            }
-          else if (abs(particleEncoding)==2212) {
-              particleFlagSetBit(12, particleFlag); // proton
-            }
-          else {
-              particleFlagSetBit(13, particleFlag); // other charged particle
-            }
 
 	  // Lookup mass and charge from the PDG info in CLHEP HepPDT:
 	  const HepPDT::ParticleData *particle(m_pParticleTable->particle(HepPDT::ParticleID(abs(particleEncoding))));
@@ -608,9 +564,20 @@ void TRTProcessingOfStraw::ClustersToDeposits (const int& hitID,
                                                int strawGasType)
 {
 
+  //
   // Some initial work before looping over the cluster
+  //
+
   deposits.clear();
-  const bool isBarrel(!(hitID & 0x00200000));
+
+  unsigned int region(getRegion(hitID));
+  const bool isBarrel(region<3 );
+  const bool isEC    (!isBarrel);
+  const bool isShort (region==1);
+  const bool isLong  (region==2);
+  //const bool isECA   (region==3);
+  //const bool isECB   (region==4);
+
   m_ionisationPotential = m_settings->ionisationPotential(strawGasType);
   m_smearingFactor      = m_settings->smearingFactor(strawGasType);
 
@@ -665,10 +632,6 @@ void TRTProcessingOfStraw::ClustersToDeposits (const int& hitID,
   const double  wire_r2 = m_outerRadiusOfWire*m_outerRadiusOfWire;
   const double straw_r2 = m_innerRadiusOfStraw*m_innerRadiusOfStraw;
 
-  // straw length
-  const double halfECstrawLength = (m_outerRadiusEndcap-m_innerRadiusEndcap)/2;
-  const double quartBstrawLength = m_strawLengthBarrel/4;
-
   // Cluster loop
   for (;currentClusterIter!=endOfClusterList;++currentClusterIter)
     {
@@ -678,23 +641,30 @@ void TRTProcessingOfStraw::ClustersToDeposits (const int& hitID,
       const double cluster_z(currentClusterIter->zpos);
       const double cluster_x2(cluster_x*cluster_x);
       const double cluster_y2(cluster_y*cluster_y);
-
       double cluster_r2(cluster_x2+cluster_y2);
 
-      // Give a warning for clusters that are outside of the straw gas volume.
-      // Since T/P version 3 we should expect no such occurences (allow for 22.5 mm compression error).
-      if ( cluster_r2 > straw_r2+0.04 ) {
-        ATH_MSG_WARNING ( "Radius of cluster: "<<std::sqrt(cluster_r2)<<" mm is outside gas volume!" );
+      // The active gas volume along the straw z-axis is: Barrel long +-349.315 mm; Barrel short +-153.375 mm; End caps +-177.150 mm.
+      // Here we give a warning for clusters that are outside of the straw gas volume in in z. Since T/P version 3 cluster z values
+      // can go several mm outside these ranges; 30 mm is plenty allowance in the checks below.
+      const double  longBarrelStrawHalfLength(349.315*CLHEP::mm);
+      const double shortBarrelStrawHalfLength(153.375*CLHEP::mm);
+      const double      EndcapStrawHalfLength(177.150*CLHEP::mm);
+      if ( isLong  && fabs(cluster_z)>longBarrelStrawHalfLength+30 ) {
+        double d = cluster_z<0 ? cluster_z+longBarrelStrawHalfLength : cluster_z-longBarrelStrawHalfLength;
+        ATH_MSG_WARNING ("Long barrel straw cluster is outside the active gas volume z = +- 349.315 mm by " << d << " mm.");
       }
-      if (!isBarrel) {
-        if ( fabs(cluster_z) > halfECstrawLength + 22.5*CLHEP::mm ) ATH_MSG_WARNING ( "z value of cluster: "<<cluster_z<<" mm is outside gas volume!" );
-      } else { // (fixme: does not check inner 9 strawlayers dead region )
-        if ( fabs(cluster_z) > quartBstrawLength + 22.5*CLHEP::mm ) ATH_MSG_WARNING ( "z value of cluster: "<<cluster_z<<" mm is outside gas volume!" );
+      if ( isShort && fabs(cluster_z)>shortBarrelStrawHalfLength+30 ) {
+        double d = cluster_z<0 ? cluster_z+shortBarrelStrawHalfLength : cluster_z-shortBarrelStrawHalfLength;
+        ATH_MSG_WARNING ("Short barrel straw cluster is outside the active gas volume z = +- 153.375 mm by " << d << " mm.");
+      }
+      if ( isEC    && fabs(cluster_z)>EndcapStrawHalfLength+30 ) {
+        double d = cluster_z<0 ? cluster_z+EndcapStrawHalfLength : cluster_z-EndcapStrawHalfLength;
+        ATH_MSG_WARNING ("End cap straw cluster is outside the active gas volume z = +- 177.150 mm by " << d << " mm.");
       }
 
-      // Basic checks on radius for getAverageDriftTime() so that function does not need to check this.
+      // These may never occur, but could be very problematic for getAverageDriftTime(), so check and correct this now.
       if (cluster_r2<wire_r2)  cluster_r2=wire_r2;  // Compression may (v. rarely) cause r to be smaller than the wire radius. If r=0 then NaN's later!
-      if (cluster_r2>straw_r2) cluster_r2=straw_r2; // Again small error from compression, but might never occur.
+      if (cluster_r2>straw_r2) cluster_r2=straw_r2; // Should never occur
 
       const double cluster_r(std::sqrt(cluster_r2));      // cluster radius
       const double cluster_E(currentClusterIter->energy); // cluster energy
@@ -742,7 +712,7 @@ void TRTProcessingOfStraw::ClustersToDeposits (const int& hitID,
 	}
       else // Barrel
 	{
-          if (m_useMagneticFieldMap) { // Using magnetic field map (here bug #91830 is fixed)
+          if (m_useMagneticFieldMap) { // Using magnetic field map (here bug #91830 is corrected)
               effectiveField2 = map_z2 + (map_x2+map_y2)*cluster_y2/cluster_r2;
           }
           else { // Without the mag field map (very small change in digi output)
@@ -770,28 +740,27 @@ void TRTProcessingOfStraw::ClustersToDeposits (const int& hitID,
 
       // get the wire propagation times (for direct and reflected signals)
       double timedirect(0.), timereflect(0.);
-      m_pTimeCorrection->PropagationTime( hitID, currentClusterIter->zpos, timedirect, timereflect );
+      m_pTimeCorrection->PropagationTime( hitID, cluster_z, timedirect, timereflect );
 
       // While we have the propagation times, we can calculate the exponential attenuation factor
       double expdirect(1.0), expreflect(1.0); // Initially set to "no attenuation".
       if (m_useAttenuation)
         {
-           // Tabulate this to save 13% CPU
            //expdirect  = exp( -timedirect *m_signalPropagationSpeed / m_attenuationLength);
            //expreflect = exp( -timereflect*m_signalPropagationSpeed / m_attenuationLength);
-
-           // Distances the signal propagate along the wire.
-           double distdirect  = timedirect *m_signalPropagationSpeed;
-           double distreflect = timereflect*m_signalPropagationSpeed;
-           if (distdirect<0) distdirect=0.0; // Rarely (<0.2%) we get a few mm negative distance due to z compression.
-           if (distreflect>1419.9) distreflect=1419.9; // Very rarely, few mm.
-
-           // Tabulating exp(-dist/m_attenuationLength) with only 142 elements: index [0,141].
-           // > 99.9% of output digits are the same, saves 13% CPU time.
-           unsigned int kdirect  = static_cast<unsigned int>(distdirect/10);
-           unsigned int kreflect = static_cast<unsigned int>(distreflect/10);
-           expdirect  = m_expattenuation[kdirect];
-           expreflect = m_expattenuation[kreflect];
+           // Tabulating exp(-dist/m_attenuationLength) with only 150 elements: index [0,149].
+           //   > 99.9% of output digits are the same, saves 13% CPU time.
+           // Distances the signal propagate along the wire:
+           // * distdirect is rarely negative (<0.2%) by ~ mm. In such cases there is
+           //   no attenuation, which is equivalent to distdirect=0 and so is good.
+           // * distreflect is always +ve and less than 1500, and so is good.
+           // The code is protected against out of bounds in anycase.
+           const double distdirect  = timedirect *m_signalPropagationSpeed;
+           const double distreflect = timereflect*m_signalPropagationSpeed;
+           const unsigned int kdirect  = static_cast<unsigned int>(distdirect/10);
+           const unsigned int kreflect = static_cast<unsigned int>(distreflect/10);
+           if (kdirect<150) expdirect  = m_expattenuation[kdirect];    // otherwise there
+           if (kreflect<150) expreflect = m_expattenuation[kreflect];  // is no attenuation.
         }
 
       // Finally, deposit the energy on the wire using the drift-time tool (diffusion is no longer available).
@@ -867,42 +836,8 @@ Amg::Vector3D TRTProcessingOfStraw::getGlobalPosition (  int hitID, const TimedH
 }
 
 //________________________________________________________________________________
-/*
- particleFlag in an unsigned short that can be set to record
- the presence of up to 16 different G4hit particle types/energies.
- This can be queried in the TRTDigitizationTool class for
- studies at the Digitization level. e.g. HIP and PID studies.
-
- Bits 0 to 15 represent the straw was hit at least once by a:
-
- bit  pdg  Particle type
- 0         spare
- 1     22  photon < 0.030MeV (mostly TR)
- 2     22  photon > 0.030MeV (mostly brem)
- 3     11  electron
- 4    -11  positron
- 5     11  electron > 10 GeV
- 6    -11  positron > 10 GeV
- 7     13  muon
- 8     13  muon > 10 GeV
- 9    211  pion
- 10   211  pion > 10 GeV
- 11   321  kaon
- 12  2212  proton
- 13        other charged particle
- 14        spare
- 15        HIP
-*/
-void TRTProcessingOfStraw::particleFlagSetBit(int bitposition, unsigned short &particleFlag) const {
-  if ( bitposition >=0 && bitposition < 16) {
-    particleFlag |= (1 << bitposition);
-  } else {
-    ATH_MSG_WARNING ( "Trying to set bit position " << bitposition << " in unsigned short m_particleFlag !");
-  }
-}
-
 unsigned int TRTProcessingOfStraw::getRegion(int hitID) {
-// 1=barrelShort, 2=barrelLong, 3=ECA, 4=ECB
+// 1=barrelShort, 2=barrelLong, 3=ECwheelA, 4=ECwheelB
   const int mask(0x0000001F);
   const int word_shift(5);
   int layerID, ringID, wheelID;

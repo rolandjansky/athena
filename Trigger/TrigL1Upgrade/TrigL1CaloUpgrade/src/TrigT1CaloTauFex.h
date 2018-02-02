@@ -40,11 +40,11 @@ private :
         /** list of visible true taus */
         std::vector<TLorentzVector> m_true_vistau;
         /** list of Isolation cells */
-        std::vector<CaloCell*> m_IsoCells;
+        std::vector<const CaloCell*> m_IsoCells;
         /** list of Isolation cells */
-        std::vector<CaloCell*> m_CoreCells;
+        std::vector<const CaloCell*> m_CoreCells;
         /** list of RoI */
-        std::vector<CaloCell*> m_RoICells;
+        std::vector<const CaloCell*> m_RoICells;
         /** list of Core  energy */
         std::vector<float> m_CoreEnergy;
         /** list of Iso energy */
@@ -56,10 +56,17 @@ private :
 
         void ExamineTruthTau(const xAOD::TruthParticle& xTruthParticle) const;
         void Truth(const xAOD::TruthParticleContainer* truthContainer);
-        void IsolationCorett(const CaloCellContainer* scells, const CaloCell* cell, std::vector<CaloCell*>& out1, std::vector<CaloCell*>& out2);
-        void IsolationCore(const CaloCellContainer* scells, const CaloCell* cell, std::vector<CaloCell*>& out1, std::vector<CaloCell*>& out2, std::vector<std::vector<float>>& out);
-        void sumEMCoreCells(const std::vector<CaloCell*>& cell, std::vector<CaloCell*>& out1, std::vector<float>& out2);
-        void sumEMIsoCells(const std::vector<CaloCell*>& cell, std::vector<float>& out);
+        void IsolationCorett(const std::vector<const CaloCell*>& scells,
+                             const CaloCell* cell,
+                             std::vector<const CaloCell*>& out1,
+                             std::vector<const CaloCell*>& out2);
+        void IsolationCore(const std::vector<const CaloCell*>& scells,
+                           const CaloCell* cell,
+                           std::vector<const CaloCell*>& out1,
+                           std::vector<const CaloCell*>& out2,
+                           std::vector<std::vector<float>>& out);
+        void sumEMCoreCells(const std::vector<const CaloCell*>& cell, std::vector<const CaloCell*>& out1, std::vector<float>& out2);
+        void sumEMIsoCells(const std::vector<const CaloCell*>& cell, std::vector<float>& out);
 
 	// sorting utils
         template <typename T, typename Compare> std::vector<std::size_t> sort_permutation( const std::vector<T>& vec, Compare compare);

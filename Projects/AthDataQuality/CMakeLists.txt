@@ -11,12 +11,12 @@ set( ATHDATAQUALITY_PROJECT_VERSION ${_version}
 unset( _version )
 
 # Set the version of tdaq-common to use for the build:
-set( TDAQ-COMMON_VERSION "02-02-00" )
+set( TDAQ-COMMON_VERSION "02-04-00" )
 set( TDAQ-COMMON_ROOT
    "$ENV{TDAQ_RELEASE_BASE}/tdaq-common/tdaq-common-${TDAQ-COMMON_VERSION}" )
 
 # Set the version of dqm-common to use for the build:
-set( DQM-COMMON_VERSION "01-02-00" )
+set( DQM-COMMON_VERSION "01-04-00" )
 set( DQM-COMMON_ROOT
    "$ENV{TDAQ_RELEASE_BASE}/dqm-common/dqm-common-${DQM-COMMON_VERSION}" )
 
@@ -26,13 +26,14 @@ find_package( AtlasCMake REQUIRED )
 # Build the project against LCG:
 set( LCG_VERSION_POSTFIX ""
    CACHE STRING "Version postfix for the LCG release to use" )
-set( LCG_VERSION_NUMBER 88
+set( LCG_VERSION_NUMBER 91
    CACHE STRING "Version number for the LCG release to use" )
 find_package( LCG ${LCG_VERSION_NUMBER} EXACT REQUIRED )
 
-#find_package( ROOT )
+# External(s) needed at runtime:
 find_package( Xrootd )
 find_package( GSL )
+find_package( PNG )
 
 # Make CMake find the project specific code we have here:
 list( INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/modules )

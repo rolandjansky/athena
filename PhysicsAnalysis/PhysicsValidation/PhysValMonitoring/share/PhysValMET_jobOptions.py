@@ -16,12 +16,14 @@ tool1.JVTTool = jvtTool
 
 mettoolTopo = CfgMgr.met__METMaker('METMaker_AntiKt4Topo',
                                    JetSelection="Default",
+                                   JetJvtMomentName="NewJvt",
                                    DoPFlow=False)
 ToolSvc += mettoolTopo
 tool1.METMakerTopo = mettoolTopo
 
 mettoolPFlow = CfgMgr.met__METMaker('METMaker_AntiKt4PFlow',
                                     JetSelection="PFlow",
+                                    JetJvtMomentName="NewJvt",
                                     DoPFlow=True)
 ToolSvc += mettoolPFlow
 tool1.METMakerPFlow = mettoolPFlow

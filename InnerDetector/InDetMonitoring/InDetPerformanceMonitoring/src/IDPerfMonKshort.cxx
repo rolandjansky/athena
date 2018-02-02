@@ -427,7 +427,7 @@ StatusCode IDPerfMonKshort::fillHistograms()
     ATH_MSG_DEBUG("No collection with name "<<m_VxPrimContainerName<<" found in StoreGate");
     return StatusCode::SUCCESS;
   }
-  xAOD::Vertex *primaryVertex= std::begin(*PrimVxContainer)[0];
+  const xAOD::Vertex *primaryVertex= std::begin(*PrimVxContainer)[0];
 
 const xAOD::VertexContainer* SecVxContainer(0);
  if(evtStore()->contains<xAOD::VertexContainer>(m_VxContainerName)){

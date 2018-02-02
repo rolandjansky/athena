@@ -1,13 +1,13 @@
-Wed Dec  6 20:09:07 CET 2017
+Wed Dec 13 13:37:55 CET 2017
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [AthenaWorkDir-22.0.0] [x86_64-slc6-gcc62-dbg] [atlas-work3/b8b99ab992] -- built on [2017-12-06T1522]
+Py:Athena            INFO using release [AthenaWorkDir-22.0.0] [x86_64-slc6-gcc62-dbg] [atlas-work3/5c32a9a2b2] -- built on [2017-12-13T1129]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "AthExJobOptions/AthExJobOptions_BasicJobOptions.py"
-Py:ConfigurableDb    INFO Read module info for 5437 configurables from 59 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5439 configurables from 37 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Py:Athena            INFO Can't set int to string property (this is correct)
 Py:Athena            INFO Can't set non-existing property (this is correct)
@@ -46,7 +46,6 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 |-StopOverride               = False
 |-TimeOut                    = 0.0
 |-Timeline                   = True
-|-UserStore                  = ServiceHandle('UserDataSvc/UserDataSvc')
 |=/***** Algorithm TopAlgorithm/TopAlgorithm *********************************************************
 | |-AuditAlgorithms            = False
 | |-AuditBeginRun              = False
@@ -85,7 +84,6 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 | |-TheTool                    = PrivateToolHandle('ToolSpace::TemplatedTool<double>/TSTT')
 | |                            (default: 'ToolUsingTool')
 | |-Timeline                   = True
-| |-UserStore                  = ServiceHandle('UserDataSvc/UserDataSvc')
 | |=/***** Private AlgTool ToolSpace::TemplatedTool<double>/TSTT ***************************************
 | | |-AuditFinalize     = False
 | | |-AuditInitialize   = False
@@ -102,7 +100,6 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 | | |-Factor            = 1.0
 | | |-MonitorService    = 'MonitorSvc'
 | | |-OutputLevel       = 2  (default: 0)
-| | |-UserStore         = ServiceHandle('UserDataSvc/UserDataSvc')
 | | \----- (End of Private AlgTool ToolSpace::TemplatedTool<double>/TSTT) ------------------------------
 | |=/***** Private AlgTool ConcreteTool/Tool1 **********************************************************
 | | |-AuditFinalize     = False
@@ -120,7 +117,6 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 | | |-Factor            = 1.0
 | | |-MonitorService    = 'MonitorSvc'
 | | |-OutputLevel       = 2  (default: 0)
-| | |-UserStore         = ServiceHandle('UserDataSvc/UserDataSvc')
 | | \----- (End of Private AlgTool ConcreteTool/Tool1) -------------------------------------------------
 | |=/***** Private AlgTool ToolUsingTool/Tool2 *********************************************************
 | | |-AuditFinalize     = False
@@ -141,7 +137,6 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 | | |-TheToolPubTool    = PublicToolHandle('ConcreteTool/PublicConcreteTool')
 | | |-TheToolTool       = PrivateToolHandle('ConcreteTool/ConcreteTool')  (default: 'ConcreteTool')
 | | |-TheToolToolArray  = PrivateToolHandleArray(['ConcreteTool/CxxDefaultTool'])
-| | |-UserStore         = ServiceHandle('UserDataSvc/UserDataSvc')
 | | |=/***** Private AlgTool ConcreteTool/ConcreteTool ***************************************************
 | | | |-AuditFinalize     = False
 | | | |-AuditInitialize   = False
@@ -158,7 +153,6 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 | | | |-Factor            = 1.0
 | | | |-MonitorService    = 'MonitorSvc'
 | | | |-OutputLevel       = 2  (default: 0)
-| | | |-UserStore         = ServiceHandle('UserDataSvc/UserDataSvc')
 | | | \----- (End of Private AlgTool ConcreteTool/ConcreteTool) ------------------------------------------
 | | |=/***** Private AlgTool ConcreteTool/CxxDefaultTool *************************************************
 | | | |-AuditFinalize     = False
@@ -176,7 +170,6 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 | | | |-Factor            = 1.0
 | | | |-MonitorService    = 'MonitorSvc'
 | | | |-OutputLevel       = 2  (default: 0)
-| | | |-UserStore         = ServiceHandle('UserDataSvc/UserDataSvc')
 | | | \----- (End of Private AlgTool ConcreteTool/CxxDefaultTool) ----------------------------------------
 | | \----- (End of Private AlgTool ToolUsingTool/Tool2) ------------------------------------------------
 | |=/***** Private AlgTool ToolSpace::TemplatedTool<double>/Tool3 **************************************
@@ -195,7 +188,6 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 | | |-Factor            = 1.0
 | | |-MonitorService    = 'MonitorSvc'
 | | |-OutputLevel       = 2  (default: 0)
-| | |-UserStore         = ServiceHandle('UserDataSvc/UserDataSvc')
 | | \----- (End of Private AlgTool ToolSpace::TemplatedTool<double>/Tool3) -----------------------------
 | \----- (End of Algorithm TopAlgorithm/TopAlgorithm) ------------------------------------------------
 |=/***** Algorithm TopAlgorithm/MyAlg ****************************************************************
@@ -237,7 +229,6 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 | |-TheSvc                     = ServiceHandle('QotdSvc')  (default: 'ConcreteSvc')
 | |-TheTool                    = PrivateToolHandle('ToolUsingTool/ToolUsingTool')  (default: 'ToolUsingTool')
 | |-Timeline                   = True
-| |-UserStore                  = ServiceHandle('UserDataSvc/UserDataSvc')
 | |=/***** Private AlgTool ConcreteTool/PyCT1 **********************************************************
 | | |-AuditFinalize     = False
 | | |-AuditInitialize   = False
@@ -254,7 +245,6 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 | | |-Factor            = 1.0
 | | |-MonitorService    = 'MonitorSvc'
 | | |-OutputLevel       = 2  (default: 0)
-| | |-UserStore         = ServiceHandle('UserDataSvc/UserDataSvc')
 | | \----- (End of Private AlgTool ConcreteTool/PyCT1) -------------------------------------------------
 | |=/***** Private AlgTool ConcreteTool/PyCT2 **********************************************************
 | | |-AuditFinalize     = False
@@ -272,7 +262,6 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 | | |-Factor            = 1.0
 | | |-MonitorService    = 'MonitorSvc'
 | | |-OutputLevel       = 2  (default: 0)
-| | |-UserStore         = ServiceHandle('UserDataSvc/UserDataSvc')
 | | \----- (End of Private AlgTool ConcreteTool/PyCT2) -------------------------------------------------
 | |=/***** Private AlgTool ToolSpace::TemplatedTool<double>/PyTSTT3 ************************************
 | | |-AuditFinalize     = False
@@ -290,7 +279,6 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 | | |-Factor            = 30  (default: 1.0)
 | | |-MonitorService    = 'MonitorSvc'
 | | |-OutputLevel       = 2  (default: 0)
-| | |-UserStore         = ServiceHandle('UserDataSvc/UserDataSvc')
 | | \----- (End of Private AlgTool ToolSpace::TemplatedTool<double>/PyTSTT3) ---------------------------
 | |=/***** Private AlgTool ToolSpace::TemplatedTool<double>/PyTSTT4 ************************************
 | | |-AuditFinalize     = False
@@ -308,7 +296,6 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 | | |-Factor            = 40  (default: 1.0)
 | | |-MonitorService    = 'MonitorSvc'
 | | |-OutputLevel       = 2  (default: 0)
-| | |-UserStore         = ServiceHandle('UserDataSvc/UserDataSvc')
 | | \----- (End of Private AlgTool ToolSpace::TemplatedTool<double>/PyTSTT4) ---------------------------
 | |=/***** Private AlgTool ToolUsingTool/Special *******************************************************
 | | |-AuditFinalize     = False
@@ -331,7 +318,6 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 | | |                   (default: 'ConcreteTool')
 | | |-TheToolToolArray  = PrivateToolHandleArray(['ConcreteTool/PySpSubTool'])
 | | |                   (default: "['ConcreteTool/CxxDefaultTool']")
-| | |-UserStore         = ServiceHandle('UserDataSvc/UserDataSvc')
 | | |=/***** Private AlgTool ConcreteTool/PySpSubTool ****************************************************
 | | | |-AuditFinalize     = False
 | | | |-AuditInitialize   = False
@@ -348,7 +334,6 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 | | | |-Factor            = 3.1415  (default: 1.0)
 | | | |-MonitorService    = 'MonitorSvc'
 | | | |-OutputLevel       = 2  (default: 0)
-| | | |-UserStore         = ServiceHandle('UserDataSvc/UserDataSvc')
 | | | \----- (End of Private AlgTool ConcreteTool/PySpSubTool) -------------------------------------------
 | | |=/***** Private AlgTool ToolSpace::TemplatedTool<double>/PyTSTTSp1 **********************************
 | | | |-AuditFinalize     = False
@@ -366,7 +351,6 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 | | | |-Factor            = 6.283  (default: 1.0)
 | | | |-MonitorService    = 'MonitorSvc'
 | | | |-OutputLevel       = 2  (default: 0)
-| | | |-UserStore         = ServiceHandle('UserDataSvc/UserDataSvc')
 | | | \----- (End of Private AlgTool ToolSpace::TemplatedTool<double>/PyTSTTSp1) -------------------------
 | | \----- (End of Private AlgTool ToolUsingTool/Special) ----------------------------------------------
 | |=/***** Private AlgTool ToolUsingTool/ToolUsingTool *************************************************
@@ -388,7 +372,6 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 | | |-TheToolPubTool    = PublicToolHandle('ConcreteTool/PublicConcreteTool')
 | | |-TheToolTool       = PrivateToolHandle('ConcreteTool/ConcreteTool')  (default: 'ConcreteTool')
 | | |-TheToolToolArray  = PrivateToolHandleArray(['ConcreteTool/CxxDefaultTool'])
-| | |-UserStore         = ServiceHandle('UserDataSvc/UserDataSvc')
 | | |=/***** Private AlgTool ConcreteTool/ConcreteTool ***************************************************
 | | | |-AuditFinalize     = False
 | | | |-AuditInitialize   = False
@@ -405,7 +388,6 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 | | | |-Factor            = 1.0
 | | | |-MonitorService    = 'MonitorSvc'
 | | | |-OutputLevel       = 2  (default: 0)
-| | | |-UserStore         = ServiceHandle('UserDataSvc/UserDataSvc')
 | | | \----- (End of Private AlgTool ConcreteTool/ConcreteTool) ------------------------------------------
 | | |=/***** Private AlgTool ConcreteTool/CxxDefaultTool *************************************************
 | | | |-AuditFinalize     = False
@@ -423,7 +405,6 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 | | | |-Factor            = 1.0
 | | | |-MonitorService    = 'MonitorSvc'
 | | | |-OutputLevel       = 2  (default: 0)
-| | | |-UserStore         = ServiceHandle('UserDataSvc/UserDataSvc')
 | | | \----- (End of Private AlgTool ConcreteTool/CxxDefaultTool) ----------------------------------------
 | | \----- (End of Private AlgTool ToolUsingTool/ToolUsingTool) ----------------------------------------
 | \----- (End of Algorithm TopAlgorithm/MyAlg) -------------------------------------------------------
@@ -432,8 +413,8 @@ Py:Athena            INFO including file "AthenaCommon/runbatch.py"
 [?1034hApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v29r0)
-                                          running on lxplus021.cern.ch on Wed Dec  6 20:09:25 2017
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v30r0)
+                                          running on lxplus048.cern.ch on Wed Dec 13 13:38:17 2017
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -441,11 +422,11 @@ ApplicationMgr                     INFO Updating Gaudi::PluginService::SetDebug(
 StatusCodeSvc                      INFO initialize
 AthDictLoaderSvc                   INFO in initialize...
 AthDictLoaderSvc                   INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 2398 CLIDRegistry entries for module ALL
+ClassIDSvc                         INFO  getRegistryEntries: read 2318 CLIDRegistry entries for module ALL
 ChronoStatSvc                      INFO  Number of skipped events for MemStat-1
 CoreDumpSvc                        INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc                        INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
-AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
+AthenaEventLoopMgr                 INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
 TopAlgorithm                      DEBUG Property update for OutputLevel : new value = 2
 TopAlgorithm.TSTT                 DEBUG Property update for OutputLevel : new value = 2
 TopAlgorithm                       INFO Retrieved TheTool = PrivateToolHandle('ToolSpace::TemplatedTool<double>/TSTT')
@@ -537,9 +518,9 @@ MyAlg                             DEBUG Data Deps for MyAlg
 HistogramPersistencySvc         WARNING Histograms saving not required.
 ApplicationMgr                     INFO Application Manager Initialized successfully
 ApplicationMgr                     INFO Application Manager Started successfully
-ClassIDSvc           INFO  getRegistryEntries: read 1330 CLIDRegistry entries for module ALL
-AthenaEventLoopMgr   INFO   ===>>>  start of run 1    <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #1 0 events processed so far  <<<===
+ClassIDSvc                         INFO  getRegistryEntries: read 1358 CLIDRegistry entries for module ALL
+AthenaEventLoopMgr                 INFO   ===>>>  start of run 1    <<<===
+AthenaEventLoopMgr                 INFO   ===>>>  start processing event #1, run #1 0 events processed so far  <<<===
 TopAlgorithm                       INFO got this quote [Your day will be somewhat dictated by authority].
 TopAlgorithm                      DEBUG no reading requested
 TopAlgorithm                       INFO doing my work ...
@@ -628,8 +609,8 @@ ToolSvc.PyTSTT7                    INFO performing templated task factor ( 1) ..
 ToolSvc.PyTSTT7                    INFO ... templated task is done
 MyAlg                              INFO ... my work is done! 
 MyAlg                             DEBUG wrote data: 1.2957e+59 for key: BBB
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #1 1 events processed so far  <<<===
-AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #1 1 events processed so far  <<<===
+AthenaEventLoopMgr                 INFO   ===>>>  done processing event #1, run #1 1 events processed so far  <<<===
+AthenaEventLoopMgr                 INFO   ===>>>  start processing event #2, run #1 1 events processed so far  <<<===
 TopAlgorithm                       INFO got this quote [Your day will be somewhat dictated by authority].
 TopAlgorithm                      DEBUG no reading requested
 TopAlgorithm                       INFO doing my work ...
@@ -715,7 +696,7 @@ ToolSvc.PyTSTT7                    INFO performing templated task factor ( 1) ..
 ToolSvc.PyTSTT7                    INFO ... templated task is done
 MyAlg                              INFO ... my work is done! 
 MyAlg                             DEBUG wrote data: 1.00913e+59 for key: BBB
-AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #1 2 events processed so far  <<<===
+AthenaEventLoopMgr                 INFO   ===>>>  done processing event #2, run #1 2 events processed so far  <<<===
 ApplicationMgr                     INFO Application Manager Stopped successfully
 IncidentProcAlg1                   INFO Finalize
 IncidentProcAlg2                   INFO Finalize
@@ -726,7 +707,7 @@ ToolSvc                            INFO Removing all tools created by ToolSvc
 *****Chrono*****                   INFO ****************************************************************************************************
 *****Chrono*****                   INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****                   INFO ****************************************************************************************************
-ChronoStatSvc                      INFO Time User   : Tot=  220 [ms]                                             #=  1
+ChronoStatSvc                      INFO Time User   : Tot=  260 [ms]                                             #=  1
 *****Chrono*****                   INFO ****************************************************************************************************
 ChronoStatSvc.finalize()           INFO  Service finalized successfully 
 ApplicationMgr                     INFO Application Manager Finalized successfully

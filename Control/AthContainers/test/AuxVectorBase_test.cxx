@@ -954,7 +954,6 @@ void test_move()
 {
   std::cout << "test_move\n";
 
-#if __cplusplus > 201100
   SG::AuxVectorBase_test b1;
   b1.initAuxVectorBase<B> (SG::OWN_ELEMENTS, SG::DEFAULT_TRACK_INDICES);
   SG::AuxStoreInternal store;
@@ -981,7 +980,6 @@ void test_move()
   assert (b3.getStore() == &store);
   assert (b3.getData<int> (ityp, 0) == 1);
   assert (b3.getData<int> (ityp, 1) == 2);
-#endif
 }
 
 

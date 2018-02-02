@@ -15,51 +15,51 @@ ToyDetectorManager::ToyDetectorManager()
 ToyDetectorManager::~ToyDetectorManager()
 {
   // Clean up the central scrutinizers:  
-  for (size_t ic=0;ic<centralScrutinizer.size();ic++) {  
-    delete centralScrutinizer[ic];  
+  for (size_t ic=0;ic<m_centralScrutinizer.size();ic++) {  
+    delete m_centralScrutinizer[ic];  
   }  
   // Clean up the forward scrutinizers:  
-  for (size_t ix=0;ix<forwardScrutinizer.size();ix++) {  
-    delete forwardScrutinizer[ix];  
+  for (size_t ix=0;ix<m_forwardScrutinizer.size();ix++) {  
+    delete m_forwardScrutinizer[ix];  
   }  
 }
 
 
 unsigned int ToyDetectorManager::getNumTreeTops() const
 {
-  return volume.size(); 
+  return m_volume.size(); 
 }
 
 PVConstLink ToyDetectorManager::getTreeTop(unsigned int i) const
 {
-  return volume[i];
+  return m_volume[i];
 }
 
 const ForwardScrutinizer * ToyDetectorManager::getForwardScrutinizer(unsigned int i) const
 {
-  return forwardScrutinizer[i];
+  return m_forwardScrutinizer[i];
 }
 
 const CentralScrutinizer * ToyDetectorManager::getCentralScrutinizer(unsigned int i) const
 {
-  return centralScrutinizer[i];
+  return m_centralScrutinizer[i];
 }
 
 unsigned int ToyDetectorManager::getNumScrutinizers(Type type) const
 {
-  return (type==CENTRAL) ? centralScrutinizer.size() : forwardScrutinizer.size();  
+  return (type==CENTRAL) ? m_centralScrutinizer.size() : m_forwardScrutinizer.size();  
 }
 
 void  ToyDetectorManager::addTreeTop(PVLink vol){
-  volume.push_back(vol);
+  m_volume.push_back(vol);
 }
 
 
 void  ToyDetectorManager::addCentralScrutinizer(const CentralScrutinizer *scrut){
-  centralScrutinizer.push_back(scrut);
+  m_centralScrutinizer.push_back(scrut);
 }
 
 
 void  ToyDetectorManager::addForwardScrutinizer(const ForwardScrutinizer *scrut){
-  forwardScrutinizer.push_back(scrut);
+  m_forwardScrutinizer.push_back(scrut);
 }

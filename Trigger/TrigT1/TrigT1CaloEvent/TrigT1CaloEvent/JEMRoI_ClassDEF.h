@@ -6,8 +6,8 @@
 #include "TrigT1CaloEvent/JEMRoI.h"
 #endif
 
-#include "CLIDSvc/CLASS_DEF.h"
-#include "DataModel/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
 
 CLASS_DEF( LVL1::JEMRoI , 244235973 , 1 )
 CLASS_DEF( DataVector<LVL1::JEMRoI> , 182624508 , 1 )

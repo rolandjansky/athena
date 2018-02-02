@@ -244,7 +244,9 @@ LArRODMonTool::initialize() {
       ATH_MSG_ERROR( "Could not retrieve BadChannelMask" << m_badChannelMask);
       return StatusCode::FAILURE;
     }
-  
+  }
+  else {
+    m_badChannelMask.disable();
   }
   // Open output files for DspTest
   if (m_doDspTestDump) {

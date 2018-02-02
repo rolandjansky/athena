@@ -28,8 +28,8 @@ namespace VKalVrtAthena {
     
     ATH_MSG_DEBUG( " > SelGoodTrkParticle: begin"  );
 
-    xAOD::TrackParticleContainer *m_selectedBaseTracks ( nullptr );
-    ATH_CHECK( evtStore()->retrieve(m_selectedBaseTracks, "VrtSecInclusive_SelectedTrackParticles") );
+    xAOD::TrackParticleContainer *selectedBaseTracks ( nullptr );
+    ATH_CHECK( evtStore()->retrieve(selectedBaseTracks, "VrtSecInclusive_SelectedTrackParticles") );
     
     //std::vector<const xAOD::TrackParticle*>::const_iterator   i_ntrk;
     AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0.;
@@ -195,7 +195,7 @@ namespace VKalVrtAthena {
       // Here we firstly need to register the empty pointer to the container,
       // then need to do deep copy after then. This is the feature of xAOD.
       xAOD::TrackParticle *a_trk = new xAOD::TrackParticle;
-      m_selectedBaseTracks->emplace_back( a_trk );
+      selectedBaseTracks->emplace_back( a_trk );
       *a_trk = *trk;
       a_trk->auxdata<unsigned long>("trk_id")  = trk->index();
       a_trk->auxdata<int>("truth_barcode")     = static_cast<long int>( barcode );

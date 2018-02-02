@@ -20,7 +20,7 @@
 //Framework
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/StatusCode.h"
-#include "EventInfo/EventInfo.h"
+#include "StoreGate/ReadHandle.h"
 #include "EventInfo/TriggerInfo.h"
 #include "LWHists/TH1I_LW.h"
 #include "LWHists/TH2I_LW.h"
@@ -49,6 +49,9 @@ StatusCode InDetGlobalMotherTrigMonTool::initialize(){
   m_triggerNames[5] = "MBTS";
   m_triggerNames[6] = "COSM";
   m_triggerNames[7] = "Calib";
+
+  ATH_CHECK( m_eventInfoKey.initialize() );
+
   return StatusCode::SUCCESS;
 }
   
@@ -56,9 +59,8 @@ StatusCode InDetGlobalMotherTrigMonTool::initialize(){
 StatusCode InDetGlobalMotherTrigMonTool::CheckTriggers()
 {
     m_activeMenuItems.clear();
-    const EventInfo * evtInfo = nullptr;
-    if ( evtStore()->contains<EventInfo>("ByteStreamEventInfo") ){
-	evtStore()->retrieve(evtInfo, "ByteStreamEventInfo");
+    SG::ReadHandle<EventInfo> evtInfo(m_eventInfoKey);
+    if ( evtInfo.isValid() ){
 	if ( evtInfo->trigger_info() == 0) // Trigger info not available, will not do trigger aware plots
 	    return StatusCode::FAILURE;
 	std::vector<unsigned int> level1TriggerInfo = evtInfo->trigger_info()->level1TriggerInfo();

@@ -447,7 +447,7 @@ ClassIDSvc::processCLIDDB(const char* fileName)
 #pragma GCC diagnostic pop
 #endif
 	  //	  cout << "id " << id << endl;
-	} catch (boost::bad_lexical_cast e) { 
+	} catch (const boost::bad_lexical_cast& e) { 
 	  error() << "processCLIDDB: Can't cast ["  
                   << massTok << "] to long (clid)" << endmsg;
 	  allOK=false;

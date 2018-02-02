@@ -14,7 +14,7 @@
 // Geant4 includes used in functions
 
 GDMLDetectorTool::GDMLDetectorTool(const std::string& type, const std::string& name, const IInterface* parent)
-  : DetectorGeometryBase(type,name,parent),m_GDMLFileName(""),m_blParamOn(false),m_blGetTopTransform(true),m_geoDetectorName("")
+  : DetectorGeometryBase(type,name,parent),m_GDMLFileName(""),m_blGetTopTransform(true),m_geoDetectorName("")
 {
   m_topTransform.setIdentity();
   ATH_MSG_DEBUG( "GDMLDetectorTool constructor for " << name );

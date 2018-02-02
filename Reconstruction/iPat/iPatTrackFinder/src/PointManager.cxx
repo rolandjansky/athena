@@ -432,7 +432,7 @@ PointManager::radius (int layer) const
 { return (**((**m_sliceIterator).begin() + layer)).radius(); }
 
 void
-PointManager::setPoints (const std::vector<Trk::SpacePoint*>&	space_points,
+PointManager::setPoints (const std::vector<const Trk::SpacePoint*>&	space_points,
 			 const Amg::Vector3D&			vertexRegionCentre)
 {
     // existing points: erase them and clear pointers from containers
@@ -446,7 +446,7 @@ PointManager::setPoints (const std::vector<Trk::SpacePoint*>&	space_points,
 
     // first store a pointer to each point into the point_vector corresponding to its layer
     // (i.e. into m_layerContainer)
-    for (std::vector<Trk::SpacePoint*>::const_iterator s = space_points.begin();
+    for (std::vector<const Trk::SpacePoint*>::const_iterator s = space_points.begin();
 	 s != space_points.end();
 	 ++s)
     {

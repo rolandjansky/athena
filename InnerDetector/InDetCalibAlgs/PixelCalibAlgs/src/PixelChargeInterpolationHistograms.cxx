@@ -239,7 +239,7 @@ PixelChargeInterpolationParameters *PixelChargeInterpolationHistograms::Analyze(
 	TCanvas *c1 = new TCanvas();
 	c1->UseCurrentStyle();
 
-	//char *currpath = getcwd(NULL,0);
+	//char *currpath = getcwd(nullptr,0);
         //mkdir(m_etaProfile->GetName(),S_IRWXU | S_IRWXG | S_IRWXO);
 	//chdir(m_etaProfile->GetName());
 

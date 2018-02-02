@@ -21,7 +21,7 @@
 #include "EventKernel/INavigable4Momentum.h"
 
 // includes for datamembers
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 #include "TrkTrack/TrackCollection.h"
 #include "VxVertex/VxContainer.h"
 
@@ -33,7 +33,7 @@
 #include "TrkEventPrimitives/FitQuality.h"
 
 #include "TrkParticleBase/TrackParticleBase.h"
-#include "SGTools/BaseInfo.h"
+#include "AthenaKernel/BaseInfo.h"
 
 class MsgStream;
 

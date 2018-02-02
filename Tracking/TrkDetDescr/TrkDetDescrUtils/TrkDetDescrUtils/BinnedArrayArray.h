@@ -36,7 +36,7 @@ namespace Trk {
     public:
      
      /**Default Constructor  */
-     BinnedArrayArray( const std::vector< std::pair< BinnedArray<T>* , Amg::Vector3D > >& tbas, BinUtility* bUtility ) throw (GaudiException) :
+     BinnedArrayArray( const std::vector< std::pair< BinnedArray<T>* , Amg::Vector3D > >& tbas, BinUtility* bUtility ) :
          m_binUtility(bUtility),
          m_binnedArrays(bUtility->bins(0), NULL),
          m_arrayObjects()
@@ -55,7 +55,7 @@ namespace Trk {
       }
     
      /** Copy Constructor */
-     BinnedArrayArray(const BinnedArrayArray& baa ) throw (GaudiException) :
+     BinnedArrayArray(const BinnedArrayArray& baa ) :
          m_binUtility(baa.m_binUtility->clone()),
          m_arrayObjects(baa.m_arrayObjects)
       { copyBinnedArrays( baa.m_binnedArrays ); }

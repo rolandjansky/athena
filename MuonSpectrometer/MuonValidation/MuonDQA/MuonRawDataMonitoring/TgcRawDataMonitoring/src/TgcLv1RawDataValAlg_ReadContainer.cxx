@@ -147,7 +147,7 @@ TgcLv1RawDataValAlg::readTgcCoinDataContainer(const Muon::TgcCoinDataContainer* 
       for(Muon::TgcCoinDataCollection::const_iterator itc=(*it)->begin();
 	  itc!= itc_end;
 	  ++itc){
-	Muon::TgcCoinData* tcd=*itc;
+	const Muon::TgcCoinData* tcd=*itc;
 
 	// Get Variables from TgcCoinData object
 	int ac = (tcd->isAside()==false);  //isNotAside   a:0, c:1

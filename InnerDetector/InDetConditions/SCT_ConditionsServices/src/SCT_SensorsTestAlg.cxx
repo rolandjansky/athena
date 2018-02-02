@@ -39,7 +39,6 @@ SCT_SensorsTestAlg::SCT_SensorsTestAlg(const std::string& name,
 
 SCT_SensorsTestAlg::~SCT_SensorsTestAlg()
 { 
-  msg(MSG::INFO) << "Calling destructor" << endmsg;
 }
 
 //Initialize

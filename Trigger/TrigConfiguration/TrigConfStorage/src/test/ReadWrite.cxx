@@ -684,7 +684,7 @@ int main( int argc, char* argv[] ) {
 	if(hltFrame)
 	  coolWriter->writeHLTPayload(runNr, *hltFrame, configSource);
       }   
-      catch(cool::StorageTypeStringTooLong e){
+      catch(const cool::StorageTypeStringTooLong& e){
 	log << "FATAL: Unable to write data to COOL";
 	exit(1);
       }

@@ -141,6 +141,9 @@ StatusCode InDet::InDetDenseEnvAmbiTrackSelectionTool::initialize()
       ATH_MSG_INFO( "Retrieved tool " << m_selectortool );
     }
   }
+  else {
+    m_selectortool.disable();
+  }
 
   sc = detStore()->retrieve(m_detID, "SiliconID" );
   if (sc.isFailure()) 
@@ -161,6 +164,9 @@ StatusCode InDet::InDetDenseEnvAmbiTrackSelectionTool::initialize()
     }
     else 
       ATH_MSG_INFO( "Retrieved tool " << m_observerTool );
+  }
+  else {
+    m_observerTool.disable();
   }
 
   if (m_incidentSvc.retrieve().isFailure()){
@@ -709,8 +715,8 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::fillTrackDetails(const Trk::Tra
     
     
     // get iterators for range
-    Trk::IPRD_AssociationTool::PRD_MapIt mapIt    = range.first;
-    Trk::IPRD_AssociationTool::PRD_MapIt mapItEnd = range.second;
+    Trk::IPRD_AssociationTool::ConstPRD_MapIt mapIt    = range.first;
+    Trk::IPRD_AssociationTool::ConstPRD_MapIt mapItEnd = range.second;
     // simple for loop instead of fancier remove_if above
     for ( ;mapIt!=mapItEnd; ++mapIt) {
       tsosDetails.overlappingTracks.insert( std::pair<const Trk::Track*, int >(mapIt->second, index) );

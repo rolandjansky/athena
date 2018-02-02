@@ -15,9 +15,9 @@
 #include "Navigation/NavigableIterator.h"
 #include "Navigation/Navigable.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "CxxUtils/unused.h"
-#include "SGTools/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 #include "TestTools/initGaudi.h"
 #include "GaudiKernel/Bootstrap.h"
 

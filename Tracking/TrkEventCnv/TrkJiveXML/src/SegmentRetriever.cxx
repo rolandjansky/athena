@@ -22,7 +22,7 @@ namespace JiveXML {
    **/
   SegmentRetriever::SegmentRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    typeName("Segment"){
+    m_typeName("Segment"){
 
       //Only declare the interface
       declareInterface<IDataRetriever>(this);
@@ -103,22 +103,22 @@ namespace JiveXML {
       }
 
       //Add data to our map
-      DataMap m_DataMap;
-      m_DataMap["x"] = x;
-      m_DataMap["y"] = y;
-      m_DataMap["z"] = z;
-      m_DataMap["phi"] = phi;
-      m_DataMap["theta"] = theta;
-      m_DataMap["numHits"] = numHits;
+      DataMap DataMap;
+      DataMap["x"] = x;
+      DataMap["y"] = y;
+      DataMap["z"] = z;
+      DataMap["phi"] = phi;
+      DataMap["theta"] = theta;
+      DataMap["numHits"] = numHits;
 
       //Hits are stored as multiple with average size given in XML header
       if (NSegs > 0) {
         std::string multiple = "hits multiple=\"" + DataType( hits.size()*1./numHits.size()).toString() + "\"";
-        m_DataMap[multiple] = hits;
+        DataMap[multiple] = hits;
       }
     
       //forward data to formating tool
-      if ( FormatTool->AddToEvent(dataTypeName(), CollectionItr.key(), &m_DataMap).isFailure())
+      if ( FormatTool->AddToEvent(dataTypeName(), CollectionItr.key(), &DataMap).isFailure())
             return StatusCode::RECOVERABLE;
       
       //Be verbose

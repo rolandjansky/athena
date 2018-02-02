@@ -31,7 +31,6 @@ FTKTrackFitterAlgo::FTKTrackFitterAlgo(const std::string& name, ISvcLocator* pSv
   m_IBLMode(0), m_fixEndcapL0(false),
   m_ITkMode(false),
   m_nbanks(0), m_nsubregions(1),
-  m_verbosity(0),
   m_chi2cut(17),
   m_chi2cut_maj(14),
   m_chi2cut_vetmaj(-1),
@@ -451,12 +450,12 @@ StatusCode FTKTrackFitterAlgo::initialize(){
     
     int ir = m_bankregion[ibank];
     int is = m_banksubregion[ibank];
-    const string &bankpath8L = m_fitconstantspath[ibank];
+    const std::string &bankpath8L = m_fitconstantspath[ibank];
     
     log << MSG::INFO << "*** set bank *** region:" << ir << "\t subregions:" << is << "\t bank path:" << bankpath8L.c_str() << endmsg;
     if(m_SecondStageFit){
-      const string &bankpath11L = m_fit711constantspath[ibank];
-      const string &sectorpath_s = m_sectorpath[ibank];
+      const std::string &bankpath11L = m_fit711constantspath[ibank];
+      const std::string &sectorpath_s = m_sectorpath[ibank];
       log << MSG::INFO << "*** set bank *** region:" << ir << "\t subregions:" << is << "\t bank path:" << bankpath11L.c_str() << endmsg;
 
       FTKConstantBank* bank8 = new FTKConstantBank(dynamic_cast<TrackFitter711*>(m_tfpobj)->getNCoordsIncomplete(),bankpath8L.c_str());
@@ -471,19 +470,19 @@ StatusCode FTKTrackFitterAlgo::initialize(){
 
 	log << MSG::INFO << "*** Printing EXP and TF constants in a txt file ****" << endmsg;
 
-	ofstream myfile;
+        std::ofstream myfile;
 	myfile.open (Form("EXPConstants_reg%d.txt",ir));
 
-	ofstream myfileTF;
+        std::ofstream myfileTF;
 	myfileTF.open (Form("TFConstants_reg%d.txt",ir));
 
-	std::vector<map <int, int> > vecOfMapSecID;
-	std::vector<map <int, int> > vecOfMapNconn;
+	std::vector<std::map <int, int> > vecOfMapSecID;
+	std::vector<std::map <int, int> > vecOfMapNconn;
 	vecOfMapSecID.clear();
 	vecOfMapNconn.clear();
 
 	log << MSG::INFO << "*** Reading the connection file and mapping 8L -> 12L " << endmsg;
-	vector<vector<int>> moduleIDvec;
+        std::vector<std::vector<int>> moduleIDvec;
 	moduleIDvec.clear();
 
 	Int_t Max_1stStage_sectors = 16383;
@@ -500,7 +499,7 @@ StatusCode FTKTrackFitterAlgo::initialize(){
 	    Map_temp[TwelveLsecid] = (int)sector->getNSimilarSectors(isec) ;
 	    vecOfMapNconn.push_back(Map_temp);
 	    vecOfMapSecID.push_back(Map_secid_Nconn);
-	    vector<int> module_temp;
+            std::vector<int> module_temp;
 	    module_temp.clear();
 	    for (int ip=0; ip!=(m_pmap_complete->getNPlanes()-m_pmap->getNPlanes()); ++ip) {
 	      module_temp.push_back(sector->getSimilarStereoIDs(isec,Nconn)[ip]);

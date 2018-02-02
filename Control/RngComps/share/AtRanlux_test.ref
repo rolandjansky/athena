@@ -1,7 +1,7 @@
 
 
 Initializing Gaudi ApplicationMgr using job opts ../share/AtRanlux_test.txt
-JobOptionsSvc        INFO # =======> /afs/cern.ch/user/s/ssnyder/atlas-work3/Control/RngComps/share/../share/AtRanlux_test.txt
+JobOptionsSvc        INFO # =======> /home/leggett/work/v30r1.002/src/Control/RngComps/share/../share/AtRanlux_test.txt
 JobOptionsSvc        INFO # (5,1): ApplicationMgr.DLLs += ["AthenaServices"]
 JobOptionsSvc        INFO # (6,1): ApplicationMgr.ExtSvc += ["AtRanluxGenSvc", "AtRanluxGenSvc/AtRanluxGenSvc2", "AtRanluxGenSvc/AtRanluxGenSvc3"]
 JobOptionsSvc        INFO # (7,1): ApplicationMgr.ExtSvcCreates = 0
@@ -17,16 +17,20 @@ JobOptionsSvc        INFO # (23,1): AtRanluxGenSvc3.ReadFromFile = 1
 JobOptionsSvc        INFO # (24,1): AtRanluxGenSvc3.FileToRead = "test_AtRanluxGenSvc.out"
 JobOptionsSvc        INFO # (25,1): AtRanluxGenSvc3.SaveToFile = 0
 JobOptionsSvc        INFO Job options successfully read in from ../share/AtRanlux_test.txt
+MessageSvc          DEBUG Service base class initialized successfully
 ApplicationMgr      DEBUG Getting my own properties
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v30r0)
-                                          running on lxplus020.cern.ch on Mon Dec 11 13:31:06 2017
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v30r1)
+                                          running on zeus on Tue Jan  2 18:29:20 2018
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
+ServiceManager      DEBUG Initializing service IncidentSvc
 IncidentSvc         DEBUG Service base class initialized successfully
+ServiceManager      DEBUG Initializing service AppMgrRunable
 AppMgrRunable       DEBUG Service base class initialized successfully
+ServiceManager      DEBUG Initializing service EventLoopMgr
 EventLoopMgr        DEBUG Service base class initialized successfully
 IncidentSvc         DEBUG Adding [AbortEvent] listener '<unknown>' with priority 0
 EventDataSvc        DEBUG Service base class initialized successfully

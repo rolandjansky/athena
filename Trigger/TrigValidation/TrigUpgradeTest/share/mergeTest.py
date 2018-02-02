@@ -63,7 +63,7 @@ writeEmulationFiles(data)
 
 include("TrigUpgradeTest/L1CF.py")
 include("TrigUpgradeTest/HLTCF.py")
-
+l1Decoder.prescaler.EventInfo=""
 
 
 

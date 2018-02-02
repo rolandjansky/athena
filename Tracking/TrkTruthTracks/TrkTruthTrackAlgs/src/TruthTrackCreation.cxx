@@ -172,7 +172,7 @@ StatusCode Trk::TruthTrackCreation::execute()
     
     // If configured : update the track summary
     if (!m_trackSummaryTool.empty()) {
-        TrackCollection::const_iterator rf,rfe=outputTrackCollection->end();
+        TrackCollection::iterator rf,rfe=outputTrackCollection->end();
         for (rf=outputTrackCollection->begin();rf!=rfe; ++rf) {
             ATH_MSG_VERBOSE("Updating the TrackSummary with shared hits.");
             m_trackSummaryTool->updateTrack(**rf);
@@ -183,11 +183,11 @@ StatusCode Trk::TruthTrackCreation::execute()
 
     ATH_CHECK(outputTrackCollectionHandle.record(std::move(outputTrackCollection)));
 
-    ATH_MSG_VERBOSE("Truth TrackCollection with name " << m_outputTrackCollectionName << " and size " <<  outputTrackCollection->size() << " recorded.");
+    ATH_MSG_VERBOSE("Truth TrackCollection with name " << m_outputTrackCollectionName << " and size " <<  outputTrackCollectionHandle->size() << " recorded.");
 
     ATH_CHECK(skippedTrackCollectionHandle.record(std::move(skippedTrackCollection)));
  
-    ATH_MSG_VERBOSE("Truth TrackCollection with name " << m_skippedTrackCollectionName << " and size " <<  skippedTrackCollection->size() << " recorded.");
+    ATH_MSG_VERBOSE("Truth TrackCollection with name " << m_skippedTrackCollectionName << " and size " <<  skippedTrackCollectionHandle->size() << " recorded.");
 
     // job done
     return StatusCode::SUCCESS;

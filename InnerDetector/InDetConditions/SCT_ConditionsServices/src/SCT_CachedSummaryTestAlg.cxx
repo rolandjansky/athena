@@ -35,7 +35,6 @@ m_pSummarySvc("SCT_CachedSummarySvc", name){
 
 SCT_CachedSummaryTestAlg::~SCT_CachedSummaryTestAlg()
 { 
-  msg(MSG::INFO) << "Calling destructor" << endmsg;
 }
 
 //Initialize
