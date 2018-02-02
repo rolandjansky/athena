@@ -149,6 +149,7 @@ namespace VKalVrtAthena {
       double z0TrkPVSignifCut;
       double d0TrkErrorCut;
       double z0TrkErrorCut;
+      double twoTrkVtxFormingD0Cut;
       
       /* pT anc chi2 */
       double TrkChi2Cut;
@@ -303,6 +304,7 @@ namespace VKalVrtAthena {
       TLorentzVector       vertexMom;                 //! VKalVrt fit vertex 4-momentum
       std::vector<double>  vertexCov;                 //! VKalVrt fit covariance
       double               Chi2;                      //! VKalVrt fit chi2 result
+      double               Chi2_core;                 //! VKalVrt fit chi2 result
       std::vector<double>  Chi2PerTrk;                //! list of VKalVrt fit chi2 for each track
       long int             Charge;                    //! total charge of the vertex
       std::vector< std::vector<double> > TrkAtVrt;    //! list of track parameters wrt the reconstructed vertex
@@ -310,6 +312,7 @@ namespace VKalVrtAthena {
       double               closestWrkVrtValue;        //! stores the value of some observable to the closest WrkVrt ( observable = e.g. significance )
       
       inline double ndof() const { return 2.0*( selectedTrackIndices.size() + associatedTrackIndices.size() ) - 3.0; }
+      inline double ndof_core() const { return 2.0*( selectedTrackIndices.size() ) - 3.0; }
       inline unsigned nTracksTotal() const { return selectedTrackIndices.size() + associatedTrackIndices.size(); }
       inline double fitQuality() const { return Chi2 / ndof(); }
     };
@@ -321,8 +324,9 @@ namespace VKalVrtAthena {
     using Flag     = int;
     using ExtrapolatedPoint   = std::tuple<const TVector3, Detector, Bec, Layer, Flag>;
     using ExtrapolatedPattern = std::vector< ExtrapolatedPoint >;
+    using PatternBank         = std::map<const xAOD::TrackParticle*, std::pair< std::unique_ptr<ExtrapolatedPattern>, std::unique_ptr<ExtrapolatedPattern> > >;
     
-    std::map<const xAOD::TrackParticle*, std::unique_ptr<ExtrapolatedPattern> > m_extrapolatedPatternBank;
+    PatternBank m_extrapolatedPatternBank;
     
     std::vector< std::pair<int, int> > m_incomp;
     
@@ -457,13 +461,20 @@ namespace VKalVrtAthena {
     /** cretrieve the track hit information */
     void fillTrackSummary( track_summary& summary, const xAOD::TrackParticle *trk );
     
-    ExtrapolatedPattern* extrapolatedPattern( const xAOD::TrackParticle* );
+    ExtrapolatedPattern* extrapolatedPattern( const xAOD::TrackParticle*, enum Trk::PropDirection );
    
+    bool patternCheck    ( const uint32_t& pattern, const Amg::Vector3D& vertex );
+    bool patternCheckRun1( const uint32_t& pattern, const Amg::Vector3D& vertex );
+    bool patternCheckRun2( const uint32_t& pattern, const Amg::Vector3D& vertex );
+    
     /** A classical method with hard-coded geometry */
     bool checkTrackHitPatternToVertex( const xAOD::TrackParticle *trk, const Amg::Vector3D& vertex );
     
     /** New method with track extrapolation */
     bool checkTrackHitPatternToVertexByExtrapolation( const xAOD::TrackParticle *trk, const Amg::Vector3D& vertex );
+    
+    /** New method with track extrapolation */
+    bool checkTrackHitPatternToVertexByExtrapolationAssist( const xAOD::TrackParticle *trk, const Amg::Vector3D& vertex );
     
     /** Flag false if the consistituent tracks are not consistent with the vertex position */
     bool passedFakeReject( const Amg::Vector3D& FitVertex, const xAOD::TrackParticle *itrk, const xAOD::TrackParticle *jtrk );
