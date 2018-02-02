@@ -393,52 +393,63 @@ class SCT_ConditionsServicesSetup:
     sctDCSTempFolder = dcs_folder+'/MODTEMP'
     sctDCSHVFolder = dcs_folder+'/HV'
 
+    readAllDBFolders = True
+    returnHVTemp = True
+
     if hasattr(self.svcMgr,instanceName):
       dcsSvc = getattr(self.svcMgr, instanceName); 
+      readAllDBFolders = dcsSvc.ReadAllDBFolders
+      returnHVTemp = dcsSvc.ReturnHVTemp
     else:
-      from AthenaCommon.AlgSequence import AthSequencer
-      condSeq = AthSequencer("AthCondSeq")
-      if not hasattr(condSeq, "SCT_DCSConditionsHVCondAlg"):
-        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsHVCondAlg
-        condSeq += SCT_DCSConditionsHVCondAlg(name = "SCT_DCSConditionsHVCondAlg",
-                                              ReadKey = sctDCSHVFolder)
-      if not hasattr(condSeq, "SCT_DCSConditionsStatCondAlg"):
-        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsStatCondAlg
-        condSeq += SCT_DCSConditionsStatCondAlg(name = "SCT_DCSConditionsStatCondAlg",
-                                                ReadKeyHV = sctDCSHVFolder,
-                                                ReadKeyState = sctDCSStateFolder)
-      if not hasattr(condSeq, "SCT_DCSConditionsTempCondAlg"):
-        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsTempCondAlg
-        condSeq += SCT_DCSConditionsTempCondAlg(name = "SCT_DCSConditionsTempCondAlg",
-                                                ReadKey = sctDCSTempFolder)
-
       from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsSvc
       dcsSvc = SCT_DCSConditionsSvc(name = instanceName)
       if (not self.isMC):
         dcsSvc.FolderLocation="/SCT/HLT/DCS"
-        dcsSvc.ReadAllDBFolders=False
-        dcsSvc.ReturnHVTemp=True
+        readAllDBFolders=False
+        returnHVTemp=True
 
     if self.onlineMode:
-      dcsSvc.ReadAllDBFolders=False
-      dcsSvc.ReturnHVTemp=True
+      readAllDBFolders=False
+      returnHVTemp=True
+
+    dcsSvc.ReadAllDBFolders = readAllDBFolders
+    dcsSvc.ReturnHVTemp = returnHVTemp
 
     self.svcMgr += dcsSvc
-      
     self.summarySvc.ConditionsServices+=[instanceName]
 
-    if not self.condDB.folderRequested(sctDCSHVFolder):
-      self.condDB.addFolder(db_loc, sctDCSHVFolder, className="CondAttrListCollection")
-    if not self.condDB.folderRequested(sctDCSTempFolder):
-      self.condDB.addFolder(db_loc, sctDCSTempFolder, className="CondAttrListCollection")
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSeq = AthSequencer("AthCondSeq")
+
+    doHVTemp = ((readAllDBFolders and returnHVTemp) or returnHVTemp)
+    if doHVTemp:
+      if not hasattr(condSeq, "SCT_DCSConditionsHVCondAlg"):
+        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsHVCondAlg
+        condSeq += SCT_DCSConditionsHVCondAlg(name = "SCT_DCSConditionsHVCondAlg",
+                                              ReadKey = sctDCSHVFolder)
+        if not hasattr(condSeq, "SCT_DCSConditionsTempCondAlg"):
+          from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsTempCondAlg
+          condSeq += SCT_DCSConditionsTempCondAlg(name = "SCT_DCSConditionsTempCondAlg",
+                                                  ReadKey = sctDCSTempFolder)
+        if not self.condDB.folderRequested(sctDCSHVFolder):
+          self.condDB.addFolder(db_loc, sctDCSHVFolder, className="CondAttrListCollection")
+        if not self.condDB.folderRequested(sctDCSTempFolder):
+          self.condDB.addFolder(db_loc, sctDCSTempFolder, className="CondAttrListCollection")
+
+    doState = ((readAllDBFolders and returnHVTemp) or (not readAllDBFolders and not returnHVTemp))
+    if doState:
+      if not hasattr(condSeq, "SCT_DCSConditionsStatCondAlg"):
+        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsStatCondAlg
+        condSeq += SCT_DCSConditionsStatCondAlg(name = "SCT_DCSConditionsStatCondAlg",
+                                                ReturnHVTemp = returnHVTemp,
+                                                ReadKeyHV = sctDCSHVFolder,
+                                                ReadKeyState = sctDCSStateFolder)
+      if not self.condDB.folderRequested(sctDCSStateFolder):
+        self.condDB.addFolder(db_loc, sctDCSStateFolder, className="CondAttrListCollection")
       
     if self.isMC:
       if not self.condDB.folderRequested('/SCT/DCS/MPS/LV'):
         self.condDB.addFolder(db_loc,"/SCT/DCS/MPS/LV")
-      if not self.condDB.folderRequested(sctDCSStateFolder):
-        self.condDB.addFolder(db_loc, sctDCSStateFolder, className="CondAttrListCollection")
-
-      
       
     return dcsSvc           
 
@@ -500,10 +511,12 @@ class SCT_ConditionsServicesSetup:
     if not hasattr(condSeq, "SCT_SiliconTempCondAlg"):
       from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SiliconTempCondAlg
       condSeq += SCT_SiliconTempCondAlg(name = "SCT_SiliconTempCondAlg",
+                                        UseState=self.dcsSvc.ReadAllDBFolders,
                                         DCSConditionsSvc=self.dcsSvc)
     if not hasattr(condSeq, "SCT_SiliconHVCondAlg"):
       from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SiliconHVCondAlg
       condSeq += SCT_SiliconHVCondAlg(name = "SCT_SiliconHVCondAlg",
+                                      UseState=self.dcsSvc.ReadAllDBFolders,
                                       DCSConditionsSvc=self.dcsSvc)
     from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SiliconConditionsSvc
     sctSiliconConditionsSvc= SCT_SiliconConditionsSvc(name=self.instanceName('InDetSCT_SiliconConditionsSvc'),

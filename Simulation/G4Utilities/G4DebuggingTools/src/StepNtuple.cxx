@@ -12,8 +12,6 @@
 
 #include "G4Step.hh"
 
-#include <iostream>
-
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IMessageSvc.h"
@@ -21,10 +19,12 @@
 namespace G4UA
 {
 
-  StepNtuple::StepNtuple()
+  StepNtuple::StepNtuple(const MSG::Level lvl)
     : AthMessaging(Gaudi::svcLocator()->service< IMessageSvc >( "MessageSvc" ),
                    "StepNtuple")
-  {}
+  {
+    AthMessaging::setLevel(lvl);
+  }
 
   void StepNtuple::BeginOfEventAction(const G4Event*)
   {
@@ -33,19 +33,16 @@ namespace G4UA
 
   void StepNtuple::EndOfEventAction(const G4Event*)
   {
-    //std::cout<<"start end of event, size is  "<<eventSteps.size()<<std::endl;
+    ATH_MSG_DEBUG("Start end of event; size is " << eventSteps.size());
     m_nsteps = eventSteps.size();
-    //std::cout<<"in end of event"<<std::endl;
 
-    for(unsigned int k=0;k<eventSteps.size();k++){
-      //std::cout<<"in loop end of event "<<k<<std::endl;
-
-      m_pdgcode[k]=eventSteps[k].code;
-      m_step_x[k]=eventSteps[k].x;
-      m_step_y[k]=eventSteps[k].y;
-      m_step_z[k]=eventSteps[k].z;
-      m_time[k]=eventSteps[k].time;
-      m_dep[k]=eventSteps[k].dep;
+    for(unsigned int k=0; k<eventSteps.size(); k++){
+      m_pdgcode[k] = eventSteps[k].code;
+      m_step_x[k] = eventSteps[k].x;
+      m_step_y[k] = eventSteps[k].y;
+      m_step_z[k] = eventSteps[k].z;
+      m_time[k] = eventSteps[k].time;
+      m_dep[k] = eventSteps[k].dep;
     }
 
     if(! ntupleSvc()->writeRecord("/NTUPLES/FILE1/StepNtuple/10").isSuccess()){
@@ -68,7 +65,7 @@ namespace G4UA
       theInfo.z=pos.z();
 
       eventSteps.push_back(theInfo);
-      //std::cout<<"stepping, size is "<<eventSteps.size()<<std::endl;
+      ATH_MSG_VERBOSE("Stepping; size is " << eventSteps.size());
     }
   }
 

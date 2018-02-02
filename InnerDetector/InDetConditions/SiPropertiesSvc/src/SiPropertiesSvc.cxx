@@ -54,6 +54,11 @@ SiPropertiesSvc::initialize()
     return StatusCode::FAILURE;
   }
 
+  if (m_detectorName == "SCT") {
+    ATH_MSG_FATAL("Please use SiPropertiesCHSvc instead of SiPropertiesSvc for SCT!");
+    return StatusCode::FAILURE;
+  }
+
   // Get conditions summary service. 
   m_conditionsSvcValid = false; 
   sc =  m_siConditionsSvc.retrieve();
