@@ -59,7 +59,13 @@ namespace top{
       
       ///Store the four-momentum of several particles in the W decay chain
       bool Wlv(const xAOD::TruthParticleContainer* truthParticles, TLorentzVector& W_p4, TLorentzVector& Wdecay1_p4, int& Wdecay1_pdgId, TLorentzVector& Wdecay2_p4, int& Wdecay2_pdgId);
-      
+     
+      /// Store the four-momentum of several particles in W decay chain for W that is NOT from top in Wt ST events
+      bool Wt_W(const xAOD::TruthParticleContainer* truthParticles, TLorentzVector& W_p4, int& W_pdgId, TLorentzVector& Wdecay1_p4, int& Wdecay1_pdgId, TLorentzVector& Wdecay2_p4, int& Wdecay2_pdgId);
+ 
+      /// Store the four-momentum of b quark that is NOT from top in Wt(b) ST events
+      bool Wt_b(const xAOD::TruthParticleContainer* truthParticles, TLorentzVector& b_beforeFSR, TLorentzVector& b_afterFSR, int& b_pdgId);
+ 
       ///Return particle after FSR (before the decay vertex)
       const xAOD::TruthParticle* findAfterFSR(const xAOD::TruthParticle* particle);
       

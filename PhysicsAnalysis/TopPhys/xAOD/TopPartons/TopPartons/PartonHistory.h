@@ -56,6 +56,7 @@ namespace xAOD{
       void IniVarTtbar();
       void IniVarTbbar();
       void IniVarWlv();
+      void IniVarWtb();
          
   };   
   typedef DataVector < xAOD::PartonHistory > PartonHistoryContainer;   
