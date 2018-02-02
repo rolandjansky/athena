@@ -77,7 +77,7 @@ HLT::ErrorCode TrigBjetHypo::hltInitialize() {
 
     if (m_xcutMV2c20 != -20) msg() << MSG::DEBUG << " CutMV2c20 = "  << m_xcutMV2c20 << endmsg;
     if (m_xcutMV2c10 != -20) msg() << MSG::DEBUG << " CutMV2c10 = "  << m_xcutMV2c10 << endmsg; 
-    if (m_xcutMV2c10 != -20) msg() << MSG::DEBUG << " CutMV2c10_hybrid = "  << m_xcutMV2c10_hybrid << endmsg; 
+    if (m_xcutMV2c10_hybrid != -20) msg() << MSG::DEBUG << " CutMV2c10_hybrid = "  << m_xcutMV2c10_hybrid << endmsg; 
     if (m_xcutCOMB   != -20) msg() << MSG::DEBUG << " CutXCOMB  = "  << m_xcutCOMB   << endmsg; 
     if (m_xcutCHI2   != -20) msg() << MSG::DEBUG << " CutXCHI2  = "  << m_xcutCHI2   << endmsg; 
     if (m_xcutIP3D   != -20) msg() << MSG::DEBUG << " CutXIP3D  = "  << m_xcutIP3D   << endmsg; 
