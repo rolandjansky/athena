@@ -4,15 +4,22 @@ from AthenaCommon.AlgSequence               import AlgSequence
 from GaudiSvc.GaudiSvcConf                  import THistSvc
 import AthenaRootComps.ReadAthenaxAODHybrid
 
+
 # ART File
-testFile = 'Base_Rec.pool.root'
+testFile = 'ART_Rec_'+particleType+'.pool.root'
 svcMgr.EventSelector.InputCollections = [testFile]
 
+
 job = CfgMgr.AthSequencer("AthAlgSeq")
-job += CfgMgr.ArtTest()
+job += CfgMgr.ArtTest('MonitoringAlg', particleName = particleType)
+
 
 theApp.EvtMax = 2000
-svcMgr.THistSvc.Output += ["MONITORING DATAFILE='Base-monitoring.root' OPT='RECREATE'"]
+
+
+outputFile = 'ART-monitoring_'+particleType+'.root'
+svcMgr += CfgMgr.THistSvc()
+svcMgr.THistSvc.Output = ["MONITORING DATAFILE='"+outputFile+"' OPT='RECREATE'"]
 
 
 print ( "\n\nALL OK\n\n" )

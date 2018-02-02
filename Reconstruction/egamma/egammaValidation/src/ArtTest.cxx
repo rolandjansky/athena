@@ -24,7 +24,9 @@ using namespace std;
 
 ArtTest :: ArtTest (const std::string& name, ISvcLocator *pSvcLocator) : 
   AthAlgorithm (name, pSvcLocator)
-{}
+{
+declareProperty( "particleName", m_particleName = "Unknown", "Descriptive name for the processed type of particle" );
+}
 
 // ******
 
@@ -35,28 +37,53 @@ StatusCode ArtTest :: initialize ()
   /// Get Histogram Service ///
   ATH_CHECK(service("THistSvc", rootHistSvc));
   
+  ANA_MSG_INFO ("******************* Running over " << m_particleName << "*******************");
+
   ANA_MSG_INFO ("*******************************  Histo INIT  *******************************");
 
-  m_evtNmb       = new TH1D(); m_evtNmb      ->SetName("evtNmb")      ; m_evtNmb      ->SetTitle("Event Number");         m_evtNmb       ->SetBins(250, 33894000, 33896000);
-  //  CHECK( rootHistSvc()->regHist("/MONITORING/evtNmb", m_evtNmb) );
+  m_evtNmb = new TH1D(); m_evtNmb->SetName("evtNmb"); m_evtNmb->SetTitle("Event Number"); 
   CHECK( rootHistSvc->regHist("/MONITORING/evtNmb", m_evtNmb));
+    
+  if("electron" == m_particleName) {
+
+    m_evtNmb->SetBins(2000, 85000, 87000);
+
+    m_pT_ElTrk_All  = new TH1D(); m_pT_ElTrk_All ->SetName("pT_ElTrk_All") ; m_pT_ElTrk_All ->SetTitle("Electron Pt Track All"); m_pT_ElTrk_All ->SetBins(200,  0, 200);
+    CHECK( rootHistSvc->regHist("/MONITORING/pT_ElTrk_All", m_pT_ElTrk_All));
+    
+    m_pT_ElTrk_LLH  = new TH1D(); m_pT_ElTrk_LLH ->SetName("pT_ElTrk_LLH") ; m_pT_ElTrk_LLH ->SetTitle("Electron Pt Track LLH"); m_pT_ElTrk_LLH ->SetBins(200,  0, 200);
+    CHECK( rootHistSvc->regHist("/MONITORING/pT_ElTrk_LLH", m_pT_ElTrk_LLH));
+    
+    m_pT_ElTrk_MLH  = new TH1D(); m_pT_ElTrk_MLH ->SetName("pT_ElTrk_MLH") ; m_pT_ElTrk_MLH ->SetTitle("Electron Pt Track MLH"); m_pT_ElTrk_MLH ->SetBins(200,  0, 200);
+    CHECK( rootHistSvc->regHist("/MONITORING/pT_ElTrk_MLH", m_pT_ElTrk_MLH));
+    
+    m_pT_ElTrk_TLH  = new TH1D(); m_pT_ElTrk_TLH ->SetName("pT_ElTrk_TLH") ; m_pT_ElTrk_TLH ->SetTitle("Electron Pt Track TLH"); m_pT_ElTrk_TLH ->SetBins(200,  0, 200);
+    CHECK( rootHistSvc->regHist("/MONITORING/pT_ElTrk_TLH", m_pT_ElTrk_TLH));
+    
+    m_eta_ElTrk_All = new TH1D(); m_eta_ElTrk_All->SetName("eta_ElTrk_All"); m_eta_ElTrk_All->SetTitle("Electron Eta All")     ; m_eta_ElTrk_All->SetBins(200, -3,   3);
+    CHECK( rootHistSvc->regHist("/MONITORING/eta_ElTrk_All", m_eta_ElTrk_All));
+    
+    m_phi_ElTrk_All = new TH1D(); m_phi_ElTrk_All->SetName("phi_ElTrk_All"); m_phi_ElTrk_All->SetTitle("Electron Phi All")     ; 
+    m_phi_ElTrk_All->SetBins(100, -TMath::Pi(), TMath::Pi());    
+    CHECK( rootHistSvc->regHist("/MONITORING/phi_ElTrk_All", m_phi_ElTrk_All));
   
-  m_pT_ElTrk_All = new TH1D(); m_pT_ElTrk_All->SetName("pT_ElTrk_All"); m_pT_ElTrk_All->SetTitle("Electron Pt Track All"); m_pT_ElTrk_All->SetBins(200,        0,      200);
-  //  CHECK( rootHistSvc()->regHist("/MONITORING/pT_ElTrk_All", m_pT_ElTrk_All) );
-  CHECK( rootHistSvc->regHist("/MONITORING/pT_ElTrk_All", m_pT_ElTrk_All));
+  } // electron Hists
+
+  if("gamma" == m_particleName) {
+
+    m_evtNmb->SetBins(250, 33894000, 33896000);
+    
+    m_pT_Phot_All  = new TH1D(); m_pT_Phot_All ->SetName("pT_Phot_All") ; m_pT_Phot_All ->SetTitle("Photon Pt All") ; m_pT_Phot_All ->SetBins(200,  0,  200);
+    CHECK( rootHistSvc->regHist("/MONITORING/pT_Phot_All", m_pT_Phot_All));
+    
+    m_eta_Phot_All = new TH1D(); m_eta_Phot_All->SetName("eta_Phot_All"); m_eta_Phot_All->SetTitle("Photon Eta All"); m_eta_Phot_All->SetBins(200, -3,    3);
+    CHECK( rootHistSvc->regHist("/MONITORING/eta_Phot_All", m_eta_Phot_All));
+    
+    m_phi_Phot_All = new TH1D(); m_phi_Phot_All->SetName("phi_Phot_All"); m_phi_Phot_All->SetTitle("Photon Phi All"); m_phi_Phot_All->SetBins(100, -TMath::Pi(), TMath::Pi());
+    CHECK( rootHistSvc->regHist("/MONITORING/phi_Phot_All", m_phi_Phot_All));
   
-  m_pT_ElTrk_LLH = new TH1D(); m_pT_ElTrk_LLH->SetName("pT_ElTrk_LLH"); m_pT_ElTrk_LLH->SetTitle("Electron Pt Track LLH"); m_pT_ElTrk_LLH->SetBins(200,        0,      200);
-  //  CHECK( rootHistSvc()->regHist("/MONITORING/pT_ElTrk_LLH", m_pT_ElTrk_LLH) );
-  CHECK( rootHistSvc->regHist("/MONITORING/pT_ElTrk_LLH", m_pT_ElTrk_LLH));
-  
-  m_pT_ElTrk_MLH = new TH1D(); m_pT_ElTrk_MLH->SetName("pT_ElTrk_MLH"); m_pT_ElTrk_MLH->SetTitle("Electron Pt Track MLH"); m_pT_ElTrk_MLH->SetBins(200,        0,      200);
-  //  CHECK( rootHistSvc()->regHist("/MONITORING/pT_ElTrk_MLH", m_pT_ElTrk_MLH) );
-  CHECK( rootHistSvc->regHist("/MONITORING/pT_ElTrk_MLH", m_pT_ElTrk_MLH));
-  
-  m_pT_ElTrk_TLH = new TH1D(); m_pT_ElTrk_TLH->SetName("pT_ElTrk_TLH"); m_pT_ElTrk_TLH->SetTitle("Electron Pt Track TLH"); m_pT_ElTrk_TLH->SetBins(200,        0,      200);
-  //  CHECK( rootHistSvc()->regHist("/MONITORING/pT_ElTrk_TLH", m_pT_ElTrk_TLH) );
-  CHECK( rootHistSvc->regHist("/MONITORING/pT_ElTrk_TLH", m_pT_ElTrk_TLH));
-  
+  } // gamma Hists
+
   //*****************LLH Requirement********************
   m_LooseLH = new AsgElectronLikelihoodTool("LooseLH");
   m_LooseLH->setProperty("WorkingPoint", "LooseLHElectron");
@@ -122,40 +149,59 @@ StatusCode ArtTest :: firstExecute ()
 StatusCode ArtTest :: execute ()
 {
   
-  // Retrieve eventInfo from the event store
+  // Retrieve things from the event store
+
   const xAOD::EventInfo *eventInfo = nullptr;
   ANA_CHECK (evtStore()->retrieve(eventInfo, "EventInfo"));
 
-  const xAOD::ElectronContainer* RecoEl = 0;
-  if( !evtStore()->retrieve(RecoEl, "Electrons").isSuccess() ) {
-    Error("execute()", "Failed to retrieve electron container. Exiting.");
-    return StatusCode::FAILURE;
-  }
-
-  for(auto elrec : *RecoEl) {
+  if("electron" == m_particleName) {
     
-    const xAOD::TrackParticle* tp = elrec->trackParticle();
-
-    if((tp->pt())/1000. > 0) {
-
-      m_pT_ElTrk_All->Fill((tp->pt())/1000.); 
-
-      if(m_LooseLH ->accept(elrec)) m_pT_ElTrk_LLH->Fill((tp->pt())/1000.);
-      if(m_MediumLH->accept(elrec)) m_pT_ElTrk_MLH->Fill((tp->pt())/1000.);
-      if(m_TightLH ->accept(elrec)) m_pT_ElTrk_TLH->Fill((tp->pt())/1000.);
-    
-     }
-
-    // SOME INFO PRINTED OUT
-    if(eventInfo->eventNumber()%10 == 0) {
-      if( m_LooseLH ->accept(elrec) ) cout << "Loose,  the pt is \t" << (tp->pt())/1000. << "\t and the evt# is " << eventInfo->eventNumber() << endl;
-      if( m_MediumLH->accept(elrec) ) cout << "Medium, the pt is \t" << (tp->pt())/1000. << "\t and the evt# is " << eventInfo->eventNumber() << endl;
-      if( m_TightLH ->accept(elrec) ) cout << "Tight,  the pt is \t" << (tp->pt())/1000. << "\t and the evt# is " << eventInfo->eventNumber() << endl;
+    const xAOD::ElectronContainer* RecoEl = 0;
+    if( !evtStore()->retrieve(RecoEl, "Electrons").isSuccess() ) {
+      Error("execute()", "Failed to retrieve electron container. Exiting.");
+      return StatusCode::FAILURE;
     }
-    // END OF SOME INFO PRINTED OUT
     
-  } // RecoEl Loop
-  
+    for(auto elrec : *RecoEl) {
+      
+      const xAOD::TrackParticle* tp = elrec->trackParticle();
+
+      if((tp->pt())/1000. > 0) {
+	
+	m_pT_ElTrk_All->Fill((tp->pt())/1000.); 
+	
+	if(m_LooseLH ->accept(elrec)) m_pT_ElTrk_LLH->Fill((tp->pt())/1000.);
+	if(m_MediumLH->accept(elrec)) m_pT_ElTrk_MLH->Fill((tp->pt())/1000.);
+	if(m_TightLH ->accept(elrec)) m_pT_ElTrk_TLH->Fill((tp->pt())/1000.);
+	
+      }
+
+      m_eta_ElTrk_All->Fill(tp->eta());
+      m_phi_ElTrk_All->Fill(tp->phi());
+      
+    } // RecoEl Loop
+
+  } // if electron
+
+
+  if("gamma" == m_particleName) {
+    
+    const xAOD::PhotonContainer* RecoPh = 0;
+    if( !evtStore()->retrieve(RecoPh, "Photons").isSuccess() ) {
+      Error("execute()", "Failed to retrieve photon container. Exiting.");
+      return StatusCode::FAILURE;
+    }  
+    
+    for(auto phrec : *RecoPh) {
+      
+      if((phrec->pt())/1000. > 0) m_pT_Phot_All->Fill((phrec->pt())/1000.);
+      m_eta_Phot_All->Fill(phrec->eta());
+      m_phi_Phot_All->Fill(phrec->phi());
+      
+    } // RecoPh Loop
+
+  } // if gamma
+
   m_evtNmb->Fill(eventInfo->eventNumber());
 
   return StatusCode::SUCCESS;

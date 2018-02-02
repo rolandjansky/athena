@@ -29,11 +29,18 @@ class ArtTest : public AthAlgorithm
   TH1D *m_evtNmb = 0; //!
 
   // Electron
-  TH1D *m_pT_ElTrk_All = 0; //!
-  TH1D *m_pT_ElTrk_LLH = 0; //! 
-  TH1D *m_pT_ElTrk_MLH = 0; //!
-  TH1D *m_pT_ElTrk_TLH = 0; //!
-
+  TH1D *m_pT_ElTrk_All  = 0; //!
+  TH1D *m_pT_ElTrk_LLH  = 0; //! 
+  TH1D *m_pT_ElTrk_MLH  = 0; //!
+  TH1D *m_pT_ElTrk_TLH  = 0; //!
+  TH1D *m_eta_ElTrk_All = 0; //!
+  TH1D *m_phi_ElTrk_All = 0; //!
+  
+  // Photon
+  TH1D *m_pT_Phot_All  = 0; //!
+  TH1D *m_eta_Phot_All = 0; //!
+  TH1D *m_phi_Phot_All = 0; //!
+  
   ArtTest (const std::string& name, ISvcLocator* pSvcLocator);
   
   virtual StatusCode initialize ();
@@ -43,6 +50,9 @@ class ArtTest : public AthAlgorithm
   virtual StatusCode finalize ();
 
  private:
+
+  /// Sample name ///
+  string m_particleName;
 
   AsgElectronLikelihoodTool* m_LooseLH;
   AsgElectronLikelihoodTool* m_MediumLH;
