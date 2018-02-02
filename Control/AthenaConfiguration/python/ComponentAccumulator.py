@@ -229,8 +229,22 @@ class ComponentAccumulator(object):
     def executeModule(self,fct,configFlags,*args,**kwargs):
         cfconst=deepcopy(configFlags)
         self._msg.info("Excuting configuration function %s" % fct.__name__)
-        cm=fct(cfconst,*args,**kwargs)
-        self.merge(cm)
+        retval=fct(cfconst,*args,**kwargs)
+
+        if (isinstance(retval,ComponentAccumulator)):
+            #Simple-case, return value is simply a ComponentAccumulator 
+            self.merge(retval)
+            return None
+        else:
+            #More complicated case, eg. to configure private alg tools
+            try:
+                ca=retval[0]
+                self.merge(ca)
+                return retval[1:]
+            except TypeError,IndexError:
+                raise TypeError("Unexpected return value of configuration method: Expect either a ComponentAccumulator or a tuple where the first item is a ComponentAccumulator")
+            pass
+        pass
 
 
  
