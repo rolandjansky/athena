@@ -9,6 +9,7 @@
 #include "PersistentDataModel/Guid.h"
 #include "FileCatalog/IFileCatalog.h"
 #include "FileCatalog/URIParser.h"
+#include "POOLCore/SystemTools.h"
 
 class InsertFileToCatalogApplication {
 public:
@@ -122,6 +123,7 @@ InsertFileToCatalogApplication::printSyntax()
 
 int main( int argc, char* argv[] )
 {
+  pool::SystemTools::initGaudi();
   try {
     InsertFileToCatalogApplication app( argc, argv );
     if ( app.parseArguments() ) {

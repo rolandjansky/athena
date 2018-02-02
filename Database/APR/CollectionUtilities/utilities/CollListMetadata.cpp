@@ -14,6 +14,7 @@
 
 #include "CoralBase/MessageStream.h"
 #include "POOLCore/Exception.h"
+#include "POOLCore/SystemTools.h"
 
 #include "CollectionUtilities/Args2Container.h"
 #include "CollectionUtilities/SrcInfo.h"
@@ -43,7 +44,6 @@
 
 XERCES_CPP_NAMESPACE_USE 
 
-#include <iostream>
 using namespace std;
 using namespace pool;
 
@@ -51,7 +51,8 @@ int main(int argc, const char *argv[])
 {
    string thisProgram("CollListMetadata");
    string file("CollMetadata.xml");
-   
+   SystemTools::initGaudi();
+  
    try
    { 
       coral::MessageStream log( thisProgram );

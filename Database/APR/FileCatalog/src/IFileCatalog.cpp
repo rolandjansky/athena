@@ -16,6 +16,9 @@
 
 #include "AthenaBaseComps/AthMessaging.h"
 
+#include "GaudiKernel/IMessageSvc.h"
+#include "GaudiKernel/Service.h"
+
 #include <iostream>
 
 using namespace pool;
@@ -25,7 +28,11 @@ pool::IFileCatalog::IFileCatalog()
 {
    _mgr = Gaudi::svcLocator()->service<Gaudi::IFileCatalogMgr>( "Gaudi::MultiFileCatalog" );
    _fc = _mgr;
+   // set the output level of this service
    setLevel( SystemTools::GetOutputLvl() );
+   // set the output level of the XMLCatalog component - works only if the Gaudi AppMgr was initialized
+   Gaudi::svcLocator()->service<IMessageSvc>("MessageSvc")
+      ->setOutputLevel("XMLCatalog", SystemTools::GetOutputLvl() );
 }
      
 
@@ -61,6 +68,52 @@ lookupFileByPFN( const std::string& pfn, std::string& fid, std::string& tech ) c
 }
    
 
+/// Delete PFN from the catalog (delete entire FID entry if it was the last PFN)
+void pool::IFileCatalog::
+deletePFN( const std::string& pfn )
+{
+   std::string fid = _fc->lookupPFN(pfn);
+   if( !fid.empty() ) {
+      Files     pfns, lfns;
+      getPFNs( fid, pfns );
+      getLFNs( fid, lfns );
+      deleteFID( fid );
+      for( const auto& p: pfns ) {
+         if( p.first != pfn )  registerPFN( p.first, p.second, fid );
+      }
+      for( const auto& l: lfns ) {
+         registerLFN( fid, l.first );
+      }
+   }
+}
+
+
+/// Rename PFN
+void pool::IFileCatalog::
+renamePFN( const std::string& pfn, const std::string& newpfn )
+{
+  std::string fid = _fc->lookupPFN(pfn);
+   if( !fid.empty() ) {
+      Files     pfns, lfns;
+      getPFNs( fid, pfns );
+      getLFNs( fid, lfns );
+      deleteFID( fid );
+      for( const auto& p: pfns ) {
+         if( p.first == pfn )  {
+            registerPFN( newpfn, p.second, fid );
+         } else {
+            registerPFN( p.first, p.second, fid );
+         }
+      }
+      for( const auto& l: lfns ) {
+         registerLFN( fid, l.first );
+      }
+   } else {
+      ATH_MSG_DEBUG("RenamePFN: PFN=" << pfn << " not found!");
+   }
+}
+
+ 
 /// Register PFN, assign new FID if not given
 void pool::IFileCatalog::
 registerPFN( const std::string& pfn, const std::string& ftype, std::string& fid )
@@ -69,8 +122,8 @@ registerPFN( const std::string& pfn, const std::string& ftype, std::string& fid 
       throw pool::Exception(std::string("PFN '") + pfn + "' already registered", "registerPFN", "FileCatalog");
    }
 //   std::cout << "msg() level" << msg().level() << std::endl;
-   ATH_MSG_DEBUG("Registering PFN=" << pfn << " of type=" << ftype << " GUID=" << fid);
    if( fid.empty() ) fid = createFID();
+   ATH_MSG_DEBUG("Registering PFN=" << pfn << " of type=" << ftype << " GUID=" << fid);
    _fc->registerPFN(fid, pfn, ftype);
 }
 

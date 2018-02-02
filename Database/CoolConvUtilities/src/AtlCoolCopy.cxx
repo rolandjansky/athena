@@ -31,8 +31,6 @@
 #include "CoralBase/AttributeListException.h"
 
 #include "FileCatalog/IFileCatalog.h"
-#include "FileCatalog/IFCAction.h"
-#include "FileCatalog/IFCContainer.h"
 #include "PersistencySvc/IDatabase.h"
 #include "PersistencySvc/ISession.h"
 #include "PersistencySvc/ITransaction.h"
@@ -3022,9 +3020,6 @@ int AtlCoolCopy::resolvePoolRefs() {
      // prepare POOL session
      pool_utility.startSession();
   }
-  pool::FClookup lookup;
-  catalog->setAction(lookup);
-
   // inject additional GUIDs/LFNs if needed
   if (m_addguid.size()>0) {
     for (std::vector<std::string>::const_iterator itr=m_addguid.begin();
@@ -3037,7 +3032,7 @@ int AtlCoolCopy::resolvePoolRefs() {
     for (std::vector<std::string>::const_iterator itr=m_addlfn.begin();
 	 itr!=m_addlfn.end();++itr) {
       std::string guid;
-      lookup.lookupFileByLFN(*itr,guid);
+      catalog->lookupFileByLFN(*itr,guid);
       std::cout << "Add POOL file GUID: " << guid << " from LFN " << *itr
 		<< std::endl;
       m_poolrefs[guid]=PoolMapElement(1,"ADDLFN");
@@ -3054,8 +3049,8 @@ int AtlCoolCopy::resolvePoolRefs() {
   for (PoolMap::iterator ipool=m_poolrefs.begin();
        ipool!=m_poolrefs.end();++ipool) {
     pool::FileCatalog::FileID guid=ipool->first;
-    pool::LFNContainer mylfn(catalog,100);
-    lookup.lookupLFN(guid,mylfn);
+    pool::IFileCatalog::Files  lfns;
+    catalog->getLFNs( lfns );
     if (mylfn.hasNext()) {
       // file found in cataloge - print LFN and usage count
       const std::string lfn=mylfn.Next().lfname();

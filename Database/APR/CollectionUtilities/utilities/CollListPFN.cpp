@@ -21,6 +21,7 @@
 
 #include "FileCatalog/IFileCatalog.h"
 #include "POOLCore/Exception.h"
+#include "POOLCore/SystemTools.h"
 
 #include "CoralBase/MessageStream.h"
 
@@ -36,6 +37,8 @@ using namespace pool;
 int main(int argc, const char *argv[])
 {
    string thisProgram("CollListPFN");
+   SystemTools::initGaudi();
+   
    try
    { 
       pool::CollectionService   collectionService;

@@ -27,6 +27,7 @@
 
 #include "CoralBase/MessageStream.h"
 #include "POOLCore/Exception.h"
+#include "POOLCore/SystemTools.h"
 
 #include "CollectionUtilities/Args2Container.h"
 #include "CollectionUtilities/SrcInfo.h"
@@ -36,10 +37,9 @@
 #include <iostream>
 #include <iomanip>
 #include <memory>
+
 using namespace std;
 using namespace pool;
-
-
 
 
 void printGroupedGuids( const ICollectionGUIDQuery::CountedGroupedGUIDs& guids )
@@ -96,7 +96,8 @@ void printCountedGuids( const ICollectionGUIDQuery::CountedGroupedGUIDs& guids )
 int main(int argc, const char *argv[])
 {
    string       thisProgram("CollListFileGUID");
-      
+   SystemTools::initGaudi();
+     
    try
    { 
       coral::MessageStream log( thisProgram );

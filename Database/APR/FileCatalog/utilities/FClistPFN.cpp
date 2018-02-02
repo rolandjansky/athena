@@ -2,14 +2,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//$Id: FClistPFN.cpp 778462 2016-10-14 12:29:52Z mnowak $
 /**FClistPFN.cpp -- FileCatalog command line tool to list the PFN entries from the catalog
    @author: Zhen Xie
    @author: Maria Girone
-   @date: 02/03/2005 Z.X.
-   set default logging to Warning if no POOL_OUTMSG_LEVEL is set; 
-   separate logging stream to std::cerr, output stream to std::cout.
 */
+
 #include "FileCatalog/CommandLine.h"
 #include "FileCatalog/IFileCatalog.h"
 #include "FileCatalog/URIParser.h"
@@ -56,6 +53,8 @@ private:
 
 int main(int argc, char** argv)
 {
+  SystemTools::initGaudi();
+  
   std::string  myuri;
   std::string  mylfn;
   std::string query(""); 

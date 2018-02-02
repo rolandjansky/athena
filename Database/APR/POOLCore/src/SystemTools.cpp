@@ -3,11 +3,22 @@
 */
 
 #include "POOLCore/SystemTools.h"
+
+#include "GaudiKernel/IAppMgrUI.h"
+#include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/ISvcManager.h"
+#include "GaudiKernel/ISvcLocator.h"
+#include "GaudiKernel/IProperty.h"
+
+#include "POOLCore/DbPrint.h"
+
 #include <sys/stat.h>
 #include <cstdlib>
 #include <sstream>
 #include <libgen.h>
 #include <string.h>
+
+using namespace pool;
 
 namespace pool
 {
@@ -111,6 +122,32 @@ namespace pool
    return MSG::NIL; 
    }
 
+   
+   bool SystemTools::initGaudi()   {
+      // Create an instance of an application manager
+      IInterface* iface = Gaudi::createApplicationMgr();
+      if( !iface ) {
+         DbPrint log("APR.initGaudi");
+         log << DbPrintLvl::Warning << "Gaudi framework failed to initialize" << endmsg;
+         return false;
+      }
+      SmartIF<ISvcManager> svcMgr(iface);
+      SmartIF<IAppMgrUI> appMgr(iface);
+      SmartIF<IProperty> propMgr(iface);
+      SmartIF<ISvcLocator> svcLoc(iface);
+
+      propMgr->setProperty( "JobOptionsType", "NONE" ) .ignore();
+      // prevents some output from the AppMgr
+      propMgr->setProperty( "OutputLeveL", "5" ) .ignore();
+      // this prevents AppMgr "welcome" output
+      propMgr->setProperty( "AppName", "" ) .ignore();
+
+      if( !appMgr->configure().isSuccess() || !appMgr->initialize().isSuccess() ) {
+         std::cerr << "Gaudi ApplicationMgr failed to initialize" << std::endl;
+         return false;
+      }
+      return true;
+   }
 
 } // ns pool
 

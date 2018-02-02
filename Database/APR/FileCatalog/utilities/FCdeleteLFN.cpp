@@ -22,7 +22,10 @@ void printUsage(){
 static const char* opts[] = {"q","l","u","h",0};
 
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv)
+{
+  SystemTools::initGaudi();
+  
   std::string  myuri;
   std::string  mylfn;
   std::string  myquery;

@@ -2,17 +2,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//$Id: FCrenamePFN.cpp 509054 2012-07-05 13:33:16Z mnowak $
 /**FCrenamePFN.cpp -- FileCatalog command line tool to rename PFN. Used in the case the file has been moved.
   @author: Zhen Xie
-  @date: 02/03/2005 Z.X.
-  set default logging to Warning if no POOL_OUTMSG_LEVEL is set; 
-  separate logging stream to std::cerr, output stream to std::cout
 */
 #include "FileCatalog/CommandLine.h"
 #include "FileCatalog/IFileCatalog.h"
 #include "FileCatalog/URIParser.h"
 #include "POOLCore/Exception.h"
+#include "POOLCore/SystemTools.h"
 #include <memory>
 
 using namespace pool;
@@ -26,6 +23,8 @@ static const char* opts[] = {"p","n","u","h",0};
 
 int main(int argc, char** argv)
 {
+  SystemTools::initGaudi();
+  
   std::string  myuri;
   std::string  mypfn;
   std::string  mynewpfn;
@@ -63,9 +62,7 @@ int main(int argc, char** argv)
     mycatalog->setWriteCatalog( p.contactstring() );
     mycatalog->connect();
     mycatalog->start();
-
-    //MN: There is no renamePFN method in Gaudi::IFileCatalog - implement if needed
-    mycatalog->renamePFN(mypfn,mynewpfn);
+    mycatalog->renamePFN(mypfn, mynewpfn);
     mycatalog->commit();  
     mycatalog->disconnect();
   }catch (const pool::Exception& er){

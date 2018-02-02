@@ -17,6 +17,7 @@ atlas_depends_on_subdirs(
    Control/AthenaBaseComps
    Control/AthenaKernel
    Database/APR/StorageSvc
+   Database/APR/FileCatalog
    Database/ConnectionManagement/DBReplicaSvc
    Database/PersistentDataModel
    Tools/PathResolver )
@@ -28,7 +29,8 @@ find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 atlas_add_component( PoolSvc
    PoolSvc/*.h src/*.cxx src/components/*.cxx
    INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
-   LINK_LIBRARIES ${CORAL_LIBRARIES} DataModelRoot CollectionBase PersistencySvc GaudiKernel
+   LINK_LIBRARIES ${CORAL_LIBRARIES} DataModelRoot CollectionBase
+   PersistencySvc GaudiKernel FileCatalog
    AthenaBaseComps AthenaKernel StorageSvc PersistentDataModel PathResolver )
 
 # Install files from the package:

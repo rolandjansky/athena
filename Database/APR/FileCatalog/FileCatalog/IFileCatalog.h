@@ -86,8 +86,14 @@ namespace pool {
      /// Delete FileID Node from the catalog
      void deleteFID( const std::string& FileID ) { return _fc->deleteFID(FileID); }
 
+     /// Delete PFN from the catalog (delete entire FID entry if it was the last PFN)
+     void deletePFN( const std::string& pfn );
+
      /// Register PFN, assign new FID if not given
      void registerPFN( const std::string& pfn, const std::string& ftype, std::string& fid );
+
+     /// Rename PFN
+     void renamePFN( const std::string& pfn, const std::string& newpfn );
 
      /// adding replica to an existing PFN
      void addReplicaPFN( const std::string& pfn, const std::string& replica_pfn );

@@ -44,11 +44,10 @@ atlas_add_executable( FCdeleteEntry
 #                      INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
 #                      LINK_LIBRARIES ${CORAL_LIBRARIES} POOLCore TestTools GaudiKernel FileCatalog )
 
-# not supported witgh GFC
-#atlas_add_executable( FCdeletePFN
-#                      utilities/FCdeletePFN.cpp
-#                      INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
-#                      LINK_LIBRARIES ${CORAL_LIBRARIES} POOLCore TestTools GaudiKernel FileCatalog )
+atlas_add_executable( FCdeletePFN
+                      utilities/FCdeletePFN.cpp
+                      INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
+                      LINK_LIBRARIES ${CORAL_LIBRARIES} POOLCore TestTools GaudiKernel FileCatalog )
 
 atlas_add_executable( FClistGUID
                       utilities/FClistGUID.cpp
@@ -75,8 +74,8 @@ atlas_add_executable( FCregisterPFN
                       INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
                       LINK_LIBRARIES ${CORAL_LIBRARIES} POOLCore TestTools GaudiKernel FileCatalog )
 
-# not supported witgh GFC
-#atlas_add_executable( FCrenamePFN
-#                      utilities/FCrenamePFN.cpp
-#                      INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
-#                      LINK_LIBRARIES ${CORAL_LIBRARIES} POOLCore TestTools GaudiKernel FileCatalog )
+atlas_add_executable( FCrenamePFN
+                      utilities/FCrenamePFN.cpp
+                      INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} 
+                      LINK_LIBRARIES ${CORAL_LIBRARIES} POOLCore TestTools GaudiKernel FileCatalog )
+

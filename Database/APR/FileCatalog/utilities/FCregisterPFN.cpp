@@ -2,17 +2,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//$Id: FCregisterPFN.cpp 509054 2012-07-05 13:33:16Z mnowak $
-/**FCregisterPFN.cpp -- FileCatalog command line tool registerPFN
+/**
+   FCregisterPFN.cpp -- FileCatalog command line tool registerPFN
    Register a PFN in the File Catalog: a unique FileID is generated and inserted in the catalog, 
-   @author: Zhen Xie
-   @author: Maria Girone
-   @date: 02/03/2005 Z.X.
-   set default logging to Warning if no POOL_OUTMSG_LEVEL is set; 
-   separate logging stream to std::cerr, output stream to std::cout.
-   @date: 07/04/2005 Z.X.
-   adopt to split interface
- */
+*/
+
 #include "FileCatalog/CommandLine.h"
 #include "FileCatalog/IFileCatalog.h"
 #include "FileCatalog/URIParser.h"
@@ -21,14 +15,18 @@
 #include <memory>
 
 using namespace pool;
+
 void printUsage(){
   std::cout<< "usage: registerPFN -p pfname [ -u contactstring -t filetype -g guid -h ]" <<std::endl;
 }
+
 static const char* opts[] = {"p","t","g","u","h",0};
 
 
 int main(int argc, char** argv)
 {
+  SystemTools::initGaudi();
+  
   std::string myuri;
   std::string mypfn;
   std::string myfiletype;

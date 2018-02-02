@@ -17,8 +17,6 @@
 #include <string>
 
 using namespace pool;
-using namespace std;
-
 
 void printUsage(){
   std::cout<<"usage: FClistGUID [-p pfname -l lfname -q query -u contactstring -h]" <<std::endl; 
@@ -56,6 +54,8 @@ private:
 
 int main(int argc, char** argv)
 {
+  SystemTools::initGaudi();
+  
   std::string  myuri;
   std::string  mypfn;
   std::string  mylfn;

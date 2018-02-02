@@ -12,6 +12,7 @@
 #include <iostream>
 #include <cstdlib>
 #include "POOLCore/Exception.h"
+#include "POOLCore/SystemTools.h"
 #include "FileCatalog/IFileCatalog.h"
 
 using namespace pool;
@@ -44,6 +45,7 @@ public:
     mysql
   };
   void setUp(){
+    SystemTools::initGaudi();
     mycatalog=new IFileCatalog;
     source=new IFileCatalog;
     dest=new IFileCatalog;

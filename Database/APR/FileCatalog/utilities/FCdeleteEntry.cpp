@@ -24,11 +24,12 @@ static const char* opts[] = {"q","l","p","u","h",0};
 
 int main(int argc, char** argv)
 {
+  SystemTools::initGaudi();
+  
   std::string  myuri;
   std::string  mylfn;
   std::string  mypfn;
   std::string  myquery;
-  //  IFileCatalog::FileID myguid;
   try{
     CommandLine commands(argc,argv);
     commands.CheckOptions(opts);

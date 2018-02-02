@@ -7,6 +7,7 @@
 #include "PersistencySvc/SimpleUtilityBase.h"
 #include "FileCatalog/URIParser.h"
 #include "FileCatalog/IFileCatalog.h"
+#include "POOLCore/SystemTools.h"
 
 using namespace pool;
 
@@ -94,6 +95,7 @@ InsertFileToCatalogApplication::printSyntax()
 
 int main( int argc, char* argv[] )
 {
+   SystemTools::initGaudi();
    InsertFileToCatalogApplication	app( argc, argv );
    return app.run();
 }

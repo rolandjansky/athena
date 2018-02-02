@@ -24,6 +24,8 @@ static const char* opts[] = {"p","q","u","h",0};
 
 int main(int argc, char** argv)
 {
+  SystemTools::initGaudi();
+  
   std::string  myuri;
   std::string  mypfn;
   std::string  myquery;

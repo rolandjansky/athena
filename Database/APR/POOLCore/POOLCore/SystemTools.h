@@ -35,6 +35,9 @@ namespace pool{
 
     // read the PFC_MSGLEVEL env setting
     static MSG::Level GetOutputLvlFromEnv();
+
+    // initialize the Gaudi framework for standalone executables
+    static bool initGaudi();
   };
 } // ns pool
 #endif

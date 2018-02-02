@@ -2,14 +2,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//$Id: FCregisterLFN.cpp 509054 2012-07-05 13:33:16Z mnowak $
 /**FCregisterLFN.cpp -- FileCatalog command line tool to register a LFN
   @author: Zhen Xie
   @author: Maria Girone
-  @date: 02/03/2005 Z.X.
-  set default logging to Warning if no POOL_OUTMSG_LEVEL is set; 
-  separate logging stream to std::cerr, output stream to std::cout
 */
+
 #include "FileCatalog/CommandLine.h"
 #include "FileCatalog/IFileCatalog.h"
 #include "FileCatalog/URIParser.h"
@@ -28,6 +25,8 @@ static const char* opts[] = {"p","l","u","h",0};
 
 int main(int argc, char** argv)
 {
+  SystemTools::initGaudi();
+  
   std::string  myuri;
   std::string  mypfn;
   std::string  mylfn;

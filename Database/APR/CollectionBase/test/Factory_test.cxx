@@ -10,6 +10,7 @@
 #include "PersistentDataModel/Token.h"
 
 #include "FileCatalog/IFileCatalog.h"
+#include "POOLCore/SystemTools.h"
 
 #include "CollectionBase/ICollection.h"
 #include "CollectionBase/CollectionDescription.h"
@@ -22,6 +23,8 @@ using namespace pool;
 
 int main(int argc, char** )
 {
+  SystemTools::initGaudi();
+  
   bool crude = argc>1;
 
   (void)remove ("CollectionCatalog0.xml");
