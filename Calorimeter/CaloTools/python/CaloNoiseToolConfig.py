@@ -7,14 +7,14 @@ def CaloNoiseToolCfg(inputFlags):
 
     result=ComponentAccumulator()
 
-    isMC=inputFlags.get("AthenaConfiguration.GlobalConfigFlags.isMC")
+    isMC=inputFlags.get("AthenaConfiguration.GlobalFlags.isMC")
     fixedLumi=inputFlags.get("CaloRec.CaloRecConfigFlags.fixedLumiForNoise")
     useCaloLumi=inputFlags.get("CaloRec.CaloRecConfigFlags.useCaloNoiseLumi")
     
     caloNoiseToolDB=CaloNoiseToolDB("CaloNoiseTool")
 
 
-    if inputFlags.get("AthenaConfiguration.GlobalConfigFlags.isOnline"):
+    if inputFlags.get("AthenaConfiguration.GlobalFlags.isOnline"):
         #online mode:
         folder  = "/CALO/Noise/CellNoise"
         result.executeModule(addFolders,inputFlags,folder,'CALO_ONL')
