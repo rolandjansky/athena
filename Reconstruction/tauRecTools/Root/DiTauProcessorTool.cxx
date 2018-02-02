@@ -79,25 +79,13 @@ StatusCode DiTauProcessorTool::processContainer(std::string& diTauContainerName,
   StatusCode sc;
   
   //-------------------------------------------------------------------------
-  // retrieve Tau Containers from StoreGate
+  // retrieve Di-Tau Containers from StoreGate
   //-------------------------------------------------------------------------
   sc = evtStore()->retrieve(pContainer, diTauContainerName);
   if (sc.isFailure()) {
       ATH_MSG_WARNING("Failed to retrieve " << diTauContainerName << "! Will exit TauProcessor now!!");
       return StatusCode::FAILURE;
   }
-
-  //-------------------------------------------------------------------------
-  // Initialize tools for this event
-  //-------------------------------------------------------------------------
-  for(auto varCalculator : varCalculatorTools){
-    if(varCalculator->initializeEvent().isFailure()){
-      ATH_MSG_ERROR("Failed call initializeEvent() of DiTauVariableCalculator "<<varCalculator->name());
-      return StatusCode::FAILURE;
-    }
-  }
-
-  ////////////////////////////////////////////////////////
 
   for(auto xDiTau : *pContainer){
     for(auto varCalculator : varCalculatorTools){
