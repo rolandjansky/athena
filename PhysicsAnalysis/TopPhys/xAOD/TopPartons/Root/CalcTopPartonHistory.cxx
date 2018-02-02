@@ -188,6 +188,70 @@ namespace top{
 				  
   }
 
+  bool CalcTopPartonHistory::topWq( const xAOD::TruthParticleContainer* truthParticles, 
+              int start, TLorentzVector& t_beforeFSR_p4, TLorentzVector& t_afterFSR_p4, TLorentzVector& W_p4, 
+            TLorentzVector& b_p4, int& b_pdgId, TLorentzVector& Wdecay1_p4, 
+            int& Wdecay1_pdgId, TLorentzVector& Wdecay2_p4, int& Wdecay2_pdgId){
+    
+    bool hasT       = false;
+    bool hasW       = false;
+    bool hasB       = false;
+    bool hasWdecayProd1     = false;
+    bool hasWdecayProd2     = false;
+    
+    for (const xAOD::TruthParticle* particle : *truthParticles) {
+    
+      if (particle->pdgId() != start) continue;    
+  
+  if (hasParticleIdenticalParent(particle)) continue; // kepping only top before FSR      
+  
+  t_beforeFSR_p4 = particle->p4(); // top before FSR
+  hasT = true;    
+      
+  // demanding the last tops after FSR
+  particle = findAfterFSR(particle);
+  t_afterFSR_p4 = particle->p4(); // top after FSR
+      
+  for (size_t k=0; k < particle->nChildren(); k++) {
+    const xAOD::TruthParticle* topChildren = particle->child(k);  
+    
+    if (fabs(topChildren->pdgId()) == 24){        
+      
+      W_p4 = topChildren->p4();  // W boson after FSR
+      hasW = true;
+    
+      // demanding the last W after FSR 
+      topChildren = findAfterFSR(topChildren);    
+      
+      for (size_t q = 0; q < topChildren->nChildren(); ++q) {
+        const xAOD::TruthParticle* WChildren = topChildren->child(q);
+        if (fabs(WChildren->pdgId())<17){
+          if (WChildren->pdgId()>0){
+            Wdecay1_p4 = WChildren->p4();
+            Wdecay1_pdgId = WChildren->pdgId();
+            hasWdecayProd1 = true;
+          }else{
+            Wdecay2_p4 = WChildren->p4();
+            Wdecay2_pdgId = WChildren->pdgId();
+            hasWdecayProd2 = true;
+          }//else
+        }//if           
+      }//for
+
+    } else if (fabs(topChildren->pdgId()) == 5||fabs(topChildren->pdgId()) == 3||fabs(topChildren->pdgId()) == 1) {         
+      b_p4 = topChildren->p4();
+      b_pdgId = topChildren->pdgId();
+      hasB = true;
+    } //else if   
+  
+  } //for (size_t k=0; k < particle->nChildren(); k++)
+  if (hasT && hasW && hasB && hasWdecayProd1 && hasWdecayProd2) return true;
+    } //for (const xAOD::TruthParticle* particle : *truthParticles)
+    
+    return false;   
+          
+  }
+
   bool CalcTopPartonHistory::Wlv( const xAOD::TruthParticleContainer* truthParticles, 
   				    TLorentzVector& W_p4, 
 				    TLorentzVector& Wdecay1_p4, int& Wdecay1_pdgId, 

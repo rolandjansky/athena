@@ -53,7 +53,8 @@ namespace top{
      
       ///Store the four-momentum of several particles in the top decay chain
       bool topWb(const xAOD::TruthParticleContainer* truthParticles, int start, TLorentzVector& t_beforeFSR_p4, TLorentzVector& t_afterFSR_p4, TLorentzVector& W_p4, TLorentzVector& b_p4, TLorentzVector& Wdecay1_p4, int& Wdecay1_pdgId, TLorentzVector& Wdecay2_p4, int& Wdecay2_pdgId);
-      
+      bool topWq(const xAOD::TruthParticleContainer* truthParticles, int start, TLorentzVector& t_beforeFSR_p4, TLorentzVector& t_afterFSR_p4, TLorentzVector& W_p4, TLorentzVector& b_p4, int& b_pdgId, TLorentzVector& Wdecay1_p4, int& Wdecay1_pdgId, TLorentzVector& Wdecay2_p4, int& Wdecay2_pdgId);
+
       ///Store the four-momentum of b (not from tops_ before and after FSR
       bool b(const xAOD::TruthParticleContainer* truthParticles, TLorentzVector& b_beforeFSR, TLorentzVector& b_afterFSR);
       

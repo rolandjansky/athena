@@ -54,6 +54,7 @@ namespace xAOD{
       virtual ~PartonHistory(){}    
 
       void IniVarTtbar();
+      void IniVarTtbarLight();
       void IniVarTbbar();
       void IniVarWlv();
       void IniVarWtb();
