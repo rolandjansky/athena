@@ -42,6 +42,7 @@
 
 #include "TrkEventTPCnv/TrkSurfaces/CylinderBounds_p1.h"
 #include "TrkEventTPCnv/TrkSurfaces/DiamondBounds_p1.h"
+#include "TrkEventTPCnv/TrkSurfaces/RotatedDiamondBounds_p1.h"
 #include "TrkEventTPCnv/TrkSurfaces/DiscBounds_p1.h"
 #include "TrkEventTPCnv/TrkSurfaces/RectangleBounds_p1.h"
 #include "TrkEventTPCnv/TrkSurfaces/TrapezoidBounds_p1.h"
@@ -99,6 +100,7 @@ namespace Trk
      std::vector< Trk::Surface_p1 >                     m_surfaces;
      std::vector< Trk::CylinderBounds_p1 >              m_cylinderBounds;
      std::vector< Trk::DiamondBounds_p1 >               m_diamondBounds;
+     std::vector< Trk::RotatedDiamondBounds_p1 >        m_rotatedDiamondBounds;
      std::vector< Trk::DiscBounds_p1 >                  m_discBounds;
      std::vector< Trk::RectangleBounds_p1 >             m_rectangleBounds;
      std::vector< Trk::TrapezoidBounds_p1 >             m_trapesoidBounds;
