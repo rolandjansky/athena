@@ -756,7 +756,7 @@ def getTauGenericPi0Cone():
     return TauGenericPi0Cone
 
 ########################################################################
-# TauGenericPi0Cone
+# TauTrackClassifier
 def getTauTrackClassifier():
 
     _name = sPrefix + 'TauTrackClassifier'
@@ -773,27 +773,32 @@ def getTauTrackClassifier():
     import cppyy
     cppyy.loadDictionary('xAODTau_cDict')
 
-    input_file_name = 'ftf_tracks_mva_classifier.root'
-    threshold = 0.5
+    input_file_name = 'EFtracks_BDT_classifier_v0.root'
+    calibrationFolder = 'TrigTauRec/00-11-02/'
+    threshold = 0.45
+
     # =========================================================================
-    _ftf_tracks_mva_bdt = TrackMVABDT(
-        name = _name + "_0",
-        # calibFolder='data/TrigTauRec',
-        calibFolder='TrigTauRec/00-11-01/',
-        inTrigger=True,
+    _EFtracks_bdt = TrackMVABDT(
+        name = _name + "_MVABDT",
         InputWeightsPath=input_file_name,
         Threshold=threshold,
         ExpectedFlag   = ROOT.xAOD.TauJetParameters.unclassified, 
-        SignalType     = ROOT.xAOD.TauJetParameters.classifiedIsolation, 
-        BackgroundType = ROOT.xAOD.TauJetParameters.classifiedCharged)
-    ToolSvc += _ftf_tracks_mva_bdt
+        SignalType     = ROOT.xAOD.TauJetParameters.classifiedCharged,
+        BackgroundType = ROOT.xAOD.TauJetParameters.classifiedIsolation,
+        inTrigger      = True,
+        calibFolder    = calibrationFolder
+    )
+
+    ToolSvc += _EFtracks_bdt
 
     classifier = TauTrackClassifier(
         name=_name, 
-        Classifiers=[_ftf_tracks_mva_bdt])
-        # TauTrackContainerName=_DefaultTrigTauTrackContainer)
+        Classifiers=[_EFtracks_bdt]
+    )
+
     cached_instances[_name] = classifier
     return classifier
+
 
 # end
 

@@ -43,6 +43,8 @@ public:
 
   // retrieve all track classifier sub tools
   virtual StatusCode initialize();
+  // retrieve mu for online track classification
+  virtual StatusCode eventInitialize(); 
   // pass all tracks in the tau cone to all track classifier sub tools
   virtual StatusCode execute(xAOD::TauJet& pTau);
 
@@ -50,6 +52,7 @@ private:
   ToolHandleArray<TrackMVABDT> m_vClassifier;
   std::string m_tauTrackConName;
   std::vector<std::string> m_vClassifierNames;//optional
+  double m_mu;
 
 }; // class TauTrackClassifier
   
