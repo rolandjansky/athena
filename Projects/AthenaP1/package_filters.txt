@@ -113,9 +113,9 @@
 - PhysicsAnalysis/NTUPtoNTUP/.*
 - PhysicsAnalysis/MonteCarloReact/.*
 - PhysicsAnalysis/AnalysisCommon/ReweightUtils
+- PhysicsAnalysis/AnalysisCommon/HDF5Utils
 + PhysicsAnalysis/DerivationFramework/DerivationFrameworkInterfaces
 - PhysicsAnalysis/DerivationFramework/.*
-- PhysicsAnalysis/JetTagging/JetTagTraining/HDF5Utils
 
 # Temporarily disabled
 - HLT/HLToks
