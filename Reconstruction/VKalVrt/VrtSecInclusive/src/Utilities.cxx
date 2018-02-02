@@ -1787,6 +1787,13 @@ namespace VKalVrtAthena {
       
     }
     
+    if( vertex.perp() < 31.0 ) {
+      double dphi = trk->phi() - vertex.phi();
+      while( dphi >  TMath::Pi() ) { dphi -= TMath::TwoPi(); }
+      while( dphi < -TMath::Pi() ) { dphi += TMath::TwoPi(); }
+      if( fabs(dphi) > TMath::Pi()/2.0 ) return false;
+    }
+    
     auto& exPattern = m_extrapolatedPatternBank.at( trk );
     
     using LayerCombination = std::vector<int>;

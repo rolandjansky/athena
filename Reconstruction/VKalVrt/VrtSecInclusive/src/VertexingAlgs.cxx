@@ -239,6 +239,10 @@ namespace VKalVrtAthena {
         if( m_jp.FillHist ) dynamic_cast<TH2F*>( m_hists["vPosDist"] )->Fill( wrkvrt.vertex.perp(), vPos );
         
         if( m_jp.doPVcompatibilityCut ) {
+          if( wrkvrt.vertex.perp() < 31.0 && vPos < 0. ) {
+            ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": failed to pass the vPos cut." );
+            continue;
+          }
           if( vPos < m_jp.pvCompatibilityCut ) {
             ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": failed to pass the vPos cut." );
             continue;
