@@ -199,7 +199,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("ApplyTightSFsInLooseTree","Special: in Loose trees, calculate lepton SFs with tight leptons only, and considering they are tight: True or False (default)", "False");
 
     registerParameter("ApplyElectronInJetSubtraction","Subtract electrons close to jets for boosted analysis : True or False(top default)", "False");
-    registerParameter("TopPartonHistory","ttbar, tb, False (default)", "False");
+    registerParameter("TopPartonHistory","ttbar, tb, Wtb, False (default)", "False");
 
     registerParameter("TopParticleLevel", "Perform particle level selection? True or False", "False");
     registerParameter("DoParticleLevelOverlapRemoval",

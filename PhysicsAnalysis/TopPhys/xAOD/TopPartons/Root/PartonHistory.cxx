@@ -188,6 +188,77 @@ namespace xAOD{
 
   }
 
+  // Initialize variable for Wt ST events
+  void PartonHistory::IniVarWtb(){
+    
+    // top or antitop 
+    this->auxdecor< float >( "MC_top_beforeFSR_pt" ) = -1 ; 
+    this->auxdecor< float >( "MC_top_beforeFSR_eta" ) = -1000 ; 
+    this->auxdecor< float >( "MC_top_beforeFSR_phi" ) = -1000 ; 
+    this->auxdecor< float >( "MC_top_beforeFSR_m" ) = -1 ; 
+    this->auxdecor< float >( "MC_top_afterFSR_pt" ) = -1 ; 
+    this->auxdecor< float >( "MC_top_afterFSR_eta" ) = -1000 ; 
+    this->auxdecor< float >( "MC_top_afterFSR_phi" ) = -1000 ; 
+    this->auxdecor< float >( "MC_top_afterFSR_m" ) = -1 ; 
+
+    // b from top 
+    this->auxdecor< float >( "MC_b_from_top_pt" ) = -1 ; 
+    this->auxdecor< float >( "MC_b_from_top_eta" ) = -1000 ; 
+    this->auxdecor< float >( "MC_b_from_top_phi" ) = -1000 ; 
+    this->auxdecor< float >( "MC_b_from_top_m" ) = -1 ; 
+
+    // W from top 
+    this->auxdecor< float >( "MC_W_from_top_pt" ) = -1 ; 
+    this->auxdecor< float >( "MC_W_from_top_eta" ) = -1000 ; 
+    this->auxdecor< float >( "MC_W_from_top_phi" ) = -1000 ; 
+    this->auxdecor< float >( "MC_W_from_top_m" ) = -1 ; 
+
+    // W from top decay product 1
+    this->auxdecor< float >( "MC_Wdecay1_from_top_pt" ) = -1 ; 
+    this->auxdecor< float >( "MC_Wdecay1_from_top_eta" ) = -1000 ; 
+    this->auxdecor< float >( "MC_Wdecay1_from_top_phi" ) = -1000 ; 
+    this->auxdecor< float >( "MC_Wdecay1_from_top_m" ) = -1 ; 
+    this->auxdecor< int >( "MC_Wdecay1_from_top_pdgId" ) = 0 ; 
+
+    // W from top decay product 2
+    this->auxdecor< float >( "MC_Wdecay2_from_top_pt" ) = -1 ; 
+    this->auxdecor< float >( "MC_Wdecay2_from_top_eta" ) = -1000 ; 
+    this->auxdecor< float >( "MC_Wdecay2_from_top_phi" ) = -1000 ; 
+    this->auxdecor< float >( "MC_Wdecay2_from_top_m" ) = -1 ; 
+    this->auxdecor< int >( "MC_Wdecay2_from_top_pdgId" ) = 0 ; 
+
+    // W NOT from top 
+    this->auxdecor< float >( "MC_W_not_from_top_pt" ) = -1 ; 
+    this->auxdecor< float >( "MC_W_not_from_top_eta" ) = -1000 ; 
+    this->auxdecor< float >( "MC_W_not_from_top_phi" ) = -1000 ; 
+    this->auxdecor< float >( "MC_W_not_from_top_m" ) = -1 ; 
+
+    // W NOT from top decay product 1
+    this->auxdecor< float >( "MC_Wdecay1_not_from_top_pt" ) = -1 ; 
+    this->auxdecor< float >( "MC_Wdecay1_not_from_top_eta" ) = -1000 ; 
+    this->auxdecor< float >( "MC_Wdecay1_not_from_top_phi" ) = -1000 ; 
+    this->auxdecor< float >( "MC_Wdecay1_not_from_top_m" ) = -1 ; 
+    this->auxdecor< int >( "MC_Wdecay1_not_from_top_pdgId" ) = 0 ; 
+
+    // W NOT from top decay product 2
+    this->auxdecor< float >( "MC_Wdecay2_not_from_top_pt" ) = -1 ; 
+    this->auxdecor< float >( "MC_Wdecay2_not_from_top_eta" ) = -1000 ; 
+    this->auxdecor< float >( "MC_Wdecay2_not_from_top_phi" ) = -1000 ; 
+    this->auxdecor< float >( "MC_Wdecay2_not_from_top_m" ) = -1 ; 
+    this->auxdecor< int >( "MC_Wdecay2_not_from_top_pdgId" ) = 0 ; 
+
+    // b not from top, for Wtb events
+    this->auxdecor< float >( "MC_b_not_from_top_beforeFSR_pt" ) = -1 ; 
+    this->auxdecor< float >( "MC_b_not_from_top_beforeFSR_eta" ) = -1000 ; 
+    this->auxdecor< float >( "MC_b_not_from_top_beforeFSR_phi" ) = -1000 ; 
+    this->auxdecor< float >( "MC_b_not_from_top_beforeFSR_m" ) = -1 ; 
+    this->auxdecor< float >( "MC_b_not_from_top_afterFSR_pt" ) = -1 ; 
+    this->auxdecor< float >( "MC_b_not_from_top_afterFSR_eta" ) = -1000 ; 
+    this->auxdecor< float >( "MC_b_not_from_top_afterFSR_phi" ) = -1000 ; 
+    this->auxdecor< float >( "MC_b_not_from_top_afterFSR_m" ) = -1 ; 
+    this->auxdecor< int >( "MC_b_not_from_top_pdgId" ) = 0 ; 
+
+  }
 
 }
 ADD_NS_DV_PROXY( xAOD , PartonHistoryContainer );
