@@ -11,6 +11,9 @@
 
 // Isolation includes
 #include "IsolationBuilder.h"
+#include "xAODEgamma/Egamma.h"
+#include "xAODEgamma/Photon.h"
+#include "xAODEgamma/EgammaxAODHelpers.h"
 
 IsolationBuilder::IsolationBuilder( const std::string& name, 
 				    ISvcLocator* pSvcLocator ) : 
@@ -531,7 +534,31 @@ StatusCode IsolationBuilder::executeTrackIso(const std::vector<std::pair<xAOD::I
 
     for (auto part : *readHandle) {
       xAOD::TrackIsolation TrackIsoResult;
-      bool successfulCalc = m_trackIsolationTool->trackIsolation(TrackIsoResult, *part, keys.isoTypes, keys.CorrList);
+      bool successfulCalc = false;
+      // check to see if we are dealing with an electron
+      auto *eg = dynamic_cast<const xAOD::Egamma*>(part);
+      if (eg) {
+	ATH_MSG_DEBUG("Doing track isolation on an egamma particle");
+	std::set<const xAOD::TrackParticle*> tracksToExclude;
+	if (xAOD::EgammaHelpers::isElectron(eg)) {
+	  tracksToExclude = xAOD::EgammaHelpers::getTrackParticles(eg, m_useBremAssoc);
+	} else {
+	  if (m_allTrackRemoval) { //New (from ??/??/16) : now this gives all tracks
+	    tracksToExclude = xAOD::EgammaHelpers::getTrackParticles(eg, m_useBremAssoc);
+	  } else { // this is just to be able to have the 2015+2016 default case (only tracks from first vertex)
+	    auto *gam = dynamic_cast<const xAOD::Photon *>(eg);
+	    if (gam && gam->nVertices() > 0) {
+	      const xAOD::Vertex *phvtx = gam->vertex(0);
+	      for (unsigned int itk = 0; itk < phvtx->nTrackParticles(); itk++)
+		tracksToExclude.insert(m_useBremAssoc ? xAOD::EgammaHelpers::getOriginalTrackParticleFromGSF(phvtx->trackParticle(itk)) : phvtx->trackParticle(itk));
+	    }
+	  }
+	}
+	successfulCalc = m_trackIsolationTool->trackIsolation(TrackIsoResult, *part, keys.isoTypes, keys.CorrList, nullptr, &tracksToExclude);
+      } else {
+	ATH_MSG_DEBUG("Not doing track isolation on an egamma particle");
+	successfulCalc = m_trackIsolationTool->trackIsolation(TrackIsoResult, *part, keys.isoTypes, keys.CorrList);
+      }
 
       if (successfulCalc) {
 	for (unsigned int i = 0; i < keys.isoTypes.size(); i++) {
