@@ -9,15 +9,19 @@
 
 #include "TrkTrackSummary/TrackSummary.h"
 
-#include <iostream>
-#include <map>
-#include <vector>
-#include <deque>
+#include <xAODTruth/TruthParticleContainer.h>
+#include <xAODTruth/TruthVertexContainer.h>
 
 #include "TH1D.h"
 #include "TNtuple.h"
 #include "TTree.h"
 #include "TROOT.h"
+
+#include <iostream>
+#include <map>
+#include <vector>
+#include <deque>
+
 //-------------------------------------------------
 
 using namespace std;
@@ -666,6 +670,7 @@ namespace VKalVrtAthena {
     declareProperty("McParticleContainer",             m_jp.truthParticleContainerName      = "TruthParticles"              );
     declareProperty("MCEventContainer",                m_jp.mcEventContainerName            = "TruthEvents"                 );
     declareProperty("AugmentingVersionString",         m_jp.augVerString                    = ""                            );
+    declareProperty("TruthParticleFilter",             m_jp.truthParticleFilter             = "Rhadron"                     ); // Either "", "Kshort", "Rhadron", "HNL"
     
     declareProperty("All2trkVerticesContainerName",    m_jp.all2trksVerticesContainerName   = "All2TrksVertices"            );
     declareProperty("SecondaryVerticesContainerName",  m_jp.secondaryVerticesContainerName  = "SecondaryVertices"           );
@@ -950,6 +955,14 @@ namespace VKalVrtAthena {
                               [&collection]( std::string str, auto& index ) { return str + ", " + std::to_string( collection.at(index)->index() ); } );
     };
     
+    static std::map<const xAOD::TruthVertex*, bool> matchMap;
+    std::map<const xAOD::TruthVertex*, bool> previous;
+    
+    for( auto& pair : matchMap ) { previous.emplace( pair.first, pair.second ); }
+    
+    matchMap.clear();
+    for( auto* truthVertex : m_tracingTruthVertices ) { matchMap.emplace( truthVertex, false ); }
+    
     for(size_t iv=0; iv<workVerticesContainer->size(); iv++) {
       auto& wrkvrt = workVerticesContainer->at(iv);
       
@@ -970,8 +983,54 @@ namespace VKalVrtAthena {
                      << ", sels = { "            << sels << " }"
                      << ", assocs = { "          << assocs << " }" );
       
+      // Truth match condition
+      using truthLink = ElementLink<xAOD::TruthParticleContainer>;
+      
+      for( const auto* truthVertex : m_tracingTruthVertices ) {
+        
+        
+        Amg::Vector3D vTruth( truthVertex->x(), truthVertex->y(), truthVertex->z() );
+        Amg::Vector3D vReco ( wrkvrt.vertex.x(), wrkvrt.vertex.y(), wrkvrt.vertex.z() );
+        
+        const auto distance = vReco - vTruth;
+        
+        AmgSymMatrix(3) cov;
+        cov.fillSymmetric( 0, 0, wrkvrt.vertexCov.at(0) );
+        cov.fillSymmetric( 1, 0, wrkvrt.vertexCov.at(1) );
+        cov.fillSymmetric( 1, 1, wrkvrt.vertexCov.at(2) );
+        cov.fillSymmetric( 2, 0, wrkvrt.vertexCov.at(3) );
+        cov.fillSymmetric( 2, 1, wrkvrt.vertexCov.at(4) );
+        cov.fillSymmetric( 2, 2, wrkvrt.vertexCov.at(5) );
+        
+        const double s2 = distance.transpose() * cov.inverse() * distance;
+        
+        if( s2 < 100. ) matchMap.at( truthVertex ) = true;
+        
+      }
+      
     }
+      
     ATH_MSG_DEBUG( " >> " << __FUNCTION__ << ": number of used tracks = " << usedTracks.size() );
+    
+    unsigned nmatched = 0;
+    if( matchMap.size() > 0 ) {
+      nmatched = std::count_if( matchMap.begin(), matchMap.end(), []( auto& pair ) { return pair.second; } );
+    }
+    
+    if( previous.size() > 0 && previous.size() == matchMap.size() ) {
+      for( auto& pair : matchMap ) {
+        if( previous.find( pair.first ) == previous.end() ) continue;
+        if( pair.second != previous.at( pair.first ) ) {
+          ATH_MSG_DEBUG( " >> " << __FUNCTION__ << ": Match flag has changed: (r, z) = (" << pair.first->perp() << ", " << pair.first->z() << ")" );
+        }
+      }
+    }
+    
+    if( m_jp.FillHist ) {
+      for( auto& pair : matchMap ) {
+        if( pair.second ) m_hists["nMatchedTruths"]->Fill( m_vertexingAlgorithmStep+2, pair.first->perp() );
+      }
+    }
     
     std::string msg;
     for( auto* trk : usedTracks ) { msg += Form("%ld, ", trk->index() ); }
@@ -1704,7 +1763,108 @@ namespace VKalVrtAthena {
     
   }
   
-
+  
+  //____________________________________________________________________________________________________
+  void VrtSecInclusive::dumpTruthInformation() {
+    
+    const xAOD::TruthParticleContainer* truthParticles { nullptr };
+    const xAOD::TruthVertexContainer*   truthVertices  { nullptr };
+    
+    auto sc1 = evtStore()->retrieve( truthParticles, "TruthParticles" );
+    if( sc1.isFailure() ) { return; }
+    
+    auto sc2 = evtStore()->retrieve( truthVertices, "TruthVertices" );
+    if( sc2.isFailure() ) { return; }
+    
+    if( !truthParticles ) { return; }
+    if( !truthVertices  ) { return; }
+    
+    m_tracingTruthVertices.clear();
+    
+    std::vector<const xAOD::TruthParticle*> truthSvTracks;
+    
+    //
+    // truth particle selection functions
+    
+    auto selectNone = [](const xAOD::TruthVertex*) ->bool { return false; };
+    
+    auto selectRhadron = [](const xAOD::TruthVertex* truthVertex ) -> bool {
+      if( truthVertex->nIncomingParticles() != 1 )                      return false;
+      if( abs(truthVertex->incomingParticle(0)->pdgId()) < 1000000 )    return false;
+      if( abs(truthVertex->incomingParticle(0)->pdgId()) > 1000000000 ) return false; // Nuclear codes, e.g. deuteron
+      return true;
+    };
+  
+    auto selectHNL = [](const xAOD::TruthVertex* truthVertex ) -> bool {
+      if( truthVertex->nIncomingParticles() != 1 )                      return false;
+      if( abs(truthVertex->incomingParticle(0)->pdgId()) != 50 )        return false;
+      return true;
+    };
+    
+    auto selectKshort = [](const xAOD::TruthVertex* truthVertex ) -> bool {
+      if( truthVertex->nIncomingParticles() != 1 )                      return false;
+      if( abs(truthVertex->incomingParticle(0)->pdgId()) != 310 )       return false;
+      return true;
+    };
+    
+    auto selectHadInt = [](const xAOD::TruthVertex* truthVertex ) -> bool {
+      if( truthVertex->nIncomingParticles() != 1 )                      return false;
+      
+      auto* parent = truthVertex->incomingParticle(0);
+      if( parent->isLepton() )                                          return false;
+      
+      TLorentzVector p4sum_in;
+      TLorentzVector p4sum_out;
+      for( unsigned ip = 0; ip < truthVertex->nIncomingParticles(); ip++ ) {
+        auto* particle = truthVertex->incomingParticle(ip);
+        TLorentzVector p4; p4.SetPtEtaPhiM( particle->pt(), particle->eta(), particle->phi(), particle->m() );
+        p4sum_in += p4;
+      }
+      for( unsigned ip = 0; ip < truthVertex->nOutgoingParticles(); ip++ ) {
+        auto* particle = truthVertex->outgoingParticle(ip);
+        TLorentzVector p4; p4.SetPtEtaPhiM( particle->pt(), particle->eta(), particle->phi(), particle->m() );
+        p4sum_out += p4;
+      }
+      if( p4sum_out.E() - p4sum_in.E() < 100. )                         return false;
+      return true;
+    };
+    
+    
+    
+    using ParticleSelectFunc = bool (*)(const xAOD::TruthVertex*);
+    std::map<std::string, ParticleSelectFunc> selectFuncs { { "",        selectNone    },
+                                                            { "Kshort",  selectKshort  },
+                                                            { "Rhadron", selectRhadron },
+                                                            { "HNL",     selectHNL     },
+                                                            { "HadInt",  selectHadInt  }  };
+    
+    
+    if( selectFuncs.find( m_jp.truthParticleFilter ) == selectFuncs.end() ) {
+      ATH_MSG_WARNING( " > " << __FUNCTION__ << ": invalid function specification: " << m_jp.truthParticleFilter );
+      return;
+    }
+    
+    auto selectFunc = selectFuncs.at( m_jp.truthParticleFilter );
+    
+    // loop over truth vertices
+    for( const auto *truthVertex : *truthVertices ) {
+      if( selectFunc( truthVertex ) ) {
+        m_tracingTruthVertices.emplace_back( truthVertex );
+        std::string msg;
+        msg += Form("(r, z) = (%.2f, %.2f), ", truthVertex->perp(), truthVertex->z());
+        msg += Form("nOutgoing = %lu, ", truthVertex->nOutgoingParticles() );
+        msg += Form("mass = %.3f GeV, pt = %.3f GeV", truthVertex->incomingParticle(0)->m()/1.e3, truthVertex->incomingParticle(0)->pt()/1.e3 );
+        ATH_MSG_DEBUG( " > " << __FUNCTION__ << ": " << msg );
+      }
+    }
+    
+    if( m_jp.FillHist ) {
+      for( auto* truthVertex : m_tracingTruthVertices ) {
+        m_hists["nMatchedTruths"]->Fill( m_vertexingAlgorithmStep, truthVertex->perp() );
+      }
+    }
+    
+  }
   
 } // end of namespace VKalVrtAthena
 

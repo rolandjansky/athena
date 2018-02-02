@@ -113,6 +113,7 @@ namespace VKalVrtAthena {
       std::string          truthParticleContainerName;
       std::string          mcEventContainerName;
       std::string          augVerString;
+      std::string          truthParticleFilter;
       
       std::string all2trksVerticesContainerName;
       std::string secondaryVerticesContainerName;
@@ -485,6 +486,10 @@ namespace VKalVrtAthena {
     const xAOD::TruthParticle *getTrkGenParticle(const xAOD::TrackParticle*) const;
     
     StatusCode categorizeVertexTruthTopology( xAOD::Vertex *vertex );
+    
+    void dumpTruthInformation();
+    
+    std::vector<const xAOD::TruthVertex*> m_tracingTruthVertices;
     
     ////////////////////////////////////////////////////////////////////////////////////////
     // 

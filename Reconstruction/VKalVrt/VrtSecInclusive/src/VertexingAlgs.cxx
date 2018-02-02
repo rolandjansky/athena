@@ -66,8 +66,11 @@ namespace VKalVrtAthena {
     enum recoStep { kStart, kInitVtxPosition, kImpactParamCheck, kVKalVrtFit, kChi2, kVposCut, kPatternMatch };
     
     const double maxR { 563. };         // r = 563 mm is the TRT inner surface
-    const double roughD0Cut { 20. };
-    const double roughZ0Cut { 40. };
+    const double roughD0Cut { 100. };
+    const double roughZ0Cut { 50.  };
+    
+    // Truth match map
+    std::map<const xAOD::TruthVertex*, bool> matchMap;
 
     // first make all 2-track vertices
     for( auto itrk = m_selectedTracks->begin(); itrk != m_selectedTracks->end(); ++itrk ) {
@@ -204,6 +207,28 @@ namespace VKalVrtAthena {
                        << ", chi2/ndof = "         << wrkvrt.fitQuality()
                        << ", (r, z) = ("           << wrkvrt.vertex.perp()
                        <<", "                      << wrkvrt.vertex.z() << ")" );
+        
+        for( const auto* truthVertex : m_tracingTruthVertices ) {
+          Amg::Vector3D vTruth( truthVertex->x(), truthVertex->y(), truthVertex->z() );
+          Amg::Vector3D vReco ( wrkvrt.vertex.x(), wrkvrt.vertex.y(), wrkvrt.vertex.z() );
+          
+          const auto distance = vReco - vTruth;
+          
+          AmgSymMatrix(3) cov;
+          cov.fillSymmetric( 0, 0, wrkvrt.vertexCov.at(0) );
+          cov.fillSymmetric( 1, 0, wrkvrt.vertexCov.at(1) );
+          cov.fillSymmetric( 1, 1, wrkvrt.vertexCov.at(2) );
+          cov.fillSymmetric( 2, 0, wrkvrt.vertexCov.at(3) );
+          cov.fillSymmetric( 2, 1, wrkvrt.vertexCov.at(4) );
+          cov.fillSymmetric( 2, 2, wrkvrt.vertexCov.at(5) );
+
+          const double s2 = distance.transpose() * cov.inverse() * distance;
+          
+          if( s2 < 100. )  {
+            ATH_MSG_DEBUG ( " > " << __FUNCTION__ << ": truth-matched candidate! : signif^2 = " << s2 );
+            matchMap.emplace( truthVertex, true );
+          }
+        }
         
         if( m_jp.FillHist ) dynamic_cast<TH2F*>( m_hists["vPosDist"] )->Fill( wrkvrt.vertex.perp(), vPos );
         
