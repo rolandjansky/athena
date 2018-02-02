@@ -15,6 +15,7 @@
 
 #include "ACTS/Tools/ILayerBuilder.hpp"
 #include "ACTS/Surfaces/CylinderSurface.hpp"
+#include "ACTS/Surfaces/DiscSurface.hpp"
 
 const Acts::LayerVector
 Acts::GeoModelStrawLayerBuilder::negativeLayers() const
@@ -56,17 +57,16 @@ Acts::GeoModelStrawLayerBuilder::centralLayers()
 
   Acts::LayerVector layers;
 
-  size_t nVtx = 0;
-  std::ofstream objout;
-  objout.open("trt.obj");
-  objout << "mtllib master.mtl" << std::endl;
+  //size_t nVtx = 0;
+  //std::ofstream objout;
+  //objout.open("trt.obj");
+  //objout << "mtllib master.mtl" << std::endl;
 
   std::vector<ProtoLayer> protoLayers;
 
   for(size_t iring=0; iring < nBarrelRings;iring++) {
     ACTS_VERBOSE("- Collecting elements for ring " << iring);
   
-    objout << "usemtl straw" << std::endl;
 
     // were calculating min/max radius while were at it.
     ProtoLayer pl;
@@ -97,21 +97,29 @@ Acts::GeoModelStrawLayerBuilder::centralLayers()
 
           for(int istraw=0;istraw<nStraws;istraw++) {
 
-            Transform3D trf = brlElem->strawTransform(istraw);
-            auto elem = std::make_shared<const Acts::GeoModelDetectorElement>();
+            auto trf = std::make_shared<const Transform3D>(brlElem->strawTransform(istraw));
+            // @TODO: ID IS WRONG!!!!!
+            auto elem = std::make_shared<const Acts::GeoModelDetectorElement>(trf, brlElem);
+
+            m_cfg.elementStore->push_back(elem);
+
+            auto cylinder = dynamic_cast<const Acts::CylinderSurface*>(&elem->surface());
+            double radius = cylinder->bounds().r();
+            double length = cylinder->bounds().halflengthZ();
 
             // calculate min/max R and Z
             Vector3D ctr = cylinder->center();
-            pl.maxR = std::max(pl.maxR, ctr.perp() + innerTubeRadius);
-            pl.minR = std::min(pl.minR, ctr.perp() - innerTubeRadius);
+            pl.maxR = std::max(pl.maxR, ctr.perp() + radius);
+            pl.minR = std::min(pl.minR, ctr.perp() - radius);
             pl.maxZ = std::max(pl.maxZ, ctr.z() + length);
             pl.minZ = std::min(pl.minZ, ctr.z() - length);
 
             layerSurfaces.push_back(cylinder);
 
-            PolyhedronRepresentation ph = cylinder->polyhedronRepresentation(6);
-            objout << ph.objString(nVtx);
-            nVtx += ph.vertices.size();
+            //PolyhedronRepresentation ph = cylinder->polyhedronRepresentation(6);
+            //objout << "usemtl straw" << std::endl;
+            //objout << ph.objString(nVtx);
+            //nVtx += ph.vertices.size();
             
 
           }
@@ -121,27 +129,14 @@ Acts::GeoModelStrawLayerBuilder::centralLayers()
 
     ACTS_VERBOSE("  - Collected " << layerSurfaces.size() << " straws");
 
-
-    // figure out outer dimensions of this layer
-    //ProtoLayer pl(layerSurfaces);
-
     if(iring > 0) {
       // match outer radius of previous ring
       ProtoLayer &prev = protoLayers.at(iring-1);
       pl.minR = prev.maxR + prev.envR.second + pl.envR.first;
     }
 
-    //pl.minR = minR;
-    //pl.maxR = maxR;
-    pl.dump(std::cout);
-
-    //std::cout << __FUNCTION__ << ":" << __LINE__ << std::endl;
-    //for(const auto &srf: layerSurfaces) {
-      //std::cout << "SRF: " << srf << std::endl;
-      //Vector3D ctr = srf->center();
-      //std::cout << "OK!" << std::endl;
-    //}
     std::shared_ptr<Layer> layer = m_cfg.layerCreator->cylinderLayer(layerSurfaces, 100, 1, pl);
+    layers.push_back(layer);
 
     protoLayers.push_back(pl);
 
@@ -158,21 +153,117 @@ Acts::GeoModelStrawLayerBuilder::centralLayers()
     //objout << ph.objString(nVtx);
     //nVtx += ph.vertices.size();
 
-
-    
   }
 
     
-  objout.close();
+  //objout.close();
 
 
-  return {};
+  return layers;
 }
 
 const Acts::LayerVector
 Acts::GeoModelStrawLayerBuilder::endcapLayers(int side)
 {
-  std::cout << __PRETTY_FUNCTION__ << " go" << std::endl;
-  return {};
+  ACTS_VERBOSE("Building endcap Straw layers")
+
+  const InDetDD::TRT_Numerology* trtNums = m_cfg.mng->getNumerology();
+  size_t    nEndcapWheels  = trtNums->getNEndcapWheels();
+  size_t    nEndcapPhiSectors = trtNums->getNEndcapPhi();
+
+  ACTS_VERBOSE("- Numerology reports: - " << nEndcapWheels<< " endcap wheels");
+  ACTS_VERBOSE("                      - " << nEndcapPhiSectors << " endcap phi sectors");
+
+  Acts::LayerVector layers;
+
+  //size_t nVtx = 0;
+  //std::ofstream objout;
+  //objout.open("trt.obj");
+  //objout << "mtllib master.mtl" << std::endl;
+
+  //std::vector<ProtoLayer> protoLayers;
+
+  for(size_t iwheel=0;iwheel<nEndcapWheels;++iwheel) {
+    ACTS_VERBOSE("- Collecting elements for wheel " << iwheel);
+
+    std::vector<const Surface*> wheelSurfaces;
+          
+    ProtoLayer pl;
+    pl.minR = std::numeric_limits<double>::max();
+    pl.maxR = std::numeric_limits<double>::lowest();
+    pl.minZ = std::numeric_limits<double>::max();
+    pl.maxZ = std::numeric_limits<double>::lowest();
+    pl.minPhi = -M_PI;
+    pl.maxPhi = M_PI;
+    pl.envR = {1, 1};
+
+    size_t nEndcapLayers = trtNums->getNEndcapLayers(iwheel);
+    ACTS_VERBOSE("  - Numerology reports: " << nEndcapLayers << " layers in wheel " << iwheel);
+    for(size_t ilayer=0;ilayer<nEndcapLayers;++ilayer) {
+      for (unsigned int iphisec=0; iphisec<nEndcapPhiSectors; ++iphisec) {
+      
+        size_t iposneg = side < 0 ? 0 : 1;
+        const InDetDD::TRT_EndcapElement* ecElem = m_cfg.mng->getEndcapElement(iposneg, iwheel, ilayer, iphisec);
+        int nStraws = ecElem->nStraws();
+
+        for(int istraw=0;istraw<nStraws;istraw++) {
+
+          auto trf = std::make_shared<const Transform3D>(ecElem->strawTransform(istraw));
+          // @TODO: ID IS WRONG!!!!!
+          auto elem = std::make_shared<const Acts::GeoModelDetectorElement>(trf, ecElem);
+
+          m_cfg.elementStore->push_back(elem);
+
+          auto cylinder = dynamic_cast<const Acts::CylinderSurface*>(&elem->surface());
+          double radius = cylinder->bounds().r();
+          double length = cylinder->bounds().halflengthZ();
+
+          Vector3D ctr = cylinder->center();
+          pl.maxZ = std::max(pl.maxZ, ctr.z() + radius);
+          pl.minZ = std::min(pl.minZ, ctr.z() - radius);
+          pl.maxR = std::max(pl.maxR, ctr.perp() + length);
+          pl.minR = std::min(pl.minR, ctr.perp() - length);
+          pl.envZ = {radius/2., radius/2.};
+
+          wheelSurfaces.push_back(cylinder);
+
+          //PolyhedronRepresentation ph = cylinder->polyhedronRepresentation(6);
+          //objout << "usemtl straw" << std::endl;
+          //objout << ph.objString(nVtx);
+          //nVtx += ph.vertices.size();
+        }
+      }
+
+    }
+    
+    ACTS_VERBOSE("  - Collected " << wheelSurfaces.size() << " straws");
+
+    //pl.dump(std::cout);
+    //protoLayers.push_back(pl);
+    
+    //objout << "usemtl green" << std::endl;
+    //auto minTrf = std::make_shared<const Transform3D>(Translation3D(Vector3D(0, 0, pl.minZ - pl.envZ.first)));
+    //DiscSurface inner(minTrf, pl.minR - pl.envR.first, pl.maxR + pl.envR.second);
+    //PolyhedronRepresentation ph = inner.polyhedronRepresentation(100);
+    //objout << ph.objString(nVtx);
+    //nVtx += ph.vertices.size();
+
+    //objout << "usemtl red" << std::endl;
+    //auto maxTrf = std::make_shared<const Transform3D>(Translation3D(Vector3D(0, 0, pl.maxZ + pl.envZ.second)));
+    //DiscSurface outer(maxTrf, pl.minR - pl.envR.first, pl.maxR + pl.envR.second);
+    //ph = outer.polyhedronRepresentation(100);
+    //objout << ph.objString(nVtx);
+    //nVtx += ph.vertices.size();
+    
+    std::shared_ptr<Layer> layer = m_cfg.layerCreator->discLayer(wheelSurfaces, 1, 100, pl);
+    layers.push_back(layer);
+
+  }
+  
+
+  //objout.close();
+
+
+  return layers;
 }
 

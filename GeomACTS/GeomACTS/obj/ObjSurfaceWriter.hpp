@@ -35,7 +35,7 @@ public:
     /// the name of the algorithm
     std::string name;
     /// approximate cyinders by that
-    unsigned int outputPhiSegemnts = 72;
+    unsigned int outputPhiSegments = 72;
     /// write thickness if available
     double outputThickness = 2.;
     /// write sensitive surfaces

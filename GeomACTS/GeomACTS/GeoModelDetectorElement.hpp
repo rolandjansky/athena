@@ -50,7 +50,7 @@ public:
 
   /// Constructor for a straw surface.
   /// @param transform Transform to the straw system
-  GeoModelDetectorElement(const Transform3D& transform, const InDetDD::TRT_BaseElement* detElem);
+  GeoModelDetectorElement(std::shared_ptr<const Transform3D> trf, const InDetDD::TRT_BaseElement* detElem);
 
   ///  Destructor
   virtual ~GeoModelDetectorElement() {}
@@ -101,6 +101,8 @@ private:
   /// Corresponding Surface
   std::shared_ptr<const Surface> m_surface;
   std::vector<std::shared_ptr<const Surface>> m_surfaces;
+
+  std::shared_ptr<const Transform3D> m_transform;
 
 };
 

@@ -9,8 +9,16 @@
 #include <boost/variant.hpp>
 #include <boost/variant/get.hpp>
 
+
+#include "InDetReadoutGeometry/TRT_EndcapElement.h"
+#include "InDetReadoutGeometry/TRT_BarrelElement.h"
+
 #include "GeomACTS/GeoModelDetectorElement.hpp"
 #include "GeomACTS/IdentityHelper.hpp"
+
+#include "ACTS/Surfaces/CylinderSurface.hpp"
+#include "ACTS/Surfaces/CylinderBounds.hpp"
+
 
 
 Acts::GeoModelDetectorElement::GeoModelDetectorElement(const InDetDD::SiDetectorElement* detElem)
@@ -63,22 +71,32 @@ Acts::GeoModelDetectorElement::GeoModelDetectorElement(const InDetDD::SiDetector
 }
 
 Acts::GeoModelDetectorElement::GeoModelDetectorElement(
-    const Transform3D& trf;
+    std::shared_ptr<const Transform3D> trf,
     const InDetDD::TRT_BaseElement* detElem)
 {
   m_detElement = detElem;
+  m_transform = trf;
   
   // we know this is a straw
-  double length = brlElem->strawLength()/2.;
-  double innerTubeRadius = brlElem->getDescriptor()->innerTubeRadius();
+  double length = detElem->strawLength()/2.;
+
+  // we need to find the radius
+  auto ecElem = dynamic_cast<const InDetDD::TRT_EndcapElement*>(detElem);
+  auto brlElem = dynamic_cast<const InDetDD::TRT_BarrelElement*>(detElem);
+  double innerTubeRadius;
+  if (ecElem) {
+    innerTubeRadius = ecElem->getDescriptor()->innerTubeRadius();
+  }
+  else {
+    innerTubeRadius = brlElem->getDescriptor()->innerTubeRadius();
+  }
 
   auto cylBounds = 
     std::make_shared<const Acts::CylinderBounds>(innerTubeRadius, length);
 
   m_bounds = cylBounds;
 
-  cylinder = new Acts::CylinderSurface(
-    std::make_shared<Transform3D>(trf), m_bounds);
+  auto cylinder = std::make_shared<const Acts::CylinderSurface>(cylBounds, *this, detElem->identify());
 
   m_surface = cylinder;
 }
@@ -109,7 +127,8 @@ Acts::GeoModelDetectorElement::transform(const Identifier&) const
     return boost::get<const InDetDD::SiDetectorElement*>(m_detElement)->transform();
   }
   else {
-    return boost::get<const InDetDD::TRT_BaseElement*>(m_detElement)->transform();
+    //return boost::get<const InDetDD::TRT_BaseElement*>(m_detElement)->transform();
+    return (*m_transform);
   }
 }
 

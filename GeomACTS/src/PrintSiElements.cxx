@@ -41,11 +41,15 @@
 #include "ACTS/Tools/ITrackingVolumeBuilder.hpp"
 #include "ACTS/Tools/ILayerBuilder.hpp"
 
+#include "ACTS/Utilities/Units.hpp"
+
 #include "GeomACTS/GeoModelLayerBuilder.hpp"
 #include "GeomACTS/GeoModelStrawLayerBuilder.hpp"
 #include "GeomACTS/obj/ObjSurfaceWriter.hpp"
 #include "GeomACTS/obj/ObjTrackingGeometryWriter.hpp"
 #include "GeomACTS/IdentityHelper.hpp"
+
+#include "GeomACTS/Extrapolation/ParticleGun.hpp"
 
 #include "GeoModelKernel/GeoPrintGraphAction.h"
 
@@ -54,6 +58,9 @@
 #include <string>
 #include <vector>
 #include <list>
+#include <random>
+
+
 namespace {
 const Amg::Vector3D origin(0., 0., 0.);
 }
@@ -138,12 +145,12 @@ StatusCode PrintSiElements::buildTrackingGeometry() {
 
   // PIXEL and SCT
 
-  //std::array<std::string, 2> siDetectors = {"Pixel", "SCT"};
-  //for(const auto& managerName : siDetectors) {
-    //const InDetDD::SiDetectorManager* manager;
-    //ATH_CHECK(detStore()->retrieve(manager, managerName));
-    //volumeBuilders.push_back(makeVolumeBuilder(manager, cylinderVolumeHelper));
-  //}
+  std::array<std::string, 2> siDetectors = {"Pixel", "SCT"};
+  for(const auto& managerName : siDetectors) {
+    const InDetDD::SiDetectorManager* manager;
+    ATH_CHECK(detStore()->retrieve(manager, managerName));
+    volumeBuilders.push_back(makeVolumeBuilder(manager, cylinderVolumeHelper));
+  }
 
 
   // TRT
@@ -162,10 +169,124 @@ StatusCode PrintSiElements::buildTrackingGeometry() {
       = std::make_shared<const Acts::TrackingGeometryBuilder>(tgbConfig);
   
 
-  //std::unique_ptr<const Acts::TrackingGeometry> trackingGeometry = trackingGeometryBuilder->trackingGeometry();
+  std::unique_ptr<const Acts::TrackingGeometry> trackingGeometry = trackingGeometryBuilder->trackingGeometry();
 
 
   //writeTrackingGeometry(*trackingGeometry);
+
+
+  // have tracking geom, lets shoot some particles
+  std::shared_ptr<Acts::ConstantBField> constantField
+    = std::make_shared<Acts::ConstantBField>(
+        0 * Acts::units::_T,
+        0 * Acts::units::_T,
+        0 * Acts::units::_T);
+
+  // (a) RungeKuttaPropagtator
+  using RKEngine = Acts::RungeKuttaEngine<Acts::ConstantBField>;
+  typename RKEngine::Config propConfig;
+  propConfig.fieldService = constantField;
+  auto propEngine         = std::make_shared<RKEngine>(propConfig);
+  propEngine->setLogger(Acts::getDefaultLogger("RungeKuttaEngine", eLogLevel));
+  // (b) MaterialEffectsEngine
+  Acts::MaterialEffectsEngine::Config matConfig;
+  auto                                materialEngine
+    = std::make_shared<Acts::MaterialEffectsEngine>(matConfig);
+  materialEngine->setLogger(
+      Acts::getDefaultLogger("MaterialEffectsEngine", eLogLevel));
+  // (c) StaticNavigationEngine
+  Acts::StaticNavigationEngine::Config navConfig;
+  navConfig.propagationEngine     = propEngine;
+  navConfig.materialEffectsEngine = materialEngine;
+  navConfig.trackingGeometry      = geo;
+  auto navEngine = std::make_shared<Acts::StaticNavigationEngine>(navConfig);
+  navEngine->setLogger(Acts::getDefaultLogger("NavigationEngine", eLogLevel));
+  // (d) the StaticEngine
+  Acts::StaticEngine::Config statConfig;
+  statConfig.propagationEngine     = propEngine;
+  statConfig.navigationEngine      = navEngine;
+  statConfig.materialEffectsEngine = materialEngine;
+  auto statEngine = std::make_shared<Acts::StaticEngine>(statConfig);
+  statEngine->setLogger(Acts::getDefaultLogger("StaticEngine", eLogLevel));
+  // (e) the material engine
+  Acts::ExtrapolationEngine::Config exEngineConfig;
+  exEngineConfig.trackingGeometry     = geo;
+  exEngineConfig.propagationEngine    = propEngine;
+  exEngineConfig.navigationEngine     = navEngine;
+  exEngineConfig.extrapolationEngines = {statEngine};
+  auto exEngine = std::make_unique<Acts::ExtrapolationEngine>(exEngineConfig);
+  exEngine->setLogger(Acts::getDefaultLogger("ExtrapolationEngine", eLogLevel));
+
+
+
+
+  //std::mt19937 rng;
+  ParticleGun::Config pgCfg;
+  pgCfg.nParticles = 100;
+  pgCfg.pID = 11;
+  pgCfg.mass = 0.51099891 * Acts::units::_MeV;
+  pgCfg.charge = -1.;
+  auto rng = std::make_shared<std::mt19937>();
+  pgCfg.rng = rng;
+
+  ParticleGun pg(pgCfg, Acts::getDefaultLogger("ParticleGun", Acts::Logging::VERBOSE));
+
+  std::vector<Acts::ProcessVertex> vertices = pg.generate();
+
+  std::vector<Acts::ExtrapolationCell<Acts::TrackParameters>>   cCells;
+
+  for (const auto &pv : vertices) {
+    const Acts::Vector3D &pos = pv.position();
+    std::cout << "OUTGOING: at " << pos.x() << " " << pos.y() << " " << pos.z() << std::endl;
+    Acts::PerigeeSurface surface(pv.position());
+    for(const auto &particle : pv.outgoingParticles()) {
+      double pt = particle.momentum().perp();
+      double pz = particle.momentum().z();
+
+      std::cout << "pt = " << pt << " pz = " << pz << std::endl;
+
+      // prepare this particle for extrapolation
+      double d0    = 0.;
+      double z0    = 0.;
+      double phi   = particle.momentum().phi();
+      double theta = particle.momentum().theta();
+      // treat differently for neutral particles
+      double qop = particle.charge() != 0
+          ? particle.charge() / particle.momentum().mag()
+          : 1. / particle.momentum().mag();
+      // parameters
+      Acts::ActsVectorD<5> pars;
+      pars << d0, z0, phi, theta, qop;
+      std::unique_ptr<Acts::ActsSymMatrixD<5>> cov = nullptr;
+
+      if (particle.charge()) {
+        // charged extrapolation - with hit recording
+        Acts::BoundParameters startParameters(
+            std::move(cov), std::move(pars), surface);
+        Acts::ExtrapolationCell<Acts::TrackParameters> ecc(startParameters);
+        ecc.addConfigurationMode(Acts::ExtrapolationMode::StopAtBoundary);
+        ecc.addConfigurationMode(Acts::ExtrapolationMode::FATRAS);
+        //executeTestT<Acts::TrackParameters>(startParameters, particle.barcode(), cCells);
+        eTestConfig.searchMode                       = 1;
+        eTestConfig.extrapolationEngine              = extrapolationEngine;
+        ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectSensistive);
+        ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectPassive);
+        ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectBoundary);
+        ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectMaterial);
+        //eTestConfig.collectSensitive                 = true;
+        //eTestConfig.collectPassive                   = true;
+        //eTestConfig.collectBoundary                  = true;
+        //eTestConfig.collectMaterial                  = true;
+        //eTestConfig.sensitiveCurvilinear             = false;
+        //eTestConfig.pathLimit                        = -1.;
+  
+        Acts::ExtrapolationCode eCode = m_cfg.extrapolationEngine->extrapolate(ecc);
+ 
+      }
+    }
+  }
+
+
 
 
   return StatusCode::SUCCESS;
@@ -210,7 +331,12 @@ PrintSiElements::makeVolumeBuilder(const InDetDD::InDetDetectorManager* manager,
     cfg.layerCreator = layerCreator;
     gmLayerBuilder = std::make_shared<const Acts::GeoModelStrawLayerBuilder>(cfg,
       Acts::getDefaultLogger("GMSLayBldr", Acts::Logging::VERBOSE));
-    gmLayerBuilder->centralLayers();
+
+
+
+    //gmLayerBuilder->centralLayers();
+    //gmLayerBuilder->negativeLayers();
+    //gmLayerBuilder->positiveLayers();
   }
   else {
     auto matcher = [](Acts::BinningValue bValue, const Acts::Surface* aS,
@@ -305,7 +431,7 @@ void
 PrintSiElements::writeTrackingGeometry(const Acts::TrackingGeometry& trackingGeometry)
 {
   std::vector<std::string> subDetectors
-      = {"Pixel", "SCT"};
+      = {"Pixel", "SCT", "TRT"};
 
   std::vector<std::shared_ptr<ObjSurfaceWriter>> subWriters;
   std::vector<std::shared_ptr<std::ofstream>>           subStreams;
@@ -318,12 +444,12 @@ PrintSiElements::writeTrackingGeometry(const Acts::TrackingGeometry& trackingGeo
     ObjSurfaceWriter::Config sdObjWriterConfig(sdet,
         Acts::Logging::INFO);
     sdObjWriterConfig.filePrefix         = "";
-    sdObjWriterConfig.outputPhiSegemnts  = 72;
+    sdObjWriterConfig.outputPhiSegments  = 10;
     sdObjWriterConfig.outputPrecision    = 6;
     sdObjWriterConfig.outputScalor       = 1.;
     sdObjWriterConfig.outputThickness    = 1.;
     sdObjWriterConfig.outputSensitive    = true;
-    sdObjWriterConfig.outputLayerSurface = true;
+    sdObjWriterConfig.outputLayerSurface = false;
     sdObjWriterConfig.outputStream       = sdStream;
     auto sdObjWriter
       = std::make_shared<ObjSurfaceWriter>(sdObjWriterConfig);

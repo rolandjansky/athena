@@ -17,6 +17,9 @@
 #include "ACTS/Surfaces/SurfaceBounds.hpp"
 #include "ACTS/Utilities/GeometryID.hpp"
 
+#include "ACTS/Surfaces/PolyhedronRepresentation.hpp"
+#include "ACTS/Surfaces/CylinderSurface.hpp"
+
 ObjSurfaceWriter::ObjSurfaceWriter(
     const ObjSurfaceWriter::Config& cfg)
   : m_cfg(cfg)
@@ -64,44 +67,57 @@ ObjSurfaceWriter::write(const Acts::Surface& surface)
   // dynamic_cast to PlanarBounds
   const Acts::PlanarBounds* planarBounds
       = dynamic_cast<const Acts::PlanarBounds*>(&surfaceBounds);
+  
+  const Acts::CylinderBounds* cylinderBounds
+      = dynamic_cast<const Acts::CylinderBounds*>(&surfaceBounds);
   // only continue if the cast worked
-  if (planarBounds && m_cfg.outputSensitive) {
-    ACTS_VERBOSE(">>Obj: Writing out a PlaneSurface");
-    // set the precision - just to be sure
-    (*(m_cfg.outputStream)) << '\n';
-    (*(m_cfg.outputStream)) << std::setprecision(m_cfg.outputPrecision);
-    // get the vertices
-    auto planarVertices = planarBounds->vertices();
-    // loop over the vertices
-    std::vector<Acts::Vector3D> vertices;
-    vertices.reserve(planarVertices.size());
-    for (auto pv : planarVertices) {
-      // get the point in 3D
-      Acts::Vector3D v3D(sTransform * Acts::Vector3D(pv.x(), pv.y(), 0.));
-      vertices.push_back(v3D);
+  if (m_cfg.outputSensitive) {
+    if (planarBounds) {
+      ACTS_VERBOSE(">>Obj: Writing out a PlaneSurface");
+      // set the precision - just to be sure
+      (*(m_cfg.outputStream)) << '\n';
+      (*(m_cfg.outputStream)) << std::setprecision(m_cfg.outputPrecision);
+      // get the vertices
+      auto planarVertices = planarBounds->vertices();
+      // loop over the vertices
+      std::vector<Acts::Vector3D> vertices;
+      vertices.reserve(planarVertices.size());
+      for (auto pv : planarVertices) {
+        // get the point in 3D
+        Acts::Vector3D v3D(sTransform * Acts::Vector3D(pv.x(), pv.y(), 0.));
+        vertices.push_back(v3D);
+      }
+      // get the thickness and vertical faces
+      double                    thickness = 0.;
+      std::vector<unsigned int> vfaces;
+      if (surface.associatedDetectorElement()) {
+        // get the thickness form the detector element
+        thickness = surface.associatedDetectorElement()->thickness();
+        vfaces    = {1, 1, 1, 1};
+      }
+      // output to file
+      ObjHelper::writePlanarFace(*(m_cfg.outputStream),
+                                   m_vtnCounter,
+                                   scalor,
+                                   vertices,
+                                   thickness,
+                                   vfaces);
+      (*(m_cfg.outputStream)) << '\n';
     }
-    // get the thickness and vertical faces
-    double                    thickness = 0.;
-    std::vector<unsigned int> vfaces;
-    if (surface.associatedDetectorElement()) {
-      // get the thickness form the detector element
-      thickness = surface.associatedDetectorElement()->thickness();
-      vfaces    = {1, 1, 1, 1};
+    
+    if(cylinderBounds) {
+    
+      auto cylinderSurface = dynamic_cast<const Acts::CylinderSurface*>(&surface);
+
+      Acts::PolyhedronRepresentation ph = cylinderSurface->polyhedronRepresentation();
+      (*(m_cfg.outputStream)) << ph.objString(m_vtnCounter.vcounter);
+      m_vtnCounter.vcounter += ph.vertices.size();
+
     }
-    // output to file
-    ObjHelper::writePlanarFace(*(m_cfg.outputStream),
-                                 m_vtnCounter,
-                                 scalor,
-                                 vertices,
-                                 thickness,
-                                 vfaces);
-    (*(m_cfg.outputStream)) << '\n';
   }
 
   // check if you have layer and check what your have
   // dynamic cast to CylinderBounds work the same
-  const Acts::CylinderBounds* cylinderBounds
-      = dynamic_cast<const Acts::CylinderBounds*>(&surfaceBounds);
   if (cylinderBounds && m_cfg.outputLayerSurface) {
     ACTS_VERBOSE(">>Obj: Writing out a CylinderSurface with r = "
                  << cylinderBounds->r());
@@ -113,7 +129,7 @@ ObjSurfaceWriter::write(const Acts::Surface& surface)
     ObjHelper::writeTube(*(m_cfg.outputStream),
                            m_vtnCounter,
                            scalor,
-                           m_cfg.outputPhiSegemnts,
+                           m_cfg.outputPhiSegments,
                            sTransform,
                            cylinderBounds->r(),
                            cylinderBounds->halflengthZ(),
@@ -138,7 +154,7 @@ ObjSurfaceWriter::write(const Acts::Surface& surface)
     ObjHelper::writeTube(*(m_cfg.outputStream),
                            m_vtnCounter,
                            scalor,
-                           m_cfg.outputPhiSegemnts,
+                           m_cfg.outputPhiSegments,
                            sTransform,
                            0.5 * (rMin + rMax),
                            m_cfg.outputThickness,
