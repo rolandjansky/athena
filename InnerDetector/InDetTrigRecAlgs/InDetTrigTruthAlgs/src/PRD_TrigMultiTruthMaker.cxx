@@ -42,6 +42,7 @@ HLT::ErrorCode PRD_TrigMultiTruthMaker::hltInitialize() {
 
   if(!m_doTruth) {
     msg() << MSG::INFO << "PRD_TrigMultiTruthMaker is skipped: doTruth = False" << endmsg;
+    m_PRDTruthTool.disable();
     return HLT::OK;
   }
 

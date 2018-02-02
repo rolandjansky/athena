@@ -53,6 +53,7 @@ HLT::ErrorCode InDetTrigDetailedTrackTruthMaker::hltInitialize() {
 
   if(!m_doTruth) {
     msg() << MSG::INFO << "InDetTrigDetailedTrackTruthMaker is skipped: doTruth = False" << endmsg;
+    m_truthTool.disable();
     return HLT::OK;
   }
 
