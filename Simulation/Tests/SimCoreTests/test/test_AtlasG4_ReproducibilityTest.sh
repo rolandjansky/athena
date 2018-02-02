@@ -4,17 +4,17 @@
 # art-type: grid
 
 # Run 10 events normally
-AtlasG4_tf.py --inputEVNTFile '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/ttbar_muplusjets-pythia6-7000.evgen.pool.root' --DataRunNumber '222510' --geometryVersion 'ATLAS-R2-2015-03-01-00' --conditionsTag 'OFLCOND-RUN12-SDR-21' --outputHITSFile 'hitsFull.ttbar.pool.root' --maxEvents '10' --skipEvents '0'
+AtlasG4_tf.py --inputEVNTFile '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/ttbar_muplusjets-pythia6-7000.evgen.pool.root' --DataRunNumber '222510' --geometryVersion 'ATLAS-R2-2015-03-01-00' --conditionsTag 'OFLCOND-RUN12-SDR-21' --outputHITSFile 'hitsFull.ttbar.pool.root' --maxEvents '10' --skipEvents '0'
 
 echo "art-result: $? unsplit-sim"
 
 # Run first 5 events
-AtlasG4_tf.py --inputEVNTFile '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/ttbar_muplusjets-pythia6-7000.evgen.pool.root' --DataRunNumber '222510' --geometryVersion 'ATLAS-R2-2015-03-01-00' --conditionsTag 'OFLCOND-RUN12-SDR-21' --outputHITSFile 'hitsHalf1.ttbar.pool.root' --maxEvents '5' --skipEvents '0'
+AtlasG4_tf.py --inputEVNTFile '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/ttbar_muplusjets-pythia6-7000.evgen.pool.root' --DataRunNumber '222510' --geometryVersion 'ATLAS-R2-2015-03-01-00' --conditionsTag 'OFLCOND-RUN12-SDR-21' --outputHITSFile 'hitsHalf1.ttbar.pool.root' --maxEvents '5' --skipEvents '0'
 
 echo "art-result: $? split-sim1"
 
 # Run next 5 events
-AtlasG4_tf.py --inputEVNTFile '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/ttbar_muplusjets-pythia6-7000.evgen.pool.root' --DataRunNumber '222510' --geometryVersion 'ATLAS-R2-2015-03-01-00' --conditionsTag 'OFLCOND-RUN12-SDR-21' --outputHITSFile 'hitsHalf2.ttbar.pool.root' --maxEvents '5' --skipEvents '5'
+AtlasG4_tf.py --inputEVNTFile '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/ttbar_muplusjets-pythia6-7000.evgen.pool.root' --DataRunNumber '222510' --geometryVersion 'ATLAS-R2-2015-03-01-00' --conditionsTag 'OFLCOND-RUN12-SDR-21' --outputHITSFile 'hitsHalf2.ttbar.pool.root' --maxEvents '5' --skipEvents '5'
 
 echo "art-result: $? split-sim2"
 

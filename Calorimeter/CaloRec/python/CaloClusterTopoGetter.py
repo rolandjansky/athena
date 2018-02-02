@@ -370,6 +370,9 @@ class CaloClusterTopoGetter ( Configured )  :
         TopoMaker.CellThresholdOnEorAbsEinSigma     =    0.0
         TopoMaker.NeighborThresholdOnEorAbsEinSigma =    2.0
         TopoMaker.SeedThresholdOnEorAbsEinSigma     =    4.0
+        #timing
+        TopoMaker.SeedCutsInT = jobproperties.CaloTopoClusterFlags.doTimeCut()
+
         # note E or AbsE 
         #
         # the following property must be set to TRUE in order to make double

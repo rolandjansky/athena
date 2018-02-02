@@ -19,12 +19,24 @@ class EFCaloHypoNoiseConfig (TrigEFCaloHypoNoise):
            if not hasattr(svcMgr.ToolSvc, "KnownBADFEBsTool"):
               theBadFebTool=LArBadChanTool("KnownBADFEBsTool")
               theBadFebTool.CoolMissingFEBsFolder="/LAR/BadChannels/KnownBADFEBs"
+              havefolder=False
+              for fld in conddb.iovdbsvc.Folders:
+                 if "KnownBADFEBs" in fld: havefolder=True
+              pass
+              if not havefolder:
+                 conddb.addFolder("LAR_ONL","/LAR/BadChannels/KnownBADFEBs")   
               svcMgr.ToolSvc+=theBadFebTool
            else:
               theBadFebTool=svcMgr.ToolSvc.KnownBADFEBsTool
            if not hasattr(svcMgr.ToolSvc, "KnownMNBFEBsTool"):
               theMNBFebTool=LArBadChanTool("KnownMNBFEBsTool")
               theMNBFebTool.CoolMissingFEBsFolder="/LAR/BadChannels/KnownMNBFEBs"
+              havefolder=False
+              for fld in conddb.iovdbsvc.Folders:
+                 if "KnownMNBFEBs" in fld: havefolder=True
+              pass
+              if not havefolder:
+                 conddb.addFolder("LAR_ONL","/LAR/BadChannels/KnownMNBFEBs")   
               svcMgr.ToolSvc+=theMNBFebTool
            else:
               theMNBFebTool=svcMgr.ToolSvc.KnownMNBFEBsTool

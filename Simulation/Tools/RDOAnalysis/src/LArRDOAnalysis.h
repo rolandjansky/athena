@@ -58,21 +58,21 @@ private:
   std::vector<short>* m_digiSamples;
 
   // HISTOGRAMS
-  TH1* h_larID;
-  TH1* h_energy;
-  TH1* h_time;
-  TH1* h_qual;
-  TH1* h_prov;
-  TH1* h_gain;
-  TH1* h_hadOnID;
-  TH1* h_hadOffID;
-  TH1* h_hadSamples;
-  TH1* h_emOnID;
-  TH1* h_emOffID;
-  TH1* h_emSamples;
-  TH1* h_digiID;
-  TH1* h_digiGain;
-  TH1* h_digiSamples;
+  TH1* m_h_larID;
+  TH1* m_h_energy;
+  TH1* m_h_time;
+  TH1* m_h_qual;
+  TH1* m_h_prov;
+  TH1* m_h_gain;
+  TH1* m_h_hadOnID;
+  TH1* m_h_hadOffID;
+  TH1* m_h_hadSamples;
+  TH1* m_h_emOnID;
+  TH1* m_h_emOffID;
+  TH1* m_h_emSamples;
+  TH1* m_h_digiID;
+  TH1* m_h_digiGain;
+  TH1* m_h_digiSamples;
 
   TTree *m_tree;
   std::string m_ntupleFileName;
