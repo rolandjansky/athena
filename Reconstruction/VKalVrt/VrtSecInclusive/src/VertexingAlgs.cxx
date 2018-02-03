@@ -246,11 +246,11 @@ namespace VKalVrtAthena {
         }
         
         if( m_jp.doPVcompatibilityCut ) {
-          if( fabs( dphi1 ) > TMath::Pi()/2.0 && fabs( dphi2 ) > TMath::Pi()/2.0 ) {
+          if( cos( dphi1 ) < -0.8 && cos( dphi2 ) < -0.8 ) {
             ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": failed to pass the vPos cut. (both tracks are opposite against the vertex pos)" );
             continue;
           }
-          if( vPosMomAngT < 0. ) {
+          if( vPosMomAngT < -0.8 ) {
             ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": failed to pass the vPos cut. (pos-mom directions are opposite)" );
             continue;
           }
@@ -1085,6 +1085,12 @@ namespace VKalVrtAthena {
         // chi2 selection
         if( trk->chiSquared() / trk->numberDoF() > m_jp.associateChi2Cut ) continue;
         
+        // hit pattern selection
+        if( !selectTrack_hitPattern( trk ) ) continue;
+        
+        // Hit pattern consistentcy requirement
+        //if( !checkTrackHitPatternToVertexOuterOnly( trk, vertexPos ) ) continue;
+        
         // Get the closest approach
         std::vector<double> impactParameters;
         std::vector<double> impactParErrors;
@@ -1096,9 +1102,6 @@ namespace VKalVrtAthena {
         
         if( fabs( impactParameters.at(k_d0) ) / sqrt( impactParErrors.at(k_d0d0) ) > m_jp.associateMaxD0Signif ) continue;
         if( fabs( impactParameters.at(k_z0) ) / sqrt( impactParErrors.at(k_z0z0) ) > m_jp.associateMaxZ0Signif ) continue;
-        
-        // Hit pattern consistentcy requirement
-        if( ! ( this->*m_patternStrategyFuncs[m_checkPatternStrategy] )( trk, vertexPos ) ) continue;
         
         ATH_MSG_DEBUG( " > " << __FUNCTION__ << ": trk " << trk
                        << ": d0 to vtx = " << impactParameters.at(k_d0)

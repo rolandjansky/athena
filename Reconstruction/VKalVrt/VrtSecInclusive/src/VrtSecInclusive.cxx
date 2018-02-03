@@ -64,6 +64,7 @@ namespace VKalVrtAthena {
   {
     
     m_patternStrategyFuncs["Classical"]           = &VrtSecInclusive::checkTrackHitPatternToVertex;
+    m_patternStrategyFuncs["ClassicalOuter"]      = &VrtSecInclusive::checkTrackHitPatternToVertexOuterOnly;
     m_patternStrategyFuncs["Extrapolation"]       = &VrtSecInclusive::checkTrackHitPatternToVertexByExtrapolation;
     m_patternStrategyFuncs["ExtrapolationAssist"] = &VrtSecInclusive::checkTrackHitPatternToVertexByExtrapolationAssist;
 
@@ -173,7 +174,7 @@ namespace VKalVrtAthena {
     }
       
     if( m_jp.doMergeByShuffling ) {
-      m_vertexingAlgorithms.emplace_back( std::pair<std::string, vertexingAlg>( "mergeByShuffling",            &VrtSecInclusive::mergeByShuffling )                  );
+      m_vertexingAlgorithms.emplace_back( std::pair<std::string, vertexingAlg>( "mergeByShuffling",           &VrtSecInclusive::mergeByShuffling )                   );
     }
       
     if ( m_jp.doMergeFinalVerticesDistance ) {

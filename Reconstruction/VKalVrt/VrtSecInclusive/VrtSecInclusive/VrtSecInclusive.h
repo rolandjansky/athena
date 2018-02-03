@@ -467,8 +467,15 @@ namespace VKalVrtAthena {
     bool patternCheckRun1( const uint32_t& pattern, const Amg::Vector3D& vertex );
     bool patternCheckRun2( const uint32_t& pattern, const Amg::Vector3D& vertex );
     
+    bool patternCheckOuterOnly    ( const uint32_t& pattern, const Amg::Vector3D& vertex );
+    bool patternCheckRun1OuterOnly( const uint32_t& pattern, const Amg::Vector3D& vertex );
+    bool patternCheckRun2OuterOnly( const uint32_t& pattern, const Amg::Vector3D& vertex );
+    
     /** A classical method with hard-coded geometry */
     bool checkTrackHitPatternToVertex( const xAOD::TrackParticle *trk, const Amg::Vector3D& vertex );
+    
+    /** A classical method with hard-coded geometry */
+    bool checkTrackHitPatternToVertexOuterOnly( const xAOD::TrackParticle *trk, const Amg::Vector3D& vertex );
     
     /** New method with track extrapolation */
     bool checkTrackHitPatternToVertexByExtrapolation( const xAOD::TrackParticle *trk, const Amg::Vector3D& vertex );

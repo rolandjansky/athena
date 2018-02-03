@@ -1133,7 +1133,7 @@ namespace VKalVrtAthena {
     if( m_extrapolatedPatternBank.find( trk ) == m_extrapolatedPatternBank.end() ) {
       
       std::unique_ptr<ExtrapolatedPattern> exPattern_along( extrapolatedPattern( trk, Trk::alongMomentum ) );
-      std::unique_ptr<ExtrapolatedPattern> exPattern_oppos( extrapolatedPattern( trk, Trk::alongMomentum ) );
+      std::unique_ptr<ExtrapolatedPattern> exPattern_oppos( extrapolatedPattern( trk, Trk::oppositeMomentum ) );
       
       m_extrapolatedPatternBank.emplace( trk, std::make_pair( std::move(exPattern_along), std::move(exPattern_oppos) ) );
       
@@ -1586,6 +1586,174 @@ namespace VKalVrtAthena {
   }
   
   //____________________________________________________________________________________________________
+  bool VrtSecInclusive::patternCheckRun2OuterOnly( const uint32_t& pattern, const Amg::Vector3D& vertex ) {
+    
+    //
+    // rough guesses for active layers:
+    // BeamPipe: 23.5-24.3
+    // IBL: 31.0-38.4
+    // Pix0 (BLayer): 47.7-54.4, Pix1: 85.5-92.2, Pix2: 119.3-126.1
+    // Sct0: 290-315, Sct1: 360-390, Sct2: 430-460, Sct3:500-530
+    //
+      
+    const double rad  = vertex.perp();
+    const double absz = fabs( vertex.z() );
+    
+    // vertex area classification
+    enum vertexArea {
+      insideBeamPipe,
+	
+      insidePixelBarrel0,
+      aroundPixelBarrel0,
+	
+      outsidePixelBarrel0_and_insidePixelBarrel1,
+      aroundPixelBarrel1,
+	
+      outsidePixelBarrel1_and_insidePixelBarrel2,
+      aroundPixelBarrel2,
+	
+      outsidePixelBarrel2_and_insidePixelBarrel3,
+      aroundPixelBarrel3,
+	
+      outsidePixelBarrel3_and_insideSctBarrel0,
+      aroundSctBarrel0,
+	
+      outsideSctBarrel0_and_insideSctBarrel1,
+      aroundSctBarrel1,
+    };
+      
+    // Mutually exclusive vertex position pattern
+    int vertex_pattern = 0;
+    if( rad < 23.50 ) {
+      vertex_pattern = insideBeamPipe;
+	
+    } else if( rad < 31.0 && absz < 331.5 ) {
+      vertex_pattern = insidePixelBarrel0;
+	
+    } else if( rad < 38.4 && absz < 331.5 ) {
+      vertex_pattern = aroundPixelBarrel0;
+	
+    } else if( rad < 47.7 && absz < 400.5 ) {
+      vertex_pattern = outsidePixelBarrel0_and_insidePixelBarrel1;
+	
+    } else if( rad < 54.4 && absz < 400.5 ) {
+      vertex_pattern = aroundPixelBarrel1;
+	
+    } else if( rad < 85.5 && absz < 400.5 ) {
+      vertex_pattern = outsidePixelBarrel1_and_insidePixelBarrel2;
+	
+    } else if( rad < 92.2 && absz < 400.5 ) {
+      vertex_pattern = aroundPixelBarrel2;
+	
+    } else if( rad < 119.3 && absz < 400.5 ) {
+      vertex_pattern = outsidePixelBarrel2_and_insidePixelBarrel3;
+	
+    } else if( rad < 126.1 && absz < 400.5 ) {
+      vertex_pattern = aroundPixelBarrel3;
+	
+    } else if( rad < 290 && absz < 749.0 ) {
+      vertex_pattern = outsidePixelBarrel3_and_insideSctBarrel0;
+	
+    } else if( rad < 315 && absz < 749.0 ) {
+      vertex_pattern = aroundSctBarrel0;
+	
+    } else if( rad < 360 && absz < 749.0 ) {
+      vertex_pattern = outsideSctBarrel0_and_insideSctBarrel1;
+	
+    } else if( rad < 390 && absz < 749.0 ) {
+      vertex_pattern = aroundSctBarrel1;
+	
+    } else {
+    }
+      
+      
+    //////////////////////////////////////////////////////////////////////////////////
+    if( vertex_pattern == insideBeamPipe ) {
+	
+      if( ! (pattern & (1<<Trk::pixelBarrel0)) ) return false;
+	
+	
+    } else if( vertex_pattern == insidePixelBarrel0 ) {
+	
+      if( ! (pattern & (1<<Trk::pixelBarrel0)) ) return false;
+    }
+      
+      
+    else if( vertex_pattern == aroundPixelBarrel0 ) {
+	
+      // require nothing for PixelBarrel0
+      if( ! (pattern & (1<<Trk::pixelBarrel1)) ) return false;
+    }
+      
+      
+    else if( vertex_pattern == outsidePixelBarrel0_and_insidePixelBarrel1 ) {
+	
+      if( ! (pattern & (1<<Trk::pixelBarrel1)) ) return false;
+    }
+      
+      
+    else if( vertex_pattern == aroundPixelBarrel1 ) {
+	
+      // require nothing for PixelBarrel1
+      if( ! (pattern & (1<<Trk::pixelBarrel2)) ) return false;
+    }
+      
+      
+    else if( vertex_pattern == outsidePixelBarrel1_and_insidePixelBarrel2 ) {
+	
+      if( ! (pattern & (1<<Trk::pixelBarrel2)) ) return false;
+    }
+      
+      
+    else if( vertex_pattern == aroundPixelBarrel2 ) {
+	
+      // require nothing for PixelBarrel2
+      if( ! (pattern & (1<<Trk::pixelBarrel3)) ) return false;
+    }
+      
+
+    else if( vertex_pattern == outsidePixelBarrel2_and_insidePixelBarrel3 ) {
+	
+      if( ! (pattern & (1<<Trk::pixelBarrel3)) ) return false;
+    }
+	
+    else if( vertex_pattern == aroundPixelBarrel3 ) {
+	
+      // require nothing for PixelBarrel3
+      if( ! (pattern & (1<<Trk::sctBarrel0)) ) return false;
+    }
+      
+      
+    else if( vertex_pattern == outsidePixelBarrel3_and_insideSctBarrel0 ) {
+	
+      if( ! (pattern & (1<<Trk::sctBarrel0)) ) return false;
+    }
+      
+      
+    else if( vertex_pattern == aroundSctBarrel0 ) {
+	
+      // require nothing for SctBarrel0
+      if( ! (pattern & (1<<Trk::sctBarrel1)) ) return false;
+    }
+      
+      
+    else if( vertex_pattern == outsideSctBarrel0_and_insideSctBarrel1 ) {
+      
+      if( ! (pattern & (1<<Trk::sctBarrel1)) ) return false;
+    }
+      
+      
+    else if( vertex_pattern == aroundSctBarrel1 ) {
+      // require nothing for SctBarrel1
+      if( ! (pattern & (1<<Trk::sctBarrel2)) ) return false;
+    }
+    //////////////////////////////////////////////////////////////////////////////////
+      
+    return true;
+      
+  }
+  
+  //____________________________________________________________________________________________________
   bool VrtSecInclusive::patternCheckRun1( const uint32_t& pattern, const Amg::Vector3D& vertex ) {
     //
     // rough guesses for active layers:
@@ -1751,6 +1919,151 @@ namespace VKalVrtAthena {
   }
   
   //____________________________________________________________________________________________________
+  bool VrtSecInclusive::patternCheckRun1OuterOnly( const uint32_t& pattern, const Amg::Vector3D& vertex ) {
+    //
+    // rough guesses for active layers:
+    // BeamPipe: 25.0
+    // Pix0 (BLayer): 47.7-54.4, Pix1: 85.5-92.2, Pix2: 119.3-126.1
+    // Sct0: 290-315, Sct1: 360-390, Sct2: 430-460, Sct3:500-530
+    //
+      
+    const double rad  = vertex.perp();
+    const double absz = fabs( vertex.z() );
+    
+    // vertex area classification
+    enum vertexArea {
+      insideBeamPipe,
+	
+      insidePixelBarrel1,
+      aroundPixelBarrel1,
+	
+      outsidePixelBarrel1_and_insidePixelBarrel2,
+      aroundPixelBarrel2,
+	
+      outsidePixelBarrel2_and_insidePixelBarrel3,
+      aroundPixelBarrel3,
+	
+      outsidePixelBarrel3_and_insideSctBarrel0,
+      aroundSctBarrel0,
+	
+      outsideSctBarrel0_and_insideSctBarrel1,
+      aroundSctBarrel1,
+    };
+      
+    // Mutually exclusive vertex position pattern
+    Int_t vertex_pattern = 0;
+    if( rad < 25.00 ) {
+      vertex_pattern = insideBeamPipe;
+	
+    } else if( rad < 47.7 && absz < 400.5 ) {
+      vertex_pattern = insidePixelBarrel1;
+	
+    } else if( rad < 54.4 && absz < 400.5 ) {
+      vertex_pattern = aroundPixelBarrel1;
+	
+    } else if( rad < 85.5 && absz < 400.5 ) {
+      vertex_pattern = outsidePixelBarrel1_and_insidePixelBarrel2;
+	
+    } else if( rad < 92.2 && absz < 400.5 ) {
+      vertex_pattern = aroundPixelBarrel2;
+	
+    } else if( rad < 119.3 && absz < 400.5 ) {
+      vertex_pattern = outsidePixelBarrel2_and_insidePixelBarrel3;
+	
+    } else if( rad < 126.1 && absz < 400.5 ) {
+      vertex_pattern = aroundPixelBarrel3;
+	
+    } else if( rad < 290 && absz < 749.0 ) {
+      vertex_pattern = outsidePixelBarrel3_and_insideSctBarrel0;
+	
+    } else if( rad < 315 && absz < 749.0 ) {
+      vertex_pattern = aroundSctBarrel0;
+	
+    } else if( rad < 360 && absz < 749.0 ) {
+      vertex_pattern = outsideSctBarrel0_and_insideSctBarrel1;
+	
+    } else if( rad < 390 && absz < 749.0 ) {
+      vertex_pattern = aroundSctBarrel1;
+	
+    } else {
+    }
+      
+      
+    //////////////////////////////////////////////////////////////////////////////////
+    if( vertex_pattern == insideBeamPipe ) {
+	
+      if( ! (pattern & (1<<Trk::pixelBarrel1)) ) return false;
+	
+    }
+      
+      
+    else if( vertex_pattern == insidePixelBarrel1 ) {
+	
+      if( ! (pattern & (1<<Trk::pixelBarrel1)) ) return false;
+    }
+      
+      
+    else if( vertex_pattern == aroundPixelBarrel1 ) {
+	
+      // require nothing for PixelBarrel1
+      if( ! (pattern & (1<<Trk::pixelBarrel2)) ) return false;
+    }
+      
+      
+    else if( vertex_pattern == outsidePixelBarrel1_and_insidePixelBarrel2 ) {
+	
+      if( ! (pattern & (1<<Trk::pixelBarrel2)) ) return false;
+    }
+      
+      
+    else if( vertex_pattern == aroundPixelBarrel2 ) {
+	
+      // require nothing for PixelBarrel2
+      if( ! (pattern & (1<<Trk::pixelBarrel3)) ) return false;
+    }
+      
+
+    else if( vertex_pattern == outsidePixelBarrel2_and_insidePixelBarrel3 ) {
+	
+      if( ! (pattern & (1<<Trk::pixelBarrel3)) ) return false;
+    }
+	
+    else if( vertex_pattern == aroundPixelBarrel3 ) {
+	
+      // require nothing for PixelBarrel3
+      if( ! (pattern & (1<<Trk::sctBarrel0)) ) return false;
+    }
+      
+      
+    else if( vertex_pattern == outsidePixelBarrel3_and_insideSctBarrel0 ) {
+	
+      if( ! (pattern & (1<<Trk::sctBarrel0)) ) return false;
+    }
+      
+      
+    else if( vertex_pattern == aroundSctBarrel0 ) {
+	
+      // require nothing for SctBarrel0
+      if( ! (pattern & (1<<Trk::sctBarrel1)) ) return false;
+    }
+      
+      
+    else if( vertex_pattern == outsideSctBarrel0_and_insideSctBarrel1 ) {
+	
+      if( ! (pattern & (1<<Trk::sctBarrel1)) ) return false;
+    }
+      
+      
+    else if( vertex_pattern == aroundSctBarrel1 ) {
+      // require nothing for SctBarrel1
+      if( ! (pattern & (1<<Trk::sctBarrel2)) ) return false;
+    }
+    //////////////////////////////////////////////////////////////////////////////////
+      
+    return true;
+  }
+  
+  //____________________________________________________________________________________________________
   bool VrtSecInclusive::patternCheck( const uint32_t& pattern, const Amg::Vector3D& vertex ) {
     bool flag = false;
     
@@ -1758,6 +2071,19 @@ namespace VKalVrtAthena {
       flag = patternCheckRun2( pattern, vertex );
     } else if ( m_jp.geoModel == VKalVrtAthena::GeoModel::Run1 ) {
       flag = patternCheckRun1( pattern, vertex );
+    }
+    
+    return flag;
+  }
+
+  //____________________________________________________________________________________________________
+  bool VrtSecInclusive::patternCheckOuterOnly( const uint32_t& pattern, const Amg::Vector3D& vertex ) {
+    bool flag = false;
+    
+    if( m_jp.geoModel == VKalVrtAthena::GeoModel::Run2 ) {
+      flag = patternCheckRun2OuterOnly( pattern, vertex );
+    } else if ( m_jp.geoModel == VKalVrtAthena::GeoModel::Run1 ) {
+      flag = patternCheckRun1OuterOnly( pattern, vertex );
     }
     
     return flag;
@@ -1775,15 +2101,25 @@ namespace VKalVrtAthena {
   
 
   //____________________________________________________________________________________________________
+  bool VrtSecInclusive::checkTrackHitPatternToVertexOuterOnly( const xAOD::TrackParticle *trk, const Amg::Vector3D& vertex )
+  {
+    
+    const uint32_t pattern = trk->hitPattern();
+    
+    return patternCheckOuterOnly( pattern, vertex );
+	
+  }
+  
+
+  //____________________________________________________________________________________________________
   bool VrtSecInclusive::checkTrackHitPatternToVertexByExtrapolationAssist( const xAOD::TrackParticle *trk, const Amg::Vector3D& vertex )
   {
     
     if( m_extrapolatedPatternBank.find( trk ) == m_extrapolatedPatternBank.end() ) {
       
       std::unique_ptr<ExtrapolatedPattern> exPattern_along( extrapolatedPattern( trk, Trk::alongMomentum ) );
-      std::unique_ptr<ExtrapolatedPattern> exPattern_oppos( extrapolatedPattern( trk, Trk::alongMomentum ) );
       
-      m_extrapolatedPatternBank.emplace( trk, std::make_pair( std::move(exPattern_along), std::move(exPattern_oppos) ) );
+      m_extrapolatedPatternBank.emplace( trk, std::make_pair( std::move(exPattern_along), nullptr ) );
       
     }
     
@@ -1791,7 +2127,7 @@ namespace VKalVrtAthena {
       double dphi = trk->phi() - vertex.phi();
       while( dphi >  TMath::Pi() ) { dphi -= TMath::TwoPi(); }
       while( dphi < -TMath::Pi() ) { dphi += TMath::TwoPi(); }
-      if( fabs(dphi) > TMath::Pi()/2.0 ) return false;
+      if( cos(dphi) < -0.8 ) return false;
     }
     
     auto& exPattern = m_extrapolatedPatternBank.at( trk );
