@@ -16,7 +16,6 @@ namespace Trk {
 	class ITrackToVertexIPEstimator;
     class IVertexFitter;
     class IVertexSeedFinder;
-    class IVxCandidateXAODVertex;
 }
 
 /**
@@ -52,12 +51,10 @@ public:
 private:
     std::string m_primaryVertexKey;
     std::string m_inputTrackParticleContainerName;
-    bool m_useOldSeedFinderAPI;
     bool m_AODmode;
     ToolHandle< Trk::ITrackToVertexIPEstimator > m_trackToVertexIPEstimator;
     ToolHandle< Trk::IVertexFitter >     m_fitTool; //!< Pointer to the base class of the fit algtools
     ToolHandle< Trk::IVertexSeedFinder > m_SeedFinder;
-    //ToolHandle< Trk::IVxCandidateXAODVertex > m_xaodConverter;  // necessary to convert VxCandidate to xAOD::Vertex in case old API is used
 
     xAOD::VertexContainer* m_pSecVtxContainer;
     xAOD::VertexAuxContainer* m_pSecVtxAuxContainer;

@@ -20,14 +20,13 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkParticleBase
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkEvent/VxVertex
-                          Tracking/TrkExtrapolation/TrkExInterfaces
-                          Tracking/TrkVertexFitter/TrkVxEdmCnv )
+                          Tracking/TrkExtrapolation/TrkExInterfaces)
 
 # Component(s) in the package:
 atlas_add_component( TrkVertexBilloirTools
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps xAODTracking GaudiKernel TrkParameters TrkVertexFitterInterfaces EventPrimitives TrkDetDescrUtils TrkSurfaces TrkLinks TrkParticleBase TrkTrack VxVertex TrkExInterfaces TrkVxEdmCnvLib )
+                     LINK_LIBRARIES AthenaBaseComps xAODTracking GaudiKernel TrkParameters TrkVertexFitterInterfaces EventPrimitives TrkDetDescrUtils TrkSurfaces TrkLinks TrkParticleBase TrkTrack VxVertex TrkExInterfaces )
 
 # Install files from the package:
 atlas_install_headers( TrkVertexBilloirTools )

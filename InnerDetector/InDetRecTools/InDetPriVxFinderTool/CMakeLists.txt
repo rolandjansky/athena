@@ -29,8 +29,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/VxMultiVertex
                           Tracking/TrkEvent/VxVertex
                           Tracking/TrkVertexFitter/TrkVertexFitterInterfaces
-                          Tracking/TrkVertexFitter/TrkVertexFitters
-                          Tracking/TrkVertexFitter/TrkVxEdmCnv )
+                          Tracking/TrkVertexFitter/TrkVertexFitters)
 
 # External dependencies:
 find_package( CLHEP )
@@ -42,7 +41,7 @@ atlas_add_component( InDetPriVxFinderTool
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps xAODTracking GaudiKernel InDetRecToolInterfaces PATCoreLib TrkParameters TrkParticleBase TrkTrack DataModel GeoPrimitives EventPrimitives TrkSurfaces TrkEventPrimitives TrkLinks TrkTrackSummary VxMultiVertex VxVertex TrkVertexFitterInterfaces TrkVertexFittersLib TrkVxEdmCnvLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps xAODTracking GaudiKernel InDetRecToolInterfaces PATCoreLib TrkParameters TrkParticleBase TrkTrack DataModel GeoPrimitives EventPrimitives TrkSurfaces TrkEventPrimitives TrkLinks TrkTrackSummary VxMultiVertex VxVertex TrkVertexFitterInterfaces TrkVertexFittersLib )
 
 # Install files from the package:
 atlas_install_headers( InDetPriVxFinderTool )
