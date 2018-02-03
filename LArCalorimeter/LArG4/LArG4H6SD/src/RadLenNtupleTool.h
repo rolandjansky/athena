@@ -9,9 +9,7 @@
 #include <string>
 
 // Infrastructure includes
-#include "G4AtlasInterfaces/IG4SteppingActionTool.h"
-#include "G4AtlasInterfaces/IG4EventActionTool.h"
-#include "G4AtlasTools/ActionToolBase.h"
+#include "G4AtlasTools/UserActionToolBase.h"
 
 // Local includes
 #include "RadLenNtuple.h"
@@ -25,36 +23,23 @@ namespace G4UA
   ///
   /// @author Andrea Di Simone
   ///
-  class RadLenNtupleTool : public ActionToolBase<RadLenNtuple>,
-                           public IG4EventActionTool,
-                           public IG4SteppingActionTool
+  class RadLenNtupleTool : public UserActionToolBase<RadLenNtuple>
   {
 
   public:
 
     /// Standard constructor
     RadLenNtupleTool(const std::string& type, const std::string& name,
-                                   const IInterface* parent);
+                     const IInterface* parent);
 
     /// Framework methods
     StatusCode initialize() override final;
 
-    /// Retrieve the event action interface
-    virtual G4UserEventAction* getEventAction() override final
-    { return static_cast<G4UserEventAction*>( getAction() ); }
-
-    /// Retrieve the stepping action interface
-    virtual G4UserSteppingAction* getSteppingAction() override final
-    { return static_cast<G4UserSteppingAction*>( getAction() ); }
-
-    /// Query interface for gaudi
-    virtual StatusCode
-    queryInterface(const InterfaceID& riid, void** ppvInterface) override;
-
   protected:
 
     /// Create action for this thread
-    virtual std::unique_ptr<RadLenNtuple> makeAction() override final;
+    virtual std::unique_ptr<RadLenNtuple>
+    makeAndFillAction(G4AtlasUserActions&) override final;
 
   private:
     /// Configuration parameters
