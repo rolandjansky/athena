@@ -196,8 +196,10 @@ StatusCode iFatras::McMaterialEffectsUpdator::initialize()
           return StatusCode::FAILURE;
       } else
          ATH_MSG_VERBOSE( "Successfully retrieved " << m_eLossUpdator );
+    } else {
+      m_eLossUpdator.disable();
     }
-    
+
     // retrieve the multiple scattering updator tool
     if (m_ms && m_use_msUpdator){
       if (m_msUpdator.retrieve().isFailure()){
@@ -205,6 +207,8 @@ StatusCode iFatras::McMaterialEffectsUpdator::initialize()
           return StatusCode::FAILURE;
       } else
           ATH_MSG_VERBOSE( "Successfully retrieved " << m_msUpdator );
+    } else {
+      m_msUpdator.disable();
     }
 
     // retrieve the photon conversion tool
@@ -221,8 +225,10 @@ StatusCode iFatras::McMaterialEffectsUpdator::initialize()
           return StatusCode::FAILURE;
       } else
           ATH_MSG_VERBOSE( "Successfully retrieved " << m_hadIntProcessor );                
+    } else {
+      m_hadIntProcessor.disable();
     }
-    
+
     // get the random generator serice
      if (m_rndGenSvc.retrieve().isFailure()){
           ATH_MSG_FATAL( "Could not retrieve " << m_rndGenSvc );
@@ -303,7 +309,9 @@ StatusCode iFatras::McMaterialEffectsUpdator::initialize()
       } else
 	ATH_MSG_INFO( "TTree for MaterialEffects validation booked." );
 
-    } 
+    } else {
+      m_validationTool.disable();
+    }
     // the validation setup -------------------------------- PART 2: Brem Photons -----------------------------
     if (m_bremValidation){
 
