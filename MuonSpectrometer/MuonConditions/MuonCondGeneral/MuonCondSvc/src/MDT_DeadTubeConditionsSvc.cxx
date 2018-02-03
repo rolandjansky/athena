@@ -34,15 +34,15 @@ MDT_DeadTubeConditionsSvc::~MDT_DeadTubeConditionsSvc()
 StatusCode MDT_DeadTubeConditionsSvc::initialize()
 {
   
-  msg(MSG::INFO) << "Initializing " << name() << " - package version " 
-		 << PACKAGE_VERSION << endmsg;
+  ATH_MSG_INFO( "Initializing " << name() << " - package version " 
+                << PACKAGE_VERSION  );
   
   StoreGateSvc * detStore;
   StatusCode status = service("DetectorStore",detStore);
   if (status.isFailure()) {
-    msg(MSG::FATAL) << "DetectorStore service not found !" << endmsg; 
+    ATH_MSG_FATAL( "DetectorStore service not found !"  );
   } else {
-    msg(MSG::INFO) << "DetectorStore service found !" << endmsg; 
+    ATH_MSG_VERBOSE( "DetectorStore service found !"  );
     
   }
   if(m_deadtubeInfofromCool)
@@ -51,42 +51,42 @@ StatusCode MDT_DeadTubeConditionsSvc::initialize()
       if ( sc.isFailure() )
 	{
 	  
-	  msg(MSG::ERROR) << "Could not retrieve MDT_DeadTubeConditionsTool" << endmsg;
+	  ATH_MSG_ERROR( "Could not retrieve MDT_DeadTubeConditionsTool"  );
 	}
       else
 	{
 	  
-	  msg(MSG::INFO)<<"MDT_DeadTubeConditionsTool retrieved with statusCode = "<<sc<<" pointer = "<<m_condDataTool<<endmsg;
+	  ATH_MSG_VERBOSE("MDT_DeadTubeConditionsTool retrieved with statusCode = "<<sc<<" pointer = "<<m_condDataTool );
 	}
             
       std::vector<std::string> folderNames;
       folderNames.push_back((m_condDataTool)->DeadTubeFolderName());
       
       
-      msg(MSG::INFO)<<"Register call-back  against "<<folderNames.size()<<" folders listed below "<<endmsg;
+      ATH_MSG_VERBOSE("Register call-back  against "<<folderNames.size()<<" folders listed below " );
       //  bool aFolderFound = false;
       short ic=0;
       for (std::vector<std::string>::const_iterator ifld =folderNames.begin(); ifld!=folderNames.end(); ++ifld )
 	{
 	  ++ic;
-	  msg(MSG::INFO)<<" Folder n. "<<ic<<" <"<<(*ifld)<<">";
+	  ATH_MSG_VERBOSE(" Folder n. "<<ic<<" <"<<(*ifld)<<">" );
 	  if (detStore->contains<CondAttrListCollection>(*ifld)) {
 	    //    aFolderFound=true;
-	    msg(MSG::INFO)<<"     found in the DetStore"<<endmsg;
+	    ATH_MSG_VERBOSE("     found in the DetStore" );
 	    const DataHandle<CondAttrListCollection> MDTDeadTubeData;
 	    if (detStore->regFcn(&IMDT_DeadTubeConditionsSvc::initInfo,
 				 dynamic_cast<IMDT_DeadTubeConditionsSvc *>(this),
 				 MDTDeadTubeData,
 				 *ifld)!=StatusCode::SUCCESS)
 	      {
-		msg(MSG::WARNING)<<"Unable to register call back for initDeadTubeInfo against folder <"<<(*ifld)<<">";
+		ATH_MSG_WARNING("Unable to register call back for initDeadTubeInfo against folder <"<<(*ifld)<<">" );
 	      }
-	    else msg(MSG::INFO)<<"initDeadTubeInfo registered for call-back against folder <"<<(*ifld)<<">"<<endmsg;
+	    else ATH_MSG_VERBOSE("initDeadTubeInfo registered for call-back against folder <"<<(*ifld)<<">" );
 	  }
 	  else
 	    {   
-	      msg(MSG::WARNING)<<"Folder "<<(*ifld)
-			       <<" NOT found in the DetStore --- failing to init ???"<<endmsg;
+	      ATH_MSG_WARNING("Folder "<<(*ifld)
+                              <<" NOT found in the DetStore --- failing to init ???" );
 	    }
 	}
     }
@@ -121,8 +121,8 @@ StatusCode MDT_DeadTubeConditionsSvc::queryInterface(const InterfaceID& riid, vo
 	
 StatusCode MDT_DeadTubeConditionsSvc::initInfo(IOVSVC_CALLBACK_ARGS_P(I,keys))
 {
-  msg(MSG::INFO)<<"initDeadTubeInfo has been called"<<endmsg;
-  msg(MSG::INFO)<<"ToolHandle in init DeadTube Info - <"<<m_condDataTool<<">"<<endmsg;
+  ATH_MSG_VERBOSE("initDeadTubeInfo has been called" );
+  ATH_MSG_VERBOSE("ToolHandle in init DeadTube Info - <"<<m_condDataTool<<">" );
    
   if(m_deadtubeInfofromCool)
     {
@@ -130,7 +130,7 @@ StatusCode MDT_DeadTubeConditionsSvc::initInfo(IOVSVC_CALLBACK_ARGS_P(I,keys))
       StatusCode sc = m_condDataTool->loadParameters(I, keys);
       if (sc.isFailure())
 	{
-	  msg(MSG::WARNING)<<"Reading DeadTube from COOL failed; NO MDT DeadTube INFO AVAILABLE"<<endmsg;
+	  ATH_MSG_WARNING("Reading DeadTube from COOL failed; NO MDT DeadTube INFO AVAILABLE" );
 	}
     }
     
@@ -141,14 +141,14 @@ StatusCode MDT_DeadTubeConditionsSvc::initInfo(IOVSVC_CALLBACK_ARGS_P(I,keys))
 const std::vector<std::string>& MDT_DeadTubeConditionsSvc::deadTubes() const{
   
   unsigned int size_new =m_condDataTool->deadTubes().size();
-  msg(MSG::DEBUG)<<"Dead SERVICE: Number of DEAD TUBE: "<<size_new <<endmsg;
+  ATH_MSG_DEBUG("Dead SERVICE: Number of DEAD TUBE: "<<size_new  );
   return m_condDataTool->deadTubes();
 }
 
 
 const std::vector<std::string>& MDT_DeadTubeConditionsSvc::deadStations() const{
    
-  msg(MSG::DEBUG)<<"CONFIGURATION SERVICE: Number of DEAD STATIONS NOT AVAILABLE: "<<endmsg;
+  ATH_MSG_DEBUG("CONFIGURATION SERVICE: Number of DEAD STATIONS NOT AVAILABLE: " );
   
   return m_cachedDeadStations;
 }
@@ -156,7 +156,7 @@ const std::vector<std::string>& MDT_DeadTubeConditionsSvc::deadStations() const{
 
 const std::vector<std::string>& MDT_DeadTubeConditionsSvc::deadMultiLayers() const{
    
-  msg(MSG::DEBUG)<<"CONFIGURATION SERVICE: Number of DEAD ML NOT AVAILABLE: "<<endmsg;
+  ATH_MSG_DEBUG("CONFIGURATION SERVICE: Number of DEAD ML NOT AVAILABLE: " );
   
   return m_cachedDeadMultiLayers;
 }
@@ -190,14 +190,14 @@ bool MDT_DeadTubeConditionsSvc::isGoodMultiLayer(const Identifier & /*Id*/) cons
 const std::vector<Identifier>& MDT_DeadTubeConditionsSvc::deadTubesId() const{
   
   unsigned int size_new =m_condDataTool->deadTubesId().size();
-  msg(MSG::DEBUG)<<"DCS SERVICE: Number of DEAD TUBE: "<<size_new <<endmsg;
+  ATH_MSG_DEBUG("DCS SERVICE: Number of DEAD TUBE: "<<size_new  );
   return m_condDataTool->deadTubesId();
 }
 
 
 const std::vector<Identifier>& MDT_DeadTubeConditionsSvc::deadStationsId() const{
    
-  msg(MSG::DEBUG)<<"CONFIGURATION SERVICE: Number of DEAD STATIONS NOT AVAILABLE: "<<endmsg;
+  ATH_MSG_DEBUG("CONFIGURATION SERVICE: Number of DEAD STATIONS NOT AVAILABLE: " );
   
   return m_cachedDeadStationsId;
 }
@@ -205,21 +205,21 @@ const std::vector<Identifier>& MDT_DeadTubeConditionsSvc::deadStationsId() const
 
 const std::vector<Identifier>& MDT_DeadTubeConditionsSvc::deadMultiLayersId() const{
    
-  msg(MSG::DEBUG)<<"CONFIGURATION SERVICE: Number of DEAD ML NOT AVAILABLE: "<<endmsg;
+  ATH_MSG_DEBUG("CONFIGURATION SERVICE: Number of DEAD ML NOT AVAILABLE: " );
   
   return m_cachedDeadMultiLayersId;
 }
 
 const std::vector<Identifier>& MDT_DeadTubeConditionsSvc::deadLayersId() const{
    
-  msg(MSG::DEBUG)<<"CONFIGURATION SERVICE: Number of DEAD LAYERS NOT AVAILABLE: "<<endmsg;
+  ATH_MSG_DEBUG("CONFIGURATION SERVICE: Number of DEAD LAYERS NOT AVAILABLE: " );
   
   return m_cachedDeadLayersId;
 }
 
 const std::vector<Identifier>& MDT_DeadTubeConditionsSvc::List_Chambers_with_deadTube() const{
    
-  msg(MSG::DEBUG)<<"CONFIGURATION SERVICE: Name of STATIONS WITH DEAD TUBE: "<<endmsg;
+  ATH_MSG_DEBUG("CONFIGURATION SERVICE: Name of STATIONS WITH DEAD TUBE: " );
   
   return m_condDataTool->List_Chambers_with_deadTube();
 }
