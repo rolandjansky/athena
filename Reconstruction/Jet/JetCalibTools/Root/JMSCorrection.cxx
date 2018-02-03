@@ -587,8 +587,6 @@ StatusCode JMSCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const {
   xAOD::JetFourMom_t calibP4 = jet.jetP4();
 
   // For combination
-  float mass_calo;   // saving calibrated calo mass
-  double pT_calo; // saving pT corrected by calo mass calib
   float mass_ta;     // saving calibrated trk-assisted mass
 
   float mass_corr = jetStartP4.mass();
@@ -672,13 +670,11 @@ StatusCode JMSCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const {
     if(!m_pTfixed) pT_corr = sqrt(jetStartP4.e()*jetStartP4.e()-mass_corr*mass_corr)/cosh( jetStartP4.eta() );
   }
 
-  mass_calo = mass_corr;
-  pT_calo = pT_corr;
+  TLorentzVector caloCalibJet;
+  caloCalibJet.SetPtEtaPhiM(pT_corr, jetStartP4.eta(), jetStartP4.phi(), mass_corr);
   
   if(!m_combination){
-    TLorentzVector TLVjet;
-    TLVjet.SetPtEtaPhiM( pT_corr, jetStartP4.eta(), jetStartP4.phi(), mass_corr );
-    calibP4.SetPxPyPzE( TLVjet.Px(), TLVjet.Py(), TLVjet.Pz(), TLVjet.E() );
+    calibP4.SetPxPyPzE( caloCalibJet.Px(), caloCalibJet.Py(), caloCalibJet.Pz(), caloCalibJet.E() );
   
     //Transfer calibrated jet properties to the Jet object
     jet.setAttribute<xAOD::JetFourMom_t>("JetJMSScaleMomentum",calibP4);
@@ -784,9 +780,9 @@ StatusCode JMSCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const {
           break;
         case BinningParam::et_LOGmOet_eta:
           if (m_use3Dhisto)
-            mTAFactor = getTrackAssistedMassCorr3D( jetStartP4.Et()/m_GeV, log(mTA / jetStartP4.pt()), absdetectorEta);
+            mTAFactor = getTrackAssistedMassCorr3D( jetStartP4.Et()/m_GeV, log(mTA / jetStartP4.Et()), absdetectorEta);
           else
-            mTAFactor = getTrackAssistedMassCorr( jetStartP4.Et()/m_GeV, log(mTA / jetStartP4.pt()), etabin);
+            mTAFactor = getTrackAssistedMassCorr( jetStartP4.Et()/m_GeV, log(mTA / jetStartP4.Et()), etabin);
           break;
         default:
           ATH_MSG_FATAL("This should never be reached - if it happens, it's because a new BinningParam enum option was added, but how to handle it for the TA mass was not.  Please contact the tool developer(s) to fix this.");
@@ -826,8 +822,8 @@ StatusCode JMSCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const {
       calibP4_ta.SetPxPyPzE( TLVjet_ta.Px(), TLVjet_ta.Py(), TLVjet_ta.Pz(), TLVjet_ta.E() );
       jet.setAttribute<xAOD::JetFourMom_t>("JetJMSScaleMomentumTA",calibP4_ta);
 
-      float  mass_comb  = mass_calo;  // combined mass
-      double pT_comb = pT_calo;
+      float  mass_comb  = caloCalibJet.M();  // combined mass
+      double pT_comb = caloCalibJet.Pt();
 
       // if one of the mass is null, use the other one
       if( (mass_comb==0) || (mass_corr==0) ) { 
@@ -874,26 +870,110 @@ StatusCode JMSCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const {
 	    }
           }
 
-	  const double relCalo = (!m_use3Dhisto) ? 
-                                    getRelCalo( pT_calo/m_GeV, mass_calo/pT_calo, etabin )
-                                  : getRelCalo3D( pT_calo/m_GeV, mass_calo/pT_calo, absdetectorEta);
-	  const double relTA   = (!m_use3Dhisto) ? 
-                                    getRelTA( pT_calo/m_GeV, mass_ta/pT_calo, etabin )
-                                  : getRelTA3D( pT_calo/m_GeV, mass_ta/pT_calo, absdetectorEta);
-	  const double rho     = (m_useCorrelatedWeights) ?
-                                    ( (!m_use3Dhisto) ?
-                                            getRho( pT_calo/m_GeV, mass_calo/pT_calo, etabin )
-                                          : getRho3D( pT_calo/m_GeV, mass_calo/pT_calo, absdetectorEta)
-                                    ) : 0;
+          
+          // Use the correct histogram binning parametrisation when reading the combined mass weights
+          double relCalo = 0;
+          double relTA = 0;
+          double rho = 0;
+          switch (m_binParam)
+          {
+            case BinningParam::pt_mass_eta:
+              if (m_use3Dhisto)
+              {
+                relCalo = getRelCalo3D( caloCalibJet.Pt()/m_GeV, caloCalibJet.M()/caloCalibJet.Pt(), absdetectorEta );
+                relTA   = getRelTA3D(   caloCalibJet.Pt()/m_GeV, mass_ta         /caloCalibJet.Pt(), absdetectorEta );
+                if (m_useCorrelatedWeights)
+                    rho = getRho3D(     caloCalibJet.Pt()/m_GeV, caloCalibJet.M()/caloCalibJet.Pt(), absdetectorEta );
+              }
+              else
+              {
+                relCalo = getRelCalo(   caloCalibJet.Pt()/m_GeV, caloCalibJet.M()/caloCalibJet.Pt(), etabin );
+                relTA   = getRelTA(     caloCalibJet.Pt()/m_GeV, mass_ta         /caloCalibJet.Pt(), etabin );
+                if (m_useCorrelatedWeights)
+                    rho = getRho(       caloCalibJet.Pt()/m_GeV, caloCalibJet.M()/caloCalibJet.Pt(), etabin );
+              }
+              break;
+            case BinningParam::e_LOGmOe_eta:
+              if (m_use3Dhisto)
+              {
+                relCalo = getRelCalo3D( caloCalibJet.E()/m_GeV, caloCalibJet.M()/caloCalibJet.E(), absdetectorEta );
+                relTA   = getRelTA3D(   caloCalibJet.E()/m_GeV, mass_ta         /caloCalibJet.E(), absdetectorEta );
+                if (m_useCorrelatedWeights)
+                    rho = getRho3D(     caloCalibJet.E()/m_GeV, caloCalibJet.M()/caloCalibJet.E(), absdetectorEta );
+              }
+              else
+              {
+                relCalo = getRelCalo(   caloCalibJet.E()/m_GeV, caloCalibJet.M()/caloCalibJet.E(), etabin );
+                relTA   = getRelTA(     caloCalibJet.E()/m_GeV, mass_ta         /caloCalibJet.E(), etabin );
+                if (m_useCorrelatedWeights)
+                    rho = getRho(       caloCalibJet.E()/m_GeV, caloCalibJet.M()/caloCalibJet.E(), etabin );
+              }
+              break;
+            case BinningParam::e_LOGmOet_eta:
+              if (m_use3Dhisto)
+              {
+                relCalo = getRelCalo3D( caloCalibJet.E()/m_GeV, caloCalibJet.M()/caloCalibJet.Et(), absdetectorEta );
+                relTA   = getRelTA3D(   caloCalibJet.E()/m_GeV, mass_ta         /caloCalibJet.Et(), absdetectorEta );
+                if (m_useCorrelatedWeights)
+                    rho = getRho3D(     caloCalibJet.E()/m_GeV, caloCalibJet.M()/caloCalibJet.Et(), absdetectorEta );
+              }
+              else
+              {
+                relCalo = getRelCalo(   caloCalibJet.E()/m_GeV, caloCalibJet.M()/caloCalibJet.Et(), etabin );
+                relTA   = getRelTA(     caloCalibJet.E()/m_GeV, mass_ta         /caloCalibJet.Et(), etabin );
+                if (m_useCorrelatedWeights)
+                    rho = getRho(       caloCalibJet.E()/m_GeV, caloCalibJet.M()/caloCalibJet.Et(), etabin );
+              }
+              break;
+            case BinningParam::e_LOGmOpt_eta:
+              if (m_use3Dhisto)
+              {
+                relCalo = getRelCalo3D( caloCalibJet.E()/m_GeV, caloCalibJet.M()/caloCalibJet.Pt(), absdetectorEta );
+                relTA   = getRelTA3D(   caloCalibJet.E()/m_GeV, mass_ta         /caloCalibJet.Pt(), absdetectorEta );
+                if (m_useCorrelatedWeights)
+                    rho = getRho3D(     caloCalibJet.E()/m_GeV, caloCalibJet.M()/caloCalibJet.Pt(), absdetectorEta );
+              }
+              else
+              {
+                relCalo = getRelCalo(   caloCalibJet.E()/m_GeV, caloCalibJet.M()/caloCalibJet.Pt(), etabin );
+                relTA   = getRelTA(     caloCalibJet.E()/m_GeV, mass_ta         /caloCalibJet.Pt(), etabin );
+                if (m_useCorrelatedWeights)
+                    rho = getRho(       caloCalibJet.E()/m_GeV, caloCalibJet.M()/caloCalibJet.Pt(), etabin );
+              }
+              break;
+            case BinningParam::et_LOGmOet_eta:
+              if (m_use3Dhisto)
+              {
+                relCalo = getRelCalo3D( caloCalibJet.Et()/m_GeV, caloCalibJet.M()/caloCalibJet.Et(), absdetectorEta );
+                relTA   = getRelTA3D(   caloCalibJet.Et()/m_GeV, mass_ta         /caloCalibJet.Et(), absdetectorEta );
+                if (m_useCorrelatedWeights)
+                    rho = getRho3D(     caloCalibJet.Et()/m_GeV, caloCalibJet.M()/caloCalibJet.Et(), absdetectorEta );
+              }
+              else
+              {
+                relCalo = getRelCalo(   caloCalibJet.Et()/m_GeV, caloCalibJet.M()/caloCalibJet.Et(), etabin );
+                relTA   = getRelTA(     caloCalibJet.Et()/m_GeV, mass_ta         /caloCalibJet.Et(), etabin );
+                if (m_useCorrelatedWeights)
+                    rho = getRho(       caloCalibJet.Et()/m_GeV, caloCalibJet.M()/caloCalibJet.Et(), etabin );
+              }
+              break;
+            default:
+              ATH_MSG_FATAL("This should never be reached - if it happens, it's because a new BinningParam enum option was added, but how to handle it for the TA mass was not.  Please contact the tool developer(s) to fix this.");
+              return StatusCode::FAILURE;
+              break;
+          }
+
+
+          
           // Watch for division by zero
           if(m_useCorrelatedWeights && (relCalo*relCalo + relTA*relTA - 2 * rho* relCalo * relTA == 0)){
             ATH_MSG_ERROR("Encountered division by zero when calculating mass combination weight using correlated weights");
             return StatusCode::FAILURE;
           }
 	  const double Weight = ( relTA*relTA - rho *relCalo*relTA ) / ( relCalo*relCalo + relTA*relTA - 2 * rho* relCalo * relTA );
-  	  mass_comb =  ( mass_calo * Weight ) + ( mass_ta * ( 1 - Weight) );
+  	  mass_comb =  ( caloCalibJet.M() * Weight ) + ( mass_ta * ( 1 - Weight) );
 	  // Protection
-	  if(mass_comb>jetStartP4.e()) mass_comb = mass_calo;
+	  if(mass_comb>jetStartP4.e()) mass_comb = caloCalibJet.M();
 	  else if(!m_pTfixed) pT_comb = sqrt(jetStartP4.e()*jetStartP4.e()-mass_comb*mass_comb)/cosh( jetStartP4.eta() );
         }
       }
@@ -909,7 +989,7 @@ StatusCode JMSCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const {
 
       //Transfer calibrated calo mass property to the Jet object
       xAOD::JetFourMom_t calibP4_calo = jet.jetP4();
-      calibP4_calo.SetCoordinates( pT_calo, jetStartP4.eta(), jetStartP4.phi(), mass_calo );
+      calibP4_calo.SetCoordinates( caloCalibJet.Pt(), jetStartP4.eta(), jetStartP4.phi(), caloCalibJet.M() );
       jet.setAttribute<xAOD::JetFourMom_t>("JetJMSScaleMomentumCalo",calibP4_calo);
 
     }
