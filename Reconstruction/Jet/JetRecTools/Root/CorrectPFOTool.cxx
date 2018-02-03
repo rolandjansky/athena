@@ -91,6 +91,11 @@ StatusCode CorrectPFOTool::correctPFO(xAOD::PFOContainer& cont) const {
     }
   }
 
+  //CP::PFO_JetMETConfig_inputScale inscale = m_inputIsEM ? CP::EM : CP::LC;
+  const static SG::AuxElement::Accessor<char> PVMatchedAcc("matchedToPV");
+  const static SG::AuxElement::Accessor<float> z0SinThetaPVAcc("z0SinThetaPV");
+  const static SG::AuxElement::Accessor<float> z0SinThetaPUMinAcc("z0SinThetaPUMin");
+
   for ( xAOD::PFO* ppfo : cont ) {
 
     if ( fabs(ppfo->charge())<FLT_MIN) { // Neutral PFOs

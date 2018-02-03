@@ -51,8 +51,6 @@ correctPFOTool = CorrectPFOTool("correctPFOTool",
                                 InputIsEM = True,
                                 CalibratePFO = False,
                                 UseChargedWeights = True,
-                                UseVertices = True,
-                                UseTrackToVertexTool = False,
                                 )
 ToolSvc += correctPFOTool
 
@@ -71,7 +69,7 @@ PUPPISequence = JetConstituentModSequence("PUPPISequence",
                                           InputContainer = "JetETMiss",
                                           OutputContainer = "PUPPI",
                                           InputType = 3,
-                                          Modifiers = [correctPFOTool,puppiWeightTool,CHSTool],
+                                          Modifiers = [correctPFOTool,CHSTool,puppiWeightTool],
                                           SaveAsShallow = False,
                                           )
 ToolSvc += PUPPISequence

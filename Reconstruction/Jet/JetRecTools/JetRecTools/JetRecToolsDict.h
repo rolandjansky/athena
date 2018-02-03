@@ -22,6 +22,6 @@
 #include "JetRecTools/TrackPseudoJetGetter.h"
 #include "JetRecTools/TrackVertexAssociationTool.h"
 #include "JetRecTools/VoronoiWeightTool.h"
-
+#include "JetRecTools/PuppiWeightTool.h"
 
 #endif

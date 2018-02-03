@@ -35,6 +35,11 @@ StatusCode JetConstituentModifierBase::process(xAOD::IParticleContainer* cont) c
   return StatusCode::SUCCESS;
 }
 
+int JetConstituentModifierBase::execute() const {
+
+  ATH_MSG_INFO("Executing JetConstituentModifierBase");
+  return 0;
+}
 
 StatusCode JetConstituentModifierBase::setEtaPhi(xAOD::IParticle* obj, float eta, float phi) const
 {

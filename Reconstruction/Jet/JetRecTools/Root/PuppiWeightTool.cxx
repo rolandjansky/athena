@@ -14,9 +14,6 @@ using namespace std;
 //------------------------------------------------------------------------------
 
 PuppiWeightTool::PuppiWeightTool(const std::string& name) : JetConstituentModifierBase(name) {
-#ifdef ASG_TOOL_ATHENA
-  declareInterface<IJetConstituentModifier>(this);
-#endif
 
   declareProperty("R0", m_R0 = 0.3);
   declareProperty("Rmin", m_Rmin = 0.001);
@@ -29,6 +26,7 @@ PuppiWeightTool::PuppiWeightTool(const std::string& name) : JetConstituentModifi
 
   declareProperty("ApplyWeight",m_applyWeight=true);
   declareProperty("IncludeCentralNeutralsInAlpha",m_includeCentralNeutralsInAlpha=false);
+
   declareProperty("VertexContainerKey", m_vertexContainer_key);
   
   m_puppi = new Puppi(m_R0, m_Rmin, m_beta, m_centralPTCutOffset, m_centralPTCutSlope, m_forwardPTCutOffset, m_forwardPTCutSlope, m_etaBoundary);
@@ -69,8 +67,8 @@ StatusCode PuppiWeightTool::process_impl(xAOD::PFOContainer* cont) const{
 
   // Fill input particle vectors for puppi
   for ( xAOD::PFO* ppfo : *cont ) {
-    if (!PVMatchedAcc.isAvailable(*ppfo)){
-      ATH_MSG_ERROR("Not known if PFO is matched to primary vertex.  Run CorrectPFOTool before ChargedHadronSubtractionTool");
+    if (fabs(ppfo->charge()) > FLT_MIN && !PVMatchedAcc.isAvailable(*ppfo)){
+      ATH_MSG_ERROR("Not known if PFO is matched to primary vertex.  Run ChargedHadronSubtractionTool before PuppiWeightTool");
       return StatusCode::FAILURE;
     }
 
