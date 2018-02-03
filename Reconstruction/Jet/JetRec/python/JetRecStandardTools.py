@@ -341,10 +341,10 @@ useTrackVertexTool = False
 if True == jetFlags.useTrackVertexTool:
   useTrackVertexTool = True
 
-import cppyy
-try: cppyy.loadDictionary('xAODBaseDict')
-except: pass
-from ROOT import xAOD
+# import cppyy
+# try: cppyy.loadDictionary('xAODBaseDict')
+# except: pass
+# from ROOT import xAOD
 
 # Weight tool for charged pflow objects.
 jtm += WeightPFOTool("pflowweighter")
@@ -358,12 +358,12 @@ ctm.add( CorrectPFOTool("correctPFOTool",
                         InputIsEM = True,
                         CalibratePFO = False,
                         UseChargedWeights = True,
-                        InputType = xAOD.Type.ParticleFlow
+                        InputType = 3 # xAOD.Type.ParticleFlow
                         ),
          alias = 'correctPFO' )
 
 # this removes (weights momenta to 0) charged PFOs from non-hard-scatter vertices
-ctm.add( ChargedHadronSubtractionTool("CHSTool", InputType = xAOD.Type.ParticleFlow),
+ctm.add( ChargedHadronSubtractionTool("CHSTool", InputType = 3), # xAOD.Type.ParticleFlow),
          alias = 'chsPFO' )
 
 # Run the above tools to modify PFO
