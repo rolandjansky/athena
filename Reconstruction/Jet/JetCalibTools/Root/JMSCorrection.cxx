@@ -896,65 +896,65 @@ StatusCode JMSCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const {
             case BinningParam::e_LOGmOe_eta:
               if (m_use3Dhisto)
               {
-                relCalo = getRelCalo3D( caloCalibJet.E()/m_GeV, caloCalibJet.M()/caloCalibJet.E(), absdetectorEta );
-                relTA   = getRelTA3D(   caloCalibJet.E()/m_GeV, mass_ta         /caloCalibJet.E(), absdetectorEta );
+                relCalo = getRelCalo3D( caloCalibJet.E()/m_GeV, log(caloCalibJet.M()/caloCalibJet.E()), absdetectorEta );
+                relTA   = getRelTA3D(   caloCalibJet.E()/m_GeV, log(mass_ta         /caloCalibJet.E()), absdetectorEta );
                 if (m_useCorrelatedWeights)
-                    rho = getRho3D(     caloCalibJet.E()/m_GeV, caloCalibJet.M()/caloCalibJet.E(), absdetectorEta );
+                    rho = getRho3D(     caloCalibJet.E()/m_GeV, log(caloCalibJet.M()/caloCalibJet.E()), absdetectorEta );
               }
               else
               {
-                relCalo = getRelCalo(   caloCalibJet.E()/m_GeV, caloCalibJet.M()/caloCalibJet.E(), etabin );
-                relTA   = getRelTA(     caloCalibJet.E()/m_GeV, mass_ta         /caloCalibJet.E(), etabin );
+                relCalo = getRelCalo(   caloCalibJet.E()/m_GeV, log(caloCalibJet.M()/caloCalibJet.E()), etabin );
+                relTA   = getRelTA(     caloCalibJet.E()/m_GeV, log(mass_ta         /caloCalibJet.E()), etabin );
                 if (m_useCorrelatedWeights)
-                    rho = getRho(       caloCalibJet.E()/m_GeV, caloCalibJet.M()/caloCalibJet.E(), etabin );
+                    rho = getRho(       caloCalibJet.E()/m_GeV, log(caloCalibJet.M()/caloCalibJet.E()), etabin );
               }
               break;
             case BinningParam::e_LOGmOet_eta:
               if (m_use3Dhisto)
               {
-                relCalo = getRelCalo3D( caloCalibJet.E()/m_GeV, caloCalibJet.M()/caloCalibJet.Et(), absdetectorEta );
-                relTA   = getRelTA3D(   caloCalibJet.E()/m_GeV, mass_ta         /caloCalibJet.Et(), absdetectorEta );
+                relCalo = getRelCalo3D( caloCalibJet.E()/m_GeV, log(caloCalibJet.M()/caloCalibJet.Et()), absdetectorEta );
+                relTA   = getRelTA3D(   caloCalibJet.E()/m_GeV, log(mass_ta         /caloCalibJet.Et()), absdetectorEta );
                 if (m_useCorrelatedWeights)
-                    rho = getRho3D(     caloCalibJet.E()/m_GeV, caloCalibJet.M()/caloCalibJet.Et(), absdetectorEta );
+                    rho = getRho3D(     caloCalibJet.E()/m_GeV, log(caloCalibJet.M()/caloCalibJet.Et()), absdetectorEta );
               }
               else
               {
-                relCalo = getRelCalo(   caloCalibJet.E()/m_GeV, caloCalibJet.M()/caloCalibJet.Et(), etabin );
-                relTA   = getRelTA(     caloCalibJet.E()/m_GeV, mass_ta         /caloCalibJet.Et(), etabin );
+                relCalo = getRelCalo(   caloCalibJet.E()/m_GeV, log(caloCalibJet.M()/caloCalibJet.Et()), etabin );
+                relTA   = getRelTA(     caloCalibJet.E()/m_GeV, log(mass_ta         /caloCalibJet.Et()), etabin );
                 if (m_useCorrelatedWeights)
-                    rho = getRho(       caloCalibJet.E()/m_GeV, caloCalibJet.M()/caloCalibJet.Et(), etabin );
+                    rho = getRho(       caloCalibJet.E()/m_GeV, log(caloCalibJet.M()/caloCalibJet.Et()), etabin );
               }
               break;
             case BinningParam::e_LOGmOpt_eta:
               if (m_use3Dhisto)
               {
-                relCalo = getRelCalo3D( caloCalibJet.E()/m_GeV, caloCalibJet.M()/caloCalibJet.Pt(), absdetectorEta );
-                relTA   = getRelTA3D(   caloCalibJet.E()/m_GeV, mass_ta         /caloCalibJet.Pt(), absdetectorEta );
+                relCalo = getRelCalo3D( caloCalibJet.E()/m_GeV, log(caloCalibJet.M()/caloCalibJet.Pt()), absdetectorEta );
+                relTA   = getRelTA3D(   caloCalibJet.E()/m_GeV, log(mass_ta         /caloCalibJet.Pt()), absdetectorEta );
                 if (m_useCorrelatedWeights)
-                    rho = getRho3D(     caloCalibJet.E()/m_GeV, caloCalibJet.M()/caloCalibJet.Pt(), absdetectorEta );
+                    rho = getRho3D(     caloCalibJet.E()/m_GeV, log(caloCalibJet.M()/caloCalibJet.Pt()), absdetectorEta );
               }
               else
               {
-                relCalo = getRelCalo(   caloCalibJet.E()/m_GeV, caloCalibJet.M()/caloCalibJet.Pt(), etabin );
-                relTA   = getRelTA(     caloCalibJet.E()/m_GeV, mass_ta         /caloCalibJet.Pt(), etabin );
+                relCalo = getRelCalo(   caloCalibJet.E()/m_GeV, log(caloCalibJet.M()/caloCalibJet.Pt()), etabin );
+                relTA   = getRelTA(     caloCalibJet.E()/m_GeV, log(mass_ta         /caloCalibJet.Pt()), etabin );
                 if (m_useCorrelatedWeights)
-                    rho = getRho(       caloCalibJet.E()/m_GeV, caloCalibJet.M()/caloCalibJet.Pt(), etabin );
+                    rho = getRho(       caloCalibJet.E()/m_GeV, log(caloCalibJet.M()/caloCalibJet.Pt()), etabin );
               }
               break;
             case BinningParam::et_LOGmOet_eta:
               if (m_use3Dhisto)
               {
-                relCalo = getRelCalo3D( caloCalibJet.Et()/m_GeV, caloCalibJet.M()/caloCalibJet.Et(), absdetectorEta );
-                relTA   = getRelTA3D(   caloCalibJet.Et()/m_GeV, mass_ta         /caloCalibJet.Et(), absdetectorEta );
+                relCalo = getRelCalo3D( caloCalibJet.Et()/m_GeV, log(caloCalibJet.M()/caloCalibJet.Et()), absdetectorEta );
+                relTA   = getRelTA3D(   caloCalibJet.Et()/m_GeV, log(mass_ta         /caloCalibJet.Et()), absdetectorEta );
                 if (m_useCorrelatedWeights)
-                    rho = getRho3D(     caloCalibJet.Et()/m_GeV, caloCalibJet.M()/caloCalibJet.Et(), absdetectorEta );
+                    rho = getRho3D(     caloCalibJet.Et()/m_GeV, log(caloCalibJet.M()/caloCalibJet.Et()), absdetectorEta );
               }
               else
               {
-                relCalo = getRelCalo(   caloCalibJet.Et()/m_GeV, caloCalibJet.M()/caloCalibJet.Et(), etabin );
-                relTA   = getRelTA(     caloCalibJet.Et()/m_GeV, mass_ta         /caloCalibJet.Et(), etabin );
+                relCalo = getRelCalo(   caloCalibJet.Et()/m_GeV, log(caloCalibJet.M()/caloCalibJet.Et()), etabin );
+                relTA   = getRelTA(     caloCalibJet.Et()/m_GeV, log(mass_ta         /caloCalibJet.Et()), etabin );
                 if (m_useCorrelatedWeights)
-                    rho = getRho(       caloCalibJet.Et()/m_GeV, caloCalibJet.M()/caloCalibJet.Et(), etabin );
+                    rho = getRho(       caloCalibJet.Et()/m_GeV, log(caloCalibJet.M()/caloCalibJet.Et()), etabin );
               }
               break;
             default:
