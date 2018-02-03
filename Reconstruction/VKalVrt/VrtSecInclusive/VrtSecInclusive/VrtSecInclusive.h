@@ -163,6 +163,8 @@ namespace VKalVrtAthena {
       int  CutBLayHits;
       int  CutSharedHits;
       int  CutTRTHits; // Kazuki
+      int  CutTightSCTHits;
+      int  CutTightTRTHits;
       
       // Vertex reconstruction
       bool   doPVcompatibilityCut;
@@ -354,6 +356,7 @@ namespace VKalVrtAthena {
     bool selectTrack_pTCut           ( const xAOD::TrackParticle* ) const;
     bool selectTrack_chi2Cut         ( const xAOD::TrackParticle* ) const;
     bool selectTrack_hitPattern      ( const xAOD::TrackParticle* ) const;
+    bool selectTrack_hitPatternTight ( const xAOD::TrackParticle* ) const;
     bool selectTrack_d0Cut           ( const xAOD::TrackParticle* ) const;
     bool selectTrack_z0Cut           ( const xAOD::TrackParticle* ) const;
     bool selectTrack_d0errCut        ( const xAOD::TrackParticle* ) const;

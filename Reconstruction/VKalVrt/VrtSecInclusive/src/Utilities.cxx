@@ -723,6 +723,8 @@ namespace VKalVrtAthena {
     declareProperty("CutSharedHits",                   m_jp.CutSharedHits                   = 0                             );
     declareProperty("doTRTPixCut",                     m_jp.doTRTPixCut                     = false                         ); // mode for R-hadron displaced vertex
     declareProperty("CutTRTHits",                      m_jp.CutTRTHits                      = 0                             );
+    declareProperty("CutTightSCTHits",                 m_jp.CutTightSCTHits                 = 7                             );
+    declareProperty("CutTightTRTHits",                 m_jp.CutTightTRTHits                 = 20                            );
     
     declareProperty("doReassembleVertices",            m_jp.doReassembleVertices            = false                         );
     declareProperty("doMergeByShuffling",              m_jp.doMergeByShuffling              = false                         );
@@ -2299,6 +2301,16 @@ namespace VKalVrtAthena {
       if( truthVertex->nIncomingParticles() != 1 )                      return false;
       if( abs(truthVertex->incomingParticle(0)->pdgId()) < 1000000 )    return false;
       if( abs(truthVertex->incomingParticle(0)->pdgId()) > 1000000000 ) return false; // Nuclear codes, e.g. deuteron
+      // neutralino in daughters
+      bool hasNeutralino = false;
+      for( unsigned ip = 0; ip < truthVertex->nOutgoingParticles(); ip++ ) {
+        auto* p = truthVertex->outgoingParticle(ip);
+        if( abs( p->pdgId() ) == 1000022 ) {
+          hasNeutralino = true;
+          break;
+        }
+      }
+      if( !hasNeutralino ) return false;
       return true;
     };
   

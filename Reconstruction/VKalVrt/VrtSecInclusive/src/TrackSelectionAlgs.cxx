@@ -35,26 +35,26 @@ namespace VKalVrtAthena {
   bool VrtSecInclusive::selectTrack_hitPattern( const xAOD::TrackParticle* trk ) const {
     
     uint8_t PixelHits = 0;
-    uint8_t SctHits   = 0; 
+    uint8_t SCTHits   = 0; 
     uint8_t BLayHits  = 0;
     uint8_t PixShare  = 0;
-    uint8_t SctShare  = 0;
+    uint8_t SCTShare  = 0;
     uint8_t TRTHits   = 0;
     
     if( !(trk->summaryValue( PixelHits, xAOD::numberOfPixelHits               ) ) ) PixelHits =0;
-    if( !(trk->summaryValue( SctHits,   xAOD::numberOfSCTHits                 ) ) ) SctHits   =0;
+    if( !(trk->summaryValue( SCTHits,   xAOD::numberOfSCTHits                 ) ) ) SCTHits   =0;
     if( !(trk->summaryValue( BLayHits,  xAOD::numberOfInnermostPixelLayerHits ) ) ) BLayHits  =0;
     if( !(trk->summaryValue( PixShare,  xAOD::numberOfPixelSharedHits         ) ) ) PixShare  =0;
-    if( !(trk->summaryValue( SctShare,  xAOD::numberOfSCTSharedHits           ) ) ) SctShare  =0;
+    if( !(trk->summaryValue( SCTShare,  xAOD::numberOfSCTSharedHits           ) ) ) SCTShare  =0;
     if( !(trk->summaryValue( TRTHits,   xAOD::numberOfTRTHits                 ) ) ) TRTHits   =0;
     
-    uint8_t SharedHits = PixShare + SctShare;
+    uint8_t SharedHits = PixShare + SCTShare;
 
     // do Pixel/SCT/SiHits only if we exclude StandAlone TRT hits
     if( !m_jp.SAloneTRT ) {
       if(PixelHits	     < m_jp.CutPixelHits)  return false;
-      if(SctHits             < m_jp.CutSctHits)    return false;
-      if((PixelHits+SctHits) < m_jp.CutSiHits)     return false;
+      if(SCTHits             < m_jp.CutSctHits)    return false;
+      if((PixelHits+SCTHits) < m_jp.CutSiHits)     return false;
       if(BLayHits	     < m_jp.CutBLayHits)   return false;
       if(SharedHits	     > m_jp.CutSharedHits) return false;
     }
@@ -64,7 +64,23 @@ namespace VKalVrtAthena {
       if(TRTHits == 0 && PixelHits < 2)           return false;
     }
     
-    if( PixelHits == 0 && SctHits < 6 ) return false;
+    if( PixelHits == 0 && SCTHits < 6 ) return false;
+    
+    return true;
+  }
+  
+  //____________________________________________________________________________________________________
+  bool VrtSecInclusive::selectTrack_hitPatternTight( const xAOD::TrackParticle* trk ) const {
+    uint8_t PixelHits = 0;
+    uint8_t SCTHits   = 0; 
+    uint8_t TRTHits   = 0;
+    
+    if( !(trk->summaryValue( PixelHits, xAOD::numberOfPixelHits               ) ) ) PixelHits =0;
+    if( !(trk->summaryValue( SCTHits,   xAOD::numberOfSCTHits                 ) ) ) SCTHits   =0;
+    if( !(trk->summaryValue( TRTHits,   xAOD::numberOfTRTHits                 ) ) ) TRTHits   =0;
+    
+    if( SCTHits < m_jp.CutTightSCTHits                   ) return false;
+    if( PixelHits == 0 && TRTHits < m_jp.CutTightTRTHits ) return false;
     
     return true;
   }
@@ -94,6 +110,7 @@ namespace VKalVrtAthena {
       
       // These cuts are used by default
       m_trackSelectionFuncs.emplace_back( &VrtSecInclusive::selectTrack_hitPattern );
+      m_trackSelectionFuncs.emplace_back( &VrtSecInclusive::selectTrack_hitPatternTight );
       m_trackSelectionFuncs.emplace_back( &VrtSecInclusive::selectTrack_chi2Cut );
       m_trackSelectionFuncs.emplace_back( &VrtSecInclusive::selectTrack_pTCut );
       

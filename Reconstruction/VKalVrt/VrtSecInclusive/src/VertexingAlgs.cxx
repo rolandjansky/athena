@@ -1088,8 +1088,11 @@ namespace VKalVrtAthena {
         // hit pattern selection
         if( !selectTrack_hitPattern( trk ) ) continue;
         
-        // Hit pattern consistentcy requirement
-        //if( !checkTrackHitPatternToVertexOuterOnly( trk, vertexPos ) ) continue;
+        
+        // Hit pattern consistentcy requirement (within IBL)
+        if( vertexPos.perp() < 31.0 ) {
+          if( !checkTrackHitPatternToVertex( trk, vertexPos ) ) continue;
+        }
         
         // Get the closest approach
         std::vector<double> impactParameters;
