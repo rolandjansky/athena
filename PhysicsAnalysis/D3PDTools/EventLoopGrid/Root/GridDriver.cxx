@@ -235,12 +235,7 @@ namespace EL {
 
   {//Save the Algorithms and sample MetaObjects to be sent with the jobs 
     TFile f(jobDefFile.c_str(), "RECREATE"); 
-    TList algs; 
-    for (EL::Job::algsIter alg = job.algsBegin(),
-	   end = job.algsEnd(); alg != end; ++ alg) {
-      algs.Add((*alg)->Clone());
-    }      
-    f.WriteTObject(&algs, "algorithms", "SingleKey");      
+    f.WriteTObject(&job.jobConfig(), "jobConfig", "SingleKey");      
 
     for (EL::Job::outputIter out = job.outputBegin(),
 	   end = job.outputEnd(); out != end; ++out) {

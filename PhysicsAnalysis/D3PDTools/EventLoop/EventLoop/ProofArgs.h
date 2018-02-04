@@ -25,6 +25,7 @@
 
 #include <vector>
 #include <TObject.h>
+#include <EventLoop/JobConfig.h>
 #include <SampleHandler/MetaObject.h>
 
 namespace EL
@@ -52,9 +53,9 @@ namespace EL
     ProofDriver *driver;
 
 
-    /// description: the list of algorithms we are using
+    /// \brief the \ref JobConfig object we use
   public:
-    std::vector<Algorithm*> algs;
+    JobConfig jobConfig;
 
 
     /// description: the list of output streams we are using

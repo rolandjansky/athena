@@ -124,9 +124,7 @@ namespace EL
     RCU_ASSERT (m_args != 0);
 
     BackgroundJob job;
-    for (std::vector<Algorithm*>::const_iterator alg = m_args->algs.begin(),
-	   end = m_args->algs.end(); alg != end; ++ alg)
-      job.algs.push_back (*alg);
+    job.jobConfig = std::move (m_args->jobConfig);
 
     for (std::vector<OutputStream>::const_iterator out = m_args->output.begin(),
 	   end = m_args->output.end(); out != end; ++ out)
