@@ -364,6 +364,20 @@ namespace EL
 
 
   void Worker ::
+  setJobConfig (JobConfig&& jobConfig)
+  {
+    RCU_CHANGE_INVARIANT (this);
+    for (std::unique_ptr<Algorithm>& alg : jobConfig.extractAlgorithms())
+    {
+      alg->m_wk = this;
+      m_algs.push_back (alg.get());
+      alg.release ();
+    }
+  }
+
+
+
+  void Worker ::
   addOutputFile (const std::string& label, TFile *file_swallow)
   {
     RCU_CHANGE_INVARIANT (this);
@@ -386,21 +400,6 @@ namespace EL
       RCU_THROW_MSG ("output file already defined for label: " + label);
     m_outputFiles[label] = writer.get();
     writer.release();
-  }
-
-
-
-  void Worker ::
-  addAlg (Algorithm *alg_swallow)
-  {
-    std::auto_ptr<Algorithm> alg (alg_swallow);
-
-    RCU_READ_INVARIANT (this);
-    RCU_REQUIRE (alg_swallow != 0);
-
-    alg->m_wk = this;
-    m_algs.push_back (alg_swallow);
-    alg.release ();
   }
 
 

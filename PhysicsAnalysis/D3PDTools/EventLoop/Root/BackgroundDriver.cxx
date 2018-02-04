@@ -89,9 +89,7 @@ namespace EL
 
       {
 	BackgroundJob myjob;
-	for (Job::algsIter iter = job.algsBegin(),
-	       end = job.algsEnd(); iter != end; ++ iter)
-	  myjob.algs.push_back (*iter);
+        myjob.jobConfig = job.jobConfig();
 	for (Job::outputIter iter = job.outputBegin(),
 	       end = job.outputEnd(); iter != end; ++ iter)
 	  myjob.output.push_back (*iter);

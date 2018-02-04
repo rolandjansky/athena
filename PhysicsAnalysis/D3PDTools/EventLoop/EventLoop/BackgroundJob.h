@@ -23,6 +23,7 @@
 
 #include <EventLoop/Global.h>
 
+#include <EventLoop/JobConfig.h>
 #include <SampleHandler/MetaObject.h>
 
 namespace EL
@@ -41,9 +42,9 @@ namespace EL
 
   struct BackgroundJob : public TObject
   {
-    /// \brief the list of algorithms we are using
+    /// \brief the \ref JobConfig object we are using
   public:
-    std::vector<Algorithm*> algs;
+    EL::JobConfig jobConfig;
 
     /// \brief the list of output streams we are using
   public:

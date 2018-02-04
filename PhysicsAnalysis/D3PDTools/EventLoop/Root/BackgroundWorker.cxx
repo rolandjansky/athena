@@ -127,6 +127,8 @@ namespace EL
   BackgroundWorker (const BackgroundJob& job, TList *output)
     : Worker (&job.meta, output)
   {
+    setJobConfig (JobConfig (job.jobConfig));
+
     const std::string name =
       job.meta.castString (SH::MetaFields::sampleName);
 
@@ -135,10 +137,6 @@ namespace EL
     {
       addOutputWriter (out->label(), out->output()->makeWriter (name, "", -1, ".root"));
     }
-
-    for (std::vector<Algorithm*>::const_iterator alg = job.algs.begin(),
-	   end = job.algs.end(); alg != end; ++ alg)
-      addAlg (dynamic_cast<Algorithm*>((*alg)->Clone ()));
 
     RCU_NEW_INVARIANT (this);
   }

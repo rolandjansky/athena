@@ -230,6 +230,25 @@ namespace EL
     Worker (const SH::MetaObject *val_metaData, TList *output);
 
 
+    /// \brief set the \ref JobConfig
+    ///
+    /// This takes care of adding the algorithms, etc. (only
+    /// algorithms for now, 03 Feb 17).
+    ///
+    /// Note the rvalue calling convention here: Algorithms are
+    /// objects that get modified, so if you use them more than once
+    /// you need to copy/clone them.  However, in practice no driver
+    /// should need that (though many do for now, 03 Feb 17), as
+    /// drivers generally stream the JobConfig in for one-time use.
+    ///
+    /// \par Guarantee
+    ///   basic
+    /// \par Failures
+    ///   job configuration/streaming errors
+  protected:
+    void setJobConfig (JobConfig&& jobConfig);
+
+
     /// effects: add another output file
     /// guarantee: strong
     /// failures: low level errors II
@@ -239,14 +258,6 @@ namespace EL
     void addOutputFile (const std::string& label, TFile *file_swallow);
     void addOutputWriter (const std::string& label,
 			  SH::DiskWriter *writer_swallow);
-
-
-    /// effects: add another algorithm
-    /// guarantee: strong
-    /// failures: out of memory II
-    /// requires: alg_swallow != 0
-  protected:
-    void addAlg (EL::Algorithm *alg_swallow);
 
 
     /// effects: tell all algorithms that we started a new file, so

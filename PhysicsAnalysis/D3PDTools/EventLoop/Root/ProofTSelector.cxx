@@ -122,9 +122,7 @@ namespace EL
 
     m_worker = new ProofWorker (&m_args->sample_meta, fOutput, this);
 
-    for (std::vector<Algorithm*>::const_iterator alg = m_args->algs.begin(),
-	   end = m_args->algs.end(); alg != end; ++ alg)
-      m_worker->addAlg (dynamic_cast<EL::Algorithm*>((*alg)->Clone()));
+    m_worker->setJobConfig (JobConfig (m_args->jobConfig));
       
     for (std::vector<OutputStream>::const_iterator out = m_args->output.begin(),
 	   end = m_args->output.end(); out != end; ++ out)

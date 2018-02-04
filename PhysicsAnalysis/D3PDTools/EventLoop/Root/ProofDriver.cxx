@@ -237,12 +237,7 @@ namespace EL
 	  proof->SetPerfTree ();
 	std::auto_ptr<ProofArgs> args (new ProofArgs);
 	args->driver = static_cast<ProofDriver*>(Clone());
-	for (Job::algsIter alg = job.algsBegin(), end = job.algsEnd();
-	     alg != end; ++ alg)
-	{
-	  args->algs.push_back (0);
-	  args->algs.back() = dynamic_cast<Algorithm*>((*alg)->Clone());
-	}
+        args->jobConfig = job.jobConfig();
 	for (Job::outputIter out = job.outputBegin(), end = job.outputEnd();
 	     out != end; ++ out)
 	  args->output.push_back (*out);

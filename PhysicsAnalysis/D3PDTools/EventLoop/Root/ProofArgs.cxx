@@ -41,8 +41,5 @@ namespace EL
   ~ProofArgs ()
   {
     delete driver;
-    for (std::vector<Algorithm*>::const_iterator alg = algs.begin(),
-	   end = algs.end(); alg != end; ++ alg)
-      delete *alg;
   }
 }
