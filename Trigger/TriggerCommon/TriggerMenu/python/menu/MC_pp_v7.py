@@ -1631,6 +1631,7 @@ def setupMenu():
         ['mu4_ivarloose_mu4_11invm60_noos_novtx_L1MU6_2MU4',           'L1_MU6_2MU4',                         ['L1_MU4','L1_MU4'], [PhysicsStream],  [RATE_DYTag,BW_DYTag], -1],
         ['mu4_ivarloose_mu4_7invm9_noos_novtx_L1MU6_2MU4',           'L1_MU6_2MU4',                         ['L1_MU4','L1_MU4'], [PhysicsStream],  [RATE_DYTag,BW_DYTag], -1],
 
+        ['mu6_mu2noL1_msonly_bJpsimumu_noid','L1_MU6', ['L1_MU6',''], [PhysicsStream], ['RATE:IDMonitoring',BW_BphysTag, 'BW:ID'], -1, ['serial',-1,['mu6','mu2noL1_msonly']]],
 
       ]
 
