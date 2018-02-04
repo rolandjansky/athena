@@ -1865,13 +1865,10 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
   const GeoMaterial* matAir = m_theMaterialManager->getMaterial("std::Air");
   const GeoMaterial* matScin = m_theMaterialManager->getMaterial("tile::Scintillator");
 
-  if (m_Glue == 0 ||  m_Glue == 2)  {
-    dzglue = 0;
-  }
+  const bool RemoveGlue = !(m_Glue == 0 ||  m_Glue == 2);
 
   //Glue layer
-  if (dzglue>0.0 && period_type<4) {
-
+  if (dzglue>0.0 && period_type<4 && !RemoveGlue) {
     const GeoMaterial* matGlue = m_theMaterialManager->getMaterial("tile::Glue");
 
     double dzglue2 = dzglue/2*CLHEP::cm;
