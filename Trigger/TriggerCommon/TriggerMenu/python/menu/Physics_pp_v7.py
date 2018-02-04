@@ -178,8 +178,6 @@ def setupMenu():
         # Bphys item, needs to be in muon slice: ATR-14367
         ['mu6_nomucomb_2mu4_nomucomb_L1MU6_3MU4',          'L1_MU6_3MU4',  ['L1_MU6','L1_2MU4'],          [BMultiMuonStream], [RATE_BMultiMuonTag, BW_BphysTag], -1],
         ['2mu6_nomucomb_mu4_nomucomb_L12MU6_3MU4',          'L1_2MU6_3MU4',  ['L1_2MU6','L1_MU4'],          [BMultiMuonStream], [RATE_BMultiMuonTag, BW_BphysTag], -1],
-        ['3mu3_mu3noL1_calotag_0eta010_L13MU4',    'L1_3MU4', ['L1_3MU4',''], [BMultiMuonStream], [RATE_BMultiMuonTag, BW_BphysTag], -1,['serial',-1,['3mu3','mu3noL1_calotag_0eta010']]],
-        ['3mu4_mu4noL1_calotag_0eta010',           'L1_3MU4', ['L1_3MU4',''], [BMultiMuonStream], [RATE_BMultiMuonTag, BW_BphysTag], -1,['serial',-1,['3mu4','mu4noL1_calotag_0eta010']]],
 
         #HI Muons for 5TeV run ATR-17162
         ['mu6_ivarloose',                   'L1_MU6',           [], [PhysicsStream], ['RATE:SingleMuon', 'BW:Muon'], -1],
@@ -4623,7 +4621,6 @@ class Prescales:
         '2mu6_mu4_bTau_L12MU6_3MU4',
         '2mu6_mu4_bUpsi',
         '3mu3_mu3noL1_L13MU4',
-        '3mu3_mu3noL1_calotag_0eta010_L13MU4',
         '3mu4_bDimu',
         '3mu4_bJpsi',
         '3mu4_bPhi',
@@ -4631,7 +4628,6 @@ class Prescales:
         '3mu4_bUpsi',
         '3mu4_mu2noL1',
         '3mu4_mu4noL1',
-        '3mu4_mu4noL1_calotag_0eta010',
         '3mu6_bJpsi',
         '3mu6_bTau',
         '3mu6_bUpsi',
