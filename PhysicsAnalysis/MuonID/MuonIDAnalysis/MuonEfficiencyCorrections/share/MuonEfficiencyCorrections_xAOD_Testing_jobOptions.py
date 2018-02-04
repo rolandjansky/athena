@@ -17,6 +17,8 @@ theJob = AlgSequence()
 from MuonEfficiencyCorrections.MuonEfficiencyCorrectionsConf import CP__MuonEfficiencyCorrections_TestAlg
 alg = CP__MuonEfficiencyCorrections_TestAlg("EffiTestAlg")
 alg.PileupReweightingTool = GetPRWTool()
+alg.DefaultRelease="cRecommendationsSep17"
+alg.ValidationRelease="cRecommendationsToday"
 
 WPs = [
          # reconstruction WPs

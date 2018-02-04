@@ -201,7 +201,7 @@ if __name__ == "__main__":
 
     for i in range(tree.GetEntries()):
         tree.GetEntry(i)
-        if math.fabs(tree.Muon_eta) > 2.5 || tree.Muon_author == 8: continue
+        if math.fabs(tree.Muon_eta) > 2.5 or  math.fabs(tree.Muon_eta) < 0.1 or tree.Muon_pt < 15.e3: continue
         
         for CR in calibReleases:
             for wp in WPs:
@@ -227,7 +227,7 @@ if __name__ == "__main__":
         dummy = ROOT.TCanvas("dummy", "dummy", 800, 600)
         dummy.SaveAs("Plots/AllAppliedSFCheckPlots%s.pdf[" % (bonusname))
         
-        can = ROOT.TCanvas("calibcomparison%s"%(bonusname),"SFCheck",800,600)
+        can = ROOT.TCanvas("calibcomparison%s"%(bonusname),"SFCheck",1000,600)
         can.SetLogy()
         for wp in WPs:
             for t in Options.SFConstituent:
@@ -236,8 +236,8 @@ if __name__ == "__main__":
                     if t == "DataEff": corrType = "Data efficiency"
                     elif t == "MCEff": corrType = "MC efficiency"
                     if var=="": 
-                        minimum = min(Histos[calibReleases[0]][wp][t][var].min(), Histos[calibReleases[1]][wp][t][var].min())
-                        maximum = max(Histos[calibReleases[0]][wp][t][var].max(), Histos[calibReleases[1]][wp][t][var].max())
+                        minimum = min(Histos[calibReleases[0]][wp][t][var].min(), Histos[calibReleases[1]][wp][t][var].min()) - 0.01
+                        maximum = max(Histos[calibReleases[0]][wp][t][var].max(), Histos[calibReleases[1]][wp][t][var].max()) + 0.01
                         Histos[calibReleases[0]][wp][t][var].setMinimum(minimum)
                         Histos[calibReleases[1]][wp][t][var].setMinimum(minimum)
                         Histos[calibReleases[0]][wp][t][var].setMaximum(maximum)
@@ -260,6 +260,9 @@ if __name__ == "__main__":
                         histoCR2.SetBinContent(histoCR2.GetNbinsX(),histoCR2.GetBinContent(histoCR2.GetNbinsX()+1))
                         
                     histoCR1.Draw("HIST")
+                    histoCR1.SetMinimum(0.01)
+                    histoCR1.SetMaximum(max(histoCR1.GetMaximum(), histoCR2.GetMaximum()) *1.e2)
+                    
                     histoCR1.GetYaxis().SetTitle("Fraction of muons")
                     histoCR2.SetLineColor(ROOT.kRed)
                     histoCR2.SetMarkerColor(ROOT.kRed)
