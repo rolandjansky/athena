@@ -297,9 +297,9 @@ namespace CP {
 
     EffiCollection::CollectionContainer::CollectionContainer(CollectionContainer_Ptr Nominal, const asg::AsgTool* ref_asg_tool, const std::string &FileName, MuonEfficiencySystType sysType, CP::MuonEfficiencyType effType, EffiCollection::CollectionType FileType, bool isLowPt, bool hasPtDepSys) :
                 m_SF(),
-                m_currentSF(m_SF.end()),
+                m_currentSF(),
                 m_FileType(FileType) {
-        TFile* fin = TFile::Open(FileName.c_str());
+        std::unique_ptr<TFile> fin (TFile::Open(FileName.c_str()));
         if (!fin) {
             Error("CollectionContainer", "%s", ("Unable to open file " + FileName).c_str());
             return;
@@ -322,52 +322,58 @@ namespace CP {
             }
         }
         fin->Close();
-        delete fin;
         for (auto& period : map) {
+            EfficiencyScaleFactor_Ptr effi_factor(nullptr);
             if (!Nominal) {
-                m_SF.insert(std::pair<RunRanges, std::shared_ptr<EfficiencyScaleFactor>>(period.second, std::shared_ptr < EfficiencyScaleFactor > (new EfficiencyScaleFactor(ref_asg_tool->name()+FileTypeName(m_FileType), FileName, period.first, sysType, effType, isLowPt, hasPtDepSys))));
+                effi_factor = EfficiencyScaleFactor_Ptr (new EfficiencyScaleFactor(ref_asg_tool->name()+FileTypeName(m_FileType), FileName, period.first, sysType, effType, isLowPt, hasPtDepSys));
             } else {
-                m_SF.insert(std::pair<RunRanges, std::shared_ptr<EfficiencyScaleFactor>>(period.second, std::shared_ptr < EfficiencyScaleFactor > (new EfficiencyScaleFactor(Nominal->retrieve(period.second.first).get(),ref_asg_tool->name()+FileTypeName(m_FileType), FileName, period.first, sysType, effType, isLowPt, hasPtDepSys))));
+                effi_factor = EfficiencyScaleFactor_Ptr (new EfficiencyScaleFactor(Nominal->retrieve(period.second.first).get(),ref_asg_tool->name()+FileTypeName(m_FileType), FileName, period.first, sysType, effType, isLowPt, hasPtDepSys));
             }
+            effi_factor->setFirstLastRun(period.second.first, period.second.second);
+            m_SF.push_back(effi_factor);
         }
         for (auto& period : m_SF)
-            period.second->ApplySysVariation();
-        m_currentSF = m_SF.end();
+            period->ApplySysVariation();
     }
     bool EffiCollection::CollectionContainer::CheckConsistency() const {
         if (m_SF.empty()) {
             Error("CollectionContainer", "Could not retrieve any SFs from the input file");
             return false;
         }
-        for (std::map<RunRanges, std::shared_ptr<EfficiencyScaleFactor> >::const_iterator Itr = m_SF.begin(); Itr != m_SF.end(); ++Itr) {
-            if (!Itr->second->CheckConsistency()) return false;
-            for (std::map<RunRanges, std::shared_ptr<EfficiencyScaleFactor>>::const_iterator Itr1 = m_SF.begin(); Itr1 != Itr; ++Itr1) {
-                if ((Itr1->first.first <= Itr->first.first && Itr1->first.second > Itr->first.first) || (Itr->first.first <= Itr1->first.first && Itr->first.second > Itr1->first.first)) {
-                    Error("CollectionContainer", "Overlapping periods observed in filetype %i. As run %i is in period %i - %i. Please check your SF file!", (int) m_FileType, Itr1->first.first, Itr->first.first, Itr->first.second);
+        for (size_t i = 0 ; i < m_SF.size(); ++i)  {
+            EfficiencyScaleFactor_Ptr first_SF = m_SF[i];
+            if (!first_SF->CheckConsistency()) return false;
+            for (size_t j = i+1 ; j < m_SF.size(); ++j) {
+                EfficiencyScaleFactor_Ptr second_SF = m_SF[j];
+                if (first_SF->coversRunNumber(second_SF->firstRun()) || first_SF->coversRunNumber( second_SF->lastRun()) || second_SF->coversRunNumber(first_SF->firstRun()) || second_SF->coversRunNumber( first_SF->lastRun())){
+                    Error("CollectionContainer", "Overlapping periods observed in filetype %i. As run %i is in period %i - %i. Please check your SF file!",  (int) m_FileType, first_SF->firstRun(), second_SF->firstRun(), second_SF->lastRun());
                     return false;
                 }
             }
         }
         return true;
     }
-    bool EffiCollection::CollectionContainer::LoadPeriod(unsigned int RunNumber) {
-        if (m_currentSF == m_SF.end() || m_currentSF->first.first > RunNumber || m_currentSF->first.second < RunNumber) {
-            for (m_currentSF = m_SF.begin(); m_currentSF != m_SF.end(); ++m_currentSF) {
-                if (m_currentSF->first.first <= RunNumber && m_currentSF->first.second >= RunNumber) return true;
+    bool EffiCollection::CollectionContainer::LoadPeriod(unsigned int RunNumber) const {
+        if (!m_currentSF || !m_currentSF->coversRunNumber(RunNumber)) {
+            for (auto& period : m_SF) {
+                if (period->coversRunNumber(RunNumber)) {
+                    m_currentSF = period;
+                    return true;
+                }
             }
         } else return true;
         Error("CollectionContainer", "Could not find any SF period matching the run number %u", RunNumber);
         return false;
     }
-    std::shared_ptr<EfficiencyScaleFactor> EffiCollection::CollectionContainer::retrieve(unsigned int RunNumber) {
+    std::shared_ptr<EfficiencyScaleFactor> EffiCollection::CollectionContainer::retrieve(unsigned int RunNumber) const {
         if (!LoadPeriod(RunNumber)) {
-            return m_SF.begin()->second;
+            return (*m_SF.begin());
         }
-        return m_currentSF->second;
+        return m_currentSF;
     }
-    std::string EffiCollection::CollectionContainer::sysname() {
+    std::string EffiCollection::CollectionContainer::sysname() const {
         if (m_SF.empty()) return "";
-        return m_SF.begin()->second->sysname();
+        return (*m_SF.begin())->sysname();
     }
     EffiCollection::CollectionContainer::~CollectionContainer() {
 
@@ -378,37 +384,37 @@ namespace CP {
         }
         m_SF.clear();
         for (auto& period : other.m_SF) {
-            m_SF[period.first] = std::shared_ptr < EfficiencyScaleFactor > (new EfficiencyScaleFactor(*period.second));
+            m_SF.push_back(EfficiencyScaleFactor_Ptr (new EfficiencyScaleFactor(*period)));
         }
-        m_currentSF = m_SF.end();
+        m_currentSF = EfficiencyScaleFactor_Ptr();
         return *this;
     }
     EffiCollection::CollectionContainer::CollectionContainer(const CollectionContainer & other) :
                 m_FileType(other.m_FileType) {
         for (auto& period : other.m_SF) {
-            m_SF[period.first] = std::shared_ptr < EfficiencyScaleFactor > (new EfficiencyScaleFactor(*period.second));
+            m_SF.push_back(EfficiencyScaleFactor_Ptr (new EfficiencyScaleFactor(*period)));
         }
-        m_currentSF = m_SF.end();
+        m_currentSF = EfficiencyScaleFactor_Ptr();
     }
     bool EffiCollection::CollectionContainer::SetSystematicBin(unsigned int Bin) {
         for (auto& Period : m_SF) {
-            if (!Period.second->SetSystematicBin(Bin)) {
+            if (!Period->SetSystematicBin(Bin)) {
                 return false;
             }
         }
         return true;
     }
     unsigned int EffiCollection::CollectionContainer::nBins() const {
-        return m_SF.begin()->second->nBinsSF();
+        return (*m_SF.begin())->nBinsSF();
     }
     EffiCollection::CollectionType EffiCollection::CollectionContainer::type() const {
         return m_FileType;
     }
     std::string EffiCollection::CollectionContainer::GetBinName(unsigned int Bin) const {
-        return m_SF.begin()->second->GetBinName(Bin);
+        return (*m_SF.begin())->GetBinName(Bin);
     }
     int EffiCollection::CollectionContainer::FindBinSF(const xAOD::Muon &mu) const {
-        return m_SF.begin()->second->FindBinSF(mu);
+        return (*m_SF.begin())->FindBinSF(mu);
     }
 
 }
