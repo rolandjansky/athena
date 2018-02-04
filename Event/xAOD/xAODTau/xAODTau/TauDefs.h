@@ -140,14 +140,14 @@ namespace TauJetParameters
         JetBDTBkgLoose       = 25, // new
         JetBDTBkgMedium      = 26, // new
         JetBDTBkgTight       = 27, // new
-	JetRNNSigVeryLoose      = 28, 
-        JetRNNSigLoose          = 29, 
-        JetRNNSigMedium         = 30, 
-        JetRNNSigTight          = 31, 
 	// = 28,
 	// = 29,
 	// = 30, 
 	// = 31,
+	JetRNNSigVeryLoose      = 32,
+        JetRNNSigLoose          = 33,
+        JetRNNSigMedium         = 34,
+        JetRNNSigTight          = 35,
       };
 
     //-------------------------------------------------------------------------

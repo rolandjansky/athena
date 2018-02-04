@@ -72,13 +72,11 @@ namespace xAOD {
     // AUX_VARIABLE( Likelihood );
     // AUX_VARIABLE( SafeLikelihood );
     AUX_VARIABLE( BDTJetScore );
-    AUX_VARIABLE( RNNJetScore );
     AUX_VARIABLE( BDTEleScore );
     AUX_VARIABLE( EleMatchLikelihoodScore );
 
     //additional discriminant outputs
     AUX_VARIABLE( BDTJetScoreSigTrans );
-    AUX_VARIABLE( RNNJetScoreSigTrans );
     // AUX_VARIABLE( BDTJetScoreBkgTrans );
 
 

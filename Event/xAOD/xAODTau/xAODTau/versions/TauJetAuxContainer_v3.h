@@ -105,11 +105,9 @@ namespace xAOD {
     std::vector< float > BDTJetScore;
     std::vector< float > BDTEleScore;
     std::vector< float > EleMatchLikelihoodScore;//from TauEleOLRDecorator
-    std::vector< float > RNNJetScore;
 
     //additional discriminant output
     std::vector< float > BDTJetScoreSigTrans;
-    std::vector< float > RNNJetScoreSigTrans;
     // std::vector< float > BDTJetScoreBkgTrans;
 
     typedef std::vector< ElementLink< TauTrackContainer > > TauTrackLink_t;
