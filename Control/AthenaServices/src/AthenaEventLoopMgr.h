@@ -221,6 +221,11 @@ private:
   unsigned int m_nev;
   unsigned int m_proc;
   bool m_useTools;
+
+  unsigned int m_lastNev;
+  unsigned int m_intervalInSeconds;
+  time_t m_lastTime;
+
   StoreGateSvc* eventStore() const;
 
    EventContext* m_eventContext;

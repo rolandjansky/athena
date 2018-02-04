@@ -51,6 +51,7 @@
 
 #include "TopPartons/CalcTtbarPartonHistory.h"
 #include "TopPartons/CalcTbbarPartonHistory.h"
+#include "TopPartons/CalcWtbPartonHistory.h"
 #include "TopPartons/CalcTopPartonHistory.h"
 
 #include "TopParticleLevel/ParticleLevelLoader.h"
@@ -513,6 +514,10 @@ std::shared_ptr<top::CalcTopPartonHistory> CreateTopPartonHistory(std::shared_pt
   else if(settings->value("TopPartonHistory") == "tb"){
     topPartonHistory = std::shared_ptr<top::CalcTopPartonHistory> ( new top::CalcTbbarPartonHistory( "top::CalcTbbarPartonHistory" ) );
     top::check(topPartonHistory->setProperty( "config" , topConfig ) , "Failed to setProperty of top::CalcTbbarPartonHistory");
+  }
+  else if(settings->value("TopPartonHistory") == "Wtb"){
+    topPartonHistory = std::shared_ptr<top::CalcTopPartonHistory> ( new top::CalcWtbPartonHistory( "top::CalcWtbPartonHistory" ) );
+    top::check(topPartonHistory->setProperty( "config" , topConfig ) , "Failed to setProperty of top::CalcWtbPartonHistory");
   }
 
   return topPartonHistory;

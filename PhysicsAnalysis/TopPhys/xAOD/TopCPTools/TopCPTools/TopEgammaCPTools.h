@@ -48,6 +48,7 @@ class EgammaCPTools final : public asg::AsgTool {
   std::string m_electronEffSFIsoFile;
   std::string m_electronEffSFIsoLooseFile;
   std::string m_electronEffSFChargeIDFile;
+  std::string m_electronEffSFChargeMisIDFile;
 
   ToolHandle<CP::IEgammaCalibrationAndSmearingTool> m_egammaCalibrationAndSmearingTool;
 
@@ -80,7 +81,7 @@ class EgammaCPTools final : public asg::AsgTool {
 
   // Helper function to deal with path resolving the
   // egamma groups very long file names for SFs and efficiencies.
-  std::string electronSFFilePath(const std::string& type, const std::string& ID = "", const std::string& isolation = "");
+  std::string electronSFFilePath(const std::string& type, const std::string& ID = "");
 
   // Helper for using maps from egamma groups
   IAsgElectronEfficiencyCorrectionTool* setupElectronSFToolWithMap(const std::string& name, std::string map_path, std::string reco_key, std::string ID_key, std::string iso_key, std::string trigger_key, int data_type);
