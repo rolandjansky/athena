@@ -32,7 +32,7 @@ namespace JiveXML {
    **/
   JetRecJetRetriever::JetRecJetRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    typeName("Jet"){
+    m_typeName("Jet"){
 
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
@@ -100,7 +100,7 @@ namespace JiveXML {
     std::string searchStr = "TrackParticle";
     found=m_trackCollection.find(searchStr);
 
-    perigeeVector.clear(); // need to clear, otherwise accumulates over events
+    m_perigeeVector.clear(); // need to clear, otherwise accumulates over events
     if (found!=std::string::npos){ // User selected a Rec::TrackParticle Collection
       if (evtStore()->retrieve(tracks, m_trackCollection).isFailure()){
         if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unable to retrieve track collection"
@@ -113,7 +113,7 @@ namespace JiveXML {
          for(track=tracks->begin();track!=tracks->end();++track) {
 	    const Trk::Perigee *perigee = (*track)->perigee();
 //          if(perigee == 0) continue; // not skip ! need to keep order for index !
-            perigeeVector.push_back( perigee ); // this perigee match works !
+            m_perigeeVector.push_back( perigee ); // this perigee match works !
          }
       }
     }else{ // it's a Trk::Tracks collection
@@ -130,7 +130,7 @@ namespace JiveXML {
           const Trk::Perigee* trackPerigee = (*track)->perigeeParameters();
           const Trk::Perigee *perigee = dynamic_cast<const Trk::Perigee*>( trackPerigee );
 //          if(perigee == 0) continue;
-          perigeeVector.push_back( perigee ); 
+          m_perigeeVector.push_back( perigee ); 
         }
       }
     }
@@ -218,7 +218,7 @@ namespace JiveXML {
     
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "retrieve()" << endmsg;
 
-    DataMap m_DataMap;
+    DataMap dataMap;
 
     DataVect phi; phi.reserve(jets->size());
     DataVect eta; eta.reserve(jets->size());
@@ -272,7 +272,7 @@ namespace JiveXML {
 
     StatusCode sc = fillPerigeeList();
     if (!sc.isFailure()) {
-       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Perigee list filled with " << perigeeVector.size()
+       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Perigee list filled with " << m_perigeeVector.size()
                         << " entries " << endmsg;
     }    
 
@@ -305,18 +305,18 @@ namespace JiveXML {
         aTemp->perigee()->parameters()[Trk::phi0/CLHEP::cm] << ", pt= " <<
         pt << endmsg; }
 
-       for (unsigned int i=0; i<perigeeVector.size(); i++) {
+       for (unsigned int i=0; i<m_perigeeVector.size(); i++) {
 //         if (msgLvl(MSG::DEBUG)){ msg(MSG::DEBUG) << " perigee iterator at " 
-//	     << i << " with d0 " << perigeeVector[i]->parameters()[Trk::d0]/CLHEP::cm << endmsg; }
+//	     << i << " with d0 " << m_perigeeVector[i]->parameters()[Trk::d0]/CLHEP::cm << endmsg; }
 
-       if ( perigeeVector[i] ){
+       if ( m_perigeeVector[i] ){
 // manual match works for both track types !
          bool permatched = false;
-         allPer = perigeeVector[i];
+         allPer = m_perigeeVector[i];
          manualPerigeeMatch(allPer,aTemp->perigee(), permatched);
        
 ////// direct match works only for pure TrackParticles, not with typecast !
-//         if ( perigeeVector[i] == aTemp->measuredPerigee() ){
+//         if ( m_perigeeVector[i] == aTemp->measuredPerigee() ){
 //////
          if ( permatched ){
            countPerigee++;
@@ -437,7 +437,7 @@ namespace JiveXML {
     }else{
       cellMultStr = "1.0";
     }
-    m_DataMap["cells multiple=\""+cellMultStr+"\""] = cellVec;
+    dataMap["cells multiple=\""+cellMultStr+"\""] = cellVec;
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Cells multiple: " << cellMultStr << endmsg;
 
     // calculate track multiple and create multiple string
@@ -449,8 +449,8 @@ namespace JiveXML {
     }else{
       trackMultStr = "1.0";
     }
-    m_DataMap["trackIndex multiple=\""+trackMultStr+"\""] = trackIndexVec;
-    m_DataMap["trackKey multiple=\""+trackMultStr+"\""] = trackKeyVec;
+    dataMap["trackIndex multiple=\""+trackMultStr+"\""] = trackIndexVec;
+    dataMap["trackKey multiple=\""+trackMultStr+"\""] = trackKeyVec;
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "tracks multiple: " << trackMultStr << endmsg;
 
     //std::cout << " cell multiple: " << std::setprecision (6) << cellMult 
@@ -458,47 +458,47 @@ namespace JiveXML {
 
 
     // Start with mandatory entries
-    m_DataMap["phi"] = phi;
-    m_DataMap["eta"] = eta;
-    m_DataMap["et"] = et;    
-    m_DataMap["trackLinkCount"] = trackLinkCount;
+    dataMap["phi"] = phi;
+    dataMap["eta"] = eta;
+    dataMap["et"] = et;    
+    dataMap["trackLinkCount"] = trackLinkCount;
 
-    m_DataMap["bTagName multiple=\"9\""] = bTagName; // assigned by hand !
-    m_DataMap["bTagValue multiple=\"9\""] = bTagValue;
+    dataMap["bTagName multiple=\"9\""] = bTagName; // assigned by hand !
+    dataMap["bTagValue multiple=\"9\""] = bTagValue;
     
     // energy not yet in AtlantisJava, jpt 3Sep11
-    //m_DataMap["energy"] = energy;
-    m_DataMap["mass"] = mass;
-    m_DataMap["px"] = px;
-    m_DataMap["py"] = py;
-    m_DataMap["pz"] = pz;
+    //dataMap["energy"] = energy;
+    dataMap["mass"] = mass;
+    dataMap["px"] = px;
+    dataMap["py"] = py;
+    dataMap["pz"] = pz;
 
     // basic jet quality
-    m_DataMap["quality"] = quality;
-    m_DataMap["isGood"] = isGood;
-    m_DataMap["isBad"] = isBad;
-    m_DataMap["isUgly"] = isUgly;
-    m_DataMap["emfrac"] = emfrac;
-    m_DataMap["jvf"] = jvf;
-    m_DataMap["numCells"] = numCells;
+    dataMap["quality"] = quality;
+    dataMap["isGood"] = isGood;
+    dataMap["isBad"] = isBad;
+    dataMap["isUgly"] = isUgly;
+    dataMap["emfrac"] = emfrac;
+    dataMap["jvf"] = jvf;
+    dataMap["numCells"] = numCells;
 
     if ( m_writeJetQuality ){ // extended jet quality
-      m_DataMap["qualityLAr"] = qualityLAr;
-      m_DataMap["qualityTile"] = qualityTile;
-      m_DataMap["time"] = time;
-      m_DataMap["timeClusters"] = timeClusters;
-      m_DataMap["n90cells"] = n90cells;
-      m_DataMap["n90const"] = n90const;
-      m_DataMap["hecf"] = hecf;
-      m_DataMap["tileGap3f"] = tileGap3f;
-      m_DataMap["fcorCell"] = fcorCell;
-      m_DataMap["fcorDotx"] = fcorDotx;
-      m_DataMap["fcorJet"] = fcorJet;
-      m_DataMap["fcorJetForCell"] = fcorJetForCell;
-      m_DataMap["nbadcells"] = nbadcells;
-      m_DataMap["fracSamplingMax"] = fracSamplingMax;
-      m_DataMap["sMax"] = sMax;
-      m_DataMap["OutOfTimeEfrac"] = OutOfTimeEfrac;
+      dataMap["qualityLAr"] = qualityLAr;
+      dataMap["qualityTile"] = qualityTile;
+      dataMap["time"] = time;
+      dataMap["timeClusters"] = timeClusters;
+      dataMap["n90cells"] = n90cells;
+      dataMap["n90const"] = n90const;
+      dataMap["hecf"] = hecf;
+      dataMap["tileGap3f"] = tileGap3f;
+      dataMap["fcorCell"] = fcorCell;
+      dataMap["fcorDotx"] = fcorDotx;
+      dataMap["fcorJet"] = fcorJet;
+      dataMap["fcorJetForCell"] = fcorJetForCell;
+      dataMap["nbadcells"] = nbadcells;
+      dataMap["fracSamplingMax"] = fracSamplingMax;
+      dataMap["sMax"] = sMax;
+      dataMap["OutOfTimeEfrac"] = OutOfTimeEfrac;
     } // extended jet quality
 
     //Be verbose
@@ -508,7 +508,7 @@ namespace JiveXML {
     }
 
     //All collections retrieved okay
-    return m_DataMap;
+    return dataMap;
 
   } // end getData
 
