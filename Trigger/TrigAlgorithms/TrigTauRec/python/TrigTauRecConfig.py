@@ -56,7 +56,7 @@ class TrigTauRecMerged_Tau (TrigTauRecMerged) :
 	    
             for tool in tools:
                 tool.inTrigger = True
-                tool.calibFolder = 'TrigTauRec/00-11-01/'
+                tool.calibFolder = 'TrigTauRec/00-11-02/'
                 pass
 	    
 	    
@@ -111,7 +111,7 @@ class TrigTauRecMerged_Tau2012 (TrigTauRecMerged) :
             
             for tool in tools:
                 tool.inTrigger = True
-                tool.calibFolder = 'TrigTauRec/00-11-01/'
+                tool.calibFolder = 'TrigTauRec/00-11-02/'
                 pass
 
             self.Tools = tools
@@ -179,7 +179,7 @@ class TrigTauRecMerged_TauPreselection (TrigTauRecMerged) :
 
             for tool in tools:
                 tool.inTrigger = True
-                tool.calibFolder = 'TrigTauRec/00-11-01/'
+                tool.calibFolder = 'TrigTauRec/00-11-02/'
                 pass
 
             self.Tools = tools
@@ -231,7 +231,7 @@ class TrigTauRecMerged_TauPreselectionMva (TrigTauRecMerged) :
 
             for tool in tools:
                 tool.inTrigger = True
-                tool.calibFolder = 'TrigTauRec/00-11-01/'
+                tool.calibFolder = 'TrigTauRec/00-11-02/'
                 pass
 
             self.Tools = tools
@@ -290,7 +290,7 @@ class TrigTauRecMerged_TauFTK (TrigTauRecMerged) :
 
             for tool in tools:
                 tool.inTrigger = True
-                tool.calibFolder = 'TrigTauRec/00-11-01/'
+                tool.calibFolder = 'TrigTauRec/00-11-02/'
                 pass
 
             self.Tools = tools
@@ -339,7 +339,55 @@ class TrigTauRecMerged_TauCaloOnly (TrigTauRecMerged) :
 
             for tool in tools:
                 tool.inTrigger = True
-                tool.calibFolder = 'TrigTauRec/00-11-01/'
+                tool.calibFolder = 'TrigTauRec/00-11-02/'
+                pass
+
+            self.Tools = tools
+
+            ## add beam type flag
+            from AthenaCommon.BeamFlags import jobproperties
+            self.BeamType = jobproperties.Beam.beamType()
+
+class TrigTauRecMerged_TauCaloOnlyMVA (TrigTauRecMerged) :
+        __slots__ = [ '_mytools']
+        def __init__(self, name = "TrigTauRecMerged_TauCaloOnlyMVA"):
+            super( TrigTauRecMerged_TauCaloOnlyMVA , self ).__init__( name )
+            self._mytools = []
+
+            # monitoring part. To switch off do in topOption TriggerFlags.enableMonitoring = []
+            from TrigTauRec.TrigTauRecMonitoring import TrigTauRecValidationMonitoring, TrigTauRecOnlineMonitoring
+            validation = TrigTauRecValidationMonitoring()
+            online     = TrigTauRecOnlineMonitoring()
+
+            from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+            time = TrigTimeHistToolConfig("Time")
+            self.AthenaMonTools = [ time, validation, online ]
+
+            import TrigTauRec.TrigTauAlgorithmsHolder as taualgs
+            tools = []
+
+            taualgs.setPrefix("TrigTauCaloOnlyMVA_")
+
+            # Collection name - not stored
+            self.OutputCollection = "TrigTauRecCaloOnly"
+
+            # Only include tools needed for calo pre-selection
+
+            # Set seedcalo energy scale (Full RoI)
+            tools.append(taualgs.getJetSeedBuilder())
+            # Set LC energy scale (0.2 cone) and intermediate axis (corrected for vertex: useless at trigger)
+            tools.append(taualgs.getTauAxis())
+            # Calibrate to TES
+            tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='_onlyEnergy', caloOnly=True))
+            # Calculate cell-based quantities: strip variables, EM and Had energies/radii, centFrac, isolFrac and ring energies
+            tools.append(taualgs.getCellVariables(cellConeSize=0.2, prefix="TrigTauCaloOnlyMVA_"))
+            # Compute MVA TES (ATR-17649), stores MVA TES as default tau pt()
+            tools.append(taualgs.getMvaTESVariableDecorator())
+            tools.append(taualgs.getMvaTESEvaluator())
+
+            for tool in tools:
+                tool.inTrigger = True
+                tool.calibFolder = 'TrigTauRec/00-11-02/'
                 pass
 
             self.Tools = tools
@@ -401,7 +449,7 @@ class TrigTauRecMerged_TauPrecision (TrigTauRecMerged) :
             
             for tool in tools:
                 tool.inTrigger = True
-                tool.calibFolder = 'TrigTauRec/00-11-01/'
+                tool.calibFolder = 'TrigTauRec/00-11-02/'
                 pass
 
             self.Tools = tools
