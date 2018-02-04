@@ -927,7 +927,7 @@ def setupMenu():
         ['j225_gsc300_bmv2c1077_split', 'L1_J100', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
 
         ['j225_gsc360_bmv2c1077_split', 'L1_J100', [], [PhysicsStream], ['Primary:20000','RATE:SingleBJet', 'BW:BJet'], -1],                   
-        ['j225_gsc360_bmv2c1085_split', 'L1_J100', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],                   
+        ['j225_gsc360_bmv2c1085_split', 'L1_J100', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],          
 
 
         # 
