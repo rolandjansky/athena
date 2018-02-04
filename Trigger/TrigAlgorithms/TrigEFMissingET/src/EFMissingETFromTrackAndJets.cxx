@@ -289,7 +289,7 @@ StatusCode EFMissingETFromTrackAndJets::execute(xAOD::TrigMissingET *,
         std::vector<double> sumPtTrkPt500;
         sumPtTrkPt500.clear();
         for(const xAOD::Vertex* vx : VertexVec) {
-            if(vx->vertexType()!=xAOD::VxType::PriVtx && vx->vertexType()!=xAOD::VxType::PileUp) continue;
+            if(vx->vertexType()!=xAOD::VxType::NoVtx) continue;
             sumPtTrkPt500.push_back(0);
         }
 
@@ -304,7 +304,7 @@ StatusCode EFMissingETFromTrackAndJets::execute(xAOD::TrigMissingET *,
             bool found_matched_track(false);
             int  found_matched_vertex(-1);
             for(const xAOD::Vertex* vx : VertexVec) {
-                if(vx->vertexType()!=xAOD::VxType::PriVtx && vx->vertexType()!=xAOD::VxType::PileUp) continue;
+                if(vx->vertexType()!= xAOD::VxType::NoVtx) continue;
                 const std::vector< ElementLink< xAOD::TrackParticleContainer> > tpLinks = vx->trackParticleLinks();
                 if(tpLinks.size() != 0) {
                     for(const auto& tp_elem : tpLinks ) {
@@ -351,7 +351,7 @@ StatusCode EFMissingETFromTrackAndJets::execute(xAOD::TrigMissingET *,
     std::vector<TVector2> m_pileupMomenta;
     m_pileupMomenta.clear();
     for(const xAOD::Vertex* vx : VertexVec) {
-        if(vx->vertexType()!=xAOD::VxType::PriVtx && vx->vertexType()!=xAOD::VxType::PileUp) continue;
+        if(vx->vertexType()!= xAOD::VxType::NoVtx) continue;
 
         float trk_x(0), trk_y(0);
         const std::vector< ElementLink< xAOD::TrackParticleContainer> > tpLinks = vx->trackParticleLinks();
