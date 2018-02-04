@@ -65,7 +65,7 @@ def GetTriggerSFTool(MuonWP="Medium", Binning="fine"):
         ToolSvc += TriggerTool
     return getattr(ToolSvc,ToolName)
 
-def GetMuonEfficiencyTool(MuonWP="Medium", Release=""):
+def GetMuonEfficiencyTool(MuonWP="Medium", Release="", CustomInput = ""):
     from AthenaCommon.AppMgr import ToolSvc
     from AthenaCommon import CfgMgr, GlobalFlags
     ToolName = "MuonEfficiencyTool_%s%s"%(MuonWP, Release if len(Release) == 0 else "_"+Release)
@@ -74,15 +74,17 @@ def GetMuonEfficiencyTool(MuonWP="Medium", Release=""):
         EffiTool = CfgMgr.CP__MuonEfficiencyScaleFactors(ToolName)
         EffiTool.WorkingPoint = MuonWP
         EffiTool.LowPtThreshold = 15.e3
-        if len(Release) > 0: EffiTool.CalibrationRelease = Release
+        if len(CustomInput) > 0 : EffiTool.CustomInputFolder = CustomInput
+        elif len(Release) > 0: EffiTool.CalibrationRelease = Release
         ToolSvc += EffiTool
     return getattr(ToolSvc,ToolName)
 
 def GetPRWTool(
         # this default is for MC16a -> data2016
         PRWLumiCalcFiles = [
-            "/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/ilumicalc_histograms_OflLumi-13TeV-009_data16_13TeV.periodAllYear_DetStatus-v89-pro21-01_DQDefects-00-02-04_PHYS_StandardGRL_All_Good_25ns.root",
-			],
+            "/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/ilumicalc_histograms_OflLumi-13TeV-009_data15_13TeV.periodAllYear_DetStatus-v89-pro21-02_Unknown_PHYS_StandardGRL_All_Good_25ns.root",
+       #     "/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/ilumicalc_histograms_OflLumi-13TeV-009_data16_13TeV.periodAllYear_DetStatus-v89-pro21-01_DQDefects-00-02-04_PHYS_StandardGRL_All_Good_25ns.root",
+       	],
         PRWMCConfigFiles = [
             "/afs/cern.ch/atlas/project/muon/mcp/PRWFiles/prwConfigFiles/mc16_FULLSIM_r9364_r9315_NTUP_PILEUP.root",
             ]):

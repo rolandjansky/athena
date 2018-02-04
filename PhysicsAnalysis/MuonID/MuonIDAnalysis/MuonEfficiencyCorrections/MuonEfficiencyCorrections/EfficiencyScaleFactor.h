@@ -185,7 +185,9 @@ namespace CP {
 
             EfficiencyScaleFactor* m_NominalFallBack;
             int m_SystematicBin;
-
+            
+            mutable unsigned int m_warnsPrinted;
+            static unsigned int m_warningLimit;
     };
 } /* namespace CP */
 

@@ -13,6 +13,7 @@
 #include <TRandom3.h>
 #include <TClass.h>
 namespace CP {
+    unsigned int EfficiencyScaleFactor::m_warningLimit = 100;
     EfficiencyScaleFactor::EfficiencyScaleFactor() :
                 m_toolname(),
                 m_sf(nullptr),
@@ -33,7 +34,8 @@ namespace CP {
                 m_default_eff_ttva(1.),
                 m_Type(CP::MuonEfficiencyType::Undefined),
                 m_NominalFallBack(nullptr),
-                m_SystematicBin(-1) {
+                m_SystematicBin(-1),
+                m_warnsPrinted(0) {
     }
     std::string EfficiencyScaleFactor::toolname() const {
         return m_toolname;
@@ -263,13 +265,17 @@ namespace CP {
     CorrectionCode EfficiencyScaleFactor::GetContentFromHist(HistHandler_Ptr Hist, IKinematicSystHandler_Ptr PtDepHist, const xAOD::Muon& mu, float & Eff, bool PtDepHistNeeded) const {
         Eff = m_default_eff;
         if (!Hist) {
-            Warning("EfficiencyScaleFactor", "Could not find histogram for variation %s and muon with pt=%.4f, eta=%.2f and phi=%.2f, returning %.1f", sysname().c_str(), mu.pt(), mu.eta(), mu.phi(), m_default_eff);
+            if (m_warnsPrinted < m_warningLimit){
+                Warning("EfficiencyScaleFactor", "Could not find histogram for variation %s and muon with pt=%.4f, eta=%.2f and phi=%.2f, returning %.1f", sysname().c_str(), mu.pt(), mu.eta(), mu.phi(), m_default_eff);
+                ++m_warnsPrinted;
+            }
             return CorrectionCode::OutOfValidityRange;
         }
         if (m_Type == CP::MuonEfficiencyType::TTVA && fabs(mu.eta()) > 2.5 && fabs(mu.eta()) <= 2.7 && mu.muonType() == xAOD::Muon::MuonType::MuonStandAlone) {
-            static bool Warned = false;
-            if (!Warned) Info("EfficiencyScaleFactor", "No TTVA sf/efficiency provided for standalone muons with 2.5<|eta|<2.7 for variation %s and muon with pt=%.4f, eta=%.2f and phi=%.2f, returning %.1f", sysname().c_str(), mu.pt(), mu.eta(), mu.phi(), m_default_eff_ttva);
-            Warned = true;
+            if (m_warnsPrinted < m_warningLimit){
+                Info("EfficiencyScaleFactor", "No TTVA sf/efficiency provided for standalone muons with 2.5<|eta|<2.7 for variation %s and muon with pt=%.4f, eta=%.2f and phi=%.2f, returning %.1f", sysname().c_str(), mu.pt(), mu.eta(), mu.phi(), m_default_eff_ttva);
+                ++m_warnsPrinted;
+            }
             Eff = m_default_eff_ttva;
             return CorrectionCode::Ok;
         }

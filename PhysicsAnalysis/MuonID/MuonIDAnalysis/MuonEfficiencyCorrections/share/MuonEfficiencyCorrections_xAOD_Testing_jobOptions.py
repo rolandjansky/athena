@@ -20,17 +20,22 @@ alg.PileupReweightingTool = GetPRWTool()
 
 WPs = [
          # reconstruction WPs
-         "Loose", "Medium", "Tight", "HighPt",
+         #"Loose", 
+         "Medium", 
+         #"Tight", 
+         #"HighPt",
          # track-to-vertex-association WPs
-         "TTVA",
+         #"TTVA",
          # BadMuon veto SFs
-         "BadMuonVeto_HighPt",
+       #  "BadMuonVeto_HighPt",
          # isolation WPs
-         "FixedCutLooseIso", "LooseTrackOnlyIso", "LooseIso", "GradientIso", "GradientLooseIso",
-         "FixedCutTightTrackOnlyIso", "FixedCutHighPtTrackOnlyIso", "FixedCutTightIso"
+        # "FixedCutLooseIso", "LooseTrackOnlyIso", "LooseIso", "GradientIso", "GradientLooseIso",
+        # "FixedCutTightTrackOnlyIso", "FixedCutHighPtTrackOnlyIso", "FixedCutTightIso"
         ]
 
-for WP in WPs: alg.EfficiencyTools += [GetMuonEfficiencyTool(WP)]
+for WP in WPs: 
+    alg.EfficiencyTools += [GetMuonEfficiencyTool(WP)]
+    alg.EfficiencyToolsForComparison += [GetMuonEfficiencyTool(WP, Release="MoriondTest", CustomInput = "/ptmp/mpp/junggjo9/ClusterTP/Moriond_PreRec")]
 theJob += alg
 
 # Do some additional tweaking:
