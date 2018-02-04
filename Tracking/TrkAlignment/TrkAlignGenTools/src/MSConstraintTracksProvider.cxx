@@ -35,7 +35,6 @@ namespace Trk {
     , m_muonHitSummaryTool("Muon::MuonHitSummaryTool/MuonHitSummaryTool")
     , m_inputMuonCollection("MuidMuonCollection")
     , m_inputTracksCollection("Tracks")
-    , m_nRetrievalErrors{}
     , m_nCBMuonsFromSG(0)
     , m_nCBMuonsHasEXandID(0)
     , m_nCBMuonsPassSelection(0)

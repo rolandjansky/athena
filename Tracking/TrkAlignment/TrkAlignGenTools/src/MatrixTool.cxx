@@ -65,7 +65,6 @@ namespace Trk {
     //m_useSparse
     //m_diagonalize
     //m_eigenvaluethreshold
-    , m_nDoF{}
     //m_solveOption
     //m_modcut
     //m_minNumHits
@@ -88,8 +87,6 @@ namespace Trk {
     //m_runLocal
     , m_scale(-1.)
     //m_scaleMatrix
-    , m_matVersion{}
-    , m_vecVersion{}
     //m_softEigenmodeCut
     //m_removeSpurious
     //m_calculateFullCovariance
