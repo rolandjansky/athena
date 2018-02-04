@@ -71,6 +71,7 @@ private:
   /// Handles for reading decorations.
   SG::ReadDecorHandleKey<CVec> m_cvecDecorKey;
   SG::ReadDecorHandleKey<C>    m_cinfoDecorKey;
+  SG::ReadDecorHandleKey<C>    m_cinfoBaseDecorKey;
   SG::ReadDecorHandleKey<SG::AuxElement> m_objDecorKey;
 };
 

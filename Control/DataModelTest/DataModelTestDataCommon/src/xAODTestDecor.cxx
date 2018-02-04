@@ -38,6 +38,7 @@ xAODTestDecor::xAODTestDecor (const std::string &name,
   declareProperty ("EventInfoKey", m_eventInfoKey = "McEventInfo");
   declareProperty ("CVecDecorKey",  m_cvecDecorKey);
   declareProperty ("CInfoDecorKey", m_cinfoDecorKey);
+  declareProperty ("ObjDecorKey",   m_objDecorKey);
   declareProperty ("CTrigDecorKey", m_ctrigDecorKey);
 
   declareProperty ("DoCVec",      m_doCVec = true);
@@ -53,11 +54,13 @@ StatusCode xAODTestDecor::initialize()
 {
   m_cvecDecorKey  = m_readPrefix + "cvec."  + m_decorName;
   m_cinfoDecorKey = m_readPrefix + "cinfo." + m_decorName;
+  m_objDecorKey = m_readPrefix + "cinfo." + m_decorName + "Base";
   m_ctrigDecorKey = m_readPrefix + "ctrig." + m_decorName;
 
   ATH_CHECK( m_eventInfoKey.initialize() );
   ATH_CHECK( m_cvecDecorKey.initialize  (m_doCVec) );
   ATH_CHECK( m_cinfoDecorKey.initialize (m_doCInfo) );
+  ATH_CHECK( m_objDecorKey.initialize (m_doCInfo) );
   ATH_CHECK( m_ctrigDecorKey.initialize (m_doCTrig) );
   return StatusCode::SUCCESS;
 }
@@ -78,6 +81,9 @@ StatusCode xAODTestDecor::execute_r (const EventContext& ctx) const
       return StatusCode::FAILURE;
     }
     cinfoDecor(0) = cinfoDecor->anInt() + (m_offset ? 400 + m_offset : count * 2000);
+
+    SG::WriteDecorHandle<SG::AuxElement, int> objDecor (m_objDecorKey, ctx);
+    objDecor(0) = cinfoDecor->anInt() + (m_offset ? 400 + m_offset : count * 2000) + 1;
   }
 
   if (m_doCVec) {

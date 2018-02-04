@@ -36,6 +36,7 @@ xAODTestReadDecor::xAODTestReadDecor (const std::string &name,
 
   declareProperty ("CVecDecorKey",  m_cvecDecorKey);
   declareProperty ("CInfoDecorKey", m_cinfoDecorKey);
+  declareProperty ("CInfoBaseDecorKey", m_cinfoBaseDecorKey);
   declareProperty ("ObjDecorKey",   m_objDecorKey);
 }
   
@@ -47,10 +48,12 @@ StatusCode xAODTestReadDecor::initialize()
 {
   m_cvecDecorKey  = m_readPrefix + m_cvecName +  "."  + m_decorName;
   m_cinfoDecorKey = m_readPrefix + m_cinfoName + "." + m_decorName;
+  m_cinfoBaseDecorKey = m_readPrefix + m_cinfoName + "." + m_decorName + "Base";
   m_objDecorKey = m_readPrefix + m_cinfoName + "." + m_decorName;
 
   ATH_CHECK( m_cvecDecorKey.initialize() );
   ATH_CHECK( m_cinfoDecorKey.initialize() );
+  ATH_CHECK( m_cinfoBaseDecorKey.initialize() );
   ATH_CHECK( m_objDecorKey.initialize() );
   return StatusCode::SUCCESS;
 }
@@ -75,6 +78,12 @@ StatusCode xAODTestReadDecor::execute_r (const EventContext& ctx) const
     SG::ReadDecorHandle<C, int> cinfoDecor (m_cinfoDecorKey, ctx);
     if (!cinfoDecor.isPresent()) return StatusCode::FAILURE;
     ATH_MSG_INFO (m_cinfoDecorKey.key() << ": " << cinfoDecor(0));
+  }
+
+  {
+    SG::ReadDecorHandle<C, int> cinfoBaseDecor (m_cinfoBaseDecorKey, ctx);
+    if (!cinfoBaseDecor.isPresent()) return StatusCode::FAILURE;
+    ATH_MSG_INFO (m_cinfoBaseDecorKey.key() << ": " << cinfoBaseDecor(0));
   }
 
   {
