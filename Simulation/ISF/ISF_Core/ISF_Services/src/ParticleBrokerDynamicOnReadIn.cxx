@@ -420,6 +420,10 @@ void ISF::ParticleBrokerDynamicOnReadIn::push( ISFParticle *particlePtr, const I
         ATH_MSG_WARNING("The provided new ISFParticle had no TruthBinding ! Copying over the one from the parent ISFParticle.");
         particle.setTruthBinding(new TruthBinding(*parentPtr->getTruthBinding()));
     }
+    if (!particlePtr->getParticleLink()) {
+	ATH_MSG_WARNING("The provided new ISFParticle had no HepMcParticleLink ! Copying over the ones from the parent ISFParticle.");
+	particle.setParticleLink(new HepMcParticleLink(*parentPtr->getParticleLink()));
+    }
   }
 
   // get the particle's next geoID
