@@ -354,12 +354,15 @@ doG4SimConfig = True
 # Note that for 'modern' samples where we want to use Pythia8, we should have the metadata
 #  to determine which generator was used to produce the sample.  Assuming consistency is the goal.
 usePythia8 = False
+# Keep the run number, aka DSID
+runNumber = -1
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 import PyUtils.AthFile as af
 try:
   f = af.fopen(athenaCommonFlags.FilesInput()[0])
-  if 'generators' in f.fileinfos['tag_info']:
-    usePythia8 = 'Py8' in f.fileinfos['tag_info']['generators'] or 'Pythia8' in f.fileinfos['tag_info']['generators']
+  if 'generators' in f.infos['tag_info']:
+    usePythia8 = 'Py8' in f.infos['tag_info']['generators'] or 'Pythia8' in f.infos['tag_info']['generators']
+  runNumber = f.infos['run_number']
   if "StreamHITS" in f.infos["stream_names"]:
     from Digitization.DigitizationFlags import digitizationFlags
     simdict = digitizationFlags.specialConfiguration.get_Value()
@@ -383,6 +386,13 @@ if usePythia8:
   # Add the appropriate physics tool
   from G4AtlasApps.SimFlags import simFlags
   simFlags.PhysicsOptions += ["RHadronsPythia8PhysicsTool"]
+
+  # From the run number, load up the configuration.  Not the most beautiful thing, but this works.
+  #from glob import glob
+  #JO = glob('/cvmfs/atlas.cern.ch/repo/sw/Generators/MC15JobOptions/latest/share/DSID'+str(runNumber/1000)+'/MC15.'+str(runNumber)+'*.py')
+  #print 'ZLM1'
+  #include(JO)
+  #print 'ZLM2'
 
   print "doing Pythia8"
   load_files_for_rhadrons_scenario("gluino", simdict["MASS"], "generic", MASSX)

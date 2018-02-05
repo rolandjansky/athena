@@ -234,8 +234,3 @@ void Pythia8ForDecays::Py1ent(const G4Track& aTrack, std::vector<G4DynamicPartic
 
 }
 
-
-
-
-
-
