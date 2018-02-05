@@ -350,17 +350,16 @@ def load_files_for_rhadrons_scenario(CASE, MASS, MODEL, MASSX):
   if MODEL == "regge":
     addLineToPhysicsConfiguration("ReggeModel", "1.")
 
-
-# This really should be the only necessary part of this file
-from G4AtlasApps.SimFlags import simFlags
-simFlags.PhysicsOptions += ["RHadronsPhysicsTool"]
-
 doG4SimConfig = True
+# Note that for 'modern' samples where we want to use Pythia8, we should have the metadata
+#  to determine which generator was used to produce the sample.  Assuming consistency is the goal.
+usePythia8 = False
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 import PyUtils.AthFile as af
 try:
   f = af.fopen(athenaCommonFlags.FilesInput()[0])
-
+  if 'generators' in f.fileinfos['tag_info']:
+    usePythia8 = 'Py8' in f.fileinfos['tag_info']['generators'] or 'Pythia8' in f.fileinfos['tag_info']['generators']
   if "StreamHITS" in f.infos["stream_names"]:
     from Digitization.DigitizationFlags import digitizationFlags
     simdict = digitizationFlags.specialConfiguration.get_Value()
@@ -380,13 +379,20 @@ if simdict.has_key("MASSX"):
 
 print 'INFO: MASSX (neutralino/gravitino mass) set to ',MASSX,' GeV'
 
+if usePythia8:
+  # Add the appropriate physics tool
+  from G4AtlasApps.SimFlags import simFlags
+  simFlags.PhysicsOptions += ["RHadronsPythia8PhysicsTool"]
 
-if simdict.has_key("PYTHIA8"):
   print "doing Pythia8"
   load_files_for_rhadrons_scenario("gluino", simdict["MASS"], "generic", MASSX)
   addLineToPhysicsConfiguration("DoDecays","1")
 
 else:
+  # Add the appropriate physics tool
+  from G4AtlasApps.SimFlags import simFlags
+  simFlags.PhysicsOptions += ["RHadronsPythiaPhysicsTool"]
+
   assert "CASE" in simdict
   assert "MODEL" in simdict
 
