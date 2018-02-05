@@ -8,7 +8,7 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #include <string>
 #include <vector>
 
-namespace h5 {
+namespace ah5 {
 
   const size_t CHUNK_SIZE = 128;
 

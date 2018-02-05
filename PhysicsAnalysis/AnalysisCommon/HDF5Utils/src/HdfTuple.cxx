@@ -8,7 +8,7 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #include <cassert>
 #include <iostream>             // for printing errors in the destructor
 
-namespace h5 {
+namespace ah5 {
   namespace internal {
 
     template<>
@@ -64,7 +64,7 @@ namespace h5 {
 
 
 namespace {
-  using namespace h5;
+  using namespace ah5;
   // packing utility
   H5::CompType packed(H5::CompType in) {
     // TODO: Figure out why a normal copy constructor doesn't work here.
@@ -95,7 +95,7 @@ namespace {
 // Xd writter
 //
 
-namespace h5 {
+namespace ah5 {
   std::vector<size_t> WriterXd::NONE = {};
 
   WriterXd::WriterXd(H5::Group& group, const std::string& name,

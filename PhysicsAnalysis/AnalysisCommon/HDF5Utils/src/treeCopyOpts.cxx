@@ -6,7 +6,7 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #include <boost/program_options.hpp>
 #include <iostream>
 
-namespace h5 {
+namespace ah5 {
 
   AppOpts getTreeCopyOpts(int argc, char* argv[])
   {

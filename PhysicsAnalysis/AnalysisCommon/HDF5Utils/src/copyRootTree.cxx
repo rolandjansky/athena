@@ -44,7 +44,7 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 // Base class, just to hold a virtual destructor
 namespace {
-  using namespace h5;
+  using namespace ah5;
   class IBuffer
   {
   public:
@@ -102,7 +102,7 @@ namespace {
 // Note that this means the event loop happens last: most of the work
 // is just setting up the read and write buffers.
 
-namespace h5 {
+namespace ah5 {
   void copyRootTree(TTree& tt, H5::Group& fg, const TreeCopyOpts& opts) {
 
     // define the buffers for root to read into
@@ -283,7 +283,7 @@ namespace h5 {
 
 namespace {
 // 1d buffer
-  using namespace h5;
+  using namespace ah5;
   template <typename T>
   Buffer<T>::Buffer(VariableFillers& vars, TTree& tt,
                     const std::string& name)

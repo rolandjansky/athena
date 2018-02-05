@@ -22,7 +22,7 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #include <vector>
 #include <memory>
 
-namespace h5 {
+namespace ah5 {
 
   /// @brief Internal clssses and code
   /// @{
