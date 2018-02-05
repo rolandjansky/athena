@@ -351,6 +351,10 @@ def load_files_for_rhadrons_scenario(CASE, MASS, MODEL, MASSX):
     addLineToPhysicsConfiguration("ReggeModel", "1.")
 
 
+# This really should be the only necessary part of this file
+from G4AtlasApps.SimFlags import simFlags
+simFlags.PhysicsOptions += ["RHadronsPhysicsTool"]
+
 doG4SimConfig = True
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 import PyUtils.AthFile as af
@@ -370,334 +374,345 @@ except:
 
 ## Compulsory keys
 assert "MASS" in simdict
-assert "MODEL" in simdict
-assert "CASE" in simdict
 MASSX=100.0
 if simdict.has_key("MASSX"):
   MASSX = float(simdict["MASSX"])
+
 print 'INFO: MASSX (neutralino/gravitino mass) set to ',MASSX,' GeV'
-load_files_for_rhadrons_scenario(simdict["CASE"], simdict["MASS"], simdict["MODEL"], MASSX)
-## Optional keys
-if simdict.has_key("XsecMultiplier"):
-  addLineToPhysicsConfiguration("XsecMultiplier", simdict["XsecMultiplier"])
-if simdict.has_key("Mixing"):
-  addLineToPhysicsConfiguration("Mixing", simdict["Mixing"])
 
-if doG4SimConfig:
-  from G4AtlasApps.SimFlags import simFlags
-  simFlags.PhysicsOptions += ["RHadronsPhysicsTool"]
 
-# In case we want to use Pythia for decays in line...
-if simdict.has_key("DECAYS"):
+if simdict.has_key("PYTHIA8"):
+  print "doing Pythia8"
+  load_files_for_rhadrons_scenario("gluino", simdict["MASS"], "generic", MASSX)
   addLineToPhysicsConfiguration("DoDecays","1")
-  if simdict.has_key("LIFETIME"):
-    addLineToPhysicsConfiguration("HadronLifeTime", simdict["LIFETIME"])
-  else:
-    addLineToPhysicsConfiguration("HadronLifeTime", "0.000001")
 
-  def rhad_applycalomctruthstrategy():
-    print "ERROR rhad_applycalomctruthstrategy is obsolete"
-    print "Please request replacment configuration."
-    import sys
-    sys.exit(1)
-    ## from G4AtlasApps import AtlasG4Eng
-    ## myDecay = AtlasG4Eng.G4Eng.Dict_MCTruthStrg.get('Decay')
-    ## myDecay.add_Volumes('CALO::CALO', 1)
-    ## AtlasG4Eng.G4Eng.menu_MCTruth.set_TruthStrategiesParameter("DecayPrimaryMinEnergy", -1)
-    ## AtlasG4Eng.G4Eng.menu_MCTruth.set_TruthStrategiesParameter("DecaySecondaryMinEnergy", -1)
+else:
+  assert "CASE" in simdict
+  assert "MODEL" in simdict
+
+  load_files_for_rhadrons_scenario(simdict["CASE"], simdict["MASS"], simdict["MODEL"], MASSX)
+
+  ## Optional keys
+  if simdict.has_key("XsecMultiplier"):
+    addLineToPhysicsConfiguration("XsecMultiplier", simdict["XsecMultiplier"])
+  if simdict.has_key("Mixing"):
+    addLineToPhysicsConfiguration("Mixing", simdict["Mixing"])
+
+  if doG4SimConfig:
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.PhysicsOptions += ["RHadronsPhysicsTool"]
+
+  # In case we want to use Pythia for decays in line...
+  if simdict.has_key("DECAYS"):
+    addLineToPhysicsConfiguration("DoDecays","1")
+    if simdict.has_key("LIFETIME"):
+      addLineToPhysicsConfiguration("HadronLifeTime", simdict["LIFETIME"])
+    else:
+      addLineToPhysicsConfiguration("HadronLifeTime", "0.000001")
+
+    def rhad_applycalomctruthstrategy():
+      print "ERROR rhad_applycalomctruthstrategy is obsolete"
+      print "Please request replacment configuration."
+      import sys
+      sys.exit(1)
+      ## from G4AtlasApps import AtlasG4Eng
+      ## myDecay = AtlasG4Eng.G4Eng.Dict_MCTruthStrg.get('Decay')
+      ## myDecay.add_Volumes('CALO::CALO', 1)
+      ## AtlasG4Eng.G4Eng.menu_MCTruth.set_TruthStrategiesParameter("DecayPrimaryMinEnergy", -1)
+      ## AtlasG4Eng.G4Eng.menu_MCTruth.set_TruthStrategiesParameter("DecaySecondaryMinEnergy", -1)
 
 
-  simFlags.InitFunctions.add_function("preInitMCTruth", rhad_applycalomctruthstrategy)
+    simFlags.InitFunctions.add_function("preInitMCTruth", rhad_applycalomctruthstrategy)
 
-  from AthenaCommon.AlgSequence import AlgSequence
-  genSeq = AlgSequence()
+    from AthenaCommon.AlgSequence import AlgSequence
+    genSeq = AlgSequence()
 
-  from PythiaRhad_i.PythiaRhad_iConf import PythiaRhad
-  genSeq +=PythiaRhad()
-  genSeq.PythiaRhad.useAtlasPythiaTune09=False
-  genSeq.PythiaRhad.Tune_Name="PYTUNE_103"
-  #genSeq.PythiaRhad.Tune_Name="ATLAS_20110003"
-  genSeq.PythiaRhad.PythiaCommand += [
-    "pyinit pylisti 12",
-    "pyinit pylistf 1",
-    "pystat 1 3 4 5",
-    "pyinit dumpr 1 5",
-    "pydat2 pmas 6 1 172.5",    # TOP mass
-    "pydat2 pmas 24 1 80.399",  # PDG2010 W mass
-    "pydat2 pmas 23 1 91.1876", # PDG2010 Z0 mass
-  ]
-
-  #-------------------------#
-  # R-hadron commands below #
-  #-------------------------#
-
-  # Add some commands valid for both gluino and stop cases
-  genSeq.PythiaRhad.PythiaCommand += [
-    "pysubs ckin 3 18.",        # pT cut at 18 GeV
-    #"pypars mstp 81 1",        # Old shower/multiple-interaction model (new model is not compatible with R-hadron fragmentation)
-    #"pydat1 mstj 11 4",        # Set longitudinal fragmentation function to Pythia default
-    "pymssm imss 1 1",          # General MSSM simulation
-    "pymssm imss 3 1",          # Tell Pythia that rmss 3 below should be interpreted as the gluino pole mass
-    "pymssm imss 5 1",          # Set stop, sbottom and stau masses and mixing by hand (26-28 for mixing not set!)
-    #"pymssm rmss 1 4000.0",    # Photino mass
-    "pymssm rmss 2 8000.0",    # Wino/Zino mass
-    #"pymssm rmss 3 10000.0",    # Gluino  mass
-    "pymssm rmss 4 40000.0",    # Higgsino mass parameter
-    "pymssm rmss 6 1500.0",    # Left slepton mass
-    "pymssm rmss 7 1200.0",    # Right slepton mass
-    "pymssm rmss 8 4800.0",     # Left squark mass
-    "pymssm rmss 9 4200.0",     # Right squark mass
-    "pymssm rmss 10 4800.0",    # stop2 mass
-    #"pymssm rmss 11 8000.0",    # sbottom1 mass
-    #"pymssm rmss 12 8000.0",    # stop1 mass
-    "pymssm rmss 13 1500.0",    # Left stau mass
-    "pymssm rmss 14 1200.0",    # Right stau mass
-    #"pymssm rmss 21 10000.0e9",  # Gravitino mass
-    "pysubs msel 0",            # Turn off all processes
-    "pypars mstp 111 0",        # Turn off master switch for fragmentation and decay
-    #"pyinit pylisti 12",       # dumps the full decay table, etc.
-    "pyinit pylistf 3"         # dumps pythia event
-    #"pystat 2"
-  ]
-
-  pdg={}
-  q3={}
-  apflag={}
-  names={}
-  antinames={}
-  masses={}
-
-  # Gluino setups
-  pdg[("generic", "gluino")] = [1000993, 1009213, 1009313, 1009323, 1009113, 1009223, 1009333, 1091114, 1092114, 1092214, 1092224, 1093114, 1093214, 1093224, 1093314, 1093324, 1093334, 0, 0, 0]
-  q3[("generic", "gluino")] = [0, 3, 0, 3, 0, 0, 0, -3, 0, 3, 6, -3, 0, 3, -3, 0, -3, 0, 0, 0]
-  apflag[("generic", "gluino")] = [0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0]
-  names[("generic", "gluino")] = ["~g_ball", "~g_rho+", "~g_K*0", "~g_K*+", "~g_rho0", "~g_omega", "~g_phi", "~g_Dlt-", "~g_Dlt0", "~g_Dlt+", "~g_Dlt++", "~g_Sgm*-", "~g_Sgm*0", "~g_Sgm*+", "~g_Xi*-", "~g_Xi*0 ", "~g_Omg-", " ", " ", " "]
-  antinames[("generic", "gluino")] = [" ", "~g_rho-", "~g_K*br0", "~g_K*-", " ", " ", " ", "~g_Dltb+", "~g_Dltb0", "~g_Dltb-", "~g_Dlb--", "~g_Sgmb+", "~g_Sgmb0", "~g_Sgmb-", "~g_Xibr+", "~g_Xib0", "~g_Omgb+", " ", " ", " "]
-  masses[("generic", "gluino")] = [0.700, 0.650, 0.825, 0.825, 0.650, 0.650, 1.800, 0.975, 0.975, 0.975, 0.975, 1.150, 1.150, 1.150, 1.300, 1.300, 1.600, 0.650, 0.825, 0.825, 0.975, 0.975, 0.975, 0.975, 1.150, 1.150, 1.150, 1.300, 1.300, 1.600]
-
-  pdg[("regge", "gluino")] = [1000993, 1009213, 1009113, 1009313, 1009323, 1093122, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-  q3[("regge", "gluino")] = [0, 3, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-  apflag[("regge", "gluino")] = [0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-  names[("regge", "gluino")] = ["~g_gball", "~g_rho+", "~g_rho0", "~g_K0", "~g_K+", "~g_L0", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
-  antinames[("regge", "gluino")] = [" ", "~g_rho-", " ", "~g_K0bar", "~g_K-", "~g_L0bar", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
-  masses[("regge", "gluino")] = [0.330, 0.330, 0.330, 0.460, 0.460, 0.280, 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]
-
-  pdg[("intermediate", "gluino")] = [1000991, 1009211, 1009111, 1009311, 1009321, 1093122, 1092212, 1092112, 1092214, 1092114, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-  q3[("intermediate", "gluino")] = [0, 3, 0, 0, 3, 0, 3, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-  apflag[("intermediate", "gluino")] = [0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-  names[("intermediate", "gluino")] = ["~g_gball", "~g_pi+", "~g_pi0", "~g_K0", "~g_K+", "~g_L0", "~g_prot", "~g_neutr", "~g_Delt+", "~g_Delt0", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
-  antinames[("intermediate", "gluino")] = [" ", "~g_pi-", " ", "~g_K0bar", "~g_K-", "~g_L0bar", "~g_aprot", "~g_aneut", "~g_Dltb-", "~g_Dltb0", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
-  masses[("intermediate", "gluino")] = [0.330, 0.330, 0.330, 0.460, 0.460, 0.280, 0.660, 0.660, 0.530, 0.530, 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]
-
-  # Stop setups
-  pdg[("generic", "stop")] = [1000612, 1000622, 1000632, 1000642, 1000652, 1006113, 1006211, 1006213, 1006223, 1006311, 1006313, 1006321, 1006323, 1006333, 0, 0, 0, 0, 0, 0]
-  q3[("generic", "stop")] = [3, 0, 3, 0, 3, 0, 3, 3, 6, 0, 0, 3, 3, 0, 0, 0, 0, 0, 0, 0]
-  apflag[("generic", "stop")] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0]
-  names[("generic", "stop")] = ["~T+", "~T0", "~T_s+", "~T_c0", "~T_b+", "~T_dd10", "~T_ud0+", "~T_ud1+", "~T_uu1++", "~T_sd00", "~T_sd10", "~T_su0+", "~T_su1+", "~T_ss10", " ", " ", " ", " ", " ", " "]
-  antinames[("generic", "stop")] = ["~Tb-", "~Tb0", "~Tb_s-", "~Tb_c0", "~Tb_b-", "~Tb_dd10", "~Tb_ud0-", "~Tb_ud1-", "~Tb_uu--", "~Tb_sd00", "~Tb_sd10", "~Tb_su0-", "~Tb_su1-", "~Tb_ss10", " ", " ", " ", " ", " ", " "]
-  masses[("generic", "stop")] = [0.330, 0.330, 0.330, 0.460, 0.460, 0.280, 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]
-
-  pdg[("regge", "stop")] = [1000612, 1000622, 1006211, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-  q3[("regge", "stop")] = [3, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-  apflag[("regge", "stop")] = [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-  names[("regge", "stop")] = ["~T+", "~T0", "~T_ud0+", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
-  antinames[("regge", "stop")] = ["~Tb-", "~Tb0", "~Tb_ud-", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
-  masses[("regge", "stop")] = [0.330, 0.330, 0.330, 0.460, 0.460, 0.280, 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]
-
-  # Sbottom
-  pdg[("regge", "sbottom")] = [1000512, 1000522, 1005211, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-  q3[("regge", "sbottom")] = [0, -3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-  apflag[("regge", "sbottom")] = [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-  names[("regge", "sbottom")] = ["~B0", "~B-", "~B_ud0", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
-  antinames[("regge", "sbottom")] = ["~Bb0", "~Bb+", "~Bb_ud0", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
-  masses[("regge", "sbottom")] = [0.330, 0.330, 0.330, 0.460, 0.460, 0.280, 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]
-
-  genSeq.PythiaRhad.RHadronPDGids = pdg[(simdict["MODEL"],simdict["CASE"])]
-  genSeq.PythiaRhad.PygiveCommand = []
-  for i in range(1,20):
-    KC = str(400+i)
-    genSeq.PythiaRhad.PygiveCommand += [
-      "KCHG("+KC+",1)="+str(q3[(simdict["MODEL"],simdict["CASE"])][i-1]),
-      "KCHG("+KC+",2)=0",
-      "KCHG("+KC+",3)="+str(apflag[(simdict["MODEL"],simdict["CASE"])][i-1]),
-      "KCHG("+KC+",4)="+str(pdg[(simdict["MODEL"],simdict["CASE"])][i-1]),
-      "CHAF("+KC+",1)="+names[(simdict["MODEL"],simdict["CASE"])][i-1],
-      "CHAF("+KC+",2)="+antinames[(simdict["MODEL"],simdict["CASE"])][i-1],
-    ]
-    genSeq.PythiaRhad.PygiveCommand += [
-      "PMAS("+KC+",1)="+str(float(simdict["MASS"])+masses[(simdict["MODEL"],simdict["CASE"])][i-1])+"D0",
-      "PMAS("+KC+",2)="+str(float(simdict["MASS"])+masses[(simdict["MODEL"],simdict["CASE"])][i-1])+"D0"
-    ]
-  print "preInclude.Rhadrons PygiveCommand is:"
-  print genSeq.PythiaRhad.PygiveCommand
-
-  if (simdict["MODEL"]=='regge'):
-    genSeq.PythiaRhad.RunReggeModel=True
-    genSeq.PythiaRhad.RunIntermediateModel=False
-  if (simdict["MODEL"]=='intermediate'):
-    genSeq.PythiaRhad.RunReggeModel=False
-    genSeq.PythiaRhad.RunIntermediateModel=True
-
-  if (simdict["CASE"]=='gluino'):
-    genSeq.PythiaRhad.RunGluinoHadrons=True
-    genSeq.PythiaRhad.RunStopHadrons=False
-    genSeq.PythiaRhad.RunSbottomHadrons=False
-    genSeq.PythiaRhad.randomtshift=50 # +-X ns, overrides tshift if non-zero
-    genSeq.PythiaRhad.rh_decay=True
-    genSeq.PythiaRhad.strip_out_rh=True
-    genSeq.PythiaRhad.boost_rh_to_rest_frame=True
-    genSeq.PythiaRhad.rotate_rh=True
-    genSeq.PythiaRhad.translate_rh_to_stopping_position=True
-    genSeq.PythiaRhad.EnableAfterInitialize=False # added for PythiaRhad_i-00-04-02
-    genSeq.PythiaRhad.StoppingInput = [ [ 0,0,0,0,0,0 ] ]
-    try:
-      include("StoppingInput.txt")
-    except:
-      pass
+    from PythiaRhad_i.PythiaRhad_iConf import PythiaRhad
+    genSeq +=PythiaRhad()
+    genSeq.PythiaRhad.useAtlasPythiaTune09=False
+    genSeq.PythiaRhad.Tune_Name="PYTUNE_103"
+    #genSeq.PythiaRhad.Tune_Name="ATLAS_20110003"
     genSeq.PythiaRhad.PythiaCommand += [
-      "pymssm imss 1 1",                          # General MSSM simulation
-      "pymssm imss 3 1",                          # Tell Pythia that rmss 3 below should be interpreted as the gluino pole mass
-      "pymssm imss 5 0",                          # allow pythia to calculate squark masses/mixings
-      "pymssm rmss 1 "+str(MASSX),                # # Photino mass
-      #"pymssm rmss 2 10000.0",                    # Wino/Zino mass
-      "pymssm rmss 3 "+str(simdict["MASS"])+".0", # Gluino  mass
-      #"pymssm rmss 4 10000.0",                    # Higgsino mass parameter
-      #"pymssm rmss 7 10000.0",                    # Right slepton mass
-      "pymssm rmss 8 4800.0",                     # Left squark mass
-      "pymssm rmss 9 4200.0",                     # Right squark mass
-      "pymssm rmss 10 4800.0",                    # stop2 mass
-      "pymssm rmss 11 4200.0",                    # sbottom1 mass
-      "pymssm rmss 12 4100.0",                    # stop1 mass
-      "pymssm rmss 21 "+str(MASSX)+"e9",          # Gravitino mass (was MASSX before)
-      "pymssm imss 11 1",                         # make N1 the LSP (1 would make N1 NLSP and gravitino LSP) (default is 0)
-      "pymssm rmss 29 7.0e5",                     # Planck mass, controls BR(g~ -> g+Gravitino), leave high to avoid gravitino production (default is 2.4e18)
-      "pydat3 mdcy 1000022 1 0",                  # kill neutralino decays
-      # "pydat1 mstj 45 6",                       # allow CMshower->ttbar in gluino decays
-      # "pydat1 mstj 43 1",                       # z definition in CM shower
-      "pysubs msel 0",                            # Turn off all processes
-      "pysubs msub 243 1",                        # turn on ffbar -> ~g~g
-      "pysubs msub 244 1",                        # turn on gg -> ~g~g
-      "pypars mstp 111 0",                        # Turn off master switch for fragmentation and decay
-      "pypars mstp 127 1",                        # allow to continue even if there's no processes with non-vanishing xs
-      "pyinit pylisti 12",                        # dumps the full decay table, etc.
-      # "pyinit pylistf 1",                       # dumps pythia event
-      "pyinit dumpr 0 100",                       # write out events 1 to 100
-      "pystat 2"
+      "pyinit pylisti 12",
+      "pyinit pylistf 1",
+      "pystat 1 3 4 5",
+      "pyinit dumpr 1 5",
+      "pydat2 pmas 6 1 172.5",    # TOP mass
+      "pydat2 pmas 24 1 80.399",  # PDG2010 W mass
+      "pydat2 pmas 23 1 91.1876", # PDG2010 Z0 mass
     ]
-    if simdict.has_key("NOGLUINOGLUONDECAY"):
-      print "preInclude.Rhadrons: NOGLUINOGLUONDECAY"
-      genSeq.PythiaRhad.PythiaCommand += [
-        "pydat3 mdme 1975 1 0",
-        "pymssm imss 11 0"      # switch off gravitino, just to be sure we don't get gluon decay through it
+
+    #-------------------------#
+    # R-hadron commands below #
+    #-------------------------#
+
+    # Add some commands valid for both gluino and stop cases
+    genSeq.PythiaRhad.PythiaCommand += [
+      "pysubs ckin 3 18.",        # pT cut at 18 GeV
+      #"pypars mstp 81 1",        # Old shower/multiple-interaction model (new model is not compatible with R-hadron fragmentation)
+      #"pydat1 mstj 11 4",        # Set longitudinal fragmentation function to Pythia default
+      "pymssm imss 1 1",          # General MSSM simulation
+      "pymssm imss 3 1",          # Tell Pythia that rmss 3 below should be interpreted as the gluino pole mass
+      "pymssm imss 5 1",          # Set stop, sbottom and stau masses and mixing by hand (26-28 for mixing not set!)
+      #"pymssm rmss 1 4000.0",    # Photino mass
+      "pymssm rmss 2 8000.0",    # Wino/Zino mass
+      #"pymssm rmss 3 10000.0",    # Gluino  mass
+      "pymssm rmss 4 40000.0",    # Higgsino mass parameter
+      "pymssm rmss 6 1500.0",    # Left slepton mass
+      "pymssm rmss 7 1200.0",    # Right slepton mass
+      "pymssm rmss 8 4800.0",     # Left squark mass
+      "pymssm rmss 9 4200.0",     # Right squark mass
+      "pymssm rmss 10 4800.0",    # stop2 mass
+      #"pymssm rmss 11 8000.0",    # sbottom1 mass
+      #"pymssm rmss 12 8000.0",    # stop1 mass
+      "pymssm rmss 13 1500.0",    # Left stau mass
+      "pymssm rmss 14 1200.0",    # Right stau mass
+      #"pymssm rmss 21 10000.0e9",  # Gravitino mass
+      "pysubs msel 0",            # Turn off all processes
+      "pypars mstp 111 0",        # Turn off master switch for fragmentation and decay
+      #"pyinit pylisti 12",       # dumps the full decay table, etc.
+      "pyinit pylistf 3"         # dumps pythia event
+      #"pystat 2"
+    ]
+
+    pdg={}
+    q3={}
+    apflag={}
+    names={}
+    antinames={}
+    masses={}
+
+    # Gluino setups
+    pdg[("generic", "gluino")] = [1000993, 1009213, 1009313, 1009323, 1009113, 1009223, 1009333, 1091114, 1092114, 1092214, 1092224, 1093114, 1093214, 1093224, 1093314, 1093324, 1093334, 0, 0, 0]
+    q3[("generic", "gluino")] = [0, 3, 0, 3, 0, 0, 0, -3, 0, 3, 6, -3, 0, 3, -3, 0, -3, 0, 0, 0]
+    apflag[("generic", "gluino")] = [0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0]
+    names[("generic", "gluino")] = ["~g_ball", "~g_rho+", "~g_K*0", "~g_K*+", "~g_rho0", "~g_omega", "~g_phi", "~g_Dlt-", "~g_Dlt0", "~g_Dlt+", "~g_Dlt++", "~g_Sgm*-", "~g_Sgm*0", "~g_Sgm*+", "~g_Xi*-", "~g_Xi*0 ", "~g_Omg-", " ", " ", " "]
+    antinames[("generic", "gluino")] = [" ", "~g_rho-", "~g_K*br0", "~g_K*-", " ", " ", " ", "~g_Dltb+", "~g_Dltb0", "~g_Dltb-", "~g_Dlb--", "~g_Sgmb+", "~g_Sgmb0", "~g_Sgmb-", "~g_Xibr+", "~g_Xib0", "~g_Omgb+", " ", " ", " "]
+    masses[("generic", "gluino")] = [0.700, 0.650, 0.825, 0.825, 0.650, 0.650, 1.800, 0.975, 0.975, 0.975, 0.975, 1.150, 1.150, 1.150, 1.300, 1.300, 1.600, 0.650, 0.825, 0.825, 0.975, 0.975, 0.975, 0.975, 1.150, 1.150, 1.150, 1.300, 1.300, 1.600]
+
+    pdg[("regge", "gluino")] = [1000993, 1009213, 1009113, 1009313, 1009323, 1093122, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    q3[("regge", "gluino")] = [0, 3, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    apflag[("regge", "gluino")] = [0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    names[("regge", "gluino")] = ["~g_gball", "~g_rho+", "~g_rho0", "~g_K0", "~g_K+", "~g_L0", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
+    antinames[("regge", "gluino")] = [" ", "~g_rho-", " ", "~g_K0bar", "~g_K-", "~g_L0bar", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
+    masses[("regge", "gluino")] = [0.330, 0.330, 0.330, 0.460, 0.460, 0.280, 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]
+
+    pdg[("intermediate", "gluino")] = [1000991, 1009211, 1009111, 1009311, 1009321, 1093122, 1092212, 1092112, 1092214, 1092114, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    q3[("intermediate", "gluino")] = [0, 3, 0, 0, 3, 0, 3, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    apflag[("intermediate", "gluino")] = [0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    names[("intermediate", "gluino")] = ["~g_gball", "~g_pi+", "~g_pi0", "~g_K0", "~g_K+", "~g_L0", "~g_prot", "~g_neutr", "~g_Delt+", "~g_Delt0", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
+    antinames[("intermediate", "gluino")] = [" ", "~g_pi-", " ", "~g_K0bar", "~g_K-", "~g_L0bar", "~g_aprot", "~g_aneut", "~g_Dltb-", "~g_Dltb0", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
+    masses[("intermediate", "gluino")] = [0.330, 0.330, 0.330, 0.460, 0.460, 0.280, 0.660, 0.660, 0.530, 0.530, 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]
+
+    # Stop setups
+    pdg[("generic", "stop")] = [1000612, 1000622, 1000632, 1000642, 1000652, 1006113, 1006211, 1006213, 1006223, 1006311, 1006313, 1006321, 1006323, 1006333, 0, 0, 0, 0, 0, 0]
+    q3[("generic", "stop")] = [3, 0, 3, 0, 3, 0, 3, 3, 6, 0, 0, 3, 3, 0, 0, 0, 0, 0, 0, 0]
+    apflag[("generic", "stop")] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0]
+    names[("generic", "stop")] = ["~T+", "~T0", "~T_s+", "~T_c0", "~T_b+", "~T_dd10", "~T_ud0+", "~T_ud1+", "~T_uu1++", "~T_sd00", "~T_sd10", "~T_su0+", "~T_su1+", "~T_ss10", " ", " ", " ", " ", " ", " "]
+    antinames[("generic", "stop")] = ["~Tb-", "~Tb0", "~Tb_s-", "~Tb_c0", "~Tb_b-", "~Tb_dd10", "~Tb_ud0-", "~Tb_ud1-", "~Tb_uu--", "~Tb_sd00", "~Tb_sd10", "~Tb_su0-", "~Tb_su1-", "~Tb_ss10", " ", " ", " ", " ", " ", " "]
+    masses[("generic", "stop")] = [0.330, 0.330, 0.330, 0.460, 0.460, 0.280, 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]
+
+    pdg[("regge", "stop")] = [1000612, 1000622, 1006211, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    q3[("regge", "stop")] = [3, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    apflag[("regge", "stop")] = [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    names[("regge", "stop")] = ["~T+", "~T0", "~T_ud0+", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
+    antinames[("regge", "stop")] = ["~Tb-", "~Tb0", "~Tb_ud-", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
+    masses[("regge", "stop")] = [0.330, 0.330, 0.330, 0.460, 0.460, 0.280, 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]
+
+    # Sbottom
+    pdg[("regge", "sbottom")] = [1000512, 1000522, 1005211, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    q3[("regge", "sbottom")] = [0, -3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    apflag[("regge", "sbottom")] = [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    names[("regge", "sbottom")] = ["~B0", "~B-", "~B_ud0", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
+    antinames[("regge", "sbottom")] = ["~Bb0", "~Bb+", "~Bb_ud0", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
+    masses[("regge", "sbottom")] = [0.330, 0.330, 0.330, 0.460, 0.460, 0.280, 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.]
+
+    genSeq.PythiaRhad.RHadronPDGids = pdg[(simdict["MODEL"],simdict["CASE"])]
+    genSeq.PythiaRhad.PygiveCommand = []
+    for i in range(1,20):
+      KC = str(400+i)
+      genSeq.PythiaRhad.PygiveCommand += [
+        "KCHG("+KC+",1)="+str(q3[(simdict["MODEL"],simdict["CASE"])][i-1]),
+        "KCHG("+KC+",2)=0",
+        "KCHG("+KC+",3)="+str(apflag[(simdict["MODEL"],simdict["CASE"])][i-1]),
+        "KCHG("+KC+",4)="+str(pdg[(simdict["MODEL"],simdict["CASE"])][i-1]),
+        "CHAF("+KC+",1)="+names[(simdict["MODEL"],simdict["CASE"])][i-1],
+        "CHAF("+KC+",2)="+antinames[(simdict["MODEL"],simdict["CASE"])][i-1],
       ]
-      if simdict.has_key("NOGLUINOLIGHTSQUARKDECAY"):
-        print "preInclude.Rhadrons: NOGLUINOLIGHTSQUARKDECAY"
-        genSeq.PythiaRhad.PythiaCommand += [
-          "pydat3 mdme 2000 1 0",
-          "pydat3 mdme 2001 1 0",
-          "pydat3 mdme 2002 1 0",
-          "pydat3 mdme 2003 1 0",
-          "pydat3 mdme 2004 1 0"
-        ]
-      if simdict.has_key("NOGLUINOTTBARDECAY"):
-        print "preInclude.Rhadrons: NOGLUINOTTBARDECAY"
-        genSeq.PythiaRhad.PythiaCommand += [
-          "pydat3 mdme 2005 1 0"
-        ]
-      if ('GBALLPROB' in globals()):
-        genSeq.PythiaRhad.GluinoBallProbability=GBALLPROB
-  elif (simdict["CASE"]=='stop'):
-    genSeq.PythiaRhad.RunGluinoHadrons=False
-    genSeq.PythiaRhad.RunStopHadrons=True
-    genSeq.PythiaRhad.RunSbottomHadrons=False
-    genSeq.PythiaRhad.randomtshift=50 # +-X ns, overrides tshift if non-zero
-    genSeq.PythiaRhad.rh_decay=True
-    genSeq.PythiaRhad.strip_out_rh=True
-    genSeq.PythiaRhad.boost_rh_to_rest_frame=True
-    genSeq.PythiaRhad.rotate_rh=True
-    genSeq.PythiaRhad.translate_rh_to_stopping_position=True
-    genSeq.PythiaRhad.EnableAfterInitialize=False # added for PythiaRhad_i-00-04-02
-    genSeq.PythiaRhad.StoppingInput = [ [ 0,0,0,0,0,0 ] ]
-    try:
-      include("StoppingInput.txt")
-    except:
-      pass
-    genSeq.PythiaRhad.PythiaCommand += [
-      "pymssm imss 1 1",                           # General MSSM simulation
-      "pymssm imss 3 1",                           # Tell Pythia that rmss 3 below should be interpreted as the gluino pole mass
-      "pymssm imss 5 1",                           # Set stop, sbottom and stau masses and mixing by hand (26-28 for mixing not set!)
-      "pymssm rmss 1 "+str(MASSX),                 # Photino mass
-      #"pymssm rmss 2 10000.0",                     # Wino/Zino mass
-      "pymssm rmss 3 25000.0",                     # Gluino  mass
-      #"pymssm rmss 4 10000.0",                     # Higgsino mass parameter
-      #"pymssm rmss 7 10000.0",                     # Right slepton mass
-      "pymssm rmss 8 4800.0",                      # Left squark mass
-      "pymssm rmss 9 4200.0",                      # Right squark mass
-      "pymssm rmss 10 4800.0",                     # stop2 mass
-      "pymssm rmss 11 4200.0",                     # sbottom1 mass
-      "pymssm rmss 12 "+str(simdict["MASS"])+".0", # stop1 mass
-      "pymssm rmss 21 "+str(MASSX)+"e9",           # Gravitino mass
-      "pymssm imss 11 1",                          # make N1 the LSP (1 would make N1 NLSP and gravitino LSP)
-      "pymssm rmss 29 7.0e5",                      # Planck mass, controls BR(g~ -> g+Gravitino), leave high to avoid gravitino production
-      "pydat3 mdcy 1000022 1 0",                   # kill neutralino decays
-      # "pydat1 mstj 45 6",                        # allow CMshower->ttbar in gluino decays
-      # "pydat1 mstj 43 1",                        # z definition in CM shower
-      "pysubs msel 0",                             # Turn off all processes
-      "pysubs msub 261 1",                         # turn on ffbar -> stop1stop1bar
-      "pysubs msub 264 1",                         # turn on gg -> stop1stop1bar
-      "pypars mstp 111 0",                         # Turn off master switch for fragmentation and decay
-      "pyinit pylisti 12",                         # dumps the full decay table, etc.
-      # "pyinit pylistf 1",                        # dumps pythia event
-      "pyinit dumpr 0 100",                        # write out events 1 to 100
-      "pystat 2"
-    ]
-  elif (simdict["CASE"]=='sbottom'):
-    genSeq.PythiaRhad.RunGluinoHadrons=False
-    genSeq.PythiaRhad.RunStopHadrons=False
-    genSeq.PythiaRhad.RunSbottomHadrons=True
-    genSeq.PythiaRhad.randomtshift=50 # +-X ns, overrides tshift if non-zero
-    genSeq.PythiaRhad.rh_decay=True
-    genSeq.PythiaRhad.strip_out_rh=True
-    genSeq.PythiaRhad.boost_rh_to_rest_frame=True
-    genSeq.PythiaRhad.rotate_rh=True
-    genSeq.PythiaRhad.translate_rh_to_stopping_position=True
-    genSeq.PythiaRhad.EnableAfterInitialize=False # added for PythiaRhad_i-00-04-02
-    genSeq.PythiaRhad.StoppingInput = [ [ 0,0,0,0,0,0 ] ]
-    try:
-      include("StoppingInput.txt")
-    except:
-      pass
-    genSeq.PythiaRhad.PythiaCommand += [
-      "pymssm imss 1 1",                           # General MSSM simulation
-      "pymssm imss 3 1",                           # Tell Pythia that rmss 3 below should be interpreted as the gluino pole mass
-      "pymssm imss 5 1",                           # Set stop, sbottom and stau masses and mixing by hand (26-28 for mixing not set!)
-      "pymssm rmss 1 "+str(MASSX),                 # Photino mass
-      #"pymssm rmss 2 10000.0",                     # Wino/Zino mass
-      "pymssm rmss 3 25000.0",                     # Gluino  mass
-      #"pymssm rmss 4 10000.0",                     # Higgsino mass parameter
-      #"pymssm rmss 7 10000.0",                     # Right slepton mass
-      "pymssm rmss 8 4800.0",                      # Left squark mass
-      "pymssm rmss 9 4200.0",                      # Right squark mass
-      "pymssm rmss 10 4800.0",                     # stop2 mass
-      "pymssm rmss 11 "+str(simdict["MASS"])+".0", # sbottom1 mass
-      "pymssm rmss 12 4100.0",                     # stop1 mass
-      "pymssm rmss 21 "+str(MASSX)+"e9",           # Gravitino mass
-      "pymssm imss 11 1",                          # make N1 the LSP (1 would make N1 NLSP and gravitino LSP)
-      "pymssm rmss 29 7.0e5",                      # Planck mass, controls BR(g~ -> g+Gravitino), leave high to avoid gravitino production
-      "pydat3 mdcy 1000022 1 0",                   # kill neutralino decays
-      # "pydat1 parj 64 -10000000.0",
-      # "pydat3 mdcy 5 1 1",
-      # "pydat1 mstj 45 6",                        # allow CMshower->ttbar in gluino decays
-      # "pydat1 mstj 43 1",                        # z definition in CM shower
-      "pysubs msel 0",                             # Turn off all processes
-      "pysubs msub 287 1",                         # turn on ffbar -> sbottom1sbottom1bar
-      "pysubs msub 289 1",                         # turn on gg -> sbottom1sbottom1bar
-      "pysubs msub 291 1",                         # turn on bb -> sbottom1sbottom1
-      "pypars mstp 111 0",                         # Turn off master switch for fragmentation and decay
-      "pyinit pylisti 12",                         # dumps the full decay table, etc.
-      # "pyinit pylistf 1",                        # dumps pythia event
-      "pyinit dumpr 0 100",                        # write out events 1 to 100
-      "pystat 2"
-    ]
+      genSeq.PythiaRhad.PygiveCommand += [
+        "PMAS("+KC+",1)="+str(float(simdict["MASS"])+masses[(simdict["MODEL"],simdict["CASE"])][i-1])+"D0",
+        "PMAS("+KC+",2)="+str(float(simdict["MASS"])+masses[(simdict["MODEL"],simdict["CASE"])][i-1])+"D0"
+      ]
+    print "preInclude.Rhadrons PygiveCommand is:"
+    print genSeq.PythiaRhad.PygiveCommand
 
-del doG4SimConfig, simdict, MASSX
+    if (simdict["MODEL"]=='regge'):
+      genSeq.PythiaRhad.RunReggeModel=True
+      genSeq.PythiaRhad.RunIntermediateModel=False
+    if (simdict["MODEL"]=='intermediate'):
+      genSeq.PythiaRhad.RunReggeModel=False
+      genSeq.PythiaRhad.RunIntermediateModel=True
+
+    if (simdict["CASE"]=='gluino'):
+      genSeq.PythiaRhad.RunGluinoHadrons=True
+      genSeq.PythiaRhad.RunStopHadrons=False
+      genSeq.PythiaRhad.RunSbottomHadrons=False
+      genSeq.PythiaRhad.randomtshift=50 # +-X ns, overrides tshift if non-zero
+      genSeq.PythiaRhad.rh_decay=True
+      genSeq.PythiaRhad.strip_out_rh=True
+      genSeq.PythiaRhad.boost_rh_to_rest_frame=True
+      genSeq.PythiaRhad.rotate_rh=True
+      genSeq.PythiaRhad.translate_rh_to_stopping_position=True
+      genSeq.PythiaRhad.EnableAfterInitialize=False # added for PythiaRhad_i-00-04-02
+      genSeq.PythiaRhad.StoppingInput = [ [ 0,0,0,0,0,0 ] ]
+      try:
+        include("StoppingInput.txt")
+      except:
+        pass
+      genSeq.PythiaRhad.PythiaCommand += [
+        "pymssm imss 1 1",                          # General MSSM simulation
+        "pymssm imss 3 1",                          # Tell Pythia that rmss 3 below should be interpreted as the gluino pole mass
+        "pymssm imss 5 0",                          # allow pythia to calculate squark masses/mixings
+        "pymssm rmss 1 "+str(MASSX),                # # Photino mass
+        #"pymssm rmss 2 10000.0",                    # Wino/Zino mass
+        "pymssm rmss 3 "+str(simdict["MASS"])+".0", # Gluino  mass
+        #"pymssm rmss 4 10000.0",                    # Higgsino mass parameter
+        #"pymssm rmss 7 10000.0",                    # Right slepton mass
+        "pymssm rmss 8 4800.0",                     # Left squark mass
+        "pymssm rmss 9 4200.0",                     # Right squark mass
+        "pymssm rmss 10 4800.0",                    # stop2 mass
+        "pymssm rmss 11 4200.0",                    # sbottom1 mass
+        "pymssm rmss 12 4100.0",                    # stop1 mass
+        "pymssm rmss 21 "+str(MASSX)+"e9",          # Gravitino mass (was MASSX before)
+        "pymssm imss 11 1",                         # make N1 the LSP (1 would make N1 NLSP and gravitino LSP) (default is 0)
+        "pymssm rmss 29 7.0e5",                     # Planck mass, controls BR(g~ -> g+Gravitino), leave high to avoid gravitino production (default is 2.4e18)
+        "pydat3 mdcy 1000022 1 0",                  # kill neutralino decays
+        # "pydat1 mstj 45 6",                       # allow CMshower->ttbar in gluino decays
+        # "pydat1 mstj 43 1",                       # z definition in CM shower
+        "pysubs msel 0",                            # Turn off all processes
+        "pysubs msub 243 1",                        # turn on ffbar -> ~g~g
+        "pysubs msub 244 1",                        # turn on gg -> ~g~g
+        "pypars mstp 111 0",                        # Turn off master switch for fragmentation and decay
+        "pypars mstp 127 1",                        # allow to continue even if there's no processes with non-vanishing xs
+        "pyinit pylisti 12",                        # dumps the full decay table, etc.
+        # "pyinit pylistf 1",                       # dumps pythia event
+        "pyinit dumpr 0 100",                       # write out events 1 to 100
+        "pystat 2"
+      ]
+      if simdict.has_key("NOGLUINOGLUONDECAY"):
+        print "preInclude.Rhadrons: NOGLUINOGLUONDECAY"
+        genSeq.PythiaRhad.PythiaCommand += [
+          "pydat3 mdme 1975 1 0",
+          "pymssm imss 11 0"      # switch off gravitino, just to be sure we don't get gluon decay through it
+        ]
+        if simdict.has_key("NOGLUINOLIGHTSQUARKDECAY"):
+          print "preInclude.Rhadrons: NOGLUINOLIGHTSQUARKDECAY"
+          genSeq.PythiaRhad.PythiaCommand += [
+            "pydat3 mdme 2000 1 0",
+            "pydat3 mdme 2001 1 0",
+            "pydat3 mdme 2002 1 0",
+            "pydat3 mdme 2003 1 0",
+            "pydat3 mdme 2004 1 0"
+          ]
+        if simdict.has_key("NOGLUINOTTBARDECAY"):
+          print "preInclude.Rhadrons: NOGLUINOTTBARDECAY"
+          genSeq.PythiaRhad.PythiaCommand += [
+            "pydat3 mdme 2005 1 0"
+          ]
+        if ('GBALLPROB' in globals()):
+          genSeq.PythiaRhad.GluinoBallProbability=GBALLPROB
+    elif (simdict["CASE"]=='stop'):
+      genSeq.PythiaRhad.RunGluinoHadrons=False
+      genSeq.PythiaRhad.RunStopHadrons=True
+      genSeq.PythiaRhad.RunSbottomHadrons=False
+      genSeq.PythiaRhad.randomtshift=50 # +-X ns, overrides tshift if non-zero
+      genSeq.PythiaRhad.rh_decay=True
+      genSeq.PythiaRhad.strip_out_rh=True
+      genSeq.PythiaRhad.boost_rh_to_rest_frame=True
+      genSeq.PythiaRhad.rotate_rh=True
+      genSeq.PythiaRhad.translate_rh_to_stopping_position=True
+      genSeq.PythiaRhad.EnableAfterInitialize=False # added for PythiaRhad_i-00-04-02
+      genSeq.PythiaRhad.StoppingInput = [ [ 0,0,0,0,0,0 ] ]
+      try:
+        include("StoppingInput.txt")
+      except:
+        pass
+      genSeq.PythiaRhad.PythiaCommand += [
+        "pymssm imss 1 1",                           # General MSSM simulation
+        "pymssm imss 3 1",                           # Tell Pythia that rmss 3 below should be interpreted as the gluino pole mass
+        "pymssm imss 5 1",                           # Set stop, sbottom and stau masses and mixing by hand (26-28 for mixing not set!)
+        "pymssm rmss 1 "+str(MASSX),                 # Photino mass
+        #"pymssm rmss 2 10000.0",                     # Wino/Zino mass
+        "pymssm rmss 3 25000.0",                     # Gluino  mass
+        #"pymssm rmss 4 10000.0",                     # Higgsino mass parameter
+        #"pymssm rmss 7 10000.0",                     # Right slepton mass
+        "pymssm rmss 8 4800.0",                      # Left squark mass
+        "pymssm rmss 9 4200.0",                      # Right squark mass
+        "pymssm rmss 10 4800.0",                     # stop2 mass
+        "pymssm rmss 11 4200.0",                     # sbottom1 mass
+        "pymssm rmss 12 "+str(simdict["MASS"])+".0", # stop1 mass
+        "pymssm rmss 21 "+str(MASSX)+"e9",           # Gravitino mass
+        "pymssm imss 11 1",                          # make N1 the LSP (1 would make N1 NLSP and gravitino LSP)
+        "pymssm rmss 29 7.0e5",                      # Planck mass, controls BR(g~ -> g+Gravitino), leave high to avoid gravitino production
+        "pydat3 mdcy 1000022 1 0",                   # kill neutralino decays
+        # "pydat1 mstj 45 6",                        # allow CMshower->ttbar in gluino decays
+        # "pydat1 mstj 43 1",                        # z definition in CM shower
+        "pysubs msel 0",                             # Turn off all processes
+        "pysubs msub 261 1",                         # turn on ffbar -> stop1stop1bar
+        "pysubs msub 264 1",                         # turn on gg -> stop1stop1bar
+        "pypars mstp 111 0",                         # Turn off master switch for fragmentation and decay
+        "pyinit pylisti 12",                         # dumps the full decay table, etc.
+        # "pyinit pylistf 1",                        # dumps pythia event
+        "pyinit dumpr 0 100",                        # write out events 1 to 100
+        "pystat 2"
+      ]
+    elif (simdict["CASE"]=='sbottom'):
+      genSeq.PythiaRhad.RunGluinoHadrons=False
+      genSeq.PythiaRhad.RunStopHadrons=False
+      genSeq.PythiaRhad.RunSbottomHadrons=True
+      genSeq.PythiaRhad.randomtshift=50 # +-X ns, overrides tshift if non-zero
+      genSeq.PythiaRhad.rh_decay=True
+      genSeq.PythiaRhad.strip_out_rh=True
+      genSeq.PythiaRhad.boost_rh_to_rest_frame=True
+      genSeq.PythiaRhad.rotate_rh=True
+      genSeq.PythiaRhad.translate_rh_to_stopping_position=True
+      genSeq.PythiaRhad.EnableAfterInitialize=False # added for PythiaRhad_i-00-04-02
+      genSeq.PythiaRhad.StoppingInput = [ [ 0,0,0,0,0,0 ] ]
+      try:
+        include("StoppingInput.txt")
+      except:
+        pass
+      genSeq.PythiaRhad.PythiaCommand += [
+        "pymssm imss 1 1",                           # General MSSM simulation
+        "pymssm imss 3 1",                           # Tell Pythia that rmss 3 below should be interpreted as the gluino pole mass
+        "pymssm imss 5 1",                           # Set stop, sbottom and stau masses and mixing by hand (26-28 for mixing not set!)
+        "pymssm rmss 1 "+str(MASSX),                 # Photino mass
+        #"pymssm rmss 2 10000.0",                     # Wino/Zino mass
+        "pymssm rmss 3 25000.0",                     # Gluino  mass
+        #"pymssm rmss 4 10000.0",                     # Higgsino mass parameter
+        #"pymssm rmss 7 10000.0",                     # Right slepton mass
+        "pymssm rmss 8 4800.0",                      # Left squark mass
+        "pymssm rmss 9 4200.0",                      # Right squark mass
+        "pymssm rmss 10 4800.0",                     # stop2 mass
+        "pymssm rmss 11 "+str(simdict["MASS"])+".0", # sbottom1 mass
+        "pymssm rmss 12 4100.0",                     # stop1 mass
+        "pymssm rmss 21 "+str(MASSX)+"e9",           # Gravitino mass
+        "pymssm imss 11 1",                          # make N1 the LSP (1 would make N1 NLSP and gravitino LSP)
+        "pymssm rmss 29 7.0e5",                      # Planck mass, controls BR(g~ -> g+Gravitino), leave high to avoid gravitino production
+        "pydat3 mdcy 1000022 1 0",                   # kill neutralino decays
+        # "pydat1 parj 64 -10000000.0",
+        # "pydat3 mdcy 5 1 1",
+        # "pydat1 mstj 45 6",                        # allow CMshower->ttbar in gluino decays
+        # "pydat1 mstj 43 1",                        # z definition in CM shower
+        "pysubs msel 0",                             # Turn off all processes
+        "pysubs msub 287 1",                         # turn on ffbar -> sbottom1sbottom1bar
+        "pysubs msub 289 1",                         # turn on gg -> sbottom1sbottom1bar
+        "pysubs msub 291 1",                         # turn on bb -> sbottom1sbottom1
+        "pypars mstp 111 0",                         # Turn off master switch for fragmentation and decay
+        "pyinit pylisti 12",                         # dumps the full decay table, etc.
+        # "pyinit pylistf 1",                        # dumps pythia event
+        "pyinit dumpr 0 100",                        # write out events 1 to 100
+        "pystat 2"
+      ]
+
+  del doG4SimConfig, simdict, MASSX

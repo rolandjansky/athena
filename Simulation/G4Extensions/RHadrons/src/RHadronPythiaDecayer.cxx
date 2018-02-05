@@ -7,9 +7,11 @@
 #include "G4DynamicParticle.hh"
 #include "CLHEP/Vector/LorentzVector.h"
 #include "G4ExternalDecay/PythiaForDecays.h"
+#include "G4ExternalDecay/Pythia8ForDecays.h"
 #include <iostream>
 
 G4DecayProducts* RHadronPythiaDecayer::ImportDecayProducts(const G4Track& aTrack){
+  std::cout << "Jenn testing RHadrons here" << std::endl;
 #ifdef USEG4DECAYPRODUCTS2
   G4DecayProducts2 * dp = new G4DecayProducts2[1000];//allocate enough space so we can store all the additional products
 #else
@@ -28,12 +30,21 @@ G4DecayProducts* RHadronPythiaDecayer::ImportDecayProducts(const G4Track& aTrack
 
   G4int pdgEncoding = aTrack.GetDefinition()->GetPDGEncoding();
 
-  // let Pythia6Decayer decay the particle
-  // and import the decay products
-  PythiaForDecays::Instance()->Py1ent(0, pdgEncoding, p.e(), p.theta(), p.phi());
-  PythiaForDecays::Instance()->DecayRhadrons(pdgEncoding);
+
   std::vector<G4DynamicParticle*> particles;
-  PythiaForDecays::Instance()->ImportParticles(particles);
+
+	// Probably should set some sort of something instead
+	bool isPythia8 = true;
+  if(isPythia8){
+  	Pythia8ForDecays::Instance()->Py1ent(pdgEncoding, p.px(), p.py(), p.pz(), p.e(), p.m(), particles);
+	}
+	else{
+	  // let Pythia6Decayer decay the particle
+  	// and import the decay products
+	  PythiaForDecays::Instance()->Py1ent(0, pdgEncoding, p.e(), p.theta(), p.phi());
+  	PythiaForDecays::Instance()->DecayRhadrons(pdgEncoding);
+	  PythiaForDecays::Instance()->ImportParticles(particles);
+	}
 
   std::cout << "Decayed an RHadron with ID " << pdgEncoding << " and momentum " << p << " in Pythia.  Decay products are:" << std::endl;
   double totalE=0.0;
@@ -51,7 +62,7 @@ G4DecayProducts* RHadronPythiaDecayer::ImportDecayProducts(const G4Track& aTrack
   std::cout<<" total energy in was "<<etot<<std::endl;
   std::cout<<" total energy out is "<<totalE<<std::endl;
   //std::cout << std::endl;
-  //dp->DumpInfo();
+  dp->DumpInfo();
 
   return dp;
 }

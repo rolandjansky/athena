@@ -15,15 +15,16 @@ find_package( Geant4 )
 find_package( HepMC )
 find_package( Lhapdf )
 find_package( Pythia6 )
+find_package( Pythia8 )
 find_package( XercesC )
 
 # Component(s) in the package:
 atlas_add_library( G4ExternalDecay
                    src/*.cxx
                    PUBLIC_HEADERS G4ExternalDecay
-                   INCLUDE_DIRS ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${PYTHIA6_INCLUDE_DIRS} ${LHAPDF_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS}
+                   INCLUDE_DIRS ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${PYTHIA6_INCLUDE_DIRS} ${LHAPDF_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS} ${PYTHIA8_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${HEPMC_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${PYTHIA6_LIBRARIES} ${LHAPDF_LIBRARIES} ${GEANT4_LIBRARIES} Pythia_iLib
+                   LINK_LIBRARIES ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${PYTHIA6_LIBRARIES} ${PYTHIA8_LIBRARIES} ${LHAPDF_LIBRARIES} ${GEANT4_LIBRARIES} Pythia_iLib Pythia8_iLib
                    PRIVATE_LINK_LIBRARIES ${HEPMC_LIBRARIES} )
 
