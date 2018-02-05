@@ -25,10 +25,9 @@ class Pythia8ForDecays
   private:
 
    G4ParticleDefinition* GetParticleDefinition(const int) const;
-  void fillParticle(int id, double ee, double thetaIn, double phiIn,
-    Pythia8::Event& event, Pythia8::ParticleData& pdt, Pythia8::Rndm& rndm) const;
-  std::pair<int,int> fromIdWithGluino( int idRHad, Pythia8::Rndm* rndmPtr) const;
-
+   void fillParticle(int id, double ee, double thetaIn, double phiIn,
+                     Pythia8::Event& event, Pythia8::ParticleData& pdt, Pythia8::Rndm& rndm) const;
+   std::pair<int,int> fromIdWithGluino( int idRHad, Pythia8::Rndm* rndmPtr) const;
 
    static  Pythia8ForDecays* s_instance;
 };

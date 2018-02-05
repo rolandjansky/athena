@@ -150,13 +150,13 @@ void Pythia8ForDecays::fillParticle(int id, double ee, double thetaIn, double ph
 void Pythia8ForDecays::Py1ent(int pdgid, double px, double py, double pz, double e, double m, std::vector<G4DynamicParticle*> & particles)
 {
 
-  // Pythia instance where Rhadrons can decay
+  // Pythia instance where RHadrons can decay
   Pythia8::Pythia pythia("/cvmfs/atlas.cern.ch/repo/sw/software/21.0/sw/lcg/releases/MCGenerators/pythia8/212-a65b9/x86_64-slc6-gcc49-opt/share/Pythia8/xmldoc");
   //Pythia8::Pythia pythia("/cvmfs/atlas.cern.ch/repo/sw/software/21.0/sw/lcg/releases/MCGenerators/pythia8/226-748f6/x86_64-slc6-gcc62-opt/share/Pythia8/xmldoc");
   pythia.readString("SLHA:file = test.spc");
   pythia.readString("ProcessLevel:all = off");
   pythia.readString("Init:showChangedSettings = off");
-  pythia.readString("Rhadrons:allow = on");
+  pythia.readString("RHadrons:allow = on");
   pythia.readString("RHadrons:allowDecay = on");
   pythia.readString("RHadrons:probGluinoball = 0.1");
   pythia.readString("PartonLevel:FSR = off");
@@ -164,13 +164,13 @@ void Pythia8ForDecays::Py1ent(int pdgid, double px, double py, double pz, double
   Pythia8::ParticleData& pdt = pythia.particleData;
   pythia.init();
 
-  // Pythia instance where Rhadrons cannot decay
+  // Pythia instance where RHadrons cannot decay
   Pythia8::Pythia pythiaDecay("/cvmfs/atlas.cern.ch/repo/sw/software/21.0/sw/lcg/releases/MCGenerators/pythia8/212-a65b9/x86_64-slc6-gcc49-opt/share/Pythia8/xmldoc");
   //Pythia8::Pythia pythiaDecay("/cvmfs/atlas.cern.ch/repo/sw/software/21.0/sw/lcg/releases/MCGenerators/pythia8/226-748f6/x86_64-slc6-gcc62-opt/share/Pythia8/xmldoc");
   pythiaDecay.readString("SLHA:file = test.spc");
   pythiaDecay.readString("ProcessLevel:all = off");
   pythiaDecay.readString("Init:showChangedSettings = off");
-  pythiaDecay.readString("Rhadrons:allow = on");
+  pythiaDecay.readString("RHadrons:allow = on");
   pythiaDecay.readString("RHadrons:allowDecay = off");
   pythiaDecay.readString("RHadrons:probGluinoball = 0.1");
   pythiaDecay.readString("PartonLevel:FSR = off");
@@ -183,7 +183,7 @@ void Pythia8ForDecays::Py1ent(int pdgid, double px, double py, double pz, double
   original.SetPxPyPzE(px, py, pz, e);
   fillParticle( pdgid, e, original.Theta(), original.Phi(), event, pdtDecay, pythiaDecay.rndm);
 
-  // Copy and past of Rhadron decay code
+  // Copy and past of RHadron decay code
   int    iRNow  = 1;
   int    iRBef  = 1;
   int    idRHad = event[iRNow].id();

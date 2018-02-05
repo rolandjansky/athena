@@ -30,21 +30,20 @@ G4DecayProducts* RHadronPythiaDecayer::ImportDecayProducts(const G4Track& aTrack
 
   G4int pdgEncoding = aTrack.GetDefinition()->GetPDGEncoding();
 
-
   std::vector<G4DynamicParticle*> particles;
 
-	// Probably should set some sort of something instead
-	bool isPythia8 = true;
+  // Probably should set some sort of something instead
+  bool isPythia8 = true;
   if(isPythia8){
-  	Pythia8ForDecays::Instance()->Py1ent(pdgEncoding, p.px(), p.py(), p.pz(), p.e(), p.m(), particles);
-	}
-	else{
-	  // let Pythia6Decayer decay the particle
-  	// and import the decay products
-	  PythiaForDecays::Instance()->Py1ent(0, pdgEncoding, p.e(), p.theta(), p.phi());
-  	PythiaForDecays::Instance()->DecayRhadrons(pdgEncoding);
-	  PythiaForDecays::Instance()->ImportParticles(particles);
-	}
+    Pythia8ForDecays::Instance()->Py1ent(pdgEncoding, p.px(), p.py(), p.pz(), p.e(), p.m(), particles);
+  }
+  else{
+    // let Pythia6Decayer decay the particle
+    // and import the decay products
+    PythiaForDecays::Instance()->Py1ent(0, pdgEncoding, p.e(), p.theta(), p.phi());
+    PythiaForDecays::Instance()->DecayRHadrons(pdgEncoding);
+    PythiaForDecays::Instance()->ImportParticles(particles);
+  }
 
   std::cout << "Decayed an RHadron with ID " << pdgEncoding << " and momentum " << p << " in Pythia.  Decay products are:" << std::endl;
   double totalE=0.0;
