@@ -8,8 +8,13 @@
 #define Pythia8ForDecays_H
 
 #include <vector>
-#include "G4DynamicParticle.hh"
+#include "G4Track.hh"
+
+// For all the various Pythia8 classes used here
 #include "Pythia8_i/Pythia8_i.h"
+
+class G4DynamicParticle;
+class G4ParticleDefinition;
 
 class Pythia8ForDecays
 {
@@ -20,13 +25,12 @@ class Pythia8ForDecays
 
    static Pythia8ForDecays *Instance();
 
-   void Py1ent(int pdgid, double px, double py, double pz, double e, double m, std::vector<G4DynamicParticle*> &);
+   void Py1ent(const G4Track&, std::vector<G4DynamicParticle*> &);
 
   private:
 
    G4ParticleDefinition* GetParticleDefinition(const int) const;
-   void fillParticle(int id, double ee, double thetaIn, double phiIn,
-                     Pythia8::Event& event, Pythia8::ParticleData& pdt, Pythia8::Rndm& rndm) const;
+   void fillParticle(const G4Track&, Pythia8::Event& event, Pythia8::ParticleData& pdt) const;
    std::pair<int,int> fromIdWithGluino( int idRHad, Pythia8::Rndm* rndmPtr) const;
 
    static  Pythia8ForDecays* s_instance;
