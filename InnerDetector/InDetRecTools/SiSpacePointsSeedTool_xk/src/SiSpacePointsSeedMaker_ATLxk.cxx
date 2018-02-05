@@ -212,7 +212,7 @@ StatusCode InDet::SiSpacePointsSeedMaker_ATLxk::initialize()
     }
   }
   else {
-    m_assoTool.retrieve();
+    m_assoTool.disable();
   }
   
   // Build framework
