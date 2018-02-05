@@ -27,8 +27,6 @@ defaultInputKey = {
    'PFlowObj'  :'CHSParticleFlowObjects',
    'PrimVxColl':'PrimaryVertices',
    'Truth'     :'TruthEvents',
-   'LCOCClusColl':'LCOriginTopoClusters',
-   'EMOCClusColl':'EMOriginTopoClusters',
    }
 
 prefix = 'METAssocConfig:   '
@@ -77,8 +75,8 @@ def getAssociator(config,suffix,doPFlow=False,
         tool = CfgMgr.met__METSoftAssociator('MET_SoftAssociator_'+suffix)
         tool.DecorateSoftConst = True
         if doModClus:
-            tool.LCModClusterKey = defaultInputKey['LCOCClusColl']
-            tool.EMModClusterKey = defaultInputKey['EMOCClusColl']
+            tool.LCModClusterKey = modLCClus
+            tool.EMModClusterKey = modEMClus
     if config.objType == 'Truth':
         tool = CfgMgr.met__METTruthAssociator('MET_TruthAssociator_'+suffix)
         tool.RecoJetKey = config.inputKey
@@ -91,12 +89,12 @@ def getAssociator(config,suffix,doPFlow=False,
     if config.inputKey == '':
         tool.InputCollection = defaultInputKey[config.objType]
         config.inputKey = tool.InputCollection
-        if doModClus:
-            tool.ClusColl = defaultInputKey['LCOCClusColl']
-            if 'EMTopo' in suffix: tool.ClusColl = defaultInputKey['EMOCClusColl']
-        tool.TrkColl = defaultInputKey['TrkColl']
     else:
         tool.InputCollection = config.inputKey
+    if doModClus:
+        tool.ClusColl = modLCClus
+        if 'EMTopo' in suffix: tool.ClusColl = modEMClus
+        tool.TrkColl = defaultInputKey['Tracks']
 
     from METReconstruction.METRecoFlags import metFlags
     tool.UseTracks = metFlags.UseTracks()
