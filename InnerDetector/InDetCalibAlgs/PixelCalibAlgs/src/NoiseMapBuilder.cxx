@@ -1269,15 +1269,15 @@ StatusCode NoiseMapBuilder::finalize() {
     }
 
     int thisModuleCut = 0;
-    bool isIBL3D = ( m_isIBL && bec == 0 && layer == 0 && (modEta <= -7 || modEta >= 6) ) ? true : false;
+    bool isIBL3D = ( bec == 0 && layer == 0 && (modEta <= -7 || modEta >= 6) ) ? true : false;
 
     for(int pixel_eta = 0; pixel_eta <= eta_max; pixel_eta++){
       for(int pixel_phi = 0; pixel_phi <= phi_max; pixel_phi++){
 
         // kazuki added from here
-        int pixel_eta_on_chip = (m_isIBL && bec == 0 && layer == 0) ? pixel_eta % 80 : pixel_eta % 18; // column
+        int pixel_eta_on_chip = (bec == 0 && layer == 0) ? pixel_eta % 80 : pixel_eta % 18; // column
         int pixel_phi_on_chip = (pixel_phi <= 163) ? pixel_phi : 327 - pixel_phi; // eta
-        if (m_isIBL && bec == 0 && layer == 0) pixel_phi_on_chip = pixel_phi;
+        if (bec == 0 && layer == 0) pixel_phi_on_chip = pixel_phi;
         int pixelType = 0;
 
         if (bec == 0 && layer == 0) { // ----- IBL ----- //
