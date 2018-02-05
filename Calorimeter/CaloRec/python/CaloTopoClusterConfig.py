@@ -105,8 +105,8 @@ if __name__=="__main__":
     cfg=ComponentAccumulator()
 
     cfgFlags=ConfigFlagContainer()
-    cfgFlags.set("AthenaConfiguration.GlobalConfigFlags.isMC",False)
-    cfgFlags.set("AthenaConfiguration.GlobalConfigFlags.InputFiles",["myESD.pool.root"])
+    cfgFlags.set("AthenaConfiguration.GlobalFlags.isMC",False)
+    cfgFlags.set("AthenaConfiguration.GlobalFlags.InputFiles",["myESD.pool.root"])
 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     cfg.executeModule(PoolReadCfg,cfgFlags)

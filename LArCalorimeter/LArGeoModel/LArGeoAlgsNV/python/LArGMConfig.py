@@ -13,7 +13,7 @@ def LArGMCfg(ConfigFlags):
     result.getService("GeoModelSvc").DetectorTools += [ LArDetectorToolNV(ApplyAlignments=doAlignment) ]
 
     if doAlignment:
-        if ConfigFlags.get("AthenaConfiguration.GlobalConfigFlags.isMC"):
+        if ConfigFlags.get("AthenaConfiguration.GlobalFlags.isMC"):
             #Monte Carlo case:
             result.executeModule(addFolders,ConfigFlags,["/LAR/Align","/LAR/LArCellPositionShift"],"LAR_OFL")
         else:

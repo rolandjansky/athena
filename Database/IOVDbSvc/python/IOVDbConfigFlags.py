@@ -3,12 +3,12 @@ from AthenaConfiguration.CfgLogMsg import cfgLogMsg
 
 class DatabaseInstance(ConfigFlag):
     def getDefault(self,prevFlags):
-        isMC=prevFlags.get("AthenaConfiguration.GlobalConfigFlags.isMC")
+        isMC=prevFlags.get("AthenaConfiguration.GlobalFlags.isMC")
         if (isMC):
             return "OFLP200"
     
         # real-data
-        projectName=prevFlags.get("AthenaConfiguration.GlobalConfigFlags.projectName")
+        projectName=prevFlags.get("AthenaConfiguration.GlobalFlags.projectName")
         try:
             year=int(projectName[4:6]);
         except:

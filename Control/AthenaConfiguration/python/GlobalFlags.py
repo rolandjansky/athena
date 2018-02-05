@@ -23,7 +23,7 @@ beamEnergy=makeFlag("beamEnergy",7*TeV)
 
 class estimatedLuminosity(ConfigFlag):
     def getDefault(self,prevFlags):
-        return 1E33*(prevFlags.get("AthenaConfiguration.GlobalConfigFlags.numberOfCollisions")/2.3)* \
-            (25./prevFlags.get("AthenaConfiguration.GlobalConfigFlags.bunchSpacing"))
+        return 1E33*(prevFlags.get("AthenaConfiguration.GlobalFlags.numberOfCollisions")/2.3)* \
+            (25./prevFlags.get("AthenaConfiguration.GlobalFlags.bunchSpacing"))
                      
 

@@ -26,7 +26,7 @@ def IOVDbSvcCfg(inputFlags):
     #m_h_metaDataTool("IOVDbMetaDataTool"),
     #m_h_tagInfoMgr("TagInfoMgr", name),
 
-    isMC=inputFlags.get("AthenaConfiguration.GlobalConfigFlags.isMC")
+    isMC=inputFlags.get("AthenaConfiguration.GlobalFlags.isMC")
 
     # Set up IOVDbSvc
     iovDbSvc=IOVDbSvc()
