@@ -50,6 +50,7 @@
 #include "TopObjectSelectionTools/EventCleaningSelection.h"
 
 #include "TopPartons/CalcTtbarPartonHistory.h"
+#include "TopPartons/CalcTtbarLightPartonHistory.h"
 #include "TopPartons/CalcTbbarPartonHistory.h"
 #include "TopPartons/CalcWtbPartonHistory.h"
 #include "TopPartons/CalcTopPartonHistory.h"
@@ -510,6 +511,10 @@ std::shared_ptr<top::CalcTopPartonHistory> CreateTopPartonHistory(std::shared_pt
   if(settings->value("TopPartonHistory") == "ttbar"){
     topPartonHistory = std::shared_ptr<top::CalcTopPartonHistory> ( new top::CalcTtbarPartonHistory( "top::CalcTtbarPartonHistory" ) );
     top::check(topPartonHistory->setProperty( "config" , topConfig ) , "Failed to setProperty of top::CalcTtbarPartonHistory");
+  }
+  else if(settings->value("TopPartonHistory") == "ttbarlight"){
+    topPartonHistory = std::unique_ptr<top::CalcTopPartonHistory> ( new top::CalcTtbarLightPartonHistory( "top::CalcTtbarLightPartonHistory" ) );
+    top::check(topPartonHistory->setProperty( "config" , topConfig ) , "Failed to setProperty of top::CalcTtbarLightPartonHistory");
   }
   else if(settings->value("TopPartonHistory") == "tb"){
     topPartonHistory = std::shared_ptr<top::CalcTopPartonHistory> ( new top::CalcTbbarPartonHistory( "top::CalcTbbarPartonHistory" ) );
