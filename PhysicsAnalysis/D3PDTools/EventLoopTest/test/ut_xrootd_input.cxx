@@ -21,8 +21,6 @@
 #include <EventLoop/DirectDriver.h>
 #include <EventLoopTest/UnitTest.h>
 
-#include <EventLoop/ProofDriver.h>
-
 //
 // main program
 //
@@ -34,8 +32,7 @@ int main ()
   if (getenv ("ROOTCORE_AUTO_UT") != 0)
     return EXIT_SUCCESS;
 
-//   DirectDriver driver;
-  ProofDriver driver;
+  DirectDriver driver;
   UnitTest ut ("xrootd", "root://eosatlas.cern.ch//eos/atlas/user/k/krumnack/EventLoop-UnitTest/");
   // ut.cleanup = false;
   // ut.location = "$HOME/unit-test.$$";
