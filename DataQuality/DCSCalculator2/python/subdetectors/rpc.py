@@ -23,7 +23,7 @@ class RPC(DCSC_DefectTranslate_Subdetector):
     dead_fraction_bad = 0.1
 
     def __init__(self, *args, **kwargs):
-        kwargs['keep_dcsofl'] = True
+        #kwargs['keep_dcsofl'] = True
         super(RPC, self).__init__(*args, **kwargs)
         self.translators = [RPC.color_to_defect_translator(flag, defect)
                             for flag, defect in ((RPCBA, 'MS_RPC_BA_STANDBY_HV'),
