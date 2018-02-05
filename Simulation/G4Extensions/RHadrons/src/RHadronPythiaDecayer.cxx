@@ -2,36 +2,39 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+// Header for my class
 #include "RHadronPythiaDecayer.h"
-#include "G4Track.hh"
-#include "G4DynamicParticle.hh"
-#include "CLHEP/Vector/LorentzVector.h"
+
+// The actual decayers.  Singleton classes, not toolhandles
 #include "G4ExternalDecay/PythiaForDecays.h"
 #include "G4ExternalDecay/Pythia8ForDecays.h"
 
+// For passing things around
+#include "CLHEP/Vector/LorentzVector.h"
+#include "G4Track.hh"
+#include "G4DynamicParticle.hh"
 #include "G4DecayProducts.hh"
-#include <iostream>
 
 G4DecayProducts* RHadronPythiaDecayer::ImportDecayProducts(const G4Track& aTrack){
   G4cout << "Jenn testing RHadrons here" << G4endl;
   G4DecayProducts * dp = new G4DecayProducts();
   dp->SetParentParticle( *(aTrack.GetDynamicParticle()) );
 
-  // get particle momentum
-  G4ThreeVector momentum = aTrack.GetMomentum();
+  // get properties for later print outs
   G4double etot = aTrack.GetDynamicParticle()->GetTotalEnergy();
-
   G4int pdgEncoding = aTrack.GetDefinition()->GetPDGEncoding();
 
+  // Outgoing particle
   std::vector<G4DynamicParticle*> particles;
 
   // Different approaches depending on whether we care about Pythia8 or Pythia6
   if(m_usePythia8){
+    // Pythia8 decay the particle and import the decay products
     Pythia8ForDecays::Instance()->Py1ent(aTrack, particles);
   }
   else{
-    // let Pythia6Decayer decay the particle
-    // and import the decay products
+    // let Pythia6Decayer decay the particle and import the decay products
+    G4ThreeVector momentum = aTrack.GetMomentum();
     CLHEP::HepLorentzVector p;
     p[0] = momentum.x() / CLHEP::GeV;
     p[1] = momentum.y() / CLHEP::GeV;
