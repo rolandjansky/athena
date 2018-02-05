@@ -29,10 +29,11 @@ namespace pool{
     ///Print the parsing result
     void dump() const;
     void setURI(const std::string& contactstr);
-    const std::string contactstring() const;
-    const std::string prefix() const;
-    const std::string url() const;
+    const std::string& contactstring() const;
+    const std::string& prefix() const;
+    const std::string& url() const;
     void parse();
+    
   private:    
     std::string m_contactstr;
     std::string m_prefix;

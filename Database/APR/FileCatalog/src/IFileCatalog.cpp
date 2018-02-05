@@ -170,7 +170,13 @@ void pool::IFileCatalog::addCatalog( const std::string& connect )
                           { return p.url() == f->connectInfo(); } );
    if( i==cats.end() ) {
       // add a new catalog
-      _mgr->addCatalog(connect);
+      const std::string checkstr = "file:";
+      std::string fullconnectstr = connect;
+      if( connect.compare(0, checkstr.size(), checkstr) == 0 ) {
+         fullconnectstr = "xmlcatalog_" + connect;
+      }
+      ATH_MSG_DEBUG("addCatalog(\"" << fullconnectstr << "\")" );
+      _mgr->addCatalog( fullconnectstr );
    }
 }
 

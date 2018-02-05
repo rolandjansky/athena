@@ -108,7 +108,7 @@ int main(int argc, char** argv)
        pool::IFileCatalog::Files files;
        mycatalog->getLFNs( fid, files );
        for( const auto& file: files ) {
-          std::cout<< file.first <<std::endl;
+          std::cout << file.first << " ,   " << file.second << std::endl;
        }
     }
 

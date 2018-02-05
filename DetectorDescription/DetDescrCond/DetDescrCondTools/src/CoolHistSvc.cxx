@@ -22,8 +22,6 @@
 #include "TError.h"
 #include "TObjString.h"
 #include "FileCatalog/IFileCatalog.h"
-#include "FileCatalog/IFCAction.h"
-#include "FileCatalog/IFCContainer.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "CoolHistSvc.h"
 
@@ -303,18 +301,11 @@ StatusCode CoolHistSvc::getHist_i(const std::string& folder,
 
 TFile* CoolHistSvc::getFile(const std::string& sguid) {
   ATH_MSG_DEBUG("getFile - lookup PFN for GUID "+sguid);
-  // get the POOL file catalogue service
-  pool::IFileCatalog* catalog=
-    const_cast<pool::IFileCatalog*>(m_poolsvc->catalog());
-  pool::FClookup lookup;
-  catalog->setAction(lookup);
-  pool::FileCatalog::FileID guid=sguid;
-  pool::PFNContainer mypfn(catalog,10);
-  lookup.lookupPFN(guid,mypfn);
-  if (mypfn.hasNext()) {
+  std::string pfname, tech;
+  m_poolsvc->catalog()->getFirstPFN( sguid, pfname, tech );
+  if( !pfname.empty() ) {
     // check not about to exceed max number of open files, close if needed
     if (m_filemap.size()>=m_par_maxfiles) closeFiles();
-    const std::string pfname=mypfn.Next().pfname();
     ATH_MSG_INFO("Opening "+pfname+" for read");
     // now try to open file
     TFile* tfile;

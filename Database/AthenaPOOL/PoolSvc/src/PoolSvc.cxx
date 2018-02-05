@@ -22,7 +22,7 @@
 #include "CollectionBase/CollectionDescription.h"
 
 #include "FileCatalog/IFileCatalog.h"
-
+#include "POOLCore/DbPrint.h"
 #include "PersistencySvc/IPersistencySvc.h"
 #include "PersistencySvc/ISession.h"
 #include "PersistencySvc/IDatabase.h"

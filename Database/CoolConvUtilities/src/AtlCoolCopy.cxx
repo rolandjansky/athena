@@ -3050,10 +3050,10 @@ int AtlCoolCopy::resolvePoolRefs() {
        ipool!=m_poolrefs.end();++ipool) {
     pool::FileCatalog::FileID guid=ipool->first;
     pool::IFileCatalog::Files  lfns;
-    catalog->getLFNs( lfns );
-    if (mylfn.hasNext()) {
+    catalog->getLFNs( guid, lfns );
+    if( !lfns.empty() ) {
       // file found in cataloge - print LFN and usage count
-      const std::string lfn=mylfn.Next().lfname();
+      const std::string lfn = lfns[0].first;
       ipool->second.setlfn(lfn);
       std::cout << "LFN: " << lfn << " (" << ipool->second.count() 
 		<< ")" << std::endl;
@@ -3064,10 +3064,9 @@ int AtlCoolCopy::resolvePoolRefs() {
       if (!m_listpfn) ipool->second.setErrorBit(0);
     }
     if (m_listpfn || m_poolopen) {
-      pool::PFNContainer mypfn(catalog,100);
-      lookup.lookupPFN(guid,mypfn);
-      if (mypfn.hasNext()) {
-        const std::string pfn=mypfn.Next().pfname();
+       std::string pfn, tech;
+       catalog->getFirstPFN( guid, pfn, tech );
+       if( !pfn.empty() ) {
 	ipool->second.setpfn(pfn);
         std::cout << "PFN: " << pfn << " (" << ipool->second.count() 
 		<< ")" << std::endl;
@@ -3119,8 +3118,6 @@ int AtlCoolCopy::resolvePoolRefs() {
     // put in the output dataset definition
     catalog=setupCatalog(m_mergecat);
     if (catalog==0) return 110;
-    pool::FClookup lookup;
-    catalog->setAction(lookup);
     const std::string dssname="register.sh";
     std::cout << "Write DQ2 registerFileInDataset commands to " << dssname
 	      << " for registration in dataset " << m_newdataset << std::endl;
@@ -3129,12 +3126,11 @@ int AtlCoolCopy::resolvePoolRefs() {
      itr!=dsfound.end();++itr) {
       const std::string& lfn=itr->first;
       const std::string& guid=itr->second;
-      pool::FileCatalog::FileID pguid=guid;
-      pool::LFNContainer mylfn(catalog,100);
-      lookup.lookupLFN(pguid,mylfn);
-      if (mylfn.hasNext()) {
+      pool::IFileCatalog::Files lfns;
+      catalog->getLFNs( guid, lfns );
+      if( !lfns.empty() ) {
 	// file is already registered - check logical names are consistent
-        const std::string lfn2=mylfn.Next().lfname();
+        const std::string lfn2 = lfns[0].first;
 	if (lfn2!=lfn) std::cout << "WARNING: LFNs for GUID " << guid << 
 			 " differ in input/merge datasets: " << lfn << " vs " 
 				 << lfn2 << std::endl;

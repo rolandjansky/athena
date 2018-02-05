@@ -47,10 +47,11 @@ namespace pool{
     size_t prefixpos=m_contactstr.find_first_of('_');
     size_t startpos=0;
     
-    if(prefixpos == m_contactstr.npos || prefixpos>tmppos){
+    if(prefixpos == m_contactstr.npos || prefixpos>tmppos) {
       m_url=m_contactstr;
       if(tmppos != m_contactstr.npos && m_contactstr.substr(0,5)!="file:"){
-         throw Exception("only file: protocol is allowed for PFC contactstring with no prefix.", "URIParser::parse", "APR");
+         throw Exception("only file: protocol is allowed for PFC contactstring with no prefix.",
+                         "URIParser::parse", "APR");
       }
     }else{
       //have prefix
@@ -63,18 +64,18 @@ namespace pool{
     }//end prefix lookup
   }
   
-  const std::string URIParser::contactstring() const{
+  const std::string& URIParser::contactstring() const{
     return m_contactstr;
   }
   
-  const std::string URIParser::prefix() const{
+  const std::string& URIParser::prefix() const{
     return m_prefix;
   }
   
-  const std::string URIParser::url() const{
+  const std::string& URIParser::url() const{
     return m_url;
   }
-  URIParser::~URIParser(){
-  }
+   
+  URIParser::~URIParser() { }
   
 }//ns pool 

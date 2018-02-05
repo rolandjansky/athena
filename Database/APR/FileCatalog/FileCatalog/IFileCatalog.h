@@ -55,7 +55,7 @@ namespace pool {
      /// Get all FIDs 
      void getFIDs( Strings& fids ) const { return _fc->getFID(fids); }
      
-     /// Dump all LFNames of the catalog and their attributes associate to the FileID
+     /// Get all logical names for a given FID. Return pairs <LFN,FID>
      void getLFNs( const std::string& fid, Files& files ) const { return _fc->getLFN(fid, files); }
 
      /// Dump all PFNames of the catalog and their attributes associate to the FileID

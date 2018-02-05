@@ -124,13 +124,13 @@ void RootSvc::destructObject(const RootType& /*type*/, void* /*pObj*/) const {
 /// Open the file `fname` with open mode `mode`
 StatusCode RootSvc::open(const std::string& fname, const std::string& /*mode*/) {
 // Catalog to get fid...
+  Guid fid = Guid::null();
   if (m_catalog != 0) {
     std::string fidString, ftype;
     m_catalog->lookupFileByPFN(fname, fidString, ftype);
     if( fidString.empty() ) {
        m_catalog->registerPFN(fname, "ROOT_All", fidString);
     }
-    Guid fid;
     fid.fromString(fidString);
   }
   Athena::RootConnection* conn = 0;
@@ -199,13 +199,13 @@ StatusCode RootSvc::disconnect(const std::string& fname) {
 /// @returns NULL if no such file is known to this service
 Athena::RootConnection* RootSvc::connection(const std::string& fname) {
 // Catalog to get fid...
+  Guid fid = Guid::null();
   if (m_catalog != 0) {
      std::string fidString, ftype;
      m_catalog->lookupFileByPFN(fname, fidString, ftype);
      if( fidString.empty() ) {
         m_catalog->registerPFN(fname, "ROOT_All", fidString);
      }
-     Guid fid;
      fid.fromString(fidString);
   }
   Athena::RootConnection* conn = 0;

@@ -131,14 +131,14 @@ namespace pool
          log << DbPrintLvl::Warning << "Gaudi framework failed to initialize" << endmsg;
          return false;
       }
-      SmartIF<ISvcManager> svcMgr(iface);
       SmartIF<IAppMgrUI> appMgr(iface);
       SmartIF<IProperty> propMgr(iface);
-      SmartIF<ISvcLocator> svcLoc(iface);
 
       propMgr->setProperty( "JobOptionsType", "NONE" ) .ignore();
-      // prevents some output from the AppMgr
-      propMgr->setProperty( "OutputLeveL", "5" ) .ignore();
+      // prevents unwanted output from the AppMgr
+      propMgr->setProperty( "OutputLeveL", "4" ) .ignore();
+      // minimal configuration
+      propMgr->setProperty( "EventLoop", "MinimalEventLoopMgr" ) .ignore();
       // this prevents AppMgr "welcome" output
       propMgr->setProperty( "AppName", "" ) .ignore();
 
@@ -150,5 +150,3 @@ namespace pool
    }
 
 } // ns pool
-
-
