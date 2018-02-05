@@ -1375,7 +1375,7 @@ class L2EFChain_mu(L2EFChainDef):
                              [CfgGetter.getAlgorithm("InDetTrkRoiMaker_Muon")],#[InDetTrkRoiMaker_Muon("EFInDetTrkRoiMaker")],
                              'EF_trk_ROIFTK']]
     self.EFsequenceList += [['EF_trk_ROIFTK',
-                            [CfgGetter.getAlgorithm("TrigMuSuperEF_SAonly")],
+                            [CfgGetter.getAlgorithm("TrigMuSuperEF_FSSA")],
                              'EF_SA_FSFTK']]
     self.EFsequenceList += [['EF_SA_FSFTK',
                              [theTrigMuonEFSA_FS_Hypo],
