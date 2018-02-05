@@ -19,7 +19,7 @@
 #include "InDetRawData/PixelRDO_Container.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h" 
-#include "InDetReadoutGeometry/PixelModuleDesign.h" 
+//#include "InDetReadoutGeometry/PixelModuleDesign.h" 
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h" 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
@@ -86,6 +86,7 @@ NoiseMapBuilder::NoiseMapBuilder(const std::string& name, ISvcLocator* pSvcLocat
   declareProperty("Layer1Cut", m_layer1Cut, "Occupancy cut for Layer1 pixels");
   declareProperty("Layer2Cut", m_layer2Cut, "Occupancy cut for Layer2 pixels");
   declareProperty("IBLCut", m_dbmCut, "Occupancy cut for DBM pixels"); 
+  declareProperty("nLBmax", m_hist_lbMax, "Maximum number of LB (for histograms binning)");
   declareProperty("NBCReadout", m_nBCReadout, "Number of bunch crossings read out");
   declareProperty("LBMin", m_evt_lbMin, "First lumi block to consider");
   declareProperty("LBMax", m_evt_lbMax, "Last lumi block to consider");
@@ -97,7 +98,6 @@ NoiseMapBuilder::NoiseMapBuilder(const std::string& name, ISvcLocator* pSvcLocat
   declareProperty("PixelConditionsSummarySvc", m_pixelConditionsSummarySvc, "PixelConditionsSummarySvc");
   declareProperty("PixelByteStreamSummarySvc", m_BSErrorsSvc, "PixelBSErrorsSvc");
 }
-
 
 NoiseMapBuilder::~NoiseMapBuilder(){}
 
@@ -356,15 +356,15 @@ StatusCode NoiseMapBuilder::execute(){
   const EventInfo* eventInfo;
   StatusCode sc = sgSvc()->retrieve(eventInfo);
   if( !sc.isSuccess() ){
-    ATH_MSG_FATAL( "Unable to retrieve event info" );
+    ATH_MSG_FATAL("Unable to retrieve event info");
     return StatusCode::FAILURE;
-  } ATH_MSG_DEBUG( "Event info retrieved" );
+  } ATH_MSG_DEBUG("Event info retrieved");
 
   // check LB is in allowed range
   int LB =  static_cast<int>(eventInfo->event_ID()->lumi_block());
-  if( (LB < m_evt_lbMin) || ( m_evt_lbMax >= m_evt_lbMin && LB > m_evt_lbMax) ){
-    ATH_MSG_VERBOSE( "Event in lumiblock " << eventInfo->event_ID()->lumi_block() <<
-		     " not in selected range [" << m_evt_lbMin << "," << m_evt_lbMax << "] => skipped");    
+  if( (LB < m_evt_lbMin) || (m_evt_lbMax >= m_evt_lbMin && LB > m_evt_lbMax) ){
+    ATH_MSG_VERBOSE("Event in lumiblock " << eventInfo->event_ID()->lumi_block() <<
+		    " not in selected range [" << m_evt_lbMin << "," << m_evt_lbMax << "] => skipped");    
     return StatusCode::SUCCESS;
   }
 
@@ -638,31 +638,19 @@ StatusCode NoiseMapBuilder::finalize() {
       else if(bec ==  4) { cut=m_dbmCut; comp="DBMA"; }
       else if(bec == -4) { cut=m_dbmCut; comp="DBMC"; }
     } 
-    else if( bec == 0 ) { // Barrel
+    else if(bec == 0) { // Barrel
       if(layer == 0)        { cut=m_iblCut;    nhitsNoNoisePlot=nhitsNoNoisePlotBI; comp="IBL";     }
         else if(layer == 1) { cut=m_bLayerCut; nhitsNoNoisePlot=nhitsNoNoisePlotB0; comp="B-layer"; }
         else if(layer == 2) { cut=m_layer1Cut; nhitsNoNoisePlot=nhitsNoNoisePlotB1; comp="Layer1";  }
         else if(layer == 3) { cut=m_layer2Cut; nhitsNoNoisePlot=nhitsNoNoisePlotB2; comp="Layer2";  }
-      } 
+    } 
 
     if( m_BSErrorsSvc->getReadEvents(modHash)==0 && m_hitMaps[modHash]->GetEntries()==0 ) {
-
-      /*      if (!m_isIBL) {
-        unsigned int hashID = ( ((m_pixelID->barrel_ec(ident) + 2) / 2) << 25 ) +
-          ( m_pixelID->layer_disk(ident) << 23) +
-          ( m_pixelID->phi_module(ident) << 17) +
-          ( (m_pixelID->eta_module(ident) + 6) << 13);
-        ATH_MSG_INFO( "Disabled module "
-            << PixelConvert::OnlineID(hashID) << "\t"
-            << PixelConvert::DCSID(PixelConvert::OnlineID(hashID)) );
-      }
-      */
-
-      if (bec== 0) {
-	if(layer == 0)      { disablePlotBI->Fill(modEta,modPhi,-1); }
-	else if(layer == 1) { disablePlotB0->Fill(modEta,modPhi,-1); }
-	else if(layer == 2) { disablePlotB1->Fill(modEta,modPhi,-1); }
-	else if(layer == 3) { disablePlotB2->Fill(modEta,modPhi,-1); }
+      if(bec == 0) {
+	if(layer == 0)      { disablePlotBI->Fill(modEta, modPhi, -1); }
+	else if(layer == 1) { disablePlotB0->Fill(modEta, modPhi, -1); }
+	else if(layer == 2) { disablePlotB1->Fill(modEta, modPhi, -1); }
+	else if(layer == 3) { disablePlotB2->Fill(modEta, modPhi, -1); }
       }
       else if(bec ==  2) { disablePlotEC->Fill(layer+1,     modPhi, -1); }
       else if(bec == -2) { disablePlotEC->Fill(-(layer+1),  modPhi, -1); }
@@ -673,7 +661,7 @@ StatusCode NoiseMapBuilder::finalize() {
       continue;
     }
     else if( m_hitMaps[modHash]->GetEntries() != 0 ) {
-      if (bec== 0) {
+      if(bec == 0) {
 	if(layer == 0)      { nhitsPlotBI->Fill(modEta, modPhi, m_hitMaps[modHash]->GetEntries()); }
 	else if(layer == 1) { nhitsPlotB0->Fill(modEta, modPhi, m_hitMaps[modHash]->GetEntries()); }
 	else if(layer == 2) { nhitsPlotB1->Fill(modEta, modPhi, m_hitMaps[modHash]->GetEntries()); }
@@ -688,13 +676,13 @@ StatusCode NoiseMapBuilder::finalize() {
     }
 
     int thisModuleCut = 0;
-    bool isIBL3D = ( bec == 0 && layer == 0 && (modEta <= -7 || modEta >= 6) ) ? true : false;
+    bool isIBL3D = ( bec==0 && layer==0 && (modEta <= -7 || modEta >= 6) ) ? true : false;
 
-    for(int pixel_eta = 0; pixel_eta <= eta_max; pixel_eta++){
-      for(int pixel_phi = 0; pixel_phi <= phi_max; pixel_phi++){
+    for(int pixel_eta=0; pixel_eta<=eta_max; pixel_eta++){
+      for(int pixel_phi=0; pixel_phi<=phi_max; pixel_phi++){
 
         // kazuki added from here
-        int pixel_eta_on_chip = (bec == 0 && layer == 0) ? pixel_eta % 80 : pixel_eta % 18; // column
+        int pixel_eta_on_chip = (bec==0 && layer==0) ? pixel_eta % 80 : pixel_eta % 18; // column
         int pixel_phi_on_chip = (pixel_phi <= 163) ? pixel_phi : 327 - pixel_phi; // eta
         if (bec == 0 && layer == 0) pixel_phi_on_chip = pixel_phi;
         int pixelType = 0;
@@ -781,8 +769,10 @@ StatusCode NoiseMapBuilder::finalize() {
         else if( type == "Long-Ganged" )      thiscut *= m_longPixelMultiplier * m_gangedPixelMultiplier;
 
         if( type != "Invalid" ){
-          double occupancy = static_cast<double>(m_hitMaps[modHash]->GetBinContent(pixel_eta+1, pixel_phi+1)) /
-            static_cast<double>(m_nEvents);
+	  double occupancy = 0;
+	  if( m_nEvents != 0 ) 
+	    occupancy = static_cast<double>(m_hitMaps[modHash]->GetBinContent(pixel_eta+1, pixel_phi+1)) /
+	      static_cast<double>(m_nEvents);
 	  
           if( occupancy < minOccupancy ) occupancy = minOccupancy;
           globalOccupancy->Fill(log10(occupancy));
@@ -801,7 +791,7 @@ StatusCode NoiseMapBuilder::finalize() {
               else m_overlayedPixelNoiseMap->Fill(pixel_eta, pixel_phi);
             }
           } else {
-            if ( bec == 0 ) nhitsNoNoisePlot->Fill(modEta,modPhi, m_hitMaps[modHash]->GetBinContent(pixel_eta+1, pixel_phi+1));
+            if(bec == 0) nhitsNoNoisePlot->Fill(modEta, modPhi, m_hitMaps[modHash]->GetBinContent(pixel_eta+1, pixel_phi+1));
           }
         } // end if ( type != "Invalid" )
       } // end for loop on pixel_phi
@@ -812,16 +802,16 @@ StatusCode NoiseMapBuilder::finalize() {
       maskedPlot->Fill( static_cast<double>(thisModuleCut) );
       modulesWithDisabledPixels++;
    
-      if(bec== 0){
+      if(bec == 0) {
 	if(layer == 0)      { disablePlotBI->Fill(modEta, modPhi, thisModuleCut); }
 	else if(layer == 1) { disablePlotB0->Fill(modEta, modPhi, thisModuleCut); }
 	else if(layer == 2) { disablePlotB1->Fill(modEta, modPhi, thisModuleCut); }
 	else if(layer == 3) { disablePlotB2->Fill(modEta, modPhi, thisModuleCut); }
       }
-      else if(bec== 2) { disablePlotEC->Fill(layer+1,    modPhi, thisModuleCut); }
-      else if(bec==-2) { disablePlotEC->Fill(-(layer+1), modPhi, thisModuleCut); }
+      else if(bec ==  2) { disablePlotEC->Fill(layer+1,    modPhi, thisModuleCut); }
+      else if(bec == -2) { disablePlotEC->Fill(-(layer+1), modPhi, thisModuleCut); }
     }
-  } // end for loop on modHash
+  } // end loop in detector elements
   
   ATH_MSG_INFO("Modules disabled = " << totalDisabledModules);
   ATH_MSG_INFO("Modules with hits = " << modulesWithHits);
