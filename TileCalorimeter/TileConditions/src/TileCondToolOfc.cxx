@@ -58,6 +58,8 @@ StatusCode TileCondToolOfc::initialize() {
 
   if (!m_deltaCorrelation) {
     CHECK(m_tileToolAutoCr.retrieve());
+  } else {
+    m_tileToolAutoCr.disable();
   }
 
   //==== TileInfo

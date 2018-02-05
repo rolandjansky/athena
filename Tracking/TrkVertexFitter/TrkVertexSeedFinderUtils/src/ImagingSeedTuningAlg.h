@@ -25,10 +25,10 @@
 #include "TrkParticleBase/TrackParticleBaseCollection.h"
 #include "TrkParameters/TrackParameters.h"
 
-#include "xAODTracking/VertexFwd.h"
-#include "xAODTracking/TrackParticleFwd.h"
-#include "xAODTracking/VertexContainerFwd.h"
-#include "xAODTracking/TrackParticleContainerFwd.h"
+#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTracking/VertexContainer.h"
+#include "xAODTruth/TruthEventContainer.h"
+#include "xAODTruth/TruthPileupEventContainer.h"
 
 //Amg
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -157,7 +157,13 @@ class ImagingSeedTuningAlg
   /// Default constructor: 
   ImagingSeedTuningAlg();
 
-  /// Containers
+  /// Data handle keys
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackParticlesKey  { this, "TrackParticles", "InDetTrackParticles", 
+                                                                         "Input track particle collection" };
+  SG::ReadHandleKey<xAOD::TruthEventContainer> m_truthEventsKey        { this, "TruthEvents", "TruthEvents", 
+                                                                         "TruthEvent collection" };
+  SG::ReadHandleKey<xAOD::TruthPileupEventContainer> m_pileupEventsKey { this, "TruthPileupEvents", "TruthPileupEvents", 
+                                                                         "TruthPileupEvent collection" };
 
   /// Histograms and trees
 

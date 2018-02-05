@@ -29,11 +29,9 @@ T2CaloJetGridFromFEBHeader::T2CaloJetGridFromFEBHeader(const std::string& type,
 				     const std::string& name,
 				     const IInterface* parent):
   T2CaloJetBaseTool(type, name, parent),
-  m_data(NULL),
   m_gridElement(NULL),
   m_usedfeb(NULL),
-  m_timerSvc(0),
-  m_log(NULL)
+  m_timerSvc(0)
 {  
   declareProperty("doTiming", m_doTiming= false );
 }
@@ -45,18 +43,9 @@ T2CaloJetGridFromFEBHeader::~T2CaloJetGridFromFEBHeader()
 StatusCode T2CaloJetGridFromFEBHeader::initialize() 
 {
 
-//  MsgStream mLog(msgSvc(), name());
-  m_log = new MsgStream(AlgTool::msgSvc(), name());
+  ATH_MSG_VERBOSE("  In initalize() ");
 
-//  (*m_log) << MSG::INFO << " In initialize() of T2CaloJetGridFromFEBHeader " << endmsg;
-  int outputLevel = msgSvc()->outputLevel( name() );
-  if(outputLevel <= MSG::VERBOSE)
-    (*m_log) << MSG::VERBOSE << "  In initalize() " << endmsg;
-
-  if (toolSvc()->retrieveTool("TrigDataAccess", m_data).isFailure()) {
-    //    (*m_log) << MSG::ERROR << "Could not get m_data" << endmsg;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_data.retrieve() );
 
   // Retrieve timing service
   
@@ -64,9 +53,8 @@ StatusCode T2CaloJetGridFromFEBHeader::initialize()
   
     StatusCode sc = service("TrigTimerSvc", m_timerSvc);
     if (sc.isFailure()) {
-      (*m_log) << MSG::ERROR << "unable to locate timing service TrigTimerSvc."
-               << " Setting doTiming = false!!! " 
-               << endmsg;
+      ATH_MSG_ERROR( "unable to locate timing service TrigTimerSvc."
+                     << " Setting doTiming = false!!! " );
       m_timerSvc = 0;
       m_doTiming=false;
       //return sc;
@@ -91,6 +79,9 @@ StatusCode T2CaloJetGridFromFEBHeader::initialize()
     }
   }
 
+  // from IAlgToolCalo
+  m_geometryTool.disable();
+
   return StatusCode::SUCCESS;
 }
 
@@ -98,12 +89,9 @@ TrigTimer* T2CaloJetGridFromFEBHeader::getTimer(const std::string& timerName){
 
   if (!m_doTiming ) return 0;
 
-  int outputLevel = msgSvc()->outputLevel( name() );
-
   std::map<std::string, TrigTimer*>::const_iterator t = m_timers.find(timerName);
   if (t == m_timers.end()) {
-    if(outputLevel <= MSG::DEBUG)
-      (*m_log) << MSG::DEBUG << " Timer " << timerName << " not found."<< endmsg;
+    ATH_MSG_DEBUG(" Timer " << timerName << " not found.");
     return 0;
   }
 
@@ -128,11 +116,7 @@ StatusCode T2CaloJetGridFromFEBHeader::execute(TrigT2Jet
   // this method should use region selector to get RODs, retrieve FEB
   // Header, find eta for each FEB, and fill grid of Trig3Momentum.
 
-  MsgStream log(msgSvc(), name());
-  int outputLevel = msgSvc()->outputLevel( name() );
-
-  if(outputLevel <= MSG::DEBUG)
-     log << MSG::DEBUG << " executing T2CaloJetGridFromFEBHeader " << endmsg;
+  ATH_MSG_DEBUG(" executing T2CaloJetGridFromFEBHeader ");
 
 
   std::vector<Trig3Momentum>* grid = new std::vector<Trig3Momentum>();
@@ -162,8 +146,7 @@ StatusCode T2CaloJetGridFromFEBHeader::execute(TrigT2Jet
 
   StatusCode sc = addFebEnergies(etamin, etamax, phimin, phimax, grid);
   if(sc.isFailure()){
-    if(outputLevel <= MSG::DEBUG)
-        log << MSG::DEBUG << " Failure of addFebEnergies. Empty grid! " << endmsg;
+    ATH_MSG_DEBUG(" Failure of addFebEnergies. Empty grid! ");
   }
 
 //  gridElement->setE(10000.);
@@ -322,8 +305,8 @@ StatusCode T2CaloJetGridFromFEBHeader::addLArFebEnergy(double etamin, double eta
   }
 
   if ( Athena::Timeout::instance().reached() ) {
-       (*m_log) << MSG::ERROR << "Timeout reached in addLArFebEnergy" << endmsg;
-       return StatusCode::FAILURE;
+    ATH_MSG_ERROR("Timeout reached in addLArFebEnergy");
+    return StatusCode::FAILURE;
   }
 //  if (m_timersvc) m_timer[4]->pause();
 
@@ -386,8 +369,8 @@ StatusCode T2CaloJetGridFromFEBHeader::addTileCells(double etamin, double etamax
   }
 
   if ( Athena::Timeout::instance().reached() ) {
-       (*m_log) << MSG::ERROR << "Timeout reached in addTileCells " << endmsg;
-       return StatusCode::FAILURE;
+    ATH_MSG_ERROR( "Timeout reached in addTileCells " );
+    return StatusCode::FAILURE;
   }
 
   return StatusCode::SUCCESS;

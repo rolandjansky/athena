@@ -11,7 +11,6 @@ TrackSelectionTool::TrackSelectionTool(const std::string& name) :
   m_accept("TrackSelection"),
   m_numProcessed(0),
   m_numPassed(0) {
-  std::cout << "<TrackSelectionTool::TrackSelectionTool> Entering." << std::endl;
 
   declareInterface<IAsgSelectionTool>(this);
 
@@ -47,8 +46,6 @@ TrackSelectionTool::TrackSelectionTool(const std::string& name) :
   declareProperty("maxTRTOutliers", m_maxTRTOutliers = -1);
   declareProperty("maxBLayerSplitHits", m_maxBLayerSplitHits = -1);
   declareProperty("maxPixelOutliers", m_maxPixelOutliers = -1);
-
-  std::cout << "<TrackSelectionTool::TrackSelectionTool> Exiting." << std::endl;
 }
 
 TrackSelectionTool::~TrackSelectionTool() {
@@ -56,7 +53,6 @@ TrackSelectionTool::~TrackSelectionTool() {
 
 StatusCode
 TrackSelectionTool::initialize() {
-  std::cout << "<TrackSelectionTool::initialize> Entering." << std::endl;
 
   if (AlgTool::initialize().isFailure()) {
     return StatusCode::FAILURE;
@@ -171,8 +167,6 @@ TrackSelectionTool::initialize() {
 
   // Initialise counters.
   m_numPassedCuts.resize(m_accept.getNCuts(), 0);
-
-  std::cout << "<TrackSelectionTool::initialize> Exiting." << std::endl;
 
   return StatusCode::SUCCESS;
 }

@@ -8,6 +8,12 @@
 # $Id: post_check.sh,v 1.32 2009-05-06 18:10:12 ssnyder Exp $
 # **/
 
+# consider these name pairs identical in the diff
+read -d '' II <<EOF
+s/[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx/
+s/.[[][?]1034h//
+EOF
+
 PP="adummythatshouldntmatch"
 
 # Timestamps.
@@ -206,6 +212,12 @@ PP="$PP"'|File version:'
 
 # Ignore annoying error from root 6.10.06
 PP="$PP"'|no interpreter information for class TSelectorCint'
+
+# MetaInputLoader addresses
+PP="$PP"'|MetaInputLoader *INFO  address'
+
+# MetaInputLoader SIDs
+PP="$PP"'|is still valid for| and sid '
 
 
 test=$1

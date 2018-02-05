@@ -118,8 +118,6 @@ public:
    ToolHandle< InDet::IInDetTrackSelectionTool > m_trkFilter;
    ToolHandle< Trk::IVertexSeedFinder > m_SeedFinder;
    ToolHandle< Trk::IImpactPoint3dEstimator > m_ImpactPoint3dEstimator;
-   ToolHandle< Trk::IVxCandidateXAODVertex > m_VertexEdmFactory;
-
 
    ServiceHandle<IBeamCondSvc> m_iBeamCondSvc; //!< pointer to the beam condition service
 

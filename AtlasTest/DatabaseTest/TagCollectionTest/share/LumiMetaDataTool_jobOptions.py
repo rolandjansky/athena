@@ -28,7 +28,7 @@ ToolSvc += LumiBlockMetaDataTool( "LumiBlockMetaDataTool" )
 LumiBlockMetaDataTool.calcLumi = True # False by default
 
 # add ToolSvc.LumiBlockMetaDataTool to MetaDataSvc
-from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import MetaDataSvc
+from AthenaServices.AthenaServicesConf import MetaDataSvc
 svcMgr += MetaDataSvc( "MetaDataSvc" )
 svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.LumiBlockMetaDataTool ]
 

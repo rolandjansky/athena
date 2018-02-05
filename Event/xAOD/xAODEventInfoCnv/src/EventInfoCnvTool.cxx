@@ -110,10 +110,12 @@ namespace xAODMaker {
       // Try to access the luminosity tool:
       if( m_lumiToolAvailable ) {
          CHECK( m_lumiTool.retrieve() );
+      } else {
+        m_lumiTool.disable();
       }
 #else
       //do nothing, lumi and beam conditions not available
-      
+
 #endif
 
       // Return gracefully:

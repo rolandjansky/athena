@@ -453,17 +453,24 @@ StatusCode PixelMainMon::initialize() {
       msg(MSG::INFO) << "Retrieved tool " << m_holeSearchTool << endmsg;
     }
   }
+  else {
+    m_holeSearchTool.disable();
+  }
 
   if (m_doOnTrack) {
     ATH_CHECK(m_trackSelTool.retrieve());
   }
+  else {
+    m_trackSelTool.disable();
+  }
+
   if (m_lumiTool.retrieve().isFailure()) {
     msg(MSG::FATAL) << "Failed to retrieve tool " << m_lumiTool << endmsg;
     return StatusCode::FAILURE;
   } else {
     msg(MSG::INFO) << "Retrieved tool " << m_lumiTool << endmsg;
   }
-
+  
   if (!m_doDCS) return StatusCode::SUCCESS;
 
   m_atrcollist.push_back(std::string("/PIXEL/DCS/TEMPERATURE"));

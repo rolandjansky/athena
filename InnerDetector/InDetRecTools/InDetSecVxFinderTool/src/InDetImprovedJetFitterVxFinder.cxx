@@ -11,8 +11,6 @@
     email : nicola.giacinto.piacquadio@cern.ch
     changes: new version in January 2008!
     
- 
-  2008 (c) Atlas Detector Software
 
   Look at the header file for more information.
      
@@ -96,7 +94,7 @@ namespace InDet
     m_CrossDistancesSeedFinder("Trk::CrossDistancesSeedFinder/CrossDistancesSeedFinder"),
     m_mode3dfinder("Trk::Mode3dTo1dFinder/Mode3dTo1dFinder"),
     m_SequentialVertexFitter("Trk::SequentialVertexFitter/SequentialVertexFitter"),
-    m_convUtils("Trk::NeutralParticleParameterCalculator"),
+    //m_convUtils("Trk::NeutralParticleParameterCalculator"),
     m_VertexEdmFactory("Trk::VertexInternalEdmFactory"),
     m_maxNumDeleteIterations(30),
     m_vertexProbCut(0.001),
@@ -256,7 +254,7 @@ namespace InDet
 
     declareProperty("maxTracksForDetailedClustering",m_maxTracksForDetailedClustering);
 
-    declareProperty("ConversionUtils", m_convUtils,"Name of conversion utility");
+    //declareProperty("ConversionUtils", m_convUtils,"Name of conversion utility");
  
     declareProperty("VertexEdmFactory", m_VertexEdmFactory);
 

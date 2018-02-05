@@ -179,6 +179,11 @@ StatusCode Trk::GaussianSumFitter::initialize()
       m_runBremFinder = false; 
     }
   }
+  else {
+    m_BremFind.disable();
+    m_BremFind2.disable();
+  }
+  
   // Request the RIO_OnTrack creator
   // No need to return if RioOnTrack creator tool, only if PrepRawData is used in fit
   if( m_rioOnTrackCreator.retrieve().isFailure() ){

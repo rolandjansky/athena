@@ -46,8 +46,7 @@ class ConfiguredPriVtxAndPartCreation:
                                                    VertexFinderTool            = InDetPriVxFinderTool,
                                                    TracksName                  = InputTrackCollection,
                                                    VxCandidatesOutputName      = VxCandidates,
-                                                   VertexCollectionSortingTool = VertexCollectionSortingTool,
-                                                   InternalEdmFactory          = InDetVxEdmCnv)
+                                                   VertexCollectionSortingTool = VertexCollectionSortingTool)
 
         if InDetFlags.primaryVertexSortingSetup() == 'NoReSorting':
           InDetPriVxFinder.doVertexSorting = False

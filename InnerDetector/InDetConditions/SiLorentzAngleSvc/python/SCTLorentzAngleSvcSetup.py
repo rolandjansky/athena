@@ -60,6 +60,39 @@ class SCTLorentzAngleSvcSetup:
             from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SiliconConditionsSvc
             sctSiliconConditionsSvc=SCT_SiliconConditionsSvc()
             svcMgr+=sctSiliconConditionsSvc
+            
+            from IOVDbSvc.CondDB import conddb
+            from AthenaCommon.AlgSequence import AthSequencer
+            condSeq = AthSequencer("AthCondSeq")
+            if not conddb.folderRequested("/SCT/DCS/HV"):
+                conddb.addFolder("DCS_OFL", "/SCT/DCS/HV", className="CondAttrListCollection")
+            if not hasattr(condSeq, "SCT_DCSConditionsHVCondAlg"):
+                from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsHVCondAlg
+                condSeq += SCT_DCSConditionsHVCondAlg(name = "SCT_DCSConditionsHVCondAlg",
+                                                      ReadKey = '/SCT/DCS/HV')
+            if not conddb.folderRequested("/SCT/DCS/CHANSTAT"):
+                conddb.addFolder("DCS_OFL", "/SCT/DCS/CHANSTAT", className="CondAttrListCollection")
+            if not hasattr(condSeq, "SCT_DCSConditionsStatCondAlg"):
+                from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsStatCondAlg
+                condSeq += SCT_DCSConditionsStatCondAlg(name = "SCT_DCSConditionsStatCondAlg",
+                                                        ReadKeyHV = '/SCT/DCS/HV',
+                                                        ReadKeyState = '/SCT/DCS/CHANSTAT')
+            if not conddb.folderRequested("/SCT/DCS/MODTEMP"):
+                conddb.addFolder("DCS_OFL", "/SCT/DCS/MODTEMP", className="CondAttrListCollection")
+            if not hasattr(condSeq, "SCT_DCSConditionsTempCondAlg"):
+                from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsTempCondAlg
+                condSeq += SCT_DCSConditionsTempCondAlg(name = "SCT_DCSConditionsTempCondAlg",
+                                                        ReadKey = '/SCT/DCS/MODTEMP')
+            if not hasattr(condSeq, "SCT_SiliconHVCondAlg"):
+                from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SiliconHVCondAlg
+                condSeq += SCT_SiliconHVCondAlg(name = "SCT_SiliconHVCondAlg")
+            if not hasattr(condSeq, "SCT_SiliconTempCondAlg"):
+                from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SiliconTempCondAlg
+                condSeq += SCT_SiliconTempCondAlg(name = "SCT_SiliconTempCondAlg")
+            if not hasattr(svcMgr, "InDetSCT_DCSConditionsSvc"):
+                from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsSvc
+                InDetSCT_DCSConditionsSvc = SCT_DCSConditionsSvc(name = "InDetSCT_DCSConditionsSvc")
+                svcMgr += InDetSCT_DCSConditionsSvc
 
         # Pass the silicon conditions services to the Lorentz angle service
         # Also make sure UseMagFieldTool is True as AtlasGeoModel sets this to False

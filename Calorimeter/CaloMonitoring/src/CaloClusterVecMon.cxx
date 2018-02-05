@@ -169,11 +169,14 @@ StatusCode CaloClusterVecMon::initialize() {
   StatusCode sc = StatusCode::SUCCESS;
   sc = retrieveTools();
 
+
   sc = ManagedMonitorToolBase::initialize();
   if(sc.isFailure()){
     ATH_MSG_ERROR("Could not initialize ManagedMonitorToolBase");
     return sc;
   }
+
+  ATH_CHECK( CaloMonToolBase::initialize() );
 
   return sc;
 }

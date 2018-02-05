@@ -523,6 +523,7 @@ StatusCode CaloCellVecMon::retrieveTools(){
     }
   }
   else {
+    m_badChannelMask.disable();
     if(!m_maskNoCondChannels){
       m_doInverseMasking=false;
     }

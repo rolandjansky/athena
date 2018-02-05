@@ -44,7 +44,6 @@ SimpleIDNtupleTool::SimpleIDNtupleTool(const std::string& type, const std::strin
   : AthAlgTool(type,name,parent)
   , m_trackSumTool("Trk::TrackSummaryTool/TrackSummaryTool", this)
   , m_alignModuleTool("")
-  , m_trtDetManager(0)
   , m_idHelper(0)
   , m_file(0)
   , m_tree(0)
@@ -109,8 +108,6 @@ SimpleIDNtupleTool::SimpleIDNtupleTool(const std::string& type, const std::strin
   , m_hit_derivy_bowx(0)
   , m_hit_derivy_bowy(0)
   , m_hit_derivy_bowz(0)
-  , m_totaltrks(0)
-  , m_totalhits(0)
   , m_max_hits(150)
   , m_storeDerivatives(false)
 {

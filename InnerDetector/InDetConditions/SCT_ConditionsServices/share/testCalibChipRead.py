@@ -20,9 +20,7 @@ from AthenaCommon.AppMgr import theApp
 ServiceMgr += AuditorSvc()
 theAuditorSvc = ServiceMgr.AuditorSvc
 theAuditorSvc.Auditors  += [ "ChronoAuditor"]
-#ChronoStatSvc = Service ( "ChronoStatSvc")
 theAuditorSvc.Auditors  += [ "MemStatAuditor" ]
-#MemStatAuditor = theAuditorSvc.auditor( "MemStatAuditor" )
 theApp.AuditAlgorithms=True
 
 
@@ -95,35 +93,15 @@ topSequence = AlgSequence()
 from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
 topSequence +=xAODMaker__EventInfoCnvAlg(OutputLevel=2)
 
-from AthenaCommon.AlgSequence import AthSequencer
-condSeq = AthSequencer("AthCondSeq")
+from SCT_ConditionsServices.SCT_ReadCalibChipDataSvcSetup import sct_ReadCalibChipDataSvcSetup
+sct_ReadCalibChipDataSvcSetup.setNoiseFolderTag("SctDaqCalibrationChipNoise-UPD1-002-00")
+sct_ReadCalibChipDataSvcSetup.setGainFolderTag("SctDaqCalibrationChipGain-UPD1-002-00")
+sct_ReadCalibChipDataSvcSetup.setup()
 
-sctGainFolder = "/SCT/DAQ/Calibration/ChipGain"
-sctGainCondAlg = "SCT_ReadCalibChipGainCondAlg"
-if not conddb.folderRequested(sctGainFolder):
-    conddb.addFolderWithTag("SCT","/SCT/DAQ/Calibration/ChipGain","SctDaqCalibrationChipGain-UPD1-002-00", className="CondAttrListCollection")
-if not hasattr(condSeq, sctGainCondAlg):
-    from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibChipGainCondAlg
-    condSeq += SCT_ReadCalibChipGainCondAlg(name=sctGainCondAlg, ReadKey=sctGainFolder)
-
-sctNoiseFolder = "/SCT/DAQ/Calibration/ChipNoise"
-sctNoiseCondAlg = "SCT_ReadCalibChipNoiseCondAlg"
-if not conddb.folderRequested(sctNoiseFolder):
-    conddb.addFolderWithTag("SCT","/SCT/DAQ/Calibration/ChipNoise","SctDaqCalibrationChipNoise-UPD1-002-00", className="CondAttrListCollection")
-if not hasattr(condSeq, sctNoiseCondAlg):
-    from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibChipNoiseCondAlg
-    condSeq += SCT_ReadCalibChipNoiseCondAlg(name=sctNoiseCondAlg, ReadKey=sctNoiseFolder)
-
-from AthenaCommon.AppMgr import ServiceMgr
+SCT_ReadCalibChipDataSvc=sct_ReadCalibChipDataSvcSetup.getSvc()
 
 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibChipDataTestAlg
 topSequence+= SCT_ReadCalibChipDataTestAlg()
-
-from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibChipDataSvc
-ServiceMgr += SCT_ReadCalibChipDataSvc()
-
-SCT_ReadCalibChipDataSvc=ServiceMgr.SCT_ReadCalibChipDataSvc
-
 
 ##Modules to test:
 ##136523776, strips 0-255 BAD_OPE=good
@@ -141,6 +119,7 @@ import AthenaCommon.AtlasUnixGeneratorJob
 #ServiceMgr+= EventSelector()
 #ServiceMgr.EventSelector.FirstEvent = 1
 #ServiceMgr.EventSelector.EventsPerRun = 5
+from AthenaCommon.AppMgr import ServiceMgr
 ServiceMgr.EventSelector.RunNumber = 215643
 theApp.EvtMax                    = 1
 
@@ -148,25 +127,25 @@ theApp.EvtMax                    = 1
 # Set output lvl (VERBOSE, DEBUG, INFO, WARNING, ERROR, FATAL)
 #--------------------------------------------------------------
 ServiceMgr.MessageSvc.OutputLevel = INFO
-ServiceMgr.SCT_ReadCalibChipDataSvc.OutputLevel = INFO
-topSequence.SCT_ReadCalibChipDataTestAlg.OutputLevel = INFO
+SCT_ReadCalibChipDataSvc.OutputLevel = INFO
+SCT_ReadCalibChipDataTestAlg.OutputLevel = INFO
 
 #--------------------------------------------------------------
 # Set the correct flags
 #--------------------------------------------------------------
 # Test return ConditionsSummary?
 if DoTestmyConditionsSummary:
- SCT_ReadCalibChipDataTestAlg.DoTestmyConditionsSummary = True
+    SCT_ReadCalibChipDataTestAlg.DoTestmyConditionsSummary = True
 else:
- SCT_ReadCalibChipDataTestAlg.DoTestmyConditionsSummary = False
+    SCT_ReadCalibChipDataTestAlg.DoTestmyConditionsSummary = False
 
 # Test return DataSummary?
 if DoTestmyDataSummary:
- SCT_ReadCalibChipDataTestAlg.DoTestmyDataSummary = True
+    SCT_ReadCalibChipDataTestAlg.DoTestmyDataSummary = True
 else:
- SCT_ReadCalibChipDataTestAlg.DoTestmyDataSummary = False
+    SCT_ReadCalibChipDataTestAlg.DoTestmyDataSummary = False
 
 #Print out defects maps
 if PrintOutCalibDataMaps:
- ServiceMgr.SCT_ReadCalibChipDataSvc.PrintCalibDataMaps = True
+    SCT_ReadCalibChipDataSvc.PrintCalibDataMaps = True
 

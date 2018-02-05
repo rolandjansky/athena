@@ -98,6 +98,7 @@ StatusCode JetRecTool::initialize() {
       mode = "find";
       m_find = true;
       needout = true;
+      ATH_CHECK(m_finder.retrieve());
       if ( m_pjgetters.size() == 0 ) {
         ATH_MSG_ERROR("Jet finding requested with no inputs.");
         return StatusCode::FAILURE;
@@ -107,12 +108,17 @@ StatusCode JetRecTool::initialize() {
       m_groom = true;
       needinp = true;
       needout = true;
+      ATH_CHECK(m_groomer.retrieve());
     } else {
       mode = "copy";
       m_copy = true;
       needinp = true;
       needout = true;
     }
+  }
+  else {
+    m_finder.disable();
+    m_groomer.disable();
   }
   m_shallowCopy &= m_copy; // m_shallowCopy is false if not copy mode
   m_shallowCopy &= m_incoll != m_outcoll; // m_shallowCopy is false for update mode

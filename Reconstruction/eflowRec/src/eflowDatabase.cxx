@@ -32,6 +32,11 @@ eflowDatabase::eflowDatabase() :
 
   m_emX0PerUnitLength = 47.44680851/Gaudi::Units::meter; // calo tdr fig.2-ii
   m_hadX0PerUnitLength = 44.44444444/Gaudi::Units::meter; // atlas note tile-cal-no-127 (J.A. Budagov et.al.)
+
+  m_fcal0 = 27.5/(0.45*Gaudi::Units::meter);
+  m_fcal1 = 91.3/(0.45*Gaudi::Units::meter);
+  m_fcal2 = 89.2/(0.45*Gaudi::Units::meter);
+
   
   m_cellEtaWidth[eflowCalo::EMB1] = 1.0 / 8.0;
   m_cellEtaWidth[eflowCalo::EMB2] = 1.0;
@@ -46,6 +51,9 @@ eflowDatabase::eflowDatabase() :
   m_cellEtaWidth[eflowCalo::Tile1] = 4.0;
   m_cellEtaWidth[eflowCalo::Tile2] = 4.0;
   m_cellEtaWidth[eflowCalo::Tile3] = 8.0;
+  m_cellEtaWidth[eflowCalo::FCAL0] = 8.0;
+  m_cellEtaWidth[eflowCalo::FCAL1] = 8.0;
+  m_cellEtaWidth[eflowCalo::FCAL2] = 8.0;
 
   m_cellPhiWidth[eflowCalo::EMB1] = 4.0;
   m_cellPhiWidth[eflowCalo::EMB2] = 1.0;
@@ -60,4 +68,9 @@ eflowDatabase::eflowDatabase() :
   m_cellPhiWidth[eflowCalo::Tile1] = 4.0;
   m_cellPhiWidth[eflowCalo::Tile2] = 4.0;
   m_cellPhiWidth[eflowCalo::Tile3] = 4.0;
+  m_cellPhiWidth[eflowCalo::FCAL0] = 8.0;
+  m_cellPhiWidth[eflowCalo::FCAL1] = 8.0;
+  m_cellPhiWidth[eflowCalo::FCAL2] = 8.0;
+
+
 }

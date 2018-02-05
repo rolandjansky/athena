@@ -54,6 +54,7 @@ StatusCode SCTRawDataProviderTool::initialize()
 
   ATH_CHECK(m_xevtInfoKey.initialize());
   ATH_CHECK(m_evtInfoKey.initialize());
+  ATH_CHECK(m_decoder.retrieve());
 
   return StatusCode::SUCCESS;
 }

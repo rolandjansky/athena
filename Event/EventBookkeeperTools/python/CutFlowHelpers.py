@@ -68,7 +68,7 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", athFile=None, seq=None, addAlgInPlac
 
     # Make sure MetaDataSvc is ready
     if not hasattr(svcMgr,'MetaDataSvc'):
-      from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import MetaDataSvc
+      from AthenaServices.AthenaServicesConf import MetaDataSvc
       svcMgr += MetaDataSvc( "MetaDataSvc" )
 
     # Add BookkeeperTools
@@ -159,7 +159,7 @@ def CreateBookkeeperTool( name="CutBookkeepers" ):
 
   # Make sure MetaDataSvc is ready
   if not hasattr(svcMgr,'MetaDataSvc'):
-    from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import MetaDataSvc
+    from AthenaServices.AthenaServicesConf import MetaDataSvc
     svcMgr += MetaDataSvc( "MetaDataSvc" )
 
   # Add BookkeeperTools

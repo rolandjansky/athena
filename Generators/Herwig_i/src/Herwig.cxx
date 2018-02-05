@@ -129,7 +129,7 @@ extern "C" {
 ////////////////////////////////////////////////////////
 
 
-Atlas_HEPEVT* Herwig::atlas_HEPEVT = new Atlas_HEPEVT();
+Atlas_HEPEVT* Herwig::s_atlas_HEPEVT = new Atlas_HEPEVT();
 
 
 //--------------------------------------------------------------------------
@@ -809,17 +809,17 @@ StatusCode Herwig::fillEvt(HepMC::GenEvent* evt) {
   int idh1=gHwevnt->idhw[ ld1-1 ];
   int idh2=gHwevnt->idhw[ ld2-1 ];
   int nset=0;
-  double m_disf[26];
+  double disf[26];
 
   if ( idx1 > 25 || idx2 > 25 ) {
     ATH_MSG_WARNING( "PDF index out of range!" );
   } else {
 
-    hwsfun_(&x1, &q, &idh1, &nset, &(m_disf[0]), &ld1);
-    hwsfun_(&x2, &q, &idh2, &nset, &(m_disf[13]), &ld2);
+    hwsfun_(&x1, &q, &idh1, &nset, &(disf[0]), &ld1);
+    hwsfun_(&x2, &q, &idh2, &nset, &(disf[13]), &ld2);
 
-    xpdf1 = m_disf[ idx1 ];
-    xpdf2 = m_disf[ idx2 ];
+    xpdf1 = disf[ idx1 ];
+    xpdf2 = disf[ idx2 ];
   }
 
 
@@ -934,15 +934,15 @@ void Herwig::updateStatusCode( HepMC::GenEvent *evt )
 
 void Herwig::store_Atlas_HEPEVT() {
   ATH_MSG_DEBUG("atlas_HEPEVT params: "
-                << "nhep=" << atlas_HEPEVT->nhep() << ", "
-                << "isthep(10)=" << atlas_HEPEVT->isthep(10) << ", "
-                << "idhep(10)=" << atlas_HEPEVT->idhep(10) << ", "
-                << "jmohep(1,10)=" << atlas_HEPEVT->jmohep(1,10) << ", "
-                << "jdahep(2,10)=" << atlas_HEPEVT->jdahep(2,10));
+                << "nhep=" << s_atlas_HEPEVT->nhep() << ", "
+                << "isthep(10)=" << s_atlas_HEPEVT->isthep(10) << ", "
+                << "idhep(10)=" << s_atlas_HEPEVT->idhep(10) << ", "
+                << "jmohep(1,10)=" << s_atlas_HEPEVT->jmohep(1,10) << ", "
+                << "jdahep(2,10)=" << s_atlas_HEPEVT->jdahep(2,10));
    /// @todo Ugly... and a memory leak?
-  atlas_HEPEVT->fill();
+  s_atlas_HEPEVT->fill();
   Atlas_HEPEVT* ahep = new Atlas_HEPEVT();
-  *(ahep) = *(atlas_HEPEVT);
+  *(ahep) = *(s_atlas_HEPEVT);
   string keyid = "Herwig";
   StatusCode sc = evtStore()->record(ahep, keyid);
   if (!sc.isSuccess()) {

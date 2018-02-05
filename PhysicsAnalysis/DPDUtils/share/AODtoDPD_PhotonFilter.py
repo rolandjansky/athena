@@ -103,6 +103,3 @@ StreamDPD.AcceptAlgs(["DPDPhotonFilter"])
 
 #Write everything in the AOD
 StreamDPD.Stream.TakeItemsFromInput=True
-StreamDPD.Stream_FH.TakeItemsFromInput=True
-
-

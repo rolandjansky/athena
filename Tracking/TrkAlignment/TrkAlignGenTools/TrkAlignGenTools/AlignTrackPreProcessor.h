@@ -57,7 +57,7 @@ namespace Trk {
     ToolHandle<IInDetAlignHitQualSelTool> m_hitQualityTool;
     
     /** select silicon hits by quality. keep all the rest **/
-    Track * performSiliconHitSelection(Track *, const ToolHandle<Trk::IGlobalTrackFitter> &);
+    Track * performSiliconHitSelection(const Track *, const ToolHandle<Trk::IGlobalTrackFitter> &);
 
     bool m_refitTracks; //!> flag to refit tracks
     bool m_storeFitMatricesAfterRefit; //!> flag to store derivative and covariance matrices after refit

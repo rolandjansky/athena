@@ -30,9 +30,10 @@ set( LCG_VERSION_NUMBER 91
    CACHE STRING "Version number for the LCG release to use" )
 find_package( LCG ${LCG_VERSION_NUMBER} EXACT REQUIRED )
 
-#find_package( ROOT )
+# External(s) needed at runtime:
 find_package( Xrootd )
 find_package( GSL )
+find_package( PNG )
 
 # Make CMake find the project specific code we have here:
 list( INSERT CMAKE_MODULE_PATH 0 ${CMAKE_SOURCE_DIR}/modules )

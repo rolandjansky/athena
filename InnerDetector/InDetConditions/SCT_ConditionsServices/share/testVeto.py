@@ -2,9 +2,7 @@ import AthenaCommon.AtlasUnixStandardJob
 
 # use auditors
 from AthenaCommon.AppMgr import ServiceMgr
-
 from GaudiSvc.GaudiSvcConf import AuditorSvc
-
 ServiceMgr += AuditorSvc()
 theAuditorSvc = ServiceMgr.AuditorSvc
 theAuditorSvc.Auditors  += [ "ChronoAuditor"]
@@ -75,17 +73,22 @@ SCT_ModuleVeto=ServiceMgr.SCT_ModuleVetoSvc
 
 ### Use COOL database for SCT_ModuleVetoSvc
 useDB = True # False
+
+from SCT_ConditionsServices.SCT_ModuleVetoSvcSetup import sct_ModuleVetoSvcSetup
 if useDB:
-    SCT_ModuleVeto.BadModuleIdentifiers=["database"]
-    from IOVSvc.IOVSvcConf import CondSvc
-    ServiceMgr += CondSvc()
+    sct_ModuleVetoSvcSetup.setFolderTag("SCTManualBadModules-000-00")
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
-    from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ModuleVetoCondAlg
-    condSeq += SCT_ModuleVetoCondAlg( "SCT_ModuleVetoCondAlg" )
-    conddb.addFolderWithTag("SCT_OFL", "/SCT/Manual/BadModules", "SCTManualBadModules-000-00", className="AthenaAttributeList")
+    from IOVSvc.IOVSvcConf import CondInputLoader
+    condSeq += CondInputLoader("CondInputLoader", OutputLevel=2)
+
+sct_ModuleVetoSvcSetup.setUseDB(useDB)
+sct_ModuleVetoSvcSetup.setup()
+SCT_ModuleVetoSvc = sct_ModuleVetoSvcSetup.getSvc()
+if useDB:
+    SCT_ModuleVetoSvc.BadModuleIdentifiers=["database"]
 else:
-    SCT_ModuleVeto.BadModuleIdentifiers=["1", "2"]
+    SCT_ModuleVetoSvc.BadModuleIdentifiers=["1", "2"]
 
 SCT_ModuleVetoSvc.OutputLevel=DEBUG
 
@@ -93,10 +96,9 @@ from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ModuleVetoTest
 job+= SCT_ModuleVetoTestAlg()
 
 
-
 import AthenaCommon.AtlasUnixGeneratorJob
 
 
-ServiceMgr.EventSelector.RunNumber  = 300000 # MC16c 2017 run number
-ServiceMgr.EventSelector.InitialTimeStamp  = 1500000000 # MC16c 2017 time stamp
-theApp.EvtMax                   = 1
+ServiceMgr.EventSelector.RunNumber = 300000 # MC16c 2017 run number
+ServiceMgr.EventSelector.InitialTimeStamp = 1500000000 # MC16c 2017 time stamp
+theApp.EvtMax = 1
