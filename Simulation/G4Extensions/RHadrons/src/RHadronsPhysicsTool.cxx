@@ -51,6 +51,8 @@ RHadronsPhysicsTool::RHadronsPhysicsTool( const std::string& type,
 {
   ATH_MSG_VERBOSE ( "RHadronsPhysicsTool "<<type<<" "<<nam );
   declareInterface< IPhysicsOptionTool >( this ) ;
+
+  declareProperty( "UsePythia8", m_usePythia8=false , "Use Pythia8 for decays" );
 }
 
 //=============================================================================
@@ -87,69 +89,9 @@ void RHadronsPhysicsTool::ConstructProcess()
 
   ATH_MSG_DEBUG("RHadronProcessDefinition::ConstructProcess() called");
   G4Decay* theDecayProcess = new G4Decay();
-  theDecayProcess->SetExtDecayer( new RHadronPythiaDecayer("RHadronPythiaDecayer") );
+  theDecayProcess->SetExtDecayer( new RHadronPythiaDecayer("RHadronPythiaDecayer",m_usePythia8) );
   PARTICLEITERATOR->reset();
   std::cout << "RHadron Jenn testing" << std::endl;
-/*
-  // Pythia instance where RHadrons can decay
-  Pythia8::Pythia pythia("/cvmfs/atlas.cern.ch/repo/sw/software/21.0/sw/lcg/releases/MCGenerators/pythia8/212-a65b9/x86_64-slc6-gcc49-opt/share/Pythia8/xmldoc");
-  //Pythia8::Pythia pythia("/cvmfs/atlas.cern.ch/repo/sw/software/21.0/sw/lcg/releases/MCGenerators/pythia8/226-748f6/x86_64-slc6-gcc62-opt/share/Pythia8/xmldoc");
-  pythia.readString("SLHA:file = test.spc");
-  pythia.readString("ProcessLevel:all = off");
-  pythia.readString("Init:showChangedSettings = off");
-  pythia.readString("RHadrons:allow = on");
-  pythia.readString("RHadrons:allowDecay = on");
-  pythia.readString("RHadrons:probGluinoball = 0.1");
-  pythia.readString("PartonLevel:FSR = off");
-  Pythia8::Event& event      = pythia.event;
-  Pythia8::ParticleData& pdt = pythia.particleData;
-  pythia.init();
-
-
-  std::vector<int> pdgids;
-  pdgids.push_back(1000021);
-  pdgids.push_back(1009213);
-  pdgids.push_back(1009113);
-  pdgids.push_back(1091114);
-  pdgids.push_back(1092114);
-  pdgids.push_back(1092214);
-  pdgids.push_back(1092224);
-  pdgids.push_back(1000993);
-  pdgids.push_back(1009313);
-  pdgids.push_back(1009323);
-  pdgids.push_back(1009333);
-  pdgids.push_back(1093114);
-  pdgids.push_back(1093214);
-  pdgids.push_back(1093224);
-  pdgids.push_back(1093314);
-  pdgids.push_back(1093324);
-  pdgids.push_back(1093334);
-
-  std::ofstream pdgtable;
-  pdgtable.open("PDGTABLE.MeV");
-  std::ofstream particletable;
-  particletable.open("particles.txt");
-  for(unsigned int i=0; i<pdgids.size(); i++){
-    double mass = pdt.m0(pdgids[i]) / 1e3; // Need it to be in MeV
-    double width = pdt.mWidth(pdgids[i]);
-    double chargeVal = pdt.charge(pdgids[i]);
-    std::string name = pdt.name(pdgids[i]);
-    std::string charge = "0";
-    if(chargeVal < 0) charge = "-";
-    if(chargeVal > 0) charge = "+";
-    std::string pdgidStr = std::to_string(pdgids[i]);
-    std::string massStr = std::to_string(mass);
-    std::string widthStr = std::to_string(width);
-
-    pdgtable << "M " << pdgidStr << "\t" << mass << "\t +0.0E+00 -0.0E+00 " << name << "\t" << charge << "\n";
-    pdgtable << "W " << pdgidStr << "\t" << width << "\t +0.0E+00 -0.0E+00 " << name << "\t" << charge << "\n";
-    particletable << "W " << pdgidStr << "\t" << mass << "\t # " << name << "\n";
-  }
-  pdgtable.close();
-  particletable.close();
-
-	*/
-
 
   //First deal with the standard particles that G4 doesn't know about...
   //G4Etac::Definition();
