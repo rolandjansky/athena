@@ -949,37 +949,39 @@ StatusCode NoiseMapBuilder::execute(){
     return StatusCode::SUCCESS;
   }
 
-
+  // retrieve PixelRDO container
   const DataHandle< PixelRDO_Container > pixelRDOs;
-
   sc = sgSvc()->retrieve(pixelRDOs, m_pixelRDOKey);
   if( !sc.isSuccess() ){
     ATH_MSG_FATAL( "Unable to retrieve pixel RDO container at " << m_pixelRDOKey );
     return StatusCode::FAILURE;
-  }
-  ATH_MSG_DEBUG( "Pixel RDO container retrieved" );
+  } ATH_MSG_DEBUG( "Pixel RDO container retrieved" );
 
-
-  for(PixelRDO_Container::const_iterator coll = pixelRDOs->begin(); coll != pixelRDOs->end(); coll++){
+  // loop in RDO container
+  for(PixelRDO_Container::const_iterator coll=pixelRDOs->begin(); 
+      coll!=pixelRDOs->end(); coll++){
 
     const InDetRawDataCollection<PixelRDORawData>* PixelRDOCollection(*coll);
-
     if(PixelRDOCollection != 0){
       Identifier moduleID = PixelRDOCollection->identify();
-      IdentifierHash moduleHash = m_pixelID->wafer_hash(moduleID);
-      //std::cout << "DEBUG: " << "moduleID, moduleHash = " << moduleID << ", " << moduleHash << std::endl;
-      if  ( !(m_pixelConditionsSummarySvc->isGood(moduleHash)) ) {
-        //takubo std::cout << "[DEBUG] !(m_pixelConditionsSummarySvc->isGood(moduleHash)) : moduleID = " << moduleID << std::endl;
-        continue;// exclude bad modules
+      IdentifierHash modHash = m_pixelID->wafer_hash(moduleID);
+      ATH_MSG_VERBOSE("moduleID, modHash = " << moduleID << " , " << modHash);
+      
+      // exclude module if reported as not good by PixelConditionsSummarySvc
+      if( !(m_pixelConditionsSummarySvc->isGood(modHash)) ) {
+	ATH_MSG_VERBOSE("Module excluded as reported not good by PixelConditionsSummarySvc");
+        continue;
       }
-      int errors = m_BSErrorsSvc->getModuleErrors(moduleHash);
+
+      // exclude module if containg FE synch errors
+      int errors = m_BSErrorsSvc->getModuleErrors(modHash);
       if ( ( errors & 0x0001C000 ) ) {
-        //takubo std::cout << "[DEBUG] errors & 0x0001C000 : moduleID = " << moduleID << std::endl;
-        continue;                            // exclude FE synch errors
+	ATH_MSG_VERBOSE("Module excluded as containing FE synch errors");
+	continue;
       }
+      
       for(DataVector<PixelRDORawData>::const_iterator rdo = PixelRDOCollection->begin();
           rdo!=PixelRDOCollection->end(); ++rdo){
-
         Identifier rdoID = (*rdo)->identify();
         unsigned int pixel_eta = m_pixelID->eta_index(rdoID);
         unsigned int pixel_phi = m_pixelID->phi_index(rdoID);
@@ -992,26 +994,24 @@ StatusCode NoiseMapBuilder::execute(){
 
         //if( std::find(m_moduleHashList.begin(), m_moduleHashList.end(), moduleHash ) == m_moduleHashList.end() ) continue;
         //if ( std::binary_search(m_moduleHashList.begin(), m_moduleHashList.end(), moduleHash) == false ) continue;
-        m_hitMaps[moduleHash]->Fill(pixel_eta, pixel_phi);
-        m_LBdependence[moduleHash]->Fill(LB);
-        // debug
-        //takubo if(moduleHash == 200) std::cout << "[DEBUG] BCID = " << BCID << std::endl;
-        m_BCIDdependence[moduleHash]->Fill(BCID);
-        m_TOTdistributions[moduleHash]->Fill(TOT);
+        m_hitMaps[modHash]->Fill(pixel_eta, pixel_phi);
+        m_LBdependence[modHash]->Fill(LB);
+        m_BCIDdependence[modHash]->Fill(BCID);
+        m_TOTdistributions[modHash]->Fill(TOT);
       }
     }
   }
 
 
+  // [sgs] why is this done in every event ???
   for(unsigned int moduleHash = 0; moduleHash < m_pixelID->wafer_hash_max(); moduleHash++) {
     if( !m_pixelConditionsSummarySvc->isActive( moduleHash ) ){
       m_disabledModules->Fill( moduleHash );
     }
   }
-
+  
   m_nEvents++;
-  m_nEventsHist->Fill(.5);
-
+  m_nEventsHist->Fill(0.5);
   m_nEventsLBHist->Fill(LB);
 
   return StatusCode::SUCCESS;
