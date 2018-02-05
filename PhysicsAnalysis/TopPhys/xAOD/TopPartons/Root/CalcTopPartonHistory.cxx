@@ -190,12 +190,14 @@ namespace top{
 
   bool CalcTopPartonHistory::topWq( const xAOD::TruthParticleContainer* truthParticles, 
               int start, TLorentzVector& t_beforeFSR_p4, TLorentzVector& t_afterFSR_p4, TLorentzVector& W_p4, 
-            TLorentzVector& b_p4, int& b_pdgId, TLorentzVector& Wdecay1_p4, 
+            TLorentzVector& q_p4, int& q_pdgId, TLorentzVector& Wdecay1_p4, 
             int& Wdecay1_pdgId, TLorentzVector& Wdecay2_p4, int& Wdecay2_pdgId){
+
+    
     
     bool hasT       = false;
     bool hasW       = false;
-    bool hasB       = false;
+    bool hasQ       = false;
     bool hasWdecayProd1     = false;
     bool hasWdecayProd2     = false;
     
@@ -239,13 +241,13 @@ namespace top{
       }//for
 
     } else if (abs(topChildren->pdgId()) == 5||abs(topChildren->pdgId()) == 3||abs(topChildren->pdgId()) == 1) {         
-      b_p4 = topChildren->p4();
-      b_pdgId = topChildren->pdgId();
-      hasB = true;
+      q_p4 = topChildren->p4();
+      q_pdgId = topChildren->pdgId();
+      hasQ = true;
     } //else if   
   
   } //for (size_t k=0; k < particle->nChildren(); k++)
-  if (hasT && hasW && hasB && hasWdecayProd1 && hasWdecayProd2) return true;
+  if (hasT && hasW && hasQ && hasWdecayProd1 && hasWdecayProd2) return true;
     } //for (const xAOD::TruthParticle* particle : *truthParticles)
     
     return false;   
