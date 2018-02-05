@@ -16,7 +16,6 @@
 #include "G4DecayProducts.hh"
 
 G4DecayProducts* RHadronPythiaDecayer::ImportDecayProducts(const G4Track& aTrack){
-  G4cout << "Jenn testing RHadrons here" << G4endl;
   G4DecayProducts * dp = new G4DecayProducts();
   dp->SetParentParticle( *(aTrack.GetDynamicParticle()) );
 
