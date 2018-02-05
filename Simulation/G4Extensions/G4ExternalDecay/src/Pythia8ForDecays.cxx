@@ -151,8 +151,8 @@ void Pythia8ForDecays::Py1ent(int pdgid, double px, double py, double pz, double
 {
 
   // Pythia instance where RHadrons can decay
-  Pythia8::Pythia pythia("/cvmfs/atlas.cern.ch/repo/sw/software/21.0/sw/lcg/releases/MCGenerators/pythia8/212-a65b9/x86_64-slc6-gcc49-opt/share/Pythia8/xmldoc");
-  //Pythia8::Pythia pythia("/cvmfs/atlas.cern.ch/repo/sw/software/21.0/sw/lcg/releases/MCGenerators/pythia8/226-748f6/x86_64-slc6-gcc62-opt/share/Pythia8/xmldoc");
+  std::string docstring = Pythia8_i::xmlpath();
+  Pythia8::Pythia pythia(docstring);
   pythia.readString("SLHA:file = test.spc");
   pythia.readString("ProcessLevel:all = off");
   pythia.readString("Init:showChangedSettings = off");
@@ -165,8 +165,7 @@ void Pythia8ForDecays::Py1ent(int pdgid, double px, double py, double pz, double
   pythia.init();
 
   // Pythia instance where RHadrons cannot decay
-  Pythia8::Pythia pythiaDecay("/cvmfs/atlas.cern.ch/repo/sw/software/21.0/sw/lcg/releases/MCGenerators/pythia8/212-a65b9/x86_64-slc6-gcc49-opt/share/Pythia8/xmldoc");
-  //Pythia8::Pythia pythiaDecay("/cvmfs/atlas.cern.ch/repo/sw/software/21.0/sw/lcg/releases/MCGenerators/pythia8/226-748f6/x86_64-slc6-gcc62-opt/share/Pythia8/xmldoc");
+  Pythia8::Pythia pythiaDecay(docstring);
   pythiaDecay.readString("SLHA:file = test.spc");
   pythiaDecay.readString("ProcessLevel:all = off");
   pythiaDecay.readString("Init:showChangedSettings = off");

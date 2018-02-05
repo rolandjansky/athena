@@ -70,9 +70,12 @@ public:
   virtual StatusCode genFinalize();
 
   double pythiaVersion()const;
-  
+
   static std::string    pythia_stream;
-    
+
+  // Function for getting xmldoc path
+  static std::string xmlpath();
+
 protected:
   
   // make these protected so that Pythia8B can access them
@@ -80,8 +83,6 @@ protected:
   HepMC::Pythia8ToHepMC m_pythiaToHepMC;
 
 private:
-  
-  static std::string xmlpath();
   
   // Add the pythia.process, which is the LHE record for external ME events, to the
   // HepMC record
