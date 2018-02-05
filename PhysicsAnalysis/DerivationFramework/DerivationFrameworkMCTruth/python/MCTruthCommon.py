@@ -12,9 +12,10 @@ dfInputIsEVNT = False # Flag to distinguish EVNT from AOD input
 if objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
     DerivationFrameworkJob.insert(0,xAODMaker__xAODTruthCnvAlg("GEN_EVNT2xAOD",AODContainerName="GEN_EVENT"))
     dfInputIsEVNT = True
-# Input file is HITS
+# Input file is HITS and translation hasn't been scheduled - careful with the name difference!
 elif objKeyStore.isInInput( "McEventCollection", "TruthEvent"):
-    DerivationFrameworkJob.insert(0,xAODMaker__xAODTruthCnvAlg("GEN_EVNT2xAOD",AODContainerName="TruthEvent"))
+    if not hasattr(DerivationFrameworkJob,'GEN_AOD2xAOD'):
+        DerivationFrameworkJob.insert(0,xAODMaker__xAODTruthCnvAlg("GEN_EVNT2xAOD",AODContainerName="TruthEvent"))
     dfInputIsEVNT = True
 # If it isn't available, make a truth meta data object (will hold MC Event Weights)
 if not objKeyStore.isInInput( "xAOD::TruthMetaDataContainer", "TruthMetaData" ) and not dfInputIsEVNT:
