@@ -45,8 +45,8 @@ HIGG2D1ThinningHelper.TriggerChains = "^(?!.*_[0-9]*(j|xe|tau|ht|xs|te))HLT_(([2
 # https://twiki.cern.ch/twiki/bin/view/AtlasProtected/DaodRecommendations#Trigger
 HIGG2D1ThinningHelper.AppendToStream(HIGG2D1Stream)
 
-# MET/Jet tracks
-thinning_expression = "(InDetTrackParticles.pt > 0.5*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 5) && (abs(DFCommonInDetTrackZ0AtPV) < 1.5)"
+# ID tracks (https://twiki.cern.ch/twiki/bin/view/AtlasProtected/DaodRecommendations#Tracking)
+thinning_expression = "(InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV) < 1.5*mm && InDetTrackParticles.pt > 10*GeV)"
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 HIGG2D1TPThinningTool = DerivationFramework__TrackParticleThinning(name                   = "HIGG2D1TPThinningTool",
                                                                    ThinningService        = HIGG2D1ThinningHelper.ThinningSvc(),
