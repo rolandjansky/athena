@@ -76,7 +76,7 @@ def getAssociator(config,suffix,doPFlow=False,
     if config.objType == 'Soft':
         tool = CfgMgr.met__METSoftAssociator('MET_SoftAssociator_'+suffix)
         tool.DecorateSoftConst = True
-        if doOriginCorrClus:
+        if doModClus:
             tool.LCModClusterKey = defaultInputKey['LCOCClusColl']
             tool.EMModClusterKey = defaultInputKey['EMOCClusColl']
     if config.objType == 'Truth':
@@ -86,12 +86,12 @@ def getAssociator(config,suffix,doPFlow=False,
         tool.PFlow = True
         tool.PFlowColl = modConstKey if modConstKey!="" else defaultInputKey["PFlowObj"]
     else:
-        tool.UseModifiedClus = doOriginCorrClus
+        tool.UseModifiedClus = doModClus
     # set input/output key names
     if config.inputKey == '':
         tool.InputCollection = defaultInputKey[config.objType]
         config.inputKey = tool.InputCollection
-        if doOriginCorrClus:
+        if doModClus:
             tool.ClusColl = defaultInputKey['LCOCClusColl']
             if 'EMTopo' in suffix: tool.ClusColl = defaultInputKey['EMOCClusColl']
         tool.TrkColl = defaultInputKey['TrkColl']
