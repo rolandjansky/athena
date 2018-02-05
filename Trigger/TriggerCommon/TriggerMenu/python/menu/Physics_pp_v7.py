@@ -354,6 +354,8 @@ def setupMenu():
         #####
 
         # Standard topocluster large-R jet triggers
+        ['j110_a10_lcw_subjes_L1J30',       'L1_J30', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j175_a10_lcw_subjes_L1J50',       'L1_J50', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
         ['j260_a10_lcw_subjes_L1J75',       'L1_J75', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
         ['j420_a10_lcw_subjes_L1J100',      'L1_J100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
         ['j440_a10_lcw_subjes_L1J100',      'L1_J100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
@@ -538,13 +540,13 @@ def setupMenu():
 
         #Low-mu run triggers
         ['j360_a10_lcw_subjes_L1J100',     'L1_J100',[], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
-        ['j110_a10_lcw_subjes_L1J30',      'L1_J30', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
 
         #####
         ######################### Multi-jet small-R trigger chains
         #####
 
         # 3-jet single threshold triggers
+        ['3j160',                       'L1_J75', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
         ['3j200',                       'L1_J100', [], [PhysicsStream], ['Primary:17000','RATE:MultiJet',  'BW:Jet'], -1],
         ['3j225',                       'L1_J100', [], [PhysicsStream], ['Primary:20000','RATE:MultiJet',  'BW:Jet'], -1],
         ['3j250',                       'L1_J100', [], [PhysicsStream], ['Primary:20000','RATE:MultiJet',  'BW:Jet'], -1],
@@ -552,6 +554,7 @@ def setupMenu():
         # 4-jet single threshold triggers
         ['4j25',                        'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
         ['4j45',                        'L1_3J15', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
+        ['4j90',                        'L1_3J50', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
         ['4j100',                       'L1_3J50', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
         ['4j110',                       'L1_3J50', [], [PhysicsStream], ['RATE:MultiJet',  'BW:Jet'], -1],
         ['4j120',                       'L1_3J50', [], [PhysicsStream], ['Primary:20000','RATE:MultiJet',  'BW:Jet'], -1],
