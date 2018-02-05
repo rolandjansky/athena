@@ -41,7 +41,7 @@ G4DecayProducts* RHadronPythiaDecayer::ImportDecayProducts(const G4Track& aTrack
     // let Pythia6Decayer decay the particle
     // and import the decay products
     PythiaForDecays::Instance()->Py1ent(0, pdgEncoding, p.e(), p.theta(), p.phi());
-    PythiaForDecays::Instance()->DecayRHadrons(pdgEncoding);
+    PythiaForDecays::Instance()->DecayRHadron(pdgEncoding);
     PythiaForDecays::Instance()->ImportParticles(particles);
   }
 
