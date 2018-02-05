@@ -94,8 +94,8 @@ void PythiaForDecays::Py1ent(int ip, int kf, double pe, double theta, double phi
   //int pyl=3; pylist_(&pyl);
 }
 
-void PythiaForDecays::DecayRHadrons(int pdgid){
-  //std::cout<<"ACH start DecayRHadrons for pdgid "<<pdgid<<std::endl;
+void PythiaForDecays::DecayRHadron(int pdgid){
+  //std::cout<<"ACH start DecayRHadron for pdgid "<<pdgid<<std::endl;
   int pyl=3;//level to list to output text
 
   //only decay daughter particles from the decay that are "near" the hadron
