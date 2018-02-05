@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CalcTopPartonHistory.cxx 800464 2017-03-13 18:06:24Z tpelzer $
@@ -238,7 +238,7 @@ namespace top{
         }//if           
       }//for
 
-    } else if (fabs(topChildren->pdgId()) == 5||fabs(topChildren->pdgId()) == 3||fabs(topChildren->pdgId()) == 1) {         
+    } else if (abs(topChildren->pdgId()) == 5||abs(topChildren->pdgId()) == 3||abs(topChildren->pdgId()) == 1) {         
       b_p4 = topChildren->p4();
       b_pdgId = topChildren->pdgId();
       hasB = true;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: PartonHistory.cxx 800464 2017-03-13 18:06:24Z tpelzer $
@@ -167,17 +167,17 @@ namespace xAOD{
    this->auxdecor< float >( "MC_W_from_tbar_eta" ) = -1000 ; 
    this->auxdecor< float >( "MC_W_from_tbar_phi" ) = -1000 ; 
 
-   this->auxdecor< float >( "MC_b_from_t_m" ) = -1 ; 
-   this->auxdecor< float >( "MC_b_from_t_pt" ) = -1 ; 
-   this->auxdecor< float >( "MC_b_from_t_eta" ) = -1000 ; 
-   this->auxdecor< float >( "MC_b_from_t_phi" ) = -1000 ; 
-   this->auxdecor< int >( "MC_b_from_t_pdgId" ) = 0 ; 
+   this->auxdecor< float >( "MC_q_from_t_m" ) = -1 ; 
+   this->auxdecor< float >( "MC_q_from_t_pt" ) = -1 ; 
+   this->auxdecor< float >( "MC_q_from_t_eta" ) = -1000 ; 
+   this->auxdecor< float >( "MC_q_from_t_phi" ) = -1000 ; 
+   this->auxdecor< int >( "MC_q_from_t_pdgId" ) = 0 ; 
 
-   this->auxdecor< float >( "MC_b_from_tbar_m" ) = -1 ;
-   this->auxdecor< float >( "MC_b_from_tbar_pt" ) = -1 ; 
-   this->auxdecor< float >( "MC_b_from_tbar_eta" ) = -1000 ; 
-   this->auxdecor< float >( "MC_b_from_tbar_phi" ) = -1000 ; 
-   this->auxdecor< int >( "MC_b_from_tbar_pdgId" ) = 0 ; 
+   this->auxdecor< float >( "MC_q_from_tbar_m" ) = -1 ;
+   this->auxdecor< float >( "MC_q_from_tbar_pt" ) = -1 ; 
+   this->auxdecor< float >( "MC_q_from_tbar_eta" ) = -1000 ; 
+   this->auxdecor< float >( "MC_q_from_tbar_phi" ) = -1000 ; 
+   this->auxdecor< int >( "MC_q_from_tbar_pdgId" ) = 0 ; 
 
    this->auxdecor< float >( "MC_Wdecay1_from_t_m" ) = -1 ;
    this->auxdecor< float >( "MC_Wdecay1_from_t_pt" ) = -1 ;
