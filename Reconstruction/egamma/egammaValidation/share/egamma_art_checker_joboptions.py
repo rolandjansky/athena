@@ -1,3 +1,7 @@
+#
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+#
+
 from AthenaCommon.AppMgr                    import theApp
 from AthenaCommon.AppMgr                    import ServiceMgr as svcMgr
 from AthenaCommon.AlgSequence               import AlgSequence
