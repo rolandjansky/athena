@@ -16,8 +16,8 @@
 #include "GeomACTS/GeoModelDetectorElement.hpp"
 #include "GeomACTS/IdentityHelper.hpp"
 
-#include "ACTS/Surfaces/CylinderSurface.hpp"
-#include "ACTS/Surfaces/CylinderBounds.hpp"
+#include "ACTS/Surfaces/StrawSurface.hpp"
+#include "ACTS/Surfaces/LineBounds.hpp"
 
 
 
@@ -91,14 +91,15 @@ Acts::GeoModelDetectorElement::GeoModelDetectorElement(
     innerTubeRadius = brlElem->getDescriptor()->innerTubeRadius();
   }
 
-  auto cylBounds = 
-    std::make_shared<const Acts::CylinderBounds>(innerTubeRadius, length);
 
-  m_bounds = cylBounds;
 
-  auto cylinder = std::make_shared<const Acts::CylinderSurface>(cylBounds, *this, detElem->identify());
 
-  m_surface = cylinder;
+  
+  auto lineBounds = std::make_shared<const Acts::LineBounds>(innerTubeRadius, length);
+  m_bounds = lineBounds;
+
+  auto straw = std::make_shared<const Acts::StrawSurface>(lineBounds, *this, detElem->identify());
+  m_surface = straw;
 }
 
 Acts::IdentityHelper 

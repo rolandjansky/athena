@@ -15,6 +15,7 @@
 
 #include "ACTS/Tools/ILayerBuilder.hpp"
 #include "ACTS/Surfaces/CylinderSurface.hpp"
+#include "ACTS/Surfaces/StrawSurface.hpp"
 #include "ACTS/Surfaces/DiscSurface.hpp"
 
 const Acts::LayerVector
@@ -103,18 +104,19 @@ Acts::GeoModelStrawLayerBuilder::centralLayers()
 
             m_cfg.elementStore->push_back(elem);
 
-            auto cylinder = dynamic_cast<const Acts::CylinderSurface*>(&elem->surface());
-            double radius = cylinder->bounds().r();
-            double length = cylinder->bounds().halflengthZ();
+            auto straw = dynamic_cast<const Acts::StrawSurface*>(&elem->surface());
+            auto strawBounds = dynamic_cast<const Acts::LineBounds*>(&straw->bounds());
+            double radius = strawBounds->r();
+            double length = strawBounds->halflengthZ();
 
             // calculate min/max R and Z
-            Vector3D ctr = cylinder->center();
+            Vector3D ctr = straw->center();
             pl.maxR = std::max(pl.maxR, ctr.perp() + radius);
             pl.minR = std::min(pl.minR, ctr.perp() - radius);
             pl.maxZ = std::max(pl.maxZ, ctr.z() + length);
             pl.minZ = std::min(pl.minZ, ctr.z() - length);
 
-            layerSurfaces.push_back(cylinder);
+            layerSurfaces.push_back(straw);
 
             //PolyhedronRepresentation ph = cylinder->polyhedronRepresentation(6);
             //objout << "usemtl straw" << std::endl;
@@ -214,18 +216,19 @@ Acts::GeoModelStrawLayerBuilder::endcapLayers(int side)
 
           m_cfg.elementStore->push_back(elem);
 
-          auto cylinder = dynamic_cast<const Acts::CylinderSurface*>(&elem->surface());
-          double radius = cylinder->bounds().r();
-          double length = cylinder->bounds().halflengthZ();
+          auto straw = dynamic_cast<const Acts::StrawSurface*>(&elem->surface());
+          auto strawBounds = dynamic_cast<const Acts::LineBounds*>(&straw->bounds());
+          double radius = strawBounds->r();
+          double length = strawBounds->halflengthZ();
 
-          Vector3D ctr = cylinder->center();
+          Vector3D ctr = straw->center();
           pl.maxZ = std::max(pl.maxZ, ctr.z() + radius);
           pl.minZ = std::min(pl.minZ, ctr.z() - radius);
           pl.maxR = std::max(pl.maxR, ctr.perp() + length);
           pl.minR = std::min(pl.minR, ctr.perp() - length);
           pl.envZ = {radius/2., radius/2.};
 
-          wheelSurfaces.push_back(cylinder);
+          wheelSurfaces.push_back(straw);
 
           //PolyhedronRepresentation ph = cylinder->polyhedronRepresentation(6);
           //objout << "usemtl straw" << std::endl;

@@ -43,6 +43,17 @@
 
 #include "ACTS/Utilities/Units.hpp"
 
+// TEMPORARY
+#include "ACTS/MagneticField/ConstantBField.hpp"
+#include "ACTS/Extrapolation/RungeKuttaEngine.hpp"
+#include "ACTS/Extrapolation/MaterialEffectsEngine.hpp"
+#include "ACTS/Extrapolation/StaticNavigationEngine.hpp"
+#include "ACTS/Extrapolation/StaticEngine.hpp"
+#include "ACTS/Extrapolation/ExtrapolationEngine.hpp"
+
+#include "GeomACTS/Extrapolation/RootExCellWriter.hpp"
+
+
 #include "GeomACTS/GeoModelLayerBuilder.hpp"
 #include "GeomACTS/GeoModelStrawLayerBuilder.hpp"
 #include "GeomACTS/obj/ObjSurfaceWriter.hpp"
@@ -169,7 +180,7 @@ StatusCode PrintSiElements::buildTrackingGeometry() {
       = std::make_shared<const Acts::TrackingGeometryBuilder>(tgbConfig);
   
 
-  std::unique_ptr<const Acts::TrackingGeometry> trackingGeometry = trackingGeometryBuilder->trackingGeometry();
+  std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry = trackingGeometryBuilder->trackingGeometry();
 
 
   //writeTrackingGeometry(*trackingGeometry);
@@ -181,51 +192,66 @@ StatusCode PrintSiElements::buildTrackingGeometry() {
         0 * Acts::units::_T,
         0 * Acts::units::_T,
         0 * Acts::units::_T);
+  
+  Acts::Logging::Level extrapLogLevel = Acts::Logging::INFO;
 
   // (a) RungeKuttaPropagtator
   using RKEngine = Acts::RungeKuttaEngine<Acts::ConstantBField>;
   typename RKEngine::Config propConfig;
   propConfig.fieldService = constantField;
   auto propEngine         = std::make_shared<RKEngine>(propConfig);
-  propEngine->setLogger(Acts::getDefaultLogger("RungeKuttaEngine", eLogLevel));
+  propEngine->setLogger(Acts::getDefaultLogger("RungeKuttaEngine", extrapLogLevel));
   // (b) MaterialEffectsEngine
   Acts::MaterialEffectsEngine::Config matConfig;
   auto                                materialEngine
     = std::make_shared<Acts::MaterialEffectsEngine>(matConfig);
   materialEngine->setLogger(
-      Acts::getDefaultLogger("MaterialEffectsEngine", eLogLevel));
+      Acts::getDefaultLogger("MaterialEffectsEngine", extrapLogLevel));
   // (c) StaticNavigationEngine
   Acts::StaticNavigationEngine::Config navConfig;
   navConfig.propagationEngine     = propEngine;
   navConfig.materialEffectsEngine = materialEngine;
-  navConfig.trackingGeometry      = geo;
+  navConfig.trackingGeometry      = trackingGeometry;
   auto navEngine = std::make_shared<Acts::StaticNavigationEngine>(navConfig);
-  navEngine->setLogger(Acts::getDefaultLogger("NavigationEngine", eLogLevel));
+  navEngine->setLogger(Acts::getDefaultLogger("NavigationEngine", extrapLogLevel));
   // (d) the StaticEngine
   Acts::StaticEngine::Config statConfig;
   statConfig.propagationEngine     = propEngine;
   statConfig.navigationEngine      = navEngine;
   statConfig.materialEffectsEngine = materialEngine;
   auto statEngine = std::make_shared<Acts::StaticEngine>(statConfig);
-  statEngine->setLogger(Acts::getDefaultLogger("StaticEngine", eLogLevel));
+  statEngine->setLogger(Acts::getDefaultLogger("StaticEngine", extrapLogLevel));
   // (e) the material engine
   Acts::ExtrapolationEngine::Config exEngineConfig;
-  exEngineConfig.trackingGeometry     = geo;
+  exEngineConfig.trackingGeometry     = trackingGeometry;
   exEngineConfig.propagationEngine    = propEngine;
   exEngineConfig.navigationEngine     = navEngine;
   exEngineConfig.extrapolationEngines = {statEngine};
   auto exEngine = std::make_unique<Acts::ExtrapolationEngine>(exEngineConfig);
-  exEngine->setLogger(Acts::getDefaultLogger("ExtrapolationEngine", eLogLevel));
+  exEngine->setLogger(Acts::getDefaultLogger("ExtrapolationEngine", extrapLogLevel));
+
+
+  RootExCellWriter<Acts::TrackParameters>::Config reccWriterConfig;
+  reccWriterConfig.filePath       = "excells_charged.root";
+  reccWriterConfig.treeName       = "extrapolation_charged";
+  reccWriterConfig.writeBoundary  = false;
+  reccWriterConfig.writeMaterial  = true;
+  reccWriterConfig.writeSensitive = true;
+  reccWriterConfig.writePassive   = true;
+  auto rootEccWriter
+      = std::make_shared<RootExCellWriter<Acts::TrackParameters>>(
+          reccWriterConfig);
 
 
 
 
   //std::mt19937 rng;
   ParticleGun::Config pgCfg;
-  pgCfg.nParticles = 100;
+  pgCfg.nParticles = 100000;
   pgCfg.pID = 11;
   pgCfg.mass = 0.51099891 * Acts::units::_MeV;
   pgCfg.charge = -1.;
+  pgCfg.etaRange = {-10, 10};
   auto rng = std::make_shared<std::mt19937>();
   pgCfg.rng = rng;
 
@@ -235,6 +261,9 @@ StatusCode PrintSiElements::buildTrackingGeometry() {
 
   std::vector<Acts::ExtrapolationCell<Acts::TrackParameters>>   cCells;
 
+  std::cout << "Processing particles:" << std::endl;
+  size_t nProcessed = 0;
+
   for (const auto &pv : vertices) {
     const Acts::Vector3D &pos = pv.position();
     std::cout << "OUTGOING: at " << pos.x() << " " << pos.y() << " " << pos.z() << std::endl;
@@ -243,7 +272,7 @@ StatusCode PrintSiElements::buildTrackingGeometry() {
       double pt = particle.momentum().perp();
       double pz = particle.momentum().z();
 
-      std::cout << "pt = " << pt << " pz = " << pz << std::endl;
+      //std::cout << "pt = " << pt << " pz = " << pz << std::endl;
 
       // prepare this particle for extrapolation
       double d0    = 0.;
@@ -267,9 +296,8 @@ StatusCode PrintSiElements::buildTrackingGeometry() {
         ecc.addConfigurationMode(Acts::ExtrapolationMode::StopAtBoundary);
         ecc.addConfigurationMode(Acts::ExtrapolationMode::FATRAS);
         //executeTestT<Acts::TrackParameters>(startParameters, particle.barcode(), cCells);
-        eTestConfig.searchMode                       = 1;
-        eTestConfig.extrapolationEngine              = extrapolationEngine;
-        ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectSensistive);
+        ecc.searchMode                       = 1;
+        ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectSensitive);
         ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectPassive);
         ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectBoundary);
         ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectMaterial);
@@ -280,11 +308,25 @@ StatusCode PrintSiElements::buildTrackingGeometry() {
         //eTestConfig.sensitiveCurvilinear             = false;
         //eTestConfig.pathLimit                        = -1.;
   
-        Acts::ExtrapolationCode eCode = m_cfg.extrapolationEngine->extrapolate(ecc);
+        Acts::ExtrapolationCode eCode = exEngine->extrapolate(ecc);
+
+        cCells.push_back(std::move(ecc));
  
+
+        if (nProcessed % (pgCfg.nParticles / 20) == 0) {
+          std::cout << "processed " << nProcessed << " / " << pgCfg.nParticles << " : ";
+          std::cout << std::fixed << std::setprecision(2);
+          std::cout << ((nProcessed / double(pgCfg.nParticles))*100) << "%" << std::endl;
+        }
+
+        nProcessed++;
       }
     }
   }
+
+  // write extrap cells
+  rootEccWriter->write(cCells);
+  rootEccWriter->endRun();
 
 
 
