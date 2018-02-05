@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef AFP_CONFIGPARAMS_H
 #define AFP_CONFIGPARAMS_H
 
@@ -18,8 +22,8 @@ enum eSkinReflectivityMode { ESRM_SINGLE=1, ESRM_SPECTRAL1=2 };
 enum eMaterial { EM_VACUUM=0, EM_QUARTZ=1 };
 
 //--------------------------------------------------------------------------------------------
-typedef struct _AFPTOF_TRAININFO {
-	_AFPTOF_TRAININFO()
+struct AFPTOF_TRAININFO {
+	AFPTOF_TRAININFO()
 	{
 		nPmtRow=-1;
 		bUseTaper=false;
@@ -37,12 +41,12 @@ typedef struct _AFPTOF_TRAININFO {
 	double fLength;
 	double fLGuideWidth;
 	double fPerpShiftInPixel;
-} AFPTOF_TRAININFO,*PAFPTOF_TRAININFO;
+};
 
-typedef struct _AFPTOF_LBARREFDIMENSIONS {
-	_AFPTOF_LBARREFDIMENSIONS()
+struct AFPTOF_LBARREFDIMENSIONS {
+	AFPTOF_LBARREFDIMENSIONS()
 	{
-		SetDefaults();
+		setDefaults();
 	}
 
 	int nBarX1ID;
@@ -51,13 +55,13 @@ typedef struct _AFPTOF_LBARREFDIMENSIONS {
 	double fRadLength;
 	double fLGuideLength;
 
-	void SetDefaults();
-} AFPTOF_LBARREFDIMENSIONS, *PAFPTOF_LBARREFDIMENSIONS;
+	void setDefaults();
+};
 
-typedef struct _AFPTOF_LBARDIMENSIONS {
-	_AFPTOF_LBARDIMENSIONS()
+struct AFPTOF_LBARDIMENSIONS {
+	AFPTOF_LBARDIMENSIONS()
 	{
-		SetDefaults();
+		setDefaults();
 	}
 
 	int nBarX1ID;
@@ -69,11 +73,12 @@ typedef struct _AFPTOF_LBARDIMENSIONS {
 	double fLGuideWidth;
 	double fLGuideLength;
 
-	void SetDefaults();
-} AFPTOF_LBARDIMENSIONS, *PAFPTOF_LBARDIMENSIONS;
+	void setDefaults();
+};
+
 //--------------------------------------------------------------------------------------------
 
-typedef struct _AFP_TDCONFIGURATION {
+struct AFP_TDCONFIGURATION {
 	eLBarType eType;
 	double fAlpha;
 	int nX1PixCnt;
@@ -94,15 +99,13 @@ typedef struct _AFP_TDCONFIGURATION {
     double fYPosInRPot;
     double fZPosInRPot;
 
-	void SetDefault();
-} AFP_TDCONFIGURATION, *PAFP_TDCONFIGURATION;
+	void setDefault();
+};
 
-
-typedef struct _AFP_SIDCONFIGURATION {
+struct AFP_SIDCONFIGURATION {
     double fSlope;
     double fLayerCount;
     double fLayerSpacing;
-	//double fXFloorDistance;
     double fZDistanceInRPot;
     bool bAddVacuumSensors;
 
@@ -120,16 +123,16 @@ typedef struct _AFP_SIDCONFIGURATION {
 	HepGeom::Transform3D TransInStation;
 
     void clear();
-} AFP_SIDCONFIGURATION, *PAFP_SIDCONFIGURATION;
+};
 
-typedef struct _AFP_HBPCONFIGURATION {
+struct AFP_HBPCONFIGURATION {
     double windowPlateThickness, windowPlateAngle;
     bool windowPlatesInsteadOfHB;
     bool setMaterialToBeryllium;
     void clear();
-} AFP_HBPCONFIGURATION, *PAFP_HBPCONFIGURATION;
+};
 
-typedef struct _AFP_CONFIGURATION {
+struct AFP_CONFIGURATION {
 	std::map<eAFPStation, AFP_SIDCONFIGURATION> sidcfg;
 	std::map<eAFPStation, AFP_TDCONFIGURATION> tdcfg;
 
@@ -138,12 +141,6 @@ typedef struct _AFP_CONFIGURATION {
     std::vector<double> vecStatNominalZPos;
 
     void clear();
-} AFP_CONFIGURATION, *PAFP_CONFIGURATION;
-
-typedef struct _AFP_RAWPROPERTYPARAMS
-{
-
-
-} AFP_RAWPROPERTYPARAMS, *PAFP_RAWPROPERTYPARAMS;
+};
 
 #endif // AFP_CONFIGPARAMS_H

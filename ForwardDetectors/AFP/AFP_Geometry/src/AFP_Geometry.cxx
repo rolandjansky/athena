@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <fstream>
@@ -15,12 +19,12 @@
 
 
 
-AFP_Geometry::AFP_Geometry(const PAFP_CONFIGURATION pCfgParams)
+AFP_Geometry::AFP_Geometry(const AFP_CONFIGURATION* pCfgParams)
 {
     m_CfgParams=*pCfgParams;
 
-	SetupLBarsDims(EAS_AFP00);
-	SetupLBarsDims(EAS_AFP03);
+	setupLBarsDims(EAS_AFP00);
+	setupLBarsDims(EAS_AFP03);
 }
 
 AFP_Geometry::~AFP_Geometry()
@@ -28,10 +32,10 @@ AFP_Geometry::~AFP_Geometry()
     m_CfgParams.clear();
 }
 
-HepGeom::Transform3D AFP_Geometry::GetStationTransform(const char* pszStationName)
+HepGeom::Transform3D AFP_Geometry::getStationTransform(const char* pszStationName)
 {
     HepGeom::Transform3D ReqTransform;
-    eAFPStation eStation=ParseStationName(pszStationName);
+	eAFPStation eStation=parseStationName(pszStationName);
 
     switch(eStation)
     {
@@ -54,10 +58,10 @@ HepGeom::Transform3D AFP_Geometry::GetStationTransform(const char* pszStationNam
     return ReqTransform;
 }
 
-HepGeom::Transform3D AFP_Geometry::GetStationElementTransform(const char* pszStationName, eStationElement eElement, const int nPlateID)
+HepGeom::Transform3D AFP_Geometry::getStationElementTransform(const char* pszStationName, eStationElement eElement, const int nPlateID)
 {
     HepGeom::Transform3D ReqTransform;
-    eAFPStation eStation=ParseStationName(pszStationName);
+	eAFPStation eStation=parseStationName(pszStationName);
 
 	AFP_TDCONFIGURATION tdcfg=m_CfgParams.tdcfg[eStation];
 	AFP_SIDCONFIGURATION sidcfg=m_CfgParams.sidcfg[eStation];
@@ -92,23 +96,23 @@ HepGeom::Transform3D AFP_Geometry::GetStationElementTransform(const char* pszSta
     return ReqTransform;
 }
 
-HepGeom::Transform3D AFP_Geometry::GetSIDTransform(const eSIDTransformType eType, const char* pszStationName, const int nPlateID)
+HepGeom::Transform3D AFP_Geometry::getSIDTransform(const eSIDTransformType eType, const char* pszStationName, const int nPlateID)
 {
 	AFP_CONSTANTS AfpConstants;
     HepGeom::Transform3D ReqTransform=HepGeom::Transform3D();
 
     std::string Station=std::string(pszStationName);
-    eAFPStation eStation=ParseStationName(pszStationName);
+	eAFPStation eStation=parseStationName(pszStationName);
 	AFP_SIDCONFIGURATION sidcfg=m_CfgParams.sidcfg[eStation];
 	double falpha=sidcfg.fSlope;
 
 	HepGeom::Transform3D TotTransform;
-	HepGeom::Transform3D TransInMotherVolume=GetStationElementTransform(pszStationName,ESE_SID,nPlateID);
-    HepGeom::Transform3D TransMotherInWorld=GetStationTransform(pszStationName);
+	HepGeom::Transform3D TransInMotherVolume=getStationElementTransform(pszStationName,ESE_SID,nPlateID);
+	HepGeom::Transform3D TransMotherInWorld=getStationTransform(pszStationName);
 
 	//double fxm=DETXSIDE*(0.5*SID_MAINPLATEXDIM*cos(falpha)+SID_PLATETHICKNESS*sin(falpha)); double fzm=0.0;
 	double fxm=-(sidcfg.vecChipXPos[nPlateID]+0.5*sidcfg.vecChipXLength[nPlateID])*cos(falpha); double fzm=0.0;
-    double fZCorrOffset=(DETXSIDE==+1 || falpha==0)? -0:4*SID_CORRZOFFSET;
+	double fZCorrOffset=(DETXSIDE==+1 || falpha==0)? -0:4*AfpConstants.SiT_CorrZOffset;
     HepGeom::Transform3D NominalPosInPocket=HepGeom::Translate3D(0.0*CLHEP::mm,0.0*CLHEP::mm,+fzm-fZCorrOffset);
 
 	//staggering of sensor shift in its plane - correction to cosinus needed fo x-staggering to transform to staggering in LHC CS
@@ -139,17 +143,17 @@ HepGeom::Transform3D AFP_Geometry::GetSIDTransform(const eSIDTransformType eType
 	case ESTT_VACUUMSENSOR:
 		if(nPlateID<=10)
 		{
-			ReqTransform=HepGeom::Translate3D(0.5*AfpConstants.SiT_Plate_Main_length_x-0.5*AfpConstants.SiT_Chip_length_x, 0.0*CLHEP::mm, -0.5*AfpConstants.SiT_Plate_Main_thickness-0.5*SID_VACUUMSENSORTHICKNESS);
+			ReqTransform=HepGeom::Translate3D(0.5*AfpConstants.SiT_Plate_Main_length_x-0.5*AfpConstants.SiT_Chip_length_x, 0.0*CLHEP::mm, -0.5*AfpConstants.SiT_Plate_Main_thickness-0.5*AfpConstants.Stat_GlobalVacuumSensorThickness);
 			ReqTransform=TransInMotherVolume*NominalPosInPocket*HepGeom::Translate3D(fxm,0.0*CLHEP::mm,nPlateID*sidcfg.fLayerSpacing/cos(falpha))*HepGeom::RotateY3D(falpha)*ReqTransform;
 		}
 		else
 		{
-			if(nPlateID==SID_GLOBALVACUUMSENSORID)
+			if(nPlateID==AfpConstants.Stat_GlobalVacuumSensorID)
 			{
-				if(eStation==EAS_AFP00) ReqTransform=HepGeom::TranslateZ3D(-SID_GLOBALVACUUMSENSORZOFFSET);
-				else if(eStation==EAS_AFP01) ReqTransform=HepGeom::TranslateZ3D(-SID_GLOBALVACUUMSENSORZOFFSET);
-				else if(eStation==EAS_AFP02) ReqTransform=HepGeom::TranslateZ3D(SID_GLOBALVACUUMSENSORZOFFSET);
-				else if(eStation==EAS_AFP03) ReqTransform=HepGeom::TranslateZ3D(SID_GLOBALVACUUMSENSORZOFFSET);
+				if(eStation==EAS_AFP00) ReqTransform=HepGeom::TranslateZ3D(-AfpConstants.Stat_GlobalVacuumSensorZOffset);
+				else if(eStation==EAS_AFP01) ReqTransform=HepGeom::TranslateZ3D(-AfpConstants.Stat_GlobalVacuumSensorZOffset);
+				else if(eStation==EAS_AFP02) ReqTransform=HepGeom::TranslateZ3D(AfpConstants.Stat_GlobalVacuumSensorZOffset);
+				else if(eStation==EAS_AFP03) ReqTransform=HepGeom::TranslateZ3D(AfpConstants.Stat_GlobalVacuumSensorZOffset);
 			}
 		}
 		break;
@@ -160,7 +164,7 @@ HepGeom::Transform3D AFP_Geometry::GetSIDTransform(const eSIDTransformType eType
     return ReqTransform;
 }
 
-eAFPStation AFP_Geometry::ParseStationName(const char* pszStationName)
+eAFPStation AFP_Geometry::parseStationName(const char* pszStationName)
 {
     eAFPStation eStation=EAS_UNKNOWN;
 
@@ -173,7 +177,7 @@ eAFPStation AFP_Geometry::ParseStationName(const char* pszStationName)
     return eStation;
 }
 
-StatusCode AFP_Geometry::GetPointInSIDSensorLocalCS(const int nStationID, const int nPlateID, const HepGeom::Point3D<double>& GlobalPoint, HepGeom::Point3D<double>& LocalPoint)
+StatusCode AFP_Geometry::getPointInSIDSensorLocalCS(const int nStationID, const int nPlateID, const HepGeom::Point3D<double>& GlobalPoint, HepGeom::Point3D<double>& LocalPoint)
 {
     StatusCode Status=StatusCode::FAILURE;
     LocalPoint=HepGeom::Point3D<double>();
@@ -181,12 +185,12 @@ StatusCode AFP_Geometry::GetPointInSIDSensorLocalCS(const int nStationID, const 
     eAFPStation eStation=(eAFPStation)nStationID;
 
     if(nStationID>=0 && nStationID<=3){
-		if(nPlateID>=0 && nPlateID<GetSIDPlatesCnt(eStation)){
+		if(nPlateID>=0 && nPlateID<getSIDPlatesCnt(eStation)){
             if(!(m_MapSIDTransToLocal.find(eStation)!=m_MapSIDTransToLocal.end() && m_MapSIDTransToLocal[eStation].find(nPlateID)!=m_MapSIDTransToLocal[eStation].end()))
             {
                 char szStationName[8];
                 sprintf(szStationName,"AFP%02i",(int)eStation);
-                HepGeom::Transform3D Aux=GetSIDTransform(ESTT_SENSORLOCAL,szStationName,nPlateID);
+				HepGeom::Transform3D Aux=getSIDTransform(ESTT_SENSORLOCAL,szStationName,nPlateID);
                 m_MapSIDTransToLocal[eStation][nPlateID]=Aux;
             }
 
@@ -198,7 +202,7 @@ StatusCode AFP_Geometry::GetPointInSIDSensorLocalCS(const int nStationID, const 
     return Status;
 }
 
-StatusCode AFP_Geometry::GetPointInSIDSensorGlobalCS(const int nStationID, const int nPlateID, const HepGeom::Point3D<double>& LocalPoint, HepGeom::Point3D<double>& GlobalPoint)
+StatusCode AFP_Geometry::getPointInSIDSensorGlobalCS(const int nStationID, const int nPlateID, const HepGeom::Point3D<double>& LocalPoint, HepGeom::Point3D<double>& GlobalPoint)
 {
 	AFP_CONSTANTS AfpConstants;
     StatusCode Status=StatusCode::FAILURE;
@@ -206,12 +210,12 @@ StatusCode AFP_Geometry::GetPointInSIDSensorGlobalCS(const int nStationID, const
     eAFPStation eStation=(eAFPStation)nStationID;
 
     if(nStationID>=0 && nStationID<=3){
-		if(nPlateID>=0 && nPlateID<GetSIDPlatesCnt(eStation)){
+		if(nPlateID>=0 && nPlateID<getSIDPlatesCnt(eStation)){
             if(!(m_MapSIDTransToGlobal.find(eStation)!=m_MapSIDTransToGlobal.end() && m_MapSIDTransToGlobal[eStation].find(nPlateID)!=m_MapSIDTransToGlobal[eStation].end()))
             {
                 char szStationName[8];
                 sprintf(szStationName,"AFP%02i",(int)eStation);
-                HepGeom::Transform3D Aux=GetSIDTransform(ESTT_SENSORGLOBAL,szStationName,nPlateID);
+				HepGeom::Transform3D Aux=getSIDTransform(ESTT_SENSORGLOBAL,szStationName,nPlateID);
                 m_MapSIDTransToGlobal[eStation][nPlateID]=Aux;
             }
 
@@ -226,18 +230,18 @@ StatusCode AFP_Geometry::GetPointInSIDSensorGlobalCS(const int nStationID, const
 
 //-----------------------------------------------------------------
 
-void AFP_Geometry::GetPixelLocalPosition(const eAFPStation eStation, const int nPixelID, double* pfX1Pos, double* pfX2Pos)
+void AFP_Geometry::getPixelLocalPosition(const eAFPStation eStation, const int nPixelID, double* pfX1Pos, double* pfX2Pos)
 {
 	int i,j;
 
-	i=GetPixelRow(nPixelID)-1;
-	j=GetPixelColumn(nPixelID)-1;
+	i=getPixelRow(nPixelID)-1;
+	j=getPixelColumn(nPixelID)-1;
 
 	if(pfX1Pos) *pfX1Pos=-(0.0+i)*m_CfgParams.tdcfg[eStation].fPixelX1Dim;
 	if(pfX2Pos) *pfX2Pos=(0.0+j)*m_CfgParams.tdcfg[eStation].fPixelX2Dim;
 }
 
-void AFP_Geometry::SetupLBarsDims(const eAFPStation eStation)
+void AFP_Geometry::setupLBarsDims(const eAFPStation eStation)
 {
 	int i,j,nTrainOfBar11,nRefTrainID,nTrainID,nTrainCnt;
 	AFPTOF_LBARDIMENSIONS BarDims;

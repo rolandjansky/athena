@@ -1,8 +1,14 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "AFP_Geometry/AFP_ConfigParams.h"
 
 //-------------------------------------------------------------------------------------------------------------
 void AFP_CONFIGURATION::clear()
 {
+	AFP_CONSTANTS AfpConstants;
+
 	AFP_SIDCONFIGURATION defsidcfg;
 	defsidcfg.clear();
 	sidcfg[EAS_AFP00]=defsidcfg;
@@ -11,20 +17,20 @@ void AFP_CONFIGURATION::clear()
 	sidcfg[EAS_AFP03]=defsidcfg;
 
 	AFP_TDCONFIGURATION deftofcfg;
-	deftofcfg.SetDefault();
+	deftofcfg.setDefault();
 	tdcfg[EAS_AFP00]=deftofcfg;
 	tdcfg[EAS_AFP03]=deftofcfg;
 
     vecRPotFloorDistance.resize(4);
     vecRPotYPos.resize(4);
-    fill_n(vecRPotFloorDistance.begin(),vecRPotFloorDistance.size(),RPFLOORDISTANCE);
-    fill_n(vecRPotYPos.begin(),vecRPotYPos.size(),STATIONSHIFTINYAXIS);
+	fill_n(vecRPotFloorDistance.begin(),vecRPotFloorDistance.size(),AfpConstants.Stat_RPotFloorDistance);
+	fill_n(vecRPotYPos.begin(),vecRPotYPos.size(),AfpConstants.Stat_ShiftInYAxis);
 
     vecStatNominalZPos.resize(4);
-    vecStatNominalZPos[0]=OUTERSTATZDISTANCE;
-    vecStatNominalZPos[1]=INNERSTATZDISTANCE;
-    vecStatNominalZPos[2]=-INNERSTATZDISTANCE;
-    vecStatNominalZPos[3]=-OUTERSTATZDISTANCE;
+	vecStatNominalZPos[0]=AfpConstants.Stat_OuterZDistance;
+	vecStatNominalZPos[1]=AfpConstants.Stat_InnerZDistance;
+	vecStatNominalZPos[2]=-AfpConstants.Stat_InnerZDistance;
+	vecStatNominalZPos[3]=-AfpConstants.Stat_OuterZDistance;
 }
 
 //-------------------------------------------------------------------------------------------------------------
@@ -44,7 +50,7 @@ void AFP_SIDCONFIGURATION::clear()
 	fSlope=AfpConstants.SiT_Plate_rot_xz;
 	fLayerCount=AfpConstants.SiT_Plate_amount;
 	fLayerSpacing=AfpConstants.SiT_Plate_zsep;
-    fZDistanceInRPot=SID_ZDISTANCEINRPOT;
+	fZDistanceInRPot=AfpConstants.SiT_ZDistanceInRPot;
     bAddVacuumSensors=false;
 
 	vecXStaggering.resize(AfpConstants.SiT_Plate_amount);
@@ -57,7 +63,7 @@ void AFP_SIDCONFIGURATION::clear()
 	vecSensorXPos.resize(AfpConstants.SiT_Plate_amount);
 	vecSensorYPos.resize(AfpConstants.SiT_Plate_amount);
 
-	std::fill_n(vecXStaggering.begin(),AfpConstants.SiT_Plate_amount,SID_DISTANCETOFLOOR);
+	std::fill_n(vecXStaggering.begin(),AfpConstants.SiT_Plate_amount,AfpConstants.ToF_DistanceToFloor);
 	std::fill_n(vecXStaggering.begin(),AfpConstants.SiT_Plate_amount,0.0*CLHEP::mm);
 	std::fill_n(vecChipXPos.begin(),AfpConstants.SiT_Plate_amount,AfpConstants.SiT_Chip_x);
 	std::fill_n(vecChipYPos.begin(),AfpConstants.SiT_Plate_amount,AfpConstants.SiT_Chip_y);
@@ -72,7 +78,7 @@ void AFP_SIDCONFIGURATION::clear()
 
 //-------------------------------------------------------------------------------------------------------------
 
-void AFPTOF_LBARREFDIMENSIONS::SetDefaults()
+void AFPTOF_LBARREFDIMENSIONS::setDefaults()
 {
 	nBarX1ID=4;
 	nBarX2ID=2;
@@ -81,7 +87,7 @@ void AFPTOF_LBARREFDIMENSIONS::SetDefaults()
 	fLGuideLength=71.3*CLHEP::mm;
 }
 
-void AFPTOF_LBARDIMENSIONS::SetDefaults()
+void AFPTOF_LBARDIMENSIONS::setDefaults()
 {
 	nBarX1ID=1;
 	nBarX2ID=1;
@@ -92,14 +98,14 @@ void AFPTOF_LBARDIMENSIONS::SetDefaults()
 	fLGuideWidth=5.0*CLHEP::mm;
 	fLGuideLength=70.0*CLHEP::mm;
 }
-void AFP_TDCONFIGURATION::SetDefault()
+void AFP_TDCONFIGURATION::setDefault()
 {
 	AFP_CONSTANTS AfpConstants;
 
 	eType=ELBT_METALELBOW;
-	fAlpha=48.0*CLHEP::deg;
-	nX1PixCnt=4;
-	nX2PixCnt=4;
+	fAlpha=AfpConstants.ToF_NominalSlope;
+	nX1PixCnt=AfpConstants.ToF_TrainsCnt;
+	nX2PixCnt=AfpConstants.ToF_ColumnsCnt;
 	fPixelX1Dim=6.25;
 	fPixelX2Dim=6.25;
 	bApplyBottomCut=true;

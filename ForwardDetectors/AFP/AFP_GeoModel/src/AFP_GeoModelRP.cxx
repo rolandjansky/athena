@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AFP_GeoModel/AFP_GeoModelFactory.h"
@@ -58,7 +58,7 @@
 #define RPOT_FLANGE_THICKNESS (20.0*CLHEP::mm)
 #define RPOT_FLANGE_OUTERRADIUS (125.0*CLHEP::mm)
 
-void AFP_GeoModelFactory::AddRomanPot(GeoPhysVol* pPhysMotherVol, const char* pszStationName, HepGeom::Transform3D& TransInMotherVolume)
+void AFP_GeoModelFactory::addRomanPot(GeoPhysVol* pPhysMotherVol, const char* pszStationName, HepGeom::Transform3D& TransInMotherVolume)
 {
 	const double fMainTubusSteelPartLength=RPOT_MAINTUBUS_LENGTH-RPOT_MAINTUBUS_FLOORPARTLENGTH;
 
