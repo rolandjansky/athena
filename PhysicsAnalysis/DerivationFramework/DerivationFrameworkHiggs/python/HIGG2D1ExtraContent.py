@@ -19,13 +19,9 @@ HIGG2D1ExtraContentTruth=[
     "TruthVertices.barcode.id.incomingParticleLinks.outgoingParticleLinks.x.y.z.t"
     ]
 
-HIGG2D1ExtraContainers=[
-    "MET_Track",
-    ]
+HIGG2D1ExtraContainers=[]
 
 HIGG2D1ExtraContainersTruth=[
-    "AntiKt4TruthJets",
-    "AntiKt4TruthWZJets",
     "MET_Truth",
     "MET_TruthRegions"
     "TruthElectrons",
