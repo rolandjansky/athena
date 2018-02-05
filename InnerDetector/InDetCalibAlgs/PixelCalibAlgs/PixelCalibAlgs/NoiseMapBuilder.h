@@ -82,8 +82,6 @@ class NoiseMapBuilder: public AthAlgorithm{
   double m_nEvents;
 //  double m_occupancyCut;
 
-  bool m_isIBL; // to be removed
-
   TH1D* m_nEventsHist;
   TH1D* m_nEventsLBHist;
   std::vector<TH2D*> m_hitMaps;
