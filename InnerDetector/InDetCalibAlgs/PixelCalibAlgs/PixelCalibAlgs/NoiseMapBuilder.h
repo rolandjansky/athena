@@ -65,10 +65,10 @@ class NoiseMapBuilder: public AthAlgorithm{
   const std::string histoSuffix(const int bec, const int layer);
 
  private:
-  ServiceHandle < ITHistSvc > m_tHistSvc;
-  ServiceHandle < IInDetConditionsSvc > m_pixelConditionsSummarySvc;
-  ServiceHandle < IPixelByteStreamErrorsSvc > m_BSErrorsSvc;
-  ServiceHandle < ISpecialPixelMapSvc > m_specialPixelMapSvc; 
+  ServiceHandle <ITHistSvc> m_tHistSvc;
+  ServiceHandle <IInDetConditionsSvc> m_pixelConditionsSummarySvc;
+  ServiceHandle <IPixelByteStreamErrorsSvc> m_BSErrorsSvc;
+  ServiceHandle <ISpecialPixelMapSvc> m_specialPixelMapSvc; 
 
   const InDetDD::PixelDetectorManager *m_pixman; 
   const PixelID *m_pixelID;
@@ -116,25 +116,16 @@ class NoiseMapBuilder: public AthAlgorithm{
   double m_longPixelMultiplier;
   double m_gangedPixelMultiplier;
 
-//  int m_maxLVL1A;
+  //  int m_maxLVL1A;
 
   bool m_occupancyPerBC;
 
   unsigned int m_nBCReadout;
-
-  int m_lbMin;
-  int m_lbMax;
+  
+  int m_evt_lbMin; // lower limit for LB to be taken into account
+  int m_evt_lbMax; // upper limit for LB to be taken into account
 
   bool m_calculateNoiseMaps;
-
- 
-
-  bool is_file_exist(const char *fileName)
-  {
-    std::ifstream infile;
-    infile.open(fileName);
-    return infile.good();
-  };
 };
 
-#endif
+#endif  // PIXELCONDITIONSALGS_NOISEMAPBUILDERH_

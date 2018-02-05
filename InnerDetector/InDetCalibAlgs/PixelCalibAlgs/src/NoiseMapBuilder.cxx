@@ -44,9 +44,10 @@ NoiseMapBuilder::NoiseMapBuilder(const std::string& name, ISvcLocator* pSvcLocat
   m_tHistSvc("THistSvc", name),
   m_pixelConditionsSummarySvc("PixelConditionsSummarySvc", name),
   m_BSErrorsSvc("PixelByteStreamErrorsSvc",name),
-  m_specialPixelMapSvc("SpecialPixelMapSvc", name), // kazuki
+  m_specialPixelMapSvc("SpecialPixelMapSvc", name), 
+  m_pixman(0), 
+  m_pixelID(0),
   m_pixelRDOKey("PixelRDOs"),
-  //  m_isIBL(true), // kazuki
   m_nEvents(0.),
   m_nEventsHist(nullptr),
   m_nEventsLBHist(nullptr),
@@ -54,8 +55,6 @@ NoiseMapBuilder::NoiseMapBuilder(const std::string& name, ISvcLocator* pSvcLocat
   m_overlayedPixelNoiseMap(nullptr),
   m_overlayedIBLDCNoiseMap(nullptr),
   m_overlayedIBLSCNoiseMap(nullptr),
-  m_pixelID(0),
-  m_pixman(0), 
   m_disk1ACut(1.e-3),
   m_disk2ACut(1.e-3),
   m_disk3ACut(1.e-3),
@@ -72,8 +71,8 @@ NoiseMapBuilder::NoiseMapBuilder(const std::string& name, ISvcLocator* pSvcLocat
   m_gangedPixelMultiplier(2.), 
   m_occupancyPerBC(true),
   m_nBCReadout(2),
-  m_lbMin(0),
-  m_lbMax(-1),
+  m_evt_lbMin(0),
+  m_evt_lbMax(-1),
   m_calculateNoiseMaps(false)
 {
   declareProperty("PixelRDOKey", m_pixelRDOKey, "StoreGate key of pixel RDOs");
@@ -86,10 +85,10 @@ NoiseMapBuilder::NoiseMapBuilder(const std::string& name, ISvcLocator* pSvcLocat
   declareProperty("BLayerCut", m_bLayerCut, "Occupancy cut for BLayer pixels");
   declareProperty("Layer1Cut", m_layer1Cut, "Occupancy cut for Layer1 pixels");
   declareProperty("Layer2Cut", m_layer2Cut, "Occupancy cut for Layer2 pixels");
-  declareProperty("IBLCut", m_dbmCut, "Occupancy cut for DBM pixels"); // kazuki
+  declareProperty("IBLCut", m_dbmCut, "Occupancy cut for DBM pixels"); 
   declareProperty("NBCReadout", m_nBCReadout, "Number of bunch crossings read out");
-  declareProperty("LBMin", m_lbMin, "First lumi block to consider");
-  declareProperty("LBMax", m_lbMax, "Last lumi block to consider");
+  declareProperty("LBMin", m_evt_lbMin, "First lumi block to consider");
+  declareProperty("LBMax", m_evt_lbMax, "Last lumi block to consider");
   declareProperty("LongPixelMultiplier", m_longPixelMultiplier, "Multiplier for long pixels");
   declareProperty("GangedPixelMultiplier", m_gangedPixelMultiplier, "Multiplier for ganged pixels");
   declareProperty("OccupancyPerBC", m_occupancyPerBC, "Calculate occupancy per BC or per event");
@@ -97,7 +96,7 @@ NoiseMapBuilder::NoiseMapBuilder(const std::string& name, ISvcLocator* pSvcLocat
   declareProperty("THistSvc", m_tHistSvc, "THistSvc");
   declareProperty("PixelConditionsSummarySvc", m_pixelConditionsSummarySvc, "PixelConditionsSummarySvc");
   declareProperty("PixelByteStreamSummarySvc", m_BSErrorsSvc, "PixelBSErrorsSvc");
-  declareProperty("isIBL", m_isIBL, "If false IBL not considered"); // kazuki
+  //  declareProperty("isIBL", m_isIBL, "If false IBL not considered"); // kazuki
 }
 
 
@@ -932,25 +931,21 @@ unsigned int hashID = ( ((m_pixelID->barrel_ec(moduleID) + 2) / 2) << 25 ) +
 //
 //=========================================================
 StatusCode NoiseMapBuilder::execute(){
-
   ATH_MSG_DEBUG( "Executing NoiseMapBuilder" );
 
-
+  // retrieve EventInfo
   const EventInfo* eventInfo;
-
   StatusCode sc = sgSvc()->retrieve(eventInfo);
   if( !sc.isSuccess() ){
     ATH_MSG_FATAL( "Unable to retrieve event info" );
     return StatusCode::FAILURE;
-  }
-  ATH_MSG_DEBUG( "Event info retrieved" );
+  } ATH_MSG_DEBUG( "Event info retrieved" );
+
+  // check LB is in allowed range
   int LB =  static_cast<int>(eventInfo->event_ID()->lumi_block());
-  if( LB < m_lbMin ||
-      ( m_lbMax >= m_lbMin && LB > m_lbMax ) ){
-
+  if( (LB < m_evt_lbMin) || ( m_evt_lbMax >= m_evt_lbMin && LB > m_evt_lbMax) ){
     ATH_MSG_VERBOSE( "Event in lumiblock " << eventInfo->event_ID()->lumi_block() <<
-        " not in selected range [" << m_lbMin << "," << m_lbMax << "], skipped");
-
+		     " not in selected range [" << m_evt_lbMin << "," << m_evt_lbMax << "] => skipped");    
     return StatusCode::SUCCESS;
   }
 
