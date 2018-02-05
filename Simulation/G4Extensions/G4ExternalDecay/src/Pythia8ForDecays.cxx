@@ -6,7 +6,6 @@
 
 #include "G4ExternalDecay/Pythia8ForDecays.h"
 #include "Pythia8_i/Pythia8_i.h"
-#include "Pythia8/UserHooks.h"
 #include "Pythia8/RHadrons.h"
 #include "HepMC/IO_HEPEVT.h"
 #include "HepMC/GenEvent.h"
@@ -116,40 +115,23 @@ std::pair<int,int> Pythia8ForDecays::fromIdWithGluino( int idRHad, Pythia8::Rndm
 }
 
 // Single-particle gun. The particle must be a colour singlet.
-// Input: flavour, energy, direction (theta, phi).
-// If theta < 0 then random choice over solid angle.
+// Input: particle, pythia8 helpers
 // Optional final argument to put particle at rest => E = m.
-
-void Pythia8ForDecays::fillParticle(int id, double ee, double thetaIn, double phiIn,
-  Pythia8::Event& event, Pythia8::ParticleData& pdt, Pythia8::Rndm& rndm) const
+void Pythia8ForDecays::fillParticle(const G4Track& aTrack, Pythia8::Event& event, Pythia8::ParticleData& pdt) const
 {
-
   // Reset event record to allow for new event.
   event.reset();
 
   // Select particle mass; where relevant according to Breit-Wigner.
-  double mm = pdt.mSel(id);
-  double pp = sqrt(ee*ee - mm*mm);
-
-  // Angles as input or uniform in solid angle.
-  double cThe, sThe, phi;
-  if (thetaIn >= 0.) {
-    cThe = cos(thetaIn);
-    sThe = sin(thetaIn);
-    phi  = phiIn;
-  } else {
-    cThe = 2. * rndm.flat() - 1.;
-    sThe = sqrt(1. - cThe * cThe);
-    phi = 2. * M_PI * rndm.flat();
-  }
+  double mm = pdt.mSel(aTrack.GetDefinition()->GetPDGEncoding());
 
   // Store the particle in the event record.
-  event.append( id, 1, 0, 0, pp * sThe * cos(phi), pp * sThe * sin(phi), pp * cThe, ee, mm);
+  event.append( aTrack.GetDefinition()->GetPDGEncoding(), 1, 0, 0, aTrack.GetMomentum().x(), aTrack.GetMomentum().y(), 
+                aTrack.GetMomentum().z(), aTrack.GetDynamicParticle()->GetTotalEnergy(), mm);
   // Note: this function returns an int, but we don't need or use its output
 }
 
-// Note: 5th double is mass, which doesn't get used here
-void Pythia8ForDecays::Py1ent(int pdgid, double px, double py, double pz, double e, double, std::vector<G4DynamicParticle*> & particles)
+void Pythia8ForDecays::Py1ent(const G4Track& aTrack, std::vector<G4DynamicParticle*> & particles)
 {
 
   // Pythia instance where RHadrons can decay
@@ -178,11 +160,8 @@ void Pythia8ForDecays::Py1ent(int pdgid, double px, double py, double pz, double
   Pythia8::ParticleData& pdtDecay = pythiaDecay.particleData;
   pythiaDecay.init();
 
-
   // Use pythiaDecay information to fill event with the input particle
-  TLorentzVector original(0,0,0,0);
-  original.SetPxPyPzE(px, py, pz, e);
-  fillParticle( pdgid, e, original.Theta(), original.Phi(), event, pdtDecay, pythiaDecay.rndm);
+  fillParticle( aTrack, event, pdtDecay);
 
   // Copy and past of RHadron decay code
   int    iRNow  = 1;
