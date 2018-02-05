@@ -144,10 +144,12 @@ void Pythia8ForDecays::fillParticle(int id, double ee, double thetaIn, double ph
   }
 
   // Store the particle in the event record.
-  int iNew = event.append( id, 1, 0, 0, pp * sThe * cos(phi), pp * sThe * sin(phi), pp * cThe, ee, mm);
+  event.append( id, 1, 0, 0, pp * sThe * cos(phi), pp * sThe * sin(phi), pp * cThe, ee, mm);
+  // Note: this function returns an int, but we don't need or use its output
 }
 
-void Pythia8ForDecays::Py1ent(int pdgid, double px, double py, double pz, double e, double m, std::vector<G4DynamicParticle*> & particles)
+// Note: 5th double is mass, which doesn't get used here
+void Pythia8ForDecays::Py1ent(int pdgid, double px, double py, double pz, double e, double, std::vector<G4DynamicParticle*> & particles)
 {
 
   // Pythia instance where RHadrons can decay
@@ -184,12 +186,10 @@ void Pythia8ForDecays::Py1ent(int pdgid, double px, double py, double pz, double
 
   // Copy and past of RHadron decay code
   int    iRNow  = 1;
-  int    iRBef  = 1;
   int    idRHad = event[iRNow].id();
   double mRHad  = event[iRNow].m();
   int    iR0    = 0;
   int    iR2    = 0;
-
 
   // Find flavour content of squark or gluino R-hadron.
   // Note that for now, this only works with gluinos
