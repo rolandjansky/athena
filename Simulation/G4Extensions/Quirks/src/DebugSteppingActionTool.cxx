@@ -4,26 +4,26 @@
 
 #include "CxxUtils/make_unique.h"
 #include "DebugSteppingActionTool.h"
-namespace G4UA{ 
 
-  DebugSteppingActionTool::DebugSteppingActionTool(const std::string& type, const std::string& name,const IInterface* parent):
-    ActionToolBase<DebugSteppingAction>(type, name, parent), m_config(){
+namespace G4UA
+{
+
+  DebugSteppingActionTool::DebugSteppingActionTool(const std::string& type,
+                                                   const std::string& name,
+                                                   const IInterface* parent)
+    : UserActionToolBase<DebugSteppingAction>(type, name, parent)
+  {
     declareProperty("DebugStep", m_config.step);
     declareProperty("NumSteps", m_config.numSteps);
   }
-  std::unique_ptr<DebugSteppingAction>  DebugSteppingActionTool::makeAction(){
-    ATH_MSG_DEBUG("makeAction");
+
+  std::unique_ptr<DebugSteppingAction>
+  DebugSteppingActionTool::makeAndFillAction(G4AtlasUserActions& actionList)
+  {
+    ATH_MSG_DEBUG("Constructing a DebugSteppingAction");
     auto action = CxxUtils::make_unique<DebugSteppingAction>(m_config);
-    return std::move(action);
+    actionList.steppingActions.push_back( action.get() );
+    return action;
   }
-  StatusCode DebugSteppingActionTool::queryInterface(const InterfaceID& riid, void** ppvIf){
-    
-    if(riid == IG4SteppingActionTool::interfaceID()) {
-      *ppvIf = (IG4SteppingActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    return ActionToolBase<DebugSteppingAction>::queryInterface(riid, ppvIf);
-  }
-  
-} // namespace G4UA 
+
+} // namespace G4UA

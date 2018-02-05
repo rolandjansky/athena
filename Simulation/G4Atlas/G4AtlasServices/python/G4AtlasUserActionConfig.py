@@ -205,7 +205,7 @@ def getISFQuasiStableUserActionSvc(name="G4UA::ISFQuasiStableUserActionSvc", **k
     return getISFFullUserActionSvc(name, **kwargs)
 
 
-def addAction(actionTool, roles, systemAction=False):
+def addAction(actionTool, roles=[], systemAction=False):
     """
     Add an action tool to the list for a requested role.
 
@@ -221,7 +221,8 @@ def addAction(actionTool, roles, systemAction=False):
              'Event': 'EventActionTools',
              'Tracking': 'TrackingActionTools',
              'Step': 'SteppingActionTools',
-             'Stack': 'StackingActionTools'}
+             'Stack': 'StackingActionTools',
+             'General': 'UserActionTools'}
 
     ##hack to allow for different named Configurations of the UserActionSvc
     basename='UserActionSvc'
@@ -242,6 +243,9 @@ def addAction(actionTool, roles, systemAction=False):
         Logging.logging.getLogger('G4UASvc').fatal('Attempt to add a User Action when athena is ' +
                                                    'already initialized. Check your configuration')
         return
+
+    if len(roles) == 0:
+        roles = ['General']
 
     for role in roles:
         roleAttr = roleMap[role]

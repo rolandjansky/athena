@@ -12,9 +12,8 @@ namespace G4UA
   EnergyLossRecorderTool::EnergyLossRecorderTool(const std::string& type,
                                                  const std::string& name,
                                                  const IInterface* parent)
-    : ActionToolBase<EnergyLossRecorder>(type, name, parent)
-    , m_config()
-    , m_pmWriter("")
+    : UserActionToolBase<EnergyLossRecorder>(type, name, parent),
+      m_pmWriter("")
   {
     declareProperty("PositionMomentumWriter", m_pmWriter, "");
   }
@@ -30,31 +29,15 @@ namespace G4UA
     return StatusCode::SUCCESS;
   }
 
-  std::unique_ptr<EnergyLossRecorder> EnergyLossRecorderTool::makeAction()
+  std::unique_ptr<EnergyLossRecorder>
+  EnergyLossRecorderTool::makeAndFillAction(G4AtlasUserActions& actionList)
   {
     ATH_MSG_DEBUG("Constructing an EnergyLossRecorder action");
     auto action = CxxUtils::make_unique<EnergyLossRecorder>(m_config);
-    return std::move(action);
-  }
-
-  StatusCode EnergyLossRecorderTool::queryInterface(const InterfaceID& riid, void** ppvIf){
-
-    if(riid == IG4RunActionTool::interfaceID()) {
-      *ppvIf = (IG4RunActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    if(riid == IG4EventActionTool::interfaceID()) {
-      *ppvIf = (IG4EventActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    if(riid == IG4SteppingActionTool::interfaceID()) {
-      *ppvIf = (IG4SteppingActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    return ActionToolBase<EnergyLossRecorder>::queryInterface(riid, ppvIf);
+    actionList.runActions.push_back( action.get() );
+    actionList.eventActions.push_back( action.get() );
+    actionList.steppingActions.push_back( action.get() );
+    return action;
   }
 
 } // namespace G4UA

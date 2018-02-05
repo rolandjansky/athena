@@ -9,8 +9,7 @@
 #include <string>
 
 // Infrastructure includes
-#include "G4AtlasInterfaces/IG4EventActionTool.h"
-#include "G4AtlasTools/ActionToolBase.h"
+#include "G4AtlasTools/UserActionToolBase.h"
 
 // Local includes
 #include "LArGeoH62004EventAction.h"
@@ -25,8 +24,8 @@ namespace G4UA
   ///
   /// @author Andrea Di Simone
   ///
-  class LArGeoH62004EventActionTool : public ActionToolBase<LArGeoH62004EventAction>,
-                                      public IG4EventActionTool
+  class LArGeoH62004EventActionTool :
+    public UserActionToolBase<LArGeoH62004EventAction>
   {
 
   public:
@@ -38,18 +37,11 @@ namespace G4UA
     /// Framework intialize method
     StatusCode initialize() override final;
 
-    /// Retrieve the event action interface
-    virtual G4UserEventAction* getEventAction() override final
-    { return static_cast<G4UserEventAction*>( getAction() ); }
-
-    /// Query interface for gaudi
-    virtual StatusCode
-    queryInterface(const InterfaceID& riid, void** ppvInterface) override;
-
   protected:
 
     /// Create action for this thread
-    virtual std::unique_ptr<LArGeoH62004EventAction> makeAction() override final;
+    virtual std::unique_ptr<LArGeoH62004EventAction>
+    makeAndFillAction(G4AtlasUserActions&) override final;
 
   private:
     /// Configuration parameters
