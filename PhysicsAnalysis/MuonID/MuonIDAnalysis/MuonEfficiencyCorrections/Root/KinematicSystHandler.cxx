@@ -31,7 +31,9 @@ namespace CP {
 
     }
     CorrectionCode PtDependentSystHandler::GetKineDependent(const xAOD::Muon &mu, float& Eff) const {
-        if (mu.pt() <= 20.e3) return CorrectionCode::Ok;
+        // Account for catastrophic energy loss for  very high
+        // pt's
+        if (mu.pt() <= 200.e3) return CorrectionCode::Ok;
 
         int binsys = -1;
         CorrectionCode cc = m_Handler->FindBin(mu, binsys);
