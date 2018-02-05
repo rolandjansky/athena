@@ -23,7 +23,9 @@ jetalg = None
 #   separateJetAlgs: Run JetRecTools in separate algs (experts only)
 #             debug: Debug level (0 for quiet). See below.
 def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
-                            separateJetAlgs= None, debug =None):
+                            separateJetAlgs= None,
+                            constitModTools = [],
+                            debug =None):
 
   myname = "JetAlgorithm: "
 
@@ -111,7 +113,7 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
     if not IsInInputFile("xAOD::PFOContainer","CHSParticleFlowObjects"):
       if not hasattr(job,"jetalgCHSPFlow"):
         ctools += [jtm.JetConstitSeq_PFlowCHS]
-  #ctools += constitModTools
+  ctools += constitModTools
   from JetRec.JetRecConf import JetToolRunner
   runners = []
   if len(ctools)>0:
