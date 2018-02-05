@@ -219,6 +219,8 @@ StatusCode InDet::SiSpacePointsSeedMaker_ITK::initialize()
     } else {
       msg(MSG::INFO) << "Retrieved tool " << m_assoTool << endmsg;
     }
+  } else {
+    m_assoTool.disable();
   }
 
   if(m_r_rmax < 1100.) m_r_rmax = 1100.; 

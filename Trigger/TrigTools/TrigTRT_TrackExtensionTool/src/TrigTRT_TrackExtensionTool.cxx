@@ -130,15 +130,7 @@ StatusCode TrigTRT_TrackExtensionTool::initialize()
       return sc;
     } 
 
-  if(m_doBremm)
-    {
-      sc = m_trigBremTool.retrieve();
-      if(sc.isFailure()) 
-	{
-	  athenaLog << MSG::FATAL << "Unable to locate TrigBremTool " <<m_trigBremTool<< endmsg;
-	  return sc;
-	} 
-    }
+  ATH_CHECK( m_trigBremTool.retrieve( DisableTool{ !m_doBremm } ));
 
   sc = m_trackMaker.retrieve();
   if(sc.isFailure()) 
