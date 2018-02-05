@@ -149,7 +149,7 @@ namespace h5 {
     }
   }
 
-  void WriterXd::fill_while_incrementing(std::vector<size_t>& indices) {
+  void WriterXd::fillWhileIncrementing(std::vector<size_t>& indices) {
     if (buffer_size() == m_batch_size) {
       flush();
     }

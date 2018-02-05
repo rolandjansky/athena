@@ -2,7 +2,7 @@
 Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "get_tree.h"
+#include "getTree.h"
 
 #include "TFile.h"
 #include <stdexcept>
@@ -33,7 +33,7 @@ namespace {
 }
 
 namespace h5 {
-  std::string get_tree(const std::string& file_name) {
+  std::string getTree(const std::string& file_name) {
     if (!exists(file_name) && !is_remote(file_name)) {
       throw std::logic_error(file_name + " doesn't exist");
     }

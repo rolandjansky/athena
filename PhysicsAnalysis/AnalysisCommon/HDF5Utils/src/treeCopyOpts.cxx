@@ -2,13 +2,13 @@
 Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "tree_copy_opts.h"
+#include "treeCopyOpts.h"
 #include <boost/program_options.hpp>
 #include <iostream>
 
 namespace h5 {
 
-  AppOpts get_tree_copy_opts(int argc, char* argv[])
+  AppOpts getTreeCopyOpts(int argc, char* argv[])
   {
     namespace po = boost::program_options;
     AppOpts app;

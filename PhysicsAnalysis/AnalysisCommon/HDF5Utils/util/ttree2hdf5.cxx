@@ -2,9 +2,9 @@
 Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "src/copy_root_tree.h"
-#include "src/get_tree.h"
-#include "src/tree_copy_opts.h"
+#include "src/copyRootTree.h"
+#include "src/getTree.h"
+#include "src/treeCopyOpts.h"
 
 #include "H5Cpp.h"
 
@@ -16,12 +16,12 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 int main(int argc, char* argv[]) {
   using namespace h5;
-  AppOpts opts = get_tree_copy_opts(argc, argv);
+  AppOpts opts = getTreeCopyOpts(argc, argv);
 
   // Read in the root tree. We pick whatever tree is on the top level
   // of the file. If there are two we throw an error.
   std::string tree_name = opts.file.tree;
-  if (tree_name.size() == 0) tree_name = get_tree(opts.file.in.at(0));
+  if (tree_name.size() == 0) tree_name = getTree(opts.file.in.at(0));
   if (opts.tree.verbose) std::cout << "tree: " << tree_name << std::endl;
   std::unique_ptr<TChain> chain(new TChain(tree_name.c_str()));
   for (const auto& file_name: opts.file.in) {
@@ -38,7 +38,7 @@ int main(int argc, char* argv[]) {
   H5::H5File out_file(opts.file.out, H5F_ACC_TRUNC);
 
   // All the magic appens here
-  copy_root_tree(*chain, out_file, opts.tree);
+  copyRootTree(*chain, out_file, opts.tree);
 
   return 0;
 }

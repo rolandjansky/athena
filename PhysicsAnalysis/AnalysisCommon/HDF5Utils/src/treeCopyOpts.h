@@ -35,7 +35,7 @@ namespace h5 {
     IOOpts file;
   };
 
-  AppOpts get_tree_copy_opts(int argc, char* argv[]);
+  AppOpts getTreeCopyOpts(int argc, char* argv[]);
 
 }
 

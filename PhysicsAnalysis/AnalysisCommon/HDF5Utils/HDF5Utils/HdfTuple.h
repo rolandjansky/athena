@@ -160,7 +160,7 @@ namespace h5 {
    * have no inputs, but they can close over whatever buffers you want
    * to read from.
    *
-   * For examples, see `copy_root_tree.cxx`
+   * For examples, see `copyRootTree.cxx`
    **/
   /// @{
   class VariableFillers:
@@ -210,7 +210,7 @@ namespace h5 {
     WriterXd(const WriterXd&) = delete;
     WriterXd& operator=(WriterXd&) = delete;
     ~WriterXd();
-    void fill_while_incrementing(
+    void fillWhileIncrementing(
       std::vector<size_t>& indices = WriterXd::NONE);
     void flush();
   private:

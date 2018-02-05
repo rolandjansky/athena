@@ -2,7 +2,7 @@
 Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "copy_root_tree.h"
+#include "copyRootTree.h"
 
 // Root tree copy function
 //
@@ -103,7 +103,7 @@ namespace {
 // is just setting up the read and write buffers.
 
 namespace h5 {
-  void copy_root_tree(TTree& tt, H5::Group& fg, const TreeCopyOpts& opts) {
+  void copyRootTree(TTree& tt, H5::Group& fg, const TreeCopyOpts& opts) {
 
     // define the buffers for root to read into
     std::vector<std::unique_ptr<IBuffer> > buffers;
@@ -255,9 +255,9 @@ namespace h5 {
                   << n_entries << ")" << std::endl;
       }
       tt.GetEntry(iii);
-      if (writer1d) writer1d->fill_while_incrementing();
-      if (writer2d) writer2d->fill_while_incrementing(idx);
-      if (writer3d) writer3d->fill_while_incrementing(idx2);
+      if (writer1d) writer1d->fillWhileIncrementing();
+      if (writer2d) writer2d->fillWhileIncrementing(idx);
+      if (writer3d) writer3d->fillWhileIncrementing(idx2);
     }
 
     // Flush the memory buffers on the HDF5 side. (This is done by the

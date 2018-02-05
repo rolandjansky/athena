@@ -2,15 +2,12 @@
 atlas_subdir( HDF5Utils )
 
 # Grab HDF5 from AnalysisBaseExternals.
-# first try to use find_package
 find_package( HDF5 1.10.1 REQUIRED COMPONENTS C CXX )
 
 # find root
-# list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
 find_package(ROOT REQUIRED COMPONENTS RIO Hist Tree Net Core)
 
 # find boost
-set(Boost_USE_STATIC_LIBS ON)
 find_package( Boost 1.54.0 REQUIRED COMPONENTS program_options)
 
 # Add the hdf tuple library
@@ -21,14 +18,16 @@ atlas_add_library(HDF5Utils
   LINK_LIBRARIES ${HDF5_LIBRARIES} ${ZLIB_LIBRARIES})
 
 # build a translation utility
-set( lib_sources
-  src/copy_root_tree.cxx
-  src/get_tree.cxx
-  src/tree_copy_opts.cxx
+set( _lib_sources
+  src/copyRootTree.cxx
+  src/getTree.cxx
+  src/treeCopyOpts.cxx
   util/ttree2hdf5.cxx)
 
-atlas_add_executable(ttree2hdf5 ${lib_sources}
+atlas_add_executable(ttree2hdf5 ${_lib_sources}
   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HDF5_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIRS}
   LINK_LIBRARIES HDF5Utils ${Boost_LIBRARIES} ${HDF5_LIBRARIES}
   ${ROOT_LIBRARIES})
+
+unset(_lib_sources)
