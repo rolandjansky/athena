@@ -4,14 +4,14 @@ Git ART Monitoring Project
 Run using the following:
 -----------------------------------------
 
-	art.py run /afs/cern.ch/work/m/mscodegg/public/QualiTask/athena/Reconstruction/egamma/egammaValidation/test outART
+	art.py run athena/Reconstruction/egamma/egammaValidation/test outART
 
 Explanation & Output:
 ----------------------------------------
 
 The command will run the reconstruction of two RAW files (electron and photon reconstruction) using the latest Athena build, and compare them to their respective previous versions to check if the changes work as intended.
 
-The outputs, that can be used to investigate any difference, can be found in "outART/egammaValidation/test_artoverseer/" and are the following (before the extension each, file has an additional tag to distinguish which one refers to electrons and which one refers to photons [e.g. checkFile_ART_electron.txt or checkFile_ART_gamma.txt])
+The outputs, that can be used to investigate any difference, can be found in "outART/egammaValidation/test_gamma|electron/" and are the following (before the extension each, file has an additional tag to distinguish which one refers to electrons and which one refers to photons [e.g. checkFile_ART_electron.txt or checkFile_ART_gamma.txt])
 
 - checkFile_ART.txt;
 - checkxAOD_ART.txt;

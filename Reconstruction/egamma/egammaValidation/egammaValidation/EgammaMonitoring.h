@@ -1,5 +1,5 @@
-#ifndef egammaValidation_ArtTest_H
-#define egammaValidation_ArtTest_H
+#ifndef egammaValidation_EgammaMonitoring_H
+#define egammaValidation_EgammaMonitoring_H
 
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/Property.h"
@@ -17,7 +17,7 @@
 
 using namespace std;
 
-class ArtTest : public AthAlgorithm
+class EgammaMonitoring : public AthAlgorithm
 {
  public:
 
@@ -41,7 +41,7 @@ class ArtTest : public AthAlgorithm
   TH1D *m_eta_Phot_All = 0; //!
   TH1D *m_phi_Phot_All = 0; //!
   
-  ArtTest (const std::string& name, ISvcLocator* pSvcLocator);
+  EgammaMonitoring (const std::string& name, ISvcLocator* pSvcLocator);
   
   virtual StatusCode initialize ();
   virtual StatusCode beginInputFile();
@@ -52,7 +52,7 @@ class ArtTest : public AthAlgorithm
  private:
 
   /// Sample name ///
-  string m_particleName;
+  string m_sampleType;
 
   AsgElectronLikelihoodTool* m_LooseLH;
   AsgElectronLikelihoodTool* m_MediumLH;

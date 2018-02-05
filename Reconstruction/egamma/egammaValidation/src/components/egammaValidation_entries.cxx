@@ -1,14 +1,14 @@
 #include <GaudiKernel/DeclareFactoryEntries.h>
 
-#include "../ArtTest.h"
+#include "../../egammaValidation/EgammaMonitoring.h"
 
-DECLARE_COMPONENT( ArtTest )
+DECLARE_COMPONENT( EgammaMonitoring )
 
-DECLARE_ALGORITHM_FACTORY (ArtTest)
+DECLARE_ALGORITHM_FACTORY (EgammaMonitoring)
 
 DECLARE_FACTORY_ENTRIES  ( egammaValidation )
 {
 
-  DECLARE_ALGORITHM (ArtTest);
+  DECLARE_ALGORITHM (EgammaMonitoring);
 
 }

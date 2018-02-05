@@ -1,7 +1,7 @@
 #include "GaudiKernel/IHistogramSvc.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "AsgTools/MessageCheck.h"
-#include "ArtTest.h"
+#include "egammaValidation/EgammaMonitoring.h"
 
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODTracking/VertexContainer.h"
@@ -22,29 +22,29 @@
 
 using namespace std;
 
-ArtTest :: ArtTest (const std::string& name, ISvcLocator *pSvcLocator) : 
+EgammaMonitoring :: EgammaMonitoring (const std::string& name, ISvcLocator *pSvcLocator) : 
   AthAlgorithm (name, pSvcLocator)
 {
-declareProperty( "particleName", m_particleName = "Unknown", "Descriptive name for the processed type of particle" );
+declareProperty( "sampleType", m_sampleType = "Unknown", "Descriptive name for the processed type of particle" );
 }
 
 // ******
 
-StatusCode ArtTest :: initialize ()
+StatusCode EgammaMonitoring :: initialize ()
 {
   ANA_MSG_INFO ("******************************* Initializing *******************************");
 
   /// Get Histogram Service ///
   ATH_CHECK(service("THistSvc", rootHistSvc));
   
-  ANA_MSG_INFO ("******************* Running over " << m_particleName << "*******************");
+  ANA_MSG_INFO ("******************* Running over " << m_sampleType << "*******************");
 
   ANA_MSG_INFO ("*******************************  Histo INIT  *******************************");
 
   m_evtNmb = new TH1D(); m_evtNmb->SetName("evtNmb"); m_evtNmb->SetTitle("Event Number"); 
   CHECK( rootHistSvc->regHist("/MONITORING/evtNmb", m_evtNmb));
     
-  if("electron" == m_particleName) {
+  if("electron" == m_sampleType) {
 
     m_evtNmb->SetBins(2000, 85000, 87000);
 
@@ -69,7 +69,7 @@ StatusCode ArtTest :: initialize ()
   
   } // electron Hists
 
-  if("gamma" == m_particleName) {
+  if("gamma" == m_sampleType) {
 
     m_evtNmb->SetBins(250, 33894000, 33896000);
     
@@ -132,21 +132,21 @@ StatusCode ArtTest :: initialize ()
 
 // ******
 
-StatusCode ArtTest :: beginInputFile ()
+StatusCode EgammaMonitoring :: beginInputFile ()
 {
   return StatusCode::SUCCESS;
 }
 
 // ******
 
-StatusCode ArtTest :: firstExecute ()
+StatusCode EgammaMonitoring :: firstExecute ()
 {
   return StatusCode::SUCCESS;
 }
 
 // ******
 
-StatusCode ArtTest :: execute ()
+StatusCode EgammaMonitoring :: execute ()
 {
   
   // Retrieve things from the event store
@@ -154,7 +154,7 @@ StatusCode ArtTest :: execute ()
   const xAOD::EventInfo *eventInfo = nullptr;
   ANA_CHECK (evtStore()->retrieve(eventInfo, "EventInfo"));
 
-  if("electron" == m_particleName) {
+  if("electron" == m_sampleType) {
     
     const xAOD::ElectronContainer* RecoEl = 0;
     if( !evtStore()->retrieve(RecoEl, "Electrons").isSuccess() ) {
@@ -184,7 +184,7 @@ StatusCode ArtTest :: execute ()
   } // if electron
 
 
-  if("gamma" == m_particleName) {
+  if("gamma" == m_sampleType) {
     
     const xAOD::PhotonContainer* RecoPh = 0;
     if( !evtStore()->retrieve(RecoPh, "Photons").isSuccess() ) {
@@ -209,7 +209,7 @@ StatusCode ArtTest :: execute ()
 
 // ******
 
-StatusCode ArtTest :: finalize ()
+StatusCode EgammaMonitoring :: finalize ()
 {
   ANA_MSG_INFO ("******************************** Finalizing ********************************");
   return StatusCode::SUCCESS;

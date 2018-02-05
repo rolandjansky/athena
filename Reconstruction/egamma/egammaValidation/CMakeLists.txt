@@ -16,12 +16,11 @@ atlas_depends_on_subdirs( PUBLIC
 			  PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
 			  PRIVATE
 			  Control/AthenaBaseComps
-#                         Control/AthenaMonitoring 
 			  TestPolicy 
 			  Tracking/TrkValidation/TrkValHistUtils )
 
-atlas_add_library (ArtTestLib src/*.h src/*.ihh src/*.cxx src/components/*.cxx
-   PUBLIC_HEADERS ArtTest
+atlas_add_library (EgammaMonitoringLib egammaValidation/*.h src/*.h src/*.ihh src/*.cxx src/components/*.cxx
+   PUBLIC_HEADERS EgammaMonitoring
    INCLUDE_DIRS
    LINK_LIBRARIES GaudiKernel AthenaBaseComps AsgTools xAODEventInfo xAODEgamma xAODTracking ElectronPhotonSelectorToolsLib TrkValHistUtils)
 
@@ -29,11 +28,11 @@ atlas_add_library (ArtTestLib src/*.h src/*.ihh src/*.cxx src/components/*.cxx
 # LINK_LIBRARIES AthenaMonitoringLib
 
 # add the library itself:
-atlas_add_component (ArtTest
+atlas_add_component (EgammaMonitoring
    src/*.h src/*.ihh src/*.cxx src/components/*.cxx
-   PUBLIC_HEADERS ArtTest
+   PUBLIC_HEADERS EgammaMonitoring
    INCLUDE_DIRS 
-   LINK_LIBRARIES ArtTestLib GaudiKernel AthenaBaseComps AsgTools xAODEventInfo xAODEgamma xAODTracking ElectronPhotonSelectorToolsLib TrkValHistUtils)
+   LINK_LIBRARIES EgammaMonitoringLib GaudiKernel AthenaBaseComps AsgTools xAODEventInfo xAODEgamma xAODTracking ElectronPhotonSelectorToolsLib TrkValHistUtils)
 
 # For MT
 # LINK_LIBRARIES AthenaMonitoringLib
