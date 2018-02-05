@@ -986,7 +986,6 @@ StatusCode NoiseMapBuilder::execute(){
         unsigned int pixel_eta = m_pixelID->eta_index(rdoID);
         unsigned int pixel_phi = m_pixelID->phi_index(rdoID);
 
-        // for debug
         int TOT = (*rdo)->getToT(); // it returns a 8 bits "word"
         int BCID = (*rdo)->getBCID();
         //int LVL1ID = (*rdo)->getLVL1ID();
@@ -1018,166 +1017,174 @@ StatusCode NoiseMapBuilder::execute(){
 }
 
 
+//=========================================================
+//
+// finalize
+//
+//=========================================================
 StatusCode NoiseMapBuilder::finalize() {
+  ATH_MSG_INFO("Finalizing NoiseMapBuilder");
 
-  ATH_MSG_INFO( "Finalizing NoiseMapBuilder" );
-
-  if( m_occupancyPerBC ){
+  if(m_occupancyPerBC)
     m_nEvents *= m_nBCReadout;
-  }
-
-  int minLogOccupancy = 8;
-  double minOccupancy = pow(10.,-minLogOccupancy);
-
-  TH1D* globalOccupancy= new TH1D("occupancy","Pixel occupancy",minLogOccupancy*10,-minLogOccupancy,0.);
+ 
+  const int minLogOccupancy = 8;
+  const double minOccupancy = pow(10.,-minLogOccupancy);
+  
+  TH1D* globalOccupancy= new TH1D("occupancy", "Pixel occupancy", minLogOccupancy*10, -minLogOccupancy, 0.);
   m_tHistSvc->regHist("/histfile/occupancy",globalOccupancy).setChecked();
-
-  std::vector<std::string> components;
-  components.push_back("Disk1A");
-  components.push_back("Disk2A");
-  components.push_back("Disk3A");
-  components.push_back("Disk1C");
-  components.push_back("Disk2C");
-  components.push_back("Disk3C");
-  if (m_isIBL) components.push_back("IBL"); // ----- IBL ----- //
-  components.push_back("B-layer");
-  components.push_back("Layer1");
-  components.push_back("Layer2");
-  if (m_isIBL) components.push_back("DBMA");
-  if (m_isIBL) components.push_back("DBMC");
-
-  std::vector<std::string> types;
-  types.push_back("Normal");
-  types.push_back("Ganged");
-  types.push_back("InterGanged");
-  types.push_back("Long");
-  types.push_back("Long-Ganged");
-  types.push_back("Long-InterGanged");
-
-  //std::cout << "debug point 4" << std::endl;
 
   std::map<std::string, TH1D*> h_occupancy;
 
-  for( std::vector<std::string>::const_iterator component = components.begin();
-      component != components.end(); ++component) {
-    h_occupancy[*component] =
-      new TH1D(("occupancy" + (*component)).c_str(), ("Pixel occupancy " + (*component)).c_str(),
-          minLogOccupancy*10,-minLogOccupancy,0.);
+  // occupancy histograms for different components of the Pixel detector
+  std::vector<std::string> vcomponent;
+  vcomponent.push_back("Disk1A");
+  vcomponent.push_back("Disk2A");
+  vcomponent.push_back("Disk3A");
+  vcomponent.push_back("Disk1C");
+  vcomponent.push_back("Disk2C");
+  vcomponent.push_back("Disk3C");
+  vcomponent.push_back("IBL"); 
+  vcomponent.push_back("B-layer");
+  vcomponent.push_back("Layer1");
+  vcomponent.push_back("Layer2");
+  vcomponent.push_back("DBMA");
+  vcomponent.push_back("DBMC");
 
-    m_tHistSvc->regHist(("/histfile/occupancy" + (*component)).c_str(), h_occupancy[*component]).setChecked();
+  for(std::vector<std::string>::const_iterator cit=vcomponent.begin(); cit!=vcomponent.end(); ++cit) {
+    const std::string comp = (*cit);
+    h_occupancy[comp] = new TH1D( ("occupancy"+comp).c_str(), ("Pixel occupancy "+comp).c_str(),
+				  minLogOccupancy*10, -minLogOccupancy, 0);    
+    m_tHistSvc->regHist(("/histfile/occupancy"+comp).c_str(), h_occupancy[comp]).setChecked();
   }
-
-  for( std::vector<std::string>::const_iterator type = types.begin();
-      type != types.end(); ++type){
-    h_occupancy[*type] =
-      new TH1D(("occupancy" + (*type)).c_str(), ("Pixel occupancy " + (*type)).c_str(),
-          minLogOccupancy*10,-minLogOccupancy,0.);
-
-    m_tHistSvc->regHist(("/histfile/occupancy" + (*type)).c_str(), h_occupancy[*type]).setChecked();
+  vcomponent.clear();
+  
+  // occupancy histograms for different pixel types
+  std::vector<std::string> vtype;
+  vtype.push_back("Normal");
+  vtype.push_back("Ganged");
+  vtype.push_back("InterGanged");
+  vtype.push_back("Long");
+  vtype.push_back("Long-Ganged");
+  vtype.push_back("Long-InterGanged");
+ for(std::vector<std::string>::const_iterator cit=vtype.begin(); cit!=vtype.end(); ++cit){
+    const std::string type = (*cit);
+    h_occupancy[type] = 
+      new TH1D( ("occupancy"+type).c_str(), ("Pixel occupancy "+type).c_str(), 
+		minLogOccupancy*10, -minLogOccupancy, 0);
+    m_tHistSvc->regHist(("/histfile/occupancy"+type).c_str(), h_occupancy[type]).setChecked();
   }
+  vtype.clear();
 
-  //std::cout << "debug point 5" << std::endl;
+  //------------------------
+  // number of hits 
+  //------------------------  
 
-  // <== kazuki
-  TH2F* nhitsPlotBI=new TH2F("nhitsPlotBI","Number of hits BI;module_eta;module_phi",20,-10,10,14,-0.5,13.5); // ----- IBL ----- //
+  // IBL
+  TH2F* nhitsPlotBI=new TH2F("nhitsPlotBI", "Number of hits BI;module_eta;module_phi", 20, -10, 10, 14, -0.5, 13.5); 
   m_tHistSvc->regHist("/histfile/nhitsPlotBI",nhitsPlotBI).setChecked();
 
-  TH2F* nhitsPlotB0=new TH2F("nhitsPlotB0","Number of hits B0;module_eta;module_phi",13,-6.5,6.5,22,-0.5,21.5);
+  // B-layer
+  TH2F* nhitsPlotB0=new TH2F("nhitsPlotB0", "Number of hits B0;module_eta;module_phi", 13, -6.5, 6.5, 22, -0.5, 21.5);
   m_tHistSvc->regHist("/histfile/nhitsPlotB0",nhitsPlotB0).setChecked();
 
-  TH2F* nhitsPlotB1=new TH2F("nhitsPlotB1","Number of hits B1;module_eta;module_phi",13,-6.5,6.5,38,-0.5,37.5);
+  // barrel layer 1
+  TH2F* nhitsPlotB1=new TH2F("nhitsPlotB1", "Number of hits B1;module_eta;module_phi", 13, -6.5, 6.5, 38, -0.5, 37.5);
   m_tHistSvc->regHist("/histfile/nhitsPlotB1",nhitsPlotB1).setChecked();
 
-  TH2F* nhitsPlotB2=new TH2F("nhitsPlotB2","Number of hits B2;module_eta;module_phi",13,-6.5,6.5,52,-0.5,51.5);
+  // barrel layer 2
+  TH2F* nhitsPlotB2=new TH2F("nhitsPlotB2", "Number of hits B2;module_eta;module_phi", 13,- 6.5, 6.5, 52, -0.5, 51.5);
   m_tHistSvc->regHist("/histfile/nhitsPlotB2",nhitsPlotB2).setChecked();
 
-  TH2F* nhitsPlotEC=new TH2F("nhitsPlotEC","Number of hits Endcap;Disk;module_phi",7,-3.5,3.5,48,-0.5,47.5);
+  // endcap
+  TH2F* nhitsPlotEC=new TH2F("nhitsPlotEC", "Number of hits Endcap;Disk;module_phi", 7, -3.5, 3.5, 48, -0.5, 47.5);
   m_tHistSvc->regHist("/histfile/nhitsPlotEC",nhitsPlotEC).setChecked();
-
-  TH2F* nhitsPlotDBM=new TH2F("nhitsPlotDBM","Number of hits DBM;Layer;module_phi",7,-3.5,3.5,4,-0.5,3.5);
+  
+  // DBM
+  TH2F* nhitsPlotDBM=new TH2F("nhitsPlotDBM", "Number of hits DBM;Layer;module_phi",7,-3.5,3.5,4,-0.5,3.5);
   m_tHistSvc->regHist("/histfile/nhitsPlotDBM",nhitsPlotDBM).setChecked();
 
-  TH2F* nhitsNoNoisePlotBI=new TH2F("nhitsNoNoisePlotBI","Number of hits without Noise BI;module_eta;module_phi",20,-10,10,14,-0.5,13.5); // ----- IBL ----- //
+  //------------------------
+  // hits w/o noise
+  //------------------------  
+
+  // IBL
+  TH2F* nhitsNoNoisePlotBI=new TH2F("nhitsNoNoisePlotBI","Number of hits without Noise BI;module_eta;module_phi", 20, -10, 10, 14, -0.5, 13.5); 
   m_tHistSvc->regHist("/histfile/nhitsNoNoisePlotBI",nhitsNoNoisePlotBI).setChecked();
 
-  TH2F* nhitsNoNoisePlotB0=new TH2F("nhitsNoNoisePlotB0","Number of hits without Noise B0;module_eta;module_phi",13,-6.5,6.5,22,-0.5,21.5);
+  // B-layer
+  TH2F* nhitsNoNoisePlotB0=new TH2F("nhitsNoNoisePlotB0","Number of hits without Noise B0;module_eta;module_phi", 13, -6.5, 6.5, 22, -0.5, 21.5);
   m_tHistSvc->regHist("/histfile/nhitsNoNoisePlotB0",nhitsNoNoisePlotB0).setChecked();
 
-  TH2F* nhitsNoNoisePlotB1=new TH2F("nhitsNoNoisePlotB1","Number of hits without Noise B1;module_eta;module_phi",13,-6.5,6.5,38,-0.5,37.5);
+  // barrel layer 1
+  TH2F* nhitsNoNoisePlotB1=new TH2F("nhitsNoNoisePlotB1","Number of hits without Noise B1;module_eta;module_phi", 13, -6.5, 6.5, 38, -0.5, 37.5);
   m_tHistSvc->regHist("/histfile/nhitsNoNoisePlotB1",nhitsNoNoisePlotB1).setChecked();
 
-  TH2F* nhitsNoNoisePlotB2=new TH2F("nhitsNoNoisePlotB2","Number of hits without Noise B2;module_eta;module_phi",13,-6.5,6.5,52,-0.5,51.5);
+  // barrel layer 2
+  TH2F* nhitsNoNoisePlotB2=new TH2F("nhitsNoNoisePlotB2","Number of hits without Noise B2;module_eta;module_phi", 13, -6.5, 6.5, 52, -0.5, 51.5);
   m_tHistSvc->regHist("/histfile/nhitsNoNoisePlotB2",nhitsNoNoisePlotB2).setChecked();
-  // ==> kazuki
+
+  //------------------------
+  // disabled pixels
+  //------------------------  
+
+  // IBL
+  TH2F* disablePlotBI=new TH2F("disablePlotBI", "Disabled pixels BI;module_eta;module_phi", 20, -10, 10, 14, -0.5, 13.5); 
+  m_tHistSvc->regHist("/histfile/disablePlotBI",disablePlotBI).setChecked();
+
+  // B-layer
+  TH2F* disablePlotB0=new TH2F("disablePlotB0", "Disabled pixels B0;module_eta;module_phi", 13,- 6.5, 6.5, 22, -0.5, 21.5);
+  m_tHistSvc->regHist("/histfile/disablePlotB0",disablePlotB0).setChecked();
+
+  // barrel layer 1
+  TH2F* disablePlotB1=new TH2F("disablePlotB1", "Disabled pixels B1;module_eta;module_phi", 13, -6.5, 6.5, 38, -0.5, 37.5);
+  m_tHistSvc->regHist("/histfile/disablePlotB1",disablePlotB1).setChecked();
+
+  // barrel layer 2
+  TH2F* disablePlotB2=new TH2F("disablePlotB2", "Disabled pixels B2;module_eta;module_phi", 13, -6.5, 6.5, 52, -0.5, 51.5);
+  m_tHistSvc->regHist("/histfile/disablePlotB2",disablePlotB2).setChecked();
+
+  // endcap
+  TH2F* disablePlotEC=new TH2F("disablePlotEC", "Disabled pixels Endcap;Disk;module_phi", 7, -3.5, 3.5, 48, -0.5, 47.5);
+  m_tHistSvc->regHist("/histfile/disablePlotEC",disablePlotEC).setChecked();
+
+  // DBM
+  TH2F* disablePlotDBM=new TH2F("disablePlotDBM", "Disabled pixels DBM;Layer;module_phi", 7, -3.5, 3.5, 4, -0.5, 3.5);
+  m_tHistSvc->regHist("/histfile/disablePlotDBM",disablePlotDBM).setChecked();
 
   TH1D* maskedPlot= new TH1D("maskedPlot","Disabled pixel per module",50,0.5,50.5);
   m_tHistSvc->regHist("/histfile/maskedPlot",maskedPlot).setChecked();
 
-  TH2F* disablePlotBI=new TH2F("disablePlotBI","Disabled pixels BI;module_eta;module_phi",20,-10,10,14,-0.5,13.5); // ----- IBL ----- //
-  m_tHistSvc->regHist("/histfile/disablePlotBI",disablePlotBI).setChecked();
+  int totalDisabledPixels=0;
+  int totalDisabledModules=0;
+  int modulesWithHits=0;
+  int modulesWithDisabledPixels=0;
 
-  TH2F* disablePlotB0=new TH2F("disablePlotB0","Disabled pixels B0;module_eta;module_phi",13,-6.5,6.5,22,-0.5,21.5);
-  m_tHistSvc->regHist("/histfile/disablePlotB0",disablePlotB0).setChecked();
-
-  TH2F* disablePlotB1=new TH2F("disablePlotB1","Disabled pixels B1;module_eta;module_phi",13,-6.5,6.5,38,-0.5,37.5);
-  m_tHistSvc->regHist("/histfile/disablePlotB1",disablePlotB1).setChecked();
-
-  TH2F* disablePlotB2=new TH2F("disablePlotB2","Disabled pixels B2;module_eta;module_phi",13,-6.5,6.5,52,-0.5,51.5);
-  m_tHistSvc->regHist("/histfile/disablePlotB2",disablePlotB2).setChecked();
-
-  TH2F* disablePlotEC=new TH2F("disablePlotEC","Disabled pixels Endcap;Disk;module_phi",7,-3.5,3.5,48,-0.5,47.5);
-  m_tHistSvc->regHist("/histfile/disablePlotEC",disablePlotEC).setChecked();
-
-  TH2F* disablePlotDBM=new TH2F("disablePlotDBM","Disabled pixels DBM;Layer;module_phi",7,-3.5,3.5,4,-0.5,3.5);
-  m_tHistSvc->regHist("/histfile/disablePlotDBM",disablePlotDBM).setChecked();
-
-  //std::cout << "debug point 6" << std::endl;
-
-  int totalDisabledPixels=0,
-      totalDisabledModules=0,
-      modulesWithHits=0,
-      modulesWithDisabledPixels=0;
-
-  // kazuki
-  /*
-     std::cout << "DEBUG: " << "\n"
-     << "m_pixelID->wafer_hash_max(): " << m_pixelID->wafer_hash_max() << "\n"
-     << "m_pixelID->pixel_hash_max(): " << m_pixelID->pixel_hash_max()
-     << std::endl;
-     */
-  std::sort(m_moduleHashList.begin(), m_moduleHashList.end());
-  InDetDD::SiDetectorElementCollection::const_iterator iter, itermin, itermax;
-  itermin = m_pixman->getDetectorElementBegin();
-  itermax = m_pixman->getDetectorElementEnd();
-  if(m_pixelID->wafer_hash_max() > 1744) m_isIBL = true; // #modules only Pixel is 1744
+ 
+  //  std::sort(m_moduleHashList.begin(), m_moduleHashList.end());
+  //  if(m_pixelID->wafer_hash_max() > 1744) m_isIBL = true; // #modules only Pixel is 1744
   //for(unsigned int moduleHash = 0; moduleHash < m_pixelID->wafer_hash_max(); moduleHash++)
   //for(std::vector<int>::iterator it = m_moduleHashList.begin(); it != m_moduleHashList.end(); ++it)
-  for( iter = itermin; iter != itermax; ++iter)
-  {
-    //int moduleHash = *it;
 
-    /*
-       if ( std::binary_search(m_moduleHashList.begin(), m_moduleHashList.end(), moduleHash) == false )
-       { // kazuki
-       std::cout << "DEBUG: " << moduleHash << " is not in m_moduleHashList" << std::endl;
-       continue; // kazuki
-       }
-       */
+  //
+  // loop in detector elements
+  //
+  for(InDetDD::SiDetectorElementCollection::const_iterator iter=m_pixman->getDetectorElementBegin(); 
+      iter!=m_pixman->getDetectorElementEnd(); ++iter) {    
+
     const InDetDD::SiDetectorElement* element = *iter;
     if(element == 0) continue;
+
     Identifier ident = element->identify();
-    if(!m_pixelID->is_pixel(ident)) continue;  // OK this Element is included
-    const InDetDD::PixelModuleDesign* design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
-    if(!design) continue;
-    //unsigned int mchips = design->numberOfCircuits();
-    int barrel     = m_pixelID->barrel_ec (ident);
-    int layer      = m_pixelID->layer_disk(ident); // kazuki
-    int module_phi = m_pixelID->phi_module(ident);
-    int module_eta = m_pixelID->eta_module(ident); // kazuki
-    //Identifier moduleID = m_pixelID->wafer_id(IdentifierHash(moduleHash));
-    int phi_max    = m_pixelID->phi_index_max(ident);
-    int eta_max    = m_pixelID->eta_index_max(ident);
-    int moduleHash = m_pixelID->wafer_hash(ident);
+    if(!m_pixelID->is_pixel(ident)) continue;  
+
+    int bec     = m_pixelID->barrel_ec (ident);
+    int layer   = m_pixelID->layer_disk(ident);
+    int modPhi  = m_pixelID->phi_module(ident);
+    int modEta  = m_pixelID->eta_module(ident); 
+    int modHash = m_pixelID->wafer_hash(ident);
+    int phi_max = m_pixelID->phi_index_max(ident);
+    int eta_max = m_pixelID->eta_index_max(ident);
 
     /*
     Identifier moduleID = m_pixelID->wafer_id(IdentifierHash(moduleHash));
@@ -1189,87 +1196,39 @@ StatusCode NoiseMapBuilder::finalize() {
     int eta_max    = m_pixelID->eta_index_max(moduleID);
     */
 
-    TH2F* nhitsNoNoisePlot = 0; // kazuki
-    std::string component;
+    //const InDetDD::PixelModuleDesign* design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
+    //    if(!design) continue;
+    //unsigned int mchips = design->numberOfCircuits();
+
+   
+    TH2F* nhitsNoNoisePlot=0; 
+    std::string comp;
     double cut = 0.;
 
-    //if(moduleHash == 0 || moduleHash == 1000) std::cout << "debug point 7: " << moduleHash << std::endl;
-
-    if ( barrel != 0 ) { // if Disk (or DBM)
-
-      //if (barrel == -2)
-      if (barrel == 2) // kazuki
-      { // if A side
-        if(layer == 0){cut = m_disk1ACut; component = "Disk1A";}
-        else if(layer == 1){cut = m_disk2ACut; component = "Disk2A";}
-        else if(layer == 2){cut = m_disk3ACut; component = "Disk3A";}
+    if(bec != 0) { // Disk or DBM
+      if(bec == 2) { 
+        if(layer == 0)      {cut=m_disk1ACut; comp="Disk1A"; }
+        else if(layer == 1) {cut=m_disk2ACut; comp="Disk2A"; }
+        else if(layer == 2) {cut=m_disk3ACut; comp="Disk3A"; }
       }
-      //else if (barrel == -2)
-      else if (barrel == -2) // kazuki
-      { // if C side
-        if(layer == 0){cut = m_disk1CCut; component = "Disk1C";}
-        else if(layer == 1){cut = m_disk2CCut; component = "Disk2C";}
-        else if(layer == 2){cut = m_disk3CCut; component = "Disk3C";}
+      else if(bec == -2) { 
+        if(layer == 0)      { cut=m_disk1CCut; comp="Disk1C"; }
+        else if(layer == 1) { cut=m_disk2CCut; comp="Disk2C"; }
+        else if(layer == 2) { cut=m_disk3CCut; comp="Disk3C"; }
       }
-      else if (barrel ==  4) // kazuki
-      {
-        cut = m_dbmCut; component = "DBMA";
-      }
-      else if (barrel == -4) // kazuki
-      {
-        cut = m_dbmCut; component = "DBMC";
-      }
-    } else if ( barrel == 0 ) { // if barrel
-      if (m_isIBL) { // ----- IBL ----- //
-        if(layer == 0){
-          cut = m_iblCut;
-          nhitsNoNoisePlot = nhitsNoNoisePlotBI;
-          component = "IBL";
-        }
-        else if(layer == 1) { // CAUTION: layer #1 = BLayer since IBL installed
-          cut = m_bLayerCut;
-          nhitsNoNoisePlot = nhitsNoNoisePlotB0; // kazuki
-          component = "B-layer";
-        }
-        else if(layer == 2) {
-          cut = m_layer1Cut;
-          nhitsNoNoisePlot = nhitsNoNoisePlotB1; // kazuki
-          component = "Layer1";
-        }
-        else if(layer == 3) {
-          cut = m_layer2Cut;
-          nhitsNoNoisePlot = nhitsNoNoisePlotB2; // kazuki
-          component = "Layer2";
-        }
-      } else { // only Pixel
-        if(layer == 0){
-          cut = m_bLayerCut;
-          nhitsNoNoisePlot = nhitsNoNoisePlotB0; // kazuki
-          component = "B-layer";
-        }
-        else if(layer == 1) {
-          cut = m_layer1Cut;
-          nhitsNoNoisePlot = nhitsNoNoisePlotB1; // kazuki
-          component = "Layer1";
-        }
-        else if(layer == 2) {
-          cut = m_layer2Cut;
-          nhitsNoNoisePlot = nhitsNoNoisePlotB2; // kazuki
-          component = "Layer2";
-        }
-        else continue;
-      }
-    }
+      else if(bec ==  4) { cut=m_dbmCut; comp="DBMA"; }
+      else if(bec == -4) { cut=m_dbmCut; comp="DBMC"; }
+    } 
+    else if( bec == 0 ) { // Barrel
+      if(layer == 0)        { cut=m_iblCut;    nhitsNoNoisePlot=nhitsNoNoisePlotBI; comp="IBL";     }
+        else if(layer == 1) { cut=m_bLayerCut; nhitsNoNoisePlot=nhitsNoNoisePlotB0; comp="B-layer"; }
+        else if(layer == 2) { cut=m_layer1Cut; nhitsNoNoisePlot=nhitsNoNoisePlotB1; comp="Layer1";  }
+        else if(layer == 3) { cut=m_layer2Cut; nhitsNoNoisePlot=nhitsNoNoisePlotB2; comp="Layer2";  }
+      } 
 
-    //if(moduleHash == 0 || moduleHash == 1000) std::cout << "debug point 8: " << moduleHash << std::endl;
+    if( m_BSErrorsSvc->getReadEvents(modHash)==0 && m_hitMaps[modHash]->GetEntries()==0 ) {
 
-    if( m_BSErrorsSvc->getReadEvents(moduleHash)==0 && m_hitMaps[moduleHash]->GetEntries()==0 ) // original
-      //if( m_hitMaps[moduleHash]->GetEntries() == 0 ) // m_BSErrorSVc->getReadEvents returns seg fault //////////////////////////////////////////////////////////////////////////////////////////
-    {
-
-      //if(moduleHash == 0 || moduleHash == 1000) std::cout << "debug point 9: " << moduleHash << std::endl;
-
-      if (!m_isIBL) {
+      /*      if (!m_isIBL) {
         unsigned int hashID = ( ((m_pixelID->barrel_ec(ident) + 2) / 2) << 25 ) +
           ( m_pixelID->layer_disk(ident) << 23) +
           ( m_pixelID->phi_module(ident) << 17) +
@@ -1278,104 +1237,50 @@ StatusCode NoiseMapBuilder::finalize() {
             << PixelConvert::OnlineID(hashID) << "\t"
             << PixelConvert::DCSID(PixelConvert::OnlineID(hashID)) );
       }
+      */
 
-      //if(moduleHash == 0 || moduleHash == 1000) std::cout << "debug point 10: " << moduleHash << std::endl;
-
-      if (barrel== 0) {
-        if (m_isIBL) { // ----- IBL ----- //
-          if(layer == 0){
-            disablePlotBI->Fill(module_eta,module_phi,-1);
-          }
-          else if(layer == 1) { // CAUTION: layer #1 = BLayer since IBL installed
-            disablePlotB0->Fill(module_eta,module_phi,-1);
-          }
-          else if(layer == 2) {
-            disablePlotB1->Fill(module_eta,module_phi,-1);
-          }
-          else if(layer == 3) {
-            disablePlotB2->Fill(module_eta,module_phi,-1);
-          }
-        }
-        else {
-          if(layer == 0){
-            disablePlotB0->Fill(module_eta,module_phi,-1);
-          }
-          else if(layer == 1) {
-            disablePlotB1->Fill(module_eta,module_phi,-1);
-          }
-          else if(layer == 2) {
-            disablePlotB2->Fill(module_eta,module_phi,-1);
-          }
-        }
+      if (bec== 0) {
+	if(layer == 0)      { disablePlotBI->Fill(modEta,modPhi,-1); }
+	else if(layer == 1) { disablePlotB0->Fill(modEta,modPhi,-1); }
+	else if(layer == 2) { disablePlotB1->Fill(modEta,modPhi,-1); }
+	else if(layer == 3) { disablePlotB2->Fill(modEta,modPhi,-1); }
       }
-      else if (barrel== 2) { disablePlotEC->Fill(layer+1,module_phi,-1); }
-      else if (barrel==-2) { disablePlotEC->Fill(-(layer+1),module_phi,-1); }
-      else if (barrel== 4) { disablePlotDBM->Fill(layer+1,module_phi,-1); }
-      else if (barrel==-4) { disablePlotDBM->Fill(-(layer+1),module_phi,-1); }
-      totalDisabledModules++;
+      else if(bec ==  2) { disablePlotEC->Fill(layer+1,     modPhi, -1); }
+      else if(bec == -2) { disablePlotEC->Fill(-(layer+1),  modPhi, -1); }
+      else if(bec ==  4) { disablePlotDBM->Fill(layer+1,    modPhi, -1); }
+      else if(bec == -4) { disablePlotDBM->Fill(-(layer+1), modPhi, -1); }
 
+      totalDisabledModules++;
       continue;
     }
-    else if( m_hitMaps[moduleHash]->GetEntries() != 0 ) ///////////////////////////////////////////////////////////////////////////////
-    {
-      if (barrel== 0) {
-        if (m_isIBL) { // ----- IBL ----- //
-          if(layer == 0){
-            nhitsPlotBI->Fill(module_eta,module_phi,m_hitMaps[moduleHash]->GetEntries());
-          }
-          else if(layer == 1) { // CAUTION: layer #1 = BLayer since IBL installed
-            nhitsPlotB0->Fill(module_eta,module_phi,m_hitMaps[moduleHash]->GetEntries());
-          }
-          else if(layer == 2) {
-            nhitsPlotB1->Fill(module_eta,module_phi,m_hitMaps[moduleHash]->GetEntries());
-          }
-          else if(layer == 3) {
-            nhitsPlotB2->Fill(module_eta,module_phi,m_hitMaps[moduleHash]->GetEntries());
-          }
-        }
-        else {
-          if(layer == 0){
-            nhitsPlotB0->Fill(module_eta,module_phi,m_hitMaps[moduleHash]->GetEntries());
-          }
-          else if(layer == 1) {
-            nhitsPlotB1->Fill(module_eta,module_phi,m_hitMaps[moduleHash]->GetEntries());
-          }
-          else if(layer == 2) {
-            nhitsPlotB2->Fill(module_eta,module_phi,m_hitMaps[moduleHash]->GetEntries());
-          }
-        }
+    else if( m_hitMaps[modHash]->GetEntries() != 0 ) {
+      if (bec== 0) {
+	if(layer == 0)      { nhitsPlotBI->Fill(modEta, modPhi, m_hitMaps[modHash]->GetEntries()); }
+	else if(layer == 1) { nhitsPlotB0->Fill(modEta, modPhi, m_hitMaps[modHash]->GetEntries()); }
+	else if(layer == 2) { nhitsPlotB1->Fill(modEta, modPhi, m_hitMaps[modHash]->GetEntries()); }
+	else if(layer == 3) { nhitsPlotB2->Fill(modEta, modPhi, m_hitMaps[modHash]->GetEntries()); }
       }
-      else if (barrel== 2) {
-        nhitsPlotEC->Fill(layer+1,module_phi,m_hitMaps[moduleHash]->GetEntries());
-      }
-      else if (barrel==-2) { 
-        nhitsPlotEC->Fill(-(layer+1),module_phi,m_hitMaps[moduleHash]->GetEntries());
-      }
-      else if (barrel== 4) { 
-        nhitsPlotDBM->Fill(layer+1,module_phi,m_hitMaps[moduleHash]->GetEntries());
-      }
-      else if (barrel==-4) { 
-        nhitsPlotDBM->Fill(-(layer+1),module_phi,m_hitMaps[moduleHash]->GetEntries());
-      }
+      else if(bec ==  2) { nhitsPlotEC->Fill(layer+1,     modPhi, m_hitMaps[modHash]->GetEntries()); }
+      else if(bec == -2) { nhitsPlotEC->Fill(-(layer+1),  modPhi, m_hitMaps[modHash]->GetEntries()); }
+      else if(bec ==  4) { nhitsPlotDBM->Fill(layer+1,    modPhi, m_hitMaps[modHash]->GetEntries()); }
+      else if(bec == -4) { nhitsPlotDBM->Fill(-(layer+1), modPhi, m_hitMaps[modHash]->GetEntries()); }
 
       modulesWithHits++;
     }
 
-    //if(moduleHash == 0 || moduleHash == 1000) std::cout << "debug point 11: " << moduleHash << std::endl;
-
     int thisModuleCut = 0;
-    bool isIBL3D = ( m_isIBL && barrel == 0 && layer == 0 && (module_eta <= -7 || module_eta >= 6) ) ? true : false;
+    bool isIBL3D = ( m_isIBL && bec == 0 && layer == 0 && (modEta <= -7 || modEta >= 6) ) ? true : false;
 
     for(int pixel_eta = 0; pixel_eta <= eta_max; pixel_eta++){
       for(int pixel_phi = 0; pixel_phi <= phi_max; pixel_phi++){
 
         // kazuki added from here
-        int pixel_eta_on_chip = (m_isIBL && barrel == 0 && layer == 0) ? pixel_eta % 80 : pixel_eta % 18; // column
+        int pixel_eta_on_chip = (m_isIBL && bec == 0 && layer == 0) ? pixel_eta % 80 : pixel_eta % 18; // column
         int pixel_phi_on_chip = (pixel_phi <= 163) ? pixel_phi : 327 - pixel_phi; // eta
-        if (m_isIBL && barrel == 0 && layer == 0) pixel_phi_on_chip = pixel_phi;
+        if (m_isIBL && bec == 0 && layer == 0) pixel_phi_on_chip = pixel_phi;
         int pixelType = 0;
 
-        if (m_isIBL && barrel == 0 && layer == 0) { // ----- IBL ----- //
+        if (bec == 0 && layer == 0) { // ----- IBL ----- //
           if( !isIBL3D && (pixel_eta_on_chip == 0 || pixel_eta_on_chip == 80 - 1) ){
             pixelType = 1; // long
           }
@@ -1419,9 +1324,9 @@ StatusCode NoiseMapBuilder::finalize() {
 
         std::string type;
          // kazuki commented out
-        //int pixel_eta_on_chip = (m_isIBL && barrel == 0 && layer == 0) ? pixel_eta % 80 : pixel_eta % 18; // column
+        //int pixel_eta_on_chip = (m_isIBL && bec == 0 && layer == 0) ? pixel_eta % 80 : pixel_eta % 18; // column
         //int pixel_phi_on_chip = (pixel_phi <= 163) ? pixel_phi : 327 - pixel_phi; // eta
-        //if (m_isIBL && barrel == 0 && layer == 0) pixel_phi_on_chip = pixel_phi;
+        //if (m_isIBL && bec == 0 && layer == 0) pixel_phi_on_chip = pixel_phi;
          //  unsigned int pixelType = ModuleSpecialPixelMap::
           // pixelType( pixel_eta_on_chip, pixel_phi_on_chip, mchips );
 
@@ -1451,89 +1356,60 @@ StatusCode NoiseMapBuilder::finalize() {
         }
 
         double thiscut = cut;
-
-        if( type == "Ganged" ) thiscut *= m_gangedPixelMultiplier;
-        else if( type == "Long" ) thiscut *= m_longPixelMultiplier;
+        if( type == "Ganged" )                thiscut *= m_gangedPixelMultiplier;
+        else if( type == "Long" )             thiscut *= m_longPixelMultiplier;
         else if( type == "Long-InterGanged" ) thiscut *= m_longPixelMultiplier;
-        else if( type == "Long-Ganged" ) thiscut *= m_longPixelMultiplier * m_gangedPixelMultiplier;
-
-        //if(moduleHash == 0 || moduleHash == 1000) std::cout << "debug point 12: " << moduleHash << std::endl;
+        else if( type == "Long-Ganged" )      thiscut *= m_longPixelMultiplier * m_gangedPixelMultiplier;
 
         if( type != "Invalid" ){
-
-          double occupancy = static_cast<double>(m_hitMaps[moduleHash]->GetBinContent(pixel_eta+1, pixel_phi+1)) /
+          double occupancy = static_cast<double>(m_hitMaps[modHash]->GetBinContent(pixel_eta+1, pixel_phi+1)) /
             static_cast<double>(m_nEvents);
-
-          if ( occupancy < minOccupancy ) occupancy = minOccupancy;
+	  
+          if( occupancy < minOccupancy ) occupancy = minOccupancy;
           globalOccupancy->Fill(log10(occupancy));
-          h_occupancy[component]->Fill(log10(occupancy));
+          h_occupancy[comp]->Fill(log10(occupancy));
           h_occupancy[type]->Fill(log10(occupancy));
+
           if( occupancy > thiscut ) {
             thisModuleCut++;
 
             if( m_calculateNoiseMaps ){
-              m_noiseMaps[moduleHash]->Fill(pixel_eta, pixel_phi);
-              if (m_isIBL && component == "IBL") {
-                if (module_eta >= -6 && module_eta <= 5) m_overlayedIBLDCNoiseMap->Fill(pixel_eta, pixel_phi); // Planar
-                if (module_eta <= -7 || module_eta >= 6) m_overlayedIBLSCNoiseMap->Fill(pixel_eta, pixel_phi); // 3D
+              m_noiseMaps[modHash]->Fill(pixel_eta, pixel_phi);
+              if (comp == "IBL") {
+                if(modEta >= -6 && modEta <= 5) m_overlayedIBLDCNoiseMap->Fill(pixel_eta, pixel_phi); // Planar
+                if(modEta <= -7 || modEta >= 6) m_overlayedIBLSCNoiseMap->Fill(pixel_eta, pixel_phi); // 3D
               }
               else m_overlayedPixelNoiseMap->Fill(pixel_eta, pixel_phi);
             }
           } else {
-            if ( barrel == 0 ) nhitsNoNoisePlot->Fill(module_eta,module_phi, m_hitMaps[moduleHash]->GetBinContent(pixel_eta+1, pixel_phi+1));
+            if ( bec == 0 ) nhitsNoNoisePlot->Fill(modEta,modPhi, m_hitMaps[modHash]->GetBinContent(pixel_eta+1, pixel_phi+1));
           }
         } // end if ( type != "Invalid" )
       } // end for loop on pixel_phi
     } // end for loop on pixel_eta
-    //if(moduleHash == 0 || moduleHash == 1000) std::cout << "debug point 13: " << moduleHash << std::endl;
+
     if ( thisModuleCut > 0 ) {
       totalDisabledPixels+=thisModuleCut;
       maskedPlot->Fill( static_cast<double>(thisModuleCut) );
       modulesWithDisabledPixels++;
    
-      if      (barrel== 0) {
-        if (m_isIBL) { // ----- IBL ----- //
-          if(layer == 0){
-            disablePlotBI->Fill(module_eta,module_phi,thisModuleCut);
-          }
-          else if(layer == 1) { // CAUTION: layer #1 = BLayer since IBL installed
-            disablePlotB0->Fill(module_eta,module_phi,thisModuleCut);
-          }
-          else if(layer == 2) {
-            disablePlotB1->Fill(module_eta,module_phi,thisModuleCut);
-          }
-          else if(layer == 3) {
-            disablePlotB2->Fill(module_eta,module_phi,thisModuleCut);
-          }
-        }
-        else {
-          if(layer == 0){
-            disablePlotB0->Fill(module_eta,module_phi,thisModuleCut);
-          }
-          else if(layer == 1) {
-            disablePlotB1->Fill(module_eta,module_phi,thisModuleCut);
-          }
-          else if(layer == 2) {
-            disablePlotB2->Fill(module_eta,module_phi,thisModuleCut);
-          }
-        }
+      if(bec== 0){
+	if(layer == 0)      { disablePlotBI->Fill(modEta, modPhi, thisModuleCut); }
+	else if(layer == 1) { disablePlotB0->Fill(modEta, modPhi, thisModuleCut); }
+	else if(layer == 2) { disablePlotB1->Fill(modEta, modPhi, thisModuleCut); }
+	else if(layer == 3) { disablePlotB2->Fill(modEta, modPhi, thisModuleCut); }
       }
-      else if (barrel== 2) { disablePlotEC->Fill(layer+1,module_phi,thisModuleCut); }
-      else if (barrel==-2) { disablePlotEC->Fill(-(layer+1),module_phi,thisModuleCut); }
-
-   
-   
+      else if(bec== 2) { disablePlotEC->Fill(layer+1,    modPhi, thisModuleCut); }
+      else if(bec==-2) { disablePlotEC->Fill(-(layer+1), modPhi, thisModuleCut); }
     }
-    //if(moduleHash == 0 || moduleHash == 1000) std::cout << "debug point 14: " << moduleHash << std::endl;
-  } // end for loop on moduleHash
-
-  //std::cout << "debug point 999" << std::endl;
-
-  ATH_MSG_INFO( "Modules disabled " << totalDisabledModules );
-  ATH_MSG_INFO( "Modules with hits " << modulesWithHits );
-  ATH_MSG_INFO( "Modules with disabled pixels " << modulesWithDisabledPixels );
-  ATH_MSG_INFO( "Total disabled pixels " << totalDisabledPixels );
+  } // end for loop on modHash
+  
+  ATH_MSG_INFO("Modules disabled = " << totalDisabledModules);
+  ATH_MSG_INFO("Modules with hits = " << modulesWithHits);
+  ATH_MSG_INFO("Modules with disabled pixels = " << modulesWithDisabledPixels);
+  ATH_MSG_INFO("Total disabled pixels = " << totalDisabledPixels);
 
   return StatusCode::SUCCESS;
+  
 } // end finalize
 
