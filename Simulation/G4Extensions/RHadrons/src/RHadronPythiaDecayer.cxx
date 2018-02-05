@@ -8,15 +8,13 @@
 #include "CLHEP/Vector/LorentzVector.h"
 #include "G4ExternalDecay/PythiaForDecays.h"
 #include "G4ExternalDecay/Pythia8ForDecays.h"
+
+#include "G4DecayProducts.hh"
 #include <iostream>
 
 G4DecayProducts* RHadronPythiaDecayer::ImportDecayProducts(const G4Track& aTrack){
-  std::cout << "Jenn testing RHadrons here" << std::endl;
-#ifdef USEG4DECAYPRODUCTS2
-  G4DecayProducts2 * dp = new G4DecayProducts2[1000];//allocate enough space so we can store all the additional products
-#else
+  G4cout << "Jenn testing RHadrons here" << G4endl;
   G4DecayProducts * dp = new G4DecayProducts();
-#endif
   dp->SetParentParticle( *(aTrack.GetDynamicParticle()) );
 
   // get particle momentum
@@ -45,22 +43,22 @@ G4DecayProducts* RHadronPythiaDecayer::ImportDecayProducts(const G4Track& aTrack
     PythiaForDecays::Instance()->ImportParticles(particles);
   }
 
-  std::cout << "Decayed an RHadron with ID " << pdgEncoding << " and momentum " << p << " in Pythia.  Decay products are:" << std::endl;
+  G4cout << "Decayed an RHadron with ID " << pdgEncoding << " and momentum " << p << " in Pythia.  Decay products are:" << G4endl;
   double totalE=0.0;
   for (unsigned int i=0; i<particles.size(); ++i){
     if (particles[i]) {
-      std::cout<<i<<" "; dp->PushProducts(particles[i]);
+      G4cout<<i<<" "; dp->PushProducts(particles[i]);
       totalE += particles[i]->GetTotalEnergy();
     }
     else {
-      std::cout << i << " null pointer!" << std::endl;
+      G4cout << i << " null pointer!" << G4endl;
     }
   }
-  std::cout << std::endl;
-  //std::cout <<"\nSummary:" << std::endl;
-  std::cout<<" total energy in was "<<etot<<std::endl;
-  std::cout<<" total energy out is "<<totalE<<std::endl;
-  //std::cout << std::endl;
+  G4cout << G4endl;
+  //G4cout <<"\nSummary:" << G4endl;
+  G4cout<<" total energy in was "<<etot<<G4endl;
+  G4cout<<" total energy out is "<<totalE<<G4endl;
+  //G4cout << G4endl;
   dp->DumpInfo();
 
   return dp;

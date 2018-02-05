@@ -5,18 +5,11 @@
 #ifndef RHadronPythiaDecayer_H
 #define RHadronPythiaDecayer_H
 
-//Use this to override the G4DecayProducts class and use up to 2000 decay products
-//#define USEG4DECAYPRODUCTS2
-
-#ifdef USEG4DECAYPRODUCTS2
-#include "RHadrons/G4DecayProducts2.h"
-#else
-#include "G4DecayProducts.hh"
-#endif
-
 #include "G4VExtDecayer.hh"
 #include "G4Track.hh"
 #include <string>
+
+class G4DecayProducts;
 
 class RHadronPythiaDecayer: public G4VExtDecayer
 {
