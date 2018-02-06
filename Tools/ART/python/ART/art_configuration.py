@@ -85,6 +85,7 @@ class ArtConfiguration(object):
 
         """
         log = logging.getLogger(MODULE)
+        log.debug("Looking for %s %s %s %s %s", nightly_release, project, platform, package, key)
         if self.config is None:
             log.debug("No configuration")
             return default_value
@@ -108,6 +109,7 @@ class ArtConfiguration(object):
                 if key in release:
                     value = release[key]
 
+        log.debug("Value %s", value)
         return value
 
     def get_option(self, nightly_release, project, platform, package, key, option_key):

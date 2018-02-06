@@ -365,7 +365,7 @@ rec.__dict__.get('projectName').set_Value(projectName)
 from IOVDbSvc.CondDB import conddb
 conddb.dbdata = 'CONDBR2'
 conddb.addFolder("SCT_OFL","<db>COOLOFL_SCT/CONDBR2</db> /SCT/Derived/Monitoring<tag>SctDerivedMonitoring-RUN2-UPD4-005</tag>") 
-#conddb.addFolder("SCT_OFL","<db>COOLOFL_SCT/CONDBR2</db> /SCT/Derived/Monitoring<tag>SctDerivedMonitoring-RUN2-UPD4-005</tag><forceRunNumber>259237</forceRunNumber>") 
+#conddb.addFolder("SCT_OFL","<db>COOLOFL_SCT/CONDBR2</db> /SCT/Derived/Monitoring<tag>SctDerivedMonitoring-RUN2-UPD4-005</tag><forceRunNumber>338834</forceRunNumber>") 
 
 # GeoModel & MagneticFieldSvc
 #--------------------------------------------------------------
@@ -525,6 +525,7 @@ SCTCalib.DoLorentzAngle   = DoLorentzAngle    # False in default
 #--- Local DB
 SCTCalib.WriteToCool = WriteToCool # True in default
 #--- Properties for noisy strips
+SCTCalib.NoisyUpdate            = NoisyUpdate
 SCTCalib.NoisyMinStat           = NoisyMinStat
 SCTCalib.NoisyStripAll          = NoisyStripAll
 SCTCalib.NoisyStripThrDef       = NoisyStripThrDef
@@ -541,7 +542,7 @@ SCTCalib.NoisyChipFraction      = NoisyChipFraction
 SCTCalib.NoisyUploadTest        = NoisyUploadTest
 SCTCalib.NoisyModuleAverageInDB = NoisyModuleAverageInDB
 SCTCalib.NoisyStripLastRunInDB  = NoisyStripLastRunInDB
-#SCTCalib.NoisyStripAverageInDB  = NoisyStripAverageInDB
+SCTCalib.NoisyStripAverageInDB  = NoisyStripAverageInDB
 SCTCalib.NoisyModuleList        = NoisyModuleList
 SCTCalib.NoisyModuleDiff        = NoisyModuleDiff
 SCTCalib.NoisyStripDiff         = NoisyStripDiff

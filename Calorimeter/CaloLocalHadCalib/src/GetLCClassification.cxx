@@ -89,7 +89,6 @@ GetLCClassification::~GetLCClassification()
 
 StatusCode GetLCClassification::initialize()
 {
-  MsgStream log(messageService(), name());
 
   //---- initialize the StoreGateSvc ptr ----------------
   
@@ -99,36 +98,36 @@ StatusCode GetLCClassification::initialize()
   mapparse();
 
   if ( m_NormalizationType == "Lin" ) {
-    log << MSG::INFO << "Using weighting proportional to E_calib" << endreq;
+    msg(MSG::INFO) << "Using weighting proportional to E_calib" << endmsg;
     m_NormalizationTypeNumber = GetLCDefs::LIN;
   }
   else if ( m_NormalizationType == "Log" ) {
-    log << MSG::INFO << "Using weighting proportional to log(E_calib)" << endreq;
+    msg(MSG::INFO) << "Using weighting proportional to log(E_calib)" << endmsg;
     m_NormalizationTypeNumber = GetLCDefs::LOG;
   }
   else if ( m_NormalizationType == "NClus" ) {
-    log << MSG::INFO << "Using weighting proportional to 1/N_Clus_E_calib>0" << endreq;
+    msg(MSG::INFO) << "Using weighting proportional to 1/N_Clus_E_calib>0" << endmsg;
     m_NormalizationTypeNumber = GetLCDefs::NCLUS;
   }
   else {
-    log << MSG::INFO << "Using constant weighting" << endreq;
+    msg(MSG::INFO) << "Using constant weighting" << endmsg;
     m_NormalizationTypeNumber = GetLCDefs::CONST;
   }
 
   if ( m_ClassificationType == "None" ) {
-    log << MSG::INFO << "Expecting single particle input" << endreq;
+    msg(MSG::INFO) << "Expecting single particle input" << endmsg;
     m_ClassificationTypeNumber = GetLCDefs::NONE;
   }
   else if ( m_ClassificationType == "ParticleID_EM" ) {
-    log << MSG::INFO << "Expecting ParticleID simulation as input -- use EM type clusters only" << endreq;
+    msg(MSG::INFO) << "Expecting ParticleID simulation as input -- use EM type clusters only" << endmsg;
     m_ClassificationTypeNumber = GetLCDefs::PARTICLEID_EM;
   }
   else if ( m_ClassificationType == "ParticleID_HAD" ) {
-    log << MSG::INFO << "Expecting ParticleID simulation as input -- use HAD type clusters only" << endreq;
+    msg(MSG::INFO) << "Expecting ParticleID simulation as input -- use HAD type clusters only" << endmsg;
     m_ClassificationTypeNumber = GetLCDefs::PARTICLEID_HAD;
   }
   else {
-    log << MSG::WARNING << " unknown classification type " << m_ClassificationType << " given! Using None instead" << endreq;
+    msg(MSG::WARNING) << " unknown classification type " << m_ClassificationType << " given! Using None instead" << endmsg;
     m_ClassificationTypeNumber = GetLCDefs::NONE;
   }
 
@@ -163,9 +162,9 @@ StatusCode GetLCClassification::initialize()
       iloglambda = idim;
   }
   if ( ilogE < 0 || ilogrho < 0 || iloglambda < 0 ) {
-    log << MSG::FATAL
+    msg(MSG::FATAL)
 	<< " Mandatory dimension log10E, log10rho or log10lambda missing ..."
-	<< endreq;
+	<< endmsg;
     return StatusCode::FAILURE;
   }
   int nside = (iside>=0?m_dimensions[iside].bins():1);
@@ -238,9 +237,8 @@ StatusCode GetLCClassification::initialize()
 
 StatusCode GetLCClassification::finalize()
 {
-  MsgStream log(messageService(), name());
 
-  log << MSG::INFO << "Writing out histograms" << endreq;
+  msg(MSG::INFO) << "Writing out histograms" << endmsg;
   m_outputFile->cd();
   for(unsigned int i=0;i<m_hclus.size();i++) {
     m_hclus[i]->Write();
@@ -254,14 +252,13 @@ StatusCode GetLCClassification::finalize()
 
 StatusCode GetLCClassification::execute()
 {
-  MsgStream log(messageService(), name());
 
   const DataHandle<xAOD::CaloClusterContainer> cc ;
   StatusCode sc = evtStore()->retrieve(cc,m_clusterCollName);
 
   if(sc != StatusCode::SUCCESS) {
-    log << MSG::ERROR << "Could not retrieve ClusterContainer " 
-	<< m_clusterCollName << " from StoreGate" << endreq;
+    msg(MSG::ERROR) << "Could not retrieve ClusterContainer " 
+	<< m_clusterCollName << " from StoreGate" << endmsg;
     return sc;
   }
 
@@ -275,13 +272,13 @@ StatusCode GetLCClassification::execute()
     const xAOD::CaloCluster * theCluster = (*clusIter);      
     double eC=999; 
     if (!theCluster->retrieveMoment(xAOD::CaloCluster::ENG_CALIB_TOT,eC)) {
-      log << MSG::ERROR << "Failed to retrieve cluster moment ENG_CALIB_TOT" <<endreq;
+      msg(MSG::ERROR) << "Failed to retrieve cluster moment ENG_CALIB_TOT" <<endmsg;
       return StatusCode::FAILURE;      
     }
     if ( m_ClassificationTypeNumber != GetLCDefs::NONE ) {
       double emFrac = 0;
       if (!theCluster->retrieveMoment(xAOD::CaloCluster::ENG_CALIB_FRAC_EM,emFrac)) {
-	log << MSG::ERROR << "Failed to retrieve cluster moment ENG_CALIB_FRAC_EM" <<endreq;
+	msg(MSG::ERROR) << "Failed to retrieve cluster moment ENG_CALIB_FRAC_EM" <<endmsg;
 	return StatusCode::FAILURE;      
       }
       if (m_ClassificationTypeNumber == GetLCDefs::PARTICLEID_EM && emFrac < 0.5 )
@@ -306,7 +303,7 @@ StatusCode GetLCClassification::execute()
 	if ( m_ClassificationTypeNumber != GetLCDefs::NONE ) {
 	  double emFrac = 0;
 	  if (pClus->retrieveMoment(xAOD::CaloCluster::ENG_CALIB_FRAC_EM,emFrac)) {
-	    log << MSG::ERROR << "Failed to retrieve cluster moment ENG_CALIB_FRAC_EM" <<endreq;
+	    msg(MSG::ERROR) << "Failed to retrieve cluster moment ENG_CALIB_FRAC_EM" <<endmsg;
 	    return StatusCode::FAILURE;      
 	  }
 	  if (m_ClassificationTypeNumber == GetLCDefs::PARTICLEID_EM && emFrac < 0.5 )
@@ -332,8 +329,8 @@ StatusCode GetLCClassification::execute()
 	  iside = (int)(nside*(((pClus->eta()<0?-1.0:1.0) - hd.lowEdge())
 			       /(hd.highEdge()-hd.lowEdge())));
 	  if ( iside < 0 || iside > nside-1 ) {
-	    log << MSG::WARNING << " Side index out of bounds " <<
-	      iside << " not in [0," << nside-1 << "]" << endreq; 
+	    msg(MSG::WARNING) << " Side index out of bounds " <<
+	      iside << " not in [0," << nside-1 << "]" << endmsg; 
 	    iside = -1;
 	  }
 	}
@@ -344,8 +341,8 @@ StatusCode GetLCClassification::execute()
 	  ieta = (int)(neta*((eta - hd.lowEdge())
 			     /(hd.highEdge()-hd.lowEdge())));
 	  if ( ieta < 0 || ieta > neta-1 ) {
-	    log << MSG::WARNING << " Eta index out of bounds " <<
-	      ieta << " not in [0," << neta-1 << "]" << endreq; 
+	    msg(MSG::WARNING) << " Eta index out of bounds " <<
+	      ieta << " not in [0," << neta-1 << "]" << endmsg; 
 	    ieta = -1;
 	  }
 	}
@@ -355,8 +352,8 @@ StatusCode GetLCClassification::execute()
 	  iphi = (int)(nphi*((pClus->phi() - hd.lowEdge())
 			     /(hd.highEdge()-hd.lowEdge())));
 	  if ( iphi < 0 || iphi > nphi-1 ) {
-	    log << MSG::WARNING << " Phi index out of bounds " <<
-	      iphi << " not in [0," << nphi-1 << "]" << endreq; 
+	    msg(MSG::WARNING) << " Phi index out of bounds " <<
+	      iphi << " not in [0," << nphi-1 << "]" << endmsg; 
 	    iphi = -1;
 	  }
 	}
@@ -368,15 +365,15 @@ StatusCode GetLCClassification::execute()
 	if ( ilogE >= 0 && ilogE < nlogE ) {
 	  double dens=0,lamb=0,ecal=0;
 	  if (!pClus->retrieveMoment(xAOD::CaloCluster::ENG_CALIB_TOT,ecal)) {
-	    log << MSG::ERROR << "Failed to retrieve cluster moment ENG_CALIB_TOT" <<endreq;
+	    msg(MSG::ERROR) << "Failed to retrieve cluster moment ENG_CALIB_TOT" <<endmsg;
 	    return StatusCode::FAILURE;      
 	  }
 	  if (!pClus->retrieveMoment(xAOD::CaloCluster::FIRST_ENG_DENS,dens)) {
-	    log << MSG::ERROR << "Failed to retrieve cluster moment FIRST_ENG_DENS" <<endreq;
+	    msg(MSG::ERROR) << "Failed to retrieve cluster moment FIRST_ENG_DENS" <<endmsg;
 	    return StatusCode::FAILURE;      
 	  }
 	  if (!pClus->retrieveMoment(xAOD::CaloCluster::CENTER_LAMBDA,lamb)) {
-	    log << MSG::ERROR << "Failed to retrieve cluster moment CENTER_LAMBDA" <<endreq;
+	    msg(MSG::ERROR) << "Failed to retrieve cluster moment CENTER_LAMBDA" <<endmsg;
 	    return StatusCode::FAILURE;      
 	  }
 	  if ( dens > 0 && 
@@ -423,18 +420,16 @@ void GetLCClassification::mapinsert(const std::vector<Gaudi::Histo1DDef> & dims)
 
 void GetLCClassification::mapparse() {
 
-  MsgStream log(messageService(), name());
-
   std::map<std::string,Gaudi::Histo1DDef>::iterator miter = m_dimensionsmap.begin();
   std::map<std::string,Gaudi::Histo1DDef>::iterator mend = m_dimensionsmap.end();
   
   for( ; miter != mend; miter++ ) {
     m_dimensions.push_back(miter->second);
-    log << MSG::DEBUG << " New Dimension: " 
+    msg(MSG::DEBUG) << " New Dimension: " 
 	<< miter->second.title() << ", [" << miter->second.lowEdge()
 	<< ", " << miter->second.highEdge() 
 	<< ", " << miter->second.bins()
-	<< "]" << endreq;
+	<< "]" << endmsg;
   }
 }
 

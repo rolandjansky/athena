@@ -29,6 +29,11 @@ StoreGateSvc  = svcMgr.StoreGateSvc
 DetectorStore = svcMgr.DetectorStore
 HistoryStore  = svcMgr.HistoryStore
 
+#--------------------------------------------------------------
+# Main alg sequence
+#--------------------------------------------------------------
+from AthenaCommon.AppMgr import athAlgSeq
+
 #==============================================================
 #
 # End of Unix standard job options file
