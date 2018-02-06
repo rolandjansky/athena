@@ -21,6 +21,8 @@
 #include "JetUncertainties/PtEtaUncertaintyComponent.h"
 #include "JetUncertainties/PtMassUncertaintyComponent.h"
 #include "JetUncertainties/PtMassEtaUncertaintyComponent.h"
+#include "JetUncertainties/ELogMassUncertaintyComponent.h"
+#include "JetUncertainties/ELogMassEtaUncertaintyComponent.h"
 #include "JetUncertainties/PileupUncertaintyComponent.h"
 #include "JetUncertainties/FlavourUncertaintyComponent.h"
 #include "JetUncertainties/PunchthroughUncertaintyComponent.h"
@@ -83,6 +85,7 @@ JetUncertaintiesTool::JetUncertaintiesTool(const std::string& name)
     , m_TAMassWeight(NULL)
     , m_combMassWeightCaloMassDef(CompMassDef::UNKNOWN)
     , m_combMassWeightTAMassDef(CompMassDef::UNKNOWN)
+    , m_combMassParam(CompParametrization::UNKNOWN)
     , m_userSeed(0)
     , m_rand(new TRandom3())
     , m_namePrefix("JET_")
@@ -130,6 +133,7 @@ JetUncertaintiesTool::JetUncertaintiesTool(const JetUncertaintiesTool& toCopy)
     , m_TAMassWeight(NULL)
     , m_combMassWeightCaloMassDef(CompMassDef::UNKNOWN)
     , m_combMassWeightTAMassDef(CompMassDef::UNKNOWN)
+    , m_combMassParam(CompParametrization::UNKNOWN)
     , m_userSeed(toCopy.m_userSeed)
     , m_rand(toCopy.m_rand ? new TRandom3(*toCopy.m_rand) : NULL)
     , m_namePrefix(toCopy.m_namePrefix)
@@ -346,9 +350,19 @@ StatusCode JetUncertaintiesTool::initialize()
         if (m_TAMassWeight->initialize(histFile).isFailure())
             return StatusCode::FAILURE;
 
+        // Get the weight parametrization, defaulting to pT vs m/pT
+        const TString combMassParam  = TString(settings.GetValue("CombMassWeightParam","PtMass"));
+        m_combMassParam = CompParametrization::stringToEnum(combMassParam);
+        if (m_combMassParam == CompParametrization::UNKNOWN)
+        {
+            ATH_MSG_ERROR("Unexpected combined mass parametrization: " << combMassParam.Data());
+            return StatusCode::FAILURE;
+        }
+
         ATH_MSG_INFO("  Found and loaded combined mass weight factors");
         ATH_MSG_INFO("    WeightCaloHist = " << m_caloMassWeight->getName());
         ATH_MSG_INFO("    WeightTAHist   = " << m_TAMassWeight->getName());
+        ATH_MSG_INFO("    WeightParam    = " << CompParametrization::enumToString(m_combMassParam).Data());
 
         // Check for custom mass definitions for the weight factors (not required, defaults exist)
         const TString caloWeightMassDef = settings.GetValue("CombMassWeightCaloMassDef","Calo");
@@ -1015,6 +1029,7 @@ UncertaintyComponent* JetUncertaintiesTool::buildUncertaintyComponent(const Comp
             if (cmuc->setCaloWeights(m_caloMassWeight).isFailure()) return NULL;
             if (cmuc->setTAWeights(m_TAMassWeight).isFailure())     return NULL;
             if (cmuc->setCombWeightMassDefs(m_combMassWeightCaloMassDef,m_combMassWeightTAMassDef).isFailure()) return NULL;
+            if (cmuc->setCombWeightParam(m_combMassParam).isFailure())  return NULL;
             if (component.combMassType == CombMassComp::Calo || component.combMassType == CombMassComp::Both)
             {
                 // Define the calorimeter group if applicable
@@ -1153,6 +1168,11 @@ UncertaintyComponent* JetUncertaintiesTool::buildUncertaintyComponent(const Comp
             case CompParametrization::PtMassEta:
             case CompParametrization::PtMassAbsEta:
                 return new PtMassEtaUncertaintyComponent(component);
+            case CompParametrization::eLOGmOe:
+                return new ELogMassUncertaintyComponent(component);
+            case CompParametrization::eLOGmOeEta:
+            case CompParametrization::eLOGmOeAbsEta:
+                return new ELogMassEtaUncertaintyComponent(component);
             default:
                 ATH_MSG_ERROR("Encountered unexpected parameter type: " << component.param.Data());
                 return NULL;
@@ -1711,6 +1731,45 @@ bool JetUncertaintiesTool::getValidUncertainty(size_t index, double& unc, const 
 }
 
 
+double JetUncertaintiesTool::readHistoFromParam(const xAOD::JetFourMom_t& jet4vec, const UncertaintyHistogram& histo, const CompParametrization::TypeEnum param) const
+{
+    double resolution = 0;
+    switch (param)
+    {
+        case CompParametrization::Pt:
+            resolution = histo.getValue(jet4vec.Pt()*m_energyScale);
+            break;
+        case CompParametrization::PtEta:
+            resolution = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.Eta());
+            break;
+        case CompParametrization::PtAbsEta:
+            resolution = histo.getValue(jet4vec.Pt()*m_energyScale,fabs(jet4vec.Eta()));
+            break;
+        case CompParametrization::PtMass:
+            resolution = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.M()/jet4vec.Pt());
+            break;
+        case CompParametrization::PtMassEta:
+            resolution = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.M()/jet4vec.Pt(),jet4vec.Eta());
+            break;
+        case CompParametrization::PtMassAbsEta:
+            resolution = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.M()/jet4vec.Pt(),fabs(jet4vec.Eta()));
+            break;
+        case CompParametrization::eLOGmOe:
+            resolution = histo.getValue(jet4vec.E()*m_energyScale,log(jet4vec.M()/jet4vec.E()));
+            break;
+        case CompParametrization::eLOGmOeEta:
+            resolution = histo.getValue(jet4vec.E()*m_energyScale,log(jet4vec.M()/jet4vec.E()),jet4vec.Eta());
+            break;
+        case CompParametrization::eLOGmOeAbsEta:
+            resolution = histo.getValue(jet4vec.E()*m_energyScale,log(jet4vec.M()/jet4vec.E()),fabs(jet4vec.Eta()));
+            break;
+        default:
+            ATH_MSG_ERROR("Failed to read histogram due to unknown parametrization type in " << getName());
+            break;
+    }
+    return resolution == 0 ? 0 : 1./(resolution*resolution);
+}
+
 
 double JetUncertaintiesTool::getNormalizedCaloMassWeight(const xAOD::Jet& jet) const
 {
@@ -1720,8 +1779,8 @@ double JetUncertaintiesTool::getNormalizedCaloMassWeight(const xAOD::Jet& jet) c
     static JetFourMomAccessor TAScale (CompMassDef::getJetScaleString(m_combMassWeightTAMassDef).Data());
 
 
-    const double caloRes = m_caloMassWeight->getValue(caloScale.pt(jet)*m_energyScale,caloScale.m(jet)/caloScale.pt(jet) );
-    const double TARes   = m_TAMassWeight->getValue(TAScale.pt(jet)*m_energyScale,TAScale.m(jet)/TAScale.pt(jet));
+    const double caloRes = m_caloMassWeight ? readHistoFromParam(caloScale(jet),*m_caloMassWeight,m_combMassParam) : 0;
+    const double TARes   = m_TAMassWeight ? readHistoFromParam(TAScale(jet),*m_TAMassWeight,m_combMassParam) : 0;
 
     if (caloRes == 0 || TARes == 0) return 0;
 

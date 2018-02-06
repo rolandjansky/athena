@@ -98,6 +98,9 @@ namespace CompParametrization
             case PtMass:        return "PtMass";
             case PtMassEta:     return "PtMassEta";
             case PtMassAbsEta:  return "PtMassAbsEta";
+            case eLOGmOe:       return "eLOGmOe";
+            case eLOGmOeEta:    return "eLOGmOeEta";
+            case eLOGmOeAbsEta: return "eLOGmOeAbsEta";
             default:            return "UNKNOWN";
         }
     }
@@ -116,6 +119,12 @@ namespace CompParametrization
             return PtMassEta;
         if (!type.CompareTo("PtMassAbsEta",TString::kIgnoreCase))
             return PtMassAbsEta;
+        if (!type.CompareTo("eLOGmOe",TString::kIgnoreCase))
+            return eLOGmOe;
+        if (!type.CompareTo("eLOGmOeEta",TString::kIgnoreCase))
+            return eLOGmOeEta;
+        if (!type.CompareTo("eLOGmOeAbsEta",TString::kIgnoreCase))
+            return eLOGmOeAbsEta;
         return UNKNOWN;
     }
 
@@ -124,7 +133,8 @@ namespace CompParametrization
         switch(type)
         {
             case PtAbsEta:
-            case PtMassAbsEta:  return true;
+            case PtMassAbsEta:  
+            case eLOGmOeAbsEta: return true;
             
             default:            return false;
         }

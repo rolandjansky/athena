@@ -49,7 +49,10 @@ namespace CompParametrization
         PtAbsEta,       // 2D, (pT,|eta|) dependence
         PtMass,         // 2D, (pt,m/pT) dependence
         PtMassEta,      // 3D, (pT,m/pT,eta) dependence
-        PtMassAbsEta    // 3D, (pT,m/pT,|eta|) dependence
+        PtMassAbsEta,   // 3D, (pT,m/pT,|eta|) dependence
+        eLOGmOe,        // 2D, (E,log(m/E)) dependence
+        eLOGmOeEta,     // 3D, (E,log(m/E),eta) dependence
+        eLOGmOeAbsEta,  // 3D, (E,log(m/E),|eta|) dependence
     };
 
     TString enumToString(const TypeEnum type);
