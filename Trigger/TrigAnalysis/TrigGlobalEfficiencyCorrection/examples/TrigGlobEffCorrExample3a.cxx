@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 /// Based on CPToolTester.cxx (A. Kraznahorkay) 
 /// and ut_ath_checkTrigger_test.cxx (W. Buttinger)
 /// Contact: jmaurer@cern.ch
