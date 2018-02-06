@@ -27,20 +27,31 @@
 // and this seems a bit suspect
 Pythia8ForDecays* Pythia8ForDecays::s_instance = 0;
 
-Pythia8ForDecays* Pythia8ForDecays::Instance() 
-{
-   if ( ! s_instance ) s_instance = new Pythia8ForDecays();
-   return s_instance;
+Pythia8ForDecays* Pythia8ForDecays::Instance() {
+  if ( ! s_instance ) s_instance = new Pythia8ForDecays();
+  return s_instance;
 }
 
-Pythia8ForDecays::Pythia8ForDecays()  
-{
-   // Protect against multiple objects.   All access should be via the
-   // Instance member function. 
-   if ( s_instance ) {
-      std::cerr << "There's already an instance of Pythia8ForDecays" << std::endl;
-      exit (1);
-   }   
+Pythia8ForDecays::Pythia8ForDecays() {
+  // Protect against multiple objects.   All access should be via the
+  // Instance member function.
+  if ( s_instance ) {
+     std::cerr << "There's already an instance of Pythia8ForDecays" << std::endl;
+     exit (1);
+  }
+
+  // Pythia instance where RHadrons can decay
+  std::string docstring = Pythia8_i::xmlpath();
+  m_pythia = new Pythia8::Pythia(docstring);
+  m_pythia->readString("SLHA:file = SLHA_INPUT.DAT");
+  m_pythia->readString("ProcessLevel:all = off");
+  m_pythia->readString("Init:showChangedSettings = off");
+  m_pythia->readString("RHadrons:allow = on");
+  m_pythia->readString("RHadrons:allowDecay = on");
+  m_pythia->readString("RHadrons:probGluinoball = 0.1");
+  m_pythia->readString("PartonLevel:FSR = off");
+  m_pythia->init();
+
 }
 
 G4ParticleDefinition* Pythia8ForDecays::GetParticleDefinition(const int pdgEncoding) const
@@ -52,8 +63,10 @@ G4ParticleDefinition* Pythia8ForDecays::GetParticleDefinition(const int pdgEncod
 }
 
 Pythia8ForDecays::~Pythia8ForDecays()
-{;} // It's ok little class, I never owned anything either...
-
+{
+  if (m_pythia) delete m_pythia;
+  m_pythia=nullptr;
+}
 
 
 // TODO: Would be nice for this to be a public function in Pythia8::RHadrons.hh
@@ -134,23 +147,14 @@ void Pythia8ForDecays::fillParticle(const G4Track& aTrack, Pythia8::Event& event
 void Pythia8ForDecays::Py1ent(const G4Track& aTrack, std::vector<G4DynamicParticle*> & particles)
 {
 
-  // Pythia instance where RHadrons can decay
-  std::string docstring = Pythia8_i::xmlpath();
-  Pythia8::Pythia pythia(docstring);
-  pythia.readString("SLHA:file = test.spc");
-  pythia.readString("ProcessLevel:all = off");
-  pythia.readString("Init:showChangedSettings = off");
-  pythia.readString("RHadrons:allow = on");
-  pythia.readString("RHadrons:allowDecay = on");
-  pythia.readString("RHadrons:probGluinoball = 0.1");
-  pythia.readString("PartonLevel:FSR = off");
-  Pythia8::Event& event      = pythia.event;
-  Pythia8::ParticleData& pdt = pythia.particleData;
-  pythia.init();
+  // Get members from Pythia8 instance where RHadrons can decay
+  Pythia8::Event& event      = m_pythia->event;
+  Pythia8::ParticleData& pdt = m_pythia->particleData;
 
-  // Pythia instance where RHadrons cannot decay
+  // Pythia instance where RHadrons cannot decay - do we need this?
+  std::string docstring = Pythia8_i::xmlpath();
   Pythia8::Pythia pythiaDecay(docstring);
-  pythiaDecay.readString("SLHA:file = test.spc");
+  pythiaDecay.readString("SLHA:file = SLHA_INPUT.DAT");
   pythiaDecay.readString("ProcessLevel:all = off");
   pythiaDecay.readString("Init:showChangedSettings = off");
   pythiaDecay.readString("RHadrons:allow = on");
@@ -173,7 +177,7 @@ void Pythia8ForDecays::Py1ent(const G4Track& aTrack, std::vector<G4DynamicPartic
   // Find flavour content of squark or gluino R-hadron.
   // Note that for now, this only works with gluinos
   // A similar function for squarks may be found in the RHadrons.cc code in Pythia8
-  std::pair<int,int> idPair = fromIdWithGluino( idRHad, &pythia.rndm);
+  std::pair<int,int> idPair = fromIdWithGluino( idRHad, &(m_pythia->rndm));
   int id1 = idPair.first;
   int id2 = idPair.second;
 
@@ -206,8 +210,8 @@ void Pythia8ForDecays::Py1ent(const G4Track& aTrack, std::vector<G4DynamicPartic
   event[iRNow].daughters( iR0, iR2);
 
   // Generate events. Quit if failure.
-  if (!pythia.next()) {
-    pythia.forceRHadronDecays();
+  if (!m_pythia->next()) {
+    m_pythia->forceRHadronDecays();
     event.list();
   }
   event.list();
@@ -217,14 +221,14 @@ void Pythia8ForDecays::Py1ent(const G4Track& aTrack, std::vector<G4DynamicPartic
   ///////////////////////////////////////////////////////////////////////////
   particles.clear();
 
-  for(int i=0; i<pythia.event.size(); i++){
-    if ( pythia.event[i].status()<0 ) continue; // stable only
-    G4ThreeVector momentum( pythia.event[i].px() , pythia.event[i].py() , pythia.event[i].pz() );
+  for(int i=0; i<m_pythia->event.size(); i++){
+    if ( m_pythia->event[i].status()<0 ) continue; // stable only
+    G4ThreeVector momentum( m_pythia->event[i].px() , m_pythia->event[i].py() , m_pythia->event[i].pz() );
     momentum*=1000.0;//GeV to MeV
-    const G4ParticleDefinition * particleDefinition = GetParticleDefinition( pythia.event[i].id() );
+    const G4ParticleDefinition * particleDefinition = GetParticleDefinition( m_pythia->event[i].id() );
 
     if (!particleDefinition){
-      std::cout<<"WARNING: I don't know a definition for pdgid "<<pythia.event[i].id()<<"! Skipping it..."<<std::endl;
+      std::cout<<"WARNING: I don't know a definition for pdgid "<<m_pythia->event[i].id()<<"! Skipping it..."<<std::endl;
       continue;
     }
 
