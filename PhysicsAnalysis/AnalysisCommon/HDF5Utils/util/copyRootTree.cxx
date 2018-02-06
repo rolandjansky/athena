@@ -58,7 +58,7 @@ namespace H5 {
     public:
       Buffer(VariableFillers& vars, TTree& tt, const std::string& name);
     private:
-      T _buffer;
+      T m_buffer;
     };
 
 // Buffer for vector types
@@ -71,7 +71,7 @@ namespace H5 {
            const std::string& name, T default_value = T());
       ~VBuf();
     private:
-      std::vector<T>* _buffer;
+      std::vector<T>* m_buffer;
     };
 
 // Buffer for vectors of vectors
@@ -83,7 +83,7 @@ namespace H5 {
             const std::string& name, T default_value = T());
       ~VVBuf();
     private:
-      std::vector<std::vector<T> >* _buffer;
+      std::vector<std::vector<T> >* m_buffer;
     };
   } // close anonymous namespace
 // _____________________________________________________________________
@@ -286,8 +286,8 @@ namespace H5 {
                       const std::string& name)
     {
       tt.SetBranchStatus(name.c_str(), true);
-      tt.SetBranchAddress(name.c_str(), &_buffer);
-      T& buf = _buffer;
+      tt.SetBranchAddress(name.c_str(), &m_buffer);
+      T& buf = m_buffer;
       vars.add<T>(name, [&buf](){return buf;});
     }
 
@@ -295,11 +295,11 @@ namespace H5 {
     template <typename T>
     VBuf<T>::VBuf(VariableFillers& vars, std::vector<size_t>& idx, TTree& tt,
                   const std::string& name, T default_value):
-      _buffer(new std::vector<T>)
+      m_buffer(new std::vector<T>)
     {
       tt.SetBranchStatus(name.c_str(), true);
-      tt.SetBranchAddress(name.c_str(), &_buffer);
-      std::vector<T>& buf = *_buffer;
+      tt.SetBranchAddress(name.c_str(), &m_buffer);
+      std::vector<T>& buf = *m_buffer;
       auto filler = [&buf, &idx, default_value]() -> T {
         if (idx.at(0) < buf.size()) {
           return buf.at(idx.at(0));
@@ -311,7 +311,7 @@ namespace H5 {
     }
     template <typename T>
     VBuf<T>::~VBuf() {
-      delete _buffer;
+      delete m_buffer;
     }
 
 
@@ -319,11 +319,11 @@ namespace H5 {
     template <typename T>
     VVBuf<T>::VVBuf(VariableFillers& vars, std::vector<size_t>& idx, TTree& tt,
                     const std::string& name, T default_value):
-      _buffer(new std::vector<std::vector<T> >)
+      m_buffer(new std::vector<std::vector<T> >)
     {
       tt.SetBranchStatus(name.c_str(), true);
-      tt.SetBranchAddress(name.c_str(), &_buffer);
-      std::vector<std::vector<T> >& buf = *_buffer;
+      tt.SetBranchAddress(name.c_str(), &m_buffer);
+      std::vector<std::vector<T> >& buf = *m_buffer;
       auto filler = [&buf, &idx, default_value]() -> T {
         size_t idx1 = idx.at(0);
         size_t idx2 = idx.at(1);
@@ -338,7 +338,7 @@ namespace H5 {
     }
     template <typename T>
     VVBuf<T>::~VVBuf() {
-      delete _buffer;
+      delete m_buffer;
     }
 
   } // close anonymous namespace
