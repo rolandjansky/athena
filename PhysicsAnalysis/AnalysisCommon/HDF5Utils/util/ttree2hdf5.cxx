@@ -2,9 +2,9 @@
 Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "src/copyRootTree.h"
-#include "src/getTree.h"
-#include "src/treeCopyOpts.h"
+#include "copyRootTree.h"
+#include "getTree.h"
+#include "treeCopyOpts.h"
 
 #include "H5Cpp.h"
 

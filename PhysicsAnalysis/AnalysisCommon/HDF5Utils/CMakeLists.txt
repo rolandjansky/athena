@@ -12,20 +12,20 @@ find_package( Boost 1.54.0 REQUIRED COMPONENTS program_options)
 
 # Add the hdf tuple library
 atlas_add_library(HDF5Utils
-  src/HdfTuple.cxx
+  Root/HdfTuple.cxx
   PUBLIC_HEADERS HDF5Utils
-  PRIVATE_INCLUDE_DIRS ${HDF5_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIRS} src
+  PRIVATE_INCLUDE_DIRS ${HDF5_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIRS}
   LINK_LIBRARIES ${HDF5_LIBRARIES} ${ZLIB_LIBRARIES})
 
 # build a translation utility
 set( _lib_sources
-  src/copyRootTree.cxx
-  src/getTree.cxx
-  src/treeCopyOpts.cxx
+  util/copyRootTree.cxx
+  util/getTree.cxx
+  util/treeCopyOpts.cxx
   util/ttree2hdf5.cxx)
 
 atlas_add_executable(ttree2hdf5 ${_lib_sources}
-  INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HDF5_INCLUDE_DIRS}
+  INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HDF5_INCLUDE_DIRS} util
   ${Boost_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIRS}
   LINK_LIBRARIES HDF5Utils ${Boost_LIBRARIES} ${HDF5_LIBRARIES}
   ${ROOT_LIBRARIES})
