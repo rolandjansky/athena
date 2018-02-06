@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   */
 
 // author: cpollard@cern.ch
 
@@ -17,28 +17,27 @@
 
 
 class JetParticleAssociation : public IJetModifier, public asg::AsgTool {
-    ASG_TOOL_INTERFACE(JetParticleAssociation)
-    public:
+  ASG_TOOL_INTERFACE(JetParticleAssociation)
+  public:
 
-        JetParticleAssociation(const std::string& name);
+    JetParticleAssociation(const std::string& name);
 
-        StatusCode initialize();
-        StatusCode finalize();
+    StatusCode initialize();
+    StatusCode finalize();
 
-        // obvs to be provided by the deriving class
-        virtual const std::vector<std::vector<ElementLink<xAOD::IParticleContainer> > >*
-            match(const xAOD::JetContainer&) const = 0;
+    // obvs to be provided by the deriving class
+    virtual const std::vector<std::vector<ElementLink<xAOD::IParticleContainer> > >*
+      match(const xAOD::JetContainer&) const = 0;
 
-        int modify(xAOD::JetContainer& jets) const;
+    int modify(xAOD::JetContainer& jets) const;
 
-        std::string outputCollectionName() const {
-          return m_OutputCollectionName;
-        }
+    std::string outputCollectionName() const {
+      return m_OutputCollectionName;
+    }
 
 
-    private:
-        std::string m_OutputCollectionName;
-        SG::AuxElement::Decorator<std::vector<ElementLink<xAOD::IParticleContainer> > > *dec;
+  private:
+    std::string m_OutputCollectionName;
 };
 
 #endif

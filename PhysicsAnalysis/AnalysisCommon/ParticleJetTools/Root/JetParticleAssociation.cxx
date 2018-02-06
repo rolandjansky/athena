@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   */
 
 // author: cpollard@cern.ch
 
@@ -11,31 +11,37 @@ using namespace std;
 using namespace xAOD;
 
 JetParticleAssociation::JetParticleAssociation(const string& name)
-    : AsgTool(name), dec(NULL) {
+  : AsgTool(name) {
 
-        declareProperty("OutputCollectionName", m_OutputCollectionName);
+    declareProperty("OutputCollectionName", m_OutputCollectionName);
 
-        return;
-    }
+    return;
+  }
 
 StatusCode JetParticleAssociation::initialize() {
-    dec = new SG::AuxElement::Decorator<vector<ElementLink<IParticleContainer> > >(m_OutputCollectionName);
-    return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode JetParticleAssociation::finalize() {
-    delete dec;
-    return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
 int JetParticleAssociation::modify(xAOD::JetContainer& jets) const {
 
-    const vector<vector<ElementLink<IParticleContainer> > >* matches = match(jets);
 
-    for (unsigned int iJet = 0; iJet < jets.size(); iJet++)
-        (*dec)(*jets.at(iJet)) = (*matches)[iJet];
+  typedef SG::AuxElement::Decorator<vector<ElementLink<IParticleContainer> > > VecIPart;
 
-    delete matches;
+  // TODO
+  // should this be local?
+  const VecIPart dec
+    = SG::AuxElement::Decorator<vector<ElementLink<IParticleContainer> > >(m_OutputCollectionName);
 
-    return 0;
+  const vector<vector<ElementLink<IParticleContainer> > >* matches = match(jets);
+
+  for (unsigned int iJet = 0; iJet < jets.size(); iJet++)
+    dec(*jets.at(iJet)) = (*matches)[iJet];
+
+  delete matches;
+
+  return 0;
 }
