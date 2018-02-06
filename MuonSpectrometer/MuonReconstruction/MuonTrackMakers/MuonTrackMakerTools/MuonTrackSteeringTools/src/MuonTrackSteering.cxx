@@ -965,7 +965,7 @@ namespace Muon {
         {
           // 	    ATH_MSG_DEBUG( std::setw(m_findingDepth) << " " << " extension successful continuing to layer " << nextlayer
           // 			   << " " << nextTracks->size() );  
-          //std::cout << std::setw(m_findingDepth) << " " << " extension successful continuing to layer " << nextlayer << " " << nextTracks->size() << std::endl;;  
+          //std::cout << std::setw(m_findingDepth) << " " << " extension successful continuing to layer " << nextlayer << " " << nextTracks->size() << std::endl;
           std::vector<MuPatTrack*>::iterator cit     = nextTracks->begin();
           std::vector<MuPatTrack*>::iterator cit_end = nextTracks->end();
           for(; cit!=cit_end; ++cit )
