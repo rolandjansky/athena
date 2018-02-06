@@ -8,23 +8,37 @@ from TriggerMenu.api.TriggerInfo import TriggerInfo
 from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
 
 class TriggerAPI:
-    centralPickleFile = "/afs/cern.ch/user/j/jmontejo/public/TriggerInfo.pickle" #FIXME
+    centralPickleFile = "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/TriggerMenu/TriggerInfo.pickle"
     privatePickleFile = "TriggerInfo.pickle"
-    dbQueries = {}
+    dbQueries = None
     privatedbQueries = {}
-    try:
-        with open(centralPickleFile, 'r') as f:
-            print "Reading cached information"
-            dbQueries = pickle.load(f)
-    except Exception as e:
-        print "Reading cached information failed, please report to jmontejo@cern.ch"
-        dbQueries = {}
-    try:
-        with open(privatePickleFile, 'r') as f:
-            privatedbQueries = pickle.load(f)
-            dbQueries.update(privatedbQueries)
-    except Exception as e:
-        pass
+    customGRL = None
+
+    @classmethod
+    def init(cls):
+        if cls.dbQueries: return
+        try:
+            with open(cls.centralPickleFile, 'r') as f:
+                print "Reading cached information"
+                cls.dbQueries = pickle.load(f)
+        except Exception:
+            print "Reading cached information failed"
+            cls.dbQueries = {}
+        try:
+            with open(cls.privatePickleFile, 'r') as f:
+                cls.privatedbQueries = pickle.load(f)
+                cls.dbQueries.update(cls.privatedbQueries)
+        except Exception:
+            pass
+
+    @classmethod
+    def setCustomGRL(cls, grl):
+        if TriggerInfo.testCustomGRL(grl):
+            cls.customGRL = grl
+        else:
+            print "Couldn't set GRL:",grl
+            print "Will use default GRL"
+            cls.customGRL = None
 
     @classmethod
     def getLowestUnprescaled(cls, period, triggerType=TriggerType.ALL, additionalTriggerType=TriggerType.UNDEFINED, matchPattern="", livefraction=1.0, reparse=False):
@@ -38,7 +52,7 @@ class TriggerAPI:
                           The live fraction is only an approximation, weighting the number of lumiblocks by prescale.
         '''
         cls._loadTriggerPeriod(period,reparse)
-        return cls.dbQueries[period]._getLowestUnprescaled(triggerType, additionalTriggerType, matchPattern, livefraction)
+        return cls.dbQueries[(period,cls.customGRL)]._getLowestUnprescaled(triggerType, additionalTriggerType, matchPattern, livefraction)
     
     @classmethod
     def getLowestUnprescaledAnyPeriod(cls, period, triggerType=TriggerType.ALL, additionalTriggerType=TriggerType.UNDEFINED, matchPattern="", livefraction=1.0, reparse=False):
@@ -58,7 +72,7 @@ class TriggerAPI:
             if not ibin: continue
             subperiod = 2**i
             cls._loadTriggerPeriod(subperiod, reparse)
-            subperiodset = set( cls.dbQueries[subperiod]._getLowestUnprescaled(triggerType, additionalTriggerType, matchPattern, livefraction) )
+            subperiodset = set( cls.dbQueries[(subperiod,cls.customGRL)]._getLowestUnprescaled(triggerType, additionalTriggerType, matchPattern, livefraction) )
             lowset |= subperiodset
         return list(lowset)
     
@@ -74,7 +88,7 @@ class TriggerAPI:
                           The live fraction is only an approximation, weighting the number of lumiblocks by prescale.
         '''
         cls._loadTriggerPeriod(period,reparse)
-        return cls.dbQueries[period]._getUnprescaled(triggerType, additionalTriggerType, matchPattern, livefraction)
+        return cls.dbQueries[(period,cls.customGRL)]._getUnprescaled(triggerType, additionalTriggerType, matchPattern, livefraction)
         
     @classmethod
     def getAllHLT(cls, period, triggerType=TriggerType.ALL, additionalTriggerType=TriggerType.UNDEFINED, matchPattern="", reparse=False):
@@ -88,18 +102,19 @@ class TriggerAPI:
             matchPattern: provide additionally a regex-like expression to be applied
         '''
         cls._loadTriggerPeriod(period,reparse)
-        return cls.dbQueries[period]._getAllHLT(triggerType, additionalTriggerType, matchPattern)
+        return cls.dbQueries[(period,cls.customGRL)]._getAllHLT(triggerType, additionalTriggerType, matchPattern)
         
     @classmethod
     def _loadTriggerPeriod(cls, period, reparse):
-        if period not in cls.dbQueries:
-            cls.dbQueries[period] = TriggerInfo(period)
-            cls.privatedbQueries[period] = cls.dbQueries[period]
+        cls.init()
+        if (period,cls.customGRL) not in cls.dbQueries:
+            cls.dbQueries[(period,cls.customGRL)] = TriggerInfo(period,cls.customGRL)
+            cls.privatedbQueries[(period,cls.customGRL)] = cls.dbQueries[(period,cls.customGRL)]
             if not period & TriggerPeriod.future or period >= TriggerPeriod.runNumber: 
                 #Don't pickle TM information since it can change, very cheap to retrieve anyway
                 with open(cls.privatePickleFile, 'w') as f:
                     pickle.dump( cls.privatedbQueries , f)
-        if reparse: cls.dbQueries[period].reparse()
+        if reparse: cls.dbQueries[(period,cls.customGRL)].reparse()
 
 def main():
     ''' Run some tests '''

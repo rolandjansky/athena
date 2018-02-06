@@ -126,19 +126,19 @@ StatusCode JetMETCPTools::setupJetsCalibration() {
     ATH_MSG_INFO("Insitu corrections for data are not yet available and not neglible");
 
     // Data
-    m_jetAntiKt4_Data_ConfigFile          = "JES_MC16Recommendation_Nov2017.config";
+    m_jetAntiKt4_Data_ConfigFile          = "JES_MC16Recommendation_28Nov2017.config";
     m_jetAntiKt4_Data_CalibSequence       = "JetArea_Residual_EtaJES_GSC";
     // FS EM/LC
-    m_jetAntiKt4_MCFS_ConfigFile          = "JES_MC16Recommendation_Nov2017.config";
+    m_jetAntiKt4_MCFS_ConfigFile          = "JES_MC16Recommendation_28Nov2017.config";
     m_jetAntiKt4_MCFS_CalibSequence       = "JetArea_Residual_EtaJES_GSC";
     // AFII EM/LC
-    m_jetAntiKt4_MCAFII_ConfigFile        = ""; // No Rel21
-    m_jetAntiKt4_MCAFII_CalibSequence     = ""; 
+    m_jetAntiKt4_MCAFII_ConfigFile        = "JES_MC15Prerecommendation_AFII_June2015_rel21.config";
+    m_jetAntiKt4_MCAFII_CalibSequence     = "JetArea_Residual_EtaJES_GSC";
     // FS PFlow
-    m_jetAntiKt4_PFlow_MCFS_ConfigFile    = "JES_MC16Recommendation_PFlow_Nov2017.config"; // MC15c?
+    m_jetAntiKt4_PFlow_MCFS_ConfigFile    = "JES_MC16Recommendation_PFlow_28Nov2017.config"; // MC15c?
     m_jetAntiKt4_PFlow_MCFS_CalibSequence = "JetArea_Residual_EtaJES_GSC"; 
 
-    m_jetAntiKt4_Data_PFlow_ConfigFile    =  "JES_MC16Recommendation_PFlow_Nov2017.config";
+    m_jetAntiKt4_Data_PFlow_ConfigFile    =  "JES_MC16Recommendation_PFlow_28Nov2017.config";
     m_jetAntiKt4_Data_PFlow_CalibSequence =  "JetArea_Residual_EtaJES_GSC"; 
   }
 
@@ -370,22 +370,22 @@ StatusCode JetMETCPTools::setupLargeRJetsCalibration() {
     // so just put it here for now.
     std::string calibConfigLargeR = "";
     const std::string calibChoice = m_config->largeRJESJMSConfig();	
-    //to be added in next update
-    /*if (calibChoice == "CombinedMass") {
-      calibConfigLargeR = "JES_MC15recommendation_FatJet_Nov2016_QCDCombinationUncorrelatedWeights_rel21.config";
-    }*/
-    if (calibChoice == "TrackAssistedMass") {
+    if (calibChoice == "CombinedMass") {
+      //calibConfigLargeR = "JES_MC15recommendation_FatJet_Nov2016_QCDCombinationUncorrelatedWeights_rel21.config";
+      calibConfigLargeR = "JES_MC16recommendation_FatJet_JMS_comb_19Jan2018.config";
+    }
+    else if (calibChoice == "TrackAssistedMass") {
       calibConfigLargeR = "JES_MC16recommendation_FatJet_JMS_TA_29Nov2017.config";
     }
     else if (calibChoice == "CaloMass") {
       calibConfigLargeR = "JES_MC16recommendation_FatJet_JMS_calo_29Nov2017.config";
     }
     else {
-      ATH_MSG_ERROR("Unknown largeRJESJMSConfig (Only TrackAssistedMass and CaloMass available. CombinedMass will be available soon) : "+calibChoice);
+      ATH_MSG_ERROR("Unknown largeRJESJMSConfig (Available options: TrackAssistedMass, CaloMass and CombinedMass) : "+calibChoice);
       return StatusCode::FAILURE;
     }
     const std::string calibSequenceLargeR = "EtaJES_JMS";
-    
+    const std::string calibAreaLargeR = "00-04-81";
     JetCalibrationTool* jetCalibrationToolLargeR
       = new JetCalibrationTool("JetCalibrationToolLargeR");
     top::check(asg::setProperty(jetCalibrationToolLargeR, "JetCollection", jetCalibrationNameLargeR),
@@ -394,9 +394,10 @@ StatusCode JetMETCPTools::setupLargeRJetsCalibration() {
                 "Failed to set ConfigFile " + calibConfigLargeR);
     top::check(asg::setProperty(jetCalibrationToolLargeR, "CalibSequence", calibSequenceLargeR),
                 "Failed to set CalibSequence " + calibSequenceLargeR);
+    top::check(asg::setProperty(jetCalibrationToolLargeR, "CalibArea", calibAreaLargeR),
+                "Failed to set CalibArea " + calibAreaLargeR);
     top::check(asg::setProperty(jetCalibrationToolLargeR, "IsData", !m_config->isMC()),
-                "Failed to set IsData " + !m_config->isMC());
-
+                "Failed to set IsData " + !m_config->isMC());    
     top::check(jetCalibrationToolLargeR->initializeTool(jetCalibrationNameLargeR),
                 "Failed to initialize JetCalibrationToolLargeR");
     m_jetCalibrationToolLargeR = jetCalibrationToolLargeR;
@@ -483,14 +484,14 @@ StatusCode JetMETCPTools::setupJetsScaleFactors() {
 
 StatusCode JetMETCPTools::setupMET()
 {
+  // See https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/EtmissRecommendationsRel21p2
+  // METMaker tool
   if ( asg::ToolStore::contains<IMETMaker>("met::METMaker") ) {
-      m_met_maker = asg::ToolStore::get<IMETMaker>("met::METMaker");
-  } else {
+    m_met_maker = asg::ToolStore::get<IMETMaker>("met::METMaker");
+  } 
+  else {
     met::METMaker* metMaker = new met::METMaker("met::METMaker");
     top::check( metMaker->setProperty("JetJvtMomentName", "AnalysisTop_JVT"), "Failed to set METMaker JVT moment name" );
-    // following instructions from:
-    // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/EtmissRecommendationsRel20p7Temp#Working_Points_NEW
-    // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/METUtilities#MET_with_forward_JVT
     if (m_config->fwdJetAndMET() == "Tight") {
       top::check( metMaker->setProperty("JetSelection", "Tight"), "Failed to set METMaker JetSelection to Tight" );
     }
@@ -502,21 +503,30 @@ StatusCode JetMETCPTools::setupMET()
     m_met_maker = metMaker;
   }
 
-
+  // MET Systematics tool
   if ( asg::ToolStore::contains<IMETSystematicsTool>("met::METSystematicsTool") ) {
-      m_met_systematics = asg::ToolStore::get<IMETSystematicsTool>("met::METSystematicsTool");
-  } else {
-    met::METSystematicsTool* metSyst = new met::METSystematicsTool("met::METSystematicsTool");
-    
+    m_met_systematics = asg::ToolStore::get<IMETSystematicsTool>("met::METSystematicsTool");
+  } 
+  else {    
+    met::METSystematicsTool* metSyst = new met::METSystematicsTool("met::METSystematicsTool");    
     // TST (Track soft terms)
-    top::check( metSyst->setProperty("ConfigSoftTrkFile", "TrackSoftTerms.config"), "Failed to set property" );
-
-    // Turn off soft calo term systematics... if left on we get some warnings
+    if (m_config->useParticleFlowJets()){
+      top::check( metSyst->setProperty("ConfigSoftTrkFile", "TrackSoftTerms-pflow.config"), "Failed to set property");
+    }
+    else{
+      if(m_config->isAFII()){
+	top::check( metSyst->setProperty("ConfigSoftTrkFile", "TrackSoftTerms_AFII.config"), "Failed to set property" );
+      }
+      else{
+	top::check( metSyst->setProperty("ConfigSoftTrkFile", "TrackSoftTerms.config"), "Failed to set property" );
+      }
+    }
+    // Deactivate CST terms
     top::check( metSyst->setProperty("ConfigSoftCaloFile", "" ), "Failed to set property" );
     top::check( metSyst->initialize() , "Failed to initialize" );
     m_met_systematics = metSyst;
   }
-
+  
   return StatusCode::SUCCESS;
 }
 

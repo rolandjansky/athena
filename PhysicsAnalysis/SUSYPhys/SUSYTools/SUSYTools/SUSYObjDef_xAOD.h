@@ -457,9 +457,11 @@ namespace ST {
     std::string m_outMETTerm;
     bool m_metRemoveOverlappingCaloTaggedMuons;
     bool m_metDoSetMuonJetEMScale;
-    bool m_metDoMuonJetOR;
+    bool m_metDoRemoveMuonJets;
+    bool m_metUseGhostMuons;
+    bool m_metDoMuonEloss; 
 
-    bool m_metGreedyPhotons;
+    std::string m_metsysConfigPrefix;
 
     bool m_trkMETsyst;
     bool m_caloMETsyst;
