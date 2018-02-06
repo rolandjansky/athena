@@ -7,10 +7,13 @@ import os
 import shutil
 import sys
 
+from AthenaCommon import Logging
+rhlog = Logging.logging.getLogger('RHadronConfig')
+
 def create_rhadron_particles_file(CASE, MASS, MODEL, MASSX):
   """particles.txt Templates"""
 
-  print 'INFO: MASSX is ',MASSX,' GeV'
+  rhlog.info('INFO: MASSX is ',MASSX,' GeV')
   MASS = (float(MASS)-100)  # The table masses are by default 100 GeV, so that part is subtracted
 
   particles = {
@@ -325,10 +328,10 @@ def addLineToPhysicsConfiguration(KEY, VALUE):
   os.system('echo "%s" >> PhysicsConfiguration.txt' % newphysconfig)
 
 def load_files_for_rhadrons_scenario(CASE, MASS, MODEL, MASSX):
-  print "MASS: "+str(MASS)
-  print "CASE: "+CASE
-  print "MODEL: "+MODEL
-  print "MASSX: "+str(MASSX)
+  rhlog.info("MASS: "+str(MASS))
+  rhlog.info("CASE: "+CASE)
+  rhlog.info("MODEL: "+MODEL)
+  rhlog.info("MASSX: "+str(MASSX))
 
   # Create custom PDGTABLE.MeV file
   create_rhadron_pdgtable(CASE, MASS, MODEL)
@@ -343,7 +346,7 @@ def load_files_for_rhadrons_scenario(CASE, MASS, MODEL, MASSX):
 
   # Remove existing physics configuration file ([MDJ]: FIXME: Is this happening earlier, or is it needed?)
   if os.path.isfile('PhysicsConfiguration.txt'):
-    print "SimulationJobOptions/preInclude.Rhadrons.py:load_files_for_rhadrons_scenario() WARNING Found pre-existing PhysicsConfiguration.txt file - deleting."
+    rhlog.warning("load_files_for_rhadrons_scenario() Found pre-existing PhysicsConfiguration.txt file - deleting.")
     os.remove('PhysicsConfiguration.txt')
 
   # Add additional physics configuration options
@@ -380,7 +383,7 @@ MASSX=100.0
 if simdict.has_key("MASSX"):
   MASSX = float(simdict["MASSX"])
 
-print 'INFO: MASSX (neutralino/gravitino mass) set to ',MASSX,' GeV'
+rhlog.info('MASSX (neutralino/gravitino mass) set to '+str(MASSX)+' GeV')
 
 if usePythia8:
   # Add the appropriate physics tool
@@ -388,13 +391,36 @@ if usePythia8:
   simFlags.PhysicsOptions += ["RHadronsPythia8PhysicsTool"]
 
   # From the run number, load up the configuration.  Not the most beautiful thing, but this works.
-  #from glob import glob
-  #JO = glob('/cvmfs/atlas.cern.ch/repo/sw/Generators/MC15JobOptions/latest/share/DSID'+str(runNumber/1000)+'/MC15.'+str(runNumber)+'*.py')
-  #print 'ZLM1'
-  #include(JO)
-  #print 'ZLM2'
+  from glob import glob
+  # Default position: look in cvmfs for job options
+  JO = glob('/cvmfs/atlas.cern.ch/repo/sw/Generators/MC15JobOptions/latest/share/DSID'+str(runNumber/1000)+'/MC15.'+str(runNumber)+'*.py')
+  if len(JO)>0:
+      JO = JO[0]
+  else:
+      # Miss.  Fall back to datapath
 
-  print "doing Pythia8"
+  rhlog.info('ZLM1')
+  # add jobConfig to the runArgs here!
+  runArgs.jobConfig = JO.split('/')[-1] if '/' in JO else JO
+  # Set up evgenLog logger - use this one
+  evgenLog=rhlog
+  # Set up evgenConfig just for a holder
+  def dummyClass():
+      def __init(self):
+          pass
+  evgenConfig = dummyClass()
+  # Block includes that we don't want running
+  include.block('MC15JobOptions/MadGraphControl_SimplifiedModelPostInclude.py')
+  include.block('MC15JobOptions/Pythia8_A14_NNPDF23LO_EvtGen_Common.py')
+  include.block('MC15JobOptions/Pythia8_MadGraph.py')
+  # Include the job options themselves
+  include(JO)
+  # Build the param card, aka SLHA file
+  from MadGraphControl.MadGraphUtils import build_param_card
+  build_param_card(param_card_old='param_card.SM.%s.%s.dat'%(gentype,decaytype),param_card_new='SLHA_INPUT.DAT',masses=masses,decays=decays)
+  rhlog.info('ZLM2')
+
+  rhlog.info("doing Pythia8")
   load_files_for_rhadrons_scenario("gluino", simdict["MASS"], "generic", MASSX)
   addLineToPhysicsConfiguration("DoDecays","1")
 
@@ -427,8 +453,8 @@ else:
       addLineToPhysicsConfiguration("HadronLifeTime", "0.000001")
 
     def rhad_applycalomctruthstrategy():
-      print "ERROR rhad_applycalomctruthstrategy is obsolete"
-      print "Please request replacment configuration."
+      rhlog.error("ERROR rhad_applycalomctruthstrategy is obsolete")
+      rhlog.error("Please request replacment configuration.")
       import sys
       sys.exit(1)
       ## from G4AtlasApps import AtlasG4Eng
@@ -559,8 +585,8 @@ else:
         "PMAS("+KC+",1)="+str(float(simdict["MASS"])+masses[(simdict["MODEL"],simdict["CASE"])][i-1])+"D0",
         "PMAS("+KC+",2)="+str(float(simdict["MASS"])+masses[(simdict["MODEL"],simdict["CASE"])][i-1])+"D0"
       ]
-    print "preInclude.Rhadrons PygiveCommand is:"
-    print genSeq.PythiaRhad.PygiveCommand
+    rhlog.info("preInclude.Rhadrons PygiveCommand is:")
+    rhlog.info(genSeq.PythiaRhad.PygiveCommand)
 
     if (simdict["MODEL"]=='regge'):
       genSeq.PythiaRhad.RunReggeModel=True
@@ -616,13 +642,13 @@ else:
         "pystat 2"
       ]
       if simdict.has_key("NOGLUINOGLUONDECAY"):
-        print "preInclude.Rhadrons: NOGLUINOGLUONDECAY"
+        rhlog.info("preInclude.Rhadrons: NOGLUINOGLUONDECAY")
         genSeq.PythiaRhad.PythiaCommand += [
           "pydat3 mdme 1975 1 0",
           "pymssm imss 11 0"      # switch off gravitino, just to be sure we don't get gluon decay through it
         ]
         if simdict.has_key("NOGLUINOLIGHTSQUARKDECAY"):
-          print "preInclude.Rhadrons: NOGLUINOLIGHTSQUARKDECAY"
+          rhlog.info("preInclude.Rhadrons: NOGLUINOLIGHTSQUARKDECAY")
           genSeq.PythiaRhad.PythiaCommand += [
             "pydat3 mdme 2000 1 0",
             "pydat3 mdme 2001 1 0",
@@ -631,7 +657,7 @@ else:
             "pydat3 mdme 2004 1 0"
           ]
         if simdict.has_key("NOGLUINOTTBARDECAY"):
-          print "preInclude.Rhadrons: NOGLUINOTTBARDECAY"
+          rhlog.info("preInclude.Rhadrons: NOGLUINOTTBARDECAY")
           genSeq.PythiaRhad.PythiaCommand += [
             "pydat3 mdme 2005 1 0"
           ]
