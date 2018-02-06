@@ -8,7 +8,7 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #include <cassert>
 #include <iostream>             // for printing errors in the destructor
 
-namespace ah5 {
+namespace H5 {
   namespace internal {
 
     template<>
@@ -60,42 +60,38 @@ namespace ah5 {
       return buf._bool;
     }
   }
-}
 
-
-namespace {
-  using namespace ah5;
-  // packing utility
-  H5::CompType packed(H5::CompType in) {
-    // TODO: Figure out why a normal copy constructor doesn't work here.
-    //       The normal one seems to create shallow copies.
-    auto out = H5::CompType(H5Tcopy(in.getId()));
-    out.pack();
-    return out;
-  }
-  H5::CompType build_type(const VariableFillers& fillers) {
-    using internal::data_buffer_t;
-    H5::CompType type(fillers.size() * sizeof(data_buffer_t));
-    size_t dt_offset = 0;
-    for (const auto& filler: fillers) {
-      type.insertMember(filler->name(), dt_offset, filler->get_type());
-      dt_offset += sizeof(data_buffer_t);
+  namespace {
+    // packing utility
+    H5::CompType packed(H5::CompType in) {
+      // TODO: Figure out why a normal copy constructor doesn't work here.
+      //       The normal one seems to create shallow copies.
+      auto out = H5::CompType(H5Tcopy(in.getId()));
+      out.pack();
+      return out;
     }
-    return type;
-  }
+    H5::CompType build_type(const VariableFillers& fillers) {
+      using internal::data_buffer_t;
+      H5::CompType type(fillers.size() * sizeof(data_buffer_t));
+      size_t dt_offset = 0;
+      for (const auto& filler: fillers) {
+        type.insertMember(filler->name(), dt_offset, filler->get_type());
+        dt_offset += sizeof(data_buffer_t);
+      }
+      return type;
+    }
 
-  void print_destructor_error(const std::string& msg) {
-    std::cerr << "ERROR: an exception was thrown in the destructor of an "
-      "HDF5 file, the output buffer may be corrupted";
-    std::cerr << " (error message: " << msg << ")" << std::endl;
+    void print_destructor_error(const std::string& msg) {
+      std::cerr << "ERROR: an exception was thrown in the destructor of an "
+        "HDF5 file, the output buffer may be corrupted";
+      std::cerr << " (error message: " << msg << ")" << std::endl;
+    }
   }
-}
 
 // _______________________________________________________________________
 // Xd writter
 //
 
-namespace ah5 {
   std::vector<size_t> WriterXd::NONE = {};
 
   WriterXd::WriterXd(H5::Group& group, const std::string& name,

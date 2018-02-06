@@ -7,7 +7,7 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #include <string>
 
-namespace ah5 {
+namespace H5 {
   std::string getTree(const std::string& file_name);
 }
 #endif

@@ -43,49 +43,49 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 // of the code. Try to understand the copy_root_tree function first.
 
 // Base class, just to hold a virtual destructor
-namespace {
-  using namespace ah5;
-  class IBuffer
-  {
-  public:
-    virtual ~IBuffer() {}
-  };
+namespace H5 {
+  namespace {
+    class IBuffer
+    {
+    public:
+      virtual ~IBuffer() {}
+    };
 
 // Simple variables types are stored in the `Buffer` class.
-  template <typename T>
-  class Buffer: public IBuffer
-  {
-  public:
-    Buffer(VariableFillers& vars, TTree& tt, const std::string& name);
-  private:
-    T _buffer;
-  };
+    template <typename T>
+    class Buffer: public IBuffer
+    {
+    public:
+      Buffer(VariableFillers& vars, TTree& tt, const std::string& name);
+    private:
+      T _buffer;
+    };
 
 // Buffer for vector types
-  template <typename T>
-  class VBuf: public IBuffer
-  {
-  public:
-    // These require an index for the vector (`idx`)
-    VBuf(VariableFillers& vars, std::vector<size_t>& idx, TTree& tt,
-         const std::string& name, T default_value = T());
-    ~VBuf();
-  private:
-    std::vector<T>* _buffer;
-  };
+    template <typename T>
+    class VBuf: public IBuffer
+    {
+    public:
+      // These require an index for the vector (`idx`)
+      VBuf(VariableFillers& vars, std::vector<size_t>& idx, TTree& tt,
+           const std::string& name, T default_value = T());
+      ~VBuf();
+    private:
+      std::vector<T>* _buffer;
+    };
 
 // Buffer for vectors of vectors
-  template <typename T>
-  class VVBuf: public IBuffer
-  {
-  public:
-    VVBuf(VariableFillers& vars, std::vector<size_t>& idx, TTree& tt,
-          const std::string& name, T default_value = T());
-    ~VVBuf();
-  private:
-    std::vector<std::vector<T> >* _buffer;
-  };
-}
+    template <typename T>
+    class VVBuf: public IBuffer
+    {
+    public:
+      VVBuf(VariableFillers& vars, std::vector<size_t>& idx, TTree& tt,
+            const std::string& name, T default_value = T());
+      ~VVBuf();
+    private:
+      std::vector<std::vector<T> >* _buffer;
+    };
+  } // close anonymous namespace
 // _____________________________________________________________________
 // main copy root tree function
 //
@@ -102,7 +102,6 @@ namespace {
 // Note that this means the event loop happens last: most of the work
 // is just setting up the read and write buffers.
 
-namespace ah5 {
   void copyRootTree(TTree& tt, H5::Group& fg, const TreeCopyOpts& opts) {
 
     // define the buffers for root to read into
@@ -274,74 +273,73 @@ namespace ah5 {
         std::cerr << "could not read branch of type " << name << std::endl;
       }
     }
-  }
-
-}
+  } // end copyRootTree
 
 // ______________________________________________________________________
 // Buffer implementation
 
-namespace {
+  namespace {
 // 1d buffer
-  using namespace ah5;
-  template <typename T>
-  Buffer<T>::Buffer(VariableFillers& vars, TTree& tt,
-                    const std::string& name)
-  {
-    tt.SetBranchStatus(name.c_str(), true);
-    tt.SetBranchAddress(name.c_str(), &_buffer);
-    T& buf = _buffer;
-    vars.add<T>(name, [&buf](){return buf;});
-  }
+
+    template <typename T>
+    Buffer<T>::Buffer(VariableFillers& vars, TTree& tt,
+                      const std::string& name)
+    {
+      tt.SetBranchStatus(name.c_str(), true);
+      tt.SetBranchAddress(name.c_str(), &_buffer);
+      T& buf = _buffer;
+      vars.add<T>(name, [&buf](){return buf;});
+    }
 
 // 2d buffer
-  template <typename T>
-  VBuf<T>::VBuf(VariableFillers& vars, std::vector<size_t>& idx, TTree& tt,
-                const std::string& name, T default_value):
-    _buffer(new std::vector<T>)
-  {
-    tt.SetBranchStatus(name.c_str(), true);
-    tt.SetBranchAddress(name.c_str(), &_buffer);
-    std::vector<T>& buf = *_buffer;
-    auto filler = [&buf, &idx, default_value]() -> T {
-      if (idx.at(0) < buf.size()) {
-        return buf.at(idx.at(0));
-      } else {
-        return default_value;
-      }
-    };
-    vars.add<T>(name, filler);
-  }
-  template <typename T>
-  VBuf<T>::~VBuf() {
-    delete _buffer;
-  }
+    template <typename T>
+    VBuf<T>::VBuf(VariableFillers& vars, std::vector<size_t>& idx, TTree& tt,
+                  const std::string& name, T default_value):
+      _buffer(new std::vector<T>)
+    {
+      tt.SetBranchStatus(name.c_str(), true);
+      tt.SetBranchAddress(name.c_str(), &_buffer);
+      std::vector<T>& buf = *_buffer;
+      auto filler = [&buf, &idx, default_value]() -> T {
+        if (idx.at(0) < buf.size()) {
+          return buf.at(idx.at(0));
+        } else {
+          return default_value;
+        }
+      };
+      vars.add<T>(name, filler);
+    }
+    template <typename T>
+    VBuf<T>::~VBuf() {
+      delete _buffer;
+    }
 
 
 // 3d buffers
-  template <typename T>
-  VVBuf<T>::VVBuf(VariableFillers& vars, std::vector<size_t>& idx, TTree& tt,
-                  const std::string& name, T default_value):
-    _buffer(new std::vector<std::vector<T> >)
-  {
-    tt.SetBranchStatus(name.c_str(), true);
-    tt.SetBranchAddress(name.c_str(), &_buffer);
-    std::vector<std::vector<T> >& buf = *_buffer;
-    auto filler = [&buf, &idx, default_value]() -> T {
-      size_t idx1 = idx.at(0);
-      size_t idx2 = idx.at(1);
-      if (idx1 < buf.size()) {
-        if (idx2 < buf.at(idx1).size()) {
-          return buf.at(idx1).at(idx2);
+    template <typename T>
+    VVBuf<T>::VVBuf(VariableFillers& vars, std::vector<size_t>& idx, TTree& tt,
+                    const std::string& name, T default_value):
+      _buffer(new std::vector<std::vector<T> >)
+    {
+      tt.SetBranchStatus(name.c_str(), true);
+      tt.SetBranchAddress(name.c_str(), &_buffer);
+      std::vector<std::vector<T> >& buf = *_buffer;
+      auto filler = [&buf, &idx, default_value]() -> T {
+        size_t idx1 = idx.at(0);
+        size_t idx2 = idx.at(1);
+        if (idx1 < buf.size()) {
+          if (idx2 < buf.at(idx1).size()) {
+            return buf.at(idx1).at(idx2);
+          }
         }
-      }
-      return default_value;
-    };
-    vars.add<T>(name, filler);
-  }
-  template <typename T>
-  VVBuf<T>::~VVBuf() {
-    delete _buffer;
-  }
+        return default_value;
+      };
+      vars.add<T>(name, filler);
+    }
+    template <typename T>
+    VVBuf<T>::~VVBuf() {
+      delete _buffer;
+    }
 
-}
+  } // close anonymous namespace
+}   // close H5 namespace

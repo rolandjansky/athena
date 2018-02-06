@@ -13,7 +13,7 @@ namespace H5 {
   class Group;
 }
 
-namespace ah5 {
+namespace H5 {
   void copyRootTree(TTree& tt, H5::Group& fg, const TreeCopyOpts& opts);
 }
 #endif
