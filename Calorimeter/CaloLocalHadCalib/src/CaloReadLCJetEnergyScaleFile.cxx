@@ -4,9 +4,7 @@
 
 #include "CaloLocalHadCalib/CaloReadLCJetEnergyScaleFile.h"
 #include "CaloConditions/CaloLocalHadDefs.h"
-#include "GaudiKernel/MsgStream.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "PathResolver/PathResolver.h"
 #include "TFile.h"
@@ -32,12 +30,11 @@ CaloReadLCJetEnergyScaleFile::~CaloReadLCJetEnergyScaleFile() {}
 
 StatusCode CaloReadLCJetEnergyScaleFile::initDataFromFile(std::vector<std::string> &theLCJetEnergyScaleFileNames, std::vector<std::string> &theLCJetEnergyScaleJetCollectionNames)
 {
-  MsgStream log(msgSvc(), name());
 
   for (unsigned int iFile=0;iFile<theLCJetEnergyScaleFileNames.size();iFile++) {
     // Find the full path to filename:
     std::string file = PathResolver::find_file (theLCJetEnergyScaleFileNames[iFile], "DATAPATH");
-    log << MSG::INFO << "Reading file  " << file << endreq;
+    msg(MSG::INFO) << "Reading file  " << file << endmsg;
     TFile* theLCJetEnergyScaleFile = new TFile(file.c_str());
     if ( !theLCJetEnergyScaleFile ) {
       return StatusCode::FAILURE;
@@ -81,7 +78,7 @@ StatusCode CaloReadLCJetEnergyScaleFile::initDataFromFile(std::vector<std::strin
       for (idim=0;idim<keys.size();idim++) {
 	size_t found = sTitle.find(keys[idim]);
 	if ( found == std::string::npos ) {
-	  log << MSG::ERROR << "Could not find key " << keys[idim] << " in current histogram." << endreq;
+	  msg(MSG::ERROR) << "Could not find key " << keys[idim] << " in current histogram." << endmsg;
 	  allValid = false;
 	}
 	else {
@@ -94,7 +91,7 @@ StatusCode CaloReadLCJetEnergyScaleFile::initDataFromFile(std::vector<std::strin
 	  rmax[idim] = 5.; // |eta| max
 	  
 	  if ( ibin[idim] < 0 || ibin[idim] >= nbin[idim] ) {
-	    log << MSG::ERROR << "Found invalid bin number " << ibin[idim] << " not in valid range [0," << nbin[idim] << " in current histogram." << endreq;
+	    msg(MSG::ERROR) << "Found invalid bin number " << ibin[idim] << " not in valid range [0," << nbin[idim] << " in current histogram." << endmsg;
 	    allValid = false;
 	  }
 	}
@@ -124,7 +121,7 @@ StatusCode CaloReadLCJetEnergyScaleFile::initDataFromFile(std::vector<std::strin
 	    CaloLocalHadCoeff::LocalHadDimension theDim(names[idim].c_str(),types[idim],nbin[idim],rmin[idim],rmax[idim]);
 	    theArea.addDimension(theDim);
 	  }
-	  log << MSG::INFO << "adding Area with nDim = " << theArea.getNdim() << endreq;
+	  msg(MSG::INFO) << "adding Area with nDim = " << theArea.getNdim() << endmsg;
 	  m_data->addArea(theArea);
 	}
 	// now fill all data for current histogram
@@ -141,10 +138,10 @@ StatusCode CaloReadLCJetEnergyScaleFile::initDataFromFile(std::vector<std::strin
 	    theData[CaloLocalHadDefs::BIN_ENTRIES] = prof->GetBinEntries(iBin);
 	    theData[CaloLocalHadDefs::BIN_ERROR]   = prof->GetBinError(iBin);
 	    
-	    log << MSG::INFO << "Now set data for bins: ";
+	    msg(MSG::INFO) << "Now set data for bins: ";
 	    for(unsigned int ii=0;ii<ibin.size();ii++)
-	      log << ibin[ii] << " ";
-	    log << endreq;
+	      msg() << ibin[ii] << " ";
+	    msg() << endmsg;
 	    m_data->setCoeff(m_data->getBin(iFile,ibin),theData);
 	  }
 	}
@@ -156,29 +153,28 @@ StatusCode CaloReadLCJetEnergyScaleFile::initDataFromFile(std::vector<std::strin
 }
 
 StatusCode CaloReadLCJetEnergyScaleFile::initialize() {
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << " Building CaloLocalHadCoeff object " << endreq;
+  msg(MSG::INFO) << " Building CaloLocalHadCoeff object " << endmsg;
   StatusCode sc;
   StoreGateSvc* detStore;
   sc=service("DetectorStore",detStore);
   if (sc.isFailure()) {
-     log << MSG::ERROR << "Unable to get the DetectorStore" << endreq;
+     msg(MSG::ERROR) << "Unable to get the DetectorStore" << endmsg;
      return sc;
    }
   sc=initDataFromFile(m_LCJetEnergyScaleFileNames, m_LCJetEnergyScaleJetCollectionNames);
   if (sc.isFailure()) {
-     log << MSG::ERROR << "Unable to init data from file" << endreq;
+     msg(MSG::ERROR) << "Unable to init data from file" << endmsg;
      return sc;
    }
 
   sc=detStore->record(m_data,m_key);
   if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to record CaloLocalHadCoeff" << endreq;
+    msg(MSG::ERROR) << "Unable to record CaloLocalHadCoeff" << endmsg;
     return sc;
   }
   sc=detStore->setConst(m_data);
   if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to lock CaloLocalHadCoeff" << endreq;
+    msg(MSG::ERROR) << "Unable to lock CaloLocalHadCoeff" << endmsg;
     return sc;
   }
   return StatusCode::SUCCESS;

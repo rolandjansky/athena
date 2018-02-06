@@ -48,6 +48,10 @@ Conditions conditionsFactoryDijetEtaMass(double etasMin,
                                          double massesMax);
 
 
+Conditions conditionsFactoryDijetDPhi(const std::vector<double>& dPhiMins,
+                                      const std::vector<double>& dPhiMaxs);
+
+
 Conditions conditionsFactoryTLA(const std::vector<double>& etasMin,
                                 const std::vector<double>& etasMax,
                                 const std::vector<double>& ystarsMin,

@@ -60,27 +60,27 @@ CSC_RDOAnalysis::CSC_RDOAnalysis(const std::string& name, ISvcLocator *pSvcLocat
   , m_zpos_vec(0)
   , m_charge_vec(0)
 
-  , h_collID(0)
-  , h_rodID(0)
-  , h_subID(0)
-  , h_collRpuID(0)
-  , h_dataType(0)
-  , h_spuCt(0)
-  , h_cscRpuID(0)
-  , h_cscID(0)
-  , h_cscTime(0)
-  , h_cscWidth(0)
-  , h_cscSmpl(0)
-  , h_cscAdd(0)
-  , h_cscHashID(0)
-  , h_sdoID(0)
-  , h_sdoWord(0)
-  , h_barcode(0)
-  , h_eventIndex(0)
-  , h_energy(0)
-  , h_ypos(0)
-  , h_zpos(0)
-  , h_charge(0)
+  , m_h_collID(0)
+  , m_h_rodID(0)
+  , m_h_subID(0)
+  , m_h_collRpuID(0)
+  , m_h_dataType(0)
+  , m_h_spuCt(0)
+  , m_h_cscRpuID(0)
+  , m_h_cscID(0)
+  , m_h_cscTime(0)
+  , m_h_cscWidth(0)
+  , m_h_cscSmpl(0)
+  , m_h_cscAdd(0)
+  , m_h_cscHashID(0)
+  , m_h_sdoID(0)
+  , m_h_sdoWord(0)
+  , m_h_barcode(0)
+  , m_h_eventIndex(0)
+  , m_h_energy(0)
+  , m_h_ypos(0)
+  , m_h_zpos(0)
+  , m_h_charge(0)
 
   , m_tree(0)
   , m_ntupleFileName("/ntuples/file1")
@@ -159,89 +159,89 @@ StatusCode CSC_RDOAnalysis::initialize() {
 
   // HISTOGRAMS
 
-  h_collID = new TH1F("h_collID", "Collection ID", 100, 0, 35);
-  h_collID->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_collID->GetName(), h_collID));
+  m_h_collID = new TH1F("h_collID", "Collection ID", 100, 0, 35);
+  m_h_collID->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_collID->GetName(), m_h_collID));
 
-  h_rodID = new TH1F("h_rodID", "Collection ROD ID", 100, 0, 150);
-  h_rodID->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_rodID->GetName(), h_rodID));
+  m_h_rodID = new TH1F("h_rodID", "Collection ROD ID", 100, 0, 150);
+  m_h_rodID->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_rodID->GetName(), m_h_rodID));
 
-  h_subID = new TH1F("h_subID", "Collection Sub-Detector ID", 100, 0, 110);
-  h_subID->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_subID->GetName(), h_subID));
+  m_h_subID = new TH1F("h_subID", "Collection Sub-Detector ID", 100, 0, 110);
+  m_h_subID->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_subID->GetName(), m_h_subID));
 
-  h_collRpuID = new TH1F("h_collRpuID", "Collection RPU ID", 100, 0, 15);
-  h_collRpuID->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_collRpuID->GetName(), h_collRpuID));
+  m_h_collRpuID = new TH1F("h_collRpuID", "Collection RPU ID", 100, 0, 15);
+  m_h_collRpuID->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_collRpuID->GetName(), m_h_collRpuID));
 
-  h_dataType = new TH1F("h_dataType", "Collection data type", 100, 0, 5);
-  h_dataType->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_dataType->GetName(), h_dataType));
+  m_h_dataType = new TH1F("h_dataType", "Collection data type", 100, 0, 5);
+  m_h_dataType->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_dataType->GetName(), m_h_dataType));
 
-  h_spuCt = new TH1F("h_spuCt", "Collection SPU count", 100, 0, 20);
-  h_spuCt->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_spuCt->GetName(), h_spuCt));
+  m_h_spuCt = new TH1F("h_spuCt", "Collection SPU count", 100, 0, 20);
+  m_h_spuCt->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_spuCt->GetName(), m_h_spuCt));
 
-  h_cscRpuID = new TH1F("h_cscRpuID", "SPU ID of strip", 100, 0, 10);
-  h_cscRpuID->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_cscRpuID->GetName(), h_cscRpuID));
+  m_h_cscRpuID = new TH1F("h_cscRpuID", "SPU ID of strip", 100, 0, 10);
+  m_h_cscRpuID->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_cscRpuID->GetName(), m_h_cscRpuID));
 
-  h_cscID = new TH1F("h_cscID", "ID of strip collection", 100, 0, 35);
-  h_cscID->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_cscID->GetName(), h_cscID));
+  m_h_cscID = new TH1F("h_cscID", "ID of strip collection", 100, 0, 35);
+  m_h_cscID->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_cscID->GetName(), m_h_cscID));
 
-  h_cscTime = new TH1F("h_cscTime", "Time of first strip", 100, 0, 10);
-  h_cscTime->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_cscTime->GetName(), h_cscTime));
+  m_h_cscTime = new TH1F("h_cscTime", "Time of first strip", 100, 0, 10);
+  m_h_cscTime->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_cscTime->GetName(), m_h_cscTime));
 
-  h_cscWidth = new TH1F("h_cscWidth", "Width of strip cluster", 100, 0, 35);
-  h_cscWidth->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_cscWidth->GetName(), h_cscWidth));
+  m_h_cscWidth = new TH1F("h_cscWidth", "Width of strip cluster", 100, 0, 35);
+  m_h_cscWidth->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_cscWidth->GetName(), m_h_cscWidth));
 
-  h_cscSmpl = new TH1F("h_cscSmpl", "ADC samples", 100, 0, 4500);
-  h_cscSmpl->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_cscSmpl->GetName(), h_cscSmpl));
+  m_h_cscSmpl = new TH1F("h_cscSmpl", "ADC samples", 100, 0, 4500);
+  m_h_cscSmpl->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_cscSmpl->GetName(), m_h_cscSmpl));
 
-  h_cscAdd = new TH1F("h_cscAdd", "ID of first strip", 100, 0, 1.5e5);
-  h_cscAdd->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_cscAdd->GetName(), h_cscAdd));
+  m_h_cscAdd = new TH1F("h_cscAdd", "ID of first strip", 100, 0, 1.5e5);
+  m_h_cscAdd->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_cscAdd->GetName(), m_h_cscAdd));
 
-  h_cscHashID = new TH1F("h_cscHashID", "hash ID of strip collection", 100, 0, 65000);
-  h_cscHashID->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_cscHashID->GetName(), h_cscHashID));
+  m_h_cscHashID = new TH1F("h_cscHashID", "hash ID of strip collection", 100, 0, 65000);
+  m_h_cscHashID->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_cscHashID->GetName(), m_h_cscHashID));
 
-  h_sdoID = new TH1F("h_sdoID", "sdoID", 100, 0, 1e19);
-  h_sdoID->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_sdoID->GetName(), h_sdoID));
+  m_h_sdoID = new TH1F("h_sdoID", "sdoID", 100, 0, 1e19);
+  m_h_sdoID->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_sdoID->GetName(), m_h_sdoID));
 
-  h_sdoWord = new TH1F("h_sdoWord", "sdoWord", 100, 0, 10);
-  h_sdoWord->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_sdoWord->GetName(), h_sdoWord));
+  m_h_sdoWord = new TH1F("h_sdoWord", "sdoWord", 100, 0, 10);
+  m_h_sdoWord->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_sdoWord->GetName(), m_h_sdoWord));
 
-  h_barcode= new TH1F("h_barcode", "Barcode (SDO)", 100, 0, 2.2e9);
-  h_barcode->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_barcode->GetName(), h_barcode));
+  m_h_barcode= new TH1F("h_barcode", "Barcode (SDO)", 100, 0, 2.2e9);
+  m_h_barcode->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_barcode->GetName(), m_h_barcode));
 
-  h_eventIndex = new TH1F("h_eventIndex", "Event index (SDO)", 100, 0, 1000);
-  h_eventIndex->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_eventIndex->GetName(), h_eventIndex));
+  m_h_eventIndex = new TH1F("h_eventIndex", "Event index (SDO)", 100, 0, 1000);
+  m_h_eventIndex->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_eventIndex->GetName(), m_h_eventIndex));
 
-  h_energy = new TH1F("h_energy", "Energy (SDO)", 100, 0, 0.3);
-  h_energy->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_energy->GetName(), h_energy));
+  m_h_energy = new TH1F("h_energy", "Energy (SDO)", 100, 0, 0.3);
+  m_h_energy->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_energy->GetName(), m_h_energy));
 
-  h_ypos = new TH1F("h_ypos", "y-position (SDO)", 100, -1e5, 1e5);
-  h_ypos->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_ypos->GetName(), h_ypos));
+  m_h_ypos = new TH1F("h_ypos", "y-position (SDO)", 100, -1e5, 1e5);
+  m_h_ypos->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_ypos->GetName(), m_h_ypos));
 
-  h_zpos = new TH1F("h_zpos", "z-position (SDO)", 100, -1e5, 1e5);
-  h_zpos->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_zpos->GetName(), h_zpos));
+  m_h_zpos = new TH1F("h_zpos", "z-position (SDO)", 100, -1e5, 1e5);
+  m_h_zpos->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_zpos->GetName(), m_h_zpos));
 
-  h_charge = new TH1F("h_charge", "Charge (SDO)", 100, 0, 1e5);
-  h_charge->StatOverflows();
-  ATH_CHECK(m_thistSvc->regHist(m_path + h_charge->GetName(), h_charge));
+  m_h_charge = new TH1F("h_charge", "Charge (SDO)", 100, 0, 1e5);
+  m_h_charge->StatOverflows();
+  ATH_CHECK(m_thistSvc->regHist(m_path + m_h_charge->GetName(), m_h_charge));
 
   return StatusCode::SUCCESS;
 }
@@ -310,11 +310,11 @@ StatusCode CSC_RDOAnalysis::execute() {
 
       for (std::vector<uint16_t>::size_type i = 0; i != collRpuID.size(); ++i) {
         m_collRpuID->push_back(collRpuID.at(i));
-        h_collRpuID->Fill(collRpuID.at(i));
+        m_h_collRpuID->Fill(collRpuID.at(i));
       }
       for (std::vector<uint8_t>::size_type j = 0; j != dataType.size(); ++j) {
         m_dataType->push_back(dataType.at(j));
-        h_dataType->Fill(dataType.at(j));
+        m_h_dataType->Fill(dataType.at(j));
       }
 
       m_smplPhase->push_back((*cscCont_itr)->samplingPhase());
@@ -333,12 +333,12 @@ StatusCode CSC_RDOAnalysis::execute() {
 
       for (unsigned int k = 0; k != 10; ++k) {
         m_spuCt->push_back((*cscCont_itr)->spuCount(k));
-        h_spuCt->Fill((*cscCont_itr)->spuCount(k));
+        m_h_spuCt->Fill((*cscCont_itr)->spuCount(k));
       }
 
-      h_collID->Fill(collID);
-      h_rodID->Fill(rodID);
-      h_subID->Fill(subID);
+      m_h_collID->Fill(collID);
+      m_h_rodID->Fill(rodID);
+      m_h_subID->Fill(subID);
 
       const CscRawDataCollection* p_CSCcoll(*cscCont_itr);
       CscRawDataCollection::const_iterator csc_itr(p_CSCcoll->begin());
@@ -363,15 +363,15 @@ StatusCode CSC_RDOAnalysis::execute() {
         m_cscAdd->push_back(cscAdd);
         m_cscHashID->push_back(cscHashID);
 
-        h_cscRpuID->Fill(cscRpuID);
-        h_cscID->Fill(cscID);
-        h_cscTime->Fill(cscTime);
-        h_cscWidth->Fill(cscWidth);
+        m_h_cscRpuID->Fill(cscRpuID);
+        m_h_cscID->Fill(cscID);
+        m_h_cscTime->Fill(cscTime);
+        m_h_cscWidth->Fill(cscWidth);
         for (std::vector<uint16_t>::size_type l = 0; l != cscSmpl_vec.size(); ++l) {
-          h_cscSmpl->Fill(cscSmpl_vec.at(l));
+          m_h_cscSmpl->Fill(cscSmpl_vec.at(l));
         }
-        h_cscAdd->Fill(cscAdd);
-        h_cscHashID->Fill(cscHashID);
+        m_h_cscAdd->Fill(cscAdd);
+        m_h_cscHashID->Fill(cscHashID);
       }
     }
   }
@@ -419,12 +419,12 @@ StatusCode CSC_RDOAnalysis::execute() {
         m_zpos->push_back(sdoZpos);
         m_charge->push_back(sdoCharge);
 
-        h_barcode->Fill(bar);
-        h_eventIndex->Fill(eventIx);
-        h_energy->Fill(sdoEnergy);
-        h_ypos->Fill(sdoYpos);
-        h_zpos->Fill(sdoZpos);
-        h_charge->Fill(sdoCharge);
+        m_h_barcode->Fill(bar);
+        m_h_eventIndex->Fill(eventIx);
+        m_h_energy->Fill(sdoEnergy);
+        m_h_ypos->Fill(sdoYpos);
+        m_h_zpos->Fill(sdoZpos);
+        m_h_charge->Fill(sdoCharge);
 
         barcode_vec.push_back(bar);
         eventIndex_vec.push_back(eventIx);

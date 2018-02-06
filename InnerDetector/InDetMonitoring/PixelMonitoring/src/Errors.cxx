@@ -336,21 +336,21 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
 
   // Error counters: total; errors by bit; errors by state (sync etc.)
   int num_errors[PixLayerIBL2D3D::COUNT] = {0};
-  int num_errors_per_bit[PixLayerIBL2D3D::COUNT][kNumErrorBits] = {0};
-  int num_errors_per_state[PixLayer::COUNT - 1][kNumErrorStates] = {0};  // no IBL here
+  int num_errors_per_bit[PixLayerIBL2D3D::COUNT][kNumErrorBits] = {{0}};
+  int num_errors_per_state[PixLayer::COUNT - 1][kNumErrorStates] = {{0}};  // no IBL here
   int num_errors_per_stateIBL[kNumErrorStatesIBL] = {0};                 // IBL
 
   // Counter for erroneous modules on the layer, per error type and
   // category (error cat. = error type w/o ROD/MOD distinction).
-  int num_errormodules_per_cat[PixLayerIBL2D3D::COUNT][ErrorCategory::COUNT] = {0};
-  int num_errormodules_per_type[PixLayerIBL2D3D::COUNT][ErrorCategoryMODROD::COUNT] = {0};
+  int num_errormodules_per_cat[PixLayerIBL2D3D::COUNT][ErrorCategory::COUNT] = {{0}};
+  int num_errormodules_per_type[PixLayerIBL2D3D::COUNT][ErrorCategoryMODROD::COUNT] = {{0}};
 
   // Counter for erroneous FEs per module per layer.
-  int num_errorFEs_EA[kNumModulesPhi[PixLayer::kECA]][kNumModulesEta[PixLayer::kECA]][kNumFEs] = {0};
-  int num_errorFEs_EC[kNumModulesPhi[PixLayer::kECC]][kNumModulesEta[PixLayer::kECC]][kNumFEs] = {0};
-  int num_errorFEs_B0[kNumModulesPhi[PixLayer::kB0]][kNumModulesEta[PixLayer::kB0]][kNumFEs] = {0};
-  int num_errorFEs_B1[kNumModulesPhi[PixLayer::kB1]][kNumModulesEta[PixLayer::kB1]][kNumFEs] = {0};
-  int num_errorFEs_B2[kNumModulesPhi[PixLayer::kB2]][kNumModulesEta[PixLayer::kB2]][kNumFEs] = {0};
+  int num_errorFEs_EA[kNumModulesPhi[PixLayer::kECA]][kNumModulesEta[PixLayer::kECA]][kNumFEs] = {{{0}}};
+  int num_errorFEs_EC[kNumModulesPhi[PixLayer::kECC]][kNumModulesEta[PixLayer::kECC]][kNumFEs] = {{{0}}};
+  int num_errorFEs_B0[kNumModulesPhi[PixLayer::kB0]][kNumModulesEta[PixLayer::kB0]][kNumFEs] = {{{0}}};
+  int num_errorFEs_B1[kNumModulesPhi[PixLayer::kB1]][kNumModulesEta[PixLayer::kB1]][kNumFEs] = {{{0}}};
+  int num_errorFEs_B2[kNumModulesPhi[PixLayer::kB2]][kNumModulesEta[PixLayer::kB2]][kNumFEs] = {{{0}}};
 
   const auto& kFeErrorWords = m_ErrorSvc->getAllFeErrors();
 

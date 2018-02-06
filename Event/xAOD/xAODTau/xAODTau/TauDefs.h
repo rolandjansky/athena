@@ -317,6 +317,10 @@ namespace TauJetParameters
       nIsolatedTracks=110,
       nModifiedIsolationTracks=111,//no static variable for now
 
+      // online MVA TES
+      UpsilonCluster=112,
+      LeadClusterFrac=113,
+
       //Tau/Ele BDTVars
 
     };

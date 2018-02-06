@@ -52,7 +52,6 @@ identifier = ".-"
 UnusedIDVariables = ["trackParameterCovarianceMatrices", "parameterX", "parameterY", "parameterZ", "parameterPX",
                      "parameterPY", "parameterPZ", "parameterPosition", "caloExtension","trackLink"]
 UnusedVtxVariables = ["vxTrackAtVertex"]
-
 # Combine them into a string
 RemoveIDVariables = ".-"+identifier.join(UnusedIDVariables)
 RemoveVtxVariables = ".-"+identifier.join(UnusedVtxVariables)
@@ -86,9 +85,10 @@ UnusedOldTau = ["ipZ0SinThetaSigLeadTrk", "trkWidth2", "numEffTopoClusters", "to
                 "lead2ClusterEOverAllClusterE", "lead3ClusterEOverAllClusterE", "secMaxStripEt",
                 "sumEMCellEtOverLeadTrkPt", "hadLeakEt", "caloIso", "caloIsoCorrected" ]
 
+# "LeadClusterFrac" and "UpsilonCluster" are used for online MVA TES, but keeping them would violate T0 policy...
 UnusedProperties = ["Likelihood", "SafeLikelihood", "BDTEleScore", "BDTJetScoreSigTrans", "BDTJetScoreBkgTrans",
                     "vetoFlags", "isTauFlags", "trackFlags", "trackFilterProngs", "trackFilterQuality", "trackEtaStrip", "trackPhiStrip",
-                    "TauJetVtxFraction" ]
+                    "TauJetVtxFraction", "LeadClusterFrac", "UpsilonCluster" ]
 
 UnusedFourMom = ["ptIntermediateAxis", "etaIntermediateAxis", "phiIntermediateAxis", "mIntermediateAxis",
                  "ptTauEtaCalib", "etaTauEtaCalib", "phiTauEtaCalib", "mTauEtaCalib", "EM_TES_scale"]
@@ -97,18 +97,36 @@ UnusedFourMom = ["ptIntermediateAxis", "etaIntermediateAxis", "phiIntermediateAx
 UnusedTauVariables = PanTauVars + PFOs + EFlow + Samplings + UnusedOldTau + UnusedProperties + UnusedFourMom
 RemoveTauVariables = ".-"+identifier.join(UnusedTauVariables)
 
+
 UnusedCaloVariables = ["N_BAD_CELLS","BADLARQ_FRAC","ENG_BAD_CELLS","N_BAD_HV_CELLS",
                         "BAD_CELLS_CORR_E","BadChannelList","CELL_SIG_SAMPLING",
                         "AVG_TILE_Q","AVG_LAR_Q","ENG_FRAC_EM","ISOLATION",
-                        "etasize_sampl","phisize_sampl","EM_PROBABILITY","ENG_POS",
+                        "etasize_sampl","phisize_sampl", "ENG_POS",
                         "CELL_SIGNIFICANCE","DM_WEIGHT","HAD_WEIGHT","LATERAL",
                         "SECOND_R","CENTER_MAG","FIRST_PHI","CENTER_Z","OOC_WEIGHT",
                         "LONGITUDINAL","DELTA_ALPHA","CENTER_Y","CENTER_X","FIRST_ETA",
-                        "DELTA_PHI","ENG_FRAC_MAX","SECOND_LAMBDA","ENG_FRAC_CORE",
-                        "SIGNIFICANCE","CENTER_LAMBDA","DELTA_THETA","FIRST_ENG_DENS",
-                        "SECOND_ENG_DENS","emax_sampl","CellLink","phimax_sampl","etamax_sampl"]
+                        "DELTA_PHI","ENG_FRAC_MAX","ENG_FRAC_CORE", "SIGNIFICANCE", "DELTA_THETA",
+                        "SECOND_ENG_DENS","emax_sampl","CellLink","phimax_sampl","etamax_sampl",
+                        "CENTER_LAMBDA","FIRST_ENG_DENS","EM_PROBABILITY","SECOND_LAMBDA",
+                       ]
 RemoveCaloVariables = ".-"+identifier.join(UnusedCaloVariables)
 
+#Special list to keep some moments needed for taus (ATR-17608)
+TauCaloVariablestoAdd= ["CENTER_LAMBDA","FIRST_ENG_DENS","EM_PROBABILITY","SECOND_LAMBDA","SECOND_R"]
+TauCaloVariablestoRemove= ["N_BAD_CELLS","BADLARQ_FRAC","ENG_BAD_CELLS","N_BAD_HV_CELLS",
+                        "BAD_CELLS_CORR_E","BadChannelList","CELL_SIG_SAMPLING",
+                        "AVG_TILE_Q","AVG_LAR_Q","ENG_FRAC_EM","ISOLATION",
+                        "etasize_sampl","phisize_sampl", "ENG_POS",
+                        "CELL_SIGNIFICANCE","DM_WEIGHT","HAD_WEIGHT","LATERAL",
+                        "CENTER_MAG","FIRST_PHI","CENTER_Z","OOC_WEIGHT",
+                        "LONGITUDINAL","DELTA_ALPHA","CENTER_Y","CENTER_X","FIRST_ETA",
+                        "DELTA_PHI","ENG_FRAC_MAX","ENG_FRAC_CORE", "SIGNIFICANCE", "DELTA_THETA",
+                        "SECOND_ENG_DENS","emax_sampl","CellLink","phimax_sampl","etamax_sampl",]
+RemoveTauCaloVars=".-"+identifier.join(TauCaloVariablestoRemove)
+posidentifier="."
+AddTauCaloVariables="."+posidentifier.join(TauCaloVariablestoAdd)
+
+# muons
 UnusedMuonVariables = ["ET_Core","ET_EMCore","d0_staco","z0_staco","CT_ET_Core","ET_HECCore",
                         "ET_TileCore","CT_EL_Type","phi0_staco","theta_staco","isEndcapGoodLayers",
                         "isSmallGoodSectors","qOverP_staco","segmentsOnTrack","qOverPErr_staco",
@@ -124,6 +142,7 @@ UnusedMuonIDVariables = UnusedIDVariables + ["alignEffectChId","alignEffectDelta
                         
 RemoveMuonIDVariables = ".-"+identifier.join(UnusedMuonIDVariables)                       
 
+#B-tagging
 UnusedBTaggingVariables = ["SV1_deltaR","SV1_Lxy","SV1_L3d","SV0_dstToMatLay","SV1_dstToMatLay","JetFitter_dRFlightDir"]
 RemoveBTaggingVariables = ".-"+identifier.join(UnusedBTaggingVariables)                      
 
@@ -172,8 +191,10 @@ TriggerHLTList = [
     ('xAOD::JetRoIAuxContainer#HLT_L1TopoJetAux.',                         'BS ESD AODFULL AODSLIM AODVERYSLIM AODBLSSLIM',  'Steer'),  
 
     #calo
-    ('xAOD::CaloClusterContainer#HLT_TrigCaloClusterMaker', 'BS ESD AODFULL', 'Calo'), 
-    ('xAOD::CaloClusterTrigAuxContainer#HLT_TrigCaloClusterMakerAux'+RemoveCaloVariables, 'BS ESD AODFULL', 'Calo'), 
+    ('xAOD::CaloClusterContainer#HLT_TrigCaloClusterMaker', 'BS ESD AODFULL AODSLIM', 'Calo'), 
+    #('xAOD::CaloClusterTrigAuxContainer#HLT_TrigCaloClusterMakerAux'+RemoveCaloVariables, 'BS ESD AODFULL', 'Calo'), 
+    ('xAOD::CaloClusterTrigAuxContainer#HLT_TrigCaloClusterMakerAux'+AddTauCaloVariables, 'BS ESD AODFULL AODSLIM', 'Calo'), 
+
     ('xAOD::CaloClusterContainer#HLT_TrigCaloClusterMaker_slw', 'BS ESD AODFULL', 'Calo'), 
     ('xAOD::CaloClusterTrigAuxContainer#HLT_TrigCaloClusterMaker_slwAux'+RemoveCaloVariables, 'BS ESD AODFULL', 'Calo'), 
     ('xAOD::CaloClusterContainer#HLT_TrigCaloClusterMaker_topo', 'BS ESD', 'Calo'), 
@@ -1592,7 +1613,6 @@ def getTriggerObjList(destination, lst):
     Gives back the Python dictionary  with the content of ESD/AOD (dst) which can be inserted in OKS.
     """
     dset = set(destination.split())
-    
     toadd = {}
     import itertools
 
@@ -1657,7 +1677,7 @@ def getTriggerEDMSlimList(key):
     for k,v in _edmList.items():
         newnames = []
         for el in v:
-            if 'Aux' in el:
+            if 'Aux' in el :
                 newnames+=[el.split('.')[0]+'.-']
             else:
                 newnames+=[el]

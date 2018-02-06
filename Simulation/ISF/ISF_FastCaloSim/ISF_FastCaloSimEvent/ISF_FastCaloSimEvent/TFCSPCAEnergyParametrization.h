@@ -5,6 +5,7 @@
 #ifndef ISF_FASTCALOSIMEVENT_TFCSPCAEnergyParametrization_h
 #define ISF_FASTCALOSIMEVENT_TFCSPCAEnergyParametrization_h
 
+
 #include "ISF_FastCaloSimEvent/TFCSEnergyParametrization.h"
 #include "ISF_FastCaloSimEvent/IntArray.h"
 #include "ISF_FastCaloSimEvent/TFCS1DFunction.h"
@@ -19,14 +20,14 @@ class TFCSPCAEnergyParametrization:public TFCSEnergyParametrization
   TFCSPCAEnergyParametrization(const char* name=0, const char* title=0);
 
   virtual void simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol);
-
+  
   int n_pcabins()        { return m_numberpcabins; };
   IntArray* get_layers() { return m_RelevantLayers; };
-
+  
   void P2X(TVectorD*, TVectorD* , TMatrixD* , int, double* , double* , int);
   void loadInputs(TFile* file);
   void loadInputs(TFile* file,std::string);
-
+  
  private:
   
   IntArray* m_RelevantLayers;
@@ -38,11 +39,11 @@ class TFCSPCAEnergyParametrization:public TFCSEnergyParametrization
   std::vector<TVectorD*>    m_Gauss_rms;
   std::vector<TVectorD*>    m_LowerBounds;
   std::vector<std::vector<TFCS1DFunction*> > m_cumulative;
-
+  
   int m_numberpcabins;
-
+  
   ClassDef(TFCSPCAEnergyParametrization,1)  //TFCSPCAEnergyParametrization
-
+ 
 };
 
 #endif
