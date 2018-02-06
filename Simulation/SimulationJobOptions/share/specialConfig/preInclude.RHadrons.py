@@ -365,7 +365,7 @@ try:
   f = af.fopen(athenaCommonFlags.FilesInput()[0])
   if 'generators' in f.infos['tag_info']:
     usePythia8 = 'Py8' in f.infos['tag_info']['generators'] or 'Pythia8' in f.infos['tag_info']['generators']
-  runNumber = f.infos['run_number']
+  runNumber = f.infos['run_number'][0]
   if "StreamHITS" in f.infos["stream_names"]:
     from Digitization.DigitizationFlags import digitizationFlags
     simdict = digitizationFlags.specialConfiguration.get_Value()
