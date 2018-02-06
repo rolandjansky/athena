@@ -19,7 +19,7 @@ atlas_depends_on_subdirs( PUBLIC
 			  TestPolicy 
 			  Tracking/TrkValidation/TrkValHistUtils )
 
-		  atlas_add_library (egammaValidationLib 
+atlas_add_library (egammaValidationLib 
 	egammaValidation/*.h  src/*.cxx 
 	PUBLIC_HEADERS egammaValidation
 	INCLUDE_DIRS
