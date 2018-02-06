@@ -564,10 +564,7 @@ class TrigMuonEFCaloIsolationConfig (TrigMuonEFCaloIsolation):
         self.AthenaMonTools = [validation_caloiso]
 
 def TMEF_TrackIsolationTool(name='TMEF_isolationTool',**kwargs):
-    deltaz = 3.0*mm
-    if 'z2mm' in name:
-        deltaz = 2.0*mm
-    kwargs.setdefault('deltaZCut', deltaz)
+    kwargs.setdefault('deltaZCut', 2.0*mm)
     kwargs.setdefault('removeSelf',True)
     kwargs.setdefault('useAnnulus',False)
     kwargs.setdefault('useVarIso',True)
