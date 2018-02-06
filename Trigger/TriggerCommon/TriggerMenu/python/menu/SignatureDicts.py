@@ -145,7 +145,7 @@ JetChainParts = {
     
     # Et cut by the jet build tool (ptminFilter)
     'recoCutCalib': ['rccDefault', 'rcc0', 'rcc5'],
-    'dPhi': ['dphi24', 'dphi26'],
+    # 'dPhi': ['dphi24', 'dphi26'],
 
 }
 
@@ -178,7 +178,7 @@ JetChainParts_Default = {
     'recoCutUncalib': 'rcuDefault',
     'recoCutCalib': 'rccDefault',
     'dj'           : '',
-    'dPhi'         : ''
+    # 'dPhi'         : ''
     }
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 

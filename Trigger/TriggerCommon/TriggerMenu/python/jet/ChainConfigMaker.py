@@ -264,15 +264,17 @@ def _get_dijet_string2(parts):
     return ''
 
 def _get_phi_string(parts):
+    """support for the run 1 dijet hypos"""
     
-    pstrings = set([p['dPhi'] for p in parts if p['dPhi']])
-
-    if len(pstrings) > 1:
-        msg = '%s: multiple dPhi values: %s' % (err_hdr, str(pstrings))
-        raise RuntimeError(msg)
-    if not pstrings: return ''
-    return pstrings.pop()
-
+    # pstrings = set([p['dPhi'] for p in parts if p['dPhi']])
+    return  _get_topo(parts, 'dphi')
+    
+    # if len(pstrings) > 1:
+    #    msg = '%s: multiple dphi values: %s' % (err_hdr, str(pstrings))
+    #    raise RuntimeError(msg)
+    # if not pstrings: return ''
+    #return pstrings.pop()
+ 
 
 def _get_dijet_string3(parts):
     """2/2/2018 get the information for dijet chains from the 'topo' entry
@@ -282,7 +284,8 @@ def _get_dijet_string3(parts):
     if x: return x
 
     dijet_string = _get_topo(parts, 'invm')
-    phi_string = _get_phi_string(parts)
+    phi_string = _get_topo(parts, 'dphi')
+    # phi_string = _get_phi_string(parts)
     dijet_string += phi_string
     if dijet_re.match(dijet_string):
         _update_cache('dijet_string', dijet_string)
@@ -316,7 +319,7 @@ def _get_topo(parts, target):
     if not targets: return ''
     if len(targets) == 1: return targets.pop()
         
-    msg = '%s %s mass specied more than once' % (err_hdr, target)
+    msg = '%s topo target %s specied more than once' % (err_hdr, target)
     raise RuntimeError(msg)
 
 def _get_invm_string(parts):
