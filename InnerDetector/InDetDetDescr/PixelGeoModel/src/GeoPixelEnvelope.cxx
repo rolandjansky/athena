@@ -75,7 +75,7 @@ GeoVPhysVol* GeoPixelEnvelope::Build( ) {
   }
   const GeoMaterial* air = m_mat_mgr->getMaterial("std::Air");
   const GeoLogVol* envelopeLog = new GeoLogVol("Pixel",envelopeShape,air);
-  GeoFullPhysVol* envelopePhys = new GeoFullPhysVol(envelopeLog);;
+  GeoFullPhysVol* envelopePhys = new GeoFullPhysVol(envelopeLog);
 
   GeoPixelServices * pixServices = 0;
   if(m_gmt_mgr->DoServices() ) {

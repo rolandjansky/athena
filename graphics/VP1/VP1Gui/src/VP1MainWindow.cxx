@@ -284,7 +284,7 @@ VP1MainWindow::VP1MainWindow(VP1ExecutionScheduler*sched,VP1AvailEvents * ae,QWi
 	else
 		savedgoal = s.value("font/pointsize_relativepercent", 0).toInt();
 
-	menu_changeFontSize = menu_Style->addMenu ( "&Font size" );;
+	menu_changeFontSize = menu_Style->addMenu ( "&Font size" );
 	QList<int> fontoptions;
 	if (m_defaultfont_pointsize<0.0)
 		fontoptions <<15<<10<<+5<<+3<<+2<<+1<<0<<-1<<-2<<-3<<-5<<-10<<-20<<-30;

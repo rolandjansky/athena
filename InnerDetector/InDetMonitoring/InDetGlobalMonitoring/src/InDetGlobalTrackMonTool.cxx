@@ -687,7 +687,7 @@ StatusCode InDetGlobalTrackMonTool::fillHistograms()
 	}
 	if ( summary->get(Trk::numberOfTRTHits) + summary->get(Trk::numberOfTRTOutliers) == 0 )
 	{
-	    nNoTRText++;;
+	    nNoTRText++;
 	    m_Trk_noTRText_frac_LB->Fill(m_manager->lumiBlockNumber(), 1);
 	}
 	else

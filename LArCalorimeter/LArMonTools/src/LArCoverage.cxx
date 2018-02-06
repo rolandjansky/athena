@@ -658,7 +658,7 @@ LArCoverage::fillHistograms()
 	m_hCaloNoiseToolHEC[sampling]->Fill(etaChan, noise);
       }
       if(m_LArOnlineIDHelper->isFCALchannel(id)){
-	int sampling = m_LArFCAL_IDHelper->module(offlineID);;
+	int sampling = m_LArFCAL_IDHelper->module(offlineID);
 	m_hCaloNoiseToolFCAL[sampling]->Fill(etaChan, noise);
       }
 

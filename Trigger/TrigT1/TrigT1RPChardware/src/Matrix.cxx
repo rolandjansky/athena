@@ -1886,7 +1886,7 @@ if(nthresPass) {
   out_k_trigger<<" THR "<<thresPass[i]<<endl;
   if(overlPass[i]) {
     out_k_trigger<<" TIME "<<BCidentifier[i]*25.+timeOffsetThr;
-    out_k_trigger<<" OVL "<<overlPass[i]<<std::endl;;
+    out_k_trigger<<" OVL "<<overlPass[i]<<std::endl;
   }
  }
 }

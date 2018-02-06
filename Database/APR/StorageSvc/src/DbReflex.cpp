@@ -73,7 +73,7 @@ Guid DbReflex::guid(const TypeH& type)
         /* 
         if( idstr.empty() ) {
            cout << "!! WARNING, type " << type.Name() << " does not have property ClassID" << endl
-                << "===========" << endl;;
+                << "===========" << endl;
         }
         cout << "GUID: Class " << type.Name() << " has GUID= " << idstr << endl;
         */

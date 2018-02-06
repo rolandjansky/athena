@@ -2856,21 +2856,21 @@ void CaloCellVecMon::fillSporHists(const CaloCell* cell ){
    }
    if(caloDDEl->is_lar_em_barrel() && posneg != 0) {
      part_name = "EMBA";
-     sample_s = m_em_id->sampling(id_s);;
+     sample_s = m_em_id->sampling(id_s);
      name_flag=2;
      m_badCell_flag = m_badCell_flag_emba;
      tmpBadCell = m_badCell_EMBA;
    }
    if(caloDDEl->is_lar_em_endcap() && posneg == 0)  {
      part_name = "EMECC";
-     sample_s = m_em_id->sampling(id_s);;
+     sample_s = m_em_id->sampling(id_s);
      name_flag=3;
      m_badCell_flag = m_badCell_flag_emecc;
      tmpBadCell = m_badCell_EMECC;
    }
    if(caloDDEl->is_lar_em_endcap() && posneg != 0)  {
      part_name = "EMECA";
-     sample_s = m_em_id->sampling(id_s);;
+     sample_s = m_em_id->sampling(id_s);
      name_flag=4;
      m_badCell_flag = m_badCell_flag_emeca;
      tmpBadCell = m_badCell_EMECA;
@@ -2891,14 +2891,14 @@ void CaloCellVecMon::fillSporHists(const CaloCell* cell ){
    }
    if(caloDDEl->is_lar_fcal() && posneg == 0)  {
      part_name = "FCALC";
-     sample_s = m_calo_id->sampling(id_s);;
+     sample_s = m_calo_id->sampling(id_s);
      name_flag=7;
      m_badCell_flag = m_badCell_flag_fcalc;
      tmpBadCell = m_badCell_FCALC;
    }
    if(caloDDEl->is_lar_fcal() && posneg != 0)  {
      part_name = "FCALA";
-     sample_s = m_calo_id->sampling(id_s);;
+     sample_s = m_calo_id->sampling(id_s);
      name_flag=8;
      m_badCell_flag = m_badCell_flag_fcala;
      tmpBadCell = m_badCell_FCALA;

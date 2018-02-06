@@ -541,7 +541,7 @@ namespace InDet {
 		    
 		    int rowMin = int(2*(element->width()/element->phiPitch()))+1;
 		    int rowMax = 0;
-		    int colMin = int(2*(element->length()/element->etaPitch()))+1;;
+		    int colMin = int(2*(element->length()/element->etaPitch()))+1;
 		    int colMax = 0;
 		    
 		    for (; rdosBegin!= rdosEnd; ++rdosBegin)
@@ -705,7 +705,7 @@ PixelCluster* MergedPixelsTool::makeCluster
 			ATH_MSG_ERROR("Dynamic cast failed at "<<__LINE__<<" of MergedPixelsTool.");
 			return nullptr;
 		}
-    int rowMin = int(2*(design->width()/design->phiPitch()))+1;;
+    int rowMin = int(2*(design->width()/design->phiPitch()))+1;
     int rowMax = 0;
     int colMin = int(2*(design->length()/design->etaPitch()))+1;
     int colMax = 0;

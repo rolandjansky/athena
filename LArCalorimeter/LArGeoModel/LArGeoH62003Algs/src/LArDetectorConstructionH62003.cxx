@@ -245,7 +245,7 @@ GeoVPhysVol* LArGeo::LArDetectorConstructionH62003::GetEnvelope()
 	//	{CryoXPos = -18.0*cm;}
      
       log << MSG::DEBUG << "TB2003 Cryostat Position is " 
-	  << nickname << endmsg;;
+	  << nickname << endmsg;
       log << MSG::DEBUG << "CryoXPos = "  
 	  << CryoXPos << endmsg;
       

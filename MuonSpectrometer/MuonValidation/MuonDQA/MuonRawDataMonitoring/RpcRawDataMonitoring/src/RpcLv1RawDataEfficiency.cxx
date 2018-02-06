@@ -366,7 +366,7 @@ StatusCode RpcLv1RawDataEfficiency::fillHistograms( )
       }
   }
   
-  return StatusCode::SUCCESS;;
+  return StatusCode::SUCCESS;
 }
 
 //================================================================================================================================

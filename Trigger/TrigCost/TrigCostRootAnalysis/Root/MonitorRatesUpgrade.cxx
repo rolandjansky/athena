@@ -347,7 +347,7 @@ namespace TrigCostRootAnalysis {
     m_globalRateL2Counter->decorate(kDecRatesGroupName, Config::config().getStr(kAllString));
     m_globalRateL2Counter->decorate(kDecPrescaleValOnlineL1, (Float_t) 0);
     m_globalRateL2Counter->decorate(kDecType, "Union");
-    // m_globalRateL2Counter->setAdvancedLumiScaling(kFALSE);;
+    // m_globalRateL2Counter->setAdvancedLumiScaling(kFALSE);
     (*_counterMap)[Config::config().getStr(kRateGlobalL2String)] = static_cast<CounterBase*>(m_globalRateL2Counter);
 
     // Crate the global L1 counter, this will be the OR of everything L1

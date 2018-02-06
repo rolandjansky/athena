@@ -207,7 +207,7 @@ namespace Analysis {
         StatusCode sc1=service("ToolSvc",toolsvc);
         if (sc1.isFailure() ) {
             ATH_MSG_WARNING("Problem loading tool service. JpsiCandidates will be EMPTY!");
-            return StatusCode::SUCCESS;;
+            return StatusCode::SUCCESS;
         };
         
 //        // Check that the user's settings are sensible
@@ -240,14 +240,14 @@ namespace Analysis {
             ATH_MSG_WARNING("You are requesting same-sign or all-sign combinations in a tag and probe analysis. This doesn't make sense. JpsiCandidates will be EMPTY!");
             illogicalOptions=true;
         }
-        if (illogicalOptions) return StatusCode::SUCCESS;;
+        if (illogicalOptions) return StatusCode::SUCCESS;
         
         // Get the muons from StoreGate
         const xAOD::MuonContainer* importedMuonCollection;
         StatusCode sc = evtStore()->retrieve(importedMuonCollection,m_muonCollectionKey);
         if(sc.isFailure()){
             ATH_MSG_WARNING("No muon collection with key " << m_muonCollectionKey << " found in StoreGate. JpsiCandidates will be EMPTY!");
-            return StatusCode::SUCCESS;;
+            return StatusCode::SUCCESS;
         }else{
             ATH_MSG_DEBUG("Found muon collections with key "<<m_muonCollectionKey);
         }
@@ -262,7 +262,7 @@ namespace Analysis {
                 sc = evtStore()->retrieve(importedMuonTrackCollection,*strItr);
                 if(sc.isFailure() || importedMuonTrackCollection==NULL){
                     ATH_MSG_WARNING("No muon TrackParticle collection with name " << *strItr  << " found in StoreGate!");
-                    return StatusCode::SUCCESS;;
+                    return StatusCode::SUCCESS;
                 } else {
                     ATH_MSG_DEBUG("Found muon TrackParticle collection " << *strItr << " in StoreGate!");
                     ATH_MSG_DEBUG("Muon TrackParticle container size "<< importedMuonTrackCollection->size());
@@ -276,7 +276,7 @@ namespace Analysis {
         sc = evtStore()->retrieve(importedTrackCollection,m_TrkParticleCollection);
         if(sc.isFailure()){
             ATH_MSG_WARNING("No TrackParticle collection with name " << m_TrkParticleCollection << " found in StoreGate!");
-            return StatusCode::SUCCESS;;
+            return StatusCode::SUCCESS;
         } else {
             ATH_MSG_DEBUG("Found TrackParticle collection " << m_TrkParticleCollection << " in StoreGate!");
         }
@@ -298,7 +298,7 @@ namespace Analysis {
                 if ( !m_trkSelector->decision(*TP, vx) ) continue;
                 theIDTracksAfterSelection.push_back(TP);
             }
-            if (theIDTracksAfterSelection.size() == 0) return StatusCode::SUCCESS;;
+            if (theIDTracksAfterSelection.size() == 0) return StatusCode::SUCCESS;
             ATH_MSG_DEBUG("Number of tracks after ID track selection: " << theIDTracksAfterSelection.size());
         }
         
@@ -319,7 +319,7 @@ namespace Analysis {
                 if ( (*muItr)->muonType() == xAOD::Muon::SiliconAssociatedForwardMuon && !m_useCombMeasurement) continue;
                 theMuonsAfterSelection.push_back(*muItr);
             }
-            if (theMuonsAfterSelection.size() == 0) return StatusCode::SUCCESS;;
+            if (theMuonsAfterSelection.size() == 0) return StatusCode::SUCCESS;
             ATH_MSG_DEBUG("Number of muons after selection: " << theMuonsAfterSelection.size());
         }
         
@@ -473,7 +473,7 @@ namespace Analysis {
         }
         
         ATH_MSG_DEBUG("Number of pairs passing all selections and going to vertexing: " << sortedJpsiCandidates.size() );
-        if (sortedJpsiCandidates.size() == 0) return StatusCode::SUCCESS;;
+        if (sortedJpsiCandidates.size() == 0) return StatusCode::SUCCESS;
         
 
         // Fit each pair of tracks to a vertex
@@ -510,7 +510,7 @@ namespace Analysis {
         }
         ATH_MSG_DEBUG("vxContainer size " << vxContainer->size());
         
-        return StatusCode::SUCCESS;;
+        return StatusCode::SUCCESS;
     }
     
     // *********************************************************************************

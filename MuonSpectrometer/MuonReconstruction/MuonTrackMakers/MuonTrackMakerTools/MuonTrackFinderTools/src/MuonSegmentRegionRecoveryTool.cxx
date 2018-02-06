@@ -140,7 +140,7 @@ namespace Muon {
    
   Trk::Track* MuonSegmentRegionRecoveryTool::recover( const Trk::Track& track ) const {
 
-    Trk::Track* result = recoverImp(track);;
+    Trk::Track* result = recoverImp(track);
     if( result ) ATH_MSG_DEBUG("Final track " << m_printer->print(*result) << std::endl << m_printer->printStations(*result) ); 
     else         ATH_MSG_DEBUG("Track lost during recovery");
     return result;

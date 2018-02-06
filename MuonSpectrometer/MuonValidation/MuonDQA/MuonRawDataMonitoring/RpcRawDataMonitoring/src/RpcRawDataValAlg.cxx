@@ -4305,7 +4305,7 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpc1DStationNameHitsSideA->GetXaxis()->SetBinLabel( 9,"BOL #eta");
 	  rpc1DStationNameHitsSideA->GetXaxis()->SetBinLabel(10,"BOL #phi");
 	  rpc1DStationNameHitsSideA->GetXaxis()->SetBinLabel(11,"BOF/G #eta");
-	  rpc1DStationNameHitsSideA->GetXaxis()->SetBinLabel(12,"BOF/G #phi");;
+	  rpc1DStationNameHitsSideA->GetXaxis()->SetBinLabel(12,"BOF/G #phi");
 	  
 	  rpc1DStationNameHitsSideA->SetFillColor(42);
 	  rpc1DStationNameHitsSideA->SetTitle("RPC  hits surface density Side A ");

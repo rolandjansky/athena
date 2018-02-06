@@ -364,7 +364,7 @@ TrigConf::DSConfigSvc::update( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
          for(CondAttrListCollection::const_iterator attrListIt = hltMenuAttrColl->begin(); attrListIt != hltMenuAttrColl->end(); attrListIt++ ) {
             CondAttrListCollection::AttributeList attrList = attrListIt->second;
             m_hltFrame.theHLTChainList().addHLTChain( createHLTChain( attrList, &m_hltFrame.theHLTSequenceList() ) );
-            nChains++;;
+            nChains++;
          }
          ATH_MSG_INFO( "  Number of chains: " << nChains );
          ATH_MSG_DEBUG( m_hltFrame.chains() );
@@ -461,7 +461,7 @@ TrigConf::DSConfigSvc::update( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
          for(CondAttrListCollection::const_iterator attrListIt = hltgrpAtrColl->begin(); attrListIt != hltgrpAtrColl->end(); attrListIt++ ) {
             CondAttrListCollection::AttributeList attrList = attrListIt->second;
             addGroupsToHltChain( attrList, m_hltFrame.theHLTChainList() );
-            nGroups++;;
+            nGroups++;
          }
          ATH_MSG_INFO( "  Number of groups: " << nGroups );
       }

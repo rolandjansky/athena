@@ -688,7 +688,7 @@ const xAOD::VertexContainer* SecVxContainer(0);
     m_massVPtBinHistos[quickBin]->Fill(ksMass/1000.);
     //    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "histo[" << quickBin << "]->GetEntries() = " << m_massVPtBinHistos[quickBin]->GetEntries() << endmsg;
 
-    double radius = secVx_elem->auxdata< float >("Rxy");;
+    double radius = secVx_elem->auxdata< float >("Rxy");
 
     m_radius->Fill(radius);
 

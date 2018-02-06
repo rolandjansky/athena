@@ -780,7 +780,7 @@ if (!selObj.select(hit)) continue;
   double ecal[4]={0.,0.,0.,0.};
   double eAct[4]={0.,0.,0.,0.};
   double eInact[4]={0.,0.,0.,0.};
-  double eDead[4]={0.,0.,0.,0.};;
+  double eDead[4]={0.,0.,0.,0.};
   double edead_1_0 =0;
   double edead_1_1_0=0;
   double edead_1_1_1=0;

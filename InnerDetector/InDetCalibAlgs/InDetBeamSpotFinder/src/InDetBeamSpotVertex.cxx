@@ -1381,11 +1381,11 @@ std::map<std::string,double> InDetBeamSpotVertex::getParamMap() const {
   paramMap["tiltY"]  = (m_getLLres ? m_pLL(4) : m_p(4));
   paramMap["k"]      = (m_getLLres ? m_pLL(8) : 0.);
   paramMap["posX"]   = (m_getLLres ? m_pLL(1) + m_pLL(3)*z  : m_p(1) + m_p(2)*z);
-  paramMap["posY"]   = (m_getLLres ? m_pLL(2) + m_pLL(4)*z  : m_p(3) + m_p(4)*z);;
+  paramMap["posY"]   = (m_getLLres ? m_pLL(2) + m_pLL(4)*z  : m_p(3) + m_p(4)*z);
   paramMap["posZ"]   = (m_getLLres ? m_pLL(9) : m_zSolved);
   paramMap["sigmaX"] = (m_getLLres ? m_pLL(5) : m_def_sx);
   paramMap["sigmaY"] = (m_getLLres ? m_pLL(6) : m_def_sy);
-  paramMap["sigmaZ"] = (m_getLLres ? m_pLL(10) : m_def_sz);;
+  paramMap["sigmaZ"] = (m_getLLres ? m_pLL(10) : m_def_sz);
   paramMap["rhoXY"]  = (m_getLLres ? m_pLL(7) : 0.);
   paramMap["nUsed"] = m_nUsed;
 

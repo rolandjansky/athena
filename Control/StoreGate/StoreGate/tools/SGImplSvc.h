@@ -761,7 +761,7 @@ public:
    *
    *@code
    *   m_sg->remap (ClassID_traits<T>::ID(), "A", "C", 0);
-   *   m_sg->remap (ClassID_traits<T>::ID(), "B", "C", a.size());;
+   *   m_sg->remap (ClassID_traits<T>::ID(), "B", "C", a.size());
    @endcode
   */
   template <class TKEY>

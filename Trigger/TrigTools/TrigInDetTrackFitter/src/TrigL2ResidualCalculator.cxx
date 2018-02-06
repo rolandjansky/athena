@@ -74,10 +74,10 @@ StatusCode TrigL2ResidualCalculator::initialize()
     return StatusCode::FAILURE;  
   }
   if (detStore()->retrieve(m_sctId, "SCT_ID").isFailure()) {  
-    ATH_MSG_FATAL("Could not get SCT ID helper");;
+    ATH_MSG_FATAL("Could not get SCT ID helper");
     return StatusCode::FAILURE;
   }
-	ATH_MSG_INFO("Using Athena magnetic field service");;
+	ATH_MSG_INFO("Using Athena magnetic field service");
 	sc = m_MagFieldSvc.retrieve();
 	if(sc.isFailure()) 
 	{

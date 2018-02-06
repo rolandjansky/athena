@@ -89,7 +89,7 @@ StatusCode NtupleSplitterTool::initialize() {
 //get region selection service
   StatusCode sc=service("RegionSelectionSvc", p_reg_sel_svc);
   if(!sc.isSuccess()) {
-    ATH_MSG_ERROR("Cannot retrieve RegionSelectionSvc!");;
+    ATH_MSG_ERROR("Cannot retrieve RegionSelectionSvc!");
     return sc;
   }
   sc = m_calib_tool_handle.retrieve();

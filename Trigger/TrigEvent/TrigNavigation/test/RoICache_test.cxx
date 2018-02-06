@@ -39,7 +39,7 @@ public:
     BEGIN_TEST("One algorithm test "+m_s);
     REPORT_REGTEST("executing on " << output->getId());
     if (needsExecution(output)) {
-      REPORT_REGTEST( "REAL execution needed on " << output->getId());;
+      REPORT_REGTEST( "REAL execution needed on " << output->getId());
       if ( !startCaching(output)  )
 	REPORT_AND_STOP( "start caching failed "  << output->getId() );
      

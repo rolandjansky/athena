@@ -150,7 +150,7 @@ namespace InDet
     if ( m_iBeamCondSvc.retrieve().isFailure() )
     {
       msg(MSG::ERROR) << "Could not find BeamCondSvc." << endmsg;
-      return StatusCode::FAILURE;;
+      return StatusCode::FAILURE;
     }
 
     msg(MSG::INFO) << "Initialization successful" << endmsg;

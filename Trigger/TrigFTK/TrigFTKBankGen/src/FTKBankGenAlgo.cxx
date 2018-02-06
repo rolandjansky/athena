@@ -601,8 +601,8 @@ StatusCode FTKBankGenAlgo::execute() {
           }else if(1==FHIT.count){ // the position was already filled with an hit
             cur_plane = FHIT.originalhit.getPlane();
             cur_sector = FHIT.originalhit.getSector();
-            cur_phi = FHIT.originalhit.getPhiModule();;
-            cur_eta = FHIT.originalhit.getEtaModule();;
+            cur_phi = FHIT.originalhit.getPhiModule();
+            cur_eta = FHIT.originalhit.getEtaModule();
             cur_section = FHIT.originalhit.getSection();
 
             // check for overlap

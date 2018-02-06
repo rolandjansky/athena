@@ -215,7 +215,7 @@ StatusCode MergeMcEventCollTool::processAllSubEvents() {
     msg(MSG::ERROR)
       << "execute: Can not find TimedTruthList with key "
       << m_truthCollKey.value() << endmsg;
-    return StatusCode::RECOVERABLE;;
+    return StatusCode::RECOVERABLE;
   }
 
   //clear the background classification map

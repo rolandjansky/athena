@@ -361,7 +361,7 @@ QWidget * VP1GeometrySystem::buildController()
   connect(d->controller,SIGNAL(adaptMuonChambersToEventData()),this,SLOT(adaptMuonChambersToEventData()));
   connect(d->controller,SIGNAL(muonChamberAdaptionStyleChanged(VP1GeoFlags::MuonChamberAdaptionStyleFlags)),
 	  this,SLOT(adaptMuonChambersStyleChanged()));
-  connect(d->controller,SIGNAL(autoExpandByVolumeOrMaterialName(bool,QString)),this,SLOT(autoExpandByVolumeOrMaterialName(bool,QString)));;
+  connect(d->controller,SIGNAL(autoExpandByVolumeOrMaterialName(bool,QString)),this,SLOT(autoExpandByVolumeOrMaterialName(bool,QString)));
   connect(d->controller,SIGNAL(actionOnAllNonStandardVolumes(bool)),this,SLOT(actionOnAllNonStandardVolumes(bool)));
   connect(d->controller,SIGNAL(autoAdaptPixelsOrSCT(bool,bool,bool,bool,bool,bool)),this,SLOT(autoAdaptPixelsOrSCT(bool,bool,bool,bool,bool,bool)));
   connect(d->controller,SIGNAL(resetSubSystems(VP1GeoFlags::SubSystemFlags)),this,SLOT(resetSubSystems(VP1GeoFlags::SubSystemFlags)));

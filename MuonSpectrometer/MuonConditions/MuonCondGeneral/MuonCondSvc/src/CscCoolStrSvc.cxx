@@ -1281,7 +1281,7 @@ namespace MuonCalib {
       const DataHandle<TagInfo> tagInfo;
       if(detStore->retrieve(tagInfo).isFailure()) {
         m_log << MSG::WARNING << "Could not retrieve tag info from TDS in ignore bad multilayer..." 
-          << endmsg;;
+          << endmsg;
         return false;
       }
 

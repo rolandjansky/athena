@@ -205,7 +205,7 @@ int CosmicTrackValidation::Analyze(TDirectory *ref_file){
         else if( chdir(currpath)!=0) {
           std::stringstream message;
           message << "Failed to enter current directory!";
-          throw std::runtime_error(message.str());;
+          throw std::runtime_error(message.str());
         }
 	delete currpath;
 

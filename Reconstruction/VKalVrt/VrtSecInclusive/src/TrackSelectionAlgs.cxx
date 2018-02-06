@@ -140,7 +140,7 @@ namespace VKalVrtAthena {
 	  if(aTemp_truth)
 	    {
 	      barcode = aTemp_truth->barcode();
-	      matchProb= trk->auxdata< float >( "truthMatchProbability" );;
+	      matchProb= trk->auxdata< float >( "truthMatchProbability" );
 	    }
 	}
       if( m_FillNtuple ) {

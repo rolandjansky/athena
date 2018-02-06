@@ -639,7 +639,7 @@ TRT_Predictor::setRegion(const TrackParameters&	parameters)
     double eta		=  intersection->position().eta();
     double deltaEta	=  m_etaRoadSafetyFactor + std::abs(parameters.position().eta() - eta);
     double etaMin	=  eta - deltaEta;
-    double etaMax	=  eta + deltaEta;;
+    double etaMax	=  eta + deltaEta;
     double phi		=  intersection->position().phi();
     double deltaPhi	=  std::abs(parameters.position().phi() - phi);
 

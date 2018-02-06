@@ -785,7 +785,7 @@ void VP1ExaminerViewer::restoreFromState(QByteArray ba_state)
 	state >> ibuffer;
 	if (ibuffer==1) setBufferingType(BUFFER_SINGLE);
 	else if (ibuffer==2) setBufferingType(BUFFER_INTERACTIVE);
-	else setBufferingType(BUFFER_DOUBLE);;
+	else setBufferingType(BUFFER_DOUBLE);
 	VP1Msg::messageVerbose("restoreState Render Buffer = ("+str(ibuffer)+")");
 
 	//camtype and camera parameters:

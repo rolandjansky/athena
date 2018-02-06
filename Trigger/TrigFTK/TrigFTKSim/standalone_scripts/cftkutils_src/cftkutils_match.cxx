@@ -369,7 +369,7 @@ PyObject *FTKTreeObject_MatchRoadsToTruth(FTKTreeObject* self, PyObject *args)
   /* each object has to checked and the members have to be extracted, 
      the names of the members is stored here to be faster */
   PyObject *sbarcode = PyString_FromString("barcode");
-  PyObject *sevtindex = PyString_FromString("evtindex");;
+  PyObject *sevtindex = PyString_FromString("evtindex");
 
   //iterator and counter to loop on the sequence and fill the output Tuple
   unsigned int counter(0);

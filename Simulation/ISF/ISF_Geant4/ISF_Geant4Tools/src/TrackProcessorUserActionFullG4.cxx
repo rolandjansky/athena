@@ -57,7 +57,7 @@ namespace G4UA{
       if ( !m_config.entryLayerTool.empty() ) {
         if ( m_config.entryLayerTool.retrieve().isFailure()) {
           G4ExceptionDescription description;
-          description << G4String("TrackProcessorUserActionFullG4: ") + "Could not retrieve ISF Entry Layer Tool: " << m_config.entryLayerTool;;
+          description << G4String("TrackProcessorUserActionFullG4: ") + "Could not retrieve ISF Entry Layer Tool: " << m_config.entryLayerTool;
           G4Exception("G4UA::iGeant4::TrackProcessorUserActionFullG4", "NoISFEntryLayerTool", FatalException, description);
           return; //The G4Exception call above should abort the job, but Coverity does not seem to pick this up.
         }
