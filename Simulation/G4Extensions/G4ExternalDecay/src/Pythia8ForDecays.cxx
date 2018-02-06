@@ -130,13 +130,13 @@ std::pair<int,int> Pythia8ForDecays::fromIdWithGluino( int idRHad, Pythia8::Rndm
 // Single-particle gun. The particle must be a colour singlet.
 // Input: particle, pythia8 helpers
 // Optional final argument to put particle at rest => E = m.
-void Pythia8ForDecays::fillParticle(const G4Track& aTrack, Pythia8::Event& event, Pythia8::ParticleData& pdt) const
+void Pythia8ForDecays::fillParticle(const G4Track& aTrack, Pythia8::Event& event) const
 {
   // Reset event record to allow for new event.
   event.reset();
 
   // Select particle mass; where relevant according to Breit-Wigner.
-  double mm = pdt.mSel(aTrack.GetDefinition()->GetPDGEncoding());
+  double mm = aTrack.GetDynamicParticle()->GetMass();
 
   // Store the particle in the event record.
   event.append( aTrack.GetDefinition()->GetPDGEncoding(), 1, 0, 0, aTrack.GetMomentum().x(), aTrack.GetMomentum().y(), 
@@ -151,21 +151,21 @@ void Pythia8ForDecays::Py1ent(const G4Track& aTrack, std::vector<G4DynamicPartic
   Pythia8::Event& event      = m_pythia->event;
   Pythia8::ParticleData& pdt = m_pythia->particleData;
 
-  // Pythia instance where RHadrons cannot decay - do we need this?
-  std::string docstring = Pythia8_i::xmlpath();
-  Pythia8::Pythia pythiaDecay(docstring);
-  pythiaDecay.readString("SLHA:file = SLHA_INPUT.DAT");
-  pythiaDecay.readString("ProcessLevel:all = off");
-  pythiaDecay.readString("Init:showChangedSettings = off");
-  pythiaDecay.readString("RHadrons:allow = on");
-  pythiaDecay.readString("RHadrons:allowDecay = off");
-  pythiaDecay.readString("RHadrons:probGluinoball = 0.1");
-  pythiaDecay.readString("PartonLevel:FSR = off");
-  Pythia8::ParticleData& pdtDecay = pythiaDecay.particleData;
-  pythiaDecay.init();
+//  // Pythia instance where RHadrons cannot decay - do we need this?
+//  std::string docstring = Pythia8_i::xmlpath();
+//  Pythia8::Pythia pythiaDecay(docstring);
+//  pythiaDecay.readString("SLHA:file = SLHA_INPUT.DAT");
+//  pythiaDecay.readString("ProcessLevel:all = off");
+//  pythiaDecay.readString("Init:showChangedSettings = off");
+//  pythiaDecay.readString("RHadrons:allow = on");
+//  pythiaDecay.readString("RHadrons:allowDecay = off");
+//  pythiaDecay.readString("RHadrons:probGluinoball = 0.1");
+//  pythiaDecay.readString("PartonLevel:FSR = off");
+//  Pythia8::ParticleData& pdtDecay = pythiaDecay.particleData;
+//  pythiaDecay.init();
 
   // Use pythiaDecay information to fill event with the input particle
-  fillParticle( aTrack, event, pdtDecay);
+  fillParticle(aTrack, event);
 
   // Copy and past of RHadron decay code
   int    iRNow  = 1;

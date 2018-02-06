@@ -30,7 +30,7 @@ class Pythia8ForDecays
   private:
 
    G4ParticleDefinition* GetParticleDefinition(const int) const;
-   void fillParticle(const G4Track&, Pythia8::Event& event, Pythia8::ParticleData& pdt) const;
+   void fillParticle(const G4Track&, Pythia8::Event& event) const;
    std::pair<int,int> fromIdWithGluino( int idRHad, Pythia8::Rndm* rndmPtr) const;
 
    // My own class; singleton pattern
