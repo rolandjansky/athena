@@ -78,6 +78,7 @@
 + Trigger/TrigAnalysis/TrigAnalysisInterfaces
 + Trigger/TrigAnalysis/TrigBunchCrossingTool
 + Trigger/TrigAnalysis/TrigDecisionTool
++ Trigger/TrigAnalysis/TrigGlobalEfficiencyCorrection
 + Trigger/TrigAnalysis/TrigTauAnalysis/TrigTauMatching
 + Trigger/TrigAnalysis/TriggerMatchingTool
 + Trigger/TrigConfiguration/TrigConfBase
