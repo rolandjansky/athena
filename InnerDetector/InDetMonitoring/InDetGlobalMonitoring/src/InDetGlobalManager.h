@@ -81,8 +81,8 @@ private:
     Gaudi::Property<bool> m_doPixel{this, "doPixel", true, "Pixel is available in this data"};
     Gaudi::Property<bool> m_doSCT{this, "doSCT", true, "SCT is available in this data"};
     Gaudi::Property<bool> m_doTRT{this, "doTRT", true, "TRT is available in this data"};
-   Gaudi::Property<bool> m_doBCM{this, "doBCM", true, "BCM is available in this data"};  
-   Gaudi::Property<bool> m_doTiming{this, "doTiming", true, "Timing containers are available (data, not MC)"};
+   Gaudi::Property<bool> m_doBCM{this, "doBCM", false, "BCM is available in this data"};  
+   Gaudi::Property<bool> m_doTiming{this, "doTiming", false, "Timing containers are available (data, not MC)"};
    Gaudi::Property<bool> m_doTRTPhase{this, "doTRTPhase", false, "TRT Phase Information available (cosmics)"};
 
 }; //end of class
