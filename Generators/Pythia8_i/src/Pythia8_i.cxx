@@ -2,7 +2,6 @@
 #include "Pythia8_i/UserProcessFactory.h"
 #include "Pythia8_i/UserHooksFactory.h"
 #include "Pythia8_i/UserResonanceFactory.h"
-#include "Pythia8_i/CompoundUserHook.h"
 
 #include "PathResolver/PathResolver.h"
 #include "GeneratorObjects/McEventCollection.h"
@@ -16,11 +15,15 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
+#include <sstream>
+
 // Name of AtRndmGenSvc stream
 std::string     Pythia8_i::pythia_stream   = "PYTHIA8_INIT";
 
 using boost::assign::operator+=;
-
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 /**
  * author: James Monk (jmonk@cern.ch)
  */
@@ -36,17 +39,16 @@ m_nMerged(0.),
 m_sigmaTotal(0.),
 m_failureCount(0),
 m_procPtr(0),
-m_userHookPtr(0),
+m_userHooksPtrs(std::vector<Pythia8::UserHooks*>()),
 m_doLHE3Weights(false)
 {
   declareProperty("Commands", m_commands);
-  declareProperty("UserParams", m_userParams);
-  declareProperty("UserModes", m_userModes);
   declareProperty("CollisionEnergy", m_collisionEnergy = 14000.0);
   declareProperty("useRndmGenSvc", m_useRndmGenSvc = true);
   declareProperty("Beam1", m_beam1 = "PROTON");
   declareProperty("Beam2", m_beam2 = "PROTON");
   declareProperty("LHEFile", m_lheFile = "");
+  declareProperty("StoreLHE", m_storeLHE=false);
   declareProperty("CKKWLAcceptance", m_doCKKWLAcceptance = false);
   declareProperty("FxFxXS", m_doFxFxXS = false);
   declareProperty("MaxFailures", m_maxFailures = 10);//the max number of consecutive failures
@@ -56,12 +58,19 @@ m_doLHE3Weights(false)
   declareProperty("UseLHAPDF", m_useLHAPDF=true);
   declareProperty("ParticleData", m_particleDataFile="");
   declareProperty("OutputParticleData",m_outputParticleDataFile="ParticleData.local.xml");
+  declareProperty("ShowerWeightNames",m_showerWeightNames);
   
-  m_particleIDs["PROTON"]     = PROTON;
-  m_particleIDs["ANTIPROTON"] = ANTIPROTON;
-  m_particleIDs["ELECTRON"]   = ELECTRON;
-  m_particleIDs["POSITRON"]   = POSITRON;
+  m_particleIDs["PROTON"]      = PROTON;
+  m_particleIDs["ANTIPROTON"]  = ANTIPROTON;
+  m_particleIDs["ELECTRON"]    = ELECTRON;
+  m_particleIDs["POSITRON"]    = POSITRON;
+  m_particleIDs["NEUTRON"]     = NEUTRON;
+  m_particleIDs["ANTINEUTRON"] = ANTINEUTRON;
+  m_particleIDs["MUON"]        = MUON;
+  m_particleIDs["ANTIMUON"]    = ANTIMUON;
 
+  ATH_MSG_INFO("XML Path is " + xmlpath());
+  
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -70,8 +79,10 @@ Pythia8_i::~Pythia8_i() {
   delete m_atlasRndmEngine;
   
   if(m_procPtr != 0)     delete m_procPtr;
-  if(m_userHookPtr != 0) delete m_userHookPtr;
   
+  for(Pythia8::UserHooks *ptr: m_userHooksPtrs){
+    delete ptr;
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -79,9 +90,14 @@ StatusCode Pythia8_i::genInitialize() {
 
   ATH_MSG_DEBUG("Pythia8_i from genInitialize()");
   
+  bool canInit = true;
+  
   m_version = m_pythia.settings.parm("Pythia:versionNumber");
   
   Pythia8_i::pythia_stream =       "PYTHIA8_INIT";
+  
+  // By default add "nominal" to the list of shower weight names
+  m_showerWeightNames.insert(m_showerWeightNames.begin(), "nominal");
   
   // We do explicitly set tune 4C, since it is the starting point for many other tunes
   // Tune 4C for pp collisions
@@ -93,31 +109,37 @@ StatusCode Pythia8_i::genInitialize() {
 
   // switch off verbose event print out
   m_pythia.readString("Next:numberShowEvent = 0");
+
+  // Add UserHooks first because these potentially add new settings that must exist prior to parsing commands
   
-  foreach(const string &param, m_userParams){
-    std::vector<string> splits;
-    boost::split(splits, param, boost::is_any_of("="));
-    if(splits.size() != 2){
-      ATH_MSG_ERROR("Cannot interpret user param command: " + param);
-      return StatusCode::FAILURE;
+  bool firstHook=true;
+  for(const auto &hook: m_userHooks){
+    m_userHooksPtrs.push_back(Pythia8_UserHooks::UserHooksFactory::create(hook));
+    bool canSetHook = true;
+    if(firstHook){
+      canSetHook = m_pythia.setUserHooksPtr(m_userHooksPtrs.back());
+      firstHook = false;
+    }else{
+      canSetHook = m_pythia.addUserHooksPtr(m_userHooksPtrs.back());
     }
     
-    boost::erase_all(splits[0], " ");
-    m_pythia.settings.addParm(splits[0], 0., false, false, 0., 0.);
-    m_commands+=param;
+    if(!canSetHook){
+      ATH_MSG_ERROR("Unable to set requested user hook.");
+      ATH_MSG_ERROR("Pythia 8 initialisation will FAIL!");
+      canInit=false;
+    }
   }
 
-  foreach(const string &mode, m_userModes){
-    std::vector<string> splits;
-    boost::split(splits, mode, boost::is_any_of("="));
-    if(splits.size() != 2){
-      ATH_MSG_ERROR("Cannot interpret user mode command: " + mode);
-      return StatusCode::FAILURE;
-    }
-    
-    boost::erase_all(splits[0], " ");
-    m_pythia.settings.addMode(splits[0], 0, false, false, 0, 0);
-    m_commands+=mode;
+  for(const std::pair<std::string, double> &param : Pythia8_UserHooks::UserHooksFactory::userSettings<double>()){
+    m_pythia.settings.addParm(param.first, param.second, false, false, 0., 0.);
+  }
+
+  for(const std::pair<std::string, int> &param : Pythia8_UserHooks::UserHooksFactory::userSettings<int>()){
+    m_pythia.settings.addMode(param.first, param.second, false, false, 0., 0.);
+  }
+  
+  for(const std::pair<std::string, std::string> &param : Pythia8_UserHooks::UserHooksFactory::userSettings<std::string>()){
+    m_pythia.settings.addWord(param.first, param.second);
   }
   
   // Now apply the settings from the JO
@@ -179,26 +201,8 @@ StatusCode Pythia8_i::genInitialize() {
   if(m_userProcess != ""){
     m_procPtr = Pythia8_UserProcess::UserProcessFactory::create(m_userProcess);
   }
-
-  bool canInit = true;
   
-  m_userHookPtr = 0;
 
-  if(m_userHooks.size() == 1){
-    m_userHookPtr = Pythia8_UserHooks::UserHooksFactory::create(m_userHooks[0]);
-  }else if(m_userHooks.size() > 1){
-    Pythia8::CompoundUserHook *compoundHook = new Pythia8::CompoundUserHook();
-    compoundHook->addSubHooks(m_userHooks);
-    m_userHookPtr = compoundHook;
-  }
-  
-  if(m_userHookPtr != 0){
-    if(!m_pythia.setUserHooksPtr(m_userHookPtr)){
-      ATH_MSG_ERROR("Unable to set requested user hook.");
-      ATH_MSG_ERROR("Pythia 8 initialisation will FAIL!");
-      canInit = false;
-    }
-  }
 
   if(m_userResonances != ""){
    
@@ -361,7 +365,7 @@ StatusCode Pythia8_i::fillEvt(HepMC::GenEvent *evt){
   
   m_pythiaToHepMC.fill_next_event(m_pythia, evt, m_internal_event_number);
 
-  if(m_lheFile != "") addLHEToHepMC(evt);
+  if(m_lheFile != "" && m_storeLHE) addLHEToHepMC(evt);
   
   // in debug mode you can check whether the pdf information is stored
   if(evt->pdf_info()){
@@ -384,8 +388,6 @@ StatusCode Pythia8_i::fillEvt(HepMC::GenEvent *evt){
   double eventWeight = phaseSpaceWeight*mergingWeight;
   
   ATH_MSG_DEBUG("Event weights: phase space weight, merging weight, total weight = "<<phaseSpaceWeight<<", "<<mergingWeight<<", "<<eventWeight);
-  
-  // set the event weight
   evt->weights().clear();
   
   std::vector<string>::const_iterator id = m_weightIDs.begin();
@@ -413,8 +415,20 @@ StatusCode Pythia8_i::fillEvt(HepMC::GenEvent *evt){
       }
       
     }
-  }else{
-    evt->weights().push_back(eventWeight);
+  }
+
+  size_t firstWeight = (m_doLHE3Weights)? 1: 0;
+  
+  for(int iw = firstWeight; iw != m_pythia.info.nWeights(); ++iw){
+    
+    std::string wtName = ((int)m_showerWeightNames.size() == m_pythia.info.nWeights())? m_showerWeightNames[iw]: "ShowerWt_" + std::to_string(iw);
+    
+    if(m_pythia.info.nWeights() != 1){
+      if(m_internal_event_number == 1) m_weightIDs.push_back(wtName);
+      evt->weights()[wtName] = mergingWeight*m_pythia.info.weight(iw);
+    }else{
+      evt->weights().push_back(eventWeight);
+    }
   }
   
   return SUCCESS;
@@ -446,22 +460,25 @@ StatusCode Pythia8_i::genFinalize(){
   std::cout << "MetaData: cross-section (nb)= " << xs <<std::endl;
   std::cout << "MetaData: generator= Pythia 8." << PY8VERSION <<std::endl;
 
-  if(m_doLHE3Weights){
-    
+  if(m_doLHE3Weights || m_weightIDs.size()>1 ){
     std::cout<<"MetaData: weights = ";
+
     foreach(const string &id, m_weightIDs){
-      
-      std::map<string, Pythia8::LHAweight>::const_iterator weight = m_pythia.info.init_weights->find(id);
-      
-      if(weight != m_pythia.info.init_weights->end()){
-        std::cout<<weight->second.contents<<" | ";
-      }else{
-        std::cout<<"Unknown | ";
+      if(m_doLHE3Weights) {
+        std::map<string, Pythia8::LHAweight>::const_iterator weight = m_pythia.info.init_weights->find(id);
+        if(weight != m_pythia.info.init_weights->end()){
+	  std::cout<<weight->second.contents<<" | ";
+        }else{
+	  std::cout<<id << " | ";
+        }
+      }
+      else {
+        std::cout << id << " | ";
       }
     }
-    std::cout<<std::endl;
+  std::cout<<std::endl;
   }
-  
+
   return SUCCESS;
 }
 
@@ -469,10 +486,13 @@ StatusCode Pythia8_i::genFinalize(){
 void Pythia8_i::addLHEToHepMC(HepMC::GenEvent *evt){
   
   HepMC::GenEvent *procEvent = new HepMC::GenEvent(evt->momentum_unit(), evt->length_unit());
-  
-  m_pythiaToHepMC.set_free_parton_exception(false);
-  m_pythiaToHepMC.fill_next_event(m_pythia.process, procEvent, evt->event_number(), &m_pythia.info, &m_pythia.settings);
-  m_pythiaToHepMC.set_free_parton_exception(true);
+
+  // Adding the LHE event to the HepMC results in undecayed partons in the event record.
+  // Pythia's HepMC converter throws up undecayed partons, so we ignore that
+  // (expected) exception this time
+  try{
+    m_pythiaToHepMC.fill_next_event(m_pythia.process, procEvent, evt->event_number(), &m_pythia.info, &m_pythia.settings);
+  }catch(HepMC::PartonEndVertexException &ignoreIt){}
   
   for(HepMC::GenEvent::particle_iterator p = procEvent->particles_begin();
       p != procEvent->particles_end(); ++p){
@@ -566,7 +586,7 @@ string Pythia8_i::xmlpath(){
      // using PathResolver:
      foundpath = PathResolverFindCalibDirectory( "Pythia8/xmldoc" );
   }
-
+  
   return foundpath;
 }
 
