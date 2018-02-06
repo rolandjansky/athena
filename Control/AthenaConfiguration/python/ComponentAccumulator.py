@@ -349,14 +349,15 @@ class ComponentAccumulator(object):
         bsfile.close()
 
 
+        self._jocat["AthAlgSeq"] = self._sequence
         #EventAlgorithms
-        for (seqName,algoList) in self._eventAlgs.iteritems():        
-            evtalgseq=[]
-            for alg in algoList:
-                self.appendConfigurable(alg)
-                evtalgseq.append(alg.getFullName())
+        # for (seqName,algoList) in self._eventAlgs.iteritems():        
+        #     evtalgseq=[]
+        #     for alg in algoList:
+        #         self.appendConfigurable(alg)
+        #         evtalgseq.append(alg.getFullName())
 
-            self._jocat[seqName]["Members"]=str(evtalgseq)
+        #     self._jocat[seqName]["Members"]=str(evtalgseq)
 
 
         #Conditions Algorithms:
@@ -391,6 +392,7 @@ class ComponentAccumulator(object):
         for (k,v) in self._theAppProps.iteritems():
             self._jocfg["ApplicationMgr"][k]=v
 
+        print self._jocat
 
         pickle.dump( self._jocat, outfile ) 
         pickle.dump( self._jocfg, outfile ) 
@@ -401,12 +403,12 @@ class ComponentAccumulator(object):
         from AthenaCommon.AppMgr import theApp
         #theApp.setup()
         
-        print theApp
-        topSeq=theApp.TopAlg
+        #        print theApp
+        #        topSeq=theApp.TopAlg
 
         
-        for alg in self._eventAlgs:
-            theApp.TopAlg+=alg
+        #        for alg in self._eventAlgs:
+        #            theApp.TopAlg+=alg
 
         theApp.run()
 
@@ -448,7 +450,7 @@ if __name__ == "__main__":
     def AlgsConf4(flags):
         acc = ComponentAccumulator()
         acc.executeModule( AlgsConf3, flags )
-        acc.addEventAlgo( Algo("NestedAlgo2") )
+        acc.addEventAlgo( Algo("NestedAlgo2", OutputLevel=7) )
         return acc
 
 
@@ -468,7 +470,27 @@ if __name__ == "__main__":
     print( "Complex sequences construction also OK ")
 
     
-    acc.printConfig()
+    #acc.printConfig()
 
+    # try recording
+    acc.store(open("testFile.pkl", "w"))
+    f = open("testFile.pkl")
+    import pickle
+    u = pickle.load(f)
+    srcSeq    = flatAlgorithmSequences( acc._sequence )
+    storedSeq = flatAlgorithmSequences( u["AthAlgSeq"] )
+    def sameAlg(a1, a2):
+        return a1.getFullName() == a2.getFullName()\
+            and a1.properties() == a2.properties()
+    
+
+    for k,v in srcSeq.iteritems():
+        assert storedSeq.has_key(k), "Missing sequence in stored pickle"
+        assert len(storedSeq[k]) == len(srcSeq[k]) , "Not the same number of algorithms in store and src"
+        for a1, a2 in zip(storedSeq[k], srcSeq[k]):            
+            assert sameAlg(a1, a2), "Differences in alg. congfig"
+    print( "Sequences survived pickling" )
+
+    #acc.run(1)
     print( "\nAll OK" )
 
