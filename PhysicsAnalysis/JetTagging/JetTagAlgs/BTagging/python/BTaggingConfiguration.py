@@ -483,8 +483,8 @@ class Configuration:
                           AssociatedMuonLinks = "MatchedMuons",
                           TrackContainerName = "InDetTrackParticles",
                           MuonContainerName = "Muons",
-                          TrackAssociationName = "BTagTracks",
-                          MuonAssociationName = "BTagMuons"
+                          TrackAssociationName = "BTagTrackToJetAssociator",
+                          MuonAssociationName = "Muons"
                           )
 
           ToolSvc += assoc
