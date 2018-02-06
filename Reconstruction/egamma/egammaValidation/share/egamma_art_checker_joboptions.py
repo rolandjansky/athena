@@ -15,7 +15,7 @@ svcMgr.EventSelector.InputCollections = [testFile]
 
 
 job = CfgMgr.AthSequencer("AthAlgSeq")
-job += CfgMgr.ArtTest('MonitoringAlg', sampleType = particleType)
+job += CfgMgr.EgammaMonitoring('MonitoringAlg', sampleType = particleType)
 
 
 theApp.EvtMax = 2000
