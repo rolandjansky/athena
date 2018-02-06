@@ -49,7 +49,8 @@ G4DecayProducts* RHadronPythiaDecayer::ImportDecayProducts(const G4Track& aTrack
   double totalE=0.0;
   for (unsigned int i=0; i<particles.size(); ++i){
     if (particles[i]) {
-      G4cout<<i<<" "; dp->PushProducts(particles[i]);
+      G4cout<<i<<" ";
+      dp->PushProducts(particles[i]);
       totalE += particles[i]->GetTotalEnergy();
     }
     else {
