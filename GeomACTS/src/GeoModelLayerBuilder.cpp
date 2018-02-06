@@ -150,7 +150,7 @@ Acts::GeoModelLayerBuilder::buildLayers(LayerVector& layersOutput, int type)
     if (type == 0) {  // BARREL
       // layers and extent are determined, build actual layer
       ProtoLayer pl(layerSurfaces);
-      pl.envR    = {2, 2};
+      pl.envR    = {2, 0};
       pl.envZ    = {20, 20};
       auto layer = m_cfg.layerCreator->cylinderLayer(
           layerSurfaces, equidistant, equidistant, pl);
@@ -164,7 +164,7 @@ Acts::GeoModelLayerBuilder::buildLayers(LayerVector& layersOutput, int type)
       // ctr.phi() << std::endl;
       //}
       ProtoLayer pl(layerSurfaces);
-      pl.envR    = {2, 2};
+      pl.envR    = {2, 0};
       pl.envZ    = {5, 5};
       auto layer = m_cfg.layerCreator->discLayer(
           layerSurfaces, equidistant, equidistant, pl);

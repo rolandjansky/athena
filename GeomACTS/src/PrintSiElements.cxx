@@ -156,21 +156,21 @@ StatusCode PrintSiElements::buildTrackingGeometry() {
 
   // PIXEL and SCT
 
-  std::array<std::string, 2> siDetectors = {"Pixel", "SCT"};
+  std::vector<std::string> siDetectors = {
+    "Pixel",
+    "SCT",
+  };
   for(const auto& managerName : siDetectors) {
     const InDetDD::SiDetectorManager* manager;
     ATH_CHECK(detStore()->retrieve(manager, managerName));
-    volumeBuilders.push_back(makeVolumeBuilder(manager, cylinderVolumeHelper));
+    volumeBuilders.push_back(
+        makeVolumeBuilder(manager, cylinderVolumeHelper, managerName == "Pixel"));
   }
-
 
   // TRT
   const InDetDD::TRT_DetectorManager* trtMng;
   ATH_CHECK(detStore()->retrieve(trtMng, "TRT"));
   volumeBuilders.push_back(makeVolumeBuilder(trtMng, cylinderVolumeHelper));
-
-
-
 
 
   Acts::TrackingGeometryBuilder::Config tgbConfig;
@@ -234,7 +234,7 @@ StatusCode PrintSiElements::buildTrackingGeometry() {
   RootExCellWriter<Acts::TrackParameters>::Config reccWriterConfig;
   reccWriterConfig.filePath       = "excells_charged.root";
   reccWriterConfig.treeName       = "extrapolation_charged";
-  reccWriterConfig.writeBoundary  = false;
+  reccWriterConfig.writeBoundary  = true;
   reccWriterConfig.writeMaterial  = true;
   reccWriterConfig.writeSensitive = true;
   reccWriterConfig.writePassive   = true;
@@ -247,11 +247,12 @@ StatusCode PrintSiElements::buildTrackingGeometry() {
 
   //std::mt19937 rng;
   ParticleGun::Config pgCfg;
-  pgCfg.nParticles = 100000;
+  pgCfg.nParticles = 10000;
   pgCfg.pID = 11;
   pgCfg.mass = 0.51099891 * Acts::units::_MeV;
   pgCfg.charge = -1.;
-  pgCfg.etaRange = {-10, 10};
+  //pgCfg.etaRange = {-1.16, -1};
+  pgCfg.etaRange = {-3, 3};
   auto rng = std::make_shared<std::mt19937>();
   pgCfg.rng = rng;
 
@@ -335,7 +336,7 @@ StatusCode PrintSiElements::buildTrackingGeometry() {
 }
 
 std::shared_ptr<const Acts::ITrackingVolumeBuilder> 
-PrintSiElements::makeVolumeBuilder(const InDetDD::InDetDetectorManager* manager, std::shared_ptr<const Acts::CylinderVolumeHelper> cvh)
+PrintSiElements::makeVolumeBuilder(const InDetDD::InDetDetectorManager* manager, std::shared_ptr<const Acts::CylinderVolumeHelper> cvh, bool toBeamline)
 {
   std::string managerName = manager->getName();
 
@@ -460,6 +461,7 @@ PrintSiElements::makeVolumeBuilder(const InDetDD::InDetDetectorManager* manager,
   cvbConfig.volumeName           = managerName;
   //cvbConfig.volumeMaterial       = volumeMaterial;
   cvbConfig.layerBuilder         = gmLayerBuilder;
+  cvbConfig.buildToRadiusZero = toBeamline;
 
   auto cylinderVolumeBuilder
     = std::make_shared<const Acts::CylinderVolumeBuilder>(

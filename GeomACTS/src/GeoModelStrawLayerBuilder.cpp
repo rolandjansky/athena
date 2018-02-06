@@ -79,7 +79,7 @@ Acts::GeoModelStrawLayerBuilder::centralLayers()
     pl.maxPhi = M_PI;
 
     pl.envZ = {1, 1};
-    pl.envR = {0.5, 0.5};
+    pl.envR = {0, 0.5};
 
     // RING in TRT speak is translated to Layer in ACTS speak
     std::vector<const Surface*> layerSurfaces;
@@ -162,6 +162,7 @@ Acts::GeoModelStrawLayerBuilder::centralLayers()
 
 
   return layers;
+  //return {};
 }
 
 const Acts::LayerVector
@@ -188,20 +189,22 @@ Acts::GeoModelStrawLayerBuilder::endcapLayers(int side)
   for(size_t iwheel=0;iwheel<nEndcapWheels;++iwheel) {
     ACTS_VERBOSE("- Collecting elements for wheel " << iwheel);
 
-    std::vector<const Surface*> wheelSurfaces;
-          
-    ProtoLayer pl;
-    pl.minR = std::numeric_limits<double>::max();
-    pl.maxR = std::numeric_limits<double>::lowest();
-    pl.minZ = std::numeric_limits<double>::max();
-    pl.maxZ = std::numeric_limits<double>::lowest();
-    pl.minPhi = -M_PI;
-    pl.maxPhi = M_PI;
-    pl.envR = {1, 1};
 
     size_t nEndcapLayers = trtNums->getNEndcapLayers(iwheel);
     ACTS_VERBOSE("  - Numerology reports: " << nEndcapLayers << " layers in wheel " << iwheel);
     for(size_t ilayer=0;ilayer<nEndcapLayers;++ilayer) {
+      std::vector<const Surface*> wheelSurfaces;
+
+            
+      ProtoLayer pl;
+      pl.minR = std::numeric_limits<double>::max();
+      pl.maxR = std::numeric_limits<double>::lowest();
+      pl.minZ = std::numeric_limits<double>::max();
+      pl.maxZ = std::numeric_limits<double>::lowest();
+      pl.minPhi = -M_PI;
+      pl.maxPhi = M_PI;
+      pl.envR = {0, 1};
+
       for (unsigned int iphisec=0; iphisec<nEndcapPhiSectors; ++iphisec) {
       
         size_t iposneg = side < 0 ? 0 : 1;
@@ -237,9 +240,11 @@ Acts::GeoModelStrawLayerBuilder::endcapLayers(int side)
         }
       }
 
+      std::shared_ptr<Layer> layer = m_cfg.layerCreator->discLayer(wheelSurfaces, 1, 100, pl);
+      layers.push_back(layer);
+      ACTS_VERBOSE("  - Collected " << wheelSurfaces.size() << " straws");
     }
     
-    ACTS_VERBOSE("  - Collected " << wheelSurfaces.size() << " straws");
 
     //pl.dump(std::cout);
     //protoLayers.push_back(pl);
@@ -258,15 +263,12 @@ Acts::GeoModelStrawLayerBuilder::endcapLayers(int side)
     //objout << ph.objString(nVtx);
     //nVtx += ph.vertices.size();
     
-    std::shared_ptr<Layer> layer = m_cfg.layerCreator->discLayer(wheelSurfaces, 1, 100, pl);
-    layers.push_back(layer);
 
   }
   
+  ACTS_VERBOSE(" - Built " << layers.size() << " straw endcap layers");
 
   //objout.close();
-
-
   return layers;
 }
 
