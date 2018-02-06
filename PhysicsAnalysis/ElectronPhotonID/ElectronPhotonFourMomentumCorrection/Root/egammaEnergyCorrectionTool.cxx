@@ -2105,6 +2105,7 @@ namespace AtlasRoot {
 
       const TH1* h = m_zeeNom;
       if ((m_esmodel == egEnergyCorr::es2017 or m_esmodel == egEnergyCorr::es2017_summer or m_esmodel == egEnergyCorr::es2017_summer_improved or m_esmodel == egEnergyCorr::es2017_summer_final or m_esmodel == egEnergyCorr::es2015_5TeV or m_esmodel == egEnergyCorr::es2017_R21_v0) && runnumber < 297000) h = m_zeeNom_data2015; // special for 2015 with es2017
+      if (m_esmodel== egEnergyCorr::es2017_R21_v0 && runnumber>=297000 && runnumber<322817) h = m_zeeNom_data2016; // 2016 data
       double stat_error = h->GetBinError(h->FindFixBin(eta));
 	    if (m_use_stat_error_scaling) {
         stat_error = stat_error / sqrt(h->GetNbinsX());
