@@ -19,7 +19,7 @@ namespace G4UA
   ///
   /// Create the RadiationMapsMaker  for each worker thread
   ///
-  /// @author Sven Menke (copy pasted from Andrea Di Simone's FluxRecorderTool)
+  /// @author Sven Menke (based on Andrea Di Simone's FluxRecorderTool)
   ///
 
 class RadiationMapsMakerTool: 
@@ -54,6 +54,8 @@ class RadiationMapsMakerTool:
   private:
     /// Output Filename for the Radiation Maps
     std::string m_radMapsFileName;
+    /// Radiation Map ranges and granularities
+    RadiationMapsMaker::Config m_config;
 
   }; // class RadiationMapsMakerTool
  
