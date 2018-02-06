@@ -535,16 +535,7 @@ def setupMenu():
         ['j70_j50_0eta490_invm1000_dphi26_j30_bmv2c1077_split_L1MJJ-400-NFF', 'L1_MJJ-400-NFF', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
         ['j70_j50_0eta490_invm1000_dphi26_j30_bmv2c1077_split_L1MJJ-500-NFF', 'L1_MJJ-500-NFF', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
 
-        ['g35_loose_j70_j50_0eta490_invm700_L1MJJ-400-NFF', 'L1_MJJ-400-NFF', ['L1_EM15VH','',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["g35_loose","j70","j50_0eta490"]]],
-        ['g35_loose_j70_j50_0eta490_invm900_L1MJJ-500-NFF', 'L1_MJJ-500-NFF', ['L1_EM15VH','',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["g35_loose","j70","j50_0eta490"]]],
 
-        ['e12_lhmedium_nod0_ivarloose_tau25_medium1_tracktwo_j70_j50_0eta490_invm900_L1MJJ-400-NFF', 'L1_MJJ-400-NFF', ['L1_EM8VH','L1_TAU12IM','',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Tau', 'BW:Jet'], -1, ['serial',-1, ["e12_lhmedium_nod0_ivarloose","tau25_medium1_tracktwo","j70","j50_0eta490"]]],
-        ['e12_lhmedium_nod0_ivarloose_tau25_medium1_tracktwo_j70_j50_0eta490_invm900_L1MJJ-500-NFF', 'L1_MJJ-500-NFF', ['L1_EM8VH','L1_TAU12IM','',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Tau', 'BW:Jet'], -1, ['serial',-1, ["e12_lhmedium_nod0_ivarloose","tau25_medium1_tracktwo","j70","j50_0eta490"]]],
-
-        ['mu8_ivarloose_tau25_medium1_tracktwo_2j40_0eta490_invm400_L1MU6_MJJ-200', 'L1_MU6_MJJ-200', ['L1_MU6','L1_TAU12IM',''],[PhysicsStream], ['RATE:MuonJet', 'BW:Muon', 'BW:Tau', 'BW:Jet'], -1, ['serial',-1, ["mu8_ivarloose","tau25_medium1_tracktwo","2j40_0eta490_invm400"]]],
-
-        ['j70_j50_0eta490_invm900_dphi26_xe90_pufit_L1MJJ-400-NFF', 'L1_MJJ-400-NFF', [], [PhysicsStream], ['RATE:JetMET', 'BW:Jet'], -1, ['serial', -1,["j70","j50_0eta490","xe90_pufit"]]],
-        ['j70_j50_0eta490_invm900_dphi26_xe90_pufit_L1MJJ-500-NFF', 'L1_MJJ-500-NFF', [], [PhysicsStream], ['RATE:JetMET', 'BW:Jet'], -1, ['serial', -1,["j70","j50_0eta490","xe90_pufit"]]],
 
         # ATR-17549
 
@@ -1776,7 +1767,17 @@ def setupMenu():
       ['j80_bmv2c1060_split_L12J50_XE40','L1_2J50_XE40',  ['L1_2J50','XE40'],  [PhysicsStream], ['RATE:JetMET', 'BW:MET', 'BW:Jet'], -1],
       ['j100_bmv2c1070_split_L1XE60','L1_XE60',  ['L1_2J50',''],  [PhysicsStream], ['RATE:JetMET', 'BW:MET', 'BW:Jet'], -1],
 
+        ## VBF triggers
+        ['g35_loose_j70_j50_0eta490_invm700_L1MJJ-400-NFF', 'L1_MJJ-400-NFF', ['L1_EM15VH','',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["g35_loose","j70","j50_0eta490"]]],
+        ['g35_loose_j70_j50_0eta490_invm900_L1MJJ-500-NFF', 'L1_MJJ-500-NFF', ['L1_EM15VH','',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["g35_loose","j70","j50_0eta490"]]],
 
+        ['e12_lhmedium_nod0_ivarloose_tau25_medium1_tracktwo_j70_j50_0eta490_invm900_L1MJJ-400-NFF', 'L1_MJJ-400-NFF', ['L1_EM8VH','L1_TAU12IM','',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Tau', 'BW:Jet'], -1, ['serial',-1, ["e12_lhmedium_nod0_ivarloose","tau25_medium1_tracktwo","j70","j50_0eta490"]]],
+        ['e12_lhmedium_nod0_ivarloose_tau25_medium1_tracktwo_j70_j50_0eta490_invm900_L1MJJ-500-NFF', 'L1_MJJ-500-NFF', ['L1_EM8VH','L1_TAU12IM','',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Tau', 'BW:Jet'], -1, ['serial',-1, ["e12_lhmedium_nod0_ivarloose","tau25_medium1_tracktwo","j70","j50_0eta490"]]],
+
+        ['mu8_ivarloose_tau25_medium1_tracktwo_2j40_0eta490_invm400_L1MU6_MJJ-200', 'L1_MU6_MJJ-200', ['L1_MU6','L1_TAU12IM',''],[PhysicsStream], ['RATE:MuonJet', 'BW:Muon', 'BW:Tau', 'BW:Jet'], -1, ['serial',-1, ["mu8_ivarloose","tau25_medium1_tracktwo","2j40_0eta490_invm400"]]],
+
+        ['j70_j50_0eta490_invm900_dphi26_xe90_pufit_L1MJJ-400-NFF', 'L1_MJJ-400-NFF', [], [PhysicsStream], ['RATE:JetMET', 'BW:Jet'], -1, ['serial', -1,["j70","j50_0eta490","xe90_pufit"]]],
+        ['j70_j50_0eta490_invm900_dphi26_xe90_pufit_L1MJJ-500-NFF', 'L1_MJJ-500-NFF', [], [PhysicsStream], ['RATE:JetMET', 'BW:Jet'], -1, ['serial', -1,["j70","j50_0eta490","xe90_pufit"]]],
 
         # 
         #  B-jet + hT
