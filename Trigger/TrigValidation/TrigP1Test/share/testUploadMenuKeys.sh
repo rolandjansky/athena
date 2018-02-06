@@ -8,6 +8,13 @@ else
    type=""
 fi
 
+if [ $# -ge 2 ]; then
+   uploadPrescale=1
+   echo "Will try to upload prescaled menu" 
+else
+   uploadPrescale=0
+fi
+
 #setup the TT
 export DBConn="TRIGGERDBATN"
 export TNS_ADMIN=/afs/cern.ch/atlas/offline/external/oracle/latest/admin
@@ -119,34 +126,29 @@ echo "l1psk=${l1psk}" >> exportMenuKeys.sh
 echo "hltpsk=${hltpsk1}" >> exportMenuKeys.sh
 
 # Generate and upload prescales
+if ! [ $uploadPrescale -eq 1 ]; then
+  exit 0
+fi
+
 echo "Uploading prescale keys..."
-echo 'Skipping this step.. not configured yet'
-exit 0
-
-# Run rule book
-lumi=1000
-costxml=TriggerCosts_Physics_pp_v6.xml
-get_files -xmls -symlink $costxml
-
-cmdps="running: processRules.py --rulebook=Physics_pp_v6_rules --log=rulebook.log --force-rates-metadata --use_lowest_rule --target_lumi=$lumi --target_filled=1318 --target_empty=350 --target_unp_iso=60 --target_unp_noniso=60 --lvl1-xml=$l1menu --hlt-xml=$hltmenu1 --rates-xml=$costxml"
-echo $cmd
-eval $cmd 
-
-
-# Convert to uploadable XML file
-echo "Generating RuleBook_HLTPS_Physics${lumi}.xml by running\ncnvXML.py --ps_name=Physics${lumi} --ps_xml=prescales${lumi}.xml"
-cnvXML.py --ps_name=Physics${lumi} --ps_xml=prescales${lumi}.xml
-
 # Upload
-afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -dbConn $DBConn -psup RuleBook_HLTPS_Physics${lumi}.xml -smk $smk -w_n 50 -w_t 60 &> uploadPSK.log
-hltpsk2=`grep 'HLT Prescale set saved with id' uploadPSK.log | sed 's#.*: \([0-9]*\)\.#\1#'`
-if [ -z "$hltpsk2" ]; then
+# the upload of the xmls is now done standalone following the discussion on ATR-16799
+
+/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -dbConn $DBConn -psup /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/Rules -smk $smk -w_n 50 -w_t 60 &> uploadPSK_prescaled.log
+hltpsk2=`grep 'INFO: HLT Prescale set saved with id' uploadPSK_prescaled.log | sed 's#.*: \([0-9]*\)\.#\1#'`
+l1psk2=`grep 'INFO: Prescale set saved with id' uploadPSK_prescaled.log | sed 's#.*: \([0-9]*\)\.#\1#'`
+if [ -z "$hltpsk2" ] || [ -z "$l1psk2" ]; then
     echo "ERROR Upload of prescale key failed"
-    echo 'In ./uploadSMK.log:'
-    grep "Can't obtain write lock" uploadPSK.log
-    grep "SEVERE" uploadPSK.log
+    echo 'In ./uploadPSK_prescaled.log:'
+    grep "Can't obtain write lock" uploadPSK_prescaled.log
+    grep "SEVERE" uploadPSK_prescaled.log
     exit 1
 fi
 
-echo $hltpsk1 > "prescales.txt"
-echo $hltpsk2 >> "prescales.txt"
+echo "smk=${smk}" > prescaleKeys.txt
+echo "l1psk=${l1psk2}" >> prescaleKeys.txt
+echo "hltpsk=${hltpsk2}" >> prescaleKeys.txt
+
+exit 0
+
+
