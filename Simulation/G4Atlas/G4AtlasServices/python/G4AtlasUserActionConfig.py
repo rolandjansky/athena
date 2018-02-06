@@ -58,12 +58,11 @@ def getDefaultActions():
     if beamFlags.beamType() == 'cosmics' and flag_off('CavernBG'):
         actions += ['G4UA::CosmicPerigeeActionTool']
     # Cosmic filter
-    if flag_on('StoppedParticleFile') or (
-       beamFlags.beamType() == 'cosmics' and not simFlags.ISFRun):
+    if beamFlags.beamType() == 'cosmics' and not simFlags.ISFRun:
         actions += ['G4UA::G4CosmicFilterTool']
-    # Stopped particle action
     if flag_on('StoppedParticleFile'):
-        actions += ['G4UA::StoppedParticleActionTool']
+        actions += ['G4UA::StoppedParticleFilterTool',
+                    'G4UA::StoppedParticleActionTool']
     # Hit wrapper action
     if flag_on('CavernBG') and simFlags.CavernBG.get_Value() == 'Read':
         actions += ['G4UA::HitWrapperTool']

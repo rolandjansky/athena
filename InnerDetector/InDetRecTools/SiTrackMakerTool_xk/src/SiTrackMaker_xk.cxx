@@ -154,19 +154,19 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
   // Get detector elements road maker tool
   //
   if ( m_roadmaker.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_roadmaker << endmsg;
+    ATH_MSG_FATAL( "Failed to retrieve tool " << m_roadmaker );
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_roadmaker << endmsg;
+    ATH_MSG_INFO( "Retrieved tool " << m_roadmaker );
   }
 
   // Get combinatorial track finder tool
   //
   if ( m_tracksfinder.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_tracksfinder << endmsg;
+    ATH_MSG_FATAL( "Failed to retrieve tool " << m_tracksfinder );
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_tracksfinder << endmsg;
+    ATH_MSG_INFO( "Retrieved tool " << m_tracksfinder );
   }
 
   // Get seed to track conversion tool
@@ -174,12 +174,15 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
   if(m_seedsegmentsWrite) {
 
     if(m_seedtrack.retrieve().isFailure()) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_seedtrack << endmsg;
+      ATH_MSG_FATAL( "Failed to retrieve tool " << m_seedtrack );
       return StatusCode::FAILURE;
 
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_seedtrack << endmsg;
+      ATH_MSG_INFO( "Retrieved tool " << m_seedtrack );
     }
+  }
+  else {
+    m_seedtrack.disable();
   }
 
   m_heavyion = false;
@@ -222,9 +225,9 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
     StatusCode  sc = detStore()->regFcn(&InDet::SiTrackMaker_xk::magneticFieldInit,this,currentHandle,folder);
     
     if(sc==StatusCode::SUCCESS) {
-      msg(MSG::INFO) << "Registered callback from MagneticFieldSvc for " << name() << endmsg;
+      ATH_MSG_INFO( "Registered callback from MagneticFieldSvc for " << name() );
     } else {
-      msg(MSG::ERROR) << "Could not book callback from MagneticFieldSvc for " << name () << endmsg;
+      ATH_MSG_ERROR( "Could not book callback from MagneticFieldSvc for " << name () );
       return StatusCode::FAILURE;
     }
   } 
@@ -488,7 +491,7 @@ void InDet::SiTrackMaker_xk::endEvent()
   // Print event information 
   //
   if (msgLevel()<=0) {
-    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
+    m_nprint=1; ATH_MSG_DEBUG((*this));
   }
 }
 

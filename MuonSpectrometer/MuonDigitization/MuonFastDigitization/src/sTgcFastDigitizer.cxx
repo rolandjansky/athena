@@ -34,13 +34,13 @@ using namespace Muon;
 
 sTgcFastDigitizer::sTgcFastDigitizer(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator) , m_detManager(NULL) ,  m_idHelper(NULL) ,  m_channelTypes(0)
-  , m_file(NULL) , m_ntuple(NULL) , slx(0.) , sly(0.) , slz(0.) , dlx(0.) , dly(0.) , dlz(0.)
-  , sulx(0.) , suly(0.) , tsulx(0.) , tsuly(0.) , tsulz(0.) , resx(0.) , resy(0.) , resz(0.)
-  , suresx(0.) , suresy(0.) , errx(0.) , erry(0.) , res(0.) , pull(0.) , is(0) , seta(0) , sphi(0)
-  , sml(0) , sl(0) , ss(0) , stype(0) , ieta(0) , iphi(0) , iml(0) , il(0) , ich(0) , istr(0) , itype(0)
-  , ipadeta(0) , ipadphi(0) , exitcode(0) , mode(0) , pdg(0) , trkid(0) , bct(0) , tb(0.) , tj(0.)
-  , tg4(0.) , ttof(0.) , gpx(0.) , gpy(0.) , gpz(0.) , gpr(0.) , gpp(0.) , dgpx(0.) , dgpy(0.) , dgpz(0.)
-  , dgpr(0.) , dgpp(0.) , edep(0.) , e(0.) , as(0.) , at(0.) , surfcentx(0.) , surfcenty(0.) , surfcentz(0.)
+  , m_file(NULL) , m_ntuple(NULL) , m_slx(0.) , m_sly(0.) , m_slz(0.) , m_dlx(0.) , m_dly(0.) , m_dlz(0.)
+  , m_sulx(0.) , m_suly(0.) , m_tsulx(0.) , m_tsuly(0.) , m_tsulz(0.) , m_resx(0.) , m_resy(0.) , m_resz(0.)
+  , m_suresx(0.) , m_suresy(0.) , m_errx(0.) , m_erry(0.) , m_res(0.) , m_pull(0.) , m_is(0) , m_seta(0) , m_sphi(0)
+  , m_sml(0) , m_sl(0) , m_ss(0) , m_stype(0) , m_ieta(0) , m_iphi(0) , m_iml(0) , m_il(0) , m_ich(0) , m_istr(0) , m_itype(0)
+  , m_ipadeta(0) , m_ipadphi(0) , m_exitcode(0) , m_mode(0) , m_pdg(0) , m_trkid(0) , m_bct(0) , m_tb(0.) , m_tj(0.)
+  , m_tg4(0.) , m_ttof(0.) , m_gpx(0.) , m_gpy(0.) , m_gpz(0.) , m_gpr(0.) , m_gpp(0.) , m_dgpx(0.) , m_dgpy(0.) , m_dgpz(0.)
+  , m_dgpr(0.) , m_dgpp(0.) , m_edep(0.) , m_e(0.) , m_as(0.) , m_at(0.) , m_surfcentx(0.) , m_surfcenty(0.) , m_surfcentz(0.)
   , m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool" )
   , m_muonClusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator")
   , m_rndmSvc("AtRndmGenSvc", name )
@@ -87,68 +87,68 @@ StatusCode sTgcFastDigitizer::initialize() {
   m_file = new TFile("sTgcplots.root","RECREATE");
 
   m_ntuple = new TTree("a","a");
-  m_ntuple->Branch("slx",&slx);
-  m_ntuple->Branch("sly",&sly);
-  m_ntuple->Branch("slz",&slz);
-  m_ntuple->Branch("dlx",&dlx);
-  m_ntuple->Branch("dly",&dly);
-  m_ntuple->Branch("dlz",&dlz);
-  m_ntuple->Branch("sulx",&sulx);
-  m_ntuple->Branch("suly",&suly);
-  m_ntuple->Branch("tsulx",&tsulx);
-  m_ntuple->Branch("tsuly",&tsuly);
-  m_ntuple->Branch("tsulz",&tsulz);
-  m_ntuple->Branch("resx",&resx);
-  m_ntuple->Branch("resy",&resy);
-  m_ntuple->Branch("suresx",&suresx);
-  m_ntuple->Branch("suresy",&suresy);
-  m_ntuple->Branch("resz",&resz);
-  m_ntuple->Branch("errx",&errx);
-  m_ntuple->Branch("erry",&erry);
-  m_ntuple->Branch("res",&res);
-  m_ntuple->Branch("pull",&pull);
-  m_ntuple->Branch("is",&is);
-  m_ntuple->Branch("seta",&seta);
-  m_ntuple->Branch("sphi",&sphi);
-  m_ntuple->Branch("sml",&sml);
-  m_ntuple->Branch("sl",&sl);
-  m_ntuple->Branch("ss",&ss);
-  m_ntuple->Branch("stype",&stype);
-  m_ntuple->Branch("ieta",&ieta);
-  m_ntuple->Branch("iphi",&iphi);
-  m_ntuple->Branch("iml",&iml);
-  m_ntuple->Branch("il",&il);
-  m_ntuple->Branch("ich",&ich);
-  m_ntuple->Branch("istr",&istr);
-  m_ntuple->Branch("itype",&itype);
-  m_ntuple->Branch("ipadeta",&ipadeta);
-  m_ntuple->Branch("ipadphi",&ipadphi);
-  m_ntuple->Branch("exitcode",&exitcode);
-  m_ntuple->Branch("mode",&mode);
-  m_ntuple->Branch("pdg",&pdg);
-  m_ntuple->Branch("trkid",&trkid);
-  m_ntuple->Branch("bct",&bct);
-  m_ntuple->Branch("tb",&tb);
-  m_ntuple->Branch("tj",&tj);
-  m_ntuple->Branch("tg4",&tg4);
-  m_ntuple->Branch("ttof",&ttof);
-  m_ntuple->Branch("gpx",&gpx);
-  m_ntuple->Branch("gpy",&gpy);
-  m_ntuple->Branch("gpz",&gpz);
-  m_ntuple->Branch("gpr",&gpr);
-  m_ntuple->Branch("gpp",&gpp);
-  m_ntuple->Branch("dgpx",&dgpx);
-  m_ntuple->Branch("dgpy",&dgpy);
-  m_ntuple->Branch("dgpz",&dgpz);
-  m_ntuple->Branch("dgpr",&dgpr);
-  m_ntuple->Branch("dgpp",&dgpp);
-  m_ntuple->Branch("edep",&edep);
-  m_ntuple->Branch("e",&e);
-  m_ntuple->Branch("at",&at);
-  m_ntuple->Branch("as",&as);
-  m_ntuple->Branch("surfcentx",&surfcentx);
-  m_ntuple->Branch("surfcenty",&surfcenty);
-  m_ntuple->Branch("surfcentz",&surfcentz);
+  m_ntuple->Branch("slx",&m_slx);
+  m_ntuple->Branch("sly",&m_sly);
+  m_ntuple->Branch("slz",&m_slz);
+  m_ntuple->Branch("dlx",&m_dlx);
+  m_ntuple->Branch("dly",&m_dly);
+  m_ntuple->Branch("dlz",&m_dlz);
+  m_ntuple->Branch("sulx",&m_sulx);
+  m_ntuple->Branch("suly",&m_suly);
+  m_ntuple->Branch("tsulx",&m_tsulx);
+  m_ntuple->Branch("tsuly",&m_tsuly);
+  m_ntuple->Branch("tsulz",&m_tsulz);
+  m_ntuple->Branch("resx",&m_resx);
+  m_ntuple->Branch("resy",&m_resy);
+  m_ntuple->Branch("suresx",&m_suresx);
+  m_ntuple->Branch("suresy",&m_suresy);
+  m_ntuple->Branch("resz",&m_resz);
+  m_ntuple->Branch("errx",&m_errx);
+  m_ntuple->Branch("erry",&m_erry);
+  m_ntuple->Branch("res",&m_res);
+  m_ntuple->Branch("pull",&m_pull);
+  m_ntuple->Branch("is",&m_is);
+  m_ntuple->Branch("seta",&m_seta);
+  m_ntuple->Branch("sphi",&m_sphi);
+  m_ntuple->Branch("sml",&m_sml);
+  m_ntuple->Branch("sl",&m_sl);
+  m_ntuple->Branch("ss",&m_ss);
+  m_ntuple->Branch("stype",&m_stype);
+  m_ntuple->Branch("ieta",&m_ieta);
+  m_ntuple->Branch("iphi",&m_iphi);
+  m_ntuple->Branch("iml",&m_iml);
+  m_ntuple->Branch("il",&m_il);
+  m_ntuple->Branch("ich",&m_ich);
+  m_ntuple->Branch("istr",&m_istr);
+  m_ntuple->Branch("itype",&m_itype);
+  m_ntuple->Branch("ipadeta",&m_ipadeta);
+  m_ntuple->Branch("ipadphi",&m_ipadphi);
+  m_ntuple->Branch("exitcode",&m_exitcode);
+  m_ntuple->Branch("mode",&m_mode);
+  m_ntuple->Branch("pdg",&m_pdg);
+  m_ntuple->Branch("trkid",&m_trkid);
+  m_ntuple->Branch("bct",&m_bct);
+  m_ntuple->Branch("tb",&m_tb);
+  m_ntuple->Branch("tj",&m_tj);
+  m_ntuple->Branch("tg4",&m_tg4);
+  m_ntuple->Branch("ttof",&m_ttof);
+  m_ntuple->Branch("gpx",&m_gpx);
+  m_ntuple->Branch("gpy",&m_gpy);
+  m_ntuple->Branch("gpz",&m_gpz);
+  m_ntuple->Branch("gpr",&m_gpr);
+  m_ntuple->Branch("gpp",&m_gpp);
+  m_ntuple->Branch("dgpx",&m_dgpx);
+  m_ntuple->Branch("dgpy",&m_dgpy);
+  m_ntuple->Branch("dgpz",&m_dgpz);
+  m_ntuple->Branch("dgpr",&m_dgpr);
+  m_ntuple->Branch("dgpp",&m_dgpp);
+  m_ntuple->Branch("edep",&m_edep);
+  m_ntuple->Branch("e",&m_e);
+  m_ntuple->Branch("at",&m_at);
+  m_ntuple->Branch("as",&m_as);
+  m_ntuple->Branch("surfcentx",&m_surfcentx);
+  m_ntuple->Branch("surfcenty",&m_surfcenty);
+  m_ntuple->Branch("surfcentz",&m_surfcentz);
 
   return StatusCode::SUCCESS;
     
@@ -162,7 +162,7 @@ StatusCode sTgcFastDigitizer::execute() {
 
   sTgcPrepDataContainer* prdContainer = new sTgcPrepDataContainer(m_idHelper->detectorElement_hash_max());
   
-  // as the sTgcPrepDataContainer only allows const accesss, need a local vector as well.
+  // m_as the sTgcPrepDataContainer only allows const accesss, need a local vector m_as well.
   std::vector<sTgcPrepDataCollection*> localsTgcVec(m_idHelper->detectorElement_hash_max());
   std::vector<sTgcPrepData*> sTgcprds;
   std::vector<int> sTgcflag;
@@ -374,7 +374,7 @@ StatusCode sTgcFastDigitizer::execute() {
       double scale = -slpos.z()/ldir.z();
       Amg::Vector3D hitOnSurface = slpos + scale*ldir;
 
-      // the position resolution is depending on the incident angle
+      // the position resolution m_is depending on the incident angle
       //double resolution = .18;
       const Amg::Vector3D GloDire(hit.globalDirection().x(), hit.globalDirection().y(), hit.globalDirection().z());
       Trk::LocalDirection LocDirection;
@@ -389,7 +389,7 @@ StatusCode sTgcFastDigitizer::execute() {
 
       // bctagging
 //      static const float jitterInitial = 9999.;
-      float jitter = 0;//jitterInitial; // calculated at central strip but also used in all the strips fired by the same hit 
+      float jitter = 0;//jitterInitial; // calculated m_at central strip but also used in all the strips fired by the same hit 
 //       if(jitter > jitterInitial-0.1) {
 //         jitter = timeJitter(inAngle_time);
 //       }
@@ -419,94 +419,94 @@ StatusCode sTgcFastDigitizer::execute() {
       /// now fill most of the ntuple
       Amg::Vector3D repos = detEl->globalPosition();
 
-      slx = hit.localPosition().x();
-      sly = hit.localPosition().y();
-      slz = hit.localPosition().z();
+      m_slx = hit.localPosition().x();
+      m_sly = hit.localPosition().y();
+      m_slz = hit.localPosition().z();
       // Local position wrt Det element (NOT to surface)
-      dlx = lpos.x();
-      dly = lpos.y();
-      dlz = lpos.z();
-      sulx = posOnSurf.x();
-      suly = posOnSurf.y();
-      tsulx = hitOnSurface.x();
-      tsuly = hitOnSurface.y();
-      tsulz = hitOnSurface.z();
-      resx = hit.localPosition().x() - lpos.x();
-      resy = hit.localPosition().y() - lpos.y();
-      resz = hit.localPosition().z() - lpos.z();
-      suresx = posOnSurf.x()-hitOnSurface.x();
-      suresy = posOnSurf.y()-hitOnSurface.y();
-      errx = -99999.;
-      erry = -99999.;
-      res  = -99999.; 
-      pull  = -99999.; 
-      is   = isSmall;
-      seta = hitHelper->GetZSector(simId);
-      sphi = hitHelper->GetPhiSector(simId);
-      sml  = hitHelper->GetMultiLayer(simId);
-      sl  = hitHelper->GetLayer(simId);
-      ss  = hitHelper->GetSide(simId);
-      stype = type;
-      ieta = m_idHelper->stationEta(id);
-      iphi = m_idHelper->stationPhi(id);
-      iml  = m_idHelper->multilayer(id);
-      il  = m_idHelper->gasGap(id);
-      ich = -99999;
-      istr  = -99999;
-      itype = -99999;
-      ipadeta = -99999;
-      ipadphi = -99999;
-      exitcode = 0;
-      mode = 0;
-      pdg = hit.particleEncoding();
-      trkid = hit.trackNumber();
-      bct = bctag;
-      tb = bunchTime;
-      tj = jitter;
-      tg4 = globalHitTime;
-      ttof = tofCorrection;
-      gpx  = hit.globalPosition().x();
-      gpy  = hit.globalPosition().y();
-      gpz  = hit.globalPosition().z();
-      gpr  = hit.globalPosition().perp();
-      gpp  = hit.globalPosition().phi();
-      dgpx  = repos.x();
-      dgpy  = repos.y();
-      dgpz  = repos.z();
-      dgpr  = repos.perp();
-      dgpp  = repos.phi();
-      edep  = hit.depositEnergy();
-      e     = hit.kineticEnergy();
-      at    = inAngle_time;
-      as    = inAngle_space;
-      surfcentx = surf.center().x();
-      surfcenty = surf.center().y();
-      surfcentz = surf.center().z();
+      m_dlx = lpos.x();
+      m_dly = lpos.y();
+      m_dlz = lpos.z();
+      m_sulx = posOnSurf.x();
+      m_suly = posOnSurf.y();
+      m_tsulx = hitOnSurface.x();
+      m_tsuly = hitOnSurface.y();
+      m_tsulz = hitOnSurface.z();
+      m_resx = hit.localPosition().x() - lpos.x();
+      m_resy = hit.localPosition().y() - lpos.y();
+      m_resz = hit.localPosition().z() - lpos.z();
+      m_suresx = posOnSurf.x()-hitOnSurface.x();
+      m_suresy = posOnSurf.y()-hitOnSurface.y();
+      m_errx = -99999.;
+      m_erry = -99999.;
+      m_res  = -99999.; 
+      m_pull  = -99999.; 
+      m_is   = isSmall;
+      m_seta = hitHelper->GetZSector(simId);
+      m_sphi = hitHelper->GetPhiSector(simId);
+      m_sml  = hitHelper->GetMultiLayer(simId);
+      m_sl  = hitHelper->GetLayer(simId);
+      m_ss  = hitHelper->GetSide(simId);
+      m_stype = type;
+      m_ieta = m_idHelper->stationEta(id);
+      m_iphi = m_idHelper->stationPhi(id);
+      m_iml  = m_idHelper->multilayer(id);
+      m_il  = m_idHelper->gasGap(id);
+      m_ich = -99999;
+      m_istr  = -99999;
+      m_itype = -99999;
+      m_ipadeta = -99999;
+      m_ipadphi = -99999;
+      m_exitcode = 0;
+      m_mode = 0;
+      m_pdg = hit.particleEncoding();
+      m_trkid = hit.trackNumber();
+      m_bct = bctag;
+      m_tb = bunchTime;
+      m_tj = jitter;
+      m_tg4 = globalHitTime;
+      m_ttof = tofCorrection;
+      m_gpx  = hit.globalPosition().x();
+      m_gpy  = hit.globalPosition().y();
+      m_gpz  = hit.globalPosition().z();
+      m_gpr  = hit.globalPosition().perp();
+      m_gpp  = hit.globalPosition().phi();
+      m_dgpx  = repos.x();
+      m_dgpy  = repos.y();
+      m_dgpz  = repos.z();
+      m_dgpr  = repos.perp();
+      m_dgpp  = repos.phi();
+      m_edep  = hit.depositEnergy();
+      m_e     = hit.kineticEnergy();
+      m_at    = inAngle_time;
+      m_as    = inAngle_space;
+      m_surfcentx = surf.center().x();
+      m_surfcenty = surf.center().y();
+      m_surfcentz = surf.center().z();
 
        // cut on the kineticEnergy = 50MeV  
       if(hit.kineticEnergy()< m_energyThreshold ) {
-	exitcode = 5;
+	m_exitcode = 5;
 	m_ntuple->Fill();      
 	continue; 
       }
 
       // cut on depositEnergy(0.52KeV) to simulation the detector efficiency(95% for strips)
       if( type ==1 && hit.depositEnergy()<m_energyDepositThreshold)  {
-         ATH_MSG_VERBOSE("Drop SimHit with depositEnergy = " << edep << " in the strip response!");
-	 exitcode = 6;
+         ATH_MSG_VERBOSE("Drop SimHit with depositEnergy = " << m_edep << " in the strip response!");
+	 m_exitcode = 6;
 	 m_ntuple->Fill();      
          continue;
       } 
 
       /// done filling
       if ( !surf.insideBounds(posOnSurf) ) {
-	exitcode = 1;
+	m_exitcode = 1;
 	m_ntuple->Fill();
 	continue;
       }
 
       if(sDigitTime < -m_bunchCrossingTime+m_timeWindowOffsetStrip || +m_bunchCrossingTime+m_timeWindowOffsetStrip+ m_timeWindowStrip < sDigitTime) {
-	exitcode = 4;
+	m_exitcode = 4;
 	m_ntuple->Fill();
         ATH_MSG_DEBUG( "Strip: Digitized time is outside of time window. " << sDigitTime
 		       << " bunchTime: " << bunchTime << " time jitter: " << jitter
@@ -520,7 +520,7 @@ StatusCode sTgcFastDigitizer::execute() {
       if( stripNumber == -1 ){
 	ATH_MSG_WARNING("Failed to obtain strip number " << m_idHelperTool->toString(id) 
 			<< " pos " << posOnSurf.x() << " - " << hitOnSurface.x() << " z " << slpos.z() << " type " << type  ); 
-	exitcode = 2;
+	m_exitcode = 2;
 	m_ntuple->Fill();
 	continue;
       }
@@ -540,7 +540,7 @@ StatusCode sTgcFastDigitizer::execute() {
       if( stripNumber == -1 ){
 	ATH_MSG_WARNING("Failed to obtain strip number " << m_idHelperTool->toString(id) 
 			<< " pos " << posOnSurf.x() << " - " << hitOnSurface.x() << " z " << slpos.z() << " type " << type  ); 
-	exitcode = 2;
+	m_exitcode = 2;
 	m_ntuple->Fill();
 	continue;
       }
@@ -558,7 +558,7 @@ StatusCode sTgcFastDigitizer::execute() {
 	Amg::Vector2D locpos(0,0);
 	if( !detEl->stripPosition(id,locpos ) ){
 	  ATH_MSG_WARNING("Failed to obtain local position for identifier " << m_idHelperTool->toString(id) );
-	  exitcode = 3;
+	  m_exitcode = 3;
 	  m_ntuple->Fill();
 	  continue; 
 	}
@@ -588,7 +588,7 @@ StatusCode sTgcFastDigitizer::execute() {
 	}else{
 	  errX = design->channelWidth(posOnSurf,true)/sqrt(12);
 
-	  // Peter Kluit: inputPhiPitch is in degrees
+	  // Peter Kluit: inputPhiPitch m_is in degrees
 	  Amg::Vector3D lposPad(posOnSurf.x(),posOnSurf.y(),0.);
 	  double radius = (surf.transform()*lposPad).perp();
 	  errX = design->inputPhiPitch*M_PI/180.*radius/sqrt(12);
@@ -600,7 +600,7 @@ StatusCode sTgcFastDigitizer::execute() {
       (*cov)(0,0) = errX*errX;      
 
 //      ATH_MSG_DEBUG(" New hit " << m_idHelperTool->toString(id) << " chtype " << type << " lpos " << posOnSurf << " from truth "
-//                    << hitOnSurface << " error " << locErrMat->error(Trk::locX) << " pull " << (posOnSurf.x()-hitOnSurface.x())/locErrMat->error(Trk::locX) );
+//                    << hitOnSurface << " error " << locErrMat->error(Trk::locX) << " m_pull " << (posOnSurf.x()-hitOnSurface.x())/locErrMat->error(Trk::locX) );
 
       //sTgcPrepData* prd = new sTgcPrepData( id,hash,posOnSurf,rdoList,locErrMat,detEl);
       sTgcPrepData* prd = new sTgcPrepData( id,hash,posOnSurf,rdoList,cov,detEl, bctag);
@@ -617,17 +617,17 @@ StatusCode sTgcFastDigitizer::execute() {
       hashLast = hash;
 
       /// fill final bits of the ntuple
-      suresx = posOnSurf.x()-hitOnSurface.x();
-      suresy = posOnSurf.y()-hitOnSurface.y();
-      sulx = posOnSurf.x();
-      suly = posOnSurf.y();
-      errx = errX;
-      ich = m_idHelper->channel(id);
-      istr  = stripNumber;
-      itype = m_idHelper->channelType(id);
+      m_suresx = posOnSurf.x()-hitOnSurface.x();
+      m_suresy = posOnSurf.y()-hitOnSurface.y();
+      m_sulx = posOnSurf.x();
+      m_suly = posOnSurf.y();
+      m_errx = errX;
+      m_ich = m_idHelper->channel(id);
+      m_istr  = stripNumber;
+      m_itype = m_idHelper->channelType(id);
       if( type == 0 ){
-        ipadeta = m_idHelper->padEta(id);
-        ipadphi = m_idHelper->padPhi(id);
+        m_ipadeta = m_idHelper->padEta(id);
+        m_ipadphi = m_idHelper->padPhi(id);
       }
 
       ATH_MSG_VERBOSE("Global hit: r " << hit.globalPosition().perp() << " phi " << hit.globalPosition().phi() << " z " << hit.globalPosition().z());
@@ -639,12 +639,12 @@ StatusCode sTgcFastDigitizer::execute() {
       ATH_MSG_VERBOSE("Local hit in Det Element frame: x " << hit.localPosition().x() << " y " << hit.localPosition().y() << " z " << hit.localPosition().z());
       ATH_MSG_VERBOSE(" Prd: local posOnSurf.x() " << posOnSurf.x() << " posOnSurf.y() " << posOnSurf.y() );
 
-      ATH_MSG_DEBUG(" hit:  " << m_idHelperTool->toString(id) << " hitx " << posOnSurf.x() << " residual " << posOnSurf.x() - hitOnSurface.x() << " hitOnSurface.x() " << hitOnSurface.x() << " errorx " << errx << " pull " << (posOnSurf.x() - hitOnSurface.x())/errx);
+      ATH_MSG_DEBUG(" hit:  " << m_idHelperTool->toString(id) << " hitx " << posOnSurf.x() << " residual " << posOnSurf.x() - hitOnSurface.x() << " hitOnSurface.x() " << hitOnSurface.x() << " errorx " << m_errx << " pull " << (posOnSurf.x() - hitOnSurface.x())/m_errx);
 
 //       const MuonClusterOnTrack* rot = m_muonClusterCreator->createRIO_OnTrack( *prd, hit.globalPosition() );
 //       if( rot ){
-// 	res  = rot->localParameters().get(Trk::locX)-hitOnSurface.x();
-// 	pull = res/rot->localErrorMatrix().error(Trk::locX);
+// 	m_res  = rot->localParameters().get(Trk::locX)-hitOnSurface.x();
+// 	m_pull = m_res/rot->localErrorMatrix().error(Trk::locX);
 // 	delete rot;
 //       }
 

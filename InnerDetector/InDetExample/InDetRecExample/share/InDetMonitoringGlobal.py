@@ -20,6 +20,9 @@ if InDetFlags.doMonitoringGlobal() or InDetFlags.doMonitoringPrimaryVertexingEnh
                                         Run                 = DQMonFlags.monManRun(),
                                         LumiBlock           = DQMonFlags.monManLumiBlock(),
                                         doTopBottom         =  True,
+                                        doPixel             =  DetFlags.haveRDO.pixel_on(),
+                                        doSCT               =  DetFlags.haveRDO.SCT_on(),
+                                        doTRT               =  DetFlags.haveRDO.TRT_on(),
                                         AthenaMonTools      = []) # these are set at the end
 
 if InDetFlags.doMonitoringGlobal():

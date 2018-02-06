@@ -42,7 +42,7 @@ private:
     int     userwgts;
  };
 
-  static WGTACP* _wgtacp;
+  static WGTACP* s_wgtacp;
 };
 
 #include "Herwig_i/wgtacp.icc"

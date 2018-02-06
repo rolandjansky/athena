@@ -131,9 +131,8 @@ namespace Analysis {
 
     /* Record the BTagging  output container */
     SG::WriteHandle<xAOD::BTaggingContainer> h_BTaggingCollectionName (m_BTaggingCollectionName);
-    StatusCode sc = h_BTaggingCollectionName.record(std::make_unique<xAOD::BTaggingContainer>(),
-        std::make_unique<xAOD::BTaggingAuxContainer>());
-    ATH_CHECK(sc, 1);
+    ATH_CHECK( h_BTaggingCollectionName.record(std::make_unique<xAOD::BTaggingContainer>(),
+                    std::make_unique<xAOD::BTaggingAuxContainer>()) );
 
     if (!m_magFieldSvc->solenoidOn()) {
       for (size_t jetIndex=0; jetIndex < h_JetCollectionName->size() ; ++jetIndex) {
@@ -238,7 +237,7 @@ namespace Analysis {
         ElementLink< xAOD::BTaggingContainer> linkBTagger;
         h_jetBTaggingLinkName(jetToTag) = linkBTagger;
       } //end loop JetContainer
-      return 1;
+      return 0;
     } //end test Solenoid status
 
     // We don't want to redo the track-jet association in case of augmentation; however, since

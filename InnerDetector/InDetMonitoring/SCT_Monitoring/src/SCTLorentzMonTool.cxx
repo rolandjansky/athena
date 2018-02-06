@@ -80,6 +80,7 @@ StatusCode SCTLorentzMonTool::initialize() {
   ATH_CHECK( SCTMotherTrigMonTool::initialize() );
 
   ATH_CHECK( m_tracksName.initialize() );
+  ATH_CHECK(m_trackToVertexTool.retrieve());
 
   return StatusCode::SUCCESS;
 }
@@ -103,8 +104,6 @@ SCTLorentzMonTool::bookHistogramsRecurrent( ) {                                 
   detStore()->retrieve(m_pSCTHelper, "SCT_ID");
   ATH_CHECK(detStore()->retrieve(m_sctmgr, "SCT"));
   ATH_MSG_DEBUG("SCT detector manager found: layout is \"" << m_sctmgr->getLayout() << "\"");
-  /* Retrieve TrackToVertex extrapolator tool */
-  ATH_CHECK(m_trackToVertexTool.retrieve());
   // Booking  Track related Histograms
   if (bookLorentzHistos().isFailure()) {
     msg(MSG::WARNING) << "Error in bookLorentzHistos()" << endmsg;                                // hidetoshi 14.01.22

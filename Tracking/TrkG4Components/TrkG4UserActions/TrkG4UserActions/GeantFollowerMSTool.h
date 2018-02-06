@@ -4,13 +4,15 @@
 
 #ifndef TRKG4USERACTIONS_G4UA__GEANTFOLLOWERMSTOOL_H
 #define TRKG4USERACTIONS_G4UA__GEANTFOLLOWERMSTOOL_H
+
 #include "G4AtlasInterfaces/IG4EventActionTool.h"
 #include "G4AtlasInterfaces/IG4RunActionTool.h"
 #include "G4AtlasInterfaces/IG4SteppingActionTool.h"
 #include "G4AtlasTools/ActionToolBase.h"
 #include "TrkG4UserActions/GeantFollowerMS.h"
 
-namespace G4UA{
+namespace G4UA
+{
 
   /// @class GeantFollowerMSTool
   /// @brief Tool which manages the GeantFollowerMS action
@@ -20,7 +22,7 @@ namespace G4UA{
 
   class GeantFollowerMSTool:
     public ActionToolBase<GeantFollowerMS>,
-    public IG4EventActionTool, public IG4RunActionTool,  public IG4SteppingActionTool
+    public IG4EventActionTool, public IG4RunActionTool, public IG4SteppingActionTool
   {
 
   public:
@@ -44,6 +46,6 @@ namespace G4UA{
     GeantFollowerMS::Config m_config;
   }; // class GeantFollowerMSTool
 
-
 } // namespace G4UA
+
 #endif

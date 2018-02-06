@@ -52,7 +52,7 @@ namespace xAOD {
   StatusCode TrackIsolationTool::initialize() 
   {
 #ifndef XAOD_ANALYSIS
-    if( !m_simpleIsolation ) ATH_CHECK(m_tracksInConeTool.retrieve());
+    ATH_CHECK(m_tracksInConeTool.retrieve( DisableTool{m_simpleIsolation} ));
 #endif // XAOD_ANALYSIS
 
       if(m_trkselTool.retrieve().isFailure()){

@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PRIVATE
                           AtlasTest/TestTools
+                          Control/AthContainersInterfaces
                           Database/PersistentDataModel
                           Event/EventInfo 
 			  Event/xAOD/xAODEventInfo )

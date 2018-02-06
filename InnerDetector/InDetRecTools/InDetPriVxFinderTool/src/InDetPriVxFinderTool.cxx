@@ -52,7 +52,6 @@
 #include "xAODTracking/VertexAuxContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
-#include "TrkVxEdmCnv/IVxCandidateXAODVertex.h"
 
 namespace InDet
 {
@@ -76,7 +75,6 @@ namespace InDet
         m_iPriVxSeedFinder( "InDet::SlidingWindowMultiSeedFinder" ),
 	m_iVertexFitter ( "Trk::FastVertexFitter" ),
         m_trkFilter( "InDet::InDetTrackSelection"),
-	m_VertexEdmFactory("Trk::VertexInternalEdmFactory"),
 	m_iBeamCondSvc("BeamCondSvc",n),
 	m_useBeamConstraint ( false ),
 	m_chi2CutMethod ( 1 ),
@@ -90,7 +88,6 @@ namespace InDet
     declareProperty ( "PriVxSeedFinder", m_iPriVxSeedFinder );
     declareProperty ( "VertexFitterTool", m_iVertexFitter );
     declareProperty ( "TrackSelector", m_trkFilter);
-    declareProperty("InternalEdmFactory", m_VertexEdmFactory);
     declareProperty ( "useBeamConstraint", m_useBeamConstraint );
     declareProperty ( "chi2CutMethod", m_chi2CutMethod );
     declareProperty ( "maxChi2PerTrack", m_maxChi2PerTrack );

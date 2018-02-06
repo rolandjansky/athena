@@ -113,6 +113,9 @@ StatusCode CscRdoValAlg::initialize() {
   }
   ATH_MSG_DEBUG ( " Found the CscIdHelper. "  );
 
+
+  ATH_CHECK(m_cscRdoDecoderTool.retrieve());
+
   ManagedMonitorToolBase::initialize().ignore();  // Ignore the checking code;
   return StatusCode::SUCCESS;
 

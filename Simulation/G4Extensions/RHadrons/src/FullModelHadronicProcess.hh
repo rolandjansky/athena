@@ -34,10 +34,10 @@ public:
 
 protected:
 
-  const G4ParticleDefinition *theParticle;
-  G4ParticleDefinition *newParticle;
+  const G4ParticleDefinition *m_theParticle;
+  G4ParticleDefinition *m_newParticle;
 
-  G4ParticleChange theParticleChange;
+  G4ParticleChange m_theParticleChange;
 
 private:
 
@@ -67,10 +67,10 @@ private:
 
   const G4DynamicParticle* FindRhadron(G4ParticleChange*);
 
-  G4ProcessHelper* theHelper;
-  G4bool toyModel;
-  G4double cache;
-  G4ThreeVector what;
+  G4ProcessHelper* m_theHelper;
+  G4bool m_toyModel;
+  G4double m_cache;
+  G4ThreeVector m_what;
 
 
 

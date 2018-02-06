@@ -244,15 +244,15 @@ inline void NtupleSplitterTool::fillTrackNtuple(const MuonCalibEvent_E &extra_ev
       if(hit->type()!=1) continue;
       const MuonFixedId &id(hit->identify());
       if(!p_reg_sel_svc->isInRegion(id)) continue;
-      for(std::map<NtupleStationId, MuonCalibHit_EBranch *>::const_iterator m_it=m_track_hit_branch.begin(); m_it!=m_track_hit_branch.end(); m_it++) {
-	if(station_ids.find(m_it->first) != station_ids.end())
+      for(std::map<NtupleStationId, MuonCalibHit_EBranch *>::const_iterator map_it=m_track_hit_branch.begin(); map_it!=m_track_hit_branch.end(); map_it++) {
+	if(station_ids.find(map_it->first) != station_ids.end())
 	  continue;
-//				std::cout<<m_it->first.regionId()<<std::endl;
-	if(m_it->first == id) {
-	  station_ids.insert(m_it->first);
-	  hit_branches.push_back(m_it->second);
-	  track_branches.push_back( m_track_branch[m_it->first] );
-	  m_ntuples_initialized.insert(m_it->first);
+//				std::cout<<map_it->first.regionId()<<std::endl;
+	if(map_it->first == id) {
+	  station_ids.insert(map_it->first);
+	  hit_branches.push_back(map_it->second);
+	  track_branches.push_back( m_track_branch[map_it->first] );
+	  m_ntuples_initialized.insert(map_it->first);
 	}
       }
     }

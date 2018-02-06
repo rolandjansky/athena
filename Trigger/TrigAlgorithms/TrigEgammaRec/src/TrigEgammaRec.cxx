@@ -293,6 +293,8 @@ HLT::ErrorCode TrigEgammaRec::hltInitialize() {
             ATH_MSG_DEBUG("Retrieved Tool "<<m_trackMatchBuilder);
             if (timerSvc()) m_timerTool1 = addTimer("EMTrackMatchBuilder");
         }
+    } else {
+      m_trackMatchBuilder.disable();
     }
 
     if(m_doTrackMatching && m_doConversions){
@@ -309,7 +311,10 @@ HLT::ErrorCode TrigEgammaRec::hltInitialize() {
             ATH_MSG_DEBUG("Retrieved Tool "<<m_conversionBuilder);
             if (timerSvc()) m_timerTool2 = addTimer("EMConversionBuilder");
         }
+    } else {
+      m_conversionBuilder.disable();
     }
+
     if (m_ambiguityTool.empty()) {
         ATH_MSG_ERROR("EGammaAmbiguityTool is empty");
         return HLT::BAD_JOB_SETUP;
@@ -478,7 +483,10 @@ HLT::ErrorCode TrigEgammaRec::hltInitialize() {
                 if (timerSvc()) m_timerIsoTool1 = addTimer("TrackIsolationTool");
             }
         }
+    } else {
+      m_trackIsolationTool.disable();
     }
+
     if(m_doCaloCellIsolation){
         if (!m_caloCellIsolationTool.empty() && runIsoType.find("etcone") != runIsoType.end()) {
             ATH_MSG_DEBUG("Retrieve CaloIsolationTool is empty");
@@ -490,7 +498,11 @@ HLT::ErrorCode TrigEgammaRec::hltInitialize() {
                 ATH_MSG_DEBUG("Retrieved Tool "<<m_caloCellIsolationTool);
                 if (timerSvc()) m_timerIsoTool2 = addTimer("CaloCellIsolationTool");
             }
+        } else {
+          m_caloCellIsolationTool.disable();
         }
+    } else {
+      m_caloCellIsolationTool.disable();
     }
     if(m_doTopoIsolation){
         if (!m_topoIsolationTool.empty() && runIsoType.find("topoetcone") != runIsoType.end()) {
@@ -503,7 +515,11 @@ HLT::ErrorCode TrigEgammaRec::hltInitialize() {
                 ATH_MSG_DEBUG("Retrieved Tool "<<m_topoIsolationTool);
                 if (timerSvc()) m_timerIsoTool3 = addTimer("topoIsolationTool");
             }
+        } else {
+          m_topoIsolationTool.disable();
         }
+    } else {
+      m_topoIsolationTool.disable();
     }
     //print summary info
     ATH_MSG_INFO("REGTEST: xAOD Reconstruction for Run2" );

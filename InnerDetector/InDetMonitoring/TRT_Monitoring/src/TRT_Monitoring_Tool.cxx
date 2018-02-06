@@ -446,9 +446,6 @@ StatusCode TRT_Monitoring_Tool::initialize() {
 			ATH_CHECK( m_condSvc_BS.retrieve() );
 		}
 
-		// Retrieve the TRT TRTTrackHoleSearchTool.
-		ATH_CHECK( m_trt_hole_finder.retrieve() );
-
 		// NOTE: is this used anywhere?
 		// Retrieve the TRT_DAQConditions Service.
 		if (m_DAQSvc.name().empty()) {
@@ -499,9 +496,14 @@ StatusCode TRT_Monitoring_Tool::initialize() {
 	}
 
 	// retrieve TRTTrackHoleSearchTool
-	if (m_doEfficiency) {
-		ATH_CHECK( m_trt_hole_finder.retrieve() );
+	if (m_doEfficiency || m_doExpert) {
+	  ATH_CHECK( m_trt_hole_finder.retrieve() );
 	}
+	else {
+	  m_trt_hole_finder.disable();
+	}
+
+	ATH_CHECK(m_drifttool.retrieve());
 
 	// Initialize arrays
 	// These arrays store information about each entry to the HitMap histograms

@@ -31,7 +31,6 @@ StatusCode MTHist::initialize() {
    StatusCode sc = StatusCode::SUCCESS;
    ATH_MSG_INFO("in initialize()");
 
-#ifdef ATLAS_GAUDI_V21
    SmartIF<IService> tmp_msgSvc(msgSvc());
    if(tmp_msgSvc.isValid()) {
       ATH_MSG_INFO(" Algorithm = " << name() << " is connected to Message Service = "
@@ -44,20 +43,6 @@ StatusCode MTHist::initialize() {
       ATH_MSG_INFO(" Algorithm = " << name() << " is connected to Histogram Service = "
           << tmp_histSvc->name());
    }
-#else
-   Service* tmp_msgSvc = dynamic_cast<Service*> (msgSvc());
-   if(tmp_msgSvc != 0) {
-      ATH_MSG_INFO(" Algorithm = " << name() << " is connected to Message Service = "
-          << tmp_msgSvc->name());
-   }
-
-   // Register the histogram
-   Service* tmp_histSvc = dynamic_cast<Service*> (histoSvc());
-   if(tmp_histSvc != 0) {
-      ATH_MSG_INFO(" Algorithm = " << name() << " is connected to Histogram Service = "
-          << tmp_histSvc->name());
-   }
-#endif
 
    m_hist = histoSvc()->book("/stat/simple1D/Dtest1","TestMTHist1D",100,0,100);
    if (0 == m_hist) {

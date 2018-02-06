@@ -24,8 +24,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkDetDescr/TrkSurfaces
                           Tracking/TrkVertexFitter/TrkVertexFitterInterfaces
                           Tracking/TrkEvent/VxSecVertex
-                          Event/EventPrimitives
-                          Tracking/TrkVertexFitter/TrkVxEdmCnv )
+                          Event/EventPrimitives)
 
 # External dependencies
 find_package( HepMC )
@@ -35,7 +34,7 @@ atlas_add_component( InDetZVTOPVxFinder
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${HEPMC_LIBRARIES} AthenaBaseComps GaudiKernel InDetRecToolInterfaces VxVertex Particle TrkParticleBase TrkParameters xAODTracking DataModel TrkExInterfaces TrkSurfaces TrkVertexFitterInterfaces VxSecVertex EventPrimitives TrkVxEdmCnvLib )
+                     LINK_LIBRARIES ${HEPMC_LIBRARIES} AthenaBaseComps GaudiKernel InDetRecToolInterfaces VxVertex Particle TrkParticleBase TrkParameters xAODTracking DataModel TrkExInterfaces TrkSurfaces TrkVertexFitterInterfaces VxSecVertex EventPrimitives )
 
 # Install files from the package:
 atlas_install_headers( InDetZVTOPVxFinder )

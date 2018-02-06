@@ -55,7 +55,7 @@ class MultiParticleGunPileup : public GenModule {
     TFile *m_file;
     TH1D *m_htgPileupProfile, *m_htgPileupMu, *m_htgPileupEvents;
 
-    ParticleSampler * partSampler;
+    ParticleSampler * m_partSampler;
 };
 
 #endif

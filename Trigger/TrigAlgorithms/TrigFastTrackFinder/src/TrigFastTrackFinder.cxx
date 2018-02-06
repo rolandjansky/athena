@@ -341,7 +341,10 @@ HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
         ATH_MSG_ERROR("Could not retrieve "<<m_trigZFinder); 
         return HLT::BAD_JOB_SETUP;
       }
+    } else {
+      m_trigZFinder.disable();
     }
+
     if(m_doFTKZFinder ) {
       StatusCode sc= m_ftkDataProviderSvc.retrieve();
       if(sc.isFailure()) {
@@ -394,6 +397,8 @@ HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
       ATH_MSG_FATAL("Unable to locate SpacePoint-to-Truth associator tool " << m_TrigL2SpacePointTruthTool);
       return HLT::BAD_JOB_SETUP;
     }
+  } else {
+    m_TrigL2SpacePointTruthTool.disable();
   }
   
   ATH_MSG_DEBUG(" Feature set recorded with Key " << m_attachedFeatureName);

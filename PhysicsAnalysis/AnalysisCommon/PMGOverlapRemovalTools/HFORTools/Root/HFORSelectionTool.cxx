@@ -144,7 +144,7 @@ StatusCode HFORSelectionTool::endInputFile() {
 bool HFORSelectionTool::isSelected()  {
 
   if (! m_isConfigured) {
-    ATH_CHECK( setSampleType() ) ;
+    ATH_CHECK( setSampleType(), false ) ;
     m_isConfigured = true ;
   }
 
@@ -158,7 +158,7 @@ bool HFORSelectionTool::isSelected()  {
 
   // Only run this function on Monte Carlo
   const xAOD::EventInfo* eventInfo = nullptr;
-  ATH_CHECK( evtStore()->retrieve(eventInfo, "EventInfo") );
+  ATH_CHECK( evtStore()->retrieve(eventInfo, "EventInfo"), false );
   const bool isSim = eventInfo->eventType(xAOD::EventInfo::EventType::IS_SIMULATION);
   if ( !isSim ) {
     ATH_MSG_DEBUG (BOOST_CURRENT_FUNCTION << "It is a data event... nothing to be done...");
@@ -171,13 +171,13 @@ bool HFORSelectionTool::isSelected()  {
   //===========================
   std::string truthCollectionName  = "TruthEvents" ;
   const xAOD::TruthEventContainer* truthEvent = nullptr ;
-  ATH_CHECK ( evtStore()->retrieve(truthEvent, truthCollectionName ) ) ;
+  ATH_CHECK ( evtStore()->retrieve(truthEvent, truthCollectionName ), false ) ;
 
   //=========================================
   // truth JET info (not needed for DR-HFOR)
   //=========================================
   const xAOD::JetContainer* jets = nullptr ;
-  ATH_CHECK ( evtStore()->retrieve(jets, m_truthJetCollectionName ) ) ;
+  ATH_CHECK ( evtStore()->retrieve(jets, m_truthJetCollectionName ), false ) ;
 
   //=========================================================
   // Truth Event DeltaR based and Jet Based switched in init

@@ -99,7 +99,6 @@ if InDetFlags.doVertexFindingForMonitoring():
                                                                               maximumChi2cutForSeeding = 49,
                                                                               maxVertices              = 200,
                                                                               createSplitVertices      = False,
-                                                                              InternalEdmFactory       = InDetVxEdmCnv,
                                                                               doMaxTracksCut           = InDetPrimaryVertexingCuts.doMaxTracksCut(),
                                                                               MaxTracks                = InDetPrimaryVertexingCuts.MaxTracks()  )
   ToolSvc += InDetPriVxFinderToolNoBeamConstraint
@@ -112,8 +111,8 @@ if InDetFlags.doVertexFindingForMonitoring():
                                                              TracksName                  = InDetKeys.xAODTrackParticleContainer(),
                                                              VxCandidatesOutputName      = InDetKeys.PrimaryVerticesWithoutBeamConstraint(),
                                                              VertexCollectionSortingTool = VertexCollectionSortingTool,
-                                                             doVertexSorting             = True,
-                                                             InternalEdmFactory          = InDetVxEdmCnv)
+                                                             doVertexSorting             = True)
+
   topSequence += InDetPriVxFinderNoBeamConstraint
   if InDetFlags.doPrintConfigurables():
     print InDetPriVxFinderNoBeamConstraint
@@ -134,7 +133,6 @@ if InDetFlags.doSplitVertexFindingForMonitoring():
                                                                     maximumChi2cutForSeeding = 49,
                                                                     maxVertices              = 25,
                                                                     createSplitVertices      = True,
-                                                                    InternalEdmFactory       = InDetVxEdmCnv,
                                                                     doMaxTracksCut           = InDetPrimaryVertexingCuts.doMaxTracksCut(),
                                                                     MaxTracks                = InDetPrimaryVertexingCuts.MaxTracks())
   ToolSvc += InDetPriVxFinderToolSplit
@@ -147,8 +145,7 @@ if InDetFlags.doSplitVertexFindingForMonitoring():
                                                  TracksName                  = InDetKeys.xAODTrackParticleContainer(),
                                                  VxCandidatesOutputName      = InDetKeys.PrimaryVerticesSplitStream(),
                                                  VertexCollectionSortingTool = VertexCollectionSortingTool,
-                                                 doVertexSorting             = False,
-                                                 InternalEdmFactory          = InDetVxEdmCnv)
+                                                 doVertexSorting             = False)
   topSequence += InDetPriVxFinderSplit
   if InDetFlags.doPrintConfigurables():
     print InDetPriVxFinderSplit

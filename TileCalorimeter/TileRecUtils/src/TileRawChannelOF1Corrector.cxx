@@ -67,6 +67,10 @@ StatusCode TileRawChannelOF1Corrector::initialize() {
 
     //=== get TileToolTiming
     CHECK( m_tileToolTiming.retrieve() );
+  } else {
+    m_tileCondToolOfc.disable();
+    m_tileToolNoiseSample.disable();
+    m_tileToolTiming.disable();
   }
 
   //=== TileCondToolEmscale
@@ -75,6 +79,9 @@ StatusCode TileRawChannelOF1Corrector::initialize() {
 
     //=== get TileToolTiming
     CHECK( m_tileDspThreshold.retrieve() );
+  } else {
+    m_tileToolEms.disable();
+    m_tileDspThreshold.disable();
   }
 
   if (m_zeroAmplitudeWithoutDigits) {

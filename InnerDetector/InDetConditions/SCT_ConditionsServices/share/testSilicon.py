@@ -1,16 +1,14 @@
+useDB=True
+
 import AthenaCommon.AtlasUnixStandardJob
 
 # use auditors
 from AthenaCommon.AppMgr import ServiceMgr
-
 from GaudiSvc.GaudiSvcConf import AuditorSvc
-
 ServiceMgr += AuditorSvc()
 theAuditorSvc = ServiceMgr.AuditorSvc
 theAuditorSvc.Auditors  += [ "ChronoAuditor"]
-#ChronoStatSvc = Service ( "ChronoStatSvc")
 theAuditorSvc.Auditors  += [ "MemStatAuditor" ]
-#MemStatAuditor = theAuditorSvc.auditor( "MemStatAuditor" )
 theApp.AuditAlgorithms=True
 
 
@@ -68,10 +66,15 @@ from IOVDbSvc.CondDB import conddb
 IOVDbSvc.GlobalTag="OFLCOND-MC16-SDR-18"
 IOVDbSvc.OutputLevel = 3
 
-from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SiliconConditionsSvc
-ServiceMgr += SCT_SiliconConditionsSvc()
-SCT_SiliconConditions=ServiceMgr.SCT_SiliconConditionsSvc
-SCT_SiliconConditions.UseDB = False
+if useDB:
+    # Set up SCT_DCSConditionsSvc and required conditions folders and conditions algorithms
+    from SCT_ConditionsServices.SCT_DCSConditionsSvcSetup import sct_DCSConditionsSvcSetup
+    sct_DCSConditionsSvcSetup.setup()
+
+# For SCT_SiliconConditionsSvc
+from SCT_ConditionsServices.SCT_SiliconConditionsSvcSetup import sct_SiliconConditionsSvcSetup
+sct_SiliconConditionsSvcSetup.setUseDB(useDB)
+sct_SiliconConditionsSvcSetup.setup()
 
 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SiliconConditionsTestAlg
 job+= SCT_SiliconConditionsTestAlg()
@@ -88,5 +91,3 @@ theApp.EvtMax                   = 1
 
 ServiceMgr.MessageSvc.Format           = "% F%40W%S%7W%R%T %0W%M"
 ServiceMgr.MessageSvc.OutputLevel = 3
-
-

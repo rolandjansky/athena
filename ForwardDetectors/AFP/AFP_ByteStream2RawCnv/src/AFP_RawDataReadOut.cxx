@@ -8,7 +8,7 @@ AFP_RawDataReadOut::AFP_RawDataReadOut()
     : m_dataWord(0), m_wordHeader(0), m_SlotId(0), m_LsbTdcId(0), m_ecnt_BOT(0),
       m_ecnt_EOT(0), m_bcId(0), m_wcnt(0), m_Column(0), m_bit26_27(0),
       m_bit24_27(0), m_HitDiscConfig(0), m_Link(0), m_fiber(0), m_ADC(0),
-      m_pattern(), m_BCId(0), m_bit16(0), m_error_bit17(0), m_bit18(0), ToT() {}
+      m_pattern(), m_BCId(0), m_bit16(0), m_error_bit17(0), m_bit18(0), m_ToT() {}
 
 AFP_RawDataReadOut::~AFP_RawDataReadOut() {}
 
@@ -16,7 +16,7 @@ void AFP_RawDataReadOut::decodeWord(uint32_t dataWord) {
 
   setZero();
   m_dataWord = dataWord;
-  m_wordHeader = (dataWord >> headerPos) & headerBits;
+  m_wordHeader = (dataWord >> HEADERPOS) & HEADERBITS;
 
   if (is_TDCt()) {
     m_bit18 = (bool)getBits(18, 18);
