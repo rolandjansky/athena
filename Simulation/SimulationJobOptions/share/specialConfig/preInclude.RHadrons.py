@@ -393,22 +393,30 @@ if usePythia8:
   # From the run number, load up the configuration.  Not the most beautiful thing, but this works.
   from glob import glob
   # Default position: look in cvmfs for job options
-  JO = glob('/cvmfs/atlas.cern.ch/repo/sw/Generators/MC15JobOptions/latest/share/DSID'+str(runNumber/1000)+'/MC15.'+str(runNumber)+'*.py')
+  #JO = glob('/cvmfs/atlas.cern.ch/repo/sw/Generators/MC15JobOptions/latest/share/DSID'+str(runNumber/1000)+'/MC15.'+str(runNumber)+'*.py')
+  JO = ['MC15.375120.MGPy8EG_A14NNPDF23LO_GG_qqn1_1600_10_rpvLF_p01ns.py']
   if len(JO)>0:
       JO = JO[0]
   else:
       # Miss.  Fall back to datapath
+      pass
 
   rhlog.info('ZLM1')
-  # add jobConfig to the runArgs here!
-  runArgs.jobConfig = JO.split('/')[-1] if '/' in JO else JO
+  # add any necessary elements to the runArgs here!
+  runArgs.jobConfig = [JO.split('/')[-1] if '/' in JO else JO]
+  runArgs.runNumber = runNumber
   # Set up evgenLog logger - use this one
   evgenLog=rhlog
   # Set up evgenConfig just for a holder
-  def dummyClass():
+  class dummyClass():
       def __init(self):
           pass
+      keywords = [] # So that they can be +='d in
   evgenConfig = dummyClass()
+  # Set up a fake pythia8...
+  genSeq = dummyClass()
+  genSeq.Pythia8 = dummyClass()
+  genSeq.Pythia8.Commands = []
   # Block includes that we don't want running
   include.block('MC15JobOptions/MadGraphControl_SimplifiedModelPostInclude.py')
   include.block('MC15JobOptions/Pythia8_A14_NNPDF23LO_EvtGen_Common.py')
