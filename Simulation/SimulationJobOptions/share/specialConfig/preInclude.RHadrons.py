@@ -394,62 +394,71 @@ if usePythia8:
   from G4AtlasApps.SimFlags import simFlags
   simFlags.PhysicsOptions += ["RHadronsPythia8PhysicsTool"]
 
-  # From the run number, load up the configuration.  Not the most beautiful thing, but this works.
-  from glob import glob
-  # Default position: look in cvmfs for job options
-  cvmfs_mc15 = '/cvmfs/atlas.cern.ch/repo/sw/Generators/MC15JobOptions/latest/'
-  JO = glob(cvmfs_mc15+'/share/DSID'+str(runNumber/1000)+'/MC15.'+str(runNumber)+'*.py')
-  if len(JO)>0:
-      JO = JO[0]
-  else:
-      # Miss.  Try local
-      JO = glob('MC15.'+str(runNumber)+'*.py')
-      if len(JO)>0: JO=JO[0]
-      else:
-          # Miss.  Try one directory deeper
-          JO = glob('*/MC15.'+str(runNumber)+'*.py')
-          if len(JO)>0: JO=JO[0]
-          else:
-              # Miss.  Fall back to datapath
-              for adir in os.environ['DATAPATH'].split(":"):
-                  JO = glob(adir+'/MC15.'+str(runNumber)+'*.py')
-                  if len(JO)>0:
-                      JO=JO[0]
-                      break
-  if not JO:
-      raise RuntimeError('Could not locate job options for DSID '+str(runNumber))
-      sys.exit(1)
-  # add any necessary elements to the runArgs here!
-  runArgs.jobConfig = [JO.split('/')[-1] if '/' in JO else JO]
-  runArgs.runNumber = runNumber
-  # Set up evgenLog logger - use this one
-  evgenLog=rhlog
-  # Set up evgenConfig just for a holder
-  class dummyClass():
-      def __init(self):
-          pass
-      keywords = [] # So that they can be +='d in
-  evgenConfig = dummyClass()
-  # Set up a fake pythia8...
-  genSeq = dummyClass()
-  genSeq.Pythia8 = dummyClass()
-  genSeq.Pythia8.Commands = []
-  # Block includes that we don't want running
-  include.block('MC15JobOptions/MadGraphControl_SimplifiedModelPostInclude.py')
-  include.block('MC15JobOptions/Pythia8_A14_NNPDF23LO_EvtGen_Common.py')
-  include.block('MC15JobOptions/Pythia8_MadGraph.py')
-  # Include the job options themselves
-  include(JO)
-  # Make sure all the files can be found
-  from EvgenJobTransforms.jo_proxy import mk_jo_proxy
-  mk_jo_proxy(cvmfs_mc15, "MC15JobOptions", "_joproxy15")
-  # Build the param card, aka SLHA file
-  from MadGraphControl.MadGraphUtils import build_param_card
-  build_param_card(param_card_old='param_card.SM.%s.%s.dat'%(gentype,decaytype),param_card_new='SLHA_INPUT.DAT',masses=masses,decays=decays)
-  # Now we can run the real job
-  rhlog.info("doing Pythia8")
+  rhlog.info("Doing Pythia8")
   load_files_for_rhadrons_scenario("gluino", simdict["MASS"], "generic", MASSX)
-  addLineToPhysicsConfiguration("DoDecays","1")
+
+  # In case we want to use Pythia8 for decays during simulation
+  if simdict.has_key("LIFETIME"):
+      if float(simdict["LIFETIME"])<1. and hasattr(runArgs,'outputEVNT_TRFile'):
+          rhlog.warning('Lifetime specified at <1ns, but you are writing stopped particle positions.')
+          rhlog.warning('Assuming that you mean to use infinite lifetimes, and ignoring the setting')
+      else:
+          addLineToPhysicsConfiguration("DoDecays","1")
+          addLineToPhysicsConfiguration("HadronLifeTime", simdict["LIFETIME"])
+
+          # From the run number, load up the configuration.  Not the most beautiful thing, but this works.
+          from glob import glob
+          # Default position: look in cvmfs for job options
+          cvmfs_mc15 = '/cvmfs/atlas.cern.ch/repo/sw/Generators/MC15JobOptions/latest/'
+          JO = glob(cvmfs_mc15+'/share/DSID'+str(runNumber/1000)+'/MC15.'+str(runNumber)+'*.py')
+          if len(JO)>0:
+              JO = JO[0]
+          else:
+              # Miss.  Try local
+              JO = glob('MC15.'+str(runNumber)+'*.py')
+              if len(JO)>0: JO=JO[0]
+              else:
+                  # Miss.  Try one directory deeper
+                  JO = glob('*/MC15.'+str(runNumber)+'*.py')
+                  if len(JO)>0: JO=JO[0]
+                  else:
+                      # Miss.  Fall back to datapath
+                      for adir in os.environ['DATAPATH'].split(":"):
+                          JO = glob(adir+'/MC15.'+str(runNumber)+'*.py')
+                          if len(JO)>0:
+                              JO=JO[0]
+                              break
+          if not JO:
+              raise RuntimeError('Could not locate job options for DSID '+str(runNumber))
+              sys.exit(1)
+          # add any necessary elements to the runArgs here!
+          runArgs.jobConfig = [JO.split('/')[-1] if '/' in JO else JO]
+          runArgs.runNumber = runNumber
+          # Set up evgenLog logger - use this one
+          evgenLog=rhlog
+          # Set up evgenConfig just for a holder
+          class dummyClass():
+              def __init(self):
+                  pass
+              keywords = [] # So that they can be +='d in
+          evgenConfig = dummyClass()
+          # Set up a fake pythia8...
+          genSeq = dummyClass()
+          genSeq.Pythia8 = dummyClass()
+          genSeq.Pythia8.Commands = []
+          # Block includes that we don't want running
+          include.block('MC15JobOptions/MadGraphControl_SimplifiedModelPostInclude.py')
+          include.block('MC15JobOptions/Pythia8_A14_NNPDF23LO_EvtGen_Common.py')
+          include.block('MC15JobOptions/Pythia8_MadGraph.py')
+          # Include the job options themselves
+          include(JO)
+          # Make sure all the files can be found
+          from EvgenJobTransforms.jo_proxy import mk_jo_proxy
+          mk_jo_proxy(cvmfs_mc15, "MC15JobOptions", "_joproxy15")
+          # Build the param card, aka SLHA file
+          from MadGraphControl.MadGraphUtils import build_param_card
+          build_param_card(param_card_old='param_card.SM.%s.%s.dat'%(gentype,decaytype),param_card_new='SLHA_INPUT.DAT',masses=masses,decays=decays)
+  # Done with the Pythia8 setup
 
 else:
   # Add the appropriate physics tool
