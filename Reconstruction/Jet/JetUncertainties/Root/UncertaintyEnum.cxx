@@ -213,6 +213,7 @@ namespace CompScaleVar
             case Tau21WTA:      return "Tau21WTA";
             case Tau32WTA:      return "Tau32WTA";
             case D2Beta1:       return "D2Beta1";
+            case C2Beta1:       return "C2Beta1";
             case Qw:            return "Qw";
             case MassRes:       return "MassRes";
             default:            return "UNKNOWN";
@@ -241,6 +242,8 @@ namespace CompScaleVar
             return Tau32WTA;
         if (!type.CompareTo("D2Beta1",TString::kIgnoreCase))
             return D2Beta1;
+        if (!type.CompareTo("C2Beta1",TString::kIgnoreCase))
+            return C2Beta1;
         if (!type.CompareTo("Qw",TString::kIgnoreCase))
             return Qw;
         if (!type.CompareTo("MassRes",TString::kIgnoreCase))

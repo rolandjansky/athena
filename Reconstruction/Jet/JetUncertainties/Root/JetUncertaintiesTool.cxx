@@ -1540,6 +1540,11 @@ bool JetUncertaintiesTool::getComponentScalesD2Beta1(const size_t index) const
     if (checkIndexInput(index).isFailure()) return false;
     return checkScalesSingleVar(m_groups.at(index)->getScaleVars(),CompScaleVar::D2Beta1);
 }
+bool JetUncertaintiesTool::getComponentScalesC2Beta1(const size_t index) const
+{
+    if (checkIndexInput(index).isFailure()) return false;
+    return checkScalesSingleVar(m_groups.at(index)->getScaleVars(),CompScaleVar::C2Beta1);
+}
 bool JetUncertaintiesTool::getComponentScalesQw(const size_t index) const
 {
     if (checkIndexInput(index).isFailure()) return false;
@@ -1962,6 +1967,10 @@ CP::CorrectionCode JetUncertaintiesTool::applyCorrection(xAOD::Jet& jet, const x
                 break;
             case CompScaleVar::D2Beta1:
                 if (updateD2Beta1(jet,shift).isFailure())
+                    return CP::CorrectionCode::Error;
+                break;
+            case CompScaleVar::C2Beta1:
+                if (updateC2Beta1(jet,shift).isFailure())
                     return CP::CorrectionCode::Error;
                 break;
             case CompScaleVar::Qw:
@@ -2458,6 +2467,45 @@ StatusCode JetUncertaintiesTool::updateD2Beta1(xAOD::Jet& jet, const double shif
     //}
 
     ATH_MSG_ERROR("Neither D2 nor ECF1+ECF2+ECF3 moments are available on the jet, please make sure one of these options is available before calling the tool");
+    return StatusCode::FAILURE;
+}
+
+StatusCode JetUncertaintiesTool::updateC2Beta1(xAOD::Jet& jet, const double shift) const
+{
+    static SG::AuxElement::Accessor<float> accC2("C2");
+    static SG::AuxElement::Accessor<float> accECF1("ECF1");
+    static SG::AuxElement::Accessor<float> accECF2("ECF2");
+    static SG::AuxElement::Accessor<float> accECF3("ECF3");
+    const static bool C2wasAvailable  = accC2.isAvailable(jet);
+    const static bool ECFwasAvailable = accECF1.isAvailable(jet) && accECF2.isAvailable(jet) && accECF3.isAvailable(jet);
+
+    const xAOD::Jet& constJet = jet;
+    if (C2wasAvailable)
+    {
+        if (!accC2.isAvailable(jet))
+        {
+            ATH_MSG_ERROR("The C2 moment was previously available but is not available on this jet.  This functionality is not supported.");
+            return StatusCode::FAILURE;
+        }
+        const float value = accC2(constJet);
+        accC2(jet) = shift*value;
+        return StatusCode::SUCCESS;
+    }
+    if (ECFwasAvailable)
+    {
+        if (! (accECF1.isAvailable(constJet) && accECF2.isAvailable(constJet) && accECF3.isAvailable(constJet)) )
+        {
+            ATH_MSG_ERROR("The ECF1, ECF2, and ECF3 moments were previously available but are not available on this jet.  This functionality is not supported.");
+            return StatusCode::FAILURE;
+        }
+        const float ecf1 = accECF1(constJet);
+        const float ecf2 = accECF2(constJet);
+        const float ecf3 = accECF3(constJet);
+        accC2(jet) = fabs(ecf2) > 1.e-6 ? shift * (ecf3*ecf1/pow(ecf2,2)) : -999; // 999 to match JetSubStructureMomentTools/EnergyCorrelatorRatiosTool
+        return StatusCode::SUCCESS;
+    }
+
+    ATH_MSG_ERROR("Neither C2 nor ECF1+ECF2+ECF3 moments are available on the jet, please make sure one of these options is available before calling the tool");
     return StatusCode::FAILURE;
 }
 
