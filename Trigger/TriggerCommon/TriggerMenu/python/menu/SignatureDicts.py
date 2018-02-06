@@ -89,8 +89,8 @@ AllowedTopos_jet = ['muvtx',
                     'invm700',
                     'invm800',
                     'invm900j0',
-                    'invm900j50dPhi240',
-                    'invm900j0dPhi240',
+                    'invm900j50',
+                    'invm900j0',
                     'invm900',
                     'invm1000']
 AllowedTopos_Tau = ['ditauL', 'ditauM', 'ditauT','tautsf','notautsf','50mVis10000','60mVis10000','03dR27','03dR30']
@@ -145,8 +145,7 @@ JetChainParts = {
     
     # Et cut by the jet build tool (ptminFilter)
     'recoCutCalib': ['rccDefault', 'rcc0', 'rcc5'],
-    'dj': ['dj30aetZ50betZ900mZdphi260'],
-    'dPhi': ['dPhi24'],
+    'dPhi': ['dPhi24', 'dPhi26'],
 
 }
 

@@ -7,7 +7,6 @@ def to_dict(o):
     """Recursive function to convert objects to dictionaries."""
 
     d = {}
-
     try:
         for k, v in o.__dict__.items():
             if hasattr(v, '__dict__'):
@@ -19,11 +18,16 @@ def to_dict(o):
                     else:
                         d[k] = str(e)
             elif isinstance(v, list):
-                d[k] = [to_dict(e) for e in v]
+                for e in v:
+                    if hasattr(e, '__dict__'):
+                        d[e.__class__.__name__] = to_dict(e)
+                    else:
+                        d[e] = str(e)
             else:
                 d[k] = v
     except AttributeError:
         pass
+
     
     return d
 

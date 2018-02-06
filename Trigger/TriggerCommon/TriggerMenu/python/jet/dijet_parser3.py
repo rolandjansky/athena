@@ -18,7 +18,7 @@ import re, sys
 
 
 
-dijet_re = re.compile(r'^invm(?P<massmin>\d{0,3})j(?P<etmin>\d{0,3})(dPhi(?P<dphimax>\d{0,2}))?(dEta(?P<detamin>\d{0,2}))?$$')
+dijet_re = re.compile(r'^invm(?P<massmin>\d{0,3})j(?P<etmin>\d{0,3})(dPhi(?P<dphimax>\d{0,2}))?(deta(?P<detamin>\d{0,2}))?$')
 
 def _dj_parse(s):
     """Parse the incoming string to find the variable names and the optional
@@ -135,6 +135,7 @@ def dijet_parser(s, args):
     return False
 if __name__ == '__main__':
     good = (
+        'invm900j50',
         'invm900j50dPhi24',
         'invm900j50dPhi24dEta100',
         'invm900j0dPhi24dEta100',

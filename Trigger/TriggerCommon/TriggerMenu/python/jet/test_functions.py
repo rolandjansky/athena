@@ -82,6 +82,7 @@ def run_test_dicts(silent, dicts=[]):
 
     chainDefs = []
     for d in dicts:
+        print d
         print d['chainName']
         try:
             cd = _generate(d, silent)

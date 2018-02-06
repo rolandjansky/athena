@@ -6,6 +6,9 @@ from mock import MagicMock
 from JetSequencesBuilder import (AlgList,
                                  JetSequencesBuilder)
 
+print 'importing modules (slow!)'
+from AthenaCommon.Include import include
+from AthenaCommon.OldStyleConfig import  Service
 
 class Alg(object):
     pass

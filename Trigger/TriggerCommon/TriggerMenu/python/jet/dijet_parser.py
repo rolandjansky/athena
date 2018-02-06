@@ -17,7 +17,7 @@
 import re, sys
 
 
-cut_re = re.compile(r'^(?P<min>\d{0,3})(?P<var>[a-z]+)(?P<max>\d{0,3}$)')
+dijet_re = re.compile(r'^(?P<min>\d{0,3})(?P<var>[a-z]+)(?P<max>\d{0,3}$)')
 
 def _dj_parse(s):
     """Parse the incoming string to find the variable names and the optional
@@ -27,7 +27,7 @@ def _dj_parse(s):
     tokens = s.split('Z')
     result = {}
     for t in tokens:
-        m = cut_re.match(t)
+        m = dijet_re.match(t)
         if m is None:
             error = True
             break

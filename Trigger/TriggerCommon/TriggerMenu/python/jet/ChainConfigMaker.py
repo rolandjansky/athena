@@ -11,7 +11,8 @@ from smc_string_conversions import smc_string_to_strings
 from clusterparams_factory import clusterparams_factory
 from fexparams_factory import fexparams_factory
 from hypo_factory import hypo_factory
-from dijet_parser2 import dijet_parser2 as dijet_parser
+from dijet_parser3 import (dijet_parser,
+                           dijet_re)
 
 # from lxml import etree as et
 from ChainConfig import ChainConfig
@@ -76,12 +77,14 @@ class JetAttributes(object):
 
 hypo_type_dict = {
     ('j', False, False, False, False, False, False): 'HLThypo2_etaet',
-    ('j', False, False, False, False, True, False): 'HLThypo2_singlemass',
+    ('ht', False, False, False, False, False, False):'HLThypo2_ht',
+    ('j', True, False, False, False, False, False): 'HLThypo2_singlemass',
+    ('j', False, True, False, False, False, False): 'HLThypo2_tla',
     ('j', False, False, True, False, False, False): 'HLThypo2_dimass_deta',
     ('j', False, False, True, True, False, False): 'HLThypo2_dimass_deta_dphi',
-    ('ht', False, False, False, False, False, False):'HLThypo2_ht',
-    ('j', False, True, False, False, False, False): 'HLThypo2_tla',
-    ('j', False, False, False, False, False, True): 'HLThypo2_dijet',}
+    ('j', False, False, False, False, True, False): 'HLThypo2_dijet',
+    ('j', False, False, False, False, False, True): 'HLThypo2_test',
+}
 
     
 cleaner_names = {
@@ -247,18 +250,43 @@ def _get_dijet_string(parts):
     raise RuntimeError(msg)
 
 
-# def _get_dijet_string2(parts):
 
 def _get_dijet_string2(parts):
     """2/2/2018 get the information for dijet chains from the 'topo' entry"""
     
-    x = cache.get('dijet_string2')
+    x = cache.get('dijet_string')
     if x: return x
 
-    dijet_string2 = _get_topo(parts, 'invm')
-    if dijet_string2_re.match(dijet_string2):
-        _update_cache('dijet_string2', dijet_string2)
-        return dijet_string2
+    dijet_string = _get_topo(parts, 'invm')
+    if dijet_re.match(dijet_string):
+        _update_cache('dijet_string', dijet_string)
+        return dijet_string
+    return ''
+
+def _get_phi_string(parts):
+    
+    pstrings = set([p['dPhi'] for p in parts if p['dPhi']])
+
+    if len(pstrings) > 1:
+        msg = '%s: multiple dPhi values: %s' % (err_hdr, str(pstrings))
+        raise RuntimeError(msg)
+    if not pstrings: return ''
+    return pstrings.pop()
+
+
+def _get_dijet_string3(parts):
+    """2/2/2018 get the information for dijet chains from the 'topo' entry
+    add in the Phi part"""
+    
+    x = cache.get('dijet_string')
+    if x: return x
+
+    dijet_string = _get_topo(parts, 'invm')
+    phi_string = _get_phi_string(parts)
+    dijet_string += phi_string
+    if dijet_re.match(dijet_string):
+        _update_cache('dijet_string', dijet_string)
+        return dijet_string
     return ''
 
 
@@ -367,7 +395,7 @@ def _get_hypo_type(parts):
 
     test_flag = _get_test_flag(parts)
     tla_flag = bool(_get_tla_string(parts))
-    dijet_flag = bool(_get_dijet_string2(parts))
+    dijet_flag = bool(_get_dijet_string3(parts))
 
     invm_string = _get_invm_string(parts)
     deta_string = _get_deta_string(parts)
@@ -375,51 +403,38 @@ def _get_hypo_type(parts):
     dimass_deta_flag = bool(invm_string) or bool(deta_string)
     dimass_deta_dphi_flag = dimass_deta_flag and bool(dphi_string)
     jetmass_flag = _get_jetmass_flag(parts)
+    trig_type = _get_trig_type(parts)
+    
+    htype =  hypo_type_dict.get((trig_type,
+                                 jetmass_flag,
+                                 tla_flag,
+                                 dimass_deta_flag,
+                                 dimass_deta_dphi_flag,
+                                 dijet_flag,
+                                 test_flag), None)
 
-    htypes =  [hypo_type_dict.get((part['trigType'],
-                                   test_flag,
-                                   tla_flag,
-                                   dimass_deta_flag,
-                                   dimass_deta_dphi_flag,
-                                   jetmass_flag,
-                                   dijet_flag), None) for part in parts]
-
-    if not htypes or None in htypes:
-        part = parts[htypes.index(None)]
+    if htype is None:
         msg = '%s: cannot determine hypo type from\n' \
               'trigger type: %s \n'\
+              'jetmass_flag %s \n'\
               'test flag: %s \n' \
               'TLA: %s \n' \
               'dimass_eta: %s \n'\
               'dimass_deta_dphi: %s \n' \
               'jetmass flag: %s \n' \
               'dijet flag: %s' % (err_hdr,
-                                 part['trigType'],
-                                 test_flag,
-                                 tla_flag,
-                                 dimass_deta_flag,
-                                 dimass_deta_dphi_flag,
-                                 str(jetmass_flag),
-                                 dijet_flag)
+                                  str(trig_type),
+                                  str(jetmass_flag),
+                                  str(tla_flag),
+                                  str(dimass_deta_flag),
+                                  str(dimass_deta_dphi_flag),
+                                  str(dijet_flag),
+                                  str(test_flag),
+              )
 
         raise RuntimeError(msg)
 
-    second_hypos = (
-        'HLThypo2_etaet',
-        'HLThypo2_dimass_deta_dphi',
-        'HLThypo2_dijet',
-    )
-    
-    htypes = set(htypes)
-    if len(htypes) == 1: return htypes.pop()
-    if len(htypes) == 2:
-        if 'HLThypo2_etaet' in htypes:
-            for h in second_hypos:
-                if h in htypes: return h
-
-    msg = '%s: cannot determine hypo type, %s' %  (err_hdr, str(htypes))
-    raise RuntimeError(msg)
-
+    return htype
 
 def _get_data_type(parts):
     """ return the data type from which jets are made -
@@ -495,6 +510,22 @@ def _get_jet_calib(parts):
     _update_cache('jet_calib', jet_calib)
 
     return jet_calib
+
+
+def _get_trig_type(parts):
+
+    x = cache.get('trig_type')
+    if x: return x
+
+    vals = set([part['trigType'] for part in parts])
+    if len(vals) != 1:
+        msg = '%s: cannot determine jet_calib ' %  err_hdr
+        raise RuntimeError(msg)
+
+    trig_type =  vals.pop()
+    _update_cache('trig_type', trig_type)
+
+    return trig_type
 
 
 def _get_scan_type(parts):
@@ -718,6 +749,9 @@ def _setup_etaet_vars(parts):
 
     args = {}
     args['jet_attributes'] = _setup_jet_vars(parts)
+
+    if not args['jet_attributes']: return None
+    
     args['chain_name'] = cache['chain_name']
     args['cleaner'] = _get_cleaner(parts)
     args['isCaloFullScan'] = _get_scan_type(parts) == 'FS'
@@ -860,7 +894,7 @@ def _setup_tla_vars(parts):
             
 def _setup_dijet_vars(parts):
 
-    dijet_string = _get_dijet_string2(parts)
+    dijet_string = _get_dijet_string3(parts)
 
     args = {}
     if dijet_parser(dijet_string, args):
@@ -868,8 +902,10 @@ def _setup_dijet_vars(parts):
 
     args['chain_name'] = cache['chain_name']
     args['dijet_string'] = dijet_string
-
-    return hypo_factory('HLThypo2_dijet', args)
+    
+    hypo = hypo_factory('HLThypo2_dijet', args)
+    return hypo
+    
 
 
 def _get_hypo_params(parts):
@@ -891,7 +927,13 @@ def _get_hypo_params(parts):
             str(hypo_type))
         raise RuntimeError(msg)
 
-    return hypo_setup_fn(parts)
+    hypos = []  # hypo descriptors reurnd by hypo_factory
+    if hypo_type == 'HLThypo2_dijet':
+        etaet_hypo =  _setup_etaet_vars(parts) 
+        if etaet_hypo is not None: hypos.append(etaet_hypo)
+
+    hypos.append(hypo_setup_fn(parts))
+    return hypos    
 
     
 def chainConfigMaker(d):
@@ -981,13 +1023,27 @@ if __name__ == '__main__':
 
     j440_a10r_L1J100_2 = {'run_rtt_diags':False,'EBstep': -1, 'signatures': '', 'stream': ['Main'], 'chainParts': [{'recoCutCalib': 'rcc0', 'smc': 'nosmc', 'trkopt': 'notrk', 'bTracking': '', 'bTag': '', 'scan': 'FS', 'dataType': 'tc', 'bMatching': [], 'etaRange': '0eta320', 'topo': [], 'TLA': '', 'cleaning': 'noCleaning', 'threshold': '440', 'chainPartName': 'j440_a10r_L1J100', 'recoAlg': 'a10r', 'trigType': 'j', 'bConfig': [], 'multiplicity': '1', 'extra': '', 'dataScouting': '', 'signature': 'Jet', 'calib': 'em', 'addInfo': [], 'jetCalib': 'subjesIS', 'L1item': ''}], 'topo': [], 'chainCounter': 663, 'groups': ['RATE:SingleJet', 'BW:Jet'], 'signature': 'Jet', 'topoThreshold': None, 'topoStartFrom': False, 'L1item': 'L1_J100', 'chainName': 'j440_a10r_L1J100'}
 
+
+    _j70_j50_0eta490_invm900j0_dPhi24_L1MJJ_500_NFF = {
+        'run_rtt_diags':False,
+        'EBstep': -1, 'signatures': '', 'stream': ['Main'], 'chainParts': [{'bTag': '', 'extra': '', 'trkopt': 'notrk', 'etaRange': '0eta320', 'threshold': '70', 'chainPartName': 'j70', 'recoAlg': 'a4', 'trigType': 'j', 'scan': 'FS', 'dataType': 'tc', 'calib': 'em', 'dPhi': '', 'smc': 'nosmc', 'jetCalib': 'subjesIS', 'L1item': '', 'bTracking': '', 'recoCutCalib': 'rccDefault', 'bMatching': [], 'recoCutUncalib': 'rcuDefault', 'topo': [], 'TLA': '', 'cleaning': 'noCleaning', 'bConfig': [], 'multiplicity': '1', 'signature': 'Jet', 'addInfo': [], 'dataScouting': ''}, {'bTag': '', 'extra': '', 'trkopt': 'notrk', 'etaRange': '0eta490', 'threshold': '50', 'chainPartName': 'j50_0eta490_invm900j0_dPhi24', 'recoAlg': 'a4', 'trigType': 'j', 'scan': 'FS', 'dataType': 'tc', 'calib': 'em', 'dPhi': 'dPhi24', 'smc': 'nosmc', 'jetCalib': 'subjesIS', 'L1item': '', 'bTracking': '', 'recoCutCalib': 'rccDefault', 'bMatching': [], 'recoCutUncalib': 'rcuDefault', 'topo': ['invm900j0'], 'TLA': '', 'cleaning': 'noCleaning', 'bConfig': [], 'multiplicity': '1', 'signature': 'Jet', 'addInfo': [], 'dataScouting': ''}], 'topo': [], 'groups': ['RATE:MultiJet', 'BW:Jet'], 'topoThreshold': None, 'topoStartFrom': False, 'chainCounter': 629, 'signature': 'Jet', 'L1item': 'L1_MJJ-500-NFF', 'chainName': 'HLT_j70_j50_0eta490_invm900j0_dPhi24_L1MJJ-500-NFF'}
+
+
+    
+    _j70_j50_0eta490_invm900j50_dPhi24_L1MJJ_500_NFF = {
+        'run_rtt_diags':False,
+        'EBstep': -1, 'signatures': '', 'stream': ['Main'], 'chainParts': [{'bTag': '', 'extra': '', 'trkopt': 'notrk', 'etaRange': '0eta320', 'threshold': '70', 'chainPartName': 'j70', 'recoAlg': 'a4', 'trigType': 'j', 'scan': 'FS', 'dataType': 'tc', 'calib': 'em', 'dPhi': '', 'smc': 'nosmc', 'jetCalib': 'subjesIS', 'L1item': '', 'bTracking': '', 'recoCutCalib': 'rccDefault', 'bMatching': [], 'recoCutUncalib': 'rcuDefault', 'topo': [], 'TLA': '', 'cleaning': 'noCleaning', 'bConfig': [], 'multiplicity': '1', 'signature': 'Jet', 'addInfo': [], 'dataScouting': ''}, {'bTag': '', 'extra': '', 'trkopt': 'notrk', 'etaRange': '0eta490', 'threshold': '50', 'chainPartName': 'j50_0eta490_invm900j50_dPhi24', 'recoAlg': 'a4', 'trigType': 'j', 'scan': 'FS', 'dataType': 'tc', 'calib': 'em', 'dPhi': 'dPhi24', 'smc': 'nosmc', 'jetCalib': 'subjesIS', 'L1item': '', 'bTracking': '', 'recoCutCalib': 'rccDefault', 'bMatching': [], 'recoCutUncalib': 'rcuDefault', 'topo': ['invm900j50'], 'TLA': '', 'cleaning': 'noCleaning', 'bConfig': [], 'multiplicity': '1', 'signature': 'Jet', 'addInfo': [], 'dataScouting': ''}], 'topo': [], 'groups': ['RATE:MultiJet', 'BW:Jet'], 'topoThreshold': None, 'topoStartFrom': False, 'chainCounter': 628, 'signature': 'Jet', 'L1item': 'L1_MJJ-500-NFF', 'chainName': 'HLT_j70_j50_0eta490_invm900j50_dPhi24_L1MJJ-500-NFF'}
+
+
+
+
     # cc = chainConfigMaker(j460_a10r)
     # cc = chainConfigMaker(j85)
     # cc = chainConfigMaker(_3j30)
     # cc = chainConfigMaker(j150_2j55_boffperf_split)
     # cc = chainConfigMaker(j0_0i1c200m400TLA)
     # cc = chainConfigMaker(_2j10_deta20_L1J12)
-    cc = chainConfigMaker(_2j10_deta20_dphi20_L1J12)
+    ## cc = chainConfigMaker(_2j10_deta20_dphi20_L1J12)
     # cc = chainConfigMaker(_2j55_bmedium_ht300_L14J20)
     # cc = chainConfigMaker(_2j55_bmedium_ht300_L14J20)
     # cc = chainConfigMaker(j460_a10t_lcw_nojcalib_L1J100)
@@ -997,7 +1053,7 @@ if __name__ == '__main__':
     # cc = chainConfigMaker(j440_a10r_L1J100_2)
     # cc = chainConfigMaker(j0_0i1c200m400TLA_1)
     # cc = chainConfigMaker(j0_0i1c200m400TLA_2)
-
+    cc = chainConfigMaker(_j70_j50_0eta490_invm900j50_dPhi24_L1MJJ_500_NFF)
     print cc
     
     def do_all():
