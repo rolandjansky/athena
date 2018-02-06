@@ -490,10 +490,6 @@ StatusCode EgammaCalibrationAndSmearingTool::initialize() {
     m_doScaleCorrection = 0;
   }
   */
-  // No scale correction for v0 version of release 21 (to use to derive new scale corrections)
-  if (m_ESModel == "es2017_R21_v0") {
-    m_doScaleCorrection=0;
-  }
 
   ATH_MSG_INFO("ESModel: " << m_ESModel);
   ATH_MSG_INFO("ResolutionType: " << m_ResolutionType);
@@ -906,6 +902,11 @@ void EgammaCalibrationAndSmearingTool::setupSystematics() {
     // TODO: independet implementation of ALL UP looping on all the variations
     m_syst_description[CP::SystematicVariation("EG_SCALE_ALL", +1)] = SysInfo{always, egEnergyCorr::Scale::AllUp};
     m_syst_description[CP::SystematicVariation("EG_SCALE_ALL", -1)] = SysInfo{always, egEnergyCorr::Scale::AllDown};
+    // extra AF2 systematics in addition to the 1NP
+    if ( m_TESModel == egEnergyCorr::es2017_R21_v0) {
+       m_syst_description[CP::SystematicVariation("EG_SCALE_AF2",+1)] =  SysInfo{always, egEnergyCorr::Scale::af2Up};
+       m_syst_description[CP::SystematicVariation("EG_SCALE_AF2",-1)] =  SysInfo{always, egEnergyCorr::Scale::af2Down};
+    }
   }
   else if (m_decorrelation_model_scale == ScaleDecorrelation::FULL_ETA_CORRELATED) {
     // all the physical effects separately, considered as fully correlated in eta
@@ -976,6 +977,19 @@ void EgammaCalibrationAndSmearingTool::setupSystematics() {
       m_syst_description[CP::SystematicVariation("EG_SCALE_PS_BARREL_B12", +1)] = SysInfo{always, egEnergyCorr::Scale::PSb12Up}; 
       m_syst_description[CP::SystematicVariation("EG_SCALE_PS_BARREL_B12", -1)] = SysInfo{always, egEnergyCorr::Scale::PSb12Down}; 
     }
+    
+    // topo clustr threshold systematics aded to release 21 recommendations
+    if ( m_TESModel == egEnergyCorr::es2017_R21_v0){
+       m_syst_description[CP::SystematicVariation("EG_SCALE_TOPOCLUSTER_THRES",+1)] = SysInfo{always, egEnergyCorr::Scale::topoClusterThresUp};
+       m_syst_description[CP::SystematicVariation("EG_SCALE_TOPOCLUSTER_THRES",-1)] = SysInfo{always, egEnergyCorr::Scale::topoClusterThresDown};
+    }
+
+    // extra AF2 systematics for release 21 recommendations - Moriond 2018 - pending proper AF2 to FullSim correction with release 21
+    if ( m_TESModel == egEnergyCorr::es2017_R21_v0){
+       m_syst_description[CP::SystematicVariation("EG_SCALE_AF2",+1)] =  SysInfo{always, egEnergyCorr::Scale::af2Up};
+       m_syst_description[CP::SystematicVariation("EG_SCALE_AF2",-1)] =  SysInfo{always, egEnergyCorr::Scale::af2Down};
+    }
+   
     
   }
   else if (m_decorrelation_model_scale == ScaleDecorrelation::ONENP_PLUS_UNCONR) {
@@ -1127,6 +1141,20 @@ void EgammaCalibrationAndSmearingTool::setupSystematics() {
       m_syst_description[CP::SystematicVariation("EG_SCALE_PS_BARREL_B12", +1)] = SysInfo{always, egEnergyCorr::Scale::PSb12Up};  
       m_syst_description[CP::SystematicVariation("EG_SCALE_PS_BARREL_B12", -1)] = SysInfo{always, egEnergyCorr::Scale::PSb12Down};  
     }
+
+    // topo clustr threshold systematics aded to release 21 recommendations
+    if ( m_TESModel == egEnergyCorr::es2017_R21_v0){
+       m_syst_description[CP::SystematicVariation("EG_SCALE_TOPOCLUSTER_THRES",+1)] = SysInfo{always, egEnergyCorr::Scale::topoClusterThresUp};
+       m_syst_description[CP::SystematicVariation("EG_SCALE_TOPOCLUSTER_THRES",-1)] = SysInfo{always, egEnergyCorr::Scale::topoClusterThresDown};
+    }
+
+    // extra AF2 systematics for release 21 recommendations - Moriond 2018 - pending proper AF2 to FullSim correction with release 21
+    if ( m_TESModel == egEnergyCorr::es2017_R21_v0){
+       m_syst_description[CP::SystematicVariation("EG_SCALE_AF2",+1)] =  SysInfo{always, egEnergyCorr::Scale::af2Up};
+       m_syst_description[CP::SystematicVariation("EG_SCALE_AF2",-1)] =  SysInfo{always, egEnergyCorr::Scale::af2Down};
+    }
+
+
     
   }
   else {

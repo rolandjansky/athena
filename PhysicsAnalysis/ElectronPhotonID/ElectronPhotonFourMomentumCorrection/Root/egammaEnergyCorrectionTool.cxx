@@ -805,6 +805,11 @@ namespace AtlasRoot {
         //Same histogram added twice for simplicity
         m_zeeNom_data2015 = (TH1D*) m_rootFile->Get("Scales/es2015_5TeV/alphaZee_errStat_period_2015");      m_zeeNom_data2015->SetDirectory(0);
       }
+      else if (m_esmodel==egEnergyCorr::es2017_R21_v0) {
+        m_zeeNom          = (TH1D*) m_rootFile->Get("Scales/es2017_R21_v0/alphaZee_errStat_period_2017");  m_zeeNom->SetDirectory(0);
+        m_zeeNom_data2016 = (TH1D*) m_rootFile->Get("Scales/es2017_R21_v0/alphaZee_errStat_period_2016");  m_zeeNom_data2016->SetDirectory(0);
+        m_zeeNom_data2015 = (TH1D*) m_rootFile->Get("Scales/es2017_R21_v0/alphaZee_errStat_period_2015");  m_zeeNom_data2015->SetDirectory(0);
+      }
       else{
 	m_zeeNom       = (TH1D*) m_rootFile->Get("Scales/es2017_R21_PRE/alphaZee_errStat_period_2016");         m_zeeNom->SetDirectory(0);  
         //SAME HISTO FOR 2015 FOR NOW
@@ -835,6 +840,8 @@ namespace AtlasRoot {
       }
       else if(m_esmodel == egEnergyCorr::es2017_summer_final) {
 	m_resNom       = (TH1D*) m_rootFile->Get("Resolution/es2017_summer_final/ctZee_errStat");        m_resNom->SetDirectory(0);}
+      else if (m_esmodel==egEnergyCorr::es2017_R21_v0) {
+         m_resNom       = (TH1D*) m_rootFile->Get("Resolution/es2017_R21_v0/ctZee_errStat");        m_resNom->SetDirectory(0);}
       else{
 	m_resNom       = (TH1D*) m_rootFile->Get("Resolution/es2017_R21_PRE/ctZee_errStat");        m_resNom->SetDirectory(0); 
       }
@@ -1226,6 +1233,17 @@ namespace AtlasRoot {
         ATH_MSG_DEBUG("after mc alpha = " << boost::format("%.2f") % fullyCorrectedEnergy);
       }
 
+       // AF2 systematics  (this will not be in the sum of all other NP in the 1 NP model)
+      if (dataType == PATCore::ParticleDataType::Fast && m_esmodel== egEnergyCorr::es2017_R21_v0) {
+        if (scaleVar==egEnergyCorr::Scale::af2Up or scaleVar==egEnergyCorr::Scale::af2Down) {
+           double daAF2=0.;
+           if (scaleVar==egEnergyCorr::Scale::af2Up) daAF2 = 0.005;
+           if (scaleVar==egEnergyCorr::Scale::af2Down) daAF2 = -0.005;
+           fullyCorrectedEnergy *= ( 1 + daAF2);
+        }
+      }
+
+
       // Do the resolution correction
       if ( resVar != egEnergyCorr::Resolution::None )
       fullyCorrectedEnergy *= getSmearingCorrection(cl_eta, cl_etaCalo, fullyCorrectedEnergy, ptype, dataType, resVar, resType);
@@ -1417,6 +1435,16 @@ namespace AtlasRoot {
 
     double daConvSyst = getAlphaConvSyst(cl_eta, energy, ptype, var, varSF);
 
+    // topo cluster threshold systematics for release 21
+    double daTopoCluster=0;
+    if ((var==egEnergyCorr::Scale::topoClusterThresUp || var==egEnergyCorr::Scale::topoClusterThresDown) && m_esmodel== egEnergyCorr::es2017_R21_v0) {
+       double Et = energy/cosh(cl_eta);
+       double Et0=10000.;
+       //  Effect taken as 10**-3/(Et/10GeV) - order of magniture from https://indico.cern.ch/event/669895/contributions/2745266/attachments/1535612/2405452/slides.pdf
+       if (var==egEnergyCorr::Scale::topoClusterThresUp)      daTopoCluster = 1e-3*(1./(Et/Et0)-1./(getZeeMeanET(cl_eta)/Et0));
+       if (var==egEnergyCorr::Scale::topoClusterThresUp)      daTopoCluster = -1e-3*(1./(Et/Et0)-1./(getZeeMeanET(cl_eta)/Et0));
+    }
+
     // Total
 
     double alphaTot = alphaZee;
@@ -1431,6 +1459,7 @@ namespace AtlasRoot {
     alphaTot += daPedestal;
     alphaTot += daWtots1;
     alphaTot += dapp0;
+    alphaTot += daTopoCluster;
 
     ATH_MSG_DEBUG("alpha value for " << variationName(var) << " = " << alphaTot);
 
@@ -1813,7 +1842,7 @@ namespace AtlasRoot {
     if (m_use_new_resolution_model) {
       sig2 = pow(m_resolution_tool->getResolution(eg_resolution_ptype, energy, cl_eta, resType), 2);
       const double et = energy / cosh(cl_eta);
-      sig2 += pow(pileUpTerm(cl_eta, eg_resolution_ptype) / et, 2);  // TODO: why et and not E?
+      sig2 += pow(pileUpTerm(energy, cl_eta, eg_resolution_ptype) / et, 2);  // TODO: why et and not E?
     } else { // OLD model
 
       double energyGeV = energy/GeV;
@@ -2004,6 +2033,12 @@ namespace AtlasRoot {
 
     int ieta = m_zeeNom->GetXaxis()->FindBin(eta);
     double value = m_zeeNom->GetBinContent(ieta);
+
+     // for es2017_R21_v0 different set of scales for 2017, 2016 and 2015 data
+    if ( m_esmodel == egEnergyCorr::es2017_R21_v0 && runnumber<322817 && runnumber>=297000) {
+       int ieta = m_zeeNom_data2016->GetXaxis()->FindBin(eta);
+       value = m_zeeNom_data2016->GetBinContent(ieta);
+    }
 
     if ((m_esmodel==egEnergyCorr::es2017 or m_esmodel == egEnergyCorr::es2017_summer or m_esmodel == egEnergyCorr::es2017_summer_improved or m_esmodel == egEnergyCorr::es2017_summer_final or m_esmodel == egEnergyCorr::es2015_5TeV or m_esmodel == egEnergyCorr::es2017_R21_v0) && runnumber < 297000) {
       // 2 sets of scales for this configuration
@@ -2874,14 +2909,25 @@ namespace AtlasRoot {
   }
 
 
-  double egammaEnergyCorrectionTool::pileUpTerm(double eta, int particle_type) const {
+  double egammaEnergyCorrectionTool::pileUpTerm(double energy, double eta, int particle_type) const {
 
-    // approximate pileup noise addition to the total noise in MeV   for <mu_data> (2012) = 20
-    // converted photons and electrons
-    double pileupNoise=240.;
-    // unconverted photons, different values in barrel and end-cap
-    if (particle_type==1) {
+    double pileupNoise;
+
+    // release 21 for <mu> =32 (combined 2015-2016-2017 dataset), pileup noise = f(Et) for superclusters
+    if (m_esmodel == egEnergyCorr::es2017_R21_v0) {
+       double et = energy/cosh(eta);
+       if (et<5000.) et=5000.;
+       if (et>50.) et=50000.;
+       pileupNoise=sqrt(32.)*(60.+40.*log(et/10000.)/log(5.));
+    }
+    else {
+      // approximate pileup noise addition to the total noise in MeV   for <mu_data> (2012) = 20
+      // converted photons and electrons
+      pileupNoise=240.;
+      // unconverted photons, different values in barrel and end-cap
+      if (particle_type==1) {
       if (fabs(eta)<1.4) pileupNoise=200.;
+      }
     }
     return pileupNoise;
 
@@ -2899,7 +2945,7 @@ namespace AtlasRoot {
                                                              double& resolution_error_down,
 							     int resol_type) const {
 
-    double pileupNoise =  pileUpTerm(eta, particle_type);
+    double pileupNoise =  pileUpTerm(energy,eta, particle_type);
     double et = energy/cosh(eta);
 
     resolution = m_resolution_tool->getResolution(particle_type,energy,eta,resol_type);
@@ -2988,13 +3034,25 @@ namespace AtlasRoot {
 
 	// systematics from pileup noise  on total noise (200 MeV in quadrature, somewhat conservative)
 	if (isys==6) {
-	  double et = energy/cosh(eta);
-	  double deltaPileupNoise=100.; // MeV
-	  if (std::abs(eta)>=1.4 && std::abs(eta)<1.8) deltaPileupNoise=200.; // larger systematic in this eta bin
-	  double scaleNcells=1;
-	  if (particle_type==1 && std::abs(eta)<1.4) scaleNcells = sqrt(3./5.);   // cluster=3X5 instead of 3x7, rms scales with cluster area
-	  double sigmaPileUp = deltaPileupNoise*scaleNcells/et;
-	  double sigmaZ = deltaPileupNoise/(40000.); // effect for Z->ee at Et=40 GeV
+   
+          double et = energy/cosh(eta);
+          double sigmaPileUp=0.;
+          double sigmaZ=0.;
+          // release 21 - 10% uncertainty on pileup noise
+          if (m_esmodel == egEnergyCorr::es2017_R21_v0) {
+              double deltaNoise = sqrt(1.1*1.1-1.0)*pileupNoise;  // uncertainty in quadrature 1.1*noise - noise
+              sigmaPileUp = deltaNoise/et;   // sigmaE/E impact
+              sigmaZ = deltaNoise/40000.;    // sigmaE/E for Z->ee electrons (absorbed in smearing correction)
+          }
+          else {
+           // older models
+	    double deltaPileupNoise=100.; // MeV
+	    if (std::abs(eta)>=1.4 && std::abs(eta)<1.8) deltaPileupNoise=200.; // larger systematic in this eta bin
+	    double scaleNcells=1;
+	    if (particle_type==1 && std::abs(eta)<1.4) scaleNcells = sqrt(3./5.);   // cluster=3X5 instead of 3x7, rms scales with cluster area
+	    sigmaPileUp = deltaPileupNoise*scaleNcells/et;
+	    sigmaZ = deltaPileupNoise/(40000.); // effect for Z->ee at Et=40 GeV
+          }
 	  sigma2=sigmaPileUp*sigmaPileUp-sigmaZ*sigmaZ;
 	  sigma2up = sigma2;
 	  sigma2down = -1.*sigma2;
