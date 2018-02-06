@@ -14,6 +14,7 @@
 
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
+#include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
 #include "TrkEventPrimitives/LocalDirection.h"
 
 
@@ -214,10 +215,58 @@ namespace Muon {
     // compute angular differences in second coordinate
     result.deltaPhipos = fabs( seg_a.globalPosition().phi() - seg_b.globalPosition().phi() );
     result.deltaPhidir = fabs( seg_a.globalDirection().phi() - seg_b.globalDirection().phi() );
-    result.phiposerr_a = seg_a.localCovariance()(Trk::locX,Trk::locX);
-    result.phidirerr_a = seg_a.localCovariance()(Trk::phi,Trk::phi);
-    result.phiposerr_b = seg_b.localCovariance()(Trk::locX,Trk::locX);
-    result.phidirerr_b = seg_b.localCovariance()(Trk::phi,Trk::phi);
+
+// check presence of phi hits on segment a
+    int nphiHits = 0;
+    std::vector< const Trk::MeasurementBase* >::const_iterator hit = seg_a.containedMeasurements().begin();
+    std::vector< const Trk::MeasurementBase* >::const_iterator hit_end = seg_a.containedMeasurements().end();
+    for( ;hit!=hit_end;++hit ){
+      Identifier id;
+      const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(*hit);
+      if( rot ) id = rot->identify();
+      else{
+        const CompetingMuonClustersOnTrack* crot = dynamic_cast<const CompetingMuonClustersOnTrack*>(*hit);
+        if( crot ) id = crot->containedROTs().front()->identify();
+      }
+      if( !id.is_valid() ) continue;
+      bool measuresPhi = m_idHelper->measuresPhi(id);
+      if(measuresPhi) nphiHits++;
+      if(measuresPhi) break;
+    } 
+
+    if(nphiHits>0) {
+      result.phiposerr_a = seg_a.localCovariance()(Trk::locX,Trk::locX);
+      result.phidirerr_a = seg_a.localCovariance()(Trk::phi,Trk::phi);
+    } else {
+      result.phiposerr_a = 99999.;
+      result.phidirerr_a = 99999.;
+    }
+
+// check presence of phi hits on segment b
+    nphiHits = 0;
+    hit = seg_b.containedMeasurements().begin();
+    hit_end = seg_b.containedMeasurements().end();
+    for( ;hit!=hit_end;++hit ){
+      Identifier id;
+      const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(*hit);
+      if( rot ) id = rot->identify();
+      else{
+        const CompetingMuonClustersOnTrack* crot = dynamic_cast<const CompetingMuonClustersOnTrack*>(*hit);
+        if( crot ) id = crot->containedROTs().front()->identify();
+      }
+      if( !id.is_valid() ) continue;
+      bool measuresPhi = m_idHelper->measuresPhi(id);
+      if(measuresPhi) nphiHits++;
+      if(measuresPhi) break;
+    }
+
+    if(nphiHits>0) {
+      result.phiposerr_b = seg_b.localCovariance()(Trk::locX,Trk::locX);
+      result.phidirerr_b = seg_b.localCovariance()(Trk::phi,Trk::phi);
+    } else {
+      result.phiposerr_b = 99999.;
+      result.phidirerr_b = 99999.;
+    }
 
     result.shorttube_a = 99999.;
     if( m_idHelper->isMdt(chid_a) ){
