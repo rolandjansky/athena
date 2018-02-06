@@ -9,4 +9,4 @@
 AthSimulationExternalsVersion = 249a1470
 
 # The version of atlas/Gaudi to use:
-GaudiVersion = v30r1.004
+GaudiVersion = v30r1.005
