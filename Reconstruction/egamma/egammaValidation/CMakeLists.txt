@@ -19,29 +19,24 @@ atlas_depends_on_subdirs( PUBLIC
 			  TestPolicy 
 			  Tracking/TrkValidation/TrkValHistUtils )
 
-atlas_add_library (EgammaMonitoringLib egammaValidation/*.h src/*.h src/*.ihh src/*.cxx src/components/*.cxx
-   PUBLIC_HEADERS EgammaMonitoring
-   INCLUDE_DIRS
-   LINK_LIBRARIES GaudiKernel AthenaBaseComps AsgTools xAODEventInfo xAODEgamma xAODTracking ElectronPhotonSelectorToolsLib TrkValHistUtils)
+		  atlas_add_library (egammaValidationLib 
+	egammaValidation/*.h  src/*.cxx 
+	PUBLIC_HEADERS egammaValidation
+	INCLUDE_DIRS
+	PRIVATE_INCLUDE_DIRS
+	LINK_LIBRARIES GaudiKernel AsgTools xAODEventInfo xAODEgamma xAODTracking ElectronPhotonSelectorToolsLib    
+	PRIVATE_LINK_LIBRARIES AthenaBaseComps TrkValHistUtils)
 
-# For MT 
-# LINK_LIBRARIES AthenaMonitoringLib
 
 # add the library itself:
-atlas_add_component (EgammaMonitoring
-   src/*.h src/*.ihh src/*.cxx src/components/*.cxx
-   PUBLIC_HEADERS EgammaMonitoring
+atlas_add_component (egammmaValidation
+   src/*.cxx src/components/*.cxx 
    INCLUDE_DIRS 
-   LINK_LIBRARIES EgammaMonitoringLib GaudiKernel AthenaBaseComps AsgTools xAODEventInfo xAODEgamma xAODTracking ElectronPhotonSelectorToolsLib TrkValHistUtils)
-
-# For MT
-# LINK_LIBRARIES AthenaMonitoringLib
+   LINK_LIBRARIES egammaValidationLib GaudiKernel AthenaBaseComps AsgTools xAODEventInfo xAODEgamma xAODTracking ElectronPhotonSelectorToolsLib TrkValHistUtils)
 
 # Install files from the package:
-atlas_install_headers( egammaValidation )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
-atlas_install_scripts( share/egammaRTTInit.py )
-# ART scripts:
-atlas_install_scripts( test/*.sh test/*.py )
+# ART shell executable scripts :
+atlas_install_scripts( test/*.sh)
 
