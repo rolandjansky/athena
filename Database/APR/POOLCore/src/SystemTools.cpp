@@ -136,7 +136,7 @@ namespace pool
 
       propMgr->setProperty( "JobOptionsType", "NONE" ) .ignore();
       // prevents unwanted output from the AppMgr
-      propMgr->setProperty( "OutputLeveL", "4" ) .ignore();
+      propMgr->setProperty( "OutputLevel", "4" ) .ignore();
       // minimal configuration
       propMgr->setProperty( "EventLoop", "MinimalEventLoopMgr" ) .ignore();
       // this prevents AppMgr "welcome" output
