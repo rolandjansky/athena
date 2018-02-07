@@ -76,7 +76,7 @@ namespace Trig {
     StatusCode addEmulatedChain(const std::vector<std::string>&);
     std::vector<std::string> addEmulatedChain(const std::string);
     bool isPassed(const std::string&);
-    const xAOD::JetContainer* retaggedJets(std::string) const;
+    const xAOD::JetContainer* retaggedJets(const std::string&) const;
 
   private:
 

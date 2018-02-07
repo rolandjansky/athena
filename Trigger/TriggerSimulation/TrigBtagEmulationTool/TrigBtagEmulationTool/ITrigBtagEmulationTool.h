@@ -15,7 +15,7 @@ namespace Trig {
 
     public:
       virtual bool isPassed(const std::string&)=0;
-      virtual const xAOD::JetContainer* retaggedJets(std::string) const=0;
+      virtual const xAOD::JetContainer* retaggedJets(const std::string&) const=0;
   };
 
 }

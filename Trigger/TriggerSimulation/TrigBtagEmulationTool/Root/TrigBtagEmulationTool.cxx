@@ -655,7 +655,7 @@ bool TrigBtagEmulationTool::hasGSC() {return m_gscTrigger;}
 
 // *******
 
-const xAOD::JetContainer* TrigBtagEmulationTool::retaggedJets(std::string collection) const {
+const xAOD::JetContainer* TrigBtagEmulationTool::retaggedJets(const std::string &collection) const {
 
   xAOD::JetContainer* output_jets = new xAOD::JetContainer(SG::OWN_ELEMENTS);
   xAOD::JetAuxContainer* output_jetsAux = new xAOD::JetAuxContainer;
