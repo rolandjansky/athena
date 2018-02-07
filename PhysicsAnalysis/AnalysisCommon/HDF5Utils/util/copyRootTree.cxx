@@ -172,6 +172,8 @@ namespace H5Utils {
         buffers.emplace_back(new Buffer<long long>(vars, tt, lname));
       } else if (leaf_type == "UInt_t") {
         buffers.emplace_back(new Buffer<unsigned int>(vars, tt, lname));
+      } else if (leaf_type == "UChar_t") {
+        buffers.emplace_back(new Buffer<unsigned char>(vars, tt, lname));
       } else if (leaf_type == "vector<float>") {
         buffers.emplace_back(new VBuf<float>(vars2d, idx, tt, lname, NAN));
       } else if (leaf_type == "vector<double>") {
@@ -180,12 +182,16 @@ namespace H5Utils {
         buffers.emplace_back(new VBuf<int>(vars2d, idx, tt, lname, 0));
       } else if (leaf_type == "vector<unsigned int>") {
         buffers.emplace_back(new VBuf<unsigned int>(vars2d, idx, tt, lname, 0));
+      } else if (leaf_type == "vector<unsigned char>") {
+        buffers.emplace_back(new VBuf<unsigned char>(vars2d, idx, tt, lname, 0));
       } else if (leaf_type == "vector<bool>") {
         buffers.emplace_back(new VBuf<bool>(vars2d, idx, tt, lname, 0));
       } else if (leaf_type == "vector<vector<int> >") {
         buffers.emplace_back(new VVBuf<int>(vars3d, idx2, tt, lname, 0));
       } else if (leaf_type == "vector<vector<unsigned int> >") {
         buffers.emplace_back(new VVBuf<unsigned int>(vars3d, idx2, tt, lname, 0));
+      } else if (leaf_type == "vector<vector<unsigned char> >") {
+        buffers.emplace_back(new VVBuf<unsigned char>(vars3d, idx2, tt, lname, 0));
       } else if (leaf_type == "vector<vector<float> >") {
         buffers.emplace_back(new VVBuf<float>(vars3d, idx2, tt, lname, NAN));
       } else if (leaf_type == "vector<vector<double> >") {
