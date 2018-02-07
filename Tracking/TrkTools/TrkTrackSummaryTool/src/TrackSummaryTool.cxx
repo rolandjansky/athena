@@ -130,7 +130,7 @@ StatusCode
             ATH_MSG_ERROR ("configure as 'None' to avoid its loading.");
             return StatusCode::FAILURE;
         } else {
-            msg(MSG::INFO) << "Retrieved tool " << m_idHoleSearch<<endmsg;;
+            msg(MSG::INFO) << "Retrieved tool " << m_idHoleSearch<<endmsg;
             m_doHolesInDet = true;
         }
     }

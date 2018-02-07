@@ -136,7 +136,7 @@ dqm_algorithms::OccupancyHoleFinder::execute(	const std::string & name,
       std::string chamber_name = getChamberName(histo, (*itr).first);
       if(writes>100) break;
       if( (int) lbns.size() == active_lbns ){
-	//      out << "Completely dead chamber " << chamber_name << std::endl;;
+	//      out << "Completely dead chamber " << chamber_name << std::endl;
 	tags[TString::Format("Dead %s", chamber_name.c_str()).Data()] = -1;
 	writes++;
       }

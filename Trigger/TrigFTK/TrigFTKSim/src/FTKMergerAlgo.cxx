@@ -1435,7 +1435,7 @@ StatusCode FTKMergerAlgo::convertMergedTracks()
   //   bool primVtxExists = evtStore()->contains<VxContainer>(m_vxCandidatesPrimaryName);
   //   if(!primVtxExists){
   //     log << MSG::INFO << "No VxContainer with key " << m_vxCandidatesPrimaryName << " found!" << endmsg;
-  //     cout << evtStore()->dump() << endl;;
+  //     cout << evtStore()->dump() << endl;
   //   }
   
   // Extract the vector of tracks found by the FTK for the current event

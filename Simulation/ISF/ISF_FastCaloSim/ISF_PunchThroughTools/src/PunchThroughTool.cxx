@@ -1016,7 +1016,7 @@ Amg::Vector3D ISF::PunchThroughTool::propagator(double theta,double phi) const
   else if (theta >= theta2 && theta < theta3)
     {
       z = m_z2;
-      r = fabs(m_z2*tan(theta));;
+      r = fabs(m_z2*tan(theta));
     }
   else if (theta >= theta3 && theta < (TMath::Pi()-theta3) )
     {

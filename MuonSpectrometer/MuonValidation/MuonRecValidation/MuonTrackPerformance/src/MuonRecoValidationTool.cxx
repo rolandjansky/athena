@@ -492,7 +492,7 @@ namespace Muon {
     int nseg = candidate ? candidate->layerIntersections.size() : 0;
     if( combinedTrack ){
       IMuonHitSummaryTool::CompactSummary summary = m_hitSummaryTool->summary(*combinedTrack);
-      nprec = summary.nprecisionLayers;;
+      nprec = summary.nprecisionLayers;
       ntrigPhi = summary.nphiLayers;  
       ntrigEta = summary.ntrigEtaLayers;  
     }

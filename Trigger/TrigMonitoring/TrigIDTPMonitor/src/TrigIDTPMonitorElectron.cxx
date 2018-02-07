@@ -437,7 +437,7 @@ HLT::ErrorCode TrigIDTPMonitorElectron::hltExecute(const HLT::TriggerElement* in
     //Calculate invariant mass of tag-TRACK probe-cluster pair
     //NOTE: this is not required by algorithm, check for effects of bremstrahlung. Remove when algorithm implemented online
     for(auto tagTrack:tagTracks){//only one track for fully reconstructed tag
-      tempClusterTagTrackInvMass=ClusterTagTrackInvMass(tagTrack,tempPT,tempPx,tempPy,tempPz);;
+      tempClusterTagTrackInvMass=ClusterTagTrackInvMass(tagTrack,tempPT,tempPx,tempPy,tempPz);
       //pushback onto vector
       m_invClusterTagTrack_before_cuts.push_back(tempClusterTagTrackInvMass);
     }

@@ -32,7 +32,7 @@ Trk::Perigee Trk::PerigeeFromVertexCreator::createPerigee(Amg::Vector3D& vertex,
   double rho = s_unitConversion*m_field*qOverP/sin(theta);
   double d0 = R + pow(Q,2.)*rho/2.;
   double z0 = vertex[2] - Q*(1-R*rho)/tan(theta);
-  double phi0 = phi - Q*rho;;
+  double phi0 = phi - Q*rho;
 
   // check phi0 for [-Pi,+Pi) range
   while (phi0 > M_PI) phi0 -= M_PI;
@@ -61,7 +61,7 @@ Trk::Perigee* Trk::PerigeeFromVertexCreator::createNewPerigee(Amg::Vector3D& ver
   double rho = s_unitConversion*m_field*qOverP/sin(theta);
   double d0 = R + pow(Q,2.)*rho/2.;
   double z0 = vertex[2] - Q*(1-R*rho)/tan(theta);
-  double phi0 = phi - Q*rho;;
+  double phi0 = phi - Q*rho;
 
   // check phi0 for [-Pi,+Pi) range
   while (phi0 > M_PI) phi0 -= M_PI;

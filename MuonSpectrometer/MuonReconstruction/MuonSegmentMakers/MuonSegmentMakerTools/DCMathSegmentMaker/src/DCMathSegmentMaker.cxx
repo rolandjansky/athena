@@ -269,7 +269,7 @@ namespace Muon {
     TrkDriftCircleMath::DCOnTrackVec dcs;
     // reset chamber statistics
     m_dcStatistics.clear();
-    bool firstMdt = true;;
+    bool firstMdt = true;
     m_phimin = 9999.;
     m_phimax = -9999.;
     unsigned index = 0;
@@ -1456,7 +1456,7 @@ namespace Muon {
       Identifier id = meas->identify();
       int measuresPhi = m_idHelperTool->measuresPhi(id);
       int eta = m_idHelperTool->stationEta(id);
-      int phi = m_idHelperTool->stationPhi(id);;
+      int phi = m_idHelperTool->stationPhi(id);
       int isTgc = m_idHelperTool->isTgc(id);
       int name = isTgc ? m_idHelperTool->tgcIdHelper().stationName(id) : m_idHelperTool->rpcIdHelper().stationName(id);
       if( !isTgc ){
@@ -1501,7 +1501,7 @@ namespace Muon {
 
     // reset chamber statistics
     m_dcStatistics.clear();
-    bool firstMdt = true;;
+    bool firstMdt = true;
     m_phimin = 9999.;
     m_phimax = -9999.;
 

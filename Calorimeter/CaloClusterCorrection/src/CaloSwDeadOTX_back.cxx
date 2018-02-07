@@ -63,7 +63,7 @@ StatusCode CaloSwDeadOTX_back::initialize()
 
   ATH_MSG_DEBUG( " --------------->>>>> CaloSwDeadOTX_back :: affectedTool successfully retrieved" << endmsg);
 
-  return StatusCode::SUCCESS;;
+  return StatusCode::SUCCESS;
 }
 
 void CaloSwDeadOTX_back::makeTheCorrection

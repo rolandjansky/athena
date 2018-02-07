@@ -509,7 +509,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetMultiPriVxFind
   } //end loop over vector of vector of tracks in which fit was performed
 
 
-  msg(MSG::DEBUG) << " Vtx size: "<<theVertexContainer->size()<< endmsg;;
+  msg(MSG::DEBUG) << " Vtx size: "<<theVertexContainer->size()<< endmsg;
   for (size_t i = 0 ; i < theVertexContainer->size(); i++) {
     if(msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << " Vtx: " << i << 

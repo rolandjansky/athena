@@ -242,7 +242,7 @@ StatusCode LArHVCorrTool::LoadCalibration(IOVSVC_CALLBACK_ARGS) {
       }
     }//end if 
   }//end else m_updateIfChanged
-  return StatusCode::SUCCESS;;
+  return StatusCode::SUCCESS;
 }
 
 

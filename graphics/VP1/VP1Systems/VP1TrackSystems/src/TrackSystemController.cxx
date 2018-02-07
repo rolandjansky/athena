@@ -1629,7 +1629,7 @@ int TrackSystemController::numberOfPointsOnCircles() const
 
   //roughly 4..32:
   const int n(1+static_cast<int>(0.5+7.0*(val-min)/(1.0*max)));//number between 1 and 8
-  return std::min<int>(32,std::max<int>(4,4*n));;
+  return std::min<int>(32,std::max<int>(4,4*n));
 }
 
 //____________________________________________________________________

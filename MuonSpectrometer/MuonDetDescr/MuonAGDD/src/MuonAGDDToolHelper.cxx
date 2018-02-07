@@ -208,7 +208,7 @@ bool MuonAGDDToolHelper::BuildReadoutGeometry(MuonGM::MuonDetectorManager* mgr/*
   detectorList::const_iterator it;
   for (it=dList.begin(); it!=dList.end(); ++it)
   {
-  	  std::vector<AGDDDetectorPositioner*>& dPos=((*it).second)->GetDetectorPositioners();;
+  	  std::vector<AGDDDetectorPositioner*>& dPos=((*it).second)->GetDetectorPositioners();
 	  for (unsigned int i=0;i<dPos.size();i++)
       {
       std::string chTag = dPos[i]->ID.detectorAddress;

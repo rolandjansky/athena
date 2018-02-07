@@ -30,7 +30,7 @@ Run2JetElementMaker::Run2JetElementMaker( const std::string& name, ISvcLocator* 
   : AthAlgorithm( name, pSvcLocator ), 
     m_JetElementTool("LVL1::L1JetElementTools/L1JetElementTools")
 {
-  m_triggerTowerLocation = TrigT1CaloDefs::xAODTriggerTowerLocation;;
+  m_triggerTowerLocation = TrigT1CaloDefs::xAODTriggerTowerLocation;
   m_jetElementLocation   = TrigT1CaloDefs::JetElementLocation;
 
   // This is how you declare the parameters to Gaudi so that

@@ -21,7 +21,7 @@ class ALFA_LocRecEvent_p1
 	m_fOverU=-9999.0;
 	m_fOverV=-9999.0;
 	m_iNumU=-1;
-	m_iNumV=-1;;
+	m_iNumV=-1;
   };
   friend class ALFA_LocRecEventCnv_p1;
   

@@ -835,7 +835,7 @@ int MuonIdHelper::init_neighbors(void)
 	  }
 	}
 	else {
-	  (*m_Log) << MSG::WARNING << " MuonIdHelper::init_neighbors - unable to get next eta compact, exp/compact "<<endmsg;;
+	  (*m_Log) << MSG::WARNING << " MuonIdHelper::init_neighbors - unable to get next eta compact, exp/compact "<<endmsg;
 	  return (1);
 	}
 	m_next_eta_module_vec[index] = hash_id;

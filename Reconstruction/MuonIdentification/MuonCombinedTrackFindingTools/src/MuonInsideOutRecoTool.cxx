@@ -216,7 +216,7 @@ namespace MuonCombined {
     const Muon::MuonCandidate* candidate = trackCandidateLookup[selectedTrack];
     if( !candidate ){
       ATH_MSG_WARNING("candidate lookup failed, this should not happen");
-      return std::pair<std::unique_ptr<const Muon::MuonCandidate>,std::unique_ptr<const Trk::Track> >(nullptr,nullptr);;
+      return std::pair<std::unique_ptr<const Muon::MuonCandidate>,std::unique_ptr<const Trk::Track> >(nullptr,nullptr);
     }
 
     return std::make_pair( std::unique_ptr<const Muon::MuonCandidate>(new Muon::MuonCandidate(*candidate)),

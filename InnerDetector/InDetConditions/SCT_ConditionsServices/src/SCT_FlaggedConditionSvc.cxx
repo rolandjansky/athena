@@ -89,7 +89,7 @@ bool SCT_FlaggedConditionSvc::isGood(const Identifier& elementId, InDetCondition
 
 // Is this element good (by IdentifierHash)?
 bool SCT_FlaggedConditionSvc::isGood(const IdentifierHash& hashId){
-  return (m_badIds.find(hashId) == m_badIds.end());;
+  return (m_badIds.find(hashId) == m_badIds.end());
 }
 
 // Flag a wafer as bad (by IdentifierHash) with a reason

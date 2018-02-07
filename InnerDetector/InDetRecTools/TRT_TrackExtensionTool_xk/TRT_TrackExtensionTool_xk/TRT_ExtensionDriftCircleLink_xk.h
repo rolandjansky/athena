@@ -127,7 +127,7 @@ namespace InDet{
   inline void TRT_ExtensionDriftCircleLink_xk::set
     (const int& n,double& d,double& im,double& zl, double& s,double& sd,double& sz) 
     {
-      set(n,d,im,zl,s); m_sdistance = sd; m_szlocal = sz;;
+      set(n,d,im,zl,s); m_sdistance = sd; m_szlocal = sz;
     }
 
   inline void TRT_ExtensionDriftCircleLink_xk::set

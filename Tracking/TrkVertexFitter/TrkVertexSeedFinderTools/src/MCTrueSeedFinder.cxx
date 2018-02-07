@@ -163,7 +163,7 @@ namespace Trk
     m_cacheRunNumber = ei_RunNumber;
     m_cacheEventNumber = ei_EventNumber;
     m_currentInteractionIdx = 0; //reset counter of interactions given
-    McEventCollection::const_iterator itr = mcEventCollection->begin();;
+    McEventCollection::const_iterator itr = mcEventCollection->begin();
     for ( ; itr != mcEventCollection->end(); ++itr ) {
       const HepMC::GenEvent* myEvent=(*itr);
       if(!pass( myEvent, mcEventCollection.cptr())) continue; //checked if events is acceptable

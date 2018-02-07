@@ -46,7 +46,7 @@ void myLocal_resetTrack( const Trk::Track& ctrack ){
 
   if( track.m_cachedMeasurementVector ){
     delete track.m_cachedMeasurementVector;
-    track.m_cachedMeasurementVector = 0;;
+    track.m_cachedMeasurementVector = 0;
   }
   if( track.m_cachedOutlierVector ){
     delete track.m_cachedOutlierVector;

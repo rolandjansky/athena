@@ -655,7 +655,7 @@ bool LArRODMonTool::FebStatus_Check() {
 }
 
 StatusCode LArRODMonTool::fillHistograms() {
-  ATH_MSG_VERBOSE( "In LArRODMonTool::fillHistograms()");;
+  ATH_MSG_VERBOSE( "In LArRODMonTool::fillHistograms()");
 
   // Increment event counter
   m_eventsCounter++;

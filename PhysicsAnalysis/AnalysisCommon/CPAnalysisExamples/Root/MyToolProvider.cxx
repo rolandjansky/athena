@@ -210,7 +210,7 @@ StatusCode MyToolProvider::initialize(bool isData, bool isAtlfast)
   if( metRebuilder->initialize().isFailure()){
     ATH_MSG_ERROR( "Cannot intialize METRebuilder" );
     ATH_MSG_ERROR( "Exiting... " );
-    return StatusCode::FAILURE;;
+    return StatusCode::FAILURE;
   } else {
     ATH_MSG_DEBUG( "METRebuilder initialized... " );
   }

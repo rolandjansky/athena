@@ -46,7 +46,7 @@ ProxyProviderSvc::initialize()
   if (!(service("EventPersistencySvc", m_pDataLoader, CREATEIF)).isSuccess()) {
     m_pDataLoader = 0;
     ATH_MSG_ERROR("Could not	 get pointer to Persistency Service");
-    return StatusCode::FAILURE;;
+    return StatusCode::FAILURE;
   } else {
 #ifdef DEBUGPPS
     ATH_MSG_VERBOSE("Got pointer to Persistency Service " << m_pDataLoader);

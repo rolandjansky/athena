@@ -141,7 +141,7 @@ dump(cool::ChannelSelection selection, std::string tag_name) {
         cool::IObjectIteratorPtr objects = m_coolFolder->browseObjects(m_since, m_until-1, selection, tag_name);
         while (objects->goToNext()) {
             const cool::IObject& element = objects->currentRef();
-            std::cout << element << std::endl;;
+            std::cout << element << std::endl;
         }
     }
     catch (cool::Exception& e) {

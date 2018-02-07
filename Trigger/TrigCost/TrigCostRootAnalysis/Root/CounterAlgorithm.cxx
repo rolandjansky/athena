@@ -121,7 +121,7 @@ namespace TrigCostRootAnalysis {
     ++m_calls;
 
     // After some thought - this just doesn't work
-    //Float_t _prescaleFactor = getPrescaleFactor(_e);;
+    //Float_t _prescaleFactor = getPrescaleFactor(_e);
     //_weight *= _prescaleFactor;
 
     // Special case. If we are running as part of the FullEvent monitor, we should keep weight=1 to make the output

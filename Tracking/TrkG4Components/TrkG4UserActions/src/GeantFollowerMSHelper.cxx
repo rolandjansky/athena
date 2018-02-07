@@ -369,7 +369,7 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
         // construct the intial parameters
         
         m_parameterCache = new Trk::CurvilinearParameters(npos, nmom, charge);
-        AmgSymMatrix(5)* covMatrix = new AmgSymMatrix(5);;
+        AmgSymMatrix(5)* covMatrix = new AmgSymMatrix(5);
         covMatrix->setZero();
         ATH_MSG_DEBUG( " covMatrix " << covMatrix);
         m_parameterCacheCov = new Trk::CurvilinearParameters(npos, nmom, charge, covMatrix);
