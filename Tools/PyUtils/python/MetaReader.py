@@ -53,8 +53,8 @@ def read_metadata(filenames, file_type=None, full=False):
         # ----------------------------------------------------------------------------------------------------------------#
         # retrieves metadata from POOL files.
         if current_file_type == 'POOL':
-
             from CLIDComps.clidGenerator import clidGenerator
+            global clidgen
             clidgen = clidGenerator(db = None)
 
             evt = ROOT.POOL.TEvent()
