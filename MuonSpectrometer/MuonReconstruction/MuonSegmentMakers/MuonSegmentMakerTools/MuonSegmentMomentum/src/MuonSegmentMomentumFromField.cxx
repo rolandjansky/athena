@@ -260,7 +260,7 @@ void MuonSegmentMomentumFromField::fitMomentum2Segments( const Muon::MuonSegment
           }
         }
         ATH_MSG_DEBUG("residual: " << residual << " jac " << (*jac)(1,4) << " signedmomentum: " << signedMomentum << " delta_qoverp " << delta_qoverp);
-        double signedMomentum_updated = 1/(1/signedMomentum+delta_qoverp);
+        double signedMomentum_updated = signedMomentum/(1+signedMomentum*delta_qoverp);
         if(fabs(signedMomentum_updated)<1000.) {
           ATH_MSG_DEBUG("Too low signed momentum " << signedMomentum_updated );
 //      protect against too low momenta as propagation will fail

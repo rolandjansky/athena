@@ -217,7 +217,7 @@ namespace Muon {
     result.deltaPhidir = fabs( seg_a.globalDirection().phi() - seg_b.globalDirection().phi() );
 
 // check presence of phi hits on segment a
-    int nphiHits = 0;
+    bool ContainPhiHits = false;
     std::vector< const Trk::MeasurementBase* >::const_iterator hit = seg_a.containedMeasurements().begin();
     std::vector< const Trk::MeasurementBase* >::const_iterator hit_end = seg_a.containedMeasurements().end();
     for( ;hit!=hit_end;++hit ){
@@ -229,12 +229,13 @@ namespace Muon {
         if( crot ) id = crot->containedROTs().front()->identify();
       }
       if( !id.is_valid() ) continue;
-      bool measuresPhi = m_idHelper->measuresPhi(id);
-      if(measuresPhi) nphiHits++;
-      if(measuresPhi) break;
+      if(m_idHelper->measuresPhi(id)) {
+        ContainPhiHits = true;
+        break;
+      }
     } 
 
-    if(nphiHits>0) {
+    if(ContainPhiHits) {
       result.phiposerr_a = seg_a.localCovariance()(Trk::locX,Trk::locX);
       result.phidirerr_a = seg_a.localCovariance()(Trk::phi,Trk::phi);
     } else {
@@ -243,7 +244,7 @@ namespace Muon {
     }
 
 // check presence of phi hits on segment b
-    nphiHits = 0;
+    ContainPhiHits = false;
     hit = seg_b.containedMeasurements().begin();
     hit_end = seg_b.containedMeasurements().end();
     for( ;hit!=hit_end;++hit ){
@@ -255,12 +256,13 @@ namespace Muon {
         if( crot ) id = crot->containedROTs().front()->identify();
       }
       if( !id.is_valid() ) continue;
-      bool measuresPhi = m_idHelper->measuresPhi(id);
-      if(measuresPhi) nphiHits++;
-      if(measuresPhi) break;
+      if(m_idHelper->measuresPhi(id)) {
+        ContainPhiHits = true;
+        break;
+      }
     }
 
-    if(nphiHits>0) {
+    if(ContainPhiHits) {
       result.phiposerr_b = seg_b.localCovariance()(Trk::locX,Trk::locX);
       result.phidirerr_b = seg_b.localCovariance()(Trk::phi,Trk::phi);
     } else {
