@@ -79,7 +79,7 @@ Acts::GeoModelStrawLayerBuilder::centralLayers()
     pl.maxPhi = M_PI;
 
     pl.envZ = {1, 1};
-    pl.envR = {0, 0.5};
+    pl.envR = {0, 0};
 
     // RING in TRT speak is translated to Layer in ACTS speak
     std::vector<const Surface*> layerSurfaces;
@@ -203,7 +203,7 @@ Acts::GeoModelStrawLayerBuilder::endcapLayers(int side)
       pl.maxZ = std::numeric_limits<double>::lowest();
       pl.minPhi = -M_PI;
       pl.maxPhi = M_PI;
-      pl.envR = {0, 1};
+      pl.envR = {0, 0};
 
       for (unsigned int iphisec=0; iphisec<nEndcapPhiSectors; ++iphisec) {
       

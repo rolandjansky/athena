@@ -454,7 +454,7 @@ PrintSiElements::makeVolumeBuilder(const InDetDD::InDetDetectorManager* manager,
 
 
   Acts::CylinderVolumeBuilder::Config cvbConfig;
-  cvbConfig.layerEnvelopeR = {2, 2};
+  cvbConfig.layerEnvelopeR = {0, 0};
   cvbConfig.layerEnvelopeZ       = 2;
   cvbConfig.trackingVolumeHelper = cvh;
   cvbConfig.volumeSignature      = 0;
