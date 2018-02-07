@@ -111,6 +111,7 @@ from TrackD3PDMaker.BeamSpotD3PDObject                 import BeamSpotD3PDObject
 from MissingETD3PDMaker.MissingETD3PDMakerFlags        import MissingETD3PDMakerFlags
 from MissingETD3PDMaker.MissingETD3PDObject            import *
 from MissingETD3PDMaker.MissingETD3PDTriggerBitsObject import *
+from MissingET.METRefGetter_plup import *
 MissingETD3PDMakerFlags.doCellOutEflow=True
 MissingETD3PDMakerFlags.METDefaultJetCollectionSGKey = 'AntiKt4LCTopoJets'
 MissingETD3PDMakerFlags.METDefaultJetPrefix = "jet_AntiKt4LCTopo_MET_"
@@ -172,9 +173,7 @@ def add_met1 (alg, cone, truthLep = False, add_pieces = []):
     return
     
 def add_met (alg):
-    ### adding HSG5 MET
-    from MissingET.METRefGetter_plup import *
-    
+   
     METRefAlg_HSG5 = make_METRefAlg(_suffix='_HSG5')
     METRefAlg_HSG5.sequence                    = AlgSequence( D3PDMakerFlags.PreD3PDAlgSeqName() )
     METRefAlg_HSG5.jet_JetInputCollectionKey   = "AntiKt4TopoEMJets"
