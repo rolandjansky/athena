@@ -37,9 +37,9 @@ timeout 1m chainDump.py -S --rootFile=expert-monitoring.root
 export JOB_LOG_TAIL=${JOB_LOG%%.*}.tail.${JOB_LOG#*.}
 tail -10000  ${JOB_LOG} > ${JOB_LOG_TAIL}
 
+grep REGTEST ${JOB_LOG} > athena.regtest
 if [ -f ${REF_FOLDER}/athena.regtest ]; then
   echo "Running regtest"
-  grep REGTEST athena.log > athena.regtest
   timeout 1m regtest.pl --inputfile athena.regtest --reffile ${REF_FOLDER}/athena.regtest | tee regtest.log
   echo "art-result: ${PIPESTATUS[0]} RegTest"
 else
