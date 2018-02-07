@@ -22,17 +22,17 @@ namespace CP {
   IsolationCorrectionTool::IsolationCorrectionTool( const std::string &name )
     : asg::AsgMetadataTool(name), m_systDDonoff("PH_Iso_DDonoff"){
     declareProperty("CorrFile",                    m_corr_file                    = "IsolationCorrections/v1/isolation_ptcorrections_rel20_2.root");
-    declareProperty("CorrFile_ddshift_2015",       m_corr_ddshift_2015_file       = "IsolationCorrections/v1/isolation_ddcorrection_shift_2015_v3.root");
-    declareProperty("CorrFile_ddshift",            m_corr_ddshift_file            = "IsolationCorrections/v1/isolation_ddcorrection_shift.root");
+    declareProperty("CorrFile_ddshift_2015_2016",  m_corr_ddshift_2015_2016_file  = "GroupData/PhotonEfficiencyCorrection/2015_2017/rel21.2/Winter2018_Prerec_v1/isolation_ddcorrection_shift_rel21_2016.root");
+    declareProperty("CorrFile_ddshift_2017",       m_corr_ddshift_2017_file       = "GroupData/PhotonEfficiencyCorrection/2015_2017/rel21.2/Winter2018_Prerec_v1/isolation_ddcorrection_shift_rel21_2017.root");
     declareProperty("CorrFile_ddsmearing",         m_corr_ddsmearing_file         = "IsolationCorrections/v1/isolation_ddcorrection_smearing.root");
-    declareProperty("ToolVer",                     m_tool_ver_str                 = "REL20_2");
-    declareProperty("DataDrivenVer",               m_ddVersion                    = "2015");
+    declareProperty("ToolVer",                     m_tool_ver_str                 = "REL21");
+    declareProperty("DataDrivenVer",               m_ddVersion                    = "2015_2016");
     declareProperty("UseMetadata",                 m_usemetadata                  = false);
     declareProperty("AFII_corr",                   m_AFII_corr                    = false);
     declareProperty("IsMC",                        m_is_mc                        = true);
     declareProperty("Correct_etcone",              m_correct_etcone               = false);
     declareProperty("Trouble_categories",          m_trouble_categories           = true);
-    declareProperty("Apply_ddshifts",              m_apply_ddDefault              = true);
+    declareProperty("Apply_ddshift_2017s",              m_apply_ddDefault              = true);
     m_isol_corr = new IsolationCorrection(name);
   }
 
@@ -45,8 +45,8 @@ namespace CP {
     // Resolve the paths to the input files
     std::vector < std::string > corrFileNameList;
     corrFileNameList.push_back(m_corr_file);
-    corrFileNameList.push_back(m_corr_ddshift_2015_file);
-    corrFileNameList.push_back(m_corr_ddshift_file);
+    corrFileNameList.push_back(m_corr_ddshift_2015_2016_file);
+    corrFileNameList.push_back(m_corr_ddshift_2017_file);
     corrFileNameList.push_back(m_corr_ddsmearing_file);
 
     for ( unsigned int i=0; i<corrFileNameList.size(); ++i ){
@@ -66,12 +66,13 @@ namespace CP {
     CP::IsolationCorrection::Version tool_ver;
     
     m_metadata_retrieved = false;
-    	   
-    if      (m_tool_ver_str == "REL20_2") tool_ver = CP::IsolationCorrection::REL20_2;
+    
+    if      (m_tool_ver_str == "REL21")   tool_ver = CP::IsolationCorrection::REL21;	   
+    else if (m_tool_ver_str == "REL20_2") tool_ver = CP::IsolationCorrection::REL20_2;
     else if (m_tool_ver_str == "REL20")   tool_ver = CP::IsolationCorrection::REL20;
     else if (m_tool_ver_str == "REL17_2") tool_ver = CP::IsolationCorrection::REL17_2;
     else {
-      ATH_MSG_WARNING("Tool version not recognized: "<<m_tool_ver_str<<"\nAllowed versions: REL20_2, REL20, REL17_2");
+      ATH_MSG_WARNING("Tool version not recognized: "<<m_tool_ver_str<<"\nAllowed versions: REL21, REL20_2, REL20, REL17_2");
       return StatusCode::FAILURE;
     }
 
@@ -80,18 +81,18 @@ namespace CP {
       return StatusCode::FAILURE;
     }
 
-    if(TString(corrFileNameList[0]).Contains("isolation_ptcorrections_rel20_2.root") && m_tool_ver_str != "REL20_2"){
+    if(TString(corrFileNameList[0]).Contains("isolation_ptcorrections_rel20_2.root") && !( m_tool_ver_str == "REL20_2" || m_tool_ver_str == "REL21" ) ){
       ATH_MSG_WARNING("The specified correction file is not for "<<m_tool_ver_str<<" please use proper correction file");
       return StatusCode::FAILURE;
     }
 
-    m_isol_corr->SetCorrectionFile(m_corr_file, m_corr_ddshift_file, m_corr_ddsmearing_file, m_corr_ddshift_2015_file);
+    m_isol_corr->SetCorrectionFile(m_corr_file, m_corr_ddshift_2017_file, m_corr_ddsmearing_file, m_corr_ddshift_2015_2016_file);
     m_isol_corr->SetToolVer(tool_ver);
     m_isol_corr->SetTroubleCategories(m_trouble_categories);
 
     // If Default is false, there is no correction, and no topoEtconeXX systematic uncertainty !
     if (m_apply_ddDefault) {
-      if (m_ddVersion == "2012" or m_ddVersion == "2015") {
+      if (m_ddVersion == "2015_2016" or m_ddVersion == "2017") {
 	//register ourselves with the systematic registry! 
 	CP::SystematicRegistry& registry = CP::SystematicRegistry::getInstance();
 	if( registry.registerSystematics( *this ) != CP::SystematicCode::Ok ) return StatusCode::FAILURE;
@@ -100,6 +101,9 @@ namespace CP {
     } else{
       m_apply_dd = false;
     }
+    
+    // Don't use DD Corrections for AFII (not yet available for mc16) 
+    if(m_AFII_corr) m_apply_dd = false;
 
     //If we do not want to use metadata
     if(!m_usemetadata) {
@@ -325,10 +329,10 @@ namespace CP {
   }
   
   float IsolationCorrectionTool::GetDDCorrection(const xAOD::Egamma& input, xAOD::Iso::IsolationType isol){
-    if (m_ddVersion == "2012") {
-      if (isol == xAOD::Iso::topoetcone40) return m_isol_corr->GetDDCorrection(input);
-    } else if (m_ddVersion == "2015")
-      return m_isol_corr->GetDDCorrection_2015(input, isol);
+	if (m_ddVersion == "2015_2016") {   // corrections derived in 2018 (Rel 21), 2015+2016 data
+      return m_isol_corr->GetDDCorrection_2017(input, isol);
+    } else if (m_ddVersion == "2017")   // corrections derived in 2018 (Rel 21), 2017 data
+      return m_isol_corr->GetDDCorrection_2015_2016(input, isol);
 
     return 0;
   }
