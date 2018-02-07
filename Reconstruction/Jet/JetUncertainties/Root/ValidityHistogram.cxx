@@ -33,6 +33,7 @@ class InfoHelper
         const CompMassDef::TypeEnum m_massDef;
 
         double getMassOverPt(const xAOD::Jet& jet) const;
+        double getMassOverE(const xAOD::Jet& jet) const;
 };
 
 class InfoHelperPt : public InfoHelper
@@ -113,6 +114,45 @@ class InfoHelperPtMassAbsEta : public InfoHelper
         }
 };
 
+class InfoHelpereLOGmOe : public InfoHelper
+{
+    public:
+        InfoHelpereLOGmOe(const ValidityHistogram& validHist, const float energyScale, const CompMassDef::TypeEnum massDef)
+            : InfoHelper(validHist,energyScale,massDef) {}
+        virtual InfoHelpereLOGmOe* clone() const { return new InfoHelpereLOGmOe(*this); }
+
+        virtual bool isValid(const xAOD::Jet& jet) const
+        {
+            return m_validHist.getValue(jet.e()*m_energyScale,log(getMassOverE(jet)));
+        }
+};
+
+class InfoHelpereLOGmOeEta : public InfoHelper
+{
+    public:
+        InfoHelpereLOGmOeEta(const ValidityHistogram& validHist, const float energyScale, const CompMassDef::TypeEnum massDef)
+            : InfoHelper(validHist,energyScale,massDef) {}
+        virtual InfoHelpereLOGmOeEta* clone() const { return new InfoHelpereLOGmOeEta(*this); }
+
+        virtual bool isValid(const xAOD::Jet& jet) const
+        {
+            return m_validHist.getValue(jet.e()*m_energyScale,log(getMassOverE(jet)),jet.eta());
+        }
+};
+
+class InfoHelpereLOGmOeAbsEta : public InfoHelper
+{
+    public:
+        InfoHelpereLOGmOeAbsEta(const ValidityHistogram& validHist, const float energyScale, const CompMassDef::TypeEnum massDef)
+            : InfoHelper(validHist,energyScale,massDef) {}
+        virtual InfoHelpereLOGmOeAbsEta* clone() const { return new InfoHelpereLOGmOeAbsEta(*this); }
+
+        virtual bool isValid(const xAOD::Jet& jet) const
+        {
+            return m_validHist.getValue(jet.e()*m_energyScale,log(getMassOverE(jet)),fabs(jet.eta()));
+        }
+};
+
 double InfoHelper::getMassOverPt(const xAOD::Jet& jet) const
 {
     static JetFourMomAccessor scale(CompMassDef::getJetScaleString(m_massDef).Data());
@@ -131,6 +171,30 @@ double InfoHelper::getMassOverPt(const xAOD::Jet& jet) const
     // Fall-back on the calo mass as the 4-vec if applicable (TODO: temporary until JetCalibTools updated)
     if (m_massDef == CompMassDef::CaloMass)
         return jet.m()/jet.pt();
+
+    // Specified scale is not available, error
+    return JESUNC_ERROR_CODE;
+
+}
+
+double InfoHelper::getMassOverE(const xAOD::Jet& jet) const
+{
+    static JetFourMomAccessor scale(CompMassDef::getJetScaleString(m_massDef).Data());
+    static SG::AuxElement::ConstAccessor<float> scaleTAMoment("JetTrackAssistedMassCalibrated");
+
+    // UNKNOWN is just use the assigned scale
+    if (m_massDef == CompMassDef::UNKNOWN)
+        return jet.m()/jet.e();
+    
+    // Check if the specified scale is available and return it if so
+    if (scale.isAvailable(jet))
+        return scale(jet).M()/scale(jet).E();
+    // Fall-back on the TA moment as a float if applicable (TODO: temporary until JetCalibTools updated)
+    if (m_massDef == CompMassDef::TAMass && scaleTAMoment.isAvailable(jet))
+        return scaleTAMoment(jet)/jet.e();
+    // Fall-back on the calo mass as the 4-vec if applicable (TODO: temporary until JetCalibTools updated)
+    if (m_massDef == CompMassDef::CaloMass)
+        return jet.m()/jet.e();
 
     // Specified scale is not available, error
     return JESUNC_ERROR_CODE;
@@ -253,6 +317,15 @@ StatusCode ValidityHistogram::initialize(TFile* histFile)
             break;
         case CompParametrization::PtMassAbsEta:
             m_helper = new InfoHelperPtMassAbsEta(*this,m_energyScale,m_massDef);
+            break;
+        case CompParametrization::eLOGmOe:
+            m_helper = new InfoHelpereLOGmOe(*this,m_energyScale,m_massDef);
+            break;
+        case CompParametrization::eLOGmOeEta:
+            m_helper = new InfoHelpereLOGmOeEta(*this,m_energyScale,m_massDef);
+            break;
+        case CompParametrization::eLOGmOeAbsEta:
+            m_helper = new InfoHelpereLOGmOeAbsEta(*this,m_energyScale,m_massDef);
             break;
         default:
             ATH_MSG_ERROR("ValidityHistogram named \"" << getName().Data() << "\" was not prepared to handle the provided parametrization: " << CompParametrization::enumToString(m_param).Data());

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: PartonHistory.h 782353 2016-11-04 12:11:17Z scalvet $
@@ -54,6 +54,7 @@ namespace xAOD{
       virtual ~PartonHistory(){}    
 
       void IniVarTtbar();
+      void IniVarTtbarLight();
       void IniVarTbbar();
       void IniVarWlv();
       void IniVarWtb();

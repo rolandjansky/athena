@@ -22,7 +22,7 @@ ToolSvc += DFCommonPhotonsDirection
 
 #====================================================================
 # SHOWER SHAPE FUDGING IN MC 
-# (PRESELECTION=21: FUDGE FACTORS RUN2 2015+2016 DATA)
+# (PRESELECTION=22: FUDGE FACTORS RUN2 2015+2016 DATA, Rel 21)
 #====================================================================
 
 from PyUtils import AthFile
@@ -46,7 +46,7 @@ if isFullSim:
 #print "globalflags.DataSource(): ", globalflags.DataSource()
 #if globalflags.DataSource()=='geant4':
     from ElectronPhotonShowerShapeFudgeTool.ElectronPhotonShowerShapeFudgeToolConf import ElectronPhotonShowerShapeFudgeTool
-    DF_ElectronPhotonShowerShapeFudgeTool = ElectronPhotonShowerShapeFudgeTool(Preselection=21)
+    DF_ElectronPhotonShowerShapeFudgeTool = ElectronPhotonShowerShapeFudgeTool(Preselection=22)
     ToolSvc += DF_ElectronPhotonShowerShapeFudgeTool
     print DF_ElectronPhotonShowerShapeFudgeTool
 

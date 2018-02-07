@@ -636,6 +636,8 @@ namespace xAOD {
 	} else {
 	  if (m_override.find(obj)!=m_override.end()) {
 	    calOverlaps[bm] += m_override[obj];
+	  } else {
+	    calOverlaps[bm] += MissingETBase::Types::constvec_t(*obj);
 	  } // gets ignored otherwise?
 	}
       } else if(obj->type()==xAOD::Type::TruthParticle) {
