@@ -8,43 +8,29 @@
 #include "JetRecTools/PFlowPseudoJetGetter.h"
 #include "JetRecTools/JetConstituentModSequence.h"
 #include "JetRecTools/JetConstituentModifierBase.h"
-#include "JetRecTools/CaloClusterConstituentsWeight.h"
 #include "JetRecTools/CaloClusterConstituentsOrigin.h"
 #include "JetRecTools/SoftKillerWeightTool.h"
 #include "JetRecTools/VoronoiWeightTool.h"
 #include "JetRecTools/ClusterAtEMScaleTool.h"
 #include "JetRecTools/ConstituentSubtractorTool.h"
 #include "JetRecTools/JetInputElRemovalTool.h"
+#include "JetRecTools/CorrectPFOTool.h"
+#include "JetRecTools/ChargedHadronSubtractionTool.h"
+#include "JetRecTools/PuppiWeightTool.h"
 
-DECLARE_TOOL_FACTORY(JetTrackSelectionTool)
-DECLARE_TOOL_FACTORY(SimpleJetTrackSelectionTool)
-DECLARE_TOOL_FACTORY(TrackVertexAssociationTool)
-DECLARE_TOOL_FACTORY(TrackPseudoJetGetter)
-DECLARE_TOOL_FACTORY(PFlowPseudoJetGetter)
-DECLARE_TOOL_FACTORY(JetConstituentModSequence)
-DECLARE_TOOL_FACTORY(JetConstituentModifierBase)
-DECLARE_TOOL_FACTORY(CaloClusterConstituentsWeight)
-DECLARE_TOOL_FACTORY(CaloClusterConstituentsOrigin)
-DECLARE_TOOL_FACTORY(SoftKillerWeightTool)
-DECLARE_TOOL_FACTORY( VoronoiWeightTool )
-DECLARE_TOOL_FACTORY( ClusterAtEMScaleTool )
-DECLARE_TOOL_FACTORY( ConstituentSubtractorTool )
-DECLARE_TOOL_FACTORY( JetInputElRemovalTool )
-
-DECLARE_FACTORY_ENTRIES(JetRecTools) {
-  DECLARE_TOOL(JetTrackSelectionTool)
-  DECLARE_TOOL(SimpleJetTrackSelectionTool)
-  DECLARE_TOOL(TrackVertexAssociationTool)
-  DECLARE_TOOL(TrackPseudoJetGetter)
-  DECLARE_TOOL(PFlowPseudoJetGetter)
-  DECLARE_TOOL(JetConstituentModSequence)
-  DECLARE_TOOL(JetConstituentModifierBase)
-  DECLARE_TOOL(CaloClusterConstituentsWeight)
-  DECLARE_TOOL(CaloClusterConstituentsOrigin)
-  DECLARE_TOOL(SoftKillerWeightTool)
-  DECLARE_TOOL( ConstituentSubtractorTool )
-  DECLARE_TOOL( VoronoiWeightTool )
-  DECLARE_TOOL( ClusterAtEMScaleTool )
-  DECLARE_TOOL( JetInputElRemovalTool )
-  
-}
+DECLARE_COMPONENT( JetTrackSelectionTool )
+DECLARE_COMPONENT( SimpleJetTrackSelectionTool )
+DECLARE_COMPONENT( TrackVertexAssociationTool )
+DECLARE_COMPONENT( TrackPseudoJetGetter )
+DECLARE_COMPONENT( PFlowPseudoJetGetter )
+DECLARE_COMPONENT( JetConstituentModSequence )
+DECLARE_COMPONENT( JetConstituentModifierBase )
+DECLARE_COMPONENT( CaloClusterConstituentsOrigin )
+DECLARE_COMPONENT( SoftKillerWeightTool )
+DECLARE_COMPONENT( VoronoiWeightTool )
+DECLARE_COMPONENT( ClusterAtEMScaleTool )
+DECLARE_COMPONENT( ConstituentSubtractorTool )
+DECLARE_COMPONENT( JetInputElRemovalTool )
+DECLARE_COMPONENT( CorrectPFOTool )
+DECLARE_COMPONENT( ChargedHadronSubtractionTool )
+DECLARE_COMPONENT( PuppiWeightTool )
