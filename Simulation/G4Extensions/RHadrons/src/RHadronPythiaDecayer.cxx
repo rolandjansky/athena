@@ -15,6 +15,14 @@
 #include "G4DynamicParticle.hh"
 #include "G4DecayProducts.hh"
 
+RHadronPythiaDecayer::RHadronPythiaDecayer( const std::string s , bool usePythia8 )
+ : G4VExtDecayer(s)
+ , m_usePythia8(usePythia8)
+{
+  // In the constructor, make a decayer instance, so that it's initialized here and not in the event loop
+  if (m_usePythia8) Pythia8ForDecays::Instance();
+}
+
 G4DecayProducts* RHadronPythiaDecayer::ImportDecayProducts(const G4Track& aTrack){
   G4DecayProducts * dp = new G4DecayProducts();
   dp->SetParentParticle( *(aTrack.GetDynamicParticle()) );

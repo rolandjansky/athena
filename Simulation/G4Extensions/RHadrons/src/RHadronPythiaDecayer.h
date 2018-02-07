@@ -14,7 +14,7 @@ class G4DecayProducts;
 class RHadronPythiaDecayer: public G4VExtDecayer
 {
   public:
-   RHadronPythiaDecayer( const std::string s , bool usePythia8=false ) : G4VExtDecayer(s) , m_usePythia8(usePythia8) {}
+   RHadronPythiaDecayer( const std::string s , bool usePythia8=false );
    virtual G4DecayProducts* ImportDecayProducts(const G4Track&);
   private:
    bool m_usePythia8;
