@@ -6,6 +6,7 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #define ITrigBtagEmulationTool_H_
 
 #include "AsgTools/IAsgTool.h"
+#include "xAODJet/JetContainer.h"
 
 namespace Trig {
 
@@ -14,6 +15,7 @@ namespace Trig {
 
     public:
       virtual bool isPassed(const std::string&)=0;
+      virtual const xAOD::JetContainer* retaggedJets(std::string) const=0;
   };
 
 }

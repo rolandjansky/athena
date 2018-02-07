@@ -18,30 +18,36 @@ BaseTrigBtagEmulationChainJetIngredient::BaseTrigBtagEmulationChainJetIngredient
     m_type_THRESHOLD_features(other.m_type_THRESHOLD_features.begin(),other.m_type_THRESHOLD_features.end()), 
     m_type_SELECTION_features(other.m_type_SELECTION_features.begin(),other.m_type_SELECTION_features.end()),
     m_neededJetCollection(other.m_neededJetCollection.begin(),other.m_neededJetCollection.end()) {}
-BaseTrigBtagEmulationChainJetIngredient::~BaseTrigBtagEmulationChainJetIngredient() {}
+BaseTrigBtagEmulationChainJetIngredient::~BaseTrigBtagEmulationChainJetIngredient() {
+  std::map< std::string,std::vector< TrigBtagEmulationJet* >* >::iterator it = m_jetCollection.begin();
+  for ( ; it != m_jetCollection.end(); it++) {
+    for (unsigned int i(0); i<it->second->size(); i++) delete it->second->at(i);
+    delete it->second;
+  }
+}
 
 std::string BaseTrigBtagEmulationChainJetIngredient::getName() const { return m_triggerName; }
 
-bool BaseTrigBtagEmulationChainJetIngredient::evaluateJet(struct TrigBtagEmulationJet& jet) {
+bool BaseTrigBtagEmulationChainJetIngredient::evaluateJet(TrigBtagEmulationJet* jet) {
   bool exiting = false;
 
   for (unsigned int index(0); index < m_type_THRESHOLD_features.size(); index++)
-    if (!m_type_THRESHOLD_features.at(index).second->evaluateJet(&jet)) exiting = true;
+    if (!m_type_THRESHOLD_features.at(index).second->evaluateJet(jet)) exiting = true;
   for (unsigned int index(0); index < m_type_SELECTION_features.size(); index++)
-    if (!m_type_SELECTION_features.at(index).second->evaluateJet(&jet)) exiting = true;
+    if (!m_type_SELECTION_features.at(index).second->evaluateJet(jet)) exiting = true;
 
   if (exiting) return false;
 
-  if (jet.pt <= m_min_pt) return false;
-  if (fabs(jet.eta) < m_min_eta) return false;
-  if (fabs(jet.eta) > m_max_eta) return false;
+  if (jet->pt() <= m_min_pt) return false;
+  if (fabs(jet->eta()) < m_min_eta) return false;
+  if (fabs(jet->eta()) > m_max_eta) return false;
 
   m_count++;
   return true;
 }
 
 bool BaseTrigBtagEmulationChainJetIngredient::needsJet(std::string item) { return m_neededJetCollection["MAIN"] == item; } 
-bool BaseTrigBtagEmulationChainJetIngredient::addJet(std::string key,std::vector< struct TrigBtagEmulationJet >& jets) {
+bool BaseTrigBtagEmulationChainJetIngredient::addJet(std::string key,std::vector< TrigBtagEmulationJet* >& jets) {
   m_jetCollection[key] = &jets;
   return true;
 }
@@ -229,7 +235,8 @@ bool TrigBtagEmulationChainJetIngredient_HLT::overlaps(const TrigBtagEmulationCh
 
   if (isOnlyHT_this || isOnlyHT_other) return false;
   if (other->m_min_eta > this->m_min_eta && other->m_min_eta < this->m_max_eta) return true;
-  if (other->m_max_eta > this->m_min_eta && other->m_min_eta < this->m_max_eta) return true;
+  if (other->m_max_eta > this->m_min_eta && other->m_max_eta < this->m_max_eta) return true;
+  if (other->m_min_eta < this->m_min_eta && other->m_max_eta > this->m_max_eta) return true;
   return false;
 }
 bool TrigBtagEmulationChainJetIngredient_HLT::contains(const TrigBtagEmulationChainJetIngredient_HLT* other) const {
@@ -251,7 +258,7 @@ bool TrigBtagEmulationChainJetIngredient_HLT::contains(const TrigBtagEmulationCh
     if (m_type_THRESHOLD_features.at(i).first == "BTAG") cutBtag_this = m_type_THRESHOLD_features.at(i).second->getCut();
   double cutBtag_other = -1000;
   for (unsigned int i=0; i<other->m_type_THRESHOLD_features.size(); i++) 
-    if (other->m_type_THRESHOLD_features.at(i).first == "BTAG") cutBtag_this = other->m_type_THRESHOLD_features.at(i).second->getCut();
+    if (other->m_type_THRESHOLD_features.at(i).first == "BTAG") cutBtag_other = other->m_type_THRESHOLD_features.at(i).second->getCut();
 
   if (cutBtag_other < cutBtag_this) return false;
 
@@ -353,7 +360,7 @@ bool TrigBtagEmulationChainJetIngredient_GSC::needsJet(std::string item) {
   return BaseTrigBtagEmulationChainJetIngredient::needsJet(item);
 }
 
-bool TrigBtagEmulationChainJetIngredient_GSC::evaluateJet(struct TrigBtagEmulationJet& jet) {
+bool TrigBtagEmulationChainJetIngredient_GSC::evaluateJet(TrigBtagEmulationJet* jet) {
 
   if ( !TrigBtagEmulationChainJetIngredient_HLT::evaluateJet(jet) ) return false;
 
@@ -362,12 +369,12 @@ bool TrigBtagEmulationChainJetIngredient_GSC::evaluateJet(struct TrigBtagEmulati
 
   bool exiting = false;
   for (unsigned int index(0); index < m_type_THRESHOLD_features.size(); index++)
-    if (!m_type_THRESHOLD_features.at(index).second->evaluateJet( &m_jetCollection["GSC"]->at(index_GSC)) ) exiting = true;
+    if (!m_type_THRESHOLD_features.at(index).second->evaluateJet( m_jetCollection["GSC"]->at(index_GSC)) ) exiting = true;
   if (exiting) return false;
 
-  if (m_jetCollection["GSC"]->at(index_GSC).pt < m_min_gsc) return false;
-  if (fabs(m_jetCollection["GSC"]->at(index_GSC).eta) < m_min_eta) return false;
-  if (fabs(m_jetCollection["GSC"]->at(index_GSC).eta) > m_max_eta) return false;
+  if (m_jetCollection["GSC"]->at(index_GSC)->pt() < m_min_gsc) return false;
+  if (fabs(m_jetCollection["GSC"]->at(index_GSC)->eta()) < m_min_eta) return false;
+  if (fabs(m_jetCollection["GSC"]->at(index_GSC)->eta()) > m_max_eta) return false;
 
   m_count_gsc++;
   return true;
@@ -387,13 +394,13 @@ void TrigBtagEmulationChainJetIngredient_GSC::clear() {
   TrigBtagEmulationChainJetIngredient_HLT::clear();
 }
 
-unsigned int TrigBtagEmulationChainJetIngredient_GSC::matchingJets(struct TrigBtagEmulationJet& jet) {
+unsigned int TrigBtagEmulationChainJetIngredient_GSC::matchingJets(const TrigBtagEmulationJet* jet) {
   unsigned int output = m_jetCollection["GSC"]->size();
   double min_distance = 1e4;
 
   for (unsigned int i(0); i < m_jetCollection["GSC"]->size(); i++)
     {
-      double distance = sqrt(pow(jet.eta-m_jetCollection["GSC"]->at(i).eta,2)+pow(jet.phi-m_jetCollection["GSC"]->at(i).phi,2));
+      double distance = sqrt(pow(jet->eta()-m_jetCollection["GSC"]->at(i)->eta(),2)+pow(jet->phi()-m_jetCollection["GSC"]->at(i)->phi(),2));
       if (distance < 0.1 && distance < min_distance) {output=i;min_distance=distance;}
     }
 

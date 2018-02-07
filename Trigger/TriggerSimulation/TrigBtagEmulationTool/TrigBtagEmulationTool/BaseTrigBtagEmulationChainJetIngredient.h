@@ -28,12 +28,12 @@ namespace Trig {
     virtual void clear(); 
 
     virtual bool needsJet(std::string);
-    bool addJet(std::string,std::vector< struct TrigBtagEmulationJet >&);
+    bool addJet(std::string,std::vector< TrigBtagEmulationJet* >&);
 
     virtual void initialize() = 0;
 
   protected:
-    virtual bool evaluateJet(struct TrigBtagEmulationJet&); 
+    virtual bool evaluateJet(TrigBtagEmulationJet*); 
     void addFeature(std::string,TriggerFeature*); 
 
     virtual void setPT(std::string&)   = 0;
@@ -57,7 +57,7 @@ namespace Trig {
 
   public:
     std::map< std::string,std::string > m_neededJetCollection;
-    std::map< std::string,std::vector< struct TrigBtagEmulationJet >* > m_jetCollection;
+    std::map< std::string,std::vector< TrigBtagEmulationJet* >* > m_jetCollection;
   };
 
   // ==========================================================================
@@ -135,7 +135,7 @@ namespace Trig {
     virtual void clear();
     virtual bool needsJet(std::string);
     virtual void initialize();
-    virtual bool evaluateJet(struct TrigBtagEmulationJet&);
+    virtual bool evaluateJet(TrigBtagEmulationJet*);
 
     virtual void addJetsMulteplicity(const TrigBtagEmulationChainJetIngredient_HLT*);
 
@@ -143,7 +143,7 @@ namespace Trig {
     virtual void setPT(std::string&);
 
   private:
-    unsigned int matchingJets(struct TrigBtagEmulationJet&);
+    unsigned int matchingJets(const TrigBtagEmulationJet*);
 
   public:
     double m_min_gsc;

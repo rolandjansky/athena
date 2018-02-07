@@ -6,8 +6,8 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #define TrigBtagEmulationTool_H
 
 #include "TrigBtagEmulationTool/ITrigBtagEmulationTool.h"
+#include "TrigBtagEmulationTool/TrigBtagEmulationChain.h"
 #include "TrigBtagEmulationTool/TriggerFeature.h"
-#include "TrigBtagEmulationTool/BaseTrigBtagEmulationChainJetIngredient.h"
 #include "TrigBtagEmulationTool/JetManager.h"
 
 // EDM
@@ -59,63 +59,6 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 
 namespace Trig {
-  
-  class TrigBtagEmulationChain {    
-  public:
-
-    /// Constructor with signature name 
-    TrigBtagEmulationChain(const std::vector<std::string>& chainDefinition, ToolHandle<Trig::TrigDecisionTool>& trigDec);    
-
-    /// Trigger decision ingredient definition
-    void addDecisionIngredient(std::string decision);
-    void addDecisionIngredient(BaseTrigBtagEmulationChainJetIngredient* decision);
-
-    /// Jet Evaluation
-    void evaluate();
-
-    /// Chain evaluation
-    bool isPassed();
-
-    // Dump
-    void Print();
-
-    // Utilities
-    bool hasFeature(std::string feature);
-
-    /// Event cleanup
-    void clear();
-  
-    /// Name
-    std::string getName() const;
-    // Method for accessing configuration outcome
-    bool isCorrectlyConfigured() const;
-    bool isAutoConfigured() const;
-    std::vector< std::string > retrieveAutoConfiguration() const;
-
-    bool addJet(std::string item,std::vector< struct TrigBtagEmulationJet >& jets);
-
-  protected:
-    bool parseChainName( std::string,std::vector< BaseTrigBtagEmulationChainJetIngredient* >& );
-    std::vector< BaseTrigBtagEmulationChainJetIngredient* > processL1trigger (std::string);
-    std::vector< BaseTrigBtagEmulationChainJetIngredient* > processHLTtrigger (std::string);
-
-  private:
-    // Chain name
-    std::string m_name;
-
-    // Chain selections
-    std::vector< std::string > m_ingredientsDecision;
-    std::vector< BaseTrigBtagEmulationChainJetIngredient* >  m_ingredientsJet;
-
-    // Trigger decision
-    ToolHandle<Trig::TrigDecisionTool>& m_trigDec;
-
-    bool m_correctlyConfigured;
-    bool m_autoConfigured;
-  };
-
-
-
 
   class TrigBtagEmulationTool : public asg::AsgTool, virtual public Trig::ITrigBtagEmulationTool {
     ASG_TOOL_CLASS(TrigBtagEmulationTool, Trig::ITrigBtagEmulationTool)
@@ -133,6 +76,7 @@ namespace Trig {
     StatusCode addEmulatedChain(const std::vector<std::string>&);
     std::vector<std::string> addEmulatedChain(const std::string);
     bool isPassed(const std::string&);
+    const xAOD::JetContainer* retaggedJets(std::string) const;
 
   private:
 
@@ -141,6 +85,7 @@ namespace Trig {
 
     StatusCode getInputContainerSG(std::vector<const xAOD::Jet*>& jetContainers,
                                    std::string& inputItem, std::string& jetName);
+    StatusCode retrieve( std::unique_ptr< Trig::JetManager >&,bool );
 
     // *** Attributes ** //
   private:
@@ -195,11 +140,11 @@ namespace Trig {
     long long int m_previousEvent;
 
     // jet Managers
-    Trig::JetManager *m_manager_ef;
-    Trig::JetManager *m_manager_split;
-    Trig::JetManager *m_manager_gsc;
-    Trig::JetManager *m_manager_ef_gsc;
-    Trig::JetManager *m_manager_split_gsc;
+    std::unique_ptr< Trig::JetManager > m_manager_ef;
+    std::unique_ptr< Trig::JetManager > m_manager_split;
+    std::unique_ptr< Trig::JetManager > m_manager_gsc;
+    std::unique_ptr< Trig::JetManager > m_manager_ef_gsc;
+    std::unique_ptr< Trig::JetManager > m_manager_split_gsc;
 
     // OUTPUT PROPERTIES
     std::vector< std::vector< std::string > > m_emulatedChainDefinitions;

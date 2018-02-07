@@ -5,6 +5,8 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #ifndef TRIGGER_FEATURE_H
 #define TRIGGER_FEATURE_H
 
+#include "TrigBtagEmulationJet.h"
+
 #include <iostream>
 #include <cmath>
 #include <string>
@@ -15,17 +17,6 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 namespace Trig {
 
-  struct TrigBtagEmulationJet {
-    double pt;
-    double eta;
-    double phi;
-    std::map< std::string, double > weights;
-  };
-
-  bool sortEmulationJetByPt(Trig::TrigBtagEmulationJet&,Trig::TrigBtagEmulationJet&);
-
-  // ***
-
   class TriggerFeature {
   public:
     TriggerFeature(int type = TriggerFeature::UNKNOWN,std::string name = "NONE");
@@ -34,7 +25,7 @@ namespace Trig {
 
     std::string name() const;
     virtual bool isPassed() = 0;
-    virtual bool evaluateJet(struct TrigBtagEmulationJet*) = 0;
+    virtual bool evaluateJet(TrigBtagEmulationJet*) = 0;
     virtual void clear() = 0;
     virtual void Print() = 0;
     virtual void setCuts(float,float,float) {}
@@ -59,7 +50,7 @@ namespace Trig {
     virtual ~TriggerFeatureBtag();
 
     virtual bool isPassed();
-    virtual bool evaluateJet(struct TrigBtagEmulationJet*);
+    virtual bool evaluateJet(TrigBtagEmulationJet*);
     virtual void clear();
     virtual void Print();
 
@@ -100,7 +91,7 @@ namespace Trig {
     TriggerFeatureAntiBtag(const TriggerFeatureAntiBtag&);
     virtual ~TriggerFeatureAntiBtag();
 
-    virtual bool evaluateJet(struct TrigBtagEmulationJet*);
+    virtual bool evaluateJet(TrigBtagEmulationJet*);
     virtual void Print();
   };
 
@@ -114,20 +105,20 @@ namespace Trig {
     virtual ~TriggerFeatureHt();
 
     virtual bool isPassed();
-    virtual bool evaluateJet(struct TrigBtagEmulationJet*);
+    virtual bool evaluateJet(TrigBtagEmulationJet*);
     virtual void clear();
     virtual void Print();
     virtual void setCuts(float,float,float);
     virtual float getCut() const;
 
-    bool satisfyCuts(struct TrigBtagEmulationJet*);
+    bool satisfyCuts(const TrigBtagEmulationJet*);
 
   protected:
     bool isPassed_L1();
     bool isPassed_HLT();
 
-    virtual bool evaluateJet_L1(struct TrigBtagEmulationJet*);
-    bool evaluateJet_HLT(struct TrigBtagEmulationJet*);
+    virtual bool evaluateJet_L1(TrigBtagEmulationJet*);
+    bool evaluateJet_HLT(TrigBtagEmulationJet*);
 
   public:
     std::string m_trigLevel;
@@ -154,13 +145,13 @@ namespace Trig {
     virtual void Print();
 
   protected:
-    virtual bool evaluateJet_L1(struct TrigBtagEmulationJet*);
+    virtual bool evaluateJet_L1(TrigBtagEmulationJet*);
 
   private:
     void calculateHT_L1();
 
   private:
-    std::vector<struct TrigBtagEmulationJet> m_piorityQueue;
+    std::vector<TrigBtagEmulationJet*> m_piorityQueue;
     unsigned int m_topEt;
   };
 
@@ -172,13 +163,13 @@ namespace Trig {
     virtual ~TriggerFeatureInvm();
 
     virtual bool isPassed();
-    virtual bool evaluateJet(struct TrigBtagEmulationJet*);
+    virtual bool evaluateJet(TrigBtagEmulationJet*);
     virtual void clear();
     virtual void Print();
     virtual void setCuts(float,float,float);
     virtual float getCut() const;
 
-    bool satisfyCuts(struct TrigBtagEmulationJet*);
+    bool satisfyCuts(const TrigBtagEmulationJet*);
 
   protected:
     void initLUTs();
@@ -186,11 +177,11 @@ namespace Trig {
     double cos_LUT(double value) const;
 
   protected:
-    virtual bool evaluateJet_L1(struct TrigBtagEmulationJet*);  
-    bool evaluateJet_HLT(struct TrigBtagEmulationJet*);  
+    virtual bool evaluateJet_L1(TrigBtagEmulationJet*);  
+    bool evaluateJet_HLT(TrigBtagEmulationJet*);  
 
   protected:
-    double calculateINVM(struct TrigBtagEmulationJet const&,struct TrigBtagEmulationJet const&) const;
+    double calculateINVM(const TrigBtagEmulationJet*,const TrigBtagEmulationJet*) const;
 
   protected:
     std::string m_trigLevel;
@@ -201,9 +192,9 @@ namespace Trig {
     double m_cut_max_eta;
 
   protected:
-    std::vector<struct TrigBtagEmulationJet> m_jetCollection_HLT;
-    std::vector<struct TrigBtagEmulationJet> m_priorityQueue_20;
-    std::vector<struct TrigBtagEmulationJet> m_priorityQueue_30;
+    std::vector<TrigBtagEmulationJet*> m_jetCollection_HLT;
+    std::vector<TrigBtagEmulationJet*> m_priorityQueue_20;
+    std::vector<TrigBtagEmulationJet*> m_priorityQueue_30;
 
   protected:
     std::map< int,double > m_LUTcos;
@@ -220,7 +211,7 @@ namespace Trig {
     virtual void Print();
 
   private:
-    virtual bool evaluateJet_L1(struct TrigBtagEmulationJet*);    
+    virtual bool evaluateJet_L1(TrigBtagEmulationJet*);    
   };
 
 
