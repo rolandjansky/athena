@@ -79,8 +79,13 @@ namespace VKalVrtAthena {
     if( !(trk->summaryValue( SCTHits,   xAOD::numberOfSCTHits                 ) ) ) SCTHits   =0;
     if( !(trk->summaryValue( TRTHits,   xAOD::numberOfTRTHits                 ) ) ) TRTHits   =0;
     
+    if( trk->pt() > 20.e3 ) return true;
+    
     if( SCTHits < m_jp.CutTightSCTHits                   ) return false;
-    if( PixelHits == 0 && TRTHits < m_jp.CutTightTRTHits ) return false;
+    
+    if( fabs( trk->eta() ) < 1.7 ) {
+      if( TRTHits < m_jp.CutTightTRTHits ) return false;
+    }
     
     return true;
   }

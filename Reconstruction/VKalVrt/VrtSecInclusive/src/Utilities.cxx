@@ -1007,7 +1007,7 @@ namespace VKalVrtAthena {
         
         const double s2 = distance.transpose() * cov.inverse() * distance;
         
-        if( s2 < 100. ) matchMap.at( truthVertex ) = true;
+        if( distance.norm() < 2.0 || s2 < 100. ) matchMap.at( truthVertex ) = true;
         
       }
       
@@ -1469,17 +1469,29 @@ namespace VKalVrtAthena {
 	
     } else {
     }
-      
-      
+    
+    unsigned nPixelLayers { 0 };
+    {
+      nPixelLayers += ( pattern & (1 << Trk::pixelBarrel0) );
+      nPixelLayers += ( pattern & (1 << Trk::pixelBarrel1) );
+      nPixelLayers += ( pattern & (1 << Trk::pixelBarrel2) );
+      nPixelLayers += ( pattern & (1 << Trk::pixelBarrel3) );
+      nPixelLayers += ( pattern & (1 << Trk::pixelEndCap0) );
+      nPixelLayers += ( pattern & (1 << Trk::pixelEndCap1) );
+      nPixelLayers += ( pattern & (1 << Trk::pixelEndCap2) );
+    }
+    
     //////////////////////////////////////////////////////////////////////////////////
     if( vertex_pattern == insideBeamPipe ) {
 	
       if( ! (pattern & (1<<Trk::pixelBarrel0)) ) return false;
+      if( nPixelLayers < 3 )                     return false;
 	
 	
     } else if( vertex_pattern == insidePixelBarrel0 ) {
 	
       if( ! (pattern & (1<<Trk::pixelBarrel0)) ) return false;
+      if( nPixelLayers < 3 )                     return false;
     }
       
       
@@ -1487,6 +1499,7 @@ namespace VKalVrtAthena {
 	
       // require nothing for PixelBarrel0
       if( ! (pattern & (1<<Trk::pixelBarrel1)) ) return false;
+      if( nPixelLayers < 2 )                     return false;
     }
       
       
@@ -1494,6 +1507,7 @@ namespace VKalVrtAthena {
 	
       if(   (pattern & (1<<Trk::pixelBarrel0)) ) return false;
       if( ! (pattern & (1<<Trk::pixelBarrel1)) ) return false;
+      if( nPixelLayers < 2 )                     return false;
     }
       
       
@@ -1502,6 +1516,7 @@ namespace VKalVrtAthena {
       if(   (pattern & (1<<Trk::pixelBarrel0)) ) return false;
       // require nothing for PixelBarrel1
       if( ! (pattern & (1<<Trk::pixelBarrel2)) ) return false;
+      if( nPixelLayers < 2 )                     return false;
     }
       
       
@@ -1510,6 +1525,7 @@ namespace VKalVrtAthena {
       if(   (pattern & (1<<Trk::pixelBarrel0)) ) return false;
       if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
       if( ! (pattern & (1<<Trk::pixelBarrel2)) ) return false;
+      if( nPixelLayers < 2 )                     return false;
     }
       
       
@@ -1536,7 +1552,7 @@ namespace VKalVrtAthena {
       if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
       if(   (pattern & (1<<Trk::pixelBarrel2)) ) return false;
       // require nothing for PixelBarrel3
-      if( ! (pattern & (1<<Trk::sctBarrel0)) ) return false;
+      if( ! (pattern & (1<<Trk::sctBarrel0)) )   return false;
     }
       
       
@@ -1669,15 +1685,30 @@ namespace VKalVrtAthena {
     }
       
       
+    unsigned nPixelLayers { 0 };
+    {
+      nPixelLayers += ( pattern & (1 << Trk::pixelBarrel0) );
+      nPixelLayers += ( pattern & (1 << Trk::pixelBarrel1) );
+      nPixelLayers += ( pattern & (1 << Trk::pixelBarrel2) );
+      nPixelLayers += ( pattern & (1 << Trk::pixelBarrel3) );
+      nPixelLayers += ( pattern & (1 << Trk::pixelEndCap0) );
+      nPixelLayers += ( pattern & (1 << Trk::pixelEndCap1) );
+      nPixelLayers += ( pattern & (1 << Trk::pixelEndCap2) );
+    }
+    
     //////////////////////////////////////////////////////////////////////////////////
     if( vertex_pattern == insideBeamPipe ) {
 	
       if( ! (pattern & (1<<Trk::pixelBarrel0)) ) return false;
-	
-	
+      if( ! (pattern & (1<<Trk::pixelBarrel1)) ) return false;
+      if( nPixelLayers < 3                     ) return false;
+      
     } else if( vertex_pattern == insidePixelBarrel0 ) {
 	
       if( ! (pattern & (1<<Trk::pixelBarrel0)) ) return false;
+      if( ! (pattern & (1<<Trk::pixelBarrel1)) ) return false;
+      if( nPixelLayers < 3                     ) return false;
+      
     }
       
       
@@ -1685,12 +1716,16 @@ namespace VKalVrtAthena {
 	
       // require nothing for PixelBarrel0
       if( ! (pattern & (1<<Trk::pixelBarrel1)) ) return false;
+      if( ! (pattern & (1<<Trk::pixelBarrel2)) ) return false;
+      if( nPixelLayers < 3                     ) return false;
     }
       
       
     else if( vertex_pattern == outsidePixelBarrel0_and_insidePixelBarrel1 ) {
 	
       if( ! (pattern & (1<<Trk::pixelBarrel1)) ) return false;
+      if( ! (pattern & (1<<Trk::pixelBarrel2)) ) return false;
+      if( nPixelLayers < 3                     ) return false;
     }
       
       
@@ -1698,12 +1733,16 @@ namespace VKalVrtAthena {
 	
       // require nothing for PixelBarrel1
       if( ! (pattern & (1<<Trk::pixelBarrel2)) ) return false;
+      if( ! (pattern & (1<<Trk::pixelBarrel3)) ) return false;
+      if( nPixelLayers < 2                     ) return false;
     }
       
       
     else if( vertex_pattern == outsidePixelBarrel1_and_insidePixelBarrel2 ) {
 	
       if( ! (pattern & (1<<Trk::pixelBarrel2)) ) return false;
+      if( ! (pattern & (1<<Trk::pixelBarrel3)) ) return false;
+      if( nPixelLayers < 2                     ) return false;
     }
       
       
@@ -1723,12 +1762,14 @@ namespace VKalVrtAthena {
 	
       // require nothing for PixelBarrel3
       if( ! (pattern & (1<<Trk::sctBarrel0)) ) return false;
+      if( ! (pattern & (1<<Trk::sctBarrel1)) ) return false;
     }
       
       
     else if( vertex_pattern == outsidePixelBarrel3_and_insideSctBarrel0 ) {
 	
       if( ! (pattern & (1<<Trk::sctBarrel0)) ) return false;
+      if( ! (pattern & (1<<Trk::sctBarrel1)) ) return false;
     }
       
       
@@ -1736,18 +1777,21 @@ namespace VKalVrtAthena {
 	
       // require nothing for SctBarrel0
       if( ! (pattern & (1<<Trk::sctBarrel1)) ) return false;
+      if( ! (pattern & (1<<Trk::sctBarrel2)) ) return false;
     }
       
       
     else if( vertex_pattern == outsideSctBarrel0_and_insideSctBarrel1 ) {
       
       if( ! (pattern & (1<<Trk::sctBarrel1)) ) return false;
+      if( ! (pattern & (1<<Trk::sctBarrel2)) ) return false;
     }
       
       
     else if( vertex_pattern == aroundSctBarrel1 ) {
       // require nothing for SctBarrel1
       if( ! (pattern & (1<<Trk::sctBarrel2)) ) return false;
+      if( ! (pattern & (1<<Trk::sctBarrel3)) ) return false;
     }
     //////////////////////////////////////////////////////////////////////////////////
       

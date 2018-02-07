@@ -85,7 +85,7 @@ namespace VKalVrtAthena {
         wrkvrt.selectedTrackIndices.emplace_back( itrk_id );
         wrkvrt.selectedTrackIndices.emplace_back( jtrk_id );
         
-        if( fabs( (*itrk)->d0() ) < m_jp.twoTrkVtxFormingD0Cut && fabs( (*jtrk)->d0() ) < m_jp.twoTrkVtxFormingD0Cut  ) continue;
+        if( fabs( (*itrk)->d0() ) < m_jp.twoTrkVtxFormingD0Cut && fabs( (*jtrk)->d0() ) < m_jp.twoTrkVtxFormingD0Cut ) continue;
 
         // Attempt to think the combination is incompatible by default
         m_incomp.emplace_back( std::pair<int, int>(itrk_id, jtrk_id) );
@@ -234,7 +234,7 @@ namespace VKalVrtAthena {
 
           const double s2 = distance.transpose() * cov.inverse() * distance;
           
-          if( s2 < 100. )  {
+          if( distance.norm() < 2.0 || s2 < 100. )  {
             ATH_MSG_DEBUG ( " > " << __FUNCTION__ << ": truth-matched candidate! : signif^2 = " << s2 );
             matchMap.emplace( truthVertex, true );
           }
@@ -337,7 +337,7 @@ namespace VKalVrtAthena {
     ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": incompatible track pair size = " << m_incomp.size() );
     
     
-    if( compSize < 500 ) {
+    if( true /*compSize < 500*/ ) {
       
       ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": incompatibility graph finder mode" );
       
@@ -1036,6 +1036,8 @@ namespace VKalVrtAthena {
       if( !wrkvrt.isGood               ) continue;
       if(  wrkvrt.selectedTrackIndices.size() <= 1 ) continue;
       
+      improveVertexChi2( wrkvrt );
+      
       wrkvrt.Chi2_core = wrkvrt.Chi2;
       
       auto& vertexPos = wrkvrt.vertex;
@@ -1079,20 +1081,17 @@ namespace VKalVrtAthena {
           if( result != m_associatedTracks->end() ) continue;
         }
         
+        // Reject PV-associated tracks
+        // if( !selectTrack_notPVassociated( trk ) ) continue;
+        
         // pT selection
         if( trk->pt() < m_jp.associatePtCut ) continue;
         
         // chi2 selection
         if( trk->chiSquared() / trk->numberDoF() > m_jp.associateChi2Cut ) continue;
         
-        // hit pattern selection
-        if( !selectTrack_hitPattern( trk ) ) continue;
-        
-        
-        // Hit pattern consistentcy requirement (within IBL)
-        if( vertexPos.perp() < 31.0 ) {
-          if( !checkTrackHitPatternToVertex( trk, vertexPos ) ) continue;
-        }
+        // Hit pattern consistentcy requirement
+        if( !checkTrackHitPatternToVertexOuterOnly( trk, vertexPos ) ) continue;
         
         // Get the closest approach
         std::vector<double> impactParameters;
@@ -1478,6 +1477,28 @@ namespace VKalVrtAthena {
 
       if( m_jp.FillHist ) m_hists["finalCutMonitor"]->Fill( 1 );
       
+      
+      // Remove track if the vertex is inner than IBL and the track does not have pixel hits!
+      if( wrkvrt.vertex.perp() < 31.0 ) {
+        for( auto& index : wrkvrt.selectedTrackIndices ) {
+          auto *trk = m_selectedTracks->at( index );
+          uint8_t nPixelHits { 0 }; trk->summaryValue( nPixelHits,  xAOD::numberOfPixelHits );
+          if(  nPixelHits < 3 ) {
+            wrkvrt.selectedTrackIndices.erase( wrkvrt.selectedTrackIndices.begin() + index ); //remove track
+          }
+        }
+        for( auto& index : wrkvrt.associatedTrackIndices ) {
+          auto *trk = m_associatedTracks->at( index );
+          uint8_t nPixelHits { 0 }; trk->summaryValue( nPixelHits,  xAOD::numberOfPixelHits );
+          if(  nPixelHits < 3 ) {
+            wrkvrt.associatedTrackIndices.erase( wrkvrt.associatedTrackIndices.begin() + index ); //remove track
+          }
+        }
+        auto statusCode = refitVertex( wrkvrt );
+        if( statusCode.isFailure() ) {}
+      }
+      
+      
       if( m_jp.doFinalImproveChi2 ) {
         
         WrkVrt backup = wrkvrt;
@@ -1486,9 +1507,14 @@ namespace VKalVrtAthena {
         
         if( wrkvrt.fitQuality() > backup.fitQuality() ) wrkvrt = backup;
         
-        // If the number of remaining tracks is less than 2, drop.
-        if( wrkvrt.nTracksTotal() < 2 ) continue;
       }
+        
+      // If the number of remaining tracks is less than 2, drop.
+      if( wrkvrt.nTracksTotal() < 2 ) continue;
+      
+      // Select only vertices with keeping more than 2 selectedTracks
+      if( wrkvrt.selectedTrackIndices.size() < 2 ) continue;
+      
       
       if( m_jp.FillHist ) m_hists["finalCutMonitor"]->Fill( 2 );
       
@@ -1590,7 +1616,6 @@ namespace VKalVrtAthena {
       
       
       TLorentzVector sumP4_selected;
-      unsigned mult_selected    { 0 };
       
       bool badIPflag { false };
       
@@ -1668,9 +1693,12 @@ namespace VKalVrtAthena {
         p4wrtSV_electron.SetPtEtaPhiM( pt_wrtSV, eta_wrtSV, phi_wrtSV, PhysConsts::mass_electron    );
         
         // for selected tracks only
-        if( ! trk->isAvailable<char>("is_associated" + m_jp.augVerString ) ) {
+        if( trk->isAvailable<char>("is_associated" + m_jp.augVerString ) ) {
+          if( !trk->auxdataConst<char>("is_associated" + m_jp.augVerString) ) {
+            sumP4_selected += p4wrtSV_pion;
+          }
+        } else {
           sumP4_selected += p4wrtSV_pion;
-          mult_selected++;
         }
         
         sumP4_pion     += p4wrtSV_pion;
@@ -1745,6 +1773,8 @@ namespace VKalVrtAthena {
       vertex->auxdata<float>("vtx_mass")                 = wrkvrt.vertexMom.M();
       vertex->auxdata<float>("vtx_charge")               = wrkvrt.Charge;
 
+      vertex->auxdata<float>("chi2_core")                = wrkvrt.Chi2_core;
+      vertex->auxdata<float>("ndof_core")                = wrkvrt.ndof_core();
       vertex->auxdata<float>("chi2_assoc")               = wrkvrt.Chi2;
       vertex->auxdata<float>("ndof_assoc")               = wrkvrt.ndof();
       // Other SV properties
