@@ -88,6 +88,7 @@ JetUncertaintiesTool::JetUncertaintiesTool(const std::string& name)
     , m_combMassParam(CompParametrization::UNKNOWN)
     , m_userSeed(0)
     , m_rand(new TRandom3())
+    , m_massSmearPar(0.66)
     , m_namePrefix("JET_")
 {
     declareProperty("JetDefinition",m_jetDef);
@@ -136,6 +137,7 @@ JetUncertaintiesTool::JetUncertaintiesTool(const JetUncertaintiesTool& toCopy)
     , m_combMassParam(CompParametrization::UNKNOWN)
     , m_userSeed(toCopy.m_userSeed)
     , m_rand(toCopy.m_rand ? new TRandom3(*toCopy.m_rand) : NULL)
+    , m_massSmearPar(toCopy.m_massSmearPar)
     , m_namePrefix(toCopy.m_namePrefix)
 {
     ATH_MSG_DEBUG("Creating copy of JetUncertaintiesTool named "<<m_name);
@@ -2037,7 +2039,7 @@ CP::CorrectionCode JetUncertaintiesTool::applyCorrection(xAOD::Jet& jet, const x
                     return CP::CorrectionCode::Error;
                 break;
             case CompScaleVar::MassRes:
-                jet.setJetP4(xAOD::JetFourMom_t(jet.pt(),jet.eta(),jet.phi(),getMassSmearingFactor(jet,shift)*jet.m()));
+                jet.setJetP4(xAOD::JetFourMom_t(jet.pt(),jet.eta(),jet.phi(),getMassSmearingFactor(jet,shift,m_massSmearPar)*jet.m()));
                 break;
             default:
                 ATH_MSG_ERROR("Asked to scale an UNKNOWN variable for set: " << m_currentUncSet->getName());
@@ -2155,7 +2157,7 @@ const xAOD::EventInfo* JetUncertaintiesTool::getDefaultEventInfo() const
 
 
 // Courtest of Francesco Spano
-float JetUncertaintiesTool::getMassSmearingFactor(xAOD::Jet& jet, const double shift) const
+float JetUncertaintiesTool::getMassSmearingFactor(xAOD::Jet& jet, const double shift, const double massSmearPar) const
 {
     //----input discussion---
     // input should the standard deviation of mass response, sigma(M_smear/M_nominal), recover that deviation
@@ -2174,8 +2176,8 @@ float JetUncertaintiesTool::getMassSmearingFactor(xAOD::Jet& jet, const double s
     
     //  get the Gaussian random number associated to the relative resolution
     // 1st way : a la JetRes use a relative standard deviation
-    // FIXME: for the moment the additional smearing is hardcoded: it will have to change in the future as a kinematic dependent function
-    double smearingFact1=m_rand->Gaus(1.,0.66*frac_sigma_nominal);  
+    //double smearingFact1=m_rand->Gaus(1.,0.66*frac_sigma_nominal);
+    double smearingFact1=m_rand->Gaus(1.,massSmearPar*frac_sigma_nominal);
 
     // 2nd alternative way : use the relative standard deviation 
     //  const double GaussZeroOne = m_rand->Gaus(0.,1.); 
