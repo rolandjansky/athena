@@ -20,7 +20,7 @@
 #include <math.h>
 
 // Control
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 // Gaudi & StoreGate
 #include "GaudiKernel/IPartPropSvc.h"
