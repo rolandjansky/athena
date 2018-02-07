@@ -22,12 +22,12 @@ using fastjet::PseudoJet;
 TrigHLTJetRecFromCluster::TrigHLTJetRecFromCluster(const std::string& name, 
                                              ISvcLocator* pSvcLocator):
   TrigHLTJetRecBase<xAOD::CaloClusterContainer>(name, pSvcLocator) {
-  declareProperty( "secondarypseudoJetGetter", m_secondarypseudoJetGetter = NULL);
   declareProperty( "scan_type", m_scantype);
 }
 
 TrigHLTJetRecFromCluster::~TrigHLTJetRecFromCluster(){}
 
+<<<<<<< HEAD
 HLT::ErrorCode
 TrigHLTJetRecFromCluster::retrieveSecondaryPseudoJetGetter(){
   
@@ -42,6 +42,22 @@ TrigHLTJetRecFromCluster::retrieveSecondaryPseudoJetGetter(){
  
   return HLT::OK;
 }
+=======
+//HLT::ErrorCode
+//TrigHLTJetRecFromCluster::retrieveSecondaryPseudoJetGetter(){
+//  
+//	ATH_MSG_DEBUG("Retrieving track pseudojet getter...");
+//	if  (m_secondarypseudoJetGetter.retrieve().isSuccess()){
+//      		ATH_MSG_DEBUG("Retrieved  secondary PseudoJetGetter "
+//                   <<  m_secondarypseudoJetGetter->name());
+//  	} else {
+//    		ATH_MSG_DEBUG("Unable to retrieve secondary PseudoJetGetter");
+//    		return HLT::ERROR;
+//  	}
+// 
+//  return HLT::OK;
+//}
+>>>>>>> changes that work.
 
 HLT::ErrorCode
 TrigHLTJetRecFromCluster::getPseudoJets(const xAOD::CaloClusterContainer* ic,
@@ -97,7 +113,7 @@ TrigHLTJetRecFromCluster::checkforSecondaryPseudoJets(const HLT::TriggerElement*
    	  }
 	  ATH_MSG_DEBUG("Of scan type FS: About to check if secondary pseudojetgetter label exists.");		
 	
-          if (m_secondarylabel == "") {
+          if ( secondaryLabelisEmpty() ) {
 		ATH_MSG_DEBUG("No secondary label. Will not attempt to retrieve secondary pseudojets.");
 		return HLT::OK;
 	  }
@@ -108,28 +124,19 @@ TrigHLTJetRecFromCluster::checkforSecondaryPseudoJets(const HLT::TriggerElement*
   	  }
           else {
 		ATH_MSG_WARNING("Secondary objects not found. Jet will be built with an empty secondary pseudojet set.");
-    		 //return HLT::OK; // don't return here, as the secondary pseudojet getter still needs to be primed, regardless if with an empty vector of pseudojets.
+    		// don't return here, as the secondary pseudojet getter still needs to be primed, regardless if with an empty vector of pseudojets.
   	  }
-
-          auto sc_secondarygetter = this->retrieveSecondaryPseudoJetGetter();
-  	  if (sc_secondarygetter == HLT::OK) {
-        	ATH_MSG_INFO("Secondary pseudojet getter succesfully retrieved.");
-  	  } else {
-    		ATH_MSG_WARNING("Error in retrieving shared PseudoJetGetter. Does the chain require a secondary pseudojetgetter?");
-    		return HLT::OK;
-	  }
 
   	  status = this -> loadSecondaryPseudoJets(pjv_secondary);
   	  if (status == HLT::OK) {
     		ATH_MSG_INFO("Loaded track pseudojets into pj getter (in case of calo clusters)");
   	  } else {
     		ATH_MSG_WARNING("Failed to load track pseudojets into pj getter. ");
-     	        return status; // actually no error handling here.
+     	        return status;
   	  }
  
           return HLT::OK;
 }
-
 
 HLT::ErrorCode
 TrigHLTJetRecFromCluster::getSecondaryPseudoJets(const HLT::TriggerElement* inputTE,
@@ -148,7 +155,7 @@ TrigHLTJetRecFromCluster::getSecondaryPseudoJets(const HLT::TriggerElement* inpu
 	          ATH_MSG_INFO("Retrieved the track container at address " << ictracks);
 	        } else {
 	          ATH_MSG_WARNING("Failed to retrieve the track input container");
-	          return HLT::MISSING_FEATURE; //maybe?
+	          return HLT::MISSING_FEATURE;
 	        }
 	      
 	  if (ictracks == nullptr){
@@ -159,9 +166,10 @@ TrigHLTJetRecFromCluster::getSecondaryPseudoJets(const HLT::TriggerElement* inpu
 	  ATH_MSG_DEBUG("Number of secondary incoming (track) objects : " << ictracks->size());
 
           // now creating pseuodjets for tracks
-          int new_index = indexMap->addLabel(m_secondarylabel);
+          auto secondarylabel = getSecondaryLabel();
+          int new_index = indexMap->addLabel(secondarylabel);
           ATH_MSG_DEBUG("Index of newly added label fortracks: "<<new_index);
-          ATH_MSG_DEBUG("Name of newly added label for tracks: "<<m_secondarylabel);
+          ATH_MSG_DEBUG("Name of newly added label for tracks: "<<secondarylabel);
           int thisidxfortracks = -1*new_index; // -1 will scale these pseudojets to ghosts.
           // *****************************************************
 	 

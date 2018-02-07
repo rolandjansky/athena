@@ -30,6 +30,7 @@ HLT::FexAlgo( name, pSvcLocator ) {
   declareProperty( "pseudojet_labelindex_arg", m_pseudoJetLabelIndexArg);
   declareProperty( "iPseudoJetSelector", m_IPseudoJetSelector);
   declareProperty( "secondary_label", m_secondarylabel);
+  declareProperty( "secondarypseudoJetGetter", m_secondarypseudoJetGetter = NULL);
 }
 
 
@@ -70,6 +71,29 @@ HLT::ErrorCode TrigHLTJetRecBase<InputContainer>::hltInitialize() {
     ATH_MSG_ERROR("Unable to retrieve shared PseudoJetGetter");
     return HLT::ERROR;
   }
+
+   ATH_MSG_DEBUG("checking secondary label for track pseudojet getter...");
+   if ( !secondaryLabelisEmpty() ){
+	ATH_MSG_DEBUG("Retrieving track pseudojet getter...");
+	if  (m_secondarypseudoJetGetter.retrieve().isSuccess()){
+      		ATH_MSG_DEBUG("Retrieved  secondary PseudoJetGetter "
+                   <<  m_secondarypseudoJetGetter->name());
+  	} else {
+    		ATH_MSG_DEBUG("Unable to retrieve secondary PseudoJetGetter");
+    		return HLT::ERROR;
+  	}
+   }
+//  if ( m_secondarylabel!=""){
+//	ATH_MSG_DEBUG("about to retrieve secondary pseudojetgetter, because label is "<<m_secondarylabel);
+//	auto sc_secondpjs = this -> retrieveSecondaryPseudoJetGetter();
+//	if (sc_secondpjs == HLT::OK ) ATH_MSG_INFO("Succesfully retrieved psj getter.");
+//	else {
+//		ATH_MSG_ERROR("Something went wrong in retrieving the secondary pseudojet getter. secondary label set to "<<m_secondarylabel);
+//		return HLT::ERROR;
+//	}
+//  }
+//  else ATH_MSG_DEBUG("secondary label is "<<m_secondarylabel<<". will not attempt to retrieve secondary psj getter.");
+//
 
   ATH_MSG_INFO("Tool retrieval completed.");
 
@@ -304,6 +328,13 @@ TrigHLTJetRecBase<InputContainer>::checkforSecondaryPseudoJets(
   ATH_MSG_INFO("No actions for loading of secondary pseudojets as input not of type calo cluster.");
   return HLT::OK;
 }
+
+//template<typename InputContainer>
+//HLT::ErrorCode
+//TrigHLTJetRecBase<InputContainer>::retrieveSecondaryPseudoJetGetter() {
+//  ATH_MSG_DEBUG("No actions for loading of secondary pseudojets as input not of type calo cluster.");
+//  return HLT::OK;
+//}
 
 template<typename InputContainer>
 const xAOD::JetContainer*

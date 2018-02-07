@@ -29,7 +29,7 @@ public TrigHLTJetRecBase<xAOD::CaloClusterContainer>{
                                       jet::LabelIndex* indexMap,
                                       jet::PseudoJetVector& pjv_secondary) override;
 
-  HLT::ErrorCode retrieveSecondaryPseudoJetGetter();
+  //HLT::ErrorCode retrieveSecondaryPseudoJetGetter() override;
   
   HLT::ErrorCode getSecondaryPseudoJets(const HLT::TriggerElement* inputTE,
                                jet::LabelIndex* indexMap,
