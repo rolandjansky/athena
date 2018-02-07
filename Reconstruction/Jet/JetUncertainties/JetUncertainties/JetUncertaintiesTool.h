@@ -172,6 +172,7 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
         std::string m_jetDef;
         std::string m_mcType;
         std::string m_configFile;
+        std::string m_calibArea;
         std::string m_path;
         std::string m_analysisFile;
         std::vector<std::string> m_systFilters;

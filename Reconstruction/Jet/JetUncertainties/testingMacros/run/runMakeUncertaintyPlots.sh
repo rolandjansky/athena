@@ -2861,16 +2861,16 @@ if test $# -lt 1 ; then
 fi
 
 firstArg=$BOOLT
-echo "$BOOLT"
+#echo "$BOOLT"
 for anArg in $@ ; do
-    echo "start loop"
-    echo "$firstArg"
-    echo "$BOOLT"
-    echo "$anArg"
+    #echo "start loop"
+    #echo "$firstArg"
+    #echo "$BOOLT"
+    #echo "$anArg"
     if [ "$firstArg" = "$BOOLT" ] ; then
         # Run the specified scenario
-        echo "running"
-        echo "$1"
+        #echo "running"
+        #echo "$1"
         $1
         
         # Check that it looks semi-reasonable
@@ -2901,6 +2901,6 @@ for anArg in $@ ; do
     fi
 done
 
-echo "$options"
+echo "Running with options: $options"
 MakeUncertaintyPlots "$outFile" "$jetDefinition" "$MCtype" "$configFile" "$compList" "$compLabels" "$options"
 
