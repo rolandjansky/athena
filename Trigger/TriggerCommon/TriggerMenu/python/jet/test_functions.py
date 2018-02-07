@@ -7,9 +7,9 @@ from exc2string import exc2string2
 
 def _generate(d, silent):
 
-    if silent:
-        controller = StdOutController()
-        controller.off()
+    #if silent:
+    #    controller = StdOutController()
+    #    controller.off()
         
     cd  = generateChainDefs(d)
     sys.settrace(None)
@@ -45,16 +45,16 @@ def run_all_dicts(silent,
     else:
         print 'processsing all %d dicts' % len(dicts)
     
-    devnull = open(os.devnull, 'w')
-    old_out = sys.stdout
-    old_err = sys.stderr
+    # devnull = open(os.devnull, 'w')
+    # old_out = sys.stdout
+    # old_err = sys.stderr
     
     result = []
     ndicts = 0
-    toSkip = (
-        'j30_jes_cleanLLP_PS_llp_noiso_L1TAU8_EMPTY',
-        'j30_jes_PS_llp_L1TAU8_UNPAIRED_ISO',
-        )
+    # toSkip = (
+    #     'j30_jes_cleanLLP_PS_llp_noiso_L1TAU8_EMPTY',
+    #    'j30_jes_PS_llp_L1TAU8_UNPAIRED_ISO',
+    #    )
     for d in dicts:
         # if d['chainName'] in toSkip or '_PS_' in d['chainName']:
         #    print d['chainName']
@@ -128,7 +128,7 @@ def usage():
 
 if __name__ == '__main__':
     import getopt, sys, os
-    from exc2string import exc2string2 
+    # from exc2string import exc2string2 
 
     try:
         opts, args = getopt.getopt(sys.argv[1:], 'htasm:nl:e', [])
