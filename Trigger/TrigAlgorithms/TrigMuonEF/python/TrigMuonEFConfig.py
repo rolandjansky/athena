@@ -657,9 +657,6 @@ class TrigMuonEFTrackIsolationVarConfig (TrigMuonEFTrackIsolation):
         elif 'TightTSel' in name:
             trkseltoolname = trkseltoolname + 'TightTSel'
 
-        if 'z2mm' in name:
-            trkseltoolname = trkseltoolname + 'z2mm'
-
         TMEF_VarIsolationTool = TMEF_TrackIsolationTool(trkseltoolname,useVarIso=True)
 
         # Isolation tool
