@@ -55,6 +55,7 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
 
         // Control methods
         virtual void setRandomSeed(long long int seed) { m_userSeed = seed; }
+        virtual void setMassSmearPar(double massSmearPar) { m_massSmearPar = massSmearPar; }
 
         
         // Tool information retrieval methods
@@ -204,6 +205,7 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
         // Smearing information
         long long int m_userSeed;
         TRandom3* m_rand; // pointer so it can be changed in a const function (volatile wasn't working)
+        double m_massSmearPar;
 
         // Default prefix for each component name
         const std::string m_namePrefix;
@@ -217,7 +219,7 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
         jet::UncertaintyComponent* buildUncertaintyComponent(const jet::ComponentHelper& component) const;
         const xAOD::EventInfo* getDefaultEventInfo() const;
         StatusCode checkIndexInput(const size_t index) const;
-        float getMassSmearingFactor(xAOD::Jet& jet, const double shift) const;
+        float getMassSmearingFactor(xAOD::Jet& jet, const double shift, const double massSmearPar) const;
         double readHistoFromParam(const xAOD::JetFourMom_t& jet4vec, const jet::UncertaintyHistogram& histo, const jet::CompParametrization::TypeEnum param) const;
 
         // Helper methods for setting shifted moments
