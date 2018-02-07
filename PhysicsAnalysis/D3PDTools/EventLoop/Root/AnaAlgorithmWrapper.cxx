@@ -65,6 +65,8 @@ namespace EL
     m_algorithm->setHistogramWorker (wk ());
     m_algorithm->setFilterWorker (wk ());
     m_algorithm->setWk (wk ());
+    if (m_config.useXAODs())
+      m_algorithm->setEvtStore (evtStore ());
     ANA_CHECK (m_algorithm->sysInitialize());
     return StatusCode::SUCCESS;
   }
@@ -76,8 +78,6 @@ namespace EL
   {
     ANA_CHECK_SET_TYPE (EL::StatusCode);
     RCU_READ_INVARIANT (this);
-    if (m_config.useXAODs())
-      m_algorithm->setEvtStore (evtStore ());
     return StatusCode::SUCCESS;
   }
 
