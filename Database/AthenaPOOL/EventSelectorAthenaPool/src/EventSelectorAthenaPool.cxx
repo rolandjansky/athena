@@ -261,7 +261,7 @@ StatusCode EventSelectorAthenaPool::reinit() {
       return(StatusCode::SUCCESS);
    }
    bool retError = false;
-   for (const auto& tool : m_helperTools) {
+   for (auto& tool : m_helperTools) {
       if (!tool->postInitialize().isSuccess()) {
          ATH_MSG_FATAL("Failed to postInitialize() " << tool->name());
          retError = true;
@@ -450,7 +450,7 @@ StatusCode EventSelectorAthenaPool::finalize() {
       if (!m_counterTool.empty() && !m_counterTool->preFinalize().isSuccess()) {
          ATH_MSG_WARNING("Failed to preFinalize() CounterTool");
       }
-      for (const auto& tool : m_helperTools) {
+      for (auto& tool : m_helperTools) {
          if (!tool->preFinalize().isSuccess()) {
             ATH_MSG_WARNING("Failed to preFinalize() " << tool->name());
          }
