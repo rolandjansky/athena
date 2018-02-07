@@ -15,7 +15,7 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #include <memory>
 
 int main(int argc, char* argv[]) {
-  using namespace H5;
+  using namespace H5Utils;
   AppOpts opts = getTreeCopyOpts(argc, argv);
 
   // Read in the root tree. We pick whatever tree is on the top level

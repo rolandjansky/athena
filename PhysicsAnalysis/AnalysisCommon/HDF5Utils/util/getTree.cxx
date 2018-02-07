@@ -32,7 +32,7 @@ namespace {
   }
 }
 
-namespace H5 {
+namespace H5Utils {
   std::string getTree(const std::string& file_name) {
     if (!exists(file_name) && !is_remote(file_name)) {
       throw std::logic_error(file_name + " doesn't exist");

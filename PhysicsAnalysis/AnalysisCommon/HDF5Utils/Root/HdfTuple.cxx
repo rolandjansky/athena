@@ -8,7 +8,7 @@ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #include <cassert>
 #include <iostream>             // for printing errors in the destructor
 
-namespace H5 {
+namespace H5Utils {
   namespace internal {
 
     template<>
