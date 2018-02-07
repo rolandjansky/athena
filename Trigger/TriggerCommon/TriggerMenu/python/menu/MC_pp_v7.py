@@ -1,4 +1,4 @@
-#Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 
 import TriggerMenu.menu.Physics_pp_v7 as physics_menu
@@ -777,7 +777,6 @@ def setupMenu():
         # 2b / 4j
         #
         ['2j35_boffperf_split_2j35_L14J20', 'L1_4J20', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
-##        ['2j15_gsc35_boffperf_split_2j15_gsc35_boffperf_split_L14J20', 'L1_4J20', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
 
         ['2j35_bmv2c1040_split_2j35_L14J20',        'L1_4J20',        [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
         ['2j35_bmv2c1050_split_2j35_L14J20',        'L1_4J20',        [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
