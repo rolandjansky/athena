@@ -4,7 +4,7 @@ from METReconstruction.METRecoFlags import metFlags
 from METReconstruction.METAssocConfig import AssocConfig, METAssocConfig
 
 modClusKey = ""
-modClusColl = {}
+modClusColls = {}
 if metFlags.UseTracks():
                  modClusKey="OriginCorr",
                  modClusColls={
@@ -26,7 +26,7 @@ cfg_akt4lc = METAssocConfig('AntiKt4LCTopo',
                             associators,
                             doPFlow=False,
                             modClusKey=modClusKey,
-                            modClusColl=modClusColl
+                            modClusColls=modClusColls
                             )
 
 metFlags.METAssocConfigs()[cfg_akt4lc.suffix] = cfg_akt4lc
@@ -46,7 +46,7 @@ cfg_akt4em = METAssocConfig('AntiKt4EMTopo',
                             associators,
                             doPFlow=False,
                             modClusKey=modClusKey,
-                            modClusColl=modClusColl,
+                            modClusColls=modClusColls,
                             )
 
 metFlags.METAssocConfigs()[cfg_akt4em.suffix] = cfg_akt4em
