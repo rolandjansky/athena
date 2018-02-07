@@ -184,10 +184,10 @@ namespace EL
 
   ::StatusCode AnaAlgorithmConfig ::
   createPrivateTool (const std::string& name,
-                     const std::string& value)
+                     const std::string& toolType)
   {
     RCU_CHANGE_INVARIANT (this);
-    m_privateTools[name] = value;
+    m_privateTools[name] = toolType;
     return StatusCode::SUCCESS;
   }
 
