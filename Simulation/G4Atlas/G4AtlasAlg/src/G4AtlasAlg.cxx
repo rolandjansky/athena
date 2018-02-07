@@ -198,8 +198,6 @@ void G4AtlasAlg::initializeOnce()
     ui->ApplyCommand("/MagneticField/Initialize");
   }
 
-  ui->ApplyCommand("/geometry/navigator/check_mode true");
-
   // Send UI commands
   for (auto g4command : m_g4commands) {
     ui->ApplyCommand( g4command );
