@@ -39,6 +39,7 @@ namespace H5Utils {
       int _int;
       long long _llong;
       unsigned int _uint;
+      unsigned char _uchar;
       float _float;
       double _double;
       bool _bool;
@@ -54,6 +55,7 @@ namespace H5Utils {
     template<> H5::DataType get_type<int>();
     template<> H5::DataType get_type<long long>();
     template<> H5::DataType get_type<unsigned int>();
+    template<> H5::DataType get_type<unsigned char>();
     template<> H5::DataType get_type<float>();
     template<> H5::DataType get_type<double>();
     template<> H5::DataType get_type<bool>();
@@ -71,6 +73,7 @@ namespace H5Utils {
     template<> int& get_ref<int>(data_buffer_t& buf);
     template<> long long& get_ref<long long>(data_buffer_t& buf);
     template<> unsigned int& get_ref<unsigned int>(data_buffer_t& buf);
+    template<> unsigned char& get_ref<unsigned char>(data_buffer_t& buf);
     template<> float& get_ref<float>(data_buffer_t& buf);
     template<> double& get_ref<double>(data_buffer_t& buf);
     template<> bool& get_ref<bool>(data_buffer_t& buf);
