@@ -11,6 +11,7 @@
 # IMPORTS
 #================================
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
+from DerivationFrameworkMCTruth.HFHadronsCommon import *
 
 def setup(ToolSvc):
 
@@ -117,7 +118,6 @@ def setup(ToolSvc):
   # PhysicsAnalysis/DerivationFramework/DerivationFrameworkMCTruth/trunk/src/HadronOriginDecorator.cxx
   # list of ttbar samples by mc_channel_number
 
-  from DerivationFrameworkMCTruth.HFHadronsCommon import *
   TOPQDSIDList=list(DSIDList)
 
 
