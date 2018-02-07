@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration.
  */
 
 #include "GaudiKernel/IHistogramSvc.h"
@@ -45,46 +45,46 @@ StatusCode EgammaMonitoring :: initialize ()
 
   ANA_MSG_INFO ("*******************************  Histo INIT  *******************************");
 
-  m_evtNmb = new TH1D(); m_evtNmb->SetName("evtNmb"); m_evtNmb->SetTitle("Event Number"); 
-  CHECK( rootHistSvc->regHist("/MONITORING/evtNmb", m_evtNmb));
+  evtNmb = new TH1D(); evtNmb->SetName("evtNmb"); evtNmb->SetTitle("Event Number"); 
+  CHECK( rootHistSvc->regHist("/MONITORING/evtNmb", evtNmb));
     
   if("electron" == m_sampleType) {
 
-    m_evtNmb->SetBins(2000, 85000, 87000);
+    evtNmb->SetBins(2000, 85000, 87000);
 
-    m_pT_ElTrk_All  = new TH1D(); m_pT_ElTrk_All ->SetName("pT_ElTrk_All") ; m_pT_ElTrk_All ->SetTitle("Electron Pt Track All"); m_pT_ElTrk_All ->SetBins(200,  0, 200);
-    CHECK( rootHistSvc->regHist("/MONITORING/pT_ElTrk_All", m_pT_ElTrk_All));
+    pT_ElTrk_All  = new TH1D(); pT_ElTrk_All ->SetName("pT_ElTrk_All") ; pT_ElTrk_All ->SetTitle("Electron Pt Track All"); pT_ElTrk_All ->SetBins(200,  0, 200);
+    CHECK( rootHistSvc->regHist("/MONITORING/pT_ElTrk_All", pT_ElTrk_All));
     
-    m_pT_ElTrk_LLH  = new TH1D(); m_pT_ElTrk_LLH ->SetName("pT_ElTrk_LLH") ; m_pT_ElTrk_LLH ->SetTitle("Electron Pt Track LLH"); m_pT_ElTrk_LLH ->SetBins(200,  0, 200);
-    CHECK( rootHistSvc->regHist("/MONITORING/pT_ElTrk_LLH", m_pT_ElTrk_LLH));
+    pT_ElTrk_LLH  = new TH1D(); pT_ElTrk_LLH ->SetName("pT_ElTrk_LLH") ; pT_ElTrk_LLH ->SetTitle("Electron Pt Track LLH"); pT_ElTrk_LLH ->SetBins(200,  0, 200);
+    CHECK( rootHistSvc->regHist("/MONITORING/pT_ElTrk_LLH", pT_ElTrk_LLH));
     
-    m_pT_ElTrk_MLH  = new TH1D(); m_pT_ElTrk_MLH ->SetName("pT_ElTrk_MLH") ; m_pT_ElTrk_MLH ->SetTitle("Electron Pt Track MLH"); m_pT_ElTrk_MLH ->SetBins(200,  0, 200);
-    CHECK( rootHistSvc->regHist("/MONITORING/pT_ElTrk_MLH", m_pT_ElTrk_MLH));
+    pT_ElTrk_MLH  = new TH1D(); pT_ElTrk_MLH ->SetName("pT_ElTrk_MLH") ; pT_ElTrk_MLH ->SetTitle("Electron Pt Track MLH"); pT_ElTrk_MLH ->SetBins(200,  0, 200);
+    CHECK( rootHistSvc->regHist("/MONITORING/pT_ElTrk_MLH", pT_ElTrk_MLH));
     
-    m_pT_ElTrk_TLH  = new TH1D(); m_pT_ElTrk_TLH ->SetName("pT_ElTrk_TLH") ; m_pT_ElTrk_TLH ->SetTitle("Electron Pt Track TLH"); m_pT_ElTrk_TLH ->SetBins(200,  0, 200);
-    CHECK( rootHistSvc->regHist("/MONITORING/pT_ElTrk_TLH", m_pT_ElTrk_TLH));
+    pT_ElTrk_TLH  = new TH1D(); pT_ElTrk_TLH ->SetName("pT_ElTrk_TLH") ; pT_ElTrk_TLH ->SetTitle("Electron Pt Track TLH"); pT_ElTrk_TLH ->SetBins(200,  0, 200);
+    CHECK( rootHistSvc->regHist("/MONITORING/pT_ElTrk_TLH", pT_ElTrk_TLH));
     
-    m_eta_ElTrk_All = new TH1D(); m_eta_ElTrk_All->SetName("eta_ElTrk_All"); m_eta_ElTrk_All->SetTitle("Electron Eta All")     ; m_eta_ElTrk_All->SetBins(200, -3,   3);
-    CHECK( rootHistSvc->regHist("/MONITORING/eta_ElTrk_All", m_eta_ElTrk_All));
+    eta_ElTrk_All = new TH1D(); eta_ElTrk_All->SetName("eta_ElTrk_All"); eta_ElTrk_All->SetTitle("Electron Eta All")     ; eta_ElTrk_All->SetBins(200, -3,   3);
+    CHECK( rootHistSvc->regHist("/MONITORING/eta_ElTrk_All", eta_ElTrk_All));
     
-    m_phi_ElTrk_All = new TH1D(); m_phi_ElTrk_All->SetName("phi_ElTrk_All"); m_phi_ElTrk_All->SetTitle("Electron Phi All")     ; 
-    m_phi_ElTrk_All->SetBins(100, -TMath::Pi(), TMath::Pi());    
-    CHECK( rootHistSvc->regHist("/MONITORING/phi_ElTrk_All", m_phi_ElTrk_All));
+    phi_ElTrk_All = new TH1D(); phi_ElTrk_All->SetName("phi_ElTrk_All"); phi_ElTrk_All->SetTitle("Electron Phi All")     ; 
+    phi_ElTrk_All->SetBins(100, -TMath::Pi(), TMath::Pi());    
+    CHECK( rootHistSvc->regHist("/MONITORING/phi_ElTrk_All", phi_ElTrk_All));
   
   } // electron Hists
 
   if("gamma" == m_sampleType) {
 
-    m_evtNmb->SetBins(250, 33894000, 33896000);
+    evtNmb->SetBins(250, 33894000, 33896000);
     
-    m_pT_Phot_All  = new TH1D(); m_pT_Phot_All ->SetName("pT_Phot_All") ; m_pT_Phot_All ->SetTitle("Photon Pt All") ; m_pT_Phot_All ->SetBins(200,  0,  200);
-    CHECK( rootHistSvc->regHist("/MONITORING/pT_Phot_All", m_pT_Phot_All));
+    pT_Phot_All  = new TH1D(); pT_Phot_All ->SetName("pT_Phot_All") ; pT_Phot_All ->SetTitle("Photon Pt All") ; pT_Phot_All ->SetBins(200,  0,  200);
+    CHECK( rootHistSvc->regHist("/MONITORING/pT_Phot_All", pT_Phot_All));
     
-    m_eta_Phot_All = new TH1D(); m_eta_Phot_All->SetName("eta_Phot_All"); m_eta_Phot_All->SetTitle("Photon Eta All"); m_eta_Phot_All->SetBins(200, -3,    3);
-    CHECK( rootHistSvc->regHist("/MONITORING/eta_Phot_All", m_eta_Phot_All));
+    eta_Phot_All = new TH1D(); eta_Phot_All->SetName("eta_Phot_All"); eta_Phot_All->SetTitle("Photon Eta All"); eta_Phot_All->SetBins(200, -3,    3);
+    CHECK( rootHistSvc->regHist("/MONITORING/eta_Phot_All", eta_Phot_All));
     
-    m_phi_Phot_All = new TH1D(); m_phi_Phot_All->SetName("phi_Phot_All"); m_phi_Phot_All->SetTitle("Photon Phi All"); m_phi_Phot_All->SetBins(100, -TMath::Pi(), TMath::Pi());
-    CHECK( rootHistSvc->regHist("/MONITORING/phi_Phot_All", m_phi_Phot_All));
+    phi_Phot_All = new TH1D(); phi_Phot_All->SetName("phi_Phot_All"); phi_Phot_All->SetTitle("Photon Phi All"); phi_Phot_All->SetBins(100, -TMath::Pi(), TMath::Pi());
+    CHECK( rootHistSvc->regHist("/MONITORING/phi_Phot_All", phi_Phot_All));
   
   } // gamma Hists
 
@@ -172,16 +172,16 @@ StatusCode EgammaMonitoring :: execute ()
 
       if((tp->pt())/1000. > 0) {
 	
-	m_pT_ElTrk_All->Fill((tp->pt())/1000.); 
+	pT_ElTrk_All->Fill((tp->pt())/1000.); 
 	
-	if(m_LooseLH ->accept(elrec)) m_pT_ElTrk_LLH->Fill((tp->pt())/1000.);
-	if(m_MediumLH->accept(elrec)) m_pT_ElTrk_MLH->Fill((tp->pt())/1000.);
-	if(m_TightLH ->accept(elrec)) m_pT_ElTrk_TLH->Fill((tp->pt())/1000.);
+	if(m_LooseLH ->accept(elrec)) pT_ElTrk_LLH->Fill((tp->pt())/1000.);
+	if(m_MediumLH->accept(elrec)) pT_ElTrk_MLH->Fill((tp->pt())/1000.);
+	if(m_TightLH ->accept(elrec)) pT_ElTrk_TLH->Fill((tp->pt())/1000.);
 	
       }
 
-      m_eta_ElTrk_All->Fill(tp->eta());
-      m_phi_ElTrk_All->Fill(tp->phi());
+      eta_ElTrk_All->Fill(tp->eta());
+      phi_ElTrk_All->Fill(tp->phi());
       
     } // RecoEl Loop
 
@@ -198,15 +198,15 @@ StatusCode EgammaMonitoring :: execute ()
     
     for(auto phrec : *RecoPh) {
       
-      if((phrec->pt())/1000. > 0) m_pT_Phot_All->Fill((phrec->pt())/1000.);
-      m_eta_Phot_All->Fill(phrec->eta());
-      m_phi_Phot_All->Fill(phrec->phi());
+      if((phrec->pt())/1000. > 0) pT_Phot_All->Fill((phrec->pt())/1000.);
+      eta_Phot_All->Fill(phrec->eta());
+      phi_Phot_All->Fill(phrec->phi());
       
     } // RecoPh Loop
 
   } // if gamma
 
-  m_evtNmb->Fill(eventInfo->eventNumber());
+  evtNmb->Fill(eventInfo->eventNumber());
 
   return StatusCode::SUCCESS;
 }

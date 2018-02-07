@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration.
  */
 
 #ifndef egammaValidation_EgammaMonitoring_H
@@ -30,20 +30,20 @@ class EgammaMonitoring : public AthAlgorithm
 
   // Histos
   // General Info
-  TH1D *m_evtNmb = 0; //!
+  TH1D *evtNmb = 0; //!
 
   // Electron
-  TH1D *m_pT_ElTrk_All  = 0; //!
-  TH1D *m_pT_ElTrk_LLH  = 0; //! 
-  TH1D *m_pT_ElTrk_MLH  = 0; //!
-  TH1D *m_pT_ElTrk_TLH  = 0; //!
-  TH1D *m_eta_ElTrk_All = 0; //!
-  TH1D *m_phi_ElTrk_All = 0; //!
+  TH1D *pT_ElTrk_All  = 0; //!
+  TH1D *pT_ElTrk_LLH  = 0; //! 
+  TH1D *pT_ElTrk_MLH  = 0; //!
+  TH1D *pT_ElTrk_TLH  = 0; //!
+  TH1D *eta_ElTrk_All = 0; //!
+  TH1D *phi_ElTrk_All = 0; //!
   
   // Photon
-  TH1D *m_pT_Phot_All  = 0; //!
-  TH1D *m_eta_Phot_All = 0; //!
-  TH1D *m_phi_Phot_All = 0; //!
+  TH1D *pT_Phot_All  = 0; //!
+  TH1D *eta_Phot_All = 0; //!
+  TH1D *phi_Phot_All = 0; //!
   
   EgammaMonitoring (const std::string& name, ISvcLocator* pSvcLocator);
   
