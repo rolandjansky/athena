@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 	
 // class header
-#include "ISF_PunchThroughTools/PDFcreator.h"
+#include "PDFcreator.h"
 	
 // Random number generators
 #include "CLHEP/Random/RandFlat.h"

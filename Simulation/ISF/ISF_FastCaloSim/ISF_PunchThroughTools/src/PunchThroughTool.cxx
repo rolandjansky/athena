@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header
-#include "ISF_PunchThroughTools/PunchThroughTool.h"		
+#include "PunchThroughTool.h"		
 
 // standard C++ libraries
 #include <iostream>
@@ -48,8 +48,8 @@
 
 //ISF
 #include "ISF_Event/ISFParticle.h"
-#include "ISF_PunchThroughTools/PDFcreator.h"
-#include "ISF_PunchThroughTools/PunchThroughParticle.h"
+#include "PDFcreator.h"
+#include "PunchThroughParticle.h"
 #include "ISF_Interfaces/IGeoIDSvc.h"
 
 //Barcode

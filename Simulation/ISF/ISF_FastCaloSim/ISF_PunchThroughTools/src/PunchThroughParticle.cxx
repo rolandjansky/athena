@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 	
 // class header
-#include "ISF_PunchThroughTools/PunchThroughParticle.h"
+#include "PunchThroughParticle.h"
 	
 // ROOT
 #include "TH2F.h"
