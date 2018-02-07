@@ -7,6 +7,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "StoreGate/ReadHandleKey.h"
 
 #include "ParticlesInConeTools/ICaloClustersInConeTool.h"
 #include "IParticlesLookUpTable.h"
@@ -42,11 +43,9 @@ namespace xAOD {
     // init look-up table
     const LookUpTable* getTable() const;
 
-    /** retrieve id track particles */
-    const CaloClusterContainer* retrieveCaloClusterContainer() const; 
-
     /** ID track collection name */
-    std::string m_caloClusterLocation;
+    SG::ReadHandleKey<CaloClusterContainer> m_caloClusterLocation {this,
+	"CaloClusterLocation", "CaloCalTopoClusters"};
   };
 
 }	// end of namespace
