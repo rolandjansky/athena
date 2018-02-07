@@ -20,7 +20,7 @@
 
 // Base classes
 #include "AsgTools/AsgTool.h"
-#include "AsgTools/ToolHandle.h"
+#include "AsgTools/AnaToolHandle.h"
 
 // Local includes
 #include "PATCore/TAccept.h"
@@ -64,8 +64,10 @@ class EventCleaningTool : public virtual IEventCleaningTool,
     std::string m_jvt; 
     std::string m_or; 
     std::string m_prefix; 
+    bool m_decorate; 
     std::string m_cleaningLevel; 
-    ToolHandle<IJetSelector> m_jetCleaningTool;
+    asg::AnaToolHandle<IJetSelector> m_jetCleaningTool; //!
+
     SG::AuxElement::Decorator<char>* m_dec_jetClean;
     SG::AuxElement::Accessor<char>* m_acc_passJvt;
     SG::AuxElement::Accessor<char>* m_acc_passOR;

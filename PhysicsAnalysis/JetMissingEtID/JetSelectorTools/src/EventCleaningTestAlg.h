@@ -7,6 +7,7 @@
 
 // Framework includes
 #include "GaudiKernel/ToolHandle.h"
+#include "AsgTools/AnaToolHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 
 // EDM includes
@@ -40,7 +41,7 @@ class EventCleaningTestAlg : public AthAlgorithm
   private:
 
     /// Handle to the tool
-    ToolHandle<ECUtils::IEventCleaningTool> m_ecTool;
+    asg::AnaToolHandle<ECUtils::IEventCleaningTool> m_ecTool;
     
     /// Configuration
     double m_pt;

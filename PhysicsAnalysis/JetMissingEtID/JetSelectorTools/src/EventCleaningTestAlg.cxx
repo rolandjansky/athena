@@ -16,10 +16,10 @@ static const float invGeV = 1./GeV;
 EventCleaningTestAlg::EventCleaningTestAlg(const std::string& name,
                                              ISvcLocator* svcLoc)
     : AthAlgorithm(name, svcLoc),
-      m_ecTool("EventCleaningTool", this),
+      m_ecTool("ECUtils::EventCleaningTool/EventCleaningTool", this),
       m_dec_eventClean(0)
 {
-  declareProperty("EventCleaningTool", m_ecTool);
+  m_ecTool.declarePropertyFor( this, "EventCleaningTool" );
   declareProperty("PtCut", m_pt = 20000.0,
                   "Minimum pt for jets");
   declareProperty("EtaCut", m_eta = 2.8,
@@ -45,11 +45,11 @@ StatusCode EventCleaningTestAlg::initialize()
 {
   ATH_MSG_INFO("Initialize");
 
-  // Try to retrieve the tool
+  // Try to retrieve the tool	
   ATH_CHECK( m_ecTool.retrieve() );
 
   // Create the decorator 
-  m_dec_eventClean = new SG::AuxElement::Decorator<char>(m_prefix + "eventClean_" + m_cleaningLevel);
+  if(m_doEvent) m_dec_eventClean = new SG::AuxElement::Decorator<char>(m_prefix + "eventClean_" + m_cleaningLevel);
 
   return StatusCode::SUCCESS;
 }
@@ -84,7 +84,7 @@ StatusCode EventCleaningTestAlg::finalize()
 {
   ATH_MSG_INFO("Finalize");
 
-  delete m_dec_eventClean; 
+  if(m_doEvent) delete m_dec_eventClean; 
 
   return StatusCode::SUCCESS;
 }

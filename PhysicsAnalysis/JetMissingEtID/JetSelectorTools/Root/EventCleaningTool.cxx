@@ -43,8 +43,9 @@ EventCleaningTool::EventCleaningTool(const std::string& name)
   , m_jvt()
   , m_or()
   , m_prefix()
+  , m_decorate()
   , m_cleaningLevel()
-  , m_jetCleaningTool() 
+  , m_jetCleaningTool("JetCleaningTool/JetCleaningTool") 
   , m_dec_jetClean(0)
   , m_acc_passJvt(0)
   , m_acc_passOR(0)
@@ -54,8 +55,9 @@ EventCleaningTool::EventCleaningTool(const std::string& name)
   declareProperty( "JvtDecorator" , m_jvt = "passJvt" );
   declareProperty( "OrDecorator" , m_or = "passOR" );
   declareProperty( "JetCleanPrefix", m_prefix = "" );
+  declareProperty( "DoDecorations", m_decorate = true );
   declareProperty( "CleaningLevel" , m_cleaningLevel = "LooseBad");
-  declareProperty("JetCleaningTool", m_jetCleaningTool);
+  m_jetCleaningTool.declarePropertyFor(this, "JetCleaningTool");
 }
 
 
@@ -79,13 +81,14 @@ StatusCode EventCleaningTool::initialize()
   }
   
   //initialize jet cleaning tool
-  ATH_CHECK(m_jetCleaningTool->initialize());
+  ATH_CHECK(m_jetCleaningTool.setProperty("CutLevel", m_cleaningLevel )); 
+  ATH_CHECK(m_jetCleaningTool.retrieve());
   ATH_MSG_INFO( "Event cleaning tool configured with cut level " << m_cleaningLevel  );
 
-  //create the decorator
-  m_dec_jetClean = new SG::AuxElement::Decorator<char>(m_prefix + "jetClean_" + m_cleaningLevel);
+  //create the decorators
   m_acc_passJvt = new SG::AuxElement::Accessor<char>(m_prefix + m_jvt);
   m_acc_passOR = new SG::AuxElement::Accessor<char>(m_prefix + m_or);
+  if(m_decorate) m_dec_jetClean = new SG::AuxElement::Decorator<char>(m_prefix + "jetClean_" + m_cleaningLevel);
 
   return StatusCode::SUCCESS;
 }
@@ -116,7 +119,7 @@ bool EventCleaningTool::acceptEvent(const xAOD::JetContainer* jets) const
 		}	
 		else isThisJetGood = pass_accept;     //if it fails any one of these, it shouldn't be able to kill the whole event, but we still need to know cleaning
 		ATH_MSG_DEBUG("Is jet good? " << isThisJetGood);
-		(*m_dec_jetClean)(*thisJet) = isThisJetGood;
+		if(m_decorate) (*m_dec_jetClean)(*thisJet) = isThisJetGood;
  	}
 	ATH_MSG_DEBUG("Is event good? " << isEventAllGood);
 	return isEventAllGood;		
@@ -132,9 +135,9 @@ int EventCleaningTool::keepJet(const xAOD::Jet& jet) const
 //=============================================================================
 StatusCode EventCleaningTool::finalize()
 {
-   	delete m_dec_jetClean;
-   	delete m_acc_passJvt;
-   	delete m_acc_passOR;
+	delete m_acc_passJvt;
+	delete m_acc_passOR;
+	if(m_decorate) delete m_dec_jetClean;
 	return StatusCode::SUCCESS;
 
 }

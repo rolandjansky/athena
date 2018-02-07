@@ -41,7 +41,7 @@ from JetSelectorTools.JetCleaningCutDefs import *
 #
 #    return tool
 
-def EventCleaningTool(name='EventCleaningTool'):
+def recEventCleaningTool(name='EventCleaningTool'):
     """
     Arguments:
       name                  - set the name of the master tool.
