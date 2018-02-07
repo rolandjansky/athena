@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration 
+Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration 
 */
 
 #include "TrigBtagEmulationTool/BaseTrigBtagEmulationChainJetIngredient.h"
@@ -400,7 +400,11 @@ unsigned int TrigBtagEmulationChainJetIngredient_GSC::matchingJets(const TrigBta
 
   for (unsigned int i(0); i < m_jetCollection["GSC"]->size(); i++)
     {
-      double distance = sqrt(pow(jet->eta()-m_jetCollection["GSC"]->at(i)->eta(),2)+pow(jet->phi()-m_jetCollection["GSC"]->at(i)->phi(),2));
+      double deltaEta = fabs( jet->eta() - m_jetCollection["GSC"]->at(i)->eta() );
+      double deltaPhi = fabs( jet->phi() - m_jetCollection["GSC"]->at(i)->phi() );
+      if (deltaEta > M_PI) deltaPhi = 2*M_PI - deltaPhi;
+
+      double distance = sqrt( pow(deltaEta,2) + pow(deltaPhi,2) ); 
       if (distance < 0.1 && distance < min_distance) {output=i;min_distance=distance;}
     }
 
