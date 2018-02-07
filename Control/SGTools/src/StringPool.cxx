@@ -127,7 +127,7 @@ size_t StringPoolImpl::size() const
  */
 void StringPoolImpl::clear()
 {
-  m_keymap.clear();
+  keymap_t().swap (m_keymap);
 }
 
 
