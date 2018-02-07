@@ -19,11 +19,15 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
+#include <sstream>
+
 // Name of AtRndmGenSvc stream
 std::string     Pythia8_i::pythia_stream   = "PYTHIA8_INIT";
 
 using boost::assign::operator+=;
-
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 /**
  * author: James Monk (jmonk@cern.ch)
  */
@@ -38,6 +42,7 @@ m_nMerged(0.),
 m_failureCount(0),
 m_procPtr(0),
 m_userHookPtr(0),
+  //m_userHooksPtrs(std::vector<Pythia8::UserHooks*>()),
 m_doLHE3Weights(false)
 {
   declareProperty("Commands", m_commands);
@@ -48,6 +53,7 @@ m_doLHE3Weights(false)
   declareProperty("Beam1", m_beam1 = "PROTON");
   declareProperty("Beam2", m_beam2 = "PROTON");
   declareProperty("LHEFile", m_lheFile = "");
+  declareProperty("StoreLHE", m_storeLHE=false);
   declareProperty("CKKWLAcceptance", m_doCKKWLAcceptance = false);
   declareProperty("MaxFailures", m_maxFailures = 10);//the max number of consecutive failures
   declareProperty("UserProcess", m_userProcess="");
@@ -56,12 +62,19 @@ m_doLHE3Weights(false)
   declareProperty("UseLHAPDF", m_useLHAPDF=true);
   declareProperty("ParticleData", m_particleDataFile="");
   declareProperty("OutputParticleData",m_outputParticleDataFile="ParticleData.local.xml");
+  declareProperty("ShowerWeightNames",m_showerWeightNames);
   
-  m_particleIDs["PROTON"]     = PROTON;
-  m_particleIDs["ANTIPROTON"] = ANTIPROTON;
-  m_particleIDs["ELECTRON"]   = ELECTRON;
-  m_particleIDs["POSITRON"]   = POSITRON;
+  m_particleIDs["PROTON"]      = PROTON;
+  m_particleIDs["ANTIPROTON"]  = ANTIPROTON;
+  m_particleIDs["ELECTRON"]    = ELECTRON;
+  m_particleIDs["POSITRON"]    = POSITRON;
+  m_particleIDs["NEUTRON"]     = NEUTRON;
+  m_particleIDs["ANTINEUTRON"] = ANTINEUTRON;
+  m_particleIDs["MUON"]        = MUON;
+  m_particleIDs["ANTIMUON"]    = ANTIMUON;
 
+  ATH_MSG_INFO("XML Path is " + xmlpath());
+  
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -70,8 +83,10 @@ Pythia8_i::~Pythia8_i() {
   delete m_atlasRndmEngine;
   
   if(m_procPtr != 0)     delete m_procPtr;
-  if(m_userHookPtr != 0) delete m_userHookPtr;
   
+  for(Pythia8::UserHooks *ptr: m_userHooksPtrs){
+    delete ptr;
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -92,6 +107,9 @@ StatusCode Pythia8_i::genInitialize() {
   }
   
   Pythia8_i::pythia_stream =       "PYTHIA8_INIT";
+  
+  // By default add "nominal" to the list of shower weight names
+  m_showerWeightNames.insert(m_showerWeightNames.begin(), "nominal");
   
   // We do explicitly set tune 4C, since it is the starting point for many other tunes
   // Tune 4C for pp collisions
@@ -224,9 +242,9 @@ StatusCode Pythia8_i::genInitialize() {
   if(m_userProcess != ""){
     m_procPtr = Pythia8_UserProcess::UserProcessFactory::create(m_userProcess);
   }
-
-  bool canInit = true;
   
+  bool canInit = true;
+
   m_userHookPtr = 0;
 
   if(m_userHook != ""){
@@ -418,8 +436,6 @@ StatusCode Pythia8_i::fillEvt(HepMC::GenEvent *evt){
   double eventWeight = phaseSpaceWeight*mergingWeight;
   
   ATH_MSG_DEBUG("Event weights: phase space weight, merging weight, total weight = "<<phaseSpaceWeight<<", "<<mergingWeight<<", "<<eventWeight);
-  
-  // set the event weight
   evt->weights().clear();
   
   std::vector<string>::const_iterator id = m_weightIDs.begin();
@@ -447,8 +463,20 @@ StatusCode Pythia8_i::fillEvt(HepMC::GenEvent *evt){
       }
       
     }
-  }else{
-    evt->weights().push_back(eventWeight);
+  }
+
+  size_t firstWeight = (m_doLHE3Weights)? 1: 0;
+  
+  for(int iw = firstWeight; iw != m_pythia.info.nWeights(); ++iw){
+    
+    std::string wtName = ((int)m_showerWeightNames.size() == m_pythia.info.nWeights())? m_showerWeightNames[iw]: "ShowerWt_" + std::to_string(iw);
+    
+    if(m_pythia.info.nWeights() != 1){
+      if(m_internal_event_number == 1) m_weightIDs.push_back(wtName);
+      evt->weights()[wtName] = mergingWeight*m_pythia.info.weight(iw);
+    }else{
+      evt->weights().push_back(eventWeight);
+    }
   }
 
   // Units correction
@@ -493,9 +521,9 @@ StatusCode Pythia8_i::genFinalize(){
   std::cout << "MetaData: cross-section (nb)= " << xs <<std::endl;
   std::cout << "MetaData: generator= Pythia 8." << PY8VERSION <<std::endl;
 
-  if(m_doLHE3Weights){
-    
+  if(m_doLHE3Weights || m_weightIDs.size()>1 ){
     std::cout<<"MetaData: weights = ";
+
     foreach(const string &id, m_weightIDs){
       
       std::map<string, Pythia8::LHAweight>::const_iterator weight = m_pythia->info.init_weights->find(id);
@@ -506,7 +534,7 @@ StatusCode Pythia8_i::genFinalize(){
         std::cout<<"Unknown | ";
       }
     }
-    std::cout<<std::endl;
+  std::cout<<std::endl;
   }
   
   return StatusCode::SUCCESS;
@@ -560,7 +588,7 @@ string Pythia8_i::xmlpath(){
      // using PathResolver:
      foundpath = PathResolverFindCalibDirectory( "Pythia8/xmldoc" );
   }
-
+  
   return foundpath;
 }
 
