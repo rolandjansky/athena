@@ -72,7 +72,7 @@ namespace AtlasRoot {
 
     m_rootFile = nullptr;
 
-    m_rootFileName = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v17/egammaEnergyCorrectionData.root");
+    m_rootFileName = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v18/egammaEnergyCorrectionData.root");
     
     if (m_rootFileName.empty()) {
       ATH_MSG_FATAL("cannot find configuration file");
