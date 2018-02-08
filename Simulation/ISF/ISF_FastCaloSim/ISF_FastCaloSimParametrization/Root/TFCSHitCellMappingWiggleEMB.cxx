@@ -83,11 +83,14 @@ void TFCSHitCellMappingWiggleEMB::simulate_hit(t_hit& hit,TFCSSimulationState& s
   if(cs < 4 && cs > 0) wiggle = doWiggle();
 
   double hit_phi_shifted=hit.phi()-wiggle;
-  hit_phi_shifted=TVector2::Phi_mpi_pi(hit_phi_shifted);
+  hit.phi()=TVector2::Phi_mpi_pi(hit_phi_shifted);
   
-  const CaloDetDescrElement* cellele=m_geo->getDDE(cs,hit.eta(),hit_phi_shifted);
-  simulstate.deposit(cellele,hit.E());
-  //std::cout<<"TFCSLateralShapeParametrizationHitCellMapping::simulate_hit: cellele="<<cellele<<" E="<<hit.E()<<" cs="<<cs<<" eta="<<hit.eta()<<" phi="<<hit.phi()<<std::endl;
+  const CaloDetDescrElement* cellele=m_geo->getDDE(cs,hit.eta(),hit.phi());
+  if(cellele) {
+    simulstate.deposit(cellele,hit.E());
+  } else {
+    std::cout<<"WARNING: TFCSLateralShapeParametrizationHitCellMapping::simulate_hit: cellele="<<cellele<<" E="<<hit.E()<<" cs="<<cs<<" eta="<<hit.eta()<<" phi="<<hit.phi()<<std::endl;
+  }
 }
 
 void TFCSHitCellMappingWiggleEMB::Print(Option_t *option) const

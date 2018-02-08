@@ -61,6 +61,7 @@ void TFCSLateralShapeParametrizationHitChain::simulate(TFCSSimulationState& simu
     TFCSLateralShapeParametrizationHitBase::t_hit hit; 
     hit.E()=Ehit;
     for(TFCSLateralShapeParametrizationHitBase* hitsim : m_chain) {
+      //std::cout<<"  do "<<hitsim->ClassName()<<":"<<hitsim->GetName()<<" hit="<<i<<std::endl;
       hitsim->simulate_hit(hit,simulstate,truth,extrapol);
     } 
   }  

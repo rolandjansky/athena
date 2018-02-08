@@ -14,6 +14,7 @@
 
 // FastCaloSim includes
 #include "ISF_FastCaloSimEvent/TFCSPCAEnergyParametrization.h"
+#include "ISF_FastCaloSimEvent/TFCSSimulationState.h"
 #include "ISF_FastCaloSimParametrization/CaloGeometryFromCaloDDM.h"
 #include "ISF_FastCaloSimParametrization/IFastCaloSimCaloExtrapolation.h"
 #include "TrkExInterfaces/ITimedExtrapolator.h" 
