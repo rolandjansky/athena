@@ -322,36 +322,28 @@ if DetFlags.haveRIO.SCT_on():
         ServiceMgr += InDetSCT_DCSConditionsSvc
         if (InDetFlags.doPrintConfigurables()):
             print InDetSCT_DCSConditionsSvc
-    print "Conditions db instance is ", conddb.dbdata
-    # Load Tdaq enabled services for data only and add some to summary svc for data only
-    tdaqFolder = '/TDAQ/EnabledResources/ATLAS/SCT/Robins'
-    if (conddb.dbdata == "CONDBR2"):
-      tdaqFolder = '/TDAQ/Resources/ATLAS/SCT/Robins'
     
     if (globalflags.DataSource() == 'data'):       
+      print "Conditions db instance is ", conddb.dbdata
+      # Load Tdaq enabled services for data only and add some to summary svc for data only
+      tdaqFolder = '/TDAQ/EnabledResources/ATLAS/SCT/Robins'
+      if (conddb.dbdata == "CONDBR2"):
+        tdaqFolder = '/TDAQ/Resources/ATLAS/SCT/Robins'
         # Load TdaqEnabled service
-        if not conddb.folderRequested(tdaqFolder):
-            conddb.addFolder("TDAQ",tdaqFolder,className="CondAttrListCollection")
-            if not hasattr(condSeq, "SCT_TdaqEnabledCondAlg"):
-                from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_TdaqEnabledCondAlg
-                condSeq += SCT_TdaqEnabledCondAlg(name = "SCT_TdaqEnabledCondAlg",
-                                                  ReadKey = tdaqFolder,
-                                                  EventInfoKey = eventInfoKey)
-
-        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_TdaqEnabledSvc
-        InDetSCT_TdaqEnabledSvc = SCT_TdaqEnabledSvc(name = "InDetSCT_TdaqEnabledSvc",
-                                                     EventInfoKey = eventInfoKey)
-
-        ServiceMgr += InDetSCT_TdaqEnabledSvc
+        from SCT_ConditionsServices.SCT_TdaqEnabledSvcSetup import sct_TdaqEnabledSvcSetup
+        sct_TdaqEnabledSvcSetup.setFolder(tdaqFolder)
+        sct_TdaqEnabledSvcSetup.setSvcName("InDetSCT_TdaqEnabledSvc")
+        sct_TdaqEnabledSvcSetup.setEventInfoKey(eventInfoKey)
+        sct_TdaqEnabledSvcSetup.setup()
         if (InDetFlags.doPrintConfigurables()):
-            print InDetSCT_TdaqEnabledSvc
+            print sct_TdaqEnabledSvcSetup.getSvc()
         
         # Configure summary service
         InDetSCT_ConditionsSummarySvc.ConditionsServices= [ "InDetSCT_ConfigurationConditionsSvc",
                                                             "InDetSCT_FlaggedConditionSvc",
                                                             "SCT_ByteStreamErrorsSvc",
                                                             "InDetSCT_ReadCalibDataSvc",
-                                                            "InDetSCT_TdaqEnabledSvc"]
+                                                            sct_TdaqEnabledSvcSetup.getSvcName()]
         if not athenaCommonFlags.isOnline():
             InDetSCT_ConditionsSummarySvc.ConditionsServices += [ "InDetSCT_MonitorConditionsSvc" ]
 
