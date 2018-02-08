@@ -81,39 +81,39 @@ public:
   void GetMemoryUsage();
 
 private:
-  bool     g_FilledData;
-  TFile*   g_Output;
-  TTree*   g_Tree;
+  bool     m_FilledData;
+  TFile*   m_OutputFile;
+  TTree*   m_Tree;
   //::: Running parameters
-  double   g_pars[ Par::N ];
-  double   g_errs_up[ Par::N ];
-  double   g_errs_low[ Par::N ];
-  double   g_NLL; 
-  double   g_Chi2; 
+  double   m_pars[ Par::N ];
+  double   m_errs_up[ Par::N ];
+  double   m_errs_low[ Par::N ];
+  double   m_NLL; 
+  double   m_Chi2; 
   //::: Best (so far) parameters
-  double   g_best_pars[ Par::N ];
-  double   g_best_errs_up[ Par::N ];
-  double   g_best_errs_low[ Par::N ];
-  double   g_best_NLL; 
-  double   g_best_Chi2; 
+  double   m_best_pars[ Par::N ];
+  double   m_best_errs_up[ Par::N ];
+  double   m_best_errs_low[ Par::N ];
+  double   m_best_NLL; 
+  double   m_best_Chi2; 
   //:::
-  double   g_GlobalMinimum; 
-  int      g_Index;
-  int      g_ScanPar;
-  int      g_ScanIter;
-  int      g_FitTrial;
-  int      g_UpdatedTemplates; //::: How many times have we recaclulated the templates?
-  bool     g_DumpFlag;
-  TRandom3 g_Random;
+  double   m_GlobalMinimum; 
+  int      m_Index;
+  int      m_ScanPar;
+  int      m_ScanIter;
+  int      m_FitTrial;
+  int      m_UpdatedTemplates; //::: How many times have we recaclulated the templates?
+  bool     m_DumpFlag;
+  TRandom3 m_Random;
   //:::
-  std::vector< Tools::Info >* g_DataSingleInfo;
-  std::vector< Tools::Info >* g_DataBothInfo;
-  std::vector< Tools::Info >* g_BackgroundSingleInfo;
-  std::vector< Tools::Info >* g_BackgroundBothInfo;
-  std::vector< Tools::Info >* g_MonteCarloSingleInfo;
-  std::vector< Tools::Info >* g_MonteCarloBothInfo; 
+  std::vector< Tools::Info >* m_DataSingleInfo;
+  std::vector< Tools::Info >* m_DataBothInfo;
+  std::vector< Tools::Info >* m_BackgroundSingleInfo;
+  std::vector< Tools::Info >* m_BackgroundBothInfo;
+  std::vector< Tools::Info >* m_MonteCarloSingleInfo;
+  std::vector< Tools::Info >* m_MonteCarloBothInfo; 
   //:::
-  Template* g_CurrentTemplate; 
+  Template* m_CurrentTemplate; 
   //:::
   std::string m_Detector;
   std::string m_FitType;
