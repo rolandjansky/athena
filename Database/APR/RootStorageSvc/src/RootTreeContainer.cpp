@@ -128,7 +128,7 @@ namespace SG {
    static const std::string AUXDYN_POSTFIX = "Dyn.";
 }
 
-static UCharDbArray  s_char_Blob;
+static UCharDbArrayAthena  s_char_Blob;
 static IntDbArray   s_int_Blob;
 
 #include <iostream>
@@ -842,7 +842,7 @@ DbStatus RootTreeContainer::open( const DbDatabase& dbH,
             iret=addBranch(*i,dsc,"/C");
             break;
           case DbColumn::BLOB:
-            iret=addObject(*i,dsc,"UCharDbArray", defSplitLevel, defBufferSize, branchOffsetTabLen);
+            iret=addObject(*i,dsc,"UCharDbArrayAthena", defSplitLevel, defBufferSize, branchOffsetTabLen);
             break;
           case DbColumn::ANY:
           case DbColumn::POINTER:
