@@ -36,7 +36,7 @@ VrtSecInclusive_InDet.doAssociateNonSelectedTracks           = True
 VrtSecInclusive_InDet.doFinalImproveChi2                     = False
 VrtSecInclusive_InDet.DoTruth                                = (globalflags.DataSource == 'geant4' and globalflags.InputFormat == "pool")
 VrtSecInclusive_InDet.FillHist                               = True
-VrtSecInclusive_InDet.FillIntermediateVertices               = True
+VrtSecInclusive_InDet.FillIntermediateVertices               = False
 VrtSecInclusive_InDet.CutPixelHits                           = 0
 VrtSecInclusive_InDet.CutSctHits                             = 2
 VrtSecInclusive_InDet.TrkA0ErrCut                            = 200000
@@ -87,7 +87,7 @@ VrtSecInclusive_leptons.doAssociateNonSelectedTracks           = False
 VrtSecInclusive_leptons.doFinalImproveChi2                     = False
 VrtSecInclusive_leptons.DoTruth                                = (globalflags.DataSource == 'geant4' and globalflags.InputFormat == "pool")
 VrtSecInclusive_leptons.FillHist                               = True
-VrtSecInclusive_leptons.FillIntermediateVertices               = True
+VrtSecInclusive_leptons.FillIntermediateVertices               = False
 VrtSecInclusive_leptons.CutPixelHits                           = 0
 VrtSecInclusive_leptons.CutSctHits                             = 2
 VrtSecInclusive_leptons.TrkA0ErrCut                            = 200000
@@ -133,5 +133,6 @@ ToolSvc += HadronicVertexMapper
 
 VrtSecInclusive_InDet.VertexMapper    = HadronicVertexMapper
 VrtSecInclusive_leptons.VertexMapper  = HadronicVertexMapper
+
 
 include("VrtSecInclusive/VrtSecInclusive_DV_postInclude.py")
