@@ -175,7 +175,7 @@ StatusCode EFMissingETFromTrackAndJets::execute(xAOD::TrigMissingET *,
 
 
   //bool hasGoodVtx = false;
-  size_t m_pvind(0);
+  size_t pvind(0);
   const xAOD::Vertex* primaryVertex =  nullptr;
   for (const xAOD::Vertex* vertex : VertexVec) {
 
@@ -189,7 +189,7 @@ StatusCode EFMissingETFromTrackAndJets::execute(xAOD::TrigMissingET *,
     if ( vertex->vertexType() == xAOD::VxType::PriVtx ) {
       //hasGoodVtx = true;
       primaryVertex = vertex;
-      m_pvind = vertex->index();
+      pvind = vertex->index();
       break;
     }
 
@@ -348,8 +348,8 @@ StatusCode EFMissingETFromTrackAndJets::execute(xAOD::TrigMissingET *,
 
 
     // forward JVT calculation
-    std::vector<TVector2> m_pileupMomenta;
-    m_pileupMomenta.clear();
+    std::vector<TVector2> pileupMomenta;
+    pileupMomenta.clear();
     for(const xAOD::Vertex* vx : VertexVec) {
         if(vx->vertexType()!= xAOD::VxType::NoVtx) continue;
 
@@ -366,9 +366,9 @@ StatusCode EFMissingETFromTrackAndJets::execute(xAOD::TrigMissingET *,
         }
 
         float m_jetScaleFactor         = 0.4;
-        m_pileupMomenta.push_back((vx->index()==m_pvind?0:-(1./m_jetScaleFactor))*TVector2(0.5*trk_x,0.5*trk_y));
+        pileupMomenta.push_back((vx->index()==pvind?0:-(1./m_jetScaleFactor))*TVector2(0.5*trk_x,0.5*trk_y));
     }
-    //std::cout << "m_pileupMomenta size " << m_pileupMomenta.size() << std::endl;
+    //std::cout << "pileupMomenta size " << pileupMomenta.size() << std::endl;
 
 
     for (std::map<const xAOD::Jet*, std::pair<double, std::vector<double> > >::iterator it=JVTRpt_jets.begin(); it!=JVTRpt_jets.end(); ++it) {
@@ -386,7 +386,7 @@ StatusCode EFMissingETFromTrackAndJets::execute(xAOD::TrigMissingET *,
                 firstVal = Rpt_ijet[i];
             }
         }
-        if (bestMatchVertex>=0) m_pileupMomenta[bestMatchVertex] += TVector2(-0.5*jet->pt()*cos(jet->phi()),-0.5*jet->pt()*sin(jet->phi()));
+        if (bestMatchVertex>=0) pileupMomenta[bestMatchVertex] += TVector2(-0.5*jet->pt()*cos(jet->phi()),-0.5*jet->pt()*sin(jet->phi()));
     }
 
 
@@ -401,9 +401,9 @@ StatusCode EFMissingETFromTrackAndJets::execute(xAOD::TrigMissingET *,
         double fJVT_ijet = 0;
         if( forwardJet(jet) ) {
             TVector2 fjet(jet->pt()*cos(jet->phi()),jet->pt()*sin(jet->phi()));
-            for (size_t pui = 0; pui < m_pileupMomenta.size(); pui++) {
-                if (pui==m_pvind) continue;
-                double projection = m_pileupMomenta[pui].Px() * jet->pt()*cos(jet->phi()) + m_pileupMomenta[pui].Py() * jet->pt()*sin(jet->phi());
+            for (size_t pui = 0; pui < pileupMomenta.size(); pui++) {
+                if (pui==pvind) continue;
+                double projection = pileupMomenta[pui].Px() * jet->pt()*cos(jet->phi()) + pileupMomenta[pui].Py() * jet->pt()*sin(jet->phi());
                 projection /= fjet.Mod2();
 
                 if (projection>fJVT_ijet) fJVT_ijet = projection;
@@ -571,11 +571,11 @@ TH1* EFMissingETFromTrackAndJets::getHistogramFromFile(TString hname, TString fn
 
 bool EFMissingETFromTrackAndJets::forwardJet(const xAOD::Jet *jet) const
 {
-    double m_etaThresh          = 2.4;
-    double m_forwardMinPt       = 20e3;
-    double m_forwardMaxPt       = 50e3;
-    if (fabs(jet->eta())<m_etaThresh) return false;
-    if (jet->pt()<m_forwardMinPt || jet->pt()>m_forwardMaxPt) return false;
+    double etaThresh          = 2.4;
+    double forwardMinPt       = 20e3;
+    double forwardMaxPt       = 50e3;
+    if (fabs(jet->eta())<etaThresh) return false;
+    if (jet->pt()<forwardMinPt || jet->pt()>forwardMaxPt) return false;
     return true;
 }
 
@@ -583,17 +583,17 @@ bool EFMissingETFromTrackAndJets::forwardJet(const xAOD::Jet *jet) const
 bool EFMissingETFromTrackAndJets::centralJet(const xAOD::Jet *jet, float jvt, std::vector<double> sumpts) const
 {
 
-    double m_etaThresh          = 2.4;
-    double m_centerMinPt        = 20e3;
-    double m_centerMaxPt        = -1;
-    double m_centerJvtThresh    = 0.14;
-    double m_maxStochPt         = 35e3;
-    double m_centerDrptThresh   = 0.2;
+    double etaThresh          = 2.4;
+    double centerMinPt        = 20e3;
+    double centerMaxPt        = -1;
+    double centerJvtThresh    = 0.14;
+    double maxStochPt         = 35e3;
+    double centerDrptThresh   = 0.2;
 
-    if (fabs(jet->eta())>m_etaThresh) return false;
-    if (jet->pt()<m_centerMinPt || (m_centerMaxPt>0 && jet->pt()>m_centerMaxPt)) return false;
-    if (jvt>m_centerJvtThresh) return false;
-    if (jet->pt()<m_maxStochPt && getDrpt(jet,sumpts)<m_centerDrptThresh) return false;
+    if (fabs(jet->eta())>etaThresh) return false;
+    if (jet->pt()<centerMinPt || (centerMaxPt>0 && jet->pt()>centerMaxPt)) return false;
+    if (jvt>centerJvtThresh) return false;
+    if (jet->pt()<maxStochPt && getDrpt(jet,sumpts)<centerDrptThresh) return false;
     return true;
 }
 
