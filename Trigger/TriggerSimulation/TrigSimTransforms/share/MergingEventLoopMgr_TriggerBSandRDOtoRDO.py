@@ -174,7 +174,7 @@ svcMgr.MergingEventLoopMgr.ShareSecondaryProxies = True
 
 
 #-------------------------------------------------------------------------------
-# AthenaPoolOutputStreamTool
+# AthenaOutputStreamTool
 #-------------------------------------------------------------------------------
 #http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/Control/AthenaExamples/AthExThinning/share/WriteSlimmedData_jobOptions.py
 #import AthenaPoolCnvSvc.WriteAthenaPool

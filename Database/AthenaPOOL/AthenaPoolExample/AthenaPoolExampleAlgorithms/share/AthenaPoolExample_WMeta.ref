@@ -1,4 +1,4 @@
-Wed Dec 20 16:05:13 CST 2017
+Wed Jan 31 16:43:01 CST 2018
 Preloading tcmalloc_minimal.so
 Athena               INFO including file "AthenaCommon/Preparation.py"
 Athena               INFO including file "AthenaCommon/Bootstrap.py"
@@ -6,14 +6,14 @@ Athena               INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Athena               INFO executing ROOT6Setup
 Athena               INFO including file "AthenaCommon/Execution.py"
 Athena               INFO including file "AthenaPoolExampleAlgorithms/AthenaPoolExample_WMetaJobOptions.py"
-Py:ConfigurableDb    INFO Read module info for 5439 configurables from 18 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5451 configurables from 54 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Athena               INFO including file "AthenaCommon/runbatch.py"
-[?1034hApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
+ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v30r0)
-                                          running on atlas2.hep.anl.gov on Wed Dec 20 16:05:23 2017
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v30r1)
+                                          running on hepd-0003 on Wed Jan 31 16:43:07 2018
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -21,7 +21,7 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 2318 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 2320 CLIDRegistry entries for module ALL
 ChronoStatSvc        INFO  Number of skipped events for MemStat-1
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
@@ -39,15 +39,15 @@ PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:Catalog2.xml) [ok
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
 DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://lcgft-atlas.gridpp.rl.ac.uk:3128/frontierATLAS)(serverurl=http://frontier-atlas.lcg.triumf.ca:3128/ATLAS_frontier)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master/2017-12-17T2303/Athena/22.0.0/InstallArea/x86_64-slc6-gcc62-opt/share/dbreplica.config
-DBReplicaSvc         INFO Total of 1 servers found for host atlas2.hep.anl.gov [ATLF ]
+DBReplicaSvc         INFO Read replica configuration from /home/gemmeren/workarea/build/x86_64-centos7-gcc62-opt/share/dbreplica.config
+DBReplicaSvc         INFO Total of 1 servers found for host hepd-0003.lcrc.anl.gov [ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc             DEBUG OutputLevel is 
 PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:Catalog2.xml
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
-ClassIDSvc           INFO  getRegistryEntries: read 2282 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 2271 CLIDRegistry entries for module ALL
 Stream1             DEBUG Property update for OutputLevel : new value = 2
 Stream1.Stream1...  DEBUG Property update for OutputLevel : new value = 2
 Stream1             DEBUG In initialize 
@@ -59,9 +59,7 @@ Stream1             DEBUG Found StoreGateSvc store.
 Stream1             DEBUG Found MetaDataStore store.
 OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-00-00-00
 Stream1.Stream1...  DEBUG Property update for OutputLevel : new value = 2
-ClassIDSvc           INFO  getRegistryEntries: read 402 CLIDRegistry entries for module ALL
-Stream1.Stream1...   INFO Initializing Stream1.Stream1Tool - package version OutputStreamAthenaPool-00-00-00
-Stream1.Stream1...   INFO streamProperty ProcessingTag = Stream1
+Stream1.Stream1...   INFO Initializing Stream1.Stream1Tool - package version AthenaServices-00-00-00
 Stream1.Stream1...  DEBUG Property update for OutputLevel : new value = 2
 Stream1.Stream1...   INFO Initializing Stream1.Stream1_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
 Stream1              INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Stream1_MakeEventStreamInfo'])
@@ -72,7 +70,7 @@ Stream1             DEBUG input handles: 0
 Stream1             DEBUG output handles: 0
 Stream1             DEBUG Registering all Tools in ToolHandleArray HelperTools
 Stream1             DEBUG Adding private ToolHandle tool Stream1.Stream1_MakeEventStreamInfo (MakeEventStreamInfo) from ToolHandleArray HelperTools
-Stream1             DEBUG Adding private ToolHandle tool Stream1.Stream1Tool (AthenaPoolOutputStreamTool)
+Stream1             DEBUG Adding private ToolHandle tool Stream1.Stream1Tool (AthenaOutputStreamTool)
 Stream1             DEBUG Data Deps for Stream1
 HistogramPersis...WARNING Histograms saving not required.
 EventSelector        INFO  Enter McEventSelector Initialization 
@@ -80,7 +78,7 @@ AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr       INFO Application Manager Started successfully
 EventPersistenc...   INFO Added successfully Conversion service:McCnvSvc
-ClassIDSvc           INFO  getRegistryEntries: read 108 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 456 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO   ===>>>  start of run 0    <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #0, run #0 0 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -180,16 +178,9 @@ SimplePoolFile5...  DEBUG ---->ClassID:????
 SimplePoolFile5...  DEBUG --->Adding Shape[3 , ????]:  [1 Column(s)] 
 SimplePoolFile5...  DEBUG ---->Class:DataHeader_p5
 SimplePoolFile5...  DEBUG ---->[0]:DataHeader_p5 Typ:DataHeader_p5 [21] Size:0 Offset:0 #Elements:1
-ClassIDSvc           INFO  getRegistryEntries: read 63 CLIDRegistry entries for module ALL
-SimplePoolFile5...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLContainer(basic/DataHeader)
-POOLContainer(b...  DEBUG Opening
-POOLContainer(b...  DEBUG    attributes# = 1
-POOLContainer(b...  DEBUG Branch container 'basic_DataHeader'
-POOLContainer(b...  DEBUG Opened container POOLContainer(basic/DataHeader) of type ROOT_Tree
-SimplePoolFile5...  DEBUG --->Adding Assoc :????/POOLContainer(basic/DataHeader) [202]  (7 , ffffffff)
-SimplePoolFile5...  DEBUG ---->ClassID:????
 AthenaPoolCnvSvc    DEBUG setAttribute BRANCH_BASKET_SIZE to 256000 for db: SimplePoolFile5.root and cont: POOLContainer(DataHeader)
 AthenaPoolCnvSvc    DEBUG setAttribute BRANCH_BASKET_SIZE to 1024000 for db: SimplePoolFile5.root and cont: POOLContainerForm(DataHeaderForm)
+ClassIDSvc           INFO  getRegistryEntries: read 68 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #0, run #0 1 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #0 1 events processed so far  <<<===
 WriteData           DEBUG in execute()
@@ -683,7 +674,7 @@ MetaData(Exampl...  DEBUG Opening
 MetaData(Exampl...  DEBUG    attributes# = 1
 MetaData(Exampl...  DEBUG Branch container 'ExampleHitContainer_p1_PedestalWriteData'
 MetaData(Exampl...  DEBUG Opened container MetaData(ExampleHitContainer_p1/PedestalWriteData) of type ROOT_Tree
-SimplePoolFile5...  DEBUG --->Adding Assoc :????/MetaData(ExampleHitContainer_p1/PedestalWriteData) [202]  (8 , ffffffff)
+SimplePoolFile5...  DEBUG --->Adding Assoc :????/MetaData(ExampleHitContainer_p1/PedestalWriteData) [202]  (7 , ffffffff)
 SimplePoolFile5...  DEBUG ---->ClassID:????
 StorageSvc           INFO Building shape according to reflection information using shape ID for:
 StorageSvc           INFO EventStreamInfo_p3 [????]
@@ -692,7 +683,7 @@ MetaData(EventS...  DEBUG Opening
 MetaData(EventS...  DEBUG    attributes# = 1
 MetaData(EventS...  DEBUG Branch container 'EventStreamInfo_p3_Stream1'
 MetaData(EventS...  DEBUG Opened container MetaData(EventStreamInfo_p3/Stream1) of type ROOT_Tree
-SimplePoolFile5...  DEBUG --->Adding Assoc :????/MetaData(EventStreamInfo_p3/Stream1) [202]  (9 , ffffffff)
+SimplePoolFile5...  DEBUG --->Adding Assoc :????/MetaData(EventStreamInfo_p3/Stream1) [202]  (8 , ffffffff)
 SimplePoolFile5...  DEBUG ---->ClassID:????
 SimplePoolFile5...  DEBUG --->Adding Shape[4 , ????]:  [1 Column(s)] 
 SimplePoolFile5...  DEBUG ---->Class:EventStreamInfo_p3
@@ -702,14 +693,14 @@ MetaDataHdrForm...  DEBUG Opening
 MetaDataHdrForm...  DEBUG    attributes# = 1
 MetaDataHdrForm...  DEBUG Branch container 'DataHeaderForm'
 MetaDataHdrForm...  DEBUG Opened container MetaDataHdrForm(DataHeaderForm) of type ROOT_Tree
-SimplePoolFile5...  DEBUG --->Adding Assoc :????/MetaDataHdrForm(DataHeaderForm) [202]  (a , ffffffff)
+SimplePoolFile5...  DEBUG --->Adding Assoc :????/MetaDataHdrForm(DataHeaderForm) [202]  (9 , ffffffff)
 SimplePoolFile5...  DEBUG ---->ClassID:????
 SimplePoolFile5...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaDataHdr(DataHeader)
 MetaDataHdr(Dat...  DEBUG Opening
 MetaDataHdr(Dat...  DEBUG    attributes# = 1
 MetaDataHdr(Dat...  DEBUG Branch container 'DataHeader'
 MetaDataHdr(Dat...  DEBUG Opened container MetaDataHdr(DataHeader) of type ROOT_Tree
-SimplePoolFile5...  DEBUG --->Adding Assoc :????/MetaDataHdr(DataHeader) [202]  (b , ffffffff)
+SimplePoolFile5...  DEBUG --->Adding Assoc :????/MetaDataHdr(DataHeader) [202]  (a , ffffffff)
 SimplePoolFile5...  DEBUG ---->ClassID:????
 ClassIDSvc           INFO  getRegistryEntries: read 5 CLIDRegistry entries for module ALL
 Stream1              INFO Records written: 21
@@ -732,10 +723,10 @@ ToolSvc              INFO Removing all tools created by ToolSvc
 *****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****     INFO ****************************************************************************************************
 commitOutput         INFO Time User   : Tot=    0 [us] Ave/Min/Max=    0(+-    0)/    0/    0 [us] #= 21
-fRep_ALL             INFO Time User   : Tot=    0 [us] Ave/Min/Max=    0(+-    0)/    0/    0 [us] #= 83
-cRepR_ALL            INFO Time User   : Tot=   30 [ms] Ave/Min/Max=0.242(+- 1.54)/    0/   10 [ms] #=124
-cRep_ALL             INFO Time User   : Tot=  120 [ms] Ave/Min/Max= 1.45(+- 6.61)/    0/   40 [ms] #= 83
-ChronoStatSvc        INFO Time User   : Tot= 0.93  [s]                                             #=  1
+fRep_ALL             INFO Time User   : Tot=   10 [ms] Ave/Min/Max=0.159(+- 1.25)/    0/   10 [ms] #= 63
+cRepR_ALL            INFO Time User   : Tot=    0 [us] Ave/Min/Max=    0(+-    0)/    0/    0 [us] #= 84
+cRep_ALL             INFO Time User   : Tot=   50 [ms] Ave/Min/Max=0.794(+-  3.7)/    0/   20 [ms] #= 63
+ChronoStatSvc        INFO Time User   : Tot= 0.53  [s]                                             #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully

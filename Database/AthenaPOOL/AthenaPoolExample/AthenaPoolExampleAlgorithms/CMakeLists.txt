@@ -147,29 +147,10 @@ _add_test( AthenaPoolExample_ReadConcat
    EXTRA_PATTERNS "BYTES_READ"
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_Concat_ctest )
 
-# Read ByteStream and write to APR/POOL
-_add_test( AthenaPoolExample_RWBs
-   "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_RWBsJobOptions.py"
-   EXTRA_PATTERNS "BSF:|Picked valid file:|RootCollection DEBUG File|found catalog guid|from the catalog"
-   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReadConcat_ctest )
-_add_test( AthenaPoolExample_ReadBs
-   "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadBsJobOptions.py"
-   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_RWBs_ctest )
-
-# Read compressed ByteStream and write to APR/POOL
-_add_test( AthenaPoolExample_RWcBs
-   "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_RWcBsJobOptions.py"
-   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReadBs_ctest
-   EXTRA_PATTERNS "Events to copy|Checking file|Created DataWriter|File:|Event index:|^Run:|Event ID:|^LumiBlock:|Wrote 3 events"
-   PRE_EXEC test/pre_check.sh )
-_add_test( AthenaPoolExample_ReadcBs
-   "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadBsJobOptions.py"
-   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_RWcBs_ctest )
-
 # Testing 'Conditions' I/O
 _add_test( AthenaPoolExample_WCond
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_WCondJobOptions.py"
-   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReadcBs_ctest )
+   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReadConcat_ctest )
 _add_test( AthenaPoolExample_RCond
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_RCondJobOptions.py"
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_WCond_ctest )
@@ -179,20 +160,7 @@ _add_test( AthenaPoolExample_WMeta
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_WMetaJobOptions.py"
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_RCond_ctest
    PRE_EXEC test/pre_check.sh )
-_add_test( AthenaPoolExample_AMeta
-   "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_AMetaJobOptions.py"
-   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_WMeta_ctest )
 _add_test( AthenaPoolExample_RMeta
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_RMetaJobOptions.py"
-   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_AMeta_ctest
+   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_WMeta_ctest
    EXTRA_PATTERNS "Bytes:" )
-
-# Testing APR/POOL 'fast' merge
-_add_test( AthenaPoolExample_WriteFast
-   "athena.py  AthenaPoolExampleAlgorithms/AthenaPoolExample_WriteFastJobOptions.py"
-   EXTRA_PATTERNS "RootCollection DEBUG File|found catalog guid|from the catalog"
-   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_RMeta_ctest )
-_add_test( AthenaPoolExample_AppendFast
-   "athena.py  AthenaPoolExampleAlgorithms/AthenaPoolExample_AppendFastJobOptions.py"
-   EXTRA_PATTERNS "RootCollection DEBUG File|found catalog guid|from the catalog|DbContainer|Reading Shape|Reading Assoc|Reading Param|Adding Assoc|Adding Shape|#Elements|->ClassID:|Pushing back ref|Building shape|DataHeader|No objects passing|EventInfo|INFO Token|Class:unsigned int|EventStreamInfo|Class:Token|INFO unsigned int"
-   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_WriteFast_ctest )

@@ -13,3 +13,5 @@ AthenaOutputStream.OutputLevel = 1
 AthenaOutputStream.ItemList=["Bar#uno", "Bar#due", "Bar#tre" ,
 			     "8101#*","13#*"]       
 AthenaOutputStream.AcceptAlgs=["AthenaOutputStream", "aSFQS"]
+AthenaOutputStreamTool = Algorithm( "AthenaOutputStreamTool" )
+AthenaOutputStreamTool.Store = StoreGateSvc

@@ -151,8 +151,8 @@ theApp.OutStream = []
 
 from AthenaCommon.AppMgr import ToolSvc
 IOVDbTestAlg.StreamName = "CondStream2"
-from OutputStreamAthenaPool.OutputStreamAthenaPoolConf import AthenaPoolOutputStreamTool
-ToolSvc += AthenaPoolOutputStreamTool("CondStream2",OutputFile = "SimplePoolFile.root")
+from AthenaServices.AthenaServicesConf import AthenaOutputStreamTool
+ToolSvc += AthenaOutputStreamTool("CondStream2",OutputFile = "SimplePoolFile.root")
 
 include( "EventAthenaPool/EventAthenaPoolItemList_joboptions.py" )
 

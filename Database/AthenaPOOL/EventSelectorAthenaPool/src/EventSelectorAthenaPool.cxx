@@ -52,7 +52,6 @@ EventSelectorAthenaPool::EventSelectorAthenaPool(const std::string& name, ISvcLo
 	m_poolCollectionConverter(0),
 	m_headerIterator(0),
 	m_guid(),
-	m_satelliteOid1(0LL),
 	m_athenaPoolCnvSvc("AthenaPoolCnvSvc", name),
 	m_incidentSvc("IncidentSvc", name),
 	m_helperTools(this),
@@ -142,9 +141,7 @@ StatusCode EventSelectorAthenaPool::initialize() {
    std::sort(m_skipEventSequence.begin(), m_skipEventSequence.end());
 
    // CollectionType must be one of:
-   //   ExplicitROOT, ExplicitMySQL, ExplicitMySQLlt, ExplicitRAL, ImplicitROOT
-   if (m_collectionType.value() != "ExplicitROOT" &&
-	   m_collectionType.value() != "ImplicitROOT") {
+   if (m_collectionType.value() != "ExplicitROOT" && m_collectionType.value() != "ImplicitROOT") {
       ATH_MSG_FATAL("EventSelector.CollectionType must be one of: ExplicitROOT, ImplicitROOT (default)");
       return(StatusCode::FAILURE);
    }
@@ -416,23 +413,23 @@ StatusCode EventSelectorAthenaPool::stop() {
    return(StatusCode::SUCCESS);
 }
 
-
+//________________________________________________________________________________
 void EventSelectorAthenaPool::fireEndFileIncidents(bool isLastFile, bool fireEndTagIncident) const {
    if (m_processMetadata.value()) {
       if (m_evtCount >= 0) {
-            // Assume that the end of collection file indicates the end of payload file.
-            if (m_guid != Guid::null()) {
-               // Fire EndInputFile incident
-               FileIncident endInputFileIncident(name(), "EndInputFile", "FID:" + m_guid.toString());
-               m_incidentSvc->fireIncident(endInputFileIncident);
+         // Assume that the end of collection file indicates the end of payload file.
+         if (m_guid != Guid::null()) {
+            // Fire EndInputFile incident
+            FileIncident endInputFileIncident(name(), "EndInputFile", "FID:" + m_guid.toString());
+            m_incidentSvc->fireIncident(endInputFileIncident);
+         }
+         // Fire EndTagFile incident if not out of files (maybe we should make it fire then as well?)
+         if (fireEndTagIncident) {
+            if (m_inputCollectionsIterator != m_inputCollectionsProp.value().end()) {
+               FileIncident endTagFileIncident(name(), "EndTagFile", *m_inputCollectionsIterator);
+               m_incidentSvc->fireIncident(endTagFileIncident);
             }
-            // Fire EndTagFile incident if not out of files (maybe we should make it fire then as well?)
-            if(fireEndTagIncident) {
-               if(m_inputCollectionsIterator!=m_inputCollectionsProp.value().end()) {
-                  FileIncident endTagFileIncident(name(), "EndTagFile", *m_inputCollectionsIterator);
-                  m_incidentSvc->fireIncident(endTagFileIncident);
-               }
-            }
+         }
       }
       // Fire LastInputFile incident
       if (isLastFile && m_firedIncident) {
@@ -442,7 +439,6 @@ void EventSelectorAthenaPool::fireEndFileIncidents(bool isLastFile, bool fireEnd
       }
    }
 }
-
 
 //________________________________________________________________________________
 StatusCode EventSelectorAthenaPool::finalize() {
@@ -640,21 +636,6 @@ StatusCode EventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) const {
                FileIncident beginInputFileIncident(name(), "BeginInputFile", "FID:" + m_guid.toString());
                m_incidentSvc->fireIncident(beginInputFileIncident);
             }
-         }
-         // Using Satellite DataHeader?
-         std::string::size_type p_slash = m_collectionTree.value().find('/');
-         if (p_slash != std::string::npos) {
-            const std::string tree = m_collectionTree.value().substr(0, p_slash);
-            const std::string satellite = m_collectionTree.value().substr(p_slash + 1);
-            const Token* satelliteToken = m_athenaPoolCnvSvc->getPoolSvc()->getToken("FID:" + m_headerIterator->eventRef().dbID().toString(), tree + "(" + satellite + "/DataHeader)", 0);
-            if (satelliteToken != 0) {
-               m_satelliteOid1 = satelliteToken->oid().first;
-            } else {
-               m_satelliteOid1 = 0;
-            }
-            delete satelliteToken; satelliteToken = 0;
-         } else {
-            m_satelliteOid1 = 0;
          }
       }  // end if (guid != m_guid)
       ++m_evtCount;
@@ -1090,15 +1071,7 @@ StatusCode EventSelectorAthenaPool::recordAttributeList() const {
       ATH_MSG_DEBUG("record AthenaAttribute, name = " << iter.tokenName() << " = " << iter->toString() << ".");
    }
    athAttrList->extend("eventRef", "string");
-   // Using Satellite DataHeader?
-   if (m_satelliteOid1 > 0) {
-      Token satelliteToken;
-      m_headerIterator->eventRef().set(&satelliteToken);
-      satelliteToken.setOid(Token::OID_t(m_satelliteOid1, m_headerIterator->eventRef().oid().second));
-      (*athAttrList)["eventRef"].data<std::string>() = satelliteToken.toString();
-   } else {
-      (*athAttrList)["eventRef"].data<std::string>() = m_headerIterator->eventRef().toString();
-   }
+   (*athAttrList)["eventRef"].data<std::string>() = m_headerIterator->eventRef().toString();
    ATH_MSG_DEBUG("record AthenaAttribute, name = eventRef = " << m_headerIterator->eventRef().toString() << ".");
    return(StatusCode::SUCCESS);
 }

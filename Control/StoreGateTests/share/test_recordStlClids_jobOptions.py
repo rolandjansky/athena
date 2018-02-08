@@ -45,7 +45,7 @@ topSequence += PyClidsTestWriter()
 import AthenaPoolCnvSvc.WriteAthenaPool
 topSequence += CfgMgr.AthenaOutputStream(
     "stream_stl",
-    WritingTool = "AthenaPoolOutputStreamTool",
+    WritingTool = "AthenaOutputStreamTool",
     OutputFile = 'out_stl_containers.pool'
     )
 topSequence.stream_stl.ItemList += [

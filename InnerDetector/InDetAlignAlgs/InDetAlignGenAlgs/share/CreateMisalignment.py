@@ -179,8 +179,8 @@ else:
     pass
     
 if WriteDBPoolFile:
-    from OutputStreamAthenaPool.OutputStreamAthenaPoolConf import AthenaPoolOutputStreamTool
-    InDetCondStream=AthenaPoolOutputStreamTool(name="CondStream1", OutputFile = AlignmentOutFilename)
+    from AthenaServices.AthenaServicesConf import AthenaOutputStreamTool
+    InDetCondStream=AthenaOutputStreamTool(name="CondStream1", OutputFile = AlignmentOutFilename)
     ToolSvc += InDetCondStream
     print InDetCondStream
     
