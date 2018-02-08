@@ -296,9 +296,7 @@ double TriggerFeatureInvm::calculateINVM(const TrigBtagEmulationJet* jetA,const 
   // ***
 
   double Deta = m_trigLevel == "L1" ? fabs( eta_B - eta_A )/100. : fabs( jetA->eta() - jetB->eta() );
-  double Dphi = fabs( jetA->phi() - jetB->phi() );
-  if (Dphi > M_PI)
-    Dphi = 2*M_PI - Dphi;
+  double Dphi = fabs( TVector2::Phi_mpi_pi( jetA->phi() - jetB->phi() ) );
 
   double coshDeta = m_trigLevel == "L1" ? cosh_LUT( Deta ) : cosh( Deta );
   double cosPhi   = m_trigLevel == "L1" ? cos_LUT( Dphi )  : cos( Dphi ) ;

@@ -35,7 +35,6 @@ Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #include "GaudiKernel/Property.h"
 #endif
 
-
 using namespace Trig;
 
 
@@ -195,8 +194,8 @@ StatusCode TrigBtagEmulationTool::initialize() {
   if (m_autoconfiguredMenu == "2015Menu" || m_autoconfiguredMenu == "2016Menu" || m_autoconfiguredMenu == "2017Menu" ||
       m_autoconfiguredMenu == "2015+2016Menu" ||  m_autoconfiguredMenu == "2015+2017Menu" || m_autoconfiguredMenu == "2016+2017Menu" ||
       m_autoconfiguredMenu == "2015+2016+2017Menu" ) {
-    ATH_MSG_INFO( Form( "Automatic configuration of Trigger Chains for %s",m_autoconfiguredMenu.c_str()) );
-    ATH_MSG_INFO( Form( "For full list of trigger chains automatically loaded look here : '%s'","https://twiki.cern.ch/twiki/bin/view/Atlas/TrigBjetEmulation") );
+    ATH_MSG_INFO( "Automatic configuration of Trigger Chains for " << m_autoconfiguredMenu );
+    ATH_MSG_INFO( "For full list of trigger chains automatically loaded look here : 'https://twiki.cern.ch/twiki/bin/view/Atlas/TrigBjetEmulation'" );
     this->addEmulatedChain( m_autoconfiguredMenu );
   }
   
@@ -272,11 +271,7 @@ StatusCode TrigBtagEmulationTool::execute() {
 
   // RETRIEVE L1 JETS
   const xAOD::JetRoIContainer *l1JetContainer = 0;
-#ifndef XAOD_STANDALONE
-  CHECK( evtStore()->retrieve(l1JetContainer,"LVL1JetRoIs") );
-#else
   ANA_CHECK( evtStore()->retrieve(l1JetContainer,"LVL1JetRoIs") );
-#endif
 
   std::vector< TrigBtagEmulationJet* > l1_jets;
   std::vector< TrigBtagEmulationJet* > l1_jets_jj;
@@ -309,68 +304,35 @@ StatusCode TrigBtagEmulationTool::execute() {
   if (m_verbosity > 0) ATH_MSG_INFO ("Size of input HT containers (" << HTContainer << "):" << " jet=" << input_jetsHT.size());
 
   // Retrieve Jets
-#ifndef XAOD_STANDALONE
-  CHECK( retrieve( m_manager_ef   ,m_useTriggerNavigation ) );
-  CHECK( retrieve( m_manager_split,m_useTriggerNavigation ) );
-  if ( this->hasGSC() ) CHECK( retrieve( m_manager_gsc       ,m_useTriggerNavigation ) );
-  if ( this->hasGSC() ) CHECK( retrieve( m_manager_ef_gsc    ,m_useTriggerNavigation ) );
-  if ( this->hasGSC() ) CHECK( retrieve( m_manager_split_gsc ,m_useTriggerNavigation ) );
-#else
   ANA_CHECK( retrieve( m_manager_ef   ,m_useTriggerNavigation ) );
   ANA_CHECK( retrieve( m_manager_split,m_useTriggerNavigation ) );
   if ( this->hasGSC() ) ANA_CHECK( retrieve( m_manager_gsc       ,m_useTriggerNavigation ) );
   if ( this->hasGSC() ) ANA_CHECK( retrieve( m_manager_ef_gsc    ,m_useTriggerNavigation ) );
   if ( this->hasGSC() ) ANA_CHECK( retrieve( m_manager_split_gsc ,m_useTriggerNavigation ) );
-#endif
-  
   
   // RETAG COPYING ORIGINAL WEIGHTS 
   if (!m_useTriggerNavigation || !m_tagOfflineWeights || !m_tagOnlineWeights) {
-#ifndef XAOD_STANDALONE
-    CHECK( m_manager_ef->retagCopy(m_useTriggerNavigation,m_tagOfflineWeights,m_tagOnlineWeights) );
-    CHECK( m_manager_split->retagCopy(m_useTriggerNavigation,m_tagOfflineWeights,m_tagOnlineWeights) );
-    CHECK( m_manager_gsc->retagCopy(m_useTriggerNavigation,m_tagOfflineWeights,m_tagOnlineWeights) );
-    CHECK( m_manager_ef_gsc->retagCopy(m_useTriggerNavigation,m_tagOfflineWeights,m_tagOnlineWeights) );
-    CHECK( m_manager_split_gsc->retagCopy(m_useTriggerNavigation,m_tagOfflineWeights,m_tagOnlineWeights) );
-#else
     ANA_CHECK( m_manager_ef->retagCopy(m_useTriggerNavigation,m_tagOfflineWeights,m_tagOnlineWeights) );
     ANA_CHECK( m_manager_split->retagCopy(m_useTriggerNavigation,m_tagOfflineWeights,m_tagOnlineWeights) );
     ANA_CHECK( m_manager_gsc->retagCopy(m_useTriggerNavigation,m_tagOfflineWeights,m_tagOnlineWeights) );
     ANA_CHECK( m_manager_ef_gsc->retagCopy(m_useTriggerNavigation,m_tagOfflineWeights,m_tagOnlineWeights) );
     ANA_CHECK( m_manager_split_gsc->retagCopy(m_useTriggerNavigation,m_tagOfflineWeights,m_tagOnlineWeights) );
-#endif      
   }
   // RETAG WITH OFFLINE TOOLS    
   if (m_useTriggerNavigation && m_tagOfflineWeights) {
-#ifndef XAOD_STANDALONE
-    CHECK( m_manager_ef->retagOffline()        );
-    CHECK( m_manager_split->retagOffline()     );
-    CHECK( m_manager_gsc->retagOffline()       );
-    CHECK( m_manager_ef_gsc->retagOffline()    );
-    CHECK( m_manager_split_gsc->retagOffline() );
-#else
     ANA_CHECK( m_manager_ef->retagOffline()        );
     ANA_CHECK( m_manager_split->retagOffline()     );
     ANA_CHECK( m_manager_gsc->retagOffline()       );
     ANA_CHECK( m_manager_ef_gsc->retagOffline()    );
     ANA_CHECK( m_manager_split_gsc->retagOffline() );
-#endif
   }
   // RETAG WITH ONLINE TOOLS
   if (m_useTriggerNavigation && m_tagOnlineWeights) {
-#ifndef XAOD_STANDALONE
-    CHECK( m_manager_ef->retagOnline()        );
-    CHECK( m_manager_split->retagOnline()     );
-    CHECK( m_manager_gsc->retagOnline()       );
-    CHECK( m_manager_ef_gsc->retagOnline()    );
-    CHECK( m_manager_split_gsc->retagOnline() );
-#else
     ANA_CHECK( m_manager_ef->retagOnline()        );
     ANA_CHECK( m_manager_split->retagOnline()     );
     ANA_CHECK( m_manager_gsc->retagOnline()       );
     ANA_CHECK( m_manager_ef_gsc->retagOnline()    );
     ANA_CHECK( m_manager_split_gsc->retagOnline() );
-#endif
   }
   
   // BACKUP NON-CENTRAL JET INFO FOR SPLIT CHAINS  
@@ -579,11 +541,7 @@ std::vector<std::string> TrigBtagEmulationTool::addEmulatedChain(const std::stri
 bool TrigBtagEmulationTool::isPassed(const std::string &chain) {
   // CHECK IF THE TOOK HAS ALREADY BEEN EXECUTED FOR THIS EVENT
   const xAOD::EventInfo* eventInfo = 0;
-#ifndef XAOD_STANDALONE
-  CHECK( evtStore()->retrieve( eventInfo,"EventInfo" ));
-#else
   ANA_CHECK( evtStore()->retrieve( eventInfo,"EventInfo" )); 
-#endif
 
   bool isMC = false;
   if( eventInfo->eventType( xAOD::EventInfo::IS_SIMULATION ) )
@@ -594,11 +552,8 @@ bool TrigBtagEmulationTool::isPassed(const std::string &chain) {
   else eventID = eventInfo->eventNumber();
 
   if ( eventID != m_previousEvent)
-#ifndef XAOD_STANDALONE
-    CHECK( this->execute() );
-#else
     ANA_CHECK( this->execute() );
-#endif
+
   m_previousEvent = eventID;
 
   // CHECK IF CHAIN IS DEFINED AND RETURN RESULT
@@ -626,12 +581,7 @@ StatusCode TrigBtagEmulationTool::getInputContainerSG(std::vector<const xAOD::Je
 
   // Get Jet objects
   const xAOD::JetContainer *sgJetContainer = 0;
-
-#ifndef XAOD_STANDALONE
-  CHECK( evtStore()->retrieve(sgJetContainer,jetName) );
-#else
   ANA_CHECK( evtStore()->retrieve(sgJetContainer,jetName) );
-#endif
 
   if (sgJetContainer == 0) {
     ATH_MSG_ERROR( "Retrieved invalid Jet Input Container!" );

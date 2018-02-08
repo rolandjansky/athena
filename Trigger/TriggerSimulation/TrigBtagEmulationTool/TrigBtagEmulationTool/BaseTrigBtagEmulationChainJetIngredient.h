@@ -57,7 +57,7 @@ namespace Trig {
 
   public:
     std::map< std::string,std::string > m_neededJetCollection;
-    std::map< std::string,std::vector< TrigBtagEmulationJet* >* > m_jetCollection;
+    std::map< std::string,std::vector< TrigBtagEmulationJet* > > m_jetCollection;
   };
 
   // ==========================================================================

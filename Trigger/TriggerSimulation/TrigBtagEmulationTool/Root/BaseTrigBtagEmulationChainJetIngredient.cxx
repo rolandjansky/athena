@@ -3,6 +3,7 @@ Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigBtagEmulationTool/BaseTrigBtagEmulationChainJetIngredient.h"
+#include "TVector2.h"
 
 using namespace Trig;
 
@@ -19,11 +20,9 @@ BaseTrigBtagEmulationChainJetIngredient::BaseTrigBtagEmulationChainJetIngredient
     m_type_SELECTION_features(other.m_type_SELECTION_features.begin(),other.m_type_SELECTION_features.end()),
     m_neededJetCollection(other.m_neededJetCollection.begin(),other.m_neededJetCollection.end()) {}
 BaseTrigBtagEmulationChainJetIngredient::~BaseTrigBtagEmulationChainJetIngredient() {
-  std::map< std::string,std::vector< TrigBtagEmulationJet* >* >::iterator it = m_jetCollection.begin();
-  for ( ; it != m_jetCollection.end(); it++) {
-    for (unsigned int i(0); i<it->second->size(); i++) delete it->second->at(i);
-    delete it->second;
-  }
+  std::map< std::string,std::vector< TrigBtagEmulationJet* > >::iterator it = m_jetCollection.begin();
+  for ( ; it != m_jetCollection.end(); it++) 
+    for (unsigned int i(0); i<it->second.size(); i++) delete it->second.at(i);
 }
 
 std::string BaseTrigBtagEmulationChainJetIngredient::getName() const { return m_triggerName; }
@@ -48,14 +47,14 @@ bool BaseTrigBtagEmulationChainJetIngredient::evaluateJet(TrigBtagEmulationJet* 
 
 bool BaseTrigBtagEmulationChainJetIngredient::needsJet(std::string item) { return m_neededJetCollection["MAIN"] == item; } 
 bool BaseTrigBtagEmulationChainJetIngredient::addJet(std::string key,std::vector< TrigBtagEmulationJet* >& jets) {
-  m_jetCollection[key] = &jets;
+  m_jetCollection[key] = jets;
   return true;
 }
 
 bool BaseTrigBtagEmulationChainJetIngredient::evaluate() {
   std::string name = m_neededJetCollection["MAIN"];
-  for (unsigned int index(0); index < m_jetCollection[name]->size(); index++)
-    this->evaluateJet( m_jetCollection[name]->at(index) );
+  for (unsigned int index(0); index < m_jetCollection[name].size(); index++)
+    this->evaluateJet( m_jetCollection[name].at(index) );
   return true;
 }
 
@@ -365,16 +364,16 @@ bool TrigBtagEmulationChainJetIngredient_GSC::evaluateJet(TrigBtagEmulationJet* 
   if ( !TrigBtagEmulationChainJetIngredient_HLT::evaluateJet(jet) ) return false;
 
   unsigned int index_GSC = matchingJets(jet);
-  if (index_GSC == m_jetCollection["GSC"]->size()) return false;
+  if (index_GSC == m_jetCollection["GSC"].size()) return false;
 
   bool exiting = false;
   for (unsigned int index(0); index < m_type_THRESHOLD_features.size(); index++)
-    if (!m_type_THRESHOLD_features.at(index).second->evaluateJet( m_jetCollection["GSC"]->at(index_GSC)) ) exiting = true;
+    if (!m_type_THRESHOLD_features.at(index).second->evaluateJet( m_jetCollection["GSC"].at(index_GSC)) ) exiting = true;
   if (exiting) return false;
 
-  if (m_jetCollection["GSC"]->at(index_GSC)->pt() < m_min_gsc) return false;
-  if (fabs(m_jetCollection["GSC"]->at(index_GSC)->eta()) < m_min_eta) return false;
-  if (fabs(m_jetCollection["GSC"]->at(index_GSC)->eta()) > m_max_eta) return false;
+  if (m_jetCollection["GSC"].at(index_GSC)->pt() < m_min_gsc) return false;
+  if (fabs(m_jetCollection["GSC"].at(index_GSC)->eta()) < m_min_eta) return false;
+  if (fabs(m_jetCollection["GSC"].at(index_GSC)->eta()) > m_max_eta) return false;
 
   m_count_gsc++;
   return true;
@@ -395,20 +394,18 @@ void TrigBtagEmulationChainJetIngredient_GSC::clear() {
 }
 
 unsigned int TrigBtagEmulationChainJetIngredient_GSC::matchingJets(const TrigBtagEmulationJet* jet) {
-  unsigned int output = m_jetCollection["GSC"]->size();
+  unsigned int output = m_jetCollection["GSC"].size();
   double min_distance = 1e4;
 
-  for (unsigned int i(0); i < m_jetCollection["GSC"]->size(); i++)
-    {
-      double deltaEta = fabs( jet->eta() - m_jetCollection["GSC"]->at(i)->eta() );
-      double deltaPhi = fabs( jet->phi() - m_jetCollection["GSC"]->at(i)->phi() );
-      if (deltaEta > M_PI) deltaPhi = 2*M_PI - deltaPhi;
-
-      double distance = sqrt( pow(deltaEta,2) + pow(deltaPhi,2) ); 
-      if (distance < 0.1 && distance < min_distance) {output=i;min_distance=distance;}
-    }
-
-return output;
+  for (unsigned int i(0); i < m_jetCollection["GSC"].size(); i++) {
+    double deltaEta = jet->eta() - m_jetCollection["GSC"].at(i)->eta();
+    double deltaPhi = TVector2::Phi_mpi_pi( jet->phi() - m_jetCollection["GSC"].at(i)->phi() );
+    
+    double distance = sqrt( pow(deltaEta,2) + pow(deltaPhi,2) ); 
+    if (distance < 0.1 && distance < min_distance) {output=i;min_distance=distance;}
+  }
+  
+  return output;
 }
 
 void TrigBtagEmulationChainJetIngredient_GSC::initialize() {

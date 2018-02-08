@@ -5,6 +5,8 @@ Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #ifndef TrigBtagEmulationTool_H
 #define TrigBtagEmulationTool_H
 
+#include "AsgTools/MessageCheck.h"
+
 #include "TrigBtagEmulationTool/ITrigBtagEmulationTool.h"
 #include "TrigBtagEmulationTool/TrigBtagEmulationChain.h"
 #include "TrigBtagEmulationTool/TriggerFeature.h"
