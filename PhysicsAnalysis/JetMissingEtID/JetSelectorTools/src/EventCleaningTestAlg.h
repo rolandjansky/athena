@@ -52,7 +52,7 @@ class EventCleaningTestAlg : public AthAlgorithm
     std::string m_cleaningLevel;
     std::string m_collection;
     bool m_doEvent;
-    SG::AuxElement::Decorator<char>* m_dec_eventClean; 
+    std::unique_ptr<SG::AuxElement::Decorator<char>> m_dec_eventClean; 
 };
 
 #endif
