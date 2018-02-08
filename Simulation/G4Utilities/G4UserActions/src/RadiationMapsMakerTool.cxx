@@ -11,12 +11,9 @@ namespace G4UA{
   RadiationMapsMakerTool::RadiationMapsMakerTool(const std::string& type, 
 						 const std::string& name,
 						 const IInterface* parent)
-    : ActionToolBaseReport<RadiationMapsMaker>(type, name, parent),
+    : UserActionToolBase<RadiationMapsMaker>(type, name, parent),
       m_radMapsFileName("RadMaps.root")  
   {
-    declareInterface<IG4RunActionTool>(this);
-    declareInterface<IG4SteppingActionTool>(this);
-
     /// Output Filename for the Radiation Maps
     declareProperty("RadMapsFileName", m_radMapsFileName);
     /// map granularities 
@@ -75,40 +72,44 @@ namespace G4UA{
 
     // first make sure the vectors are empty
 
-    m_report.m_rz_tid .resize(0);
-    m_report.m_rz_eion.resize(0);
-    m_report.m_rz_niel.resize(0);
-    m_report.m_rz_h20 .resize(0);
+    RadiationMapsMaker::Report maps;
+
+    maps.m_rz_tid .resize(0);
+    maps.m_rz_eion.resize(0);
+    maps.m_rz_niel.resize(0);
+    maps.m_rz_h20 .resize(0);
     
-    m_report.m_full_rz_tid .resize(0);
-    m_report.m_full_rz_eion.resize(0);
-    m_report.m_full_rz_niel.resize(0);
-    m_report.m_full_rz_h20 .resize(0);
+    maps.m_full_rz_tid .resize(0);
+    maps.m_full_rz_eion.resize(0);
+    maps.m_full_rz_niel.resize(0);
+    maps.m_full_rz_h20 .resize(0);
     
-    m_report.m_3d_tid .resize(0);
-    m_report.m_3d_eion.resize(0);
-    m_report.m_3d_niel.resize(0);
-    m_report.m_3d_h20 .resize(0);
+    maps.m_3d_tid .resize(0);
+    maps.m_3d_eion.resize(0);
+    maps.m_3d_niel.resize(0);
+    maps.m_3d_h20 .resize(0);
 
     // then resize to proper size and initialize with 0's 
 
-    m_report.m_rz_tid .resize(m_config.nBinsz*m_config.nBinsr,0.0);
-    m_report.m_rz_eion.resize(m_config.nBinsz*m_config.nBinsr,0.0);
-    m_report.m_rz_niel.resize(m_config.nBinsz*m_config.nBinsr,0.0);
-    m_report.m_rz_h20 .resize(m_config.nBinsz*m_config.nBinsr,0.0);
+    maps.m_rz_tid .resize(m_config.nBinsz*m_config.nBinsr,0.0);
+    maps.m_rz_eion.resize(m_config.nBinsz*m_config.nBinsr,0.0);
+    maps.m_rz_niel.resize(m_config.nBinsz*m_config.nBinsr,0.0);
+    maps.m_rz_h20 .resize(m_config.nBinsz*m_config.nBinsr,0.0);
     
-    m_report.m_full_rz_tid .resize(m_config.nBinsz*m_config.nBinsr,0.0);
-    m_report.m_full_rz_eion.resize(m_config.nBinsz*m_config.nBinsr,0.0);
-    m_report.m_full_rz_niel.resize(m_config.nBinsz*m_config.nBinsr,0.0);
-    m_report.m_full_rz_h20 .resize(m_config.nBinsz*m_config.nBinsr,0.0);
+    maps.m_full_rz_tid .resize(m_config.nBinsz*m_config.nBinsr,0.0);
+    maps.m_full_rz_eion.resize(m_config.nBinsz*m_config.nBinsr,0.0);
+    maps.m_full_rz_niel.resize(m_config.nBinsz*m_config.nBinsr,0.0);
+    maps.m_full_rz_h20 .resize(m_config.nBinsz*m_config.nBinsr,0.0);
     
-    m_report.m_3d_tid .resize(m_config.nBinsz3d*m_config.nBinsr3d*m_config.nBinsphi3d,0.0);
-    m_report.m_3d_eion.resize(m_config.nBinsz3d*m_config.nBinsr3d*m_config.nBinsphi3d,0.0);
-    m_report.m_3d_niel.resize(m_config.nBinsz3d*m_config.nBinsr3d*m_config.nBinsphi3d,0.0);
-    m_report.m_3d_h20 .resize(m_config.nBinsz3d*m_config.nBinsr3d*m_config.nBinsphi3d,0.0);
+    maps.m_3d_tid .resize(m_config.nBinsz3d*m_config.nBinsr3d*m_config.nBinsphi3d,0.0);
+    maps.m_3d_eion.resize(m_config.nBinsz3d*m_config.nBinsr3d*m_config.nBinsphi3d,0.0);
+    maps.m_3d_niel.resize(m_config.nBinsz3d*m_config.nBinsr3d*m_config.nBinsphi3d,0.0);
+    maps.m_3d_h20 .resize(m_config.nBinsz3d*m_config.nBinsr3d*m_config.nBinsphi3d,0.0);
 
     // merge radiation map vectors from threads
-    mergeReports();
+    // Accumulate the results across threads
+    m_actions.accumulate(maps, &RadiationMapsMaker::getReport,
+                         &RadiationMapsMaker::Report::merge);
 
     TFile * f = new TFile(m_radMapsFileName.c_str(),"RECREATE");
 
@@ -190,16 +191,16 @@ namespace G4UA{
 	double vol=2*(z1-z0)*M_PI*(r1*r1-r0*r0); 
 	double val;
 	// TID
-	val =m_report.m_rz_tid[vBin];
+	val =maps.m_rz_tid[vBin];
 	h_rz_tid->SetBinContent(iBin,val/vol);
 	// EION
-	val =m_report.m_rz_eion[vBin];
+	val =maps.m_rz_eion[vBin];
 	h_rz_eion->SetBinContent(iBin,val/vol);
 	// NIEL
-	val =m_report.m_rz_niel[vBin];
+	val =maps.m_rz_niel[vBin];
 	h_rz_niel->SetBinContent(iBin,val/vol);
 	// SEE
-	val =m_report.m_rz_h20[vBin];
+	val =maps.m_rz_h20[vBin];
 	h_rz_h20->SetBinContent(iBin,val/vol);
       }
     }
@@ -220,16 +221,16 @@ namespace G4UA{
 	double vol=2*(z1-z0)*M_PI*(r1*r1-r0*r0); 
 	double val;
 	// TID
-	val =m_report.m_full_rz_tid[vBin];
+	val =maps.m_full_rz_tid[vBin];
 	h_full_rz_tid->SetBinContent(iBin,val/vol);
 	// EION
-	val =m_report.m_full_rz_eion[vBin];
+	val =maps.m_full_rz_eion[vBin];
 	h_full_rz_eion->SetBinContent(iBin,val/vol);
 	// NIEL
-	val =m_report.m_full_rz_niel[vBin];
+	val =maps.m_full_rz_niel[vBin];
 	h_full_rz_niel->SetBinContent(iBin,val/vol);
 	// SEE
-	val =m_report.m_full_rz_h20[vBin];
+	val =maps.m_full_rz_h20[vBin];
 	h_full_rz_h20->SetBinContent(iBin,val/vol);
       }
     }
@@ -253,16 +254,16 @@ namespace G4UA{
 	  double vol=2*(z1-z0)*M_PI*(r1*r1-r0*r0)*(phi1-phi0)/360.; 
 	  double val;
 	  // TID
-	  val =m_report.m_3d_tid[vBin];
+	  val =maps.m_3d_tid[vBin];
 	  h_3d_tid->SetBinContent(iBin,val/vol);
 	  // EION
-	  val =m_report.m_3d_eion[vBin];
+	  val =maps.m_3d_eion[vBin];
 	  h_3d_eion->SetBinContent(iBin,val/vol);
 	  // NIEL
-	  val =m_report.m_3d_niel[vBin];
+	  val =maps.m_3d_niel[vBin];
 	  h_3d_niel->SetBinContent(iBin,val/vol);
 	  // SEE
-	  val =m_report.m_3d_h20[vBin];
+	  val =maps.m_3d_h20[vBin];
 	  h_3d_h20->SetBinContent(iBin,val/vol);
 	}
       }
@@ -277,9 +278,12 @@ namespace G4UA{
     return StatusCode::SUCCESS;
   }
 
-  std::unique_ptr<RadiationMapsMaker>  RadiationMapsMakerTool::makeAction(){
-    ATH_MSG_DEBUG("makeAction");
-    return std::make_unique<RadiationMapsMaker>(m_config);
+  std::unique_ptr<RadiationMapsMaker>  RadiationMapsMakerTool::makeAndFillAction(G4AtlasUserActions& actionList){
+    ATH_MSG_INFO("Making a RadiationMapsMaker action");
+    auto action = std::make_unique<RadiationMapsMaker>(m_config);
+    actionList.runActions.push_back( action.get() );
+    actionList.steppingActions.push_back( action.get() );
+    return action;
   }
 
 } // namespace G4UA 

@@ -97,8 +97,8 @@ namespace G4UA
       { return m_maps; }
 
     private:
-
-      struct Config m_config;
+      
+      Config m_config;
 
       Report m_maps;
 
