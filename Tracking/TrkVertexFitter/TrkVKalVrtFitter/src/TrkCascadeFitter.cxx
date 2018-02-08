@@ -737,7 +737,7 @@ VxCascadeInfo * TrkVKalVrtFitter::fitCascade(const Vertex* primVrt, bool FirstDe
        xaodVTAV.swap(*tmpVTAV);
        for(int itvk=0; itvk<(int)xaodVTAV.size(); itvk++) {
           ElementLink<xAOD::TrackParticleContainer> TEL;
-	  if(itvk < m_cascadeVList[iv].trkInVrt.size()){
+	  if(itvk < (int)m_cascadeVList[iv].trkInVrt.size()){
 	    TEL.setElement( m_partListForCascade[ m_cascadeVList[iv].trkInVrt[itvk] ] );
 	  }else{
 	    TEL.setElement( 0 );
