@@ -559,7 +559,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
 
       dy1EndPlate = rminb * tan_delta_phi_2 * CLHEP::cm;
       dy2EndPlate = tile_rmax * tan_delta_phi_2 * CLHEP::cm;
-      thicknessEndPlate = m_dbManager->TILBdzend2() * CLHEP::cm;;
+      thicknessEndPlate = m_dbManager->TILBdzend2() * CLHEP::cm;
       heightEndPlate = (tile_rmax-rminb) * CLHEP::cm;
 
 
@@ -630,7 +630,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
 	  
 	  //         dy1EndPlate = rminbT * tan_delta_phi_2 * CLHEP::cm;
 	  //         dy2EndPlate = tile_rmax * tan_delta_phi_2 * CLHEP::cm;
-	  //         thicknessEndPlate = m_dbManager->TILBdzend2() * CLHEP::cm;;
+	  //         thicknessEndPlate = m_dbManager->TILBdzend2() * CLHEP::cm;
 	  //         heightEndPlate = (tile_rmax - rminbT) * CLHEP::cm;
 	  
 	  //         tfEndPlate2 = new GeoTransform(HepGeom::Translate3D(

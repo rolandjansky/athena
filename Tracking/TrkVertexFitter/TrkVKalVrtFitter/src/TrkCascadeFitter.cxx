@@ -220,7 +220,7 @@ void TrkVKalVrtFitter::makeSimpleCascade(std::vector< std::vector<int> > & vrtDe
                                          std::vector< std::vector<int> > & cascadeDef)
 {
     int iv,ip,it, nVAdd, iva;
-    std::vector<int>::iterator  iter;;
+    std::vector<int>::iterator  iter;
     vrtDef.clear();
     cascadeDef.clear();
     int NVC=m_cascadeVList.size();

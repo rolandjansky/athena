@@ -13,7 +13,7 @@
 #include "TrkVertexOnTrack/VertexOnTrack.h"
 
 #include "TrkEventPrimitives/ParticleHypothesis.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "GaudiKernel/SmartDataPtr.h"
 
 // new xAOD, seems we need to keep old as well
@@ -72,7 +72,6 @@ BeamspotVertexPreProcessor::BeamspotVertexPreProcessor(const std::string & type,
   , m_refitTracks(true)
   , m_storeFitMatrices(true)
   , m_useSingleFitter(false)
-  , m_selectTracks(true)
   , m_BSScalingFactor(1.)
   , m_PVScalingFactor(1.)
   , m_minTrksInVtx(3)

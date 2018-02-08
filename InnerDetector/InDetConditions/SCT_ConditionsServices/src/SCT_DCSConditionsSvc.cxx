@@ -112,9 +112,13 @@ StatusCode SCT_DCSConditionsSvc::initialize() {
   }
 
   // Read Cond Handle Keys
-  ATH_CHECK(m_condKeyState.initialize());
-  ATH_CHECK(m_condKeyHV.initialize());
-  ATH_CHECK(m_condKeyTemp0.initialize());
+  if ((m_readAllDBFolders and m_returnHVTemp) or m_returnHVTemp) {
+    ATH_CHECK(m_condKeyHV.initialize());
+    ATH_CHECK(m_condKeyTemp0.initialize());
+  }
+  if ((m_readAllDBFolders and m_returnHVTemp) or (not m_readAllDBFolders and not m_returnHVTemp)) {
+    ATH_CHECK(m_condKeyState.initialize());
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -173,11 +177,15 @@ bool SCT_DCSConditionsSvc::isGood(const Identifier& elementId, InDetConditions::
   m_moduleId=getModuleID(elementId, h);
   if (not m_moduleId.is_valid()) return true; // not canreportabout
 
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
-  const SCT_DCSStatCondData* condDataState{getCondDataState(ctx)};
-  if (!condDataState) return false; // no cond data
-  else if (condDataState->output(castId(m_moduleId))==0) return true; //No params are listed as bad
-  else return false;
+  if ((m_readAllDBFolders and m_returnHVTemp) or (not m_readAllDBFolders and not m_returnHVTemp)) {
+    const EventContext& ctx{Gaudi::Hive::currentContext()};
+    const SCT_DCSStatCondData* condDataState{getCondDataState(ctx)};
+    if (!condDataState) return false; // no cond data
+    else if (condDataState->output(castId(m_moduleId))==0) return true; //No params are listed as bad
+    else return false;
+  } else {
+    return true;
+  }
 }
 
 //Does the same for hashIds

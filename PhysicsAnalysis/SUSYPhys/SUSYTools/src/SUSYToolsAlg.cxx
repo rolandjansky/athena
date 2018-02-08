@@ -764,7 +764,7 @@ StatusCode SUSYToolsAlg::execute() {
       if( m_dataSource > 0 ){
 	if (isNominal || syst_affectsMuons) {
 	  if ((mu->auxdata< char >("signal") == 1) && (isNominal || sysInfo.affectsWeights)) {
-	    muons_weight *= m_SUSYTools->GetSignalMuonSF(*mu);;
+	    muons_weight *= m_SUSYTools->GetSignalMuonSF(*mu);
 	  }
 	}
       }

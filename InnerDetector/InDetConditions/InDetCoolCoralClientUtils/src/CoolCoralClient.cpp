@@ -6818,7 +6818,7 @@ void COOLCORALClient::GetLastValues(Detector_t& detector){
     rod.RODDetID = row2[4].data<int>();
     rod.RODVMEslot = row2[5].data<int>();
     rod.RODhalf = row2[6].data<int>();
-    rod.EdgeSelect0 = row2[7].data<int>();;
+    rod.EdgeSelect0 = row2[7].data<int>();
     rod.EdgeSelect1 = row2[8].data<int>();
     rod.EdgeSelect2 = row2[9].data<int>();
     rod.EdgeSelect3 = row2[10].data<int>();
@@ -8130,7 +8130,7 @@ Detector_t COOLCORALClient::GetHistValues(const std::string& tag,long long tstam
     rod.RODDetID = row2[4].data<int>();
     rod.RODVMEslot = row2[5].data<int>();
     rod.RODhalf = row2[6].data<int>();
-    rod.EdgeSelect0 = row2[7].data<int>();;
+    rod.EdgeSelect0 = row2[7].data<int>();
     rod.EdgeSelect1 = row2[8].data<int>();
     rod.EdgeSelect2 = row2[9].data<int>();
     rod.EdgeSelect3 = row2[10].data<int>();
@@ -9264,7 +9264,7 @@ COOLCORALClient::CompHistValues(const std::string& tag1,long long tstamp1, const
     rod1.RODDetID = row2a[4].data<int>();
     rod1.RODVMEslot = row2a[5].data<int>();
     rod1.RODhalf = row2a[6].data<int>();
-    rod1.EdgeSelect0 = row2a[7].data<int>();;
+    rod1.EdgeSelect0 = row2a[7].data<int>();
     rod1.EdgeSelect1 = row2a[8].data<int>();
     rod1.EdgeSelect2 = row2a[9].data<int>();
     rod1.EdgeSelect3 = row2a[10].data<int>();
@@ -9297,7 +9297,7 @@ COOLCORALClient::CompHistValues(const std::string& tag1,long long tstamp1, const
     rod2.RODDetID = row2b[4].data<int>();
     rod2.RODVMEslot = row2b[5].data<int>();
     rod2.RODhalf = row2b[6].data<int>();
-    rod2.EdgeSelect0 = row2b[7].data<int>();;
+    rod2.EdgeSelect0 = row2b[7].data<int>();
     rod2.EdgeSelect1 = row2b[8].data<int>();
     rod2.EdgeSelect2 = row2b[9].data<int>();
     rod2.EdgeSelect3 = row2b[10].data<int>();

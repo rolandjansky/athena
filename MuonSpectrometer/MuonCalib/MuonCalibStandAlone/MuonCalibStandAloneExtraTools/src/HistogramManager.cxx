@@ -10,7 +10,7 @@
 // .L HistogramManager.C
 // HistogramManager * builder = new HistogramManager();
 // builder->METODO1();
-// builder->METODO2();;
+// builder->METODO2();
 
 #include "MuonCalibStandAloneExtraTools/HistogramManager.h"
 #include "MuonCalibStandAloneExtraTools/MDTName.h"

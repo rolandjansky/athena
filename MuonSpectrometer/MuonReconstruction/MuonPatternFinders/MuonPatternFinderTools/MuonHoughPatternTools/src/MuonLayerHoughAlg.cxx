@@ -69,7 +69,7 @@ StatusCode MuonLayerHoughAlg::execute()
   const Muon::TgcPrepDataContainer* tgcPrds = GetObject(m_keyTgc);
   const Muon::CscPrepDataContainer* cscPrds = GetObject(m_keyCsc);      
   const Muon::sTgcPrepDataContainer* stgcPrds = GetObject(m_keysTgc);
-  const Muon::MMPrepDataContainer* mmPrds =GetObject(m_keyMM);;      
+  const Muon::MMPrepDataContainer* mmPrds =GetObject(m_keyMM);
 
   ATH_MSG_VERBOSE("calling layer tool ");
   std::unique_ptr<MuonPatternCombinationCollection> combis(m_layerTool->analyse(mdtPrds,cscPrds,tgcPrds,rpcPrds,stgcPrds,mmPrds));

@@ -111,6 +111,7 @@ StatusCode TileCondToolEmscale::initialize() {
     ATH_MSG_INFO("ProxyOflLasFib is set up and can be used");
   } else {
     ATH_MSG_INFO("ProxyOflLasFib is not set up and cannot be used");
+    m_pryOflLasFib.disable();
   }
 
   //=== Attempt to load online folders only if online cache unit is valid
@@ -182,6 +183,11 @@ StatusCode TileCondToolEmscale::initialize() {
   } else {
     ATH_MSG_INFO( "Loading of online calibration folders not requested, "
                   << "since OnlCacheUnit=" << m_onlCacheUnitStr  );
+
+    m_pryOnlCis.disable();
+    m_pryOnlLas.disable();
+    m_pryOnlCes.disable();
+    m_pryOnlEms.disable();
   }
 
   return StatusCode::SUCCESS;

@@ -11,6 +11,7 @@
 
 SCT_SiliconHVCondAlg::SCT_SiliconHVCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
+  , m_useState{true}
   , m_readKeyState{"SCT_DCSStatCondData"}
   , m_readKeyHV{"SCT_DCSHVCondData"}
   , m_writeKey{"SCT_SiliconBiasVoltCondData"}
@@ -18,9 +19,11 @@ SCT_SiliconHVCondAlg::SCT_SiliconHVCondAlg(const std::string& name, ISvcLocator*
   , m_sctDCSSvc{"InDetSCT_DCSConditionsSvc", name}
   , m_pHelper{nullptr}
 {
+  declareProperty("UseState", m_useState, "Flag to use state conditions folder");
   declareProperty("ReadKeyState", m_readKeyState, "Key of input state conditions folder");
   declareProperty("ReadKeyHV", m_readKeyHV, "Key of input HV conditions folder");
   declareProperty("WriteKey", m_writeKey, "Key of output bias voltage conditions folder");
+  declareProperty("DCSConditionsSvc", m_sctDCSSvc, "SCT_DCSConditionsSvc");
 }
 
 SCT_SiliconHVCondAlg::~SCT_SiliconHVCondAlg() {
@@ -37,7 +40,9 @@ StatusCode SCT_SiliconHVCondAlg::initialize() {
   // CondSvc
   ATH_CHECK(m_condSvc.retrieve());
   // Read Cond Handles
-  ATH_CHECK(m_readKeyState.initialize());
+  if (m_useState) {
+    ATH_CHECK(m_readKeyState.initialize());
+  }
   ATH_CHECK(m_readKeyHV.initialize());
   // Write Cond Handle
   ATH_CHECK(m_writeKey.initialize());
@@ -65,20 +70,6 @@ StatusCode SCT_SiliconHVCondAlg::execute() {
     return StatusCode::SUCCESS; 
   }
 
-  // Read Cond Handle (state)
-  SG::ReadCondHandle<SCT_DCSStatCondData> readHandleState{m_readKeyState};
-  const SCT_DCSStatCondData* readCdoState{*readHandleState};
-  if (readCdoState==nullptr) {
-    ATH_MSG_FATAL("Null pointer to the read conditions object");
-    return StatusCode::FAILURE;
-  }
-  EventIDRange rangeState;
-  if (not readHandleState.range(rangeState)) {
-    ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleState.key());
-    return StatusCode::FAILURE;
-  }
-  ATH_MSG_INFO("Input is " << readHandleState.fullKey() << " with the range of " << rangeState);
-
   // Read Cond Handle (HV)
   SG::ReadCondHandle<SCT_DCSFloatCondData> readHandleHV{m_readKeyHV};
   const SCT_DCSFloatCondData* readCdoHV{*readHandleHV};
@@ -93,11 +84,29 @@ StatusCode SCT_SiliconHVCondAlg::execute() {
   }
   ATH_MSG_INFO("Input is " << readHandleHV.fullKey() << " with the range of " << rangeHV);
 
-  // Combined the validity ranges of state and range
-  EventIDRange rangeW{EventIDRange::intersect(rangeState, rangeHV)};
-  if(rangeW.start()>rangeW.stop()) {
-    ATH_MSG_FATAL("Invalid intersection range: " << rangeW);
-    return StatusCode::FAILURE;
+  EventIDRange rangeW{rangeHV};
+
+  if (m_useState) {
+    // Read Cond Handle (state)
+    SG::ReadCondHandle<SCT_DCSStatCondData> readHandleState{m_readKeyState};
+    const SCT_DCSStatCondData* readCdoState{*readHandleState};
+    if (readCdoState==nullptr) {
+      ATH_MSG_FATAL("Null pointer to the read conditions object");
+      return StatusCode::FAILURE;
+    }
+    EventIDRange rangeState;
+    if (not readHandleState.range(rangeState)) {
+      ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleState.key());
+      return StatusCode::FAILURE;
+    }
+    ATH_MSG_INFO("Input is " << readHandleState.fullKey() << " with the range of " << rangeState);
+
+    // Combined the validity ranges of state and range
+    rangeW = EventIDRange::intersect(rangeState, rangeHV);
+    if(rangeW.start()>rangeW.stop()) {
+      ATH_MSG_FATAL("Invalid intersection range: " << rangeW);
+      return StatusCode::FAILURE;
+    }
   }
   
   // Construct the output Cond Object and fill it in

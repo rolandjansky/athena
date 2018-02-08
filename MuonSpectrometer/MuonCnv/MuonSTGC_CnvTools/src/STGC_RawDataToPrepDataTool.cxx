@@ -69,6 +69,8 @@ StatusCode Muon::STGC_RawDataToPrepDataTool::initialize()
     return sc;
   }
 
+  m_rawDataProviderTool.disable();         // never used???
+
   /// get tgcIdHelper from muonMgr
   m_sTGC_Helper = m_muonMgr->stgcIdHelper();
     

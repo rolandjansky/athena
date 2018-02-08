@@ -49,7 +49,6 @@ namespace CaloG4
 
     /// The simple method to call from a calibration calculator:
     /// Examine the G4Step and return the energies required for a
-    ///
     /// calibration hit.
     void Energies( const G4Step* , std::vector<G4double> & ) const;
 
@@ -114,6 +113,7 @@ namespace CaloG4
                                 G4double kineticEnergy) const;
 
     /// Escaped energy requires special processing.
+    /// FIXME: can we change the `G4ThreeVector` arg to `const G4ThreeVector&`?
     G4bool ProcessEscapedEnergy( G4ThreeVector point, G4double energy ) const;
 
   }; // class SimulationEnergies

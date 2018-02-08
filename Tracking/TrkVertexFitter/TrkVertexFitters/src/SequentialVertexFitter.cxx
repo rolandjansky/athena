@@ -18,7 +18,6 @@
 #include "TrkParticleBase/LinkToTrackParticleBase.h"
 #include "TrkLinks/LinkToXAODTrackParticle.h"
 #include "TrkLinks/LinkToXAODNeutralParticle.h"
-#include "TrkVxEdmCnv/IVxCandidateXAODVertex.h"
 
 
 //xAOD includes
@@ -63,14 +62,6 @@ namespace Trk{
     msg(MSG::INFO) << "Retrieved tool " << m_LinTrkFactory << endmsg;
   }
   
-//XAOD Converter  
-  if ( m_xaodConverter.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_xaodConverter << endmsg;
-    return StatusCode::FAILURE;
-  } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_xaodConverter << endmsg;
-  }
-  
   msg(MSG::INFO)<<"Initialization successfull"<<endmsg;
   return StatusCode::SUCCESS;
  }//end of initialize method
@@ -90,7 +81,6 @@ namespace Trk{
 //    m_Smoother("Trk::KalmanVertexSmoother"),
     m_Smoother("Trk::DummyVertexSmoother"),
     m_LinTrkFactory("Trk::FullPerigeeLinearizedTrackFactory"),
-    m_xaodConverter("Trk::VxCandidateXAODVertex"),
     m_doSmoothing(true),
     m_maxStep(20),
     m_maxShift(0.0001),
@@ -117,7 +107,6 @@ namespace Trk{
 
 //linearizedTrackFactory-related stuff  
   declareProperty("LinearizedTrackFactory", m_LinTrkFactory);
-  declareProperty("XAODConverter",m_xaodConverter);
   declareInterface<IVertexFitter>(this);
  }
 

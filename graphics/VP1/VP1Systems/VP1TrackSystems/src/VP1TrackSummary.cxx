@@ -77,7 +77,7 @@ bool VP1TrackSummary::countHits( const Trk::Segment* seg,
         return false;
 
     std::set<const Trk::TrkDetElementBase*> detelems;// Need several to handle #$$%ing cROTs. EJWM
-    std::vector< const Trk::MeasurementBase * >::const_iterator tsos_iter = seg->containedMeasurements().begin(), tsos_end = seg->containedMeasurements().end();;
+    std::vector< const Trk::MeasurementBase * >::const_iterator tsos_iter = seg->containedMeasurements().begin(), tsos_end = seg->containedMeasurements().end();
     for (; tsos_iter != tsos_end; ++tsos_iter) {
         const Trk::MeasurementBase*       meas = *tsos_iter;
         addCounts(detelems, meas, idhelper, nPixelHits , nSCTHits , nTRTHits , nhits_muon_phi , nhits_rpc , nhits_mdt , nhits_tgc , nhits_csc);

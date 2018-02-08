@@ -124,7 +124,7 @@ StatusCode G4HitMerger::execute()
   //  StatusCode sc(StatusCode::FAILURE);
   //  if (! (sc = m_mergeSvc->retrieveSubEvtsData(truthCollKey, truthList)).isSuccess() ) {
   //    msglog<<MSG::ERROR<< "execute: Can not find TimedTruthList with key "<< truthCollKey << endmsg;
-  //    return StatusCode::RECOVERABLE;;
+  //    return StatusCode::RECOVERABLE;
   //  }
   //  int nInputMcEventColls(truthList.size());
   //  //and check it is not empty

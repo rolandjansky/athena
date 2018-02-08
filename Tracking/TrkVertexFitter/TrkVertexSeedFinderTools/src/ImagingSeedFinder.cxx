@@ -16,8 +16,6 @@
 #include "TrkTrack/Track.h"
 #include "GaudiKernel/PhysicalConstants.h"
 
-#include "xAODEventInfo/EventInfo.h"
-
 //Amg
 #include "GeoPrimitives/GeoPrimitives.h"
 
@@ -48,6 +46,8 @@ namespace Trk
   StatusCode ImagingSeedFinder::initialize() 
   { 
     msg(MSG::INFO) << "ImagingSeedFinder initialization..." << endmsg;
+
+    ATH_CHECK( m_eventInfoKey.initialize() );
 
     // Get the image maker tool
     if (m_vertexImageMaker.retrieve().isFailure() ) {
@@ -88,10 +88,9 @@ namespace Trk
   Amg::Vector3D ImagingSeedFinder::findSeed(const std::vector<const Trk::Track*> & VectorTrk,const xAOD::Vertex * constraint) {
 
     // This gets the EventInfo object from StoreGate
-    const xAOD::EventInfo* myEventInfo = 0;
-    if(evtStore()->retrieve(myEventInfo/*,"MyEvent"*/).isFailure()) {
-      // Key "MyEvent" is optional, usually not specified for EventInfo because
-      // there'll be only one. When not specified, just takes the first container.
+    SG::ReadHandle<xAOD::EventInfo> myEventInfo(m_eventInfoKey);
+    if ( !myEventInfo.isValid() )
+    {
       msg(MSG::ERROR) << "Failed to retrieve event information" << endmsg;
       return Amg::Vector3D(0.,0.,0.);
     }
@@ -122,12 +121,10 @@ namespace Trk
   // ImagingSeedFinder find seed - based on vector of Trk::ParametersBase
   Amg::Vector3D ImagingSeedFinder::findSeed(const std::vector<const Trk::TrackParameters*> & parametersList,const xAOD::Vertex * constraint) {
 
-
     // This gets the EventInfo object from StoreGate
-    const xAOD::EventInfo* myEventInfo = 0;
-    if(evtStore()->retrieve(myEventInfo/*,"MyEvent"*/).isFailure()) {
-      // Key "MyEvent" is optional, usually not specified for EventInfo because
-      // there'll be only one. When not specified, just takes the first container.
+    SG::ReadHandle<xAOD::EventInfo> myEventInfo(m_eventInfoKey);
+    if (!myEventInfo.isValid() ) 
+      {
       msg(MSG::ERROR) << "Failed to retrieve event information" << endmsg;
       return Amg::Vector3D(0.,0.,0.);
     }

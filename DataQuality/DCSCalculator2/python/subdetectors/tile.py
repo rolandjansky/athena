@@ -12,9 +12,12 @@ N_CHANNELS_PER_MODULE = 90
 from itertools import product
 
 # Magic, needed for functioning coral Blob
-import cppyy
+try:
+    import PyCintex as C
+except:
+    import cppyy as C
 import PyCool 
-Blob = cppyy.gbl.coral.Blob
+Blob = C.gbl.coral.Blob
 
 from TileCalibBlobObjs.Classes import (
     TileCalibDrawerBch, TileBchDecoder, TileBchStatus, TileCalibUtils, TileBchPrbs)
@@ -81,11 +84,11 @@ class Tile_NoHighVoltage(DCSC_Variable_With_Mapping):
     """
     Records modules which have all of their channels in the NoHV state.
     """
-    input_db = "COOLONL_TILE/COMP200"
+    input_db = "COOLOFL_TILE/CONDBR2"
     is_config_variable = True
     timewise_folder = False
     
-    fetch_args = dict(tag="TileOfl01StatusAdc-HLT-UPD1-00")
+    fetch_args = dict(tag="TileOfl02StatusAdc-RUN2-HLT-UPD1-00")
             
     def make_good_iov(self, iov):
         return GoodIOV(iov.since, iov.until, iov.channel, OUT_OF_CONFIG) 
@@ -163,7 +166,7 @@ class Tile(DCSC_DefectTranslate_Subdetector):
     variables = [
         #DCSC_Variable("STATES", lambda iov: iov.FORDAQ_MBHV == 212222),
         DCSC_Variable("STATES", lambda iov: iov.FORDAQ_MBHV in (212222, 202221)),
-        Tile_NoHighVoltage("/TILE/OFL01/STATUS/ADC", None)
+        Tile_NoHighVoltage("/TILE/OFL02/STATUS/ADC", None)
     ]
 
     dead_fraction_caution = 0.01
@@ -277,14 +280,49 @@ class Tile(DCSC_DefectTranslate_Subdetector):
 #        TIEBA: dead_fraction_caution,
 #        TIEBC: 0.017
 #    }
+# one more module in LBC
+#    dead_fraction_map = {
+#        TILBA: 0.032, # Mask dead modules
+#        TILBC: 0.064, # Mask dead modules
+#        TIEBA: dead_fraction_caution,
+#        TIEBC: 0.017
+#    }
+# status at 01-Sep-2014 - LBA10 dead
+#    dead_fraction_map = {
+#        TILBA: 0.017, # Mask dead modules
+#        TILBC: dead_fraction_caution,
+#        TIEBA: dead_fraction_caution,
+#        TIEBC: dead_fraction_caution
+#    }
+# status at 2015-06-11 - EBC21 also dead
+#    dead_fraction_map = {
+#        TILBA: 0.017, # Mask dead modules
+#        TILBC: dead_fraction_caution,
+#        TIEBA: dead_fraction_caution,
+#        TIEBC: 0.017 # Mask dead modules
+#    }
+# status at 2015-10-07 - Getting false trips in EBC, probably from 1/4 of EBC47
+#    dead_fraction_map = {
+#        TILBA: 0.017, # Mask dead modules
+#        TILBC: dead_fraction_caution,
+#        TIEBA: dead_fraction_caution,
+#        TIEBC: 0.021 # Mask dead and partially dead modules
+#   }
+  
+# status at 2016-03-01 - All the dead modules are fixed and turned on.
+#    dead_fraction_map = {
+#        TILBA: dead_fraction_caution,
+#        TILBC: dead_fraction_caution,
+#        TIEBA: dead_fraction_caution,
+#        TIEBC: dead_fraction_caution
+#    }
+# status at 2016-10-24 - LBA52 and LBC05 are switched off.
     dead_fraction_map = {
-        TILBA: 0.032, # Mask dead modules
-        TILBC: 0.064, # Mask dead modules
+        TILBA: 0.017,
+        TILBC: 0.017,
         TIEBA: dead_fraction_caution,
-        TIEBC: 0.017
+        TIEBC: dead_fraction_caution
     }
-
-
 
     
     def calculate_dead_fraction(self, since, until, output_channel, states, 
@@ -309,7 +347,7 @@ class Tile(DCSC_DefectTranslate_Subdetector):
         return code, dead_fraction, thrust, n_config, n_working
 
     def __init__(self, *args, **kwargs):
-        kwargs['keep_dcsofl'] = True
+        #kwargs['keep_dcsofl'] = True
         super(Tile, self).__init__(*args, **kwargs)
         self.translators = [Tile.color_to_defect_translator(flag, defect, [RED, YELLOW])
                             for flag, defect in ((TILBA, 'TILE_LBA_TRIP'),
@@ -317,4 +355,4 @@ class Tile(DCSC_DefectTranslate_Subdetector):
                                                  (TIEBA, 'TILE_EBA_TRIP'),
                                                  (TIEBC, 'TILE_EBC_TRIP'),
                                                  )]
-        self.set_input_mapping("/TILE/OFL01/STATUS/ADC", self.mapping2)
+        self.set_input_mapping("/TILE/OFL02/STATUS/ADC", self.mapping2)

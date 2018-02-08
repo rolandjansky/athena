@@ -640,8 +640,8 @@ protected:
       if ( m_chainNames[ichain].passed() ) decisiontype = _decisiontype;
       else                                 decisiontype = TrigDefs::alsoDeactivateTEs;
 
-      //      if ( decisiontype==TrigDefs::requireDecision ) std::cout << "\tSUTT TrigDefs::requireDecision " << decisiontype << std::endl;;
-      //      if ( decisiontype==TrigDefs::Physics )         std::cout << "\tSUTT TrigDefs::Physics "         << decisiontype << std::endl;;
+      //      if ( decisiontype==TrigDefs::requireDecision ) std::cout << "\tSUTT TrigDefs::requireDecision " << decisiontype << std::endl;
+      //      if ( decisiontype==TrigDefs::Physics )         std::cout << "\tSUTT TrigDefs::Physics "         << decisiontype << std::endl;
 
 
       /// and the index of the collection (if any)

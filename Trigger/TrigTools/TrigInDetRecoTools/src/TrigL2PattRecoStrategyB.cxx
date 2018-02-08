@@ -1643,7 +1643,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyB::executeTripletMaking() {
     
     // Get z0 index info
     unsigned int z0index=0;
-    float z0=m_trks[trk].z0;;
+    float z0=m_trks[trk].z0;
     for(unsigned int loop=0; loop<m_spTripletZ0Steps; loop++) {
       if(z0>=z0Lo[loop] && z0<z0Hi[loop]) z0index=loop;
     }

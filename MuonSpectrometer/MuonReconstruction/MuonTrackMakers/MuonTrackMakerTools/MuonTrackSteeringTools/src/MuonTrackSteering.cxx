@@ -613,7 +613,7 @@ namespace Muon {
           double etaSeed  = seedSeg->segment->globalPosition().eta();
           for (unsigned int sin2=0; sin2<mySegColVec[lin].size(); sin2++){
             if( sin==sin2 ) continue;
-            MuPatSegment* seg = mySegColVec[lin].operator[](sin2);;
+            MuPatSegment* seg = mySegColVec[lin].operator[](sin2);
 
             if (seg->quality<m_segQCut[0] || (m_segQCut[0]==-99 && !(seg->segQuality && seg->segQuality->isStrict()))) continue;
 
@@ -965,7 +965,7 @@ namespace Muon {
         {
           // 	    ATH_MSG_DEBUG( std::setw(m_findingDepth) << " " << " extension successful continuing to layer " << nextlayer
           // 			   << " " << nextTracks->size() );  
-          //std::cout << std::setw(m_findingDepth) << " " << " extension successful continuing to layer " << nextlayer << " " << nextTracks->size() << std::endl;;  
+          //std::cout << std::setw(m_findingDepth) << " " << " extension successful continuing to layer " << nextlayer << " " << nextTracks->size() << std::endl;
           std::vector<MuPatTrack*>::iterator cit     = nextTracks->begin();
           std::vector<MuPatTrack*>::iterator cit_end = nextTracks->end();
           for(; cit!=cit_end; ++cit )

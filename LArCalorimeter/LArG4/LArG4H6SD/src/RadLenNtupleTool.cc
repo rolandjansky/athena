@@ -13,11 +13,14 @@ namespace G4UA
   RadLenNtupleTool::RadLenNtupleTool(const std::string& type,
                                      const std::string& name,
                                      const IInterface* parent)
-    : ActionToolBase<RadLenNtuple>(type, name, parent)
+    : UserActionToolBase<RadLenNtuple>(type, name, parent)
   {
     declareProperty("McEventCollName", m_config.mcEventCollName);
   }
 
+  //---------------------------------------------------------------------------
+  // Initialize
+  //---------------------------------------------------------------------------
   StatusCode RadLenNtupleTool::initialize()
   {
     if(msgLvl(MSG::VERBOSE))    { m_config.verboseLevel = 10; }
@@ -29,35 +32,16 @@ namespace G4UA
   // Create the action on request
   //---------------------------------------------------------------------------
   std::unique_ptr<RadLenNtuple>
-  RadLenNtupleTool::makeAction()
+  RadLenNtupleTool::makeAndFillAction(G4AtlasUserActions& actionList)
   {
-    ATH_MSG_DEBUG("makeAction");
+    ATH_MSG_DEBUG("Constructing a RadLenNtuple action");
     auto action = std::make_unique<RadLenNtuple>(m_config);
-    if(action->initialize().isFailure())
-      {
-        ATH_MSG_WARNING("Failed to set up RadLenNtuple properly!");
-      }
+    if(action->initialize().isFailure()) {
+      ATH_MSG_WARNING("Failed to set up RadLenNtuple properly!");
+    }
+    actionList.eventActions.push_back( action.get() );
+    actionList.steppingActions.push_back( action.get() );
     return action;
-  }
-
-  //---------------------------------------------------------------------------
-  // Query interface
-  //---------------------------------------------------------------------------
-  StatusCode RadLenNtupleTool::queryInterface(const InterfaceID& riid, void** ppvIf)
-  {
-    if(riid == IG4SteppingActionTool::interfaceID()) {
-      *ppvIf = (IG4SteppingActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-
-    if(riid == IG4EventActionTool::interfaceID()) {
-      *ppvIf = (IG4EventActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-
-    return ActionToolBase<RadLenNtuple>::queryInterface(riid, ppvIf);
   }
 
 }

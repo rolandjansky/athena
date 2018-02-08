@@ -88,6 +88,8 @@ StatusCode HLTCaloFEBTool::init() {
                 ATH_MSG_INFO( "Retrieved " << m_data  );
         }
 
+	ATH_CHECK(m_noisetool.retrieve());
+
 	return StatusCode::SUCCESS;
 
 }
@@ -273,7 +275,7 @@ StatusCode HLTCaloFEBTool::fill() {
                                 double sigmax = (tmpx*tmpx);
                                 double sigmay = (tmpy*tmpy);
                                 double sigmaz = (tmpz*tmpz);
-				//std::cout << "just test " << cell->caloDDE()->sinTh() << " " << 1./cosh ( cell->eta() ) << " " << cell->caloDDE()->cosPhi() << " " << cos ( cell->phi() ) << " " << cell->caloDDE()->sinTh()* cell->caloDDE()->cotTh() << " " << tanh(cell->eta() ) << " " << m_threshold << std::endl;;
+				//std::cout << "just test " << cell->caloDDE()->sinTh() << " " << 1./cosh ( cell->eta() ) << " " << cell->caloDDE()->cosPhi() << " " << cos ( cell->phi() ) << " " << cell->caloDDE()->sinTh()* cell->caloDDE()->cotTh() << " " << tanh(cell->eta() ) << " " << m_threshold << std::endl;
 #ifndef NDEBUG
 				if ( energy > 0 ) {
                                   ATH_MSG_VERBOSE( " All cells that compose feb : "

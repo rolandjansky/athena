@@ -39,6 +39,9 @@ StatusCode CaloMonToolBase::initialize() {
    }
    ATH_MSG_INFO("AtlasReadyFilterTool retrieved");
   }
+  else {
+    m_ReadyFilterTool.disable();
+  } 
 
   // retrieve BadLBFilter tool 
  if(m_useBadLBTool){
@@ -49,6 +52,9 @@ StatusCode CaloMonToolBase::initialize() {
     return sc;
   }
   ATH_MSG_INFO("DQBadLBFilterTool retrieved");
+ }
+ else {
+   m_BadLBTool.disable();
  }
  return StatusCode::SUCCESS;
 }

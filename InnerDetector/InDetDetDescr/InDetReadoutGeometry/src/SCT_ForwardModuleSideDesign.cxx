@@ -86,7 +86,7 @@ bool SCT_ForwardModuleSideDesign::inActiveArea(const SiLocalPosition &chargePos,
 double SCT_ForwardModuleSideDesign::scaledDistanceToNearestDiode(const SiLocalPosition &chargePos) const
 {
   const SCT_ForwardPolarPosition polar=m_frame.polarFromCartesian(chargePos);
-  return m_geometry.scaledDistanceToNearestDiode(polar);;
+  return m_geometry.scaledDistanceToNearestDiode(polar);
 }
 
 

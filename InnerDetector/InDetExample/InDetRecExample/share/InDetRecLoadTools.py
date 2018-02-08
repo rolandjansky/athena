@@ -1354,15 +1354,6 @@ if InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring() or 
     if (InDetFlags.doPrintConfigurables()):
         print InDetTrackSelectorTool
 
-    #
-    # --- load internal EDM converter tool
-    #
-    from TrkVxEdmCnv.TrkVxEdmCnvConf import Trk__VxCandidateXAODVertex
-    InDetVxEdmCnv = Trk__VxCandidateXAODVertex(name="VertexInternalEdmFactory")
-    ToolSvc += InDetVxEdmCnv
-    if (InDetFlags.doPrintConfigurables()):
-        print InDetVxEdmCnv
-
 
 if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) or InDetFlags.doSplitVertexFindingForMonitoring() and InDetFlags.primaryVertexSetup() != 'DummyVxFinder':
   #
@@ -1375,8 +1366,6 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
   if (InDetFlags.doPrintConfigurables()):
     print InDetLinFactory
 
-  #Update also internal vertex Edm Tool
-  InDetVxEdmCnv.LinearizedTrackFactory=InDetLinFactory
     
   #
   # --- load other tools if needed
@@ -1580,8 +1569,7 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
     from TrkVertexBilloirTools.TrkVertexBilloirToolsConf import Trk__FastVertexFitter
     InDetVxFitterTool = Trk__FastVertexFitter(name                   = "InDetFastVertexFitterTool",
                                               LinearizedTrackFactory = InDetLinFactory,
-                                              Extrapolator           = InDetExtrapolator,
-                                              XAODConverter = InDetVxEdmCnv)
+                                              Extrapolator           = InDetExtrapolator)
 
   elif InDetFlags.primaryVertexSetup() == 'DefaultFullFinding':
     #
@@ -1600,9 +1588,8 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
     from TrkVertexFitters.TrkVertexFittersConf import Trk__SequentialVertexFitter
     InDetVxFitterTool = Trk__SequentialVertexFitter(name                   = "InDetSequentialVxFitterTool",
                                                     LinearizedTrackFactory = InDetLinFactory,
-                                                    VertexSmoother         = InDetVertexSmoother,
+                                                    VertexSmoother         = InDetVertexSmoother
                                                     #VertexUpdator   = # no setting required 
-                                                    XAODConverter = InDetVxEdmCnv
                                                     )
   elif (InDetFlags.primaryVertexSetup() == 'MedImgMultiFinding') :
 
@@ -1624,8 +1611,7 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
                                                     LinearizedTrackFactory       = InDetLinFactory,
                                                     ImpactPoint3dEstimator       = InDetImpactPoint3dEstimator,
                                                     AnnealingMaker               = InDetAnnealingMaker,
-                                                    VertexSmoother               = InDetVertexSmoother,
-                                                    XAODConverter                = InDetVxEdmCnv)
+                                                    VertexSmoother               = InDetVertexSmoother)
 
   elif (InDetFlags.primaryVertexSetup() == 'DefaultAdaptiveFinding' or 
         InDetFlags.primaryVertexSetup() == 'IterativeFinding') : 
@@ -1638,8 +1624,7 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
                                                   LinearizedTrackFactory       = InDetLinFactory,
                                                   ImpactPoint3dEstimator       = InDetImpactPoint3dEstimator,
                                                   AnnealingMaker               = InDetAnnealingMaker,
-                                                  VertexSmoother               = InDetVertexSmoother,
-                                                  XAODConverter                = InDetVxEdmCnv)
+                                                  VertexSmoother               = InDetVertexSmoother)
 
   elif InDetFlags.primaryVertexSetup() == 'AdaptiveMultiFinding':
     #
@@ -1684,8 +1669,7 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
                                                        maxChi2PerTrack   = InDetPrimaryVertexingCuts.MaxChi2PerTrack(),
                                                        chi2CutMethod     = InDetPrimaryVertexingCuts.chi2CutMethod(),
                                                        enableMultipleVertices = InDetPrimaryVertexingCuts.enableMultipleVertices(),
-                                                       useBeamConstraint = InDetFlags.useBeamConstraint(),
-                                                       InternalEdmFactory= InDetVxEdmCnv)
+                                                       useBeamConstraint = InDetFlags.useBeamConstraint())
 
   elif (InDetFlags.primaryVertexSetup() == 'MedImgMultiFinding') :
     #
@@ -1699,8 +1683,7 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
                                                             ImpactPoint3dEstimator       = InDetImpactPoint3dEstimator,
                                                             useBeamConstraint            = InDetFlags.useBeamConstraint(),
                                                             significanceCutSeeding       = 12,
-                                                            maxVertices                  = 200,
-                                                            InternalEdmFactory           = InDetVxEdmCnv)
+                                                            maxVertices                  = 200)
 
   elif InDetFlags.primaryVertexSetup() == 'IterativeFinding':
     #
@@ -1717,7 +1700,6 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
                                                                 significanceCutSeeding   = 12,
                                                                 maximumChi2cutForSeeding = 49,
                                                                 maxVertices              = 200,
-                                                                InternalEdmFactory       = InDetVxEdmCnv,
                                                                 doMaxTracksCut           = InDetPrimaryVertexingCuts.doMaxTracksCut(),
                                                                 MaxTracks                = InDetPrimaryVertexingCuts.MaxTracks()
                                                                 )
@@ -1733,8 +1715,7 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
                                                                     TrackSelector     = InDetTrackSelectorTool,
                                                                     useBeamConstraint = InDetFlags.useBeamConstraint(),
                                                                     selectiontype     = 0,
-                                                                    do3dSplitting     = InDetFlags.doPrimaryVertex3DFinding(),
-                                                                    InternalEdmFactory= InDetVxEdmCnv)
+                                                                    do3dSplitting     = InDetFlags.doPrimaryVertex3DFinding())
   
   elif InDetFlags.primaryVertexSetup() == 'DefaultVKalVrtFinding':
     #

@@ -27,10 +27,11 @@ class eflowCalo
     EME1, EME2, EME3,
     HEC1, HEC2, HEC3, HEC4,
     Tile1, Tile2, Tile3,
+    FCAL0, FCAL1, FCAL2,
     Unknown=999
   };
   
-  static const int nRegions = Tile3 + 1;
+  static const int nRegions = FCAL2 + 1;
 
   static const std::string& name(LAYER layer);
   static LAYER translateSampl(CaloCell_ID::CaloSample sampl);
@@ -54,10 +55,11 @@ class eflowFirstIntRegions
     EME1, EME2, EME3,
     HEC,
     Tile,
+    FCAL,
     Unknown=999
   };
   
-  static const int nRegions = Tile + 1;
+  static const int nRegions = FCAL + 1;
 
   static const std::string& name(J1STLAYER layer);
   static J1STLAYER translateCalo(eflowCaloENUM layer);

@@ -11,15 +11,10 @@
 #include "PixelDigitizationTool.h"
 
 #include "PileUpTools/PileUpMergeSvc.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
 
 #include "SiDigitization/SiChargedDiodeCollection.h"
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/PixelID.h"
-
-#include "AthenaKernel/errorcheck.h"
-#include "StoreGate/DataHandle.h"
-#include "CxxUtils/make_unique.h"
 
 #include <limits>
 #include <cstdint>
@@ -30,8 +25,8 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
                                              const std::string &name,
                                              const IInterface * pIID) :
   PileUpToolBase(type,name,pIID),
-  m_rdoContainer("PixelRDOs"),
-  m_simDataColl("PixelSDO_Map"),
+  m_rdoContainerKey("PixelRDOs"),
+  m_simDataCollKey("PixelSDO_Map"),
   m_HardScatterSplittingMode(0),
   m_HardScatterSplittingSkipper(false),
   m_rndmEngineName("PixelDigitization"),
@@ -56,8 +51,8 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
   declareProperty("MergeSvc",         m_mergeSvc,        "Merge service used in Pixel digitization");
   declareProperty("InputObjectName",  m_inputObjectName, "Input Object name" );
   declareProperty("CreateNoiseSDO",   m_createNoiseSDO,  "Set create noise SDO flag");
-  declareProperty("RDOCollName",      m_rdoContainer,    "RDO collection name");
-  declareProperty("SDOCollName",      m_simDataColl,     "SDO collection name");
+  declareProperty("RDOCollName",      m_rdoContainerKey, "RDO collection name");
+  declareProperty("SDOCollName",      m_simDataCollKey,  "SDO collection name");
   declareProperty("RndmEngine",       m_rndmEngineName,  "Random engine name");
   declareProperty("OnlyHitElements",  m_onlyHitElements, "Process only elements with hits");
   declareProperty("HardScatterSplittingMode", m_HardScatterSplittingMode, "Control pileup & signal splitting" );
@@ -105,6 +100,10 @@ StatusCode PixelDigitizationTool::initialize() {
   CHECK(m_fesimTool.retrieve());
   
   CHECK(m_energyDepositionTool.retrieve());
+
+  // Initialize WriteHandleKey
+  ATH_CHECK(m_rdoContainerKey.initialize());
+  ATH_CHECK(m_simDataCollKey.initialize());
 
   return StatusCode::SUCCESS;
 }
@@ -335,20 +334,12 @@ StatusCode PixelDigitizationTool::prepareEvent(unsigned int) {
   ATH_MSG_VERBOSE("PixelDigitizationTool::prepareEvent()");
 
   // Prepare event
-  if (!m_rdoContainer.isValid()) {
-    if (!(m_rdoContainer=CxxUtils::make_unique<PixelRDO_Container>(m_detID->wafer_hash_max())).isValid()) {
-      ATH_MSG_FATAL("Could not create PixelRDO_Container");
-      return StatusCode::FAILURE;
-    }
-  }
+  m_rdoContainer = SG::makeHandle(m_rdoContainerKey);
+  ATH_CHECK(m_rdoContainer.record(std::make_unique<PixelRDO_Container>(m_detID->wafer_hash_max())));
   ATH_MSG_DEBUG("PixelRDO_Container " << m_rdoContainer.name() << " registered in StoreGate");
 
-  if (!m_simDataColl.isValid()) {
-    if (!(m_simDataColl = CxxUtils::make_unique<InDetSimDataCollection>()).isValid()) {
-      ATH_MSG_FATAL("Could not create InDetSimDataCollection");
-      return StatusCode::FAILURE;
-    }
-  }
+  m_simDataColl = SG::makeHandle(m_simDataCollKey);
+  ATH_CHECK(m_simDataColl.record(std::make_unique<InDetSimDataCollection>()));
   ATH_MSG_DEBUG("InDetSimDataCollection " << m_simDataColl.name() << " registered in StoreGate");
 
   // Create hit collection

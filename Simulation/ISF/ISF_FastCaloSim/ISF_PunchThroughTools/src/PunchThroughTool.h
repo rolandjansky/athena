@@ -117,7 +117,7 @@ namespace ISF {
     mutable double                       m_initPhi;        //!< the incoming particle's phi
 
     /** calo-MS borders */
-    double                               R1, R2, z1, z2;
+    double                               m_R1, m_R2, m_z1, m_z2;
 
     /** the returned vector of ISFParticles */
     mutable ISF::ISFParticleContainer  *m_isfpCont;

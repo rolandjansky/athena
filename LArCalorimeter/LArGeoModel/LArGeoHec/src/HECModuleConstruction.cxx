@@ -394,7 +394,7 @@ GeoFullPhysVol* LArGeo::HECModuleConstruction::GetEnvelope()
 
       double rOuter = moduleRouter - larShift - deadZone;  
       double rInner = moduleRinner2 - larShift + deadZone;
-      if (iSect<1 && m_frontWheel) rInner = moduleRinner1 - larShift + deadZone;;
+      if (iSect<1 && m_frontWheel) rInner = moduleRinner1 - larShift + deadZone;
       solidSlice[iSect] = new GeoTubs(rInner, rOuter, gapSize/2., modulePhistart, moduleDeltaPhi); 
       logiSlice[iSect]  = new GeoLogVol(sliceName, solidSlice[iSect], LAr);
       physiSlice[iSect] = new GeoPhysVol(logiSlice[iSect]);

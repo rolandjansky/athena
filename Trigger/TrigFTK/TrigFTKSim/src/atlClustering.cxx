@@ -977,7 +977,7 @@ void averageCluster(cluster &clu) {
     int etaMin = 4000;
     int phiMax = -1;
     int phiMin = 4000;
-    int rowMin = 99999; //int(2*(design->width()/design->phiPitch()))+1;;
+    int rowMin = 99999; //int(2*(design->width()/design->phiPitch()))+1;
     int rowMax = 0;
     int colMin = 99999; //int(2*(design->length()/design->etaPitch()))+1;
     int colMax = 0;

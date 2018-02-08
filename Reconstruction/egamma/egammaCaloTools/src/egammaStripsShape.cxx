@@ -521,7 +521,7 @@ double egammaStripsShape::setDeltaEtaTrackShower(int nstrips,int ieta,
         pos = pos / energy;    
         return pos;
     }
-    pos *= -1;;
+    pos *= -1;
     return -9999.;
 }
 

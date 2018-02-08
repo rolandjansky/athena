@@ -40,7 +40,7 @@ void MaterialEffectsOnTrackCnv_p2 :: transToPers(
     persObj->m_sigmaDeltaTheta = (float)transObj->scatteringAngles()->sigmaDeltaTheta();
   }
   //  persObj->m_energyLoss = toPersistent( &m_elossCnv, transObj->m_energyLoss, log );  
-//  if (transObj->m_energyLoss!=0) std::cout<<"Ending MaterialEffectsOnTrackCnv_p2::transToPers: "<<(typeid(*(transObj->m_energyLoss))).name()<<std::endl;;
+//  if (transObj->m_energyLoss!=0) std::cout<<"Ending MaterialEffectsOnTrackCnv_p2::transToPers: "<<(typeid(*(transObj->m_energyLoss))).name()<<std::endl;
   persObj->m_energyLoss = toPersistent( (ITPConverterFor<Trk::EnergyLoss>**)0, transObj->energyLoss(), log );
 }
 

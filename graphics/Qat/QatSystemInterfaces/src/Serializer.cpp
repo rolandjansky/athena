@@ -137,7 +137,7 @@ void Serializer::save(const std::string & name) {
 }
 void Deserializer::restore(std::string & name){
 
-  QString nameString;;
+  QString nameString;
   (*c->state) >> nameString;
   name = nameString.toStdString();
 

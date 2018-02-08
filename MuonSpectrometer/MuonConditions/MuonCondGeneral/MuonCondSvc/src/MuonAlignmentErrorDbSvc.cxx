@@ -38,15 +38,15 @@ MuonAlignmentErrorDbSvc::~MuonAlignmentErrorDbSvc()
 StatusCode MuonAlignmentErrorDbSvc::initialize()
 {
   
-  msg(MSG::INFO) << "Initializing " << name() << " - package version " 
-		 << PACKAGE_VERSION << endmsg;
+  ATH_MSG_INFO( "Initializing " << name() << " - package version " 
+                << PACKAGE_VERSION  );
   
   StoreGateSvc * detStore;
   StatusCode status = service("DetectorStore",detStore);
   if (status.isFailure()) {
-    msg(MSG::FATAL) << "DetectorStore service not found !" << endmsg; 
+    ATH_MSG_FATAL( "DetectorStore service not found !"  );
   } else {
-    msg(MSG::INFO) << "DetectorStore service found !" << endmsg; 
+    ATH_MSG_VERBOSE( "DetectorStore service found !"  );
     
   }
 
@@ -54,12 +54,12 @@ StatusCode MuonAlignmentErrorDbSvc::initialize()
   if ( sc.isFailure() )
     {
       
-      msg(MSG::ERROR) << "Could not retrieve MuonAlignmentErrorDbTool" << endmsg;
+      ATH_MSG_ERROR( "Could not retrieve MuonAlignmentErrorDbTool"  );
     }
   else
     {
 	  
-      msg(MSG::INFO)<<"MuonAlignmentErrorTool retrieved with statusCode = "<<sc<<" pointer = "<<m_condDataTool<<endmsg;
+      ATH_MSG_VERBOSE("MuonAlignmentErrorTool retrieved with statusCode = "<<sc<<" pointer = "<<m_condDataTool );
     }
 
   
@@ -70,36 +70,36 @@ StatusCode MuonAlignmentErrorDbSvc::initialize()
 //   {
 //     return StatusCode::FAILURE;
 //   }
-      msg(MSG::INFO)<<"dopo init "<<sc<<endmsg;
+      ATH_MSG_VERBOSE("dopo init "<<sc );
 
       std::vector<std::string> folderNames;
       folderNames.push_back((m_condDataTool)->ErrorFolderName());
 
 
-      msg(MSG::INFO)<<"Register call-back  against "<<folderNames.size()<<" folders listed below "<<endmsg;
+      ATH_MSG_VERBOSE("Register call-back  against "<<folderNames.size()<<" folders listed below " );
 
       short ic=0;
       for (std::vector<std::string>::const_iterator ifld =folderNames.begin(); ifld!=folderNames.end(); ++ifld )
 	{
 	  ++ic;
-	  msg(MSG::INFO)<<" Folder n. "<<ic<<" <"<<(*ifld)<<">";
+	  ATH_MSG_VERBOSE(" Folder n. "<<ic<<" <"<<(*ifld)<<">" );
 	  if (detStore->contains<CondAttrListCollection>(*ifld)) {
 	    //    aFolderFound=true;
-	    msg(MSG::INFO)<<"     found in the DetStore"<<endmsg;
+	    ATH_MSG_VERBOSE("     found in the DetStore" );
 	    const DataHandle<CondAttrListCollection> MUONERRORData;
 	    if (detStore->regFcn(&IMuonAlignmentErrorDbSvc::initInfo,
 				 dynamic_cast<IMuonAlignmentErrorDbSvc *>(this),
 				 MUONERRORData,
 				 *ifld)!=StatusCode::SUCCESS)
 	      {
-		msg(MSG::WARNING)<<"Unable to register call back for initErrorInfo against folder <"<<(*ifld)<<">";
+		ATH_MSG_WARNING("Unable to register call back for initErrorInfo against folder <"<<(*ifld)<<">" );
 	      }
-	    else msg(MSG::INFO)<<"initInfo registered for call-back against folder <"<<(*ifld)<<">"<<endmsg;
+	    ATH_MSG_VERBOSE("initInfo registered for call-back against folder <"<<(*ifld)<<">" );
 	  }
 	  else
 	    {   
-	      msg(MSG::WARNING)<<"Folder "<<(*ifld)
-			       <<" NOT found in the DetStore --- failing to init ???"<<endmsg;
+	      ATH_MSG_WARNING("Folder "<<(*ifld)
+                              <<" NOT found in the DetStore --- failing to init ???" );
 	    }
 	}
  
@@ -109,26 +109,26 @@ StatusCode MuonAlignmentErrorDbSvc::initialize()
 StatusCode MuonAlignmentErrorDbSvc::finalize()
 {
   
-  msg(MSG::INFO) << "Finalize" << endmsg;
+  ATH_MSG_VERBOSE( "Finalize"  );
   return StatusCode::SUCCESS;
 }
 /*
 StatusCode MuonAlignmentErrorDbSvc::queryInterface(const InterfaceID& riid, void** ppvIF)
 {
-  msg(MSG::INFO) << "queryInterface Start" << endmsg;
+  ATH_MSG_VERBOSE( "queryInterface Start"  );
   if(IMuonAlignmentErrorDbSvc::interfaceID().versionMatch(riid) )
     {
-      msg(MSG::INFO) << "versionMatch=true" << endmsg;
+      ATH_MSG_VERBOSE( "versionMatch=true"  );
       *ppvIF = this;
     }else if ( IMuonAlignmentErrorDbSvc::interfaceID().versionMatch(riid) ){
     *ppvIF = dynamic_cast<IMuonAlignmentErrorSvc*>(this);
-    msg(MSG::INFO) << "service cast***************************" << endmsg;
+    ATH_MSG_VERBOSE( "service cast***************************"  );
 
   } else {
-    msg(MSG::INFO) << "cannot find the interface!" << endmsg;
+    ATH_MSG_VERBOSE( "cannot find the interface!"  );
     return AthService::queryInterface(riid, ppvIF);
   }
-  msg(MSG::INFO) << "queryInterface succesfull" << endmsg;
+  ATH_MSG_VERBOSE( "queryInterface successful"  );
   //addRef();  // is this needed ??                                                                                             
   return StatusCode::SUCCESS;
 }
@@ -151,14 +151,14 @@ StatusCode MuonAlignmentErrorDbSvc::queryInterface(const InterfaceID& riid, void
 
 StatusCode MuonAlignmentErrorDbSvc::initInfo(IOVSVC_CALLBACK_ARGS_P(I,keys))
 {
-  msg(MSG::INFO)<<"initInfo has been called"<<endmsg;
-  msg(MSG::INFO)<<"ToolHandle in initMappingModel - <"<<m_condDataTool<<">"<<endmsg;
+  ATH_MSG_VERBOSE("initInfo has been called" );
+  ATH_MSG_VERBOSE("ToolHandle in initMappingModel - <"<<m_condDataTool<<">" );
   
   
   StatusCode sc = m_condDataTool->loadParameters(I, keys);
   if (sc.isFailure())
     {
-      msg(MSG::WARNING)<<"Reading Alignment Error from COOL failed; NO ERROR INFO AVAILABLE"<<endmsg;
+      ATH_MSG_WARNING("Reading Alignment Error from COOL failed; NO ERROR INFO AVAILABLE" );
     }
   
   

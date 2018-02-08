@@ -28,7 +28,7 @@ TextFileDBReader::readFile(const std::string & readFile)
   std::ifstream ifile;
   ifile.open(readFile.c_str());
   if (!ifile) {
-    //std::cout << "Error opening file: " << readFile << std::endl;;
+    //std::cout << "Error opening file: " << readFile << std::endl;
     return false;
   }
   

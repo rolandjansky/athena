@@ -143,7 +143,7 @@ void ReadSiDetectorElements::printAllElements() {
     for (iter = m_manager->getDetectorElementBegin(); iter != m_manager->getDetectorElementEnd(); ++iter){
       const SiDetectorElement * element = *iter; 
       if (element) {
-        cout << m_idHelper->show_to_string(element->identify()) << endl;;
+        cout << m_idHelper->show_to_string(element->identify()) << endl;
         // The id helper is also available through  the elements
         //
         // element->getIdHelper()->show(element->identify());

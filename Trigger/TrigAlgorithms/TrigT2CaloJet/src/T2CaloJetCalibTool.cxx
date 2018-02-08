@@ -76,57 +76,19 @@ StatusCode T2CaloJetCalibTool::initialize()
 
   StatusCode sc;
   // Retrieve the jet calibration tool:
-  if(m_doJetCalib) {
-    sc = m_t2JetCalibTool.retrieve();
-    if ( sc.isFailure() ) {
-      (*m_log) << MSG::ERROR << "Could not get T2JetCalibTool" << endmsg;
-      return  StatusCode::FAILURE;
-    }
-  }
-
+  ATH_CHECK( m_t2JetCalibTool.retrieve(      DisableTool {!m_doJetCalib}  ));
+  
   // Retrieve the layer correction tools:
-  if(m_doJetCorrTile1) {
-    sc = m_t2JetCorrToolTile1.retrieve();
-    if ( sc.isFailure() ) {
-      (*m_log) << MSG::ERROR << "Could not get T2JetCorrToolTile1" << endmsg;
-    return  StatusCode::FAILURE;
-    }
-  }
-  if(m_doJetCorrFcal1) {
-    sc = m_t2JetCorrToolFcal1.retrieve();
-    if ( sc.isFailure() ) {
-      (*m_log) << MSG::ERROR << "Could not get T2JetCorrToolFcal1" << endmsg;
-    return  StatusCode::FAILURE;
-    }
-  }
-  if(m_doJetCorrEm3Bar) {
-    sc = m_t2JetCorrToolEm3Bar.retrieve();
-    if ( sc.isFailure() ) {
-      (*m_log) << MSG::ERROR << "Could not get T2JetCorrToolEm3Bar" << endmsg;
-    return  StatusCode::FAILURE;
-    }
-  }
-  if(m_doJetCorrHec0) {
-    sc = m_t2JetCorrToolHec0.retrieve();
-    if ( sc.isFailure() ) {
-      (*m_log) << MSG::ERROR << "Could not get T2JetCorrToolHec0" << endmsg;
-    return  StatusCode::FAILURE;
-    }
-  }
-  if(m_doJetCorrEm3Fwd) {
-    sc = m_t2JetCorrToolEm3Fwd.retrieve();
-    if ( sc.isFailure() ) {
-      (*m_log) << MSG::ERROR << "Could not get T2JetCorrToolEm3Fwd" << endmsg;
-    return  StatusCode::FAILURE;
-    }
-  }
-  if(m_doJetCorrPsBar) {
-    sc = m_t2JetCorrToolPsBar.retrieve();
-    if ( sc.isFailure() ) {
-      (*m_log) << MSG::ERROR << "Could not get T2JetCorrToolPsBar" << endmsg;
-    return  StatusCode::FAILURE;
-    }
-  }
+  ATH_CHECK( m_t2JetCorrToolTile1.retrieve(  DisableTool {!m_doJetCorrTile1} ));
+  ATH_CHECK( m_t2JetCorrToolFcal1.retrieve(  DisableTool {!m_doJetCorrFcal1} ));
+  ATH_CHECK( m_t2JetCorrToolEm3Bar.retrieve( DisableTool {!m_doJetCorrEm3Bar} ));
+  ATH_CHECK( m_t2JetCorrToolHec0.retrieve(   DisableTool {!m_doJetCorrHec0} ));
+  ATH_CHECK( m_t2JetCorrToolEm3Fwd.retrieve( DisableTool {!m_doJetCorrEm3Fwd} ));
+  ATH_CHECK( m_t2JetCorrToolPsBar.retrieve(  DisableTool {!m_doJetCorrPsBar} ));
+
+  // from IAlgToolCalo
+  m_geometryTool.disable();
+  m_data.disable();
 
 //  if (m_fillLayerInfo) {
 //    m_layer_info = new TrigCaloCluster(); 

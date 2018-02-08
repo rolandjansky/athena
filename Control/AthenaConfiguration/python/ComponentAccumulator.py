@@ -4,7 +4,7 @@
 #from AthenaCommon.Logging import logging
 from AthenaConfiguration.CfgLogMsg import cfgLogMsg
 from AthenaCommon.Configurable import Configurable,ConfigurableService,ConfigurableAlgorithm,ConfigurableAlgTool
-from AthenaCommon.CFElements import isSequence,findSubSequence,findAlgorithm
+from AthenaCommon.CFElements import isSequence,findSubSequence,findAlgorithm,flatSequencers
 from AthenaCommon.AlgSequence import AlgSequence
 
 import GaudiKernel.GaudiHandles as GaudiHandles
@@ -81,15 +81,19 @@ class ComponentAccumulator(object):
             pass
         seq = CurrentSequence.get()
         seq += algo
-        self._msg.debug("  Adding %s to sequence %s" % ( algo.getFullName(), seq.name()) )
+        self._msg.debug("Adding %s to sequence %s" % ( algo.getFullName(), seq.name()) )
         pass
 
 
     def getEventAlgo(self,name):
-        """ Looks for an algorithm given the name in all sequences """
-        algo = findAlgorithm( AlgSeqeunce(), name )
-        if algo == None:
-            raise ConfigurationError("Can not find an algorithm of name %d ", name)
+        """ Looks for an algorithm given the name in current sequence and in nested scopes 
+        
+        NB. Not sure that this is what we expect. Maybe we want to start from the top always? 
+        Limiting to the current scope reduces risk of cross talk. Will see in real life and make adjustments.
+        """
+        algo = findAlgorithm( CurrentSequence.get(), name )
+        if algo == None:            
+            raise ConfigurationError("Can not find an algorithm of name %s "% name)
         return algo
 
     def addCondAlgo(self,algo):
@@ -306,9 +310,23 @@ class ComponentAccumulator(object):
             CurrentSequence.set( seq )
 
         cfconst=deepcopy(configFlags)
-        self._msg.info("Executing configuration function %s" % fct.__name__)
-        subAccumulator = fct( cfconst, *args, **kwargs )
-        self.__merge( subAccumulator )
+        self._msg.info("Excuting configuration function %s" % fct.__name__)
+        retval=fct(cfconst,*args,**kwargs)
+
+        if (isinstance(retval,ComponentAccumulator)):
+            #Simple-case, return value is simply a ComponentAccumulator 
+            self.__merge(retval)
+            return None
+        else:
+            #More complicated case, eg. to configure private alg tools
+            try:
+                ca=retval[0]
+                self.__merge(ca)
+                return retval[1:]
+            except TypeError,IndexError:
+                raise TypeError("Unexpected return value of configuration method: Expect either a ComponentAccumulator or a tuple where the first item is a ComponentAccumulator")
+            pass
+        pass
 
         CurrentSequence.set( currentSeq )
         
@@ -351,15 +369,15 @@ class ComponentAccumulator(object):
         bsfile.close()
 
 
-        self._jocat["AthAlgSeq"] = self._sequence
-        #EventAlgorithms
-        # for (seqName,algoList) in self._eventAlgs.iteritems():        
-        #     evtalgseq=[]
-        #     for alg in algoList:
-        #         self.appendConfigurable(alg)
-        #         evtalgseq.append(alg.getFullName())
 
-        #     self._jocat[seqName]["Members"]=str(evtalgseq)
+        #EventAlgorithms
+        for (seqName,algoList) in flatSequencers( self._sequence ).iteritems():        
+            evtalgseq=[]
+            for alg in algoList:
+                self.appendConfigurable(alg)
+                evtalgseq.append(alg.getFullName())
+
+            self._jocat[seqName]["Members"]=evtalgseq
 
 
         #Conditions Algorithms:
@@ -393,8 +411,8 @@ class ComponentAccumulator(object):
 
         for (k,v) in self._theAppProps.iteritems():
             self._jocfg["ApplicationMgr"][k]=v
-
-        print self._jocat
+        from pprint import pprint
+        #pprint (self._jocat)
 
         pickle.dump( self._jocat, outfile ) 
         pickle.dump( self._jocfg, outfile ) 
@@ -411,8 +429,6 @@ if __name__ == "__main__":
     class Algo(ConfigurablePyAlgorithm):
         def __init__(self, name):
             super( ConfigurablePyAlgorithm, self ).__init__( name )
-
-
 
 
     def AlgsConf1(flags):
@@ -468,24 +484,22 @@ if __name__ == "__main__":
 
     
     #acc.printConfig()
+    srcSeq    = flatAlgorithmSequences( acc._sequence )
 
     # try recording
     acc.store(open("testFile.pkl", "w"))
     f = open("testFile.pkl")
     import pickle
     u = pickle.load(f)
-    srcSeq    = flatAlgorithmSequences( acc._sequence )
-    storedSeq = flatAlgorithmSequences( u["AthAlgSeq"] )
-    def sameAlg(a1, a2):
-        return a1.getFullName() == a2.getFullName()\
-            and a1.properties() == a2.properties()
-    
 
+    
     for k,v in srcSeq.iteritems():
-        assert storedSeq.has_key(k), "Missing sequence in stored pickle"
-        assert len(storedSeq[k]) == len(srcSeq[k]) , "Not the same number of algorithms in store and src"
-        for a1, a2 in zip(storedSeq[k], srcSeq[k]):            
-            assert sameAlg(a1, a2), "Differences in alg. congfig"
+        print k    
+        assert u.has_key(k), "Missing sequence in stored pickle"
+        print "src", srcSeq[k],
+        print "stored", u[k]["Members"]
+        for a1, a2 in zip(srcSeq[k], u[k]["Members"]):                        
+            assert a1.getFullName() == a2 , "Differences in alg. config"
     print( "Sequences survived pickling OK" )
     
     print( "\nAll OK" )

@@ -34,7 +34,7 @@ function (datamodel_run_test testName)
   atlas_add_test( ${testName}
                   SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/datamodel_${testName}.sh
                   PROPERTIES TIMEOUT 300
-                  ENVIRONMENT "ATLAS_REFERENCE_TAG=DataModelRunTests/DataModelRunTestsReference-01-00-02"
+                  ENVIRONMENT "ATLAS_REFERENCE_TAG=DataModelRunTests/DataModelRunTestsReference-01-00-03"
                   POST_EXEC_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/test/post.sh ${testName}"
                    )
   if( ARG_DEPENDS )

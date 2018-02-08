@@ -62,7 +62,6 @@ def findAlgorithm( startSequence, nameToLookFor, depth = 1000000 ):
     Typical use is to limit search to the startSequence with depth parameter set to 1
     """
     for c in startSequence.getChildren():
-        #print type(c), c.name()
         if not isSequence( c ):
             if  c.name() == nameToLookFor:
                 return c
@@ -78,13 +77,24 @@ def findAlgorithm( startSequence, nameToLookFor, depth = 1000000 ):
 def flatAlgorithmSequences( start, collector={} ):
     """ Converts tree like structure of sequences into dictionary keyed by sequence name containing lists of of algorithms."""
     collector[start.name()] = []
-    for c in start.getChildren():
-        if not isSequence( c ):
+    for c in start.getChildren():        
+        if not isSequence( c ):            
             collector[start.name()].append( c )
         else:
             flatAlgorithmSequences( c, collector )
     return collector
-    pass
+
+
+
+def flatSequencers( start, collector={} ):
+    collector[start.name()] = []
+    for c in start.getChildren():        
+        collector[start.name()].append( c )
+        if isSequence( c ):            
+            flatAlgorithmSequences( c, collector )
+    return collector
+
+    
 
 # self test
 if __name__ == "__main__":
@@ -133,6 +143,11 @@ if __name__ == "__main__":
     assert flat["deep_nest2"][0].getName() == "SomeAlg3"
 
 
+
+    flat = flatSequencers(top)
+    assert set( flat.keys() ) == set( expected ), "To many or to few sequences in flat structure, expected %s present %s "% ( " ".join( flat.keys() ), " ".join( expected ) )
+    assert len(flat["top"]) == 3, "To many, to few algorithms under the top sequence"
+
     a1 = findAlgorithm( top, "SomeAlg0" )
     assert a1, "Can't find algorithm present in sequence"
     a1 = findAlgorithm( top, "SomeAlg1" )
@@ -154,6 +169,7 @@ if __name__ == "__main__":
     assert a1, "Could not find algorithm within the required nesting depth == 2"
 
     a1 = findAlgorithm( top, "SomeAlg3", 2)
-    assert a1 == None, "Could find algorithm evn if it is deep in sequences structure"
+    assert a1 == None, "Could find algorithm evn if it is deep in sequences structure"    
+
 
     print ("All OK")

@@ -111,19 +111,13 @@ StatusCode Muon::MdtRdoToPrepDataTool::initialize()
   
   
   // Get MdtRawDataProviderTool
-  if (m_useBStoRdoTool && m_rawDataProviderTool.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Failed to retrieve tool ");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_rawDataProviderTool.retrieve( DisableTool{ !m_useBStoRdoTool } ));
   
   /// create an empty MDT PrepData container for filling
   m_mdtHelper = m_muonMgr->mdtIdHelper();
 
   // Retrieve the RDO decoder 
-  if (m_mdtDecoder.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Failed to retrieve Mdt decoder tool ");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_mdtDecoder.retrieve());
 
   ATH_CHECK(m_idHelper.retrieve());
   

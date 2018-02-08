@@ -553,10 +553,10 @@ namespace CP {
     //***
 
     float clast   = 1.;
-    float m_sigma = 0.;
+    float sigma = 0.;
 
     if(&appliedSystematics()!=0){ //nomimal value
-      m_sigma = appliedSystematics().getParameterByBaseName("JET_TILECORR_Uncertainty");
+      sigma = appliedSystematics().getParameterByBaseName("JET_TILECORR_Uncertainty");
     }
 
     for(const auto& region : m_position_masked){
@@ -567,15 +567,15 @@ namespace CP {
       if(region.part == PART::LB) {
 
 	//***
-	if (region.status == TS::CORE) clast = m_pars_LB[region.ep.first + Pix_eta * region.ep.second]->GetBinContent(ptbin) + m_sigma * m_core_sys_LB->GetBinContent(ptbin_sys); //systematics are bigger if we are in the core
-	else  clast = m_pars_LB[region.ep.first + Pix_eta * region.ep.second]->GetBinContent(ptbin) + m_sigma * m_pars_LB[region.ep.first + Pix_eta * region.ep.second]->GetBinError(ptbin);
+	if (region.status == TS::CORE) clast = m_pars_LB[region.ep.first + Pix_eta * region.ep.second]->GetBinContent(ptbin) + sigma * m_core_sys_LB->GetBinContent(ptbin_sys); //systematics are bigger if we are in the core
+	else  clast = m_pars_LB[region.ep.first + Pix_eta * region.ep.second]->GetBinContent(ptbin) + sigma * m_pars_LB[region.ep.first + Pix_eta * region.ep.second]->GetBinError(ptbin);
 	//***
 
       }else{
 
 	//***
-	if (region.status == TS::CORE) clast = m_pars_EB[region.ep.first + Pix_eta * region.ep.second]->GetBinContent(ptbin) + m_sigma * m_core_sys_EB->GetBinContent(ptbin_sys); //systematics are bigger if we are in the core
-	else  clast = m_pars_EB[region.ep.first + Pix_eta * region.ep.second]->GetBinContent(ptbin) + m_sigma * m_pars_EB[region.ep.first + Pix_eta * region.ep.second]->GetBinError(ptbin);
+	if (region.status == TS::CORE) clast = m_pars_EB[region.ep.first + Pix_eta * region.ep.second]->GetBinContent(ptbin) + sigma * m_core_sys_EB->GetBinContent(ptbin_sys); //systematics are bigger if we are in the core
+	else  clast = m_pars_EB[region.ep.first + Pix_eta * region.ep.second]->GetBinContent(ptbin) + sigma * m_pars_EB[region.ep.first + Pix_eta * region.ep.second]->GetBinError(ptbin);
 	//***
 
 	

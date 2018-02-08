@@ -20,7 +20,6 @@
 #include "TrkVertexFitterInterfaces/IVertexLinearizedTrackFactory.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "TrkLinks/LinkToXAODTrackParticle.h" 
-#include "TrkVxEdmCnv/IVxCandidateXAODVertex.h" 
 //xAOD includes 
 #include "xAODTracking/Vertex.h" 
 #include "xAODTracking/TrackParticle.h" 
@@ -78,14 +77,6 @@ namespace Trk
 			msg(MSG::INFO) << "Retrieved tool " << m_linFactory << endmsg;
 		}
 
-		//XAOD Converter   
- 		  if ( m_xaodConverter.retrieve().isFailure() ) { 
- 		    msg(MSG::FATAL) << "Failed to retrieve tool " << m_xaodConverter << endmsg; 
- 		    return StatusCode::FAILURE; 
- 		  } else { 
- 		    msg(MSG::INFO) << "Retrieved tool " << m_xaodConverter << endmsg; 
- 		  } 
- 		  
 
 
 		msg(MSG::INFO)  << "Initialize successful" << endmsg;
@@ -103,15 +94,13 @@ namespace Trk
 														  m_maxDchi2PerNdf ( 0.000001 ),
 														  m_error (NOTRKS),
 														  m_extrapolator ( "Trk::Extrapolator" ),
-														  m_linFactory ( "Trk::FullLinearizedTrackFactory" ),
-														  m_xaodConverter("Trk::VxCandidateXAODVertex")
+														  m_linFactory ( "Trk::FullLinearizedTrackFactory" )
 														  
 														  
 	{
 	  declareProperty ( "MaxIterations",        m_maxIterations );
 	  declareProperty ( "MaxChi2PerNdf",        m_maxDchi2PerNdf );
 	  declareProperty ( "Extrapolator",         m_extrapolator );
-	  declareProperty("XAODConverter",m_xaodConverter); 
 	  declareProperty ( "LinearizedTrackFactory", m_linFactory );
 	  declareInterface<IVertexFitter> ( this );
 	}

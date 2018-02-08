@@ -27,6 +27,7 @@ class SCT_SiliconHVCondAlg : public AthAlgorithm
   StatusCode finalize();
 
  private:
+  bool m_useState;
   SG::ReadCondHandleKey<SCT_DCSStatCondData> m_readKeyState;
   SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_readKeyHV;
   SG::WriteCondHandleKey<SCT_DCSFloatCondData> m_writeKey;

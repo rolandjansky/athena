@@ -7,7 +7,7 @@
 #include "TrkVertexSeedFinderUtils/SimpleVertexClusterFinder.h"
 #include "TrkVertexSeedFinderUtils/LocalMax1DClusterFinder.h"
 #include "TrkVertexSeedFinderUtils/VertexImageMaker.h"
-#include "TrkVertexSeedFinderUtils/ImagingSeedTuningAlg.h"
+#include "../ImagingSeedTuningAlg.h"
 
 using namespace Trk ;
 

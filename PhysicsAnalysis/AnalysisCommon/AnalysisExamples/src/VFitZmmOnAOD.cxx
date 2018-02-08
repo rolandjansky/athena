@@ -175,7 +175,7 @@ StatusCode VFitZmmOnAOD::initialize() {
   sc = service("PartPropSvc", p_PartPropSvc, true);
   if ( sc.isFailure() || 0 == p_PartPropSvc) {
     ATH_MSG_ERROR("Unable to initialize Particle Properties Service");
-    return StatusCode::FAILURE;;
+    return StatusCode::FAILURE;
   }
   const HepPDT::ParticleDataTable* particleTable = p_PartPropSvc->PDT();
   const HepPDT::ParticleData* muonPDT = particleTable->particle(13);

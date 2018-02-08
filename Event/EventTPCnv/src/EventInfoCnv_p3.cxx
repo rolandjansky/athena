@@ -38,7 +38,7 @@ void EventInfoCnv_p3::persToTrans(const EventInfo_p3* pers, EventInfo* trans, Ms
 	
     EventType *et = new EventType();
     typeConv.persToTrans(i, et, (vers>>6)&0x003f, bugcompat );
-    trans->setEventType (et);;
+    trans->setEventType (et);
 	
     if ((vers>>12)&0x003f){ // if there is trigger info
         TriggerInfo *ti = new TriggerInfo();

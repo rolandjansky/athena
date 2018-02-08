@@ -341,7 +341,7 @@ CaloNoiseToolDB::updateCache()
           }
       }
       for (int igain=0;igain<ngain;igain++) {
-         CaloGain::CaloGain caloGain=CaloGain::INVALIDGAIN;;
+         CaloGain::CaloGain caloGain=CaloGain::INVALIDGAIN;
          if (!isTile) caloGain = static_cast<CaloGain::CaloGain> (igain);
          else {
            if (igain==0) caloGain=CaloGain::TILELOWLOW;

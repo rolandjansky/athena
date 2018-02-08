@@ -6,13 +6,18 @@
 #include "TrackProcessorUserActionPassBackTool.h"
 #include "ISF_Interfaces/IParticleBroker.h"
 
-namespace G4UA{
+namespace G4UA
+{
 
-  namespace iGeant4{
+  namespace iGeant4
+  {
 
-    TrackProcessorUserActionPassBackTool::TrackProcessorUserActionPassBackTool(const std::string& type, const std::string& name,const IInterface* parent):
-      ActionToolBase<TrackProcessorUserActionPassBack>(type, name, parent), m_config(){
-
+    TrackProcessorUserActionPassBackTool::
+    TrackProcessorUserActionPassBackTool(const std::string& type,
+                                         const std::string& name,
+                                         const IInterface* parent)
+      : UserActionToolBase<TrackProcessorUserActionPassBack>(type, name, parent)
+    {
       declareProperty("ParticleBroker", m_config.particleBroker, "ISF Particle Broker Svc");
       declareProperty("GeoIDSvc"      , m_config.geoIDSvc      , "ISF GeoID Svc"          );
 
@@ -22,37 +27,22 @@ namespace G4UA{
       declareProperty("KillBoundaryParticlesBelowThreshold",
                       m_config.killBoundaryParticlesBelowThreshold=false,
                       "Kill particles at boundary which are below Ekin cut-off rather than continue their simulation in G4");
-
     }
 
-    std::unique_ptr<TrackProcessorUserActionPassBack>  TrackProcessorUserActionPassBackTool::makeAction(){
-
-      ATH_MSG_DEBUG("makeAction");
+    std::unique_ptr<TrackProcessorUserActionPassBack>
+    TrackProcessorUserActionPassBackTool::
+    makeAndFillAction(G4AtlasUserActions& actionList)
+    {
+      ATH_MSG_DEBUG("Constructing a TrackProcessorUserActionPassBack");
       if(msgLvl(MSG::VERBOSE))    { m_config.verboseLevel = 10; }
       else if(msgLvl(MSG::DEBUG)) { m_config.verboseLevel = 5;  }
       auto action = CxxUtils::make_unique<TrackProcessorUserActionPassBack>(m_config);
-      return std::move(action);
-    }
-
-    StatusCode TrackProcessorUserActionPassBackTool::queryInterface(const InterfaceID& riid, void** ppvIf){
-
-      if(riid == IG4TrackingActionTool::interfaceID()) {
-        *ppvIf = (IG4TrackingActionTool*) this;
-        addRef();
-        return StatusCode::SUCCESS;
-      }
-      if(riid == IG4SteppingActionTool::interfaceID()) {
-        *ppvIf = (IG4SteppingActionTool*) this;
-        addRef();
-        return StatusCode::SUCCESS;
-      }
-      if(riid == IG4EventActionTool::interfaceID()) {
-        *ppvIf = (IG4EventActionTool*) this;
-        addRef();
-        return StatusCode::SUCCESS;
-      }
-      return ActionToolBase<TrackProcessorUserActionPassBack>::queryInterface(riid, ppvIf);
+      actionList.eventActions.push_back( action.get() );
+      actionList.trackingActions.push_back( action.get() );
+      actionList.steppingActions.push_back( action.get() );
+      return action;
     }
 
   } // iGeant4
+
 } // namespace G4UA

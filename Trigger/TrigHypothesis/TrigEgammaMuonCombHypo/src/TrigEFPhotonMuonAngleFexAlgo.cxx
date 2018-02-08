@@ -136,7 +136,7 @@ HLT::ErrorCode TrigEFPhotonMuonAngleFexAlgo::hltExecute(HLT::TEConstVec& inputTE
     msg() << MSG::DEBUG << " empty xAOD::PhotonContainer from the trigger element" << endmsg;
     return HLT::OK;
   }  
-  const xAOD::PhotonContainer* photonContainer1 = vectorEgammaContainers.back();;
+  const xAOD::PhotonContainer* photonContainer1 = vectorEgammaContainers.back();
 
 
   // Now get muons

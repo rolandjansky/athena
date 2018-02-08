@@ -188,7 +188,7 @@ Int_t BeamSpotPdf::getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars
      return 0.5*pi*sqrt(wxx)*sqrt(wzz)*
        (TMath::Erf((m_mx-m_x.min(rangeName))/sqrt(2*wxx))-TMath::Erf((m_mx-m_x.max(rangeName))/sqrt(2*wxx)))
        *(TMath::Erf((m_mz-m_z.min(rangeName))/sqrt(2*wzz))-TMath::Erf((m_mz-m_z.max(rangeName))/sqrt(2*wzz)))
-       *exp(-0.5*dy*dy/(wyy));;
+       *exp(-0.5*dy*dy/(wyy));
    }
    if (code==4){
      //integrating over y,z
@@ -196,7 +196,7 @@ Int_t BeamSpotPdf::getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars
      return 0.5*pi*sqrt(wyy)*sqrt(wzz)*
        (TMath::Erf((m_my-m_y.min(rangeName))/sqrt(2*wyy))-TMath::Erf((m_my-m_y.max(rangeName))/sqrt(2*wyy)))
        *(TMath::Erf((m_mz-m_z.min(rangeName))/sqrt(2*wzz))-TMath::Erf((m_mz-m_z.max(rangeName))/sqrt(2*wzz)))
-       *exp(-0.5*dx*dx/(wxx));;
+       *exp(-0.5*dx*dx/(wxx));
    }
    
    return 0 ; 

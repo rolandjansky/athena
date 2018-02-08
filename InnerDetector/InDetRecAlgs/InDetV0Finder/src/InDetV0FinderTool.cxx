@@ -272,7 +272,7 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
   if ( !TPC.isValid() )
   {
       ATH_MSG_ERROR("Input TrackParticle collection is invalid!");
-      return StatusCode::SUCCESS;;
+      return StatusCode::SUCCESS;
   }
   ATH_MSG_DEBUG("Track particle container size " <<  TPC->size());
 

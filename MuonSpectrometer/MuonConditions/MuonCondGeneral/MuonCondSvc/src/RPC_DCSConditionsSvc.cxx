@@ -38,15 +38,15 @@ RPC_DCSConditionsSvc::~RPC_DCSConditionsSvc()
 StatusCode RPC_DCSConditionsSvc::initialize()
 {
   
-  msg(MSG::INFO) << "Initializing " << name() << " - package version " 
-		 << PACKAGE_VERSION << endmsg;
+  ATH_MSG_INFO( "Initializing " << name() << " - package version " 
+                << PACKAGE_VERSION  );
   
   StoreGateSvc * detStore;
   StatusCode status = service("DetectorStore",detStore);
   if (status.isFailure()) {
-    msg(MSG::FATAL) << "DetectorStore service not found !" << endmsg; 
+    ATH_MSG_FATAL( "DetectorStore service not found !"  );
   } else {
-    msg(MSG::INFO) << "DetectorStore service found !" << endmsg; 
+    ATH_MSG_VERBOSE( "DetectorStore service found !"  );
     
   }
   if(m_dcsInfofromCool)
@@ -55,41 +55,41 @@ StatusCode RPC_DCSConditionsSvc::initialize()
       if ( sc.isFailure() )
 	{
 	  
-	  msg(MSG::ERROR) << "Could not retrieve RPC_DCSConditionsTool" << endmsg;
+	  ATH_MSG_ERROR( "Could not retrieve RPC_DCSConditionsTool"  );
 	}
       else
 	{
 	  
-	  msg(MSG::INFO)<<"RPC_DCSConditionsTool retrieved with statusCode = "<<sc<<" pointer = "<<m_condDataTool<<endmsg;
+	  ATH_MSG_VERBOSE("RPC_DCSConditionsTool retrieved with statusCode = "<<sc<<" pointer = "<<m_condDataTool );
 	}
       std::vector<std::string> folderNames;
       folderNames.push_back((m_condDataTool)->PanelOffFolderName());
       folderNames.push_back((m_condDataTool)->PanelDeadFolderName());
      
-      msg(MSG::INFO)<<"Register call-back  against "<<folderNames.size()<<" folders listed below "<<endmsg;
+      ATH_MSG_VERBOSE("Register call-back  against "<<folderNames.size()<<" folders listed below " );
       //   bool aFolderFound = false;
       short ic=0;
       for (std::vector<std::string>::const_iterator ifld =folderNames.begin(); ifld!=folderNames.end(); ++ifld )
 	{
 	  ++ic;
-	  msg(MSG::INFO)<<" Folder n. "<<ic<<" <"<<(*ifld)<<">";
+	  ATH_MSG_VERBOSE(" Folder n. "<<ic<<" <"<<(*ifld)<<">" );
 	  if (detStore->contains<CondAttrListCollection>(*ifld)) {
 	    //    aFolderFound=true;
-	    msg(MSG::INFO)<<"     found in the DetStore"<<endmsg;
+	    ATH_MSG_VERBOSE("     found in the DetStore" );
 	    const DataHandle<CondAttrListCollection> RPCDCSData;
 	    if (detStore->regFcn(&IRPC_DCSConditionsSvc::initInfo,
 				 dynamic_cast<IRPC_DCSConditionsSvc *>(this),
 				 RPCDCSData,
 				 *ifld)!=StatusCode::SUCCESS)
 	      {
-		msg(MSG::WARNING)<<"Unable to register call back for initDCSInfo against folder <"<<(*ifld)<<">";
+		ATH_MSG_WARNING("Unable to register call back for initDCSInfo against folder <"<<(*ifld)<<">" );
 	      }
-	    else msg(MSG::INFO)<<"initDCSInfo registered for call-back against folder <"<<(*ifld)<<">"<<endmsg;
+	    else ATH_MSG_VERBOSE("initDCSInfo registered for call-back against folder <"<<(*ifld)<<">" );
 	  }
 	  else
 	    {   
-	      msg(MSG::WARNING)<<"Folder "<<(*ifld)
-			       <<" NOT found in the DetStore --- failing to init ???"<<endmsg;
+	      ATH_MSG_WARNING("Folder "<<(*ifld)
+                              <<" NOT found in the DetStore --- failing to init ???" );
 	    }
 	}
     }
@@ -100,7 +100,7 @@ StatusCode RPC_DCSConditionsSvc::initialize()
 StatusCode RPC_DCSConditionsSvc::finalize()
 {
   
-  msg(MSG::INFO) << "Finalize" << endmsg;
+  ATH_MSG_VERBOSE( "Finalize"  );
   return StatusCode::SUCCESS;
 }
 
@@ -124,8 +124,8 @@ StatusCode RPC_DCSConditionsSvc::queryInterface(const InterfaceID& riid, void** 
 
 StatusCode RPC_DCSConditionsSvc::initInfo(IOVSVC_CALLBACK_ARGS_P(I,keys))
 {
-  msg(MSG::INFO)<<"initDCSInfo has been called"<<endmsg;
-  msg(MSG::INFO)<<"ToolHandle in initMappingModel - <"<<m_condDataTool<<">"<<endmsg;
+  ATH_MSG_VERBOSE("initDCSInfo has been called" );
+  ATH_MSG_VERBOSE("ToolHandle in initMappingModel - <"<<m_condDataTool<<">" );
   
   if(m_dcsInfofromCool)
     {
@@ -133,7 +133,7 @@ StatusCode RPC_DCSConditionsSvc::initInfo(IOVSVC_CALLBACK_ARGS_P(I,keys))
       StatusCode sc = m_condDataTool->loadParameters(I, keys);
       if (sc.isFailure())
 	{
-	  msg(MSG::WARNING)<<"Reading DCS from COOL failed; NO RPC DCS INFO AVAILABLE"<<endmsg;
+	  ATH_MSG_WARNING("Reading DCS from COOL failed; NO RPC DCS INFO AVAILABLE" );
 	}
       
     }
@@ -159,7 +159,7 @@ const std::vector<Identifier>& RPC_DCSConditionsSvc::deadPanelId() const{
   
   unsigned int size_new =m_condDataTool->deadPanelId().size();
   
-  msg(MSG::VERBOSE)<<"DCS SERVICE: Number of DEAD Panel: "<<size_new <<endmsg;
+  ATH_MSG_VERBOSE("DCS SERVICE: Number of DEAD Panel: "<<size_new  );
   
   //std::cout<<"DCS SERVICE: Number of DEAD Panel: "<<size_new <<std::endl;
   
@@ -168,14 +168,14 @@ const std::vector<Identifier>& RPC_DCSConditionsSvc::deadPanelId() const{
 }
 const std::vector<Identifier>& RPC_DCSConditionsSvc::EffPanelId() const{
   
-  msg(MSG::VERBOSE)<<"DCS SERVICE: RPC  Eff PANEL NOT AVAILABLE: "<<endmsg;
+  ATH_MSG_VERBOSE("DCS SERVICE: RPC  Eff PANEL NOT AVAILABLE: " );
   
   return m_cachedeffPanelId;
 }
 
 const std::vector<Identifier>& RPC_DCSConditionsSvc::EffStripId() const{
   
-  msg(MSG::VERBOSE)<<"DCS SERVICE: RPC  Eff STRIP NOT AVAILABLE: "<<endmsg;
+  ATH_MSG_VERBOSE("DCS SERVICE: RPC  Eff STRIP NOT AVAILABLE: " );
   
   return m_cachedeffStripId;
 }
@@ -186,7 +186,7 @@ const std::vector<Identifier>& RPC_DCSConditionsSvc::offPanelId() const{
   
   unsigned int size_new =m_condDataTool->offPanelId().size();
   
-  msg(MSG::VERBOSE)<<"DCS SERVICE: Number of OFF Panel: "<<size_new <<endmsg;
+  ATH_MSG_VERBOSE("DCS SERVICE: Number of OFF Panel: "<<size_new  );
   //std::cout<<"DCS SERVICE: Number of OFF Panel: "<<size_new <<std::endl;
   
   
@@ -199,7 +199,7 @@ const std::vector<Identifier>& RPC_DCSConditionsSvc::offPanelId() const{
 const std::map<Identifier,double>& RPC_DCSConditionsSvc::RPC_EfficiencyMap(){
 static  std::map<Identifier ,double> s_RPCCondSummarySvc_RPC_PanelEfficiencyMap_empty;
  s_RPCCondSummarySvc_RPC_PanelEfficiencyMap_empty.clear(); 
-  msg(MSG::VERBOSE)<<"Efficiency Map per RPC panel"<<endmsg;
+ ATH_MSG_VERBOSE("Efficiency Map per RPC panel" );
  
   return s_RPCCondSummarySvc_RPC_PanelEfficiencyMap_empty;
 }
@@ -207,7 +207,7 @@ const std::map<Identifier,double>& RPC_DCSConditionsSvc::RPC_EfficiencyGapMap(){
 static  std::map<Identifier ,double> s_RPCCondSummarySvc_RPC_GapEfficiencyMap_empty;
  
   s_RPCCondSummarySvc_RPC_GapEfficiencyMap_empty.clear(); 
-  msg(MSG::VERBOSE)<<"EfficiencyGap Map per RPC panel"<<endmsg;
+  ATH_MSG_VERBOSE("EfficiencyGap Map per RPC panel" );
  
   return s_RPCCondSummarySvc_RPC_GapEfficiencyMap_empty;
 }
@@ -217,7 +217,7 @@ const std::map<Identifier,double>& RPC_DCSConditionsSvc::RPC_MeanClusterSizeMap(
  static  std::map<Identifier ,double> s_RPCCondSummarySvc_RPC_PanelMeanClusterSizeMap_empty;
 
   s_RPCCondSummarySvc_RPC_PanelMeanClusterSizeMap_empty.clear();
-  msg(MSG::VERBOSE)<<"MeanClusterSize Map per RPC panel"<<endmsg;
+  ATH_MSG_VERBOSE("MeanClusterSize Map per RPC panel" );
  
   return s_RPCCondSummarySvc_RPC_PanelMeanClusterSizeMap_empty;
 }
@@ -227,7 +227,7 @@ const std::map<Identifier,double>& RPC_DCSConditionsSvc::RPC_FracClusterSize1Map
 static  std::map<Identifier ,double> s_RPCCondSummarySvc_RPC_PanelFracClusterSize1Map_empty;
  
   s_RPCCondSummarySvc_RPC_PanelFracClusterSize1Map_empty.clear(); 
-  msg(MSG::VERBOSE)<<"FracClusterSize1 Map per RPC panel"<<endmsg;
+  ATH_MSG_VERBOSE("FracClusterSize1 Map per RPC panel" );
  
   return s_RPCCondSummarySvc_RPC_PanelFracClusterSize1Map_empty;
 }
@@ -237,7 +237,7 @@ const std::map<Identifier,double>& RPC_DCSConditionsSvc::RPC_FracClusterSize2Map
 static  std::map<Identifier ,double> s_RPCCondSummarySvc_RPC_PanelFracClusterSize2Map_empty;
  
   s_RPCCondSummarySvc_RPC_PanelFracClusterSize2Map_empty.clear();
-  msg(MSG::VERBOSE)<<"FracClusterSize2 Map per RPC panel"<<endmsg;
+  ATH_MSG_VERBOSE("FracClusterSize2 Map per RPC panel" );
  
   return s_RPCCondSummarySvc_RPC_PanelFracClusterSize2Map_empty;
 }
@@ -246,7 +246,7 @@ const std::map<Identifier,double>& RPC_DCSConditionsSvc::RPC_FracClusterSize3Map
 static  std::map<Identifier ,double> s_RPCCondSummarySvc_RPC_PanelFracClusterSize3Map_empty;
  
   s_RPCCondSummarySvc_RPC_PanelFracClusterSize3Map_empty.clear();
-  msg(MSG::VERBOSE)<<"FracClusterSize3 Map per RPC panel"<<endmsg;
+  ATH_MSG_VERBOSE("FracClusterSize3 Map per RPC panel" );
  
   return s_RPCCondSummarySvc_RPC_PanelFracClusterSize3Map_empty;
 }
@@ -255,7 +255,7 @@ const std::map<Identifier,std::string>& RPC_DCSConditionsSvc::RPC_DeadStripListM
  static  std::map<Identifier ,std::string> s_RPCCondSummarySvc_RPC_PanelDeadStripListMap_empty;
 
   s_RPCCondSummarySvc_RPC_PanelDeadStripListMap_empty.clear();
-  msg(MSG::VERBOSE)<<"DeadStripList Map per RPC panel"<<endmsg;
+  ATH_MSG_VERBOSE("DeadStripList Map per RPC panel" );
  
   return s_RPCCondSummarySvc_RPC_PanelDeadStripListMap_empty;
 }
@@ -265,7 +265,7 @@ const std::map<Identifier,float>& RPC_DCSConditionsSvc::RPC_FracDeadStripMap(){
 static  std::map<Identifier ,float> s_RPCCondSummarySvc_RPC_PanelFracDeadStripMap_empty;
 
   s_RPCCondSummarySvc_RPC_PanelFracDeadStripMap_empty.clear(); 
-  msg(MSG::VERBOSE)<<"FracDeadStrip Map per RPC panel"<<endmsg;
+  ATH_MSG_VERBOSE("FracDeadStrip Map per RPC panel" );
  
   return s_RPCCondSummarySvc_RPC_PanelFracDeadStripMap_empty;
 }
@@ -274,7 +274,7 @@ const std::map<Identifier,int>& RPC_DCSConditionsSvc::RPC_ProjectedTracksMap(){
 static  std::map<Identifier ,int> s_RPCCondSummarySvc_RPC_PanelProjectedTracksMap_empty;
 
   s_RPCCondSummarySvc_RPC_PanelProjectedTracksMap_empty.clear(); 
-  msg(MSG::VERBOSE)<<"ProjectedTracks Map per RPC panel"<<endmsg;
+  ATH_MSG_VERBOSE("ProjectedTracks Map per RPC panel" );
  
   return s_RPCCondSummarySvc_RPC_PanelProjectedTracksMap_empty;
 }
@@ -284,7 +284,7 @@ const std::map<Identifier,int>& RPC_DCSConditionsSvc::RPC_DeadStripList(){
 static  std::map<Identifier ,int> s_RPCCondSummarySvc_RPC_PanelDeadStripList_empty;
 
   s_RPCCondSummarySvc_RPC_PanelDeadStripList_empty.clear(); 
-  msg(MSG::VERBOSE)<<"DeadStripList per RPC panel"<<endmsg;
+  ATH_MSG_VERBOSE("DeadStripList per RPC panel" );
  
   return s_RPCCondSummarySvc_RPC_PanelDeadStripList_empty;
 }
@@ -293,7 +293,7 @@ const std::map<Identifier,std::vector<double> >& RPC_DCSConditionsSvc::RPC_TimeM
 static  std::map<Identifier ,std::vector<double> > s_RPCCondSummarySvc_RPC_StripTimeMap_empty;
 
   s_RPCCondSummarySvc_RPC_StripTimeMap_empty.clear(); 
-  msg(MSG::VERBOSE)<<"StripTimeMap per RPC panel"<<endmsg;
+  ATH_MSG_VERBOSE("StripTimeMap per RPC panel" );
  
   return s_RPCCondSummarySvc_RPC_StripTimeMap_empty;
 }

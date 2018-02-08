@@ -223,7 +223,7 @@ TrackStateOnSurface::isSane() const {
   }
   
   if (surfacesDiffer){
-    std::cerr<<"TrackStateOnSurface::isSane. Surfaces differ! "<<std::endl;;
+    std::cerr<<"TrackStateOnSurface::isSane. Surfaces differ! "<<std::endl;
     if (m_trackParameters) std::cerr<<"ParamSurf: ["<<&(m_trackParameters->associatedSurface())<<"] "<<m_trackParameters->associatedSurface()<<std::endl;
     if (m_measurementOnTrack) std::cerr<<"measSurf: ["<<&(m_measurementOnTrack->associatedSurface())<<"] "<<m_measurementOnTrack->associatedSurface()<<std::endl;
     if (m_materialEffectsOnTrack) std::cerr<<"matSurf: ["<<&(m_materialEffectsOnTrack->associatedSurface())<<"] "<<m_materialEffectsOnTrack->associatedSurface()<<std::endl;
