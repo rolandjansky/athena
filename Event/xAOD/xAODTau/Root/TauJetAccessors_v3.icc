@@ -200,6 +200,9 @@ break;
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, PFOEngRelDiff );
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, LC_pantau_interpolPt );
 
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, UpsilonCluster );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, LeadClusterFrac );
+
     default:
       std::cerr << "xAOD::TauJetParameters ERROR Unknown float detail ("
 		<< detail << ") requested" << std::endl;

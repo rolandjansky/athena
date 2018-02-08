@@ -28,6 +28,7 @@ from TrigMuonEF.TrigMuonEFConfig import (TrigMuonEFTrackIsolationConfig,
                                          TrigMuonEFIDTrackRoiMakerConfig)
 
 from TrigMuonHypo.TrigMuonHypoConfig import (TrigMuonEFTrackIsolationHypoConfig,
+                                             TrigMuonEFTrackIsolationMultiHypoConfig,
                                              TrigMuonEFCombinerHypoConfig,
                                              TrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig,
                                              TrigMuonEFCaloIsolationHypoConfig)
@@ -467,8 +468,18 @@ class L2EFChain_mu(L2EFChainDef):
                                  [theTrigMuonEFTrackIsolationHypoConfig],
                                  'EF_mu_hypo3']]
       elif self.chainPart['isoInfo'] == "ivarloose" or self.chainPart['isoInfo'] == "ivarmedium" or self.chainPart['isoInfo'] == "ivartight" or self.chainPart['isoInfo'] == "ivarverytight" or self.chainPart['isoInfo'] == "ivarloosecalo" or self.chainPart['isoInfo'] == "ivarmediumcalo":
+        # we activate the track selection by the trigger name
+        isoAlgoName = "TrigMuonEFTrackIsolationVar"
+        if 'tsloose' in self.chainPart['addInfo']:
+          isoAlgoName = isoAlgoName + 'LooseTSel'
+        elif 'tstight' in self.chainPart['addInfo']:
+          isoAlgoName = isoAlgoName + 'TightTSel'
+        
+        if 'z2mm' in self.chainPart['addInfo']:
+          isoAlgoName = isoAlgoName + 'z2mm'
+  
         self.EFsequenceList += [[['EF_mu_step3'],
-                                 [TrigMuonEFTrackIsolationVarConfig("TrigMuonEFTrackIsolationVar")],
+                                 [TrigMuonEFTrackIsolationVarConfig(isoAlgoName)],
                                  'EF_mu_step4']]
         self.EFsequenceList += [[['EF_mu_step4'],
                                  [theTrigMuonEFTrackIsolationHypoConfig],
@@ -1169,7 +1180,33 @@ class L2EFChain_mu(L2EFChainDef):
       hypocutEF="MultiComb"     
       for i in range(0,len(self.allMuThrs)):        
         hypocutEF +=  "_%s" %(self.allMuThrs[i])
-
+    run_isolation = False
+    if self.chainPart['isoInfo'] == "ivarloose" or self.chainPart['isoInfo'] == "ivarmedium" or self.chainPart['isoInfo'] == "ivartight" or self.chainPart['isoInfo'] == "ivarverytight" or self.chainPart['isoInfo'] == "ivarloosecalo" or self.chainPart['isoInfo'] == "ivarmediumcalo":
+      run_isolation = True
+      [_, trkiso, _] = TrigInDetSequence("Muon", "muon", "IDTrig", sequenceFlavour=["2step"]).getSequence()
+      if self.chainPart['isoInfo'] == "iloose":
+        theTrigMuonEFTrackIsolationMultiHypoConfig = TrigMuonEFTrackIsolationMultiHypoConfig("Muon","RelEFOnlyMedium", self.allMuThrs)
+      elif self.chainPart['isoInfo'] == "imedium":
+        theTrigMuonEFTrackIsolationMultiHypoConfig = TrigMuonEFTrackIsolationMultiHypoConfig("Muon","RelEFOnlyTightWide")
+      elif self.chainPart['isoInfo'] == "ivarloose":
+        theTrigMuonEFTrackIsolationMultiHypoConfig = TrigMuonEFTrackIsolationMultiHypoConfig("Muon","RelEFOnlyVarMedium")
+      elif self.chainPart['isoInfo'] == "ivarmedium":
+        theTrigMuonEFTrackIsolationMultiHypoConfig = TrigMuonEFTrackIsolationMultiHypoConfig("Muon","RelEFOnlyVarTightWide", self.allMuThrs)
+      elif self.chainPart['isoInfo'] == "ivartight":
+        theTrigMuonEFTrackIsolationMultiHypoConfig = TrigMuonEFTrackIsolationMultiHypoConfig("Muon","RelEFOnlyVarTighterWide")
+      elif self.chainPart['isoInfo'] == "ivarverytight":
+        theTrigMuonEFTrackIsolationMultiHypoConfig = TrigMuonEFTrackIsolationMultiHypoConfig("Muon","RelEFOnlyVarVeryTightWide")
+      else:
+        log.error("Isolation %s not yet supported." % (self.chainPart['isoInfo']))
+        return False
+      if (("ds1" in self.chainPart['addInfo'])):
+        chainPartNameNoMultNoDS = self.chainPartNameNoMult.replace('_ds1', '')
+      elif (("ds2" in self.chainPart['addInfo'])):
+        chainPartNameNoMultNoDS = self.chainPartNameNoMult.replace('_ds2', '')
+      elif ("ds3" in self.chainPart['addInfo']): 
+        chainPartNameNoMultNoDS = self.chainPartNameNoMult.replace('_ds3', '') 
+      else:
+        chainPartNameNoMultNoDS = self.chainPartNameNoMult
 
     ########### Sequence List ##############
     if 'msonly' in self.chainPart['reccalibInfo']:
@@ -1208,9 +1245,23 @@ class L2EFChain_mu(L2EFChainDef):
                                [TrigMuonEFRoiAggregatorConfig('TrigMuonEFFSRoiAggregator')],
                                'EF_CB_ROI']]
       self.EFsequenceList += [['EF_CB_ROI',
-                                [theTrigMuonEFCombinerMultiHypoConfig],
+                               [theTrigMuonEFCombinerMultiHypoConfig],
                                'EF_CB_FS']]
-
+      if run_isolation:
+        self.EFsequenceList += [['EF_CB_FS_single',
+                                 trkiso,
+                                 'EF_ID_FS']]
+        self.EFsequenceList += [['EF_ID_FS',
+                                 [TrigMuonEFRoiAggregatorConfig('TrigMuonEFFSRoiAggregator')],
+                                 'EF_ID_FS_single']]
+        isoAlgoName = "TrigMuonEFTrackIsolationVar"
+        self.EFsequenceList += [[['EF_ID_FS_single'],
+                                 [TrigMuonEFTrackIsolationVarConfig(isoAlgoName)],
+                                 'EF_ISO_FS']]
+        self.EFsequenceList += [[['EF_ISO_FS'],
+                                 [theTrigMuonEFTrackIsolationMultiHypoConfig],
+                                 'EF_ISO_HYPO']]
+        
     ########### Signatures ###########
       
     self.EFsignatureList += [ [['EF_dummy']] ]
@@ -1222,7 +1273,11 @@ class L2EFChain_mu(L2EFChainDef):
       self.EFsignatureList += [ [['EF_CB_FS_single']] ]
       self.EFsignatureList += [ [['EF_CB_ROI']] ]
       self.EFsignatureList += [ [['EF_CB_FS','EF_SA_FS2']] ]
-
+      if run_isolation:
+        self.EFsignatureList += [ [['EF_ID_FS']] ]
+        self.EFsignatureList += [ [['EF_ID_FS_single']] ]
+        self.EFsignatureList += [ [['EF_ISO_FS']] ]
+        self.EFsignatureList += [ [['EF_ISO_HYPO']] ]
     ########### TE renaming ##########
 
     if 'msonly' in self.chainPart['reccalibInfo']:
@@ -1237,12 +1292,15 @@ class L2EFChain_mu(L2EFChainDef):
         'EF_SAR_FS': mergeRemovingOverlap('EF_SAR_FS_','SAFSHypo'),
         'EF_FStracksMuon': mergeRemovingOverlap('EF_FStracksMuon_', 'SAFSHypo'),
         'EF_CB_FS_single': mergeRemovingOverlap('EF_CB_FS_single_','SAFSHypo'), 
-        'EF_CB_ROI': mergeRemovingOverlap('EF_CB_ROI_','SAFSRoi'), 
-        'EF_CB_FS': mergeRemovingOverlap('EF_CB_FS_', 'SAFSHypo'+hypocut+'_'+hypocutEF),
-
       }
-
-
+      self.TErenamingDict['EF_CB_ROI'] = mergeRemovingOverlap('EF_CB_ROI_','SAFSRoi')
+      self.TErenamingDict['EF_CB_FS'] = mergeRemovingOverlap('EF_CB_FS_', 'SAFSHypo'+hypocut+'_'+hypocutEF)
+      if run_isolation:
+        self.TErenamingDict['EF_ID_FS_single'] = mergeRemovingOverlap('EF_trkIso_', chainPartNameNoMultNoDS+'EFFSID')
+        self.TErenamingDict['EF_ID_FS'] = mergeRemovingOverlap('EF_ID_FS_', 'SAFSHypo'+hypocut+'_'+hypocutEF + "_ID")
+        self.TErenamingDict['EF_ISO_FS'] = mergeRemovingOverlap('EF_ISO_FS_', chainPartNameNoMultNoDS+'EFFSISO')
+        self.TErenamingDict['EF_ISO_HYPO'] = mergeRemovingOverlap('EF_ISO_FS_', chainPartNameNoMultNoDS+'EFFSISOHypo')
+      
  #################################################################################################
   #################################################################################################
   def setup_muXX_noL1FTK(self):

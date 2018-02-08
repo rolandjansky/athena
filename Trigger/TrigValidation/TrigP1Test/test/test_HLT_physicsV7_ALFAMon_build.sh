@@ -8,20 +8,17 @@
 # art-include: 21.0-TrigMC/AthenaP1
 # art-include: master/AthenaP1
 
-if [ -z ${JOB_LOG} ]; then
-  export JOB_LOG="athena.log"
-fi
-
 if [ -z ${TEST} ]; then
   export TEST="TrigP1Test"
 fi
 
-export JOB_LOG="HLT_physicsV7_ALFAMon.log"
+export NAME=HLT_physicsV7_ALFAMon
+export JOB_LOG="${NAME}.log"
 
-timeout 20m trigtest.pl --cleardir --test HLT_physicsV7_ALFAMon --rundir HLT_physicsV7_ALFAMon --conf TrigP1Test_ART.conf | tee ${JOB_LOG}
+timeout 20m trigtest_ART.pl --cleardir --test ${NAME} --rundir ${NAME} --conf TrigP1Test_ART.conf | tee ${JOB_LOG}
 
 ATH_RETURN=${PIPESTATUS[0]}
-echo "art-result: ${ATH_RETURN} ${JOB_LOG%%.*}"
+echo "art-result: ${ATH_RETURN} ${NAME}"
 
 
 
