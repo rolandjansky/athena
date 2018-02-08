@@ -397,9 +397,6 @@ std::vector< TrigBtagEmulationJet* >& JetManager::getJets() { return m_outputJet
 JetManager& JetManager::operator+=(const JetManager& other) { return merge(other.m_jet_Containers); }
 JetManager& JetManager::merge(const std::vector<const xAOD::Jet*>& jets, double minPt, double maxPt) {
   for (auto & jet : jets) {
-    std::unique_ptr< TrigBtagEmulationJet > backupJet2( new TrigBtagEmulationJet( jet ) );
-    backupJet2->weights( "MV2c10" ,-1 );
-
     TrigBtagEmulationJet *backupJet = new TrigBtagEmulationJet( jet );
     backupJet->weights( "MV2c10" ,-1 );
     backupJet->weights( "MV2c20" ,-1 );
