@@ -7,8 +7,18 @@ from JetSequencesBuilder import (AlgList,
                                  JetSequencesBuilder)
 
 print 'importing modules (slow!)'
+# from AthenaCommon.Include import include
+# from AthenaCommon.OldStyleConfig import  Service
+
+# start - junk code to stop unit tests complaining about unused imports
 from AthenaCommon.Include import include
+include('include_dummy.py')
 from AthenaCommon.OldStyleConfig import  Service
+try:
+    Service('')
+except:
+    pass
+# end - junk code to stop unit tests complaining about unused imports
 
 class Alg(object):
     pass

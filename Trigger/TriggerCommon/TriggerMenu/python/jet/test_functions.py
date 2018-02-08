@@ -14,7 +14,7 @@ def _generate(d, silent):
     cd  = generateChainDefs(d)
     sys.settrace(None)
 
-    if silent: controller.on()
+    # if silent: controller.on()
 
     return cd
 
@@ -173,7 +173,17 @@ if __name__ == '__main__':
 
     print 'importing modules (slow!)'
     from AthenaCommon.Include import include
+
+    # start - junk code to stop unit tests complaining about unused imports
+    include('include_dummy.py')
     from AthenaCommon.OldStyleConfig import  Service
+    try:
+        Service('')
+    except:
+        pass
+    # end - junk code to stop unit tests complaining about unused imports
+
+    
     # from StdOutController import StdOutController
     # import importlib
 
