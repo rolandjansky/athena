@@ -117,7 +117,6 @@ if __name__=="__main__":
     cfg.getEventAlgo("CaloTopoCluster").ClustersOutputName="CaloCalTopoClustersNew" 
     cfg.getEventAlgo("CaloTopoCluster").OutputLevel=7
 
-    cfg.printConfig()
 
     f=open("CaloTopoCluster.pkl","w")
     cfg.store(f)
