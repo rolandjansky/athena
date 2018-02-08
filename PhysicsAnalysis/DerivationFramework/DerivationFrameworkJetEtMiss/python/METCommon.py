@@ -107,7 +107,7 @@ def scheduleMETCustomVertex(vxColl,jetcoll='AntiKt4EMTopo',
                AssocConfig('Tau'),
                AssocConfig('Soft')]
     
-    modConstKey="OriginCorr",
+    modConstKey="OriginCorr"
     modClusColls={
         'LCOriginCorrClusters':'LCOriginTopoClusters',
         'EMOriginCorrClusters':'EMOriginTopoClusters'
