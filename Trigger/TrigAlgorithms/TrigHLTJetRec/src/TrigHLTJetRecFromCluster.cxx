@@ -27,38 +27,6 @@ TrigHLTJetRecFromCluster::TrigHLTJetRecFromCluster(const std::string& name,
 
 TrigHLTJetRecFromCluster::~TrigHLTJetRecFromCluster(){}
 
-<<<<<<< HEAD
-HLT::ErrorCode
-TrigHLTJetRecFromCluster::retrieveSecondaryPseudoJetGetter(){
-  
-     ATH_MSG_INFO("Retrieving track pseudojet getter...");
-	if  (m_secondarypseudoJetGetter.retrieve().isSuccess()){
-      		ATH_MSG_INFO("Retrieved  secondary PseudoJetGetter "
-                   <<  m_secondarypseudoJetGetter->name());
-  	} else {
-    		ATH_MSG_INFO("Unable to retrieve secondary PseudoJetGetter");
-    		return HLT::ERROR;
-  	}
- 
-  return HLT::OK;
-}
-=======
-//HLT::ErrorCode
-//TrigHLTJetRecFromCluster::retrieveSecondaryPseudoJetGetter(){
-//  
-//	ATH_MSG_DEBUG("Retrieving track pseudojet getter...");
-//	if  (m_secondarypseudoJetGetter.retrieve().isSuccess()){
-//      		ATH_MSG_DEBUG("Retrieved  secondary PseudoJetGetter "
-//                   <<  m_secondarypseudoJetGetter->name());
-//  	} else {
-//    		ATH_MSG_DEBUG("Unable to retrieve secondary PseudoJetGetter");
-//    		return HLT::ERROR;
-//  	}
-// 
-//  return HLT::OK;
-//}
->>>>>>> changes that work.
-
 HLT::ErrorCode
 TrigHLTJetRecFromCluster::getPseudoJets(const xAOD::CaloClusterContainer* ic,
                                         jet::LabelIndex* indexMap,
@@ -107,12 +75,6 @@ TrigHLTJetRecFromCluster::checkforSecondaryPseudoJets(const HLT::TriggerElement*
                                         					){
   // checking if set up for retrieval of secondary pseudojets.
   //
-     	  if (m_scantype == "PS" ) {
- 			ATH_MSG_INFO("Scan type of PS. No ghost associations will be attempted.");
-			return HLT::OK;
-   	  }
-	  ATH_MSG_DEBUG("Of scan type FS: About to check if secondary pseudojetgetter label exists.");		
-	
           if ( secondaryLabelisEmpty() ) {
 		ATH_MSG_DEBUG("No secondary label. Will not attempt to retrieve secondary pseudojets.");
 		return HLT::OK;
@@ -197,7 +159,11 @@ TrigHLTJetRecFromCluster::getSecondaryPseudoJets(const HLT::TriggerElement* inpu
 HLT::ErrorCode
 TrigHLTJetRecFromCluster::loadSecondaryPseudoJets(
                                         PseudoJetVector& pjvtracks){
-        ATH_MSG_INFO("Loading secondary pseudo jets into getter...");
+        ATH_MSG_DEBUG("Loading secondary pseudo jets into getter...");
+	if ( m_secondarypseudoJetGetter == NULL ) {
+		ATH_MSG_ERROR("Something went wrong, the secondary PseudoJetGetter is not set.");
+		return HLT::ERROR;
+	}
 	m_secondarypseudoJetGetter->prime(&pjvtracks);
 	m_secondarypseudoJetGetter->print();
     

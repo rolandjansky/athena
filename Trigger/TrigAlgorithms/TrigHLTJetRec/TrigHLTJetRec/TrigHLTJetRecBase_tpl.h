@@ -72,9 +72,9 @@ HLT::ErrorCode TrigHLTJetRecBase<InputContainer>::hltInitialize() {
     return HLT::ERROR;
   }
 
-   ATH_MSG_DEBUG("checking secondary label for track pseudojet getter...");
+   ATH_MSG_DEBUG("checking secondary label for secondary pseudojet getter...");
    if ( !secondaryLabelisEmpty() ){
-	ATH_MSG_DEBUG("Retrieving track pseudojet getter...");
+	ATH_MSG_DEBUG("Retrieving secondary pseudojet getter...");
 	if  (m_secondarypseudoJetGetter.retrieve().isSuccess()){
       		ATH_MSG_DEBUG("Retrieved  secondary PseudoJetGetter "
                    <<  m_secondarypseudoJetGetter->name());
@@ -83,17 +83,9 @@ HLT::ErrorCode TrigHLTJetRecBase<InputContainer>::hltInitialize() {
     		return HLT::ERROR;
   	}
    }
-//  if ( m_secondarylabel!=""){
-//	ATH_MSG_DEBUG("about to retrieve secondary pseudojetgetter, because label is "<<m_secondarylabel);
-//	auto sc_secondpjs = this -> retrieveSecondaryPseudoJetGetter();
-//	if (sc_secondpjs == HLT::OK ) ATH_MSG_INFO("Succesfully retrieved psj getter.");
-//	else {
-//		ATH_MSG_ERROR("Something went wrong in retrieving the secondary pseudojet getter. secondary label set to "<<m_secondarylabel);
-//		return HLT::ERROR;
-//	}
-//  }
-//  else ATH_MSG_DEBUG("secondary label is "<<m_secondarylabel<<". will not attempt to retrieve secondary psj getter.");
-//
+   else {
+	ATH_MSG_DEBUG("No secondary PseudojetGetter required. Will disable the tool handle.");
+   }
 
   ATH_MSG_INFO("Tool retrieval completed.");
 
@@ -328,13 +320,6 @@ TrigHLTJetRecBase<InputContainer>::checkforSecondaryPseudoJets(
   ATH_MSG_INFO("No actions for loading of secondary pseudojets as input not of type calo cluster.");
   return HLT::OK;
 }
-
-//template<typename InputContainer>
-//HLT::ErrorCode
-//TrigHLTJetRecBase<InputContainer>::retrieveSecondaryPseudoJetGetter() {
-//  ATH_MSG_DEBUG("No actions for loading of secondary pseudojets as input not of type calo cluster.");
-//  return HLT::OK;
-//}
 
 template<typename InputContainer>
 const xAOD::JetContainer*
