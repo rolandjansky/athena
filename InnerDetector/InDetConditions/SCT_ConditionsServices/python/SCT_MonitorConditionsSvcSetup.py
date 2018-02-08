@@ -11,6 +11,7 @@ class SCT_MonitorConditionsSvcSetup:
         self.alg = None
         self.svcName = "SCT_MonitorConditionsSvc"
         self.svc = None
+        self.outputLevel = None
 
     def getFolder(self):
         return self.folder
@@ -53,11 +54,24 @@ class SCT_MonitorConditionsSvcSetup:
         from AthenaCommon.AppMgr import ServiceMgr
         if not hasattr(ServiceMgr, self.svcName):
             from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_MonitorConditionsSvc
-            ServiceMgr += SCT_MonitorConditionsSvc(name = self.svcName)
+            if self.outputLevel is None:
+                ServiceMgr += SCT_MonitorConditionsSvc(name = self.svcName)
+            else:
+                ServiceMgr += SCT_MonitorConditionsSvc(name = self.svcName,
+                                                       OutputLevel = self.outputLevel)
         self.svc = getattr(ServiceMgr, self.svcName)
 
     def getSvc(self):
         return self.svc
+
+    def setSvcName(self, svcName):
+        self.svcName = svcName
+
+    def getSvcName(self):
+        return self.svcName
+
+    def setOutputLevel(self, outputLevel):
+        self.outputLevel = outputLevel
 
     def setup(self):
         self.setFolders()

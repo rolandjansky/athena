@@ -365,20 +365,11 @@ class SCT_ConditionsServicesSetup:
 
   def initMonitorSvc(self, instanceName):
     "Init monitoring conditions service"
-    
-    if hasattr(self.svcMgr,instanceName):
-      monitorSvc = getattr(self.svcMgr, instanceName); 
-    else:        
-      from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_MonitorConditionsSvc
-      monitorSvc = SCT_MonitorConditionsSvc(name = instanceName)
-                                            #OutputLevel = INFO)
-      self.svcMgr += monitorSvc
-
+    from SCT_ConditionsServices.SCT_MonitorConditionsSvcSetup import sct_MonitorConditionsSvcSetup
+    sct_MonitorConditionsSvcSetup.setSvcName(instanceName)
+    sct_MonitorConditionsSvcSetup.setup()
+    monitorSvc = sct_MonitorConditionsSvcSetup.getSvc()
     self.summarySvc.ConditionsServices+=[instanceName]
-    
-    #if not self.condDB.folderRequested('/SCT/Derived/Monitoring'):
-    #  self.condDB.addFolder("SCT","/SCT/Derived/Monitoring")
-        
     return monitorSvc
 
   def initDcsSvc(self, instanceName):

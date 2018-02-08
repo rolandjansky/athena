@@ -223,15 +223,6 @@ if DetFlags.haveRIO.SCT_on():
     if not conddb.folderRequested(sctNoiseDefectFolder):
         conddb.addFolderSplitMC("SCT", sctNoiseDefectFolder, sctNoiseDefectFolder, className="CondAttrListCollection")
 
-    if not athenaCommonFlags.isOnline():
-        sctDerivedMonitoringFolder = '/SCT/Derived/Monitoring'
-        if not conddb.folderRequested(sctDerivedMonitoringFolder):
-            conddb.addFolder("SCT_OFL", sctDerivedMonitoringFolder, className="CondAttrListCollection")
-            if not hasattr(condSeq, "SCT_MonitorConditionsCondAlg"):
-                from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_MonitorConditionsCondAlg
-                condSeq += SCT_MonitorConditionsCondAlg(name = "SCT_MonitorConditionsCondAlg",
-                                                        ReadKey = sctDerivedMonitoringFolder)
-    
     # Load conditions summary service
     from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConditionsSummarySvc
     InDetSCT_ConditionsSummarySvc = SCT_ConditionsSummarySvc(name = "InDetSCT_ConditionsSummarySvc")
@@ -267,12 +258,12 @@ if DetFlags.haveRIO.SCT_on():
     
     # Load conditions Monitoring service
     if not athenaCommonFlags.isOnline():
-        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_MonitorConditionsSvc
-        InDetSCT_MonitorConditionsSvc = SCT_MonitorConditionsSvc(name          = "InDetSCT_MonitorConditionsSvc",
-                                                                 OutputLevel   = INFO)
-        ServiceMgr += InDetSCT_MonitorConditionsSvc
+        from SCT_ConditionsServices.SCT_MonitorConditionsSvcSetup import sct_MonitorConditionsSvcSetup
+        sct_MonitorConditionsSvcSetup.setSvcName("InDetSCT_MonitorConditionsSvc")
+        sct_MonitorConditionsSvcSetup.setOutputLevel(INFO)
+        sct_MonitorConditionsSvcSetup.setup()
         if (InDetFlags.doPrintConfigurables()):
-            print InDetSCT_MonitorConditionsSvc
+            print sct_MonitorConditionsSvcSetup.getSvc()
 
     if InDetFlags.doSCTModuleVeto():
       from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ModuleVetoSvc
@@ -345,7 +336,7 @@ if DetFlags.haveRIO.SCT_on():
                                                             "InDetSCT_ReadCalibDataSvc",
                                                             sct_TdaqEnabledSvcSetup.getSvcName()]
         if not athenaCommonFlags.isOnline():
-            InDetSCT_ConditionsSummarySvc.ConditionsServices += [ "InDetSCT_MonitorConditionsSvc" ]
+            InDetSCT_ConditionsSummarySvc.ConditionsServices += [ sct_MonitorConditionsSvcSetup.getSvcName() ]
 
         if InDetFlags.useSctDCS():
             InDetSCT_ConditionsSummarySvc.ConditionsServices += ["InDetSCT_DCSConditionsSvc"]
@@ -357,7 +348,7 @@ if DetFlags.haveRIO.SCT_on():
     else :
         InDetSCT_ConditionsSummarySvc.ConditionsServices= [ "InDetSCT_ConfigurationConditionsSvc",
                                                             "InDetSCT_FlaggedConditionSvc",
-                                                            "InDetSCT_MonitorConditionsSvc",
+                                                            sct_MonitorConditionsSvcSetup.getSvcName(),
                                                             "SCT_ByteStreamErrorsSvc",
                                                             "InDetSCT_ReadCalibDataSvc"]
 
