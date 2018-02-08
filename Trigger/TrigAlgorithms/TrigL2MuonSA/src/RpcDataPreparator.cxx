@@ -248,7 +248,7 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
        }         
      } else {
        ATH_MSG_ERROR("Null pointer to ActiveStore");
-       return StatusCode::FAILURE;;
+       return StatusCode::FAILURE;
      }
      // Get RPC collections
 

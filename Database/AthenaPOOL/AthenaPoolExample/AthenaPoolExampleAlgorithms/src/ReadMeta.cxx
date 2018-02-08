@@ -70,54 +70,56 @@ void ReadMeta::handle(const Incident& inc) {
    const std::string fileName = fileInc->fileName();
    ATH_MSG_DEBUG("handle() " << inc.type() << " for " << fileName);
 
-   if (inc.type() == "BeginInputFile") {
-      ATH_MSG_DEBUG("handle() saw BeginInputFile incident.");
-      if (m_pInputStore->contains<ExampleHitContainer>("PedestalWriteData")) {
-         std::list<SG::ObjectWithVersion<ExampleHitContainer> > allVersions;
-         if (m_pInputStore->retrieveAllVersions(allVersions, "PedestalWriteData").isFailure()) {
-            ATH_MSG_ERROR("Could not retrieve all versions for PedestalWriteData");
-            return;
-         }
-         //const ExampleHitContainer* ep;
-         ExampleHitContainer* ep_out = 0;
-         for (std::list<SG::ObjectWithVersion<ExampleHitContainer> >::const_iterator iter = allVersions.begin(); iter != allVersions.end(); iter++) {
-            const ExampleHitContainer* ep = iter->dataObject;
-            if (!m_pMetaDataStore->contains<ExampleHitContainer>("PedestalWriteData")) {
-               ep_out = new ExampleHitContainer();
-               const ExampleHit* entry = *ep->begin();
-               ExampleHit* entry_out = new ExampleHit();
-               entry_out->setX(entry->getX());
-               entry_out->setY(entry->getY());
-               entry_out->setZ(entry->getZ());
-               entry_out->setDetector(entry->getDetector());
-               ep_out->push_back(entry_out);
-               if (m_pMetaDataStore->record(ep_out, "PedestalWriteData").isFailure()) {
-                  ATH_MSG_ERROR("Could not record DataObject: PedestalWriteData");
-                  return;
-               }
-            } else {
-               if (m_pMetaDataStore->retrieve(ep_out, "PedestalWriteData").isFailure()) {
-                  ATH_MSG_ERROR("Could not find DataObject in output: PedestalWriteData");
-                  return;
-               }
-               const ExampleHit* entry = *ep->begin();
-               ExampleHit* entry_out = *ep_out->begin();
-               int weight = entry->getDetector().size() - 2;
-               int weight_out = entry_out->getDetector().size() - 2;
-               entry_out->setX((entry->getX() * weight + entry_out->getX() * weight_out) / (weight + weight_out));
-               entry_out->setY((entry->getY() * weight + entry_out->getY() * weight_out) / (weight + weight_out));
-               entry_out->setZ((entry->getZ() * weight + entry_out->getZ() * weight_out) / (weight + weight_out));
-               entry_out->setDetector(entry->getDetector().substr(0, entry->getDetector().size() - 1) + entry_out->getDetector().substr(1));
+}
+//__________________________________________________________________________
+StatusCode ReadMeta::beginInputFile()
+{
+   ATH_MSG_DEBUG("saw BeginInputFile incident.");
+   if (m_pInputStore->contains<ExampleHitContainer>("PedestalWriteData")) {
+      std::list<SG::ObjectWithVersion<ExampleHitContainer> > allVersions;
+      if (m_pInputStore->retrieveAllVersions(allVersions, "PedestalWriteData").isFailure()) {
+         ATH_MSG_ERROR("Could not retrieve all versions for PedestalWriteData");
+         return StatusCode::FAILURE;
+      }
+      //const ExampleHitContainer* ep;
+      ExampleHitContainer* ep_out = 0;
+      for (std::list<SG::ObjectWithVersion<ExampleHitContainer> >::const_iterator iter = allVersions.begin(); iter != allVersions.end(); iter++) {
+         const ExampleHitContainer* ep = iter->dataObject;
+         if (!m_pMetaDataStore->contains<ExampleHitContainer>("PedestalWriteData")) {
+            ep_out = new ExampleHitContainer();
+            const ExampleHit* entry = *ep->begin();
+            ExampleHit* entry_out = new ExampleHit();
+            entry_out->setX(entry->getX());
+            entry_out->setY(entry->getY());
+            entry_out->setZ(entry->getZ());
+            entry_out->setDetector(entry->getDetector());
+            ep_out->push_back(entry_out);
+            if (m_pMetaDataStore->record(ep_out, "PedestalWriteData").isFailure()) {
+               ATH_MSG_ERROR("Could not record DataObject: PedestalWriteData");
+               return StatusCode::FAILURE;
             }
-         }
-         if (ep_out != 0) {
-            for (ExampleHitContainer::const_iterator obj = ep_out->begin(); obj != ep_out->end(); obj++) {
-               ATH_MSG_INFO("Pedestal x = " << (*obj)->getX() << " y = " << (*obj)->getY() << " z = " << (*obj)->getZ() << " string = " << (*obj)->getDetector());
+         } else {
+            if (m_pMetaDataStore->retrieve(ep_out, "PedestalWriteData").isFailure()) {
+               ATH_MSG_ERROR("Could not find DataObject in output: PedestalWriteData");
+               return StatusCode::FAILURE;
             }
+            const ExampleHit* entry = *ep->begin();
+            ExampleHit* entry_out = *ep_out->begin();
+            int weight = entry->getDetector().size() - 2;
+            int weight_out = entry_out->getDetector().size() - 2;
+            entry_out->setX((entry->getX() * weight + entry_out->getX() * weight_out) / (weight + weight_out));
+            entry_out->setY((entry->getY() * weight + entry_out->getY() * weight_out) / (weight + weight_out));
+            entry_out->setZ((entry->getZ() * weight + entry_out->getZ() * weight_out) / (weight + weight_out));
+            entry_out->setDetector(entry->getDetector().substr(0, entry->getDetector().size() - 1) + entry_out->getDetector().substr(1));
          }
       }
-   } else if (inc.type() == "EndFile") {
-      ATH_MSG_DEBUG("handle() saw EndFile incident.");
+      if (ep_out != 0) {
+         for (ExampleHitContainer::const_iterator obj = ep_out->begin(); obj != ep_out->end(); obj++) {
+            ATH_MSG_INFO("Pedestal x = " << (*obj)->getX() << " y = " << (*obj)->getY() << " z = " << (*obj)->getZ() << " string = " << (*obj)->getDetector());
+         }
+      }
    }
+
+   return StatusCode::SUCCESS;
 }
 //__________________________________________________________________________

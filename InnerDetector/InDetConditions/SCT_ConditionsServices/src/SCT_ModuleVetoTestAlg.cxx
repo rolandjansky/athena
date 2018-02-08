@@ -31,7 +31,6 @@ SCT_ModuleVetoTestAlg::SCT_ModuleVetoTestAlg(const std::string& name, ISvcLocato
 
 SCT_ModuleVetoTestAlg::~SCT_ModuleVetoTestAlg()
 { 
-  ATH_MSG_INFO("Calling destructor");
 }
 
 //Initialize

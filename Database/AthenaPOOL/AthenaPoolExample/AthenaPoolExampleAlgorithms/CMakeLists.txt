@@ -155,38 +155,24 @@ _add_test( AthenaPoolExample_RWBs
 _add_test( AthenaPoolExample_ReadBs
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadBsJobOptions.py"
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_RWBs_ctest )
-# Read ByteStream via TAGs
-#_add_test( AthenaPoolExample_ReadBsTag
-#   "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadBsTagJobOptions.py"
-#   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReadBs_ctest
-#   PRE_EXEC test/pre_check.sh )
 
 # Read compressed ByteStream and write to APR/POOL
 _add_test( AthenaPoolExample_RWcBs
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_RWcBsJobOptions.py"
-#   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReadBsTag_ctest
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReadBs_ctest
    EXTRA_PATTERNS "Events to copy|Checking file|Created DataWriter|File:|Event index:|^Run:|Event ID:|^LumiBlock:|Wrote 3 events"
    PRE_EXEC test/pre_check.sh )
 _add_test( AthenaPoolExample_ReadcBs
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadBsJobOptions.py"
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_RWcBs_ctest )
-# Read compressed ByteStream via TAGs
-#_add_test( AthenaPoolExample_ReadcBsTag
-#   "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadBsTagJobOptions.py"
-#   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReadcBs_ctest
-#   POST_EXEC test/post_check.sh )
 
 # Testing 'Conditions' I/O
 _add_test( AthenaPoolExample_WCond
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_WCondJobOptions.py"
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReadcBs_ctest )
-_add_test( AthenaPoolExample_ACond
-   "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ACondJobOptions.py"
-   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_WCond_ctest )
 _add_test( AthenaPoolExample_RCond
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_RCondJobOptions.py"
-   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ACond_ctest )
+   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_WCond_ctest )
 
 # Testing 'Metadata' I/O
 _add_test( AthenaPoolExample_WMeta
@@ -210,16 +196,3 @@ _add_test( AthenaPoolExample_AppendFast
    "athena.py  AthenaPoolExampleAlgorithms/AthenaPoolExample_AppendFastJobOptions.py"
    EXTRA_PATTERNS "RootCollection DEBUG File|found catalog guid|from the catalog|DbContainer|Reading Shape|Reading Assoc|Reading Param|Adding Assoc|Adding Shape|#Elements|->ClassID:|Pushing back ref|Building shape|DataHeader|No objects passing|EventInfo|INFO Token|Class:unsigned int|EventStreamInfo|Class:Token|INFO unsigned int"
    DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_WriteFast_ctest )
-#_add_test( AthenaPoolExample_ReWriteFast
-#   "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_RWJobOptions.py"
-#   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_AppendFast_ctest )
-#_add_test( AthenaPoolExample_ReadFast
-#   "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_ReadJobOptions.py"
-#   DEPENDS AthenaPoolExampleAlgorithms_AthenaPoolExample_ReWriteFast_ctest )
-#_add_test( AthenaPoolExample_ReWriteTagFast
-#   "athena.py ./AthenaPoolExample_ReWriteTagFast.py"
-#   POST_EXEC test/post_check.sh )
-#_add_test( AthenaPoolExample_ReadTagFast
-#   "athena.py ./AthenaPoolExample_ReadTagFast.py"
-#   POST_EXEC test/post_check.sh )
-

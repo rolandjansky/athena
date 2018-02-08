@@ -25,6 +25,7 @@
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "CLHEP/Geometry/Transform3D.h"
 #include "GaudiKernel/StatusCode.h"
+#include "StoreGate/ReadHandle.h"
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkSurfaces/Surface.h"
@@ -84,9 +85,6 @@ InDetGlobalTrackMonTool::InDetGlobalTrackMonTool( const std::string & type,
       m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
       m_trackToVertexIPEstimator("Trk::TrackToVertexIPEstimator"),
       m_iUpdator("Trk::KalmanUpdator"),
-      m_CombinedTracksName("Tracks"),
-      m_ForwardTracksName("ResolvedForwardTracks"),
-      m_JetsName("AntiKt4EMTopoJets"),
       m_sct_holes(nullptr),
       m_trt_holes(nullptr),
       m_pixel_holes(nullptr),
@@ -147,9 +145,6 @@ InDetGlobalTrackMonTool::InDetGlobalTrackMonTool( const std::string & type,
     declareProperty("DoTideResiduals",m_doTideResiduals,"Make TIDE residual plots?");
     declareProperty("HoleSearchTool", m_holes_search_tool,"Tool to search for holes on track");	
     declareProperty("UpdatorTool"                  , m_iUpdator);
-    declareProperty("TrackCollection",m_CombinedTracksName,"Name of the forward tracklet collection");
-    declareProperty("ForwardTrackCollection",m_ForwardTracksName,"Name of the combined track collection");
-    declareProperty("JetCollection",m_JetsName,"Name of the jets collection");
     declareProperty("DoHitMaps", m_doHitMaps,"Produce hit maps?");	
     declareProperty("DoForwardTracks", m_doForwardTracks,"Run over forward tracks?");	
     declareProperty("DoIBL", m_doIBL,"IBL present?");	
@@ -208,9 +203,14 @@ StatusCode InDetGlobalTrackMonTool::initialize() {
   
   ATH_CHECK( m_baseline_selTool.retrieve() );
   ATH_CHECK( m_tight_selTool.retrieve() );
-  
+  ATH_CHECK( m_holes_search_tool.retrieve());
+
   sc = ManagedMonitorToolBase::initialize();
   if(!sc.isSuccess()) return sc;
+
+  ATH_CHECK( m_CombinedTracksName.initialize() );
+  ATH_CHECK( m_ForwardTracksName.initialize() );
+  ATH_CHECK( m_JetsName.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -617,10 +617,10 @@ StatusCode InDetGlobalTrackMonTool::bookHistogramsRecurrent()
 /*---------------------------------------------------------*/
 StatusCode InDetGlobalTrackMonTool::fillHistograms() 
 {   
-    const TrackCollection * combined_tracks = 0;
-    if ( ! evtStore()->contains<TrackCollection>( m_CombinedTracksName ) || evtStore()->retrieve(combined_tracks,m_CombinedTracksName).isFailure() ) 
+    SG::ReadHandle<TrackCollection> combined_tracks(m_CombinedTracksName);
+    if ( !combined_tracks.isValid() )
     {
-	ATH_MSG_WARNING( "Failed to retrieve combined tracks in StoreGate " + m_CombinedTracksName );
+	ATH_MSG_WARNING( "Failed to retrieve combined tracks in StoreGate " + m_CombinedTracksName.key() );
 	return StatusCode::SUCCESS;
     }
 
@@ -687,7 +687,7 @@ StatusCode InDetGlobalTrackMonTool::fillHistograms()
 	}
 	if ( summary->get(Trk::numberOfTRTHits) + summary->get(Trk::numberOfTRTOutliers) == 0 )
 	{
-	    nNoTRText++;;
+	    nNoTRText++;
 	    m_Trk_noTRText_frac_LB->Fill(m_manager->lumiBlockNumber(), 1);
 	}
 	else
@@ -726,12 +726,12 @@ StatusCode InDetGlobalTrackMonTool::fillHistograms()
 	
     if ( m_doForwardTracks )
     {
-	const TrackCollection * forward_tracks = 0;
-	if ( evtStore()->contains<TrackCollection>( m_ForwardTracksName ) ) 
+	SG::ReadHandle<TrackCollection> forward_tracks(m_ForwardTracksName);
+	if ( forward_tracks.isPresent() )
 	{
-	    if ( evtStore()->retrieve(forward_tracks,m_ForwardTracksName).isFailure() )
+	    if ( !forward_tracks.isValid() )
 	    {
-		ATH_MSG_DEBUG( "No combined tracks in StoreGate " + m_ForwardTracksName );
+		ATH_MSG_DEBUG( "No combined tracks in StoreGate " + m_ForwardTracksName.key() );
 		return StatusCode::SUCCESS;
 	    }
 	    
@@ -910,9 +910,8 @@ void InDetGlobalTrackMonTool::FillForwardTracks( const Trk::Track *track, const 
 
 void InDetGlobalTrackMonTool::FillTIDE()
 {
-    const xAOD::JetContainer* jets = 0;
-    StatusCode sc = evtStore()->retrieve( jets, m_JetsName ); // jetcollname is a std::string containing the SG key
-    if( sc.isSuccess() ) {
+    SG::ReadHandle<xAOD::JetContainer> jets(m_JetsName);
+    if ( jets.isValid() ) {
 	for ( auto jetItr = jets->begin(); jetItr != jets->end(); ++jetItr )
 	{
 	    if ( (*jetItr)->pt() < 20000. )

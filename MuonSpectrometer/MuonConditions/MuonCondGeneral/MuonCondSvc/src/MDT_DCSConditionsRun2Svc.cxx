@@ -113,21 +113,15 @@ StatusCode MDT_DCSConditionsRun2Svc::finalize()
 
 StatusCode MDT_DCSConditionsRun2Svc::queryInterface(const InterfaceID& riid, void** ppvInterface)
 {
-  msg(MSG::DEBUG) << "queryInterface Start" << endmsg;
   if(IMDT_DCSConditionsRun2Svc::interfaceID().versionMatch(riid) )
     {
-      msg(MSG::DEBUG) << "versionMatch=true" << endmsg;
-      msg(MSG::DEBUG) << "OK***************************" << endmsg;
       *ppvInterface = this;      
     } else if ( IMDTConditionsSvc::interfaceID().versionMatch(riid) ) {
       *ppvInterface = dynamic_cast<IMDTConditionsSvc*>(this);
-      msg(MSG::DEBUG) << "service cast***************************" << endmsg;
     } else {
-      msg(MSG::DEBUG) << "cannot find the interface!***************************" << endmsg;
       
       return AthService::queryInterface(riid, ppvInterface);
     }
-  msg(MSG::INFO) << "queryInterface succesfull" << endmsg;
   addRef(); 
   return StatusCode::SUCCESS;
 }

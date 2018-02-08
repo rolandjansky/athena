@@ -112,7 +112,6 @@ from RegistrationServices.RegistrationServicesConf import RegistrationStreamDefM
 copyTool = InputCollectionMetadataCopy("copyTool")
 copyTool.OutputLevel = DEBUG
 ToolSvc += copyTool
-svcMgr.MetaDataSvc.MetaDataTools += [copyTool]
 
 # Add algorithm to add default collection metadata
 DefaultCollMeta = RegistrationStreamDefMeta("DefaultCollMeta")

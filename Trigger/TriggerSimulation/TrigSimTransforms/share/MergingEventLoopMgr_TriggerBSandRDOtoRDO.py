@@ -21,7 +21,7 @@ from AthenaServices.AthenaServicesConf import AthenaSealSvc
 from AthenaPoolServices.AthenaRootStreamerSvcConf import AthenaRootStreamerSvc
 from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import EventSelectorAthenaPool
 from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import AthenaPoolAddressProviderSvc
-from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import MetaDataSvc
+from AthenaServices.AthenaServicesConf import MetaDataSvc
 #-------------------------------------------------------------------------------
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()

@@ -7,16 +7,15 @@ class ConfigFlag(object):
         self._alreadySet=False
         pass
 
-    @staticmethod
-    def getDefault(prevContainer):
-        pass
-
+   
     def set_Value(self,newvalue):
         if not self._alreadySet:
             self._value=newvalue
             self._alreadySet=True
+            return True
         else:
-            print "Config Flag '%s' already set" % self.__class__.__name__
+            print("Config Flag '%s' already set" % self.__class__.__name__)
+            return False
 
     def get_Value(self):
         return deepcopy(self._value)
@@ -51,25 +50,42 @@ class ConfigFlagContainer(object):
             self._flagdict=deepcopy(otherFlags._flagdict)
 
     def importFlag(self,fullname):
-        if not len(fullname.split(".")):
+        if len(fullname.split("."))==1:
+            from AthenaConfiguration.ConfigFlagCatalog import configFlagCatalog
+            #abbrevated path, try get the flag from the catalog
+            if configFlagCatalog.has_key(fullname):
+                cfgLogMsg.debug("Getting flag %s for flag-catalog" % fullname)
+                return configFlagCatalog[fullname]
+            else:
+                raise KeyError("Flag '%s' is not known")
+            pass
+        
+        elif len(fullname.split("."))==3:
+            (p,m,f)=fullname.split(".")
+            cfgLogMsg.debug("Importing flag %s from module %s.%s" % (f,p,m))
+            exec "import %s.%s as newmodule" % (p,m)
+            if not hasattr(newmodule,f):
+                raise ImportError("Module %s.%s has no class called %s" % (p,m,f))
+
+            flagclass=getattr(newmodule,f)
+            if not issubclass(flagclass,ConfigFlag):
+                raise TypeError("Class %s is not a subclass of ConfigFlag" % f)
+            return flagclass
+        else:
             raise KeyError("Flag name format is <package>.<module>.<flag>")
-        (p,m,f)=fullname.split(".")
-        cfgLogMsg.debug("Importing flag %s from module %s.%s" % (f,p,m))
-        exec "import %s.%s as newmodule" % (p,m)
-        if not hasattr(newmodule,f):
-            raise ImportError("Module %s.%s has no class called %s" % (p,m,f))
-
-        flagclass=getattr(newmodule,f)
-        if not issubclass(flagclass,ConfigFlag):
-            raise TypeError("Class %s is not a subclass of ConfigFlag" % f)
-        return flagclass
-
-
+        pass
+    
     def get(self,name):
         if not self._flagdict.has_key(name):
-            newFlag=self.importFlag(name)
-            self._flagdict[name]=newFlag()
-            self._flagdict[name]._value=newFlag.getDefault(self)
+            newFlag_t=self.importFlag(name)
+            newFlag=newFlag_t()
+
+            #"Simple"-flags have no getDefault function but a _defaultvalue attr
+            if hasattr(newFlag_t,'_defaultvalue'):
+                newFlag._value=newFlag_t._defaultvalue
+            if hasattr(newFlag,"getDefault"):
+                newFlag._value=newFlag.getDefault(self)
+            self._flagdict[name]=newFlag
             pass
         f=self._flagdict[name]
         return f.get_Value()
@@ -95,3 +111,10 @@ def cloneflags( configFunc ):
 
         return configFunc( *cargs )
     return copied_flags
+
+
+
+#A function returning a class to create a job config-class in one line
+def makeFlag(name, defaultvalue,doc=None):
+    return type(name,(ConfigFlag,),{'_defaultvalue':defaultvalue,'__doc__':doc})
+

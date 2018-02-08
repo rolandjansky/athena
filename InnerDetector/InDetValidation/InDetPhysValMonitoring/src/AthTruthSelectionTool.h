@@ -67,9 +67,9 @@ private:
   float m_maxRadiusDisc; ///< for disk topology: maximum radius
 
   //cache surfaces
-  mutable Trk::CylinderSurface* cylinder;
-  mutable Trk::DiscSurface* disc1;
-  mutable Trk::DiscSurface* disc2;
+  mutable Trk::CylinderSurface* m_cylinder;
+  mutable Trk::DiscSurface* m_disc1;
+  mutable Trk::DiscSurface* m_disc2;
 
 
   /* @} */

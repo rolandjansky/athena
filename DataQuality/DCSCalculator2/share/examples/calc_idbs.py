@@ -12,7 +12,7 @@ def calculate_idbs(run_range):
     lbtime = inverse_lblb(fetch_iovs("LBLB", runs=run_range))
     
     idbs = IDBS()
-    idbs.input_db = "COOLOFL_INDET/COMP200"
+    idbs.input_db = "COOLOFL_INDET/CONDBR2"
     
     result_iovs = idbs.run(lbtime)
     
@@ -21,7 +21,7 @@ def calculate_idbs(run_range):
     for entry in result_iovs:
         print entry.since.run, entry.since.lumi, "->", entry.until.lumi, entry.Code
         
-    write_iovs("idbs_test.db/COMP200::/GLOBAL/DETSTATUS/DCSOFL",
+    write_iovs("idbs_test.db/CONDBR2::/GLOBAL/DETSTATUS/DCSOFL",
                result_iovs, dcsofl_cool_record())
 
 if __name__ == "__main__":

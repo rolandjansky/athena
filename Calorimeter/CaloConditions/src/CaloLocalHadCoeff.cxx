@@ -410,7 +410,7 @@ bool CaloLocalHadCoeff::getInterpArrays(const int n_area, const std::vector<int>
 
   float xa;
   int ibin, i;
-  unsigned int i_len;;
+  unsigned int i_len;
   std::vector<int> vTmp;
   std::vector<int> vIdx(area->getNdim());
   std::vector<std::vector<int> > vpW;

@@ -144,7 +144,7 @@ namespace CP {
     }
 
     void IsolationSelectionTool::addCutToWP(IsolationWP* wp, std::string key, const xAOD::Iso::IsolationType t, const std::string expression) {
-        std::string varname(xAOD::Iso::toString(t));
+        std::string varname(xAOD::Iso::toCString(t));
         key += varname;
 
         // Stupid ROOT, this is silly, why do I need to do this????? why????
@@ -316,7 +316,7 @@ namespace CP {
                 addCutToWP(wp, key, c.first, c.second);
         } else if (type == Cut) {
             for (auto& c : cuts)
-                wp->addCut(new IsolationConditionFormula(xAOD::Iso::toString(c.first), c.first, c.second));
+                wp->addCut(new IsolationConditionFormula(xAOD::Iso::toCString(c.first), c.first, c.second));
         } else {
             ATH_MSG_ERROR("Unknown isolation WP type -- should not happen.");
             delete wp;

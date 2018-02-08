@@ -142,7 +142,7 @@ StatusCode TgcRdoToTgcPrepData::execute() {
     if (m_print_inputRdo) m_tool->printInputRdo(); // print input TGC RDO
     if (m_print_prepData) m_tool->printPrepData(); // print output TGC PRD
 
-    return StatusCode::SUCCESS;;
+    return StatusCode::SUCCESS;
   } 
 
   // Debugging of TgcRdoToPrepDataTool

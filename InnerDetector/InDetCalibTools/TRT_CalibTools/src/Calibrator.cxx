@@ -1048,7 +1048,7 @@ TDirectory* Calibrator::Calibrate(TDirectory* dir, string key, string opt, calda
       //add the short straw correction here. In this way, the shift is only done when contants at STRAW level come from level above.
         if ((level == 6 && useshortstw) && fabs(data[key].det)<2  && (data[key].lay==0 && data[key].stl<9) )         data[key].t0=caldata_above->t0-0.75; 
         data[key].t0err=caldata_above->t0err;
-        data[key].t0off=data[key].t0-caldata_above->t0 + data[key].rtt0;;
+        data[key].t0off=data[key].t0-caldata_above->t0 + data[key].rtt0;
         data[key].t0fittype = 4;
 //      if (prnt) printf("T0 /\\ %7i  %05.2f%+05.2f%+05.2f=%05.2f", data[key].ntres, caldata_above->t0, 0.0, 0.0, data[key].t0); 
       if (prnt) printf("T0 /\\ %7i  %05.2f%+05.2f%+05.2f=%05.2f", data[key].ntres, caldata_above->t0, caldata_above->oldt02, data[key].oldt02 ,  data[key].t0); 

@@ -20,6 +20,7 @@ class Lucid_Magnets(DCSC_Defect_Global_Variable):
     def __init__(self):
         self.folder_name = None # unused
  
+    # Hmmm, magnets get run twice because of this
     def calculate_good_iovs(self, lbtime, subdetector):
         magnets = Magnets()
         result = magnets.run(lbtime)
@@ -72,7 +73,8 @@ class Lucid(DCSC_Subdetector_DefectsOnly):
     folder_base = '/LUCID/DCS'
  
     variables = [
-        Lucid_Magnets(),
-        Lucid_Voltage("LV", "LCD_LV_OFF"),
-        Lucid_Voltage("HV", "LCD_HV_OFF", excluded_channels=set((5, 16, 19, 24))),
+        # 20170317 - LUCID hasn't worked in Run 2
+        #Lucid_Magnets(),
+        #Lucid_Voltage("LV", "LCD_LV_OFF"),
+        #Lucid_Voltage("HV", "LCD_HV_OFF", excluded_channels=set((5, 16, 19, 24))),
     ]

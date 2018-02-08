@@ -291,7 +291,7 @@ void RpcClusterBuilderPRD::buildClusters(Identifier elementId) {
     
     for(;dig_it!=m_digits[panelId].end();++dig_it){ // loop over patterns
 
-      const RpcReadoutElement* descriptor=m_muonMgr->getRpcReadoutElement((*dig_it).second->identify());
+      const MuonGM::RpcReadoutElement* descriptor=m_muonMgr->getRpcReadoutElement((*dig_it).second->identify());
     
       if(lastStrip==-999){ // first hit of a cluster..
 	
@@ -309,7 +309,7 @@ void RpcClusterBuilderPRD::buildClusters(Identifier elementId) {
       } else if(abs(lastStrip-(*dig_it).first)==1 &&
 		abs(lastTime-(*dig_it).second->time())<m_timeSpread){ // still on the same cluster, with acceptable time spread
 
-	//std::cout<<"    adding to a cluster the strip "<< (*dig_it).first<<std::endl;;
+	//std::cout<<"    adding to a cluster the strip "<< (*dig_it).first<<std::endl;
 	lastStrip=(*dig_it).first;
 	theIDs.push_back((*dig_it).second->identify());
 	theAmbFlags.push_back((*dig_it).second->ambiguityFlag());

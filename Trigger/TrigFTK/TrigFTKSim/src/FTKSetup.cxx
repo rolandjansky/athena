@@ -176,7 +176,7 @@ void FTKSetup::usageStat(const char *header /* =0 */)
     cerr << "USG[" << setw(2) << m_usage_ncalls << "]::CPU eff " << static_cast<float>(utime+stime)/realsec << " %" << endl;
   cerr << "USG[" << setw(2) << m_usage_ncalls << "]::Vir Mem " << vsize/MBunit << " MB" << endl;
   cerr << "USG[" << setw(2) << m_usage_ncalls << "]::RSS Mem " << rss/MBunit << " MB" << endl;
-  cerr << "USG[" << setw(2) << m_usage_ncalls << "]::Max Mem " << rsslim/MBunit << " MB" << endl;;
+  cerr << "USG[" << setw(2) << m_usage_ncalls << "]::Max Mem " << rsslim/MBunit << " MB" << endl;
   cerr << endl;
 }
 

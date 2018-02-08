@@ -41,16 +41,16 @@ ZDC_PileUpTool::ZDC_PileUpTool(const std::string& type,
   declareInterface<IPileUpTool>(this);
  
   // NOTE: The following variables are actually re-initialized by ZDC_DigiTop::initialize() or ZDC_PileUpTool::initialize()
-  GainRatio_Strip[0] = 10.0; GainRatioError_Strip[0] = 0.5;
-  GainRatio_Strip[1] = 10.0; GainRatioError_Strip[1] = 0.5;
-  GainRatio_Strip[2] = 10.0; GainRatioError_Strip[2] = 0.5;
-  GainRatio_Strip[3] = 10.0; GainRatioError_Strip[3] = 0.5;
-  GainRatio_Strip[4] = 10.0; GainRatioError_Strip[4] = 0.5;
-  GainRatio_Strip[5] = 10.0; GainRatioError_Strip[5] = 0.5;
-  GainRatio_Strip[6] = 10.0; GainRatioError_Strip[6] = 0.5;
-  GainRatio_Strip[7] = 10.0; GainRatioError_Strip[7] = 0.5;
-  GainRatio_Pixel      = 10.0;
-  GainRatioError_Pixel = 0.5;
+  m_GainRatio_Strip[0] = 10.0; m_GainRatioError_Strip[0] = 0.5;
+  m_GainRatio_Strip[1] = 10.0; m_GainRatioError_Strip[1] = 0.5;
+  m_GainRatio_Strip[2] = 10.0; m_GainRatioError_Strip[2] = 0.5;
+  m_GainRatio_Strip[3] = 10.0; m_GainRatioError_Strip[3] = 0.5;
+  m_GainRatio_Strip[4] = 10.0; m_GainRatioError_Strip[4] = 0.5;
+  m_GainRatio_Strip[5] = 10.0; m_GainRatioError_Strip[5] = 0.5;
+  m_GainRatio_Strip[6] = 10.0; m_GainRatioError_Strip[6] = 0.5;
+  m_GainRatio_Strip[7] = 10.0; m_GainRatioError_Strip[7] = 0.5;
+  m_GainRatio_Pixel      = 10.0;
+  m_GainRatioError_Pixel = 0.5;
 
   m_digitContainer = 0; // initializing to null pointer
 
@@ -277,10 +277,10 @@ void ZDC_PileUpTool::fillStripDigitContainer(TimedHitCollection<ZDC_SimStripHit>
   }
 }
 
-void ZDC_PileUpTool::fillStripDigitContainer(const ZDC_SimStripHit_Collection* m_ZDC_SimStripHit_Collection, CLHEP::HepRandomEngine* rndEngine)
+void ZDC_PileUpTool::fillStripDigitContainer(const ZDC_SimStripHit_Collection* ZDC_SimStripHit_Collection, CLHEP::HepRandomEngine* rndEngine)
 {
-  ZDC_SimStripHit_ConstIterator it    = m_ZDC_SimStripHit_Collection->begin();
-  ZDC_SimStripHit_ConstIterator itend = m_ZDC_SimStripHit_Collection->end();
+  ZDC_SimStripHit_ConstIterator it    = ZDC_SimStripHit_Collection->begin();
+  ZDC_SimStripHit_ConstIterator itend = ZDC_SimStripHit_Collection->end();
   
   for (; it != itend; it++) {
 
@@ -312,13 +312,13 @@ void ZDC_PileUpTool::createAndStoreStripDigit(int Side, int ModuleNo, int NPhoto
   
   Identifier Id(X);
   
-  std::vector<int>    m_gain0_delay0, m_gain1_delay0, m_gain0_delay1, m_gain1_delay1;
+  std::vector<int>    gain0_delay0, gain1_delay0, gain0_delay1, gain1_delay1;
   std::vector<double> V_Temp1, V_Temp2;
   
-  m_gain0_delay0.resize(m_MaxTimeBin);
-  m_gain1_delay0.resize(m_MaxTimeBin);
-  m_gain0_delay1.resize(m_MaxTimeBin);
-  m_gain1_delay1.resize(m_MaxTimeBin);
+  gain0_delay0.resize(m_MaxTimeBin);
+  gain1_delay0.resize(m_MaxTimeBin);
+  gain0_delay1.resize(m_MaxTimeBin);
+  gain1_delay1.resize(m_MaxTimeBin);
 
   V_Temp1.resize(m_MaxTimeBin);
   V_Temp2.resize(m_MaxTimeBin);
@@ -349,37 +349,37 @@ void ZDC_PileUpTool::createAndStoreStripDigit(int Side, int ModuleNo, int NPhoto
     V_Temp1[I] = V_Temp1[I]*m_ScaleStrip;
     V_Temp2[I] = V_Temp2[I]*m_ScaleStrip;
     
-    m_gain1_delay0[I] = CLHEP::RandGaussQ::shoot(rndEngine, V_Temp1[I] + m_Pedestal, m_SigmaNoiseHG_Strip);
-    m_gain1_delay1[I] = CLHEP::RandGaussQ::shoot(rndEngine, V_Temp2[I] + m_Pedestal, m_SigmaNoiseHG_Strip);
+    gain1_delay0[I] = CLHEP::RandGaussQ::shoot(rndEngine, V_Temp1[I] + m_Pedestal, m_SigmaNoiseHG_Strip);
+    gain1_delay1[I] = CLHEP::RandGaussQ::shoot(rndEngine, V_Temp2[I] + m_Pedestal, m_SigmaNoiseHG_Strip);
     
-    V_Temp1[I] = HighToLow(V_Temp1[I], GainRatio_Strip[StripNum], GainRatioError_Strip[StripNum], rndEngine);
-    V_Temp2[I] = HighToLow(V_Temp2[I], GainRatio_Strip[StripNum], GainRatioError_Strip[StripNum], rndEngine);
+    V_Temp1[I] = HighToLow(V_Temp1[I], m_GainRatio_Strip[StripNum], m_GainRatioError_Strip[StripNum], rndEngine);
+    V_Temp2[I] = HighToLow(V_Temp2[I], m_GainRatio_Strip[StripNum], m_GainRatioError_Strip[StripNum], rndEngine);
     
-    m_gain0_delay0[I] = CLHEP::RandGaussQ::shoot(rndEngine, V_Temp1[I] + m_Pedestal, m_SigmaNoiseLG_Strip);
-    m_gain0_delay1[I] = CLHEP::RandGaussQ::shoot(rndEngine, V_Temp2[I] + m_Pedestal, m_SigmaNoiseLG_Strip);
+    gain0_delay0[I] = CLHEP::RandGaussQ::shoot(rndEngine, V_Temp1[I] + m_Pedestal, m_SigmaNoiseLG_Strip);
+    gain0_delay1[I] = CLHEP::RandGaussQ::shoot(rndEngine, V_Temp2[I] + m_Pedestal, m_SigmaNoiseLG_Strip);
     
-    if (m_gain0_delay0[I] > 1023) m_gain0_delay0[I] = 1023; 
-    if (m_gain0_delay1[I] > 1023) m_gain0_delay1[I] = 1023; 
-    if (m_gain1_delay0[I] > 1023) m_gain1_delay0[I] = 1023; 
-    if (m_gain1_delay1[I] > 1023) m_gain1_delay1[I] = 1023; 
+    if (gain0_delay0[I] > 1023) gain0_delay0[I] = 1023; 
+    if (gain0_delay1[I] > 1023) gain0_delay1[I] = 1023; 
+    if (gain1_delay0[I] > 1023) gain1_delay0[I] = 1023; 
+    if (gain1_delay1[I] > 1023) gain1_delay1[I] = 1023; 
   } 
   
-  ZdcDigits* m_ZDC_Strip_Digit = new ZdcDigits(Id);
+  ZdcDigits* ZDC_Strip_Digit = new ZdcDigits(Id);
   
-  m_ZDC_Strip_Digit->set_digits_gain1_delay0(m_gain1_delay0);
-  m_ZDC_Strip_Digit->set_digits_gain1_delay1(m_gain1_delay1);
-  m_ZDC_Strip_Digit->set_digits_gain0_delay0(m_gain0_delay0);
-  m_ZDC_Strip_Digit->set_digits_gain0_delay1(m_gain0_delay1);
+  ZDC_Strip_Digit->set_digits_gain1_delay0(gain1_delay0);
+  ZDC_Strip_Digit->set_digits_gain1_delay1(gain1_delay1);
+  ZDC_Strip_Digit->set_digits_gain0_delay0(gain0_delay0);
+  ZDC_Strip_Digit->set_digits_gain0_delay1(gain0_delay1);
   
-  m_digitContainer->push_back(m_ZDC_Strip_Digit);
+  m_digitContainer->push_back(ZDC_Strip_Digit);
   
   if (m_DumpStrip == 1) {
     
-    MyFile << Side << "  " << ModuleNo << "  " << NPhotons;
+    m_MyFile << Side << "  " << ModuleNo << "  " << NPhotons;
     
-    for (int I=0; I<m_MaxTimeBin; I++) { MyFile << "  " << m_gain1_delay0[I]; }
+    for (int I=0; I<m_MaxTimeBin; I++) { m_MyFile << "  " << gain1_delay0[I]; }
     
-    MyFile << std::endl;  
+    m_MyFile << std::endl;  
   }
 }
 
@@ -410,10 +410,10 @@ void ZDC_PileUpTool::fillPixelDigitContainer(TimedHitCollection<ZDC_SimPixelHit>
   }
 }
 
-void ZDC_PileUpTool::fillPixelDigitContainer(const ZDC_SimPixelHit_Collection* m_ZDC_SimPixelHit_Collection, CLHEP::HepRandomEngine* rndEngine)
+void ZDC_PileUpTool::fillPixelDigitContainer(const ZDC_SimPixelHit_Collection* ZDC_SimPixelHit_Collection, CLHEP::HepRandomEngine* rndEngine)
 {
-  ZDC_SimPixelHit_ConstIterator it    = m_ZDC_SimPixelHit_Collection->begin();
-  ZDC_SimPixelHit_ConstIterator itend = m_ZDC_SimPixelHit_Collection->end();
+  ZDC_SimPixelHit_ConstIterator it    = ZDC_SimPixelHit_Collection->begin();
+  ZDC_SimPixelHit_ConstIterator itend = ZDC_SimPixelHit_Collection->end();
 
   for (; it != itend; it++) {
 
@@ -434,11 +434,11 @@ void ZDC_PileUpTool::createAndStorePixelDigit(int Side, int ModuleNo, int PixNum
   
   Identifier Id(X);
   
-  std::vector<int>    m_gain0_delay0, m_gain1_delay0;
+  std::vector<int>    gain0_delay0, gain1_delay0;
   std::vector<double> V_Temp1;
   
-  m_gain0_delay0.resize(m_MaxTimeBin);
-  m_gain1_delay0.resize(m_MaxTimeBin);
+  gain0_delay0.resize(m_MaxTimeBin);
+  gain1_delay0.resize(m_MaxTimeBin);
   
   V_Temp1.resize(m_MaxTimeBin);
   
@@ -460,30 +460,30 @@ void ZDC_PileUpTool::createAndStorePixelDigit(int Side, int ModuleNo, int PixNum
     
     V_Temp1[I] = V_Temp1[I]*m_ScalePixel;
     
-    m_gain1_delay0[I] = CLHEP::RandGaussQ::shoot(rndEngine, V_Temp1[I] + m_Pedestal, m_SigmaNoiseHG_Pixel);
+    gain1_delay0[I] = CLHEP::RandGaussQ::shoot(rndEngine, V_Temp1[I] + m_Pedestal, m_SigmaNoiseHG_Pixel);
     
-    V_Temp1[I] = HighToLow(V_Temp1[I], GainRatio_Pixel, GainRatioError_Pixel, rndEngine);
+    V_Temp1[I] = HighToLow(V_Temp1[I], m_GainRatio_Pixel, m_GainRatioError_Pixel, rndEngine);
     
-    m_gain0_delay0[I] = CLHEP::RandGaussQ::shoot(rndEngine, V_Temp1[I] + m_Pedestal, m_SigmaNoiseLG_Pixel);
+    gain0_delay0[I] = CLHEP::RandGaussQ::shoot(rndEngine, V_Temp1[I] + m_Pedestal, m_SigmaNoiseLG_Pixel);
     
-    if (m_gain0_delay0[I] > 1023) m_gain0_delay0[I] = 1023; 
-    if (m_gain1_delay0[I] > 1023) m_gain1_delay0[I] = 1023; 
+    if (gain0_delay0[I] > 1023) gain0_delay0[I] = 1023; 
+    if (gain1_delay0[I] > 1023) gain1_delay0[I] = 1023; 
   } 
   
-  ZdcDigits* m_ZDC_Pixel_Digit = new ZdcDigits(Id);
+  ZdcDigits* ZDC_Pixel_Digit = new ZdcDigits(Id);
   
-  m_ZDC_Pixel_Digit->set_digits_gain1_delay0(m_gain1_delay0);
-  m_ZDC_Pixel_Digit->set_digits_gain0_delay0(m_gain0_delay0);
+  ZDC_Pixel_Digit->set_digits_gain1_delay0(gain1_delay0);
+  ZDC_Pixel_Digit->set_digits_gain0_delay0(gain0_delay0);
   
-  m_digitContainer->push_back(m_ZDC_Pixel_Digit);
+  m_digitContainer->push_back(ZDC_Pixel_Digit);
   
   if (m_DumpPixel == 1) {
     
-    MyFile << Side << "  " << ModuleNo << "  " << PixNum << "   " << NPhotons;
+    m_MyFile << Side << "  " << ModuleNo << "  " << PixNum << "   " << NPhotons;
     
-    for (int I=0; I<m_MaxTimeBin; I++) { MyFile << "  " << m_gain1_delay0[I]; }
+    for (int I=0; I<m_MaxTimeBin; I++) { m_MyFile << "  " << gain1_delay0[I]; }
     
-    MyFile << std::endl;  
+    m_MyFile << std::endl;  
   }
 }
 
@@ -498,14 +498,14 @@ void ZDC_PileUpTool::SetDumps(bool Flag1, bool Flag2)
   m_DumpStrip = Flag1;
   m_DumpPixel = Flag2;
   
-  if (m_DumpStrip || m_DumpPixel) { MyFile.open("DumpAll.txt"); }
+  if (m_DumpStrip || m_DumpPixel) { m_MyFile.open("DumpAll.txt"); }
 }
 
-StatusCode ZDC_PileUpTool::recordContainers(ServiceHandle<StoreGateSvc>& evtStore, std::string m_key_digitCnt) 
+StatusCode ZDC_PileUpTool::recordContainers(ServiceHandle<StoreGateSvc>& evtStore, std::string key_digitCnt) 
 {
   m_digitContainer = new ZdcDigitsCollection();
 
-  StatusCode sc = evtStore->record(m_digitContainer, m_key_digitCnt);
+  StatusCode sc = evtStore->record(m_digitContainer, key_digitCnt);
 
   return sc;
 }

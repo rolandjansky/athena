@@ -1,4 +1,4 @@
-Thu Nov  2 15:31:46 EDT 2017
+Mon Jan 29 10:11:33 EST 2018
 WARNING: TCMALLOCDIR not defined, will use libc malloc
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
 Py:Athena            INFO using release [?-21.0.0] [i686-slc5-gcc43-dbg] [?/?] -- built on [?]
@@ -7,7 +7,7 @@ Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "DataModelRunTests/xAODTestRead3_jo.py"
-Py:ConfigurableDb    INFO Read module info for 467 configurables from 2 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 468 configurables from 2 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
 # setting LC_ALL to "C"
@@ -15,7 +15,7 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
-                                          running on karma on Thu Nov  2 15:32:16 2017
+                                          running on karma on Mon Jan 29 10:11:44 2018
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -23,7 +23,7 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 10025 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 10097 CLIDRegistry entries for module ALL
 ChronoStatSvc        INFO  Number of skipped events for MemStat-1
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
@@ -41,24 +41,23 @@ PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc              INFO POOL WriteCatalog is file:xAODTestRead3_catalog.xml
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
-EventSelector        INFO reinitialization...
-EventSelector        INFO EventSelection with query 
-Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] A0916735-4864-C84D-B46B-2086E5E1530F
-Domain[ROOT_All]     INFO                           xaoddata3.root
-RootDatabase.open    INFO xaoddata3.root File version:60806
-EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
 EventSelector        INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-00-00
 EventSelector        INFO reinitialization...
 EventSelector        INFO EventSelection with query 
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 25DE488B-4B4E-3143-B233-1EC30C6E2F91
+Domain[ROOT_All]     INFO                           xaoddata3.root
+RootDatabase.open    INFO xaoddata3.root File version:60806
+EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
 AthenaPoolAddre...   INFO Initializing AthenaPoolAddressProviderSvc - package version EventSelectorAthenaPool-00-00-00
 HistogramPersis...WARNING Histograms saving not required.
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ApplicationMgr       INFO Application Manager Initialized successfully
 xaoddata3.root       INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] A0916735-4864-C84D-B46B-2086E5E1530F
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 25DE488B-4B4E-3143-B233-1EC30C6E2F91
+Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] A0916735-4864-C84D-B46B-2086E5E1530F
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 25DE488B-4B4E-3143-B233-1EC30C6E2F91
 Domain[ROOT_All]     INFO                           xaoddata3.root
 RootDatabase.open    INFO xaoddata3.root File version:60806
 ApplicationMgr       INFO Application Manager Started successfully
@@ -111,7 +110,7 @@ RootAuxDynReader     INFO FILE:LINE (const RootAuxDynReader::BranchInfo& RootAux
   pvInt: [-310 -309 -308 -307 -306 -305 -304 -303 -302 ]
   pvFloat: [-0.409 -0.309 -0.209 -0.109 -0.009 0.091 0.191 0.291 0.391 ]
   dpvFloat: [0.910 0.911 0.912 0.913 0.914 0.915 0.916 0.917 0.918 ]
-cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 dInt1Base 
 cinfo  anInt1 1000 aFloat: 0.1 anInt2: 2000 dInt1: 3000 cEL: cvec[1]
 1
 ClassIDSvc           INFO  getRegistryEntries: read 86 CLIDRegistry entries for module ALL
@@ -171,7 +170,7 @@ RootAuxDynReader     INFO FILE:LINE (const RootAuxDynReader::BranchInfo& RootAux
   pvInt: [-310 -309 -308 -307 -306 -305 -304 -303 -302 ]
   pvFloat: [-0.409 -0.309 -0.209 -0.109 -0.009 0.091 0.191 0.291 0.391 ]
   dpvFloat: [0.910 0.911 0.912 0.913 0.914 0.915 0.916 0.917 0.918 ]
-cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 dInt1Base 
 cinfo  anInt1 1000 aFloat: 0.1 anInt2: 2000 dInt1: 3000 cEL: cvec[1]
 1
 ctrig aux items: aFloat anInt anInt2 dInt1 
@@ -231,7 +230,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [-210 -209 -208 -207 -206 -205 -204 -203 -202 ]
   pvFloat: [-0.408 -0.308 -0.208 -0.108 -0.008 0.092 0.192 0.292 0.392 ]
   dpvFloat: [0.920 0.921 0.922 0.923 0.924 0.925 0.926 0.927 0.928 ]
-cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 dInt1Base 
 cinfo  anInt1 2000 aFloat: 0.2 anInt2: 4000 dInt1: 6000 cEL: cvec[2]
 2
 ctrig aux items: aFloat anInt anInt2 dInt1 
@@ -289,7 +288,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [-210 -209 -208 -207 -206 -205 -204 -203 -202 ]
   pvFloat: [-0.408 -0.308 -0.208 -0.108 -0.008 0.092 0.192 0.292 0.392 ]
   dpvFloat: [0.920 0.921 0.922 0.923 0.924 0.925 0.926 0.927 0.928 ]
-cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 dInt1Base 
 cinfo  anInt1 2000 aFloat: 0.2 anInt2: 4000 dInt1: 6000 cEL: cvec[2]
 2
 ctrig aux items: aFloat anInt anInt2 dInt1 
@@ -349,7 +348,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [-110 -109 -108 -107 -106 -105 -104 -103 -102 ]
   pvFloat: [-0.407 -0.307 -0.207 -0.107 -0.007 0.093 0.193 0.293 0.393 ]
   dpvFloat: [0.930 0.931 0.932 0.933 0.934 0.935 0.936 0.937 0.938 ]
-cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 dInt1Base 
 cinfo  anInt1 3000 aFloat: 0.3 anInt2: 6000 dInt1: 9000 cEL: cvec[3]
 3
 ctrig aux items: aFloat anInt anInt2 dInt1 
@@ -407,7 +406,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [-110 -109 -108 -107 -106 -105 -104 -103 -102 ]
   pvFloat: [-0.407 -0.307 -0.207 -0.107 -0.007 0.093 0.193 0.293 0.393 ]
   dpvFloat: [0.930 0.931 0.932 0.933 0.934 0.935 0.936 0.937 0.938 ]
-cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 dInt1Base 
 cinfo  anInt1 3000 aFloat: 0.3 anInt2: 6000 dInt1: 9000 cEL: cvec[3]
 3
 ctrig aux items: aFloat anInt anInt2 dInt1 
@@ -467,7 +466,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [-10 -9 -8 -7 -6 -5 -4 -3 -2 ]
   pvFloat: [-0.406 -0.306 -0.206 -0.106 -0.006 0.094 0.194 0.294 0.394 ]
   dpvFloat: [0.940 0.941 0.942 0.943 0.944 0.945 0.946 0.947 0.948 ]
-cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 dInt1Base 
 cinfo  anInt1 4000 aFloat: 0.4 anInt2: 8000 dInt1: 12000 cEL: cvec[4]
 4
 ctrig aux items: aFloat anInt anInt2 dInt1 
@@ -525,7 +524,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [-10 -9 -8 -7 -6 -5 -4 -3 -2 ]
   pvFloat: [-0.406 -0.306 -0.206 -0.106 -0.006 0.094 0.194 0.294 0.394 ]
   dpvFloat: [0.940 0.941 0.942 0.943 0.944 0.945 0.946 0.947 0.948 ]
-cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 dInt1Base 
 cinfo  anInt1 4000 aFloat: 0.4 anInt2: 8000 dInt1: 12000 cEL: cvec[4]
 4
 ctrig aux items: aFloat anInt anInt2 dInt1 
@@ -545,7 +544,7 @@ AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #0 4 events pr
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #0 4 events processed so far  <<<===
 cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
 Type of aux store: DMTest::CAuxContainer_v1
-cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 dInt1Base 
 cinfo  anInt1 5000 aFloat: 0.5 anInt2: 10000 dInt1: 15000 cEL: [18446744073709551615]
 5
 ctrig aux items: aFloat anInt anInt2 dInt1 
@@ -563,7 +562,7 @@ hvec: 2001.5 2002.5 2003.5 2004.5 2005.5 2006.5 2007.5 2008.5 2009.5 2010.5 2011
 hview: 2020.5 2019.5 2018.5 2017.5 2016.5 2015.5 2014.5 2013.5 2012.5 2011.5 2010.5 2009.5 2008.5 2007.5 2006.5 2005.5 2004.5 2003.5 2002.5 2001.5
 copy_cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
 Type of aux store: DMTest::CAuxContainer_v1
-cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 dInt1Base 
 cinfo  anInt1 5000 aFloat: 0.5 anInt2: 10000 dInt1: 15000 cEL: [18446744073709551615]
 5
 ctrig aux items: aFloat anInt anInt2 dInt1 
@@ -623,7 +622,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [190 191 192 193 194 195 196 197 198 ]
   pvFloat: [-0.404 -0.304 -0.204 -0.104 -0.004 0.096 0.196 0.296 0.396 ]
   dpvFloat: [0.960 0.961 0.962 0.963 0.964 0.965 0.966 0.967 0.968 ]
-cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 dInt1Base 
 cinfo  anInt1 6000 aFloat: 0.6 anInt2: 12000 dInt1: 18000 cEL: cvec[6]
 6
 ctrig aux items: aFloat anInt anInt2 dInt1 
@@ -681,7 +680,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [190 191 192 193 194 195 196 197 198 ]
   pvFloat: [-0.404 -0.304 -0.204 -0.104 -0.004 0.096 0.196 0.296 0.396 ]
   dpvFloat: [0.960 0.961 0.962 0.963 0.964 0.965 0.966 0.967 0.968 ]
-cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 dInt1Base 
 cinfo  anInt1 6000 aFloat: 0.6 anInt2: 12000 dInt1: 18000 cEL: cvec[6]
 6
 ctrig aux items: aFloat anInt anInt2 dInt1 
@@ -741,7 +740,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [290 291 292 293 294 295 296 297 298 ]
   pvFloat: [-0.403 -0.303 -0.203 -0.103 -0.003 0.097 0.197 0.297 0.397 ]
   dpvFloat: [0.970 0.971 0.972 0.973 0.974 0.975 0.976 0.977 0.978 ]
-cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 dInt1Base 
 cinfo  anInt1 7000 aFloat: 0.7 anInt2: 14000 dInt1: 21000 cEL: cvec[7]
 7
 ctrig aux items: aFloat anInt anInt2 dInt1 
@@ -799,7 +798,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [290 291 292 293 294 295 296 297 298 ]
   pvFloat: [-0.403 -0.303 -0.203 -0.103 -0.003 0.097 0.197 0.297 0.397 ]
   dpvFloat: [0.970 0.971 0.972 0.973 0.974 0.975 0.976 0.977 0.978 ]
-cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 dInt1Base 
 cinfo  anInt1 7000 aFloat: 0.7 anInt2: 14000 dInt1: 21000 cEL: cvec[7]
 7
 ctrig aux items: aFloat anInt anInt2 dInt1 
@@ -859,7 +858,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [390 391 392 393 394 395 396 397 398 ]
   pvFloat: [-0.402 -0.302 -0.202 -0.102 -0.002 0.098 0.198 0.298 0.398 ]
   dpvFloat: [0.980 0.981 0.982 0.983 0.984 0.985 0.986 0.987 0.988 ]
-cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 dInt1Base 
 cinfo  anInt1 8000 aFloat: 0.8 anInt2: 16000 dInt1: 24000 cEL: cvec[8]
 8
 ctrig aux items: aFloat anInt anInt2 dInt1 
@@ -917,7 +916,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [390 391 392 393 394 395 396 397 398 ]
   pvFloat: [-0.402 -0.302 -0.202 -0.102 -0.002 0.098 0.198 0.298 0.398 ]
   dpvFloat: [0.980 0.981 0.982 0.983 0.984 0.985 0.986 0.987 0.988 ]
-cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 dInt1Base 
 cinfo  anInt1 8000 aFloat: 0.8 anInt2: 16000 dInt1: 24000 cEL: cvec[8]
 8
 ctrig aux items: aFloat anInt anInt2 dInt1 
@@ -977,7 +976,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [490 491 492 493 494 495 496 497 498 ]
   pvFloat: [-0.401 -0.301 -0.201 -0.101 -0.001 0.099 0.199 0.299 0.399 ]
   dpvFloat: [0.990 0.991 0.992 0.993 0.994 0.995 0.996 0.997 0.998 ]
-cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 dInt1Base 
 cinfo  anInt1 9000 aFloat: 0.9 anInt2: 18000 dInt1: 27000 cEL: cvec[9]
 9
 ctrig aux items: aFloat anInt anInt2 dInt1 
@@ -1035,7 +1034,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [490 491 492 493 494 495 496 497 498 ]
   pvFloat: [-0.401 -0.301 -0.201 -0.101 -0.001 0.099 0.199 0.299 0.399 ]
   dpvFloat: [0.990 0.991 0.992 0.993 0.994 0.995 0.996 0.997 0.998 ]
-cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 dInt1Base 
 cinfo  anInt1 9000 aFloat: 0.9 anInt2: 18000 dInt1: 27000 cEL: cvec[9]
 9
 ctrig aux items: aFloat anInt anInt2 dInt1 
@@ -1095,7 +1094,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [590 591 592 593 594 595 596 597 598 ]
   pvFloat: [-0.400 -0.300 -0.200 -0.100 0.000 0.100 0.200 0.300 0.400 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
-cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 dInt1Base 
 cinfo  anInt1 10000 aFloat: 1 anInt2: 20000 dInt1: 30000 cEL: cvec[0]
 10
 ctrig aux items: aFloat anInt anInt2 dInt1 
@@ -1153,7 +1152,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [590 591 592 593 594 595 596 597 598 ]
   pvFloat: [-0.400 -0.300 -0.200 -0.100 0.000 0.100 0.200 0.300 0.400 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
-cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 dInt1Base 
 cinfo  anInt1 10000 aFloat: 1 anInt2: 20000 dInt1: 30000 cEL: cvec[0]
 10
 ctrig aux items: aFloat anInt anInt2 dInt1 
@@ -1213,7 +1212,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [690 691 692 693 694 695 696 697 698 ]
   pvFloat: [-0.399 -0.299 -0.199 -0.099 0.001 0.101 0.201 0.301 0.401 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
-cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 dInt1Base 
 cinfo  anInt1 11000 aFloat: 1.1 anInt2: 22000 dInt1: 33000 cEL: cvec[1]
 11
 ctrig aux items: aFloat anInt anInt2 dInt1 
@@ -1271,7 +1270,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [690 691 692 693 694 695 696 697 698 ]
   pvFloat: [-0.399 -0.299 -0.199 -0.099 0.001 0.101 0.201 0.301 0.401 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
-cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 dInt1Base 
 cinfo  anInt1 11000 aFloat: 1.1 anInt2: 22000 dInt1: 33000 cEL: cvec[1]
 11
 ctrig aux items: aFloat anInt anInt2 dInt1 
@@ -1331,7 +1330,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [790 791 792 793 794 795 796 797 798 ]
   pvFloat: [-0.398 -0.298 -0.198 -0.098 0.002 0.102 0.202 0.302 0.402 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
-cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 dInt1Base 
 cinfo  anInt1 12000 aFloat: 1.2 anInt2: 24000 dInt1: 36000 cEL: cvec[2]
 12
 ctrig aux items: aFloat anInt anInt2 dInt1 
@@ -1389,7 +1388,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [790 791 792 793 794 795 796 797 798 ]
   pvFloat: [-0.398 -0.298 -0.198 -0.098 0.002 0.102 0.202 0.302 0.402 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
-cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 dInt1Base 
 cinfo  anInt1 12000 aFloat: 1.2 anInt2: 24000 dInt1: 36000 cEL: cvec[2]
 12
 ctrig aux items: aFloat anInt anInt2 dInt1 
@@ -1449,7 +1448,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [890 891 892 893 894 895 896 897 898 ]
   pvFloat: [-0.397 -0.297 -0.197 -0.097 0.003 0.103 0.203 0.303 0.403 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
-cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 dInt1Base 
 cinfo  anInt1 13000 aFloat: 1.3 anInt2: 26000 dInt1: 39000 cEL: cvec[3]
 13
 ctrig aux items: aFloat anInt anInt2 dInt1 
@@ -1507,7 +1506,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [890 891 892 893 894 895 896 897 898 ]
   pvFloat: [-0.397 -0.297 -0.197 -0.097 0.003 0.103 0.203 0.303 0.403 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
-cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 dInt1Base 
 cinfo  anInt1 13000 aFloat: 1.3 anInt2: 26000 dInt1: 39000 cEL: cvec[3]
 13
 ctrig aux items: aFloat anInt anInt2 dInt1 
@@ -1567,7 +1566,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [990 991 992 993 994 995 996 997 998 ]
   pvFloat: [-0.396 -0.296 -0.196 -0.096 0.004 0.104 0.204 0.304 0.404 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
-cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 dInt1Base 
 cinfo  anInt1 14000 aFloat: 1.4 anInt2: 28000 dInt1: 42000 cEL: cvec[4]
 14
 ctrig aux items: aFloat anInt anInt2 dInt1 
@@ -1625,7 +1624,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [990 991 992 993 994 995 996 997 998 ]
   pvFloat: [-0.396 -0.296 -0.196 -0.096 0.004 0.104 0.204 0.304 0.404 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
-cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 dInt1Base 
 cinfo  anInt1 14000 aFloat: 1.4 anInt2: 28000 dInt1: 42000 cEL: cvec[4]
 14
 ctrig aux items: aFloat anInt anInt2 dInt1 
@@ -1685,7 +1684,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [1090 1091 1092 1093 1094 1095 1096 1097 1098 ]
   pvFloat: [-0.395 -0.295 -0.195 -0.095 0.005 0.105 0.205 0.305 0.405 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
-cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 dInt1Base 
 cinfo  anInt1 15000 aFloat: 1.5 anInt2: 30000 dInt1: 45000 cEL: cvec[5]
 15
 ctrig aux items: aFloat anInt anInt2 dInt1 
@@ -1743,7 +1742,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [1090 1091 1092 1093 1094 1095 1096 1097 1098 ]
   pvFloat: [-0.395 -0.295 -0.195 -0.095 0.005 0.105 0.205 0.305 0.405 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
-cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 dInt1Base 
 cinfo  anInt1 15000 aFloat: 1.5 anInt2: 30000 dInt1: 45000 cEL: cvec[5]
 15
 ctrig aux items: aFloat anInt anInt2 dInt1 
@@ -1803,7 +1802,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [1190 1191 1192 1193 1194 1195 1196 1197 1198 ]
   pvFloat: [-0.394 -0.294 -0.194 -0.094 0.006 0.106 0.206 0.306 0.406 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
-cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 dInt1Base 
 cinfo  anInt1 16000 aFloat: 1.6 anInt2: 32000 dInt1: 48000 cEL: cvec[6]
 16
 ctrig aux items: aFloat anInt anInt2 dInt1 
@@ -1861,7 +1860,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [1190 1191 1192 1193 1194 1195 1196 1197 1198 ]
   pvFloat: [-0.394 -0.294 -0.194 -0.094 0.006 0.106 0.206 0.306 0.406 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
-cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 dInt1Base 
 cinfo  anInt1 16000 aFloat: 1.6 anInt2: 32000 dInt1: 48000 cEL: cvec[6]
 16
 ctrig aux items: aFloat anInt anInt2 dInt1 
@@ -1921,7 +1920,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [1290 1291 1292 1293 1294 1295 1296 1297 1298 ]
   pvFloat: [-0.393 -0.293 -0.193 -0.093 0.007 0.107 0.207 0.307 0.407 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
-cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 dInt1Base 
 cinfo  anInt1 17000 aFloat: 1.7 anInt2: 34000 dInt1: 51000 cEL: cvec[7]
 17
 ctrig aux items: aFloat anInt anInt2 dInt1 
@@ -1979,7 +1978,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [1290 1291 1292 1293 1294 1295 1296 1297 1298 ]
   pvFloat: [-0.393 -0.293 -0.193 -0.093 0.007 0.107 0.207 0.307 0.407 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
-cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 dInt1Base 
 cinfo  anInt1 17000 aFloat: 1.7 anInt2: 34000 dInt1: 51000 cEL: cvec[7]
 17
 ctrig aux items: aFloat anInt anInt2 dInt1 
@@ -2039,7 +2038,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [1390 1391 1392 1393 1394 1395 1396 1397 1398 ]
   pvFloat: [-0.392 -0.292 -0.192 -0.092 0.008 0.108 0.208 0.308 0.408 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
-cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 dInt1Base 
 cinfo  anInt1 18000 aFloat: 1.8 anInt2: 36000 dInt1: 54000 cEL: cvec[8]
 18
 ctrig aux items: aFloat anInt anInt2 dInt1 
@@ -2097,7 +2096,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [1390 1391 1392 1393 1394 1395 1396 1397 1398 ]
   pvFloat: [-0.392 -0.292 -0.192 -0.092 0.008 0.108 0.208 0.308 0.408 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
-cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 dInt1Base 
 cinfo  anInt1 18000 aFloat: 1.8 anInt2: 36000 dInt1: 54000 cEL: cvec[8]
 18
 ctrig aux items: aFloat anInt anInt2 dInt1 
@@ -2157,7 +2156,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [1490 1491 1492 1493 1494 1495 1496 1497 1498 ]
   pvFloat: [-0.391 -0.291 -0.191 -0.091 0.009 0.109 0.209 0.309 0.409 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
-cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 dInt1Base 
 cinfo  anInt1 19000 aFloat: 1.9 anInt2: 38000 dInt1: 57000 cEL: cvec[9]
 19
 ctrig aux items: aFloat anInt anInt2 dInt1 
@@ -2215,7 +2214,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [1490 1491 1492 1493 1494 1495 1496 1497 1498 ]
   pvFloat: [-0.391 -0.291 -0.191 -0.091 0.009 0.109 0.209 0.309 0.409 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
-cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 dInt1Base 
 cinfo  anInt1 19000 aFloat: 1.9 anInt2: 38000 dInt1: 57000 cEL: cvec[9]
 19
 ctrig aux items: aFloat anInt anInt2 dInt1 
@@ -2275,7 +2274,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [1590 1591 1592 1593 1594 1595 1596 1597 1598 ]
   pvFloat: [-0.390 -0.290 -0.190 -0.090 0.010 0.110 0.210 0.310 0.410 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
-cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 dInt1Base 
 cinfo  anInt1 20000 aFloat: 2 anInt2: 40000 dInt1: 60000 cEL: cvec[0]
 20
 ctrig aux items: aFloat anInt anInt2 dInt1 
@@ -2333,7 +2332,7 @@ Type of aux store: DMTest::CAuxContainer_v1
   pvInt: [1590 1591 1592 1593 1594 1595 1596 1597 1598 ]
   pvFloat: [-0.390 -0.290 -0.190 -0.090 0.010 0.110 0.210 0.310 0.410 ]
   dpvFloat: [1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 1.000 ]
-cinfo aux items: aFloat anInt anInt2 cEL dInt1 
+cinfo aux items: aFloat anInt anInt2 cEL dInt1 dInt1Base 
 cinfo  anInt1 20000 aFloat: 2 anInt2: 40000 dInt1: 60000 cEL: cvec[0]
 20
 ctrig aux items: aFloat anInt anInt2 dInt1 
@@ -2351,7 +2350,7 @@ copy_hvec: 8001.5 8002.5 8003.5 8004.5 8005.5 8006.5 8007.5 8008.5 8009.5 8010.5
 copy_hview: 8020.5 8019.5 8018.5 8017.5 8016.5 8015.5 8014.5 8013.5 8012.5 8011.5 8010.5 8009.5 8008.5 8007.5 8006.5 8005.5 8004.5 8003.5 8002.5 8001.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #0 20 events processed so far  <<<===
 xaoddata3.root       INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] A0916735-4864-C84D-B46B-2086E5E1530F
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 25DE488B-4B4E-3143-B233-1EC30C6E2F91
 ApplicationMgr       INFO Application Manager Stopped successfully
 IncidentProcAlg1     INFO Finalize
 IncidentProcAlg2     INFO Finalize

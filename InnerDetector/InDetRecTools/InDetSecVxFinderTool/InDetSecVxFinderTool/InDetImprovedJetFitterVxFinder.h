@@ -14,8 +14,6 @@
             christian.weiser@cern.ch
     changes: second version in January 2008!
  
-  2008 (c) Atlas Detector Software
-
   This class implements the finder functionality for using 
   the JetFitter algorithm. It uses as input a ParticleJet and 
   then gives the VxJetCandidate out after having performed the 
@@ -121,7 +119,7 @@ namespace InDet {
     ToolHandle<Trk::IVertexSeedFinder> m_CrossDistancesSeedFinder;
     ToolHandle<Trk::IMode3dFinder> m_mode3dfinder;
     ToolHandle<Trk::IVertexFitter> m_SequentialVertexFitter;
-    ToolHandle<Trk::INeutralParticleParameterCalculator> m_convUtils;
+    //ToolHandle<Trk::INeutralParticleParameterCalculator> m_convUtils;
     ToolHandle< Trk::IVxCandidateXAODVertex > m_VertexEdmFactory;
     
 

@@ -35,6 +35,7 @@ StatusCode LArBadChannelMasker::initialize()
    if(!m_doMasking)
    {
       ATH_MSG_INFO ( "Cell masking is OFF." );
+      m_badChanToolHandle.disable();
       return StatusCode::SUCCESS;       // Do nothing.
    }
 

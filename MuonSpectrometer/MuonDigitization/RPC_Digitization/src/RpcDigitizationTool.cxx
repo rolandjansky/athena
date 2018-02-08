@@ -3031,7 +3031,7 @@ StatusCode RpcDigitizationTool::DumpRPCCalibFromCoolDB() {
 		    int stripstatus	      = m_rSummarySvc->RPC_DeadStripList      ().find(atlasId)->second ;
 		    if( stripstatus != 1 )continue;
 		    ATH_MSG_VERBOSE( "Identifier " << atlasId << " sName "<<stationName<<" sEta " <<stationEta<<" sPhi "<<stationPhi<<" dR "<<doubletR<<" dZ "<<doubletZ<<" dPhi "<<doubletPhi<<" Gap "<<gasGap<<" view "<<measphi<<" strip "<<strip << " stripstatus "<<stripstatus );
-		    //std::cout<<"Identifier " << atlasId << " sName "<<stationName<<" sEta " <<stationEta<<" sPhi "<<stationPhi<<" dR "<<doubletR<<" dZ "<<doubletZ<<" dPhi "<<doubletPhi<<" Gap "<<gasGap<<" view "<<measphi<<" strip "<<strip << " stripstatus "<<stripstatus << std::endl;;
+		    //std::cout<<"Identifier " << atlasId << " sName "<<stationName<<" sEta " <<stationEta<<" sPhi "<<stationPhi<<" dR "<<doubletR<<" dZ "<<doubletZ<<" dPhi "<<doubletPhi<<" Gap "<<gasGap<<" view "<<measphi<<" strip "<<strip << " stripstatus "<<stripstatus << std::endl;
 
 		  }}}}}}}}}
   return sc;

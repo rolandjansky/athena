@@ -11,6 +11,7 @@
     changes : December 2014
     author  : Evelina Bouhova-Thacker <e.bouhova@cern.ch> 
               Changed to use xAOD
+              Changed to receive DataHandles from caller
 
  ***************************************************************************/
 
@@ -32,11 +33,6 @@
 #include "GaudiKernel/IPartPropSvc.h"
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh" // for chi2prob calculation
 
-#include "xAODTracking/Vertex.h"
-#include "xAODTracking/VertexContainer.h"
-#include "xAODTracking/VertexAuxContainer.h"
-#include "xAODTracking/TrackParticle.h"
-#include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackingPrimitives.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 
@@ -60,7 +56,6 @@ InDetV0FinderTool::InDetV0FinderTool(const std::string& t, const std::string& n,
   m_helpertool("InDet::ConversionFinderUtils"),
   m_trkSelector("InDet::TrackSelectorTool"),
   m_vertexEstimator("InDet::VertexPointEstimator"),
-  //m_extrapolator("Trk::Extrapolator/InDetExtrapolator"),
   m_extrapolator("Trk::Extrapolator"),
   m_particleDataTable(0),
   m_doSimpleV0(false),
@@ -95,8 +90,7 @@ InDetV0FinderTool::InDetV0FinderTool(const std::string& t, const std::string& n,
   m_vert_lxy_cut(500.),
   m_vert_a0xy_cut(3.),
   m_vert_a0z_cut(15.),
-  m_beamConditionsService("BeamCondSvc", n),
-  m_TrkParticleCollection("TrackParticleCandidate")
+  m_beamConditionsService("BeamCondSvc", n)
 {
   declareInterface<InDetV0FinderTool>(this);
   declareProperty("VertexFitterTool", m_iVertexFitter);
@@ -144,133 +138,73 @@ InDetV0FinderTool::InDetV0FinderTool(const std::string& t, const std::string& n,
   declareProperty("vert_a0xy_cut", m_vert_a0xy_cut );
   declareProperty("vert_a0z_cut", m_vert_a0z_cut );
   declareProperty("BeamConditionsSvc", m_beamConditionsService); 
-  declareProperty("TrackParticleCollection", m_TrkParticleCollection);
 }
 
 InDetV0FinderTool::~InDetV0FinderTool() {}
 
 StatusCode InDetV0FinderTool::initialize()
 {
-  StatusCode sc;
+  ATH_CHECK( m_trackParticleKey.initialize() );
 
 // Get the right vertex fitting tool from ToolSvc 
   if (m_useV0Fitter) {
-    if ( m_iVertexFitter.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_iVertexFitter << endmsg;
-      return StatusCode::FAILURE;
-    } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_iVertexFitter << endmsg;
-    }
-  
-    if ( m_iGammaFitter.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_iGammaFitter << endmsg;
-      return StatusCode::FAILURE;
-    } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_iGammaFitter << endmsg;
-    }
+    ATH_CHECK( m_iVertexFitter.retrieve() );
+    msg(MSG::INFO) << "Retrieved tool " << m_iVertexFitter << endmsg;
+ 
+    ATH_CHECK( m_iGammaFitter.retrieve() );
+    msg(MSG::INFO) << "Retrieved tool " << m_iGammaFitter << endmsg;
 
   } else {
-    if ( m_iVKVertexFitter.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_iVKVertexFitter << endmsg;
-      return StatusCode::FAILURE;
-    } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_iVKVertexFitter << endmsg;
-    }
+    ATH_CHECK( m_iVKVertexFitter.retrieve() );
+    msg(MSG::INFO) << "Retrieved tool " << m_iVKVertexFitter << endmsg;
 
 // Get the VKalVrt Ks vertex fitting tool from ToolSvc
-    if ( m_iKshortFitter.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_iKshortFitter << endmsg;
-      return StatusCode::FAILURE;
-    } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_iKshortFitter << endmsg;
-    }
+    ATH_CHECK( m_iKshortFitter.retrieve() );
+    msg(MSG::INFO) << "Retrieved tool " << m_iKshortFitter << endmsg;
 
 // Get the VKalVrt Lambda vertex fitting tool from ToolSvc
-    if ( m_iLambdaFitter.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_iLambdaFitter << endmsg;
-      return StatusCode::FAILURE;
-    } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_iLambdaFitter << endmsg;
-    }
+    ATH_CHECK( m_iLambdaFitter.retrieve() );
+    msg(MSG::INFO) << "Retrieved tool " << m_iLambdaFitter << endmsg;
 
 // Get the VKalVrt Lambdabar vertex fitting tool from ToolSvc
-    if ( m_iLambdabarFitter.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_iLambdabarFitter << endmsg;
-      return StatusCode::FAILURE;
-    } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_iLambdabarFitter << endmsg;
-    }
+    ATH_CHECK( m_iLambdabarFitter.retrieve() );
+    msg(MSG::INFO) << "Retrieved tool " << m_iLambdabarFitter << endmsg;
 
 // Get the VKalVrt Gamma vertex fitting tool from ToolSvc
-    if ( m_iGammaFitter.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_iGammaFitter << endmsg;
-      return StatusCode::FAILURE;
-    } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_iGammaFitter << endmsg;
-    }
-
+    ATH_CHECK( m_iGammaFitter.retrieve() );
+    msg(MSG::INFO) << "Retrieved tool " << m_iGammaFitter << endmsg;
   }
 
 // get the Particle Properties Service
   IPartPropSvc* partPropSvc = 0;
-  sc = service("PartPropSvc", partPropSvc, true);
-  if ( sc.isFailure() ) {
-    msg(MSG::ERROR) << "Could not initialize Particle Properties Service" << endmsg;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( service("PartPropSvc", partPropSvc, true) );
   m_particleDataTable = partPropSvc->PDT();
 
 // uploading the V0 tools
-  if ( m_V0Tools.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_V0Tools << endmsg;
-    return StatusCode::FAILURE;
-  } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_V0Tools << endmsg;
-  }
+  ATH_CHECK( m_V0Tools.retrieve() );
+  msg(MSG::INFO) << "Retrieved tool " << m_V0Tools << endmsg;
 
 // Get the TrackToVertex extrapolator tool
-  if ( m_trackToVertexTool.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_trackToVertexTool << endmsg;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_trackToVertexTool.retrieve() );
 
 // Get the extrapolator
-  if ( m_extrapolator.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endmsg;
-    return StatusCode::FAILURE;
-  } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endmsg;
-  }
+  ATH_CHECK( m_extrapolator.retrieve() );
+  msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endmsg;
 
-  if ( m_beamConditionsService.retrieve().isFailure() ) {
-    msg(MSG::WARNING) << "Failed to retrieve service " << m_beamConditionsService << endmsg;
-  } else {
-    msg(MSG::INFO) << "Retrieved service " << m_beamConditionsService << endmsg;
-  }
+  ATH_CHECK( m_beamConditionsService.retrieve() );
+  msg(MSG::INFO) << "Retrieved service " << m_beamConditionsService << endmsg;
 
 // Get the helpertool from ToolSvc
-  if ( m_helpertool.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_helpertool << endmsg;
-    return StatusCode::FAILURE;
-  } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_helpertool << endmsg;
-  }
+  ATH_CHECK( m_helpertool.retrieve() );
+  msg(MSG::INFO) << "Retrieved tool " << m_helpertool << endmsg;
 
 // Get the track selector tool from ToolSvc
-  if ( m_trkSelector.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_trkSelector << endmsg;
-    return StatusCode::FAILURE;
-  } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_trkSelector << endmsg;
-  }
+  ATH_CHECK( m_trkSelector.retrieve() );
+  msg(MSG::INFO) << "Retrieved tool " << m_trkSelector << endmsg;
 
 // Get the vertex point estimator tool from ToolSvc
-  if ( m_vertexEstimator.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_vertexEstimator << endmsg;
-    return StatusCode::FAILURE;
-  } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_vertexEstimator << endmsg;
-  }
+  ATH_CHECK( m_vertexEstimator.retrieve() );
+  msg(MSG::INFO) << "Retrieved tool " << m_vertexEstimator << endmsg;
 
   const HepPDT::ParticleData* pd_pi = m_particleDataTable->particle(PDG::pi_plus);
   const HepPDT::ParticleData* pd_p  = m_particleDataTable->particle(PDG::p_plus);
@@ -301,9 +235,10 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
                                             xAOD::VertexContainer*& ksContainer, xAOD::VertexAuxContainer*& ksAuxContainer,
                                             xAOD::VertexContainer*& laContainer, xAOD::VertexAuxContainer*& laAuxContainer,
                                             xAOD::VertexContainer*& lbContainer, xAOD::VertexAuxContainer*& lbAuxContainer,
-                                            const xAOD::Vertex* primaryVertex, std::string vertCollName)
+                                            const xAOD::Vertex* primaryVertex,
+					    SG::ReadHandle<xAOD::VertexContainer> vertColl
+					    )
 {
-  StatusCode sc;
 
   ATH_MSG_DEBUG( "InDetV0FinderTool::performSearch" );
   v0Container = new xAOD::VertexContainer;
@@ -321,14 +256,6 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
 
   m_events_processed ++;
 
-// Get the ToolSvc
-  IToolSvc* toolsvc;
-  sc=service("ToolSvc",toolsvc);
-  if ( sc.isFailure() ) {
-    ATH_MSG_WARNING("Problem loading tool service. v0Candidates will be EMPTY!");
-    return StatusCode::SUCCESS;;
-  };
-
 // making a concrete fitter for the V0Fitter
   Trk::TrkV0VertexFitter* concreteVertexFitter=0;
   if (m_useV0Fitter) {
@@ -339,27 +266,24 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
     }
   }
 
+
 // Retrieve track particles from StoreGate
-  const xAOD::TrackParticleContainer* TPC(0);
-  sc = evtStore()->retrieve(TPC,m_TrkParticleCollection);
-  if ( sc.isFailure() ){
-      ATH_MSG_ERROR("No TrackParticle collection with name " << m_TrkParticleCollection << " found in StoreGate!");
-      return StatusCode::SUCCESS;;
-  } else {
-      ATH_MSG_DEBUG("Found TrackParticle collection " << m_TrkParticleCollection << " in StoreGate!");
+  SG::ReadHandle<xAOD::TrackParticleContainer> TPC( m_trackParticleKey );
+  if ( !TPC.isValid() )
+  {
+      ATH_MSG_ERROR("Input TrackParticle collection is invalid!");
+      return StatusCode::SUCCESS;
   }
   ATH_MSG_DEBUG("Track particle container size " <<  TPC->size());
 
-  const xAOD::VertexContainer * vertColl(0);
   if (m_use_vertColl) {
 // Retrieve vertex collection for V0 selection
-    sc = evtStore()->retrieve(vertColl,vertCollName);
-    if ( sc.isFailure() ) {
-      ATH_MSG_WARNING("No vertex collection with name " << vertCollName << " found in StoreGate!");
+    if ( !vertColl.isValid() )
+    {
+      ATH_MSG_WARNING("Input vertex collection is invalid!");
       return StatusCode::RECOVERABLE;
-    } else {
-      ATH_MSG_DEBUG("Found " << vertCollName << " in StoreGate!");
     }
+    ATH_MSG_DEBUG("Vertex  container size " << vertColl->size());
   }
 
   Amg::Vector3D beamspot = Amg::Vector3D(m_beamConditionsService->beamVtx().position());
@@ -437,7 +361,7 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
 
       bool d0wrtVertex = true;
       if (m_use_vertColl) {
-        if ( !d0Pass(TP1,TP2,vertColl) ) d0wrtVertex = false;
+        if ( !d0Pass(TP1,TP2,vertColl.cptr()) ) d0wrtVertex = false;
       }
       if (!m_use_vertColl && m_pv) {
         if (primaryVertex) {
@@ -498,7 +422,7 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
                   {
                     bool pointAtVert = true;
                     if (m_use_vertColl) {
-                      if ( !pointAtVertexColl(myVxCandidate.get(),vertColl) ) pointAtVert = false;
+                      if ( !pointAtVertexColl(myVxCandidate.get(),vertColl.cptr()) ) pointAtVert = false;
                     }
                     if (!m_use_vertColl && m_pv && primaryVertex) {
                       if ( !pointAtVertex(myVxCandidate.get(),primaryVertex) ) pointAtVert = false;

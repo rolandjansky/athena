@@ -92,32 +92,14 @@ from IOVDbSvc.CondDB import conddb
 IOVDbSvc.GlobalTag='CONDBR2-BLKPA-2017-06'
 IOVDbSvc.OutputLevel = DEBUG
 
-# Load AthCondSeq
-from AthenaCommon.AlgSequence import AthSequencer 
-condSeq = AthSequencer("AthCondSeq")
+from SCT_ConditionsServices.SCT_ReadCalibDataSvcSetup import sct_ReadCalibDataSvcSetup
+sct_ReadCalibDataSvcSetup.setup()
 
-# Load conditions folders
-sctGainDefectFolder="/SCT/DAQ/Calibration/NPtGainDefects"
-if not conddb.folderRequested(sctGainDefectFolder):
-    conddb.addFolderSplitMC("SCT", sctGainDefectFolder, sctGainDefectFolder, className="CondAttrListCollection")
-sctNoiseDefectFolder="/SCT/DAQ/Calibration/NoiseOccupancyDefects"
-if not conddb.folderRequested(sctNoiseDefectFolder):
-    conddb.addFolderSplitMC("SCT", sctNoiseDefectFolder, sctNoiseDefectFolder, className="CondAttrListCollection")
-
-
-from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibDataCondAlg
-condSeq += SCT_ReadCalibDataCondAlg(name = "SCT_ReadCalibDataCondAlg",
-                                    ReadKeyGain = sctGainDefectFolder,
-                                    ReadKeyNoise = sctNoiseDefectFolder)
-SCT_ReadCalibDataCondAlg = condSeq.SCT_ReadCalibDataCondAlg
+SCT_ReadCalibDataCondAlg = sct_ReadCalibDataSvcSetup.getAlg()
+SCT_ReadCalibDataSvc = sct_ReadCalibDataSvcSetup.getSvc()
 
 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibDataTestAlg
 topSequence+= SCT_ReadCalibDataTestAlg()
-
-from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibDataSvc
-ServiceMgr += SCT_ReadCalibDataSvc()
-
-SCT_ReadCalibDataSvc=ServiceMgr.SCT_ReadCalibDataSvc
 
 #SCT_ReadCalibDataSvc.RecoOnly = False
 # <-999 setting ignores the defect, otherwise it will be checked against the set value
@@ -175,35 +157,35 @@ conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/ROD", "/SCT/DAQ/Config/ROD")
 #--------------------------------------------------------------
 # Test return ConditionsSummary?
 if DoTestmyConditionsSummary:
- SCT_ReadCalibDataTestAlg.DoTestmyConditionsSummary = True
+    SCT_ReadCalibDataTestAlg.DoTestmyConditionsSummary = True
 else:
- SCT_ReadCalibDataTestAlg.DoTestmyConditionsSummary = False
+    SCT_ReadCalibDataTestAlg.DoTestmyConditionsSummary = False
 
 # Test my isGood method
 if DoTestmyDefectIsGood:
- SCT_ReadCalibDataTestAlg.DoTestmyDefectIsGood = True
+    SCT_ReadCalibDataTestAlg.DoTestmyDefectIsGood = True
 else:
- SCT_ReadCalibDataTestAlg.DoTestmyDefectIsGood = False
+    SCT_ReadCalibDataTestAlg.DoTestmyDefectIsGood = False
 
 # Test return DefectType?
 if DoTestmyDefectType:
- SCT_ReadCalibDataTestAlg.DoTestmyDefectType = True
+    SCT_ReadCalibDataTestAlg.DoTestmyDefectType = True
 else:
- SCT_ReadCalibDataTestAlg.DoTestmyDefectType = False
+    SCT_ReadCalibDataTestAlg.DoTestmyDefectType = False
 
 # Test return DefectsSummary?
 if DoTestmyDefectsSummary:
- SCT_ReadCalibDataTestAlg.DoTestmyDefectsSummary = True
+    SCT_ReadCalibDataTestAlg.DoTestmyDefectsSummary = True
 else:
- SCT_ReadCalibDataTestAlg.DoTestmyDefectsSummary = False
+    SCT_ReadCalibDataTestAlg.DoTestmyDefectsSummary = False
 
 # Test return DefectsList?
 if DoTestmyDefectList:
- SCT_ReadCalibDataTestAlg.DoTestmyDefectList = True
+    SCT_ReadCalibDataTestAlg.DoTestmyDefectList = True
 else:
- SCT_ReadCalibDataTestAlg.DoTestmyDefectList = False
+    SCT_ReadCalibDataTestAlg.DoTestmyDefectList = False
 
 #Print out defects maps
 if PrintOutCalibDefectMaps:
- ServiceMgr.SCT_ReadCalibDataSvc.PrintCalibDefectMaps = True
+    ServiceMgr.SCT_ReadCalibDataSvc.PrintCalibDefectMaps = True
 

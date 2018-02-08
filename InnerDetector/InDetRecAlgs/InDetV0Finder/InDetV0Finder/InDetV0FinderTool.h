@@ -21,6 +21,8 @@
 #include "InDetConversionFinderTools/InDetConversionFinderTools.h"
 #include "DataModel/DataVector.h"
 #include "ITrackToVertex/ITrackToVertex.h"
+#include "xAODTracking/VertexContainer.h"
+#include "xAODTracking/TrackParticleContainer.h"
 
 /**
    The InDetV0FinderTool reads in the TrackParticle container from StoreGate,
@@ -100,10 +102,15 @@ namespace InDet
                              xAOD::VertexContainer*& ksContainer, xAOD::VertexAuxContainer*& ksAuxContainer,
                              xAOD::VertexContainer*& laContainer, xAOD::VertexAuxContainer*& laAuxContainer,
                              xAOD::VertexContainer*& lbContainer, xAOD::VertexAuxContainer*& lbAuxContainer,
-                             const xAOD::Vertex* vertex, std::string vertCollName);
+                             const xAOD::Vertex* vertex, 
+			     // AthenaMT migration: passing the vertex collection name at run-time is not supported
+			     SG::ReadHandle<xAOD::VertexContainer> vertColl
+			     );
 
   //protected:
   private:
+    SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackParticleKey { this, "TrackParticleCollection", "InDetTrackParticles", 
+                                                                         "key for retrieval of TrackParticles" };
 
     ToolHandle < Trk::IVertexFitter > m_iVertexFitter;
     ToolHandle < Trk::IVertexFitter > m_iVKVertexFitter;
@@ -161,9 +168,6 @@ namespace InDet
     unsigned int  m_Gamma_stored;
 
     ServiceHandle <IBeamCondSvc> m_beamConditionsService;
-
-    std::string   m_TrkParticleCollection ;   //!< Name of input track particle collection
-
 
     void SGError(std::string errService);
 

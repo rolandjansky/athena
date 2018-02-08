@@ -40,11 +40,11 @@
 InDet::InDetVertexSplitter::InDetVertexSplitter(const std::string& name,
   ISvcLocator* pSvcLocator) : 
   AthAlgorithm(name, pSvcLocator),
-  isMatchedOdd(false),
-  isUnmatchOdd(false),
-  addToVxMatched(0),
-  addToVxUnmatch(0),
-  eventN(0){
+  m_isMatchedOdd(false),
+  m_isUnmatchOdd(false),
+  m_addToVxMatched(0),
+  m_addToVxUnmatch(0),
+  m_eventN(0){
 
   /// switches to control the analysis through job options
   declareProperty("TPBContainerName", m_tpbContainerName = "TrackParticleCandidate");
@@ -67,11 +67,11 @@ InDet::InDetVertexSplitter::~InDetVertexSplitter() {}
 
 StatusCode InDet::InDetVertexSplitter::initialize() {
 
-  isMatchedOdd = false;
-  isUnmatchOdd = false;
-  addToVxMatched = 1;
-  addToVxUnmatch = 1;
-  eventN = 0;
+  m_isMatchedOdd = false;
+  m_isUnmatchOdd = false;
+  m_addToVxMatched = 1;
+  m_addToVxUnmatch = 1;
+  m_eventN = 0;
 
   for (int i = 1; i <=m_maxVtx; i++){
     std::stringstream ss;
@@ -217,41 +217,41 @@ StatusCode InDet::InDetVertexSplitter::split_vertices() {
     Trk::TrackParticleBase *trkCopy2 = new Trk::TrackParticleBase((*(*tpbItr)));
     if (trackmatched == false){
       std::string oeNameString;
-      if (isUnmatchOdd)  oeNameString = "odd";
-      if (!isUnmatchOdd) oeNameString = "even";
+      if (m_isUnmatchOdd)  oeNameString = "odd";
+      if (!m_isUnmatchOdd) oeNameString = "even";
       std::stringstream sss;
-      sss << oeNameString << "_" << addToVxUnmatch << "_Tracks";
+      sss << oeNameString << "_" << m_addToVxUnmatch << "_Tracks";
       std::string oecontainerName = sss.str();          
       std::string allNameString = "all";
       sss.str("");
-      sss << allNameString << "_" << addToVxUnmatch << "_Tracks";
+      sss << allNameString << "_" << m_addToVxUnmatch << "_Tracks";
       std::string allcontainerName = sss.str();  
       ATH_MSG_DEBUG("found an unmatched trackparticlebase, giving it the key: "<< oecontainerName); 
       tpbmap[oecontainerName]->push_back(trkCopy1);
       ATH_MSG_DEBUG("found an unmatched trackparticlebase, giving it the key: "<< allcontainerName);  
       tpbmap[allcontainerName]->push_back(trkCopy2);  
-      isUnmatchOdd = !isUnmatchOdd;
-      addToVxUnmatch++;
-      if (addToVxUnmatch > m_maxVtx) addToVxUnmatch = 1;
+      m_isUnmatchOdd = !m_isUnmatchOdd;
+      m_addToVxUnmatch++;
+      if (m_addToVxUnmatch > m_maxVtx) m_addToVxUnmatch = 1;
     }
     if (trackmatched == true){
       std::string oeNameString;
-      if (isMatchedOdd)  oeNameString = "odd";
-      if (!isMatchedOdd) oeNameString = "even";
+      if (m_isMatchedOdd)  oeNameString = "odd";
+      if (!m_isMatchedOdd) oeNameString = "even";
       std::stringstream sss;
-      sss << oeNameString << "_" << addToVxMatched << "_Tracks";
+      sss << oeNameString << "_" << m_addToVxMatched << "_Tracks";
       std::string oecontainerName = sss.str();          
       std::string allNameString = "all";
       sss.str("");
-      sss << allNameString << "_" << addToVxMatched << "_Tracks";
+      sss << allNameString << "_" << m_addToVxMatched << "_Tracks";
       std::string allcontainerName = sss.str();  
       ATH_MSG_DEBUG("found an matched trackparticlebase, giving it the key: "<< oecontainerName); 
       tpbmap[oecontainerName]->push_back(trkCopy1);
       ATH_MSG_DEBUG("found an matched trackparticlebase, giving it the key: "<< allcontainerName);  
       tpbmap[allcontainerName]->push_back(trkCopy2);  
-      isMatchedOdd = !isMatchedOdd;
-      addToVxMatched++;
-      if (addToVxMatched > m_maxVtx) addToVxMatched = 1;
+      m_isMatchedOdd = !m_isMatchedOdd;
+      m_addToVxMatched++;
+      if (m_addToVxMatched > m_maxVtx) m_addToVxMatched = 1;
     }
   }
       }
@@ -290,41 +290,41 @@ StatusCode InDet::InDetVertexSplitter::split_vertices() {
     Trk::Track *trkCopy2 = new Trk::Track((*(*trkItr)));
     if (trackmatched == false){
       std::string oeNameString;
-      if (isUnmatchOdd)  oeNameString = "odd";
-      if (!isUnmatchOdd) oeNameString = "even";
+      if (m_isUnmatchOdd)  oeNameString = "odd";
+      if (!m_isUnmatchOdd) oeNameString = "even";
       std::stringstream sss;
-      sss << oeNameString << "_" << addToVxUnmatch << "_Tracks";
+      sss << oeNameString << "_" << m_addToVxUnmatch << "_Tracks";
       std::string oecontainerName = sss.str();          
       std::string allNameString = "all";
       sss.str("");
-      sss << allNameString << "_" << addToVxUnmatch << "_Tracks";
+      sss << allNameString << "_" << m_addToVxUnmatch << "_Tracks";
       std::string allcontainerName = sss.str();  
       ATH_MSG_DEBUG("found an unmatched track, giving it the key: "<< oecontainerName); 
       trackmap[oecontainerName]->push_back(trkCopy1);
       ATH_MSG_DEBUG("found an unmatched track, giving it the key: "<< allcontainerName);  
       trackmap[allcontainerName]->push_back(trkCopy2);  
-      isUnmatchOdd = !isUnmatchOdd;
-      addToVxUnmatch++;
-      if (addToVxUnmatch > m_maxVtx) addToVxUnmatch = 1;
+      m_isUnmatchOdd = !m_isUnmatchOdd;
+      m_addToVxUnmatch++;
+      if (m_addToVxUnmatch > m_maxVtx) m_addToVxUnmatch = 1;
     }
     if (trackmatched == true){
       std::string oeNameString;
-      if (isMatchedOdd)  oeNameString = "odd";
-      if (!isMatchedOdd) oeNameString = "even";
+      if (m_isMatchedOdd)  oeNameString = "odd";
+      if (!m_isMatchedOdd) oeNameString = "even";
       std::stringstream sss;
-      sss << oeNameString << "_" << addToVxMatched << "_Tracks";
+      sss << oeNameString << "_" << m_addToVxMatched << "_Tracks";
       std::string oecontainerName = sss.str();          
       std::string allNameString = "all";
       sss.str("");
-      sss << allNameString << "_" << addToVxMatched << "_Tracks";
+      sss << allNameString << "_" << m_addToVxMatched << "_Tracks";
       std::string allcontainerName = sss.str();  
       ATH_MSG_DEBUG("found an matched track, giving it the key: "<< oecontainerName); 
       trackmap[oecontainerName]->push_back(trkCopy1);
       ATH_MSG_DEBUG("found an matched track, giving it the key: "<< allcontainerName);  
       trackmap[allcontainerName]->push_back(trkCopy2);  
-      isMatchedOdd = !isMatchedOdd;
-      addToVxMatched++;
-      if (addToVxMatched > m_maxVtx) addToVxMatched = 1;
+      m_isMatchedOdd = !m_isMatchedOdd;
+      m_addToVxMatched++;
+      if (m_addToVxMatched > m_maxVtx) m_addToVxMatched = 1;
     }
   }
       }
@@ -338,7 +338,7 @@ StatusCode InDet::InDetVertexSplitter::split_vertices() {
   //std::cout<<"Dumping Odd Tracks for Event"<<std::endl;
   //for (; ot1i != ot1e; ot1i++){
   //  std::cout<<"Next Track"<<std::endl;
-  //  std::cout<<eventN<<": "<<(*ot1i)->definingParameters().momentum().eta()<<" , "<<(*ot1i)->definingParameters().momentum().phi()<<std::endl;
+  //  std::cout<<m_eventN<<": "<<(*ot1i)->definingParameters().momentum().eta()<<" , "<<(*ot1i)->definingParameters().momentum().phi()<<std::endl;
   //  std::cout<<std::endl;
   //}
   //End Track Info Dump
@@ -357,7 +357,7 @@ StatusCode InDet::InDetVertexSplitter::split_vertices() {
     
   ATH_MSG_DEBUG("split_vertices() succeeded");
   
-  eventN++;
+  m_eventN++;
   return StatusCode::SUCCESS;
 }
 

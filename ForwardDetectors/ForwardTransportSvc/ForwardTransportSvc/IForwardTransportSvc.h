@@ -40,7 +40,7 @@ class IForwardTransportSvc: virtual public IInterface {
     virtual void fillMcInfo      (G4ThreeVector pos, double tim, G4ThreeVector mom, double ene)                                                = 0;
     virtual void addMcVertex     (G4ThreeVector pos, double tim, G4ThreeVector mom, double ene, int pid, bool isTransported, HepMC::GenEvent*) = 0;
     
-    virtual HepMC::GenEvent* getEvent() = 0;
+    virtual const HepMC::GenEvent* getEvent() = 0;
 };
 
 #endif 

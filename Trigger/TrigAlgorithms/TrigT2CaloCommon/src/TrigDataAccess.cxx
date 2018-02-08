@@ -140,7 +140,7 @@ StatusCode TrigDataAccess::initialize()
 	m_zdc_rods.push_back(0x00830002);
 	m_zdc_rods.push_back(0x00830003);
 
-	// luminosiry tool
+	// luminosity tool
 	if ( m_applyOffsetCorrection ) {
 	  ATH_MSG_INFO("Apply BCID/<mu> dependent offset correction");
 	  if ( m_caloLumiBCIDTool.retrieve().isFailure() ) {
@@ -156,6 +156,7 @@ StatusCode TrigDataAccess::initialize()
 	  //}
 	} else {
 	  ATH_MSG_INFO("No BCID/<mu> dependent offset correction");
+	  m_caloLumiBCIDTool.disable();
 	}
 
 	return StatusCode::SUCCESS;

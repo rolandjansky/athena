@@ -1462,7 +1462,7 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	  /*  Estimates the global Z position of a TRT barrel hit by using the x,y position of the 
 	      straw and the track theta */	  
 	  float hitZ = -999.;
-	  Amg::Vector3D  center(-9999.,-9999.,-9999);;
+	  Amg::Vector3D  center(-9999.,-9999.,-9999);
 	  if (RawDriftCircle!=NULL)
 	    center = RawDriftCircle->detectorElement()->surface( id ).center() ;
 	  

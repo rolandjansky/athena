@@ -495,7 +495,7 @@ int FTK_AMBank::readASCIIBank(const char *fname, int maxpatt)
       m_patternCoverage[ipatt] = ival;
       m_totalCoverage += ival;
      (*m_sectorCoverage)[m_patterns[_SSPOS(ipatt,m_nplanes)]] += m_patternCoverage[ipatt];
-     //cout<<ival<<" "<<endl;; //hier
+     //cout<<ival<<" "<<endl; //hier
 
       // check if there is an error during the file reading
       if (!pattfile) {
@@ -636,7 +636,7 @@ int FTK_AMBank::readROOTBankSectorOrdered(TFile* pattfile, int maxpatt)
             m_patternCoverage[patternID] = coverage;
             m_totalCoverage += coverage;
             (*m_sectorCoverage)[m_patterns[_SSPOS(patternID,m_nplanes)]] += m_patternCoverage[patternID];
-	 //cout<<sector<<" "<<coverage<<" "<<endl;; //hier
+	 //cout<<sector<<" "<<coverage<<" "<<endl; //hier
 
             patternID++; // increment the global pattern ID
          } // end for (patterns)
@@ -764,7 +764,7 @@ int FTK_AMBank::readROOTBankFTKPatternTree(TFile* pattfile, TString treename, in
      m_totalCoverage += m_patternCoverage[ipatt];
      (*m_sectorCoverage)[m_patterns[_SSPOS(ipatt,m_nplanes)]] += m_patternCoverage[ipatt];
  
-     //cout<<tmppatt->getSectorID()<<" "<<tmppatt->getCoverage()<<" "<<endl;; //hier
+     //cout<<tmppatt->getSectorID()<<" "<<tmppatt->getCoverage()<<" "<<endl; //hier
 
    } // end loop over patterns
    cout << "]" << endl;

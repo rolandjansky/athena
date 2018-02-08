@@ -66,9 +66,9 @@ namespace G4UA
 
     m_evt = 0;
 
-    G4cout<<"ScoringPlane: placing scoring plane at [mm]: " << m_config.plane << G4endl;;
-    G4cout<<"ScoringPlane: stop and kill particles: "       << m_config.pkill << G4endl;;
-    G4cout<<"ScoringPlane: output root filename: "          << m_config.fname << G4endl;;
+    G4cout<<"ScoringPlane: placing scoring plane at [mm]: " << m_config.plane << G4endl;
+    G4cout<<"ScoringPlane: stop and kill particles: "       << m_config.pkill << G4endl;
+    G4cout<<"ScoringPlane: output root filename: "          << m_config.fname << G4endl;
   }
 
   void ScoringPlane::EndOfRunAction(const G4Run*){

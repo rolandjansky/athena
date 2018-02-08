@@ -212,6 +212,9 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
     }
     ATH_CHECK( m_extrapolator.retrieve() );
     ATH_MSG_INFO( "Retrieved tool " << m_extrapolator );
+  } else {
+    m_extrapolator.disable();
+    m_trackSumTool.disable();
   }
 #endif // XAOD_ANALYSIS
 

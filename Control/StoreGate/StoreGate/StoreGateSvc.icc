@@ -174,7 +174,7 @@ StatusCode StoreGateSvc::record(T* pObject, const TKEY& key,
 // Retrieve the default object (with no key) as a const pointer
 //////////////////////////////////////////////////////////////////
 template <typename T> 
-StatusCode StoreGateSvc::retrieve(const T*& ptr)
+StatusCode StoreGateSvc::retrieve(const T*& ptr) const
 {
   _SGXCALL(retrieve, (ptr), StatusCode::FAILURE);
 }
@@ -183,7 +183,7 @@ StatusCode StoreGateSvc::retrieve(const T*& ptr)
 // Retrieve the default object (with no key) as a pointer (non-const)
 //////////////////////////////////////////////////////////////////
 template <typename T> 
-StatusCode StoreGateSvc::retrieve(T*& ptr)
+StatusCode StoreGateSvc::retrieve(T*& ptr) const
 {
   _SGXCALL(retrieve, (ptr), StatusCode::FAILURE);
 }
@@ -192,7 +192,7 @@ StatusCode StoreGateSvc::retrieve(T*& ptr)
 // Retrieve the keyed object as a const pointer
 //////////////////////////////////////////////////////////////////
 template <typename T, typename TKEY>
-StatusCode StoreGateSvc::retrieve(const T*& ptr, const TKEY& key)
+StatusCode StoreGateSvc::retrieve(const T*& ptr, const TKEY& key) const
 {
   _SGXCALL(retrieve, (ptr, key), StatusCode::FAILURE);
 }
@@ -201,7 +201,7 @@ StatusCode StoreGateSvc::retrieve(const T*& ptr, const TKEY& key)
 // Retrieve the keyed object as a non-const pointer
 //////////////////////////////////////////////////////////////////
 template <typename T, typename TKEY>
-StatusCode StoreGateSvc::retrieve(T*& ptr, const TKEY& key)
+StatusCode StoreGateSvc::retrieve(T*& ptr, const TKEY& key) const
 {
   _SGXCALL(retrieve, (ptr, key), StatusCode::FAILURE);
 }
@@ -210,7 +210,7 @@ StatusCode StoreGateSvc::retrieve(T*& ptr, const TKEY& key)
 template <typename T> 
 StatusCode 
 StoreGateSvc::retrieve(SG::ConstIterator<T>& begin, 
-                       SG::ConstIterator<T>& end) {
+                       SG::ConstIterator<T>& end) const {
   _SGXCALL(retrieve, (begin, end), StatusCode::FAILURE);
 }
 
@@ -221,7 +221,7 @@ StoreGateSvc::retrieve(SG::ConstIterator<T>& begin,
  **/
 
 template <typename T>
-T* StoreGateSvc::retrieve ()
+T* StoreGateSvc::retrieve () const
 {
   _SGXCALL(retrieve<T>, (), 0);
 }
@@ -232,7 +232,7 @@ T* StoreGateSvc::retrieve ()
  * @param key The key to use for the lookup.
  **/
 template <typename T, class TKEY>
-T* StoreGateSvc::retrieve (const TKEY& key)
+T* StoreGateSvc::retrieve (const TKEY& key) const
 {
   _SGXCALL(retrieve<T>, (key), 0);
 }
@@ -242,13 +242,13 @@ T* StoreGateSvc::retrieve (const TKEY& key)
  *        Return 0 if not found.
  **/
 template <typename T>
-T* StoreGateSvc::tryRetrieve ()
+T* StoreGateSvc::tryRetrieve () const
 {
   _SGXCALL(tryRetrieve<T>, (), 0);
 }
 
 template <typename T>
-const T* StoreGateSvc::tryConstRetrieve()
+const T* StoreGateSvc::tryConstRetrieve() const
 {
   _SGXCALL(tryConstRetrieve<T>, (), 0);
 }
@@ -259,33 +259,15 @@ const T* StoreGateSvc::tryConstRetrieve()
  * @param key The key to use for the lookup.
  **/
 template <typename T, class TKEY>
-T* StoreGateSvc::tryRetrieve (const TKEY& key)
+T* StoreGateSvc::tryRetrieve (const TKEY& key) const
 {
   _SGXCALL(tryRetrieve<T>, (key), 0);
 }
 
 template <typename T, class TKEY>
-const T* StoreGateSvc::tryConstRetrieve (const TKEY& key)
+const T* StoreGateSvc::tryConstRetrieve (const TKEY& key) const
 {
   _SGXCALL(tryConstRetrieve<T>, (key), 0);
-}
-
-/**
- * @brief Retrieve an object of type @c T from StoreGate and associate it
- *        to its auxiliary store
- *        Return 0 the object or the aux store is not found.
- * @param key The key to use for the lookup.
- **/
-template <typename T, class TKEY>
-T* StoreGateSvc::retrieveAux (const TKEY& key)
-{
-  _SGXCALL(retrieveAux<T>, (key), 0);
-}
-
-template <typename T, class TKEY>
-const T* StoreGateSvc::constRetrieveAux (const TKEY& key)
-{
-  _SGXCALL(constRetrieveAux<T>, (key), 0);
 }
 
 template <typename T>
@@ -453,14 +435,14 @@ StoreGateSvc::removeDataAndProxy(const T* pObject)  {
 template <typename T, class TKEY>
 StatusCode 
 StoreGateSvc::retrieveHighestVersion(SG::ObjectWithVersion<T>& dobjWithVersion, 
-                                     const TKEY& requestedKey) {
+                                     const TKEY& requestedKey) const {
   _SGXCALL(retrieveHighestVersion, (dobjWithVersion, requestedKey), StatusCode::FAILURE);
 }
 
 template <typename T, class TKEY>
 StatusCode
 StoreGateSvc::retrieveAllVersions(std::list< SG::ObjectWithVersion<T> >& allVersions,
-                                  const TKEY& requestedKey) {
+                                  const TKEY& requestedKey) const {
   _SGXCALL(retrieveAllVersions, (allVersions, requestedKey), StatusCode::FAILURE);
 }
 
@@ -541,21 +523,17 @@ StoreGateSvc::proxyProviderSvc() {
 
 
 /**
- * @brief associate a data object to its auxiliary store
- *        Return false if the aux store is not found.
- * @param key The key to use for the lookup.
- **/
-template <class DOBJ>
-bool StoreGateSvc::associateAux (DataHandle<DOBJ>& handle, bool ignoreMissing)
-{
-  _SGXCALL(associateAux, (handle, ignoreMissing), false);
+ * @brief Return the metadata source ID for the current event slot.
+ *        Returns an empty string if no source has been set.
+ *
+ *        The default version always returns an empty string.
+ */
+inline
+SG::SourceID
+StoreGateSvc::sourceID() const {
+  _SGXCALL(sourceID, (), "");
 }
 
-template <class DOBJ>
-bool StoreGateSvc::associateAux (const DataHandle<DOBJ>& handle, bool ignoreMissing)
-{
-  _SGXCALL(associateAux, (handle, ignoreMissing), false);
-}
 
 template <class TKEY>
 void 
@@ -570,28 +548,28 @@ StoreGateSvc::remap (CLID clid,
 /// DEPRECATED: Retrieve the default object into a const DataHandle
 template <typename T> 
 StatusCode 
-StoreGateSvc::retrieve(const DataHandle<T>& handle) {
+StoreGateSvc::retrieve(const DataHandle<T>& handle) const {
   _SGXCALL(retrieve, (handle), StatusCode::FAILURE);
 }
 
 /// DEPRECATED: Retrieve the default object into a DataHandle
 template <typename T> 
 StatusCode
-StoreGateSvc::retrieve(DataHandle<T>& handle) {
+StoreGateSvc::retrieve(DataHandle<T>& handle) const {
   _SGXCALL(retrieve, (handle), StatusCode::FAILURE);
 }
 
 /// DEPRECATED: Retrieve an object with "key", into a const DataHandle
 template <typename T, typename TKEY> 
 StatusCode 
-StoreGateSvc::retrieve(const DataHandle<T>& handle, const TKEY& key) {
+StoreGateSvc::retrieve(const DataHandle<T>& handle, const TKEY& key) const {
   _SGXCALL(retrieve, (handle, key), StatusCode::FAILURE);
 }
 
 /// DEPRECATED: Retrieve an object with "key", into a DataHandle
 template <typename T, typename TKEY> 
 StatusCode 
-StoreGateSvc::retrieve(DataHandle<T>& handle, const TKEY& key) {
+StoreGateSvc::retrieve(DataHandle<T>& handle, const TKEY& key) const {
   _SGXCALL(retrieve, (handle, key), StatusCode::FAILURE);
 }
 
@@ -599,7 +577,7 @@ StoreGateSvc::retrieve(DataHandle<T>& handle, const TKEY& key) {
 template <typename T> 
 StatusCode 
 StoreGateSvc::retrieve(const DataHandle<T>& begin, 
-                       const DataHandle<T>& end) {
+                       const DataHandle<T>& end) const {
   _SGXCALL(retrieve, (begin, end), StatusCode::FAILURE);
 }
 

@@ -11,23 +11,12 @@ def getDefaultRunActions():
 
 # begin of event
 def getDefaultEventActions():
-    from G4AtlasApps.SimFlags import simFlags
-    from AthenaCommon.BeamFlags import beamFlags
     defaultUA=[]
-    if hasattr(simFlags, 'CalibrationRun') and simFlags.CalibrationRun() == 'LAr+Tile':
-        defaultUA+=['G4UA::CaloG4::CalibrationDefaultProcessingTool']
-    # Cosmic filter
-    if flag_on('StoppedParticleFile') or (
-       beamFlags.beamType() == 'cosmics' and not simFlags.ISFRun):
-        defaultUA += ['G4UA::G4CosmicFilterTool']
     return defaultUA
 
 # stepping
 def getDefaultSteppingActions():
-    from G4AtlasApps.SimFlags import simFlags
     defaultUA=[]
-    if hasattr(simFlags, 'CalibrationRun') and simFlags.CalibrationRun() == 'LAr+Tile':
-        defaultUA+=['G4UA::CaloG4::CalibrationDefaultProcessingTool']
     return defaultUA
 
 # tracking
@@ -62,22 +51,27 @@ def getDefaultActions():
     if not simFlags.ISFRun:
         actions += ['G4UA::AthenaTrackingActionTool',
                     'G4UA::MCTruthSteppingActionTool',
-                    'G4UA::G4SimTimerTool',
-                    ]
+                    'G4UA::G4SimTimerTool']
     # Track counter
     actions += ['G4UA::G4TrackCounterTool']
     # Cosmic Perigee action
     if beamFlags.beamType() == 'cosmics' and flag_off('CavernBG'):
         actions += ['G4UA::CosmicPerigeeActionTool']
-    # Stopped particle action
+    # Cosmic filter
+    if beamFlags.beamType() == 'cosmics' and not simFlags.ISFRun:
+        actions += ['G4UA::G4CosmicFilterTool']
     if flag_on('StoppedParticleFile'):
-        actions += ['G4UA::StoppedParticleActionTool']
+        actions += ['G4UA::StoppedParticleFilterTool',
+                    'G4UA::StoppedParticleActionTool']
     # Hit wrapper action
     if flag_on('CavernBG') and simFlags.CavernBG.get_Value() == 'Read':
         actions += ['G4UA::HitWrapperTool']
     # Photon killer
     if simFlags.PhysicsList == 'QGSP_BERT_HP':
         actions += ['G4UA::PhotonKillerTool']
+    # Calo calibration default processing
+    if simFlags.CalibrationRun == 'LAr+Tile':
+        actions+=['G4UA::CaloG4::CalibrationDefaultProcessingTool']
 
     return actions
 
@@ -211,7 +205,7 @@ def getISFQuasiStableUserActionSvc(name="G4UA::ISFQuasiStableUserActionSvc", **k
     return getISFFullUserActionSvc(name, **kwargs)
 
 
-def addAction(actionTool, roles, systemAction=False):
+def addAction(actionTool, roles=[], systemAction=False):
     """
     Add an action tool to the list for a requested role.
 
@@ -227,7 +221,8 @@ def addAction(actionTool, roles, systemAction=False):
              'Event': 'EventActionTools',
              'Tracking': 'TrackingActionTools',
              'Step': 'SteppingActionTools',
-             'Stack': 'StackingActionTools'}
+             'Stack': 'StackingActionTools',
+             'General': 'UserActionTools'}
 
     ##hack to allow for different named Configurations of the UserActionSvc
     basename='UserActionSvc'
@@ -248,6 +243,9 @@ def addAction(actionTool, roles, systemAction=False):
         Logging.logging.getLogger('G4UASvc').fatal('Attempt to add a User Action when athena is ' +
                                                    'already initialized. Check your configuration')
         return
+
+    if len(roles) == 0:
+        roles = ['General']
 
     for role in roles:
         roleAttr = roleMap[role]

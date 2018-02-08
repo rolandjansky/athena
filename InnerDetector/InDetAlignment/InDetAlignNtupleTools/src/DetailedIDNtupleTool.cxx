@@ -57,7 +57,6 @@ DetailedIDNtupleTool::DetailedIDNtupleTool(const std::string& type, const std::s
         , m_alignModuleTool("")
         , m_truthToTrack("Trk::TruthToTrack/InDetTruthToTrack")
         , m_extrapolator("Trk::Extrapolator/AtlasExtrapolator")
-        , m_idHelper(0)
         , m_storeNormalRefittedOnly(false)
         , m_storeConstrainedOnly(true)
         , m_storeTruth(true)

@@ -40,12 +40,12 @@ EvtPythia::EvtPythia() {
   // Set the Pythia engine to a null pointer at first.
   // When we do the decay, we retrieve the pointer to the Pythia engine
   // and use that for all decays. All clones will use the same Pythia engine.
-  _pythiaEngine = 0;
+  m_pythiaEngine = 0;
 
 }
 
 EvtPythia::~EvtPythia() {
-  _commandList.clear();
+  m_commandList.clear();
 }
 
 std::string EvtPythia::getName(){
@@ -83,12 +83,12 @@ void EvtPythia::decay( EvtParticle *p ){
   // We check to see if the engine has been created before doing the decay.
   // This should only create the full Pythia engine once, and all clones will point to the same engine.
 
-  if (_pythiaEngine == 0) {
-    _pythiaEngine = EvtExternalGenFactory::getInstance()->getGenerator(EvtExternalGenFactory::PythiaGenId);
+  if (m_pythiaEngine == 0) {
+    m_pythiaEngine = EvtExternalGenFactory::getInstance()->getGenerator(EvtExternalGenFactory::PythiaGenId);
   }
     
-  if (_pythiaEngine != 0) {
-    _pythiaEngine->doDecay(p);
+  if (m_pythiaEngine != 0) {
+    m_pythiaEngine->doDecay(p);
   }
 
   this->fixPolarisations(p);
@@ -156,6 +156,6 @@ std::string EvtPythia::commandName() {
 void EvtPythia::command(std::string cmd) {
 
   // Locally store commands in a vector
-  _commandList.push_back(cmd);
+  m_commandList.push_back(cmd);
 
 }

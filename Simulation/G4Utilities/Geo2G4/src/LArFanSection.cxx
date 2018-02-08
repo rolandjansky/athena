@@ -169,7 +169,7 @@ bool LArWheelSolid::fs_cross_upper(
 				if(xx1 < m_fs->xmin || xx1 > m_fs->xmax) return false;
 				q.setX(xx1);
 				q.setY(p.y() + v.y() * b1);
-				q.setZ(zz1);;
+				q.setZ(zz1);
 				return true;
 			}
 		}

@@ -323,7 +323,7 @@ double TBPlaneTrackingAlgo::getChi2(const std::vector<double> &v_u,
   double chi2 = 0;
   
   for(int i = 0; i < numX; i++){
-    chi2 += (v_u[i] - a1 - a2*v_w[i])*(v_u[i] - a1 - a2*v_w[i])/(v_eu[i]*v_eu[i]);;
+    chi2 += (v_u[i] - a1 - a2*v_w[i])*(v_u[i] - a1 - a2*v_w[i])/(v_eu[i]*v_eu[i]);
   }  
   return chi2;
 }

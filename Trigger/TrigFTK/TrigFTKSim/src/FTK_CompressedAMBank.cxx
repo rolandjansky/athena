@@ -4530,7 +4530,7 @@ const std::list<FTKRoad>& FTK_CompressedAMBank::getRoads() {
                  ->getLocalId(getBankID(),ipl,moduleID)
                        <<" x="<<hit[0];
               if(ipl<3) std::cout<<" y="<<hit[1];
-              std::cout<<"\n";;
+              std::cout<<"\n";
               for(int imap=0;imap<3;imap++) {
                  FTKSSMap *ssmap=getSSMapTSP();
                  if(imap==2) ssmap=getSSMap();
@@ -4637,7 +4637,7 @@ void FTK_CompressedAMBank::printStrips(int printPlane) const {
               ->getLocalId(getBankID(),plane,moduleID)
                     <<" xHW="<<hit.getHwCoord(0)<<" x="<<hit[0];
            if(plane<3) std::cout<<" yHW="<<hit.getHwCoord(1)<<" y="<<hit[1];
-           std::cout<<"\n";;
+           std::cout<<"\n";
            for(int imap=0;imap<3;imap++) {
               FTKSSMap *ssmap=getSSMapTSP();
               if(imap==2) ssmap=getSSMap();

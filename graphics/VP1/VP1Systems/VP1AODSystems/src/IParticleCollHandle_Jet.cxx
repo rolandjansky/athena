@@ -377,7 +377,7 @@ void IParticleCollHandle_Jet::setRandomJetColours(const bool& b)
     return;
 
   d->randomColours = b;
-  std::cout << "isRandom: " << d->randomColours << std::endl;;
+  std::cout << "isRandom: " << d->randomColours << std::endl;
 
   if (!isLoaded())
     return;

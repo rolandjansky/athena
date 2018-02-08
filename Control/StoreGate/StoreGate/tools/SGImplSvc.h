@@ -197,43 +197,43 @@ public:
 
   /// Retrieve the default object into a const T*
   template <typename T> 
-  StatusCode retrieve(const T*& ptr);
+  StatusCode retrieve(const T*& ptr) const;
 
   /// Retrieve the default object into a T*
   template <typename T>
-  StatusCode retrieve(T*& ptr);
+  StatusCode retrieve(T*& ptr) const;
 
   /// Variant of the above which doesn't return a status code.
   /// Just returns null if the object isn't found.
   template <typename T>
-  T* retrieve ();
+  T* retrieve () const;
 
   /// Variant of the above which doesn't print a warning message.
   /// Just returns null if the object isn't found. Compare to contains
   template <typename T>
-  T* tryRetrieve ();
+  T* tryRetrieve () const;
   template <typename T>
-  const T* tryConstRetrieve();
+  const T* tryConstRetrieve() const;
 
   /// Retrieve an object with "key", into a const T*
   template <typename T, typename TKEY> 
-  StatusCode retrieve(const T*& ptr, const TKEY& key);
+  StatusCode retrieve(const T*& ptr, const TKEY& key) const;
 
   /// Retrieve an object with "key", into a T*
   template <typename T, typename TKEY>
-  StatusCode retrieve(T*& ptr, const TKEY& key);
+  StatusCode retrieve(T*& ptr, const TKEY& key) const;
 
   /// Variant of the above which doesn't return a status code.
   /// Just returns null if the object isn't found.
   template <typename T, class TKEY>
-  T* retrieve (const TKEY& key);
+  T* retrieve (const TKEY& key) const;
 
   /// Variant of the above which doesn't print a warning message.
   /// Just returns null if the object isn't found. Compare to contains
   template <typename T, class TKEY>
-  T* tryRetrieve (const TKEY& key);
+  T* tryRetrieve (const TKEY& key) const;
   template <typename T, class TKEY>
-  const T* tryConstRetrieve(const TKEY& key);
+  const T* tryConstRetrieve(const TKEY& key) const;
 
   /**
    * @brief try to associate a data object to its auxiliary store
@@ -241,9 +241,9 @@ public:
    * @param key The key to use for the lookup.
    **/
   template <class DOBJ>
-  bool associateAux (DataHandle<DOBJ>&, bool ignoreMissing=true);
+  bool associateAux (DataHandle<DOBJ>&, bool ignoreMissing=true) const;
   template <class DOBJ>
-  bool associateAux (const DataHandle<DOBJ>&, bool ignoreMissing=true);
+  bool associateAux (const DataHandle<DOBJ>&, bool ignoreMissing=true) const;
 
   /// retrieve a data object deriving from DataVectorAuxBase,
   /// associate the data object to its matching IAuxStore.
@@ -251,9 +251,9 @@ public:
   /// key + "Aux"
   /// returns null if the object or its IAuxStore isn't found.
   template <typename T, class TKEY>
-  T* retrieveAux (const TKEY& key);
+  T* retrieveAux (const TKEY& key) const;
   template <typename T, class TKEY>
-  const T* constRetrieveAux (const TKEY& key);
+  const T* constRetrieveAux (const TKEY& key) const;
 
 
 
@@ -262,7 +262,7 @@ public:
   /// Retrieve all objects of type T: returns an SG::ConstIterator range
   template <typename T> 
   StatusCode retrieve(SG::ConstIterator<T>& begin, 
-                      SG::ConstIterator<T>& end);
+                      SG::ConstIterator<T>& end) const;
 
   /** Look up a keyed object in TDS (compare also tryRetrieve)
    *  returns false if object not available in TDS or persistent stores 
@@ -378,7 +378,7 @@ public:
   /// @returns StatusCode::FAILURE if no dataObject found
   template <typename T, class TKEY>
   StatusCode retrieveHighestVersion(SG::ObjectWithVersion<T>& dobjWithVersion, 
-                                    const TKEY& requestedKey);
+                                    const TKEY& requestedKey) const;
 
   /// Retrieve all versions of a given T,KEY combination
   /// sets allVersions, a ref to a vector of ObjectWithVersion<T>
@@ -393,7 +393,7 @@ public:
   template <typename T, class TKEY>
   StatusCode
   retrieveAllVersions(std::list< SG::ObjectWithVersion<T> >& allVersions,
-                      const TKEY& requestedKey);
+                      const TKEY& requestedKey) const;
 
   
 
@@ -671,6 +671,15 @@ public:
   IProxyProviderSvc* proxyProviderSvc();
   //@}
 
+
+  /**
+   * @brief Return the metadata source ID for the current event slot.
+   *        Returns an empty string if no source has been set.
+   *
+   *        The default version always returns an empty string.
+   */
+  virtual SG::SourceID sourceID() const override;
+
   /////////////////////////////////////////////////////////////////////////
   /// \name String <-> int key conversions. IStringPool implementation
   //@{
@@ -752,7 +761,7 @@ public:
    *
    *@code
    *   m_sg->remap (ClassID_traits<T>::ID(), "A", "C", 0);
-   *   m_sg->remap (ClassID_traits<T>::ID(), "B", "C", a.size());;
+   *   m_sg->remap (ClassID_traits<T>::ID(), "B", "C", a.size());
    @endcode
   */
   template <class TKEY>
@@ -845,9 +854,9 @@ public:
   virtual void commitNewDataObjects() override final;
   //@}
   /// a new data object has been retrieved from persistency
-  void addedNewPersObject(CLID clid, SG::DataProxy* dp);
+  void addedNewPersObject(CLID clid, SG::DataProxy* dp) const;
   ///a new object transient object has been recorded
-  void addedNewTransObject(CLID clid, const std::string& key);
+  void addedNewTransObject(CLID clid, const std::string& key) const;
 
 
   /**
@@ -1029,13 +1038,13 @@ private:
   void msg_update_handler(Property& outputLevel);
 
   template <class DOBJ, class AUXSTORE>
-  bool associateAux_impl(DataHandle<DOBJ>& handle, const AUXSTORE*);
+  bool associateAux_impl(DataHandle<DOBJ>& handle, const AUXSTORE*) const;
   template <class DOBJ, class AUXSTORE>
-  bool associateAux_impl(const DataHandle<DOBJ>& handle, const AUXSTORE*);
+  bool associateAux_impl(const DataHandle<DOBJ>& handle, const AUXSTORE*) const;
   template <class DOBJ>
-  bool associateAux_impl(DataHandle<DOBJ>& , const SG::NoAuxStore*) { return true; }
+  bool associateAux_impl(DataHandle<DOBJ>& , const SG::NoAuxStore*) const { return true; }
   template <class DOBJ>
-  bool associateAux_impl(const DataHandle<DOBJ>&, const SG::NoAuxStore*) { return true; }
+  bool associateAux_impl(const DataHandle<DOBJ>&, const SG::NoAuxStore*) const { return true; }
 
   /// Add automatically-made symlinks for DP.
   void addAutoSymLinks (const std::string& key, CLID clid, SG::DataProxy* dp,
@@ -1112,23 +1121,23 @@ public:
   //@{
   /// DEPRECATED: Retrieve the default object into a const DataHandle
   template <typename T> 
-  StatusCode retrieve(const DataHandle<T>& handle);
+  StatusCode retrieve(const DataHandle<T>& handle) const;
 
   /// DEPRECATED: Retrieve the default object into a DataHandle
   template <typename T> 
-  StatusCode retrieve(DataHandle<T>& handle);
+  StatusCode retrieve(DataHandle<T>& handle) const;
 
   /// DEPRECATED: Retrieve an object with "key", into a const DataHandle
   template <typename T, typename TKEY> 
-  StatusCode retrieve(const DataHandle<T>& handle, const TKEY& key);
+  StatusCode retrieve(const DataHandle<T>& handle, const TKEY& key) const;
   /// DEPRECATED: Retrieve an object with "key", into a DataHandle
   template <typename T, typename TKEY> 
-  StatusCode retrieve(DataHandle<T>& handle, const TKEY& key);
+  StatusCode retrieve(DataHandle<T>& handle, const TKEY& key) const;
 
   /// DEPRECATED Retrieve all objects of type T: use iterators version instead
   template <typename T> 
   StatusCode retrieve(const DataHandle<T>& begin, 
-                      const DataHandle<T>& end);
+                      const DataHandle<T>& end) const;
   /// DEPRECATED, use version taking ref to vector
   template <typename T>
   std::vector<std::string> //FIXME inefficient. Should take ref to vector

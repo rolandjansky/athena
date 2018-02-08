@@ -28,13 +28,15 @@
     @author Wolfgang.Lukas@cern.ch, Andreas.Salzburger@cern.ch
 */
 
-namespace Trk {
+namespace Trk
+{
   class IPositionMomentumWriter;
 }
 
-namespace G4UA{
+namespace G4UA
+{
 
-  class EnergyLossRecorder: public G4UserRunAction, public G4UserEventAction,  public G4UserSteppingAction
+  class EnergyLossRecorder: public G4UserRunAction, public G4UserEventAction, public G4UserSteppingAction
   {
 
   public:
@@ -55,8 +57,6 @@ namespace G4UA{
     unsigned int                             m_entries;
   }; // class EnergyLossRecorder
 
-
 } // namespace G4UA
-
 
 #endif

@@ -183,6 +183,7 @@ StatusCode TileCellBuilderFromHit::initialize() {
     CHECK( m_noiseTool.retrieve() );
   } else {
     ATH_MSG_INFO( "Noise Sigma " << m_noiseSigma << " MeV is selected!" );
+    m_noiseTool.disable();
   }
 
   CHECK( m_rndmSvc.retrieve());

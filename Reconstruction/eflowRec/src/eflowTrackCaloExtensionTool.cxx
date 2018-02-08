@@ -15,7 +15,6 @@
 #include <eflowRec/eflowTrackCaloExtensionTool.h>
 
 #include "eflowRec/eflowTrackCaloPoints.h"
-#include "eflowRec/cycle.h"
 #include "eflowRec/eflowDepthCalculator.h"
 
 #include "TrkParameters/TrackParameters.h"  // typedef

@@ -1004,7 +1004,7 @@ if globalflags.InputFormat()=='bytestream':
     # FIXME : metadata store definition is in ReadAthenaPool_jobOptions.py
     # copy it there for BS Reading for 13..0.X
     # Add in MetaDataSvc
-    from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import MetaDataSvc
+    from AthenaServices.AthenaServicesConf import MetaDataSvc
     svcMgr += MetaDataSvc( "MetaDataSvc" )
     # Add in MetaData Stores
     from StoreGate.StoreGateConf import StoreGateSvc

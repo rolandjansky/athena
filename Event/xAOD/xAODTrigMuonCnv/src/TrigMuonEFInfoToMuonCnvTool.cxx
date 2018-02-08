@@ -10,7 +10,7 @@
 
 #include "TrigMuonEFInfoToMuonCnvTool.h"
 
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 #include "TrigMuonEvent/TrigMuonEFInfoTrackContainer.h"
 #include "TrigMuonEvent/TrigMuonEFCbTrack.h"
 

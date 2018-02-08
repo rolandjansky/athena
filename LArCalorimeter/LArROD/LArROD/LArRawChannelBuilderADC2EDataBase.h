@@ -28,6 +28,8 @@ class LArRawChannelBuilderADC2EDataBase
 				    const IInterface* parent);
   
   bool ADC2E(std::vector<float>& Ramps, MsgStream* pLog);
+
+  StatusCode initialize();
   
   StatusCode initTool();
   

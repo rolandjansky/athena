@@ -45,7 +45,7 @@ MuonFeature::MuonFeature()
     m_ec_alpha   = 0.;
     m_ec_beta    = 0.;
     m_dq_var1    = 0.;
-    m_dq_var2    = 0.;;
+    m_dq_var2    = 0.;
 }
 
 // --- keep for backward compartibility

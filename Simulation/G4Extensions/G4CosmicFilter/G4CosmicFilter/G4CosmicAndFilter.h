@@ -30,18 +30,17 @@ namespace G4UA
         std::string collectionName2 = "CaloEntryLayer";
       };
 
-      G4CosmicAndFilter(const Config& config);
-
       struct Report
       {
         int ntot = 0;
         int npass = 0;
-
         void merge(const Report& rep){
           ntot += rep.ntot;
           npass += rep.npass;
         }
       };
+
+      G4CosmicAndFilter(const Config& config);
 
       const Report& getReport() const
       { return m_report; }
@@ -49,6 +48,7 @@ namespace G4UA
       virtual void EndOfEventAction(const G4Event*) override;
 
     private:
+
       Config m_config;
       Report m_report;
 

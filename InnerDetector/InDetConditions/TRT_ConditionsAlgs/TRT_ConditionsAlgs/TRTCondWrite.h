@@ -56,8 +56,8 @@ public:
 
   const TRT_ID* m_trtid;                //!< trt id helper
   bool m_setup;                         //!< true at first event
-  std::string par_calfile;              //!< calibration text file specified in jobOptions
-  std::string par_caloutputfile;
+  std::string m_par_calfile;              //!< calibration text file specified in jobOptions
+  std::string m_par_caloutputfile;
 
 
   ServiceHandle<ICondSvc> m_condSvc;

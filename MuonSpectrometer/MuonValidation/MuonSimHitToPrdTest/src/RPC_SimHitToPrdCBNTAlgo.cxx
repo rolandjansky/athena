@@ -166,7 +166,6 @@ public:
 
 RPC_SimHitToPrdCBNTAlgo::Clockwork::Clockwork() : nt(NULL)
 {
-    std::cout<<"HERE WE ARE - Clockwork constructor"<<std::endl;
 }
 
 
@@ -180,10 +179,10 @@ RPC_SimHitToPrdCBNTAlgo::RPC_SimHitToPrdCBNTAlgo(const std::string &name, ISvcLo
   AthAlgorithm(name, pSvcLocator) 
   ,m_muonMgr(0)
   ,m_rpcIdHelper(0)
-  ,muonHelper(0)
+  ,m_muonHelper(0)
 {
 
-    c=new Clockwork();
+    m_c=new Clockwork();
 
   declareProperty("doMCtruth",   m_doMCtruth  = true);
   declareProperty("doRPCSimHit", m_doRPCSimHit= true);
@@ -235,121 +234,121 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::initialize()
     }
 
   // event info 
-  sc = nt->addItem("Run",          c->run      );
-  sc = nt->addItem("Event",        c->event    );
+  sc = nt->addItem("Run",          m_c->run      );
+  sc = nt->addItem("Event",        m_c->event    );
 
   if (m_doMCtruth) 
     {
-      sc = nt->addItem(       "NpartStored",             c->m_npartStored, 0, MAX_PART);
-      sc = nt->addIndexedItem(  "partVertX",             c->m_npartStored,    c->m_partVertX ); 
-      sc = nt->addIndexedItem(  "partVertY",             c->m_npartStored,    c->m_partVertY  ); 
-      sc = nt->addIndexedItem(  "partVertZ",             c->m_npartStored,    c->m_partVertZ  ); 
-      sc = nt->addIndexedItem(  "partVertT",             c->m_npartStored,    c->m_partVertT  ); 
-      sc = nt->addIndexedItem(  "partPdgId",             c->m_npartStored,    c->m_partPdgId  ); 
-      sc = nt->addIndexedItem(  "partMomX" ,             c->m_npartStored,    c->m_partMomX   ); 
-      sc = nt->addIndexedItem(  "partMomY" ,             c->m_npartStored,    c->m_partMomY   ); 
-      sc = nt->addIndexedItem(  "partMomZ" ,             c->m_npartStored,    c->m_partMomZ   ); 
-      sc = nt->addIndexedItem(  "partStatus" ,           c->m_npartStored,    c->m_partStatus ); 
-      sc = nt->addIndexedItem(  "partBarcode" ,          c->m_npartStored,    c->m_partBarcode); 
-      sc = nt->addIndexedItem(  "partMass" ,             c->m_npartStored,    c->m_partMass   );       
+      sc = nt->addItem(       "NpartStored",             m_c->m_npartStored, 0, MAX_PART);
+      sc = nt->addIndexedItem(  "partVertX",             m_c->m_npartStored,    m_c->m_partVertX ); 
+      sc = nt->addIndexedItem(  "partVertY",             m_c->m_npartStored,    m_c->m_partVertY  ); 
+      sc = nt->addIndexedItem(  "partVertZ",             m_c->m_npartStored,    m_c->m_partVertZ  ); 
+      sc = nt->addIndexedItem(  "partVertT",             m_c->m_npartStored,    m_c->m_partVertT  ); 
+      sc = nt->addIndexedItem(  "partPdgId",             m_c->m_npartStored,    m_c->m_partPdgId  ); 
+      sc = nt->addIndexedItem(  "partMomX" ,             m_c->m_npartStored,    m_c->m_partMomX   ); 
+      sc = nt->addIndexedItem(  "partMomY" ,             m_c->m_npartStored,    m_c->m_partMomY   ); 
+      sc = nt->addIndexedItem(  "partMomZ" ,             m_c->m_npartStored,    m_c->m_partMomZ   ); 
+      sc = nt->addIndexedItem(  "partStatus" ,           m_c->m_npartStored,    m_c->m_partStatus ); 
+      sc = nt->addIndexedItem(  "partBarcode" ,          m_c->m_npartStored,    m_c->m_partBarcode); 
+      sc = nt->addIndexedItem(  "partMass" ,             m_c->m_npartStored,    m_c->m_partMass   );       
     }
 
   if (m_doRPCSimHit) {
   
-    sc = nt->addItem(       "rpc_Nsimhit",            c->m_SimHit_nRpc,  0, MAX_SIMHRPC);
-    sc = nt->addIndexedItem("rpc_simhit_station",     c->m_SimHit_nRpc,     c->m_SimHit_station);
-    sc = nt->addIndexedItem("rpc_simhit_eta",         c->m_SimHit_nRpc,     c->m_SimHit_eta);
-    sc = nt->addIndexedItem("rpc_simhit_phi",         c->m_SimHit_nRpc,     c->m_SimHit_phi);
-    sc = nt->addIndexedItem("rpc_simhit_doublr",      c->m_SimHit_nRpc,     c->m_SimHit_doubletR);
-    sc = nt->addIndexedItem("rpc_simhit_doublz",      c->m_SimHit_nRpc,     c->m_SimHit_doubletZ);
-    sc = nt->addIndexedItem("rpc_simhit_doublphi",    c->m_SimHit_nRpc,     c->m_SimHit_doubletPhi);
-    sc = nt->addIndexedItem("rpc_simhit_gasgap",      c->m_SimHit_nRpc,     c->m_SimHit_gasGap);
-    sc = nt->addIndexedItem("rpc_simhit_measphi",     c->m_SimHit_nRpc,     c->m_SimHit_measuresPhi);
-    sc = nt->addIndexedItem("rpc_simhit_time",        c->m_SimHit_nRpc,     c->m_SimHit_time);
-    sc = nt->addIndexedItem("rpc_simhit_localx",      c->m_SimHit_nRpc,     c->m_SimHit_localx);
-    sc = nt->addIndexedItem("rpc_simhit_localy",      c->m_SimHit_nRpc,     c->m_SimHit_localy);
-    sc = nt->addIndexedItem("rpc_simhit_localz",      c->m_SimHit_nRpc,     c->m_SimHit_localz);
-    sc = nt->addIndexedItem("rpc_simhit_globalx",     c->m_SimHit_nRpc,     c->m_SimHit_globalx);
-    sc = nt->addIndexedItem("rpc_simhit_globaly",     c->m_SimHit_nRpc,     c->m_SimHit_globaly);
-    sc = nt->addIndexedItem("rpc_simhit_globalz",     c->m_SimHit_nRpc,     c->m_SimHit_globalz);
-    sc = nt->addIndexedItem("rpc_simhit_trackNumber", c->m_SimHit_nRpc,     c->m_SimHit_trackNumber);
-    sc = nt->addIndexedItem("rpc_simhit_stepLen"    , c->m_SimHit_nRpc,     c->m_SimHit_stepLen);
-    sc = nt->addIndexedItem("rpc_simhit_energyDep"  , c->m_SimHit_nRpc,     c->m_SimHit_energyDep);
-    sc = nt->addIndexedItem("rpc_simhit_kinEnergy"  , c->m_SimHit_nRpc,     c->m_SimHit_kinEnergy);
-    sc = nt->addIndexedItem("rpc_simhit_pdgId"      , c->m_SimHit_nRpc,     c->m_SimHit_pdgId);
+    sc = nt->addItem(       "rpc_Nsimhit",            m_c->m_SimHit_nRpc,  0, MAX_SIMHRPC);
+    sc = nt->addIndexedItem("rpc_simhit_station",     m_c->m_SimHit_nRpc,     m_c->m_SimHit_station);
+    sc = nt->addIndexedItem("rpc_simhit_eta",         m_c->m_SimHit_nRpc,     m_c->m_SimHit_eta);
+    sc = nt->addIndexedItem("rpc_simhit_phi",         m_c->m_SimHit_nRpc,     m_c->m_SimHit_phi);
+    sc = nt->addIndexedItem("rpc_simhit_doublr",      m_c->m_SimHit_nRpc,     m_c->m_SimHit_doubletR);
+    sc = nt->addIndexedItem("rpc_simhit_doublz",      m_c->m_SimHit_nRpc,     m_c->m_SimHit_doubletZ);
+    sc = nt->addIndexedItem("rpc_simhit_doublphi",    m_c->m_SimHit_nRpc,     m_c->m_SimHit_doubletPhi);
+    sc = nt->addIndexedItem("rpc_simhit_gasgap",      m_c->m_SimHit_nRpc,     m_c->m_SimHit_gasGap);
+    sc = nt->addIndexedItem("rpc_simhit_measphi",     m_c->m_SimHit_nRpc,     m_c->m_SimHit_measuresPhi);
+    sc = nt->addIndexedItem("rpc_simhit_time",        m_c->m_SimHit_nRpc,     m_c->m_SimHit_time);
+    sc = nt->addIndexedItem("rpc_simhit_localx",      m_c->m_SimHit_nRpc,     m_c->m_SimHit_localx);
+    sc = nt->addIndexedItem("rpc_simhit_localy",      m_c->m_SimHit_nRpc,     m_c->m_SimHit_localy);
+    sc = nt->addIndexedItem("rpc_simhit_localz",      m_c->m_SimHit_nRpc,     m_c->m_SimHit_localz);
+    sc = nt->addIndexedItem("rpc_simhit_globalx",     m_c->m_SimHit_nRpc,     m_c->m_SimHit_globalx);
+    sc = nt->addIndexedItem("rpc_simhit_globaly",     m_c->m_SimHit_nRpc,     m_c->m_SimHit_globaly);
+    sc = nt->addIndexedItem("rpc_simhit_globalz",     m_c->m_SimHit_nRpc,     m_c->m_SimHit_globalz);
+    sc = nt->addIndexedItem("rpc_simhit_trackNumber", m_c->m_SimHit_nRpc,     m_c->m_SimHit_trackNumber);
+    sc = nt->addIndexedItem("rpc_simhit_stepLen"    , m_c->m_SimHit_nRpc,     m_c->m_SimHit_stepLen);
+    sc = nt->addIndexedItem("rpc_simhit_energyDep"  , m_c->m_SimHit_nRpc,     m_c->m_SimHit_energyDep);
+    sc = nt->addIndexedItem("rpc_simhit_kinEnergy"  , m_c->m_SimHit_nRpc,     m_c->m_SimHit_kinEnergy);
+    sc = nt->addIndexedItem("rpc_simhit_pdgId"      , m_c->m_SimHit_nRpc,     m_c->m_SimHit_pdgId);
     
   }
   // Digits block
   if (m_doRPCDigit) {
-    sc = nt->addItem(       "rpc_NdigitColl",        c->m_digit_nRpcColl);
-    sc = nt->addItem(       "rpc_Ndigit",            c->m_digit_nRpc, 0, MAX_DIGITRPC);
-    sc = nt->addIndexedItem("rpc_digit_station",     c->m_digit_nRpc,    c->m_digit_station);
-    sc = nt->addIndexedItem("rpc_digit_eta",         c->m_digit_nRpc,    c->m_digit_eta);
-    sc = nt->addIndexedItem("rpc_digit_phi",         c->m_digit_nRpc,    c->m_digit_phi);
-    sc = nt->addIndexedItem("rpc_digit_doublr",      c->m_digit_nRpc,    c->m_digit_doubletR);
-    sc = nt->addIndexedItem("rpc_digit_doublz",      c->m_digit_nRpc,    c->m_digit_doubletZ);
-    sc = nt->addIndexedItem("rpc_digit_doublphi",    c->m_digit_nRpc,    c->m_digit_doubletPhi);
-    sc = nt->addIndexedItem("rpc_digit_gasgap",      c->m_digit_nRpc,    c->m_digit_gasGap);
-    sc = nt->addIndexedItem("rpc_digit_measphi",     c->m_digit_nRpc,    c->m_digit_measuresPhi);
-    sc = nt->addIndexedItem("rpc_digit_strip",       c->m_digit_nRpc,    c->m_digit_strip);
-    sc = nt->addIndexedItem("rpc_digit_time",        c->m_digit_nRpc,    c->m_digit_time);
-    sc = nt->addIndexedItem("rpc_digit_stripx",      c->m_digit_nRpc,    c->m_digit_stripx);
-    sc = nt->addIndexedItem("rpc_digit_stripy",      c->m_digit_nRpc,    c->m_digit_stripy);
-    sc = nt->addIndexedItem("rpc_digit_stripz",      c->m_digit_nRpc,    c->m_digit_stripz);
+    sc = nt->addItem(       "rpc_NdigitColl",        m_c->m_digit_nRpcColl);
+    sc = nt->addItem(       "rpc_Ndigit",            m_c->m_digit_nRpc, 0, MAX_DIGITRPC);
+    sc = nt->addIndexedItem("rpc_digit_station",     m_c->m_digit_nRpc,    m_c->m_digit_station);
+    sc = nt->addIndexedItem("rpc_digit_eta",         m_c->m_digit_nRpc,    m_c->m_digit_eta);
+    sc = nt->addIndexedItem("rpc_digit_phi",         m_c->m_digit_nRpc,    m_c->m_digit_phi);
+    sc = nt->addIndexedItem("rpc_digit_doublr",      m_c->m_digit_nRpc,    m_c->m_digit_doubletR);
+    sc = nt->addIndexedItem("rpc_digit_doublz",      m_c->m_digit_nRpc,    m_c->m_digit_doubletZ);
+    sc = nt->addIndexedItem("rpc_digit_doublphi",    m_c->m_digit_nRpc,    m_c->m_digit_doubletPhi);
+    sc = nt->addIndexedItem("rpc_digit_gasgap",      m_c->m_digit_nRpc,    m_c->m_digit_gasGap);
+    sc = nt->addIndexedItem("rpc_digit_measphi",     m_c->m_digit_nRpc,    m_c->m_digit_measuresPhi);
+    sc = nt->addIndexedItem("rpc_digit_strip",       m_c->m_digit_nRpc,    m_c->m_digit_strip);
+    sc = nt->addIndexedItem("rpc_digit_time",        m_c->m_digit_nRpc,    m_c->m_digit_time);
+    sc = nt->addIndexedItem("rpc_digit_stripx",      m_c->m_digit_nRpc,    m_c->m_digit_stripx);
+    sc = nt->addIndexedItem("rpc_digit_stripy",      m_c->m_digit_nRpc,    m_c->m_digit_stripy);
+    sc = nt->addIndexedItem("rpc_digit_stripz",      m_c->m_digit_nRpc,    m_c->m_digit_stripz);
 
   }
 
   //RDO block
   if (m_doRPCRDO){  
-    sc = nt->addItem(       "rpc_Npad",          c->m_nPads, 0, MAX_PADRPC);
-   sc = nt->addIndexedItem("rpc_pad_id",         c->m_nPads,    c->m_rpc_pad_id);
-   sc = nt->addIndexedItem("rpc_pad_bcid",	 c->m_nPads,    c->m_rpc_pad_bcid);
-   sc = nt->addIndexedItem("rpc_pad_lvl1id",     c->m_nPads,    c->m_rpc_pad_lvl1id);
-   sc = nt->addIndexedItem("rpc_pad_sectorid",   c->m_nPads,    c->m_rpc_pad_sectorid);
-   sc = nt->addIndexedItem("rpc_pad_error",	 c->m_nPads,    c->m_rpc_pad_error);
-   sc = nt->addIndexedItem("rpc_pad_status",     c->m_nPads,    c->m_rpc_pad_status);
+    sc = nt->addItem(       "rpc_Npad",          m_c->m_nPads, 0, MAX_PADRPC);
+   sc = nt->addIndexedItem("rpc_pad_id",         m_c->m_nPads,    m_c->m_rpc_pad_id);
+   sc = nt->addIndexedItem("rpc_pad_bcid",	 m_c->m_nPads,    m_c->m_rpc_pad_bcid);
+   sc = nt->addIndexedItem("rpc_pad_lvl1id",     m_c->m_nPads,    m_c->m_rpc_pad_lvl1id);
+   sc = nt->addIndexedItem("rpc_pad_sectorid",   m_c->m_nPads,    m_c->m_rpc_pad_sectorid);
+   sc = nt->addIndexedItem("rpc_pad_error",	 m_c->m_nPads,    m_c->m_rpc_pad_error);
+   sc = nt->addIndexedItem("rpc_pad_status",     m_c->m_nPads,    m_c->m_rpc_pad_status);
    
-   sc = nt->addItem(       "rpc_Ncm"        ,     c->m_nCMA);
-   sc = nt->addItem(       "rpc_Nrdo"       ,     c->m_nFiredChannels, 0, MAX_RDOCHRPC);
-   sc = nt->addIndexedItem("rpc_rdo_sector" ,     c->m_nFiredChannels,    c->m_sector);
-   sc = nt->addIndexedItem("rpc_rdo_padId"  ,     c->m_nFiredChannels,    c->m_padId);
-   sc = nt->addIndexedItem("rpc_rdo_status" ,     c->m_nFiredChannels,    c->m_status);
-   sc = nt->addIndexedItem("rpc_rdo_errcode",     c->m_nFiredChannels,    c->m_errorCode);
-   sc = nt->addIndexedItem("rpc_rdo_cmaId"  ,     c->m_nFiredChannels,    c->m_cmaId);
-   sc = nt->addIndexedItem("rpc_rdo_fel1Id" ,     c->m_nFiredChannels,    c->m_fel1Id);
-   sc = nt->addIndexedItem("rpc_rdo_febcId" ,     c->m_nFiredChannels,    c->m_febcId);
-   sc = nt->addIndexedItem("rpc_rdo_crc"  ,       c->m_nFiredChannels,    c->m_crc); 
-   sc = nt->addIndexedItem("rpc_rdo_bcId" ,       c->m_nFiredChannels,    c->m_bcId); 
-   sc = nt->addIndexedItem("rpc_rdo_ticks",       c->m_nFiredChannels,    c->m_time); 
-   sc = nt->addIndexedItem("rpc_rdo_ijk",         c->m_nFiredChannels,    c->m_ijk); 
-   sc = nt->addIndexedItem("rpc_rdo_cmachan",     c->m_nFiredChannels,    c->m_channel); 
-   sc = nt->addIndexedItem("rpc_rdo_overlap",     c->m_nFiredChannels,    c->m_overlap); 
-   sc = nt->addIndexedItem("rpc_rdo_threshold",   c->m_nFiredChannels,    c->m_threshold); 
+   sc = nt->addItem(       "rpc_Ncm"        ,     m_c->m_nCMA);
+   sc = nt->addItem(       "rpc_Nrdo"       ,     m_c->m_nFiredChannels, 0, MAX_RDOCHRPC);
+   sc = nt->addIndexedItem("rpc_rdo_sector" ,     m_c->m_nFiredChannels,    m_c->m_sector);
+   sc = nt->addIndexedItem("rpc_rdo_padId"  ,     m_c->m_nFiredChannels,    m_c->m_padId);
+   sc = nt->addIndexedItem("rpc_rdo_status" ,     m_c->m_nFiredChannels,    m_c->m_status);
+   sc = nt->addIndexedItem("rpc_rdo_errcode",     m_c->m_nFiredChannels,    m_c->m_errorCode);
+   sc = nt->addIndexedItem("rpc_rdo_cmaId"  ,     m_c->m_nFiredChannels,    m_c->m_cmaId);
+   sc = nt->addIndexedItem("rpc_rdo_fel1Id" ,     m_c->m_nFiredChannels,    m_c->m_fel1Id);
+   sc = nt->addIndexedItem("rpc_rdo_febcId" ,     m_c->m_nFiredChannels,    m_c->m_febcId);
+   sc = nt->addIndexedItem("rpc_rdo_crc"  ,       m_c->m_nFiredChannels,    m_c->m_crc); 
+   sc = nt->addIndexedItem("rpc_rdo_bcId" ,       m_c->m_nFiredChannels,    m_c->m_bcId); 
+   sc = nt->addIndexedItem("rpc_rdo_ticks",       m_c->m_nFiredChannels,    m_c->m_time); 
+   sc = nt->addIndexedItem("rpc_rdo_ijk",         m_c->m_nFiredChannels,    m_c->m_ijk); 
+   sc = nt->addIndexedItem("rpc_rdo_cmachan",     m_c->m_nFiredChannels,    m_c->m_channel); 
+   sc = nt->addIndexedItem("rpc_rdo_overlap",     m_c->m_nFiredChannels,    m_c->m_overlap); 
+   sc = nt->addIndexedItem("rpc_rdo_threshold",   m_c->m_nFiredChannels,    m_c->m_threshold); 
   }  
 
 
   // Prep block
   if (m_doRPCPrep) {
-    sc = nt->addItem(       "rpc_NprdColl",        c->m_nRpcColl);
-    sc = nt->addItem(       "rpc_Nprd",            c->m_nRpcPrd, 0, MAX_PRDRPC);
-    sc = nt->addIndexedItem("rpc_prd_station",     c->m_nRpcPrd,    c->m_prd_station);
-    sc = nt->addIndexedItem("rpc_prd_eta",         c->m_nRpcPrd,    c->m_prd_eta);
-    sc = nt->addIndexedItem("rpc_prd_phi",         c->m_nRpcPrd,    c->m_prd_phi);
-    sc = nt->addIndexedItem("rpc_prd_doublr",      c->m_nRpcPrd,    c->m_prd_doubletR);
-    sc = nt->addIndexedItem("rpc_prd_doublz",      c->m_nRpcPrd,    c->m_prd_doubletZ);
-    sc = nt->addIndexedItem("rpc_prd_doublphi",    c->m_nRpcPrd,    c->m_prd_doubletPhi);
-    sc = nt->addIndexedItem("rpc_prd_gasgap",      c->m_nRpcPrd,    c->m_prd_gasGap);
-    sc = nt->addIndexedItem("rpc_prd_measphi",     c->m_nRpcPrd,    c->m_prd_measuresPhi);
-    sc = nt->addIndexedItem("rpc_prd_strip",       c->m_nRpcPrd,    c->m_prd_strip);
-    sc = nt->addIndexedItem("rpc_prd_time",        c->m_nRpcPrd,    c->m_prd_time);
-    sc = nt->addIndexedItem("rpc_prd_stripx",      c->m_nRpcPrd,    c->m_prd_stripx);
-    sc = nt->addIndexedItem("rpc_prd_stripy",      c->m_nRpcPrd,    c->m_prd_stripy);
-    sc = nt->addIndexedItem("rpc_prd_stripz",      c->m_nRpcPrd,    c->m_prd_stripz);
-    sc = nt->addIndexedItem("rpc_prd_triggerInfo", c->m_nRpcPrd,    c->m_prd_triggerInfo);
-    sc = nt->addIndexedItem("rpc_prd_ambigFlag",   c->m_nRpcPrd,    c->m_prd_ambigFlag);
+    sc = nt->addItem(       "rpc_NprdColl",        m_c->m_nRpcColl);
+    sc = nt->addItem(       "rpc_Nprd",            m_c->m_nRpcPrd, 0, MAX_PRDRPC);
+    sc = nt->addIndexedItem("rpc_prd_station",     m_c->m_nRpcPrd,    m_c->m_prd_station);
+    sc = nt->addIndexedItem("rpc_prd_eta",         m_c->m_nRpcPrd,    m_c->m_prd_eta);
+    sc = nt->addIndexedItem("rpc_prd_phi",         m_c->m_nRpcPrd,    m_c->m_prd_phi);
+    sc = nt->addIndexedItem("rpc_prd_doublr",      m_c->m_nRpcPrd,    m_c->m_prd_doubletR);
+    sc = nt->addIndexedItem("rpc_prd_doublz",      m_c->m_nRpcPrd,    m_c->m_prd_doubletZ);
+    sc = nt->addIndexedItem("rpc_prd_doublphi",    m_c->m_nRpcPrd,    m_c->m_prd_doubletPhi);
+    sc = nt->addIndexedItem("rpc_prd_gasgap",      m_c->m_nRpcPrd,    m_c->m_prd_gasGap);
+    sc = nt->addIndexedItem("rpc_prd_measphi",     m_c->m_nRpcPrd,    m_c->m_prd_measuresPhi);
+    sc = nt->addIndexedItem("rpc_prd_strip",       m_c->m_nRpcPrd,    m_c->m_prd_strip);
+    sc = nt->addIndexedItem("rpc_prd_time",        m_c->m_nRpcPrd,    m_c->m_prd_time);
+    sc = nt->addIndexedItem("rpc_prd_stripx",      m_c->m_nRpcPrd,    m_c->m_prd_stripx);
+    sc = nt->addIndexedItem("rpc_prd_stripy",      m_c->m_nRpcPrd,    m_c->m_prd_stripy);
+    sc = nt->addIndexedItem("rpc_prd_stripz",      m_c->m_nRpcPrd,    m_c->m_prd_stripz);
+    sc = nt->addIndexedItem("rpc_prd_triggerInfo", m_c->m_nRpcPrd,    m_c->m_prd_triggerInfo);
+    sc = nt->addIndexedItem("rpc_prd_ambigFlag",   m_c->m_nRpcPrd,    m_c->m_prd_ambigFlag);
 
   }
-  c->nt = nt;
+  m_c->nt = nt;
 
   return sc;  
 }
@@ -361,31 +360,31 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::clearNTuple()
   StatusCode sc = StatusCode::SUCCESS;
   
   if (m_doMCtruth){
-    c->m_npartStored=0;
-    c->run=0;
-    c->event=0;
+    m_c->m_npartStored=0;
+    m_c->run=0;
+    m_c->event=0;
   }
 
 
   if (m_doRPCSimHit){
-    c->m_SimHit_nRpc  = 0;
+    m_c->m_SimHit_nRpc  = 0;
   }
   
   if (m_doRPCDigit){
-    c->m_digit_nRpcColl = 0;
-    c->m_digit_nRpc  = 0;
+    m_c->m_digit_nRpcColl = 0;
+    m_c->m_digit_nRpc  = 0;
   }
   
   if (m_doRPCRDO){  
-    c->m_nPads=0;
+    m_c->m_nPads=0;
   
-    c->m_nCMA=0;
-    c->m_nFiredChannels=0;
+    m_c->m_nCMA=0;
+    m_c->m_nFiredChannels=0;
   }  
   
   if (m_doRPCPrep){
-    c->m_nRpcColl = 0;
-    c->m_nRpcPrd  = 0;
+    m_c->m_nRpcColl = 0;
+    m_c->m_nRpcPrd  = 0;
   }
  
   return sc;
@@ -406,8 +405,8 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::execute()
   const EventInfo* pevt;
   StatusCode sc_read = evtStore()->retrieve(pevt);
   if (sc_read.isSuccess())  {
-    c->event = pevt->event_ID()->event_number();
-    c->run   = pevt->event_ID()->run_number();
+    m_c->event = pevt->event_ID()->event_number();
+    m_c->run   = pevt->event_ID()->run_number();
   }
 
   if(m_doMCtruth)
@@ -458,7 +457,7 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::execute()
 	}
     }
 
-  ntupleSvc()->writeRecord(c->nt);
+  ntupleSvc()->writeRecord(m_c->nt);
   return StatusCode::SUCCESS;  
 }
 
@@ -530,17 +529,17 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::doMCtruth()
 
 	 float pdgId =  (**p).pdg_id();
 	 
-	 c->m_partVertX  [ipart] =xv            ;
-	 c->m_partVertY  [ipart] =yv            ;
-	 c->m_partVertZ  [ipart] =zv            ;
-	 c->m_partVertT  [ipart] =tv            ;
-	 c->m_partPdgId  [ipart] =pdgId         ;
-	 c->m_partMomX   [ipart] =xd            ;
-	 c->m_partMomY   [ipart] =yd            ;
-	 c->m_partMomZ   [ipart] =zd            ;   
-	 c->m_partStatus [ipart] =status        ;
-	 c->m_partBarcode[ipart] =barcode       ;
-	 c->m_partMass   [ipart] =generatedMass ;
+	 m_c->m_partVertX  [ipart] =xv            ;
+	 m_c->m_partVertY  [ipart] =yv            ;
+	 m_c->m_partVertZ  [ipart] =zv            ;
+	 m_c->m_partVertT  [ipart] =tv            ;
+	 m_c->m_partPdgId  [ipart] =pdgId         ;
+	 m_c->m_partMomX   [ipart] =xd            ;
+	 m_c->m_partMomY   [ipart] =yd            ;
+	 m_c->m_partMomZ   [ipart] =zd            ;   
+	 m_c->m_partStatus [ipart] =status        ;
+	 m_c->m_partBarcode[ipart] =barcode       ;
+	 m_c->m_partMass   [ipart] =generatedMass ;
 	 ++ipart;
         ATH_MSG_DEBUG("Event # "<<eventCounter 
 		      <<" vertex at "<<xv<<" "<<yv<<" "<<zv<<" produced at time = "<<tv
@@ -551,11 +550,11 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::doMCtruth()
   }
 
   //  // temporary   {{{{
-  //  c->run   = 99999999;
-  //  c->event = eventCounter;
+  //  m_c->run   = 99999999;
+  //  m_c->event = eventCounter;
   //  // end of temp }}}}
 
-  c->m_npartStored=ipart;
+  m_c->m_npartStored=ipart;
   ATH_MSG_DEBUG ("out of doMCtruth" ); 
   return StatusCode::SUCCESS;  
 }
@@ -568,31 +567,31 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::doRPCSimHit()
   ATH_MSG_DEBUG ( "RpcSimHitToPrdCBNT::doRPCSimHit begin." );
   
   // Retrieve test container of all hits in input to the digitization 
-  const RPCSimHitCollection* m_inputSimHitColl=NULL;  
-  StatusCode sc_read = evtStore()->retrieve(m_inputSimHitColl, m_HitCollectionName); 
+  const RPCSimHitCollection* inputSimHitColl=NULL;  
+  StatusCode sc_read = evtStore()->retrieve(inputSimHitColl, m_HitCollectionName); 
   if (sc_read.isFailure()) { 
      ATH_MSG_WARNING ( " Cannot retrieve RPCSimHitCollection" ); 
      return  StatusCode::SUCCESS; 
   } 
-  ATH_MSG_DEBUG ("RPCSimHitCollection->size() : " << m_inputSimHitColl->size() ) ;  
+  ATH_MSG_DEBUG ("RPCSimHitCollection->size() : " << inputSimHitColl->size() ) ;  
   
   int myCounter = 0;
-  for (RPCSimHitCollection::const_iterator rpcsimhit = m_inputSimHitColl->begin() ;  rpcsimhit != m_inputSimHitColl->end() ; ++rpcsimhit)  
+  for (RPCSimHitCollection::const_iterator rpcsimhit = inputSimHitColl->begin() ;  rpcsimhit != inputSimHitColl->end() ; ++rpcsimhit)  
        {    
            
 	const int idHit = rpcsimhit->RPCid(); 
  	
         int StationName = -1 ;
 
-        if (muonHelper==0) muonHelper = RpcHitIdHelper::GetHelper();
-        std::string stationName = muonHelper->GetStationName(idHit);
-        int         stationEta  = muonHelper->GetZSector    (idHit);
-        int         stationPhi  = muonHelper->GetPhiSector  (idHit);
-        int         doubletR    = muonHelper->GetDoubletR   (idHit);
-        int         doubletZ    = muonHelper->GetDoubletZ   (idHit);
-        int         doubletPhi  = muonHelper->GetDoubletPhi (idHit);
-        int         gasGap      = muonHelper->GetGasGapLayer(idHit);
-        int         measphi     = muonHelper->GetMeasuresPhi(idHit);
+        if (m_muonHelper==0) m_muonHelper = RpcHitIdHelper::GetHelper();
+        std::string stationName = m_muonHelper->GetStationName(idHit);
+        int         stationEta  = m_muonHelper->GetZSector    (idHit);
+        int         stationPhi  = m_muonHelper->GetPhiSector  (idHit);
+        int         doubletR    = m_muonHelper->GetDoubletR   (idHit);
+        int         doubletZ    = m_muonHelper->GetDoubletZ   (idHit);
+        int         doubletPhi  = m_muonHelper->GetDoubletPhi (idHit);
+        int         gasGap      = m_muonHelper->GetGasGapLayer(idHit);
+        int         measphi     = m_muonHelper->GetMeasuresPhi(idHit);
  	 
 
 	if(stationName=="BML"){ 
@@ -639,35 +638,35 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::doRPCSimHit()
 	Amg::Vector3D gPos = ghit.getGlobalPosition();
 
 
-        c->m_SimHit_time       [myCounter] =  rpcsimhit->globalTime()  ;    
- 	c->m_SimHit_localx     [myCounter] =  rpcsimhit->localPosition().x()  ; 
- 	c->m_SimHit_localy     [myCounter] =  rpcsimhit->localPosition().y()  ; 
- 	c->m_SimHit_localz     [myCounter] =  rpcsimhit->localPosition().z()  ; 
- 	c->m_SimHit_globalx    [myCounter] =  gPos.x()  ; 
- 	c->m_SimHit_globaly    [myCounter] =  gPos.y()  ; 
- 	c->m_SimHit_globalz    [myCounter] =  gPos.z()  ; 
+        m_c->m_SimHit_time       [myCounter] =  rpcsimhit->globalTime()  ;    
+ 	m_c->m_SimHit_localx     [myCounter] =  rpcsimhit->localPosition().x()  ; 
+ 	m_c->m_SimHit_localy     [myCounter] =  rpcsimhit->localPosition().y()  ; 
+ 	m_c->m_SimHit_localz     [myCounter] =  rpcsimhit->localPosition().z()  ; 
+ 	m_c->m_SimHit_globalx    [myCounter] =  gPos.x()  ; 
+ 	m_c->m_SimHit_globaly    [myCounter] =  gPos.y()  ; 
+ 	m_c->m_SimHit_globalz    [myCounter] =  gPos.z()  ; 
 
 	
- 	c->m_SimHit_station    [myCounter] =   StationName	;
- 	c->m_SimHit_eta	       [myCounter] =   stationEta	;
- 	c->m_SimHit_phi	       [myCounter] =   stationPhi	;
- 	c->m_SimHit_doubletR   [myCounter] =   doubletR	;
- 	c->m_SimHit_doubletZ   [myCounter] =   doubletZ	;
- 	c->m_SimHit_doubletPhi [myCounter] =   doubletPhi	;
- 	c->m_SimHit_gasGap     [myCounter] =   gasGap	;
- 	c->m_SimHit_measuresPhi[myCounter] =   measphi	;
+ 	m_c->m_SimHit_station    [myCounter] =   StationName	;
+ 	m_c->m_SimHit_eta	       [myCounter] =   stationEta	;
+ 	m_c->m_SimHit_phi	       [myCounter] =   stationPhi	;
+ 	m_c->m_SimHit_doubletR   [myCounter] =   doubletR	;
+ 	m_c->m_SimHit_doubletZ   [myCounter] =   doubletZ	;
+ 	m_c->m_SimHit_doubletPhi [myCounter] =   doubletPhi	;
+ 	m_c->m_SimHit_gasGap     [myCounter] =   gasGap	;
+ 	m_c->m_SimHit_measuresPhi[myCounter] =   measphi	;
       
-	c->m_SimHit_trackNumber[myCounter] =   rpcsimhit->trackNumber()      ;
-	c->m_SimHit_stepLen    [myCounter] =   rpcsimhit->stepLength()       ;
-	c->m_SimHit_energyDep  [myCounter] =   rpcsimhit->energyDeposit()    ;
-	c->m_SimHit_kinEnergy  [myCounter] =   rpcsimhit->kineticEnergy()    ;
-	c->m_SimHit_pdgId      [myCounter] =   rpcsimhit->particleEncoding() ;
+	m_c->m_SimHit_trackNumber[myCounter] =   rpcsimhit->trackNumber()      ;
+	m_c->m_SimHit_stepLen    [myCounter] =   rpcsimhit->stepLength()       ;
+	m_c->m_SimHit_energyDep  [myCounter] =   rpcsimhit->energyDeposit()    ;
+	m_c->m_SimHit_kinEnergy  [myCounter] =   rpcsimhit->kineticEnergy()    ;
+	m_c->m_SimHit_pdgId      [myCounter] =   rpcsimhit->particleEncoding() ;
 
         ++myCounter;
        
        }
  
-       c->m_SimHit_nRpc = myCounter;
+       m_c->m_SimHit_nRpc = myCounter;
   ATH_MSG_DEBUG ("out of doRPCSimHit" ); 
   return StatusCode::SUCCESS;  
 }
@@ -677,21 +676,21 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::doRPCDigit()
 {
     ATH_MSG_DEBUG ("in doRPCDigit" ); 
   // Retrieve Digit container in StoreGate
-    const RpcDigitContainer*                m_digitContainer=NULL ;
-  StatusCode sc_read = evtStore()->retrieve(m_digitContainer, m_DigitCollectionName);
+    const RpcDigitContainer*                digitContainer=NULL ;
+  StatusCode sc_read = evtStore()->retrieve(digitContainer, m_DigitCollectionName);
   if (sc_read.isFailure())  {
     ATH_MSG_WARNING ( " Cannot retrieve RPCDigitCollection" ); 
     return StatusCode::RECOVERABLE;
   }
-  ATH_MSG_DEBUG ( "RpcDigitContainer size: "  << m_digitContainer->size() ); 
+  ATH_MSG_DEBUG ( "RpcDigitContainer size: "  << digitContainer->size() ); 
    
-  //std::cout << "RpcDigitContainer size: "  << m_digitContainer->size() << std::endl ; 
+  //std::cout << "RpcDigitContainer size: "  << digitContainer->size() << std::endl ; 
   
   
   
   int myCounter = 0;
   int myCounterColl = 0;
-  for (RpcDigitContainer::const_iterator containerit = m_digitContainer->begin() ; containerit != m_digitContainer->end() ; ++containerit)  
+  for (RpcDigitContainer::const_iterator containerit = digitContainer->begin() ; containerit != digitContainer->end() ; ++containerit)  
      {       
        for (RpcDigitCollection::const_iterator rpcdigit = (*containerit)->begin() ;	    rpcdigit != (*containerit)->end() ; ++rpcdigit)  
        {     
@@ -699,45 +698,45 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::doRPCDigit()
  	 Identifier digit_id = (*rpcdigit)->identify(); 
 	 
 // 	
- 	 c->m_digit_time[myCounter] = (*rpcdigit)->time(); 
+ 	 m_c->m_digit_time[myCounter] = (*rpcdigit)->time(); 
 
          
- 	 c->m_digit_station    [myCounter] = m_rpcIdHelper->stationName(digit_id); 
- 	 c->m_digit_eta        [myCounter] = m_rpcIdHelper->stationEta(digit_id); 
- 	 c->m_digit_phi        [myCounter] = m_rpcIdHelper->stationPhi(digit_id); 
- 	 c->m_digit_doubletR   [myCounter] = m_rpcIdHelper->doubletR(digit_id); 
- 	 c->m_digit_doubletZ   [myCounter] = m_rpcIdHelper->doubletZ(digit_id); 
- 	 c->m_digit_doubletPhi [myCounter] = m_rpcIdHelper->doubletPhi(digit_id); 
- 	 c->m_digit_gasGap     [myCounter] = m_rpcIdHelper->gasGap(digit_id);  
- 	 c->m_digit_measuresPhi[myCounter] = m_rpcIdHelper->measuresPhi(digit_id); 
- 	 c->m_digit_strip      [myCounter] = m_rpcIdHelper->strip(digit_id); 
+ 	 m_c->m_digit_station    [myCounter] = m_rpcIdHelper->stationName(digit_id); 
+ 	 m_c->m_digit_eta        [myCounter] = m_rpcIdHelper->stationEta(digit_id); 
+ 	 m_c->m_digit_phi        [myCounter] = m_rpcIdHelper->stationPhi(digit_id); 
+ 	 m_c->m_digit_doubletR   [myCounter] = m_rpcIdHelper->doubletR(digit_id); 
+ 	 m_c->m_digit_doubletZ   [myCounter] = m_rpcIdHelper->doubletZ(digit_id); 
+ 	 m_c->m_digit_doubletPhi [myCounter] = m_rpcIdHelper->doubletPhi(digit_id); 
+ 	 m_c->m_digit_gasGap     [myCounter] = m_rpcIdHelper->gasGap(digit_id);  
+ 	 m_c->m_digit_measuresPhi[myCounter] = m_rpcIdHelper->measuresPhi(digit_id); 
+ 	 m_c->m_digit_strip      [myCounter] = m_rpcIdHelper->strip(digit_id); 
       
  	 // get the digit position 
  	 const MuonGM::RpcReadoutElement* descriptor =  m_muonMgr->getRpcReadoutElement(digit_id); 
  	     
  	 const Amg::Vector3D stripPos = descriptor->stripPos(digit_id); 
  	     
- 	 c->m_digit_stripx  [myCounter] = stripPos.x(); 
- 	 c->m_digit_stripy  [myCounter] = stripPos.y(); 
- 	 c->m_digit_stripz  [myCounter] = stripPos.z(); 
+ 	 m_c->m_digit_stripx  [myCounter] = stripPos.x(); 
+ 	 m_c->m_digit_stripy  [myCounter] = stripPos.y(); 
+ 	 m_c->m_digit_stripz  [myCounter] = stripPos.z(); 
 	       
-	 ATH_MSG_DEBUG ("DIG  Station/eta/phi/dbR/dbZ/dbP/measPhi/strip: "<< c->m_digit_station[myCounter] <<" "
-			<<	 c->m_digit_eta[myCounter] 	<<" "
-			<<	 c->m_digit_phi[myCounter] 	<<" "
-			<<	 c->m_digit_doubletR[myCounter]	<<" "
-			<<	 c->m_digit_doubletZ[myCounter]	<<" "
-			<<	 c->m_digit_doubletPhi[myCounter]	<<" "
-			<<	 c->m_digit_gasGap[myCounter] 	<<" "
-			<<	 c->m_digit_measuresPhi[myCounter]<<" "
-			<<	 c->m_digit_strip[myCounter] );
+	 ATH_MSG_DEBUG ("DIG  Station/eta/phi/dbR/dbZ/dbP/measPhi/strip: "<< m_c->m_digit_station[myCounter] <<" "
+			<<	 m_c->m_digit_eta[myCounter] 	<<" "
+			<<	 m_c->m_digit_phi[myCounter] 	<<" "
+			<<	 m_c->m_digit_doubletR[myCounter]	<<" "
+			<<	 m_c->m_digit_doubletZ[myCounter]	<<" "
+			<<	 m_c->m_digit_doubletPhi[myCounter]	<<" "
+			<<	 m_c->m_digit_gasGap[myCounter] 	<<" "
+			<<	 m_c->m_digit_measuresPhi[myCounter]<<" "
+			<<	 m_c->m_digit_strip[myCounter] );
 	 ++myCounter; 
 	 //	 ATH_MSG_DEBUG ( " digit number  " << myCounter<< " id = "<<m_rpcIdHelper->show_to_string(digit_id) ); 
        } //end of rpcdigit container loop 
        ++myCounterColl;
      } //end of container iteration loop      
 
-  c->m_digit_nRpcColl=myCounterColl;
-  c->m_digit_nRpc    =myCounter    ;
+  m_c->m_digit_nRpcColl=myCounterColl;
+  m_c->m_digit_nRpc    =myCounter    ;
   ATH_MSG_DEBUG ( "Total n. of DIG / DIG collections  " << myCounter<<" "<<    myCounterColl);
   ATH_MSG_DEBUG ("out of doRPCDigit" ); 
 
@@ -750,21 +749,21 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::doRPCRDO()
 { 
     ATH_MSG_DEBUG ("in doRPCRDO" ); 
   // Retrieve RDO container in StoreGate
-    const RpcPadContainer*            m_rpcRDO       = NULL;
+    const RpcPadContainer*            rpcRDO       = NULL;
     
-  StatusCode sc_read = evtStore()->retrieve( m_rpcRDO, m_RDOCollectionName );   
+  StatusCode sc_read = evtStore()->retrieve( rpcRDO, m_RDOCollectionName );   
   if ( !sc_read.isSuccess() ) { 
      ATH_MSG_WARNING ( " Cannot retrieve RDO Container" ); 
      return sc_read; 
   } 
-  ATH_MSG_DEBUG ("m_rpcRDO size: "  << m_rpcRDO->size() ) ;
-  //std::cout << "m_rpcRDO size: "  << m_rpcRDO->size() << std::endl ;  
+  ATH_MSG_DEBUG ("m_rpcRDO size: "  << rpcRDO->size() ) ;
+  //std::cout << "rpcRDO size: "  << rpcRDO->size() << std::endl ;  
 
 // Access by Collection
 
-   c->m_nPads = 0;
-   c->m_nCMA = 0;
-   c->m_nFiredChannels = 0;
+   m_c->m_nPads = 0;
+   m_c->m_nCMA = 0;
+   m_c->m_nFiredChannels = 0;
 
    RpcPadContainer::const_iterator pad;
 
@@ -772,7 +771,7 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::doRPCRDO()
    int myPadCounter = 0;
    int myCMACounter = 0;
    const RpcPad*                     rdoColl =NULL;
-    for (RpcPadContainer::const_iterator rdoColli = m_rpcRDO->begin(); rdoColli!=m_rpcRDO->end(); ++rdoColli)
+    for (RpcPadContainer::const_iterator rdoColli = rpcRDO->begin(); rdoColli!=rpcRDO->end(); ++rdoColli)
     {
       rdoColl = *rdoColli;
    
@@ -782,13 +781,13 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::doRPCRDO()
        ATH_MSG_DEBUG ( " Number of CMA in this pad " << (rdoColl)->size() );
      
        // pad ntuple variables
-       c->m_rpc_pad_id         [myPadCounter] = (int)(rdoColl)->onlineId();
-       c->m_rpc_pad_sectorid   [myPadCounter] = (int)(rdoColl)->sector();
-       c->m_rpc_pad_error      [myPadCounter] = (int)(rdoColl)->errorCode();
-       c->m_rpc_pad_status     [myPadCounter] = (int)(rdoColl)->status();
+       m_c->m_rpc_pad_id         [myPadCounter] = (int)(rdoColl)->onlineId();
+       m_c->m_rpc_pad_sectorid   [myPadCounter] = (int)(rdoColl)->sector();
+       m_c->m_rpc_pad_error      [myPadCounter] = (int)(rdoColl)->errorCode();
+       m_c->m_rpc_pad_status     [myPadCounter] = (int)(rdoColl)->status();
        
-       c->m_rpc_pad_lvl1id     [myPadCounter] = (int)(rdoColl)->lvl1Id();
-       c->m_rpc_pad_bcid       [myPadCounter] = (int)(rdoColl)->bcId();
+       m_c->m_rpc_pad_lvl1id     [myPadCounter] = (int)(rdoColl)->lvl1Id();
+       m_c->m_rpc_pad_bcid       [myPadCounter] = (int)(rdoColl)->bcId();
        
        // for each pad, loop over cma
        RpcPad::const_iterator it3 = (rdoColl)->begin();
@@ -805,30 +804,30 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::doRPCRDO()
   	   if (myCounter < MAX_RDOCHRPC ) {
   	     const RpcFiredChannel * fChannel = (*it5);
   	     
-  	     c->m_sector[myCounter] = (rdoColl)->sector();
-  	     c->m_padId[myCounter] = (rdoColl)->onlineId();
-  	     c->m_status[myCounter] = (rdoColl)->status();
-  	     c->m_errorCode[myCounter] = (rdoColl)->errorCode();
-  	     c->m_cmaId[myCounter] = cma->onlineId();
-  	     c->m_fel1Id[myCounter] = cma->fel1Id();
-  	     c->m_febcId[myCounter] = cma->febcId();
-  	     c->m_crc[myCounter] = cma->crc();
+  	     m_c->m_sector[myCounter] = (rdoColl)->sector();
+  	     m_c->m_padId[myCounter] = (rdoColl)->onlineId();
+  	     m_c->m_status[myCounter] = (rdoColl)->status();
+  	     m_c->m_errorCode[myCounter] = (rdoColl)->errorCode();
+  	     m_c->m_cmaId[myCounter] = cma->onlineId();
+  	     m_c->m_fel1Id[myCounter] = cma->fel1Id();
+  	     m_c->m_febcId[myCounter] = cma->febcId();
+  	     m_c->m_crc[myCounter] = cma->crc();
   	     
-  	     c->m_bcId[myCounter] = fChannel->bcid();
-  	     c->m_time[myCounter] = fChannel->time();
-  	     c->m_ijk[myCounter] = fChannel->ijk();
-  	     c->m_channel[myCounter] = fChannel->channel();
+  	     m_c->m_bcId[myCounter] = fChannel->bcid();
+  	     m_c->m_time[myCounter] = fChannel->time();
+  	     m_c->m_ijk[myCounter] = fChannel->ijk();
+  	     m_c->m_channel[myCounter] = fChannel->channel();
   	     
-	     ATH_MSG_DEBUG ( "RDO sector/pad/cma/ijk/channel "<< c->m_sector[myCounter] <<" "
-			     <<c->m_padId[myCounter] <<" "<< c->m_cmaId[myCounter]<<" " 
-			     << c->m_ijk[myCounter] <<" "<<c->m_channel[myCounter]);
+	     ATH_MSG_DEBUG ( "RDO sector/pad/cma/ijk/channel "<< m_c->m_sector[myCounter] <<" "
+			     <<m_c->m_padId[myCounter] <<" "<< m_c->m_cmaId[myCounter]<<" " 
+			     << m_c->m_ijk[myCounter] <<" "<<m_c->m_channel[myCounter]);
 	     if (fChannel->ijk()==7) {
-  	       c->m_overlap[myCounter] = fChannel->ovl();
-  	       c->m_threshold[myCounter] = fChannel->thr();
+  	       m_c->m_overlap[myCounter] = fChannel->ovl();
+  	       m_c->m_threshold[myCounter] = fChannel->thr();
   	     }
   	     else {
-  	       c->m_overlap[myCounter] = -1;
-  	       c->m_threshold[myCounter] = -1;
+  	       m_c->m_overlap[myCounter] = -1;
+  	       m_c->m_threshold[myCounter] = -1;
   	     }
 	     ++myCounter;
   	   }
@@ -844,9 +843,9 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::doRPCRDO()
       } // end of if non empty collection 
     }// end of loop over collections 
 
-    c->m_nFiredChannels=myCounter;
-    c->m_nCMA=myCMACounter;
-    c->m_nPads = myPadCounter;
+    m_c->m_nFiredChannels=myCounter;
+    m_c->m_nCMA=myCMACounter;
+    m_c->m_nPads = myPadCounter;
 
     ATH_MSG_DEBUG ("out of doRPCRDO" ); 
 
@@ -859,64 +858,64 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::doRPCPrep()
   
     ATH_MSG_DEBUG ("in doRPCPrep" ); 
   // Retrieve RDO container in StoreGate
-  const  Muon::RpcPrepDataContainer* m_rpc_container;
-  StatusCode sc_read = evtStore()->retrieve(m_rpc_container, m_PrdCollectionName); 
+  const  Muon::RpcPrepDataContainer* rpc_container;
+  StatusCode sc_read = evtStore()->retrieve(rpc_container, m_PrdCollectionName); 
   if (sc_read.isFailure()) { 
      ATH_MSG_WARNING ( "Cannot retrieve RpcPrepDataContainer " ); 
      return  StatusCode::RECOVERABLE; 
   }  
-  ATH_MSG_DEBUG ("m_rpc_container->size() : " << m_rpc_container->size() ) ; 
-  //std::cout << "m_rpc_container->size() : " << m_rpc_container->size() << std::endl ;  
+  ATH_MSG_DEBUG ("m_rpc_container->size() : " << rpc_container->size() ) ; 
+  //std::cout << "rpc_container->size() : " << rpc_container->size() << std::endl ;  
 
 
   int myCounter = 0;
   int myCollCounter = 0;
-  for (Muon::RpcPrepDataContainer::const_iterator containerit = m_rpc_container->begin() ; containerit != m_rpc_container->end() ; ++containerit)  
+  for (Muon::RpcPrepDataContainer::const_iterator containerit = rpc_container->begin() ; containerit != rpc_container->end() ; ++containerit)  
      {    
        for (Muon::RpcPrepDataCollection::const_iterator rpcPrd = (*containerit)->begin() ;	    rpcPrd != (*containerit)->end() ; ++rpcPrd)  
        {     
     
 	 Identifier prd_id = (*rpcPrd)->identify(); 
 	
-	 c->m_prd_time[myCounter] = (*rpcPrd)->time(); 
-	 c->m_prd_station[myCounter] = m_rpcIdHelper->stationName(prd_id); 
-	 c->m_prd_eta[myCounter] = m_rpcIdHelper->stationEta(prd_id); 
-	 c->m_prd_phi[myCounter] = m_rpcIdHelper->stationPhi(prd_id); 
-	 c->m_prd_doubletR[myCounter] = m_rpcIdHelper->doubletR(prd_id); 
-	 c->m_prd_doubletZ[myCounter] = m_rpcIdHelper->doubletZ(prd_id); 
-	 c->m_prd_doubletPhi[myCounter] = m_rpcIdHelper->doubletPhi(prd_id); 
-	 c->m_prd_gasGap[myCounter] = m_rpcIdHelper->gasGap(prd_id);  
-	 c->m_prd_measuresPhi[myCounter] = m_rpcIdHelper->measuresPhi(prd_id); 
-	 c->m_prd_strip[myCounter] = m_rpcIdHelper->strip(prd_id); 
-	 c->m_prd_triggerInfo[myCounter] = (*rpcPrd)->triggerInfo(); 
-	 c->m_prd_ambigFlag[myCounter] = (*rpcPrd)->ambiguityFlag(); 
+	 m_c->m_prd_time[myCounter] = (*rpcPrd)->time(); 
+	 m_c->m_prd_station[myCounter] = m_rpcIdHelper->stationName(prd_id); 
+	 m_c->m_prd_eta[myCounter] = m_rpcIdHelper->stationEta(prd_id); 
+	 m_c->m_prd_phi[myCounter] = m_rpcIdHelper->stationPhi(prd_id); 
+	 m_c->m_prd_doubletR[myCounter] = m_rpcIdHelper->doubletR(prd_id); 
+	 m_c->m_prd_doubletZ[myCounter] = m_rpcIdHelper->doubletZ(prd_id); 
+	 m_c->m_prd_doubletPhi[myCounter] = m_rpcIdHelper->doubletPhi(prd_id); 
+	 m_c->m_prd_gasGap[myCounter] = m_rpcIdHelper->gasGap(prd_id);  
+	 m_c->m_prd_measuresPhi[myCounter] = m_rpcIdHelper->measuresPhi(prd_id); 
+	 m_c->m_prd_strip[myCounter] = m_rpcIdHelper->strip(prd_id); 
+	 m_c->m_prd_triggerInfo[myCounter] = (*rpcPrd)->triggerInfo(); 
+	 m_c->m_prd_ambigFlag[myCounter] = (*rpcPrd)->ambiguityFlag(); 
     
-	 ATH_MSG_DEBUG ("PRD  Station/eta/phi/dbR/dbZ/dbP/measPhi/strip: "<< c->m_prd_station[myCounter] <<" "
-			<<	 c->m_prd_eta[myCounter] 	<<" "
-			<<	 c->m_prd_phi[myCounter] 	<<" "
-			<<	 c->m_prd_doubletR[myCounter]	<<" "
-			<<	 c->m_prd_doubletZ[myCounter]	<<" "
-			<<	 c->m_prd_doubletPhi[myCounter]	<<" "
-			<<	 c->m_prd_gasGap[myCounter] 	<<" "
-			<<	 c->m_prd_measuresPhi[myCounter]<<" "
-			<<	 c->m_prd_strip[myCounter] );
+	 ATH_MSG_DEBUG ("PRD  Station/eta/phi/dbR/dbZ/dbP/measPhi/strip: "<< m_c->m_prd_station[myCounter] <<" "
+			<<	 m_c->m_prd_eta[myCounter] 	<<" "
+			<<	 m_c->m_prd_phi[myCounter] 	<<" "
+			<<	 m_c->m_prd_doubletR[myCounter]	<<" "
+			<<	 m_c->m_prd_doubletZ[myCounter]	<<" "
+			<<	 m_c->m_prd_doubletPhi[myCounter]	<<" "
+			<<	 m_c->m_prd_gasGap[myCounter] 	<<" "
+			<<	 m_c->m_prd_measuresPhi[myCounter]<<" "
+			<<	 m_c->m_prd_strip[myCounter] );
 	 
 	 // get the digit position 
 	 const MuonGM::RpcReadoutElement* descriptor =  m_muonMgr->getRpcReadoutElement(prd_id); 
 	      
 	 const Amg::Vector3D stripPos = descriptor->stripPos(prd_id); 
 	      
-	 c->m_prd_stripx[myCounter] = stripPos.x(); 
-	 c->m_prd_stripy[myCounter] = stripPos.y(); 
-	 c->m_prd_stripz[myCounter] = stripPos.z(); 
+	 m_c->m_prd_stripx[myCounter] = stripPos.x(); 
+	 m_c->m_prd_stripy[myCounter] = stripPos.y(); 
+	 m_c->m_prd_stripz[myCounter] = stripPos.z(); 
 	      
 	 ++myCounter;
 	 //ATH_MSG_DEBUG ( " PRD number  " << myCounter ); 
        } //end of rpcPrd container loop 
        ++myCollCounter;
      } //end of container iteration loop     
-  c->m_nRpcPrd = myCounter;
-  c->m_nRpcColl = myCollCounter;
+  m_c->m_nRpcPrd = myCounter;
+  m_c->m_nRpcColl = myCollCounter;
   ATH_MSG_DEBUG ( "Total n. of PRD / PRD collections  " << myCounter<<" "<<    myCollCounter);
   ATH_MSG_DEBUG ("out of doRPCPrep" ); 
   return StatusCode::SUCCESS;  

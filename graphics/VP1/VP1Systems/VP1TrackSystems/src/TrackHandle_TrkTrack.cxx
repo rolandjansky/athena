@@ -62,7 +62,7 @@ QStringList TrackHandle_TrkTrack::clicked() const
     l << "ERROR: This TrackHandle_TrkTrack handle has a NULL track pointer!!";
     return l;
   }
-  l << "Author info: " << "  "+QString(m_trk->info().dumpInfo().c_str());;
+  l << "Author info: " << "  "+QString(m_trk->info().dumpInfo().c_str());
 
   l << TrackHandleBase::baseInfo();
   if (m_trk->fitQuality()) 

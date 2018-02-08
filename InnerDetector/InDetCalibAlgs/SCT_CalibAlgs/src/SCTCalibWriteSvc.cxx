@@ -584,7 +584,7 @@ StatusCode SCTCalibWriteSvc::wrapUpDeadStrips(){
 
 ///////////////////////////////////////////////////////////////////////////////////////
 StatusCode SCTCalibWriteSvc::wrapUpDeadChips(){
-  if (recordAndStream(m_attrListColl_deadChip,s_deadChipFolderName,m_deadChipRecorded).isFailure())  return StatusCode::FAILURE;;
+  if (recordAndStream(m_attrListColl_deadChip,s_deadChipFolderName,m_deadChipRecorded).isFailure())  return StatusCode::FAILURE;
   if (registerCondObjectsWithErrMsg(s_deadChipFolderName, m_tagID4DeadChips).isFailure()) return StatusCode::FAILURE;  
   return StatusCode::SUCCESS;
 }
@@ -612,7 +612,7 @@ StatusCode SCTCalibWriteSvc::wrapUpRawOccupancy(){
 
 ///////////////////////////////////////////////////////////////////////////////////////
 StatusCode SCTCalibWriteSvc::wrapUpBSErrors(){
-  if (recordAndStream(m_attrListColl_BSErr, s_BSErrFolderName,m_BSErrRecorded).isFailure()) return StatusCode::FAILURE;;
+  if (recordAndStream(m_attrListColl_BSErr, s_BSErrFolderName,m_BSErrRecorded).isFailure()) return StatusCode::FAILURE;
   if (registerCondObjectsWithErrMsg(s_BSErrFolderName, m_tagID4BSErrors).isFailure()) return StatusCode::FAILURE;
   return StatusCode::SUCCESS;
 }

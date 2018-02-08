@@ -218,7 +218,7 @@ if goodRunList!='' and 'goodRunListArray' in dir() and goodRunListArray!='':
     LumiBlockMetaDataTool.OutputLevel = INFO
 
     # add ToolSvc.LumiBlockMetaDataTool to MetaDataSvc
-    from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import MetaDataSvc
+    from AthenaServices.AthenaServicesConf import MetaDataSvc
     svcMgr += MetaDataSvc( "MetaDataSvc" )
     svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.LumiBlockMetaDataTool ]
 

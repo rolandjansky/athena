@@ -933,7 +933,7 @@ namespace met {
 	MissingETBase::Types::constvec_t trkvec = assoc->overlapTrkVec();
 	double opx = trkvec.cpx();
 	double opy = trkvec.cpy();
-	double osumpt = trkvec.sumpt();;
+	double osumpt = trkvec.sumpt();
 	ATH_MSG_VERBOSE( "Misc track px, py, sumpt = " << opx << ", " << opy << ", " << osumpt );
 	metSoftTrk->add(opx,opy,osumpt);
 	ATH_MSG_VERBOSE("Final soft track mpx " << metSoftTrk->mpx()

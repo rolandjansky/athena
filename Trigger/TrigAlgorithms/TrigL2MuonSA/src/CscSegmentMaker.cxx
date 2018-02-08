@@ -148,7 +148,7 @@ ReturnCode CscSegmentMaker :: FindSuperPointCsc( const TrigL2MuonSA::CscHits &cs
 	    TrigL2MuonSA::SuperPoint* superPoint = &((*itTrack).superPoints[csc]);
 	    const TrigL2MuonSA::SuperPoint* outerSP = &((*itTrack).superPoints[outer]);
 	    bool &large_dphidz = (*itTrack).large_dPhidZ;
-	    double &outerCorFactor =  (*itTrack).outerCorFactor;;
+	    double &outerCorFactor =  (*itTrack).outerCorFactor;
 	    
             //tgcfitresult
 	    double tgcmid1z = tgcFitResult.tgcMid1[3];

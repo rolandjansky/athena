@@ -22,22 +22,18 @@
 #include "CollectionBase/CollectionRowBuffer.h"
 
 // Gaudi
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
 
 #include <assert.h>
 #include <exception>
 
 //______________________________________________________________________________
-PoolCollectionConverter::PoolCollectionConverter(IMessageSvc* msgSvc,
-	const std::string& collectionType,
-	const std::string& connection,
+PoolCollectionConverter::PoolCollectionConverter(const std::string& collectionType,
 	const std::string& inputCollection,
 	const std::string& query,
 	const IPoolSvc* svc) :
-	m_msgSvc(msgSvc),
 	m_collectionType(),
-	m_connection(connection),
+	m_connection(),
 	m_inputCollection(inputCollection),
 	m_query(query),
 	m_poolSvc(svc),
@@ -69,26 +65,14 @@ PoolCollectionConverter::~PoolCollectionConverter() {
 }
 //______________________________________________________________________________
 StatusCode PoolCollectionConverter::initialize() {
-   MsgStream log(m_msgSvc, "PoolCollectionConverter");
-   log << MSG::DEBUG << "Initializing PoolCollectionConverter for type: " << m_collectionType << endmsg;
    std::string collectionTypeString;
    if (m_collectionType == "ExplicitROOT") {
       collectionTypeString = "RootCollection";
-   } else if (m_collectionType == "ImplicitROOT" || m_collectionType == "SeekableROOT") {
+   } else if (m_collectionType == "ImplicitROOT") {
       collectionTypeString = "ImplicitCollection";
    } else {
-      log << MSG::ERROR << "Undefined collection type " << m_collectionType << endmsg;
       return(StatusCode::FAILURE);
    }
-   log << MSG::DEBUG << "Create collection type: "
-	   << m_collectionType
-	   << " collectionTypeString ["
-	   << collectionTypeString
-	   << "] connectionString "
-	   << m_connection
-	   << " collection "
-	   << m_inputCollection
-	   << endmsg;
    if (collectionTypeString == "ImplicitCollection") {
       // Check if already prefixed
       if (m_inputCollection.find("PFN:") == 0
@@ -119,13 +103,7 @@ StatusCode PoolCollectionConverter::initialize() {
          m_poolCollection = m_poolSvc->createCollection(collectionTypeString, m_connection, m_inputCollection);
       }
    } catch (std::exception &e) {
-      log << MSG::WARNING << "Unable to create Collection: " << m_connection << endmsg;
-      log << MSG::WARNING << e.what() << endmsg;
       return(StatusCode::RECOVERABLE);
-   }
-   if (m_poolCollection == 0) {
-      log << MSG::INFO << "Unable to create Collection: " << m_connection 
-          << " container: " << m_inputCollection << endmsg;
    }
    return(StatusCode::SUCCESS);
 }
@@ -134,8 +112,7 @@ StatusCode PoolCollectionConverter::disconnectDb() {
    if (m_poolCollection == 0) {
       return(StatusCode::SUCCESS);
    }
-   if (m_poolCollection->description().type() == "SeekableCollection" ||
-	   m_poolCollection->description().type() == "ImplicitCollection") {
+   if (m_poolCollection->description().type() == "ImplicitCollection") {
       return(m_poolSvc->disconnectDb(m_connection));
    }
    return(StatusCode::SUCCESS);
@@ -170,9 +147,7 @@ std::string PoolCollectionConverter::retrieveToken(const pool::ICollectionCursor
 // the corresponding ref. Otherwise, use the main token
    std::string tokenStr;
    if (!refName.empty()) {
-      MsgStream log(m_msgSvc, "PoolCollectionConverter");
       std::string attrName = refName + "_ref";
-      log << MSG::DEBUG << " Get attribute: " << attrName << " (derived from " << refName << ")" << endmsg;
       try {
 	 tokenStr = cursor->currentRow().tokenList()[attrName].toString();
       } catch (...) {
@@ -180,9 +155,6 @@ std::string PoolCollectionConverter::retrieveToken(const pool::ICollectionCursor
 	 try {
             tokenStr = cursor->currentRow().attributeList()[attrName].data<std::string>();
 	 } catch (std::exception& e) {
-	    log << MSG::ERROR << "Retrieve token for ref name: "
-	            << refName
-	            << " Error caught: " << e.what() << endmsg;
 	    return("");
 	 }
       }

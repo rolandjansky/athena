@@ -37,6 +37,8 @@ def getSCT_SurfaceChargesGenerator(name="SCT_SurfaceChargesGenerator", **kwargs)
     ## TODO remove all this stuff and see if PixelDigitization works without it.
     # Setup the DCS folders and Svc used in the sctSiliconConditionsSvc
     from IOVDbSvc.CondDB import conddb
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSeq = AthSequencer("AthCondSeq")
     sctDCSStateFolder = '/SCT/DCS/CHANSTAT'
     sctDCSTempFolder = '/SCT/DCS/MODTEMP'
     sctDCSHVFolder = '/SCT/DCS/HV'
@@ -46,45 +48,53 @@ def getSCT_SurfaceChargesGenerator(name="SCT_SurfaceChargesGenerator", **kwargs)
         conddb.addFolder("DCS_OFL", sctDCSTempFolder, className="CondAttrListCollection")
     if not conddb.folderRequested(sctDCSHVFolder):
         conddb.addFolder("DCS_OFL", sctDCSHVFolder, className="CondAttrListCollection")
+    if not hasattr(condSeq, "SCT_DCSConditionsHVCondAlg"):
+        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsHVCondAlg
+        condSeq += SCT_DCSConditionsHVCondAlg(name = "SCT_DCSConditionsHVCondAlg",
+                                              ReadKey = sctDCSHVFolder)
+    if not hasattr(condSeq, "SCT_DCSConditionsStatCondAlg"):
+        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsStatCondAlg
+        condSeq += SCT_DCSConditionsStatCondAlg(name = "SCT_DCSConditionsStatCondAlg",
+                                                ReadKeyHV = sctDCSHVFolder,
+                                                ReadKeyState = sctDCSStateFolder)
+    if not hasattr(condSeq, "SCT_DCSConditionsTempCondAlg"):
+        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsTempCondAlg
+        condSeq += SCT_DCSConditionsTempCondAlg(name = "SCT_DCSConditionsTempCondAlg",
+                                                ReadKey = sctDCSTempFolder)
     ## SCT_DCSConditionsSvc - used by SCT_SurfaceChargesGenerator
     from AthenaCommon.AppMgr import ServiceMgr
     if not hasattr(ServiceMgr, "InDetSCT_DCSConditionsSvc"):
-        from AthenaCommon.AlgSequence import AthSequencer
-        condSeq = AthSequencer("AthCondSeq")
-        if not hasattr(condSeq, "SCT_DCSConditionsHVCondAlg"):
-            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsHVCondAlg
-            condSeq += SCT_DCSConditionsHVCondAlg(name = "SCT_DCSConditionsHVCondAlg",
-                                                  ReadKey = sctDCSHVFolder)
-        if not hasattr(condSeq, "SCT_DCSConditionsStatCondAlg"):
-            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsStatCondAlg
-            condSeq += SCT_DCSConditionsStatCondAlg(name = "SCT_DCSConditionsStatCondAlg",
-                                                    ReadKeyHV = sctDCSHVFolder,
-                                                    ReadKeyState = sctDCSStateFolder)
-        if not hasattr(condSeq, "SCT_DCSConditionsTempCondAlg"):
-            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsTempCondAlg
-            condSeq += SCT_DCSConditionsTempCondAlg(name = "SCT_DCSConditionsTempCondAlg",
-                                                    ReadKey = sctDCSTempFolder)
         from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsSvc
         InDetSCT_DCSConditionsSvc = SCT_DCSConditionsSvc(name = "InDetSCT_DCSConditionsSvc")
         ServiceMgr += InDetSCT_DCSConditionsSvc
+    # For SCT_SiliconConditionsSvc
+    if not hasattr(condSeq, "SCT_SiliconTempCondAlg"):
+        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SiliconTempCondAlg
+        condSeq += SCT_SiliconTempCondAlg(name = "SCT_SiliconTempCondAlg")
+    if not hasattr(condSeq, "SCT_SiliconHVCondAlg"):
+        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SiliconHVCondAlg
+        condSeq += SCT_SiliconHVCondAlg(name = "SCT_SiliconHVCondAlg")
+    # For SCT_SiPropertiesSvc
+    if not hasattr(condSeq, "SCTSiPropertiesCondAlg"):
+        from SiPropertiesSvc.SiPropertiesSvcConf import SCTSiPropertiesCondAlg
+        condSeq += SCTSiPropertiesCondAlg(name = "SCTSiPropertiesCondAlg")
     ## SCT_SiPropertiesSvc - used by SCT_SurfaceChargesGenerator
     if not hasattr(ServiceMgr, "SCT_SiPropertiesSvc"):
         # Lorentz Angle Service
         from SiLorentzAngleSvc.LorentzAngleSvcSetup import lorentzAngleSvc
         # Silicon conditions service (set up by LorentzAngleSvcSetup)
-        sctSiliconConditionsSvc = ServiceMgr.SCT_SiliconConditionsSvc
+        sctSiliconConditionsSvc = ServiceMgr.SCT_SiliconConditionsSvc        
         # Silicon properties service
-        from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesSvc;
-        sctSiPropertiesSvc = SiPropertiesSvc(name = "SCT_SiPropertiesSvc",
-                                             DetectorName="SCT",
-                                             SiConditionsServices = sctSiliconConditionsSvc)
+        from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesCHSvc;
+        sctSiPropertiesSvc = SiPropertiesCHSvc(name = "SCT_SiPropertiesSvc",
+                                               DetectorName = "SCT",
+                                               ReadKey = "SCTSiliconPropertiesVector")
         ServiceMgr += sctSiPropertiesSvc
     ## Charge trapping service - used by SCT_SurfaceChargesGenerator
     if not hasattr(ServiceMgr, "InDetSCT_RadDamageSummarySvc"):
         from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_RadDamageSummarySvc
         InDetSCT_RadDamageSummarySvc = SCT_RadDamageSummarySvc(name = "InDetSCT_RadDamageSummarySvc")
         ServiceMgr += InDetSCT_RadDamageSummarySvc
-    ## END OF JUNK
 
     kwargs.setdefault("FixedTime", -999)
     kwargs.setdefault("SubtractTime", -999)
@@ -95,6 +105,8 @@ def getSCT_SurfaceChargesGenerator(name="SCT_SurfaceChargesGenerator", **kwargs)
     kwargs.setdefault("BiasVoltage", 150)
     from AthenaCommon.GlobalFlags import globalflags
     kwargs.setdefault("isOverlay", globalflags.isOverlay())
+
+    # kwargs.setdefault("doTrapping", True) # ATL-INDET-INT-2016-019
 
     from Digitization.DigitizationFlags import digitizationFlags
     if 'doDetailedSurfChargesGen' in digitizationFlags.experimentalDigi():
@@ -109,7 +121,6 @@ def getSCT_SurfaceChargesGenerator(name="SCT_SurfaceChargesGenerator", **kwargs)
     else:
         from SCT_Digitization.SCT_DigitizationConf import SCT_SurfaceChargesGenerator
         return SCT_SurfaceChargesGenerator(name, **kwargs)
-
 
 ######################################################################################
 def getSCT_FrontEnd(name="SCT_FrontEnd", **kwargs):

@@ -28,7 +28,7 @@ void test1()
   TrigCaloCluster cl (10000, 1.1, 2.2, 123);
   cl.setRawEt (9000);
   cl.setNCells (456);
-  cl.setquality (789);;
+  cl.setquality (789);
   for (int i=0; i < MAXSIZE; i++)
     cl.setRawEnergy ((CaloSampling::CaloSample)i, i*10000 + 20000);
 
@@ -39,7 +39,7 @@ void test1()
   TrigCaloCluster cl2 (999, 999, 999, 999);
   cl2.setRawEt (999);
   cl2.setNCells (999);
-  cl2.setquality (999);;
+  cl2.setquality (999);
   for (int i=0; i < MAXSIZE; i++)
     cl2.setRawEnergy ((CaloSampling::CaloSample)i, 999);
 

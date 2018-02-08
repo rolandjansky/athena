@@ -48,7 +48,7 @@ public:
 private:
 
   TopLevelPlacements * m_placements;
-  IRDBRecordset_ptr SctEnvelope;
+  IRDBRecordset_ptr m_SctEnvelope;
 
 };
 }

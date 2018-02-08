@@ -158,7 +158,7 @@ public:
 
 
     /***
-     * @brief 
+     * @brief Queue a payload object for deletion.
      */
     void discard (const T* p);
 

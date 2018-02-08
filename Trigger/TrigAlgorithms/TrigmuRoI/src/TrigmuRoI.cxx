@@ -64,19 +64,11 @@ HLT::ErrorCode TrigmuRoI::hltInitialize()
 
   m_log << MSG::INFO << "initialize()" << endmsg;
 
-#ifdef ATLAS_GAUDI_V21
   SmartIF<IService> tmp_msgSvc(msgSvc());
   if(tmp_msgSvc.isValid()) {
     m_log << MSG::INFO << " Algorithm = " << name() << " is connected to Message Service = "
           << tmp_msgSvc->name() << endmsg;
   }
-#else
-  Service* tmp_msgSvc = dynamic_cast<Service*> (msgSvc());
-  if(tmp_msgSvc != 0) {
-    m_log << MSG::INFO << " Algorithm = " << name() << " is connected to Message Service = "
-          << tmp_msgSvc->name() << endmsg;
-  }
-#endif
 
    m_log << MSG::INFO << " ROB ID: DAQ CTP                            = " << m_daqCTPROBid
 	 << std::setw(6) << " (=0x" << MSG::hex << m_daqCTPROBid.value() << MSG::dec << ")" << endmsg;

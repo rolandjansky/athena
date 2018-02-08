@@ -330,13 +330,13 @@ bool TrigBjetFexStandalone::l2TrackSel(const TrigBjetTrackInfo &track, unsigned 
   if(m_useEtaPhiTrackSel) {
 
     if (fabs(track.eta() - m_trigBjetJetInfo->etaRoI()) > 0.2) {
-      if (msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "  track " << i+1 << " not selected (eta matching)" << endmsg;;
+      if (msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "  track " << i+1 << " not selected (eta matching)" << endmsg;
       m_listCutApplied.push_back(2); return false;
     }
 
     if (fabs(m_taggerHelper->phiCorr(m_taggerHelper->phiCorr(track.phi()) - m_trigBjetJetInfo->phiRoI())) > 0.2) {
       if (msgLvl() <= MSG::VERBOSE)
-	msg() << MSG::VERBOSE << "  track " << i+1 << " not selected (phi matching)" << endmsg;;
+	msg() << MSG::VERBOSE << "  track " << i+1 << " not selected (phi matching)" << endmsg;
       m_listCutApplied.push_back(3); return false;
     }
   }

@@ -1,15 +1,14 @@
-from AthenaConfiguration.ConfigFlags import ConfigFlag
+from AthenaConfiguration.ConfigFlags import ConfigFlag,makeFlag
 from AthenaConfiguration.CfgLogMsg import cfgLogMsg
 
 class DatabaseInstance(ConfigFlag):
-    @staticmethod
-    def getDefault(prevFlags):
-        isMC=prevFlags.get("AthenaConfiguration.GlobalConfigFlags.isMC")
+    def getDefault(self,prevFlags):
+        isMC=prevFlags.get("AthenaConfiguration.GlobalFlags.isMC")
         if (isMC):
             return "OFLP200"
     
         # real-data
-        projectName=prevFlags.get("AthenaConfiguration.GlobalConfigFlags.projectName")
+        projectName=prevFlags.get("AthenaConfiguration.GlobalFlags.projectName")
         try:
             year=int(projectName[4:6]);
         except:
@@ -21,8 +20,5 @@ class DatabaseInstance(ConfigFlag):
         else:
             return "COMP200" 
     
+GlobalTag=makeFlag("GlobalTag","CONDBR2-BLKPA-2017-05")
 
-class GlobalTag(ConfigFlag):
-    @staticmethod
-    def getDefault(prevFlags):
-        return "CONDBR2-BLKPA-2017-05"

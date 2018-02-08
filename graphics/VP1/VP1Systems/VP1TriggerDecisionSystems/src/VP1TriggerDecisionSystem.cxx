@@ -172,7 +172,7 @@ void VP1TriggerDecisionSystem::Clockwork::getInfo(const std::string& key,const s
 	  continue;
 	}
 	os << "  "<<  roiIt->label() << " ROI: "
-	   <<  "(" << roi->eta() << ", " << roi->phi() << ") " << std::endl;;
+	   <<  "(" << roi->eta() << ", " << roi->phi() << ") " << std::endl;
       }
     }
     
@@ -194,7 +194,7 @@ void VP1TriggerDecisionSystem::Clockwork::getInfo(const std::string& key,const s
 	}
 	
 	os << "  "<<  roiIt->label() << " ROI: "
-	   <<  "(" << roi->eta() << ", " << roi->phi() << ") " << std::endl;;
+	   <<  "(" << roi->eta() << ", " << roi->phi() << ") " << std::endl;
       }
     }
   }

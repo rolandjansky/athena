@@ -118,7 +118,7 @@ theApp.ExtSvc += [ "ByteStreamCnvSvc"]
 
 # It looks as if one needs this now online ?
 if False:
-    from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import MetaDataSvc
+    from AthenaServices.AthenaServicesConf import MetaDataSvc
     svcMgr += MetaDataSvc( "MetaDataSvc" )
     # Add in MetaData Stores
     from StoreGate.StoreGateConf import StoreGateSvc
