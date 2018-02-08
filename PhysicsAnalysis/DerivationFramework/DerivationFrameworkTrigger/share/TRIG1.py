@@ -34,8 +34,8 @@ else: ToolSvc += BunchCrossingTool( "LHC" )
 #====================================================================
 #
 # TODO this doesn't work - component not yet exposed
-from EnhancedBiasWeighter.EnhancedBiasWeighterConf import DerivationFramework__EnhancedBiasWeighter
-TRIG1AugmentationTool = DerivationFramework__EnhancedBiasWeighter(name = "TRIG1AugmentationTool")
+from EnhancedBiasWeighter.EnhancedBiasWeighterConf import EnhancedBiasWeighter
+TRIG1AugmentationTool = EnhancedBiasWeighter(name = "TRIG1AugmentationTool")
 TRIG1AugmentationTool.RunNumber = run_number
 TRIG1AugmentationTool.UseBunchCrossingTool = True
 # These are needed for MC rates
