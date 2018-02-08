@@ -398,27 +398,20 @@ class ComponentAccumulator(object):
         pickle.dump( self._jocfg, outfile ) 
         pickle.dump( self._pycomps, outfile )     
 
-
-    def run(self,nEvents):
-        from AthenaCommon.AppMgr import theApp
-        #theApp.setup()
-        
-        #        print theApp
-        #        topSeq=theApp.TopAlg
-
-        
-        #        for alg in self._eventAlgs:
-        #            theApp.TopAlg+=alg
-
-        theApp.run()
-
 # self test            
 if __name__ == "__main__":
     # trivial case without any nested sequences
-    from AthenaCommon.Configurable import ConfigurablePyAlgorithm as Algo # guinea pig algorithms
+    from AthenaCommon.Configurable import ConfigurablePyAlgorithm # guinea pig algorithms
     from AthenaConfiguration.ConfigFlags import ConfigFlagContainer
     from AthenaCommon.CFElements import *
     cfgLogMsg.setLevel("debug")
+
+    class Algo(ConfigurablePyAlgorithm):
+        def __init__(self, name):
+            super( ConfigurablePyAlgorithm, self ).__init__( name )
+
+
+
 
     def AlgsConf1(flags):
         acc = ComponentAccumulator()
@@ -450,7 +443,9 @@ if __name__ == "__main__":
     def AlgsConf4(flags):
         acc = ComponentAccumulator()
         acc.executeModule( AlgsConf3, flags )
-        acc.addEventAlgo( Algo("NestedAlgo2", OutputLevel=7) )
+        NestedAlgo2 = Algo("NestedAlgo2")
+        NestedAlgo2.OutputLevel=7
+        acc.addEventAlgo( NestedAlgo2 )
         return acc
 
 
@@ -489,8 +484,7 @@ if __name__ == "__main__":
         assert len(storedSeq[k]) == len(srcSeq[k]) , "Not the same number of algorithms in store and src"
         for a1, a2 in zip(storedSeq[k], srcSeq[k]):            
             assert sameAlg(a1, a2), "Differences in alg. congfig"
-    print( "Sequences survived pickling" )
-
-    #acc.run(1)
+    print( "Sequences survived pickling OK" )
+    
     print( "\nAll OK" )
 
