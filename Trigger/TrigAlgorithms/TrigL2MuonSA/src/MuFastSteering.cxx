@@ -424,7 +424,7 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
       }
       if (m_timerSvc) m_timers[ITIMER_DATA_PREPARATOR]->pause();
 
-      if ( m_dataPreparator->isRpcFakeRoi() ) {
+      if ( m_rpcErrToDebugStream && m_dataPreparator->isRpcFakeRoi() ) {
         ATH_MSG_ERROR("Invalid RoI in RPC data found: event to debug stream");
 	TrigL2MuonSA::TrackPattern trackPattern;
 	m_trackPatterns.push_back(trackPattern);
@@ -1440,7 +1440,7 @@ StatusCode MuFastSteering::updateMonitor(const LVL1::RecMuonRoI*                
     m_middle_mdt_hits = count_middle;
     m_outer_mdt_hits  = count_outer;
 
-    if ( m_rpcErrToDebugStream && m_dataPreparator->isRpcFakeRoi() ) 
+    if ( m_dataPreparator->isRpcFakeRoi() ) 
       m_invalid_rpc_roi_number = roi->getRoINumber();
     
     m_track_pt    = (fabs(pattern.pt ) > ZERO_LIMIT)? pattern.charge*pattern.pt: 9999.;
