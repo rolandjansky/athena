@@ -603,7 +603,10 @@ bool EL::GridDriver::doRetrieve(const std::string& location) const {
   if (isRunning) return false;
 
   //At this point, task should be either completed or failed
-  RCU_ASSERT(isFailed == isIncomplete); 
+  if (isFailed != isIncomplete) {
+    std::cerr << "At this point, task should be either completed or failed\n"
+              << "somehow it's not" << std::endl;
+  }
 
   if (isFailed) {
     cerr << "The job has failed and has reached maximum number of retries.";
