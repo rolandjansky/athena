@@ -179,16 +179,16 @@ void VP1FileUtilities::cleanUp()
 {
   //std::cout << "VP1FileUtilities::cleanUp()" << std::endl;
 
-  QDir _dir;
-  _dir.setPath(QString(m_outputDirectory.c_str()));
+  QDir dir;
+  dir.setPath(QString(m_outputDirectory.c_str()));
 
   QStringList nameFilters;
   nameFilters << "vp1_*.pool.root";
 
-  _dir.setFilter(QDir::Files);
-  _dir.setNameFilters(nameFilters);
-  _dir.setSorting(QDir::Time|QDir::Reversed);
-  QFileInfoList list = _dir.entryInfoList();
+  dir.setFilter(QDir::Files);
+  dir.setNameFilters(nameFilters);
+  dir.setSorting(QDir::Time|QDir::Reversed);
+  QFileInfoList list = dir.entryInfoList();
 
   //std::cout << "m_fileLimit: " << m_fileLimit << " - list.size(): " << list.size() << " - list: " << list << std::endl;
 
@@ -196,7 +196,7 @@ void VP1FileUtilities::cleanUp()
   {
     QFileInfo fileInfo = list.at(0);
 
-    if(!_dir.remove(fileInfo.fileName()))
+    if(!dir.remove(fileInfo.fileName()))
       throw std::runtime_error("VP1FileUtilities::cleanup() - WARNING: Unable to do the clean up!");
   }
 
