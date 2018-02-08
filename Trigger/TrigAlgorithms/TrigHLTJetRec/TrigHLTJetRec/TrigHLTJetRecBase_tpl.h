@@ -85,6 +85,7 @@ HLT::ErrorCode TrigHLTJetRecBase<InputContainer>::hltInitialize() {
    }
    else {
 	ATH_MSG_DEBUG("No secondary PseudojetGetter required. Will disable the tool handle.");
+	m_secondarypseudoJetGetter.disable();
    }
 
   ATH_MSG_INFO("Tool retrieval completed.");

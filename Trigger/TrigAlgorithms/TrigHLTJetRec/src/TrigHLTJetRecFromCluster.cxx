@@ -160,7 +160,7 @@ HLT::ErrorCode
 TrigHLTJetRecFromCluster::loadSecondaryPseudoJets(
                                         PseudoJetVector& pjvtracks){
         ATH_MSG_DEBUG("Loading secondary pseudo jets into getter...");
-	if ( m_secondarypseudoJetGetter == NULL ) {
+	if ( !m_secondarypseudoJetGetter.isEnabled() ) {
 		ATH_MSG_ERROR("Something went wrong, the secondary PseudoJetGetter is not set.");
 		return HLT::ERROR;
 	}
