@@ -286,7 +286,7 @@ class ComponentAccumulator(object):
         return self
 
     
-    def executeModule(self,fct,configFlags, sequence=None, *args,**kwargs):
+    def executeModule(self,fct,configFlags, *args,**kwargs):
         """ The heart and soul of configuration system. You need to read the whole documentation. 
 
         This method eliminates possibility that a downstream configuration alters the upstream one. 
@@ -297,15 +297,17 @@ class ComponentAccumulator(object):
         """
         
         currentSeq = seq = CurrentSequence.get()
-        if sequence:            
-            seq = findSubSequence(seq, sequence )            
+        if kwargs.has_key('sequence'):            
+            seq = findSubSequence(seq, kwargs['sequence'] )            
             if seq == None:
-                raise ConfigurationError("Can not add algorithms to sequence %s as it does not exist" % sequence )            
+                raise ConfigurationError("Can not add algorithms to sequence %s as it does not exist" % kwargs['sequence'] )            
+            else:
+                del kwargs['sequence']
             CurrentSequence.set( seq )
 
         cfconst=deepcopy(configFlags)
         self._msg.info("Executing configuration function %s" % fct.__name__)
-        subAccumulator = fct( cfconst, *args,**kwargs )
+        subAccumulator = fct( cfconst, *args, **kwargs )
         self.__merge( subAccumulator )
 
         CurrentSequence.set( currentSeq )
