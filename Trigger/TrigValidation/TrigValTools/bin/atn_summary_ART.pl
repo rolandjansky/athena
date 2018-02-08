@@ -166,7 +166,7 @@ sub main(){
     open HTMLOUT, "> $output" or die "failed to write to $output: $!";
     print HTMLOUT "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 3.2 Final//EN\">
 <html>\n<head>\n<script type=\"text/javascript\" src=\"http://atlas-project-trigger-release-validation.web.cern.ch/atlas-project-trigger-release-validation/www/js/sorttable.js\"></script>\n<script type=\"text/javascript\" src=\"http://atlas-project-trigger-release-validation.web.cern.ch/atlas-project-trigger-release-validation/www/js/suitehighlight.min.js\"></script>\n<meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\" >
-<title>Trigger ATN results for $project,$gitbranch,$release</title>\n
+<title>Trigger ART results for $project,$gitbranch,$release</title>\n
 <script type=\"text/javascript\">
 
 var thisRelease = null;
@@ -256,7 +256,7 @@ function showBuildFailures(failures,link) {
   tr.hi:hover {background-color:#E6E6E6;}
 </style>
 <body onload=\"highlightSuite({id:'ATNResults'});setDiffCount(0);\">
-<h1>Trigger ATN test results summary</h1>
+<h1>Trigger ART test results summary</h1>
 <form name=\"DiffForm\">
 ";
 
@@ -265,13 +265,17 @@ function showBuildFailures(failures,link) {
     my $testWWWPage=getTestWWWPage();
     my $nicosWWWPage=dirname($testWWWPage);
 
-    print HTMLOUT "<p>Last updated $now</p>\n";
-    
-	my $atn_relno = $atn_rel;
-	$atn_relno =~ s/rel_//;
-	print HTMLOUT "<p><a href=\"".$testWWWPage."\">Nightly test</a>: $project,$gitbranch,<b>$release</b> ($atn_platform)";
-	print HTMLOUT "<script src=\"".$nicosWWWPage."/build_failures_".$atn_relno.".js\" language=\"JavaScript\"></script>\n";
-	print HTMLOUT "<script type=\"text/javascript\">showBuildFailures(failures_".$atn_relno."(),"."\"".$nicosWWWPage."/nicos_buildsummary_".$atn_relno.".html\")</script>";
+    print HTMLOUT "<p>Last updated $now. Contact: Daniele.Zanzi @ cern.ch</p>\n";
+    print HTMLOUT "<p>Links to previous nightlies not working after ART migration, please move two folders up to find the webpages of all other nightlies</p>\n";
+
+#	my $atn_relno = $atn_rel;
+#	$atn_relno =~ s/rel_//;
+#	print HTMLOUT "<p><a href=\"".$testWWWPage."\">Nightly test</a>: $project,$gitbranch,<b>$release</b> ($atn_platform)";
+#	print HTMLOUT "<script src=\"".$nicosWWWPage."/build_failures_".$atn_relno.".js\" language=\"JavaScript\"></script>\n";
+#	print HTMLOUT "<script type=\"text/javascript\">showBuildFailures(failures_".$atn_relno."(),"."\"".$nicosWWWPage."/nicos_buildsummary_".$atn_relno.".html\")</script>";
+#
+
+    print HTMLOUT "<p>Nightly test: $project, $gitbranch, $release</p>\n";
 
     # Link to GitLab diff between today's and yesterday's release
     my $fmt="%Y-%m-%dT%H%M";
@@ -282,39 +286,41 @@ function showBuildFailures(failures,link) {
     my $yesterday = $date->calc($delta); 
     my $prevrel = $yesterday->printf($fmt);
     my $gitdiff = "https://gitlab.cern.ch/atlas/athena/compare/nightly%2F$gitbranch%2F$prevrel...nightly%2F$gitbranch%2F$release";	
+    print HTMLOUT "<p><a href=\"$gitdiff\">GitLab diff (link may not work if hour and minutes are different in the build timestamp)</a></p>\n";
 
-	print HTMLOUT "<br>Other nightlies: ";
-    if (defined $no_of_nightlies_exceptions{$project}){
-        $no_of_nightlies=$no_of_nightlies_exceptions{$project};
-        print "$project exceptionally has $no_of_nightlies nightly builds\n";
-    } else {
-        print "$project normally has $no_of_nightlies nightly builds\n";
-    }
-
-    my @dow = ('Sun','Mon','Tue','Wed','Thu','Fri','Sat');
-	for (my $i=0; $i<$no_of_nightlies; $i++){
-	    if ("rel_$i" eq $atn_rel){
-            print HTMLOUT " $dow[$i] ";
-	    } else {
-            my $p=getrelpath();
-            $p =~ s/rel_\d/rel_$i/;
-            $p =~ s/rel_nightly/rel_$i/;
-            print HTMLOUT " <a href=\"$p\">$dow[$i]</a> ";
-	    }
-	}
-
-	print HTMLOUT "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<a href=\"$gitdiff\">GitLab diff</a>
-&nbsp;&nbsp;&nbsp;&nbsp;Diff results: <select name=\"rel\" size=\"1\" onchange=\"loadPage()\">
-<option value='rel_0'>Sun</option>
-<option value='rel_1'>Mon</option>
-<option value='rel_2'>Tue</option>
-<option value='rel_3'>Wed</option>
-<option value='rel_4'>Thu</option>
-<option value='rel_5'>Fri</option>
-<option value='rel_6'>Sat</option>
-</select> <span id='nDiffs' style='font-weight:bold'></span>
-</form><script type=\"text/javascript\">setRelease();</script></p>";
+#
+#	print HTMLOUT "<br>Other nightlies: ";
+#    if (defined $no_of_nightlies_exceptions{$project}){
+#        $no_of_nightlies=$no_of_nightlies_exceptions{$project};
+#        print "$project exceptionally has $no_of_nightlies nightly builds\n";
+#    } else {
+#        print "$project normally has $no_of_nightlies nightly builds\n";
+#    }
+#
+#    my @dow = ('Sun','Mon','Tue','Wed','Thu','Fri','Sat');
+#	for (my $i=0; $i<$no_of_nightlies; $i++){
+#	    if ("rel_$i" eq $atn_rel){
+#            print HTMLOUT " $dow[$i] ";
+#	    } else {
+#            my $p=getrelpath();
+#            $p =~ s/rel_\d/rel_$i/;
+#            $p =~ s/rel_nightly/rel_$i/;
+#            print HTMLOUT " <a href=\"$p\">$dow[$i]</a> ";
+#	    }
+#	}
+#
+#	print HTMLOUT "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+#<a href=\"$gitdiff\">GitLab diff</a>
+#&nbsp;&nbsp;&nbsp;&nbsp;Diff results: <select name=\"rel\" size=\"1\" onchange=\"loadPage()\">
+#<option value='rel_0'>Sun</option>
+#<option value='rel_1'>Mon</option>
+#<option value='rel_2'>Tue</option>
+#<option value='rel_3'>Wed</option>
+#<option value='rel_4'>Thu</option>
+#<option value='rel_5'>Fri</option>
+#<option value='rel_6'>Sat</option>
+#</select> <span id='nDiffs' style='font-weight:bold'></span>
+#</form><script type=\"text/javascript\">setRelease();</script></p>";
 
     print HTMLOUT "\n<table class=\"sortable\" id=\"ATNResults\" border=1><thead><tr>
 <th title=\"Click to sort by test suite\">Test name</th> 
