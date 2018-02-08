@@ -5,12 +5,13 @@
 
 # Function printing the usage information for the script
 usage() {
-    echo "Usage: build_externals.sh [-t build_type] [-b build_dir] [-f] [-c]"
+    echo "Usage: build_externals.sh [-t build_type] [-b build_dir] [-f] [-c] [-d]"
     echo " -f: Force rebuild of externals from scratch, otherwise if script"
     echo "     finds an external build present it will only do an incremental"
     echo "     build"
     echo " -c: Build the externals for the continuous integration (CI) system,"
     echo "     skipping the build of the externals RPMs."
+    echo " -d: For debugging the CMake configuration: run 'cmake' with the '--trace' option (very verbose output!)" 
     echo "If a build_dir is not given the default is '../build'"
     echo "relative to the athena checkout"
 }
@@ -20,7 +21,8 @@ BUILDDIR=""
 BUILDTYPE="RelWithDebInfo"
 FORCE=""
 CI=""
-while getopts ":t:b:fch" opt; do
+DEBUG_CMAKE_CONFIG=""
+while getopts ":t:b:fchd" opt; do
     case $opt in
         t)
             BUILDTYPE=$OPTARG
@@ -33,6 +35,9 @@ while getopts ":t:b:fch" opt; do
             ;;
         c)
             CI="1"
+            ;;
+        d)
+            DEBUG_CMAKE_CONFIG="-d"
             ;;
         h)
             usage
@@ -153,7 +158,8 @@ ${scriptsdir}/build_atlasexternals.sh \
     -b ${BUILDDIR}/build/AthenaExternals \
     -i ${BUILDDIR}/install/AthenaExternals/${NICOS_PROJECT_VERSION} \
     -p AthenaExternals ${RPMOPTIONS} -t ${BUILDTYPE} \
-    -v ${NICOS_PROJECT_VERSION}
+    -v ${NICOS_PROJECT_VERSION} \
+    ${DEBUG_CMAKE_CONFIG}
 
 {
  test "X${NIGHTLY_STATUS}" != "X" && {
