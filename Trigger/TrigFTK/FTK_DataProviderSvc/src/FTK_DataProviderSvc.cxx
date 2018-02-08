@@ -151,7 +151,8 @@ FTK_DataProviderSvc::FTK_DataProviderSvc(const std::string& name, ISvcLocator* s
   m_rejectBadTracks(false),
   m_dPhiCut(0.4),
   m_dEtaCut(0.6),
-  m_nErrors(0)
+  m_nErrors(0),
+  m_reverseIBLlocx(false)
 {
   m_pixelBarrelPhiOffsets.reserve(4);
   m_pixelBarrelEtaOffsets.reserve(4);
@@ -213,6 +214,7 @@ FTK_DataProviderSvc::FTK_DataProviderSvc(const std::string& name, ISvcLocator* s
   declareProperty("setBroadPixelClusterOnTrackErrors",m_broadPixelErrors);
   declareProperty("setBroadSCT_ClusterOnTrackErrors",m_broadSCT_Errors);
   declareProperty("RemoveDuplicates",m_remove_duplicates);
+  declareProperty("ReverseIBLlocX",m_reverseIBLlocx, "reverse the direction of IBL locX from FTK");
 
 
 }
@@ -301,7 +303,7 @@ StatusCode FTK_DataProviderSvc::initialize() {
   ATH_MSG_INFO( " Pixel Barrel Eta Offsets (pixels): " << m_pixelBarrelEtaOffsets);
   ATH_MSG_INFO( " Pixel EndCap Phi Offsets (pixels): " << m_pixelEndCapPhiOffsets);
   ATH_MSG_INFO( " Pixel EndCap Eta Offsets (pixels): " << m_pixelEndCapEtaOffsets);
-
+  if  (m_reverseIBLlocx) ATH_MSG_INFO( "Reversing the direction of IBL LocX");
 
   if (m_correctPixelClusters) {
     ATH_MSG_INFO( " applying all corrections (lorentz, angle,  sag) to Pixel Clusters on converted tracks using RotCreatorTool");
@@ -344,7 +346,7 @@ unsigned int FTK_DataProviderSvc::nTrackParticleErrors(const bool withRefit) {
 
 unsigned int FTK_DataProviderSvc::nRawTracks() {
   if (!m_gotRawTracks) getFTK_RawTracksFromSG();
-  return m_ftk_tracks->size();
+  return (m_gotRawTracks ? m_ftk_tracks->size() : 0);
 }
 
 
@@ -841,6 +843,7 @@ xAOD::VertexContainer* FTK_DataProviderSvc::getVertexContainer(const bool withRe
 #endif
 
   if (fillTrackParticleCache(withRefit).isFailure()) {
+
     // must always create a VertexContainer in StroreGate
 
     std::string cacheName= m_vertexCacheName;
@@ -1149,31 +1152,34 @@ void FTK_DataProviderSvc::getFTK_RawTracksFromSG(){
 
   // new event - get the tracks from StoreGate
   if (!m_storeGate->contains<FTK_RawTrackContainer>(m_RDO_key)) {
-	  ATH_MSG_DEBUG( "getFTK_RawTracksFromSG: FTK tracks  "<< m_RDO_key <<" not found in StoreGate !");
-	  return;
+    ATH_MSG_DEBUG( "getFTK_RawTracksFromSG: FTK tracks  "<< m_RDO_key <<" not found in StoreGate !");
   } else {    
-	  if (m_remove_duplicates){//get all tracks, and then call duplicate removal tool
-		  const FTK_RawTrackContainer* temporaryTracks=nullptr;
-		  StatusCode sc = m_storeGate->retrieve(temporaryTracks, m_RDO_key);
-		  ATH_MSG_DEBUG( "getFTK_RawTracksFromSG:  Got " << temporaryTracks->size() << " raw FTK tracks (RDO) from  StoreGate ");
-		  m_ftk_tracks = m_DuplicateTrackRemovalTool->removeDuplicates(temporaryTracks);
-		  if (sc.isFailure()) {
-			  ATH_MSG_WARNING( "getFTK_RawTracksFromSG: Failed to get FTK Tracks Container when using removeDumplicates ");
-			  return;
-		  }
-	  }
-	  else{//the original way
-		  ATH_MSG_VERBOSE( "getFTK_RawTracksFromSG:  Doing storegate retrieve");
-		  StatusCode sc = m_storeGate->retrieve(m_ftk_tracks, m_RDO_key);
-		  if (sc.isFailure()) {
-			  ATH_MSG_WARNING( "getFTK_RawTracksFromSG: Failed to get FTK Tracks Container");
-			  return;
-		  }
-	  }
-	  ATH_MSG_DEBUG( "getFTK_RawTracksFromSG:  Got " << m_ftk_tracks->size() << " raw FTK tracks");
-	  m_gotRawTracks = true;
+
+    StatusCode sc = StatusCode::SUCCESS;
+    if (m_remove_duplicates){//get all tracks, and then call duplicate removal tool
+      const FTK_RawTrackContainer* temporaryTracks=nullptr;
+      sc = m_storeGate->retrieve(temporaryTracks, m_RDO_key);
+      if (!sc.isFailure()) {
+	ATH_MSG_DEBUG( "getFTK_RawTracksFromSG:  Got " << temporaryTracks->size() << " raw FTK tracks (RDO) from  StoreGate before removeDuplicates");
+	m_ftk_tracks = m_DuplicateTrackRemovalTool->removeDuplicates(temporaryTracks);
+      }
+    }
+    else{//the original way
+      sc = m_storeGate->retrieve(m_ftk_tracks, m_RDO_key);
+    }
+
+    if (sc.isFailure()) {
+      ATH_MSG_VERBOSE( "getFTK_RawTracksFromSG: Failed to get FTK Tracks Container");
+    } else {
+      ATH_MSG_DEBUG( "getFTK_RawTracksFromSG:  Got " << m_ftk_tracks->size() << " raw FTK tracks (RDO) from  StoreGate ");
+      if (m_ftk_tracks->size()==0){
+	ATH_MSG_VERBOSE( "no FTK Tracks in the event");
+      } else {
+	m_gotRawTracks = true;
+      }
+    }      
   }
-  
+
   // Creating collection for pixel clusters
   m_PixelClusterContainer = new InDet::PixelClusterContainer(m_pixelId->wafer_hash_max());
   m_PixelClusterContainer->addRef();
@@ -1260,7 +1266,9 @@ StatusCode FTK_DataProviderSvc::initTrackParticleCache(bool withRefit) {
   bool gotTracks=false;
   getFTK_RawTracksFromSG();
   if (m_gotRawTracks) {
-    if (!initTrackCache(withRefit).isFailure()) {  gotTracks=true; }
+    if (!initTrackCache(withRefit).isFailure()) {  
+      gotTracks=true; 
+    } 
   }
 
   if (withRefit) {
@@ -1783,7 +1791,14 @@ const Trk::RIO_OnTrack*  FTK_DataProviderSvc::createPixelCluster(const FTK_RawPi
   ATH_MSG_VERBOSE( " Module rows= " << design->rows() << " phiPitch= " << design->phiPitch() << " width= " << design->width() );
   ATH_MSG_VERBOSE( " columns = " << design->columns() << " etaPitch= " << design->etaPitch() <<  " length " << design->length());
 
-  int rawLocalPhiCoord = raw_pixel_cluster.getRowCoord();
+  int rawLocalPhiCoord;
+  
+  if (m_reverseIBLlocx && isBarrel && layer==0) {
+    rawLocalPhiCoord = 2680 -  raw_pixel_cluster.getRowCoord(); //335*8=2680
+  } else {
+    rawLocalPhiCoord = raw_pixel_cluster.getRowCoord();
+  }
+
   int rawLocalEtaCoord= raw_pixel_cluster.getColCoord();
 
   const InDetDD::SiCellId cornerCell(0, 0);
@@ -1793,10 +1808,17 @@ const Trk::RIO_OnTrack*  FTK_DataProviderSvc::createPixelCluster(const FTK_RawPi
 
   ATH_MSG_VERBOSE( " local position of pixel at (0,0) is "<<  phi0 << ",  " << eta0);
 
+
+
   // zero is center of the row coordinates, so to find the cell we can use it, units of 6.25 microns
   // zero is edge of the column coordinates, so to find the cell we add 0.5, units of 25 microns
   double phiPos = ((double) rawLocalPhiCoord) * 6.25e-3 + phi0; // rawLocalPhiCoord=0 is the centre of the zeroth pixel
-  double etaPos = ((double) rawLocalEtaCoord) * 25.0e-3 + eta0 - 0.3; // rawLocalEtaCoord=0 is the edge (-0.3mm) of the zeroth pixel.
+  double etaPos = 0;
+  if (isBarrel && layer==0) {
+    etaPos = ((double) rawLocalEtaCoord) * 25.0e-3 + eta0 - 0.25; // rawLocalEtaCoord=0 is the edge (-0.25mm) of the zeroth IBL pixel.
+  } else {
+    etaPos = ((double) rawLocalEtaCoord) * 25.0e-3 + eta0 - 0.3; // rawLocalEtaCoord=0 is the edge (-0.3mm) of the zeroth non-IBL pixel.
+  }
 
   if (isBarrel)  {
     phiPos += m_pixelBarrelPhiOffsets[layer];

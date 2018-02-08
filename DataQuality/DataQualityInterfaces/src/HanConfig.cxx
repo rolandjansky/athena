@@ -24,6 +24,7 @@
 #include <TKey.h>
 #include <TBox.h>
 #include <TLine.h>
+#include <TROOT.h>
 
 #include "dqm_core/LibraryManager.h"
 #include "dqm_core/Parameter.h"
@@ -256,6 +257,42 @@ GetReference( std::string& groupName, std::string& name )
   return 0;
 }
 
+std::string 
+SplitReference(std::string refPath, std::string refName )
+{
+  //Split comma sepated inputs into individual file names
+  std::string delimiter = ",";
+  std::vector<std::string> refFileList;
+  size_t pos = 0;
+  std::string token;
+  while ((pos = refPath.find(delimiter)) != std::string::npos) {
+    token = refPath.substr(0, pos);
+    refFileList.push_back(token);
+    refPath.erase(0, pos + delimiter.length());
+  }
+  refFileList.push_back(refPath);
+
+  //Try to open each file in the list
+  for(std::size_t i=0; i<refFileList.size(); i++){
+    std::string fileName=refFileList.at(i)+refName;
+    size_t first = fileName.find_first_not_of(" ");
+    fileName.erase(0, first);
+    if (gROOT->GetListOfFiles()->FindObject(fileName.c_str()) ) {
+      return fileName;
+    } 
+    else {
+      if(TFile::Open(fileName.c_str())){
+	return fileName;
+      }
+      else{
+	std::cerr << "Unable to open " << fileName << ", trying next reference file" << std::endl;
+      }
+    }
+  }
+  std::cerr << "Unable to open any reference file, reference will not be included" << std::endl;
+  return "";
+}
+
 const HanConfigAssessor*
 HanConfig::
 GetAssessor( std::string& groupName, std::string& name ) const
@@ -302,6 +339,7 @@ Visit( const MiniConfigTreeNode* node ) const
   TObject* obj;
   std::string name = node->GetAttribute("name");
   std::string fileName = node->GetAttribute("file");
+  fileName = SplitReference(node->GetAttribute("location"), fileName);
   std::string refInfo = node->GetAttribute("info");
   if( fileName != "" && name != "" && name != "same_name" ) {
     std::auto_ptr<TFile> infile( TFile::Open(fileName.c_str()) );
@@ -325,11 +363,10 @@ Visit( const MiniConfigTreeNode* node ) const
     TObjString* fnameostr = new TObjString(fileName.c_str());
     m_refsourcedata->Add(new TObjString(newHistoName.c_str()),
 			 fnameostr);
-    if (refInfo != "") {
-      if (! m_refsourcedata->FindObject(fileName.c_str())) {
-	m_refsourcedata->Add(fnameostr, new TObjString(refInfo.c_str()));
-      }  
-    }
+    if (! m_refsourcedata->FindObject(fileName.c_str())) {
+      m_refsourcedata->Add(fnameostr, refInfo != "" ? new TObjString(refInfo.c_str())
+			   : new TObjString("Reference"));
+    }  
   }
 }
 
@@ -347,6 +384,23 @@ AssessmentVisitorBase( HanConfigGroup* root_, const MiniConfig& algConfig_,
   , directories(directories_)
   , m_refsourcedata(refsourcedata_)
 {
+}
+
+std::shared_ptr<TFile>
+HanConfig::AssessmentVisitorBase::
+GetROOTFile( std::string& fname ) const
+{
+  auto it = m_filecache.find(fname);
+  if (it != end(m_filecache)) {
+    return it->second;
+  } else {
+    std::shared_ptr<TFile> thisptr(TFile::Open(fname.c_str()));
+    if (thisptr.get()) {
+      return ( m_filecache[fname] = thisptr );
+     } else {
+      return thisptr;
+    }	  
+  }
 }
 
 float AttribToFloat(const MiniConfigTreeNode* node, const std::string attrib,
@@ -452,12 +506,19 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
 	    algRefName = assessorName;
 	    absAlgRefName += algRefName;
 	    std::string algRefFile( refConfig.GetStringAttribute(thisRefID,"file") );
+	    algRefFile = SplitReference( refConfig.GetStringAttribute(thisRefID,"location"), algRefFile);
+
 	    if( algRefFile != "" ) {
-	      std::auto_ptr<TFile> infile( TFile::Open(algRefFile.c_str()) );
+	      std::shared_ptr<TFile> infile = GetROOTFile(algRefFile);
+	      if ( ! infile.get() ) {
+		std::cerr << "HanConfig::AssessmentVistorBase::GetAlgorithmConfiguration: Reference file " << algRefFile << " not found" << std::endl;
+		continue;
+	      }
 	      TKey* key = getObjKey( infile.get(), absAlgRefName );
 	      if( key == 0 ) {
-		std::cerr << "HanConfig::AssessmentVisitorBase::GetAlgorithmConfiguration: "
-			  << "Reference not found: \"" << absAlgRefName << "\"\n";
+		// Quiet this error ...
+		//std::cerr << "HanConfig::AssessmentVisitorBase::GetAlgorithmConfiguration: "
+		//<< "Reference not found: \"" << absAlgRefName << "\"\n";
 		continue;
 	      }
 	      // TDirectory* dir = ChangeOutputDir( outfile, absAlgRefName, directories );
@@ -499,8 +560,10 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
 	    newRefId=CS.getNewReferenceName(algRefName,true);
 	    if(newRefId.empty()){
 	      std::cerr<<"Warning New reference id is empty for refId=\""
-		       <<refID<<"\", cond=\""<<cond<<"\", assessorName= \""
-		       <<assessorName<<"\""<<std::endl;
+		       <<refID<<"\", cond=\""<<cond<<"\", assessorName=\""
+		       <<assessorName<<"\", algRefName=\""
+		       <<algRefName<<"\""<<std::endl;
+	      std::cerr << "AlgRefPath=" << algRefPath << " AlgRefInfo=" << algRefInfo << std::endl;
 	    }
 	  }
 	} 
@@ -798,7 +861,9 @@ Visit( const MiniConfigTreeNode* node ) const
       std::string objPath("");
       std::string absObjPath("");
       
-      std::auto_ptr<TFile> infile( TFile::Open(refFile.c_str()) );
+      refFile = SplitReference( refConfig.GetStringAttribute(refID,"location"), refFile);
+      //std::auto_ptr<TFile> infile( TFile::Open(refFile.c_str()) );
+      std::shared_ptr<TFile> infile( GetROOTFile(refFile) );
       TDirectory* basedir(0);
       TDirectory* dir(0);
       TKey* key;
@@ -811,7 +876,7 @@ Visit( const MiniConfigTreeNode* node ) const
         refPathForSearch += "/dummyName";
         basedir = ChangeInputDir( infile.get(), refPathForSearch );
         if( basedir == 0 ) {
-          std::cerr << "Cannot find \"" << refPath << "\" in file\n";
+          std::cerr << "Cannot find  \"" << refPath << "\" in file\n";
           continue;
         }
       }
@@ -1175,7 +1240,13 @@ ChangeOutputDir( TFile* file, std::string path, DirMap_t& directories )
       std::string dirName;
       std::string::size_type k = subPath.find_last_of('/');
       dirName = (k != std::string::npos) ? std::string( subPath, k+1, std::string::npos ) : subPath;
-      TDirectory* dir = parDir->mkdir( dirName.c_str() );
+      TDirectory* dir;
+      if (!parDir->FindKey(dirName.c_str())) {
+	dir = parDir->mkdir( dirName.c_str() );
+      }
+      else{
+	std::cout << "Failed to make directory " << dirName.c_str() << std::endl;
+      }
       DirMap_t::value_type dirVal( subPath, dir );
       directories.insert( dirVal );
       return dir;

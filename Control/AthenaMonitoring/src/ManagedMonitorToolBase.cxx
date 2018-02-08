@@ -823,7 +823,7 @@ fillHists()
    m_useTrigger = ( (m_triggerChainProp != "" || m_triggerGroupProp != "")  && (!m_trigDecTool.empty()) );
 
    if( m_manager != 0 ) {
-      m_newLumiBlock = ( m_lastLumiBlock != m_manager->lumiBlockNumber() );
+     m_newLumiBlock = ( (m_lastLumiBlock != m_manager->lumiBlockNumber()) || m_manager->forkedProcess());
       m_newRun = ( m_lastRun != m_manager->runNumber() );
       newLumiBlock = m_newLumiBlock;
       newRun = m_newRun;
@@ -938,7 +938,15 @@ fillHists()
       m_d->benchPostBookHistograms();
       sc1.setChecked();
       sc3.setChecked();
-   }
+      
+
+      if (m_manager->forkedProcess()) {
+	ATH_MSG_INFO("Child process: Resetting all " << m_lwhists.size() <<  " LW Histograms");
+	for (LWHist* h : m_lwhists) {
+	  h->Reset();
+	}
+      }
+   }//end if new RUN/LB/Block
 
    // check filters
    bool filterresult(true);

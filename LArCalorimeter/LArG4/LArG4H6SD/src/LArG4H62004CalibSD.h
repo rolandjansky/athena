@@ -19,7 +19,7 @@ class G4TouchableHistory;
 class LArG4H62004CalibSD : public LArG4CalibSD
 {
 public:
-  LArG4H62004CalibSD(G4String name,LArG4::VCalibrationCalculator* calc,bool doPID=false);
+  LArG4H62004CalibSD(G4String name,ILArCalibCalculatorSvc* calc,bool doPID=false);
   virtual ~LArG4H62004CalibSD() {}
 
   // The required functions for all sensitive detectors:

@@ -6,8 +6,11 @@
 #define EGAMMAINTERFACES_IPHOTONSUPERCLUSTERBUILDER_H
 
 #include "GaudiKernel/IAlgTool.h"
+//Fwd declarations
+#include "xAODCaloEvent/CaloClusterContainer.h"
+#include "egammaRecEvent/egammaRecContainer.h"
 
-static const InterfaceID IID_IphotonSuperClusterBuilder("IphotonSuperClusterBuilder", 1, 0);
+static const InterfaceID IID_IphotonSuperClusterBuilder("IphotonSuperClusterBuilder", 1, 1);
 
 class IphotonSuperClusterBuilder : virtual public IAlgTool
 {
@@ -21,6 +24,10 @@ class IphotonSuperClusterBuilder : virtual public IAlgTool
   virtual StatusCode initialize() = 0;
   virtual StatusCode finalize()   = 0;
   virtual StatusCode execute()    = 0; 
+  // Execute for HLT. Works the same as offline execute but with prepared containers and no StoreGate interaction.
+  virtual StatusCode hltExecute(const EgammaRecContainer *egammaRecs,
+                                EgammaRecContainer *newEgammaRecs,
+                                xAOD::CaloClusterContainer *outputClusterContainer) = 0;
 };
 
 inline const InterfaceID& IphotonSuperClusterBuilder::interfaceID()

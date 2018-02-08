@@ -54,13 +54,18 @@ get_and_fix_PDGTABLE([(1000022, N1Mass, '~chi(0,1)', '0'), (1000024, C1Mass, '~c
 if doG4SimConfig:
     from G4AtlasApps.SimFlags import simFlags
     simFlags.PhysicsOptions += ['CharginosPhysicsTool']
-
-    def amsb_applycalomctruthstrategy():
-## Applying the MCTruth strategies: add decays in the Calorimeter
-        from G4AtlasApps import AtlasG4Eng
-        myDecay = AtlasG4Eng.G4Eng.Dict_MCTruthStrg.get('Decay')
-        myDecay.add_Volumes('CALO::CALO', 1)
-
-    simFlags.InitFunctions.add_function("postInit", amsb_applycalomctruthstrategy)
+    # Add Chargino decays if necessary
+    C1Lifetime = eval(simFlags.specialConfiguration.get_Value().get("AMSBC1Lifetime", "-1.0"))
+    if C1Lifetime > 0.0:
+        simFlags.PhysicsOptions += ['CharginoPlusToPiPlusNeutralino']
+        simFlags.PhysicsOptions += ['CharginoMinusToPiMinusNeutralino']
+        C1ToEleBR = eval(simFlags.specialConfiguration.get_Value().get("AMSBC1ToEleBR", "-1.0"))
+        if C1ToEleBR > 0.0:
+            simFlags.PhysicsOptions += ['CharginoPlusToEPlusNeutralino']
+            simFlags.PhysicsOptions += ['CharginoMinusToEMinusNeutralino']
+        C1ToMuBR = eval(simFlags.specialConfiguration.get_Value().get("AMSBC1ToMuBR", "-1.0"))
+        if C1ToMuBR > 0.0:
+            simFlags.PhysicsOptions += ['CharginoPlusToMuPlusNeutralino']
+            simFlags.PhysicsOptions += ['CharginoMinusToMuMinusNeutralino']
 
 del doG4SimConfig, simdict

@@ -71,10 +71,10 @@ athenaCommonFlags.PoolHitsOutput = 'Hits.pool.root'
 athenaCommonFlags.EvtMax = myMaxEvent
 
 #--- Simulation flags -----------------------------------------
-from G4AtlasApps.SimFlags import SimFlags
-SimFlags.load_atlas_flags() # Going to use an ATLAS layout
-SimFlags.SimLayout = myGeo
-SimFlags.EventFilter.set_Off()
+from G4AtlasApps.SimFlags import simFlags
+simFlags.load_atlas_flags() # Going to use an ATLAS layout
+simFlags.SimLayout = myGeo
+simFlags.EventFilter.set_Off()
 
 myMinEta = -6.0
 myMaxEta =  6.0
@@ -85,15 +85,15 @@ include("GeneratorUtils/StdEvgenSetup.py")
 theApp.EvtMax = myMaxEvent
 
 import ParticleGun as PG
-pg = PG.ParticleGun(randomSvcName=SimFlags.RandomSvc.get_Value(), randomStream="SINGLE")
+pg = PG.ParticleGun(randomSvcName=simFlags.RandomSvc.get_Value(), randomStream="SINGLE")
 pg.sampler.pid = myPDG
 pg.sampler.mom = PG.EEtaMPhiSampler(energy=10000, eta=[myMinEta,myMaxEta])
 topSeq += pg
 
-SimFlags.RandomSeedOffset = myRandomOffset
+simFlags.RandomSeedOffset = myRandomOffset
 
 ### new rel17 (check Simulation/G4Atlas/G4AtlasApps/python/SimFlags.py for details)
-SimFlags.RandomSeedList.addSeed( "SINGLE", myRandomSeed1, myRandomSeed2 )
+simFlags.RandomSeedList.addSeed( "SINGLE", myRandomSeed1, myRandomSeed2 )
 
 from RngComps.RngCompsConf import AtRndmGenSvc 
 myAtRndmGenSvc = AtRndmGenSvc()
@@ -102,25 +102,9 @@ myAtRndmGenSvc.OutputLevel 	= VERBOSE
 myAtRndmGenSvc.EventReseeding   = False
 ServiceMgr += myAtRndmGenSvc
 
-
 ## Add an action
-try:
-    # Post UserAction Migration (ATLASSIM-1752)
-    # NB the migrated MaterialStepRecorder does not have any special
-    # properties, hence these are not set here.
-    from G4AtlasServices.G4AtlasUserActionConfig import UAStore
-    UAStore.addAction('MaterialStepRecorder',['BeginOfRun','EndOfRun','BeginOfEvent','EndOfEvent','Step'])
-except:
-    # Pre UserAction Migration
-    def geantino_action():
-        from G4AtlasApps import AtlasG4Eng,PyG4Atlas
-        GeantinoAction = PyG4Atlas.UserAction('TrkG4UserActions','MaterialStepRecorder', ['BeginOfRun','EndOfRun','BeginOfEvent','EndOfEvent','Step'])
-        GeantinoAction.set_Properties({ "verboseLevel" : "1",
-                                        "recordELoss"  : "1",
-                                        "recordMSc"    : "1" })
-        AtlasG4Eng.G4Eng.menu_UserActions.add_UserAction(GeantinoAction)
-
-    SimFlags.InitFunctions.add_function('preInitG4', geantino_action)
+from G4AtlasApps.SimFlags import simFlags
+simFlags.OptionalUserActionList.addAction('G4UA::MaterialStepRecorderTool'['Run','Event','Step'])
 
 ############### The Material hit collection ##################
 
@@ -136,9 +120,11 @@ MaterialStream.ItemList    += [ 'Trk::MaterialStepCollection#*']
 
 ##############################################################
 
+include("G4AtlasApps/G4Atlas.flat.configuration.py")
+
 ## Populate alg sequence
-from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
-topSeq += PyG4AtlasAlg()
+from AthenaCommon.CfgGetter import getAlgorithm
+topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 
 include("InDetSLHC_Example/postInclude.SLHC_Setup.py")
 #--- End jobOptions.GeantinoMapping.py file  ------------------------------

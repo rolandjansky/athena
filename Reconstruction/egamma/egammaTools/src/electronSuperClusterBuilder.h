@@ -37,6 +37,11 @@ class electronSuperClusterBuilder : public egammaSuperClusterBuilder,
   //container in StoreGate.
   StatusCode execute();
 
+  // Execute for HLT. Works the same as offline execute but with prepared containers and no StoreGate interaction.
+  StatusCode hltExecute(const EgammaRecContainer *egammaRecs,
+                        EgammaRecContainer *newEgammaRecs,
+                        xAOD::CaloClusterContainer *outputClusterContainer);
+
  private:
 
   bool MatchSameTrack(const egammaRec *seed,
@@ -52,7 +57,10 @@ class electronSuperClusterBuilder : public egammaSuperClusterBuilder,
 			      float perigeeExtrapPhi,
 			      float seedEOverP) const;
   
-  
+  StatusCode executeImpl(const EgammaRecContainer *egammaRecs,
+                         EgammaRecContainer *newEgammaRecs,
+                         xAOD::CaloClusterContainer *outputClusterContainer);
+
   /////////////////////////////////////////////////////////////////////
   
   /** @brief Size of maximum search window in eta */

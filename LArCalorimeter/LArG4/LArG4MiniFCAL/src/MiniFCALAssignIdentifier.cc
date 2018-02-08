@@ -71,18 +71,18 @@ namespace LArG4 {
 	throw std::runtime_error("Error in MiniFcalAssingIdentifier, cannot access MessageSvc");
       
       MsgStream log(m_msgsvc, "LArG4::MiniFcalAssignIdentifier"); 
-      log << MSG::DEBUG << "In MiniFcalAssignIdentifier - constructor; access database" << endreq;
+      log << MSG::DEBUG << "In MiniFcalAssignIdentifier - constructor; access database" << endmsg;
       
       IRDBAccessSvc* pAccessSvc(0);
       sc=svcLocator->service("RDBAccessSvc",pAccessSvc);
       if(sc != StatusCode::SUCCESS) {
-	log << MSG::ERROR <<"Cannot locate RDBAccessSvc!!" << endreq;
+	log << MSG::ERROR <<"Cannot locate RDBAccessSvc!!" << endmsg;
       }
       
       IGeoModelSvc* geoModelSvc(0);
       sc = svcLocator->service ("GeoModelSvc",geoModelSvc);
       if (sc != StatusCode::SUCCESS) {
-	log << MSG::ERROR <<"Cannot locate GeoModelSvc!!" << endreq;
+	log << MSG::ERROR <<"Cannot locate GeoModelSvc!!" << endmsg;
       }
       
       
@@ -104,17 +104,17 @@ namespace LArG4 {
       //--- Get geometry information from database:
       const IRDBRecordset* recEnvelope = pAccessSvc->getRecordset("MiniFcalEnvelope",detectorKey,detectorNode);
       if(recEnvelope->size()==0) {
-	log << MSG::ERROR << "Unable to get envelope parameters from the database" << endreq;
+	log << MSG::ERROR << "Unable to get envelope parameters from the database" << endmsg;
       }
       
       const IRDBRecordset* recCommon = pAccessSvc->getRecordset("MiniFcalCommon",detectorKey,detectorNode);
       if(recCommon->size()==0) {
-	log << MSG::ERROR << "Unable to get MiniFcalCommon from the database" << endreq;
+	log << MSG::ERROR << "Unable to get MiniFcalCommon from the database" << endmsg;
       }
       
       const IRDBRecordset* recRings = pAccessSvc->getRecordset("MiniFcalRings",detectorKey,detectorNode);
       if(recRings->size()==0) {
-	log << MSG::ERROR << "Unable to get MiniFcalRings from the database" << endreq;
+	log << MSG::ERROR << "Unable to get MiniFcalRings from the database" << endmsg;
       }
 
       m_halfLength = ((*recEnvelope)[0]->getDouble("DZ"))*CLHEP::mm;    // half-length of MiniFcal module
@@ -196,13 +196,13 @@ namespace LArG4 {
 	  loc2Transform = post_step_point->GetTouchable()->GetHistory()->GetTransform(g4depth);
 	  loc2Position = loc2Transform.TransformPoint(post_step_point->GetPosition());
 	  
-	  if (g4depth!=4) log << MSG::INFO << "MinFcal local Coordinates - BIG Error!: " << volumeName << " " << g4depth << " " << endreq;
+	  if (g4depth!=4) log << MSG::INFO << "MinFcal local Coordinates - BIG Error!: " << volumeName << " " << g4depth << " " << endmsg;
 	  
 	  
 	  G4ThreeVector midPosition = (loc1Position + loc2Position) * 0.5;         // local module coordinates
 	  
 	  double phigrad=0.;
-	  phigrad = midPosition.getPhi()*180./(M_PI);   
+	  phigrad = midPosition.getPhi()*(180./M_PI);   
 	  if (phigrad<0.) phigrad = 360. + phigrad;
 	  
 	  
@@ -263,20 +263,20 @@ namespace LArG4 {
 	  //--- Check if there is anything unusual:
 	  if (iphi<0) log << MSG::INFO << "MiniFcal iphi problem:   Z " << volumeName << " " 
 			  << zSide << " " << phigrad << " " << iphi << " / ieta: " << ieta 
-			  << " " << m_nWafers[ieta] << endreq;
+			  << " " << m_nWafers[ieta] << endmsg;
 	  if (ieta<0||ieta>(m_nRings-1)) log << MSG::INFO << " MiniFcal ieta problem - ieta=" 
-					   << volumeName << " " << ieta << endreq;
+					   << volumeName << " " << ieta << endmsg;
 	  
 	  
 	  if (idepth<0 || idepth>10) log << MSG::INFO << idepth << "MiniFcal-wrong idepth! " << midPosition.z() 
-					 << " | " << volumeName << " -> " << volumeName2 << endreq;
+					 << " | " << volumeName << " -> " << volumeName2 << endmsg;
 	  
 	  	  
 	  // adjust idepth fo 4 samplings max:
 	  if      (idepth<2)              idepth=0;
 	  else if (idepth<8 && idepth>=2) idepth=1;
 	  else if (idepth>=8)             idepth=2;
-	  else log << MSG::INFO << "Bad handling of the sampling! "  << idepth <<endreq;
+	  else log << MSG::INFO << "Bad handling of the sampling! "  << idepth <<endmsg;
 	  
 	  
 	  minifcalID   << 4           // LAr
@@ -297,7 +297,7 @@ namespace LArG4 {
 	// Provision for dead material - we shoud never get here!; 
 	// Use an ID that's close to the standard asignment for the moment with ieta/iphi=0
 	log << MSG::WARNING << " MiniFcalAssignIdentifier: Found dead material. This should NOT happen! Assign DM ID: 10-4-2-0-5-0-0 "
-	    << volumeName << " " << volumeName2 << endreq;
+	    << volumeName << " " << volumeName2 << endmsg;
 	LArG4Identifier minifcalID = LArG4Identifier();
 	minifcalID   << 10          // DM
 		     << 4           // +/-LAr

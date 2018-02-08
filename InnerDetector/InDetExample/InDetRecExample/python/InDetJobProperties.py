@@ -277,6 +277,12 @@ class doForwardTracks(InDetFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue  = True
 
+class doLowPtLargeD0(InDetFlagsJobProperty):
+    """Turn running of doLargeD0 second pass down to 100 MeV on and off"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue   = False
+
 class doLargeD0(InDetFlagsJobProperty):
     """Turn running of doLargeD0 second pass on and off"""
     statusOn     = True
@@ -295,8 +301,8 @@ class cutLevel(InDetFlagsJobProperty):
     """
     statusOn     = True
     allowedTypes = ['int']
-    allowedValues= [1,2,3,4,5,6,7,8,9,10,11,12,13,14]
-    StoredValue  = 13
+    allowedValues= [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
+    StoredValue  = 14
 
 class doBremRecovery(InDetFlagsJobProperty):
     """Turn on running of Brem Recover in tracking"""
@@ -347,11 +353,18 @@ class doParticleCreation(InDetFlagsJobProperty):
     StoredValue  = True
 
 class KeepParameters(InDetFlagsJobProperty):
-    """Keep extra parameters on TrackParticles"""
+    """Keep extra parameters on slimmed tracks"""
     statusOn     = True
     allowedTypes = ['bool']
     #False to drop them
     StoredValue  = True
+
+class KeepFirstParameters(InDetFlagsJobProperty):
+    """Keep the first set of track parameters in addition to the defining ones for TrackParticles."""
+    statusOn     = True
+    allowedTypes = ['bool']
+    #False to drop them
+    StoredValue  = False
 
 class doTrackSegmentsPixel(InDetFlagsJobProperty):
     """Turn running of track segment creation in pixel on and off"""
@@ -403,6 +416,22 @@ class doMonitoringTRT(InDetFlagsJobProperty):
 
 class doMonitoringAlignment(InDetFlagsJobProperty):
     """ Use to turn on alignment monitoring """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
+class useDynamicAlignFolders(InDetFlagsJobProperty):
+    """ Deprecated property - use GeometryFlags directly to choose the alignment folder scheme """
+    def _do_action( self, *args, **kwds):
+       from AtlasGeoModel.InDetGMJobProperties import GeometryFlags
+       self._log.warning('Deprecated property InDetFlags.useDynamicAlignFolders used to control the alignment scheme - update the code to from AtlasGeoModel.InDetGMJobProperties import GeometryFlags;  GeometryFlags.useDynamicAlignFolders.... ')
+       if self.StoredValue != 'none':
+          from AtlasGeoModel.InDetGMJobProperties import GeometryFlags
+          GeometryFlags.useDynamicAlignFolders.set_Value_and_Lock(self.StoredValue)
+          self._log.info("GeometryFlags.useDynamicAlignFolders set by InDetFlags: %s" % GeometryFlags.useDynamicAlignFolders)
+       else:
+          self._log.warning("Not setting GeometryFlags.useDynamicAlignFolders by InDetFlags: %s" % self.StoredValue)
+          
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
@@ -1098,6 +1127,18 @@ class doTrackSegmentsPixelPrdAssociation(InDetFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue  = True
 
+class doTrackSegmentsPixelFourLayer(InDetFlagsJobProperty):
+    """Turn running of track segment creation in pixel after NewTracking, using all available hits, on and off"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
+class doTrackSegmentsPixelThreeLayer(InDetFlagsJobProperty):
+    """Turn running of pixel stablet creation in pixel after NewTracking, using all available hits, on and off"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
 class doSLHCVeryForward(InDetFlagsJobProperty): 
   """Turn running of SLHC reconstruction for Very Forward extension on and off""" 
   statusOn     = True 
@@ -1145,6 +1186,13 @@ class doStoreTrackSeeds(InDetFlagsJobProperty):
   statusOn     = True 
   allowedTypes = ['bool']
   StoredValue  = False
+
+class checkDeadElementsOnTrack(InDetFlagsJobProperty): 
+  """Enable check for dead modules and FEs""" 
+  statusOn     = True 
+  allowedTypes = ['bool']
+  StoredValue  = True
+
 
 ##-----------------------------------------------------------------------------
 ## 2nd step
@@ -1281,6 +1329,8 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.cutLevel               , 2    )
        self.checkThenSet(self.priVtxCutLevel         , 1    )
        self.checkThenSet(self.doTrackSegmentsPixelPrdAssociation, False)
+       self.checkThenSet(self.doTrackSegmentsPixelFourLayer     , False)
+       self.checkThenSet(self.doTrackSegmentsPixelThreeLayer    , False)
        self.checkThenSet(self.perigeeExpression      , 'Vertex')
        self.checkThenSet(self.doRefitInvalidCov      ,True)
 
@@ -1317,6 +1367,8 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doPixelClusterSplitting, False)
        self.checkThenSet(self.doTIDE_Ambi, False)
        self.checkThenSet(self.doTrackSegmentsPixelPrdAssociation, False)
+       self.checkThenSet(self.doTrackSegmentsPixelFourLayer     , False)
+       self.checkThenSet(self.doTrackSegmentsPixelThreeLayer    , False)
 
     elif (self.doIBL()):
        print "----> InDetJobProperties for IBL"
@@ -1485,9 +1537,9 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doMonitoringSCT        , False )
        self.checkThenSet(self.doMonitoringTRT        , False )
        self.checkThenSet(self.doMonitoringAlignment  , False )
-       self.checkThenSet(self.doBremRecovery         , False)
-       self.checkThenSet(self.doCaloSeededBrem       , False)
-       self.checkThenSet(self.doHadCaloSeededSSS     , False)
+       self.checkThenSet(self.doBremRecovery         , False )
+       self.checkThenSet(self.doCaloSeededBrem       , False )
+       self.checkThenSet(self.doHadCaloSeededSSS     , False )
     # --- new setup for LargeD0 retracking -- what the user
     # --- is allowed to change
     elif self.doDVRetracking():
@@ -1528,6 +1580,8 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doCaloSeededBrem        , True              )
        self.checkThenSet(self.doHadCaloSeededSSS      , False             )
        self.checkThenSet(self.doTrackSegmentsPixelPrdAssociation, False   )
+       self.checkThenSet(self.doTrackSegmentsPixelFourLayer     , False   )
+       self.checkThenSet(self.doTrackSegmentsPixelThreeLayer    , False   )
        # --- Output
        self.checkThenSet(self.AODall                  , False             )
        self.checkThenSet(self.doxAOD                  , True              )
@@ -1549,6 +1603,8 @@ class InDetJobProperties(JobPropertyContainer):
           self.checkThenSet(self.doForwardTracks     , False )
           # --- run tracklets
           self.checkThenSet(self.doTrackSegmentsPixelPrdAssociation, False)
+          self.checkThenSet(self.doTrackSegmentsPixelFourLayer     , False)
+          self.checkThenSet(self.doTrackSegmentsPixelThreeLayer    , False)
           self.checkThenSet(self.doTrackSegmentsPixel, True )
           #self.checkThenSet(self.doTrackSegmentsSCT  , False )
           #self.checkThenSet(self.doTrackSegmentsTRT  , False )
@@ -1623,6 +1679,8 @@ class InDetJobProperties(JobPropertyContainer):
         self.checkThenSet(self.doTIDE_Ambi, False)
         self.checkThenSet(self.doTIDE_RescalePixelCovariances, False)
         self.checkThenSet(self.doTrackSegmentsPixelPrdAssociation, False)
+        self.checkThenSet(self.doTrackSegmentsPixelFourLayer     , False)
+        self.checkThenSet(self.doTrackSegmentsPixelThreeLayer    , False)
 
     if rec.doExpressProcessing() :
        self.checkThenSet(self.useBeamConstraint,False)
@@ -1672,6 +1730,7 @@ class InDetJobProperties(JobPropertyContainer):
       # --------------------------------------------------------------------      
       # no Large radius tracking if pixel or sct off (new tracking = inside out only)
       self.doLargeD0 = self.doLargeD0() and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on())
+      self.doLowPtLargeD0 = self.doLowPtLargeD0() and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on())
       if self.doDVRetracking():
           self.setDVRetracking()
       
@@ -1717,7 +1776,7 @@ class InDetJobProperties(JobPropertyContainer):
       #
       # control whether to run SiSPSeededTrackFinder
       self.doSiSPSeededTrackFinder = (self.doNewTracking() or self.doNewTrackingSegments() or \
-                                      self.doBeamGas() or self.doLargeD0() ) \
+                                      self.doBeamGas() or self.doLargeD0() or self.doLowPtLargeD0() ) \
                                     and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on())      
       # failsafe lines in case requirements are not met to run TRT standalone or back tracking
       self.doTRTStandalone         = self.doTRTStandalone() and DetFlags.haveRIO.TRT_on()
@@ -1904,7 +1963,7 @@ class InDetJobProperties(JobPropertyContainer):
   def doAmbiSolving(self):
     from AthenaCommon.DetFlags import DetFlags
     return (self.doNewTracking() or self.doBeamGas() or self.doTrackSegmentsPixel() \
-            or self.doTrackSegmentsSCT() or self.doLargeD0() ) \
+            or self.doTrackSegmentsSCT() or self.doLargeD0() or self.doLowPtLargeD0() ) \
            and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on())
   
   def loadRotCreator(self):
@@ -1928,7 +1987,7 @@ class InDetJobProperties(JobPropertyContainer):
   def doNewTrackingPattern(self):
     return self.doNewTracking() or self.doBackTracking() or self.doBeamGas() \
            or self.doLowPt() or self.doVeryLowPt() or self.doTRTStandalone() \
-           or self.doForwardTracks() or self.doLargeD0()
+           or self.doForwardTracks() or self.doLargeD0() or self.doLowPtLargeD0()
 
   def doNewTrackingSegments(self):
     return self.doTrackSegmentsPixel() or self.doTrackSegmentsSCT() or self.doTrackSegmentsTRT()
@@ -1938,11 +1997,13 @@ class InDetJobProperties(JobPropertyContainer):
   
   def doTRTExtension(self):
     from AthenaCommon.DetFlags import DetFlags
-    return ((self.doNewTracking() or self.doBeamGas() or self.doLargeD0()) and DetFlags.haveRIO.TRT_on() ) and self.doTRTExtensionNew()
+    return ((self.doNewTracking() or self.doBeamGas() or self.doLargeD0() or self.doLowPtLargeD0()) \
+             and DetFlags.haveRIO.TRT_on() ) and self.doTRTExtensionNew()
   
   def doExtensionProcessor(self):
     from AthenaCommon.DetFlags    import DetFlags
-    return (self.doNewTracking() or self.doBeamGas() or self.doLargeD0()) and DetFlags.haveRIO.TRT_on()
+    return (self.doNewTracking() or self.doBeamGas() or self.doLargeD0() or self.doLowPtLargeD0()) \
+            and DetFlags.haveRIO.TRT_on()
  
   def solenoidOn(self):
     from AthenaCommon.BFieldFlags import jobproperties
@@ -1988,6 +2049,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.doVeryLowPt               = False  
        self.doForwardTracks           = False
        self.doLargeD0                 = False
+       self.doLowPtLargeD0            = False
        self.doHadCaloSeededSSS        = False
 
        self.doxKalman                 = False
@@ -2266,7 +2328,7 @@ class InDetJobProperties(JobPropertyContainer):
           standAloneTracking += 'TRT'
        print standAloneTracking
     # -----------------------------------------
-    if self.doLargeD0() :
+    if self.doLargeD0() or self.doLowPtLargeD0() :
        print '*'
        print '* LargeD0 Tracking is ON'
        if self.doSiSPSeededTrackFinder() :
@@ -2361,7 +2423,9 @@ class InDetJobProperties(JobPropertyContainer):
        print '* create TrackParticles'
        if self.doSharedHits() :
           print '* - and do shared hits search'
-       if self.KeepParameters() :
+       if self.KeepFirstParameters() :
+          print '* - keep first parameters on track'
+       elif self.KeepParameters() :
           print '* - keep extra parameters on track'
     if self.doV0Finder() :
        print '* run V0 finder'
@@ -2492,9 +2556,7 @@ class InDetJobProperties(JobPropertyContainer):
           print '* use non-standard SCT DCS based on ~20V HV cut'          
     if self.useTrtDCS():
        print '* use TRT DCS'
-
-    from AtlasGeoModel.InDetGMJobProperties import GeometryFlags as geoFlags
-    if geoFlags.useDynamicAlignFolders():
+    if self.useDynamicAlignFolders():
        print '* use of Dynamic alignment folder scheme enabled'
 
     if not self.doPRDFormation():
@@ -2608,6 +2670,7 @@ _list_InDetJobProperties = [Enabled,
                             doVeryLowPt,
                             doSLHCConversionFinding,
                             doForwardTracks,
+                            doLowPtLargeD0,
                             doLargeD0,
                             useExistingTracksAsInput,
                             cutLevel,
@@ -2623,6 +2686,7 @@ _list_InDetJobProperties = [Enabled,
                             doHeavyIon,
                             doParticleCreation,
                             KeepParameters,
+                            KeepFirstParameters,
                             doTrackSegmentsPixel,
                             doTrackSegmentsSCT,
                             doTrackSegmentsTRT,
@@ -2632,6 +2696,7 @@ _list_InDetJobProperties = [Enabled,
                             doMonitoringSCT,
                             doMonitoringTRT,
                             doMonitoringAlignment,
+                            useDynamicAlignFolders,
                             doPerfMon,
                             AODall,
                             useBeamConstraint,
@@ -2743,6 +2808,8 @@ _list_InDetJobProperties = [Enabled,
                             ForceCoraCool,
                             ForceCoolVectorPayload,
                             doTrackSegmentsPixelPrdAssociation,
+                            doTrackSegmentsPixelFourLayer,
+                            doTrackSegmentsPixelThreeLayer,
                             doSLHCVeryForward,
                             doTRTGlobalOccupancy,
                             doNNToTCalibration,
@@ -2752,7 +2819,8 @@ _list_InDetJobProperties = [Enabled,
                             doDBM,
                             doParticleConversion,
                             doStoreTrackSeeds,
-                            doHIP300
+                            doHIP300,
+                            checkDeadElementsOnTrack
                            ]
 for j in _list_InDetJobProperties: 
     jobproperties.InDetJobProperties.add_JobProperty(j)

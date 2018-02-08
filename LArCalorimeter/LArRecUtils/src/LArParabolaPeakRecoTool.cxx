@@ -6,7 +6,6 @@
 
 #include "PathResolver/PathResolver.h"
 
-#include "GaudiKernel/MsgStream.h"
 #include "CLHEP/Matrix/Matrix.h"
 #include "CLHEP/Matrix/Vector.h"
 #include <algorithm>
@@ -107,15 +106,14 @@ std::vector<float> LArParabolaPeakRecoTool::peak (const std::vector<short>& samp
 
 std::vector<float> LArParabolaPeakRecoTool::peak (const std::vector<float>& samples, int layer, float pedestal) const 
 {//const float dt=25.0;//ns
-  MsgStream log(msgSvc(), name());
   static std::vector<float> solution; 
   solution.clear();
 
   const std::vector<float>::const_iterator it_max=max_element(samples.begin(),samples.end());
-  if (it_max==samples.end())
-    {log << MSG::ERROR << "Maximum ADC sample not found!" << endreq;
+  if (it_max==samples.end()) {
+    ATH_MSG_ERROR( "Maximum ADC sample not found!"  );
     return solution; 
-    }
+  }
   if (it_max==samples.begin() || it_max==samples.end()-1)
     {
       solution.push_back(*it_max);
@@ -150,13 +148,13 @@ std::vector<float> LArParabolaPeakRecoTool::peak (const std::vector<float>& samp
     traw += ( it_max-samples.begin() - 3 )*25.;
     
     if(layer < 0 || layer > 3) {
-      log << MSG::ERROR << "Layer index is wrong ! Layer = " << layer << endreq;
+      ATH_MSG_ERROR( "Layer index is wrong ! Layer = " << layer  );
       return solution;
     }else{
       // get true time 
       trec = ParabolaRawToTrueTime(traw, layer);
       // get true ADC
-      if(pedestal<0) log << MSG::ERROR << "Pedestal is wrong ! Ped = " << pedestal << endreq;
+      if(pedestal<0) ATH_MSG_ERROR( "Pedestal is wrong ! Ped = " << pedestal  );
       retval =  ParabolaRawToTrueADC(trec, beta[1], pedestal, layer);
     }
   }

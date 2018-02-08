@@ -58,7 +58,8 @@ m_chanstatCut("NORM"),
 m_useHV(false),
 m_useHVLowLimit(19.),
 m_useHVUpLimit(1000000.0),
-m_useHVChanCut("LOOSE") { 
+m_useHVChanCut("LOOSE"),
+m_cacheHV{} {
   //declare variables which will be filled by jobOptions
   declareProperty("DetectorStore", m_detStore);
   declareProperty("AttrListCollFolders",m_par_atrcollist);
@@ -145,6 +146,10 @@ StatusCode SCT_DCSConditionsSvc::initialize() {
   m_pModulesHV = new map<CondAttrListCollection::ChanNum, float >;
   m_pModulesTemp0 = new map<CondAttrListCollection::ChanNum, float >;
   m_pModulesTemp1 = new map<CondAttrListCollection::ChanNum, float >;
+
+  // Initialize HV cache
+  m_cacheHV.resize(m_pHelper->wafer_hash_max(), std::pair<bool, float>{false, -30.});
+
   return StatusCode::SUCCESS;
 }
 
@@ -240,9 +245,24 @@ float SCT_DCSConditionsSvc::modHV(const Identifier & elementId, InDetConditions:
 
 //Does the same for hashIds
 float SCT_DCSConditionsSvc::modHV(const IdentifierHash & hashId){
+  // Check hashId is OK.
+  if(m_cacheHV.size()<=hashId.value()) {
+    ATH_MSG_ERROR("hashId " << hashId << " exceeds HV cache size " << m_cacheHV.size());
+    return -30.;
+  }
+  // Check cache is available.
+  if(m_cacheHV[hashId].first) {
+    return m_cacheHV[hashId].second;
+  }
+  // Retreive HV value
   m_waferId = m_pHelper->wafer_id(hashId);
   m_moduleId = m_pHelper->module_id(m_waferId);
-  return modHV(m_moduleId,InDetConditions::SCT_MODULE);
+  float hv{modHV(m_moduleId,InDetConditions::SCT_MODULE)};
+  // Set the HV value in the cache
+  m_cacheHV[hashId].first = true;
+  m_cacheHV[hashId].second = hv;
+  // Return HV value
+  return hv;
 } 
 
 //Returns temp0 (-40 if there is no information)
@@ -351,20 +371,20 @@ StatusCode SCT_DCSConditionsSvc::fillData(int &/* i */, std::list<std::string>& 
 	      }
 	      else m_pBadModules->remove(channelNumber, param);
 	      if (m_returnHVTemp){
-		m_pModulesHV->insert(make_pair(channelNumber,hvval));
+		(*m_pModulesHV)[channelNumber]=hvval;
 	      }
 	    }catch(...){
         ATH_MSG_DEBUG("Exception caught while trying to access HVCHVOLT_RECV");
 	    }
 	  } else if (m_returnHVTemp && param == "MOCH_TM0_RECV") {
 	    try{
-	    m_pModulesTemp0->insert(make_pair(channelNumber, (*attrList).second[param].data<float>()));
+              (*m_pModulesTemp0)[channelNumber]=(*attrList).second[param].data<float>();
 	    }catch(...){
 	      ATH_MSG_DEBUG("Exception caught while trying to access MOCH_TM0_RECV");
 	    }
 	  } else if (m_returnHVTemp && param == "MOCH_TM1_RECV") { //2 temp sensors per module
 	    try{
-	      m_pModulesTemp1->insert(make_pair(channelNumber, (*attrList).second[param].data<float>()));
+	      (*m_pModulesTemp1)[channelNumber]=(*attrList).second[param].data<float>();
 	    }catch(...){
         ATH_MSG_DEBUG("Exception caught while trying to access MOCH_TM1_RECV");
 	    }
@@ -375,7 +395,7 @@ StatusCode SCT_DCSConditionsSvc::fillData(int &/* i */, std::list<std::string>& 
       }
       m_dataFilled=true;
     }
-  
+
   //we are done with the db folders and have the data locally. 
   if (!m_dropFolder){
     std::list<std::string>::const_iterator itr2_key(keys.begin());
@@ -385,6 +405,10 @@ StatusCode SCT_DCSConditionsSvc::fillData(int &/* i */, std::list<std::string>& 
       m_IOVDbSvc->dropObject(aFolder,false); //"false" here keeps the data in the cache, so SG doesn't have to go back to the DB each time  
     }
   }
+
+  // Reset HV cache
+  std::fill(m_cacheHV.begin(), m_cacheHV.end(), std::pair<bool, float>{false, -30.});
+
   return StatusCode::SUCCESS;
 }
 

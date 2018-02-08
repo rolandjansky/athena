@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef Geo2G4AssemblyFactory_h
-#define Geo2G4AssemblyFactory_h
+#ifndef GEO2G4_Geo2G4AssemblyFactory_h
+#define GEO2G4_Geo2G4AssemblyFactory_h
 
 #include "GeoModelKernel/GeoVPhysVol.h"
 

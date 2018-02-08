@@ -19,7 +19,7 @@
 //=============================================================================
 G4MagFieldSvcBase::G4MagFieldSvcBase(const std::string& name,
                                      ISvcLocator* pSvcLocator)
-  : AthService(name, pSvcLocator)
+  : base_class(name, pSvcLocator)
 {
 }
 
@@ -39,16 +39,4 @@ G4MagneticField* G4MagFieldSvcBase::getField()
   }
 
   return field;
-}
-
-//=============================================================================
-// Query interface
-//=============================================================================
-StatusCode G4MagFieldSvcBase::queryInterface(const InterfaceID& riid, void** ppvIf) {
-  if ( riid == IG4FieldSvc::interfaceID() ) {
-    *ppvIf = (IG4FieldSvc*)this;
-    addRef();
-    return StatusCode::SUCCESS;
-  }
-  return AthService::queryInterface( riid, ppvIf );
 }

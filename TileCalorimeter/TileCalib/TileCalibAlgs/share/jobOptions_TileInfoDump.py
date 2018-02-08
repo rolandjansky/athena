@@ -41,7 +41,7 @@ from AthenaCommon.JobProperties import jobproperties
 
 #--- see http://atlas.web.cern.ch/Atlas/GROUPS/OPERATIONS/dataBases/DDDB/tag_hierarchy_browser.php
 #--- for the geometry updates
-if RUN2: jobproperties.Global.DetDescrVersion = "ATLAS-R2-2015-02-00-00"
+if RUN2: jobproperties.Global.DetDescrVersion = "ATLAS-R2-2015-03-01-00"
 else:    jobproperties.Global.DetDescrVersion = "ATLAS-GEO-20-00-02"
 from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit
@@ -50,7 +50,7 @@ from AtlasGeoModel import GeoModelInit
 #=== set global tag
 #=============================================================
 from IOVDbSvc.CondDB import conddb
-if RUN2: conddb.setGlobalTag("CONDBR2-BLKPA-2015-09")
+if RUN2: conddb.setGlobalTag("CONDBR2-BLKPA-2016-25")
 else:    conddb.setGlobalTag("COMCOND-BLKPA-RUN1-06")
 
 #=============================================================
@@ -71,34 +71,35 @@ from TileConditions.TileCoolMgr import tileCoolMgr
 #=== To read /TILE/OFL02/CALIB/CES from a local tileSqlite.db file
 #                       note, folder name and COOL source can be used
 #tileCoolMgr.setFolder("oflCes","/TILE/OFL02/CALIB/CES")
-#tileCoolMgr.setTag(   "oflCes","HLT-UPD1-01")
+#tileCoolMgr.setTag(   "oflCes","RUN2-HLT-UPD1-01")
 #tileCoolMgr.setDbConn("oflCes","tileSqlite.db")
 ##tileCoolMgr.setDbConn("oflCes","TILE") #_OFL")
 
-#=== To read /TILE/OFL01/STATUS/ADC from a local tileSqlite.db file uncomment
+#=== To read /TILE/OFL02/STATUS/ADC from a local tileSqlite.db file uncomment
 #tileCoolMgr.setTag(   "oflStatAdc","COM-04")
 #tileCoolMgr.setDbConn("oflStatAdc","tileSqlite.db")
 
-#=== To read /TILE/OFL01/CALIB/CIS/FIT/LIN from a local tileSqlite.db file
+#=== To read /TILE/OFL02/CALIB/CIS/LIN from a local tileSqlite.db file
 #=== uncomment
-#tileCoolMgr.setTag(   "oflCisFitLin","COM-00")
-#tileCoolMgr.setTag(   "oflCisFitLin","HLT-UPD1-00")
-#tileCoolMgr.setDbConn("oflCisFitLin","tileSqlite.db")
+#tileCoolMgr.setTag(   "oflCisLin","COM-00")
+#tileCoolMgr.setTag(   "oflCisLin","RUN2-HLT-UPD1-00")
+#tileCoolMgr.setDbConn("oflCisLin","tileSqlite.db")
 
-#=== To read /TILE/OFL01/NOISE/SAMPLE from a local tileSqlite.db file
+#=== To read /TILE/OFL02/NOISE/SAMPLE from a local tileSqlite.db file
 #tileCoolMgr.setTag(   "oflNoiseAdc","COM-01")
 #tileCoolMgr.setDbConn("oflNoiseAdc","tileSqlite.db")
 
-#=== To read /TILE/OFL01/NOISE/FIT from a local tileSqlite.db file
+#=== To read /TILE/OFL02/NOISE/FIT from a local tileSqlite.db file
 #tileCoolMgr.setTag(   "oflNoiseFit","COM-01")
 #tileCoolMgr.setDbConn("oflNoiseFit","tileSqlite.db")
 
-#=== To read /TILE/OFL01/INTEGRATOR from a local tileSqlite.db file
-#tileCoolMgr.setTag(   "oflIntGain","HLT-UPD1-00")
+#=== To read /TILE/OFL02/INTEGRATOR from a local tileSqlite.db file
+tileCoolMgr.setFolder('oflIntGain','/TILE/OFL02/INTEGRATOR')
+tileCoolMgr.setTag(   "oflIntGain","RUN2-HLT-UPD1-00")
 #tileCoolMgr.setDbConn("oflIntGain","tileSqlite.db")
 
-#=== To read /TILE/OFL01/TIME/CHANNELOFFSET/CIS from a local tileSqlite.db file
-#tileCoolMgr.setTag(   "oflTimeCphy","HLT-UPD1-00")
+#=== To read /TILE/OFL02/TIME/CHANNELOFFSET/CIS from a local tileSqlite.db file
+#tileCoolMgr.setTag(   "oflTimeCphy","RUN2-HLT-UPD1-00")
 #tileCoolMgr.setDbConn("oflTimeCphy","tileSqlite.db")
 
 #=== To read /TILE/ONL01/CALIB/LAS/LIN from a local tileSqlite.db file
@@ -144,7 +145,7 @@ tileInfoDump.TileCondToolNoiseRawChn = getTileCondToolNoiseRawChn('COOL')
 tileInfoDump.PrintEmscale           = True
 tileInfoDump.PrintEmscaleOnl        = True
 tileInfoDump.PrintLaser             = True
-tileInfoDump.PrintIntegrator        = True 
+tileInfoDump.PrintIntegrator        = True
 tileInfoDump.PrintPedestals         = True
 tileInfoDump.PrintTimingCorrections = True  # set also run type below
 tileInfoDump.PrintBadChannels       = True

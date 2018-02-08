@@ -20,6 +20,9 @@ namespace PFO {
     m_Cluster_phiEM = Book1D("Cluster_PhiEM",m_sClusterContainerName + "_PhiEM (Entries/0.1)",64,-3.2,3.2);
     m_Cluster_mEM = Book1D("Cluster_mEM",m_sClusterContainerName + "_mEM (Entries/100 MeV)",100,0.0,10.0);
 
+    m_Cluster_time = Book1D("Cluster_time",m_sClusterContainerName + "_time (Entries/1)",300,-200.0,100.0); 
+    m_Cluster_clusterSize = Book1D("Cluster_clusterSize",m_sClusterContainerName + "_clusterSize (Entries/1)",20,0.0,20.0);
+
   }
 
   void ClusterPlots::fill(const xAOD::CaloCluster& Cluster){
@@ -32,6 +35,9 @@ namespace PFO {
     m_Cluster_etaEM->Fill(Cluster.rawEta());
     m_Cluster_phiEM->Fill(Cluster.rawPhi());
     m_Cluster_mEM->Fill(Cluster.rawM()/1000.0);
+
+    m_Cluster_time->Fill(Cluster.time());
+    m_Cluster_clusterSize->Fill(Cluster.clusterSize());
 
   }
 

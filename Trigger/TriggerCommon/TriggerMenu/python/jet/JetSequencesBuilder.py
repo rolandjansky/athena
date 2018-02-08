@@ -102,6 +102,7 @@ class JetSequencesBuilder(object):
                        'jh_ht': self.make_jh_ht,  # HT hypo
                        'jh_tla': self.make_jh_tla,  # TLA hypo
                        'jh_dimass_deta': self.make_jh_dimass_deta, # dijets
+                       'jh_dimass_deta_dphi': self.make_jh_dimass_deta_dphi, # dijets
                        'ps': self.make_ps,  # partial scan Roi maker
                        'cm': self.make_cm,  # cell and cluster maker
                        'tt': self.make_tt,  # construct trigger tower objects
@@ -218,6 +219,8 @@ class JetSequencesBuilder(object):
                 seq_order.append('jh_tla')
             elif hypo_type in ('HLThypo2_dimass_deta',):
                 seq_order.append('jh_dimass_deta')
+            elif hypo_type in ('HLThypo2_dimass_deta_dphi',):
+                seq_order.append('jh_dimass_deta_dphi')
                 
             else:
                 
@@ -308,6 +311,7 @@ class JetSequencesBuilder(object):
             ftksequence_list = TrigInDetFTKSequence("FullScan", "fullScan", sequenceFlavour=["FTKVtx"]).getSequence()
         elif ftkopt == 'ftkrefit':
             ftksequence_list = TrigInDetFTKSequence("FullScan", "fullScan", sequenceFlavour=["FTKVtx", "refit"]).getSequence()
+            alias = 'ftkrefittracking'
         ftkalgo_list = []
 
         for seq in ftksequence_list:
@@ -482,6 +486,28 @@ class JetSequencesBuilder(object):
         [algs.extend(f()) for f in ( self.alg_factory.hlthypo2_EtaEt,
                                      self.alg_factory.hlthypo2_dimass_deta)]
         return AlgList(algs, alias)
+
+
+    def make_jh_dimass_deta_dphi(self):
+        """Create an alg_list for the dijet hypo"""
+
+        menu_data = self.chain_config.menu_data
+        hypo = menu_data.hypo_params
+
+        
+        alias = '%s%s_%s' % (hypo.cleaner,
+                             hypo.hypo_type,
+                             self.chain_name_esc)
+        
+        algs = []
+
+        #run the eta-et hypo then the dimass hypo
+        [algs.extend(f()) for f in (
+            self.alg_factory.hlthypo2_EtaEt,
+            self.alg_factory.hlthypo2_dimass_deta_dphi)]
+        
+        return AlgList(algs, alias)
+
 
 
     def make_jh_tla(self):

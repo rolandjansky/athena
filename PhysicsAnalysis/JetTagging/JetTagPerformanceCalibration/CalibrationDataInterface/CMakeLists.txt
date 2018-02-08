@@ -7,6 +7,7 @@ atlas_subdir( CalibrationDataInterface )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
+                          Control/AthenaBaseComps
                           PhysicsAnalysis/JetTagging/JetTagCalibration )
 
 # External dependencies:

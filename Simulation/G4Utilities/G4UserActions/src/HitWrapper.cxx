@@ -2,19 +2,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "G4UserActions/HitWrapper.h"
 #include <iostream>
 #include <cmath>
 #include <cstdlib>
 
+#include "G4UserActions/HitWrapper.h"
+#include "G4Step.hh"
 
-HitWrapper::HitWrapper(const std::string& type, const std::string& name,
-                       const IInterface* parent)
-  : UserActionBase(type,name,parent), m_time(25.)
-{
-  declareProperty("WrapTime", m_time);
-}
-
+#include "StoreGate/WriteHandle.h"
 
 #include "MuonSimEvent/CSCSimHitCollection.h"
 #include "MuonSimEvent/MDTSimHitCollection.h"
@@ -25,139 +20,11 @@ HitWrapper::HitWrapper(const std::string& type, const std::string& name,
 
 #include "InDetSimEvent/TRTUncompressedHitCollection.h"
 #include "InDetSimEvent/SiHitCollection.h"
-#include "StoreGate/WriteHandle.h"
 
-void HitWrapper::EndOfEvent(const G4Event* /*anEvent*/)
-{
-
-  SG::WriteHandle<CSCSimHitCollection> csc("CSC_Hits");
-  SG::WriteHandle<MDTSimHitCollection> mdt("MDT_Hits");
-  SG::WriteHandle<TGCSimHitCollection> tgc("TGC_Hits");
-  SG::WriteHandle<RPCSimHitCollection> rpc("RPC_Hits");
-  /** for nSW */
-  SG::WriteHandle<GenericMuonSimHitCollection> mmhits("MicromegasSensitiveDetector");
-  SG::WriteHandle<GenericMuonSimHitCollection> stgc("sTGCSensitiveDetector");
-
-  if (!csc.isValid() ) ATH_MSG_WARNING( " HitWrapper could not access csc hit collection" );
-  else {
-    //      std::cout << "Working on a collection of size " << cscC->size() << std::endl;
-    //CSCSimHitCollection * csc = const_cast< CSCSimHitCollection * > (&(*cscC));
-    for (CSCSimHitCollection::iterator hit=csc->begin();hit!=csc->end();++hit){
-      //std::cout << "Wrapping CSC hit with time " << (*hit).globalTime() << " to "<<fmod( (*hit).globalTime() , m_time )<<std::endl;
-      (*hit).setGlobalTime( fmod( (*hit).globalTime() , m_time ) );
-    }
-  }
-
-  if ( ! mdt.isValid() ) ATH_MSG_WARNING( " HitWrapper could not access mdt hit collection" );
-  else {
-    //      std::cout << "Working on a collection of size " << mdtC->size() << std::endl;
-    //MDTSimHitCollection * mdt = const_cast< MDTSimHitCollection * > (&(*mdtC));
-    for (MDTSimHitCollection::iterator hit=mdt->begin();hit!=mdt->end();++hit){
-      //std::cout << "Wrapping MDT hit with time " << (*hit).globalTime() << " to "<<fmod( (*hit).globalTime() , m_time )<<std::endl;
-      (*hit).setGlobalTime( fmod( (*hit).globalTime() , m_time ) );
-    }
-  }
-
-  if (! rpc.isValid() ) ATH_MSG_WARNING( " HitWrapper could not access rpc hit collection" );
-  else {
-    //      std::cout << "Working on a collection of size " << rpcC->size() << std::endl;
-    //RPCSimHitCollection * rpc = const_cast< RPCSimHitCollection * > (&(*rpcC));
-    for (RPCSimHitCollection::iterator hit=rpc->begin();hit!=rpc->end();++hit){
-      //std::cout << "Wrapping RPC hit with time " << (*hit).globalTime()  << " to "<<fmod( (*hit).globalTime() , m_time )<< std::endl;
-      (*hit).setGlobalTime( fmod( (*hit).globalTime() , m_time ) );
-    }
-  }
-
-
-  if (! tgc.isValid() ) ATH_MSG_WARNING( " HitWrapper could not access tgc hit collection" );
-  else {
-    //      std::cout << "Working on a collection of size " << tgcC->size() << std::endl;
-    //TGCSimHitCollection * tgc = const_cast< TGCSimHitCollection * > (&(*tgcC));
-    for (TGCSimHitCollection::iterator hit=tgc->begin();hit!=tgc->end();++hit){
-      //std::cout << "Wrapping TGC hit with time " << (*hit).globalTime()  << " to "<<fmod( (*hit).globalTime() , m_time )<< std::endl;
-      (*hit).setGlobalTime( fmod( (*hit).globalTime() , m_time ) );
-    }
-  }
-
-
-  /** for nSW */
-  if (! mmhits.isValid() ) ATH_MSG_WARNING( " HitWrapper could not access Micromegas hit collection" );
-  else {
-    //      std::cout << "Working on a collection of size " << nswC->size() << std::endl;
-    //GenericMuonSimHitCollection *mm = const_cast< GenericMuonSimHitCollection * > (&(*mmC));
-    for (GenericMuonSimHitCollection::iterator hit=mmhits->begin();hit!=mmhits->end();++hit){
-      //std::cout << "Wrapping GenericMuon hit with time " << (*hit).globalTime() << std::endl;
-      (*hit).setGlobalTime( fmod( (*hit).globalTime() , m_time ) );
-    }
-  }
-
-  if (! stgc.isValid() ) ATH_MSG_WARNING( " HitWrapper could not access sTGC hit collection" );
-  else {
-    //      std::cout << "Working on a collection of size " << nswC->size() << std::endl;
-    //GenericMuonSimHitCollection *stgc = const_cast< GenericMuonSimHitCollection * > (&(*stgcC));
-    for (GenericMuonSimHitCollection::iterator hit=stgc->begin();hit!=stgc->end();++hit){
-      //std::cout << "Wrapping GenericMuon hit with time " << (*hit).globalTime() << std::endl;
-      (*hit).setGlobalTime( fmod( (*hit).globalTime() , m_time ) );
-    }
-  }
-
-  // Handle the inner detector next
-  SG::WriteHandle<TRTUncompressedHitCollection> trt("TRTUncompressedHits");
-  SG::WriteHandle<SiHitCollection> pix("PixelHits");
-  SG::WriteHandle<SiHitCollection> sct("SCT_Hits");
-  
-  if (! trt.isValid()) ATH_MSG_WARNING( " HitWrapper could not access trt hit collection" );
-  else {
-    //TRTUncompressedHitCollection * trt = const_cast< TRTUncompressedHitCollection * > (&*trtC);
-    for (TRTUncompressedHitCollection::iterator hit=trt->begin();hit!=trt->end();++hit){
-      //std::cout << "Wrapping TRT hit with time " << (*hit).globalTime() << std::endl;
-      (*hit).SetGlobalTime( fmod( (*hit).GetGlobalTime() , m_time ) );
-    }
-  }
-
-  if (! pix.isValid() ) ATH_MSG_WARNING( " HitWrapper could not access pix hit collection" );
-  else {
-    //SiHitCollection * pix = const_cast<SiHitCollection *> (&*pixC);
-    for (SiHitCollection::iterator hit=pix->begin();hit!=pix->end();++hit){
-      //std::cout << "Wrapping Pix hit with time " << (*hit).meanTime() << std::endl;
-      (*hit).setMeanTime( fmod( (*hit).meanTime() , m_time ) );
-    }
-  }
-
-  if (! sct.isValid() ) ATH_MSG_WARNING( " HitWrapper could not access sct hit collection" );
-  else {
-    //SiHitCollection * sct = const_cast<SiHitCollection *> (&*sctC);
-    for (SiHitCollection::iterator hit=sct->begin();hit!=sct->end();++hit){
-      //std::cout << "Wrapping SCT hit with time " << (*hit).meanTime() << std::endl;
-      (*hit).setMeanTime( fmod( (*hit).meanTime() , m_time ) );
-    }
-  }
-
-}
-
-
-StatusCode HitWrapper::queryInterface(const InterfaceID& riid, void** ppvInterface)
-{
-  if ( IUserAction::interfaceID().versionMatch(riid) ) {
-    *ppvInterface = dynamic_cast<IUserAction*>(this);
-    addRef();
-  } else {
-    // Interface is not directly available : try out a base class
-    return UserActionBase::queryInterface(riid, ppvInterface);
-  }
-  return StatusCode::SUCCESS;
-}
-
-
-//=============================================================================
-// New design of user actions for multithreading
-//=============================================================================
-
-#include "G4UserActions/HitWrapper.h"
 
 namespace G4UA
 {
-  
+
   //---------------------------------------------------------------------------
   HitWrapper::HitWrapper(const Config& config)
     : AthMessaging(Gaudi::svcLocator()->service<IMessageSvc>("MessageSvc"),
@@ -166,12 +33,13 @@ namespace G4UA
       m_detStore("StoreGateSvc/DetectorStore","HitWrapper"),
       m_config(config)
   {}
-  
-  
+
   //---------------------------------------------------------------------------
-  void HitWrapper::endOfEvent(const G4Event*)
+  void HitWrapper::EndOfEventAction(const G4Event*)
   {
-    
+    // @todo This syntax will not work at runtime in the master
+    // branch. The HitWrapper should become a separate algorithm which
+    // runs after G4AtlasAlg or ISF_Kernel.
 
     SG::WriteHandle<CSCSimHitCollection> csc("CSC_Hits");
     SG::WriteHandle<MDTSimHitCollection> mdt("MDT_Hits");
@@ -180,7 +48,7 @@ namespace G4UA
     /** for nSW */
     SG::WriteHandle<GenericMuonSimHitCollection> mmhits("MicromegasSensitiveDetector");
     SG::WriteHandle<GenericMuonSimHitCollection> stgc("sTGCSensitiveDetector");
-    
+
     if (!csc.isValid() ) ATH_MSG_WARNING( " HitWrapper could not access csc hit collection" );
     else {
       //      std::cout << "Working on a collection of size " << cscC->size() << std::endl;
@@ -190,7 +58,7 @@ namespace G4UA
 	(*hit).setGlobalTime( fmod( (*hit).globalTime() , m_config.time ) );
       }
     }
-    
+
     if ( ! mdt.isValid() ) ATH_MSG_WARNING( " HitWrapper could not access mdt hit collection" );
     else {
       //      std::cout << "Working on a collection of size " << mdtC->size() << std::endl;
@@ -200,7 +68,7 @@ namespace G4UA
 	(*hit).setGlobalTime( fmod( (*hit).globalTime() , m_config.time ) );
       }
     }
-    
+
     if (! rpc.isValid() ) ATH_MSG_WARNING( " HitWrapper could not access rpc hit collection" );
     else {
       //      std::cout << "Working on a collection of size " << rpcC->size() << std::endl;
@@ -210,8 +78,8 @@ namespace G4UA
 	(*hit).setGlobalTime( fmod( (*hit).globalTime() , m_config.time ) );
       }
     }
-    
-    
+
+
     if (! tgc.isValid() ) ATH_MSG_WARNING( " HitWrapper could not access tgc hit collection" );
     else {
       //      std::cout << "Working on a collection of size " << tgcC->size() << std::endl;
@@ -221,8 +89,8 @@ namespace G4UA
 	(*hit).setGlobalTime( fmod( (*hit).globalTime() , m_config.time ) );
       }
     }
-    
-    
+
+
     /** for nSW */
     if (! mmhits.isValid() ) ATH_MSG_WARNING( " HitWrapper could not access Micromegas hit collection" );
     else {
@@ -233,7 +101,7 @@ namespace G4UA
 	(*hit).setGlobalTime( fmod( (*hit).globalTime() , m_config.time ) );
       }
     }
-    
+
     if (! stgc.isValid() ) ATH_MSG_WARNING( " HitWrapper could not access sTGC hit collection" );
     else {
       //      std::cout << "Working on a collection of size " << nswC->size() << std::endl;
@@ -243,12 +111,12 @@ namespace G4UA
 	(*hit).setGlobalTime( fmod( (*hit).globalTime() , m_config.time ) );
       }
     }
-    
+
     // Handle the inner detector next
     SG::WriteHandle<TRTUncompressedHitCollection> trt("TRTUncompressedHits");
     SG::WriteHandle<SiHitCollection> pix("PixelHits");
     SG::WriteHandle<SiHitCollection> sct("SCT_Hits");
-    
+
     if (! trt.isValid() ) ATH_MSG_WARNING( " HitWrapper could not access trt hit collection" );
     else {
       //TRTUncompressedHitCollection * trt = const_cast< TRTUncompressedHitCollection * > (&*trtC);
@@ -257,7 +125,7 @@ namespace G4UA
 	(*hit).SetGlobalTime( fmod( (*hit).GetGlobalTime() , m_config.time ) );
       }
     }
-    
+
     if (! pix.isValid()) ATH_MSG_WARNING( " HitWrapper could not access pix hit collection" );
     else {
       //SiHitCollection * pix = const_cast<SiHitCollection *> (&*pixC);
@@ -266,7 +134,7 @@ namespace G4UA
 	(*hit).setMeanTime( fmod( (*hit).meanTime() , m_config.time ) );
       }
     }
-    
+
     if (! sct.isValid() ) ATH_MSG_WARNING( " HitWrapper could not access sct hit collection" );
     else {
       //SiHitCollection * sct = const_cast<SiHitCollection *> (&*sctC);
@@ -275,7 +143,7 @@ namespace G4UA
 	(*hit).setMeanTime( fmod( (*hit).meanTime() , m_config.time ) );
       }
     }
-    
+
   }
+
 } // namespace G4UA
-  

@@ -7,7 +7,7 @@
 
 from __future__ import with_statement
 
-__version__ = "$Revision: 768237 $"
+__version__ = "$Revision: 723532 $"
 __author__  = "Sebastien Binet"
 __doc__ = "implementation of AthFile-server behind a set of proxies to isolate environments"
 
@@ -123,7 +123,6 @@ def _create_file_infos():
         'geometry': None,
         'conditions_tag': None,
         'det_descr_tags': None,
-        ##
         'metadata': None,
         'tag_info': None,
         }
@@ -190,9 +189,6 @@ def ami_dsinfos(dsname):
         elif k == 'beamType':
             af_infos['beam_type'] = [v]
             
-        ## elif k == 'fileType':
-        ##     af_infos['file_type'] = v
-
         elif k == 'dataType':
             af_infos['file_type'] = 'bs' if v.lower() == 'raw' else 'pool'
             stream_name = 'Stream' + v.upper()
@@ -221,7 +217,6 @@ def ami_dsinfos(dsname):
                 run_number = dsname.split('.')[1]
                 af_infos['run_number'] = [int(run_number)]
             except ValueError:
-                #af_infos['run_number'] = ['N/A']
                 pass
                 
         else:
@@ -231,7 +226,6 @@ def ami_dsinfos(dsname):
                 run_number = dsname.split('.')[1]
                 af_infos['run_number'] = [int(run_number)]
             except ValueError:
-                #af_infos['run_number'] = ['N/A']
                 pass
         pass
     
@@ -406,7 +400,7 @@ class AthFileServer(object):
         # speed-up by tampering LD_LIBRARY_PATH to not load reflex-dicts
         import re, os
         restrictedProjects = ['AtlasCore']
-        if "AthAnalysisBase" in os.environ.get("CMTEXTRATAGS","") or "AthSimulationBase" in os.environ.get("CMTEXTRATAGS",""): restrictedProjects=[] #special cases
+        if "AthAnalysisBase_DIR" in os.environ or "AthSimulation_DIR" in os.environ: restrictedProjects=[] #special cases
         with H.restricted_ldenviron(projects=restrictedProjects):
             with H.ShutUp(filters=[
                 re.compile(
@@ -591,7 +585,6 @@ class AthFileServer(object):
             import os.path as osp
             from posixpath import normpath
             fname = normpath(fname)
-            #fname = osp.realpath(osp.abspath(normpath(fname)))
             if fname.startswith('//'): fname = fname[1:]
             return fname
 
@@ -609,8 +602,7 @@ class AthFileServer(object):
             fname = _normalize(url.path)
             fname = protocol+':'+fname
 
-        elif protocol in ('root','dcap', 'dcache', 'http', 'https'):
-            #fname = fname
+        elif protocol in ('root','dcap', 'dcache', 'http', 'https', 'dav', 'davs'):
             pass
 
         elif protocol in ('gsidcap',):
@@ -634,7 +626,6 @@ class AthFileServer(object):
         else:
             msg.warning('unknown protocol [%s]. we\'ll just return our input',
                         protocol)
-            #fname = fname
             pass
         
         return (protocol, fname)
@@ -992,17 +983,6 @@ class AthFileServer(object):
             except Exception:
                 return False
         
-        ## elif protocol in ('dcap', 'dcache', 'gfal:gsidcap'):
-        ##     ## FIXME: temporary hack. remove when ROOT bug #57409 is fixed.
-        ##     if protocol == 'dcap':
-        ##         fname = fname[len('dcap:'):]
-        ##     elif protocol == 'dcache':
-        ##         fname = fname[len('dcache:'):]
-        ##     else:
-        ##         pass
-        ##     ## FIXME -end
-        ##     return _root_exists(fname)
-
         else:
             return _root_exists(fname)
         # un-reachable
@@ -1038,7 +1018,7 @@ class FilePeeker(object):
         import PyUtils.Helpers as H
         restrictedProjects = ['AtlasCore']
         import os
-        if "AthAnalysisBase" in os.environ.get("CMTEXTRATAGS","") or "AthSimulationBase" in os.environ.get("CMTEXTRATAGS",""): restrictedProjects=[] #special cases
+        if "AthAnalysisBase_DIR" in os.environ or "AthSimulation_DIR" in os.environ: restrictedProjects=[] #special cases
         with H.restricted_ldenviron(projects=restrictedProjects):
             root = self.pyroot
             import re
@@ -1079,7 +1059,7 @@ class FilePeeker(object):
         import PyUtils.Helpers as H
         restrictedProjects = ['AtlasCore']
         import os
-        if "AthAnalysisBase" in os.environ.get("CMTEXTRATAGS","") or "AthSimulationBase" in os.environ.get("CMTEXTRATAGS",""): restrictedProjects=[] #special cases
+        if "AthAnalysisBase_DIR" in os.environ or "AthSimulation_DIR" in os.environ: restrictedProjects=[] #special cases
         with H.restricted_ldenviron(projects=restrictedProjects):
             root = self.pyroot
             do_close = True
@@ -1146,7 +1126,7 @@ class FilePeeker(object):
         import PyUtils.Helpers as H
         restrictedProjects = ['AtlasCore']
         import os
-        if "AthAnalysisBase" in os.environ.get("CMTEXTRATAGS","") or "AthSimulationBase" in os.environ.get("CMTEXTRATAGS",""): restrictedProjects=[] #special cases
+        if "AthAnalysisBase_DIR" in os.environ or "AthSimulation_DIR" in os.environ: restrictedProjects=[] #special cases
         with H.restricted_ldenviron(projects=restrictedProjects):
             root = self.pyroot
             do_close = True
@@ -1169,7 +1149,7 @@ class FilePeeker(object):
      
     def _process_call(self, fname, evtmax, projects=['AtlasCore']):
         import os
-        if "AthAnalysisBase" in os.environ.get("CMTEXTRATAGS","") or "AthSimulationBase" in os.environ.get("CMTEXTRATAGS",""): projects=[] #special cases
+        if "AthAnalysisBase_DIR" in os.environ or "AthSimulation_DIR" in os.environ: projects=[] #special cases
         msg = self.msg()
         import PyUtils.Helpers as H
         f = _create_file_infos()
@@ -1214,9 +1194,7 @@ class FilePeeker(object):
                         f['evt_number'] = evts
                     else:
                         import tempfile
-                        #'peeker_%i.pkl' % os.getpid()
                         fd_pkl,out_pkl_fname = tempfile.mkstemp(suffix='.pkl')
-                        #out_pkl_fname = 'peeked.out.pkl'
                         import os
                         os.close(fd_pkl)
                         if os.path.exists(out_pkl_fname):
@@ -1318,10 +1296,7 @@ class FilePeeker(object):
                                 raise IOError(sc, err)
                             msg.info('athena failed to initialize.')
                             msg.info('=> probably an empty input POOL file')
-                        ## if os.path.exists(out_pkl_fname):
-                        ##     os.remove(out_pkl_fname)
                     # TAG-file
-                    # app.exit()
             else: # bytestream
                 bs_fileinfos = self._process_bs_file(file_name,
                                                      evtmax=evtmax,
@@ -1452,10 +1427,6 @@ class FilePeeker(object):
             file_infos['run_number'].append(bs_metadata.get('run_number', 0))
             file_infos['lumi_block'].append(bs_metadata.get('LumiBlock', 0))
             # FIXME: not sure how to do that...
-            #stream_tags=[dict(stream_type=bs_metadata.get('Stream',''),
-            #                  stream_name=bs_metadata.get('Project', ''),
-            #                  obeys_lbk="N/A")]
-            #file_infos['stream_tags'].extend(stream_tags)
             return file_infos
         
         if evtmax == -1:

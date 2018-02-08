@@ -40,6 +40,7 @@ wrapper.IBLMode = 2
 wrapper.FixEndcapL0 = True
 wrapper.HitInputTool = FTKSGInput
 wrapper.PixelClusteringMode = 101
+wrapper.Ibl3DRealistic = False
 wrapper.SctClustering = True
 wrapper.Clustering = True
 

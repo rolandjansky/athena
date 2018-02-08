@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 /*
  * MuonEfficiencyCorrectionsDict.h
@@ -18,6 +18,5 @@
 
 #include "MuonEfficiencyCorrections/MuonEfficiencyScaleFactors.h"
 #include "MuonEfficiencyCorrections/MuonTriggerScaleFactors.h"
-
 
 #endif /* MUONEFFICIENCYCORRECTIONSDICT_H_ */

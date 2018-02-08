@@ -8,6 +8,8 @@ from AthenaCommon.GlobalFlags  import globalflags
 
 from AthenaCommon.DetFlags import DetFlags
 
+from AthenaCommon.Logging import logging
+
 if globalflags.DataSource()=='data':
     if rec.projectName()=="data09_calophys":
     # for data09_calophys project, force to use DSP output for the cell energy, perform reco like DSP, no dead cell correction
@@ -34,6 +36,8 @@ if globalflags.DataSource()=='data':
                 # check format1 & results mode
                 if (larcool.format()==1 and larcool.runType()==2) :
                     larRODFlags.keepDSPRaw = True
+                if (larcool.format()==0):
+                    larRODFlags.keepDSPRaw = False      # raw data transparent mode, no DSP energy
 
    
 
@@ -161,6 +165,25 @@ if DetFlags.makeRIO.Calo_on() and not rec.doWriteBS() :
     except Exception:
         treatException("Problem with CaloCellGetter. Switched off.")
         DetFlags.makeRIO.Calo_setOff()
+
+# CaloCellGetter_DigiHSTruth
+    doDigiTruthFlag = False
+    try:
+        from Digitization.DigitizationFlags import digitizationFlags
+        doDigiTruthFlag = digitizationFlags.doDigiTruth()
+    except:
+        log = logging.getLogger('CaloRec')
+        log.info('Unable to import DigitizationFlags in CaloRec_jobOptions. Expected in AthenaP1')
+
+    if doDigiTruthFlag:
+      try:
+        from CaloRec.CaloCellGetter_DigiHSTruth import CaloCellGetter_DigiHSTruth
+        CaloCellGetter_DigiHSTruth()
+
+      except Exception:
+        treatException("Problem with CaloCellGetter_DigiHSTruth. Switched off.")
+
+
 
 #
 #

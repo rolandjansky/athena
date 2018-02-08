@@ -27,7 +27,7 @@ def _loadBasicAthenaPool():
     msg.debug( "Loading basic services for AthenaPool..." )
 
     svcMgr += CfgMgr.PoolSvc()
-    svcMgr.PoolSvc.MaxFilesOpen = 3
+    svcMgr.PoolSvc.MaxFilesOpen = 0
     #if in AthAnalysisBase, we will set the outputlevel of PoolSvc to ERROR, to silence warnings about missing reflex types
     #detect AthAnalysisBase by looking at the CMTEXTRATAGS env var, if it contains 'ManaCore' then we are in AthAnalysisBase
     import os

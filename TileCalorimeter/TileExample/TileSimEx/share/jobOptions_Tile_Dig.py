@@ -35,11 +35,14 @@ topSequence = AlgSequence()
 if not 'EvtMax' in dir():
     EvtMax = -1
 
+if not 'RunNumber' in dir():
+    RunNumber = 222222
+
 if not 'FileSuffix' in dir():
     FileSuffix = ''
 
 if not 'TileTB' in dir():
-    TileTB = ('Geo' in dir() and (Geo=='5B' or Geo=='3B' or Geo=='2B2EB'))
+    TileTB = ('Geo' in dir() and (Geo=='5B' or Geo=='3B' or Geo=='2B2EB' or Geo=='2B1EB'))
 
 if TileTB:
     ConddbTag = 'OFLCOND-MC12-SDR-27'
@@ -92,7 +95,7 @@ if not 'DetGeo' in dir():
     DetGeo = 'atlas'
 
 if not 'DetDescrVersion' in dir():
-    DetDescrVersion = 'ATLAS-R2-2015-02-01-00'
+    DetDescrVersion = 'ATLAS-R2-2015-03-01-00'
 
 # commented out - do not set any override by default
 #if not 'TileVersionOverride' in dir():
@@ -228,7 +231,8 @@ jobproperties.Digitization.doCaloNoise = doCaloNoise
 # This tag must be specified for dowstream jobs
 jobproperties.Digitization.IOVDbGlobalTag = ConddbTag
 if not TileTB:
-    jobproperties.Digitization.simRunNumber = 222222
+    jobproperties.Digitization.simRunNumber = RunNumber
+    jobproperties.Digitization.dataRunNumber = RunNumber
 # jobproperties.Digitization.doMuonNoise=True
 # jobproperties.Digitization.doMinimumBias=True
 # jobproperties.Digitization.numberOfCollisions=2.3
@@ -248,11 +252,16 @@ if doD3PDHit or doD3PDDigit or doD3PDRawChannel or doD3PDCell or doD3PDCellInfo 
 
     if TileTB:
         # special settings for TileConditions, to make sure that COOL is not used
-        TileUseCOOL=False
+        if not 'TileUseCOOL' in dir():
+            TileUseCOOL=False
+        elif TileUseCOOL:
+            jobproperties.Digitization.simRunNumber = RunNumber
+            jobproperties.Digitization.dataRunNumber = RunNumber
 
-        # setting Fit method only
+        # setting Fit and Opt2 method only
         from TileRecUtils.TileRecFlags import jobproperties
         jobproperties.TileRecFlags.doTileFit = True
+        jobproperties.TileRecFlags.doTileOpt2 = True
 
     include( 'Digitization/Digitization.py' )
 
@@ -260,6 +269,8 @@ if doD3PDHit or doD3PDDigit or doD3PDRawChannel or doD3PDCell or doD3PDCellInfo 
         jobproperties.TileRecFlags.TileRawChannelContainer = "TileRawChannelFit"
         # avoid MBTS hits
         ToolSvc.TileHitVecToCntTool.TileHitVectors=['TileHitVec']
+        # change threshold in fit method
+        ToolSvc.TileRawChannelBuilderFitFilter.NoiseThresholdRMS = 3.
 
 else:
     include( "TileConditions/TileConditions_jobOptions.py" )
@@ -391,7 +402,7 @@ if doTileNtuple:
         topSequence += CfgMgr.TileTBAANtuple( TBperiod = 2003, NSamples = 7, BSInput = False, 
                                               CompleteNtuple = False, UnpackAdder = False,
                                               TileRawChannelContainerFlat = "", 
-                                              TileRawChannelContainerOpt = "",
+                                              TileRawChannelContainerOpt = "TileRawChannelCnt",
                                               TileRawChannelContainerFit = "TileRawChannelFit",
                                               TileBeamElemContainer = "",
                                               TileLaserObject = "",

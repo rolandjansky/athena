@@ -18,7 +18,7 @@ import sys, os, argparse, subprocess, fnmatch
 # See more info here: https://cern.service-now.com/service-portal/view-request.do?n=RQF0492611
 #eospath = "/afs/cern.ch/project/eos/installation/0.3.84-aquamarine/bin/eos.select"
 # Update: https://cern.service-now.com/service-portal/view-incident.do?n=INC1004372
-eospath = "/afs/cern.ch/project/eos/installation/atlas/bin/eos.select"
+eospath = "eos"
 
 def validEventList(eventList):
     eventStrings = eventList.split(',')

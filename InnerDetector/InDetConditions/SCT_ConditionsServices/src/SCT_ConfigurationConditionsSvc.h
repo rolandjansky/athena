@@ -105,9 +105,9 @@ public:
   /**List of bad chips*/
   virtual std::map<Identifier, unsigned int>*           badChips() {return m_badChips;}
   /**Bad chips for a given module*/
-  virtual unsigned int                  badChips(const Identifier & moduleId);
+  virtual unsigned int                  badChips(const Identifier & moduleId) const;
   /** Get the chip number containing a particular strip*/
-  int                                   getChip(const Identifier & stripId);
+  int                                   getChip(const Identifier & stripId) const;
 
 private:
   std::set<Identifier>*                 m_badChannelIds;                 //!< Set of bad strip identifiers (not those in bad strips)
@@ -144,8 +144,8 @@ private:
   /** Is a wafer in a bad module*/
   bool                                  isWaferInBadModule(const Identifier& waferId);
   
-  ///** Get the chip number containing a particular strip*/
-  //int                                   getChip(Identifier stripId);
+  /**Is a chip with this Identifier good?*/
+  bool isGoodChip(const Identifier& stripId) const;
 
   /** enum for constants*/
   enum {badLink=255, stripsPerChip=128, lastStrip=767};

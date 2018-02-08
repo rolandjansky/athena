@@ -1,14 +1,9 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 #ifndef GENERATOR_PYTHIA8_H
 #define GENERATOR_PYTHIA8_H
 
 #include "GeneratorModules/GenModule.h"
 
 #include "Pythia8/Pythia.h"
-//#include "Pythia8/../Pythia8Plugins/HepMC2.h"
 #include "Pythia8Plugins/HepMC2.h"
 
 // calls to fortran routines
@@ -17,12 +12,14 @@
 
 #include <stdexcept>
 
+using std::string;
 
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 /**
  *  Author: James Monk (jmonk@cern.ch)
 */
-
-using std::string;
 
 class IAtRndmGenSvc;
 
@@ -58,14 +55,14 @@ private:
 class Pythia8_i: public GenModule{
 
 public:
-  Pythia8_i(const string &name, ISvcLocator *pSvcLocator);
+  Pythia8_i(const std::string &name, ISvcLocator *pSvcLocator);
   
   ~Pythia8_i();
 
   class CommandException : public std::runtime_error{
   public:
     
-  CommandException(const string &cmd): std::runtime_error("Cannot interpret command: " + cmd){
+  CommandException(const std::string &cmd): std::runtime_error("Cannot interpret command: " + cmd){
     }
   };
     
@@ -88,17 +85,17 @@ private:
   
   static std::string xmlpath();
   
-  static std::string findValue(const std::string &command, const std::string &key);
+  // Add the pythia.process, which is the LHE record for external ME events, to the
+  // HepMC record
+  void addLHEToHepMC(HepMC::GenEvent *evt);
   
   int m_internal_event_number;
   
   double m_version;
   
   std::vector<std::string> m_commands;
-  std::vector<std::string> m_userParams;
-  std::vector<std::string> m_userModes;
   
-  enum PDGID {PROTON=2212, ANTIPROTON=-2212, ELECTRON=11, POSITRON=-11, INVALID=0};
+  enum PDGID {PROTON=2212, ANTIPROTON=-2212, NEUTRON=2112, ANTINEUTRON=-2112, MUON=13, ANTIMUON=-13, ELECTRON=11, POSITRON=-11, INVALID=0};
   
   double m_collisionEnergy;
   bool m_useRndmGenSvc;
@@ -109,10 +106,13 @@ private:
   std::string m_beam2;
 
   std::string m_lheFile;
-  
+
+  bool m_storeLHE;
   bool m_doCKKWLAcceptance;
+  bool m_doFxFxXS;
   double m_nAccepted;
   double m_nMerged;
+  double m_sigmaTotal;
   
   unsigned int m_maxFailures;
   unsigned int m_failureCount;
@@ -126,9 +126,9 @@ private:
   // ptr to possible user process
   Pythia8::Sigma2Process *m_procPtr;
   
-  std::string m_userHook;
+  std::vector<std::string> m_userHooks;
   
-  Pythia8::UserHooks *m_userHookPtr;
+  std::vector<Pythia8::UserHooks*> m_userHooksPtrs;
   
   std::string m_userResonances;
   
@@ -139,11 +139,11 @@ private:
   std::string m_particleDataFile;
   std::string m_outputParticleDataFile;
   
-  std::vector<string> m_weightIDs;
+  std::vector<std::string> m_weightIDs;
   bool m_doLHE3Weights;
+  std::vector<std::string> m_weightCommands;
+  std::vector<std::string> m_showerWeightNames;
   
-  static int s_allowedTunes(double version);
-
 };
 
 #endif

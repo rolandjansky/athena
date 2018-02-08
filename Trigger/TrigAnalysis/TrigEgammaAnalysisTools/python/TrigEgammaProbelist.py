@@ -514,3 +514,37 @@ monitoringTP_electron_extra =[
 ]
 
 
+
+### Make supproting trigger list for the emulation e/g tool
+supportingTriggerList = probeListLowMidPtSupportingTriggers+probeListHighPtSupportingTriggers
+# Update the supporting list with very loose chains. This will be used in data collisin matches
+for trig in probeListLowMidPtPhysicsTriggers+probeListHighPtPhysicsTriggers:
+  if 'vloose' in trig:  supportingTriggerList.append(trig)
+
+supportingTriggerList.extend( [
+  'HLT_e24_lhvloose_nod0_L1EM20VH',
+  'HLT_e26_lhvloose_nod0_L1EM20VH',
+  'HLT_e28_lhvloose_nod0_L1EM20VH',
+  'HLT_e140_lhvloose_nod0',
+  'HLT_e10_lhvloose_nod0_L1EM7',
+  'HLT_e10_lhvloose_nod0_L1EM7',
+  'HLT_e15_lhvloose_nod0_L1EM7',
+  'HLT_e20_lhvloose_nod0_L1EM12',
+  'HLT_e25_lhvloose_nod0_L1EM15',
+  'HLT_e30_lhvloose_nod0_L1EM15',
+  'HLT_e40_lhvloose_nod0_L1EM15',
+  'HLT_e50_lhvloose_nod0_L1EM15',
+  'HLT_e70_lhvloose_nod0',
+  'HLT_e80_lhvloose_nod0',
+  'HLT_e100_lhvloose_nod0',
+  'HLT_e120_lhvloose_nod0',
+  'HLT_e5_lhvloose_nod0',
+  'HLT_e12_lhvloose_nod0_L1EM10VH',
+  'HLT_e17_lhvloose_nod0',
+  'HLT_e20_lhvloose_nod0',
+  'HLT_e40_lhvloose_nod0',
+  'HLT_e60_lhvloose_nod0',
+] )
+
+
+

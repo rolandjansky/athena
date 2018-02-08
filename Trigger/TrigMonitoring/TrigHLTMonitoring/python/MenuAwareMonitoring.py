@@ -93,7 +93,9 @@ class MenuAwareMonitoring:
     def __get_athena_version__(self):
         "Get the current Athena version."
 
-        self.ms.current_athena_version = self.get_release_setup().replace(",","-")
+        release = self.get_release_setup()
+        self.ms.current_athena_version = release[0].replace(",","-")
+        self.ms.current_nightly_version = release[1].replace(",","-")
 
 
     def get_release_setup(self):
@@ -142,13 +144,26 @@ class MenuAwareMonitoring:
                 release = os.environ['AtlasBuildBranch']
                 setup="%s,%s,%s"%(project,release,current_nightly)
             elif 'AtlasBuildStamp' in os.environ:
-                release = os.environ['AtlasBuildBranch']
-                current_nightly = os.environ['AtlasBuildStamp'] # denotes a cmakegit nightly
-                setup="%s,%s,%s"%(project,release,current_nightly)
+                current_nightly = os.environ['AtlasBuildStamp']
+                if current_nightly in os.environ['ATLAS_RELEASE_BASE']:
+                    # this is a nightly
+                    release = os.environ['AtlasBuildBranch']
+                    setup = "%s,%s,%s"%(project,release,current_nightly)
+                else:
+                    # this is not a nightly
+                    setup = "%s,%s"%(project,release)
+                    # also save the nightly it was built from
+                    release = os.environ['AtlasBuildBranch']
+                    base_nightly = "%s,%s,%s"%(project,release,current_nightly)
             else:
                 setup="%s,%s"%(project,release)
 
-        return setup
+        try:
+            # this is a full release, save the base nightly
+            return setup,base_nightly
+        except:
+            # this is not a git/cmake release with a base nightly
+            return setup,setup
 
 
     def __get_tag__(self,package=""):
@@ -832,7 +847,7 @@ class MenuAwareMonitoring:
         mck_info = self.ms.oi.read_mck_info_from_db(mck_id)
         mck_athena_version = mck_info['MCK_ATHENA_VERSION']
 
-        return self.ms.check_compatibility_of_two_release_versions(mck_athena_version,self.ms.current_athena_version)
+        return self.ms.check_compatibility_of_two_release_versions(mck_athena_version,[self.ms.current_athena_version,self.ms.current_nightly_version])
 
 
     def does_smck_athena_version_match_current_athena_version(self, smck_id):
@@ -841,7 +856,7 @@ class MenuAwareMonitoring:
         smck_info = self.ms.oi.read_smck_info_from_db(smck_id)
         smck_athena_version = smck_info['SMCK_ATHENA_VERSION']
 
-        return self.ms.check_compatibility_of_two_release_versions(smck_athena_version,self.ms.current_athena_version)
+        return self.ms.check_compatibility_of_two_release_versions(smck_athena_version,[self.ms.current_athena_version,self.ms.current_nightly_version])
 
 
     def apply_mck(self,input1="",print_output_here=""):
@@ -1081,39 +1096,6 @@ class MenuAwareMonitoring:
         return 0
 
 
-    def dump_mck_to_json(self,mck_id,output_json_filename=""):
-        "Dump the contents of an MCK to a json file, including the contents of linked SMCKs"
-
-        if not self.__is_input_an_mck__(mck_id):
-            print "MCK",mck_id,"has not been recognised as a valid MCK."
-            return
-
-        if output_json_filename == "":
-            output_json_filename = "MCK_"+str(mck_id)+".json"
-
-        output_file = open( output_json_filename, "w" )
-
-        mck_info = self.ms.oi.read_mck_info_from_db(mck_id)
-        smck_ids = self.ms.oi.read_mck_links_from_db(mck_id)
-
-        mck_dump_info = {}
-        # datetime.datetime objects are not JSON serializable
-        # seeing as this info is not used later, we replace with the ctime
-        mck_info['MCK_CREATION_DATE'] = mck_info['MCK_CREATION_DATE'].ctime()
-        mck_dump_info['MCK'] = mck_info
-
-        # combine rest of the MCK info in the MONITORING_TOOL_DICT
-        mck_dump_info['MONITORING_TOOL_DICT'] = {}
-        for smck_id in smck_ids:
-            smck_info = self.ms.oi.read_smck_info_from_db(smck_id)
-            smck_info['SMCK_CREATION_DATE'] = smck_info['SMCK_CREATION_DATE'].ctime()
-            tool_type = smck_info['SMCK_TOOL_TYPE']
-            mck_dump_info['MONITORING_TOOL_DICT'][tool_type] = smck_info
-
-        json.dump(mck_dump_info, output_file, ensure_ascii=True, sort_keys=True)
-        output_file.close()
-
-
     def dump_local_config_to_json(self,output_json_filename="mam_configs.json",processing_step="",processing_stream="",comment="",default=""):
         "All locally read-in trigger monitoring tool configurations are output to a file."
 
@@ -1239,7 +1221,7 @@ class MenuAwareMonitoring:
             comment = self.ms.__ask_for_comment__()
 
         # need to get release accurately and in a form the command can run - use get_release_setup
-        release = self.get_release_setup()
+        release = self.get_release_setup()[0]
 
         # this is not a default, so we need to get the default and perform the diff before dumping
         print "Will get default in clean directory for release",release #release

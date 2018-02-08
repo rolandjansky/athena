@@ -4,8 +4,12 @@
 
 from PartPropSvc.PartPropSvcConf import PartPropSvc
 
-include( "ParticleBuilderOptions/McAOD_PoolCnv_jobOptions.py")
-include( "EventAthenaPool/EventAthenaPool_joboptions.py" )
+include("ParticleBuilderOptions/McAOD_PoolCnv_jobOptions.py")
+include("EventAthenaPool/EventAthenaPool_joboptions.py" )
+
+from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
+GeoModelSvc = GeoModelSvc()
+GeoModelSvc.MuonVersionOverride="MuonSpectrometer-R.07.00-NSW"
 
 import os
 from glob import glob
@@ -32,7 +36,8 @@ topSequence += TGCHitAnalysis('TGCHitAnalysis')
 topSequence += TrackRecordAnalysis('TrackRecordAnalysis')
 topSequence += TruthHitAnalysis('TruthHitAnalysis')
 topSequence += CaloHitAnalysis('CaloHitAnalysis')
-
+topSequence += MMHitAnalysis('MMHitAnalysis')
+topSequence += sTGCHitAnalysis('sTGCHitAnalysis')
 
 
 topSequence.PixelHitAnalysis.HistPath='/HitAnalysis/'
@@ -48,9 +53,11 @@ topSequence.TGCHitAnalysis.HistPath='/HitAnalysis/'
 #topSequence.LucidHitAnalysis.HistPath='/HitAnalysis/'
 #topSequence.ZDCHitAnalysis.HistPath='/HitAnalysis/'
 topSequence.TrackRecordAnalysis.HistPath='/HitAnalysis/'
-topSequence.TruthHitAnalysis.HistPath = '/HitAnalysis/'                       
-topSequence.CaloHitAnalysis.HistPath = '/HitAnalysis/'                                                                                                        
-#Add some more TH2 histograms                                                                                                                                          
+topSequence.TruthHitAnalysis.HistPath = '/HitAnalysis/'
+topSequence.CaloHitAnalysis.HistPath = '/HitAnalysis/'
+topSequence.MMHitAnalysis.HistPath='/HitAnalysis/'
+topSequence.sTGCHitAnalysis.HistPath='/HitAnalysis/'
+#Add some more TH2 histograms
 
 
 topSequence.PixelHitAnalysis.ExpertMode= "off"
@@ -58,7 +65,7 @@ topSequence.SCTHitAnalysis.ExpertMode= "off"
 topSequence.BCMHitAnalysis.ExpertMode= "off"
 topSequence.BLMHitAnalysis.ExpertMode= "off"
 topSequence.CaloHitAnalysis.ExpertMode = "off"
-topSequence.CaloHitAnalysis.CalibHits = "off" 
+topSequence.CaloHitAnalysis.CalibHits = "off"
 
 #from GaudiSvc.GaudiSvcConf import THistSvc
 #ServiceMgr += THistSvc()
@@ -79,5 +86,4 @@ AthenaPoolCnvSvc.UseDetailChronoStat = TRUE
 from RecExConfig.AutoConfiguration import *
 ConfigureFieldAndGeo() # Configure the settings for the geometry
 include("RecExCond/AllDet_detDescr.py") # Actually load the geometry
-#include( "TrkDetDescrSvc/AtlasTrackingGeometrySvc.py" ) # Tracking geometry, handy for ID work
-
+#include("TrkDetDescrSvc/AtlasTrackingGeometrySvc.py" ) # Tracking geometry, handy for ID work

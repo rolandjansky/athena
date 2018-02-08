@@ -1,11 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+ *   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ *   */
 
 
 #include "TrigEgammaEmulationTool/TrigEgammaSelectorBaseTool.h"
-
-
 
 using namespace Trig;
 
@@ -103,7 +101,7 @@ const xAOD::TrigRingerRings* TrigEgammaSelectorBaseTool::getTrigCaloRings( const
 }
 
 //!==========================================================================
-#ifdef RINGER_OFFLINE_PACKAGES
+/*
 bool TrigEgammaSelectorBaseTool::getCaloRings( const xAOD::Electron *el, std::vector<float> &ringsE ){
   if(!el) return false;
   ringsE.clear();
@@ -138,7 +136,6 @@ bool TrigEgammaSelectorBaseTool::getCaloRings( const xAOD::Electron *el, std::ve
   if(!el) return false;
   return true;
 }
-#endif
-
+*/
 
 

@@ -645,6 +645,43 @@ def getChains(connection, smk):
 
     return chainsl2, chainsef
 
+
+def getChainsWithLowerChainNames(connection, smk):
+    cursor,schemaname = getTriggerDBCursor(connection)
+
+    isrun2 = isRun2(cursor,schemaname)
+
+    output = []
+    chainshlt = {}
+
+    if isrun2:
+        output = ['TC.HTC_ID', 'TC.HTC_CHAIN_COUNTER', 'TC.HTC_NAME', 'TC.HTC_LOWER_CHAIN_NAME']
+    else:
+        print "ERROR: This method is compatibly with Run2 only"
+        return chainshlt
+    
+    tables = {}
+    tables['SM']    = 'SUPER_MASTER_TABLE'
+    tables['M2C']   = 'HLT_TM_TO_TC'
+    tables['TC']    = 'HLT_TRIGGER_CHAIN'
+    tables['MT']    = 'HLT_MASTER_TABLE'
+
+    condition = [ "SM.SMT_ID = :smk",
+                  'SM.SMT_HLT_MASTER_TABLE_ID = MT.HMT_ID',
+                  'MT.HMT_TRIGGER_MENU_ID = M2C.HTM2TC_TRIGGER_MENU_ID',
+                  'M2C.HTM2TC_TRIGGER_CHAIN_ID = TC.HTC_ID' ]
+
+    bindvars = { "smk": smk }
+
+    res = executeQuery(cursor, output, condition, schemaname, tables, bindvars)
+
+
+    for x in res:
+        chainshlt[x[1]] = (x[2],x[3])
+
+    return chainshlt
+
+
 def getStreams(connection, smk):
     cursor,schemaname = getTriggerDBCursor(connection)
         
@@ -811,31 +848,68 @@ def getExpressStreamPrescales(connection,psk):
     return name, [(r[1],r[3]) for r in res if r[0]=='express']
 
 
-def getHLTPrescalesRun2(connection,psk):
+def getHLTPrescalesRun2(connection,psk,smk):
     """returns set name, prescale and passthrough 
     values for a given HLT prescale key 
     @connection - connection string, e.g. TRIGGERDB
     @psk - HLT prescale key
+    @smk - Supermaster key
     @return (ps name, [('L2/EF',chainId,prescale,pass-through),...])
     """
 
-    res = queryHLTPrescaleTableRun2(connection,psk)
+    res = queryHLTPrescaleTableRun2(connection,psk,smk)
+
+    if res == 0:
+        return res
 
     return [(r) for r in res if r[3]!='express']
 
-def getExpressStreamPrescalesRun2(connection,psk):
+def getExpressStreamPrescalesRun2(connection,psk,smk):
     """returns the express stream prescales for a given HLT prescale key
     @connection - connection string, e.g. TRIGGERDB
     @psk - HLT prescale key
+    @smk - Supermaster key
     @return (ps name, [chainId,prescale),...])
     """
 
-    res = queryHLTPrescaleTableRun2(connection,psk)
+    res = queryHLTPrescaleTableRun2(connection,psk, smk)
 
+    if res == 0:
+        return res
+    
     return [(r) for r in res if r[3]=='express']
 
 
-def queryHLTPrescaleTableRun2(connection,psk):
+
+def getReRunPrescalesRun2(connection,psk,smk):
+    """returns the express stream prescales for a given HLT prescale key
+    @connection - connection string, e.g. TRIGGERDB
+    @psk - HLT prescale key
+    @smk - Supermaster key
+    @return (ps name, [chainId,prescale),...])
+    """
+
+    res = queryHLTPrescaleTableRun2(connection,psk, smk)
+
+    if res == 0:
+        return res
+
+    return [(r) for r in res if r[2]=='ReRun']
+
+
+
+def queryHLTPrescaleTableRun2(connection,psk,smk):
+
+    prescales = getHLTPrescalesFromSMK(connection, smk)
+
+    valid = False
+    for entry in prescales:
+        if psk in entry:
+            valid = True
+
+    if not valid:
+        print "WARNING: Selected HLT Prescale Key not associated with Supermaster key"
+        return 0
 
     cursor,schemaname = getTriggerDBCursor(connection)
 
@@ -844,9 +918,18 @@ def queryHLTPrescaleTableRun2(connection,psk):
     tables = {}
     tables['PS'] = 'HLT_PRESCALE' 
     tables['HTC'] = 'HLT_TRIGGER_CHAIN'
+    tables['TM2TC'] = 'HLT_TM_TO_TC'
+    tables['HTM']  = 'HLT_TRIGGER_MENU'
+    tables['HMT']    = 'HLT_MASTER_TABLE'
+    tables['SM']    = 'SUPER_MASTER_TABLE'
 
     condition = [ "PS.HPR_PRESCALE_SET_ID = :psk",
-                  "HTC.HTC_CHAIN_COUNTER = PS.HPR_CHAIN_COUNTER"
+                  "HTC.HTC_CHAIN_COUNTER = PS.HPR_CHAIN_COUNTER",
+                  "TM2TC.HTM2TC_TRIGGER_CHAIN_ID = HTC.HTC_ID",
+                  "TM2TC.HTM2TC_TRIGGER_MENU_ID = HTM.HTM_ID",
+                  "HTM.HTM_ID = HMT.HMT_TRIGGER_MENU_ID",
+                  "HMT.HMT_ID = SM.SMT_HLT_MASTER_TABLE_ID",
+                  "SM.SMT_ID = %s" % smk 
                   ]
 
     bindvars = { "psk": psk }

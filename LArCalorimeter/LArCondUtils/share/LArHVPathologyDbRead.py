@@ -5,7 +5,7 @@ from time import strptime,time
 from calendar import timegm
 
 if "GloablTag" not in dir():
-    GlobalTag = 'CONDBR2-BLKPA-2015-05'
+    GlobalTag = 'CONDBR2-BLKPA-2017-03'
 
 if "foldertag" not in dir():
    foldertag="LARHVPathologiesOflPathologies-RUN2-UPD1-00"
@@ -50,7 +50,7 @@ globalflags.InputFormat = 'bytestream'
 globalflags.DatabaseInstance="CONDBR2"
 
 from AthenaCommon.GlobalFlags import jobproperties
-jobproperties.Global.DetDescrVersion='ATLAS-GEO-20-00-00'
+jobproperties.Global.DetDescrVersion='ATLAS-R2-2015-04-00-00'
 
 from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit
@@ -90,8 +90,8 @@ else:
    conddb.addFolder("LAR_OFL","/LAR/HVPathologiesOfl/Pathologies<tag>"+foldertag+"</tag>")
     
 svcMgr.MessageSvc.OutputLevel = 4
-svcMgr.MessageSvc.debugLimit  = 100000
-svcMgr.MessageSvc.infoLimit   = 100000
+svcMgr.MessageSvc.debugLimit  = 99999999
+svcMgr.MessageSvc.infoLimit   = 99999999
 
 LArHVPathologyDbAlg.OutputLevel     = 3
 svcMgr.IOVDbSvc.OutputLevel         = 3

@@ -40,12 +40,7 @@ SctSensor_CTB::SctSensor_CTB(const std::string& name, const std::string& hitColl
 
 void SctSensor_CTB::Initialize(G4HCofThisEvent *)
 {
-#ifdef ATHENAHIVE
-  // Temporary fix for Hive until isValid is fixed
-  m_HitColl = CxxUtils::make_unique<SiHitCollection>();
-#else
   if (!m_HitColl.isValid()) m_HitColl = CxxUtils::make_unique<SiHitCollection>();
-#endif
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -152,12 +147,11 @@ G4bool SctSensor_CTB::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
     abort();
   }
   TrackHelper trHelp(aStep->GetTrack());
-  int barcode = trHelp.GetBarcode();
   m_HitColl->Emplace(lP1,
                      lP2,
                      edep,
                      aStep->GetPreStepPoint()->GetGlobalTime(),
-                     barcode,
+                     trHelp.GetParticleLink(),
                      1,BrlEcap,LayerDisk,etaMod,phiMod,side);
   return true;
 }

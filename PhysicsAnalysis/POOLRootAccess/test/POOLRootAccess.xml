@@ -27,6 +27,17 @@
     </expectations>
    </TEST>
 
+  <TEST name="POOLRootAccess_python_elementLink_test" type="script" suite="ASG">
+    <options_atn>python ${ATN_PACKAGE}/test/ut_elementLink_test.py</options_atn>
+    <timelimit>10</timelimit>
+    <author> Will Buttinger </author>
+    <mailto> will@cern.ch </mailto>
+    <expectations>
+      <errorMessage>FAILURE (ERROR)</errorMessage>
+      <returnValue>0</returnValue>
+    </expectations>
+   </TEST>
+
 </atn>
 
 </unifiedTestConfiguration>

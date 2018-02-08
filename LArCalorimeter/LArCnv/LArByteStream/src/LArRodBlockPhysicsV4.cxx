@@ -17,7 +17,7 @@
 //#define LARBSDBGOUTPUT
 #ifdef LARBSDBGOUTPUT
 #define MYLEVEL (MSG::FATAL)
-#define LARBSDBG(text) logstr<<MYLEVEL<<text<<endreq
+#define LARBSDBG(text) logstr<<MYLEVEL<<text<<endmsg
 #else
 #define LARBSDBG(text)
 #endif
@@ -79,33 +79,33 @@ bool LArRodBlockPhysicsV4::setPointers()
       
 #ifdef  LARBSDBGOUTPUT
       MsgStream logstr(Athena::getMessageSvc(), BlockType());
-      logstr << MYLEVEL  << "***********************************************************************"<< endreq;
-      logstr << MYLEVEL  << "Header values :"<< endreq;
-      logstr << MYLEVEL  << "************************************************************************"<< endreq;
-      logstr << MYLEVEL  << "Fragment @    = 0x" << MSG::hex << m_FebBlock << endreq;
-      logstr << MYLEVEL  << "NWTot         =   " << MSG::dec << getNumberOfWords() << endreq;
-      logstr << MYLEVEL  << "FebID         = 0x" << MSG::hex << getHeader32(FEBID) << endreq;
-      logstr << MYLEVEL  << "FebSN         = 0x" << MSG::hex << getHeader32(FEB_SN) << endreq;
-      logstr << MYLEVEL  << "ResultsOff1   = 0x" << MSG::hex << getHeader16(ResultsOff1) << endreq;
-      logstr << MYLEVEL  << "ResultsDim1   = 0x" << MSG::hex << getHeader16(ResultsDim1) << endreq;
-      logstr << MYLEVEL  << "ResultsOff2   = 0x" << MSG::hex << getHeader16(ResultsOff2) << endreq;
-      logstr << MYLEVEL  << "ResultsDim2   = 0x" << MSG::hex << getHeader16(ResultsDim2) << endreq;
-      logstr << MYLEVEL  << "RawDataBlkOff = 0x" << MSG::hex << getHeader16(RawDataBlkOff) << endreq;
-      logstr << MYLEVEL  << "RawDataBlkDim = 0x" << MSG::hex << getHeader16(RawDataBlkDim) << endreq;
-      logstr << MYLEVEL  << "************************************************************************"<< MSG::dec << endreq;
+      logstr << MYLEVEL  << "***********************************************************************"<< endmsg;
+      logstr << MYLEVEL  << "Header values :"<< endmsg;
+      logstr << MYLEVEL  << "************************************************************************"<< endmsg;
+      logstr << MYLEVEL  << "Fragment @    = 0x" << MSG::hex << m_FebBlock << endmsg;
+      logstr << MYLEVEL  << "NWTot         =   " << MSG::dec << getNumberOfWords() << endmsg;
+      logstr << MYLEVEL  << "FebID         = 0x" << MSG::hex << getHeader32(FEBID) << endmsg;
+      logstr << MYLEVEL  << "FebSN         = 0x" << MSG::hex << getHeader32(FEB_SN) << endmsg;
+      logstr << MYLEVEL  << "ResultsOff1   = 0x" << MSG::hex << getHeader16(ResultsOff1) << endmsg;
+      logstr << MYLEVEL  << "ResultsDim1   = 0x" << MSG::hex << getHeader16(ResultsDim1) << endmsg;
+      logstr << MYLEVEL  << "ResultsOff2   = 0x" << MSG::hex << getHeader16(ResultsOff2) << endmsg;
+      logstr << MYLEVEL  << "ResultsDim2   = 0x" << MSG::hex << getHeader16(ResultsDim2) << endmsg;
+      logstr << MYLEVEL  << "RawDataBlkOff = 0x" << MSG::hex << getHeader16(RawDataBlkOff) << endmsg;
+      logstr << MYLEVEL  << "RawDataBlkDim = 0x" << MSG::hex << getHeader16(RawDataBlkDim) << endmsg;
+      logstr << MYLEVEL  << "************************************************************************"<< MSG::dec << endmsg;
 
       int size = getNumberOfWords();
       for(int i=0;i<size;i++) {
-	logstr << MYLEVEL << MSG::hex << i << " : " << MSG::hex << m_FebBlock+i << " : " << MSG::hex << m_FebBlock[i] << endreq;
+	logstr << MYLEVEL << MSG::hex << i << " : " << MSG::hex << m_FebBlock+i << " : " << MSG::hex << m_FebBlock[i] << endmsg;
       }
 
       if(m_MaskPointer) size = 4; else size = 0;
-      logstr << MYLEVEL  << "Mask Block size = " << MSG::hex << size << endreq;
-      logstr << MYLEVEL  << "Mask Block address = " << MSG::hex << m_MaskPointer << endreq;
+      logstr << MYLEVEL  << "Mask Block size = " << MSG::hex << size << endmsg;
+      logstr << MYLEVEL  << "Mask Block address = " << MSG::hex << m_MaskPointer << endmsg;
       for(int i=0;i<size;i++) {
-	logstr << MYLEVEL << i << " : " << MSG::hex << m_MaskPointer[i] << endreq;
+	logstr << MYLEVEL << i << " : " << MSG::hex << m_MaskPointer[i] << endmsg;
       }
-      logstr << MYLEVEL  << "End of Mask Block" << endreq;
+      logstr << MYLEVEL  << "End of Mask Block" << endmsg;
 #endif
    }
 
@@ -118,22 +118,22 @@ int LArRodBlockPhysicsV4::getNextRawData(int& channelNumber, std::vector<short>&
 #ifdef LARBSDBGOUTPUT
   MsgStream logstr(Athena::getMessageSvc(), BlockType());
   //Debug output
-  logstr << MYLEVEL << "Let s go in getNextRawData..." << endreq;
-  logstr << MYLEVEL << "GetNextRawData for FEB 0x" << MSG::hex << (uint32_t)getHeader32(FEBID) << MSG::dec << endreq;
+  logstr << MYLEVEL << "Let s go in getNextRawData..." << endmsg;
+  logstr << MYLEVEL << "GetNextRawData for FEB 0x" << MSG::hex << (uint32_t)getHeader32(FEBID) << MSG::dec << endmsg;
   logstr << MYLEVEL << "m_RawDataPointer=" << m_RawDataPointer << " m_RawDataIndex="<<  m_RawDataIndex 
-	 << " m_channelsPerFEB=" << m_channelsPerFEB << endreq;
+	 << " m_channelsPerFEB=" << m_channelsPerFEB << endmsg;
 #endif
 
   if (m_RawDataIndex>=m_channelsPerFEB) { //Already beyond maximal number of channels
 #ifdef LARBSDBGOUTPUT
-    logstr << MYLEVEL << "Maximum number of channels reached" << endreq;
+    logstr << MYLEVEL << "Maximum number of channels reached" << endmsg;
 #endif
     return 0;
   }
   //const uint16_t block = getHeader16(m_RawDataOff);//Position of the raw FEB data block
   if (!m_RawDataPointer) { //Block does not exist
 #ifdef LARBSDBGOUTPUT
-    logstr << MYLEVEL << "No Raw Data Block in this FEB" << endreq;
+    logstr << MYLEVEL << "No Raw Data Block in this FEB" << endmsg;
 #endif
     return 0; 
   }
@@ -147,8 +147,8 @@ int LArRodBlockPhysicsV4::getNextRawData(int& channelNumber, std::vector<short>&
   const unsigned int ngains   = getHeader16(NGains);
 
 #ifdef LARBSDBGOUTPUT
-  logstr << MYLEVEL << "This FEB has " << nsamples <<  " samples" << endreq;
-  logstr << MYLEVEL << "This FEB has " << ngains   <<  " gains" << endreq;
+  logstr << MYLEVEL << "This FEB has " << nsamples <<  " samples" << endmsg;
+  logstr << MYLEVEL << "This FEB has " << ngains   <<  " gains" << endmsg;
 #endif
 
   if(ngains==0 || nsamples==0) return 0;
@@ -169,11 +169,11 @@ int LArRodBlockPhysicsV4::getNextRawData(int& channelNumber, std::vector<short>&
   gain=RawToOfflineGain(febgain);
 
 #ifdef LARBSDBGOUTPUT
-  logstr << MYLEVEL << " ===> ROD Channel = " << m_RawDataIndex << endreq; 
-  logstr << MYLEVEL << " ===> FEB Channel = " << channelNumber << endreq; 
-  logstr << MYLEVEL << " ===> Gain        = " << gain << endreq;
+  logstr << MYLEVEL << " ===> ROD Channel = " << m_RawDataIndex << endmsg; 
+  logstr << MYLEVEL << " ===> FEB Channel = " << channelNumber << endmsg; 
+  logstr << MYLEVEL << " ===> Gain        = " << gain << endmsg;
   for(int i=0;i<nsamples;i++)
-    logstr << MYLEVEL << " ===> sample " << i << "    = " << samples[i] << endreq;
+    logstr << MYLEVEL << " ===> sample " << i << "    = " << samples[i] << endmsg;
   int n = m_RawDataIndex;
   int32_t e,t,q;
   uint32_t g;
@@ -195,7 +195,7 @@ int LArRodBlockPhysicsV4::getNextRawData(int& channelNumber, std::vector<short>&
 	samples[rearrangeFirstSample]=movedSample;
    }
 #ifdef LARBSDBGOUTPUT
-  logstr << MYLEVEL << "GetNextRawData for FEB finished 0x" << MSG::hex << (uint32_t)getHeader32(FEBID) << MSG::dec << endreq;
+  logstr << MYLEVEL << "GetNextRawData for FEB finished 0x" << MSG::hex << (uint32_t)getHeader32(FEBID) << MSG::dec << endmsg;
 #endif
   return 1;
 }

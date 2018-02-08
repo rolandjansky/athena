@@ -34,9 +34,3 @@ void TFCSExtrapolationState::clear()
 }
 
 
-//=============================================
-//========== ROOT persistency stuff ===========
-//=============================================
-
-ClassImp(TFCSExtrapolationState)
-

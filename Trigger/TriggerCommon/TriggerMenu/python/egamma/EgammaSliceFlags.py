@@ -61,6 +61,24 @@ class doRinger(JobProperty):
 
 _flags.append(doRinger) 
 
+
+class doRingerBelow15GeV(JobProperty):
+    '''apply ringer selection for Electron chains below 15GeV'''
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
+_flags.append(doRingerBelow15GeV) 
+
+
+class doSuperClusters(JobProperty):
+    '''Use Superclusters to build Egamma trigger objects'''
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
+_flags.append(doSuperClusters) 
+
 class ringerVersion (JobProperty):
     """ Version ringer tunes """
     statusOn=True
@@ -123,12 +141,21 @@ def run2ConfigAction(run2Flag):
         EgammaSliceFlags.pidVersion = 'ElectronPhotonSelectorTools/trigger/rel21_20170217_mc16a/'
         EgammaSliceFlags.clusterCorrectionVersion = 'v12phiflip_noecorrnogap'
         EgammaSliceFlags.calibMVAVersion = 'egammaMVACalib/online/v6'
+        EgammaSliceFlags.doSuperClusters=False
     elif run2Flag=='2017':
         log.info('EgammaSliceFlags set for %s',run2Flag)
         EgammaSliceFlags.ringerVersion = 'RingerSelectorTools/TrigL2_20170505_v6'
         EgammaSliceFlags.pidVersion = 'ElectronPhotonSelectorTools/trigger/rel21_20170217/'
         EgammaSliceFlags.clusterCorrectionVersion = 'v12phiflip_noecorrnogap'
         EgammaSliceFlags.calibMVAVersion = 'egammaMVACalib/online/v6'
+        EgammaSliceFlags.doSuperClusters=False
+    elif run2Flag=='2018':
+        log.info('EgammaSliceFlags set for %s',run2Flag)
+        EgammaSliceFlags.ringerVersion = 'RingerSelectorTools/TrigL2_20170505_v6'           # To be changed by new tunes <----
+        EgammaSliceFlags.pidVersion = 'ElectronPhotonSelectorTools/trigger/rel21_20170217/' # To be changed by new tunes <----
+        EgammaSliceFlags.clusterCorrectionVersion = 'v12phiflip_noecorrnogap'
+        EgammaSliceFlags.calibMVAVersion = 'egammaMVACalib/online/v6'                       # Hey! Here we need to use new calibration constants....
+        EgammaSliceFlags.doSuperClusters=True
     else:
         log.info('EgammaSliceFlags not set use defaults',run2Flag)
 

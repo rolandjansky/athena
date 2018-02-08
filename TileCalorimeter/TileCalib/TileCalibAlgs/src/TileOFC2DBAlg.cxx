@@ -337,6 +337,10 @@ StatusCode TileOFC2DBAlg::execute() {
   attrListColl->add(TileCalibUtils::getCommentChannel(), attrList);
   attrListColl->add(TileCalibUtils::getCommentChannel(), range);
 
+  spec->release();
+  // cppcheck-suppress memleak
+  spec = nullptr;
+
   //=== recored collection in store gate
   CHECK( detStore()->record(attrListColl, folder) );
 

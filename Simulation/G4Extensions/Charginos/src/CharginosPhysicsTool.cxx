@@ -13,7 +13,8 @@
 // Geant4 physics lists
 #include "G4ProcessManager.hh"
 #include "G4ParticleTable.hh"
-#include "G4hhIonisation.hh"
+#include "G4hIonisation.hh"
+#include "G4hMultipleScattering.hh"
 #include "G4Transportation.hh"
 #include "G4MuIonisation.hh"
 #include "G4ProcessManager.hh"
@@ -37,14 +38,11 @@
 //=============================================================================
 CharginosPhysicsTool::CharginosPhysicsTool( const std::string& type,
                                             const std::string& name, const IInterface* parent )
-  : AthAlgTool ( type, name , parent )
+  : base_class ( type, name , parent )
   , m_theCharginoMinus(nullptr)
   , m_theCharginoPlus(nullptr)
   , m_theNeutralino(nullptr)
 {
-  ATH_MSG_DEBUG("CharginosPhysicsTool "<<type<<" "<<name);
-  declareInterface< IPhysicsOptionTool >( this ) ;
-
   declareProperty("CharginoPlusMass",m_CharginoPlusMass= 101.0*CLHEP::GeV,"CharginoPlus Mass");
   declareProperty("CharginoPlusWidth",m_CharginoPlusWidth=0.0*CLHEP::MeV,"CharginoPlus Width");
   declareProperty("CharginoPlusCharge",m_CharginoPlusCharge=+1.*CLHEP::eplus,"CharginoPlus charge");
@@ -97,7 +95,7 @@ CharginosPhysicsTool* CharginosPhysicsTool::GetPhysicsOption()
 
 void CharginosPhysicsTool::ConstructParticle()
 {
-  ATH_MSG_DEBUG(" ConstructParticle for the Charginos being run");
+  ATH_MSG_DEBUG("ConstructParticle for the Charginos being run");
 
   m_theCharginoPlus = AMSBCharginoPlus::Definition(m_CharginoPlusMass, m_CharginoPlusWidth, m_CharginoPlusCharge, m_CharginoPlusPDGCode, m_CharginoPlusStable, m_CharginoPlusLifetime, m_CharginoPlusShortlived );
 
@@ -109,16 +107,13 @@ void CharginosPhysicsTool::ConstructParticle()
 
 void CharginosPhysicsTool::ConstructProcess()
 {
-  ATH_MSG_DEBUG(" ConstructProcess for Charginos being run");
-
-  G4hhIonisation *theIonisation = new G4hhIonisation;
-  G4Transportation *theTransportation=new G4Transportation;
+  ATH_MSG_DEBUG("ConstructProcess for Charginos being run");
 
   G4ProcessManager *charginoPlus = m_theCharginoPlus->GetProcessManager();
   G4ProcessManager *charginoMinus = m_theCharginoMinus->GetProcessManager();
 
-  charginoPlus->AddProcess(theTransportation);
-  charginoMinus->AddProcess(theTransportation);
-  charginoPlus->AddProcess(theIonisation,-1,2,2);
-  charginoMinus->AddProcess(theIonisation,-1,2,2);
+  charginoPlus->AddProcess(new G4hMultipleScattering,-1,1,1);
+  charginoMinus->AddProcess(new G4hMultipleScattering,-1,1,1);
+  charginoPlus->AddProcess(new G4hIonisation,-1,2,2);
+  charginoMinus->AddProcess(new G4hIonisation,-1,2,2);
 }

@@ -48,7 +48,7 @@ StatusCode Analysis::CalibrationDataInterfaceTester::initialize()
   StatusCode sc = m_calibrationInterface.retrieve();
   if (sc.isFailure()) {
     msg() << MSG::FATAL << "initialize() in " << name() << ": unable to retrieve "
-          << "calibration interface tool!" << endreq;
+          << "calibration interface tool!" << endmsg;
     return sc;
   }
 
@@ -64,7 +64,7 @@ StatusCode Analysis::CalibrationDataInterfaceTester::initialize()
     m_uncertaintyType = CalibrationDataInterfaceTool::None;
   }
   
-  msg() << MSG::INFO << "initialize() successful in " << name() << endreq;
+  msg() << MSG::INFO << "initialize() successful in " << name() << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -84,15 +84,11 @@ StatusCode Analysis::CalibrationDataInterfaceTester::execute()
 
   // retrieve the desired jet collection
   const JetCollection* jets;
-  StatusCode m_sc = evtStore()->retrieve(jets, m_jetCollection);
-  if (m_sc.isFailure()) {
-    msg() << MSG::WARNING << "JetCollection " << m_jetCollection << " not found." << endreq;
-    return StatusCode::SUCCESS;
-  }
+  ATH_CHECK( evtStore()->retrieve(jets, m_jetCollection) );
 
   int njtag = (*jets).size();
   msg() << MSG::INFO << "JetCollection " << m_jetCollection
-	<< " found with " << njtag << " jets." << endreq;
+	<< " found with " << njtag << " jets." << endmsg;
 
   // instead of (*jets).begin() etc.?
   JetCollection::const_iterator jetItr = jets->begin();
@@ -104,7 +100,7 @@ StatusCode Analysis::CalibrationDataInterfaceTester::execute()
     // --- get the true label of the jet from MC Truth:
     const Analysis::TruthInfo* mcinfo = (*jetItr)->tagInfo<Analysis::TruthInfo>("TruthInfo");
     if (! mcinfo) {
-      msg() << MSG::VERBOSE << "could not find TruthInfo for matching jet" << endreq;
+      msg() << MSG::VERBOSE << "could not find TruthInfo for matching jet" << endmsg;
       continue;
     }
     string label = mcinfo->jetTruthLabel();
@@ -119,7 +115,7 @@ StatusCode Analysis::CalibrationDataInterfaceTester::execute()
     msg() << MSG::VERBOSE << " SF (unc.): " << sfResult.first
 	  << "(" << sfResult.second << ")";
     msg() << MSG::VERBOSE << " eff (unc.): " << effResult.first
-	  << "(" << effResult.second << ")" << endreq;
+	  << "(" << effResult.second << ")" << endmsg;
 
   }
 

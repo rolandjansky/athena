@@ -86,6 +86,7 @@ PileUpEventLoopMgr::PileUpEventLoopMgr(const std::string& name,
   declareProperty("AllowSubEvtsEOF", m_allowSubEvtsEOF, "if true(default) an EOF condition in the BkgStreamsCaches is not considered to be an error IF maxevt=-1 (loop over all available events)");
   declareProperty("XingByXing", m_xingByXing, "if set to true we will not cache bkg events from one xing to then next. This greatly increases the amount of I/O and greatly reduces the memory required to run a job");
   declareProperty("IsEventOverlayJob", m_isEventOverlayJob, "if set to true will prevent the BCID from being overridden.");
+  declareProperty("IsEventOverlayJobMC", m_isEventOverlayJobMC, "if set to true events will be marked as simulation");
   declareProperty("mcRunNumber", m_mcRunNumber=99, "the run number from an EVNT file, used to set the mc_channel_number, for overlay");
   declareProperty("FailureMode", m_failureMode,
                   "Controls behaviour of event loop depending on return code of"
@@ -333,6 +334,10 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
         {
           pOvrEt->set_mc_channel_number(m_mcRunNumber);
           ATH_MSG_DEBUG ( "pOvrEt set_mc_channel_number: " << m_mcRunNumber );
+
+          if (m_isEventOverlayJobMC){
+            pOvrEt->add_type(EventType::IS_SIMULATION);
+          }
         }
       else
         {
@@ -342,7 +347,7 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
         }
 
       PileUpEventInfo *pOverEvent = new PileUpEventInfo(pOvrID, pOvrEt);
-      if(m_isEmbedding)
+      if(m_isEmbedding || m_isEventOverlayJobMC)
         {
           pOverEvent->setActualInteractionsPerCrossing(pEvent->actualInteractionsPerCrossing());
           pOverEvent->setAverageInteractionsPerCrossing(pEvent->averageInteractionsPerCrossing());
@@ -350,7 +355,7 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
       ATH_MSG_VERBOSE ( "BCID =" << pOverEvent->event_ID()->bunch_crossing_id() );
       //  register as sub event of the overlaid
       bool addpEvent(true);
-      if(m_isEmbedding)
+      if(m_isEmbedding || m_isEventOverlayJobMC)
         {
           const PileUpEventInfo* pOldEvent(dynamic_cast<const PileUpEventInfo*>(pEvent));
           if(pOldEvent)
@@ -388,7 +393,7 @@ StatusCode PileUpEventLoopMgr::nextEvent(int maxevt)
       bool needupdate;
       float sf = m_beamLumi->scaleFactor(pEvent->event_ID()->run_number(), pEvent->event_ID()->lumi_block(), needupdate );
       float currentaveragemu(sf*m_maxCollPerXing);
-      if(!m_isEmbedding)
+      if(!m_isEmbedding && !m_isEventOverlayJobMC)
         {
           pOverEvent->setAverageInteractionsPerCrossing(currentaveragemu);
           //FIXME check whether actualInteractionsPerCrossing should be set

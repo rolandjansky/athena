@@ -7,6 +7,7 @@
 #
 
 import sys, string, os, smtplib
+from get_release_2017 import (fn2dt, _get_release)
 
 def sendSms(msg,toAdd='0041762725254@sms.switch.ch'):
   yourCernMailAdd = 'rtt@mail.cern.ch'
@@ -32,19 +33,17 @@ if __name__ == "__main__":
     print usageline
     sys.exit(1)
 
-  release = os.environ["AtlasArea"]
-  releaseArr = release.split("/")
-  release = "%s %s %s" % (releaseArr[7], releaseArr[8], releaseArr[9])
-
-  nightly = os.environ["AtlasVersion"]
+  project   = os.environ["AtlasProject"]
+  nightly   = os.environ["AtlasBuildStamp"]
+  branch    = os.environ["AtlasBuildBranch"]
   cmtconfig = os.environ['CMTCONFIG']
-  project = releaseArr[7]
+  relNumber = _get_release(fn2dt(nightly))
+  release = "%s %s %s" % (nightly, branch, project)
 
   emailAddresses = sys.argv[1]
 
-  resultsurl = "https://atlas-rtt.cern.ch/index.php?q=%28release="+releaseArr[9]+";packagename=Tier0ChainTests;branch="+releaseArr[7]+";cmtconfig="+cmtconfig+";project=AtlasProduction;verbosity=vvv;%29"
-
-  comparisonlogurl = "https://atlas-rtt.cern.ch/prod/tct/%s/%s/build/%s/offline/Tier0ChainTests/ESDTAGCOMM_comparison/ESDTAGCOMM_comparison_log" % (releaseArr[9], releaseArr[7],cmtconfig)
+  resultsurl       = "https://atlas-rtt.cern.ch/index.php?q=%%28release=%s;packagename=Tier0ChainTests;branch=%s;cmtconfig=%s;project=%s;verbosity=vvv;%%29" % ( relNumber, branch, cmtconfig, project )
+  comparisonlogurl = "https://atlas-rtt.cern.ch/prod/rtt/%s/%s/build/%s/%s/Tier0ChainTests/ESDTAGCOMM_comparison/ESDTAGCOMM_comparison_log" % ( relNumber, branch, cmtconfig, project )
 
   msgbody = """<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
 <html>
@@ -70,9 +69,9 @@ The results from the Tier0ChainTests are available <a href=\"%s\">here</a>
 = Summary of comparisons (ESD, AOD, TAG) =<br>
 ==========================================<br>
 <br>
-(Full log available <a href=\"https://atlas-rtt.cern.ch/prod/tct/%s/%s/build/%s/offline/Tier0ChainTests/ESDTAGCOMM_comparison/ESDTAGCOMM_comparison_log\">here</a>)
+(Full log available <a href=\"%s\">here</a>)
 </p>
-<pre>""" % (releaseArr[9], releaseArr[7], cmtconfig)
+<pre>""" % comparisonlogurl
 
           lines = [line for line in fSummary]
           lines.sort()
@@ -121,7 +120,7 @@ The results from the Tier0ChainTests are available <a href=\"%s\">here</a>
   msgbody += overwriteCheckString
 
   tctStatusString = "<pre><br>"
-  os.system('tct_getstatus.py --release=%s --day=%s --dq --dump' % (releaseArr[7],releaseArr[9]))
+  os.system('tct_getstatus.py --release=%s --day=%s --dq --dump' % ( branch, relNumber ) )
   fstatus = open('tctstatus.txt','r')
   for line in fstatus: 
 

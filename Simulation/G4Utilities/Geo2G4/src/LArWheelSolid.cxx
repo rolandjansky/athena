@@ -16,7 +16,7 @@ EInside LArWheelSolid::Inside(const G4ThreeVector &inputP) const
 {
 	LWSDBG(10, std::cout << std::setprecision(25));
 	LWSDBG(1, std::cout << TypeStr() << " Inside " << MSG_VECTOR(inputP) << std::endl);
-	const EInside inside_BS = BoundingShape->Inside(inputP);
+	const EInside inside_BS = m_BoundingShape->Inside(inputP);
 	if(inside_BS == kOutside){
 		LWSDBG(2, std::cout << "outside BS" << std::endl);
 		return kOutside;
@@ -24,12 +24,12 @@ EInside LArWheelSolid::Inside(const G4ThreeVector &inputP) const
 	G4ThreeVector p( inputP );
 	int p_fan = 0;
 	const G4double d = fabs(GetCalculator()->DistanceToTheNearestFan(p, p_fan));
-	if(d > FHTplusT){
-		LWSDBG(2, std::cout << "outside fan d=" << d << ", FHTplusT=" << FHTplusT << std::endl);
+	if(d > m_FHTplusT){
+		LWSDBG(2, std::cout << "outside fan d=" << d << ", m_FHTplusT=" << m_FHTplusT << std::endl);
 		return kOutside;
 	}
-	if(d < FHTminusT){
-		LWSDBG(2, std::cout << "inside fan d=" << d << ", FHTminusT=" << FHTminusT << ", inside_BS=" << inside(inside_BS) << std::endl);
+	if(d < m_FHTminusT){
+		LWSDBG(2, std::cout << "inside fan d=" << d << ", m_FHTminusT=" << m_FHTminusT << ", inside_BS=" << inside(inside_BS) << std::endl);
 		return inside_BS;
 	}
 	LWSDBG(2, std::cout << "surface" << std::endl);
@@ -39,10 +39,10 @@ EInside LArWheelSolid::Inside(const G4ThreeVector &inputP) const
 G4ThreeVector LArWheelSolid::SurfaceNormal(const G4ThreeVector &inputP) const
 {
 	LWSDBG(1, std::cout << TypeStr() << " SurfaceNormal" << MSG_VECTOR(inputP) << std::endl);
-	EInside inside_BS = BoundingShape->Inside(inputP);
+	EInside inside_BS = m_BoundingShape->Inside(inputP);
 	if(inside_BS != kInside){
 		LWSDBG(2, std::cout << "not inside BS" << std::endl);
-		return BoundingShape->SurfaceNormal(inputP);
+		return m_BoundingShape->SurfaceNormal(inputP);
 	}
 	G4ThreeVector p( inputP );
 	int p_fan = 0;
@@ -59,12 +59,12 @@ G4bool LArWheelSolid::CalculateExtent(const EAxis a, const G4VoxelLimits &vl,
                                       const G4AffineTransform &t, G4double &p,
                                       G4double &q) const
 {
-	return BoundingShape->CalculateExtent(a, vl, t, p, q);
+	return m_BoundingShape->CalculateExtent(a, vl, t, p, q);
 }
 
 G4GeometryType LArWheelSolid::GetEntityType() const
 {
-  switch(Type){
+  switch(m_Type){
   case InnerAbsorberWheel:
     return G4String("LArInnerAbsorberWheel");
     break;
@@ -113,12 +113,12 @@ void LArWheelSolid::DescribeYourselfTo(G4VGraphicsScene &scene) const
 
 G4VisExtent LArWheelSolid::GetExtent() const
 {
-  return BoundingShape->GetExtent();
+  return m_BoundingShape->GetExtent();
 }
 
 G4Polyhedron* LArWheelSolid::CreatePolyhedron() const
 {
-  return BoundingShape->CreatePolyhedron();
+  return m_BoundingShape->CreatePolyhedron();
 }
 
 /*
@@ -126,8 +126,8 @@ G4Polyhedron* LArWheelSolid::CreatePolyhedron() const
  */
 G4int LArWheelSolid::select_section(const G4double &Z) const
 {
-	for(G4int i = Zsect_start_search; i > 0; -- i){
-		if(Z > Zsect[i]) return i;
+	for(G4int i = m_Zsect_start_search; i > 0; -- i){
+		if(Z > m_Zsect[i]) return i;
 	}
 	return 0;
 }

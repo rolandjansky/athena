@@ -9,7 +9,7 @@
 #include "G4FastSimulationManager.hh"
 
 FastSimulationBase::FastSimulationBase(const std::string& type, const std::string& name, const IInterface* parent)
-  : AthAlgTool(type,name,parent)
+  : base_class(type,name,parent)
 #ifndef ATHENAHIVE
     , m_FastSimModel(nullptr)
 #endif
@@ -39,9 +39,9 @@ StatusCode FastSimulationBase::initializeFastSim(){
   // Go through the regions and hook the fast simulation up
   G4RegionStore* regionStore = G4RegionStore::GetInstance();
   bool missedOne = false;
-  for (auto myreg : m_regionNames){
+  for (const auto& myreg : m_regionNames){
     int found=0; // Regions with more than one name...
-    for (auto areg : *regionStore){
+    for (auto* areg : *regionStore){
       if (myreg.data()==areg->GetName()){
         ++found;
         G4FastSimulationManager* theFastSimulationManager = areg->GetFastSimulationManager();
@@ -67,15 +67,6 @@ StatusCode FastSimulationBase::initializeFastSim(){
   }
 
   return StatusCode::SUCCESS;
-}
-
-StatusCode FastSimulationBase::queryInterface(const InterfaceID& riid, void** ppvIf) {
-  if ( riid == IFastSimulation::interfaceID() ) {
-    *ppvIf = (IFastSimulation*)this;
-    addRef();
-    return StatusCode::SUCCESS;
-  }
-  return AlgTool::queryInterface( riid, ppvIf );
 }
 
 G4VFastSimulationModel* FastSimulationBase::getFastSimModel()

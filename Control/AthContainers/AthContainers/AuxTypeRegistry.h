@@ -135,6 +135,9 @@ public:
    * @param auxid The desired aux data item.
    * @param size Initial size of the new vector.
    * @param capacity Initial capacity of the new vector.
+   *
+   * Returns a newly-allocated object.
+   * FIXME: Should return a unique_ptr.
    */
   IAuxTypeVector* makeVector (SG::auxid_t auxid,
                               size_t size,
@@ -147,11 +150,35 @@ public:
    * @param auxid The desired aux data item.
    * @param size Initial size of the new vector.
    * @param capacity Initial capacity of the new vector.
+   *
+   * Returns a newly-allocated object.
+   * FIXME: Should return a unique_ptr.
    */
   IAuxTypeVector* makeVector (lock_t& lock,
                               SG::auxid_t auxid,
                               size_t size,
                               size_t capacity) const;
+
+
+  /**
+   * @brief Construct an @c IAuxTypeVector object from a vector.
+   * @param data The vector object.
+   * @param isPacked If true, @c data is a @c PackedContainer.
+   * @param ownFlag If true, the newly-created IAuxTypeVector object
+   *                will take ownership of @c data.
+   *
+   * If the element type is T, then @c data should be a pointer
+   * to a std::vector<T> object, which was obtained with @c new.
+   * But if @c isPacked is @c true, then @c data
+   * should instead point at an object of type @c SG::PackedContainer<T>.
+   *
+   * Returns a newly-allocated object.
+   * FIXME: Should return a unique_ptr.
+   */
+  IAuxTypeVector* makeVectorFromData (SG::auxid_t auxid,
+                                      void* data,
+                                      bool isPacked,
+                                      bool ownFlag) const;
 
 
   /**

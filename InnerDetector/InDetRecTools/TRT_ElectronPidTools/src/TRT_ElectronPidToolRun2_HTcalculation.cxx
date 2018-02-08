@@ -93,11 +93,11 @@ float InDet::TRT_ElectronPidToolRun2::StorePIDinfo::GetBinValue 	( int bin){
 
 int InDet::TRT_ElectronPidToolRun2::StorePIDinfo::GetBin	( float input  ){
 	if (input < m_min) 		return 0;
-        else if (input > m_max) 	return m_nbins-1;
+        else if (input >= m_max) 	return m_nbins-1;
 	else{
 		float dr = (m_max-m_min)/m_nbins;
 		unsigned int bin = int (                       (input - m_min)/dr    ) ;
-		if 	(bin >  m_nbins)  	printf("  ERROR: Bin number is larger than number of bins!!!\n");
+		if 	(bin >=  m_nbins)  	printf("  ERROR: Bin number is larger than number of bins!!!\n");
 		return bin;
 	}
 	return 0;
@@ -189,13 +189,11 @@ float InDet::TRT_ElectronPidToolRun2::HTcalculator::getProbHT(
   // Jared - Temporarily disable ZR corrections, reproducibility issues with calibration
   //correctionZR = 1.0;
 
-  if (parent.msgLvl(MSG::DEBUG)) {
-    parent.msg(MSG::DEBUG) << "check       "
-                           << "  GammaOccupan: " << correctionPGOG
-                           << "  correctionSL: " << correctionSL
-                           << "  correctionZR: " << correctionZR
-                           << "  correctionTW: " << correctionTW << endmsg;
-  }
+  parent.msg(MSG::DEBUG) << "check       "
+                         << "  GammaOccupan: " << correctionPGOG
+                         << "  correctionSL: " << correctionSL
+                         << "  correctionZR: " << correctionZR
+                         << "  correctionTW: " << correctionTW << endmsg;
   
   // Jared - Development output 
   //std::cout  << "check       "

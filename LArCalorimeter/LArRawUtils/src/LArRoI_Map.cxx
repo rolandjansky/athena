@@ -168,8 +168,11 @@ StatusCode LArRoI_Map::iovCallBack(IOVSVC_CALLBACK_ARGS) {
 
   m_validCache = false; 
 
-  return StatusCode::SUCCESS ; 
-
+  // HACK: Force a call to the cabling service iov callback to make sure
+  // it gets initialized early enough.
+  int dum1 = 0;
+  std::list<std::string> dum2 { "/LAR/Identifier/OnOffIdMap" };
+  return m_cablingSvc->iovCallBack (dum1, dum2);
 }
 
 

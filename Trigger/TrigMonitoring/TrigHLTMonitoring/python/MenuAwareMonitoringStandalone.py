@@ -27,10 +27,10 @@ class MenuAwareMonitoringStandalone:
         and get the current default from the database (if it exists)."""
 
         # MaM code version
-        self.version = '1.4.7'
+        self.version = '1.4.8'
         # flag for setting whether to print out anything to screen or not
         self.print_output = True
-         # create oracle interaction object
+         # create oracle interaction objects
         self.oi = OracleInterface()
         # holder for current user
         self.current_user = ""
@@ -38,6 +38,7 @@ class MenuAwareMonitoringStandalone:
         # Since this code is Athena-independent, we use a dummy 'Athena version'
         # If called from MenuAwareMonitoring, this will be updated to the real version
         self.current_athena_version = "MaMStandalone"
+        self.current_nightly_version = "MaMStandalone"
         # holder for default global_info
         self.default_global_info = {}
         # holder for current local global_info
@@ -456,9 +457,12 @@ class MenuAwareMonitoringStandalone:
 
         if len(active_smk_to_mck_link_search_results) > 0:
             # we have found an active link. Upload should not proceed for safety.
-            print "SMK",input_smk,"is already linked to MCK",active_smk_to_mck_link_search_results[0][0],". Will now print full link details."
+            print "SMK",input_smk,"is already linked to MCK",active_smk_to_mck_link_search_results[0][0]
+            print "Will now print full link details:"
             print active_smk_to_mck_link_search_results
-            print "Deactivate this link first if you want to create a new link. You can use force_deactivate_all_links_for_smk(smk) (or tick the force upload box if using the GUI), but be sure this is what you want to do."
+            print "Deactivate this link first if you want to create a new link."
+            print "You can use force_deactivate_all_links_for_smk(smk) (or tick the force upload box if using the GUI)."
+            print "You should make sure this is what you really want to do first before proceeding!"
             return
 
         # get the current user for the creator
@@ -493,22 +497,25 @@ class MenuAwareMonitoringStandalone:
         active_smk_to_mck_link_search_results = self.oi.find_active_smk_to_mck_link(input_smk)
 
         if len(active_smk_to_mck_link_search_results) > 0:
-            print "SMK",input_smk,"is already linked to MCK",active_smk_to_mck_link_search_results[0][0],". Will now print full link details."
+            print "SMK",input_smk,"is already linked to MCK",active_smk_to_mck_link_search_results[0][0]
+            print "Will now print full link details."
             print active_smk_to_mck_link_search_results
+
+            if GUI is False:
+                print "Requested force deactivate all links for SMK",input_smk
+                print "Do you really want to do this?"
+                user_input = raw_input("y/n: ")
+                if user_input != 'y':
+                    print "Aborted."
+                    return
+
+            print "Force deactivating all links for SMK",input_smk,"..."
+            self.oi.deactivate_all_links_for_given_smk(input_smk)
+            print "All links deactivated."
+
         else:
             print "SMK",input_smk,"is not linked to any MCK."
             return
-
-        if GUI is False:
-            print "Will force deactivate all links for SMK",input_smk,". Do you really want to do this?"
-            user_input = raw_input("y/n: ")
-            if user_input != 'y':
-                print "Aborted."
-                return
-
-        print "Force deactivating all links for SMK",input_smk,"..."
-        self.oi.deactivate_all_links_for_given_smk(input_smk)
-        print "All links deactivated."
 
 
     def print_all_mck_to_smk_links(self,print_deactivated_links=False):
@@ -614,17 +621,12 @@ class MenuAwareMonitoringStandalone:
         """ Check if two releases versions are compatible.
         If they do, MAM will apply MCKs from either release in the other."""
 
-        project1 = "DummyProject"
-        project2 = project1
-
-        if ( "-" in version1 ) and ( "-" in version2 ):
-            project1 = version1.split("-")[0]
-            version1 = version1.split("-")[1]
-            project2 = version2.split("-")[0]
-            version2 = version2.split("-")[1]
-
-        if ( version1.startswith(version2) or version1.startswith(version2) ) and project1.upper() == project2.upper():
-            return True
+        if type(version2) is list:
+            if version1 in version2:
+                return True
+        elif version1 == version2:
+                return True
+        return False
 
 
     def clone_mck_for_new_release(self,mck_id,project="",version=""):
@@ -937,60 +939,6 @@ class MenuAwareMonitoringStandalone:
         return mck_id, smck_ids
 
 
-    def get_default_mck_id_from_db(self,input_athena_version=""):
-        """Get the MCK number (MCK_ID) of the default for this Athena version.
-        If input_athena_version=='', the current Athena version is used."""
-
-        if self.connected_to_oracle == False:
-            print "MaM is not connected to the database, so this function is not available."
-            return
-
-        # if no input Athena version is provided, then use the current version
-        if input_athena_version == "":
-            input_athena_version = self.current_athena_version
-
-        # search for default mck
-        return self.oi.read_default_mck_id_from_db(input_athena_version)
-
-
-    def get_default_from_db(self,input_athena_version="",print_output_here=""):
-        """Prints default MCK number (MCK_ID) for an Athena version.
-        If no Athena version is specified, the current Athena version being run in is used.
-        All default information is made available in the <ThisVariable>.default_global_info dictionary."""
-
-        if self.connected_to_oracle == False:
-            print "MaM is not connected to the database, so this function is not available."
-            return
-
-        # check for empty print_output_here
-        # if it is found, use self.print_output
-        if print_output_here == "":
-            print_output_here = self.print_output
-
-        if print_output_here:
-            print "Attempting to get default tool configuration from database"
-
-        # if no input Athena version is provided, then use the current version
-        if input_athena_version == "":
-            input_athena_version = self.current_athena_version
-
-        # search for default mck
-        default_mck = self.get_default_mck_id_from_db(input_athena_version)
-
-        # if a valid default mck exists
-        if default_mck >= 0:
-            if print_output_here:
-                print "Default MCK for Athena version "+input_athena_version+" is",default_mck
-
-            # fill self.default_global_info
-            self.default_global_info = self.get_global_info_from_db(default_mck)
-
-        # if there is no default for this Athena version
-        else:
-            if print_output_here:
-                print "No default for Athena version "+self.current_athena_version+" has been uploaded"
-
-
     def get_global_info_from_db(self,mck_id):
         "For an input MCK number (MCK_ID), get all related MCK and SMCK info, and return it as a dictionary."
 
@@ -1036,6 +984,39 @@ class MenuAwareMonitoringStandalone:
 
         # close the input file
         input_file.close()
+
+
+    def dump_mck_to_json(self,mck_id,output_json_filename=""):
+        "Dump the contents of an MCK to a json file, including the contents of linked SMCKs"
+
+        mck_info = self.oi.read_mck_info_from_db(mck_id)
+        if mck_info == -1:
+            print "MCK",mck_id,"has not been recognised as a valid MCK."
+            return
+
+        smck_ids = self.oi.read_mck_links_from_db(mck_id)
+
+        if output_json_filename == "":
+            output_json_filename = "MCK_"+str(mck_id)+".json"
+
+        output_file = open( output_json_filename, "w" )
+
+        mck_dump_info = {}
+        # datetime.datetime objects are not JSON serializable
+        # seeing as this info is not used later, we replace with the ctime
+        mck_info['MCK_CREATION_DATE'] = mck_info['MCK_CREATION_DATE'].ctime()
+        mck_dump_info['MCK'] = mck_info
+
+        # combine rest of the MCK info in the MONITORING_TOOL_DICT
+        mck_dump_info['MONITORING_TOOL_DICT'] = {}
+        for smck_id in smck_ids:
+            smck_info = self.oi.read_smck_info_from_db(smck_id)
+            smck_info['SMCK_CREATION_DATE'] = smck_info['SMCK_CREATION_DATE'].ctime()
+            tool_type = smck_info['SMCK_TOOL_TYPE']
+            mck_dump_info['MONITORING_TOOL_DICT'][tool_type] = smck_info
+
+        json.dump(mck_dump_info, output_file, ensure_ascii=True, sort_keys=True)
+        output_file.close()
 
 
     def search(self,flag1="",input1="",print_output_here=""):
@@ -1307,7 +1288,7 @@ class MenuAwareMonitoringStandalone:
 
 
     def create_sqlite_file_to_copy_to_cool(self,mck,run,runend="",info="",project="",version=""):
-        """Create ad sqlite file which can be used to manually add data to COOL"""
+        """Create an sqlite file which can be used to manually add data to COOL"""
         # this way https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CoolPublishing#Updating_data_on_the_online_data
 
         if runend and run >= runend:

@@ -49,8 +49,7 @@ namespace ISF {
 
 namespace ISF {
 	 
-  class PunchThroughTool : virtual public IPunchThroughTool,
-	                   public AthAlgTool
+  class PunchThroughTool : public extends<AthAlgTool, IPunchThroughTool>
   {
     public:
     /** Constructor */

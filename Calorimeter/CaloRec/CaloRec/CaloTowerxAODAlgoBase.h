@@ -29,7 +29,9 @@ public:
   CaloTowerxAODAlgoBase(const std::string& name, ISvcLocator* pSvcLocator);
 
   /// @brief destructor
-  ~CaloTowerxAODAlgoBase();
+  virtual ~CaloTowerxAODAlgoBase();
+  virtual StatusCode execute() {return StatusCode::SUCCESS;}
+ 
 
   StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
 
@@ -43,6 +45,8 @@ protected:
   int        m_nEtaBins;                 ///< @brief Tower-grid: number of phi bins
   int        m_nPhiBins;                 ///< @brief Tower-grid: number of phi bins
   bool       m_doxCheck;                 ///< @brief Turn on internal checks (debugging)
+  bool       m_registerLinks;            ///< @brief Register cell-to-tower links in detector store
+
   /// @}
 
   

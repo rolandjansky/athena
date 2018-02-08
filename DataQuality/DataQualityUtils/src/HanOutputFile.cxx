@@ -10,6 +10,7 @@
 #include "DataQualityInterfaces/HanUtils.h"
 
 #include <sstream>
+#include <fstream>
 #include <cstdlib>
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/lexical_cast.hpp>
@@ -31,6 +32,7 @@
 #include <TF1.h>
 #include <TMath.h>
 #include <THStack.h>
+#include <TImage.h>
 
 #define BINLOEDGE(h,n) h->GetXaxis()->GetBinLowEdge(n)
 #define BINWIDTH(h,n) h->GetXaxis()->GetBinWidth(n)
@@ -832,10 +834,36 @@ saveAllHistograms( std::string location, bool drawRefs, std::string run_min_LB )
   return nSaved;
 }
 
+void getImageBuffer(TImage* img, TCanvas* myC, char** x, int* y){
+  img->FromPad(myC);
+  img->GetImageBuffer(x, y, TImage::kPng);
+}
 
-bool
+bool HanOutputFile::saveHistogramToFile( std::string nameHis, std::string location, TDirectory* groupDir, bool drawRefs,std::string run_min_LB, std::string pathName){
+  std::string tosave = getHistogramPNG(nameHis, groupDir, drawRefs, run_min_LB, pathName);
+  if (tosave == "") {
+    return false;
+  }
+  std::string name=nameHis;
+  name+=".png";
+  std::string::size_type i = location.find_last_of( '/' );
+  if( i != (location.size()-1) ) {
+    location+="/";
+  }
+  name=location + name;
+  std::ofstream outfile(name);
+  if (!outfile.is_open()) {
+    std::cerr << "Error writing file to " << name << std::endl;
+    return false;
+  }
+  outfile << tosave;
+  outfile.close();
+  return true;
+}
+
+std::string
 HanOutputFile::
-saveHistogramToFile( std::string nameHis, std::string location, TDirectory* groupDir, bool drawRefs,std::string run_min_LB, std::string pathName){
+getHistogramPNG( std::string nameHis, TDirectory* groupDir, bool drawRefs,std::string run_min_LB, std::string pathName){
   dqi::DisableMustClean disabled;
   groupDir->cd();
  
@@ -860,6 +888,9 @@ saveHistogramToFile( std::string nameHis, std::string location, TDirectory* grou
   gStyle->SetStatW(0.2);
   gStyle->SetStatH(0.1);
   
+  char* x;
+  int y;
+  TImage* img = TImage::Create();  
 
   gROOT->SetBatch();
   std::string pathname( groupDir->GetPath() );
@@ -935,7 +966,7 @@ saveHistogramToFile( std::string nameHis, std::string location, TDirectory* grou
   TKey* hkey = groupDir->FindKey( nameHis.c_str() );
   if( hkey == 0 ) {
     std::cerr << "Did not find TKey for \"" << nameHis << "\", will not save this histogram.\n";
-    return false;
+    return "";
   }
   TLegend* legend(0);
   TObject* hobj = hkey->ReadObj();
@@ -949,12 +980,12 @@ saveHistogramToFile( std::string nameHis, std::string location, TDirectory* grou
   TGraph* g = dynamic_cast<TGraph*>( hobj );
 
   std::string name=nameHis;
-  name+=".png";
+  /*  name+=".png";
   std::string::size_type i = location.find_last_of( '/' );
   if( i != (location.size()-1) ) {
     location+="/";
   }
-  name=location + name;
+  name=location + name; */
   std::string AlgoName=getStringName(pathname+"/"+nameHis+"_/Config/name");
   int ww = 550;
   int wh = 490;
@@ -1157,14 +1188,14 @@ saveHistogramToFile( std::string nameHis, std::string location, TDirectory* grou
                   << "Inconsistent x-axis settings:  min=" << h->GetXaxis()->GetXmin() << ", "
                   << "max=" << h->GetXaxis()->GetXmax() << ", "
                   << "Will not save this histogram.\n";
-        return false;
+        return "";
       }
       if( h->GetYaxis()->GetXmin() >= h->GetYaxis()->GetXmax() ) {
         std::cerr << "HanOutputFile::saveHistogramToFile(): "
                   << "Inconsistent y-axis settings:  min=" << h->GetYaxis()->GetXmin() << ", "
                   << "max=" << h->GetYaxis()->GetXmax() << ", "
                   << "Will not save this histogram.\n";
-        return false;
+        return "";
       }
       axisOption(display,h2);
       if (drawopt =="") {
@@ -1202,7 +1233,7 @@ saveHistogramToFile( std::string nameHis, std::string location, TDirectory* grou
       tt.SetTextSize(0.03);
       tt.DrawLatex(0.02,0.01,pathName.c_str());
 
-      myC->SaveAs( name.c_str() );
+      getImageBuffer(img, myC, &x, &y);
 
     } else if( h != 0 ){
       formatTH1( myC, h );
@@ -1214,7 +1245,7 @@ saveHistogramToFile( std::string nameHis, std::string location, TDirectory* grou
                   << "Inconsistent x-axis settings:  min=" << h->GetXaxis()->GetXmin() << ", "
                   << "max=" << h->GetXaxis()->GetXmax() << ", "
                   << "Will not save this histogram.\n";
-        return false;
+        return "";
       }
       h->SetLineColor(kBlack);
       h->SetMarkerColor(1);
@@ -1245,7 +1276,7 @@ saveHistogramToFile( std::string nameHis, std::string location, TDirectory* grou
         groupDir->cd();
       }
       if( hRefs.size() > 0 ){
-        legend = new TLegend(0.70,0.77,0.95,0.87);
+        legend = new TLegend(0.55,0.77,0.87,0.87);
         legend->SetTextFont(62);
         legend->SetMargin(0.15);
         legend->SetFillStyle(0);
@@ -1366,7 +1397,12 @@ saveHistogramToFile( std::string nameHis, std::string location, TDirectory* grou
 	    }
 	    hRef->Draw(("SAME"+drawrefopt).c_str());
 	  }
-	  legend->AddEntry(hRef, WasCollectionReference ? hRef->GetName() : "Reference");
+	  if (WasCollectionReference) {
+	    legend->AddEntry(hRef, hRef->GetName());
+	  } else {
+	    std::string refInfo = getStringName(pathname + "/"+ nameHis+"_/Config/annotations/refInfo");
+	    legend->AddEntry(hRef, refInfo != "Undefined" ? refInfo.c_str() : "Reference");
+	  }
 	}
 	h->Draw(("SAME"+drawopt).c_str());
         legend->Draw();
@@ -1397,7 +1433,7 @@ saveHistogramToFile( std::string nameHis, std::string location, TDirectory* grou
       tt.SetNDC();
       tt.SetTextSize(0.03);
       tt.DrawLatex(0.02,0.01,pathName.c_str());
-      myC->SaveAs(name.c_str());
+      getImageBuffer(img, myC, &x, &y);
     }
     delete myC;
     gStyle->Reset();
@@ -1428,15 +1464,17 @@ saveHistogramToFile( std::string nameHis, std::string location, TDirectory* grou
     tt.SetNDC();
     tt.SetTextSize(0.03);
     tt.DrawLatex(0.02,0.01,pathName.c_str());
-    myC->SaveAs( name.c_str() );
+    //myC->SaveAs( name.c_str() );
+    getImageBuffer(img, myC, &x, &y);
     delete myC;
     gStyle->Reset();
   }
-
+  std::string rv(x, y);
+  delete img;
   delete hobj;
   delete hRef;
   delete legend;
-  return true;
+  return rv;
 }
 
 bool HanOutputFile::saveHistogramToFileSuperimposed( std::string nameHis, std::string location, 
@@ -1572,7 +1610,7 @@ bool HanOutputFile::saveHistogramToFileSuperimposed( std::string nameHis, std::s
       if(!drawH1(myC,h,hRef,tmpdraw,display,AlgoName))return false;
       tmpdraw+="same";
       if(!drawH1(myC,hist2,0,tmpdraw,display,AlgoName))return false;
-      legend = new TLegend(0.70,0.77,0.95,0.87);
+      legend = new TLegend(0.55,0.77,0.87,0.87);
       legend->SetTextFont(62);
       legend->SetMargin(0.15);
       legend->SetFillStyle(0);
@@ -2155,6 +2193,8 @@ void HanOutputFile::ratioplot (TCanvas* myC_upperpad ,TH1* h,TH1* hRef,std::stri
     myC_upperpad->cd();
     myC_upperpad->Clear();
     myC_main->DrawClonePad();
+    delete myC_ratiopad;
+    delete myC_main;
 }
 
 void HanOutputFile::ratioplot2D (TCanvas* canvas_top, TH2* h2, TH2* h2Ref, std::string display) {

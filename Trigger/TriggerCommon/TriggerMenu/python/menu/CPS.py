@@ -109,7 +109,7 @@ def defineCPSGroups():
         
         #BJet chains                                                                                                                                                    
         'RATE:CPS:HLT_j35b' : [#'j35_bperf',
-                               'j35_boffperf',
+#                               'j35_boffperf',
                                #'j35_bperf_split',
                                'j35_boffperf_split',
                                ],
@@ -117,20 +117,20 @@ def defineCPSGroups():
         
         'RATE:CPS:HLT_j55b' : [#'j55_bperf',
                                #'j55_bperf_split',
-                               'j55_boffperf',
+#                               'j55_boffperf',
                                'j55_boffperf_split',
                                ],
 
 
         'RATE:CPS:HLT_j150b' : [#'j150_bperf',
                                 #'j150_bperf_split',
-                                'j150_boffperf',
+#                                'j150_boffperf',
                                 'j150_boffperf_split',
                                ],
 
         'RATE:CPS:HLT_j320b' : [#'j320_bperf',
                                 #'j320_bperf_split',
-                                'j320_boffperf',
+#                                'j320_boffperf',
                                 'j320_boffperf_split',
                                ],         
         #Bphys	

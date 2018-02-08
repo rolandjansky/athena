@@ -4,16 +4,19 @@ author ADA
 
 public
 use AtlasPolicy         AtlasPolicy-*
-use AthenaKernel        AthenaKernel-*       Control
 use GaudiInterface      GaudiInterface-*     External
-use Geant4              Geant4-*             External
-use GeoModelKernel      GeoModelKernel-*     DetectorDescription/GeoModel
-use GeoModelUtilities   GeoModelUtilities-*  DetectorDescription/GeoModel
 private
 use AthenaBaseComps     AthenaBaseComps-*    Control
+use AthenaKernel        AthenaKernel-*       Control
 use AtlasBoost          AtlasBoost-*         External
 use AtlasCLHEP          AtlasCLHEP-*         External
 use AtlasROOT           AtlasROOT-*          External
+use G4AtlasInterfaces   G4AtlasInterfaces-*  Simulation/G4Atlas
+use G4AtlasTools        G4AtlasTools-*       Simulation/G4Atlas
+use Geant4              Geant4-*             External
+use GeoMaterial2G4      GeoMaterial2G4-*     Simulation/G4Utilities
+use GeoModelKernel      GeoModelKernel-*     DetectorDescription/GeoModel
+use GeoModelUtilities   GeoModelUtilities-*  DetectorDescription/GeoModel
 use GeoSpecialShapes    GeoSpecialShapes-*   DetectorDescription/GeoModel
 use GeoModelInterfaces  GeoModelInterfaces-* DetectorDescription/GeoModel
 use StoreGate           StoreGate-*          Control

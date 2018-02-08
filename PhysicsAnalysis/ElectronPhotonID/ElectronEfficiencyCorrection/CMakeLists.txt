@@ -5,50 +5,98 @@
 # Declare the package name:
 atlas_subdir( ElectronEfficiencyCorrection )
 
+# Extra dependencies when not in AnalysisBase:
+set( extra_deps )
+if( NOT XAOD_STANDALONE )
+   set( extra_deps Control/AthenaBaseComps GaudiKernel )
+else()
+   set( extra_deps Control/xAODRootAccess )
+endif()
+
 # Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthContainers
-                          Control/AthToolSupport/AsgTools
-                          Event/xAOD/xAODEgamma
-                          PhysicsAnalysis/AnalysisCommon/PATCore
-                          PhysicsAnalysis/AnalysisCommon/PATInterfaces
-                          PRIVATE
-                          Control/AthenaBaseComps
-                          Control/CxxUtils
-                          Event/xAOD/xAODCaloEvent
-                          Event/xAOD/xAODCore
-                          Event/xAOD/xAODEventInfo
-                          Event/xAOD/xAODTracking
-                          GaudiKernel
-                          Tools/PathResolver )
+atlas_depends_on_subdirs(
+   PUBLIC
+   Control/AthContainers
+   Control/AthToolSupport/AsgTools
+   Event/xAOD/xAODEgamma
+   PhysicsAnalysis/AnalysisCommon/PATCore
+   PhysicsAnalysis/AnalysisCommon/PATInterfaces
+   PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
+   PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces	
+   PRIVATE
+   Control/AthAnalysisBaseComps
+   Tools/PathResolver
+   Control/CxxUtils
+   Event/xAOD/xAODCaloEvent
+   Event/xAOD/xAODCore
+   Event/xAOD/xAODEventInfo
+   Event/xAOD/xAODTracking
+   Event/xAOD/xAODMetaData
+   PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools	
+   ${extra_deps} )
 
 # External dependencies:
-find_package( Boost COMPONENTS filesystem thread system )
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint PyROOT )
-
-# tag ROOTBasicLibs was not recognized in automatic conversion in cmt2cmake
+find_package( Boost )
+find_package( ROOT COMPONENTS Core MathCore Hist RIO MathMore )
 
 # Component(s) in the package:
 atlas_add_library( ElectronEfficiencyCorrectionLib
-                   src/*.cxx
-                   Root/*.cxx
-                   PUBLIC_HEADERS ElectronEfficiencyCorrection
-                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthContainers AsgTools xAODEgamma PATInterfaces PATCoreLib
-                   PRIVATE_LINK_LIBRARIES AthenaBaseComps xAODCaloEvent xAODCore xAODEventInfo xAODTracking GaudiKernel PathResolver )
+   ElectronEfficiencyCorrection/*.h Root/*.cxx
+   PUBLIC_HEADERS ElectronEfficiencyCorrection
+   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthContainers AsgTools
+   xAODEgamma PATInterfaces PATCoreLib AsgAnalysisInterfaces EgammaAnalysisInterfacesLib
+   PRIVATE_LINK_LIBRARIES xAODCaloEvent xAODCore xAODEventInfo xAODTracking
+   xAODMetaData PathResolver )
 
-atlas_add_component( ElectronEfficiencyCorrection
-                     src/components/*.cxx
-                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthContainers AsgTools xAODEgamma PATCoreLib PATInterfaces AthenaBaseComps xAODCaloEvent xAODCore xAODEventInfo xAODTracking GaudiKernel PathResolver ElectronEfficiencyCorrectionLib )
+if( NOT XAOD_STANDALONE )
+   atlas_add_component( ElectronEfficiencyCorrection
+      src/*.h src/*.cxx src/components/*.cxx
+      LINK_LIBRARIES xAODEgamma PATInterfaces AthenaBaseComps xAODCore
+      xAODEventInfo GaudiKernel ElectronEfficiencyCorrectionLib )
+endif()
 
 atlas_add_dictionary( ElectronEfficiencyCorrectionDict
-                      ElectronEfficiencyCorrection/ElectronEfficiencyCorrectionDict.h
-                      ElectronEfficiencyCorrection/selection.xml
-                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthContainers AsgTools xAODEgamma PATCoreLib PATInterfaces AthenaBaseComps CxxUtils xAODCaloEvent xAODCore xAODEventInfo xAODTracking GaudiKernel PathResolver ElectronEfficiencyCorrectionLib )
+   ElectronEfficiencyCorrection/ElectronEfficiencyCorrectionDict.h
+   ElectronEfficiencyCorrection/selection.xml
+   LINK_LIBRARIES ElectronEfficiencyCorrectionLib )
+
+# Utilities provided by the package:
+atlas_add_executable( EgEfficiencyCorr_mem_check
+   util/EgEfficiencyCorr_mem_check.cxx
+   LINK_LIBRARIES AsgTools ElectronEfficiencyCorrectionLib )
+
+# AnalysisBase-only utilities:
+if( XAOD_STANDALONE )
+
+   atlas_add_executable( EgEfficiencyCorr_testCorrelationModels
+      util/testCorrelationModels.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo xAODEgamma
+      xAODCore xAODCaloEvent xAODTracking AsgTools PATInterfaces
+      ElectronEfficiencyCorrectionLib )
+
+   atlas_add_executable( EgEfficiencyCorr_testEgEfficiencyCorr
+      util/testEgEfficiencyCorr.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo xAODEgamma
+      xAODCore ElectronEfficiencyCorrectionLib )
+
+   atlas_add_executable( EgEfficiencyCorr_testEgEfficiencyCorrWithoutFile
+      util/testEgEfficiencyCorrWithoutFile.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo xAODEgamma
+      xAODCore xAODCaloEvent xAODTracking AsgTools PATInterfaces
+      ElectronEfficiencyCorrectionLib )
+
+   atlas_add_executable( EgEfficiencyCorr_testEgChargeCorr
+      util/testEgChargeCorr.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo xAODEgamma
+      xAODCore ElectronPhotonSelectorToolsLib ElectronEfficiencyCorrectionLib )
+
+endif()
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
-atlas_install_data( data/*.root )
-
+atlas_install_data( data/*.root data/*.txt )

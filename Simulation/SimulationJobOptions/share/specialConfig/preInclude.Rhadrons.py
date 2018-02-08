@@ -61,6 +61,8 @@ def create_rhadron_particles_file(CASE, MASS, MODEL, MASSX):
         '      -1009213   %3.3f   # ~g_rho-'     % (MASS + 100.700 ),
         '      -1009313   %3.3f   # ~g_K0bar'    % (MASS + 100.700 ),
         '      -1009323   %3.3f   # ~g_K-'       % (MASS + 100.700 ),
+        '      -1093212   %3.3f   # ~g_Sigma0'   % (MASS + 100.700 ), # guess
+        '       1093212   %3.3f   # ~g_aSigma0'  % (MASS + 100.700 ), # guess
         '       1000039   %3.3f   # ~Gravitino'  % ( MASSX ),
         '       1000022   %3.3f   # ~chi_10'     % ( MASSX )
       ],
@@ -76,9 +78,13 @@ def create_rhadron_particles_file(CASE, MASS, MODEL, MASSX):
         '      -1009321   %3.3f   # ~g_K-'       % ( MASS + 100.460),
         '       1093122   %3.3f   # ~g_Lambda0'  % ( MASS + 100.280),
         '       1092212   %3.3f   # ~g_proton'   % ( MASS + 100.660),
+        '      -1092212   %3.3f   # ~g_aproton'  % ( MASS + 100.660),
         '       1092112   %3.3f   # ~g_neutron'  % ( MASS + 100.660),
+        '      -1092112   %3.3f   # ~g_aneutron' % ( MASS + 100.660),
         '       1092214   %3.3f   # ~g_Delta+'   % ( MASS + 100.530),
+        '      -1092214   %3.3f   # ~g_Delta-'   % ( MASS + 100.530),
         '       1092114   %3.3f   # ~g_Delta0'   % ( MASS + 100.530),
+        '      -1092114   %3.3f   # ~g_aDelta0'  % ( MASS + 100.530),
         '       1000039   %3.3f   # ~Gravitino'  % ( MASSX ),
         '       1000022   %3.3f   # ~chi_10'     % ( MASSX )
       ]
@@ -390,11 +396,17 @@ if simdict.has_key("DECAYS"):
     addLineToPhysicsConfiguration("HadronLifeTime", "0.000001")
 
   def rhad_applycalomctruthstrategy():
-    from G4AtlasApps import AtlasG4Eng
-    myDecay = AtlasG4Eng.G4Eng.Dict_MCTruthStrg.get('Decay')
-    myDecay.add_Volumes('CALO::CALO', 1)
-    AtlasG4Eng.G4Eng.menu_MCTruth.set_TruthStrategiesParameter("DecayPrimaryMinEnergy", -1)
-    AtlasG4Eng.G4Eng.menu_MCTruth.set_TruthStrategiesParameter("DecaySecondaryMinEnergy", -1)
+    print "ERROR rhad_applycalomctruthstrategy is obsolete"
+    print "Please request replacment configuration."
+    import sys
+    sys.exit(1)
+    ## from G4AtlasApps import AtlasG4Eng
+    ## myDecay = AtlasG4Eng.G4Eng.Dict_MCTruthStrg.get('Decay')
+    ## myDecay.add_Volumes('CALO::CALO', 1)
+    ## AtlasG4Eng.G4Eng.menu_MCTruth.set_TruthStrategiesParameter("DecayPrimaryMinEnergy", -1)
+    ## AtlasG4Eng.G4Eng.menu_MCTruth.set_TruthStrategiesParameter("DecaySecondaryMinEnergy", -1)
+
+
   simFlags.InitFunctions.add_function("preInitMCTruth", rhad_applycalomctruthstrategy)
 
   from AthenaCommon.AlgSequence import AlgSequence

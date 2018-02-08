@@ -22,6 +22,135 @@
       </classification>
 
       <chain>
+        <chainName>RegressionTest_TestBeamSim</chainName>
+        <abortOnError />
+        <sequential>
+
+          <chainElement>
+            <jobTransform userJobId="TestBeamSim">
+              <doc>Tile TB Simulation</doc>
+              <jobTransformJobName>TestBeamSim</jobTransformJobName>
+              <jobTransformCmd>TestBeam_tf.py --outputHITSFile 'test.HITS.pool.root' --maxEvents '10' --Eta '0.35' --testBeamConfig 'tbtile' --postInclude 'PyJobTransforms/UseFrontier.py'
+              </jobTransformCmd>
+              <group>SimCoreJobTransformTests</group>
+              <queue>short</queue>
+              <test position="1">
+                <modulename>RttLibraryTools</modulename>
+                <testname>DiffPoolFilesRunner</testname>
+                <testidentifier>TestBeamSim_HITSFileDiff</testidentifier>
+                <arg>
+                  <argname>fileName</argname>
+                  <argvalue>test.HITS.pool.root</argvalue>
+                </arg>
+                <arg>
+                  <argname>refFileName</argname>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.7.X/TestBeamSim.HITS.pool.root</argvalue>
+                </arg>
+                <keepFilePattern>test.HITS.pool.root_TestBeamSim.HITS.pool.root.diffPool</keepFilePattern>
+              </test>
+            </jobTransform>
+          </chainElement>
+
+          <chainElement>
+            <jobTransform userJobId="TestBeamSim_Reg">
+              <doc>Regression test between releases</doc>
+              <jobTransformJobName>TestBeamSim_Reg</jobTransformJobName>
+              <jobTransformCmd>sim_reg_test.py TestBeamSim</jobTransformCmd>
+              <group>SimCoreTests:SimCoreRegressionTests</group>
+              <queue>short</queue>
+            </jobTransform>
+          </chainElement>
+
+        </sequential>
+      </chain>
+
+      <chain>
+          <chainName>RegressionTest_Atlas2010GeomSim</chainName>
+          <abortOnError />
+          <sequential>
+
+          <chainElement>
+            <jobTransform userJobId="Atlas2010GeomSim">
+              <doc>Reading gen events, single particle</doc>
+              <jobTransformJobName>Atlas2010GeomSim</jobTransformJobName>
+              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/mu_E200_eta0-25.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '10' --skipEvents '0' --randomSeed '10' --geometryVersion 'ATLAS-R1-2010-02-00-00' --conditionsTag 'OFLCOND-RUN12-SDR-19' --DataRunNumber '155697' --physicsList 'FTFP_BERT' --postInclude 'PyJobTransforms/UseFrontier.py'
+              </jobTransformCmd>
+              <group>SimCoreJobTransformTests</group>
+              <queue>short</queue>
+              <test position="1">
+                <modulename>RttLibraryTools</modulename>
+                <testname>DiffPoolFilesRunner</testname>
+                <testidentifier>Atlas2010GeomSim_HITSFileDiff</testidentifier>
+                <arg>
+                  <argname>fileName</argname>
+                  <argvalue>test.HITS.pool.root</argvalue>
+                </arg>
+                <arg>
+                  <argname>refFileName</argname>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.7.X/Atlas2010GeomSim.HITS.pool.root</argvalue>
+                </arg>
+                <keepFilePattern>test.HITS.pool.root_Atlas2010GeomSim.HITS.pool.root.diffPool</keepFilePattern>
+              </test>
+            </jobTransform>
+          </chainElement>
+
+          <chainElement>
+            <jobTransform userJobId="Atlas2010GeomSim_Reg">
+              <doc>Regression test between releases</doc>
+              <jobTransformJobName>Atlas2010GeomSim_Reg</jobTransformJobName>
+              <jobTransformCmd>sim_reg_test.py Atlas2010GeomSim</jobTransformCmd>
+              <group>SimCoreTests:SimCoreRegressionTests</group>
+              <queue>short</queue>
+            </jobTransform>
+          </chainElement>
+
+        </sequential>
+      </chain>
+
+      <chain>
+        <chainName>RegressionTest_Atlas2011GeomSim</chainName>
+        <abortOnError />
+        <sequential>
+
+          <chainElement>
+            <jobTransform userJobId="Atlas2011GeomSim">
+              <doc>Reading gen events, single particle</doc>
+              <jobTransformJobName>Atlas2011GeomSim</jobTransformJobName>
+              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/mu_E200_eta0-25.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '10' --skipEvents '0' --randomSeed '10' --geometryVersion 'ATLAS-R1-2011-02-00-00' --conditionsTag 'OFLCOND-RUN12-SDR-19' --DataRunNumber '180164' --physicsList 'FTFP_BERT' --postInclude 'PyJobTransforms/UseFrontier.py'
+              </jobTransformCmd>
+              <group>SimCoreJobTransformTests</group>
+              <queue>short</queue>
+              <test position="1">
+                <modulename>RttLibraryTools</modulename>
+                <testname>DiffPoolFilesRunner</testname>
+                <testidentifier>Atlas2011GeomSim_HITSFileDiff</testidentifier>
+                <arg>
+                  <argname>fileName</argname>
+                  <argvalue>test.HITS.pool.root</argvalue>
+                </arg>
+                <arg>
+                  <argname>refFileName</argname>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.7.X/Atlas2011GeomSim.HITS.pool.root</argvalue>
+                </arg>
+                <keepFilePattern>test.HITS.pool.root_Atlas2011GeomSim.HITS.pool.root.diffPool</keepFilePattern>
+              </test>
+            </jobTransform>
+          </chainElement>
+
+          <chainElement>
+            <jobTransform userJobId="Atlas2011GeomSim_Reg">
+              <doc>Regression test between releases</doc>
+              <jobTransformJobName>Atlas2011GeomSim_Reg</jobTransformJobName>
+              <jobTransformCmd>sim_reg_test.py Atlas2011GeomSim</jobTransformCmd>
+              <group>SimCoreTests:SimCoreRegressionTests</group>
+              <queue>short</queue>
+            </jobTransform>
+          </chainElement>
+
+        </sequential>
+      </chain>
+
+      <chain>
         <chainName>RegressionTest_Atlas2012GeomSim</chainName>
         <abortOnError />
         <sequential>
@@ -29,8 +158,8 @@
           <chainElement>
             <jobTransform userJobId="Atlas2012GeomSim">
               <doc>Reading gen events, single particle</doc>
-              <jobTransformJobName>AtlasGeom19</jobTransformJobName>
-              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/mu_E200_eta0-25.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '10' --skipEvents '0' --randomSeed '10' --geometryVersion 'ATLAS-R1-2012-03-00-00_VALIDATION' --conditionsTag 'OFLCOND-RUN12-SDR-19' --DataRunNumber '212272' --physicsList 'FTFP_BERT' --postInclude 'PyJobTransforms/UseFrontier.py'
+              <jobTransformJobName>Atlas2012GeomSim</jobTransformJobName>
+              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/mu_E200_eta0-25.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '10' --skipEvents '0' --randomSeed '10' --geometryVersion 'ATLAS-R1-2012-03-00-00' --conditionsTag 'OFLCOND-RUN12-SDR-19' --DataRunNumber '212272' --physicsList 'FTFP_BERT' --postInclude 'PyJobTransforms/UseFrontier.py'
               </jobTransformCmd>
               <group>SimCoreJobTransformTests</group>
               <queue>short</queue>
@@ -148,40 +277,40 @@
       </chain>
 
       <chain>
-        <chainName>RegressionTest_QgspBertChipsTest</chainName>
+        <chainName>RegressionTest_FtfpBertAtlTest</chainName>
         <abortOnError />
         <sequential>
 
           <chainElement>
-            <jobTransform userJobId="QgspBertChipsTest">
+            <jobTransform userJobId="FtfpBertAtlTest">
               <doc>Reading gen events, full physics</doc>
               <jobTransformJobName>J2_jetjet-pythia6</jobTransformJobName>
-              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/J2_jetjet-pythia6-7000.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '5' --skipEvents '0' --randomSeed '10' --geometryVersion 'ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'OFLCOND-RUN12-SDR-19' --DataRunNumber '222525' --physicsList 'QGSP_BERT_CHIPS_VALIDATION' --postInclude 'PyJobTransforms/UseFrontier.py'
+              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/J2_jetjet-pythia6-7000.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '5' --skipEvents '0' --randomSeed '10' --geometryVersion 'ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'OFLCOND-RUN12-SDR-19' --DataRunNumber '222525' --physicsList 'FTFP_BERT_ATL' --postInclude 'PyJobTransforms/UseFrontier.py'
               </jobTransformCmd>
               <group>SimCoreJobTransformTests</group>
               <queue>medium</queue>
               <test position="1">
                 <modulename>RttLibraryTools</modulename>
                 <testname>DiffPoolFilesRunner</testname>
-                <testidentifier>QgspBertChipsTestHITSFileDiff</testidentifier>
+                <testidentifier>FtfpBertAtlTestHITSFileDiff</testidentifier>
                 <arg>
                   <argname>fileName</argname>
                   <argvalue>test.HITS.pool.root</argvalue>
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.7.X/QgspBertChipsTest.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.7.X/FtfpBertAtlTest.HITS.pool.root</argvalue>
                 </arg>
-                <keepFilePattern>test.HITS.pool.root_QgspBertChipsTest.HITS.pool.root.diffPool</keepFilePattern>
+                <keepFilePattern>test.HITS.pool.root_FtfpBertAtlTest.HITS.pool.root.diffPool</keepFilePattern>
               </test>
             </jobTransform>
           </chainElement>
 
           <chainElement>
-            <jobTransform userJobId="QgspBertChipsTest_Reg">
+            <jobTransform userJobId="FtfpBertAtlTest_Reg">
               <doc>Regression test between releases</doc>
-              <jobTransformJobName>QgspBertChipsTest_Reg</jobTransformJobName>
-              <jobTransformCmd>sim_reg_test.py QgspBertChipsTest</jobTransformCmd>
+              <jobTransformJobName>FtfpBertAtlTest_Reg</jobTransformJobName>
+              <jobTransformCmd>sim_reg_test.py FtfpBertAtlTest</jobTransformCmd>
               <group>SimCoreTests:SimCoreRegressionTests</group>
               <queue>short</queue>
             </jobTransform>
@@ -330,7 +459,7 @@
             <jobTransform userJobId="CavernBg_EVNT2TR">
               <doc>Reading min bias events, write cavern background track records</doc>
               <jobTransformJobName>CavernBg_EVNT2TR</jobTransformJobName>
-              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/minbias_Inelastic_low-pythia8-7000.evgen.pool.root' --outputHITSFile 'discard.HITS.pool.root' --outputEVNT_CAVERNTRFile 'test.EVNT.pool.root' --maxEvents '2' --skipEvents '0' --randomSeed '5678' --geometryVersion 'ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'OFLCOND-RUN12-SDR-19' --DataRunNumber '222525' --physicsList 'QGSP_BERT_HP' --postInclude 'PyJobTransforms/UseFrontier.py'
+              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/minbias_Inelastic_low-pythia8-7000.evgen.pool.root' --outputHITSFile 'discard.HITS.pool.root' --outputEVNT_TRFile 'test.EVNT.pool.root' --maxEvents '2' --skipEvents '0' --randomSeed '5678' --geometryVersion 'ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'OFLCOND-RUN12-SDR-19' --DataRunNumber '222525' --physicsList 'QGSP_BERT_HP' --postInclude 'PyJobTransforms/UseFrontier.py'
               </jobTransformCmd>
               <group>SimCoreJobTransformTests</group>
               <queue>medium</queue>
@@ -344,9 +473,9 @@
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.7.X/CavernBg.EVNT.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.7.X/CavernBg_EVNT2TR.EVNT.pool.root</argvalue>
                 </arg>
-                <keepFilePattern>test.EVNT.pool.root_CavernBg.EVNT.pool.root.diffPool</keepFilePattern>
+                <keepFilePattern>test.EVNT.pool.root_CavernBg_EVNT2TR.EVNT.pool.root.diffPool</keepFilePattern>
               </test>
             </jobTransform>
           </chainElement>
@@ -392,7 +521,7 @@
             <jobTransform userJobId="CavernBg_TR2HITS">
               <doc>Reading cavern background track record, creating cav bg hits.</doc>
               <jobTransformJobName>CavernBg_TR2HITS</jobTransformJobName>
-              <jobTransformCmd>AtlasG4_tf.py --inputEVNT_CAVERNFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/cavernbg-pythia8-7000.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '5' --skipEvents '0' --randomSeed '8765' --geometryVersion 'ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'OFLCOND-RUN12-SDR-19' --DataRunNumber '222525' --physicsList 'QGSP_BERT_HP' --postInclude 'PyJobTransforms/UseFrontier.py'
+              <jobTransformCmd>AtlasG4_tf.py --inputEVNT_TRFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/cavernbg-pythia8-7000.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '5' --skipEvents '0' --randomSeed '8765' --geometryVersion 'ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'OFLCOND-RUN12-SDR-19' --DataRunNumber '222525' --physicsList 'QGSP_BERT_HP' --postInclude 'PyJobTransforms/UseFrontier.py'
               </jobTransformCmd>
               <group>SimCoreJobTransformTests</group>
               <queue>medium</queue>
@@ -406,9 +535,9 @@
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.7.X/CavernBg.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.7.X/CavernBg_TR2HITS.HITS.pool.root</argvalue>
                 </arg>
-                <keepFilePattern>test.HITS.pool.root_CavernBg.HITS.pool.root.diffPool</keepFilePattern>
+                <keepFilePattern>test.HITS.pool.root_CavernBg_TR2HITS.HITS.pool.root.diffPool</keepFilePattern>
               </test>
             </jobTransform>
           </chainElement>
@@ -479,7 +608,7 @@
             <jobTransform userJobId="CosmicSimTR">
               <doc>Running cosmic simulation transform from track records</doc>
               <jobTransformJobName>CosmicSimTR</jobTransformJobName>
-              <jobTransformCmd>AtlasG4_tf.py --inputEVNT_COSMICSFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/Cosmics.TR.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '-1' --randomSeed '1234' --geometryVersion 'ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'OFLCOND-RUN12-SDR-19' --physicsList 'FTFP_BERT' --DataRunNumber '222525' --firstEvent '0' --beamType 'cosmics' --postInclude 'PyJobTransforms/UseFrontier.py'
+              <jobTransformCmd>AtlasG4_tf.py --inputEVNT_TRFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/Cosmics.TR.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '-1' --randomSeed '1234' --geometryVersion 'ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'OFLCOND-RUN12-SDR-19' --physicsList 'FTFP_BERT' --DataRunNumber '222525' --firstEvent '0' --beamType 'cosmics' --postInclude 'PyJobTransforms/UseFrontier.py'
               </jobTransformCmd>
               <group>SimCoreJobTransformTests</group>
               <queue>short</queue>
@@ -725,6 +854,91 @@
                 <arg>
                   <argname>DCubeCfg</argname>
                   <argvalue>20.7.X/dcube-ZDCSimTest.xml</argvalue>
+                </arg>
+                <arg>
+                  <argname>DCubeRef</argname>
+                  <argvalue>yesterday.root</argvalue>
+                </arg>
+                <arg>
+                  <argname>localRefFile</argname>
+                  <argvalue>True</argvalue>
+                </arg>
+                <arg>
+                  <argname>DCubeMon</argname>
+                  <argvalue>today.root</argvalue>
+                </arg>
+                <keepFilePattern>DCube-yesterday.root/today.root.dcube.xml.php</keepFilePattern>
+                <noalarm />
+              </test>
+            </jobTransform>
+          </chainElement>
+
+        </sequential>
+      </chain>
+
+      <chain>
+        <chainName>RegressionTest_NSWSimTest</chainName>
+        <abortOnError />
+        <sequential>
+
+          <chainElement>
+            <jobTransform userJobId="NSWSimTest">
+              <doc>Test Main ATLAS+NSW simulation job transform</doc>
+              <jobTransformJobName>NSWSimTest</jobTransformJobName>
+              <jobTransformCmd>AtlasG4_tf.py --preInclude 'G4AtlasTests/ParticleGun_flatpt_2particle.py' --outputHITSFile 'test.HITS.pool.root' --maxEvents '200' --randomSeed '10' --geometryVersion 'ATLAS-R2-2015-03-01-00' --conditionsTag 'OFLCOND-RUN12-SDR-25' --physicsList 'FTFP_BERT' --DBRelease 'current' --postInclude 'G4AtlasTests/postInclude.DCubeTest.py,G4AtlasTests/postInclude.NSW.config.simu.py' --preExec 'simFlags.ReleaseGeoModel=False;simFlags.SimulateNewSmallWheel=True;'
+              </jobTransformCmd>
+              <group>SimCoreJobTransformTests</group>
+              <queue>medium</queue>
+              <test position="1">
+                <modulename>RttLibraryTools</modulename>
+                <testname>DiffPoolFilesRunner</testname>
+                <testidentifier>NSWSimTestHITSFileDiff</testidentifier>
+                <arg>
+                  <argname>fileName</argname>
+                  <argvalue>test.HITS.pool.root</argvalue>
+                </arg>
+                <arg>
+                  <argname>refFileName</argname>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.7.X/NSWSimTest.HITS.pool.root</argvalue>
+                </arg>
+                <keepFilePattern>test.HITS.pool.root_NSWSimTest.HITS.pool.root.diffPool</keepFilePattern>
+              </test>
+              <test position="2">
+                <modulename>RttLibraryTools</modulename>
+                <testname>DCubeRunner</testname>
+                <testidentifier>NSWSimTestDCubeTest</testidentifier>
+                <arg>
+                  <argname>DCubeCfg</argname>
+                  <argvalue>20.7.X/dcube-NSWSimTest.xml</argvalue>
+                </arg>
+                <arg>
+                  <argname>DCubeRef</argname>
+                  <argvalue>20.7.X/NSWSimTest.truth.root</argvalue>
+                </arg>
+                <arg>
+                  <argname>DCubeMon</argname>
+                  <argvalue>truth.root</argvalue>
+                </arg>
+                <keepFilePattern>DCube-20.7.X/NSWSimTest.truth.root/truth.root.dcube.xml.php</keepFilePattern>
+                <noalarm />
+              </test>
+            </jobTransform>
+          </chainElement>
+
+          <chainElement>
+            <jobTransform userJobId="NSWSimTest_Reg">
+              <doc>Regression test between releases</doc>
+              <jobTransformJobName>NSWSimTest_Reg</jobTransformJobName>
+              <jobTransformCmd>sim_reg_test.py NSWSimTest</jobTransformCmd>
+              <group>SimCoreTests:SimCoreRegressionTests</group>
+              <queue>short</queue>
+              <test position="2">
+                <modulename>RttLibraryTools</modulename>
+                <testname>DCubeRunner</testname>
+                <testidentifier>NSWSimTest_RegDCubeTest</testidentifier>
+                <arg>
+                  <argname>DCubeCfg</argname>
+                  <argvalue>20.7.X/dcube-NSWSimTest.xml</argvalue>
                 </arg>
                 <arg>
                   <argname>DCubeRef</argname>
@@ -1352,7 +1566,7 @@
             <jobTransform userJobId="CosmicSim">
               <doc>Running cosmic simulation transform</doc>
               <jobTransformJobName>CosmicSim</jobTransformJobName>
-              <jobTransformCmd>AtlasG4_tf.py --outputHITSFile 'test.HITS.pool.root' --maxEvents '1500' --randomSeed '1234' --DataRunNumber '222525' --CosmicFilterVolume 'Calo' --CosmicFilterVolume2 'NONE' --geometryVersion 'ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'OFLCOND-RUN12-SDR-19' --physicsList 'FTFP_BERT' --CosmicPtSlice 'NONE' --outputEVNT_COSMICSTRFile 'test.TR.pool.root' --beamType 'cosmics' --postInclude 'PyJobTransforms/UseFrontier.py'
+              <jobTransformCmd>AtlasG4_tf.py --outputHITSFile 'test.HITS.pool.root' --maxEvents '1500' --randomSeed '1234' --DataRunNumber '222525' --CosmicFilterVolume 'Calo' --CosmicFilterVolume2 'NONE' --geometryVersion 'ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'OFLCOND-RUN12-SDR-19' --physicsList 'FTFP_BERT' --CosmicPtSlice 'NONE' --outputEVNT_TRFile 'test.TR.pool.root' --beamType 'cosmics' --postInclude 'PyJobTransforms/UseFrontier.py'
               </jobTransformCmd>
               <group>SimCoreJobTransformTests</group>
               <queue>short</queue>

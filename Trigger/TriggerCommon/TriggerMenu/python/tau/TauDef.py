@@ -26,9 +26,11 @@ from TrigTauHypo.TrigTauHypoBase import HLTTrackTauHypo_rejectNoTracks
 from TrigTauHypo.TrigTauHypoConf import HLTTauCaloRoiUpdater, HLTTauTrackRoiUpdater
 from TrigTauRec.TrigTauRecConfig import (TrigTauRecMerged_Tau2012,
                                          TrigTauRecMerged_TauCaloOnly,
+                                         TrigTauRecMerged_TauCaloOnlyMVA,
                                          TrigTauRecMerged_TauFTK,
                                          TrigTauRecMerged_TauPrecision,
-                                         TrigTauRecMerged_TauPreselection)
+                                         TrigTauRecMerged_TauPreselection,
+                                         TrigTauRecMerged_TauPreselectionMva)
 from TrigTauRec.TrigTauRecCosmicsConfig import TrigTauRecCosmics_Tau2012
 from TriggerMenu.menu.HltConfig import L2EFChainDef, mergeRemovingOverlap
 
@@ -144,6 +146,16 @@ class L2EFChain_tau(L2EFChainDef):
         self.EFsequenceList += [[[ self.currentItem ],
                                  [caloRec],
                                  self.continueChain('L2', 'calorec')]]
+
+    #create the TrigTauRec Calorimeter only sequence    
+    def addTrigTauRecCaloOnlyMVASequence(self,threshold,selection,preselection):  # MVA TES (ATR-17687)
+
+        # Run TrigTauRec, calorimeter only (to get proper calibration, and cell-based vars)
+        caloRec = TrigTauRecMerged_TauCaloOnlyMVA()
+
+        self.EFsequenceList += [[[ self.currentItem ],
+                                 [caloRec],
+                                 self.continueChain('L2', 'calorec')]]
         
     #create the Calorimeter hypo (selection) sequence    
     def addCaloHypoSequence(self,threshold,selection,preselection):    
@@ -211,8 +223,11 @@ class L2EFChain_tau(L2EFChainDef):
     #create the TrigTauRec preselection sequence       
     def addTrigTauRecTauPreselectionSequence(self,threshold,selection,preselection,idperf):              
         # Run TrigTauRec to store pre-selected taus
-        recPreselection = TrigTauRecMerged_TauPreselection()
-
+        if 'mva' in preselection:
+            recPreselection = TrigTauRecMerged_TauPreselectionMva()
+        else:
+            recPreselection = TrigTauRecMerged_TauPreselection()
+            
         self.EFsequenceList += [[[ self.currentItem ],
                                  [recPreselection],
                                  self.continueChain('L2', 'storepre')]]
@@ -299,15 +314,17 @@ class L2EFChain_tau(L2EFChainDef):
         # Cleaner if-statements
         # Strategies which need calorimeter pre-selection
         needsCaloPre  = ['calo', 'ptonly', 'mvonly', 'caloonly',
-                         'track', 'trackonly', 'tracktwo',
-                         'trackcalo', 'tracktwocalo','tracktwo2015']
+                         'track', 'trackonly', 'tracktwo', 'tracktwoEF',
+                         'trackcalo', 'tracktwocalo','tracktwo2015', 'tracktwomva']
+        needsCaloMVAPre = ['tracktwoEFmvaTES']
         # Strategies which need fast-track finding
-        needsTrackTwoPre = ['tracktwo', 'tracktwoonly', 'tracktwocalo','tracktwo2015']
+        needsTrackTwoPre = ['tracktwo', 'tracktwoonly', 'tracktwocalo','tracktwo2015', 'tracktwomva']
+        needsTrackTwoNoPre = ['tracktwoEF','tracktwoEFmvaTES']
         needsTrackPre    = ['track', 'trackonly', 'trackcalo', 'FTK', 'FTKRefit', 'FTKNoPrec']
         # Strategies which need Run-II final hypo
         needsRun2Hypo = ['calo', 'ptonly', 'mvonly', 'caloonly',
-                         'trackonly', 'track', 'tracktwo', 'tracktwocalo', 'trackcalo', 'FTK', 'FTKRefit', 'FTKNoPrec', 'tracktwo2015']
-        fastTrackingUsed = needsTrackPre + needsTrackTwoPre
+                         'trackonly', 'track', 'tracktwo', 'tracktwoEF', 'tracktwoEFmvaTES', 'tracktwocalo', 'trackcalo', 'FTK', 'FTKRefit', 'FTKNoPrec', 'tracktwo2015', 'tracktwomva']
+        fastTrackingUsed = needsTrackPre + needsTrackTwoPre + needsTrackTwoNoPre
         
         #Set the default values
         [trkcore, trkprec] = TrigInDetSequence("Tau", "tau", "IDTrig").getSequence()
@@ -335,15 +352,22 @@ class L2EFChain_tau(L2EFChainDef):
                 self.addCaloSequence(threshold, selection, preselection)
                 self.addTrigTauRecCaloOnlySequence(threshold,selection,preselection)
                 self.addCaloHypoSequence(threshold,selection,preselection)
+            elif preselection in needsCaloMVAPre:
+                self.addCaloSequence(threshold, selection, preselection)
+                self.addTrigTauRecCaloOnlyMVASequence(threshold,selection,preselection)
+                self.addCaloHypoSequence(threshold,selection,preselection)
             # Two step fast-tracking
             if preselection in needsTrackTwoPre:
                 self.addTwoStepTrackingSequence(threshold,selection,preselection,idperf, trkprec)
-                if preselection != 'tracktwo':
-                    self.addTwoStepTrackingSelectionSequence(threshold,selection,preselection,idperf)
+                if preselection in ('tracktwo', 'tracktwomva'):
                     self.addTrigTauRecTauPreselectionSequence(threshold,selection,preselection,idperf)
+                    self.addTwoStepTrackingSelectionSequence(threshold,selection,preselection,idperf)
                 else:
-                    self.addTrigTauRecTauPreselectionSequence(threshold,selection,preselection,idperf)
                     self.addTwoStepTrackingSelectionSequence(threshold,selection,preselection,idperf)
+                    self.addTrigTauRecTauPreselectionSequence(threshold,selection,preselection,idperf)
+            # Two-step tracking but no tau reco, no selection
+            if preselection in needsTrackTwoNoPre:
+                self.addTwoStepTrackingSequence(threshold,selection,preselection,idperf, trkprec)
             # One step fast-tracking
             if preselection in needsTrackPre:
                 self.addTrackingSequence(threshold,selection,preselection,idperf,trkprec)
@@ -381,6 +405,23 @@ class L2EFChain_tau(L2EFChainDef):
                 self.EFsequenceList += [[[ self.currentItem ],
                                          [recmerged_2012, theEFHypo],
                                          self.continueChain('EF', 'effinal')]]                
+
+            elif preselection in needsTrackTwoNoPre:
+                theHLTTrackPre   = self.hypoProvider.GetHypo('L2', threshold, selection, 'id', preselection)
+                efmv              = TrigTauDiscriGetter2015()
+
+                self.EFsequenceList += [[[ self.currentItem ],
+                                         [recmerged_2012],
+                                         self.continueChain('EF', 'taurecef')]]
+
+                if not idperf:
+                    self.EFsequenceList += [[[ self.currentItem ],
+                                         [theHLTTrackPre],
+                                         self.continueChain('EF', 'trackpre')]]
+
+                self.EFsequenceList += [[[ self.currentItem ],
+                                         [efmv, theEFHypo],
+                                         self.continueChain('EF', 'effinal')]]     
             else:
             # TrigTauRec, BDT and Hypo
                 efmv              = TrigTauDiscriGetter2015()

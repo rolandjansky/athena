@@ -28,7 +28,7 @@
 // geometry problems when touchableHandle->GetVolume()==0
 
 // 20-Apr-2006 M. Leltchouk: internal particle mass table is used now
-// in SimulationEnergies::m_measurableEnergy because in recently released
+// in SimulationEnergies::measurableEnergy because in recently released
 // G4 8.0 particle masses may not be available when SimulationEnergies
 // constructor is looking for them, see Andrea Dell'Acqua's comment below.
 
@@ -59,7 +59,7 @@
 // 2) These escaped energies are recorded to the cell where the escaping 
 // track originates (i.e. where neutrinos have been born as a result of 
 // some particle decay) without call of
-//  m_ProcessEscapedEnergy( thisTrackVertex, escapedEnergy ).
+//  ProcessEscapedEnergy( thisTrackVertex, escapedEnergy ).
 // 3) If a neutrino is tracked (was not killed) then the special early
 // return from SimulationEnergies::Classify is used to avoid the second
 // counting of the same neutrino energy when this neutrino escapes from
@@ -135,8 +135,11 @@ namespace CaloG4 {
   G4double SimulationEnergies::helium3Mass  = 0;
   */
 
+#ifdef ATHENAHIVE
+  SimulationEnergies::StCallThreadMap_t SimulationEnergies::m_calledForStepThreadMap;
+#else
   G4bool SimulationEnergies::m_calledForStep = false;
-
+#endif
 
   SimulationEnergies::SimulationEnergies() 
   {
@@ -176,8 +179,39 @@ namespace CaloG4 {
   {;}
 
 
+  G4bool SimulationEnergies::StepWasProcessed() {
+#ifdef ATHENAHIVE
+    // Get current thread-ID
+    const auto tid = std::this_thread::get_id();
+    // Retrieve it from the call flags map
+    auto cfPair = m_calledForStepThreadMap.find(tid);
+    if(cfPair == m_calledForStepThreadMap.end()) return false;
+    return cfPair->second;
+#else
+    return m_calledForStep;
+#endif
+  }
+
+  void SimulationEnergies::SetStepProcessed() {
+#ifdef ATHENAHIVE
+    const auto tid = std::this_thread::get_id();
+    m_calledForStepThreadMap.insert( std::make_pair(tid, true) );
+#else
+    m_calledForStep = true;
+#endif
+  }
+
+  void SimulationEnergies::ResetStepProcessed() {
+#ifdef ATHENAHIVE
+    const auto tid = std::this_thread::get_id();
+    m_calledForStepThreadMap.insert( std::make_pair(tid, false) );
+#else
+    m_calledForStep = false;
+#endif
+  }
+
   // The "simple" call, intended for calibration calculators:
-  void SimulationEnergies::Energies( const G4Step* a_step , std::vector<G4double>& energies )
+  void SimulationEnergies::Energies( const G4Step* a_step , std::vector<G4double>& energies ) const
   {
     // Call the detailed classification.  Process any escaped energy.
     ClassifyResult_t category = Classify( a_step, true );
@@ -215,7 +249,7 @@ namespace CaloG4 {
   // energy will be not be routed to some other volume's hits.
 
   SimulationEnergies::ClassifyResult_t SimulationEnergies::Classify( const G4Step* step,
-								     const G4bool a_processEscaped )
+								     const G4bool a_processEscaped ) const
   {
     // Initialize our result to zero.
 
@@ -250,10 +284,10 @@ namespace CaloG4 {
       G4double incomingEtot = dynParticle->GetMass() + incomingEkin;
     
       result.energy[kInvisible0]  =  
-	m_measurableEnergy(particle, 
-			   particle->GetPDGEncoding(),
-			   incomingEtot,
-			   incomingEkin);
+	measurableEnergy(particle, 
+                         particle->GetPDGEncoding(),
+                         incomingEtot,
+                         incomingEkin);
     }
     else if (status == fAlive || status == fStopButAlive){// Alive stepping particle at PostStep
       result.energy[kInvisible0] = EkinPreStep - EkinPostStep - dEStepVisible;
@@ -299,10 +333,10 @@ namespace CaloG4 {
       else {
         //----- extract further information about each new secondary particle:
         kinEofSecondary = (*fSecondary)[lp1]->GetKineticEnergy();
-        measurEofSecondary = m_measurableEnergy(secondaryID, 
-					        secondaryID->GetPDGEncoding(),
-					        totalEofSecondary,
-					        kinEofSecondary);
+        measurEofSecondary = measurableEnergy(secondaryID, 
+                                              secondaryID->GetPDGEncoding(),
+                                              totalEofSecondary,
+                                              kinEofSecondary);
         result.energy[kInvisible0] -= measurEofSecondary;
       }
     }
@@ -323,10 +357,10 @@ namespace CaloG4 {
 	  }
 
 	G4double escapedEnergy =
-	  m_measurableEnergy(particle, 
-			     particle->GetPDGEncoding(),
-			     dynParticle->GetTotalEnergy(),
-			     EkinPostStep);
+	  measurableEnergy(particle, 
+                           particle->GetPDGEncoding(),
+                           dynParticle->GetTotalEnergy(),
+                           EkinPostStep);
 
 	result.energy[kInvisible0] -= escapedEnergy;        
 
@@ -334,9 +368,9 @@ namespace CaloG4 {
 #ifdef DEBUG_ENERGIES
 	  allOK =
 #endif
-            m_ProcessEscapedEnergy( pTrack->GetVertexPosition(), escapedEnergy );
+            ProcessEscapedEnergy( pTrack->GetVertexPosition(), escapedEnergy );
 	else
-	  result.energy[kEscaped] = escapedEnergy;
+	  result.energy[kEscaped] += escapedEnergy;
       }
 
     // END of calculation of Invisible and Escaped energy for current step
@@ -371,10 +405,10 @@ namespace CaloG4 {
 
 
 
-  G4double SimulationEnergies::m_measurableEnergyV2(const G4ParticleDefinition *particleDef, 
-						    G4int PDGEncoding,
-						    G4double totalEnergy,
-						    G4double kineticEnergy)
+  G4double SimulationEnergies::measurableEnergyV2(const G4ParticleDefinition *particleDef, 
+                                                  G4int PDGEncoding,
+                                                  G4double totalEnergy,
+                                                  G4double kineticEnergy) const
 
     // 15-Dec-2003 Mikhail Leltchouk: inspired by FORTRAN Function PrMeasE
     // used by Michael Kuhlen and Peter Loch with Geant3 since 1991.
@@ -425,10 +459,10 @@ namespace CaloG4 {
   }
 
 
-  G4double SimulationEnergies::m_measurableEnergy(const G4ParticleDefinition* particleDef, 
-						  G4int PDGEncoding,
-						  G4double totalEnergy,
-						  G4double kineticEnergy)
+  G4double SimulationEnergies::measurableEnergy(const G4ParticleDefinition* particleDef, 
+                                                G4int PDGEncoding,
+                                                G4double totalEnergy,
+                                                G4double kineticEnergy) const
 
     // 5-Dec-2003 Mikhail Leltchouk: extended version of FORTRAN Function PrMeasE
     // used by Michael Kuhlen and Peter Loch with Geant3 since 1991.
@@ -446,7 +480,7 @@ namespace CaloG4 {
     //        totalEnergy   - particle total energy
     //        kineticEnergy - particle kinetic energy
 
-    // Output: m_measurableEnergy - energy measurable in a calorimeter
+    // Output: measurableEnergy - energy measurable in a calorimeter
 
   {
 
@@ -516,7 +550,7 @@ namespace CaloG4 {
 
 
 
-  G4bool SimulationEnergies::m_ProcessEscapedEnergy( G4ThreeVector a_point, G4double a_energy )
+  G4bool SimulationEnergies::ProcessEscapedEnergy( G4ThreeVector a_point, G4double a_energy ) const
   {
     // Escaped energy requires special processing.  The energy was not
     // deposited in the current G4Step, but at the beginning of the
@@ -588,7 +622,7 @@ namespace CaloG4 {
       if ( ! errorDisplayed )
         {
 	  errorDisplayed = true;
-	  G4cout << "SimulationEnergies::m_ProcessEscapedEnergy - " << G4endl
+	  G4cout << "SimulationEnergies::ProcessEscapedEnergy - " << G4endl
 	         << "   WARNING! CaloG4::EscapedEnergyRegistry was never initialized for 'LArG4::'" << G4endl
 	         << "   and LArG4Sim is the package with the code that handles CalibrationHits" << G4endl
 	         << "   in non-sensitive volumes.  Not all energies deposited in this simulation" << G4endl
@@ -611,7 +645,7 @@ namespace CaloG4 {
       if ( ! errorDisplayed1 )
         {
 	  errorDisplayed1 = true;
-	  G4cout << "SimulationEnergies::m_ProcessEscapedEnergy - " << G4endl
+	  G4cout << "SimulationEnergies::ProcessEscapedEnergy - " << G4endl
 		 <<"   WARNING! touchableHandle->GetVolume()==0  geometry problem ?  and also" << G4endl
 	         << "   WARNING! CaloG4::EscapedEnergyRegistry was never initialized for 'LArG4::'" << G4endl
 	         << "   and LArG4Sim is the package with the code that handles CalibrationHits" << G4endl

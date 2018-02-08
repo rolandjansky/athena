@@ -46,6 +46,7 @@ from TrigHLTJetRec.TrigHLTJetRecConfig import (TrigHLTJetDiagnostics_named,     
 
 from TrigHLTJetHypo.TrigHLTJetHypoConfig import (TrigHLTJetHypo2,              # noqa: F401
                                                  TrigHLTJetHypo_DijetMassDEta, # noqa: F401
+                                                 TrigHLTJetHypo_DijetMassDEtaDPhi,
                                                  TrigHLTJetHypo_EtaEt,         # noqa: F401
                                                  TrigHLTJetHypo_HT,            # noqa: F401
                                                  TrigHLTJetHypo_TLA,           # noqa: F401

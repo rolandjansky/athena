@@ -11,6 +11,9 @@
  */
 
 
+#include "CxxUtils/no_sanitize_undefined.h"
+
+
 /**
  * @brief Constructor.
  * @param svcloc The Gaudi service locator.
@@ -106,17 +109,24 @@ T_AthenaPoolViewVectorCnv<DV>::createPersistent( trans_t* trans )
  */
 template <class DV>
 typename T_AthenaPoolViewVectorCnv<DV>::trans_t*
-T_AthenaPoolViewVectorCnv<DV>::createTransient()
+T_AthenaPoolViewVectorCnv<DV>::createTransient NO_SANITIZE_UNDEFINED ()
 {
   // See if we're looking at one of the guids we can handle.
   // FIXME: For old persistent versions, this works by essentially doing
   // a reinterpret_cast from the version on the file to the current version.
   // That works for current ElementLink classes, but it's not very nice.
+  // This also gets a ubsan warning with gcc6.2, so we suppress it
+  // for this function.
   for (const pool::Guid& guid : m_guids) {
     if( this->compareClassGuid( guid ) ) {
       std::unique_ptr<pers_t> v (this->template poolReadObject< pers_t >());
       if (guid != m_guids.front()) {
         auto v2 = std::make_unique<pers_t> (*v);
+        // Strictly superfluous, but allows suppressing the ubsan warning 
+        // about implicit reinterpret_cast by moving the locus into this
+        // function (which we've tagged with NO_SANITIZE_UNDEFINED)
+        // rather than in a libtsdc++ function.
+        delete v.release();
         v = std::move (v2);
         // root read rule doesn't do anything in this case.
         v->toTransient();

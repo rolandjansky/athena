@@ -13,6 +13,7 @@
 
 #include "AthenaROOTAccess/DVCollectionProxy.h"
 #include "AthContainers/DataVector.h"
+#include "CxxUtils/no_sanitize_undefined.h"
 #include "TError.h"
 #include "TClassEdit.h"
 #include "TClass.h"
@@ -357,7 +358,7 @@ DVCollectionProxy::DVCollectionProxy (const DVCollectionProxy& rhs)
  * @brief Start working with a new collection.
  * @param objstart The address of the collection.
  */
-void DVCollectionProxy::PushProxy(void *objstart)
+void DVCollectionProxy::PushProxy NO_SANITIZE_UNDEFINED (void *objstart)
 {
   // Do the base class stuff.
   // This will create an environment buffer if needed.
@@ -375,6 +376,8 @@ void DVCollectionProxy::PushProxy(void *objstart)
   // Cast to DV.
   DataVector<char>* dv = reinterpret_cast<DataVector<char>*> (dvstart);
   // Find the underlying vector.
+  // This gives a ubsan warning.
+  // However, this is deliberate, so suppress ubsan warnings for this function.
   const std::vector<char*>& vec = dv->stdcont();
   // And store its address.
   buff.m_cont = const_cast<std::vector<char*>*> (&vec);

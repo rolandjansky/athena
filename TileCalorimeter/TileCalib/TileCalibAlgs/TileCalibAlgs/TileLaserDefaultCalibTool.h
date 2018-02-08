@@ -29,6 +29,8 @@
 #define NCOUPLES 22 
 #define NCHANNELS 48
 #define NSLICES 100
+#define NFIBERS 2
+
 
 class TileRawChannelContainer;
 class TileBeamInfoProvider;
@@ -91,10 +93,13 @@ class TileLaserDefaultCalibTool : public AthAlgTool, virtual public ITileCalibTo
   float m_las_time;                 // Event time
 
   // LASERII
-  float m_ratio_LASERII[NDIODES][NGAINS][4][NDRAWERS][NCHANNELS][NGAINS];       // Calib coefficients computed for this run (for all diodes, PMTs, phocal, CIS)
-  float m_ratio_S_LASERII[NDIODES][NGAINS][4][NDRAWERS][NCHANNELS][NGAINS];     // Corresponding RMS
+  float m_ratio_LASERII[NDIODES][NGAINS][NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];       // Calib coefficients computed for this run (for all diodes, PMTs, phocal, CIS)
+  float m_ratio_S_LASERII[NDIODES][NGAINS][NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];     // Corresponding RMS
+  float m_ratio_LASERII_good[NDIODES][NGAINS][NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];       // Calib coefficients computed for this run (for all diodes, PMTs, phocal, CIS)
+  float m_ratio_S_LASERII_good[NDIODES][NGAINS][NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];     // Corresponding RMS
 
-  RunningStat* m_rs_ratio_LASERII[NDIODES][NGAINS][4][NDRAWERS][NCHANNELS][NGAINS];
+  RunningStat* m_rs_ratio_LASERII[NDIODES][NGAINS][NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];
+  RunningStat* m_rs_ratio_LASERII_good[NDIODES][NGAINS][NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];
 
   // FIRST PART OF DATA FRAGMENT
   /*  float m_chan_LAS[32];                 // Mean value for monitoring diodes, PMTs, phocal, CIS in Laser runs
@@ -116,6 +121,8 @@ class TileLaserDefaultCalibTool : public AthAlgTool, virtual public ITileCalibTo
 
   float m_diode_LASERII[NDIODES][NGAINS];         // Mean value for box Photodiodes
   float m_diode_S_LASERII[NDIODES][NGAINS];       // Corresponding RMS
+  int m_entries_diode_LASERII[NDIODES][NGAINS]; //Number of DIODE events collected for one diode (and a particular gain)
+
   RunningStat* m_rs_diode_signal_LASERII[NDIODES][NGAINS];
 
 
@@ -144,9 +151,17 @@ class TileLaserDefaultCalibTool : public AthAlgTool, virtual public ITileCalibTo
   float m_diode_SAlpha[NDIODES_LASER1];              // RMS of alpha spectra
   float m_ratio[NDIODES_LASER1][NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];       // Calib coefficients computed for this run (for all diodes)
   float m_ratio_S[NDIODES_LASER1][NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];     // Corresponding RMS
+  float m_ratio_good[NDIODES_LASER1][NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];       // Calib coefficients computed for this run (for all diodes)
+  float m_ratio_good_S[NDIODES_LASER1][NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];     // Corresponding RMS
+  float m_pmt_ratios[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];       // Calib coefficients computed for this run (for all diodes)
+  float m_pmt_S_ratios[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];     // Corresponding RMS
   RunningStat* m_rs_diode_signal[NDIODES_LASER1];
   RunningStat* m_rs_PMT_signal[NPMTS];
   RunningStat* m_rs_ratio[NDIODES_LASER1][NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];
+  RunningStat* m_rs_ratio_good[NDIODES_LASER1][NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];
+  RunningStat* m_rs_pmt_ratios[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];
+ 
+
 
   float m_meantime[NPARTITIONS][NGAINS];         // Mean time computed for this run per partition (to remove 25ns jitter) 
   float m_time[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];           // Mean time computed for this run
@@ -157,7 +172,7 @@ class TileLaserDefaultCalibTool : public AthAlgTool, virtual public ITileCalibTo
   float m_raw_mean[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];       // Mean signal computed for this run
   float m_raw_mean_S[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];     // Corresponding RMS
   int   m_entries[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];        // Number of LASER events collected for one channel (and a particular gain)
-  float m_kappa[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];          // Kappa correction term
+  float m_kappa[NPARTITIONS][NDRAWERS][NFIBERS][NGAINS];          // Kappa correction term
   float m_mean_slice[NPARTITIONS][NDRAWERS][NCHANNELS][NSLICES][NGAINS];
   float m_variance_slice[NPARTITIONS][NDRAWERS][NCHANNELS][NSLICES][NGAINS];
   short  m_status[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];        // Status of the channel in the DB
@@ -175,10 +190,10 @@ class TileLaserDefaultCalibTool : public AthAlgTool, virtual public ITileCalibTo
   RunningStat* m_rs_time[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];
   RunningStat* m_rs_signal[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];
   RunningStat* m_rs_raw_signal[NPARTITIONS][NDRAWERS][NCHANNELS][NGAINS];
-  RunningStat* m_rs_reducedKappa[NPARTITIONS][NDRAWERS][NCOUPLES][NGAINS];
+  RunningStat* m_rs_reducedKappa[NPARTITIONS][NDRAWERS][NCOUPLES-1][NCOUPLES][NGAINS][NFIBERS];
 
   // Functions
-  std::pair<unsigned int, unsigned int> getCoupleOfChan(int ros, int couple);
+  std::pair<unsigned int, unsigned int> getCoupleOfPMT(int ros, int couple);
   short isCellBad(int ros, int drawer, int channel, int gain);
   
   inline int chanIsConnected(int ros, int chan) {

@@ -260,6 +260,8 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
   std::vector<unsigned int> m_nMissingSCTClusters;
   std::vector<unsigned int> m_nMissingPixelClusters;
 
+  bool m_reverseIBLlocx;
+
 };
 
 inline bool compareFTK_Clusters (const Trk::RIO_OnTrack* cl1, const Trk::RIO_OnTrack* cl2) {

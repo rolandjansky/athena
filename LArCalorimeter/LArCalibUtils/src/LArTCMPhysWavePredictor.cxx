@@ -241,7 +241,7 @@ StatusCode LArTCMPhysWavePredictor::stop()
 
       }
 
-      //log<<MSG::INFO<<"LArPhysWaveContainer size: "<<physWaveContainer->size()<<endreq;
+      //log<<MSG::INFO<<"LArPhysWaveContainer size: "<<physWaveContainer->size()<<endmsg;
 
   } // end else m_datafromfile
 
@@ -382,7 +382,7 @@ StatusCode LArTCMPhysWavePredictor::stop()
 	      
 	      } else { // LArPhysWave found, perform TCM fit and phys wave prediction from fit params
 	      	          
-		  //log << MSG::INFO << "Now processing channel " << ++nchannel << " with TCM fit " << endreq ;  
+		  //log << MSG::INFO << "Now processing channel " << ++nchannel << " with TCM fit " << endmsg ;  
 		  
                 ATH_MSG_DEBUG ( "larPhysWave gain = " << gain );
                 ATH_MSG_DEBUG ( "larPhysWave size = " << larPhysWave.getSize() );
@@ -435,7 +435,7 @@ StatusCode LArTCMPhysWavePredictor::stop()
 		      hist->SetBinContent(i+1,larPhysWave.getSample(i));
 		  }
 		  memset(temp,0,sizeof(temp));
-		  sprintf(temp,"phys%.1d%.1d%.2d%.3d", gain,emId->sampling(id),emId->phi(id),emId->eta(id));
+		  sprintf(temp,"phys%.1u%.1d%.2d%.3d", gain,emId->sampling(id),emId->phi(id),emId->eta(id));
 		  hist->SetName(temp);
 		  hist->SetTitle(temp);
 		  f.cd();
@@ -449,7 +449,7 @@ StatusCode LArTCMPhysWavePredictor::stop()
 		  }
 		  int Mcal=static_cast<int> (hist->GetMaximum());
 		  memset(temp,0,sizeof(temp));
-		  sprintf(temp,"cali%.1d%.1d%.2d%.3d", gain,emId->sampling(id),emId->phi(id),emId->eta(id));
+		  sprintf(temp,"cali%.1u%.1d%.2d%.3d", gain,emId->sampling(id),emId->phi(id),emId->eta(id));
 		  hist->SetName(temp);
 		  hist->SetTitle(temp);
 		  f.cd();
@@ -463,7 +463,7 @@ StatusCode LArTCMPhysWavePredictor::stop()
 		      //hist->SetBinContent(i+1,predlarPhysWave.getSample(i)); //same normalisation to what is stored in the DB - the wave is already normalized to MphyMcal value - needed for OFC
 		  }
 		  memset(temp,0,sizeof(temp));
-		  sprintf(temp,"pphys%.1d%.1d%.2d%.3d", gain,emId->sampling(id),emId->phi(id),emId->eta(id));
+		  sprintf(temp,"pphys%.1u%.1d%.2d%.3d", gain,emId->sampling(id),emId->phi(id),emId->eta(id));
 		  hist->SetName(temp);
 		  hist->SetTitle(temp);
 		  f.cd();
@@ -526,9 +526,9 @@ StatusCode LArTCMPhysWavePredictor::stop()
 //   keyout = "LArWFParamsTCM" ;
 //   sc=detStore->record(larWFParamsContainer,keyout );
 //   if (sc.isFailure()) {
-//       log << MSG::FATAL << "Cannot record LArWFParamsContainer to StoreGate! key=" << keyout << endreq;
+//       log << MSG::FATAL << "Cannot record LArWFParamsContainer to StoreGate! key=" << keyout << endmsg;
 //       return StatusCode::FAILURE;
-//   } else log << MSG::INFO << "LArWFParamsContainer has been recorded to StoreGate with key="<<keyout<<endreq;
+//   } else log << MSG::INFO << "LArWFParamsContainer has been recorded to StoreGate with key="<<keyout<<endmsg;
 
   if (m_rootrawdump) {
       for(Int_t layer=0;layer<nlayer;layer++){

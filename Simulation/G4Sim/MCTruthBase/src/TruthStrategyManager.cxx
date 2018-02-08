@@ -2,35 +2,42 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+// class header
 #include "MCTruthBase/TruthStrategyManager.h"
-#include "MCTruthBase/TruthStrategy.h"
 
-#include "G4AtlasInterfaces/IUserAction.h"
-#include "MCTruth/EventInformation.h"
-#include "MCTruth/TrackHelper.h"
-#include "SimHelpers/SecondaryTracksHelper.h"
-
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/IToolSvc.h"
-
+// Framework includes
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
-#include "G4Step.hh"
-#include "G4EventManager.hh"
+// Geant4 Includes
 #include "G4Event.hh"
-#include "G4Track.hh"
-#include "G4ParticleDefinition.hh"
+#include "G4EventManager.hh"
+#include "G4PhysicalVolumeStore.hh"
+#include "G4Step.hh"
+#include "G4TransportationManager.hh"
+#include "G4VPhysicalVolume.hh"
+#include "G4VSolid.hh"
 
-#include "HepMC/GenEvent.h"
+// Truth-related includes
+#include "MCTruth/EventInformation.h"
+#include "MCTruth/TrackHelper.h"
 
+// ISF includes
+#include "ISF_Interfaces/ITruthSvc.h"
+#include "ISF_Interfaces/IGeoIDSvc.h"
+#include "ISF_Event/ISFParticle.h"
+
+// DetectorDescription
+#include "AtlasDetDescr/AtlasRegionHelper.h"
+#include "ISF_Geant4Event/Geant4TruthIncident.h"
+#include "ISF_Geant4Event/ISFG4GeoHelper.h"
 
 TruthStrategyManager::TruthStrategyManager()
-  : isEmpty(true),
-    secondarySavingLevel(0),
-    nSecondaries(0),
-    m_msg("TruthStrategyManager")
-{}
+  : m_msg("TruthStrategyManager")
+  , m_truthSvc(nullptr)
+  , m_geoIDSvc()
+  , m_subDetVolLevel(-1) // please crash if left unset
+{
+}
 
 TruthStrategyManager* TruthStrategyManager::GetStrategyManager()
 {
@@ -38,191 +45,69 @@ TruthStrategyManager* TruthStrategyManager::GetStrategyManager()
   return &theMgr;
 }
 
-void TruthStrategyManager::RegisterStrategy(TruthStrategy* strategy)
+void TruthStrategyManager::SetISFTruthSvc(ISF::ITruthSvc *truthSvc)
 {
-  theStrategies[strategy->StrategyName()] = strategy;
-  isEmpty = false;
-  ATH_MSG_INFO("MCTruth::TruthStrategyManager: registered strategy " <<
-               strategy->StrategyName());
+  m_truthSvc = truthSvc;
 }
 
-TruthStrategy* TruthStrategyManager::GetStrategy(const std::string& name)
+
+void TruthStrategyManager::SetISFGeoIDSvc(ISF::IGeoIDSvc *geoIDSvc)
 {
-  auto itr = theStrategies.find(name);
-  if (itr != theStrategies.end()) {
-    return itr->second;
-  }
-  ATH_MSG_WARNING("Strategy " << name << " not found: returning null");
-  return nullptr;
+  m_geoIDSvc = geoIDSvc;
 }
 
-void TruthStrategyManager::ListStrategies()
+StatusCode TruthStrategyManager::InitializeWorldVolume()
 {
-  ATH_MSG_INFO("List of all defined strategies (an X means active)");
-  for (const auto& strategyPair : theStrategies) {
-    if (strategyPair.second->IsActivated())
-      ATH_MSG_INFO("---> " << strategyPair.first << "\t\t X");
-    else ATH_MSG_INFO("---> " << strategyPair.first);
+  const G4LogicalVolume * logicalWorld = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume()->GetLogicalVolume();
+  const auto& logicalWorldName = logicalWorld->GetName();
+
+  const G4String atlasWorldName("Atlas::Atlas");
+  if (logicalWorldName==atlasWorldName) {
+    // simulation w/o cavern volume (e.g. normal collision simulation)
+    m_subDetVolLevel = 1;
+    return StatusCode::SUCCESS;
   }
+
+  const G4String cavernWorldName("World::World");
+  if (logicalWorldName==cavernWorldName) {
+    // simulation w/ cavern volume (e.g. cosmics simulation)
+    m_subDetVolLevel = 2;
+    return StatusCode::SUCCESS;
+  }
+
+  const G4String ctbWorldName("CTB::CTB");
+  if (logicalWorldName==ctbWorldName) {
+    // test beam setup
+    m_subDetVolLevel = 1;
+    return StatusCode::SUCCESS;
+  }
+
+  ATH_MSG_ERROR("Unknown World Volume name: '" << logicalWorldName << "'");
+  return StatusCode::FAILURE;
 }
 
-bool TruthStrategyManager::AnalyzeVertex(const G4Step* aStep)
+bool TruthStrategyManager::CreateTruthIncident(const G4Step* aStep)
 {
-  for (const auto& strategyPair : theStrategies) {
-    TruthStrategy* currentStrategy = strategyPair.second;
-    if (currentStrategy->IsActivated() &&
-        currentStrategy->IsApplicable(aStep) &&
-        currentStrategy->AnalyzeVertex(aStep)) return true;
-  }
+  AtlasDetDescr::AtlasRegion geoID = iGeant4::ISFG4GeoHelper::nextGeoId(aStep, m_subDetVolLevel, m_geoIDSvc);
+
+  auto* eventInfo = static_cast<EventInformation*> (G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation());
+
+  // This is pretty ugly and but necessary because the Geant4TruthIncident
+  // requires an ISFParticle at this point.
+  // TODO: cleanup Geant4TruthIncident to not require an ISFParticle instance any longer
+  const Amg::Vector3D myPos(0,0,0);
+  const Amg::Vector3D myMom(0,0,0);
+  double myMass = 0.0;
+  double myCharge = 0.0;
+  int    myPdgCode = 0;
+  double myTime =0.;
+  const ISF::DetRegionSvcIDPair origin(geoID, ISF::fUndefinedSimID);
+  int myBCID = 0;
+  ISF::ISFParticle myISFParticle(myPos, myMom, myMass, myCharge, myPdgCode, myTime, origin, myBCID);
+
+  iGeant4::Geant4TruthIncident truth(aStep, myISFParticle, geoID, eventInfo);
+
+  m_truthSvc->registerTruthIncident(truth);
   return false;
 }
 
-EventInformation* TruthStrategyManager::GetEventInformation() const
-{
-  return static_cast<EventInformation*>
-    (G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation());
-}
-
-std::vector<G4Track*> TruthStrategyManager::GetSecondaries()
-{
-  static SecondaryTracksHelper helper;
-  return helper.GetSecondaries(nSecondaries);
-}
-
-void TruthStrategyManager::SetTruthParameter(const std::string& n, double val)
-{
-  truthParams[n] = val;
-}
-
-double TruthStrategyManager::GetTruthParameter(const std::string& n)
-{
-  if (truthParams.find(n) != truthParams.end()) {
-    return truthParams[n];
-  }
-  ATH_MSG_WARNING("TruthStrategyManager: parameter " << n <<
-                  " not found in the available set");
-  return 0;
-}
-void TruthStrategyManager::PrintParameterList()
-{
-  ATH_MSG_INFO("List of all MCTruth configuration parameters");
-  for (const auto& paramPair : truthParams)
-    ATH_MSG_INFO("---> " << std::setw(30) << paramPair.first <<
-                 "\t\t value= " << paramPair.second);
-}
-
-HepMC::GenVertex* TruthStrategyManager::StepPoint2Vertex(G4StepPoint* aPoint) const
-{
-  G4ThreeVector pos = aPoint->GetPosition();
-  double time = aPoint->GetGlobalTime();
-  CLHEP::HepLorentzVector mom(pos.x(), pos.y(), pos.z(), time*CLHEP::c_light);
-  HepMC::GenVertex* vert = new HepMC::GenVertex(mom);
-  return vert;
-}
-HepMC::GenParticle* TruthStrategyManager::Track2Particle(G4Track* aTrack) const
-{
-  G4ThreeVector mom = aTrack->GetMomentum();
-  double ener = aTrack->GetTotalEnergy();
-  CLHEP::HepLorentzVector emom(mom.x(), mom.y(), mom.z(), ener);
-  int pdgcode = aTrack->GetDefinition()->GetPDGEncoding();
-  HepMC::GenParticle* part = new HepMC::GenParticle(emom, pdgcode, 1);
-  return part;
-}
-
-void TruthStrategyManager::
-SaveSecondaryVertex(G4Track* primaryTrack, G4StepPoint* stepPoint,
-                    const std::vector<G4Track*>& secondaries) const
-{
-  // here comes the real fun - the vertex has passed all checks
-  // we try and save it in the MC truth
-
-  // std::cout<<"---> this is TruthStrategyManager::SaveSecondaryVertex <----"<<std::endl;
-  // if (primaryTrack==0) std::cout<<"null pointer to primary track"<<std::endl;
-  // else
-  // {
-  //   TrackHelper tempHelper(primaryTrack);
-  //   if (tempHelper.IsPrimary())
-  //     std::cout<<" Primary track"<<std::endl;
-  //   else if (tempHelper.IsRegisteredSecondary())
-  //     std::cout<<" Registered Secondary"<<std::endl;
-  //   else if (tempHelper.IsRegeneratedPrimary())
-  //     std::cout<<" Regenerated Primary"<<std::endl;
-  //   else if (tempHelper.IsSecondary())
-  //     std::cout<<" Secondary "<<std::endl;
-  // }
-
-  // the vertex first
-  HepMC::GenVertex* vtx = StepPoint2Vertex(stepPoint);
-  auto eventInformation = GetEventInformation();
-  int vbcode = eventInformation->SecondaryVertexBarCode();
-  vtx->suggest_barcode(vbcode);
-  vtx->set_id(stepPoint->GetProcessDefinedStep()->GetProcessSubType()+1000);
-  //std::cout << " created new secondary vertex "<<std::endl;
-  //std::cout << *vtx <<std::endl;
-  //std::cout << "proposed barcode "<<vbcode<<std::endl;
-
-  // the old primary
-  HepMC::GenParticle* pin = eventInformation->GetCurrentlyTraced();
-  vtx->add_particle_in(pin);
-
-  //std::cout<<" particle producing the vertex "<<std::endl;
-  //std::cout<<*pin <<std::endl;
-  //std::cout<<"barcode "<<pin->barcode()<<std::endl;
-
-  // let's take care of the primary. if the pointer is null there is
-  // nothing we want to do with it
-
-  if (primaryTrack)
-    {
-      TrackHelper tHelper(primaryTrack);
-      TrackInformation* tInfo = tHelper.GetTrackInformation();
-      int regenerationNr = tInfo->GetRegenerationNr();
-      regenerationNr++;
-      tInfo->SetRegenerationNr(regenerationNr);
-      if (tHelper.IsPrimary()) tInfo->SetClassification(RegeneratedPrimary);
-      HepMC::GenParticle* p1 = Track2Particle(primaryTrack);
-      eventInformation->SetCurrentlyTraced(p1);
-      p1->suggest_barcode(regenerationNr*1000000+ tHelper.GetBarcode());
-      // eventually we add p1 in the list of the outgoing particles
-      vtx->add_particle_out(p1);
-
-      //std::cout<<" primary regenerated: gen. nr. "<<regenerationNr<<std::endl;
-      //std::cout<<" regenerated particle "<<std::endl;
-      //std::cout<<*p1<<std::endl;
-      //std::cout<<" proposed barcode "<<regenerationNr*100000+ tHelper.GetBarcode()<<std::endl;
-    }
-
-  // now all the secondary tracks...
-
-  assert (secondaries.size()>0);
-  for (auto secondary : secondaries) {
-    HepMC::GenParticle* p2 = Track2Particle(secondary);
-    int pbcode = eventInformation->SecondaryParticleBarCode();
-    p2->suggest_barcode(pbcode);
-
-    TrackInformation* ti = new TrackInformation(p2);
-    ti->SetRegenerationNr(0);
-    ti->SetClassification(RegisteredSecondary);
-
-    // see if TrackInformation already exists
-    VTrackInformation* trackInfo =
-      dynamic_cast<VTrackInformation*>( secondary->GetUserInformation() );
-    if (trackInfo) {
-      const ISF::ISFParticle* parent = trackInfo->GetBaseISFParticle();
-      ti->SetBaseISFParticle(parent);
-    }
-    secondary->SetUserInformation(ti);
-    vtx->add_particle_out(p2);
-
-    //std::cout<<" secondary track "<<std::endl;
-    //std::cout<<*p2<<std::endl;
-    //std::cout<<" proposed barcode "<<pbcode<<std::endl;
-  }
-
-  // we are done...
-
-  HepMC::GenEvent* evnt = eventInformation->GetHepMCEvent();
-  evnt->add_vertex(vtx);
-
-  //std::cout<<"----> end of new vertex procedure <----"<<std::endl;
-}

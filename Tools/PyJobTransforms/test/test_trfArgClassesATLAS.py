@@ -21,20 +21,16 @@ from PyJobTransforms.trfArgClasses import *
 from PyJobTransforms.trfFileUtils import athFileInterestingKeys
 
 class argFileEOSTests(unittest.TestCase):
-    def test_SimExpansion(self):
-        hitsInputs = argFile('root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e1119_s1469_s1471/HITS.743321._000[029,200].pool.root.1,root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e1119_s1469_s1471/HITS.743321._000[614,817].pool.root.5', io='input')
-        self.assertEqual(len(hitsInputs.value), 4)
-        
     def test_SimGlobStar(self):
-        hitsInputs = argFile('root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e1119_s1469_s1471/HITS.*', io='input')
+        hitsInputs = argFile('/eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e1119_s1469_s1471/HITS.*', io='input')
         self.assertEqual(len(hitsInputs.value), 4)        
 
     def test_SimGlobMatchSingle(self):
-        hitsInputs = argFile('root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e1119_s1469_s1471/HITS.743321._??????.pool.root.?', io='input')
+        hitsInputs = argFile('/eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e1119_s1469_s1471/HITS.743321._??????.pool.root.?', io='input')
         self.assertEqual(len(hitsInputs.value), 4)        
 
     def test_SimGlobMatchBoth(self):
-        hitsInputs = argFile('root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e1119_s1469_s1471/HITS.743321._*.pool.root.?', io='input')
+        hitsInputs = argFile('/eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e1119_s1469_s1471/HITS.743321._*.pool.root.?', io='input')
         self.assertEqual(len(hitsInputs.value), 4)        
 
 

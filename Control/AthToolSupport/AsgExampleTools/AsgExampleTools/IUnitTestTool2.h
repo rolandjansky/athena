@@ -24,9 +24,14 @@ namespace asg
     // Declare the interface that this class provides
     ASG_TOOL_INTERFACE( CP::IUnitTestTool2 )
 
+    /// \brief whether the given ToolHandle is empty
+  public:
+    virtual bool
+    toolHandleEmpty (const std::string& handleName) const = 0;
+
     /// \brief get the tool from the regular ToolHandle
   public:
-    virtual IUnitTestTool1 *
+    virtual const IUnitTestTool1 *
     getToolHandle (const std::string& handleName) const = 0;
 
     /// \brief call retrieve on the regular ToolHandle

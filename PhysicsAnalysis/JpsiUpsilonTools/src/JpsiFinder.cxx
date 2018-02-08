@@ -202,9 +202,6 @@ namespace Analysis {
         vxAuxContainer = new xAOD::VertexAuxContainer;
         vxContainer->setStore(vxAuxContainer);
         
-        // Counter of good muon pairs BEFORE vertexing
-        m_nGoodPairs = 0;
-        
         // Get the ToolSvc
         IToolSvc* toolsvc;
         StatusCode sc1=service("ToolSvc",toolsvc);
@@ -478,16 +475,7 @@ namespace Analysis {
         ATH_MSG_DEBUG("Number of pairs passing all selections and going to vertexing: " << sortedJpsiCandidates.size() );
         if (sortedJpsiCandidates.size() == 0) return StatusCode::SUCCESS;;
         
-        // Some applications want the number of candidates (or the track pairs themselves) before vertexing;
-        // the next lines facilitate this
-        m_nGoodPairs = sortedJpsiCandidates.size();
-        for (jpsiItr=sortedJpsiCandidates.begin(); jpsiItr!=sortedJpsiCandidates.end(); ++jpsiItr) {
-            TrackBag tmpTrkBag;
-            tmpTrkBag.push_back( (*jpsiItr).trackParticle1);
-            tmpTrkBag.push_back( (*jpsiItr).trackParticle2);
-            m_goodPairs.push_back(tmpTrkBag);
-        }
-        
+
         // Fit each pair of tracks to a vertex
         for(jpsiItr=sortedJpsiCandidates.begin(); jpsiItr!=sortedJpsiCandidates.end(); ++jpsiItr) {
             std::vector<const xAOD::TrackParticle*> theTracks; theTracks.clear();

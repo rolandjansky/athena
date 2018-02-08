@@ -188,7 +188,7 @@ class CastorFileTool:
     # dirs in given castor directory
     timenow = datetime.today().strftime("%d%b%y.%Hh%M")
     dirlist = "dirlist.temp" + timenow
-    os.system("/afs/cern.ch/project/eos/installation/0.3.84-aquamarine/bin/eos.select ls -l " + castorDir + " > " + dirlist)
+    os.system("eos ls -l " + castorDir + " > " + dirlist)
     FileList=open(dirlist,"r").readlines()
 
     # construct map with subdirectories
@@ -249,7 +249,7 @@ class CastorFileTool:
     if self.lumiBlock != None and ',' in self.lumiBlock:
       FileList = []
       for iblock in range(int(self.lumiBlock.split(',')[0]),int(self.lumiBlock.split(',')[1])+1):
-        cmd = "/afs/cern.ch/project/eos/installation/0.3.84-aquamarine/bin/eos.select ls -l " + castorDir
+        cmd = "eos ls -l " + castorDir
         for grepStr in streamStr:
           cmd += " | grep " + grepStr
           pass
@@ -261,7 +261,7 @@ class CastorFileTool:
         pass
     else:
       #cmd = "nsls -l " + castorDir
-      cmd = "/afs/cern.ch/project/eos/installation/0.3.84-aquamarine/bin/eos.select ls -l " + castorDir
+      cmd = "eos ls -l " + castorDir
       #for grepStr in streamStr:
       #  cmd += " | grep " + grepStr
       if self.lumiBlock != None: cmd += " | grep _lb%0.4d" % int(self.lumiBlock)
@@ -444,7 +444,7 @@ class CastorFileTool:
     return fileStr
 
   def TmpFilesCopyCommands(self, jobFileList,tmpFileList):
-    cpcommand = "time /afs/cern.ch/project/eos/installation/0.3.84-aquamarine/bin/eos.select cp "
+    cpcommand = "time xrdcp root://eosatlas.cern.ch/"
     #cpcommand = "time rfcp "
     inprefix = ""
     outprefix = ""

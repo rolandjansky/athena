@@ -1,8 +1,7 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
 """
+#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 Run event simulation and produce an EVNT file.
 """
 
@@ -18,7 +17,7 @@ import PyJobTransforms.trfArgClasses as trfArgClasses
 
 ## Prodsys1 hack...
 # TODO: Remove!
-ListOfDefaultPositionalKeys=['--AMIConfig', '--AMITag', '--argJSON', '--asetup', '--athena', '--athenaMPMergeTargetSize', '--athenaopts', '--attempt', '--checkEventCount', '--command', '--dumpJSON', '--dumpPickle', '--ecmEnergy', '--env', '--eventAcceptanceEfficiency', '--evgenJobOpts', '--execOnly', '--fileValidation', '--firstEvent', '--ignoreErrors', '--ignoreFiles', '--ignorePatterns', '--imf', '--inputEVNT_PreFile', '--inputFileValidation', '--inputGenConfFile', '--inputGeneratorFile', '--jobConfig', '--jobid', '--maxEvents', '--orphanKiller', '--outputEVNTFile', '--outputEVNT_PreFile', '--outputFileValidation', '--outputNTUP_TRUTHFile', '--outputTXTFile', '--parallelFileValidation', '--postExec', '--postInclude', '--preExec', '--preInclude', '--printEvts', '--randomSeed', '--reportName', '--reportType', '--rivetAnas', '--runNumber', '--showGraph', '--showPath', '--showSteps', '--skipEvents', '--skipFileValidation', '--skipInputFileValidation', '--skipOutputFileValidation', '--steering', '--taskid', '--tcmalloc', '--valgrind', '--valgrindbasicopts', '--valgrindextraopts']
+ListOfDefaultPositionalKeys=['--AMIConfig', '--AMITag', '--argJSON', '--asetup', '--athena', '--athenaMPMergeTargetSize', '--athenaopts', '--attempt', '--checkEventCount', '--command', '--dumpJSON', '--dumpPickle', '--ecmEnergy', '--env', '--eventAcceptanceEfficiency', '--evgenJobOpts', '--execOnly', '--fileValidation', '--firstEvent', '--ignoreErrors', '--ignoreFiles', '--ignorePatterns', '--imf', '--inputEVNT_PreFile', '--inputFileValidation', '--inputGenConfFile', '--inputGeneratorFile', '--jobConfig', '--jobid', '--maxEvents', '--orphanKiller', '--outputEVNTFile', '--outputEVNT_PreFile', '--outputFileValidation', '--outputNTUP_TRUTHFile', '--outputTXTFile', '--parallelFileValidation', '--postExec', '--postInclude', '--preExec', '--preInclude', '--printEvts', '--randomSeed', '--reportName', '--reportType', '--rivetAnas', '--runNumber', '--showGraph', '--showPath', '--showSteps', '--skipEvents', '--skipFileValidation', '--skipInputFileValidation', '--skipOutputFileValidation', '--steering', '--taskid', '--tcmalloc', '--valgrind', '--valgrindbasicopts', '--valgrindextraopts', '--lheOnly', '--localPath', '--cleanOut', '--saveList']
 
 class EvgenExecutor(athenaExecutor):
     "Specialised trf executor class for event generation jobs"
@@ -132,9 +131,16 @@ class EvgenExecutor(athenaExecutor):
             else:    
                 msg.info('ATLAS_SW_BASE path: %s' %sw_base)
 
+            local_path = None
+            if ("localPath" in self._trf.argdict ):
+                local_path = self._trf.argdict["localPath"].value
+                print("local path",local_path)
             cvmfs_path = os.path.join(sw_base, "atlas.cern.ch")
             
-            if os.path.exists(cvmfs_path):
+            if ((local_path is not None) and (os.path.exists(local_path))) :
+              mk_jo_proxy(local_path, "MC15JobOptions","_joproxy15")
+              print("JO fragments taken from local path i.e. ",local_path)             
+            elif os.path.exists(cvmfs_path):
                 # TODO: Make the package name configurable
                 if "MC14" in str(joparam):
                     cvmfs_mc14 = os.path.join(cvmfs_path, "repo/sw/Generators/MC14JobOptions/latest/")
@@ -154,9 +160,28 @@ class EvgenExecutor(athenaExecutor):
 
         ## Expand tarball input event and generator conf files, if provided
         if "inputGeneratorFile" in self._trf.argdict:
-            expand_if_archive(self._trf.argdict["inputGeneratorFile"].value)
+#            expand_if_archive(self._trf.argdict["inputGeneratorFile"].value)
+            myinputfiles = self._trf.argdict["inputGeneratorFile"].value
+            genInputFiles = myinputfiles.split(',')
+            for file in genInputFiles:
+               expand_if_archive(file)
         if "inputGenConfFile" in self._trf.argdict:
             expand_if_archive(self._trf.argdict["inputGenConfFile"].value)
+
+def move_files(main_dir,tmp_dir,whitelist):
+    files = os.listdir(tmp_dir)
+    print("list of files ",files)
+    print("white list ",whitelist)    
+    files.sort()
+    for f in files:
+       for i in whitelist:
+            if i in f:
+                src = tmp_dir+"/"+f
+                dest = main_dir+"/"+f
+#                print("src ",src)
+#                print("dest ",dest)
+                os.rename(src,dest)
+                break
 
 
 def getTransform():
@@ -175,11 +200,67 @@ def getTransform():
 @sigUsrStackTrace
 def main():
     msg.info("This is %s" % sys.argv[0])
+    main_dir = os.getcwd()
     trf = getTransform()
     trf.parseCmdLineArgs(sys.argv[1:])
+#    print("main ",main_dir)
+    if (("cleanOut" in trf.argdict) and (trf.argdict["cleanOut"].value != 0)):
+      name_tmpdir = "tmprun"
+      tmp_dir = os.path.join(main_dir, name_tmpdir)
+#    print("tmpdir ",tmp_dir)
+      if os.path.isdir(tmp_dir):
+         shutil.rmtree(tmp_dir, ignore_errors=True)
+      os.mkdir("tmprun")
+      os.chdir("tmprun")
+      tmp_dir = os.getcwd()
+      whitelist_in = ['MC','group','TXT']
+      move_files(tmp_dir,main_dir,whitelist_in)
+      
+#    trf = getTransform()
+#    trf.parseCmdLineArgs(sys.argv[1:])
     trf.execute()
     trf.generateReport()
     msg.info("%s stopped at %s, trf exit code %d" % (sys.argv[0], time.asctime(), trf.exitCode))
+
+
+#    if "outputTXTFile" in trf.argdict:
+#      whitelist_out.append('TXT')
+
+# read files/dirs that should be saved and if present in cwd - remove
+
+    if (("cleanOut" in trf.argdict) and (trf.argdict["cleanOut"].value!=0)):
+#       print("mamy cleanOut !!!",trf.argdict["cleanOut"].value) 
+       whitelist_out = ['log.generate','.root']
+       if "outputTXTFile" in trf.argdict:
+          whitelist_out.append('TXT')
+       if "saveList" in trf.argdict:
+         saveList_dic= trf.argdict["saveList"].value
+         saveList_str= str(saveList_dic)
+         saveList_str=saveList_str[10:-3]
+         saveList= saveList_str.split(",")
+         for item in saveList:
+           test_ex = os.path.join(main_dir,str(item))
+           if os.path.isdir(test_ex):
+             shutil.rmtree(test_ex, ignore_errors=True)
+#           print("directory removed ", test_ex)
+           elif os.path.isfile(test_ex):
+             os.remove(test_ex)
+#           print("file removed ", test_ex)        
+#       new_list = list(list(int(a) for a in b) for b in T1 if a.isdigit())
+         if not saveList[0].isdigit():
+             whitelist_out=whitelist_out+saveList 
+
+       move_files(main_dir,tmp_dir,whitelist_out)
+       os.chdir(main_dir)
+       if "saveList" not in trf.argdict:
+         shutil.rmtree(tmp_dir, ignore_errors=True)
+#    elif firstSaveList!=1:
+       elif not saveList[0].isdigit():
+         shutil.rmtree(tmp_dir, ignore_errors=True)  
+
+    if (("lheOnly" in trf.argdict ) and (trf.argdict["lheOnly"].value == 1)):
+          outputName = ''.join(trf.argdict["outputEVNTFile"].value)
+          os.remove(outputName)
     sys.exit(trf.exitCode)
 
 

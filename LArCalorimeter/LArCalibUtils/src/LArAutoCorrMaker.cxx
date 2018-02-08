@@ -63,7 +63,7 @@ LArAutoCorrMaker::~LArAutoCorrMaker()
 
 StatusCode LArAutoCorrMaker::initialize() {
 
-  msg(MSG::INFO) << ">>> Initialize" << endreq;
+  ATH_MSG_INFO( ">>> Initialize" );
   
   
   // m_fullFolderName="/lar/"+m_folderName+"/LArPedestal";
@@ -76,21 +76,21 @@ StatusCode LArAutoCorrMaker::initialize() {
 
   m_keylist=m_keylistproperty;
   if (m_keylist.size()==0) {
-    msg(MSG::ERROR) << "Key list is empty!" << endreq;
+    ATH_MSG_ERROR( "Key list is empty!" );
     return StatusCode::FAILURE;
   }
 
   m_autocorr.setGroupingType(LArConditionsContainerBase::SingleGroup);
   StatusCode sc=m_autocorr.initialize();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed initialize intermediate AutoCorr object" << endreq;
+    ATH_MSG_ERROR( "Failed initialize intermediate AutoCorr object" );
     return sc;
   }
 
   if (m_bunchCrossingsFromFront>0) {
     sc=m_bunchCrossingTool.retrieve();
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Failed to retrieve BunchCrossingTool!" << endreq;
+      ATH_MSG_ERROR( "Failed to retrieve BunchCrossingTool!" );
     }
   }
 
@@ -107,7 +107,7 @@ StatusCode LArAutoCorrMaker::execute()
     const xAOD::EventInfo* eventInfo;
     sc=evtStore()->retrieve( eventInfo ); 
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Failed to retrieve EventInfo object!" << endreq;
+      ATH_MSG_ERROR( "Failed to retrieve EventInfo object!" );
       return sc;
     }
     uint32_t bcid = eventInfo->bcid();
@@ -144,7 +144,7 @@ StatusCode LArAutoCorrMaker::execute()
       const HWIdentifier chid=(*it)->hardwareID();
       const CaloGain::CaloGain gain=(*it)->gain();
       if (gain<0 || gain>CaloGain::LARNGAIN) {
-	msg(MSG::ERROR) << "Found odd gain number ("<< (int)gain <<")" << endreq;
+	ATH_MSG_ERROR( "Found odd gain number ("<< (int)gain <<")" );
 	return StatusCode::FAILURE;
       }
       const std::vector<short> & samples = (*it)->samples();
@@ -187,10 +187,10 @@ StatusCode LArAutoCorrMaker::stop()
   //---------------------------------------------------------------------------
 {
   StatusCode sc;
-  msg(MSG::INFO) << ">>> Stop()" << endreq;
+  ATH_MSG_INFO( ">>> Stop()" );
 
   if (m_keylist.size()==0) {
-    msg(MSG::ERROR) << "Key list is empty! No containers processed!" << endreq;
+    ATH_MSG_ERROR( "Key list is empty! No containers processed!" );
     return StatusCode::FAILURE;
   }
 
@@ -199,13 +199,13 @@ StatusCode LArAutoCorrMaker::stop()
 
   sc=larAutoCorrComplete->setGroupingType(m_groupingType,msg());
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to set groupingType for LArAutoCorrComplete object" << endreq;
+    ATH_MSG_ERROR( "Failed to set groupingType for LArAutoCorrComplete object" );
     return sc;
   }
 
   sc=larAutoCorrComplete->initialize(); 
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed initialize LArAutoCorrComplete object" << endreq;
+    ATH_MSG_ERROR( "Failed initialize LArAutoCorrComplete object" );
     return sc;
   }
 
@@ -245,25 +245,25 @@ StatusCode LArAutoCorrMaker::stop()
       }
     }
   
-  msg(MSG::INFO) << "AutoCorrelation based on " << m_nEvents << " events." << endreq;
-  msg(MSG::INFO) << " Summary : Number of cells with a autocorr value computed : " << larAutoCorrComplete->totalNumberOfConditions()  << endreq;
-  msg(MSG::INFO) << " Summary : Number of Barrel PS cells side A or C (connected+unconnected):  4096 " << endreq;
-  msg(MSG::INFO) << " Summary : Number of Barrel    cells side A or C (connected+unconnected): 53248 " << endreq;
-  msg(MSG::INFO) << " Summary : Number of EMEC      cells side A or C (connected+unconnected): 35328 " << endreq;
-  msg(MSG::INFO) << " Summary : Number of HEC       cells side A or C (connected+unconnected):  3072 "<< endreq;
-  msg(MSG::INFO) << " Summary : Number of FCAL      cells side A or C (connected+unconnected):  1792 " << endreq;
+  ATH_MSG_INFO("AutoCorrelation based on " << m_nEvents << " events.");
+  ATH_MSG_INFO(" Summary : Number of cells with a autocorr value computed : " << larAutoCorrComplete->totalNumberOfConditions() );
+  ATH_MSG_INFO(" Summary : Number of Barrel PS cells side A or C (connected+unconnected):  4096 ");
+  ATH_MSG_INFO(" Summary : Number of Barrel    cells side A or C (connected+unconnected): 53248 ");
+  ATH_MSG_INFO(" Summary : Number of EMEC      cells side A or C (connected+unconnected): 35328 ");
+  ATH_MSG_INFO(" Summary : Number of HEC       cells side A or C (connected+unconnected):  3072 ");
+  ATH_MSG_INFO(" Summary : Number of FCAL      cells side A or C (connected+unconnected):  1792 ");
   
   // Record LArAutoCorrComplete
   sc = detStore()->record(larAutoCorrComplete,m_keyoutput);
   if (sc != StatusCode::SUCCESS) { 
-      msg(MSG::ERROR) << " Cannot store LArAutoCorrComplete in DetectorStore " << endreq;
+      ATH_MSG_ERROR( " Cannot store LArAutoCorrComplete in DetectorStore " );
       return sc;
     }
   
   // Make symlink
   sc = detStore()->symLink(larAutoCorrComplete, (ILArAutoCorr*)larAutoCorrComplete);
   if (sc != StatusCode::SUCCESS)  {
-      msg(MSG::ERROR) << " Cannot make link for Data Object " << endreq;
+      ATH_MSG_ERROR( " Cannot make link for Data Object " );
       return sc;
     }
   

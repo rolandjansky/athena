@@ -48,11 +48,13 @@ def _loadBasicEventInfoMgt():
                 #print "EventInfoMgtInit.getRelease: project, version",project, version
                 return project + '-' + version
             except:
-                print "EventInfoMgtInit getRelease: except caught"
-                print sys.exc_info()[0]
-                print sys.exc_info()[1]
-                return "Unknown"
-            return "Unknown"
+                # These variables can be missing during CI builds,
+                # so don't complain if they're not there.
+                #print "EventInfoMgtInit getRelease: except caught"
+                #print sys.exc_info()[0]
+                #print sys.exc_info()[1]
+                pass
+            return "Unknown-Unknown"
 
 
     ## make sure we have been -at least- minimally correctly configured

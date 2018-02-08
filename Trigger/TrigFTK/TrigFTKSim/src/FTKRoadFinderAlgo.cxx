@@ -37,6 +37,7 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
   m_ITkMode(false),
   m_ss_offset_fraction(0),
   m_PixelClusteringMode(0),
+  m_Ibl3DRealistic(false),
   m_DuplicateGanged(1),
   m_GangedPatternRecognition(0),
   m_SctClustering(0),
@@ -98,6 +99,7 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
   declareProperty("ITkMode",m_ITkMode);
 
   declareProperty("PixelClusteringMode",m_PixelClusteringMode,"Pixel clustering correction: 0 simple default, 1 channel center and linear ToT interpolation and account for different pixel lengths");
+  declareProperty("Ibl3DRealistic",m_Ibl3DRealistic,"Do IBL 3D realistic(HWlike) clustering? Default is false");
   declareProperty("DuplicateGanged",m_DuplicateGanged,"Duplicate ganged pixels so we don't lose efficiency");
   declareProperty("GangedPatternReco", m_GangedPatternRecognition,"Pattern recognition to partially remove duplication");
   declareProperty("SctClustering",m_SctClustering,"Enable SCT clustering: 0 disabled, 1 enabled");
@@ -332,6 +334,7 @@ StatusCode FTKRoadFinderAlgo::initialize(){
 
   // Set options related to the input: clustering or other features
   m_rfobj.getDataInputModule()->setPixelClusteringMode(m_PixelClusteringMode);
+  m_rfobj.getDataInputModule()->setIbl3DRealistic(m_Ibl3DRealistic);
   m_rfobj.getDataInputModule()->setSctClustering(m_SctClustering);
   m_rfobj.getDataInputModule()->setDuplicateGanged(m_DuplicateGanged);
   m_rfobj.getDataInputModule()->setGangedPatternRecognition(m_GangedPatternRecognition);

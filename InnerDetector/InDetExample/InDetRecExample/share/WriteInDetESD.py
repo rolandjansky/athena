@@ -44,9 +44,6 @@ if InDetFlags.doCosmics():
 
 if InDetFlags.doStoreTrackSeeds() and ( InDetFlags.doWriteTracksToESD() or  not InDetFlags.doxAOD() ) :
    InDetESDList+=["TrackCollection#"+InDetKeys.SiSPSeedSegments()]
-   #if InDetFlags.doTruth():
-   #   InDetESDList += ["TrackTruthCollection#"+InDetKeys.SiSPSeedSegments()+'TruthCollection']
-   #   InDetESDList += ["DetailedTrackTruthCollection#"+InDetKeys.SiSPSeedSegments()+'DetailedTruth']
 
 if InDetFlags.doWriteTracksToESD() or not InDetFlags.doxAOD() :
    if InDetKeys.AliasToTracks() == 'none':
@@ -109,6 +106,20 @@ if InDetFlags.doTrackSegmentsPixelPrdAssociation():
       InDetESDList += ["TrackTruthCollection#"+InDetKeys.PixelPrdAssociationTracks()+'TruthCollection']
       InDetESDList += ["DetailedTrackTruthCollection#"+InDetKeys.PixelPrdAssociationTracks()+'DetailedTruth']   
    
+if InDetFlags.doTrackSegmentsPixelFourLayer():
+  if InDetFlags.doWriteTracksToESD() or not InDetFlags.doxAOD():
+      InDetESDList+=["TrackCollection#"+InDetKeys.PixelFourLayerTracks()]
+  if InDetFlags.doTruth():
+      InDetESDList += ["TrackTruthCollection#"+InDetKeys.PixelFourLayerTracks()+'TruthCollection']
+      InDetESDList += ["DetailedTrackTruthCollection#"+InDetKeys.PixelFourLayerTracks()+'DetailedTruth']   
+   
+if InDetFlags.doTrackSegmentsPixelThreeLayer():
+  if InDetFlags.doWriteTracksToESD() or not InDetFlags.doxAOD():
+      InDetESDList+=["TrackCollection#"+InDetKeys.PixelThreeLayerTracks()]
+  if InDetFlags.doTruth():
+      InDetESDList += ["TrackTruthCollection#"+InDetKeys.PixelThreeLayerTracks()+'TruthCollection']
+      InDetESDList += ["DetailedTrackTruthCollection#"+InDetKeys.PixelThreeLayerTracks()+'DetailedTruth']   
+   
 # Add TRT Segments (only if standalone is off).
 # -----------------
 if not InDetFlags.doTRTStandalone():
@@ -134,7 +145,12 @@ if globalflags.InputFormat()=='bytestream':
    InDetESDList+=['TRT_BSIdErrContainer#'+InDetKeys.TRT_ByteStreamIdErrs()]
 
 if InDetFlags.doxAOD():
-  excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
+  excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation."
+  if not InDetFlags.KeepFirstParameters() :
+      excludedAuxData += '-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition'
+
+  excludedVertexAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"
+
   if InDetFlags.keepAdditionalHitsOnTrackParticle():
    excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation"
   InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODTrackParticleContainer()]
@@ -148,21 +164,21 @@ if InDetFlags.doxAOD():
      InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODForwardTrackParticleContainer()]
      InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODForwardTrackParticleContainer()+'Aux.' + excludedAuxData ]
   InDetESDList+=['xAOD::VertexContainer#'+InDetKeys.xAODVertexContainer()]
-  InDetESDList+=['xAOD::VertexAuxContainer#'+InDetKeys.xAODVertexContainer()+'Aux.-vxTrackAtVertex']
+  InDetESDList+=['xAOD::VertexAuxContainer#'+InDetKeys.xAODVertexContainer()+'Aux.' + excludedVertexAuxData]
 
   if InDetFlags.doV0Finder() and InDetFlags.doSimpleV0Finder():
     InDetESDList+=['xAOD::VertexContainer#'+InDetKeys.xAODV0VertexContainer()]
-    InDetESDList+=['xAOD::VertexAuxContainer#'+InDetKeys.xAODV0VertexContainer()+'Aux.-vxTrackAtVertex']
+    InDetESDList+=['xAOD::VertexAuxContainer#'+InDetKeys.xAODV0VertexContainer()+'Aux.' + excludedVertexAuxData]
   elif InDetFlags.doV0Finder(): 
     InDetESDList+=['xAOD::VertexContainer#'+InDetKeys.xAODKshortVertexContainer()]
-    InDetESDList+=['xAOD::VertexAuxContainer#'+InDetKeys.xAODKshortVertexContainer()+'Aux.-vxTrackAtVertex']
+    InDetESDList+=['xAOD::VertexAuxContainer#'+InDetKeys.xAODKshortVertexContainer()+'Aux.' + excludedVertexAuxData]
     InDetESDList+=['xAOD::VertexContainer#'+InDetKeys.xAODLambdaVertexContainer()]
-    InDetESDList+=['xAOD::VertexAuxContainer#'+InDetKeys.xAODLambdaVertexContainer()+'Aux.-vxTrackAtVertex']
+    InDetESDList+=['xAOD::VertexAuxContainer#'+InDetKeys.xAODLambdaVertexContainer()+'Aux.' + excludedVertexAuxData]
     InDetESDList+=['xAOD::VertexContainer#'+InDetKeys.xAODLambdabarVertexContainer()]
-    InDetESDList+=['xAOD::VertexAuxContainer#'+InDetKeys.xAODLambdabarVertexContainer()+'Aux.-vxTrackAtVertex']
+    InDetESDList+=['xAOD::VertexAuxContainer#'+InDetKeys.xAODLambdabarVertexContainer()+'Aux.' + excludedVertexAuxData]
   if InDetFlags.doConversions():
     InDetESDList+=['xAOD::VertexContainer#'+InDetKeys.Conversions()]
-    InDetESDList+=['xAOD::VertexAuxContainer#'+InDetKeys.Conversions() +'Aux.-vxTrackAtVertex']
+    InDetESDList+=['xAOD::VertexAuxContainer#'+InDetKeys.Conversions() +'Aux.' + excludedVertexAuxData]
 
   if InDetFlags.doTrackSegmentsPixel():
     InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODPixelTrackParticleContainer()]
@@ -170,6 +186,12 @@ if InDetFlags.doxAOD():
   if InDetFlags.doTrackSegmentsPixelPrdAssociation():
     InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODPixelPrdAssociationTrackParticleContainer()]
     InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODPixelPrdAssociationTrackParticleContainer()+'Aux.' + excludedAuxData]
+  if InDetFlags.doTrackSegmentsPixelFourLayer():
+    InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODPixelFourLayerTrackParticleContainer()]
+    InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODPixelFourLayerTrackParticleContainer()+'Aux.' + excludedAuxData]
+  if InDetFlags.doTrackSegmentsPixelThreeLayer():
+    InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODPixelThreeLayerTrackParticleContainer()]
+    InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODPixelThreeLayerTrackParticleContainer()+'Aux.' + excludedAuxData]
   if InDetFlags.doTrackSegmentsSCT():
     InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODSCTTrackParticleContainer()]
     InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODSCTTrackParticleContainer()+'Aux.' + excludedAuxData]

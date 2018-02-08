@@ -1,11 +1,10 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: COOLUtils.py 780766 2016-10-27 14:03:02Z amorley $
 """
 Miscellaneous utilities related to COOL.
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: COOLUtils.py 780766 2016-10-27 14:03:02Z amorley $'
+__version__ = 'COOLUtils.py atlas/athena'
 
 import os, time,sys
 

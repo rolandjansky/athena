@@ -78,7 +78,6 @@ G4bool BLMSensorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
   if(BEcopyNo == 2009)
     {
       TrackHelper trHelp(aStep->GetTrack());
-      int barcode = trHelp.GetBarcode();
       //primary or not
       int primaren = 0;
       if(trHelp.IsPrimary())
@@ -89,7 +88,7 @@ G4bool BLMSensorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
         primaren = 3;
       else if(trHelp.IsRegisteredSecondary())
         primaren = 4;
-      //std::cout << "BLMBarcode == " << barcode << " Vertex: " << aStep->GetTrack()->GetLogicalVolumeAtVertex()->GetName() << std::endl;
+      //std::cout << "BLMBarcode == " << trHelp.GetBarcode() << " Vertex: " << aStep->GetTrack()->GetLogicalVolumeAtVertex()->GetName() << std::endl;
 
       int produced_in_diamond = 0;
       if(aStep->GetTrack()->GetLogicalVolumeAtVertex()->GetName() == "Pixel::blmDiamondLog")
@@ -99,8 +98,8 @@ G4bool BLMSensorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* /*ROhist*/)
       else if(aStep->GetTrack()->GetLogicalVolumeAtVertex()->GetName() == "Pixel::blmWallLog")
         produced_in_diamond = 3;
 
-      m_HitColl->Emplace(lP1, lP2, edep, aStep->GetPreStepPoint()->GetGlobalTime(), barcode, 0, 0, 
-                           myTouch->GetVolume(1)->GetCopyNo()-222, 0, primaren, produced_in_diamond);
+      m_HitColl->Emplace(lP1, lP2, edep, aStep->GetPreStepPoint()->GetGlobalTime(), trHelp.GetParticleLink(),
+                         0, 0, myTouch->GetVolume(1)->GetCopyNo()-222, 0, primaren, produced_in_diamond);
     }
   return true;
 }

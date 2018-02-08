@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: MsgStream.h 687011 2015-08-03 09:25:07Z krasznaa $
+// $Id: MsgStream.h 803209 2017-04-19 21:18:32Z krumnack $
 #ifndef ASGTOOLS_MSGSTREAM_H
 #define ASGTOOLS_MSGSTREAM_H
 
@@ -24,8 +24,8 @@
 /// @author David Adams <dladams@bnl.gov>
 /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 ///
-/// $Revision: 687011 $
-/// $Date: 2015-08-03 11:25:07 +0200 (Mon, 03 Aug 2015) $
+/// $Revision: 803209 $
+/// $Date: 2017-04-19 23:18:32 +0200 (Wed, 19 Apr 2017) $
 ///
 class MsgStream : public std::ostringstream {
 
@@ -98,8 +98,6 @@ private:
    MSG::Level m_lvl;
    /// The level of the message currently being assembled
    MSG::Level m_reqlvl;
-   /// The width of the message source printout
-   static size_t s_sourceWidth;
 
 }; // class MsgStream
 

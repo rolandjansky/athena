@@ -41,38 +41,38 @@
 class G4Step;
 
 class TileEscapedEnergyProcessing: public CaloG4::VEscapedEnergyProcessing {
-  public:
-    TileEscapedEnergyProcessing(const int verboseLevel);
-    virtual ~TileEscapedEnergyProcessing();
+public:
+  TileEscapedEnergyProcessing(const int verboseLevel);
+  virtual ~TileEscapedEnergyProcessing();
 
-    // Method: The G4TouchableHandle to the volume in which "point" is
-    // located; the value of "point" itself in case additional
-    // processing is necessary, and the amount of escaped energy.
-    virtual G4bool Process(G4TouchableHandle& handle, G4ThreeVector& point, G4double energy);
+  // Method: The G4TouchableHandle to the volume in which "point" is
+  // located; the value of "point" itself in case additional
+  // processing is necessary, and the amount of escaped energy.
+  virtual G4bool Process(G4TouchableHandle& handle, G4ThreeVector& point, G4double energy);
 
-    //After escaped particle is detected and its 'mother' step is created
-    //this method will retrieve the respective SD for the volume where escaped
-    //particle was created and invokes SD::ProcessHits() - method.
-    G4bool Call_SD_ProcessHits(G4Step* aStep, G4String &SDname);
+  //After escaped particle is detected and its 'mother' step is created
+  //this method will retrieve the respective SD for the volume where escaped
+  //particle was created and invokes SD::ProcessHits() - method.
+  G4bool Call_SD_ProcessHits(G4Step* aStep, G4String &SDname);
 
-    void SetEscapedFlag(bool);
-    void SetEnergy5(double);
-    void SetEscapedEnergy(double);
+  void SetEscapedFlag(bool);
+  void SetEnergy5(double);
+  void SetEscapedEnergy(double);
 
-    bool GetEscapedFlag();
-    double GetEnergy5();
-    double GetEscapedEnergy();
+  bool GetEscapedFlag();
+  double GetEnergy5();
+  double GetEscapedEnergy();
 
-  private:
-    TileEscapedEnergyProcessing() = delete;
-    // takes the flag that particle has escaped,
-    // the 'mother' step of escaped particle and
-    // amount of that energy, which can't be calculated
-    // by Simulation energies
-    bool m_escaped;
-    double m_escapedEnergy;
-    double m_energy5;
-    //int m_verboseLevel;
+private:
+  TileEscapedEnergyProcessing() = delete;
+  // takes the flag that particle has escaped,
+  // the 'mother' step of escaped particle and
+  // amount of that energy, which can't be calculated
+  // by Simulation energies
+  bool m_escaped;
+  double m_escapedEnergy;
+  double m_energy5;
+  //int m_verboseLevel;
 
 };
 

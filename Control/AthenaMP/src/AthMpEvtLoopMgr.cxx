@@ -8,8 +8,10 @@
 #include "AthenaInterprocess/SharedQueue.h"
 #include "AthenaInterprocess/Utilities.h"
 #include "GaudiKernel/IIncidentSvc.h"
+#include "GaudiKernel/FileIncident.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIoComponentMgr.h"
+#include "GaudiKernel/IIoComponent.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include <sys/stat.h>
@@ -24,10 +26,12 @@
 #include <time.h>
 #include <chrono>
 #include <algorithm>
+#include <functional>
 
 #include <boost/filesystem.hpp>
-#include <boost/interprocess/shared_memory_object.hpp>
-#include <boost/interprocess/mapped_region.hpp>
+#include <boost/algorithm/string.hpp>
+
+#include "dmtcp.h"
 
 namespace athenaMP_MemHelper
 {
@@ -38,6 +42,7 @@ AthMpEvtLoopMgr::AthMpEvtLoopMgr(const std::string& name
 				 , ISvcLocator* svcLocator)
   : AthService(name,svcLocator)
   , m_evtProcessor("AthenaEventLoopMgr", name)
+  , m_evtSelector(nullptr)
   , m_nWorkers(0)
   , m_workerTopDir("athenaMP_workers")
   , m_outputReportName("AthenaMPOutputs")
@@ -49,7 +54,6 @@ AthMpEvtLoopMgr::AthMpEvtLoopMgr(const std::string& name
   , m_nPollingInterval(100) // 0.1 second
   , m_nMemSamplingInterval(0) // no sampling by default
   , m_nEventsBeforeFork(0)
-  , m_shmemName("")
   , m_masterPid(getpid())
 {
   declareProperty("NWorkers",m_nWorkers);
@@ -66,18 +70,33 @@ AthMpEvtLoopMgr::AthMpEvtLoopMgr(const std::string& name
 
 AthMpEvtLoopMgr::~AthMpEvtLoopMgr()
 {
-  if(!m_shmemName.empty()
-     && m_masterPid==getpid())
-    boost::interprocess::shared_memory_object::remove(m_shmemName.c_str());
 }
 
 StatusCode AthMpEvtLoopMgr::initialize()
 {
   ATH_MSG_DEBUG("in initialize() ... ");
 
-  if(m_strategy=="EventServive" && m_nEventsBeforeFork!=0) {
-    ATH_MSG_ERROR("The EventService strategy cannot run with non-zero value for EventsBeforeFork");
+  SmartIF<IProperty> prpMgr(serviceLocator());
+  if(!prpMgr.isValid()) {
+    ATH_MSG_ERROR("Failed to get hold of the Property Manager");
     return StatusCode::FAILURE;
+  }
+
+  std::string evtSelName = prpMgr->getProperty("EvtSel").toString();
+  ATH_CHECK(serviceLocator()->service(evtSelName,m_evtSelector));
+
+  if(m_strategy=="EventService") {
+    // ES with non-zero events before forking makes no sense
+    if(m_nEventsBeforeFork!=0) {
+      ATH_MSG_ERROR("The EventService strategy cannot run with non-zero value for EventsBeforeFork");
+      return StatusCode::FAILURE;
+    }
+
+    // We need to ignore SkipEvents in ES
+    if(updateSkipEvents(0).isFailure()) {
+      ATH_MSG_ERROR("Failed to set skipEvents=0 in Event Service");
+      return StatusCode::FAILURE;
+    }
   }
 
   if(m_isPileup) {
@@ -161,15 +180,6 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
     }
   }
 
-  // Initialize shared memory segment and by this way make sure it never gets re-initialized during the job
-  m_shmemName = std::string("/athmp-shmem-"+randStream.str());
-  boost::interprocess::shared_memory_object shmemSegment(boost::interprocess::create_only
-							 , m_shmemName.c_str()
-							 , boost::interprocess::read_write);
-  shmemSegment.truncate(2*sizeof(int));
-  boost::interprocess::mapped_region shmemRegion(shmemSegment,boost::interprocess::read_write);
-  std::memset(shmemRegion.get_address(),0,shmemRegion.get_size());
-
   // Prepare work directory for sub-processes
   if(mkdir(m_workerTopDir.c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH)!=0) {
     switch(errno) {
@@ -236,6 +246,35 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
   // Flush stream buffers
   fflush(NULL);
 
+  int maxEvents(maxevt); // This can be modified after restart
+
+  int dmtcp_enabled = dmtcp_is_enabled();
+  if(dmtcp_enabled) {
+    ATH_MSG_INFO("DMTCP is enabled. Preparing to checkpoint ...");
+    unsigned original_generation = dmtcp_get_generation();
+    int retval = dmtcp_checkpoint();
+    if(retval == DMTCP_AFTER_CHECKPOINT){
+      // Wait long enough for checkpoint request to be written out
+      while(dmtcp_get_generation() == original_generation){
+	usleep(1000000);
+      }
+      // We are done at this point. Exit
+      ATH_MSG_INFO("Done checkpointing. Exiting ...");
+      exit(0);
+    }
+    else if(retval == DMTCP_AFTER_RESTART) {
+      ATH_MSG_INFO("AthenaMP restarted from the checkpoint image");
+      ATH_CHECK(afterRestart(maxEvents));
+    }
+    else if(retval == DMTCP_NOT_PRESENT) {
+      ATH_MSG_WARNING("Attempted to checkpoint, but DMTCP is not running. Skipping checkpoint ...");
+    }
+    
+  }
+  else {
+    ATH_MSG_INFO("DMTCP is not enabled. Proceeding with forking the workers ...");
+  }
+
   ToolHandleArray<IAthenaMPTool>::iterator it = m_tools.begin(),
     itLast = m_tools.end();
 
@@ -245,7 +284,7 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
     (*it)->setRandString(randStream.str());
     if(it==m_tools.begin())
       incSvc->fireIncident(Incident(name(),"PreFork")); // Do it only once
-    int nChildren = (*it)->makePool(maxevt,m_nWorkers,m_workerTopDir);
+    int nChildren = (*it)->makePool(maxEvents,m_nWorkers,m_workerTopDir);
     if(nChildren==-1) {
       ATH_MSG_FATAL("makePool failed for " << (*it)->name());
       return StatusCode::FAILURE;
@@ -300,17 +339,7 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
   }
 
   // Restart the event selector in order to avoid segfault at stop()
-  SmartIF<IProperty> prpMgr(serviceLocator());
-  if(prpMgr.isValid()) {
-    std::string evtSelName = prpMgr->getProperty("EvtSel").toString();
-    IService* evtSelector(0);
-    ATH_CHECK(serviceLocator()->service(evtSelName,evtSelector));
-    ATH_CHECK(evtSelector->start());
-  }
-  else {
-    ATH_MSG_ERROR("Failed to get hold of the Property Manager");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(m_evtSelector->start());
 
   if(sc.isSuccess())
     return generateOutputReport();
@@ -472,14 +501,16 @@ boost::shared_ptr<AthenaInterprocess::FdsRegistry> AthMpEvtLoopMgr::extractFds()
   // don't contain substrings from the "exclusion pattern" set
   // 2. Skip also stdout and stderr
 
-  std::vector<std::string> excludePatterns;
-  excludePatterns.reserve(5);
-  excludePatterns.push_back("/root/etc/plugins/");
-  excludePatterns.push_back("/root/cint/cint/");
-  excludePatterns.push_back("/root/include/");
-  excludePatterns.push_back("/var/tmp/");
-  excludePatterns.push_back("/var/lock/");
-
+  std::vector<std::string> excludePatterns {
+    "/root/etc/plugins/"
+      ,"/root/cint/cint/"
+      ,"/root/include/"
+      ,"/var/tmp/"
+      ,"/var/lock/"
+      ,"/tmp/dmtcp"
+      ,"/dmtcp-"
+      };
+  
   path fdPath("/proc/self/fd");
   for(directory_iterator fdIt(fdPath); fdIt!=directory_iterator(); fdIt++) {
     if(is_symlink(fdIt->path())) {
@@ -520,4 +551,177 @@ boost::shared_ptr<AthenaInterprocess::FdsRegistry> AthMpEvtLoopMgr::extractFds()
     ATH_MSG_DEBUG((*registry)[ii].fd << " " << (*registry)[ii].name);
 
   return registry;
+}
+
+StatusCode AthMpEvtLoopMgr::afterRestart(int& maxevt)
+{
+  // In this function we parse runargs.* script and update several configuration parameters:
+  //   1. Number of Workers
+
+  // ___________________________________ Get the runargs.* file _____________________________________
+  std::string runargsFileName("");
+  for(boost::filesystem::directory_iterator fdIt(boost::filesystem::current_path()); fdIt!=boost::filesystem::directory_iterator(); fdIt++) {
+    if(fdIt->path().string().find("runargs.")!=std::string::npos) {
+      runargsFileName = fdIt->path().string();
+      break;
+    }
+  }
+
+  if(runargsFileName.empty()) {
+    ATH_MSG_WARNING("No file named runargs.* in the run directory. AthenaMP configuration will not be updated");
+    return StatusCode::SUCCESS;
+  }
+
+  // ___________________________________ Parse the runargs.* file _____________________________________
+  std::map<std::string,std::string> tokens;
+  tokens["nprocs"]=std::string("");
+  tokens["skipEvents"]=std::string("");
+  tokens["maxEvents"]=std::string("");
+  tokens["inputEVNTFile"]=std::string("");
+  tokens["outputHITSFile"]=std::string("");
+
+  std::fstream runargsFile(runargsFileName.c_str(),std::fstream::in);
+  std::string line;
+  while(!runargsFile.eof()) {
+    std::getline(runargsFile,line);
+    for(auto it=tokens.cbegin(); it!=tokens.cend(); ++it) {
+      if(line.find(it->first+std::string(" ="))!=std::string::npos
+	 || line.find(it->first+std::string("="))!=std::string::npos) {
+	// Get token value
+	std::string tokenVal("");
+	size_t eqpos = line.rfind("=");
+	if(eqpos!=std::string::npos) {
+	  tokenVal=line.substr(eqpos+1);
+	  boost::trim(tokenVal);
+	}
+	if(!tokenVal.empty()){
+	  tokens[it->first]=tokenVal;
+	}
+	break;
+      }
+    }
+  }
+
+  ATH_MSG_INFO("Read new configurations from the runargs file:");
+  for(auto it=tokens.cbegin(); it!=tokens.cend(); ++it) {
+    ATH_MSG_INFO(it->first<<"="<<it->second);
+  }
+
+  // _______________________ Update m_nWorkers ___________________________
+  const std::string& nprocs = tokens["nprocs"];
+  if(!nprocs.empty()) {
+    int nWorkers = atoi(nprocs.c_str());
+    if(nWorkers!=0) {
+      ATH_MSG_INFO("Retrieved number of workers from runargs.*: " << nWorkers);
+      m_nWorkers = nWorkers;
+    }
+    else {
+      ATH_MSG_WARNING("Unable to retrieve non-zero number of workers from runargs.*");
+    }
+  }
+
+  ATH_MSG_INFO("AthenaMP will continue by forking " << m_nWorkers << " workers");
+
+  // _______________________ Update Input File(s) ___________________________
+  const std::string& inputEvntFile = tokens["inputEVNTFile"];
+  
+  // Parse the token value
+  std::vector<std::string> inpFiles;
+  size_t commapos = inputEvntFile.find(",");
+  size_t startpos = 0;
+  while(commapos!=std::string::npos) {
+    inpFiles.push_back(inputEvntFile.substr(startpos,commapos-startpos));
+    startpos = commapos+1;
+    commapos = inputEvntFile.find(",",startpos);
+  }
+  inpFiles.push_back(inputEvntFile.substr(startpos));
+
+  // Trim the strings. Remove '[', ']', '\"', '\'' and spaces
+  for(std::string& inp : inpFiles) {
+    auto pos1 = std::find_if(inp.begin(),inp.end(),[](char ch){return (ch!=' ' && ch!='[' && ch!=']' && ch!='\'' && ch!='\"');});
+    inp.erase(inp.begin(),pos1);
+    auto pos2 = std::find_if(inp.rbegin(),inp.rend(),[](char ch){return (ch!=' ' && ch!='[' && ch!=']' && ch!='\'' && ch!='\"');});
+    inp.erase(pos2.base(),inp.end());
+  }
+
+  ATH_MSG_INFO("Retrieved new list of input files:");
+  for(const std::string& inp : inpFiles) {
+    if(!inp.empty()) {
+      ATH_MSG_INFO(" ... " << inp);
+    }
+  }
+
+  // Change the InputCollections property of the event selector
+  IProperty* propertyServer = dynamic_cast<IProperty*>(m_evtSelector);
+  if(!propertyServer) {
+    ATH_MSG_ERROR("Unable to dyn-cast the event selector to IProperty");
+    return StatusCode::FAILURE;
+  }
+
+  std::string propertyName("InputCollections");
+  StringArrayProperty newInputFileList(propertyName, inpFiles);
+  if(propertyServer->setProperty(newInputFileList).isFailure()) {
+    ATH_MSG_ERROR("Unable to update " << newInputFileList.name() << " property on the Event Selector");
+    return StatusCode::FAILURE;
+  }
+  ATH_MSG_INFO("Updated the InputCollections property of the event selector");
+
+  // Register new input files with the I/O component manager
+  IIoComponent* iocomp = dynamic_cast<IIoComponent*>(m_evtSelector);
+  if(iocomp==nullptr) {
+    ATH_MSG_FATAL("Unable to dyn-cast Event Selector to IIoComponent");
+    return StatusCode::FAILURE;
+  }
+  ServiceHandle<IIoComponentMgr> ioMgr("IoComponentMgr",name());
+  ATH_CHECK(ioMgr.retrieve());
+  for(const std::string& inp :inpFiles) {
+    if(inp.empty()) continue;
+    if(!ioMgr->io_register(iocomp, IIoComponentMgr::IoMode::READ,inp,inp).isSuccess()) {
+      ATH_MSG_FATAL("Unable to register " << inp << " with IoComponentMgr");
+      return StatusCode::FAILURE;
+    }
+  }
+  
+  ATH_MSG_INFO("Successfully registered new input with IoComponentMgr");
+
+  // _______________________ Update Output File ___________________________
+  std::string outputHitsFile = tokens["outputHITSFile"];
+
+  // Trim the strings. Remove '\"', '\'' and spaces
+  {
+    auto pos1 = std::find_if(outputHitsFile.begin(),outputHitsFile.end(),[](char ch){return (ch!=' ' && ch!='\'' && ch!='\"');});
+    outputHitsFile.erase(outputHitsFile.begin(),pos1);
+    auto pos2 = std::find_if(outputHitsFile.rbegin(),outputHitsFile.rend(),[](char ch){return (ch!=' ' && ch!='\'' && ch!='\"');});
+    outputHitsFile.erase(pos2.base(),outputHitsFile.end());
+    ATH_MSG_INFO("Retrieved new name for the output file: " << outputHitsFile);
+  }
+  
+  // Fire incident, such that AthenaOutputStream can update its output file name
+  ServiceHandle<IIncidentSvc> incSvc("IncidentSvc",name());
+  ATH_CHECK(incSvc.retrieve());
+  incSvc->fireIncident(FileIncident(name(),"UpdateOutputFile",outputHitsFile));
+
+  // _______________________ Update Max Events ___________________________
+  maxevt = std::atoi(tokens["maxEvents"].c_str());
+
+  // _______________________ Update Skip Events ___________________________
+  int skipEvents = std::atoi(tokens["skipEvents"].c_str());
+  return updateSkipEvents(skipEvents);
+}
+
+StatusCode AthMpEvtLoopMgr::updateSkipEvents(int skipEvents)
+{
+  IProperty* propertyServer = dynamic_cast<IProperty*>(m_evtSelector);
+  if(!propertyServer) {
+    ATH_MSG_ERROR("Unable to dyn-cast the event selector to IProperty");
+    return StatusCode::FAILURE;
+  }
+
+  IntegerProperty skipEventsProperty("SkipEvents", skipEvents);
+  if(propertyServer->setProperty(skipEventsProperty).isFailure()) {
+    ATH_MSG_ERROR("Unable to update " << skipEventsProperty.name() << " property on the Event Selector");
+    return StatusCode::FAILURE;
+  }
+  ATH_MSG_INFO("Updated the SkipEvents property of the event selector. New value: " << skipEvents);
+  return StatusCode::SUCCESS;
 }

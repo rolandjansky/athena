@@ -19,8 +19,7 @@
 // G4Atlas includes
 #include "G4AtlasInterfaces/IPhysicsListTool.h"
 #include "G4AtlasInterfaces/IDetectorGeometrySvc.h"
-//#include "G4AtlasInterfaces/ISensitiveDetectorSvc.h"
-//#include "G4AtlasInterfaces/IFastSimulationSvc.h"
+#include "G4AtlasInterfaces/IFastSimulationMasterTool.h"
 
 
 /// @class G4AtlasMTRunManager
@@ -89,7 +88,9 @@ private:
   /// Not ideal, because we can't configure this.
   ToolHandle<IPhysicsListTool> m_physListTool;
 
-  //ISensitiveDetectorSvc* m_senDetSvc;
+  /// Handle to the fast sim tool.
+  /// Not ideal, because we can't configure this.
+  ToolHandle<IFastSimulationMasterTool> m_fastSimTool;
 
 }; // class G4AtlasMTRunManager
 
