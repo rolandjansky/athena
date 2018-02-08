@@ -682,9 +682,9 @@ TRT_Predictor::setRegion(const TrackParameters&	parameters)
 
     
     // get the detector element hashIDs from the RegionSelector.
-    RoiDescriptor _roi( etaMin, etaMax, phiMin, phiMax );
+    RoiDescriptor roi( etaMin, etaMax, phiMin, phiMax );
 
-    m_regionSelector->DetHashIDList(TRT, _roi, *m_hashIds);
+    m_regionSelector->DetHashIDList(TRT, roi, *m_hashIds);
 }
 
 
