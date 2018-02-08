@@ -131,7 +131,17 @@ G4bool LArFCS_StepInfoSD::ProcessHits(G4Step* a_step,G4TouchableHistory*)
       //for (size_t i=0; i<numberOfProcessedHits; ++i) {
       for (const auto& larhit: processedHits) {
         Identifier id = this->ConvertID(larhit.id);
-        if (id == invalidIdentifier) {
+        if(larhit.id[0]==10) {
+          if(m_config.verboseLevel > 9) {
+            G4cout << this->GetName()<<" VERBOSE ProcessHits: Dead Material LArG4Identifier: "<<(std::string) larhit.id<<G4endl
+                   <<"          "<<id<<G4endl
+                   <<"          "<<id.getString()<<G4endl
+                   <<"          "<< a_step->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetName()<<G4endl
+                   <<"          numberOfProcessedHits: "<<numberOfProcessedHits<<G4endl;
+            G4cout <<"          "<<invalidIdentifier<<G4endl;
+          }
+        }
+        else if (id == invalidIdentifier) {
           G4cout << this->GetName()<<" WARNING ProcessHits: Something wrong with LArG4Identifier: "<<(std::string) larhit.id<<G4endl
                  <<"          "<<id<<G4endl
                  <<"          "<<id.getString()<<G4endl
