@@ -9,6 +9,7 @@
 
 #include "FileCatalog/CommandLine.h"
 #include "FileCatalog/IFileCatalog.h"
+#include "FileCatalog/URIParser.h"
 #include "POOLCore/Exception.h"
 #include "POOLCore/SystemTools.h"
 #include <memory>
@@ -36,7 +37,9 @@ int main(int argc, char** argv)
     
     if( commands.Exists("u") ){
       myuri=commands.GetByName("u");
-    }    
+    } else {
+      myuri=SystemTools::GetEnvStr("POOL_CATALOG");
+    } 
     if( commands.Exists("p") ){
       mypfn=commands.GetByName("p");
     }
@@ -67,7 +70,9 @@ int main(int argc, char** argv)
   }
   try{
     std::auto_ptr<IFileCatalog> mycatalog(new IFileCatalog);
-    mycatalog->setWriteCatalog(myuri);
+    pool::URIParser p( myuri );
+    p.parse();
+    mycatalog->setWriteCatalog(p.contactstring());
     if( !mypfn.empty() ){
       mycatalog->connect();
       mycatalog->start();

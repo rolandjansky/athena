@@ -53,13 +53,13 @@ namespace pool {
      bool dirty() const  { return _fc->dirty(); }
 
      /// Get all FIDs 
-     void getFIDs( Strings& fids ) const { return _fc->getFID(fids); }
+     void getFIDs( Strings& fids ) const { _fc->getFID(fids); }
      
      /// Get all logical names for a given FID. Return pairs <LFN,FID>
-     void getLFNs( const std::string& fid, Files& files ) const { return _fc->getLFN(fid, files); }
+     void getLFNs( const std::string& fid, Files& files ) const { _fc->getLFN(fid, files); }
 
      /// Dump all PFNames of the catalog and their attributes associate to the FileID
-     void getPFNs( const std::string& fid, Files& files ) const { return _fc->getPFN(fid, files); }
+     void getPFNs( const std::string& fid, Files& files ) const { _fc->getPFN(fid, files); }
 
      /// Get the first PFN + filetype for the given FID
      void getFirstPFN( const std::string& fid, std::string& pfn, std::string& tech ) const;
@@ -84,16 +84,16 @@ namespace pool {
      //    bool existsFID( const std::string& fid ) const = 0;
 
      /// Delete FileID Node from the catalog
-     void deleteFID( const std::string& FileID ) { return _fc->deleteFID(FileID); }
+     void deleteFID( const std::string& FileID ) { _fc->deleteFID(FileID); }
 
      /// Delete PFN from the catalog (delete entire FID entry if it was the last PFN)
-     void deletePFN( const std::string& pfn );
+     void deletePFN( const std::string& pfn ) { _fc->deletePFN(pfn); }
 
      /// Register PFN, assign new FID if not given
      void registerPFN( const std::string& pfn, const std::string& ftype, std::string& fid );
 
      /// Rename PFN
-     void renamePFN( const std::string& pfn, const std::string& newpfn );
+     void renamePFN( const std::string& pfn, const std::string& newpfn ) { _fc->renamePFN(pfn, newpfn); }
 
      /// adding replica to an existing PFN
      void addReplicaPFN( const std::string& pfn, const std::string& replica_pfn );
