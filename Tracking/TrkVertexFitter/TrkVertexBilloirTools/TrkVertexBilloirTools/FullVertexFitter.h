@@ -19,7 +19,6 @@ namespace Trk
   class TrackParticleBase;
   class IExtrapolator;
   class IVertexLinearizedTrackFactory;
-  class IVxCandidateXAODVertex; 
   
   /** This class implements a full vertex fitting algorithm as proposed by P. Billoir.
   this algorithm tries to estimate the vertex position with refitting the track
@@ -118,7 +117,6 @@ namespace Trk
 
     ToolHandle< Trk::IExtrapolator > m_extrapolator;
     ToolHandle< Trk::IVertexLinearizedTrackFactory > m_linFactory;
-    ToolHandle< IVxCandidateXAODVertex > m_xaodConverter; 
   };
 }
 #endif

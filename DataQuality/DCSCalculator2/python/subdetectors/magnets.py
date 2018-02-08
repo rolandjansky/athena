@@ -13,8 +13,10 @@ class Magnet_Currents(DCSC_Defect_Global_Variable):
     Overloads calculate_good_iovs
     """
     def make_good_iovs(self, iovs):
-        atlsol_iovs = self.magnet_iov_generator(iovs, 'GLOBAL_SOLENOID', 1, 2, TOLERANCE_SOLENOID)
-        atltor_iovs = self.magnet_iov_generator(iovs, 'GLOBAL_TOROID', 3, 4, TOLERANCE_TOROID)
+        atlsol_iovs = self.magnet_iov_generator(iovs, 'GLOBAL_SOLENOID', 1, 2,
+                                                TOLERANCE_SOLENOID)
+        atltor_iovs = self.magnet_iov_generator(iovs, 'GLOBAL_TOROID', 3, 4,
+                                                TOLERANCE_TOROID)
         return IOVSet(list(atlsol_iovs) + list(atltor_iovs))
 
     def magnet_iov_generator(self, iovs, system, 
@@ -26,8 +28,12 @@ class Magnet_Currents(DCSC_Defect_Global_Variable):
         events = process_iovs(measured_iovs, desired_iovs)
         
         for since, until, (measured, desired) in events:
-            
-            if measured is not None and desired is not None:
+
+            # 28-05-2015: excluding empty 'desired' value, because how do we make
+            # a decision without an expectation? Should debug this some more, as
+            # the issue came up in 2015 run 253014.
+            if measured is not None and desired is not None and not desired._is_empty:
+                # NOTE: if measured is 'empty', this is always true
                 if measured.value <= tolerance:
                     # Magnet off
                     defect = system + '_OFF'

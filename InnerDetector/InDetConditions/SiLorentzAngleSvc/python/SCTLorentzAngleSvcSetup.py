@@ -64,15 +64,21 @@ class SCTLorentzAngleSvcSetup:
             from IOVDbSvc.CondDB import conddb
             from AthenaCommon.AlgSequence import AthSequencer
             condSeq = AthSequencer("AthCondSeq")
+            if not conddb.folderRequested("/SCT/DCS/HV"):
+                conddb.addFolder("DCS_OFL", "/SCT/DCS/HV", className="CondAttrListCollection")
             if not hasattr(condSeq, "SCT_DCSConditionsHVCondAlg"):
                 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsHVCondAlg
                 condSeq += SCT_DCSConditionsHVCondAlg(name = "SCT_DCSConditionsHVCondAlg",
                                                       ReadKey = '/SCT/DCS/HV')
+            if not conddb.folderRequested("/SCT/DCS/CHANSTAT"):
+                conddb.addFolder("DCS_OFL", "/SCT/DCS/CHANSTAT", className="CondAttrListCollection")
             if not hasattr(condSeq, "SCT_DCSConditionsStatCondAlg"):
                 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsStatCondAlg
                 condSeq += SCT_DCSConditionsStatCondAlg(name = "SCT_DCSConditionsStatCondAlg",
                                                         ReadKeyHV = '/SCT/DCS/HV',
                                                         ReadKeyState = '/SCT/DCS/CHANSTAT')
+            if not conddb.folderRequested("/SCT/DCS/MODTEMP"):
+                conddb.addFolder("DCS_OFL", "/SCT/DCS/MODTEMP", className="CondAttrListCollection")
             if not hasattr(condSeq, "SCT_DCSConditionsTempCondAlg"):
                 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsTempCondAlg
                 condSeq += SCT_DCSConditionsTempCondAlg(name = "SCT_DCSConditionsTempCondAlg",

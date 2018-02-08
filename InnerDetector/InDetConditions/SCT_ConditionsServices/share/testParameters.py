@@ -13,10 +13,7 @@ import AthenaCommon.AtlasUnixStandardJob
 # use auditors
 #--------------------------------------------------------------
 from AthenaCommon.AppMgr import ServiceMgr
-
 from GaudiSvc.GaudiSvcConf import AuditorSvc
-#from AthenaCommon.AppMgr import theApp
-
 ServiceMgr += AuditorSvc()
 theAuditorSvc = ServiceMgr.AuditorSvc
 theAuditorSvc.Auditors  += [ "ChronoAuditor"]
@@ -72,38 +69,15 @@ ServiceMgr.GeoModelSvc.DetectorTools['PixelDetectorTool'].LorentzAngleSvc=""
 ServiceMgr.GeoModelSvc.DetectorTools['SCT_DetectorTool'].LorentzAngleSvc=""
 
 #--------------------------------------------------------------
-# Load DCSConditions Alg and Service
-#--------------------------------------------------------------
-from AthenaCommon.AlgSequence import AlgSequence
-topSequence = AlgSequence()
-
-from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-topSequence += xAODMaker__EventInfoCnvAlg(OutputLevel=2)
-
-from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConditionsParameterTestAlg
-topSequence+= SCT_ConditionsParameterTestAlg()
-
-from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConditionsParameterSvc
-ServiceMgr += SCT_ConditionsParameterSvc()
-
-#SCT_DCSConditionsSvc=ServiceMgr.SCT_DCSConditionsSvc
-SCT_ConditionsParameterSvc.AttrListCollFolders=["/SCT/DAQ/Configuration/Chip"]
-
-
-#--------------------------------------------------------------
 # Event selector settings. Use McEventSelector
 #--------------------------------------------------------------
 import AthenaCommon.AtlasUnixGeneratorJob
-#ServiceMgr+= EventSelector()
-#ServiceMgr.EventSelector.FirstEvent = 1
-#ServiceMgr.EventSelector.EventsPerRun = 5
 ServiceMgr.EventSelector.RunNumber = 215643
 # initial time stamp - this is number of seconds since 1st Jan 1970 GMT
 ServiceMgr.EventSelector.InitialTimeStamp  = 1354748400 # LB 469 of run 215643, 2012-12-05 @ 11:00pm (UTC)
-# increment of 3 minutes
-ServiceMgr.EventSelector.TimeStampInterval = 180
+ServiceMgr.EventSelector.TimeStampInterval = 180 # increment of 3 minutes
 
-theApp.EvtMax                   = 10
+theApp.EvtMax = 10
 
 #--------------------------------------------------------------
 # Set output lvl (VERBOSE, DEBUG, INFO, WARNING, ERROR, FATAL)
@@ -118,16 +92,22 @@ from IOVDbSvc.CondDB import conddb
 conddb.dbdata="COMP200"
 IOVDbSvc.GlobalTag=globalflags.ConditionsTag()
 IOVDbSvc.OutputLevel = 3
-conddb.addFolder('',"<db>COOLONL_SCT/COMP200</db> /SCT/DAQ/Configuration/Chip", className="CondAttrListVec")
-conddb.addFolder("","<db>COOLONL_SCT/COMP200</db> /SCT/DAQ/Configuration/ROD")
-conddb.addFolder("","<db>COOLONL_SCT/COMP200</db> /SCT/DAQ/Configuration/Geog")
-conddb.addFolder("","<db>COOLONL_SCT/COMP200</db> /SCT/DAQ/Configuration/RODMUR")
-conddb.addFolder("","<db>COOLONL_SCT/COMP200</db> /SCT/DAQ/Configuration/MUR")
+conddb.addFolder("SCT","/SCT/DAQ/Configuration/ROD")
+conddb.addFolder("SCT","/SCT/DAQ/Configuration/Geog")
+conddb.addFolder("SCT","/SCT/DAQ/Configuration/RODMUR")
+conddb.addFolder("SCT","/SCT/DAQ/Configuration/MUR")
 
-from IOVSvc.IOVSvcConf import CondSvc
-ServiceMgr += CondSvc()
-from AthenaCommon.AlgSequence import AthSequencer
-condSeq = AthSequencer("AthCondSeq")
+#--------------------------------------------------------------
+# Load DCSConditions Alg and Service
+#--------------------------------------------------------------
+from AthenaCommon.AlgSequence import AlgSequence
+topSequence = AlgSequence()
 
-from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConditionsParameterCondAlg
-condSeq += SCT_ConditionsParameterCondAlg( "SCT_ConditionsParameterCondAlg" )
+from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+topSequence += xAODMaker__EventInfoCnvAlg(OutputLevel=2)
+
+from SCT_ConditionsServices.SCT_ConditionsParameterSvcSetup import sct_ConditionsParameterSvcSetup
+sct_ConditionsParameterSvcSetup.setup()
+
+from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConditionsParameterTestAlg
+topSequence+= SCT_ConditionsParameterTestAlg()

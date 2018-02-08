@@ -327,7 +327,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 
                 std::ostringstream cylStream;
                 cylStream << baseName << "::ExtraCyl";
-                std::string cylName = cylStream.str();;
+                std::string cylName = cylStream.str();
                 cylName = cylName + "_beforePS";
 
                 double phi0=(*cryoExtraCyl)[i]->getDouble("PHI0");

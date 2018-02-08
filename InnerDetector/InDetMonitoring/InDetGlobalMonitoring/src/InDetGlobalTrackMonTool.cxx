@@ -203,7 +203,8 @@ StatusCode InDetGlobalTrackMonTool::initialize() {
   
   ATH_CHECK( m_baseline_selTool.retrieve() );
   ATH_CHECK( m_tight_selTool.retrieve() );
-  
+  ATH_CHECK( m_holes_search_tool.retrieve());
+
   sc = ManagedMonitorToolBase::initialize();
   if(!sc.isSuccess()) return sc;
 
@@ -686,7 +687,7 @@ StatusCode InDetGlobalTrackMonTool::fillHistograms()
 	}
 	if ( summary->get(Trk::numberOfTRTHits) + summary->get(Trk::numberOfTRTOutliers) == 0 )
 	{
-	    nNoTRText++;;
+	    nNoTRText++;
 	    m_Trk_noTRText_frac_LB->Fill(m_manager->lumiBlockNumber(), 1);
 	}
 	else

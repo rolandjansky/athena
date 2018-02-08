@@ -111,7 +111,7 @@ namespace DerivationFramework {
       static SG::AuxElement::Decorator<int> firstEgMotherPdgID("firstEgMotherPdgId") ;
       firstEgMotherTT(*el)= 0;
       firstEgMotherTO(*el)= 0;
-      firstEgMotherTPL(*el)=ElementLink<xAOD::TruthParticleContainer>();;
+      firstEgMotherTPL(*el)=ElementLink<xAOD::TruthParticleContainer>();
       firstEgMotherPdgID(*el)=0;
       //
       const xAOD::TruthParticle* eltruth = xAOD::EgammaHelpers::getBkgElectronMother(el,m_barcodecut);

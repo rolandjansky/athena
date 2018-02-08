@@ -748,7 +748,7 @@ void TileRawChannelBuilderOptFilter::buildPulseShape(std::vector<double> &pulseS
 
 //2: scan m_pulseShapeT for: tmin, tmax, nt0 and size: m_pulseShapeX[nt0]=1.0;
   int nt0 = 0;
-  int size = pulseShapeT.size();;
+  int size = pulseShapeT.size();
   double tmin = 10000.;
   double tmax = -10000.;
 

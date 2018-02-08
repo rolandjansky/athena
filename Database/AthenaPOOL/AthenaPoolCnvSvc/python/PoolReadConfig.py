@@ -7,7 +7,7 @@ def PoolReadCfg(inputFlags):
     athena services required for POOL file reading
     """
 
-    filenames=inputFlags.get("AthenaConfiguration.GlobalConfigFlags.InputFiles")
+    filenames=inputFlags.get("AthenaConfiguration.GlobalFlags.InputFiles")
 
     result=ComponentAccumulator()
 

@@ -54,7 +54,7 @@ StatusCode STGC_RawDataContainerCnv::initialize() {
 STGC_RawDataContainer_PERS*    STGC_RawDataContainerCnv::createPersistent (Muon::STGC_RawDataContainer* transCont) {
     MsgStream log(msgSvc(), "STGC_RawDataContainerCnv" );
     if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createPersistent(): main converter"<<endmsg;
-    return m_TPConverter.createPersistent( transCont, log );;
+    return m_TPConverter.createPersistent( transCont, log );
 }
 
 Muon::STGC_RawDataContainer*

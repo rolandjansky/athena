@@ -426,7 +426,7 @@ StatusCode T2SampCalibTool::printCondObjects(){
     for(int i=0;i<ve_size;++i){
       m_log << MSG::DEBUG << "T2SampCalibTool::VECut["<<i<<"]: " 
             << (m_lvl2_calib->ve_cuts()).at(i) 
-            << endmsg;;
+            << endmsg;
     }
     int weight_size=(m_lvl2_calib->calib_weights().size());
     m_log << MSG::DEBUG << "T2SampCalibTool::Number of ve bins: " <<  ve_size << endmsg;

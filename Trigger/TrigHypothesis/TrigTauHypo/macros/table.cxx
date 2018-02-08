@@ -14,7 +14,7 @@ struct Cuts{
   int l2NtrkMin;
   int l2NtrkMax;
   float l2LeadtPtMin;
-  float l2SumPtRatioMax;;
+  float l2SumPtRatioMax;
   float l2SimpleEtFlowMin;
 
   int efNTrackMin     ;   
@@ -33,7 +33,7 @@ struct Cuts{
   l2NtrkMin = 0;
   l2NtrkMax = 0;
   l2LeadtPtMin = 0;
-  l2SumPtRatioMax = 0;;
+  l2SumPtRatioMax = 0;
   l2SimpleEtFlowMin = 0;
 
   efNTrackMin     = 0 ;   

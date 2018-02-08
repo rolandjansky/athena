@@ -154,7 +154,7 @@ StatusCode SCTTracksMonTool::initialize() {
   ATH_CHECK( SCTMotherTrigMonTool::initialize() );
 
   ATH_CHECK( m_tracksName.initialize() );
-
+  CHECK(m_residualPullCalculator.retrieve());
   return StatusCode::SUCCESS;
 }
 
@@ -191,7 +191,7 @@ SCTTracksMonTool::bookHistogramsRecurrent() {                                   
       ATH_MSG_WARNING("Error in booking track histograms for " << names[sys]);
     }
   }
-  CHECK(m_residualPullCalculator.retrieve());
+
   return StatusCode::SUCCESS;
 }
 
@@ -228,7 +228,7 @@ SCTTracksMonTool::bookHistograms() {                                            
       ATH_MSG_WARNING("Error in booking track histograms for " << names[sys]);
     }
   }
-  CHECK(m_residualPullCalculator.retrieve());
+
   return StatusCode::SUCCESS;
 }
 

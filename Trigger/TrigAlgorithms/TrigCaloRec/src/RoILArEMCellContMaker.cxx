@@ -61,8 +61,7 @@ StatusCode RoILArEMCellContMaker::initialize(){
     StatusCode sc=toolSvc()->retrieveTool("LArCablingService",m_cablingSvc);
     if (sc!=StatusCode::SUCCESS) return sc;
 
-  }
-  else {
+  } else {
     m_noiseTool.disable();
   }
 

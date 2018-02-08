@@ -65,8 +65,7 @@ else()
       Tracking/TrkEvent/VxVertex
       Tracking/TrkTools/TrkToolInterfaces
       Tracking/TrkVertexFitter/TrkVertexFitterInterfaces
-      Tracking/TrkVertexFitter/TrkVertexFitters
-      Tracking/TrkVertexFitter/TrkVxEdmCnv )
+      Tracking/TrkVertexFitter/TrkVertexFitters)
 endif()
 
 # External dependencies:
@@ -143,7 +142,7 @@ if( NOT XAOD_STANDALONE )
          InDetRecToolInterfaces JetEDM Particle ITrackToVertex
          RecoToolInterfaces TrkLinks TrkParametersIdentificationHelpers
          TrkTrackSummary VxVertex TrkToolInterfaces TrkVertexFitterInterfaces
-         TrkVertexFittersLib TrkVxEdmCnvLib InDetTrackSelectionToolLib
+         TrkVertexFittersLib InDetTrackSelectionToolLib
          tauRecToolsLib )
    endif()
 endif()

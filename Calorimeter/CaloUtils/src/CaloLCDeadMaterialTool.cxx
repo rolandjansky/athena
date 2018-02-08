@@ -507,7 +507,7 @@ void set_zero_moments(CaloCluster *theCluster) {
     theCluster->insertMoment(CaloCluster::ENG_RECO_EMB0, 0.0);
     theCluster->insertMoment(CaloCluster::ENG_RECO_EME0, 0.0);
     theCluster->insertMoment(CaloCluster::ENG_RECO_TILEG3, 0.0);
-    theCluster->insertMoment(CaloCluster::ENG_RECO_DEAD_TOT, 0.0);;
+    theCluster->insertMoment(CaloCluster::ENG_RECO_DEAD_TOT, 0.0);
     for(size_t i_dm=0; i_dm < DeadMaterialCorrectionTool2::sDM; i_dm++) {
       CaloCluster::MomentType m_type = (CaloCluster::MomentType) (int(CaloCluster::ENG_RECO_DEAD_EMB0)+i_dm);
       theCluster->insertMoment(m_type, 0.0);

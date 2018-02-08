@@ -126,7 +126,7 @@ void LArGeo::LArDetectorFactoryH62002::getSimulationParameters()
    (*log)<< MSG::WARNING << "LArDectorFactoryH62002:\tCan't access LArGeoTBH1GeoOptions, using default values\n";
   }
 
- (*log)<< MSG::INFO<< endmsg;;
+ (*log)<< MSG::INFO<< endmsg;
  (*log)<< MSG::INFO << " Use cryo X : " <<  m_cryoXpos << " CLHEP::mm" << endmsg;
  (*log)<< MSG::INFO << " Use table Y : " <<  m_tableYpos << " CLHEP::mm" << endmsg;
 

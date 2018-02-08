@@ -14,6 +14,7 @@
 #include "xAODTracking/VertexFwd.h"
 #include "xAODTracking/VertexAuxContainer.h"
 #include "xAODTracking/TrackParticleFwd.h"
+#include "GeneratorObjects/McEventCollection.h"
 
  /**
   * @class Trk::TrueVertexDistanceWeightCalculator 
@@ -60,14 +61,10 @@ class McEventCollection;
     
          
   private:
-
+    SG::ReadHandleKey<McEventCollection> m_mcEventCollectionKey { this, "McTruthCollection", "TruthEvent", 
+                                                                  "key to retrieve MC truth" };
 
     double mEstimateSignalCompatibility(const Amg::Vector3D& vtxPosition);
-
-    std::string m_McEventCollectionName;
-
-    
-
  
   }; //end of class description
  }//end of namespace definition

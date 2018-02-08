@@ -1846,7 +1846,7 @@ StatusCode FixLArElecCalib::fix13() {
 	OrderOnlHash_OffID[m_sonline_idhelper->channel_Hash( shwid ).value()]  =  SCID.get_identifier32().get_compact();
     }
     of << "Hash check.  Onl : " << min_onl_hash << " " << max_onl_hash;
-    of << ";   Off : " << min_off_hash << " " << max_off_hash << std::endl;;
+    of << ";   Off : " << min_off_hash << " " << max_off_hash << std::endl;
     of.close();
 
     channel_size = m_hec_idhelper->channel_hash_max();
@@ -1980,7 +1980,7 @@ StatusCode FixLArElecCalib::fix13() {
     }
 
     of3 << "Hash check.  Onl : " << min_onl_hash << " " << max_onl_hash;
-    of3 << ";   Off : " << min_off_hash << " " << max_off_hash << std::endl;;
+    of3 << ";   Off : " << min_off_hash << " " << max_off_hash << std::endl;
     of3.close();
 
 

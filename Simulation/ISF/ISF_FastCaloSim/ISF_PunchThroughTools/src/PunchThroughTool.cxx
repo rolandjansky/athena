@@ -20,7 +20,7 @@
 #include <math.h>
 
 // Control
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 // Gaudi & StoreGate
 #include "GaudiKernel/IPartPropSvc.h"
@@ -290,15 +290,15 @@ StatusCode ISF::PunchThroughTool::initialize()
 
               if (r_tempCalo==r_tempMS && z_tempCalo==z_tempMS && found1==false )
                 {
-                  R1=r_tempMS;
-                  z1=fabs(z_tempMS);
+                  m_R1=r_tempMS;
+                  m_z1=fabs(z_tempMS);
                   found1=true;
                   continue;
                 }
-              else if (r_tempCalo==r_tempMS && z_tempCalo==z_tempMS && r_tempCalo!=R1 && fabs(z_tempCalo)!=z1)
+              else if (r_tempCalo==r_tempMS && z_tempCalo==z_tempMS && r_tempCalo!=m_R1 && fabs(z_tempCalo)!=m_z1)
                 {
-                  R2=r_tempMS;
-                  z2=fabs(z_tempMS);
+                  m_R2=r_tempMS;
+                  m_z2=fabs(z_tempMS);
                   found2=true;
                 }
             }
@@ -309,15 +309,15 @@ StatusCode ISF::PunchThroughTool::initialize()
 
   //in case geometry description changes
   if (found1 == false) ATH_MSG_ERROR ("first coordinate of calo-MS border not found");
-  if (found2 == false) ATH_MSG_ERROR ("second coordinate of calo-MS border not found; first one is: R1 ="<<R1<<" z1 ="<<z1);
+  if (found2 == false) ATH_MSG_ERROR ("second coordinate of calo-MS border not found; first one is: R1 ="<<m_R1<<" z1 ="<<m_z1);
 
   //now order the found values
   double r_temp, z_temp;
-  if (R1>R2) { r_temp=R1; R1=R2; R2=r_temp; } //R1 - smaller one
-  if (z1<z2) { z_temp=z1; z1=z2; z2=z_temp; } //z1 - bigger one
+  if (m_R1>m_R2) { r_temp=m_R1; m_R1=m_R2; m_R2=r_temp; } //m_R1 - smaller one
+  if (m_z1<m_z2) { z_temp=m_z1; m_z1=m_z2; m_z2=z_temp; } //m_z1 - bigger one
 
-  if (R1==R2 || z1==z2) ATH_MSG_ERROR ("[punch-though] Bug in propagation calculation! R1="<<R1<<" R2 = "<<R2<<" z1="<<z1<<" z2= "<<z2 );
-  else                  ATH_MSG_DEBUG ("calo-MS boundary coordinates: R1="<<R1<<" R2 = "<<R2<<" z1="<<z1<<" z2= "<<z2);
+  if (m_R1==m_R2 || m_z1==m_z2) ATH_MSG_ERROR ("[punch-though] Bug in propagation calculation! R1="<<m_R1<<" R2 = "<<m_R2<<" z1="<<m_z1<<" z2= "<<m_z2 );
+  else                  ATH_MSG_DEBUG ("calo-MS boundary coordinates: R1="<<m_R1<<" R2 = "<<m_R2<<" z1="<<m_z1<<" z2= "<<m_z2);
 
   ATH_MSG_INFO( "punchthrough initialization is successful" );
   return StatusCode::SUCCESS;
@@ -998,45 +998,45 @@ Amg::Vector3D ISF::PunchThroughTool::propagator(double theta,double phi) const
   double x, y, z, r;
 
   // cylinders border angles
-  double theta1 = atan (R1/z1);
-  double theta2 = atan (R1/z2);
-  double theta3 = atan (R2/z2);
+  double theta1 = atan (m_R1/m_z1);
+  double theta2 = atan (m_R1/m_z2);
+  double theta3 = atan (m_R2/m_z2);
   //where is the particle
 
   if (theta >= 0 && theta < theta1)
     {
-      z = z1;
-      r = fabs (z1*tan(theta));
+      z = m_z1;
+      r = fabs (m_z1*tan(theta));
     }
   else if (theta >= theta1 && theta < theta2)
     {
-      z = R1/tan(theta);
-      r = R1;
+      z = m_R1/tan(theta);
+      r = m_R1;
     }
   else if (theta >= theta2 && theta < theta3)
     {
-      z = z2;
-      r = fabs(z2*tan(theta));;
+      z = m_z2;
+      r = fabs(m_z2*tan(theta));
     }
   else if (theta >= theta3 && theta < (TMath::Pi()-theta3) )
     {
-      z = R2/tan(theta);
-      r = R2;
+      z = m_R2/tan(theta);
+      r = m_R2;
     }
   else if (theta >= (TMath::Pi()-theta3) && theta < (TMath::Pi()-theta2) )
     {
-      z = -z2;
-      r = fabs(z2*tan(theta));
+      z = -m_z2;
+      r = fabs(m_z2*tan(theta));
     }
   else if (theta >= (TMath::Pi()-theta2) && theta < (TMath::Pi()-theta1) )
     {
-      z = R1/tan(theta);
-      r = R1;
+      z = m_R1/tan(theta);
+      r = m_R1;
     }
   else if (theta >= (TMath::Pi()-theta1) && theta <= TMath::Pi() )
     {
-      z = -z1;
-      r = fabs(z1*tan(theta));
+      z = -m_z1;
+      r = fabs(m_z1*tan(theta));
     }
 
   //parallel universe

@@ -127,7 +127,7 @@ const HepMC::GenParticle * TruthParticle::genChild(const std::size_t i) const
 {
   if ( i < m_children.size() ) {
     const TruthParticle* child = this->child(i);
-    return child ? child->genParticle() : 0;;
+    return child ? child->genParticle() : 0;
   } else {
     std::string error = "WRONG index for TruthParticle::genChild(index)";
     throw std::out_of_range(error);

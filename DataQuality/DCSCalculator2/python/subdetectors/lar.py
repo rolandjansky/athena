@@ -1,8 +1,11 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from .lib import DCSC_Subdetector, DCSC_Global_Variable
+from .lib import DCSC_DefectTranslate_Subdetector, DCSC_Global_Variable
 
-class LAr(DCSC_Subdetector):
+GREY, RED, YELLOW = 0, 1, 2
+EMBA, EMBC, EMECA, EMECC, HECA, HECC, FCALA, FCALC = 202, 203, 204, 205, 214, 215, 224, 225
+
+class LAr(DCSC_DefectTranslate_Subdetector):
     """
     This subdetector only uses one global variable, FSM.
     
@@ -17,14 +20,14 @@ class LAr(DCSC_Subdetector):
     # states which should be merged together for a DQ region, rather than 
     # channels which should be counted in a dead fraction.
     mapping = {
-        202: [1],
-        203: [2],
-        204: [3],
-        205: [4],
-        224: [28, 30],
-        225: [29, 31],
-        214: [13, 14, 30],
-        215: [8, 15, 31],
+        EMBA: [1],
+        EMBC: [2],
+        EMECA: [3],
+        EMECC: [4],
+        FCALA: [28, 30],
+        FCALC: [29, 31],
+        HECA: [13, 14, 30],
+        HECC: [8, 15, 31],
     }
     
     def select_globals(self, output_channel, input_globals):
@@ -56,3 +59,25 @@ class LAr(DCSC_Subdetector):
             ),
         ]
 
+    def __init__(self, *args, **kwargs):
+        super(LAr, self).__init__(*args, **kwargs)
+        self.translators = ([LAr.color_to_defect_translator(flag, defect, [RED])
+                            for flag, defect in ((EMBA, 'LAR_EMBA_DCS_ERROR'),
+                                                 (EMBC, 'LAR_EMBC_DCS_ERROR'),
+                                                 (EMECA, 'LAR_EMECA_DCS_ERROR'),
+                                                 (EMECC, 'LAR_EMECC_DCS_ERROR'),
+                                                 (HECA, 'LAR_HECA_DCS_ERROR'),
+                                                 (HECC, 'LAR_HECC_DCS_ERROR'),
+                                                 (FCALA, 'LAR_FCALA_DCS_ERROR'),
+                                                 (FCALC, 'LAR_FCALC_DCS_ERROR'),
+                                                 )]
+                            + [LAr.color_to_defect_translator(flag, defect, [YELLOW, GREY])
+                            for flag, defect in ((EMBA, 'LAR_EMBA_DCS_WARNING'),
+                                                 (EMBC, 'LAR_EMBC_DCS_WARNING'),
+                                                 (EMECA, 'LAR_EMECA_DCS_WARNING'),
+                                                 (EMECC, 'LAR_EMECC_DCS_WARNING'),
+                                                 (HECA, 'LAR_HECA_DCS_WARNING'),
+                                                 (HECC, 'LAR_HECC_DCS_WARNING'),
+                                                 (FCALA, 'LAR_FCALA_DCS_WARNING'),
+                                                 (FCALC, 'LAR_FCALC_DCS_WARNING'),
+                                                 )])

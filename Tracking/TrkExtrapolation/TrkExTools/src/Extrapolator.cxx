@@ -258,6 +258,9 @@ Trk::Extrapolator::initialize() {
       return StatusCode::FAILURE;
     } else {
       ATH_MSG_INFO("Retrieved tools: " << m_updators);
+      for (auto& tool : m_updators) {
+        tool.disable();
+      }
     }
   }
 

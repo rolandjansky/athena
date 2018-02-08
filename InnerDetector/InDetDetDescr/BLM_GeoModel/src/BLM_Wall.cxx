@@ -271,7 +271,7 @@ GeoPhysVol* BLM_Wall::BuildLayerIII(double thick, const GeoMaterial* material)
   const GeoShapeSubtraction& blm1 = blmWallBox->subtract(((*blmWallHole) << offset1));
   const GeoShapeSubtraction& blm2 = blm1.subtract(((*blmWallHole) << offset2));
   const GeoShapeSubtraction& blm3 = blm2.subtract(((*blmWallHole) << offset3));
-  const GeoShapeSubtraction& blm4 = blm3.subtract(((*blmWallHole) << offset4));;
+  const GeoShapeSubtraction& blm4 = blm3.subtract(((*blmWallHole) << offset4));
   const GeoShapeSubtraction& blmFinal = blm4.subtract(((*blmWallHole1) << offset5));
 
   const GeoLogVol* blmWallLog = new GeoLogVol("blmWallLog", &blmFinal, material);
@@ -304,7 +304,7 @@ GeoPhysVol* BLM_Wall::BuildLayerIV(double thick, const GeoMaterial* material)
   const GeoShapeSubtraction& blm1 = blmWallBox->subtract(((*blmWallHole) << offset1));
   const GeoShapeSubtraction& blm2 = blm1.subtract(((*blmWallHole) << offset2));
   const GeoShapeSubtraction& blm3 = blm2.subtract(((*blmWallHole) << offset3));
-  const GeoShapeSubtraction& blm4 = blm3.subtract(((*blmWallHole) << offset4));;
+  const GeoShapeSubtraction& blm4 = blm3.subtract(((*blmWallHole) << offset4));
   const GeoShapeSubtraction& blm5 = blm4.subtract(((*blmWallHole1) << offset5));
   const GeoShapeSubtraction& blmFinal = blm5.subtract(((*blmWallHole2) << offset6));
 
@@ -331,7 +331,7 @@ GeoPhysVol* BLM_Wall::BuildLayerV(double thick, const GeoMaterial* material)
   const GeoShapeSubtraction& blm1 = blmWallBox->subtract(((*blmWallHole) << offset1));
   const GeoShapeSubtraction& blm2 = blm1.subtract(((*blmWallHole) << offset2));
   const GeoShapeSubtraction& blm3 = blm2.subtract(((*blmWallHole) << offset3));
-  const GeoShapeSubtraction& blmFinal = blm3.subtract(((*blmWallHole) << offset4));;
+  const GeoShapeSubtraction& blmFinal = blm3.subtract(((*blmWallHole) << offset4));
 
   const GeoLogVol* blmWallLog = new GeoLogVol("blmWallLog", &blmFinal, material);
   GeoPhysVol* blmWallPhys = new GeoPhysVol(blmWallLog);

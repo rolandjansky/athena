@@ -1077,7 +1077,7 @@ namespace Analysis
 
     //ATH_MSG_DEBUG( "#BTAG# tagJet is done" );
 
-    return  StatusCode::SUCCESS;;
+    return  StatusCode::SUCCESS;
   }
 
 

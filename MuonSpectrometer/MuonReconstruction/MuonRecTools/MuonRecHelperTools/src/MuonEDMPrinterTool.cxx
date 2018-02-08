@@ -686,7 +686,7 @@ namespace Muon {
             ATH_MSG_DEBUG("Cannot retrieve DetectorManager ");
           }else{
             Identifier idml1 = m_idHelper->mdtIdHelper().channelID(id,1,1,1);
-            Identifier idml2 = m_idHelper->mdtIdHelper().channelID(id,2,1,1);;
+            Identifier idml2 = m_idHelper->mdtIdHelper().channelID(id,2,1,1);
             const MuonGM::MdtReadoutElement* detEl1 = detMgr->getMdtReadoutElement( idml1 );
             const MuonGM::MdtReadoutElement* detEl2 = 0;
             if (m_idHelper->mdtIdHelper().numberOfMultilayers(id) == 2){

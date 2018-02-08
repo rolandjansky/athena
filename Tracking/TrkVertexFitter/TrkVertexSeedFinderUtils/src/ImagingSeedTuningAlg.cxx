@@ -10,7 +10,7 @@
 /////////////////////////////////////////////////////////////////// 
 
 // TrkVertexSeedFinderUtils includes
-#include "TrkVertexSeedFinderUtils/ImagingSeedTuningAlg.h"
+#include "ImagingSeedTuningAlg.h"
 
 // STL includes
 
@@ -27,15 +27,7 @@
 
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 
-#include "xAODTracking/Vertex.h"
-#include "xAODTracking/TrackParticle.h"
-#include "xAODTracking/VertexContainer.h"
-#include "xAODTracking/TrackParticleContainer.h"
-
 #include "TrkLinks/LinkToXAODTrackParticle.h"
-
-#include "xAODTruth/TruthEventContainer.h"
-#include "xAODTruth/TruthPileupEventContainer.h"
 
 #include <limits>
 
@@ -90,6 +82,10 @@ ImagingSeedTuningAlg::~ImagingSeedTuningAlg()
 StatusCode ImagingSeedTuningAlg::initialize()
 {
   ATH_MSG_INFO ("Initializing " << name() << "...");
+
+  ATH_CHECK( m_trackParticlesKey.initialize() );
+  ATH_CHECK( m_truthEventsKey.initialize() );
+  ATH_CHECK( m_pileupEventsKey.initialize() );
 
   Trk::IVertexSeedFinder* p_ivsf;
   CHECK( m_seedFinder.retrieve(p_ivsf) );
@@ -216,11 +212,10 @@ StatusCode ImagingSeedTuningAlg::execute()
 {  
   ATH_MSG_DEBUG ("Executing " << name() << "...");
 
-  const xAOD::TrackParticleContainer* trackParticles = 0; 
-  CHECK( evtStore()->retrieve(trackParticles,"InDetTrackParticles") );
+  SG::ReadHandle<xAOD::TrackParticleContainer> trackParticles(m_trackParticlesKey);
 
   std::vector<Trk::ITrackLink*> trackVector;
-  selectTracks(trackParticles, trackVector);
+  selectTracks(trackParticles.cptr(), trackVector);
 
   std::vector<const Trk::TrackParameters*> perigeeList;
   analyzeTracks(trackVector, perigeeList);
@@ -510,8 +505,8 @@ StatusCode ImagingSeedTuningAlg::findTruth(const std::vector<Trk::ITrackLink*>& 
 {
     xAOD::TrackParticle::ConstAccessor<ElementLink<xAOD::TruthParticleContainer> > truthParticleAssoc("truthParticleLink");
 
-    const xAOD::TruthEventContainer* signalEvents = 0; 
-    CHECK( evtStore()->retrieve(signalEvents,"TruthEvents") );
+    SG::ReadHandle<xAOD::TruthEventContainer> signalEvents(m_truthEventsKey);
+
     for (const xAOD::TruthEventBase* evt : *signalEvents)
     {
       const xAOD::TruthVertex* vLink = *(evt->truthVertexLink(0));
@@ -545,8 +540,8 @@ StatusCode ImagingSeedTuningAlg::findTruth(const std::vector<Trk::ITrackLink*>& 
 	}
       }
     }
-    const xAOD::TruthPileupEventContainer* pileupEvents = 0;
-    CHECK( evtStore()->retrieve(pileupEvents,"TruthPileupEvents") );
+    SG::ReadHandle<xAOD::TruthPileupEventContainer> pileupEvents(m_pileupEventsKey);
+
     for (const xAOD::TruthEventBase* evt : *pileupEvents)
     {
       const xAOD::TruthVertex* vLink = *(evt->truthVertexLink(0));

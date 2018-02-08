@@ -1234,7 +1234,7 @@ namespace Muon {
       bool measuresPhi = pseudo ? true : m_idHelper->measuresPhi(id);
       
       // bound checks
-      Amg::Vector2D locPos;;
+      Amg::Vector2D locPos;
       if( !meas->associatedSurface().globalToLocal(pars->position(),pars->position(),locPos) ){
 	ATH_MSG_DEBUG(" localToGlobal failed !!!!! " );
 	continue;

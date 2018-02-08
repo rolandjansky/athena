@@ -106,7 +106,7 @@ bool add_operation(bool wihtAux) {
   Holder<TestBContainer>* cch(0);
   if ( !reg( new HolderImp<TestBContainer, TestBContainer>(), "TestB", 11, deco, cch) ) REPORT_AND_STOP("It should have failed before");
 
-  TestBContainer* dav0 = new TestBContainer;;
+  TestBContainer* dav0 = new TestBContainer;
   dav0->push_back(new TestB(6));
   REPORT_AND_CONTINUE( "adding simple vec" );
   HLT::TriggerElement::ObjectIndex single = cch->add(dav0, false);

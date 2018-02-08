@@ -18,7 +18,6 @@ topSequence = AlgSequence()
 
 from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
 alg = xAODMaker__EventInfoCnvAlg()
-alg.xAODKey = ""
 topSequence += alg
 
 #from AthenaPoolTools.AthenaPoolToolsConf import BookkeeperDumper

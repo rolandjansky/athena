@@ -280,7 +280,7 @@
 //     float binmax = float(nbins) + binmin;
     
 //     MgmtAttr_t attr = ATTRIB_MANAGED;
-//     m_segmDetail_EA.push_back(new MonGroup(this, segm_detailA+theKey+"/CSC", run, attr ));;
+//     m_segmDetail_EA.push_back(new MonGroup(this, segm_detailA+theKey+"/CSC", run, attr ));
 //     m_segmDetail_EC.push_back(new MonGroup(this, segm_detailC+theKey+"/CSC", run, attr ));  
 //     m_segmOview_EA.push_back(new MonGroup(this, segm_oviewA+theKey+"/CSC", run, attr ));
 //     m_segmOview_EC.push_back(new MonGroup(this, segm_oviewC+theKey+"/CSC", run, attr ));

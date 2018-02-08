@@ -2401,10 +2401,10 @@ double MuonCalibrationAndSmearingTool::GetSystVariation( int DetType, double var
                                                                        double& chi2){
     
     chi2   = 1e20;
-    AmgVector(5) parsID = (*inDetTrackParticle)->definingParameters();;
+    AmgVector(5) parsID = (*inDetTrackParticle)->definingParameters();
     parsID[4] = fabs(parsID[4]);
 
-    AmgVector(5) parsMS = (*extrTrackParticle)->definingParameters();;
+    AmgVector(5) parsMS = (*extrTrackParticle)->definingParameters();
     //int chargeMS = parsMS[4]/fabs(parsMS[4]);
     parsMS[4] = fabs(parsMS[4]);
     

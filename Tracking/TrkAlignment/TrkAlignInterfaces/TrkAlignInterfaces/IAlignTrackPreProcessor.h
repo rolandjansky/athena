@@ -19,7 +19,7 @@
 */
 
 #include "GaudiKernel/IAlgTool.h"
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 #include <fstream>
 

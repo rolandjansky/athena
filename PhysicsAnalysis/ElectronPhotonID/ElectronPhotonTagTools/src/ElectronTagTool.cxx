@@ -178,7 +178,7 @@ StatusCode ElectronTagTool::attributeSpecification(std::map<std::string,AthenaAt
     /** Tightness */
     os.str("");
     os << ElectronAttributeNames[ElectronID::Tight] << std::dec << i;
-    attrMap[ os.str() ] = AthenaAttributeType("unsigned int", ElectronAttributeUnitNames[ElectronID::Tight], ElectronAttributeGroupNames[ElectronID::Tight]) ;;
+    attrMap[ os.str() ] = AthenaAttributeType("unsigned int", ElectronAttributeUnitNames[ElectronID::Tight], ElectronAttributeGroupNames[ElectronID::Tight]) ;
     m_tightStr.push_back( os.str() );
 
     /** Isolation for  Electron */

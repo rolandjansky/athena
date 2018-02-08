@@ -135,7 +135,7 @@ SCT_ConditionsSummarySvc::isGood(const IdentifierHash & /*elementHash*/, const I
     SvcVector_t::const_iterator svc(m_svcHandles.begin());
     SvcVector_t::const_iterator lastSvc(m_svcHandles.end());
     for (;svc not_eq lastSvc;++svc){
-      if ((*svc)->canReportAbout(InDetConditions::SCT_STRIP) and (not (*svc)->isGood(elementId))) return false;;
+      if ((*svc)->canReportAbout(InDetConditions::SCT_STRIP) and (not (*svc)->isGood(elementId))) return false;
     } 
   }
   return true;

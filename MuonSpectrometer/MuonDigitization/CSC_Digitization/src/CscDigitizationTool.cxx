@@ -388,8 +388,8 @@ FillCollectionWithNewDigitEDM(csc_newmap& data_SampleMap,
       driftTime   = 2*m_timeWindowUpperOffset; 
     }
     
-    int zsec = m_cscIdHelper->stationEta(digitId);;
-    int phisec = m_cscIdHelper->stationPhi(digitId);;
+    int zsec = m_cscIdHelper->stationEta(digitId);
+    int phisec = m_cscIdHelper->stationPhi(digitId);
     int istation = m_cscIdHelper->stationName(digitId) - 49;
     
     int wlay = m_cscIdHelper->wireLayer(digitId);
@@ -515,8 +515,8 @@ FillCollectionWithOldDigitEDM(csc_map& data_map, std::map<IdentifierHash,deposit
                       << " hash = " << hashId 
                       << " charge = " << int (stripCharge+1) );
     
-    int zsec = m_cscIdHelper->stationEta(digitId);;
-    int phisec = m_cscIdHelper->stationPhi(digitId);;
+    int zsec = m_cscIdHelper->stationEta(digitId);
+    int phisec = m_cscIdHelper->stationPhi(digitId);
     int istation = m_cscIdHelper->stationName(digitId) - 49;
     
     int wlay = m_cscIdHelper->wireLayer(digitId);

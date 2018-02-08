@@ -1272,7 +1272,7 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
         // FlagAA: THIS CODE IS NOT BACKWARD COMPATIBLE! Commited on Sep 18th, 2013
         // now stores the local position in millimiters without Lorentz Correction
         // before it was storing a floating point coordinate in units of pixels
-        localx = (*iCluster)->localPosition()[Trk::distPhi] - sielement->getLorentzCorrection();;
+        localx = (*iCluster)->localPosition()[Trk::distPhi] - sielement->getLorentzCorrection();
         localy = (*iCluster)->localPosition()[Trk::distEta];
       }
 

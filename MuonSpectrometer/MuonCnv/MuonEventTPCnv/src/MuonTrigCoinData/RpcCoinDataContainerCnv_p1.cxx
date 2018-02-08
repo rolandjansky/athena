@@ -174,7 +174,7 @@ void  Muon::RpcCoinDataContainerCnv_p1::persToTrans(const RpcCoinDataContainerCn
               int result = m_RpcId->get_detectorElement_hash(clusId, deIDHash);
               if (result) log << MSG::WARNING  << " Muon::MdtPrepDataContainerCnv_p2::persToTrans: problem converting Identifier to DE hash "<<endmsg;
               const MuonGM::RpcReadoutElement* detEl =
-                m_muonDetMgr->getRpcReadoutElement(deIDHash);;
+                m_muonDetMgr->getRpcReadoutElement(deIDHash);
 
               auto chan = CxxUtils::make_unique<Muon::RpcCoinData>
                 (chanCnv.createRpcCoinData (pchan,

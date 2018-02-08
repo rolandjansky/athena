@@ -98,7 +98,7 @@ PRDSystemController::PRDSystemController(IVP1System * sys)
 
   m_d->highlightmaterial = 0;
 
-  m_d->ui_int.matButton_multiselline->setMaterial(VP1MaterialButton::createMaterial(1,1,0));;
+  m_d->ui_int.matButton_multiselline->setMaterial(VP1MaterialButton::createMaterial(1,1,0));
 
   m_d->ui_cuts.groupBox_cuts_tracksegmentassociation->setVisible(false);//Since it is not used at the moment!
   if (!VP1QtUtils::environmentVariableIsOn("VP1_DEVEL_ENABLEREFIT"))

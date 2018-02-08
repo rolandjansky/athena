@@ -181,13 +181,13 @@ StatusCode SGImplSvc::initialize()    {
     m_pDataLoader = 0;
     error() << "Could not get pointer to Persistency Service"
             << endmsg;
-    return StatusCode::FAILURE;;
+    return StatusCode::FAILURE;
   }
 
   if (!(service("ClassIDSvc", m_pCLIDSvc, CREATEIF)).isSuccess()) {
     error() << "Could not get pointer to ClassID Service"
             << endmsg;
-    return StatusCode::FAILURE;;
+    return StatusCode::FAILURE;
   }
 
   if (!m_pPPSHandle.empty()) {

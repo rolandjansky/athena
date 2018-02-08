@@ -57,7 +57,6 @@
 #include "xAODTracking/VertexAuxContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
-#include "TrkVxEdmCnv/IVxCandidateXAODVertex.h"
 
 //#define INDETADAPTIVEPRIVXFINDERTOOL_DEBUG
 
@@ -76,7 +75,6 @@ InDetIterativePriVxFinderTool::InDetIterativePriVxFinderTool(const std::string& 
 //          m_ImpactPoint3dAtaPlaneFactory("Trk::ImpactPoint3dAtaPlaneFactory"),
 //          m_ImpactPoint3dAtaPlaneFactory("Trk::ImpactPoint3dAtaPlaneFactory"),
           m_ImpactPoint3dEstimator("Trk::ImpactPoint3dEstimator"),
-	  m_VertexEdmFactory("Trk::VertexInternalEdmFactory"),
           m_iBeamCondSvc("BeamCondSvc",n),
           m_useBeamConstraint(false),
           m_significanceCutSeeding(10),
@@ -99,7 +97,6 @@ InDetIterativePriVxFinderTool::InDetIterativePriVxFinderTool(const std::string& 
 //    declareProperty("ImpactPoint3dAtaPlaneFactory",m_ImpactPoint3dAtaPlaneFactory);
     declareProperty("ImpactPoint3dEstimator",m_ImpactPoint3dEstimator);
     declareProperty("LinearizedTrackFactory",m_LinearizedTrackFactory);
-    declareProperty("InternalEdmFactory", m_VertexEdmFactory);
 
     declareProperty("useBeamConstraint",m_useBeamConstraint);
     declareProperty("significanceCutSeeding",m_significanceCutSeeding);
@@ -179,11 +176,6 @@ StatusCode InDetIterativePriVxFinderTool::initialize()
        msg(MSG::INFO) << "Retrieved tool " << m_ImpactPoint3dAtaPlaneFactory << endmsg;
      }
     */
-
-    if ( m_VertexEdmFactory.retrieve().isFailure() ) {
-      ATH_MSG_ERROR("Failed to retrievel tool " << m_VertexEdmFactory);
-      return StatusCode::FAILURE;
-    }
 
     // since some parameters special to an inherited class this method
     // will be overloaded by the inherited class
