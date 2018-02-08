@@ -183,8 +183,7 @@ namespace EL
     ///   algorithm creation/initialization errors
   public:
     ::StatusCode
-    makeAlgorithm (std::unique_ptr<AnaAlgorithm>& algorithm,
-                   std::vector<std::shared_ptr<void> >& cleanup) const;
+    makeAlgorithm (std::unique_ptr<AnaAlgorithm>& algorithm) const;
 
 
 

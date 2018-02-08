@@ -233,6 +233,14 @@ namespace EL
 
 
 
+  void AnaAlgorithm ::
+  addCleanup (const std::shared_ptr<void>& cleanup)
+  {
+    m_cleanup.push_back (cleanup);
+  }
+
+
+
   const std::string& AnaAlgorithm ::
   name () const
   {
