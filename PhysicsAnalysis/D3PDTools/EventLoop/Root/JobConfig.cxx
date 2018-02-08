@@ -45,7 +45,8 @@ namespace EL
 
   JobConfig ::
   JobConfig (const JobConfig& that)
-    : m_algorithmCount (that.m_algorithmCount)
+    : TObject (that),
+      m_algorithmCount (that.m_algorithmCount)
   {
     RCU_READ_INVARIANT (&that);
 
