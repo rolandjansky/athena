@@ -266,7 +266,7 @@ StatusCode PixelMainMon::bookRODErrorMon(void) {
   for (int j = kNumErrorStates; j < kNumErrorStates + kNumErrorStatesIBL; j++) {
     hname = makeHistname((error_state_labelsIBL[j - kNumErrorStates].first + "_Map"), false);
     htitles = makeHisttitle((error_state_labelsIBL[j - kNumErrorStates].second + " per event per LB"), "", false);
-    m_errhist_expert_maps[j] = std::make_unique<PixelMon2DMapsLW>(PixelMon2DMapsLW(hname.c_str(), htitles.c_str(), PixMon::HistConf::kIBL, m_doIBL));
+    m_errhist_expert_maps[j] = std::make_unique<PixelMon2DMapsLW>(PixelMon2DMapsLW(hname.c_str(), htitles.c_str(), PixMon::HistConf::kDBMIBL, m_doIBL));
     sc = m_errhist_expert_maps[j]->regHist(rodExpert);
   }
 
