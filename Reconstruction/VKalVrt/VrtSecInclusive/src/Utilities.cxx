@@ -9,15 +9,19 @@
 
 #include "TrkTrackSummary/TrackSummary.h"
 
-#include <iostream>
-#include <map>
-#include <vector>
-#include <deque>
+#include <xAODTruth/TruthParticleContainer.h>
+#include <xAODTruth/TruthVertexContainer.h>
 
 #include "TH1D.h"
 #include "TNtuple.h"
 #include "TTree.h"
 #include "TROOT.h"
+
+#include <iostream>
+#include <map>
+#include <vector>
+#include <deque>
+
 //-------------------------------------------------
 
 using namespace std;
@@ -261,13 +265,19 @@ namespace VKalVrtAthena {
     //  Iterate track removal until vertex get good Chi2
     //
     
-    ATH_MSG_VERBOSE( " >>> " << __FUNCTION__ << ": begin: chi2 = " << vertex.Chi2);
+    auto fitQuality_begin = vertex.fitQuality();
     
-    if( vertex.nTracksTotal() < 2 ) return 0.;
+    auto removeCounter = 0;
     
-    StatusCode sc = refitVertexWithSuggestion( vertex, vertex.vertex );
-    if( sc.isFailure() ) {
-      return 0;
+    if( vertex.nTracksTotal() <= 2 ) return 0.;
+    
+    {
+      WrkVrt backup = vertex;
+      StatusCode sc = refitVertexWithSuggestion( vertex, vertex.vertex );
+      if( sc.isFailure() ) {
+        vertex = backup;
+        return 0;
+      }
     }
     
     double chi2Probability = TMath::Prob( vertex.Chi2, vertex.ndof() );
@@ -281,10 +291,11 @@ namespace VKalVrtAthena {
       size_t index   = maxChi2 - vertex.Chi2PerTrk.begin();
       
       
-      ATH_MSG_VERBOSE( " >>> " << __FUNCTION__ << ": maxChi2 index = " << index << " / " << vertex.Chi2PerTrk.size() );
+      ATH_MSG_DEBUG( " >>> " << __FUNCTION__ << ": worst chi2 trk index = " << index << ", #trks = " << vertex.Chi2PerTrk.size() );
       
       if( index < vertex.selectedTrackIndices.size() ) {
         vertex.selectedTrackIndices.erase( vertex.selectedTrackIndices.begin() + index ); //remove track
+        removeCounter++;
       } else {
         index -= vertex.selectedTrackIndices.size();
         if( index >= vertex.associatedTrackIndices.size() ) {
@@ -292,21 +303,27 @@ namespace VKalVrtAthena {
           break;
         }
         vertex.associatedTrackIndices.erase( vertex.associatedTrackIndices.begin() + index ); //remove track
+        removeCounter++;
       }
       
       StatusCode sc = refitVertexWithSuggestion( vertex, vertex.vertex );
       
-      if( sc.isFailure() ) {
+      if( sc.isFailure() || vertex_backup.fitQuality() < vertex.fitQuality() ) {
         vertex = vertex_backup;
-        return 0.;
+        chi2Probability = 0;
+        break;
       }
       
       chi2Probability = TMath::Prob( vertex.Chi2, vertex.ndof() );
     }
     
-    //if(chi2Probability<0.001) vertex.isGood = false;
+    auto fitQuality_end = vertex.fitQuality();
     
-    ATH_MSG_VERBOSE( " >>> " << __FUNCTION__ << ": end: chi2 = " << vertex.Chi2);
+    if( 0 == removeCounter ) {
+      ATH_MSG_DEBUG( " >>> " << __FUNCTION__ << ": no improvement was found." );
+    } else {
+      ATH_MSG_DEBUG( " >>> " << __FUNCTION__ << ": Removed " << removeCounter << " tracks; Fit quality improvement: " << fitQuality_begin << " ==> " << fitQuality_end );
+    }
     
     return chi2Probability;
   }
@@ -406,7 +423,7 @@ namespace VKalVrtAthena {
       auto& vertex = workVerticesContainer->at(iv);
      
       if( vertex.selectedTrackIndices.size() < 2) continue;   /* Bad vertex */
-      if( vertex.closestWrkVrtIndex == 0 )   continue;   /* Used vertex */
+      if( vertex.closestWrkVrtIndex == 0 )        continue;   /* Used vertex */
      
       if( vertex.closestWrkVrtValue < minValue ) {
        
@@ -652,6 +669,8 @@ namespace VKalVrtAthena {
     declareProperty("PrimVrtLocation",                 m_jp.PrimVrtLocation                 = "PrimaryVertices"             );
     declareProperty("McParticleContainer",             m_jp.truthParticleContainerName      = "TruthParticles"              );
     declareProperty("MCEventContainer",                m_jp.mcEventContainerName            = "TruthEvents"                 );
+    declareProperty("AugmentingVersionString",         m_jp.augVerString                    = ""                            );
+    declareProperty("TruthParticleFilter",             m_jp.truthParticleFilter             = "Rhadron"                     ); // Either "", "Kshort", "Rhadron", "HNL"
     
     declareProperty("All2trkVerticesContainerName",    m_jp.all2trksVerticesContainerName   = "All2TrksVertices"            );
     declareProperty("SecondaryVerticesContainerName",  m_jp.secondaryVerticesContainerName  = "SecondaryVertices"           );
@@ -683,6 +702,7 @@ namespace VKalVrtAthena {
     declareProperty("a0TrkPVDstMinCut",                m_jp.d0TrkPVDstMinCut                = 0.                            ); // in [mm]
     declareProperty("a0TrkPVDstMaxCut",                m_jp.d0TrkPVDstMaxCut                = 1000.                         ); // in [mm]
     declareProperty("a0TrkPVSignifCut",                m_jp.d0TrkPVSignifCut                = 0.                            ); // in [mm]
+    declareProperty("twoTrkVtxFormingD0Cut",           m_jp.twoTrkVtxFormingD0Cut           = 1.                            ); // in [mm]
     declareProperty("zTrkPVDstMinCut",                 m_jp.z0TrkPVDstMinCut                = 0.                            ); // in [mm]
     declareProperty("zTrkPVDstMaxCut",                 m_jp.z0TrkPVDstMaxCut                = 1000.                         ); // in [mm]
     declareProperty("zTrkPVSignifCut",                 m_jp.z0TrkPVSignifCut                = 0.                            ); // in unit of sigma
@@ -703,6 +723,8 @@ namespace VKalVrtAthena {
     declareProperty("CutSharedHits",                   m_jp.CutSharedHits                   = 0                             );
     declareProperty("doTRTPixCut",                     m_jp.doTRTPixCut                     = false                         ); // mode for R-hadron displaced vertex
     declareProperty("CutTRTHits",                      m_jp.CutTRTHits                      = 0                             );
+    declareProperty("CutTightSCTHits",                 m_jp.CutTightSCTHits                 = 7                             );
+    declareProperty("CutTightTRTHits",                 m_jp.CutTightTRTHits                 = 20                            );
     
     declareProperty("doReassembleVertices",            m_jp.doReassembleVertices            = false                         );
     declareProperty("doMergeByShuffling",              m_jp.doMergeByShuffling              = false                         );
@@ -715,9 +737,9 @@ namespace VKalVrtAthena {
     
     declareProperty("VertexMergeCut",                  m_jp.VertexMergeCut                  = 3                             );
     declareProperty("TrackDetachCut",                  m_jp.TrackDetachCut                  = 6                             );
-    declareProperty("associateMinDistanceToPV",        m_jp.associateMinDistanceToPV        = 1.                            );
-    declareProperty("associateMaxD0",                  m_jp.associateMaxD0                  = 1.                            ); // wrt. DV in [mm]
-    declareProperty("associateMaxZ0",                  m_jp.associateMaxZ0                  = 3.                            ); // wrt. DV in [mm]
+    declareProperty("associateMinDistanceToPV",        m_jp.associateMinDistanceToPV        = 0.5                           );
+    declareProperty("associateMaxD0Signif",            m_jp.associateMaxD0Signif            = 5.                            ); // wrt. DV in unit of sigma
+    declareProperty("associateMaxZ0Signif",            m_jp.associateMaxZ0Signif            = 5.                            ); // wrt. DV in unit of sigma
     declareProperty("associatePtCut",                  m_jp.associatePtCut                  = 0.                            ); // in [MeV]
     declareProperty("associateChi2Cut",                m_jp.associateChi2Cut                = 20.                           );
     declareProperty("reassembleMaxImpactParameterD0",  m_jp.reassembleMaxImpactParameterD0  = 1.                            ); // wrt. DV in [mm]
@@ -881,7 +903,7 @@ namespace VKalVrtAthena {
     
     if( maxSharedTrackToVertices == trackToVertexMap.end() ) return worstChi2;
     
-    ATH_MSG_DEBUG( " > " << __FUNCTION__ << ": max-shared track index = " << maxSharedTrackToVertices->first << ", number of shared vertices = " << maxSharedTrackToVertices->second.size() );
+    ATH_MSG_VERBOSE( " > " << __FUNCTION__ << ": max-shared track index = " << maxSharedTrackToVertices->first << ", number of shared vertices = " << maxSharedTrackToVertices->second.size() );
     
     if( maxSharedTrackToVertices->second.size() < 2 ) return worstChi2;
     
@@ -925,33 +947,94 @@ namespace VKalVrtAthena {
   //____________________________________________________________________________________________________
   void VrtSecInclusive::printWrkSet(const std::vector<WrkVrt> *workVerticesContainer, const std::string name)
   {
+    ATH_MSG_DEBUG( " >> " << __FUNCTION__ << ": ===============================================================" );
     ATH_MSG_DEBUG( " >> " << __FUNCTION__ << ": " << name << ": #vertices = " << workVerticesContainer->size() );
     
-    std::set<long int> usedTracks;
+    std::set<const xAOD::TrackParticle*> usedTracks;
+    
+    auto concatenateIndicesToString = []( auto indices, auto& collection ) -> std::string {
+      if( 0 == indices.size() ) return "";
+      return std::accumulate( std::next(indices.begin()), indices.end(), std::to_string( indices.at(0) ),
+                              [&collection]( std::string str, auto& index ) { return str + ", " + std::to_string( collection.at(index)->index() ); } );
+    };
+    
+    static std::map<const xAOD::TruthVertex*, bool> matchMap;
+    std::map<const xAOD::TruthVertex*, bool> previous;
+    
+    for( auto& pair : matchMap ) { previous.emplace( pair.first, pair.second ); }
+    
+    matchMap.clear();
+    for( auto* truthVertex : m_tracingTruthVertices ) { matchMap.emplace( truthVertex, false ); }
     
     for(size_t iv=0; iv<workVerticesContainer->size(); iv++) {
       auto& wrkvrt = workVerticesContainer->at(iv);
-      unsigned ntrk = ( wrkvrt.selectedTrackIndices.size() + wrkvrt.associatedTrackIndices.size() );
-      if( ntrk < 2 ) continue;
-      if( m_vertexingAlgorithmStep > 0 ) {
-        ATH_MSG_DEBUG( " >> " << __FUNCTION__ << ": " << name << " vertex [" <<  iv << "]: "
-                       << " isGood  = "            << (wrkvrt.isGood? "true" : "false")
-                       << ", #ntrks = "            << ntrk
-                       << ", #selectedTracks = "   << wrkvrt.selectedTrackIndices.size()
-                       << ", #associatedTracks = " << wrkvrt.associatedTrackIndices.size()
-                       << ", chi2/ndof = "         << wrkvrt.Chi2 / ( wrkvrt.ndof() + AlgConsts::infinitesimal )
-                       << ", (r, z) = ("           << wrkvrt.vertex.perp()
-                       <<", "                      << wrkvrt.vertex.z() << ")" );
+      
+      if( wrkvrt.nTracksTotal() < 2 ) continue;
+      
+      std::string sels    = concatenateIndicesToString( wrkvrt.selectedTrackIndices,   *m_selectedTracks   );
+      std::string assocs  = concatenateIndicesToString( wrkvrt.associatedTrackIndices, *m_associatedTracks );
+      
+      for( auto& index : wrkvrt.selectedTrackIndices )   { usedTracks.insert( m_selectedTracks->at(index) );   }
+      for( auto& index : wrkvrt.associatedTrackIndices ) { usedTracks.insert( m_associatedTracks->at(index) ); }
+      
+      ATH_MSG_DEBUG( " >> " << __FUNCTION__ << ": " << name << " vertex [" <<  iv << "]: " << &wrkvrt
+                     << ", isGood  = "           << (wrkvrt.isGood? "true" : "false")
+                     << ", #ntrks(tot, sel, assoc) = (" << wrkvrt.nTracksTotal() << ", " << wrkvrt.selectedTrackIndices.size() << ", " << wrkvrt.associatedTrackIndices.size() << "), "
+                     << ", chi2/ndof = "         << wrkvrt.fitQuality()
+                     << ", (r, z) = ("           << wrkvrt.vertex.perp()
+                     << ", "                     << wrkvrt.vertex.z() << ")"
+                     << ", sels = { "            << sels << " }"
+                     << ", assocs = { "          << assocs << " }" );
+      
+      // Truth match condition
+      using truthLink = ElementLink<xAOD::TruthParticleContainer>;
+      
+      for( const auto* truthVertex : m_tracingTruthVertices ) {
+        
+        
+        Amg::Vector3D vTruth( truthVertex->x(), truthVertex->y(), truthVertex->z() );
+        Amg::Vector3D vReco ( wrkvrt.vertex.x(), wrkvrt.vertex.y(), wrkvrt.vertex.z() );
+        
+        const auto distance = vReco - vTruth;
+        
+        AmgSymMatrix(3) cov;
+        cov.fillSymmetric( 0, 0, wrkvrt.vertexCov.at(0) );
+        cov.fillSymmetric( 1, 0, wrkvrt.vertexCov.at(1) );
+        cov.fillSymmetric( 1, 1, wrkvrt.vertexCov.at(2) );
+        cov.fillSymmetric( 2, 0, wrkvrt.vertexCov.at(3) );
+        cov.fillSymmetric( 2, 1, wrkvrt.vertexCov.at(4) );
+        cov.fillSymmetric( 2, 2, wrkvrt.vertexCov.at(5) );
+        
+        const double s2 = distance.transpose() * cov.inverse() * distance;
+        
+        if( distance.norm() < 2.0 || s2 < 100. ) matchMap.at( truthVertex ) = true;
+        
       }
       
-      for( auto& index : wrkvrt.selectedTrackIndices ) usedTracks.insert( index );
-      for( auto& index : wrkvrt.associatedTrackIndices ) usedTracks.insert( index );
     }
+      
     ATH_MSG_DEBUG( " >> " << __FUNCTION__ << ": number of used tracks = " << usedTracks.size() );
     
+    if( previous.size() > 0 && previous.size() == matchMap.size() ) {
+      for( auto& pair : matchMap ) {
+        if( previous.find( pair.first ) == previous.end() ) continue;
+        if( pair.second != previous.at( pair.first ) ) {
+          ATH_MSG_DEBUG( " >> " << __FUNCTION__ << ": Match flag has changed: (r, z) = (" << pair.first->perp() << ", " << pair.first->z() << ")" );
+        }
+      }
+    }
+    
+    if( m_jp.FillHist ) {
+      for( auto& pair : matchMap ) {
+        if( pair.second ) m_hists["nMatchedTruths"]->Fill( m_vertexingAlgorithmStep+2, pair.first->perp() );
+      }
+    }
+    
     std::string msg;
-    for( auto& index : usedTracks ) { msg += Form("%ld, ", index); }
+    for( auto* trk : usedTracks ) { msg += Form("%ld, ", trk->index() ); }
+    
     ATH_MSG_DEBUG( " >> " << __FUNCTION__ << ": used tracks = " << msg );
+    ATH_MSG_DEBUG( " >> " << __FUNCTION__ << ": ===============================================================" );
     
   }
   
@@ -974,11 +1057,11 @@ namespace VKalVrtAthena {
   
   
   //____________________________________________________________________________________________________
-  VrtSecInclusive::ExtrapolatedPattern* VrtSecInclusive::extrapolatedPattern( const xAOD::TrackParticle* trk ) {
+  VrtSecInclusive::ExtrapolatedPattern* VrtSecInclusive::extrapolatedPattern( const xAOD::TrackParticle* trk, enum Trk::PropDirection direction ) {
     
     auto* pattern = new ExtrapolatedPattern;
     
-    const auto* paramsVector = m_extrapolator->extrapolateBlindly( trk->perigeeParameters(), Trk::alongMomentum );
+    const auto* paramsVector = m_extrapolator->extrapolateBlindly( trk->perigeeParameters(), direction );
     
     TVector3 prevPos( AlgConsts::invalidFloat, AlgConsts::invalidFloat, AlgConsts::invalidFloat );
     
@@ -1021,7 +1104,7 @@ namespace VKalVrtAthena {
         
         if( pattern->size() > 0 ) {
           
-          ATH_MSG_VERBOSE(" >> " << __FUNCTION__ << ", track " << trk << ": position = (" << position.x() << ", " << position.y() << ", " << position.z() << "), detElement ID = " << id << ", active = " << active
+          ATH_MSG_VERBOSE(" >> " << __FUNCTION__ << ", track " << trk << ": position = (" << position.Perp() << ", " << position.z() << ", " << position.Phi() << "), detElement ID = " << id << ", active = " << active
                           << ": (det, bec, layer) = (" << std::get<1>( pattern->back() ) << ", " << std::get<2>( pattern->back() ) << ", "  << std::get<3>( pattern->back() ) << ")" );
           
           if( !active ) nDisabled++;
@@ -1049,7 +1132,16 @@ namespace VKalVrtAthena {
   bool VrtSecInclusive::checkTrackHitPatternToVertexByExtrapolation( const xAOD::TrackParticle *trk, const Amg::Vector3D& vertex )
   {
     
-    std::unique_ptr<ExtrapolatedPattern> exPattern( extrapolatedPattern( trk ) );
+    if( m_extrapolatedPatternBank.find( trk ) == m_extrapolatedPatternBank.end() ) {
+      
+      std::unique_ptr<ExtrapolatedPattern> exPattern_along( extrapolatedPattern( trk, Trk::alongMomentum ) );
+      std::unique_ptr<ExtrapolatedPattern> exPattern_oppos( extrapolatedPattern( trk, Trk::oppositeMomentum ) );
+      
+      m_extrapolatedPatternBank.emplace( trk, std::make_pair( std::move(exPattern_along), std::move(exPattern_oppos) ) );
+      
+    }
+    
+    auto& exPattern = m_extrapolatedPatternBank.at( trk );
     
     using LayerCombination = std::vector<int>;
     
@@ -1108,22 +1200,48 @@ namespace VKalVrtAthena {
       return AlgConsts::invalidUnsigned;
     };
     
-    uint32_t expectedHitPattern { 0 };
+    enum { kShouldNotHaveHit, kShouldHaveHit, kMayHaveHit };
+    std::vector<unsigned> expectedHitPattern(Trk::numberOfDetectorTypes, kShouldNotHaveHit);
     
-    // Loop over extrapolated points
-    for( auto itr = exPattern->begin(); itr != exPattern->end(); ++itr ) {
-      if( std::next( itr ) == exPattern->end() ) continue;
+    auto minExpectedRadius = AlgConsts::maxValue;
+    
+    // Loop over extrapolated points (along direction)
+    auto& exPattern_along = *( exPattern.first  );
+    
+    for( auto itr = exPattern_along.begin(); itr != exPattern_along.end(); ++itr ) {
+      if( std::next( itr ) == exPattern_along.end() ) continue;
       
       const auto& point      = *itr;
       const auto& nextPoint  = *( std::next( itr ) );
       
       ATH_MSG_VERBOSE( " > " <<  __FUNCTION__ << ": isActive = " << std::get<isActive>( point ) );
       
-      // if the front-end module is not active, then the hit is not expected.
-      if( false == std::get<isActive>( point ) ) continue;
+      auto& thisPos = std::get<position>( point );
+      auto& nextPos = std::get<position>( nextPoint );
       
-      auto sectionVector = std::get<position>( nextPoint ) - std::get<position>( point );
-      auto vertexVector  = TVector3( vertex.x(), vertex.y(), vertex.z() ) - std::get<position>( point );
+      auto sectionVector = nextPos - thisPos;
+      auto vertexVector  = TVector3( vertex.x(), vertex.y(), vertex.z() ) - thisPos;
+      
+      
+      const auto& detectorType = getDetectorType( point );
+      
+      ATH_MSG_VERBOSE( " > " <<  __FUNCTION__ << ": detType = " << detectorType );
+      
+      if( detectorType == AlgConsts::invalidUnsigned ) continue;
+      if( detectorType >= Trk::numberOfDetectorTypes ) continue;
+      
+      // if the vertex is nearby (within 10 mm), the hit may be presnet ("X")
+      if( vertexVector.Mag() < 10. ) {
+        expectedHitPattern.at( detectorType ) = kMayHaveHit;
+        continue;
+      }
+      
+      // if the front-end module is not active, then the hit is not expected,
+      // which means the hit may be present
+      if( false == std::get<isActive>( point ) ) {
+        expectedHitPattern.at( detectorType ) = kMayHaveHit;
+        continue;
+      }
       
       // if the inner product of the above two vectors is positive,
       // then point is inner than the vertex.
@@ -1133,414 +1251,1029 @@ namespace VKalVrtAthena {
       if( sectionVector.Mag() == 0. ) continue;
       
       ATH_MSG_VERBOSE( " > " <<  __FUNCTION__
-                       << ": sectionVector = (" << sectionVector.x() << ", " << sectionVector.y() << ", " << sectionVector.z() << ")"
-                       << ", vertexVector = (" << vertexVector.x() << ", " << vertexVector.y() << ", " << vertexVector.z() << ")"
-                       << ", cosTheta( sectionVector, vertexVector)  = " << sectionVector * vertexVector / ( sectionVector.Mag() * vertexVector.Mag() + AlgConsts::infinitesimal ) );
+                       << ": hitPos = (" << thisPos.Perp() << ", " << thisPos.z() << ", " << thisPos.Phi() << ")"
+                       << ", sectionVec = (" << sectionVector.Perp() << ", " << sectionVector.z() << ", " << sectionVector.Phi() << ")"
+                       << ", vertexVec = (" << vertexVector.Perp() << ", " << vertexVector.z() << ", " << vertexVector.Phi() << ")"
+                       << ", cos(s,v)  = " << sectionVector * vertexVector / ( sectionVector.Mag() * vertexVector.Mag() + AlgConsts::infinitesimal ) );
       
       if( sectionVector * vertexVector > 0. ) continue;
       
+      if( minExpectedRadius > thisPos.Perp() ) minExpectedRadius = thisPos.Perp();
+      
       // now, the hit is expected to present.
+      
+      expectedHitPattern.at( detectorType ) = kShouldHaveHit;
+    }
+    
+    // Loop over extrapolated points (opposite direction)
+    auto& exPattern_oppos = *( exPattern.second );
+    bool oppositeFlag = false;
+    
+    for( auto itr = exPattern_oppos.begin(); itr != exPattern_oppos.end(); ++itr ) {
+      if( std::next( itr ) == exPattern_oppos.end() ) continue;
+      
+      const auto& point      = *itr;
+      const auto& nextPoint  = *( std::next( itr ) );
+      
+      auto& thisPos = std::get<position>( point );
+      auto& nextPos = std::get<position>( nextPoint );
+      
+      auto sectionVector = nextPos - thisPos;
+      auto vertexVector  = TVector3( vertex.x(), vertex.y(), vertex.z() ) - thisPos;
       
       const auto& detectorType = getDetectorType( point );
       
       ATH_MSG_VERBOSE( " > " <<  __FUNCTION__ << ": detType = " << detectorType );
       
-      if( detectorType == AlgConsts::invalidUnsigned ) continue;
+      ATH_MSG_DEBUG( " > " <<  __FUNCTION__
+                       << ": hitPos = (" << thisPos.Perp() << ", " << thisPos.z() << ", " << thisPos.Phi() << ")"
+                       << ", vertex = (" << vertex.perp() << ", " << vertex.z() << ", " << vertex.phi() << ")"
+                       << ", cos(s,v)  = " << sectionVector * vertexVector / ( sectionVector.Mag() * vertexVector.Mag() + AlgConsts::infinitesimal ) );
       
-      if( ! (expectedHitPattern & (1 << detectorType)) ) {
-        expectedHitPattern += ( 1 << detectorType );
+      if( detectorType == AlgConsts::invalidUnsigned ) continue;
+      if( detectorType >= Trk::numberOfDetectorTypes ) continue;
+      
+      if( sectionVector * vertexVector < 0. ) {
+        oppositeFlag = true;
       }
     }
     
+    // If the first expected point's radius is smaller than the vertex radius,
+    // it's the case that the vertex was reconstructed in the opposite phi-direction
+    // to the track outgoing direction. Such a case should be rejected.
+    // bool oppositeFlag = ( minExpectedRadius < vertex.perp() );
+    
     std::string msg = "Expected hit pattern: ";
     for( unsigned i=0; i<Trk::numberOfDetectorTypes; i++) {
-      msg += Form("%u", ( expectedHitPattern >> i ) & 1 );
+      msg += Form("%s", expectedHitPattern.at(i) < kMayHaveHit? Form("%u", expectedHitPattern.at(i)) : "X" );
     }
-    ATH_MSG_VERBOSE( " > " << __FUNCTION__ << ": " << msg );
+    ATH_MSG_DEBUG( " > " << __FUNCTION__ << ": " << msg );
     
     msg = "Recorded hit pattern: ";
     for( unsigned i=0; i<Trk::numberOfDetectorTypes; i++) {
       msg += Form("%u", ( trk->hitPattern() >> i ) & 1 );
     }
-    ATH_MSG_VERBOSE( " > " << __FUNCTION__ << ": " << msg );
+    ATH_MSG_DEBUG( " > " << __FUNCTION__ << ": " << msg );
     
-    exPattern->clear();
+    std::vector<unsigned> matchedLayers;
     
-    return ( expectedHitPattern == trk->hitPattern() );
+    for( unsigned i=0; i<Trk::numberOfDetectorTypes; i++) {
+      const unsigned recordedPattern = ( (trk->hitPattern()>>i) & 1 );
+      
+      if( expectedHitPattern.at(i) == kMayHaveHit ) {
+        matchedLayers.emplace_back( i );
+      } else if( expectedHitPattern.at(i) == kShouldHaveHit ) {
+        if( expectedHitPattern.at(i) != recordedPattern ) {
+          break;
+        } else {
+          matchedLayers.emplace_back( i );
+        }
+      } else {
+        if( expectedHitPattern.at(i) != recordedPattern ) {
+          break;
+        }
+      }
+      
+    }
+    
+    uint8_t PixelHits = 0;
+    uint8_t SctHits   = 0; 
+    uint8_t TRTHits   = 0;
+    if( !(trk->summaryValue( PixelHits, xAOD::numberOfPixelHits ) ) ) PixelHits =0;
+    if( !(trk->summaryValue( SctHits,   xAOD::numberOfSCTHits   ) ) ) SctHits   =0;
+    if( !(trk->summaryValue( TRTHits,   xAOD::numberOfTRTHits   ) ) ) TRTHits   =0;
+    
+    auto dphi = trk->phi() - vertex.phi();
+    while( dphi >  TMath::Pi() ) dphi -= TMath::TwoPi();
+    while( dphi < -TMath::Pi() ) dphi += TMath::TwoPi();
+    
+    ATH_MSG_DEBUG( " > " << __FUNCTION__ << ": vtx phi = " << vertex.phi() << ", track phi = " << trk->phi() << ", dphi = " << dphi
+                   << ", oppositeFlag = " << oppositeFlag
+                   << ", nPixelHits = " << static_cast<int>(PixelHits)
+                   << ", nSCTHits = " << static_cast<int>(SctHits)
+                   << ", nTRTHits = " << static_cast<int>(TRTHits)
+                   << ", nMatchedLayers = " << matchedLayers.size() );
+    
+    if( PixelHits == 0 && vertex.perp() > 300. ) {
+      ATH_MSG_DEBUG( " > " << __FUNCTION__ << ": vertex r > 300 mm, w/o no pixel hits" );
+    }
+    
+    
+    // Requires the first 2 layers with the hit matches.
+    if( matchedLayers.size() < 2 ) return false;
+    
+    // In case of the first matched layer is not within pixel barrel, requires the first 4 layers with the hit match
+    if( matchedLayers.at(0) >= Trk::pixelEndCap0 ) {
+      if( matchedLayers.size() < 4 ) return false;
+    }
+    
+    // Sometimes the vertex is reconstructed at the opposite phi direction.
+    // In this case, the pattern match may pass.
+    // This can be avoided by requiring that the 
+    if( oppositeFlag ) return false;
+    
+    // The following condition should apply for vertices outer than IBL.
+    if( false /*matchedLayers.at(0) > Trk::pixelBarrel0*/ ) {
+      
+      // If the dphi (defined above) is opposite, reject.
+      if( fabs( dphi ) > TMath::Pi()/2.0 ) return false;
+    
+      // If the track is not within the forward hemisphere to the vertex, reject.
+      TVector3 trkP; trkP.SetPtEtaPhi( trk->pt(), trk->eta(), trk->phi() );
+      TVector3 vtx; vtx.SetXYZ( vertex.x(), vertex.y(), vertex.z() );
+      if( trkP.Dot( vtx ) < 0. ) return false;
+    
+    }
+    
+    return true;
   }
     
+
+  //____________________________________________________________________________________________________
+  bool VrtSecInclusive::patternCheckRun2( const uint32_t& pattern, const Amg::Vector3D& vertex ) {
+    
+    //
+    // rough guesses for active layers:
+    // BeamPipe: 23.5-24.3
+    // IBL: 31.0-38.4
+    // Pix0 (BLayer): 47.7-54.4, Pix1: 85.5-92.2, Pix2: 119.3-126.1
+    // Sct0: 290-315, Sct1: 360-390, Sct2: 430-460, Sct3:500-530
+    //
+      
+    const double rad  = vertex.perp();
+    const double absz = fabs( vertex.z() );
+    
+    // vertex area classification
+    enum vertexArea {
+      insideBeamPipe,
+	
+      insidePixelBarrel0,
+      aroundPixelBarrel0,
+	
+      outsidePixelBarrel0_and_insidePixelBarrel1,
+      aroundPixelBarrel1,
+	
+      outsidePixelBarrel1_and_insidePixelBarrel2,
+      aroundPixelBarrel2,
+	
+      outsidePixelBarrel2_and_insidePixelBarrel3,
+      aroundPixelBarrel3,
+	
+      outsidePixelBarrel3_and_insideSctBarrel0,
+      aroundSctBarrel0,
+	
+      outsideSctBarrel0_and_insideSctBarrel1,
+      aroundSctBarrel1,
+    };
+      
+    // Mutually exclusive vertex position pattern
+    int vertex_pattern = 0;
+    if( rad < 23.50 ) {
+      vertex_pattern = insideBeamPipe;
+	
+    } else if( rad < 31.0 && absz < 331.5 ) {
+      vertex_pattern = insidePixelBarrel0;
+	
+    } else if( rad < 38.4 && absz < 331.5 ) {
+      vertex_pattern = aroundPixelBarrel0;
+	
+    } else if( rad < 47.7 && absz < 400.5 ) {
+      vertex_pattern = outsidePixelBarrel0_and_insidePixelBarrel1;
+	
+    } else if( rad < 54.4 && absz < 400.5 ) {
+      vertex_pattern = aroundPixelBarrel1;
+	
+    } else if( rad < 85.5 && absz < 400.5 ) {
+      vertex_pattern = outsidePixelBarrel1_and_insidePixelBarrel2;
+	
+    } else if( rad < 92.2 && absz < 400.5 ) {
+      vertex_pattern = aroundPixelBarrel2;
+	
+    } else if( rad < 119.3 && absz < 400.5 ) {
+      vertex_pattern = outsidePixelBarrel2_and_insidePixelBarrel3;
+	
+    } else if( rad < 126.1 && absz < 400.5 ) {
+      vertex_pattern = aroundPixelBarrel3;
+	
+    } else if( rad < 290 && absz < 749.0 ) {
+      vertex_pattern = outsidePixelBarrel3_and_insideSctBarrel0;
+	
+    } else if( rad < 315 && absz < 749.0 ) {
+      vertex_pattern = aroundSctBarrel0;
+	
+    } else if( rad < 360 && absz < 749.0 ) {
+      vertex_pattern = outsideSctBarrel0_and_insideSctBarrel1;
+	
+    } else if( rad < 390 && absz < 749.0 ) {
+      vertex_pattern = aroundSctBarrel1;
+	
+    } else {
+    }
+    
+    unsigned nPixelLayers { 0 };
+    {
+      nPixelLayers += ( pattern & (1 << Trk::pixelBarrel0) );
+      nPixelLayers += ( pattern & (1 << Trk::pixelBarrel1) );
+      nPixelLayers += ( pattern & (1 << Trk::pixelBarrel2) );
+      nPixelLayers += ( pattern & (1 << Trk::pixelBarrel3) );
+      nPixelLayers += ( pattern & (1 << Trk::pixelEndCap0) );
+      nPixelLayers += ( pattern & (1 << Trk::pixelEndCap1) );
+      nPixelLayers += ( pattern & (1 << Trk::pixelEndCap2) );
+    }
+    
+    //////////////////////////////////////////////////////////////////////////////////
+    if( vertex_pattern == insideBeamPipe ) {
+	
+      if( ! (pattern & (1<<Trk::pixelBarrel0)) ) return false;
+      if( nPixelLayers < 3 )                     return false;
+	
+	
+    } else if( vertex_pattern == insidePixelBarrel0 ) {
+	
+      if( ! (pattern & (1<<Trk::pixelBarrel0)) ) return false;
+      if( nPixelLayers < 3 )                     return false;
+    }
+      
+      
+    else if( vertex_pattern == aroundPixelBarrel0 ) {
+	
+      // require nothing for PixelBarrel0
+      if( ! (pattern & (1<<Trk::pixelBarrel1)) ) return false;
+      if( nPixelLayers < 2 )                     return false;
+    }
+      
+      
+    else if( vertex_pattern == outsidePixelBarrel0_and_insidePixelBarrel1 ) {
+	
+      if(   (pattern & (1<<Trk::pixelBarrel0)) ) return false;
+      if( ! (pattern & (1<<Trk::pixelBarrel1)) ) return false;
+      if( nPixelLayers < 2 )                     return false;
+    }
+      
+      
+    else if( vertex_pattern == aroundPixelBarrel1 ) {
+	
+      if(   (pattern & (1<<Trk::pixelBarrel0)) ) return false;
+      // require nothing for PixelBarrel1
+      if( ! (pattern & (1<<Trk::pixelBarrel2)) ) return false;
+      if( nPixelLayers < 2 )                     return false;
+    }
+      
+      
+    else if( vertex_pattern == outsidePixelBarrel1_and_insidePixelBarrel2 ) {
+	
+      if(   (pattern & (1<<Trk::pixelBarrel0)) ) return false;
+      if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
+      if( ! (pattern & (1<<Trk::pixelBarrel2)) ) return false;
+      if( nPixelLayers < 2 )                     return false;
+    }
+      
+      
+    else if( vertex_pattern == aroundPixelBarrel2 ) {
+	
+      if(   (pattern & (1<<Trk::pixelBarrel0)) ) return false;
+      if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
+      // require nothing for PixelBarrel2
+      if( ! (pattern & (1<<Trk::pixelBarrel3)) ) return false;
+    }
+      
+
+    else if( vertex_pattern == outsidePixelBarrel2_and_insidePixelBarrel3 ) {
+	
+      if(   (pattern & (1<<Trk::pixelBarrel0)) ) return false;
+      if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
+      if(   (pattern & (1<<Trk::pixelBarrel2)) ) return false;
+      if( ! (pattern & (1<<Trk::pixelBarrel3)) ) return false;
+    }
+	
+    else if( vertex_pattern == aroundPixelBarrel3 ) {
+	
+      if(   (pattern & (1<<Trk::pixelBarrel0)) ) return false;
+      if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
+      if(   (pattern & (1<<Trk::pixelBarrel2)) ) return false;
+      // require nothing for PixelBarrel3
+      if( ! (pattern & (1<<Trk::sctBarrel0)) )   return false;
+    }
+      
+      
+    else if( vertex_pattern == outsidePixelBarrel3_and_insideSctBarrel0 ) {
+	
+      if(   (pattern & (1<<Trk::pixelBarrel0)) ) return false;
+      if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
+      if(   (pattern & (1<<Trk::pixelBarrel2)) ) return false;
+      if(   (pattern & (1<<Trk::pixelBarrel3)) ) return false;
+      if( ! (pattern & (1<<Trk::sctBarrel0)) ) return false;
+    }
+      
+      
+    else if( vertex_pattern == aroundSctBarrel0 ) {
+	
+      if(   (pattern & (1<<Trk::pixelBarrel0)) ) return false;
+      if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
+      if(   (pattern & (1<<Trk::pixelBarrel2)) ) return false;
+      if(   (pattern & (1<<Trk::pixelBarrel3)) ) return false;
+      // require nothing for SctBarrel0
+      if( ! (pattern & (1<<Trk::sctBarrel1)) ) return false;
+    }
+      
+      
+    else if( vertex_pattern == outsideSctBarrel0_and_insideSctBarrel1 ) {
+	
+      if(   (pattern & (1<<Trk::pixelBarrel0)) ) return false;
+      if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
+      if(   (pattern & (1<<Trk::pixelBarrel2)) ) return false;
+      if(   (pattern & (1<<Trk::pixelBarrel3)) ) return false;
+      if(   (pattern & (1<<Trk::sctBarrel0)) ) return false;
+      if( ! (pattern & (1<<Trk::sctBarrel1)) ) return false;
+    }
+      
+      
+    else if( vertex_pattern == aroundSctBarrel1 ) {
+      if(   (pattern & (1<<Trk::pixelBarrel0)) ) return false;
+      if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
+      if(   (pattern & (1<<Trk::pixelBarrel2)) ) return false;
+      if(   (pattern & (1<<Trk::pixelBarrel3)) ) return false;
+      if(   (pattern & (1<<Trk::sctBarrel0)) ) return false;
+      // require nothing for SctBarrel1
+      if( ! (pattern & (1<<Trk::sctBarrel2)) ) return false;
+    }
+    //////////////////////////////////////////////////////////////////////////////////
+      
+    return true;
+      
+  }
+  
+  //____________________________________________________________________________________________________
+  bool VrtSecInclusive::patternCheckRun2OuterOnly( const uint32_t& pattern, const Amg::Vector3D& vertex ) {
+    
+    //
+    // rough guesses for active layers:
+    // BeamPipe: 23.5-24.3
+    // IBL: 31.0-38.4
+    // Pix0 (BLayer): 47.7-54.4, Pix1: 85.5-92.2, Pix2: 119.3-126.1
+    // Sct0: 290-315, Sct1: 360-390, Sct2: 430-460, Sct3:500-530
+    //
+      
+    const double rad  = vertex.perp();
+    const double absz = fabs( vertex.z() );
+    
+    // vertex area classification
+    enum vertexArea {
+      insideBeamPipe,
+	
+      insidePixelBarrel0,
+      aroundPixelBarrel0,
+	
+      outsidePixelBarrel0_and_insidePixelBarrel1,
+      aroundPixelBarrel1,
+	
+      outsidePixelBarrel1_and_insidePixelBarrel2,
+      aroundPixelBarrel2,
+	
+      outsidePixelBarrel2_and_insidePixelBarrel3,
+      aroundPixelBarrel3,
+	
+      outsidePixelBarrel3_and_insideSctBarrel0,
+      aroundSctBarrel0,
+	
+      outsideSctBarrel0_and_insideSctBarrel1,
+      aroundSctBarrel1,
+    };
+      
+    // Mutually exclusive vertex position pattern
+    int vertex_pattern = 0;
+    if( rad < 23.50 ) {
+      vertex_pattern = insideBeamPipe;
+	
+    } else if( rad < 31.0 && absz < 331.5 ) {
+      vertex_pattern = insidePixelBarrel0;
+	
+    } else if( rad < 38.4 && absz < 331.5 ) {
+      vertex_pattern = aroundPixelBarrel0;
+	
+    } else if( rad < 47.7 && absz < 400.5 ) {
+      vertex_pattern = outsidePixelBarrel0_and_insidePixelBarrel1;
+	
+    } else if( rad < 54.4 && absz < 400.5 ) {
+      vertex_pattern = aroundPixelBarrel1;
+	
+    } else if( rad < 85.5 && absz < 400.5 ) {
+      vertex_pattern = outsidePixelBarrel1_and_insidePixelBarrel2;
+	
+    } else if( rad < 92.2 && absz < 400.5 ) {
+      vertex_pattern = aroundPixelBarrel2;
+	
+    } else if( rad < 119.3 && absz < 400.5 ) {
+      vertex_pattern = outsidePixelBarrel2_and_insidePixelBarrel3;
+	
+    } else if( rad < 126.1 && absz < 400.5 ) {
+      vertex_pattern = aroundPixelBarrel3;
+	
+    } else if( rad < 290 && absz < 749.0 ) {
+      vertex_pattern = outsidePixelBarrel3_and_insideSctBarrel0;
+	
+    } else if( rad < 315 && absz < 749.0 ) {
+      vertex_pattern = aroundSctBarrel0;
+	
+    } else if( rad < 360 && absz < 749.0 ) {
+      vertex_pattern = outsideSctBarrel0_and_insideSctBarrel1;
+	
+    } else if( rad < 390 && absz < 749.0 ) {
+      vertex_pattern = aroundSctBarrel1;
+	
+    } else {
+    }
+      
+      
+    unsigned nPixelLayers { 0 };
+    {
+      nPixelLayers += ( pattern & (1 << Trk::pixelBarrel0) );
+      nPixelLayers += ( pattern & (1 << Trk::pixelBarrel1) );
+      nPixelLayers += ( pattern & (1 << Trk::pixelBarrel2) );
+      nPixelLayers += ( pattern & (1 << Trk::pixelBarrel3) );
+      nPixelLayers += ( pattern & (1 << Trk::pixelEndCap0) );
+      nPixelLayers += ( pattern & (1 << Trk::pixelEndCap1) );
+      nPixelLayers += ( pattern & (1 << Trk::pixelEndCap2) );
+    }
+    
+    //////////////////////////////////////////////////////////////////////////////////
+    if( vertex_pattern == insideBeamPipe ) {
+	
+      if( ! (pattern & (1<<Trk::pixelBarrel0)) ) return false;
+      if( ! (pattern & (1<<Trk::pixelBarrel1)) ) return false;
+      if( nPixelLayers < 3                     ) return false;
+      
+    } else if( vertex_pattern == insidePixelBarrel0 ) {
+	
+      if( ! (pattern & (1<<Trk::pixelBarrel0)) ) return false;
+      if( ! (pattern & (1<<Trk::pixelBarrel1)) ) return false;
+      if( nPixelLayers < 3                     ) return false;
+      
+    }
+      
+      
+    else if( vertex_pattern == aroundPixelBarrel0 ) {
+	
+      // require nothing for PixelBarrel0
+      if( ! (pattern & (1<<Trk::pixelBarrel1)) ) return false;
+      if( ! (pattern & (1<<Trk::pixelBarrel2)) ) return false;
+      if( nPixelLayers < 3                     ) return false;
+    }
+      
+      
+    else if( vertex_pattern == outsidePixelBarrel0_and_insidePixelBarrel1 ) {
+	
+      if( ! (pattern & (1<<Trk::pixelBarrel1)) ) return false;
+      if( ! (pattern & (1<<Trk::pixelBarrel2)) ) return false;
+      if( nPixelLayers < 3                     ) return false;
+    }
+      
+      
+    else if( vertex_pattern == aroundPixelBarrel1 ) {
+	
+      // require nothing for PixelBarrel1
+      if( ! (pattern & (1<<Trk::pixelBarrel2)) ) return false;
+      if( ! (pattern & (1<<Trk::pixelBarrel3)) ) return false;
+      if( nPixelLayers < 2                     ) return false;
+    }
+      
+      
+    else if( vertex_pattern == outsidePixelBarrel1_and_insidePixelBarrel2 ) {
+	
+      if( ! (pattern & (1<<Trk::pixelBarrel2)) ) return false;
+      if( ! (pattern & (1<<Trk::pixelBarrel3)) ) return false;
+      if( nPixelLayers < 2                     ) return false;
+    }
+      
+      
+    else if( vertex_pattern == aroundPixelBarrel2 ) {
+	
+      // require nothing for PixelBarrel2
+      if( ! (pattern & (1<<Trk::pixelBarrel3)) ) return false;
+    }
+      
+
+    else if( vertex_pattern == outsidePixelBarrel2_and_insidePixelBarrel3 ) {
+	
+      if( ! (pattern & (1<<Trk::pixelBarrel3)) ) return false;
+    }
+	
+    else if( vertex_pattern == aroundPixelBarrel3 ) {
+	
+      // require nothing for PixelBarrel3
+      if( ! (pattern & (1<<Trk::sctBarrel0)) ) return false;
+      if( ! (pattern & (1<<Trk::sctBarrel1)) ) return false;
+    }
+      
+      
+    else if( vertex_pattern == outsidePixelBarrel3_and_insideSctBarrel0 ) {
+	
+      if( ! (pattern & (1<<Trk::sctBarrel0)) ) return false;
+      if( ! (pattern & (1<<Trk::sctBarrel1)) ) return false;
+    }
+      
+      
+    else if( vertex_pattern == aroundSctBarrel0 ) {
+	
+      // require nothing for SctBarrel0
+      if( ! (pattern & (1<<Trk::sctBarrel1)) ) return false;
+      if( ! (pattern & (1<<Trk::sctBarrel2)) ) return false;
+    }
+      
+      
+    else if( vertex_pattern == outsideSctBarrel0_and_insideSctBarrel1 ) {
+      
+      if( ! (pattern & (1<<Trk::sctBarrel1)) ) return false;
+      if( ! (pattern & (1<<Trk::sctBarrel2)) ) return false;
+    }
+      
+      
+    else if( vertex_pattern == aroundSctBarrel1 ) {
+      // require nothing for SctBarrel1
+      if( ! (pattern & (1<<Trk::sctBarrel2)) ) return false;
+      if( ! (pattern & (1<<Trk::sctBarrel3)) ) return false;
+    }
+    //////////////////////////////////////////////////////////////////////////////////
+      
+    return true;
+      
+  }
+  
+  //____________________________________________________________________________________________________
+  bool VrtSecInclusive::patternCheckRun1( const uint32_t& pattern, const Amg::Vector3D& vertex ) {
+    //
+    // rough guesses for active layers:
+    // BeamPipe: 25.0
+    // Pix0 (BLayer): 47.7-54.4, Pix1: 85.5-92.2, Pix2: 119.3-126.1
+    // Sct0: 290-315, Sct1: 360-390, Sct2: 430-460, Sct3:500-530
+    //
+      
+    const double rad  = vertex.perp();
+    const double absz = fabs( vertex.z() );
+    
+    // vertex area classification
+    enum vertexArea {
+      insideBeamPipe,
+	
+      insidePixelBarrel1,
+      aroundPixelBarrel1,
+	
+      outsidePixelBarrel1_and_insidePixelBarrel2,
+      aroundPixelBarrel2,
+	
+      outsidePixelBarrel2_and_insidePixelBarrel3,
+      aroundPixelBarrel3,
+	
+      outsidePixelBarrel3_and_insideSctBarrel0,
+      aroundSctBarrel0,
+	
+      outsideSctBarrel0_and_insideSctBarrel1,
+      aroundSctBarrel1,
+    };
+      
+    // Mutually exclusive vertex position pattern
+    Int_t vertex_pattern = 0;
+    if( rad < 25.00 ) {
+      vertex_pattern = insideBeamPipe;
+	
+    } else if( rad < 47.7 && absz < 400.5 ) {
+      vertex_pattern = insidePixelBarrel1;
+	
+    } else if( rad < 54.4 && absz < 400.5 ) {
+      vertex_pattern = aroundPixelBarrel1;
+	
+    } else if( rad < 85.5 && absz < 400.5 ) {
+      vertex_pattern = outsidePixelBarrel1_and_insidePixelBarrel2;
+	
+    } else if( rad < 92.2 && absz < 400.5 ) {
+      vertex_pattern = aroundPixelBarrel2;
+	
+    } else if( rad < 119.3 && absz < 400.5 ) {
+      vertex_pattern = outsidePixelBarrel2_and_insidePixelBarrel3;
+	
+    } else if( rad < 126.1 && absz < 400.5 ) {
+      vertex_pattern = aroundPixelBarrel3;
+	
+    } else if( rad < 290 && absz < 749.0 ) {
+      vertex_pattern = outsidePixelBarrel3_and_insideSctBarrel0;
+	
+    } else if( rad < 315 && absz < 749.0 ) {
+      vertex_pattern = aroundSctBarrel0;
+	
+    } else if( rad < 360 && absz < 749.0 ) {
+      vertex_pattern = outsideSctBarrel0_and_insideSctBarrel1;
+	
+    } else if( rad < 390 && absz < 749.0 ) {
+      vertex_pattern = aroundSctBarrel1;
+	
+    } else {
+    }
+      
+      
+    //////////////////////////////////////////////////////////////////////////////////
+    if( vertex_pattern == insideBeamPipe ) {
+	
+      if( ! (pattern & (1<<Trk::pixelBarrel1)) ) return false;
+	
+    }
+      
+      
+    else if( vertex_pattern == insidePixelBarrel1 ) {
+	
+      if( ! (pattern & (1<<Trk::pixelBarrel1)) ) return false;
+    }
+      
+      
+    else if( vertex_pattern == aroundPixelBarrel1 ) {
+	
+      // require nothing for PixelBarrel1
+      if( ! (pattern & (1<<Trk::pixelBarrel2)) ) return false;
+    }
+      
+      
+    else if( vertex_pattern == outsidePixelBarrel1_and_insidePixelBarrel2 ) {
+	
+      if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
+      if( ! (pattern & (1<<Trk::pixelBarrel2)) ) return false;
+    }
+      
+      
+    else if( vertex_pattern == aroundPixelBarrel2 ) {
+	
+      if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
+      // require nothing for PixelBarrel2
+      if( ! (pattern & (1<<Trk::pixelBarrel3)) ) return false;
+    }
+      
+
+    else if( vertex_pattern == outsidePixelBarrel2_and_insidePixelBarrel3 ) {
+	
+      if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
+      if(   (pattern & (1<<Trk::pixelBarrel2)) ) return false;
+      if( ! (pattern & (1<<Trk::pixelBarrel3)) ) return false;
+    }
+	
+    else if( vertex_pattern == aroundPixelBarrel3 ) {
+	
+      if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
+      if(   (pattern & (1<<Trk::pixelBarrel2)) ) return false;
+      // require nothing for PixelBarrel3
+      if( ! (pattern & (1<<Trk::sctBarrel0)) ) return false;
+    }
+      
+      
+    else if( vertex_pattern == outsidePixelBarrel3_and_insideSctBarrel0 ) {
+	
+      if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
+      if(   (pattern & (1<<Trk::pixelBarrel2)) ) return false;
+      if(   (pattern & (1<<Trk::pixelBarrel3)) ) return false;
+      if( ! (pattern & (1<<Trk::sctBarrel0)) ) return false;
+    }
+      
+      
+    else if( vertex_pattern == aroundSctBarrel0 ) {
+	
+      if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
+      if(   (pattern & (1<<Trk::pixelBarrel2)) ) return false;
+      if(   (pattern & (1<<Trk::pixelBarrel3)) ) return false;
+      // require nothing for SctBarrel0
+      if( ! (pattern & (1<<Trk::sctBarrel1)) ) return false;
+    }
+      
+      
+    else if( vertex_pattern == outsideSctBarrel0_and_insideSctBarrel1 ) {
+	
+      if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
+      if(   (pattern & (1<<Trk::pixelBarrel2)) ) return false;
+      if(   (pattern & (1<<Trk::pixelBarrel3)) ) return false;
+      if(   (pattern & (1<<Trk::sctBarrel0)) ) return false;
+      if( ! (pattern & (1<<Trk::sctBarrel1)) ) return false;
+    }
+      
+      
+    else if( vertex_pattern == aroundSctBarrel1 ) {
+      if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
+      if(   (pattern & (1<<Trk::pixelBarrel2)) ) return false;
+      if(   (pattern & (1<<Trk::pixelBarrel3)) ) return false;
+      if(   (pattern & (1<<Trk::sctBarrel0)) ) return false;
+      // require nothing for SctBarrel1
+      if( ! (pattern & (1<<Trk::sctBarrel2)) ) return false;
+    }
+    //////////////////////////////////////////////////////////////////////////////////
+      
+    return true;
+  }
+  
+  //____________________________________________________________________________________________________
+  bool VrtSecInclusive::patternCheckRun1OuterOnly( const uint32_t& pattern, const Amg::Vector3D& vertex ) {
+    //
+    // rough guesses for active layers:
+    // BeamPipe: 25.0
+    // Pix0 (BLayer): 47.7-54.4, Pix1: 85.5-92.2, Pix2: 119.3-126.1
+    // Sct0: 290-315, Sct1: 360-390, Sct2: 430-460, Sct3:500-530
+    //
+      
+    const double rad  = vertex.perp();
+    const double absz = fabs( vertex.z() );
+    
+    // vertex area classification
+    enum vertexArea {
+      insideBeamPipe,
+	
+      insidePixelBarrel1,
+      aroundPixelBarrel1,
+	
+      outsidePixelBarrel1_and_insidePixelBarrel2,
+      aroundPixelBarrel2,
+	
+      outsidePixelBarrel2_and_insidePixelBarrel3,
+      aroundPixelBarrel3,
+	
+      outsidePixelBarrel3_and_insideSctBarrel0,
+      aroundSctBarrel0,
+	
+      outsideSctBarrel0_and_insideSctBarrel1,
+      aroundSctBarrel1,
+    };
+      
+    // Mutually exclusive vertex position pattern
+    Int_t vertex_pattern = 0;
+    if( rad < 25.00 ) {
+      vertex_pattern = insideBeamPipe;
+	
+    } else if( rad < 47.7 && absz < 400.5 ) {
+      vertex_pattern = insidePixelBarrel1;
+	
+    } else if( rad < 54.4 && absz < 400.5 ) {
+      vertex_pattern = aroundPixelBarrel1;
+	
+    } else if( rad < 85.5 && absz < 400.5 ) {
+      vertex_pattern = outsidePixelBarrel1_and_insidePixelBarrel2;
+	
+    } else if( rad < 92.2 && absz < 400.5 ) {
+      vertex_pattern = aroundPixelBarrel2;
+	
+    } else if( rad < 119.3 && absz < 400.5 ) {
+      vertex_pattern = outsidePixelBarrel2_and_insidePixelBarrel3;
+	
+    } else if( rad < 126.1 && absz < 400.5 ) {
+      vertex_pattern = aroundPixelBarrel3;
+	
+    } else if( rad < 290 && absz < 749.0 ) {
+      vertex_pattern = outsidePixelBarrel3_and_insideSctBarrel0;
+	
+    } else if( rad < 315 && absz < 749.0 ) {
+      vertex_pattern = aroundSctBarrel0;
+	
+    } else if( rad < 360 && absz < 749.0 ) {
+      vertex_pattern = outsideSctBarrel0_and_insideSctBarrel1;
+	
+    } else if( rad < 390 && absz < 749.0 ) {
+      vertex_pattern = aroundSctBarrel1;
+	
+    } else {
+    }
+      
+      
+    //////////////////////////////////////////////////////////////////////////////////
+    if( vertex_pattern == insideBeamPipe ) {
+	
+      if( ! (pattern & (1<<Trk::pixelBarrel1)) ) return false;
+	
+    }
+      
+      
+    else if( vertex_pattern == insidePixelBarrel1 ) {
+	
+      if( ! (pattern & (1<<Trk::pixelBarrel1)) ) return false;
+    }
+      
+      
+    else if( vertex_pattern == aroundPixelBarrel1 ) {
+	
+      // require nothing for PixelBarrel1
+      if( ! (pattern & (1<<Trk::pixelBarrel2)) ) return false;
+    }
+      
+      
+    else if( vertex_pattern == outsidePixelBarrel1_and_insidePixelBarrel2 ) {
+	
+      if( ! (pattern & (1<<Trk::pixelBarrel2)) ) return false;
+    }
+      
+      
+    else if( vertex_pattern == aroundPixelBarrel2 ) {
+	
+      // require nothing for PixelBarrel2
+      if( ! (pattern & (1<<Trk::pixelBarrel3)) ) return false;
+    }
+      
+
+    else if( vertex_pattern == outsidePixelBarrel2_and_insidePixelBarrel3 ) {
+	
+      if( ! (pattern & (1<<Trk::pixelBarrel3)) ) return false;
+    }
+	
+    else if( vertex_pattern == aroundPixelBarrel3 ) {
+	
+      // require nothing for PixelBarrel3
+      if( ! (pattern & (1<<Trk::sctBarrel0)) ) return false;
+    }
+      
+      
+    else if( vertex_pattern == outsidePixelBarrel3_and_insideSctBarrel0 ) {
+	
+      if( ! (pattern & (1<<Trk::sctBarrel0)) ) return false;
+    }
+      
+      
+    else if( vertex_pattern == aroundSctBarrel0 ) {
+	
+      // require nothing for SctBarrel0
+      if( ! (pattern & (1<<Trk::sctBarrel1)) ) return false;
+    }
+      
+      
+    else if( vertex_pattern == outsideSctBarrel0_and_insideSctBarrel1 ) {
+	
+      if( ! (pattern & (1<<Trk::sctBarrel1)) ) return false;
+    }
+      
+      
+    else if( vertex_pattern == aroundSctBarrel1 ) {
+      // require nothing for SctBarrel1
+      if( ! (pattern & (1<<Trk::sctBarrel2)) ) return false;
+    }
+    //////////////////////////////////////////////////////////////////////////////////
+      
+    return true;
+  }
+  
+  //____________________________________________________________________________________________________
+  bool VrtSecInclusive::patternCheck( const uint32_t& pattern, const Amg::Vector3D& vertex ) {
+    bool flag = false;
+    
+    if( m_jp.geoModel == VKalVrtAthena::GeoModel::Run2 ) {
+      flag = patternCheckRun2( pattern, vertex );
+    } else if ( m_jp.geoModel == VKalVrtAthena::GeoModel::Run1 ) {
+      flag = patternCheckRun1( pattern, vertex );
+    }
+    
+    return flag;
+  }
+
+  //____________________________________________________________________________________________________
+  bool VrtSecInclusive::patternCheckOuterOnly( const uint32_t& pattern, const Amg::Vector3D& vertex ) {
+    bool flag = false;
+    
+    if( m_jp.geoModel == VKalVrtAthena::GeoModel::Run2 ) {
+      flag = patternCheckRun2OuterOnly( pattern, vertex );
+    } else if ( m_jp.geoModel == VKalVrtAthena::GeoModel::Run1 ) {
+      flag = patternCheckRun1OuterOnly( pattern, vertex );
+    }
+    
+    return flag;
+  }
 
   //____________________________________________________________________________________________________
   bool VrtSecInclusive::checkTrackHitPatternToVertex( const xAOD::TrackParticle *trk, const Amg::Vector3D& vertex )
   {
     
-    const double rad  = vertex.perp();
-    const double absz = fabs( vertex.z() );
-    
     const uint32_t pattern = trk->hitPattern();
     
+    return patternCheck( pattern, vertex );
 	
-    if( m_jp.geoModel == VKalVrtAthena::GeoModel::Run2 ) {
-    
-      //
-      // rough guesses for active layers:
-      // BeamPipe: 23.5-24.3
-      // IBL: 31.0-38.4
-      // Pix0 (BLayer): 47.7-54.4, Pix1: 85.5-92.2, Pix2: 119.3-126.1
-      // Sct0: 290-315, Sct1: 360-390, Sct2: 430-460, Sct3:500-530
-      //
-      
-      // vertex area classification
-      enum vertexArea {
-	insideBeamPipe,
-	
-	insidePixelBarrel0,
-	aroundPixelBarrel0,
-	
-	outsidePixelBarrel0_and_insidePixelBarrel1,
-	aroundPixelBarrel1,
-	
-	outsidePixelBarrel1_and_insidePixelBarrel2,
-	aroundPixelBarrel2,
-	
-	outsidePixelBarrel2_and_insidePixelBarrel3,
-	aroundPixelBarrel3,
-	
-	outsidePixelBarrel3_and_insideSctBarrel0,
-	aroundSctBarrel0,
-	
-	outsideSctBarrel0_and_insideSctBarrel1,
-	aroundSctBarrel1,
-      };
-      
-      // Mutually exclusive vertex position pattern
-      int vertex_pattern = 0;
-      if( rad < 23.50 ) {
-	vertex_pattern = insideBeamPipe;
-	
-      } else if( rad < 31.0 && absz < 331.5 ) {
-	vertex_pattern = insidePixelBarrel0;
-	
-      } else if( rad < 38.4 && absz < 331.5 ) {
-	vertex_pattern = aroundPixelBarrel0;
-	
-      } else if( rad < 47.7 && absz < 400.5 ) {
-	vertex_pattern = outsidePixelBarrel0_and_insidePixelBarrel1;
-	
-      } else if( rad < 54.4 && absz < 400.5 ) {
-	vertex_pattern = aroundPixelBarrel1;
-	
-      } else if( rad < 85.5 && absz < 400.5 ) {
-	vertex_pattern = outsidePixelBarrel1_and_insidePixelBarrel2;
-	
-      } else if( rad < 92.2 && absz < 400.5 ) {
-	vertex_pattern = aroundPixelBarrel2;
-	
-      } else if( rad < 119.3 && absz < 400.5 ) {
-	vertex_pattern = outsidePixelBarrel2_and_insidePixelBarrel3;
-	
-      } else if( rad < 126.1 && absz < 400.5 ) {
-	vertex_pattern = aroundPixelBarrel3;
-	
-      } else if( rad < 290 && absz < 749.0 ) {
-	vertex_pattern = outsidePixelBarrel3_and_insideSctBarrel0;
-	
-      } else if( rad < 315 && absz < 749.0 ) {
-	vertex_pattern = aroundSctBarrel0;
-	
-      } else if( rad < 360 && absz < 749.0 ) {
-	vertex_pattern = outsideSctBarrel0_and_insideSctBarrel1;
-	
-      } else if( rad < 390 && absz < 749.0 ) {
-	vertex_pattern = aroundSctBarrel1;
-	
-      } else {
-      }
-      
-      
-      //////////////////////////////////////////////////////////////////////////////////
-      if( vertex_pattern == insideBeamPipe ) {
-	
-	if( ! (pattern & (1<<Trk::pixelBarrel0)) ) return false;
-	
-	
-      } else if( vertex_pattern == insidePixelBarrel0 ) {
-	
-	if( ! (pattern & (1<<Trk::pixelBarrel0)) ) return false;
-      }
-      
-      
-      else if( vertex_pattern == aroundPixelBarrel0 ) {
-	
-	// require nothing for PixelBarrel0
-	if( ! (pattern & (1<<Trk::pixelBarrel1)) ) return false;
-      }
-      
-      
-      else if( vertex_pattern == outsidePixelBarrel0_and_insidePixelBarrel1 ) {
-	
-	if(   (pattern & (1<<Trk::pixelBarrel0)) ) return false;
-	if( ! (pattern & (1<<Trk::pixelBarrel1)) ) return false;
-      }
-      
-      
-      else if( vertex_pattern == aroundPixelBarrel1 ) {
-	
-	if(   (pattern & (1<<Trk::pixelBarrel0)) ) return false;
-	// require nothing for PixelBarrel1
-	if( ! (pattern & (1<<Trk::pixelBarrel2)) ) return false;
-      }
-      
-      
-      else if( vertex_pattern == outsidePixelBarrel1_and_insidePixelBarrel2 ) {
-	
-	if(   (pattern & (1<<Trk::pixelBarrel0)) ) return false;
-	if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
-	if( ! (pattern & (1<<Trk::pixelBarrel2)) ) return false;
-      }
-      
-      
-      else if( vertex_pattern == aroundPixelBarrel2 ) {
-	
-	if(   (pattern & (1<<Trk::pixelBarrel0)) ) return false;
-	if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
-	// require nothing for PixelBarrel2
-	if( ! (pattern & (1<<Trk::pixelBarrel3)) ) return false;
-      }
-      
-
-      else if( vertex_pattern == outsidePixelBarrel2_and_insidePixelBarrel3 ) {
-	
-	if(   (pattern & (1<<Trk::pixelBarrel0)) ) return false;
-	if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
-	if(   (pattern & (1<<Trk::pixelBarrel2)) ) return false;
-	if( ! (pattern & (1<<Trk::pixelBarrel3)) ) return false;
-      }
-	
-      else if( vertex_pattern == aroundPixelBarrel3 ) {
-	
-	if(   (pattern & (1<<Trk::pixelBarrel0)) ) return false;
-	if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
-	if(   (pattern & (1<<Trk::pixelBarrel2)) ) return false;
-	// require nothing for PixelBarrel3
-	if( ! (pattern & (1<<Trk::sctBarrel0)) ) return false;
-      }
-      
-      
-      else if( vertex_pattern == outsidePixelBarrel3_and_insideSctBarrel0 ) {
-	
-	if(   (pattern & (1<<Trk::pixelBarrel0)) ) return false;
-	if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
-	if(   (pattern & (1<<Trk::pixelBarrel2)) ) return false;
-	if(   (pattern & (1<<Trk::pixelBarrel3)) ) return false;
-	if( ! (pattern & (1<<Trk::sctBarrel0)) ) return false;
-      }
-      
-      
-      else if( vertex_pattern == aroundSctBarrel0 ) {
-	
-	if(   (pattern & (1<<Trk::pixelBarrel0)) ) return false;
-	if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
-	if(   (pattern & (1<<Trk::pixelBarrel2)) ) return false;
-	if(   (pattern & (1<<Trk::pixelBarrel3)) ) return false;
-	// require nothing for SctBarrel0
-	if( ! (pattern & (1<<Trk::sctBarrel1)) ) return false;
-      }
-      
-      
-      else if( vertex_pattern == outsideSctBarrel0_and_insideSctBarrel1 ) {
-	
-	if(   (pattern & (1<<Trk::pixelBarrel0)) ) return false;
-	if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
-	if(   (pattern & (1<<Trk::pixelBarrel2)) ) return false;
-	if(   (pattern & (1<<Trk::pixelBarrel3)) ) return false;
-	if(   (pattern & (1<<Trk::sctBarrel0)) ) return false;
-	if( ! (pattern & (1<<Trk::sctBarrel1)) ) return false;
-      }
-      
-      
-      else if( vertex_pattern == aroundSctBarrel1 ) {
-	if(   (pattern & (1<<Trk::pixelBarrel0)) ) return false;
-	if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
-	if(   (pattern & (1<<Trk::pixelBarrel2)) ) return false;
-	if(   (pattern & (1<<Trk::pixelBarrel3)) ) return false;
-	if(   (pattern & (1<<Trk::sctBarrel0)) ) return false;
-	// require nothing for SctBarrel1
-	if( ! (pattern & (1<<Trk::sctBarrel2)) ) return false;
-      }
-      //////////////////////////////////////////////////////////////////////////////////
-      
-      return true;
-      
-    }
-    
-    else if ( m_jp.geoModel == VKalVrtAthena::GeoModel::Run1 ) {
-      
-      //
-      // rough guesses for active layers:
-      // BeamPipe: 25.0
-      // Pix0 (BLayer): 47.7-54.4, Pix1: 85.5-92.2, Pix2: 119.3-126.1
-      // Sct0: 290-315, Sct1: 360-390, Sct2: 430-460, Sct3:500-530
-      //
-      
-      // vertex area classification
-      enum vertexArea {
-	insideBeamPipe,
-	
-	insidePixelBarrel1,
-	aroundPixelBarrel1,
-	
-	outsidePixelBarrel1_and_insidePixelBarrel2,
-	aroundPixelBarrel2,
-	
-	outsidePixelBarrel2_and_insidePixelBarrel3,
-	aroundPixelBarrel3,
-	
-	outsidePixelBarrel3_and_insideSctBarrel0,
-	aroundSctBarrel0,
-	
-	outsideSctBarrel0_and_insideSctBarrel1,
-	aroundSctBarrel1,
-      };
-      
-      // Mutually exclusive vertex position pattern
-      Int_t vertex_pattern = 0;
-      if( rad < 25.00 ) {
-	vertex_pattern = insideBeamPipe;
-	
-      } else if( rad < 47.7 && absz < 400.5 ) {
-	vertex_pattern = insidePixelBarrel1;
-	
-      } else if( rad < 54.4 && absz < 400.5 ) {
-	vertex_pattern = aroundPixelBarrel1;
-	
-      } else if( rad < 85.5 && absz < 400.5 ) {
-	vertex_pattern = outsidePixelBarrel1_and_insidePixelBarrel2;
-	
-      } else if( rad < 92.2 && absz < 400.5 ) {
-	vertex_pattern = aroundPixelBarrel2;
-	
-      } else if( rad < 119.3 && absz < 400.5 ) {
-	vertex_pattern = outsidePixelBarrel2_and_insidePixelBarrel3;
-	
-      } else if( rad < 126.1 && absz < 400.5 ) {
-	vertex_pattern = aroundPixelBarrel3;
-	
-      } else if( rad < 290 && absz < 749.0 ) {
-	vertex_pattern = outsidePixelBarrel3_and_insideSctBarrel0;
-	
-      } else if( rad < 315 && absz < 749.0 ) {
-	vertex_pattern = aroundSctBarrel0;
-	
-      } else if( rad < 360 && absz < 749.0 ) {
-	vertex_pattern = outsideSctBarrel0_and_insideSctBarrel1;
-	
-      } else if( rad < 390 && absz < 749.0 ) {
-	vertex_pattern = aroundSctBarrel1;
-	
-      } else {
-      }
-      
-      
-      //////////////////////////////////////////////////////////////////////////////////
-      if( vertex_pattern == insideBeamPipe ) {
-	
-	if( ! (pattern & (1<<Trk::pixelBarrel1)) ) return false;
-	
-      }
-      
-      
-      else if( vertex_pattern == insidePixelBarrel1 ) {
-	
-	if( ! (pattern & (1<<Trk::pixelBarrel1)) ) return false;
-      }
-      
-      
-      else if( vertex_pattern == aroundPixelBarrel1 ) {
-	
-	// require nothing for PixelBarrel1
-	if( ! (pattern & (1<<Trk::pixelBarrel2)) ) return false;
-      }
-      
-      
-      else if( vertex_pattern == outsidePixelBarrel1_and_insidePixelBarrel2 ) {
-	
-	if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
-	if( ! (pattern & (1<<Trk::pixelBarrel2)) ) return false;
-      }
-      
-      
-      else if( vertex_pattern == aroundPixelBarrel2 ) {
-	
-	if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
-	// require nothing for PixelBarrel2
-	if( ! (pattern & (1<<Trk::pixelBarrel3)) ) return false;
-      }
-      
-
-      else if( vertex_pattern == outsidePixelBarrel2_and_insidePixelBarrel3 ) {
-	
-	if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
-	if(   (pattern & (1<<Trk::pixelBarrel2)) ) return false;
-	if( ! (pattern & (1<<Trk::pixelBarrel3)) ) return false;
-      }
-	
-      else if( vertex_pattern == aroundPixelBarrel3 ) {
-	
-	if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
-	if(   (pattern & (1<<Trk::pixelBarrel2)) ) return false;
-	// require nothing for PixelBarrel3
-	if( ! (pattern & (1<<Trk::sctBarrel0)) ) return false;
-      }
-      
-      
-      else if( vertex_pattern == outsidePixelBarrel3_and_insideSctBarrel0 ) {
-	
-	if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
-	if(   (pattern & (1<<Trk::pixelBarrel2)) ) return false;
-	if(   (pattern & (1<<Trk::pixelBarrel3)) ) return false;
-	if( ! (pattern & (1<<Trk::sctBarrel0)) ) return false;
-      }
-      
-      
-      else if( vertex_pattern == aroundSctBarrel0 ) {
-	
-	if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
-	if(   (pattern & (1<<Trk::pixelBarrel2)) ) return false;
-	if(   (pattern & (1<<Trk::pixelBarrel3)) ) return false;
-	// require nothing for SctBarrel0
-	if( ! (pattern & (1<<Trk::sctBarrel1)) ) return false;
-      }
-      
-      
-      else if( vertex_pattern == outsideSctBarrel0_and_insideSctBarrel1 ) {
-	
-	if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
-	if(   (pattern & (1<<Trk::pixelBarrel2)) ) return false;
-	if(   (pattern & (1<<Trk::pixelBarrel3)) ) return false;
-	if(   (pattern & (1<<Trk::sctBarrel0)) ) return false;
-	if( ! (pattern & (1<<Trk::sctBarrel1)) ) return false;
-      }
-      
-      
-      else if( vertex_pattern == aroundSctBarrel1 ) {
-	if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
-	if(   (pattern & (1<<Trk::pixelBarrel2)) ) return false;
-	if(   (pattern & (1<<Trk::pixelBarrel3)) ) return false;
-	if(   (pattern & (1<<Trk::sctBarrel0)) ) return false;
-	// require nothing for SctBarrel1
-	if( ! (pattern & (1<<Trk::sctBarrel2)) ) return false;
-      }
-      //////////////////////////////////////////////////////////////////////////////////
-      
-      return true;
-      
-    }
-    
-    return true;
   }
   
 
+  //____________________________________________________________________________________________________
+  bool VrtSecInclusive::checkTrackHitPatternToVertexOuterOnly( const xAOD::TrackParticle *trk, const Amg::Vector3D& vertex )
+  {
+    
+    const uint32_t pattern = trk->hitPattern();
+    
+    return patternCheckOuterOnly( pattern, vertex );
+	
+  }
+  
+
+  //____________________________________________________________________________________________________
+  bool VrtSecInclusive::checkTrackHitPatternToVertexByExtrapolationAssist( const xAOD::TrackParticle *trk, const Amg::Vector3D& vertex )
+  {
+    
+    if( m_extrapolatedPatternBank.find( trk ) == m_extrapolatedPatternBank.end() ) {
+      
+      std::unique_ptr<ExtrapolatedPattern> exPattern_along( extrapolatedPattern( trk, Trk::alongMomentum ) );
+      
+      m_extrapolatedPatternBank.emplace( trk, std::make_pair( std::move(exPattern_along), nullptr ) );
+      
+    }
+    
+    if( vertex.perp() < 31.0 ) {
+      double dphi = trk->phi() - vertex.phi();
+      while( dphi >  TMath::Pi() ) { dphi -= TMath::TwoPi(); }
+      while( dphi < -TMath::Pi() ) { dphi += TMath::TwoPi(); }
+      if( cos(dphi) < -0.8 ) return false;
+    }
+    
+    auto& exPattern = m_extrapolatedPatternBank.at( trk );
+    
+    using LayerCombination = std::vector<int>;
+    
+    static std::map<LayerCombination, unsigned> layerMap;
+    if( layerMap.size() == 0 ) {
+      layerMap[ { 1, 0, 0 } ] = Trk::pixelBarrel0;
+      layerMap[ { 1, 0, 1 } ] = Trk::pixelBarrel1;
+      layerMap[ { 1, 0, 2 } ] = Trk::pixelBarrel2;
+      layerMap[ { 1, 0, 3 } ] = Trk::pixelBarrel3;
+      
+      layerMap[ { 1, 2, 0 } ] = Trk::pixelEndCap0;
+      layerMap[ { 1, 2, 1 } ] = Trk::pixelEndCap1;
+      layerMap[ { 1, 2, 2 } ] = Trk::pixelEndCap2;
+      layerMap[ { 1,-2, 0 } ] = Trk::pixelEndCap0;
+      layerMap[ { 1,-2, 1 } ] = Trk::pixelEndCap1;
+      layerMap[ { 1,-2, 2 } ] = Trk::pixelEndCap2;
+      
+      layerMap[ { 2, 0, 0 } ] = Trk::sctBarrel0;
+      layerMap[ { 2, 0, 1 } ] = Trk::sctBarrel1;
+      layerMap[ { 2, 0, 2 } ] = Trk::sctBarrel2;
+      layerMap[ { 2, 0, 3 } ] = Trk::sctBarrel3;
+
+      layerMap[ { 2, 2, 0 } ] = Trk::sctEndCap0;
+      layerMap[ { 2, 2, 1 } ] = Trk::sctEndCap1;
+      layerMap[ { 2, 2, 2 } ] = Trk::sctEndCap2;
+      layerMap[ { 2, 2, 3 } ] = Trk::sctEndCap3;
+      layerMap[ { 2, 2, 4 } ] = Trk::sctEndCap4;
+      layerMap[ { 2, 2, 5 } ] = Trk::sctEndCap5;
+      layerMap[ { 2, 2, 6 } ] = Trk::sctEndCap6;
+      layerMap[ { 2, 2, 7 } ] = Trk::sctEndCap7;
+      layerMap[ { 2, 2, 8 } ] = Trk::sctEndCap8;
+      layerMap[ { 2,-2, 0 } ] = Trk::sctEndCap0;
+      layerMap[ { 2,-2, 1 } ] = Trk::sctEndCap1;
+      layerMap[ { 2,-2, 2 } ] = Trk::sctEndCap2;
+      layerMap[ { 2,-2, 3 } ] = Trk::sctEndCap3;
+      layerMap[ { 2,-2, 4 } ] = Trk::sctEndCap4;
+      layerMap[ { 2,-2, 5 } ] = Trk::sctEndCap5;
+      layerMap[ { 2,-2, 6 } ] = Trk::sctEndCap6;
+      layerMap[ { 2,-2, 7 } ] = Trk::sctEndCap7;
+      layerMap[ { 2,-2, 8 } ] = Trk::sctEndCap8;
+    }
+    
+    enum { position=0, detector=1, bec=2, layer=3, isActive=4 };
+    
+    // Labmda!
+    auto getDetectorType = [&]( const ExtrapolatedPoint& point ) -> unsigned {
+      
+      const LayerCombination comb { std::get<detector>( point ), std::get<bec>( point ), std::get<layer>( point ) };
+      
+      for( auto& pair : layerMap ) {
+        if( pair.first == comb ) {
+          return pair.second;
+        }
+      }
+      
+      return AlgConsts::invalidUnsigned;
+    };
+    
+    uint32_t disabledPattern { 0 };
+    
+    // Loop over extrapolated points (along direction)
+    auto& exPattern_along = *( exPattern.first  );
+    
+    for( auto itr = exPattern_along.begin(); itr != exPattern_along.end(); ++itr ) {
+      if( std::next( itr ) == exPattern_along.end() ) continue;
+      
+      const auto& point = *itr;
+      
+      ATH_MSG_VERBOSE( " > " <<  __FUNCTION__ << ": isActive = " << std::get<isActive>( point ) );
+      
+      if( !std::get<isActive>( point ) ) {
+        const auto& detectorType = getDetectorType( point );
+        disabledPattern += (1 << detectorType);
+      }
+    }
+    
+    uint32_t hitPattern      = trk->hitPattern();
+    uint32_t modifiedPattern = disabledPattern | hitPattern;
+    
+    std::string msg = "Disabled hit pattern: ";
+    for( unsigned i=0; i<Trk::numberOfDetectorTypes; i++) {
+      msg += Form("%u", ( disabledPattern >> i ) & 1 );
+    }
+    ATH_MSG_DEBUG( " > " << __FUNCTION__ << ": " << msg );
+    
+    msg = "Recorded hit pattern: ";
+    for( unsigned i=0; i<Trk::numberOfDetectorTypes; i++) {
+      msg += Form("%u", ( hitPattern >> i ) & 1 );
+    }
+    ATH_MSG_DEBUG( " > " << __FUNCTION__ << ": " << msg );
+    
+    
+    return patternCheck( modifiedPattern, vertex );
+    
+  }
+  
+  
   //____________________________________________________________________________________________________
   bool VrtSecInclusive::passedFakeReject( const Amg::Vector3D& FitVertex,
 					  const xAOD::TrackParticle *itrk,
@@ -1583,7 +2316,118 @@ namespace VKalVrtAthena {
     
   }
   
-
+  
+  //____________________________________________________________________________________________________
+  void VrtSecInclusive::dumpTruthInformation() {
+    
+    const xAOD::TruthParticleContainer* truthParticles { nullptr };
+    const xAOD::TruthVertexContainer*   truthVertices  { nullptr };
+    
+    auto sc1 = evtStore()->retrieve( truthParticles, "TruthParticles" );
+    if( sc1.isFailure() ) { return; }
+    
+    auto sc2 = evtStore()->retrieve( truthVertices, "TruthVertices" );
+    if( sc2.isFailure() ) { return; }
+    
+    if( !truthParticles ) { return; }
+    if( !truthVertices  ) { return; }
+    
+    m_tracingTruthVertices.clear();
+    
+    std::vector<const xAOD::TruthParticle*> truthSvTracks;
+    
+    //
+    // truth particle selection functions
+    
+    auto selectNone = [](const xAOD::TruthVertex*) ->bool { return false; };
+    
+    auto selectRhadron = [](const xAOD::TruthVertex* truthVertex ) -> bool {
+      if( truthVertex->nIncomingParticles() != 1 )                      return false;
+      if( abs(truthVertex->incomingParticle(0)->pdgId()) < 1000000 )    return false;
+      if( abs(truthVertex->incomingParticle(0)->pdgId()) > 1000000000 ) return false; // Nuclear codes, e.g. deuteron
+      // neutralino in daughters
+      bool hasNeutralino = false;
+      for( unsigned ip = 0; ip < truthVertex->nOutgoingParticles(); ip++ ) {
+        auto* p = truthVertex->outgoingParticle(ip);
+        if( abs( p->pdgId() ) == 1000022 ) {
+          hasNeutralino = true;
+          break;
+        }
+      }
+      if( !hasNeutralino ) return false;
+      return true;
+    };
+  
+    auto selectHNL = [](const xAOD::TruthVertex* truthVertex ) -> bool {
+      if( truthVertex->nIncomingParticles() != 1 )                      return false;
+      if( abs(truthVertex->incomingParticle(0)->pdgId()) != 50 )        return false;
+      return true;
+    };
+    
+    auto selectKshort = [](const xAOD::TruthVertex* truthVertex ) -> bool {
+      if( truthVertex->nIncomingParticles() != 1 )                      return false;
+      if( abs(truthVertex->incomingParticle(0)->pdgId()) != 310 )       return false;
+      return true;
+    };
+    
+    auto selectHadInt = [](const xAOD::TruthVertex* truthVertex ) -> bool {
+      if( truthVertex->nIncomingParticles() != 1 )                      return false;
+      
+      auto* parent = truthVertex->incomingParticle(0);
+      if( parent->isLepton() )                                          return false;
+      
+      TLorentzVector p4sum_in;
+      TLorentzVector p4sum_out;
+      for( unsigned ip = 0; ip < truthVertex->nIncomingParticles(); ip++ ) {
+        auto* particle = truthVertex->incomingParticle(ip);
+        TLorentzVector p4; p4.SetPtEtaPhiM( particle->pt(), particle->eta(), particle->phi(), particle->m() );
+        p4sum_in += p4;
+      }
+      for( unsigned ip = 0; ip < truthVertex->nOutgoingParticles(); ip++ ) {
+        auto* particle = truthVertex->outgoingParticle(ip);
+        TLorentzVector p4; p4.SetPtEtaPhiM( particle->pt(), particle->eta(), particle->phi(), particle->m() );
+        p4sum_out += p4;
+      }
+      if( p4sum_out.E() - p4sum_in.E() < 100. )                         return false;
+      return true;
+    };
+    
+    
+    
+    using ParticleSelectFunc = bool (*)(const xAOD::TruthVertex*);
+    std::map<std::string, ParticleSelectFunc> selectFuncs { { "",        selectNone    },
+                                                            { "Kshort",  selectKshort  },
+                                                            { "Rhadron", selectRhadron },
+                                                            { "HNL",     selectHNL     },
+                                                            { "HadInt",  selectHadInt  }  };
+    
+    
+    if( selectFuncs.find( m_jp.truthParticleFilter ) == selectFuncs.end() ) {
+      ATH_MSG_WARNING( " > " << __FUNCTION__ << ": invalid function specification: " << m_jp.truthParticleFilter );
+      return;
+    }
+    
+    auto selectFunc = selectFuncs.at( m_jp.truthParticleFilter );
+    
+    // loop over truth vertices
+    for( const auto *truthVertex : *truthVertices ) {
+      if( selectFunc( truthVertex ) ) {
+        m_tracingTruthVertices.emplace_back( truthVertex );
+        std::string msg;
+        msg += Form("(r, z) = (%.2f, %.2f), ", truthVertex->perp(), truthVertex->z());
+        msg += Form("nOutgoing = %lu, ", truthVertex->nOutgoingParticles() );
+        msg += Form("mass = %.3f GeV, pt = %.3f GeV", truthVertex->incomingParticle(0)->m()/1.e3, truthVertex->incomingParticle(0)->pt()/1.e3 );
+        ATH_MSG_DEBUG( " > " << __FUNCTION__ << ": " << msg );
+      }
+    }
+    
+    if( m_jp.FillHist ) {
+      for( auto* truthVertex : m_tracingTruthVertices ) {
+        m_hists["nMatchedTruths"]->Fill( 0., truthVertex->perp() );
+      }
+    }
+    
+  }
   
 } // end of namespace VKalVrtAthena
 

@@ -22,6 +22,7 @@
 #include <iostream>
 #include <tuple>
 #include <functional>
+#include <chrono>
 
 using namespace std;
 
@@ -62,8 +63,10 @@ namespace VKalVrtAthena {
     
   {
     
-    m_patternStrategyFuncs["Classical"]     = &VrtSecInclusive::checkTrackHitPatternToVertex;
-    m_patternStrategyFuncs["Extrapolation"] = &VrtSecInclusive::checkTrackHitPatternToVertexByExtrapolation;
+    m_patternStrategyFuncs["Classical"]           = &VrtSecInclusive::checkTrackHitPatternToVertex;
+    m_patternStrategyFuncs["ClassicalOuter"]      = &VrtSecInclusive::checkTrackHitPatternToVertexOuterOnly;
+    m_patternStrategyFuncs["Extrapolation"]       = &VrtSecInclusive::checkTrackHitPatternToVertexByExtrapolation;
+    m_patternStrategyFuncs["ExtrapolationAssist"] = &VrtSecInclusive::checkTrackHitPatternToVertexByExtrapolationAssist;
 
     this->declareProperties();
     
@@ -150,21 +153,13 @@ namespace VKalVrtAthena {
     }
     
     // Track selection algorithm configuration
-    if( m_jp.doSelectTracksFromMuons ) {
-      
-      m_trackSelectionAlgs.emplace_back( &VrtSecInclusive::selectTracksFromMuons );
-      
-    }
+    if( m_jp.doSelectTracksFromMuons )     { m_trackSelectionAlgs.emplace_back( &VrtSecInclusive::selectTracksFromMuons );     }
+    if( m_jp.doSelectTracksFromElectrons ) { m_trackSelectionAlgs.emplace_back( &VrtSecInclusive::selectTracksFromElectrons ); }
     
-    if( m_jp.doSelectTracksFromElectrons ) {
-      
-      m_trackSelectionAlgs.emplace_back( &VrtSecInclusive::selectTracksFromElectrons );
-      
-    }
-    
+    // if none of the above two flags are activated, use ID tracks (default)
     if( !m_jp.doSelectTracksFromMuons && !m_jp.doSelectTracksFromElectrons ) {
       
-      m_trackSelectionAlgs.emplace_back( &VrtSecInclusive::selectTracks );
+      m_trackSelectionAlgs.emplace_back( &VrtSecInclusive::selectTracksInDet );
       
     }
     
@@ -179,19 +174,15 @@ namespace VKalVrtAthena {
     }
       
     if( m_jp.doMergeByShuffling ) {
-      m_vertexingAlgorithms.emplace_back( std::pair<std::string, vertexingAlg>( "mergeByShuffling",            &VrtSecInclusive::mergeByShuffling )                  );
-    }
-      
-    if( m_jp.doAssociateNonSelectedTracks ) {
-      m_vertexingAlgorithms.emplace_back( std::pair<std::string, vertexingAlg>( "associateNonSelectedTracks",  &VrtSecInclusive::associateNonSelectedTracks )        );
-    }
-    
-    if( m_jp.doMergeByShuffling ) {
-      m_vertexingAlgorithms.emplace_back( std::pair<std::string, vertexingAlg>( "mergeByShuffling2",           &VrtSecInclusive::mergeByShuffling )                  );
+      m_vertexingAlgorithms.emplace_back( std::pair<std::string, vertexingAlg>( "mergeByShuffling",           &VrtSecInclusive::mergeByShuffling )                   );
     }
       
     if ( m_jp.doMergeFinalVerticesDistance ) {
       m_vertexingAlgorithms.emplace_back( std::pair<std::string, vertexingAlg>( "mergeFinalVertices",          &VrtSecInclusive::mergeFinalVertices )                );
+    }
+    
+    if( m_jp.doAssociateNonSelectedTracks ) {
+      m_vertexingAlgorithms.emplace_back( std::pair<std::string, vertexingAlg>( "associateNonSelectedTracks",  &VrtSecInclusive::associateNonSelectedTracks )        );
     }
     
     m_vertexingAlgorithms.emplace_back( std::pair<std::string, vertexingAlg>( "refitAndSelect",                &VrtSecInclusive::refitAndSelectGoodQualityVertices ) );
@@ -211,10 +202,15 @@ namespace VKalVrtAthena {
       ATH_MSG_INFO("initialize: Filling Histograms");
       //
       m_hists["trkSelCuts"]        = new TH1F("trkSelCuts",        ";Cut Order;Tracks",                         10, -0.5, 10-0.5                                         );
+      m_hists["selTracksDist"]     = new TH1F("selTracksDist",     ";Selected Tracks;Events",                   2000, -0.5, 2000-0.5                                     );
+      m_hists["initVertexDispD0"]  = new TH2F("initVertexDispD0",  ";Rough d0 wrt init [mm];r [mm];Vertices",   1000, -100, 100, rbins.size()-1, &(rbins[0])             ); 
+      m_hists["initVertexDispZ0"]  = new TH2F("initVertexDispZ0",  ";Rough z0 wrt init [mm];z [mm];Vertices",   1000, -100, 100, 100, -1000, 1000                        ); 
       m_hists["incompMonitor"]     = new TH1F("incompMonitor",     ";Setp;Track Pairs",                         10, -0.5, 10-0.5                                         );
+      m_hists["2trkVerticesDist"]  = new TH1F("2trkVerticesDist",  ";2-track Vertices;Events",                  1000, -0.5, 1000-0.5                                     );
       m_hists["2trkChi2Dist"]      = new TH1F("2trkChi2Dist",      ";log10(#chi^{2}/N_{dof});Entries",          100, -3, 7                                               );
       m_hists["NtrkChi2Dist"]      = new TH1F("NtrkChi2Dist",      ";log10(#chi^{2}/N_{dof});Entries",          100, -3, 7                                               );
       m_hists["vPosDist"]          = new TH2F("vPosDist",          ";r;#vec{x}*#vec{p}/p_{T} [mm]",             rbins.size()-1, &(rbins[0]), 200, -1000, 1000            );
+      m_hists["vPosMomAngTDist"]   = new TH2F("vPosMomAngDistT",   ";r;cos(#vec{r},#vec{p}_{T})",               rbins.size()-1, &(rbins[0]), 200, -1.0, 1.0              );
       m_hists["disabledCount"]     = new TH1F("disabledCount",     ";N_{modules};Tracks",                       20, -0.5, 10-0.5                                         );
       m_hists["vertexYield"]       = new TH1F("vertexYield",       ";Algorithm Step;Vertices",                  nAlgs, -0.5, nAlgs-0.5                                   );
       m_hists["vertexYieldNtrk"]   = new TH2F("vertexYieldNtrk",   ";Ntrk;Algorithm Step;Vertices",             100, 0, 100, nAlgs, -0.5, nAlgs-0.5                      );
@@ -226,10 +222,12 @@ namespace VKalVrtAthena {
       m_hists["shuffleMinSignif3"] = new TH1F("shuffleMinSignif3", ";Min( log_{10}( Significance ) );Vertices", 100, -3, 5                                               );
       m_hists["finalCutMonitor"]   = new TH1F("finalCutMonitor",   ";Step;Vertices",                            6, -0.5, 6-0.5                                           );
       m_hists["finalVtxNtrk"]      = new TH1F("finalVtxNtrk",      ";N_{trk};Vertices",                         nbins.size()-1, &(nbins[0])                              );
-      m_hists["finalVtxR"]         = new TH1F("finalVtxR",         ";r [mm];Vertices",                          rbins.size()-1, &(rbins[0])                              );
+      m_hists["finalVtxR"]         = new TH1F("finalVtxR",         ";r [mm];Vertices",                          600, 0, 600                                              );
       m_hists["finalVtxNtrkR"]     = new TH2F("finalVtxNtrkR",     ";N_{trk};r [mm];Vertices",                  nbins.size()-1, &(nbins[0]), rbins.size()-1, &(rbins[0]) );
+      m_hists["CPUTime"]           = new TH1F("CPUTime",           ";Step;Accum. CPU Time [s]",                 10, -0.5, 10-0.5                                         );
+      m_hists["nMatchedTruths"]    = new TH2F("nMatchedTruths",    ";Step;;r [mm];Matched truth vertices",      11, -0.5, 11-0.5, rbins.size()-1, &(rbins[0])            );
       
-      std::string histDir("/AANT/VrtSecInclusive/");
+      std::string histDir("/AANT/VrtSecInclusive" + m_jp.augVerString + "/");
       
       for( auto& pair : m_hists ) {
         ATH_CHECK( hist_root->regHist( histDir + pair.first, pair.second ) );
@@ -321,8 +319,8 @@ namespace VKalVrtAthena {
     
     secondaryVertexContainer ->setStore( secondaryVertexAuxContainer );
     
-    ATH_CHECK( evtStore()->record( secondaryVertexContainer,    "VrtSecInclusive_" + m_jp.secondaryVerticesContainerName          ) );
-    ATH_CHECK( evtStore()->record( secondaryVertexAuxContainer, "VrtSecInclusive_" + m_jp.secondaryVerticesContainerName + "Aux." ) );
+    ATH_CHECK( evtStore()->record( secondaryVertexContainer,    "VrtSecInclusive_" + m_jp.secondaryVerticesContainerName + m_jp.augVerString          ) );
+    ATH_CHECK( evtStore()->record( secondaryVertexAuxContainer, "VrtSecInclusive_" + m_jp.secondaryVerticesContainerName + m_jp.augVerString + "Aux." ) );
     
     if( m_jp.FillIntermediateVertices ) {
       auto *twoTrksVertexContainer      = new xAOD::VertexContainer;
@@ -330,8 +328,8 @@ namespace VKalVrtAthena {
       
       twoTrksVertexContainer   ->setStore( twoTrksVertexAuxContainer );
       
-      ATH_CHECK( evtStore()->record( twoTrksVertexContainer,      "VrtSecInclusive_" + m_jp.all2trksVerticesContainerName           ) );
-      ATH_CHECK( evtStore()->record( twoTrksVertexAuxContainer,   "VrtSecInclusive_" + m_jp.all2trksVerticesContainerName + "Aux."  ) );
+      ATH_CHECK( evtStore()->record( twoTrksVertexContainer,      "VrtSecInclusive_" + m_jp.all2trksVerticesContainerName + m_jp.augVerString          ) );
+      ATH_CHECK( evtStore()->record( twoTrksVertexAuxContainer,   "VrtSecInclusive_" + m_jp.all2trksVerticesContainerName + m_jp.augVerString + "Aux."  ) );
     
       for( auto itr = m_vertexingAlgorithms.begin(); itr!=m_vertexingAlgorithms.end(); ++itr ) {
       
@@ -342,15 +340,20 @@ namespace VKalVrtAthena {
       
         intermediateVertexContainer   ->setStore( intermediateVertexAuxContainer );
       
-        ATH_CHECK( evtStore()->record( intermediateVertexContainer,      "VrtSecInclusive_IntermediateVertices_" + name           ) );
-        ATH_CHECK( evtStore()->record( intermediateVertexAuxContainer,   "VrtSecInclusive_IntermediateVertices_" + name + "Aux."  ) );
+        ATH_CHECK( evtStore()->record( intermediateVertexContainer,      "VrtSecInclusive_IntermediateVertices_" + name + m_jp.augVerString           ) );
+        ATH_CHECK( evtStore()->record( intermediateVertexAuxContainer,   "VrtSecInclusive_IntermediateVertices_" + name + m_jp.augVerString + "Aux."  ) );
       }
     
     }
     
+    dumpTruthInformation();
+
+    
     // Later use elsewhere in the algorithm
     m_selectedTracks.reset  ( new std::vector<const xAOD::TrackParticle*> );
     m_associatedTracks.reset( new std::vector<const xAOD::TrackParticle*> );
+    
+    m_extrapolatedPatternBank.clear();
     
     ///////////////////////////////////////////////////////////////////////////
     //
@@ -407,11 +410,20 @@ namespace VKalVrtAthena {
       auto& name = itr->first;
       auto alg   = itr->second;
       
+      auto t_start = std::chrono::system_clock::now();
+      
       ATH_CHECK( (this->*alg)( workVerticesContainer ) );
+      
+      auto t_end = std::chrono::system_clock::now();
+      
+      if( m_jp.FillHist ) {
+        auto sec = std::chrono::duration_cast<std::chrono::microseconds>( t_end - t_start ).count();
+        m_hists["CPUTime"]->Fill( m_vertexingAlgorithmStep, sec/1.e6 );
+      }
       
       auto end = std::remove_if( workVerticesContainer->begin(), workVerticesContainer->end(),
                                  []( WrkVrt& wrkvrt ) {
-                                   return wrkvrt.isGood == false || wrkvrt.nTracksTotal() < 2; }
+                                   return ( wrkvrt.isGood == false || wrkvrt.nTracksTotal() < 2 ); }
                                  );
       
       workVerticesContainer->erase( end, workVerticesContainer->end() );
