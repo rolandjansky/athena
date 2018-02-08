@@ -28,6 +28,10 @@ namespace H5Utils {
       return H5::PredType::NATIVE_UINT;
     }
     template<>
+    H5::DataType get_type<unsigned char>() {
+      return H5::PredType::NATIVE_UCHAR;
+    }
+    template<>
     H5::DataType get_type<double>() {
       return H5::PredType::NATIVE_DOUBLE;
     }
@@ -49,6 +53,9 @@ namespace H5Utils {
     }
     template<> unsigned int& get_ref<unsigned int>(data_buffer_t& buf) {
       return buf._uint;
+    }
+    template<> unsigned char& get_ref<unsigned char>(data_buffer_t& buf) {
+      return buf._uchar;
     }
     template<> float& get_ref<float>(data_buffer_t& buf) {
       return buf._float;
