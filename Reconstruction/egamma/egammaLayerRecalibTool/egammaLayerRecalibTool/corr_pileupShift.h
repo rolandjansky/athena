@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef CORR_PILEUPHIFT_H
 #define CORR_PILEUPHIFT_H
 #include "TH1D.h"

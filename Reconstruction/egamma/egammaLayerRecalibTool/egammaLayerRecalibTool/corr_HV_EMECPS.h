@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef CORR_HV_EMECPS_H
 #define CORR_HV_EMECPS_H
 #include "TH2D.h"
