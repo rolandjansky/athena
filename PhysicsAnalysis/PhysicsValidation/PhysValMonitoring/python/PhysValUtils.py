@@ -5,7 +5,7 @@ logger = logging.getLogger('PhysValUtils')
 
 ################################################################################################
 
-def addPhysValAODContent(algseq):
+def addPhysValAODContent(algseq,doJets,doTopoCluster):
     '''
     Schedule the addition of collections needed for validation of
     primary xAODs: AntiKt4TruthJets and LC/EMOriginTopoClusters
@@ -24,11 +24,11 @@ def addPhysValAODContent(algseq):
 
     jettools_PhysVal = []
     # Truth jets
-    if requiresTruthJets:
+    if doJets and requiresTruthJets:
         jettools_PhysVal += addAntiKt4TruthJets(algseq)
 
     # Origin-corrected topoclusters
-    if requiresLCOriginTC or requiresEMOriginTC:
+    if doTopoCluster and (requiresLCOriginTC or requiresEMOriginTC):
         jettools_PhysVal += addOriginCorrectedClusters(algseq,requiresLCOriginTC,requiresEMOriginTC)
 
     # Only add the algorithm if there is a need for it

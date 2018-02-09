@@ -50,12 +50,6 @@ else:
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
-# Add containers needed for running on AOD if necessary
-# This will check for existence, so no action will be taken
-# if running on DAOD_PHYSVAL or non-reduced derivations
-from PhysValMonitoring.PhysValUtils import addPhysValAODContent
-addPhysValAODContent(topSequence)
-
 # Only for now due to xAOD issues?
 topSequence += monMan
 
@@ -103,6 +97,14 @@ if hasattr(runArgs,"validationFlags"):
             skelLog.warning("Ignored unrecognised validation control string for {0}: {1}".format(validationType, flag))
             
 skelLog.info("Validation switches are set to: {0}".format(validationDict))
+
+# Add containers needed for running on AOD if necessary
+# This will check for existence, so no action will be taken
+# if running on DAOD_PHYSVAL or non-reduced derivations
+from PhysValMonitoring.PhysValUtils import addPhysValAODContent
+addPhysValAODContent(topSequence,
+                     doJets=validationDict['Jet'],
+                     doTopoCluster=validationDict['TopoCluster'])
 
 # Schedule individual validations
 from PyJobTransforms.trfUtils import findFile
