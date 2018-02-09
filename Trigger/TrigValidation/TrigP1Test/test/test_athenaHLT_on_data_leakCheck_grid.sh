@@ -25,7 +25,7 @@ export JOB_LOG="${NAME}.log"
 
 export LD_PRELOAD=/cvmfs/sft.cern.ch/lcg/releases/libunwind/5c2cade-76996/$CMTCONFIG/lib/libunwind.so
 
-athenaHLT.py --stdcmalloc --leak-check-execute  -o HLT_physicsV7 -n 1000 -f "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00339070.physics_EnhancedBias.merge.RAW._lb0101._SFO-1._0001.1" -c "setMenu='Physics_pp_v7_tight_physics_prescale';setLVL1XML='TriggerMenuXML/LVL1config_Physics_pp_v7.xml';setL1TopoXML=setLVL1XML.replace('/LVL1','/L1Topo');HLTOutputLevel=WARNING;doValidation=True" TrigP1Test/runHLT_standaloneRTT_leakCheck.py | tee ${JOB_LOG}
+athenaHLT.py --stdcmalloc --leak-check-execute  -o HLT_physicsV7 -n 1000 -f "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00339070.physics_EnhancedBias.merge.RAW._lb0101._SFO-1._0001.1" -c "setMenu='Physics_pp_v7_tight_physics_prescale';setLVL1XML='TriggerMenuXML/LVL1config_Physics_pp_v7.xml';setL1TopoXML=setLVL1XML.replace('/LVL1','/L1Topo');HLTOutputLevel=WARNING;doValidation=True;rerunLVL1=True;" TrigP1Test/runHLT_standaloneRTT_leakCheck.py | tee ${JOB_LOG}
 
 ATH_RETURN=${PIPESTATUS[0]}
 echo "art-result: ${ATH_RETURN} ${NAME}"
