@@ -141,6 +141,7 @@ def get_default_runcard(proc_dir='PROC_mssm_0'):
             raise RuntimeError('Cannot find default run_card.dat or run_card_default.dat! I was looking here: %s'%run_card_loc)
 
 
+
 def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,njobs=1,run_name='Test',proc_dir='PROC_mssm_0',grid_pack=False,gridpack_compile=False,cluster_type=None,cluster_queue=None,cluster_temp_path=None,extlhapath=None,madspin_card_loc=None,required_accuracy=0.01,gridpack_dir=None,nevents=None,random_seed=None,reweight_card_loc=None,bias_module=None):
     try:
         from __main__ import opts
@@ -264,7 +265,6 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
         mglog.info('Running reweighting module. Moving card (%s) into place.'%(reweight_card_loc))
         shutil.copyfile(reweight_card_loc,proc_dir+'/Cards/reweight_card.dat')
 
-
     # Ensure that things are set up normally
     if not os.access(run_card_loc,os.R_OK):
         mglog.error('No run card found at '+run_card_loc)
@@ -304,14 +304,12 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
 
     (LHAPATH,origLHAPATH,origLHAPDF_DATA_PATH) = setupLHAPDF(isNLO, version=version, proc_dir=proc_dir, extlhapath=extlhapath, allow_links=allow_links)
 
-
     mglog.info('For your information, the libraries available are (should include LHAPDF):')
     mglog.info( sorted( os.listdir( proc_dir+'/lib/' ) ) )
 
     setupFastjet(isNLO, proc_dir=proc_dir)
     if bias_module!=None:
         setup_bias_module(bias_module,run_card_loc,proc_dir,grid_pack)
-
 
     mglog.info('Now I will hack the make files a bit.  Apologies, but there seems to be no good way around this.')
     shutil.copyfile(proc_dir+'/Source/make_opts',proc_dir+'/Source/make_opts_old')
@@ -532,9 +530,6 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
             tar = subprocess.Popen(['tar','czf',gridpack_name,gridpack_dir,'--exclude=lib/PDFsets'])
             tar.wait()
             os.rename(gridpack_dir,proc_dir)
-
-
-
 
         raise RuntimeError('Gridpack sucessfully created, exiting the transform. IGNORE ERRORS if running gridpack generation!')
 
@@ -760,7 +755,6 @@ def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,r
         mglog.info('For your information, ls of '+gridpack_dir+'/Events/:')
         mglog.info( sorted( os.listdir( gridpack_dir+'/Events/' ) ) )
 
-
         if not gridpack_compile:
             mglog.info('Copying make_opts from Template')
             shutil.copy(os.environ['MADPATH']+'/Template/LO/Source/make_opts',gridpack_dir+'/Source/')
@@ -801,7 +795,6 @@ def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,r
     else:
         if not os.path.exists(gridpack_dir+'Events/GridRun_%i/'%random_seed):
             shutil.copy(gridpack_dir+'/Events/'+run_name+'/events.lhe.gz','events.lhe.gz')
-
 
     mglog.info('For your information, ls of '+currdir+':')
     mglog.info( sorted( os.listdir( currdir ) ) )
@@ -979,13 +972,11 @@ def setupLHAPDF(isNLO, version=None, proc_dir=None, extlhapath=None, allow_links
             mglog.info('copying '+atlasLHADATAPATH+'/lhapdf.conf -->'+newMGCLHA+'lhapdf.conf')
             shutil.copy2(atlasLHADATAPATH+'/lhapdf.conf',newMGCLHA+'lhapdf.conf')
 
-
         LHADATAPATH=os.getcwd()+'/MGC_LHAPDF'
 
     else:
         mglog.info('Not using LHAPDF')
         return (LHAPATH,origLHAPATH,origLHAPDF_DATA_PATH)
-
 
     if isNLO:
         os.environ['LHAPDF_DATA_PATH']=LHADATAPATH
@@ -1303,7 +1294,6 @@ def arrange_output(run_name='Test',proc_dir='PROC_mssm_0',outputDS='madgraph_OTF
     else:
         orig_input = proc_dir+'/Events/'+run_name+'/events.lhe'
         mod_output = open(os.getcwd()+'/events.lhe','w')
-
 
     #Removing empty lines in LHE
     nEmpty=0
