@@ -119,36 +119,35 @@ namespace DerivationFramework {
 
       ///////////////
       ///// COUNTERS
-      mutable unsigned int n_tot;
-      mutable unsigned int n_passGRL;
-      mutable unsigned int n_passLArError;
-      mutable unsigned int n_passTrigger;
-      mutable unsigned int n_passPreselect;
-      mutable unsigned int n_passJetPts;
-      mutable unsigned int n_passJetsDEta;
-      mutable unsigned int n_passDiJetMass;
-      mutable unsigned int n_passJetsDPhi;
-      mutable unsigned int n_pass;
+      mutable unsigned int m_n_tot;
+      mutable unsigned int m_n_passGRL;
+      mutable unsigned int m_n_passLArError;
+      mutable unsigned int m_n_passTrigger;
+      mutable unsigned int m_n_passPreselect;
+      mutable unsigned int m_n_passJetPts;
+      mutable unsigned int m_n_passJetsDEta;
+      mutable unsigned int m_n_passDiJetMass;
+      mutable unsigned int m_n_passJetsDPhi;
+      mutable unsigned int m_n_pass;
 
 
       /////////////////////////////
       ///// EVENT LEVEL QUANTITIES
 
-      mutable TLorentzVector j1TLV, j2TLV;
+      mutable TLorentzVector m_j1TLV, m_j2TLV;
 
-      mutable bool e_passGRL;
-      mutable bool e_passLArError;
-      mutable bool e_passTrigger;
-      mutable bool e_passPreselect;
-      mutable bool e_passJetPts;
-      mutable bool e_passJetsDEta;
-      mutable bool e_passDiJetMass;
-      mutable bool e_passJetsDPhi;
-      mutable bool e_pass;
+      mutable bool m_e_passGRL;
+      mutable bool m_e_passLArError;
+      mutable bool m_e_passTrigger;
+      mutable bool m_e_passPreselect;
+      mutable bool m_e_passJetPts;
+      mutable bool m_e_passJetsDEta;
+      mutable bool m_e_passDiJetMass;
+      mutable bool m_e_passJetsDPhi;
 
-      mutable double e_JetsDEta;
-      mutable double e_DiJetMass;
-      mutable double e_JetsDPhi;
+      mutable double m_e_JetsDEta;
+      mutable double m_e_DiJetMass;
+      mutable double m_e_JetsDPhi;
 
       /////////////////////////////
       ///// FUNCTIONS
