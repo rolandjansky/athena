@@ -96,7 +96,7 @@ StatusCode EgammaCPTools::setupCalibration() {
   } else {
     IEgammaCalibTool* egammaCalibrationAndSmearingTool = new CP::EgammaCalibrationAndSmearingTool(egamma_calib_name);
     top::check(asg::setProperty(egammaCalibrationAndSmearingTool,
-				"ESModel", "es2017_R21_PRE"),
+				"ESModel", "es2017_R21_v0"),
 	       "Failed to set ESModel for " + egamma_calib_name);
     top::check(asg::setProperty(egammaCalibrationAndSmearingTool,
                                 "decorrelationModel",
@@ -134,7 +134,7 @@ StatusCode EgammaCPTools::setupCalibration() {
     m_photonFudgeTool = asg::ToolStore::get<IFudgeTool>(fudgeName);
   } else {
     IFudgeTool* fudge_tool = new ElectronPhotonShowerShapeFudgeTool(fudgeName);
-    // Set Preselection to 21 (was 16) according to http://cern.ch/go/trk9
+    // Set Preselection to 22
     // for MC15 samples, which are based on a geometry derived from GEO-21 from 2015+2016 data
     top::check(asg::setProperty(fudge_tool, "Preselection", 22),
                 "Failed to set " + fudgeName + " property: Preselection");
@@ -309,7 +309,7 @@ StatusCode EgammaCPTools::setupScaleFactors() {
   // Charge ID cannot use maps at the moment so we defualt to the old method
   // for the moment only for MediumLH and FixedCutTight isolation
   // either at Tight or Loose level
-  if (  electronIDLoose == "MediumLLH" || electronID == "MediumLLH"  ) {
+  if ( ( electronIDLoose == "MediumLLH" && electronIsolationLoose == "FixedCutTight" ) || ( electronID == "MediumLLH" && electronIsolation == "FixedCutTight" ) ) {
     // Charge ID file (no maps)
     m_electronEffSFChargeIDFile = electronSFFilePath("ChargeID", "MediumLLH");
     // The tools want the files in vectors: remove this with function
