@@ -225,9 +225,9 @@ if DetFlags.haveRIO.SCT_on():
         print InDetSCT_ReadCalibDataSvc
     
     # Load flagged condition service
-    from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_FlaggedConditionSvc
-    InDetSCT_FlaggedConditionSvc = SCT_FlaggedConditionSvc(name = "InDetSCT_FlaggedConditionSvc")
-    ServiceMgr += InDetSCT_FlaggedConditionSvc
+    from SCT_ConditionsServices.SCT_FlaggedConditionSvcSetup import sct_FlaggedConditionSvcSetup
+    sct_FlaggedConditionSvcSetup.setup()
+    InDetSCT_FlaggedConditionSvc = sct_FlaggedConditionSvcSetup.getSvc()
     if (InDetFlags.doPrintConfigurables()):
         print InDetSCT_FlaggedConditionSvc
     
@@ -252,7 +252,8 @@ if DetFlags.haveRIO.SCT_on():
     if not hasattr(ServiceMgr, "SCT_ByteStreamErrorsSvc"):
         include( 'InDetRecExample/InDetRecCabling.py' )
         from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ByteStreamErrorsSvc
-        SCT_ByteStreamErrorsSvc = SCT_ByteStreamErrorsSvc(name = "SCT_ByteStreamErrorsSvc")
+        SCT_ByteStreamErrorsSvc = SCT_ByteStreamErrorsSvc(name = "SCT_ByteStreamErrorsSvc",
+                                                          ConfigService = InDetSCT_ConfigurationConditionsSvc)
         ServiceMgr += SCT_ByteStreamErrorsSvc
     if (InDetFlags.doPrintConfigurables()):
         print ServiceMgr.SCT_ByteStreamErrorsSvc
@@ -306,7 +307,7 @@ if DetFlags.haveRIO.SCT_on():
         
         # Configure summary service
         InDetSCT_ConditionsSummarySvc.ConditionsServices= [ sct_ConfigurationConditionsSvcSetup.getSvcName(),
-                                                            "InDetSCT_FlaggedConditionSvc",
+                                                            sct_FlaggedConditionSvcSetup.getSvcName(),
                                                             "SCT_ByteStreamErrorsSvc",
                                                             sct_ReadCalibDataSvcSetup.getSvcName(),
                                                             sct_TdaqEnabledSvcSetup.getSvcName()]
@@ -322,7 +323,7 @@ if DetFlags.haveRIO.SCT_on():
       
     else :
         InDetSCT_ConditionsSummarySvc.ConditionsServices= [ sct_ConfigurationConditionsSvcSetup.getSvcName(),
-                                                            "InDetSCT_FlaggedConditionSvc",
+                                                            sct_FlaggedConditionSvcSetup.getSvcName(),
                                                             sct_MonitorConditionsSvcSetup.getSvcName(),
                                                             "SCT_ByteStreamErrorsSvc",
                                                             sct_ReadCalibDataSvcSetup.getSvcName()]
