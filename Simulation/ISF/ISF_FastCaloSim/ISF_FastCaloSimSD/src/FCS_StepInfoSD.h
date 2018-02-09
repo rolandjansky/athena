@@ -26,6 +26,7 @@ class LArEM_ID;
 class LArFCAL_ID;
 class LArHEC_ID;
 class LArMiniFCAL_ID;
+class TileID;
 class CaloDetDescrManager;
 
 class ILArCalculatorSvc;
@@ -106,11 +107,13 @@ public:
   void setupHelpers( const LArEM_ID* EM ,
                      const LArFCAL_ID* FCAL ,
                      const LArHEC_ID* HEC ,
-                     const LArMiniFCAL_ID* mini ) {
+                     const LArMiniFCAL_ID* mini,
+                     const TileID* tile) {
     m_larEmID = EM;
     m_larFcalID = FCAL;
     m_larHecID = HEC;
     m_larMiniFcalID = mini;
+    m_tileID = tile;
   }
 
 protected:
@@ -124,6 +127,7 @@ protected:
   const LArFCAL_ID*     m_larFcalID;
   const LArHEC_ID*      m_larHecID;
   const LArMiniFCAL_ID* m_larMiniFcalID;
+  const TileID*         m_tileID;
   const CaloDetDescrManager *m_calo_dd_man;
   std::map< Identifier , std::vector< ISF_FCS_Parametrization::FCS_StepInfo* >* > m_hit_map;
 
