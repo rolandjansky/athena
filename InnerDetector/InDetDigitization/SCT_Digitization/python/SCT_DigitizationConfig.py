@@ -34,51 +34,22 @@ def getSCT_Amp(name="SCT_Amp", **kwargs):
 ######################################################################################
 def getSCT_SurfaceChargesGenerator(name="SCT_SurfaceChargesGenerator", **kwargs):
     ## Set up services used by SCT_SurfaceChargesGenerator
-    ## TODO remove all this stuff and see if PixelDigitization works without it.
-    # Setup the DCS folders and Svc used in the sctSiliconConditionsSvc
-    from IOVDbSvc.CondDB import conddb
+    # Setup SCT_DCSConditiosnSvc
+    from SCT_ConditionsServices.SCT_DCSConditionsSvcSetup import SCT_DCSConditionsSvcSetup
+    sct_DCSConditionsSvcSetup = SCT_DCSConditionsSvcSetup()
+    sct_DCSConditionsSvcSetup.setup()
+    # Setup SCT_SiliconConditionsSvcS
+    from SCT_ConditionsServices.SCT_SiliconConditionsSvcSetup import SCT_SiliconConditionsSvcSetup
+    sct_SiliconConditionsSvcSetup = SCT_SiliconConditionsSvcSetup()
+    sct_SiliconConditionsSvcSetup.setup()
+    # For SCT_SiPropertiesSvc
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
-    sctDCSStateFolder = '/SCT/DCS/CHANSTAT'
-    sctDCSTempFolder = '/SCT/DCS/MODTEMP'
-    sctDCSHVFolder = '/SCT/DCS/HV'
-    if not conddb.folderRequested(sctDCSStateFolder):
-        conddb.addFolder("DCS_OFL", sctDCSStateFolder, className="CondAttrListCollection")
-    if not conddb.folderRequested(sctDCSTempFolder):
-        conddb.addFolder("DCS_OFL", sctDCSTempFolder, className="CondAttrListCollection")
-    if not conddb.folderRequested(sctDCSHVFolder):
-        conddb.addFolder("DCS_OFL", sctDCSHVFolder, className="CondAttrListCollection")
-    if not hasattr(condSeq, "SCT_DCSConditionsHVCondAlg"):
-        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsHVCondAlg
-        condSeq += SCT_DCSConditionsHVCondAlg(name = "SCT_DCSConditionsHVCondAlg",
-                                              ReadKey = sctDCSHVFolder)
-    if not hasattr(condSeq, "SCT_DCSConditionsStatCondAlg"):
-        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsStatCondAlg
-        condSeq += SCT_DCSConditionsStatCondAlg(name = "SCT_DCSConditionsStatCondAlg",
-                                                ReadKeyHV = sctDCSHVFolder,
-                                                ReadKeyState = sctDCSStateFolder)
-    if not hasattr(condSeq, "SCT_DCSConditionsTempCondAlg"):
-        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsTempCondAlg
-        condSeq += SCT_DCSConditionsTempCondAlg(name = "SCT_DCSConditionsTempCondAlg",
-                                                ReadKey = sctDCSTempFolder)
-    ## SCT_DCSConditionsSvc - used by SCT_SurfaceChargesGenerator
-    from AthenaCommon.AppMgr import ServiceMgr
-    if not hasattr(ServiceMgr, "InDetSCT_DCSConditionsSvc"):
-        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsSvc
-        InDetSCT_DCSConditionsSvc = SCT_DCSConditionsSvc(name = "InDetSCT_DCSConditionsSvc")
-        ServiceMgr += InDetSCT_DCSConditionsSvc
-    # For SCT_SiliconConditionsSvc
-    if not hasattr(condSeq, "SCT_SiliconTempCondAlg"):
-        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SiliconTempCondAlg
-        condSeq += SCT_SiliconTempCondAlg(name = "SCT_SiliconTempCondAlg")
-    if not hasattr(condSeq, "SCT_SiliconHVCondAlg"):
-        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SiliconHVCondAlg
-        condSeq += SCT_SiliconHVCondAlg(name = "SCT_SiliconHVCondAlg")
-    # For SCT_SiPropertiesSvc
     if not hasattr(condSeq, "SCTSiPropertiesCondAlg"):
         from SiPropertiesSvc.SiPropertiesSvcConf import SCTSiPropertiesCondAlg
         condSeq += SCTSiPropertiesCondAlg(name = "SCTSiPropertiesCondAlg")
     ## SCT_SiPropertiesSvc - used by SCT_SurfaceChargesGenerator
+    from AthenaCommon.AppMgr import ServiceMgr
     if not hasattr(ServiceMgr, "SCT_SiPropertiesSvc"):
         # Lorentz Angle Service
         from SiLorentzAngleSvc.LorentzAngleSvcSetup import lorentzAngleSvc

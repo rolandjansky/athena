@@ -265,34 +265,12 @@ if DetFlags.haveRIO.SCT_on():
         print ServiceMgr.SCT_ByteStreamErrorsSvc
     
     if InDetFlags.useSctDCS():
-        sctDCSStateFolder = '/SCT/DCS/CHANSTAT'
-        sctDCSTempFolder = '/SCT/DCS/MODTEMP'
-        sctDCSHVFolder = '/SCT/DCS/HV'
-        if not conddb.folderRequested(sctDCSStateFolder):
-            conddb.addFolder("DCS_OFL", sctDCSStateFolder, className="CondAttrListCollection")
-        if not conddb.folderRequested(sctDCSTempFolder):
-            conddb.addFolder("DCS_OFL", sctDCSTempFolder, className="CondAttrListCollection")
-        if not conddb.folderRequested(sctDCSHVFolder):
-            conddb.addFolder("DCS_OFL", sctDCSHVFolder, className="CondAttrListCollection")
-        if not hasattr(condSeq, "SCT_DCSConditionsHVCondAlg"):
-            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsHVCondAlg
-            condSeq += SCT_DCSConditionsHVCondAlg(name = "SCT_DCSConditionsHVCondAlg",
-                                                  ReadKey = sctDCSHVFolder)
-        if not hasattr(condSeq, "SCT_DCSConditionsStatCondAlg"):
-            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsStatCondAlg
-            condSeq += SCT_DCSConditionsStatCondAlg(name = "SCT_DCSConditionsStatCondAlg",
-                                                    ReadKeyHV = sctDCSHVFolder,
-                                                    ReadKeyState = sctDCSStateFolder)
-        if not hasattr(condSeq, "SCT_DCSConditionsTempCondAlg"):
-            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsTempCondAlg
-            condSeq += SCT_DCSConditionsTempCondAlg(name = "SCT_DCSConditionsTempCondAlg",
-                                                    ReadKey = sctDCSTempFolder)
-        
-        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsSvc
-        InDetSCT_DCSConditionsSvc = SCT_DCSConditionsSvc(name = "InDetSCT_DCSConditionsSvc")        
+        from SCT_ConditionsServices.SCT_DCSConditionsSvcSetup import SCT_DCSConditionsSvcSetup
+        sct_DCSConditionsSvcSetup = SCT_DCSConditionsSvcSetup()
+        sct_DCSConditionsSvcSetup.setup()
+        InDetSCT_DCSConditionsSvc = sct_DCSConditionsSvcSetup.getSvc()
         if InDetFlags.useHVForSctDCS():
-            SCT_DCSConditionsStatCondAlg.UseDefaultHV = True  #Hack to use ~20V cut for SCT DCS rather than ChanStat for startup
-        ServiceMgr += InDetSCT_DCSConditionsSvc
+            sct_DCSConditionsSvcSetup.getStateAlg().UseDefaultHV = True  #Hack to use ~20V cut for SCT DCS rather than ChanStat for startup
         if (InDetFlags.doPrintConfigurables()):
             print InDetSCT_DCSConditionsSvc
     
@@ -322,7 +300,7 @@ if DetFlags.haveRIO.SCT_on():
             InDetSCT_ConditionsSummarySvc.ConditionsServices += [ sct_MonitorConditionsSvcSetup.getSvcName() ]
 
         if InDetFlags.useSctDCS():
-            InDetSCT_ConditionsSummarySvc.ConditionsServices += ["InDetSCT_DCSConditionsSvc"]
+            InDetSCT_ConditionsSummarySvc.ConditionsServices += [ sct_DCSConditionsSvcSetup.getSvcName() ]
        
     # switch conditions off for SLHC usage
     elif InDetFlags.doSLHC():

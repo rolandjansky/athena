@@ -332,72 +332,37 @@ class SCT_ConditionsServicesSetup:
 
   def initDcsSvc(self, instanceName):
     "Init DCS conditions service"
+
+    from SCT_ConditionsServices.SCT_DCSConditionsSvcSetup import SCT_DCSConditionsSvcSetup
+    sct_DCSConditionsSvcSetup = SCT_DCSConditionsSvcSetup()
+    sct_DCSConditionsSvcSetup.setSvcName(instanceName)
+
     dcs_folder="/SCT/DCS"
     db_loc = "DCS_OFL"
     if (not self.isMC): 
       dcs_folder="/SCT/HLT/DCS"
       db_loc = "SCT"
-
-    sctDCSStateFolder = dcs_folder+'/CHANSTAT'
-    sctDCSTempFolder = dcs_folder+'/MODTEMP'
-    sctDCSHVFolder = dcs_folder+'/HV'
+    sct_DCSConditionsSvcSetup.setDbInstance(db_loc)
+    sct_DCSConditionsSvcSetup.setStateFolder(dcs_folder+"/CHANSTAT")
+    sct_DCSConditionsSvcSetup.setHVFolder(dcs_folder+"/HV")
+    sct_DCSConditionsSvcSetup.setTempFolder(dcs_folder+"/MODTEMP")
 
     readAllDBFolders = True
-    returnHVTemp = True
-
-    if hasattr(self.svcMgr,instanceName):
-      dcsSvc = getattr(self.svcMgr, instanceName); 
-      readAllDBFolders = dcsSvc.ReadAllDBFolders
-      returnHVTemp = dcsSvc.ReturnHVTemp
-    else:
-      from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsSvc
-      dcsSvc = SCT_DCSConditionsSvc(name = instanceName)
-      if (not self.isMC):
-        dcsSvc.FolderLocation="/SCT/HLT/DCS"
-        readAllDBFolders=False
-        returnHVTemp=True
-
+    if (not self.isMC):
+      readAllDBFolders = False
     if self.onlineMode:
-      readAllDBFolders=False
-      returnHVTemp=True
+      readAllDBFolders = False
+    sct_DCSConditionsSvcSetup.setReadAllDBFolders(readAllDBFolders)
 
-    dcsSvc.ReadAllDBFolders = readAllDBFolders
-    dcsSvc.ReturnHVTemp = returnHVTemp
-
-    self.svcMgr += dcsSvc
+    sct_DCSConditionsSvcSetup.setup()
+    dcsSvc = sct_DCSConditionsSvcSetup.getSvc()
+    if (not self.isMC):
+      dcsSvc.FolderLocation="/SCT/HLT/DCS"
+ 
     self.summarySvc.ConditionsServices+=[instanceName]
 
-    from AthenaCommon.AlgSequence import AthSequencer
-    condSeq = AthSequencer("AthCondSeq")
-
-    doHVTemp = ((readAllDBFolders and returnHVTemp) or returnHVTemp)
-    if doHVTemp:
-      if not hasattr(condSeq, "SCT_DCSConditionsHVCondAlg"):
-        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsHVCondAlg
-        condSeq += SCT_DCSConditionsHVCondAlg(name = "SCT_DCSConditionsHVCondAlg",
-                                              ReadKey = sctDCSHVFolder)
-        if not hasattr(condSeq, "SCT_DCSConditionsTempCondAlg"):
-          from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsTempCondAlg
-          condSeq += SCT_DCSConditionsTempCondAlg(name = "SCT_DCSConditionsTempCondAlg",
-                                                  ReadKey = sctDCSTempFolder)
-        if not self.condDB.folderRequested(sctDCSHVFolder):
-          self.condDB.addFolder(db_loc, sctDCSHVFolder, className="CondAttrListCollection")
-        if not self.condDB.folderRequested(sctDCSTempFolder):
-          self.condDB.addFolder(db_loc, sctDCSTempFolder, className="CondAttrListCollection")
-
-    doState = ((readAllDBFolders and returnHVTemp) or (not readAllDBFolders and not returnHVTemp))
-    if doState:
-      if not hasattr(condSeq, "SCT_DCSConditionsStatCondAlg"):
-        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsStatCondAlg
-        condSeq += SCT_DCSConditionsStatCondAlg(name = "SCT_DCSConditionsStatCondAlg",
-                                                ReturnHVTemp = returnHVTemp,
-                                                ReadKeyHV = sctDCSHVFolder,
-                                                ReadKeyState = sctDCSStateFolder)
-      if not self.condDB.folderRequested(sctDCSStateFolder):
-        self.condDB.addFolder(db_loc, sctDCSStateFolder, className="CondAttrListCollection")
-      
     if self.isMC:
-      if not self.condDB.folderRequested('/SCT/DCS/MPS/LV'):
+      if not self.condDB.folderRequested("/SCT/DCS/MPS/LV"):
         self.condDB.addFolder(db_loc,"/SCT/DCS/MPS/LV")
       
     return dcsSvc           
@@ -437,22 +402,12 @@ class SCT_ConditionsServicesSetup:
     SCTLorentzAngleSvc = SiLorentzAngleSvc(name=instanceName,
                                            DetectorName="SCT")
     # For SCT_SiliconConditionsSvc
-    from IOVDbSvc.CondDB import conddb
-    from AthenaCommon.AlgSequence import AthSequencer
-    condSeq = AthSequencer("AthCondSeq")
-    if not hasattr(condSeq, "SCT_SiliconTempCondAlg"):
-      from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SiliconTempCondAlg
-      condSeq += SCT_SiliconTempCondAlg(name = "SCT_SiliconTempCondAlg",
-                                        UseState=self.dcsSvc.ReadAllDBFolders,
-                                        DCSConditionsSvc=self.dcsSvc)
-    if not hasattr(condSeq, "SCT_SiliconHVCondAlg"):
-      from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SiliconHVCondAlg
-      condSeq += SCT_SiliconHVCondAlg(name = "SCT_SiliconHVCondAlg",
-                                      UseState=self.dcsSvc.ReadAllDBFolders,
-                                      DCSConditionsSvc=self.dcsSvc)
-    from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SiliconConditionsSvc
-    sctSiliconConditionsSvc= SCT_SiliconConditionsSvc(name=self.instanceName('InDetSCT_SiliconConditionsSvc'),
-                                                      DCSConditionsSvc=self.dcsSvc)
+    from SCT_ConditionsServices.SCT_SiliconConditionsSvcSetup import SCT_SiliconConditionsSvcSetup
+    sct_SiliconConditionsSvcSetup = SCT_SiliconConditionsSvcSetup()
+    sct_SiliconConditionsSvcSetup.setDcsSvc(self.dcsSvc)
+    sct_SiliconConditionsSvcSetup.setSvcName("InDetSCT_SiliconConditionsSvc")
+    sct_SiliconConditionsSvcSetup.setup()
+    sctSiliconConditionsSvc = ct_SiliconConditionsSvcSetup.getSvc()
     sctSiliconConditionsSvc.CheckGeoModel = False
     sctSiliconConditionsSvc.ForceUseGeoModel = False
     #sctSiliconConditionsSvc.OutputLevel=1
