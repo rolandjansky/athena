@@ -26,9 +26,12 @@ class Templates:
 
 #---- Minimal job options -----
 
-athAlgSeq += CfgMgr.%(klass)s()                               #adds an instance of your alg to the main alg sequence
+jps.AthenaCommonFlags.AccessMode = "ClassAccess"              #Choose from TreeAccess,BranchAccess,ClassAccess,AthenaAccess,POOLAccess
+#jps.AthenaCommonFlags.TreeName = "MyTree"                    #when using TreeAccess, must specify the input tree name
 
 jps.AthenaCommonFlags.HistOutputs = ["MYSTREAM:myfile.root"]  #register output files like this. MYSTREAM is used in the code
+
+athAlgSeq += CfgMgr.%(klass)s()                               #adds an instance of your alg to the main alg sequence
 
 
 #---- Options you could specify on command line -----

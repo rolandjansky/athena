@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration 
+Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration 
 */
 
 #include "TrigBtagEmulationTool/JetManager.h"
@@ -221,6 +221,8 @@ bool JetManager::clear()
   m_primaryVertex_Containers.clear();
   m_trackParticle_Containers.clear();
   m_btagging_Containers.clear();
+  for (unsigned int i(0); i<m_outputJets.size(); i++)
+    delete m_outputJets.at(i);
   m_outputJets.clear();
   return true;
 }
@@ -256,13 +258,8 @@ bool JetManager::getTPfromCombo(std::vector<const xAOD::TrackParticleContainer*>
 
 void JetManager::jetCopy()
 {
-  for (auto & jet : m_jet_Containers) {
-    TrigBtagEmulationJet ing;
-    ing.pt  = jet->p4().Et();
-    ing.eta = jet->eta();
-    ing.phi = jet->phi();
-    m_outputJets.push_back( ing );
-  }
+  for (unsigned int i(0); i<m_jet_Containers.size(); i++)  
+    m_outputJets.push_back( new TrigBtagEmulationJet( m_jet_Containers.at(i) ) );
 }
 
 StatusCode JetManager::retagCopy(bool useNavigation,bool tagOffline,bool tagOnline)
@@ -279,14 +276,14 @@ StatusCode JetManager::retagCopy(bool useNavigation,bool tagOffline,bool tagOnli
 
       if (!useNavigation || !tagOffline)
 	{
-	  out->weights.insert(std::make_pair("MV2c10",  mv2c10));
-	  out->weights.insert(std::make_pair("MV2c20",  mv2c20));
+	  (*out)->weights( "MV2c10",mv2c10 );
+	  (*out)->weights( "MV2c20",mv2c20 );
 	}
       
       if (!useNavigation || !tagOnline)
 	{
-	  out->weights.insert(std::make_pair("IP3DSV1", ip3dsv1));
-	  out->weights.insert(std::make_pair("COMB",    comb));
+	  (*out)->weights( "IP3DSV1",ip3dsv1 );
+	  (*out)->weights( "COMB"   ,comb );
 	}
       out++;
     }
@@ -378,8 +375,8 @@ StatusCode JetManager::retagOffline() {
     output_btag->variable<double>("MV2c20","discriminant",mv2c20);
 
     // Save weights
-    out->weights.insert(std::make_pair("MV2c10",  mv2c10));
-    out->weights.insert(std::make_pair("MV2c20",  mv2c20));
+    (*out)->weights( "MV2c10",mv2c10 );    
+    (*out)->weights( "MV2c20",mv2c20 );
 
     // Delete new objects
     delete output_jets; delete output_jetsAux;
@@ -395,31 +392,30 @@ StatusCode JetManager::retagOffline() {
 }
 StatusCode JetManager::retagOnline() { return StatusCode::SUCCESS;}
 
-std::vector< struct TrigBtagEmulationJet >& JetManager::getJets() { return m_outputJets; }
+std::vector< TrigBtagEmulationJet* >& JetManager::getJets() { return m_outputJets; }
 
 JetManager& JetManager::operator+=(const JetManager& other) { return merge(other.m_jet_Containers); }
 JetManager& JetManager::merge(const std::vector<const xAOD::Jet*>& jets, double minPt, double maxPt) {
   for (auto & jet : jets) {
-    TrigBtagEmulationJet backupJet;
-    backupJet.pt  = jet->p4().Et();
-    backupJet.eta = jet->eta();
-    backupJet.phi = jet->phi();
-    backupJet.weights.insert( std::make_pair("MV2c10" ,-1   ) );
-    backupJet.weights.insert( std::make_pair("MV2c20" ,-1   ) );
-    backupJet.weights.insert( std::make_pair("IP3DSV1",-1000) );
-    backupJet.weights.insert( std::make_pair("COMB"   ,-1000) );
-    
+    TrigBtagEmulationJet *backupJet = new TrigBtagEmulationJet( jet );
+    backupJet->weights( "MV2c10" ,-1 );
+    backupJet->weights( "MV2c20" ,-1 );
+    backupJet->weights( "IP3DSV1",-1000 );
+    backupJet->weights( "COMB"   ,-1000 );
+
     bool isUnique = true;
     for (unsigned int index(0); index < m_outputJets.size(); index++)
-      if (m_outputJets.at(index).pt==backupJet.pt &&
-	  m_outputJets.at(index).eta==backupJet.eta &&
-	  m_outputJets.at(index).phi==backupJet.phi) 
+      if ( m_outputJets.at(index)->pt() == backupJet->pt() &&
+	   m_outputJets.at(index)->eta() == backupJet->eta() &&
+	   m_outputJets.at(index)->phi() == backupJet->phi() ) 
 	{isUnique = false; break;}
-    if (isUnique && backupJet.pt >= minPt)
-      {
-	if ( maxPt == 0 ) m_outputJets.push_back( backupJet );
-	else if ( backupJet.pt < maxPt ) m_outputJets.push_back( backupJet );
-      }
+
+    if (!isUnique) delete backupJet;
+    else if (isUnique && backupJet->pt() >= minPt) {
+      if ( maxPt == 0 ) m_outputJets.push_back( backupJet );
+      else if ( backupJet->pt() < maxPt ) m_outputJets.push_back( backupJet );
+      else delete backupJet;
+    }
   }
   
   return *this;

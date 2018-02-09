@@ -50,7 +50,9 @@
 #include "TopObjectSelectionTools/EventCleaningSelection.h"
 
 #include "TopPartons/CalcTtbarPartonHistory.h"
+#include "TopPartons/CalcTtbarLightPartonHistory.h"
 #include "TopPartons/CalcTbbarPartonHistory.h"
+#include "TopPartons/CalcWtbPartonHistory.h"
 #include "TopPartons/CalcTopPartonHistory.h"
 
 #include "TopParticleLevel/ParticleLevelLoader.h"
@@ -309,14 +311,14 @@ xAOD::TStore* InitialiseXAOD(){
 std::string CheckForValidInput(std::vector<std::string> filenames){
 
   std::string usethisfile = "";
-  bool atLeastOneFileIsValid(false);
+  //bool atLeastOneFileIsValid(false);
   for (const auto& filename : filenames) {
     std::shared_ptr<TFile> checkingYieldFile(TFile::Open(filename.c_str()));
     //collection tree means > 0 events
     const TTree* const collectionTree = dynamic_cast<TTree* > (checkingYieldFile->Get("CollectionTree"));
     if (collectionTree) {
       usethisfile = filename;
-      atLeastOneFileIsValid = true;
+      //atLeastOneFileIsValid = true;
       break;
     }
   }
@@ -358,7 +360,7 @@ void SetMetadata(bool useAodMetaData, std::string usethisfile, std::string input
   std::shared_ptr<TFile> testFile(TFile::Open(usethisfile.c_str()));
 
   // This function reads directly the Metadata object in xAOD file (we don't use it)
-  if(! top::readMetaData(testFile.get(), topConfig)){
+  if(! top::readMetaData(testFile.get()) ){
     std::cerr << "Unable to access metadata object in this file : " << usethisfile << std::endl;
     std::cerr << "Please report this message" << std::endl;
   }
@@ -510,9 +512,17 @@ std::shared_ptr<top::CalcTopPartonHistory> CreateTopPartonHistory(std::shared_pt
     topPartonHistory = std::shared_ptr<top::CalcTopPartonHistory> ( new top::CalcTtbarPartonHistory( "top::CalcTtbarPartonHistory" ) );
     top::check(topPartonHistory->setProperty( "config" , topConfig ) , "Failed to setProperty of top::CalcTtbarPartonHistory");
   }
+  else if(settings->value("TopPartonHistory") == "ttbarlight"){
+    topPartonHistory = std::unique_ptr<top::CalcTopPartonHistory> ( new top::CalcTtbarLightPartonHistory( "top::CalcTtbarLightPartonHistory" ) );
+    top::check(topPartonHistory->setProperty( "config" , topConfig ) , "Failed to setProperty of top::CalcTtbarLightPartonHistory");
+  }
   else if(settings->value("TopPartonHistory") == "tb"){
     topPartonHistory = std::shared_ptr<top::CalcTopPartonHistory> ( new top::CalcTbbarPartonHistory( "top::CalcTbbarPartonHistory" ) );
     top::check(topPartonHistory->setProperty( "config" , topConfig ) , "Failed to setProperty of top::CalcTbbarPartonHistory");
+  }
+  else if(settings->value("TopPartonHistory") == "Wtb"){
+    topPartonHistory = std::shared_ptr<top::CalcTopPartonHistory> ( new top::CalcWtbPartonHistory( "top::CalcWtbPartonHistory" ) );
+    top::check(topPartonHistory->setProperty( "config" , topConfig ) , "Failed to setProperty of top::CalcWtbPartonHistory");
   }
 
   return topPartonHistory;
@@ -629,13 +639,13 @@ void RunEventLoop(std::vector<std::string> filenames, AnalysisTopTools analysisT
   // I/O Performance stats
   // Summary gives a summary
   // Full gives detailed info on each collection in the file
-  unsigned int doPerfStats(0);
+  //unsigned int doPerfStats(0);
   if (settings->value("PerfStats") == "Summary"){
-    doPerfStats = 1;
+    //doPerfStats = 1;
     xAOD::PerfStats::instance().start();  // start Perfstats timer
   }
   if (settings->value("PerfStats") == "Full"){
-    doPerfStats = 2;
+    //doPerfStats = 2;
     xAOD::PerfStats::instance().start();  // start Perfstats timer
   }
 

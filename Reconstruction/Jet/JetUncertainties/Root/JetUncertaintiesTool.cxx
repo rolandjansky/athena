@@ -21,6 +21,8 @@
 #include "JetUncertainties/PtEtaUncertaintyComponent.h"
 #include "JetUncertainties/PtMassUncertaintyComponent.h"
 #include "JetUncertainties/PtMassEtaUncertaintyComponent.h"
+#include "JetUncertainties/ELogMassUncertaintyComponent.h"
+#include "JetUncertainties/ELogMassEtaUncertaintyComponent.h"
 #include "JetUncertainties/PileupUncertaintyComponent.h"
 #include "JetUncertainties/FlavourUncertaintyComponent.h"
 #include "JetUncertainties/PunchthroughUncertaintyComponent.h"
@@ -64,6 +66,7 @@ JetUncertaintiesTool::JetUncertaintiesTool(const std::string& name)
     , m_jetDef("")
     , m_mcType("")
     , m_configFile("")
+    , m_calibArea("")
     , m_path("")
     , m_analysisFile("")
     , m_systFilters()
@@ -83,13 +86,16 @@ JetUncertaintiesTool::JetUncertaintiesTool(const std::string& name)
     , m_TAMassWeight(NULL)
     , m_combMassWeightCaloMassDef(CompMassDef::UNKNOWN)
     , m_combMassWeightTAMassDef(CompMassDef::UNKNOWN)
+    , m_combMassParam(CompParametrization::UNKNOWN)
     , m_userSeed(0)
     , m_rand(new TRandom3())
+    , m_massSmearPar(0.66)
     , m_namePrefix("JET_")
 {
     declareProperty("JetDefinition",m_jetDef);
     declareProperty("MCType",m_mcType);
     declareProperty("ConfigFile",m_configFile);
+    declareProperty("CalibArea",m_calibArea);
     declareProperty("Path",m_path);
     declareProperty("AnalysisFile",m_analysisFile);
     declareProperty("VariablesToShift",m_systFilters);
@@ -111,6 +117,7 @@ JetUncertaintiesTool::JetUncertaintiesTool(const JetUncertaintiesTool& toCopy)
     , m_jetDef(toCopy.m_jetDef)
     , m_mcType(toCopy.m_mcType)
     , m_configFile(toCopy.m_configFile)
+    , m_calibArea(toCopy.m_calibArea)
     , m_path(toCopy.m_path)
     , m_analysisFile(toCopy.m_analysisFile)
     , m_systFilters(toCopy.m_systFilters)
@@ -130,8 +137,10 @@ JetUncertaintiesTool::JetUncertaintiesTool(const JetUncertaintiesTool& toCopy)
     , m_TAMassWeight(NULL)
     , m_combMassWeightCaloMassDef(CompMassDef::UNKNOWN)
     , m_combMassWeightTAMassDef(CompMassDef::UNKNOWN)
+    , m_combMassParam(CompParametrization::UNKNOWN)
     , m_userSeed(toCopy.m_userSeed)
     , m_rand(toCopy.m_rand ? new TRandom3(*toCopy.m_rand) : NULL)
+    , m_massSmearPar(toCopy.m_massSmearPar)
     , m_namePrefix(toCopy.m_namePrefix)
 {
     ATH_MSG_DEBUG("Creating copy of JetUncertaintiesTool named "<<m_name);
@@ -211,10 +220,10 @@ StatusCode JetUncertaintiesTool::initialize()
     gROOT->cd();
 
     // Read the config file
-    const TString configFilePath = jet::utils::findFilePath(m_configFile.c_str(),m_path.c_str());
+    const TString configFilePath = jet::utils::findFilePath(m_configFile.c_str(),m_path.c_str(),m_calibArea.c_str());
     if (configFilePath == "")
     {
-        ATH_MSG_ERROR("Cannot find config file: " << m_configFile << " (path is " << m_path << ")");
+        ATH_MSG_ERROR("Cannot find config file: " << m_configFile << " (path is \"" << m_path << "\", CalibArea is \"" << m_calibArea << "\")");
         return StatusCode::FAILURE;
     }
 
@@ -228,9 +237,10 @@ StatusCode JetUncertaintiesTool::initialize()
     // We can read it - start printing
     ATH_MSG_INFO(Form("================================================"));
     ATH_MSG_INFO(Form("  Initializing the JetUncertaintiesTool named %s",m_name.c_str()));
-    ATH_MSG_INFO(Form("  Path is: %s",m_path.c_str()));
-    ATH_MSG_INFO(Form("  Configuration read in from:" ));
-    ATH_MSG_INFO(Form("    %s",configFilePath.Data()));
+    ATH_MSG_INFO(Form("  Path is: \"%s\"",m_path.c_str()));
+    ATH_MSG_INFO(Form("  CalibArea is: \"%s\"",m_calibArea.c_str()));
+    ATH_MSG_INFO(Form("  Configuration file: \"%s\"",m_configFile.c_str()));
+    ATH_MSG_INFO(Form("    Location: %s",configFilePath.Data()));
     
     
     // Get the uncertainty release
@@ -291,22 +301,42 @@ StatusCode JetUncertaintiesTool::initialize()
         ATH_MSG_ERROR("Cannot find uncertainty histogram file");
         return StatusCode::FAILURE;
     }
-    ATH_MSG_INFO(Form("  UncertaintyFile: %s",histFileName.Data()));
-
-    // Get the analysis ROOT file for later use (only if it wasn't specified by user config)
-    if (m_analysisFile == "")
-        m_analysisFile = settings.GetValue("AnalysisRootFile","");
-    if (m_analysisFile != "")
-        ATH_MSG_INFO(Form("  AnalysisFile: %s",m_analysisFile.c_str()));
-
+    ATH_MSG_INFO(Form("  UncertaintyFile: \"%s\"",histFileName.Data()));
+    
+    // Now find the histogram file
+    const TString histFilePath = utils::findFilePath(histFileName,m_path.c_str(),m_calibArea.c_str());
+    if (histFilePath == "")
+    {
+        ATH_MSG_ERROR("Cannot find the path of the uncertainty histogram file");
+        return StatusCode::FAILURE;
+    }
+    ATH_MSG_INFO(Form("    Location: %s",histFilePath.Data()));
+    
     // Now open the histogram file
-    TFile* histFile = utils::readRootFile(histFileName,m_path.c_str());
+    TFile* histFile = new TFile(histFilePath,"READ");
     if (!histFile || histFile->IsZombie())
     {
         ATH_MSG_ERROR("Cannot open uncertainty histogram file: " << histFileName.Data());
         return StatusCode::FAILURE;
     }
     
+
+    // Get the analysis ROOT file for later use (only if it wasn't specified by user config)
+    if (m_analysisFile == "")
+        m_analysisFile = settings.GetValue("AnalysisRootFile","");
+    if (m_analysisFile != "")
+    {
+        ATH_MSG_INFO(Form("  AnalysisFile: \"%s\"",m_analysisFile.c_str()));
+        // Ensure that we can find the file
+        const TString analysisFilePath = utils::findFilePath(m_analysisFile.c_str(),m_path.c_str(),m_calibArea.c_str());
+        if (analysisFilePath == "")
+        {
+            ATH_MSG_ERROR("Cannot find the path of the analysis histogram file");
+            return StatusCode::FAILURE;
+        }
+        ATH_MSG_INFO(Form("    Location: %s",analysisFilePath.Data()));
+    }
+
     // Get a file-wide validity histogram if specified
     TString validHistForFile = settings.GetValue("FileValidHistogram","");
     if (validHistForFile != "")
@@ -346,9 +376,19 @@ StatusCode JetUncertaintiesTool::initialize()
         if (m_TAMassWeight->initialize(histFile).isFailure())
             return StatusCode::FAILURE;
 
+        // Get the weight parametrization, defaulting to pT vs m/pT
+        const TString combMassParam  = TString(settings.GetValue("CombMassWeightParam","PtMass"));
+        m_combMassParam = CompParametrization::stringToEnum(combMassParam);
+        if (m_combMassParam == CompParametrization::UNKNOWN)
+        {
+            ATH_MSG_ERROR("Unexpected combined mass parametrization: " << combMassParam.Data());
+            return StatusCode::FAILURE;
+        }
+
         ATH_MSG_INFO("  Found and loaded combined mass weight factors");
         ATH_MSG_INFO("    WeightCaloHist = " << m_caloMassWeight->getName());
         ATH_MSG_INFO("    WeightTAHist   = " << m_TAMassWeight->getName());
+        ATH_MSG_INFO("    WeightParam    = " << CompParametrization::enumToString(m_combMassParam).Data());
 
         // Check for custom mass definitions for the weight factors (not required, defaults exist)
         const TString caloWeightMassDef = settings.GetValue("CombMassWeightCaloMassDef","Calo");
@@ -966,7 +1006,7 @@ UncertaintyComponent* JetUncertaintiesTool::buildUncertaintyComponent(const Comp
                 return NULL;
             }
             else if (component.parametrization == CompParametrization::PtEta || component.parametrization == CompParametrization::PtAbsEta)
-                return new FlavourUncertaintyComponent(component,m_jetDef,m_analysisFile,m_path.c_str());
+                return new FlavourUncertaintyComponent(component,m_jetDef,m_analysisFile,m_path.c_str(),m_calibArea.c_str());
             else
             {
                 ATH_MSG_ERROR(Form("Unexpected parametrization of %s for component %s",CompParametrization::enumToString(component.parametrization).Data(),component.name.Data()));
@@ -1015,6 +1055,7 @@ UncertaintyComponent* JetUncertaintiesTool::buildUncertaintyComponent(const Comp
             if (cmuc->setCaloWeights(m_caloMassWeight).isFailure()) return NULL;
             if (cmuc->setTAWeights(m_TAMassWeight).isFailure())     return NULL;
             if (cmuc->setCombWeightMassDefs(m_combMassWeightCaloMassDef,m_combMassWeightTAMassDef).isFailure()) return NULL;
+            if (cmuc->setCombWeightParam(m_combMassParam).isFailure())  return NULL;
             if (component.combMassType == CombMassComp::Calo || component.combMassType == CombMassComp::Both)
             {
                 // Define the calorimeter group if applicable
@@ -1153,6 +1194,11 @@ UncertaintyComponent* JetUncertaintiesTool::buildUncertaintyComponent(const Comp
             case CompParametrization::PtMassEta:
             case CompParametrization::PtMassAbsEta:
                 return new PtMassEtaUncertaintyComponent(component);
+            case CompParametrization::eLOGmOe:
+                return new ELogMassUncertaintyComponent(component);
+            case CompParametrization::eLOGmOeEta:
+            case CompParametrization::eLOGmOeAbsEta:
+                return new ELogMassEtaUncertaintyComponent(component);
             default:
                 ATH_MSG_ERROR("Encountered unexpected parameter type: " << component.param.Data());
                 return NULL;
@@ -1540,6 +1586,11 @@ bool JetUncertaintiesTool::getComponentScalesD2Beta1(const size_t index) const
     if (checkIndexInput(index).isFailure()) return false;
     return checkScalesSingleVar(m_groups.at(index)->getScaleVars(),CompScaleVar::D2Beta1);
 }
+bool JetUncertaintiesTool::getComponentScalesC2Beta1(const size_t index) const
+{
+    if (checkIndexInput(index).isFailure()) return false;
+    return checkScalesSingleVar(m_groups.at(index)->getScaleVars(),CompScaleVar::C2Beta1);
+}
 bool JetUncertaintiesTool::getComponentScalesQw(const size_t index) const
 {
     if (checkIndexInput(index).isFailure()) return false;
@@ -1706,6 +1757,45 @@ bool JetUncertaintiesTool::getValidUncertainty(size_t index, double& unc, const 
 }
 
 
+double JetUncertaintiesTool::readHistoFromParam(const xAOD::JetFourMom_t& jet4vec, const UncertaintyHistogram& histo, const CompParametrization::TypeEnum param) const
+{
+    double resolution = 0;
+    switch (param)
+    {
+        case CompParametrization::Pt:
+            resolution = histo.getValue(jet4vec.Pt()*m_energyScale);
+            break;
+        case CompParametrization::PtEta:
+            resolution = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.Eta());
+            break;
+        case CompParametrization::PtAbsEta:
+            resolution = histo.getValue(jet4vec.Pt()*m_energyScale,fabs(jet4vec.Eta()));
+            break;
+        case CompParametrization::PtMass:
+            resolution = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.M()/jet4vec.Pt());
+            break;
+        case CompParametrization::PtMassEta:
+            resolution = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.M()/jet4vec.Pt(),jet4vec.Eta());
+            break;
+        case CompParametrization::PtMassAbsEta:
+            resolution = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.M()/jet4vec.Pt(),fabs(jet4vec.Eta()));
+            break;
+        case CompParametrization::eLOGmOe:
+            resolution = histo.getValue(jet4vec.E()*m_energyScale,log(jet4vec.M()/jet4vec.E()));
+            break;
+        case CompParametrization::eLOGmOeEta:
+            resolution = histo.getValue(jet4vec.E()*m_energyScale,log(jet4vec.M()/jet4vec.E()),jet4vec.Eta());
+            break;
+        case CompParametrization::eLOGmOeAbsEta:
+            resolution = histo.getValue(jet4vec.E()*m_energyScale,log(jet4vec.M()/jet4vec.E()),fabs(jet4vec.Eta()));
+            break;
+        default:
+            ATH_MSG_ERROR("Failed to read histogram due to unknown parametrization type in " << getName());
+            break;
+    }
+    return resolution == 0 ? 0 : 1./(resolution*resolution);
+}
+
 
 double JetUncertaintiesTool::getNormalizedCaloMassWeight(const xAOD::Jet& jet) const
 {
@@ -1715,8 +1805,8 @@ double JetUncertaintiesTool::getNormalizedCaloMassWeight(const xAOD::Jet& jet) c
     static JetFourMomAccessor TAScale (CompMassDef::getJetScaleString(m_combMassWeightTAMassDef).Data());
 
 
-    const double caloRes = m_caloMassWeight->getValue(caloScale.pt(jet)*m_energyScale,caloScale.m(jet)/caloScale.pt(jet) );
-    const double TARes   = m_TAMassWeight->getValue(TAScale.pt(jet)*m_energyScale,TAScale.m(jet)/TAScale.pt(jet));
+    const double caloRes = m_caloMassWeight ? readHistoFromParam(caloScale(jet),*m_caloMassWeight,m_combMassParam) : 0;
+    const double TARes   = m_TAMassWeight ? readHistoFromParam(TAScale(jet),*m_TAMassWeight,m_combMassParam) : 0;
 
     if (caloRes == 0 || TARes == 0) return 0;
 
@@ -1964,12 +2054,16 @@ CP::CorrectionCode JetUncertaintiesTool::applyCorrection(xAOD::Jet& jet, const x
                 if (updateD2Beta1(jet,shift).isFailure())
                     return CP::CorrectionCode::Error;
                 break;
+            case CompScaleVar::C2Beta1:
+                if (updateC2Beta1(jet,shift).isFailure())
+                    return CP::CorrectionCode::Error;
+                break;
             case CompScaleVar::Qw:
                 if (updateQw(jet,shift).isFailure())
                     return CP::CorrectionCode::Error;
                 break;
             case CompScaleVar::MassRes:
-                jet.setJetP4(xAOD::JetFourMom_t(jet.pt(),jet.eta(),jet.phi(),getMassSmearingFactor(jet,shift)*jet.m()));
+                jet.setJetP4(xAOD::JetFourMom_t(jet.pt(),jet.eta(),jet.phi(),getMassSmearingFactor(jet,shift,m_massSmearPar)*jet.m()));
                 break;
             default:
                 ATH_MSG_ERROR("Asked to scale an UNKNOWN variable for set: " << m_currentUncSet->getName());
@@ -2087,7 +2181,7 @@ const xAOD::EventInfo* JetUncertaintiesTool::getDefaultEventInfo() const
 
 
 // Courtest of Francesco Spano
-float JetUncertaintiesTool::getMassSmearingFactor(xAOD::Jet& jet, const double shift) const
+float JetUncertaintiesTool::getMassSmearingFactor(xAOD::Jet& jet, const double shift, const double massSmearPar) const
 {
     //----input discussion---
     // input should the standard deviation of mass response, sigma(M_smear/M_nominal), recover that deviation
@@ -2106,8 +2200,8 @@ float JetUncertaintiesTool::getMassSmearingFactor(xAOD::Jet& jet, const double s
     
     //  get the Gaussian random number associated to the relative resolution
     // 1st way : a la JetRes use a relative standard deviation
-    // FIXME: for the moment the additional smearing is hardcoded: it will have to change in the future as a kinematic dependent function
-    double smearingFact1=m_rand->Gaus(1.,0.66*frac_sigma_nominal);  
+    //double smearingFact1=m_rand->Gaus(1.,0.66*frac_sigma_nominal);
+    double smearingFact1=m_rand->Gaus(1.,massSmearPar*frac_sigma_nominal);
 
     // 2nd alternative way : use the relative standard deviation 
     //  const double GaussZeroOne = m_rand->Gaus(0.,1.); 
@@ -2458,6 +2552,45 @@ StatusCode JetUncertaintiesTool::updateD2Beta1(xAOD::Jet& jet, const double shif
     //}
 
     ATH_MSG_ERROR("Neither D2 nor ECF1+ECF2+ECF3 moments are available on the jet, please make sure one of these options is available before calling the tool");
+    return StatusCode::FAILURE;
+}
+
+StatusCode JetUncertaintiesTool::updateC2Beta1(xAOD::Jet& jet, const double shift) const
+{
+    static SG::AuxElement::Accessor<float> accC2("C2");
+    static SG::AuxElement::Accessor<float> accECF1("ECF1");
+    static SG::AuxElement::Accessor<float> accECF2("ECF2");
+    static SG::AuxElement::Accessor<float> accECF3("ECF3");
+    const static bool C2wasAvailable  = accC2.isAvailable(jet);
+    const static bool ECFwasAvailable = accECF1.isAvailable(jet) && accECF2.isAvailable(jet) && accECF3.isAvailable(jet);
+
+    const xAOD::Jet& constJet = jet;
+    if (C2wasAvailable)
+    {
+        if (!accC2.isAvailable(jet))
+        {
+            ATH_MSG_ERROR("The C2 moment was previously available but is not available on this jet.  This functionality is not supported.");
+            return StatusCode::FAILURE;
+        }
+        const float value = accC2(constJet);
+        accC2(jet) = shift*value;
+        return StatusCode::SUCCESS;
+    }
+    if (ECFwasAvailable)
+    {
+        if (! (accECF1.isAvailable(constJet) && accECF2.isAvailable(constJet) && accECF3.isAvailable(constJet)) )
+        {
+            ATH_MSG_ERROR("The ECF1, ECF2, and ECF3 moments were previously available but are not available on this jet.  This functionality is not supported.");
+            return StatusCode::FAILURE;
+        }
+        const float ecf1 = accECF1(constJet);
+        const float ecf2 = accECF2(constJet);
+        const float ecf3 = accECF3(constJet);
+        accC2(jet) = fabs(ecf2) > 1.e-6 ? shift * (ecf3*ecf1/pow(ecf2,2)) : -999; // 999 to match JetSubStructureMomentTools/EnergyCorrelatorRatiosTool
+        return StatusCode::SUCCESS;
+    }
+
+    ATH_MSG_ERROR("Neither C2 nor ECF1+ECF2+ECF3 moments are available on the jet, please make sure one of these options is available before calling the tool");
     return StatusCode::FAILURE;
 }
 

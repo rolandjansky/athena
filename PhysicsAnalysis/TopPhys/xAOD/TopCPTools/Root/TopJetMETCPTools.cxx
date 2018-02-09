@@ -514,7 +514,12 @@ StatusCode JetMETCPTools::setupMET()
       top::check( metSyst->setProperty("ConfigSoftTrkFile", "TrackSoftTerms-pflow.config"), "Failed to set property");
     }
     else{
-      top::check( metSyst->setProperty("ConfigSoftTrkFile", "TrackSoftTerms.config"), "Failed to set property" );
+      if(m_config->isAFII()){
+	top::check( metSyst->setProperty("ConfigSoftTrkFile", "TrackSoftTerms_AFII.config"), "Failed to set property" );
+      }
+      else{
+	top::check( metSyst->setProperty("ConfigSoftTrkFile", "TrackSoftTerms.config"), "Failed to set property" );
+      }
     }
     // Deactivate CST terms
     top::check( metSyst->setProperty("ConfigSoftCaloFile", "" ), "Failed to set property" );

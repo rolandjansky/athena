@@ -66,6 +66,7 @@ class UncertaintyComponent : public asg::AsgMessaging
         virtual bool getValidBool(const double validity) const;
         virtual double getSplitFactor(const xAOD::Jet& jet) const;
         virtual double getMassOverPt(const xAOD::Jet& jet, const CompMassDef::TypeEnum massDef) const;
+        virtual double getMassOverE(const xAOD::Jet& jet, const CompMassDef::TypeEnum massDef) const;
 
     private:
         UncertaintyComponent(const std::string& name = "");
