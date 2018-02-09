@@ -25,5 +25,3 @@ class SCT_ConditionsSummarySvcSetup:
 
     def setup(self):
         self.setSvc()
-
-sct_ConditionsSummarySvcSetup = SCT_ConditionsSummarySvcSetup()

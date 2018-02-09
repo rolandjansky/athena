@@ -274,7 +274,8 @@ class SCT_ConditionsServicesSetup:
 
   def initSummarySvc(self, instanceName):
     "Init summary conditions servic"
-    from SCT_ConditionsServices.SCT_ConditionsSummarySvcSetup import sct_ConditionsSummarySvcSetup
+    from SCT_ConditionsServices.SCT_ConditionsSummarySvcSetup import SCT_ConditionsSummarySvcSetup
+    sct_ConditionsSummarySvcSetup = SCT_ConditionsSummarySvcSetup()
     sct_ConditionsSummarySvcSetup.setSvcName(instanceName)
     sct_ConditionsSummarySvcSetup.setup()
     summarySvc = sct_ConditionsSummarySvcSetup.getSvc()
@@ -283,7 +284,8 @@ class SCT_ConditionsServicesSetup:
 
   def initFlaggedSvc(self, instanceName):
     "Init flagged conditions service"
-    from SCT_ConditionsServices.SCT_FlaggedConditionSvcSetup import sct_FlaggedConditionSvcSetup
+    from SCT_ConditionsServices.SCT_FlaggedConditionSvcSetup import SCT_FlaggedConditionSvcSetup
+    sct_FlaggedConditionSvcSetup = SCT_FlaggedConditionSvcSetup()
     sct_FlaggedConditionSvcSetup.setSvcName(instanceName)
     sct_FlaggedConditionSvcSetup.setup()
     flaggedSvc = sct_FlaggedConditionSvcSetup.getSvc()

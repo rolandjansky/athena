@@ -178,7 +178,8 @@ if DetFlags.haveRIO.pixel_on():
 if DetFlags.haveRIO.SCT_on():
 
     # Load conditions summary service
-    from SCT_ConditionsServices.SCT_ConditionsSummarySvcSetup import sct_ConditionsSummarySvcSetup
+    from SCT_ConditionsServices.SCT_ConditionsSummarySvcSetup import SCT_ConditionsSummarySvcSetup
+    sct_ConditionsSummarySvcSetup = SCT_ConditionsSummarySvcSetup()
     sct_ConditionsSummarySvcSetup.setup()
     InDetSCT_ConditionsSummarySvc = sct_ConditionsSummarySvcSetup.getSvc()
     if (InDetFlags.doPrintConfigurables()):
@@ -225,7 +226,8 @@ if DetFlags.haveRIO.SCT_on():
         print InDetSCT_ReadCalibDataSvc
     
     # Load flagged condition service
-    from SCT_ConditionsServices.SCT_FlaggedConditionSvcSetup import sct_FlaggedConditionSvcSetup
+    from SCT_ConditionsServices.SCT_FlaggedConditionSvcSetup import SCT_FlaggedConditionSvcSetup
+    sct_FlaggedConditionSvcSetup = SCT_FlaggedConditionSvcSetup()
     sct_FlaggedConditionSvcSetup.setup()
     InDetSCT_FlaggedConditionSvc = sct_FlaggedConditionSvcSetup.getSvc()
     if (InDetFlags.doPrintConfigurables()):

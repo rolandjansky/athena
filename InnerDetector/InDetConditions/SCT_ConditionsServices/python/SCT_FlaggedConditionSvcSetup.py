@@ -25,5 +25,3 @@ class SCT_FlaggedConditionSvcSetup:
 
     def setup(self):
         self.setSvc()
-
-sct_FlaggedConditionSvcSetup = SCT_FlaggedConditionSvcSetup()
