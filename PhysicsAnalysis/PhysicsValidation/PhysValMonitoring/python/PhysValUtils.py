@@ -14,11 +14,8 @@ def addPhysValAODContent(algseq,doJets,doTopoCluster):
     logger.info( '****************** Adding content for AOD PhysVal *****************' )
     
     # Check some flags for steering
-    from AthenaCommon.GlobalFlags  import globalflags
-    isMC = globalflags.DataSource()=='geant4'
-
     from RecExConfig.AutoConfiguration import IsInInputFile
-    requiresTruthJets  = isMC and not IsInInputFile('xAOD::JetContainer','AntiKt4TruthJets')
+    requiresTruthJets  = IsInInputFile('xAOD::TruthParticleContainer','TruthParticles') and not IsInInputFile('xAOD::JetContainer','AntiKt4TruthJets')
     requiresLCOriginTC = not IsInInputFile('xAOD::CaloClusterContainer','LCOriginTopoClusters')
     requiresEMOriginTC = not IsInInputFile('xAOD::CaloClusterContainer','EMOriginTopoClusters')
 
