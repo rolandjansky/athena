@@ -41,7 +41,7 @@ class StatusCode;
 class SCT_ID;
 
 /**
- * @class SCT_ConfigurationConditionsSvc
+ * @class SCT_TdaqEnabledSvc
  * Service that keeps track of Tdaq enabling/disabling of SCT Rods.
 **/
 

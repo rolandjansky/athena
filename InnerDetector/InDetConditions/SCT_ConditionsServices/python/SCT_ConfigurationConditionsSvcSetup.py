@@ -25,6 +25,15 @@ class SCT_ConfigurationConditionsSvcSetup:
     def getMurFolder(self):
         return self.murFolder
 
+    def setChannelFolder(self, channelFolder):
+        self.channelFolder = channelFolder
+
+    def setModuleFolder(self, moduleFolder):
+        self.moduleFolder = moduleFolder
+
+    def setMurFolder(self, murFolder):
+        self.murFolder = murFolder
+
     def getChannelFolderDb(self):
         return self.channelFolderDb
 
@@ -96,6 +105,9 @@ class SCT_ConfigurationConditionsSvcSetup:
 
     def getSvcName(self):
         return self.svcName
+
+    def setSvcName(self, svcName):
+        self.svcName = svcName
 
     def setup(self):
         self.setFolders()

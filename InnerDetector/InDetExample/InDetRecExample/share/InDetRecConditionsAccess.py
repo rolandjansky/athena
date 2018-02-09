@@ -5,17 +5,17 @@ isData = (globalflags.DataSource == 'data')
 
 eventInfoKey = "ByteStreamEventInfo"
 if not isData:
-  eventInfoKey = "McEventInfo"
-if globalflags.isOverlay() and isData :
-  if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.TRT_on():
-    from OverlayCommonAlgs.OverlayFlags import overlayFlags
-    eventInfoKey = (overlayFlags.dataStore() + '+' + eventInfoKey).replace("StoreGateSvc+","")
-  else :
     eventInfoKey = "McEventInfo"
+if globalflags.isOverlay() and isData :
+    if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.TRT_on():
+        from OverlayCommonAlgs.OverlayFlags import overlayFlags
+        eventInfoKey = (overlayFlags.dataStore() + '+' + eventInfoKey).replace("StoreGateSvc+","")
+    else :
+        eventInfoKey = "McEventInfo"
 
 if not ('conddb' in dir()):
-  IOVDbSvc = Service("IOVDbSvc")
-  from IOVDbSvc.CondDB import conddb
+    IOVDbSvc = Service("IOVDbSvc")
+    from IOVDbSvc.CondDB import conddb
 
 # Conditions sequence for Athena MT
 from AthenaCommon.AlgSequence import AthSequencer
@@ -176,6 +176,23 @@ if DetFlags.haveRIO.pixel_on():
 # --- Load SCT Conditions Services
 #
 if DetFlags.haveRIO.SCT_on():
+
+    sctGainDefectFolder="/SCT/DAQ/Calibration/NPtGainDefects"
+    if not conddb.folderRequested(sctGainDefectFolder):
+        conddb.addFolderSplitMC("SCT", sctGainDefectFolder, sctGainDefectFolder, className="CondAttrListCollection")
+    sctNoiseDefectFolder="/SCT/DAQ/Calibration/NoiseOccupancyDefects"
+    if not conddb.folderRequested(sctNoiseDefectFolder):
+        conddb.addFolderSplitMC("SCT", sctNoiseDefectFolder, sctNoiseDefectFolder, className="CondAttrListCollection")
+
+    # Load conditions summary service
+    from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConditionsSummarySvc
+    InDetSCT_ConditionsSummarySvc = SCT_ConditionsSummarySvc(name = "InDetSCT_ConditionsSummarySvc")
+    ServiceMgr += InDetSCT_ConditionsSummarySvc
+    if (InDetFlags.doPrintConfigurables()):
+        print InDetSCT_ConditionsSummarySvc
+    
+    # Load conditions configuration service and load folders and algorithm for it
+    # Load folders that have to exist for both MC and Data
     SCTConfigurationFolderPath='/SCT/DAQ/Config/'
     #if its COMP200, use old folders...
     if (conddb.dbdata == "COMP200"):
@@ -192,48 +209,19 @@ if DetFlags.haveRIO.SCT_on():
             SCTConfigurationFolderPath='/SCT/DAQ/Config/'
     except:
         pass
-        
     try:
         if (InDetFlags.ForceCoolVectorPayload() and InDetFlags.ForceCoraCool()):
             print '*** SCT DB CONFIGURATION FLAG CONFLICT: Both CVP and CoraCool selected****'
             SCTConfigurationFolderPath=''
     except:
         pass
-    # Load folders that have to exist for both MC and Data
-    SCTChipConfigurationPath=SCTConfigurationFolderPath+'Chip'
-    SCTModuleConfigurationPath=SCTConfigurationFolderPath+'Module'
-    SCTMurConfigurationPath=SCTConfigurationFolderPath+'MUR'
-    if not conddb.folderRequested(SCTChipConfigurationPath):
-        conddb.addFolderSplitMC("SCT", SCTChipConfigurationPath, SCTChipConfigurationPath, className="CondAttrListVec")
-    if not conddb.folderRequested(SCTModuleConfigurationPath):
-        conddb.addFolderSplitMC("SCT", SCTModuleConfigurationPath, SCTModuleConfigurationPath, className="CondAttrListVec")
-    if not conddb.folderRequested(SCTMurConfigurationPath):
-        conddb.addFolderSplitMC("SCT", SCTMurConfigurationPath, SCTMurConfigurationPath, className="CondAttrListVec")
-    if not hasattr(condSeq, "SCT_ConfigurationCondAlg"):
-        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConfigurationCondAlg
-        condSeq += SCT_ConfigurationCondAlg(name = "SCT_ConfigurationCondAlg",
-                                            ReadKeyChannel = SCTChipConfigurationPath,
-                                            ReadKeyModule = SCTModuleConfigurationPath,
-                                            ReadKeyMur = SCTMurConfigurationPath)
-
-    sctGainDefectFolder="/SCT/DAQ/Calibration/NPtGainDefects"
-    if not conddb.folderRequested(sctGainDefectFolder):
-        conddb.addFolderSplitMC("SCT", sctGainDefectFolder, sctGainDefectFolder, className="CondAttrListCollection")
-    sctNoiseDefectFolder="/SCT/DAQ/Calibration/NoiseOccupancyDefects"
-    if not conddb.folderRequested(sctNoiseDefectFolder):
-        conddb.addFolderSplitMC("SCT", sctNoiseDefectFolder, sctNoiseDefectFolder, className="CondAttrListCollection")
-
-    # Load conditions summary service
-    from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConditionsSummarySvc
-    InDetSCT_ConditionsSummarySvc = SCT_ConditionsSummarySvc(name = "InDetSCT_ConditionsSummarySvc")
-    ServiceMgr += InDetSCT_ConditionsSummarySvc
-    if (InDetFlags.doPrintConfigurables()):
-        print InDetSCT_ConditionsSummarySvc
-    
-    # Load conditions configuration service
-    from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConfigurationConditionsSvc
-    InDetSCT_ConfigurationConditionsSvc = SCT_ConfigurationConditionsSvc(name = "InDetSCT_ConfigurationConditionsSvc")
-    ServiceMgr += InDetSCT_ConfigurationConditionsSvc
+    from SCT_ConditionsServices.SCT_ConfigurationConditionsSvcSetup import sct_ConfigurationConditionsSvcSetup
+    sct_ConfigurationConditionsSvcSetup.setChannelFolder(SCTConfigurationFolderPath+"Chip")
+    sct_ConfigurationConditionsSvcSetup.setModuleFolder(SCTConfigurationFolderPath+"Module")
+    sct_ConfigurationConditionsSvcSetup.setMurFolder(SCTConfigurationFolderPath+"MUR")
+    sct_ConfigurationConditionsSvcSetup.setSvcName("InDetSCT_ConfigurationConditionsSvc")
+    sct_ConfigurationConditionsSvcSetup.setup()
+    InDetSCT_ConfigurationConditionsSvc = sct_ConfigurationConditionsSvcSetup.getSvc()
     if (InDetFlags.doPrintConfigurables()):
         print InDetSCT_ConfigurationConditionsSvc
 
@@ -262,15 +250,16 @@ if DetFlags.haveRIO.SCT_on():
         sct_MonitorConditionsSvcSetup.setSvcName("InDetSCT_MonitorConditionsSvc")
         sct_MonitorConditionsSvcSetup.setOutputLevel(INFO)
         sct_MonitorConditionsSvcSetup.setup()
+        InDetSCT_MonitorConditionsSvc = sct_MonitorConditionsSvcSetup.getSvc()
         if (InDetFlags.doPrintConfigurables()):
-            print sct_MonitorConditionsSvcSetup.getSvc()
+            print InDetSCT_MonitorConditionsSvc
 
     if InDetFlags.doSCTModuleVeto():
-      from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ModuleVetoSvc
-      InDetSCT_ModuleVetoSvc = SCT_ModuleVetoSvc(name = "InDetSCT_ModuleVetoSvc")
-      ServiceMgr += InDetSCT_ModuleVetoSvc
-      if (InDetFlags.doPrintConfigurables()):
-        print InDetSCT_ModuleVetoSvc
+        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ModuleVetoSvc
+        InDetSCT_ModuleVetoSvc = SCT_ModuleVetoSvc(name = "InDetSCT_ModuleVetoSvc")
+        ServiceMgr += InDetSCT_ModuleVetoSvc
+        if (InDetFlags.doPrintConfigurables()):
+            print InDetSCT_ModuleVetoSvc
 
     # Load bytestream errors service (use default instance without "InDet")
     # @TODO find a better to solution to get the correct service for the current job.
@@ -326,8 +315,9 @@ if DetFlags.haveRIO.SCT_on():
         sct_TdaqEnabledSvcSetup.setSvcName("InDetSCT_TdaqEnabledSvc")
         sct_TdaqEnabledSvcSetup.setEventInfoKey(eventInfoKey)
         sct_TdaqEnabledSvcSetup.setup()
+        InDetSCT_TdaqEnabledSvc = sct_TdaqEnabledSvcSetup.getSvc()
         if (InDetFlags.doPrintConfigurables()):
-            print sct_TdaqEnabledSvcSetup.getSvc()
+            print InDetSCT_TdaqEnabledSvc
         
         # Configure summary service
         InDetSCT_ConditionsSummarySvc.ConditionsServices= [ "InDetSCT_ConfigurationConditionsSvc",

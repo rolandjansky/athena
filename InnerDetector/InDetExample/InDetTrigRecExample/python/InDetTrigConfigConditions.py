@@ -311,53 +311,27 @@ class SCT_ConditionsServicesSetup:
     if InDetTrigFlags.ForceCoolVectorPayload():
       sctdaqpath='/SCT/DAQ/Config'
 
+    # if not self.condDB.folderRequested(sctdaqpath+'/ROD'):
+    #   self.condDB.addFolderSplitMC("SCT",
+    #                                sctdaqpath+'/ROD',
+    #                                sctdaqpath+'/ROD')
+    # if not self.condDB.folderRequested(sctdaqpath+'/RODMUR'):
+    #   self.condDB.addFolderSplitMC("SCT",
+    #                                sctdaqpath+'/RODMUR',
+    #                                sctdaqpath+'/RODMUR')
+    # if not self.condDB.folderRequested(sctdaqpath+'/Geog'):
+    #   self.condDB.addFolderSplitMC("SCT",
+    #                                sctdaqpath+'/Geog',
+    #                                sctdaqpath+'/Geog')
 
-    if not self.condDB.folderRequested(sctdaqpath+'/Chip'):
-      self.condDB.addFolderSplitMC("SCT",
-                                   sctdaqpath+'/Chip',
-                                   sctdaqpath+'/Chip',
-                                   className="CondAttrListVec")
-    if not self.condDB.folderRequested(sctdaqpath+'/Module'):
-      self.condDB.addFolderSplitMC("SCT",
-                                   sctdaqpath+'/Module',
-                                   sctdaqpath+'/Module',
-                                   className="CondAttrListVec")
-    if not self.condDB.folderRequested(sctdaqpath+'/MUR'):
-      self.condDB.addFolderSplitMC("SCT",
-                                   sctdaqpath+'/MUR',
-                                   sctdaqpath+'/MUR',
-                                   className="CondAttrListVec")
-
-    if not self.condDB.folderRequested(sctdaqpath+'/ROD'):
-      self.condDB.addFolderSplitMC("SCT",
-                                   sctdaqpath+'/ROD',
-                                   sctdaqpath+'/ROD')
-    if not self.condDB.folderRequested(sctdaqpath+'/RODMUR'):
-      self.condDB.addFolderSplitMC("SCT",
-                                   sctdaqpath+'/RODMUR',
-                                   sctdaqpath+'/RODMUR')
-    if not self.condDB.folderRequested(sctdaqpath+'/Geog'):
-      self.condDB.addFolderSplitMC("SCT",
-                                   sctdaqpath+'/Geog',
-                                   sctdaqpath+'/Geog')
-
-    if hasattr(self.svcMgr,instanceName):
-      configSvc = getattr(self.svcMgr, instanceName); 
-    else:
-      from AthenaCommon.AlgSequence import AthSequencer
-      condSeq = AthSequencer("AthCondSeq")
-      if not hasattr(condSeq, "SCT_ConfigurationCondAlg"):
-        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConfigurationCondAlg
-        condSeq += SCT_ConfigurationCondAlg(name = "SCT_ConfigurationCondAlg",
-                                            ReadKeyChannel= sctdaqpath+'/Chip',
-                                            ReadKeyModule = sctdaqpath+'/Module',
-                                            ReadKeyMur = sctdaqpath+'/MUR')
-
-      from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConfigurationConditionsSvc
-      configSvc = SCT_ConfigurationConditionsSvc(name = instanceName)
-      self.svcMgr += configSvc
-      if self._print:  print configSvc
-
+    from SCT_ConditionsServices.SCT_ConfigurationConditionsSvcSetup import sct_ConfigurationConditionsSvcSetup
+    sct_ConfigurationConditionsSvcSetup.setChannelFolder(sctdaqpath+"/Chip")
+    sct_ConfigurationConditionsSvcSetup.setModuleFolder(sctdaqpath+"/Module")
+    sct_ConfigurationConditionsSvcSetup.setMurFolder(sctdaqpath+"/MUR")
+    sct_ConfigurationConditionsSvcSetup.setSvcName(instanceName)
+    sct_ConfigurationConditionsSvcSetup.setup()
+    configSvc = sct_ConfigurationConditionsSvcSetup.getSvc()
+    if self._print:  print configSvc
     self.summarySvc.ConditionsServices+=[instanceName]
 
     if self._print:  print self.condDB
