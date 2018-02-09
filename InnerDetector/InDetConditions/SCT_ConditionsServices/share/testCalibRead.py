@@ -92,7 +92,8 @@ from IOVDbSvc.CondDB import conddb
 IOVDbSvc.GlobalTag='CONDBR2-BLKPA-2017-06'
 IOVDbSvc.OutputLevel = DEBUG
 
-from SCT_ConditionsServices.SCT_ReadCalibDataSvcSetup import sct_ReadCalibDataSvcSetup
+from SCT_ConditionsServices.SCT_ReadCalibDataSvcSetup import SCT_ReadCalibDataSvcSetup
+sct_ReadCalibDataSvcSetup = SCT_ReadCalibDataSvcSetup()
 sct_ReadCalibDataSvcSetup.setup()
 
 SCT_ReadCalibDataCondAlg = sct_ReadCalibDataSvcSetup.getAlg()

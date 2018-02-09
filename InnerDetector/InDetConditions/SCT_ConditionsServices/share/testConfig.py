@@ -131,7 +131,8 @@ else:
   ServiceMgr+=SCT_CablingSvc()
   ServiceMgr.SCT_CablingSvc.DataSource='COOLVECTOR'
 
-from SCT_ConditionsServices.SCT_ConfigurationConditionsSvcSetup import sct_ConfigurationConditionsSvcSetup
+from SCT_ConditionsServices.SCT_ConfigurationConditionsSvcSetup import SCT_ConfigurationConditionsSvcSetup
+sct_ConfigurationConditionsSvcSetup = SCT_ConfigurationConditionsSvcSetup()
 sct_ConfigurationConditionsSvcSetup.setChannelFolderDb("<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/Chip <tag>SctDaqConfigChip-PERFECT-Oct2016_00</tag><forceRunNumber>200805</forceRunNumber>")
 sct_ConfigurationConditionsSvcSetup.setModuleFolderDb("<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/Module <tag>SctDaqConfigModule-PERFECT-Oct2016_00</tag><forceRunNumber>200805</forceRunNumber>")
 sct_ConfigurationConditionsSvcSetup.setMurFolderDb("<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/MUR <tag>SctDaqConfigMur-PERFECT-Oct2016_00</tag><forceRunNumber>200805</forceRunNumber>")

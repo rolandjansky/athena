@@ -414,7 +414,8 @@ InDetFlags.useDCS = UseDCS #True if run HVTrip search
 include( "InDetRecExample/InDetRecConditionsAccess.py" )
 
 #--- for MajorityConditionsSvc
-from  SCT_ConditionsServices.SCT_MajorityConditionsSvcSetup import sct_MajorityConditionsSvcSetup
+from  SCT_ConditionsServices.SCT_MajorityConditionsSvcSetup import SCT_MajorityConditionsSvcSetup
+sct_MajorityConditionsSvcSetup = SCT_MajorityConditionsSvcSetup()
 # use new CONDBR2?, A.N., 2014-11-30
 # add access to both folders, since we don't know beforehand which DB we'll be used? A.G, 2014-12-03
 year=int(projectName[4:6])

@@ -73,5 +73,3 @@ class SCT_SensorsSvcSetup:
         self.setFolders()
         self.setAlgs()
         self.setSvc()
-
-sct_SensorsSvcSetup = SCT_SensorsSvcSetup()

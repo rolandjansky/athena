@@ -77,5 +77,3 @@ class SCT_MonitorConditionsSvcSetup:
         self.setFolders()
         self.setAlgs()
         self.setSvc()
-
-sct_MonitorConditionsSvcSetup = SCT_MonitorConditionsSvcSetup()

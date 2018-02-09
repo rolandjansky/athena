@@ -19,5 +19,3 @@ class SCT_RODVetoSvcSetup:
 
     def setup(self):
         self.setSvc()
-
-sct_RODVetoSvcSetup = SCT_RODVetoSvcSetup()

@@ -69,7 +69,8 @@ IOVDbSvc.GlobalTag="OFLCOND-MC16-SDR-18"
 ### Use COOL database for SCT_ModuleVetoSvc
 useDB = True # False
 
-from SCT_ConditionsServices.SCT_ModuleVetoSvcSetup import sct_ModuleVetoSvcSetup
+from SCT_ConditionsServices.SCT_ModuleVetoSvcSetup import SCT_ModuleVetoSvcSetup
+sct_ModuleVetoSvcSetup = SCT_ModuleVetoSvcSetup()
 if useDB:
     sct_ModuleVetoSvcSetup.setFolderTag("SCTManualBadModules-000-00")
 

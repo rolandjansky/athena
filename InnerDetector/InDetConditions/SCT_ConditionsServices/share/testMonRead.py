@@ -20,9 +20,6 @@ globalflags.DataSource="data"
 from AthenaCommon.AlgSequence import AthSequencer
 condSeq = AthSequencer("AthCondSeq")
 
-from IOVSvc.IOVSvcConf import CondInputLoader
-condSeq += CondInputLoader( "CondInputLoader",OutputLevel=2)
-
 from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
 condSeq+=xAODMaker__EventInfoCnvAlg(OutputLevel=2)
 
@@ -67,7 +64,8 @@ job = AlgSequence()
 # Local stuff
 #------------------------------------------------------------
 
-from SCT_ConditionsServices.SCT_MonitorConditionsSvcSetup import sct_MonitorConditionsSvcSetup
+from SCT_ConditionsServices.SCT_MonitorConditionsSvcSetup import SCT_MonitorConditionsSvcSetup
+sct_MonitorConditionsSvcSetup = SCT_MonitorConditionsSvcSetup()
 sct_MonitorConditionsSvcSetup.setup()
 
 SCT_MonitorConditionsSvc=sct_MonitorConditionsSvcSetup.getSvc()

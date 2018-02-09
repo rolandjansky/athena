@@ -68,5 +68,3 @@ class SCT_SiliconConditionsSvcSetup:
             self.setAlgs()
         self.setSvc()
         self.svc.UseDB = self.useDB
-
-sct_SiliconConditionsSvcSetup = SCT_SiliconConditionsSvcSetup()

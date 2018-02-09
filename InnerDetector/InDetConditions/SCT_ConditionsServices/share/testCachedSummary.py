@@ -69,19 +69,23 @@ conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/Geog", "/SCT/DAQ/Config/Geog") #
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/RODMUR", "/SCT/DAQ/Config/RODMUR") # Needed for cabling
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/ROD", "/SCT/DAQ/Config/ROD") # Needed for cabling
 
-from SCT_ConditionsServices.SCT_TdaqEnabledSvcSetup import sct_TdaqEnabledSvcSetup
+from SCT_ConditionsServices.SCT_TdaqEnabledSvcSetup import SCT_TdaqEnabledSvcSetup
+sct_TdaqEnabledSvcSetup = SCT_TdaqEnabledSvcSetup()
 sct_TdaqEnabledSvcSetup.setup()
 
-from SCT_ConditionsServices.SCT_ConfigurationConditionsSvcSetup import sct_ConfigurationConditionsSvcSetup
+from SCT_ConditionsServices.SCT_ConfigurationConditionsSvcSetup import SCT_ConfigurationConditionsSvcSetup
+sct_ConfigurationConditionsSvcSetup = SCT_ConfigurationConditionsSvcSetup()
 sct_ConfigurationConditionsSvcSetup.setup()
 
-from SCT_ConditionsServices.SCT_ModuleVetoSvcSetup import sct_ModuleVetoSvcSetup
+from SCT_ConditionsServices.SCT_ModuleVetoSvcSetup import SCT_ModuleVetoSvcSetup
+sct_ModuleVetoSvcSetup = SCT_ModuleVetoSvcSetup()
 sct_ModuleVetoSvcSetup.setUseDB(False)
 sct_ModuleVetoSvcSetup.setup()
 SCT_ModuleVetoSvc=sct_ModuleVetoSvcSetup.getSvc()
 SCT_ModuleVetoSvc.BadModuleIdentifiers=["1", "2"]
 
-from SCT_ConditionsServices.SCT_CachedSummarySvcSetup import sct_CachedSummarySvcSetup
+from SCT_ConditionsServices.SCT_CachedSummarySvcSetup import SCT_CachedSummarySvcSetup
+sct_CachedSummarySvcSetup = SCT_CachedSummarySvcSetup()
 sct_CachedSummarySvcSetup.setup()
 SCT_CachedSummarySvc = sct_CachedSummarySvcSetup.getSvc()
 SCT_CachedSummarySvc.ConditionsServices=[sct_ModuleVetoSvcSetup.getSvcName(),

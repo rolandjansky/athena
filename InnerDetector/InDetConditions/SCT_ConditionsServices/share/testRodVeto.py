@@ -78,7 +78,8 @@ conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/Geog", "/SCT/DAQ/Config/Geog")
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/RODMUR", "/SCT/DAQ/Config/RODMUR")
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/MUR", "/SCT/DAQ/Config/MUR")
 
-from SCT_ConditionsServices.SCT_RODVetoSvcSetup import sct_RODVetoSvcSetup
+from SCT_ConditionsServices.SCT_RODVetoSvcSetup import SCT_RODVetoSvcSetup
+sct_RODVetoSvcSetup = SCT_RODVetoSvcSetup()
 sct_RODVetoSvcSetup.setup()
 
 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_RODVetoTestWriteAlg

@@ -81,7 +81,8 @@ conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/Geog", "/SCT/DAQ/Config/Geog")
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/RODMUR", "/SCT/DAQ/Config/RODMUR")
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/MUR", "/SCT/DAQ/Config/MUR")
 
-from SCT_ConditionsServices.SCT_MajorityConditionsSvcSetup import sct_MajorityConditionsSvcSetup
+from SCT_ConditionsServices.SCT_MajorityConditionsSvcSetup import SCT_MajorityConditionsSvcSetup
+sct_MajorityConditionsSvcSetup = SCT_MajorityConditionsSvcSetup()
 sct_MajorityConditionsSvcSetup.setup()
 
 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_MajorityConditionsTestAlg

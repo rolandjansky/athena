@@ -91,5 +91,3 @@ class SCT_TdaqEnabledSvcSetup:
         self.setFolders()
         self.setAlgs()
         self.setSvc()
-
-sct_TdaqEnabledSvcSetup = SCT_TdaqEnabledSvcSetup()

@@ -63,5 +63,3 @@ class SCT_ConditionsParameterSvcSetup:
         self.setFolders()
         self.setAlgs()
         self.setSvc()
-
-sct_ConditionsParameterSvcSetup = SCT_ConditionsParameterSvcSetup()

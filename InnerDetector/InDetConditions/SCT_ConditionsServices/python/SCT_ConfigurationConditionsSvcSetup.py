@@ -113,5 +113,3 @@ class SCT_ConfigurationConditionsSvcSetup:
         self.setFolders()
         self.setAlgs()
         self.setSvc()
-
-sct_ConfigurationConditionsSvcSetup = SCT_ConfigurationConditionsSvcSetup()

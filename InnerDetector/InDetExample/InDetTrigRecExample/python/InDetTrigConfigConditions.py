@@ -306,7 +306,8 @@ class SCT_ConditionsServicesSetup:
     if InDetTrigFlags.ForceCoolVectorPayload():
       sctdaqpath='/SCT/DAQ/Config'
 
-    from SCT_ConditionsServices.SCT_ConfigurationConditionsSvcSetup import sct_ConfigurationConditionsSvcSetup
+    from SCT_ConditionsServices.SCT_ConfigurationConditionsSvcSetup import SCT_ConfigurationConditionsSvcSetup
+    sct_ConfigurationConditionsSvcSetup = SCT_ConfigurationConditionsSvcSetup()
     sct_ConfigurationConditionsSvcSetup.setChannelFolder(sctdaqpath+"/Chip")
     sct_ConfigurationConditionsSvcSetup.setModuleFolder(sctdaqpath+"/Module")
     sct_ConfigurationConditionsSvcSetup.setMurFolder(sctdaqpath+"/MUR")
@@ -321,7 +322,8 @@ class SCT_ConditionsServicesSetup:
 
   def initMonitorSvc(self, instanceName):
     "Init monitoring conditions service"
-    from SCT_ConditionsServices.SCT_MonitorConditionsSvcSetup import sct_MonitorConditionsSvcSetup
+    from SCT_ConditionsServices.SCT_MonitorConditionsSvcSetup import SCT_MonitorConditionsSvcSetup
+    sct_MonitorConditionsSvcSetup = SCT_MonitorConditionsSvcSetup()
     sct_MonitorConditionsSvcSetup.setSvcName(instanceName)
     sct_MonitorConditionsSvcSetup.setup()
     monitorSvc = sct_MonitorConditionsSvcSetup.getSvc()
@@ -419,7 +421,8 @@ class SCT_ConditionsServicesSetup:
     "Init Calibration Data service"
     from AthenaCommon.GlobalFlags import globalflags
     if (globalflags.DataSource() == 'data'):
-      from SCT_ConditionsServices.SCT_ReadCalibDataSvcSetup import sct_ReadCalibDataSvcSetup
+      from SCT_ConditionsServices.SCT_ReadCalibDataSvcSetup import SCT_ReadCalibDataSvcSetup
+      sct_ReadCalibDataSvcSetup = SCT_ReadCalibDataSvcSetup()
       sct_ReadCalibDataSvcSetup.setSvcName(instanceName)
       sct_ReadCalibDataSvcSetup.setup()
       calibSvc = sct_ReadCalibDataSvcSetup.getSvc()

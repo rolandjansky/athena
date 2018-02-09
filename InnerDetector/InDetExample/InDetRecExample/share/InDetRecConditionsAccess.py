@@ -209,7 +209,8 @@ if DetFlags.haveRIO.SCT_on():
             SCTConfigurationFolderPath=''
     except:
         pass
-    from SCT_ConditionsServices.SCT_ConfigurationConditionsSvcSetup import sct_ConfigurationConditionsSvcSetup
+    from SCT_ConditionsServices.SCT_ConfigurationConditionsSvcSetup import SCT_ConfigurationConditionsSvcSetup
+    sct_ConfigurationConditionsSvcSetup = SCT_ConfigurationConditionsSvcSetup()
     sct_ConfigurationConditionsSvcSetup.setChannelFolder(SCTConfigurationFolderPath+"Chip")
     sct_ConfigurationConditionsSvcSetup.setModuleFolder(SCTConfigurationFolderPath+"Module")
     sct_ConfigurationConditionsSvcSetup.setMurFolder(SCTConfigurationFolderPath+"MUR")
@@ -219,7 +220,8 @@ if DetFlags.haveRIO.SCT_on():
         print InDetSCT_ConfigurationConditionsSvc
 
     # Load calibration conditions service
-    from SCT_ConditionsServices.SCT_ReadCalibDataSvcSetup import sct_ReadCalibDataSvcSetup
+    from SCT_ConditionsServices.SCT_ReadCalibDataSvcSetup import SCT_ReadCalibDataSvcSetup
+    sct_ReadCalibDataSvcSetup = SCT_ReadCalibDataSvcSetup()
     sct_ReadCalibDataSvcSetup.setup()
     InDetSCT_ReadCalibDataSvc = sct_ReadCalibDataSvcSetup.getSvc()
     if (InDetFlags.doPrintConfigurables()):
@@ -235,7 +237,8 @@ if DetFlags.haveRIO.SCT_on():
     
     # Load conditions Monitoring service
     if not athenaCommonFlags.isOnline():
-        from SCT_ConditionsServices.SCT_MonitorConditionsSvcSetup import sct_MonitorConditionsSvcSetup
+        from SCT_ConditionsServices.SCT_MonitorConditionsSvcSetup import SCT_MonitorConditionsSvcSetup
+        sct_MonitorConditionsSvcSetup = SCT_MonitorConditionsSvcSetup()
         sct_MonitorConditionsSvcSetup.setOutputLevel(INFO)
         sct_MonitorConditionsSvcSetup.setup()
         InDetSCT_MonitorConditionsSvc = sct_MonitorConditionsSvcSetup.getSvc()
@@ -243,7 +246,8 @@ if DetFlags.haveRIO.SCT_on():
             print InDetSCT_MonitorConditionsSvc
 
     if InDetFlags.doSCTModuleVeto():
-        from SCT_ConditionsServices.SCT_ModuleVetoSvcSetup import sct_ModuleVetoSvcSetup
+        from SCT_ConditionsServices.SCT_ModuleVetoSvcSetup import SCT_ModuleVetoSvcSetup
+        sct_ModuleVetoSvcSetup = SCT_ModuleVetoSvcSetup()
         sct_ModuleVetoSvcSetup.setup()
         InDetSCT_ModuleVetoSvc = sct_ModuleVetoSvcSetup.getSvc()
         if (InDetFlags.doPrintConfigurables()):
@@ -299,7 +303,8 @@ if DetFlags.haveRIO.SCT_on():
         if (conddb.dbdata == "CONDBR2"):
             tdaqFolder = '/TDAQ/Resources/ATLAS/SCT/Robins'
         # Load TdaqEnabled service
-        from SCT_ConditionsServices.SCT_TdaqEnabledSvcSetup import sct_TdaqEnabledSvcSetup
+        from SCT_ConditionsServices.SCT_TdaqEnabledSvcSetup import SCT_TdaqEnabledSvcSetup
+        sct_TdaqEnabledSvcSetup = SCT_TdaqEnabledSvcSetup()
         sct_TdaqEnabledSvcSetup.setFolder(tdaqFolder)
         sct_TdaqEnabledSvcSetup.setEventInfoKey(eventInfoKey)
         sct_TdaqEnabledSvcSetup.setup()

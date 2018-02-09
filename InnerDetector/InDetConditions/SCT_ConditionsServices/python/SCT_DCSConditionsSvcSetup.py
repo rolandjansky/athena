@@ -95,5 +95,3 @@ class SCT_DCSConditionsSvcSetup:
         self.setFolders()
         self.setAlgs()
         self.setSvc()
-
-sct_DCSConditionsSvcSetup = SCT_DCSConditionsSvcSetup()

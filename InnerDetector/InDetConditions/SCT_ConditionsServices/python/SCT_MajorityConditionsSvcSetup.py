@@ -69,5 +69,3 @@ class SCT_MajorityConditionsSvcSetup:
         self.setFolders()
         self.setAlgs()
         self.setSvc()
-
-sct_MajorityConditionsSvcSetup = SCT_MajorityConditionsSvcSetup()

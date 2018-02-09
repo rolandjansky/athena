@@ -310,7 +310,8 @@ InDetFlags.useDCS = UseDCS #True if run HVTrip search
 include( "InDetRecExample/InDetRecConditionsAccess.py" )
 
 #--- for MajorityConditionsSvc
-from  SCT_ConditionsServices.SCT_MajorityConditionsSvcSetup import sct_MajorityConditionsSvcSetup
+from  SCT_ConditionsServices.SCT_MajorityConditionsSvcSetup import SCT_MajorityConditionsSvcSetup
+sct_MajorityConditionsSvcSetup = SCT_MajorityConditionsSvcSetup()
 # use new CONDBR2, A.N., 2014-11-30
 year=int(projectName[4:6])
 if (year > 13):

@@ -68,11 +68,13 @@ IOVDbSvc.OutputLevel = 3
 
 if useDB:
     # Set up SCT_DCSConditionsSvc and required conditions folders and conditions algorithms
-    from SCT_ConditionsServices.SCT_DCSConditionsSvcSetup import sct_DCSConditionsSvcSetup
+    from SCT_ConditionsServices.SCT_DCSConditionsSvcSetup import SCT_DCSConditionsSvcSetup
+    sct_DCSConditionsSvcSetup = SCT_DCSConditionsSvcSetup()
     sct_DCSConditionsSvcSetup.setup()
 
 # For SCT_SiliconConditionsSvc
-from SCT_ConditionsServices.SCT_SiliconConditionsSvcSetup import sct_SiliconConditionsSvcSetup
+from SCT_ConditionsServices.SCT_SiliconConditionsSvcSetup import SCT_SiliconConditionsSvcSetup
+sct_SiliconConditionsSvcSetup = SCT_SiliconConditionsSvcSetup()
 sct_SiliconConditionsSvcSetup.setUseDB(useDB)
 sct_SiliconConditionsSvcSetup.setup()
 

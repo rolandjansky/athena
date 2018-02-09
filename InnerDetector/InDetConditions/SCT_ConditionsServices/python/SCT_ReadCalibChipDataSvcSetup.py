@@ -92,5 +92,3 @@ class SCT_ReadCalibChipDataSvcSetup:
         self.setFolders()
         self.setAlgs()
         self.setSvc()
-
-sct_ReadCalibChipDataSvcSetup = SCT_ReadCalibChipDataSvcSetup()

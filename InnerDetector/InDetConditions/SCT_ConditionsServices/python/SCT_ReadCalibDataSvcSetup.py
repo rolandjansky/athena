@@ -60,5 +60,3 @@ class SCT_ReadCalibDataSvcSetup:
         self.setFolders()
         self.setAlgs()
         self.setSvc()
-
-sct_ReadCalibDataSvcSetup = SCT_ReadCalibDataSvcSetup()

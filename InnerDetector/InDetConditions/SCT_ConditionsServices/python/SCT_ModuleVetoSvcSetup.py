@@ -87,5 +87,3 @@ class SCT_ModuleVetoSvcSetup:
             self.setFolders()
             self.setAlgs()
         self.setSvc()
-
-sct_ModuleVetoSvcSetup = SCT_ModuleVetoSvcSetup()
