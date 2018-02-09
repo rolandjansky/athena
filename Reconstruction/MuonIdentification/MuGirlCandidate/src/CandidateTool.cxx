@@ -162,7 +162,13 @@ StatusCode CandidateTool::initialize()
             return StatusCode::RECOVERABLE;
         if (retrieve(m_pCscClusterCreator).isFailure())
             return StatusCode::RECOVERABLE;
+    } else {
+      m_pCscSegmentMaker.disable();
+      m_pCscRdoToPrepDataTool.disable();
+      m_pCscClusterProviderTool.disable();
+      m_pCscClusterCreator.disable();
     }
+
     if (m_doMdtHough)
     {
         if (retrieve(m_pMdtSegmentMaker).isFailure())
@@ -171,7 +177,11 @@ StatusCode CandidateTool::initialize()
             if (retrieve(m_pMdtRdoToPrepDataTool).isFailure())
                 return StatusCode::RECOVERABLE;
 
+    } else {
+      m_pMdtSegmentMaker.disable();
+      m_pMdtRdoToPrepDataTool.disable();
     }
+
     if (retrieve(m_pRpcSegmentMaker).isFailure())
         return StatusCode::RECOVERABLE;
     if (retrieve(m_pTgcSegmentMaker).isFailure())
@@ -207,6 +217,7 @@ StatusCode CandidateTool::initialize()
     if ( m_pMuonLayerHoughTool.retrieve().isFailure() ) {
         msg(MSG::WARNING) << "Could not retrieve the MuonLayerHoughTool" << endmsg;
         msg(MSG::WARNING) << "Info from the Hough transform will not be in the MuGirl ntuple" << endmsg;
+        m_pMuonLayerHoughTool.disable();
         return StatusCode::RECOVERABLE;
     } else {
         msg(MSG::INFO) << "MuonLayerHoughTool successfully retrieved" << endmsg;
