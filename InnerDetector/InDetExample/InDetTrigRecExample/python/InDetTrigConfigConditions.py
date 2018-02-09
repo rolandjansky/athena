@@ -283,15 +283,11 @@ class SCT_ConditionsServicesSetup:
 
   def initFlaggedSvc(self, instanceName):
     "Init flagged conditions service"
-      
-    if hasattr(self.svcMgr,instanceName):
-      flaggedSvc = getattr(self.svcMgr, instanceName); 
-    else :
-      from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_FlaggedConditionSvc
-      flaggedSvc = SCT_FlaggedConditionSvc(name = instanceName)
-      self.svcMgr += flaggedSvc
-      if self._print:  print flaggedSvc
-
+    from SCT_ConditionsServices.SCT_FlaggedConditionSvcSetup import sct_FlaggedConditionSvcSetup
+    sct_FlaggedConditionSvcSetup.setSvcName(instanceName)
+    sct_FlaggedConditionSvcSetup.setup()
+    flaggedSvc = sct_FlaggedConditionSvcSetup.getSvc()
+    if self._print:  print flaggedSvc
     self.summarySvc.ConditionsServices+=[instanceName]
     return flaggedSvc
 
@@ -409,7 +405,8 @@ class SCT_ConditionsServicesSetup:
       bsErrSvc = getattr(self.svcMgr, instanceName); 
     else:
       from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ByteStreamErrorsSvc
-      bsErrSvc = SCT_ByteStreamErrorsSvc(name = instanceName)
+      bsErrSvc = SCT_ByteStreamErrorsSvc(name = instanceName,
+                                         ConfigService = self.configSvc)
       self.svcMgr += bsErrSvc
       if self._print:  print bsErrSvc
       
