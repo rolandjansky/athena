@@ -165,7 +165,7 @@ ctm.add( ConstituentSubtractorTool("JetConstit_ConstSub"),
 clustOrigSeq = ctm.buildConstitModifSequence( 'ConstitOrigSeq',
                                               OutputContainer = 'OrigTopoClusters',
                                               InputContainer= 'CaloCalTopoClusters',
-                                              modList = [  'lc_origin'] )
+                                              modList = [  'clus_origin'] )
 
 # Hardcoding the equivalent value from the enum in xAODBase/ObjectType.h
 # as loading the relevant dictionary seems to cause problems later
