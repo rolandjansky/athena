@@ -42,7 +42,7 @@
 
   athena (MC):
 
-/usr/bin/time -f "mem=%K RSS=%M elapsed=%E cpu.sys=%S .user=%U" athena.py -c 'menu="MC_pp_v7";sliceName="muon";ServiceMgr.MessageSvc.defaultLimit=9999999;EvtMax=-1;jp.AthenaCommonFlags.FilesInput=glob("/path/to/dir1/star")+glob("/path/to/dir2/star“)+glob(etc..)' TriggerTest/testCommonSliceAthenaTrigRDO.py Path/To/localDebug.py >& log_file_MC
+/usr/bin/time -f "mem=%K RSS=%M elapsed=%E cpu.sys=%S .user=%U" athena.py -c 'menu="MC_pp_v7";sliceName="muon";ServiceMgr.MessageSvc.defaultLimit=9999999;EvtMax=-1;from glob import glob;jp.AthenaCommonFlags.FilesInput=glob("/path/to/dir1/star")+glob("/path/to/dir2/star“)+glob(etc..)' TriggerTest/testCommonSliceAthenaTrigRDO.py Path/To/localDebug.py >& log_file_MC
 
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration 
  */
@@ -322,7 +322,7 @@ HLT::ErrorCode TrigMuonEFTagandProbe::hltExecute(const HLT::TriggerElement* inpu
   }
   
   if(m_l1_muon_RoIs->empty()){ //Save compute by killing if there is no L1 information
-    ATH_MSG_ERROR("L1 RoI size = 0, moving to next event");
+    ATH_MSG_DEBUG("L1 RoI size = 0, moving to next event");
     return HLT::OK; 
   }
   
@@ -352,9 +352,7 @@ HLT::ErrorCode TrigMuonEFTagandProbe::hltExecute(const HLT::TriggerElement* inpu
   
 
   // Initialise temporary value containers
-  float invMass_dimuon=0.0; 
   float deltaR=0.0; 
-  float TaPdeltaR=0.0; 
   unsigned int tag_thresh=0;
   unsigned int probe_thresh=0;
 
@@ -412,7 +410,7 @@ HLT::ErrorCode TrigMuonEFTagandProbe::hltExecute(const HLT::TriggerElement* inpu
       trim_container(m_good_muons); //Performs trimming of muon container reducing to size = 2
       
       if (m_good_muons.size()!=2){
-	ATH_MSG_WARNING("More/Less than 2 good muons after trimming so further event analysis will be ignored, moving to next event"); //Extra safety check although trim_container should only allow exit with exactly 2 muons
+	ATH_MSG_DEBUG("More/Less than 2 good muons after trimming so further event analysis will be ignored, moving to next event"); //Extra safety check although trim_container should only allow exit with exactly 2 muons
 	return HLT::OK;
       }
       
@@ -423,7 +421,7 @@ HLT::ErrorCode TrigMuonEFTagandProbe::hltExecute(const HLT::TriggerElement* inpu
   //---------------------------Check isolation criteria for muon pair---------------------------------------
   //Require deltaR > 0.2 between the two muons in order to keep probe muons unbiased from the event trigger
 
-  TaPdeltaR = (m_good_muons)[0]->p4().DeltaR((m_good_muons)[1]->p4());
+  float TaPdeltaR = (m_good_muons)[0]->p4().DeltaR((m_good_muons)[1]->p4());
   ATH_MSG_DEBUG("TaP DeltaR value = " << TaPdeltaR);
 
   if (TaPdeltaR <= 0.2){
@@ -433,8 +431,8 @@ HLT::ErrorCode TrigMuonEFTagandProbe::hltExecute(const HLT::TriggerElement* inpu
 
   
   //-------------------Calculate dimuon invariant mass from 4 momenta for probe selection----------------
-  
-  invMass_dimuon = (((m_good_muons)[0]->p4() + (m_good_muons)[1]->p4()).M())/CLHEP::GeV;
+    
+  float invMass_dimuon = (((m_good_muons)[0]->p4() + (m_good_muons)[1]->p4()).M())/CLHEP::GeV;
   
   ATH_MSG_DEBUG("final size of good muon container = " << m_good_muons.size());
   ATH_MSG_DEBUG("Dimuon Invariant Mass from 4mom  = " << invMass_dimuon);
