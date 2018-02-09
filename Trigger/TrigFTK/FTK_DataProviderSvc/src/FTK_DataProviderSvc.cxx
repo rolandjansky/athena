@@ -1581,9 +1581,14 @@ const Trk::RIO_OnTrack* FTK_DataProviderSvc::createSCT_Cluster(const FTK_RawSCT_
   const int rawStripCoord= raw_cluster.getHitCoord();
   int clusterWidth=raw_cluster.getHitWidth();
 
-  if (rawStripCoord%2==1 && clusterWidth==0) clusterWidth=1; // fix for case that clusterwidth is not set correctly
-
-  // clusterWidth is 0 for a 1-strip cluster, 1 for 2-strips, etc.
+  if (clusterWidth == 0) { // fix for case that width is not set
+    if ((int)rawStripCoord%2==1) { 
+      clusterWidth=2; // cluster position is odd => between strips => width 2
+    } else {
+      clusterWidth=1; //  // cluster position is even => on strip => width 1
+    } 
+  }
+  
 
   double stripCoord = ((double) rawStripCoord)/2.; // rawStribCoord is in units of half a strip
 
@@ -1608,11 +1613,11 @@ const Trk::RIO_OnTrack* FTK_DataProviderSvc::createSCT_Cluster(const FTK_RawSCT_
   std::vector<Identifier> rdoList;
   rdoList.push_back(strip_id);
 
-  int firstStrip = (int)(stripCoord-0.5*clusterWidth);
-  int lastStrip  = (int)(stripCoord+0.5*clusterWidth);
+  int firstStrip = (int)(stripCoord-0.5*(clusterWidth-1));
+  int lastStrip  = (int)(stripCoord+0.5*(clusterWidth-1));
 
   ATH_MSG_VERBOSE( "FTK_DataProviderSvc::createSCT_Cluster: raw coord= " << rawStripCoord << " stripCoord " << stripCoord << 
-		   " width " << clusterWidth+1 << " strip, firstStrip, lastStrip= "  << strip << "," << firstStrip << "," << lastStrip);
+		   " width " << clusterWidth << " strip, firstStrip, lastStrip= "  << strip << "," << firstStrip << "," << lastStrip);
 
   if (firstStrip < 0) {
     firstStrip = 0;
@@ -1641,18 +1646,8 @@ const Trk::RIO_OnTrack* FTK_DataProviderSvc::createSCT_Cluster(const FTK_RawSCT_
   const std::pair<InDetDD::SiLocalPosition, InDetDD::SiLocalPosition> ends(design->endsOfStrip(centre));
   double stripLength(fabs(ends.first.xEta()-ends.second.xEta()));
 
-  ATH_MSG_VERBOSE(" creating SiWidth with nstrips   = " << clusterWidth+1 << " width " << width << " stripLength " << stripLength);
-  InDet::SiWidth siWidth(Amg::Vector2D(clusterWidth+1,1), Amg::Vector2D(width,stripLength) );
-
-
-  //  double derivedPos = localPos[Trk::locX]+shift;
-  //double derivedPos = localPos[Trk::locX];
-  //double rawPos = (strip-0.5*design->cells())*pDE->phiPitch();
-
-  //  if(fabs(derivedPos-rawPos)>0.5*pDE->phiPitch()) {
-  //  derivedPos = rawPos+shift;
-  // }
-  //  Amg::Vector2D position(derivedPos, localPos[Trk::locY]);
+  ATH_MSG_VERBOSE(" creating SiWidth with nstrips   = " << clusterWidth << " width " << width << " stripLength " << stripLength);
+  InDet::SiWidth siWidth(Amg::Vector2D(clusterWidth,1), Amg::Vector2D(width,stripLength) );
 
   Amg::Vector2D position(localPos[Trk::locX], localPos[Trk::locY]);
 
