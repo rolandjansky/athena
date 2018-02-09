@@ -26,7 +26,7 @@ check_hcfg_top_level()
 #Run a test webdisplay of the new config 
 run_test_display()
 {
-    ref_file=/eos/atlas/atlascerngroupdisk/data-dqm/references/data17_13TeV.00337491.physics_Main.merge.HIST.f873_h264.root
+    ref_file=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/AthDataQuality/data17_13TeV.00337491.physics_Main.merge.HIST.f873_h264.root
 
     DQWebDisplay.py $ref_file TestDisplay 2 0 "stream=physics_Main" > test_display.txt
     DQWebDisplay.py $ref_file TestDisplayCosmics 3 0 "stream=physics_Main" > test_cosmics.txt
