@@ -58,6 +58,10 @@ namespace xAOD {
      std::vector< double > IP3D_pc;
      //std::vector< std::vector< ElementLink< xAOD::TrackParticleContainer > > > IP3D_TrackParticles;
 
+     std::vector< double > rnnip_pb;
+     std::vector< double > rnnip_pu;
+     std::vector< double > rnnip_pc;
+
      std::vector< double > JetFitter_pb;
      std::vector< double > JetFitter_pu;
      std::vector< double > JetFitter_pc;
@@ -67,6 +71,7 @@ namespace xAOD {
      std::vector< double > JetFitterCombNN_pc;
 
      std::vector< double > MV1_discriminant;
+     std::vector< double > SMT_discriminant;
 
      // Add the dynamic variables from BTaggingAuxContainer here as static variables
      // (otherwise this information isn't available in the trigger)
@@ -74,6 +79,9 @@ namespace xAOD {
      std::vector<double> MV2c00_discriminant;
      std::vector<double> MV2c10_discriminant;
      std::vector<double> MV2c20_discriminant;
+
+     std::vector<double> MV2c10rnn_discriminant;
+     std::vector<double> MV2c10mu_discriminant;
 
      std::vector< std::vector< float > > IP2D_valD0wrtPVofTracks;
      std::vector< std::vector< float > > IP2D_sigD0wrtPVofTracks;
@@ -143,10 +151,23 @@ namespace xAOD {
      std::vector< std::vector< ElementLink< TrackParticleContainer > > > SV1_TrackParticleLinks;
      std::vector< std::vector< ElementLink< TrackParticleContainer > > > IP2D_TrackParticleLinks;
      std::vector< std::vector< ElementLink< TrackParticleContainer > > > IP3D_TrackParticleLinks;
+     std::vector< std::vector< ElementLink< TrackParticleContainer > > > RNNIP_TrackParticleLinks;
      std::vector< std::vector< ElementLink< TrackParticleContainer > > > BTagTrackToJetAssociator;
      //std::vector< std::vector< ElementLink< JetContainer           > > > BTagBtagToJetAssociator; 
      std::vector< std::vector< ElementLink< IParticleContainer     > > > BTagBtagToJetAssociator; 
      
+     std::vector< double >  DL1_pu;
+     std::vector< double >  DL1_pb;
+     std::vector< double >  DL1_pc;
+
+     std::vector< double >  DL1rnn_pu;
+     std::vector< double >  DL1rnn_pb;
+     std::vector< double >  DL1rnn_pc;
+
+     std::vector< double >  DL1mu_pu;
+     std::vector< double >  DL1mu_pb;
+     std::vector< double >  DL1mu_pc;
+
    }; // class BTaggingTrigAuxContainer_v1
 
 } // namespace xAOD
