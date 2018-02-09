@@ -35,9 +35,6 @@ class MvaTESEvaluator
 
   std::map<TString, float*> m_availableVars; //!< addresses of the floats below
   
-  // HACK HACK HACK: Use to get nVtxPU, AuxElement::ConstAccessor doesn't work
-  const xAOD::VertexContainer* m_xVertexContainer; //!
-  
   // MVA input variables (provide all variables in float)
   float mu; //!
   float nVtxPU; //!
@@ -63,9 +60,16 @@ class MvaTESEvaluator
   float truthPtVis; //!
   float pt; //!
   float ptPanTauCellBased; //!
+  // ptDetectorAxis is a primary input for online MVA TES
   float ptDetectorAxis; //!
   float truthDecayMode; //!
   float PanTau_DecayMode; //!
+
+  // for online calibration
+  float etaDetectorAxis; //!
+  float upsilon_cluster; //!
+  float lead_cluster_frac; //!
+
 };
 
 #endif // TAURECTOOLSDEV_MVATESEVALUATOR_H

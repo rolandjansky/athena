@@ -37,8 +37,8 @@ EFTauMVHypo::EFTauMVHypo(const std::string& name,
 		     ISvcLocator* pSvcLocator):
   HLT::HypoAlgo(name, pSvcLocator)
 {
-// set unreasonable values to make sure that initialization is performed from outside
-// however we assume if one parameter is set from outside then they all set ok.
+  // set unreasonable values to make sure that initialization is performed from outside
+  // however we assume if one parameter is set from outside then they all set ok.
   declareProperty("NTrackMin",     m_numTrackMin       = -999);
   declareProperty("NTrackMax",     m_numTrackMax       = 0);
   declareProperty("NWideTrackMax", m_numWideTrackMax   = 999);
@@ -48,8 +48,11 @@ EFTauMVHypo::EFTauMVHypo(const std::string& name,
   declareProperty("Highpt",        m_highpt            = true);
   declareProperty("HighptTrkThr",  m_highpttrkthr      = 200000.);
   declareProperty("HighptIDThr",   m_highptidthr       = 330000.);
-  declareProperty("HighptJetThr",  m_highptjetthr      = 410000.); 
+  declareProperty("HighptJetThr",  m_highptjetthr      = 440000.); 
   declareProperty("ApplyIDon0p",   m_applyIDon0p       = true);
+  declareProperty("UseTrackBDT",   m_useTrackBDT       = false);
+  declareProperty("TrackBDTcut",   m_trackBDTcut       = 0.45);
+  declareProperty("DeltaZ0",       m_deltaZ0           = 1.);
 
   declareMonitoredVariable("CutCounter",m_cutCounter=0);
   declareMonitoredVariable("NTrack",m_mon_nTrackAccepted=0);
@@ -96,9 +99,12 @@ HLT::ErrorCode EFTauMVHypo::hltInitialize()
   msg() << MSG::INFO << " REGTEST: param Method " << m_method <<endmsg;
   msg() << MSG::INFO << " REGTEST: param Highpt with thrs " << m_highpt << " " << m_highpttrkthr <<  " " << m_highptidthr << " " << m_highptjetthr <<endmsg;
   msg() << MSG::INFO << " REGTEST: param ApplyIDon0p " << m_applyIDon0p <<endmsg;
+  msg() << MSG::INFO << " REGTEST: param UseTrackBDT " << m_useTrackBDT <<endmsg;
+  msg() << MSG::INFO << " REGTEST: param TrackBDTcut " << m_trackBDTcut <<endmsg;
+  msg() << MSG::INFO << " REGTEST: param DeltaZ0 " << m_deltaZ0 <<endmsg;
   msg() << MSG::INFO << " REGTEST: ------ "<<endmsg;
   
-  if( (m_numTrackMin >  m_numTrackMax) || m_level == -1 || (m_highptidthr > m_highptjetthr))
+  if( (m_numTrackMin >  m_numTrackMax) || m_level == -1 || (m_highptidthr > m_highptjetthr) || (m_useTrackBDT && m_trackBDTcut<0.))
     {
       msg() << MSG::ERROR << "EFTauMVHypo is uninitialized! " << endmsg;
       return HLT::BAD_JOB_SETUP;
@@ -254,28 +260,97 @@ HLT::ErrorCode EFTauMVHypo::hltExecute(const HLT::TriggerElement* outputTE, bool
     m_cutCounter++;
     m_mon_ptAccepted = EFet;
 
-    m_numTrack = (*tauIt)->nTracks();
-    #ifndef XAODTAU_VERSIONS_TAUJET_V3_H
-    m_numWideTrack = (*tauIt)->nWideTracks();
-    #else
-    m_numWideTrack = (*tauIt)->nTracksIsolation();
-    #endif
-
-    
-    if( msgLvl() <= MSG::DEBUG ){
-      msg() << MSG::DEBUG << " REGTEST: Track size "<<m_numTrack <<endmsg;	
-      msg() << MSG::DEBUG << " REGTEST: Wide Track size "<<m_numWideTrack <<endmsg;
-    }    
-
     // turn off track selection at highpt
     bool applyTrkSel(true);
     bool applyMaxTrkSel(true);
     if(m_highpt && (EFet > m_highpttrkthr*1e-3) ) applyTrkSel = false;
     if(m_highpt && (EFet > m_highptjetthr*1e-3) ) applyMaxTrkSel = false;
 
-    if(applyMaxTrkSel) if( !(m_numTrack <= m_numTrackMax) ) continue;
-    if(applyTrkSel)    if( !(m_numTrack >= m_numTrackMin) ) continue;
-    if(applyTrkSel)    if( !(m_numWideTrack <= m_numWideTrackMax)  ) continue;
+    // standard track counting
+    if(!m_useTrackBDT) {
+
+      m_numTrack = (*tauIt)->nTracks();
+#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
+      m_numWideTrack = (*tauIt)->nWideTracks();
+#else
+      m_numWideTrack = (*tauIt)->nTracksIsolation();
+#endif
+
+      if( msgLvl() <= MSG::DEBUG ){
+	msg() << MSG::DEBUG << " REGTEST: Track size "<<m_numTrack <<endmsg;	
+	msg() << MSG::DEBUG << " REGTEST: Wide Track size "<<m_numWideTrack <<endmsg;
+      }    
+      
+      if(applyMaxTrkSel) if( !(m_numTrack <= m_numTrackMax) ) continue;
+      if(applyTrkSel)    if( !(m_numTrack >= m_numTrackMin) ) continue;
+      if(applyTrkSel)    if( !(m_numWideTrack <= m_numWideTrackMax)  ) continue;      
+    }
+    // MVA track counting
+    else {
+      // - require all core tracks to pass BDT cut
+      // - if no core track is found, keep tau if 1 track passes looser BDT cut
+      // - require all isolation tracks to pass quality cuts
+
+      m_numTrack = 0;
+      m_numWideTrack = 0;
+      int numTrack_loose = 0;
+ 
+      static SG::AuxElement::ConstAccessor<float> acc_mu("AvgInteractions");
+      float mu = acc_mu(*(*tauIt));
+
+      // real tau tracks don't have BDTscore < 0.2
+      // the slopes vs mu provide a reasonably flat efficiency vs mu for tau tracks
+      float BDT_cut_loose = std::max( m_trackBDTcut*(1.-mu/100.), 0.2);
+      float dz0_cut_tight = std::max( m_deltaZ0*(1.-mu/120.), 0.2) ;
+      
+      // find the leading core track to compute dz0(track,lead track)
+      const xAOD::TauTrack * leadTrack = 0;
+      double leadTrack_pt = -1.;
+      for(const auto track : (*tauIt)->allTracks())
+	if(track->track()->p4().DeltaR((*tauIt)->p4())<0.2)
+	  if(track->flagWithMask( 1<<xAOD::TauJetParameters::TauTrackFlag::passTrkSelector ) && track->pt() > leadTrack_pt) {
+	    leadTrack_pt = track->pt();
+	    leadTrack = track;
+	  }	
+      
+      if(!leadTrack)	
+	for(const auto track : (*tauIt)->allTracks())
+	  if(track->track()->p4().DeltaR((*tauIt)->p4())<0.2)
+	    if(track->pt() > leadTrack_pt) {
+	      leadTrack_pt = track->pt();
+	      leadTrack = track;
+	    }	
+      
+      for(const auto track : (*tauIt)->allTracks()) {
+
+	// tracks should pass the tight dz0 cut
+	if(leadTrack && (abs(track->track()->z0()-leadTrack->track()->z0()) > dz0_cut_tight)) continue;
+	
+	// expect only 1 BDT score decoration for online taus
+	float BDT = track->nBdtScores()>0 ? track->bdtScore(0) : -1.;
+
+	// core tracks
+	if( track->track()->p4().DeltaR((*tauIt)->p4())<0.2 ) {
+	  if(BDT > m_trackBDTcut) m_numTrack++; 	    
+	  if(BDT > BDT_cut_loose) numTrack_loose ++;
+	}
+	// isolation tracks
+	else if( track->track()->p4().DeltaR((*tauIt)->p4())<0.4 ) {
+	  if( track->flagWithMask( 1<<xAOD::TauJetParameters::TauTrackFlag::passTrkSelector ) )
+	    m_numWideTrack ++;
+	}
+      }
+      
+      if( msgLvl() <= MSG::DEBUG ) {
+	msg() << MSG::DEBUG << " REGTEST: Number of core tracks " << m_numTrack 
+	      << " loose core tracks " << numTrack_loose 
+	      << " isolation tracks  "<< m_numWideTrack << endmsg;
+      }
+            
+      if(applyMaxTrkSel) if( !(m_numTrack <= m_numTrackMax) ) continue;
+      if(applyTrkSel)    if( !((m_numTrack >= m_numTrackMin) || (m_numTrack==0 && numTrack_loose==1)) ) continue;
+      if(applyTrkSel)    if( !(m_numWideTrack <= m_numWideTrackMax) ) continue; 
+    }
    
     m_cutCounter++;
     m_mon_nTrackAccepted = m_numTrack;
@@ -322,7 +397,7 @@ HLT::ErrorCode EFTauMVHypo::hltExecute(const HLT::TriggerElement* outputTE, bool
 	m_cutCounter++;
       }
     
-    else if(m_method == 2 || m_method == 0)
+    else if(m_method == 2)
       {
 	m_BDTScore = (*tauIt)->discriminant(xAOD::TauJetParameters::BDTJetScore);
 	
@@ -344,6 +419,35 @@ HLT::ErrorCode EFTauMVHypo::hltExecute(const HLT::TriggerElement* outputTE, bool
 	
 	m_cutCounter++;
       }
+    /*
+    // preparing the ground for RNN tau ID to come on Friday 02/02/18!
+    else if(m_method == 3)
+    {
+    if(!(*tauIt)->hasDiscriminant(xAOD::TauJetParameters::RNNJetScore))
+    msg() << MSG::WARNING <<" RNNJetScore not available."<<endmsg;
+    
+    // only used for debug purpose
+    double RNNScore = (*tauIt)->discriminant(xAOD::TauJetParameters::RNNJetScore);
+    
+    msg() << MSG::DEBUG<<" REGTEST: RNNScore "<< RNNScore << endmsg;
+    
+    if(local_level == -1111)
+    { //noCut, accept this TE
+    pass = true;
+    m_cutCounter++;
+    continue;
+    }
+    
+    if (local_level == 1 && (*tauIt)->isTau(xAOD::TauJetParameters::JetRNNSigLoose) == 0)
+    continue;
+    else if (local_level == 2 && (*tauIt)->isTau(xAOD::TauJetParameters::JetRNNSigMedium) == 0)
+    continue;
+    else if (local_level == 3  && (*tauIt)->isTau(xAOD::TauJetParameters::JetRNNSigTight) == 0)
+    continue;
+    
+    m_cutCounter++;
+    }
+    */
     else
       {
 	msg() << MSG::ERROR << " no valid method defined "<<endmsg;	

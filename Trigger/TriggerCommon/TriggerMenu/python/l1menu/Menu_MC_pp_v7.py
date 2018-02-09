@@ -932,8 +932,8 @@ def defineMenu():
         'L1_4J15.0ETA25_FTK',
         'L1_J15_FTK',
         'L1_J40_FTK',
-        'L1_J100_FTK'
-                
+        'L1_J100_FTK',
+        'L1_RD3_FTK',        
         ]
     
 
@@ -1642,6 +1642,7 @@ def defineMenu():
         'L1_J40_FTK'                           : 507,
         'L1_J100_FTK'                          : 508,           
         'L1_MU20_TAU12IM_FTK'                  : 498,
+        'L1_RD3_FTK' : 417,
 #        'L1_ALFA_B7L1U_OD' : ,
 #        'L1_ALFA_B7L1L_OD' : ,
 #        'L1_ALFA_A7L1U_OD' : ,

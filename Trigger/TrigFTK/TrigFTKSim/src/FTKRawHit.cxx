@@ -396,9 +396,10 @@ FTKHit FTKRawHit::getFTKHit(const FTKPlaneMap *pmap) const {
     break;
   case ftk::SCT:
     //    reshit[0] = m_ei_strip+(m_n_strips-1.)/2.;
-    //    reshit.setNStrips(getNStrips());
     reshit[0] = m_ei_strip+m_dPhi;
     reshit.setNStrips(getNStrips());
+    reshit.setEtaWidth(getEtaWidth());
+    reshit.setPhiWidth(getPhiWidth());
     break;
   case ftk::SCTtrk:
     // cy to adjust 8L track pars if they exceed thresholds

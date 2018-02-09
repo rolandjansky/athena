@@ -1,8 +1,6 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-
-#include "CxxUtils/make_unique.h"
 #include "TH2D.h"
 #include "TH3D.h"
 #include "TFile.h"
@@ -21,6 +19,28 @@ namespace G4UA{
 
     /// Output Filename for the Radiation Maps
     declareProperty("RadMapsFileName", m_radMapsFileName);
+    /// map granularities 
+    /// number of bins in r and z for all 2D maps
+    declareProperty("NBinsR"    , m_config.nBinsr);
+    declareProperty("NBinsZ"    , m_config.nBinsz);
+    /// number of bins in r, z and phi for all 3D maps
+    declareProperty("NBinsR3D"  , m_config.nBinsr3d);
+    declareProperty("NBinsZ3D"  , m_config.nBinsz3d);
+    declareProperty("NBinsPhi3D", m_config.nBinsphi3d);
+    /// map ranges
+    /// for Zoomed area in 2D and 3D
+    declareProperty("RMinZoom"  , m_config.rMinZoom);
+    declareProperty("RMaxZoom"  , m_config.rMaxZoom);
+    declareProperty("ZMinZoom"  , m_config.zMinZoom);
+    declareProperty("ZMaxZoom"  , m_config.zMaxZoom);
+    /// for Full detector in 2D
+    declareProperty("RMinFull"  , m_config.rMinFull);
+    declareProperty("RMaxFull"  , m_config.rMaxFull);
+    declareProperty("ZMinFull"  , m_config.zMinFull);
+    declareProperty("ZMaxFull"  , m_config.zMaxFull);
+    /// for Zoomed area in 3D 
+    declareProperty("PhiMinZoom", m_config.phiMinZoom);
+    declareProperty("PhiMaxZoom", m_config.phiMaxZoom);
   }
 
   //---------------------------------------------------------------------------
@@ -28,7 +48,21 @@ namespace G4UA{
   //---------------------------------------------------------------------------
   StatusCode RadiationMapsMakerTool::initialize()
   {
-    ATH_MSG_INFO( "Initializing " << name() << " with Output File " << m_radMapsFileName);
+    ATH_MSG_INFO( "Initializing  " << name() << "\n" <<
+                  "OutputFile:   " << m_radMapsFileName   << "\n"                << 
+                  "2D Maps:      " << m_config.nBinsz     << " |z|-bins, "       << 
+                                      m_config.nBinsr     << " r-bins"           << "\n"                << 
+                  "Zoom:         " << m_config.zMinZoom   << " < |z|/cm < "      << m_config.zMaxZoom   << ", " << 
+                                      m_config.rMinZoom   << " < r/cm < "        << m_config.rMaxZoom   << "\n" << 
+                  "Full:         " << m_config.zMinFull   << " < |z|/cm < "      << m_config.zMaxFull   << ", " << 
+                                      m_config.rMinFull   << " < r/cm < "        << m_config.rMaxFull   << "\n" << 
+                  "3D Maps:      " << m_config.nBinsz3d   << " |z|-bins, "       << 
+                                      m_config.nBinsr3d   << " r-bins, "         << 
+                                      m_config.nBinsphi3d << " phi-bins"         << "\n"                << 
+                  "Zoom:         " << m_config.zMinZoom   << " < |z|/cm < "      << m_config.zMaxZoom   << ", " << 
+                                      m_config.rMinZoom   << " < r/cm < "        << m_config.rMaxZoom   << ", " <<
+                                      m_config.phiMinZoom << " < phi/degrees < " << m_config.phiMaxZoom );
+      
     return StatusCode::SUCCESS;
   }
 
@@ -58,30 +92,30 @@ namespace G4UA{
 
     // then resize to proper size and initialize with 0's 
 
-    m_report.m_rz_tid .resize(m_report.nBinsz*m_report.nBinsr,0.0);
-    m_report.m_rz_eion.resize(m_report.nBinsz*m_report.nBinsr,0.0);
-    m_report.m_rz_niel.resize(m_report.nBinsz*m_report.nBinsr,0.0);
-    m_report.m_rz_h20 .resize(m_report.nBinsz*m_report.nBinsr,0.0);
+    m_report.m_rz_tid .resize(m_config.nBinsz*m_config.nBinsr,0.0);
+    m_report.m_rz_eion.resize(m_config.nBinsz*m_config.nBinsr,0.0);
+    m_report.m_rz_niel.resize(m_config.nBinsz*m_config.nBinsr,0.0);
+    m_report.m_rz_h20 .resize(m_config.nBinsz*m_config.nBinsr,0.0);
     
-    m_report.m_full_rz_tid .resize(m_report.nBinsz*m_report.nBinsr,0.0);
-    m_report.m_full_rz_eion.resize(m_report.nBinsz*m_report.nBinsr,0.0);
-    m_report.m_full_rz_niel.resize(m_report.nBinsz*m_report.nBinsr,0.0);
-    m_report.m_full_rz_h20 .resize(m_report.nBinsz*m_report.nBinsr,0.0);
+    m_report.m_full_rz_tid .resize(m_config.nBinsz*m_config.nBinsr,0.0);
+    m_report.m_full_rz_eion.resize(m_config.nBinsz*m_config.nBinsr,0.0);
+    m_report.m_full_rz_niel.resize(m_config.nBinsz*m_config.nBinsr,0.0);
+    m_report.m_full_rz_h20 .resize(m_config.nBinsz*m_config.nBinsr,0.0);
     
-    m_report.m_3d_tid .resize(m_report.nBinsz3d*m_report.nBinsr3d*m_report.nBinsphi3d,0.0);
-    m_report.m_3d_eion.resize(m_report.nBinsz3d*m_report.nBinsr3d*m_report.nBinsphi3d,0.0);
-    m_report.m_3d_niel.resize(m_report.nBinsz3d*m_report.nBinsr3d*m_report.nBinsphi3d,0.0);
-    m_report.m_3d_h20 .resize(m_report.nBinsz3d*m_report.nBinsr3d*m_report.nBinsphi3d,0.0);
+    m_report.m_3d_tid .resize(m_config.nBinsz3d*m_config.nBinsr3d*m_config.nBinsphi3d,0.0);
+    m_report.m_3d_eion.resize(m_config.nBinsz3d*m_config.nBinsr3d*m_config.nBinsphi3d,0.0);
+    m_report.m_3d_niel.resize(m_config.nBinsz3d*m_config.nBinsr3d*m_config.nBinsphi3d,0.0);
+    m_report.m_3d_h20 .resize(m_config.nBinsz3d*m_config.nBinsr3d*m_config.nBinsphi3d,0.0);
 
     // merge radiation map vectors from threads
     mergeReports();
 
     TFile * f = new TFile(m_radMapsFileName.c_str(),"RECREATE");
 
-    TH2D * h_rz_tid  = new TH2D("rz_tid" ,"rz_tid" ,m_report.nBinsz,m_report.zMinZoom,m_report.zMaxZoom,m_report.nBinsr,m_report.rMinZoom,m_report.rMaxZoom);
-    TH2D * h_rz_eion = new TH2D("rz_eion","rz_eion",m_report.nBinsz,m_report.zMinZoom,m_report.zMaxZoom,m_report.nBinsr,m_report.rMinZoom,m_report.rMaxZoom);
-    TH2D * h_rz_niel = new TH2D("rz_niel","rz_niel",m_report.nBinsz,m_report.zMinZoom,m_report.zMaxZoom,m_report.nBinsr,m_report.rMinZoom,m_report.rMaxZoom);
-    TH2D * h_rz_h20  = new TH2D("rz_h20" ,"rz_h20" ,m_report.nBinsz,m_report.zMinZoom,m_report.zMaxZoom,m_report.nBinsr,m_report.rMinZoom,m_report.rMaxZoom);
+    TH2D * h_rz_tid  = new TH2D("rz_tid" ,"rz_tid" ,m_config.nBinsz,m_config.zMinZoom,m_config.zMaxZoom,m_config.nBinsr,m_config.rMinZoom,m_config.rMaxZoom);
+    TH2D * h_rz_eion = new TH2D("rz_eion","rz_eion",m_config.nBinsz,m_config.zMinZoom,m_config.zMaxZoom,m_config.nBinsr,m_config.rMinZoom,m_config.rMaxZoom);
+    TH2D * h_rz_niel = new TH2D("rz_niel","rz_niel",m_config.nBinsz,m_config.zMinZoom,m_config.zMaxZoom,m_config.nBinsr,m_config.rMinZoom,m_config.rMaxZoom);
+    TH2D * h_rz_h20  = new TH2D("rz_h20" ,"rz_h20" ,m_config.nBinsz,m_config.zMinZoom,m_config.zMaxZoom,m_config.nBinsr,m_config.rMinZoom,m_config.rMaxZoom);
 
     h_rz_tid  ->SetXTitle("|z| [cm]");
     h_rz_eion ->SetXTitle("|z| [cm]");
@@ -98,10 +132,10 @@ namespace G4UA{
     h_rz_niel ->SetZTitle("NIEL [n_{eq}/cm^{2}]");
     h_rz_h20  ->SetZTitle("SEE [h_{>20 MeV}/cm^{2}]");
 
-    TH2D *h_full_rz_tid  = new TH2D("full_rz_tid" ,"full_rz_tid" ,m_report.nBinsz,m_report.zMinFull,m_report.zMaxFull,m_report.nBinsr,m_report.rMinFull,m_report.rMaxFull);
-    TH2D *h_full_rz_eion = new TH2D("full_rz_eion","full_rz_eion",m_report.nBinsz,m_report.zMinFull,m_report.zMaxFull,m_report.nBinsr,m_report.rMinFull,m_report.rMaxFull);
-    TH2D *h_full_rz_niel = new TH2D("full_rz_niel","full_rz_niel",m_report.nBinsz,m_report.zMinFull,m_report.zMaxFull,m_report.nBinsr,m_report.rMinFull,m_report.rMaxFull);
-    TH2D *h_full_rz_h20  = new TH2D("full_rz_h20" ,"full_rz_h20" ,m_report.nBinsz,m_report.zMinFull,m_report.zMaxFull,m_report.nBinsr,m_report.rMinFull,m_report.rMaxFull);
+    TH2D *h_full_rz_tid  = new TH2D("full_rz_tid" ,"full_rz_tid" ,m_config.nBinsz,m_config.zMinFull,m_config.zMaxFull,m_config.nBinsr,m_config.rMinFull,m_config.rMaxFull);
+    TH2D *h_full_rz_eion = new TH2D("full_rz_eion","full_rz_eion",m_config.nBinsz,m_config.zMinFull,m_config.zMaxFull,m_config.nBinsr,m_config.rMinFull,m_config.rMaxFull);
+    TH2D *h_full_rz_niel = new TH2D("full_rz_niel","full_rz_niel",m_config.nBinsz,m_config.zMinFull,m_config.zMaxFull,m_config.nBinsr,m_config.rMinFull,m_config.rMaxFull);
+    TH2D *h_full_rz_h20  = new TH2D("full_rz_h20" ,"full_rz_h20" ,m_config.nBinsz,m_config.zMinFull,m_config.zMaxFull,m_config.nBinsr,m_config.rMinFull,m_config.rMaxFull);
 
     h_full_rz_tid  ->SetXTitle("|z| [cm]");
     h_full_rz_eion ->SetXTitle("|z| [cm]");
@@ -118,10 +152,10 @@ namespace G4UA{
     h_full_rz_niel ->SetZTitle("NIEL [n_{eq}/cm^{2}]");
     h_full_rz_h20  ->SetZTitle("SEE [h_{>20 MeV}/cm^{2}]");
 
-    TH3D * h_3d_tid  = new TH3D("h3d_tid" ,"h3d_tid" ,m_report.nBinsz3d,m_report.zMinZoom,m_report.zMaxZoom,m_report.nBinsr3d,m_report.rMinZoom,m_report.rMaxZoom,m_report.nBinsphi3d,m_report.phiMinZoom,m_report.phiMaxZoom);
-    TH3D * h_3d_eion = new TH3D("h3d_eion","h3d_eion",m_report.nBinsz3d,m_report.zMinZoom,m_report.zMaxZoom,m_report.nBinsr3d,m_report.rMinZoom,m_report.rMaxZoom,m_report.nBinsphi3d,m_report.phiMinZoom,m_report.phiMaxZoom);
-    TH3D * h_3d_niel = new TH3D("h3d_niel","h3d_niel",m_report.nBinsz3d,m_report.zMinZoom,m_report.zMaxZoom,m_report.nBinsr3d,m_report.rMinZoom,m_report.rMaxZoom,m_report.nBinsphi3d,m_report.phiMinZoom,m_report.phiMaxZoom);
-    TH3D * h_3d_h20  = new TH3D("h3d_h20" ,"h3d_h20" ,m_report.nBinsz3d,m_report.zMinZoom,m_report.zMaxZoom,m_report.nBinsr3d,m_report.rMinZoom,m_report.rMaxZoom,m_report.nBinsphi3d,m_report.phiMinZoom,m_report.phiMaxZoom);
+    TH3D * h_3d_tid  = new TH3D("h3d_tid" ,"h3d_tid" ,m_config.nBinsz3d,m_config.zMinZoom,m_config.zMaxZoom,m_config.nBinsr3d,m_config.rMinZoom,m_config.rMaxZoom,m_config.nBinsphi3d,m_config.phiMinZoom,m_config.phiMaxZoom);
+    TH3D * h_3d_eion = new TH3D("h3d_eion","h3d_eion",m_config.nBinsz3d,m_config.zMinZoom,m_config.zMaxZoom,m_config.nBinsr3d,m_config.rMinZoom,m_config.rMaxZoom,m_config.nBinsphi3d,m_config.phiMinZoom,m_config.phiMaxZoom);
+    TH3D * h_3d_niel = new TH3D("h3d_niel","h3d_niel",m_config.nBinsz3d,m_config.zMinZoom,m_config.zMaxZoom,m_config.nBinsr3d,m_config.rMinZoom,m_config.rMaxZoom,m_config.nBinsphi3d,m_config.phiMinZoom,m_config.phiMaxZoom);
+    TH3D * h_3d_h20  = new TH3D("h3d_h20" ,"h3d_h20" ,m_config.nBinsz3d,m_config.zMinZoom,m_config.zMaxZoom,m_config.nBinsr3d,m_config.rMinZoom,m_config.rMaxZoom,m_config.nBinsphi3d,m_config.phiMinZoom,m_config.phiMaxZoom);
 
     h_3d_tid  ->SetXTitle("|z| [cm]");
     h_3d_eion ->SetXTitle("|z| [cm]");
@@ -148,7 +182,7 @@ namespace G4UA{
     for(int i=0;i<h_rz_tid->GetNbinsX();i++) { 
       for(int j=0;j<h_rz_tid->GetNbinsY();j++) { 
 	int iBin = h_rz_tid->GetBin(i+1,j+1); 
-	int vBin = m_report.nBinsr*i+j;
+	int vBin = m_config.nBinsr*i+j;
 	double r0=h_rz_tid->GetYaxis()->GetBinLowEdge(j+1);
 	double r1=h_rz_tid->GetYaxis()->GetBinUpEdge(j+1);
 	double z0=h_rz_tid->GetXaxis()->GetBinLowEdge(i+1);
@@ -178,7 +212,7 @@ namespace G4UA{
     for(int i=0;i<h_full_rz_tid->GetNbinsX();i++) { 
       for(int j=0;j<h_full_rz_tid->GetNbinsY();j++) { 
 	int iBin = h_full_rz_tid->GetBin(i+1,j+1); 
-	int vBin = m_report.nBinsr*i+j;
+	int vBin = m_config.nBinsr*i+j;
 	double r0=h_full_rz_tid->GetYaxis()->GetBinLowEdge(j+1);
 	double r1=h_full_rz_tid->GetYaxis()->GetBinUpEdge(j+1);
 	double z0=h_full_rz_tid->GetXaxis()->GetBinLowEdge(i+1);
@@ -208,7 +242,7 @@ namespace G4UA{
     for(int i=0;i<h_3d_tid->GetNbinsX();i++) { /* |z| */
       for(int j=0;j<h_3d_tid->GetNbinsY();j++) { /* r */
 	for(int k=0;k<h_3d_tid->GetNbinsZ();k++) { /* phi */
-	  int vBin = m_report.nBinsr3d*m_report.nBinsphi3d*i+m_report.nBinsphi3d*j+k;
+	  int vBin = m_config.nBinsr3d*m_config.nBinsphi3d*i+m_config.nBinsphi3d*j+k;
 	  int iBin = h_3d_tid->GetBin(i+1,j+1,k+1); 
 	  double phi0=h_3d_tid->GetZaxis()->GetBinLowEdge(k+1);
 	  double phi1=h_3d_tid->GetZaxis()->GetBinUpEdge(k+1);
@@ -245,7 +279,7 @@ namespace G4UA{
 
   std::unique_ptr<RadiationMapsMaker>  RadiationMapsMakerTool::makeAction(){
     ATH_MSG_DEBUG("makeAction");
-    return CxxUtils::make_unique<RadiationMapsMaker>();
+    return std::make_unique<RadiationMapsMaker>(m_config);
   }
 
 } // namespace G4UA 
