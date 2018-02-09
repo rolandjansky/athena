@@ -142,21 +142,16 @@ def getISFUserActionSvc(name="G4UA::ISFUserActionSvc", **kwargs):
 
     from G4AtlasApps.SimFlags import simFlags
     optActions = simFlags.OptionalUserActionList.get_Value()
-    run = (
-        getDefaultRunActions() + optActions['Run'] +
-        PhysicsValidationUserAction)
-    event = (
-        getDefaultEventActions() + optActions['Event'] +
-        TrackProcessorUserAction + PhysicsValidationUserAction)
-    tracking = (
-        TrackProcessorUserAction + MCTruthUserAction +
-        getDefaultTrackingActions() + optActions['Tracking'] +
-        PhysicsValidationUserAction)
-    stepping = (
-        getDefaultSteppingActions() + optActions['Step'] +
-        TrackProcessorUserAction + PhysicsValidationUserAction)
+    run = getDefaultRunActions() + optActions['Run']
+    event = getDefaultEventActions() + optActions['Event']
+    tracking = getDefaultTrackingActions() + optActions['Tracking']
+    stepping = getDefaultSteppingActions() + optActions['Step']
     stacking = getDefaultStackingActions()
-    generalActions = getDefaultActions() + optActions['General']
+    generalActions = (
+        TrackProcessorUserAction + MCTruthUserAction +
+        getDefaultActions() + optActions['General'] +
+        PhysicsValidationUserAction
+    )
 
     kwargs.setdefault('RunActionTools', run)
     kwargs.setdefault('EventActionTools', event)
