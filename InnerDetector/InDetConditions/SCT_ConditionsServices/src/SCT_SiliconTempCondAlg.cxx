@@ -4,6 +4,8 @@
 
 #include "SCT_SiliconTempCondAlg.h"
 
+#include <memory>
+
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
 
@@ -110,18 +112,17 @@ StatusCode SCT_SiliconTempCondAlg::execute() {
   }
 
   // Construct the output Cond Object and fill it in
-  SCT_DCSFloatCondData* writeCdo{new SCT_DCSFloatCondData()};
+  std::unique_ptr<SCT_DCSFloatCondData> writeCdo{std::make_unique<SCT_DCSFloatCondData>()};
   const SCT_ID::size_type wafer_hash_max{m_pHelper->wafer_hash_max()};
   for (SCT_ID::size_type hash{0}; hash<wafer_hash_max; hash++) {
     writeCdo->setValue(hash, m_sctDCSSvc->sensorTemperature(IdentifierHash(hash)));
   }
 
   // Record the output cond object
-  if (writeHandle.record(rangeW, writeCdo).isFailure()) {
+  if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
     ATH_MSG_FATAL("Could not record SCT_DCSFloatCondData " << writeHandle.key() 
                   << " with EventRange " << rangeW
                   << " into Conditions Store");
-    delete writeCdo;
     return StatusCode::FAILURE;
   }
   ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");

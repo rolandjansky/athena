@@ -4,6 +4,8 @@
 
 #include "SCT_ConditionsParameterCondAlg.h"
 
+#include <memory>
+
 #include "SCT_Chip.h"
 #include "AthenaPoolUtilities/CondAttrListVec.h"
 #include "Identifier/IdentifierHash.h"
@@ -134,7 +136,7 @@ StatusCode SCT_ConditionsParameterCondAlg::execute() {
   ATH_MSG_INFO("Range of input is " << rangeW);
   
   // Construct the output Cond Object and fill it in
-  SCT_CondParameterData* writeCdo{new SCT_CondParameterData()};
+  std::unique_ptr<SCT_CondParameterData> writeCdo{std::make_unique<SCT_CondParameterData>()};
 
   // Loop over elements (i.e groups of 6 chips) in DB folder 
   const unsigned int nChipsPerModule{12};
@@ -174,11 +176,10 @@ StatusCode SCT_ConditionsParameterCondAlg::execute() {
   }//module loop
 
   // Record the output cond object
-  if (writeHandle.record(rangeW, writeCdo).isFailure()) {
+  if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
     ATH_MSG_FATAL("Could not record SCT_CondParameterData " << writeHandle.key() 
                   << " with EventRange " << rangeW
                   << " into Conditions Store");
-    delete writeCdo;
     return StatusCode::FAILURE;
   }
   ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");

@@ -4,6 +4,8 @@
 
 #include "SCT_TdaqEnabledCondAlg.h"
 
+#include <memory>
+
 #include "Identifier/IdentifierHash.h"
 #include "SCT_Cabling/SCT_OnlineId.h"
 #include "EventInfo/EventID.h"
@@ -71,7 +73,7 @@ StatusCode SCT_TdaqEnabledCondAlg::execute()
   }
 
   // Construct the output Cond Object and fill it in
-  SCT_TdaqEnabledCondData* writeCdo{new SCT_TdaqEnabledCondData()};
+  std::unique_ptr<SCT_TdaqEnabledCondData> writeCdo{std::make_unique<SCT_TdaqEnabledCondData>()};
   // clear structures before filling
   writeCdo->clear();
 
@@ -92,7 +94,6 @@ StatusCode SCT_TdaqEnabledCondAlg::execute()
     const CondAttrListCollection* readCdo{*readHandle}; 
     if(readCdo==nullptr) {
       ATH_MSG_ERROR("Null pointer to the read conditions object");
-      delete writeCdo;
       return StatusCode::FAILURE;
     }
 
@@ -122,7 +123,6 @@ StatusCode SCT_TdaqEnabledCondAlg::execute()
     if(writeCdo->getGoodRods().size()>s_NRODS) {
       ATH_MSG_ERROR("The number of rods declared as good appears to be greater than the permissible number of rods ("<<s_NRODS<<")");
       writeCdo->setFilled(false);
-      delete writeCdo;
       return StatusCode::FAILURE;
     }
     
@@ -149,12 +149,11 @@ StatusCode SCT_TdaqEnabledCondAlg::execute()
 
     if(!readHandle.range(rangeW)) {
       ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle.key());
-      delete writeCdo;
       return StatusCode::FAILURE;
     }
   }
 
-  if(writeHandle.record(rangeW, writeCdo).isFailure()) {
+  if(writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
     ATH_MSG_ERROR("Could not record SCT_TdaqEnabledCondData " << writeHandle.key() 
                   << " with EventRange " << rangeW
                   << " into Conditions Store");
