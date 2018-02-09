@@ -659,8 +659,8 @@ namespace top {
                   systematicTree->makeOutputVariable(m_jet_isTrueHS, "jet_isTrueHS");
                 }
                 for( auto& tagWP : m_config -> bTagWP_available()){
-                  if (tagWP!= "Continuous") systematicTree->makeOutputVariable(m_jet_isbtagged[tagWP] , "jet_isbtagged_"+shortBtagWP(tagWP));
-                  else systematicTree->makeOutputVariable(m_jet_tagWeightBin , "jet_tagWeightBin");
+                  if (tagWP.find("Continuous") == std::string::npos) systematicTree->makeOutputVariable(m_jet_isbtagged[tagWP] , "jet_isbtagged_"+shortBtagWP(tagWP));
+                  else systematicTree->makeOutputVariable(m_jet_tagWeightBin[tagWP] , "jet_tagWeightBin_"+tagWP);
                 }
 		// R21 - new b-tagging variables
 		if(m_config->getReleaseSeries() == 25){
@@ -710,8 +710,8 @@ namespace top {
                 systematicTree->makeOutputVariable(m_tjet_mv2c10,  "tjet_mv2c10");
                 systematicTree->makeOutputVariable(m_tjet_mv2c20,  "tjet_mv2c20");
                 for( auto& tagWP : m_config -> bTagWP_available_trkJet()){
-                  if (tagWP!= "Continuous") systematicTree->makeOutputVariable(m_tjet_isbtagged[tagWP] , "tjet_isbtagged_"+shortBtagWP(tagWP));
-                  else systematicTree->makeOutputVariable(m_tjet_tagWeightBin , "tjet_tagWeightBin");
+                  if (tagWP.find("Continuous") == std::string::npos) systematicTree->makeOutputVariable(m_tjet_isbtagged[tagWP] , "tjet_isbtagged_"+shortBtagWP(tagWP));
+                  else systematicTree->makeOutputVariable(m_tjet_tagWeightBin[tagWP] , "tjet_tagWeightBin_"+tagWP);
                 }
             }
 
@@ -1712,8 +1712,8 @@ namespace top {
               m_jet_isTrueHS.resize(event.m_jets.size());
             }
             for( auto& tagWP : m_config -> bTagWP_available()){
-              if (tagWP!= "Continuous") m_jet_isbtagged[tagWP].resize(event.m_jets.size());
-              else m_jet_tagWeightBin.resize(event.m_jets.size());
+              if (tagWP.find("Continuous") == std::string::npos) m_jet_isbtagged[tagWP].resize(event.m_jets.size());
+              else m_jet_tagWeightBin[tagWP].resize(event.m_jets.size());
             }
             for (const auto* const jetPtr : event.m_jets) {
                 m_jet_pt[i] = jetPtr->pt();
@@ -1743,15 +1743,15 @@ namespace top {
                   }
                 }
                 for( auto& tagWP : m_config -> bTagWP_available()){
-                  if (tagWP!= "Continuous") {
+                  if (tagWP.find("Continuous") == std::string::npos) {
                     m_jet_isbtagged[tagWP][i] = false;
                     if(jetPtr->isAvailable<char>("isbtagged_"+tagWP))
                       m_jet_isbtagged[tagWP][i] = jetPtr->auxdataConst<char>("isbtagged_"+tagWP);
                   }
                   else {
-                    m_jet_tagWeightBin[i] = -2;// AT default value
-                    if(jetPtr->isAvailable<int>("tagWeightBin"))
-                      m_jet_tagWeightBin[i] = jetPtr->auxdataConst<int>("tagWeightBin");
+                    m_jet_tagWeightBin[tagWP][i] = -2;// AT default value
+                    if(jetPtr->isAvailable<int>("tagWeightBin_"+tagWP))
+                      m_jet_tagWeightBin[tagWP][i] = jetPtr->auxdataConst<int>("tagWeightBin_"+tagWP);
                   }
                 }
 
@@ -1897,8 +1897,8 @@ namespace top {
             m_tjet_mv2c10.resize(event.m_trackJets.size());
             m_tjet_mv2c20.resize(event.m_trackJets.size());
             for( auto& tagWP : m_config -> bTagWP_available_trkJet()) {
-              if (tagWP!= "Continuous") m_tjet_isbtagged[tagWP].resize(event.m_trackJets.size());
-              else m_tjet_tagWeightBin.resize(event.m_trackJets.size());
+              if (tagWP.find("Continuous") == std::string::npos) m_tjet_isbtagged[tagWP].resize(event.m_trackJets.size());
+              else m_tjet_tagWeightBin[tagWP].resize(event.m_trackJets.size());
             }
             for (const auto* const jetPtr : event.m_trackJets) {
                 m_tjet_pt[i] = jetPtr->pt();
@@ -1918,15 +1918,15 @@ namespace top {
                 if (btag) btag->MVx_discriminant("MV2c20", mvx);
                 m_tjet_mv2c20[i] = mvx;
                 for( auto& tagWP : m_config -> bTagWP_available_trkJet()){
-                  if (tagWP!= "Continuous") {
+                  if (tagWP.find("Continuous" == std::string::npos) {
                     m_tjet_isbtagged[tagWP][i] = false;
                     if(jetPtr->isAvailable<char>("isbtagged_"+tagWP))
                       m_tjet_isbtagged[tagWP][i] = jetPtr->auxdataConst<char>("isbtagged_"+tagWP);
                   }
                   else {
-                    m_tjet_tagWeightBin[i] = -2;// AT default value
-                    if(jetPtr->isAvailable<int>("tagWeightBin"))
-                      m_tjet_tagWeightBin[i] = jetPtr->auxdataConst<int>("tagWeightBin");
+                    m_tjet_tagWeightBin[tagWP][i] = -2;// AT default value
+                    if(jetPtr->isAvailable<int>("tagWeightBin_"+tagWP))
+                      m_tjet_tagWeightBin[tagWP][i] = jetPtr->auxdataConst<int>("tagWeightBin_"+tagWP);
                   }
                 }
                 ++i;

@@ -168,7 +168,7 @@ namespace top{
 	    float btag_SF(1.0);
             bool  isTagged = false;//unused in case of Continuous
             if (std::fabs(jetPtr->eta()) <= 2.5 ) {
-              if (tagWP != "Continuous") {
+              if (tagWP.find("Continuous") == std::string::npos) {
                 isTagged = btagsel->accept(*jetPtr);
                 if(isTagged)
                   top::check( btageff->getScaleFactor(*jetPtr, btag_SF),
@@ -194,7 +194,7 @@ namespace top{
                 top::check( btageff->applySystematicVariation(syst_set),
                             "Failed to set new b-tagging systematic variation "+syst_set.name() );
                 if (std::fabs(jetPtr->eta()) <= 2.5 ) {
-                  if (tagWP != "Continuous") {
+                  if (tagWP.find("Continuous" == std::string::npos) {
                     if (isTagged)
                       top::check( btageff->getScaleFactor(*jetPtr, btag_SF),
                                   "Failed to get b-tagging SF for variation "+syst_set.name() );
