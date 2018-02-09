@@ -35,19 +35,19 @@ class SCT_SiPropertiesSvcSetup:
         if not hasattr(condSeq, self.algName):
             from SiPropertiesSvc.SiPropertiesSvcConf import SCTSiPropertiesCondAlg
             if self.siliconSvc is None:
-                condSeq += SCT_SiliconHVCondAlg(name = self.algName)
+                condSeq += SCTSiPropertiesCondAlg(name = self.algName)
             else:
-                condSeq += SCT_SiliconHVCondAlg(name = self.algName,
-                                                SiConditionsServices = self.siliconSvc)
+                condSeq += SCTSiPropertiesCondAlg(name = self.algName,
+                                                  SiConditionsServices = self.siliconSvc)
         self.alg = getattr(condSeq, self.algName)
 
     def setSvc(self):
         from AthenaCommon.AppMgr import ServiceMgr
         if not hasattr(ServiceMgr, self.svcName):
             from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesCHSvc
-            sctSiPropertiesSvc = SiPropertiesCHSvc(name = self.svcName,
-                                                   DetectorName = "SCT",
-                                                   ReadKey = "SCTSiliconPropertiesVector")
+            ServiceMgr += SiPropertiesCHSvc(name = self.svcName,
+                                            DetectorName = "SCT",
+                                            ReadKey = "SCTSiliconPropertiesVector")
         self.svc = getattr(ServiceMgr, self.svcName)
 
     def setup(self):

@@ -369,16 +369,13 @@ class SCT_ConditionsServicesSetup:
 
   def initBSErrSvc(self, instanceName):
     "Init ByteStream errors service"
-    
-    if hasattr(self.svcMgr,instanceName):
-      bsErrSvc = getattr(self.svcMgr, instanceName); 
-    else:
-      from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ByteStreamErrorsSvc
-      bsErrSvc = SCT_ByteStreamErrorsSvc(name = instanceName,
-                                         ConfigService = self.configSvc)
-      self.svcMgr += bsErrSvc
-      if self._print:  print bsErrSvc
-      
+    from SCT_ConditionsServices.SCT_ByteStreamErrorsSvcSetup import SCT_ByteStreamErrorsSvcSetup
+    sct_ByteStreamErrorsSvcSetup = SCT_ByteStreamErrorsSvcSetup()
+    sct_ByteStreamErrorsSvcSetup.setSvcName(instanceName)
+    sct_ByteStreamErrorsSvcSetup.setConfigSvc(self.configSvc)
+    sct_ByteStreamErrorsSvcSetup.setup()
+    bsErrSvc =sct_ByteStreamErrorsSvcSetup.getSvc()
+    if self._print:  print bsErrSvc
     self.summarySvc.ConditionsServices+=[instanceName]
     return  bsErrSvc
 
@@ -411,7 +408,6 @@ class SCT_ConditionsServicesSetup:
     sctSiliconConditionsSvc.CheckGeoModel = False
     sctSiliconConditionsSvc.ForceUseGeoModel = False
     #sctSiliconConditionsSvc.OutputLevel=1
-    self.svcMgr += sctSiliconConditionsSvc
     if self._print: print sctSiliconConditionsSvc
 
     SCTLorentzAngleSvc.SiConditionsServices = sctSiliconConditionsSvc
