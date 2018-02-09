@@ -5,8 +5,8 @@
 // $Id: FileMetaDataTool.cxx 683697 2015-07-17 09:12:14Z krasznaa $
 
 // Local include(s):
-#include "xAODMetaDataCnv/FileMetaDataTool.h"
 #include "xAODCore/tools/PrintHelpers.h"
+#include "xAODMetaDataCnv/FileMetaDataTool.h"
 
 namespace xAODMaker {
 

@@ -193,7 +193,7 @@ top::EventSaverBase* loadEventSaver(std::shared_ptr<top::TopConfig> config);
  * @return If successful, return true, else return false
  */
 
-bool readMetaData(TFile* inputFile, std::shared_ptr<top::TopConfig> config);
+bool readMetaData(TFile* inputFile);
 
 }
 

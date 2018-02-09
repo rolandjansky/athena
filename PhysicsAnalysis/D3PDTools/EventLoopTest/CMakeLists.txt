@@ -17,13 +17,13 @@ atlas_depends_on_subdirs(
    Control/xAODRootAccess )
 
 # Find the needed external(s):
-find_package( ROOT COMPONENTS Core RIO Hist Tree TreePlayer Proof ProofPlayer )
+find_package( ROOT COMPONENTS Core RIO Hist Tree TreePlayer )
 find_package( GTest )
 
 # Component(s) in the package:
 atlas_add_root_dictionary( EventLoopTestLib
    EventLoopTestDictSource
-   ROOT_HEADERS EventLoopTest/UnitTestAlg.h EventLoopTest/UnitTestAlg1.h EventLoopTest/UnitTestAlg2.h
+   ROOT_HEADERS EventLoopTest/UnitTestAlg.h EventLoopTest/UnitTestAlg1.h EventLoopTest/UnitTestAlg2.h EventLoopTest/UnitTestTool.h
    Root/LinkDef.h
    EXTERNAL_PACKAGES ROOT )
 
@@ -60,7 +60,7 @@ function( _add_test cxx_name )
       LINK_LIBRARIES ${ROOT_LIBRARIES} RootCoreUtils SampleHandler EventLoopTestLib )
 endfunction( _add_test )
 
-set (MANUAL_TESTS test/gt_LSFDriver_EOS.cxx test/gt_ProofDriver.cxx test/ut_background_driver.cxx test/ut_background_socket.cxx test/ut_driver_proof_lite.cxx test/make_test_file.cxx test/ut_driver_condor.cxx test/ut_driver_ll.cxx test/ut_driver_lsf.cxx test/ut_driver_proof_farm.cxx test/ut_driver_torque.cxx test/ut_xrootd_output.cxx test/ut_driver_proof_lite.cxx test/ut_xrootd_input.cxx)
+set (MANUAL_TESTS test/gt_LSFDriver_EOS.cxx test/make_test_file.cxx test/ut_driver_condor.cxx test/ut_driver_ll.cxx test/ut_driver_lsf.cxx test/ut_driver_torque.cxx test/ut_xrootd_output.cxx test/ut_xrootd_input.cxx)
 
 set (SLOW_TESTS test/gt_DirectDriver.cxx test/gt_LocalDriver.cxx)
 

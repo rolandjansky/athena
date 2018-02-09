@@ -19,7 +19,7 @@
 #include "JetRec/JetModifierBase.h"
 
 class JetConstitRemover : public JetModifierBase {
-  ASG_TOOL_CLASS(JetConstitRemover, IJetModifier);
+  ASG_TOOL_CLASS(JetConstitRemover, IJetModifier)
     
 public:
 

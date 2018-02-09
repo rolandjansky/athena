@@ -265,6 +265,10 @@ HIGG2D1SlimmingHelper.SmartCollections = ["Electrons",
                                           "BTagging_AntiKt4EMPFlow",
                                           "InDetTrackParticles",
                                           "PrimaryVertices"]
+if DerivationFrameworkIsMonteCarlo:
+        # https://twiki.cern.ch/twiki/bin/view/AtlasProtected/DaodRecommendations#Jets_MET
+        HIGG2D1SlimmingHelper.SmartCollections += ["AntiKt4TruthJets",
+                                                   "AntiKt4TruthWZJets"]
 
 HIGG2D1SlimmingHelper.ExtraVariables = HIGG2D1ExtraContent
 HIGG2D1SlimmingHelper.AllVariables = HIGG2D1ExtraContainers
