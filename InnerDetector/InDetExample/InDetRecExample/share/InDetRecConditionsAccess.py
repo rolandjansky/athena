@@ -212,7 +212,6 @@ if DetFlags.haveRIO.SCT_on():
     sct_ConfigurationConditionsSvcSetup.setChannelFolder(SCTConfigurationFolderPath+"Chip")
     sct_ConfigurationConditionsSvcSetup.setModuleFolder(SCTConfigurationFolderPath+"Module")
     sct_ConfigurationConditionsSvcSetup.setMurFolder(SCTConfigurationFolderPath+"MUR")
-    sct_ConfigurationConditionsSvcSetup.setSvcName("InDetSCT_ConfigurationConditionsSvc")
     sct_ConfigurationConditionsSvcSetup.setup()
     InDetSCT_ConfigurationConditionsSvc = sct_ConfigurationConditionsSvcSetup.getSvc()
     if (InDetFlags.doPrintConfigurables()):
@@ -220,7 +219,6 @@ if DetFlags.haveRIO.SCT_on():
 
     # Load calibration conditions service
     from SCT_ConditionsServices.SCT_ReadCalibDataSvcSetup import sct_ReadCalibDataSvcSetup
-    sct_ReadCalibDataSvcSetup.setSvcName("InDetSCT_ReadCalibDataSvc")
     sct_ReadCalibDataSvcSetup.setup()
     InDetSCT_ReadCalibDataSvc = sct_ReadCalibDataSvcSetup.getSvc()
     if (InDetFlags.doPrintConfigurables()):
@@ -236,7 +234,6 @@ if DetFlags.haveRIO.SCT_on():
     # Load conditions Monitoring service
     if not athenaCommonFlags.isOnline():
         from SCT_ConditionsServices.SCT_MonitorConditionsSvcSetup import sct_MonitorConditionsSvcSetup
-        sct_MonitorConditionsSvcSetup.setSvcName("InDetSCT_MonitorConditionsSvc")
         sct_MonitorConditionsSvcSetup.setOutputLevel(INFO)
         sct_MonitorConditionsSvcSetup.setup()
         InDetSCT_MonitorConditionsSvc = sct_MonitorConditionsSvcSetup.getSvc()
@@ -245,7 +242,6 @@ if DetFlags.haveRIO.SCT_on():
 
     if InDetFlags.doSCTModuleVeto():
         from SCT_ConditionsServices.SCT_ModuleVetoSvcSetup import sct_ModuleVetoSvcSetup
-        sct_ModuleVetoSvcSetup.setSvcName("InDetSCT_ModuleVetoSvc")
         sct_ModuleVetoSvcSetup.setup()
         InDetSCT_ModuleVetoSvc = sct_ModuleVetoSvcSetup.getSvc()
         if (InDetFlags.doPrintConfigurables()):
@@ -302,7 +298,6 @@ if DetFlags.haveRIO.SCT_on():
         # Load TdaqEnabled service
         from SCT_ConditionsServices.SCT_TdaqEnabledSvcSetup import sct_TdaqEnabledSvcSetup
         sct_TdaqEnabledSvcSetup.setFolder(tdaqFolder)
-        sct_TdaqEnabledSvcSetup.setSvcName("InDetSCT_TdaqEnabledSvc")
         sct_TdaqEnabledSvcSetup.setEventInfoKey(eventInfoKey)
         sct_TdaqEnabledSvcSetup.setup()
         InDetSCT_TdaqEnabledSvc = sct_TdaqEnabledSvcSetup.getSvc()

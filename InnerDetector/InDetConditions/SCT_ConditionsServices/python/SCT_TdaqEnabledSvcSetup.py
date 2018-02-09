@@ -10,7 +10,7 @@ class SCT_TdaqEnabledSvcSetup:
         self.dbInstance = "TDAQ"
         self.algName = "SCT_TdaqEnabledCondAlg"
         self.alg = None
-        self.svcName = "SCT_TdaqEnabledSvc"
+        self.svcName = "InDetSCT_TdaqEnabledSvc"
         self.svc = None
         self.eventInfoKey = "ByteStreamEventInfo"
 

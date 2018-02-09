@@ -12,7 +12,7 @@ class SCT_ReadCalibChipDataSvcSetup:
         self.gainAlgName = "SCT_ReadCalibChipGainCondAlg"
         self.noiseAlg = None
         self.gainAlg = None
-        self.svcName = "SCT_ReadCalibChipDataSvc"
+        self.svcName = "InDetSCT_ReadCalibChipDataSvc"
         self.svc = None
 
     def getNoiseFolder(self):

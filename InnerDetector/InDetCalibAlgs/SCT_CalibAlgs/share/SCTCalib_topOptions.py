@@ -318,7 +318,6 @@ if (year > 13):
 else:
     sct_MajorityConditionsSvcSetup.setFolderDb("<db>COOLOFL_DCS/COMP200</db> /SCT/DCS/MAJ")
 sct_MajorityConditionsSvcSetup.setFolder("/SCT/DCS/MAJ")
-sct_MajorityConditionsSvcSetup.setSvcName("InDetSCT_MajorityConditionsSvc")
 sct_MajorityConditionsSvcSetup.setup()
 InDetSCT_MajorityConditionsSvc = sct_MajorityConditionsSvcSetup.getSvc()
 InDetSCT_MajorityConditionsSvc.UseOverall       = True

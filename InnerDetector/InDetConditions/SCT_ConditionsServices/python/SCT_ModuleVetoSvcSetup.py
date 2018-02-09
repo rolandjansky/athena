@@ -10,7 +10,7 @@ class SCT_ModuleVetoSvcSetup:
         self.dbInstance = "SCT_OFL"
         self.algName = "SCT_ModuleVetoCondAlg"
         self.alg = None
-        self.svcName = "SCT_ModuleVetoSvc"
+        self.svcName = "InDetSCT_ModuleVetoSvc"
         self.svc = None
         self.useDB = True
 

@@ -8,7 +8,7 @@ class SCT_ReadCalibDataSvcSetup:
         self.gainFolder = "/SCT/DAQ/Calibration/NPtGainDefects"
         self.algName = "SCT_ReadCalibDataCondAlg"
         self.alg = None
-        self.svcName = "SCT_ReadCalibDataSvc"
+        self.svcName = "InDetSCT_ReadCalibDataSvc"
         self.svc = None
 
     def getNoiseFolder(self):

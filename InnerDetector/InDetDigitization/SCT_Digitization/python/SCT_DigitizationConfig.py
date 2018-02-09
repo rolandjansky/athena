@@ -164,7 +164,6 @@ def getSCT_FrontEnd(name="SCT_FrontEnd", **kwargs):
 
     # Setup the ReadCalibChip folders and Svc
     from SCT_ConditionsServices.SCT_ReadCalibChipDataSvcSetup import sct_ReadCalibChipDataSvcSetup
-    sct_ReadCalibChipDataSvcSetup.setSvcName("InDetSCT_ReadCalibChipDataSvc")
     sct_ReadCalibChipDataSvcSetup.setup()
     kwargs.setdefault("SCT_ReadCalibChipDataSvc", sct_ReadCalibChipDataSvcSetup.getSvcName())
     # DataCompressionMode: 1 is level mode x1x (default), 2 is edge mode 01x, 3 is expanded any hit xxx

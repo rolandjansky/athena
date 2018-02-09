@@ -9,7 +9,7 @@ class SCT_MonitorConditionsSvcSetup:
         self.dbInstance = "SCT_OFL"
         self.algName = "SCT_MonitorConditionsCondAlg"
         self.alg = None
-        self.svcName = "SCT_MonitorConditionsSvc"
+        self.svcName = "InDetSCT_MonitorConditionsSvc"
         self.svc = None
         self.outputLevel = None
 

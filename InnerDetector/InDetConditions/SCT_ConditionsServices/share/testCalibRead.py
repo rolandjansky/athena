@@ -144,7 +144,7 @@ ServiceMgr.EventSelector.RunNumber = 310809
 #--------------------------------------------------------------
 ServiceMgr.MessageSvc.OutputLevel = INFO
 ServiceMgr.MessageSvc.Format = "% F%50W%S%7W%R%T %0W%M"
-ServiceMgr.SCT_ReadCalibDataSvc.OutputLevel = INFO
+SCT_ReadCalibDataSvc.OutputLevel = INFO
 topSequence.SCT_ReadCalibDataTestAlg.OutputLevel = INFO
 
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/MUR", "/SCT/DAQ/Config/MUR")
@@ -187,5 +187,5 @@ else:
 
 #Print out defects maps
 if PrintOutCalibDefectMaps:
-    ServiceMgr.SCT_ReadCalibDataSvc.PrintCalibDefectMaps = True
+    SCT_ReadCalibDataSvc.PrintCalibDefectMaps = True
 
