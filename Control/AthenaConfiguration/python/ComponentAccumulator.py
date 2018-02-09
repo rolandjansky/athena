@@ -55,7 +55,24 @@ class ComponentAccumulator(object):
         self._msg.info( "Event Inputs" )
         self._msg.info( self._eventInputs )
         self._msg.info( "Event Algorithm Sequences" )
-        self._msg.info( self._sequence )        
+        if withDetails:
+            self._msg.info( self._sequence )     
+        else:
+            def printSeqAndAlgs(seq, nestLevel = 0):
+                def __prop(name):
+                    if seq.getValuedProperties().has_key(name):
+                        return seq.getValuedProperties()[name]                    
+                    return seq.getDefaultProperties()[name]
+
+                self._msg.info( " "*nestLevel +"\__ "+ seq.name() +" (seq: %s %s)" %(  "SEQ" if __prop("Sequential") else "PAR", "OR" if __prop("ModeOR") else "AND"  ) )
+                nestLevel += 3
+                for c in seq.getChildren():
+                    if isSequence(c):
+                        printSeqAndAlgs(c, nestLevel )
+                    else:
+                        self._msg.info( " "*nestLevel +"\__ "+ c.name() +" (alg)" )
+            printSeqAndAlgs(self._sequence) 
+
         self._msg.info( "Conditions Inputs" )
         self._msg.info( self._conditionsInput )
         self._msg.info( "Condition Algorithms" )
@@ -64,6 +81,7 @@ class ComponentAccumulator(object):
         self._msg.info( [ s.getName() for s in self._services ] )
         self._msg.info( "Outputs" )
         self._msg.info( self._outputPerStream )
+
 
     def addSequence(self, newseq, sequenceName = CurrentSequence.get().name() ):
         """ Adds new sequence. If second argument is present then it is added under another sequence  """
@@ -290,7 +308,7 @@ class ComponentAccumulator(object):
         return self
 
     
-    def executeModule(self,fct,configFlags, *args,**kwargs):
+    def addConfig(self,fct,configFlags, *args,**kwargs):
         """ The heart and soul of configuration system. You need to read the whole documentation. 
 
         This method eliminates possibility that a downstream configuration alters the upstream one. 
@@ -329,7 +347,10 @@ class ComponentAccumulator(object):
         pass
 
         CurrentSequence.set( currentSeq )
-        
+
+    def executeModule(self,fct,configFlags, *args,**kwargs):        
+        self._msg.info("Please start using addConfig instead of executeModule")
+        return self.addConfig(fct, configFlags, *args, **kwargs )
  
     def appendConfigurable(self,confElem):
         name=confElem.getJobOptName() #FIXME: Don't overwrite duplicates! 
@@ -481,26 +502,15 @@ if __name__ == "__main__":
     assert findAlgorithm(AlgSequence("AthAlgSeq"), "NestedAlgo1", 1 ) == None, "Algorithm mistakenly in top sequence"
     assert findAlgorithm( findSubSequence(AlgSequence("AthAlgSeq"), "subSequence1"), "NestedAlgo1", 1 ), "Algorithm not in right sequence"
     print( "Complex sequences construction also OK ")
-
     
-    #acc.printConfig()
-    srcSeq    = flatAlgorithmSequences( acc._sequence )
+    acc.printConfig(True)
+    acc.printConfig()
 
     # try recording
     acc.store(open("testFile.pkl", "w"))
     f = open("testFile.pkl")
     import pickle
     u = pickle.load(f)
-
-    
-    # for k,v in srcSeq.iteritems():
-    #     print k    
-    #     assert u.has_key(k), "Missing sequence in stored pickle"
-    #     print "src", srcSeq[k],
-    #     print "stored", u[k]["Members"]
-    #     for a1, a2 in zip(srcSeq[k], u[k]["Members"]):                        
-    #         assert a1.getFullName() == a2 , "Differences in alg. config"
-    # print( "Sequences survived pickling OK" )
     
     print( "\nAll OK" )
 

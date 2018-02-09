@@ -111,12 +111,9 @@ if __name__=="__main__":
 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     cfg.executeModule(PoolReadCfg,cfgFlags)
-    
+
     cfg.executeModule(CaloTopoClusterCfg,cfgFlags)
-
     cfg.getEventAlgo("CaloTopoCluster").ClustersOutputName="CaloCalTopoClustersNew" 
-    cfg.getEventAlgo("CaloTopoCluster").OutputLevel=7
-
 
     f=open("CaloTopoCluster.pkl","w")
     cfg.store(f)
