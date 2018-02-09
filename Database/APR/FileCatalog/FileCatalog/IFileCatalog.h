@@ -34,11 +34,13 @@ namespace pool {
      // ------------------------------ Catalog interface  
      
      /// Create file identifier using UUID mechanism
-     std::string createFID() const { return _fc->createFID(); }
+     std::string createFID() const;
 
      void connect() { /* not doing anything in Gaudi FC */ }
      void disconnect() { /* not doing anything in Gaudi FC */ }
-     
+     /// Get the connect string
+     const std::string& connectInfo() const { return _fc->connectInfo(); }
+       
      /// redirect to init() for Gaudi FC
      void start() { init(); }
      /// Parse the DOM tree of the XML catalog
@@ -116,8 +118,10 @@ namespace pool {
 
      /// Add new catalog identified by reference to the existing ones
      //void addCatalog(  Gaudi::IFileCatalog* cat )  { _mgr->addCatalog(cat); }
-     /// Remove catalog identified by name from the existing ones
+
+     /// Remove catalog identified by name from the existing ones. * or '' removes all
      void removeCatalog( const std::string& connect )  { _mgr->removeCatalog(connect); }
+     
      /// Remove catalog identified by reference from the existing ones
      //void removeCatalog( const  Gaudi::IFileCatalog* cat )  { _mgr->removeCatalog(cat); }
      /// Access catalog container

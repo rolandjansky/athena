@@ -23,7 +23,7 @@ void printUsage(){
   std::cout<<"usage: FClistPFN [-l lfname] [-u contactstring] [-t -h]" <<std::endl; 
 }
 
-static const char* opts[] = {"t","l","u","h",0};
+static const char* opts[] = {"t","l","u","f","h",0};
 
 
 class contactParser{
@@ -57,7 +57,7 @@ int main(int argc, char** argv)
   
   std::string  myuri;
   std::string  mylfn;
-  std::string query(""); 
+  std::string  myfid;
   bool printall=false;
   try{
     CommandLine commands(argc,argv);
@@ -71,6 +71,9 @@ int main(int argc, char** argv)
     if( commands.Exists("l") ){
       mylfn=commands.GetByName("l");
     }
+    if( commands.Exists("f") ){
+      myfid=commands.GetByName("f");
+    }
     if( commands.Exists("t") ){
       printall=true;
     }
@@ -83,9 +86,6 @@ int main(int argc, char** argv)
     exit(0);
   }
 
-  if(!query.empty()&&!mylfn.empty()){
-    std::cerr<< "Warning: list PFN by LFN..." <<std::endl;
-  }
   try{
     std::auto_ptr<IFileCatalog> mycatalog(new IFileCatalog);
     if(myuri.empty()) {
@@ -106,9 +106,12 @@ int main(int argc, char** argv)
     pool::IFileCatalog::Strings fids;
     if( !mylfn.empty() ) {
        fids.push_back( mycatalog->lookupLFN( mylfn ) );
-    }else{
+    } else if( !myfid.empty() ) {
+       fids.push_back( myfid );
+    } else {
+       // go through all FIDs in the catalog
        mycatalog->getFIDs( fids );
-    }
+    } 
     for( const auto& fid: fids ) {
        pool::IFileCatalog::Files files;
        mycatalog->getPFNs( fid, files );

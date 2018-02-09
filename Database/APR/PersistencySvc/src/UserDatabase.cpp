@@ -12,11 +12,9 @@
 #include "PersistencySvc/ITransaction.h"
 #include "StorageSvc/DbType.h"
 #include "StorageSvc/pool.h"
-#include "CoralBase/MessageStream.h"
 #include "FileCatalog/IFileCatalog.h"
+#include "POOLCore/DbPrint.h"
 
-#include <iostream>
-using namespace std;
 
 static const std::string& emptyString = "";
 
@@ -156,7 +154,6 @@ pool::PersistencySvc::UserDatabase::connectForWrite( const pool::DatabaseConnect
       switch( m_nameType ) {
       case pool::DatabaseSpecification::PFN:
         m_the_pfn = m_name;
-        cout << "MN:  connect write: " << m_the_pfn  << endl;
         if ( this->fid().empty() ) {
           if( policy.writeModeForNonExisting() == pool::DatabaseConnectionPolicy::RAISE_ERROR ) {
             throw pool::PersistencySvcException( "Could not find the PFN \"" + m_name + "\" in the file catalog",
@@ -171,7 +168,8 @@ pool::PersistencySvc::UserDatabase::connectForWrite( const pool::DatabaseConnect
 	  pool::DbType dbType( m_technology );
 	  pool::DbType dbTypeMajor( dbType.majorType() );
 	  m_catalog.registerPFN( m_the_pfn, dbTypeMajor.storageName(), m_the_fid );
-          cout << "MN:  registered PFN: " << m_the_pfn << " with FID:" << m_the_fid << endl;
+          DbPrint log("PersistencySvc::UserDB::connectForWrite()" );
+          log << DbPrintLvl::Debug << "registered PFN: " << m_the_pfn << " with FID:" << m_the_fid << endmsg;
 	  dbRegistered = true;
 	  accessMode = pool::CREATE;
         }
@@ -293,14 +291,14 @@ pool::PersistencySvc::UserDatabase::fid() const
       if ( m_nameType == pool::DatabaseSpecification::PFN ) {
          std::string technology;
          m_catalog.lookupFileByPFN( m_name, m_the_fid, technology );
-         cout << "MN:  lookup PFN: " << m_the_pfn << " returned FID: '" << m_the_fid << "'"
-              << " tech=" << technology << endl;
+         DbPrint log("PersistencySvc::UserDB::fid()" );
+         log << DbPrintLvl::Debug << "lookupPFN: " << m_name << " returned FID: '" << m_the_fid << "'"
+             << " tech=" << technology << endmsg;
          if ( ! m_the_fid.empty() ) {
             if( technology.empty() ) {
                m_nameType = DatabaseSpecification::LFN;
-               coral::MessageStream log( "PersistencySvc::UserDatabase::fid()" );
-               log << coral::Debug << "Retrying 'connect' using assumed PFN " << m_name
-                   << " as LFN (no tech found in PFC)" << coral::MessageStream::endmsg;
+               log << DbPrintLvl::Debug << "Retrying 'connect' using assumed PFN " << m_name
+                   << " as LFN (no tech found in PFC)" << endmsg;
                return m_the_fid;
             }
             m_the_pfn = m_name;
@@ -310,15 +308,12 @@ pool::PersistencySvc::UserDatabase::fid() const
          else {
            if( m_transaction.type() != pool::ITransaction::UPDATE ) { // Fetch the FID from the db itself !
               if( !m_technologySet ) {
-                 coral::MessageStream log( "PersistencySvc::UserDatabase::fid()" );
-                 log << coral::Debug << "Opening database '" << m_name
-                     << "' with no catalog entry and no technology set - assuming ROOT storage"
-                     << coral::MessageStream::endmsg;
+                 log << DbPrintLvl::Debug << "Opening database '" << m_name
+                     << "' with no catalog entry and no technology set - assuming ROOT storage" << endmsg;
                  m_technology = pool::ROOT_StorageType.type();
                  m_technologySet = true;
               }
               pool::PersistencySvc::MicroSessionManager& sessionManager = m_technologyDispatcher.microSessionManager( m_technology );
-              cout << "MN: creating FID for PFN: " << m_name << endl;
               m_the_fid = sessionManager.fidForPfn( m_name );
               if ( ! m_the_fid.empty() ) {
                  m_the_pfn = m_name;

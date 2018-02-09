@@ -862,6 +862,7 @@ StatusCode PoolSvc::setFrontierCache(const std::string& conn) const {
 //__________________________________________________________________________
 pool::IFileCatalog* PoolSvc::createCatalog() {
    pool::IFileCatalog* ctlg = new pool::IFileCatalog;
+   ctlg->removeCatalog("*");
    for (auto& catalog : m_readCatalog.value()) {
       ATH_MSG_DEBUG("POOL ReadCatalog is " << catalog);
       if (catalog.substr(0, 8) == "apcfile:" || catalog.substr(0, 7) == "prfile:") {

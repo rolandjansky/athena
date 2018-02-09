@@ -12,6 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           GaudiKernel
                           AtlasTest/TestTools
+                          Database/PersistentDataModel
                           )
 
 # Component(s) in the package:
@@ -19,7 +20,8 @@ atlas_add_library( FileCatalog
                    src/*.cpp
                    PUBLIC_HEADERS FileCatalog 
                    INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${CORAL_LIBRARIES} POOLCore GaudiKernel AthenaBaseComps
+                   LINK_LIBRARIES ${CORAL_LIBRARIES} POOLCore
+                   GaudiKernel AthenaBaseComps PersistentDataModel
                    PRIVATE_LINK_LIBRARIES TestTools )
 
 atlas_add_test( URIParser_test
