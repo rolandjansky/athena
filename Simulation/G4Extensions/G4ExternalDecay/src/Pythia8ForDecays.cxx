@@ -139,8 +139,8 @@ void Pythia8ForDecays::fillParticle(const G4Track& aTrack, Pythia8::Event& event
   double mm = aTrack.GetDynamicParticle()->GetMass();
 
   // Store the particle in the event record.
-  event.append( aTrack.GetDefinition()->GetPDGEncoding(), 1, 0, 0, aTrack.GetMomentum().x(), aTrack.GetMomentum().y(), 
-                aTrack.GetMomentum().z(), aTrack.GetDynamicParticle()->GetTotalEnergy(), mm);
+  event.append( aTrack.GetDefinition()->GetPDGEncoding(), 1, 0, 0, aTrack.GetMomentum().x()/CLHEP::GeV, aTrack.GetMomentum().y()/CLHEP::GeV, 
+                aTrack.GetMomentum().z()/CLHEP::GeV, aTrack.GetDynamicParticle()->GetTotalEnergy()/CLHEP::GeV, mm/CLHEP::GeV);
   // Note: this function returns an int, but we don't need or use its output
 }
 
