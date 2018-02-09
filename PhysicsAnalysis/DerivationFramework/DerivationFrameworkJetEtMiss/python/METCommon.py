@@ -106,11 +106,19 @@ def scheduleMETCustomVertex(vxColl,jetcoll='AntiKt4EMTopo',
                AssocConfig('Gamma'),
                AssocConfig('Tau'),
                AssocConfig('Soft')]
+    
+    modConstKey="OriginCorr"
+    modClusColls={
+        'LCOriginCorrClusters':'LCOriginTopoClusters',
+        'EMOriginCorrClusters':'EMOriginTopoClusters'
+        }
+
     cfg = METAssocConfig(jetcoll+vxColl,
-                 associators,
-                 jetcoll=='AntiKt4EMPFlow', # doPFlow
-                 doOriginCorrClus=True
-                 )
+                         associators,
+                         jetcoll=='AntiKt4EMPFlow', # doPFlow
+                         modConstKey=modConstKey,
+                         modClusColls=modClusColls
+                         )
     for assoc in cfg.assoclist:
         assoc.PrimVxColl = vxColl+'PrimaryVertices'
 

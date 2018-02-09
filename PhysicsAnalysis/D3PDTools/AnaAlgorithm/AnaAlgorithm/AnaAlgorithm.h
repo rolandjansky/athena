@@ -16,6 +16,8 @@
 #ifdef ROOTCORE
 #include <AsgTools/AsgMessaging.h>
 #include <AsgTools/SgTEvent.h>
+#include <memory>
+#include <vector>
 #else
 #include <AthenaBaseComps/AthHistogramAlgorithm.h>
 #endif
@@ -296,6 +298,13 @@ namespace EL
     ///   service already configured
   public:
     void setWk (Worker *val_wk);
+
+    /// \brief add an object to release when this algorithm gets
+    /// destructed
+    ///
+    /// This is mostly used to attach private tools to the algorithm.
+  public:
+    void addCleanup (const std::shared_ptr<void>& cleanup);
 #endif
 
 
@@ -348,6 +357,13 @@ namespace EL
     /// \brief the value of \ref wk
   private:
     Worker *m_wk = nullptr;
+#endif
+
+#ifdef ROOTCORE
+    /// \brief a list of objects to clean up when releasing the
+    /// algorithm
+  private:
+    std::vector<std::shared_ptr<void> > m_cleanup;
 #endif
   };
 }

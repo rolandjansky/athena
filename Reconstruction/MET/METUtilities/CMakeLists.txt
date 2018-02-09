@@ -40,7 +40,6 @@ atlas_depends_on_subdirs(
    Event/FourMomUtils
    Event/xAOD/xAODCore
    PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
-   PhysicsAnalysis/MuonID/MuonSelectorTools
    PhysicsAnalysis/TauID/TauAnalysisTools
    Reconstruction/Jet/JetResolution
    PhysicsAnalysis/ElectronPhotonID/ElectronPhotonFourMomentumCorrection
@@ -67,7 +66,7 @@ if( NOT XAOD_STANDALONE )
    atlas_add_component( METUtilities
       src/*.h src/*.cxx src/components/*.cxx
       LINK_LIBRARIES GaudiKernel AthenaBaseComps METInterface xAODEgamma
-      xAODMuon xAODTau xAODMissingET xAODJet MuonSelectorToolsLib JetResolutionLib ElectronPhotonFourMomentumCorrectionLib MuonMomentumCorrectionsLib tauRecToolsLib
+      xAODMuon xAODTau xAODMissingET xAODJet JetResolutionLib ElectronPhotonFourMomentumCorrectionLib MuonMomentumCorrectionsLib tauRecToolsLib
       ElectronPhotonSelectorToolsLib TauAnalysisToolsLib METUtilitiesLib  )
 endif()
 
