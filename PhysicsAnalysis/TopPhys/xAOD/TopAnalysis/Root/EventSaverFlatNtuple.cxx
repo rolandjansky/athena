@@ -1918,7 +1918,7 @@ namespace top {
                 if (btag) btag->MVx_discriminant("MV2c20", mvx);
                 m_tjet_mv2c20[i] = mvx;
                 for( auto& tagWP : m_config -> bTagWP_available_trkJet()){
-                  if (tagWP.find("Continuous" == std::string::npos) {
+                  if (tagWP.find("Continuous") == std::string::npos) {
                     m_tjet_isbtagged[tagWP][i] = false;
                     if(jetPtr->isAvailable<char>("isbtagged_"+tagWP))
                       m_tjet_isbtagged[tagWP][i] = jetPtr->auxdataConst<char>("isbtagged_"+tagWP);

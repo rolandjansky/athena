@@ -42,8 +42,10 @@ StatusCode FlavorTaggingCPTools::initialize() {
   }
 
   m_tagger          = ""; // Extract in the loop
-  m_cdi_file        = "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2017-12-22_v1.root";
-  m_efficiency_maps = "410501"; //"410000;410004;410500;410187;410021"; // Not sure what is available yet
+  m_cdi_file        = "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-02-09_v1.root";
+  // This ordering needs to match the indexing in TDP (for missing cases, we use default which gives a MC/MC of 1 as its the same as the eff used in the calibration
+  // Pythia6;Herwigpp;Pythia8;Sherpa(2.2);Sherpa(2.1)
+  m_efficiency_maps = "default;364443;410501;410250;default";
 
   m_calo_WPs_calib = {"FixedCutBEff_60",
 		      "FixedCutBEff_70",
@@ -52,7 +54,8 @@ StatusCode FlavorTaggingCPTools::initialize() {
 		      "HybBEff_60",
 		      "HybBEff_70",
 		      "HybBEff_77",
-		      "HybBEff_85"};
+		      "HybBEff_85",
+		      "Continuous"};
 
   // All WPs are calibrated ones
   m_calo_WPs       = m_calo_WPs_calib;
@@ -191,8 +194,16 @@ StatusCode FlavorTaggingCPTools::initialize() {
         top::check(btageff->setProperty("ScaleFactorLightCalibration", m_config->bTaggingCalibration_Light()),
                   "Failed to set b-tagging calibration (Light): "+m_config->bTaggingCalibration_Light());
         for (auto jet_flav : m_jet_flavors) {
-          top::check(btageff->setProperty("Efficiency"+jet_flav+"Calibrations", m_efficiency_maps),
-                    "Failed to set "+jet_flav+"-calibrations efficiency maps");
+	  // 09/02/18 IC: The pseudo-continuous does not have MC/MC SF so we need to only apply default for this case
+	  if( btagWP == "Continuous"){
+	    ATH_MSG_INFO("Tool is not configuring MC/MC scale-factors for pseudo-continuous as not currently available");
+	    top::check(btageff->setProperty("Efficiency"+jet_flav+"Calibrations", "default"),
+                       "Failed to set "+jet_flav+"-calibrations efficiency maps");
+	  }
+	  else{
+	    top::check(btageff->setProperty("Efficiency"+jet_flav+"Calibrations", m_efficiency_maps),
+		       "Failed to set "+jet_flav+"-calibrations efficiency maps");
+	  }
         }
 	top::check(btageff->setProperty("ExcludeFromEigenVectorTreatment", excludedSysts),
 		   "Failed to set b-tagging systematics to exclude from EV treatment");
@@ -280,8 +291,15 @@ StatusCode FlavorTaggingCPTools::initialize() {
           top::check(btageff->setProperty("ScaleFactorLightCalibration", m_config->bTaggingCalibration_Light()),
                     "Failed to set b-tagging calibration (Light): "+m_config->bTaggingCalibration_Light());
           for (auto jet_flav : m_jet_flavors) {
-            top::check(btageff->setProperty("Efficiency"+jet_flav+"Calibrations", m_efficiency_maps),
-                      "Failed to set "+jet_flav+"-calibrations efficiency maps");
+	    if( btagWP =="Continuous"){
+	      ATH_MSG_INFO("Tool is not configuring MC/MC scale-factors for pseudo-continuous as not currently available");
+	      top::check(btageff->setProperty("Efficiency"+jet_flav+"Calibrations", "default"),
+			 "Failed to set "+jet_flav+"-calibrations efficiency maps");
+	    }
+	    else{
+	      top::check(btageff->setProperty("Efficiency"+jet_flav+"Calibrations", m_efficiency_maps),
+			 "Failed to set "+jet_flav+"-calibrations efficiency maps");
+	    }
           }
 	  top::check(btageff->setProperty("ExcludeFromEigenVectorTreatment", excludedSysts),
 		     "Failed to set b-tagging systematics to exclude from EV treatment");

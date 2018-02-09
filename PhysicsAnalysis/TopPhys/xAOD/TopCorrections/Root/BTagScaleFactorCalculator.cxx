@@ -194,7 +194,7 @@ namespace top{
                 top::check( btageff->applySystematicVariation(syst_set),
                             "Failed to set new b-tagging systematic variation "+syst_set.name() );
                 if (std::fabs(jetPtr->eta()) <= 2.5 ) {
-                  if (tagWP.find("Continuous" == std::string::npos) {
+                  if (tagWP.find("Continuous") == std::string::npos) {
                     if (isTagged)
                       top::check( btageff->getScaleFactor(*jetPtr, btag_SF),
                                   "Failed to get b-tagging SF for variation "+syst_set.name() );
