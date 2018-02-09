@@ -61,7 +61,7 @@ namespace EL
   {
     ANA_CHECK_SET_TYPE (EL::StatusCode);
     RCU_READ_INVARIANT (this);
-    ANA_CHECK (m_config.makeAlgorithm (m_algorithm, m_cleanup));
+    ANA_CHECK (m_config.makeAlgorithm (m_algorithm));
     m_algorithm->setHistogramWorker (wk ());
     m_algorithm->setFilterWorker (wk ());
     m_algorithm->setWk (wk ());
