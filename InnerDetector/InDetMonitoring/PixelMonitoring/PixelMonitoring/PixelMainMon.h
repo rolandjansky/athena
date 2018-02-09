@@ -490,7 +490,7 @@ class PixelMainMon : public ManagedMonitorToolBase {
   // Histograms in 'ErrorsExpert' folder
   std::unique_ptr<PixelMon2DMapsLW> m_errhist_expert_maps[kNumErrorStates + kNumErrorStatesIBL];
   TProfile_LW* m_errhist_expert_LB[PixLayer::COUNT - 1][kNumErrorStates];
-  TProfile_LW* m_errhist_expert_IBL_LB[kNumErrorStatesIBL];
+  TProfile_LW* m_errhist_expert_DBMIBL_LB[kNumErrorStatesIBL];
   TH3F* m_errhist_expert_fe_trunc_err_3d[PixLayer::COUNT];
   TH1F_LW* m_errhist_expert_servrec_ibl_unweighted;
   TH1F_LW* m_errhist_expert_servrec_ibl_weighted;
