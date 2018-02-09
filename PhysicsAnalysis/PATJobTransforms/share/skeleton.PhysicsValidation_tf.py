@@ -50,15 +50,6 @@ else:
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
-# Only for now due to xAOD issues?
-topSequence += monMan
-
-from AthenaCommon.AppMgr import ServiceMgr
-from GaudiSvc.GaudiSvcConf import THistSvc
-ServiceMgr += THistSvc()
-svcMgr.THistSvc.Output += ["PhysVal DATAFILE='" + runArgs.outputNTUP_PHYSVALFile + "' OPT='RECREATE'"]
-monMan.FileKey = "PhysVal" 
-
 # Validation dictionary with default run setting:
 validationDict = {
                   'Btag': False,
@@ -105,6 +96,15 @@ from PhysValMonitoring.PhysValUtils import addPhysValAODContent
 addPhysValAODContent(topSequence,
                      doJets=validationDict['Jet'],
                      doTopoCluster=validationDict['TopoCluster'])
+
+# Only for now due to xAOD issues?
+topSequence += monMan
+
+from AthenaCommon.AppMgr import ServiceMgr
+from GaudiSvc.GaudiSvcConf import THistSvc
+ServiceMgr += THistSvc()
+svcMgr.THistSvc.Output += ["PhysVal DATAFILE='" + runArgs.outputNTUP_PHYSVALFile + "' OPT='RECREATE'"]
+monMan.FileKey = "PhysVal" 
 
 # Schedule individual validations
 from PyJobTransforms.trfUtils import findFile
