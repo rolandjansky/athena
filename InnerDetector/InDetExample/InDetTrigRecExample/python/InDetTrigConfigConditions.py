@@ -274,14 +274,11 @@ class SCT_ConditionsServicesSetup:
 
   def initSummarySvc(self, instanceName):
     "Init summary conditions servic"
-        
-    if hasattr(self.svcMgr,instanceName):
-      summarySvc = getattr(self.svcMgr, instanceName); 
-    else:
-      from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConditionsSummarySvc
-      summarySvc = SCT_ConditionsSummarySvc(name = instanceName)
-      self.svcMgr += summarySvc
-      if self._print:  print summarySvc
+    from SCT_ConditionsServices.SCT_ConditionsSummarySvcSetup import sct_ConditionsSummarySvcSetup
+    sct_ConditionsSummarySvcSetup.setSvcName(instanceName)
+    sct_ConditionsSummarySvcSetup.setup()
+    summarySvc = sct_ConditionsSummarySvcSetup.getSvc()
+    if self._print:  print summarySvc
     return summarySvc
 
   def initFlaggedSvc(self, instanceName):

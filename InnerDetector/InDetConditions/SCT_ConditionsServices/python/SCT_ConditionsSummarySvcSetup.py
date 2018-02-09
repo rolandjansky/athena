@@ -4,7 +4,7 @@ class SCT_ConditionsSummarySvcSetup:
     "Class to simplify setup of SCT_ConditionsSummarySvc and required conditions algorithms"
 
     def __init__(self):
-        self.svcName = "SCT_ConditionsSummarySvc"
+        self.svcName = "InDetSCT_ConditionsSummarySvc"
         self.svc = None
 
     def setSvc(self):
@@ -16,6 +16,12 @@ class SCT_ConditionsSummarySvcSetup:
 
     def getSvc(self):
         return self.svc
+
+    def getSvcName(self):
+        return self.svcName
+
+    def setSvcName(self, svcName):
+        self.svcName = svcName
 
     def setup(self):
         self.setSvc()

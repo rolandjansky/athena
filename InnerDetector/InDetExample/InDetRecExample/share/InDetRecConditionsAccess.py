@@ -178,9 +178,9 @@ if DetFlags.haveRIO.pixel_on():
 if DetFlags.haveRIO.SCT_on():
 
     # Load conditions summary service
-    from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConditionsSummarySvc
-    InDetSCT_ConditionsSummarySvc = SCT_ConditionsSummarySvc(name = "InDetSCT_ConditionsSummarySvc")
-    ServiceMgr += InDetSCT_ConditionsSummarySvc
+    from SCT_ConditionsServices.SCT_ConditionsSummarySvcSetup import sct_ConditionsSummarySvcSetup
+    sct_ConditionsSummarySvcSetup.setup()
+    InDetSCT_ConditionsSummarySvc = sct_ConditionsSummarySvcSetup.getSvc()
     if (InDetFlags.doPrintConfigurables()):
         print InDetSCT_ConditionsSummarySvc
     
