@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef Jet_Manager_H
@@ -62,7 +62,7 @@ namespace Trig {
     StatusCode retrieveByContainer(ServiceHandle<StoreGateSvc>&);
 #endif
 
-    std::vector< struct TrigBtagEmulationJet >& getJets();
+    std::vector< TrigBtagEmulationJet* >& getJets();
 
     StatusCode retagCopy(bool useNavigation=false,bool tagOffline=false,bool tagOnline=false);
     StatusCode retagOffline();
@@ -100,7 +100,7 @@ namespace Trig {
     std::vector<const xAOD::TrackParticleContainer*> m_trackParticle_Containers;
     std::vector<const xAOD::BTagging*> m_btagging_Containers;
 
-    std::vector<TrigBtagEmulationJet> m_outputJets;
+    std::vector< TrigBtagEmulationJet* > m_outputJets;
 
   private:
     ToolHandle<Trig::TrigDecisionTool> m_trigDec;
