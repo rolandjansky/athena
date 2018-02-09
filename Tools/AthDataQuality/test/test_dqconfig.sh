@@ -36,7 +36,7 @@ run_test_display()
 run_test()
 {
 
-    hcfg_dir=$(python /eos/atlas/atlascerngroupdisk/data-art/grid-input/AthDataQuality/hcfg_path.py)
+    hcfg_dir=$(python ../python/hcfg_path.py)
     if [[ $hcfg_dir == "" ]]; then
 	echo hcfg path not found
 	echo Tests failed
