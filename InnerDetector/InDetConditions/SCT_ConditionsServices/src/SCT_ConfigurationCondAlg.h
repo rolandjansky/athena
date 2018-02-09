@@ -40,12 +40,11 @@ class SCT_ConfigurationCondAlg : public AthAlgorithm
   /** enum for constants*/
   enum {badLink=255, stripsPerChip=128, lastStrip=767};
 
-  StatusCode fillChannelData();
-  StatusCode fillModuleData();
-  StatusCode fillLinkStatus();
+  StatusCode fillChannelData(SCT_ConfigurationCondData* writeCdo);
+  StatusCode fillModuleData(SCT_ConfigurationCondData* writeCdo);
+  StatusCode fillLinkStatus(SCT_ConfigurationCondData* writeCdo);
   Identifier getStripId(const unsigned int truncatedSerialNumber, const unsigned int chipNumber, const unsigned int stripNumber) const;
 
-  SCT_ConfigurationCondData* m_writeCdo;
   EventIDRange m_rangeChannel;
   EventIDRange m_rangeModule;
   EventIDRange m_rangeMur;

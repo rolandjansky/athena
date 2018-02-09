@@ -4,6 +4,10 @@
 
 #include "SCT_ReadCalibDataCondAlg.h"
 
+// Include STL stuff
+#include <limits>
+#include <memory>
+
 #include "GaudiKernel/EventIDRange.h"
 
 #include "Identifier/IdentifierHash.h"
@@ -11,9 +15,6 @@
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "SCT_ConditionsServices/SCT_ConditionsParameters.h"
-
-// Include STL stuff
-#include <limits>
 
 // Include boost stuff
 #include "boost/lexical_cast.hpp"
@@ -215,13 +216,13 @@ StatusCode SCT_ReadCalibDataCondAlg::execute() {
   }
   
   // Construct the output Cond Object and fill it in
-  SCT_CalibDefectData* writeCdoData[NFEATURES]{nullptr, nullptr};
+  std::unique_ptr<SCT_CalibDefectData> writeCdoData[NFEATURES]{nullptr, nullptr};
   if (not m_recoOnly) {
     for (unsigned int i{GAIN}; i<NFEATURES; i++) {
-      writeCdoData[i] = new SCT_CalibDefectData();
+      writeCdoData[i] = std::make_unique<SCT_CalibDefectData>();
     }
   }
-  SCT_AllGoodStripInfo* writeCdoInfo{new SCT_AllGoodStripInfo()};
+  std::unique_ptr<SCT_AllGoodStripInfo> writeCdoInfo{std::make_unique<SCT_AllGoodStripInfo>()};
   // Initialize arrays and all strips to True
   for (int w{0}; w!=NUMBER_OF_WAFERS; ++w) {
     for (int s{0}; s!=STRIPS_PER_WAFER; ++s) {
@@ -353,7 +354,7 @@ StatusCode SCT_ReadCalibDataCondAlg::execute() {
   }
 
   //  Record the output cond objects
-  if (writeHandleInfo.record(rangeW, writeCdoInfo).isFailure()) {
+  if (writeHandleInfo.record(rangeW, std::move(writeCdoInfo)).isFailure()) {
     ATH_MSG_FATAL("Could not record SCT_AllGoodStripInfo " << writeHandleInfo.key() 
                   << " with EventRange " << rangeW << " into Conditions Store");
     return StatusCode::FAILURE;
@@ -362,7 +363,7 @@ StatusCode SCT_ReadCalibDataCondAlg::execute() {
   ATH_MSG_INFO("recorded new CDO " << writeHandleInfo.key() << " with range " << rangeW << " into Conditions Store");
   if (not m_recoOnly) {
     for (unsigned int i{GAIN}; i<NFEATURES; i++) {
-      if (writeHandleData[i].record(rangeW, writeCdoData[i]).isFailure()) {
+      if (writeHandleData[i].record(rangeW, std::move(writeCdoData[i])).isFailure()) {
         ATH_MSG_FATAL("Could not record SCT_CalibDefectData " << writeHandleData[i].key() 
                       << " with EventRange " << rangeW << " into Conditions Store");
         return StatusCode::FAILURE;
