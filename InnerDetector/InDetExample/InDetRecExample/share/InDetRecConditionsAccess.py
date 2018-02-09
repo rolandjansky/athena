@@ -255,9 +255,10 @@ if DetFlags.haveRIO.SCT_on():
             print InDetSCT_MonitorConditionsSvc
 
     if InDetFlags.doSCTModuleVeto():
-        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ModuleVetoSvc
-        InDetSCT_ModuleVetoSvc = SCT_ModuleVetoSvc(name = "InDetSCT_ModuleVetoSvc")
-        ServiceMgr += InDetSCT_ModuleVetoSvc
+        from SCT_ConditionsServices.SCT_ModuleVetoSvcSetup import sct_ModuleVetoSvcSetup
+        sct_ModuleVetoSvcSetup.setSvcName("InDetSCT_ModuleVetoSvc")
+        sct_ModuleVetoSvcSetup.setup()
+        InDetSCT_ModuleVetoSvc = sct_ModuleVetoSvcSetup.getSvc()
         if (InDetFlags.doPrintConfigurables()):
             print InDetSCT_ModuleVetoSvc
 

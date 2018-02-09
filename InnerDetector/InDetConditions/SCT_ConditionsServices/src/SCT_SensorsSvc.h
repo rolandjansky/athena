@@ -37,7 +37,7 @@ class ISvcLocator;
 class StatusCode;
 
 /**
- * @class SCT_ModuleVetoSvc
+ * @class SCT_SensorsSvc
  * Service allowing one to manually get Vdep, crystal orientation and Mfr for a sensor(s)
  **/
 class SCT_SensorsSvc: virtual public ISCT_SensorsSvc, virtual public AthService {

@@ -73,6 +73,9 @@ class SCT_ModuleVetoSvcSetup:
     def getSvcName(self):
         return self.svcName
 
+    def setSvcName(self, svcName):
+        self.svcName = svcName
+
     def getUseDB(self):
         return self.useDB
 
