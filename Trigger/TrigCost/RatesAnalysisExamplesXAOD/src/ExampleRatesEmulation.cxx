@@ -10,7 +10,12 @@
 #include "xAODMuon/Muon.h"
 #include "xAODTau/TauJet.h"
 #include "xAODEgamma/Photon.h"
-
+#include "xAODTau/TauJetContainer.h"
+#include "xAODTau/TauJetAuxContainer.h"
+#include "xAODMuon/MuonContainer.h"
+#include "xAODMuon/MuonAuxContainer.h"
+#include "xAODEgamma/PhotonContainer.h"
+#include "xAODEgamma/PhotonAuxContainer.h"
 
 ExampleRatesEmulation::ExampleRatesEmulation( const std::string& name, ISvcLocator* pSvcLocator ) : RatesAnalysisAlg(name, pSvcLocator) {
   declareProperty( "TargetLuminosity", m_lumi = 1e34);
