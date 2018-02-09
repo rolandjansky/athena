@@ -212,11 +212,12 @@ int Root::TElectronEfficiencyCorrectionTool::initialize() {
     return sc;
 }
 
-const std::vector<double>
+int 
 Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataType::DataType dataType,
         const unsigned int runnumber,
         const double cluster_eta,
         const double et, /* in MeV */
+        std::vector<double>& result,
         size_t& index_of_corr,
         size_t& index_of_toys) const {
 
@@ -230,9 +231,7 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
      * The starting index of the sys is Position::End 
      * The starting point of the toys is Position::End+m_nSysMax
      */
-    std::vector<double> result(
-            (static_cast<size_t> (Position::End)+m_nSysMax+m_nToyMC),0
-            );
+    result.resize(static_cast<size_t> (Position::End)+m_nSysMax+m_nToyMC);
     //Set up the non-0 defaults
     result[static_cast<size_t> (Position::SF)]=-999;
     result[static_cast<size_t> (Position::Total)]=1;
@@ -273,7 +272,7 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
         ATH_MSG_DEBUG("(file: " << __FILE__ << ", line: " << __LINE__ << ") "<<
                 "No valid run number period  found for the current run number: " 
                 << runnumber <<" for simulation type: " << dataType); 
-        return result;
+        return 0;
     }
     /* What we have is a map key:std::vector<TObjArray> 
      * Key: sf,stat,eigen, uncorr
@@ -289,7 +288,7 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
         ATH_MSG_DEBUG("(file: " << __FILE__ << ", line: " << __LINE__ << ") "<<
                 "No valid vector of sf ObjArray found for the current run number " 
                 << runnumber<<" for simulation type: " << dataType);  
-        return result;
+        return 0;
     }
     //Get a reference (synonym) to this vector 
     const std::vector<TObjArray>& currentVector=currentVector_itr->second;
@@ -297,7 +296,7 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
         ATH_MSG_DEBUG("(file: " << __FILE__ << ", line: " << __LINE__ << ") "<<
                 "No valid  sf ObjArray found for the current run number " 
                 << runnumber<<" for simulation type: " << dataType);  
-        return result;
+        return 0;
     }
     /* 
      * At this stage we have found the relevant TobjArray
@@ -355,12 +354,12 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
     if (smallEt == entries) {
         ATH_MSG_DEBUG("(file: " << __FILE__ << ", line: " << __LINE__ << ") "<<
                 "No correction factor provided for et " << xValue);  
-        return result;
+        return 0;
     }
     if (etaCov == entries) {
         ATH_MSG_DEBUG("(file: " << __FILE__ << ", line: " << __LINE__ << ") "<<
                 "No correction factor provided for eta " << yValue);  
-        return result;
+        return 0;
     }
     if (nSF > 1) {
         ATH_MSG_WARNING("More than 1 SF found for eta=" << yValue << " , et = " 
@@ -374,7 +373,7 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
     else {
         ATH_MSG_DEBUG("(file: " << __FILE__ << ", line: " << __LINE__ << ") "<<
                 "No correction factor provided because of an invalid index" << yValue);
-        return result;
+        return 0;
     }
     // If SF is only given in Abs(eta) convert eta input to std::abs()
     constexpr double epsilon = 1e-6;
@@ -484,7 +483,7 @@ Root::TElectronEfficiencyCorrectionTool::calculate(const PATCore::ParticleDataTy
         }
     }
     result[static_cast<size_t> (Position::GlobalBinNumber)]=globalBinNumber;
-    return result;
+    return 1;
 }
 
 /*

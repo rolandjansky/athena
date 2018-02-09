@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -54,10 +54,12 @@ const Root::TResult& Root::TPhotonEfficiencyCorrectionTool::calculate( const PAT
                                   ){
 
     size_t CorrIndex{0},MCToysIndex{0} ;// The Photons for now do not break down those
-    const std::vector<double> result=Root::TElectronEfficiencyCorrectionTool::calculate(dataType,
+    std::vector<double> result;
+    Root::TElectronEfficiencyCorrectionTool::calculate(dataType,
             runnumber,
             cluster_eta,
             et, /* in MeV */
+            result,
             CorrIndex,
             MCToysIndex
             );
