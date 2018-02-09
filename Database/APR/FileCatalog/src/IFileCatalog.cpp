@@ -7,6 +7,7 @@
 #include "GaudiKernel/SmartIF.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
+#include "GaudiKernel/IMessageSvc.h"
 
 #include <algorithm>
 #include "POOLCore/SystemTools.h"
@@ -15,11 +16,8 @@
 #include "FileCatalog/IFileCatalog.h"
 
 #include "AthenaBaseComps/AthMessaging.h"
+#include "PersistentDataModel/Guid.h"
 
-#include "GaudiKernel/IMessageSvc.h"
-#include "GaudiKernel/Service.h"
-
-#include <iostream>
 
 using namespace pool;
 
@@ -34,7 +32,16 @@ pool::IFileCatalog::IFileCatalog()
    Gaudi::svcLocator()->service<IMessageSvc>("MessageSvc")
       ->setOutputLevel("XMLCatalog", SystemTools::GetOutputLvl() );
 }
-     
+
+
+std::string pool::IFileCatalog::
+createFID() const
+{
+   Guid myuid;
+   Guid::create(myuid);
+   return myuid.toString();
+}
+
 
 void pool::IFileCatalog::
 getFirstPFN( const std::string& fid, std::string& pfn, std::string& tech ) const
@@ -75,8 +82,9 @@ registerPFN( const std::string& pfn, const std::string& ftype, std::string& fid 
    if( existsPFN(pfn) ) {
       throw pool::Exception(std::string("PFN '") + pfn + "' already registered", "registerPFN", "FileCatalog");
    }
-//   std::cout << "msg() level" << msg().level() << std::endl;
+   std::cout << "registerPFN: " << pfn << " GUID=" << fid << std::endl;
    if( fid.empty() ) fid = createFID();
+   std::cout << "registerPFN: " << pfn << " GUID=" << fid << std::endl;
    ATH_MSG_DEBUG("Registering PFN=" << pfn << " of type=" << ftype << " GUID=" << fid);
    _fc->registerPFN(fid, pfn, ftype);
 }

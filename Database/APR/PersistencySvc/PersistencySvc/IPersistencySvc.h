@@ -19,8 +19,8 @@ class Token;
 */
 namespace pool {
 
-   class ISession;
    class IFileCatalog;
+   class ISession;
 
    /** @class IPersistencySvc IPersistencySvc.h PersistencySvc/IPersistencySvc.h
    * 

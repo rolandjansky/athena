@@ -16,7 +16,7 @@ namespace pool {
   class ITransaction;
   class IDatabase;
   class ITechnologySpecificAttributes;
-  class IFileCatalog; 
+  class IFileCatalog;
 
   /** @class ISession ISession.h PersistencySvc/ISession.h
    *
