@@ -414,33 +414,20 @@ InDetFlags.useDCS = UseDCS #True if run HVTrip search
 include( "InDetRecExample/InDetRecConditionsAccess.py" )
 
 #--- for MajorityConditionsSvc
+from  SCT_ConditionsServices.SCT_MajorityConditionsSvcSetup import sct_MajorityConditionsSvcSetup
 # use new CONDBR2?, A.N., 2014-11-30
 # add access to both folders, since we don't know beforehand which DB we'll be used? A.G, 2014-12-03
 year=int(projectName[4:6])
 if (year > 13):
-    conddb.addFolder('',"<db>COOLOFL_DCS/CONDBR2</db> /SCT/DCS/MAJ", className="CondAttrListCollection")
+    sct_MajorityConditionsSvcSetup.setFolderDb("<db>COOLOFL_DCS/CONDBR2</db> /SCT/DCS/MAJ")
 else:
-    conddb.addFolder('',"<db>COOLOFL_DCS/COMP200</db> /SCT/DCS/MAJ", className="CondAttrListCollection")
-
-#--- For Conditions algorithm for Athena MT (start)
-from IOVSvc.IOVSvcConf import CondSvc
-ServiceMgr += CondSvc()
-#from AthenaCommon.AlgSequence import AthSequencer
-#condSeq = AthSequencer("AthCondSeq")
-#from IOVSvc.IOVSvcConf import CondInputLoader
-#condSeq += CondInputLoader("CondInputLoader")
-import StoreGate.StoreGateConf as StoreGateConf
-ServiceMgr += StoreGateConf.StoreGateSvc("ConditionStore")
-from  SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_MajorityCondAlg
-condSeq += SCT_MajorityCondAlg("SCT_MajorityCondAlg")
-#--- For Conditions algorithm for Athena MT (end)
-
-
-from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_MajorityConditionsSvc
-InDetSCT_MajorityConditionsSvc = SCT_MajorityConditionsSvc( name = "InDetSCT_MajorityConditionsSvc" )
+    sct_MajorityConditionsSvcSetup.setFolderDb("<db>COOLOFL_DCS/COMP200</db> /SCT/DCS/MAJ")
+sct_MajorityConditionsSvcSetup.setFolder("/SCT/DCS/MAJ")
+sct_MajorityConditionsSvcSetup.setSvcName("InDetSCT_MajorityConditionsSvc")
+sct_MajorityConditionsSvcSetup.setup()
+InDetSCT_MajorityConditionsSvc = sct_MajorityConditionsSvcSetup.getSvc()
 InDetSCT_MajorityConditionsSvc.UseOverall       = True
 InDetSCT_MajorityConditionsSvc.MajorityFraction = 0.9
-ServiceMgr += InDetSCT_ConfigurationConditionsSvc
 if ( InDetFlags.doPrintConfigurables() ):
     print InDetSCT_MajorityConditionsSvc
 

@@ -59,6 +59,12 @@ class SCT_MajorityConditionsSvcSetup:
     def getSvc(self):
         return self.svc
 
+    def getSvcName(self):
+        return self.svcName
+
+    def setSvcName(self, svcName):
+        self.svcName = svcName
+
     def setup(self):
         self.setFolders()
         self.setAlgs()
