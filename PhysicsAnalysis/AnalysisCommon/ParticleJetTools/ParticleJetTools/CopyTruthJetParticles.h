@@ -27,6 +27,10 @@ public:
   /// Constructor
   CopyTruthJetParticles(const std::string& name);
 
+  /// Function initialising the tool
+  virtual StatusCode initialize();
+
+
   /// redefine execute so we can call our own classify() with the barcode offset for the current event.
   virtual int execute() const;
 
