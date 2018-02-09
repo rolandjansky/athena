@@ -407,7 +407,7 @@ class SCT_ConditionsServicesSetup:
     sct_SiliconConditionsSvcSetup.setDcsSvc(self.dcsSvc)
     sct_SiliconConditionsSvcSetup.setSvcName("InDetSCT_SiliconConditionsSvc")
     sct_SiliconConditionsSvcSetup.setup()
-    sctSiliconConditionsSvc = ct_SiliconConditionsSvcSetup.getSvc()
+    sctSiliconConditionsSvc = sct_SiliconConditionsSvcSetup.getSvc()
     sctSiliconConditionsSvc.CheckGeoModel = False
     sctSiliconConditionsSvc.ForceUseGeoModel = False
     #sctSiliconConditionsSvc.OutputLevel=1

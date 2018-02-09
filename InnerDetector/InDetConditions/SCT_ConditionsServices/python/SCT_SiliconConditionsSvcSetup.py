@@ -32,6 +32,9 @@ class SCT_SiliconConditionsSvcSetup:
     def getSvcName(self):
         return self.svcName
 
+    def setSvcName(self, svcName):
+        self.svcName = svcName
+
     def getSvc(self):
         return self.svc
 
@@ -50,7 +53,7 @@ class SCT_SiliconConditionsSvcSetup:
             if self.dcsSvc is None:
                 condSeq += SCT_SiliconHVCondAlg(name = self.hvAlgName)
             else:
-                condSeq += SCT_SiliconHVCondAlg(name = "SCT_SiliconHVCondAlg",
+                condSeq += SCT_SiliconHVCondAlg(name = self.hvAlgName,
                                                 UseState = self.dcsSvc.ReadAllDBFolders,
                                                 DCSConditionsSvc = self.dcsSvc)
         self.hvAlg = getattr(condSeq, self.hvAlgName)
@@ -60,7 +63,7 @@ class SCT_SiliconConditionsSvcSetup:
             if self.dcsSvc is None:
                 condSeq += SCT_SiliconTempCondAlg(name = self.tempAlgName)
             else:
-                condSeq += SCT_SiliconTempCondAlg(name = "SCT_SiliconTempCondAlg",
+                condSeq += SCT_SiliconTempCondAlg(name = self.tempAlgName,
                                                   UseState = self.dcsSvc.ReadAllDBFolders,
                                                   DCSConditionsSvc = self.dcsSvc)
         self.tempAlg = getattr(condSeq, self.tempAlgName)

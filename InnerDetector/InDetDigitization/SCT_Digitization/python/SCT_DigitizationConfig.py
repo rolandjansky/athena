@@ -34,34 +34,22 @@ def getSCT_Amp(name="SCT_Amp", **kwargs):
 ######################################################################################
 def getSCT_SurfaceChargesGenerator(name="SCT_SurfaceChargesGenerator", **kwargs):
     ## Set up services used by SCT_SurfaceChargesGenerator
-    # Setup SCT_DCSConditiosnSvc
+    # Set up SCT_DCSConditiosnSvc
     from SCT_ConditionsServices.SCT_DCSConditionsSvcSetup import SCT_DCSConditionsSvcSetup
     sct_DCSConditionsSvcSetup = SCT_DCSConditionsSvcSetup()
     sct_DCSConditionsSvcSetup.setup()
-    # Setup SCT_SiliconConditionsSvcS
+    # Set up SCT_SiliconConditionsSvc
     from SCT_ConditionsServices.SCT_SiliconConditionsSvcSetup import SCT_SiliconConditionsSvcSetup
     sct_SiliconConditionsSvcSetup = SCT_SiliconConditionsSvcSetup()
+    sct_SiliconConditionsSvcSetup.setDcsSvc(sct_DCSConditionsSvcSetup.getSvc())
     sct_SiliconConditionsSvcSetup.setup()
-    # For SCT_SiPropertiesSvc
-    from AthenaCommon.AlgSequence import AthSequencer
-    condSeq = AthSequencer("AthCondSeq")
-    if not hasattr(condSeq, "SCTSiPropertiesCondAlg"):
-        from SiPropertiesSvc.SiPropertiesSvcConf import SCTSiPropertiesCondAlg
-        condSeq += SCTSiPropertiesCondAlg(name = "SCTSiPropertiesCondAlg")
-    ## SCT_SiPropertiesSvc - used by SCT_SurfaceChargesGenerator
-    from AthenaCommon.AppMgr import ServiceMgr
-    if not hasattr(ServiceMgr, "SCT_SiPropertiesSvc"):
-        # Lorentz Angle Service
-        from SiLorentzAngleSvc.LorentzAngleSvcSetup import lorentzAngleSvc
-        # Silicon conditions service (set up by LorentzAngleSvcSetup)
-        sctSiliconConditionsSvc = ServiceMgr.SCT_SiliconConditionsSvc        
-        # Silicon properties service
-        from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesCHSvc;
-        sctSiPropertiesSvc = SiPropertiesCHSvc(name = "SCT_SiPropertiesSvc",
-                                               DetectorName = "SCT",
-                                               ReadKey = "SCTSiliconPropertiesVector")
-        ServiceMgr += sctSiPropertiesSvc
+    # Set up SCT_SiPropertiesSvc
+    from SiPropertiesSvc.SCT_SiPropertiesSvcSetup import SCT_SiPropertiesSvcSetup
+    sct_SiPropertiesSvcSetup = SCT_SiPropertiesSvcSetup()
+    sct_SiPropertiesSvcSetup.setSiliconSvc(sct_SiliconConditionsSvcSetup.getSvc())
+    sct_SiPropertiesSvcSetup.setup()
     ## Charge trapping service - used by SCT_SurfaceChargesGenerator
+    from AthenaCommon.AppMgr import ServiceMgr
     if not hasattr(ServiceMgr, "InDetSCT_RadDamageSummarySvc"):
         from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_RadDamageSummarySvc
         InDetSCT_RadDamageSummarySvc = SCT_RadDamageSummarySvc(name = "InDetSCT_RadDamageSummarySvc")

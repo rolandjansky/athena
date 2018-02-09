@@ -34,3 +34,5 @@ atlas_add_component( SiPropertiesSvc
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                      LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel InDetReadoutGeometry SCT_ConditionsData StoreGateLib SGtests Identifier InDetIdentifier SiPropertiesSvcLib )
 
+# Install files from the package:
+atlas_install_python_modules( python/*.py )
