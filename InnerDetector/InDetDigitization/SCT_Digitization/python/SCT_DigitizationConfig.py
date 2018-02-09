@@ -161,29 +161,12 @@ def getSCT_FrontEnd(name="SCT_FrontEnd", **kwargs):
         kwargs.setdefault("NoiseOn", True)
     # Use Calibration data from Conditions DB, still for testing purposes only
     kwargs.setdefault("UseCalibData", True)
+
     # Setup the ReadCalibChip folders and Svc
-    from IOVDbSvc.CondDB import conddb
-    from AthenaCommon.AlgSequence import AthSequencer
-    condSeq = AthSequencer("AthCondSeq")
-    sctGainFolder = "/SCT/DAQ/Calibration/ChipGain"
-    sctGainCondAlg = "SCT_ReadCalibChipGainCondAlg"
-    if not conddb.folderRequested(sctGainFolder):
-        conddb.addFolderSplitMC("SCT", sctGainFolder, sctGainFolder, className="CondAttrListCollection")
-    if not hasattr(condSeq, sctGainCondAlg):
-        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibChipGainCondAlg
-        condSeq += SCT_ReadCalibChipGainCondAlg(name=sctGainCondAlg, ReadKey=sctGainFolder)
-    sctNoiseFolder = "/SCT/DAQ/Calibration/ChipNoise"
-    sctNoiseCondAlg = "SCT_ReadCalibChipNoiseCondAlg"
-    if not conddb.folderRequested(sctNoiseFolder):
-        conddb.addFolderSplitMC("SCT", sctNoiseFolder, sctNoiseFolder, className="CondAttrListCollection")
-    if not hasattr(condSeq, sctNoiseCondAlg):
-        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibChipNoiseCondAlg
-        condSeq += SCT_ReadCalibChipNoiseCondAlg(name=sctNoiseCondAlg, ReadKey=sctNoiseFolder)
-    from AthenaCommon.AppMgr import ServiceMgr
-    if not hasattr(ServiceMgr, "InDetSCT_ReadCalibChipDataSvc"):
-        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibChipDataSvc
-        InDetSCT_ReadCalibChipDataSvc = SCT_ReadCalibChipDataSvc(name = "InDetSCT_ReadCalibChipDataSvc")
-        ServiceMgr += InDetSCT_ReadCalibChipDataSvc
+    from SCT_ConditionsServices.SCT_ReadCalibChipDataSvcSetup import sct_ReadCalibChipDataSvcSetup
+    sct_ReadCalibChipDataSvcSetup.setSvcName("InDetSCT_ReadCalibChipDataSvc")
+    sct_ReadCalibChipDataSvcSetup.setup()
+    kwargs.setdefault("SCT_ReadCalibChipDataSvc", sct_ReadCalibChipDataSvcSetup.getSvcName())
     # DataCompressionMode: 1 is level mode x1x (default), 2 is edge mode 01x, 3 is expanded any hit xxx
     from AthenaCommon.BeamFlags import jobproperties
     from AthenaCommon.GlobalFlags import globalflags

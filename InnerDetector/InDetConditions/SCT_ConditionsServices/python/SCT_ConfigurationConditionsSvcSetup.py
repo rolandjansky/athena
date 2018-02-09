@@ -13,7 +13,7 @@ class SCT_ConfigurationConditionsSvcSetup:
         self.dbInstance = "SCT"
         self.algName = "SCT_ConfigurationCondAlg"
         self.alg = None
-        self.svcName = "SCT_ReadCalibChipDataSvc"
+        self.svcName = "SCT_ConfigurationConditionsSvc"
         self.svc = None
 
     def getChannelFolder(self):
