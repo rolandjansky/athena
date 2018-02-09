@@ -177,13 +177,6 @@ if DetFlags.haveRIO.pixel_on():
 #
 if DetFlags.haveRIO.SCT_on():
 
-    sctGainDefectFolder="/SCT/DAQ/Calibration/NPtGainDefects"
-    if not conddb.folderRequested(sctGainDefectFolder):
-        conddb.addFolderSplitMC("SCT", sctGainDefectFolder, sctGainDefectFolder, className="CondAttrListCollection")
-    sctNoiseDefectFolder="/SCT/DAQ/Calibration/NoiseOccupancyDefects"
-    if not conddb.folderRequested(sctNoiseDefectFolder):
-        conddb.addFolderSplitMC("SCT", sctNoiseDefectFolder, sctNoiseDefectFolder, className="CondAttrListCollection")
-
     # Load conditions summary service
     from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConditionsSummarySvc
     InDetSCT_ConditionsSummarySvc = SCT_ConditionsSummarySvc(name = "InDetSCT_ConditionsSummarySvc")
@@ -226,14 +219,10 @@ if DetFlags.haveRIO.SCT_on():
         print InDetSCT_ConfigurationConditionsSvc
 
     # Load calibration conditions service
-    if not hasattr(condSeq, "SCT_ReadCalibDataCondAlg"):
-        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibDataCondAlg
-        condSeq += SCT_ReadCalibDataCondAlg(name = "SCT_ReadCalibDataCondAlg",
-                                            ReadKeyGain = sctGainDefectFolder,
-                                            ReadKeyNoise = sctNoiseDefectFolder)
-    from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibDataSvc
-    InDetSCT_ReadCalibDataSvc = SCT_ReadCalibDataSvc(name = "InDetSCT_ReadCalibDataSvc")
-    ServiceMgr += InDetSCT_ReadCalibDataSvc
+    from SCT_ConditionsServices.SCT_ReadCalibDataSvcSetup import sct_ReadCalibDataSvcSetup
+    sct_ReadCalibDataSvcSetup.setSvcName("InDetSCT_ReadCalibDataSvc")
+    sct_ReadCalibDataSvcSetup.setup()
+    InDetSCT_ReadCalibDataSvc = sct_ReadCalibDataSvcSetup.getSvc()
     if (InDetFlags.doPrintConfigurables()):
         print InDetSCT_ReadCalibDataSvc
     
@@ -305,11 +294,11 @@ if DetFlags.haveRIO.SCT_on():
             print InDetSCT_DCSConditionsSvc
     
     if (globalflags.DataSource() == 'data'):       
-      print "Conditions db instance is ", conddb.dbdata
-      # Load Tdaq enabled services for data only and add some to summary svc for data only
-      tdaqFolder = '/TDAQ/EnabledResources/ATLAS/SCT/Robins'
-      if (conddb.dbdata == "CONDBR2"):
-        tdaqFolder = '/TDAQ/Resources/ATLAS/SCT/Robins'
+        print "Conditions db instance is ", conddb.dbdata
+        # Load Tdaq enabled services for data only and add some to summary svc for data only
+        tdaqFolder = '/TDAQ/EnabledResources/ATLAS/SCT/Robins'
+        if (conddb.dbdata == "CONDBR2"):
+            tdaqFolder = '/TDAQ/Resources/ATLAS/SCT/Robins'
         # Load TdaqEnabled service
         from SCT_ConditionsServices.SCT_TdaqEnabledSvcSetup import sct_TdaqEnabledSvcSetup
         sct_TdaqEnabledSvcSetup.setFolder(tdaqFolder)
@@ -321,10 +310,10 @@ if DetFlags.haveRIO.SCT_on():
             print InDetSCT_TdaqEnabledSvc
         
         # Configure summary service
-        InDetSCT_ConditionsSummarySvc.ConditionsServices= [ "InDetSCT_ConfigurationConditionsSvc",
+        InDetSCT_ConditionsSummarySvc.ConditionsServices= [ sct_ConfigurationConditionsSvcSetup.getSvcName(),
                                                             "InDetSCT_FlaggedConditionSvc",
                                                             "SCT_ByteStreamErrorsSvc",
-                                                            "InDetSCT_ReadCalibDataSvc",
+                                                            sct_ReadCalibDataSvcSetup.getSvcName(),
                                                             sct_TdaqEnabledSvcSetup.getSvcName()]
         if not athenaCommonFlags.isOnline():
             InDetSCT_ConditionsSummarySvc.ConditionsServices += [ sct_MonitorConditionsSvcSetup.getSvcName() ]
@@ -337,15 +326,15 @@ if DetFlags.haveRIO.SCT_on():
         InDetSCT_ConditionsSummarySvc.ConditionsServices= []
       
     else :
-        InDetSCT_ConditionsSummarySvc.ConditionsServices= [ "InDetSCT_ConfigurationConditionsSvc",
+        InDetSCT_ConditionsSummarySvc.ConditionsServices= [ sct_ConfigurationConditionsSvcSetup.getSvcName(),
                                                             "InDetSCT_FlaggedConditionSvc",
                                                             sct_MonitorConditionsSvcSetup.getSvcName(),
                                                             "SCT_ByteStreamErrorsSvc",
-                                                            "InDetSCT_ReadCalibDataSvc"]
+                                                            sct_ReadCalibDataSvcSetup.getSvcName()]
 
 
     if InDetFlags.doSCTModuleVeto():
-      InDetSCT_ConditionsSummarySvc.ConditionsServices += ["InDetSCT_ModuleVetoSvc"]
+        InDetSCT_ConditionsSummarySvc.ConditionsServices += [ sct_MonitorConditionsSvcSetup.getSvcName() ]
         
     
     if (InDetFlags.doPrintConfigurables()):
