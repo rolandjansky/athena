@@ -73,7 +73,7 @@ if hasattr(runArgs,"postInclude"):
 
 ## Post-exec
 if hasattr(runArgs,"postExec"):
-    digilog.info("transform post-exec")
+    fcsntuplog.info("transform post-exec")
     for cmd in runArgs.postExec:
         fcsntuplog.info(cmd)
         exec(cmd)
