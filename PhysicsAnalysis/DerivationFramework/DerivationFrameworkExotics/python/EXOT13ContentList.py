@@ -6,7 +6,9 @@ EXOT13SmartContent = [
     "Muons",
     "PrimaryVertices",
     "MET_Reference_AntiKt4EMTopo",
-    "AntiKt4EMTopoJets"
+    "AntiKt4EMTopoJets",
+    "AntiKt4TruthJets",
+    "AntiKt4TruthWZJets"
 ]
 
 EXOT13AllVariablesContent = [
@@ -18,9 +20,7 @@ EXOT13AllVariablesContent = [
     "TruthEvents",
     "TruthVertices",
     "TruthParticles",
-    "LVL1MuonRoIs",
-    "AntiKt4TruthJets",
-    "AntiKt4TruthWZJets"
+    "LVL1MuonRoIs"
 ]
 
 EXOT13ExtraVariables = [
@@ -30,3 +30,4 @@ EXOT13ExtraVariables = [
 ]
 
 EXOT13UnslimmedContent = []
+
