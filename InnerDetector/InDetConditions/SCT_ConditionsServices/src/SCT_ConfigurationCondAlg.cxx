@@ -86,6 +86,8 @@ StatusCode SCT_ConfigurationCondAlg::initialize() {
     return StatusCode::FAILURE;
   }
 
+  ATH_CHECK( m_readoutTool.retrieve() );
+
   return StatusCode::SUCCESS;
 }
 
