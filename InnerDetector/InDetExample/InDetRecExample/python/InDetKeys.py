@@ -709,6 +709,11 @@ class SiSPSeedSegments(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'SiSPSeedSegments'
 
+class SiSpSeededTracksCandidates(JobProperty):
+    """ Storegate key for SP Seed Track Candidates to studies"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'SiSPSeededTracks'
 
 class SiSpSeededSLHCTracks(JobProperty):
     """ Storegate key for new-tracking SP seeded SLHC tracks"""
