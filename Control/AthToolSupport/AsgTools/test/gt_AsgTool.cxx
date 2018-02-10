@@ -80,6 +80,13 @@ namespace asg
     EXPECT_EQ (MSG::ERROR, mytool.msg().level());
   }
 
+  TEST (AsgTool, message_outputLevel_int)
+  {
+    MessageTool mytool ("my_tool");
+    ASSERT_SUCCESS (mytool.setProperty ("OutputLevel", 5));
+    EXPECT_EQ (MSG::ERROR, mytool.msg().level());
+  }
+
   TEST (AsgTool, message)
   {
     for (MSG::Level level : {MSG::INFO, MSG::ERROR, MSG::DEBUG})
