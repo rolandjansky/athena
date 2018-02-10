@@ -1187,6 +1187,12 @@ class doStoreTrackSeeds(InDetFlagsJobProperty):
   allowedTypes = ['bool']
   StoredValue  = False
 
+class doStoreTrackCandidates(InDetFlagsJobProperty):
+  """Turn on to save the Track Candidates (SiSpSeededTracks) in a xAOD track collecting for development studies"""
+  statusOn     = False
+  allowedTypes = ['bool']
+  StoredValue  = False
+
 class checkDeadElementsOnTrack(InDetFlagsJobProperty): 
   """Enable check for dead modules and FEs""" 
   statusOn     = True 
