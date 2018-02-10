@@ -118,6 +118,22 @@ namespace asg
 
 
 
+    /// \brief the template overloads for \ref TProperty::getCastString
+    template <typename T>
+    struct GetCastStringHelper
+    {
+      static inline StatusCode get (const T& value, std::string& result) {
+        return GetStringHelper<T>::get (value, result);}
+    };
+
+    template <>
+    struct GetCastStringHelper<std::string>
+    {
+      static inline StatusCode get (const std::string& value, std::string& result) {
+        result = value; return StatusCode::SUCCESS;}
+    };
+
+
 
 
     /// \brief check for the existence of an output streamer
@@ -248,24 +264,23 @@ int TProperty< T >::setFrom( const Property& rhs ) {
       return 1;
    }
 
-   const TProperty< std::string >* sprop = dynamic_cast< const TProperty< std::string >* >( &rhs );
-   if (sprop)
-     return this->setString (*sprop->pointer()).isFailure();
-
    // Check if the other object is of the same type:
    const TProperty< T >* pprop = dynamic_cast< const TProperty< T >* >( &rhs );
-   if( ! pprop ) {
+   if( pprop ) {
+     // Check that the other object has a valid pointer:
+     if( ! pprop->pointer() ) {
        return 1;
-   }
+     }
 
-   // Check that the other object has a valid pointer:
-   if( ! pprop->pointer() ) {
-      return 1;
+     // Do the assignment:
+     *m_ptr = *( pprop->pointer() );
+     return 0;
+   } else {
+     std::string asString;
+     if (rhs.getCastString (asString).isFailure())
+       return 1;
+     return this->setString (asString).isFailure();
    }
-
-   // Do the assignment:
-   *m_ptr = *( pprop->pointer() );
-   return 0;
 }
 
 template< typename T >
@@ -276,6 +291,17 @@ StatusCode TProperty< T >::getString (std::string& result) const {
     return StatusCode::FAILURE;
   }
   ANA_CHECK (asg::detail::GetStringHelper<T>::get (*m_ptr, result));
+  return StatusCode::SUCCESS;
+}
+
+template< typename T >
+StatusCode TProperty< T >::getCastString (std::string& result) const {
+  using namespace asg::msgProperty;
+  if( ! this->pointer() ) {
+    ANA_MSG_ERROR ("property does not have a pointer associated");
+    return StatusCode::FAILURE;
+  }
+  ANA_CHECK (asg::detail::GetCastStringHelper<T>::get (*m_ptr, result));
   return StatusCode::SUCCESS;
 }
 
