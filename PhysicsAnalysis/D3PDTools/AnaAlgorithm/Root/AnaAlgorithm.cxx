@@ -44,6 +44,10 @@ namespace EL
     : AthHistogramAlgorithm (name, pSvcLocator)
 #endif
   {
+#ifdef ROOTCORE
+     msg().declarePropertyFor (*this);
+#endif
+
     ANA_MSG_DEBUG ("AnaAlgorithm: " << name);
   }
 
