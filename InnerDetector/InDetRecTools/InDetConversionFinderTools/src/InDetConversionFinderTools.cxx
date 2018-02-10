@@ -141,6 +141,8 @@ namespace InDet
       msg(MSG::INFO) << "Retrieved tool " << m_trkSelector << endmsg;
     }
     
+    m_helpertool.disable();  // never used?
+    
     msg(MSG::INFO) << "Initialization successful" << endmsg;
     return StatusCode::SUCCESS;
   }
