@@ -34,8 +34,8 @@ public:
 
   virtual ~PrescalingEmulationTool(); 
 
-  virtual StatusCode  initialize();
-  virtual StatusCode  finalize();
+  virtual StatusCode  initialize() override;
+  virtual StatusCode  finalize() override;
 
   virtual StatusCode prescaleChains( const EventContext& ctx,  
 				     const HLT::IDVec& initialyActive,
