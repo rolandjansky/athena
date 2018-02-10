@@ -6,6 +6,7 @@
 #include <AsgTools/MessageCheck.h>
 #include <sstream>
 #include <typeinfo>
+#include <type_traits>
 
 namespace asg
 {
@@ -152,7 +153,8 @@ namespace asg
     /// streamers/default conversions
     template<typename T,
 	     bool hasIStreamer = HasIStreamer<T>::value,
-	     bool hasOConvert = HasIStringConvert<T>::value>
+	     bool hasOConvert = HasIStringConvert<T>::value,
+             bool isEnum = std::is_enum<T>::value>
     struct SetStringHelperBase
     {
       static StatusCode set (const std::string& /*value*/, T& /*result*/) {
@@ -162,7 +164,7 @@ namespace asg
       }
     };
 
-    template<typename T> struct SetStringHelperBase<T,true,false>
+    template<typename T> struct SetStringHelperBase<T,true,false,false>
     {
       static StatusCode set (const std::string& value, T& result) {
 	using namespace msgProperty;
@@ -178,7 +180,7 @@ namespace asg
       }
     };
 
-    template<typename T,bool X> struct SetStringHelperBase<T,X,true>
+    template<typename T,bool X> struct SetStringHelperBase<T,X,true,false>
     {
       static StatusCode set (const std::string& value, T& result) {
 	using namespace msgProperty;
@@ -186,6 +188,18 @@ namespace asg
         if (unpackStringSingle (value, subvalue).isFailure())
           return StatusCode::FAILURE;
         result = subvalue;
+        return StatusCode::SUCCESS;
+      }
+    };
+
+    template<typename T,bool X,bool Y> struct SetStringHelperBase<T,X,Y,true>
+    {
+      static StatusCode set (const std::string& value, T& result) {
+	using namespace msgProperty;
+        int subvalue = 0;
+        if (SetStringHelperBase<int>::set (value, subvalue).isFailure())
+          return StatusCode::FAILURE;
+        result = T (subvalue);
         return StatusCode::SUCCESS;
       }
     };

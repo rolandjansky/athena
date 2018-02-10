@@ -120,6 +120,13 @@ namespace asg
       ASSERT_EQ ("0", str);
     }
 
+    TEST (GetStringHelperTest, get_enum)
+    {
+      std::string str;
+      ASSERT_SUCCESS (GetStringHelper<MSG::Level>::get (MSG::Level::WARNING, str));
+      ASSERT_EQ ("4", str);
+    }
+
     TEST (GetStringHelperTest, get_string_regular)
     {
       std::string str;
@@ -225,6 +232,13 @@ namespace asg
       int value = 7;
       ASSERT_SUCCESS (SetStringHelper<int>::set ("0", value));
       ASSERT_EQ (0, value);
+    }
+
+    TEST (SetStringHelperTest, set_enum)
+    {
+      MSG::Level value = MSG::Level::INFO;
+      ASSERT_SUCCESS (SetStringHelper<MSG::Level>::set ("2", value));
+      ASSERT_EQ (MSG::Level::DEBUG, value);
     }
 
     TEST (SetStringHelperTest, set_string_raw)
