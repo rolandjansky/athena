@@ -192,6 +192,15 @@ TriggerHLTList = [
     ('xAOD::PhotonContainer#HLT_egamma_Iso_Photons',                    'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Egamma'),
     ('xAOD::PhotonTrigAuxContainer#HLT_egamma_Iso_PhotonsAux'+RemoveEgammaIsoVariables,        'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Egamma'), 
 
+    ('xAOD::ElectronContainer#HLT_egamma_SC_Electrons',                'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Egamma'),
+    ('xAOD::ElectronTrigAuxContainer#HLT_egamma_SC_ElectronsAux'+RemoveEgammaIsoVariables,  'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Egamma'),
+    ('xAOD::ElectronContainer#HLT_egamma_SC_Iso_Electrons',                'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Egamma'),
+    ('xAOD::ElectronTrigAuxContainer#HLT_egamma_SC_Iso_ElectronsAux'+RemoveEgammaIsoVariables,  'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Egamma'),
+    ('xAOD::PhotonContainer#HLT_egamma_SC_Photons',                    'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Egamma'),
+    ('xAOD::PhotonTrigAuxContainer#HLT_egamma_SC_PhotonsAux.',        'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Egamma'), 
+    ('xAOD::PhotonContainer#HLT_egamma_SC_Iso_Photons',                    'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Egamma'),
+    ('xAOD::PhotonTrigAuxContainer#HLT_egamma_SC_Iso_PhotonsAux'+RemoveEgammaIsoVariables,        'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Egamma'), 
+
     ('xAOD::TrigElectronContainer#HLT_L2ElectronFex',            'BS ESD AODFULL AODSLIM', 'Egamma'),
     ('xAOD::TrigElectronAuxContainer#HLT_L2ElectronFexAux.',     'BS ESD AODFULL AODSLIM', 'Egamma'), 
     ('xAOD::TrigElectronContainer#HLT_L2IDCaloFex',              'BS ESD AODFULL', 'Egamma'),
@@ -796,8 +805,10 @@ TriggerHLTList = [
    ('TrigMuonEFIsolationContainer#HLT_MuonEFIsolation',                  'BS ESD AODFULL AODSLIM',                'Muon'),
     #    ('CaloShowerContainer#HLT',                                           'BS ESD',                                'Calo'),       # Egamma?  
    ('egammaContainer#HLT_egamma_Electrons',                              '',                                      'Egamma'),
+   ('egammaContainer#HLT_egamma_SC_Electrons',                              '',                                      'Egamma'),
    ('egammaContainer#HLT_egamma',                                        '',                                      'Egamma'),
    ('egammaContainer#HLT_egamma_Photons',                                '',                                      'Egamma'),
+   ('egammaContainer#HLT_egamma_SC_Photons',                                '',                                      'Egamma'),
    ('TrigMissingET#HLT_TrigEFMissingET',                                 'BS ESD AODFULL AODSLIM',                'MET'),
    ('TrigMissingET#HLT_TrigEFMissingET_noiseSupp',                       '',                                      'MET'),
    ('TrigMissingET#HLT_TrigEFMissingET_FEB',                             'BS ESD AODFULL AODSLIM',                'MET'),
@@ -845,8 +856,10 @@ TriggerHLTList = [
     ('JetCollection#HLT_TrigTauJet',                                      '',                        'Tau'),
    #    ('CaloTowerContainer#HLT_TrigCaloTowerMaker',                         '',                        'Calo'),       # Egamma?  
     ('egDetailContainer#HLT_egamma_Electrons',                            '',                        'Egamma'),
+    ('egDetailContainer#HLT_egamma_SC_Electrons',                            '',                        'Egamma'),
     ('egDetailContainer#HLT_egamma',                                      '',                        'Egamma'),
     ('egDetailContainer#HLT_egamma_Photons',                              '',                        'Egamma'),
+    ('egDetailContainer#HLT_egamma_SC_Photons',                              '',                        'Egamma'),
     ('TrackCollection#TrigFastTrackFinder_Tau',                           '', 'Tau'), 
     ('TrackCollection#HLT_InDetTrigTrackSlimmer_Bjet_EFID',               'ESD',                     'Bjet'),
     ('TrackCollection#HLT_InDetTrigTrackSlimmer_Bphysics_EFID',           'ESD',                     'Bphys'),
@@ -1136,8 +1149,10 @@ TriggerEFEvolutionList = [
 ('TrigMuonEFIsolationContainer#HLT_MuonEFIsolation',                            ''), #Run-2 equivalent not found, type not converted
 ('CaloShowerContainer#HLT',                                                     ''), #Run-2 equivalent not found, type not converted
 ('egammaContainer#HLT_egamma_Electrons',                                        'xAOD::ElectronContainer#HLT_egamma_Electrons'),
+('egammaContainer#HLT_egamma_SC_Electrons',                                        'xAOD::ElectronContainer#HLT_egamma_SC_Electrons'),
 ('egammaContainer#HLT_egamma',                                                  ''), #Run-2 equivalent not found
 ('egammaContainer#HLT_egamma_Photons',                                          'xAOD::PhotonContainer#HLT_egamma_Photons'),
+('egammaContainer#HLT_egamma_SC_Photons',                                          'xAOD::PhotonContainer#HLT_egamma_SC_Photons'),
 ('TrigMissingET#HLT_TrigEFMissingET',                                           'xAOD::TrigMissingET#HLT_TrigEFMissingET'),
 ('TrigMissingET#HLT_TrigEFMissingET_FEB',                                       'xAOD::TrigMissingET#HLT_TrigEFMissingET_FEB'),
 ('TrigMissingET#HLT_TrigEFMissingET_topocl',                                    'xAOD::TrigMissingET#HLT_TrigEFMissingET_topocl'),
@@ -1179,8 +1194,10 @@ TriggerEFEvolutionList = [
 ('JetCollection#HLT_TrigCosmicJetRec',                                          'xAOD::JetContainer#HLT_TrigCosmicJetRec'), # Run-2 one is not stored anywhere
 ('JetCollection#HLT_TrigTauJet',                                                'xAOD::JetContainer#HLT_TrigTauJet'),
 ('egDetailContainer#HLT_egamma_Electrons',                                      ''), # converted as Aux. data?
+('egDetailContainer#HLT_egamma_SC_Electrons',                                      ''), # converted as Aux. data?
 ('egDetailContainer#HLT_egamma',                                                ''), # converted as Aux. data?
 ('egDetailContainer#HLT_egamma_Photons',                                        ''), # converted as Aux. data?
+('egDetailContainer#HLT_egamma_SC_Photons',                                        ''), # converted as Aux. data?
 ('TrigVertexCollection#HLT_EFHistoPrmVtx',                                      'xAOD::VertexContainer#HLT_EFHistoPrmVtx'), # conversion to be implemented
 ('VxContainer#HLT_PrimVx',                                                      'xAOD::VertexContainer#HLT_xPrimVx'), # note different SG names
 ('TrigOperationalInfo#HLT_OPI_EF',                                              ''), # it was decided to not convert this type
