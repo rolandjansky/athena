@@ -258,9 +258,11 @@ StatusCode PixelMainMon::bookRODErrorMon(void) {
   }
 
   for (int j = 0; j < kNumErrorStatesIBL; j++) {
-    hname = makeHistname((error_state_labelsIBL[j].first + "_per_lumi_" + modlabel2[PixLayerIBL2D3DDBM::kIBL]), false);
-    htitles = makeHisttitle(("Average " + error_state_labelsIBL[j].second + " per event per LB, " + modlabel2[PixLayerIBL2D3DDBM::kIBL]), (atext_LB + atext_erf), false);
-    sc = rodExpert.regHist(m_errhist_expert_DBMIBL_LB[j] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
+    for (int i = 0; i < PixLayerDBM::COUNT - PixLayerDBM::kDBMA; i++) {
+      hname = makeHistname((error_state_labelsIBL[j].first + "_per_lumi_" + modlabel2[i + PixLayerIBL2D3DDBM::kDBMA]), false);
+      htitles = makeHisttitle(("Average " + error_state_labelsIBL[j].second + " per event per LB, " + modlabel2[i + PixLayerIBL2D3DDBM::kDBMA]), (atext_LB + atext_erf), false);
+      sc = rodExpert.regHist(m_errhist_expert_DBMIBL_LB[i][j] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
+    }
   }
 
   for (int j = kNumErrorStates; j < kNumErrorStates + kNumErrorStatesIBL; j++) {
@@ -571,8 +573,10 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
   }
 
   for (int j = 0; j < kNumErrorStatesIBL; j++) {
-    if (m_errhist_expert_DBMIBL_LB[j]) {
-      m_errhist_expert_DBMIBL_LB[j]->Fill(kLumiBlock, (float)num_errors_per_stateIBL[j] / m_nActive_mod[PixLayerIBL2D3DDBM::kIBL]);
+    for (int i = 0; i < PixLayerDBM::COUNT - PixLayerDBM::kDBMA; i++) {
+      if (m_errhist_expert_DBMIBL_LB[i][j]) {
+        m_errhist_expert_DBMIBL_LB[i][j]->Fill(kLumiBlock, (float)num_errors_per_stateIBL[j] / m_nActive_mod[i + PixLayerIBL2D3DDBM::kDBMA]);
+      }
     }
   }
 
