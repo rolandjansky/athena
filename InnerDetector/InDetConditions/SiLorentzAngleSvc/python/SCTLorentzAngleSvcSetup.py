@@ -61,6 +61,7 @@ class SCTLorentzAngleSvcSetup:
         from SCT_ConditionsServices.SCT_SiliconConditionsSvcSetup import SCT_SiliconConditionsSvcSetup
         sct_SiliconConditionsSvcSetup = SCT_SiliconConditionsSvcSetup()
         sct_SiliconConditionsSvcSetup.setup()
+        sctSiliconConditionsSvc = sct_SiliconConditionsSvcSetup.getSvc()
 
         # Pass the silicon conditions services to the Lorentz angle service
         # Also make sure UseMagFieldTool is True as AtlasGeoModel sets this to False
