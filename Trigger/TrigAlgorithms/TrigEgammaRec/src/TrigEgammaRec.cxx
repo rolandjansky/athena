@@ -812,6 +812,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
             ATH_MSG_DEBUG("GSFTrigTrackParticles pt is: " << trk->pt());
       }
       //Interaction with the navigation
+      /*
       std::string GSFTrigTracksContSGKey = "TrigGSFTrackParticlesColl";
       std::string GSFTrigTracksKey = "TrigGSFTrackParticles";
       HLT::ErrorCode sc = getUniqueKey( GSFTrigTrackParticles, GSFTrigTracksContSGKey, GSFTrigTracksKey);
@@ -822,8 +823,9 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
       else {
         ATH_MSG_DEBUG("GSF Track Collection key is: " << GSFTrigTracksContSGKey);
       }
+      */
       
-      if (HLT::OK != attachFeature( outputTE, GSFTrigTrackParticles, "GSFTrigTrackParticles,") ){
+      if (HLT::OK != attachFeature( outputTE, GSFTrigTrackParticles, "GSFTrigTrackParticles") ){
         ATH_MSG_ERROR("REGTEST: trigger xAOD::TrackParticleContainer for GSF attach to TE and record into StoreGate failed");
         return HLT::NAV_ERROR;
       }
