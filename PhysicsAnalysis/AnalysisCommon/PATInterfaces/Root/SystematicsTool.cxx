@@ -21,7 +21,6 @@
 #include "PATInterfaces/SystematicRegistry.h"
 
 // Other include(s):
-//#include "boost/unordered_map.hpp"
 
 namespace CP {
 

@@ -1229,7 +1229,7 @@ namespace CP {
   SystematicCode MuonCalibrationAndSmearingTool::applySystematicVariation( const SystematicSet& systConfig ) {
 
     // First check if we already know this systematic configuration
-    boost::unordered_map< SystematicSet, ParameterSet >::iterator parIter = m_Parameters.find( systConfig );
+    std::unordered_map< SystematicSet, ParameterSet >::iterator parIter = m_Parameters.find( systConfig );
     if( parIter != m_Parameters.end() ) {
       m_currentParameters = &parIter->second;
       return SystematicCode::Ok;

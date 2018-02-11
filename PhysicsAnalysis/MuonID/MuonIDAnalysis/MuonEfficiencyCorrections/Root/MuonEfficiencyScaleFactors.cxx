@@ -506,7 +506,7 @@ namespace CP {
             }
             ATH_MSG_DEBUG("need to access currentBinNumber=" << currentBinNumber);
         }
-        boost::unordered_map<MuonEfficiencySystType, EffiCollection_Ptr>::iterator SFiter = m_sf_sets.find(currentEfficiencySystType);
+        std::unordered_map<MuonEfficiencySystType, EffiCollection_Ptr>::iterator SFiter = m_sf_sets.find(currentEfficiencySystType);
         if (SFiter != m_sf_sets.end()) {
             m_current_sf = SFiter->second;
             if (m_seperateSystBins && currentBinNumber != 0) {
