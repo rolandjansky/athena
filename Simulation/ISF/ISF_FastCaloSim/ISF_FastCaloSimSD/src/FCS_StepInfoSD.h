@@ -43,6 +43,7 @@ namespace FCS_Param {
     int verboseLevel=0;
     bool shift_lar_subhit=true;
     bool shorten_lar_step=false;
+    double            substpsize = 0.2*CLHEP::mm;    //size of splitting into substeps before calling the calculators.
 
     // Merging properties
     double            m_maxRadius=25.;                //!< property, see @link LArG4GenShowerLib::LArG4GenShowerLib @endlink
