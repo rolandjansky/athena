@@ -1895,6 +1895,21 @@ class WriteDAOD_BPHY12Stream (JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_BPHY12Stream)
 listAODtoDPD.append(WriteDAOD_BPHY12Stream.StreamName)
 
+class WriteDAOD_BPHY14Stream (JobProperty):
+    """BPHY14 derivation"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_BPHY14'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkBPhys/BPHY14.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_BPHY14Stream)
+listAODtoDPD.append(WriteDAOD_BPHY14Stream.StreamName)
+
+
+
 class WriteDAOD_BPHY15Stream (JobProperty):
      """BPHY15 derivation"""
      statusOn = True
