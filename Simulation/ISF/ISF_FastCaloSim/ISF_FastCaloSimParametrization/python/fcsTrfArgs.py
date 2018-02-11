@@ -24,5 +24,5 @@ def addFCS_NtupArgs(parser):
                         type=argFactory(argBool),
                         help='Flag to turn on the writing of G4 hits', group='FCS_Ntup_tf')
     parser.add_argument('--saveAllBranches',
-                        type=argeFactory(argBool),
+                        type=argFactory(argBool),
                         help='Flag to turn on extra branches for Hits and G4hits', group='FCS_Ntup_tf')

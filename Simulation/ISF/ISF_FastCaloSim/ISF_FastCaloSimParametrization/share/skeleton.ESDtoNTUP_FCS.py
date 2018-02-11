@@ -54,7 +54,7 @@ else:
     doG4Hits = False
 
 ## Flag for saveAllBranches
-if hasattr(runArgs, "saveAllBranches")
+if hasattr(runArgs, "saveAllBranches"):
     saveAllBranches = runArgs.saveAllBranches
 else:
     saveAllBranches = False
