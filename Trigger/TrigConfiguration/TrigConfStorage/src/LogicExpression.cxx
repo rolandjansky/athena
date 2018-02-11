@@ -12,15 +12,15 @@
 using namespace TrigConf;
 
 LogicExpression::LogicExpression(std::ostream & o) : 
-   mState(kELEMENT),
-   mElement(""),
+   m_State(kELEMENT),
+   m_Element(""),
    m_ostream(o)
 {}
 
 
 LogicExpression::LogicExpression(const std::string& name, std::ostream & o) 
-   : mState(kELEMENT),
-     mElement(name),
+   : m_State(kELEMENT),
+     m_Element(name),
      m_ostream(o)
 {}
 
@@ -58,7 +58,7 @@ LogicExpression::parse(const std::string& expr, bool enclosed) {
    char prev = ' ';
    int n;
 
-   mLogicRep = expr;
+   m_LogicRep = expr;
    while (no_problem && i < expr.size()) {
       c = expr[i];
 
@@ -76,25 +76,25 @@ LogicExpression::parse(const std::string& expr, bool enclosed) {
          }
          break;
       case kCLOSE:
-         if ( ( (mState == kAND || mState == kOR) && subLogics().size()>=2) ||
-              (mState == kNOT && subLogics().size()==1) || 
-              (mState == kELEMENT && subLogics().size()<=1 && mElement=="")) {
+         if ( ( (m_State == kAND || m_State == kOR) && subLogics().size()>=2) ||
+              (m_State == kNOT && subLogics().size()==1) || 
+              (m_State == kELEMENT && subLogics().size()<=1 && m_Element=="")) {
             prev = kELEMENT;
             markPlaceHolder();
             return i + 1;
          } else {
             std::ostringstream formatedoutput;
-            formatedoutput << "Invalid logic: State=" << mState << " Nsublogics=" << subLogics().size() << " Element=" << mElement;
+            formatedoutput << "Invalid logic: State=" << m_State << " Nsublogics=" << subLogics().size() << " Element=" << m_Element;
             printError(formatedoutput.str(), i);
             no_problem = false;
          }
          break;
       case kAND: case kOR:
          if (prev == kELEMENT && 
-             ( (subLogics().size() >= 2 && mState==c) || 
-               (subLogics().size()==1 && mState==kELEMENT))
+             ( (subLogics().size() >= 2 && m_State==c) || 
+               (subLogics().size()==1 && m_State==kELEMENT))
              ) {
-            mState = c;
+            m_State = c;
             prev = c;
          } else {
             std::ostringstream formatedoutput;
@@ -134,7 +134,7 @@ LogicExpression::parse(const std::string& expr, bool enclosed) {
       default:
          // Start of a candidate of an element string.
          if (subLogics().size()==0 || 
-             (subLogics().size()>0 && mState != kELEMENT)) {
+             (subLogics().size()>0 && m_State != kELEMENT)) {
             std::string name = extractElementName(expr.substr(i));
             if (name.size() > 0) {
                addSubLogic(LogicExpression(name,m_ostream));
@@ -170,31 +170,31 @@ LogicExpression::parse(const std::string& expr, bool enclosed) {
 
 void
 LogicExpression::markPlaceHolder() {
-   if (mState == kELEMENT && subLogics().size() == 1 && mElement=="") {
-      mState = kOPEN;
+   if (m_State == kELEMENT && subLogics().size() == 1 && m_Element=="") {
+      m_State = kOPEN;
    }
 }
 
 std::string
 LogicExpression::logicRep() const {
    std::string s="";
-   if (mState == kELEMENT) {
-      s = mElement;
-   } else if (mState == kAND || mState == kOR) {
+   if (m_State == kELEMENT) {
+      s = m_Element;
+   } else if (m_State == kAND || m_State == kOR) {
       LogicV_t::const_iterator p;
       s = kOPEN;
       for (p=subLogics().begin(); p!=subLogics().end(); ++p) {
          s += (*p)->logicRep();
-         s += mState;
+         s += m_State;
       }
       if (s.size() > 1) s[s.size()-1] = kCLOSE;
       else s[1] = kCLOSE;
-   } else if (mState == kNOT) {
+   } else if (m_State == kNOT) {
       s = kNOT;
       s += kOPEN;
       if (subLogics().size() == 1) s += subLogics()[0]->logicRep();
       s += kCLOSE;
-   } else if (mState == kOPEN) {
+   } else if (m_State == kOPEN) {
       s += kOPEN;
       if (subLogics().size() == 1) s += subLogics()[0]->logicRep();
       s += kCLOSE;
@@ -228,7 +228,7 @@ LogicExpression::totalNumberOfElements() const {
    int n = 0;
    LogicV_t::const_iterator p;
 
-   switch (mState) {
+   switch (m_State) {
    case kELEMENT:
       n = 1;
       break;
@@ -252,7 +252,7 @@ LogicExpression::printError(const std::string& message, int i) const {
    int n = m.size();
    for (int j=0; j<(n+i); ++j) s += " ";
    s += "^";
-   m_ostream << m << mLogicRep << " at " << i << "-th character" << std::endl;
+   m_ostream << m << m_LogicRep << " at " << i << "-th character" << std::endl;
    m_ostream << s << std::endl;
    m_ostream << message << std::endl;
 }
@@ -262,7 +262,7 @@ void
 LogicExpression::printCurrentState() const {
    char aaa[100];
    sprintf(aaa, "Current state: State=%c Nsublogics=%d Element=%s", 
-           mState, (int)subLogics().size(), mElement.c_str());
+           m_State, (int)subLogics().size(), m_Element.c_str());
    m_ostream << aaa << std::endl;
 }
 
@@ -270,21 +270,21 @@ LogicExpression::printCurrentState() const {
 void
 LogicExpression::print(const std::string& indent) const {
    std::string s=indent;
-   if (mState == kELEMENT) {
-      m_ostream << indent << mElement << std::endl;
-   } else if (mState == kAND || mState == kOR) {
-      if (mState==kAND) m_ostream << indent << "AND" << std::endl;
-      if (mState==kOR) m_ostream << indent << "OR" << std::endl;
+   if (m_State == kELEMENT) {
+      m_ostream << indent << m_Element << std::endl;
+   } else if (m_State == kAND || m_State == kOR) {
+      if (m_State==kAND) m_ostream << indent << "AND" << std::endl;
+      if (m_State==kOR) m_ostream << indent << "OR" << std::endl;
       LogicV_t::const_iterator p;
       for (p=subLogics().begin(); p!=subLogics().end(); ++p) {
          (*p)->print(indent + "  ");
       }
-   } else if (mState == kNOT) {
+   } else if (m_State == kNOT) {
       m_ostream << indent << "NOT" << std::endl;
       if (subLogics().size() == 1) {
          subLogic(0)->print(indent + "  ");
       }
-   } else if (mState == kOPEN) {
+   } else if (m_State == kOPEN) {
       if (subLogics().size() == 1) subLogic(0)->print(indent);
    } else {
       m_ostream << indent << "ERROR" << std::endl;
@@ -294,8 +294,8 @@ LogicExpression::print(const std::string& indent) const {
 
 void
 LogicExpression::clear() {
-   mState = kELEMENT;
-   mSubLogics.clear();
-   mElement = "";
+   m_State = kELEMENT;
+   m_SubLogics.clear();
+   m_Element = "";
 }
 
