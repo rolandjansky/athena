@@ -38,6 +38,8 @@ StatusCode MuonCombinedInDetCandidateAlg::initialize()
   ATH_CHECK(m_indetForwardTrackParticleLocation.initialize());
   ATH_CHECK(m_candidateCollectionName.initialize());
 
+  ATH_CHECK(m_forwardTrackSelector.retrieve(  DisableTool{!m_doSiliconForwardMuons} ));
+  
   return StatusCode::SUCCESS; 
 }
 

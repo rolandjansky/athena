@@ -60,6 +60,9 @@ StatusCode SCTRawDataProvider::initialize() {
   ATH_CHECK(m_bcidCollectionKey.initialize());
   ATH_CHECK(m_bsErrContainerKey.initialize());
   ATH_CHECK(m_rdoContainerCacheKey.initialize(!m_rdoContainerCacheKey.key().empty()));
+
+  ATH_CHECK( m_rawDataTool.retrieve() );
+  
   return StatusCode::SUCCESS;
 }
 
