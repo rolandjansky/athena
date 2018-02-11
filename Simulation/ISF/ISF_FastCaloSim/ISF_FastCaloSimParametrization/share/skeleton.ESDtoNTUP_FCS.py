@@ -53,6 +53,12 @@ if hasattr(runArgs,"doG4Hits"):
 else:
     doG4Hits = False
 
+## Flag for saveAllBranches
+if hasattr(runArgs, "saveAllBranches")
+    saveAllBranches = runArgs.saveAllBranches
+else:
+    saveAllBranches = False
+
 #==============================================================
 # Job Configuration parameters:
 #==============================================================
