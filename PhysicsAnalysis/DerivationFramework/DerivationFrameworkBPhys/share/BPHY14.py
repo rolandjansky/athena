@@ -19,6 +19,8 @@ print isSimulation
 # AUGMENTATION TOOLS 
 #====================================================================
 ## 1/ setup vertexing tools and services
+#include( "JpsiUpsilonTools/configureServices.py" )
+
 include("DerivationFrameworkBPhys/configureVertexing.py")
 BPHY14_VertexTools = BPHYVertexTools("BPHY14")
 
@@ -28,28 +30,28 @@ BPHY14_VertexTools = BPHYVertexTools("BPHY14")
 ##    actual vertex fitting and some pre-selection.
 from JpsiUpsilonTools.JpsiUpsilonToolsConf import Analysis__JpsiFinder
 BPHY14JpsiFinder = Analysis__JpsiFinder(
-    name                        = "BPHY14JpsiFinder",
-    OutputLevel                 = INFO,
-    muAndMu                     = True,
-    muAndTrack                  = False,
-    TrackAndTrack               = False,
-    assumeDiMuons               = True,    # If true, will assume dimu hypothesis and use PDG value for mu mass
+  name                        = "BPHY14JpsiFinder",
+  OutputLevel                 = INFO,
+  muAndMu                     = True,
+  muAndTrack                  = False,
+  TrackAndTrack               = False,
+  assumeDiMuons               = True,    # If true, will assume dimu hypothesis and use PDG value for mu mass
   invMassUpper                = 100000.0,
-    invMassLower                = 0.0,
-    Chi2Cut                     = 200.,
-    oppChargesOnly	            = True,
-    atLeastOneComb              = True,
-    useCombinedMeasurement      = False, # Only takes effect if combOnly=True	
-    muonCollectionKey           = "Muons",
-    TrackParticleCollection     = "InDetTrackParticles",
-    V0VertexFitterTool          = BPHY14_VertexTools.TrkV0Fitter, # V0 vertex fitter
-    useV0Fitter                 = False, # if False a TrkVertexFitterTool will be used
-    TrkVertexFitterTool         = BPHY14_VertexTools.TrkVKalVrtFitter, # VKalVrt vertex fitter
-    TrackSelectorTool           = BPHY14_VertexTools.InDetTrackSelectorTool,
-    ConversionFinderHelperTool  = BPHY14_VertexTools.InDetConversionHelper,
-    VertexPointEstimator        = BPHY14_VertexTools.VtxPointEstimator,
-    useMCPCuts                  = False )
-
+  invMassLower                = 0.0,
+  Chi2Cut                     = 200.,
+  oppChargesOnly	            = True,
+  atLeastOneComb              = True,
+  useCombinedMeasurement      = False, # Only takes effect if combOnly=True	
+  muonCollectionKey           = "Muons",
+  TrackParticleCollection     = "InDetTrackParticles",
+  V0VertexFitterTool          = BPHY14_VertexTools.TrkV0Fitter,             # V0 vertex fitter
+  useV0Fitter                 = False,                   # if False a TrkVertexFitterTool will be used
+  TrkVertexFitterTool         = BPHY14_VertexTools.TrkVKalVrtFitter,        # VKalVrt vertex fitter
+  TrackSelectorTool           = BPHY14_VertexTools.InDetTrackSelectorTool,
+  ConversionFinderHelperTool  = BPHY14_VertexTools.InDetConversionHelper,
+  VertexPointEstimator        = BPHY14_VertexTools.VtxPointEstimator,
+  useMCPCuts                  = False )
+  
 ToolSvc += BPHY14JpsiFinder
 print      BPHY14JpsiFinder
 
@@ -87,18 +89,47 @@ print BPHY14_Reco_mumu
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Select_onia2mumu
 
 ## a/ augment and select Jpsi->mumu candidates
-BPHY14_Select_B2mumu = DerivationFramework__Select_onia2mumu(
-  name                  = "BPHY14_Select_B2mumu",
-  HypothesisName        = "Bmumu",
+BPHY14_Select_Jpsi2mumu = DerivationFramework__Select_onia2mumu(
+  name                  = "BPHY14_Select_Jpsi2mumu",
+  HypothesisName        = "Jpsi",
   InputVtxContainerName = "BPHY14OniaCandidates",
-  VtxMassHypo           = 5366.79,
-  MassMin               = 4000.0,
-  MassMax               = 7000.0,
+  VtxMassHypo           = 3096.916,
+  MassMin               = 2000.0,
+  MassMax               = 3600.0,
   Chi2Max               = 200,
   DoVertexType          = 7)
   
-ToolSvc += BPHY14_Select_B2mumu
-print BPHY14_Select_B2mumu
+ToolSvc += BPHY14_Select_Jpsi2mumu
+print BPHY14_Select_Jpsi2mumu
+
+## b/ augment and select Psi(2S)->mumu candidates
+BPHY14_Select_Psi2mumu = DerivationFramework__Select_onia2mumu(
+  name                  = "BPHY14_Select_Psi2mumu",
+  HypothesisName        = "Psi",
+  InputVtxContainerName = "BPHY14OniaCandidates",
+  VtxMassHypo           = 3686.09,
+  MassMin               = 3300.0,
+  MassMax               = 4500.0,
+  Chi2Max               = 200,
+  DoVertexType          = 7)
+  
+ToolSvc += BPHY14_Select_Psi2mumu
+print BPHY14_Select_Psi2mumu
+
+# Added by ASC
+## c/ augment and select Upsilon(nS)->mumu candidates
+BPHY14_Select_Upsi2mumu = DerivationFramework__Select_onia2mumu(
+  name                  = "BPHY14_Select_Upsi2mumu",
+  HypothesisName        = "Upsi",
+  InputVtxContainerName = "BPHY14OniaCandidates",
+  VtxMassHypo           = 9460.30,
+  MassMin               = 7000.0,
+  MassMax               = 12500.0,
+  Chi2Max               = 200,
+  DoVertexType          = 7)
+  
+ToolSvc += BPHY14_Select_Upsi2mumu
+print BPHY14_Select_Upsi2mumu
 
 #--------------------------------------------------------------------
 ## 5/ select the event. We only want to keep events that contain certain vertices which passed certain selection.
@@ -109,7 +140,22 @@ print BPHY14_Select_B2mumu
 ##    where "ContainerName" is output container form some Reco_* tool, "HypoName" is the hypothesis name setup in some "Select_*"
 ##    tool and "count" is the number of candidates passing the selection you want to keep. 
 
-expression = "count(BPHY14OniaCandidates.passed_Bmumu) > 0"
+#====================================================================
+# Photon things
+#====================================================================
+#from DerivationFrameworkEGamma.EGammaCommon import *
+from DerivationFrameworkCore.DerivationFrameworkMaster import *
+from DerivationFrameworkInDet.InDetCommon import *
+from DerivationFrameworkMuons.MuonsCommon import *
+from DerivationFrameworkJetEtMiss.JetCommon import *
+from DerivationFrameworkJetEtMiss.METCommon import *
+from DerivationFrameworkEGamma.EGammaCommon import *
+
+#photonRequirements = '(DFCommonPhotons_et >= 15*GeV) && (abs(DFCommonPhotons_eta) < 2.5)'# && (Photons.Loose)'
+photonRequirements = 'Photons.pt > 5.*GeV'
+
+
+expression = "(count(BPHY14OniaCandidates.passed_Jpsi) > 0 || count(BPHY14OniaCandidates.passed_Psi) > 0 || count(BPHY14OniaCandidates.passed_Upsi) > 0) && count("+photonRequirements+") >0"
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 BPHY14_SelectEvent = DerivationFramework__xAODStringSkimmingTool(name = "BPHY14_SelectEvent",
                                                                 expression = expression)
@@ -135,7 +181,7 @@ BPHY14Thin_vtxTrk = DerivationFramework__Thin_vtxTrk(
   ThinningService            = "BPHY14ThinningSvc",
   TrackParticleContainerName = "InDetTrackParticles",
   VertexContainerNames       = ["BPHY14OniaCandidates"],
-  PassFlags                  = ["passed_Bmumu"] )
+  PassFlags                  = ["passed_Jpsi", "passed_Psi", "passed_Upsi"] )
 
 ToolSvc += BPHY14Thin_vtxTrk
 
@@ -153,7 +199,7 @@ ToolSvc += BPHY14MuonTPThinningTool
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
 BPHY14TruthThinTool = DerivationFramework__GenericTruthThinning(name                    = "BPHY14TruthThinTool",
                                                         ThinningService         = "BPHY14ThinningSvc",
-                                                        ParticleSelectionString = "TruthParticles.pdgId == 511 || TruthParticles.pdgId == -511 || TruthParticles.pdgId == 531 || TruthParticles.pdgId == -531",
+                                                        ParticleSelectionString = "TruthParticles.pdgId == 443 || TruthParticles.pdgId == 100443 || TruthParticles.pdgId == 553 || TruthParticles.pdgId == 100553 || TruthParticles.pdgId == 200553",
                                                         PreserveDescendants     = True,
                                                         PreserveAncestors      = True)
 ToolSvc += BPHY14TruthThinTool
@@ -175,7 +221,7 @@ if globalflags.DataSource()=='geant4':
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel(
   "BPHY14Kernel",
-   AugmentationTools = [BPHY14_Reco_mumu, BPHY14_Select_B2mumu],
+   AugmentationTools = [BPHY14_Reco_mumu, BPHY14_Select_Jpsi2mumu, BPHY14_Select_Psi2mumu, BPHY14_Select_Upsi2mumu],
    SkimmingTools     = [BPHY14_SelectEvent],
    ThinningTools     = BPHY14ThinningTools
    )
@@ -202,15 +248,16 @@ svcMgr += createThinningSvc( svcName="BPHY14ThinningSvc", outStreams=[evtStream]
 # Added by ASC
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 BPHY14SlimmingHelper = SlimmingHelper("BPHY14SlimmingHelper")
-AllVariables = []
-StaticContent = []
+AllVariables     = []
+StaticContent    = []
+SmartCollections = []
 
 # Needed for trigger objects
 BPHY14SlimmingHelper.IncludeMuonTriggerContent = True
 BPHY14SlimmingHelper.IncludeBPhysTriggerContent = True
 
 ## primary vertices
-AllVariables += ["PrimaryVertices"]
+AllVariables  += ["PrimaryVertices"]
 StaticContent += ["xAOD::VertexContainer#BPHY14RefittedPrimaryVertices"]
 StaticContent += ["xAOD::VertexAuxContainer#BPHY14RefittedPrimaryVerticesAux."]
 
@@ -237,6 +284,15 @@ StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % BPHY14_Rec
 if isSimulation:
     AllVariables += ["TruthEvents","TruthParticles","TruthVertices","MuonTruthParticles"]
 
-BPHY14SlimmingHelper.AllVariables = AllVariables
-BPHY14SlimmingHelper.StaticContent = StaticContent
+#Photon Information
+AllVariables     += ["Photons"]
+SmartCollections += ["Photons","Muons","InDetTrackParticles","PrimaryVertices"]
+BPHY14SlimmingHelper.IncludeEGammaTriggerContent = True
+#from DerivationFrameworkSM.STDMExtraContent import *
+#BPHY14SlimmingHelper.ExtraVariables = ExtraContentPhotons
+
+
+BPHY14SlimmingHelper.AllVariables    = AllVariables
+BPHY14SlimmingHelper.StaticContent   = StaticContent
+BPHY14SlimmingHelper.SmartCollections = SmartCollections
 BPHY14SlimmingHelper.AppendContentToStream(BPHY14Stream)
