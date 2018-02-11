@@ -133,7 +133,7 @@ StatusCode TruthParticleCnvTool::initialize()
 
   // retrieve the TruthIsolation tool only if asked for.
   if ( m_doEtIsolation.value() ) {
-    ATH_CHECK(m_isolationTool.retrieve().isSuccess());
+    ATH_CHECK(m_isolationTool.retrieve());
   }
   else {
     m_isolationTool.disable();
