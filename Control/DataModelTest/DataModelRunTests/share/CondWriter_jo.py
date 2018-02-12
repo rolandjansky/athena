@@ -42,10 +42,9 @@ ROOT.DMTest.setConverterLibrary ('libDataModelTestDataWriteCnvPoolCnv.so')
 #--------------------------------------------------------------
 
 
-from OutputStreamAthenaPool.OutputStreamAthenaPoolConf import AthenaPoolOutputStreamTool
-condstream = AthenaPoolOutputStreamTool ('CondStream',
-                                         OutputFile = 'condtest.pool.root',
-                                         PoolContainerPrefix = 'ConditionsContainer')
+from AthenaServices.AthenaServicesConf import AthenaOutputStreamTool
+condstream = AthenaOutputStreamTool ('CondStream',
+                                         OutputFile = 'condtest.pool.root')
 
 from DataModelTestDataCommon.DataModelTestDataCommonConf import \
      DMTest__CondWriterAlg

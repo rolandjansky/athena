@@ -116,12 +116,6 @@ pool::PersistencySvc::DatabaseHandler::isTransactionActive() const
 }
 
 
-std::string
-pool::PersistencySvc::DatabaseHandler::getContName(const Token& token)
-{
-  return  m_storageSvc.getContName(m_fileDescriptor, token);
-}
-
 std::vector< std::string >
 pool::PersistencySvc::DatabaseHandler::containers()
 {
@@ -244,18 +238,6 @@ pool::PersistencySvc::DatabaseHandler::readObject( const Token& token, void* obj
     result = 0;
   }
 
-  return result;
-}
-
-
-bool
-pool::PersistencySvc::DatabaseHandler::destroyObject( const Token& token )
-{
-  bool result = false;
-  if ( ! m_transaction ) return result;
-  if ( m_storageSvc.destroy( m_transaction, m_fileDescriptor, token ).isSuccess() ) {
-    result = true;
-  }
   return result;
 }
 

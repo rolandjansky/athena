@@ -57,6 +57,7 @@ while getopts ":t:o:s:e:h" opt; do
             ;;
         e)
             EXTERNALSURL=$OPTARG
+            echo "Using alternative URL: " $EXTERNALSURL
             ;;
         h)
             usage

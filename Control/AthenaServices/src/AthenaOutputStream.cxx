@@ -145,6 +145,7 @@ AthenaOutputStream::AthenaOutputStream(const string& name, ISvcLocator* pSvcLoca
         m_metadataStore("MetaDataStore", name),
         m_currentStore(&m_dataStore),
                 m_itemSvc("ItemListSvc", name),
+	m_outputAttributes(),
           m_pCLIDSvc("ClassIDSvc", name),
           m_outSeqSvc("OutputStreamSequencerSvc", name),
         m_p2BWritten(string("SG::Folder/") + name + string("_TopFolder"), this),
@@ -160,13 +161,7 @@ AthenaOutputStream::AthenaOutputStream(const string& name, ISvcLocator* pSvcLoca
    declareProperty("WritingTool",            m_streamer);
    declareProperty("Store",                  m_dataStore);
    declareProperty("MetadataStore",          m_metadataStore);
-   declareProperty("ProcessingTag",          m_processTag=name);
    declareProperty("ForceRead",              m_forceRead=false);
-   // pers-to-pers option not used, and not currently working.
-   //declareProperty("PersToPers",             m_persToPers=false);
-   //declareProperty("ExemptPersToPers",       m_exemptPersToPers);
-   m_persToPers = false;
-   declareProperty("ProvideDef",             m_provideDef=false);
    declareProperty("ExtendProvenanceRecord", m_extendProvenanceRecord=true);
    declareProperty("WriteOnExecute",         m_writeOnExecute=true);
    declareProperty("WriteOnFinalize",        m_writeOnFinalize=false);
@@ -315,32 +310,7 @@ void AthenaOutputStream::handle(const Incident& inc) {
             throw GaudiException("Unable to connect metadata services", name(), StatusCode::FAILURE);
          }
          m_checkNumberOfWrites = false;
-         const std::string outputName0 = m_outputName;
-         m_outputName += "[OutputCollection=MetaDataHdr][PoolContainerPrefix=MetaData][AttributeListKey=][DataHeaderSatellites=]";
-         // BackwardCompatibility: Get MetadataItemList properties from ItemList of Stream_FH
-         ServiceHandle<IJobOptionsSvc> joSvc("JobOptionsSvc", name());
-         if (!joSvc.retrieve().isSuccess()) {
-            throw GaudiException("Cannot get JobOptionsSvc", name(), StatusCode::FAILURE);
-         }
-         const std::vector<const Property*>* fhProps = joSvc->getProperties(name() + "_FH");
-         if (fhProps != nullptr) {
-            StringArrayProperty fhProperty("ItemList", std::vector<std::string>());
-            for (std::vector<const Property*>::const_iterator iter = fhProps->begin(),
-                            last = fhProps->end(); iter != last; iter++) {
-               if ((*iter)->name() == fhProperty.name()) {
-                  (*iter)->load(fhProperty);
-                  std::vector<std::string> vProp = m_metadataItemList.value();
-                  for (std::vector<std::string>::const_iterator iter2 = fhProperty.value().begin(),
-                                  last2 = fhProperty.value().end(); iter2 != last2; iter2++) {
-                     vProp.push_back(*iter2);
-                  }
-                  if (this->setProperty("MetadataItemList", vProp).isFailure()) {
-                     throw GaudiException("Folder property [metadataItemList] cannot be set", name(), StatusCode::FAILURE);
-                  }
-                  break;
-               }
-            }
-         }
+         m_outputAttributes = "[OutputCollection=MetaDataHdr][PoolContainerPrefix=MetaData][AttributeListKey=][DataHeaderSatellites=]";
          m_p2BWritten->clear();
          IProperty *pAsIProp(nullptr);
          if ((m_p2BWritten.retrieve()).isFailure() ||
@@ -351,7 +321,7 @@ void AthenaOutputStream::handle(const Incident& inc) {
          if (write().isFailure()) {  // true mean write AND commit
             ATH_MSG_ERROR("Cannot write metadata");
          }
-         m_outputName = outputName0;
+         m_outputAttributes.clear();
          m_currentStore = &m_dataStore;
          status = m_streamer->connectServices(m_dataStore.type(), m_persName, m_extendProvenanceRecord);
          if (status.isFailure()) {
@@ -369,8 +339,7 @@ void AthenaOutputStream::handle(const Incident& inc) {
             }
          }
       }
-   }
-   else if (inc.type() == "UpdateOutputFile") {
+   } else if (inc.type() == "UpdateOutputFile") {
      const FileIncident* fileInc  = dynamic_cast<const FileIncident*>(&inc);
      if(fileInc!=nullptr) {
        if(m_outputName != fileInc->fileName()) {
@@ -384,12 +353,10 @@ void AthenaOutputStream::handle(const Incident& inc) {
 	   ATH_MSG_FATAL("Cannot register new output name with IoComponentMgr");
 	   return;
 	 }
-       }
-       else {
+       } else {
 	 ATH_MSG_DEBUG("New output file name received through the UpdateOutputFile incident is the same as the already defined output name. Nothing to do");
        }
-     }
-     else {
+     } else {
        ATH_MSG_FATAL("Cannot dyn-cast the UpdateOutputFile incident to FileIncident");
        return;
      }
@@ -456,11 +423,11 @@ StatusCode AthenaOutputStream::write() {
    // Connect the output file to the service
    // FIXME: this double looping sucks... got to query the
    // data store for object of a given type/key.
-   if (m_streamer->connectOutput(m_outSeqSvc->buildSequenceFileName(m_outputName)).isSuccess()) {
+   if (m_streamer->connectOutput(m_outSeqSvc->buildSequenceFileName(m_outputName) + m_outputAttributes).isSuccess()) {
       // First check if there are any new items in the list
       collectAllObjects();
       // print out info about objects collected
-      if (m_checkNumberOfWrites && !m_provideDef) {
+      if (m_checkNumberOfWrites) {
          bool checkCountError = false;
          ATH_MSG_DEBUG(" Collected objects:");
          bool first = true;
@@ -617,16 +584,8 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
          // All right, it passes key match find in itemList, but not in excludeList
          if (keyMatch && !xkeyMatch) {
             if (m_forceRead && itemProxy->isValid()) {
-               if (!m_persToPers) {
-                  if (nullptr == itemProxy->accessData()) {
-                     ATH_MSG_ERROR(" Could not get data object for id "
-                             << item.id() << ",\"" << itemProxy->name());
-                  }
-               } else if (true /*m_exemptPersToPers.find(item.id()) != m_exemptPersToPers.end()*/) {
-                  if (nullptr == itemProxy->accessData()) {
-                     ATH_MSG_ERROR(" Could not get data object for id "
-                             << item.id() << ",\"" << itemProxy->name());
-                  }
+               if (nullptr == itemProxy->accessData()) {
+                  ATH_MSG_ERROR(" Could not get data object for id " << item.id() << ",\"" << itemProxy->name());
                }
             }
             if (nullptr != itemProxy->object()) {
@@ -712,53 +671,27 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
                }
 
                added = true;
-               if (!m_provideDef) {
-                  if (m_checkNumberOfWrites) {
-                     CounterMapType::iterator cit = m_objectWriteCounter.find(tn);
-                     if (cit == m_objectWriteCounter.end()) {
-                       // First time through
-                       //std::pair<CounterMapType::iterator, bool> result =
-                       m_objectWriteCounter.insert(CounterMapType::value_type(tn, 1));
-                     } else {
-                        // set to next iteration (to avoid double counting)
-                        // StreamTools will eliminate duplicates.
-                        (*cit).second = m_events + 1;
-                     }
-                  }
-                  if (m_itemSvc->addStreamItem(this->name(),tns.str()).isFailure()) {
-                     ATH_MSG_WARNING("Unable to record item " << tns.str() << " in Svc");
+               if (m_checkNumberOfWrites) {
+                  CounterMapType::iterator cit = m_objectWriteCounter.find(tn);
+                  if (cit == m_objectWriteCounter.end()) {
+                    // First time through
+                    m_objectWriteCounter.insert(CounterMapType::value_type(tn, 1));
+                  } else {
+                     // set to next iteration (to avoid double counting)
+                     // StreamTools will eliminate duplicates.
+                     (*cit).second = m_events + 1;
                   }
                }
+               if (m_itemSvc->addStreamItem(this->name(),tns.str()).isFailure()) {
+                  ATH_MSG_WARNING("Unable to record item " << tns.str() << " in Svc");
+               }
             }
-#if 0            
-            else if (!m_forceRead && m_persToPers && itemProxy->isValid()) {
-               tAddr = itemProxy->transientAddress();
-            } //if data object there
-#endif
          } else if (keyMatch && xkeyMatch) {
             removed = true;
          }
       } // proxy loop
       if (!added && !removed) {
-#if 0
-         if (m_persToPers && tAddr != nullptr) {
-            ATH_MSG_DEBUG(" Going to attempt direct persistent copy for "
-                    << item.id() << ",\"" << item_key  << "\"");
-            DataObject* ics = new DataObject();
-            SG::DataProxy* proxy = new SG::DataProxy(ics, tAddr);
-            m_objects.push_back(proxy->object());
-         } else
-#endif
-           if (m_provideDef) {
-            ATH_MSG_DEBUG(" Going to attempt providing persistent default for "
-                    << item.id() << ",\"" << item_key  << "\"");
-            SG::TransientAddress* tAddr = new SG::TransientAddress(item.id(), item_key);
-            DataObject* ics = new DataObject();
-            SG::DataProxy* proxy = new SG::DataProxy(ics, tAddr);
-            m_objects.push_back(proxy->object());
-         } else {
-            ATH_MSG_DEBUG(" No object matching " << item.id() << ",\"" << item_key  << "\" found");
-         }
+         ATH_MSG_DEBUG(" No object matching " << item.id() << ",\"" << item_key  << "\" found");
       } else if (removed) {
          ATH_MSG_DEBUG(" Object being excluded based on property setting "
                  << item.id() << ",\"" << item_key  << "\". Skipping");
@@ -792,11 +725,9 @@ void AthenaOutputStream::excludeListHandler(Property& /* theProp */) {
 void AthenaOutputStream::tokenizeAtSep( std::vector<std::string>& subStrings,
                                         const std::string& portia,
                                         const std::string& sepstr ) const {
-  //ATH_MSG_VERBOSE("Going to break up: " << portia << ", using separator: " << sepstr);
   subStrings.clear(); // clear from previous iteration step
   // If the portia starts with a wildcard, add an empty string
   if ( portia.find(sepstr) == 0 ) {
-    //ATH_MSG_VERBOSE("String '" << portia << "' starts with wildcard '" << sepstr);
     subStrings.push_back("");
   }
   boost::char_separator<char> csep(sepstr.c_str());
@@ -808,14 +739,10 @@ void AthenaOutputStream::tokenizeAtSep( std::vector<std::string>& subStrings,
   // If the portia ends with a wildcard, add an empty string
   if ( portia.size() >= sepstr.size() &&
        portia.compare( portia.size() - sepstr.size(), sepstr.size(), sepstr) == 0 ) {
-    //ATH_MSG_VERBOSE("String '" << portia << "' ends with wildcard '" << sepstr);
     subStrings.push_back("");
   }
-  //ATH_MSG_VERBOSE("Done breaking up: " << portia << ", using separator: " << sepstr);
   return;
 }
-
-
 
 bool AthenaOutputStream::matchKey(const std::vector<std::string>& key,
                                   const SG::DataProxy* proxy) const {
@@ -860,8 +787,6 @@ bool AthenaOutputStream::matchKey(const std::vector<std::string>& key,
 
   return(keyMatch);
 }
-
-
 
 StatusCode AthenaOutputStream::io_reinit() {
    ATH_MSG_INFO("I/O reinitialization...");

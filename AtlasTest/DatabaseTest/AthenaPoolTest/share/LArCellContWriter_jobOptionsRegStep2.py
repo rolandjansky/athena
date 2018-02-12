@@ -64,7 +64,7 @@ theApp.TopAlg   += [ "AthenaOutputStream/Stream1" ]
 theApp.OutStream    = []; 
 # Must assigne conversion service to output stream
 Stream1 = Algorithm( "Stream1" )
-Stream1.WritingTool = "AthenaPoolOutputStreamTool"
+Stream1.WritingTool = "AthenaOutputStreamTool"
 Stream1.OutputFile  = "SimplePoolFile1.root"
 # List of DO's to write out
 Stream1.ItemList += ["EventInfo#*"]

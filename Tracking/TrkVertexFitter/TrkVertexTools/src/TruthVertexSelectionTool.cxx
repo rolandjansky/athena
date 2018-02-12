@@ -42,7 +42,7 @@ namespace Trk{
     if ( !mcCollptr.isValid() ) 
     {
       ATH_MSG_WARNING( "Could not retrieve McEventCollection" );
-      return StatusCode::FAILURE;
+      return 0;
     }    
     ATH_MSG_DEBUG( "HepMC info loaded" );
   
@@ -53,12 +53,12 @@ namespace Trk{
     const HepMC::GenEvent *evt = (*itr);
 
 //protection   
-    if(!evt) return StatusCode::FAILURE;
+    if(!evt) return 0;
    
     HepMC::GenEvent::vertex_const_iterator vitr = evt->vertices_begin();
   
 //another one  
-    if(!*vitr) return StatusCode::FAILURE;
+    if(!*vitr) return 0;
   
 //and its position
     HepMC::ThreeVector vxGenPos =  (*vitr)->point3d(); 

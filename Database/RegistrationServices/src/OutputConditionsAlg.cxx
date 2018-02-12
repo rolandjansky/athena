@@ -63,11 +63,11 @@ StatusCode OutputConditionsAlg::initialize() {
       return StatusCode::FAILURE;
     }
   }
-  m_streamer = IAthenaOutputStreamTool_t("AthenaPoolOutputStreamTool/"+
+  m_streamer = IAthenaOutputStreamTool_t("AthenaOutputStreamTool/"+
 					 m_streamName);
   StatusCode sc = m_streamer.retrieve();
   if (sc.isFailure()) {
-    ATH_MSG_ERROR ("Unable to find AthenaPoolOutputStreamTool with name " << 
+    ATH_MSG_ERROR ("Unable to find AthenaOutputStreamTool with name " << 
                    m_streamName);
     return StatusCode::FAILURE;
   }  

@@ -20,9 +20,6 @@ globalflags.DataSource="data"
 from AthenaCommon.AlgSequence import AthSequencer
 condSeq = AthSequencer("AthCondSeq")
 
-from IOVSvc.IOVSvcConf import CondInputLoader
-condSeq += CondInputLoader( "CondInputLoader",OutputLevel=2)
-
 from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
 condSeq+=xAODMaker__EventInfoCnvAlg(OutputLevel=2)
 

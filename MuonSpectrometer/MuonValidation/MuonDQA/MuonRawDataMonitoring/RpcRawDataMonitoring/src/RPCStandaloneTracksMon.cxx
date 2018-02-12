@@ -248,7 +248,10 @@ StatusCode RPCStandaloneTracksMon::initialize(){
      } else {
          ATH_MSG_DEBUG ("Got handle on TrigDecisionTool");
      }
-  }     
+  }
+  else {
+    m_trigDec.disable();
+  }
  
   m_rpc_eventstotal=0;
   

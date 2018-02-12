@@ -26,7 +26,7 @@ StreamDPD.ItemList += ['Rec::TrackParticleContainer#StacoTrackParticles']
 StreamDPD.ItemList += ['TruthParticleContainer#SpclMC']
 StreamDPD.ItemList += ['McEventCollection#GEN_AOD']
 
-StreamDPD.WritingTool = "AthenaPoolOutputStreamTool" 
+StreamDPD.WritingTool = "AthenaOutputStreamTool" 
 StreamDPD.ForceRead = True
 StreamDPD.OutputFile = "DPD.pool.root"
 
