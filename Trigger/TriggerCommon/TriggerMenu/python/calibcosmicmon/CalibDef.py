@@ -21,6 +21,8 @@ from TrigDetCalib.TrigDetCalibConfig import (LArL2ROBListWriter,
                                              CSCSubDetListWriter,
                                              L2ROBListWriter)
 from TriggerMenu.commonUtils.makeCaloSequences import (getFullScanCaloSequences) 
+from TrigDetCalib.TrigDetCalibConfig import *
+
 ###########################################################################
 # Helper classes
 ###########################################################################
@@ -206,7 +208,6 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
       self.AlgList = []
       self.signatureCounterOffset = 14
 
-      from TrigDetCalib.TrigDetCalibConfig import *
       trkAlgDict = {
          'idcalib_trk9_central'  : CheckForTracks_Trk9_Central('CheckForTracks_Trk9_Central'),
          'idcalib_trk16_central' : CheckForTracks_Trk16_Central('CheckForTracks_Trk16_Central'),
