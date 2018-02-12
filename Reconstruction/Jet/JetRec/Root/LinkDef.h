@@ -21,6 +21,8 @@
 #include <JetRec/JetToolRunner.h>
 #include <JetRec/JetTrimmer.h>
 #include <JetRec/JetSoftDrop.h>
+#include <JetRec/JetBottomUpSoftDrop.h>
+#include <JetRec/JetRecursiveSoftDrop.h>
 #include <JetRec/JetModifiedMassDrop.h>
 #include <JetRec/MuonSegmentPseudoJetGetter.h>
 #include <JetRec/PseudoJetGetter.h>
@@ -55,6 +57,8 @@
 #pragma link C++ class JetToolRunner+;
 #pragma link C++ class JetTrimmer+;
 #pragma link C++ class JetSoftDrop+;
+#pragma link C++ class JetBottomUpSoftDrop+;
+#pragma link C++ class JetRecursiveSoftDrop+;
 #pragma link C++ class JetModifiedMassDrop+;
 #pragma link C++ class MuonSegmentPseudoJetGetter+;
 #pragma link C++ class PseudoJetGetter+;
