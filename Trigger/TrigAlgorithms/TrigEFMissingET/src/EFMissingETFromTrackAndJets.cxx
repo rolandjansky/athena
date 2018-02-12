@@ -199,18 +199,15 @@ StatusCode EFMissingETFromTrackAndJets::execute(xAOD::TrigMissingET *,
 
     //having FTK vertex, and find the associated tracks
     std::vector<const xAOD::TrackParticle*> TrackVec_PV;
-    TrackVec_PV.clear();
     if(primaryVertex) {
         const std::vector< ElementLink< xAOD::TrackParticleContainer> > tpLinks = primaryVertex->trackParticleLinks();
         ATH_MSG_DEBUG ( "  tpLinks size: " << tpLinks.size());
-        if(tpLinks.size() != 0) {
             for(const auto& tp_elem : tpLinks ) {
                 if (tp_elem != nullptr && tp_elem.isValid()) {
                     const xAOD::TrackParticle* itrk = *tp_elem;
                     TrackVec_PV.push_back(itrk);
                 }
             }
-        }
     } // having vertex
 
 
@@ -339,10 +336,7 @@ StatusCode EFMissingETFromTrackAndJets::execute(xAOD::TrigMissingET *,
             Rpt_ijet.push_back( sumPtTrkPt500[i]/jet->pt() );
         }
 
-        std::pair<double, std::vector<double> > JVT_Rpt_ijet;
-        JVT_Rpt_ijet = std::make_pair (JVT, Rpt_ijet);
-
-        JVTRpt_jets[jet] = JVT_Rpt_ijet;
+        JVTRpt_jets[jet] = std::make_pair (JVT, Rpt_ijet);
 
     }
 
@@ -371,7 +365,8 @@ StatusCode EFMissingETFromTrackAndJets::execute(xAOD::TrigMissingET *,
     //std::cout << "pileupMomenta size " << pileupMomenta.size() << std::endl;
 
 
-    for (std::map<const xAOD::Jet*, std::pair<double, std::vector<double> > >::iterator it=JVTRpt_jets.begin(); it!=JVTRpt_jets.end(); ++it) {
+    for (std::map<const xAOD::Jet*, std::pair<double, std::vector<double> > >::iterator 
+		it=JVTRpt_jets.begin(); it!=JVTRpt_jets.end(); ++it) {
         const xAOD::Jet* jet = it->first;
         double JVT_ijet = it->second.first;
         std::vector<double> Rpt_ijet = it->second.second;
@@ -571,9 +566,9 @@ TH1* EFMissingETFromTrackAndJets::getHistogramFromFile(TString hname, TString fn
 
 bool EFMissingETFromTrackAndJets::forwardJet(const xAOD::Jet *jet) const
 {
-    double etaThresh          = 2.4;
-    double forwardMinPt       = 20e3;
-    double forwardMaxPt       = 50e3;
+    const double etaThresh          = 2.4;
+    const double forwardMinPt       = 20e3;
+    const double forwardMaxPt       = 50e3;
     if (fabs(jet->eta())<etaThresh) return false;
     if (jet->pt()<forwardMinPt || jet->pt()>forwardMaxPt) return false;
     return true;
@@ -583,12 +578,12 @@ bool EFMissingETFromTrackAndJets::forwardJet(const xAOD::Jet *jet) const
 bool EFMissingETFromTrackAndJets::centralJet(const xAOD::Jet *jet, float jvt, std::vector<double> sumpts) const
 {
 
-    double etaThresh          = 2.4;
-    double centerMinPt        = 20e3;
-    double centerMaxPt        = -1;
-    double centerJvtThresh    = 0.14;
-    double maxStochPt         = 35e3;
-    double centerDrptThresh   = 0.2;
+    const double etaThresh          = 2.4;
+    const double centerMinPt        = 20e3;
+    const double centerMaxPt        = -1;
+    const double centerJvtThresh    = 0.14;
+    const double maxStochPt         = 35e3;
+    const double centerDrptThresh   = 0.2;
 
     if (fabs(jet->eta())>etaThresh) return false;
     if (jet->pt()<centerMinPt || (centerMaxPt>0 && jet->pt()>centerMaxPt)) return false;
