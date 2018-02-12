@@ -12,7 +12,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
-
+#include "AthenaKernel/RNGWrapper.h"
 // L1Decoder includes
 #include "./IPrescalingTool.h"
 
@@ -39,15 +39,15 @@ public:
 
   virtual StatusCode prescaleChains( const EventContext& ctx,  
 				     const HLT::IDVec& initialyActive,
-				     HLT::IDVec& remainActive ) override;  
+				     HLT::IDVec& remainActive ) const override;  
  private: 
 
   PrescalingEmulationTool();  
-  ServiceHandle<IAtRndmGenSvc> m_RNGSvc{ this, "RNGSvc", "AtRanluxGenSvc/AtRanluxGenSvc", "RNG Factory Service" };
+  //ServiceHandle<IAtRndmGenSvc> m_RNGSvc{ this, "RNGSvc", "AtRanluxGenSvc/AtRanluxGenSvc", "RNG Factory Service" };
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{ this, "EventInfo", "EventInfo", "EventInfo object, source of CTP time used to reseed the RNG" };
   Gaudi::Property<bool> m_keepUnknownChains{ this, "KeepUnknownChains", true, "If True then chains for which prescaling information is not set are kept" }; 
   Gaudi::Property< std::vector<std::string> > m_prescalingConfig{ this, "Prescales", {}, "The prescaling info in the form: \"chainName:PSValue\"" }; 
-  CLHEP::HepRandomEngine* m_RNGEngine{ nullptr };
+  ATHRNG::RNGWrapper m_RNGEngines;
   
   typedef std::map<HLT::Identifier, float> PrescalingInfo;
   PrescalingInfo m_prescalingInfo;
