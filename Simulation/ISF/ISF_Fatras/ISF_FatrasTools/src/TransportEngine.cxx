@@ -424,7 +424,8 @@ ISF::ISFParticle* iFatras::TransportEngine::handleExtrapolationResult(const ISF:
                                          isp.pdgCode(),
                                          stime+isp.timeStamp(),
                                          isp,
-                                         isp.barcode());
+                                         isp.barcode(),
+					 (isp.getTruthBinding() ? new ISF::TruthBinding(*isp.getTruthBinding()) : nullptr));
 	rParticle->setNextGeoID(geoID);
     } else if (eCode == Trk::ExtrapolationCode::SuccessPathLimit){
         ATH_MSG_VERBOSE( "[ fatras transport ] Successfully reached path limit for the particle -> decay & return 0.");

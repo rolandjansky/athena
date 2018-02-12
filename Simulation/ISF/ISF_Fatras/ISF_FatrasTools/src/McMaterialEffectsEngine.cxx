@@ -713,7 +713,8 @@ Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::processMaterialOnLayer(
   // register particle if not in the stack already 
   if (isp!=m_isp ) {
     ISF::ISFParticle* regisp=new ISF::ISFParticle(isp->position(),parm->momentum(),isp->mass(),isp->charge(),
-						  isp->pdgCode(),isp->timeStamp(),*m_isp,isp->barcode());
+						  isp->pdgCode(),isp->timeStamp(),*m_isp,isp->barcode(),
+						  (isp->getTruthBinding() ? new ISF::TruthBinding(*isp->getTruthBinding()) : nullptr));
     // add presampled process info 
     if (isp->getUserInformation() && isp->getUserInformation()->materialLimit()) {
       ISF::MaterialPathInfo* matLim = isp->getUserInformation()->materialLimit();
@@ -905,7 +906,8 @@ Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::processMaterialOnLayer(
   // register particle if not in the stack already
   if (isp!=m_isp ) {
     ISF::ISFParticle* regisp=new ISF::ISFParticle(isp->position(),parm->momentum(),isp->mass(),isp->charge(),
-						  isp->pdgCode(),isp->timeStamp(),*m_isp,isp->barcode());
+						  isp->pdgCode(),isp->timeStamp(),*m_isp,isp->barcode(),
+						  (isp->getTruthBinding() ? new ISF::TruthBinding(*isp->getTruthBinding()) : nullptr));
     // add presampled process info 
     if (isp->getUserInformation() && isp->getUserInformation()->materialLimit()) {
       ISF::MaterialPathInfo* matLim = isp->getUserInformation()->materialLimit();
