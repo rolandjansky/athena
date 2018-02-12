@@ -19,5 +19,3 @@ class SCT_CachedSummarySvcSetup:
 
     def setup(self):
         self.setSvc()
-
-sct_CachedSummarySvcSetup = SCT_CachedSummarySvcSetup()

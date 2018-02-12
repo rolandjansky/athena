@@ -68,7 +68,8 @@ conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/Geog", "/SCT/DAQ/Config/Geog")
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/RODMUR", "/SCT/DAQ/Config/RODMUR")
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/MUR", "/SCT/DAQ/Config/MUR")
 
-from SCT_ConditionsServices.SCT_LinkMaskingSvcSetup import sct_LinkMaskingSvcSetup
+from SCT_ConditionsServices.SCT_LinkMaskingSvcSetup import SCT_LinkMaskingSvcSetup
+sct_LinkMaskingSvcSetup = SCT_LinkMaskingSvcSetup()
 sct_LinkMaskingSvcSetup.setFolderDb("<dbConnection>sqlite://;schema=LinkMasking.db;dbname=CONDBR2</dbConnection>/purple/pants")
 # This folder can be created by SCT_ConditionsServices/python/createLinkMaskingSQLiteFile.py
 sct_LinkMaskingSvcSetup.setup()

@@ -66,26 +66,27 @@ IOVDbSvc.GlobalTag="CONDBR2-BLKPA-2017-06"
 print "conddb.dbdata", conddb.dbdata
 IOVDbSvc.OutputLevel = 3
 
-from SCT_ConditionsServices.SCT_TdaqEnabledSvcSetup import sct_TdaqEnabledSvcSetup
+from SCT_ConditionsServices.SCT_TdaqEnabledSvcSetup import SCT_TdaqEnabledSvcSetup
+sct_TdaqEnabledSvcSetup = SCT_TdaqEnabledSvcSetup()
 sct_TdaqEnabledSvcSetup.setup()
 
-from SCT_ConditionsServices.SCT_ConfigurationConditionsSvcSetup import sct_ConfigurationConditionsSvcSetup
+from SCT_ConditionsServices.SCT_ConfigurationConditionsSvcSetup import SCT_ConfigurationConditionsSvcSetup
+sct_ConfigurationConditionsSvcSetup = SCT_ConfigurationConditionsSvcSetup()
 sct_ConfigurationConditionsSvcSetup.setup()
 
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/Geog", "/SCT/DAQ/Config/Geog") # Needed for cabling
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/RODMUR", "/SCT/DAQ/Config/RODMUR") # Needed for cabling
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/ROD", "/SCT/DAQ/Config/ROD") # Needed for cabling
 
-from SCT_ConditionsServices.SCT_ModuleVetoSvcSetup import sct_ModuleVetoSvcSetup
+from SCT_ConditionsServices.SCT_ModuleVetoSvcSetup import SCT_ModuleVetoSvcSetup
+sct_ModuleVetoSvcSetup = SCT_ModuleVetoSvcSetup()
 sct_ModuleVetoSvcSetup.setUseDB(False)
 sct_ModuleVetoSvcSetup.setup()
 SCT_ModuleVetoSvc=sct_ModuleVetoSvcSetup.getSvc()
 SCT_ModuleVetoSvc.BadModuleIdentifiers=["1", "2"]
 
-from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConditionsSummarySvc
-ServiceMgr +=SCT_ConditionsSummarySvc()
-
-from SCT_ConditionsServices.SCT_ConditionsSummarySvcSetup import sct_ConditionsSummarySvcSetup
+from SCT_ConditionsServices.SCT_ConditionsSummarySvcSetup import SCT_ConditionsSummarySvcSetup
+sct_ConditionsSummarySvcSetup = SCT_ConditionsSummarySvcSetup()
 sct_ConditionsSummarySvcSetup.setup()
 SCT_ConditionsSummarySvc = sct_ConditionsSummarySvcSetup.getSvc()
 SCT_ConditionsSummarySvc.ConditionsServices=[sct_ModuleVetoSvcSetup.getSvcName(),

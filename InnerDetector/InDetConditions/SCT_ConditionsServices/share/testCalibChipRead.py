@@ -93,7 +93,8 @@ topSequence = AlgSequence()
 from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
 topSequence +=xAODMaker__EventInfoCnvAlg(OutputLevel=2)
 
-from SCT_ConditionsServices.SCT_ReadCalibChipDataSvcSetup import sct_ReadCalibChipDataSvcSetup
+from SCT_ConditionsServices.SCT_ReadCalibChipDataSvcSetup import SCT_ReadCalibChipDataSvcSetup
+sct_ReadCalibChipDataSvcSetup = SCT_ReadCalibChipDataSvcSetup()
 sct_ReadCalibChipDataSvcSetup.setNoiseFolderTag("SctDaqCalibrationChipNoise-UPD1-002-00")
 sct_ReadCalibChipDataSvcSetup.setGainFolderTag("SctDaqCalibrationChipGain-UPD1-002-00")
 sct_ReadCalibChipDataSvcSetup.setup()

@@ -10,7 +10,7 @@ class SCT_ModuleVetoSvcSetup:
         self.dbInstance = "SCT_OFL"
         self.algName = "SCT_ModuleVetoCondAlg"
         self.alg = None
-        self.svcName = "SCT_ModuleVetoSvc"
+        self.svcName = "InDetSCT_ModuleVetoSvc"
         self.svc = None
         self.useDB = True
 
@@ -73,6 +73,9 @@ class SCT_ModuleVetoSvcSetup:
     def getSvcName(self):
         return self.svcName
 
+    def setSvcName(self, svcName):
+        self.svcName = svcName
+
     def getUseDB(self):
         return self.useDB
 
@@ -84,5 +87,3 @@ class SCT_ModuleVetoSvcSetup:
             self.setFolders()
             self.setAlgs()
         self.setSvc()
-
-sct_ModuleVetoSvcSetup = SCT_ModuleVetoSvcSetup()

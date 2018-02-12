@@ -33,6 +33,7 @@ SCTSiPropertiesCondAlg::SCTSiPropertiesCondAlg(const std::string& name, ISvcLoca
   declareProperty("ReadKeyeTemp", m_readKeyTemp, "Key of input sensor temperature conditions folder");
   declareProperty("ReadKeyHV", m_readKeyHV, "Key of input bias voltage conditions folder");
   declareProperty("WriteKey", m_writeKey, "Key of output silicon properties conditions folder");
+  declareProperty("SiConditionsServices", m_siCondSvc, "SiConditionsServices to be used");
 }
 
 SCTSiPropertiesCondAlg::~SCTSiPropertiesCondAlg() {

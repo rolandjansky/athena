@@ -64,7 +64,8 @@ job = AlgSequence()
 # Local stuff
 #------------------------------------------------------------
 
-from SCT_ConditionsServices.SCT_MonitorConditionsSvcSetup import sct_MonitorConditionsSvcSetup
+from SCT_ConditionsServices.SCT_MonitorConditionsSvcSetup import SCT_MonitorConditionsSvcSetup
+sct_MonitorConditionsSvcSetup = SCT_MonitorConditionsSvcSetup()
 sct_MonitorConditionsSvcSetup.setup()
 
 SCT_MonitorConditionsSvc=sct_MonitorConditionsSvcSetup.getSvc()

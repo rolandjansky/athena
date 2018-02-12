@@ -66,21 +66,13 @@ IOVDbSvc = Service("IOVDbSvc")
 from IOVDbSvc.CondDB import conddb
 IOVDbSvc.GlobalTag="OFLCOND-MC16-SDR-18"
 
-from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ModuleVetoSvc
-ServiceMgr +=SCT_ModuleVetoSvc()
-
-SCT_ModuleVeto=ServiceMgr.SCT_ModuleVetoSvc
-
 ### Use COOL database for SCT_ModuleVetoSvc
 useDB = True # False
 
-from SCT_ConditionsServices.SCT_ModuleVetoSvcSetup import sct_ModuleVetoSvcSetup
+from SCT_ConditionsServices.SCT_ModuleVetoSvcSetup import SCT_ModuleVetoSvcSetup
+sct_ModuleVetoSvcSetup = SCT_ModuleVetoSvcSetup()
 if useDB:
     sct_ModuleVetoSvcSetup.setFolderTag("SCTManualBadModules-000-00")
-    from AthenaCommon.AlgSequence import AthSequencer
-    condSeq = AthSequencer("AthCondSeq")
-    from IOVSvc.IOVSvcConf import CondInputLoader
-    condSeq += CondInputLoader("CondInputLoader", OutputLevel=2)
 
 sct_ModuleVetoSvcSetup.setUseDB(useDB)
 sct_ModuleVetoSvcSetup.setup()

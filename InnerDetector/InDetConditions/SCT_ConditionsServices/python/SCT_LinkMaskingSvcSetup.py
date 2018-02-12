@@ -63,5 +63,3 @@ class SCT_LinkMaskingSvcSetup:
         self.setFolders()
         self.setAlgs()
         self.setSvc()
-
-sct_LinkMaskingSvcSetup = SCT_LinkMaskingSvcSetup()

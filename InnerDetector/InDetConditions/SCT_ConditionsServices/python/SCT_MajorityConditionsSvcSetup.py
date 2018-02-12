@@ -9,7 +9,7 @@ class SCT_MajorityConditionsSvcSetup:
         self.dbInstance = "DCS_OFL"
         self.algName = "SCT_MajorityCondAlg"
         self.alg = None
-        self.svcName = "SCT_MajorityConditionsSvc"
+        self.svcName = "InDetSCT_MajorityConditionsSvc"
         self.svc = None
 
     def getFolder(self):
@@ -59,9 +59,13 @@ class SCT_MajorityConditionsSvcSetup:
     def getSvc(self):
         return self.svc
 
+    def getSvcName(self):
+        return self.svcName
+
+    def setSvcName(self, svcName):
+        self.svcName = svcName
+
     def setup(self):
         self.setFolders()
         self.setAlgs()
         self.setSvc()
-
-sct_MajorityConditionsSvcSetup = SCT_MajorityConditionsSvcSetup()

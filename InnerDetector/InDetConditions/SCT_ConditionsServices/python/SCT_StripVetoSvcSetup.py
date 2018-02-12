@@ -19,5 +19,3 @@ class SCT_StripVetoSvcSetup:
 
     def setup(self):
         self.setSvc()
-
-sct_StripVetoSvcSetup = SCT_StripVetoSvcSetup()

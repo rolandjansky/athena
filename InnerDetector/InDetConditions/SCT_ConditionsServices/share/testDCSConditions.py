@@ -75,7 +75,8 @@ from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsT
 topSequence+= SCT_DCSConditionsTestAlg()
 
 # Set up SCT_DCSConditionsSvc and required conditions folders and conditions algorithms
-from SCT_ConditionsServices.SCT_DCSConditionsSvcSetup import sct_DCSConditionsSvcSetup
+from SCT_ConditionsServices.SCT_DCSConditionsSvcSetup import SCT_DCSConditionsSvcSetup
+sct_DCSConditionsSvcSetup = SCT_DCSConditionsSvcSetup()
 sct_DCSConditionsSvcSetup.setup()
 
 #--------------------------------------------------------------

@@ -10,11 +10,15 @@ class SCT_TdaqEnabledSvcSetup:
         self.dbInstance = "TDAQ"
         self.algName = "SCT_TdaqEnabledCondAlg"
         self.alg = None
-        self.svcName = "SCT_TdaqEnabledSvc"
+        self.svcName = "InDetSCT_TdaqEnabledSvc"
         self.svc = None
+        self.eventInfoKey = "ByteStreamEventInfo"
 
     def getFolder(self):
         return self.folder
+
+    def setFolder(self, folder):
+        self.folder = folder
 
     def getFolderDb(self):
         return self.folderDb
@@ -56,25 +60,34 @@ class SCT_TdaqEnabledSvcSetup:
         if not hasattr(condSeq, self.algName):
             from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_TdaqEnabledCondAlg
             condSeq += SCT_TdaqEnabledCondAlg(name = self.algName,
-                                              ReadKey = self.folder)
+                                              ReadKey = self.folder,
+                                              EventInfoKey = self.eventInfoKey)
         self.alg = getattr(condSeq, self.algName)
 
     def setSvc(self):
         from AthenaCommon.AppMgr import ServiceMgr
         if not hasattr(ServiceMgr, self.svcName):
             from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_TdaqEnabledSvc
-            ServiceMgr += SCT_TdaqEnabledSvc(name = self.svcName)
+            ServiceMgr += SCT_TdaqEnabledSvc(name = self.svcName,
+                                             EventInfoKey = self.eventInfoKey)
         self.svc = getattr(ServiceMgr, self.svcName)
 
     def getSvc(self):
         return self.svc
 
+    def setSvcName(self, svcName):
+        self.svcName = svcName
+
     def getSvcName(self):
         return self.svcName
+
+    def setEventInfoKey(self, eventInfoKey):
+        self.eventInfoKey = eventInfoKey
+
+    def getEventInfoKey(self):
+        return self.eventInfoKey
 
     def setup(self):
         self.setFolders()
         self.setAlgs()
         self.setSvc()
-
-sct_TdaqEnabledSvcSetup = SCT_TdaqEnabledSvcSetup()
