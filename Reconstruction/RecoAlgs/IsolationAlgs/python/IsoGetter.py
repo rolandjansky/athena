@@ -161,8 +161,7 @@ CaloIsolationTool = ToolFactory(xAOD__CaloIsolationTool,name = "CaloIsolationToo
                                 IsoLeakCorrectionTool           = IsoCorrectionTool,
                                 EMCaloNums                      = [SUBCALO.LAREM],
                                 HadCaloNums                     = [SUBCALO.LARHEC, SUBCALO.TILE],
-                                UseEMScale                      = True,
-                                OutputLevel                     = 3)
+                                UseEMScale                      = True)
 
 TrackIsolationTool = ToolFactory(xAOD__TrackIsolationTool, name = 'TrackIsolationTool')
 from AthenaCommon import CfgMgr
@@ -199,17 +198,32 @@ IsoTypesFe =  [
 IsoCorEg = [
   [ isoPar.core57cells, isoPar.ptCorrection ],
   [ isoPar.core57cells, isoPar.ptCorrection, isoPar.pileupCorrection ],
-  [ isoPar.coreTrackPtr ] #still hard-coded
+  [ isoPar.coreTrackPtr ]
   ]
+
+IsoCorEgExtra = [
+  [ ],
+  [ isoPar.coreCone, isoPar.coreConeSC],
+  [ ]
+  ]
+
 IsoCorMu = [
-  #[ isoPar.coreCone ], 
   [ isoPar.coreMuon ],
   [ isoPar.coreCone, isoPar.pileupCorrection ],
-  [ isoPar.coreTrackPtr ] #still hard-coded
+  [ isoPar.coreTrackPtr ]
   ]
+
+IsoCorMuExtra = [
+  [ ],
+  [ ],
+  [ ]
+  ]
+
 IsoCorFe = [
   [ isoPar.coreCone, isoPar.pileupCorrection ] 
   ]
+
+IsoCorFeExtra = [[]]
 
 if doPFlow:
   IsoTypes.append(  
@@ -217,7 +231,9 @@ if doPFlow:
       isoPar.neflowisol30,
       isoPar.neflowisol40 ] )
   IsoCorEg.append([ isoPar.coreCone, isoPar.pileupCorrection ])
+  IsoCorEgExtra.append([isoPar.ptCorrection])
   IsoCorMu.append([ isoPar.coreCone, isoPar.pileupCorrection ])
+  IsoCorMuExtra.append([isoPar.ptCorrection])
 
 
 from IsolationAlgs.IsolationAlgsConf import IsolationBuilder
@@ -227,14 +243,19 @@ isoBuilder = AlgFactory(IsolationBuilder,
                         CaloTopoIsolationTool = CaloIsolationTool,
                         PFlowIsolationTool    = CaloIsolationTool,
                         TrackIsolationTool    = TrackIsolationTool, 
-                        FeIsoTypes            = [[]] if not rec.doEgamma() else IsoTypesFe,
+                        FeIsoTypes            = [] if not rec.doEgamma() else IsoTypesFe,
                         FeCorTypes            = IsoCorFe,
-			EgIsoTypes            = [[]] if not rec.doEgamma() else IsoTypes,
-                        EgCorTypes            = IsoCorEg,
-			MuIsoTypes            = IsoTypes if rec.doMuon() and muonRecFlags.doMuonIso() else [[]],
+                        FeCorTypesExtra       = IsoCorFeExtra,
+			ElIsoTypes            = [] if not rec.doEgamma() else IsoTypes,
+                        ElCorTypes            = IsoCorEg,
+                        ElCorTypesExtra       = IsoCorEgExtra,
+			PhIsoTypes            = [] if not rec.doEgamma() else IsoTypes,
+                        PhCorTypes            = IsoCorEg,
+                        PhCorTypesExtra       = IsoCorEgExtra,
+			MuIsoTypes            = IsoTypes if rec.doMuon() and muonRecFlags.doMuonIso() else [],
                         MuCorTypes            = IsoCorMu,
-                        LeakageTool           = None,
-                        OutputLevel           = 3)
+                        MuCorTypesExtra       = IsoCorMuExtra
+                        )
 
 from RecExConfig.Configured import Configured
 class isoGetter ( Configured ) :

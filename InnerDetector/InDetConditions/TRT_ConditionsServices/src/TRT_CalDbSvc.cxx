@@ -33,7 +33,7 @@ TRT_CalDbSvc::TRT_CalDbSvc( const std::string& name, ISvcLocator* pSvcLocator )
     m_par_t0containerkey("/TRT/Calib/T0"),
     m_par_caltextfile(""),
     m_trtid(0),
-    m_streamer("AthenaPoolOutputStreamTool/CondStream1"),
+    m_streamer("AthenaOutputStreamTool/CondStream1"),
     m_detstore("DetectorStore",name),
     m_condSvc("CondSvc",name),
     m_useCachedPtr(false)

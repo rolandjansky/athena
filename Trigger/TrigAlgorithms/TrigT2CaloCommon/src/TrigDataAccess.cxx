@@ -159,6 +159,11 @@ StatusCode TrigDataAccess::initialize()
 	  m_caloLumiBCIDTool.disable();
 	}
 
+        ATH_CHECK(m_lardecoder.retrieve());
+        ATH_CHECK(m_tiledecoder.retrieve());
+        ATH_CHECK(m_zdcdecoder.retrieve());
+        ATH_CHECK(m_zdcrectool.retrieve());
+
 	return StatusCode::SUCCESS;
 } // End of initialize
 
@@ -170,19 +175,7 @@ StatusCode TrigDataAccess::beginRunHandle(IOVSVC_CALLBACK_ARGS){
 		return StatusCode::FAILURE;
 	} // End of if LArRoI_Map
 
-	if((m_lardecoder.retrieve()).isFailure()) {
-	        ATH_MSG_FATAL("Could not find LArRodDecoder");
-	}
-	if((m_tiledecoder.retrieve()).isFailure()){
-	        ATH_MSG_FATAL("Could not find TileRodDecoder");
-	}
         //m_datablock.reserve(350);
-	if((m_zdcdecoder.retrieve()).isFailure()){
-	        ATH_MSG_FATAL("Could not find ZdcByteStreamTool");
-	}
-	if((m_zdcrectool.retrieve()).isFailure()){
-	        ATH_MSG_FATAL("Could not find ZdcRecChannelTool");
-	}
 
 	// Delete if things already exist
         if ( m_iov_called ){

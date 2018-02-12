@@ -63,8 +63,7 @@ namespace InDet
     }
 
     /*Get the Vertex Mergin Tool*/
-    if (m_doVertexMerging)
-    {
+    if (m_doVertexMerging) {
       if ( m_VertexMergingTool.retrieve().isFailure() )
       {
         msg(MSG::FATAL) << "Failed to retrieve tool " << m_VertexMergingTool << endmsg;
@@ -74,11 +73,12 @@ namespace InDet
       {
         msg(MSG::INFO) << "Retrieved tool " << m_VertexMergingTool << endmsg;
       }
+    } else {
+      m_VertexMergingTool.disable();
     }
 
     /*Get the Vertex Collection Sorting Tool*/
-    if (m_doVertexSorting)
-    {
+    if (m_doVertexSorting) {
       if ( m_VertexCollectionSortingTool.retrieve().isFailure() )
       {
         msg(MSG::FATAL) << "Failed to retrieve tool " << m_VertexCollectionSortingTool << endmsg;
@@ -88,6 +88,8 @@ namespace InDet
       {
         msg(MSG::INFO) << "Retrieved tool " << m_VertexCollectionSortingTool << endmsg;
       }
+    } else {
+      m_VertexCollectionSortingTool.disable();
     }
    
     ATH_CHECK(m_trkTracksName.initialize(!m_useTrackParticles));

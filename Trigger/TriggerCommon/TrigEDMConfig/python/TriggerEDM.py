@@ -52,6 +52,7 @@ identifier = ".-"
 UnusedIDVariables = ["trackParameterCovarianceMatrices", "parameterX", "parameterY", "parameterZ", "parameterPX",
                      "parameterPY", "parameterPZ", "parameterPosition", "caloExtension","trackLink"]
 UnusedVtxVariables = ["vxTrackAtVertex"]
+
 # Combine them into a string
 RemoveIDVariables = ".-"+identifier.join(UnusedIDVariables)
 RemoveVtxVariables = ".-"+identifier.join(UnusedVtxVariables)
@@ -96,36 +97,18 @@ UnusedFourMom = ["ptIntermediateAxis", "etaIntermediateAxis", "phiIntermediateAx
 UnusedTauVariables = PanTauVars + PFOs + EFlow + Samplings + UnusedOldTau + UnusedProperties + UnusedFourMom
 RemoveTauVariables = ".-"+identifier.join(UnusedTauVariables)
 
-
 UnusedCaloVariables = ["N_BAD_CELLS","BADLARQ_FRAC","ENG_BAD_CELLS","N_BAD_HV_CELLS",
                         "BAD_CELLS_CORR_E","BadChannelList","CELL_SIG_SAMPLING",
                         "AVG_TILE_Q","AVG_LAR_Q","ENG_FRAC_EM","ISOLATION",
-                        "etasize_sampl","phisize_sampl", "ENG_POS",
+                        "etasize_sampl","phisize_sampl","EM_PROBABILITY","ENG_POS",
                         "CELL_SIGNIFICANCE","DM_WEIGHT","HAD_WEIGHT","LATERAL",
                         "SECOND_R","CENTER_MAG","FIRST_PHI","CENTER_Z","OOC_WEIGHT",
                         "LONGITUDINAL","DELTA_ALPHA","CENTER_Y","CENTER_X","FIRST_ETA",
-                        "DELTA_PHI","ENG_FRAC_MAX","ENG_FRAC_CORE", "SIGNIFICANCE", "DELTA_THETA",
-                        "SECOND_ENG_DENS","emax_sampl","CellLink","phimax_sampl","etamax_sampl",
-                        "CENTER_LAMBDA","FIRST_ENG_DENS","EM_PROBABILITY","SECOND_LAMBDA",
-                       ]
+                        "DELTA_PHI","ENG_FRAC_MAX","SECOND_LAMBDA","ENG_FRAC_CORE",
+                        "SIGNIFICANCE","CENTER_LAMBDA","DELTA_THETA","FIRST_ENG_DENS",
+                        "SECOND_ENG_DENS","emax_sampl","CellLink","phimax_sampl","etamax_sampl"]
 RemoveCaloVariables = ".-"+identifier.join(UnusedCaloVariables)
 
-#Special list to keep some moments needed for taus (ATR-17608)
-TauCaloVariablestoAdd= ["CENTER_LAMBDA","FIRST_ENG_DENS","EM_PROBABILITY","SECOND_LAMBDA","SECOND_R"]
-TauCaloVariablestoRemove= ["N_BAD_CELLS","BADLARQ_FRAC","ENG_BAD_CELLS","N_BAD_HV_CELLS",
-                        "BAD_CELLS_CORR_E","BadChannelList","CELL_SIG_SAMPLING",
-                        "AVG_TILE_Q","AVG_LAR_Q","ENG_FRAC_EM","ISOLATION",
-                        "etasize_sampl","phisize_sampl", "ENG_POS",
-                        "CELL_SIGNIFICANCE","DM_WEIGHT","HAD_WEIGHT","LATERAL",
-                        "CENTER_MAG","FIRST_PHI","CENTER_Z","OOC_WEIGHT",
-                        "LONGITUDINAL","DELTA_ALPHA","CENTER_Y","CENTER_X","FIRST_ETA",
-                        "DELTA_PHI","ENG_FRAC_MAX","ENG_FRAC_CORE", "SIGNIFICANCE", "DELTA_THETA",
-                        "SECOND_ENG_DENS","emax_sampl","CellLink","phimax_sampl","etamax_sampl",]
-RemoveTauCaloVars=".-"+identifier.join(TauCaloVariablestoRemove)
-posidentifier="."
-AddTauCaloVariables="."+posidentifier.join(TauCaloVariablestoAdd)
-
-# muons
 UnusedMuonVariables = ["ET_Core","ET_EMCore","d0_staco","z0_staco","CT_ET_Core","ET_HECCore",
                         "ET_TileCore","CT_EL_Type","phi0_staco","theta_staco","isEndcapGoodLayers",
                         "isSmallGoodSectors","qOverP_staco","segmentsOnTrack","qOverPErr_staco",
@@ -141,7 +124,6 @@ UnusedMuonIDVariables = UnusedIDVariables + ["alignEffectChId","alignEffectDelta
                         
 RemoveMuonIDVariables = ".-"+identifier.join(UnusedMuonIDVariables)                       
 
-#B-tagging
 UnusedBTaggingVariables = ["SV1_deltaR","SV1_Lxy","SV1_L3d","SV0_dstToMatLay","SV1_dstToMatLay","JetFitter_dRFlightDir"]
 RemoveBTaggingVariables = ".-"+identifier.join(UnusedBTaggingVariables)                      
 
@@ -190,10 +172,8 @@ TriggerHLTList = [
     ('xAOD::JetRoIAuxContainer#HLT_L1TopoJetAux.',                         'BS ESD AODFULL AODSLIM AODVERYSLIM',  'Steer'),  
 
     #calo
-    ('xAOD::CaloClusterContainer#HLT_TrigCaloClusterMaker', 'BS ESD AODFULL AODSLIM', 'Calo'), 
-    #('xAOD::CaloClusterTrigAuxContainer#HLT_TrigCaloClusterMakerAux'+RemoveCaloVariables, 'BS ESD AODFULL', 'Calo'), 
-    ('xAOD::CaloClusterTrigAuxContainer#HLT_TrigCaloClusterMakerAux'+AddTauCaloVariables, 'BS ESD AODFULL AODSLIM', 'Calo'), 
-
+    ('xAOD::CaloClusterContainer#HLT_TrigCaloClusterMaker', 'BS ESD AODFULL', 'Calo'), 
+    ('xAOD::CaloClusterTrigAuxContainer#HLT_TrigCaloClusterMakerAux'+RemoveCaloVariables, 'BS ESD AODFULL', 'Calo'), 
     ('xAOD::CaloClusterContainer#HLT_TrigCaloClusterMaker_slw', 'BS ESD AODFULL', 'Calo'), 
     ('xAOD::CaloClusterTrigAuxContainer#HLT_TrigCaloClusterMaker_slwAux'+RemoveCaloVariables, 'BS ESD AODFULL', 'Calo'), 
     ('xAOD::CaloClusterContainer#HLT_TrigCaloClusterMaker_topo', 'BS ESD', 'Calo'), 
@@ -208,6 +188,15 @@ TriggerHLTList = [
     ('xAOD::PhotonTrigAuxContainer#HLT_egamma_PhotonsAux.',        'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Egamma'), 
     ('xAOD::PhotonContainer#HLT_egamma_Iso_Photons',                    'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Egamma'),
     ('xAOD::PhotonTrigAuxContainer#HLT_egamma_Iso_PhotonsAux'+RemoveEgammaIsoVariables,        'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Egamma'), 
+
+    ('xAOD::ElectronContainer#HLT_egamma_SC_Electrons',                'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Egamma'),
+    ('xAOD::ElectronTrigAuxContainer#HLT_egamma_SC_ElectronsAux'+RemoveEgammaIsoVariables,  'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Egamma'),
+    ('xAOD::ElectronContainer#HLT_egamma_SC_Iso_Electrons',                'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Egamma'),
+    ('xAOD::ElectronTrigAuxContainer#HLT_egamma_SC_Iso_ElectronsAux'+RemoveEgammaIsoVariables,  'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Egamma'),
+    ('xAOD::PhotonContainer#HLT_egamma_SC_Photons',                    'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Egamma'),
+    ('xAOD::PhotonTrigAuxContainer#HLT_egamma_SC_PhotonsAux.',        'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Egamma'), 
+    ('xAOD::PhotonContainer#HLT_egamma_SC_Iso_Photons',                    'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Egamma'),
+    ('xAOD::PhotonTrigAuxContainer#HLT_egamma_SC_Iso_PhotonsAux'+RemoveEgammaIsoVariables,        'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Egamma'), 
 
     ('xAOD::TrigElectronContainer#HLT_L2ElectronFex',            'BS ESD AODFULL AODSLIM', 'Egamma'),
     ('xAOD::TrigElectronAuxContainer#HLT_L2ElectronFexAux.',     'BS ESD AODFULL AODSLIM', 'Egamma'), 
@@ -806,8 +795,10 @@ TriggerHLTList = [
    ('TrigMuonEFIsolationContainer#HLT_MuonEFIsolation',                  'BS ESD AODFULL AODSLIM',                'Muon'),
     #    ('CaloShowerContainer#HLT',                                           'BS ESD',                                'Calo'),       # Egamma?  
    ('egammaContainer#HLT_egamma_Electrons',                              '',                                      'Egamma'),
+   ('egammaContainer#HLT_egamma_SC_Electrons',                              '',                                      'Egamma'),
    ('egammaContainer#HLT_egamma',                                        '',                                      'Egamma'),
    ('egammaContainer#HLT_egamma_Photons',                                '',                                      'Egamma'),
+   ('egammaContainer#HLT_egamma_SC_Photons',                                '',                                      'Egamma'),
    ('TrigMissingET#HLT_TrigEFMissingET',                                 'BS ESD AODFULL AODSLIM',                'MET'),
    ('TrigMissingET#HLT_TrigEFMissingET_noiseSupp',                       '',                                      'MET'),
    ('TrigMissingET#HLT_TrigEFMissingET_FEB',                             'BS ESD AODFULL AODSLIM',                'MET'),
@@ -855,8 +846,10 @@ TriggerHLTList = [
     ('JetCollection#HLT_TrigTauJet',                                      '',                        'Tau'),
    #    ('CaloTowerContainer#HLT_TrigCaloTowerMaker',                         '',                        'Calo'),       # Egamma?  
     ('egDetailContainer#HLT_egamma_Electrons',                            '',                        'Egamma'),
+    ('egDetailContainer#HLT_egamma_SC_Electrons',                            '',                        'Egamma'),
     ('egDetailContainer#HLT_egamma',                                      '',                        'Egamma'),
     ('egDetailContainer#HLT_egamma_Photons',                              '',                        'Egamma'),
+    ('egDetailContainer#HLT_egamma_SC_Photons',                              '',                        'Egamma'),
     ('TrackCollection#TrigFastTrackFinder_Tau',                           '', 'Tau'), 
     ('TrackCollection#HLT_InDetTrigTrackSlimmer_Bjet_EFID',               'ESD',                     'Bjet'),
     ('TrackCollection#HLT_InDetTrigTrackSlimmer_Bphysics_EFID',           'ESD',                     'Bphys'),
@@ -1146,8 +1139,10 @@ TriggerEFEvolutionList = [
 ('TrigMuonEFIsolationContainer#HLT_MuonEFIsolation',                            ''), #Run-2 equivalent not found, type not converted
 ('CaloShowerContainer#HLT',                                                     ''), #Run-2 equivalent not found, type not converted
 ('egammaContainer#HLT_egamma_Electrons',                                        'xAOD::ElectronContainer#HLT_egamma_Electrons'),
+('egammaContainer#HLT_egamma_SC_Electrons',                                        'xAOD::ElectronContainer#HLT_egamma_SC_Electrons'),
 ('egammaContainer#HLT_egamma',                                                  ''), #Run-2 equivalent not found
 ('egammaContainer#HLT_egamma_Photons',                                          'xAOD::PhotonContainer#HLT_egamma_Photons'),
+('egammaContainer#HLT_egamma_SC_Photons',                                          'xAOD::PhotonContainer#HLT_egamma_SC_Photons'),
 ('TrigMissingET#HLT_TrigEFMissingET',                                           'xAOD::TrigMissingET#HLT_TrigEFMissingET'),
 ('TrigMissingET#HLT_TrigEFMissingET_FEB',                                       'xAOD::TrigMissingET#HLT_TrigEFMissingET_FEB'),
 ('TrigMissingET#HLT_TrigEFMissingET_topocl',                                    'xAOD::TrigMissingET#HLT_TrigEFMissingET_topocl'),
@@ -1189,8 +1184,10 @@ TriggerEFEvolutionList = [
 ('JetCollection#HLT_TrigCosmicJetRec',                                          'xAOD::JetContainer#HLT_TrigCosmicJetRec'), # Run-2 one is not stored anywhere
 ('JetCollection#HLT_TrigTauJet',                                                'xAOD::JetContainer#HLT_TrigTauJet'),
 ('egDetailContainer#HLT_egamma_Electrons',                                      ''), # converted as Aux. data?
+('egDetailContainer#HLT_egamma_SC_Electrons',                                      ''), # converted as Aux. data?
 ('egDetailContainer#HLT_egamma',                                                ''), # converted as Aux. data?
 ('egDetailContainer#HLT_egamma_Photons',                                        ''), # converted as Aux. data?
+('egDetailContainer#HLT_egamma_SC_Photons',                                        ''), # converted as Aux. data?
 ('TrigVertexCollection#HLT_EFHistoPrmVtx',                                      'xAOD::VertexContainer#HLT_EFHistoPrmVtx'), # conversion to be implemented
 ('VxContainer#HLT_PrimVx',                                                      'xAOD::VertexContainer#HLT_xPrimVx'), # note different SG names
 ('TrigOperationalInfo#HLT_OPI_EF',                                              ''), # it was decided to not convert this type
@@ -1603,6 +1600,7 @@ def getTriggerObjList(destination, lst):
     Gives back the Python dictionary  with the content of ESD/AOD (dst) which can be inserted in OKS.
     """
     dset = set(destination.split())
+    
     toadd = {}
     import itertools
 
@@ -1667,7 +1665,7 @@ def getTriggerEDMSlimList(key):
     for k,v in _edmList.items():
         newnames = []
         for el in v:
-            if 'Aux' in el :
+            if 'Aux' in el:
                 newnames+=[el.split('.')[0]+'.-']
             else:
                 newnames+=[el]

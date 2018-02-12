@@ -34,8 +34,8 @@ class KinematicsPlots:public PlotBase {
 
     private:
 
-      const xAOD::IParticle* lead = nullptr;
-      unsigned int npart = 0;
+      const xAOD::IParticle* m_lead = nullptr;
+      unsigned int m_npart = 0;
 
       virtual void initializePlots();
 

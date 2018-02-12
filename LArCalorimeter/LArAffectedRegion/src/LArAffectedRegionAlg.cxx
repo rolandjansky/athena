@@ -82,6 +82,7 @@ LArAffectedRegionAlg::LArAffectedRegionAlg(const std::string& name, ISvcLocator*
   declareProperty("BadChannelTool", m_BadChanTool, "public, shared BadChannelTool");
   declareProperty("ReadingFromBytestream", m_readingFromBytestream = true);
   declareProperty("doHV",m_doHV,"include HV non nominal regions info");
+  declareTool( m_metaDataTool, m_metaDataTool.typeAndName() );
   m_attrListColl =0;
 }
 //=========================================================================================
@@ -93,6 +94,8 @@ StatusCode LArAffectedRegionAlg::initialize() {
     ATH_MSG_ERROR ( "Could not retrieve LArCablingService Tool" );
     return StatusCode::FAILURE;
   }
+
+  ATH_CHECK( m_metaDataTool.retrieve() );
   
   ATH_CHECK( detStore()->retrieve(m_onlineID, "LArOnlineID") );
   ATH_CHECK( detStore()->retrieve(m_caloIdMgr) );
@@ -113,8 +116,8 @@ StatusCode LArAffectedRegionAlg::initialize() {
       ATH_MSG_INFO ( "Registered callback for LArAffectedRegionAlg/LArAffectedRegionAlg" );
     else
       ATH_MSG_WARNING ( "Cannot register Callback function for LArAffectedRegionAlg/LArAffectedRegionAlg" );
-  }
-  else {     // Do only when reading ESD/AOD
+  } else {     // Do only when reading ESD/AOD
+    m_BadChanTool.disable();
 
     if (detStore()->contains<CondAttrListCollection>("/LAR/LArAffectedRegionInfo")) {
         const DataHandle<CondAttrListCollection> affectedRegionH;

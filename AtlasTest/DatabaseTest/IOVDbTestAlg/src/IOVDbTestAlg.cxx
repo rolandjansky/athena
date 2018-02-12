@@ -162,7 +162,7 @@ StatusCode IOVDbTestAlg::initialize(){
 		<< endmsg;
 	    return StatusCode::FAILURE;
 	}
-	sc = toolSvc->retrieveTool("AthenaPoolOutputStreamTool", m_streamName, m_streamer);
+	sc = toolSvc->retrieveTool("AthenaOutputStreamTool", m_streamName, m_streamer);
 	if (sc.isFailure()) {
 	    log << MSG::INFO
 		<< "Unable to find AthenaOutputStreamTool" 

@@ -21,17 +21,21 @@ class ComponentAccumulator(object):
     def __init__(self):
         self._msg=cfgLogMsg  #logging.getLogger('ComponentAccumulator')
         self._eventAlgs={}     #Unordered list of event processing algorithms per sequence + their private tools 
-        self._conditionsAlgs=[]                #Unordered list of conditions algorithms + their private tools 
-        self._services=[]                      #List of service, not yet sure if the order matters here in the MT age
-        self._conditionsInput=set()            #List of database folder (as string), eventually passed to IOVDbSvc
-        self._eventInputs=set()                #List of items (as strings) to be read from the input (required at least for BS-reading).
-        self._outputPerStream={}               #Dictionary of {streamName,set(items)}, all as strings
+        self._conditionsAlgs=[]          #Unordered list of conditions algorithms + their private tools 
+        self._services=[]                #List of service, not yet sure if the order matters here in the MT age
+        self._conditionsInput=set()      #List of database folder (as string), eventually passed to IOVDbSvc
+        self._eventInputs=set()          #List of items (as strings) to be read from the input (required at least for BS-reading).
+        self._outputPerStream={}        #Dictionary of {streamName,set(items)}, all as strings
 
-        #Properties of the ApplicationMgr
-        self._theAppProps=dict()            
+        self._theAppProps=dict()        #Properties of the ApplicationMgr
+
+        self._privateTools=[]           #Private tools are not merged! Belong to parent algo
 
         #Backward compatiblity hack: Allow also public tools:
         self._publicTools=[]
+
+
+
         pass
 
 
@@ -77,6 +81,16 @@ class ComponentAccumulator(object):
             pass
         self._deduplicate(newSvc,self._services)  #will raise on conflict
         return 
+
+    def addAlgTool(self,newTool):
+        if not isinstance(newTool,ConfigurableAlgTool):
+            raise TypeError("Attempt to add wrong type as AlgTool")
+        self._privateTools.append(newTool)
+        return
+
+
+    def clearAlgTools(self):
+        self._privateTools=[]
 
 
     def addPublicTool(self,newTool):
@@ -137,6 +151,15 @@ class ComponentAccumulator(object):
             if svc.getName()==name:
                 return svc
         raise KeyError("No service with name %s known" % name)
+
+    def getAlgTools(self):
+        return self._privateTools
+    
+    def getAlgTool(self,name):
+        for tool in self._privateTools:
+            if tool.getName()==name:
+                return tool
+            raise KeyError("No AlgTool with name %s known" % name)
 
 
     def getPublicTool(self,name):
@@ -230,22 +253,15 @@ class ComponentAccumulator(object):
         cfconst=deepcopy(configFlags)
         self._msg.info("Excuting configuration function %s" % fct.__name__)
         retval=fct(cfconst,*args,**kwargs)
-
-        if (isinstance(retval,ComponentAccumulator)):
-            #Simple-case, return value is simply a ComponentAccumulator 
-            self.merge(retval)
-            return None
-        else:
-            #More complicated case, eg. to configure private alg tools
-            try:
-                ca=retval[0]
-                self.merge(ca)
-                return retval[1:]
-            except TypeError,IndexError:
-                raise TypeError("Unexpected return value of configuration method: Expect either a ComponentAccumulator or a tuple where the first item is a ComponentAccumulator")
-            pass
-        pass
-
+        self.merge(retval)
+        
+        #Get private tools if there are any
+        #Those are not merged and not passed through the call-chain,
+        #instead we overwrite whatever was there before
+        #The client is supposed to grab the private tools and attach 
+        #them to their parent component
+        self._privateTools=retval._privateTools
+        return
 
  
     def appendConfigurable(self,confElem):

@@ -4,6 +4,8 @@
 
 #include "SCT_ModuleVetoCondAlg.h"
 
+#include <memory>
+
 #include "GaudiKernel/EventIDRange.h"
 
 template <class T> 
@@ -81,7 +83,7 @@ StatusCode SCT_ModuleVetoCondAlg::execute() {
   ATH_MSG_INFO("Range of input is " << rangeW);
   
   // Construct the output Cond Object and fill it in
-  SCT_ModuleVetoCondData* writeCdo{new SCT_ModuleVetoCondData()};
+  std::unique_ptr<SCT_ModuleVetoCondData> writeCdo{std::make_unique<SCT_ModuleVetoCondData>()};
 
   // Read bad wafer info
   std::string badModuleString{(*readCdo)["ModuleList"].data<std::string>()};
@@ -93,7 +95,7 @@ StatusCode SCT_ModuleVetoCondAlg::execute() {
   }
 
   // Record the output cond object
-  if (writeHandle.record(rangeW, writeCdo).isFailure()) {
+  if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
     ATH_MSG_FATAL("Could not record SCT_ModuleVetoCondData " << writeHandle.key() 
                   << " with EventRange " << rangeW
                   << " into Conditions Store");

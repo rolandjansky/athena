@@ -123,7 +123,9 @@ Trig::TrigDecisionTool::initialize() {
      ATH_MSG_DEBUG("No TrigConfigSvc provided. Using ConfigTool instead...");
      CHECK( m_configTool.retrieve()); //use configTool if no configSvc available
    } else {
+
      m_configTool.disable();
+
      StatusCode sc = m_configSvc.retrieve();
      if ( sc.isFailure() ) {
        ATH_MSG_FATAL("Unable to get pointer to TrigConfigSvc");

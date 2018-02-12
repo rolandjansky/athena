@@ -4,8 +4,9 @@
 
 #include "SCT_DCSConditionsTempCondAlg.h"
 
+#include <memory>
+
 #include "Identifier/IdentifierHash.h"
-#include "SCT_Cabling/SCT_OnlineId.h"
 
 #include "GaudiKernel/EventIDRange.h"
 
@@ -82,7 +83,7 @@ StatusCode SCT_DCSConditionsTempCondAlg::execute() {
   ATH_MSG_INFO("Range of input is " << rangeW);
   
   // Construct the output Cond Object and fill it in
-  SCT_DCSFloatCondData* writeCdo{new SCT_DCSFloatCondData()};
+  std::unique_ptr<SCT_DCSFloatCondData> writeCdo{std::make_unique<SCT_DCSFloatCondData>()};
 
   // Read temperature info
   std::string param{"MOCH_TM0_RECV"};
@@ -102,11 +103,10 @@ StatusCode SCT_DCSConditionsTempCondAlg::execute() {
   }
 
   // Record the output cond object
-  if (writeHandle.record(rangeW, writeCdo).isFailure()) {
+  if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
     ATH_MSG_FATAL("Could not record SCT_DCSFloatCondData " << writeHandle.key() 
                   << " with EventRange " << rangeW
                   << " into Conditions Store");
-    delete writeCdo;
     return StatusCode::FAILURE;
   }
   ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
