@@ -46,7 +46,7 @@ if InDetFlags.doStoreTrackSeeds() and ( InDetFlags.doWriteTracksToESD() or  not 
    InDetESDList+=["TrackCollection#"+InDetKeys.SiSPSeedSegments()]
 
 if InDetFlags.doStoreTrackCandidates() and ( InDetFlags.doWriteTracksToESD() or  not InDetFlags.doxAOD() ) :
-   InDetESDList+=["TrackCollection#"+InDetKeys.SiSpSeededTracksCandidates()]
+   InDetESDList+=["TrackCollection#"+InDetKeys.SiSpSeededTrackCandidates()]
 
 if InDetFlags.doWriteTracksToESD() or not InDetFlags.doxAOD() :
    if InDetKeys.AliasToTracks() == 'none':
@@ -164,8 +164,8 @@ if InDetFlags.doxAOD():
    InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.SiSPSeedSegments()+"TrackParticle"+'Aux.' + excludedAuxData]
 
   if InDetFlags.doStoreTrackCandidates():
-   InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.SiSpSeededTracksCandidates()+"TrackParticle"]
-   InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.SiSpSeededTracksCandidates()+"TrackParticle"+'Aux.' + excludedAuxData]
+   InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODSiSPTrackCandidates()+"TrackParticle"]
+   InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODSiSPTrackCandidates()+"TrackParticle"+'Aux.' + excludedAuxData]
 
   if not InDetFlags.doSLHC():
      InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODForwardTrackParticleContainer()]

@@ -599,8 +599,8 @@ if InDetFlags.doStoreTrackSeeds():
    IDTRKVALIDStream.AddItem('xAOD::TrackParticleAuxContainer#'+InDetKeys.SiSPSeedSegments()+"TrackParticle"+'Aux.' + excludedAuxData)
 
 if InDetFlags.doStoreTrackCandidates():
-   IDTRKVALIDStream.AddItem('xAOD::TrackParticleContainer#'+InDetKeys.SiSpSeededTracksCandidates()+"TrackParticle")
-   IDTRKVALIDStream.AddItem('xAOD::TrackParticleAuxContainer#'+InDetKeys.SiSpSeededTracksCandidates()+"TrackParticle"+'Aux.' + excludedAuxData)
+   IDTRKVALIDStream.AddItem('xAOD::TrackParticleContainer#'+InDetKeys.xAODSiSPTrackCandidates()+"TrackParticle")
+   IDTRKVALIDStream.AddItem('xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODSiSPTrackCandidates()+"TrackParticle"+'Aux.' + excludedAuxData)
 
 if InDetFlags.doTrackSegmentsPixel():
     IDTRKVALIDStream.AddItem("xAOD::TrackParticleContainer#InDetPixelTrackParticles")
