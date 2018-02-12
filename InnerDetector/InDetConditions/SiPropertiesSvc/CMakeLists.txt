@@ -15,7 +15,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           DetectorDescription/Identifier
                           InnerDetector/InDetConditions/InDetConditionsSummaryService
-                          InnerDetector/InDetDetDescr/InDetIdentifier )
+                          InnerDetector/InDetDetDescr/InDetIdentifier
+                          InnerDetector/InDetConditions/SCT_ConditionsData )
 
 # External dependencies:
 find_package( CLHEP )
