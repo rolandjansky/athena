@@ -79,7 +79,7 @@ HLT::ErrorCode TrigHLTJetRecBase<InputContainer>::hltInitialize() {
       		ATH_MSG_DEBUG("Retrieved  secondary PseudoJetGetter "
                    <<  m_secondarypseudoJetGetter->name());
   	} else {
-    		ATH_MSG_DEBUG("Unable to retrieve secondary PseudoJetGetter");
+    		ATH_MSG_ERROR("Unable to retrieve secondary PseudoJetGetter");
     		return HLT::ERROR;
   	}
    }
