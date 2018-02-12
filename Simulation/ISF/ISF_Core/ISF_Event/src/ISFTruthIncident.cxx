@@ -196,6 +196,8 @@ HepMC::GenParticle* ISF::ISFTruthIncident::updateHepMCTruthParticle( ISF::ISFPar
   //register the new GenParticle as HepMcParticleLink, copying over some old properties if present
   const HepMcParticleLink* oldHMPL = particle.getParticleLink();
   HepMcParticleLink* newHMPL = nullptr;
+  if (!oldHMPL && parent)
+    oldHMPL = new HepMcParticleLink(*parent->getParticleLink());
   if (oldHMPL) {
     newHMPL = new HepMcParticleLink(hepTruthParticle, oldHMPL->eventIndex(), oldHMPL->getEventCollection());
     delete oldHMPL;
