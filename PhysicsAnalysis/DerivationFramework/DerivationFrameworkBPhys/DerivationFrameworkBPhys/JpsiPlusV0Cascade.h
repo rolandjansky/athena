@@ -1,3 +1,6 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
 #ifndef JPSIPLUSV0CASCADE_H
 #define JPSIPLUSV0CASCADE_H
 //*********************
