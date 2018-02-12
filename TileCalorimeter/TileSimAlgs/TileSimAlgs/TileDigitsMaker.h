@@ -83,6 +83,7 @@ class TileDigitsMaker: public AthAlgorithm {
     StatusCode finalize();   //!< finalize method
 
   private:
+    StatusCode FillDigitCollection(TileHitContainer::const_iterator hitContItr, std::vector<double *> &drawerBufferLo, std::vector<double *> &drawerBufferHi, int igain[], int overgain[], double ech_int[]) const;
 
     SG::ReadHandleKey<TileHitContainer> m_hitContainerKey{this,"TileHitContainer","TileHitCnt",
                                                           "input Tile hit container key"};

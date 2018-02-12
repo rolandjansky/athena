@@ -29,8 +29,8 @@ from AthenaCommon.AppMgr import ToolSvc
 ToolSvc.TileCellBuilder.TileRawChannelContainer = "TileRawChannelCnt"
 
 
-from RecExConfig.RecFlags import rec
-if rec.doDigiTruth():
+from Digitization.DigitizationFlags import digitizationFlags
+if digitizationFlags.doDigiTruth():
   CaloCellMaker=Algorithm("CaloCellMaker_DigiHSTruth")
   CaloCellMaker_DigiHSTruth.CaloCellMakerToolNames += [ "TileCellBuilder/TileCellBuilder_DigiHSTruth" ]
   ToolSvc.TileCellBuilder_DigiHSTruth.TileRawChannelContainer = "TileRawChannelCnt_DigiHSTruth"
