@@ -77,7 +77,7 @@ from AtlasGeoModel import GeoModelInit
 if globalflags.InputFormat() == 'pool':
   import AthenaPoolCnvSvc.ReadAthenaPool
   ServiceMgr.EventSelector.InputCollections = collection
-  include("PixelConditionsServices/PixelByteStreamErrorsSvc_jobOptions.py") ## why ? 
+  include("PixelByteStreamErrorsSvc_jobOptions.py") ## why ? 
 elif globalflags.InputFormat() == 'bytestream':
     include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
     include("InDetRecExample/InDetReadBS_jobOptions.py")

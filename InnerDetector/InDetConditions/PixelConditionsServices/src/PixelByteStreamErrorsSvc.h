@@ -25,14 +25,15 @@
 #include "PixelConditionsServices/IPixelConditionsSvc.h"
 #include "InDetByteStreamErrors/InDetBSErrContainer.h"
 
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
+
 //forward declarations
 template <class TYPE> class SvcFactory;
 class ISvcLocator;
 class IIncidentListener;
 class PixelID;
 class StoreGateSvc;
-class IBLParameterSvc;
-
 
 /**
  * @class PixelByteStreamErrorsSvc
@@ -150,16 +151,14 @@ private:
 
   ServiceHandle<StoreGateSvc> m_storeGate;
   ServiceHandle<StoreGateSvc> m_detStore;
-  ServiceHandle<IBLParameterSvc> m_IBLParameterSvc;
+
+  SG::ReadHandleKey<InDetBSErrContainer> m_BSErrContainerKey;
 
   unsigned int* m_module_errors;
   unsigned int* m_moduleROD_errors;
   unsigned int* m_event_read;
   unsigned int* m_FE_errors;
   bool* m_module_isread;
-
-  bool m_ibl_is_present;
-  bool m_dbm_is_present;
 
   //number of errors in the event
   int m_numInvalidIdentifiers;
