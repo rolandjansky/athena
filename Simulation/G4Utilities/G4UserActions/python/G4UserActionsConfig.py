@@ -1,7 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr,Logging
-from G4AtlasServices import G4AtlasServicesConfig
 
 # this is a bit cumbersome, but it seems ike it is a lot easier to separate
 # the getter functionality from all the rest (i.e. adding the action).
@@ -28,24 +27,12 @@ def getFastMBKillerTool(name="G4UA::FastMBKillerTool", **kwargs):
     return getFastIDKillerTool(name, **kwargs)
 
 
-def addFastIDKillerTool(name="G4UA::FastIDKillerTool",system=False):
-    G4AtlasServicesConfig.addAction(name, ['General'], system)
-
-
 def getHIPKillerTool(name="G4UA::HIPKillerTool", **kwargs):
     return CfgMgr.G4UA__HIPKillerTool(name, **kwargs)
 
 
-def addHIPKillerTool(name="G4UA::HIPKillerTool",system=False):
-    G4AtlasServicesConfig.addAction(name, ['General'], system)
-
-
 def getHIPLArVolumeAcceptTool(name="G4UA::HIPLArVolumeAcceptTool", **kwargs):
     return CfgMgr.G4UA__HIPLArVolumeAcceptTool(name, **kwargs)
-
-
-def addHIPLArVolumeAcceptTool(name="G4UA::HIPLArVolumeAcceptTool", system=False):
-    G4AtlasServicesConfig.addAction(theTool, ['General'], system)
 
 
 def getLooperKillerTool(name="G4UA::LooperKillerTool", **kwargs):
@@ -68,24 +55,12 @@ def getMonopoleLooperKillerTool(name="G4UA::MonopoleLooperKillerTool", **kwargs)
     return getLooperKillerTool(name, **kwargs)
 
 
-def addLooperKillerTool(name="G4UA::LooperKillerTool", system=False):
-    G4AtlasServicesConfig.addAction(name, ['General'], system)
-
-
 def getMomentumConservationTool(name="G4UA::MomentumConservationTool", **kwargs):
     return CfgMgr.G4UA__MomentumConservationTool(name, **kwargs)
 
 
-def addMomentumConservationTool(name="G4UA::MomentumConservationTool", system=False):
-    G4AtlasServicesConfig.addAction(name, ['General'], system)
-
-
 def getScoringVolumeTrackKillerTool(name="G4UA::ScoringVolumeTrackKillerTool", **kwargs):
     return CfgMgr.G4UA__ScoringVolumeTrackKillerTool(name, **kwargs)
-
-
-def addScoringVolumeTrackKillerTool(name="G4UA::ScoringVolumeTrackKillerTool", system=False):
-    G4AtlasServicesConfig.addAction(theTool, ['General'], system)
 
 
 def getScoringPlaneTool(name="G4UA::ScoringPlaneTool", **kwargs):
