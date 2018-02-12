@@ -18,10 +18,4 @@ simFlags.EventFilter.switchFilterOn('VertexRangeChecker')
 simFlags.VertexFromCondDB.set_Off()
 simFlags.VertexTimeOffset.set_Off()
 
-# Hit filter setup function for callback
-def hitFilterSetup():
-  atlasG4log.info("Setting up filter parameters")
-  include("G4HitFilter/G4HitFilter.py")
-
-# Register the callback
-simFlags.InitFunctions.add_function("preInitG4", hitFilterSetup)
+simFlags.OptionalUserActionList.addAction("G4UA::G4HitFilterTool",['Run','Event'])
