@@ -8,6 +8,8 @@ from AthenaCommon.AlgSequence               import AlgSequence
 from GaudiSvc.GaudiSvcConf                  import THistSvc
 import AthenaRootComps.ReadAthenaxAODHybrid
 
+# Ouput Message Level
+svcMgr.MessageSvc.OutputLevel = INFO
 
 # ART File
 testFile = 'ART_Rec_'+particleType+'.pool.root'

@@ -18,18 +18,20 @@
 #include "xAODEgamma/Photon.h"
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
-
-#include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
+#include <AsgTools/AnaToolHandle.h>
+#include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
 
 #include <vector>
 #include <cmath>
 
-using namespace std;
 
 EgammaMonitoring :: EgammaMonitoring (const std::string& name, ISvcLocator *pSvcLocator) : 
-  AthAlgorithm (name, pSvcLocator)
+  AthAlgorithm (name, pSvcLocator),
+  m_LooseLH ("AsgElectronLikelihoodTool/LooseLH"),
+  m_MediumLH("AsgElectronLikelihoodTool/MediumLH"),
+  m_TightLH ("AsgElectronLikelihoodTool/TightLH") 
 {
-declareProperty( "sampleType", m_sampleType = "Unknown", "Descriptive name for the processed type of particle" );
+  declareProperty( "sampleType", m_sampleType = "Unknown", "Descriptive name for the processed type of particle" );
 }
 
 // ******
@@ -43,7 +45,7 @@ StatusCode EgammaMonitoring :: initialize ()
   
   ANA_MSG_INFO ("******************* Running over " << m_sampleType << "*******************");
 
-  ANA_MSG_INFO ("*******************************  Histo INIT  *******************************");
+  ANA_MSG_DEBUG ("*******************************  Histo INIT  *******************************");
 
   evtNmb = new TH1D(); evtNmb->SetName("evtNmb"); evtNmb->SetTitle("Event Number"); 
   CHECK( rootHistSvc->regHist("/MONITORING/evtNmb", evtNmb));
@@ -89,48 +91,27 @@ StatusCode EgammaMonitoring :: initialize ()
   } // gamma Hists
 
   //*****************LLH Requirement********************
-  m_LooseLH = new AsgElectronLikelihoodTool("LooseLH");
-  m_LooseLH->setProperty("WorkingPoint", "LooseLHElectron");
-  m_LooseLH->msg().setLevel(MSG::INFO);
-  
-  if( m_LooseLH->initialize().isFailure()) {
-    ATH_MSG_INFO("Initialization Selectors FAILED");
-    return StatusCode::FAILURE;
-  }
-  else  ATH_MSG_INFO("Retrieved Selector tool ");
+  ANA_CHECK(m_LooseLH.setProperty("WorkingPoint", "LooseLHElectron"));
+  ANA_CHECK(m_LooseLH.initialize());
+  ANA_MSG_DEBUG ("*******************************  OK LLH Req  *******************************");
   //****************************************************
-  
-  ANA_MSG_INFO ("*******************************  OK LLH Req  *******************************");
+    
   
   //*****************MLH Requirement********************
-  m_MediumLH = new AsgElectronLikelihoodTool("MediumLH"); 
-  m_MediumLH->setProperty("WorkingPoint", "MediumLHElectron");
-  m_MediumLH->msg().setLevel(MSG::INFO);
-  
-  if( m_MediumLH->initialize().isFailure()) {
-    ATH_MSG_INFO("Initialization Selectors FAILED");    
-    return StatusCode::FAILURE;
-  } 
-  else  ATH_MSG_INFO("Retrieved Selector tool ");
+  ANA_CHECK(m_MediumLH.setProperty("WorkingPoint", "MediumLHElectron"));
+  ANA_CHECK(m_MediumLH.initialize());
+  ANA_MSG_DEBUG ("*******************************  OK MLH Req  *******************************");
   //****************************************************
-  
-  ANA_MSG_INFO ("*******************************  OK MLH Req  *******************************");
+
   
   //*****************TLH Requirement********************
-  m_TightLH = new AsgElectronLikelihoodTool("TightLH");
-  m_TightLH->setProperty("WorkingPoint", "TightLHElectron");
-  m_TightLH->msg().setLevel(MSG::INFO);
-  
-  if( m_TightLH->initialize().isFailure()) {
-    ATH_MSG_INFO("Initialization Selectors FAILED");
-    return StatusCode::FAILURE;
-  }
-  else  ATH_MSG_INFO("Retrieved Selector tool ");
+  ANA_CHECK(m_TightLH.setProperty("WorkingPoint", "TightLHElectron"));
+  ANA_CHECK(m_TightLH.initialize());
+  ANA_MSG_DEBUG ("*******************************  OK TLH Req  *******************************");
   //****************************************************
+
   
-  ANA_MSG_INFO ("*******************************  OK TLH Req  *******************************");
-  
-  ANA_MSG_INFO ("*******************************   END INIT   *******************************");  
+  ANA_MSG_DEBUG ("*******************************   END INIT   *******************************");  
   return StatusCode::SUCCESS;
 }
 
@@ -160,9 +141,9 @@ StatusCode EgammaMonitoring :: execute ()
 
   if("electron" == m_sampleType) {
     
-    const xAOD::ElectronContainer* RecoEl = 0;
+    const xAOD::ElectronContainer* RecoEl = nullptr;
     if( !evtStore()->retrieve(RecoEl, "Electrons").isSuccess() ) {
-      Error("execute()", "Failed to retrieve electron container. Exiting.");
+      ATH_MSG_ERROR("Failed to retrieve electron container. Exiting.");
       return StatusCode::FAILURE;
     }
     
@@ -190,9 +171,9 @@ StatusCode EgammaMonitoring :: execute ()
 
   if("gamma" == m_sampleType) {
     
-    const xAOD::PhotonContainer* RecoPh = 0;
+    const xAOD::PhotonContainer* RecoPh = nullptr;
     if( !evtStore()->retrieve(RecoPh, "Photons").isSuccess() ) {
-      Error("execute()", "Failed to retrieve photon container. Exiting.");
+      ATH_MSG_ERROR("Failed to retrieve photon container. Exiting.");
       return StatusCode::FAILURE;
     }  
     

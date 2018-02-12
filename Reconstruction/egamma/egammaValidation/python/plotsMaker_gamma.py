@@ -2,14 +2,17 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration.
 #
 
-print "\n IMPORTING LIBRARIES "
+print "\n IMPORTING SOME PYTHON LIBRARIES "
 import sys
 import os
 import math
 
 #Import the ROOT libraries
-import ROOT
-from ROOT import *
+print "\n IMPORTING SOME ROOT LIBRARIES "
+from ROOT import gStyle, TCanvas, TH1, TH1F, kBlack, kBlue, TFile, TLegend
+
+print "\n IMPORTING SOME FUNCTIONS "
+from plotsHelper import plotComp
 
 file_name1 = sys.argv[1]
 file_name2 = sys.argv[2]
@@ -31,8 +34,8 @@ ph_eta_ART     = TH1F("ph_phi_ART"    , ("Photon Eta Coordinate") , 200,       -
 ph_phi_ART     = TH1F("ph_phi_ART"    , ("Photon Phi Coordinate") , 100, -math.pi,  math.pi)
 
 
-BaseFile = ROOT.TFile(file_name1)
-ARTFile  = ROOT.TFile(file_name2)
+BaseFile = TFile(file_name1)
+ARTFile  = TFile(file_name2)
 
 evtNumb_Base   = BaseFile.Get("evtNmb"      )
 ph_pt_All_Base = BaseFile.Get("pT_Phot_All" )
@@ -46,56 +49,18 @@ ph_phi_ART    = ARTFile.Get("phi_Phot_All")
 
 print " BEGINNING "
 
-c1 = ROOT.TCanvas("c1", "c1", 1200, 900)
+c1 = TCanvas("c1", "c1", 1200, 900)
 c1.Divide(2, 2)
 
-style=ROOT.gStyle
+style=gStyle
 style.SetOptStat(0)
 
+myleg = TLegend(0.2, 0.3, 0.45, 0.45)
 
-c1.cd(1)
-evtNumb_Base.SetMarkerStyle(3)
-evtNumb_ART.SetLineColor(ROOT.kBlue)
-evtNumb_Base.Draw("hist p")
-evtNumb_ART.Draw("same")
-
-leg1 = TLegend(0.2, 0.3, 0.45, 0.45)
-leg1.AddEntry(evtNumb_Base, "Baseline",      "p")
-leg1.AddEntry(evtNumb_ART , "ART"     ,      "l")
-leg1.Draw()
-
-c1.cd(2)
-ph_pt_All_Base.SetMarkerStyle(3);
-ph_pt_All_ART.SetLineColor(ROOT.kBlue);
-ph_pt_All_Base.Draw("hist p");
-ph_pt_All_ART.Draw("same");
-
-leg2 = TLegend(0.2, 0.3, 0.45, 0.45)
-leg2.AddEntry(ph_pt_All_Base, "Baseline",      "p")
-leg2.AddEntry(ph_pt_All_ART , "ART"     ,      "l")
-leg2.Draw()
-
-c1.cd(3)
-ph_eta_Base.SetMarkerStyle(3);
-ph_eta_ART.SetLineColor(ROOT.kBlue);
-ph_eta_Base.Draw("hist p");
-ph_eta_ART.Draw("same");
-
-leg3 = TLegend(0.2, 0.3, 0.45, 0.45)
-leg3.AddEntry(ph_eta_Base, "Baseline",      "p")
-leg3.AddEntry(ph_eta_ART , "ART"     ,      "l")
-leg3.Draw()
-
-c1.cd(4)
-ph_phi_Base.SetMarkerStyle(3);
-ph_phi_ART.SetLineColor(ROOT.kBlue);
-ph_phi_Base.Draw("hist p");
-ph_phi_ART.Draw("same");
-
-leg4 = TLegend(0.2, 0.3, 0.45, 0.45)
-leg4.AddEntry(ph_phi_Base, "Baseline",      "p")
-leg4.AddEntry(ph_phi_ART , "ART"     ,      "l")
-leg4.Draw()
+plotComp(evtNumb_Base   , evtNumb_ART   , 1, c1, myleg)
+plotComp(ph_pt_All_Base , ph_pt_All_ART , 2, c1)
+plotComp(ph_eta_Base    , ph_eta_ART    , 3, c1)
+plotComp(ph_phi_Base    , ph_phi_ART    , 4, c1)
 
 print " SAVING "
 

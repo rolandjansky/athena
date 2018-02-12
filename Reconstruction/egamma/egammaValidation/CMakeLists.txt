@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
 	Event/xAOD/xAODEventInfo
 	Event/xAOD/xAODTracking
 	PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
+	PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
 	PRIVATE
 	Control/AthenaBaseComps
 	TestPolicy 
@@ -25,7 +26,7 @@ atlas_add_library (egammaValidationLib
 	PUBLIC_HEADERS egammaValidation
 	INCLUDE_DIRS
 	PRIVATE_INCLUDE_DIRS
-	LINK_LIBRARIES GaudiKernel AsgTools xAODEventInfo xAODEgamma xAODTracking ElectronPhotonSelectorToolsLib    
+	LINK_LIBRARIES GaudiKernel AsgTools xAODEventInfo xAODEgamma xAODTracking ElectronPhotonSelectorToolsLib ElectronPhotonSelectorToolsLib AsgAnalysisInterfaces
 	PRIVATE_LINK_LIBRARIES AthenaBaseComps TrkValHistUtils)
 
 # add the Module/component library :
@@ -33,7 +34,7 @@ atlas_add_component (egammmaValidation
 	src/*.cxx src/components/*.cxx 
 	INCLUDE_DIRS 
 	LINK_LIBRARIES egammaValidationLib GaudiKernel AthenaBaseComps AsgTools xAODEventInfo 
-	xAODEgamma xAODTracking ElectronPhotonSelectorToolsLib TrkValHistUtils)
+	xAODEgamma xAODTracking ElectronPhotonSelectorToolsLib TrkValHistUtils ElectronPhotonSelectorToolsLib AsgAnalysisInterfaces)
 
 # Install JO/python files from the package:
 atlas_install_python_modules( python/*.py )

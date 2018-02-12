@@ -11,8 +11,8 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
-
-#include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
+#include <AsgTools/AnaToolHandle.h>
+#include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
 
 #include "TFile.h"
 #include "TH1.h"
@@ -30,20 +30,20 @@ class EgammaMonitoring : public AthAlgorithm
 
   // Histos
   // General Info
-  TH1D *evtNmb = 0; //!
+  TH1D *evtNmb = nullptr; //!
 
   // Electron
-  TH1D *pT_ElTrk_All  = 0; //!
-  TH1D *pT_ElTrk_LLH  = 0; //! 
-  TH1D *pT_ElTrk_MLH  = 0; //!
-  TH1D *pT_ElTrk_TLH  = 0; //!
-  TH1D *eta_ElTrk_All = 0; //!
-  TH1D *phi_ElTrk_All = 0; //!
+  TH1D *pT_ElTrk_All  = nullptr; //!
+  TH1D *pT_ElTrk_LLH  = nullptr; //! 
+  TH1D *pT_ElTrk_MLH  = nullptr; //!
+  TH1D *pT_ElTrk_TLH  = nullptr; //!
+  TH1D *eta_ElTrk_All = nullptr; //!
+  TH1D *phi_ElTrk_All = nullptr; //!
   
   // Photon
-  TH1D *pT_Phot_All  = 0; //!
-  TH1D *eta_Phot_All = 0; //!
-  TH1D *phi_Phot_All = 0; //!
+  TH1D *pT_Phot_All  = nullptr; //!
+  TH1D *eta_Phot_All = nullptr; //!
+  TH1D *phi_Phot_All = nullptr; //!
   
   EgammaMonitoring (const std::string& name, ISvcLocator* pSvcLocator);
   
@@ -56,11 +56,11 @@ class EgammaMonitoring : public AthAlgorithm
  private:
 
   /// Sample name ///
-  string m_sampleType;
+  std::string m_sampleType;
 
-  AsgElectronLikelihoodTool* m_LooseLH;
-  AsgElectronLikelihoodTool* m_MediumLH;
-  AsgElectronLikelihoodTool* m_TightLH;
+  asg::AnaToolHandle<IAsgElectronLikelihoodTool> m_LooseLH ; //!
+  asg::AnaToolHandle<IAsgElectronLikelihoodTool> m_MediumLH; //!
+  asg::AnaToolHandle<IAsgElectronLikelihoodTool> m_TightLH ; //!
 
 };
 
