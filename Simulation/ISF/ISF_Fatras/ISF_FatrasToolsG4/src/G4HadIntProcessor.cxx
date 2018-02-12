@@ -611,6 +611,9 @@ bool iFatras::G4HadIntProcessor::doHadronicInteraction(double time, const Amg::V
 	if (!ispVec[ic]->getTruthBinding()) {
 		ispVec[ic]->setTruthBinding(new ISF::TruthBinding(*parent->getTruthBinding()));
 	}
+	if (!ispVec[ic]->getParticleLink()) {
+		ispVec[ic]->setParticleLink(new HepMcParticleLink(*parent->getParticleLink()));
+	}
 	m_particleBroker->push(ispVec[ic], parent);
     }
   }
