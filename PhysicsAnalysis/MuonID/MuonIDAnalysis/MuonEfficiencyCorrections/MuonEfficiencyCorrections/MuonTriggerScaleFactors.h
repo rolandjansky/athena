@@ -58,11 +58,11 @@ namespace CP {
             virtual StatusCode initialize(void);
             
             // for single lepton triggers
-            virtual CorrectionCode getTriggerScaleFactor(const xAOD::MuonContainer& mucont, Double_t& triggersf, const std::string& trigger);
+            virtual CorrectionCode getTriggerScaleFactor(const xAOD::MuonContainer& mucont, Double_t& triggersf, const std::string& trigger) const;
 
-            virtual CorrectionCode getTriggerScaleFactor(const xAOD::Muon& muon, Double_t& triggersf, const std::string& trigger);
+            virtual CorrectionCode getTriggerScaleFactor(const xAOD::Muon& muon, Double_t& triggersf, const std::string& trigger) const;
 
-            virtual CorrectionCode getTriggerEfficiency(const xAOD::Muon& mu, Double_t& efficiency, const std::string& trigger, Bool_t dataType);
+            virtual CorrectionCode getTriggerEfficiency(const xAOD::Muon& mu, Double_t& efficiency, const std::string& trigger, Bool_t dataType) const;
 
             virtual bool isAffectedBySystematic(const CP::SystematicVariation& systematic) const;
 
@@ -72,23 +72,22 @@ namespace CP {
 
             virtual CP::SystematicCode applySystematicVariation(const CP::SystematicSet& systConfig);
 
-            virtual int getBinNumber(const xAOD::Muon& muon, const std::string& trigger);
+            virtual int getBinNumber(const xAOD::Muon& muon, const std::string& trigger) const;
       
             virtual double dR(const double eta1, const double phi1, const double eta2, const double phi2) const;
 
-            //
-            virtual int getReplica_index(std::string sysBaseName, const std::string trigStr);
+            virtual int getReplica_index(std::string sysBaseName, const std::string trigStr) const;
         private:
 
-            virtual CorrectionCode getMuonEfficiency(Double_t& eff, const TrigMuonEff::Configuration& configuration, const xAOD::Muon& muon, const std::string& trigger, const std::string& systematic);
+            virtual CorrectionCode getMuonEfficiency(Double_t& eff, const TrigMuonEff::Configuration& configuration, const xAOD::Muon& muon, const std::string& trigger, const std::string& systematic) const;
 
-            virtual CorrectionCode GetTriggerSF_dimu(Double_t& TriggerSF, TrigMuonEff::Configuration& configuration, const xAOD::MuonContainer& mucont, const std::string& trigger);
+            virtual CorrectionCode GetTriggerSF_dimu(Double_t& TriggerSF, TrigMuonEff::Configuration& configuration, const xAOD::MuonContainer& mucont, const std::string& trigger) const;
 
-            virtual CorrectionCode GetTriggerSF(Double_t& TriggerSF, TrigMuonEff::Configuration& configuration, const xAOD::MuonContainer& mucont, const std::string& trigger);
+            virtual CorrectionCode GetTriggerSF(Double_t& TriggerSF, TrigMuonEff::Configuration& configuration, const xAOD::MuonContainer& mucont, const std::string& trigger) const;
 
-            virtual CorrectionCode GetTriggerSF(Double_t& TriggerSF, TrigMuonEff::Configuration& configuration, const xAOD::Muon& muon, const std::string& trigger);
+            virtual CorrectionCode GetTriggerSF(Double_t& TriggerSF, TrigMuonEff::Configuration& configuration, const xAOD::Muon& muon, const std::string& trigger) const;
 
-            virtual CorrectionCode getDimuonEfficiency(Double_t& eff, const TrigMuonEff::Configuration& configuration, const xAOD::MuonContainer& mucont, const std::string& chain, const std::string& systematic);
+            virtual CorrectionCode getDimuonEfficiency(Double_t& eff, const TrigMuonEff::Configuration& configuration, const xAOD::MuonContainer& mucont, const std::string& chain, const std::string& systematic) const;
 
             const CP::SystematicSet& appliedSystematics() const {
                 return *m_appliedSystematics;
@@ -96,7 +95,6 @@ namespace CP {
 
             CP::SystematicCode registerSystematics();
             
-            //Loads the trigger SFs for each year separately
             StatusCode LoadTriggerMap(unsigned int year);
 
             //This function is needed during initialization to parse the histograms to the cache 
@@ -111,12 +109,11 @@ namespace CP {
             typedef std::pair<YearPeriod, unsigned int> EffiHistoIdent;
             typedef std::map<EffiHistoIdent, TH1_Ptr> EfficiencyMap;
 
-            CorrectionCode getThreshold(Int_t& threshold, const std::string& trigger);
+            CorrectionCode getThreshold(Int_t& threshold, const std::string& trigger) const;
 
             std::string getTriggerCorrespondingToDimuonTrigger(const std::string& trigger) const;
 
         protected:      
-            //Retrieve the runNumber and dataPeriod
             unsigned int getRunNumber() const;
             unsigned int getFallBackRunNumber() const;
             std::string getDataPeriod() const;
@@ -147,6 +144,8 @@ namespace CP {
 
             bool m_allowZeroSF;
             bool m_experimental;
+            bool m_useRel207;
+            
             //Variables for toy replicas setup
             std::vector<std::string> m_replicaTriggerList;
             std::set<std::string> m_replicaSet; //set of triggers for replicas, for fast searching
