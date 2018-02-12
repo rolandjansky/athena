@@ -51,10 +51,20 @@ int main( int argc, char* argv[] ) {
     // Create a TEvent object:
     //xAOD::TEvent event( xAOD::TEvent::kBranchAccess );
     xAOD::TEvent event;
+   
+    //Then the tools
+    AsgElectronEfficiencyCorrectionTool ElEffCorrectionTool ("ElEffCorrectionTool");   
+    CHECK( ElEffCorrectionTool.setProperty("IdKey", "Medium"));
+    CHECK( ElEffCorrectionTool.setProperty("ForceDataType",1));
+    CHECK( ElEffCorrectionTool.setProperty("OutputLevel", mylevel ));
+    CHECK( ElEffCorrectionTool.setProperty("CorrelationModel", "FULL" )); 
+    CHECK( ElEffCorrectionTool.setProperty("UseRandomRunNumber", false ));
+    CHECK( ElEffCorrectionTool.initialize());  
+    
+    //Then open the file(s)
     CHECK( event.readFrom( ifile.get() ) );
     MSG_INFO( "Number of available events to read in:  " <<
             static_cast< long long int >( event.getEntries() ) );
-
 
     // Decide how many events to run over:
     long long int entries = event.getEntries();
@@ -67,15 +77,7 @@ int main( int argc, char* argv[] ) {
     MSG_INFO( "Number actual events to read in:  " <<entries );
 
 
-    AsgElectronEfficiencyCorrectionTool ElEffCorrectionTool ("ElEffCorrectionTool");   
-    CHECK( ElEffCorrectionTool.setProperty("IdKey", "Medium"));
-    CHECK( ElEffCorrectionTool.setProperty("ForceDataType",1));
-    CHECK( ElEffCorrectionTool.setProperty("OutputLevel", mylevel ));
-    CHECK( ElEffCorrectionTool.setProperty("CorrelationModel", "FULL" )); 
-    CHECK( ElEffCorrectionTool.setProperty("UseRandomRunNumber", false ));
-    CHECK( ElEffCorrectionTool.initialize());  
-
-    // Loop over the events:
+        // Loop over the events:
     for(long  long int entry=0  ; entry < entries; ++entry ) {
         event.getEntry( entry );
         MSG_INFO( " \n ==> Event " << entry);

@@ -19,7 +19,7 @@
 #include "xAODEgamma/Electron.h"
 #include "xAODEventInfo/EventInfo.h"
 //PAT includes
-#ifndef ROOTCORE
+#ifndef XAOD_STANDALONE
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
 #endif
 #include "AthContainers/AuxElement.h"
@@ -102,11 +102,13 @@ AsgElectronEfficiencyCorrectionTool::initialize() {
         return StatusCode::FAILURE;
     }
 
-    // The user wants to overwrite the m_dataType
-    // Otherwise it will be full
-    // When we will use metadata  m_dataType will be whatever the metadata says i.e Full or Fast
-    // We will need to check for the existence of overwrite
-    // and if overwrite is not set we will set the m_dataType based on metadata
+    /*
+     * When metadata are available
+     * m_dataType will be whatever the metadata says i.e Full or Fast
+     * Its default value is Full.
+     * The user can overwrite all these ,using a flag,
+     * and force a specific dataType
+     */
     if (m_dataTypeOverwrite != -1) {
         if (m_dataTypeOverwrite != static_cast<int> (PATCore::ParticleDataType::Full)
                 && m_dataTypeOverwrite != static_cast<int> (PATCore::ParticleDataType::Fast)) {
@@ -284,22 +286,23 @@ AsgElectronEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD::Electr
 
     size_t CorrIndex{0};
     size_t MCToysIndex{0};
-    const std::vector<double> result = m_rootTool->calculate(m_dataType,
+    std::vector<double> result; 
+    const int status= m_rootTool->calculate(m_dataType,
             runnumber,
             cluster_eta,
             et, /* in MeV */
+            result,
             CorrIndex,
             MCToysIndex
             );
-
-    efficiencyScaleFactor = result[static_cast<size_t>(Root::TElectronEfficiencyCorrectionTool::Position::SF)];
-
-    // The default of the underlying tool is -999 , if we are in a valid range
-    // Reset it to 1 fow now to keep old behaviour
-    if (efficiencyScaleFactor <= -999.0) {
+    //if status 0 something went wrong 
+    if (!status) {
         efficiencyScaleFactor = 1;
         return CP::CorrectionCode::OutOfValidityRange;
     }
+
+    efficiencyScaleFactor = result[static_cast<size_t>(Root::TElectronEfficiencyCorrectionTool::Position::SF)];
+
     if (appliedSystematics().empty()) {
         return CP::CorrectionCode::Ok;
     }
@@ -560,71 +563,89 @@ AsgElectronEfficiencyCorrectionTool::InitSystematics() {
 }
 
 /*
- * Metadata methods
+ * Metadata methods.
+ * The tool operates in MC .
+ * The default type is Full sim.
+ *
+ * The user can  override  the MC type 
+ * in which case we avoid doing anything.
+ *
+ * The typical scenario is :
+ * For every IncidentType::BeginInputFile we can check for metadata
+ * and try to employ them in determining the simulation Flavor.
+ * If we found metadata 
+ * set m_metadata_retrieved= True else set it to False
+ * 
+ * EndInputFile should not do something
+ *
+ * The beginEvent should kick in only if the beginInputFile has
+ * failed to find metadata and the user has no preference. 
+ * Asg/base class has our back in cases where the 1st beginEvent
+ * happens before the 1st beginInputFile.
+ * For now we can not do something meaningfull in this method
+ * for this tool so can stay as a skeleton for the future
  */
-
-// begin input file
-StatusCode AsgElectronEfficiencyCorrectionTool::beginInputFile(){
-
-    // User preference of dataType, already done in initialize
+StatusCode 
+AsgElectronEfficiencyCorrectionTool::beginInputFile(){
+ 
+    // User forced a particular dataType
     if (m_dataTypeOverwrite != -1) return StatusCode::SUCCESS;
 
     PATCore::ParticleDataType::DataType dataType_metadata;
     const StatusCode status = get_simType_from_metadata(dataType_metadata);
-
+    //Metadata got retrieved
     if (status == StatusCode::SUCCESS) {
-        //m_metadata_retrieved isn't useful (might remove it later)
         m_metadata_retrieved = true;
-        ATH_MSG_DEBUG("metadata from new file: " << (dataType_metadata == PATCore::ParticleDataType::Data ? 
-                    "data" : 
-                    (dataType_metadata == PATCore::ParticleDataType::Full ? "full simulation" : "fast simulation")));
+        ATH_MSG_DEBUG("metadata from new file: " << 
+                (dataType_metadata == PATCore::ParticleDataType::Data ? "data" : 
+                 (dataType_metadata == PATCore::ParticleDataType::Full ? "full simulation" : "fast simulation")));
 
         if (dataType_metadata != PATCore::ParticleDataType::Data) {
-
-            if (m_dataTypeOverwrite == -1) { m_dataType = dataType_metadata; }
-            else {ATH_MSG_DEBUG("Use should set the dataType, otherwise it will take FullSim Type");}
+            if (m_dataTypeOverwrite == -1) { 
+                m_dataType = dataType_metadata; 
+            }
+            else {
+                ATH_MSG_DEBUG("Applying SF corrections to data while they make sense only for MC");
+            }
         }
     }
-
     else { // not able to retrieve metadata
         m_metadata_retrieved = false;
-        ATH_MSG_DEBUG("not able to retrieve metadata, please set the dataType");
+        ATH_MSG_DEBUG("not able to retrieve metadata");
     }
     return StatusCode::SUCCESS;
-}
-
-StatusCode AsgElectronEfficiencyCorrectionTool::endInputFile(){
-    m_metadata_retrieved = false;
-    return StatusCode::SUCCESS;
-
 }
 
 StatusCode AsgElectronEfficiencyCorrectionTool::beginEvent(){
 
+    if (m_dataTypeOverwrite != -1) return StatusCode::SUCCESS;
+    if (m_metadata_retrieved) return StatusCode::SUCCESS;
+
+    m_metadata_retrieved=true;
     return StatusCode::SUCCESS;
 }
 
 StatusCode
-AsgElectronEfficiencyCorrectionTool::get_simType_from_metadata(PATCore::ParticleDataType::DataType& result) const
-{
-#ifndef ROOTCORE
+AsgElectronEfficiencyCorrectionTool::get_simType_from_metadata(PATCore::ParticleDataType::DataType& result) const{
+
+#ifndef XAOD_STANDALONE
     //Determine MC/Data
     std::string dataType("");
-    if ( (AthAnalysisHelper::retrieveMetadata("/TagInfo", "project_name", dataType, inputMetaStore())).isFailure() ){
-        ATH_MSG_DEBUG("Failure to retrieve the project_name, Either running on data or something is wrong?");
-    }
-    if (!(dataType == "IS_SIMULATION")) {
-        result = PATCore::ParticleDataType::Data;
-        ATH_MSG_DEBUG("Running on simulation");
-        return StatusCode::SUCCESS;
-    }
-    // Determine Fast/FullSim
-    if (dataType == "IS_SIMULATION") {
-        std::string simType("");
-        ATH_CHECK(AthAnalysisHelper::retrieveMetadata("/Simulation/Parameters", "SimulationFlavour", simType, inputMetaStore()));
-        boost::to_upper(simType);
-        result = (simType.find("ATLFASTII")==std::string::npos) ?  PATCore::ParticleDataType::Full : PATCore::ParticleDataType::Fast;
-        return StatusCode::SUCCESS;
+    if ( (AthAnalysisHelper::retrieveMetadata("/TagInfo", "project_name", dataType, inputMetaStore())).isSuccess() ){
+        if (!(dataType == "IS_SIMULATION")) {
+            result = PATCore::ParticleDataType::Data;
+            ATH_MSG_DEBUG("Running on data");
+            return StatusCode::SUCCESS;
+        }
+        // Determine Fast/FullSim
+        if (dataType == "IS_SIMULATION") {
+            std::string simType("");
+            ATH_CHECK(AthAnalysisHelper::retrieveMetadata("/Simulation/Parameters", "SimulationFlavour", simType, inputMetaStore()));
+            boost::to_upper(simType);
+            result = (simType.find("ATLFASTII")==std::string::npos) ?  
+                PATCore::ParticleDataType::Full : PATCore::ParticleDataType::Fast;
+            return StatusCode::SUCCESS;
+        }
     }
 #endif
     //Here's how things will work dual use, when file metadata is available in files
@@ -642,7 +663,8 @@ AsgElectronEfficiencyCorrectionTool::get_simType_from_metadata(PATCore::Particle
         else {
             ATH_MSG_DEBUG("sim type = " + simType);
             boost::to_upper(simType);
-            result = (simType.find("ATLFASTII")==std::string::npos) ?  PATCore::ParticleDataType::Full : PATCore::ParticleDataType::Fast;
+            result = (simType.find("ATLFASTII")==std::string::npos) ?  
+                PATCore::ParticleDataType::Full : PATCore::ParticleDataType::Fast;
             return StatusCode::SUCCESS;
         }
     }
