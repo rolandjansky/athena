@@ -221,7 +221,7 @@ PyObject* quick_retrieve(const IObjectIteratorPtr& objects,
                          const bool with_time = false,
                          const bool as_unicode = false)
 {
-    IObjectIterator_Guard _closeiterator_guard(objects);
+    IObjectIterator_Guard closeiterator_guard(objects);
     
     PyObject* result = PyList_New(0);
     
