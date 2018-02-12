@@ -450,7 +450,6 @@ class CaloClusterTopoGetter ( Configured )  :
         CaloTopoCluster += TopoSplitter
         CaloTopoCluster += BadChannelListCorr
         CaloTopoCluster += TopoMoments
-        from RecExConfig.RecFlags import rec
         if doDigiTruthFlag:
           CaloTopoCluster += TopoMoments_Truth
         

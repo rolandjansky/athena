@@ -34,8 +34,8 @@ ToolSvc += theOFCTool
 LArRawChannelBuilder.OFCTool = theOFCTool
 
 
-from RecExConfig.RecFlags import rec
-if rec.doDigiTruth():
+from Digitization.DigitizationFlags import digitizationFlags
+if digitizationFlags.doDigiTruth():
   LArRawChannelBuilder_DigiHSTruth = LArRawChannelBuilder( "LArRawChannelBuilder_DigiHSTruth" )
   topSequence += LArRawChannelBuilder_DigiHSTruth
   LArRawChannelBuilder_DigiHSTruth.DataLocation = "LArDigitContainer_DigiHSTruth"
