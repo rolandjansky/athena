@@ -112,7 +112,7 @@ StatusCode FTK_RDO_MonitorAlgo::initialize(){
   //Set up the FTK Data Provider SVC //
   ATH_CHECK(m_DataProviderSvc.retrieve());
   /// Get Histogram Service ///
-  ATH_CHECK(service("THistSvc", rootHistSvc));
+  ATH_CHECK(service("THistSvc", m_rootHistSvc));
 
   
 
@@ -126,7 +126,7 @@ StatusCode FTK_RDO_MonitorAlgo::initialize(){
 
   trackRootPath = "/TRACKS/";
   for( uint i = 0; i < histograms->size(); ++i){
-    if ( rootHistSvc->regHist( trackRootPath + (*histograms)[i]->GetName(), (*histograms)[i] ).isFailure()) {
+    if ( m_rootHistSvc->regHist( trackRootPath + (*histograms)[i]->GetName(), (*histograms)[i] ).isFailure()) {
       std::string temp = "Failed to book Histogram: " + std::string((*histograms)[i]->GetName());
       ATH_MSG_WARNING(temp);
     } else {
@@ -135,9 +135,9 @@ StatusCode FTK_RDO_MonitorAlgo::initialize(){
     }  }
   delete(histograms);
 
-  h_missingHits = new TProfile("h_missingHits", " layer ",12,0.,12.,0.,1.);
-  if (rootHistSvc->regHist( trackRootPath + h_missingHits->GetName(), h_missingHits).isFailure()) {
-    std::string temp = "Failed to book Histogram: " + std::string(h_missingHits->GetName());
+  m_h_missingHits = new TProfile("h_missingHits", " layer ",12,0.,12.,0.,1.);
+  if (m_rootHistSvc->regHist( trackRootPath + m_h_missingHits->GetName(), m_h_missingHits).isFailure()) {
+    std::string temp = "Failed to book Histogram: " + std::string(m_h_missingHits->GetName());
     ATH_MSG_WARNING(temp);
   }
 
@@ -237,7 +237,7 @@ StatusCode FTK_RDO_MonitorAlgo::execute() {
   
   
   ATH_MSG_DEBUG(" Got FTK_RawTrackContainer with " << rawTracks->size() << " tracks");
-  h_FTK_RawTrack_n->Fill(rawTracks->size());
+  m_h_FTK_RawTrack_n->Fill(rawTracks->size());
   
 
   unsigned int pixMaxHash = m_pixelId->wafer_hash_max();
@@ -257,7 +257,7 @@ StatusCode FTK_RDO_MonitorAlgo::execute() {
 
   ATH_MSG_VERBOSE( " Got offline collection with " << offlineTracks->size()<< " offline tracks" );
   
-  h_offline_n->Fill(offlineTracks->size());
+  m_h_offline_n->Fill(offlineTracks->size());
 
   auto track_it   = offlineTracks->begin();
   auto last_track = offlineTracks->end();
@@ -298,16 +298,16 @@ StatusCode FTK_RDO_MonitorAlgo::execute() {
     
     if (eta> m_mineta && eta<m_maxeta && phi0> m_minphi && phi0<m_maxphi) {
       
-      if (fabs(a0) < m_maxa0 && fabs(z0) < m_maxz0) h_offline_pt->Fill(fabs(pT));
+      if (fabs(a0) < m_maxa0 && fabs(z0) < m_maxz0) m_h_offline_pt->Fill(fabs(pT));
       
-      if (fabs(pT)>m_minPt && fabs(z0) < m_maxz0) h_offline_d0->Fill(a0);
+      if (fabs(pT)>m_minPt && fabs(z0) < m_maxz0) m_h_offline_d0->Fill(a0);
       
-      if (fabs(pT)>m_minPt && fabs(a0)< m_maxa0) h_offline_z0->Fill(z0);
+      if (fabs(pT)>m_minPt && fabs(a0)< m_maxa0) m_h_offline_z0->Fill(z0);
       
     }
     if (fabs(pT)>m_minPt && fabs(a0) < m_maxa0 && fabs(z0) < m_maxz0) {
-      if (phi0 > m_minphi && phi0 < m_maxphi) h_offline_eta->Fill(eta);
-      if (eta> m_mineta && eta < m_maxeta) h_offline_phi->Fill(phi0);
+      if (phi0 > m_minphi && phi0 < m_maxphi) m_h_offline_eta->Fill(eta);
+      if (eta> m_mineta && eta < m_maxeta) m_h_offline_phi->Fill(phi0);
     }    
     
     
@@ -317,7 +317,7 @@ StatusCode FTK_RDO_MonitorAlgo::execute() {
     
     const std::pair<unsigned int,unsigned int> ftkTrackMatch = (this)->matchTrack(*track_it,pixList, sctList, offlinetrackPixLocxLocy, offlinetrackSctLocx, uniqueMatch);
     
-    h_FTK_nHitMatch->Fill((double)ftkTrackMatch.second);  
+    m_h_FTK_nHitMatch->Fill((double)ftkTrackMatch.second);  
     if (ftkTrackMatch.second > 0) {
       ATH_MSG_VERBOSE(" matched to FTK track index " << ftkTrackMatch.first << " with " << ftkTrackMatch.second << " matches");
       if (ftkTrackMatch.second > m_minMatches) { 
@@ -335,25 +335,25 @@ StatusCode FTK_RDO_MonitorAlgo::execute() {
 	  //    ATH_MSG_VERBOSE( "     SectorID " << (ftkRawTrack)->getSectorID()   <<   "  RoadID "  << (ftkRawTrack)->getRoadID() << " LayerMap " << (ftkRawTrack)->getLayerMap());
 	
 	
-	h_FTK_pt->Fill(ftkTrkPt);
-	h_FTK_eta->Fill(ftkTrkEta);
-	h_FTK_phi->Fill((ftkRawTrack)->getPhi());
-	h_FTK_d0->Fill((ftkRawTrack)->getD0());
-	h_FTK_z0->Fill((ftkRawTrack)->getZ0());
+	m_h_FTK_pt->Fill(ftkTrkPt);
+	m_h_FTK_eta->Fill(ftkTrkEta);
+	m_h_FTK_phi->Fill((ftkRawTrack)->getPhi());
+	m_h_FTK_d0->Fill((ftkRawTrack)->getD0());
+	m_h_FTK_z0->Fill((ftkRawTrack)->getZ0());
 	
 	if (eta> m_mineta && eta<m_maxeta && phi0> m_minphi && phi0<m_maxphi) {
 	  
-	  if (fabs(a0) < m_maxa0 && fabs(z0) < m_maxz0) h_FTK_ptEffNum->Fill(fabs(pT));
+	  if (fabs(a0) < m_maxa0 && fabs(z0) < m_maxz0) m_h_FTK_ptEffNum->Fill(fabs(pT));
 	  
-	  if (fabs(pT)>m_minPt && fabs(z0) < m_maxz0) h_FTK_d0EffNum->Fill(a0);
+	  if (fabs(pT)>m_minPt && fabs(z0) < m_maxz0) m_h_FTK_d0EffNum->Fill(a0);
 	  
-	  if (fabs(pT)>m_minPt && fabs(a0)< m_maxa0) h_FTK_z0EffNum->Fill(z0);
+	  if (fabs(pT)>m_minPt && fabs(a0)< m_maxa0) m_h_FTK_z0EffNum->Fill(z0);
 	  
 	}
 
 	if (fabs(pT)>m_minPt && fabs(a0) < m_maxa0 && fabs(z0) < m_maxz0) {
-	  if (phi0 > m_minphi && phi0 < m_maxphi) h_FTK_etaEffNum->Fill(eta);
-	  if (eta> m_mineta && eta < m_maxeta) h_FTK_phiEffNum->Fill(phi0);
+	  if (phi0 > m_minphi && phi0 < m_maxphi) m_h_FTK_etaEffNum->Fill(eta);
+	  if (eta> m_mineta && eta < m_maxeta) m_h_FTK_phiEffNum->Fill(phi0);
 	  
 	  if (eta> m_mineta && eta < m_maxeta && phi0> m_minphi && phi0 < m_maxphi) {
 	    if (uniqueMatch) { 
@@ -380,7 +380,7 @@ StatusCode FTK_RDO_MonitorAlgo::execute() {
   }
   ATH_MSG_DEBUG(" Number of offline tracks passing cuts "<<nAcc<<" number matched to FTK track "<<nMatched);
   
-  h_offline_nAcc->Fill(nAcc);
+  m_h_offline_nAcc->Fill(nAcc);
   
 
   for ( auto& ip:pixList) if (ip) delete(ip);
@@ -415,83 +415,83 @@ void FTK_RDO_MonitorAlgo::Hist_Init(std::vector<TH1D*> *histograms){
   // FTK Raw Track Histograms //
 
  
-  h_FTK_nHitMatch    = new TH1D("h_FTKMoni_nHitMatch",    "No. Hits on track matching Offline; No. Matched Hits; NTracks",      12,  0.,    12.);
-  histograms->push_back(h_FTK_nHitMatch);
+  m_h_FTK_nHitMatch    = new TH1D("h_FTKMoni_nHitMatch",    "No. Hits on track matching Offline; No. Matched Hits; NTracks",      12,  0.,    12.);
+  histograms->push_back(m_h_FTK_nHitMatch);
 
-  h_FTK_nTrackMatch    = new TH1D("h_FTKMoni_nTrackMatch",    "No. FTK tracks matching offline;No. Matched FTK Tracks;",      12,  0.,    12.);
-  histograms->push_back(h_FTK_nTrackMatch);
+  m_h_FTK_nTrackMatch    = new TH1D("h_FTKMoni_nTrackMatch",    "No. FTK tracks matching offline;No. Matched FTK Tracks;",      12,  0.,    12.);
+  histograms->push_back(m_h_FTK_nTrackMatch);
 
-  h_FTK_RawTrack_n    = new TH1D("h_FTKMoni_RawTrack_n",    ";FTK Raw Track multiplicity;No. Tracks",      25,  0.,    25.);
-  histograms->push_back(h_FTK_RawTrack_n);
+  m_h_FTK_RawTrack_n    = new TH1D("h_FTKMoni_RawTrack_n",    ";FTK Raw Track multiplicity;No. Tracks",      25,  0.,    25.);
+  histograms->push_back(m_h_FTK_RawTrack_n);
 
-  h_offline_n    = new TH1D("h_FTKMoni_offline_n",    ";Offline Track multiplicity;No. Tracks",      50,  0.,    200.);
-  histograms->push_back(h_offline_n);
+  m_h_offline_n    = new TH1D("h_FTKMoni_offline_n",    ";Offline Track multiplicity;No. Tracks",      50,  0.,    200.);
+  histograms->push_back(m_h_offline_n);
 
-  h_offline_nAcc   = new TH1D("h_FTKMoni_offline_nAcc",    ";No. Offline Tracks accepted;No. Tracks",      50,  0.,    50.);
-  histograms->push_back(h_offline_nAcc);
-
-
-  h_FTK_pt    = new TH1D("h_FTKMoni_RawTrack_pt",    ";FTK track pt[MeV];No. Tracks",      100, 0., 100000.);
-  histograms->push_back(h_FTK_pt);
-  h_offline_pt    = new TH1D("h_FTKMoni_offline_pt",    ";offline track pt[MeV];No. Tracks",    100, 0., 100000.);
-  histograms->push_back(h_offline_pt);
-  h_FTK_ptEffNum    = new TH1D("h_FTKMoni_ptEffNum",    ";offline track pt[MeV];No. FTK Tracks",    100, 0., 100000.);
-  histograms->push_back(h_FTK_ptEffNum);
+  m_h_offline_nAcc   = new TH1D("h_FTKMoni_offline_nAcc",    ";No. Offline Tracks accepted;No. Tracks",      50,  0.,    50.);
+  histograms->push_back(m_h_offline_nAcc);
 
 
-  h_FTK_eta    = new TH1D("h_FTKMoni_RawTrack_eta",    ";FTK track eta;No. Tracks",      104,  -2.6, 2.6);
-  histograms->push_back(h_FTK_eta);
-  h_offline_eta    = new TH1D("h_FTKMoni_offline_eta",    ";offline track eta;No. Tracks",      104,  -2.6,    2.6);
-  histograms->push_back(h_offline_eta);
-  h_FTK_etaEffNum    = new TH1D("h_FTKMoni_etaEffNum",    ";offline track eta;No. FTK Tracks",      104,  -2.6, 2.6);
-  histograms->push_back(h_FTK_etaEffNum);
-
-  h_FTK_phi    = new TH1D("h_FTKMoni_RawTrack_phi",    ";FTK track phi[Rad];No. Tracks",      64,  -3.2,    3.2);
-  histograms->push_back(h_FTK_phi);
-  h_offline_phi    = new TH1D("h_FTKMoni_offline_phi",    ";offline track phi[Rad]; No. Tracks",      64,  -3.2,    3.2);
-  histograms->push_back(h_offline_phi);
-  h_FTK_phiEffNum    = new TH1D("h_FTKMoni_phiEffNum",    ";offline track phi[Rad]; No. FTK Tracks",      64,  -3.2,    3.2);
-  histograms->push_back(h_FTK_phiEffNum);
-
-  h_FTK_d0    = new TH1D("h_FTKMoni_RawTrack_d0",    ";FTK track d0[Rad];No. Tracks",      100, -5. , 5.);
-  histograms->push_back(h_FTK_d0);
-  h_offline_d0    = new TH1D("h_FTKMoni_offline_d0",    ";offline track d0[Rad]; No. Tracks",      100, -5. , 5.);
-  histograms->push_back(h_offline_d0);
-  h_FTK_d0EffNum    = new TH1D("h_FTKMoni_d0EffNum",    ";offline track d0[Rad]; No. FTK Tracks",      100, -5. , 5.);
-  histograms->push_back(h_FTK_d0EffNum);
-
-  h_FTK_z0    = new TH1D("h_FTKMoni_RawTrack_z0",    ";FTK track z0[Rad];No. Tracks",      60, -150., 150.);
-  histograms->push_back(h_FTK_z0);
-  h_offline_z0    = new TH1D("h_FTKMoni_offline_z0",    ";offline track z0[Rad]; No. Tracks",      60, -150., 150.);
-  histograms->push_back(h_offline_z0);
-  h_FTK_z0EffNum    = new TH1D("h_FTKMoni_z0EffNum",    ";offline track z0[Rad]; No. FTK Tracks",      60, -150., 150.);
-  histograms->push_back(h_FTK_z0EffNum);
+  m_h_FTK_pt    = new TH1D("h_FTKMoni_RawTrack_pt",    ";FTK track pt[MeV];No. Tracks",      100, 0., 100000.);
+  histograms->push_back(m_h_FTK_pt);
+  m_h_offline_pt    = new TH1D("h_FTKMoni_offline_pt",    ";offline track pt[MeV];No. Tracks",    100, 0., 100000.);
+  histograms->push_back(m_h_offline_pt);
+  m_h_FTK_ptEffNum    = new TH1D("h_FTKMoni_ptEffNum",    ";offline track pt[MeV];No. FTK Tracks",    100, 0., 100000.);
+  histograms->push_back(m_h_FTK_ptEffNum);
 
 
-  h_IBL_dlocX_fullRange= new TH1D("h_IBL_dlocX_fullRange", "PIXB0: locx(offline)-locx(ftk)", 100,  -20.,    20.);
-  histograms->push_back(h_IBL_dlocX_fullRange);
+  m_h_FTK_eta    = new TH1D("h_FTKMoni_RawTrack_eta",    ";FTK track eta;No. Tracks",      104,  -2.6, 2.6);
+  histograms->push_back(m_h_FTK_eta);
+  m_h_offline_eta    = new TH1D("h_FTKMoni_offline_eta",    ";offline track eta;No. Tracks",      104,  -2.6,    2.6);
+  histograms->push_back(m_h_offline_eta);
+  m_h_FTK_etaEffNum    = new TH1D("h_FTKMoni_etaEffNum",    ";offline track eta;No. FTK Tracks",      104,  -2.6, 2.6);
+  histograms->push_back(m_h_FTK_etaEffNum);
+
+  m_h_FTK_phi    = new TH1D("h_FTKMoni_RawTrack_phi",    ";FTK track phi[Rad];No. Tracks",      64,  -3.2,    3.2);
+  histograms->push_back(m_h_FTK_phi);
+  m_h_offline_phi    = new TH1D("h_FTKMoni_offline_phi",    ";offline track phi[Rad]; No. Tracks",      64,  -3.2,    3.2);
+  histograms->push_back(m_h_offline_phi);
+  m_h_FTK_phiEffNum    = new TH1D("h_FTKMoni_phiEffNum",    ";offline track phi[Rad]; No. FTK Tracks",      64,  -3.2,    3.2);
+  histograms->push_back(m_h_FTK_phiEffNum);
+
+  m_h_FTK_d0    = new TH1D("h_FTKMoni_RawTrack_d0",    ";FTK track d0[Rad];No. Tracks",      100, -5. , 5.);
+  histograms->push_back(m_h_FTK_d0);
+  m_h_offline_d0    = new TH1D("h_FTKMoni_offline_d0",    ";offline track d0[Rad]; No. Tracks",      100, -5. , 5.);
+  histograms->push_back(m_h_offline_d0);
+  m_h_FTK_d0EffNum    = new TH1D("h_FTKMoni_d0EffNum",    ";offline track d0[Rad]; No. FTK Tracks",      100, -5. , 5.);
+  histograms->push_back(m_h_FTK_d0EffNum);
+
+  m_h_FTK_z0    = new TH1D("h_FTKMoni_RawTrack_z0",    ";FTK track z0[Rad];No. Tracks",      60, -150., 150.);
+  histograms->push_back(m_h_FTK_z0);
+  m_h_offline_z0    = new TH1D("h_FTKMoni_offline_z0",    ";offline track z0[Rad]; No. Tracks",      60, -150., 150.);
+  histograms->push_back(m_h_offline_z0);
+  m_h_FTK_z0EffNum    = new TH1D("h_FTKMoni_z0EffNum",    ";offline track z0[Rad]; No. FTK Tracks",      60, -150., 150.);
+  histograms->push_back(m_h_FTK_z0EffNum);
+
+
+  m_h_IBL_dlocX_fullRange= new TH1D("h_IBL_dlocX_fullRange", "PIXB0: locx(offline)-locx(ftk)", 100,  -20.,    20.);
+  histograms->push_back(m_h_IBL_dlocX_fullRange);
   
-  h_IBL_dlocY_fullRange= new TH1D("h_IBL_dlocY_fullRange", "PIXB0: locy(offline)-locy(ftk)", 100,  -50.,    50.);
-  histograms->push_back(h_IBL_dlocY_fullRange);
+  m_h_IBL_dlocY_fullRange= new TH1D("h_IBL_dlocY_fullRange", "PIXB0: locy(offline)-locy(ftk)", 100,  -50.,    50.);
+  histograms->push_back(m_h_IBL_dlocY_fullRange);
   
-  h_IBL_locX= new TH1D("h_IBL_locX", "IBL: rawLocalPhiCoord%8)", 6,  -0.5,    5.5);
-  histograms->push_back(h_IBL_locX);        
-  h_IBL_locY= new TH1D("h_IBL_locY", "IBL: rawLocalEtaCoord%8)", 6,  -0.5,    5.5);
-  histograms->push_back(h_IBL_locY);
+  m_h_IBL_locX= new TH1D("h_IBL_locX", "IBL: rawLocalPhiCoord%8)", 6,  -0.5,    5.5);
+  histograms->push_back(m_h_IBL_locX);        
+  m_h_IBL_locY= new TH1D("h_IBL_locY", "IBL: rawLocalEtaCoord%8)", 6,  -0.5,    5.5);
+  histograms->push_back(m_h_IBL_locY);
 
-  h_pixb_locX= new TH1D("h_pixb_locX", "PIXB: rawLocalPhiCoord%8)", 6,  -0.5,    5.5);
-  histograms->push_back(h_pixb_locX);
-  h_pixb_locY= new TH1D("h_pixb_locY", "PIXB: rawLocalEtaCoord%8)", 6,  -0.5,    5.5);
-  histograms->push_back(h_pixb_locY);
-  h_pixe_locX= new TH1D("h_pixe_locX", "PIXE: rawLocalPhiCoord%8)", 6,  -0.5,    5.5);
-  histograms->push_back(h_pixe_locX);
-  h_pixe_locY= new TH1D("h_pixe_locY", "PIXE: rawLocalEtaCoord%8)", 6,  -0.5,    5.5);
-  histograms->push_back(h_pixe_locY);
+  m_h_pixb_locX= new TH1D("h_pixb_locX", "PIXB: rawLocalPhiCoord%8)", 6,  -0.5,    5.5);
+  histograms->push_back(m_h_pixb_locX);
+  m_h_pixb_locY= new TH1D("h_pixb_locY", "PIXB: rawLocalEtaCoord%8)", 6,  -0.5,    5.5);
+  histograms->push_back(m_h_pixb_locY);
+  m_h_pixe_locX= new TH1D("h_pixe_locX", "PIXE: rawLocalPhiCoord%8)", 6,  -0.5,    5.5);
+  histograms->push_back(m_h_pixe_locX);
+  m_h_pixe_locY= new TH1D("h_pixe_locY", "PIXE: rawLocalEtaCoord%8)", 6,  -0.5,    5.5);
+  histograms->push_back(m_h_pixe_locY);
 
-  h_sctb_locX= new TH1D("h_sctb_locX", "SCTB: rawLocalPhiCoord%2)", 2,  -0.5,    1.5);
-  histograms->push_back(h_sctb_locX);
-  h_scte_locX= new TH1D("h_scte_locX", "SCTE: rawLocalPhiCoord%2)", 2,  -0.5,    1.5);
-  histograms->push_back(h_scte_locX);
+  m_h_sctb_locX= new TH1D("h_sctb_locX", "SCTB: rawLocalPhiCoord%2)", 2,  -0.5,    1.5);
+  histograms->push_back(m_h_sctb_locX);
+  m_h_scte_locX= new TH1D("h_scte_locX", "SCTE: rawLocalPhiCoord%2)", 2,  -0.5,    1.5);
+  histograms->push_back(m_h_scte_locX);
 
 
 
@@ -514,7 +514,7 @@ void FTK_RDO_MonitorAlgo::Hist_Init(std::vector<TH1D*> *histograms){
     histtitle+=": row (phi) coord";
     
     TH1D* pix_row = new TH1D(histname, histtitle, 41,  0, 4100);
-    h_pix_row.push_back(pix_row);
+    m_h_pix_row.push_back(pix_row);
     histograms->push_back(pix_row);
     
     // row width 
@@ -528,7 +528,7 @@ void FTK_RDO_MonitorAlgo::Hist_Init(std::vector<TH1D*> *histograms){
     histtitle+=": row (phi) width";
     
     TH1D* pix_rowW = new TH1D(histname, histtitle, 8,  -0.5, 7.5);
-    h_pix_rowW.push_back(pix_rowW);
+    m_h_pix_rowW.push_back(pix_rowW);
     histograms->push_back(pix_rowW);
     
     // col coord
@@ -543,7 +543,7 @@ void FTK_RDO_MonitorAlgo::Hist_Init(std::vector<TH1D*> *histograms){
     
     
     TH1D* pix_col = new TH1D(histname, histtitle, 41,  0,    4100);
-    h_pix_col.push_back(pix_col);
+    m_h_pix_col.push_back(pix_col);
     histograms->push_back(pix_col);
     
     // col width
@@ -558,7 +558,7 @@ void FTK_RDO_MonitorAlgo::Hist_Init(std::vector<TH1D*> *histograms){
     
     
     TH1D* pix_colW = new TH1D(histname, histtitle, 8, -0.5, 7.5);
-    h_pix_colW.push_back(pix_colW);
+    m_h_pix_colW.push_back(pix_colW);
     histograms->push_back(pix_colW);
     
   }
@@ -582,7 +582,7 @@ void FTK_RDO_MonitorAlgo::Hist_Init(std::vector<TH1D*> *histograms){
     
     
     TH1D* sct_coord = new TH1D(histname, histtitle, 42,  0,    2100);
-    h_sct_coord.push_back(sct_coord);
+    m_h_sct_coord.push_back(sct_coord);
     histograms->push_back(sct_coord);
 
 
@@ -598,20 +598,20 @@ void FTK_RDO_MonitorAlgo::Hist_Init(std::vector<TH1D*> *histograms){
     
 
     TH1D* sct_width = new TH1D(histname, histtitle, 8,  -0.5,    7.5);
-    h_sct_width.push_back(sct_width);
+    m_h_sct_width.push_back(sct_width);
     histograms->push_back(sct_width);
   }
 
   TString trackName[7]={"Raw","Raw_wid1", "Raw_wid2","Raw_wid3","Raw_wid4","Cnv", "Rft"};
 
-  h_pixb_dlocX.resize(7);
-  h_pixb_dlocY.resize(7);
-  h_pixe_dlocX.resize(7);
-  h_pixe_dlocY.resize(7);
-  h_sctb_0_dlocX.resize(7);
-  h_sctb_1_dlocX.resize(7);
-  h_scte_0_dlocX.resize(7);
-  h_scte_1_dlocX.resize(7);
+  m_h_pixb_dlocX.resize(7);
+  m_h_pixb_dlocY.resize(7);
+  m_h_pixe_dlocX.resize(7);
+  m_h_pixe_dlocY.resize(7);
+  m_h_sctb_0_dlocX.resize(7);
+  m_h_sctb_1_dlocX.resize(7);
+  m_h_scte_0_dlocX.resize(7);
+  m_h_scte_1_dlocX.resize(7);
 
 
   
@@ -633,7 +633,7 @@ void FTK_RDO_MonitorAlgo::Hist_Init(std::vector<TH1D*> *histograms){
       histtitle+=": locx(offline)-locx(ftk"+trackName[trackType]+")";
       
       TH1D* pixb_dlocX = new TH1D(histname, histtitle, 500,  -0.5,    0.5);
-      h_pixb_dlocX[trackType].push_back(pixb_dlocX);
+      m_h_pixb_dlocX[trackType].push_back(pixb_dlocX);
       histograms->push_back(pixb_dlocX);
       
       // PIXB dLocY
@@ -649,7 +649,7 @@ void FTK_RDO_MonitorAlgo::Hist_Init(std::vector<TH1D*> *histograms){
       
       
       TH1D* pixb_dlocY = new TH1D(histname, histtitle, 500,  -0.5,    0.5);
-      h_pixb_dlocY[trackType].push_back(pixb_dlocY);
+      m_h_pixb_dlocY[trackType].push_back(pixb_dlocY);
       histograms->push_back(pixb_dlocY);
       
       
@@ -668,7 +668,7 @@ void FTK_RDO_MonitorAlgo::Hist_Init(std::vector<TH1D*> *histograms){
 	histtitle+=": locx(offline)-locx(ftk"+trackName[trackType]+")";
 	
 	TH1D* pixe_dlocX = new TH1D(histname, histtitle, 500,  -0.5,    0.5);
-	h_pixe_dlocX[trackType].push_back(pixe_dlocX);
+	m_h_pixe_dlocX[trackType].push_back(pixe_dlocX);
 	histograms->push_back(pixe_dlocX);
 	
 	// PIXE dlocY
@@ -683,7 +683,7 @@ void FTK_RDO_MonitorAlgo::Hist_Init(std::vector<TH1D*> *histograms){
 	histtitle+=": locy(offline)-locy(ftk"+trackName[trackType]+")";
 	
 	TH1D* pixe_dlocY = new TH1D(histname, histtitle, 500,  -0.5,    0.5);
-	h_pixe_dlocY[trackType].push_back(pixe_dlocY);
+	m_h_pixe_dlocY[trackType].push_back(pixe_dlocY);
 	histograms->push_back(pixe_dlocY);
       }      
       
@@ -701,7 +701,7 @@ void FTK_RDO_MonitorAlgo::Hist_Init(std::vector<TH1D*> *histograms){
       
       
       TH1D* sctb_0_dlocX = new TH1D(histname, histtitle, 500,  -0.5,    0.5);
-      h_sctb_0_dlocX[trackType].push_back(sctb_0_dlocX);
+      m_h_sctb_0_dlocX[trackType].push_back(sctb_0_dlocX);
       histograms->push_back(sctb_0_dlocX);
       
       
@@ -719,7 +719,7 @@ void FTK_RDO_MonitorAlgo::Hist_Init(std::vector<TH1D*> *histograms){
       
       
       TH1D* sctb_1_dlocX = new TH1D(histname, histtitle, 500,  -0.5,    0.5);
-      h_sctb_1_dlocX[trackType].push_back(sctb_1_dlocX);
+      m_h_sctb_1_dlocX[trackType].push_back(sctb_1_dlocX);
       histograms->push_back(sctb_1_dlocX);
       
       
@@ -736,7 +736,7 @@ void FTK_RDO_MonitorAlgo::Hist_Init(std::vector<TH1D*> *histograms){
       
       
       TH1D* scte_0_dlocX = new TH1D(histname, histtitle, 500,  -0.5,    0.5);
-      h_scte_0_dlocX[trackType].push_back(scte_0_dlocX);
+      m_h_scte_0_dlocX[trackType].push_back(scte_0_dlocX);
       histograms->push_back(scte_0_dlocX);
       
       
@@ -753,19 +753,19 @@ void FTK_RDO_MonitorAlgo::Hist_Init(std::vector<TH1D*> *histograms){
       
       
       TH1D* scte_1_dlocX = new TH1D(histname, histtitle, 500,  -0.5,    0.5);
-      h_scte_1_dlocX[trackType].push_back(scte_1_dlocX);
+      m_h_scte_1_dlocX[trackType].push_back(scte_1_dlocX);
       histograms->push_back(scte_1_dlocX);
     }
   }
 
-  h_ftk_sct_clusWidth = new TH1D("h_FTKMoni_sct_clusWidth", "SCT cluster width", 8,  -0.5,    7.5);
-  histograms->push_back(h_ftk_sct_clusWidth);
+  m_h_ftk_sct_clusWidth = new TH1D("h_FTKMoni_sct_clusWidth", "SCT cluster width", 8,  -0.5,    7.5);
+  histograms->push_back(m_h_ftk_sct_clusWidth);
 
-  h_ftk_pix_phiClusWidth = new TH1D("h_FTKMoni_pix_phiClusWidth", "Pixel cluster width in phi", 8,  -0.5,    7.5);
-  histograms->push_back(h_ftk_pix_phiClusWidth);
+  m_h_ftk_pix_phiClusWidth = new TH1D("h_FTKMoni_pix_phiClusWidth", "Pixel cluster width in phi", 8,  -0.5,    7.5);
+  histograms->push_back(m_h_ftk_pix_phiClusWidth);
 
-  h_ftk_pix_etaClusWidth = new TH1D("h_FTKMoni_pix_etaClusWidth", "Pixel cluster width in eta", 8,  -0.5,    7.5);
-  histograms->push_back(h_ftk_pix_etaClusWidth);
+  m_h_ftk_pix_etaClusWidth = new TH1D("h_FTKMoni_pix_etaClusWidth", "Pixel cluster width in eta", 8,  -0.5,    7.5);
+  histograms->push_back(m_h_ftk_pix_etaClusWidth);
 
   
 }
@@ -850,10 +850,10 @@ void FTK_RDO_MonitorAlgo::fillMaps(const FTK_RawTrackContainer* rawTracks, std::
       }
       
       
-      h_pix_row[ihist]->Fill((*pTrack)->getPixelClusters()[iPlane].getRowCoord());
-      h_pix_rowW[ihist]->Fill((*pTrack)->getPixelClusters()[iPlane].getRowWidth());
-      h_pix_col[ihist]->Fill((*pTrack)->getPixelClusters()[iPlane].getColCoord());
-      h_pix_colW[ihist]->Fill((*pTrack)->getPixelClusters()[iPlane].getColWidth());
+      m_h_pix_row[ihist]->Fill((*pTrack)->getPixelClusters()[iPlane].getRowCoord());
+      m_h_pix_rowW[ihist]->Fill((*pTrack)->getPixelClusters()[iPlane].getRowWidth());
+      m_h_pix_col[ihist]->Fill((*pTrack)->getPixelClusters()[iPlane].getColCoord());
+      m_h_pix_colW[ihist]->Fill((*pTrack)->getPixelClusters()[iPlane].getColWidth());
 
       ATH_MSG_VERBOSE(" FTK_RawPixelCluster " << iPlane << std::hex <<
 		      " Row Coord= 0x" << (unsigned int) (*pTrack)->getPixelClusters()[iPlane].getRowCoord() <<
@@ -925,8 +925,8 @@ void FTK_RDO_MonitorAlgo::fillMaps(const FTK_RawTrackContainer* rawTracks, std::
 		      " Hash ID = 0x" << hash << std::dec);
       ATH_MSG_VERBOSE(m_id_helper->print_to_string(m_sctId->wafer_id(hash)));
 
-      h_sct_coord[ihist]->Fill((*pTrack)->getSCTClusters()[isct].getHitCoord());
-      h_sct_width[ihist]->Fill((*pTrack)->getSCTClusters()[isct].getHitWidth());
+      m_h_sct_coord[ihist]->Fill((*pTrack)->getSCTClusters()[isct].getHitCoord());
+      m_h_sct_width[ihist]->Fill((*pTrack)->getSCTClusters()[isct].getHitWidth());
 
       if (hash<sctMaxHash) {
 	ATH_MSG_DEBUG(" Adding to sctList[ "<<hash<<" ] track " << itr);
@@ -946,13 +946,13 @@ void FTK_RDO_MonitorAlgo::fillMaps(const FTK_RawTrackContainer* rawTracks, std::
     for (auto& ipix:missingPixLayer) {
       double frac = (double) ipix/ (double) ntracks;
       ATH_MSG_DEBUG(" Fraction of Tracks Missing Hits from Layer " << ilay << " = "<< frac); 
-      h_missingHits->Fill(ilay++,frac);
+      m_h_missingHits->Fill(ilay++,frac);
     }
     for (auto& isct:missingSctLayer) {
       double frac = (double) isct/ (double) ntracks;
       ATH_MSG_DEBUG(" Fraction of Tracks Missing Hits from Layer " << ilay << " = "<< frac); 
       double x = (double) ilay++;
-      h_missingHits->Fill(x,frac);
+      m_h_missingHits->Fill(x,frac);
     }
   }
 }
@@ -1112,7 +1112,7 @@ const std::pair<unsigned int, unsigned int> FTK_RDO_MonitorAlgo::matchTrack(cons
   
   unsigned int n = *pMax;
 
-  if (n>m_minMatches) h_FTK_nTrackMatch->Fill((double)nmatch);  
+  if (n>m_minMatches) m_h_FTK_nTrackMatch->Fill((double)nmatch);  
 
   unsigned int index = ftktrack[std::distance(freq.begin(), pMax)];
   
@@ -1144,8 +1144,8 @@ void FTK_RDO_MonitorAlgo::compareTracks(const FTK_RawTrack* ftkTrack,
     unsigned int phiWidth =  ftkTrack->getPixelClusters()[i].getRowWidth();
     unsigned int etaWidth =  ftkTrack->getPixelClusters()[i].getColWidth();
 
-    h_ftk_pix_phiClusWidth->Fill((double) phiWidth);
-    h_ftk_pix_etaClusWidth->Fill((double) etaWidth);
+    m_h_ftk_pix_phiClusWidth->Fill((double) phiWidth);
+    m_h_ftk_pix_etaClusWidth->Fill((double) etaWidth);
   
     const IdentifierHash hash = (ftkTrack)->getPixelClusters()[i].getModuleID();
     Identifier wafer_id = m_pixelId->wafer_id(hash); // Need to set up this tool
@@ -1183,29 +1183,29 @@ void FTK_RDO_MonitorAlgo::compareTracks(const FTK_RawTrack* ftkTrack,
       if (isBarrel) {
 	
 	if (layer==0) {
-	  h_IBL_locX->Fill((int)rawLocalPhiCoord%8);
-	  h_IBL_locY->Fill((int)rawLocalEtaCoord%8);
-	  h_IBL_dlocX_fullRange->Fill(offlineLocxLoxy.first - ftkLocxLocy.first);
-	  h_IBL_dlocY_fullRange->Fill(offlineLocxLoxy.second - ftkLocxLocy.second);
+	  m_h_IBL_locX->Fill((int)rawLocalPhiCoord%8);
+	  m_h_IBL_locY->Fill((int)rawLocalEtaCoord%8);
+	  m_h_IBL_dlocX_fullRange->Fill(offlineLocxLoxy.first - ftkLocxLocy.first);
+	  m_h_IBL_dlocY_fullRange->Fill(offlineLocxLoxy.second - ftkLocxLocy.second);
 	} else {
-	  h_pixb_locX->Fill((int)rawLocalPhiCoord%8);
-	  h_pixb_locY->Fill((int)rawLocalEtaCoord%8);
+	  m_h_pixb_locX->Fill((int)rawLocalPhiCoord%8);
+	  m_h_pixb_locY->Fill((int)rawLocalEtaCoord%8);
 	}
 
-	h_pixb_dlocX[FTK_MonHistType::Raw][layer]->Fill(offlineLocxLoxy.first - ftkLocxLocy.first);
-	h_pixb_dlocY[FTK_MonHistType::Raw][layer]->Fill(offlineLocxLoxy.second - ftkLocxLocy.second);
+	m_h_pixb_dlocX[FTK_MonHistType::Raw][layer]->Fill(offlineLocxLoxy.first - ftkLocxLocy.first);
+	m_h_pixb_dlocY[FTK_MonHistType::Raw][layer]->Fill(offlineLocxLoxy.second - ftkLocxLocy.second);
 	for (unsigned int iwid=1; iwid < 5; iwid++) {
-	  if (phiWidth==iwid) h_pixb_dlocX[iwid][layer]->Fill(offlineLocxLoxy.first - ftkLocxLocy.first);
-	  if (etaWidth==iwid) h_pixb_dlocY[iwid][layer]->Fill(offlineLocxLoxy.second - ftkLocxLocy.second);
+	  if (phiWidth==iwid) m_h_pixb_dlocX[iwid][layer]->Fill(offlineLocxLoxy.first - ftkLocxLocy.first);
+	  if (etaWidth==iwid) m_h_pixb_dlocY[iwid][layer]->Fill(offlineLocxLoxy.second - ftkLocxLocy.second);
 	}
       } else {
-	h_pixe_locX->Fill((int)rawLocalPhiCoord%8);
-	h_pixe_locY->Fill((int)rawLocalEtaCoord%8);
-	h_pixe_dlocX[FTK_MonHistType::Raw][layer]->Fill(offlineLocxLoxy.first - ftkLocxLocy.first);
-	h_pixe_dlocY[FTK_MonHistType::Raw][layer]->Fill(offlineLocxLoxy.second - ftkLocxLocy.second);
+	m_h_pixe_locX->Fill((int)rawLocalPhiCoord%8);
+	m_h_pixe_locY->Fill((int)rawLocalEtaCoord%8);
+	m_h_pixe_dlocX[FTK_MonHistType::Raw][layer]->Fill(offlineLocxLoxy.first - ftkLocxLocy.first);
+	m_h_pixe_dlocY[FTK_MonHistType::Raw][layer]->Fill(offlineLocxLoxy.second - ftkLocxLocy.second);
 	for (unsigned int iwid=1; iwid < 5; iwid++) {
-	  if (phiWidth==iwid) h_pixe_dlocX[iwid][layer]->Fill(offlineLocxLoxy.first - ftkLocxLocy.first);
-	  if (etaWidth==iwid) h_pixe_dlocY[iwid][layer]->Fill(offlineLocxLoxy.second - ftkLocxLocy.second);
+	  if (phiWidth==iwid) m_h_pixe_dlocX[iwid][layer]->Fill(offlineLocxLoxy.first - ftkLocxLocy.first);
+	  if (etaWidth==iwid) m_h_pixe_dlocY[iwid][layer]->Fill(offlineLocxLoxy.second - ftkLocxLocy.second);
 	}
       }
 
@@ -1245,7 +1245,7 @@ void FTK_RDO_MonitorAlgo::compareTracks(const FTK_RawTrack* ftkTrack,
 	clusterWidth=1; //  // cluster position is even => on strip => width 1
       } 
     }
-    h_ftk_sct_clusWidth->Fill(clusterWidth);
+    m_h_ftk_sct_clusWidth->Fill(clusterWidth);
 
     Identifier sctwafer_id = m_sctId->wafer_id(scthash); 
     
@@ -1270,33 +1270,33 @@ void FTK_RDO_MonitorAlgo::compareTracks(const FTK_RawTrack* ftkTrack,
       ATH_MSG_DEBUG(layername << layer<< ":"<<side<< " locX: offline " << offlineLocX << " FTK(mode 2) " << ftkLocX << " off-FTK " <<  offlineLocX  - ftkLocX);
       
       if (isBarrel) {
-	h_sctb_locX->Fill((int)(ftkTrack)->getSCTClusters()[isct].getHitCoord()%2);
+	m_h_sctb_locX->Fill((int)(ftkTrack)->getSCTClusters()[isct].getHitCoord()%2);
 	if (side==0) {
- 	  h_sctb_0_dlocX[FTK_MonHistType::Raw][layer]->Fill(offlineLocX  - ftkLocX);
- 	  if (clusterWidth==0) h_sctb_0_dlocX[FTK_MonHistType::Raw_wid1][layer]->Fill(offlineLocX  - ftkLocX);
+ 	  m_h_sctb_0_dlocX[FTK_MonHistType::Raw][layer]->Fill(offlineLocX  - ftkLocX);
+ 	  if (clusterWidth==0) m_h_sctb_0_dlocX[FTK_MonHistType::Raw_wid1][layer]->Fill(offlineLocX  - ftkLocX);
 	  for (unsigned int iwid=1; iwid < 5; iwid++) {
-	    if (clusterWidth==(iwid)) h_sctb_0_dlocX[iwid][layer]->Fill(offlineLocX  - ftkLocX);
+	    if (clusterWidth==(iwid)) m_h_sctb_0_dlocX[iwid][layer]->Fill(offlineLocX  - ftkLocX);
 	  }
 	} else {
- 	  h_sctb_1_dlocX[FTK_MonHistType::Raw][layer]->Fill(offlineLocX  - ftkLocX);
+ 	  m_h_sctb_1_dlocX[FTK_MonHistType::Raw][layer]->Fill(offlineLocX  - ftkLocX);
 	  for (unsigned int iwid=1; iwid < 5; iwid++) {
-	    if (clusterWidth==(iwid)) h_sctb_1_dlocX[iwid][layer]->Fill(offlineLocX  - ftkLocX);
+	    if (clusterWidth==(iwid)) m_h_sctb_1_dlocX[iwid][layer]->Fill(offlineLocX  - ftkLocX);
 	  }
 	}
       } else {
 	unsigned int ring = m_sctId->eta_module(sctwafer_id);
 
-	h_scte_locX->Fill((int)(ftkTrack)->getSCTClusters()[isct].getHitCoord()%2);
+	m_h_scte_locX->Fill((int)(ftkTrack)->getSCTClusters()[isct].getHitCoord()%2);
 
 	if (side==0) {
- 	  h_scte_0_dlocX[FTK_MonHistType::Raw][ring]->Fill(offlineLocX  - ftkLocX);
+ 	  m_h_scte_0_dlocX[FTK_MonHistType::Raw][ring]->Fill(offlineLocX  - ftkLocX);
 	  for (unsigned int iwid=1; iwid < 5; iwid++) {
-	    if (clusterWidth==(iwid)) h_scte_0_dlocX[iwid][ring]->Fill(offlineLocX  - ftkLocX);
+	    if (clusterWidth==(iwid)) m_h_scte_0_dlocX[iwid][ring]->Fill(offlineLocX  - ftkLocX);
 	  }
 	} else {
- 	  h_scte_1_dlocX[FTK_MonHistType::Raw][ring]->Fill(offlineLocX  - ftkLocX);
+ 	  m_h_scte_1_dlocX[FTK_MonHistType::Raw][ring]->Fill(offlineLocX  - ftkLocX);
 	  for (unsigned int iwid=1; iwid < 5; iwid++) {
-	    if (clusterWidth==(iwid)) h_scte_1_dlocX[iwid][ring]->Fill(offlineLocX  - ftkLocX);
+	    if (clusterWidth==(iwid)) m_h_scte_1_dlocX[iwid][ring]->Fill(offlineLocX  - ftkLocX);
 	  }
 	}
       }
@@ -1387,11 +1387,11 @@ void FTK_RDO_MonitorAlgo::compareTracks(const Trk::Track* ftkTrack,
 	  ATH_MSG_DEBUG(layername << layer<< " locX: offline " << offlineLocxLoxy.first << " FTK " << locX << " off-FTK " <<  offlineLocxLoxy.first - locX);
 	  ATH_MSG_DEBUG(layername << layer<< " locY: offline " << offlineLocxLoxy.second << " FTK " << locY << " off-FTK " <<  offlineLocxLoxy.second - locY);
 	  if (isBarrel) {
-	    h_pixb_dlocX[histIndex][layer]->Fill(offlineLocxLoxy.first - locX);
-	    h_pixb_dlocY[histIndex][layer]->Fill(offlineLocxLoxy.second - locY);
+	    m_h_pixb_dlocX[histIndex][layer]->Fill(offlineLocxLoxy.first - locX);
+	    m_h_pixb_dlocY[histIndex][layer]->Fill(offlineLocxLoxy.second - locY);
 	  } else {
-	    h_pixe_dlocX[histIndex][layer]->Fill(offlineLocxLoxy.first - locX);
-	    h_pixe_dlocY[histIndex][layer]->Fill(offlineLocxLoxy.second - locY);
+	    m_h_pixe_dlocX[histIndex][layer]->Fill(offlineLocxLoxy.first - locX);
+	    m_h_pixe_dlocY[histIndex][layer]->Fill(offlineLocxLoxy.second - locY);
 	  }
 
 	} else {
@@ -1419,17 +1419,17 @@ void FTK_RDO_MonitorAlgo::compareTracks(const Trk::Track* ftkTrack,
 	  
 	  if (isBarrel) {
 	    if (side==0) {
-	      h_sctb_0_dlocX[histIndex][layer]->Fill(offlineLocX  - locX);
+	      m_h_sctb_0_dlocX[histIndex][layer]->Fill(offlineLocX  - locX);
 	    } else {
-	      h_sctb_1_dlocX[histIndex][layer]->Fill(offlineLocX  - locX);
+	      m_h_sctb_1_dlocX[histIndex][layer]->Fill(offlineLocX  - locX);
 	    }
 	  } else {
 	    unsigned int ring = m_sctId->eta_module(sctwafer_id);
 	    
 	    if (side==0) {
-	      h_scte_0_dlocX[histIndex][ring]->Fill(offlineLocX  - locX);
+	      m_h_scte_0_dlocX[histIndex][ring]->Fill(offlineLocX  - locX);
 	    } else {
-	      h_scte_1_dlocX[histIndex][ring]->Fill(offlineLocX  - locX);
+	      m_h_scte_1_dlocX[histIndex][ring]->Fill(offlineLocX  - locX);
 	    }
 	  }
 	  
