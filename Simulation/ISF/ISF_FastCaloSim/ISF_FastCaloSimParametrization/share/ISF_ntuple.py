@@ -14,7 +14,7 @@ from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
 athenaCommonFlags.FilesInput = ["/afs/cern.ch/work/a/ahasib/public/photon.50GeV.ESD.pool.root"]
 
 doG4Hits = False
-saveAllHits = False
+saveAllBranches = False
 
 include("ISF_FastCaloSimParametrization/ISF_ntuple_core.py")
 
