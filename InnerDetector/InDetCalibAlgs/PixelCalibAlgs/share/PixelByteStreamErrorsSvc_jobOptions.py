@@ -1,6 +1,11 @@
 include.block("PixelConditionsServices/PixelByteStreamErrorsSvcSvc_jobOptions.py")
 
 from AthenaCommon.GlobalFlags import globalflags
+from AtlasGeoModel.InDetGMJobProperties import GeometryFlags as geoFlags
+
+print "STSTST PixelByteStreamErrorsSvcSvc IBL ",geoFlags.isIBL()
+print "STSTST PixelByteStreamErrorsSvcSvc DBM ",geoFlags.isDBM()
+
 
 from PixelConditionsServices.PixelConditionsServicesConf import PixelByteStreamErrorsSvc
 if ( globalflags.InputFormat == 'bytestream' ):

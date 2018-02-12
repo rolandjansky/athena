@@ -6,7 +6,6 @@
 #include "../PixelSiliconConditionsSvc.h"
 #include "../PixelByteStreamErrorsSvc.h"
 #include "../PixelTDAQSvc.h"
-// STSTST #include "../PixelRunConditionsDbSvc.h"
 
 DECLARE_COMPONENT( PixelOfflineCalibSvc )
 DECLARE_COMPONENT( PixelCalibSvc )
@@ -16,5 +15,4 @@ DECLARE_COMPONENT( PixelConditionsSummarySvc )
 DECLARE_COMPONENT( PixelSiliconConditionsSvc )
 DECLARE_COMPONENT( PixelByteStreamErrorsSvc )
 DECLARE_COMPONENT( PixelTDAQSvc )
-// STSTST DECLARE_COMPONENT( PixelRunConditionsDbSvc )
 
