@@ -120,9 +120,10 @@ namespace xAOD {
      AUX_VARIABLE( SV1_TrackParticleLinks );
      AUX_VARIABLE( IP2D_TrackParticleLinks );
      AUX_VARIABLE( IP3D_TrackParticleLinks );
-     AUX_VARIABLE( RNNIP_TrackParticleLinks );
      AUX_VARIABLE( BTagTrackToJetAssociator );
-     AUX_VARIABLE( BTagBtagToJetAssociator ); 
+     AUX_VARIABLE( BTagBtagToJetAssociator );
+
+     AUX_VARIABLE( RNNIP_TrackParticleLinks ); 
      
      AUX_VARIABLE( DL1_pb );
      AUX_VARIABLE( DL1_pu );

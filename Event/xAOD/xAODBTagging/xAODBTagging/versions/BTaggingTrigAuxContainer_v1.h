@@ -151,10 +151,11 @@ namespace xAOD {
      std::vector< std::vector< ElementLink< TrackParticleContainer > > > SV1_TrackParticleLinks;
      std::vector< std::vector< ElementLink< TrackParticleContainer > > > IP2D_TrackParticleLinks;
      std::vector< std::vector< ElementLink< TrackParticleContainer > > > IP3D_TrackParticleLinks;
-     std::vector< std::vector< ElementLink< TrackParticleContainer > > > RNNIP_TrackParticleLinks;
      std::vector< std::vector< ElementLink< TrackParticleContainer > > > BTagTrackToJetAssociator;
      //std::vector< std::vector< ElementLink< JetContainer           > > > BTagBtagToJetAssociator; 
-     std::vector< std::vector< ElementLink< IParticleContainer     > > > BTagBtagToJetAssociator; 
+     std::vector< std::vector< ElementLink< IParticleContainer     > > > BTagBtagToJetAssociator;
+
+     std::vector< std::vector< ElementLink< TrackParticleContainer > > > RNNIP_TrackParticleLinks; 
      
      std::vector< double >  DL1_pu;
      std::vector< double >  DL1_pb;
