@@ -382,6 +382,9 @@ StatusCode LArPileUpTool::initialize()
      }
      ATH_MSG_INFO(" retrieved LArAutoCorrNoiseTool");
   }
+  else {
+    m_autoCorrNoiseTool.disable();
+  }
 
   if (m_maskingTool.retrieve().isFailure()) {
        ATH_MSG_INFO(" No tool for bad channel masking");
@@ -398,6 +401,9 @@ StatusCode LArPileUpTool::initialize()
         ATH_MSG_ERROR(" Unable to find Trigger Time Tool");
         return StatusCode::FAILURE;
      }
+  }
+  else {
+    m_triggerTimeTool.disable();
   }
 
 // initialize random number service
