@@ -20,9 +20,6 @@
 // Amg stuff
 #include "GeoPrimitives/GeoPrimitives.h"
 
-// IOV SVC for alignment:
-#include "AthenaKernel/IIOVSvc.h"
-
 #include "CLHEP/Geometry/Transform3D.h"
 
 #include <string>
@@ -98,13 +95,6 @@ class SiNumerology;
      
       /** Add alignable transforms. No access to these, they will be changed by manager: */
       virtual void addAlignableTransform (int level, const Identifier &id, GeoAlignableTransform *xf) = 0;
-      void addKey(const std::string & key, int level); // DEPRECATED - kept for compatibilty with Lisbon CondDB
-      void addKey(const std::string & key, int level, bool globalDelta); // DEPRECATED - kept for compatibilty with Lisbon CondDB
-      void addKey(const std::string & key, int level, FrameType frame); // DEPRECATED use addChannel
-    
-      // Call back for alignment updates:
-      // DEPRECATED - now registered in Tool.
-      StatusCode alignmentCallback( IOVSVC_CALLBACK_ARGS );
     
       /** Invalidate cache for all detector elements */
       virtual void invalidateAll() const;
