@@ -165,8 +165,8 @@ DumpSp::DumpSp(const string& name, ISvcLocator* pSvcLocator)
   , m_outputBeamSpotToWrapper( false )
   , m_useSimpleCuts( true )
   , m_doRDODebug( false )
-  , ofl()
-  , oflraw()
+  , m_ofl()
+  , m_oflraw()
 {   
   declareProperty("maxEta",                   m_maxEta);
   declareProperty("minPt",                    m_minPt);
@@ -302,24 +302,24 @@ DumpSp::initialize()
 
   // open output streams
   if( m_dumpSpacePoints ) { 
-    ofl.reset( new boost::iostreams::filtering_ostream );
-    if( !ofl ) { return StatusCode::FAILURE; }
+    m_ofl.reset( new boost::iostreams::filtering_ostream );
+    if( !m_ofl ) { return StatusCode::FAILURE; }
     if( boost::algorithm::icontains( m_outFileName , ".bz2" ) ) {
       boost::iostreams::bzip2_params params;
       params.block_size = 9;
-      ofl->push( boost::iostreams::bzip2_compressor(params) ); 
+      m_ofl->push( boost::iostreams::bzip2_compressor(params) ); 
      }
-    ofl->push( boost::iostreams::file_sink(m_outFileName) ); // open the file
+    m_ofl->push( boost::iostreams::file_sink(m_outFileName) ); // open the file
   }
   if( true ) { 
-    oflraw.reset( new boost::iostreams::filtering_ostream );
-    if( !oflraw ) { return StatusCode::FAILURE; }
+    m_oflraw.reset( new boost::iostreams::filtering_ostream );
+    if( !m_oflraw ) { return StatusCode::FAILURE; }
     if( boost::algorithm::icontains( m_outFileNameRawHits , ".bz2" ) ) {
       boost::iostreams::bzip2_params params;
       params.block_size = 9;
-      oflraw->push( boost::iostreams::bzip2_compressor(params) ); 
+      m_oflraw->push( boost::iostreams::bzip2_compressor(params) ); 
      }
-    oflraw->push( boost::iostreams::file_sink(m_outFileNameRawHits) ); // open the file
+    m_oflraw->push( boost::iostreams::file_sink(m_outFileNameRawHits) ); // open the file
   }
 
   // jordan's code for the beamline
@@ -360,11 +360,11 @@ DumpSp::execute()
  
   // event header
   if( m_dumpSpacePoints ) {
-    (*ofl) << "R\t" << eventID->run_number()<<'\n';                 
-    (*ofl) << "F\t" << eventID->event_number()<<'\t'<<eventInfo->averageInteractionsPerCrossing()<<'\t'<<eventInfo->actualInteractionsPerCrossing()<< '\n';
+    (*m_ofl) << "R\t" << eventID->run_number()<<'\n';                 
+    (*m_ofl) << "F\t" << eventID->event_number()<<'\t'<<eventInfo->averageInteractionsPerCrossing()<<'\t'<<eventInfo->actualInteractionsPerCrossing()<< '\n';
   }
-  (*oflraw) << "R\t" << eventID->run_number()<<'\n';                    
-  (*oflraw) << "F\t" << eventID->event_number()<<'\t'<<eventInfo->averageInteractionsPerCrossing()<<'\t'<<eventInfo->actualInteractionsPerCrossing()<<'\n';
+  (*m_oflraw) << "R\t" << eventID->run_number()<<'\n';                    
+  (*m_oflraw) << "F\t" << eventID->event_number()<<'\t'<<eventInfo->averageInteractionsPerCrossing()<<'\t'<<eventInfo->actualInteractionsPerCrossing()<<'\n';
   {
     // dump bad modules once at the start of each lumi block.
     static unsigned int last_lumi_block = static_cast<unsigned int>(~0);
@@ -416,8 +416,8 @@ DumpSp::execute()
   
 
   // event footer
-  if( m_dumpSpacePoints ) { (*ofl) << "L\t" << eventID->event_number()<<'\n'; }
-  (*oflraw) << "L\t" << eventID->event_number()<<'\n';
+  if( m_dumpSpacePoints ) { (*m_ofl) << "L\t" << eventID->event_number()<<'\n'; }
+  (*m_oflraw) << "L\t" << eventID->event_number()<<'\n';
   
   return StatusCode::SUCCESS;
 }
@@ -437,9 +437,9 @@ DumpSp::finalize()
 void
 DumpSp::build_matching_maps()
 {
-  _ttrTrackMap.clear();
-  _ttrProbMap.clear();
-  _rttTrackMap.clear();
+  m_ttrTrackMap.clear();
+  m_ttrProbMap.clear();
+  m_rttTrackMap.clear();
 
   ATH_MSG_DEBUG( "building reconstruction-truth matching maps");
 
@@ -494,36 +494,36 @@ DumpSp::build_matching_maps()
     if( found==TruthMap->end() ) { continue; }
     TrackTruth trtruth( found->second );
     HepMcParticleLink::ExtendedBarCode extBarcode(trtruth.particleLink().barcode(),trtruth.particleLink().eventIndex());
-    // update _ttrTrackMap with track index corresponding to the greatest figure of merit.
-    if( _ttrProbMap.find(extBarcode)==_ttrProbMap.end() ) {
+    // update m_ttrTrackMap with track index corresponding to the greatest figure of merit.
+    if( m_ttrProbMap.find(extBarcode)==m_ttrProbMap.end() ) {
       // this is the only track matching this barcode so far
-      _ttrTrackMap.insert( pair<HepMcParticleLink::ExtendedBarCode,unsigned int>(extBarcode,distance(trks->begin(),trksItr)) );
+      m_ttrTrackMap.insert( pair<HepMcParticleLink::ExtendedBarCode,unsigned int>(extBarcode,distance(trks->begin(),trksItr)) );
     } else {
       // a reconstructed track match already exists. figure if this match is better, and keep it if so.
       //
       // retrieve probabilities for this barcode to match to each track
       static vector<float> probs;
       probs.clear();
-      transform( _ttrProbMap.lower_bound(extBarcode) , _ttrProbMap.upper_bound(extBarcode) , back_inserter(probs) , 
+      transform( m_ttrProbMap.lower_bound(extBarcode) , m_ttrProbMap.upper_bound(extBarcode) , back_inserter(probs) , 
                  boost::bind(&TruthToRecoProbMap::value_type::second,_1) );
       // determine track with highest figure-of-merit match and update
       // the map of barcodes => reconstructed track indices (into
       // track collection)
       vector<float>::const_iterator imax = max_element(probs.begin(),probs.end());
       if( imax!=probs.end() && (trtruth.probability() > (*imax)) ) {
-        _ttrTrackMap[extBarcode] = distance(trks->begin(),trksItr);
+        m_ttrTrackMap[extBarcode] = distance(trks->begin(),trksItr);
       }
     }
     // update map from barcodes to highest reconstructed track matching probabilities
-    _ttrProbMap.insert( pair<HepMcParticleLink::ExtendedBarCode,float>(extBarcode,trtruth.probability()) );
+    m_ttrProbMap.insert( pair<HepMcParticleLink::ExtendedBarCode,float>(extBarcode,trtruth.probability()) );
     // fill reco to truth map. allow multiple reconstructed tracks to point to the same barcode.
-    _rttTrackMap[ distance(trks->begin(),trksItr) ] = extBarcode;
+    m_rttTrackMap[ distance(trks->begin(),trksItr) ] = extBarcode;
   } // end for each reconstructed track
 
   ATH_MSG_DEBUG( "truth info from " << trks->size() << " tracks.");
-  ATH_MSG_DEBUG( "_rttTrackMap constructed with " << _rttTrackMap.size() << " entries.");
-  ATH_MSG_DEBUG( "_ttrTrackMap constructed with " << _ttrTrackMap.size() << " entries.");
-  ATH_MSG_DEBUG( "_ttrProbMap constructed with " << _ttrProbMap.size() << " entries.");
+  ATH_MSG_DEBUG( "_rttTrackMap constructed with " << m_rttTrackMap.size() << " entries.");
+  ATH_MSG_DEBUG( "_ttrTrackMap constructed with " << m_ttrTrackMap.size() << " entries.");
+  ATH_MSG_DEBUG( "_ttrProbMap constructed with " << m_ttrProbMap.size() << " entries.");
 
 }
 
@@ -590,22 +590,22 @@ DumpSp::dump_truth() const
       if( std::abs(genEta) > m_maxEta ) { continue; }
       // retrieve truth track parameters at perigee
       boost::scoped_ptr<const Trk::TrackParameters> generatedTrackPerigee( m_truthToTrack->makePerigeeParameters(particle) );
-      const float m_track_truth_d0 = generatedTrackPerigee ? generatedTrackPerigee->parameters()[Trk::d0] : 999.;
-      const float m_track_truth_phi = generatedTrackPerigee ? generatedTrackPerigee->parameters()[Trk::phi0] : 999.;
-      const float m_track_truth_p = (generatedTrackPerigee && generatedTrackPerigee->parameters()[Trk::qOverP] != 0.) ? 
+      const float track_truth_d0 = generatedTrackPerigee ? generatedTrackPerigee->parameters()[Trk::d0] : 999.;
+      const float track_truth_phi = generatedTrackPerigee ? generatedTrackPerigee->parameters()[Trk::phi0] : 999.;
+      const float track_truth_p = (generatedTrackPerigee && generatedTrackPerigee->parameters()[Trk::qOverP] != 0.) ? 
         generatedTrackPerigee->charge()/generatedTrackPerigee->parameters()[Trk::qOverP] : 10E7;
-      const float m_track_truth_x0 = generatedTrackPerigee ? generatedTrackPerigee->position().x() : 999.;
-      const float m_track_truth_y0 = generatedTrackPerigee ? generatedTrackPerigee->position().y() : 999.;
-      const float m_track_truth_z0 = generatedTrackPerigee ? generatedTrackPerigee->position().z() : 999.;
-      const float m_track_truth_q = generatedTrackPerigee ? generatedTrackPerigee->charge() : 0.;
-      const float m_track_truth_sinphi = generatedTrackPerigee ? std::sin(generatedTrackPerigee->parameters()[Trk::phi0]) : -1.;
-      const float m_track_truth_cosphi = generatedTrackPerigee ? std::cos(generatedTrackPerigee->parameters()[Trk::phi0]) : -1.;
-      const float m_track_truth_sintheta = generatedTrackPerigee ? std::sin(generatedTrackPerigee->parameters()[Trk::theta]) : -1.;
-      const float m_track_truth_costheta = generatedTrackPerigee ? std::cos(generatedTrackPerigee->parameters()[Trk::theta]) : -1.;
-      float truth_d0corr = m_track_truth_d0-( primaryVtx.y()*cos(m_track_truth_phi)-primaryVtx.x()*sin(m_track_truth_phi) );
+      const float track_truth_x0 = generatedTrackPerigee ? generatedTrackPerigee->position().x() : 999.;
+      const float track_truth_y0 = generatedTrackPerigee ? generatedTrackPerigee->position().y() : 999.;
+      const float track_truth_z0 = generatedTrackPerigee ? generatedTrackPerigee->position().z() : 999.;
+      const float track_truth_q = generatedTrackPerigee ? generatedTrackPerigee->charge() : 0.;
+      const float track_truth_sinphi = generatedTrackPerigee ? std::sin(generatedTrackPerigee->parameters()[Trk::phi0]) : -1.;
+      const float track_truth_cosphi = generatedTrackPerigee ? std::cos(generatedTrackPerigee->parameters()[Trk::phi0]) : -1.;
+      const float track_truth_sintheta = generatedTrackPerigee ? std::sin(generatedTrackPerigee->parameters()[Trk::theta]) : -1.;
+      const float track_truth_costheta = generatedTrackPerigee ? std::cos(generatedTrackPerigee->parameters()[Trk::theta]) : -1.;
+      float truth_d0corr = track_truth_d0-( primaryVtx.y()*cos(track_truth_phi)-primaryVtx.x()*sin(track_truth_phi) );
       float truth_zvertex = 0.;
       if ( !m_useSimpleCuts ) {  // determine d0_corr based on beam position from BeamCondSvc
-        truth_d0corr = m_track_truth_d0-( m_beamCondSvc->beamPos().y()*cos(m_track_truth_phi)-m_beamCondSvc->beamPos().x()*sin(m_track_truth_phi) );
+        truth_d0corr = track_truth_d0-( m_beamCondSvc->beamPos().y()*cos(track_truth_phi)-m_beamCondSvc->beamPos().x()*sin(track_truth_phi) );
         truth_zvertex = m_beamCondSvc->beamPos().z();
         if ( showd0corrSuccess ) {
           ATH_MSG_DEBUG( "Beamspot from BeamCondSvc used to determine cuts in dump_truth()");
@@ -641,29 +641,29 @@ DumpSp::dump_truth() const
       int irecmatch = -1;
       float precmatch = 0.;
       HepMcParticleLink::ExtendedBarCode extBarcode2( particle->barcode(), ievt );
-      if( !_ttrProbMap.empty() ) {
-        TruthToRecoProbMap::const_iterator barcode=_ttrProbMap.find(extBarcode2);
-        if( barcode!=_ttrProbMap.end() ) {
+      if( !m_ttrProbMap.empty() ) {
+        TruthToRecoProbMap::const_iterator barcode=m_ttrProbMap.find(extBarcode2);
+        if( barcode!=m_ttrProbMap.end() ) {
           vector<float> probs;
-          transform( _ttrProbMap.lower_bound(extBarcode2) , _ttrProbMap.upper_bound(extBarcode2) , back_inserter(probs) , 
+          transform( m_ttrProbMap.lower_bound(extBarcode2) , m_ttrProbMap.upper_bound(extBarcode2) , back_inserter(probs) , 
                      boost::bind(&TruthToRecoProbMap::value_type::second,_1) );
           vector<float>::const_iterator imax = max_element(probs.begin(),probs.end());
           assert( imax!=probs.end() );
           precmatch = *imax;
-          TruthToRecoTrackMap::const_iterator ibestrec = _ttrTrackMap.find( extBarcode2 );
-          assert( ibestrec!=_ttrTrackMap.end() );
+          TruthToRecoTrackMap::const_iterator ibestrec = m_ttrTrackMap.find( extBarcode2 );
+          assert( ibestrec!=m_ttrTrackMap.end() );
           irecmatch = ibestrec->second;
         }
       }
       ParentBitmask parent_mask( construct_truth_bitmap( particle ) );
-      (*oflraw) << setiosflags(ios::scientific) << "T\t"
-                << setw(14) << setprecision(10) << m_track_truth_x0 << '\t'
-                << setw(14) << setprecision(10) << m_track_truth_y0 << '\t'
-                << setw(14) << setprecision(10) << m_track_truth_z0 << '\t'
-                << (int)m_track_truth_q << '\t'
-                << setw(14) << setprecision(10) << m_track_truth_p*(m_track_truth_cosphi*m_track_truth_sintheta) << '\t'
-                << setw(14) << setprecision(10) << m_track_truth_p*(m_track_truth_sinphi*m_track_truth_sintheta) << '\t'
-                << setw(14) << setprecision(10) << m_track_truth_p*(m_track_truth_costheta) << '\t'
+      (*m_oflraw) << setiosflags(ios::scientific) << "T\t"
+                << setw(14) << setprecision(10) << track_truth_x0 << '\t'
+                << setw(14) << setprecision(10) << track_truth_y0 << '\t'
+                << setw(14) << setprecision(10) << track_truth_z0 << '\t'
+                << (int)track_truth_q << '\t'
+                << setw(14) << setprecision(10) << track_truth_p*(track_truth_cosphi*track_truth_sintheta) << '\t'
+                << setw(14) << setprecision(10) << track_truth_p*(track_truth_sinphi*track_truth_sintheta) << '\t'
+                << setw(14) << setprecision(10) << track_truth_p*(track_truth_costheta) << '\t'
                 << pdgcode << '\t'
                 << setw(14) << (int)irecmatch << '\t'
                 << setw(14) << setprecision(10) << precmatch << '\t'
@@ -733,7 +733,7 @@ DumpSp::dump_spacepoints() const
           const double z = point.z();
           const double x = rad*cos(phi); 
           const double y = rad*sin(phi);
-          (*ofl) << "H\t" 
+          (*m_ofl) << "H\t" 
                  << setw(14) << setprecision(10) << x << '\t'
                  << setw(14) << setprecision(10) << y << '\t'
                  << setw(14) << setprecision(10) << z << '\t'
@@ -760,7 +760,7 @@ DumpSp::dump_spacepoints() const
           const double z = point.z();
           const double x = rad*cos(phi); 
           const double y = rad*sin(phi);
-          (*ofl) << "H\t" 
+          (*m_ofl) << "H\t" 
                  << setw(14) << setprecision(10) << x << '\t'
                  << setw(14) << setprecision(10) << y << '\t'
                  << setw(14) << setprecision(10) << z << '\t'
@@ -786,7 +786,7 @@ DumpSp::dump_spacepoints() const
         const double z = point.z();
         const double x = rad*cos(phi); 
         const double y = rad*sin(phi);
-        (*ofl) << "h\t" 
+        (*m_ofl) << "h\t" 
                << setw(14) << setprecision(10) << x << '\t'
                << setw(14) << setprecision(10) << y << '\t'
                << setw(14) << setprecision(10) << z << '\t'
@@ -918,7 +918,7 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
           } // end if truth found for this pixel
         } // end if pixel truth available
         ++hitIndex;
-        (*oflraw) << "S\t" 
+        (*m_oflraw) << "S\t" 
                   << setw(14) << setprecision(10)
                   << gPos.x() << '\t'
                   << setw(14) << setprecision(10)
@@ -953,7 +953,7 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
           const InDetDD::SiLocalPosition localPos = sielement->localPositionOfCell(rdoId);
           const InDetDD::SiLocalPosition rawPos = sielement->rawLocalPositionOfCell(rdoId);
           const Amg::Vector3D gPos( sielement->globalPosition(localPos) );
-          (*oflraw) << "# S\t" 
+          (*m_oflraw) << "# S\t" 
                     << setw(14) << setprecision(10)
                     << gPos.x() << '\t'
                     << setw(14) << setprecision(10)
@@ -977,7 +977,7 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
           const Identifier sdoId( i->first );
           const InDetSimData& sdo( i->second );
           const vector<InDetSimData::Deposit>& deposits( sdo.getdeposits() );
-          (*oflraw) << "# s"
+          (*m_oflraw) << "# s"
                     << " " << m_pixelId->barrel_ec(sdoId) 
                     << " " << m_pixelId->layer_disk(sdoId) 
                     << " " << m_pixelId->phi_module(sdoId) 
@@ -993,7 +993,7 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
           for( vector<InDetSimData::Deposit>::const_iterator iDep=deposits.begin(), fDep=deposits.end(); iDep!=fDep; ++iDep ) {
             const HepMcParticleLink& particleLink( iDep->first );
             const InDetSimData::Deposit::second_type qdep( iDep->second ); // energy(charge) contributed by this particle
-            (*oflraw) << "# s q " << qdep << " " << particleLink.isValid() << " " 
+            (*m_oflraw) << "# s q " << qdep << " " << particleLink.isValid() << " " 
                       << (particleLink.isValid() ? particleLink.eventIndex() : std::numeric_limits<unsigned int>::max())
                       << (particleLink.isValid() ? particleLink.barcode() : std::numeric_limits<unsigned int>::max())
                       << endl;
@@ -1081,7 +1081,7 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
             } // end for each contributing particle
           } // end if truth found for this strip
         } // end if sct truth available        
-        (*oflraw) << "S\t" 
+        (*m_oflraw) << "S\t" 
                   << setw(14) << setprecision(10)
                   << gPos.x() << '\t'
                   << setw(14) << setprecision(10)
@@ -1118,7 +1118,7 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
           const InDetDD::SCT_ModuleSideDesign& design = dynamic_cast<const InDetDD::SCT_ModuleSideDesign&>(sielement->design());
           const InDetDD::SiLocalPosition localPos = design.positionFromStrip(m_sctId->strip(rdoId));
           const Amg::Vector3D gPos = sielement->globalPosition(localPos);  
-          (*oflraw) << "# S\t" 
+          (*m_oflraw) << "# S\t" 
                     << setw(14) << setprecision(10)
                     << gPos.x() << '\t'
                     << setw(14) << setprecision(10)
@@ -1142,7 +1142,7 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
           const Identifier sdoId( i->first );
           const InDetSimData& sdo( i->second );          
           const vector<InDetSimData::Deposit>& deposits( sdo.getdeposits() );
-          (*oflraw) << "# s"
+          (*m_oflraw) << "# s"
                     << " " << m_sctId->barrel_ec(sdoId) 
                     << " " << m_sctId->layer_disk(sdoId) 
                     << " " << m_sctId->phi_module(sdoId) 
@@ -1157,7 +1157,7 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
           for( vector<InDetSimData::Deposit>::const_iterator iDep=deposits.begin(), fDep=deposits.end(); iDep!=fDep; ++iDep ) {
             const HepMcParticleLink& particleLink( iDep->first );
             const InDetSimData::Deposit::second_type qdep( iDep->second ); // energy(charge) contributed by this particle
-            (*oflraw) << "# s q " << qdep << " " << particleLink.isValid() << " " 
+            (*m_oflraw) << "# s q " << qdep << " " << particleLink.isValid() << " " 
                       << (particleLink.isValid() ? particleLink.eventIndex() : std::numeric_limits<unsigned int>::max())
                       << (particleLink.isValid() ? particleLink.barcode() : std::numeric_limits<unsigned int>::max())
                       << endl;
@@ -1276,7 +1276,7 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
         localy = (*iCluster)->localPosition()[Trk::distEta];
       }
 
-      (*oflraw) << "P\t" 
+      (*m_oflraw) << "P\t" 
                 << setw(14) << setprecision(10)
                 << gPos.x() << '\t'
                 << setw(14) << setprecision(10)
@@ -1385,7 +1385,7 @@ DumpSp::dump_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& clusterIndexMap
         localx = cellIdCentroid.phiIndex() + deltaxphi; // + 0.5
       }
 
-      (*oflraw) << "C\t" 
+      (*m_oflraw) << "C\t" 
                 << setw(14) << setprecision(10)
                 << gPos.x() << '\t'
                 << setw(14) << setprecision(10)
@@ -1441,7 +1441,7 @@ DumpSp::dump_bad_modules() const
       IdentifierHash idhash = sielement->identifyHash();
       const bool is_bad = !(m_pixelCondSummarySvc->isGood( idhash ));
       if( is_bad ) { 
-        (*oflraw) << "B\t"
+        (*m_oflraw) << "B\t"
                   << 1  << '\t' // 1  pixel 0 sct  
                   << m_pixelId->barrel_ec(id) << '\t'
                   << m_pixelId->layer_disk(id) << '\t'
@@ -1460,7 +1460,7 @@ DumpSp::dump_bad_modules() const
       IdentifierHash idhash = sielement->identifyHash();
       const bool is_bad = !(m_sctCondSummarySvc->isGood( idhash ));
       if( is_bad ) { 
-        (*oflraw) << "B\t"
+        (*m_oflraw) << "B\t"
                   << 0  << '\t' // 1  pixel 0 sct  
                   << m_sctId->barrel_ec(id) << '\t'
                   << m_sctId->layer_disk(id) << '\t'
@@ -1588,18 +1588,18 @@ DumpSp::dump_tracks( const HitIndexMap& /*hitIndexMap*/, const HitIndexMap& clus
       if( std::abs(d0wrtPriVtx/d0ErrwrtPriVtx)>4. ) { continue; }
     }
     // retrieve any truth info for this track.
-    RecoToTruthTrackMap::const_iterator irtt = _rttTrackMap.find( itrack );
+    RecoToTruthTrackMap::const_iterator irtt = m_rttTrackMap.find( itrack );
     HepMcParticleLink::ExtendedBarCode best_extcode;
     float mc_frac = -0.001;
-    if( irtt!=_rttTrackMap.end() ) {
+    if( irtt!=m_rttTrackMap.end() ) {
       best_extcode = irtt->second;
-      TruthToRecoProbMap::const_iterator ittr = _ttrProbMap.find( irtt->second );
-      assert( ittr != _ttrProbMap.end() );
+      TruthToRecoProbMap::const_iterator ittr = m_ttrProbMap.find( irtt->second );
+      assert( ittr != m_ttrProbMap.end() );
       mc_frac = ittr->second;
     }
     // dump one line for each track
     if( m_dumpSpacePoints ) {
-      (*ofl) << "E\t" 
+      (*m_ofl) << "E\t" 
              << setw(14) << setprecision(10) << d0 << '\t'
              << setw(14) << setprecision(10) << z0 << '\t'
              << setw(14) << setprecision(10) << phi0 << '\t'
@@ -1610,7 +1610,7 @@ DumpSp::dump_tracks( const HitIndexMap& /*hitIndexMap*/, const HitIndexMap& clus
              << setw(14) << setprecision(10) << mc_frac
              << endl;
     }
-    (*oflraw) << "E\t" 
+    (*m_oflraw) << "E\t" 
               << setw(14) << setprecision(10) << d0 << '\t'
               << setw(14) << setprecision(10) << z0 << '\t'
               << setw(14) << setprecision(10) << phi0 << '\t'
@@ -1636,7 +1636,7 @@ DumpSp::dump_tracks( const HitIndexMap& /*hitIndexMap*/, const HitIndexMap& clus
         // output the index of the hit
         std::map<Identifier,int>::const_iterator theIndex = clusterIndexMap.find(theId);
         if( theIndex != clusterIndexMap.end() ) {
-          (*oflraw) << theIndex->second << ' ';
+          (*m_oflraw) << theIndex->second << ' ';
 	  ATH_MSG_VERBOSE( "a silicon cluster identifier was  found in the index."); 	  
 	} else {
           ATH_MSG_VERBOSE( "a silicon cluster identifier was not found in the index."); 	 
@@ -1658,7 +1658,7 @@ DumpSp::dump_tracks( const HitIndexMap& /*hitIndexMap*/, const HitIndexMap& clus
       }
       // if hit RIO on track
     } // end loop over hits on tracks
-    (*oflraw) << endl;
+    (*m_oflraw) << endl;
     
     // Alberto's code for dumping hits on tracks. this code needs to
     // be updated to use the modern track classes.
@@ -1689,7 +1689,7 @@ DumpSp::dump_tracks( const HitIndexMap& /*hitIndexMap*/, const HitIndexMap& clus
       //           const Identifier tmpId = sielement->identifierOfPosition(rawPos);
       //           const Amg::Vector2D cellPos = sielement->localPositionOfCell(tmpId); // w/ Lorentz correction
       //           const Amg::Vector2D deltaPos = *locPos - cellPos; // delta w.r.t. center of cell
-      //           (*oflraw) << "e\t" 
+      //           (*m_oflraw) << "e\t" 
       //                  << setw(14) << setprecision(10)
       //                  << global_pos[0] << '\t' << global_pos[1] << '\t' << global_pos[2] << '\t'
       //                  << resetiosflags(ios::scientific)
@@ -1715,8 +1715,8 @@ DumpSp::dump_tracks( const HitIndexMap& /*hitIndexMap*/, const HitIndexMap& clus
       //           //            pAssocHit != pHitRdoList->end(); pAssocHit++) {
       //           //         if (hitCounter<)
       //           //           hitCounter++;
-      //           //         (*oflraw)<< "\t i=" << *pAssocHit;
-      //           //         (*oflraw)<< "\thId=" << hitIndexMap[*pAssocHit];
+      //           //         (*m_oflraw)<< "\t i=" << *pAssocHit;
+      //           //         (*m_oflraw)<< "\thId=" << hitIndexMap[*pAssocHit];
       //           //       }
       //         } // end of SCT
       //         sielement = m_PIX_mgr->getDetectorElement( rdoId );
@@ -1734,7 +1734,7 @@ DumpSp::dump_tracks( const HitIndexMap& /*hitIndexMap*/, const HitIndexMap& clus
       //           const Identifier tmpId = sielement->identifierOfPosition(rawPos);
       //           const Amg::Vector2D cellPos = sielement->localPositionOfCell(tmpId);  // w/ Lorentz correction
       //           const Amg::Vector2D deltaPos = *locPos - cellPos; // delta w.r.t. center of cell 
-      //           (*oflraw) << "e\t" 
+      //           (*m_oflraw) << "e\t" 
       //                  << setw(14) << setprecision(10)
       //                  << global_pos[0] << '\t' << global_pos[1] << '\t' << global_pos[2] << '\t'
       //                  << resetiosflags(ios::scientific)
@@ -1750,9 +1750,9 @@ DumpSp::dump_tracks( const HitIndexMap& /*hitIndexMap*/, const HitIndexMap& clus
       //                  << resetiosflags(ios::scientific)
       //                  << pHitRdoList->size();
       //           for( vector<Identifier>::const_iterator pAssocHit=pHitRdoList->begin(), fAssocHit=pHitRdoList->end(); pAssocHit!=fAssocHit; ++pAssocHit ) {
-      //             (*oflraw) << '\t' << hitIndexMap.find(*pAssocHit)->second;
+      //             (*m_oflraw) << '\t' << hitIndexMap.find(*pAssocHit)->second;
       //           }
-      //           (*oflraw) << '\n';
+      //           (*m_oflraw) << '\n';
       //         } // end if hit is pixel, dump
       //       } // end for each hit on this track
     } // end dump hits on this track
@@ -1790,7 +1790,7 @@ void
 DumpSp::dump_beamspot() const
 {
   if ( m_outputBeamSpotToWrapper ) { // output beam spot to wrapper
-    (*oflraw) << "V\t" << m_beamCondSvc->beamPos().x() << "\t" 
+    (*m_oflraw) << "V\t" << m_beamCondSvc->beamPos().x() << "\t" 
               << m_beamCondSvc->beamPos().y() << "\t"
               << m_beamCondSvc->beamPos().z() << "\t"
               << m_beamCondSvc->beamSigma(0) << "\t"
@@ -1838,7 +1838,7 @@ DumpSp::dump_MBTS( ) const
   
   // eXtra info
   // mbts trigger bits
-  (*oflraw) << "X 1 " 
+  (*m_oflraw) << "X 1 " 
 	    << ok_physics_A << " " << ok_passthru_A << " "
 	    << ok_physics_B << " " << ok_passthru_B << " "
 	    << ok_physics_C << " " << ok_passthru_C << " "
@@ -1859,7 +1859,7 @@ DumpSp::dump_lumibcid( const EventID* evid) const
 
   const int lb = evid->lumi_block();
   const int bcid = evid->bunch_crossing_id();
-  (*oflraw) << "X 2 " 
+  (*m_oflraw) << "X 2 " 
             << lb << " " << bcid 
             << endl;
   
@@ -1880,7 +1880,7 @@ DumpSp::dump_vertex(  ) const
         const double vx_x = (*i)->recVertex().position().x();
         const double vx_y = (*i)->recVertex().position().y();
         const double vx_z = (*i)->recVertex().position().z();
-        (*oflraw) << "X 3 "
+        (*m_oflraw) << "X 3 "
 		  << vx_type << " "
 		  << vx_ntracks << " "
 		  << vx_x << " "
