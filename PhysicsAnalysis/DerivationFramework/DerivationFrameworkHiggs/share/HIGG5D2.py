@@ -528,7 +528,7 @@ if DerivationFrameworkIsMonteCarlo :
 HIGG5D2SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 
 # Add the jet containers to the stream
-slimmed_content=["HIGG5D2Jets","AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"]
+slimmed_content=["HIGG5D2Jets","AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets","AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets"]
 if DerivationFrameworkIsMonteCarlo :
     slimmed_content+=[
              "AntiKt4TruthJets",
@@ -537,7 +537,7 @@ if DerivationFrameworkIsMonteCarlo :
 addJetOutputs(HIGG5D2SlimmingHelper,["HIGG5D2Jets"],slimmed_content)
 
 # Add the MET containers to the stream
-addMETOutputs(HIGG5D2SlimmingHelper,[],["Track","AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"])
+addMETOutputs(HIGG5D2SlimmingHelper,[],["Track","AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets","AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets"])
 
 
 HIGG5D2SlimmingHelper.IncludeMuonTriggerContent = True
