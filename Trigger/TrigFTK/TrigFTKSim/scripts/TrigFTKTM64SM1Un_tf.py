@@ -115,6 +115,14 @@ def getTransform():
             perfMonFile='ntuple_RDOFTKCreator.pmon.gz'))
 
     executorSet.add(
+         athenaExecutor(
+            name='AODFTKCreator',
+            skeletonFile='TrigFTKSim/skeleton.AOD_FTK_Creator.py',
+            substep='rFTK2aFTK', inData=[('RDO_FTK'),('BS_FTK')],
+            outData=[('AOD')], inputEventTest = False,
+            perfMonFile='ntuple_AODFTKCreator.pmon.gz'))
+
+    executorSet.add(
         athenaExecutor(
             name='BSFTKCreator',
             skeletonFile='TrigFTKSim/skeleton.BS_FTK_Creator.py',
