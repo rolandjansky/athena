@@ -7,7 +7,7 @@
 
 #include "G4AtlasInterfaces/IG4RunActionTool.h"
 #include "G4AtlasInterfaces/IG4SteppingActionTool.h"
-#include "G4AtlasTools/ActionToolBase.h"
+#include "G4AtlasTools/UserActionToolBase.h"
 #include "G4UserActions/RadiationMapsMaker.h"
 
 namespace G4UA
@@ -23,9 +23,7 @@ namespace G4UA
   ///
 
 class RadiationMapsMakerTool: 
-  public ActionToolBaseReport<RadiationMapsMaker>,
-  public IG4RunActionTool,  
-  public IG4SteppingActionTool
+  public UserActionToolBase<RadiationMapsMaker>
   {
 
   public:
@@ -40,16 +38,10 @@ class RadiationMapsMakerTool:
     /// Finalize and merge results from all threads
     virtual StatusCode finalize() override final;
 
-    /// retrieves the run action
-    virtual G4UserRunAction* getRunAction() override final
-    { return static_cast<G4UserRunAction*>( getAction() ); }
-    /// retrieves the stepping action
-    virtual G4UserSteppingAction* getSteppingAction() override final
-    { return static_cast<G4UserSteppingAction*>( getAction() ); }
-
   protected:
+
     /// create action for this thread
-    virtual std::unique_ptr<RadiationMapsMaker> makeAction() override final;
+    virtual std::unique_ptr<RadiationMapsMaker> makeAndFillAction(G4AtlasUserActions&) override final;
 
   private:
     /// Output Filename for the Radiation Maps
