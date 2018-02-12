@@ -142,7 +142,8 @@ ISF::InputConverter::convert(const McEventCollection& inputGenEvents,
 
     ATH_MSG_DEBUG("Starting conversion of GenEvent with"
                   " signal_process_id=" << eventPtr->signal_process_id() <<
-                  " and event_number=" << eventPtr->event_number() );
+                  " and event_number=" << eventPtr->event_number() <<
+		  " of kind " << (int)kindOfCollection);
 
     // new collection containing all gen particles that passed filters
     bool legacyOrdering = true; // FIXME: this is only to keep the same order of particles
@@ -229,8 +230,8 @@ ISF::InputConverter::convertParticle(HepMC::GenParticle* genPartPtr, EBC_EVCOLL 
   auto& genPart = *genPartPtr;
 
   // @FIXME: set the bunch-crossing identifier for pile-up dynamically
-  // rather than a constant '1' (e.g. could use GenEvent index for that?)
-  const int bcid = (kindOfCollection==EBC_MAINEVCOLL) ? 0 : 1;
+  // rather than a constant '0' (e.g. could use GenEvent index for that?)
+  const int bcid = 0;
 
   HepMC::GenVertex* pVertex = genPart.production_vertex();
   if (!pVertex) {

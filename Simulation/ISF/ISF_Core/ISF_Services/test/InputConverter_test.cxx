@@ -211,9 +211,9 @@ TEST_F(InputConverter_test, convertParticle_using_generated_mass) {
   Amg::Vector3D expectedMom(12.3, 45.6, 78.9);
   ISF::DetRegionSvcIDPair expectedHistory(AtlasDetDescr::fUndefinedAtlasRegion, ISF::fEventGeneratorSimID);
   auto* expectedTruthBinding = new ISF::TruthBinding(genPart);
-  const int expectedBCID(1); // FIXME for now convertParticle forces
+  const int expectedBCID(0); // FIXME for now convertParticle forces
                              // the bcid for pile-up
-                             // McEventCollections to be 1.
+                             // McEventCollections to be 0.
   ISF::ISFParticle expected(expectedPos,
                             expectedMom,
                             1234.56,
@@ -324,9 +324,9 @@ TEST_F(InputConverter_test, convertParticle_using_particleDataTable_electron) {
   Amg::Vector3D expectedMom(12.3, 45.6, 78.9);
   ISF::DetRegionSvcIDPair expectedHistory(AtlasDetDescr::fUndefinedAtlasRegion, ISF::fEventGeneratorSimID);
   auto* expectedTruthBinding = new ISF::TruthBinding(genPart);
-  const int expectedBCID(1); // FIXME for now convertParticle forces
+  const int expectedBCID(0); // FIXME for now convertParticle forces
                              // the bcid for pile-up
-                             // McEventCollections to be 1.
+                             // McEventCollections to be 0.
   ISF::ISFParticle expected(expectedPos,
                             expectedMom,
                             0.51099891/Gaudi::Units::MeV, // from particle
