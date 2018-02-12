@@ -8,6 +8,7 @@
 # art-output: HLTEF-plots-muon
 # art-output: HLTL2-plots-muon
 # art-output: HLTEF-plots-tau
+# art-output: HLTL2-plots-tau
 # art-output: HLTEF-plots-bjet
 # art-output: HLTL2-plots-bjet
 # art-output: times
