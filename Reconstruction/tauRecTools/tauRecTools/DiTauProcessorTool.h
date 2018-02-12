@@ -18,9 +18,9 @@ class DiTauProcessorTool : public asg::AsgTool, virtual public ITauToolExecBase 
   DiTauProcessorTool(const std::string& type);
   ~DiTauProcessorTool();
 
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override;
 
  private:
   std :: string                 m_sDiTauContainerNameHadHad;

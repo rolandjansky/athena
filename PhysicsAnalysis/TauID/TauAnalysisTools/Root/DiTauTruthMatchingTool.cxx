@@ -117,11 +117,11 @@ StatusCode DiTauTruthMatchingTool::checkTruthMatch (const xAOD::DiTauJet& xDiTau
 
   xAOD::TruthParticleContainer xRemainingTruthTaus = xTruthTauContainer;
 
-  static SG::AuxElement::Decorator<char> decIsTruthMatched("IsTruthMatched");
-  static SG::AuxElement::Decorator<char> decIsTruthHadronic("IsTruthHadronic");
-  static SG::AuxElement::Decorator<char> decIsTruthHadMu("IsTruthHadMu");
-  static SG::AuxElement::Decorator<char> decIsTruthHadEl("IsTruthHadEl");
-  static SG::AuxElement::ConstAccessor<int> accNSubjets("n_subjets");
+  static const SG::AuxElement::Decorator<char> decIsTruthMatched("IsTruthMatched");
+  static const SG::AuxElement::Decorator<char> decIsTruthHadronic("IsTruthHadronic");
+  static const SG::AuxElement::Decorator<char> decIsTruthHadMu("IsTruthHadMu");
+  static const SG::AuxElement::Decorator<char> decIsTruthHadEl("IsTruthHadEl");
+  static const SG::AuxElement::ConstAccessor<int> accNSubjets("n_subjets");
 
   // set default values for each subjet
   for (int i = 0; i < accNSubjets(xDiTau); ++i)
@@ -201,20 +201,20 @@ StatusCode DiTauTruthMatchingTool::checkTruthMatch (const xAOD::DiTauJet& xDiTau
   }
   
   ElementLink<xAOD::TruthParticleContainer> lTruthLeptonLink;
-  static SG::AuxElement::Decorator<unsigned int> decClassifierParticleType("classifierParticleTypeTruthLepton");
-  static SG::AuxElement::Decorator<unsigned int> decClassifierParticleOrigin("classifierParticleOriginTruthLepton");
-  static SG::AuxElement::Decorator<ElementLink<xAOD::TruthParticleContainer>> decTruthLeptonLink("truthLeptonLink");
+  static const SG::AuxElement::Decorator<unsigned int> decClassifierParticleType("classifierParticleTypeTruthLepton");
+  static const SG::AuxElement::Decorator<unsigned int> decClassifierParticleOrigin("classifierParticleOriginTruthLepton");
+  static const SG::AuxElement::Decorator<ElementLink<xAOD::TruthParticleContainer>> decTruthLeptonLink("truthLeptonLink");
   
   if(xDiTau.isAvailable<ElementLink<xAOD::ElectronContainer>>("elLink") &&
      xDiTau.isAvailable<ElementLink<xAOD::MuonContainer>>("muonLink"))
     ATH_MSG_ERROR("Links to reco electron and reco muon available for one ditau candidate.");
   if(xDiTau.isAvailable<ElementLink<xAOD::ElectronContainer>>("elLink")){
-    static SG::AuxElement::ConstAccessor<ElementLink<xAOD::ElectronContainer>> accElLink("elLink");
+    static const SG::AuxElement::ConstAccessor<ElementLink<xAOD::ElectronContainer>> accElLink("elLink");
     const xAOD::Electron* pElectron = *accElLink(xDiTau);
     lTruthLeptonLink = checkTruthLepton(pElectron);
   }
   if(xDiTau.isAvailable<ElementLink<xAOD::MuonContainer>>("muonLink")){
-    static SG::AuxElement::ConstAccessor<ElementLink<xAOD::MuonContainer>> accMuLink("muonLink");
+    static const SG::AuxElement::ConstAccessor<ElementLink<xAOD::MuonContainer>> accMuLink("muonLink");
     const xAOD::Muon* pMuon = *accMuLink(xDiTau);
     lTruthLeptonLink = checkTruthLepton(pMuon);
   }

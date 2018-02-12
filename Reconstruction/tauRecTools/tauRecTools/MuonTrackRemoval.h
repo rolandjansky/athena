@@ -16,7 +16,7 @@ namespace CP{
 
 namespace tauRecTools
 {
-  class MuonTrackRemoval : virtual public TauRecToolBase {
+  class MuonTrackRemoval : public TauRecToolBase {
   public:
 
     ASG_TOOL_CLASS2( MuonTrackRemoval, TauRecToolBase, ITauToolBase )
@@ -25,11 +25,11 @@ namespace tauRecTools
     ~MuonTrackRemoval();
 
 
-    virtual StatusCode initialize();
-    virtual StatusCode finalize();
-    virtual StatusCode execute(xAOD::TauJet& xTau);
-    virtual StatusCode eventInitialize() { return StatusCode::SUCCESS; }
-    virtual StatusCode eventFinalize() { return StatusCode::SUCCESS; }
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
+    virtual StatusCode execute(xAOD::TauJet& xTau) override;
+    virtual StatusCode eventInitialize() override { return StatusCode::SUCCESS; }
+    virtual StatusCode eventFinalize() override { return StatusCode::SUCCESS; }
 
   private:
     int m_iMaxMuonIDWP; //!

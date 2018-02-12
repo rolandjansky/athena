@@ -283,53 +283,53 @@ StatusCode DiTauIDVarCalculator::calculateHadHadIDVariables(const xAOD::DiTauJet
 
 StatusCode DiTauIDVarCalculator::calculateHadMuIDVariables(const xAOD::DiTauJet& xDiTau){
   
-  static SG::AuxElement::ConstAccessor<float>  acc_centFrac           ("centFrac")          ;
-  static SG::AuxElement::ConstAccessor<float>  acc_etOverPtLeadTrk    ("etOverPtLeadTrk")   ;
-  static SG::AuxElement::ConstAccessor<float>  acc_innerTrkAvgDist    ("innerTrkAvgDist")   ;
-  static SG::AuxElement::ConstAccessor<float>  acc_absipSigLeadTrk    ("absipSigLeadTrk")   ;
-  static SG::AuxElement::ConstAccessor<float>  acc_SumPtTrkFrac       ("SumPtTrkFrac")      ;
-  static SG::AuxElement::ConstAccessor<float>  acc_EMPOverTrkSysP     ("EMPOverTrkSysP")    ;
-  static SG::AuxElement::ConstAccessor<float>  acc_ptRatioEflowApprox ("ptRatioEflowApprox");
-  static SG::AuxElement::ConstAccessor<float>  acc_mEflowApprox       ("mEflowApprox")      ;
-  static SG::AuxElement::ConstAccessor<float>  acc_dRmax              ("dRmax")             ;
-  static SG::AuxElement::ConstAccessor<float>  acc_trFlightPathSig    ("trFlightPathSig")   ;
-  static SG::AuxElement::ConstAccessor<float>  acc_massTrkSys         ("massTrkSys")        ;
-  static SG::AuxElement::ConstAccessor<float>  acc_ChPiEMEOverCaloEME ("ChPiEMEOverCaloEME");
+  static const SG::AuxElement::ConstAccessor<float>  acc_centFrac           ("centFrac")          ;
+  static const SG::AuxElement::ConstAccessor<float>  acc_etOverPtLeadTrk    ("etOverPtLeadTrk")   ;
+  static const SG::AuxElement::ConstAccessor<float>  acc_innerTrkAvgDist    ("innerTrkAvgDist")   ;
+  static const SG::AuxElement::ConstAccessor<float>  acc_absipSigLeadTrk    ("absipSigLeadTrk")   ;
+  static const SG::AuxElement::ConstAccessor<float>  acc_SumPtTrkFrac       ("SumPtTrkFrac")      ;
+  static const SG::AuxElement::ConstAccessor<float>  acc_EMPOverTrkSysP     ("EMPOverTrkSysP")    ;
+  static const SG::AuxElement::ConstAccessor<float>  acc_ptRatioEflowApprox ("ptRatioEflowApprox");
+  static const SG::AuxElement::ConstAccessor<float>  acc_mEflowApprox       ("mEflowApprox")      ;
+  static const SG::AuxElement::ConstAccessor<float>  acc_dRmax              ("dRmax")             ;
+  static const SG::AuxElement::ConstAccessor<float>  acc_trFlightPathSig    ("trFlightPathSig")   ;
+  static const SG::AuxElement::ConstAccessor<float>  acc_massTrkSys         ("massTrkSys")        ;
+  static const SG::AuxElement::ConstAccessor<float>  acc_ChPiEMEOverCaloEME ("ChPiEMEOverCaloEME");
   
-  static SG::AuxElement::Decorator<float>  dec_centFrac           ("centFrac")          ;
-  static SG::AuxElement::Decorator<float>  dec_massTrkSys         ("massTrkSys")        ;
-  static SG::AuxElement::Decorator<float>  dec_etOverPtLeadTrk    ("etOverPtLeadTrk")   ;
-  static SG::AuxElement::Decorator<float>  dec_innerTrkAvgDist    ("innerTrkAvgDist")   ;
-  static SG::AuxElement::Decorator<float>  dec_absipSigLeadTrk    ("absipSigLeadTrk")   ;
-  static SG::AuxElement::Decorator<float>  dec_SumPtTrkFrac       ("SumPtTrkFrac")      ;
-  static SG::AuxElement::Decorator<float>  dec_EMPOverTrkSysP     ("EMPOverTrkSysP")    ;
-  static SG::AuxElement::Decorator<float>  dec_ptRatioEflowApprox ("ptRatioEflowApprox");
-  static SG::AuxElement::Decorator<float>  dec_mEflowApprox       ("mEflowApprox")      ;
-  static SG::AuxElement::Decorator<float>  dec_dRmax              ("dRmax")             ;
-  static SG::AuxElement::Decorator<float>  dec_trFlightPathSig    ("trFlightPathSig")   ;
-  static SG::AuxElement::Decorator<float>  dec_ChPiEMEOverCaloEME ("ChPiEMEOverCaloEME");
+  static const SG::AuxElement::Decorator<float>  dec_centFrac           ("centFrac")          ;
+  static const SG::AuxElement::Decorator<float>  dec_massTrkSys         ("massTrkSys")        ;
+  static const SG::AuxElement::Decorator<float>  dec_etOverPtLeadTrk    ("etOverPtLeadTrk")   ;
+  static const SG::AuxElement::Decorator<float>  dec_innerTrkAvgDist    ("innerTrkAvgDist")   ;
+  static const SG::AuxElement::Decorator<float>  dec_absipSigLeadTrk    ("absipSigLeadTrk")   ;
+  static const SG::AuxElement::Decorator<float>  dec_SumPtTrkFrac       ("SumPtTrkFrac")      ;
+  static const SG::AuxElement::Decorator<float>  dec_EMPOverTrkSysP     ("EMPOverTrkSysP")    ;
+  static const SG::AuxElement::Decorator<float>  dec_ptRatioEflowApprox ("ptRatioEflowApprox");
+  static const SG::AuxElement::Decorator<float>  dec_mEflowApprox       ("mEflowApprox")      ;
+  static const SG::AuxElement::Decorator<float>  dec_dRmax              ("dRmax")             ;
+  static const SG::AuxElement::Decorator<float>  dec_trFlightPathSig    ("trFlightPathSig")   ;
+  static const SG::AuxElement::Decorator<float>  dec_ChPiEMEOverCaloEME ("ChPiEMEOverCaloEME");
 
-  static SG::AuxElement::Decorator<int>    dec_tau_ntrack         ("tau_ntrack");
+  static const SG::AuxElement::Decorator<int>    dec_tau_ntrack         ("tau_ntrack");
   
-  static SG::AuxElement::Decorator<char>   acc_mu_isoGL     ("mu_isoGL");
+  static const SG::AuxElement::Decorator<char>   acc_mu_isoGL     ("mu_isoGL");
   
-  static SG::AuxElement::Decorator<float> dec_MeasEnergyLoss            ("mu_MeasEnergyLoss")          ;
-  static SG::AuxElement::Decorator<float> dec_ParamEnergyLoss           ("mu_ParamEnergyLoss")         ;
-  static SG::AuxElement::Decorator<float> dec_MeasEnergyLossSigma       ("mu_MeasEnergyLossSigma")     ;
-  static SG::AuxElement::Decorator<float> dec_ParamEnergyLossSigmaPlus  ("mu_ParamEnergyLossSigmaPlus");
-  static SG::AuxElement::Decorator<float> dec_ParamEnergyLossSigmaMinus ("mu_ParamEnergyLossSigmaMinus")    ;
+  static const SG::AuxElement::Decorator<float> dec_MeasEnergyLoss            ("mu_MeasEnergyLoss")          ;
+  static const SG::AuxElement::Decorator<float> dec_ParamEnergyLoss           ("mu_ParamEnergyLoss")         ;
+  static const SG::AuxElement::Decorator<float> dec_MeasEnergyLossSigma       ("mu_MeasEnergyLossSigma")     ;
+  static const SG::AuxElement::Decorator<float> dec_ParamEnergyLossSigmaPlus  ("mu_ParamEnergyLossSigmaPlus");
+  static const SG::AuxElement::Decorator<float> dec_ParamEnergyLossSigmaMinus ("mu_ParamEnergyLossSigmaMinus")    ;
         
-  static SG::AuxElement::Accessor<ElementLink<xAOD::MuonContainer>>   acc_muonLink ("muonLink");
-  static SG::AuxElement::Accessor<ElementLink<xAOD::TauJetContainer>> acc_tauLink  ("tauLink");
+  static const SG::AuxElement::Accessor<ElementLink<xAOD::MuonContainer>>   acc_muonLink ("muonLink");
+  static const SG::AuxElement::Accessor<ElementLink<xAOD::TauJetContainer>> acc_tauLink  ("tauLink");
 
-  static SG::AuxElement::Decorator<char>  acc_muonVeryLoose ("muonVeryLoose");
-  static SG::AuxElement::Decorator<char>  acc_muonLoose     ("muonLoose");
-  static SG::AuxElement::Decorator<char>  acc_muonMedium    ("muonMedium");
-  static SG::AuxElement::Decorator<char>  acc_muonTight     ("muonTight");
-  static SG::AuxElement::Decorator<char>  acc_muonHighpt    ("muonHighpt");
-  static SG::AuxElement::Decorator<int>   acc_MuonQuality   ("MuonQuality");
-  static SG::AuxElement::Decorator<int>   acc_MuonType      ("MuonType");
-  static SG::AuxElement::Decorator<char>  acc_validMuon     ("validMuon");
+  static const SG::AuxElement::Decorator<char>  acc_muonVeryLoose ("muonVeryLoose");
+  static const SG::AuxElement::Decorator<char>  acc_muonLoose     ("muonLoose");
+  static const SG::AuxElement::Decorator<char>  acc_muonMedium    ("muonMedium");
+  static const SG::AuxElement::Decorator<char>  acc_muonTight     ("muonTight");
+  static const SG::AuxElement::Decorator<char>  acc_muonHighpt    ("muonHighpt");
+  static const SG::AuxElement::Decorator<int>   acc_MuonQuality   ("MuonQuality");
+  static const SG::AuxElement::Decorator<int>   acc_MuonType      ("MuonType");
+  static const SG::AuxElement::Decorator<char>  acc_validMuon     ("validMuon");
 
   
   const xAOD::TauJet* pTau  = *acc_tauLink(xDiTau);
@@ -412,9 +412,9 @@ StatusCode DiTauIDVarCalculator::calculateHadMuIDVariables(const xAOD::DiTauJet&
 }
 
 StatusCode DiTauIDVarCalculator::calculateHadElIDVariables(const xAOD::DiTauJet& xDiTau){
-  static SG::AuxElement::ConstAccessor<ElementLink<xAOD::DiTauJetContainer>> acc_origDitau("origDiTauLink");
-  static SG::AuxElement::ConstAccessor<ElementLink<xAOD::ElectronContainer>>  acc_electron ("elLink");
-  static SG::AuxElement::ConstAccessor<int> acc_origDiTauSubjet("origSubjetIndex");
+  static const SG::AuxElement::ConstAccessor<ElementLink<xAOD::DiTauJetContainer>> acc_origDitau("origDiTauLink");
+  static const SG::AuxElement::ConstAccessor<ElementLink<xAOD::ElectronContainer>>  acc_electron ("elLink");
+  static const SG::AuxElement::ConstAccessor<int> acc_origDiTauSubjet("origSubjetIndex");
 
   if(!acc_origDitau(xDiTau).isValid())
     return StatusCode::FAILURE;
@@ -424,51 +424,51 @@ StatusCode DiTauIDVarCalculator::calculateHadElIDVariables(const xAOD::DiTauJet&
   const xAOD::DiTauJet* origDiTau = *(acc_origDitau(xDiTau));
   const xAOD::Electron* electron  = *(acc_electron(xDiTau));
     
-  static SG::AuxElement::Decorator< double >  acc_tau_f_core          ( "tau_f_core"       );      
-  static SG::AuxElement::Decorator< double >  acc_tau_f_subjet        ( "tau_f_subjet"     );
-  static SG::AuxElement::Decorator< double >  acc_tau_f_track         ( "tau_f_track"      );
-  static SG::AuxElement::Decorator< double >  acc_tau_R_max           ( "tau_R_max"        );
-  static SG::AuxElement::Decorator< int >     acc_tau_n_tracks        ( "tau_n_tracks"     );
-  static SG::AuxElement::Decorator< double >  acc_tau_R_core          ( "tau_R_core"       );
-  static SG::AuxElement::Decorator< double >  acc_tau_R_tracks        ( "tau_R_tracks"     );
-  static SG::AuxElement::Decorator< double >  acc_tau_m_core          ( "tau_m_core"       );
-  static SG::AuxElement::Decorator< double >  acc_tau_m_tracks        ( "tau_m_tracks"     );
-  static SG::AuxElement::Decorator< double >  acc_tau_d0_leadtrack    ( "tau_d0_leadtrack" );
+  static const SG::AuxElement::Decorator< double >  acc_tau_f_core          ( "tau_f_core"       );      
+  static const SG::AuxElement::Decorator< double >  acc_tau_f_subjet        ( "tau_f_subjet"     );
+  static const SG::AuxElement::Decorator< double >  acc_tau_f_track         ( "tau_f_track"      );
+  static const SG::AuxElement::Decorator< double >  acc_tau_R_max           ( "tau_R_max"        );
+  static const SG::AuxElement::Decorator< int >     acc_tau_n_tracks        ( "tau_n_tracks"     );
+  static const SG::AuxElement::Decorator< double >  acc_tau_R_core          ( "tau_R_core"       );
+  static const SG::AuxElement::Decorator< double >  acc_tau_R_tracks        ( "tau_R_tracks"     );
+  static const SG::AuxElement::Decorator< double >  acc_tau_m_core          ( "tau_m_core"       );
+  static const SG::AuxElement::Decorator< double >  acc_tau_m_tracks        ( "tau_m_tracks"     );
+  static const SG::AuxElement::Decorator< double >  acc_tau_d0_leadtrack    ( "tau_d0_leadtrack" );
                                                                                               
-  static SG::AuxElement::Decorator< double >  acc_f_subjets           ( "f_subjets"    );
-  static SG::AuxElement::Decorator< int >     acc_n_track             ( "n_track"      );
-  static SG::AuxElement::Decorator< int >     acc_n_isotrack          ( "n_isotrack"   );
-  static SG::AuxElement::Decorator< int >     acc_n_othertrack        ( "n_othertrack" );
-  static SG::AuxElement::Decorator< double >  acc_R_track             ( "R_track"      );
-  static SG::AuxElement::Decorator< double >  acc_R_track_core        ( "R_track_core" );
-  static SG::AuxElement::Decorator< double >  acc_R_track_all         ( "R_track_all"  );
-  static SG::AuxElement::Decorator< double >  acc_R_isotrack          ( "R_isotrack"   );
-  static SG::AuxElement::Decorator< double >  acc_m_track             ( "m_track"      );  
-  static SG::AuxElement::Decorator< double >  acc_m_track_core        ( "m_track_core" );
-  static SG::AuxElement::Decorator< double >  acc_m_track_all         ( "m_track_all"  );
+  static const SG::AuxElement::Decorator< double >  acc_f_subjets           ( "f_subjets"    );
+  static const SG::AuxElement::Decorator< int >     acc_n_track             ( "n_track"      );
+  static const SG::AuxElement::Decorator< int >     acc_n_isotrack          ( "n_isotrack"   );
+  static const SG::AuxElement::Decorator< int >     acc_n_othertrack        ( "n_othertrack" );
+  static const SG::AuxElement::Decorator< double >  acc_R_track             ( "R_track"      );
+  static const SG::AuxElement::Decorator< double >  acc_R_track_core        ( "R_track_core" );
+  static const SG::AuxElement::Decorator< double >  acc_R_track_all         ( "R_track_all"  );
+  static const SG::AuxElement::Decorator< double >  acc_R_isotrack          ( "R_isotrack"   );
+  static const SG::AuxElement::Decorator< double >  acc_m_track             ( "m_track"      );  
+  static const SG::AuxElement::Decorator< double >  acc_m_track_core        ( "m_track_core" );
+  static const SG::AuxElement::Decorator< double >  acc_m_track_all         ( "m_track_all"  );
                                                                                               
-  static SG::AuxElement::Decorator< double >  acc_E_frac_subl         ( "E_frac_subl"       );    
-  static SG::AuxElement::Decorator< double >  acc_E_frac_subsubl      ( "E_frac_subsubl"    ); 
-  static SG::AuxElement::Decorator< double >  acc_R_subjets_subl      ( "R_subjets_subl"    ); 
-  static SG::AuxElement::Decorator< double >  acc_R_subjets_subsubl   ( "R_subjets_subsubl" );
-  static SG::AuxElement::Decorator< double >  acc_f_isotracks         ( "f_isotracks"       );    
-  static SG::AuxElement::Decorator< int >     acc_n_iso_ellipse       ( "n_iso_ellipse"     );  
+  static const SG::AuxElement::Decorator< double >  acc_E_frac_subl         ( "E_frac_subl"       );    
+  static const SG::AuxElement::Decorator< double >  acc_E_frac_subsubl      ( "E_frac_subsubl"    ); 
+  static const SG::AuxElement::Decorator< double >  acc_R_subjets_subl      ( "R_subjets_subl"    ); 
+  static const SG::AuxElement::Decorator< double >  acc_R_subjets_subsubl   ( "R_subjets_subsubl" );
+  static const SG::AuxElement::Decorator< double >  acc_f_isotracks         ( "f_isotracks"       );    
+  static const SG::AuxElement::Decorator< int >     acc_n_iso_ellipse       ( "n_iso_ellipse"     );  
                                                                                           
-  static SG::AuxElement::Decorator< double >  acc_E_frac_HadEl        ( "E_frac_HadEl"      );     
+  static const SG::AuxElement::Decorator< double >  acc_E_frac_HadEl        ( "E_frac_HadEl"      );     
 
-  static SG::AuxElement::Decorator< float > acc_el_f1core              ( "el_f1core"           );
-  static SG::AuxElement::Decorator< float > acc_el_f3core              ( "el_f3core"           );
-  static SG::AuxElement::Decorator< float > acc_el_weta1               ( "el_weta1"            );
-  static SG::AuxElement::Decorator< float > acc_el_fracs1              ( "el_fracs1"           );
-  static SG::AuxElement::Decorator< float > acc_el_poscs1              ( "el_poscs1"           );
-  static SG::AuxElement::Decorator< float > acc_el_poscs2              ( "el_poscs2"           );
-  static SG::AuxElement::Decorator< float > acc_el_asy1                ( "el_asy1"             );
-  static SG::AuxElement::Decorator< float > acc_el_pos                 ( "el_pos"              );
-  static SG::AuxElement::Decorator< float > acc_el_pos7                ( "el_pos7"             );
-  static SG::AuxElement::Decorator< float > acc_el_barys1              ( "el_barys1"           );
-  static SG::AuxElement::Decorator< float > acc_el_wtots1              ( "el_wtots1"           );
-  static SG::AuxElement::Decorator< float > acc_el_r33over37allcalo    ( "el_r33over37allcalo" );
-  static SG::AuxElement::Decorator< char >  acc_el_isoGL               ( "el_isoGL"            );
+  static const SG::AuxElement::Decorator< float > acc_el_f1core              ( "el_f1core"           );
+  static const SG::AuxElement::Decorator< float > acc_el_f3core              ( "el_f3core"           );
+  static const SG::AuxElement::Decorator< float > acc_el_weta1               ( "el_weta1"            );
+  static const SG::AuxElement::Decorator< float > acc_el_fracs1              ( "el_fracs1"           );
+  static const SG::AuxElement::Decorator< float > acc_el_poscs1              ( "el_poscs1"           );
+  static const SG::AuxElement::Decorator< float > acc_el_poscs2              ( "el_poscs2"           );
+  static const SG::AuxElement::Decorator< float > acc_el_asy1                ( "el_asy1"             );
+  static const SG::AuxElement::Decorator< float > acc_el_pos                 ( "el_pos"              );
+  static const SG::AuxElement::Decorator< float > acc_el_pos7                ( "el_pos7"             );
+  static const SG::AuxElement::Decorator< float > acc_el_barys1              ( "el_barys1"           );
+  static const SG::AuxElement::Decorator< float > acc_el_wtots1              ( "el_wtots1"           );
+  static const SG::AuxElement::Decorator< float > acc_el_r33over37allcalo    ( "el_r33over37allcalo" );
+  static const SG::AuxElement::Decorator< char >  acc_el_isoGL               ( "el_isoGL"            );
 
   
   acc_tau_f_core       (xDiTau) = f_core      (xDiTau, 0);
@@ -517,30 +517,30 @@ StatusCode DiTauIDVarCalculator::calculateHadElIDVariables(const xAOD::DiTauJet&
   
   acc_E_frac_HadEl       (xDiTau) = (xDiTau.subjetPt(0) + electron->pt()) / (origDiTau->pt());
 
-  static SG::AuxElement::Decorator< double > acc_el_likelihood            ( "el_likelihood" );
-  static SG::AuxElement::Decorator< int >    acc_el_IDSelection           ( "el_IDSelection" );
-  static SG::AuxElement::Decorator< double > acc_tau_leadingElLikelihood  ( "tau_leadingElLikelihood" );
-  static SG::AuxElement::Decorator< double > acc_tau_leadingElDeltaR      ( "tau_leadingElDeltaR" );
-  static SG::AuxElement::Decorator< int >    acc_tau_leadingElIDSelection ( "tau_leadingElIDSelection" );
+  static const SG::AuxElement::Decorator< double > acc_el_likelihood            ( "el_likelihood" );
+  static const SG::AuxElement::Decorator< int >    acc_el_IDSelection           ( "el_IDSelection" );
+  static const SG::AuxElement::Decorator< double > acc_tau_leadingElLikelihood  ( "tau_leadingElLikelihood" );
+  static const SG::AuxElement::Decorator< double > acc_tau_leadingElDeltaR      ( "tau_leadingElDeltaR" );
+  static const SG::AuxElement::Decorator< int >    acc_tau_leadingElIDSelection ( "tau_leadingElIDSelection" );
 
-  static SG::AuxElement::Decorator< double > acc_el_f3                    ( "el_f3" );
-  static SG::AuxElement::Decorator< double > acc_el_Rhad                  ( "el_Rhad" );
-  static SG::AuxElement::Decorator< double > acc_el_Rhad1                 ( "el_Rhad1" );
-  static SG::AuxElement::Decorator< double > acc_el_Reta                  ( "el_Reta" );
-  static SG::AuxElement::Decorator< double > acc_el_w2                    ( "el_w2" );
-  static SG::AuxElement::Decorator< double > acc_el_f1                    ( "el_f1" );
-  static SG::AuxElement::Decorator< double > acc_el_Eratio                ( "el_Eratio" );
-  static SG::AuxElement::Decorator< double > acc_el_deltaEta              ( "el_deltaEta" );
-  static SG::AuxElement::Decorator< double > acc_el_d0                    ( "el_d0" );
-  static SG::AuxElement::Decorator< double > acc_el_d0sigma               ( "el_d0sigma" );
-  static SG::AuxElement::Decorator< double > acc_el_Rphi                  ( "el_Rphi" );
-  static SG::AuxElement::Decorator< double > acc_el_dpOverp               ( "el_dpOverp" );
-  static SG::AuxElement::Decorator< double > acc_el_deltaPhiRescaled2     ( "el_deltaPhiRescaled2" );
-  static SG::AuxElement::Decorator< double > acc_el_trans_TRT_PID         ( "el_trans_TRT_PID" );
+  static const SG::AuxElement::Decorator< double > acc_el_f3                    ( "el_f3" );
+  static const SG::AuxElement::Decorator< double > acc_el_Rhad                  ( "el_Rhad" );
+  static const SG::AuxElement::Decorator< double > acc_el_Rhad1                 ( "el_Rhad1" );
+  static const SG::AuxElement::Decorator< double > acc_el_Reta                  ( "el_Reta" );
+  static const SG::AuxElement::Decorator< double > acc_el_w2                    ( "el_w2" );
+  static const SG::AuxElement::Decorator< double > acc_el_f1                    ( "el_f1" );
+  static const SG::AuxElement::Decorator< double > acc_el_Eratio                ( "el_Eratio" );
+  static const SG::AuxElement::Decorator< double > acc_el_deltaEta              ( "el_deltaEta" );
+  static const SG::AuxElement::Decorator< double > acc_el_d0                    ( "el_d0" );
+  static const SG::AuxElement::Decorator< double > acc_el_d0sigma               ( "el_d0sigma" );
+  static const SG::AuxElement::Decorator< double > acc_el_Rphi                  ( "el_Rphi" );
+  static const SG::AuxElement::Decorator< double > acc_el_dpOverp               ( "el_dpOverp" );
+  static const SG::AuxElement::Decorator< double > acc_el_deltaPhiRescaled2     ( "el_deltaPhiRescaled2" );
+  static const SG::AuxElement::Decorator< double > acc_el_trans_TRT_PID         ( "el_trans_TRT_PID" );
 
-  static SG::AuxElement::Decorator< double > acc_nSiHitsPlusDeadSensors   ( "el_nSiHitsPlusDeadSensors" );
-  static SG::AuxElement::Decorator< double > acc_nPixHitsPlusDeadSensors  ( "el_nPixHitsPlusDeadSensors" );
-  static SG::AuxElement::Decorator< double > acc_passBLayerRequirement    ( "el_passBLayerRequirement" );
+  static const SG::AuxElement::Decorator< double > acc_nSiHitsPlusDeadSensors   ( "el_nSiHitsPlusDeadSensors" );
+  static const SG::AuxElement::Decorator< double > acc_nPixHitsPlusDeadSensors  ( "el_nPixHitsPlusDeadSensors" );
+  static const SG::AuxElement::Decorator< double > acc_passBLayerRequirement    ( "el_passBLayerRequirement" );
         
   acc_el_f3     (xDiTau) = getElectronInfo(electron, xAOD::EgammaParameters::ShowerShapeType::f3); 
   acc_el_Rhad   (xDiTau) = getElectronInfo(electron, xAOD::EgammaParameters::ShowerShapeType::Rhad);

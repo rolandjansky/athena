@@ -51,13 +51,13 @@ public:
   virtual ~DiTauDiscriminantTool();
 
   // initialize the tool
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   // get ID score depricated
   virtual double getJetBDTScore(const xAOD::DiTauJet& xDiTau);
 
   // calculate and decorate BDTJetScore
-  virtual StatusCode execute(const xAOD::DiTauJet& xDiTau);
+  virtual StatusCode execute(const xAOD::DiTauJet& xDiTau) override;
   
 private:
 

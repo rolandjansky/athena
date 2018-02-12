@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAURECTOOLS_IDITAUTOOLBASE_H
@@ -22,9 +22,6 @@ namespace tauRecTools
     ASG_TOOL_INTERFACE( tauRecTools::IDiTauToolBase )
 
     public:
-    // initialize the tool
-    virtual StatusCode initialize() = 0;
-
     // calculate ID variables
     virtual StatusCode execute(const xAOD::DiTauJet& xDiTau) = 0;
 

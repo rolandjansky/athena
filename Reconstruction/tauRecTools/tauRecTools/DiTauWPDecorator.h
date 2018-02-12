@@ -26,8 +26,8 @@ public:
                    tauRecTools::IDiTauToolBase)
     ~DiTauWPDecorator();
 
-    virtual StatusCode initialize();
-    virtual StatusCode execute(const xAOD::DiTauJet& xDiTau);
+    virtual StatusCode initialize() override;
+    virtual StatusCode execute(const xAOD::DiTauJet& xDiTau) override;
 
     virtual StatusCode retrieveHistos();
     virtual StatusCode storeLimits();

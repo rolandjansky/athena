@@ -62,13 +62,13 @@ public:
   virtual ~DiTauIDVarCalculator();
 
   // initialize the tool
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   // calculate ID variables depricated
   virtual StatusCode calculateIDVariables(const xAOD::DiTauJet& xDiTau);
 
   // calculate ID variables
-  virtual StatusCode execute(const xAOD::DiTauJet& xDiTau);
+  virtual StatusCode execute(const xAOD::DiTauJet& xDiTau) override;
   
 private:
   virtual StatusCode calculateHadHadIDVariables(const xAOD::DiTauJet& xDiTau);

@@ -76,7 +76,7 @@ StatusCode MuonTrackRemoval::execute(xAOD::TauJet& xTau){
   if(muTracks.size() == 0)
     return StatusCode::SUCCESS;
 
-  static SG::AuxElement::ConstAccessor<std::vector<ElementLink<xAOD::TrackParticleContainer>>> acc_InDetTrackParticles("trackLinks");
+  static const SG::AuxElement::ConstAccessor<std::vector<ElementLink<xAOD::TrackParticleContainer>>> acc_InDetTrackParticles("trackLinks");
   
   std::vector< ElementLink<xAOD::TauTrackContainer>> tauTrackLinks = xTau.allTauTrackLinks();
   std::vector< ElementLink<xAOD::TauTrackContainer>> newTauTrackLinks;
