@@ -4,45 +4,47 @@
 
 // Abused from Pythia6.cc in Geant4 extended examples
 
+// My own class definition
 #include "G4ExternalDecay/Pythia8ForDecays.h"
+
+// Helper functions for Pythia8 and Pythia8 classes
 #include "Pythia8_i/Pythia8_i.h"
+
+// Pythia8 RHadrons code that we call into
 #include "Pythia8/RHadrons.h"
+
+// HepMC for translation into format Pythia likes
 #include "HepMC/IO_HEPEVT.h"
 #include "HepMC/GenEvent.h"
 #include "HepMC/GenParticle.h"
 
+// G4 classes for translation into G4 format
 #include "G4ParticleDefinition.hh"
 #include "G4ParticleTable.hh"
 #include "G4ThreeVector.hh"
 #include "TLorentzVector.h"
 
-#include <iostream>
+// STL includes
 #include <cstdlib>
 #include <cstring>
 #include <cmath>
 
 
-// TODO: Is this actually how we want to do this? 
-// I suppose the idea would have been to not have to reinitialize Pythia8 every time, but that would require some rewriting of my code anyhow...
-// and this seems a bit suspect
-Pythia8ForDecays* Pythia8ForDecays::s_instance = 0;
+std::unique_ptr<Pythia8ForDecays> Pythia8ForDecays::s_instance(nullptr);
+std::once_flag Pythia8ForDecays::m_onceFlag;
 
 Pythia8ForDecays* Pythia8ForDecays::Instance() {
-  if ( ! s_instance ) s_instance = new Pythia8ForDecays();
-  return s_instance;
+  std::call_once(m_onceFlag,
+        [] {
+            s_instance.reset(new Pythia8ForDecays);
+    });
+  return s_instance.get();
 }
 
 Pythia8ForDecays::Pythia8ForDecays() {
-  // Protect against multiple objects.   All access should be via the
-  // Instance member function.
-  if ( s_instance ) {
-     std::cerr << "There's already an instance of Pythia8ForDecays" << std::endl;
-     exit (1);
-  }
-
   // Pythia instance where RHadrons can decay
   std::string docstring = Pythia8_i::xmlpath();
-  m_pythia = new Pythia8::Pythia(docstring);
+  m_pythia = std::make_unique<Pythia8::Pythia>(docstring);
   m_pythia->readString("SLHA:file = SLHA_INPUT.DAT");
   m_pythia->readString("ProcessLevel:all = off");
   m_pythia->readString("Init:showChangedSettings = off");
@@ -57,15 +59,9 @@ Pythia8ForDecays::Pythia8ForDecays() {
 G4ParticleDefinition* Pythia8ForDecays::GetParticleDefinition(const int pdgEncoding) const
 {
   G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
-  G4ParticleDefinition* particleDefinition = 0;
+  G4ParticleDefinition* particleDefinition(nullptr);
   if (pdgEncoding != 0) particleDefinition = particleTable->FindParticle(pdgEncoding);
   return particleDefinition;
-}
-
-Pythia8ForDecays::~Pythia8ForDecays()
-{
-  if (m_pythia) delete m_pythia;
-  m_pythia=nullptr;
 }
 
 
@@ -127,9 +123,8 @@ std::pair<int,int> Pythia8ForDecays::fromIdWithGluino( int idRHad, Pythia8::Rndm
 
 }
 
-// Single-particle gun. The particle must be a colour singlet.
-// Input: particle, pythia8 helpers
-// Optional final argument to put particle at rest => E = m.
+/// Add a G4Track to a Pythia8 event to make it a single-particle gun. The particle must be a colour singlet.
+/// Input: particle, Pythia8 event
 void Pythia8ForDecays::fillParticle(const G4Track& aTrack, Pythia8::Event& event) const
 {
   // Reset event record to allow for new event.
@@ -150,19 +145,6 @@ void Pythia8ForDecays::Py1ent(const G4Track& aTrack, std::vector<G4DynamicPartic
   // Get members from Pythia8 instance where RHadrons can decay
   Pythia8::Event& event      = m_pythia->event;
   Pythia8::ParticleData& pdt = m_pythia->particleData;
-
-//  // Pythia instance where RHadrons cannot decay - do we need this?
-//  std::string docstring = Pythia8_i::xmlpath();
-//  Pythia8::Pythia pythiaDecay(docstring);
-//  pythiaDecay.readString("SLHA:file = SLHA_INPUT.DAT");
-//  pythiaDecay.readString("ProcessLevel:all = off");
-//  pythiaDecay.readString("Init:showChangedSettings = off");
-//  pythiaDecay.readString("RHadrons:allow = on");
-//  pythiaDecay.readString("RHadrons:allowDecay = off");
-//  pythiaDecay.readString("RHadrons:probGluinoball = 0.1");
-//  pythiaDecay.readString("PartonLevel:FSR = off");
-//  Pythia8::ParticleData& pdtDecay = pythiaDecay.particleData;
-//  pythiaDecay.init();
 
   // Use pythiaDecay information to fill event with the input particle
   fillParticle(aTrack, event);
@@ -228,7 +210,7 @@ void Pythia8ForDecays::Py1ent(const G4Track& aTrack, std::vector<G4DynamicPartic
     const G4ParticleDefinition * particleDefinition = GetParticleDefinition( m_pythia->event[i].id() );
 
     if (!particleDefinition){
-      std::cout<<"WARNING: I don't know a definition for pdgid "<<m_pythia->event[i].id()<<"! Skipping it..."<<std::endl;
+      G4cout<<"WARNING: I don't know a definition for pdgid "<<m_pythia->event[i].id()<<"! Skipping it..."<<G4endl;
       continue;
     }
 
