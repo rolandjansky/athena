@@ -125,14 +125,7 @@ int main( int argc, char* argv[] ) {
 
   //::: Decide how many events to run over:
   Long64_t entries = event.getEntries();
-
-  //if( argc > 2 ) {
-  // const Long64_t e = atoll( argv[ 2 ] );
-  //if( e < entries ) {
-  //  entries = e;
-  //}
-  //}
-
+ 
   ////////////////////////////////////////////////////
   //::: MuonCalibrationAndSmearingTool
   // setup the tool handle as per the
@@ -146,7 +139,7 @@ int main( int argc, char* argv[] ) {
   corrTool.setProperty("Year",                  "Data16" );
 //   corrTool.setProperty("Algo",                  "muons" );
 //   corrTool.setProperty("SmearingType",          "q_pT" );
-//   corrTool.setProperty("Release",               "Recs2016_15_07" );
+  corrTool.setProperty("Release",               "Recs2017_08_02" );
 //   corrTool.setProperty("ToroidOff",             false );
 //   corrTool.setProperty("FilesPath",             "" );
   corrTool.setProperty("StatComb",              true);

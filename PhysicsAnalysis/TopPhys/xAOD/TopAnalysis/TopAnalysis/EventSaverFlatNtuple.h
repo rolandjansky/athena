@@ -499,7 +499,7 @@ private:
     std::vector<int>   m_jet_truthPartonLabel;
     std::vector<char>  m_jet_isTrueHS;
     std::unordered_map<std::string, std::vector<char>>  m_jet_isbtagged;//one vector per jet per WP
-    std::vector<int>  m_jet_tagWeightBin;//tag-weight bin in case Continuous WP is used
+    std::unordered_map<std::string, std::vector<int>>   m_jet_tagWeightBin;// one vector per jet per tag-weight bin in case Continuous WP is used
     // R21 b-tagging
     std::vector<float> m_jet_MV2c10mu;
     std::vector<float> m_jet_MV2c10rnn;
@@ -546,7 +546,7 @@ private:
     std::vector<float> m_tjet_mv2c10;
     std::vector<float> m_tjet_mv2c20;
     std::unordered_map<std::string, std::vector<char>>  m_tjet_isbtagged;//one vector per jet per WP
-    std::vector<int>  m_tjet_tagWeightBin;//tag-weight bin in case Continuous WP is used
+    std::unordered_map<std::string, std::vector<int>>   m_tjet_tagWeightBin;//one vector per jet tag-weight bin in case Continuous WP is used
 
     //re-clustered jets
     //  -> need unordered map for systematics
@@ -1042,7 +1042,7 @@ protected:
   const std::vector<int>& jet_truthPartonLabel() const { return m_jet_truthPartonLabel;}
   const std::vector<char>& jet_isTrueHS() const { return m_jet_isTrueHS;}
   const std::unordered_map<std::string, std::vector<char>>& jet_isbtagged() const { return m_jet_isbtagged;}//one vector per jet per WP
-  const std::vector<int>& jet_tagWeightBin() const { return m_jet_tagWeightBin;}//tag-weight bin in case Continuous WP is used
+  const std::unordered_map<std::string, std::vector<int>> & jet_tagWeightBin() const { return m_jet_tagWeightBin;}//one vector per jet tag-weight bin in case Continuous WP is used
   // for upgrade, we store the tagging efficiency per jet & whether it is from pileup
   const std::vector<float>& jet_mv1eff() const { return m_jet_mv1eff;}
   const std::vector<float>& jet_isPileup() const { return m_jet_isPileup;}
@@ -1070,7 +1070,7 @@ protected:
   const std::vector<float>& tjet_mv2c10() const { return m_tjet_mv2c10;}
   const std::vector<float>& tjet_mv2c20() const { return m_tjet_mv2c20;}
   const std::unordered_map<std::string, std::vector<char>>& tjet_isbtagged() const { return m_tjet_isbtagged;}//one vector per jet per WP
-  const std::vector<int>& tjet_tagWeightBin() const { return m_tjet_tagWeightBin;}//tag-weight bin in case Continuous WP is used
+  const std::unordered_map<std::string, std::vector<int>>&  tjet_tagWeightBin() const { return m_tjet_tagWeightBin;}//one vector per jet tag-weight bin in case Continuous WP is used
 
   //re-clustered jets
   // -> need unordered map for systematics

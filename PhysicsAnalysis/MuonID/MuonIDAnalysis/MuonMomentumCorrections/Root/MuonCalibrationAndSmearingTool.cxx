@@ -36,7 +36,7 @@ namespace CP {
     declareProperty("Year", m_year = "Data16" );
     declareProperty("Algo", m_algo = "muons" );
     declareProperty("SmearingType", m_type = "q_pT" );
-    declareProperty("Release", m_release = "Recs2016_15_07" );
+    declareProperty("Release", m_release = "Recs2017_08_02" );
     declareProperty("ToroidOff", m_toroidOff = false );
     declareProperty("FilesPath", m_FilesPath = "" );
     declareProperty("StatComb", m_useStatComb = false);
@@ -161,7 +161,7 @@ namespace CP {
     declareProperty( "Year", m_year = "Data16" );
     declareProperty( "Algo", m_algo = "muons" );
     declareProperty( "SmearingType", m_type = "q_pT" );
-    declareProperty( "Release", m_release = "Recs2016_15_07" );
+    declareProperty( "Release", m_release = "Recs2017_08_02" );
     declareProperty( "ToroidOff", m_toroidOff = false );
     declareProperty( "FilesPath", m_FilesPath = "" );
 
@@ -1471,9 +1471,12 @@ namespace CP {
     else if (rel == "Recs2016_15_07") {
       m_Trel = MCAST::Release::Recs2016_08_07;
     }
+    else if (rel == "Recs2017_08_02") {
+      m_Trel = MCAST::Release::Recs2017_08_02;
+    }
     else {
-      m_Trel = MCAST::Release::Recs2016_08_07;
-      //ATH_MSG_ERROR( "Unrecognized value for SetRelease" );
+      m_Trel = MCAST::Release::Recs2017_08_02;
+      ATH_MSG_DEBUG( "Unrecognized value for SetRelease, using Recs2017_08_02" );
       //return StatusCode::FAILURE;
     }
     return StatusCode::SUCCESS;

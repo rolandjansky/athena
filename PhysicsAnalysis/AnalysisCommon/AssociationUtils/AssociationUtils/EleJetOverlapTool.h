@@ -48,9 +48,10 @@ namespace ORUtils
       EleJetOverlapTool(const std::string& name);
 
       /// @brief Identify overlapping electrons and jets.
-      /// First, electrons are flagged for removal if they overlap with
-      /// non-b-labeled jets within the inner dR cone. Next, jets are flagged
-      /// for removal if they overlap with remaining electrons in the outer dR cone.
+      /// First, non-b-labeled jets are flagged for removal if they overlap
+      /// with electrons within the inner dR cone.
+      /// Next, electrons are flagged for removal if they overlap with the
+      /// remaining jets in the outer dR cone.
       virtual StatusCode
       findOverlaps(const xAOD::IParticleContainer& cont1,
                    const xAOD::IParticleContainer& cont2) const override;
