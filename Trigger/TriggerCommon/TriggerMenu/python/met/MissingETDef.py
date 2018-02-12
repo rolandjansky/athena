@@ -11,6 +11,16 @@ from AthenaCommon.SystemOfUnits import GeV
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 log = logging.getLogger("TriggerMenu.met.MissingETDef")
+import sys
+
+def trace(frame, event, arg):
+    if event == "call":
+        filename = frame.f_code.co_filename
+        lineno = frame.f_lineno
+        print "%s @ %s" % (filename, lineno)
+        return trace
+        
+
 
 from TrigEFMissingET.TrigEFMissingETConfig import (EFMissingET_Fex_2sidednoiseSupp,
                                                    EFMissingET_Fex_Jets,
@@ -237,10 +247,12 @@ class L2EFChain_met(L2EFChainDef):
             log.warning("MET EF algorithm not recognised")
         
         #----------------------------------------------------
-        # Obtaining the needed jet TEs from the jet code
+        # Obtaining the needed jet TEs from the jet code and b-jet code 
         #----------------------------------------------------
         from TriggerJobOpts.TriggerFlags import TriggerFlags
-
+        
+        from TriggerMenu.bjet.generateBjetChainDefs import generateChainDefs as generateBjetChainDefs
+    
         chain = ['j0_{0}_{1}'.format(calibration, jetCalib), '', [], ["Main"], ['RATE:SingleJet', 'BW:Jet'], -1]
 
         theDictFromChainName = DictFromChainName.DictFromChainName()
@@ -248,7 +260,13 @@ class L2EFChain_met(L2EFChainDef):
         
         jetChainDict['chainCounter'] = 9151
         jetChainDef = generateHLTChainDef(jetChainDict)
-            
+     
+        dummy_bjet_chain = ['j20_{0}_{1}_boffperf_split'.format(calibration, jetCalib),  '', [], ["Main"], ['RATE:SingleBJet', 'BW:BJet'], -1]
+        bjet_chain_dict = theDictFromChainName.getChainDict(dummy_bjet_chain)
+        bjet_chain_dict["chainCounter"] = 9152
+        bjet_chain_dict['topoThreshold'] = None
+        bjet_chain_def = generateBjetChainDefs(bjet_chain_dict)
+       
         #for i in range(3):
         #    m_input[i] = jetChainDef.sequenceList[i]['input']
         #    m_output[i]= jetChainDef.sequenceList[i]['output']
@@ -335,18 +353,10 @@ class L2EFChain_met(L2EFChainDef):
             self.EFsequenceList +=[[ input2,algo2,  output2 ]]
             self.EFsequenceList +=[[ input3,algo3,  output3 ]]
             self.EFsequenceList +=[[ input4,algo4,  output4 ]]
-            #self.EFsequenceList +=[[ [output3,output4],      [theEFMETFex],  'EF_xe_step1' ]]
-            #self.EFsequenceList +=[[ ['EF_xe_step1',muonSeed],     [theEFMETMuonFex, theEFMETHypo],  'EF_xe_step2' ]]
-            from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
-#            trk_algs = TrigInDetSequence("FullScan", "fullScan", "IDTrig", sequenceFlavour=["FTF"]).getSequence()
-            trk_algs = TrigInDetSequence("Bjet", "bjet", "IDTrig", sequenceFlavour=["2step"]).getSequence()
-            #print "PUFITTRACK XXXXXXXXXXXXXXXXXX"
-            #print trk_algs[0]
-            dummyAlg = PESA__DummyUnseededAllTEAlgo("EF_DummyFEX_xe")
-            #self.EFsequenceList +=[[ [''], [dummyAlg]+trk_algs[0], 'EF_xe_step3' ]]
-            self.EFsequenceList +=[[ [''], [dummyAlg]+trk_algs[0], 'EF_xe_step0' ]]
-            self.EFsequenceList +=[[ [output3,output4,'EF_xe_step0'], [theEFMETFex], 'EF_xe_step1' ]]
-            self.EFsequenceList +=[[ ['EF_xe_step1',muonSeed], [theEFMETMuonFex, theEFMETHypo], 'EF_xe_step2' ]]
+            makelist = lambda x: x if isinstance(x, list) else [x]
+            self.EFsequenceList += [ [ x['input'], makelist(x['algorithm']), x['output'] ] for x in bjet_chain_def.sequenceList[:-2] ]
+            self.EFsequenceList += [[ [output3, output4, self.EFsequenceList[-1][2],self.EFsequenceList[-5][2]], [theEFMETFex], 'EF_xe_step1' ]]
+            self.EFsequenceList += [[ ['EF_xe_step1',muonSeed], [theEFMETMuonFex, theEFMETHypo], 'EF_xe_step2' ]]
 
         #trigger-jet based MET
         elif EFrecoAlg=='mht': 
@@ -360,7 +370,6 @@ class L2EFChain_met(L2EFChainDef):
             if "FStracks" in addInfo:
                 from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
                 trk_algs = TrigInDetSequence("FullScan", "fullScan", "IDTrig", sequenceFlavour=["FTF"]).getSequence()
-                print "XXXXXXXXXXXXXXXXXX"
                 print trk_algs[0]
                 dummyAlg = PESA__DummyUnseededAllTEAlgo("EF_DummyFEX_xe")
                 self.EFsequenceList +=[[ [''], [dummyAlg]+trk_algs[0], 'EF_xe_step3' ]]
@@ -418,8 +427,8 @@ class L2EFChain_met(L2EFChainDef):
 
         if EFrecoAlg=='trkmht':
             self.TErenamingDict['EF_xe_step0']= mergeRemovingOverlap('EF_', self.sig_id_noMult+"_step0")                                                                    
-        if EFrecoAlg=='pufittrack':
-            self.TErenamingDict['EF_xe_step0']= mergeRemovingOverlap('EF_', self.sig_id_noMult+"_step0")
+        #if EFrecoAlg=='pufittrack':
+        #    self.TErenamingDict['EF_xe_step0']= mergeRemovingOverlap('EF_', self.sig_id_noMult+"_step0")
             
         self.TErenamingDict['EF_xe_step1']= mergeRemovingOverlap('EF_', self.sig_id_noMult+'_step1')
         if "FStracks" in addInfo:
