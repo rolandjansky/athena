@@ -704,6 +704,31 @@ StatusCode FTKRegionalWrapper::execute()
   // if the clustering is requested it has to be done before the hits are distributed
   if (m_Clustering ) {
     atlClusteringLNF(fulllist);
+    vector<FTKRawHit>::iterator ihit = fulllist.begin();
+    vector<FTKRawHit>::iterator ihitE = fulllist.end();
+    for (;ihit!=ihitE;++ihit) { // hit loop
+      FTKRawHit &currawhit = *ihit;
+
+      // now we add truth info back in since we did clustering here!
+      MultiTruth mt;
+      if( currawhit.getTruth() ) {
+        mt.maximize( *(currawhit.getTruth()));
+      } else {
+	MultiTruth::Barcode uniquecode(currawhit.getEventIndex(),
+                                       currawhit.getBarcode());
+        mt.maximize(uniquecode,currawhit.getBarcodePt());
+      }
+      MultiTruth::Barcode tbarcode;
+      MultiTruth::Weight tfrac;
+      const bool ok = mt.best(tbarcode,tfrac);
+      Int_t index(-1), barcode(0);
+      if( ok ) {
+        index = tbarcode.first;
+        barcode = tbarcode.second;
+      }
+      currawhit.setEventIndex(index);
+      currawhit.setBarcode(barcode);
+    }
   }
 
   if (m_getOffline) {
