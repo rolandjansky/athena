@@ -570,34 +570,34 @@ namespace CP {
       m_corr_ddshift_2015_2016_file = "";
     }else{
     
-	m_graph_dd_2015_2016_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_unconverted_photon_eta_0.0_0.6_2016"));
-	m_graph_dd_2015_2016_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_unconverted_photon_eta_0.6_0.82_2016"));
-	m_graph_dd_2015_2016_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_unconverted_photon_eta_0.82_1.15_2016"));
-	m_graph_dd_2015_2016_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_unconverted_photon_eta_1.15_1.37_2016"));
-	m_graph_dd_2015_2016_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_unconverted_photon_eta_1.52_1.81_2016"));
-	m_graph_dd_2015_2016_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_unconverted_photon_eta_1.81_2.37_2016"));
+	m_graph_dd_2015_2016_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone40_DataDriven_unconverted_photon_eta_0.0_0.6_2016"));
+	m_graph_dd_2015_2016_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone40_DataDriven_unconverted_photon_eta_0.6_0.82_2016"));
+	m_graph_dd_2015_2016_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone40_DataDriven_unconverted_photon_eta_0.82_1.15_2016"));
+	m_graph_dd_2015_2016_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone40_DataDriven_unconverted_photon_eta_1.15_1.37_2016"));
+	m_graph_dd_2015_2016_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone40_DataDriven_unconverted_photon_eta_1.52_1.81_2016"));
+	m_graph_dd_2015_2016_cone40_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone40_DataDriven_unconverted_photon_eta_1.81_2.37_2016"));
 	
-	m_graph_dd_2015_2016_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_converted_photon_eta_0.0_0.6_2016"));
-	m_graph_dd_2015_2016_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_converted_photon_eta_0.6_0.82_2016"));
-	m_graph_dd_2015_2016_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_converted_photon_eta_0.82_1.15_2016"));
-	m_graph_dd_2015_2016_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_converted_photon_eta_1.15_1.37_2016"));
-	m_graph_dd_2015_2016_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_converted_photon_eta_1.52_1.81_2016"));
-	m_graph_dd_2015_2016_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_converted_photon_eta_1.81_2.37_2016"));
+	m_graph_dd_2015_2016_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone40_DataDriven_converted_photon_eta_0.0_0.6_2016"));
+	m_graph_dd_2015_2016_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone40_DataDriven_converted_photon_eta_0.6_0.82_2016"));
+	m_graph_dd_2015_2016_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone40_DataDriven_converted_photon_eta_0.82_1.15_2016"));
+	m_graph_dd_2015_2016_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone40_DataDriven_converted_photon_eta_1.15_1.37_2016"));
+	m_graph_dd_2015_2016_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone40_DataDriven_converted_photon_eta_1.52_1.81_2016"));
+	m_graph_dd_2015_2016_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone40_DataDriven_converted_photon_eta_1.81_2.37_2016"));
 	
 
-	m_graph_dd_2015_2016_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_unconverted_photon_eta_0.0_0.6_2016"));
-	m_graph_dd_2015_2016_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_unconverted_photon_eta_0.6_0.82_2016"));
-	m_graph_dd_2015_2016_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_unconverted_photon_eta_0.82_1.15_2016"));
-	m_graph_dd_2015_2016_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_unconverted_photon_eta_1.15_1.37_2016"));
-	m_graph_dd_2015_2016_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_unconverted_photon_eta_1.52_1.81_2016"));
-	m_graph_dd_2015_2016_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_unconverted_photon_eta_1.81_2.37_2016"));
+	m_graph_dd_2015_2016_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_unconverted_photon_eta_0.0_0.6_2016"));
+	m_graph_dd_2015_2016_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_unconverted_photon_eta_0.6_0.82_2016"));
+	m_graph_dd_2015_2016_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_unconverted_photon_eta_0.82_1.15_2016"));
+	m_graph_dd_2015_2016_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_unconverted_photon_eta_1.15_1.37_2016"));
+	m_graph_dd_2015_2016_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_unconverted_photon_eta_1.52_1.81_2016"));
+	m_graph_dd_2015_2016_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_unconverted_photon_eta_1.81_2.37_2016"));
 	
-	m_graph_dd_2015_2016_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_converted_photon_eta_0.0_0.6_2016"));
-	m_graph_dd_2015_2016_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_converted_photon_eta_0.6_0.82_2016"));
-	m_graph_dd_2015_2016_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_converted_photon_eta_0.82_1.15_2016"));
-	m_graph_dd_2015_2016_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_converted_photon_eta_1.15_1.37_2016"));
-	m_graph_dd_2015_2016_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_converted_photon_eta_1.52_1.81_2016"));
-	m_graph_dd_2015_2016_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_converted_photon_eta_1.81_2.37_2016"));
+	m_graph_dd_2015_2016_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_converted_photon_eta_0.0_0.6_2016"));
+	m_graph_dd_2015_2016_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_converted_photon_eta_0.6_0.82_2016"));
+	m_graph_dd_2015_2016_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_converted_photon_eta_0.82_1.15_2016"));
+	m_graph_dd_2015_2016_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_converted_photon_eta_1.15_1.37_2016"));
+	m_graph_dd_2015_2016_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_converted_photon_eta_1.52_1.81_2016"));
+	m_graph_dd_2015_2016_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_converted_photon_eta_1.81_2.37_2016"));
 	
     }
     for (auto gr : m_graph_dd_2015_2016_cone40_conv_photon_shift) {
@@ -653,19 +653,19 @@ namespace CP {
 	m_graph_dd_2017_cone40_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone40_DataDriven_converted_photon_eta_1.81_2.37_2017"));
 	
 
-	m_graph_dd_2017_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_unconverted_photon_eta_0.0_0.6_2017"));
-	m_graph_dd_2017_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_unconverted_photon_eta_0.6_0.82_2017"));
-	m_graph_dd_2017_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_unconverted_photon_eta_0.82_1.15_2017"));
-	m_graph_dd_2017_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_unconverted_photon_eta_1.15_1.37_2017"));
-	m_graph_dd_2017_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_unconverted_photon_eta_1.52_1.81_2017"));
-	m_graph_dd_2017_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_unconverted_photon_eta_1.81_2.37_2017"));
+	m_graph_dd_2017_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_unconverted_photon_eta_0.0_0.6_2017"));
+	m_graph_dd_2017_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_unconverted_photon_eta_0.6_0.82_2017"));
+	m_graph_dd_2017_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_unconverted_photon_eta_0.82_1.15_2017"));
+	m_graph_dd_2017_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_unconverted_photon_eta_1.15_1.37_2017"));
+	m_graph_dd_2017_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_unconverted_photon_eta_1.52_1.81_2017"));
+	m_graph_dd_2017_cone20_unconv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_unconverted_photon_eta_1.81_2.37_2017"));
 	
-	m_graph_dd_2017_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_converted_photon_eta_0.0_0.6_2017"));
-	m_graph_dd_2017_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_converted_photon_eta_0.6_0.82_2017"));
-	m_graph_dd_2017_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_converted_photon_eta_0.82_1.15_2017"));
-	m_graph_dd_2017_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_converted_photon_eta_1.15_1.37_2017"));
-	m_graph_dd_2017_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_converted_photon_eta_1.52_1.81_2017"));
-	m_graph_dd_2017_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_converted_photon_eta_1.81_2.37_2017"));
+	m_graph_dd_2017_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_converted_photon_eta_0.0_0.6_2017"));
+	m_graph_dd_2017_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_converted_photon_eta_0.6_0.82_2017"));
+	m_graph_dd_2017_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_converted_photon_eta_0.82_1.15_2017"));
+	m_graph_dd_2017_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_converted_photon_eta_1.15_1.37_2017"));
+	m_graph_dd_2017_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_converted_photon_eta_1.52_1.81_2017"));
+	m_graph_dd_2017_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_converted_photon_eta_1.81_2.37_2017"));
 	
     }
     for (auto gr : m_graph_dd_2017_cone40_conv_photon_shift) {

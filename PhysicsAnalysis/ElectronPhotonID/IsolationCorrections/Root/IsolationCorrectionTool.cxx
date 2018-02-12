@@ -11,6 +11,7 @@
 #include "PATInterfaces/SystematicRegistry.h"
 #include "PathResolver/PathResolver.h"
 #include <boost/algorithm/string.hpp>
+#include "TPRegexp.h"
 
 #ifndef ROOTCORE
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
@@ -27,12 +28,12 @@ namespace CP {
     declareProperty("CorrFile_ddsmearing",         m_corr_ddsmearing_file         = "IsolationCorrections/v1/isolation_ddcorrection_smearing.root");
     declareProperty("ToolVer",                     m_tool_ver_str                 = "REL21");
     declareProperty("DataDrivenVer",               m_ddVersion                    = "2015_2016");
-    declareProperty("UseMetadata",                 m_usemetadata                  = false);
+    declareProperty("UseMetadata",                 m_usemetadata                  = true);
     declareProperty("AFII_corr",                   m_AFII_corr                    = false);
     declareProperty("IsMC",                        m_is_mc                        = true);
     declareProperty("Correct_etcone",              m_correct_etcone               = false);
     declareProperty("Trouble_categories",          m_trouble_categories           = true);
-    declareProperty("Apply_ddshift_2017s",              m_apply_ddDefault              = true);
+    declareProperty("Apply_ddshifts",              m_apply_ddDefault              = true);
     m_isol_corr = new IsolationCorrection(name);
   }
 
@@ -89,6 +90,15 @@ namespace CP {
     m_isol_corr->SetCorrectionFile(m_corr_file, m_corr_ddshift_2017_file, m_corr_ddsmearing_file, m_corr_ddshift_2015_2016_file);
     m_isol_corr->SetToolVer(tool_ver);
     m_isol_corr->SetTroubleCategories(m_trouble_categories);
+    
+    // Check if tag is from mc16a of mc16c (determines which year of DD corrections to use) 
+    if (m_usemetadata && inputMetaStore()->contains<xAOD::FileMetaData>("FileMetaData")) {}
+    const xAOD::FileMetaData* fmd = 0;
+    ATH_CHECK(inputMetaStore()->retrieve(fmd, "FileMetaData"));      
+    std::string amiTag; 
+    fmd->value(xAOD::FileMetaData::amiTag, amiTag); // AMI tag used to process the file the last time
+    if (TPRegexp("r9364").MatchB(amiTag)) { m_ddVersion = "2015_2016" ; } // mc16a
+    else if (TPRegexp("r9781").MatchB(amiTag)) { m_ddVersion = "2017" ; } // mc16c
 
     // If Default is false, there is no correction, and no topoEtconeXX systematic uncertainty !
     if (m_apply_ddDefault) {
@@ -103,7 +113,7 @@ namespace CP {
     }
     
     // Don't use DD Corrections for AFII (not yet available for mc16) 
-    if(m_AFII_corr) m_apply_dd = false;
+    if( m_tool_ver_str == "REL21" && m_AFII_corr) m_apply_dd = false;
 
     //If we do not want to use metadata
     if(!m_usemetadata) {
@@ -171,6 +181,11 @@ namespace CP {
       result = (simType.find("ATLFASTII")==std::string::npos) ?  PATCore::ParticleDataType::Full : PATCore::ParticleDataType::Fast;
       return StatusCode::SUCCESS;    
     }
+    //
+    std::string amiTag; // Check if tag is from mc16a of mc16c (determines which year of DD corrections to use) 
+    fmd->value(xAOD::FileMetaData::amiTag, amiTag); // AMI tag used to process the file the last time
+    if (TPRegexp("r9364").MatchB(amiTag)) { m_ddVersion = "2015_2016" ; } // mc16a
+    else if (TPRegexp("r9781").MatchB(amiTag)) { m_ddVersion = "2017" ; } // mc16c
     //
     return StatusCode::SUCCESS;    
   }

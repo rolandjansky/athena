@@ -53,4 +53,3 @@ atlas_add_dictionary( IsolationCorrectionsDict
 
 # Install files from the package:
 atlas_install_data( data/*.root )
-
