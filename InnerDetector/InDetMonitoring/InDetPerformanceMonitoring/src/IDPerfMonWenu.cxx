@@ -95,7 +95,7 @@ StatusCode IDPerfMonWenu::initialize()
 
   //---Electron Likelihood tool---
   ATH_MSG_INFO("IDPerfMonWenu::Initialize() -- Setting up electron LH tool.");
-  m_LHTool2015 = new AsgElectronLikelihoodTool ("m_LHTool2015");
+  m_LHTool2015=std::make_unique<AsgElectronLikelihoodTool> ("m_LHTool2015");
   if((m_LHTool2015->setProperty("primaryVertexContainer",m_VxPrimContainerName)).isFailure())
     ATH_MSG_WARNING("Failure setting primary vertex container " << m_VxPrimContainerName << "in electron likelihood tool");
 
