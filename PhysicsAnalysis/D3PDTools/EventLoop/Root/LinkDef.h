@@ -20,6 +20,7 @@
 #pragma link C++ class EL::DirectDriver+;
 #pragma link C++ class EL::Driver+;
 #pragma link C++ class EL::Job+;
+#pragma link C++ class EL::JobConfig+;
 #pragma link C++ class EL::GEDriver+;
 #pragma link C++ class EL::LSFDriver+;
 #pragma link C++ class EL::LLDriver+;

@@ -194,8 +194,7 @@ namespace EL
 
 
   ::StatusCode AnaAlgorithmConfig ::
-  makeAlgorithm (std::unique_ptr<AnaAlgorithm>& algorithm,
-                 std::vector<std::shared_ptr<void> >& cleanup) const
+  makeAlgorithm (std::unique_ptr<AnaAlgorithm>& algorithm) const
   {
     RCU_READ_INVARIANT (this);
     using namespace msgAlgorithmConfig;
@@ -245,7 +244,7 @@ namespace EL
                  (toolInfo.second, m_name + "." + toolInfo.first, rawTool));
       std::shared_ptr<asg::AsgTool> managedTool (rawTool);
       tools.insert (std::make_pair (toolInfo.first, managedTool));
-      cleanup.push_back (managedTool);
+      alg->addCleanup (managedTool);
     }
 
     for (auto& property : m_propertyValues)

@@ -263,7 +263,7 @@ def getHLTlist_fromDB(period, customGRL):
     '''
     
     triggerPeriod = TriggerPeriodData( period, customGRL ).grl
-    if not triggerPeriod: return []
+    if not triggerPeriod: return [],0
     runsWithReadyForPhysics = getReadyForPhysicsInRange(triggerPeriod)
     keys = getKeys( runsWithReadyForPhysics)
     
@@ -273,9 +273,8 @@ def getHLTlist_fromDB(period, customGRL):
         print "Filling run:",run
         hltList, lbCount = fillHLTlist( keys[run], hltList, lbCount , run, triggerPeriod[run])
 
-    return [(x, l1, ps/float(lbCount)) for x, (l1, ps) in hltList]
-    
-    return 0
+    hltList = [(x, l1, activeLB/float(lbCount), activeLB) for x, (l1, activeLB) in hltList]
+    return hltList, lbCount
 
 def getHLTlist_fromTM(period):
     ''' Return a list of (HLT chain, L1 seed, prescale ) for a given period
@@ -293,6 +292,7 @@ def getHLTlist_fromTM(period):
     else: print "Warning non-recongnized future",period
 
     hltList = []
+    dummyfutureLBs = 1e6
     for prop in dir(TriggerFlags):
         if prop[-5:]!='Slice': continue
         sliceName=prop
@@ -302,26 +302,27 @@ def getHLTlist_fromTM(period):
             hltname = 'HLT_'+m[0]
             l1seed  = m[1]
             comment = m[4][0]
-            ps = 1e10
+            ps = 0
             if maxlumi <= 20000 and 'Primary:20000' in comment: ps = 1
             if maxlumi <= 17000 and 'Primary:17000' in comment: ps = 1
-            hltList.append( (hltname, l1seed, ps) )
+            hltList.append( (hltname, l1seed, ps, dummyfutureLBs*ps) )
         
-    return hltList
+    return hltList, dummyfutureLBs
 
 def getHLTlist(period, customGRL):
-    ''' Return a list of (HLT chain, L1 seed, average prescale ) for a given period
+    ''' For a given period it returns: [HLT chain, L1 seed, average livefraction, active LB], total LB
         The average prescale is an approximation weighting the PS by number of lumiblocks.
         *** Don't use this number in analysis!!! ***
-        For "future" periods, the average prescale is 1 for items flagged as primary in TM and 1e10 for non-primaries
+        For "future" periods, the average prescale is 1 for items flagged as primary in TM and 0 for non-primaries
     '''
     if not period & TriggerPeriod.future or period >= TriggerPeriod.runNumber: 
-        hltlist = getHLTlist_fromDB(period, customGRL)
+        hltlist, totalLB = getHLTlist_fromDB(period, customGRL)
     else:
-        hltlist = getHLTlist_fromTM(period)
+        hltlist, totalLB = getHLTlist_fromTM(period)
     
     vetoes = ['calib','noise','noalg','EMPTY','UNPAIRED']
-    return [(name, l1seed,ps) for name, l1seed,ps in hltlist if not any(v in name for v in vetoes)]
+    hltlist = [(name, l1seed, livefraction, activeLB) for name, l1seed, livefraction, activeLB in hltlist if not any(v in name for v in vetoes)]
+    return (hltlist, totalLB)
 
 def test():
     print getHLTlist(TriggerPeriod.y2017)

@@ -66,6 +66,7 @@ JetUncertaintiesTool::JetUncertaintiesTool(const std::string& name)
     , m_jetDef("")
     , m_mcType("")
     , m_configFile("")
+    , m_calibArea("")
     , m_path("")
     , m_analysisFile("")
     , m_systFilters()
@@ -94,6 +95,7 @@ JetUncertaintiesTool::JetUncertaintiesTool(const std::string& name)
     declareProperty("JetDefinition",m_jetDef);
     declareProperty("MCType",m_mcType);
     declareProperty("ConfigFile",m_configFile);
+    declareProperty("CalibArea",m_calibArea);
     declareProperty("Path",m_path);
     declareProperty("AnalysisFile",m_analysisFile);
     declareProperty("VariablesToShift",m_systFilters);
@@ -115,6 +117,7 @@ JetUncertaintiesTool::JetUncertaintiesTool(const JetUncertaintiesTool& toCopy)
     , m_jetDef(toCopy.m_jetDef)
     , m_mcType(toCopy.m_mcType)
     , m_configFile(toCopy.m_configFile)
+    , m_calibArea(toCopy.m_calibArea)
     , m_path(toCopy.m_path)
     , m_analysisFile(toCopy.m_analysisFile)
     , m_systFilters(toCopy.m_systFilters)
@@ -217,10 +220,10 @@ StatusCode JetUncertaintiesTool::initialize()
     gROOT->cd();
 
     // Read the config file
-    const TString configFilePath = jet::utils::findFilePath(m_configFile.c_str(),m_path.c_str());
+    const TString configFilePath = jet::utils::findFilePath(m_configFile.c_str(),m_path.c_str(),m_calibArea.c_str());
     if (configFilePath == "")
     {
-        ATH_MSG_ERROR("Cannot find config file: " << m_configFile << " (path is " << m_path << ")");
+        ATH_MSG_ERROR("Cannot find config file: " << m_configFile << " (path is \"" << m_path << "\", CalibArea is \"" << m_calibArea << "\")");
         return StatusCode::FAILURE;
     }
 
@@ -234,9 +237,10 @@ StatusCode JetUncertaintiesTool::initialize()
     // We can read it - start printing
     ATH_MSG_INFO(Form("================================================"));
     ATH_MSG_INFO(Form("  Initializing the JetUncertaintiesTool named %s",m_name.c_str()));
-    ATH_MSG_INFO(Form("  Path is: %s",m_path.c_str()));
-    ATH_MSG_INFO(Form("  Configuration read in from:" ));
-    ATH_MSG_INFO(Form("    %s",configFilePath.Data()));
+    ATH_MSG_INFO(Form("  Path is: \"%s\"",m_path.c_str()));
+    ATH_MSG_INFO(Form("  CalibArea is: \"%s\"",m_calibArea.c_str()));
+    ATH_MSG_INFO(Form("  Configuration file: \"%s\"",m_configFile.c_str()));
+    ATH_MSG_INFO(Form("    Location: %s",configFilePath.Data()));
     
     
     // Get the uncertainty release
@@ -297,22 +301,42 @@ StatusCode JetUncertaintiesTool::initialize()
         ATH_MSG_ERROR("Cannot find uncertainty histogram file");
         return StatusCode::FAILURE;
     }
-    ATH_MSG_INFO(Form("  UncertaintyFile: %s",histFileName.Data()));
-
-    // Get the analysis ROOT file for later use (only if it wasn't specified by user config)
-    if (m_analysisFile == "")
-        m_analysisFile = settings.GetValue("AnalysisRootFile","");
-    if (m_analysisFile != "")
-        ATH_MSG_INFO(Form("  AnalysisFile: %s",m_analysisFile.c_str()));
-
+    ATH_MSG_INFO(Form("  UncertaintyFile: \"%s\"",histFileName.Data()));
+    
+    // Now find the histogram file
+    const TString histFilePath = utils::findFilePath(histFileName,m_path.c_str(),m_calibArea.c_str());
+    if (histFilePath == "")
+    {
+        ATH_MSG_ERROR("Cannot find the path of the uncertainty histogram file");
+        return StatusCode::FAILURE;
+    }
+    ATH_MSG_INFO(Form("    Location: %s",histFilePath.Data()));
+    
     // Now open the histogram file
-    TFile* histFile = utils::readRootFile(histFileName,m_path.c_str());
+    TFile* histFile = new TFile(histFilePath,"READ");
     if (!histFile || histFile->IsZombie())
     {
         ATH_MSG_ERROR("Cannot open uncertainty histogram file: " << histFileName.Data());
         return StatusCode::FAILURE;
     }
     
+
+    // Get the analysis ROOT file for later use (only if it wasn't specified by user config)
+    if (m_analysisFile == "")
+        m_analysisFile = settings.GetValue("AnalysisRootFile","");
+    if (m_analysisFile != "")
+    {
+        ATH_MSG_INFO(Form("  AnalysisFile: \"%s\"",m_analysisFile.c_str()));
+        // Ensure that we can find the file
+        const TString analysisFilePath = utils::findFilePath(m_analysisFile.c_str(),m_path.c_str(),m_calibArea.c_str());
+        if (analysisFilePath == "")
+        {
+            ATH_MSG_ERROR("Cannot find the path of the analysis histogram file");
+            return StatusCode::FAILURE;
+        }
+        ATH_MSG_INFO(Form("    Location: %s",analysisFilePath.Data()));
+    }
+
     // Get a file-wide validity histogram if specified
     TString validHistForFile = settings.GetValue("FileValidHistogram","");
     if (validHistForFile != "")
@@ -982,7 +1006,7 @@ UncertaintyComponent* JetUncertaintiesTool::buildUncertaintyComponent(const Comp
                 return NULL;
             }
             else if (component.parametrization == CompParametrization::PtEta || component.parametrization == CompParametrization::PtAbsEta)
-                return new FlavourUncertaintyComponent(component,m_jetDef,m_analysisFile,m_path.c_str());
+                return new FlavourUncertaintyComponent(component,m_jetDef,m_analysisFile,m_path.c_str(),m_calibArea.c_str());
             else
             {
                 ATH_MSG_ERROR(Form("Unexpected parametrization of %s for component %s",CompParametrization::enumToString(component.parametrization).Data(),component.name.Data()));

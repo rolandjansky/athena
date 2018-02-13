@@ -33,6 +33,7 @@ namespace EL
   class Driver;
   class GEDriver;
   class Job;
+  class JobConfig;
   class LLDriver;
   class LSFDriver;
   class LocalDriver;

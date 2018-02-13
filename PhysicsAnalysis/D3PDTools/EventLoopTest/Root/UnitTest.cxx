@@ -155,8 +155,8 @@ namespace EL
 	  if (testFileExecute)
 	  {
 	    TH1 *file_executes = dynamic_cast<TH1*>(sample->readHist ("file_executes"));
-	    RCU_ASSERT (file_executes != 0);
-	    RCU_ASSERT (file_executes->GetEntries() == samples[iter]->numFiles());
+	    RCU_ASSERT_SOFT (file_executes != 0);
+	    RCU_ASSERT_SOFT (file_executes->GetEntries() == samples[iter]->numFiles());
 	  }
 
 	  TH1 *hist = dynamic_cast<TH1*>(sample->readHist ("el_n"));
