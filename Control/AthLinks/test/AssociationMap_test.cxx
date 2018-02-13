@@ -7,7 +7,6 @@
 #include "AthLinks/AssociationMap.h"
 #include "SGTools/CurrentEventStore.h"
 #include "AthenaKernel/CLASS_DEF.h"
-#include "CxxUtils/checker_macros.h"
 #include <iostream>
 #include <vector>
 
@@ -279,10 +278,10 @@ void test1 (SGTest::TestStore& store)
 }
 
 
-int main ATLAS_NOT_THREAD_SAFE () 
+int main()
 {
-  initTestStore();
-  test1 (store);
+  std::unique_ptr<SGTest::TestStore> store = SGTest::getTestStore();
+  test1 (*store);
 
   return 0;
 }
