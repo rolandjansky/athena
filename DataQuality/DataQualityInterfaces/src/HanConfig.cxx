@@ -62,10 +62,10 @@ namespace dqi {
 
 HanConfig::
 HanConfig()
-  : config(0)
-  , dqRoot()
-  , top_level(0)
-  , metadata(0)
+  : m_config(0)
+  , m_dqRoot()
+  , m_top_level(0)
+  , m_metadata(0)
 {
 }
 
@@ -73,11 +73,11 @@ HanConfig()
 HanConfig::
 ~HanConfig()
 {
-  delete config;
+  delete m_config;
   /* delete dqRoot; */
-  delete top_level;
-  if (metadata) metadata->Delete();
-  delete metadata;
+  delete m_top_level;
+  if (m_metadata) m_metadata->Delete();
+  delete m_metadata;
 }
 
 
@@ -160,7 +160,7 @@ BuildMonitors( std::string configName, dqm_core::Input& input, HanOutput& output
     return;
   }
   
-  dqRoot = BuildMonitorsNewRoot( configName, input, output );
+  m_dqRoot = BuildMonitorsNewRoot( configName, input, output );
   
   output.setConfig( this );
 }
@@ -174,8 +174,8 @@ BuildMonitorsNewRoot( std::string configName, dqm_core::Input& input, dqm_core::
     return boost::shared_ptr<dqm_core::Region>();
   }
   
-  std::string algName( top_level->GetAlgName() );
-  std::string algLibName( top_level->GetAlgLibName() );
+  std::string algName( m_top_level->GetAlgName() );
+  std::string algLibName( m_top_level->GetAlgLibName() );
   if( algLibName != "" ) {
     try {
       dqm_core::LibraryManager::instance().loadLibrary( algLibName );
@@ -187,8 +187,8 @@ BuildMonitorsNewRoot( std::string configName, dqm_core::Input& input, dqm_core::
   dqm_core::RegionConfig regc( algName, 1.0 );
   boost::shared_ptr<dqm_core::Region> retval(dqm_core::Region::createRootRegion( "top_level", input, output, regc ));
   
-  ConfigVisitor confvisitor( config, &output );
-  top_level->Accept( confvisitor, retval );
+  ConfigVisitor confvisitor( m_config, &output );
+  m_top_level->Accept( confvisitor, retval );
   return retval;
 }
 
@@ -216,13 +216,13 @@ BuildConfigOutput( std::string configName, TFile* inputFile, std::string path,
   if( basedir == 0 )
     basedir = inputFile;
   
-  TIter mdIter(metadata);
+  TIter mdIter(m_metadata);
   TSeqCollection* mdList = newTList("HanMetadata_");
   HanConfigMetadata* md(0);
   while ((md = dynamic_cast<HanConfigMetadata*>(mdIter()))) {
     mdList->Add( md->GetList(basedir,*outputMap) );
   }
-  TSeqCollection* top_level_list = top_level->GetList(basedir,*outputMap);
+  TSeqCollection* top_level_list = m_top_level->GetList(basedir,*outputMap);
   top_level_list->Add( mdList );
   outputList->Add( top_level_list );  
 }
@@ -232,22 +232,22 @@ TObject*
 HanConfig::
 GetReference( std::string& groupName, std::string& name )
 {
-  /*  if( top_level == 0 ) {
+  /*  if( m_top_level == 0 ) {
     return 0;
   }
   
-  HanConfigGroup* parent = top_level->GetNode(groupName);
+  HanConfigGroup* parent = m_top_level->GetNode(groupName);
   if( parent == 0 ) {
-    parent = top_level;
+    parent = m_top_level;
     } */
   
   std::auto_ptr<const HanConfigAssessor> a(GetAssessor( groupName, name ));
   if (!a.get()) return 0;
   std::string refName( a->GetAlgRefName() );
   if( refName != "" ) {
-    TKey* key = getObjKey( config, refName );
+    TKey* key = getObjKey( m_config, refName );
     if( key != 0 ) {
-      //TObject* ref = config->Get(refName.c_str());
+      //TObject* ref = m_config->Get(refName.c_str());
       TObject* ref = key->ReadObj();
       if (ref)
 	return ref;
@@ -297,13 +297,13 @@ const HanConfigAssessor*
 HanConfig::
 GetAssessor( std::string& groupName, std::string& name ) const
 {
-  if( top_level == 0 ) {
+  if( m_top_level == 0 ) {
     return 0;
   }
   
-  HanConfigGroup* parent = top_level->GetNode(groupName);
+  HanConfigGroup* parent = m_top_level->GetNode(groupName);
   if( parent == 0 ) {
-    parent = top_level;
+    parent = m_top_level;
   }
   
   const HanConfigAssessor& a = parent->GetAssessor(name);
@@ -316,7 +316,7 @@ HanConfig::
 GetRegexList(std::set<std::string>& regexlist) 
 {
   RegexVisitor rv(regexlist);
-  top_level->Accept(rv, boost::shared_ptr<dqm_core::Region>());
+  m_top_level->Accept(rv, boost::shared_ptr<dqm_core::Region>());
 }
 
 // *********************************************************************
@@ -325,8 +325,8 @@ GetRegexList(std::set<std::string>& regexlist)
 
 HanConfig::RefVisitor::
 RefVisitor( TFile* outfile_, HanConfig::DirMap_t& directories_, TMap* refsourcedata_ )
-  : outfile(outfile_)
-  , directories(directories_)
+  : m_outfile(outfile_)
+  , m_directories(directories_)
   , m_refsourcedata(refsourcedata_)
 {
 }
@@ -348,10 +348,10 @@ Visit( const MiniConfigTreeNode* node ) const
       std::cerr << "HanConfig::RefVisitor::Visit(): Reference not found: \"" << name << "\"\n";
       return;
     }
-//     TDirectory* dir = ChangeOutputDir( outfile, name, directories );
+//     TDirectory* dir = ChangeOutputDir( m_outfile, name, directories );
 //     dir->cd();
     //sami
-    outfile->cd();
+    m_outfile->cd();
     obj = key->ReadObj();
     //    obj->Write();
     std::string newHistoName=dqi::ConditionsSingleton::getInstance().getNewRefHistoName();
@@ -376,12 +376,12 @@ AssessmentVisitorBase( HanConfigGroup* root_, const MiniConfig& algConfig_,
                        const MiniConfig& thrConfig_, const MiniConfig& refConfig_,
                        TFile* outfile_, HanConfig::DirMap_t& directories_,
 		       TMap* refsourcedata_ )
-  : root(root_)
-  , algConfig(algConfig_)
-  , thrConfig(thrConfig_)
-  , refConfig(refConfig_)
-  , outfile(outfile_)
-  , directories(directories_)
+  : m_root(root_)
+  , m_algConfig(algConfig_)
+  , m_thrConfig(thrConfig_)
+  , m_refConfig(refConfig_)
+  , m_outfile(outfile_)
+  , m_directories(directories_)
   , m_refsourcedata(refsourcedata_)
 {
 }
@@ -429,7 +429,7 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
 {
   // bool hasName(false);
   std::set<std::string> algAtt;
-  algConfig.GetAttributeNames( algID, algAtt );
+  m_algConfig.GetAttributeNames( algID, algAtt );
   std::set<std::string>::const_iterator algAttEnd = algAtt.end();
   for( std::set<std::string>::const_iterator i = algAtt.begin(); i != algAttEnd; ++i ) {
     std::string trail("");
@@ -439,21 +439,21 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
     }
     if( *i == "name" ) {
       // hasName = true;
-      std::string algName( algConfig.GetStringAttribute(algID,"name") );
+      std::string algName( m_algConfig.GetStringAttribute(algID,"name") );
       dqpar->SetAlgName( algName );
     }
     else if( *i == "libname" ) {
-      std::string algLibName( algConfig.GetStringAttribute(algID,"libname") );
+      std::string algLibName( m_algConfig.GetStringAttribute(algID,"libname") );
       dqpar->SetAlgLibName( algLibName );
     }
     else if( *i == "thresholds" || trail == "thresholds" ) {
-      std::string thrID( algConfig.GetStringAttribute(algID,*i) );
+      std::string thrID( m_algConfig.GetStringAttribute(algID,*i) );
       std::set<std::string> thrAtt;
-      thrConfig.GetAttributeNames( thrID, thrAtt );
+      m_thrConfig.GetAttributeNames( thrID, thrAtt );
       std::set<std::string>::const_iterator thrAttEnd = thrAtt.end();
       for( std::set<std::string>::const_iterator t = thrAtt.begin(); t != thrAttEnd; ++t ) {
         std::string thrAttName = *t;
-        std::string thrAttVal = thrConfig.GetStringAttribute( thrID, thrAttName );
+        std::string thrAttVal = m_thrConfig.GetStringAttribute( thrID, thrAttName );
         std::string limName = thrAttVal + std::string("/") + thrAttName;
         HanConfigAlgLimit algLim;
 	if (pos != std::string::npos) {
@@ -461,13 +461,13 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
 	} else {
 	  algLim.SetName( *t );
 	}
-        algLim.SetGreen( thrConfig.GetFloatAttribute(limName,"warning") );
-        algLim.SetRed( thrConfig.GetFloatAttribute(limName,"error") );
+        algLim.SetGreen( m_thrConfig.GetFloatAttribute(limName,"warning") );
+        algLim.SetRed( m_thrConfig.GetFloatAttribute(limName,"error") );
         dqpar->AddAlgLimit( algLim );
       }
     }
     else if( *i == "reference" ) {
-      std::string tmpRefID=algConfig.GetStringAttribute(algID,"reference");
+      std::string tmpRefID=m_algConfig.GetStringAttribute(algID,"reference");
       //std::cout<<"Got tmpRefID=\""<<tmpRefID<<"\""<<std::endl;
       dqi::ConditionsSingleton &CS=dqi::ConditionsSingleton::getInstance();
       std::string refCond=CS.getCondition();
@@ -494,9 +494,9 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
 	std::string newRefId;
 	std::string absAlgRefName("");	
 	for (const auto thisRefID : refIDVec) {
-	  std::string algRefName( refConfig.GetStringAttribute(thisRefID,"name") );
-	  std::string algRefPath( refConfig.GetStringAttribute(thisRefID,"path") );
-	  std::string algRefInfo( refConfig.GetStringAttribute(thisRefID,"info") );
+	  std::string algRefName( m_refConfig.GetStringAttribute(thisRefID,"name") );
+	  std::string algRefPath( m_refConfig.GetStringAttribute(thisRefID,"path") );
+	  std::string algRefInfo( m_refConfig.GetStringAttribute(thisRefID,"info") );
 	  absAlgRefName = "";
 	  if( algRefPath != "" ) {
 	    absAlgRefName += algRefPath;
@@ -521,9 +521,9 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
 		//<< "Reference not found: \"" << absAlgRefName << "\"\n";
 		continue;
 	      }
-	      // TDirectory* dir = ChangeOutputDir( outfile, absAlgRefName, directories );
+	      // TDirectory* dir = ChangeOutputDir( m_outfile, absAlgRefName, m_directories );
 	      //dir->cd();
-	      outfile->cd(); //we are writing to the / folder of file
+	      m_outfile->cd(); //we are writing to the / folder of file
 	      TObject* obj;
 	      obj = key->ReadObj();
 	      if (isMultiRef) { 
@@ -599,8 +599,8 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
       }
       dqpar->SetAlgRefName((newRefString.str()));
 			       
-//       std::string algRefName( refConfig.GetStringAttribute(refID,"name") );
-//       std::string algRefPath( refConfig.GetStringAttribute(refID,"path") );
+//       std::string algRefName( m_refConfig.GetStringAttribute(refID,"name") );
+//       std::string algRefPath( m_refConfig.GetStringAttribute(refID,"path") );
 //       std::string absAlgRefName("");
 //       if( algRefPath != "" ) {
 //         absAlgRefName += algRefPath;
@@ -613,7 +613,7 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
 //       else {
 //         algRefName = assessorName;
 //         absAlgRefName += algRefName;
-//         std::string algRefFile( refConfig.GetStringAttribute(refID,"file") );
+//         std::string algRefFile( m_refConfig.GetStringAttribute(refID,"file") );
 //         if( algRefFile != "" ) {
 //           std::auto_ptr<TFile> infile( TFile::Open(algRefFile.c_str()) );
 //           TKey* key = getObjKey( infile.get(), absAlgRefName );
@@ -622,7 +622,7 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
 //                       << "Key not found: \"" << absAlgRefName << "\"\n";
 //             continue;
 //           }
-//           TDirectory* dir = ChangeOutputDir( outfile, absAlgRefName, directories );
+//           TDirectory* dir = ChangeOutputDir( m_outfile, absAlgRefName, m_directories );
 //           dir->cd();
 //           TObject* obj;
 //           obj = key->ReadObj();
@@ -633,7 +633,7 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
     }else {
       HanConfigAlgPar algPar;
       algPar.SetName( *i );
-      algPar.SetValue( algConfig.GetFloatAttribute(algID,*i) );
+      algPar.SetValue( m_algConfig.GetFloatAttribute(algID,*i) );
       dqpar->AddAlgPar( algPar );
     }
   }
@@ -659,7 +659,7 @@ Visit( const MiniConfigTreeNode* node ) const
   
   const MiniConfigTreeNode* grandparent = parent->GetParent();
   std::auto_ptr<HanConfigGroup> alloc( new HanConfigGroup() );
-  HanConfigGroup* reg = (grandparent==0) ? root : alloc.get();
+  HanConfigGroup* reg = (grandparent==0) ? m_root : alloc.get();
   
   std::string regName( node->GetName() );
   reg->SetName( regName );
@@ -681,8 +681,8 @@ Visit( const MiniConfigTreeNode* node ) const
 
   if( grandparent != 0 ) {
     std::string path( parent->GetPathName() );
-    HanConfigGroup* parentReg = root->GetNode( path );
-    parentReg = (parentReg==0) ? root : parentReg;
+    HanConfigGroup* parentReg = m_root->GetNode( path );
+    parentReg = (parentReg==0) ? m_root : parentReg;
     if( parentReg != 0 ) {
       parentReg->AddGroup( *reg );
     }
@@ -691,7 +691,7 @@ Visit( const MiniConfigTreeNode* node ) const
 
 HanConfig::RegexVisitor::
 RegexVisitor( std::set<std::string>& regexes_ )
-  : regexes(regexes_)
+  : m_regexes(regexes_)
 {
 }
 
@@ -704,7 +704,7 @@ Visit( const HanConfigAssessor* node, boost::shared_ptr<dqm_core::Region> ) cons
     return boost::shared_ptr<dqm_core::Parameter>();
   }
   if (node->GetIsRegex()) {
-    regexes.insert(node->GetName());
+    m_regexes.insert(node->GetName());
   }
   return boost::shared_ptr<dqm_core::Parameter>();
 }
@@ -799,8 +799,8 @@ Visit( const MiniConfigTreeNode* node ) const
     parMap.SetName("inputname"); parMap.SetValue( strFullHistName );
     dqpar.AddAnnotation(parMap);
        
-    HanConfigGroup* dqreg = root->GetNode( regID );
-    dqreg = (dqreg==0) ? root : dqreg;
+    HanConfigGroup* dqreg = m_root->GetNode( regID );
+    dqreg = (dqreg==0) ? m_root : dqreg;
     if( dqreg != 0 ) {
       dqreg->AddAssessor( dqpar );
     }
@@ -850,13 +850,13 @@ Visit( const MiniConfigTreeNode* node ) const
         std::cerr << "No \"reference\" defined for " << histNode->GetPathName() << "\n";
         continue;
       }
-      std::string refFile( refConfig.GetStringAttribute(refID,"file") );
+      std::string refFile( m_refConfig.GetStringAttribute(refID,"file") );
       if( refFile == "" ) {
         std::cerr << "No \"file\" defined for " << histNode->GetPathName() << "\n";
         continue;
       }
       
-      std::string refPath( refConfig.GetStringAttribute(refID,"path") );
+      std::string refPath( m_refConfig.GetStringAttribute(refID,"path") );
       
       std::string objPath("");
       std::string absObjPath("");
@@ -876,7 +876,7 @@ Visit( const MiniConfigTreeNode* node ) const
         refPathForSearch += "/dummyName";
         basedir = ChangeInputDir( infile.get(), refPathForSearch );
         if( basedir == 0 ) {
-          std::cerr << "Cannot find  \"" << refPath << "\" in file\n";
+          std::cerr << "Cannot find \"" << refPath << "\" in file\n";
           continue;
         }
       }
@@ -956,8 +956,8 @@ Visit( const MiniConfigTreeNode* node ) const
 	parMap.SetName("inputname"); parMap.SetValue( objName );
 	dqpar.AddAnnotation(parMap);
 
-        HanConfigGroup* dqreg = root->GetNode( regID );
-        dqreg = (dqreg==0) ? root : dqreg;
+        HanConfigGroup* dqreg = m_root->GetNode( regID );
+        dqreg = (dqreg==0) ? m_root : dqreg;
         if( dqreg != 0 ) {
           dqreg->AddAssessor( dqpar );
         }
@@ -972,8 +972,8 @@ Visit( const MiniConfigTreeNode* node ) const
 
 HanConfig::ConfigVisitor::
 ConfigVisitor( TFile* file_, dqm_core::Output* output_ )
-  : file(file_),
-    output(output_)
+  : m_file(file_),
+    m_output(output_)
 {
 }
 
@@ -998,24 +998,24 @@ Visit( const HanConfigAssessor* node, boost::shared_ptr<dqm_core::Region> dqPare
     dqm_core::RegionConfig regc( algName, node->GetWeight() );
     std::string regName( gnode->GetPathName() );
     boost::shared_ptr<dqm_core::Region> reg(dqParent->addRegion( regName, regc ));
-    output->addListener(regName, dqParent.get());
+    m_output->addListener(regName, dqParent.get());
     return reg;
   }
   
   std::string inputData( node->GetHistPath() );
-  HanAlgorithmConfig* algConfig = new HanAlgorithmConfig( *node, file );
+  HanAlgorithmConfig* algConfig = new HanAlgorithmConfig( *node, m_file );
   dqm_core::ParameterConfig parc( inputData, algName, node->GetWeight(), 
 				  std::shared_ptr<HanAlgorithmConfig>(algConfig), node->GetIsRegex() );
   boost::shared_ptr<dqm_core::Node> par(dqParent->addParameter( node->GetName(), parc ));
-  output->addListener(node->GetName(), dqParent.get());
+  m_output->addListener(node->GetName(), dqParent.get());
   return par;
 }
 
 
 HanConfig::CompAlgVisitor::
 CompAlgVisitor(TFile* outfile_, const MiniConfig& compAlgConfig_)
-  : outfile(outfile_)
-    , compAlgConfig(compAlgConfig_)
+  : m_outfile(outfile_)
+    , m_compAlgConfig(compAlgConfig_)
 {
 }
 
@@ -1024,7 +1024,7 @@ void
 HanConfig::CompAlgVisitor::
 Visit( const MiniConfigTreeNode* node ) const
 {
-  outfile->cd();
+  m_outfile->cd();
   std::map<std::string,MiniConfigTreeNode*> daughters = node->GetDaughters();
   std::map<std::string,MiniConfigTreeNode*>::const_iterator nodeiterEnd = daughters.end();  
   for( std::map<std::string,MiniConfigTreeNode*>::const_iterator iter = daughters.begin(); iter != nodeiterEnd; ++iter ) {
@@ -1033,13 +1033,13 @@ Visit( const MiniConfigTreeNode* node ) const
     
     HanConfigCompAlg* compAlg = new HanConfigCompAlg();
     std::set<std::string> compAlgAtt;
-    compAlgConfig.GetAttributeNames(compAlgID, compAlgAtt);
+    m_compAlgConfig.GetAttributeNames(compAlgID, compAlgAtt);
     std::set<std::string>::const_iterator compAlgAttEnd = compAlgAtt.end();
     //std::cout << "Configuring composite algorithm: " << compAlgID << std::endl;
     compAlg->SetName(compAlgID);
     for( std::set<std::string>::const_iterator i = compAlgAtt.begin(); i != compAlgAttEnd; ++i ) {
       if( *i == "subalgs" ) {
-        std::string subAlgs( compAlgConfig.GetStringAttribute(compAlgID,"subalgs") );
+        std::string subAlgs( m_compAlgConfig.GetStringAttribute(compAlgID,"subalgs") );
         std::string::size_type pos = subAlgs.find(',');
         for(int size=subAlgs.size(), sizeOld=-8;
     	    size != sizeOld; 
@@ -1049,7 +1049,7 @@ Visit( const MiniConfigTreeNode* node ) const
           }
       }
       else if( *i == "libnames" ) {
-        std::string libs( compAlgConfig.GetStringAttribute(compAlgID,"libnames") );
+        std::string libs( m_compAlgConfig.GetStringAttribute(compAlgID,"libnames") );
         std::string::size_type pos = libs.find(',');
         for(int size=libs.size(), sizeOld=-8;
     	    size != sizeOld; 
@@ -1065,8 +1065,8 @@ Visit( const MiniConfigTreeNode* node ) const
   
 HanConfig::MetadataVisitor::
 MetadataVisitor(TFile* outfile_, const MiniConfig& metadataConfig_)
-  : outfile(outfile_)
-    , metadataConfig(metadataConfig_)
+  : m_outfile(outfile_)
+    , m_metadataConfig(metadataConfig_)
 {
 }
 
@@ -1076,16 +1076,16 @@ HanConfig::MetadataVisitor::
 Visit( const MiniConfigTreeNode* node ) const
 {
   // maybe already existing?
-  if (outfile->Get("HanMetadata")) {
-    outfile->cd("HanMetadata");
+  if (m_outfile->Get("HanMetadata")) {
+    m_outfile->cd("HanMetadata");
   } else {
     // try to make it
-    TDirectory* mdir = outfile->mkdir("HanMetadata");
+    TDirectory* mdir = m_outfile->mkdir("HanMetadata");
     if (mdir) {
       mdir->cd();
     } else {
       // all fail
-      outfile->cd();
+      m_outfile->cd();
     }
   }
     
@@ -1095,12 +1095,12 @@ Visit( const MiniConfigTreeNode* node ) const
     std::string metadataID = iter->second->GetName();
 
     std::set<std::string> metadataAtt;
-    metadataConfig.GetAttributeNames(metadataID, metadataAtt);
+    m_metadataConfig.GetAttributeNames(metadataID, metadataAtt);
     HanConfigMetadata* metadata = new HanConfigMetadata();
     metadata->SetName(metadataID);
     for (std::set<std::string>::const_iterator i = metadataAtt.begin(); i != metadataAtt.end(); ++i ) {
       HanConfigParMap parMap;
-      parMap.SetName(*i); parMap.SetValue(metadataConfig.GetStringAttribute(metadataID, *i));
+      parMap.SetName(*i); parMap.SetValue(m_metadataConfig.GetStringAttribute(metadataID, *i));
       metadata->AddKeyVal(parMap);
     }
     metadata->Write();
@@ -1113,29 +1113,29 @@ bool
 HanConfig::
 Initialize( std::string configName )
 {
-  if( config == 0 || top_level == 0 ) {
+  if( m_config == 0 || m_top_level == 0 ) {
     
-    delete config;
-    delete top_level;
-    if (metadata) {
-      metadata->Delete();
+    delete m_config;
+    delete m_top_level;
+    if (m_metadata) {
+      m_metadata->Delete();
     }
-    delete metadata; metadata=newTList("HanMetadata");
+    delete m_metadata; m_metadata=newTList("HanMetadata");
 
-    config = TFile::Open( configName.c_str(), "READ" );
-    if( config == 0 ) {
+    m_config = TFile::Open( configName.c_str(), "READ" );
+    if( m_config == 0 ) {
       std::cerr << "HanConfig::Initialize() cannot open file \"" << configName << "\"\n";
       return false;
     }
 
-    TMap* refsourcedata = dynamic_cast<TMap*>(config->Get("refsourcedata"));
+    TMap* refsourcedata = dynamic_cast<TMap*>(m_config->Get("refsourcedata"));
     if (refsourcedata) {
       ConditionsSingleton::getInstance().setRefSourceMapping(refsourcedata);
     } else {
       std::cerr << "Can't retrieve reference source info" << std::endl;
     }
     
-    TIter nextKey( config->GetListOfKeys() );
+    TIter nextKey( m_config->GetListOfKeys() );
     TKey* compAlgKey(0);
     while( (compAlgKey = dynamic_cast<TKey*>( nextKey() )) != 0 ) {
       TObject* obj = compAlgKey->ReadObj();
@@ -1149,8 +1149,8 @@ Initialize( std::string configName )
     
     TKey* key(0);
 
-    metadata = newTList("HanMetadata");
-    key = config->FindKey("HanMetadata");
+    m_metadata = newTList("HanMetadata");
+    key = m_config->FindKey("HanMetadata");
     if ( key ) {
       TDirectory* mdDir = dynamic_cast<TDirectory*>(key->ReadObj());
       if (mdDir) {
@@ -1159,21 +1159,21 @@ Initialize( std::string configName )
 	while ((mdKey = dynamic_cast<TKey*>(mdIter()))) {
 	  HanConfigMetadata* md = dynamic_cast<HanConfigMetadata*>(mdKey->ReadObj());
 	  if (md) {
-	    metadata->Add(md);
+	    m_metadata->Add(md);
 	  }
 	}
       }
       delete mdDir;
     }
 
-    key = config->FindKey("top_level");
+    key = m_config->FindKey("top_level");
     if( key == 0 ) {
       std::cerr << "HanConfig::Initialize() cannot find configuration in file \"" << configName << "\"\n";
       return false;
     }
 
-    top_level = dynamic_cast<HanConfigGroup*>( key->ReadObj() );
-    if( top_level == 0 ) {
+    m_top_level = dynamic_cast<HanConfigGroup*>( key->ReadObj() );
+    if( m_top_level == 0 ) {
       std::cerr << "HanConfig::Initialize() cannot find configuration in file \"" << configName << "\"\n";
       return false;
     }
@@ -1240,7 +1240,7 @@ ChangeOutputDir( TFile* file, std::string path, DirMap_t& directories )
       std::string dirName;
       std::string::size_type k = subPath.find_last_of('/');
       dirName = (k != std::string::npos) ? std::string( subPath, k+1, std::string::npos ) : subPath;
-      TDirectory* dir = parDir->mkdir( dirName.c_str() );;
+      TDirectory* dir = parDir->mkdir( dirName.c_str() );
       DirMap_t::value_type dirVal( subPath, dir );
       directories.insert( dirVal );
       return dir;
