@@ -244,7 +244,7 @@ class JetSequencesBuilder(object):
         return seq_order
 
 
-    def make_fs(self):
+    def make_fs(self, arg):
         """ OBSOLETE - now use the common full scan sequence set up in TM
         make full scan Alglist"""
 
