@@ -4209,7 +4209,13 @@
     <TriggerCounter name="1AFP_FSA_SIT" type="CTPIN">
       <TriggerCondition name="1AFP_FSA_SIT" triggerthreshold="AFP_FSA_SIT" multi="1"/>
     </TriggerCounter>
+    <TriggerCounter name="1AFP_FSA_SIT" type="CTPMON">
+      <TriggerCondition name="1AFP_FSA_SIT" triggerthreshold="AFP_FSA_SIT" multi="1"/>
+    </TriggerCounter>
     <TriggerCounter name="1AFP_FSA_TOF" type="CTPIN">
+      <TriggerCondition name="1AFP_FSA_TOF" triggerthreshold="AFP_FSA_TOF" multi="1"/>
+    </TriggerCounter>
+    <TriggerCounter name="1AFP_FSA_TOF" type="CTPMON">
       <TriggerCondition name="1AFP_FSA_TOF" triggerthreshold="AFP_FSA_TOF" multi="1"/>
     </TriggerCounter>
     <TriggerCounter name="1AFP_FSC_LOG" type="CTPIN">
@@ -4218,13 +4224,25 @@
     <TriggerCounter name="1AFP_FSC_SIT" type="CTPIN">
       <TriggerCondition name="1AFP_FSC_SIT" triggerthreshold="AFP_FSC_SIT" multi="1"/>
     </TriggerCounter>
+    <TriggerCounter name="1AFP_FSC_SIT" type="CTPMON">
+      <TriggerCondition name="1AFP_FSC_SIT" triggerthreshold="AFP_FSC_SIT" multi="1"/>
+    </TriggerCounter>
     <TriggerCounter name="1AFP_FSC_TOF" type="CTPIN">
+      <TriggerCondition name="1AFP_FSC_TOF" triggerthreshold="AFP_FSC_TOF" multi="1"/>
+    </TriggerCounter>
+    <TriggerCounter name="1AFP_FSC_TOF" type="CTPMON">
       <TriggerCondition name="1AFP_FSC_TOF" triggerthreshold="AFP_FSC_TOF" multi="1"/>
     </TriggerCounter>
     <TriggerCounter name="1AFP_NSA" type="CTPIN">
       <TriggerCondition name="1AFP_NSA" triggerthreshold="AFP_NSA" multi="1"/>
     </TriggerCounter>
+    <TriggerCounter name="1AFP_NSA" type="CTPMON">
+      <TriggerCondition name="1AFP_NSA" triggerthreshold="AFP_NSA" multi="1"/>
+    </TriggerCounter>
     <TriggerCounter name="1AFP_NSC" type="CTPIN">
+      <TriggerCondition name="1AFP_NSC" triggerthreshold="AFP_NSC" multi="1"/>
+    </TriggerCounter>
+    <TriggerCounter name="1AFP_NSC" type="CTPMON">
       <TriggerCondition name="1AFP_NSC" triggerthreshold="AFP_NSC" multi="1"/>
     </TriggerCounter>
     <TriggerCounter name="1BCM_AtoC" type="CTPIN">
@@ -4260,7 +4278,13 @@
     <TriggerCounter name="1BPTX0" type="CTPIN">
       <TriggerCondition name="1BPTX0" triggerthreshold="BPTX0" multi="1"/>
     </TriggerCounter>
+    <TriggerCounter name="1BPTX0" type="CTPMON">
+      <TriggerCondition name="1BPTX0" triggerthreshold="BPTX0" multi="1"/>
+    </TriggerCounter>
     <TriggerCounter name="1BPTX1" type="CTPIN">
+      <TriggerCondition name="1BPTX1" triggerthreshold="BPTX1" multi="1"/>
+    </TriggerCounter>
+    <TriggerCounter name="1BPTX1" type="CTPMON">
       <TriggerCondition name="1BPTX1" triggerthreshold="BPTX1" multi="1"/>
     </TriggerCounter>
     <TriggerCounter name="1CAL0" type="CTPIN">
@@ -4296,22 +4320,43 @@
     <TriggerCounter name="1EM12" type="CTPIN">
       <TriggerCondition name="1EM12" triggerthreshold="EM12" multi="1"/>
     </TriggerCounter>
+    <TriggerCounter name="1EM12" type="CTPMON">
+      <TriggerCondition name="1EM12" triggerthreshold="EM12" multi="1"/>
+    </TriggerCounter>
     <TriggerCounter name="2EM12" type="CTPIN">
+      <TriggerCondition name="2EM12" triggerthreshold="EM12" multi="2"/>
+    </TriggerCounter>
+    <TriggerCounter name="2EM12" type="CTPMON">
       <TriggerCondition name="2EM12" triggerthreshold="EM12" multi="2"/>
     </TriggerCounter>
     <TriggerCounter name="3EM12" type="CTPIN">
       <TriggerCondition name="3EM12" triggerthreshold="EM12" multi="3"/>
     </TriggerCounter>
+    <TriggerCounter name="3EM12" type="CTPMON">
+      <TriggerCondition name="3EM12" triggerthreshold="EM12" multi="3"/>
+    </TriggerCounter>
     <TriggerCounter name="4EM12" type="CTPIN">
+      <TriggerCondition name="4EM12" triggerthreshold="EM12" multi="4"/>
+    </TriggerCounter>
+    <TriggerCounter name="4EM12" type="CTPMON">
       <TriggerCondition name="4EM12" triggerthreshold="EM12" multi="4"/>
     </TriggerCounter>
     <TriggerCounter name="5EM12" type="CTPIN">
       <TriggerCondition name="5EM12" triggerthreshold="EM12" multi="5"/>
     </TriggerCounter>
+    <TriggerCounter name="5EM12" type="CTPMON">
+      <TriggerCondition name="5EM12" triggerthreshold="EM12" multi="5"/>
+    </TriggerCounter>
     <TriggerCounter name="6EM12" type="CTPIN">
       <TriggerCondition name="6EM12" triggerthreshold="EM12" multi="6"/>
     </TriggerCounter>
+    <TriggerCounter name="6EM12" type="CTPMON">
+      <TriggerCondition name="6EM12" triggerthreshold="EM12" multi="6"/>
+    </TriggerCounter>
     <TriggerCounter name="7EM12" type="CTPIN">
+      <TriggerCondition name="7EM12" triggerthreshold="EM12" multi="7"/>
+    </TriggerCounter>
+    <TriggerCounter name="7EM12" type="CTPMON">
       <TriggerCondition name="7EM12" triggerthreshold="EM12" multi="7"/>
     </TriggerCounter>
     <TriggerCounter name="1EM15" type="CTPIN">
@@ -4525,9 +4570,6 @@
       <TriggerCondition name="7EM24VHIM" triggerthreshold="EM24VHIM" multi="7"/>
     </TriggerCounter>
     <TriggerCounter name="1EM3" type="CTPIN">
-      <TriggerCondition name="1EM3" triggerthreshold="EM3" multi="1"/>
-    </TriggerCounter>
-    <TriggerCounter name="1EM3" type="CTPMON">
       <TriggerCondition name="1EM3" triggerthreshold="EM3" multi="1"/>
     </TriggerCounter>
     <TriggerCounter name="2EM3" type="CTPIN">
@@ -5040,22 +5082,43 @@
     <TriggerCounter name="1J20" type="CTPIN">
       <TriggerCondition name="1J20" triggerthreshold="J20" multi="1"/>
     </TriggerCounter>
+    <TriggerCounter name="1J20" type="CTPMON">
+      <TriggerCondition name="1J20" triggerthreshold="J20" multi="1"/>
+    </TriggerCounter>
     <TriggerCounter name="2J20" type="CTPIN">
+      <TriggerCondition name="2J20" triggerthreshold="J20" multi="2"/>
+    </TriggerCounter>
+    <TriggerCounter name="2J20" type="CTPMON">
       <TriggerCondition name="2J20" triggerthreshold="J20" multi="2"/>
     </TriggerCounter>
     <TriggerCounter name="3J20" type="CTPIN">
       <TriggerCondition name="3J20" triggerthreshold="J20" multi="3"/>
     </TriggerCounter>
+    <TriggerCounter name="3J20" type="CTPMON">
+      <TriggerCondition name="3J20" triggerthreshold="J20" multi="3"/>
+    </TriggerCounter>
     <TriggerCounter name="4J20" type="CTPIN">
+      <TriggerCondition name="4J20" triggerthreshold="J20" multi="4"/>
+    </TriggerCounter>
+    <TriggerCounter name="4J20" type="CTPMON">
       <TriggerCondition name="4J20" triggerthreshold="J20" multi="4"/>
     </TriggerCounter>
     <TriggerCounter name="5J20" type="CTPIN">
       <TriggerCondition name="5J20" triggerthreshold="J20" multi="5"/>
     </TriggerCounter>
+    <TriggerCounter name="5J20" type="CTPMON">
+      <TriggerCondition name="5J20" triggerthreshold="J20" multi="5"/>
+    </TriggerCounter>
     <TriggerCounter name="6J20" type="CTPIN">
       <TriggerCondition name="6J20" triggerthreshold="J20" multi="6"/>
     </TriggerCounter>
+    <TriggerCounter name="6J20" type="CTPMON">
+      <TriggerCondition name="6J20" triggerthreshold="J20" multi="6"/>
+    </TriggerCounter>
     <TriggerCounter name="7J20" type="CTPIN">
+      <TriggerCondition name="7J20" triggerthreshold="J20" multi="7"/>
+    </TriggerCounter>
+    <TriggerCounter name="7J20" type="CTPMON">
       <TriggerCondition name="7J20" triggerthreshold="J20" multi="7"/>
     </TriggerCounter>
     <TriggerCounter name="1J20.28ETA31" type="CTPIN">
@@ -5253,7 +5316,13 @@
     <TriggerCounter name="1LUCID_A" type="CTPIN">
       <TriggerCondition name="1LUCID_A" triggerthreshold="LUCID_A" multi="1"/>
     </TriggerCounter>
+    <TriggerCounter name="1LUCID_A" type="CTPMON">
+      <TriggerCondition name="1LUCID_A" triggerthreshold="LUCID_A" multi="1"/>
+    </TriggerCounter>
     <TriggerCounter name="1LUCID_C" type="CTPIN">
+      <TriggerCondition name="1LUCID_C" triggerthreshold="LUCID_C" multi="1"/>
+    </TriggerCounter>
+    <TriggerCounter name="1LUCID_C" type="CTPMON">
       <TriggerCondition name="1LUCID_C" triggerthreshold="LUCID_C" multi="1"/>
     </TriggerCounter>
     <TriggerCounter name="1MBTS_A" type="CTPIN">
@@ -5283,37 +5352,73 @@
     <TriggerCounter name="1MBTS_A0" type="CTPIN">
       <TriggerCondition name="1MBTS_A0" triggerthreshold="MBTS_A0" multi="1"/>
     </TriggerCounter>
+    <TriggerCounter name="1MBTS_A0" type="CTPMON">
+      <TriggerCondition name="1MBTS_A0" triggerthreshold="MBTS_A0" multi="1"/>
+    </TriggerCounter>
     <TriggerCounter name="1MBTS_A1" type="CTPIN">
+      <TriggerCondition name="1MBTS_A1" triggerthreshold="MBTS_A1" multi="1"/>
+    </TriggerCounter>
+    <TriggerCounter name="1MBTS_A1" type="CTPMON">
       <TriggerCondition name="1MBTS_A1" triggerthreshold="MBTS_A1" multi="1"/>
     </TriggerCounter>
     <TriggerCounter name="1MBTS_A10" type="CTPIN">
       <TriggerCondition name="1MBTS_A10" triggerthreshold="MBTS_A10" multi="1"/>
     </TriggerCounter>
+    <TriggerCounter name="1MBTS_A10" type="CTPMON">
+      <TriggerCondition name="1MBTS_A10" triggerthreshold="MBTS_A10" multi="1"/>
+    </TriggerCounter>
     <TriggerCounter name="1MBTS_A12" type="CTPIN">
+      <TriggerCondition name="1MBTS_A12" triggerthreshold="MBTS_A12" multi="1"/>
+    </TriggerCounter>
+    <TriggerCounter name="1MBTS_A12" type="CTPMON">
       <TriggerCondition name="1MBTS_A12" triggerthreshold="MBTS_A12" multi="1"/>
     </TriggerCounter>
     <TriggerCounter name="1MBTS_A14" type="CTPIN">
       <TriggerCondition name="1MBTS_A14" triggerthreshold="MBTS_A14" multi="1"/>
     </TriggerCounter>
+    <TriggerCounter name="1MBTS_A14" type="CTPMON">
+      <TriggerCondition name="1MBTS_A14" triggerthreshold="MBTS_A14" multi="1"/>
+    </TriggerCounter>
     <TriggerCounter name="1MBTS_A2" type="CTPIN">
+      <TriggerCondition name="1MBTS_A2" triggerthreshold="MBTS_A2" multi="1"/>
+    </TriggerCounter>
+    <TriggerCounter name="1MBTS_A2" type="CTPMON">
       <TriggerCondition name="1MBTS_A2" triggerthreshold="MBTS_A2" multi="1"/>
     </TriggerCounter>
     <TriggerCounter name="1MBTS_A3" type="CTPIN">
       <TriggerCondition name="1MBTS_A3" triggerthreshold="MBTS_A3" multi="1"/>
     </TriggerCounter>
+    <TriggerCounter name="1MBTS_A3" type="CTPMON">
+      <TriggerCondition name="1MBTS_A3" triggerthreshold="MBTS_A3" multi="1"/>
+    </TriggerCounter>
     <TriggerCounter name="1MBTS_A4" type="CTPIN">
+      <TriggerCondition name="1MBTS_A4" triggerthreshold="MBTS_A4" multi="1"/>
+    </TriggerCounter>
+    <TriggerCounter name="1MBTS_A4" type="CTPMON">
       <TriggerCondition name="1MBTS_A4" triggerthreshold="MBTS_A4" multi="1"/>
     </TriggerCounter>
     <TriggerCounter name="1MBTS_A5" type="CTPIN">
       <TriggerCondition name="1MBTS_A5" triggerthreshold="MBTS_A5" multi="1"/>
     </TriggerCounter>
+    <TriggerCounter name="1MBTS_A5" type="CTPMON">
+      <TriggerCondition name="1MBTS_A5" triggerthreshold="MBTS_A5" multi="1"/>
+    </TriggerCounter>
     <TriggerCounter name="1MBTS_A6" type="CTPIN">
+      <TriggerCondition name="1MBTS_A6" triggerthreshold="MBTS_A6" multi="1"/>
+    </TriggerCounter>
+    <TriggerCounter name="1MBTS_A6" type="CTPMON">
       <TriggerCondition name="1MBTS_A6" triggerthreshold="MBTS_A6" multi="1"/>
     </TriggerCounter>
     <TriggerCounter name="1MBTS_A7" type="CTPIN">
       <TriggerCondition name="1MBTS_A7" triggerthreshold="MBTS_A7" multi="1"/>
     </TriggerCounter>
+    <TriggerCounter name="1MBTS_A7" type="CTPMON">
+      <TriggerCondition name="1MBTS_A7" triggerthreshold="MBTS_A7" multi="1"/>
+    </TriggerCounter>
     <TriggerCounter name="1MBTS_A8" type="CTPIN">
+      <TriggerCondition name="1MBTS_A8" triggerthreshold="MBTS_A8" multi="1"/>
+    </TriggerCounter>
+    <TriggerCounter name="1MBTS_A8" type="CTPMON">
       <TriggerCondition name="1MBTS_A8" triggerthreshold="MBTS_A8" multi="1"/>
     </TriggerCounter>
     <TriggerCounter name="1MBTS_C" type="CTPIN">
@@ -5343,37 +5448,73 @@
     <TriggerCounter name="1MBTS_C0" type="CTPIN">
       <TriggerCondition name="1MBTS_C0" triggerthreshold="MBTS_C0" multi="1"/>
     </TriggerCounter>
+    <TriggerCounter name="1MBTS_C0" type="CTPMON">
+      <TriggerCondition name="1MBTS_C0" triggerthreshold="MBTS_C0" multi="1"/>
+    </TriggerCounter>
     <TriggerCounter name="1MBTS_C1" type="CTPIN">
+      <TriggerCondition name="1MBTS_C1" triggerthreshold="MBTS_C1" multi="1"/>
+    </TriggerCounter>
+    <TriggerCounter name="1MBTS_C1" type="CTPMON">
       <TriggerCondition name="1MBTS_C1" triggerthreshold="MBTS_C1" multi="1"/>
     </TriggerCounter>
     <TriggerCounter name="1MBTS_C10" type="CTPIN">
       <TriggerCondition name="1MBTS_C10" triggerthreshold="MBTS_C10" multi="1"/>
     </TriggerCounter>
+    <TriggerCounter name="1MBTS_C10" type="CTPMON">
+      <TriggerCondition name="1MBTS_C10" triggerthreshold="MBTS_C10" multi="1"/>
+    </TriggerCounter>
     <TriggerCounter name="1MBTS_C12" type="CTPIN">
+      <TriggerCondition name="1MBTS_C12" triggerthreshold="MBTS_C12" multi="1"/>
+    </TriggerCounter>
+    <TriggerCounter name="1MBTS_C12" type="CTPMON">
       <TriggerCondition name="1MBTS_C12" triggerthreshold="MBTS_C12" multi="1"/>
     </TriggerCounter>
     <TriggerCounter name="1MBTS_C14" type="CTPIN">
       <TriggerCondition name="1MBTS_C14" triggerthreshold="MBTS_C14" multi="1"/>
     </TriggerCounter>
+    <TriggerCounter name="1MBTS_C14" type="CTPMON">
+      <TriggerCondition name="1MBTS_C14" triggerthreshold="MBTS_C14" multi="1"/>
+    </TriggerCounter>
     <TriggerCounter name="1MBTS_C2" type="CTPIN">
+      <TriggerCondition name="1MBTS_C2" triggerthreshold="MBTS_C2" multi="1"/>
+    </TriggerCounter>
+    <TriggerCounter name="1MBTS_C2" type="CTPMON">
       <TriggerCondition name="1MBTS_C2" triggerthreshold="MBTS_C2" multi="1"/>
     </TriggerCounter>
     <TriggerCounter name="1MBTS_C3" type="CTPIN">
       <TriggerCondition name="1MBTS_C3" triggerthreshold="MBTS_C3" multi="1"/>
     </TriggerCounter>
+    <TriggerCounter name="1MBTS_C3" type="CTPMON">
+      <TriggerCondition name="1MBTS_C3" triggerthreshold="MBTS_C3" multi="1"/>
+    </TriggerCounter>
     <TriggerCounter name="1MBTS_C4" type="CTPIN">
+      <TriggerCondition name="1MBTS_C4" triggerthreshold="MBTS_C4" multi="1"/>
+    </TriggerCounter>
+    <TriggerCounter name="1MBTS_C4" type="CTPMON">
       <TriggerCondition name="1MBTS_C4" triggerthreshold="MBTS_C4" multi="1"/>
     </TriggerCounter>
     <TriggerCounter name="1MBTS_C5" type="CTPIN">
       <TriggerCondition name="1MBTS_C5" triggerthreshold="MBTS_C5" multi="1"/>
     </TriggerCounter>
+    <TriggerCounter name="1MBTS_C5" type="CTPMON">
+      <TriggerCondition name="1MBTS_C5" triggerthreshold="MBTS_C5" multi="1"/>
+    </TriggerCounter>
     <TriggerCounter name="1MBTS_C6" type="CTPIN">
+      <TriggerCondition name="1MBTS_C6" triggerthreshold="MBTS_C6" multi="1"/>
+    </TriggerCounter>
+    <TriggerCounter name="1MBTS_C6" type="CTPMON">
       <TriggerCondition name="1MBTS_C6" triggerthreshold="MBTS_C6" multi="1"/>
     </TriggerCounter>
     <TriggerCounter name="1MBTS_C7" type="CTPIN">
       <TriggerCondition name="1MBTS_C7" triggerthreshold="MBTS_C7" multi="1"/>
     </TriggerCounter>
+    <TriggerCounter name="1MBTS_C7" type="CTPMON">
+      <TriggerCondition name="1MBTS_C7" triggerthreshold="MBTS_C7" multi="1"/>
+    </TriggerCounter>
     <TriggerCounter name="1MBTS_C8" type="CTPIN">
+      <TriggerCondition name="1MBTS_C8" triggerthreshold="MBTS_C8" multi="1"/>
+    </TriggerCounter>
+    <TriggerCounter name="1MBTS_C8" type="CTPMON">
       <TriggerCondition name="1MBTS_C8" triggerthreshold="MBTS_C8" multi="1"/>
     </TriggerCounter>
     <TriggerCounter name="1MU10" type="CTPIN">
@@ -5463,22 +5604,43 @@
     <TriggerCounter name="1MU4" type="CTPIN">
       <TriggerCondition name="1MU4" triggerthreshold="MU4" multi="1"/>
     </TriggerCounter>
+    <TriggerCounter name="1MU4" type="CTPMON">
+      <TriggerCondition name="1MU4" triggerthreshold="MU4" multi="1"/>
+    </TriggerCounter>
     <TriggerCounter name="2MU4" type="CTPIN">
+      <TriggerCondition name="2MU4" triggerthreshold="MU4" multi="2"/>
+    </TriggerCounter>
+    <TriggerCounter name="2MU4" type="CTPMON">
       <TriggerCondition name="2MU4" triggerthreshold="MU4" multi="2"/>
     </TriggerCounter>
     <TriggerCounter name="3MU4" type="CTPIN">
       <TriggerCondition name="3MU4" triggerthreshold="MU4" multi="3"/>
     </TriggerCounter>
+    <TriggerCounter name="3MU4" type="CTPMON">
+      <TriggerCondition name="3MU4" triggerthreshold="MU4" multi="3"/>
+    </TriggerCounter>
     <TriggerCounter name="4MU4" type="CTPIN">
+      <TriggerCondition name="4MU4" triggerthreshold="MU4" multi="4"/>
+    </TriggerCounter>
+    <TriggerCounter name="4MU4" type="CTPMON">
       <TriggerCondition name="4MU4" triggerthreshold="MU4" multi="4"/>
     </TriggerCounter>
     <TriggerCounter name="5MU4" type="CTPIN">
       <TriggerCondition name="5MU4" triggerthreshold="MU4" multi="5"/>
     </TriggerCounter>
+    <TriggerCounter name="5MU4" type="CTPMON">
+      <TriggerCondition name="5MU4" triggerthreshold="MU4" multi="5"/>
+    </TriggerCounter>
     <TriggerCounter name="6MU4" type="CTPIN">
       <TriggerCondition name="6MU4" triggerthreshold="MU4" multi="6"/>
     </TriggerCounter>
+    <TriggerCounter name="6MU4" type="CTPMON">
+      <TriggerCondition name="6MU4" triggerthreshold="MU4" multi="6"/>
+    </TriggerCounter>
     <TriggerCounter name="7MU4" type="CTPIN">
+      <TriggerCondition name="7MU4" triggerthreshold="MU4" multi="7"/>
+    </TriggerCounter>
+    <TriggerCounter name="7MU4" type="CTPMON">
       <TriggerCondition name="7MU4" triggerthreshold="MU4" multi="7"/>
     </TriggerCounter>
     <TriggerCounter name="1MU6" type="CTPIN">
@@ -5562,6 +5724,9 @@
     <TriggerCounter name="1TE50" type="CTPIN">
       <TriggerCondition name="1TE50" triggerthreshold="TE50" multi="1"/>
     </TriggerCounter>
+    <TriggerCounter name="1TE50" type="CTPMON">
+      <TriggerCondition name="1TE50" triggerthreshold="TE50" multi="1"/>
+    </TriggerCounter>
     <TriggerCounter name="1TE70.0ETA24" type="CTPIN">
       <TriggerCondition name="1TE70.0ETA24" triggerthreshold="TE70.0ETA24" multi="1"/>
     </TriggerCounter>
@@ -5586,6 +5751,9 @@
     <TriggerCounter name="1XE35" type="CTPIN">
       <TriggerCondition name="1XE35" triggerthreshold="XE35" multi="1"/>
     </TriggerCounter>
+    <TriggerCounter name="1XE35" type="CTPMON">
+      <TriggerCondition name="1XE35" triggerthreshold="XE35" multi="1"/>
+    </TriggerCounter>
     <TriggerCounter name="1XE40" type="CTPIN">
       <TriggerCondition name="1XE40" triggerthreshold="XE40" multi="1"/>
     </TriggerCounter>
@@ -5599,6 +5767,9 @@
       <TriggerCondition name="1XE55" triggerthreshold="XE55" multi="1"/>
     </TriggerCounter>
     <TriggerCounter name="1XE60" type="CTPIN">
+      <TriggerCondition name="1XE60" triggerthreshold="XE60" multi="1"/>
+    </TriggerCounter>
+    <TriggerCounter name="1XE60" type="CTPMON">
       <TriggerCondition name="1XE60" triggerthreshold="XE60" multi="1"/>
     </TriggerCounter>
     <TriggerCounter name="1XE65" type="CTPIN">
