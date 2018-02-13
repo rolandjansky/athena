@@ -175,6 +175,7 @@ StatusCode EFMissingETFromTrackAndJets::execute(xAOD::TrigMissingET *,
 
 
   //bool hasGoodVtx = false;
+  size_t pvind(0);
   const xAOD::Vertex* primaryVertex =  nullptr;
   for (const xAOD::Vertex* vertex : VertexVec) {
 
@@ -188,10 +189,28 @@ StatusCode EFMissingETFromTrackAndJets::execute(xAOD::TrigMissingET *,
     if ( vertex->vertexType() == xAOD::VxType::PriVtx ) {
       //hasGoodVtx = true;
       primaryVertex = vertex;
+      pvind = vertex->index();
       break;
     }
 
   }
+
+
+
+    //having FTK vertex, and find the associated tracks
+    std::vector<const xAOD::TrackParticle*> TrackVec_PV;
+    if(primaryVertex) {
+        const std::vector< ElementLink< xAOD::TrackParticleContainer> > tpLinks = primaryVertex->trackParticleLinks();
+        ATH_MSG_DEBUG ( "  tpLinks size: " << tpLinks.size());
+            for(const auto& tp_elem : tpLinks ) {
+                if (tp_elem != nullptr && tp_elem.isValid()) {
+                    const xAOD::TrackParticle* itrk = *tp_elem;
+                    TrackVec_PV.push_back(itrk);
+                }
+            }
+    } // having vertex
+
+
 
 
   std::vector<const xAOD::Jet*> goodJets;
@@ -203,11 +222,31 @@ StatusCode EFMissingETFromTrackAndJets::execute(xAOD::TrigMissingET *,
 
     unsigned int n_putracks = 0;
     for (const xAOD::TrackParticle* itrk : TrackVec) {
-      bool isfromPV =  ((!itrk->vertex() && fabs((itrk->z0()+itrk->vz()-primaryVertex->z())*sin(itrk->theta()))<3.) || itrk->vertex()==primaryVertex);
+        if (itrk == nullptr) continue;
+
+        bool isfromPV(false);
+        for( const xAOD::TrackParticle* itrkPV : TrackVec_PV ) {
+            float deltaR_ = itrk->p4().DeltaR(itrkPV->p4());
+            if(deltaR_ < 0.01) {
+                isfromPV=true;
+                break;
+            }
+        }
+
       if(!isfromPV && itrk->pt()<30e3 && m_trackselTool->accept(*itrk,primaryVertex)) n_putracks++;
     } // end for loop over tracks
     if (!n_putracks) n_putracks++;
 
+
+
+    //########################################
+    // calculation of R_{pt}^i for each for each jet
+    // R_{pt}^i == Sum{trk} pT_trk (PVi) / pT_j
+    // Dr_pt = { R_{pt}^i_max - R_{pt}^i_medium } / pT_j
+    //########################################
+
+    std::map<const xAOD::Jet*, std::pair<double, std::vector<double> > > JVTRpt_jets;
+    JVTRpt_jets.clear();
 
 
     goodJets.clear();
@@ -222,20 +261,162 @@ StatusCode EFMissingETFromTrackAndJets::execute(xAOD::TrigMissingET *,
         float deltaR_trackj = jet->p4().DeltaR(itrk->p4());
         if(deltaR_trackj>0.4) continue;
 
+        bool isfromPV(false);
+        for( const xAOD::TrackParticle* itrkPV : TrackVec_PV ) {
+            float deltaR_ = itrk->p4().DeltaR(itrkPV->p4());
+            if(deltaR_ < 0.01) {
+                isfromPV=true;
+                break;
+            }
+        }
+
         bool accept = (itrk->pt()>500 && m_trackselTool->accept(*itrk, primaryVertex));
         if (accept) ptsum_all += itrk->pt();
-        if (accept && ((!itrk->vertex() && fabs((itrk->z0()+itrk->vz()-primaryVertex->z())*sin(itrk->theta()))<3.) || itrk->vertex()==primaryVertex)) ptsum_pv += itrk->pt();
-        if (accept && !(!itrk->vertex() && fabs((itrk->z0()+itrk->vz()-primaryVertex->z())*sin(itrk->theta()))<3.)) ptsum_pileup += itrk->pt();
+        if (accept && isfromPV) ptsum_pv += itrk->pt();
+        if (accept && !isfromPV) ptsum_pileup += itrk->pt();
       }
       //double JVF = ptsum_all>0 ? ptsum_pv/ptsum_all : -1;
       double Rpt = ptsum_pv/jet->pt();
       double corrJVF = ptsum_pv+ptsum_pileup>0 ? ptsum_pv/(ptsum_pv+100*ptsum_pileup/n_putracks) : -1;
       double JVT = corrJVF>=0 ? m_jvtLikelihood->Interpolate(corrJVF,std::min(Rpt,1.0)) : -0.1;
 
-      if(jet->pt()<50e3 && jet->pt()>20e3 && fabs(jet->eta())<2.4 && JVT<m_central_jvtcut) continue;
-      goodJets.push_back(jet);
+
+      //############# forward jvt #################
+
+        std::vector<double> sumPtTrkPt500;
+        sumPtTrkPt500.clear();
+        for(const xAOD::Vertex* vx : VertexVec) {
+            if(vx->vertexType()!=xAOD::VxType::NoVtx) continue;
+            sumPtTrkPt500.push_back(0);
+        }
+
+        for( const xAOD::TrackParticle* itrk : TrackVec ) {
+            if(itrk->pt()<500) continue;
+            
+            //find track associated within jets
+            float deltaR_trackj = jet->p4().DeltaR(itrk->p4());
+            if(deltaR_trackj>0.4) continue;
+            
+            //looking the best matched tracks
+            bool found_matched_track(false);
+            int  found_matched_vertex(-1);
+            for(const xAOD::Vertex* vx : VertexVec) {
+                if(vx->vertexType()!= xAOD::VxType::NoVtx) continue;
+                const std::vector< ElementLink< xAOD::TrackParticleContainer> > tpLinks = vx->trackParticleLinks();
+                if(tpLinks.size() != 0) {
+                    for(const auto& tp_elem : tpLinks ) {
+                        if (tp_elem != nullptr && tp_elem.isValid()) {
+                            const xAOD::TrackParticle* ivtx_trk = *tp_elem;
+                            float deltaR_trk_trk = itrk->p4().DeltaR(ivtx_trk->p4());
+                            if(deltaR_trk_trk<0.01) {
+                                found_matched_track=true;
+                                break;
+                            }
+                        }
+                    }
+                }
+                if(found_matched_track) {
+                    found_matched_vertex = vx->index();
+                    break;
+                }
+            }
+            
+            //std::cout << "sumPtTrkPt500 size: " << sumPtTrkPt500.size() << std::endl;
+            if(found_matched_track) {
+                double tmp_val = sumPtTrkPt500[found_matched_vertex];
+                sumPtTrkPt500[found_matched_vertex] = tmp_val+itrk->pt();
+            }
+
+        }
+
+        std::vector<double> Rpt_ijet;
+        Rpt_ijet.clear();
+
+        for (size_t i = 0; i < sumPtTrkPt500.size(); i++) {
+            Rpt_ijet.push_back( sumPtTrkPt500[i]/jet->pt() );
+        }
+
+        JVTRpt_jets[jet] = std::make_pair (JVT, Rpt_ijet);
 
     }
+
+
+    // forward JVT calculation
+    std::vector<TVector2> pileupMomenta;
+    pileupMomenta.clear();
+    for(const xAOD::Vertex* vx : VertexVec) {
+        if(vx->vertexType()!= xAOD::VxType::NoVtx) continue;
+
+        float trk_x(0), trk_y(0);
+        const std::vector< ElementLink< xAOD::TrackParticleContainer> > tpLinks = vx->trackParticleLinks();
+        if(tpLinks.size() != 0) {
+            for(const auto& tp_elem : tpLinks ) {
+                if (tp_elem != nullptr && tp_elem.isValid()) {
+                    const xAOD::TrackParticle* itrk = *tp_elem;
+                    trk_x += itrk->pt()*cos(itrk->phi());
+                    trk_y += itrk->pt()*sin(itrk->phi());
+                }
+            }
+        }
+
+        float m_jetScaleFactor         = 0.4;
+        pileupMomenta.push_back((vx->index()==pvind?0:-(1./m_jetScaleFactor))*TVector2(0.5*trk_x,0.5*trk_y));
+    }
+    //std::cout << "pileupMomenta size " << pileupMomenta.size() << std::endl;
+
+
+    for (std::map<const xAOD::Jet*, std::pair<double, std::vector<double> > >::iterator 
+		it=JVTRpt_jets.begin(); it!=JVTRpt_jets.end(); ++it) {
+        const xAOD::Jet* jet = it->first;
+        double JVT_ijet = it->second.first;
+        std::vector<double> Rpt_ijet = it->second.second;
+        
+        if ( !centralJet(jet, JVT_ijet, Rpt_ijet) ) continue;
+        
+        double firstVal = 0;
+        int bestMatchVertex = -1;
+        for (size_t i = 0; i < Rpt_ijet.size(); i++) {
+            if (Rpt_ijet[i]>firstVal) {
+                bestMatchVertex = i;
+                firstVal = Rpt_ijet[i];
+            }
+        }
+        if (bestMatchVertex>=0) pileupMomenta[bestMatchVertex] += TVector2(-0.5*jet->pt()*cos(jet->phi()),-0.5*jet->pt()*sin(jet->phi()));
+    }
+
+
+
+    for (std::map<const xAOD::Jet*, std::pair<double, std::vector<double> > >::iterator it=JVTRpt_jets.begin(); it!=JVTRpt_jets.end(); ++it) {
+        const xAOD::Jet* jet = it->first;
+        double JVT_ijet = it->second.first;
+        std::vector<double> Rpt_ijet = it->second.second;
+
+
+        //forward JVT
+        double fJVT_ijet = 0;
+        if( forwardJet(jet) ) {
+            TVector2 fjet(jet->pt()*cos(jet->phi()),jet->pt()*sin(jet->phi()));
+            for (size_t pui = 0; pui < pileupMomenta.size(); pui++) {
+                if (pui==pvind) continue;
+                double projection = pileupMomenta[pui].Px() * jet->pt()*cos(jet->phi()) + pileupMomenta[pui].Py() * jet->pt()*sin(jet->phi());
+                projection /= fjet.Mod2();
+
+                if (projection>fJVT_ijet) fJVT_ijet = projection;
+            }
+        }
+
+
+      bool isCentralPUjets(false);
+      if(jet->pt()<50e3 && jet->pt()>20e3 && fabs(jet->eta())<2.4 && JVT_ijet<m_central_jvtcut) isCentralPUjets = true;
+
+      bool isForwardPUjets(false);
+      if(fJVT_ijet>0.2) isForwardPUjets = true;
+
+      //###########################################
+      if(!isCentralPUjets && !isForwardPUjets) goodJets.push_back(jet);
+    }
+
+
 
 
 
@@ -243,7 +424,15 @@ StatusCode EFMissingETFromTrackAndJets::execute(xAOD::TrigMissingET *,
     for (const xAOD::TrackParticle* track : TrackVec) {
 
       //checking the track coming from PV
-      bool isfromPV =  ((!track->vertex() && fabs((track->z0()+track->vz()-primaryVertex->z())*sin(track->theta()))<3.) || track->vertex()==primaryVertex);
+        bool isfromPV(false);
+        for( const xAOD::TrackParticle* itrkPV : TrackVec_PV ) {
+            float deltaR_ = track->p4().DeltaR(itrkPV->p4());
+            if(deltaR_ < 0.01) {
+                isfromPV=true;
+                break;
+            }
+        }
+
       if(!isfromPV) continue;
       if(fabs(track->eta())>2.4 || track->pt()/1000. < m_track_ptcut) continue;
       if(!m_trackselTool->accept(*track,primaryVertex)) continue;
@@ -369,3 +558,55 @@ TH1* EFMissingETFromTrackAndJets::getHistogramFromFile(TString hname, TString fn
 
   return hist;
 }
+
+
+
+
+
+
+bool EFMissingETFromTrackAndJets::forwardJet(const xAOD::Jet *jet) const
+{
+    const double etaThresh          = 2.4;
+    const double forwardMinPt       = 20e3;
+    const double forwardMaxPt       = 50e3;
+    if (fabs(jet->eta())<etaThresh) return false;
+    if (jet->pt()<forwardMinPt || jet->pt()>forwardMaxPt) return false;
+    return true;
+}
+
+
+bool EFMissingETFromTrackAndJets::centralJet(const xAOD::Jet *jet, float jvt, std::vector<double> sumpts) const
+{
+
+    const double etaThresh          = 2.4;
+    const double centerMinPt        = 20e3;
+    const double centerMaxPt        = -1;
+    const double centerJvtThresh    = 0.14;
+    const double maxStochPt         = 35e3;
+    const double centerDrptThresh   = 0.2;
+
+    if (fabs(jet->eta())>etaThresh) return false;
+    if (jet->pt()<centerMinPt || (centerMaxPt>0 && jet->pt()>centerMaxPt)) return false;
+    if (jvt>centerJvtThresh) return false;
+    if (jet->pt()<maxStochPt && getDrpt(jet,sumpts)<centerDrptThresh) return false;
+    return true;
+}
+
+
+float EFMissingETFromTrackAndJets::getDrpt(const xAOD::Jet *jet, std::vector<double> sumpts) const
+{
+    if (sumpts.size()<2) return 0;
+    std::vector<double> sumpts_;
+    for (size_t i=0; i<sumpts.size(); i++) {
+        if(sumpts[i]>0) sumpts_.push_back( sumpts[i] );
+    }
+
+    std::sort (sumpts_.begin(), sumpts_.end(), std::greater<float>());
+    if (sumpts_.size()<2) return 0;
+    double median = sumpts_[sumpts_.size()/2];
+    double max = sumpts_[0];
+    return (max-median)/jet->pt();
+}
+
+
+
