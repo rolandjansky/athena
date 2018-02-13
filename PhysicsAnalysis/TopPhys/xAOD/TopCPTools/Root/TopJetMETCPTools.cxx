@@ -1,4 +1,4 @@
-/*
+ /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
@@ -38,6 +38,8 @@ JetMETCPTools::JetMETCPTools(const std::string& name) :
 
     // Updated to December 2016 recommendations
     // config names are the same for Data and FS, for EM or LC jets
+
+    // Default calibrations for release 20.7 analyses - r21 is setup in setupJetsCalibration
     m_jetAntiKt4_Data_ConfigFile("JES_data2016_data2015_Recommendation_Dec2016.config"),
     m_jetAntiKt4_Data_CalibSequence("JetArea_Residual_Origin_EtaJES_GSC_Insitu"),
 
@@ -126,19 +128,19 @@ StatusCode JetMETCPTools::setupJetsCalibration() {
     ATH_MSG_INFO("Insitu corrections for data are not yet available and not neglible");
 
     // Data
-    m_jetAntiKt4_Data_ConfigFile          = "JES_MC16Recommendation_28Nov2017.config";
+    m_jetAntiKt4_Data_ConfigFile          = "JES_data2017_2016_2015_Recommendation_Feb2018_rel21.config";
     m_jetAntiKt4_Data_CalibSequence       = "JetArea_Residual_EtaJES_GSC";
     // FS EM/LC
-    m_jetAntiKt4_MCFS_ConfigFile          = "JES_MC16Recommendation_28Nov2017.config";
-    m_jetAntiKt4_MCFS_CalibSequence       = "JetArea_Residual_EtaJES_GSC";
+    m_jetAntiKt4_MCFS_ConfigFile          = "JES_data2017_2016_2015_Recommendation_Feb2018_rel21.config";
+    m_jetAntiKt4_MCFS_CalibSequence       = "JetArea_Residual_EtaJES_GSC_Insitu";
     // AFII EM/LC
     m_jetAntiKt4_MCAFII_ConfigFile        = "JES_MC15Prerecommendation_AFII_June2015_rel21.config";
     m_jetAntiKt4_MCAFII_CalibSequence     = "JetArea_Residual_EtaJES_GSC";
     // FS PFlow
-    m_jetAntiKt4_PFlow_MCFS_ConfigFile    = "JES_MC16Recommendation_PFlow_28Nov2017.config"; // MC15c?
-    m_jetAntiKt4_PFlow_MCFS_CalibSequence = "JetArea_Residual_EtaJES_GSC"; 
+    m_jetAntiKt4_PFlow_MCFS_ConfigFile    = "JES_data2017_2016_2015_Recommendation_PFlow_Feb2018_rel21.config"; // MC15c?
+    m_jetAntiKt4_PFlow_MCFS_CalibSequence = "JetArea_Residual_EtaJES_GSC_Insitu"; 
 
-    m_jetAntiKt4_Data_PFlow_ConfigFile    =  "JES_MC16Recommendation_PFlow_28Nov2017.config";
+    m_jetAntiKt4_Data_PFlow_ConfigFile    =  "JES_data2017_2016_2015_Recommendation_PFlow_Feb2018_rel21.config";
     m_jetAntiKt4_Data_PFlow_CalibSequence =  "JetArea_Residual_EtaJES_GSC"; 
   }
 
@@ -173,8 +175,8 @@ StatusCode JetMETCPTools::setupJetsCalibration() {
       }
       // FS - PFlow
       else if (m_config->useParticleFlowJets()) {
-	calibConfig = m_jetAntiKt4_PFlow_MCFS_ConfigFile;
-	calibSequence = m_jetAntiKt4_PFlow_MCFS_CalibSequence;
+  calibConfig = m_jetAntiKt4_PFlow_MCFS_ConfigFile;
+  calibSequence = m_jetAntiKt4_PFlow_MCFS_CalibSequence;
       }
       // FS
       else {
@@ -283,13 +285,13 @@ StatusCode JetMETCPTools::setupJetsCalibration() {
     if (JMS_Uncertainty == "_JMSExtrap"){
       JMS_Uncertainty = "_JMSFrozen";
       m_jetUncertaintiesToolFrozenJMS = setupJetUncertaintiesTool("JetUncertaintiesToolFrozenJMS",
-								  jetCalibrationName, MC_type,
-								  "JES_2016/"
-								  + conference
-								  +"/JES2016_"
-								  + m_config->jetUncertainties_NPModel()
-								  + JMS_Uncertainty
-								  + ".config",nullptr,m_config->jetUncertainties_QGFracFile());
+                  jetCalibrationName, MC_type,
+                  "JES_2016/"
+                  + conference
+                  +"/JES2016_"
+                  + m_config->jetUncertainties_NPModel()
+                  + JMS_Uncertainty
+                  + ".config",nullptr,m_config->jetUncertainties_QGFracFile());
     }
 
   } else {
@@ -369,7 +371,7 @@ StatusCode JetMETCPTools::setupLargeRJetsCalibration() {
     // Only a single calib config/sequence for MC and data
     // so just put it here for now.
     std::string calibConfigLargeR = "";
-    const std::string calibChoice = m_config->largeRJESJMSConfig();	
+    const std::string calibChoice = m_config->largeRJESJMSConfig(); 
     if (calibChoice == "CombinedMass") {
       //calibConfigLargeR = "JES_MC15recommendation_FatJet_Nov2016_QCDCombinationUncorrelatedWeights_rel21.config";
       calibConfigLargeR = "JES_MC16recommendation_FatJet_JMS_comb_19Jan2018.config";
@@ -515,10 +517,10 @@ StatusCode JetMETCPTools::setupMET()
     }
     else{
       if(m_config->isAFII()){
-	top::check( metSyst->setProperty("ConfigSoftTrkFile", "TrackSoftTerms_AFII.config"), "Failed to set property" );
+  top::check( metSyst->setProperty("ConfigSoftTrkFile", "TrackSoftTerms_AFII.config"), "Failed to set property" );
       }
       else{
-	top::check( metSyst->setProperty("ConfigSoftTrkFile", "TrackSoftTerms.config"), "Failed to set property" );
+  top::check( metSyst->setProperty("ConfigSoftTrkFile", "TrackSoftTerms.config"), "Failed to set property" );
       }
     }
     // Deactivate CST terms
@@ -586,22 +588,22 @@ ECUtils::IEventCleaningTool* JetMETCPTools::setupJetEventCleaningTool(const std:
   else {
     tool = new ECUtils::EventCleaningTool(name);
     top::check(asg::setProperty(tool, "PtCut", std::to_string(m_config->jetPtcut())),
-	       "Failed to set jet pt cut in JetEventCleaningTool");
+         "Failed to set jet pt cut in JetEventCleaningTool");
     top::check(asg::setProperty(tool, "EtaCut", std::to_string(m_config->jetEtacut())),
-	       "Failed to set jet eta cut in JetEventCleaningTool");
+         "Failed to set jet eta cut in JetEventCleaningTool");
     top::check(asg::setProperty(tool, "JvtDecorator", "passJVT"),
-	       "Failed to set JVT property in JetEventCleaningTool");
+         "Failed to set JVT property in JetEventCleaningTool");
     std::string OrDecorator = "";
     if (m_config->doLooseEvents()) 
       OrDecorator = "ORToolDecorationLoose";
     else 
       OrDecorator = "ORToolDecoration";
     top::check(asg::setProperty(tool, "OrDecorator", OrDecorator),
-	       "Failed to set jet OR decoration in JetEventCleaningTool");
+         "Failed to set jet OR decoration in JetEventCleaningTool");
     top::check(asg::setProperty(tool, "CleaningLevel", WP),
-	       "Failed to set jet WP "+ WP + " in JetEventCleaningTool");
+         "Failed to set jet WP "+ WP + " in JetEventCleaningTool");
     top::check(asg::setProperty(tool, "JetCleaningTool",JetCleaningToolHandle),
-	       "Failed to associate the JetCleaningTool object to JetEventCleaningTool");
+         "Failed to associate the JetCleaningTool object to JetEventCleaningTool");
     top::check(tool->initialize(), "Failed to initialize " + name);
   }
 
