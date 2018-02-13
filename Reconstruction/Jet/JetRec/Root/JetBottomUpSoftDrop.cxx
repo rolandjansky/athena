@@ -19,7 +19,7 @@ JetBottomUpSoftDrop::JetBottomUpSoftDrop(std::string name)
 : AsgTool(name), m_bld("") {
   declareProperty("ZCut", m_zcut =0.1);
   declareProperty("Beta", m_beta =0.0);
-  declareProperty("R0", m_R0 = 1.0);
+  declareProperty("R0",   m_R0   =1.0);
   declareProperty("JetBuilder", m_bld);
 }
 
@@ -36,6 +36,10 @@ StatusCode JetBottomUpSoftDrop::initialize() {
   }
   if ( m_beta < 0.0 || m_beta > 10.0 ) {
     ATH_MSG_WARNING("Invalid value for Beta " << m_beta);
+  }
+  if ( m_R0 < 0.0 || m_R0 > 10.0 ) {
+    ATH_MSG_ERROR("Invalid value for R0 " << m_R0);
+    return StatusCode::FAILURE;
   }
   if ( m_bld.empty() ) {
     ATH_MSG_ERROR("Unable to retrieve jet builder.");
@@ -87,6 +91,7 @@ int JetBottomUpSoftDrop::groom(const xAOD::Jet& jin, xAOD::JetContainer& jets) c
 void JetBottomUpSoftDrop::print() const {
   ATH_MSG_INFO("  Asymmetry measure min: " << m_zcut);
   ATH_MSG_INFO("  Angular exponent: " << m_beta);
+  ATH_MSG_INFO("  Characteristic jet radius: " << m_R0);
   ATH_MSG_INFO("  Jet builder: " << m_bld.name());
 }
 
