@@ -47,11 +47,13 @@ private:  // data
   // Recursive SoftDrop algorithm:
   // z > zcut * (dR12/R0)^beta
   // z = min(pT1, pT2)/(pT1+pT2)
+  // R0 = characteristic jet radius
   // N : algorithm terminates after passing SoftDrop condition N times 
   // (Standard SoftDrop terminates after passing it once)
   float m_zcut;                        // pT fraction for retaining subjets
   float m_beta;                        // How much to consider angular dependence
   int m_N;                        // Number of layers (-1 <> infinite)
+  float m_R0;	                         // Normalization of angular distance, usually the characteristic jet radius (default R0 = 1)
   ToolHandle<IJetFromPseudojet> m_bld;  // Tool to build jets.
 
 };
