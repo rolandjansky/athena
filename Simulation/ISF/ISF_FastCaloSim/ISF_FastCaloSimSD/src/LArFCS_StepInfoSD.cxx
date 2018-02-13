@@ -201,6 +201,13 @@ G4bool LArFCS_StepInfoSD::ProcessHits(G4Step* a_step,G4TouchableHistory*)
         //double time = larhit.energy)==0 ? 0. : (double) larhit.time/larhit.energy/CLHEP::ns;
         double time = larhit.time;
         double energy = larhit.energy/CLHEP::MeV;
+        // Drop any hits that don't have a good identifier attached
+        if (!m_calo_dd_man->get_element(id)) {
+          if(m_config.verboseLevel > 4) {
+            G4cout<<this->GetName()<<" DEBUG update_map: bad identifier: "<<id.getString()<<" skipping this hit."<<G4endl;
+          }
+          continue;
+        }
         // Get the appropriate merging limits
         const CaloCell_ID::CaloSample& layer = m_calo_dd_man->get_element(id)->getSampling();
         const double timeWindow(m_config.m_maxTime);
