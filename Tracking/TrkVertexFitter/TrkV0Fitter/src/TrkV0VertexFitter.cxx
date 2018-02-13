@@ -370,7 +370,6 @@ namespace Trk
 
     if ( originalPerigees.empty() )
     {
-      m_error = NOTRKS;
       ATH_MSG_DEBUG("No tracks to fit in this event.");
       return 0;
     }
@@ -401,7 +400,6 @@ namespace Trk
       if (pointingConstraint) msg(MSG::DEBUG) << "pointing constraint, x = " << x_point << " y = " << y_point << " z = " << z_point << endmsg;
     }
 
-    m_iter = 0;
     bool restartFit = true;
     double chi2 = 2000000000000.;
     unsigned int nTrk  = originalPerigees.size();   // Number of tracks to fit
@@ -530,9 +528,9 @@ namespace Trk
     bool onConstr = false;
     Amg::Vector3D frameOrigin = firstStartingPoint;
     Amg::Vector3D frameOriginItr = firstStartingPoint;
-    for (m_iter=0; m_iter < m_maxIterations; ++m_iter)
+    for (int itr=0; itr < m_maxIterations; ++itr)
     {
-      ATH_MSG_DEBUG("Iteration number: " << m_iter);
+      ATH_MSG_DEBUG("Iteration number: " << itr);
       if (!restartFit) chi2Old = chi2New;
       chi2New = 0.;
 
@@ -911,9 +909,9 @@ namespace Trk
       bool changeBz = false;
 
       if (m_deltaR) {
-        if (deltaR > 5. && m_iter < m_maxIterations-1) changeBz = true;
+        if (deltaR > 5. && itr < m_maxIterations-1) changeBz = true;
       } else {
-        if (deltaB_z > 0.000001 && m_iter < m_maxIterations-1) changeBz = true;
+        if (deltaB_z > 0.000001 && itr < m_maxIterations-1) changeBz = true;
       }
 
       if (changeBz) {
