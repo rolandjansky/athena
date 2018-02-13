@@ -21,21 +21,20 @@ alg = xAODMaker__EventInfoCnvAlg()
 alg.xAODKey = ""
 topSequence += alg
 
-#include("EventSelectorAthenaPool/MetaDataSvc_jobOptions.py")
+include("EventSelectorAthenaPool/MetaDataSvc_jobOptions.py")
 from AthenaServices.AthenaServicesConf import MetaDataSvc
 svcMgr += MetaDataSvc()
 svcMgr.MetaDataSvc.OutputLevel = 2
+svcMgr.MetaDataSvc.MetaDataContainer = "MetaDataHdr"
 svcMgr.ProxyProviderSvc.ProviderNames += [ "MetaDataSvc" ]
 
 from IOVSvc.IOVSvcConf import MetaInputLoader
 metain = MetaInputLoader()
 metain.Dump = True
-metain.Load = [('xAOD::CutBookkeeperContainer','CutBookkeepers')]
+#metain.Load = [('EventStreamInfo','StreamAOD'),('EventStreamInfo','DataStream')]
+metain.Load = [('EventStreamInfo','StreamAOD'),('xAOD::CutBookkeeperContainer','CutBookkeepers'),('xAOD::CutBookkeeperAuxContainer','CutBookkeepersAux.')]
 topSequence += metain
 
-from AthenaPoolTools.AthenaPoolToolsConf import EventCount
-topSequence += EventCount( OutputLevel = INFO,
-                           Dump        = True )
 from AthenaPoolTools.AthenaPoolToolsConf import MetadataTest
 topSequence += MetadataTest( OutputLevel = INFO )
 #==============================================================
