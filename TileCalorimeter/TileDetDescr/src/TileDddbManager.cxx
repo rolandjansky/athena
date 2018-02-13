@@ -1750,7 +1750,7 @@ bool TileDddbManager::addPlatesToCell() const
     {
       if ((*m_tileSwitches)[0]->isFieldNull("ADDPLATESTOCELL"))
         {
-          // std::cerr << "\nTileDddbManager   WARNING TileSwitches(ADDPLATESTOCELL) is EMPTY, returning TRUE\n\n";
+//          std::cerr << "\nTileDddbManager   WARNING TileSwitches(ADDPLATESTOCELL) is EMPTY, returning TRUE\n\n";
           return true;
         }
       else
@@ -1760,7 +1760,7 @@ bool TileDddbManager::addPlatesToCell() const
     }
   else
     {
-      std::cerr << "\nTileDddbManager ERROR! TileSwitches is not set, returning addPlatesToCell= TRUE\n\n";
+      // std::cerr << "\nTileDddbManager ERROR! TileSwitches is not set, returning addPlatesToCell= TRUE\n\n";
       return true;
     }
 }

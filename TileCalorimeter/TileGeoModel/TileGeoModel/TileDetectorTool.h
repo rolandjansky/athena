@@ -36,6 +36,7 @@ class TileDetectorTool : public GeoModelTool
   StatusCode initIds(StoreGateSvc* detStore, TileDetDescrManager *manager, MsgStream * log);
   StatusCode createElements(TileDetDescrManager *manager,MsgStream *log);
 
+
   bool m_testBeam;
   bool m_addPlates;
   int  m_Ushape;
