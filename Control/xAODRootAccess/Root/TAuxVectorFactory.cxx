@@ -92,6 +92,14 @@ namespace xAOD {
       return;
    }
 
+   void TAuxVectorFactory::copyForOutput( void* dst,        size_t dst_index,
+                                          const void* src,  size_t src_index ) const {
+     copy (dst, dst_index, src, src_index);
+
+     ::Warning( "xAOD::TAuxVectorFactory::TAuxVectorFactory",
+                XAOD_MESSAGE( "copyForOutput called; should only be used with pool converters." ) );
+   }
+
    void TAuxVectorFactory::swap( void* a, size_t aindex,
                                  void* b, size_t bindex ) const {
 
