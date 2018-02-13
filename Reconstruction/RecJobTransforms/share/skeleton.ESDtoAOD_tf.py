@@ -140,7 +140,7 @@ if hasattr(runArgs,"outputDESDM_BEAMSPOTFile"):
 #==========================================================
 if hasattr(runArgs, "outputAODFile") and '_000' in runArgs.outputAODFile:
     ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolAODOutput()+ "'; COMPRESSION_ALGORITHM = '1'" ]
-    ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolAODOutput()+ "'; COMPRESSION_LEVEL = '5'" ]
+    ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolAODOutput()+ "'; COMPRESSION_LEVEL = '1'" ]
 
 ## Post-include
 if hasattr(runArgs,"postInclude"): 

@@ -145,11 +145,11 @@ if hasattr(runArgs,"inputRDO_TRIGFile") and rec.doFileMetaData():
 #==========================================================
 if hasattr(runArgs, "outputESDFile") and '_000' in runArgs.outputESDFile:
     ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolESDOutput()+ "'; COMPRESSION_ALGORITHM = '1'" ]
-    ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolESDOutput()+ "'; COMPRESSION_LEVEL = '5'" ]
+    ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolESDOutput()+ "'; COMPRESSION_LEVEL = '1'" ]
 
 if hasattr(runArgs, "outputAODFile") and '_000' in runArgs.outputAODFile:
     ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolAODOutput()+ "'; COMPRESSION_ALGORITHM = '1'" ]
-    ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolAODOutput()+ "'; COMPRESSION_LEVEL = '5'" ]
+    ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolAODOutput()+ "'; COMPRESSION_LEVEL = '1'" ]
 
 ## Post-include
 if hasattr(runArgs,"postInclude"): 

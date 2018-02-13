@@ -476,7 +476,7 @@ svcMgr.AthenaPoolCnvSvc.MaxFileSizes = [ "10000000000" ] #[ "15000000000" ] #Ath
 #==========================================================
 if hasattr(runArgs, "outputRDOFile") and '_000' in runArgs.outputRDOFile:
     svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolRDOOutput()+ "'; COMPRESSION_ALGORITHM = '1'" ]
-    svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolRDOOutput()+ "'; COMPRESSION_LEVEL = '5'" ]
+    svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolRDOOutput()+ "'; COMPRESSION_LEVEL = '1'" ]
 
 ## Post-include
 if hasattr(runArgs,"postInclude"):
