@@ -197,7 +197,7 @@ class TileGeoSectionBuilder
   GeoMaterial* m_matLArServices;
   GeoMaterial* m_matIronHalfDens;
 
-  /** Makes iron layer a little bit wider to obtain same sampling fraction for simulation without a glue*/
+  /** Makes iron layer a little bit wider to obtain the same sampling fraction for simulation without a glue*/
   double       m_AdditionalIronLayer;
 
   void checktransfunc(double absorber, double period, int np, double center);

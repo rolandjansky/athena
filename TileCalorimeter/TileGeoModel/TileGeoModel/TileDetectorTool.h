@@ -36,14 +36,13 @@ class TileDetectorTool : public GeoModelTool
   StatusCode initIds(StoreGateSvc* detStore, TileDetDescrManager *manager, MsgStream * log);
   StatusCode createElements(TileDetDescrManager *manager,MsgStream *log);
 
-
   bool m_testBeam;
   bool m_addPlates;
   int  m_Ushape;
 
-  /** 0: glue layer is removed and replaced by air, 
-      1: simulation with glue, 
-      2: glue is replaced by air + width of iron is modified in order to get the same sampling fraction      */
+  /** 0: glue layer is removed and replaced by iron,
+      1: simulation with glue,
+      2: glue is replaced by iron + width of iron is modified in order to get the same sampling fraction      */
   int m_Glue;
 
   bool m_not_locked;

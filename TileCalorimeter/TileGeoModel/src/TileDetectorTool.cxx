@@ -112,7 +112,7 @@ StatusCode TileDetectorTool::create()
        log << MSG::INFO << " U-shape parameter from database is: " << m_Ushape << endmsg;
     } else {
        if (m_Ushape != UshapeDB) {
-           log << MSG::WARNING << " Overriding U-shape value from DB by value from jobOptions, using " 
+           log << MSG::WARNING << " Overriding U-shape value from DB by value from jobOptions, using "
                << m_Ushape << " instead of " << UshapeDB << endmsg;
        } else {
            log << MSG::INFO << " U-shape parameter from jobOptions is: " << m_Ushape << endmsg;
@@ -125,12 +125,13 @@ StatusCode TileDetectorTool::create()
        log << MSG::INFO << " Glue parameter from database is: " << m_Glue << endmsg;
     } else {
        if (m_Glue != GlueDB) {
-           log << MSG::WARNING << " Overriding Glue value from DB by value from jobOptions, using " 
+           log << MSG::WARNING << " Overriding Glue value from DB by value from jobOptions, using "
                << m_Glue << " instead of " << GlueDB << endmsg;
        } else {
            log << MSG::INFO << " Glue parameter from jobOptions is: " << m_Glue << endmsg;
        }
     }
+
     m_not_locked = false;
     
     m_addPlates = dbManager->addPlatesToCell();
