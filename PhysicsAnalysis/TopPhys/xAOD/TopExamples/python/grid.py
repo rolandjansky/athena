@@ -425,7 +425,7 @@ def checkForShowerAlgorithm(Samples, cutfile):
             break
     print customTDPFile
     if customTDPFile:
-        tdpFile = ROOT.PathResolver.find_file(customTDPFile, "DATAPATH", ROOT.PathResolver.RecursiveSearch)
+        tdpFile = ROOT.PathResolver.find_file(customTDPFile, "PATH", ROOT.PathResolver.RecursiveSearch)
     else:
         tdpFile = ROOT.PathResolver.find_file("dev/AnalysisTop/TopDataPreparation/XSection-MC15-13TeV.data", "CALIBPATH", ROOT.PathResolver.RecursiveSearch)
     # Load the file
@@ -465,7 +465,10 @@ def checkPRWFile(Samples, cutfile):
         if "PRWConfigFiles" not in line:
             continue
         else:
-            PRWConfig = line.strip().split()[1:]
+            PRWConfig = [ ROOT.PathResolver.find_file( x, "CALIBPATH", ROOT.PathResolver.RecursiveSearch ) for x in line.strip().split()[1:] ]
+            PRWConfig.extend( [ ROOT.PathResolver.find_file( x, "DATAPATH", ROOT.PathResolver.RecursiveSearch ) for x in line.strip().split()[1:] ]  )
+            PRWConfig.extend( [ ROOT.PathResolver.find_file( x, "PATH", ROOT.PathResolver.RecursiveSearch ) for x in line.strip().split()[1:] ]  )
+
     if not PRWConfig:
         print logger.FAIL + " - Error reading PRWConfigFiles from cutfile" + logger.ENDC
         return 
@@ -485,5 +488,5 @@ def checkPRWFile(Samples, cutfile):
     # Run
     proc = subprocess.Popen(shlex.split(cmd))
     proc.wait()
-    
+    # At the moment, just print the output, but we need to learn what to catch also
     

@@ -24,8 +24,7 @@ list_of_scripts = ["01SubmitToGrid.py",
                    "11CrossSection.py", 
                    "DerivationTags.py",
                    "Data_rel21.py",                 
-                   "MC16_TOPQ1.py",
-                   "validation-cuts.txt"
+                   "MC16_TOPQ1.py"
                    ]
 
 print 'Using PathResolver to copy scripts to', output
