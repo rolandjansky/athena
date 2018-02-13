@@ -35,6 +35,7 @@
 #include <map>
 #include "boost/any.hpp"
 
+
 namespace Trig{
     class ITrigEgammaSelectorBaseTool : public virtual asg::IAsgTool {
         ASG_TOOL_INTERFACE( Trig::ITrigEgammaSelectorBaseTool )
@@ -45,6 +46,7 @@ namespace Trig{
 
             virtual bool emulation(const xAOD::EmTauRoI               * , bool&, const Trig::Info &)=0;
             virtual bool emulation(const xAOD::TrigEMCluster          * , bool&, const Trig::Info &)=0;
+            virtual bool emulation(const xAOD::IParticle              * , bool&, const Trig::Info &)=0;
             virtual bool emulation(const xAOD::IParticleContainer     * , bool&, const Trig::Info &)=0;
            
             virtual void setTe(const HLT::TriggerElement *)=0; 

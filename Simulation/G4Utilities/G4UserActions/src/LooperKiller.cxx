@@ -37,7 +37,7 @@ namespace G4UA
   }
 
   //---------------------------------------------------------------------------
-  void LooperKiller::processStep(const G4Step* aStep)
+  void LooperKiller::UserSteppingAction(const G4Step* aStep)
   {
 
     if (aStep->GetTrack()->GetCurrentStepNumber() < m_config.MaxSteps) {

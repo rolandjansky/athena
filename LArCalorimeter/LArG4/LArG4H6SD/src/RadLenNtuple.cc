@@ -24,7 +24,7 @@ namespace G4UA
   // ADS why not class members?
   static bool has_cryo, has_em, has_hec, has_fcal;
 
-  void RadLenNtuple::beginOfEvent(const G4Event* /*anEvent*/)
+  void RadLenNtuple::BeginOfEventAction(const G4Event* /*anEvent*/)
   {
     has_cryo = has_em = has_hec = has_fcal = false;
     //   m_tot_x = m_cryo_x = m_em_x = m_hec_x = m_fcal_x = 0.;
@@ -32,7 +32,7 @@ namespace G4UA
     //   m_fcal_y = m_em_y = m_hec_y = m_cryo_y = 0.;
   }
 
-  void RadLenNtuple::endOfEvent(const G4Event* /*anEvent*/)
+  void RadLenNtuple::EndOfEventAction(const G4Event* /*anEvent*/)
   {
 
     m_xcoord = -10000.;
@@ -103,7 +103,7 @@ namespace G4UA
 
 
 
-  void RadLenNtuple::processStep(const G4Step* aStep)
+  void RadLenNtuple::UserSteppingAction(const G4Step* aStep)
   {
 
     G4StepPoint *preStep=aStep->GetPreStepPoint();

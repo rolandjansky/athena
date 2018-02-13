@@ -112,6 +112,8 @@ namespace VKalVrtAthena {
       std::string          PrimVrtLocation;
       std::string          truthParticleContainerName;
       std::string          mcEventContainerName;
+      std::string          augVerString;
+      std::string          truthParticleFilter;
       
       std::string all2trksVerticesContainerName;
       std::string secondaryVerticesContainerName;
@@ -147,6 +149,7 @@ namespace VKalVrtAthena {
       double z0TrkPVSignifCut;
       double d0TrkErrorCut;
       double z0TrkErrorCut;
+      double twoTrkVtxFormingD0Cut;
       
       /* pT anc chi2 */
       double TrkChi2Cut;
@@ -160,6 +163,8 @@ namespace VKalVrtAthena {
       int  CutBLayHits;
       int  CutSharedHits;
       int  CutTRTHits; // Kazuki
+      int  CutTightSCTHits;
+      int  CutTightTRTHits;
       
       // Vertex reconstruction
       bool   doPVcompatibilityCut;
@@ -182,8 +187,8 @@ namespace VKalVrtAthena {
       
       
       double associateMinDistanceToPV;
-      double associateMaxD0;
-      double associateMaxZ0;
+      double associateMaxD0Signif;
+      double associateMaxZ0Signif;
       double associatePtCut;
       double associateChi2Cut;
       
@@ -244,6 +249,23 @@ namespace VKalVrtAthena {
     using PatternStrategyFunc = bool (VrtSecInclusive::*) ( const xAOD::TrackParticle *trk, const Amg::Vector3D& vertex );
     std::map<std::string, PatternStrategyFunc> m_patternStrategyFuncs;
     
+    // AuxElement decorators
+    std::unique_ptr< SG::AuxElement::Decorator< char > > m_decor_isSelected;
+    std::unique_ptr< SG::AuxElement::Decorator< char > > m_decor_isAssociated;
+    std::unique_ptr< SG::AuxElement::Decorator< char > > m_decor_is_svtrk_final;
+    std::map< unsigned, SG::AuxElement::Decorator<float> > m_trkDecors;
+    
+    using IPDecoratorType = SG::AuxElement::Decorator< std::vector< std::vector<float> > >;
+    std::unique_ptr< IPDecoratorType > m_decor_d0_wrtSVs;
+    std::unique_ptr< IPDecoratorType > m_decor_z0_wrtSVs;
+    std::unique_ptr< IPDecoratorType > m_decor_pt_wrtSVs;
+    std::unique_ptr< IPDecoratorType > m_decor_eta_wrtSVs;
+    std::unique_ptr< IPDecoratorType > m_decor_phi_wrtSVs;
+    std::unique_ptr< IPDecoratorType > m_decor_d0err_wrtSVs;
+    std::unique_ptr< IPDecoratorType > m_decor_z0err_wrtSVs;
+    
+    using VertexELType = SG::AuxElement::Decorator< std::vector<ElementLink< xAOD::VertexContainer > > >;
+    std::unique_ptr< VertexELType > m_decor_svLink;
     
     //////////////////////////////////////////////////////////////////////////////////////
     //
@@ -284,6 +306,7 @@ namespace VKalVrtAthena {
       TLorentzVector       vertexMom;                 //! VKalVrt fit vertex 4-momentum
       std::vector<double>  vertexCov;                 //! VKalVrt fit covariance
       double               Chi2;                      //! VKalVrt fit chi2 result
+      double               Chi2_core;                 //! VKalVrt fit chi2 result
       std::vector<double>  Chi2PerTrk;                //! list of VKalVrt fit chi2 for each track
       long int             Charge;                    //! total charge of the vertex
       std::vector< std::vector<double> > TrkAtVrt;    //! list of track parameters wrt the reconstructed vertex
@@ -291,7 +314,9 @@ namespace VKalVrtAthena {
       double               closestWrkVrtValue;        //! stores the value of some observable to the closest WrkVrt ( observable = e.g. significance )
       
       inline double ndof() const { return 2.0*( selectedTrackIndices.size() + associatedTrackIndices.size() ) - 3.0; }
+      inline double ndof_core() const { return 2.0*( selectedTrackIndices.size() ) - 3.0; }
       inline unsigned nTracksTotal() const { return selectedTrackIndices.size() + associatedTrackIndices.size(); }
+      inline double fitQuality() const { return Chi2 / ndof(); }
     };
     
     
@@ -301,6 +326,9 @@ namespace VKalVrtAthena {
     using Flag     = int;
     using ExtrapolatedPoint   = std::tuple<const TVector3, Detector, Bec, Layer, Flag>;
     using ExtrapolatedPattern = std::vector< ExtrapolatedPoint >;
+    using PatternBank         = std::map<const xAOD::TrackParticle*, std::pair< std::unique_ptr<ExtrapolatedPattern>, std::unique_ptr<ExtrapolatedPattern> > >;
+    
+    PatternBank m_extrapolatedPatternBank;
     
     std::vector< std::pair<int, int> > m_incomp;
     
@@ -311,18 +339,24 @@ namespace VKalVrtAthena {
     ///
     
     /** select tracks which become seeds for vertex finding */
-    StatusCode selectTracks();
+    void selectTrack( const xAOD::TrackParticle* );
+    StatusCode selectTracksInDet();
     StatusCode selectTracksFromMuons();
     StatusCode selectTracksFromElectrons();
     
     using TrackSelectionAlg = StatusCode (VrtSecInclusive::*)();
     std::vector<TrackSelectionAlg> m_trackSelectionAlgs;
     
+    /** track selection */
+    using CutFunc = bool (VrtSecInclusive::*) ( const xAOD::TrackParticle* ) const;
+    std::vector<CutFunc> m_trackSelectionFuncs;
+    
     /** track-by-track selection strategies */
     bool selectTrack_notPVassociated ( const xAOD::TrackParticle* ) const;
     bool selectTrack_pTCut           ( const xAOD::TrackParticle* ) const;
     bool selectTrack_chi2Cut         ( const xAOD::TrackParticle* ) const;
     bool selectTrack_hitPattern      ( const xAOD::TrackParticle* ) const;
+    bool selectTrack_hitPatternTight ( const xAOD::TrackParticle* ) const;
     bool selectTrack_d0Cut           ( const xAOD::TrackParticle* ) const;
     bool selectTrack_z0Cut           ( const xAOD::TrackParticle* ) const;
     bool selectTrack_d0errCut        ( const xAOD::TrackParticle* ) const;
@@ -430,13 +464,27 @@ namespace VKalVrtAthena {
     /** cretrieve the track hit information */
     void fillTrackSummary( track_summary& summary, const xAOD::TrackParticle *trk );
     
-    ExtrapolatedPattern* extrapolatedPattern( const xAOD::TrackParticle* );
+    ExtrapolatedPattern* extrapolatedPattern( const xAOD::TrackParticle*, enum Trk::PropDirection );
    
+    bool patternCheck    ( const uint32_t& pattern, const Amg::Vector3D& vertex );
+    bool patternCheckRun1( const uint32_t& pattern, const Amg::Vector3D& vertex );
+    bool patternCheckRun2( const uint32_t& pattern, const Amg::Vector3D& vertex );
+    
+    bool patternCheckOuterOnly    ( const uint32_t& pattern, const Amg::Vector3D& vertex );
+    bool patternCheckRun1OuterOnly( const uint32_t& pattern, const Amg::Vector3D& vertex );
+    bool patternCheckRun2OuterOnly( const uint32_t& pattern, const Amg::Vector3D& vertex );
+    
     /** A classical method with hard-coded geometry */
     bool checkTrackHitPatternToVertex( const xAOD::TrackParticle *trk, const Amg::Vector3D& vertex );
     
+    /** A classical method with hard-coded geometry */
+    bool checkTrackHitPatternToVertexOuterOnly( const xAOD::TrackParticle *trk, const Amg::Vector3D& vertex );
+    
     /** New method with track extrapolation */
     bool checkTrackHitPatternToVertexByExtrapolation( const xAOD::TrackParticle *trk, const Amg::Vector3D& vertex );
+    
+    /** New method with track extrapolation */
+    bool checkTrackHitPatternToVertexByExtrapolationAssist( const xAOD::TrackParticle *trk, const Amg::Vector3D& vertex );
     
     /** Flag false if the consistituent tracks are not consistent with the vertex position */
     bool passedFakeReject( const Amg::Vector3D& FitVertex, const xAOD::TrackParticle *itrk, const xAOD::TrackParticle *jtrk );
@@ -460,14 +508,18 @@ namespace VKalVrtAthena {
     
     StatusCode categorizeVertexTruthTopology( xAOD::Vertex *vertex );
     
+    void dumpTruthInformation();
+    
+    std::vector<const xAOD::TruthVertex*> m_tracingTruthVertices;
+    
     ////////////////////////////////////////////////////////////////////////////////////////
     // 
     // Additional augmentation
     //
     // 
     
-    StatusCode augmentDVimpactParametersToMuons();
-    StatusCode augmentDVimpactParametersToElectrons();
+    template<class LeptonFlavor>
+    StatusCode augmentDVimpactParametersToLeptons( const std::string& containerName );
     
   };
   

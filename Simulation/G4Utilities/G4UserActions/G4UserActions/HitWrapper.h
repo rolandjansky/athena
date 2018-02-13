@@ -6,7 +6,7 @@
 #define G4UserActions_HitWrapper_H
 
 
-#include "G4AtlasInterfaces/IEndEventAction.h"
+#include "G4UserEventAction.hh"
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthMessaging.h"
@@ -15,7 +15,7 @@ namespace G4UA
 {
 
   /// @brief NEEDS DOCUMENTATION
-  class HitWrapper : public AthMessaging, public IEndEventAction
+  class HitWrapper : public AthMessaging, public G4UserEventAction
   {
     public:
 
@@ -25,7 +25,7 @@ namespace G4UA
       };
 
       HitWrapper(const Config& config);
-      virtual void endOfEvent(const G4Event*) override;
+      virtual void EndOfEventAction(const G4Event*) override;
 
     private:
 

@@ -20,7 +20,7 @@
 ISF::CosmicEventFilterTool::CosmicEventFilterTool( const std::string& t,
                                                    const std::string& n,
                                                    const IInterface* p ) :
-  AthAlgTool(t,n,p),
+  base_class(t,n,p),
   m_ntot(0),
   m_npass(0),
   m_useANDFilter(true),
@@ -28,7 +28,6 @@ ISF::CosmicEventFilterTool::CosmicEventFilterTool( const std::string& t,
   m_ptMin(-1),
   m_ptMax(-1)
 {
-  declareInterface<ISF::IEventFilterTool>(this);
   declareProperty("UseAndFilter", m_useANDFilter, "Use an AND Filter over all the Volumes, if false use an OR filter");
   declareProperty("VolumeNames", m_VolumeNames, "List of Volumes to use for filtering");
   declareProperty("PDG_ID", m_magicID, "If this is non-zero then more detailed checks will be made, requiring this particle to be present.");

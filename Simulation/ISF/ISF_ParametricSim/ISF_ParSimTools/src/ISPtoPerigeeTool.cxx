@@ -13,13 +13,10 @@
 
 //================ Constructor ====================================================
 iParSim::ISPtoPerigeeTool::ISPtoPerigeeTool(const std::string& type,const std::string& name,const IInterface* parent):
-AthAlgTool(type,name,parent),
+base_class(type,name,parent),
 m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
 m_beamSpotSvc("BeamCondSvc",name)
 {
-
-  declareInterface<iParSim::IISPtoPerigeeTool>(this);
-
 }
 //================ Destructor =====================================================
 iParSim::ISPtoPerigeeTool::~ISPtoPerigeeTool(){}

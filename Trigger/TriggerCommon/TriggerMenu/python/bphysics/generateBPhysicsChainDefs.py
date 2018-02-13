@@ -602,6 +602,7 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
 
     fexNameExt,trkmuons, mult, mult_without_noL1  = getBphysThresholds(chainDict)
 
+    inputToEFFEX = None
 
         #from TrigBphysHypo.TrigMultiTrkFexConfig import TrigMultiTrkFex_DiMu
         #from TrigBphysHypo.TrigEFMultiMuHypoConfig import EFMultiMuHypo_DiMu
@@ -846,10 +847,37 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
         from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_Jpsi_noId
         from TrigBphysHypo.TrigEFBMuMuFexConfig import EFBMuMuFex_noId
         from TrigBphysHypo.TrigEFBMuMuHypoConfig import EFBMuMuHypo_Jpsi_noId
-        L2Fex  = L2BMuMuFex_noId()
-        L2Hypo = L2BMuMuHypo_Jpsi_noId()
-        EFFex  = EFBMuMuFex_noId()
-        EFHypo = EFBMuMuHypo_Jpsi_noId()
+
+        if 'noL1' in chainDict['chainName'] : # OI then L2 is not available and L2Fex makes no sense
+            L2Fex = None
+            L2Hypo = None
+            EFFex  = EFBMuMuFex_noId()
+            EFHypo = EFBMuMuHypo_Jpsi_noId()
+
+            # OI so noL1 logic is different from other EF muon chains, they are executed *after* other EF chains
+            # so we need to re-attach last TE from default chain here.
+
+            position = theChainDef.signatureList[-1]['signature_counter']
+            normalLegTE = None
+            # find last of default muon signature - noL1 starts with EF_dummy, so take two just before
+            for signature in  theChainDef.signatureList :
+              if signature['listOfTriggerElements'][0].startswith( "EF_dummy" ) :
+                position = signature['signature_counter']
+            normalLegTE =  theChainDef.signatureList[position-2]['listOfTriggerElements'] 
+            # now re-attach TE to the sequence, put normal leg first, as this is what is expected by EFBMuMuFex
+            theChainDef.signatureList[-1]['listOfTriggerElements']  = normalLegTE +  inputTEsEF 
+            inputToEFFEX = theChainDef.signatureList[-1]['listOfTriggerElements']  
+
+        else :
+            L2Fex  = L2BMuMuFex_noId()
+            L2Hypo = L2BMuMuHypo_Jpsi_noId()
+            EFFex  = EFBMuMuFex_noId()
+            EFHypo = EFBMuMuHypo_Jpsi_noId()
+
+            
+
+
+
     elif ('bDimu' in topoAlgs) & ('noL2' in topoAlgs):
         from TrigBphysHypo.TrigL2BMuMuFexConfig  import L2BMuMuFex_DiMu_passL2
         from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_DiMu_passL2
@@ -1099,7 +1127,10 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
         theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFTEname+"_MuCounter"])    
 
     # here we have to use inputs from Muon sequence and not TrigBphysMuonCounter_bNmu
-    theChainDef.addSequence([EFFex, EFHypo],inputTEsEF, EFTEname, topo_start_from = topo2StartFrom)
+    if inputToEFFEX :
+        theChainDef.addSequence([EFFex, EFHypo],inputToEFFEX, EFTEname, topo_start_from = topo2StartFrom)
+    else :
+        theChainDef.addSequence([EFFex, EFHypo],inputTEsEF, EFTEname, topo_start_from = topo2StartFrom)
     theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFTEname])       
 
     return theChainDef

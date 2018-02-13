@@ -38,7 +38,7 @@
               <doc>digireco</doc>
               <jobTransformJobName>MinBias_digi_Reco_trf</jobTransformJobName>
               <jobTransformCmd>
-                fct_trf.py --config=$(echo $CMAKE_PREFIX_PATH | tr ":" "\n" | grep AtlasOffline)/src/Tools/FullChainTests/test/digireco_MC12.cfg --runDigi --runReco
+                fct_trf.py --config=$(echo $CMAKE_PREFIX_PATH | tr ":" "\n" |  head -n 1)/src/Tools/FullChainTests/test/digireco_MC12.cfg --runDigi --runReco
               </jobTransformCmd>
               <group>FCTTransform</group>
               <queue>long</queue>
@@ -61,7 +61,7 @@
               <doc>digireco</doc>
               <jobTransformJobName>MinBias_digi_Reco_trf</jobTransformJobName>
               <jobTransformCmd>
-                fct_trf.py --config=$(echo $CMAKE_PREFIX_PATH | tr ":" "\n" | grep AtlasOffline)/src/Tools/FullChainTests/test/digireco_MC15c.cfg --runDigi --runReco
+                fct_trf.py --config=$(echo $CMAKE_PREFIX_PATH | tr ":" "\n" |  head -n 1)/src/Tools/FullChainTests/test/digireco_MC15c.cfg --runDigi --runReco
               </jobTransformCmd>
               <group>FCTTransform</group>
               <queue>long</queue>
@@ -88,7 +88,7 @@
                   <doc>evgen</doc>
                   <jobTransformJobName>Zhad_Generate_tf_e4581</jobTransformJobName>
                   <jobTransformCmd>
-				  export JODIR=/cvmfs/atlas.cern.ch/repo/sw/Generators/MC15JobOptions/latest;export JOBOPTSEARCHPATH=$JODIR/share/DSID304xxx:$JOBOPTSEARCHPATH; Generate_tf.py --ecmEnergy 13000. --runNumber 304628 --firstEvent 1 --maxEvents 10 --randomSeed 54298752 --jobConfig MC15JobOptions/MC15.304628.Pythia8EvtGen_A14NNPDF23LO_ZHad_280_500.py --outputEVNTFile MC15.304628.Pythia8EvtGen_A14NNPDF23LO_ZHad_280_500.13TeV.EVNT.pool.root --postExec 'TestHepMC.EffFailThreshold=0.50'
+				  export JODIR=/cvmfs/atlas.cern.ch/repo/sw/Generators/MC15JobOptions/latest;export JOBOPTSEARCHPATH=$JODIR/share/DSID304xxx:$JOBOPTSEARCHPATH; Generate_tf.py --ecmEnergy 13000. --runNumber 304628 --firstEvent 1 --maxEvents 500 --randomSeed 54298752 --jobConfig MC15JobOptions/MC15.304628.Pythia8EvtGen_A14NNPDF23LO_ZHad_280_500.py --outputEVNTFile MC15.304628.Pythia8EvtGen_A14NNPDF23LO_ZHad_280_500.13TeV.EVNT.pool.root --postExec 'TestHepMC.EffFailThreshold=0.50'
                   </jobTransformCmd>
                   <group>FCTTransform</group>
                   <queue>short</queue>
@@ -116,7 +116,7 @@
                     <dataset_info>
                       <jobTransformData />
                       <datasetName>
-                        /afs/cern.ch/atlas/offline/external/FullChainTest/long/rtt.fallback/MC15/MC15.304628.Pythia8EvtGen_A14NNPDF23LO_ZHad_280_500.13TeV.EVNT.pool.root
+				        /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FullChainTests/MC15.304628.Pythia8EvtGen_A14NNPDF23LO_ZHad_280_500.13TeV.EVNT.pool.root
                       </datasetName>
                     </dataset_info>
                   </chaindataset_info>
@@ -197,7 +197,8 @@
                     <dataset_info>
                       <jobTransformData />
                       <datasetName>
-                        /afs/cern.ch/atlas/offline/external/FullChainTest/long/rtt.fallback/MC12/MC12.108351.pythia_minbias.8TeV.EVNT.pool.root
+                        <!-- /afs/cern.ch/atlas/offline/external/FullChainTest/long/rtt.fallback/MC12/MC12.108351.pythia_minbias.8TeV.EVNT.pool.root -->
+						/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MC15.361033.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic.13TeV.EVNT.pool.root
                       </datasetName>
                     </dataset_info>
                   </chaindataset_info>

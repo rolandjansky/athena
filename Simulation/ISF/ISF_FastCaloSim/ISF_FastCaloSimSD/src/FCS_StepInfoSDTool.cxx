@@ -15,6 +15,7 @@
 #include "CaloIdentifier/LArFCAL_ID.h"
 #include "CaloIdentifier/LArHEC_ID.h"
 #include "CaloIdentifier/LArMiniFCAL_ID.h"
+#include "CaloIdentifier/TileID.h"
 #include "LArG4Code/ILArCalculatorSvc.h"
 #include "LArG4Code/VolumeUtils.h"
 #include "TileG4Interfaces/ITileCalculator.h"
@@ -36,7 +37,7 @@ namespace FCS_Param
   FCS_StepInfoSDTool::FCS_StepInfoSDTool(const std::string& type, const std::string& name,
                              const IInterface* parent)
     : SensitiveDetectorBase(type, name, parent)
-    , m_hitCollName("EventSteps")
+    , m_hitCollName("MergedEventSteps")
     , m_bpsmodcalc("EMBPresamplerCalculator", name)
     , m_embcalc("EMBCalculator", name)
     , m_emepiwcalc("EMECPosInnerWheelCalculator", name)
@@ -55,6 +56,7 @@ namespace FCS_Param
     , m_larFcalID(nullptr)
     , m_larHecID(nullptr)
     , m_larMiniFcalID(nullptr)
+    , m_tileID(nullptr)
     , m_config()
   {
     declareProperty("HitCollectionName", m_hitCollName);
@@ -92,6 +94,7 @@ namespace FCS_Param
     declareProperty("shorten_lar_step",m_config.shorten_lar_step, "");
 
     declareProperty("maxRadius",m_config.m_maxRadius, "");
+    declareProperty("maxRadiusFine",m_config.m_maxRadiusFine, "");
     declareProperty("maxRadiusLAr",m_config.m_maxRadiusLAr, "");
     declareProperty("maxRadiusHEC",m_config.m_maxRadiusHEC, "");
     declareProperty("maxRadiusFCAL",m_config.m_maxRadiusFCAL, "");
@@ -129,20 +132,29 @@ namespace FCS_Param
 
     const CaloIdManager* idMgr = nullptr;
     CHECK( detStore()->retrieve(idMgr) );
-    if( (m_larEmID = idMgr->getEM_ID()) == nullptr) {
+    m_larEmID = idMgr->getEM_ID();
+    if(m_larEmID == nullptr) {
       ATH_MSG_ERROR("Invalid LAr EM ID helper");
       return StatusCode::FAILURE;
     }
-    if( (m_larFcalID = idMgr->getFCAL_ID()) == nullptr) {
+    m_larFcalID = idMgr->getFCAL_ID();
+    if(m_larFcalID == nullptr) {
       ATH_MSG_ERROR("Invalid LAr FCAL ID helper");
       return StatusCode::FAILURE;
     }
-    if( (m_larHecID = idMgr->getHEC_ID()) == nullptr) {
+    m_larHecID = idMgr->getHEC_ID();
+    if(m_larHecID == nullptr) {
       ATH_MSG_ERROR("Invalid LAr HEC ID helper");
       return StatusCode::FAILURE;
     }
-    if( (m_larMiniFcalID = idMgr->getMiniFCAL_ID()) == nullptr) {
+    m_larMiniFcalID = idMgr->getMiniFCAL_ID();
+    if(m_larMiniFcalID == nullptr) {
       ATH_MSG_ERROR("Invalid LAr Mini FCAL ID helper");
+      return StatusCode::FAILURE;
+    }
+    m_tileID = idMgr->getTileID();
+    if(m_tileID == nullptr) {
+      ATH_MSG_ERROR("Invalid Tile ID helper");
       return StatusCode::FAILURE;
     }
 
@@ -244,7 +256,7 @@ namespace FCS_Param
     // Create the simple SD
    std::unique_ptr<FCS_StepInfoSD> sd =
       std::make_unique<LArFCS_StepInfoSD>(sdName, config);
-    sd->setupHelpers(m_larEmID, m_larFcalID, m_larHecID, m_larMiniFcalID);
+   sd->setupHelpers(m_larEmID, m_larFcalID, m_larHecID, m_larMiniFcalID, m_tileID);
 
     // Assign the volumes to the SD
     if( this->assignSD( sd.get(), parsedVolumes ).isFailure() ) {
@@ -276,7 +288,7 @@ namespace FCS_Param
      // Create the simple SD
     std::unique_ptr<FCS_StepInfoSD> sd =
       std::make_unique<TileFCS_StepInfoSD>(sdName, config);
-    sd->setupHelpers(m_larEmID, m_larFcalID, m_larHecID, m_larMiniFcalID);
+    sd->setupHelpers(m_larEmID, m_larFcalID, m_larHecID, m_larMiniFcalID, m_tileID);
 
     // Assign the volumes to the SD
     if( this->assignSD( sd.get(), volumes ).isFailure() ) {

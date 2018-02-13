@@ -66,16 +66,33 @@ StatusCode TauTrackClassifier::initialize()
   return StatusCode::SUCCESS;
 }
 
+//_____________________________________________________________________________
+StatusCode TauTrackClassifier::eventInitialize()
+{
+  // online MVA track counting uses mu-dependent cuts
+  if ( inTrigger() ) {    
+    m_mu = 0.;
+    ATH_CHECK( tauEventData()->getObject("AvgInteractions", m_mu) );
+  }
+  
+  return StatusCode::SUCCESS;
+}
+
 //______________________________________________________________________________
 StatusCode TauTrackClassifier::execute(xAOD::TauJet& xTau)
 {
   xAOD::TauTrackContainer* tauTrackCon = 0;
 
-    if (m_in_trigger) {
-      ATH_CHECK(tauEventData()->getObject( "TauTrackContainer", tauTrackCon ));
-    } else {
-      ATH_CHECK(evtStore()->retrieve(tauTrackCon, m_tauTrackConName));
-    }
+  if (inTrigger()) {
+    ATH_CHECK(tauEventData()->getObject( "TauTrackContainer", tauTrackCon ));
+    
+    static SG::AuxElement::Accessor<float> acc_mu("AvgInteractions");
+    acc_mu(xTau) = m_mu;
+  }
+  else {
+    ATH_CHECK(evtStore()->retrieve(tauTrackCon, m_tauTrackConName));
+  }
+
   std::vector<xAOD::TauTrack*> vTracks = xAOD::TauHelpers::allTauTracksNonConst(&xTau, tauTrackCon);
   for (xAOD::TauTrack* xTrack : vTracks)
   {
@@ -153,80 +170,82 @@ StatusCode TrackMVABDT::finalize()
 //______________________________________________________________________________
 StatusCode TrackMVABDT::initialize()
 {
-  if (not m_in_trigger) {
+  if (!inTrigger()) {
 
-    m_mAvailableVars= {{"TracksAuxDyn.tauPt", new float(0)}
-		      , {"TracksAuxDyn.jetSeedPt", new float(0)}
-		      , {"TracksAuxDyn.tauEta", new float(0)}
-		      , {"TracksAuxDyn.trackEta", new float(0)}
-		      , {"TracksAuxDyn.z0sinThetaTJVA", new float(0)}
-		      , {"TracksAuxDyn.rConv", new float(0)}
-		      , {"TracksAuxDyn.rConvII", new float(0)}
-		      , {"TauTracksAuxDyn.rConv/TauTracksAuxDyn.rConvII", new float(0)}
-		      , {"TracksAuxDyn.DRJetSeedAxis", new float(0)}
-		      , {"TracksAuxDyn.dRJetSeedAxis", new float(0)}
-		      , {"TracksAux.d0", new float(0)}
-		      , {"TracksAux.qOverP", new float(0)}
-		      , {"TracksAux.theta", new float(0)}
-		      , {"TracksAux.eProbabilityHT", new float(0)}
-		      , {"TracksAux.numberOfInnermostPixelLayerHits", new float(0)}
-		      , {"TracksAux.numberOfPixelHits", new float(0)}
-		      , {"TracksAux.numberOfPixelDeadSensors", new float(0)}
-		      , {"TracksAux.numberOfPixelSharedHits", new float(0)}
-		      , {"TracksAux.numberOfSCTHits", new float(0)}
-		      , {"TracksAux.numberOfSCTDeadSensors", new float(0)}
-		      , {"TracksAux.numberOfSCTSharedHits", new float(0)}
-		      , {"TracksAux.numberOfTRTHighThresholdHits", new float(0)}
-		      , {"TracksAux.numberOfTRTHits", new float(0)}
-		      , {"TracksAux.numberOfPixelHits+TracksAux.numberOfPixelDeadSensors", new float(0)}
-		      , {"TracksAux.numberOfPixelHits+TracksAux.numberOfPixelDeadSensors+TracksAux.numberOfSCTHits+TracksAux.numberOfSCTDeadSensors", new float(0)}
-
-		      , {"TauTracksAuxDyn.tauPt", new float(0)}
-		      , {"TauTracksAuxDyn.jetSeedPt", new float(0)}
-		      , {"TauTracksAuxDyn.tauEta", new float(0)}
-		      , {"TauTracksAuxDyn.trackEta", new float(0)}
-		      , {"TauTracksAuxDyn.z0sinThetaTJVA", new float(0)}
-		      , {"TauTracksAuxDyn.rConv", new float(0)}
-		      , {"TauTracksAuxDyn.rConvII", new float(0)}
-		      , {"TauTracksAuxDyn.dRJetSeedAxis", new float(0)}
-		      , {"TauTracksAuxDyn.d0", new float(0)}
-		      , {"TauTracksAuxDyn.qOverP", new float(0)}
-		      , {"TauTracksAuxDyn.theta", new float(0)}
-		      , {"TauTracksAuxDyn.eProbabilityHT", new float(0)}
-		      , {"TauTracksAuxDyn.numberOfInnermostPixelLayerHits", new float(0)}
-		      , {"TauTracksAuxDyn.numberOfPixelHits", new float(0)}
-		      , {"TauTracksAuxDyn.numberOfPixelDeadSensors", new float(0)}
-		      , {"TauTracksAuxDyn.numberOfPixelSharedHits", new float(0)}
-		      , {"TauTracksAuxDyn.numberOfSCTHits", new float(0)}
-		      , {"TauTracksAuxDyn.numberOfSCTDeadSensors", new float(0)}
-		      , {"TauTracksAuxDyn.numberOfSCTSharedHits", new float(0)}
-		      , {"TauTracksAuxDyn.numberOfTRTHighThresholdHits", new float(0)}
-		      , {"TauTracksAuxDyn.numberOfTRTHits", new float(0)}
-		      , {"TauTracksAuxDyn.numberOfPixelHits+TauTracksAuxDyn.numberOfPixelDeadSensors", new float(0)}
-		      , {"TauTracksAuxDyn.numberOfPixelHits+TauTracksAuxDyn.numberOfPixelDeadSensors+TauTracksAuxDyn.numberOfSCTHits+TauTracksAuxDyn.numberOfSCTDeadSensors", new float(0)}
-		      
-		      
-		      , {"1/(TauTracksAuxDyn.trackPt)", new float(0)}
-		      , {"fabs(TauTracksAuxDyn.qOverP)", new float(0)}
-		      , {"TauTracksAuxDyn.numberOfContribPixelLayers", new float(0)}
-		      , {"TauTracksAuxDyn.numberOfPixelHits+TauTracksAuxDyn.numberOfPixelDeadSensors+TauTracksAuxDyn.numberOfPixelHoles", new float(0)}
-		      , {"TauTracksAuxDyn.numberOfPixelHits+TauTracksAuxDyn.numberOfPixelDeadSensors+TauTracksAuxDyn.numberOfPixelHoles+TauTracksAuxDyn.numberOfSCTHits+TauTracksAuxDyn.numberOfSCTDeadSensors+TauTracksAuxDyn.numberOfSCTHoles", new float(0)}
-		      , {"TauTracksAuxDyn.numberOfPixelHoles", new float(0)}
-		      , {"TauTracksAuxDyn.numberOfPixelHoles+TauTracksAuxDyn.numberOfSCTHoles", new float(0)}
-		      , {"TauTracksAuxDyn.numberOfSCTHoles", new float(0)}
-                    , {"TauTracksAux.pt", new float(0)}
+    m_mAvailableVars= {
+      {"TracksAuxDyn.tauPt", new float(0)}
+      , {"TracksAuxDyn.jetSeedPt", new float(0)}
+      , {"TracksAuxDyn.tauEta", new float(0)}
+      , {"TracksAuxDyn.trackEta", new float(0)}
+      , {"TracksAuxDyn.z0sinThetaTJVA", new float(0)}
+      , {"TracksAuxDyn.rConv", new float(0)}
+      , {"TracksAuxDyn.rConvII", new float(0)}
+      , {"TauTracksAuxDyn.rConv/TauTracksAuxDyn.rConvII", new float(0)}
+      , {"TracksAuxDyn.DRJetSeedAxis", new float(0)}
+      , {"TracksAuxDyn.dRJetSeedAxis", new float(0)}
+      , {"TracksAux.d0", new float(0)}
+      , {"TracksAux.qOverP", new float(0)}
+      , {"TracksAux.theta", new float(0)}
+      , {"TracksAux.eProbabilityHT", new float(0)}
+      , {"TracksAux.numberOfInnermostPixelLayerHits", new float(0)}
+      , {"TracksAux.numberOfPixelHits", new float(0)}
+      , {"TracksAux.numberOfPixelDeadSensors", new float(0)}
+      , {"TracksAux.numberOfPixelSharedHits", new float(0)}
+      , {"TracksAux.numberOfSCTHits", new float(0)}
+      , {"TracksAux.numberOfSCTDeadSensors", new float(0)}
+      , {"TracksAux.numberOfSCTSharedHits", new float(0)}
+      , {"TracksAux.numberOfTRTHighThresholdHits", new float(0)}
+      , {"TracksAux.numberOfTRTHits", new float(0)}
+      , {"TracksAux.numberOfPixelHits+TracksAux.numberOfPixelDeadSensors", new float(0)}
+      , {"TracksAux.numberOfPixelHits+TracksAux.numberOfPixelDeadSensors+TracksAux.numberOfSCTHits+TracksAux.numberOfSCTDeadSensors", new float(0)}
+      
+      , {"TauTracksAuxDyn.tauPt", new float(0)}
+      , {"TauTracksAuxDyn.jetSeedPt", new float(0)}
+      , {"TauTracksAuxDyn.tauEta", new float(0)}
+      , {"TauTracksAuxDyn.trackEta", new float(0)}
+      , {"TauTracksAuxDyn.z0sinThetaTJVA", new float(0)}
+      , {"TauTracksAuxDyn.rConv", new float(0)}
+      , {"TauTracksAuxDyn.rConvII", new float(0)}
+      , {"TauTracksAuxDyn.dRJetSeedAxis", new float(0)}
+      , {"TauTracksAuxDyn.d0", new float(0)}
+      , {"TauTracksAuxDyn.qOverP", new float(0)}
+      , {"TauTracksAuxDyn.theta", new float(0)}
+      , {"TauTracksAuxDyn.eProbabilityHT", new float(0)}
+      , {"TauTracksAuxDyn.numberOfInnermostPixelLayerHits", new float(0)}
+      , {"TauTracksAuxDyn.numberOfPixelHits", new float(0)}
+      , {"TauTracksAuxDyn.numberOfPixelDeadSensors", new float(0)}
+      , {"TauTracksAuxDyn.numberOfPixelSharedHits", new float(0)}
+      , {"TauTracksAuxDyn.numberOfSCTHits", new float(0)}
+      , {"TauTracksAuxDyn.numberOfSCTDeadSensors", new float(0)}
+      , {"TauTracksAuxDyn.numberOfSCTSharedHits", new float(0)}
+      , {"TauTracksAuxDyn.numberOfTRTHighThresholdHits", new float(0)}
+      , {"TauTracksAuxDyn.numberOfTRTHits", new float(0)}
+      , {"TauTracksAuxDyn.numberOfPixelHits+TauTracksAuxDyn.numberOfPixelDeadSensors", new float(0)}
+      , {"TauTracksAuxDyn.numberOfPixelHits+TauTracksAuxDyn.numberOfPixelDeadSensors+TauTracksAuxDyn.numberOfSCTHits+TauTracksAuxDyn.numberOfSCTDeadSensors", new float(0)}
+            
+      , {"1/(TauTracksAuxDyn.trackPt)", new float(0)}
+      , {"fabs(TauTracksAuxDyn.qOverP)", new float(0)}
+      , {"TauTracksAuxDyn.numberOfContribPixelLayers", new float(0)}
+      , {"TauTracksAuxDyn.numberOfPixelHits+TauTracksAuxDyn.numberOfPixelDeadSensors+TauTracksAuxDyn.numberOfPixelHoles", new float(0)}
+      , {"TauTracksAuxDyn.numberOfPixelHits+TauTracksAuxDyn.numberOfPixelDeadSensors+TauTracksAuxDyn.numberOfPixelHoles+TauTracksAuxDyn.numberOfSCTHits+TauTracksAuxDyn.numberOfSCTDeadSensors+TauTracksAuxDyn.numberOfSCTHoles", new float(0)}
+      , {"TauTracksAuxDyn.numberOfPixelHoles", new float(0)}
+      , {"TauTracksAuxDyn.numberOfPixelHoles+TauTracksAuxDyn.numberOfSCTHoles", new float(0)}
+      , {"TauTracksAuxDyn.numberOfSCTHoles", new float(0)}
+      , {"TauTracksAux.pt", new float(0)}
     };
-  } else {
+  } 
+  else {
 
     m_mAvailableVars = {
-      {"jetSeedPt", new float(0)}, 
-      {"tauEta", new float(0)},
-      {"dRJetSeedAxis", new float(0)},
-      {"trackEta", new float(0)},
-      {"delta_z0", new float(0)},
-      {"delta_d0", new float(0)},
-      {"nSiHits", new float(0)},
-      {"nPiHits", new float(0)},
+      {"tau_eta", new float(0)}, 
+      {"track_delta_d0", new float(0)},
+      {"track_dR_leadTrack", new float(0)},
+      {"track_dR_tau", new float(0)},
+      {"log(tau_pt/track_pt)", new float(0)},
+      {"track_nIBLHitsAndExp", new float(0)},
+      {"track_isgood", new float(0)},
+      {"track_nSCTHits", new float(0)},
+      {"track_nPiHits", new float(0)},
     };
 
   }
@@ -241,7 +260,6 @@ StatusCode TrackMVABDT::classifyTrack(xAOD::TauTrack& xTrack, const xAOD::TauJet
 {
   ATH_CHECK( setVars(xTrack, xTau) );
 
-  //why?
   if (xTrack.flag((xAOD::TauJetParameters::TauTrackFlag) m_iExpectedFlag)==false)
     return StatusCode::SUCCESS;
   
@@ -261,9 +279,12 @@ StatusCode TrackMVABDT::classifyTrack(xAOD::TauTrack& xTrack, const xAOD::TauJet
 //______________________________________________________________________________
 StatusCode TrackMVABDT::addWeightsFile()
 {
+
   m_sInputWeightsPath = find_file(m_sInputWeightsPath);
   ATH_MSG_DEBUG("InputWeightsPath: " << m_sInputWeightsPath);
   
+
+
   // if (m_mParsedVarsBDT.empty())
   // {
   //   ATH_CHECK(parseVariableContent());
@@ -333,7 +354,7 @@ StatusCode TrackMVABDT::setVars(const xAOD::TauTrack& xTrack, const xAOD::TauJet
 {
   const xAOD::TrackParticle* xTrackParticle = xTrack.track();
 
-  if (not m_in_trigger) {
+  if (!inTrigger()) {
     uint8_t iTracksNumberOfInnermostPixelLayerHits = 0; TRT_CHECK_BOOL( xTrackParticle->summaryValue(iTracksNumberOfInnermostPixelLayerHits, xAOD::numberOfInnermostPixelLayerHits), StatusCode::FAILURE );
     uint8_t iTracksNPixelHits = 0; TRT_CHECK_BOOL( xTrackParticle->summaryValue(iTracksNPixelHits, xAOD::numberOfPixelHits), StatusCode::FAILURE );
     uint8_t iTracksNPixelSharedHits = 0; TRT_CHECK_BOOL( xTrackParticle->summaryValue(iTracksNPixelSharedHits, xAOD::numberOfPixelSharedHits), StatusCode::FAILURE );
@@ -426,7 +447,8 @@ StatusCode TrackMVABDT::setVars(const xAOD::TauTrack& xTrack, const xAOD::TauJet
     setVar("TauTracksAuxDyn.numberOfPixelHoles+TauTracksAuxDyn.numberOfSCTHoles") = fNumberOfPixelHoles+fNumberOfSCTHoles;
     setVar("TauTracksAuxDyn.numberOfSCTHoles") = fNumberOfSCTHoles;
     setVar("TauTracksAux.pt") = xTrackParticle->pt();
-  } else {
+  } 
+  else {
 
     // fill the number of hits variables
     uint8_t n_pix_hits = 0;
@@ -434,19 +456,20 @@ StatusCode TrackMVABDT::setVars(const xAOD::TauTrack& xTrack, const xAOD::TauJet
     uint8_t n_sct_hits = 0;
     uint8_t n_sct_dead = 0;
     uint8_t n_ibl_hits = 0;
+    uint8_t n_ibl_exp  = 0;
 
     TRT_CHECK_BOOL(xTrackParticle->summaryValue(n_pix_hits, xAOD::numberOfPixelHits), StatusCode::FAILURE);
     TRT_CHECK_BOOL(xTrackParticle->summaryValue(n_pix_dead, xAOD::numberOfPixelDeadSensors), StatusCode::FAILURE);
     TRT_CHECK_BOOL(xTrackParticle->summaryValue(n_sct_hits, xAOD::numberOfSCTHits), StatusCode::FAILURE);
     TRT_CHECK_BOOL(xTrackParticle->summaryValue(n_sct_dead, xAOD::numberOfSCTDeadSensors), StatusCode::FAILURE);
     TRT_CHECK_BOOL(xTrackParticle->summaryValue(n_ibl_hits, xAOD::numberOfInnermostPixelLayerHits), StatusCode::FAILURE);
+    TRT_CHECK_BOOL(xTrackParticle->summaryValue(n_ibl_exp,  xAOD::expectInnermostPixelLayerHit), StatusCode::FAILURE);
 
-    float delta_z0 = -9999.;
-    float delta_d0 = -9999.;
+    float delta_d0 = 999.;
+    float track_dR_leadTrack = 999.;
 
-    // look for a leading track in the tau container 
-    // (protect against cases there are none)
-    const xAOD::TauTrack * lead_track = NULL;
+    // look for a leading core track
+    const xAOD::TauTrack * lead_track = 0;
     float lead_track_pt = 0;
     for (const auto track : xTau.tracks()){
       if (track->pt() > lead_track_pt) {
@@ -454,23 +477,38 @@ StatusCode TrackMVABDT::setVars(const xAOD::TauTrack& xTrack, const xAOD::TauJet
 	lead_track = track;
       }
     }
-    if (lead_track != NULL) {
-      delta_z0 = lead_track->track()->z0() - xTrackParticle->z0();
+    if(!lead_track)	
+      for(const auto track : xTau.allTracks())
+	if(track->track()->p4().DeltaR(xTau.p4())<0.2)
+	  if(track->pt() > lead_track_pt) {
+	    lead_track_pt = track->pt();
+	    lead_track = track;
+	  }
+    
+    if (lead_track) {
       delta_d0 = lead_track->track()->d0() - xTrackParticle->d0();
+      track_dR_leadTrack = xTrackParticle->p4().DeltaR(lead_track->track()->p4());
     }
-
-    float nSiHits = (float)(n_pix_hits + n_sct_hits + n_pix_dead + n_sct_dead);
-    float nPiHits = (float)(n_pix_hits + n_pix_dead);
     
     // set the variables
-    setVar("jetSeedPt")     = xTau.ptJetSeed();
-    setVar("tauEta")        = xTau.eta();
-    setVar("dRJetSeedAxis") = xTrack.dRJetSeedAxis(xTau);
-    setVar("trackEta")      = xTrackParticle->eta();
-    setVar("delta_z0")      = delta_z0;
-    setVar("delta_d0")      = delta_d0;
-    setVar("nSiHits")       = nSiHits;
-    setVar("nPiHits")       = nPiHits;
+
+    setVar("tau_eta") = xTau.eta();
+
+    setVar("track_delta_d0") = delta_d0;
+
+    setVar("track_dR_leadTrack") = track_dR_leadTrack;
+
+    setVar("track_dR_tau") = xTrackParticle->p4().DeltaR(xTau.p4());
+
+    setVar("log(tau_pt/track_pt)") = xTrack.pt()!=0. ? std::log(xTau.pt()/xTrack.pt()) : 10.;
+
+    setVar("track_nIBLHitsAndExp") = n_ibl_exp ? (float)n_ibl_hits : 1.;
+    
+    setVar("track_isgood") = xTrack.flagWithMask( 1<<xAOD::TauJetParameters::TauTrackFlag::passTrkSelector ) ? 1. : 0.;
+
+    setVar("track_nSCTHits") = (float)(n_sct_hits + n_sct_dead);
+
+    setVar("track_nPiHits") = (float)(n_pix_hits + n_pix_dead);
   }
     
 

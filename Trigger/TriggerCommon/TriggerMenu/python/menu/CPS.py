@@ -305,13 +305,13 @@ def defineCPSGroups():
                                                    ],
                 'RATE:CPS:HLT_mu_jet_L1MU4' : ['mu4_j15_boffperf_split_dr05_dz02',
                                                'mu4_j25_boffperf_split_dr05_dz02',
-                                               'mu4_j15_gsc35_boffperf_split_dr05_dz02',
-                                               'mu4_j15_gsc35_boffperf_split_dr05_dz99',
-                                               'mu4_j15_gsc35_boffperf_split',
+##                                               'mu4_j15_gsc35_boffperf_split_dr05_dz02',
+##                                               'mu4_j15_gsc35_boffperf_split_dr05_dz99',
+##                                               'mu4_j15_gsc35_boffperf_split',
                                                ],
 
                 'RATE:CPS:HLT_mu_jet_L1MU6_J20' : ['mu6_j60_gsc85_boffperf_split_dr05_dz02',
-                                                   'mu6_j60_gsc110_boffperf_split_dr05_dz02',
+                                                   'mu6_j85_gsc110_boffperf_split_dr05_dz02',
                                                    ],
 
                 'RATE:CPS:HLT_mu4_bJpsi_Trk' : ['mu4_bJpsi_TrkPEB','mu4_bJpsi_Trkloose','mu4_mu2noL1_L1MU4'],

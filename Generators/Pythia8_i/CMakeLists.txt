@@ -50,7 +50,11 @@ atlas_add_library( Pythia8_iLib
                    src/UserHooks/PTRelVetoedShower.cxx
                    src/UserHooks/WprimeFlat.cxx
                    src/UserHooks/WprimeWZFlat.cxx
+                   src/UserHooks/mHatReweight.cxx
                    src/UserHooks/main31.cxx
+                   src/UserHooks/SingleTopWideEta.cxx
+                   src/UserHooks/SettableColourReconnection.cxx
+                   src/UserHooks/PowhegBB4L.cxx
                    src/UserResonances/ResonanceExcitedCI.cxx
                    src/UserResonances/ResonanceLQ.cxx
                    PUBLIC_HEADERS Pythia8_i

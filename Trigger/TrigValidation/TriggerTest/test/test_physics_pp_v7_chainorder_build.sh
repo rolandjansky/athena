@@ -18,6 +18,7 @@
 # art-output: *.root
 # art-output: ntuple.pmon.gz
 # art-output: *perfmon*
+# art-output: TotalEventsProcessed.txt
 
 export NAME="physics_pp_v7_chainorder_build"
 export MENU="Physics_pp_v7"
@@ -32,8 +33,12 @@ mv expert-monitoring.root expert-monitoring-ascend.root
 export EXTRA="chainOrderOption=1;"
 
 # Run with decending
+export JOB_LOG_2=${JOB_LOG%%.*}2.${JOB_LOG#*.}
+export JOB_LOG=${JOB_LOG_2}
 source exec_athena_art_trigger_validation.sh
 
-rootcomp.py expert-monitoring-ascend.root expert-monitoring.root
+timeout 10m rootcomp.py expert-monitoring-ascend.root expert-monitoring.root | tee rootcompout.log
+echo "art-result: ${PIPESTATUS[0]} RootComp" 
 
-trigtest_checkcounts.sh expert-monitoring-ascend.root 0 BOTH
+trigtest_checkcounts.sh expert-monitoring-ascend.root 0 BOTH | tee checkcountout.log
+echo "art-result: ${PIPESTATUS[0]} CheckCounts"

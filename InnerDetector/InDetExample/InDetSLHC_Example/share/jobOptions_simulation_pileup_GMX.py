@@ -5,9 +5,9 @@
 
 execfile("ID_only.py")
 execfile("geometry.py")
-# SimFlags.EventFilter.set_Value({'VertexPositioners': True, 'VertexRangeChecker': True, 'EtaPhiFilters': False})
-# SimFlags.KinematicsMode = 'EventGenerator'
-# SimFlags.GeneratorPath = 'jobOptions_pythia_SLHC.py'
+# simFlags.EventFilter.set_Value({'VertexPositioners': True, 'VertexRangeChecker': True, 'EtaPhiFilters': False})
+# simFlags.KinematicsMode = 'EventGenerator'
+# simFlags.GeneratorPath = 'jobOptions_pythia_SLHC.py'
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.PoolHitsOutput = "pileup_slhc_Hits.pool.root"
@@ -20,8 +20,8 @@ athenaCommonFlags.PoolEvgenInput = ["mc12_14TeV.119996.Pythia8_A2MSTW2008LO_minb
 from AthenaCommon.AlgSequence import AlgSequence
 topSeq = AlgSequence()
 
-from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
-topSeq += PyG4AtlasAlg()
+include("G4AtlasApps/G4Atlas.flat.configuration.py")
+
 from AthenaCommon.CfgGetter import getAlgorithm
 topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 

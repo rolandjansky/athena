@@ -337,7 +337,7 @@ class _BTaggingFlags:
         setattr(self, attr, ['IP1D','SV2','SV2Flip','TrackCounting','TrackCountingFlip','JetProb','JetProbFlip'])
 
       for attr in self._TriggerTaggers:
-        setattr(self, attr, ['IP2D','IP3D','SV1','MV2c10','MV2c20'])
+        setattr(self, attr, ['IP2D','IP3D','SV1','MV2c00','MV2c10','MV2c20'])
 
       for attr in self._jetFinderBasedOn:
         setattr(self, attr, 'Cells')

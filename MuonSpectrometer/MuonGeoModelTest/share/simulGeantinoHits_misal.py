@@ -45,14 +45,14 @@ athenaCommonFlags.PoolHitsOutput='MuonHits.root'
 athenaCommonFlags.EvtMax=1000
 
 #--- Simulation flags -----------------------------------------
-from G4AtlasApps.SimFlags import SimFlags
-SimFlags.load_atlas_flags()
-SimFlags.SimLayout.set_On()
-SimFlags.SimLayout.set_Value(DetDescrVersion) # specific value 
-#SimFlags.SimLayout.set_On()                  # use the default value
+from G4AtlasApps.SimFlags import simFlags
+simFlags.load_atlas_flags()
+simFlags.SimLayout.set_On()
+simFlags.SimLayout.set_Value(DetDescrVersion) # specific value
+#simFlags.SimLayout.set_On()                  # use the default value
 #  sets the EtaPhi, VertexSpread and VertexRange checks on
-SimFlags.EventFilter.set_Off()
-SimFlags.RunNumber=222500  
+simFlags.EventFilter.set_Off()
+simFlags.RunNumber=222500
 #
 print "Reading alignment constants from DB"
 from IOVDbSvc.CondDB import conddb
@@ -84,15 +84,15 @@ ServiceMgr.AtRanluxGenSvc.Seeds = ["SINGLE 2040160768 443921183"]
 
 ## Run ParticleGun
 import ParticleGun as PG
-pg = PG.ParticleGun(randomSvcName=SimFlags.RandomSvc.get_Value(), randomStream="SINGLE")
+pg = PG.ParticleGun(randomSvcName=simFlags.RandomSvc.get_Value(), randomStream="SINGLE")
 pg.sampler.pid = (999)
 pg.sampler.pos = PG.PosSampler(x=0, y=0, z=0, t=0)
 pg.sampler.mom = PG.EEtaMPhiSampler(energy=100000, eta=[-3,3], phi=[-PG.PI, PG.PI])
 topSeq += pg
 
+include("G4AtlasApps/G4Atlas.flat.configuration.py")
+
 ## Add G4 sim framework alg sequence
-from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
-topSeq += PyG4AtlasAlg()
 from AthenaCommon.CfgGetter import getAlgorithm
 topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 

@@ -85,6 +85,7 @@ namespace ISF {
       }      
       void findEtaMMRange(const double R,const double eta_particle,double & etaMin,double & etaMax);
       double findStartingPoint(const double R,const double eta_particle,bool forMaximum);
+      void getRandom2(TH2*,double &x,double &y);
       
       void LoopOverHits(const double totalEnergy, double minR = 0, double maxR = 0);
       void TestCell();

@@ -1,4 +1,7 @@
 #!/bin/env python
+
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
 # TileCalibBlobPython_badChannelExample.py
 # Nils Gollub <nils.gollub@cern.ch>, 2007-12-19
 
