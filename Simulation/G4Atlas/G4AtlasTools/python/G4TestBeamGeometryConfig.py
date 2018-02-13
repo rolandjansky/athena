@@ -70,7 +70,7 @@ def getTileTB_CALOEnvelope(name="TileTB_CALO", **kwargs):
     kwargs.setdefault("NSurfaces", 3)
     kwargs.setdefault("InnerRadii", [2269.*mm,950.*mm,950.*mm])
     kwargs.setdefault("OuterRadii", [5145.*mm,5145.*mm,5145.*mm])
-    kwargs.setdefault("ZSurfaces",  [-2830.*mm,-1050.*mm,6310.*mm])
+    kwargs.setdefault("ZSurfaces",  [-3400.*mm,-1050.*mm,6600.*mm])
     from G4AtlasApps.SimFlags import simFlags
     # Check the consistency of the flags
     if simFlags.Eta.statusOn and (simFlags.Theta.statusOn or simFlags.Z.statusOn):
