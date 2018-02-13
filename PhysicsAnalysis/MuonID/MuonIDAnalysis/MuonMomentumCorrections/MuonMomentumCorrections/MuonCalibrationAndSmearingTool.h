@@ -17,7 +17,7 @@
 #include "TVectorD.h"
 
 // C++ include(s)
-#include <boost/unordered_map.hpp>
+#include <unordered_map>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -212,7 +212,7 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     std::vector< std::string > m_MacroRegionName;
     std::vector< double > m_MacroRegionInnerEta;
 
-    boost::unordered_map< SystematicSet, ParameterSet > m_Parameters;
+    std::unordered_map< SystematicSet, ParameterSet > m_Parameters;
     ParameterSet *m_currentParameters;
 
     double m_StatCombPtThreshold;

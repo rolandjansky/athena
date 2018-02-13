@@ -41,7 +41,7 @@ class TH2;
 class TFile;
 class TDirectory;
 
-#include <boost/unordered_map.hpp>
+#include <unordered_map>
 
 namespace CP {
     typedef std::shared_ptr<TH1> TH1_Ptr;
@@ -131,7 +131,7 @@ namespace CP {
             //with mean from bin content and sigma from bin error
             std::vector<TH1_Ptr> generateReplicas(TH1_Ptr h, int nrep, int seed) const;
 
-            boost::unordered_map<CP::SystematicSet, CP::SystematicSet> m_systFilter;
+            std::unordered_map<CP::SystematicSet, CP::SystematicSet> m_systFilter;
 
             CP::SystematicSet* m_appliedSystematics;
             std::string m_fileName;
