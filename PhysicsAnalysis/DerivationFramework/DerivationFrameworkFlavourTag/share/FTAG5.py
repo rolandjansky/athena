@@ -22,8 +22,6 @@ from DerivationFrameworkJetEtMiss.JetCommon import (
     OutputJets, addJetOutputs)
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import (
     addDefaultTrimmedJets, replaceAODReducedJets)
-from DerivationFrameworkJetEtMiss.AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsCPContent import (
-    AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsCPContent)
 
 # tracking
 from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import (
@@ -31,6 +29,9 @@ from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import (
 
 # flavor tagging
 from DerivationFrameworkFlavourTag.HbbCommon import addVRJets
+from DerivationFrameworkFlavourTag import BTaggingContent as bvars
+from DerivationFrameworkFlavourTag.VRJetContent import (
+    AntiKtVR30Rmax4Rmin02TrackJetsCPContent)
 
 #====================================================================
 # SKIMMING TOOLS
@@ -76,9 +77,11 @@ DerivationFrameworkJob += FTAG5Seq
 #put custom jet names here
 OutputJets["FTAG5"] = ["AntiKtVR30Rmax4Rmin02TrackJets"]
 
+# I don't understand why we need some of these. We don't use
+# AntiKt4PV0TrackJets in the output, but without them we get a crash
 reducedJetList = ["AntiKt2PV0TrackJets",
-                  "AntiKt4PV0TrackJets",
-                  "AntiKt10LCTopoJets",
+                  "AntiKt4PV0TrackJets", # <- Crashes without this,
+                  "AntiKt10LCTopoJets", # <- while building this collection
                   "AntiKt4TruthJets"]
 replaceAODReducedJets(reducedJetList,FTAG5Seq,"FTAG5")
 
@@ -89,10 +92,16 @@ addDefaultTrimmedJets(FTAG5Seq,"FTAG5",dotruth=True)
 #===================================================================
 
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet
-addVRJets(FTAG5Seq, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJet",
-          VRJetAlg="AntiKt", VRJetRadius=0.4, VRJetInputs="pv0track", #or should this be lctopo?
+# Note that the ghost association to the 'AntiKt10LCTopo' jets is
+# hardcoded within this function "for now".
+addVRJets(FTAG5Seq,
+          VRJetName="AntiKtVR30Rmax4Rmin02Track",
+          VRGhostLabel="GhostVR30Rmax4Rmin02TrackJet",
+          VRJetAlg="AntiKt", VRJetRadius=0.4,
+          VRJetInputs="pv0track", #or should this be lctopo?
           ghostArea = 0 , ptmin = 2000, ptminFilter = 7000,
-          variableRMinRadius = 0.02, variableRMassScale = 30000, calibOpt = "none")
+          variableRMinRadius = 0.02, variableRMassScale = 30000,
+          calibOpt = "none")
 
 # alias for VR
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
@@ -140,36 +149,33 @@ FTAG5Stream.AcceptAlgs(["FTAG5Kernel"])
 
 FTAG5SlimmingHelper = SlimmingHelper("FTAG5SlimmingHelper")
 
-FTAG5SlimmingHelper.SmartCollections = ["Electrons","Muons",
-                                        "InDetTrackParticles"]
+fatJetCollection = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
+subJetCollection = "AntiKtVR30Rmax4Rmin02TrackJets"
+FTAG5SlimmingHelper.SmartCollections = [
+    "Electrons","Muons",
+    "InDetTrackParticles",
+    fatJetCollection]
 
-FTAG5SlimmingHelper.ExtraVariables += [
+hlBtagVars = bvars.BTaggingExpertContent(subJetCollection)
 
-    # AntiKt4EMTopoJetsCPContentAux.replace("AntiKt4EMTopoJetsAux","AntiKt10LCTopoJets") + '.C2.D2',
-    "BTagging_AntiKtVR30Rmax4Rmin02Track.*",
+FTAG5SlimmingHelper.ExtraVariables += hlBtagVars + [
     "InDetTrackParticles.truthMatchProbability.x.y.z.vx.vy.vz",
     "InDetTrackParticles.numberOfContribPixelLayers.numberOfTRTHits.numberOfInnermostPixelLayerSharedHits.numberOfNextToInnermostPixelLayerSharedHits",
     "InDetTrackParticles.numberOfPixelSplitHits.numberOfInnermostPixelLayerSplitHits.numberOfNextToInnermostPixelLayerSplitHits",
     "InDetTrackParticles.hitPattern.radiusOfFirstHit",
-    "CombinedMuonTrackParticles.vx.vy.vz",
-    "ExtrapolatedMuonTrackParticles.vx.vy.vz",
-    "MSOnlyExtrapolatedMuonTrackParticles.vx.vy.vz",
-    "MuonSpectrometerTrackParticles.vx.vy.vz",
-    "InDetForwardTrackParticles.phi.qOverP.theta",
     "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet.GhostVR30Rmax4Rmin02TrackJetPt.GhostVR30Rmax4Rmin02TrackJetCount",
-    "InDetTrackParticles.btag_z0.btag_d0.btag_ip_d0.btag_ip_z0.btag_ip_phi.btag_ip_d0_sigma.btag_ip_z0_sigma.btag_track_displacement.btag_track_momentum"]
-
-addJetOutputs(FTAG5SlimmingHelper,["FTAG5"],[],[])
+    "InDetTrackParticles.btag_z0.btag_d0.btag_ip_d0.btag_ip_z0.btag_ip_phi.btag_ip_d0_sigma.btag_ip_z0_sigma.btag_track_displacement.btag_track_momentum",
+] + AntiKtVR30Rmax4Rmin02TrackJetsCPContent
 
 #----------------------------------------------------------------------
 # Add needed dictionary stuff
-FTAG5SlimmingHelper.AppendToDictionary = {      
+FTAG5SlimmingHelper.AppendToDictionary = {
   "BTagging_AntiKt4EMPFlow"                        :   "xAOD::BTaggingContainer", 
   "BTagging_AntiKt4EMPFlowAux"                     :   "xAOD::BTaggingAuxContainer", 
   "BTagging_AntiKt4EMPFlowJFVtx"                   :   "xAOD::BTaggingContainer",
   "BTagging_AntiKt4EMPFlowJFVtxAux"                :   "xAOD::BTaggingAuxContainer",
-  "AntiKtVR30Rmax4Rmin02Track"                     :   "xAOD::JetContainer"        ,
-  "AntiKtVR30Rmax4Rmin02TrackAux"                  :   "xAOD::JetAuxContainer"     ,
+  "AntiKtVR30Rmax4Rmin02TrackJets"                     :   "xAOD::JetContainer"        ,
+  "AntiKtVR30Rmax4Rmin02TrackJetsAux"                  :   "xAOD::JetAuxContainer"     ,
   "BTagging_AntiKtVR30Rmax4Rmin02Track"            :   "xAOD::BTaggingContainer"   ,
   "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"         :   "xAOD::BTaggingAuxContainer",
   "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtx"       :   "xAOD::BTagVertexContainer" ,
@@ -185,7 +191,7 @@ FTAG5SlimmingHelper.AppendToDictionary = {
 }
 #----------------------------------------------------------------------
 
-addJetOutputs(FTAG5SlimmingHelper,["FTAG5"])
+# addJetOutputs(FTAG5SlimmingHelper,["FTAG5"])
 
 FTAG5SlimmingHelper.IncludeMuonTriggerContent = False
 FTAG5SlimmingHelper.IncludeEGammaTriggerContent = False
