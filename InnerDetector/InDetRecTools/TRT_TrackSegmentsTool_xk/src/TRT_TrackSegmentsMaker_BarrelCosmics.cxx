@@ -74,6 +74,8 @@ StatusCode InDet::TRT_TrackSegmentsMaker_BarrelCosmics::initialize() {
 
   StatusCode sc = StatusCode::SUCCESS;
   
+  m_assoTool.disable(); // never used?
+
   // Initialize ReadHandle
   ATH_CHECK(m_trtname.initialize());
   ATH_CHECK(m_driftCirclesName.initialize());

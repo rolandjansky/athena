@@ -56,6 +56,8 @@ class IDAlignMonTrackSegments : public ManagedMonitorToolBase
   
   virtual ~IDAlignMonTrackSegments();
   
+  virtual StatusCode initialize();
+
   virtual StatusCode bookHistograms();
   virtual StatusCode fillHistograms();
   //virtual StatusCode procHistograms();
