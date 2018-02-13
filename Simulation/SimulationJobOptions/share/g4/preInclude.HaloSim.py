@@ -18,4 +18,4 @@ simFlags.EventFilter.switchFilterOn('VertexRangeChecker')
 simFlags.VertexFromCondDB.set_Off()
 simFlags.VertexTimeOffset.set_Off()
 
-simFlags.OptionalUserActionList.addAction("G4UA::G4HitFilterTool",['Run','Event'])
+simFlags.OptionalUserActionList.addAction("G4UA::G4HitFilterTool")

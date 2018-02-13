@@ -9,7 +9,7 @@
 __version__="$Revision: 1.3 $"
 #==============================================================
 from G4AtlasApps.SimFlags import simFlags
-simFlags.OptionalUserActionList.addAction('G4UA::FastIDKillerTool',['Run','Step'])
+simFlags.OptionalUserActionList.addAction('G4UA::FastIDKillerTool')
 
 #--- End jobOptions.FastIDKiller.py file  ------------------------------
 
