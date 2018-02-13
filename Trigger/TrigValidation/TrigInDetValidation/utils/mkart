@@ -140,7 +140,8 @@ for xmlfile in $FILES; do
 
     grep "<argvalue>" /tmp/$_file.xml |  $SED 's|<argvalue>||g' | $SED 's|</argvalue>||g' | grep -v check_log.pl > /tmp/_args
 
-    cmdlineflags=$(grep "<commandLineFlags>" /tmp/$_file.xml |  sed 's|<commandLineFlags>||g' | sed 's|</commandLineFlags>||g' | sed "s/'/"\""/g")
+#   cmdlineflags=$(grep "<commandLineFlags>" /tmp/$_file.xml |  sed 's|<commandLineFlags>||g' | sed 's|</commandLineFlags>||g' | sed "s/'/"\""/g")
+    cmdlineflags=$(grep "<commandLineFlags>" /tmp/$_file.xml |  sed 's|<commandLineFlags>||g' | sed 's|</commandLineFlags>||g' | sed "s|\"|'|g")
 
     joboptions=$(grep "<options>" /tmp/$_file.xml |  sed 's|<options>||g' | sed 's|</options>||g')
 
