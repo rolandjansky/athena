@@ -434,7 +434,7 @@ G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const HepMC::GenPar
   ppi->SetParticle(&genpart);
   ppi->SetRegenerationNr(0);
   g4particle->SetUserInformation(ppi);
-  std::cout << "ZLM making primary down the line with " << ppi->GetParticleBarcode() << std::endl;
+  ATH_MSG_VERBOSE("Making primary down the line with barcode " << ppi->GetParticleBarcode());
 
   return g4particle.release();
 }
@@ -582,6 +582,8 @@ void ISF::InputConverter::addG4PrimaryVertex(G4Event* g4evt, const ISF::ISFParti
                                                   isp.position().z(),
                                                   isp.timeStamp());
   g4vertex->SetPrimary( g4particle );
+  ATH_MSG_VERBOSE("Print G4PrimaryVertex: ");
+  if (msgLevel(MSG::VERBOSE)) { g4vertex->Print(); }
   g4evt->AddPrimaryVertex( g4vertex );
   return;
 }
