@@ -39,7 +39,7 @@ void TFCSParametrizationChain::recalc()
   set_eta_nominal(0.5*(eta_min()+eta_max()));
 }
 
-void TFCSParametrizationChain::set_geometry(CaloGeometry* geo)
+void TFCSParametrizationChain::set_geometry(ICaloGeometry* geo)
 {
   for(auto param : m_chain) param->set_geometry(geo);
 }

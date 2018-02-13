@@ -15,7 +15,7 @@ public:
   const std::vector< TFCSParametrizationBase* >& chain() const {return m_chain;};
   void push_back(TFCSParametrizationBase* param) {m_chain.push_back(param);recalc();};
 
-  virtual void set_geometry(CaloGeometry* geo);
+  virtual void set_geometry(ICaloGeometry* geo);
   
   virtual bool is_match_Ekin_bin(int Ekin_bin) const;
   virtual bool is_match_calosample(int calosample) const;

@@ -2,27 +2,35 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TFCSNNLateralShapeParametrization_h
-#define TFCSNNLateralShapeParametrization_h
+#ifndef TFCSHitCellMapping_h
+#define TFCSHitCellMapping_h
 
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitBase.h"
 
-class TFCSNNLateralShapeParametrization:public TFCSLateralShapeParametrizationHitBase {
+class ICaloGeometry;
+
+class TFCSHitCellMapping:public TFCSLateralShapeParametrizationHitBase {
 public:
-  TFCSNNLateralShapeParametrization(const char* name=0, const char* title=0);
+  TFCSHitCellMapping(const char* name=0, const char* title=0, ICaloGeometry* geo=0);
+  
+  void set_geometry(ICaloGeometry* geo) {m_geo=geo;};
+  ICaloGeometry* get_geometry() {return m_geo;};
 
   // simulated one hit position with weight that should be put into simulstate
   // sometime later all hit weights should be resacled such that their final sum is simulstate->E(sample)
   // someone also needs to map all hits into cells
   virtual void simulate_hit(t_hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol);
-private:
-  // NN shape information should be stored as private member variables here
 
-  ClassDef(TFCSNNLateralShapeParametrization,1)  //TFCSNNLateralShapeParametrization
+  void Print(Option_t *option) const;
+
+private:
+  ICaloGeometry* m_geo; //! do not persistify
+
+  ClassDef(TFCSHitCellMapping,1)  //TFCSHitCellMapping
 };
 
 #if defined(__MAKECINT__)
-#pragma link C++ class TFCSNNLateralShapeParametrization+;
+#pragma link C++ class TFCSHitCellMapping+;
 #endif
 
 #endif

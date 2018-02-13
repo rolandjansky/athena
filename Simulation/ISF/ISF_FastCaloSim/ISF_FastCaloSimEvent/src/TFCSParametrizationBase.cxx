@@ -4,6 +4,7 @@
 
 #include "ISF_FastCaloSimEvent/TFCSParametrizationBase.h"
 #include <iostream>
+#include "TClass.h"
 
 //=============================================
 //======= TFCSParametrizationBase =========
@@ -23,8 +24,7 @@ void TFCSParametrizationBase::Print(Option_t *option) const
 {
   TString opt(option);
   if(!opt.IsWhitespace()) opt="";
-  std::cout << opt;
-  TNamed::Print(option);
+  std::cout << opt<<"OBJ " << IsA()->GetName() << " : " << GetName() << " "<<'"'<< GetTitle() <<'"'<<" ("<<this<<")"<< std::endl;
 
   std::cout << opt <<"  PDGID: ";
   for (std::set<int>::iterator it=pdgid().begin(); it!=pdgid().end(); ++it) std::cout << *it << ", ";

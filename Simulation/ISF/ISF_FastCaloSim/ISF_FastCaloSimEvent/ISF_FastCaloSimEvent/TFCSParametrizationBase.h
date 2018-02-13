@@ -8,7 +8,7 @@
 #include <TNamed.h>
 #include <set>
 
-class CaloGeometry;
+class ICaloGeometry;
 class TFCSSimulationState;
 class TFCSTruthState;
 class TFCSExtrapolationState;
@@ -32,7 +32,7 @@ public:
   virtual double eta_min() const {return 100;};
   virtual double eta_max() const {return 100;};
 
-  virtual void set_geometry(CaloGeometry*) {};
+  virtual void set_geometry(ICaloGeometry*) {};
 
   // Do some simulation. Result should be returned in simulstate
   // Simulate all energies in calo layers for energy parametrizations
