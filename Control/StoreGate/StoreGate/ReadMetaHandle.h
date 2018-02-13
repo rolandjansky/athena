@@ -112,7 +112,7 @@ namespace SG {
     if (m_ent != 0) return true;
 
     // Initialize sid from dbKey found at ReadMetaHandleKey initialize
-    //m_sid = m_hkey.dbKey();
+    m_sid = m_hkey.dbKey();
 
     if ( ! m_cont->find(m_sid, m_ent) ) {
       std::ostringstream ost;
