@@ -47,6 +47,11 @@ else:
 if hasattr(runArgs,"outputGeoFileName"):
     ServiceMgr.THistSvc.Output +=["ISF_Geometry DATAFILE='"+runArgs.outputGeoFileName+"' OPT='RECREATE'"] # FIXME top level directory name
 
+## Flag for doG4Hits
+if hasattr(runArgs,"doG4Hits"):
+    doG4Hits = runArgs.doG4Hits
+else:
+    doG4Hits = False
 
 #==============================================================
 # Job Configuration parameters:
@@ -65,6 +70,7 @@ if hasattr(runArgs,"preInclude"):
 
 
 include("ISF_FastCaloSimParametrization/ISF_ntuple_core.py") # Main job options
+
 
 ## Post-include
 if hasattr(runArgs,"postInclude"):
