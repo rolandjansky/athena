@@ -120,7 +120,8 @@ const std::vector< Trk::PRD_TruthTrajectory >& Trk::PRD_TruthTrajectoryBuilder::
         PRD_MultiTruthCollection::const_iterator prdMtCIter  = (*pmtCollIter)->begin();
         PRD_MultiTruthCollection::const_iterator prdMtCIterE = (*pmtCollIter)->end();
         for ( ; prdMtCIter != prdMtCIterE; ++ prdMtCIter ){
-            // check if entry exists and if   
+            // check if entry exists and if  
+            if (!(*prdMtCIter).second.isValid()) ATH_MSG_ERROR ("Missing GenParticle to create PRD object. Arborting ..."); 
             const HepMC::GenParticle* curGenP       = (*prdMtCIter).second;
             Identifier                curIdentifier = (*prdMtCIter).first;
             // apply the min pT cut 
