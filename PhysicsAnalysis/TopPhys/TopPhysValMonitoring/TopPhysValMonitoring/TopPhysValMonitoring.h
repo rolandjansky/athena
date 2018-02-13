@@ -101,14 +101,14 @@ namespace TopPhysVal {
       std::vector<uint> m_idx_muon_baseline, m_idx_muon_signal;
       
       // Hists
-      TH1D* h_jetPt;
-      TH1D* h_elecPt;
-      TH1D* h_photonPt;
-      TH1D* h_muonPt;
-      TH1D* h_tauPt;
-      TH1D* h_tauEta;
-      TH1D* h_metEt;
-      TH1D* h_NJets;
+      TH1D* m_h_jetPt;
+      TH1D* m_h_elecPt;
+      TH1D* m_h_photonPt;
+      TH1D* m_h_muonPt;
+      TH1D* m_h_tauPt;
+      TH1D* m_h_tauEta;
+      TH1D* m_h_metEt;
+      TH1D* m_h_NJets;
 
     };
 
