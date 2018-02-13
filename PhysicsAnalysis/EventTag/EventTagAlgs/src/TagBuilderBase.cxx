@@ -11,8 +11,8 @@
 #include <stdexcept>
 
 // initialize class members
-int TagBuilderBase::maxNumOfBuilder = 0;
-int TagBuilderBase::numOfBuilder    = 0;
+int TagBuilderBase::s_maxNumOfBuilder = 0;
+int TagBuilderBase::s_numOfBuilder    = 0;
 
 AthenaAttributeListSpecification* TagBuilderBase::m_attribListSpec = 0;
 
@@ -34,24 +34,31 @@ TagBuilderBase::TagBuilderBase() : m_check(false)
 
 }
 
+
 void TagBuilderBase::incMaxNumOfBuilder()
 {
-  ++maxNumOfBuilder;
+  ++s_maxNumOfBuilder;
 }
 
 void TagBuilderBase::setNumOfBuilderToMax()
 {
-  numOfBuilder = maxNumOfBuilder;
+  s_numOfBuilder = s_maxNumOfBuilder;
 }
 
 void TagBuilderBase::decNumOfBuilder()
 {
-  --numOfBuilder;
+  --s_numOfBuilder;
 }
 
 bool TagBuilderBase::lastBuilder()
 {
-  return (numOfBuilder>0) ? false : true;
+  return (s_numOfBuilder>0) ? false : true;
+}
+
+std::string TagBuilderBase::tail(std::string const& source, const unsigned int length) const {
+  //return last "length" characters of a std::string
+  if (length >= source.size()) { return source; }
+  return source.substr(source.size() - length);
 }
 
 /** fill the list of tag attributes with data */
@@ -117,17 +124,22 @@ bool TagBuilderBase::checkAttribute(const std::string attr, const std::string * 
     if (attr == *(p+i) ) {
        check = true;
        break;
-    } else if (attr.find( *(p+i) ) == 0 && (sSize-iSize) == 1) {
-       char chars[1];
-       attr.copy(chars, (sSize-iSize), iSize);
-       std::istringstream s(chars);
-       int val;
-       s >> val;
-       //int val = std::atoi(chars);  Does not work for 64 bit
-       if ( ( (val >=1 && val <=k ) || (val >= 0 && val < k) ) ) {
-         check = true;
-         break;
-       }
+       //    } else if (attr.find( *(p+i) ) == 0 && (sSize-iSize) == 1) {
+    } else if (attr.find( *(p+i) ) == 0 && ( (sSize-iSize) == 1 || ( (sSize-iSize) == 2 && k >= 10 ) ) ) {
+
+      std::string num = tail(attr, (sSize-iSize));
+
+      //      char chars[1];
+      //      attr.copy(chars, (sSize-iSize), iSize);
+      //      std::istringstream s(chars);
+      std::istringstream s(num);
+      int val;
+      s >> val;
+      //int val = std::atoi(chars);  Does not work for 64 bit
+      if ( ( (val >=1 && val <=k ) || (val >= 0 && val < k) ) ) {
+      check = true;
+      break;
+      }
     }
   }
   return check;

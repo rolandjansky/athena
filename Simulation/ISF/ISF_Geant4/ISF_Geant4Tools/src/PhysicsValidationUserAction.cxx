@@ -50,8 +50,21 @@ namespace G4UA{
 
     PhysicsValidationUserAction::PhysicsValidationUserAction(const Config& config)
       : m_config(config)
-      , m_geoIDSvcQuick(0)
+      , m_geoIDSvcQuick(nullptr)
       // branches
+      , m_particles(nullptr)
+      , m_pdg(0)
+      , m_scIn(0)
+      , m_scEnd(0)
+      , m_gen(0)
+      , m_geoID(0)
+      , m_theta(0.)
+      , m_pth(0.)
+      , m_pph(0.)
+      , m_p(0.)
+      , m_eloss(0.)
+      , m_radloss(0.)
+      , m_ionloss(0.)
       , m_wzOaTr(0), m_thIn(0), m_phIn(0), m_dIn(0)
       , m_thEnd(0), m_phEnd(0), m_dEnd(0)
       , m_X0(0), m_L0(0), m_wZ(0), m_dt(0)
@@ -69,7 +82,7 @@ namespace G4UA{
       m_msg.get().setLevel(m_config.verboseLevel);
     }
 
-    void PhysicsValidationUserAction::beginOfEvent(const G4Event*)
+    void PhysicsValidationUserAction::BeginOfEventAction(const G4Event*)
     {
 
 
@@ -86,7 +99,7 @@ namespace G4UA{
 
     }
 
-    void PhysicsValidationUserAction::endOfEvent(const G4Event*)
+    void PhysicsValidationUserAction::EndOfEventAction(const G4Event*)
     {
 
       m_X0=0.;
@@ -99,7 +112,7 @@ namespace G4UA{
       return;
     }
 
-    void PhysicsValidationUserAction::beginOfRun(const G4Run*)
+    void PhysicsValidationUserAction::BeginOfRunAction(const G4Run*)
     {
 
       if (m_config.particleBroker.retrieve().isFailure()) {
@@ -122,8 +135,6 @@ namespace G4UA{
         return;
       }
 
-
-      m_sHelper=SecondaryTracksHelper(G4EventManager::GetEventManager()->GetTrackingManager());
 
       m_geoIDSvcQuick = &(*m_config.geoIDSvc);
 
@@ -213,7 +224,7 @@ namespace G4UA{
 
     }
 
-    void PhysicsValidationUserAction::processStep(const G4Step* aStep)
+    void PhysicsValidationUserAction::UserSteppingAction(const G4Step* aStep)
     {
       //std::cout<<"PhysicsValidationUserAction::SteppingAction"<<std::endl;
 
@@ -328,7 +339,7 @@ namespace G4UA{
         EventInformation* eventInfo = static_cast<EventInformation*> (G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation());
         VTrackInformation * trackInfo = static_cast<VTrackInformation*>(track->GetUserInformation());
         const auto baseISP = const_cast<ISF::ISFParticle*>( trackInfo->GetBaseISFParticle() );
-        ::iGeant4::Geant4TruthIncident truth( aStep, *baseISP, geoID, m_sHelper.NrOfNewSecondaries(), m_sHelper, eventInfo);
+        ::iGeant4::Geant4TruthIncident truth( aStep, *baseISP, geoID, eventInfo);
         unsigned int nSec = truth.numberOfChildren();
         if (nSec>0 || track->GetTrackStatus()!=fAlive ) {      // save interaction info
           //std::cout <<"interaction:"<< process->GetProcessSubType() <<":"<<nSec<< std::endl;
@@ -526,10 +537,8 @@ namespace G4UA{
 
     }
 
-    void PhysicsValidationUserAction::preTracking(const G4Track*)
+    void PhysicsValidationUserAction::PreUserTrackingAction(const G4Track*)
     {
-
-      m_sHelper.ResetNrOfSecondaries();
       return;
     }
 

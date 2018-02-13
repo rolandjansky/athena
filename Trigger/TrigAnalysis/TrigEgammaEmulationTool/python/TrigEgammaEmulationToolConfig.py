@@ -1,9 +1,12 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #********************************************************************************
+#
 # TrigEgammaEmulationTool python configuration
 # Author: Joao Victor da Fonseca Pinto <jodafons@cern.ch>
 # Contributor: Jorge Andres Lopez <jorge.lopez@cern.ch>
+#              Giuseppe Glerner   <glerner@cern.ch
+#
 #********************************************************************************
 
 OutputLevel = 0
@@ -93,13 +96,8 @@ from TrigEgammaEmulationTool.TrigEgammaEmulationEFConfig import EgammaEFCaloDefa
     EgammaEFPhotonEmulator, EgammaEFElectronNoD0Emulator
 
 
-from TrigEgammaAnalysisTools.TrigEgammaProbelist import probeListLowMidPtSupportingTriggers, probeListHighPtSupportingTriggers
-from TrigEgammaAnalysisTools.TrigEgammaProbelist import probeListLowMidPtPhysicsTriggers, probeListHighPtPhysicsTriggers
-supportingTriggerList = probeListLowMidPtSupportingTriggers+probeListHighPtSupportingTriggers
+from TrigEgammaAnalysisTools.TrigEgammaProbelist import supportingTriggerList
 
-# Update the supporting list with very loose chains. This will be used in data collisin matches
-for trig in probeListLowMidPtPhysicsTriggers+probeListHighPtPhysicsTriggers:
-  if 'vloose' in trig:  supportingTriggerList.append(trig)
 
 # Emulator tool
 # (all Asgs will be imported from the current relase)
@@ -121,7 +119,7 @@ TrigEgammaEmulationTool  = ToolFactory( Trig__TrigEgammaEmulationTool,
                                                                   ],
                                         EFPhotonSelectorTools   = [ EgammaEFPhotonEmulator],
                                         DoL2ElectronFex         = True,  # V7 menu
-                                        DoRinger                = False, # V7 menu
+                                        DoRinger                = True, # V7 menu
                                         DoEFCaloPid             = False, # V7 menu
                                         )
                                           

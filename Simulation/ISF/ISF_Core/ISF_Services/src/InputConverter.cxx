@@ -53,7 +53,7 @@
 
 /** Constructor **/
 ISF::InputConverter::InputConverter(const std::string& name, ISvcLocator* svc)
-    : AthService(name,svc)
+    : base_class(name,svc)
     , m_particlePropSvc("PartPropSvc",name)
     , m_particleDataTable(nullptr)
     , m_useGeneratedParticleMass(false)
@@ -319,19 +319,6 @@ ISF::InputConverter::passesFilters(const HepMC::GenParticle& part) const
 }
 
 
-/** Query the interfaces. */
-StatusCode ISF::InputConverter::queryInterface(const InterfaceID& riid, void** ppvInterface)
-{
-
-  if ( IID_IInputConverter == riid ) {
-    *ppvInterface = (IInputConverter*)this;
-    addRef();
-    return StatusCode::SUCCESS;
-  }
-  // Interface is not directly available: try out a base class
-  return AthService::queryInterface(riid, ppvInterface);
-}
-
 //________________________________________________________________________
 G4Event* ISF::InputConverter::ISF_to_G4Event(const ISF::ConstISFParticleVector& ispVector, HepMC::GenEvent *genEvent) const
 {
@@ -447,7 +434,7 @@ G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const HepMC::GenPar
   ppi->SetParticle(&genpart);
   ppi->SetRegenerationNr(0);
   g4particle->SetUserInformation(ppi);
-  std::cout << "ZLM making primary down the line with " << ppi->GetParticleBarcode() << std::endl;
+  ATH_MSG_VERBOSE("Making primary down the line with barcode " << ppi->GetParticleBarcode());
 
   return g4particle.release();
 }
@@ -595,6 +582,8 @@ void ISF::InputConverter::addG4PrimaryVertex(G4Event* g4evt, const ISF::ISFParti
                                                   isp.position().z(),
                                                   isp.timeStamp());
   g4vertex->SetPrimary( g4particle );
+  ATH_MSG_VERBOSE("Print G4PrimaryVertex: ");
+  if (msgLevel(MSG::VERBOSE)) { g4vertex->Print(); }
   g4evt->AddPrimaryVertex( g4vertex );
   return;
 }

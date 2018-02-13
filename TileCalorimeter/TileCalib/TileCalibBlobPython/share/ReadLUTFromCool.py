@@ -1,4 +1,7 @@
 #!/bin/env python
+
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
 # ReadLUTFromCool.py
 # Lukas Pribyl <lukas.pribyl@cern.ch>, 2010-03-18
 
@@ -25,7 +28,7 @@ keywords = ["help","run=","lumi=","schema=","tag=","folder=","ros=","drawer=","c
 
 try:
     opts, extraparams = getopt.getopt(sys.argv[1:],letters,keywords)
-except getopt.GetOptError, err:
+except getopt.GetoptError, err:
     print str(err)
     usage()
     sys.exit(2)

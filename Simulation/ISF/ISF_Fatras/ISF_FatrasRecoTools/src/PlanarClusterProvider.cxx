@@ -16,7 +16,7 @@
 #include "InDetIdentifier/SCT_ID.h"
 
 iFatras::PlanarClusterProvider::PlanarClusterProvider(const std::string& t, const std::string& n, const IInterface* p):
-  AthAlgTool(t,n,p),
+  base_class(t,n,p),
   m_idHelper(0),
   m_pixIdHelper(0),
   m_sctIdHelper(0),
@@ -24,7 +24,6 @@ iFatras::PlanarClusterProvider::PlanarClusterProvider(const std::string& t, cons
   m_usePixel(true),
   m_useSCT(true)
 {
-  declareInterface<Trk::IPRD_Provider>(this);
   // PRD container name
   declareProperty("PlanarClusterContainers",        m_planarClusterContainerNames);
   declareProperty("UsePixel",                       m_usePixel);

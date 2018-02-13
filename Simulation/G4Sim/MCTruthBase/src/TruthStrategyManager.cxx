@@ -13,8 +13,6 @@
 #include "G4EventManager.hh"
 #include "G4PhysicalVolumeStore.hh"
 #include "G4Step.hh"
-#include "G4RunManagerKernel.hh"
-#include "G4TrackingManager.hh"
 #include "G4TransportationManager.hh"
 #include "G4VPhysicalVolume.hh"
 #include "G4VSolid.hh"
@@ -37,7 +35,6 @@ TruthStrategyManager::TruthStrategyManager()
   : m_msg("TruthStrategyManager")
   , m_truthSvc(nullptr)
   , m_geoIDSvc()
-  , m_sHelper()
   , m_subDetVolLevel(-1) // please crash if left unset
 {
 }
@@ -89,11 +86,8 @@ StatusCode TruthStrategyManager::InitializeWorldVolume()
   return StatusCode::FAILURE;
 }
 
-bool TruthStrategyManager::CreateTruthIncident(const G4Step* aStep, int numSecondaries)
+bool TruthStrategyManager::CreateTruthIncident(const G4Step* aStep)
 {
-  G4RunManagerKernel *rmk = G4RunManagerKernel::GetRunManagerKernel();
-  m_sHelper.SetTrackingManager(rmk->GetTrackingManager());
-
   AtlasDetDescr::AtlasRegion geoID = iGeant4::ISFG4GeoHelper::nextGeoId(aStep, m_subDetVolLevel, m_geoIDSvc);
 
   auto* eventInfo = static_cast<EventInformation*> (G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation());
@@ -111,7 +105,7 @@ bool TruthStrategyManager::CreateTruthIncident(const G4Step* aStep, int numSecon
   int myBCID = 0;
   ISF::ISFParticle myISFParticle(myPos, myMom, myMass, myCharge, myPdgCode, myTime, origin, myBCID);
 
-  iGeant4::Geant4TruthIncident truth(aStep, myISFParticle, geoID, numSecondaries, m_sHelper, eventInfo);
+  iGeant4::Geant4TruthIncident truth(aStep, myISFParticle, geoID, eventInfo);
 
   m_truthSvc->registerTruthIncident(truth);
   return false;

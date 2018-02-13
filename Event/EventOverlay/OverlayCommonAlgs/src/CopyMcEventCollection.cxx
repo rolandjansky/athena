@@ -159,9 +159,9 @@ StatusCode CopyMcEventCollection::overlayExecute() {
 
   //Stolen from Event/xAOD/xAODEventInfoCnv/src/EventInfoCnvAlg.cxx
   //Check if anything needs to be done for xAOD::EventInfo...
-  std::string m_xaodKey = "EventInfo";
-  if( ! m_storeGateOutput->contains< xAOD::EventInfo >( m_xaodKey ) ) { 
-    ATH_MSG_INFO( "Making xAOD::EventInfo with key: " << m_xaodKey );
+  std::string xaodKey = "EventInfo";
+  if( ! m_storeGateOutput->contains< xAOD::EventInfo >( xaodKey ) ) { 
+    ATH_MSG_INFO( "Making xAOD::EventInfo with key: " << xaodKey );
 
     // Create the xAOD object(s):
     xAOD::EventAuxInfo* aux = new xAOD::EventAuxInfo();
@@ -172,8 +172,8 @@ StatusCode CopyMcEventCollection::overlayExecute() {
     CHECK( m_cnvTool->convert( outEvtInfo, xaod ) );
 
     //Record the xAOD object(s):
-    CHECK( m_storeGateOutput->record( aux, m_xaodKey + "Aux." ) );
-    CHECK( m_storeGateOutput->record( xaod, m_xaodKey ) );
+    CHECK( m_storeGateOutput->record( aux, xaodKey + "Aux." ) );
+    CHECK( m_storeGateOutput->record( xaod, xaodKey ) );
   }//xAOD::EventInfo
 
   if (m_checkeventnumbers){

@@ -86,7 +86,6 @@
 + Database/AthenaPOOL/StlAthenaPoolCnv
 + Database/AthenaRoot/AthenaRootComps
 + Database/AthenaRoot/AthenaRootKernel
-+ Database/AthenaRoot/RootAuxDynIO
 + Database/AtlasSTLAddReflex
 + Database/AtlasSealCLHEP
 + Database/CondDBObjects
@@ -165,7 +164,6 @@
 + Generators/McEventSelector
 + Generators/TruthUtils
 + InnerDetector/InDetConditions/InDetBeamSpotService
-+ InnerDetector/InDetConditions/InDetByteStreamErrors
 + InnerDetector/InDetConditions/InDetCondFolders
 + InnerDetector/InDetConditions/InDetCondServices
 + InnerDetector/InDetConditions/InDetConditionsAthenaPool

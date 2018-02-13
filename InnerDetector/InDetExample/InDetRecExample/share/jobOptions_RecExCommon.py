@@ -180,7 +180,8 @@ InDetFlags.doMonitoringTRT.set_Value_and_Lock                      (False)
 InDetFlags.doMonitoringAlignment.set_Value_and_Lock                (False)
 
 # --- Make sure new dynamic folder scheme is locked to false for now
-InDetFlags.useDynamicAlignFolders.set_Value_and_Lock               (True)
+from AtlasGeoModel.InDetGMJobProperties import GeometryFlags;
+GeometryFlags.useDynamicAlignFolders.set_Value_and_Lock            (True)
 
 # activate the print InDetXYZAlgorithm statements
 InDetFlags.doPrintConfigurables.set_Value_and_Lock                 (True)

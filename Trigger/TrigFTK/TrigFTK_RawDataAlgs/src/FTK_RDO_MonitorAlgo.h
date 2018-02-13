@@ -39,6 +39,7 @@ namespace InDetDD {
   class SCT_DetectorManager;
 }
 
+enum FTK_MonHistType{Raw,Raw_wid1,Raw_wid2, Raw_wid3, Raw_wid4, Cnv, Rft};
 
 class FTK_RDO_MonitorAlgo: public AthAlgorithm {
 public:
@@ -47,24 +48,39 @@ public:
   StatusCode initialize();
   StatusCode execute();
   StatusCode finalize();
+
+
+ private:
+
   void Hist_Init(std::vector<TH1D*> *histograms);
 
   void fillMaps(const FTK_RawTrackContainer* rawTracks, std::vector<std::vector<unsigned int>*>& pixList, std::vector<std::vector<unsigned int>*>& sctList);
-    const std::pair<unsigned int, unsigned int> matchTrack(const Trk::Track* track, 
-							   std::vector<std::vector<unsigned int>*> &pixList, 
-							   std::vector<std::vector<unsigned int>*> &sctList,
-							   std::map<unsigned int,std::pair<double,double>>& offlinetrackPixLocxLocy,
-							   std::map<unsigned int,double>& offlinetrackSctLocx,
-							   bool& uniqueMatch);
-
+  const std::pair<unsigned int, unsigned int> matchTrack(const Trk::Track* track, 
+							 std::vector<std::vector<unsigned int>*> &pixList, 
+							 std::vector<std::vector<unsigned int>*> &sctList,
+							 std::map<unsigned int,std::pair<double,double>>& offlinetrackPixLocxLocy,
+							 std::map<unsigned int,double>& offlinetrackSctLocx,
+							 bool& uniqueMatch);
+  
   double getSctLocX(const IdentifierHash hash, const float stripCoord, const int clusterWidth);
   const std::pair<double,double> getPixLocXlocY(const IdentifierHash hash, const float rawLocalPhiCoord, const float rawLocalEtaCoord);
   void compareTracks(const FTK_RawTrack* ftkTrack, 
 		     std::map<unsigned int,std::pair<double,double>>& offlinetrackPixLocxLocy,
 		     std::map<unsigned int,double>& offlinetrackSctLocx);
 
- private:
+  void compareTracks(const Trk::Track* ftkTrack, 
+		     std::map<unsigned int,std::pair<double,double>>& offlinetrackPixLocxLocy,
+		     std::map<unsigned int,double>& offlinetrackSctLocx, bool refitTrack);
   
+  typedef std::vector<std::vector<int>> sectormap;
+
+  int readModuleIds(unsigned int itower, sectormap& hashID);
+    
+  unsigned int getHash(unsigned int tower, unsigned int sector,  unsigned int plane);
+
+  
+  bool findHash(unsigned int hash, bool isSCT, unsigned int& tower, unsigned int& sector, unsigned int& plane);
+
   /// Tools and services ///
   ITHistSvc*    rootHistSvc;
 
@@ -91,23 +107,50 @@ public:
   TH1D* h_FTK_pt;
   TH1D* h_FTK_eta;
   TH1D* h_FTK_phi;
+  TH1D* h_FTK_d0;
+  TH1D* h_FTK_z0;
+  TH1D* h_FTK_ptEffNum;
+  TH1D* h_FTK_etaEffNum;
+  TH1D* h_FTK_phiEffNum;
+  TH1D* h_FTK_d0EffNum;
+  TH1D* h_FTK_z0EffNum;
+  TH1D* h_offline_n;
+  TH1D* h_offline_nAcc;
   TH1D* h_offline_pt;
   TH1D* h_offline_eta;
   TH1D* h_offline_phi;
+  TH1D* h_offline_d0;
+  TH1D* h_offline_z0;
   TH1D*  h_IBL_dlocX_fullRange;
   TH1D*  h_IBL_dlocY_fullRange;
+  TH1D*  h_IBL_locX;
+  TH1D*  h_IBL_locY;
+  TH1D*  h_pixb_locX;
+  TH1D*  h_pixb_locY;
+  TH1D*  h_pixe_locX;
+  TH1D*  h_pixe_locY;
+  TH1D*  h_sctb_locX;
+  TH1D*  h_scte_locX;
   TProfile* h_missingHits;
   TH1D* h_FTK_nHitMatch;
   TH1D* h_FTK_nTrackMatch;
 
-  std::vector<TH1D*> h_pixb_dlocX;
-  std::vector<TH1D*> h_pixb_dlocY;
-  std::vector<TH1D*> h_pixe_dlocX;
-  std::vector<TH1D*> h_pixe_dlocY;
-  std::vector<TH1D*> h_sctb_0_dlocX;
-  std::vector<TH1D*> h_sctb_1_dlocX;
-  std::vector<TH1D*> h_scte_0_dlocX;
-  std::vector<TH1D*> h_scte_1_dlocX;
+  std::vector<std::vector<TH1D*>> h_pixb_dlocX;
+  std::vector<std::vector<TH1D*>> h_pixb_dlocY;
+  std::vector<std::vector<TH1D*>> h_pixe_dlocX;
+  std::vector<std::vector<TH1D*>> h_pixe_dlocY;
+  std::vector<std::vector<TH1D*>> h_sctb_0_dlocX;
+  std::vector<std::vector<TH1D*>> h_sctb_1_dlocX;
+  std::vector<std::vector<TH1D*>> h_scte_0_dlocX;
+  std::vector<std::vector<TH1D*>> h_scte_1_dlocX;
+
+  std::vector<TH1D*> h_pix_row;
+  std::vector<TH1D*> h_pix_col;
+  std::vector<TH1D*> h_sct_coord;
+
+  std::vector<TH1D*> h_pix_rowW;
+  std::vector<TH1D*> h_pix_colW;
+  std::vector<TH1D*> h_sct_width;
 
   std::vector<TH1D*> h_ftk_sctb_dlocX;
   TH1D* h_ftk_sct_clusWidth;
@@ -123,6 +166,21 @@ public:
   double m_maxphi;
   unsigned int m_minMatches;
   bool m_reverseIBLlocx;
+
+  size_t m_max_tower;
+
+  std::vector<sectormap*> m_moduleFromSector;
+
+  std::string m_ConstantsDir;
+  std::string m_PatternsVersion;
+  unsigned int m_Nlayers;
+  bool m_getHashFromTrack;
+  bool m_getHashFromConstants;
+  uint32_t m_towerID;
+  bool m_getRawTracks;
+  bool m_getTracks;
+  bool m_getRefitTracks;
+
 };
 
 #endif // FTK_RDO_MonitorAlgo_h

@@ -18,8 +18,6 @@ namespace ISF {
 
   class ISFParticle;
  
-  static const InterfaceID IID_IEntryLayerTool("IEntryLayerTool", 1, 0);
-   
   /**
    @class IEntryLayerTool
        
@@ -32,8 +30,8 @@ namespace ISF {
        /** Virtual destructor */
        virtual ~IEntryLayerTool(){}
 
-       /** AlgTool interface methods */
-       static const InterfaceID& interfaceID() { return IID_IEntryLayerTool; }
+       /// Creates the InterfaceID and interfaceID() method
+       DeclareInterfaceID(IEntryLayerTool, 1, 0);
 
        /** Check if given particle passes the EntryLayer filters */
        virtual bool passesFilters( const ISFParticle& particle) = 0;

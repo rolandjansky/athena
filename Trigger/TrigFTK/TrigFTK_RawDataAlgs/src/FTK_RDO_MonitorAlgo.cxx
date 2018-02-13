@@ -18,6 +18,8 @@
 #include "InDetReadoutGeometry/SCT_BarrelModuleSideDesign.h"
 #include "InDetReadoutGeometry/SCT_ForwardModuleSideDesign.h"
 
+#include "TrigFTKSim/ftk_dcap.h"
+
 
 #include "TrkSurfaces/Surface.h"
 
@@ -56,7 +58,16 @@ FTK_RDO_MonitorAlgo::FTK_RDO_MonitorAlgo(const std::string& name, ISvcLocator* p
   m_minphi(-10.),
   m_maxphi(10.),
   m_minMatches(6),
-  m_reverseIBLlocx(false)
+  m_reverseIBLlocx(false),
+  m_max_tower(64),
+  m_Nlayers(12),
+  m_getHashFromTrack(true),
+  m_getHashFromConstants(false),
+  m_towerID(0),
+  m_getRawTracks(true),
+  m_getTracks(true),
+  m_getRefitTracks(true)
+
 {
   declareProperty("RDO_CollectionName",m_ftk_raw_trackcollection_Name, "Collection name of RDO");
   declareProperty("offlineTracksName",m_offlineTracksName," offline tracks collection name");
@@ -70,6 +81,18 @@ FTK_RDO_MonitorAlgo::FTK_RDO_MonitorAlgo(const std::string& name, ISvcLocator* p
   declareProperty("maxphi", m_maxphi,"Maximum phi for offline track");
   declareProperty("minMatches", m_minMatches,"Minimum number of matched hits");
   declareProperty("reverseIBLlocx",m_reverseIBLlocx,"reverse direction of IBL locx from FTK");
+  declareProperty("ConstantsDir",m_ConstantsDir="/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK","directory for constants");
+  declareProperty("PatternsVersion",m_PatternsVersion="ftk.64tower.2016.mc16.v2","Patterns Version");
+  declareProperty("Ntowers",m_max_tower,"No. FTK Towers");
+  declareProperty("Nlayers",m_Nlayers,"No. FTK layers in the SectorsFile");
+  declareProperty("GetHashFromTrack",m_getHashFromTrack," Get HashID From Track");
+  declareProperty("GetHashFromConstants",m_getHashFromConstants," Get HashID From Constants");
+  declareProperty("TowerID",m_towerID,"if non-zero TowerID overrides value in BS");
+  declareProperty("getRawTracks",m_getRawTracks,"get Raw FTK tracks");
+  declareProperty("getTracks",m_getTracks,"get FTK tracks");
+  declareProperty("getRefitTracks",m_getRefitTracks,"get Refit FTK tracks");
+
+
 }
 
 FTK_RDO_MonitorAlgo::~FTK_RDO_MonitorAlgo()
@@ -140,8 +163,40 @@ StatusCode FTK_RDO_MonitorAlgo::initialize(){
   if ( m_reverseIBLlocx ) 
     ATH_MSG_INFO("reversing direction of IBL locx");
 
+  ATH_MSG_INFO("ConstantsDir: "<<m_ConstantsDir);
+  ATH_MSG_INFO("PatternsVersion: "<<m_PatternsVersion);
+  ATH_MSG_INFO("Ntowers= " << m_max_tower);
+  ATH_MSG_INFO("Nlayers= "<<m_Nlayers);
 
-  return StatusCode::SUCCESS; 
+  if (m_getHashFromTrack && m_getHashFromConstants) {
+    ATH_MSG_INFO("getting HashID from Track and Constants and comparing the two");
+  } else if (m_getHashFromTrack) {
+    ATH_MSG_INFO("getting HashID from Track");
+  } else if (m_getHashFromConstants) {
+    ATH_MSG_INFO("getting HashID from Constants");
+  } else {
+    ATH_MSG_INFO("getting HashID from Track");
+    m_getHashFromTrack=true;
+  }
+    
+
+  StatusCode ret=StatusCode::SUCCESS;
+  if (m_getHashFromConstants) {
+    m_moduleFromSector.resize(m_max_tower);
+    for (unsigned int itower=0; itower<m_max_tower; itower++) {
+            
+      m_moduleFromSector[itower] = new sectormap();
+      unsigned int returnCode = (this)->readModuleIds(itower, *(m_moduleFromSector[itower]));
+
+      if (returnCode) {
+	ATH_MSG_WARNING("Error " << returnCode << " loading constants for tower " << itower);
+	ret=StatusCode::FAILURE;
+	break;
+      } 
+
+    }
+  }
+  return ret; 
 }
 
 
@@ -194,7 +249,6 @@ StatusCode FTK_RDO_MonitorAlgo::execute() {
 
   (this)->fillMaps(rawTracks,pixList,sctList);
 
-
   const TrackCollection *offlineTracks = nullptr;
   if(evtStore()->retrieve(offlineTracks,m_offlineTracksName).isFailure()){
     ATH_MSG_DEBUG("Failed to retrieve Offline Tracks");
@@ -203,9 +257,14 @@ StatusCode FTK_RDO_MonitorAlgo::execute() {
 
   ATH_MSG_VERBOSE( " Got offline collection with " << offlineTracks->size()<< " offline tracks" );
   
+  h_offline_n->Fill(offlineTracks->size());
+
   auto track_it   = offlineTracks->begin();
   auto last_track = offlineTracks->end();
   
+  int nAcc=0;
+  int nMatched=0;
+
   for (int iTrack=0 ; track_it!= last_track; track_it++, iTrack++) {
   
 
@@ -217,9 +276,9 @@ StatusCode FTK_RDO_MonitorAlgo::execute() {
 
     float theta = trackPars->parameters()[Trk::theta]; 
     float qOverP = trackPars->parameters()[Trk::qOverP]; 
-    if (qOverP==0) {
+    if (fabs(qOverP)<1e-12) {
       //      ATH_MSG_DEBUG("q/p == 0, setting to 1e-12");
-      qOverP = 1e-12;
+      qOverP = (qOverP>0?1e-12:-1e-12);
     }
     float pT=sin(theta)/qOverP;
     float a0 = trackPars->parameters()[Trk::d0]; 
@@ -229,54 +288,100 @@ StatusCode FTK_RDO_MonitorAlgo::execute() {
 
     // TODO: handle phi-wrap-arround for phi selection
     
-    if (fabs(pT>m_minPt) && fabs(a0) < m_maxa0 && fabs(z0) < m_maxz0 && eta> m_mineta && eta<m_maxeta && phi0> m_minphi && phi0<m_maxphi) {
-
-      ATH_MSG_VERBOSE(" Offline Track " << iTrack << " pT " << pT << " eta " << eta << 
-		      " phi0 " <<  phi0 << " d0 " << a0 << " z0 " << z0);
 
 
-      h_offline_pt->Fill(pT);
-      h_offline_eta->Fill(eta);
-      h_offline_phi->Fill(phi0);
-	  
-
-      std::map<unsigned int,std::pair<double,double> > offlinetrackPixLocxLocy;
-      std::map<unsigned int,double> offlinetrackSctLocx;
-      bool uniqueMatch=false;
-
-      const std::pair<unsigned int,unsigned int> ftkTrackMatch = (this)->matchTrack(*track_it,pixList, sctList, offlinetrackPixLocxLocy, offlinetrackSctLocx, uniqueMatch);
-
-      h_FTK_nHitMatch->Fill((double)ftkTrackMatch.second);  
-      if (ftkTrackMatch.second > 0) {
-	ATH_MSG_DEBUG(" matched to FTK track index " << ftkTrackMatch.first << " with " << ftkTrackMatch.second << " matches");
-	if (ftkTrackMatch.second > m_minMatches) { 
-
-	  const FTK_RawTrack* ftktrack = rawTracks->at(ftkTrackMatch.first);
-	  float ftkTrkTheta = std::atan2(1.0,(ftktrack)->getCotTh());
-	  float ftkTrkEta = -std::log(std::tan(ftkTrkTheta/2.));
-	  float ftkTrkPt=1.e10;
-	  if (fabs((ftktrack)->getInvPt()) >= 1e-9) ftkTrkPt=1./(ftktrack)->getInvPt();
+    nAcc++;
+    ATH_MSG_VERBOSE(" Accepted Offline Track " << iTrack << " pT " << pT << " eta " << eta << 
+		    " phi0 " <<  phi0 << " d0 " << a0 << " z0 " << z0);
     
-	  ATH_MSG_VERBOSE(" FTK     Track " << ftkTrackMatch.second << " pT " << ftkTrkPt << " eta " << ftkTrkEta << 
-			  " phi0 " << (ftktrack)->getPhi() << " d0 " << (ftktrack)->getD0() << " z0 " << (ftktrack)->getZ0());
-	 
-	  //	ATH_MSG_VERBOSE( " nPix: " << (ftkTrack)->getPixelClusters().size() << " nSCT: "<< (ftkTrack)->getSCTClusters().size()<< " barCode: "<<(ftkTrack)->getBarcode()  );
-	  //    ATH_MSG_VERBOSE( "     SectorID " << (ftkTrack)->getSectorID()   <<   "  RoadID "  << (ftkTrack)->getRoadID() << " LayerMap " << (ftkTrack)->getLayerMap());
+    
+    
+    if (eta> m_mineta && eta<m_maxeta && phi0> m_minphi && phi0<m_maxphi) {
+      
+      if (fabs(a0) < m_maxa0 && fabs(z0) < m_maxz0) h_offline_pt->Fill(fabs(pT));
+      
+      if (fabs(pT)>m_minPt && fabs(z0) < m_maxz0) h_offline_d0->Fill(a0);
+      
+      if (fabs(pT)>m_minPt && fabs(a0)< m_maxa0) h_offline_z0->Fill(z0);
+      
+    }
+    if (fabs(pT)>m_minPt && fabs(a0) < m_maxa0 && fabs(z0) < m_maxz0) {
+      if (phi0 > m_minphi && phi0 < m_maxphi) h_offline_eta->Fill(eta);
+      if (eta> m_mineta && eta < m_maxeta) h_offline_phi->Fill(phi0);
+    }    
+    
+    
+    std::map<unsigned int,std::pair<double,double> > offlinetrackPixLocxLocy;
+    std::map<unsigned int,double> offlinetrackSctLocx;
+    bool uniqueMatch=false;
+    
+    const std::pair<unsigned int,unsigned int> ftkTrackMatch = (this)->matchTrack(*track_it,pixList, sctList, offlinetrackPixLocxLocy, offlinetrackSctLocx, uniqueMatch);
+    
+    h_FTK_nHitMatch->Fill((double)ftkTrackMatch.second);  
+    if (ftkTrackMatch.second > 0) {
+      ATH_MSG_VERBOSE(" matched to FTK track index " << ftkTrackMatch.first << " with " << ftkTrackMatch.second << " matches");
+      if (ftkTrackMatch.second > m_minMatches) { 
+	nMatched+=1;
+	const FTK_RawTrack* ftkRawTrack = rawTracks->at(ftkTrackMatch.first);
+	float ftkTrkTheta = std::atan2(1.0,(ftkRawTrack)->getCotTh());
+	float ftkTrkEta = -std::log(std::tan(ftkTrkTheta/2.));
+	float ftkTrkPt=1.e10;
+	if (fabs((ftkRawTrack)->getInvPt()) >= 1e-10) ftkTrkPt=1./(ftkRawTrack)->getInvPt();
+	
+	ATH_MSG_VERBOSE(" FTK     Track " << ftkTrackMatch.second << " pT " << ftkTrkPt << " eta " << ftkTrkEta << 
+			" phi0 " << (ftkRawTrack)->getPhi() << " d0 " << (ftkRawTrack)->getD0() << " z0 " << (ftkRawTrack)->getZ0());
+	
+	//	ATH_MSG_VERBOSE( " nPix: " << (ftkRawTrack)->getPixelClusters().size() << " nSCT: "<< (ftkRawTrack)->getSCTClusters().size()<< " barCode: "<<(ftkRawTrack)->getBarcode()  );
+	  //    ATH_MSG_VERBOSE( "     SectorID " << (ftkRawTrack)->getSectorID()   <<   "  RoadID "  << (ftkRawTrack)->getRoadID() << " LayerMap " << (ftkRawTrack)->getLayerMap());
+	
+	
+	h_FTK_pt->Fill(ftkTrkPt);
+	h_FTK_eta->Fill(ftkTrkEta);
+	h_FTK_phi->Fill((ftkRawTrack)->getPhi());
+	h_FTK_d0->Fill((ftkRawTrack)->getD0());
+	h_FTK_z0->Fill((ftkRawTrack)->getZ0());
+	
+	if (eta> m_mineta && eta<m_maxeta && phi0> m_minphi && phi0<m_maxphi) {
+	  
+	  if (fabs(a0) < m_maxa0 && fabs(z0) < m_maxz0) h_FTK_ptEffNum->Fill(fabs(pT));
+	  
+	  if (fabs(pT)>m_minPt && fabs(z0) < m_maxz0) h_FTK_d0EffNum->Fill(a0);
+	  
+	  if (fabs(pT)>m_minPt && fabs(a0)< m_maxa0) h_FTK_z0EffNum->Fill(z0);
+	  
+	}
 
-
-	  h_FTK_pt->Fill(pT);
-	  h_FTK_eta->Fill(eta);
-	  h_FTK_phi->Fill(phi0);
-
-	  if (uniqueMatch) (this)->compareTracks(ftktrack, offlinetrackPixLocxLocy, offlinetrackSctLocx);
-	} else {
-	  ATH_MSG_DEBUG(" not enough matched FTK hits");
+	if (fabs(pT)>m_minPt && fabs(a0) < m_maxa0 && fabs(z0) < m_maxz0) {
+	  if (phi0 > m_minphi && phi0 < m_maxphi) h_FTK_etaEffNum->Fill(eta);
+	  if (eta> m_mineta && eta < m_maxeta) h_FTK_phiEffNum->Fill(phi0);
+	  
+	  if (eta> m_mineta && eta < m_maxeta && phi0> m_minphi && phi0 < m_maxphi) {
+	    if (uniqueMatch) { 
+	      if (m_getRawTracks)(this)->compareTracks(ftkRawTrack, offlinetrackPixLocxLocy, offlinetrackSctLocx);
+	      if (m_getTracks) {
+		const Trk::Track* ftktrack = m_DataProviderSvc->getCachedTrack(ftkTrackMatch.first,false);
+		if (ftktrack) (this)->compareTracks(ftktrack, offlinetrackPixLocxLocy, offlinetrackSctLocx, false);
+	      }
+	      if (m_getRefitTracks) {
+		const Trk::Track* ftkRefitTrack = m_DataProviderSvc->getCachedTrack(ftkTrackMatch.first,true);
+		if (ftkRefitTrack) (this)->compareTracks(ftkRefitTrack, offlinetrackPixLocxLocy, offlinetrackSctLocx, true);
+	      }
+	      
+	    }
+	  }
 	}
       } else {
-	ATH_MSG_DEBUG(" no matched FTK track");
+	ATH_MSG_VERBOSE(" not enough matched FTK hits");
       }
+    } else {
+      ATH_MSG_VERBOSE(" no matched FTK track");
     }
+
   }
+  ATH_MSG_DEBUG(" Number of offline tracks passing cuts "<<nAcc<<" number matched to FTK track "<<nMatched);
+  
+  h_offline_nAcc->Fill(nAcc);
+  
 
   for ( auto& ip:pixList) if (ip) delete(ip);
   for ( auto& is:sctList) if (is) delete(is);
@@ -294,8 +399,14 @@ StatusCode FTK_RDO_MonitorAlgo::execute() {
 StatusCode FTK_RDO_MonitorAlgo::finalize() {
   MsgStream athlog(msgSvc(), name());
   ATH_MSG_INFO("finalize()" );
-
+  
+  if (m_getHashFromConstants) {
+    for (unsigned int it=0; it<m_max_tower; it++) {
+      delete(m_moduleFromSector[it]);
+    }
+  }
   return StatusCode::SUCCESS;
+
 }
 
 
@@ -303,147 +414,351 @@ void FTK_RDO_MonitorAlgo::Hist_Init(std::vector<TH1D*> *histograms){
 
   // FTK Raw Track Histograms //
 
+ 
   h_FTK_nHitMatch    = new TH1D("h_FTKMoni_nHitMatch",    "No. Hits on track matching Offline; No. Matched Hits; NTracks",      12,  0.,    12.);
   histograms->push_back(h_FTK_nHitMatch);
 
   h_FTK_nTrackMatch    = new TH1D("h_FTKMoni_nTrackMatch",    "No. FTK tracks matching offline;No. Matched FTK Tracks;",      12,  0.,    12.);
   histograms->push_back(h_FTK_nTrackMatch);
 
-  h_FTK_RawTrack_n    = new TH1D("h_FTKMoni_RawTrack_n",    ";FTK Raw Track multiplicity;No. Tracks",      100,  0.,    1000.);
+  h_FTK_RawTrack_n    = new TH1D("h_FTKMoni_RawTrack_n",    ";FTK Raw Track multiplicity;No. Tracks",      25,  0.,    25.);
   histograms->push_back(h_FTK_RawTrack_n);
 
+  h_offline_n    = new TH1D("h_FTKMoni_offline_n",    ";Offline Track multiplicity;No. Tracks",      50,  0.,    200.);
+  histograms->push_back(h_offline_n);
 
-  h_FTK_pt    = new TH1D("h_FTKMoni_RawTrack_pt",    ";offline track pt[MeV];No. Tracks",      100, 0., 100000.);
+  h_offline_nAcc   = new TH1D("h_FTKMoni_offline_nAcc",    ";No. Offline Tracks accepted;No. Tracks",      50,  0.,    50.);
+  histograms->push_back(h_offline_nAcc);
+
+
+  h_FTK_pt    = new TH1D("h_FTKMoni_RawTrack_pt",    ";FTK track pt[MeV];No. Tracks",      100, 0., 100000.);
   histograms->push_back(h_FTK_pt);
-  h_offline_pt    = new TH1D("h_FTKMoni_offline_pt",    ";offline trackpt[MeV];No. Tracks",    100, 0., 100000.);
+  h_offline_pt    = new TH1D("h_FTKMoni_offline_pt",    ";offline track pt[MeV];No. Tracks",    100, 0., 100000.);
   histograms->push_back(h_offline_pt);
+  h_FTK_ptEffNum    = new TH1D("h_FTKMoni_ptEffNum",    ";offline track pt[MeV];No. FTK Tracks",    100, 0., 100000.);
+  histograms->push_back(h_FTK_ptEffNum);
 
 
-  h_FTK_eta    = new TH1D("h_FTKMoni_RawTrack_eta",    ";offline track eta;No. Tracks",      104,  -2.6, 2.6);
+  h_FTK_eta    = new TH1D("h_FTKMoni_RawTrack_eta",    ";FTK track eta;No. Tracks",      104,  -2.6, 2.6);
   histograms->push_back(h_FTK_eta);
   h_offline_eta    = new TH1D("h_FTKMoni_offline_eta",    ";offline track eta;No. Tracks",      104,  -2.6,    2.6);
   histograms->push_back(h_offline_eta);
-  h_FTK_phi    = new TH1D("h_FTKMoni_RawTrack_phi",    ";offline track phi[Rad];No. Tracks",      64,  -3.2,    3.2);
+  h_FTK_etaEffNum    = new TH1D("h_FTKMoni_etaEffNum",    ";offline track eta;No. FTK Tracks",      104,  -2.6, 2.6);
+  histograms->push_back(h_FTK_etaEffNum);
+
+  h_FTK_phi    = new TH1D("h_FTKMoni_RawTrack_phi",    ";FTK track phi[Rad];No. Tracks",      64,  -3.2,    3.2);
   histograms->push_back(h_FTK_phi);
   h_offline_phi    = new TH1D("h_FTKMoni_offline_phi",    ";offline track phi[Rad]; No. Tracks",      64,  -3.2,    3.2);
   histograms->push_back(h_offline_phi);
-  
+  h_FTK_phiEffNum    = new TH1D("h_FTKMoni_phiEffNum",    ";offline track phi[Rad]; No. FTK Tracks",      64,  -3.2,    3.2);
+  histograms->push_back(h_FTK_phiEffNum);
+
+  h_FTK_d0    = new TH1D("h_FTKMoni_RawTrack_d0",    ";FTK track d0[Rad];No. Tracks",      100, -5. , 5.);
+  histograms->push_back(h_FTK_d0);
+  h_offline_d0    = new TH1D("h_FTKMoni_offline_d0",    ";offline track d0[Rad]; No. Tracks",      100, -5. , 5.);
+  histograms->push_back(h_offline_d0);
+  h_FTK_d0EffNum    = new TH1D("h_FTKMoni_d0EffNum",    ";offline track d0[Rad]; No. FTK Tracks",      100, -5. , 5.);
+  histograms->push_back(h_FTK_d0EffNum);
+
+  h_FTK_z0    = new TH1D("h_FTKMoni_RawTrack_z0",    ";FTK track z0[Rad];No. Tracks",      60, -150., 150.);
+  histograms->push_back(h_FTK_z0);
+  h_offline_z0    = new TH1D("h_FTKMoni_offline_z0",    ";offline track z0[Rad]; No. Tracks",      60, -150., 150.);
+  histograms->push_back(h_offline_z0);
+  h_FTK_z0EffNum    = new TH1D("h_FTKMoni_z0EffNum",    ";offline track z0[Rad]; No. FTK Tracks",      60, -150., 150.);
+  histograms->push_back(h_FTK_z0EffNum);
+
+
   h_IBL_dlocX_fullRange= new TH1D("h_IBL_dlocX_fullRange", "PIXB0: locx(offline)-locx(ftk)", 100,  -20.,    20.);
   histograms->push_back(h_IBL_dlocX_fullRange);
-
+  
   h_IBL_dlocY_fullRange= new TH1D("h_IBL_dlocY_fullRange", "PIXB0: locy(offline)-locy(ftk)", 100,  -50.,    50.);
   histograms->push_back(h_IBL_dlocY_fullRange);
+  
+  h_IBL_locX= new TH1D("h_IBL_locX", "IBL: rawLocalPhiCoord%8)", 6,  -0.5,    5.5);
+  histograms->push_back(h_IBL_locX);        
+  h_IBL_locY= new TH1D("h_IBL_locY", "IBL: rawLocalEtaCoord%8)", 6,  -0.5,    5.5);
+  histograms->push_back(h_IBL_locY);
+
+  h_pixb_locX= new TH1D("h_pixb_locX", "PIXB: rawLocalPhiCoord%8)", 6,  -0.5,    5.5);
+  histograms->push_back(h_pixb_locX);
+  h_pixb_locY= new TH1D("h_pixb_locY", "PIXB: rawLocalEtaCoord%8)", 6,  -0.5,    5.5);
+  histograms->push_back(h_pixb_locY);
+  h_pixe_locX= new TH1D("h_pixe_locX", "PIXE: rawLocalPhiCoord%8)", 6,  -0.5,    5.5);
+  histograms->push_back(h_pixe_locX);
+  h_pixe_locY= new TH1D("h_pixe_locY", "PIXE: rawLocalEtaCoord%8)", 6,  -0.5,    5.5);
+  histograms->push_back(h_pixe_locY);
+
+  h_sctb_locX= new TH1D("h_sctb_locX", "SCTB: rawLocalPhiCoord%2)", 2,  -0.5,    1.5);
+  histograms->push_back(h_sctb_locX);
+  h_scte_locX= new TH1D("h_scte_locX", "SCTE: rawLocalPhiCoord%2)", 2,  -0.5,    1.5);
+  histograms->push_back(h_scte_locX);
 
 
 
-  for (Int_t ilay=0; ilay<4; ilay++){
-
-    TString histname("h_FTKMoni_PIXB");
-    histname+=ilay;
-    histname+="_dlocX";
-
-    TString histtitle("PIXB");
-    histtitle+=ilay;
-    histtitle+=": locx(offline)-locx(ftk)";
-
-    TH1D* pixb_dlocX = new TH1D(histname, histtitle, 100,  -0.5,    0.5);
-    h_pixb_dlocX.push_back(pixb_dlocX);
-    histograms->push_back(pixb_dlocX);
-
-    histname="h_FTKMoni_PIXB";
-    histname+=ilay;
-    histname+="_dlocY";
-
-    histtitle="PIXB";
-    histtitle+=ilay;
-    histtitle+=": locy(offline)-locy(ftk)";
-
-
-    TH1D* pixb_dlocY = new TH1D(histname, histtitle, 100,  -0.5,    0.5);
-    h_pixb_dlocY.push_back(pixb_dlocY);
-    histograms->push_back(pixb_dlocY);
-
-    if (ilay < 3) {
-
-      histname="h_FTKMoni_PIXE";
-      histname+=ilay;
-      histname+="_dlocX";
-      
-      histtitle="PIXE";
-      histtitle+=ilay;
-      histtitle+=": locx(offline)-locx(ftk)";
-      
-      TH1D* pixe_dlocX = new TH1D(histname, histtitle, 100,  -0.5,    0.5);
-      h_pixe_dlocX.push_back(pixe_dlocX);
-      histograms->push_back(pixe_dlocX);
-
-      histname="h_FTKMoni_PIXE";
-      histname+=ilay;
-      histname+="_dlocY";
-      
-      histtitle="PIXE";
-      histtitle+=ilay;
-      histtitle+=": locy(offline)-locy(ftk);locy(offline)-locy(ftk);No. Hits";
-      
-      TH1D* pixe_dlocY = new TH1D(histname, histtitle, 100,  -0.5,    0.5);
-      h_pixe_dlocY.push_back(pixe_dlocY);
-      histograms->push_back(pixe_dlocY);
-    }      
-    histname="h_FTKMoni_SCTB";
-    histname+=ilay;
-    histname+="_0_dlocX";
     
-    histtitle="SCTB";
+  TString histname,histtitle;
+  
+  Int_t ilay=0;
+  if (m_Nlayers==8) ilay=1;
+  
+  for ( ; ilay<4; ilay++){
+    
+    
+    // row coord 
+    histname="h_FTKMoni_PIX";
+    histname+=ilay;
+    histname+="_row";
+    
+    histtitle="PIX";
     histtitle+=ilay;
-    histtitle+="(side 0): locx(offline)-locx(ftk);locx(offline)-locx(ftk);No. Hits";
+    histtitle+=": row (phi) coord";
+    
+    TH1D* pix_row = new TH1D(histname, histtitle, 41,  0, 4100);
+    h_pix_row.push_back(pix_row);
+    histograms->push_back(pix_row);
+    
+    // row width 
+    
+    histname="h_FTKMoni_PIX";
+    histname+=ilay;
+    histname+="_rowW";
+    
+    histtitle="PIX";
+    histtitle+=ilay;
+    histtitle+=": row (phi) width";
+    
+    TH1D* pix_rowW = new TH1D(histname, histtitle, 8,  -0.5, 7.5);
+    h_pix_rowW.push_back(pix_rowW);
+    histograms->push_back(pix_rowW);
+    
+    // col coord
+    
+    histname="h_FTKMoni_PIX";
+    histname+=ilay;
+    histname+="_col";
+    
+    histtitle="PIX";
+    histtitle+=ilay;
+    histtitle+=": col (eta) coord";
+    
+    
+    TH1D* pix_col = new TH1D(histname, histtitle, 41,  0,    4100);
+    h_pix_col.push_back(pix_col);
+    histograms->push_back(pix_col);
+    
+    // col width
+    
+    histname="h_FTKMoni_PIX";
+    histname+=ilay;
+    histname+="_colw";
+    
+    histtitle="PIX";
+    histtitle+=ilay;
+    histtitle+=": col (eta) width";
+    
+    
+    TH1D* pix_colW = new TH1D(histname, histtitle, 8, -0.5, 7.5);
+    h_pix_colW.push_back(pix_colW);
+    histograms->push_back(pix_colW);
+    
+  }
+  std::vector<unsigned int> sctplane;
+  if (m_Nlayers==8) {
+    sctplane={0,2,4,5,6};
+  } else {
+    sctplane={0,1,2,3,4,5,6,7};
+  }
+  
+  for(auto const& ilay: sctplane) {
+    // coord
+    
+    histname="h_FTKMoni_SCT";
+    histname+=ilay;
+    histname+="_coord";
+    
+    histtitle="SCT";
+    histtitle+=ilay;
+    histtitle+=": coord;coord;No. Hits";
+    
+    
+    TH1D* sct_coord = new TH1D(histname, histtitle, 42,  0,    2100);
+    h_sct_coord.push_back(sct_coord);
+    histograms->push_back(sct_coord);
+
+
+    // barrel side 0 width
+
+    histname="h_FTKMoni_SCT";
+    histname+=ilay;
+    histname+="_width";
+    
+    histtitle="SCT";
+    histtitle+=ilay;
+    histtitle+=": width;width;No. Hits";
     
 
-    TH1D* sctb_0_dlocX = new TH1D(histname, histtitle, 100,  -0.5,    0.5);
-    h_sctb_0_dlocX.push_back(sctb_0_dlocX);
-    histograms->push_back(sctb_0_dlocX);
-
-    histname="h_FTKMoni_SCTB";
-    histname+=ilay;
-    histname+="_1_dlocX";
-
-    histtitle="SCTB";
-    histtitle+=ilay;
-    histtitle+="(side 1): locx(offline)-locx(ftk);locx(offline)-locx(ftk);No. Hits";
-
-
-    TH1D* sctb_1_dlocX = new TH1D(histname, histtitle, 100,  -0.5,    0.5);
-    h_sctb_1_dlocX.push_back(sctb_1_dlocX);
-    histograms->push_back(sctb_1_dlocX);
-
-    histname="h_FTKMoni_SCTE";
-    histname+=ilay;
-    histname+="_0_dlocX";
- 
-    histtitle="SCTE";
-    histtitle+=ilay;
-    histtitle+="(side 0): locx(offline)-locx(ftk);locx(offline)-locx(ftk);No. Hits ";
-
-
-    TH1D* scte_0_dlocX = new TH1D(histname, histtitle, 100,  -0.5,    0.5);
-    h_scte_0_dlocX.push_back(scte_0_dlocX);
-    histograms->push_back(scte_0_dlocX);
-
-    histname="h_FTKMoni_SCTE";
-    histname+=ilay;
-    histname+="_1_dlocX";
-
-    histtitle="SCTE";
-    histtitle+=ilay;
-    histtitle+="(side 1): locx(offline)-locx(ftk);locx(offline)-locx(ftk);No. Hits";
-
-
-    TH1D* scte_1_dlocX = new TH1D(histname, histtitle, 100,  -0.5,    0.5);
-    h_scte_1_dlocX.push_back(scte_1_dlocX);
-    histograms->push_back(scte_1_dlocX);
-
+    TH1D* sct_width = new TH1D(histname, histtitle, 8,  -0.5,    7.5);
+    h_sct_width.push_back(sct_width);
+    histograms->push_back(sct_width);
   }
 
-  h_ftk_sct_clusWidth = new TH1D("h_FTKMoni_sct_clusWidth", "SCT cluster width ", 8,  -0.5,    7.5);
+  TString trackName[7]={"Raw","Raw_wid1", "Raw_wid2","Raw_wid3","Raw_wid4","Cnv", "Rft"};
+
+  h_pixb_dlocX.resize(7);
+  h_pixb_dlocY.resize(7);
+  h_pixe_dlocX.resize(7);
+  h_pixe_dlocY.resize(7);
+  h_sctb_0_dlocX.resize(7);
+  h_sctb_1_dlocX.resize(7);
+  h_scte_0_dlocX.resize(7);
+  h_scte_1_dlocX.resize(7);
+
+
+  
+  for (unsigned int trackType=0; trackType<7; trackType++) {
+    
+    ATH_MSG_DEBUG(" Booking dlocX, dlocY hists for " << trackName[trackType]);
+    for (Int_t ilay=0; ilay<4; ilay++){
+      
+      
+      // PIXB dLocX
+      
+      histname="h_FTKMoni_PIXB";
+      histname+=ilay;
+      histname+="_dlocX_";
+      histname+=trackName[trackType];
+      
+      histtitle="PIXB";
+      histtitle+=ilay;
+      histtitle+=": locx(offline)-locx(ftk"+trackName[trackType]+")";
+      
+      TH1D* pixb_dlocX = new TH1D(histname, histtitle, 500,  -0.5,    0.5);
+      h_pixb_dlocX[trackType].push_back(pixb_dlocX);
+      histograms->push_back(pixb_dlocX);
+      
+      // PIXB dLocY
+      
+      histname="h_FTKMoni_PIXB";
+      histname+=ilay;
+      histname+="_dlocY_";
+      histname+=trackName[trackType];
+      
+      histtitle="PIXB";
+      histtitle+=ilay;
+      histtitle+=": locy(offline)-locy(ftk"+trackName[trackType]+")";
+      
+      
+      TH1D* pixb_dlocY = new TH1D(histname, histtitle, 500,  -0.5,    0.5);
+      h_pixb_dlocY[trackType].push_back(pixb_dlocY);
+      histograms->push_back(pixb_dlocY);
+      
+      
+      if (ilay < 3) {
+	
+	
+	// PIXE dlocX
+	
+	histname="h_FTKMoni_PIXE";
+	histname+=ilay;
+	histname+="_dlocX_";
+	histname+=trackName[trackType];
+
+	histtitle="PIXE";
+	histtitle+=ilay;
+	histtitle+=": locx(offline)-locx(ftk"+trackName[trackType]+")";
+	
+	TH1D* pixe_dlocX = new TH1D(histname, histtitle, 500,  -0.5,    0.5);
+	h_pixe_dlocX[trackType].push_back(pixe_dlocX);
+	histograms->push_back(pixe_dlocX);
+	
+	// PIXE dlocY
+	
+	histname="h_FTKMoni_PIXE";
+	histname+=ilay;
+	histname+="_dlocY_";
+	histname+=trackName[trackType];
+
+	histtitle="PIXE";
+	histtitle+=ilay;
+	histtitle+=": locy(offline)-locy(ftk"+trackName[trackType]+")";
+	
+	TH1D* pixe_dlocY = new TH1D(histname, histtitle, 500,  -0.5,    0.5);
+	h_pixe_dlocY[trackType].push_back(pixe_dlocY);
+	histograms->push_back(pixe_dlocY);
+      }      
+      
+      
+      // SCT barrel side 0 dlocx
+      
+      histname="h_FTKMoni_SCTB";
+      histname+=ilay;
+      histname+="_0_dlocX_";
+      histname+=trackName[trackType];
+
+      histtitle="SCTB";
+      histtitle+=ilay;
+      histtitle+="(side 0): locx(offline)-locx(ftk"+trackName[trackType]+")";
+      
+      
+      TH1D* sctb_0_dlocX = new TH1D(histname, histtitle, 500,  -0.5,    0.5);
+      h_sctb_0_dlocX[trackType].push_back(sctb_0_dlocX);
+      histograms->push_back(sctb_0_dlocX);
+      
+      
+      
+      // SCT barrel side 1 dlocx
+      
+      histname="h_FTKMoni_SCTB";
+      histname+=ilay;
+      histname+="_1_dlocX_";
+      histname+=trackName[trackType];
+
+      histtitle="SCTB";
+      histtitle+=ilay;
+      histtitle+="(side 1): locx(offline)-locx(ftk"+trackName[trackType]+")";
+      
+      
+      TH1D* sctb_1_dlocX = new TH1D(histname, histtitle, 500,  -0.5,    0.5);
+      h_sctb_1_dlocX[trackType].push_back(sctb_1_dlocX);
+      histograms->push_back(sctb_1_dlocX);
+      
+      
+      // SCT endcap side 0 dlocx
+      
+      histname="h_FTKMoni_SCTE";
+      histname+=ilay;
+      histname+="_0_dlocX_";
+      histname+=trackName[trackType];
+      
+      histtitle="SCTE";
+      histtitle+=ilay;
+      histtitle+="(side 0): locx(offline)-locx(ftk"+trackName[trackType]+")";
+      
+      
+      TH1D* scte_0_dlocX = new TH1D(histname, histtitle, 500,  -0.5,    0.5);
+      h_scte_0_dlocX[trackType].push_back(scte_0_dlocX);
+      histograms->push_back(scte_0_dlocX);
+      
+      
+      // SCT endcap side 1 dlocx
+      
+      histname="h_FTKMoni_SCTE";
+      histname+=ilay;
+      histname+="_1_dlocX_";
+      histname+=trackName[trackType];
+
+      histtitle="SCTE";
+      histtitle+=ilay;
+      histtitle+="(side 1): locx(offline)-locx(ftk"+trackName[trackType]+")";
+      
+      
+      TH1D* scte_1_dlocX = new TH1D(histname, histtitle, 500,  -0.5,    0.5);
+      h_scte_1_dlocX[trackType].push_back(scte_1_dlocX);
+      histograms->push_back(scte_1_dlocX);
+    }
+  }
+
+  h_ftk_sct_clusWidth = new TH1D("h_FTKMoni_sct_clusWidth", "SCT cluster width", 8,  -0.5,    7.5);
   histograms->push_back(h_ftk_sct_clusWidth);
 
   h_ftk_pix_phiClusWidth = new TH1D("h_FTKMoni_pix_phiClusWidth", "Pixel cluster width in phi", 8,  -0.5,    7.5);
@@ -453,22 +768,6 @@ void FTK_RDO_MonitorAlgo::Hist_Init(std::vector<TH1D*> *histograms){
   histograms->push_back(h_ftk_pix_etaClusWidth);
 
   
-  TH1D* clusWidth0 = new TH1D("h_FTKMoni_sct_dLocX_w1to3", "SCT locx(offline)-locx(ftk) cluswidth 1-4", 100,  -0.5,    0.5);
-  h_ftk_sctb_dlocX.push_back(clusWidth0);
-  histograms->push_back(clusWidth0);
-  TH1D* clusWidth1 = new TH1D("h_FTKMoni_sct_dLocX_w1", "SCT locx(offline)-locx(ftk) cluswidth 1", 100,  -0.5,    0.5);
-  h_ftk_sctb_dlocX.push_back(clusWidth1);
-  histograms->push_back(clusWidth1);
-  TH1D* clusWidth2 = new TH1D("h_FTKMoni_sct_dLocX_w2", "SCT locx(offline)-locx(ftk) cluswidth 2", 100,  -0.5,    0.5);
-  h_ftk_sctb_dlocX.push_back(clusWidth2);
-  histograms->push_back(clusWidth2);
-  TH1D* clusWidth3 = new TH1D("h_FTKMoni_sct_dLocX_w3", "SCT locx(offline)-locx(ftk) cluswidth 3", 100,  -0.5,    0.5);
-  h_ftk_sctb_dlocX.push_back(clusWidth3);
-  histograms->push_back(clusWidth3);
-  TH1D* clusWidth4 = new TH1D("h_FTKMoni_sct_dLocX_w4", "SCT locx(offline)-locx(ftk) cluswidth 4", 100,  -0.5,    0.5);
-  h_ftk_sctb_dlocX.push_back(clusWidth4);
-  histograms->push_back(clusWidth4);
-
 }
 		    
 		    
@@ -483,8 +782,6 @@ void FTK_RDO_MonitorAlgo::fillMaps(const FTK_RawTrackContainer* rawTracks, std::
   unsigned int sctMaxHash = m_sctId->wafer_hash_max();
   
   
-  FTK_RawTrackContainer::const_iterator pTrack = rawTracks->begin();
-  FTK_RawTrackContainer::const_iterator pLastTrack = rawTracks->end();
   
   
   //    const FTK_RawTrack* highPtTrack = nullptr;
@@ -493,100 +790,174 @@ void FTK_RDO_MonitorAlgo::fillMaps(const FTK_RawTrackContainer* rawTracks, std::
   std::vector<unsigned int>  missingPixLayer(4);
   std::vector<unsigned int> missingSctLayer(8);
 
-
   
+  FTK_RawTrackContainer::const_iterator pTrack = rawTracks->begin();
+  FTK_RawTrackContainer::const_iterator pLastTrack = rawTracks->end();
   for ( int itr=0; pTrack!= pLastTrack; pTrack++, itr++) {
     
-          
-	    
-	    /*
-	    float ftkTrkPt=1.e10;
-	    if (fabs((*pTrack)->getInvPt()) >= 1e-9) ftkTrkPt=1./(*pTrack)->getInvPt();
-	    float ftkTrkTheta = std::atan2(1.0,(*pTrack)->getCotTh());
-	    float ftkTrkEta = -std::log(std::tan(ftkTrkTheta/2.));
-	      ATH_MSG_VERBOSE( itr << ": pT: " << ftkTrkPt  << " eta: " << ftkTrkEta << " phi: " <<  (*pTrack)->getPhi() << " d0: " << (*pTrack)->getD0() <<
-	    " z0: " << (*pTrack)->getZ0()<< " cot " << (*pTrack)->getCotTh() << " theta " << ftkTrkTheta << " invPt " << (*pTrack)->getInvPt() <<
-	    " nPix: " << (*pTrack)->getPixelClusters().size() << " nSCT: "<< (*pTrack)->getSCTClusters().size()<< " barCode: "<<(*pTrack)->getBarcode()  );
-	    ATH_MSG_VERBOSE( "     SectorID " << (*pTrack)->getSectorID()   <<   "  RoadID "  << (*pTrack)->getRoadID() << " LayerMap " << (*pTrack)->getLayerMap());
-	    */
+    unsigned int tower = (*pTrack)->getTower();
+    unsigned int sector = (*pTrack)->getSectorID();
+
+    if (m_towerID!=0) tower=m_towerID;
+      
+    ATH_MSG_VERBOSE( itr << std::hex <<
+		     ": Tower 0x" << tower << "     SectorID 0x" << (*pTrack)->getSectorID()   <<   
+		     "  RoadID 0x"  << (*pTrack)->getRoadID() << " LayerMap 0x" << (*pTrack)->getLayerMap() << std::dec <<
+		     " nPix: " << (*pTrack)->getPixelClusters().size() << " nSCT: "<< (*pTrack)->getSCTClusters().size());
     
-    unsigned int iPlane = 0;
+    
 
+    unsigned int iPlane=0,ihist=0;
+    if (m_Nlayers==8) iPlane=1;
 
-
-    for( unsigned int i = 0; i < (*pTrack)->getPixelClusters().size(); ++i,iPlane++){
+    for( ; iPlane < 4; iPlane++, ihist++){
       
       
-      if ((*pTrack)->isMissingPixelLayer(i))  {
-	//	  ATH_MSG_VERBOSE(" Missing Pixel Layer " <<  i);
-	if (i<4)missingPixLayer[i]++;
+      if ((*pTrack)->isMissingPixelLayer(iPlane))  {
+	ATH_MSG_VERBOSE(" Missing Pixel Layer " <<  iPlane);
+	if (iPlane<4)missingPixLayer[iPlane]++;
 	continue;
       }
-      /* 
-	 ATH_MSG_VERBOSE(" FTK_RawPixelCluster " << i <<
-	 " Row Coord= " << (*pTrack)->getPixelClusters()[i].getRowCoord() <<
-	 " Row Width= " << (*pTrack)->getPixelClusters()[i].getRowWidth() <<
-	 " Col Coord= " << (*pTrack)->getPixelClusters()[i].getColCoord() <<
-	 " Col Width= " << (*pTrack)->getPixelClusters()[i].getColWidth() <<
-	 " Hash ID= 0x" << std::hex << (*pTrack)->getPixelClusters()[i].getModuleID() 
-	 << std::dec << " Barcode= "   << (*pTrack)->getPixelClusters()[i].getBarcode() 
-	 );
-      */
+            
+      
+      IdentifierHash hash=0xffffffff;
+
+      if (m_getHashFromTrack) hash = (*pTrack)->getPixelClusters()[iPlane].getModuleID();
+      
+      if (m_getHashFromConstants) {
+      
+	IdentifierHash hashfromConstants = this->getHash(40, sector, iPlane);
+	if (hashfromConstants > pixMaxHash) {
+	  if ((*m_moduleFromSector[tower]).size()>0)ATH_MSG_WARNING(" invalid pixel HashID 0x" << std::hex << hash << std::dec << " for tower " << tower << " sector " << sector << " plane " << iPlane);
+	} else {
+	
+	  if (m_getHashFromTrack) { 
+	    if (hashfromConstants != hash) {
+	    
+	      ATH_MSG_WARNING(" Pixel HashID missmatch: hash from Track 0x" << std::hex << hash  << " hash from Constants 0x" << hashfromConstants << std::dec <<" tower " << tower << " sector " << sector << " plane " << iPlane);
+	      unsigned int track_tower=tower, track_sector=sector, track_plane=iPlane;
+	      bool found = this->findHash(hash, false, track_tower, track_sector, track_plane);
+	      if (found) ATH_MSG_WARNING(" track hash found at tower " << track_tower << " sector " << track_sector  << " plane " << track_plane);   
+	      ATH_MSG_WARNING(m_id_helper->print_to_string(m_pixelId->wafer_id(hash)));
+	      ATH_MSG_WARNING(m_id_helper->print_to_string(m_pixelId->wafer_id(hashfromConstants)));
+	      
+	    } else {
+	      ATH_MSG_VERBOSE(" Pixel HashID successful match: hash from Track 0x" << std::hex << hash  << " hash from Constants 0x" << hashfromConstants << std::dec <<" tower " << tower << " sector " << sector << " plane " << iPlane);
+	    }
+	  }
+	}	    
+	if (!m_getHashFromTrack)hash =  hashfromConstants;
+      }
       
       
-      
-      
-      IdentifierHash hash = (*pTrack)->getPixelClusters()[i].getModuleID();
-      
+      h_pix_row[ihist]->Fill((*pTrack)->getPixelClusters()[iPlane].getRowCoord());
+      h_pix_rowW[ihist]->Fill((*pTrack)->getPixelClusters()[iPlane].getRowWidth());
+      h_pix_col[ihist]->Fill((*pTrack)->getPixelClusters()[iPlane].getColCoord());
+      h_pix_colW[ihist]->Fill((*pTrack)->getPixelClusters()[iPlane].getColWidth());
+
+      ATH_MSG_VERBOSE(" FTK_RawPixelCluster " << iPlane << std::hex <<
+		      " Row Coord= 0x" << (unsigned int) (*pTrack)->getPixelClusters()[iPlane].getRowCoord() <<
+		      " Row Width= 0x" << (*pTrack)->getPixelClusters()[iPlane].getRowWidth() <<
+		      " Col Coord= 0x" << (unsigned int) (*pTrack)->getPixelClusters()[iPlane].getColCoord() <<
+		      " Col Width= 0x" <<(*pTrack)->getPixelClusters()[iPlane].getColWidth() <<
+		      " Hash ID= 0x" << hash << std::dec	      
+		      );
+      ATH_MSG_VERBOSE(m_id_helper->print_to_string(m_pixelId->wafer_id(hash)));
       if (hash<pixMaxHash) {
-	//	ATH_MSG_DEBUG(" Adding to pixList[ "<<hash<<" ] track " << itr);
+	ATH_MSG_DEBUG(" Adding to pixList[ "<<hash<<" ] track " << itr);
 	if (!pixList[hash]) pixList[hash]= new std::vector<unsigned int>;
 	pixList[hash]->push_back(itr);
       }
       
     }
-    for( unsigned int isct = 0; isct < (*pTrack)->getSCTClusters().size(); ++isct){
-      
+    std::vector<unsigned int> sctplane;
+    if (m_Nlayers==8) {
+      sctplane={0,2,4,5,6};
+    } else {
+      sctplane={0,1,2,3,4,5,6,7};
+    }
+
+    ihist=0;
+    for(auto isct:sctplane){
+      iPlane = isct+4;
       if ((*pTrack)->isMissingSCTLayer(isct)) {
-	//	  ATH_MSG_VERBOSE(" Missing SCT Layer" << isct);
+	ATH_MSG_VERBOSE(" Missing SCT Layer" << isct);
 	if (isct<8)missingSctLayer[isct]++;
 	continue;
       }
       
-      /* ATH_MSG_VERBOSE(" FTK_RawSCT_Cluster " << isct <<
-	 " Hit Coord= " << (*pTrack)->getSCTClusters()[isct].getHitCoord() <<
-	 " Hit Width= " << (*pTrack)->getSCTClusters()[isct].getHitWidth() <<
-	 " Module ID= " << (*pTrack)->getSCTClusters()[isct].getModuleID() <<
-	 " Barcode= "   << (*pTrack)->getSCTClusters()[isct].getBarcode() );
-      */
+
+      IdentifierHash hash=0xffffffff;
+
+      if (m_getHashFromTrack) hash = (*pTrack)->getSCTClusters()[isct].getModuleID();
       
-      IdentifierHash hash = (*pTrack)->getSCTClusters()[isct].getModuleID();
-      
+      if (m_getHashFromConstants) {
+        IdentifierHash hashfromConstants = this->getHash(tower, sector, iPlane);
+	if (hashfromConstants > sctMaxHash) {
+	  if ((*m_moduleFromSector[tower]).size()>0)ATH_MSG_WARNING(" invalid SCT HashID 0x" << std::hex << hash << std::dec << " for tower " << tower << " sector " << sector << " plane " << iPlane);
+	} else {
+	  
+	  if (m_getHashFromTrack) {
+	    if (hashfromConstants != hash) {
+	    
+	      ATH_MSG_WARNING(" SCT HashID missmatch: hash from Track 0x" << std::hex << hash << " hash from Constants 0x" << hashfromConstants << std::dec <<" tower " << tower << " sector " << sector << " plane " << iPlane);
+
+	      unsigned int track_tower, track_sector, track_plane;
+
+	      bool found = this->findHash(hash, true, track_tower, track_sector, track_plane);
+		
+	      if (found) ATH_MSG_WARNING(" track hash found at tower " << track_tower << " sector " << track_sector  << " plane " << track_plane);   
+	      ATH_MSG_WARNING(m_id_helper->print_to_string(m_sctId->wafer_id(hash)));
+	      ATH_MSG_WARNING(m_id_helper->print_to_string(m_sctId->wafer_id(hashfromConstants)));
+
+	    
+	    } else {
+	      ATH_MSG_VERBOSE(" SCT HashID successful match: hash from Track 0x" << std::hex << hash << " hash from Constants 0x" << hashfromConstants << std::dec <<" tower " << tower << " sector " << sector << " plane " << iPlane);
+	    }
+	  }
+	}
+	if (!m_getHashFromTrack) hash =  hashfromConstants;
+      }
+
+      ATH_MSG_VERBOSE(" FTK_RawSCT_Cluster " << isct << " FTK plane 0x" << iPlane << std::hex <<
+		      " Hit Coord= 0x" << (unsigned int) (*pTrack)->getSCTClusters()[isct].getHitCoord() <<
+		      " Hit Width= 0x" << (*pTrack)->getSCTClusters()[isct].getHitWidth() <<
+		      " Hash ID = 0x" << hash << std::dec);
+      ATH_MSG_VERBOSE(m_id_helper->print_to_string(m_sctId->wafer_id(hash)));
+
+      h_sct_coord[ihist]->Fill((*pTrack)->getSCTClusters()[isct].getHitCoord());
+      h_sct_width[ihist]->Fill((*pTrack)->getSCTClusters()[isct].getHitWidth());
+
       if (hash<sctMaxHash) {
-	//	ATH_MSG_DEBUG(" Adding to sctList[ "<<hash<<" ] track " << itr);
+	ATH_MSG_DEBUG(" Adding to sctList[ "<<hash<<" ] track " << itr);
 	
 	if (!sctList[hash]) sctList[hash]= new std::vector<unsigned int>;
 	  sctList[hash]->push_back(itr);
       }
     
+      ihist++;
     }
   } // end loop over tracks
   
 
   unsigned int ntracks = rawTracks->size();
-  unsigned int ilay=0;
-  for (auto& ipix:missingPixLayer) {
-    double frac = (double) ipix/ (double) ntracks;
-    ATH_MSG_DEBUG(" Fraction of Tracks Missing Hits from Layer " << ilay << " = "<< frac); 
-    h_missingHits->Fill(ilay++,frac);
-  }
-  for (auto& isct:missingSctLayer) {
-    double frac = (double) isct/ (double) ntracks;
-    ATH_MSG_DEBUG(" Fraction of Tracks Missing Hits from Layer " << ilay << " = "<< frac); 
-    double x = (double) ilay++;
-    h_missingHits->Fill(x,frac);
+  if (ntracks > 0) {
+    unsigned int ilay=0;
+    for (auto& ipix:missingPixLayer) {
+      double frac = (double) ipix/ (double) ntracks;
+      ATH_MSG_DEBUG(" Fraction of Tracks Missing Hits from Layer " << ilay << " = "<< frac); 
+      h_missingHits->Fill(ilay++,frac);
+    }
+    for (auto& isct:missingSctLayer) {
+      double frac = (double) isct/ (double) ntracks;
+      ATH_MSG_DEBUG(" Fraction of Tracks Missing Hits from Layer " << ilay << " = "<< frac); 
+      double x = (double) ilay++;
+      h_missingHits->Fill(x,frac);
+    }
   }
 }
+
+
 
 
 
@@ -660,22 +1031,13 @@ const std::pair<unsigned int, unsigned int> FTK_RDO_MonitorAlgo::matchTrack(cons
 	const std::pair<double, double>  locXlocY(locX,locY);
 	offlinetrackPixLocxLocy.insert({hash,locXlocY});
 	
-	/* 
-	   bool isBarrelPixel = m_pixelId->is_barrel(hitId);
-	   unsigned int layerPixel = m_pixelId->layer_disk(hitId);
-	   if ( isBarrelPixel) {
-	  ATH_MSG_DEBUG(iHit <<": Pixel barrel layer " << layerPixel << " locX " << locX << " locY " << locY);
-	} else {
-	  ATH_MSG_DEBUG(iHit <<": Pixel endcap layer " << layerPixel << " locX " << locX << " locY " << locY);
-	}
-	*/
 
 	if (hash < pixMaxHash) {
 	  if (pixList[hash]) {
-	    //	    ATH_MSG_VERBOSE(" Pixel module " << hash << " is on the following FTK tracks:");
+	    ATH_MSG_VERBOSE(" Pixel module " << hash << " is on the following FTK tracks:");
 	    
 	    for (auto& ipixtr:*pixList[hash]) {
-	      //	      ATH_MSG_VERBOSE(ipixtr);
+	      ATH_MSG_VERBOSE(ipixtr);
 	      ftkTrackIndexList.push_back(ipixtr);
 	    }
 	  }
@@ -687,21 +1049,12 @@ const std::pair<unsigned int, unsigned int> FTK_RDO_MonitorAlgo::matchTrack(cons
 	offlinetrackSctLocx.insert({hash,locX});
 
 	
-	/*
-	  bool isBarrelSCT = m_sctId->is_barrel(hitId);
-	  unsigned int layerSCT = m_sctId->layer_disk(hitId);
-	  if ( isBarrelSCT) {
-	  ATH_MSG_DEBUG(iHit <<": SCT barrel layer " << layerSCT << " locX " << locX);
-	} else {
-	  ATH_MSG_DEBUG(iHit <<": SCT endcap layer " << layerSCT << " locX " << locX);
-	}
-	*/
 	if (hash < sctMaxHash) {
 	  if (sctList[hash]) {
-	    //	    ATH_MSG_VERBOSE(" SCT module " << hash << " is on the following FTK tracks:");
+	    ATH_MSG_VERBOSE(" SCT module " << hash << " is on the following FTK tracks:");
 	    
 	    for (auto& iscttr:*sctList[hash]) {
-	      //	      ATH_MSG_VERBOSE(iscttr);
+	      ATH_MSG_VERBOSE(iscttr);
 	      ftkTrackIndexList.push_back(iscttr);
 	    }
 	  }
@@ -710,20 +1063,18 @@ const std::pair<unsigned int, unsigned int> FTK_RDO_MonitorAlgo::matchTrack(cons
       }
       iHit++;
       
-    } else {
-      //      ATH_MSG_DEBUG(" Not a Measurment Surface");
     }
   }
   
   
   
-  /*
-    ATH_MSG_VERBOSE(" Offline Track is matched to the following FTK tracks");
-
-    for ( auto& i:ftkTrackIndexList) {
-      ATH_MSG_VERBOSE(i);
-    }
-  */
+  
+  ATH_MSG_VERBOSE(" Offline Track is matched to the following FTK tracks");
+  
+  for ( auto& i:ftkTrackIndexList) {
+    ATH_MSG_VERBOSE(i);
+  }
+  
 
   if (ftkTrackIndexList.size()==0) return index_freq;
 
@@ -738,11 +1089,9 @@ const std::pair<unsigned int, unsigned int> FTK_RDO_MonitorAlgo::matchTrack(cons
 	unsigned int pos = std::distance(ftktrack.begin(), pTrack);
 	freq[pos]++;
 	found = true;
-	//	ATH_MSG_VERBOSE(" found at pos " << pos);
       }
     }
     if (!found) {
-      //      ATH_MSG_VERBOSE(" not found, adding at pos " << ftktrack.size()+1);
       ftktrack.push_back(i);
       freq.push_back(1);
     }
@@ -776,16 +1125,12 @@ void FTK_RDO_MonitorAlgo::compareTracks(const FTK_RawTrack* ftkTrack,
 					std::map<unsigned int,double>& offlinetrackSctLocx
 					) {
 
-  //  ATH_MSG_DEBUG("compareTracks");
-
-  
   unsigned int iPlane = 0;
   
-  for( unsigned int i = 0; i < (ftkTrack)->getPixelClusters().size(); ++i,iPlane++){
+  for( unsigned int i = 0; i < 4; ++i,iPlane++){
     
 	
     if ((ftkTrack)->isMissingPixelLayer(i))  {
-      //      ATH_MSG_VERBOSE(" FTK track Missing Pixel Layer " <<  i);
       continue;
     }
     /* ATH_MSG_VERBOSE(" FTK_RawPixelCluster " << i <<
@@ -796,9 +1141,11 @@ void FTK_RDO_MonitorAlgo::compareTracks(const FTK_RawTrack* ftkTrack,
 		    " Hash ID= 0x" << std::hex << (ftkTrack)->getPixelClusters()[i].getModuleID() << std::dec <<
 		    " Barcode= "   << (ftkTrack)->getPixelClusters()[i].getBarcode() );*/
     
-    h_ftk_pix_phiClusWidth->Fill((double)ftkTrack->getPixelClusters()[i].getRowWidth());
-    h_ftk_pix_etaClusWidth->Fill((double)ftkTrack->getPixelClusters()[i].getColWidth());
+    unsigned int phiWidth =  ftkTrack->getPixelClusters()[i].getRowWidth();
+    unsigned int etaWidth =  ftkTrack->getPixelClusters()[i].getColWidth();
 
+    h_ftk_pix_phiClusWidth->Fill((double) phiWidth);
+    h_ftk_pix_etaClusWidth->Fill((double) etaWidth);
   
     const IdentifierHash hash = (ftkTrack)->getPixelClusters()[i].getModuleID();
     Identifier wafer_id = m_pixelId->wafer_id(hash); // Need to set up this tool
@@ -834,15 +1181,32 @@ void FTK_RDO_MonitorAlgo::compareTracks(const FTK_RawTrack* ftkTrack,
       ATH_MSG_DEBUG(layername << layer<< " locX: offline " << offlineLocxLoxy.first << " FTK " << ftkLocxLocy.first << " off-FTK " <<  offlineLocxLoxy.first - ftkLocxLocy.first);
       ATH_MSG_DEBUG(layername << layer<< " locY: offline " << offlineLocxLoxy.second << " FTK " << ftkLocxLocy.second << " off-FTK " <<  offlineLocxLoxy.second - ftkLocxLocy.second);
       if (isBarrel) {
+	
 	if (layer==0) {
+	  h_IBL_locX->Fill((int)rawLocalPhiCoord%8);
+	  h_IBL_locY->Fill((int)rawLocalEtaCoord%8);
 	  h_IBL_dlocX_fullRange->Fill(offlineLocxLoxy.first - ftkLocxLocy.first);
 	  h_IBL_dlocY_fullRange->Fill(offlineLocxLoxy.second - ftkLocxLocy.second);
+	} else {
+	  h_pixb_locX->Fill((int)rawLocalPhiCoord%8);
+	  h_pixb_locY->Fill((int)rawLocalEtaCoord%8);
 	}
-	h_pixb_dlocX[layer]->Fill(offlineLocxLoxy.first - ftkLocxLocy.first);
-	h_pixb_dlocY[layer]->Fill(offlineLocxLoxy.second - ftkLocxLocy.second);
+
+	h_pixb_dlocX[FTK_MonHistType::Raw][layer]->Fill(offlineLocxLoxy.first - ftkLocxLocy.first);
+	h_pixb_dlocY[FTK_MonHistType::Raw][layer]->Fill(offlineLocxLoxy.second - ftkLocxLocy.second);
+	for (unsigned int iwid=1; iwid < 5; iwid++) {
+	  if (phiWidth==iwid) h_pixb_dlocX[iwid][layer]->Fill(offlineLocxLoxy.first - ftkLocxLocy.first);
+	  if (etaWidth==iwid) h_pixb_dlocY[iwid][layer]->Fill(offlineLocxLoxy.second - ftkLocxLocy.second);
+	}
       } else {
-	h_pixe_dlocX[layer]->Fill(offlineLocxLoxy.first - ftkLocxLocy.first);
-	h_pixe_dlocY[layer]->Fill(offlineLocxLoxy.second - ftkLocxLocy.second);
+	h_pixe_locX->Fill((int)rawLocalPhiCoord%8);
+	h_pixe_locY->Fill((int)rawLocalEtaCoord%8);
+	h_pixe_dlocX[FTK_MonHistType::Raw][layer]->Fill(offlineLocxLoxy.first - ftkLocxLocy.first);
+	h_pixe_dlocY[FTK_MonHistType::Raw][layer]->Fill(offlineLocxLoxy.second - ftkLocxLocy.second);
+	for (unsigned int iwid=1; iwid < 5; iwid++) {
+	  if (phiWidth==iwid) h_pixe_dlocX[iwid][layer]->Fill(offlineLocxLoxy.first - ftkLocxLocy.first);
+	  if (etaWidth==iwid) h_pixe_dlocY[iwid][layer]->Fill(offlineLocxLoxy.second - ftkLocxLocy.second);
+	}
       }
 
     } else {
@@ -850,7 +1214,7 @@ void FTK_RDO_MonitorAlgo::compareTracks(const FTK_RawTrack* ftkTrack,
     }
   
   }
-  for( unsigned int isct = 0; isct < (ftkTrack)->getSCTClusters().size(); ++isct){
+  for( unsigned int isct = 0; isct < 8; ++isct){
     
     if ((ftkTrack)->isMissingSCTLayer(isct)) {
       //ATH_MSG_VERBOSE(" Missing SCT Layer" << isct);
@@ -871,7 +1235,17 @@ void FTK_RDO_MonitorAlgo::compareTracks(const FTK_RawTrack* ftkTrack,
     
     int strip = (int) stripCoord;
     IdentifierHash scthash = (ftkTrack)->getSCTClusters()[isct].getModuleID();
-    const int clusterWidth=(ftkTrack)->getSCTClusters()[isct].getHitWidth();
+    unsigned int clusterWidth=(ftkTrack)->getSCTClusters()[isct].getHitWidth();
+
+
+    if (clusterWidth == 0) { // fix for case that width is not set
+      if ((int)rawStripCoord%2==1) { 
+	clusterWidth=2; // cluster position is odd => between strips => width 2
+      } else {
+	clusterWidth=1; //  // cluster position is even => on strip => width 1
+      } 
+    }
+    h_ftk_sct_clusWidth->Fill(clusterWidth);
 
     Identifier sctwafer_id = m_sctId->wafer_id(scthash); 
     
@@ -886,33 +1260,44 @@ void FTK_RDO_MonitorAlgo::compareTracks(const FTK_RawTrack* ftkTrack,
       layername="SCTE";
     }
     
-    
+
     double ftkLocX  = (this)->getSctLocX(scthash,rawStripCoord,clusterWidth);
     
     auto p = offlinetrackSctLocx.find(scthash);
     if (p!=offlinetrackSctLocx.end()) {
       double offlineLocX = p->second;
       ATH_MSG_DEBUG(layername << layer<< ":"<<side<<" Raw locX: " << rawStripCoord << " locX/2: " << strip << " clusterWidth " << clusterWidth);
-      ATH_MSG_DEBUG(layername << layer<< ":"<<side<< " locX: offline " << offlineLocX << " FTK " << ftkLocX << " off-FTK " <<  offlineLocX  - ftkLocX);
+      ATH_MSG_DEBUG(layername << layer<< ":"<<side<< " locX: offline " << offlineLocX << " FTK(mode 2) " << ftkLocX << " off-FTK " <<  offlineLocX  - ftkLocX);
       
-      h_ftk_sct_clusWidth->Fill((double) clusterWidth);
-      if (isBarrel && side==0 && clusterWidth>0 && clusterWidth < 5) {
-	h_ftk_sctb_dlocX[0]->Fill(offlineLocX  - ftkLocX);
-	h_ftk_sctb_dlocX[clusterWidth]->Fill(offlineLocX  - ftkLocX);
-      }
       if (isBarrel) {
+	h_sctb_locX->Fill((int)(ftkTrack)->getSCTClusters()[isct].getHitCoord()%2);
 	if (side==0) {
- 	  h_sctb_0_dlocX[layer]->Fill(offlineLocX  - ftkLocX);
+ 	  h_sctb_0_dlocX[FTK_MonHistType::Raw][layer]->Fill(offlineLocX  - ftkLocX);
+ 	  if (clusterWidth==0) h_sctb_0_dlocX[FTK_MonHistType::Raw_wid1][layer]->Fill(offlineLocX  - ftkLocX);
+	  for (unsigned int iwid=1; iwid < 5; iwid++) {
+	    if (clusterWidth==(iwid)) h_sctb_0_dlocX[iwid][layer]->Fill(offlineLocX  - ftkLocX);
+	  }
 	} else {
- 	  h_sctb_1_dlocX[layer]->Fill(offlineLocX  - ftkLocX);
+ 	  h_sctb_1_dlocX[FTK_MonHistType::Raw][layer]->Fill(offlineLocX  - ftkLocX);
+	  for (unsigned int iwid=1; iwid < 5; iwid++) {
+	    if (clusterWidth==(iwid)) h_sctb_1_dlocX[iwid][layer]->Fill(offlineLocX  - ftkLocX);
+	  }
 	}
       } else {
 	unsigned int ring = m_sctId->eta_module(sctwafer_id);
 
+	h_scte_locX->Fill((int)(ftkTrack)->getSCTClusters()[isct].getHitCoord()%2);
+
 	if (side==0) {
- 	  h_scte_0_dlocX[ring]->Fill(offlineLocX  - ftkLocX);
+ 	  h_scte_0_dlocX[FTK_MonHistType::Raw][ring]->Fill(offlineLocX  - ftkLocX);
+	  for (unsigned int iwid=1; iwid < 5; iwid++) {
+	    if (clusterWidth==(iwid)) h_scte_0_dlocX[iwid][ring]->Fill(offlineLocX  - ftkLocX);
+	  }
 	} else {
- 	  h_scte_1_dlocX[ring]->Fill(offlineLocX  - ftkLocX);
+ 	  h_scte_1_dlocX[FTK_MonHistType::Raw][ring]->Fill(offlineLocX  - ftkLocX);
+	  for (unsigned int iwid=1; iwid < 5; iwid++) {
+	    if (clusterWidth==(iwid)) h_scte_1_dlocX[iwid][ring]->Fill(offlineLocX  - ftkLocX);
+	  }
 	}
       }
 
@@ -920,6 +1305,140 @@ void FTK_RDO_MonitorAlgo::compareTracks(const FTK_RawTrack* ftkTrack,
             ATH_MSG_DEBUG("did not find SCT hash " << scthash << " on matched offline track");
     }
     
+  }
+   
+} 
+
+
+void FTK_RDO_MonitorAlgo::compareTracks(const Trk::Track* ftkTrack, 
+					std::map<unsigned int,std::pair<double,double> >& offlinetrackPixLocxLocy,
+					std::map<unsigned int,double>& offlinetrackSctLocx,
+					bool refitTrack) {
+
+  ATH_MSG_DEBUG("compare FTK Trk::Track with offline TrkTrack");
+
+  unsigned int histIndex=FTK_MonHistType::Cnv;
+  if (refitTrack) histIndex=FTK_MonHistType::Rft;
+
+  const DataVector<const Trk::TrackStateOnSurface>* trackStates=ftkTrack->trackStateOnSurfaces();   
+  if(!trackStates) {
+    //    ATH_MSG_DEBUG(" No trackStates");
+    return;
+  }
+  
+  
+  DataVector<const Trk::TrackStateOnSurface>::const_iterator it=trackStates->begin();
+  DataVector<const Trk::TrackStateOnSurface>::const_iterator it_end=trackStates->end();
+  if (!(*it)) {
+    ATH_MSG_WARNING("TrackStateOnSurface == Null");
+    return;
+  }
+
+  for (unsigned int iSurf=0; it!=it_end; it++, iSurf++) {
+    ATH_MSG_DEBUG(" Surface " << iSurf);
+    
+    const Trk::TrackStateOnSurface* tsos=(*it);	
+    if (tsos == 0) {
+      ATH_MSG_DEBUG(" No  TrackStateOnSurface ");
+      continue;
+    }
+    if ((*it)->type(Trk::TrackStateOnSurface::Measurement) ){
+      ATH_MSG_DEBUG(" Measurment Surface");
+      const Trk::MeasurementBase *measurement = (*it)->measurementOnTrack();
+      if (!measurement) {
+	ATH_MSG_DEBUG(" No MeasurmentOnTrack");
+	continue;
+      }
+      
+      const Trk::RIO_OnTrack* hit = dynamic_cast <const Trk::RIO_OnTrack*>(measurement);
+      if (!hit) {
+	ATH_MSG_DEBUG(" No Hit");
+	continue;
+      }
+      ATH_MSG_DEBUG(" got hit - getting ID");
+      const Identifier & hitId = hit->identify();
+      
+      const IdentifierHash hash = hit->idDE();
+      
+      
+      //      ATH_MSG_DEBUG(" getting  locX locY");
+      const float locX = (float)measurement->localParameters()[Trk::locX];
+      const float locY = (float)measurement->localParameters()[Trk::locY];
+
+      if (m_id_helper->is_pixel(hitId)) {
+
+	Identifier wafer_id = m_pixelId->wafer_id(hash); 
+	unsigned int layer = m_pixelId->layer_disk(wafer_id);
+	bool isBarrel = (m_pixelId->barrel_ec(wafer_id)==0);
+
+	auto p = offlinetrackPixLocxLocy.find(hash);
+	if (p!=offlinetrackPixLocxLocy.end()) {
+	  std::pair<double, double> offlineLocxLoxy= p->second;
+	  std::string layername;
+	  if (isBarrel){
+	    if (layer==0){
+	      layername = "IBL ";
+	    } else {
+	      layername="PIXB";
+	    }
+	  } else {
+	    layername="PIXE";
+	  }
+	  ATH_MSG_DEBUG(layername << layer<< " locX: offline " << offlineLocxLoxy.first << " FTK " << locX << " off-FTK " <<  offlineLocxLoxy.first - locX);
+	  ATH_MSG_DEBUG(layername << layer<< " locY: offline " << offlineLocxLoxy.second << " FTK " << locY << " off-FTK " <<  offlineLocxLoxy.second - locY);
+	  if (isBarrel) {
+	    h_pixb_dlocX[histIndex][layer]->Fill(offlineLocxLoxy.first - locX);
+	    h_pixb_dlocY[histIndex][layer]->Fill(offlineLocxLoxy.second - locY);
+	  } else {
+	    h_pixe_dlocX[histIndex][layer]->Fill(offlineLocxLoxy.first - locX);
+	    h_pixe_dlocY[histIndex][layer]->Fill(offlineLocxLoxy.second - locY);
+	  }
+
+	} else {
+	  ATH_MSG_DEBUG("didn't find pixel hash " << hash << " on matched offline track");
+	}
+      } else { // SCT hit
+
+	Identifier sctwafer_id = m_sctId->wafer_id(hash); 
+	
+	unsigned int layer = m_sctId->layer_disk(sctwafer_id);
+	bool isBarrel = (m_sctId->barrel_ec(sctwafer_id)==0);
+	unsigned int side = m_sctId->side(sctwafer_id);
+
+	auto p = offlinetrackSctLocx.find(hash);
+	if (p!=offlinetrackSctLocx.end()) {
+	  double offlineLocX = p->second;
+	  
+	  std::string layername;
+	  if (isBarrel){
+	    layername="SCTB";
+	  } else {
+	    layername="SCTE";
+	  }
+	  ATH_MSG_DEBUG(layername << layer<< ":"<<side<< " locX: offline " << offlineLocX << " FTK " << locX << " off-FTK " <<  offlineLocX  - locX);
+	  
+	  if (isBarrel) {
+	    if (side==0) {
+	      h_sctb_0_dlocX[histIndex][layer]->Fill(offlineLocX  - locX);
+	    } else {
+	      h_sctb_1_dlocX[histIndex][layer]->Fill(offlineLocX  - locX);
+	    }
+	  } else {
+	    unsigned int ring = m_sctId->eta_module(sctwafer_id);
+	    
+	    if (side==0) {
+	      h_scte_0_dlocX[histIndex][ring]->Fill(offlineLocX  - locX);
+	    } else {
+	      h_scte_1_dlocX[histIndex][ring]->Fill(offlineLocX  - locX);
+	    }
+	  }
+	  
+	} else {
+	  ATH_MSG_DEBUG("did not find SCT hash " << hash << " on matched offline track");
+	  
+	}
+      }
+    }
   }
    
 } 
@@ -934,6 +1453,10 @@ const std::pair<double,double> FTK_RDO_MonitorAlgo::getPixLocXlocY(const Identif
   
   const InDetDD::SiCellId cornerCell(0, 0);
   const InDetDD::SiLocalPosition localPositionOfCornerCell = design->localPositionOfCell(cornerCell);
+
+
+  double shift = pixelDetectorElement->getLorentzCorrection();
+
   const double phi0 = localPositionOfCornerCell.xPhi();
   const double eta0 = localPositionOfCornerCell.xEta();
   
@@ -942,9 +1465,21 @@ const std::pair<double,double> FTK_RDO_MonitorAlgo::getPixLocXlocY(const Identif
 
   // zero is center of the row coordinates, so to find the cell we can use it, units of 6.25 microns
   // zero is edge of the column coordinates, so to find the cell we add 0.5, units of 25 microns
-  double phiPos = rawLocalPhiCoord * 6.25e-3 + phi0; // rawLocalPhiCoord=0 is the centre of the zeroth pixel
-  double etaPos = rawLocalEtaCoord * 25.0e-3 + eta0 - 0.3; // rawLocalEtaCoord=0 is the edge (-0.3mm) of the zeroth pixel.
+  double phiPos = rawLocalPhiCoord * 6.25e-3 + phi0 + shift; // rawLocalPhiCoord=0 is the centre of the zeroth pixel
   
+  Identifier wafer_id = m_pixelId->wafer_id(hash);
+  unsigned int layer = m_pixelId->layer_disk(wafer_id);
+  bool isBarrel = (m_pixelId->barrel_ec(wafer_id)==0);
+  
+  if (!isBarrel) phiPos-=0.025; // correction for the fact that rawLocalPhiCoord=0 seems to be the edge of the endcap pixel, not the centre!
+
+  double etaPos = 0.;
+  
+  if (isBarrel && layer==0) {
+     etaPos =  rawLocalEtaCoord * 25.0e-3 + eta0 - 0.25; // rawLocalEtaCoord=0 is the edge (-0.25mm) of the zeroth IBL pixel.
+  } else {
+     etaPos =  rawLocalEtaCoord * 25.0e-3 + eta0 - 0.3; // rawLocalEtaCoord=0 is the edge (-0.3mm) of the zeroth pixel.
+  }    
   
   //ATH_MSG_VERBOSE( "Cluster position phiPos, etaPos "<<  phiPos << ", " << etaPos);
   
@@ -969,12 +1504,15 @@ const std::pair<double,double> FTK_RDO_MonitorAlgo::getPixLocXlocY(const Identif
 
 double FTK_RDO_MonitorAlgo::getSctLocX(const IdentifierHash hash, const float rawstripCoord, const int clusterWidth) {
 
+  double xloc=0.;
 
   float stripCoord = rawstripCoord/2.; // rawStribCoord is in units of half a strip
 
   const InDetDD::SiDetectorElement* pDE = m_SCT_Manager->getDetectorElement(hash);
 	
   const InDetDD::SCT_ModuleSideDesign* design;
+
+  double shift = pDE->getLorentzCorrection();
 
   Identifier wafer_id = m_sctId->wafer_id(hash);
 
@@ -984,10 +1522,11 @@ double FTK_RDO_MonitorAlgo::getSctLocX(const IdentifierHash hash, const float ra
     design = (static_cast<const InDetDD::SCT_ForwardModuleSideDesign*>(&pDE->design()));
   }
 	
-  
-  int firstStrip = (int)(stripCoord-0.5*clusterWidth);
-  int lastStrip  = (int)(stripCoord+0.5*clusterWidth);
-  
+    
+  int firstStrip = (int)(stripCoord-0.5*(clusterWidth-1));
+  int lastStrip  = (int)(stripCoord+0.5*(clusterWidth-1));
+  ATH_MSG_VERBOSE("rawstripCoord " << rawstripCoord << " stripCoord " << " firstStrip " << firstStrip<< " lastStrip " << lastStrip);
+
   if (firstStrip < 0) {
     firstStrip = 0;
     //    ATH_MSG_VERBOSE( " firstStrip was " << firstStrip << " setting to 0");
@@ -1005,6 +1544,143 @@ double FTK_RDO_MonitorAlgo::getSctLocX(const IdentifierHash hash, const float ra
   
   const InDetDD::SiLocalPosition centre((firstStripPos+lastStripPos)/2.0);
   
-  return centre.xPhi();
+  xloc = centre.xPhi()+shift;
+  ATH_MSG_VERBOSE("xloc " << xloc << " stripcoord " << stripCoord << " firstStrip " <<   firstStrip << " lastStrip " << lastStrip << " centre.xPhi() " <<  centre.xPhi() << " shift " << shift);
+  
+
+  return xloc;
 }
   
+
+bool FTK_RDO_MonitorAlgo::findHash(unsigned int hash, bool isSCT, unsigned int& tower, unsigned int& sector, unsigned int& plane) {
+  int i = (int) hash;
+  sector=tower=plane=0xffffffff;
+  bool found=false;
+
+  //  for (unsigned int itower = 0; itower < m_moduleFromSector.size(); itower++) {
+  sectormap* map = m_moduleFromSector[tower];
+  if (map) {   
+    //      for ( unsigned int isector=0; isector < map->size();isector++) {
+    if ((*map)[sector].size() > 0) {
+      auto first= (*map)[sector].begin();
+      if (isSCT) first+=4;
+      auto last = (*map)[sector].end();
+      if (!isSCT) last -=8;
+
+      auto p = std::find(first, last, i);
+      if ( p!= last ) {
+	plane = std::distance(first, p);
+
+      }
+    }
+  }
+
+  return found;
+}
+	
+unsigned int FTK_RDO_MonitorAlgo::getHash(unsigned int tower, unsigned int sector,  unsigned int plane) {
+  unsigned int hash =  0xffffffff;
+  if (plane >= 12) {
+    ATH_MSG_ERROR("getHash: Invalid plane " << plane);
+    return hash;
+  }
+  if (m_moduleFromSector[tower]==nullptr) return hash;
+  if ((*m_moduleFromSector[tower]).size() <= sector) return hash;
+  if (plane >=(*m_moduleFromSector[tower])[sector].size()) return hash;
+  return (unsigned int)(*m_moduleFromSector[tower])[sector][plane];
+}
+
+
+int FTK_RDO_MonitorAlgo::readModuleIds(unsigned int itower, sectormap& hashID) {
+   int nSector8L,nPlane8L;
+   // define which 8L plane goes to which 12L plane
+   vector<int> const remapPlanes={1,2,3, 4,6,8,9,10, 0,5,7,11};
+   enum {
+      ERROR_PATTFILE=1,
+      ERROR_CONNFILE=2
+   };
+
+
+   std::stringstream ssPat, ssCon;
+   ssPat << m_ConstantsDir<<"/FitConstants/"<<m_PatternsVersion<<"/sectors_raw_8L_reg"<<itower<<".patt.bz2";
+   
+   std::string pattfilename=ssPat.str();
+   ATH_MSG_DEBUG("Sectors file: "<<pattfilename);
+   const char * cpattfilename = pattfilename.c_str();
+   ftk_dcap::istream *patt_8L=ftk_dcap::open_for_read(cpattfilename);
+   if(!patt_8L) {
+     ATH_MSG_WARNING("readSectorDefinition failed to open file "<<cpattfilename
+		     <<" for reading, skipping");
+     return ERROR_PATTFILE;
+   }
+   ssCon << m_ConstantsDir<<"/FitConstants/"<<m_PatternsVersion<<"/sectors_raw_8L_reg"<<itower<<".conn";
+   std::string connfilename=ssCon.str();
+   ATH_MSG_DEBUG("Connections file: "<<connfilename);
+   const char * charconnfilename = connfilename.c_str();
+   ifstream conn(charconnfilename);
+   if (!conn) {
+     ATH_MSG_WARNING("readSectorDefinition failed to open file "<<charconnfilename
+		     <<" for reading, skipping");
+
+     delete(patt_8L);
+     return ERROR_CONNFILE;
+   }
+
+   (*patt_8L)>>nSector8L>>nPlane8L;
+   // check errors here
+   //   (*patt_8L).fail(), nSector8L>0, 0<nPlane8L<remapPlanes.size()
+   int lastSector8=-1;
+   int lastSector12=-1;
+   int error=0;
+   while(!((*patt_8L).eof()||conn.eof())) {
+      int iSectorPatt,iSectorConn;
+      (*patt_8L)>>iSectorPatt;
+      conn>>iSectorConn;
+      if((*patt_8L).fail()||conn.fail()) {
+         // end
+         break;
+      }
+      if((iSectorPatt!=lastSector8+1)||
+         (iSectorPatt!=iSectorConn)||
+         (iSectorPatt<0)||(iSectorPatt>=nSector8L)) {
+         error=ERROR_PATTFILE;
+         // file is corrupted
+         break;
+      }
+      vector<int> moduleData(remapPlanes.size());
+      // read 8L module IDs
+      for(int k=0;k<nPlane8L;k++) {
+         (*patt_8L)>>moduleData[remapPlanes[k]];
+      }
+      int dummy;
+      // skip dummy entries
+      (*patt_8L)>>dummy;
+      (*patt_8L)>>dummy;
+      // read connection data and store 12L module data
+
+      int n12;
+      conn>>n12;
+      for(int i=0;i<n12;i++) {
+         int sector12;
+         conn>>dummy>>sector12;
+         if(lastSector12+1!=sector12) {
+            error=ERROR_CONNFILE;
+            break;
+         }
+         for(unsigned int k=nPlane8L;k<remapPlanes.size();k++) {
+            conn>>moduleData[remapPlanes[k]];
+         }
+         hashID.push_back(moduleData);
+         lastSector12=sector12;
+      }
+      if(error) break;
+
+      lastSector8=iSectorPatt;
+   }
+
+     
+
+   delete(patt_8L);
+
+   return error;
+}

@@ -22,7 +22,7 @@ namespace G4UA
   {}
 
   //---------------------------------------------------------------------------
-  void HIPLArVolumeAccept::processStep(const G4Step* aStep)
+  void HIPLArVolumeAccept::UserSteppingAction(const G4Step* aStep)
   {
     int PDGcode=aStep->GetTrack()->GetDefinition()->GetPDGEncoding();
 
@@ -52,12 +52,12 @@ namespace G4UA
   }
 
   //---------------------------------------------------------------------------
-  void HIPLArVolumeAccept::beginOfEvent(const G4Event*){
+  void HIPLArVolumeAccept::BeginOfEventAction(const G4Event*){
     m_HIPacc = false;
   }
 
   //---------------------------------------------------------------------------
-  void HIPLArVolumeAccept::endOfEvent(const G4Event*)
+  void HIPLArVolumeAccept::EndOfEventAction(const G4Event*)
   {
     m_report.HIPevts++;
     if(!m_HIPacc)

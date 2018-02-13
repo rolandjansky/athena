@@ -10,9 +10,10 @@ def hypo_factory(key, args):
         'HLThypo2_ht': HLThypo2_ht,
         'HLThypo2_tla': HLThypo2_tla,
         'HLThypo2_dimass_deta': HLThypo2_dimass_deta,
+        'HLThypo2_dimass_deta_dphi': HLThypo2_dimass_deta_dphi,
          }.get(key)
 
-    if key == None:
+    if klass == None:
         raise RuntimeError('hypo_factory: unknown key %s' % key)
     else:
         return klass(args)
@@ -169,7 +170,7 @@ class HLThypo2_singlemass(JetHypo):
 
 
 class HTHypoBase(HypoAlg):
-    """ Store paramters for the HT hypoAlg"""
+    """ Store parameters for the HT hypoAlg"""
 
     
     def __init__(self, ddict):
@@ -194,7 +195,7 @@ class HTHypoBase(HypoAlg):
 
 
 class HTHypo(HTHypoBase):
-    """ Store paramters for the HT hypoAlg"""
+    """ Store parameters for the HT hypoAlg"""
 
     def __init__(self, ddict):
         HTHypoBase.__init__(self, ddict)
@@ -202,7 +203,7 @@ class HTHypo(HTHypoBase):
 
 
 class HLThypo2_ht(HTHypoBase):
-    """ Store paramters for the HT hypoAlg"""
+    """ Store parameters for the HT hypoAlg"""
 
     def __init__(self, ddict):
         HTHypoBase.__init__(self, ddict)
@@ -211,7 +212,7 @@ class HLThypo2_ht(HTHypoBase):
 
 
 class TLABase(HypoAlg):
-    """ Store paramters for the TLA hypoAlg"""
+    """ Store parameters for the TLA hypoAlg"""
 
     def __init__(self, ddict):
         HypoAlg.__init__(self, ddict)
@@ -237,7 +238,7 @@ class TLABase(HypoAlg):
         
 
 class TLAHypo(TLABase):
-    """ Store paramters for the HT hypoAlg"""
+    """ Store parameters for the HT hypoAlg"""
 
     def __init__(self, ddict):
         TLABase.__init__(self, ddict)
@@ -245,7 +246,7 @@ class TLAHypo(TLABase):
         
 
 class HLThypo2_tla(TLABase):
-    """ Store paramters for the HT hypoAlg"""
+    """ Store parameters for the HT hypoAlg"""
 
     def __init__(self, ddict):
         TLABase.__init__(self, ddict)
@@ -253,7 +254,7 @@ class HLThypo2_tla(TLABase):
 
 
 class HLThypo2_dimass_deta(HypoAlg):
-    """ Store paramters for the dijet mass DEta hypoAlg"""
+    """ Store parameters for the dijet mass DEta hypoAlg"""
 
     def __init__(self, ddict):
         HypoAlg.__init__(self, ddict)
@@ -277,5 +278,33 @@ class HLThypo2_dimass_deta(HypoAlg):
             s +=  '_invm_' + str(int(self.mass_min))
         if self.dEta_min is not None:
             s +=  '_deta_' + str(int(self.dEta_min))
+
+        return s
+
+
+
+class HLThypo2_dimass_deta_dphi(HLThypo2_dimass_deta):
+    """ Store parameters for the dijet mass DEtaDPhi hypoAlg"""
+
+    def __init__(self, ddict):
+        HLThypo2_dimass_deta.__init__(self, ddict)
+        self.hypo_type = 'HLThypo2_dimass_deta_dphi'
+
+    def _check_args(self, ddict):
+        """check the constructor args"""
+        HLThypo2_dimass_deta._check_args(self, ddict)
+        
+        must_have = ('dPhi_max',)
+
+        HypoAlg.check_missing_args(self, must_have, ddict)
+
+    def attributes_toString(self):
+        # use ints for invm, deta as this string is used
+        # in the Algorithm name, and Gausi does not allow '.'
+        # in names.
+
+        s = HLThypo2_dimass_deta.attributes_toString(self)
+
+        s +=  '_dphi_' + str(int(self.dPhi_max))
 
         return s

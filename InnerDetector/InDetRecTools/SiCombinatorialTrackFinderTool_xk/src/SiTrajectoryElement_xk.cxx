@@ -628,7 +628,8 @@ bool InDet::SiTrajectoryElement_xk::addNextClusterB()
   if(m_nlinksB > 1 && m_linkB[1].xi2() <= m_xi2max) {
   
     int n = 0; 
-    for(; n!=m_nlinksB-1; ++n) m_linkB[n]=m_linkB[n+1]; m_nlinksB=n;
+    for(; n!=m_nlinksB-1; ++n) m_linkB[n]=m_linkB[n+1];
+    m_nlinksB=n;
 
     m_cluster   = m_linkB[0].cluster();
     m_xi2B      = m_linkB[0].xi2()    ;
@@ -657,7 +658,8 @@ bool InDet::SiTrajectoryElement_xk::addNextClusterF()
   if(m_nlinksF > 1 && m_linkF[1].xi2() <= m_xi2max) {
   
     int n = 0; 
-    for(; n!=m_nlinksF-1; ++n) m_linkF[n]=m_linkF[n+1]; m_nlinksF=n;
+    for(; n!=m_nlinksF-1; ++n) m_linkF[n]=m_linkF[n+1];
+    m_nlinksF=n;
     
     m_cluster   = m_linkF[0].cluster();
     m_xi2F      = m_linkF[0].xi2()    ;
@@ -786,7 +788,8 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithStereo
 
     if(x < Xm) {
       InDet::SiClusterLink_xk l(c,x);
-      for(int i=0; i!=nl; ++i) L[i].Comparison(l); if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
+      for(int i=0; i!=nl; ++i) L[i].Comparison(l);
+      if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
       Xc = Xm+6.;
     }
     else if(!nl && x < Xl) {Xl = x; Xc = x+6.; cl = c;}
@@ -837,7 +840,8 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoPIX
 
     if(x < Xm) {
       InDet::SiClusterLink_xk l(c,x);
-      for(int i=0; i!=nl; ++i) L[i].Comparison(l); if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
+      for(int i=0; i!=nl; ++i) L[i].Comparison(l);
+      if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
       Xc = Xm;
     }
     else if(!nl) {Xc = x; cl = c;}
@@ -896,7 +900,8 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoSCT
 
     if(x < Xm) {
       InDet::SiClusterLink_xk l(c,x);
-      for(int i=0; i!=nl; ++i) L[i].Comparison(l); if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
+      for(int i=0; i!=nl; ++i) L[i].Comparison(l);
+      if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
       Xc = Xm;
     }
     else if(!nl) {Xc = x; cl = c;}
@@ -954,7 +959,8 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithStereoAss
 
     if(x < Xm) {
       InDet::SiClusterLink_xk l(c,x);
-      for(int i=0; i!=nl; ++i) L[i].Comparison(l); if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
+      for(int i=0; i!=nl; ++i) L[i].Comparison(l);
+      if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
       Xc = Xm+6.;
     }
     else if(!nl && x < Xl) {Xl = x; Xc = x+6.; cl = c;}
@@ -1006,7 +1012,8 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssPIX
 
     if(x < Xm) {
       InDet::SiClusterLink_xk l(c,x);
-      for(int i=0; i!=nl; ++i) L[i].Comparison(l); if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
+      for(int i=0; i!=nl; ++i) L[i].Comparison(l);
+      if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
       Xc = Xm;
     }
     else if(!nl) {Xc = x; cl = c;}
@@ -1066,7 +1073,8 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssSCT
 
     if(x < Xm) {
       InDet::SiClusterLink_xk l(c,x);
-      for(int i=0; i!=nl; ++i) L[i].Comparison(l); if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
+      for(int i=0; i!=nl; ++i) L[i].Comparison(l);
+      if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
       Xc = Xm;
     }
     else if(!nl) {Xc = x; cl = c;}
@@ -1260,12 +1268,12 @@ void  InDet::SiTrajectoryElement_xk::noiseProduction
   if(Model < 1 || Model > 2) return; 
 
   double q = fabs(Tp.par()[4]);
-  double s = fabs(m_A[0]*m_Tr[6]+m_A[1]*m_Tr[7]+m_A[2]*m_Tr[8]);
-  s  < .05 ? s = 20. : s = 1./s; 
+  double s = fabs(m_A[0]*m_Tr[6]+m_A[1]*m_Tr[7]+m_A[2]*m_Tr[8]); s  < .05 ? s = 20. : s = 1./s; 
+  double d = (1.-m_A[2])*(1.+m_A[2]);   if(d < 1.e-5) d = 1.e-5;
 
   m_radlengthN = s*m_radlength; 
   double covariancePola = (134.*m_radlengthN)*(q*q);
-  double covarianceAzim = covariancePola/((1.-m_A[2])*(1.+m_A[2]));
+  double covarianceAzim = covariancePola/d;
   double covarianceIMom,correctionIMom;
 
   if(Model==1) {
@@ -1691,7 +1699,8 @@ bool  InDet::SiTrajectoryElement_xk::rungeKuttaToPlane
 
     // Parameters calculation
     //   
-    if((!ste && S0 > fabs(S)*100.) || fabs(P[45]+=S) > 2000.) return false; ste = true;
+    if((!ste && S0 > fabs(S)*100.) || fabs(P[45]+=S) > 2000.) return false;
+    ste = true;
 
     double A00 = A[0], A11=A[1], A22=A[2];
 
@@ -1804,7 +1813,8 @@ bool  InDet::SiTrajectoryElement_xk::rungeKuttaToPlane
     double aS = fabs(S);
 
     if     (  S*Sn < 0. ) {
-      if(++it > 2) return false; aSn < aS ? S = Sn : S =-S;
+      if(++it > 2) return false;
+      if (aSn < aS) S = Sn; else S =-S;
     }
     else if( aSn  < aS  ) S = Sn;
    

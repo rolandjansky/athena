@@ -18,21 +18,14 @@ import cx_Oracle
 from PyCool import cool
 import time, types, re, sys, os
 import urllib2
-#import PyCintex
-try:
-   # ROOT5
-   import PyCintex
-except:
-   # ROOT6
-   import cppyy as PyCintex
-   sys.modules['PyCintex'] = PyCintex
+import cppyy
 
-PyCintex.makeClass('std::vector<float>')
-PyCintex.makeClass('std::vector<std::vector<float> >')
-PyCintex.makeClass('std::vector<int>')
-PyCintex.makeClass('std::vector<std::vector<int> >')
-PyCintex.makeClass('std::vector<unsigned int>')
-PyCintex.makeClass('std::vector<std::vector<unsigned int> >')
+cppyy.makeClass('std::vector<float>')
+cppyy.makeClass('std::vector<std::vector<float> >')
+cppyy.makeClass('std::vector<int>')
+cppyy.makeClass('std::vector<std::vector<int> >')
+cppyy.makeClass('std::vector<unsigned int>')
+cppyy.makeClass('std::vector<std::vector<unsigned int> >')
 
 
 from TileCalibBlobObjs.Classes import *
@@ -74,7 +67,7 @@ def getLastRunNumber(partition=""):
         data = response.read().split()
     except:
         data=[]
-    return int(data[0]) if len(data) else 222222
+    return int(data[0])+1 if len(data) else 222222
 
 #
 #______________________________________________________________________
@@ -456,11 +449,11 @@ class TileBlobWriter(TileCalibLogger):
         #=== create default vectors based on calibDrawerType
         self.__calibDrawerType = calibDrawerType
         if   calibDrawerType=='Flt':
-            PyCintex.makeClass('std::vector<float>')
-            self.__defVec = PyCintex.gbl.std.vector('std::vector<float>')()
+            cppyy.makeClass('std::vector<float>')
+            self.__defVec = cppyy.gbl.std.vector('std::vector<float>')()
         elif calibDrawerType=='Bch' or calibDrawerType=='Int':                    
-            PyCintex.makeClass('std::vector<unsigned int>')
-            self.__defVec = PyCintex.gbl.std.vector('std::vector<unsigned int>')()
+            cppyy.makeClass('std::vector<unsigned int>')
+            self.__defVec = cppyy.gbl.std.vector('std::vector<unsigned int>')()
         else:
             raise Exception("Unknown calibDrawerType: %s" % calibDrawerType)
         

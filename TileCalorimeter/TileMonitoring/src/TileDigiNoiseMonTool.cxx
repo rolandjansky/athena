@@ -222,7 +222,17 @@ StatusCode TileDigiNoiseMonTool::fillHistograms() {
       int ros = m_tileHWID->ros(adc_id);
       int drawer = m_tileHWID->drawer(adc_id);
       unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
+
+      unsigned int nBadOrDisconnectedChannels(0);
+      for (unsigned int channel = 0; channel < TileCalibUtils::MAX_CHAN; ++channel) {
+        if (isDisconnected(ros, drawer, channel)) {
+          ++nBadOrDisconnectedChannels;
+        }
+      }
       
+      unsigned int nRequiredChannels(TileCalibUtils::MAX_CHAN - nBadOrDisconnectedChannels);
+      if (digitsCollection->size() < nRequiredChannels) continue;
+
       for (const TileDigits* tile_digits : *digitsCollection) {
         
         adc_id = tile_digits->adc_HWID();

@@ -1,4 +1,7 @@
-#!/bib/env/python
+#!/bin/env python
+
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#
 # TileCalibBlobPython_Ofl_Onl.py
 # Lukas Pribyl
 # This Python script needs sqlite file with default (empty) ONL01 and OFL02 folders

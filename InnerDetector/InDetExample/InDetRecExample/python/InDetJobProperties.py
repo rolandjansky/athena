@@ -301,7 +301,7 @@ class cutLevel(InDetFlagsJobProperty):
     """
     statusOn     = True
     allowedTypes = ['int']
-    allowedValues= [1,2,3,4,5,6,7,8,9,10,11,12,13,14]
+    allowedValues= [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
     StoredValue  = 14
 
 class doBremRecovery(InDetFlagsJobProperty):
@@ -416,6 +416,22 @@ class doMonitoringTRT(InDetFlagsJobProperty):
 
 class doMonitoringAlignment(InDetFlagsJobProperty):
     """ Use to turn on alignment monitoring """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
+class useDynamicAlignFolders(InDetFlagsJobProperty):
+    """ Deprecated property - use GeometryFlags directly to choose the alignment folder scheme """
+    def _do_action( self, *args, **kwds):
+       from AtlasGeoModel.InDetGMJobProperties import GeometryFlags
+       self._log.warning('Deprecated property InDetFlags.useDynamicAlignFolders used to control the alignment scheme - update the code to from AtlasGeoModel.InDetGMJobProperties import GeometryFlags;  GeometryFlags.useDynamicAlignFolders.... ')
+       if self.StoredValue != 'none':
+          from AtlasGeoModel.InDetGMJobProperties import GeometryFlags
+          GeometryFlags.useDynamicAlignFolders.set_Value_and_Lock(self.StoredValue)
+          self._log.info("GeometryFlags.useDynamicAlignFolders set by InDetFlags: %s" % GeometryFlags.useDynamicAlignFolders)
+       else:
+          self._log.warning("Not setting GeometryFlags.useDynamicAlignFolders by InDetFlags: %s" % self.StoredValue)
+          
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
@@ -1111,6 +1127,18 @@ class doTrackSegmentsPixelPrdAssociation(InDetFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue  = True
 
+class doTrackSegmentsPixelFourLayer(InDetFlagsJobProperty):
+    """Turn running of track segment creation in pixel after NewTracking, using all available hits, on and off"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
+class doTrackSegmentsPixelThreeLayer(InDetFlagsJobProperty):
+    """Turn running of pixel stablet creation in pixel after NewTracking, using all available hits, on and off"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
 class doSLHCVeryForward(InDetFlagsJobProperty): 
   """Turn running of SLHC reconstruction for Very Forward extension on and off""" 
   statusOn     = True 
@@ -1301,6 +1329,8 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.cutLevel               , 2    )
        self.checkThenSet(self.priVtxCutLevel         , 1    )
        self.checkThenSet(self.doTrackSegmentsPixelPrdAssociation, False)
+       self.checkThenSet(self.doTrackSegmentsPixelFourLayer     , False)
+       self.checkThenSet(self.doTrackSegmentsPixelThreeLayer    , False)
        self.checkThenSet(self.perigeeExpression      , 'Vertex')
        self.checkThenSet(self.doRefitInvalidCov      ,True)
 
@@ -1337,6 +1367,8 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doPixelClusterSplitting, False)
        self.checkThenSet(self.doTIDE_Ambi, False)
        self.checkThenSet(self.doTrackSegmentsPixelPrdAssociation, False)
+       self.checkThenSet(self.doTrackSegmentsPixelFourLayer     , False)
+       self.checkThenSet(self.doTrackSegmentsPixelThreeLayer    , False)
 
     elif (self.doIBL()):
        print "----> InDetJobProperties for IBL"
@@ -1505,9 +1537,9 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doMonitoringSCT        , False )
        self.checkThenSet(self.doMonitoringTRT        , False )
        self.checkThenSet(self.doMonitoringAlignment  , False )
-       self.checkThenSet(self.doBremRecovery         , False)
-       self.checkThenSet(self.doCaloSeededBrem       , False)
-       self.checkThenSet(self.doHadCaloSeededSSS     , False)
+       self.checkThenSet(self.doBremRecovery         , False )
+       self.checkThenSet(self.doCaloSeededBrem       , False )
+       self.checkThenSet(self.doHadCaloSeededSSS     , False )
     # --- new setup for LargeD0 retracking -- what the user
     # --- is allowed to change
     elif self.doDVRetracking():
@@ -1548,6 +1580,8 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doCaloSeededBrem        , True              )
        self.checkThenSet(self.doHadCaloSeededSSS      , False             )
        self.checkThenSet(self.doTrackSegmentsPixelPrdAssociation, False   )
+       self.checkThenSet(self.doTrackSegmentsPixelFourLayer     , False   )
+       self.checkThenSet(self.doTrackSegmentsPixelThreeLayer    , False   )
        # --- Output
        self.checkThenSet(self.AODall                  , False             )
        self.checkThenSet(self.doxAOD                  , True              )
@@ -1569,6 +1603,8 @@ class InDetJobProperties(JobPropertyContainer):
           self.checkThenSet(self.doForwardTracks     , False )
           # --- run tracklets
           self.checkThenSet(self.doTrackSegmentsPixelPrdAssociation, False)
+          self.checkThenSet(self.doTrackSegmentsPixelFourLayer     , False)
+          self.checkThenSet(self.doTrackSegmentsPixelThreeLayer    , False)
           self.checkThenSet(self.doTrackSegmentsPixel, True )
           #self.checkThenSet(self.doTrackSegmentsSCT  , False )
           #self.checkThenSet(self.doTrackSegmentsTRT  , False )
@@ -1643,6 +1679,8 @@ class InDetJobProperties(JobPropertyContainer):
         self.checkThenSet(self.doTIDE_Ambi, False)
         self.checkThenSet(self.doTIDE_RescalePixelCovariances, False)
         self.checkThenSet(self.doTrackSegmentsPixelPrdAssociation, False)
+        self.checkThenSet(self.doTrackSegmentsPixelFourLayer     , False)
+        self.checkThenSet(self.doTrackSegmentsPixelThreeLayer    , False)
 
     if rec.doExpressProcessing() :
        self.checkThenSet(self.useBeamConstraint,False)
@@ -2518,9 +2556,7 @@ class InDetJobProperties(JobPropertyContainer):
           print '* use non-standard SCT DCS based on ~20V HV cut'          
     if self.useTrtDCS():
        print '* use TRT DCS'
-
-    from AtlasGeoModel.InDetGMJobProperties import GeometryFlags as geoFlags
-    if geoFlags.useDynamicAlignFolders():
+    if self.useDynamicAlignFolders():
        print '* use of Dynamic alignment folder scheme enabled'
 
     if not self.doPRDFormation():
@@ -2660,6 +2696,7 @@ _list_InDetJobProperties = [Enabled,
                             doMonitoringSCT,
                             doMonitoringTRT,
                             doMonitoringAlignment,
+                            useDynamicAlignFolders,
                             doPerfMon,
                             AODall,
                             useBeamConstraint,
@@ -2771,6 +2808,8 @@ _list_InDetJobProperties = [Enabled,
                             ForceCoraCool,
                             ForceCoolVectorPayload,
                             doTrackSegmentsPixelPrdAssociation,
+                            doTrackSegmentsPixelFourLayer,
+                            doTrackSegmentsPixelThreeLayer,
                             doSLHCVeryForward,
                             doTRTGlobalOccupancy,
                             doNNToTCalibration,

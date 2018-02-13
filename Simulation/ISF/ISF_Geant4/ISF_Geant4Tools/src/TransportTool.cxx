@@ -47,7 +47,7 @@ static std::once_flag finalizeOnceFlag;
 iGeant4::G4TransportTool::G4TransportTool(const std::string& t,
                                           const std::string& n,
                                           const IInterface*  p )
-  : AthAlgTool(t,n,p)
+  : base_class(t,n,p)
   , m_libList("")
   , m_physList("")
   , m_fieldMap("")
@@ -67,9 +67,6 @@ iGeant4::G4TransportTool::G4TransportTool(const std::string& t,
   , m_fastSimTool("FastSimulationMasterTool")
   , m_pRunMgr(nullptr)
 {
-
-  declareInterface<ITransportTool>(this);
-
   declareProperty("Dll",                   m_libList);
   declareProperty("Physics",               m_physList);
   declareProperty("FieldMap",              m_fieldMap);
@@ -135,6 +132,9 @@ void iGeant4::G4TransportTool::initializeOnce()
   }
   ATH_MSG_DEBUG("retrieved "<<m_g4RunManagerHelper);
   m_pRunMgr = m_g4RunManagerHelper ? m_g4RunManagerHelper->g4RunManager() : nullptr;
+  if (!m_pRunMgr) {
+    throw std::runtime_error("G4RunManagerHelper::g4RunManager() returned nullptr.");
+  }
 
   if(m_physListTool.retrieve().isFailure()) {
     throw std::runtime_error("Could not initialize ATLAS PhysicsListTool!");
@@ -170,9 +170,6 @@ void iGeant4::G4TransportTool::initializeOnce()
     ui->ApplyCommand(temp);
     ui->ApplyCommand("/MagneticField/Initialize");
   }
-
-  ATH_MSG_DEBUG("Setting checkmode to true");
-  ui->ApplyCommand("/geometry/navigator/check_mode true");
 
   if (m_rndmGen=="athena" || m_rndmGen=="ranecu")     {
     // Set the random number generator to AtRndmGen

@@ -9,8 +9,7 @@
 #include <string>
 
 // Infrastructure includes
-#include "G4AtlasInterfaces/IBeginEventActionTool.h"
-#include "G4AtlasInterfaces/IEndEventActionTool.h"
+#include "G4AtlasInterfaces/IG4EventActionTool.h"
 #include "G4AtlasTools/ActionToolBase.h"
 
 // Local includes
@@ -28,7 +27,7 @@ namespace G4UA
   /// @author Steve Farrell <Steven.Farrell@cern.ch>
   ///
   class G4SimTimerTool : public ActionToolBaseReport<G4SimTimer>,
-                         public IBeginEventActionTool, public IEndEventActionTool
+                         public IG4EventActionTool
   {
 
     public:
@@ -44,12 +43,8 @@ namespace G4UA
       virtual StatusCode finalize() override;
 
       /// Retrieve the begin-event action interface
-      virtual IBeginEventAction* getBeginEventAction() override final
-      { return static_cast<IBeginEventAction*>( getAction() ); }
-
-      /// Retreive the end-event action interface
-      virtual IEndEventAction* getEndEventAction() override final
-      { return static_cast<IEndEventAction*>( getAction() ); }
+      virtual G4UserEventAction* getEventAction() override final
+      { return static_cast<G4UserEventAction*>( getAction() ); }
 
     protected:
 
