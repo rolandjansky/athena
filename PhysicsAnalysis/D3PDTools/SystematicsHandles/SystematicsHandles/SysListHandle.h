@@ -14,6 +14,7 @@
 #include <AsgTools/MsgStream.h>
 #include <PATInterfaces/SystematicSet.h>
 #include <SystematicsHandles/SysListType.h>
+#include <functional>
 #include <string>
 #include <vector>
 #include <unordered_set>
@@ -91,6 +92,29 @@ namespace EL
     /// \brief the list of systematics to loop over
   public:
     std::unordered_set<CP::SystematicSet> systematicsVector ();
+
+
+    /// \brief run the function for each systematic
+    ///
+    /// This allows to perform some amount of behind-the-scenes
+    /// optimizations in the future, which hopefully not creating too
+    /// many issues in the present.
+    ///
+    /// Technically this would be slightly more performant as a
+    /// template, but this is likely not to be an issue, and can still
+    /// be changed if it ever becomes an issue.
+    ///
+    /// Ideally this would be const, but the current version is not
+    /// thread-safe, so I'd rather not add a const qualifier to it.
+    ///
+    /// \par Guarantee
+    ///   basic
+    /// \par Failures
+    ///   function failures
+    /// \pre isInitialized()
+  public:
+    StatusCode foreach
+      (const std::function<StatusCode(const CP::SystematicSet)>& func);
 
 
 

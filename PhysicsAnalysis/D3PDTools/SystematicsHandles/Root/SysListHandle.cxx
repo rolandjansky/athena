@@ -106,4 +106,22 @@ namespace EL
     }
     return mysysList;
   }
+
+
+
+  StatusCode SysListHandle ::
+  foreach (const std::function<StatusCode(const CP::SystematicSet)>& func)
+  {
+    assert (isInitialized());
+
+    for (const CP::SystematicSet& sys : systematicsVector())
+    {
+      if (func (sys).isFailure())
+      {
+        ANA_MSG_ERROR ("failed to evaluate algorithm for systematic " << sys.name());
+        return StatusCode::FAILURE;
+      }
+    }
+    return StatusCode::SUCCESS;
+  }
 }
