@@ -4,7 +4,7 @@
 
 #include "TrkNeuralNetworkUtils/TTrainedNetwork.h"
 #include <iostream>
-#include <set> 
+#include <set>
 #include <limits>
 #include <numeric>
 #include <cassert>
@@ -12,7 +12,7 @@
 #include <algorithm>
 #include <stdexcept>
 #include "TargetBuffer_t.h"
-
+#include "TargetBuffer_t.icc"
 
 TTrainedNetwork::TTrainedNetwork()
 {
@@ -301,7 +301,7 @@ TTrainedNetwork::calculateOutputValues(const std::vector<Double_t>& input)
   const unsigned nTargetLayers(mnHidden+1);
   const unsigned lastTargetLayer(mnHidden);
   unsigned nSource = mnInput, nTarget(0);
-  TTN::Buffer_t source(input);
+  TTN::ConstBuffer_t source(input);
   const double * weights(nullptr);
   const double * thresholds(nullptr);
   double nodeVal(0);

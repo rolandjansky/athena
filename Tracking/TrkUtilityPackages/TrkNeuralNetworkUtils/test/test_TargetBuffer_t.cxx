@@ -13,11 +13,7 @@
 // missing with NDEBUG defined when compiling TargetBuffer_t.cxx
 // so adding here and not linking TargetBuffer_t.o
 #include <sstream>
-void TTN::Buffer_t::throwRangeError(std::vector<double>::size_type idx) const {
-  std::stringstream msg;
-  msg << "TTN::Buffer_t index out of range ( " << idx << " !< " << m_maxIndex << " )";
-  throw std::runtime_error(msg.str());
-}
+#include "../src/TargetBuffer_t.icc"
 
 namespace ndebug {
    // include the buffer definition again but now in NO DEBUG mode
@@ -25,6 +21,7 @@ namespace ndebug {
 #  define NDEBUG
 #  undef TargetBuffer_t_H
 #  include "../src/TargetBuffer_t.h"
+#  include "../src/TargetBuffer_t.icc"
 #  undef NDEBUG
 }
 
@@ -90,7 +87,7 @@ public:
     return 1./(1.+exp(-2*x));
   }
 
-  template<class T_Buffer_t,class T_DoubleBuffer_t>
+  template<class T_Buffer_t, class T_ConstBuffer_t, class T_DoubleBuffer_t>
   std::vector<double>
     calculateOutputValues(const std::vector<double>& input)
     const
@@ -108,7 +105,7 @@ public:
     const unsigned nTargetLayers(mnHidden+1);
     const unsigned lastTargetLayer(mnHidden);
     unsigned nSource = mnInput, nTarget(0);
-    T_Buffer_t source(input);
+    T_ConstBuffer_t source(input);
     const double * weights(nullptr);
     const double * thresholds(nullptr);
     double nodeVal(0);
@@ -233,11 +230,11 @@ public:
 
 
 // some test code for DoubleBuffer_t and Buffer_t
-template<class T_Buffer_t,class T_DoubleBuffer_t>
+template<class T_Buffer_t,class T_ConstBuffer_t, class T_DoubleBuffer_t>
 std::vector<double> exec(const std::vector<double> &input, unsigned int n_iter,unsigned int n_results) {
   assert( n_results <= input.size());
   std::vector<double>::size_type n=input.size();
-  T_Buffer_t source(input);
+  T_ConstBuffer_t source(input);
   T_DoubleBuffer_t tmp_array;
   tmp_array.clear(n);
 
@@ -255,7 +252,7 @@ std::vector<double> exec(const std::vector<double> &input, unsigned int n_iter,u
   }
   {
   T_Buffer_t target(tmp_array[n_iter]);
-  T_Buffer_t source(tmp_array[(n_iter-1)]);
+  T_ConstBuffer_t source(tmp_array[(n_iter-1)]);
   for (unsigned int j=0; j<n_results; ++j) {
     target[j]=0;
   }
@@ -279,14 +276,14 @@ std::vector<double> exec(const std::vector<double> &input, unsigned int n_iter,u
 
 
 
-template<class T_Buffer_t,class T_DoubleBuffer_t>
+template<class T_Buffer_t, class T_ConstBuffer_t, class T_DoubleBuffer_t>
 std::vector<double> compute(unsigned int n, unsigned int n_iter, unsigned int n_results) {
 
   // n*=2;
   std::vector<double> input(n,1);
 
   std::fill(input.begin()+n/2,input.end(),0);
-  return exec<T_Buffer_t, T_DoubleBuffer_t>(input,n_iter,n_results);
+  return exec<T_Buffer_t, T_ConstBuffer_t, T_DoubleBuffer_t>(input,n_iter,n_results);
 }
 
 template <typename T>
@@ -294,29 +291,23 @@ bool fcomp(T a, T b) {
   return std::abs(a-b)/(a+b)<4*std::numeric_limits<T>::epsilon();
 }
 
-void testOverwriteAndRangeCheck() {
-
+void testConstCorrectnessAndRangeCheck() {
+// #define check_compile_error
+#ifdef check_compile_error
   {
     std::vector<double> input {1,2,3,4};
+    const std::vector<double> &const_input(input);
+    TTN::Buffer_t target(const_input);     // ** compile error:  error: binding ..to reference ... discards qualifiers
     for (unsigned int i=0; i<4; ++i) {
-      bool caught_expected_exception=false;
-      try {
-        {
-          TTN::Buffer_t source(input);
-          source[i]=0;
-        }
-      }
-      catch (std::exception &err) {
-        std::cerr << "Caught expected exception: " << err.what() << std::endl;
-        caught_expected_exception=true;
-      }
-      assert( caught_expected_exception == true );
+      TTN::ConstBuffer_t source(const_input);
+      source[i]=0;                         // ** compile error: error: assignment of read-only
     }
   }
 
+#endif
   {
     std::vector<double> input {1,2,3,4};
-    TTN::Buffer_t source(input);
+    TTN::ConstBuffer_t source(input);
     {
       bool caught_expected_exception=false;
 
@@ -373,9 +364,9 @@ int main()
 {
   Test2 test(4,{16,8,3,2});
   // assembly test
-  std::vector<double> result2( test.calculateOutputValues<TTN::Buffer_t,TTN::DoubleBuffer_t>({1.,2.,3.,4.})  );
+  std::vector<double> result2( test.calculateOutputValues<TTN::Buffer_t,TTN::ConstBuffer_t, TTN::DoubleBuffer_t>({1.,2.,3.,4.})  );
   std::vector<double> result1( test.calculateOutputValuesOrig({1.,2.,3.,4.}) );
-  std::vector<double> result3( test.calculateOutputValues<ndebug::TTN::Buffer_t,ndebug::TTN::DoubleBuffer_t>({1.,2.,3.,4.})  );
+  std::vector<double> result3( test.calculateOutputValues<ndebug::TTN::Buffer_t,ndebug::TTN::ConstBuffer_t, ndebug::TTN::DoubleBuffer_t>({1.,2.,3.,4.})  );
   assert( result1 == result2 );
   assert( result1 == result3 );
 
@@ -385,12 +376,12 @@ int main()
   // [1] 4433
   // [2] 6677
   // out 13 13
-  check(compute<TTN::Buffer_t,TTN::DoubleBuffer_t>(4,3,2),{13.,13.});
-  check(compute<ndebug::TTN::Buffer_t,ndebug::TTN::DoubleBuffer_t>(4,3,2),{13.,13.});
+  check(compute<TTN::Buffer_t,TTN::ConstBuffer_t, TTN::DoubleBuffer_t>(4,3,2),{13.,13.});
+  check(compute<ndebug::TTN::Buffer_t,ndebug::TTN::ConstBuffer_t,ndebug::TTN::DoubleBuffer_t>(4,3,2),{13.,13.});
 
   // out 13+13
-  check(compute<TTN::Buffer_t,TTN::DoubleBuffer_t>(4,3,1),{26.});
-  check(compute<ndebug::TTN::Buffer_t,ndebug::TTN::DoubleBuffer_t>(4,3,1),{26.});
+  check(compute<TTN::Buffer_t,TTN::ConstBuffer_t,TTN::DoubleBuffer_t>(4,3,1),{26.});
+  check(compute<ndebug::TTN::Buffer_t,ndebug::TTN::ConstBuffer_t,ndebug::TTN::DoubleBuffer_t>(4,3,1),{26.});
 
   // in  11000
   // [0] 11022
@@ -398,9 +389,9 @@ int main()
   // [2] 66077
   // [3] 11 11 0 10 10
   // out 11 21
-  check(compute<TTN::Buffer_t,TTN::DoubleBuffer_t>(5,4,2),{11,21});
-  check(compute<ndebug::TTN::Buffer_t,ndebug::TTN::DoubleBuffer_t>(5,4,2),{11,21});
+  check(compute<TTN::Buffer_t,TTN::ConstBuffer_t,TTN::DoubleBuffer_t>(5,4,2),{11,21});
+  check(compute<ndebug::TTN::Buffer_t,ndebug::TTN::ConstBuffer_t,ndebug::TTN::DoubleBuffer_t>(5,4,2),{11,21});
 
-  testOverwriteAndRangeCheck();
+  testConstCorrectnessAndRangeCheck();
   return 0;
 }
