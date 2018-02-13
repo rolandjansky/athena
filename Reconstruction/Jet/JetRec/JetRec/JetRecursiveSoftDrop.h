@@ -3,11 +3,12 @@
 #ifndef JetRecursiveSoftDrop_H
 #define JetRecursiveSoftDrop_H
 
-// Jennifer Roloff
+// Jennifer Roloff & Joe Taenzer
 // August 2017
 //
 // Tool to groom jets with recursive softdrop.
-// SoftDrop is described in this paper: arXiv:1402.2657 (recursive softdrop may not have its own documentation yet)
+// SoftDrop is described in this paper: arXiv:1402.2657
+// Recursive SoftDrop is described in this Boost2017 contribution: https://indico.cern.ch/event/579660/contributions/2582124/
 // See also: https://fastjet.hepforge.org/trac/browser/contrib/contribs/RecursiveTools/tags/2.0.0-beta1/RecursiveSoftDrop.hh
 
 #include "AsgTools/AsgTool.h"
