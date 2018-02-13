@@ -29,6 +29,7 @@
 # Just for AthAnalysis, also include xAODTruthCnv
 # This is for EVNT support (allows otf conversion to xAOD-format)
 + Event/xAOD/xAODTruthCnv
++ Event/xAOD/xAODEventInfoCnv
 
 - Event/xAOD/.*Cnv
 + Event/xAOD/.*
