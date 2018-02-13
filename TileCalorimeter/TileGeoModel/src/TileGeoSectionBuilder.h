@@ -89,6 +89,7 @@ class TileGeoSectionBuilder
                   double                   tile_rmax,
                   double                   tilb_rmax,
                   double                   delta_phi_not_used,
+                  bool                     testbeam,
                   int                      ModuleNcp = 0,                  
                   double                   corrected_dz = 0.);
 

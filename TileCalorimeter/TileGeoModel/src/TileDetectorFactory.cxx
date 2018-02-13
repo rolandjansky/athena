@@ -919,7 +919,9 @@ void TileDetectorFactory::create(GeoPhysVol *world)
     sectionBuilder->fillFinger(pvFingerModuleMother, 1,
 			       dbManager->TILErmax(),
 			       dbManager->TILBrmax(),
-			       deltaPhi, ModuleNcp,
+			       deltaPhi,
+			       m_testbeamGeometry,
+			       ModuleNcp,
 			       thicknessWedgeMother*(1./CLHEP::cm));
     
     // --- Position N modules inside mother (positive/negative) -----
@@ -991,7 +993,8 @@ void TileDetectorFactory::create(GeoPhysVol *world)
 			       2,
 			       dbManager->TILErmax(),
 			       dbManager->TILBrmax(),
-			       deltaPhi);
+			       deltaPhi,
+			       m_testbeamGeometry);
 
     // --- Position N modules inside mother (positive/negative) -----
     TRANSFUNCTION xfEFingerModuleMotherPos = Pow(HepGeom::RotateZ3D(1.0),phiInd)*HepGeom::TranslateX3D((dbManager->TILErmax()+dbManager->TILBrmax())/2.*CLHEP::cm)*HepGeom::RotateX3D(180*CLHEP::deg)*HepGeom::RotateY3D(90*CLHEP::deg);

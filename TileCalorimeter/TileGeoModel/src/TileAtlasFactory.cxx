@@ -1211,6 +1211,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 				       dbManager->TILErmax(),
 				       dbManager->TILBrmax(),
 				       deltaPhi,
+				       m_testbeamGeometry,
 				       ModuleNcp,
 				       BFingerLengthPos*(1./CLHEP::cm)); 
 
@@ -1243,6 +1244,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 				       dbManager->TILErmax(),
 				       dbManager->TILBrmax(),
 				       deltaPhi,
+				       m_testbeamGeometry,
 				       ModuleNcp*100,
 				       BFingerLengthNeg*(1./CLHEP::cm));
 
@@ -1468,6 +1470,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
                                       dbManager->TILErmax(),
                                       dbManager->TILBrmax(),
                                       deltaPhi,
+                                      m_testbeamGeometry,
                                       ModuleNcp);
 	 }
         GeoTransform* xtraModFingerPos  = new GeoTransform(HepGeom::TranslateX3D(
@@ -1689,6 +1692,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
                                       dbManager->TILErmax(),
                                       dbManager->TILBrmax(),
                                       deltaPhi,
+                                      m_testbeamGeometry,
                                       ModuleNcp*100);
          }
         GeoTransform* xtraModFingerNeg  = new GeoTransform(HepGeom::TranslateX3D(

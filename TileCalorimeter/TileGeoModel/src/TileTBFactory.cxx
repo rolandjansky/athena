@@ -448,6 +448,7 @@ void TileTBFactory::create(GeoPhysVol *world)
                                    dbManager->TILErmax(),
                                    dbManager->TILBrmax(),
                                    deltaPhi,
+                                   m_testbeamGeometry,
                                    ModuleNcp,
                                    thicknessWedgeMother*(1./CLHEP::cm));
        
@@ -532,7 +533,8 @@ void TileTBFactory::create(GeoPhysVol *world)
                                    2,
                                    dbManager->TILErmax(),
                                    dbManager->TILBrmax(),
-                                   deltaPhi);
+                                   deltaPhi,
+                                   m_testbeamGeometry);
         
         // --- Position N modules inside mother (positive/negative) -----
   
@@ -609,7 +611,8 @@ void TileTBFactory::create(GeoPhysVol *world)
                                    2,
                                    dbManager->TILErmax(),
                                    dbManager->TILBrmax(),
-                                   deltaPhi);
+                                   deltaPhi,
+                                   m_testbeamGeometry);
           
         TRANSFUNCTION xfEFingerModuleMotherNeg = Pow(HepGeom::RotateZ3D(1.0),phiInd)*HepGeom::TranslateX3D((dbManager->TILErmax()+dbManager->TILBrmax())/2.*CLHEP::cm)*HepGeom::RotateY3D(90*CLHEP::deg);
 

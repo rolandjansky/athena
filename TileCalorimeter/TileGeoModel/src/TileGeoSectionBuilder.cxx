@@ -1475,7 +1475,8 @@ void TileGeoSectionBuilder::fillFinger(GeoPhysVol*&             mother,
 				       double                   tile_rmax,
 				       double                   tilb_rmax,
 				       double                   /* delta_phi */,
-                                       int                      ModuleNcp,
+				       bool                     testbeam,
+				       int                      ModuleNcp,
 				       double                   corrected_dz)
 {
   bool boolNeg = false;
@@ -1667,6 +1668,9 @@ void TileGeoSectionBuilder::fillFinger(GeoPhysVol*&             mother,
     mother->add(new GeoIdentifierTag(ModuleNcp));
     mother->add(pvFingerElement);
   }
+
+  if (testbeam) return; // no cables between fingers at the testbeam
+
   // Cables space
 
   int Isector =0, LRflag =0;
