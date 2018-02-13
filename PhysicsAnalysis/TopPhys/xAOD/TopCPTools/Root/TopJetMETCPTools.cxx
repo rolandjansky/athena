@@ -257,43 +257,27 @@ StatusCode JetMETCPTools::setupJetsCalibration() {
   // Is our MC full or fast simulation?
   std::string MC_type = (m_config->isAFII()) ? "AFII" : "MC15";
 
-  std::string conference = "Moriond2017";
+  std::string conference = "Moriond2018";
 
   // interpret uncertainty model aliases
   if (m_config->jetUncertainties_NPModel() == "GlobalReduction")
-    m_config->jetUncertainties_NPModel("21NP");
+    m_config->jetUncertainties_NPModel("R4_GlobalReduction");
   else if (m_config->jetUncertainties_NPModel() == "CategoryReduction")
-    m_config->jetUncertainties_NPModel("29NP_ByCategory");
+    m_config->jetUncertainties_NPModel("R4_CategoryReduction");
 
-  std::string JMS_Uncertainty="";
-  if ( m_config->jetCalibSequence() == "JMS" )
-   JMS_Uncertainty = "_JMSExtrap";
 
   // Are we doing multiple JES for the reduced NP senarios?
   if (!m_config->doMultipleJES()) {
     m_jetUncertaintiesTool
       = setupJetUncertaintiesTool("JetUncertaintiesTool",
                                   jetCalibrationName, MC_type,
-                                  "JES_2016/"
+                                  "rel21/"
                                   + conference
-                                  +"/JES2016_"
+                                  +"/"
                                   + m_config->jetUncertainties_NPModel()
-                                  + JMS_Uncertainty
                                   + ".config",nullptr,m_config->jetUncertainties_QGFracFile());
 
-    // Implement additional tool for frozen config when using JMS
-    if (JMS_Uncertainty == "_JMSExtrap"){
-      JMS_Uncertainty = "_JMSFrozen";
-      m_jetUncertaintiesToolFrozenJMS = setupJetUncertaintiesTool("JetUncertaintiesToolFrozenJMS",
-                  jetCalibrationName, MC_type,
-                  "JES_2016/"
-                  + conference
-                  +"/JES2016_"
-                  + m_config->jetUncertainties_NPModel()
-                  + JMS_Uncertainty
-                  + ".config",nullptr,m_config->jetUncertainties_QGFracFile());
-    }
-
+  
   } else {
     m_jetUncertaintiesToolReducedNPScenario1
       = setupJetUncertaintiesTool("JetUncertaintiesToolReducedNPScenario1",
