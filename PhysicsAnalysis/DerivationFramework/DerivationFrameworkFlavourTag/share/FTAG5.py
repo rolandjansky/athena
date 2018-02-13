@@ -22,8 +22,8 @@ from DerivationFrameworkJetEtMiss.JetCommon import (
     OutputJets, addJetOutputs)
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import (
     addDefaultTrimmedJets, replaceAODReducedJets)
-from DerivationFrameworkJetEtMiss.AntiKt4EMTopoJetsCPContent import (
-    AntiKt4EMTopoJetsCPContent, AntiKt4EMTopoJetsCPContentAux)
+from DerivationFrameworkJetEtMiss.AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsCPContent import (
+    AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsCPContent)
 
 # tracking
 from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import (
@@ -97,19 +97,10 @@ addVRJets(FTAG5Seq, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJet"
 # alias for VR
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
 
-#===================================================================
-# Tag custom or pre-built jet collections
-#===================================================================
-
-# FlavorTagInit(JetCollections  = ['AntiKt4EMPFlowJets',
-#                                  'AntiKt4EMTopoJets'], Sequencer = FTAG5Seq)
-
 #==================================================================
 # Augment tracks in jets with additional information
 #==================================================================
-# NOTE: this is commented out until we figure out why the tool can't
-# find jet collections.
-#
+
 FTAG5Seq += CfgMgr.BTagVertexAugmenter()
 for jc in OutputJets["FTAG5"]:
    if 'Truth' in jc:
@@ -126,10 +117,11 @@ for jc in OutputJets["FTAG5"]:
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS
 #====================================================================
 
-FTAG5Seq += CfgMgr.DerivationFramework__DerivationKernel("FTAG5Kernel",
-                                                         SkimmingTools = [FTAG5StringSkimmingTool],
-                                                         AugmentationTools = []
-                                                         )
+FTAG5Seq += CfgMgr.DerivationFramework__DerivationKernel(
+    "FTAG5Kernel",
+    SkimmingTools = [FTAG5StringSkimmingTool],
+    AugmentationTools = []
+)
 
 
 #====================================================================
@@ -148,39 +140,22 @@ FTAG5Stream.AcceptAlgs(["FTAG5Kernel"])
 
 FTAG5SlimmingHelper = SlimmingHelper("FTAG5SlimmingHelper")
 
-# nb: BTagging_AntiKt4EMTopo smart collection includes both AntiKt4EMTopoJets and BTagging_AntiKt4EMTopo 
-# container variables. Thus BTagging_AntiKt4EMTopo is needed in SmartCollections as well as AllVariables
 FTAG5SlimmingHelper.SmartCollections = ["Electrons","Muons",
                                         "InDetTrackParticles"]
 
-FTAG5SlimmingHelper.AllVariables = [
-    "BTagging_AntiKtVR30Rmax4Rmin02Track",
-    "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtx",
-    "PrimaryVertices",
-    "TruthEvents",
-    "TruthParticles",
-    "TruthVertices",
-    "MET_Truth",
-    "MET_TruthRegions"]
-
-# for FT5_bjetTriggerVtx in FTAllVars_bjetTriggerVtx:
-#     FTAG5SlimmingHelper.AllVariables.append(FT5_bjetTriggerVtx)
-
-
-
 FTAG5SlimmingHelper.ExtraVariables += [
-    AntiKt4EMTopoJetsCPContentAux.replace("AntiKt4EMTopoJetsAux","AntiKt10LCTopoJets") + '.C2.D2',
+
+    # AntiKt4EMTopoJetsCPContentAux.replace("AntiKt4EMTopoJetsAux","AntiKt10LCTopoJets") + '.C2.D2',
+    "BTagging_AntiKtVR30Rmax4Rmin02Track.*",
     "InDetTrackParticles.truthMatchProbability.x.y.z.vx.vy.vz",
     "InDetTrackParticles.numberOfContribPixelLayers.numberOfTRTHits.numberOfInnermostPixelLayerSharedHits.numberOfNextToInnermostPixelLayerSharedHits",
     "InDetTrackParticles.numberOfPixelSplitHits.numberOfInnermostPixelLayerSplitHits.numberOfNextToInnermostPixelLayerSplitHits",
     "InDetTrackParticles.hitPattern.radiusOfFirstHit",
-    #"InDetTrackParticles.FTAG5_unbiased_d0.FTAG5_unbiased_z0.FTAG5_unbiased_d0Sigma.FTAG5_unbiased_z0Sigma",
     "CombinedMuonTrackParticles.vx.vy.vz",
     "ExtrapolatedMuonTrackParticles.vx.vy.vz",
     "MSOnlyExtrapolatedMuonTrackParticles.vx.vy.vz",
     "MuonSpectrometerTrackParticles.vx.vy.vz",
     "InDetForwardTrackParticles.phi.qOverP.theta",
-    "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtx.-vxTrackAtVertex",
     "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet.GhostVR30Rmax4Rmin02TrackJetPt.GhostVR30Rmax4Rmin02TrackJetCount",
     "InDetTrackParticles.btag_z0.btag_d0.btag_ip_d0.btag_ip_z0.btag_ip_phi.btag_ip_d0_sigma.btag_ip_z0_sigma.btag_track_displacement.btag_track_momentum"]
 
