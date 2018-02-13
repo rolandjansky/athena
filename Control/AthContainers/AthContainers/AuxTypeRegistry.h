@@ -625,34 +625,6 @@ private:
   IAuxTypeVectorFactory* makeFactoryNull() const;
 
 
-  /**
-   * @brief Initialize the m_isEL* flags for a given variable.
-   * @param auxid The variable for which the flags should be initialized.
-   * @param lock The registry lock (must be locked).
-   *
-   * ??? Should go away when we extend the factory interface.
-   */
-  void setELFlags (upgrading_lock_t& lock, auxid_t auxid);
-
-
-  /**
-   * @brief Apply @c ElementLink output transformations to a single element.
-   * @param dst Pointer to the element.
-   *
-   * ??? Should go away when we extend the factory interface.
-   */
-  void applyELThinning (void* dst);
-
-
-  /**
-   * @brief Apply @c ElementLink output transformations to a vector.
-   * @param dst Pointer to the vector.
-   *
-   * ??? Should go away when we extend the factory interface.
-   */
-  void applyELVecThinning (void* dst);
-
-
   /// Hold information about one aux data item.
   struct typeinfo_t
   {
@@ -706,16 +678,6 @@ private:
   /// Mutex controlling access to the registry.
   /// Reads should be much more common than writes, so use an upgrade_mutex.
   mutable mutex_t m_mutex;
-
-  /// Flag that a variable is an ElementLink.
-  /// ??? Should go away when we extend the factory interface.
-  /// ??? Separate from typeinfo_t to avoid the need for a full rebuild.
-  std::vector<bool> m_isEL;
-
-  /// Flag that a variable is a vector of ElementLink.
-  /// ??? Should go away when we extend the factory interface.
-  /// ??? Separate from typeinfo_t to avoid the need for a full rebuild.
-  std::vector<bool> m_isELVec;
 
   /// Save the information provided by @c setInputRenameMap.
   /// Each entry is of the form   KEY.DECOR -> DECOR_RENAMED
