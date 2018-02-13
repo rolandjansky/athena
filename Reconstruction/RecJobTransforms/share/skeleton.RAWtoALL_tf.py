@@ -14,6 +14,9 @@ import logging
 recoLog = logging.getLogger('raw_to_all')
 recoLog.info( '****************** STARTING RAW->ALL MAKING *****************' )
 
+from AthenaCommon.AppMgr import ServiceMgr; import AthenaPoolCnvSvc.AthenaPool
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+
 ## Input
 # BS
 DRAWInputs = [ prop for prop in dir(runArgs) if prop.startswith('inputDRAW') and prop.endswith('File')]
@@ -136,6 +139,17 @@ if hasattr(runArgs,"inputRDO_TRIGFile") and rec.doFileMetaData():
     ToolSvc += CfgMgr.xAODMaker__TriggerMenuMetaDataTool( "TriggerMenuMetaDataTool",
                               OutputLevel = 3 )
     svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.TriggerMenuMetaDataTool ]
+
+#==========================================================
+# Use LZIB for compression of temporary outputs of AthenaMP
+#==========================================================
+if hasattr(runArgs, "outputESDFile") and '_000' in runArgs.outputESDFile:
+    ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolESDOutput()+ "'; COMPRESSION_ALGORITHM = '1'" ]
+    ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolESDOutput()+ "'; COMPRESSION_LEVEL = '5'" ]
+
+if hasattr(runArgs, "outputAODFile") and '_000' in runArgs.outputAODFile:
+    ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolAODOutput()+ "'; COMPRESSION_ALGORITHM = '1'" ]
+    ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolAODOutput()+ "'; COMPRESSION_LEVEL = '5'" ]
 
 ## Post-include
 if hasattr(runArgs,"postInclude"): 

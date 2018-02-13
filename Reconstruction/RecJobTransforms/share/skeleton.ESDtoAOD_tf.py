@@ -18,6 +18,9 @@ import logging
 recoLog = logging.getLogger('esd_to_aod')
 recoLog.info( '****************** STARTING ESD->AOD MAKING *****************' )
 
+from AthenaCommon.AppMgr import ServiceMgr; import AthenaPoolCnvSvc.AthenaPool
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+
 ## Input
 if hasattr(runArgs,"inputFile"): athenaCommonFlags.FilesInput.set_Value_and_Lock( runArgs.inputFile )
 if hasattr(runArgs,"inputESDFile"):
@@ -132,6 +135,13 @@ if hasattr(runArgs,"outputDESDM_BEAMSPOTFile"):
     primDPD.WriteDESDM_BEAMSPOTStream.set_Value_and_Lock( True )
     include("InDetBeamSpotFinder/DESDM_BEAMSPOTFragment.py")
 
+#==========================================================
+# Use LZIB for compression of temporary outputs of AthenaMP
+#==========================================================
+if hasattr(runArgs, "outputAODFile") and '_000' in runArgs.outputAODFile:
+    ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolAODOutput()+ "'; COMPRESSION_ALGORITHM = '1'" ]
+    ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolAODOutput()+ "'; COMPRESSION_LEVEL = '5'" ]
+
 ## Post-include
 if hasattr(runArgs,"postInclude"): 
     for fragment in runArgs.postInclude:
@@ -143,4 +153,3 @@ if hasattr(runArgs,"postExec"):
     for cmd in runArgs.postExec:
         recoLog.info(cmd)
         exec(cmd)
-        

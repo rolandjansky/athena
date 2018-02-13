@@ -27,6 +27,8 @@ except ImportError:
 from PATJobTransforms.DPDUtils import SetupOutputDPDs
 rec.DPDMakerScripts.append(SetupOutputDPDs(runArgs,listOfFlags))
 
+from AthenaCommon.AppMgr import ServiceMgr; import AthenaPoolCnvSvc.AthenaPool
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
 ## Input
 # BS
@@ -201,6 +203,13 @@ if hasattr(runArgs,"inputRDO_TRIGFile") and rec.doFileMetaData():
     ToolSvc += CfgMgr.xAODMaker__TriggerMenuMetaDataTool( "TriggerMenuMetaDataTool",
                               OutputLevel = 3 )
     svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.TriggerMenuMetaDataTool ]
+
+#==========================================================
+# Use LZIB for compression of temporary outputs of AthenaMP
+#==========================================================
+if hasattr(runArgs, "outputESDFile") and '_000' in runArgs.outputESDFile:
+    ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolESDOutput()+ "'; COMPRESSION_ALGORITHM = '1'" ]
+    ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolESDOutput()+ "'; COMPRESSION_LEVEL = '5'" ]
 
 ## Post-include
 if hasattr(runArgs,"postInclude"): 
