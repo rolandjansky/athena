@@ -335,6 +335,10 @@ if not simFlags.ISFRun:
         ## Write geometry tag info
         import EventInfoMgt.EventInfoMgtInit
 
+        ## Patch metadata if required
+        from G4AtlasApps.G4Atlas_Metadata import patch_mc_channel_numberMetadata
+        patch_mc_channel_numberMetadata()
+
         ## Instantiate StreamHITS
         if athenaCommonFlags.PoolHitsOutput.statusOn:
             hits_persistency()

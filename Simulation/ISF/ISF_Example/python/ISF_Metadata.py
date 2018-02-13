@@ -45,6 +45,28 @@ def inputFileValidityCheck():
     else:
         simMDlog.info("No input Evgen AthFile object available, so skipping check for input file validity.")
 
+### Check whether mc_channel_number is set in tag_info metadata and add if required.
+def patch_mc_channel_numberMetadata(addToFile=True):
+    from ISF_Example.ISF_Metadata import inputAthFileObject
+    if inputAthFileObject is not None:
+        mc_channel_number=0
+        if 'mc_channel_number' in inputAthFileObject.infos and len(inputAthFileObject.infos['mc_channel_number'])>0:
+            mc_channel_number=inputAthFileObject.infos['mc_channel_number'][0]
+        elif 'mc_channel_number' in inputAthFileObject.infos['tag_info'] and len(inputAthFileObject.infos['tag_info']['mc_channel_number'])>0:
+            mc_channel_number=inputAthFileObject.infos.tag_info['mc_channel_number'][0]
+        else:
+            simMDlog.warning("No mc_channel_number in input file metadata.  Using run number.")
+            mc_channel_number=inputAthFileObject.infos['run_number'][0]
+            if addToFile:
+                simMDlog.info('Adding mc channel number to taginfo: %s',str(mc_channel_number))
+                # Initialize tag info management
+                #import EventInfoMgt.EventInfoMgtInit
+                from AthenaCommon.AppMgr import ServiceMgr
+                ServiceMgr.TagInfoMgr.ExtraTagValuePairs += ["mc_channel_number", str(mc_channel_number) ]
+        return mc_channel_number
+    else:
+        simMDlog.info("No input Evgen AthFile object available so skipping patch of mc channel number metadata.")
+
 ### Read in special simulation job option fragments based on metadata passed by the evgen stage
 def checkForSpecialConfigurationMetadata():
     from ISF_Example.ISF_Metadata import inputAthFileObject
