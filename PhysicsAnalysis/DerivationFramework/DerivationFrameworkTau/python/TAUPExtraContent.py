@@ -140,6 +140,7 @@ ExtraContainersElectrons         = []  #    ["ForwardElectrons"] -- removed for 
 ExtraContainersJets              = ["CaloCalTopoClusters"]
 
 ExtraContainersTrigger           = ["LVL1EmTauRoIs",
+                                    "LVL1JetRoIs",
                                     "HLT_TrigRoiDescriptorCollection_forID",
                                     "HLT_TrigRoiDescriptorCollection_forID1",
                                     "HLT_TrigRoiDescriptorCollection_forID2",
