@@ -17,7 +17,8 @@ JetRecursiveSoftDrop::JetRecursiveSoftDrop(std::string name)
 : AsgTool(name), m_bld("") {
   declareProperty("ZCut", m_zcut =0.1);
   declareProperty("Beta", m_beta =0.0);
-  declareProperty("N", m_N =-1); //default to infinite layers
+  declareProperty("N",    m_N    =-1); //default to infinite layers
+  declareProperty("R0",   m_R0   =1.0);
   declareProperty("JetBuilder", m_bld);
 }
 
@@ -34,6 +35,14 @@ StatusCode JetRecursiveSoftDrop::initialize() {
   }
   if ( m_beta < 0.0 || m_beta > 10.0 ) {
     ATH_MSG_WARNING("Invalid value for Beta " << m_beta);
+  }
+  if ( m_N < -1.0) {
+    ATH_MSG_ERROR("Invalid value for N " << m_N);
+    return StatusCode::FAILURE;
+  }
+  if ( m_R0 < 0.0 || m_R0 > 10.0 ) {
+    ATH_MSG_ERROR("Invalid value for R0 " << m_R0);
+    return StatusCode::FAILURE;
   }
   if ( m_bld.empty() ) {
     ATH_MSG_ERROR("Unable to retrieve jet builder.");
@@ -58,7 +67,7 @@ int JetRecursiveSoftDrop::groom(const xAOD::Jet& jin, xAOD::JetContainer& jets) 
   //configure recursive soft drop tool
   //https://fastjet.hepforge.org/trac/browser/contrib/contribs/RecursiveTools/tags/2.0.0-beta1
   ////////////////////////
-  fastjet::contrib::RecursiveSoftDrop softdropper(m_beta, m_zcut, m_N);
+  fastjet::contrib::RecursiveSoftDrop softdropper(m_beta, m_zcut, m_N, m_R0);
   PseudoJet pjsoftdrop = softdropper(*ppjin);
   int npsoftdrop = pjsoftdrop.pieces().size();
   xAOD::Jet* pjet = m_bld->add(pjsoftdrop, jets, &jin);
@@ -67,6 +76,7 @@ int JetRecursiveSoftDrop::groom(const xAOD::Jet& jin, xAOD::JetContainer& jets) 
   pjet->setAttribute("RSoftDropZCut", m_zcut);
   pjet->setAttribute("RSoftDropBeta", m_beta);
   pjet->setAttribute("RSoftDropN", m_N);
+  pjet->setAttribute("SoftDropR0", m_R0);
   pjet->setAttribute<int>("NSoftDropSubjets", npsoftdrop);
 
   ATH_MSG_DEBUG("Properties after softdrop:");
@@ -86,6 +96,8 @@ int JetRecursiveSoftDrop::groom(const xAOD::Jet& jin, xAOD::JetContainer& jets) 
 void JetRecursiveSoftDrop::print() const {
   ATH_MSG_INFO("  Asymmetry measure min: " << m_zcut);
   ATH_MSG_INFO("  Angular exponent: " << m_beta);
+  ATH_MSG_INFO("  Recursive layers: " << m_N);
+  ATH_MSG_INFO("  Characteristic jet radius: " << m_R0);
   ATH_MSG_INFO("  Jet builder: " << m_bld.name());
 }
 
