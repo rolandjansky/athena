@@ -74,7 +74,7 @@ HanConfig::
 ~HanConfig()
 {
   delete m_config;
-  /* delete dqRoot; */
+  /* delete m_dqRoot; */
   delete m_top_level;
   if (m_metadata) m_metadata->Delete();
   delete m_metadata;
@@ -348,7 +348,7 @@ Visit( const MiniConfigTreeNode* node ) const
       std::cerr << "HanConfig::RefVisitor::Visit(): Reference not found: \"" << name << "\"\n";
       return;
     }
-//     TDirectory* dir = ChangeOutputDir( m_outfile, name, directories );
+//     TDirectory* dir = ChangeOutputDir( m_outfile, name, m_directories );
 //     dir->cd();
     //sami
     m_outfile->cd();
@@ -577,7 +577,7 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
 	    m_refsourcedata->Add(new TObjString(newRefId.c_str()),
 				 new TObjString("Multiple references"));
 	  }
-	  outfile->cd();
+	  m_outfile->cd();
 	  toarray->Write(newRefId.c_str(), 1);//write object with a new reference name
 	  delete toarray;
 	}
