@@ -3,11 +3,12 @@
 #ifndef JetBottomUpSoftDrop_H
 #define JetBottomUpSoftDrop_H
 
-// Jennifer Roloff
+// Jennifer Roloff & Joe Taenzer
 // October 2016
 //
 // Tool to groom jets with bottom up softdrop.
-// SoftDrop is described in this paper: arXiv:1402.2657 (bottom up softdrop may not have its own documentation yet)
+// SoftDrop is described in this paper: arXiv:1402.2657 
+// Bottom Up SoftDrop is described in this paper (under the name "Iterated SoftDrop": https://arxiv.org/pdf/1704.06266.pdf
 // See also: https://fastjet.hepforge.org/trac/browser/contrib/contribs/RecursiveTools/tags/2.0.0-beta1/BottomUpSoftDrop.hh
 
 #include "AsgTools/AsgTool.h"
