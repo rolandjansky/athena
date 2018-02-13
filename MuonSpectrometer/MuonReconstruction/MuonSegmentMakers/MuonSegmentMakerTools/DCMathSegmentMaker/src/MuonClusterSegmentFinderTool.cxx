@@ -102,7 +102,8 @@ namespace Muon {
     //find all clusters near the seed and try to fit
     for(unsigned int i=0; i<seeds.size(); ++i) {
       std::vector< const Muon::MuonClusterOnTrack* > rioVec = getClustersOnSegment(orderedClusters,seeds[i]);
-      if(rioVec.size() <= 6) continue;
+//  make consistent cut
+      if(rioVec.size() <4) continue;
       // logic to reduce combinatorics
       if(rioVec.size() == rioVecPrevious.size()) {
          bool sameContent = true;
@@ -384,7 +385,7 @@ namespace Muon {
 	}
 
 	
-	ATH_MSG_DEBUG( "Fitting a 3D segment with " << phiHits.size() << " phi hits and " << vec2.size() << " eta hits" );
+	ATH_MSG_DEBUG( "Fitting a 3D segment with " << phiHits.size() << " phi hits and " << vec2.size() << " total hits" );
 	for(unsigned int k=0; k<vec2.size(); ++k) {
 	  Identifier id = m_helper->getIdentifier(*vec2[k]);
 	  ATH_MSG_VERBOSE( m_idHelperTool->toString(id) << " " << vec2[k]->globalPosition().perp() << ", " << vec2[k]->globalPosition().z() );
@@ -527,7 +528,15 @@ namespace Muon {
 
 	    usedLayer2 = true;
 	    const Amg::Vector3D& gp2 = (*cit2)->prepRawData()->globalPosition();
-	    Amg::Vector3D segdir( (gp2.x()-gp1.x()),(gp2.y()-gp1.y()),(gp2.z()-gp1.z()) );
+            double dx = (gp2.x()-gp1.x());
+            double dy = (gp2.y()-gp1.y());
+            double dz = (gp2.z()-gp1.z());
+            if(fabs(dz) < 200.) {
+               dx = (gp2.x()+gp1.x())/2.;
+               dy = (gp2.y()+gp1.y())/2.;
+               dz = (gp2.z()+gp1.z())/2.;
+            } 
+ 	    Amg::Vector3D segdir(dx, dy, dz);
 	    seeds.push_back(std::pair<Amg::Vector3D,Amg::Vector3D>(gp1,segdir));
 	  }
 	  if( usedLayer2 ) ++seedlayers2;
@@ -558,7 +567,15 @@ namespace Muon {
       const Amg::Vector3D& gp1 = (*cit)->prepRawData()->globalPosition();      
       for(std::vector<const Muon::MuonClusterOnTrack*>::const_iterator cit2=orderedClusters[outerMM].begin(); cit2!=orderedClusters[outerMM].end(); ++cit2) {
 	const Amg::Vector3D& gp2 = (*cit2)->prepRawData()->globalPosition();
-	Amg::Vector3D segdir( (gp2.x()-gp1.x()),(gp2.y()-gp1.y()),(gp2.z()-gp1.z()) );
+        double dx = (gp2.x()-gp1.x());
+        double dy = (gp2.y()-gp1.y());
+        double dz = (gp2.z()-gp1.z());
+        if(fabs(dz) < 200.) {
+           dx = (gp2.x()+gp1.x())/2.;
+           dy = (gp2.y()+gp1.y())/2.;
+           dz = (gp2.z()+gp1.z())/2.;
+        } 
+        Amg::Vector3D segdir(dx, dy, dz);
 	seeds.push_back(std::pair<Amg::Vector3D,Amg::Vector3D>(gp1,segdir));
       }
     }
