@@ -23,7 +23,7 @@ from DerivationFrameworkJetEtMiss.JetCommon import (
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import (
     addDefaultTrimmedJets, replaceAODReducedJets)
 from DerivationFrameworkJetEtMiss.AntiKt4EMTopoJetsCPContent import (
-    AntiKt4EMTopoJetsCPContent)
+    AntiKt4EMTopoJetsCPContent, AntiKt4EMTopoJetsCPContentAux)
 
 # tracking
 from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import (
@@ -166,20 +166,23 @@ FTAG5SlimmingHelper.AllVariables = [
 # for FT5_bjetTriggerVtx in FTAllVars_bjetTriggerVtx:
 #     FTAG5SlimmingHelper.AllVariables.append(FT5_bjetTriggerVtx)
 
-FTAG5SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("AntiKt4EMTopoJetsAux","AntiKt10LCTopoJets"),
-                                       "InDetTrackParticles.truthMatchProbability.x.y.z.vx.vy.vz",
-                                       "InDetTrackParticles.numberOfContribPixelLayers.numberOfTRTHits.numberOfInnermostPixelLayerSharedHits.numberOfNextToInnermostPixelLayerSharedHits",
-                                       "InDetTrackParticles.numberOfPixelSplitHits.numberOfInnermostPixelLayerSplitHits.numberOfNextToInnermostPixelLayerSplitHits", 
-                                       "InDetTrackParticles.hitPattern.radiusOfFirstHit",
-                                       #"InDetTrackParticles.FTAG5_unbiased_d0.FTAG5_unbiased_z0.FTAG5_unbiased_d0Sigma.FTAG5_unbiased_z0Sigma",
-                                       "CombinedMuonTrackParticles.vx.vy.vz",
-                                       "ExtrapolatedMuonTrackParticles.vx.vy.vz",
-                                       "MSOnlyExtrapolatedMuonTrackParticles.vx.vy.vz",
-                                       "MuonSpectrometerTrackParticles.vx.vy.vz",
-                                       "InDetForwardTrackParticles.phi.qOverP.theta",
-                                       "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtx.-vxTrackAtVertex",
-                                       "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet.GhostVR30Rmax4Rmin02TrackJetPt.GhostVR30Rmax4Rmin02TrackJetCount",
-                                       "InDetTrackParticles.btag_z0.btag_d0.btag_ip_d0.btag_ip_z0.btag_ip_phi.btag_ip_d0_sigma.btag_ip_z0_sigma.btag_track_displacement.btag_track_momentum"]
+
+
+FTAG5SlimmingHelper.ExtraVariables += [
+    AntiKt4EMTopoJetsCPContentAux.replace("AntiKt4EMTopoJetsAux","AntiKt10LCTopoJets") + '.C2.D2',
+    "InDetTrackParticles.truthMatchProbability.x.y.z.vx.vy.vz",
+    "InDetTrackParticles.numberOfContribPixelLayers.numberOfTRTHits.numberOfInnermostPixelLayerSharedHits.numberOfNextToInnermostPixelLayerSharedHits",
+    "InDetTrackParticles.numberOfPixelSplitHits.numberOfInnermostPixelLayerSplitHits.numberOfNextToInnermostPixelLayerSplitHits",
+    "InDetTrackParticles.hitPattern.radiusOfFirstHit",
+    #"InDetTrackParticles.FTAG5_unbiased_d0.FTAG5_unbiased_z0.FTAG5_unbiased_d0Sigma.FTAG5_unbiased_z0Sigma",
+    "CombinedMuonTrackParticles.vx.vy.vz",
+    "ExtrapolatedMuonTrackParticles.vx.vy.vz",
+    "MSOnlyExtrapolatedMuonTrackParticles.vx.vy.vz",
+    "MuonSpectrometerTrackParticles.vx.vy.vz",
+    "InDetForwardTrackParticles.phi.qOverP.theta",
+    "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtx.-vxTrackAtVertex",
+    "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet.GhostVR30Rmax4Rmin02TrackJetPt.GhostVR30Rmax4Rmin02TrackJetCount",
+    "InDetTrackParticles.btag_z0.btag_d0.btag_ip_d0.btag_ip_z0.btag_ip_phi.btag_ip_d0_sigma.btag_ip_z0_sigma.btag_track_displacement.btag_track_momentum"]
 
 addJetOutputs(FTAG5SlimmingHelper,["FTAG5"],[],[])
 

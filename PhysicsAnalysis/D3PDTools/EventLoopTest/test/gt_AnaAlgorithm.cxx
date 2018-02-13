@@ -87,6 +87,19 @@ TEST (AnaAlgorithmTest, setProperty)
   ASSERT_EQ (42, myalg->m_property);
 }
 
+TEST (AnaAlgorithmTest, setOutputLevel)
+{
+  AnaAlgorithmConfig config;
+  config.setName ("name");
+  config.setType ("EL::UnitTestAlg2");
+  ASSERT_SUCCESS (config.setProperty ("OutputLevel", MSG::Level::VERBOSE));
+  std::unique_ptr<AnaAlgorithm> alg;
+  ASSERT_SUCCESS (config.makeAlgorithm (alg));
+  UnitTestAlg2 *myalg = dynamic_cast<UnitTestAlg2*>(alg.get());
+  ASSERT_NE (nullptr, myalg);
+  ASSERT_EQ (MSG::Level::VERBOSE, static_cast<int>(myalg->msg().level()));
+}
+
 TEST (AnaAlgorithmTest, setSubTool)
 {
   AnaAlgorithmConfig config;
