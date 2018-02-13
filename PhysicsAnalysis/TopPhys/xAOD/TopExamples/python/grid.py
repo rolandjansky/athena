@@ -93,19 +93,22 @@ class Config:
     code = 'top-xaod'
     cutsFile = 'nocuts.txt'
 
-    gridUsername = ''
+    gridUsername    = ''
     groupProduction = False
-    suffix = ''
-    excludedSites = ''
-    forceSite = ''
-    noSubmit = False
-    CMake    = (os.getenv('ROOTCORE_RELEASE_SERIES')=='25') # Using info from ROOTCORE_RELEASE_SERIES environment variable by default - need to set to True for CMake-based releases (release 21)
-    mergeType = 'Default' #None, Default, xAOD 
-    destSE = ''
-    memory = '2000' #in MB
+    suffix          = ''
+    excludedSites   = ''
+    forceSite       = ''
+    noSubmit        = False
+    CMake           = (os.getenv('ROOTCORE_RELEASE_SERIES')=='25') # ROOTCORE_RELEASE_SERIES variable used to identify release (CMake required for R21)
+    mergeType       = 'Default' #None, Default, xAOD 
+    destSE          = ''
+    memory          = '2000' #in MB
     maxNFilesPerJob = ''
-    otherOptions = ''
-    nameShortener = basicInDSNameShortener # default shortener function
+    otherOptions    = ''
+    nameShortener   = basicInDSNameShortener # default shortener function
+    customTDPFile   = None
+    reuseTarBall    = False
+    checkPRW        = False
 
     def details(self):
         cutsFileIsARealFile = checkForFile(self.settingsFile)
@@ -128,6 +131,8 @@ class Config:
         print ' -maxNFilesPerJob', self.maxNFilesPerJob        
         print ' -OtherOptions:  ', self.otherOptions 
         print ' -nameShortener: ', self.nameShortener
+        print ' -reuseTarBall:  ', self.reuseTarBall
+        print ' -checkPRW:      ', self.checkPRW
 
         txt = self.destSE
         if len(txt) == 0:
@@ -180,20 +185,22 @@ def submit(config, allSamples):
   checkForPrun()
   checkMergeType(config)
   config.details()
-  checkForShowerAlgorithm(allSamples)
+  checkForShowerAlgorithm(allSamples, config.settingsFile)
+  if config.checkPRW:
+      checkPRWFile(allSamples, config.settingsFile)
 
   tarfile = 'top-xaod.tar.gz'
 
-  #We don't want to use an old, out-of-date file
-  #Delete the file if it exists
-  try:
-      os.remove(tarfile)
-  except OSError, e:
-      #Number 2 is 'file doesn't exist' which is okay for us
-      if e.errno == 2:
-          pass
-      else:
-          raise
+  # Delete the old tarball if requested
+  if not config.reuseTarBall:
+      try:
+          os.remove(tarfile)
+      except OSError, e:
+          #Number 2 is 'file doesn't exist' which is okay for us
+          if e.errno == 2:
+              pass
+          else:
+              raise
 
 
   #Check for cuts file
@@ -406,9 +413,23 @@ if __name__ == '__main__':
     print 'For an example, see 01SubmitToGrid.py'
 
 
-def checkForShowerAlgorithm(Samples):
+def checkForShowerAlgorithm(Samples, cutfile):    
     noShowerDatasets = []
-    tdpFile = ROOT.PathResolver.find_file("dev/AnalysisTop/TopDataPreparation/XSection-MC15-13TeV.data", "DATAPATH", ROOT.PathResolver.RecursiveSearch)
+    customTDPFile = None
+    tmp = open(cutfile, "r")
+    for line in tmp.readlines():
+        if "TDPPath" not in line:
+            continue
+        else:
+            customTDPFile = line.strip().split("TDPPath")[1]
+            break
+    print customTDPFile
+    if customTDPFile:
+        tdpFile = ROOT.PathResolver.find_file(customTDPFile, "DATAPATH", ROOT.PathResolver.RecursiveSearch)
+    else:
+        tdpFile = ROOT.PathResolver.find_file("dev/AnalysisTop/TopDataPreparation/XSection-MC15-13TeV.data", "CALIBPATH", ROOT.PathResolver.RecursiveSearch)
+    # Load the file
+    print tdpFile
     tdp = analysis.TopDataPreparation(tdpFile)
     for TopSample in availableDatasets.values():
         for List in Samples:
@@ -429,3 +450,40 @@ def checkForShowerAlgorithm(Samples):
         for ds in set(noShowerDatasets):
             print ds
         raise RuntimeError("Datasets without shower.")
+
+def checkPRWFile(Samples, cutfile):
+    # Some imports
+    import subprocess, shlex
+
+    # We need to find the PRW files being used and make use of the checkPRW 
+    # checkPRW.py --inDsTxt=my.datasets.txt  path/to/prwConfigs/*.root
+    # First, find the PRW names from cutfile
+    print logger.OKBLUE + " - Processing checks for PRWConfig" + logger.ENDC
+    tmp = open(cutfile, "r")
+    PRWConfig = None
+    for line in tmp.readlines():
+        if "PRWConfigFiles" not in line:
+            continue
+        else:
+            PRWConfig = line.strip().split()[1:]
+    if not PRWConfig:
+        print logger.FAIL + " - Error reading PRWConfigFiles from cutfile" + logger.ENDC
+        return 
+    # Print the PRW files
+    print logger.OKGREEN + "\n".join(PRWConfig) + logger.ENDC
+    # Create a temporary sample list
+    tmpFileName = "samplesforprwcheck.txt"
+    tmpOut = open(tmpFileName,"w")
+    for List in Samples:
+        SublistSamples = List.datasets
+        for sample in SublistSamples:
+            tmpOut.write(sample+"\n")
+    tmpOut.close()
+    # Make a command
+    cmd = "checkPRW.py --inDsTxt %s %s"%(tmpFileName, " ".join(PRWConfig))
+    print logger.OKBLUE + " - Running command : " + cmd + logger.ENDC
+    # Run
+    proc = subprocess.Popen(shlex.split(cmd))
+    proc.wait()
+    
+    
