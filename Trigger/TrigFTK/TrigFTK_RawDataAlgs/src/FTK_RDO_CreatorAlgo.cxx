@@ -55,7 +55,7 @@ FTK_RDO_CreatorAlgo::FTK_RDO_CreatorAlgo(const std::string& name, ISvcLocator* p
   m_trainingBeamspotY(0.),
   m_trainingBeamspotTiltX(0.),
   m_trainingBeamspotTiltY(0.),
-  m_reverseIBLlocx(false)
+  m_reverseIBLlocx(true)
 {
   declareProperty("mergedTrackPaths",m_ftktrack_paths_merged,
       "Paths of the merged tracks");
