@@ -1381,6 +1381,9 @@ namespace CP {
     else if( data == "Data16" ) {
       m_Tdata = MCAST::DataType::Data16;
     }
+    else if( data == "Data17" ) {
+      m_Tdata = MCAST::DataType::Data17;
+    }
     else {
       ATH_MSG_ERROR( "Unrecognized value for SetData" );
       return StatusCode::FAILURE;
