@@ -62,7 +62,7 @@ private:
 	bool m_isGetRandomFile;
 
 	bool m_evtInfoDone;
-	const EventInfo* eventInfo;
+	const EventInfo* m_eventInfo;
 
 	//  int m_maxProducedFiles;
 	int m_nEvent; // Internal counter for the number of processed events
