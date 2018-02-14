@@ -25,6 +25,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadMetaHandleKey.h"
 #include "xAODCutFlow/CutBookkeeperContainer.h"
+#include "EventInfo/EventStreamInfo.h"
 
 class MetadataTest : public AthAlgorithm {
 public:
@@ -33,13 +34,16 @@ public:
   MetadataTest(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~MetadataTest();
   
-  StatusCode initialize(); /// Algorithm interface. Cannot re-initialize with this
+  StatusCode start(); /// Algorithm interface. Cannot re-initialize with this
   StatusCode execute();    /// Algorithm interface.
   StatusCode finalize();   /// Algorithm interface.
 
 private:
   SG::ReadMetaHandleKey<xAOD::CutBookkeeperContainer> m_hkey;
-  SG::ReadHandleKey< MetaCont<xAOD::CutBookkeeperContainer> > m_ckey;
+  SG::ReadMetaHandleKey<EventStreamInfo> m_eihkey;
+  SG::ReadMetaHandleKey<EventStreamInfo> m_eihkey2;
+
+  bool m_esidone;
 
 
 };
