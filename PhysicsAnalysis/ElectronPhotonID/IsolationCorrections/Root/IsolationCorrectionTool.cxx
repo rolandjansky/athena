@@ -345,9 +345,9 @@ namespace CP {
   
   float IsolationCorrectionTool::GetDDCorrection(const xAOD::Egamma& input, xAOD::Iso::IsolationType isol){
 	if (m_ddVersion == "2015_2016") {   // corrections derived in 2018 (Rel 21), 2015+2016 data
-      return m_isol_corr->GetDDCorrection_2017(input, isol);
-    } else if (m_ddVersion == "2017")   // corrections derived in 2018 (Rel 21), 2017 data
       return m_isol_corr->GetDDCorrection_2015_2016(input, isol);
+    } else if (m_ddVersion == "2017")   // corrections derived in 2018 (Rel 21), 2017 data
+      return m_isol_corr->GetDDCorrection_2017(input, isol);
 
     return 0;
   }
