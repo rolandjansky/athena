@@ -1215,6 +1215,15 @@ class ItemDef:
             LVL1MenuItem('L1_AFP_A_AND_C_J100').setLogic( AFP_A & AFP_C & J100 & physcond )               # noqa: F821
             LVL1MenuItem('L1_AFP_A_AND_C_SPECTOF_J100').setLogic( AFP_A_AND_C_SPECTOF & J100 & physcond ) # noqa: F821
 
+            LVL1MenuItem('L1_AFP_NSA').setLogic( AFP_NSA & physcond ) # noqa: F821 
+            LVL1MenuItem('L1_AFP_NSC').setLogic( AFP_NSC & physcond ) # noqa: F821
+            LVL1MenuItem('L1_AFP_FSA_SIT').setLogic( AFP_FSA_SIT & physcond ) # noqa: F821
+            LVL1MenuItem('L1_AFP_FSC_SIT').setLogic( AFP_FSC_SIT & physcond ) # noqa: F821
+            LVL1MenuItem('L1_EM7_AFP_A_OR_C').setLogic( (AFP_A | AFP_C) & EM7 & physcond ) # noqa: F821
+            LVL1MenuItem('L1_EM7_AFP_A_AND_C').setLogic( AFP_A & AFP_C & EM7 & physcond )  # noqa: F821
+            LVL1MenuItem('L1_EM12_AFP_A_OR_C').setLogic( (AFP_A | AFP_C) & EM12 & physcond ) # noqa: F821
+            LVL1MenuItem('L1_EM12_AFP_A_AND_C').setLogic( AFP_A & AFP_C & EM12 & physcond )  # noqa: F821
+
         else:    
             LVL1MenuItem('L1_AFP_NSC').setLogic( AFP_NSC & physcond ) # noqa: F821
             LVL1MenuItem('L1_AFP_FSC').setLogic( AFP_FSC & physcond ) # noqa: F821
