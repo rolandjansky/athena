@@ -630,13 +630,6 @@ namespace Analysis
       }
     */
 
-    //const MuonAssociation *mc = jetToTag.getAssociation<MuonAssociation>(m_muonAssociationName);
-    /*
-      if (mc == 0) {
-      ATH_MSG_INFO( "#BTAG# No muon constituent");
-      return;
-      }
-    */
     std::vector<ElementLink<xAOD::MuonContainer> > assocMuons;
     assocMuons= BTag->auxdata<std::vector<ElementLink<xAOD::MuonContainer> > >(m_muonAssociationName);
     if ( assocMuons.size()==0 ) {
