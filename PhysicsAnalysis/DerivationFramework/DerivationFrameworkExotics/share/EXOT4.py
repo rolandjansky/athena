@@ -132,11 +132,38 @@ if isMC:
 if isMC:
    jfind_noel_truth = jtm.addJetFinder("AntiKt4TruthNoElJets", "AntiKt", 0.4, "truthNoEl","truthNoEl", ghostArea=0.0 , ptmin=10000, ptminFilter=70000,calibOpt="")
 
-jfind_smallnoel_trk = jtm.addJetFinder("AntiKt4TrackNoElJets", "AntiKt", 0.4, "TrkJetElRemovalgetter", "track",
+
+# add algorithms in the sequence that calculate the b-tagging variables
+# for the el-subtracted jets
+from AthenaCommon.AppMgr import ToolSvc
+btag_jetnoel = ConfInst.setupJetBTaggerTool(ToolSvc, JetCollection="AntiKt4EMTopoNoEl", AddToToolSvc=True,
+                                                     Verbose=True,
+                                                     options={"name"         : "btagging_antikt4emtoponoel",
+                                                              "BTagName"     : "BTagging_AntiKt4TopoNoEl",
+                                                              "BTagJFVtxName": "JFVtx",
+                                                              "BTagSVName"   : "SecVtx",
+                                                              },
+                                                     SetupScheme = "",
+                                                     TaggerList = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu', 'MV2c10', 'MV2c10mu', 'MV2c10rnn', 'JetVertexCharge', 'MV2cl100' , 'MVb', 'DL1', 'DL1rnn', 'DL1mu', 'RNNIP', 'MV2c10Flip']
+                                                     )
+btag_jetnoel_track = ConfInst.setupJetBTaggerTool(ToolSvc, JetCollection="AntiKt4TrackNoEl", AddToToolSvc=True,
+                                                     Verbose=True,
+                                                     options={"name"         : "btagging_antikt4tracknoel",
+                                                              "BTagName"     : "BTagging_AntiKt4TrackNoEl",
+                                                              "BTagJFVtxName": "JFVtx",
+                                                              "BTagSVName"   : "SecVtx",
+                                                              },
+                                                     SetupScheme = "",
+                                                     TaggerList = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu', 'MV2c10', 'MV2c10mu', 'MV2c10rnn', 'JetVertexCharge', 'MV2cl100' , 'MVb', 'DL1', 'DL1rnn', 'DL1mu', 'RNNIP', 'MV2c10Flip']
+                                                     )
+jtm.modifiersMap["akt4emtoponoel"] = jtm.modifiersMap["track"] + [btag_jetnoel]
+jtm.modifiersMap["akt4tracknoel"] = jtm.modifiersMap["emtopo_ungroomed"] + [btag_jetnoel_track]
+
+jfind_smallnoel_trk = jtm.addJetFinder("AntiKt4TrackNoElJets", "AntiKt", 0.4, "TrkJetElRemovalgetter", "akt4tracknoel",
                 ghostArea=0.01 , ptmin=10000, ptminFilter=10000
                 )
 
-jfind_smallnoel_emtopo = jtm.addJetFinder("AntiKt4EMTopoNoElJets", "AntiKt", 0.4, "JetElRemovalgetter", "emtopo_ungroomed",
+jfind_smallnoel_emtopo = jtm.addJetFinder("AntiKt4EMTopoNoElJets", "AntiKt", 0.4, "JetElRemovalgetter", "akt4tracknoel",
                 ghostArea=0.01 , ptmin=10000, ptminFilter=10000,
                 calibOpt="none")
 
@@ -168,11 +195,6 @@ exot4Seq += jetalg_smallnoel_emtopo
 from BTagging.BTaggingFlags import BTaggingFlags
 BTaggingFlags.CalibrationChannelAliases += ["AntiKt4EMTopoNoEl->AntiKt4EMTopo"]
 BTaggingFlags.CalibrationChannelAliases += ["AntiKt4TrackNoEl->AntiKt4EMTopo"]
-
-# add algorithms in the sequence that calculate the b-tagging variables
-# for the el-subtracted jets
-from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
-FlavorTagInit(JetCollections = ["AntiKt4EMTopoNoElJets","AntiKt4TrackNoElJets"], Sequencer=exot4Seq)
 
 # now schedule the sequence to re-calculate the MET using the electron-subtracted jets
 from DerivationFrameworkJetEtMiss.METCommon import maplist
