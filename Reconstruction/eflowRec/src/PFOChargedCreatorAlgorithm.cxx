@@ -119,7 +119,7 @@ void PFOChargedCreatorAlgorithm::createChargedPFO(const eflowCaloObject& energyF
 
       /*
 	We need to track which clusters we have added for the following use case:
-	An eflowCaloObject may have one cluster and N tracks, and then one woudl have N eflowTrackClusterLink*
+	An eflowCaloObject may have one cluster and N tracks, and then one would have N eflowTrackClusterLink*
         for each track-cluster pair, though the cluster is always the same. We only want to add the cluster to
         charged PFO once.
       */
