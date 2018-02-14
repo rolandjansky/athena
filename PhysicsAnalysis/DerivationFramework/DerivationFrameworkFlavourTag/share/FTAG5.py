@@ -155,7 +155,7 @@ subJetCollection = "AntiKtVR30Rmax4Rmin02TrackJets"
 FTAG5SlimmingHelper.SmartCollections = [
     "Electrons","Muons",
     "InDetTrackParticles",
-    "BTagging_AntiKtVR30Rmax4Rmin02Track_Training",
+    "BTagging_AntiKtVR30Rmax4Rmin02Track_expert",
     fatJetCollection]
 
 jssVariables = ['.'.join([fatJetCollection] + JSSVariables) ]
