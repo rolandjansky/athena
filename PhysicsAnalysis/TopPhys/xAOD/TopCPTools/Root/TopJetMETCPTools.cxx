@@ -269,6 +269,14 @@ StatusCode JetMETCPTools::setupJetsCalibration() {
   // the tool to look for the calibration in the correct fille.
   std::string calib_area = "CalibArea-01";
 
+  // PFlow QG fraction file missing in calibarea-01 
+  // Use version loaded by AT - remove this as soon 
+  // as file becomes avaliable! 
+  if(jetCalibrationName.find("PFlow") != std::string::npos ){
+    m_config->jetUncertainties_QGFracFile("//cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/AnalysisTop/JetUncertainties/CalibArea-01-PFlow/analysisInputs/UnknownFlavourComp.root");
+
+    // m_config->jetUncertainties_QGFracFile("//afs/cern.ch/atlas/www/GROUPS/DATABASE/GroupData/dev/AnalysisTop/JetUncertainties/CalibArea-01-PFlow/analysisInputs/UnknownFlavourComp.root");
+  }
   // Are we doing multiple JES for the reduced NP senarios?
   if (!m_config->doMultipleJES()) {
     m_jetUncertaintiesTool
