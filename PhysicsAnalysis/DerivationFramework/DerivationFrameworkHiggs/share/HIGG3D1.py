@@ -235,7 +235,6 @@ HIGG3D1SlimmingHelper.SmartCollections = ["Electrons",
                                           "AntiKt4EMTopoJets",
                                           "AntiKt4LCTopoJets",
                                           "BTagging_AntiKt4EMTopo",
-                                          "BTagging_AntiKt2Track",
                                           "InDetTrackParticles",
                                           "PrimaryVertices"]
 
