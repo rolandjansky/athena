@@ -27,7 +27,7 @@ WPs = [
          #"Tight", 
          #"HighPt",
          # track-to-vertex-association WPs
-         #"TTVA",
+         "TTVA",
          # BadMuon veto SFs
        #  "BadMuonVeto_HighPt",
          # isolation WPs

@@ -195,9 +195,9 @@ if __name__ == "__main__":
                         Histos[CR][wp][t][var] = ROOT.TH1F(histoname,histoname,Options.nBins,0,0.15)
                     else:
                         Histos[CR][wp][t][var] = DiagnosticHisto(name = histoname,
-                                                        axis_title = t,
-                                                        min = 1.,
-                                                        bin_width = 0.01)
+                                                                axis_title = t,
+                                                                min = 1.,
+                                                                bin_width = 0.01)
 
     for i in range(tree.GetEntries()):
         tree.GetEntry(i)
@@ -252,8 +252,8 @@ if __name__ == "__main__":
                         histoCR2 = Histos[calibReleases[1]][wp][t][var]
                         histoCR1.GetXaxis().SetTitle("Relative systematic uncertainty")
                     # get mean before overflow pull
-                    histoCR1.SetTitle("%s, Mean: %.5f"%(calibReleases[0],histoCR1.GetMean()))
-                    histoCR2.SetTitle("%s, Mean: %.5f"%(calibReleases[1],histoCR2.GetMean()))
+                    histoCR1.SetTitle("%s, Mean: %.8f"%(calibReleases[0],histoCR1.GetMean()))
+                    histoCR2.SetTitle("%s, Mean: %.8f"%(calibReleases[1],histoCR2.GetMean()))
                     if var!="": 
                         # pull overflow
                         histoCR1.SetBinContent(histoCR1.GetNbinsX(),histoCR1.GetBinContent(histoCR1.GetNbinsX()+1))
