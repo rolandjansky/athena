@@ -61,7 +61,7 @@ private slots:
   void setShowVolumeOutLines(bool);
 private:
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
 };
 
