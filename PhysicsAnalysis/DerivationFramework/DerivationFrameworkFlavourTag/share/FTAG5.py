@@ -30,8 +30,6 @@ from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import (
 # flavor tagging
 from DerivationFrameworkFlavourTag.HbbCommon import addVRJets
 from DerivationFrameworkFlavourTag import BTaggingContent as bvars
-from DerivationFrameworkFlavourTag.VRJetContent import (
-    AntiKtVR30Rmax4Rmin02TrackJetsCPContent)
 from DerivationFrameworkFlavourTag.JSSVariables import JSSVariables
 
 
@@ -153,48 +151,26 @@ FTAG5SlimmingHelper = SlimmingHelper("FTAG5SlimmingHelper")
 
 fatJetCollection = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
 subJetCollection = "AntiKtVR30Rmax4Rmin02TrackJets"
+
 FTAG5SlimmingHelper.SmartCollections = [
     "Electrons","Muons",
     "InDetTrackParticles",
+    "BTagging_AntiKtVR30Rmax4Rmin02Track_Training",
     fatJetCollection]
 
-hlBtagVars = bvars.BTaggingExpertContent(subJetCollection)
+jssVariables = ['.'.join([fatJetCollection] + JSSVariables) ]
+FTAG5SlimmingHelper.ExtraVariables += jssVariables
 
-FTAG5SlimmingHelper.ExtraVariables += hlBtagVars + [
+FTAG5SlimmingHelper.ExtraVariables += [
     "InDetTrackParticles.truthMatchProbability.x.y.z.vx.vy.vz",
     "InDetTrackParticles.numberOfContribPixelLayers.numberOfTRTHits.numberOfInnermostPixelLayerSharedHits.numberOfNextToInnermostPixelLayerSharedHits",
     "InDetTrackParticles.numberOfPixelSplitHits.numberOfInnermostPixelLayerSplitHits.numberOfNextToInnermostPixelLayerSplitHits",
     "InDetTrackParticles.hitPattern.radiusOfFirstHit",
     "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet.GhostVR30Rmax4Rmin02TrackJetPt.GhostVR30Rmax4Rmin02TrackJetCount.GhostHBosonsCount",
     "InDetTrackParticles.btag_z0.btag_d0.btag_ip_d0.btag_ip_z0.btag_ip_phi.btag_ip_d0_sigma.btag_ip_z0_sigma.btag_track_displacement.btag_track_momentum",
-] + AntiKtVR30Rmax4Rmin02TrackJetsCPContent + [
-    '.'.join([fatJetCollection] + JSSVariables)]
+]
 
-#----------------------------------------------------------------------
-# Add needed dictionary stuff
-FTAG5SlimmingHelper.AppendToDictionary = {
-  "BTagging_AntiKt4EMPFlow"                        :   "xAOD::BTaggingContainer", 
-  "BTagging_AntiKt4EMPFlowAux"                     :   "xAOD::BTaggingAuxContainer", 
-  "BTagging_AntiKt4EMPFlowJFVtx"                   :   "xAOD::BTaggingContainer",
-  "BTagging_AntiKt4EMPFlowJFVtxAux"                :   "xAOD::BTaggingAuxContainer",
-  "AntiKtVR30Rmax4Rmin02TrackJets"                     :   "xAOD::JetContainer"        ,
-  "AntiKtVR30Rmax4Rmin02TrackJetsAux"                  :   "xAOD::JetAuxContainer"     ,
-  "BTagging_AntiKtVR30Rmax4Rmin02Track"            :   "xAOD::BTaggingContainer"   ,
-  "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"         :   "xAOD::BTaggingAuxContainer",
-  "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtx"       :   "xAOD::BTagVertexContainer" ,
-  "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtxAux"    :   "xAOD::BTagVertexAuxContainer",
-  "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtx"      :   "xAOD::VertexContainer"   ,
-  "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtxAux"   :   "xAOD::VertexAuxContainer",
-  "BTagging_AntiKt2Track"                          :   "xAOD::BTaggingContainer"   ,
-  "BTagging_AntiKt2TrackAux"                       :   "xAOD::BTaggingAuxContainer",
-  "BTagging_AntiKt2TrackJFVtx"                     :   "xAOD::BTagVertexContainer"   ,
-  "BTagging_AntiKt2TrackJFVtxAux"                  :   "xAOD::BTagVertexAuxContainer",
-  "BTagging_AntiKt2TrackSecVtx"                    :   "xAOD::VertexContainer"   ,
-  "BTagging_AntiKt2TrackSecVtxAux"                 :   "xAOD::VertexAuxContainer",
-}
-#----------------------------------------------------------------------
 
-# addJetOutputs(FTAG5SlimmingHelper,["FTAG5"])
 
 FTAG5SlimmingHelper.IncludeMuonTriggerContent = False
 FTAG5SlimmingHelper.IncludeEGammaTriggerContent = False

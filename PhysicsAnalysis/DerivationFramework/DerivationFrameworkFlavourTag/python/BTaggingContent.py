@@ -53,15 +53,32 @@ BTaggingHighLevelAux = [
     "SV1_N2Tpair", "SV1_NGTinSvx"
 ]
 
+BTaggingExtendedAux = [
+    "BTagTrackToJetAssociator",
+]
+
+JetExtendedAux = [
+    "GhostBHadronsFinalCount",
+    "GhostCHadronsFinalCount",
+    "GhostTausFinalCount",
+    "GhostTrack",
+]
+
 def BTaggingExpertContent(jetcol):
     btaggingtmp = "BTagging_" + rchop(jetcol, "Jets")
     # deal with name mismatch between PV0TrackJets and BTagging_Track
     btagging = btaggingtmp.replace("PV0Track", "Track")
 
-    # add aux variables
-    btagging_aux = [ ".".join( [ btagging + "Aux" ] + BTaggingHighLevelAux ) ]
+    jetAllAux = JetStandardAux + JetExtendedAux
+    jetcontent = [ ".".join( [ jetcol + "Aux" ] + jetAllAux ) ]
 
-    return BTaggingStandardContent(jetcol) + [ btagging ] + btagging_aux
+    # add aux variables
+    btaggingAllAux = (BTaggingHighLevelAux
+                      + BTaggingStandardAux
+                      + BTaggingExtendedAux)
+    btagcontent = [ ".".join( [ btagging + "Aux" ] + btaggingAllAux ) ]
+
+    return [jetcol] + jetcontent + [ btagging ] + btagcontent
 
 
 def BTaggingStandardContent(jetcol):

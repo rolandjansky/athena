@@ -31,6 +31,7 @@ FullListOfSmartContainers = [
    "BTagging_AntiKt3Track",
    "BTagging_AntiKt4Track",
    "BTagging_AntiKtVR30Rmax4Rmin02Track",
+   "BTagging_AntiKtVR30Rmax4Rmin02Track_Training",
    "InDetTrackParticles",
    "PrimaryVertices",
    "HLT_xAOD__MuonContainer_MuonEFInfo",
