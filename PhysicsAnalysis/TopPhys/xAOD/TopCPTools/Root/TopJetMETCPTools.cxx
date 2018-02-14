@@ -264,10 +264,13 @@ StatusCode JetMETCPTools::setupJetsCalibration() {
   std::string JMS_Uncertainty="";
   if ( m_config->jetCalibSequence() == "JMS" )
    JMS_Uncertainty = "_JMSExtrap";
+  
+  // Rel21 calibrations are stored in a non-default area - therefore configure
+  // the tool to look for the calibration in the correct fille.
+  std::string calib_area = "CalibArea-01";
 
   // Are we doing multiple JES for the reduced NP senarios?
   if (!m_config->doMultipleJES()) {
-
     m_jetUncertaintiesTool
       = setupJetUncertaintiesTool("JetUncertaintiesTool",
                                   jetCalibrationName, 
@@ -275,7 +278,7 @@ StatusCode JetMETCPTools::setupJetsCalibration() {
                                   "rel21/" + conference +"/R4_" + m_config->jetUncertainties_NPModel() + ".config",
                                   nullptr,
                                   m_config->jetUncertainties_QGFracFile(),
-                                  "CalibArea-01"
+                                  calib_area
                                   );
 
     // Implement additional tool for frozen config when using JMS
@@ -300,7 +303,7 @@ StatusCode JetMETCPTools::setupJetsCalibration() {
                                   + conference
                                   + "/R4_StrongReduction_Scenario1.config",
                                   nullptr,m_config->jetUncertainties_QGFracFile(),
-                                  "CalibArea-01");
+                                  calib_area);
     m_jetUncertaintiesToolReducedNPScenario2
       = setupJetUncertaintiesTool("JetUncertaintiesToolReducedNPScenario2",
                                   jetCalibrationName, MC_type,
@@ -309,21 +312,22 @@ StatusCode JetMETCPTools::setupJetsCalibration() {
                                   + "/R4_CategoryReduction.config",
                                   nullptr,
                                   m_config->jetUncertainties_QGFracFile(),
-                                  "CalibArea-01");
+                                  calib_area);
     m_jetUncertaintiesToolReducedNPScenario3
       = setupJetUncertaintiesTool("JetUncertaintiesToolReducedNPScenario3",
                                   jetCalibrationName, MC_type,
                                   "rel21/"
                                   + conference
-                                  + "/R4_GlobalReduction.config",nullptr,m_config->jetUncertainties_QGFracFile(),
-                                  "CalibArea-01");
+                                  + "/R4_GlobalReduction.config",nullptr,
+                                  m_config->jetUncertainties_QGFracFile(),
+                                  calib_area);
     m_jetUncertaintiesToolReducedNPScenario4
       = setupJetUncertaintiesTool("JetUncertaintiesToolReducedNPScenario4",
                                   jetCalibrationName, MC_type,
                                   "rel21/"
                                   + conference
                                   + "/R4_AllNuisanceParameters.config",nullptr,m_config->jetUncertainties_QGFracFile(),
-                                  "CalibArea-01");
+                                  calib_area);
   }
 
   // JER Tool
@@ -418,6 +422,7 @@ StatusCode JetMETCPTools::setupLargeRJetsCalibration() {
   std::string configDir("");
   std::vector<std::string>* variables = nullptr;
   std::string largeRJES_config = m_config->largeRJESUncertaintyConfig();
+  std::string calibArea  = "CalibArea-01";
   std::string MC_type = "MC15";
 
   conference = "Moriond2017";
