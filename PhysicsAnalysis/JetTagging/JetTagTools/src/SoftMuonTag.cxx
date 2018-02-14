@@ -605,31 +605,6 @@ namespace Analysis
       else return StatusCode::SUCCESS; // failed eta cut
     }
 
-  
-    /////// VD: THIS is the part that matters
-    /*
-      if(m_runModus=="analysis" && m_writeInfoPlus) {
-      bool ppb = true;
-      StoreGateSvc* m_StoreGate;
-      StatusCode sc = service("StoreGateSvc", m_StoreGate);
-      if (sc.isFailure()) {
-      ATH_MSG_ERROR( "#BTAG# StoreGate service not found !");
-      } else {
-      sc = m_StoreGate->retrieve(m_originalMuCollection, m_originalMuCollectionName);
-      if (sc.isFailure()) {
-      ATH_MSG_WARNING( "#BTAG# " << m_originalMuCollectionName << " not found in StoreGate.");
-      } else {
-      ATH_MSG_DEBUG( "#BTAG# MuonContainer " << m_originalMuCollectionName << " found.");
-      ppb = false;
-      }
-      }
-      if(ppb) {
-      ATH_MSG_WARNING( "#BTAG# Not able to persistify infos ! Exiting...");
-      return;
-      }
-      }
-    */
-
     std::vector<ElementLink<xAOD::MuonContainer> > assocMuons;
     assocMuons= BTag->auxdata<std::vector<ElementLink<xAOD::MuonContainer> > >(m_muonAssociationName);
     if ( assocMuons.size()==0 ) {
