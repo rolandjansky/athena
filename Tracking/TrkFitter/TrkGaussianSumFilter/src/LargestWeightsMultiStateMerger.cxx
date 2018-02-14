@@ -12,8 +12,6 @@ decription           : Implementation code for LargestWeightsMultiStateMerger cl
 ***********************************************************************************/
 
 #include "TrkGaussianSumFilter/LargestWeightsMultiStateMerger.h"
-#include "TrkGaussianSumFilter/IMultiComponentStateAssembler.h"
-#include "TrkGaussianSumFilter/IMultiComponentStateCombiner.h"
 #include "TrkGaussianSumFilter/SortingClasses.h"
 
 Trk::LargestWeightsMultiStateMerger::LargestWeightsMultiStateMerger(const std::string& type, const std::string& name, const IInterface* parent)
@@ -21,9 +19,7 @@ Trk::LargestWeightsMultiStateMerger::LargestWeightsMultiStateMerger(const std::s
   AthAlgTool(type, name, parent),
   m_outputlevel(0),
   m_maximumNumberOfComponents(5),
-  m_doSmallComponentMerging(true),
-  m_stateCombiner("Trk::MultiComponentStateCombiner/LargestWeightsStateCombiner"),
-  m_stateAssembler("Trk::MultiComponentStateAssembler/LargestWeightsStateAssembler")
+  m_doSmallComponentMerging(true)
 {
   declareInterface<IMultiComponentStateMerger>(this);
   declareProperty("MaximumNumberOfComponents", m_maximumNumberOfComponents);

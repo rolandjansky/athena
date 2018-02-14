@@ -10,6 +10,8 @@
 #define TrkMaterialProviderTool_H
 
 #define protected public
+#include "TrkExInterfaces/IEnergyLossUpdator.h"
+#include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkTrack/Track.h"
 
 // Gaudi
@@ -33,8 +35,6 @@ namespace MagField {
 }
 
 namespace Trk {
-  class IExtrapolator; 
-  class IEnergyLossUpdator;
   class Surface;
 }
 
@@ -175,8 +175,10 @@ namespace Trk{
 				  double& fsrCaloEnergy) const;
     
     
-    ToolHandle<Trk::IExtrapolator>                m_muonExtrapolator;
-    ToolHandle<Trk::IEnergyLossUpdator>           m_elossupdator;
+    PublicToolHandle<Trk::IExtrapolator>                m_muonExtrapolator
+       {this,"Extrapolator","Trk::Extrapolator/AtlasExtrapolator",""};
+    PublicToolHandle<Trk::IEnergyLossUpdator>           m_elossupdator
+       {this,"EnergyLossUpdator","Trk::EnergyLossUpdator/AtlasEnergyLossUpdator",""};
     ServiceHandle<Trk::ITrackingVolumesSvc>       m_trackingVolumesSvc;
     ServiceHandle<Trk::ITrackingGeometrySvc>      m_trackingGeometrySvc;
     ToolHandle< Trk::IMultipleScatteringUpdator > m_scattool;

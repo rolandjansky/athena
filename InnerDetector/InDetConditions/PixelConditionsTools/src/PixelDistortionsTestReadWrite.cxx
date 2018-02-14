@@ -14,14 +14,12 @@
 #include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
-#include "PixelConditionsTools/IModuleDistortionsTool.h"
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/PixelID.h"
 
 PixelDistortionsTestReadWrite::PixelDistortionsTestReadWrite(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_detManager(0),
-  m_pixelDistoTool("PixelDistortionsTool")
+  m_detManager(0)
 {
 
   //m_log.setLevel(outputLevel());

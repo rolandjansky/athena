@@ -627,7 +627,8 @@ protected:
     const InDetTimeCollection * m_trtBCIDContainer;
     const ComTime * m_trtPhase;
 
-    const ToolHandle<Trk::ITrackSummaryTool> m_trkSummaryTool;
+    const PublicToolHandle<Trk::ITrackSummaryTool> m_trkSummaryTool
+       {this,"TrackSummaryTool","Trk::TrackSummaryTool/InDetTrackSummaryTool",""};
 
 
 private:

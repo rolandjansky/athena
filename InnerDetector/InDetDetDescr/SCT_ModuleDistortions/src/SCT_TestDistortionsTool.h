@@ -41,7 +41,8 @@ class SCT_TestDistortionsTool:public AthAlgorithm{
     StatusCode finalize();   //!< Gaudi finaliser
     
   private:
-    ToolHandle<ISCT_ModuleDistortionsTool> m_SCTDistoTool;
+    PublicToolHandle<ISCT_ModuleDistortionsTool> m_SCTDistoTool
+       {this,"SCT_DistortionsTool","SCT_DistortionsTool",""};
 
     std::unique_ptr<TH2F> m_ZvsX;
     std::unique_ptr<TH2F> m_ZvsY;

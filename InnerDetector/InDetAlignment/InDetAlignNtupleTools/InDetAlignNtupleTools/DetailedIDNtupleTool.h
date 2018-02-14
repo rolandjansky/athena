@@ -5,6 +5,8 @@
 #ifndef INDETALIGNNTUPLETOOLS_DETAILEDIDNTUPLETOOL_H
 #define INDETALIGNNTUPLETOOLS_DETAILEDIDNTUPLETOOL_H
 
+#include "TrkExInterfaces/IExtrapolator.h"
+#include "TrkToolInterfaces/ITruthToTrack.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkAlignInterfaces/IFillNtupleTool.h"
@@ -25,10 +27,8 @@ namespace Trk
 {
 	class AlignTrack;
 	class ITrackSummaryTool;
-        class IExtrapolator;
 	class IAlignModuleTool;
         class Track; 
-        class ITruthToTrack;
 }
 
 namespace InDetDD
@@ -72,8 +72,10 @@ namespace InDet
 
 			ToolHandle <Trk::ITrackSummaryTool>         m_trackSumTool;    //!< Pointer to track summary tool
 			ToolHandle <Trk::IAlignModuleTool>          m_alignModuleTool; //!< Pointer to AlignmModuleTool
-			ToolHandle <Trk::ITruthToTrack>             m_truthToTrack;    //!< the truth to track Tool
-			ToolHandle <Trk::IExtrapolator>             m_extrapolator;    //!< track extrapolator
+			PublicToolHandle <Trk::ITruthToTrack>             m_truthToTrack
+			   {this,"TruthToTrack","Trk::TruthToTrack/InDetTruthToTrack",""};    //!< the truth to track Tool
+			PublicToolHandle <Trk::IExtrapolator>             m_extrapolator
+			   {this,"Extrapolator","Trk::Extrapolator/AtlasExtrapolator",""};    //!< track extrapolator
 
 			bool m_storeNormalRefittedOnly;     //!< only store the AlignTrack which is normally refitted
 			bool m_storeConstrainedOnly;       //!< onlystore the AlignTrack which is normally refitted

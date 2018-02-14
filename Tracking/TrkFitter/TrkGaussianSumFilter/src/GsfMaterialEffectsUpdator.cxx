@@ -26,7 +26,6 @@ Trk::GsfMaterialEffectsUpdator::GsfMaterialEffectsUpdator(const std::string& typ
   :
   AthAlgTool(type, name, parent),
   m_outputlevel(0),
-  m_stateAssembler("Trk::MultiComponentStateAssembler/GsfMaterialEffectsStateAssembler"),
   m_materialEffects("Trk::GsfCombinedMaterialEffects/GsfCombinedMaterialEffects"),
   m_useReferenceMaterial(false),
   m_momentumCut(250.*Gaudi::Units::MeV)

@@ -15,7 +15,6 @@
 #include "SGTools/TransientAddress.h" 
 #include "AthenaPoolUtilities/CondAttrListCollection.h" 
 #include "AthenaPoolUtilities/AthenaAttributeList.h" 
-#include "AthenaKernel/IAthenaOutputStreamTool.h"
 
 
 #include "Identifier/Identifier.h"

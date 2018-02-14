@@ -68,8 +68,7 @@ InDetGlobalMotherMonTool::InDetGlobalMotherMonTool(
       m_pixBCIDContainer(0),
       m_sctBCIDContainer(0),
       m_trtBCIDContainer(0),
-      m_trtPhase(0),
-      m_trkSummaryTool("Trk::TrackSummaryTool/InDetTrackSummaryTool")
+      m_trtPhase(0)
 {   
   declareProperty("checkRate",m_checkRate);  
   declareProperty("m_isOnline",m_isOnline);

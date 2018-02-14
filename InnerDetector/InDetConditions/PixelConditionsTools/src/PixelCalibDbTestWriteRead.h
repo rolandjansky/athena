@@ -11,6 +11,7 @@
 #ifndef PIXELCALIBTOOL_PIXELCALIBDBTESTWRITEREAD_H
 #define PIXELCALIBTOOL_PIXELCALIBDBTESTWRITEREAD_H
 
+#include "PixelConditionsTools/IPixelCalibDbTool.h"
 #include <vector>
 #include <string>
 //#include "GaudiKernel/Algorithm.h"
@@ -22,7 +23,6 @@
 //class StoreGateSvc;
 
 
-class IPixelCalibDbTool; 
 
 /** @class PixelCalibDbTestWriteRead
 
@@ -47,7 +47,8 @@ class PixelCalibDbTestWriteRead:public AthAlgorithm {
   //StoreGateSvc* m_sgSvc;
   //StoreGateSvc* m_detStore;
 
-  const ToolHandle<IPixelCalibDbTool> m_calibdbtool;
+  const PublicToolHandle<IPixelCalibDbTool> m_calibdbtool
+     {this,"PixelCalibDbTool","PixelCalibDbTool",""};
   bool m_setup;                            //true for first event
 
   // algorithm parameters to be set in the jobOptions

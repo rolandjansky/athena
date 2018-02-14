@@ -19,6 +19,7 @@
 #define PIXEL_DCS_TEST_READ_WRITE_H
 
 //#include "GaudiKernel/Algorithm.h"
+#include "PixelConditionsTools/IPixelDCSTool.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -55,7 +56,8 @@ class PixelDCSTestReadWrite: public AthAlgorithm{
   //IToolSvc*                  m_toolsvc; 
 
   //PixelDCSTool*     m_pixelDCSTool;
-  ToolHandle<IPixelDCSTool >  m_pixelDCSTool;
+  PublicToolHandle<IPixelDCSTool >  m_pixelDCSTool
+     {this,"PixelDCSTool","PixelDCSTool",""};
 
   bool m_write;
 

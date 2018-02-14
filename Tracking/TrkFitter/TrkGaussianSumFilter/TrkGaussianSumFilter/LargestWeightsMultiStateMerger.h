@@ -15,14 +15,14 @@ decription           : Class for merging components of a multi-state based on
 #ifndef TrkLargestWeightsMultiStateMerger_H
 #define TrkLargestWeightsMultiStateMerger_H
 
+#include "TrkGaussianSumFilter/IMultiComponentStateAssembler.h"
+#include "TrkGaussianSumFilter/IMultiComponentStateCombiner.h"
 #include "TrkGaussianSumFilter/IMultiComponentStateMerger.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 
 namespace Trk{
 
-class IMultiComponentStateCombiner;
-class IMultiComponentStateAssembler;
 
 class LargestWeightsMultiStateMerger : public AthAlgTool, virtual public IMultiComponentStateMerger {
 
@@ -47,8 +47,10 @@ class LargestWeightsMultiStateMerger : public AthAlgTool, virtual public IMultiC
   unsigned int                  m_maximumNumberOfComponents;
   bool                          m_doSmallComponentMerging;
   
-  ToolHandle<IMultiComponentStateCombiner>  m_stateCombiner;
-  ToolHandle<IMultiComponentStateAssembler> m_stateAssembler;
+  PublicToolHandle<IMultiComponentStateCombiner>  m_stateCombiner
+     {this,"MultiComponentStateCombiner","Trk::MultiComponentStateCombiner/LargestWeightsStateCombiner",""};
+  PublicToolHandle<IMultiComponentStateAssembler> m_stateAssembler
+     {this,"MultiComponentStateAssembler","Trk::MultiComponentStateAssembler/LargestWeightsStateAssembler",""};
 
 };
 

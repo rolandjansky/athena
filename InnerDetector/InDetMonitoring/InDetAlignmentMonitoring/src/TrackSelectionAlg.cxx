@@ -15,7 +15,6 @@
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkTrackSummary/TrackSummary.h"
-#include "TrkToolInterfaces/ITrackSummaryTool.h"
 
 
 #include "VxVertex/VxContainer.h"
@@ -26,7 +25,6 @@
 TrackSelectionAlg::TrackSelectionAlg(const std::string& name, ISvcLocator* pSvcLocator)
   :AthAlgorithm( name, pSvcLocator)
 {
-  m_trackSumTool = ToolHandle<Trk::ITrackSummaryTool>("Trk::TrackSummaryTool/InDetTrackSummaryTool");
 
   declareProperty("TrackMinPt", m_trackMinPt = 2.0);
   declareProperty("TrackMinEta", m_trackMinEta = 0.0);

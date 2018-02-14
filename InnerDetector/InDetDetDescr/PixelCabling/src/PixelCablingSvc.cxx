@@ -23,7 +23,6 @@
 // Tools to fill the cabling
 //#include "GaudiKernel/IToolSvc.h"
 
-#include "PixelFillCablingData.h"
 
 // for callback
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
@@ -53,7 +52,6 @@ static const unsigned int defaultNumDisks = 3;       // number of disk layers
 
 PixelCablingSvc::PixelCablingSvc(const std::string& name, ISvcLocator*svc) :
     AthService(name,svc),
-    m_cablingTool("PixelFillCablingData"),
     m_detStore("DetectorStore", name),
     m_IBLParameterSvc("IBLParameterSvc",name),
     m_idHelper(0),
@@ -101,7 +99,6 @@ PixelCablingSvc::PixelCablingSvc(const std::string& name, ISvcLocator*svc) :
 ////////////////////////
 PixelCablingSvc::PixelCablingSvc(const PixelCablingSvc &other, const std::string& name, ISvcLocator*svc) :
     AthService(name,svc),
-    m_cablingTool("PixelFillCablingData"),
     m_detStore("DetectorStore", name),
     m_IBLParameterSvc("IBLParameterSvc",name),
     m_idHelper(0),

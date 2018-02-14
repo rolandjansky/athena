@@ -7,7 +7,6 @@
 
 #include "InDetTrigTruthAlgs/PRD_TrigMultiTruthMaker.h"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
-#include "InDetTruthInterfaces/IPRD_MultiTruthBuilder.h"
 
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
@@ -20,7 +19,6 @@ namespace InDet {
 //================================================================
 PRD_TrigMultiTruthMaker::PRD_TrigMultiTruthMaker(const std::string &name, ISvcLocator *pSvcLocator) :
   HLT::FexAlgo(name,pSvcLocator),
-  m_PRDTruthTool("InDet::PRD_MultiTruthBuilder"),
   m_doTruth(false)
 {  
   declareProperty("PixelClusterContainerName",  m_PixelClustersName="PixelTrigClusters");

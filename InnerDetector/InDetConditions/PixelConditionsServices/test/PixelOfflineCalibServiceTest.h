@@ -11,6 +11,7 @@
 #ifndef PIXELOFFLINECALIBSERVICETEST_H
 #define PIXELOFFLINECALIBSERVICETEST_H
 
+#include "PixelConditionsTools/IPixelRecoDbTool.h"
 #include <vector>
 #include <string>
 //#include "GaudiKernel/Algorithm.h"
@@ -25,7 +26,6 @@
 
 class IPixelOfflineCalibSvc;
 
-class IPixelRecoDbTool;
 
 
 /** @class PixelOfflineCalibSerciceTest 
@@ -50,7 +50,8 @@ class PixelOfflineCalibServiceTest:public AthAlgorithm {
   // StoreGateSvc* m_detStore;
 
   const ServiceHandle<IPixelOfflineCalibSvc> m_calibsvc;
-  ToolHandle<IPixelRecoDbTool >  m_dbTool;
+  PublicToolHandle<IPixelRecoDbTool >  m_dbTool
+     {this,"PixelRecoDbTool","PixelRecoDbTool",""};
   mutable PixelCalib::PixelOfflineCalibData* m_pat;
 
   bool m_setup;                            //true for first event

@@ -15,8 +15,8 @@
 
 TruthClassDecoratorTool::TruthClassDecoratorTool(const std::string& type, const std::string& name,
                                                  const IInterface* parent) :
-  AthAlgTool(type, name, parent),
-  m_truthClassifier("MCTruthClassifier/MCTruthClassifier") {
+  AthAlgTool(type, name, parent)
+  {
   declareInterface<IInDetPhysValDecoratorTool>(this);
 }
 

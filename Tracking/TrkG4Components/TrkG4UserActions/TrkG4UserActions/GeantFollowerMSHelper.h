@@ -8,6 +8,7 @@
 #ifndef GeantFollowerMSHelper_H
 #define GeantFollowerMSHelper_H
 
+#include "TrkExInterfaces/IEnergyLossUpdator.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -27,7 +28,6 @@ namespace Trk
 {
 
   class IExtrapolator;
-  class IEnergyLossUpdator;
 
   class Track;
   class MeasurementBase;
@@ -67,7 +67,8 @@ namespace Trk
     private:
 
       ToolHandle<IExtrapolator>      m_extrapolator;
-      ToolHandle<IEnergyLossUpdator> m_elossupdator;
+        PublicToolHandle<IEnergyLossUpdator> m_elossupdator
+           {this,"EnergyLossUpdator","Trk::EnergyLossUpdator/AtlasEnergyLossUpdator",""};
 
       bool                           m_extrapolateDirectly;
       bool                           m_extrapolateIncrementally;

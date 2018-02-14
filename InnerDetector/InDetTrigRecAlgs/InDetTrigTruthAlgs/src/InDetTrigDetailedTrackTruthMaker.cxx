@@ -21,7 +21,6 @@
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkTruthData/SubDetHitStatistics.h"
-#include "TrkToolInterfaces/IDetailedTrackTruthBuilder.h"
 
 #include <iterator>
 
@@ -29,7 +28,6 @@ namespace InDet {
 
 //================================================================
 InDetTrigDetailedTrackTruthMaker::InDetTrigDetailedTrackTruthMaker(const std::string &name, ISvcLocator *pSvcLocator) : HLT::FexAlgo(name,pSvcLocator),
-	   m_truthTool("Trk::DetailedTrackTruthBuilder"),
 	   m_subDetWeights(SubDetHitStatistics::NUM_SUBDETECTORS, 1.),
 	   m_doTruth(false)  
 {  

@@ -16,7 +16,6 @@
 #include "TRT_CalibData/TrackInfo.h"
 #include "TRT_ConditionsData/FloatArrayStore.h"
 #include "TRT_CalibTools/IFillAlignTrkInfo.h"
-#include "TRT_CalibTools/ITRTCalibrator.h"
 #include "TRT_CalibTools/IAccumulator.h"
 #include "TRT_CalibTools/IFitTool.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
@@ -43,7 +42,6 @@ TRTCalibrationMgr::TRTCalibrationMgr(const std::string& name, ISvcLocator* pSvcL
 {
 	m_TrackInfoTools.push_back("FillAlignTrkInfo");
 	m_AccumulatorTools.push_back("TRTCalAccumulator");
-	m_TRTCalibTools.push_back("TRTCalibrator");
 	m_FitTools.push_back("FitTool");
 	// declare algorithm parameters
 	declareProperty("TRTCalDBTool", m_trtcaldbSvc);
