@@ -638,7 +638,7 @@ namespace Analysis
       }
     */
     std::vector<ElementLink<xAOD::MuonContainer> > assocMuons;
-    assocMuons= BTag->auxdata<std::vector<ElementLink<xAOD::MuonContainer> > >("Muons");
+    assocMuons= BTag->auxdata<std::vector<ElementLink<xAOD::MuonContainer> > >(m_muonAssociationName);
     if ( assocMuons.size()==0 ) {
       ATH_MSG_DEBUG( "#BTAG# Found no associated muons to the jet");
       ///return StatusCode::SUCCESS; /// need to go untill the end to decorate
