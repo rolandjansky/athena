@@ -50,7 +50,6 @@ namespace InDet
        m_TrkParticleCollection("TrackParticleCandidate"),
        m_iVertexFitter("Trk::FullVertexFitter"),
        m_trackPairsSelector("InDet::TrackPairsSelector"),
-       m_helpertool("InDet::ConversionFinderUtils"),
        m_vertexEstimator("InDet::VertexPointEstimator"),
        m_postSelector("InDet::ConversionPostSelector"),
        m_singleTrkConvTool("InDet::SingleTrackConversionTool"),
@@ -65,7 +64,6 @@ namespace InDet
     declareInterface<IVertexFinder>(this);
     declareProperty("VertexFitterTool",           m_iVertexFitter);
     declareProperty("TrackPairsSelector",         m_trackPairsSelector);
-    declareProperty("ConversionFinderHelperTool", m_helpertool);
     declareProperty("VertexPointEstimator",       m_vertexEstimator);
     declareProperty("PostSelector",               m_postSelector);
     declareProperty("SingleTrackConversionTool",  m_singleTrkConvTool);
@@ -140,8 +138,6 @@ namespace InDet
     } else {
       msg(MSG::INFO) << "Retrieved tool " << m_trkSelector << endmsg;
     }
-    
-    m_helpertool.disable();  // never used?
     
     msg(MSG::INFO) << "Initialization successful" << endmsg;
     return StatusCode::SUCCESS;

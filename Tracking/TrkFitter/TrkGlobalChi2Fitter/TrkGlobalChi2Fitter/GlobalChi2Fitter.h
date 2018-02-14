@@ -193,8 +193,6 @@ private:
 
   ToolHandle< IMaterialEffectsOnTrackProvider > m_calotool;
   ToolHandle< IMaterialEffectsOnTrackProvider > m_calotoolparam;
-  PublicToolHandle< IMaterialEffectsOnTrackProvider > m_cmeotp
-     {this,"CaloMaterialEffectsOnTrackProvider","Trk::CaloMaterialEffectsOnTrackProvider/CaloMaterialEffectsOnTrackProvider",""};
 
   ServiceHandle< MagField::IMagFieldSvc > m_fieldService;
  

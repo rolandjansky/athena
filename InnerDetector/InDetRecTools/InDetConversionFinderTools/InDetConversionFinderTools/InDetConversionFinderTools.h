@@ -75,7 +75,6 @@ namespace InDet{
   protected:
     ToolHandle < Trk::IVertexFitter > m_iVertexFitter;                  /** Vertex fitter interface.   */
     ToolHandle <InDet::TrackPairsSelector> m_trackPairsSelector;        /** Track pair selection tool. */
-    ToolHandle <InDet::ConversionFinderUtils> m_helpertool;             /** Conversion helper tool. */
     ToolHandle <InDet::VertexPointEstimator> m_vertexEstimator;         /** Initial conversion vertex estimator tool. */
     ToolHandle <InDet::ConversionPostSelector> m_postSelector;          /** Conversion post-fit selector tool. */
     ToolHandle <InDet::SingleTrackConversionTool> m_singleTrkConvTool;  /** Single track conversion tool. */		
