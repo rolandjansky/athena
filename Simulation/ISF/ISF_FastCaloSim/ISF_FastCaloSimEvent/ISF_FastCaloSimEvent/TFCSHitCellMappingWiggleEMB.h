@@ -27,7 +27,7 @@ private:
   ClassDef(TFCSHitCellMappingWiggleEMB,1)  //TFCSHitCellMappingWiggleEMB
 };
 
-#if defined(__MAKECINT__)
+#if defined(__MAKECINT__) && defined(__FastCaloSimStandAlone__)
 #pragma link C++ class TFCSHitCellMappingWiggleEMB+;
 #endif
 

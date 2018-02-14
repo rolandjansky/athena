@@ -22,7 +22,7 @@ private:
   ClassDef(TFCSEnergyParametrization,1)  //TFCSEnergyParametrization
 };
 
-#if defined(__MAKECINT__)
+#if defined(__MAKECINT__) && defined(__FastCaloSimStandAlone__)
 #pragma link C++ class TFCSEnergyParametrization+;
 #endif
 

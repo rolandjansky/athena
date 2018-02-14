@@ -36,7 +36,7 @@ private:
   ClassDef(TFCSLateralShapeParametrizationHitChain,1)  //TFCSLateralShapeParametrizationHitChain
 };
 
-#if defined(__MAKECINT__)
+#if defined(__MAKECINT__) && defined(__FastCaloSimStandAlone__)
 #pragma link C++ class TFCSLateralShapeParametrizationHitChain+;
 #endif
 

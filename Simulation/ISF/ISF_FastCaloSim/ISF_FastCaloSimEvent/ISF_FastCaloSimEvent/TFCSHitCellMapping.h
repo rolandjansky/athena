@@ -29,7 +29,7 @@ private:
   ClassDef(TFCSHitCellMapping,1)  //TFCSHitCellMapping
 };
 
-#if defined(__MAKECINT__)
+#if defined(__MAKECINT__) && defined(__FastCaloSimStandAlone__)
 #pragma link C++ class TFCSHitCellMapping+;
 #endif
 

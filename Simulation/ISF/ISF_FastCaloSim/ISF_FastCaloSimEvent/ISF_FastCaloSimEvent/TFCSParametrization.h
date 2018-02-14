@@ -44,7 +44,7 @@ private:
   ClassDef(TFCSParametrization,1)  //TFCSParametrization
 };
 
-#if defined(__MAKECINT__)
+#if defined(__MAKECINT__) && defined(__FastCaloSimStandAlone__)
 #pragma link C++ class TFCSParametrization+;
 #endif
 
