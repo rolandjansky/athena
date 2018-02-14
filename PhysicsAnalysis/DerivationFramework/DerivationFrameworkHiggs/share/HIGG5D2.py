@@ -528,7 +528,9 @@ if DerivationFrameworkIsMonteCarlo :
 HIGG5D2SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 
 # Add the jet containers to the stream
-slimmed_content=["HIGG5D2Jets","AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets","AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets"]
+slimmed_content=["HIGG5D2Jets","AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
+#        ,"AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets"
+        ]
 if DerivationFrameworkIsMonteCarlo :
     slimmed_content+=[
              "AntiKt4TruthJets",
