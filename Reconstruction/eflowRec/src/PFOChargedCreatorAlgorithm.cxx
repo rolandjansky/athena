@@ -117,10 +117,29 @@ void PFOChargedCreatorAlgorithm::createChargedPFO(const eflowCaloObject& energyF
 
       std::vector<eflowTrackClusterLink*> trackClusterLinks = energyFlowCaloObject.efRecLink();
 
+      /*
+	We need to track which clusters we have added for the following use case:
+	An eflowCaloObject may have one cluster and N tracks, and then one woudl have N eflowTrackClusterLink*
+        for each track-cluster pair, though the cluster is always the same. We only want to add the cluster to
+        charged PFO once.
+      */
+      std::vector<ElementLink<xAOD::CaloClusterContainer> > usedClusterList;
+      
       for (auto trackClusterLink : trackClusterLinks){
 	eflowRecCluster* efRecCluster = trackClusterLink->getCluster();
 	ElementLink<xAOD::CaloClusterContainer> theOriginalClusterLink = efRecCluster->getOriginalClusElementLink();
+
+	bool continueLoop = false;
+	for (auto tmpLink : usedClusterList){
+	  if (tmpLink == theOriginalClusterLink){
+	    continueLoop = true;
+	  }
+	}
+	if (true == continueLoop) continue;
+	else usedClusterList.push_back(theOriginalClusterLink);
+
 	ElementLink<xAOD::CaloClusterContainer> theSisterClusterLink = (*theOriginalClusterLink)->getSisterClusterLink();
+	ATH_MSG_DEBUG("PFO with e and eta of " << thisPFO->e() << " and " << thisPFO->eta() << " is adding cluster with e, eta of " << (*theSisterClusterLink)->e() << " and " << (*theSisterClusterLink)->eta() << " an sistser has " << (*theOriginalClusterLink)->e() << " and " << (*theOriginalClusterLink)->eta());
 	bool isSet = thisPFO->addClusterLink(theSisterClusterLink);
 	 if (!isSet) ATH_MSG_WARNING("Could not set Cluster in PFO");
       }//track-cluster link loop
