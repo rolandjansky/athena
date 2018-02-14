@@ -157,8 +157,8 @@ if rec.doPersistencyOptimization() and hasattr(svcMgr, 'AthenaPoolCnvSvc'):
     
     if rec.doWriteRDO():
         from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
-        # Increase Compression Level to 4, reducing filesize somewhat without hurting writespeed too much
-        ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolRDOOutput() + "'; COMPRESSION_LEVEL = '4'" ]
+        ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolRDOOutput() + "'; COMPRESSION_ALGORITHM = '2'" ]
+        ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolRDOOutput() + "'; COMPRESSION_LEVEL = '1'" ]
         svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolRDOOutput() + "'; ContainerName = 'TTree=CollectionTree'; TREE_AUTO_FLUSH = '1'" ]
         # Switch on splitting for the 4 largest container (default off)
         ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolRDOOutput() + "'; ContainerName = 'TTree=CollectionTree(InDetSimDataCollection_p1/PixelSDO_Map)'; CONTAINER_SPLITLEVEL = '99'" ]
@@ -168,8 +168,8 @@ if rec.doPersistencyOptimization() and hasattr(svcMgr, 'AthenaPoolCnvSvc'):
 
     if rec.doWriteESD():
         from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
-        # Increase Compression Level to 4, reducing filesize somewhat without hurting writespeed too much
-        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolESDOutput() + "'; COMPRESSION_LEVEL = '4'" ]
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolESDOutput() + "'; COMPRESSION_ALGORITHM = '2'" ]
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolESDOutput() + "'; COMPRESSION_LEVEL = '1'" ]
         # Optimize Basket Sizes to store data for 10 entries/events
         svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolESDOutput() + "'; ContainerName = 'TTree=CollectionTree'; TREE_AUTO_FLUSH = '10'" ]
         # Switch on splitting for the largest container (default off)
@@ -189,8 +189,8 @@ if rec.doPersistencyOptimization() and hasattr(svcMgr, 'AthenaPoolCnvSvc'):
 
     if rec.doWriteAOD():
         from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
-        # Increase Compression Level to 5, reducing filesize
-        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolAODOutput() + "'; COMPRESSION_LEVEL = '5'" ]
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolAODOutput() + "'; COMPRESSION_ALGORITHM = '2'" ]
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolAODOutput() + "'; COMPRESSION_LEVEL = '1'" ]
         # Optimize Basket Sizes to store data for 100 entries/events
         svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolAODOutput() + "'; ContainerName = 'TTree=CollectionTree'; TREE_AUTO_FLUSH = '100';"]
 
