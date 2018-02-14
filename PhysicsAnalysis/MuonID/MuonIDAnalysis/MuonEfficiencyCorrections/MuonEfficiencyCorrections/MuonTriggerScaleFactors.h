@@ -141,7 +141,7 @@ namespace CP {
             std::string m_calibration_version;
             std::string m_custom_dir;
             std::string m_binning;
-
+            std::string m_eventInfoContName;
             bool m_allowZeroSF;
             bool m_experimental;
             bool m_useRel207;

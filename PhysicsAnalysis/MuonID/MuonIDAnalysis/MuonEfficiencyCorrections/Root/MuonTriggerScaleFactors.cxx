@@ -53,6 +53,7 @@ namespace CP {
                 m_calibration_version("170128_Moriond"),
                 m_custom_dir(),
                 m_binning("fine"),
+		m_eventInfoContName("EventInfo"),
                 m_allowZeroSF(false),
 		m_experimental(false),
 		m_useRel207(false),
@@ -74,6 +75,8 @@ namespace CP {
         declareProperty("NReplicas", m_nReplicas, "Number of generated toy replicas, if replicas are required.");
         declareProperty("ReplicaRandomSeed", m_ReplicaRandomSeed, "Random seed for toy replica generation.");
         declareProperty("AllowZeroSF", m_allowZeroSF, "If a trigger is not available will return 0 instead of throwing an error. More difficult to spot configuration issues. Use at own risk");
+	declareProperty("EventInfoContName", m_eventInfoContName, "Overwrite default event info container name");
+
     }
 
     MuonTriggerScaleFactors::~MuonTriggerScaleFactors() { }
@@ -803,8 +806,8 @@ namespace CP {
     unsigned int MuonTriggerScaleFactors::getRunNumber() const {
         static const SG::AuxElement::ConstAccessor<unsigned int> acc_rnd("RandomRunNumber");
         const xAOD::EventInfo* info = nullptr;
-        if (!evtStore()->contains<xAOD::EventInfo>("EventInfo") || !evtStore()->retrieve(info, "EventInfo").isSuccess()) {
-            ATH_MSG_WARNING("Could not retrieve the xAOD::EventInfo. Return "<<getFallBackRunNumber() );
+        if (!evtStore()->contains<xAOD::EventInfo>(m_eventInfoContName) || !evtStore()->retrieve(info, m_eventInfoContName).isSuccess()) {
+	  ATH_MSG_WARNING("Could not retrieve the xAOD::EventInfo with name: " << m_eventInfoContName << " Return "<<getFallBackRunNumber() );
             return getFallBackRunNumber() ;
         }
         if (!info->eventType(xAOD::EventInfo::IS_SIMULATION)) {
