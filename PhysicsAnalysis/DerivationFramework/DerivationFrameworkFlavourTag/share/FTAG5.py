@@ -32,6 +32,8 @@ from DerivationFrameworkFlavourTag.HbbCommon import addVRJets
 from DerivationFrameworkFlavourTag import BTaggingContent as bvars
 from DerivationFrameworkFlavourTag.VRJetContent import (
     AntiKtVR30Rmax4Rmin02TrackJetsCPContent)
+from DerivationFrameworkFlavourTag.JSSVariables import JSSVariables
+
 
 #====================================================================
 # SKIMMING TOOLS
@@ -163,9 +165,10 @@ FTAG5SlimmingHelper.ExtraVariables += hlBtagVars + [
     "InDetTrackParticles.numberOfContribPixelLayers.numberOfTRTHits.numberOfInnermostPixelLayerSharedHits.numberOfNextToInnermostPixelLayerSharedHits",
     "InDetTrackParticles.numberOfPixelSplitHits.numberOfInnermostPixelLayerSplitHits.numberOfNextToInnermostPixelLayerSplitHits",
     "InDetTrackParticles.hitPattern.radiusOfFirstHit",
-    "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet.GhostVR30Rmax4Rmin02TrackJetPt.GhostVR30Rmax4Rmin02TrackJetCount",
+    "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet.GhostVR30Rmax4Rmin02TrackJetPt.GhostVR30Rmax4Rmin02TrackJetCount.GhostHBosonsCount",
     "InDetTrackParticles.btag_z0.btag_d0.btag_ip_d0.btag_ip_z0.btag_ip_phi.btag_ip_d0_sigma.btag_ip_z0_sigma.btag_track_displacement.btag_track_momentum",
-] + AntiKtVR30Rmax4Rmin02TrackJetsCPContent
+] + AntiKtVR30Rmax4Rmin02TrackJetsCPContent + [
+    '.'.join([fatJetCollection] + JSSVariables)]
 
 #----------------------------------------------------------------------
 # Add needed dictionary stuff
