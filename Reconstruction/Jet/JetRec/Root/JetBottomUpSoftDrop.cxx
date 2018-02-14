@@ -32,10 +32,12 @@ JetBottomUpSoftDrop::~JetBottomUpSoftDrop() {
 
 StatusCode JetBottomUpSoftDrop::initialize() {
   if ( m_zcut < 0.0 || m_zcut > 10.0 ) {
-    ATH_MSG_WARNING("Invalid value for ZCut " << m_zcut);
+    ATH_MSG_ERROR("Invalid value for ZCut " << m_zcut);
+    return StatusCode::FAILURE;
   }
   if ( m_beta < 0.0 || m_beta > 10.0 ) {
-    ATH_MSG_WARNING("Invalid value for Beta " << m_beta);
+    ATH_MSG_ERROR("Invalid value for Beta " << m_beta);
+    return StatusCode::FAILURE;
   }
   if ( m_R0 < 0.0 || m_R0 > 10.0 ) {
     ATH_MSG_ERROR("Invalid value for R0 " << m_R0);
@@ -43,6 +45,7 @@ StatusCode JetBottomUpSoftDrop::initialize() {
   }
   if ( m_bld.empty() ) {
     ATH_MSG_ERROR("Unable to retrieve jet builder.");
+    return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
 }
