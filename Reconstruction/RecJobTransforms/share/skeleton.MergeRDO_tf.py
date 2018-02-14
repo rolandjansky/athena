@@ -117,6 +117,7 @@ from InDetRecExample.InDetJobProperties import InDetFlags
 include("InDetRecExample/InDetRecConditionsAccess.py")
 include("InDetRecExample/InDetRecCabling.py")
 
+
 #--------------------------------------------------------------
 # Setup Input
 #--------------------------------------------------------------
@@ -172,6 +173,8 @@ MessageSvc.OutputLevel = INFO
 StreamRDO.ExtendProvenanceRecord = False
 
 ServiceMgr.AthenaPoolCnvSvc.MaxFileSizes = [ "15000000000" ]
+ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolRDOOutput()+ "'; COMPRESSION_ALGORITHM = '2'" ]
+ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolRDOOutput()+ "'; COMPRESSION_LEVEL = '1'" ]
 
 ## Post-include
 if hasattr(runArgs,"postInclude"):
@@ -184,6 +187,5 @@ if hasattr(runArgs,"postExec"):
     for cmd in runArgs.postExec:
         merRDOLog.info(cmd)
         exec(cmd)
-
 
 #--------------------------------------------------------------
