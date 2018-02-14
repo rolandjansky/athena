@@ -30,6 +30,7 @@ DetFlags.FCal_setOff()
 DetFlags.HEC_setOff()
 DetFlags.em_setOff()
 #
+from AthenaCommon.GlobalFlags import globalflags
 globalflags.DataSource = "geant4"
 globalflags.DetGeo = "ctbh8"
 # mgallas this is a hack! needed for GeoModel and IOVDbSvc
