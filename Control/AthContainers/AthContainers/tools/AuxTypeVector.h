@@ -251,6 +251,19 @@ public:
 
 
   /**
+   * @brief Copy an element between vectors (static method), possibly with thinning.
+   * @param dst Pointer to the start of the destination vector's data.
+   * @param dst_index Index of destination element in the vector.
+   * @param src Pointer to the start of the source vector's data.
+   * @param src_index Index of source element in the vector.
+   *
+   * @c dst and @ src can be either the same or different.
+   */
+  static void copyForOutput (void* dst,        size_t dst_index,
+                             const void* src,  size_t src_index);
+
+
+  /**
    * @brief Swap an element between vectors (static method).
    * @param a Pointer to the start of the first vector's data.
    * @param aindex Index of the element in the first vector.

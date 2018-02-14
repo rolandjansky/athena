@@ -55,6 +55,10 @@ namespace xAOD {
       virtual void copy( void* dst,        size_t dst_index,
                          const void* src,  size_t src_index ) const;
 
+      /// Copy one element from one location to another
+      virtual void copyForOutput( void* dst,        size_t dst_index,
+                                  const void* src,  size_t src_index ) const;
+
       /// Swap the payload of two elements in memory
       virtual void swap( void* a, size_t aindex,
                          void* b, size_t bindex ) const;
