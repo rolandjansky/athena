@@ -50,4 +50,4 @@ def add_EnergyConservationTest():
     from G4AtlasApps.SimFlags import simFlags
     # Enable the energy conservation test action
     simFlags.OptionalUserActionList.addAction(
-        'G4UA::EnergyConservationTestTool', ['Event', 'Tracking', 'Step'])
+        'G4UA::EnergyConservationTestTool')
