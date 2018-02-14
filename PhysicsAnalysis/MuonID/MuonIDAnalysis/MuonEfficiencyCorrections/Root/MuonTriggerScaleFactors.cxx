@@ -50,7 +50,7 @@ namespace CP {
 
                 m_muonquality("Medium"),
 
-                m_calibration_version("170128_Moriond"),
+                m_calibration_version("180214_Moriond21"),
                 m_custom_dir(),
                 m_binning("fine"),
 		m_eventInfoContName("EventInfo"),
