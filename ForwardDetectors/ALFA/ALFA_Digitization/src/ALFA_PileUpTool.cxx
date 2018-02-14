@@ -349,25 +349,25 @@ StatusCode ALFA_PileUpTool::finalize() { return StatusCode::SUCCESS; }
 
 
 
-StatusCode ALFA_PileUpTool::recordCollection(ServiceHandle<StoreGateSvc>& evtStore, std::string m_key_digitCnt) 
+StatusCode ALFA_PileUpTool::recordCollection(ServiceHandle<StoreGateSvc>& evtStore, std::string key_digitCnt) 
 {
   ATH_MSG_DEBUG ("ALFA_Digitization::recordCollection"); 
     
   m_digitCollection = new ALFA_DigitCollection();
   
-  StatusCode sc = evtStore->record(m_digitCollection, m_key_digitCnt);
+  StatusCode sc = evtStore->record(m_digitCollection, key_digitCnt);
 
   return sc;
 }
 
 
-StatusCode ALFA_PileUpTool::recordODCollection(ServiceHandle<StoreGateSvc>& evtStore, std::string m_key_ODdigitCnt) {
+StatusCode ALFA_PileUpTool::recordODCollection(ServiceHandle<StoreGateSvc>& evtStore, std::string key_ODdigitCnt) {
 
   ATH_MSG_DEBUG ("ALFA_Digitization::recordODCollection");  
     
   m_ODdigitCollection = new ALFA_ODDigitCollection();
   
-  StatusCode sc = evtStore->record(m_ODdigitCollection, m_key_ODdigitCnt);
+  StatusCode sc = evtStore->record(m_ODdigitCollection, key_ODdigitCnt);
   
   return sc;
 }
@@ -387,8 +387,8 @@ void ALFA_PileUpTool::ALFA_MD_info(TimedHitCollection<ALFA_Hit>& tHitALFA)
       for ( int j = 0; j < 64;  j++ )
 	{
 	
-        E_fib[l][i][j] = 0.;
-		fibres[l][i][j] = 0;
+        m_E_fib[l][i][j] = 0.;
+		m_fibres[l][i][j] = 0;
 	
 	} 
     }
@@ -410,7 +410,7 @@ void ALFA_PileUpTool::ALFA_MD_info(TimedHitCollection<ALFA_Hit>& tHitALFA)
     
     ATH_MSG_DEBUG ("station=" << station << ", plate= "<< plate << ", fiber=" << fiber << ", sign=" << sign << ", dep energy=" << ((*it)->GetEnergyDeposit()));    
 
-    E_fib[station-1][2*(plate-1)+(1-sign)/2][fiber-1] += ((*it)->GetEnergyDeposit());
+    m_E_fib[station-1][2*(plate-1)+(1-sign)/2][fiber-1] += ((*it)->GetEnergyDeposit());
       
   }  
   
@@ -419,7 +419,7 @@ void ALFA_PileUpTool::ALFA_MD_info(TimedHitCollection<ALFA_Hit>& tHitALFA)
 
 
 
-void ALFA_PileUpTool::ALFA_MD_info(const ALFA_HitCollection* m_ALFA_HitCollection) 
+void ALFA_PileUpTool::ALFA_MD_info(const ALFA_HitCollection* ALFA_HitCollection) 
 {
 
 // cleaning
@@ -431,8 +431,8 @@ void ALFA_PileUpTool::ALFA_MD_info(const ALFA_HitCollection* m_ALFA_HitCollectio
       for ( int j = 0; j < 64;  j++ )
 	{
 	
-        E_fib[l][i][j] = 0.;
-		fibres[l][i][j] = 0;
+        m_E_fib[l][i][j] = 0.;
+		m_fibres[l][i][j] = 0;
 			
 	
 	} 
@@ -443,8 +443,8 @@ void ALFA_PileUpTool::ALFA_MD_info(const ALFA_HitCollection* m_ALFA_HitCollectio
 
   int fiber, plate, sign, station;
 
-  ALFA_HitConstIter it    = m_ALFA_HitCollection->begin();
-  ALFA_HitConstIter itend = m_ALFA_HitCollection->end();
+  ALFA_HitConstIter it    = ALFA_HitCollection->begin();
+  ALFA_HitConstIter itend = ALFA_HitCollection->end();
   
   for (; it != itend; it++) {
 
@@ -455,7 +455,7 @@ void ALFA_PileUpTool::ALFA_MD_info(const ALFA_HitCollection* m_ALFA_HitCollectio
     
     ATH_MSG_DEBUG ("station=" << station << ", plate= "<< plate << ", fiber=" << fiber << ", sign=" << sign << ", dep energy=" << it->GetEnergyDeposit());    
 
-    E_fib[station-1][2*(plate-1)+(1-sign)/2][fiber-1] += it->GetEnergyDeposit();
+    m_E_fib[station-1][2*(plate-1)+(1-sign)/2][fiber-1] += it->GetEnergyDeposit();
   
 
   }
@@ -474,7 +474,7 @@ void ALFA_PileUpTool::ALFA_OD_info(TimedHitCollection<ALFA_ODHit>& tODHitALFA)
       for ( int j = 0; j < 3; j++ ){
         for ( int k = 0; k < 30; k++ ){
 	  
-            E_ODfib[l][i][j][k] = 0.; 
+            m_E_ODfib[l][i][j][k] = 0.; 
 	  
 	  }
       }
@@ -500,8 +500,8 @@ void ALFA_PileUpTool::ALFA_OD_info(TimedHitCollection<ALFA_ODHit>& tODHitALFA)
        
     ATH_MSG_DEBUG ("station=" << station << ", side=" << side << ", plate= "<< plate << ", fiber=" << fiber << ", sign=" << sign << ", dep energy=" << ((*it)->GetEnergyDeposit()));
 
-    if (sign==0) E_ODfib[station-1][side-1][plate-1][fiber+15] += ((*it)->GetEnergyDeposit());
-    else E_ODfib[station-1][side-1][plate-1][fiber] += ((*it)->GetEnergyDeposit());
+    if (sign==0) m_E_ODfib[station-1][side-1][plate-1][fiber+15] += ((*it)->GetEnergyDeposit());
+    else m_E_ODfib[station-1][side-1][plate-1][fiber] += ((*it)->GetEnergyDeposit());
     
   }  
 
@@ -510,7 +510,7 @@ void ALFA_PileUpTool::ALFA_OD_info(TimedHitCollection<ALFA_ODHit>& tODHitALFA)
 
 
 
-void ALFA_PileUpTool::ALFA_OD_info(const ALFA_ODHitCollection* m_ALFA_ODHitCollection) 
+void ALFA_PileUpTool::ALFA_OD_info(const ALFA_ODHitCollection* ALFA_ODHitCollection) 
 {
   
   // cleaning
@@ -520,7 +520,7 @@ void ALFA_PileUpTool::ALFA_OD_info(const ALFA_ODHitCollection* m_ALFA_ODHitColle
       for ( int j = 0; j < 3; j++ ){
         for ( int k = 0; k < 30; k++ ){
 	  
-            E_ODfib[l][i][j][k] = 0.; 
+            m_E_ODfib[l][i][j][k] = 0.; 
 	  
 	  }
       }
@@ -532,8 +532,8 @@ void ALFA_PileUpTool::ALFA_OD_info(const ALFA_ODHitCollection* m_ALFA_ODHitColle
   int fiber, plate, sign, side, station; 
   
   
-  ALFA_ODHitConstIter it    = m_ALFA_ODHitCollection->begin();
-  ALFA_ODHitConstIter itend = m_ALFA_ODHitCollection->end();
+  ALFA_ODHitConstIter it    = ALFA_ODHitCollection->begin();
+  ALFA_ODHitConstIter itend = ALFA_ODHitCollection->end();
 
   for (; it != itend; it++) {
 
@@ -547,8 +547,8 @@ void ALFA_PileUpTool::ALFA_OD_info(const ALFA_ODHitCollection* m_ALFA_ODHitColle
        
     ATH_MSG_DEBUG ("station=" << station << ", side=" << side << ", plate= "<< plate << ", fiber=" << fiber << ", sign=" << sign << ", dep energy=" << it->GetEnergyDeposit());
     
-    if (sign==0) E_ODfib[station-1][side-1][plate-1][fiber+15] += it->GetEnergyDeposit();
-    else E_ODfib[station-1][side-1][plate-1][fiber] += it->GetEnergyDeposit();
+    if (sign==0) m_E_ODfib[station-1][side-1][plate-1][fiber+15] += it->GetEnergyDeposit();
+    else m_E_ODfib[station-1][side-1][plate-1][fiber] += it->GetEnergyDeposit();
     
   }
 }
@@ -574,7 +574,7 @@ StatusCode ALFA_PileUpTool::fill_MD_DigitCollection(CLHEP::HepRandomEngine* rndE
       for ( int j = 0; j < 64;  j++ ) 
 	  { 
 	  
-	    N_photo   = CLHEP::RandPoisson::shoot(rndEngine,E_fib[l][i][j]*m_meanN_photo/m_meanE_dep);
+	    N_photo   = CLHEP::RandPoisson::shoot(rndEngine,m_E_fib[l][i][j]*m_meanN_photo/m_meanE_dep);
 	    
 		//sigma     = m_sigma1 * sqrt(N_photo);
         //double noise_1 = sigma * CLHEP::RandGaussZiggurat::shoot (rndEngine, m_mean, m_stdDev);
@@ -586,7 +586,7 @@ StatusCode ALFA_PileUpTool::fill_MD_DigitCollection(CLHEP::HepRandomEngine* rndE
 			
 		amplitude = CLHEP::RandGaussZiggurat::shoot(m_rndEngine, N_photo, sqrt(pow(m_sigma0,2)+N_photo*pow(m_sigma1,2)));
 
-		//N_photo_CT   = CLHEP::RandPoisson::shoot(m_rndEngine,0.08*E_fib[l][i][j]*m_meanN_photo/m_meanE_dep); 		
+		//N_photo_CT   = CLHEP::RandPoisson::shoot(m_rndEngine,0.08*m_E_fib[l][i][j]*m_meanN_photo/m_meanE_dep); 		
 		//amplitude_CT = CLHEP::RandGaussQ::shoot (m_rndEngine, N_photo_CT, sqrt(pow(m_sigma0,2)+N_photo_CT*pow(m_sigma1,2)));
 				 
 				  
@@ -595,7 +595,7 @@ StatusCode ALFA_PileUpTool::fill_MD_DigitCollection(CLHEP::HepRandomEngine* rndE
 	      ATH_MSG_DEBUG(" ALFA_Digitization::fillDigitCollection, amplitude " << amplitude);
 	      ATH_MSG_DEBUG(" station = " << l << ", plate= " << i << ", fiber=" << j );
 	      m_digitCollection->push_back(new ALFA_Digit(l,i,j));
-		fibres[l][i][j] = fibres[l][i][j] + 1;
+		m_fibres[l][i][j] = m_fibres[l][i][j] + 1;
 	    }
       
 	  }
@@ -610,15 +610,15 @@ StatusCode ALFA_PileUpTool::fill_MD_DigitCollection(CLHEP::HepRandomEngine* rndE
 		{
 			for ( int j = 0; j < 64;  j++ ) 
 			{	
-				if ( fibres[l][i][j] > 0 )
+				if ( m_fibres[l][i][j] > 0 )
 				{
 					for (int f = j+1; f < 64; f++)
 					{	
 						rand_fib  = CLHEP::RandFlat::shoot(m_rndEngine,0.,1.);
 						
-						if ( fibres[l][i][f] == 0)
+						if ( m_fibres[l][i][f] == 0)
 						{
-							if (rand_fib <= cross_talk[l][63+f-j]) 
+							if (rand_fib <= m_cross_talk[l][63+f-j]) 
 							{	
 								m_digitCollection->push_back(new ALFA_Digit(l,i,f));
 							}
@@ -629,9 +629,9 @@ StatusCode ALFA_PileUpTool::fill_MD_DigitCollection(CLHEP::HepRandomEngine* rndE
 					{	
 						rand_fib = CLHEP::RandFlat::shoot(m_rndEngine,0.,1.);	
 							
-						if ( fibres[l][i][f] == 0)
+						if ( m_fibres[l][i][f] == 0)
 						{
-							if (rand_fib <= cross_talk[l][63-(j-f)]) 
+							if (rand_fib <= m_cross_talk[l][63-(j-f)]) 
 							{	
 								m_digitCollection->push_back(new ALFA_Digit(l,i,f));
 							}
@@ -665,7 +665,7 @@ StatusCode ALFA_PileUpTool::fill_OD_DigitCollection(CLHEP::HepRandomEngine* rndE
         for (int k = 0; k < 30; k++) 
 	  { 
 	  
-	    N_photo   = CLHEP::RandPoisson::shoot(rndEngine,E_ODfib[l][i][j][k]*m_meanN_photo/m_meanE_dep);
+	    N_photo   = CLHEP::RandPoisson::shoot(rndEngine,m_E_ODfib[l][i][j][k]*m_meanN_photo/m_meanE_dep);
 	    sigma     = m_sigma1 * sqrt(N_photo);
 		 
           double noise_1 = sigma * CLHEP::RandGaussZiggurat::shoot (rndEngine, m_mean, m_stdDev);
@@ -699,45 +699,45 @@ StatusCode ALFA_PileUpTool::fill_OD_DigitCollection(CLHEP::HepRandomEngine* rndE
   {	
 	for (unsigned int j=0; j<8; j++){
 		
-		s.str("");
+		m_s.str("");
 			
-		filename = "Xtalk_station";
-		s << j+1;
-		filename += s.str();
-		filename += ".txt";
+		m_filename = "Xtalk_station";
+		m_s << j+1;
+		m_filename += m_s.str();
+		m_filename += ".txt";
 		
-		ATH_MSG_DEBUG("file name " << filename.c_str() );
+		ATH_MSG_DEBUG("file name " << m_filename.c_str() );
 		
-		std::string filePath = PathResolver::find_file(filename.c_str(),"DATAPATH", PathResolver::RecursiveSearch);
+		std::string filePath = PathResolver::find_file(m_filename.c_str(),"DATAPATH", PathResolver::RecursiveSearch);
 		
 		if(filePath.length() == 0)
 		{
-			ATH_MSG_FATAL(" XTalk file " <<  filename.c_str() << " not found in Datapath");
+			ATH_MSG_FATAL(" XTalk file " <<  m_filename.c_str() << " not found in Datapath");
 			throw std::runtime_error("FATAL: mapping MD maroc-mapmt not found in Datapath.");
 		}
 		
 		else
 		{
-			ATH_MSG_DEBUG("the XTALK file \"" <<  filename.c_str() << "\" found in Datapath");
+			ATH_MSG_DEBUG("the XTALK file \"" <<  m_filename.c_str() << "\" found in Datapath");
 			ATH_MSG_DEBUG("filePath =  " << filePath.c_str() );
 		}
 
-		fXTalk.open(filePath.c_str());
+		m_fXTalk.open(filePath.c_str());
 		
-		if (fXTalk.is_open())
+		if (m_fXTalk.is_open())
 		{
 			for (unsigned int i=0;i<127;i++)
 			{				
-				fXTalk >> cross_talk[j][i];
+				m_fXTalk >> m_cross_talk[j][i];
 
-				ATH_MSG_DEBUG("cross_talk[" << j << "][" << i << "] = " << cross_talk[j][i]);
+				ATH_MSG_DEBUG("cross_talk[" << j << "][" << i << "] = " << m_cross_talk[j][i]);
 
 			}
-			fXTalk.close();
+			m_fXTalk.close();
 		}
 		else
 		{
-			ATH_MSG_ERROR("the file " << filename.c_str() << " was not open");
+			ATH_MSG_ERROR("the file " << m_filename.c_str() << " was not open");
 		      return StatusCode::FAILURE;
 		}	
 	}		

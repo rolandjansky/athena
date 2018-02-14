@@ -473,11 +473,7 @@ class L2EFChain_mu(L2EFChainDef):
         if 'tsloose' in self.chainPart['addInfo']:
           isoAlgoName = isoAlgoName + 'LooseTSel'
         elif 'tstight' in self.chainPart['addInfo']:
-          isoAlgoName = isoAlgoName + 'TightTSel'
-        
-        if 'z2mm' in self.chainPart['addInfo']:
-          isoAlgoName = isoAlgoName + 'z2mm'
-  
+          isoAlgoName = isoAlgoName + 'TightTSel'        
         self.EFsequenceList += [[['EF_mu_step3'],
                                  [TrigMuonEFTrackIsolationVarConfig(isoAlgoName)],
                                  'EF_mu_step4']]
@@ -1375,7 +1371,7 @@ class L2EFChain_mu(L2EFChainDef):
                              [CfgGetter.getAlgorithm("InDetTrkRoiMaker_Muon")],#[InDetTrkRoiMaker_Muon("EFInDetTrkRoiMaker")],
                              'EF_trk_ROIFTK']]
     self.EFsequenceList += [['EF_trk_ROIFTK',
-                            [CfgGetter.getAlgorithm("TrigMuSuperEF_SAonly")],
+                            [CfgGetter.getAlgorithm("TrigMuSuperEF_FSSA")],
                              'EF_SA_FSFTK']]
     self.EFsequenceList += [['EF_SA_FSFTK',
                              [theTrigMuonEFSA_FS_Hypo],
