@@ -260,23 +260,23 @@ void DiTauDiscriminantTool::setIDVariables(const xAOD::DiTauJet& xDiTau)
   case(DecayMode::HadEl):
     setVar("DiTauJetsHadEl.el_IDSelection"           ) = (float) xDiTau.auxdata<int>   ("el_IDSelection"           );
     setVar("DiTauJetsHadEl.n_track"                  ) = (float) xDiTau.auxdata<int>   ("n_track"                  );
-    setVar("DiTauJetsHadEl.E_frac_HadEl"             ) = (float) xDiTau.auxdata<double>("E_frac_HadEl"             );
-    setVar("DiTauJetsHadEl.tau_f_subjet"             ) = (float) xDiTau.auxdata<double>("tau_f_subjet"             );
+    setVar("DiTauJetsHadEl.E_frac_HadEl"             ) = (float) xDiTau.auxdata<float>("E_frac_HadEl"             );
+    setVar("DiTauJetsHadEl.tau_f_subjet"             ) = (float) xDiTau.auxdata<float>("tau_f_subjet"             );
     setVar("DiTauJetsHadEl.tau_n_tracks"             ) = (float) xDiTau.auxdata<int>   ("tau_n_tracks"             );
-    setVar("DiTauJetsHadEl.m_track"                  ) = (float) xDiTau.auxdata<double>("m_track"                  );
-    setVar("DiTauJetsHadEl.tau_f_core"               ) = (float) xDiTau.auxdata<double>("tau_f_core"               );
-    setVar("DiTauJetsHadEl.R_track_all"              ) = (float) xDiTau.auxdata<double>("R_track_all"              );
-    setVar("DiTauJetsHadEl.tau_m_tracks"             ) = (float) xDiTau.auxdata<double>("tau_m_tracks"             );
-    setVar("DiTauJetsHadEl.tau_d0_leadtrack"         ) = (float) xDiTau.auxdata<double>("tau_d0_leadtrack"         );
-    setVar("DiTauJetsHadEl.tau_R_max"                ) = (float) xDiTau.auxdata<double>("tau_R_max"                );
+    setVar("DiTauJetsHadEl.m_track"                  ) = (float) xDiTau.auxdata<float>("m_track"                  );
+    setVar("DiTauJetsHadEl.tau_f_core"               ) = (float) xDiTau.auxdata<float>("tau_f_core"               );
+    setVar("DiTauJetsHadEl.R_track_all"              ) = (float) xDiTau.auxdata<float>("R_track_all"              );
+    setVar("DiTauJetsHadEl.tau_m_tracks"             ) = (float) xDiTau.auxdata<float>("tau_m_tracks"             );
+    setVar("DiTauJetsHadEl.tau_d0_leadtrack"         ) = (float) xDiTau.auxdata<float>("tau_d0_leadtrack"         );
+    setVar("DiTauJetsHadEl.tau_R_max"                ) = (float) xDiTau.auxdata<float>("tau_R_max"                );
     setVar("DiTauJetsHadEl.tau_leadingElIDSelection" ) = (float) xDiTau.auxdata<int>   ("tau_leadingElIDSelection" );
-    setVar("DiTauJetsHadEl.tau_R_tracks"             ) = (float) xDiTau.auxdata<double>("tau_R_tracks"             );
-    setVar("DiTauJetsHadEl.tau_m_core"               ) = (float) xDiTau.auxdata<double>("tau_m_core"               );
-    setVar("DiTauJetsHadEl.tau_R_core"               ) = (float) xDiTau.auxdata<double>("tau_R_core"               );
-    setVar("DiTauJetsHadEl.E_frac_subsubl"           ) = (float) xDiTau.auxdata<double>("E_frac_subsubl"           );
-    setVar("DiTauJetsHadEl.tau_leadingElDeltaR"      ) = (float) xDiTau.auxdata<double>("tau_leadingElDeltaR"      );
+    setVar("DiTauJetsHadEl.tau_R_tracks"             ) = (float) xDiTau.auxdata<float>("tau_R_tracks"             );
+    setVar("DiTauJetsHadEl.tau_m_core"               ) = (float) xDiTau.auxdata<float>("tau_m_core"               );
+    setVar("DiTauJetsHadEl.tau_R_core"               ) = (float) xDiTau.auxdata<float>("tau_R_core"               );
+    setVar("DiTauJetsHadEl.E_frac_subsubl"           ) = (float) xDiTau.auxdata<float>("E_frac_subsubl"           );
+    setVar("DiTauJetsHadEl.tau_leadingElDeltaR"      ) = (float) xDiTau.auxdata<float>("tau_leadingElDeltaR"      );
     setVar("DiTauJetsHadEl.el_isoGL"                 ) = (float) (bool) xDiTau.auxdata<char>   ("el_isoGL"         );
-    setVar("DiTauJetsHadEl.tau_f_track"              ) = (float) xDiTau.auxdata<double>("tau_f_track"              );
+    setVar("DiTauJetsHadEl.tau_f_track"              ) = (float) xDiTau.auxdata<float>("tau_f_track"              );
     break;
   case(DecayMode::HadMu):
     setVar("DiTauJetsHadMu.MuonQuality"       ) = (float) xDiTau.auxdata<int>  ("MuonQuality"       );

@@ -12,38 +12,6 @@
 
 using namespace tauRecTools;
 
-class tauRecTools::AccessorAsDouble{
-  std::string m_sName;
-  enum types_e{ FLOAT, DOUBLE, DEFAULT };
-  types_e m_eType = types_e::DEFAULT;
-public:
-  AccessorAsDouble(std::string name, std::string type)
-    : m_sName(name)
-  {
-    if(type == "float")
-      m_eType = types_e::FLOAT;
-    if(type == "double")
-      m_eType = types_e::DOUBLE;
-  }
-  ~AccessorAsDouble(){}
-  bool get(const xAOD::DiTauJet& xDiTau, double& value){
-    switch(m_eType){
-    case types_e::FLOAT:
-    {
-      static SG::AuxElement::ConstAccessor<float> acc(m_sName);
-      value = (double) acc(xDiTau);
-      return true;
-    }
-    case types_e::DOUBLE:
-      static SG::AuxElement::ConstAccessor<double> acc(m_sName);
-      value = acc(xDiTau);
-      return true;
-    default:
-      return false;
-    }
-  }
-};
-
 /********************************************************************/
 DiTauWPDecorator::DiTauWPDecorator(const std::string& name) :
   AsgTool(name),
@@ -56,9 +24,7 @@ DiTauWPDecorator::DiTauWPDecorator(const std::string& name) :
   declareProperty("NewScoreName", m_sNewScoreName = "JetBDTFlat");
 
   declareProperty("XVarName", m_sXVar = "pt");
-  declareProperty("XVarType", m_sTypeXVar = "float");
   declareProperty("YVarName", m_sYVar = "DeltaR");
-  declareProperty("YVarType", m_sTypeYVar = "double");
     
   declareProperty("SigEff", m_vfCutEffsDecoration);
   declareProperty("WPNames", m_vsDecorationNames);
@@ -143,8 +109,8 @@ StatusCode DiTauWPDecorator::initialize() {
   // Store limits for 1P and 3P
   ATH_CHECK( storeLimits() );
 
-  m_accX = new AccessorAsDouble(m_sXVar, m_sTypeXVar);
-  m_accY = new AccessorAsDouble(m_sYVar, m_sTypeYVar);
+  m_accX = new SG::AuxElement::ConstAccessor<float>(m_sXVar);
+  m_accY = new SG::AuxElement::ConstAccessor<float>(m_sYVar);
   
   m_accScore = new SG::AuxElement::ConstAccessor<double>(m_sScoreName);
   m_accNewScore = new SG::AuxElement::Decorator<double>(m_sNewScoreName);
@@ -163,12 +129,8 @@ StatusCode DiTauWPDecorator::execute(const xAOD::DiTauJet& xDiTau)
 
   // Retrieve tau properties
   double score = (*m_accScore)(xDiTau);
-  double xvar = 0;
-  double yvar = 0;
-  
-  if(!m_accX->get(xDiTau, xvar) || !m_accY->get(xDiTau, yvar)){
-    ATH_MSG_ERROR("invalid type for x or y var only float and double are supported");
-  }
+  double xvar = (*m_accX)(xDiTau);
+  double yvar = (*m_accY)(xDiTau);
   
   ATH_MSG_VERBOSE("xvar: " << m_sXVar << " before " << xvar);
   ATH_MSG_VERBOSE("yvar: " << m_sYVar << " before " << yvar);

@@ -61,9 +61,8 @@ private:
     
     SG::AuxElement::ConstAccessor<double>* m_accScore;
     SG::AuxElement::Decorator<double>* m_accNewScore;
-
-    AccessorAsDouble *m_accX;
-    AccessorAsDouble *m_accY;
+    SG::AuxElement::ConstAccessor<float>* m_accX;
+    SG::AuxElement::ConstAccessor<float>* m_accY;
 };
 }
 

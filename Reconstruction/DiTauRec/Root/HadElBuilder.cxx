@@ -58,17 +58,17 @@ StatusCode HadElBuilder::execute()
   static SG::AuxElement::Accessor<char>   acc_isHadMu   ("isHadMu" );
   static SG::AuxElement::Accessor<char>   acc_isHadEl   ("isHadEl" );
 
-  static SG::AuxElement::Accessor<double> acc_tau_pt    ("tau_pt" );
-  static SG::AuxElement::Accessor<double> acc_tau_eta   ("tau_eta");
-  static SG::AuxElement::Accessor<double> acc_tau_phi   ("tau_phi");
-  static SG::AuxElement::Accessor<double> acc_tau_E     ("tau_E"  );
+  static SG::AuxElement::Accessor<float> acc_tau_pt    ("tau_pt" );
+  static SG::AuxElement::Accessor<float> acc_tau_eta   ("tau_eta");
+  static SG::AuxElement::Accessor<float> acc_tau_phi   ("tau_phi");
+  static SG::AuxElement::Accessor<float> acc_tau_E     ("tau_E"  );
                                                                 
-  static SG::AuxElement::Accessor<double> acc_el_pt     ("electron_pt"  );
-  static SG::AuxElement::Accessor<double> acc_el_eta    ("electron_eta" );
-  static SG::AuxElement::Accessor<double> acc_el_phi    ("electron_phi" );
-  static SG::AuxElement::Accessor<double> acc_el_E      ("electron_E"   );
+  static SG::AuxElement::Accessor<float> acc_el_pt     ("electron_pt"  );
+  static SG::AuxElement::Accessor<float> acc_el_eta    ("electron_eta" );
+  static SG::AuxElement::Accessor<float> acc_el_phi    ("electron_phi" );
+  static SG::AuxElement::Accessor<float> acc_el_E      ("electron_E"   );
 
-  static SG::AuxElement::Accessor<double> acc_DeltaR      ("DeltaR"   );
+  static SG::AuxElement::Accessor<float> acc_DeltaR      ("DeltaR"   );
   
   
   for(auto xHadHadDiTau : *xDiTauContainer){
@@ -87,10 +87,10 @@ StatusCode HadElBuilder::execute()
       // take only leading two subjets into account and demand minimum
       // distance of 0.1 between electron and subjet:
       for(int i = 0; i<xHadHadDiTau->nSubjets(); i++){
-        double subjet_pt  = xHadHadDiTau->subjetPt(i);
-        double subjet_eta = xHadHadDiTau->subjetEta(i);
-        double subjet_phi = xHadHadDiTau->subjetPhi(i);
-        double subjet_E   = xHadHadDiTau->subjetE(i);
+        float subjet_pt  = xHadHadDiTau->subjetPt(i);
+        float subjet_eta = xHadHadDiTau->subjetEta(i);
+        float subjet_phi = xHadHadDiTau->subjetPhi(i);
+        float subjet_E   = xHadHadDiTau->subjetE(i);
         p4_subjet.SetPtEtaPhiE(subjet_pt, subjet_eta, subjet_phi, subjet_E);
         if(p4_subjet.DeltaR(p4_electron) < 0.1)
           continue;
