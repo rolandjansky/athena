@@ -232,13 +232,6 @@ if DerivationFrameworkIsMonteCarlo:
      addAntiKt4TruthJets(jetm8Seq, "JETM8")
      addAntiKt10TruthJets(jetm8Seq, "JETM8")
 
-#=======================================
-# SCHEDULE REPLACEMENT B-TAG COLLECTIONS
-#=======================================
-
-from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
-FlavorTagInit(JetCollections  = ['AntiKt2PV0TrackJets'], Sequencer = jetm8Seq)
-
 #====================================================================
 # SET UP STREAM   
 #====================================================================
