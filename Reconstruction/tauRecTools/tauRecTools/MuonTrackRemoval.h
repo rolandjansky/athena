@@ -5,14 +5,10 @@
 #ifndef TAURECTOOLS_MUONTRACKREMOVAL_H
 #define TAURECTOOLS_MUONTRACKREMOVAL_H
 
-#include "AsgTools/AnaToolHandle.h"
 #include "tauRecTools/TauRecToolBase.h"
 #include "xAODTau/TauJet.h"
-
-namespace CP{
-  class IMuonSelectionTool;
-  class IMuonCalibrationAndSmearingTool;
-}
+#include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 
 namespace tauRecTools
 {
@@ -24,7 +20,6 @@ namespace tauRecTools
     MuonTrackRemoval(const std::string& type);
     ~MuonTrackRemoval();
 
-
     virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;
     virtual StatusCode execute(xAOD::TauJet& xTau) override;
@@ -33,8 +28,8 @@ namespace tauRecTools
 
   private:
     int m_iMaxMuonIDWP; //!
-    asg::AnaToolHandle<CP::IMuonSelectionTool>* m_thMuonSelectionTool;//!
-    asg::AnaToolHandle<CP::IMuonCalibrationAndSmearingTool>* m_thMuonCalibrationTool;//!
+    ToolHandle<CP::IMuonCalibrationAndSmearingTool> m_thMuonCalibrationTool;//!
+    ToolHandle<CP::IMuonSelectionTool> m_thMuonSelectionTool;//!
   };
 }
 

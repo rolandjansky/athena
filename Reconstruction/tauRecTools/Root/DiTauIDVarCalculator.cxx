@@ -142,7 +142,7 @@ StatusCode DiTauIDVarCalculator::initialize()
       ANA_CHECK(m_muonCalibrationTool->setProperty( "Year", "Data16" ));
       ANA_CHECK(m_muonCalibrationTool->setProperty("Release","Recs2016_15_07"));
       ANA_CHECK(m_muonCalibrationTool->setProperty("StatComb",false));
-      ANA_CHECK(m_muonCalibrationTool->setProperty("SagittaCorr",true));
+      ANA_CHECK(m_muonCalibrationTool->setProperty("SagittaCorr",false));
       ANA_CHECK(m_muonCalibrationTool->setProperty("SagittaRelease", "sagittaBiasDataAll_02_08_17"));
       ANA_CHECK(m_muonCalibrationTool->setProperty("doSagittaMCDistortion",false));
       ANA_CHECK(m_muonCalibrationTool->initialize());
@@ -150,6 +150,10 @@ StatusCode DiTauIDVarCalculator::initialize()
       if(m_bMuonTrackRemoval){
         m_muonTrackRemoval = new asg::AnaToolHandle<ITauToolBase>("MuonTrackRemoval");
         ATH_CHECK(ASG_MAKE_ANA_TOOL(*m_muonTrackRemoval, tauRecTools::MuonTrackRemoval));
+        ToolHandle<CP::IMuonCalibrationAndSmearingTool> thCalibrationAndSmearingTool(&**m_muonCalibrationTool);
+        ToolHandle<CP::IMuonSelectionTool> thMuonSelectionTool(&**m_muSelTool_loose);
+        ATH_CHECK(m_muonTrackRemoval->setProperty("MuonCalibrationToolHandle", thCalibrationAndSmearingTool));
+        ATH_CHECK(m_muonTrackRemoval->setProperty("MuonSelectionToolHandle", thMuonSelectionTool));
         ATH_CHECK(m_muonTrackRemoval->initialize());
 
         m_tauSubstructureVariables = new asg::AnaToolHandle<ITauToolBase>("TauSubstructureVariables");
@@ -330,11 +334,9 @@ StatusCode DiTauIDVarCalculator::calculateHadMuIDVariables(const xAOD::DiTauJet&
   static const SG::AuxElement::Decorator<int>   acc_MuonQuality   ("MuonQuality");
   static const SG::AuxElement::Decorator<int>   acc_MuonType      ("MuonType");
   static const SG::AuxElement::Decorator<char>  acc_validMuon     ("validMuon");
-
-  
+ 
   const xAOD::TauJet* pTau  = *acc_tauLink(xDiTau);
   const xAOD::Muon*   pMuon = *acc_muonLink(xDiTau);
-
   xAOD::TauJet* pTauCopy = nullptr;
 
   if(m_bMuonTrackRemoval){
@@ -470,7 +472,7 @@ StatusCode DiTauIDVarCalculator::calculateHadElIDVariables(const xAOD::DiTauJet&
   static const SG::AuxElement::Decorator< float > acc_el_r33over37allcalo    ( "el_r33over37allcalo" );
   static const SG::AuxElement::Decorator< char >  acc_el_isoGL               ( "el_isoGL"            );
 
-  
+
   acc_tau_f_core       (xDiTau) = f_core      (xDiTau, 0);
   acc_tau_f_subjet     (xDiTau) = f_subjet    (xDiTau, 0);
   acc_tau_f_track      (xDiTau) = f_track     (xDiTau, 0);
@@ -481,7 +483,10 @@ StatusCode DiTauIDVarCalculator::calculateHadElIDVariables(const xAOD::DiTauJet&
   acc_tau_m_core       (xDiTau) = mass_core   (xDiTau, 0);
   acc_tau_m_tracks     (xDiTau) = mass_tracks (xDiTau, 0);
   acc_tau_d0_leadtrack (xDiTau) = d0_leadtrack(xDiTau, 0);
-                                  
+
+
+  if(!origDiTau->isAvailable<int>("n_subjets"))
+    origDiTau->auxdecor<int>("n_subjets") = origDiTau->nSubjets();
   acc_f_subjets        (xDiTau) = f_subjets(*origDiTau);           
   acc_n_track          (xDiTau) = n_track(*origDiTau);               
   acc_n_isotrack       (xDiTau) = n_isotrack(*origDiTau);         
@@ -493,7 +498,7 @@ StatusCode DiTauIDVarCalculator::calculateHadElIDVariables(const xAOD::DiTauJet&
   acc_m_track          (xDiTau) = mass_track(*origDiTau);               
   acc_m_track_core     (xDiTau) = mass_track_core(*origDiTau);     
   acc_m_track_all      (xDiTau) = mass_track_all(*origDiTau);       
-                      
+
   acc_E_frac_subl      (xDiTau) = E_frac(*origDiTau,1);           
   acc_E_frac_subsubl   (xDiTau) = E_frac(*origDiTau, 2);       
   acc_R_subjets_subl   (xDiTau) = R_subjets(*origDiTau, 1);    

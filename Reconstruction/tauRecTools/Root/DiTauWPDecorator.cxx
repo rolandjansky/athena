@@ -52,8 +52,8 @@ DiTauWPDecorator::DiTauWPDecorator(const std::string& name) :
 {
   declareProperty("flatteningFile", m_sFile = "");
 
-  declareProperty("ScoreName", m_sScoreName = "BDTJetScore");
-  declareProperty("NewScoreName", m_sNewScoreName = "BDTJetScoreSigTrans");
+  declareProperty("ScoreName", m_sScoreName = "JetBDT");
+  declareProperty("NewScoreName", m_sNewScoreName = "JetBDTFlat");
 
   declareProperty("XVarName", m_sXVar = "pt");
   declareProperty("XVarType", m_sTypeXVar = "float");

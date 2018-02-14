@@ -14,9 +14,13 @@ using namespace tauRecTools;
 
 //________________________________________
 MuonTrackRemoval::MuonTrackRemoval(const std::string& name):
-  TauRecToolBase(name)  
+  TauRecToolBase(name)
+  , m_thMuonCalibrationTool("")
+  , m_thMuonSelectionTool("")
 {
-  declareProperty("muonIDWP", m_iMaxMuonIDWP = 2); // tight 0, medium 1, loose 2, veryloose 3 
+  declareProperty("MuonCalibrationToolHandle", m_thMuonCalibrationTool);
+  declareProperty("MuonSelectionToolHandle", m_thMuonSelectionTool);
+  declareProperty("muonIDWP", m_iMaxMuonIDWP = 2); // tight 0, medium 1, loose 2, veryloose 3
 }
 
 //________________________________________
@@ -25,22 +29,6 @@ MuonTrackRemoval::~MuonTrackRemoval(){}
 
 //________________________________________
 StatusCode MuonTrackRemoval::initialize(){
-
-  ANA_CHECK(m_thMuonCalibrationTool = new asg::AnaToolHandle<CP::IMuonCalibrationAndSmearingTool>( "MuonCorrectionTool" ));
-  ATH_CHECK(ASG_MAKE_ANA_TOOL(*m_thMuonCalibrationTool, CP::MuonCalibrationAndSmearingTool));
-  ANA_CHECK(m_thMuonCalibrationTool->setProperty( "Year", "Data16" ));
-  ANA_CHECK(m_thMuonCalibrationTool->setProperty("Release","Recs2016_15_07"));
-  ANA_CHECK(m_thMuonCalibrationTool->setProperty("StatComb",false));
-  ANA_CHECK(m_thMuonCalibrationTool->setProperty("SagittaCorr",true));
-  ANA_CHECK(m_thMuonCalibrationTool->setProperty("SagittaRelease", "sagittaBiasDataAll_02_08_17"));
-  ANA_CHECK(m_thMuonCalibrationTool->setProperty("doSagittaMCDistortion",false));
-  ANA_CHECK(m_thMuonCalibrationTool->initialize());
-  
-  m_thMuonSelectionTool = new asg::AnaToolHandle<CP::IMuonSelectionTool>("MuonSelectionTool");
-  ATH_CHECK(ASG_MAKE_ANA_TOOL(*m_thMuonSelectionTool, CP::MuonSelectionTool));
-  ANA_CHECK(m_thMuonSelectionTool->setProperty("MuQuality", 3));
-  ANA_CHECK(m_thMuonSelectionTool->initialize());
-
   return StatusCode::SUCCESS;
 }
 
@@ -60,11 +48,11 @@ StatusCode MuonTrackRemoval::execute(xAOD::TauJet& xTau){
     TLorentzVector muonp4 = xMuon->p4();
     if(taup4.DeltaR(muonp4) < 0.4){
       mu = 0;
-      if( !(*m_thMuonCalibrationTool)->correctedCopy( *xMuon, mu ) ) {
+      if( !(*m_thMuonCalibrationTool).correctedCopy( *xMuon, mu ) ) {
 	Error( "Tes", "Cannot really apply calibration nor smearing" );
 	continue;
       }
-      xAOD::Muon::Quality quality = (*m_thMuonSelectionTool)->getQuality(*mu);
+      xAOD::Muon::Quality quality = (*m_thMuonSelectionTool).getQuality(*mu);
       if(quality <= m_iMaxMuonIDWP){
         const ElementLink< xAOD::TrackParticleContainer > muIDTrack = mu->inDetTrackParticleLink();
 	if(muIDTrack.isValid())
