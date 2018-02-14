@@ -20,5 +20,11 @@ namespace xAOD {
 // Set up a CLID for the container:
 #include "xAODCore/CLASS_DEF.h"
 CLASS_DEF( xAOD::LumiBlockRangeContainer, 1115934851, 1 )
+#ifndef XAOD_STANDALONE
+#include "AthenaKernel/MetaCont.h"
+CLASS_DEF( MetaCont<xAOD::LumiBlockRangeContainer> , 126923741 , 1 )
+#include "SGTools/BaseInfo.h"
+SG_BASE( MetaCont<xAOD::LumiBlockRangeContainer>, MetaContBase );
+#endif // not XAOD_STANDALONE
 
 #endif // XAODLUMINOSITY_LUMIBLOCKRANGECONTAINER_H
