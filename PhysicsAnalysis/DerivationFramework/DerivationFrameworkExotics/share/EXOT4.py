@@ -156,14 +156,14 @@ btag_jetnoel_track = ConfInst.setupJetBTaggerTool(ToolSvc, JetCollection="AntiKt
                                                      SetupScheme = "",
                                                      TaggerList = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu', 'MV2c10', 'MV2c10mu', 'MV2c10rnn', 'JetVertexCharge', 'MV2cl100' , 'MVb', 'DL1', 'DL1rnn', 'DL1mu', 'RNNIP', 'MV2c10Flip']
                                                      )
-jtm.modifiersMap["akt4emtoponoel"] = jtm.modifiersMap["track"] + [btag_jetnoel]
-jtm.modifiersMap["akt4tracknoel"] = jtm.modifiersMap["emtopo_ungroomed"] + [btag_jetnoel_track]
+jtm.modifiersMap["akt4tracknoel"] = jtm.modifiersMap["track"] + [btag_jetnoel_track]
+jtm.modifiersMap["akt4emtoponoel"] = jtm.modifiersMap["emtopo_ungroomed"] + [btag_jetnoel]
 
 jfind_smallnoel_trk = jtm.addJetFinder("AntiKt4TrackNoElJets", "AntiKt", 0.4, "TrkJetElRemovalgetter", "akt4tracknoel",
                 ghostArea=0.01 , ptmin=10000, ptminFilter=10000
                 )
 
-jfind_smallnoel_emtopo = jtm.addJetFinder("AntiKt4EMTopoNoElJets", "AntiKt", 0.4, "JetElRemovalgetter", "akt4tracknoel",
+jfind_smallnoel_emtopo = jtm.addJetFinder("AntiKt4EMTopoNoElJets", "AntiKt", 0.4, "JetElRemovalgetter", "akt4emtoponoel",
                 ghostArea=0.01 , ptmin=10000, ptminFilter=10000,
                 calibOpt="none")
 
