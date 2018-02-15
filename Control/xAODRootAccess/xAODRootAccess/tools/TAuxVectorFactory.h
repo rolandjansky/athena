@@ -46,9 +46,10 @@ namespace xAOD {
       /// @{
 
       /// Create a new vector in memory with the requested size and capacity
-      virtual SG::IAuxTypeVector* create( size_t size, size_t capacity ) const;
+      virtual
+      std::unique_ptr<SG::IAuxTypeVector> create( size_t size, size_t capacity ) const;
 
-      SG::IAuxTypeVector*
+      std::unique_ptr<SG::IAuxTypeVector>
       createFromData( void* /*data*/, bool /*isPacked*/, bool ) const;
 
       /// Copy one element from one location to another
