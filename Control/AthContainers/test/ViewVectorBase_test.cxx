@@ -19,7 +19,6 @@
 #include "AthContainers/AuxElement.h"
 #include "SGTools/TestStore.h"
 #include "AthenaKernel/CLASS_DEF.h"
-#include "CxxUtils/checker_macros.h"
 #include <iostream>
 #include <cassert>
 
@@ -123,10 +122,10 @@ void test1 (SGTest::TestStore& store)
 }
 
 
-int main ATLAS_NOT_THREAD_SAFE ()
+int main()
 {
-  SGTest::initTestStore();
-  test1 (SGTest::store);
+  std::unique_ptr<SGTest::TestStore> store = SGTest::getTestStore();
+  test1 (*store);
   return 0;
 }
 
