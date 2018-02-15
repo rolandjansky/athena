@@ -36,7 +36,8 @@ DerivationFramework::HbbTrackThinner::HbbTrackThinner(
   m_ntot(0),
   m_npass(0),
   m_largeJetPtCut(200e3),
-  m_jetCollectionName("AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets")
+  m_jetCollectionName("AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"),
+  m_addSubjetGhosts(false)
 {
   declareInterface<DerivationFramework::IThinningTool>(this);
   declareProperty("thinningService", m_thinningSvc);
@@ -86,8 +87,7 @@ StatusCode DerivationFramework::HbbTrackThinner::doThinning() const
       // start with b-tagging cone association
       const xAOD::BTagging *bjet = jet->btagging();
       if (!bjet) {
-        ATH_MSG_ERROR("no btagging object found for " + m_jetCollectionName +
-                      " skipping");
+        throw std::logic_error("no btagging object: " + m_jetCollectionName);
         return StatusCode::FAILURE;
       }
       const HbbAccessors::TrackLinks trackLinks = m_acc.coneAssociator(*bjet);
@@ -96,10 +96,12 @@ StatusCode DerivationFramework::HbbTrackThinner::doThinning() const
         jet_tracks.insert(track);
       }
       // then use ghosts
-      for (const auto& ghost: m_acc.ghostAssociator(*jet)) {
-        const auto* track = dynamic_cast<const xAOD::TrackParticle*>(*ghost);
-        if (!track) throw std::runtime_error("this isn't a track particle");
-        jet_tracks.insert(track);
+      if (m_addSubjetGhosts) {
+        for (const auto& ghost: m_acc.ghostAssociator(*jet)) {
+          const auto* track = dynamic_cast<const xAOD::TrackParticle*>(*ghost);
+          if (!track) throw std::runtime_error("this isn't a track particle");
+          jet_tracks.insert(track);
+        }
       }
     }
   }

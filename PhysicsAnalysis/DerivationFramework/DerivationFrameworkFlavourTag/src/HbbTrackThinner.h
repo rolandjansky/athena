@@ -74,6 +74,7 @@ namespace DerivationFramework {
     mutable unsigned int m_npass;
     double m_largeJetPtCut;
     std::string m_jetCollectionName;
+    bool m_addSubjetGhosts;
 
     HbbAccessors m_acc;
 
