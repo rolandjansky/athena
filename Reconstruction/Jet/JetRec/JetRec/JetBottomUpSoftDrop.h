@@ -1,18 +1,15 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+// JetBottomUpSoftDrop.h
 
-// JetSoftDrop.h
+#ifndef JetBottomUpSoftDrop_H
+#define JetBottomUpSoftDrop_H
 
-#ifndef JetSoftDrop_H
-#define JetSoftDrop_H
-
-// Joe Taenzer
+// Jennifer Roloff & Joe Taenzer
 // October 2016
 //
-// Tool to groom jets with softdrop.
-// SoftDrop is described in this paper: arXiv:1402.2657
-// See also: http://fastjet.hepforge.org/svn/contrib/contribs/RecursiveTools/tags/1.0.0/SoftDrop.hh
+// Tool to groom jets with bottom up softdrop.
+// SoftDrop is described in this paper: arXiv:1402.2657 
+// Bottom Up SoftDrop is described in this paper (under the name "Iterated SoftDrop": https://arxiv.org/pdf/1704.06266.pdf
+// See also: https://fastjet.hepforge.org/trac/browser/contrib/contribs/RecursiveTools/tags/2.0.0-beta1/BottomUpSoftDrop.hh
 
 #include "AsgTools/AsgTool.h"
 #include "JetInterface/IJetGroomer.h"
@@ -21,20 +18,20 @@
 
 #include "fastjet/ClusterSequence.hh"
 #include "fastjet/contrib/RecursiveSymmetryCutBase.hh"
-#include "fastjet/contrib/SoftDrop.hh"
+#include "fastjet/contrib/BottomUpSoftDrop.hh"
 
-class JetSoftDrop
+class JetBottomUpSoftDrop
 : public asg::AsgTool,
   virtual public IJetGroomer {
-ASG_TOOL_CLASS(JetSoftDrop, IJetGroomer)
+ASG_TOOL_CLASS(JetBottomUpSoftDrop, IJetGroomer)
 
 public:
 
   // Ctor.
-  JetSoftDrop(std::string name);
+  JetBottomUpSoftDrop(std::string name);
 
   // Dtor.
-  ~JetSoftDrop();
+  ~JetBottomUpSoftDrop();
 
   // Initilization.
   StatusCode initialize();

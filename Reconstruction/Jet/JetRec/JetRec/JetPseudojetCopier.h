@@ -33,7 +33,7 @@ class JetPseudojetCopier
 : virtual public asg::AsgTool,
   virtual public IJetConsumer {
 
-  ASG_TOOL_CLASS(JetPseudojetCopier, IJetConsumer);
+  ASG_TOOL_CLASS(JetPseudojetCopier, IJetConsumer)
 
 public:
     

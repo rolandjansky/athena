@@ -13,6 +13,8 @@
 #include "JetRec/JetTrimmer.h"
 #include "JetRec/JetPruner.h"
 #include "JetRec/JetSoftDrop.h"
+#include "JetRec/JetBottomUpSoftDrop.h"
+#include "JetRec/JetRecursiveSoftDrop.h"
 #include "JetRec/JetReclusterer.h"
 #include "JetRec/FastJetInterfaceTool.h"
 #include "GaudiKernel/DeclareFactoryEntries.h"
@@ -39,6 +41,8 @@ DECLARE_TOOL_FACTORY(JetSplitter)
 DECLARE_TOOL_FACTORY(JetTrimmer)
 DECLARE_TOOL_FACTORY(JetPruner)
 DECLARE_TOOL_FACTORY(JetSoftDrop)
+DECLARE_TOOL_FACTORY(JetBottomUpSoftDrop)
+DECLARE_TOOL_FACTORY(JetRecursiveSoftDrop)
 DECLARE_TOOL_FACTORY(JetReclusterer)
 DECLARE_TOOL_FACTORY(FastJetInterfaceTool)
 DECLARE_TOOL_FACTORY(JetPseudojetRetriever)
@@ -64,6 +68,8 @@ DECLARE_FACTORY_ENTRIES(JetRec) {
   DECLARE_TOOL(JetTrimmer)
   DECLARE_TOOL(JetPruner)
   DECLARE_TOOL(JetSoftDrop)
+  DECLARE_TOOL(JetBottomUpSoftDrop)
+  DECLARE_TOOL(JetRecursiveSoftDrop)
   DECLARE_TOOL(JetReclusterer)
   DECLARE_TOOL(FastJetInterfaceTool)
   DECLARE_TOOL(JetPseudojetRetriever)
