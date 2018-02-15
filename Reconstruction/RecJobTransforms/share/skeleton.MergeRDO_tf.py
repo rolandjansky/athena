@@ -173,8 +173,8 @@ MessageSvc.OutputLevel = INFO
 StreamRDO.ExtendProvenanceRecord = False
 
 ServiceMgr.AthenaPoolCnvSvc.MaxFileSizes = [ "15000000000" ]
-ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolRDOOutput()+ "'; COMPRESSION_ALGORITHM = '2'" ]
-ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolRDOOutput()+ "'; COMPRESSION_LEVEL = '1'" ]
+ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + Out + "'; COMPRESSION_ALGORITHM = '2'" ]
+ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + Out + "'; COMPRESSION_LEVEL = '1'" ]
 
 ## Post-include
 if hasattr(runArgs,"postInclude"):
