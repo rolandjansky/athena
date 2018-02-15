@@ -72,6 +72,12 @@ namespace xAOD {
      std::vector< float > PHI1CALOFRAME;
      std::vector< float > PHI2CALOFRAME;
 
+     std::vector< float > CENTER_LAMBDA;
+     std::vector< float > FIRST_ENG_DENS;
+     std::vector< float > EM_PROBABILITY;
+     std::vector< float > SECOND_LAMBDA;
+     std::vector< float > SECOND_R;
+
    }; // class CaloClusterTrigAuxContainer_v1
 
 } // namespace xAOD
