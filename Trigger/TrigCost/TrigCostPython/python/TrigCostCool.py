@@ -63,7 +63,7 @@ from TrigCostAnalysis import *                          ;# print '\tLoaded speci
 #------------------------------------------------------------
 bgcontent_foldername    = '/TRIGGER/LVL1/BunchGroupContent'     # Idx by run-LB
 bgdesc_foldername       = '/TRIGGER/LVL1/BunchGroupDescription' # Idx by run-LB
-lumi_foldername         = '/TDAQ/OLC/LUMINOSITY'                # Idx by timestamp
+lumi_foldername         = '/TRIGGER/LUMI/OnlPrefLumi'                # Idx by timestamp
 lblb_foldername         = '/TRIGGER/LUMI/LBLB'                  # Idx by run-LB
 lbtime_foldername       = '/TRIGGER/LUMI/LBTIME'                # Idx by timestamp, same as lblb
 lvl1lbdata_foldername   = '/TRIGGER/LVL1/CTPCORELBDATA'         # Idx by run-LB
@@ -662,25 +662,26 @@ def GetLumiblocks(runnumber,lb_beg,lb_end,options=[]):
     log.info('# -------------------------------------------------------------------------------')
     log.info("Now I'm trying (my hardest) to get Luminosity info.  Again, if you don't see a while loop musing, then sorry, you'll not have any lumiosity information")
     try:
-        itr = GetFolderItrForRun(lumi_foldername, runnumber, 'COMP', run_beg_time, run_end_time)
+        itr = GetFolderItrForRun(lumi_foldername, runnumber, 'TRIGGER', run_beg_time, run_end_time )
         while itr.goToNext():
             obj     = itr.currentRef()
             payload = obj.payload()
+            lb      = (obj.since() & 0xffff)
+            log.info("In OnlPrefLumi interator loop! lb = %d" % lb)
+            
 
-            run = payload['RunLB'] >> 32
-            lb  = payload['RunLB'] & 0xffff
-
-            if not IncludeLB(lb,lb_beg,lb_end): continue
-            if run != runnumber:
-                log.warning('Skipping run mismatch in lumi: '+str(run)+'!='+str(runnumber))
+            if not IncludeLB(lb,lb_beg,lb_end):
                 continue
 
             if lb not in lbset.lbs:
-                log.warning('Found lumi for out of range lumiblock:'+str(lb))
                 lbset.lbs[lb] = LumiBlock()
+                if lbset.lbbeg==-1:
+                    lbset.lbbeg=lb
+            else:
+                print "%d LB? Why isn't it already there?" % lb
 
-            lbset.lbs[lb].avr_lumi = payload['LBAvInstLumPhys']
-            lbset.lbs[lb].avr_evts = payload['LBAvEvtsPerBXPhys']
+            lbset.lbs[lb].avr_lumi = payload['LBAvInstLumi']
+            lbset.lbs[lb].avr_evts = payload['LBAvEvtsPerBX']
 
             log.info('New lumi block: %d'%lb+lbset.lbs[lb].AsString())
 
