@@ -14,8 +14,11 @@ import re
 import optparse
 import string
 import math
-
 import TrigCostAnalysis
+
+import logging
+logging.basicConfig(level=logging.INFO)
+log = logging.getLogger('TrigCostTRP')
 
 # Assume 10s sampling rate (current TRP setting)
 samplingrate = 10
@@ -32,7 +35,7 @@ class TrigCostTRP:
 #----------------------------------------------------------------------
 # Note: prescale reading not used right now
 #
-def ReadTRP(runnumber, lb_beg, lb_end, options=[], myafspath='', myhttppath='', levels='L1,HLT'):
+def ReadTRP(runnumber, lb_beg, lb_end, options=[], myafspath='', myhttppath='', levels='L1'):
 
     # Return object
     collection = TrigCostAnalysis.CostResultCollection()
@@ -46,7 +49,7 @@ def ReadTRP(runnumber, lb_beg, lb_end, options=[], myafspath='', myhttppath='', 
 
     for lvl in levels.split(','):
 
-        print '\nLevel',lvl
+        log.info("Now processing Level = %s", lvl)
 
         # Retrieve lvl-dependent quantities
         sfx_in, sfx_ps, sfx_out = GetSuffixes(lvl, runnumber)
@@ -64,6 +67,7 @@ def ReadTRP(runnumber, lb_beg, lb_end, options=[], myafspath='', myhttppath='', 
 
             tree.GetEvent(i)
             lb = tree.LumiBlock
+            log.info("Now processing new lumiblock == %d", lb)
 
             # Append to collection, if necessary
             if StopLoopOrInstantiate(lb, lb_beg, lb_end, lblast, lvl, collection, options):
@@ -81,51 +85,19 @@ def ReadTRP(runnumber, lb_beg, lb_end, options=[], myafspath='', myhttppath='', 
         # Record end of range read
         collection.lbend=lblast
 
-    print
+    log.info("Done with branch loop")
     return collection
 
 #----------------------------------------------------------------------
 def GetFileName(runnumber, myafspath='', myhttppath=''):
 
-#    # AFS path for TRP ntuples
-#    afs  = "/afs/cern.ch/user/a/atlasdqm/dqmdisk1/histos/Cosmics08/online"
-#
-#    path = ''
-#    if   runnumber>200497: path = os.path.join("tdaq-04-00-01", "coca/TRP-Rates") # April 1, 2012
-#    elif runnumber>177531: path = os.path.join("tdaq-03-00-01", "coca/TRP-Rates") # March 13, 2011
-#    else:                  path = os.path.join("tdaq-02-00-03", "coca/TRP-Rates")
-#
-#    # Default is AFS
-#    filename = ''
-#    if len(myafspath)!=0: filename = os.path.join(myafspath, "TriggerRates_ATLAS_%d.root" % runnumber)
-#    else:                 filename = os.path.join(afs, path, "TriggerRates_ATLAS_%d.root" % runnumber)
-#
-#    # If does not exist in AFS, then try HTTP
-#    if not os.path.exists(filename):
-#        print "No AFS file at %s, now trying web path" % filename
-#
-#        passwd = ''
-#        user   = os.environ['USER']
-#        if user=='tmhong' or user=='xmon':
-#            passfile = open('/afs/cern.ch/user/%s/%s/private/dqauth' % (user[0], user))
-#            passwd = passfile.read().strip()
-#            passfile.close()
-#        else:
-#            passwd = raw_input("%s@lxplus's password: " % user)
-#
-#        http = "https://%s:%s@atlasdqm.cern.ch/tier0/Cosmics08_online_root" % (user, passwd)
-#        if len(myhttppath)!=0: filename = os.path.join(myhttppath, "TriggerRates_ATLAS_%d.root" % runnumber)
-#        else:                  filename = os.path.join(http, path, "TriggerRates_ATLAS_%d.root" % runnumber)
-#
-#    print '... Reading data from '+filename
-
-    filename = "TriggerRates_ATLAS_%d.root" % runnumber
+    eos_trp_path = "/eos/atlas/atlascerngroupdisk/tdaq-mon/coca/2017/TRP-Rates"
+    filename = os.path.join(eos_trp_path, "TriggerRates_ATLAS_%d.root" % runnumber)
 
     return filename
 
 #----------------------------------------------------------------------
 def GetTChains(runnumber, filename):
-
     # Setup reading root file
     try:
         import ROOT                 ; #print '\tLoaded special ROOT package'
@@ -149,7 +121,7 @@ def GetTChains(runnumber, filename):
 
     # Open TFiles
     for tc in tchains.values():
-        print 'Adding tfile=%s' % filename
+        log.info('For tchain, adding tfile=%s' % filename)
 #        tc.Add(filename)
 #        tc.Add(mda.FileRead().openFile(filename).GetEndpointUrl().GetUrl())
         tc.Add(filename)
@@ -163,14 +135,14 @@ def GetStartpoint(tree, lb_beg, entries):
 
     startpoint = 0
     stepsize = 1
-    print "Find TRP start point"
+    log.info("Finding TRP start point")
 
     for startpoint in xrange(0,entries,stepsize):
         tree.GetEvent(startpoint)
         lb = tree.LumiBlock
         if lb >= lb_beg:
             break
-    print "Found TRP start point"
+    log.info("Found TRP start point, lb = %d",lb)
 
     if startpoint>=stepsize:
         startpoint=startpoint-stepsize
@@ -227,7 +199,7 @@ def GetBranches(tree, lvl, sfx_out):
 
     # Exit
     if not tree.GetListOfBranches():
-        print "Failed to open TRP file"
+        log.error("Failed to open TRP file")
         sys.exit(-1)
 
     # Historical that this gets special treatment: e.g., 'L1.*_TBP'
@@ -284,7 +256,6 @@ def StopLoopOrInstantiate(lb, lb_beg, lb_end, lblast, lvl, collection, options):
     if lvl=='L1':
         collection.results[lb] = TrigCostAnalysis.CostResult()
 
-    print lb,",",
     sys.stdout.flush()
 
     return False
@@ -306,7 +277,7 @@ def ProcessBranch(tree, lb, lblast, bname, lvl, count, sfx_in, sfx_ps, sfx_out, 
     else:          ch = SetOldBranch(tree, lb, bname, lvl, count, sfx_in, sfx_ps, sfx_out, collection)
 
     # Print
-    #PrintChain(bname, ch)
+    PrintChain(bname, ch)
     return
 
 #----------------------------------------------------------------------
@@ -348,13 +319,15 @@ def SetOldBranch(tree, lb, bname, lvl, count, sfx_in, sfx_ps, sfx_out, collectio
 
 #----------------------------------------------------------------------
 def PrintChain(bname, ch):
+    if ch is None:
+      return
 #	    print 'ch.GetRate()', bname, ch.GetRate()
 #	    print 'ch.GetTBPCnt()', bname, ch.GetTBPCnt()
 #	    print 'ch.GetTAPCnt()', bname, ch.GetTAPCnt()
 #	    print 'ch.GetTAVCnt()', bname, ch.GetTAVCnt()
 #	    print 'ch.GetTBPRate()', bname, ch.GetTBPRate()
 #	    print 'ch.GetTAPRate()', bname, ch.GetTAPRate()
-    print 'ch.GetTAVRate()', bname, ch.GetTAVRate()
+#    print 'ch.GetTAVRate()', bname, ch.GetTAVRate()
     return
 
 #----------------------------------------------------------------------
@@ -387,7 +360,7 @@ def GetChain(tree, bname, lb, count, sfx_out, collection):
     #ch.SetRateErr(math.sqrt(err2))
 
 #	  # Debug
-#	  print 'Old lb=', lb, 'lblast=', lblast, 'count=', count, 'pastrate=', pastrate, 'cum=', cumulative, 'lbrate', lbrate, 'avgrate=', avgrate
+#    print 'Old lb=', lb, 'lblast=', lblast, 'count=', count, 'pastrate=', pastrate, 'cum=', cumulative, 'lbrate', lbrate, 'avgrate=', avgrate
     return ch
 
 #----------------------------------------------------------------------
@@ -428,6 +401,8 @@ def SetNewChainHLT(tree, ch, bname, sfx_in, sfx_ps, sfx_out):
 
 #----------------------------------------------------------------------
 def SetOldChainL1(tree, ch, bname, count):
+    if ch is None:
+      return
     ch.SetPrescale(getattr(tree,bname+'_PS'))
 
 

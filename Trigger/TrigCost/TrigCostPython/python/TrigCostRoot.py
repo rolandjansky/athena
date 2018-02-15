@@ -29,6 +29,7 @@ import sys
 import logging
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger('TrigCostRoot')
+log.info("Hello")
 #print '\tLoaded standard packages'
 
 from array import array                 ; #print '\tLoaded special array package'
@@ -305,6 +306,11 @@ class CostRoot:
 
         bunchlumi = lbset.GetAvgInstantaneousBunchLumiE30(lb)
         mu = 71.5 * bunchlumi / 11.24558
+        print "Mu = " , mu
+        print "Fillnumber = ", lbset.GetFillNumber(lb)
+        print "AvgInstLumi = ", lbset.GetAvgInstantaneousLumiE30(lb,lb)
+        print "GetBunches = ", lbset.GetBunches(lb)
+ 
 
         # Set branch value
         tvar = self.tvars[chname]

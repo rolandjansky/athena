@@ -27,11 +27,17 @@ python makeRoot.py --run 156682 --lb-beg=450 --lb-end=514    # L1 during Proton-
 python makeRoot.py --run 170482 --lb-beg=1   --lb-end=5      # L1+HLT during Heavy Ion
 python makeRoot.py                                           # Checks last hour
 """
-
-print 'Hello world makeRoot.py'
+import logging
+logging.basicConfig(level=logging.INFO)
+log = logging.getLogger('makeRoot')
+log.info('################################################################################')
+log.info('#')
+log.info('#                          Hello World from makeRoot.py')
+log.info('#')
+log.info('################################################################################')
 import sys
 cmd = ' '.join(sys.argv)
-print cmd
+log.info("Executing command: %s" % cmd)
 
 # Parse command-line arguments
 import optparse
@@ -88,7 +94,7 @@ if (opts.cool and opts.trp) or not (opts.cool or opts.trp):
     print 'You must specify either --cool or --trp'
     sys.exit(1)
 
-print 'Using %s database to process run=%s' % ('COOL' if opts.cool else 'TRP', opts.run)
+log.info('Using %s database to process run=%s' % ('COOL' if opts.cool else 'TRP', opts.run))
 
 #
 # Import packages after parsing options
@@ -96,75 +102,14 @@ print 'Using %s database to process run=%s' % ('COOL' if opts.cool else 'TRP', o
 
 import os
 import shutil
-import logging
-logging.basicConfig(level=logging.INFO)
-log = logging.getLogger('makeRoot')
-print 'Loaded standard packages'
+log.info('Loaded standard packages')
 
-from TrigCostPython import TrigCostAnalysis ; print 'Loaded special TrigCostPython.TrigCostAnalysis package'
-from TrigCostPython import TrigCostTRP      ; print 'Loaded special TrigCostPython.TrigCostTRP package'
-from TrigCostPython import TrigCostCool     ; print 'Loaded special TrigCostPython.TrigCostCool package'
-from TrigCostPython import TrigCostXML      ; print 'Loaded special TrigCostPython.TrigCostXML package'
-from TrigCostPython import TrigCostRoot     ; print 'Loaded special TrigCostPython.TrigCostRoot package'
-from CoolConvUtilities import AtlCoolTool   ; print 'Loaded special CoolConvUtilities.AtlCoolTool package'
-
-
-#	#------------------------------------------------------------------------------
-#	def ReadFillTxt( name = 'fill.txt' ):
-#	    file = open(name, 'r')
-#	    fillList = []
-#	    for line in file:
-#	        if not 'INFO:TrigCostCool:' in line:
-#	            continue
-#	        line    = line.split('INFO:TrigCostCool:')[1].rstrip()
-#	        fields  = line.split(',')
-#	        fill    = fields[0].split('fill=')[1].replace(' ','')
-#	        beg     = fields[1].split('--')[0].replace(' ','')
-#	        end     = fields[1].split('--')[1].replace(' ','')
-#	        begTime = fields[2].split('--')[0]
-#	        endTime = fields[2].split('--')[1]
-#	        lhc     = fields[3].split('lhc='  )[1].replace(' ','').replace('"','')
-#	        beam    = fields[4].split('beam=' )[1].replace(' ','').replace('"','')
-#	        ebeam   = fields[5].split('ebeam=')[1].replace(' ','')
-#	        data = {}
-#	        data['fill']     =fill
-#	        data['beg']      =beg
-#	        data['end']      =end
-#	        data['begTime']  =begTime
-#	        data['endTime']  =endTime
-#	        data['lhc']      =lhc
-#	        data['beam']     =beam
-#	        data['ebeam']    =ebeam
-#	        fillList.append(data)
-#
-#	    file.close()
-#	    return fillList
-
-
-#	#------------------------------------------------------------------------------
-#	def ReadRunTxt( name = 'run.txt' ):
-#	    file = open(name, 'r')
-#	    runList = []
-#	    for line in file:
-#	        if not 'INFO:TrigCostCool:' in line:
-#	            continue
-#	        line    = line.split('INFO:TrigCostCool:')[1].rstrip()
-#	        fields  = line.split(',')
-#	        run     = fields[0].split('run=')[1].replace(' ','')
-#	        beg     = fields[1].split('--')[0].replace(' ','')
-#	        end     = fields[1].split('--')[1].replace(' ','')
-#	        begTime = fields[2].split('--')[0]
-#	        endTime = fields[2].split('--')[1]
-#	        data = {}
-#	        data['run']      =run
-#	        data['beg']      =beg
-#	        data['end']      =end
-#	        data['begTime']  =begTime
-#	        data['endTime']  =endTime
-#	        runList.append(data)
-#
-#	    file.close()
-#	    return runList
+from TrigCostPython import TrigCostAnalysis ; log.info('Loaded special TrigCostPython.TrigCostAnalysis package')
+from TrigCostPython import TrigCostTRP      ; log.info('Loaded special TrigCostPython.TrigCostTRP package')
+from TrigCostPython import TrigCostCool     ; log.info('Loaded special TrigCostPython.TrigCostCool package')
+from TrigCostPython import TrigCostXML      ; log.info('Loaded special TrigCostPython.TrigCostXML package')
+from TrigCostPython import TrigCostRoot     ; log.info('Loaded special TrigCostPython.TrigCostRoot package')
+from CoolConvUtilities import AtlCoolTool   ; log.info('Loaded special CoolConvUtilities.AtlCoolTool package')
 
 
 #------------------------------------------------------------------------------
@@ -307,7 +252,7 @@ def FindFillMap( runstart, runend, fillList ):
 #
 #
 
-print 'Starting main'
+log.info('Starting main')
 
 # Command-line inputs
 ratecoll= None
@@ -390,7 +335,7 @@ if opts.update: #user in ['xmon','apache']
         sys.exit()
 
 # Check if output dir exists
-log.info('Output directory is :\n%s' % opts.dir)
+log.info('Output directory is : %s' % opts.dir)
 if not os.path.exists( opts.dir ):
     log.error('Output directory "%s" does not exist, please specify --dir' % opts.dir )
     sys.exit(1)
@@ -417,10 +362,10 @@ for i, runMap in enumerate(goodrunList):
     log.info('')
     log.info('################################################################################')
     log.info('#')
-    log.info('# %d%s run out of %d' % (i+1,'st' if i==0 else 'nd' if i==1 else 'th',len(goodrunList)))
-    log.info('# fill=%s run=%d lb=%d,%-4d elapse=%.1f minutes' %
+    log.info('# Process status: %d%s run out of %d' % (i+1,'st' if i==0 else 'nd' if i==1 else 'th',len(goodrunList)))
+    log.info('# Run Metadata: fill=%s run=%d lb=%d,%-4d elapse=%.1f minutes' %
              (fillMap,run,lbbeg,lbend,elapse))
-    log.info('# time=%s--%s' % (AtlCoolTool.time.ctime(start/1e9), AtlCoolTool.time.ctime(end/1e9)))
+    log.info('# Time %s--%s' % (AtlCoolTool.time.ctime(start/1e9), AtlCoolTool.time.ctime(end/1e9)))
     log.info('#')
     log.info('################################################################################')
 
@@ -462,7 +407,7 @@ TrigCostCool.CloseDB()
 #	        shutil.move(rootfile, tgtdir)
 
 # Make html readable
-print
+
 print 'That is all!'
 
 #
