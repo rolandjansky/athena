@@ -33,7 +33,7 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 atlas_add_library( DerivationFrameworkFlavourTagLib
                    src/*.cxx
                    NO_PUBLIC_HEADERS
-                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} src
                    LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel
                    PRIVATE_LINK_LIBRARIES AthenaBaseComps xAODCore xAODJet xAODPFlow xAODTracking xAODTrigger xAODTruth JetInterface TrkExInterfaces)
 
