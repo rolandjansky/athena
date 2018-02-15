@@ -166,6 +166,12 @@ namespace InDet {
         d0Smear = readHistogram(d0hist_highpt, pt, eta);
       }
 
+      // Apply a minimum smearing in the case where there is an empty bin
+      // TODO: Remove for next round of recommendations
+      if (d0Smear == 0) {
+        d0Smear = 0.002;
+      }
+
       sigma_D0 += d0Smear*d0Smear;
     }
 
@@ -213,6 +219,12 @@ namespace InDet {
         z0Smear = readHistogram(z0hist_lowpt, pt, eta);
       } else {
         z0Smear = readHistogram(z0hist_highpt, pt, eta);
+      }
+
+      // Apply a minimum smearing in the case where there is an empty bin
+      // TODO: Remove for next round of recommendations
+      if (z0Smear == 0) {
+        z0Smear = 0.03;
       }
 
       sigma_Z0 += z0Smear*z0Smear;
