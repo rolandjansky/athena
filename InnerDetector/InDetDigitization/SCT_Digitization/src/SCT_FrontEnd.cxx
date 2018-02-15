@@ -100,6 +100,7 @@ StatusCode SCT_FrontEnd::initialize() {
     // Get SCT detector manager
     ATH_CHECK(detStore()->retrieve(m_SCTdetMgr, "SCT"));
     // Get the amplifier tool
+    ATH_CHECK(m_sct_amplifier.retrieve());
     ATH_MSG_DEBUG("SCT Amplifier tool located ");
 
 

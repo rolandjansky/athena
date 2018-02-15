@@ -20,7 +20,6 @@
 #include "AthContainers/exceptions.h"
 #include "SGTools/TestStore.h"
 #include "TestTools/expect_exception.h"
-#include "CxxUtils/checker_macros.h"
 #ifndef ATHCONTAINERS_NO_THREADS
 #include "boost/thread/shared_mutex.hpp"
 #include "boost/thread/shared_lock_guard.hpp"
@@ -473,9 +472,9 @@ double test_code (SG::auxid_t auxid, const AuxVectorData_test& b)
 }
 
 
-int main ATLAS_NOT_THREAD_SAFE ()
+int main()
 {
-  SGTest::initTestStore();
+  std::unique_ptr<SGTest::TestStore> store = SGTest::getTestStore();
 
   // Make reallocations more frequent (the better to exercise them).
   AuxVectorData_test::s_minCacheLen = 1;

@@ -173,12 +173,12 @@ class TrigFTKUncertiantyTool : public AthAlgTool, virtual public ITrigFTKUncerti
   //   - 1 entry for tracks with a  BL
   //   - 1 entry for tracks with no BL
   //
-  TPConsts  allConsts[2];
+  TPConsts  m_allConsts[2];
 
   //
   //  Flag to turn off IBL
   //
-  bool fNoIBL;
+  bool m_NoIBL;
 
 };
 

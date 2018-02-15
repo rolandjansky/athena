@@ -180,13 +180,13 @@ except:
         from EvgenProdTools.EvgenProdToolsConf import CopyEventWeight
         topSeq += CopyEventWeight()
 
-include("G4AtlasApps/G4Atlas.flat.configuration.py")
-
 try:
     from AthenaCommon.CfgGetter import getAlgorithm
     topSeq += getAlgorithm("BeamEffectsAlg")
 except:
     print "can not import BeamEffectsAlg algorithm"
+
+include('G4AtlasApps/Tile2000_2003.flat.configuration.py')#HACK - has to be here for TBDetDescrLoader
 
 #--- Geant4 flags ---------------------------------------------
 

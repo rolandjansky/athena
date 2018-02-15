@@ -8,6 +8,7 @@
 # art-output: HLTEF-plots-muon
 # art-output: HLTL2-plots-muon
 # art-output: HLTEF-plots-tau
+# art-output: HLTL2-plots-tau
 # art-output: HLTEF-plots-bjet
 # art-output: HLTL2-plots-bjet
 # art-output: times
@@ -31,7 +32,7 @@ fileList="['${ArtInFile//,/', '}']"
 echo "List of files = $fileList"
 
 get_files -jo             TrigInDetValidation/TrigInDetValidation_RTT_topOptions_AllSlices.py
-athena.py  -c "ARTConfig=$fileList;EventMax=2000;doIDNewTracking=True;rec.doFloatingPointException.set_Value_and_Lock(False)"             TrigInDetValidation/TrigInDetValidation_RTT_topOptions_AllSlices.py
+athena.py  -c "ARTConfig=$fileList;EventMax=1500;doIDNewTracking=True;rec.doFloatingPointException.set_Value_and_Lock(False)"             TrigInDetValidation/TrigInDetValidation_RTT_topOptions_AllSlices.py
 echo "art-result: $? athena_0"
 
 get_files -data TIDAdata11-rtt.dat
@@ -63,7 +64,7 @@ echo "art-result: $? TIDArun_7"
 TIDArun-art.sh data-all.root data-all_ttbar_pu80-reference.root HLT_tau25_idperf_track_InDetTrigTrackingxAODCnv_Tau_FTF HLT_tau25_idperf_track_InDetTrigTrackingxAODCnv_Tau_IDTrig HLT_tau25_idperf_tracktwo_InDetTrigTrackingxAODCnv_TauIso_FTF_forID3 HLT_tau25_idperf_tracktwo_InDetTrigTrackingxAODCnv_Tau_IDTrig_forID3  -d HLTEF-plots-tau
 echo "art-result: $? TIDArun_8"
 
-TIDArun-art.sh data-all.root data-all_ttbar_pu80-reference.root  HLT_tau25_idperf_track_InDetTrigTrackingxAODCnv_Tau_FTF HLT_tau25_idperf_tracktwo_InDetTrigTrackingxAODCnv_TauCore_FTF_forID1 HLT_tau25_idperf_tracktwo_InDetTrigTrackingxAODCnv_TauIso_FTF_forID3-d HLTL2-plots-tau
+TIDArun-art.sh data-all.root data-all_ttbar_pu80-reference.root  HLT_tau25_idperf_track_InDetTrigTrackingxAODCnv_Tau_FTF HLT_tau25_idperf_tracktwo_InDetTrigTrackingxAODCnv_TauCore_FTF_forID1 HLT_tau25_idperf_tracktwo_InDetTrigTrackingxAODCnv_TauIso_FTF_forID3 -d HLTL2-plots-tau
 echo "art-result: $? TIDArun_9"
 
 TIDArun-art.sh data-all.root data-all_ttbar_pu80-reference.root   HLT_j55_boffperf_InDetTrigTrackingxAODCnv_Bjet_IDTrig HLT_j55_boffperf_split_InDetTrigTrackingxAODCnv_Bjet_IDTrig_forID HLT_j55_boffperf_split_InDetTrigTrackingxAODCnv_Bjet_FTF_forID -d HLTEF-plots-bjet

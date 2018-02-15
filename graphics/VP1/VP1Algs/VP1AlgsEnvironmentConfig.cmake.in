@@ -11,21 +11,3 @@ set( VP1ALGSENVIRONMENT_ENVIRONMENT
 # Silently declare the module found
 set( VP1ALGSENVIRONMENT_FOUND TRUE )
 
-# Set paths from LCG packages in runtime env, explicitely
-find_package( libxkbcommon )
-find_package( glib )
-if( LIBXKBCOMMON_FOUND )
-    message("'libxkbcommon' found, adding its library path to the 'LD_LIBRARY_PATH' (See: https://its.cern.ch/jira/browse/ATLINFR-2218)")
-    message("LIBXKBCOMMON_LIBRARY_DIRS: " ${LIBXKBCOMMON_LIBRARY_DIRS})
-    set( VP1ALGSENVIRONMENT_ENVIRONMENT
-        PREPEND LD_LIBRARY_PATH LIBXKBCOMMON_LIBRARY_DIRS )
-endif()
-if( GLIB_FOUND )
-    message("'glib' found, adding its library path to the 'LD_LIBRARY_PATH' (See: https://its.cern.ch/jira/browse/ATLINFR-2218)")
-    message("GLIB_LIBRARY_DIRS: " ${GLIB_LIBRARY_DIR_LIBRARY_DIRS})
-    set( VP1ALGSENVIRONMENT_ENVIRONMENT
-        PREPEND LD_LIBRARY_PATH GLIB_LIBRARY_DIRS )
-endif()
-
-
-

@@ -45,6 +45,7 @@ StatusCode JetTrimmer::initialize() {
     ATH_MSG_ERROR("Unable to retrieve jet builder.");
     return StatusCode::FAILURE;
   }
+  ATH_CHECK( m_bld.retrieve() );
   return StatusCode::SUCCESS;
 }
 
