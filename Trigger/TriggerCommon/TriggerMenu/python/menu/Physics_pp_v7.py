@@ -4285,10 +4285,10 @@ def setupMenu():
         ['noalg_L1AFP_A_AND_C_SPECTOF_J100',                        'L1_AFP_A_AND_C_SPECTOF_J100',                  [],  [PhysicsStream], [ 'RATE:MinBias','BW:MinBias'], -1],
         ['noalg_L1AFP_A_SPECTOF',                      'L1_AFP_A_SPECTOF',               [], [PhysicsStream, 'express'], ["BW:MinBias", "RATE:MinBias"], -1],
         ['noalg_L1AFP_C_SPECTOF',                      'L1_AFP_C_SPECTOF',               [], [PhysicsStream, 'express'], ["BW:MinBias", "RATE:MinBias"], -1],
-        ['noalg_L1AFP_NSA',      'L1_AFP_NSA',     [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
-        ['noalg_L1AFP_NSC',      'L1_AFP_NSC',     [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
-        ['noalg_L1AFP_FSA_SIT',  'L1_AFP_FSA_SIT', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
-        ['noalg_L1AFP_FSC_SIT',  'L1_AFP_FSC_SIT', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['noalg_L1AFP_NSA',      'L1_AFP_NSA',     [], [PhysicsStream, 'express'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['noalg_L1AFP_NSC',      'L1_AFP_NSC',     [], [PhysicsStream, 'express'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['noalg_L1AFP_FSA_SIT',  'L1_AFP_FSA_SIT', [], [PhysicsStream, 'express'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['noalg_L1AFP_FSC_SIT',  'L1_AFP_FSC_SIT', [], [PhysicsStream, 'express'], ["BW:MinBias", "RATE:MinBias"], -1],
 
         ['noalg_L1MBTS_2',                        'L1_MBTS_2',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
 
