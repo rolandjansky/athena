@@ -502,7 +502,7 @@ namespace CP {
   }
 
   void IsolationCorrection::load2015DDCorr() {
-    TFile* file_ptleakagecorr = new TFile( m_corr_ddshift_2015_file.c_str(), "read" );
+    std::unique_ptr< TFile > file_ptleakagecorr( TFile::Open( m_corr_ddshift_2015_file.c_str(), "READ" ) );
 
     if(!file_ptleakagecorr){
       ATH_MSG_WARNING("Correction file for 2015 data driven corrections not found, tool not initialized for 2015 corrections\n");
@@ -563,7 +563,7 @@ namespace CP {
   }
 
   void IsolationCorrection::load20152016DDCorr() {
-    TFile* file_ptleakagecorr = new TFile( m_corr_ddshift_2015_2016_file.c_str(), "read" );
+    std::unique_ptr< TFile > file_ptleakagecorr( TFile::Open( m_corr_ddshift_2015_2016_file.c_str(), "READ" ) );
 
     if(!file_ptleakagecorr){
       ATH_MSG_WARNING("Correction file for 2015+2016 data driven corrections not found, tool not initialized for 2015+2016 corrections\n");
@@ -631,7 +631,7 @@ namespace CP {
   }
 
   void IsolationCorrection::load2017DDCorr() {
-    TFile* file_ptleakagecorr = new TFile( m_corr_ddshift_2017_file.c_str(), "read" );
+    std::unique_ptr< TFile > file_ptleakagecorr( TFile::Open( m_corr_ddshift_2017_file.c_str(), "READ" ) );
 
     if(!file_ptleakagecorr){
       ATH_MSG_WARNING("Correction file for 2015+2016 data driven corrections not found, tool not initialized for 2015+2016 corrections\n");
@@ -804,6 +804,7 @@ namespace CP {
       m_graph_cone20_electron.push_back( (TGraph*) file_ptleakagecorr->Get("graph_cone20_electron_etabin8_extrap") );
       m_graph_cone20_electron.push_back( (TGraph*) file_ptleakagecorr->Get("graph_cone20_electron_etabin9_extrap") );
     }
+        
     file_ptleakagecorr->Close();
   }
 
@@ -1187,6 +1188,15 @@ namespace CP {
           m_graph_dd_cone40_photon_smearing.push_back( graph_smearing.at(12)->GetFunction("f_3") );
           m_graph_dd_cone40_photon_smearing.push_back( graph_smearing.at(13)->GetFunction("f_3") );
 
+    }
+    
+    for (auto gr : graph_shift) {
+      if (gr == nullptr)
+		ATH_MSG_ERROR("Null pointer for one of the DD correction graphs");
+    }
+    for (auto gr : graph_smearing) {
+      if (gr == nullptr)
+		ATH_MSG_ERROR("Null pointer for one of the smearing graphs");
     }
     
     file_ddshift_corr->Close();

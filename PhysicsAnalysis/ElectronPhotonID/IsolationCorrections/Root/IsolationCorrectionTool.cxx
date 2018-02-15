@@ -91,15 +91,7 @@ namespace CP {
     m_isol_corr->SetToolVer(tool_ver);
     m_isol_corr->SetTroubleCategories(m_trouble_categories);
     
-    // Check if tag is from mc16a of mc16c (determines which year of DD corrections to use) 
-    if (m_usemetadata && inputMetaStore()->contains<xAOD::FileMetaData>("FileMetaData")) {}
-    const xAOD::FileMetaData* fmd = 0;
-    ATH_CHECK(inputMetaStore()->retrieve(fmd, "FileMetaData"));      
-    std::string amiTag; 
-    fmd->value(xAOD::FileMetaData::amiTag, amiTag); // AMI tag used to process the file the last time
-    if (TPRegexp("r9364").MatchB(amiTag)) { m_ddVersion = "2015_2016" ; } // mc16a
-    else if (TPRegexp("r9781").MatchB(amiTag)) { m_ddVersion = "2017" ; } // mc16c
-
+    
     // If Default is false, there is no correction, and no topoEtconeXX systematic uncertainty !
     if (m_apply_ddDefault) {
       if (m_ddVersion == "2015_2016" or m_ddVersion == "2017") {
@@ -182,7 +174,8 @@ namespace CP {
       return StatusCode::SUCCESS;    
     }
     //
-    std::string amiTag; // Check if tag is from mc16a of mc16c (determines which year of DD corrections to use) 
+    // Check if tag is from mc16a of mc16c (determines which year of DD corrections to use) 
+    std::string amiTag; 
     fmd->value(xAOD::FileMetaData::amiTag, amiTag); // AMI tag used to process the file the last time
     if (TPRegexp("r9364").MatchB(amiTag)) { m_ddVersion = "2015_2016" ; } // mc16a
     else if (TPRegexp("r9781").MatchB(amiTag)) { m_ddVersion = "2017" ; } // mc16c
@@ -218,7 +211,7 @@ namespace CP {
       ATH_MSG_INFO("is MC = " << m_is_mc);
       ATH_MSG_INFO("use AFII = " << m_AFII_corr);
       ATH_MSG_DEBUG("metadata from new file: " << (result == PATCore::ParticleDataType::Data ? "data" : 
-						   (result == PATCore::ParticleDataType::Full ? "full simulation" : "fast simulation")));
+						   (result == PATCore::ParticleDataType::Full ? "full simulation" : "fast simulation")));    
     }
     else {
       ATH_MSG_WARNING("Not possible to retrieve metadata in the begin Input File");
