@@ -70,13 +70,13 @@ StatusCode RoRSeqFilter::execute() {
   auto inputHandles  = m_inputKeys.makeHandles();
   auto outputHandles = m_outputKeys.makeHandles();
   
-  bool validInputs=0;
+  bool validInputs=false;
   for ( auto inputHandle: inputHandles ) {
     if( inputHandle.isValid() ) {// this is because input is implicit
-      validInputs++;
+      validInputs = true;
     }
   }
-  if (validInputs==0) {
+  if (!validInputs) {
     setFilterPassed(false);
     ATH_MSG_DEBUG ( "No valid inputs found, filter failed. Return...." );
     return StatusCode::SUCCESS;
