@@ -17,7 +17,6 @@
 #include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include "AthenaKernel/ExtendedEventContext.h"
-#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/EventContext.h"
 #include <iostream>
 #include <cassert>
@@ -318,15 +317,15 @@ void test5 (SGTest::TestStore&)
 }
 
 
-int main ATLAS_NOT_THREAD_SAFE ()
+int main()
 {
   Athena::getMessageSvcQuiet = true;
-  SGTest::initTestStore();
+  std::unique_ptr<SGTest::TestStore> store = SGTest::getTestStore();
 
-  test1 (store);
-  test2 (store);
-  test3 (store);
-  test4 (store);
-  test5 (store);
+  test1 (*store);
+  test2 (*store);
+  test3 (*store);
+  test4 (*store);
+  test5 (*store);
   return 0;
 }
