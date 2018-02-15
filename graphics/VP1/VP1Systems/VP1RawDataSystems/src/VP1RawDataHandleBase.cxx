@@ -48,7 +48,7 @@ public:
 
 //____________________________________________________________________
 VP1RawDataHandleBase::VP1RawDataHandleBase( VP1RawDataCollBase* coll )
-  : d(new Imp), m_coll(coll), m_visible(false)//,m_currentmaterial(0)
+  : m_d(new Imp), m_coll(coll), m_visible(false)//,m_currentmaterial(0)
 {
 
 }
@@ -57,11 +57,11 @@ VP1RawDataHandleBase::VP1RawDataHandleBase( VP1RawDataCollBase* coll )
 VP1RawDataHandleBase::~VP1RawDataHandleBase()
 {
   if (m_visible)
-    d->ensureDetach3DObjects(this);
-  d->clearShape();
-  if (d->sep)
-    d->sep->unref();
-  delete d;
+    m_d->ensureDetach3DObjects(this);
+  m_d->clearShape();
+  if (m_d->sep)
+    m_d->sep->unref();
+  delete m_d;
 }
 
 //____________________________________________________________________
@@ -71,11 +71,11 @@ void VP1RawDataHandleBase::setVisible(bool vis)
     return;
   m_visible=vis;
   if (vis) {
-    if (!d->hasShape())
-      d->rebuild3DObjects(this);
-    d->ensureAttach3DObjects(this);
+    if (!m_d->hasShape())
+      m_d->rebuild3DObjects(this);
+    m_d->ensureAttach3DObjects(this);
   } else {
-    d->ensureDetach3DObjects(this);
+    m_d->ensureDetach3DObjects(this);
   }
 }
 
@@ -83,10 +83,10 @@ void VP1RawDataHandleBase::setVisible(bool vis)
 void VP1RawDataHandleBase::update3DObjects()
 {
   if (m_visible) {
-    d->rebuild3DObjects(this);
+    m_d->rebuild3DObjects(this);
   } else {
     //Simply clear the present 3D objects. They will only be recreated if/when the handle becomes visible again.
-    d->clearShape();
+    m_d->clearShape();
   }
 }
 
@@ -165,13 +165,13 @@ QString VP1RawDataHandleBase::unsignedToHex(unsigned i)
 //____________________________________________________________________
 Amg::Vector3D VP1RawDataHandleBase::center()
 {
-  d->ensureInitSepAndTransform(this);
-  assert(d->sep
-	 && d->sep->getNumChildren()>0
-	 && d->sep->getChild(0)->getTypeId().isDerivedFrom(SoTransform::getClassTypeId()));
+  m_d->ensureInitSepAndTransform(this);
+  assert(m_d->sep
+	 && m_d->sep->getNumChildren()>0
+	 && m_d->sep->getChild(0)->getTypeId().isDerivedFrom(SoTransform::getClassTypeId()));
 
   float x,y,z;
-  static_cast<SoTransform*>(d->sep->getChild(0))->translation.getValue().getValue(x,y,z);
+  static_cast<SoTransform*>(m_d->sep->getChild(0))->translation.getValue().getValue(x,y,z);
   //NB: We assume that the center part of the transform is zero
   return Amg::Vector3D(x,y,z);
 }
@@ -179,7 +179,7 @@ Amg::Vector3D VP1RawDataHandleBase::center()
 //____________________________________________________________________
 void VP1RawDataHandleBase::updateShownOutlines()
 {
-  if (!d->sep)
+  if (!m_d->sep)
     return;
-  common()->updateVolumeOutlines(d->sep);
+  common()->updateVolumeOutlines(m_d->sep);
 }
