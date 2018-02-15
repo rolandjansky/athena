@@ -1109,8 +1109,8 @@ namespace CP {
   }
 
   void IsolationCorrection::loadDDCorr() {
-    std::unique_ptr< TFile > file_ptleakagecorr( TFile::Open( file_ddshift_corr.c_str(), "READ" ) );
-    std::unique_ptr< TFile > file_ptleakagecorr( TFile::Open( m_corr_ddsmearing_file.c_str(), "READ" ) );
+    std::unique_ptr< TFile > file_ddshift_corr( TFile::Open( m_corr_ddshift_file.c_str(), "READ" ) );
+    std::unique_ptr< TFile > file_ddsmearingcorr( TFile::Open( m_corr_ddsmearing_file.c_str(), "READ" ) );
     
     if(m_AFII_corr) ATH_MSG_INFO("Using corrections for AFII, are you sure you're selecting the right file? (must be _AFII or something)");
 
@@ -1188,16 +1188,16 @@ namespace CP {
           m_graph_dd_cone40_photon_smearing.push_back( graph_smearing.at(11)->GetFunction("f_3") );
           m_graph_dd_cone40_photon_smearing.push_back( graph_smearing.at(12)->GetFunction("f_3") );
           m_graph_dd_cone40_photon_smearing.push_back( graph_smearing.at(13)->GetFunction("f_3") );
-
-    }
-    
-    for (auto gr : graph_shift) {
-      if (gr == nullptr)
-		ATH_MSG_ERROR("Null pointer for one of the DD correction graphs");
-    }
-    for (auto gr : graph_smearing) {
-      if (gr == nullptr)
-		ATH_MSG_ERROR("Null pointer for one of the smearing graphs");
+	
+	  for (auto gr : graph_shift) {
+        if (gr == nullptr)
+		  ATH_MSG_ERROR("Null pointer for one of the DD correction graphs");
+      }
+      for (auto gr : graph_smearing) {
+        if (gr == nullptr)
+		  ATH_MSG_ERROR("Null pointer for one of the smearing graphs");
+      }
+	
     }
     
     file_ddshift_corr->Close();
