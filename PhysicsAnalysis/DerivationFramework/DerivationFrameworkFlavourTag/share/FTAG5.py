@@ -30,7 +30,7 @@ from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import (
 # flavor tagging
 from DerivationFrameworkFlavourTag.HbbCommon import addVRJets
 from DerivationFrameworkFlavourTag import BTaggingContent as bvars
-from DerivationFrameworkFlavourTag.JSSVariables import JSSVariables
+from DerivationFrameworkJetEtMiss.JSSVariables import JSSHighLevelVariables
 
 
 #====================================================================
@@ -158,7 +158,7 @@ FTAG5SlimmingHelper.SmartCollections = [
     "BTagging_AntiKtVR30Rmax4Rmin02Track_expert",
     fatJetCollection]
 
-jssVariables = ['.'.join([fatJetCollection] + JSSVariables) ]
+jssVariables = ['.'.join([fatJetCollection] + JSSHighLevelVariables) ]
 FTAG5SlimmingHelper.ExtraVariables += jssVariables
 
 FTAG5SlimmingHelper.ExtraVariables += [
