@@ -517,25 +517,6 @@ def setupMenu():
         ['j85_2j45',                    'L1_J20', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
         ['j45_0eta240_2j45_320eta490_L1J15.0ETA25_2J15.31ETA49', 'L1_J15.0ETA25_2J15.31ETA49',[] , [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'],  -1,['serial',-1,["j45_0eta240","2j45_320eta490_L1J15"]]],
 
-        # VBF triggers
-        ['j80_0eta240_2j60_320eta490_invm700',  'L1_J40.0ETA25_2J15.31ETA49',['',''], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet' ], -1 ], #Bjet rate but needs to be in the Jet slice
-        ['j70_j50_0eta490_invm900j50_dphi24_L1MJJ-400-NFF', 'L1_MJJ-400-NFF',[], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
-        ['j70_j50_0eta490_invm900j50_dphi26_L1MJJ-400-NFF', 'L1_MJJ-400-NFF',[], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
-        ['j70_j50_0eta490_invm900j50_dphi24_L1MJJ-500-NFF', 'L1_MJJ-500-NFF',[], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
-        ['j70_j50_0eta490_invm900j50_dphi26_L1MJJ-500-NFF', 'L1_MJJ-500-NFF',[], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
-
-
-        # ATR-17534, VBF triggers
-        ['j70_j50_0eta490_invm1000j50_dphi26_j30_bmv2c1077_split_L1MJJ-400-NFF', 'L1_MJJ-400-NFF', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
-        ['j70_j50_0eta490_invm1000j50_dphi26_j30_bmv2c1077_split_L1MJJ-500-NFF', 'L1_MJJ-500-NFF', [], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
-
-
-
-        # ATR-17549
-
-        ['j70_j50_0eta490_invm700j50_L1MJJ-400-NFF_AND_2j45_bmv2c1070_split', 'L1_MJJ-400-NFF', ['','',''], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet','BW:BJet'], -1],
-        ['j70_j50_0eta490_invm900j50_L1MJJ-500-NFF_AND_2j45_bmv2c1070_split', 'L1_MJJ-500-NFF', ['','',''], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet','BW:BJet'], -1],
-
         #####
         ######################### Specialty jet trigger chains (mostly for performance studies)
         #####
@@ -1761,18 +1742,6 @@ def setupMenu():
 
       ['j80_bmv2c1060_split_L12J50_XE40','L1_2J50_XE40',  ['L1_2J50','XE40'],  [PhysicsStream], ['RATE:JetMET', 'BW:MET', 'BW:Jet'], -1],
       ['j100_bmv2c1070_split_L1XE60','L1_XE60',  ['L1_2J50',''],  [PhysicsStream], ['RATE:JetMET', 'BW:MET', 'BW:Jet'], -1],
-
-        ## VBF triggers
-        ['g35_loose_j70_j50_0eta490_invm700j50_L1MJJ-400-NFF', 'L1_MJJ-400-NFF', ['L1_EM15VH','',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["g35_loose","j70","j50_0eta490"]]],
-        ['g35_loose_j70_j50_0eta490_invm900j50_L1MJJ-500-NFF', 'L1_MJJ-500-NFF', ['L1_EM15VH','',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["g35_loose","j70","j50_0eta490"]]],
-
-        ['e12_lhmedium_nod0_ivarloose_tau25_medium1_tracktwo_j70_j50_0eta490_invm900j50_L1MJJ-400-NFF', 'L1_MJJ-400-NFF', ['L1_EM8VH','L1_TAU12IM','',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Tau', 'BW:Jet'], -1, ['serial',-1, ["e12_lhmedium_nod0_ivarloose","tau25_medium1_tracktwo","j70","j50_0eta490"]]],
-        ['e12_lhmedium_nod0_ivarloose_tau25_medium1_tracktwo_j70_j50_0eta490_invm900j50_L1MJJ-500-NFF', 'L1_MJJ-500-NFF', ['L1_EM8VH','L1_TAU12IM','',''], [PhysicsStream], ['RATE:EgammaJet', 'BW:Egamma', 'BW:Tau', 'BW:Jet'], -1, ['serial',-1, ["e12_lhmedium_nod0_ivarloose","tau25_medium1_tracktwo","j70","j50_0eta490"]]],
-
-        ['mu8_ivarloose_tau25_medium1_tracktwo_2j40_0eta490_invm400j40_L1MU6_MJJ-200', 'L1_MU6_MJJ-200', ['L1_MU6','L1_TAU12IM',''],[PhysicsStream], ['RATE:MuonJet', 'BW:Muon', 'BW:Tau', 'BW:Jet'], -1, ['serial',-1, ["mu8_ivarloose","tau25_medium1_tracktwo","2j40_0eta490_invm400j40"]]],
-
-        ['j70_j50_0eta490_invm900j50_dphi26_xe90_pufit_L1MJJ-400-NFF', 'L1_MJJ-400-NFF', [], [PhysicsStream], ['RATE:JetMET', 'BW:Jet'], -1, ['serial', -1,["j70","j50_0eta490","xe90_pufit"]]],
-        ['j70_j50_0eta490_invm900j50_dphi26_xe90_pufit_L1MJJ-500-NFF', 'L1_MJJ-500-NFF', [], [PhysicsStream], ['RATE:JetMET', 'BW:Jet'], -1, ['serial', -1,["j70","j50_0eta490","xe90_pufit"]]],
 
         # 
         #  B-jet + hT
