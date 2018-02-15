@@ -33,7 +33,7 @@ namespace CP {
     declareProperty("IsMC",                        m_is_mc                        = true);
     declareProperty("Correct_etcone",              m_correct_etcone               = false);
     declareProperty("Trouble_categories",          m_trouble_categories           = true);
-    declareProperty("Apply_ddshifts",              m_apply_ddDefault              = true);
+    declareProperty("Apply_ddshifts",              m_apply_ddDefault              = false);
     m_isol_corr = new IsolationCorrection(name);
   }
 
@@ -93,7 +93,8 @@ namespace CP {
     
     
     // If Default is false, there is no correction, and no topoEtconeXX systematic uncertainty !
-    if (m_apply_ddDefault) {
+    // Note that systematics in Rel 21 are NOT done with the DD-Corr ON/OFF method! 
+    if (m_apply_ddDefault && m_tool_ver_str != "REL21") {
       if (m_ddVersion == "2015_2016" or m_ddVersion == "2017") {
 	//register ourselves with the systematic registry! 
 	CP::SystematicRegistry& registry = CP::SystematicRegistry::getInstance();
