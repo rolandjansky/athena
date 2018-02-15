@@ -38,6 +38,7 @@ import os
 import math
 import traceback
 import logging
+import collections
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger('TrigCostCool')
 
@@ -76,6 +77,7 @@ hltps_foldername        = '/TRIGGER/HLT/Prescales'              # Idx by run-LB
 l1pskey_foldername      = '/TRIGGER/LVL1/Lvl1ConfigKey'         # Idx by run-LB
 #hltpskey_foldername      = '/TRIGGER/HLT/HltConfigKey'         # Idx by run-LB
 hltpskey_foldername     = '/TRIGGER/HLT/PrescaleKey'            # Idx by run-LB
+
 
 #------------------------------------------------------------
 # Verbosity
@@ -128,86 +130,52 @@ def CloseDB(foldertype='ALL'):
     if (foldertype=="TRIGGER" or procAll) and dbTrig: dbTrig.closeDatabase()
     return
 
-def InitDB(foldertype='TRIGGER'):
-
-    # "PROD" option added -- for bunch groups
-    if foldertype=="PROD":
-        log.info("Now trying to Init PROD")
-        global dbProd
-        if dbProd:
-            log.info("Skipping Init DB PROD (Already Initialized)")
-            return #already initialized
-
-        try:
-            dbProd = indirectOpen('COOLONL_TRIGGER/CONDBR2', oracle=True)
-            log.info("SUCCESS!!! Connected to database: "+'COOLONL_TRIGGER/CONDBR2')
-        except Exception.e:
-            log.error('Error connecting to database:'+str(e))
-            sys.exit(-1)
-        return
-
-
-    # "LHC" option added
-    if foldertype=="LHC":
-        log.info("Now trying to Init LHC")
-        global dbLhc
-        if dbLhc:
-            log.info("Skipping Init DB LHC (Already Initialized)")
-            return #already initialized
-
-        try:
-            dbLhc = indirectOpen('COOLOFL_DCS/CONDBR2', oracle=True)
-            log.info("SUCCESS!!! Connected to database: "+'COOLOFL_DCS/CONDBR2')
-        except Exception.e:
-            log.error('Error connecting to database:'+str(e))
-            sys.exit(-1)
-        return
-
-    # "MONP" option added ("TDAQ" --> "COMP")
-    if foldertype=="MONP":
-        log.info("Now trying to Init MONP")
-        global dbMonp
-        if dbMonp:
-            log.info("Skipping Init DB MONP (Already Initialized)")
-            return #already initialized
-
-        try:
-            dbMonpString="oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TDAQ;dbname=MONP200;user=ATLAS_COOL_READER;password=COOLRED4PRO"
-            dbMonp = indirectOpen('COOLONL_TDAQ/MONP200', oracle=True) # last two = oracle, info
-            log.info("SUCCESS!!! Connected to database: "+dbMonpString)
-        except Exception,e:
-            log.error('Error connecting to database:'+str(e))
-            sys.exit(-1)
-        return
-
-    # "COMP" option added
-    if foldertype=="COMP":
-        log.info("Now trying to Init COMP")
-        global dbComp
-        if dbComp:
-            log.info("Skipping Init DB COMP (Already Initialized)")
-            return #already initialized
-
-        try:
-            dbCompString="oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TDAQ;dbname=CONDBR2;user=ATLAS_COOL_READER;password=COOLRED4PRO"
-            dbComp = indirectOpen('COOLONL_TDAQ/COMP200', True, False, False)
-            log.info("SUCCESS!!! Connected to database: "+dbCompString)
-        except Exception,e:
-            log.error('Error connecting to database:'+str(e))
-            sys.exit(-1)
-        return
-
-    # Default is TRIGGER
+def InitAllDB():
+    global dbProd
+    global dbLhc
+    global dbMonp
+    global dbComp
     global dbTrig
-    if dbTrig:
-        return #already initialized
 
-    dbSvc=cool.DatabaseSvcFactory.databaseService()
-    dbTrigString="oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TRIGGER;dbname=CONDBR2;user=ATLAS_COOL_READER;password=COOLRED4PRO"
-
+    if not dbTrig == None:
+        log.info("Databases already initialized!")
+        return
+    log.info("Now trying to Init PROD")
     try:
+        dbProd = indirectOpen('COOLONL_TRIGGER/CONDBR2', oracle=True)
+        log.info("SUCCESS!!! Connected to database: "+'COOLONL_TRIGGER/CONDBR2')
+    except Exception.e:
+        log.error('Error connecting to database:'+str(e))
+        sys.exit(-1)
+    log.info("Now trying to Init LHC")
+    try:
+        dbLhc = indirectOpen('COOLOFL_DCS/CONDBR2', oracle=True)
+        log.info("SUCCESS!!! Connected to database: "+'COOLOFL_DCS/CONDBR2')
+    except Exception.e:
+        log.error('Error connecting to database:'+str(e))
+        sys.exit(-1)
+    log.info("Now trying to Init MONP")
+    try:
+        dbMonpString="oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TDAQ;dbname=MONP200;user=ATLAS_COOL_READER;password=COOLRED4PRO"
+        dbMonp = indirectOpen('COOLONL_TDAQ/MONP200', oracle=True) # last two = oracle, info
+        log.info("SUCCESS!!! Connected to database: "+dbMonpString)
+    except Exception,e:
+        log.error('Error connecting to database:'+str(e))
+        sys.exit(-1)
+    log.info("Now trying to Init COMP")
+    try:
+        dbCompString="oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TDAQ;dbname=CONDBR2;user=ATLAS_COOL_READER;password=COOLRED4PRO"
+        dbComp = indirectOpen('COOLONL_TDAQ/COMP200', True, False, False)
+        log.info("SUCCESS!!! Connected to database: "+dbCompString)
+    except Exception,e:
+        log.error('Error connecting to database:'+str(e))
+        sys.exit(-1)
+    log.info("Now trying to Init TRIGGER")
+    try:
+        dbSvc=cool.DatabaseSvcFactory.databaseService()
+        dbTrigString="oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TRIGGER;dbname=CONDBR2;user=ATLAS_COOL_READER;password=COOLRED4PRO"
         dbTrig=dbSvc.openDatabase(dbTrigString, False)
-        log.info("SUCCESS!!!??? OpenRed database: "+dbTrigString)
+        log.info("SUCCESS!!! Connected to database: "+dbTrigString)
     except Exception,e:
         log.error('Error connecting to database:'+str(e))
         sys.exit(-1)
@@ -257,22 +225,19 @@ def CheckFolder(foldername,foldertype="TRIGGER"):
 #------------------------------------------------------------
 def GetFolderItrForRun(foldername, run, foldertype='TRIGGER', run_beg_time=-1, run_end_time=-1, channel=0):
 
-    logging.info('foldername:'+foldername)
-    logging.info('foldertype:'+foldertype)
-    
+    InitAllDB()
     log.info("Getting DB for %s%s and run times from %lf to %lf" % (foldername,foldertype, run_beg_time, run_end_time))
 
     # "PROD" option added -- for bunch groups
     if foldertype=="PROD":
-        InitDB(foldertype)
         CheckFolder(foldername, foldertype)
         folder=dbProd.getFolder(foldername)
         log.info('Opening folder: %s' % foldername)
+        objIter = folder.browseObjects(run << 32,(run+1) << 32,cool.ChannelSelection.all())
         return folder.browseObjects(run << 32,(run+1) << 32,cool.ChannelSelection.all())
 
     # "LHC" option added
     if foldertype=="LHC":
-        InitDB(foldertype)
         CheckFolder(foldername, foldertype)
         folder=dbLhc.getFolder(foldername)
         log.info('Opening folder: %s' % foldername)
@@ -282,24 +247,20 @@ def GetFolderItrForRun(foldername, run, foldertype='TRIGGER', run_beg_time=-1, r
     # NB. Channel 102 is LUCID_ZERO_AND -- used for "MONP" here
     # NB. Channel 0 is ATLAS_PREFERRED -- used for "COMP" below
     if foldertype=="MONP":
-        InitDB(foldertype)
         CheckFolder(foldername, foldertype)
         folder=dbMonp.getFolder(foldername)
-        log.info('Folder %s opening' % foldername)
+        log.info('Opening folder %s' % foldername)
         return folder.browseObjects(run_beg_time,run_end_time,cool.ChannelSelection(102))
 
     if foldertype=="COMP":
-        log.info("Trying COMP folder")
-        InitDB(foldertype)
         CheckFolder(foldername, foldertype)
         folder=dbComp.getFolder(foldername)
-        log.info('Folder %s opening' % foldername)
+        log.info('Opening folder %s' % foldername)
+        objIter = folder.browseObjects(run_beg_time,run_end_time,cool.ChannelSelection(0))
         return folder.browseObjects(run_beg_time,run_end_time,cool.ChannelSelection(0))
 
-    InitDB(foldertype)
-    log.info('Initialized DB %s' % foldertype)
     CheckFolder(foldername)
-    log.info('Checked folder %s' % foldername)
+    log.info('Opening folder %s' % foldername)
     folder=dbTrig.getFolder(foldername)
     if foldertype=="LBTIME":
         return folder.browseObjects(run_beg_time,run_end_time,cool.ChannelSelection.all())
@@ -410,7 +371,6 @@ def GetLumiblocks(runnumber,lb_beg,lb_end,options=[]):
         log.info("Getting DB folder")
         itr = GetFolderItrForRun(lblb_foldername,runnumber) # Indexed by run-LB
         while itr.goToNext() :
-            log.info("Somehwere in a while loop in SetLumiblocks()")
             obj     = itr.currentRef()
             lb      = (obj.since() & 0xffff)
             payload = obj.payload()
@@ -445,7 +405,7 @@ def GetLumiblocks(runnumber,lb_beg,lb_end,options=[]):
 
     # These should be set
     if run_beg_time==-1 or run_end_time==-1:
-        log.error('Call GetLumiblocks() to set start & end times, exiting()')
+        log.error('Failed to get Start and End times, exiting')
         exit(-1)
 
 
@@ -458,7 +418,6 @@ def GetLumiblocks(runnumber,lb_beg,lb_end,options=[]):
     try:
         itr = GetFolderItrForRun(lvl1lbdata_foldername,runnumber)
         while itr.goToNext() :
-            log.info("Somehwere in a while loop in SetLumiblocks()")
             obj     = itr.currentRef()
             lb      = (obj.since() & 0xffff)
             itemNo  = obj.channelId()
@@ -505,7 +464,6 @@ def GetLumiblocks(runnumber,lb_beg,lb_end,options=[]):
         idx = -1
         itr = GetFolderItrForRun(fillparams_foldername,runnumber,'COMP',run_beg_time,run_end_time)
         while itr.goToNext():
-            log.info("Somehwere in a while loop in SetLumiblocks()")
             idx += 1
             obj       = itr.currentRef()
             StartTime = obj.since()
@@ -539,7 +497,6 @@ def GetLumiblocks(runnumber,lb_beg,lb_end,options=[]):
     try:
         itr = GetFolderItrForRun(lhcdb_foldername, runnumber, 'LHC', run_beg_time, run_end_time)
         while itr.goToNext() :
-            log.info("Somehwere in a while loop in SetLumiblocks()")
             obj         = itr.currentRef()
             StartTime   = obj.since()
             EndTime     = obj.until()
@@ -609,7 +566,6 @@ def GetLumiblocks(runnumber,lb_beg,lb_end,options=[]):
 
         log.info("Doing a while loop over itr, if you don't see something then somthing went terribly wrong and I'm sorry, you'll likely have no bunchlumi information")
         while itr.goToNext():
-            log.info("Somehwere in a while loop in SetLumiblocks()")
             obj       = itr.currentRef()
             StartTime = obj.since()
             EndTime   = obj.until()
@@ -708,7 +664,6 @@ def GetLumiblocks(runnumber,lb_beg,lb_end,options=[]):
     try:
         itr = GetFolderItrForRun(lumi_foldername, runnumber, 'COMP', run_beg_time, run_end_time)
         while itr.goToNext():
-            log.info("Somehwere in a while loop in SetLumiblocks()")
             obj     = itr.currentRef()
             payload = obj.payload()
 
@@ -749,7 +704,6 @@ def GetLumiblocks(runnumber,lb_beg,lb_end,options=[]):
     try:
         itr = GetFolderItrForRun(bgdesc_foldername, runnumber, 'PROD')
         while itr.goToNext() :
-            log.info("Somehwere in a while loop in SetLumiblocks()")
             obj       = itr.currentRef()
             payload   = obj.payload()
             lb        = (obj.since() & 0xffff)
@@ -781,16 +735,13 @@ def GetLumiblocks(runnumber,lb_beg,lb_end,options=[]):
     bgListCollection = []
     bgLengthCollection = []
     bgStartLBCollection = []
-    log.info('#')
     log.info('# -------------------------------------------------------------------------------')
     log.info('# %s = %s loading' %('bgcontent_foldername', bgcontent_foldername))
     log.info('# -------------------------------------------------------------------------------')
-    log.info('#')
     try:
         idx = 0
         itr = GetFolderItrForRun(bgcontent_foldername, runnumber, 'PROD')
         while itr.goToNext() :
-            log.info("Somehwere in a while loop in SetLumiblocks()")
             obj       = itr.currentRef()
             payload   = obj.payload()
             lb        = (obj.since() & 0xffff)
@@ -953,7 +904,6 @@ def GetConfig(runnumber,options=[]):
     itr = GetFolderItrForRun(lvl1menu_foldername,runnumber)
     try:
         while itr.goToNext() :
-            log.info("Somehwere in a while loop in SetLumiblocks()")
             obj     = itr.currentRef()
             lb      = (obj.since() & 0xffff)
             itemNo  = obj.channelId()
@@ -1010,7 +960,6 @@ def GetConfig(runnumber,options=[]):
     itr = GetFolderItrForRun( l1pskey_foldername,runnumber)
     try:
         while itr.goToNext() :
-            log.info("Somehwere in a while loop in SetLumiblocks()")
             obj     = itr.currentRef()
             lb      = (obj.since() & 0xffff)
             payload = obj.payload()
@@ -1031,7 +980,6 @@ def GetConfig(runnumber,options=[]):
     itr = GetFolderItrForRun( hltpskey_foldername,runnumber)
     try:
         while itr.goToNext() :
-            log.info("Somehwere in a while loop in SetLumiblocks()")
             obj     = itr.currentRef()
             lb      = (obj.since() & 0xffff)
             payload = obj.payload()
@@ -1723,5 +1671,89 @@ def bSet(blob, nbunch):
 
     return bset
 
+
+def InitDB(foldertype='TRIGGER'):
+
+    # "PROD" option added -- for bunch groups
+    if foldertype=="PROD":
+        log.info("Now trying to Init PROD")
+        global dbProd
+        if dbProd:
+            log.info("Skipping Init DB PROD (Already Initialized)")
+            return #already initialized
+
+        try:
+            dbProd = indirectOpen('COOLONL_TRIGGER/CONDBR2', oracle=True)
+            log.info("SUCCESS!!! Connected to database: "+'COOLONL_TRIGGER/CONDBR2')
+        except Exception.e:
+            log.error('Error connecting to database:'+str(e))
+            sys.exit(-1)
+        return
+
+
+    # "LHC" option added
+    if foldertype=="LHC":
+        log.info("Now trying to Init LHC")
+        global dbLhc
+        if dbLhc:
+            log.info("Skipping Init DB LHC (Already Initialized)")
+            return #already initialized
+
+        try:
+            dbLhc = indirectOpen('COOLOFL_DCS/CONDBR2', oracle=True)
+            log.info("SUCCESS!!! Connected to database: "+'COOLOFL_DCS/CONDBR2')
+        except Exception.e:
+            log.error('Error connecting to database:'+str(e))
+            sys.exit(-1)
+        return
+
+    # "MONP" option added ("TDAQ" --> "COMP")
+    if foldertype=="MONP":
+        log.info("Now trying to Init MONP")
+        global dbMonp
+        if dbMonp:
+            log.info("Skipping Init DB MONP (Already Initialized)")
+            return #already initialized
+
+        try:
+            dbMonpString="oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TDAQ;dbname=MONP200;user=ATLAS_COOL_READER;password=COOLRED4PRO"
+            dbMonp = indirectOpen('COOLONL_TDAQ/MONP200', oracle=True) # last two = oracle, info
+            log.info("SUCCESS!!! Connected to database: "+dbMonpString)
+        except Exception,e:
+            log.error('Error connecting to database:'+str(e))
+            sys.exit(-1)
+        return
+
+    # "COMP" option added
+    if foldertype=="COMP":
+        log.info("Now trying to Init COMP")
+        global dbComp
+        if dbComp:
+            log.info("Skipping Init DB COMP (Already Initialized)")
+            return #already initialized
+
+        try:
+            dbCompString="oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TDAQ;dbname=CONDBR2;user=ATLAS_COOL_READER;password=COOLRED4PRO"
+            dbComp = indirectOpen('COOLONL_TDAQ/COMP200', True, False, False)
+            log.info("SUCCESS!!! Connected to database: "+dbCompString)
+        except Exception,e:
+            log.error('Error connecting to database:'+str(e))
+            sys.exit(-1)
+        return
+
+    # Default is TRIGGER
+    global dbTrig
+    if dbTrig:
+        return #already initialized
+
+    dbSvc=cool.DatabaseSvcFactory.databaseService()
+    dbTrigString="oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TRIGGER;dbname=CONDBR2;user=ATLAS_COOL_READER;password=COOLRED4PRO"
+
+    try:
+        dbTrig=dbSvc.openDatabase(dbTrigString, False)
+        log.info("SUCCESS!!!??? OpenRed database: "+dbTrigString)
+    except Exception,e:
+        log.error('Error connecting to database:'+str(e))
+        sys.exit(-1)
 
 
