@@ -194,3 +194,10 @@ class TrigMuonEFTagandProbeMonitoring(TrigGenericMonitoringToolConfig):
         self.Histograms += [ defineHistogram('EF_Eta_Total_thr6_e, EF_Phi_Total_thr6_e, EF_Etaphi_Eff_thr6_e', type='TProfile2D', title="L1 Trigger Efficiency in #eta and #phi Threshold 6 Endcap;Muon #eta ;Muon #phi",
                                              xbins=27, xmin=-2.7, xmax=2.7, ybins=8, ymin=-3.4, ymax=3.4, zmin=-0.1,zmax=1.1) ]
 
+
+
+
+
+        self.Histograms += [ defineHistogram('Event_Test', type='TH1I', title="Position Passed In Code;Positon_Code;No. of Muon pairs",
+                                             xbins=11, xmin=0, xmax=11) ]
+

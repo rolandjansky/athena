@@ -164,6 +164,9 @@ class TrigMuonEFTagandProbe: public virtual HLT::FexAlgo { //TaP algorithm will 
   std::vector<float> m_eta_eff_thr5;
   std::vector<float> m_eta_eff_thr6;
 
+
+  std::vector<int> m_event_test;
+
   //Sets up instance of MonitoringObject public to TrigMuonEFTagandProbe
   MonitoringObject Thresh_Mon;                                                              
                                 

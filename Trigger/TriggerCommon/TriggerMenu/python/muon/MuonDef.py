@@ -36,7 +36,7 @@ from TrigHIHypo.HFMuonHypos import hiHFMuonHypos
 from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyCopyAllTEAlgo
 from TriggerMenu.commonUtils.makeCaloSequences import getFullScanCaloSequences
 
-from TrigMuSuperEF.TrigMuonEFTagandProbeConfig import TrigMuonEFTagandProbeConfig #I guess you need to point to the correct algorithm package for the import here because the menu is not within that package
+from TrigMuSuperEF.TrigMuonEFTagandProbeConfig import TrigMuonEFTagandProbeConfig 
 
 #-----------------------------------
 class L2EFChain_mu(L2EFChainDef):
@@ -1263,11 +1263,11 @@ class L2EFChain_mu(L2EFChainDef):
         'EF_CB_ROI': mergeRemovingOverlap('EF_CB_ROI_','SAFSRoi'), 
  #       'EF_CB_FS_ma': mergeRemovingOverlap('EF_CB_FS_ma_', 'SAFSHypo'+hypocut+'_'+hypocutEF),
         'EF_CB_FS': mergeRemovingOverlap('EF_CB_FS_', 'SAFSHypo'+hypocut+'_'+hypocutEF),
-#        'EF_CB_FSTaP': mergeRemovingOverlap('EF_CB_FSTaP_', 'SAFSHypo'+hypocut+'_'+hypocutEF), #testphrase, what am I doing?
 
         }
-    if 'msonly' not in self.chainPart['reccalibInfo'] and 'TagandProbe' in self.chainPart['FSinfo']:
-      self.TErenamingDict['EF_CB_FSTaP'] = mergeRemovingOverlap('EF_CB_FSTaP_', 'SAFSHypo'+hypocut+'_'+hypocutEF)
+      if 'TagandProbe' in self.chainPart['FSinfo'] : self.TErenamingDict['EF_CB_FSTaP'] = mergeRemovingOverlap('EF_CB_FSTaP_', 'SAFSHypo'+hypocut+'_'+hypocutEF)
+#    if 'msonly' not in self.chainPart['reccalibInfo'] and 'TagandProbe' in self.chainPart['FSinfo']:
+#      self.TErenamingDict['EF_CB_FSTaP'] = mergeRemovingOverlap('EF_CB_FSTaP_', 'SAFSHypo'+hypocut+'_'+hypocutEF)
       
       
       
