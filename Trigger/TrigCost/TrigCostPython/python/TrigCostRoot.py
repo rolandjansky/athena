@@ -306,10 +306,7 @@ class CostRoot:
 
         bunchlumi = lbset.GetAvgInstantaneousBunchLumiE30(lb)
         mu = 71.5 * bunchlumi / 11.24558
-        print "Mu = " , mu
-        print "Fillnumber = ", lbset.GetFillNumber(lb)
-        print "AvgInstLumi = ", lbset.GetAvgInstantaneousLumiE30(lb,lb)
-        print "GetBunches = ", lbset.GetBunches(lb)
+        lbset.Print()
  
 
         # Set branch value

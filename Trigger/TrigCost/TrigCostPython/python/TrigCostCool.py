@@ -284,6 +284,7 @@ def UnpackBCIDData(StartTime, EndTime, payload):
     b1BCID  = bSet(blob, nb1)   # beam1 bunches data
     b2BCID  = bSet(blob, nb2)   # beam2 bunches data
 
+    log.info("Unpacking BCIDData, ncol = %d, nb1 = %d, nb2 = %d" % (ncol, nb1, nb2))
     bcidData = dict()
     bcidData['StartTime']   = StartTime
     bcidData['EndTime']     = EndTime
@@ -478,8 +479,7 @@ def GetLumiblocks(runnumber,lb_beg,lb_end,options=[]):
             blob = payload['BCIDmasks']         # masked data
             beg_ = AtlCoolTool.time.ctime(StartTime/1.0E9)
             end_ = AtlCoolTool.time.ctime(EndTime/1.0E9)
-            log.info('%s APPEND=%d (%s)--(%s) ncol=%d nb1=%d nb2=%d' %
-                      (fillparams_foldername,idx,beg_,end_,ncol,nb1,nb2))
+            log.info('%s APPEND=%d (%s)--(%s) ncol=%d nb1=%d nb2=%d' % (fillparams_foldername,idx,beg_,end_,ncol,nb1,nb2))
 
             maskList.append( UnpackBCIDData(StartTime, EndTime, payload) )
 
@@ -667,8 +667,6 @@ def GetLumiblocks(runnumber,lb_beg,lb_end,options=[]):
             obj     = itr.currentRef()
             payload = obj.payload()
             lb      = (obj.since() & 0xffff)
-            log.info("In OnlPrefLumi interator loop! lb = %d" % lb)
-            
 
             if not IncludeLB(lb,lb_beg,lb_end):
                 continue
