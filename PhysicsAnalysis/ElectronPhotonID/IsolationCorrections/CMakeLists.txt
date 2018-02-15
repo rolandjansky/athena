@@ -52,4 +52,5 @@ atlas_add_dictionary( IsolationCorrectionsDict
    LINK_LIBRARIES IsolationCorrectionsLib )
 
 # Install files from the package:
-atlas_install_data( data/*.root )
+atlas_install_data( data/*.root ) 
+
