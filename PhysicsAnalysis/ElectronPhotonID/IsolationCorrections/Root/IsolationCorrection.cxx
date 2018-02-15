@@ -1109,8 +1109,9 @@ namespace CP {
   }
 
   void IsolationCorrection::loadDDCorr() {
-    TFile* file_ddshift_corr = new TFile( m_corr_ddshift_file.c_str(), "read" );
-    TFile* file_ddsmearingcorr = new TFile( m_corr_ddsmearing_file.c_str(), "read" );
+    std::unique_ptr< TFile > file_ptleakagecorr( TFile::Open( file_ddshift_corr.c_str(), "READ" ) );
+    std::unique_ptr< TFile > file_ptleakagecorr( TFile::Open( m_corr_ddsmearing_file.c_str(), "READ" ) );
+    
     if(m_AFII_corr) ATH_MSG_INFO("Using corrections for AFII, are you sure you're selecting the right file? (must be _AFII or something)");
 
     if(!file_ddshift_corr || !file_ddsmearingcorr){
