@@ -101,7 +101,7 @@ public:
   /**
    * @brief Make a copy of this vector.
    */
-  virtual SG::IAuxTypeVector* clone() const override;
+  virtual std::unique_ptr<SG::IAuxTypeVector> clone() const override;
 
 
   /**
@@ -283,9 +283,9 @@ public:
    * @param capacity Initial capacity of the new vector.
    *
    * Returns a newly-allocated object.
-   * FIXME: Should return a unique_ptr.
    */
-  virtual SG::IAuxTypeVector* create (size_t size, size_t capacity) const
+  virtual
+  std::unique_ptr<SG::IAuxTypeVector> create (size_t size, size_t capacity) const
     override;
 
 
@@ -303,11 +303,10 @@ public:
    * must be false.
    *
    * Returns a newly-allocated object.
-   * FIXME: Should return a unique_ptr.
    */
-  virtual SG::IAuxTypeVector* createFromData (void* data,
-                                              bool isPacked,
-                                              bool ownFlag) const
+  virtual std::unique_ptr<SG::IAuxTypeVector> createFromData (void* data,
+                                                              bool isPacked,
+                                                              bool ownFlag) const
     override;
 
 

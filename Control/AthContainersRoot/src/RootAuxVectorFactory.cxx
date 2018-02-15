@@ -141,9 +141,9 @@ RootAuxVector::~RootAuxVector()
 /**
  * @brief Make a copy of this vector.
  */
-SG::IAuxTypeVector* RootAuxVector::clone() const
+std::unique_ptr<SG::IAuxTypeVector> RootAuxVector::clone() const
 {
-  return new RootAuxVector (*this);
+  return std::make_unique<RootAuxVector> (*this);
 }
 
 
@@ -406,10 +406,10 @@ RootAuxVectorFactory::~RootAuxVectorFactory()
  * @param size Initial size of the new vector.
  * @param capacity Initial capacity of the new vector.
  */
-SG::IAuxTypeVector*
+std::unique_ptr<SG::IAuxTypeVector>
 RootAuxVectorFactory::create (size_t size, size_t capacity) const
 {
-  return new RootAuxVector (this, size, capacity);
+  return std::make_unique<RootAuxVector> (this, size, capacity);
 }
 
 
@@ -427,14 +427,13 @@ RootAuxVectorFactory::create (size_t size, size_t capacity) const
  * must be false.
  *
  * Returns a newly-allocated object.
- * FIXME: Should return a unique_ptr.
  */
-SG::IAuxTypeVector*
+std::unique_ptr<SG::IAuxTypeVector>
 RootAuxVectorFactory::createFromData (void* data,
                                       bool isPacked,
                                       bool ownFlag) const
 {
-  return new RootAuxVector (this, data, isPacked, ownFlag);
+  return std::make_unique<RootAuxVector> (this, data, isPacked, ownFlag);
 }
 
 
