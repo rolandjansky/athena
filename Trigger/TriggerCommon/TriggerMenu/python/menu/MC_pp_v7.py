@@ -546,7 +546,32 @@ def setupMenu():
 
         # boffperf_split
         ['j300_boffperf_split', 'L1_J75', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+
+        ## TRT test
+        ['j45_gsc55_boffperf_split_noTRT', 'L1_J15', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+        ['j85_gsc110_boffperf_split_noTRT', 'L1_J20', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+        ['j175_gsc225_boffperf_split_noTRT', 'L1_J100', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+        ['j225_gsc275_boffperf_split_noTRT', 'L1_J75', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+        ['j225_gsc300_boffperf_split_noTRT', 'L1_J100', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+        ['j225_gsc360_boffperf_split_noTRT', 'L1_J100', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+        ['j225_gsc380_boffperf_split_noTRT', 'L1_J100', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+
+        ['j175_gsc225_bmv2c1050_split_noTRT', 'L1_J100', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+
+        ['j225_gsc275_bmv2c1077_split_noTRT', 'L1_J100', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+
+        ['j225_gsc300_bmv2c1077_split_noTRT', 'L1_J100', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+
+        ['j225_gsc360_bmv2c1085_split_noTRT', 'L1_J100', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
+
+        ['2j35_bmv2c1060_split_noTRT_3j35', 'L1_5J15.0ETA25', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
+
+        ['2j35_gsc45_bmv2c1070_split_noTRT_3j35_gsc45_boffperf_split_noTRT',                 'L1_5J15.0ETA25', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
+
+        ['2j35_gsc45_bmv2c1070_split_noTRT_3j35_gsc45_boffperf_split_noTRT_L14J15.0ETA25',   'L1_4J15.0ETA25', [], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet'], -1],
         
+
+
         # tagged
         ['j175_bmv2c1085_split', 'L1_J100', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
 
@@ -1520,6 +1545,18 @@ def setupMenu():
 
         ['j80_0eta240_j60_j45_320eta490_invm700_AND_j45_bmv2c1070_split_j45_bmv2c1085_split','L1_J40.0ETA25_2J25_J20.31ETA49', ['','','','',''], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet' ], -1, ['serial',-1,['j80_0eta240','j60','j45_320eta490_invm700_AND','j45_bmv2c1070_split','j45_bmv2c1085_split'] ]],
                 
+
+        # TRT test
+        ['2j35_gsc45_bmv2c1070_split_noTRT_xe80_mht_L12J15_XE55','L1_2J15_XE55',[],[PhysicsStream], ['RATE:MultiBJet', 'BW:BJet_combined', 'BW:MET'], -1,['serial',-1,['xe80_mht','2j35_gsc45_bmv2c1070_split_noTRT']]],
+        ['3j35_bmv2c1077_split_noTRT_xe60_mht_L13J15.0ETA25_XE40',"L1_3J15.0ETA25_XE40",[],[PhysicsStream], ['RATE:MultiBJet', 'BW:BJet_combined', 'BW:MET'], -1, ['serial',-1,['xe60_mht','3j35_bmv2c1077_split_noTRT']]],
+        ['j85_gsc100_bmv2c1050_split_noTRT_xe80_mht_L1XE60','L1_XE60',[],[PhysicsStream], ['RATE:MultiBJet', 'BW:BJet_combined', 'BW:MET'], -1,['serial',-1,['xe80_mht_L1XE60','j85_gsc100_bmv2c1050_split_noTRT']]],
+
+        ['g25_medium_L1EM22VHI_j35_0eta490_bmv2c1077_split_noTRT_3j35_0eta490_invm700', 'L1_EM22VHI', ['L1_EM22VHI', '', ''], [PhysicsStream], ['RATE:EgammaJet', 'BW:BJet_combined','BW:Egamma'],-1,['serial',-1,['g25_medium_L1EM22VHI','3j35_0eta490_invm700','j35_0eta490_bmv2c1077_split_noTRT']]],
+        ['g25_medium_L1EM22VHI_2j35_0eta490_bmv2c1077_split_noTRT_2j35_0eta490', 'L1_EM22VHI', ['L1_EM22VHI', '', ''], [PhysicsStream], ['RATE:EgammaJet', 'BW:BJet_combined','BW:Egamma'],-1,['serial',-1,['g25_medium_L1EM22VHI','2j35_0eta490','2j35_0eta490_bmv2c1077_split_noTRT']]],
+
+        ['2mu14_2j35_boffperf_split_noTRT',        'L1_2MU10',   ['L1_2MU10',   ''],     [PhysicsStream], ['RATE:MuonBJet',  'BW:BJet_combined'],  -1, ['serial',-1,['2mu14', '2j35_boffperf_split_noTRT']]],
+        ['2e24_lhvloose_nod0_2j35_boffperf_split_noTRT',   'L1_2EM20VH', ['L1_2EM20VH', ''],     [PhysicsStream], ['RATE:EgammaJet', 'BW:BJet_combined'],   -1, ['serial',-1,['2e24_lhvloose_nod0', '2j35_boffperf_split_noTRT']]],
+        ['e28_lhmedium_nod0_L1EM24VHI_mu8noL1_2j35_boffperf_split_noTRT', 'L1_EM24VHI', ['L1_EM24VHI', '', ''], [PhysicsStream], ['RATE:EgammaMuon',  'BW:BJet_combined'], -1, ['serial',-1,['e28_lhmedium_nod0_L1EM24VHI','mu8noL1','2j35_boffperf_split_noTRT'] ]],
 
 
         # 2e34 single items
