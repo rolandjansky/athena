@@ -5,8 +5,8 @@
 
   <!-- Athena nightly test -->
   <atn>
-    <TEST name="QuickAnaTest" type="athena" suite="QuickAnaAthTest">
-      <options_atn>QuickAna/AthExample.py</options_atn>
+    <TEST name="QuickAnaTest" type="script" suite="QuickAnaAthTest">
+      <options_atn>skip_if_libraryMissing.sh QuickAnaLib athena.py QuickAna/AthExample.py</options_atn>
       <timelimit>5</timelimit>
       <author> QuickAna devs </author>
       <mailto> atlas-sw-quickana-developers@cern.ch </mailto>
@@ -16,8 +16,8 @@
          <returnValue>0</returnValue>
       </expectations>
     </TEST>
-    <TEST name="QuickAnaTest_AFII" type="athena" suite="QuickAnaAthTest">
-      <options_atn>QuickAna/AthExample_AFII.py</options_atn>
+    <TEST name="QuickAnaTest_AFII" type="script" suite="QuickAnaAthTest">
+      <options_atn>skip_if_libraryMissing.sh QuickAnaLib athena.py QuickAna/AthExample_AFII.py</options_atn>
       <timelimit>5</timelimit>
       <author> QuickAna devs </author>
       <mailto> atlas-sw-quickana-developers@cern.ch </mailto>
