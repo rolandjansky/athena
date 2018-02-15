@@ -37,7 +37,7 @@ WPs = [
 
 for WP in WPs: 
     alg.EfficiencyTools += [GetMuonEfficiencyTool(WP)]
-    alg.EfficiencyToolsForComparison += [GetMuonEfficiencyTool(WP, Release="MoriondTest", CustomInput = "/ptmp/mpp/junggjo9/ClusterTP/Moriond_PreRec")]
+    alg.EfficiencyToolsForComparison += [GetMuonEfficiencyTool(WP, Release="MoriondTest", CustomInput = "/afs/cern.ch/user/j/jojungge/public/MCP/ScaleFactorFiles/180214_Moriond207")]
 theJob += alg
 
 # Do some additional tweaking:

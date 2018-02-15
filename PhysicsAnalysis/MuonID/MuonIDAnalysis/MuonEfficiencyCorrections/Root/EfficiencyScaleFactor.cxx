@@ -13,7 +13,7 @@
 #include <TRandom3.h>
 #include <TClass.h>
 namespace CP {
-    unsigned int EfficiencyScaleFactor::m_warningLimit = 100;
+    unsigned int EfficiencyScaleFactor::m_warningLimit = 10;
     EfficiencyScaleFactor::EfficiencyScaleFactor() :
                 m_toolname(),
                 m_sf(nullptr),
