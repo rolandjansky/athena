@@ -127,7 +127,7 @@ void test_type(const std::string& typname,
   assert (r.getTypeName (999) == "");
   assert (r.getVecTypeName (999) == "");
 
-  SG::IAuxTypeVector* v = r.makeVector (auxid, 10, 20);
+  std::unique_ptr<SG::IAuxTypeVector> v = r.makeVector (auxid, 10, 20);
   T* ptr = reinterpret_cast<T*> (v->toPtr());
   ptr[0] = makeT(0);
   ptr[1] = makeT(1);
@@ -138,7 +138,7 @@ void test_type(const std::string& typname,
   assert (ptr == reinterpret_cast<T*> (v->toPtr()));
   ptr[49] = makeT(123);
 
-  SG::IAuxTypeVector* v2 = r.makeVector (auxid, 10, 20);
+  std::unique_ptr<SG::IAuxTypeVector> v2 = r.makeVector (auxid, 10, 20);
   T* ptr2 = reinterpret_cast<T*> (v2->toPtr());
   r.copy (auxid, ptr2, 0, ptr, 1);
   r.copyForOutput (auxid, ptr2, 1, ptr, 0);
@@ -158,7 +158,7 @@ void test_type(const std::string& typname,
   assert (ptr2[0] == makeT(10));
   assert (ptr2[1] == makeT(0));
 
-  SG::IAuxTypeVector* v3 = r.makeVector (auxid, 10, 10);
+  std::unique_ptr<SG::IAuxTypeVector> v3 = r.makeVector (auxid, 10, 10);
   ptr = reinterpret_cast<T*> (v3->toPtr());
   for (int i=0; i<10; i++)
     ptr[i] = makeT(i+1);
@@ -183,10 +183,6 @@ void test_type(const std::string& typname,
     assert (ptr[i] == makeT(0));
   for (int i=6; i<11; i++)
     assert (ptr[i] == makeT(i));
-
-  delete v;
-  delete v2;
-  delete v3;
 }
 
 
@@ -218,7 +214,7 @@ void test_type_extlock(const std::string& typname,
   assert (r.getTypeName (lock, 999) == "");
   assert (r.getVecTypeName (lock, 999) == "");
 
-  SG::IAuxTypeVector* v = r.makeVector (lock, auxid, 10, 20);
+  std::unique_ptr<SG::IAuxTypeVector> v = r.makeVector (lock, auxid, 10, 20);
   T* ptr = reinterpret_cast<T*> (v->toPtr());
   ptr[0] = makeT(0);
   ptr[1] = makeT(1);
@@ -229,7 +225,7 @@ void test_type_extlock(const std::string& typname,
   assert (ptr == reinterpret_cast<T*> (v->toPtr()));
   ptr[49] = makeT(123);
 
-  SG::IAuxTypeVector* v2 = r.makeVector (lock, auxid, 10, 20);
+  std::unique_ptr<SG::IAuxTypeVector> v2 = r.makeVector (lock, auxid, 10, 20);
   T* ptr2 = reinterpret_cast<T*> (v2->toPtr());
   r.copy (lock, auxid, ptr2, 0, ptr, 1);
   r.copy (lock, auxid, ptr2, 1, ptr, 0);
@@ -249,9 +245,6 @@ void test_type_extlock(const std::string& typname,
   assert (ptr[1] == makeT(1));
   assert (ptr2[0] == makeT(10));
   assert (ptr2[1] == makeT(0));
-
-  delete v;
-  delete v2;
 }
 
 
@@ -266,7 +259,7 @@ void test_makeVector (const std::string& name)
   vec1->push_back (makeT(1));
   vec1->push_back (makeT(2));
   vec1->push_back (makeT(3));
-  SG::IAuxTypeVector* v1 = r.makeVectorFromData (auxid, vec1, false, true);
+  std::unique_ptr<SG::IAuxTypeVector> v1 = r.makeVectorFromData (auxid, vec1, false, true);
   assert (v1->size() == 3);
   T* ptr1 = reinterpret_cast<T*> (v1->toPtr());
   assert (ptr1[0] == makeT(1));
@@ -277,15 +270,12 @@ void test_makeVector (const std::string& name)
   vec2->push_back (makeT(3));
   vec2->push_back (makeT(2));
   vec2->push_back (makeT(1));
-  SG::IAuxTypeVector* v2 = r.makeVectorFromData (auxid, vec2, true, true);
+  std::unique_ptr<SG::IAuxTypeVector> v2 = r.makeVectorFromData (auxid, vec2, true, true);
   assert (v2->size() == 3);
   T* ptr2 = reinterpret_cast<T*> (v2->toPtr());
   assert (ptr2[0] == makeT(3));
   assert (ptr2[1] == makeT(2));
   assert (ptr2[2] == makeT(1));
-
-  delete v1;
-  delete v2;
 }
 
 

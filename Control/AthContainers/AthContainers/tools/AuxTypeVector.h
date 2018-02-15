@@ -120,7 +120,7 @@ public:
   /**
    * @brief Make a copy of this vector.
    */
-  virtual IAuxTypeVector* clone() const override;
+  virtual std::unique_ptr<IAuxTypeVector> clone() const override;
 
 
   /**
@@ -234,7 +234,7 @@ public:
    *
    * Returns null on failure.
    */
-  virtual IAuxTypeVector* toPacked() override;
+  virtual std::unique_ptr<IAuxTypeVector> toPacked() override;
 
 
   /**
@@ -375,7 +375,7 @@ public:
   /**
    * @brief Make a copy of this vector.
    */
-  virtual IAuxTypeVector* clone() const override;
+  virtual std::unique_ptr<IAuxTypeVector> clone() const override;
 
   
 private:

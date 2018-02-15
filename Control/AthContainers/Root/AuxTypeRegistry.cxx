@@ -82,9 +82,10 @@ AuxTypeRegistry::findAuxID( const std::string& name,
  * @param size Initial size of the new vector.
  * @param capacity Initial capacity of the new vector.
  */
-IAuxTypeVector* AuxTypeRegistry::makeVector (SG::auxid_t auxid,
-                                             size_t size,
-                                             size_t capacity) const
+std::unique_ptr<IAuxTypeVector>
+AuxTypeRegistry::makeVector (SG::auxid_t auxid,
+                             size_t size,
+                             size_t capacity) const
 {
   const SG::IAuxTypeVectorFactory* factory = getFactory (auxid);
   assert (factory != 0);
@@ -99,10 +100,10 @@ IAuxTypeVector* AuxTypeRegistry::makeVector (SG::auxid_t auxid,
  * @param size Initial size of the new vector.
  * @param capacity Initial capacity of the new vector.
  */
-IAuxTypeVector* AuxTypeRegistry::makeVector (lock_t& lock,
-                                             SG::auxid_t auxid,
-                                             size_t size,
-                                             size_t capacity) const
+std::unique_ptr<IAuxTypeVector> AuxTypeRegistry::makeVector (lock_t& lock,
+                                                             SG::auxid_t auxid,
+                                                             size_t size,
+                                                             size_t capacity) const
 {
   const SG::IAuxTypeVectorFactory* factory = getFactory (lock, auxid);
   assert (factory != 0);
@@ -123,12 +124,12 @@ IAuxTypeVector* AuxTypeRegistry::makeVector (lock_t& lock,
  * should instead point at an object of type @c SG::PackedContainer<T>.
  *
  * Returns a newly-allocated object.
- * FIXME: Should return a unique_ptr.
  */
-IAuxTypeVector* AuxTypeRegistry::makeVectorFromData (SG::auxid_t auxid,
-                                                     void* data,
-                                                     bool isPacked,
-                                                     bool ownMode) const
+std::unique_ptr<IAuxTypeVector>
+AuxTypeRegistry::makeVectorFromData (SG::auxid_t auxid,
+                                     void* data,
+                                     bool isPacked,
+                                     bool ownMode) const
 {
   const SG::IAuxTypeVectorFactory* factory = getFactory (auxid);
   assert (factory != 0);

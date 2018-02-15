@@ -391,7 +391,7 @@ private:
 
   /// The collection of vectors of aux data that we're managing,
   /// indexed by @c auxid.
-  std::vector<IAuxTypeVector*> m_vecs;
+  std::vector<std::unique_ptr<IAuxTypeVector> > m_vecs;
 
   /// Record which variables are decorations.
   std::vector<bool> m_isDecoration;

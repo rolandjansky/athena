@@ -43,12 +43,12 @@ void test_vector()
   else
     assert (fac.tiVec() == &typeid (std::vector<T>));
 
-  SG::IAuxTypeVector* v = fac.create (10, 20);
+  std::unique_ptr<SG::IAuxTypeVector> v = fac.create (10, 20);
   T* ptr = reinterpret_cast<T*> (v->toPtr());
   ptr[0] = makeT(20);
   ptr[1] = makeT(2);
 
-  SG::IAuxTypeVector* v2 = fac.create (10, 20);
+  std::unique_ptr<SG::IAuxTypeVector> v2 = fac.create (10, 20);
   T* ptr2 = reinterpret_cast<T*> (v2->toPtr());
   fac.copy (ptr2, 0, ptr, 1);
   fac.copy (ptr2, 1, ptr, 0);
@@ -73,7 +73,7 @@ void test_vector()
   vec3->push_back (makeT(3));
   vec3->push_back (makeT(2));
   vec3->push_back (makeT(1));
-  SG::IAuxTypeVector* v3 = fac.createFromData (vec3, false, true);
+  std::unique_ptr<SG::IAuxTypeVector> v3 = fac.createFromData (vec3, false, true);
   assert (v3->size() == 3);
   T* ptr3 = reinterpret_cast<T*> (v3->toPtr());
   assert (ptr3[0] == makeT(3));
@@ -91,7 +91,7 @@ void test_vector2()
   vec4->push_back (makeT(3));
   vec4->push_back (makeT(2));
   vec4->push_back (makeT(1));
-  SG::IAuxTypeVector* v4 = fac.createFromData (vec4, true, true);
+  std::unique_ptr<SG::IAuxTypeVector> v4 = fac.createFromData (vec4, true, true);
   assert (v4->size() == 4);
   T* ptr4 = reinterpret_cast<T*> (v4->toPtr());
   assert (ptr4[0] == makeT(4));
@@ -131,7 +131,7 @@ void test2()
   assert (elv[2].key() == 123);
   assert (elv[2].index() == 10);
 
-  std::vector<EL> velv[10];;
+  std::vector<EL> velv[10];
   velv[1].push_back (EL (123, 5));
   velv[1].push_back (EL (123, 6));
   ve2.copyForOutput (velv, 2, velv, 1);

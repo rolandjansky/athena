@@ -20,10 +20,10 @@ namespace SG {
  * @param capacity Initial capacity of the new vector.
  */
 template <class T>
-IAuxTypeVector*
+std::unique_ptr<IAuxTypeVector>
 AuxTypeVectorFactory<T>::create (size_t size, size_t capacity) const
 {
-  return new AuxTypeVector<T> (size, capacity);
+  return std::make_unique<AuxTypeVector<T> > (size, capacity);
 }
 
 
@@ -37,7 +37,7 @@ AuxTypeVectorFactory<T>::create (size_t size, size_t capacity) const
  * This is for types which are packable.
  */
 template <class T>
-IAuxTypeVector*
+std::unique_ptr<IAuxTypeVector>
 AuxTypeVectorFactory<T>::createFromData (void* data,
                                          bool isPacked,
                                          bool ownFlag,
@@ -47,12 +47,12 @@ AuxTypeVectorFactory<T>::createFromData (void* data,
     typedef typename SG::AuxDataTraits<T>::vector_type unpacked_vector_type;
     typedef typename unpacked_vector_type::value_type element_type;
     typedef SG::PackedContainer<element_type> vector_type;
-    return new AuxTypeVectorHolder<T, vector_type >
+    return std::make_unique<AuxTypeVectorHolder<T, vector_type > >
       (reinterpret_cast<vector_type*>(data), ownFlag);
   }
   else {
     typedef typename AuxTypeVectorHolder<T>::vector_type vector_type;
-    return new AuxTypeVectorHolder<T> (reinterpret_cast<vector_type*>(data), true);
+    return std::make_unique<AuxTypeVectorHolder<T> > (reinterpret_cast<vector_type*>(data), true);
   }
 }
 
@@ -67,7 +67,7 @@ AuxTypeVectorFactory<T>::createFromData (void* data,
  * This is for types which are not packable.
  */
 template <class T>
-IAuxTypeVector*
+std::unique_ptr<IAuxTypeVector>
 AuxTypeVectorFactory<T>::createFromData (void* data,
                                          bool isPacked,
                                          bool ownFlag,
@@ -75,7 +75,7 @@ AuxTypeVectorFactory<T>::createFromData (void* data,
 {
   if (isPacked) std::abort();
   typedef typename AuxTypeVectorHolder<T>::vector_type vector_type;
-  return new AuxTypeVectorHolder<T>
+  return std::make_unique<AuxTypeVectorHolder<T> >
     (reinterpret_cast<vector_type*>(data), ownFlag);
 }
 
@@ -93,10 +93,9 @@ AuxTypeVectorFactory<T>::createFromData (void* data,
  * should instead point at an object of type @c SG::PackedContainer<T>.
  *
  * Returns a newly-allocated object.
- * FIXME: Should return a unique_ptr.
  */
 template <class T>
-IAuxTypeVector*
+std::unique_ptr<IAuxTypeVector>
 AuxTypeVectorFactory<T>::createFromData (void* data,
                                          bool isPacked,
                                          bool ownFlag) const

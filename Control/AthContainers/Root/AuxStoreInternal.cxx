@@ -42,8 +42,6 @@ AuxStoreInternal::AuxStoreInternal (bool standalone /*= false*/)
  */
 AuxStoreInternal::~AuxStoreInternal()
 {
-  for (IAuxTypeVector* p : m_vecs)
-    delete p;
 }
 
 
@@ -153,7 +151,7 @@ AuxStoreInternal::addVector (auxid_t auxid,
     vec->resize (sz);
 
   // Add it to the store.
-  m_vecs[auxid] = vec.release();
+  m_vecs[auxid] = std::move (vec);
   m_isDecoration[auxid] = isDecoration;
   addAuxID (auxid);
 }
@@ -221,7 +219,7 @@ bool AuxStoreInternal::resize (size_t sz)
   if (m_locked)
     throw ExcStoreLocked ("resize");
   bool nomoves = true;
-  for (IAuxTypeVector* v : m_vecs) {
+  for (std::unique_ptr<IAuxTypeVector>& v : m_vecs) {
     if (v) {
       if (!v->resize (sz))
         nomoves = false;
@@ -244,7 +242,7 @@ void AuxStoreInternal::reserve (size_t sz)
   guard_t guard (m_mutex);
   if (m_locked)
     throw ExcStoreLocked ("reserve");
-  for (IAuxTypeVector* v : m_vecs) {
+  for (std::unique_ptr<IAuxTypeVector>& v : m_vecs) {
     if (v)
       v->reserve (sz);
   }
@@ -278,7 +276,7 @@ void AuxStoreInternal::shift (size_t pos, ptrdiff_t offs)
   guard_t guard (m_mutex);
   if (m_locked)
     throw ExcStoreLocked ("shift");
-  for (IAuxTypeVector* v : m_vecs) {
+  for (std::unique_ptr<IAuxTypeVector>& v : m_vecs) {
     if (v)
       v->shift (pos, offs);
   }
@@ -320,7 +318,7 @@ bool AuxStoreInternal::insertMove (size_t pos,
   for (SG::auxid_t id : m_auxids) {
     SG::IAuxTypeVector* v_dst = nullptr;
     if (id < m_vecs.size())
-      v_dst = m_vecs[id];
+      v_dst = m_vecs[id].get();
     if (v_dst) {
       if (other.getData (id)) {
         void* src_ptr = other.getData (id, other_size, other_size);
@@ -498,8 +496,7 @@ bool AuxStoreInternal::clearDecorations()
   for (auxid_t id = 0; id < m_vecs.size(); id++) {
     if (m_isDecoration[id]) {
       m_isDecoration[id] = false;
-      delete m_vecs[id];
-      m_vecs[id] = 0;
+      m_vecs[id].reset();
       m_auxids.erase (id);
       anycleared = true;
     }
@@ -568,12 +565,11 @@ bool AuxStoreInternal::setOption (auxid_t id, const AuxDataOption& option)
   // It didn't work.  If this is a packing request, then try to convert
   // the variable to packed form and retry.
   if (!PackedParameters::isValidOption (option)) return false;
-  IAuxTypeVector* packed = m_vecs[id]->toPacked();
+  std::unique_ptr<IAuxTypeVector> packed = m_vecs[id]->toPacked();
   if (packed) {
     // Converted to packed form.  Replace the object and retry.
-    delete m_vecs[id];
-    m_vecs[id] = packed;
-    return packed->setOption (option);
+    m_vecs[id] = std::move (packed);
+    return m_vecs[id]->setOption (option);
   }
 
   // Didn't work.
