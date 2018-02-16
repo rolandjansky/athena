@@ -125,7 +125,7 @@ namespace ST {
     // Function initialising the tool
     StatusCode initialize() override final;
     // NB that there is no function for finalising the tool.
-    //  An IAsgTool does not have a finalize method, so we can 
+    //  An IAsgTool does not have a finalize method, so we can
     //  only override finalize in athena.  To clean up, delete me.
 
     bool isData() const override final {return m_dataSource == Data;}
@@ -178,14 +178,14 @@ namespace ST {
                       const xAOD::PhotonContainer* gamma = 0,
                       const xAOD::TauJetContainer* taujet = 0,
                       bool doTST = true, bool doJVTCut = true,
-		      const xAOD::IParticleContainer* invis = 0 
+		      const xAOD::IParticleContainer* invis = 0
 		      ) override final;
 
     bool IsSignalJet(const xAOD::Jet& input, const float ptcut, const float etacut) const override final;
 
     bool IsBadJet(const xAOD::Jet& input) const override final;
 
-    bool IsBJetLoose(const xAOD::Jet& input) const override final; 
+    bool IsBJetLoose(const xAOD::Jet& input) const override final;
     bool JetPassJVT(xAOD::Jet& input, bool update_jvt) override final;
 
 
@@ -233,7 +233,7 @@ namespace ST {
     //electrons
     float GetSignalElecSF(const xAOD::Electron& el, const bool recoSF = true, const bool idSF = true, const bool triggerSF = true, const bool isoSF = true, const std::string& trigExpr = "e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose", const bool chfSF = false) override final;
 
-    double GetEleTriggerEfficiency(const xAOD::Electron& el, const std::string& trigExpr = "e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose") const override final; 
+    double GetEleTriggerEfficiency(const xAOD::Electron& el, const std::string& trigExpr = "e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose") const override final;
     double GetEleTriggerEfficiencySF(const xAOD::Electron& el, const std::string& trigExpr = "e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose") const override final;
 
     float GetTotalElectronSF(const xAOD::ElectronContainer& electrons, const bool recoSF = true, const bool idSF = true, const bool triggerSF = true, const bool isoSF = true, const std::string& trigExpr = "singleLepton", const bool chfSF = false) override final; // singleLepton == Ele.TriggerSFStringSingle value
@@ -242,7 +242,7 @@ namespace ST {
 
     //taus
     double GetSignalTauSF(const xAOD::TauJet& tau, const bool idSF = true, const bool triggerSF = true, const std::string& trigExpr = "tau25_medium1_tracktwo") override final;
-  
+
     double GetSignalTauSFsys(const xAOD::TauJet& tau, const CP::SystematicSet& systConfig, const bool idSF = true, const bool triggerSF = true, const std::string& trigExpr = "tau25_medium1_tracktwo") override final;
 
     double GetTauTriggerEfficiencySF(const xAOD::TauJet& tau, const std::string& trigExpr = "tau25_medium1_tracktwo") override final;
@@ -250,7 +250,7 @@ namespace ST {
     double GetTotalTauSF(const xAOD::TauJetContainer& taus, const bool idSF = true, const bool triggerSF = true,  const std::string& trigExpr = "tau25_medium1_tracktwo") override final;
 
     double GetTotalTauSFsys(const xAOD::TauJetContainer& taus, const CP::SystematicSet& systConfig, const bool idSF = true, const bool triggerSF = true, const std::string& trigExpr = "tau25_medium1_tracktwo") override final;
-  
+
     //photons
     double GetSignalPhotonSF(const xAOD::Photon& ph, const bool effSF = true, const bool isoSF = true) const override final;
 
@@ -275,7 +275,7 @@ namespace ST {
     bool IsTrigMatched(const xAOD::IParticle *part1, const xAOD::IParticle *part2, const std::string& tr_item) override final;
     bool IsTrigMatched(const std::vector<const xAOD::IParticle*>& v, const std::string& tr_item) override final;
     bool IsTrigMatched(const std::initializer_list<const xAOD::IParticle*> &v, const std::string& tr_item) override final;
-  
+
     void TrigMatch(const xAOD::IParticle* p, std::initializer_list<std::string>::iterator, std::initializer_list<std::string>::iterator) override final;
     void TrigMatch(const xAOD::IParticle* p, const std::vector<std::string>& items) override final;
     void TrigMatch(const xAOD::IParticle* p, const std::initializer_list<std::string>& items) override final;
@@ -351,7 +351,7 @@ namespace ST {
 
     std::vector<ST::SystInfo> getSystInfoList() const override final;
 
-    // Temporary function for Sherpa 2.2 V+jets n-jets reweighting 
+    // Temporary function for Sherpa 2.2 V+jets n-jets reweighting
     // (see https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/CentralMC15ProductionList#NEW_Sherpa_v2_2_V_jets_NJet_rewe)
     float getSherpaVjetsNjetsWeight() const override final;
     float getSherpaVjetsNjetsWeight(const std::string& jetContainer) const override final;
@@ -384,14 +384,14 @@ namespace ST {
     std::vector<std::string> v_trigs15_cache_dilep;
     std::vector<std::string> v_trigs16_cache_dilep;
     std::vector<std::string> v_trigs15_cache_mixlep;
-    std::vector<std::string> v_trigs16_cache_mixlep; 
+    std::vector<std::string> v_trigs16_cache_mixlep;
 
   protected:
 
-    // autoconfiguration of pileup-reweighting tool       
+    // autoconfiguration of pileup-reweighting tool
     StatusCode autoconfigurePileupRWTool();
 
-    StatusCode readConfig() override final; 
+    StatusCode readConfig() override final;
     StatusCode validConfig(bool strict = false) const;
 
     const std::vector<std::string> split(const std::string& s, const std::string& delim) const;
@@ -410,7 +410,7 @@ namespace ST {
     //little helpers for WP configurations / handling
     bool check_isOption(const std::string& wp, const std::vector<std::string>& list) const;
     bool check_isTighter(const std::string& wp1, const std::string& wp, const std::vector<std::string>& list) const;
-  
+
     std::string EG_WP(const std::string& wp) const; //translate our WPs to make egamma selectors happy
 
     std::vector<std::string> getElSFkeys(const std::string& mapFile) const;
@@ -431,7 +431,9 @@ namespace ST {
     bool m_force_noMuId;
     bool m_doTTVAsf;
 
-    int m_jesNPset;
+    std::string m_jetUncertaintiesConfig;
+    std::string m_jetUncertaintiesCalibArea;
+
     bool m_useBtagging;
     bool m_debug;
 
@@ -459,7 +461,7 @@ namespace ST {
     bool m_metDoSetMuonJetEMScale;
     bool m_metDoRemoveMuonJets;
     bool m_metUseGhostMuons;
-    bool m_metDoMuonEloss; 
+    bool m_metDoMuonEloss;
 
     std::string m_metsysConfigPrefix;
 
@@ -488,7 +490,7 @@ namespace ST {
     std::string m_electronTriggerSFStringMixedLepton;
 
     std::vector<std::string> tau_trig_support;
- 
+
     std::string m_eleId;
     std::string m_eleIdBaseline;
     int         m_muId;
@@ -497,8 +499,9 @@ namespace ST {
     std::string m_photonIdBaseline;
     std::string m_tauId;
     std::string m_tauIdBaseline;
-    bool        m_tauIDrecalc; //!< Recalculate TauID definition (20.7.8.2 bugfix) 
+    bool        m_tauIDrecalc; //!< Recalculate TauID definition (20.7.8.2 bugfix)
     std::string m_eleIso_WP;
+    std::string m_eleIsoHighPt_WP;
     std::string m_eleChID_WP;
     bool        m_runECIS; //run ChargeIDSelector if valid WP was selected
     std::string m_photonIso_WP;
@@ -614,7 +617,7 @@ namespace ST {
     bool m_applyJVTCut;
 
     std::string m_bTaggingCalibrationFilePath;
-    
+
     asg::AnaToolHandle<IJetCalibrationTool> m_jetCalibTool;
     asg::AnaToolHandle<IJetCalibrationTool> m_jetFatCalibTool;
     asg::AnaToolHandle<IJERTool> m_jerTool;
@@ -625,11 +628,23 @@ namespace ST {
     asg::AnaToolHandle<IJetUpdateJvt> m_jetJvtUpdateTool;
     asg::AnaToolHandle<IJetModifier> m_jetFwdJvtTool;
     asg::AnaToolHandle<CP::IJetJvtEfficiency> m_jetJvtEfficiencyTool;
-    
+
     std::string m_WtagConfig;
     std::string m_ZtagConfig;
     asg::AnaToolHandle<IJetSelector> m_WTaggerTool;
     asg::AnaToolHandle<IJetSelector> m_ZTaggerTool;
+
+    //
+    std::string m_jesConfig;
+    std::string m_jesConfigJMS;
+    std::string m_jesConfigAFII;
+    std::string m_jesConfigEMPFlow;
+    std::string m_jesConfigFat;
+    std::string m_jesCalibSeq;
+    std::string m_jesCalibSeqJMS;
+    std::string m_jesCalibSeqAFII;
+    std::string m_jesCalibSeqEMPFlow;
+    std::string m_jesCalibSeqFat;
 
     //
     asg::AnaToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
@@ -669,7 +684,7 @@ namespace ST {
     asg::AnaToolHandle<TauAnalysisTools::ITauSelectionTool> m_tauSelTool;
     asg::AnaToolHandle<TauAnalysisTools::ITauSelectionTool> m_tauSelToolBaseline;
     asg::AnaToolHandle<TauAnalysisTools::ITauSmearingTool> m_tauSmearingTool;
-    asg::AnaToolHandle<TauAnalysisTools::ITauTruthMatchingTool> m_tauTruthMatch;                                                                                             
+    asg::AnaToolHandle<TauAnalysisTools::ITauTruthMatchingTool> m_tauTruthMatch;
     asg::AnaToolHandle<TauAnalysisTools::ITauEfficiencyCorrectionsTool> m_tauEffTool;
     asg::AnaToolHandle<TauAnalysisTools::ITauEfficiencyCorrectionsTool> m_tauTrigEffTool0;
     asg::AnaToolHandle<TauAnalysisTools::ITauEfficiencyCorrectionsTool> m_tauTrigEffTool1;
@@ -693,6 +708,7 @@ namespace ST {
     //
     asg::AnaToolHandle<CP::IIsolationCorrectionTool> m_isoCorrTool;
     asg::AnaToolHandle<CP::IIsolationSelectionTool> m_isoTool;
+    asg::AnaToolHandle<CP::IIsolationSelectionTool> m_isoHighPtTool;
     asg::AnaToolHandle<CP::IIsolationCloseByCorrectionTool> m_isoCloseByTool;
     //
     asg::AnaToolHandle<CP::IPileupReweightingTool> m_prwTool;
@@ -711,6 +727,7 @@ namespace ST {
   const static SG::AuxElement::Decorator<char> dec_selected("selected"); //for priority-aware OR of baseline objects
   const static SG::AuxElement::Decorator<char> dec_signal("signal");
   const static SG::AuxElement::Decorator<char> dec_isol("isol");
+  const static SG::AuxElement::Decorator<char> dec_isolHighPt("isolHighPt"); // hack to avoid high-pt electron fakes /KY
   const static SG::AuxElement::Decorator<char> dec_passOR("passOR");
   const static SG::AuxElement::Decorator<double> dec_effscalefact("effscalefact");
   const static SG::AuxElement::Decorator<char> dec_signal_less_JVT("signal_less_JVT"); //!< Decorator for signal jets without a JVT requirement
@@ -719,6 +736,7 @@ namespace ST {
   const static SG::AuxElement::ConstAccessor<char> acc_selected("selected"); //for priority-aware OR of baseline objects
   const static SG::AuxElement::ConstAccessor<char> acc_signal("signal");
   const static SG::AuxElement::ConstAccessor<char> acc_isol("isol");
+  const static SG::AuxElement::ConstAccessor<char> acc_isolHighPt("isolHighPt"); // hack to avoid high-pt electron fakes /KY
   const static SG::AuxElement::ConstAccessor<char> acc_passOR("passOR");
   const static SG::AuxElement::ConstAccessor<char> acc_signal_less_JVT("signal_less_JVT"); //!< Accessor for signal jets without a JVT requirement
   const static SG::AuxElement::ConstAccessor<char> acc_trigmatched("trigmatched");

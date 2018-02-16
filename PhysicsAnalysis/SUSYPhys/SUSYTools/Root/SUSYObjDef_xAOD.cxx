@@ -45,7 +45,7 @@
 
 #include "TauAnalysisTools/ITauSelectionTool.h"
 #include "TauAnalysisTools/ITauSmearingTool.h"
-#include "TauAnalysisTools/ITauTruthMatchingTool.h"  
+#include "TauAnalysisTools/ITauTruthMatchingTool.h"
 #include "TauAnalysisTools/ITauEfficiencyCorrectionsTool.h"
 #include "TauAnalysisTools/ITauOverlappingElectronLLHDecorator.h"
 #include "tauRecTools/ITauToolBase.h"
@@ -96,7 +96,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_force_noElId(false),
     m_force_noMuId(false),
     m_doTTVAsf(true),
-    m_jesNPset(-99),
     m_useBtagging(false),
     m_debug(false),
     m_strictConfigCheck(false),
@@ -118,13 +117,13 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_metUseGhostMuons(false),
     m_metDoMuonEloss(false),
     m_metsysConfigPrefix(""),
-    m_softTermParam(met::Random),  
+    m_softTermParam(met::Random),
     m_treatPUJets(true),
     m_doPhiReso(true),
     m_muUncert(-99.),
     m_prwDataSF(1./1.03), // default for mc16, see: https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/ExtendedPileupReweighting#Tool_Properties
     m_prwDataSF_UP(1.), // old value for mc15 (mc16 uncertainties still missing)
-    m_prwDataSF_DW(1./1.18), // old value for mc15 (mc16 uncertainties still missing)   
+    m_prwDataSF_DW(1./1.18), // old value for mc15 (mc16 uncertainties still missing)
     m_electronTriggerSFStringSingle(""),
     m_electronTriggerSFStringDiLepton(""),
     m_electronTriggerSFStringMixedLepton(""),
@@ -138,6 +137,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_tauIdBaseline(""),
     m_tauIDrecalc(false),
     m_eleIso_WP(""),
+    m_eleIsoHighPt_WP(""),
     m_eleChID_WP(""),
     m_runECIS(false),
     m_photonIso_WP(""),
@@ -308,6 +308,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     //
     m_isoCorrTool(""),
     m_isoTool(""),
+    m_isoHighPtTool(""),
     //
     m_prwTool(""),
     //
@@ -372,8 +373,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
 
 
   declareProperty( "SoftTermParam",  m_softTermParam);
-  declareProperty( "TreatPUJets",  m_treatPUJets);  
-  declareProperty( "DoPhiReso",  m_doPhiReso);  
+  declareProperty( "TreatPUJets",  m_treatPUJets);
+  declareProperty( "DoPhiReso",  m_doPhiReso);
 
   //JETS
   declareProperty( "FwdJetDoJVT",  m_doFwdJVT );
@@ -382,10 +383,10 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "JetJMSCalib",  m_JMScalib );
 
   //BTAGGING
-  declareProperty( "BtagTagger", m_BtagTagger); 
+  declareProperty( "BtagTagger", m_BtagTagger);
   declareProperty( "BtagWPOR", m_orBtagWP); //the one used in the Overlap Removal
   declareProperty( "BtagWP", m_BtagWP);     //the one used in FillJet() afterwards
-  declareProperty( "BtagCalibPath", m_bTaggingCalibrationFilePath); 
+  declareProperty( "BtagCalibPath", m_bTaggingCalibrationFilePath);
 
   //ELECTRONS
   declareProperty( "EleBaselinePt", m_eleBaselinePt);
@@ -396,6 +397,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "EleBaselineCrackVeto", m_eleBaselineCrackVeto);
   declareProperty( "EleId", m_eleId);
   declareProperty( "EleIso", m_eleIso_WP);
+  declareProperty( "EleIsoHighPt", m_eleIsoHighPt_WP);
   declareProperty( "EleCFT", m_eleChID_WP);
   declareProperty( "EleD0sig", m_eled0sig);
   declareProperty( "EleZ0", m_elez0);
@@ -440,13 +442,13 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "TauIdConfigPath", m_tauConfigPath);
   declareProperty( "TauDoTruthMatching", m_tauDoTTM);
   declareProperty( "TauRecalcElOLR", m_tauRecalcOLR);
-  declareProperty( "TauIDRedecorate", m_tauIDrecalc); 
+  declareProperty( "TauIDRedecorate", m_tauIDrecalc);
 
   //Leptons
   declareProperty( "SigLepRequireIso", m_doIsoSignal ); //leave here for back-compatibility
-  declareProperty( "SigElRequireIso", m_doElIsoSignal ); 
-  declareProperty( "SigMuRequireIso", m_doMuIsoSignal ); 
-  declareProperty( "SigPhRequireIso", m_doPhIsoSignal ); 
+  declareProperty( "SigElRequireIso", m_doElIsoSignal );
+  declareProperty( "SigMuRequireIso", m_doMuIsoSignal );
+  declareProperty( "SigPhRequireIso", m_doPhIsoSignal );
 
   //Isolation correction for leptons and photons
   declareProperty( "SigLepPhIsoCloseByOR", m_doIsoCloseByOR );
@@ -461,8 +463,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "PRWDataScaleFactor",   m_prwDataSF);
   declareProperty( "PRWDataScaleFactorUP", m_prwDataSF_UP);
   declareProperty( "PRWDataScaleFactorDOWN", m_prwDataSF_DW);
-  //JES Unc.
-  declareProperty( "JESNuisanceParameterSet", m_jesNPset );
   //LargeR uncertainties config, as from https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/JetUncertainties2016PrerecLargeR#Understanding_which_configuratio
   declareProperty( "JetLargeRuncConfig",  m_fatJetUncConfig );
   declareProperty( "JetLargeRuncVars",  m_fatJetUncVars );
@@ -547,6 +547,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   //
   m_isoCorrTool.declarePropertyFor( this, "IsolationCorrectionTool", "The IsolationCorrectionTool" );
   m_isoTool.declarePropertyFor( this, "IsolationSelectionTool", "The IsolationSelectionTool");
+  m_isoHighPtTool.declarePropertyFor( this, "IsolationSelectionTool", "The IsolationSelectionTool for High Pt");
   m_isoCloseByTool.declarePropertyFor( this, "IsolationCloseByCorrectionTool", "The IsolationCloseByCorrectionTool");
   //
   m_prwTool.declarePropertyFor( this, "PileupReweightingTool", "The PRW tool" );
@@ -562,9 +563,9 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   el_id_support.push_back("VeryLooseLLH");
   el_id_support.push_back("LooseLLH_Rel20p7");
   el_id_support.push_back("LooseLLH");
-  el_id_support.push_back("LooseAndBLayerLLH_Rel20p7"); 
+  el_id_support.push_back("LooseAndBLayerLLH_Rel20p7");
   el_id_support.push_back("LooseAndBLayerLLH");
-  el_id_support.push_back("MediumLLH_Rel20p7"); 
+  el_id_support.push_back("MediumLLH_Rel20p7");
   el_id_support.push_back("MediumLLH");
   el_id_support.push_back("TightLLH_Rel20p7");
   el_id_support.push_back("TightLLH");
@@ -698,7 +699,7 @@ StatusCode SUSYObjDef_xAOD::initialize() {
 }
 
 StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool() {
-  // doing here some black magic to autoconfigure the pileup reweighting tool 
+  // doing here some black magic to autoconfigure the pileup reweighting tool
   std::string prwConfigFile = "";
   if ( !isData() && m_autoconfigPRW ) {
     prwConfigFile = PathResolverFindCalibDirectory("dev/SUSYTools/PRW_AUTOCONGIF/files/");
@@ -736,7 +737,7 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool() {
     if( mcCampaignMD == "mc16a" || mcCampaignMD == "mc16c" || mcCampaignMD == "mc16d") mc16X_GoodFromMetadata = true;
     if( !mc16X_GoodFromMetadata && mc16X_GoodFromProperty ) {
       // ::
-      std::string NoMetadataButPropertyOK(""); 
+      std::string NoMetadataButPropertyOK("");
       NoMetadataButPropertyOK += "autoconfigurePileupRWTool(): access to FileMetaData failed, but the 'mcCampaign' property is passed to SUSYTools as '";
       NoMetadataButPropertyOK += m_mcCampaign;
       NoMetadataButPropertyOK += "'. Autocongiguring PRW accordingly.";
@@ -759,11 +760,11 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool() {
       MetadataAndPropertyBAD += "'mc16a', 'mc16c' or 'mc16d' and restart your job. If you set it to any other string, you will still incur in this error.";
       ATH_MSG_ERROR( MetadataAndPropertyBAD );
       return StatusCode::FAILURE;
-      // :: 
+      // ::
     }
     // ::
     // Retrieve the input file
-    int DSID_INT = (int) dsid; 
+    int DSID_INT = (int) dsid;
     prwConfigFile += "pileup_" + mcCampaignMD + "_dsid" + std::to_string(DSID_INT) + ".root";
     TFile testF(prwConfigFile.data(),"read");
     if(testF.IsZombie()) {
@@ -786,7 +787,7 @@ StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool() {
   // Return gracefully
   return StatusCode::SUCCESS;
 }
-  
+
 void SUSYObjDef_xAOD::setDataSource(int source) {
   if (source == 0) m_dataSource = Data;
   else if (source == 1) m_dataSource = FullSim;
@@ -803,7 +804,7 @@ bool SUSYObjDef_xAOD::check_isOption(const std::string& wp, const std::vector<st
 bool SUSYObjDef_xAOD::check_isTighter(const std::string& wp1, const std::string& wp2, const std::vector<std::string>& list) const {
   //check if WP1 is tighter than WP2
   //it is assumed that both WPs are supported
-  return (std::find(list.begin(),list.end(),wp1) > std::find(list.begin(), list.end(),wp2)); 
+  return (std::find(list.begin(),list.end(),wp1) > std::find(list.begin(), list.end(),wp2));
 }
 
 
@@ -814,7 +815,7 @@ std::string SUSYObjDef_xAOD::EG_WP(const std::string& wp) const {
 }
 
 std::vector<std::string> SUSYObjDef_xAOD::getElSFkeys(const std::string& mapFile) const {
-  
+
   if( mapFile.empty() )
     return {};
 
@@ -825,10 +826,10 @@ std::vector<std::string> SUSYObjDef_xAOD::getElSFkeys(const std::string& mapFile
   for( std::string line; getline( input, line ); ){
     std::vector<std::string> tokens = split((const std::string)line,"=");
     if(tokens.size()){
-      theKeys.push_back(tokens.at(0)); 
+      theKeys.push_back(tokens.at(0));
     }
   }
-    
+
   return theKeys;
 }
 
@@ -851,7 +852,7 @@ void SUSYObjDef_xAOD::configFromFile(double& property, const std::string& propna
                                      double defaultValue)
 {
   // ignore if already configured
-  if (property > -90.) { 
+  if (property > -90.) {
     ATH_MSG_INFO( "configFromFile(): property \"" << propname << "\" already set with value " << property << ". Ignoring change request." );
     rEnv.GetTable()->Remove( rEnv.GetTable()->FindObject(propname.c_str() ) );
     return;
@@ -928,7 +929,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
     // Remove the item from the table
     rEnv.GetTable()->Remove( rEnv.GetTable()->FindObject("Jet.InputType") );
   }
-  
+
   if (m_muId == static_cast<int>(xAOD::Muon::Quality(xAOD::Muon::VeryLoose))) {
     int muIdTmp = rEnv.GetValue("Muon.Id", 1);
     m_muId = (muIdTmp<4 ? (int)xAOD::Muon::Quality(muIdTmp) : muIdTmp);
@@ -945,8 +946,8 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   }
 
   //load config file to Properties map  (only booleans for now)
-  m_conf_to_prop["StrictConfigCheck"] = "StrictConfigCheck"; 
-  m_conf_to_prop["Btag.enable"] = "UseBtagging"; 
+  m_conf_to_prop["StrictConfigCheck"] = "StrictConfigCheck";
+  m_conf_to_prop["Btag.enable"] = "UseBtagging";
   m_conf_to_prop["Ele.CrackVeto"] = "EleCrackVeto";
   m_conf_to_prop["EleBaseline.CrackVeto"] = "EleBaselineCrackVeto";
   m_conf_to_prop["Ele.ForceNoId"] = "EleForceNoId";
@@ -976,7 +977,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   m_conf_to_prop["OR.RemoveCaloMuons"] = "ORRemoveCaloMuons";
   m_conf_to_prop["OR.MuJetApplyRelPt"] = "ORMuJetApplyRelPt";
   m_conf_to_prop["OR.InputLabel"] = "ORInputLabel";
- 
+
   m_conf_to_prop["SigLep.RequireIso"] = "SigLepRequireIso";
   m_conf_to_prop["SigEl.RequireIso"] = "SigElRequireIso";
   m_conf_to_prop["SigMu.RequireIso"] = "SigMuRequireIso";
@@ -993,7 +994,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
 
   m_conf_to_prop["Tau.DoTruthMatching"] = "TauDoTruthMatching";
   m_conf_to_prop["Tau.RecalcElOLR"] = "TauRecalcElOLR";
-  m_conf_to_prop["Tau.IDRedecorate"] = "TauIDRedecorate";  
+  m_conf_to_prop["Tau.IDRedecorate"] = "TauIDRedecorate";
   //
 
   //
@@ -1007,6 +1008,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_eleEta, "Ele.Eta", rEnv, 2.47);
   configFromFile(m_eleCrackVeto, "Ele.CrackVeto", rEnv, false);
   configFromFile(m_eleIso_WP, "Ele.Iso", rEnv, "GradientLoose");
+  configFromFile(m_eleIsoHighPt_WP, "Ele.IsoHighPt", rEnv, "FixedCutHighPtCaloOnly");
   configFromFile(m_eleChID_WP, "Ele.CFT", rEnv, "None"); //Medium is the only one supported for the moment, and not many clients yet.
   configFromFile(m_eleId, "Ele.Id", rEnv, "TightLLH");
   configFromFile(m_eled0sig, "Ele.d0sig", rEnv, 5.);
@@ -1063,12 +1065,23 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_jetPt, "Jet.Pt", rEnv, 20000.);
   configFromFile(m_jetEta, "Jet.Eta", rEnv, 2.8);
   configFromFile(m_JVT_WP, "Jet.JVT_WP", rEnv, "Medium");
-  configFromFile(m_jesNPset, "Jet.JESNPSet", rEnv, 1);
+  configFromFile(m_jetUncertaintiesConfig, "Jet.UncertConfig", rEnv, "rel21/Moriond2018/R4_StrongReduction_Scenario1.config"); // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Moriond2018SmallR 
+  configFromFile(m_jetUncertaintiesCalibArea, "Jet.UncertCalibArea", rEnv, "CalibArea-02");
   configFromFile(m_fatJets, "Jet.LargeRcollection", rEnv, "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets");
   configFromFile(m_fatJetUncConfig, "Jet.LargeRuncConfig", rEnv, "UJ2016_CombinedMass_medium.config"); //MultiTagging_medium.config");
   configFromFile(m_fatJetUncVars, "Jet.LargeRuncVars", rEnv, "default"); //do all if not specified
   configFromFile(m_WtagConfig, "Jet.WtaggerConfig", rEnv, "SmoothedWZTaggers/SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC15c_20161215.dat");
   configFromFile(m_ZtagConfig, "Jet.ZtaggerConfig", rEnv, "SmoothedWZTaggers/SmoothedContainedZTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC15c_20161215.dat");
+  configFromFile(m_jesConfig, "Jet.JESConfig", rEnv, "JES_data2017_2016_2015_Recommendation_Feb2018_rel21.config");
+  configFromFile(m_jesConfigJMS, "Jet.JESConfigJMS", rEnv, "JES_data2016_data2015_Recommendation_Dec2016_JMS_rel21.config");
+  configFromFile(m_jesConfigAFII, "Jet.JESConfigAFII", rEnv, "JES_MC15Prerecommendation_AFII_June2015_rel21.config");
+  configFromFile(m_jesConfigEMPFlow, "Jet.JESConfigEMPFlow", rEnv, "JES_data2017_2016_2015_Recommendation_PFlow_Feb2018_rel21.config");
+  configFromFile(m_jesConfigFat, "Jet.JESConfigFat", rEnv, "JES_MC16recommendation_FatJet_JMS_comb_19Jan2018.config");
+  configFromFile(m_jesCalibSeq, "Jet.CalibSeq", rEnv, "JetArea_Residual_EtaJES_GSC_Insitu");
+  configFromFile(m_jesCalibSeqJMS, "Jet.CalibSeqJMS", rEnv, "JetArea_Residual_EtaJES_GSC");
+  configFromFile(m_jesCalibSeqAFII, "Jet.CalibSeqAFII", rEnv, "JetArea_Residual_EtaJES_GSC");
+  configFromFile(m_jesCalibSeqEMPFlow, "Jet.CalibSeqEMPFlow", rEnv, "JetArea_Residual_EtaJES_GSC_Insitu");
+  configFromFile(m_jesCalibSeqFat, "Jet.CalibSeqFat", rEnv, "EtaJES_JMS");
   //
   configFromFile(m_badJetCut, "BadJet.Cut", rEnv, "LooseBad");
   //
@@ -1081,7 +1094,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_useBtagging, "Btag.enable", rEnv, true);
   configFromFile(m_BtagTagger, "Btag.Tagger", rEnv, "MV2c10");
   configFromFile(m_BtagWP, "Btag.WP", rEnv, "FixedCutBEff_77");
-  configFromFile(m_bTaggingCalibrationFilePath, "Btag.CalibPath", rEnv, "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2017-12-22_v1.root");
+  configFromFile(m_bTaggingCalibrationFilePath, "Btag.CalibPath", rEnv, "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2018-02-09_v1.root");
   configFromFile(m_BtagSystStrategy, "Btag.SystStrategy", rEnv, "Envelope");
   //
   configFromFile(m_orDoBoostedElectron, "OR.DoBoostedElectron", rEnv, false);
@@ -1133,7 +1146,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
 
   configFromFile(m_trkMETsyst, "MET.DoTrkSyst", rEnv, true);
   configFromFile(m_caloMETsyst, "MET.DoCaloSyst", rEnv, false);
-  configFromFile(m_metsysConfigPrefix, "METSys.ConfigPrefix", rEnv, "METUtilities/data17_13TeV/prerec_Jan16"); 
+  configFromFile(m_metsysConfigPrefix, "METSys.ConfigPrefix", rEnv, "METUtilities/data17_13TeV/prerec_Jan16");
   configFromFile(m_metJetSelection, "MET.JetSelection", rEnv, "Tight"); // Tight (default), Loose, etc
   configFromFile(m_softTermParam, "METSig.SoftTermParam", rEnv, met::Random);
   configFromFile(m_treatPUJets, "METSig.TreatPUJets", rEnv, true);
@@ -1155,7 +1168,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   //** validate configuration
   ATH_CHECK( validConfig(m_strictConfigCheck) );
 
-  //** cache trigger chains for matching 
+  //** cache trigger chains for matching
   GetTriggerTokens(m_electronTriggerSFStringSingle, v_trigs15_cache_single, v_trigs16_cache_single);
   GetTriggerTokens(m_electronTriggerSFStringDiLepton, v_trigs15_cache_dilep, v_trigs16_cache_dilep);
   GetTriggerTokens(m_electronTriggerSFStringMixedLepton, v_trigs15_cache_mixlep, v_trigs16_cache_mixlep);
@@ -1178,18 +1191,18 @@ const std::vector<std::string> SUSYObjDef_xAOD::split(const std::string& s, cons
   }
   if(gothere)
     retval.emplace_back(s.substr(last));
-  
+
   return retval;
 }
 
 void SUSYObjDef_xAOD::getTauConfig(const std::string tauConfigPath, std::vector<float>& pT_window, std::vector<float>& eta_window, bool &eleOLR, bool &muVeto, bool &muOLR) const {
 
   if(tauConfigPath == "") return;
-  
+
   TEnv rEnv;
   auto filename = PathResolverFindCalibFile(tauConfigPath);
   rEnv.ReadFile(filename.c_str(), kEnvAll);
-  
+
   std::vector<std::string> cuts;
   if (rEnv.Defined("SelectionCuts")) {
     cuts = split(rEnv.GetValue("SelectionCuts", " "), " ");
@@ -1220,9 +1233,9 @@ void SUSYObjDef_xAOD::getTauConfig(const std::string tauConfigPath, std::vector<
     if(cut == "PtRegion") {
       _pT_window = split(rEnv.GetValue("PtRegion", ""), ";");
       std::transform(std::begin(_pT_window),
-		     std::end(_pT_window), 
+		     std::end(_pT_window),
 		     std::back_inserter(pT_window),
-		     [](const std::string& s) { return std::stof(s); } 
+		     [](const std::string& s) { return std::stof(s); }
 		     );
     } else if (cut == "PtMin") {
       pT_min = rEnv.GetValue("PtMin", NAN);
@@ -1231,16 +1244,16 @@ void SUSYObjDef_xAOD::getTauConfig(const std::string tauConfigPath, std::vector<
     } else if (cut == "AbsEtaRegion") {
       _eta_window = split(rEnv.GetValue("AbsEtaRegion", ""), ";");
       std::transform(std::begin(_eta_window),
-		     std::end(_eta_window), 
+		     std::end(_eta_window),
 		     std::back_inserter(eta_window),
-		     [](const std::string& s) { return std::stof(s); } 
+		     [](const std::string& s) { return std::stof(s); }
 		     );
     } else if (cut == "AbsEtaMin") {
       eta_min = rEnv.GetValue("AbsEtaMin", NAN);
     } else if (cut == "AbsEtaMax") {
       eta_max = rEnv.GetValue("AbsEtaMax", NAN);
     }
-    
+
     //OR settings
     else if (cut == "EleOLR"){
       eleOLR = (rEnv.GetValue("EleOLR", "FALSE") == trueBool);
@@ -1252,7 +1265,7 @@ void SUSYObjDef_xAOD::getTauConfig(const std::string tauConfigPath, std::vector<
       muOLR = (rEnv.GetValue("MuonOLR", "FALSE") == trueBool);
     }
   }
-  
+
   if(pT_window.size() == 0) {
     if(pT_min == pT_min) {
       // fails on NaN
@@ -1260,7 +1273,7 @@ void SUSYObjDef_xAOD::getTauConfig(const std::string tauConfigPath, std::vector<
     } else {
       pT_window.push_back(-std::numeric_limits<float>::infinity());
     }
-    
+
     if(pT_max == pT_max) {
       // fails on NaN
       pT_window.push_back(pT_max);
@@ -1268,7 +1281,7 @@ void SUSYObjDef_xAOD::getTauConfig(const std::string tauConfigPath, std::vector<
       pT_window.push_back(std::numeric_limits<float>::infinity());
     }
   }
-  
+
   if(eta_window.size() == 0) {
     if(eta_min == eta_min) {
       // fails on NaN
@@ -1276,20 +1289,20 @@ void SUSYObjDef_xAOD::getTauConfig(const std::string tauConfigPath, std::vector<
     } else {
       eta_window.push_back(-std::numeric_limits<float>::infinity());
     }
-    
+
     if(eta_max == eta_max) {
       // fails on NaN
       eta_window.push_back(eta_max);
     } else {
       eta_window.push_back(std::numeric_limits<float>::infinity());
     }
-  }  
-}  
-  
+  }
+}
+
 StatusCode SUSYObjDef_xAOD::validConfig(bool strict) const {
   // Validate configuration (i.e. that signal settings are tighter than baseline, etc)
   // :: Throw SC::FAILURE if strict mode is enabled, just a WARNING if not
-  
+
   // Electrons
   if( m_elePt < m_eleBaselinePt ){
     ATH_MSG_WARNING("Your electron pt configuration is inconsistent!  Signal : " << m_elePt << " < Baseline : " << m_eleBaselinePt);
@@ -1343,13 +1356,13 @@ StatusCode SUSYObjDef_xAOD::validConfig(bool strict) const {
 
   //Btagging //OR-wp looser than signal-wp?
   if( m_BtagWP.compare(0, m_BtagWP.size()-3, m_orBtagWP, 0, m_BtagWP.size()-3) == 0 ){ //same tagger WP (FixedCutBEff_XX or HybBEff_XX)
-    if( atoi(m_BtagWP.substr(m_BtagWP.size()-2, m_BtagWP.size()).c_str()) < atoi(m_orBtagWP.substr(m_orBtagWP.size()-2, m_orBtagWP.size()).c_str()) ){ 
+    if( atoi(m_BtagWP.substr(m_BtagWP.size()-2, m_BtagWP.size()).c_str()) < atoi(m_orBtagWP.substr(m_orBtagWP.size()-2, m_orBtagWP.size()).c_str()) ){
       ATH_MSG_WARNING("Your btagging configuration is inconsistent!  Signal : " << m_BtagWP << " is tighter than OR-Baseline : " << m_orBtagWP);
     }
   }
 
   //Taus
-  ///baseline vs signal pt check 
+  ///baseline vs signal pt check
   if(m_tauPrePtCut > 0 and m_tauPrePtCut > m_tauPt) {
     ATH_MSG_WARNING("Your tau pt configuration is inconsistent! Signal pt cut : " << m_tauPt << " < Baseline (pre) pt cut : " << m_tauPrePtCut);
     if(strict) return StatusCode::FAILURE;
@@ -1364,7 +1377,7 @@ StatusCode SUSYObjDef_xAOD::validConfig(bool strict) const {
 
   if(m_tauConfigPathBaseline != "") { //baseline taus
 
-    std::string theConfig = m_tauConfigPathBaseline; 
+    std::string theConfig = m_tauConfigPathBaseline;
     if( m_tauConfigPathBaseline=="default" ){
       if (m_tauId == "Loose") theConfig = "SUSYTools/tau_selection_loose.conf";
       if (m_tauId == "Medium") theConfig = "SUSYTools/tau_selection_medium.conf";
@@ -1379,12 +1392,12 @@ StatusCode SUSYObjDef_xAOD::validConfig(bool strict) const {
       ATH_MSG_WARNING("Your baseline tau pt configuration is inconsistent! pre pT cut : " << m_tauPrePtCut << " / TauSelectionTool window (in MeV) : [" << 1000*pT_window[0] << ", " << 1000*pT_window[1] << "]");
       if(strict) return StatusCode::FAILURE;
     }
-    
+
     if( m_tauPt > 0 and (m_tauPt != 1000*pT_window[0] or (pT_window[1] > 0 and m_tauPt > 1000*pT_window[1]))) {
       ATH_MSG_WARNING("Your baseline tau pt configuration is inconsistent! pT cut : " << m_tauPt << " / TauSelectionTool window (in Mev) : [" << 1000*pT_window[0] << ", " << 1000*pT_window[1] << "]");
       if(strict) return StatusCode::FAILURE;
     }
-    
+
     if( m_tauEta > 0 and m_tauEta != eta_window[eta_window.size()-1]) { // eta window can have 4 entries
       ATH_MSG_WARNING("Your baseline tau eta configuration is inconsistent! eta cut : " << m_tauEta << " != TauSelectionTool max eta : " << eta_window[eta_window.size()-1]);
       if(strict) return StatusCode::FAILURE;
@@ -1404,7 +1417,7 @@ StatusCode SUSYObjDef_xAOD::validConfig(bool strict) const {
       if (m_tauId == "Loose") theConfig = "SUSYTools/tau_selection_loose.conf";
       if (m_tauId == "Medium") theConfig = "SUSYTools/tau_selection_medium.conf";
       else if (m_tauId == "Tight") theConfig = "SUSYTools/tau_selection_tight.conf";
-    }    
+    }
 
     getTauConfig(theConfig, pT_window, eta_window, elOLR, muVeto, muOLR);
 
@@ -1412,29 +1425,29 @@ StatusCode SUSYObjDef_xAOD::validConfig(bool strict) const {
       ATH_MSG_WARNING("Your tau pt configuration is inconsistent! pre pT cut : " << m_tauPrePtCut << " / TauSelectionTool window (in MeV) : [" << 1000*pT_window[0] << ", " << 1000*pT_window[1] << "]");
       if(strict) return StatusCode::FAILURE;
     }
-    
+
     if( m_tauPt > 0 and (m_tauPt != 1000*pT_window[0] or (pT_window[1] > 0 and m_tauPt > 1000*pT_window[1]))) {
       ATH_MSG_WARNING("Your tau pt configuration is inconsistent! pT cut : " << m_tauPt << " / TauSelectionTool window (in Mev) : [" << 1000*pT_window[0] << ", " << 1000*pT_window[1] << "]");
       if(strict) return StatusCode::FAILURE;
     }
-    
+
     if( m_tauEta > 0 and m_tauEta != eta_window[eta_window.size()-1]) { // eta window can have 4 entries
       ATH_MSG_WARNING("Your tau eta configuration is inconsistent! eta cut : " << m_tauEta << " != TauSelectionTool max eta : " << eta_window[eta_window.size()-1]);
       if(strict) return StatusCode::FAILURE;
     }
   }
 
-    
+
   return StatusCode::SUCCESS;
 }
 
-  
+
 
 std::string SUSYObjDef_xAOD::TrigSingleLep() const { return m_electronTriggerSFStringSingle; }
 std::string SUSYObjDef_xAOD::TrigDiLep()     const { return m_electronTriggerSFStringDiLepton; }
 std::string SUSYObjDef_xAOD::TrigMixLep()    const { return m_electronTriggerSFStringMixedLepton; }
 
-CP::SystematicCode SUSYObjDef_xAOD::resetSystematics() {   
+CP::SystematicCode SUSYObjDef_xAOD::resetSystematics() {
   return this->applySystematicVariation(m_defaultSyst);
 }
 
@@ -1831,7 +1844,7 @@ std::vector<ST::SystInfo> SUSYObjDef_xAOD::getSystInfoList() const {
   infodef.affectedWeights.clear();
   sysInfoList.push_back(infodef);
 
-  // add all recommended systematics 
+  // add all recommended systematics
   for (const auto& systSet : CP::make_systematics_vector(recommendedSystematics)) {
     for (const auto& sys : systSet) {
 
@@ -1850,7 +1863,7 @@ ST::SystInfo SUSYObjDef_xAOD::getSystInfo(const CP::SystematicVariation& sys) co
   sysInfo.affectsWeights = false;
   sysInfo.affectedWeights.clear();
   sysInfo.systset.insert(sys);
-  
+
   if (!m_jerSmearingTool.empty()) {
     if ( m_jerSmearingTool->isAffectedBySystematic( sys ) ) {
       sysInfo.affectsKinematics = true;
@@ -2104,7 +2117,7 @@ ST::SystInfo SUSYObjDef_xAOD::getSystInfo(const CP::SystematicVariation& sys) co
       sysInfo.affectsType = SystObjType::EventWeight;
     }
   }
-  
+
   std::string affectedType;
   switch (sysInfo.affectsType) {
   case Unknown     : affectedType = "UNKNOWN";  break;
@@ -2119,18 +2132,18 @@ ST::SystInfo SUSYObjDef_xAOD::getSystInfo(const CP::SystematicVariation& sys) co
   case MET_CST     : affectedType = "MET_CST";  break;
   case EventWeight : affectedType = "EVENT WEIGHT"; break;
   }
-  
+
   ATH_MSG_VERBOSE("Variation " << sys.name() << " affects "
 		  << ( sysInfo.affectsWeights ? "weights " : "" )
 		  << ( sysInfo.affectsKinematics ? "kinematics " : "" )
 		  << "for " << affectedType );
-  
+
   return sysInfo;
-  
+
 }
 
 
-// Temporary function for Sherpa 2.2 V+jets n-jets reweighting 
+// Temporary function for Sherpa 2.2 V+jets n-jets reweighting
 // (see https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/CentralMC15ProductionList#NEW_Sherpa_v2_2_V_jets_NJet_rewe)
 float SUSYObjDef_xAOD::getSherpaVjetsNjetsWeight() const {
 
@@ -2179,8 +2192,8 @@ const xAOD::Vertex* SUSYObjDef_xAOD::GetPrimVtx() const {
 }
 
 
-StatusCode SUSYObjDef_xAOD::OverlapRemoval(const xAOD::ElectronContainer *electrons, const xAOD::MuonContainer *muons, 
-					   const xAOD::JetContainer *jets, const xAOD::PhotonContainer* gamma, 
+StatusCode SUSYObjDef_xAOD::OverlapRemoval(const xAOD::ElectronContainer *electrons, const xAOD::MuonContainer *muons,
+					   const xAOD::JetContainer *jets, const xAOD::PhotonContainer* gamma,
 					   const xAOD::TauJetContainer* taujet, const xAOD::JetContainer* fatjets)
 {
 
@@ -2246,7 +2259,7 @@ StatusCode SUSYObjDef_xAOD::NearbyLeptonCorrections(const xAOD::ElectronContaine
 
 
 float SUSYObjDef_xAOD::GetPileupWeight() {
-  
+
   const xAOD::EventInfo* evtInfo = 0;
   ATH_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
 
@@ -2308,10 +2321,10 @@ unsigned int SUSYObjDef_xAOD::GetRunNumber() const {
   const xAOD::EventInfo* evtInfo = 0;
   ATH_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
 
-  // For data, we can just directly use the run number 
+  // For data, we can just directly use the run number
   if (isData()) { return evtInfo->runNumber(); }
 
-  //  else it's MC as we need the RRN assigned by the PRW tool 
+  //  else it's MC as we need the RRN assigned by the PRW tool
   if (!randomrunnumber.isAvailable(*(evtInfo))) {
     ATH_MSG_ERROR ( "Failed to find RandomRunNumber decoration! You need to call ApplyPRWTool() beforehand!" );
   }
