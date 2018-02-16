@@ -227,7 +227,7 @@ void MuonSegmentMomentumFromField::fitMomentum2Segments( const Muon::MuonSegment
     if(fabs(signedMomentum)<1000.) signedMomentum = 1e6;
     ATH_MSG_DEBUG("integral: " << fieldintegral << " deltatheta: " << deltatheta << " signedmomentum : " << signedMomentum);
     double residual = 9999.;
-    Amg::Vector3D resi(4),qoverp(4);
+    double resi[4],qoverp[4];
     for (int i=0;i<4;i++){
       Trk::TransportJacobian *jac=0;
       Trk::AtaPlane startpar(bestseg->globalPosition(),bestseg->globalDirection().phi(),
