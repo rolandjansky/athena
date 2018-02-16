@@ -6,6 +6,7 @@
 #include "MuonRDO/STGC_RawDataContainer.h"
 #include "MuonEventTPCnv/MuonRDO/STGC_RawDataContainer_p1.h"
 #include "MuonIdHelpers/sTgcIdHelper.h"
+#include "MuonEventTPCnv/CreateTransientTemplates.h"
 
 #define DEBUG 0
 
