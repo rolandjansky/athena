@@ -84,6 +84,12 @@ std::unique_ptr<eflowTrackCaloPoints> eflowTrackCaloExtensionTool::execute(const
         parametersMap[getLayer(clParameter)] = clParameter->clone();
       }
     }
+    /*
+      parametersMap may have several entries for Tile1,2,3.
+      The impact is negligible as the eta/phi of these entries are very similar
+      https://its.cern.ch/jira/browse/ATLJETMET-242
+    */
+    
     return std::make_unique<eflowTrackCaloPoints>(parametersMap);
   }
   else{
