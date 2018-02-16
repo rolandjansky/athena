@@ -1,15 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_ReadoutTool.h"
 
 #include "InDetIdentifier/SCT_ID.h"
-#include "Identifier/Identifier.h"
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
-//#include <iostream>
 #include <cmath>
 
 // Helper functions to indicate whether a barrel module is modified.

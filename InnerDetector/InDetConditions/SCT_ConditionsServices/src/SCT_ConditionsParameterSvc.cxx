@@ -10,7 +10,6 @@
 #include <limits>
 
 #include "SCT_ConditionsParameterSvc.h"
-#include "SCT_Chip.h"
 
 //c'tor
 SCT_ConditionsParameterSvc::SCT_ConditionsParameterSvc(const std::string& name, ISvcLocator* pSvcLocator):

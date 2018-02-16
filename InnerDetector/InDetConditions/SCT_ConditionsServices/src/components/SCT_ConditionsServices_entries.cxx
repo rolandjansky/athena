@@ -39,7 +39,6 @@
 #include "../SCT_SiliconHVCondAlg.h"
 #include "../SCT_SiliconConditionsTestAlg.h"
 
-#include "../SCT_ReadoutTool.h"
 #include "../SCT_ReadoutTestAlg.h"
 
 #include "../SCT_LinkMaskingSvc.h"
@@ -66,7 +65,6 @@
 
 #include "../SCT_ChargeTrappingSvc.h"
 #include "../SCT_RadDamageSummarySvc.h"
-#include "../SCT_ElectricFieldTool.h"
 
 #include "../SCT_RODVetoSvc.h"
 #include "../SCT_RODVetoTestWriteAlg.h"
@@ -127,9 +125,6 @@ DECLARE_COMPONENT( SCT_MajorityConditionsSvc )
 DECLARE_COMPONENT( SCT_ChargeTrappingSvc )
 DECLARE_COMPONENT( SCT_RadDamageSummarySvc )
 DECLARE_COMPONENT( SCT_RODVetoSvc )
-
-DECLARE_COMPONENT( SCT_ReadoutTool )
-DECLARE_COMPONENT( SCT_ElectricFieldTool )
 
 
 

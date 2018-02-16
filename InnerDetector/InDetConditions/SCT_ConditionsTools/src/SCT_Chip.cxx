@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "SCT_Chip.h"
+#include "SCT_ConditionsTools/SCT_Chip.h"
 
 #include <sstream>
 #include <iostream>

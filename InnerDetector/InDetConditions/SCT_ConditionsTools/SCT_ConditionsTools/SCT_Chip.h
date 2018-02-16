@@ -8,8 +8,8 @@
  * @author Carl Gwilliam <gwilliam@mail.cern.ch>
 **/
 
-#ifndef SCT_ConditionServices_SCT_Chip_h
-#define SCT_ConditionServices_SCT_Chip_h
+#ifndef SCT_ConditionTools_SCT_Chip_h
+#define SCT_ConditionTools_SCT_Chip_h
 
 #include <iosfwd>
 #include <iomanip>

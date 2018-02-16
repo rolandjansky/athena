@@ -18,10 +18,7 @@
 
 // Athena includes
 #include "Identifier/Identifier.h"
-
-// Local includes
-#include "SCT_ReadoutTool.h"
-#include "SCT_Chip.h"
+#include "SCT_ConditionsTools/SCT_Chip.h"
 
 SCT_ReadoutTestAlg::SCT_ReadoutTestAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthAlgorithm( name, pSvcLocator ),

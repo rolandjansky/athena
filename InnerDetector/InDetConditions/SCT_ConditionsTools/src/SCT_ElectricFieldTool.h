@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -15,7 +15,7 @@
 //Gaudi Includes
 //#include "GaudiKernel/IInterface.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "SCT_ConditionsServices/ISCT_ElectricFieldTool.h"
+#include "SCT_ConditionsTools/ISCT_ElectricFieldTool.h"
 
 class TF1;
 class IInterface;
