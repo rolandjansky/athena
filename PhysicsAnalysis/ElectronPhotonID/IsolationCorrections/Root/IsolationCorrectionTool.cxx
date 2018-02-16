@@ -305,9 +305,24 @@ namespace CP {
       float oldiso  = 0;
       bool gotIso   = eg.isolationValue(oldiso,type);
       if (!gotIso) continue;
-      if (eg.pt() > 25e3) 
-	ATH_MSG_DEBUG("pt = " << eg.pt() << " eta = " << eg.eta() << ", def Iso " << xAOD::Iso::toString(type) << " = " << oldiso
-		      << " old leak = " << oldleak << " new leak = " << newleak);
+//      if (eg.pt() > 25e3) 
+//	ATH_MSG_DEBUG("pt = " << eg.pt() << " eta = " << eg.eta() << ", def Iso " << xAOD::Iso::toString(type) << " = " << oldiso
+//		      << " old leak = " << oldleak << " new leak = " << newleak);
+
+	  // Use the Random Run Number from the Event Info to check which year's DD-Corrections to use 
+	  // If the RandomRunNo can't be obtained, then default to what is set by either the default choice or by the AuxData check 
+	  unsigned int theRunNumber = 0 ; 
+	  const xAOD::EventInfo *eventInfo = evtStore()->retrieve< const xAOD::EventInfo>("EventInfo");  
+	  if(eventInfo){ 
+	  static const SG::AuxElement::Accessor<unsigned int> randomrunnumber("RandomRunNumber"); 
+	  if(randomrunnumber.isAvailable(*eventInfo)){ 
+	    theRunNumber = randomrunnumber(*(eventInfo)) ; 
+	    }
+	  } else ATH_MSG_WARNING("Could not retrieve EventInfo object"); 
+	  if (theRunNumber>=320000) m_ddVersion = "2017" ; // RunNo found, and is in 2017 range 
+	  else if( theRunNumber > 0 ) m_ddVersion = "2015_2016" ; // RunNo found, but less than 2017 range
+	  // otherwise, stick with default (m_ddVersion is already assigned)
+
       float iso     = oldiso + (oldleak-newleak);
       float ddcorr  = 0;
       if (m_is_mc && m_apply_dd && type != xAOD::Iso::topoetcone30) {
@@ -318,8 +333,7 @@ namespace CP {
 	  decDDcor40(eg) = ddcorr;
 	iso += ddcorr;
       }
-      if (eg.pt() > 25e3) 
-	ATH_MSG_DEBUG("ddcor = " << ddcorr << " new Iso = " << iso << "\n");
+      //if (eg.pt() > 25e3) ATH_MSG_DEBUG("ddcor = " << ddcorr << " new Iso = " << iso << "\n");
       bool setIso = eg.setIsolationValue(iso,type);
       setIso = (setIso && eg.setIsolationCaloCorrection(newleak-ddcorr,type,xAOD::Iso::ptCorrection));
       if (!setIso) {
@@ -336,7 +350,7 @@ namespace CP {
   float IsolationCorrectionTool::GetPtCorrection(const xAOD::Egamma& input, xAOD::Iso::IsolationType isol) const {
     return m_isol_corr->GetPtCorrection(input, isol);
   }
-  
+    
   float IsolationCorrectionTool::GetDDCorrection(const xAOD::Egamma& input, xAOD::Iso::IsolationType isol){
 	if (m_ddVersion == "2015_2016") {   // corrections derived in 2018 (Rel 21), 2015+2016 data
       return m_isol_corr->GetDDCorrection_2015_2016(input, isol);
