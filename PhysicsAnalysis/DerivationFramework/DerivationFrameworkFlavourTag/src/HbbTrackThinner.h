@@ -86,7 +86,7 @@ namespace DerivationFramework {
     double m_largeJetPtCut;
     double m_largeJetEtaCut;
     double m_smallJetPtCut;
-    unsigned int m_nLeadingJets;
+    unsigned int m_nLeadingSubjets;
     std::string m_jetCollectionName;
     bool m_addConeAssociated;
     bool m_addSubjetGhosts;

@@ -40,7 +40,7 @@ namespace DerivationFramework {
     m_largeJetPtCut(200e3),
     m_largeJetEtaCut(2.1),
     m_smallJetPtCut(7e3),
-    m_nLeadingJets(3),
+    m_nLeadingSubjets(3),
     m_jetCollectionName("AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"),
     m_addConeAssociated(false),
     m_addSubjetGhosts(false),
@@ -51,7 +51,7 @@ namespace DerivationFramework {
     declareProperty("largeJetPtCut", m_largeJetPtCut);
     declareProperty("largeJetEtaCut", m_largeJetEtaCut);
     declareProperty("smallJetPtCut", m_smallJetPtCut);
-    declareProperty("nLeadingJets", m_nLeadingJets);
+    declareProperty("nLeadingSubjets", m_nLeadingSubjets);
     declareProperty("jetCollectionName", m_jetCollectionName);
     declareProperty("addConeAssociated", m_addConeAssociated);
     declareProperty("addSubjetGhosts", m_addSubjetGhosts);
@@ -155,7 +155,7 @@ namespace DerivationFramework {
     for (const auto& el: subjet_links) {
       const auto* jet = dynamic_cast<const Jet*>(*el);
       if (!jet) throw std::logic_error("subjet is invalid");
-      if (subjets.size() < m_nLeadingJets &&
+      if (subjets.size() < m_nLeadingSubjets &&
           jet->pt() >= m_smallJetPtCut) {
         subjets.push_back(jet);
       }
