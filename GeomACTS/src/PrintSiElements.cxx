@@ -75,6 +75,7 @@
 #include <list>
 #include <random>
 #include <atomic>
+#include <algorithm>
 #include <thread>
 
 
@@ -288,7 +289,7 @@ StatusCode PrintSiElements::buildTrackingGeometry() {
   
   
   size_t nthreads = std::thread::hardware_concurrency();
-  nthreads = std::max(1u, nthreads);
+  nthreads = std::max(size_t(1), nthreads);
   std::vector<std::vector<Acts::ExtrapolationCell<Acts::TrackParameters>>> results(nthreads);
 
   std::cout << "using " << nthreads << " threads" << std::endl;
