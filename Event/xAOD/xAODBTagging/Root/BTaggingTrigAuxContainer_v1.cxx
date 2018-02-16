@@ -125,7 +125,31 @@ namespace xAOD {
      // AUX_VARIABLE( rnnip_TrackParticles );
      AUX_VARIABLE( rnnip_TrackParticleLinks ); 
 
+     AUX_VARIABLE( rnnip_valD0wrtPVofTracks );
+     AUX_VARIABLE( rnnip_sigD0wrtPVofTracks );
+     AUX_VARIABLE( rnnip_valZ0wrtPVofTracks );
+     AUX_VARIABLE( rnnip_sigZ0wrtPVofTracks );
+     AUX_VARIABLE( rnnip_dphiofTracks );
+     AUX_VARIABLE( rnnip_ptfracofTracks );
+     AUX_VARIABLE( rnnip_drofTracks );
+     AUX_VARIABLE( rnnip_detaofTracks ); 
+     AUX_VARIABLE( rnnip_flagFromV0ofTracks ); 
+     AUX_VARIABLE( rnnip_gradeOfTracks );
+
+
      AUX_VARIABLE( SMT_discriminant );
+
+     //     AUX_VARIABLE( SMT_mu_pt );
+     AUX_VARIABLE( SMT_dR );
+     AUX_VARIABLE( SMT_qOverPratio );
+     AUX_VARIABLE( SMT_mombalsignif );
+     AUX_VARIABLE( SMT_scatneighsignif );
+     AUX_VARIABLE( SMT_pTrel );
+     AUX_VARIABLE( SMT_mu_d0 );
+     AUX_VARIABLE( SMT_mu_z0 );
+     AUX_VARIABLE( SMT_ID_qOverP );
+
+
 
      AUX_VARIABLE( MV2c10rnn_discriminant );
      AUX_VARIABLE( MV2c10mu_discriminant );

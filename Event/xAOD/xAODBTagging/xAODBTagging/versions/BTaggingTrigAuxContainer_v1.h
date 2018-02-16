@@ -18,6 +18,7 @@
 #include "xAODBase/IParticleContainer.h"
 //#include "xAODVertex/VertexContainer.h"
 #include "xAODBTagging/BTagVertexContainer.h"
+#include "xAODMuon/MuonContainer.h"
 
 namespace xAOD {
 
@@ -157,11 +158,36 @@ namespace xAOD {
      //std::vector< std::vector< ElementLink< xAOD::TrackParticleContainer > > > rnnip_TrackParticles;
      std::vector< std::vector< ElementLink< TrackParticleContainer > > > rnnip_TrackParticleLinks; 
 
+     std::vector< std::vector< float > > rnnip_valD0wrtPVofTracks;
+     std::vector< std::vector< float > > rnnip_sigD0wrtPVofTracks;
+     std::vector< std::vector< float > > rnnip_valZ0wrtPVofTracks;
+     std::vector< std::vector< float > > rnnip_sigZ0wrtPVofTracks;
+     std::vector< std::vector< float > > rnnip_dphiofTracks;
+     std::vector< std::vector< float > > rnnip_ptfracofTracks;
+     std::vector< std::vector< float > > rnnip_drofTracks;
+     std::vector< std::vector< float > > rnnip_detaofTracks;
+     std::vector< std::vector< bool  > > rnnip_flagFromV0ofTracks;
+     std::vector< std::vector< int   > > rnnip_gradeOfTracks;
+
+
      std::vector< double > SMT_discriminant;
+     std::vector< std::vector< ElementLink< xAOD::MuonContainer > > > SMT_mu_link;
+
+     std::vector<float> SMT_mu_pt;
+     std::vector<float> SMT_dR;     
+     std::vector<float> SMT_qOverPratio;
+     std::vector<float> SMT_mombalsignif;
+     std::vector<float> SMT_scatneighsignif;
+     std::vector<float> SMT_pTrel;
+     std::vector<float> SMT_mu_d0;
+     std::vector<float> SMT_mu_z0;
+     std::vector<float> SMT_ID_qOverP;
+
 
      std::vector<double> MV2c10rnn_discriminant;
      std::vector<double> MV2c10mu_discriminant;
 
+     
      std::vector< double >  DL1_pu;
      std::vector< double >  DL1_pb;
      std::vector< double >  DL1_pc;
