@@ -192,12 +192,10 @@ StatusCode EFMissingETFromClustersTracksPUC::execute(xAOD::TrigMissingET * /* me
     }
   }
 
-  std::vector<float> ptsum_pvsVec(0);
-
+  std::vector<double> ptsum_pvsVec(JetsVec.size(), 0.0);
   for (const xAOD::TrackParticle* itrk : TracksVec) {
     bool accept = (itrk->pt()> m_track_ptcut && m_trackselTool->accept(*itrk, primaryVertex));
-    if (accept) continue;
-    //    for (const xAOD::Jet* jet : JetsVec) {
+    if (!accept) continue;
     int whichjet = 0;
     double minkT = -1;
     for (uint i=0; i < JetsVec.size(); i++) {
@@ -207,7 +205,7 @@ StatusCode EFMissingETFromClustersTracksPUC::execute(xAOD::TrigMissingET * /* me
 	  double dphi = fabs(jet->phi()-itrk->phi());
 	  if (dphi > M_PI) dphi = 2*M_PI - dphi;
 	  double dR = sqrt((jet->rapidity()-itrk->rapidity())*(jet->rapidity()-itrk->rapidity()) + dphi * dphi);
-	  if (dR < m_dRCut) continue;
+	  if (dR > m_dRCut) continue;
 	  double kT = dR/jet->pt();
 	  if (kT < minkT || minkT < 0) {
 	    minkT = kT;
@@ -216,6 +214,7 @@ StatusCode EFMissingETFromClustersTracksPUC::execute(xAOD::TrigMissingET * /* me
 	}
       }
       if (minkT >= 0) ptsum_pvsVec.at(whichjet) += itrk->pt();
+	
     }
   } 
 
