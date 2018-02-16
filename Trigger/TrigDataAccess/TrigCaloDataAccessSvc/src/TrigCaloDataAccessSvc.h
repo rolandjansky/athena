@@ -31,23 +31,20 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
 
 
   virtual StatusCode initialize() override;
-  
-  virtual Status prepareCollections( const EventContext& context,
-				     const IRoiDescriptor& roi, 
-				     DETID detector ) override;
+  virtual StatusCode finalize() override;
   
   virtual Status loadCollections ( const EventContext& context,
 				   const IRoiDescriptor& roi,
+				   const DETID detID,
+				   const int sampling,
 				   LArTT_Selector<LArCellCont>& loadedCells ) override;
   
 
 
-  virtual Status prepareFullCollections( const EventContext& context, DETID detid ) override;
+  virtual Status prepareFullCollections( const EventContext& context ) override;
   
   virtual Status loadFullCollections ( const EventContext& context,
-				       DETID detid,
-				       LArTT_Selector<LArCellCont>::const_iterator& begin,
-				       LArTT_Selector<LArCellCont>::const_iterator& end ) override;
+				       ConstDataVector<CaloCellContainer>& cont ) override;
   
  private:
   
@@ -84,32 +81,19 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
     }
 
   };
-  typedef std::map<DETID, FullDetIDs> DETIDtoIdentifiers;
-  DETIDtoIdentifiers m_detectorIDs; 
   
-  FullDetIDs m_allLArIDs;
-  
-  /* FullDetIDs m_ttemIDs; */
-  /* FullDetIDs m_tthecIDs; */
-  /* FullDetIDs m_fcalemIDs; */
-  /* FullDetIDs m_fcalhadIDs; */
-
-
   /**
    * @brief convience structure to keep together a collection and auxiliar full collection selectors
    */
-  struct  LArEventCache {
-    LArCellCont container;
+  struct  HLTCaloEventCache {
     std::mutex mutex;    
-    LArTT_Selector<LArCellCont> allSelector;
-    LArTT_Selector<LArCellCont> ttemSelector;
-    LArTT_Selector<LArCellCont> tthecSelector;
-    LArTT_Selector<LArCellCont> fcalemSelector;
-    LArTT_Selector<LArCellCont> fcalhadSelector;
+    LArCellCont* container;
+    CaloCellContainer* fullcont;
+    unsigned int lastFSEvent;
   };
 
   
-  SG::SlotSpecificObj< LArEventCache > m_larcell;
+  SG::SlotSpecificObj< HLTCaloEventCache > m_larcell;
 
   std::mutex m_initMutex; // this will be gone once we move to new conditions
   std::mutex m_dataPrepMutex; // this will be gone when reg sel & Rob DP will become thread safe
@@ -140,10 +124,15 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
    **/
   Status prepareLArCollections( const EventContext& context,
 				const IRoiDescriptor& roi, 
+				const int sampling,
 				DETID detector );
 
 
-  Status prepareLArFullCollections( const EventContext& context, DETID detid );
+  Status prepareLArFullCollections( const EventContext& context );
+
+  std::vector<uint32_t> m_vrodid32fullDet;
+  std::vector<std::vector<uint32_t> > m_vrodid32fullDetHG;
+  size_t m_nSlots;
 
 
 };
