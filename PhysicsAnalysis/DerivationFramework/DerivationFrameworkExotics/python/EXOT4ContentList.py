@@ -18,7 +18,8 @@ EXOT4SmartCollections = [
     "BTagging_AntiKt2Track",
     "BTagging_AntiKt4Track",
     "MET_Reference_AntiKt4EMTopo",
-    "MET_Reference_AntiKt4LCTopo"
+    "MET_Reference_AntiKt4LCTopo",
+    "AntiKt4EMPFlowJets"
 ]
 
 # detailed list of extra variables to be used
