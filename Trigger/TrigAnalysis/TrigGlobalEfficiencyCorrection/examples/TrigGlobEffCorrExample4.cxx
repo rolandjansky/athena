@@ -116,7 +116,7 @@ int main(int argc, char* argv[])
 	
     ToolHandleArray<CP::IMuonTriggerScaleFactors> muonTools;
     asg::AnaToolHandle<CP::IMuonTriggerScaleFactors> muonTool("CP::MuonTriggerScaleFactors/MuonTrigEff");
-    muonTool.setProperty("CalibrationRelease", "170916_Rel21PreRec").ignore();
+    muonTool.setProperty("CalibrationRelease", "180216_Moriond21").ignore();
     muonTool.setProperty("MuonQuality", "Tight").ignore();
     // muonTool.setProperty("Isolation", "GradientLoose").ignore();
 	muonTool.setProperty("OutputLevel", MSG::ERROR).ignore();
