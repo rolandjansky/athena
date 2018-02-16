@@ -43,13 +43,13 @@ StatusCode MuonTrackRemoval::execute(xAOD::TauJet& xTau){
   std::vector<ElementLink <xAOD::TrackParticleContainer>> muTracks;
   TLorentzVector taup4 = xTau.p4();
 
-  xAOD::Muon* mu = 0;
+  xAOD::Muon* mu = nullptr;
   for(auto xMuon : *muons){
     TLorentzVector muonp4 = xMuon->p4();
     if(taup4.DeltaR(muonp4) < 0.4){
-      mu = 0;
+      mu = nullptr;
       if( !(*m_thMuonCalibrationTool).correctedCopy( *xMuon, mu ) ) {
-	Error( "Tes", "Cannot really apply calibration nor smearing" );
+	ATH_MSG_ERROR( "MuonCalibrationTool can not really apply calibration nor smearing" );
 	continue;
       }
       xAOD::Muon::Quality quality = (*m_thMuonSelectionTool).getQuality(*mu);

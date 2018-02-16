@@ -31,7 +31,15 @@ StatusCode DiTauProcessorTool::initialize(){
       ATH_MSG_ERROR("Failed initializing DiTauVarCalculatorTool "<<varCalculator->name());
       return StatusCode::FAILURE;
     }
-    std::string decayChannel = *(dynamic_cast<asg::AsgTool*>(&*varCalculator)->getProperty<std::string>("DiTauDecayChannel"));
+    
+    const std::string* pDecayChannel = dynamic_cast<asg::AsgTool*>(&*varCalculator)->getProperty<std::string>("DiTauDecayChannel");
+    
+    if(!pDecayChannel){
+      ATH_MSG_ERROR("VariableCalculatorTool" << varCalculator->name() << "has no valid DecayModePropery.");
+      return StatusCode::FAILURE;    
+    }
+    
+    std::string decayChannel = *pDecayChannel;
     if(decayChannel == "HadHad"){
       m_aVarCalculatorToolsHadHad.push_back(varCalculator);
       continue;
@@ -74,7 +82,7 @@ StatusCode DiTauProcessorTool::execute(){
 StatusCode DiTauProcessorTool::processContainer(std::string& diTauContainerName, 
                                                 ToolHandleArray<tauRecTools::IDiTauToolBase>& varCalculatorTools){
   
-  const xAOD::DiTauJetContainer*     pContainer(0);
+  const xAOD::DiTauJetContainer* pContainer = nullptr;
 
   StatusCode sc;
   

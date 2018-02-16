@@ -124,8 +124,7 @@ StatusCode DiTauWPDecorator::initialize() {
 StatusCode DiTauWPDecorator::execute(const xAOD::DiTauJet& xDiTau) 
 { 
   // histograms
-  std::vector<m_pair_t> *histArray;
-  histArray = &m_vpHists;
+  std::vector<m_pair_t> *histArray = &m_vpHists;
 
   // Retrieve tau properties
   double score = (*m_accScore)(xDiTau);

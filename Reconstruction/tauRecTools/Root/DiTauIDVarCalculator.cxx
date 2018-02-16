@@ -72,13 +72,48 @@ typedef ElementLink< xAOD::JetContainer > JetLink_t;
 DiTauIDVarCalculator::DiTauIDVarCalculator( const std::string& name )
   : AsgTool(name)
   , m_sDiTauContainerName("DiTauJets")
-  , m_eDecayChannel(DecayChannel::Default)  
+  , m_eDecayChannel(DecayChannel::Default)
+  , m_muSelTool_veryloose("MuonSelectionToolHandleVeryLoose")
+  , m_muSelTool_loose    ("MuonSelectionToolHandleLoose"    )
+  , m_muSelTool_medium   ("MuonSelectionToolHandleMedium"   )
+  , m_muSelTool_tight    ("MuonSelectionToolHandleTight"    )
+  , m_muSelTool_highpt   ("MuonSelectionToolHandleHightPt"  )
+  , m_muonCalibrationTool("MuonCalibrationToolHandle"       )
+  , m_isoSelTool         ("IsolationSelectionToolHandle"    )
+  , m_electronLikeliHoodTool_veryloose   ("ElectronLikeliHoodToolHandleVeryLoose" )
+  , m_electronLikeliHoodTool_loose       ("ElectronLikeliHoodToolHandleLoose"     )
+  , m_electronLikeliHoodTool_loose_CutBL ("ElectronLikeliHoodToolHandleLooseCutBL")
+  , m_electronLikeliHoodTool_medium      ("ElectronLikeliHoodToolHandleMedium"    )
+  , m_electronLikeliHoodTool_tight       ("ElectronLikeliHoodToolHandleTight"     )
+  , m_muonTrackRemoval                   ("MuonTrackRemovalToolHandle"        )
+  , m_tauSubstructureVariables           ("TauSubStructureVariablesToolHandle")
+  , m_tauCommonCalcVars                  ("TauCommonCalcVarsToolHandle"       )
 {
   declareProperty( "DefaultValue", m_dDefault = 0);
   declareProperty( "DiTauContainerName", m_sDiTauContainerName = "DiTauJets");
   declareProperty( "doCalcCluserVariables", m_bCalcCluserVariables = false);
   declareProperty( "DiTauDecayChannel", m_sDecayChannel = "HadHad");
   declareProperty( "MuonTrackRemoval", m_bMuonTrackRemoval = true);
+
+  declareProperty( "MuonSelectionToolHandleVeryLoose" , m_muSelTool_veryloose.getHandle());
+  declareProperty( "MuonSelectionToolHandleLoose"     , m_muSelTool_loose.getHandle()    );
+  declareProperty( "MuonSelectionToolHandleMedium"    , m_muSelTool_medium.getHandle()   );
+  declareProperty( "MuonSelectionToolHandleTight"     , m_muSelTool_tight.getHandle()    );
+  declareProperty( "MuonSelectionToolHandleHightPt"   , m_muSelTool_highpt.getHandle()   );
+
+  declareProperty( "MuonCalibrationToolHandle"        , m_muonCalibrationTool.getHandle());
+  
+  declareProperty( "IsolationSelectionToolHandle"     , m_isoSelTool.getHandle());
+
+  declareProperty( "ElectronLikeliHoodToolHandleVeryLoose"   , m_electronLikeliHoodTool_veryloose.getHandle()   );
+  declareProperty( "ElectronLikeliHoodToolHandleLoose"       , m_electronLikeliHoodTool_loose.getHandle()       );
+  declareProperty( "ElectronLikeliHoodToolHandleLooseCutBL"  , m_electronLikeliHoodTool_loose_CutBL.getHandle() );
+  declareProperty( "ElectronLikeliHoodToolHandleMedium"      , m_electronLikeliHoodTool_medium.getHandle()      );
+  declareProperty( "ElectronLikeliHoodToolHandleTight"       , m_electronLikeliHoodTool_tight.getHandle()       );
+          
+  declareProperty( "MuonTrackRemovalToolHandle"           , m_muonTrackRemoval.getHandle()        );
+  declareProperty( "TauSubStructureVariablesToolHandle"   , m_tauSubstructureVariables.getHandle());
+  declareProperty( "TauCommonCalcVarsToolHandle"          , m_tauCommonCalcVars.getHandle()       );
 }
 
 //______________________________________________________________________________
@@ -103,90 +138,75 @@ StatusCode DiTauIDVarCalculator::initialize()
   }
   
   if(m_eDecayChannel == DecayChannel::HadMu || m_eDecayChannel == DecayChannel::HadEl){
-    m_isoSelTool = new asg::AnaToolHandle<CP::IIsolationSelectionTool>("IsoSelTool");
-    ATH_CHECK(ASG_MAKE_ANA_TOOL(*m_isoSelTool, CP::IsolationSelectionTool));
-    ANA_CHECK(m_isoSelTool->setProperty("ElectronWP","GradientLoose"));
-    ANA_CHECK(m_isoSelTool->setProperty("MuonWP","GradientLoose"));
-    ANA_CHECK(m_isoSelTool->initialize());
+    ATH_CHECK(ASG_MAKE_ANA_TOOL(m_isoSelTool, CP::IsolationSelectionTool));
+    ANA_CHECK(m_isoSelTool.setProperty("ElectronWP","GradientLoose"));
+    ANA_CHECK(m_isoSelTool.setProperty("MuonWP","GradientLoose"));
+    ANA_CHECK(m_isoSelTool.initialize());
   }
   
   if(m_eDecayChannel == DecayChannel::HadMu){
-      m_muSelTool_loose = new asg::AnaToolHandle<CP::IMuonSelectionTool>("MuSelTool_loose");
-      ATH_CHECK(ASG_MAKE_ANA_TOOL(*m_muSelTool_loose, CP::MuonSelectionTool));
-      ANA_CHECK(m_muSelTool_loose->setProperty("MuQuality", 2));
-      ANA_CHECK(m_muSelTool_loose->initialize());
+      ATH_CHECK(ASG_MAKE_ANA_TOOL(m_muSelTool_loose, CP::MuonSelectionTool));
+      ANA_CHECK(m_muSelTool_loose.setProperty("MuQuality", 2));
+      ANA_CHECK(m_muSelTool_loose.initialize());
 
-      m_muSelTool_medium = new asg::AnaToolHandle<CP::IMuonSelectionTool>("MuSelTool_medium");
-      ATH_CHECK(ASG_MAKE_ANA_TOOL(*m_muSelTool_medium, CP::MuonSelectionTool));
-      ANA_CHECK(m_muSelTool_medium->setProperty("MuQuality", 1));
-      ANA_CHECK(m_muSelTool_medium->initialize());
+      ATH_CHECK(ASG_MAKE_ANA_TOOL(m_muSelTool_medium, CP::MuonSelectionTool));
+      ANA_CHECK(m_muSelTool_medium.setProperty("MuQuality", 1));
+      ANA_CHECK(m_muSelTool_medium.initialize());
 
-      m_muSelTool_tight = new asg::AnaToolHandle<CP::IMuonSelectionTool>("MuSelTool_tight");
-      ATH_CHECK(ASG_MAKE_ANA_TOOL(*m_muSelTool_tight, CP::MuonSelectionTool));
-      ANA_CHECK(m_muSelTool_tight->setProperty("MuQuality", 0)); 
-      ANA_CHECK(m_muSelTool_tight->initialize());
+      ATH_CHECK(ASG_MAKE_ANA_TOOL(m_muSelTool_tight, CP::MuonSelectionTool));
+      ANA_CHECK(m_muSelTool_tight.setProperty("MuQuality", 0)); 
+      ANA_CHECK(m_muSelTool_tight.initialize());
 
-      m_muSelTool_veryloose = new asg::AnaToolHandle<CP::IMuonSelectionTool>("MuSelTool_veryloose");
-      ATH_CHECK(ASG_MAKE_ANA_TOOL(*m_muSelTool_veryloose, CP::MuonSelectionTool));
-      ANA_CHECK(m_muSelTool_veryloose->setProperty("MuQuality", 3));
-      ANA_CHECK(m_muSelTool_veryloose->initialize());
+      ATH_CHECK(ASG_MAKE_ANA_TOOL(m_muSelTool_veryloose, CP::MuonSelectionTool));
+      ANA_CHECK(m_muSelTool_veryloose.setProperty("MuQuality", 3));
+      ANA_CHECK(m_muSelTool_veryloose.initialize());
 
-      m_muSelTool_highpt = new asg::AnaToolHandle<CP::IMuonSelectionTool>("MuSelTool_highpt");
-      ATH_CHECK(ASG_MAKE_ANA_TOOL(*m_muSelTool_highpt, CP::MuonSelectionTool));
-      ANA_CHECK(m_muSelTool_highpt->setProperty("MuQuality", 4));
-      ANA_CHECK(m_muSelTool_highpt->initialize());
+      ATH_CHECK(ASG_MAKE_ANA_TOOL(m_muSelTool_highpt, CP::MuonSelectionTool));
+      ANA_CHECK(m_muSelTool_highpt.setProperty("MuQuality", 4));
+      ANA_CHECK(m_muSelTool_highpt.initialize());
 
-      ANA_CHECK(m_muonCalibrationTool = new asg::AnaToolHandle<CP::IMuonCalibrationAndSmearingTool>( "MuonCorrectionTool" ));
-      ATH_CHECK(ASG_MAKE_ANA_TOOL(*m_muonCalibrationTool, CP::MuonCalibrationAndSmearingTool));
-      //m_muonCalibrationTool->msg().setLevel( MSG::INFO);
-      ANA_CHECK(m_muonCalibrationTool->setProperty( "Year", "Data16" ));
-      ANA_CHECK(m_muonCalibrationTool->setProperty("Release","Recs2016_15_07"));
-      ANA_CHECK(m_muonCalibrationTool->setProperty("StatComb",false));
-      ANA_CHECK(m_muonCalibrationTool->setProperty("SagittaCorr",false));
-      ANA_CHECK(m_muonCalibrationTool->setProperty("SagittaRelease", "sagittaBiasDataAll_02_08_17"));
-      ANA_CHECK(m_muonCalibrationTool->setProperty("doSagittaMCDistortion",false));
-      ANA_CHECK(m_muonCalibrationTool->initialize());
+      ATH_CHECK(ASG_MAKE_ANA_TOOL(m_muonCalibrationTool, CP::MuonCalibrationAndSmearingTool));
+      //m_muonCalibrationTool.msg().setLevel( MSG::INFO);
+      ANA_CHECK(m_muonCalibrationTool.setProperty( "Year", "Data16" ));
+      ANA_CHECK(m_muonCalibrationTool.setProperty("Release","Recs2016_15_07"));
+      ANA_CHECK(m_muonCalibrationTool.setProperty("StatComb",false));
+      ANA_CHECK(m_muonCalibrationTool.setProperty("SagittaCorr",false));
+      ANA_CHECK(m_muonCalibrationTool.setProperty("SagittaRelease", "sagittaBiasDataAll_02_08_17"));
+      ANA_CHECK(m_muonCalibrationTool.setProperty("doSagittaMCDistortion",false));
+      ANA_CHECK(m_muonCalibrationTool.initialize());
 
       if(m_bMuonTrackRemoval){
-        m_muonTrackRemoval = new asg::AnaToolHandle<ITauToolBase>("MuonTrackRemoval");
-        ATH_CHECK(ASG_MAKE_ANA_TOOL(*m_muonTrackRemoval, tauRecTools::MuonTrackRemoval));
-        ToolHandle<CP::IMuonCalibrationAndSmearingTool> thCalibrationAndSmearingTool(&**m_muonCalibrationTool);
-        ToolHandle<CP::IMuonSelectionTool> thMuonSelectionTool(&**m_muSelTool_loose);
-        ATH_CHECK(m_muonTrackRemoval->setProperty("MuonCalibrationToolHandle", thCalibrationAndSmearingTool));
-        ATH_CHECK(m_muonTrackRemoval->setProperty("MuonSelectionToolHandle", thMuonSelectionTool));
-        ATH_CHECK(m_muonTrackRemoval->initialize());
+        ATH_CHECK(ASG_MAKE_ANA_TOOL(m_muonTrackRemoval, tauRecTools::MuonTrackRemoval));
+        ToolHandle<CP::IMuonCalibrationAndSmearingTool> thCalibrationAndSmearingTool(&*m_muonCalibrationTool);
+        ToolHandle<CP::IMuonSelectionTool> thMuonSelectionTool(&*m_muSelTool_loose);
+        ATH_CHECK(m_muonTrackRemoval.setProperty("MuonCalibrationToolHandle", thCalibrationAndSmearingTool));
+        ATH_CHECK(m_muonTrackRemoval.setProperty("MuonSelectionToolHandle", thMuonSelectionTool));
+        ATH_CHECK(m_muonTrackRemoval.initialize());
 
-        m_tauSubstructureVariables = new asg::AnaToolHandle<ITauToolBase>("TauSubstructureVariables");
-        ATH_CHECK(ASG_MAKE_ANA_TOOL(*m_tauSubstructureVariables, TauSubstructureVariables));
-        ATH_CHECK(m_tauSubstructureVariables->initialize());
-        (*m_tauSubstructureVariables)->setTauEventData(&m_data);
+        ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tauSubstructureVariables, TauSubstructureVariables));
+        ATH_CHECK(m_tauSubstructureVariables.initialize());
+        (*m_tauSubstructureVariables).setTauEventData(&m_data);
 
-        m_tauCommonCalcVars = new asg::AnaToolHandle<ITauToolBase>("TauCommonCalcVars");
-        ATH_CHECK(ASG_MAKE_ANA_TOOL(*m_tauCommonCalcVars, TauCommonCalcVars));
-        ATH_CHECK(m_tauCommonCalcVars->initialize());
+        ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tauCommonCalcVars, TauCommonCalcVars));
+        ATH_CHECK(m_tauCommonCalcVars.initialize());
       }
   }
   if(m_eDecayChannel == DecayChannel::HadEl){
     std::string confDir = "ElectronPhotonSelectorTools/offline/mc16_20170828/";
-    m_electronLikeliHoodTool_medium = new asg::AnaToolHandle<AsgElectronLikelihoodTool>( "ElectronLikeliHoodToolMedium" );
-    ATH_CHECK(ASG_MAKE_ANA_TOOL(*m_electronLikeliHoodTool_medium, AsgElectronLikelihoodTool));
-    ATH_CHECK(m_electronLikeliHoodTool_medium->setProperty("ConfigFile",confDir+"ElectronLikelihoodMediumOfflineConfig2017_Smooth.conf"));
+    ATH_CHECK(ASG_MAKE_ANA_TOOL(m_electronLikeliHoodTool_medium, AsgElectronLikelihoodTool));
+    ATH_CHECK(m_electronLikeliHoodTool_medium.setProperty("ConfigFile",confDir+"ElectronLikelihoodMediumOfflineConfig2017_Smooth.conf"));
 
-    m_electronLikeliHoodTool_loose = new asg::AnaToolHandle<AsgElectronLikelihoodTool>( "ElectronLikeliHoodTool" );
-    ATH_CHECK(ASG_MAKE_ANA_TOOL(*m_electronLikeliHoodTool_loose, AsgElectronLikelihoodTool));
-    ATH_CHECK(m_electronLikeliHoodTool_loose->setProperty("ConfigFile",confDir+"ElectronLikelihoodLooseOfflineConfig2017_Smooth.conf"));
+    ATH_CHECK(ASG_MAKE_ANA_TOOL(m_electronLikeliHoodTool_loose, AsgElectronLikelihoodTool));
+    ATH_CHECK(m_electronLikeliHoodTool_loose.setProperty("ConfigFile",confDir+"ElectronLikelihoodLooseOfflineConfig2017_Smooth.conf"));
     
-    m_electronLikeliHoodTool_loose_CutBL = new asg::AnaToolHandle<AsgElectronLikelihoodTool>( "ElectronLikeliHoodTool" );
-    ATH_CHECK(ASG_MAKE_ANA_TOOL(*m_electronLikeliHoodTool_loose_CutBL, AsgElectronLikelihoodTool));
-    ATH_CHECK(m_electronLikeliHoodTool_loose_CutBL->setProperty("ConfigFile",confDir+"ElectronLikelihoodLooseOfflineConfig2017_CutBL_Smooth.conf"));
+    ATH_CHECK(ASG_MAKE_ANA_TOOL(m_electronLikeliHoodTool_loose_CutBL, AsgElectronLikelihoodTool));
+    ATH_CHECK(m_electronLikeliHoodTool_loose_CutBL.setProperty("ConfigFile",confDir+"ElectronLikelihoodLooseOfflineConfig2017_CutBL_Smooth.conf"));
 
-    m_electronLikeliHoodTool_tight = new asg::AnaToolHandle<AsgElectronLikelihoodTool>( "ElectronLikeliHoodToolMedium" );
-    ATH_CHECK(ASG_MAKE_ANA_TOOL(*m_electronLikeliHoodTool_tight, AsgElectronLikelihoodTool));
-    ATH_CHECK(m_electronLikeliHoodTool_tight->setProperty("ConfigFile",confDir+"ElectronLikelihoodTightOfflineConfig2017_Smooth.conf"));
+    ATH_CHECK(ASG_MAKE_ANA_TOOL(m_electronLikeliHoodTool_tight, AsgElectronLikelihoodTool));
+    ATH_CHECK(m_electronLikeliHoodTool_tight.setProperty("ConfigFile",confDir+"ElectronLikelihoodTightOfflineConfig2017_Smooth.conf"));
 
-    m_electronLikeliHoodTool_veryloose = new asg::AnaToolHandle<AsgElectronLikelihoodTool>( "ElectronLikeliHoodTool" );
-    ATH_CHECK(ASG_MAKE_ANA_TOOL(*m_electronLikeliHoodTool_veryloose, AsgElectronLikelihoodTool));
-    ATH_CHECK(m_electronLikeliHoodTool_veryloose->setProperty("ConfigFile",confDir+"ElectronLikelihoodVeryLooseOfflineConfig2017_Smooth.conf"));
+    ATH_CHECK(ASG_MAKE_ANA_TOOL(m_electronLikeliHoodTool_veryloose, AsgElectronLikelihoodTool));
+    ATH_CHECK(m_electronLikeliHoodTool_veryloose.setProperty("ConfigFile",confDir+"ElectronLikelihoodVeryLooseOfflineConfig2017_Smooth.conf"));
   }
   
   return StatusCode::SUCCESS;
@@ -337,16 +357,16 @@ StatusCode DiTauIDVarCalculator::calculateHadMuIDVariables(const xAOD::DiTauJet&
  
   const xAOD::TauJet* pTau  = *acc_tauLink(xDiTau);
   const xAOD::Muon*   pMuon = *acc_muonLink(xDiTau);
-  xAOD::TauJet* pTauCopy = nullptr;
+  std::unique_ptr<xAOD::TauJet> pTauCopy;
 
   if(m_bMuonTrackRemoval){
-    pTauCopy = new xAOD::TauJet();
+    pTauCopy.reset(new xAOD::TauJet());
     pTauCopy->makePrivateStore(*pTau);
     m_data.clear();
-    ATH_CHECK((*m_muonTrackRemoval)->execute(*pTauCopy));
-    ATH_CHECK((*m_tauSubstructureVariables)->execute(*pTauCopy));
-    ATH_CHECK((*m_tauCommonCalcVars)->execute(*pTauCopy));
-    pTau = pTauCopy;
+    ATH_CHECK(m_muonTrackRemoval->execute(*pTauCopy));
+    ATH_CHECK(m_tauSubstructureVariables->execute(*pTauCopy));
+    ATH_CHECK(m_tauCommonCalcVars->execute(*pTauCopy));
+    pTau = &*pTauCopy;
   }
     
   // Decorate MuonQuality and Tau-ID-Vars to DiTauCandidate:
@@ -364,18 +384,16 @@ StatusCode DiTauIDVarCalculator::calculateHadMuIDVariables(const xAOD::DiTauJet&
   dec_massTrkSys        (xDiTau) = acc_massTrkSys        (*pTau);
   dec_ChPiEMEOverCaloEME(xDiTau) = acc_ChPiEMEOverCaloEME(*pTau);
   dec_tau_ntrack        (xDiTau) = pTau->nTracks();
-
-  if(pTauCopy) delete pTauCopy;
   
-  xAOD::Muon* mu = 0;
+  xAOD::Muon* mu = nullptr;
   //callibrate Muon:
-  if( !(*m_muonCalibrationTool)->correctedCopy( *pMuon, mu ) ) {
+  if( !m_muonCalibrationTool->correctedCopy( *pMuon, mu ) ) {
     ATH_MSG_ERROR( "MuonCalibrationTool can not be applied" );
     acc_validMuon(xDiTau) = false;
     return StatusCode::FAILURE;
   }
   acc_validMuon(xDiTau) = true;
-  acc_mu_isoGL      (xDiTau) = (bool)((*m_isoSelTool)->accept(*mu));
+  acc_mu_isoGL      (xDiTau) = (bool)(m_isoSelTool->accept(*mu));
 
   float MeasEnergyLoss            = 0;
   float ParamEnergyLoss           = 0;
@@ -400,12 +418,12 @@ StatusCode DiTauIDVarCalculator::calculateHadMuIDVariables(const xAOD::DiTauJet&
   dec_ParamEnergyLossSigmaPlus  (xDiTau) =  ParamEnergyLossSigmaPlus ;
   dec_ParamEnergyLossSigmaMinus (xDiTau) =  ParamEnergyLossSigmaMinus;
 
-  acc_muonVeryLoose (xDiTau) = (*m_muSelTool_veryloose)->accept(*mu);
-  acc_muonMedium    (xDiTau) = (*m_muSelTool_medium   )->accept(*mu);
-  acc_muonTight     (xDiTau) = (*m_muSelTool_tight    )->accept(*mu);  
-  acc_muonLoose     (xDiTau) = (*m_muSelTool_loose    )->accept(*mu);
-  acc_muonHighpt    (xDiTau) = (*m_muSelTool_highpt   )->accept(*mu);
-  acc_MuonQuality   (xDiTau) = (*m_muSelTool_veryloose)->getQuality(*mu);
+  acc_muonVeryLoose (xDiTau) = m_muSelTool_veryloose->accept(*mu);
+  acc_muonMedium    (xDiTau) = m_muSelTool_medium   ->accept(*mu);
+  acc_muonTight     (xDiTau) = m_muSelTool_tight    ->accept(*mu);  
+  acc_muonLoose     (xDiTau) = m_muSelTool_loose    ->accept(*mu);
+  acc_muonHighpt    (xDiTau) = m_muSelTool_highpt   ->accept(*mu);
+  acc_MuonQuality   (xDiTau) = m_muSelTool_veryloose->getQuality(*mu);
   acc_MuonType      (xDiTau) = mu->muonType(); 
 
   delete mu;
@@ -518,7 +536,7 @@ StatusCode DiTauIDVarCalculator::calculateHadElIDVariables(const xAOD::DiTauJet&
   acc_el_barys1          (xDiTau) = getElectronInfo(electron, xAOD::EgammaParameters::ShowerShapeType::barys1          );
   acc_el_wtots1          (xDiTau) = getElectronInfo(electron, xAOD::EgammaParameters::ShowerShapeType::wtots1          );
   acc_el_r33over37allcalo(xDiTau) = getElectronInfo(electron, xAOD::EgammaParameters::ShowerShapeType::r33over37allcalo);
-  acc_el_isoGL           (xDiTau) = (bool)((*m_isoSelTool)->accept(*electron));
+  acc_el_isoGL           (xDiTau) = (bool)(m_isoSelTool->accept(*electron));
   
   acc_E_frac_HadEl       (xDiTau) = (xDiTau.subjetPt(0) + electron->pt()) / (origDiTau->pt());
 
@@ -623,18 +641,18 @@ StatusCode DiTauIDVarCalculator::calculateHadElIDVariables(const xAOD::DiTauJet&
   acc_nPixHitsPlusDeadSensors (xDiTau) = nPixHitsPlusDeadSensors;
   acc_passBLayerRequirement   (xDiTau) = passBLayerRequirement;
 
-  Root::TResult likelihood = (*m_electronLikeliHoodTool_medium)->calculate(electron);
+  Root::TResult likelihood = m_electronLikeliHoodTool_medium->calculate(electron);
   acc_el_likelihood(xDiTau) = likelihood.getResult("likelihood");
   int IDSelection = 0;
-  if((*m_electronLikeliHoodTool_veryloose)->accept(electron))
+  if(m_electronLikeliHoodTool_veryloose->accept(electron))
     IDSelection++;
-  if((*m_electronLikeliHoodTool_loose)->accept(electron))
+  if(m_electronLikeliHoodTool_loose->accept(electron))
     IDSelection++;
-  if((*m_electronLikeliHoodTool_loose_CutBL)->accept(electron))
+  if(m_electronLikeliHoodTool_loose_CutBL->accept(electron))
     IDSelection++;
-  if((*m_electronLikeliHoodTool_medium)->accept(electron))
+  if(m_electronLikeliHoodTool_medium->accept(electron))
     IDSelection++;
-  if((*m_electronLikeliHoodTool_tight)->accept(electron))
+  if(m_electronLikeliHoodTool_tight->accept(electron))
     IDSelection++;
   acc_el_IDSelection(xDiTau) = IDSelection;
 
@@ -642,7 +660,7 @@ StatusCode DiTauIDVarCalculator::calculateHadElIDVariables(const xAOD::DiTauJet&
   const xAOD::ElectronContainer* electrons = evtStore()->retrieve<const xAOD::ElectronContainer>("Electrons");
   TLorentzVector p4LeadElectron;
   p4LeadElectron.SetPtEtaPhiM(5000,0,0,0);
-  const xAOD::Electron* leadElectron = 0;
+  const xAOD::Electron* leadElectron = nullptr;
   TLorentzVector p4Subjet;
   p4Subjet.SetPtEtaPhiE(xDiTau.subjetPt(0),
                         xDiTau.subjetEta(0),
@@ -660,18 +678,18 @@ StatusCode DiTauIDVarCalculator::calculateHadElIDVariables(const xAOD::DiTauJet&
 
   if(leadElectron){
     acc_tau_leadingElDeltaR (xDiTau) = p4LeadElectron.DeltaR(p4Subjet);
-    likelihood = (*m_electronLikeliHoodTool_medium)->calculate(leadElectron);
+    likelihood = m_electronLikeliHoodTool_medium->calculate(leadElectron);
     acc_tau_leadingElLikelihood (xDiTau) = likelihood.getResult("likelihood");
     IDSelection = 0;
-    if((*m_electronLikeliHoodTool_veryloose)->accept(leadElectron))
+    if(m_electronLikeliHoodTool_veryloose->accept(leadElectron))
       IDSelection++;
-    if((*m_electronLikeliHoodTool_loose)->accept(leadElectron))
+    if(m_electronLikeliHoodTool_loose->accept(leadElectron))
       IDSelection++;
-    if((*m_electronLikeliHoodTool_loose_CutBL)->accept(leadElectron))
+    if(m_electronLikeliHoodTool_loose_CutBL->accept(leadElectron))
       IDSelection++;
-    if((*m_electronLikeliHoodTool_medium)->accept(leadElectron))
+    if(m_electronLikeliHoodTool_medium->accept(leadElectron))
       IDSelection++;
-    if((*m_electronLikeliHoodTool_tight)->accept(leadElectron))
+    if(m_electronLikeliHoodTool_tight->accept(leadElectron))
       IDSelection++;
     acc_tau_leadingElIDSelection (xDiTau) = IDSelection;
   }
