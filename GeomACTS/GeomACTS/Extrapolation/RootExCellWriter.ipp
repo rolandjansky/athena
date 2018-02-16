@@ -142,8 +142,9 @@ RootExCellWriter<T>::write(
 
 template <class T>
 RootExCellWriter<T>::RootExCellWriter(
-    const RootExCellWriter<T>::Config& cfg,
-    Acts::Logging::Level                         level)
+    const RootExCellWriter<T>::Config& cfg
+    //Acts::Logging::Level                         level
+    )
   : m_cfg(cfg)
   , m_outputFile(nullptr)
   , m_outputTree(nullptr)

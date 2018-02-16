@@ -50,8 +50,12 @@
 #include "ACTS/Extrapolation/StaticNavigationEngine.hpp"
 #include "ACTS/Extrapolation/StaticEngine.hpp"
 #include "ACTS/Extrapolation/ExtrapolationEngine.hpp"
+#include "ACTS/Utilities/BFieldMapUtils.hpp"
+#include "ACTS/MagneticField/InterpolatedBFieldMap.hpp"
+#include "ACTS/MagneticField/concept/AnyFieldLookup.hpp"
 
 #include "GeomACTS/Extrapolation/RootExCellWriter.hpp"
+#include "GeomACTS/Extrapolation/ObjExCellWriter.hpp"
 
 
 #include "GeomACTS/GeoModelLayerBuilder.hpp"
@@ -70,6 +74,8 @@
 #include <vector>
 #include <list>
 #include <random>
+#include <atomic>
+#include <thread>
 
 
 namespace {
@@ -110,7 +116,6 @@ StatusCode PrintSiElements::initialize() {
   const IGeoModelSvc* geoModel;
   ATH_CHECK(service("GeoModelSvc", geoModel));
   m_fileout.open(m_outputFileName.c_str());
-  ATH_MSG_DEBUG("THIS IS THE GOOD SHIT RIGHT HERE");
   ATH_MSG_DEBUG("Opening output file " << m_outputFileName);
   if (!m_fileout) {
     ATH_MSG_ERROR("Could not open file " << m_outputFileName);
@@ -183,22 +188,32 @@ StatusCode PrintSiElements::buildTrackingGeometry() {
   std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry = trackingGeometryBuilder->trackingGeometry();
 
 
-  //writeTrackingGeometry(*trackingGeometry);
+  writeTrackingGeometry(*trackingGeometry);
 
-
-  // have tracking geom, lets shoot some particles
-  std::shared_ptr<Acts::ConstantBField> constantField
-    = std::make_shared<Acts::ConstantBField>(
-        0 * Acts::units::_T,
-        0 * Acts::units::_T,
-        0 * Acts::units::_T);
+  //using BField_t = Acts::ConstantBField;
+  //std::shared_ptr<Acts::ConstantBField> bField
+    //= std::make_shared<Acts::ConstantBField>(
+        //0 * Acts::units::_T,
+        //0 * Acts::units::_T,
+        //5 * Acts::units::_T);
+    
   
+  // ATLAS FIELD
+  using BField_t = Acts::InterpolatedBFieldMap;
+  Acts::concept::AnyFieldLookup<> mapper = bfield();
+  Acts::InterpolatedBFieldMap::Config config;
+  config.scale  = 1.;
+  config.mapper = std::move(mapper);
+  std::shared_ptr<Acts::InterpolatedBFieldMap> bField
+    = std::make_shared<Acts::InterpolatedBFieldMap>(std::move(config));
+  
+
   Acts::Logging::Level extrapLogLevel = Acts::Logging::INFO;
 
   // (a) RungeKuttaPropagtator
-  using RKEngine = Acts::RungeKuttaEngine<Acts::ConstantBField>;
+  using RKEngine = Acts::RungeKuttaEngine<BField_t>;
   typename RKEngine::Config propConfig;
-  propConfig.fieldService = constantField;
+  propConfig.fieldService = bField;
   auto propEngine         = std::make_shared<RKEngine>(propConfig);
   propEngine->setLogger(Acts::getDefaultLogger("RungeKuttaEngine", extrapLogLevel));
   // (b) MaterialEffectsEngine
@@ -242,12 +257,19 @@ StatusCode PrintSiElements::buildTrackingGeometry() {
       = std::make_shared<RootExCellWriter<Acts::TrackParameters>>(
           reccWriterConfig);
 
+  auto ofs = std::make_shared<std::ofstream>();
+  ofs->open("extrapolation_charged.obj");
+  ObjExCellWriter<Acts::TrackParameters>::Config objeccWriterConfig;
+  objeccWriterConfig.outputStream = ofs;
+  auto objEccWriter
+      = std::make_shared<ObjExCellWriter<Acts::TrackParameters>>(
+          objeccWriterConfig);
 
 
 
   //std::mt19937 rng;
   ParticleGun::Config pgCfg;
-  pgCfg.nParticles = 10000;
+  pgCfg.nParticles = 50000;
   pgCfg.pID = 11;
   pgCfg.mass = 0.51099891 * Acts::units::_MeV;
   pgCfg.charge = -1.;
@@ -260,68 +282,103 @@ StatusCode PrintSiElements::buildTrackingGeometry() {
 
   std::vector<Acts::ProcessVertex> vertices = pg.generate();
 
-  std::vector<Acts::ExtrapolationCell<Acts::TrackParameters>>   cCells;
 
   std::cout << "Processing particles:" << std::endl;
-  size_t nProcessed = 0;
+  std::atomic<size_t> nProcessed(0);
+  
+  
+  size_t nthreads = std::thread::hardware_concurrency();
+  nthreads = std::max(1u, nthreads);
+  std::vector<std::vector<Acts::ExtrapolationCell<Acts::TrackParameters>>> results(nthreads);
 
-  for (const auto &pv : vertices) {
+  std::cout << "using " << nthreads << " threads" << std::endl;
+
+  //for (const auto &pv : vertices) {
+  for(size_t n=0;n<vertices.size();n++) {
+    
+
+    const Acts::ProcessVertex &pv = vertices.at(n);
+
     const Acts::Vector3D &pos = pv.position();
     std::cout << "OUTGOING: at " << pos.x() << " " << pos.y() << " " << pos.z() << std::endl;
     Acts::PerigeeSurface surface(pv.position());
-    for(const auto &particle : pv.outgoingParticles()) {
-      double pt = particle.momentum().perp();
-      double pz = particle.momentum().z();
 
-      //std::cout << "pt = " << pt << " pz = " << pz << std::endl;
 
-      // prepare this particle for extrapolation
-      double d0    = 0.;
-      double z0    = 0.;
-      double phi   = particle.momentum().phi();
-      double theta = particle.momentum().theta();
-      // treat differently for neutral particles
-      double qop = particle.charge() != 0
-          ? particle.charge() / particle.momentum().mag()
-          : 1. / particle.momentum().mag();
-      // parameters
-      Acts::ActsVectorD<5> pars;
-      pars << d0, z0, phi, theta, qop;
-      std::unique_ptr<Acts::ActsSymMatrixD<5>> cov = nullptr;
+    #pragma omp parallel num_threads(nthreads)
+    {
 
-      if (particle.charge()) {
-        // charged extrapolation - with hit recording
-        Acts::BoundParameters startParameters(
-            std::move(cov), std::move(pars), surface);
-        Acts::ExtrapolationCell<Acts::TrackParameters> ecc(startParameters);
-        ecc.addConfigurationMode(Acts::ExtrapolationMode::StopAtBoundary);
-        ecc.addConfigurationMode(Acts::ExtrapolationMode::FATRAS);
-        //executeTestT<Acts::TrackParameters>(startParameters, particle.barcode(), cCells);
-        ecc.searchMode                       = 1;
-        ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectSensitive);
-        ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectPassive);
-        ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectBoundary);
-        ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectMaterial);
-        //eTestConfig.collectSensitive                 = true;
-        //eTestConfig.collectPassive                   = true;
-        //eTestConfig.collectBoundary                  = true;
-        //eTestConfig.collectMaterial                  = true;
-        //eTestConfig.sensitiveCurvilinear             = false;
-        //eTestConfig.pathLimit                        = -1.;
-  
-        Acts::ExtrapolationCode eCode = exEngine->extrapolate(ecc);
+      #pragma omp for
+      for(size_t pi=0;pi<pv.outgoingParticles().size();++pi) {
+        const auto &particle = pv.outgoingParticles().at(pi);
+      //for(const auto &particle : pv.outgoingParticles()) {
+        double pt = particle.momentum().perp();
+        double pz = particle.momentum().z();
 
-        cCells.push_back(std::move(ecc));
- 
+        //std::cout << "pt = " << pt << " pz = " << pz << std::endl;
 
-        if (nProcessed % (pgCfg.nParticles / 20) == 0) {
-          std::cout << "processed " << nProcessed << " / " << pgCfg.nParticles << " : ";
-          std::cout << std::fixed << std::setprecision(2);
-          std::cout << ((nProcessed / double(pgCfg.nParticles))*100) << "%" << std::endl;
+        // prepare this particle for extrapolation
+        double d0    = 0.;
+        double z0    = 0.;
+        double phi   = particle.momentum().phi();
+        double theta = particle.momentum().theta();
+        // treat differently for neutral particles
+        double qop = particle.charge() != 0
+            ? particle.charge() / particle.momentum().mag()
+            : 1. / particle.momentum().mag();
+        // parameters
+        Acts::ActsVectorD<5> pars;
+        pars << d0, z0, phi, theta, qop;
+        std::unique_ptr<Acts::ActsSymMatrixD<5>> cov = nullptr;
+
+        if (particle.charge()) {
+          // charged extrapolation - with hit recording
+          Acts::BoundParameters startParameters(
+              std::move(cov), std::move(pars), surface);
+          Acts::ExtrapolationCell<Acts::TrackParameters> ecc(startParameters);
+          ecc.addConfigurationMode(Acts::ExtrapolationMode::StopAtBoundary);
+          ecc.addConfigurationMode(Acts::ExtrapolationMode::FATRAS);
+          //executeTestT<Acts::TrackParameters>(startParameters, particle.barcode(), cCells);
+          ecc.searchMode                       = 1;
+          ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectSensitive);
+          ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectPassive);
+          ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectBoundary);
+          ecc.addConfigurationMode(Acts::ExtrapolationMode::CollectMaterial);
+          //eTestConfig.collectSensitive                 = true;
+          //eTestConfig.collectPassive                   = true;
+          //eTestConfig.collectBoundary                  = true;
+          //eTestConfig.collectMaterial                  = true;
+          //eTestConfig.sensitiveCurvilinear             = false;
+          //eTestConfig.pathLimit                        = -1.;
+    
+          Acts::ExtrapolationCode eCode = exEngine->extrapolate(ecc);
+
+          int tid = omp_get_thread_num();
+          // where do we push?
+          results.at(tid).push_back(std::move(ecc));
+          
+          //cCells.push_back(std::move(ecc));
+          //cCells.at(n) = std::move(ecc);
+   
+
+          int nP = nProcessed;
+          nProcessed++;
+          if (nP % (pgCfg.nParticles / 20) == 0) {
+            std::cout << "processed " << nP << " / " << pgCfg.nParticles << " : ";
+            std::cout << std::fixed << std::setprecision(2);
+            std::cout << ((nP / double(pgCfg.nParticles))*100) << "%" << std::endl;
+          }
+
         }
-
-        nProcessed++;
       }
+    } 
+  }
+
+  std::vector<Acts::ExtrapolationCell<Acts::TrackParameters>>   cCells;
+  cCells.reserve(pgCfg.nParticles);
+  for(auto &res : results) {
+    //std::copy(std::make_move_iterator(res.begin()), std::make_move_iterator(res.end()), std::back_inserter(cCells));
+    for(auto &c : res) {
+      cCells.push_back(std::move(c));
     }
   }
 
@@ -329,11 +386,82 @@ StatusCode PrintSiElements::buildTrackingGeometry() {
   rootEccWriter->write(cCells);
   rootEccWriter->endRun();
 
+  //objEccWriter->write(cCells);
 
+
+  ofs->close();
 
 
   return StatusCode::SUCCESS;
 }
+
+Acts::InterpolatedBFieldMap::FieldMapper<3, 3> PrintSiElements::bfield() const
+{
+  std::function<size_t(std::array<size_t, 3> binsXYZ,
+                       std::array<size_t, 3> nBinsXYZ)> localToGlobalBin = 
+      [](std::array<size_t, 3> binsXYZ, std::array<size_t, 3> nBinsXYZ) {
+      return (binsXYZ.at(0) * (nBinsXYZ.at(1) * nBinsXYZ.at(2))
+          + binsXYZ.at(1) * nBinsXYZ.at(2)
+          + binsXYZ.at(2));
+      };
+
+  std::string fieldMapFile = "../../acts-data/MagneticField/ATLAS/ATLASBField_xyz.root";
+  std::string treeName = "bField";
+  double      lengthUnit = Acts::units::_mm;
+  double      BFieldUnit = Acts::units::_T;
+  bool        firstOctant = false;
+
+
+
+
+  /// [1] Read in field map file
+  // Grid position points in x, y and z
+  std::vector<double> xPos;
+  std::vector<double> yPos;
+  std::vector<double> zPos;
+  // components of magnetic field on grid points
+  std::vector<Acts::Vector3D> bField;
+  // [1] Read in file and fill values
+  TFile* inputFile = TFile::Open(fieldMapFile.c_str());
+  TTree* tree      = (TTree*)inputFile->Get(treeName.c_str());
+  Int_t  entries   = tree->GetEntries();
+
+  double x, y, z;
+  double Bx, By, Bz;
+
+  tree->SetBranchAddress("x", &x);
+  tree->SetBranchAddress("y", &y);
+  tree->SetBranchAddress("z", &z);
+
+  tree->SetBranchAddress("Bx", &Bx);
+  tree->SetBranchAddress("By", &By);
+  tree->SetBranchAddress("Bz", &Bz);
+
+  // reserve size
+  xPos.reserve(entries);
+  yPos.reserve(entries);
+  zPos.reserve(entries);
+  bField.reserve(entries);
+
+  for (int i = 0; i < entries; i++) {
+    tree->GetEvent(i);
+    xPos.push_back(x);
+    yPos.push_back(y);
+    zPos.push_back(z);
+    bField.push_back(Acts::Vector3D(Bx, By, Bz));
+  }
+  inputFile->Close();
+
+  return Acts::fieldMapperXYZ(localToGlobalBin,
+                              xPos,
+                              yPos,
+                              zPos,
+                              bField,
+                              lengthUnit,
+                              BFieldUnit,
+                              firstOctant);
+}
+
 
 std::shared_ptr<const Acts::ITrackingVolumeBuilder> 
 PrintSiElements::makeVolumeBuilder(const InDetDD::InDetDetectorManager* manager, std::shared_ptr<const Acts::CylinderVolumeHelper> cvh, bool toBeamline)

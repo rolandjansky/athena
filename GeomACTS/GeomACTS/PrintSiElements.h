@@ -9,6 +9,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 //#include "CLHEP/Geometry/Transform3D.h"
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "ACTS/Utilities/BFieldMapUtils.hpp"
 
 
 #include <fstream>
@@ -45,6 +46,8 @@ public:
 
   std::shared_ptr<const Acts::ITrackingVolumeBuilder> 
   makeVolumeBuilder(const InDetDD::InDetDetectorManager* manager, std::shared_ptr<const Acts::CylinderVolumeHelper> cvh, bool toBeamline = false);
+
+  Acts::InterpolatedBFieldMap::FieldMapper<3, 3> bfield() const;
 
 private:
   std::shared_ptr<std::vector<std::shared_ptr<const Acts::GeoModelDetectorElement>>> m_elementStore;

@@ -59,8 +59,9 @@ class TFile;
 
     /// Constructor
     /// @param cfg is the configuration class
-    RootExCellWriter(const Config&        cfg,
-                     Acts::Logging::Level level = Acts::Logging::INFO);
+    RootExCellWriter(const Config&        cfg
+                     //Acts::Logging::Level level = Acts::Logging::INFO
+                     );
 
     /// Virtual destructor
     ~RootExCellWriter();

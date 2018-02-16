@@ -81,6 +81,7 @@ Acts::GeoModelStrawLayerBuilder::centralLayers()
     pl.envZ = {1, 1};
     pl.envR = {0, 0};
 
+    double fudge = 0;
     // RING in TRT speak is translated to Layer in ACTS speak
     std::vector<const Surface*> layerSurfaces;
 
@@ -108,6 +109,7 @@ Acts::GeoModelStrawLayerBuilder::centralLayers()
             auto strawBounds = dynamic_cast<const Acts::LineBounds*>(&straw->bounds());
             double radius = strawBounds->r();
             double length = strawBounds->halflengthZ();
+            fudge = radius / 4.;
 
             // calculate min/max R and Z
             Vector3D ctr = straw->center();
@@ -133,8 +135,8 @@ Acts::GeoModelStrawLayerBuilder::centralLayers()
 
     if(iring > 0) {
       // match outer radius of previous ring
-      ProtoLayer &prev = protoLayers.at(iring-1);
-      pl.minR = prev.maxR + prev.envR.second + pl.envR.first;
+      const ProtoLayer &prev = protoLayers.at(iring-1);
+      pl.minR = prev.maxR + prev.envR.second + pl.envR.first + fudge;
     }
 
     std::shared_ptr<Layer> layer = m_cfg.layerCreator->cylinderLayer(layerSurfaces, 100, 1, pl);
