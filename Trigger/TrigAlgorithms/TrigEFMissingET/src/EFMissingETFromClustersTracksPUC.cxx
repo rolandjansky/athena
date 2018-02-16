@@ -57,6 +57,7 @@ EFMissingETFromClustersTracksPUC::EFMissingETFromClustersTracksPUC(const std::st
   declareProperty("MaxEta", m_maxEta = 5., "The maximum eta");
   declareProperty("ForwardpTCut", m_forward_ptcut = 40.0e3 ,"pT Cut for forward jets");
   declareProperty("TrackpTCut", m_track_ptcut = 0.0 ,"pT Cut for online tracks");
+  declareProperty("dRCut", m_dRCut = 0.4, "dR Cut for track - jet association");
   declareProperty("MinJetPtJvt", m_minJetPtJvt = 20.e3, "The minimum pT (in MeV) for jets to consider for JVT");
   declareProperty("MaxJetPtJvt", m_maxJetPtJvt = 60.e3, "The maximum pT (in MeV) for jets to consider for JVT (above this jets automatically pass");
   declareProperty("JetRpTCut", m_jetRpTCut = 0.1, "The JVT RpT cut to apply to jets");
@@ -191,21 +192,38 @@ StatusCode EFMissingETFromClustersTracksPUC::execute(xAOD::TrigMissingET * /* me
     }
   }
 
-  for (const xAOD::Jet* jet : JetsVec) {
-    if (primaryVertex) {
-      if (fabs(jet->eta() ) < 2.4) {
-	double ptsum_pv = 0;
-	const std::vector< ElementLink< xAOD::TrackParticleContainer> > tpLinks = primaryVertex->trackParticleLinks();
-	if(tpLinks.size() != 0) {
-	  for(const auto& tp_elem : tpLinks ) {
-	    if (tp_elem != nullptr && tp_elem.isValid()) {
-	      const xAOD::TrackParticle* itrk = *tp_elem;
-	      bool accept = (itrk->pt()> m_track_ptcut && m_trackselTool->accept(*itrk, primaryVertex));
-	      if (accept) ptsum_pv += itrk->pt();
-	    }
+  std::vector<float> ptsum_pvsVec(0);
+
+  for (const xAOD::TrackParticle* itrk : TracksVec) {
+    bool accept = (itrk->pt()> m_track_ptcut && m_trackselTool->accept(*itrk, primaryVertex));
+    if (accept) continue;
+    //    for (const xAOD::Jet* jet : JetsVec) {
+    int whichjet = 0;
+    double minkT = -1;
+    for (uint i=0; i < JetsVec.size(); i++) {
+      const xAOD::Jet* jet = JetsVec.at(i);
+      if (primaryVertex) {
+	if (fabs(jet->eta() ) < 2.4) {
+	  double dphi = fabs(jet->phi()-itrk->phi());
+	  if (dphi > M_PI) dphi = 2*M_PI - dphi;
+	  double dR = sqrt((jet->rapidity()-itrk->rapidity())*(jet->rapidity()-itrk->rapidity()) + dphi * dphi);
+	  if (dR < m_dRCut) continue;
+	  double kT = dR/jet->pt();
+	  if (kT < minkT || minkT < 0) {
+	    minkT = kT;
+	    whichjet = i;
 	  }
 	}
-	double RpT = ptsum_pv/jet->pt();
+      }
+      if (minkT >= 0) ptsum_pvsVec.at(whichjet) += itrk->pt();
+    }
+  } 
+
+  for (uint i=0; i < JetsVec.size(); i++) {
+    const xAOD::Jet* jet = JetsVec.at(i);
+    if (primaryVertex) {
+      if (fabs(jet->eta() ) < 2.4) {
+	double RpT = ptsum_pvsVec.at(i)/jet->pt();
 	if (jet->pt() > m_minJetPtJvt && (RpT > m_jetRpTCut || jet->pt() > m_maxJetPtJvt)){
 	  hardScatterJets.push_back(jet);
 	} else {

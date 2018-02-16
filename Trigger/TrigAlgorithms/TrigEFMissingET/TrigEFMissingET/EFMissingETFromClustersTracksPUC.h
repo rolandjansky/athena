@@ -56,6 +56,7 @@ class EFMissingETFromClustersTracksPUC : public EFMissingETBaseTool
     // For jet selection
     double m_forward_ptcut;
     double m_track_ptcut;
+    double m_dRCut;
     double m_minJetPtJvt;
     double m_maxJetPtJvt;
     double m_jetRpTCut;
