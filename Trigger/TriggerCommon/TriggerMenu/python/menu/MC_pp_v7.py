@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+-17617# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 
 import TriggerMenu.menu.Physics_pp_v7 as physics_menu
@@ -1584,6 +1584,21 @@ def setupMenu():
         ['mu11_mu6_bJpsimumu_Lxy0_L1LFV-MU11',        'L1_LFV-MU11', ['L1_MU11','L1_MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1, False],
         ['mu11_mu6_bDimu2700_Lxy0_L1LFV-MU11',        'L1_LFV-MU11', ['L1_MU11','L1_MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1, False],
         ['mu11_mu6_bDimu_Lxy0_L1LFV-MU11',            'L1_LFV-MU11', ['L1_MU11','L1_MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1, False],
+
+
+        # ATR--17617
+        # bTauTight sets tight pt cuts on tracks, while bTau uses 3.65 GeV for all tracks
+        ['mu20_mu2btrk_bTauTight',             'L1_MU20MU21', ['L1_MU20','L2_mu20'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1,['serial',-1,['mu20','mu2btrk']]],
+        ['mu20_mu6btrk_bTauTight',        'L1_MU20MU21', ['L1_MU20','L2_mu20'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1,['serial',-1,['mu20','mu6btrk']]],
+        ['mu20_2mu2btrk_bTauTight',       'L1_MU20MU21', ['L1_MU20','L2_mu20'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1,['serial',-1,['mu20','2mu2btrk']]],
+        ['mu20_2mu3btrk_bTauTight',       'L1_MU20MU21', ['L1_MU20','L2_mu20'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1,['serial',-1,['mu20','2mu3btrk']]],
+        ['mu11_mu6btrk_bTauTight_L1MU11_2MU6',  'L1_MU11_2MU6', ['L1_MU11','L2_mu6'], [BPhysicsStream, 'express'], [RATE_BphysTag,BW_BphysTag], -1,['serial',-1,['mu11','mu6btrk']]],
+        ['mu11_2mu4btrk_bTauTight_L1MU11_2MU6', 'L1_MU11_2MU6', ['L1_MU11','L2_mu11'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1,['serial',-1,['mu11','2mu4btrk']]],
+        ['mu11_2mu2btrk_bTauTight_L1MU11_2MU6', 'L1_MU11_2MU6', ['L1_MU11','L2_mu11'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1,['serial',-1,['mu11','2mu2btrk']]],
+        ['mu11_2mu3btrk_bTauTight_L1MU11_2MU6', 'L1_MU11_2MU6', ['L1_MU11','L2_mu11'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1,['serial',-1,['mu11','2mu3btrk']]],
+        ['mu11_mu6_bTauTight',                  'L1_MU11_2MU6', ['L1_MU11','L1_MU6'], [BPhysicsStream, 'express'], [RATE_BphysTag,BW_BphysTag], -1],
+
+        
       ]
 
     if TriggerFlags.doFTK():
