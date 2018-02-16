@@ -38,6 +38,7 @@ namespace DerivationFramework {
     m_ntot(0),
     m_npass(0),
     m_largeJetPtCut(200e3),
+    m_largeJetEtaCut(2.1),
     m_smallJetPtCut(7e3),
     m_nLeadingJets(3),
     m_jetCollectionName("AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"),
@@ -48,6 +49,7 @@ namespace DerivationFramework {
     declareInterface<DerivationFramework::IThinningTool>(this);
     declareProperty("thinningService", m_thinningSvc);
     declareProperty("largeJetPtCut", m_largeJetPtCut);
+    declareProperty("largeJetEtaCut", m_largeJetEtaCut);
     declareProperty("smallJetPtCut", m_smallJetPtCut);
     declareProperty("nLeadingJets", m_nLeadingJets);
     declareProperty("jetCollectionName", m_jetCollectionName);
@@ -94,7 +96,8 @@ namespace DerivationFramework {
     const xAOD::JetContainer *fatJets = 0;
     CHECK( evtStore()->retrieve(fatJets, m_jetCollectionName) );
     for (const auto* fatJet: *fatJets) {
-      if (fatJet->pt() < m_largeJetPtCut || std::abs(fatJet->eta()) > 2.0) {
+      if (fatJet->pt() < m_largeJetPtCut ||
+          std::abs(fatJet->eta()) > m_largeJetEtaCut) {
         continue;
       }
       try {

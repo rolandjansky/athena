@@ -84,6 +84,7 @@ namespace DerivationFramework {
     mutable unsigned int m_ntot;
     mutable unsigned int m_npass;
     double m_largeJetPtCut;
+    double m_largeJetEtaCut;
     double m_smallJetPtCut;
     unsigned int m_nLeadingJets;
     std::string m_jetCollectionName;

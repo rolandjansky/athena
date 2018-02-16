@@ -74,6 +74,7 @@ FTAG5HbbThinningTool = HbbThinner(
     name = "FTAG5HbbThinningTool",
     thinningService = FTAG5ThinningHelper.ThinningSvc(),
     largeJetPtCut = 200e3,
+    largeJetEtaCut = 2.1,
     smallJetPtCut = 7e3,
     nLeadingJets = 3,
     addConstituents = True,
