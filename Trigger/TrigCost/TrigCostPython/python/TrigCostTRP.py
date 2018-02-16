@@ -35,7 +35,7 @@ class TrigCostTRP:
 #----------------------------------------------------------------------
 # Note: prescale reading not used right now
 #
-def ReadTRP(runnumber, lb_beg, lb_end, options=[], myafspath='', myhttppath='', levels='L1'):
+def ReadTRP(runnumber, lb_beg, lb_end, options=[], myafspath='', myhttppath='', levels='L1,HLT'):
 
     # Return object
     collection = TrigCostAnalysis.CostResultCollection()

@@ -626,7 +626,7 @@ class LumiBlockSet:
         print "\n%-50s" % "# beam2 bunch",
         for lb in lbrange: print "% 7d" % self.GetNbunch2(lb),
         print "\n%-50s" % "Avg Mu",
-        for lb in lbrange: print "% 7d" % self.GetAvgPileup(lb),
+        for lb in lbrange: print "% 7d" % self.GetMeanPileUp(lb),
         print "\n%-50s" % "Inst Lumi",
         for lb in lbrange: print "% 7d" % self.GetAvgInstantaneousBunchLumiE30(lb),
         print "\n%-50s" % "Fill number",
