@@ -133,11 +133,10 @@ public:
    * @param capacity Initial capacity of the new vector.
    *
    * Returns a newly-allocated object.
-   * FIXME: Should return a unique_ptr.
    */
-  IAuxTypeVector* makeVector (SG::auxid_t auxid,
-                              size_t size,
-                              size_t capacity) const;
+  std::unique_ptr<IAuxTypeVector> makeVector (SG::auxid_t auxid,
+                                              size_t size,
+                                              size_t capacity) const;
 
 
   /**
@@ -148,12 +147,11 @@ public:
    * @param capacity Initial capacity of the new vector.
    *
    * Returns a newly-allocated object.
-   * FIXME: Should return a unique_ptr.
    */
-  IAuxTypeVector* makeVector (lock_t& lock,
-                              SG::auxid_t auxid,
-                              size_t size,
-                              size_t capacity) const;
+  std::unique_ptr<IAuxTypeVector> makeVector (lock_t& lock,
+                                              SG::auxid_t auxid,
+                                              size_t size,
+                                              size_t capacity) const;
 
 
   /**
@@ -169,12 +167,11 @@ public:
    * should instead point at an object of type @c SG::PackedContainer<T>.
    *
    * Returns a newly-allocated object.
-   * FIXME: Should return a unique_ptr.
    */
-  IAuxTypeVector* makeVectorFromData (SG::auxid_t auxid,
-                                      void* data,
-                                      bool isPacked,
-                                      bool ownFlag) const;
+  std::unique_ptr<IAuxTypeVector> makeVectorFromData (SG::auxid_t auxid,
+                                                      void* data,
+                                                      bool isPacked,
+                                                      bool ownFlag) const;
 
 
   /**

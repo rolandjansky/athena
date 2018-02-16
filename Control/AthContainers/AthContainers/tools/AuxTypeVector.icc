@@ -169,13 +169,13 @@ typename AuxTypeVectorHolder<T, CONT>::vector_type& AuxTypeVectorHolder<T, CONT>
  */
 template <class T, class CONT>
 inline
-IAuxTypeVector* AuxTypeVectorHolder<T, CONT>::clone() const
+std::unique_ptr<IAuxTypeVector> AuxTypeVectorHolder<T, CONT>::clone() const
 {
   if (m_ownFlag) {
     vector_type* vecPtr = new vector_type (*m_vecPtr);
-    return new AuxTypeVectorHolder<T, CONT> (vecPtr, true);
+    return std::make_unique<AuxTypeVectorHolder<T, CONT> > (vecPtr, true);
   }
-  return new AuxTypeVectorHolder<T, CONT> (m_vecPtr, false);
+  return std::make_unique<AuxTypeVectorHolder<T, CONT> > (m_vecPtr, false);
 }
 
 
@@ -434,11 +434,11 @@ namespace DataModel_detail {
 
 /// Specialization for the case of types that can be packed.
 template <class T>
-SG::IAuxTypeVector* makePacked (std::vector<T>& v, std::true_type)
+std::unique_ptr<SG::IAuxTypeVector> makePacked (std::vector<T>& v, std::true_type)
 {
   // Make the new container and move our contents.
-  SG::AuxTypeVector<T, SG::PackedContainer<T> >* iv =
-     new SG::AuxTypeVector<T, SG::PackedContainer<T> > (0, 0);
+  auto iv =
+    std::make_unique<SG::AuxTypeVector<T, SG::PackedContainer<T> > > (0, 0);
   iv->vec().swap (v);
   return iv;
 }
@@ -446,7 +446,7 @@ SG::IAuxTypeVector* makePacked (std::vector<T>& v, std::true_type)
 
 /// Specialization for the case of types that cannot be packed.
 template <class T, class FLAG>
-SG::IAuxTypeVector* makePacked (T&, FLAG)
+std::unique_ptr<SG::IAuxTypeVector> makePacked (T&, FLAG)
 {
   return nullptr;
 }
@@ -499,7 +499,7 @@ namespace SG {
  * Returns null on failure.
  */
 template <class T, class CONT>
-IAuxTypeVector* AuxTypeVectorHolder<T, CONT>::toPacked()
+std::unique_ptr<IAuxTypeVector> AuxTypeVectorHolder<T, CONT>::toPacked()
 {
   /// Use the proper instantiation depending on whether or not
   /// this type can be packed.
@@ -653,9 +653,9 @@ AuxTypeVector<T, CONT>::operator= (AuxTypeVector&& other)
  */
 template <class T, class CONT>
 inline
-IAuxTypeVector* AuxTypeVector<T, CONT>::clone() const
+std::unique_ptr<IAuxTypeVector> AuxTypeVector<T, CONT>::clone() const
 {
-  return new AuxTypeVector<T, CONT> (*this);
+  return std::make_unique<AuxTypeVector<T, CONT> > (*this);
 }
 
 

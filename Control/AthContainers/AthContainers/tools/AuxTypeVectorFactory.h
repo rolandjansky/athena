@@ -41,9 +41,9 @@ public:
    * @param capacity Initial capacity of the new vector.
    *
    * Returns a newly-allocated object.
-   * FIXME: Should return a unique_ptr.
    */
-  virtual IAuxTypeVector* create (size_t size, size_t capacity) const override;
+  virtual
+  std::unique_ptr<IAuxTypeVector> create (size_t size, size_t capacity) const override;
 
 
   /**
@@ -59,11 +59,11 @@ public:
    * should instead point at an object of type @c SG::PackedContainer<T>.
    *
    * Returns a newly-allocated object.
-   * FIXME: Should return a unique_ptr.
    */
-  virtual IAuxTypeVector* createFromData (void* data,
-                                          bool isPacked,
-                                          bool ownFlag) const override;
+  virtual
+  std::unique_ptr<IAuxTypeVector> createFromData (void* data,
+                                                  bool isPacked,
+                                                  bool ownFlag) const override;
 
   
   /**
@@ -135,10 +135,13 @@ public:
 
 private:
   /// Helpers for creating vector from a data blob,
-  IAuxTypeVector* createFromData (void* data, bool isPacked, bool ownFlag,
-                                  std::true_type) const;
-  IAuxTypeVector* createFromData (void* data, bool isPacked, bool ownFlag,
-                                  std::false_type) const;
+  std::unique_ptr<IAuxTypeVector>
+  createFromData (void* data, bool isPacked, bool ownFlag,
+                  std::true_type) const;
+
+  std::unique_ptr<IAuxTypeVector>
+  createFromData (void* data, bool isPacked, bool ownFlag,
+                  std::false_type) const;
 };
 
 

@@ -115,7 +115,7 @@ void test_vector1()
   assert (ptr2[0] == makeT<T>());
   assert (ptr2[1] == makeT<T>(11));
 
-  SG::IAuxTypeVector* v3 = v->clone();
+  std::unique_ptr<SG::IAuxTypeVector> v3 = v->clone();
   assert (v3->size() == v->size());
   T* ptr3 = reinterpret_cast<T*> (v3->toPtr());
   for (size_t i = 0; i < v->size(); i++)
@@ -135,7 +135,6 @@ void test_vector1()
 
   delete v;
   delete v2;
-  delete v3;
 }
 
 
@@ -354,7 +353,7 @@ void test3()
   assert (iptr[0] == 1);
   assert (iptr[1] == 2);
 
-  SG::IAuxTypeVector* v2 = v1.toPacked();
+  std::unique_ptr<SG::IAuxTypeVector> v2 = v1.toPacked();
   assert (v2 != 0);
   assert (ptr == v2->toPtr());
   assert (v2->size() == 2);
@@ -396,7 +395,7 @@ void test4()
   assert (elv[2].key() == 123);
   assert (elv[2].index() == 10);
 
-  std::vector<EL> velv[10];;
+  std::vector<EL> velv[10];
   velv[1].push_back (EL (123, 5));
   velv[1].push_back (EL (123, 6));
   ve2.copyForOutput (velv, 2, velv, 1);

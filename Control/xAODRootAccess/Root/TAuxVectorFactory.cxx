@@ -54,13 +54,13 @@ namespace xAOD {
       }
    }
 
-   SG::IAuxTypeVector*
+   std::unique_ptr<SG::IAuxTypeVector>
    TAuxVectorFactory::create( size_t size, size_t capacity ) const {
 
-      return new TAuxVector( this, m_class, size, capacity );
+      return std::make_unique<TAuxVector>( this, m_class, size, capacity );
    }
 
-   SG::IAuxTypeVector*
+   std::unique_ptr<SG::IAuxTypeVector>
    TAuxVectorFactory::createFromData( void* /*data*/, bool /*isPacked*/, bool ) const {
 
       std::abort();

@@ -77,7 +77,7 @@ void test1()
   assert (ptr[7] == 9);
   assert (ptr[8] == 10);
 
-  SG::IAuxTypeVector* vec2 = vec->clone();
+  std::unique_ptr<SG::IAuxTypeVector> vec2 = vec->clone();
   int* ptr2 = reinterpret_cast<int*> (vec2->toPtr());
   assert (ptr != ptr2);
   assert (ptr2[0] == 1);
@@ -241,7 +241,7 @@ void test3()
   assert (fac.getEltSize() == sizeof(int));
   assert (fac.tiVec() == &typeid(std::vector<int>));
   assert (fac.isDynamic());
-  SG::IAuxTypeVector* vec = fac.create (10, 10);
+  std::unique_ptr<SG::IAuxTypeVector> vec = fac.create (10, 10);
   assert (vec->size() == 10);
 
   int* ptr = reinterpret_cast<int*> (vec->toPtr());
@@ -257,8 +257,6 @@ void test3()
   fac.swap (ptr, 0, ptr, 5);
   assert (ptr[0] == 2);
   assert (ptr[5] == 1);
-
-  delete vec;
 }
 
 
@@ -271,7 +269,7 @@ void test4()
   assert (fac.getEltSize() == sizeof(std::string));
   assert (fac.tiVec() == &typeid(std::vector<std::string>));
   assert (fac.isDynamic());
-  SG::IAuxTypeVector* vec = fac.create (10, 10);
+  std::unique_ptr<SG::IAuxTypeVector> vec = fac.create (10, 10);
   assert (vec->size() == 10);
 
   std::string* ptr = reinterpret_cast<std::string*> (vec->toPtr());
@@ -287,8 +285,6 @@ void test4()
   fac.swap (ptr, 0, ptr, 5);
   assert (ptr[0] == "2");
   assert (ptr[5] == "1");
-
-  delete vec;
 }
 
 
@@ -303,23 +299,21 @@ void test5()
   vec1->push_back(3);
   vec1->push_back(2);
   vec1->push_back(1);
-  SG::IAuxTypeVector* v1 = fac.createFromData (vec1, false, true);
+  std::unique_ptr<SG::IAuxTypeVector> v1 = fac.createFromData (vec1, false, true);
   assert (v1->size() == 3);
   int* ptr1 = reinterpret_cast<int*> (v1->toPtr());
   assert (ptr1[0] == 3);
   assert (ptr1[1] == 2);
   assert (ptr1[2] == 1);
-  delete v1;
 
   std::vector<int>* vec2 = new std::vector<int>;
   vec2->push_back(4);
   vec2->push_back(5);
-  SG::IAuxTypeVector* v2 = fac.createFromData (vec2, false, false);
+  std::unique_ptr<SG::IAuxTypeVector> v2 = fac.createFromData (vec2, false, false);
   assert (v2->size() == 2);
   int* ptr2 = reinterpret_cast<int*> (v2->toPtr());
   assert (ptr2[0] == 4);
   assert (ptr2[1] == 5);
-  delete v2;
   delete vec2;
 }
 
