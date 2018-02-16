@@ -6,6 +6,7 @@
 #include "MuonRDO/MM_RawDataContainer.h"
 #include "MuonEventTPCnv/MuonRDO/MM_RawDataContainer_p1.h"
 #include "MuonIdHelpers/MmIdHelper.h"
+#include "MuonEventTPCnv/CreateTransientTemplates.h"
 
 #define DEBUG 0
 

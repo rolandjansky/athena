@@ -17,8 +17,10 @@
 #include "MuonTrigCoinData/RpcCoinData.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonDigitContainer/MmDigitContainer.h"
-#include "MuonPrepRawData/sTgcPrepData.h"
 #include "MuonDigitContainer/sTgcDigitContainer.h"
+#include "MuonPrepRawData/sTgcPrepData.h"
+#include "MuonRDO/MM_RawDataContainer.h"
+#include "MuonRDO/STGC_RawDataContainer.h"
 
 //These are to fix a problem with compiling TPConverter using identifiable containers, if the design is changed in the future these can be removed
 
@@ -63,6 +65,12 @@ namespace TPCnv {
 
   template<> class CreateTransient<Muon::MuonPrepDataContainer<Muon::MuonPrepDataCollection<Muon::sTgcPrepData> >> {
     public: static std::unique_ptr<Muon::MuonPrepDataContainer<Muon::MuonPrepDataCollection<Muon::sTgcPrepData> >> create(); };
+
+  template<> class CreateTransient<Muon::MM_RawDataContainer> {
+    public: static std::unique_ptr<Muon::MM_RawDataContainer> create(); };
+
+//  template<> class CreateTransient<Muon::MuonPrepDataContainer<Muon::MuonPrepDataCollection<Muon::sTgcPrepData> >> {
+//    public: static std::unique_ptr<Muon::MuonPrepDataContainer<Muon::MuonPrepDataCollection<Muon::sTgcPrepData> >> create(); };
 }
 
 
