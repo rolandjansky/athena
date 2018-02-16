@@ -47,20 +47,13 @@ class ITrigCaloDataAccessSvc: virtual public IService {
     uint32_t m_mask = 0;
   };
 
-  /**
-   * Will we ever need layer here
-   */
-  virtual Status prepareCollections( const EventContext& context,
-				     const IRoiDescriptor& roi, 
-				     DETID detector ) = 0;
-
-
   
   /** 
    * @brief downloads the LAr data for an RoI and makes sure the cache collection is filled wiht decoded cells   
    */
   virtual Status loadCollections( const EventContext& context,
 				  const IRoiDescriptor& roi,
+				  const DETID detId, const int sampling,
 				  LArTT_Selector<LArCellCont>& loadedCells ) = 0;
 	/* /\**  */
 	/* * @brief LoadCollections fetches data via ROBDataProvider */
@@ -107,12 +100,10 @@ class ITrigCaloDataAccessSvc: virtual public IService {
         * @brief Loads the full collection for the missing et computation
         */
 
-  virtual Status prepareFullCollections( const EventContext& context, DETID detid ) = 0;
+  virtual Status prepareFullCollections( const EventContext& context ) = 0;
   
   virtual Status loadFullCollections ( const EventContext& context,
-				       DETID detid,
-				       LArTT_Selector<LArCellCont>::const_iterator& begin,
-				       LArTT_Selector<LArCellCont>::const_iterator& end ) = 0;
+				       ConstDataVector<CaloCellContainer>& cont ) = 0;
 
         /* /\** */
         /* * @brief Loads the full collection for the missing et computation */
@@ -175,11 +166,11 @@ class ITrigCaloDataAccessSvc: virtual public IService {
 	  container or all if number=-1, no Key makes the default
 	  key to be RoICells 
 	*/
-        /*
-        template <class T>
-        void  storeCells( const EventContext& context, T Begin, T End, CaloCellContainer*& pContainer,
-        const float threshold = 0., const uint32_t maxsize=1000 );
-        */	
+	
+	template <class T>
+	  void  storeCells( const EventContext& context, T Begin, T End, CaloCellContainer*& pContainer,
+		const float threshold = 0., const uint32_t maxsize=1000 );
+	
 	/*
 	Expose list of ROBs
 	 // TB unclear if this is meant to be the list of ROBs already downloaded or all robs covering RoI,
@@ -190,7 +181,6 @@ class ITrigCaloDataAccessSvc: virtual public IService {
 
 private :
 	// Dummy method just to help compilation
-  /*
 	void comp (const EventContext& context) {
 	  LArTT_Selector<LArCellCont>::const_iterator l;
 	  TileCellCollection::const_iterator t;
@@ -200,7 +190,6 @@ private :
 	  storeCells(context, l,l,cont);
 	  storeCells(context, t,t,cont);
 	}
-  */
 protected:
 };
 
