@@ -236,18 +236,19 @@ bool CheckConfig::advancedConfigChecks()
 	if(!success) return false;
 	
 	/// Periods don't overlap
-	const auto calcs_end = m_parent.m_calculators.end();
-	for(auto itr1=m_parent.m_calculators.begin(); itr1!=calcs_end; ++itr1)
+	auto periods = m_parent.m_calculator->m_periods;	
+	const auto periods_end =  periods.end();
+	for(auto itr1=periods.begin(); itr1!=periods_end; ++itr1)
 	{
-		auto& x = itr1->getBoundaries();
+		auto& x = itr1->m_boundaries;
 		if(x.second < x.first)
 		{
 			ATH_MSG_ERROR("One of the periods specified in TriggerCombination has runMin (" << x.first << ") > runMax ("  << x.second << ")");
 			success = false;
 		}
-		for(auto itr2=itr1+1; itr2!=calcs_end; ++itr2)
+		for(auto itr2=itr1+1; itr2!=periods_end; ++itr2)
 		{
-			auto& y = itr2->getBoundaries();
+			auto& y = itr2->m_boundaries;
 			if((x.first>=y.first && x.first<=y.second) || (x.second>=y.first && x.second<=y.second))
 			{
 				ATH_MSG_ERROR("The periods specified in TriggerCombination overlap");

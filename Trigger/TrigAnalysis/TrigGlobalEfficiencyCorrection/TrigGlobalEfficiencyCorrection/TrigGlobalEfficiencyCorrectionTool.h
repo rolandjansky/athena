@@ -20,6 +20,7 @@
 #include <map>
 #include <set>
 #include <boost/container/container_fwd.hpp>
+#include <memory>
 
 namespace TrigGlobEffCorr
 {
@@ -55,8 +56,8 @@ public:
 	virtual CP::SystematicSet recommendedSystematics() const override;
 	virtual CP::SystematicCode applySystematicVariation(const CP::SystematicSet& systConfig) override;
 
-	static CP::CorrectionCode suggestElectronMapKeys(const std::map<std::string,std::string>& triggerCombination, const std::string& version, 
-		std::map<std::string,std::string>& legsPerKey, const asg::AsgToolBase* caller = nullptr);
+	static CP::CorrectionCode suggestElectronMapKeys(const std::map<std::string,std::string>& triggerCombination,
+		const std::string& version, std::map<std::string,std::string>& legsPerKey);
 	
 private: 
 
@@ -118,7 +119,7 @@ private:
 	std::vector<TagDecorator> m_leptonTagDecorators; //!
 	SG::AuxElement::Decorator<unsigned int> m_runNumberDecorator; //!
 	SG::AuxElement::Decorator<unsigned long> m_eventNumberDecorator; //!
-	std::vector<TrigGlobEffCorr::Calculator> m_calculators; //!
+	std::unique_ptr<TrigGlobEffCorr::Calculator> m_calculator; //!
 	
 	template<typename Key> using flat_set = boost::container::flat_set<Key>;
 

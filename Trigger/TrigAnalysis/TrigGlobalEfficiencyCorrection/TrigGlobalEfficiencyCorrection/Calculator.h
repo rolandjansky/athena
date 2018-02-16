@@ -26,37 +26,30 @@ class Trig2Esym;
 class Trig2MUsym;
 class TrigEMU;
 
-class Calculator
+class Calculator : public asg::AsgMessaging
 {
 	using LeptonList = TrigGlobalEfficiencyCorrectionTool::LeptonList;
 	using TrigDef = TrigGlobEffCorr::ImportData::TrigDef;
 	template<typename Key> using flat_set = boost::container::flat_set<Key>;
 
 public:
-	Calculator(const std::pair<unsigned,unsigned>& boundaries) : m_parent(nullptr), m_boundaries(boundaries) {}
-	bool initialize(TrigGlobEffCorr::ImportData& data, const std::string& combination, bool useToys);
-	bool supports(unsigned runNumber) const
+	Calculator(TrigGlobalEfficiencyCorrectionTool& parent, unsigned nPeriodsToReserve);
+	bool addPeriod(ImportData& data, const std::pair<unsigned,unsigned>& boundaries, const std::string& combination, 
+			bool useToys, bool useDefaultTools, std::size_t& uniqueElectronLeg);
+	bool compute(TrigGlobalEfficiencyCorrectionTool& parent, const LeptonList& leptons, unsigned runNumber, Efficiencies& efficiencies);
+	
+	struct Period
 	{
-		return runNumber>=m_boundaries.first && runNumber<=m_boundaries.second;
-	}
-	bool compute(TrigGlobalEfficiencyCorrectionTool& parent, const LeptonList& leptons, unsigned runNumber, Efficiencies& efficiencies)
-	{
-		m_parent = &parent;
-		m_cachedEfficiencies.clear();
-		return m_globalEfficiency && m_globalEfficiency(this, leptons, runNumber, efficiencies);
-	}
-	bool involvesSeveralElectronLegs() const { return m_involvesSeveralElectronLegs; }
-	std::size_t getUniqueElectronLeg() const { return m_uniqueElectronLeg; }
-	const std::pair<unsigned,unsigned>& getBoundaries() { return m_boundaries; }
+		const std::pair<unsigned,unsigned> m_boundaries;
+		std::function<bool(Calculator*,const LeptonList&,unsigned,Efficiencies&)> m_formula;
+		Period(const decltype(m_boundaries)& b, decltype(m_formula)&& f) : m_boundaries(b), m_formula(f) {}
+	};
 	
 private:
 	TrigGlobalEfficiencyCorrectionTool* m_parent; /// pointer updated at each call to compute() because the parent tool might have been moved in-between
-	const std::pair<unsigned,unsigned> m_boundaries;
-	/// note: can't bind 'this' pointer because the Calculator instance might be moved and the pointer thus invalidated; so keep Calculator* as argument
-	std::function<bool(Calculator*,const LeptonList&,unsigned,Efficiencies&)> m_globalEfficiency;
+	
+	std::vector<Period> m_periods;
 	std::map<std::pair<const Lepton*,std::size_t>, Efficiencies> m_cachedEfficiencies;
-	bool m_involvesSeveralElectronLegs;
-	std::size_t m_uniqueElectronLeg;
 	
 	bool aboveThreshold(const Lepton& p,std::size_t leg) const { return m_parent->aboveThreshold(p, leg); }
 	template<typename Trig1L> auto getLoosestLegAboveThreshold(const Lepton& lepton, const flat_set<Trig1L>& trigs, bool& success)
@@ -155,17 +148,12 @@ private:
 
 	//	
 	bool globalEfficiency_Toys(const LeptonList&, unsigned, const std::vector<TrigDef>& triggers, Efficiencies&);
-
-private:
-	MsgStream& msg() const { return m_parent->msg(); }	
-	MsgStream& msg(MSG::Level lvl) const { return m_parent->msg(lvl); }
-	bool msgLvl(MSG::Level lvl) const { return m_parent->msgLvl(lvl); }
 	
 private:
 	class Helper
 	{
 	public:
-		Helper(const std::vector<TrigDef>& defs, std::function<bool(Calculator*,const LeptonList&,unsigned,Efficiencies&)>& func);
+		Helper(const std::vector<TrigDef>& defs);
 		const unsigned int n1L, n2L, n3L;
 		template<typename Trig1L = void> bool bind_1x1L();
 		template<typename Trig2L> bool bind_1x2L();
@@ -174,9 +162,9 @@ private:
 		template<typename Trig3L> bool bind_1x3L();
 		template<typename Trig3L1, typename Trig3L2> bool bind_2x3L();
 		bool duplicates() const;
+		std::function<bool(Calculator*,const LeptonList&,unsigned,Efficiencies&)> m_func;
 	protected:
 		const std::vector<TrigDef>& m_defs;
-		std::function<bool(Calculator*,const LeptonList&,unsigned,Efficiencies&)>& m_func;
 		template<typename Trig> Trig get(unsigned index = 0) const;
 		template<typename Trig1L> flat_set<Trig1L> get_all() const;
 		template<typename Trig> std::size_t count() const
@@ -187,6 +175,7 @@ private:
 	};
 	
 	friend class Helper;
+	friend class CheckConfig;
 };
 
 }

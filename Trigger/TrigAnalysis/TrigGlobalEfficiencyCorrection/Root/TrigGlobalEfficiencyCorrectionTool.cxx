@@ -30,7 +30,8 @@ using Lepton = TrigGlobEffCorr::Lepton;
 
 
 TrigGlobalEfficiencyCorrectionTool::TrigGlobalEfficiencyCorrectionTool(const std::string& name)
-	: asg::AsgTool(name), m_checkElectronLegTag(false), m_checkMuonLegTag(false), m_seed(1), m_runNumberDecorator("RandomRunNumber"), m_eventNumberDecorator("EventNumber")
+	: asg::AsgTool(name), m_checkElectronLegTag(false), m_checkMuonLegTag(false), m_seed(1), 
+	m_runNumberDecorator("RandomRunNumber"), m_eventNumberDecorator("EventNumber"), m_calculator()
 {
 	declareProperty("ElectronEfficiencyTools", m_suppliedElectronEfficiencyTools, "electron MC efficiency tools (one for each kind of electron trigger leg)");
 	declareProperty("ElectronScaleFactorTools", m_suppliedElectronScaleFactorTools, "electron scale factor tools (one for each kind of electron trigger leg)");
@@ -250,33 +251,23 @@ bool TrigGlobalEfficiencyCorrectionTool::loadTriggerCombination(ImportData& data
 		m_triggerCb.insert(kv);
 	}
 	
-	m_calculators.clear();
+	m_calculator = std::unique_ptr<Calculator>(new Calculator(*this, m_triggerCb.size()));
 	std::set<std::size_t> uniqueElectronLegs;
 	for(auto& kv : m_triggerCb)
 	{
 		std::pair<unsigned, unsigned> boundaries;
-		if(!data.getPeriodBoundaries(kv.first,boundaries))
+		if(!data.getPeriodBoundaries(kv.first, boundaries))
 		{
 			success = false;
 			continue;
 		}
-		m_calculators.emplace_back(boundaries);
-		auto& calc = m_calculators.back();
-		if(!calc.initialize(data,kv.second,m_numberOfToys))
+		std::size_t uniqueLeg = 0;
+		if(!m_calculator->addPeriod(data, boundaries, kv.second, m_numberOfToys, useDefaultTools, uniqueLeg))
 		{
 			success = false;
 			continue;
 		}
-		if(useDefaultTools)
-		{
-			if(calc.involvesSeveralElectronLegs())
-			{
-				ATH_MSG_ERROR("The property 'ListOfLegsPerTool' needs to be filled as the specified trigger combination involves several electron trigger legs");
-				success = false;
-				continue;
-			}
-			uniqueElectronLegs.insert(calc.getUniqueElectronLeg());
-		}
+		else if(uniqueLeg) uniqueElectronLegs.insert(uniqueLeg);
 	}
 	if(!success) return false;
 	
@@ -285,6 +276,7 @@ bool TrigGlobalEfficiencyCorrectionTool::loadTriggerCombination(ImportData& data
 		decltype(m_electronSfTools) remappedEffTools, remappedSfTools;
 		for(std::size_t leg : uniqueElectronLegs)
 		{
+			if(!leg) continue;
 			for(auto& kv : m_electronSfTools) remappedSfTools.emplace(kv.first^leg, kv.second);
 			for(auto& kv : m_electronEffTools) remappedEffTools.emplace(kv.first^leg, kv.second);
 		}
@@ -716,16 +708,8 @@ CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::getEfficiency(unsigned ru
 	}
 	#endif
 	
-	auto calc = std::find_if(m_calculators.begin(), m_calculators.end(),
-		[=](const Calculator& calc) { return calc.supports(runNumber); });
-	if(calc == m_calculators.end())
-	{
-		ATH_MSG_ERROR("No trigger combination has been specified for run " << runNumber);
-		m_cpCode.ignore();
-		return CP::CorrectionCode::Error;
-	}
 	Efficiencies efficiencies;
-	if(calc->compute(*this, leptons, runNumber, efficiencies))
+	if(m_calculator->compute(*this, leptons, runNumber, efficiencies))
 	{
 		efficiencyData = efficiencies.data();
 		efficiencyMc = efficiencies.mc();
@@ -926,16 +910,13 @@ std::vector<std::size_t> TrigGlobalEfficiencyCorrectionTool::getSortedLegs(const
 }
 
 CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::suggestElectronMapKeys(const std::map<std::string,std::string>& triggerCombination, 
-	const std::string& version, std::map<std::string,std::string>& legsPerKey, const asg::AsgToolBase* caller)
+	const std::string& version, std::map<std::string,std::string>& legsPerKey)
 {
 	legsPerKey.clear();
 
-	ImportData data(caller);
+	ImportData data;
 	if(!data.importAll()) return CP::CorrectionCode::Error;
 
-	auto msg = std::bind<MsgStream&(asg::AsgToolBase::*)(void)const>(&asg::AsgToolBase::msg, caller);
-	// not using the ATH_MSG_* macros in this function: it would work fine with MsgStreamMacros.h (standalone) but not with AthMsgStreamMacros.h (athena)
-	
 	bool success = true;
 	std::map<std::size_t,int> legs;
 	auto& periods = data.getDataPeriods();
@@ -946,9 +927,7 @@ CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::suggestElectronMapKeys(co
 		auto itrPeriod = periods.find(kv.first);
 		if(itrPeriod == periods.end())
 		{
-			#ifdef XAOD_STANDALONE
-				if(caller) msg(MSG::ERROR) << "Unknown period " << kv.first << endmsg;
-			#endif
+			//ATH_MSG_ERROR("Unknown period " << kv.first)
 			success = false;
 			continue;
 		}
@@ -1002,8 +981,8 @@ CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::suggestElectronMapKeys(co
 			}
 			else
 			{
-				if(caller) msg(MSG::ERROR) << "Sorry, no idea what the map key should be for the trigger leg '" 
-						<< dictionary.at(leg) << "', manual configuration is needed" << endmsg;
+				//ATH_MSG_ERROR("Sorry, no idea what the map key should be for the trigger leg '" 
+				//		<< dictionary.at(leg) << "', manual configuration is needed");
 				success = false;
 			}
 		}

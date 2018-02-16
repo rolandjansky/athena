@@ -8,6 +8,7 @@
 #include "TrigGlobalEfficiencyCorrection/ImportData.h"
 #include "TrigGlobalEfficiencyCorrection/Lepton.h"
 #include "TrigGlobalEfficiencyCorrection/Trigger.h"
+#include "AsgTools/AsgMessaging.h"
 
 #include <random>
 
@@ -17,13 +18,12 @@ using std::placeholders::_2;
 using std::placeholders::_3;
 using std::placeholders::_4;
 
-Calculator::Helper::Helper(const std::vector<TrigDef>& defs, std::function<bool(Calculator*,const LeptonList&,unsigned,Efficiencies&)>& func) :
+Calculator::Helper::Helper(const std::vector<TrigDef>& defs) :
 	n1L(std::count_if(defs.cbegin(), defs.cend(), [](const TrigDef& td)->bool{ return td.type&TT_GENERIC_SINGLELEPTON;})),
 	n2L(std::count_if(defs.cbegin(), defs.cend(), [](const TrigDef& td)->bool{ return td.type&TT_GENERIC_DILEPTON;})),
 	n3L(std::count_if(defs.cbegin(), defs.cend(), [](const TrigDef& td)->bool{ return td.type&TT_GENERIC_TRILEPTON;})),
-	m_defs(defs), m_func(func)
+	m_func(nullptr), m_defs(defs)
 {
-	m_func = nullptr;
 }
 
 namespace TrigGlobEffCorr
@@ -206,18 +206,28 @@ bool Calculator::Helper::duplicates() const
 }
 
 }
+
+Calculator::Calculator(TrigGlobalEfficiencyCorrectionTool& parent, unsigned nPeriodsToReserve) :
+	asg::AsgMessaging(&parent),
+	m_parent(&parent)
+{
+	msg().setLevel(parent.msg().level());
+	m_periods.reserve(nPeriodsToReserve);
+}
 		
-bool Calculator::initialize(ImportData& data, const std::string& combination, bool useToys)
+bool Calculator::addPeriod(ImportData& data, const std::pair<unsigned,unsigned>& boundaries, const std::string& combination, 
+	bool useToys, bool useDefaultTools, std::size_t& uniqueElectronLeg)
 {
 	bool success = true;
 	m_parent = data.getParent();
-	flat_set<std::size_t> singleelectron, singlemuon, uniqueElectronLegs;
+	
+	flat_set<std::size_t> singleelectron, singlemuon;
 	std::vector<TrigDef> dilep, trilep;
 	auto triggers = data.parseTriggerString(combination,success);
 	if(!success) return false;
 
-	m_involvesSeveralElectronLegs = false;
-	m_uniqueElectronLeg = 0;
+	uniqueElectronLeg = 0;
+	bool severalElectronLegs = false;
 	for(auto& trig : triggers)
 	{
 		if(!useToys)
@@ -232,23 +242,30 @@ bool Calculator::initialize(ImportData& data, const std::string& combination, bo
 				return false;
 			}
 		}
-		if(!m_involvesSeveralElectronLegs)
+		if(!severalElectronLegs)
 		{
 			switch(trig.type)
 			{
 			case TT_SINGLE_MU: case TT_2MU_ASYM: case TT_2MU_SYM: case TT_3MU_ASYM: case TT_3MU_SYM:
 				break;
 			case TT_SINGLE_E: case TT_2E_SYM: case TT_EMU: case TT_3E_SYM: case TT_2MU_E_ASYM: case TT_2MU_E_SYM:
-				if(m_uniqueElectronLeg && m_uniqueElectronLeg!=trig.leg[0]) m_involvesSeveralElectronLegs = true;
-				m_uniqueElectronLeg = trig.leg[0];
+				if(uniqueElectronLeg && uniqueElectronLeg!=trig.leg[0]) severalElectronLegs = true;
+				uniqueElectronLeg = trig.leg[0];
 				break;
 			default:
-				m_involvesSeveralElectronLegs = true;
+				severalElectronLegs = true;
 			}
 		}
 	}
+	if(useDefaultTools && severalElectronLegs)
+	{
+		ATH_MSG_ERROR("The property 'ListOfLegsPerTool' needs to be filled as the specified trigger combination involves several electron trigger legs");
+		return false;
+	}
+	
 	/// Choose the appropriate function to compute efficiencies for this particular trigger combination
-	Helper helper(triggers, m_globalEfficiency);
+	
+	Helper helper(triggers);
 	if(helper.duplicates())
 	{
 		ATH_MSG_ERROR("The following combination of triggers contains duplicates: " << combination);
@@ -290,7 +307,7 @@ bool Calculator::initialize(ImportData& data, const std::string& combination, bo
 			success = helper.bind_2x3L<Trig2EMUsym,TrigE2MUsym>() || helper.bind_2x3L<Trig2EMUsym,TrigE2MUasym>()
 				|| helper.bind_2x3L<Trig2EMUasym,TrigE2MUsym>() || helper.bind_2x3L<Trig2EMUasym,TrigE2MUasym>();
 		}
-		if(!m_globalEfficiency)
+		if(!helper.m_func)
 		{
 			ATH_MSG_ERROR("This trigger combination is currently not supported with an explicit formula (you may use toys instead, slower): " << combination);
 			return false;
@@ -298,10 +315,31 @@ bool Calculator::initialize(ImportData& data, const std::string& combination, bo
 	}
 	else
 	{
-		m_globalEfficiency = std::bind(&Calculator::globalEfficiency_Toys, ::_1, ::_2, ::_3, triggers, ::_4);
+		helper.m_func = std::bind(&Calculator::globalEfficiency_Toys, ::_1, ::_2, ::_3, triggers, ::_4);
 	}
-	if(!success) m_globalEfficiency = nullptr;
+	if(success)
+	{
+		m_periods.emplace_back(boundaries, std::move(helper.m_func));
+	}
+	else
+	{
+		ATH_MSG_ERROR("Unspecified error occurred while trying to find the formula for the trigger combination " << combination);
+	}
 	return success;
+}
+
+bool Calculator::compute(TrigGlobalEfficiencyCorrectionTool& parent, const LeptonList& leptons, unsigned runNumber, Efficiencies& efficiencies)
+{
+	m_parent = &parent;
+	auto period = std::find_if(m_periods.begin(), m_periods.end(),
+		[=](const Period& p) { return runNumber>=p.m_boundaries.first && runNumber<=p.m_boundaries.second; });
+	if(period == m_periods.end())
+	{
+		ATH_MSG_ERROR("No trigger combination has been specified for run " << runNumber);
+		return false;
+	}
+	m_cachedEfficiencies.clear();
+	return period->m_formula && period->m_formula(this, leptons, runNumber, efficiencies);
 }
 
 Efficiencies Calculator::getCachedTriggerLegEfficiencies(const Lepton& lepton, unsigned /* runNumber */, std::size_t leg, bool& success)
