@@ -89,12 +89,6 @@ StatusCode SiLorentzAngleCHSvc::queryInterface(const InterfaceID& riid, void** p
   return StatusCode::SUCCESS;
 }
 
-StatusCode SiLorentzAngleCHSvc::corrFolderCallBack(IOVSVC_CALLBACK_ARGS) {
-  ATH_MSG_FATAL("SiLorentzAngleCHSvc::corrFolderCallBack should not be used!!!");
-  return StatusCode::FAILURE;
-}
-
-
 StatusCode SiLorentzAngleCHSvc::callBack(IOVSVC_CALLBACK_ARGS) {
   ATH_MSG_FATAL("SiLorentzAngleCHSvc::callBack should not be used!!!");
   return StatusCode::FAILURE;

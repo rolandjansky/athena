@@ -12,7 +12,6 @@
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
-#include "SCT_ConditionsServices/ISCT_DCSConditionsSvc.h"
 #include "InDetIdentifier/SCT_ID.h"
 
 // Constructor
@@ -25,7 +24,6 @@ SCT_SiliconConditionsSvc::SCT_SiliconConditionsSvc(const std::string& name, ISvc
   m_checkGeoModel{true},
   m_forceUseGeoModel{false},
   m_detStore{"DetectorStore", name},
-  m_sctDCSSvc{"InDetSCT_DCSConditionsSvc", name},
   m_geoModelSvc{"GeoModelSvc", name},
   m_rdbSvc{"RDBAccessSvc", name},
   m_useGeoModel{false},
@@ -41,7 +39,6 @@ SCT_SiliconConditionsSvc::SCT_SiliconConditionsSvc(const std::string& name, ISvc
   declareProperty("ForceUseGeoModel", m_forceUseGeoModel       );
   declareProperty("GeoModelSvc",      m_geoModelSvc            );
   declareProperty("RDBAccessSvc",     m_rdbSvc                 );
-  declareProperty("DCSConditionsSvc", m_sctDCSSvc              );
 
   // These will get overwritten if used but give them some initial value anyway.
   m_geoModelTemperature      = m_defaultTemperature;
@@ -73,11 +70,7 @@ StatusCode SCT_SiliconConditionsSvc::initialize() {
       ATH_CHECK(m_condKeyTemp.initialize());
       ATH_CHECK(m_detStore->retrieve(m_sct_id, "SCT_ID"));
 
-      ATH_CHECK(m_sctDCSSvc.retrieve()) ;
       ATH_MSG_INFO("SCTDCSSvc retrieved");
-      ATH_MSG_INFO("Registering callback.");
-      ATH_CHECK(m_detStore->regFcn(&ISCT_ConditionsSvc::fillData,  dynamic_cast<ISCT_ConditionsSvc*>(&*m_sctDCSSvc),
-                                   &ISiliconConditionsSvc::callBack, dynamic_cast<ISiliconConditionsSvc *>(this), true));
     }
   } else {
     // Otherwise we use the GeoModel values
@@ -162,7 +155,8 @@ float SCT_SiliconConditionsSvc::depletionVoltage(const IdentifierHash& /*element
 // DB Callback
 StatusCode SCT_SiliconConditionsSvc::callBack(int&, std::list<std::string>&) {
   // Nothing needs to be done
-  return StatusCode::SUCCESS;
+  ATH_MSG_FATAL("SCT_SiliconConditionsSvc::callBack should not be used anymore!");
+  return StatusCode::FAILURE;
 }
 
 // Has a callback been registered

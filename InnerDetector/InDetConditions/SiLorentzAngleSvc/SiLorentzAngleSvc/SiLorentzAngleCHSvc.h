@@ -95,9 +95,6 @@ public:
   /** IOV CallBack */
   virtual StatusCode callBack(IOVSVC_CALLBACK_ARGS) override;
 
-  /** IOV Callback for correction folder */
-  virtual StatusCode corrFolderCallBack(IOVSVC_CALLBACK_ARGS);
-
 private:
   enum Variable {LorentzShift, LorentzShiftEta, TanLorentzAngle, TanLorentzAngleEta};
 

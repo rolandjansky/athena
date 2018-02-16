@@ -27,8 +27,8 @@ SCTSiLorentzAngleCondAlg::SCTSiLorentzAngleCondAlg(const std::string& name, ISvc
   ::AthAlgorithm(name, pSvcLocator),
   m_readKeyTemp{"SCT_SiliconTempCondData"},
   m_readKeyHV{"SCT_SiliconBiasVoltCondData"},
-  m_readKeyBFieldMap{"/GLOBAL/BField/Map"},
-  m_readKeyBFieldSensor{"/EXT/DCS/MAGNETS/SENSORDATA"},
+  m_readKeyBFieldSensor{"/EXT/DCS/MAGNETS/SENSORDATA"}, 
+  // The /GLOBAL/BField/Maps folder is run-lumi folder and has just one IOV. The folder is not used for IOV determination.
   m_writeKey{"SCTSiLorentzAngleCondData"},
   m_condSvc{"CondSvc", name},
   m_siConditionsSvc{"SCT_SiliconConditionsSvc", name},
@@ -38,7 +38,6 @@ SCTSiLorentzAngleCondAlg::SCTSiLorentzAngleCondAlg(const std::string& name, ISvc
 {
   declareProperty("ReadKeyTemp", m_readKeyTemp, "Key of input SCT temperature");
   declareProperty("ReadKeyHV", m_readKeyHV, "Key of input SCT HV");
-  declareProperty("ReadKeyBFieldMap", m_readKeyBFieldMap, "Key of input B-field map");
   declareProperty("ReadKeyBFieldSensor", m_readKeyBFieldSensor, "Key of input B-field sensor");
   declareProperty("WriteKey", m_writeKey, "Key of output SiLorentzAngleCondData");
   // YOU NEED TO USE THE SAME PROPERTIES AS USED IN SCT_LorentzAngleSvc!!!
@@ -49,7 +48,9 @@ SCTSiLorentzAngleCondAlg::SCTSiLorentzAngleCondAlg(const std::string& name, ISvc
   declareProperty("BiasVoltage", m_biasVoltage = 150., "Default bias voltage in Volt.");
   declareProperty("NominalField", m_nominalField = 2.0834*Gaudi::Units::tesla);
   declareProperty("UseMagFieldSvc", m_useMagFieldSvc = true);
-  declareProperty("useSctDefaults", m_sctDefaults = true);
+  declareProperty("UseMagFieldDcs", m_useMagFieldDcs = true);
+  declareProperty("useSctDefaults", m_sctDefaults = false);
+  declareProperty("UseGeoModel", m_useGeoModel = false);
   declareProperty("TemperatureMin", m_temperatureMin = -80., "Minimum temperature allowed in Celcius.");
   declareProperty("TemperatureMax", m_temperatureMax = 100., "Maximum temperature allowed in Celcius.");
 }
@@ -62,16 +63,19 @@ StatusCode SCTSiLorentzAngleCondAlg::initialize()
     // SCTSiliconConditionsSvc
     ATH_CHECK(m_siConditionsSvc.retrieve());
     // Read Cond handle
-    ATH_CHECK(m_readKeyTemp.initialize());
-    ATH_CHECK(m_readKeyHV.initialize());
+    if (not m_useGeoModel) {
+      ATH_CHECK(m_readKeyTemp.initialize());
+      ATH_CHECK(m_readKeyHV.initialize());
+    }
   }
 
   if (m_useMagFieldSvc) {
     // MagFieldSvc
     ATH_CHECK(m_magFieldSvc.retrieve());
     // Read Cond handle
-    ATH_CHECK(m_readKeyBFieldMap.initialize());
-    ATH_CHECK(m_readKeyBFieldSensor.initialize());
+    if (m_useMagFieldDcs) {
+      ATH_CHECK(m_readKeyBFieldSensor.initialize());
+    }
   }
 
   // Write Cond Handle
@@ -117,7 +121,7 @@ StatusCode SCTSiLorentzAngleCondAlg::execute()
   EventIDRange rangeSCT{eidStart, eidStop};
   EventIDRange rangeBField{eidStart, eidStop};
 
-  if (not m_sctDefaults) {
+  if ((not m_sctDefaults) and (not m_useGeoModel)) {
     // Read Cond Handle (temperature)
     SG::ReadCondHandle<SCT_DCSFloatCondData> readHandleTemp{m_readKeyTemp};
     const SCT_DCSFloatCondData* readCdoTemp{*readHandleTemp};
@@ -155,39 +159,27 @@ StatusCode SCTSiLorentzAngleCondAlg::execute()
   }
   
   if (m_useMagFieldSvc) {
-    // Read Cond Handle (B field map)
-    SG::ReadCondHandle<CondAttrListCollection> readHandleBFieldMap{m_readKeyBFieldMap};
-    const CondAttrListCollection* readCdoBFieldMap{*readHandleBFieldMap};
-    if (readCdoBFieldMap==nullptr) {
-      ATH_MSG_FATAL("Null pointer to the read conditions object");
-      return StatusCode::FAILURE;
-    }
-    EventIDRange rangeBFieldMap;
-    if (not readHandleBFieldMap.range(rangeBFieldMap)) {
-      ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleBFieldMap.key());
-      return StatusCode::FAILURE;
-    }
-    ATH_MSG_INFO("Input is " << readHandleBFieldMap.fullKey() << " with the range of " << rangeBFieldMap);
+    if (m_useMagFieldDcs) {
+      // Read Cond Handle (B field sensor)
+      SG::ReadCondHandle<CondAttrListCollection> readHandleBFieldSensor{m_readKeyBFieldSensor};
+      const CondAttrListCollection* readCdoBFieldSensor{*readHandleBFieldSensor};
+      if (readCdoBFieldSensor==nullptr) {
+        ATH_MSG_FATAL("Null pointer to the read conditions object");
+        return StatusCode::FAILURE;
+      }
+      EventIDRange rangeBFieldSensor;
+      if (not readHandleBFieldSensor.range(rangeBFieldSensor)) {
+        ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleBFieldSensor.key());
+        return StatusCode::FAILURE;
+      }
+      ATH_MSG_INFO("Input is " << readHandleBFieldSensor.fullKey() << " with the range of " << rangeBFieldSensor);
 
-    // Read Cond Handle (B field sensor)
-    SG::ReadCondHandle<CondAttrListCollection> readHandleBFieldSensor{m_readKeyBFieldSensor};
-    const CondAttrListCollection* readCdoBFieldSensor{*readHandleBFieldSensor};
-    if (readCdoBFieldSensor==nullptr) {
-      ATH_MSG_FATAL("Null pointer to the read conditions object");
-      return StatusCode::FAILURE;
-    }
-    EventIDRange rangeBFieldSensor;
-    if (not readHandleBFieldSensor.range(rangeBFieldSensor)) {
-      ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleBFieldSensor.key());
-      return StatusCode::FAILURE;
-    }
-    ATH_MSG_INFO("Input is " << readHandleBFieldSensor.fullKey() << " with the range of " << rangeBFieldSensor);
-
-    // Combined the validity ranges of map and sensor
-    rangeBField = EventIDRange::intersect(rangeBFieldMap, rangeBFieldSensor);
-    if (rangeBField.start()>rangeBField.stop()) {
-      ATH_MSG_FATAL("Invalid intersection rangeBField: " << rangeBField);
-      return StatusCode::FAILURE;
+      // Set the validity ranges of sensor
+      rangeBField = rangeBFieldSensor;
+      if (rangeBField.start()>rangeBField.stop()) {
+        ATH_MSG_FATAL("Invalid intersection rangeBField: " << rangeBField);
+        return StatusCode::FAILURE;
+      }
     }
   }
 
