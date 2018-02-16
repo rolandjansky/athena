@@ -1040,20 +1040,10 @@ CP::SystematicSet TrigGlobalEfficiencyCorrectionTool::affectingSystematics() con
 
 CP::SystematicSet TrigGlobalEfficiencyCorrectionTool::recommendedSystematics() const
 {
-	CP::SystematicSet sys;
-	sys.insert(CP::SystematicVariation("MUON_EFF_TrigStatUncertainty", 1));
-	sys.insert(CP::SystematicVariation("MUON_EFF_TrigStatUncertainty", -1));
-	sys.insert(CP::SystematicVariation("MUON_EFF_TrigSystUncertainty", 1));
-	sys.insert(CP::SystematicVariation("MUON_EFF_TrigSystUncertainty", -1));
-	sys.insert(CP::SystematicVariation("EL_EFF_TriggerEff_TOTAL_1NPCOR_PLUS_UNCOR", 1));
-	sys.insert(CP::SystematicVariation("EL_EFF_TriggerEff_TOTAL_1NPCOR_PLUS_UNCOR", -1));
-	sys.insert(CP::SystematicVariation("EL_EFF_Trigger_TOTAL_1NPCOR_PLUS_UNCOR", 1));
-	sys.insert(CP::SystematicVariation("EL_EFF_Trigger_TOTAL_1NPCOR_PLUS_UNCOR", -1));
-	return sys;
+	return {};
 }
 
 CP::SystematicCode TrigGlobalEfficiencyCorrectionTool::applySystematicVariation(const CP::SystematicSet&)
 {
-	ATH_MSG_WARNING("Systematic variations must be applied to the supplied electron and muon CP tools; this tool only propagates them in a transparent way");
 	return CP::SystematicCode::Ok;
 }
