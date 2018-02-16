@@ -78,61 +78,61 @@ void VertexCollectionSettingsButton::Imp::initEditWindow()
 //____________________________________________________________________
 void VertexCollectionSettingsButton::setMaterialText(const QString& t)
 {
-  if (d->editwindow)
-    d->editwindow->setWindowTitle(t);
+  if (m_d->editwindow)
+    m_d->editwindow->setWindowTitle(t);
   setToolTip(t);
 }
 
 //____________________________________________________________________
-VertexCollectionSettingsButton::VertexCollectionSettingsButton(QWidget * parent,int _dim)
-  : VP1MaterialButtonBase(parent,0,"VP1MaterialButton"), d(new Imp)
+VertexCollectionSettingsButton::VertexCollectionSettingsButton(QWidget * parent,int dim)
+  : VP1MaterialButtonBase(parent,0,"VP1MaterialButton"), m_d(new Imp)
 {
-  d->dim = _dim;
+  m_d->dim = dim;
   
-  d->theclass = this;
-  d->initEditWindow();
+  m_d->theclass = this;
+  m_d->initEditWindow();
   
   //Draw Styles / Complexity:
   
-  d->vertexDrawStyle = new SoDrawStyle;
-  d->vertexDrawStyle->setName("VertexDrawStyle");
-  d->vertexDrawStyle->pointSize=5.0;
-  d->vertexDrawStyle->ref();
+  m_d->vertexDrawStyle = new SoDrawStyle;
+  m_d->vertexDrawStyle->setName("VertexDrawStyle");
+  m_d->vertexDrawStyle->pointSize=5.0;
+  m_d->vertexDrawStyle->ref();
   updateVertexDrawStyle();
-  connect(d->editwindow_ui.horizontalSlider_vertexSize,SIGNAL(valueChanged(int)),this,SIGNAL(vertexSizeChanged(int)));
+  connect(m_d->editwindow_ui.horizontalSlider_vertexSize,SIGNAL(valueChanged(int)),this,SIGNAL(vertexSizeChanged(int)));
   
-  d->vertexLightModel = new SoLightModel;
-  d->vertexLightModel->setName("VertexLightModel");
-  d->vertexLightModel->ref();
+  m_d->vertexLightModel = new SoLightModel;
+  m_d->vertexLightModel->setName("VertexLightModel");
+  m_d->vertexLightModel->ref();
   updateVertexLightModel(false);
-  connect(d->editwindow_ui.checkBox_verticesUseBaseLightModel,SIGNAL(toggled(bool)),this,SLOT(updateVertexLightModel(bool)));
+  connect(m_d->editwindow_ui.checkBox_verticesUseBaseLightModel,SIGNAL(toggled(bool)),this,SLOT(updateVertexLightModel(bool)));
   
   // R 
-  connect(d->editwindow_ui.checkBox_cut_r,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedR()));
-  connect(d->editwindow_ui.checkBox_cut_r_range_forcesymmetric,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedR()));
-  connect(d->editwindow_ui.checkBox_cut_r_excludeRange,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedR()));
-  connect(d->editwindow_ui.doubleSpinBox_cut_r_lower,SIGNAL(valueChanged(double)),this,SLOT(possibleChange_cutAllowedR()));
-  connect(d->editwindow_ui.doubleSpinBox_cut_r_upper,SIGNAL(valueChanged(double)),this,SLOT(possibleChange_cutAllowedR()));
+  connect(m_d->editwindow_ui.checkBox_cut_r,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedR()));
+  connect(m_d->editwindow_ui.checkBox_cut_r_range_forcesymmetric,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedR()));
+  connect(m_d->editwindow_ui.checkBox_cut_r_excludeRange,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedR()));
+  connect(m_d->editwindow_ui.doubleSpinBox_cut_r_lower,SIGNAL(valueChanged(double)),this,SLOT(possibleChange_cutAllowedR()));
+  connect(m_d->editwindow_ui.doubleSpinBox_cut_r_upper,SIGNAL(valueChanged(double)),this,SLOT(possibleChange_cutAllowedR()));
 
   // Y
-  connect(d->editwindow_ui.checkBox_cut_y,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedY()));
-  connect(d->editwindow_ui.checkBox_cut_y_range_forcesymmetric,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedY()));
-  connect(d->editwindow_ui.checkBox_cut_y_excludeRange,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedY()));
-  connect(d->editwindow_ui.doubleSpinBox_cut_y_lower,SIGNAL(valueChanged(double)),this,SLOT(possibleChange_cutAllowedY()));
-  connect(d->editwindow_ui.doubleSpinBox_cut_y_upper,SIGNAL(valueChanged(double)),this,SLOT(possibleChange_cutAllowedY()));
+  connect(m_d->editwindow_ui.checkBox_cut_y,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedY()));
+  connect(m_d->editwindow_ui.checkBox_cut_y_range_forcesymmetric,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedY()));
+  connect(m_d->editwindow_ui.checkBox_cut_y_excludeRange,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedY()));
+  connect(m_d->editwindow_ui.doubleSpinBox_cut_y_lower,SIGNAL(valueChanged(double)),this,SLOT(possibleChange_cutAllowedY()));
+  connect(m_d->editwindow_ui.doubleSpinBox_cut_y_upper,SIGNAL(valueChanged(double)),this,SLOT(possibleChange_cutAllowedY()));
   // Z
-  connect(d->editwindow_ui.checkBox_cut_z,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedZ()));
-  connect(d->editwindow_ui.checkBox_cut_z_range_forcesymmetric,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedZ()));
-  connect(d->editwindow_ui.checkBox_cut_z_excludeRange,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedZ()));
-  connect(d->editwindow_ui.doubleSpinBox_cut_z_lower,SIGNAL(valueChanged(double)),this,SLOT(possibleChange_cutAllowedZ()));
-  connect(d->editwindow_ui.doubleSpinBox_cut_z_upper,SIGNAL(valueChanged(double)),this,SLOT(possibleChange_cutAllowedZ()));
+  connect(m_d->editwindow_ui.checkBox_cut_z,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedZ()));
+  connect(m_d->editwindow_ui.checkBox_cut_z_range_forcesymmetric,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedZ()));
+  connect(m_d->editwindow_ui.checkBox_cut_z_excludeRange,SIGNAL(toggled(bool)),this,SLOT(possibleChange_cutAllowedZ()));
+  connect(m_d->editwindow_ui.doubleSpinBox_cut_z_lower,SIGNAL(valueChanged(double)),this,SLOT(possibleChange_cutAllowedZ()));
+  connect(m_d->editwindow_ui.doubleSpinBox_cut_z_upper,SIGNAL(valueChanged(double)),this,SLOT(possibleChange_cutAllowedZ()));
 
 
   
   connect(this,SIGNAL(clicked()),this,SLOT(showEditMaterialDialog()));
-  connect(d->editwindow_ui.pushButton_close,SIGNAL(clicked()),this,SLOT(showEditMaterialDialog()));
-  connect(d->matButton,SIGNAL(lastAppliedChanged()),this,SLOT(updateButton()));
-  connect(d->matButton,SIGNAL(lastAppliedChanged()),this,SIGNAL(lastAppliedChanged()));
+  connect(m_d->editwindow_ui.pushButton_close,SIGNAL(clicked()),this,SLOT(showEditMaterialDialog()));
+  connect(m_d->matButton,SIGNAL(lastAppliedChanged()),this,SLOT(updateButton()));
+  connect(m_d->matButton,SIGNAL(lastAppliedChanged()),this,SIGNAL(lastAppliedChanged()));
   setAcceptDrops(true);
   
   QTimer::singleShot(0, this, SLOT(updateButton()));
@@ -140,114 +140,114 @@ VertexCollectionSettingsButton::VertexCollectionSettingsButton(QWidget * parent,
 }
 
 // QWidget& VertexCollectionSettingsButton::editWindow() {
-//   if (!d->editwindow)
+//   if (!m_d->editwindow)
 //     initEditWindow();
-//   return *(d->editwindow);
+//   return *(m_d->editwindow);
 // } 
 VertexCollectionSettingsButton::~VertexCollectionSettingsButton()
 {
-  delete d->editwindow;
-  d->vertexDrawStyle->unref();
-  d->vertexLightModel->unref();
-  delete d;
+  delete m_d->editwindow;
+  m_d->vertexDrawStyle->unref();
+  m_d->vertexLightModel->unref();
+  delete m_d;
 }
 
 void VertexCollectionSettingsButton::updateButton()
 {
   if (objectName().isEmpty())
     setObjectName("VertexCollectionSettingsButton");
-  messageVerbose("setColButtonProperties: color=" + str(d->matButton->lastAppliedDiffuseColour()));
-  VP1ColorSelectButton::setColButtonProperties(this,d->matButton->lastAppliedDiffuseColour(),d->dim);
+  messageVerbose("setColButtonProperties: color=" + str(m_d->matButton->lastAppliedDiffuseColour()));
+  VP1ColorSelectButton::setColButtonProperties(this,m_d->matButton->lastAppliedDiffuseColour(),m_d->dim);
 }
 
-void VertexCollectionSettingsButton::setDimension(int _dim)
+void VertexCollectionSettingsButton::setDimension(int dim)
 {
-  if (d->dim == _dim)
+  if (m_d->dim == dim)
     return;
-  d->dim = _dim;
+  m_d->dim = dim;
   updateButton();
 }
 
 void VertexCollectionSettingsButton::showEditMaterialDialog()
 {
-  if (!d->editwindow)
-    d->initEditWindow();
+  if (!m_d->editwindow)
+    m_d->initEditWindow();
 
-  if (d->editwindow->isHidden())
-    d->editwindow->show();
+  if (m_d->editwindow->isHidden())
+    m_d->editwindow->show();
   else
-    d->editwindow->hide();
+    m_d->editwindow->hide();
 }
 
 bool VertexCollectionSettingsButton::setMaterial(SoMaterial*mat)
 {  
 	// std::cout<<"VertexCollectionSettingsButton::setMaterial with mat="<<mat<<std::endl;
-  if (!d->matButton) d->initEditWindow();
-  d->matButton->setMaterial(mat);
+  if (!m_d->matButton) m_d->initEditWindow();
+  m_d->matButton->setMaterial(mat);
   return true;
 }
 
 void VertexCollectionSettingsButton::copyValuesFromMaterial(SoMaterial*mat)
 {
-  if (!d->matButton) d->initEditWindow();
-  d->matButton->setMaterial(mat);
+  if (!m_d->matButton) m_d->initEditWindow();
+  m_d->matButton->setMaterial(mat);
 }
 double VertexCollectionSettingsButton::lastAppliedTransparency() const 
 {
-  if (!d->matButton) d->initEditWindow();
-  return d->matButton->lastAppliedTransparency();
+  if (!m_d->matButton) m_d->initEditWindow();
+  return m_d->matButton->lastAppliedTransparency();
 }
 double VertexCollectionSettingsButton::lastAppliedShininess() const  
 {
-  if (!d->matButton) d->initEditWindow();
-  return d->matButton->lastAppliedShininess();
+  if (!m_d->matButton) m_d->initEditWindow();
+  return m_d->matButton->lastAppliedShininess();
 }
 double VertexCollectionSettingsButton::lastAppliedBrightness() const
 {
-  if (!d->matButton) d->initEditWindow();
-  return d->matButton->lastAppliedBrightness();
+  if (!m_d->matButton) m_d->initEditWindow();
+  return m_d->matButton->lastAppliedBrightness();
 }
 
 
 void VertexCollectionSettingsButton::updateVertexDrawStyle()
 {
-  // double val = VP1QtInventorUtils::getValueLineWidthSlider(d->editwindow_ui.horizontalSlider_vertexSize);
-  // if (d->vertexDrawStyle->lineWidth.getValue()!=val)
-  //   d->vertexDrawStyle->lineWidth = val;
+  // double val = VP1QtInventorUtils::getValueLineWidthSlider(m_d->editwindow_ui.horizontalSlider_vertexSize);
+  // if (m_d->vertexDrawStyle->lineWidth.getValue()!=val)
+  //   m_d->vertexDrawStyle->lineWidth = val;
 }
 
 void VertexCollectionSettingsButton::updateVertexLightModel(bool base)
 {
-  if (d->vertexLightModel->model.getValue()!=(base?SoLightModel::BASE_COLOR:SoLightModel::PHONG)) {
+  if (m_d->vertexLightModel->model.getValue()!=(base?SoLightModel::BASE_COLOR:SoLightModel::PHONG)) {
     messageVerbose("VertexLightModel changed (base = "+str(base));
     if (base)
-      d->vertexLightModel->model.setValue(SoLightModel::BASE_COLOR);
+      m_d->vertexLightModel->model.setValue(SoLightModel::BASE_COLOR);
     else
-      d->vertexLightModel->model.setValue(SoLightModel::PHONG);
+      m_d->vertexLightModel->model.setValue(SoLightModel::PHONG);
   }
 }
 
 
 SoDrawStyle * VertexCollectionSettingsButton::vertexDrawStyle() const
 {
-  return d->vertexDrawStyle;
+  return m_d->vertexDrawStyle;
 }
 
 SoLightModel * VertexCollectionSettingsButton::vertexLightModel() const
 {
-  return d->vertexLightModel;
+  return m_d->vertexLightModel;
 }
 
 int VertexCollectionSettingsButton::vertexSize() const
 {
-  return d->editwindow_ui.horizontalSlider_vertexSize->value();
+  return m_d->editwindow_ui.horizontalSlider_vertexSize->value();
 }
 
 //____________________________________________________________________
 void VertexCollectionSettingsButton::mousePressEvent(QMouseEvent *event)
 {
   if (event->button() == Qt::LeftButton)
-    d->dragStartPosition = event->pos();
+    m_d->dragStartPosition = event->pos();
   QPushButton::mousePressEvent(event);
 }
 
@@ -263,7 +263,7 @@ void VertexCollectionSettingsButton::mouseMoveEvent(QMouseEvent *event)
 {
   if (!(event->buttons() & Qt::LeftButton))
     return;
-  if ((event->pos() - d->dragStartPosition).manhattanLength()
+  if ((event->pos() - m_d->dragStartPosition).manhattanLength()
       < QApplication::startDragDistance())
     return;
 
@@ -285,22 +285,22 @@ void VertexCollectionSettingsButton::mouseMoveEvent(QMouseEvent *event)
   // ////////////////////////////////////////////////////////
   // 
   // QString s = "SoMaterial * mat = new SoMaterial;\n";
-  // QString str_ambient = d->toSbColTxt(d->lastapplied_ambient);
+  // QString str_ambient = m_d->toSbColTxt(m_d->lastapplied_ambient);
   // if (str_ambient!="SbColor(0.2,0.2,0.2)")
   //   s += "mat->ambientColor.setValue("+str_ambient+");\n";
-  // QString str_diffuse = d->toSbColTxt(d->lastapplied_diffuse);
+  // QString str_diffuse = m_d->toSbColTxt(m_d->lastapplied_diffuse);
   // if (str_diffuse!="SbColor(0.8,0.8,0.8)")
   //   s += "mat->diffuseColor.setValue("+str_diffuse+");\n";
-  // QString str_specular = d->toSbColTxt(d->lastapplied_specular);
+  // QString str_specular = m_d->toSbColTxt(m_d->lastapplied_specular);
   // if (str_specular!="SbColor(0,0,0)")
   //   s += "mat->specularColor.setValue("+str_specular+");\n";
-  // QString str_emissive = d->toSbColTxt(d->lastapplied_emissive);
+  // QString str_emissive = m_d->toSbColTxt(m_d->lastapplied_emissive);
   // if (str_emissive!="SbColor(0,0,0)")
   //   s += "mat->emissiveColor.setValue("+str_emissive+");\n";
-  // QString str_shininess = d->printFloat(d->lastapplied_shininess/100.0);
+  // QString str_shininess = m_d->printFloat(m_d->lastapplied_shininess/100.0);
   // if (str_shininess!="0.2")
   //   s +=     "mat->shininess.setValue("+str_shininess+");\n";
-  // QString str_transparency = d->printFloat(d->lastapplied_transparency/100.0);
+  // QString str_transparency = m_d->printFloat(m_d->lastapplied_transparency/100.0);
   // if (str_transparency!="0")
   //   s +=     "mat->transparency.setValue("+str_transparency+");\n";
   // mimeData->setText(s);
@@ -321,37 +321,37 @@ void VertexCollectionSettingsButton::dropEvent(QDropEvent *event)
 
 QByteArray VertexCollectionSettingsButton::saveState() const{
   // messageVerbose("getState");
-  // if (d->editwindow_ui.checkBox_tracksUseBaseLightModel->isChecked()) messageVerbose("checked!");
+  // if (m_d->editwindow_ui.checkBox_tracksUseBaseLightModel->isChecked()) messageVerbose("checked!");
   VP1Serialise serialise(1/*version*/);
   
   // MATERIAL BUTTON (color,...)
-  serialise.save(d->matButton);
+  serialise.save(m_d->matButton);
 
   // serialise.disableUnsavedChecks();
 
   // VERTEX SETTINGS
-  serialise.save(d->editwindow_ui.horizontalSlider_vertexSize);
-  serialise.save(d->editwindow_ui.checkBox_verticesUseBaseLightModel);
+  serialise.save(m_d->editwindow_ui.horizontalSlider_vertexSize);
+  serialise.save(m_d->editwindow_ui.checkBox_verticesUseBaseLightModel);
   
   // R
-  serialise.save(d->editwindow_ui.checkBox_cut_r);  
-  serialise.save(d->editwindow_ui.checkBox_cut_r_range_forcesymmetric);  
-  serialise.save(d->editwindow_ui.checkBox_cut_r_excludeRange);  
-  serialise.save(d->editwindow_ui.doubleSpinBox_cut_r_lower);    
-  serialise.save(d->editwindow_ui.doubleSpinBox_cut_r_upper);    
+  serialise.save(m_d->editwindow_ui.checkBox_cut_r);  
+  serialise.save(m_d->editwindow_ui.checkBox_cut_r_range_forcesymmetric);  
+  serialise.save(m_d->editwindow_ui.checkBox_cut_r_excludeRange);  
+  serialise.save(m_d->editwindow_ui.doubleSpinBox_cut_r_lower);    
+  serialise.save(m_d->editwindow_ui.doubleSpinBox_cut_r_upper);    
     
   // Y
-  serialise.save(d->editwindow_ui.checkBox_cut_y);  
-  serialise.save(d->editwindow_ui.checkBox_cut_y_range_forcesymmetric);  
-  serialise.save(d->editwindow_ui.checkBox_cut_y_excludeRange);  
-  serialise.save(d->editwindow_ui.doubleSpinBox_cut_y_lower);    
-  serialise.save(d->editwindow_ui.doubleSpinBox_cut_y_upper);
+  serialise.save(m_d->editwindow_ui.checkBox_cut_y);  
+  serialise.save(m_d->editwindow_ui.checkBox_cut_y_range_forcesymmetric);  
+  serialise.save(m_d->editwindow_ui.checkBox_cut_y_excludeRange);  
+  serialise.save(m_d->editwindow_ui.doubleSpinBox_cut_y_lower);    
+  serialise.save(m_d->editwindow_ui.doubleSpinBox_cut_y_upper);
   // Z
-  serialise.save(d->editwindow_ui.checkBox_cut_z);  
-  serialise.save(d->editwindow_ui.checkBox_cut_z_range_forcesymmetric);  
-  serialise.save(d->editwindow_ui.checkBox_cut_z_excludeRange);  
-  serialise.save(d->editwindow_ui.doubleSpinBox_cut_z_lower);    
-  serialise.save(d->editwindow_ui.doubleSpinBox_cut_z_upper); 
+  serialise.save(m_d->editwindow_ui.checkBox_cut_z);  
+  serialise.save(m_d->editwindow_ui.checkBox_cut_z_range_forcesymmetric);  
+  serialise.save(m_d->editwindow_ui.checkBox_cut_z_excludeRange);  
+  serialise.save(m_d->editwindow_ui.doubleSpinBox_cut_z_lower);    
+  serialise.save(m_d->editwindow_ui.doubleSpinBox_cut_z_upper); 
     
   serialise.widgetHandled(this);
   serialise.warnUnsaved(this);
@@ -365,37 +365,37 @@ void VertexCollectionSettingsButton::restoreFromState( const QByteArray& ba){
     return;//Ignore silently
 
   // MATERIAL BUTTON (color,...)
-  state.restore(d->matButton);
+  state.restore(m_d->matButton);
 
   // VERTEX SETTINGS
-  state.restore(d->editwindow_ui.horizontalSlider_vertexSize);
-  state.restore(d->editwindow_ui.checkBox_verticesUseBaseLightModel);
+  state.restore(m_d->editwindow_ui.horizontalSlider_vertexSize);
+  state.restore(m_d->editwindow_ui.checkBox_verticesUseBaseLightModel);
 
   // R
-  state.restore(d->editwindow_ui.checkBox_cut_r);  
-  state.restore(d->editwindow_ui.checkBox_cut_r_range_forcesymmetric);  
-  state.restore(d->editwindow_ui.checkBox_cut_r_excludeRange);  
-  state.restore(d->editwindow_ui.doubleSpinBox_cut_r_lower);    
-  state.restore(d->editwindow_ui.doubleSpinBox_cut_r_upper);    
+  state.restore(m_d->editwindow_ui.checkBox_cut_r);  
+  state.restore(m_d->editwindow_ui.checkBox_cut_r_range_forcesymmetric);  
+  state.restore(m_d->editwindow_ui.checkBox_cut_r_excludeRange);  
+  state.restore(m_d->editwindow_ui.doubleSpinBox_cut_r_lower);    
+  state.restore(m_d->editwindow_ui.doubleSpinBox_cut_r_upper);    
 
   // Y
-  state.restore(d->editwindow_ui.checkBox_cut_y);  
-  state.restore(d->editwindow_ui.checkBox_cut_y_range_forcesymmetric);  
-  state.restore(d->editwindow_ui.checkBox_cut_y_excludeRange);  
-  state.restore(d->editwindow_ui.doubleSpinBox_cut_y_lower);    
-  state.restore(d->editwindow_ui.doubleSpinBox_cut_y_upper);
+  state.restore(m_d->editwindow_ui.checkBox_cut_y);  
+  state.restore(m_d->editwindow_ui.checkBox_cut_y_range_forcesymmetric);  
+  state.restore(m_d->editwindow_ui.checkBox_cut_y_excludeRange);  
+  state.restore(m_d->editwindow_ui.doubleSpinBox_cut_y_lower);    
+  state.restore(m_d->editwindow_ui.doubleSpinBox_cut_y_upper);
   // Z
-  state.restore(d->editwindow_ui.checkBox_cut_z);  
-  state.restore(d->editwindow_ui.checkBox_cut_z_range_forcesymmetric);  
-  state.restore(d->editwindow_ui.checkBox_cut_z_excludeRange);  
-  state.restore(d->editwindow_ui.doubleSpinBox_cut_z_lower);    
-  state.restore(d->editwindow_ui.doubleSpinBox_cut_z_upper);   
+  state.restore(m_d->editwindow_ui.checkBox_cut_z);  
+  state.restore(m_d->editwindow_ui.checkBox_cut_z_range_forcesymmetric);  
+  state.restore(m_d->editwindow_ui.checkBox_cut_z_excludeRange);  
+  state.restore(m_d->editwindow_ui.doubleSpinBox_cut_z_lower);    
+  state.restore(m_d->editwindow_ui.doubleSpinBox_cut_z_upper);   
 
   state.widgetHandled(this);
   state.warnUnrestored(this);
 
   updateVertexDrawStyle();
-  updateVertexLightModel(d->editwindow_ui.checkBox_verticesUseBaseLightModel);
+  updateVertexLightModel(m_d->editwindow_ui.checkBox_verticesUseBaseLightModel);
   updateButton();
   //FIXME - anything else need updating?
 }
@@ -403,18 +403,18 @@ void VertexCollectionSettingsButton::restoreFromState( const QByteArray& ba){
 //____________________________________________________________________
 VP1Interval VertexCollectionSettingsButton::cutAllowedR() const
 {
-  if (!d->editwindow)
-    d->initEditWindow();
-  if (!d->editwindow_ui.checkBox_cut_r)
+  if (!m_d->editwindow)
+    m_d->initEditWindow();
+  if (!m_d->editwindow_ui.checkBox_cut_r)
     return VP1Interval();
   
-  const double minFromInterface=d->editwindow_ui.doubleSpinBox_cut_r_lower->value()*1000;
-  const double maxFromInterface=d->editwindow_ui.doubleSpinBox_cut_r_upper->value()*1000;
+  const double minFromInterface=m_d->editwindow_ui.doubleSpinBox_cut_r_lower->value()*1000;
+  const double maxFromInterface=m_d->editwindow_ui.doubleSpinBox_cut_r_upper->value()*1000;
   
   double min=0.0,max=0.0;
 
-  min = (d->editwindow_ui.checkBox_cut_r->isChecked() ? minFromInterface : -std::numeric_limits<double>::infinity());
-  max = (d->editwindow_ui.checkBox_cut_r->isChecked() ? maxFromInterface : std::numeric_limits<double>::infinity());
+  min = (m_d->editwindow_ui.checkBox_cut_r->isChecked() ? minFromInterface : -std::numeric_limits<double>::infinity());
+  max = (m_d->editwindow_ui.checkBox_cut_r->isChecked() ? maxFromInterface : std::numeric_limits<double>::infinity());
   
   // FIXME - add symmetry logic
   
@@ -429,18 +429,18 @@ VP1Interval VertexCollectionSettingsButton::cutAllowedR() const
 //____________________________________________________________________
 VP1Interval VertexCollectionSettingsButton::cutAllowedY() const
 {
-  if (!d->editwindow)
-    d->initEditWindow();
-  if (!d->editwindow_ui.checkBox_cut_y)
+  if (!m_d->editwindow)
+    m_d->initEditWindow();
+  if (!m_d->editwindow_ui.checkBox_cut_y)
     return VP1Interval();
   
-  const double minFromInterface = d->editwindow_ui.doubleSpinBox_cut_y_lower->value();//*1000;
-  const double maxFromInterface = d->editwindow_ui.doubleSpinBox_cut_y_upper->value();//*1000;
+  const double minFromInterface = m_d->editwindow_ui.doubleSpinBox_cut_y_lower->value();//*1000;
+  const double maxFromInterface = m_d->editwindow_ui.doubleSpinBox_cut_y_upper->value();//*1000;
   
   double min=0.0,max=0.0;
 
-  min = (d->editwindow_ui.checkBox_cut_y->isChecked() ? minFromInterface : -std::numeric_limits<double>::infinity());
-  max = (d->editwindow_ui.checkBox_cut_y->isChecked() ? maxFromInterface : std::numeric_limits<double>::infinity());
+  min = (m_d->editwindow_ui.checkBox_cut_y->isChecked() ? minFromInterface : -std::numeric_limits<double>::infinity());
+  max = (m_d->editwindow_ui.checkBox_cut_y->isChecked() ? maxFromInterface : std::numeric_limits<double>::infinity());
   
   // FIXME - add symmetry logic
   
@@ -454,18 +454,18 @@ VP1Interval VertexCollectionSettingsButton::cutAllowedY() const
 //____________________________________________________________________
 VP1Interval VertexCollectionSettingsButton::cutAllowedZ() const
 {
-  if (!d->editwindow)
-    d->initEditWindow();
-  if (!d->editwindow_ui.checkBox_cut_z)
+  if (!m_d->editwindow)
+    m_d->initEditWindow();
+  if (!m_d->editwindow_ui.checkBox_cut_z)
     return VP1Interval();
   
-  const double minFromInterface=d->editwindow_ui.doubleSpinBox_cut_z_lower->value();//*1000;
-  const double maxFromInterface=d->editwindow_ui.doubleSpinBox_cut_z_upper->value();//*1000;
+  const double minFromInterface=m_d->editwindow_ui.doubleSpinBox_cut_z_lower->value();//*1000;
+  const double maxFromInterface=m_d->editwindow_ui.doubleSpinBox_cut_z_upper->value();//*1000;
   
   double min=0.0,max=0.0;
 
-  min = (d->editwindow_ui.checkBox_cut_z->isChecked() ? minFromInterface : -std::numeric_limits<double>::infinity());
-  max = (d->editwindow_ui.checkBox_cut_z->isChecked() ? maxFromInterface : std::numeric_limits<double>::infinity());
+  min = (m_d->editwindow_ui.checkBox_cut_z->isChecked() ? minFromInterface : -std::numeric_limits<double>::infinity());
+  max = (m_d->editwindow_ui.checkBox_cut_z->isChecked() ? maxFromInterface : std::numeric_limits<double>::infinity());
   
   // FIXME - add symmetry logic
   
@@ -481,28 +481,28 @@ void VertexCollectionSettingsButton::possibleChange_cutAllowedR()
 {
   messageVerbose("possibleChange_cutAllowedR() ");
   
-  if (d->last_cutAllowedR==cutAllowedR()) return;
+  if (m_d->last_cutAllowedR==cutAllowedR()) return;
   messageVerbose("cutAllowedR() changed");
-  d->last_cutAllowedR= cutAllowedR();
-  emit cutAllowedRChanged(d->last_cutAllowedR);
+  m_d->last_cutAllowedR= cutAllowedR();
+  emit cutAllowedRChanged(m_d->last_cutAllowedR);
 }
 //____________________________________________________________________
 void VertexCollectionSettingsButton::possibleChange_cutAllowedY()
 {
   messageVerbose("possibleChange_cutAllowedY() ");
   
-  if (d->last_cutAllowedY == cutAllowedY()) return;
+  if (m_d->last_cutAllowedY == cutAllowedY()) return;
   messageVerbose("cutAllowedY() changed");
-  d->last_cutAllowedY = cutAllowedY();
-  emit cutAllowedYChanged(d->last_cutAllowedY);
+  m_d->last_cutAllowedY = cutAllowedY();
+  emit cutAllowedYChanged(m_d->last_cutAllowedY);
 }
 //____________________________________________________________________
 void VertexCollectionSettingsButton::possibleChange_cutAllowedZ()
 {
   messageVerbose("possibleChange_cutAllowedZ() ");
   
-  if (d->last_cutAllowedZ==cutAllowedZ()) return;
+  if (m_d->last_cutAllowedZ==cutAllowedZ()) return;
   messageVerbose("cutAllowedZ() changed");
-  d->last_cutAllowedZ= cutAllowedZ();
-  emit cutAllowedZChanged(d->last_cutAllowedZ);
+  m_d->last_cutAllowedZ= cutAllowedZ();
+  emit cutAllowedZChanged(m_d->last_cutAllowedZ);
 }
