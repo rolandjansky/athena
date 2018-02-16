@@ -257,7 +257,7 @@ def GetFolderItrForRun(foldername, run, foldertype='TRIGGER', run_beg_time=-1, r
         folder=dbComp.getFolder(foldername)
         log.info('Opening folder %s' % foldername)
         objIter = folder.browseObjects(run_beg_time,run_end_time,cool.ChannelSelection(0))
-        return folder.browseObjects(run_beg_time,run_end_time,cool.ChannelSelection(0))
+        return folder.browseObjects(run_beg_time,run_end_time,cool.ChannelSelection.all())
 
     CheckFolder(foldername)
     log.info('Opening folder %s' % foldername)
@@ -524,8 +524,13 @@ def GetLumiblocks(runnumber,lb_beg,lb_end,options=[]):
             except:
                 pass
 
+            ncol = payload['NumBunchColl']   # length
+            nb1  = payload['NumBunchBeam1']      # length
+            nb2  = payload['NumBunchBeam2']      # length
+
             log.info('time=%s,%s fill=%d stable=%s lhc=%s beam=%s ebeam=%f' %
                       (beg_,end_,fill,stable,lhc,beam,ebeam))
+            log.info('%s APPEND=%d (%s)--(%s) ncol=%d nb1=%d nb2=%d' % (fillparams_foldername,idx,beg_,end_,ncol,nb1,nb2))
 
             # Protection against bogus values
             iserr = False
@@ -596,9 +601,12 @@ def GetLumiblocks(runnumber,lb_beg,lb_end,options=[]):
             if idx > -1:
                 thisData = maskList[idx]
                 lbData          = lbset.lbs[lb]
-                lbData.ncol     = thisData['ncol']
-                lbData.nb1      = thisData['nb1']
-                lbData.nb2      = thisData['nb2']
+                lbData.ncol     = ncol
+                lbData.nb1      = nb1
+                lbData.nb2      = nb2
+#                lbData.ncol     = thisData['ncol']
+#                lbData.nb1      = thisData['nb1']
+#                lbData.nb2      = thisData['nb2']
                 lbData.colBCID  = thisData['colBCID']
                 lbData.b1BCID   = thisData['b1BCID']
                 lbData.b2BCID   = thisData['b2BCID']
