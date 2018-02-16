@@ -66,9 +66,9 @@ public:
 	}
 	virtual ~SimpleMuonTriggerScaleFactors() {}
 	virtual StatusCode initialize(void) override { return StatusCode::SUCCESS; }
-	virtual CP::CorrectionCode getTriggerScaleFactor(const xAOD::MuonContainer&, Double_t&, const std::string&) override { return CP::CorrectionCode::Ok; }
-	virtual CP::CorrectionCode getTriggerScaleFactor(const xAOD::Muon&, Double_t&, const std::string&) override { return CP::CorrectionCode::Ok; }
-	virtual CP::CorrectionCode getTriggerEfficiency(const xAOD::Muon& muon, Double_t& efficiency, const std::string& trig, Bool_t) override
+	virtual CP::CorrectionCode getTriggerScaleFactor(const xAOD::MuonContainer&, Double_t&, const std::string&) const override { return CP::CorrectionCode::Ok; }
+	virtual CP::CorrectionCode getTriggerScaleFactor(const xAOD::Muon&, Double_t&, const std::string&) const override { return CP::CorrectionCode::Ok; }
+	virtual CP::CorrectionCode getTriggerEfficiency(const xAOD::Muon& muon, Double_t& efficiency, const std::string& trig, Bool_t) const override
 	{
 		auto itr = m_efficiencies.find(trig);
 		if(itr != m_efficiencies.end())
@@ -78,7 +78,7 @@ public:
 		}
 		return CP::CorrectionCode::Error;
 	}
-	virtual int getBinNumber(const xAOD::Muon&, const std::string&) override { return 0; };
+	virtual int getBinNumber(const xAOD::Muon&, const std::string&) const override { return 0; };
     virtual bool isAffectedBySystematic(const CP::SystematicVariation&) const override { return false; }
 	virtual CP::SystematicSet affectingSystematics() const override { return CP::SystematicSet(); }
 	virtual CP::SystematicSet recommendedSystematics() const override { return CP::SystematicSet(); }
