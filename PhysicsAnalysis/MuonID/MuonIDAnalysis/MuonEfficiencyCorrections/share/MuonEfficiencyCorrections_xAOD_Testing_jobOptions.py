@@ -22,10 +22,11 @@ alg.ValidationRelease="cRecommendationsToday"
 
 WPs = [
          # reconstruction WPs
-         #"Loose", 
+        # "LowPt",
+         "Loose", 
          "Medium", 
-         #"Tight", 
-         #"HighPt",
+         "Tight", 
+         "HighPt",
          # track-to-vertex-association WPs
          "TTVA",
          # BadMuon veto SFs
@@ -37,7 +38,7 @@ WPs = [
 
 for WP in WPs: 
     alg.EfficiencyTools += [GetMuonEfficiencyTool(WP)]
-    alg.EfficiencyToolsForComparison += [GetMuonEfficiencyTool(WP, Release="MoriondTest", CustomInput = "/afs/cern.ch/user/j/jojungge/public/MCP/ScaleFactorFiles/180214_Moriond207")]
+    alg.EfficiencyToolsForComparison += [GetMuonEfficiencyTool(WP, Release="MoriondTest", CustomInput = "/afs/cern.ch/user/j/jojungge/public/MCP/ScaleFactorFiles/180214_Moriond21")]
 theJob += alg
 
 # Do some additional tweaking:
