@@ -45,9 +45,9 @@ class VP1CaloCellController : public VP1Controller
 
   // -------------- Digits display ----------------
   // We need these pointers for displaying Tile Pulse
-  void initTilePulse(const TileHWID* _tile_hw_id,
-		     const TileInfo* _tile_info,
-		     const TileCablingService* _tile_cabling);
+  void initTilePulse(const TileHWID* tile_hw_id,
+		     const TileInfo* tile_info,
+		     const TileCablingService* tile_cabling);
 
   // If digits cannot be displayed by whatever reason, then hide both of the digit forms and say they have no data
   void ClearHideDigitForms();
@@ -104,11 +104,11 @@ class VP1CaloCellController : public VP1Controller
 
  private:
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
-  const TileHWID*            tile_hw_id;
-  const TileInfo*            tile_info;
-  const TileCablingService*  tile_cabling;
+  const TileHWID*            m_tile_hw_id;
+  const TileInfo*            m_tile_info;
+  const TileCablingService*  m_tile_cabling;
 
   //For verbose output:
   template <class T> static QString toString( const T& t ) { return VP1Controller::toString(t); }//unhide base methods
