@@ -78,7 +78,7 @@ sct_SensorsSvcSetup.setup()
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
 
-from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SensorsTestAlg
+from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_SensorsTestAlg
 job+= SCT_SensorsTestAlg()
 
 import AthenaCommon.AtlasUnixGeneratorJob
