@@ -35,7 +35,7 @@ TAUP1Stream.AcceptAlgs(["TAUP1Kernel"])
 
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 TAUP1ThinningHelper                              = ThinningHelper( "TAUP1ThinningHelper" )
-TAUP1ThinningHelper.TriggerChains                = 'HLT_e.*'
+TAUP1ThinningHelper.TriggerChains                = '^(?!.*_[0-9]*(mu|j|xe|tau|ht|xs|te))(?!HLT_e.*_[0-9]*e.*)HLT_e.*'
 TAUP1ThinningHelper.AppendToStream( TAUP1Stream )
 
 thinningTools = []
