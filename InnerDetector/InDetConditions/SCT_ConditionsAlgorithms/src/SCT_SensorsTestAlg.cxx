@@ -21,7 +21,7 @@
 #include "Identifier/Identifier.h"
 
 //local includes
-#include "SCT_SensorsSvc.h"
+#include "SCT_ConditionsServices/ISCT_SensorsSvc.h"
 
 // Include STL stuff
 #include <string>
