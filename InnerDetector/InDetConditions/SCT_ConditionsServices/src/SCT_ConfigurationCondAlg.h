@@ -20,7 +20,7 @@
 #include "SCT_ConditionsData/SCT_ConfigurationCondData.h"
 
 #include "SCT_Cabling/ISCT_CablingSvc.h"
-#include "SCT_ConditionsServices/ISCT_ReadoutTool.h"
+#include "SCT_ConditionsTools/ISCT_ReadoutTool.h"
 
 // Forward declarations
 class ISCT_ConfigurationConditionsSvc;

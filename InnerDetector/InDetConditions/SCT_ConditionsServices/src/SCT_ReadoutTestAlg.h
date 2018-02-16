@@ -23,7 +23,7 @@
 
 // Athena
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "SCT_ConditionsServices/ISCT_ReadoutTool.h"
+#include "SCT_ConditionsTools/ISCT_ReadoutTool.h"
 
 // Forward declarations
 class StatusCode;

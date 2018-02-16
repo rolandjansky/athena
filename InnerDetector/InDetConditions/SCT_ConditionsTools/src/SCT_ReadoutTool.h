@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -8,8 +8,8 @@
  * @author Carl Gwilliam <gwilliam@mail.cern.ch>
  */
 
-#ifndef SCT_ConditionServices_SCT_ReadoutTool_h
-#define SCT_ConditionServices_SCT_ReadoutTool_h
+#ifndef SCT_ConditionTools_SCT_ReadoutTool_h
+#define SCT_ConditionTools_SCT_ReadoutTool_h
 
 // C++
 #include <string> 
@@ -22,10 +22,10 @@
 
 // Athena
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "SCT_ConditionsServices/ISCT_ReadoutTool.h"
+#include "SCT_ConditionsTools/ISCT_ReadoutTool.h"
 #include "SCT_Cabling/ISCT_CablingSvc.h"
 
-#include "SCT_Chip.h"
+#include "SCT_ConditionsTools/SCT_Chip.h"
 
 // Forward declarations
 class SCT_ID;

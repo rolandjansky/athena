@@ -15,9 +15,6 @@
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "SCT_Cabling/SCT_SerialNumber.h"
 
-// Local includes
-#include "SCT_Chip.h"
-
 // in case the chip number cannot be retrieved, this is the invalid value
 static const int invalidChipNumber(-1);
 // Constructor

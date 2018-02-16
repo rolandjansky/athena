@@ -6,7 +6,7 @@
 
 #include <memory>
 
-#include "SCT_Chip.h"
+#include "SCT_ConditionsTools/SCT_Chip.h"
 #include "AthenaPoolUtilities/CondAttrListVec.h"
 #include "Identifier/IdentifierHash.h"
 #include "GaudiKernel/EventIDRange.h"

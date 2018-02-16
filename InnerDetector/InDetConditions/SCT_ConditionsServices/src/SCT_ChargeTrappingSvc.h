@@ -23,7 +23,7 @@
 #include <string>
 #include <vector>
 
-#include "SCT_ElectricFieldTool.h"
+#include "SCT_ConditionsTools/ISCT_ElectricFieldTool.h"
 
 //forward declarations
 class IdentifierHash;

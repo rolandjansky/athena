@@ -13,10 +13,7 @@
 #include "SCT_Cabling/SCT_SerialNumber.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-
-// Local includes
-#include "SCT_ReadoutTool.h"
-#include "SCT_Chip.h"
+#include "SCT_ConditionsTools/SCT_Chip.h"
 
 // Static folder names 
 const std::string SCT_ConfigurationCondAlg::s_coolChannelFolderName{"/SCT/DAQ/Configuration/Chip"};
