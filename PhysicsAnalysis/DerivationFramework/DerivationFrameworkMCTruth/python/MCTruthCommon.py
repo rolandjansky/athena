@@ -249,7 +249,7 @@ def addTausAndDownstreamParticles(kernel=None, generations=-1):
                                                              AugmentationTools = [DFCommonTausAndDecaysTool] )
 
 # Add W bosons and their downstream particles (immediate and further decay products) in a special collection
-def addWbosonsAndDownstreamParticles(kernel=None, generations=-1):
+def addWbosonsAndDownstreamParticles(kernel=None, generations=1):
     # Ensure that we are adding it to something
     if kernel is None:
         from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
