@@ -157,7 +157,6 @@ int main( int argc, char* argv[] ) {
   //   corrTool.setProperty("useExternalSeed" ,      false);
   //   corrTool.setProperty("externalSeed" ,         0);
   
-  corrTool.initialize();
   //::: retrieve the tool
   corrTool.retrieve();
 
