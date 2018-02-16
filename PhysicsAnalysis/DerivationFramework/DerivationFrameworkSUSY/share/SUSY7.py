@@ -200,21 +200,33 @@ if DerivationFrameworkIsMonteCarlo:
 muonsRequirements = '(Muons.pt >= 6.*GeV) && (abs(Muons.eta) < 2.6) && (Muons.DFCommonMuonsPreselection)'
 electronsRequirements = '(Electrons.pt > 7.*GeV) && (abs(Electrons.eta) < 2.6) && (Electrons.DFCommonElectronsLHLoose)'
 diLepExpr = '(count(%s) + count (%s)) > 1' % (muonsRequirements, electronsRequirements)
+singleLepExpr = '(count(%s) + count (%s)) > 0' % (muonsRequirements, electronsRequirements)
 
 #btagging selection 
 # cut value from https://twiki.cern.ch/twiki/bin/view/AtlasProtected/BTaggingBenchmarks#b_tagging_Benchmarks_for_tag_AN1
-bfix77='AntiKt4EMTopoJets.DFCommonJets_FixedCutBEff_77_MV2c10'
-bfix85='AntiKt4EMTopoJets.DFCommonJets_FixedCutBEff_85_MV2c10'
-bhyb77='AntiKt4EMTopoJets.DFCommonJets_HybBEff_77_MV2c10'
-bhyb85='AntiKt4EMTopoJets.DFCommonJets_HybBEff_85_MV2c10'
+bfix77_MV2c10='AntiKt4EMTopoJets.DFCommonJets_FixedCutBEff_77_MV2c10'
+bfix85_MV2c10='AntiKt4EMTopoJets.DFCommonJets_FixedCutBEff_85_MV2c10'
+bhyb77_MV2c10='AntiKt4EMTopoJets.DFCommonJets_HybBEff_77_MV2c10'
+bhyb85_MV2c10='AntiKt4EMTopoJets.DFCommonJets_HybBEff_85_MV2c10'
+bfix77_DL1='AntiKt4EMTopoJets.DFCommonJets_FixedCutBEff_77_DL1'
+bfix85_DL1='AntiKt4EMTopoJets.DFCommonJets_FixedCutBEff_85_DL1'
+bhyb77_DL1='AntiKt4EMTopoJets.DFCommonJets_HybBEff_77_DL1'
+bhyb85_DL1='AntiKt4EMTopoJets.DFCommonJets_HybBEff_85_DL1'
 jetpt='AntiKt4EMTopoJets.DFCommonJets_Calib_pt'
+
+bfix77='(%s || %s)' % (bfix77_MV2c10, bfix77_DL1)
+bhyb77='(%s || %s)' % (bhyb77_MV2c10, bhyb77_DL1)
+bfix85='(%s || %s)' % (bfix85_MV2c10, bfix85_DL1)
+bhyb85='(%s || %s)' % (bhyb85_MV2c10, bhyb85_DL1)
 
 bjet77='(%s || %s)' % (bfix77, bhyb77)
 bjet85='(%s || %s)' % (bfix85, bhyb85)
 
 onebtagExpr = "count(%s && (%s>50.*GeV))>0" % (bjet77, jetpt)
 
-multibExpr  = "count(%s && (%s>20.*GeV))>1" % (bjet85, jetpt)
+# that was originally 20 GeV
+multibExpr  = "count(%s && (%s>50.*GeV))>1" % (bfix85, jetpt)
+# multibExpr  = "count(%s)>1" % bjet85
 
 #ISR-selection (non-btagged high-pt + btagged low-pt)
 isrBFixExpr  = "(count(!%s && (%s>150.*GeV))>0 && count(%s && (%s>20.*GeV))>0)" % (bfix77,jetpt,bfix85,jetpt)
@@ -223,21 +235,21 @@ isrExpr = "(%s || %s)" % (isrBFixExpr, isrBHybExpr)
 
 ### skimming 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-SUSY7diLepSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY7diLepSkimmingTool",
-                                                                      expression = diLepExpr)
-ToolSvc += SUSY7diLepSkimmingTool
+# SUSY7diLepSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY7diLepSkimmingTool",
+#                                                                       expression = singleLepExpr)
+# ToolSvc += SUSY7diLepSkimmingTool
 
-SUSY7btagSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY7btagSkimmingTool",
-                                                                     expression = onebtagExpr)
-ToolSvc += SUSY7btagSkimmingTool
+# SUSY7btagSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY7btagSkimmingTool",
+#                                                                      expression = onebtagExpr)
+# ToolSvc += SUSY7btagSkimmingTool
 
 SUSY7multibSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY7multibSkimmingTool",
                                                                        expression = multibExpr)
 ToolSvc += SUSY7multibSkimmingTool
 
-SUSY7isrSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY7isrSkimmingTool",
-                                                                    expression = isrExpr)
-ToolSvc += SUSY7isrSkimmingTool
+# SUSY7isrSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY7isrSkimmingTool",
+#                                                                     expression = isrExpr)
+# ToolSvc += SUSY7isrSkimmingTool
 
 #SUSY7isrBFixSkimmingTool  = DerivationFramework__xAODStringSkimmingTool( name = "SUSY7isrBFixSkimmingTool", expression = isrBFixExpr)
 #SUSY7isrBFlatSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY7isrBFlatSkimmingTool", expression = isrBHybExpr)
@@ -246,10 +258,11 @@ ToolSvc += SUSY7isrSkimmingTool
 
 
 #make selections OR
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
-SUSY7SkimmingORTool = DerivationFramework__FilterCombinationOR(name = "SUSY7SkimmingORTool",
-                                                               FilterList = [SUSY7diLepSkimmingTool, SUSY7btagSkimmingTool, SUSY7multibSkimmingTool, SUSY7isrSkimmingTool])
-ToolSvc += SUSY7SkimmingORTool
+# from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationAND
+# SUSY7SkimmingANDTool = DerivationFramework__FilterCombinationAND(name = "SUSY7SkimmingANDTool",
+#                                                                # FilterList = [SUSY7diLepSkimmingTool, SUSY7btagSkimmingTool, SUSY7multibSkimmingTool, SUSY7isrSkimmingTool])
+#                                                                FilterList = [SUSY7diLepSkimmingTool, SUSY7multibSkimmingTool])
+# ToolSvc += SUSY7SkimmingANDTool
    
 
 #add AND with Trigger skimming criteria
@@ -264,7 +277,7 @@ ToolSvc += SUSY7trigSkimmingTool
    
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationAND
 SUSY7SkimmingTool = DerivationFramework__FilterCombinationAND(name = "SUSY7SkimmingTool",
-                                                              FilterList = [SUSY7SkimmingORTool, SUSY7trigSkimmingTool])
+                                                              FilterList = [SUSY7multibSkimmingTool, SUSY7trigSkimmingTool])
 ToolSvc += SUSY7SkimmingTool
 
 
