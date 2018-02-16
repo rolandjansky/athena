@@ -13,6 +13,13 @@ using CheckConfig = TrigGlobEffCorr::CheckConfig;
 using ImportData = TrigGlobEffCorr::ImportData;
 
 
+CheckConfig::CheckConfig(TrigGlobalEfficiencyCorrectionTool& parent) :
+	asg::AsgMessaging(&parent), m_parent(parent)
+{
+	msg().setLevel(parent.msg().level());
+}
+
+
 template<class CPTool>
 ToolHandle<CPTool>* CheckConfig::findToolByName(ToolHandleArray<CPTool>& suppliedTools, const std::string& name)
 {

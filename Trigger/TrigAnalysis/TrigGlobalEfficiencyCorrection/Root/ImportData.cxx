@@ -13,22 +13,22 @@
 
 using ImportData = TrigGlobEffCorr::ImportData;
 
-ImportData::ImportData(const asg::AsgToolBase* caller) :
+ImportData::ImportData() :
 	/// the following two variables are owned by this tool and released in the destructor
+	asg::AsgMessaging("TrigGlobalEfficiencyCorrectionTool"),
 	m_parent(nullptr),
 	m_dictionary(*new std::map<std::size_t,std::string>),
 	m_hasher(*new std::hash<std::string>)
 {
-	if(caller)
-	{
-		msg = std::bind<MsgStream&(asg::AsgToolBase::*)(MSG::Level)const>(&asg::AsgToolBase::msg, caller, std::placeholders::_1); // 
-	}
 }
 
-ImportData::ImportData(TrigGlobalEfficiencyCorrectionTool& tool) :
-	m_parent(&tool), m_dictionary(tool.m_dictionary), m_hasher(tool.m_hasher)
+ImportData::ImportData(TrigGlobalEfficiencyCorrectionTool& parent) :
+	asg::AsgMessaging(&parent),
+	m_parent(&parent),
+	m_dictionary(parent.m_dictionary),
+	m_hasher(parent.m_hasher)
 {
-	msg = std::bind<MsgStream&(asg::AsgToolBase::*)(MSG::Level)const>(&asg::AsgToolBase::msg, &tool, std::placeholders::_1);
+	msg().setLevel(parent.msg().level());
 }
 
 ImportData::~ImportData()
@@ -70,7 +70,7 @@ bool ImportData::readDataFile(const char* filename, std::vector<std::string>& co
 			}
 			if(!f.eof())
 			{
-				if(msg) ATH_MSG_ERROR("Issue encountered while reading configuration file " << filename);
+				ATH_MSG_ERROR("Issue encountered while reading configuration file " << filename);
 				success = false;
 			}
 			f.close();
@@ -78,13 +78,13 @@ bool ImportData::readDataFile(const char* filename, std::vector<std::string>& co
 		}
 		else
 		{
-			if(msg) ATH_MSG_ERROR("Unable to open configuration file " << filename);
+		ATH_MSG_ERROR("Unable to open configuration file " << filename);
 			success = false;
 		}
 	}
 	else
 	{
-		if(msg) ATH_MSG_ERROR("Unable to find configuration file " << filename);
+		ATH_MSG_ERROR("Unable to find configuration file " << filename);
 		success = false;
 	}
 	return success;
@@ -115,7 +115,7 @@ bool ImportData::importTriggers()
 			leg = h;
 			if(m_triggerThresholds.find(h) == m_triggerThresholds.end())
 			{
-				if(msg) ATH_MSG_ERROR("Unknown trigger leg '" << token << "' found in Triggers.cfg");
+				ATH_MSG_ERROR("Unknown trigger leg '" << token << "' found in Triggers.cfg");
 				success = false;
 			}
 		}
@@ -124,7 +124,7 @@ bool ImportData::importTriggers()
 			def.leg[0] = h; /// default: assume the leg's name is the same as the full trigger name
 			if(m_triggerThresholds.find(h) == m_triggerThresholds.end())
 			{
-				if(msg) ATH_MSG_ERROR("Unknown trigger leg '" << triggerName << "' (inferred from trigger name) found in Triggers.cfg");
+				ATH_MSG_ERROR("Unknown trigger leg '" << triggerName << "' (inferred from trigger name) found in Triggers.cfg");
 				success = false;
 			}
 		}
@@ -179,7 +179,7 @@ bool ImportData::importTriggers()
 		if(!success || def.type==TT_UNKNOWN)
 		{
 			success = false;
-			if(msg) ATH_MSG_ERROR("Configuration issue for trigger " << triggerName);
+			ATH_MSG_ERROR("Configuration issue for trigger " << triggerName);
 		}
 	}
 	return success;
@@ -205,14 +205,14 @@ bool ImportData::importThresholds(const std::map<std::string, std::string>& over
 			if(unit == "GeV") pt *= 1e3f;
 			else if(unit != "MeV")
 			{
-				if(msg) ATH_MSG_ERROR("Unable to import pT threshold for leg \"" << leg << "\" (missing unit)");
+				ATH_MSG_ERROR("Unable to import pT threshold for leg \"" << leg << "\" (missing unit)");
 				success = false;
 			}
 			m_triggerThresholds[h] = pt;
 		}
 		else
 		{
-			if(msg) ATH_MSG_ERROR("Unable to import pT threshold for leg \"" << leg << '"');
+			ATH_MSG_ERROR("Unable to import pT threshold for leg \"" << leg << '"');
 			success = false;
 		}
 	}
@@ -233,11 +233,11 @@ bool ImportData::importThresholds(const std::map<std::string, std::string>& over
 			try { pt = std::stof(kv.second); }
 			catch(...)
 			{
-				if(msg) ATH_MSG_ERROR("Unable to convert threshold argument \""<<kv.second<<"\" to floating-point value");
+				ATH_MSG_ERROR("Unable to convert threshold argument \""<<kv.second<<"\" to floating-point value");
 				success = false;
 				continue;
 			}
-			if(pt<1e3f && msg)
+			if(pt<1e3f)
 			{
 				ATH_MSG_WARNING("Suspiciously low threshold (" << pt << " MeV) set for trigger leg " << kv.first
 					<< ", please make sure you provided the threshold in MeV and not in GeV!");
@@ -251,7 +251,7 @@ bool ImportData::importThresholds(const std::map<std::string, std::string>& over
 			success = false;
 		}
 	}
-	if(belowRecommended && msg)
+	if(belowRecommended)
 	{
 		ATH_MSG_WARNING("Tool configured to use trigger thresholds below those recommended!");
 	}
@@ -308,7 +308,7 @@ bool ImportData::importHierarchies()
 				else ss.ignore(1) >> meta.minPt >> sep >> meta.maxPt >> unit;
 				if(!ss || sep!='-' || (unit!="GeV]" && unit!="MeV]"))
 				{
-					if(msg) ATH_MSG_ERROR("Unable to parse pT restrictions in Hierarchies.cfg");
+					ATH_MSG_ERROR("Unable to parse pT restrictions in Hierarchies.cfg");
 					success = false;
 				}
 				if(unit == "GeV]")
@@ -325,7 +325,7 @@ bool ImportData::importHierarchies()
 				{
 					if(m_triggerThresholds.find(h) == m_triggerThresholds.end())
 					{
-						if(msg) ATH_MSG_ERROR("Unknown trigger leg '" << token << "' found in Hierarchies.cfg");
+						ATH_MSG_ERROR("Unknown trigger leg '" << token << "' found in Hierarchies.cfg");
 						success = false;
 					}
 					m_dictionary.emplace(h,token);
@@ -351,7 +351,7 @@ bool ImportData::importHierarchies()
 					legs.push_back(h);
 					if(m_triggerThresholds.find(h) == m_triggerThresholds.end())
 					{
-						if(msg) ATH_MSG_ERROR("Unknown trigger leg '" << token << "' found in Hierarchies.cfg");
+						ATH_MSG_ERROR("Unknown trigger leg '" << token << "' found in Hierarchies.cfg");
 						success = false;
 					}
 					if(ss >> token && token!='>') success = false;
@@ -362,7 +362,7 @@ bool ImportData::importHierarchies()
 		}
 		if(!success)
 		{
-			if(msg) ATH_MSG_ERROR("Failed parsing line from Hierarchies.cfg:\n" << line);
+			ATH_MSG_ERROR("Failed parsing line from Hierarchies.cfg:\n" << line);
 			m_hierarchyMeta.clear();
 			m_hierarchyData.clear();
 			return false;
@@ -415,7 +415,7 @@ bool ImportData::importMapKeys(const std::string& version, std::map<std::size_t,
 	}
 	if(!keysPerLeg.size())
 	{
-		if(msg) ATH_MSG_ERROR("Unable to import the available map keys for the version " << version);
+		ATH_MSG_ERROR("Unable to import the available map keys for the version " << version);
 		return false;
 	}
 	return true;
@@ -455,7 +455,7 @@ bool ImportData::getPeriodBoundaries(const std::string& period, std::pair<unsign
 		}
 		catch(...) {}
 	}
-	if(msg) ATH_MSG_ERROR("Unable to understand the period/range " << period);
+	ATH_MSG_ERROR("Unable to understand the period/range " << period);
 	return false;
 }
 
@@ -485,7 +485,7 @@ std::vector<ImportData::TrigDef> ImportData::parseTriggerString(const std::strin
 	std::string s = TrigGlobEffCorr::removeWhitespaces(triggerString);
 	if(s.find("|||") != std::string::npos)
 	{
-		if(msg) ATH_MSG_ERROR("Invalid format for the trigger combination '" << triggerString <<"'");
+		ATH_MSG_ERROR("Invalid format for the trigger combination '" << triggerString <<"'");
 		success = false;
 		return {};
 	}
@@ -498,7 +498,7 @@ std::vector<ImportData::TrigDef> ImportData::parseTriggerString(const std::strin
 	}
 	if(s=="" || s=="|")
 	{
-		if(msg) ATH_MSG_ERROR("Invalid format for the trigger combination '" << triggerString <<"'");
+		ATH_MSG_ERROR("Invalid format for the trigger combination '" << triggerString <<"'");
 		success = false;
 		return {};
 	}
@@ -511,13 +511,13 @@ std::vector<ImportData::TrigDef> ImportData::parseTriggerString(const std::strin
 		auto itr = m_triggerDefs.find(trig);
 		if(itr == m_triggerDefs.end())
 		{
-			if(msg) ATH_MSG_ERROR("Unknown trigger '" << s << "' found while parsing trigger combination");
+			ATH_MSG_ERROR("Unknown trigger '" << s << "' found while parsing trigger combination");
 			success = false;
 			return {};	
 		}
 		if(!hashes.insert(trig).second)
 		{
-			if(msg) ATH_MSG_ERROR("The trigger '" << s << "' is present more than once in the combination");
+			ATH_MSG_ERROR("The trigger '" << s << "' is present more than once in the combination");
 			success = false;
 			return {};
 		}

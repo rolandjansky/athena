@@ -8,6 +8,7 @@
 #define TRIGGLOBALEFFICIENCYCORRECTION_IMPORTDATA_H 1
 
 #include "TrigGlobalEfficiencyCorrection/TrigGlobalEfficiencyCorrectionTool.h"
+#include "AsgTools/AsgMessaging.h"
 
 #include <functional>
 #include <algorithm>
@@ -31,7 +32,7 @@ enum TriggerType
 	// to add more generic types (4L?) use 0x800, 0x1000, 0x2000 base...
 };
 
-class ImportData
+class ImportData : public asg::AsgMessaging
 {
 	using Hierarchy = TrigGlobalEfficiencyCorrectionTool::Hierarchy;
 	template<typename Key> using flat_set = boost::container::flat_set<Key>;
@@ -44,8 +45,8 @@ public:
 		TrigDef(TriggerType type=TT_UNKNOWN, std::size_t leg0=0, std::size_t leg1=0, std::size_t leg2=0) : type(type), leg{leg0,leg1,leg2} {}
 	};	
 
-	ImportData(const asg::AsgToolBase* caller);
-	ImportData(TrigGlobalEfficiencyCorrectionTool& tool);
+	ImportData();
+	ImportData(TrigGlobalEfficiencyCorrectionTool& parent);
 	~ImportData();
 	
 	bool importHierarchies();
@@ -75,7 +76,6 @@ protected:
 	TrigGlobalEfficiencyCorrectionTool* m_parent;
 	std::map<std::size_t,std::string>& m_dictionary;
 	std::hash<std::string>& m_hasher;
-	std::function<MsgStream&(MSG::Level)> msg;
 	
 	std::map<std::size_t,TrigDef> m_triggerDefs;
 	std::map<std::size_t,float> m_triggerThresholds;
