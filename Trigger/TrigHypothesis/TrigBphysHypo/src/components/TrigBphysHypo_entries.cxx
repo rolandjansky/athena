@@ -22,6 +22,7 @@
 #include "../TrigEFTrkMassHypo.h"
 #include "../TrigMultiTrkFex.h"
 #include "../TrigBphysMuonCounter.h"
+#include "../TrigBphysTrackRoiMaker.h"
 #include "../TrigBphysElectronCounter.h"
 
 //#include "../TrigL2LooseMuonHypo.h"
@@ -62,6 +63,7 @@ DECLARE_ALGORITHM_FACTORY( TrigEFMultiMuFex )
 DECLARE_ALGORITHM_FACTORY( TrigMultiTrkFex )
 DECLARE_ALGORITHM_FACTORY( TrigEFTrkMassFex )
 DECLARE_ALGORITHM_FACTORY( TrigBphysMuonCounter )
+DECLARE_ALGORITHM_FACTORY( TrigBphysTrackRoiMaker )
 DECLARE_ALGORITHM_FACTORY( TrigBphysElectronCounter )
 //DECLARE_ALGORITHM_FACTORY( TrigBphysL1DiMuComboFex )
 
@@ -93,6 +95,7 @@ DECLARE_FACTORY_ENTRIES( TrigBphysHypo ) {
     DECLARE_ALGORITHM( TrigEFBMuMuFex   )
     DECLARE_ALGORITHM( TrigEFMultiMuFex )
     DECLARE_ALGORITHM( TrigMultiTrkFex )
+    DECLARE_ALGORITHM( TrigBphysTrackRoiMaker )
     DECLARE_ALGORITHM( TrigBphysMuonCounter )
     DECLARE_ALGORITHM( TrigBphysElectronCounter )
     DECLARE_ALGORITHM( TrigEFTrkMassFex )
