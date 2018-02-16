@@ -15,6 +15,10 @@ from DerivationFrameworkMuons.MuonsCommon import *
 # write heavy flavour hadron information in MC
 if DerivationFrameworkIsMonteCarlo:
    from DerivationFrameworkMCTruth.HFHadronsCommon import *
+   # TODO Uncomment if merging with HIGG5D2
+   #from DerivationFrameworkTau.TauTruthCommon import scheduleTauTruthTools
+   #scheduleTauTruthTools()
+
 
 # utilities used to make jets on-the-fly
 from JetRec.JetRecStandard import jtm
@@ -130,14 +134,42 @@ if isMC:
 # in the next lines: actually make the AntiKt4Truth, Track and EMTopo jet using
 # the topo clusters lists that have the electron-matched clusters removed
 if isMC:
-   jfind_noel_truth = jtm.addJetFinder("AntiKt4TruthNoElJets", "AntiKt", 0.4, "truthNoEl","truthNoEl", ghostArea=0.0 , ptmin=10000, ptminFilter=70000,calibOpt="")
+   jfind_noel_truth = jtm.addStandardJets("AntiKt", 0.4, "TruthNoEl", customGetters = "truthNoEl", mods = "truthNoEl",
+                ptmin=10000, algseq = exot4Seq,
+                calibOpt="")
 
-jfind_smallnoel_trk = jtm.addJetFinder("AntiKt4TrackNoElJets", "AntiKt", 0.4, "TrkJetElRemovalgetter", "track",
-                ghostArea=0.01 , ptmin=10000, ptminFilter=10000
-                )
 
-jfind_smallnoel_emtopo = jtm.addJetFinder("AntiKt4EMTopoNoElJets", "AntiKt", 0.4, "JetElRemovalgetter", "emtopo_ungroomed",
-                ghostArea=0.01 , ptmin=10000, ptminFilter=10000,
+# add algorithms in the sequence that calculate the b-tagging variables
+# for the el-subtracted jets
+from AthenaCommon.AppMgr import ToolSvc
+btag_jetnoel = ConfInst.setupJetBTaggerTool(ToolSvc, JetCollection="AntiKt4EMTopoNoEl", AddToToolSvc=True,
+                                                     Verbose=True,
+                                                     options={"name"         : "btagging_antikt4emtoponoel",
+                                                              "BTagName"     : "BTagging_AntiKt4TopoNoEl",
+                                                              "BTagJFVtxName": "JFVtx",
+                                                              "BTagSVName"   : "SecVtx",
+                                                              },
+                                                     SetupScheme = "",
+                                                     TaggerList = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu', 'MV2c10', 'MV2c10mu', 'MV2c10rnn', 'JetVertexCharge', 'MV2cl100' , 'MVb', 'DL1', 'DL1rnn', 'DL1mu', 'RNNIP', 'MV2c10Flip']
+                                                     )
+btag_jetnoel_track = ConfInst.setupJetBTaggerTool(ToolSvc, JetCollection="AntiKt4TrackNoEl", AddToToolSvc=True,
+                                                     Verbose=True,
+                                                     options={"name"         : "btagging_antikt4tracknoel",
+                                                              "BTagName"     : "BTagging_AntiKt4TrackNoEl",
+                                                              "BTagJFVtxName": "JFVtx",
+                                                              "BTagSVName"   : "SecVtx",
+                                                              },
+                                                     SetupScheme = "",
+                                                     TaggerList = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu', 'MV2c10', 'MV2c10mu', 'MV2c10rnn', 'JetVertexCharge', 'MV2cl100' , 'MVb', 'DL1', 'DL1rnn', 'DL1mu', 'RNNIP', 'MV2c10Flip']
+                                                     )
+jtm.modifiersMap["akt4tracknoel"] = jtm.modifiersMap["track"] + [btag_jetnoel_track]
+jtm.modifiersMap["akt4emtoponoel"] = jtm.modifiersMap["emtopo_ungroomed"] + [btag_jetnoel]
+
+jfind_smallnoel_trk = jtm.addStandardJets("AntiKt", 0.4, "TrackNoEl", customGetters = "TrkJetElRemovalgetter", mods = "akt4tracknoel",
+                ptmin=10000, algseq = exot4Seq)
+
+jfind_smallnoel_emtopo = jtm.addStandardJets("AntiKt", 0.4, "EMTopoNoEl", customGetters = "JetElRemovalgetter", mods = "akt4emtoponoel",
+                ptmin=10000, algseq = exot4Seq,
                 calibOpt="none")
 
 # the jet finder tool has been created, but
@@ -168,11 +200,6 @@ exot4Seq += jetalg_smallnoel_emtopo
 from BTagging.BTaggingFlags import BTaggingFlags
 BTaggingFlags.CalibrationChannelAliases += ["AntiKt4EMTopoNoEl->AntiKt4EMTopo"]
 BTaggingFlags.CalibrationChannelAliases += ["AntiKt4TrackNoEl->AntiKt4EMTopo"]
-
-# add algorithms in the sequence that calculate the b-tagging variables
-# for the el-subtracted jets
-from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
-FlavorTagInit(JetCollections = ["AntiKt4EMTopoNoElJets","AntiKt4TrackNoElJets"], Sequencer=exot4Seq)
 
 # now schedule the sequence to re-calculate the MET using the electron-subtracted jets
 from DerivationFrameworkJetEtMiss.METCommon import maplist
@@ -232,6 +259,72 @@ from DerivationFrameworkCore.LHE3WeightMetadata import *
 expression_lep = ''
 expression_jet = ''
 
+# extra triggers (regardless of lepton ID, data only)
+triglist = []
+triglist.append("HLT_xe35")
+triglist.append("HLT_xe50")
+triglist.append("HLT_xe60")
+triglist.append("HLT_xe70")
+triglist.append("HLT_xe80")
+triglist.append("HLT_xe80_L1XE50")
+triglist.append("HLT_xe80_L1XE70")
+triglist.append("HLT_xe100")
+triglist.append("HLT_j80_xe80_dphi1_L1J40_DPHI-J20XE50")
+triglist.append("HLT_j80_xe80_dphi1_L1J40_DPHI-J20s2XE50")
+triglist.append("HLT_j100_xe80_L1J40_DPHI-J20XE50")
+triglist.append("HLT_j100_xe80_L1J40_DPHI-J20s2XE50")
+triglist.append("HLT_xe80_tc_lcw_L1XE50") # added on Apr 2016
+triglist.append("HLT_xe90_tc_lcw_L1XE50")
+triglist.append("HLT_xe100_tc_lcw_L1XE50")
+triglist.append("HLT_xe110_tc_lcw_L1XE60")
+triglist.append("HLT_xe80_mht_L1XE50")
+triglist.append("HLT_xe90_mht_L1XE50")
+triglist.append("HLT_xe100_mht_L1XE50")
+triglist.append("HLT_xe100_mht_L1XE60")
+triglist.append("HLT_xe110_mht_L1XE50") # added on Aug 2016
+triglist.append("HLT_xe110_mht_L1XE50_AND_xe70_L1XE50") # added on Sep 2016
+triglist.append("HLT_xe130_mht_L1XE50") # added on Aug 2016
+triglist.append("HLT_xe90_L1XE50")
+triglist.append("HLT_xe100_L1XE50")
+triglist.append("HLT_xe110_L1XE60")
+triglist.append("HLT_xe80_tc_em_L1XE50")
+triglist.append("HLT_xe90_tc_em_L1XE50")
+triglist.append("HLT_xe100_tc_em_L1XE50")
+triglist.append("HLT_xe80_tc_lcw")
+triglist.append("HLT_xe90_tc_lcw")
+triglist.append("HLT_xe100_tc_lcw")
+triglist.append("HLT_xe90_mht")
+triglist.append("HLT_xe100_mht")
+triglist.append("HLT_xe90_tc_lcw_wEFMu_L1XE50")
+triglist.append("HLT_xe90_mht_wEFMu_L1XE50")
+triglist.append("HLT_xe120_pueta")
+triglist.append("HLT_xe120_pufit")
+triglist.append("HLT_e15_lhtight_ivarloose_3j20_L1EM13VH_3J20")
+triglist.append("HLT_mu14_ivarloose_3j20_L1MU10_3J20")
+triglist.append("HLT_xe100_tc_lcw_L1XE60") # added on Jun 2016
+triglist.append("HLT_xe110_tc_em_L1XE50")
+triglist.append("HLT_xe110_tc_em_wEFMu_L1XE50")
+triglist.append("HLT_xe120_pueta_wEFMu")
+triglist.append("HLT_xe120_mht")
+triglist.append("HLT_xe120_tc_lcw")
+triglist.append("HLT_xe120_mht_wEFMu")
+triglist.append("HLT_xe110_L1XE50")
+triglist.append("HLT_xe100_L1XE60")
+triglist.append("HLT_xe120_pufit_wEFMu")
+triglist.append("HLT_xe120_tc_lcw_wEFMu")
+triglist.append("HLT_xe120_tc_em")
+triglist.append("HLT_xe110_pufit_L1XE60")
+triglist.append("HLT_xe120_pufit_L1XE60")
+triglist.append("HLT_xe120_mht_xe80_L1XE60")
+triglist.append("HLT_xe110_pufit_L1XE55")
+triglist.append("HLT_xe120_pufit_L1XE55")
+triglist.append("HLT_xe120_mht_xe80_L1XE55")
+triglist.append("HLT_xe110_pufit_L1XE50")
+triglist.append("HLT_xe120_pufit_L1XE50")
+triglist.append("HLT_xe120_mht_xe80_L1XE50")
+
+expression_trigmet = '('+'||'.join(triglist)+')'
+
 # check if we are using MC
 # if yes, do not apply any trigger skimming, otherwise we
 # cannot do trigger efficiency studies in MC
@@ -249,7 +342,12 @@ else:
 # the pseudo-logic for the lepton selection is:
 #   --> [ (at least one loose electron (analyses use medium electron for the control regions) AND el. trigger) OR ..
 #   -->   (at least one good non-isolated muon (analyses use non-isolated muons for the control regions) AND (mu. trigger OR MET trigger) ]
-expression_lep = '(((count(Electrons.DFCommonElectronsLHLoose  && Electrons.pt > 15*GeV && Electrons.eta > -2.7 && Electrons.eta < 2.7)>0) && '+expression_trige+') || (( count(Muons.DFCommonGoodMuon && Muons.DFCommonMuonsPreselection && Muons.pt > 15*GeV && Muons.eta > -2.7 && Muons.eta < 2.7)>0) && '+expression_trigmu+'))'
+expression_lep = '(((count(Electrons.DFCommonElectronsLHMedium  && Electrons.pt > 20*GeV && Electrons.eta > -2.7 && Electrons.eta < 2.7)>0) && '+expression_trige+') || (( count(Muons.DFCommonGoodMuon && Muons.DFCommonMuonsPreselection && Muons.pt > 20*GeV && Muons.eta > -2.7 && Muons.eta < 2.7)>0) && '+expression_trigmu+'))'
+
+# TODO to add if merging with HIGG5D2
+#if not SkipTriggerRequirement:
+#    expression_lep += '||'+expression_trigmet
+
 # the jet selection is also configured as:
 #   --> [ (at least 2 jets (analyses use the 2 jet bin in the W+jets control regions with pT > 25 GeV, but leave room for syst. variations) ) OR ...
 #         (at least one akt10 trimmed jet with a pT of 150 GeV) ]
@@ -389,6 +487,37 @@ EXOT4Ak10CCThinningTool = DerivationFramework__JetCaloClusterThinning(name      
                                                                        AdditionalClustersKey = ["LCOriginTopoClusters"])
 ToolSvc += EXOT4Ak10CCThinningTool
 thinningTools.append(EXOT4Ak10CCThinningTool)
+
+# TODO Uncomment when merging with HIGG5D2
+# Tracks associated with Photons
+#from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
+#EXOT4PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(       name                    = "EXOT4PhotonTPThinningTool",
+#                                                                                      ThinningService         = EXOT4ThinningHelper.ThinningSvc(),
+#                                                                                      SGKey                   = "Photons",
+#                                                                                      InDetTrackParticlesKey  = "InDetTrackParticles",
+#                                                                                      BestMatchOnly           = True)
+#ToolSvc += EXOT4PhotonTPThinningTool
+#thinningTools.append(EXOT4PhotonTPThinningTool)
+
+# Tracks associated with taus
+#from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
+#EXOT4TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name                  = "EXOT4TauTPThinningTool",
+#                                                                          ThinningService         = EXOT4ThinningHelper.ThinningSvc(),
+#                                                                          TauKey                  = "TauJets",
+#                                                                          ConeSize                = 0.6,
+#                                                                          InDetTrackParticlesKey  = "InDetTrackParticles")
+#ToolSvc += EXOT4TauTPThinningTool
+#thinningTools.append(EXOT4TauTPThinningTool)
+#
+#
+## calo cluster thinning
+#from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
+#EXOT4TauCCThinningTool = DerivationFramework__CaloClusterThinning(name                  = "EXOT4TauCCThinningTool",
+#                                                                    ThinningService       = EXOT4ThinningHelper.ThinningSvc(),
+#                                                                    SGKey                 = "TauJets",
+#                                                                    TopoClCollectionSGKey = "CaloCalTopoClusters")
+#ToolSvc += EXOT4TauCCThinningTool
+#thinningTools.append(EXOT4TauCCThinningTool)
 
 
 # Set up set of thinning tools for the truth information
@@ -586,6 +715,24 @@ applyJetCalibration_xAODColl("AntiKt4EMTopo", exot4Seq)
 applyJetCalibration_xAODColl("AntiKt4EMTopoNoEl", exot4Seq)
 applyJetCalibration_CustomColl("AntiKt10LCTopoTrimmedPtFrac5SmallR20", exot4Seq)
 
+# TODO Uncomment when merging with HIGG5D2
+##====================================================================
+## Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
+##====================================================================
+#
+#addVRJets(exot4Seq, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJet", 
+#          VRJetAlg="AntiKt", VRJetRadius=0.4, VRJetInputs="pv0track", 
+#          ghostArea = 0 , ptmin = 2000, ptminFilter = 7000, 
+#          variableRMinRadius = 0.02, variableRMassScale = 30000, calibOpt = "none")
+#
+##===================================================================
+## Run b-tagging
+##===================================================================
+#from BTagging.BTaggingFlags import BTaggingFlags
+#
+## alias for VR
+#BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track"]
+
 
 #=======================================
 # SKIMMING, THINNING, AUGMENTATION
@@ -626,6 +773,14 @@ exot4Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT4Kernel", Thinning
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 from DerivationFrameworkExotics.EXOT4ContentList import *
 EXOT4SlimmingHelper = SlimmingHelper("EXOT4SlimmingHelper")
+
+# TODO Uncomment when merging with HIGG5D2
+#EXOT4SlimmingHelper.AppendToDictionary = {
+#  "AntiKtVR30Rmax4Rmin02TrackJets"               :   "xAOD::JetContainer"        ,
+#  "AntiKtVR30Rmax4Rmin02TrackJetsAux"            :   "xAOD::JetAuxContainer"     ,
+#  "BTagging_AntiKtVR30Rmax4Rmin02Track"          :   "xAOD::BTaggingContainer"   ,
+#  "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"       :   "xAOD::BTaggingAuxContainer",
+#  }
 
 EXOT4SlimmingHelper.SmartCollections = EXOT4SmartCollections
 
@@ -670,6 +825,10 @@ for i in listJets:
   EXOT4SlimmingHelper.AppendToDictionary[i+'Aux'] = 'xAOD::JetAuxContainer'
   # hand picked list of variables to save -- save disk space
   EXOT4SlimmingHelper.ExtraVariables +=[i,i+'.pt.eta.phi.m.ECF1.ECF2.ECF3.Tau1_wta.Tau2_wta.Tau3_wta.Split12.Split23.NTrimSubjets.Parent.GhostAntiKt2TrackJet"']
+
+#EXOT4SlimmingHelper.ExtraVariables += ["AntiKtVR30Rmax4Rmin02TrackJets.-JetConstitScaleMomentum_pt.-JetConstitScaleMomentum_eta.-JetConstitScaleMomentum_phi.-JetConstitScaleMomentum_m.-constituentLinks.-constituentWeight.-ConstituentScale"]
+#EXOT4SlimmingHelper.ExtraVariables += ["BTagging_AntiKtVR30Rmax4Rmin02Track.MV2c10_discriminant"]
+#EXOT4SlimmingHelper.ExtraVariables += ["TauJets.IsTruthMatched.truthJetLink.truthParticleLink.ptDetectorAxis.etaDetectorAxis.phiDetectorAxis.mDetectorAxis"]
 
 # now do the same for the version of the jets that had the electrons subtracted from them
 # again: hand picked list of extra variable to select only what is needed in the analysis
