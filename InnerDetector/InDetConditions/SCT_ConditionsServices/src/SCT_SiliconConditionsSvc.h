@@ -26,7 +26,6 @@ class ISvcLocator;
 class IGeoModelSvc;
 class IRDBAccessSvc;
 class StoreGateSvc;
-class ISCT_DCSConditionsSvc;
 class SCT_ID;
 
 /**
@@ -85,7 +84,6 @@ class SCT_SiliconConditionsSvc: public AthService,
   bool                                        m_forceUseGeoModel;
 
   ServiceHandle<StoreGateSvc>                 m_detStore;
-  ServiceHandle<ISCT_DCSConditionsSvc >       m_sctDCSSvc;
   ServiceHandle<IGeoModelSvc>                 m_geoModelSvc;
   ServiceHandle<IRDBAccessSvc>                m_rdbSvc;
 

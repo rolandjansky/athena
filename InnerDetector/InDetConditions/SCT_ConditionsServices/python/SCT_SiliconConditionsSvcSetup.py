@@ -16,6 +16,7 @@ class SCT_SiliconConditionsSvcSetup:
         self.dcsSvc = None
 
         self.useDB = True
+        self.forceUseGeoModel = False
 
     def getHVAlgName(self):
         return self.hvAlgName
@@ -72,17 +73,16 @@ class SCT_SiliconConditionsSvcSetup:
         from AthenaCommon.AppMgr import ServiceMgr
         if not hasattr(ServiceMgr, self.svcName):
             from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SiliconConditionsSvc
-            if self.dcsSvc is None:
-                ServiceMgr += SCT_SiliconConditionsSvc(name = self.svcName,
-                                                       UseDB = self.useDB)
-            else:
-                ServiceMgr += SCT_SiliconConditionsSvc(name = self.svcName,
-                                                       UseDB = self.useDB,
-                                                       DCSConditionsSvc =  self.dcsSvc)
+            ServiceMgr += SCT_SiliconConditionsSvc(name = self.svcName,
+                                                   UseDB = self.useDB,
+                                                   ForceUseGeoModel = self.forceUseGeoModel)
         self.svc = getattr(ServiceMgr, self.svcName)
 
     def setUseDB(self, useDB):
         self.useDB = useDB
+
+    def setForceUseGeoModel(self, forceUseGeoModel):
+        self.forceUseGeoModel = forceUseGeoModel
 
     def setup(self):
         if self.useDB:

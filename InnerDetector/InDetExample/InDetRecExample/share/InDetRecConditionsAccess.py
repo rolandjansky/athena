@@ -321,15 +321,20 @@ if DetFlags.haveRIO.SCT_on():
         print InDetSCT_ConditionsSummarySvc
         
     # Setup Lorentz angle service.
-    from SiLorentzAngleSvc.SCTLorentzAngleSvcSetup import sctLorentzAngleSvcSetup
-    
+    from SiLorentzAngleSvc.SCTLorentzAngleSvcSetup import SCTLorentzAngleSvcSetup
+
+    forceUseDB = False
+    forceUseGeoModel = False
     if InDetFlags.useSctDCS():
         # Force Lorentz angle calculation to use DCS for data
         # (Not actually using DCS yet but rather temperature and voltage from joboptions.)
         if (globalflags.DataSource() == 'data'):            
-            sctLorentzAngleSvcSetup.forceUseDB()
+            forceUseDB = True
     else:
-        sctLorentzAngleSvcSetup.forceUseGeoModel()
+        forceUseGeoModel = True
+
+    sctLorentzAngleSvcSetup = SCTLorentzAngleSvcSetup(forceUseDB=forceUseDB, forceUseGeoModel=forceUseGeoModel)
+    SCTLorentzAngleSvc = sctLorentzAngleSvcSetup.SCTLorentzAngleSvc
             
 #
 # --- Load necessary TRT conditions folders

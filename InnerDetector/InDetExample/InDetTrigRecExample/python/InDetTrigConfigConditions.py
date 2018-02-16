@@ -394,11 +394,7 @@ class SCT_ConditionsServicesSetup:
       return None
 
   def initLorentzAngleSvc(self, instanceName):
-    "Inititalize Lorentz angle Service"
-    from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleSvc
-    SCTLorentzAngleSvc = SiLorentzAngleSvc(name=instanceName,
-                                           DetectorName="SCT")
-    # For SCT_SiliconConditionsSvc
+    # Set up Silicon Conditions Service
     from SCT_ConditionsServices.SCT_SiliconConditionsSvcSetup import SCT_SiliconConditionsSvcSetup
     sct_SiliconConditionsSvcSetup = SCT_SiliconConditionsSvcSetup()
     sct_SiliconConditionsSvcSetup.setDcsSvc(self.dcsSvc)
@@ -407,13 +403,27 @@ class SCT_ConditionsServicesSetup:
     sctSiliconConditionsSvc = sct_SiliconConditionsSvcSetup.getSvc()
     sctSiliconConditionsSvc.CheckGeoModel = False
     sctSiliconConditionsSvc.ForceUseGeoModel = False
-    #sctSiliconConditionsSvc.OutputLevel=1
     if self._print: print sctSiliconConditionsSvc
 
-    SCTLorentzAngleSvc.SiConditionsServices = sctSiliconConditionsSvc
-    SCTLorentzAngleSvc.UseMagFieldSvc = True       #may need also MagFieldSvc instance
+    # Set up SCTSiLorentzAngleCondAlg
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSeq = AthSequencer("AthCondSeq")
+    if not hasattr(condSeq, "SCTSiLorentzAngleCondAlg"):
+      from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SCTSiLorentzAngleCondAlg
+      from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+      condSeq += SCTSiLorentzAngleCondAlg(name = "SCTSiLorentzAngleCondAlg",
+                                          SiConditionsServices = sctSiliconConditionsSvc,
+                                          UseMagFieldSvc = True,
+                                          UseMagFieldDcs = (not athenaCommonFlags.isOnline()))
+      sctSiLorentzAngleCondAlg = condSeq.SCTSiLorentzAngleCondAlg
 
-    self.svcMgr += SCTLorentzAngleSvc
+    "Inititalize Lorentz angle Service"
+    if not hasattr(self.svcMgr, instanceName):
+      from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleCHSvc
+      self.svcMgr += SiLorentzAngleCHSvc(name = instanceName,
+                                         DetectorName = "SCT")
+    SCTLorentzAngleSvc = getattr(self.svcMgr, instanceName)
+    SCTLorentzAngleSvc.UseMagFieldSvc = True #may need also MagFieldSvc instance
     
   def instanceName(self, toolname):
     return self.prefix+toolname

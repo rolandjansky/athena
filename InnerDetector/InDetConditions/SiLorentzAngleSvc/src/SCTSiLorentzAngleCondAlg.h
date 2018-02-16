@@ -51,7 +51,6 @@ class SCTSiLorentzAngleCondAlg: public AthAlgorithm
  private:
   SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_readKeyTemp;
   SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_readKeyHV;
-  SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyBFieldMap;
   SG::ReadCondHandleKey<CondAttrListCollection> m_readKeyBFieldSensor;
   SG::WriteCondHandleKey<SiLorentzAngleCondData> m_writeKey;
 
@@ -68,7 +67,9 @@ class SCTSiLorentzAngleCondAlg: public AthAlgorithm
   double                   m_biasVoltage;
   double                   m_nominalField;
   bool                     m_useMagFieldSvc;
+  bool                     m_useMagFieldDcs;
   bool                     m_sctDefaults;
+  bool                     m_useGeoModel;
   unsigned int             m_maxHash;
   InDet::SiliconProperties m_siProperties;
   double                   m_temperatureMin;
