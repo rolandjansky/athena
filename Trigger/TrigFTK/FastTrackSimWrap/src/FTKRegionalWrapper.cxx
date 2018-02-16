@@ -122,16 +122,16 @@ FTKRegionalWrapper::FTKRegionalWrapper (const std::string& name, ISvcLocator* pS
   m_ftkSctTruthName("PRD_MultiTruthSCT_FTK"),
   m_mcTruthName("TruthEvent"),
   m_L1ID_to_save(std::vector<int>()),
-  offline_locX(nullptr),
-  offline_locY(nullptr),
-  offline_isPixel(nullptr),
-  offline_isBarrel(nullptr),
-  offline_layer(nullptr),
-  offline_clustID(nullptr),
-  offline_trackNumber(nullptr),
-  offline_pt(nullptr),
-  offline_eta(nullptr),
-  offline_phi(nullptr),
+  m_offline_locX(nullptr),
+  m_offline_locY(nullptr),
+  m_offline_isPixel(nullptr),
+  m_offline_isBarrel(nullptr),
+  m_offline_layer(nullptr),
+  m_offline_clustID(nullptr),
+  m_offline_trackNumber(nullptr),
+  m_offline_pt(nullptr),
+  m_offline_eta(nullptr),
+  m_offline_phi(nullptr),
   m_offline_cluster_tree(nullptr)
 {
   
@@ -492,29 +492,29 @@ StatusCode FTKRegionalWrapper::initOutputFile() {
   
 
   if (m_getOffline) {
-    offline_locX = new std::vector<float>;
-    offline_locY = new std::vector<float>;
-    offline_isPixel = new std::vector<int>;
-    offline_isBarrel = new std::vector<int>;
-    offline_layer = new std::vector<int>;
-    offline_clustID = new std::vector<int>;
-    offline_trackNumber = new std::vector<int>;
-    offline_pt = new std::vector<float>;
-    offline_eta = new std::vector<float>;
-    offline_phi = new std::vector<float>;
+    m_offline_locX = new std::vector<float>;
+    m_offline_locY = new std::vector<float>;
+    m_offline_isPixel = new std::vector<int>;
+    m_offline_isBarrel = new std::vector<int>;
+    m_offline_layer = new std::vector<int>;
+    m_offline_clustID = new std::vector<int>;
+    m_offline_trackNumber = new std::vector<int>;
+    m_offline_pt = new std::vector<float>;
+    m_offline_eta = new std::vector<float>;
+    m_offline_phi = new std::vector<float>;
 
     m_offline_cluster_tree = new TTree("offline_cluster_tree","offline_cluster_tree");
-    m_offline_cluster_tree->Branch("offline_locX",&offline_locX);
-    m_offline_cluster_tree->Branch("offline_locY",&offline_locY);
-    m_offline_cluster_tree->Branch("offline_is_Pixel",&offline_isPixel);
-    m_offline_cluster_tree->Branch("offline_is_Barrel",&offline_isBarrel);
-    m_offline_cluster_tree->Branch("offline_layer",&offline_layer);
-    m_offline_cluster_tree->Branch("offline_clustID",&offline_clustID);
+    m_offline_cluster_tree->Branch("offline_locX",&m_offline_locX);
+    m_offline_cluster_tree->Branch("offline_locY",&m_offline_locY);
+    m_offline_cluster_tree->Branch("offline_is_Pixel",&m_offline_isPixel);
+    m_offline_cluster_tree->Branch("offline_is_Barrel",&m_offline_isBarrel);
+    m_offline_cluster_tree->Branch("offline_layer",&m_offline_layer);
+    m_offline_cluster_tree->Branch("offline_clustID",&m_offline_clustID);
     
-    m_offline_cluster_tree->Branch("offline_trackNumber",&offline_trackNumber);
-    m_offline_cluster_tree->Branch("offline_pt",&offline_pt);
-    m_offline_cluster_tree->Branch("offline_eta",&offline_eta);
-    m_offline_cluster_tree->Branch("offline_phi",&offline_phi);
+    m_offline_cluster_tree->Branch("offline_trackNumber",&m_offline_trackNumber);
+    m_offline_cluster_tree->Branch("offline_pt",&m_offline_pt);
+    m_offline_cluster_tree->Branch("offline_eta",&m_offline_eta);
+    m_offline_cluster_tree->Branch("offline_phi",&m_offline_phi);
   }
 
 
@@ -583,16 +583,16 @@ StatusCode FTKRegionalWrapper::execute()
   }
 
   if (m_getOffline) {
-    offline_locX->clear();
-    offline_locY->clear();
-    offline_isPixel->clear();
-    offline_isBarrel->clear();
-    offline_layer->clear(); 
-    offline_clustID->clear();
-    offline_trackNumber->clear(); 
-    offline_pt->clear(); 
-    offline_eta->clear();
-    offline_phi->clear();
+    m_offline_locX->clear();
+    m_offline_locY->clear();
+    m_offline_isPixel->clear();
+    m_offline_isBarrel->clear();
+    m_offline_layer->clear(); 
+    m_offline_clustID->clear();
+    m_offline_trackNumber->clear(); 
+    m_offline_pt->clear(); 
+    m_offline_eta->clear();
+    m_offline_phi->clear();
   }
 
   // ask to read the data in the current event
@@ -742,9 +742,9 @@ StatusCode FTKRegionalWrapper::execute()
       auto last_track = offlineTracks->end();
       for (int iTrk=0 ; track_it!= last_track; track_it++, iTrk++){
 	auto track = (*track_it)->track();
-	offline_pt->push_back((*track_it)->pt()*(*track_it)->charge());
-	offline_eta->push_back((*track_it)->eta());
-	offline_phi->push_back((*track_it)->phi());
+	m_offline_pt->push_back((*track_it)->pt()*(*track_it)->charge());
+	m_offline_eta->push_back((*track_it)->eta());
+	m_offline_phi->push_back((*track_it)->phi());
 	const DataVector<const Trk::TrackStateOnSurface>* trackStates=track->trackStateOnSurfaces();   
 	if(!trackStates)     ATH_MSG_ERROR("trackStatesOnSurface troubles");
 	DataVector<const Trk::TrackStateOnSurface>::const_iterator it=trackStates->begin();
@@ -766,24 +766,24 @@ StatusCode FTKRegionalWrapper::execute()
 	      const Identifier & hitId = hit->identify();
 
 	      if (m_idHelper->is_pixel(hitId)) {
-		offline_isPixel->push_back(1);
-		offline_isBarrel->push_back(int(m_pixelId->is_barrel(hitId)));
+		m_offline_isPixel->push_back(1);
+		m_offline_isBarrel->push_back(int(m_pixelId->is_barrel(hitId)));
 		const InDetDD::SiDetectorElement* sielement = m_PIX_mgr->getDetectorElement(hitId);
-		offline_clustID->push_back(sielement->identifyHash());
-		offline_trackNumber->push_back(iTrk);
-		offline_layer->push_back(m_pixelId->layer_disk(hitId));
-		offline_locX->push_back((float)measurement->localParameters()[Trk::locX]);
-		offline_locY->push_back((float)measurement->localParameters()[Trk::locY]);
+		m_offline_clustID->push_back(sielement->identifyHash());
+		m_offline_trackNumber->push_back(iTrk);
+		m_offline_layer->push_back(m_pixelId->layer_disk(hitId));
+		m_offline_locX->push_back((float)measurement->localParameters()[Trk::locX]);
+		m_offline_locY->push_back((float)measurement->localParameters()[Trk::locY]);
 	      }
 	      else if (m_idHelper->is_sct(hitId)) {
-		offline_isPixel->push_back(0);
-		offline_isBarrel->push_back(int(m_sctId->is_barrel(hitId)));
+		m_offline_isPixel->push_back(0);
+		m_offline_isBarrel->push_back(int(m_sctId->is_barrel(hitId)));
 		const InDetDD::SiDetectorElement* sielement = m_SCT_mgr->getDetectorElement(hitId);
-		offline_clustID->push_back(sielement->identifyHash());
-		offline_trackNumber->push_back(iTrk);
-		offline_layer->push_back(m_sctId->layer_disk(hitId));
-		offline_locX->push_back((float)measurement->localParameters()[Trk::locX]);
-		offline_locY->push_back(-99999.9);
+		m_offline_clustID->push_back(sielement->identifyHash());
+		m_offline_trackNumber->push_back(iTrk);
+		m_offline_layer->push_back(m_sctId->layer_disk(hitId));
+		m_offline_locX->push_back((float)measurement->localParameters()[Trk::locX]);
+		m_offline_locY->push_back(-99999.9);
 	      }
 	    }
 	  }
@@ -953,28 +953,26 @@ bool FTKRegionalWrapper::dumpFTKTestVectors(FTKPlaneMap *pmap, FTKRegionMap *rma
     Identifier id;
 
     stringstream ss ; 
-    int m_hitTyp;
+    int hitTyp;
     //------------------------ Do PIXEL RODIDs first ------------------------------
     // Note PIXEL RODs are input
-    vector<uint32_t>::iterator m_rodit = m_pix_rodIdlist.begin();
-    vector<uint32_t>::iterator m_rodit_e = m_pix_rodIdlist.end();
-    m_hitTyp = 1; // pixel
-        
-    for (; m_rodit!=m_rodit_e; m_rodit++){
+    hitTyp = 1; // pixel
+
+    for (uint32_t rod : m_pix_rodIdlist) {
 
       // Create file for output, format: LUT_0xABCDFGH.txt
       ss << "LUT_";
       ss.setf(ios::showbase); 
-      ss << hex << *m_rodit;
+      ss << hex << rod;
       ss.unsetf(ios::showbase);
       ss << ".txt";
       ofstream myfile(ss.str() );
       myfile.setf(ios::right | ios::showbase);
 
       if ( myfile.is_open() ) {
-	for (int m_link = 0; m_link < 128;m_link++){   // Loop over all modules
-	    // Retrieve onlineId = m_link+ROD
-	    onlineId  = m_pix_cabling_svc->getOnlineIdFromRobId((*m_rodit),m_link) ;
+	for (int link = 0; link < 128;link++){   // Loop over all modules
+	    // Retrieve onlineId = link+ROD
+	    onlineId  = m_pix_cabling_svc->getOnlineIdFromRobId(rod,link) ;
 	    hashId   = m_pix_cabling_svc->getOfflineIdHash(onlineId);
 
 	    if (hashId <=999999){ // Adjust for correct output format incase of invalid hashId // TODO: add a proper cutoff!
@@ -990,7 +988,7 @@ bool FTKRegionalWrapper::dumpFTKTestVectors(FTKPlaneMap *pmap, FTKRegionMap *rma
 		int eta_index_max  = m_pixelId->eta_index_max(id);
 
 		// Get Plane information
-                FTKPlaneSection &pinfo =  pmap->getMap(m_hitTyp,!(barrel_ec==0),layer_disk);
+                FTKPlaneSection &pinfo =  pmap->getMap(hitTyp,!(barrel_ec==0),layer_disk);
 
 		// Get tower information
 	        FTKRawHit dummy;
@@ -1015,7 +1013,7 @@ bool FTKRegionalWrapper::dumpFTKTestVectors(FTKPlaneMap *pmap, FTKRegionMap *rma
 		// Dump data to file:  
 	        // Comment out lines below to adjust output (
 		// Linknumber | OnlineID | HashID | Plane | #Towers| TowerList|
-		 myfile << dec   << setprecision(4) << m_link  << '\t'
+		 myfile << dec   << setprecision(4) << link  << '\t'
 	                << hex   << onlineId                   << '\t'
 			<< dec   << hashId                     << '\t'
 	                << dec   << pinfo.getPlane()           << '\t'
@@ -1031,7 +1029,7 @@ bool FTKRegionalWrapper::dumpFTKTestVectors(FTKPlaneMap *pmap, FTKRegionMap *rma
 	          
 	        // Dump the extend table
 	        myfile << "#"                                 << '\t' 
-		       << m_hitTyp                            << '\t'
+		       << hitTyp                            << '\t'
 		       << barrel_ec                           << '\t'
                        << layer_disk                          << '\t'
                        << phi_module                          << '\t'
@@ -1060,18 +1058,16 @@ bool FTKRegionalWrapper::dumpFTKTestVectors(FTKPlaneMap *pmap, FTKRegionMap *rma
 // ----------------------------Do SCT rodIds-------------------------------------   
 // Note no input for specific SCT RODs are being used here. 
 // The getAllRods returns all of the rods in the StoreGateSvc
-    m_hitTyp = 0;
+    hitTyp = 0;
     vector<uint32_t> sctrods;
     m_sct_cabling_svc->getAllRods(sctrods);
-    vector<uint32_t>::iterator rodit = sctrods.begin();
-    vector<uint32_t>::iterator rodit_e = sctrods.end();
     id = 0;
 
-    for (; rodit != rodit_e ; rodit++){
+    for (uint32_t rod : sctrods) {
       // Create file for output, format: LUT_0xABCDFGH.txt
       ss << "LUT_";
       ss.setf(ios::showbase); 
-      ss << hex << *rodit;
+      ss << hex << rod;
       ss.unsetf(ios::showbase);
       ss << ".txt";
       ofstream myfile(ss.str() );
@@ -1080,18 +1076,18 @@ bool FTKRegionalWrapper::dumpFTKTestVectors(FTKPlaneMap *pmap, FTKRegionMap *rma
       if (myfile.is_open() ) {
 
 	// Retrive hashlist
-	 m_sct_cabling_svc->getHashesForRod(m_identifierHashList,*rodit );
+	 m_sct_cabling_svc->getHashesForRod(m_identifierHashList,rod );
 
 	 // Some dumping variables
 	 vector<IdentifierHash>::const_iterator hashit = m_identifierHashList.begin();
 	 vector<IdentifierHash>::const_iterator hashit_e = m_identifierHashList.end();
-	 SCT_OnlineId  m_sct_onlineId;
+	 SCT_OnlineId  sct_onlineId;
 
 	 for (; hashit != hashit_e; ++hashit){  // TODO: Check for invalid onlineId && hashId numbers (?)
 
 	    // Retrieve OnlineId
-	      m_sct_onlineId = m_sct_cabling_svc->getOnlineIdFromHash( *hashit );
-	      if (m_sct_onlineId.rod()  == (*rodit)){ // Check for correct rodId
+	      sct_onlineId = m_sct_cabling_svc->getOnlineIdFromHash( *hashit );
+	      if (sct_onlineId.rod()  == rod){ // Check for correct rodId
 
 		myfile.setf(ios::right | ios::showbase);
 		id  = m_sctId->wafer_id( *hashit);
@@ -1107,7 +1103,7 @@ bool FTKRegionalWrapper::dumpFTKTestVectors(FTKPlaneMap *pmap, FTKRegionMap *rma
 		int strip          = m_sctId->strip(id);
 
                // Get  plane information
-		FTKPlaneSection &pinfo =  pmap->getMap(m_hitTyp,!(barrel_ec==0),layer_disk);
+		FTKPlaneSection &pinfo =  pmap->getMap(hitTyp,!(barrel_ec==0),layer_disk);
 
 	        // Get tower information
 	        FTKRawHit dummy;
@@ -1132,8 +1128,8 @@ bool FTKRegionalWrapper::dumpFTKTestVectors(FTKPlaneMap *pmap, FTKRegionMap *rma
 	        // Dump data to file:  
 	        // Comment out lines below to adjust output
 		// Linknumber | OnlineID | HashID | Plane | #Towers | TowerList
-		 myfile << dec  <<  m_sct_onlineId.fibre() << '\t'
-			<< hex  <<  m_sct_onlineId         << '\t'
+		 myfile << dec  <<  sct_onlineId.fibre() << '\t'
+			<< hex  <<  sct_onlineId         << '\t'
 		        << dec  << *hashit                 << '\t'
 	                << dec  << pinfo.getPlane()         << '\t'
                         << dec  << nTowers                  << '\t';
@@ -1147,7 +1143,7 @@ bool FTKRegionalWrapper::dumpFTKTestVectors(FTKPlaneMap *pmap, FTKRegionMap *rma
 
 		// Dump Extended table
 		myfile  <<  "#"                            << '\t'
-                        << m_hitTyp                        << '\t'
+                        << hitTyp                        << '\t'
 		        << barrel_ec                       << '\t'
                         << layer_disk                      << '\t'
                         << phi_module                      << '\t'

@@ -165,19 +165,19 @@ private:
   std::vector<int> m_L1ID_to_save; // vector of L1ID to save, if empty save all
 
   //offline clusters
-  std::vector<float>   *offline_locX;
-  std::vector<float>   *offline_locY;
-  std::vector<int>     *offline_isPixel;
-  std::vector<int>     *offline_isBarrel;
-  std::vector<int>     *offline_layer;
-  std::vector<int>     *offline_resAssociatedTrack;
-  std::vector<int>     *offline_clustID;
-  std::vector<int>     *offline_trackNumber;
+  std::vector<float>   *m_offline_locX;
+  std::vector<float>   *m_offline_locY;
+  std::vector<int>     *m_offline_isPixel;
+  std::vector<int>     *m_offline_isBarrel;
+  std::vector<int>     *m_offline_layer;
+  std::vector<int>     *m_offline_resAssociatedTrack;
+  std::vector<int>     *m_offline_clustID;
+  std::vector<int>     *m_offline_trackNumber;
 
   //offline tracks
-  std::vector<float>   *offline_pt;
-  std::vector<float>   *offline_eta;
-  std::vector<float>   *offline_phi;
+  std::vector<float>   *m_offline_pt;
+  std::vector<float>   *m_offline_eta;
+  std::vector<float>   *m_offline_phi;
 
 
   TTree *m_offline_cluster_tree;
