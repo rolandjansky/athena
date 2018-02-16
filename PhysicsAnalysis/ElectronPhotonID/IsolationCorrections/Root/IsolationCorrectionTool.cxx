@@ -33,7 +33,7 @@ namespace CP {
     declareProperty("IsMC",                        m_is_mc                        = true);
     declareProperty("Correct_etcone",              m_correct_etcone               = false);
     declareProperty("Trouble_categories",          m_trouble_categories           = true);
-    declareProperty("Apply_ddshifts",              m_apply_ddDefault              = false);
+    declareProperty("Apply_ddshifts",              m_apply_ddDefault              = true);
     m_isol_corr = new IsolationCorrection(name);
   }
 
@@ -91,19 +91,20 @@ namespace CP {
     m_isol_corr->SetToolVer(tool_ver);
     m_isol_corr->SetTroubleCategories(m_trouble_categories);
     
-    
-    // If Default is false, there is no correction, and no topoEtconeXX systematic uncertainty !
     // Note that systematics in Rel 21 are NOT done with the DD-Corr ON/OFF method! 
-    if (m_apply_ddDefault && m_tool_ver_str != "REL21") {
+    if (m_apply_ddDefault) {
       if (m_ddVersion == "2015_2016" or m_ddVersion == "2017") {
-	//register ourselves with the systematic registry! 
-	CP::SystematicRegistry& registry = CP::SystematicRegistry::getInstance();
-	if( registry.registerSystematics( *this ) != CP::SystematicCode::Ok ) return StatusCode::FAILURE;
-      } else
-	ATH_MSG_WARNING("Unknown data driven correction");
-    } else{
-      m_apply_dd = false;
-    }
+	    //if not Rel21, register ourselves with the systematic registry! 
+	    if( m_tool_ver_str!="Rel21" ){
+		  CP::SystematicRegistry& registry = CP::SystematicRegistry::getInstance();
+		  if( registry.registerSystematics( *this ) != CP::SystematicCode::Ok ) return StatusCode::FAILURE;
+		}
+		m_apply_dd = true;
+        } else{
+	  ATH_MSG_WARNING("Unknown data driven correction");
+	  m_apply_dd = false;
+	  }
+    } else m_apply_dd = false;
     
     // Don't use DD Corrections for AFII (not yet available for mc16) 
     if( m_tool_ver_str == "REL21" && m_AFII_corr) m_apply_dd = false;
@@ -322,10 +323,14 @@ namespace CP {
 	  if (theRunNumber>=320000) m_ddVersion = "2017" ; // RunNo found, and is in 2017 range 
 	  else if( theRunNumber > 0 ) m_ddVersion = "2015_2016" ; // RunNo found, but less than 2017 range
 	  // otherwise, stick with default (m_ddVersion is already assigned)
-
+	  
+	  // Don't use DD Corrections for AFII (not yet available for mc16) 
+      if( m_tool_ver_str == "REL21" && m_AFII_corr) m_apply_dd = false;
+	  
       float iso     = oldiso + (oldleak-newleak);
       float ddcorr  = 0;
       if (m_is_mc && m_apply_dd && type != xAOD::Iso::topoetcone30) {
+      
 	ddcorr = this->GetDDCorrection(eg,type);
 	if (type == xAOD::Iso::topoetcone20)
 	  decDDcor20(eg) = ddcorr;
@@ -390,7 +395,7 @@ namespace CP {
   CP::SystematicSet IsolationCorrectionTool::affectingSystematics() const {
     CP::SystematicSet result;
 
-    if (m_apply_ddDefault)
+    if (m_apply_ddDefault && m_tool_ver_str!="Rel21")
       result.insert( m_systDDonoff );
 
     return result;
@@ -401,10 +406,6 @@ namespace CP {
   }
 
   CP::SystematicCode IsolationCorrectionTool::applySystematicVariation( const CP::SystematicSet& systConfig ) {
-    if (systConfig.find(m_systDDonoff) != systConfig.end())
-      m_apply_dd = false;
-    else
-      m_apply_dd = m_apply_ddDefault ? true  : false;
     return CP::SystematicCode::Ok;
   }
 
