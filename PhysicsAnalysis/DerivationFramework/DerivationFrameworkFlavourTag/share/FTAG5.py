@@ -73,7 +73,11 @@ from DerivationFrameworkFlavourTag.DerivationFrameworkFlavourTagConf import (
 FTAG5HbbThinningTool = HbbThinner(
     name = "FTAG5HbbThinningTool",
     thinningService = FTAG5ThinningHelper.ThinningSvc(),
-    largeJetPtCut = 200e3)
+    largeJetPtCut = 200e3,
+    smallJetPtCut = 7e3,
+    nLeadingJets = 3,
+    addConstituents = True,
+    addConeAssociated = True)
 ToolSvc += FTAG5HbbThinningTool
 print FTAG5HbbThinningTool
 
@@ -176,7 +180,7 @@ fatJetCollection = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
 subJetCollection = "AntiKtVR30Rmax4Rmin02TrackJets"
 
 FTAG5SlimmingHelper.SmartCollections = [
-    "Electrons","Muons",
+    "Muons",
     "InDetTrackParticles",
     "BTagging_AntiKtVR30Rmax4Rmin02Track_expert",
     fatJetCollection]
