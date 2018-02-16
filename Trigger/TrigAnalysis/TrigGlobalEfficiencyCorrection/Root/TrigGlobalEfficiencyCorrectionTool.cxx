@@ -420,7 +420,7 @@ bool TrigGlobalEfficiencyCorrectionTool::loadListOfLegsPerTag(const flat_set<std
 		}
 		for(std::size_t leg : listOfLegs)
 		{
-			auto type = ImportData::associatedLeptonFlavour(m_dictionary[leg],success);
+			auto type = ImportData::associatedLeptonFlavour(m_dictionary[leg], success);
 			if(type==xAOD::Type::Electron && m_electronSfTools.find(leg^tag)==m_electronSfTools.end())
 			{
 				ATH_MSG_ERROR("No electron tool has been provided for trigger leg '" << m_dictionary[leg] << "' and selection tag " << kv.first
@@ -912,97 +912,8 @@ std::vector<std::size_t> TrigGlobalEfficiencyCorrectionTool::getSortedLegs(const
 CP::CorrectionCode TrigGlobalEfficiencyCorrectionTool::suggestElectronMapKeys(const std::map<std::string,std::string>& triggerCombination, 
 	const std::string& version, std::map<std::string,std::string>& legsPerKey)
 {
-	legsPerKey.clear();
-
 	ImportData data;
-	if(!data.importAll()) return CP::CorrectionCode::Error;
-
-	bool success = true;
-	std::map<std::size_t,int> legs;
-	auto& periods = data.getDataPeriods();
-	auto& dictionary = data.getDictionary();
-	
-	for(auto& kv : triggerCombination)
-	{
-		auto itrPeriod = periods.find(kv.first);
-		if(itrPeriod == periods.end())
-		{
-			//ATH_MSG_ERROR("Unknown period " << kv.first)
-			success = false;
-			continue;
-		}
-		int years = 0;
-		for(int k=0;k<32;++k)
-		{
-			auto itr = periods.find(std::to_string(2015+k));
-			if(itr != periods.end() && itrPeriod->second.first <= itr->second.second 
-				&& itrPeriod->second.second >= itr->second.first)
-			{
-				years |= (1<<k);
-			}
-		}
-		auto triggers = data.parseTriggerString(kv.second,success);
-		if(!success) continue;
-		for(auto& trig : triggers)
-		{
-			for(std::size_t leg : trig.leg)
-			{
-				if(leg && ImportData::associatedLeptonFlavour(leg,dictionary,success)==xAOD::Type::Electron)
-				{
-					auto insertion = legs.emplace(leg,years);
-					if(!insertion.second) insertion.first->second |= years;
-				}
-			}
-		}
-	}
-	if(!success) return CP::CorrectionCode::Error;
-
-	std::map<std::size_t,std::map<std::size_t,int> > allKeys;
-	if(!data.importMapKeys(version, allKeys)) return CP::CorrectionCode::Error;
-	std::map<std::size_t,std::vector<std::size_t> > allLegsPerKey;
-	while(legs.size())
-	{
-		allLegsPerKey.clear();
-		for(auto& kvLegs : legs) // loop on remaining legs
-		{
-			std::size_t leg = kvLegs.first;
-			int years = kvLegs.second;
-			auto itrKeys = allKeys.find(leg); // list of keys for that leg
-			if(itrKeys != allKeys.end())
-			{
-				for(auto& kvKeys : itrKeys->second) // loop on those keys
-				{
-					if((kvKeys.second & years) == years) // key must support all years needed for that leg
-					{
-						auto insertion = allLegsPerKey.emplace(kvKeys.first,std::vector<std::size_t>{leg});
-						if(!insertion.second) insertion.first->second.push_back(leg); 
-					}
-				}
-			}
-			else
-			{
-				//ATH_MSG_ERROR("Sorry, no idea what the map key should be for the trigger leg '" 
-				//		<< dictionary.at(leg) << "', manual configuration is needed");
-				success = false;
-			}
-		}
-		if(!success)
-		{
-			legsPerKey.clear();
-			break;
-		}
-
-		using T = decltype(allLegsPerKey)::value_type;
-		auto itrKey = std::max_element(allLegsPerKey.begin(), allLegsPerKey.end(),
-			[](T& x,T& y){return x.second.size()<y.second.size();});
-		std::string& strLegs = legsPerKey[dictionary.at(itrKey->first)];
-		for(std::size_t leg : itrKey->second)
-		{
-			legs.erase(leg);
-			if(strLegs.length()>0) strLegs += ',';
-			strLegs += dictionary.at(leg);
-		}
-	}
+	bool success = data.suggestElectronMapKeys(triggerCombination, version, legsPerKey);
 	return success? CP::CorrectionCode::Ok : CP::CorrectionCode::Error;
 }
 

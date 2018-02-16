@@ -58,14 +58,16 @@ public:
 	bool importAll(const std::map<std::string, std::string>& overridenThresholds = {});
 	
 	bool getPeriodBoundaries(const std::string& period, std::pair<unsigned,unsigned>& boundaries);
-	
+	bool suggestElectronMapKeys(const std::map<std::string,std::string>& triggerCombination,
+		const std::string& version, std::map<std::string,std::string>& legsPerKey);
+		
 	const std::map<std::size_t,TrigDef>& getTriggerDefs() const { return m_triggerDefs; }
 	const std::map<std::size_t,float>& getTriggerThresholds() const { return m_triggerThresholds; }
 	const std::map<std::string, std::pair<unsigned,unsigned>>& getDataPeriods() const { return m_dataPeriods; }
 	const std::vector<Hierarchy> getHierarchyMeta() const { return m_hierarchyMeta; }
 	const std::vector<std::size_t> getHierarchyData() const { return m_hierarchyData; }
 	const std::map<std::size_t,std::string>& getDictionary() const { return m_dictionary; }
-	static xAOD::Type::ObjectType associatedLeptonFlavour(std::size_t leg, const std::map<std::size_t,std::string>& dictionary, bool& success);
+	xAOD::Type::ObjectType associatedLeptonFlavour(std::size_t leg, bool& success);
 	static xAOD::Type::ObjectType associatedLeptonFlavour(const std::string& leg, bool& success);
 	std::vector<TrigDef> parseTriggerString(const std::string& triggerString, bool& success);
 	TrigGlobalEfficiencyCorrectionTool* getParent() { return m_parent; }

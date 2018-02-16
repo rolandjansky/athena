@@ -132,17 +132,17 @@ bool ImportData::importTriggers()
 		
 		/// Classify trigger and re-arrange legs (if needed) so that all electron legs come before muon legs
 		def.type = TT_UNKNOWN;
-		int ne = (associatedLeptonFlavour(def.leg[0],m_dictionary,success) == xAOD::Type::Electron)? 1: 0;
+		int ne = (associatedLeptonFlavour(def.leg[0], success) == xAOD::Type::Electron)? 1: 0;
 		if(def.leg[1])
 		{
-			if(associatedLeptonFlavour(def.leg[1],m_dictionary,success) == xAOD::Type::Electron)
+			if(associatedLeptonFlavour(def.leg[1], success) == xAOD::Type::Electron)
 			{
 				if(!ne) std::swap(def.leg[0],def.leg[1]);
 				++ne;
 			}
 			if(def.leg[2])
 			{
-				if(associatedLeptonFlavour(def.leg[2],m_dictionary,success)==xAOD::Type::Electron)
+				if(associatedLeptonFlavour(def.leg[2], success)==xAOD::Type::Electron)
 				{
 					if(!ne) std::swap(def.leg[0], def.leg[2]);
 					else if(ne==1) std::swap(def.leg[1], def.leg[2]);
@@ -468,11 +468,11 @@ xAOD::Type::ObjectType ImportData::associatedLeptonFlavour(const std::string& le
 	return xAOD::Type::Other;
 }
 
-xAOD::Type::ObjectType ImportData::associatedLeptonFlavour(std::size_t leg, const std::map<std::size_t,std::string>& dictionary, bool& success)
+xAOD::Type::ObjectType ImportData::associatedLeptonFlavour(std::size_t leg, bool& success)
 {
 	// note: 'success' is not set to 'true', only downgraded to 'false' if needed
-	auto itr = dictionary.find(leg);
-	if(itr != dictionary.end())
+	auto itr = m_dictionary.find(leg);
+	if(itr != m_dictionary.end())
 	{
 		return associatedLeptonFlavour(itr->second,success);
 	}
@@ -525,4 +525,97 @@ std::vector<ImportData::TrigDef> ImportData::parseTriggerString(const std::strin
 	}
 	success = success && triggers.size();
 	return triggers;
+}
+
+bool ImportData::suggestElectronMapKeys(const std::map<std::string,std::string>& triggerCombination,
+		const std::string& version, std::map<std::string,std::string>& legsPerKey)
+{
+	legsPerKey.clear();
+	if(!importAll()) return false;
+	
+	bool success = true;
+	std::map<std::size_t,int> legs;
+	
+	for(auto& kv : triggerCombination)
+	{
+		auto itrPeriod = m_dataPeriods.find(kv.first);
+		if(itrPeriod == m_dataPeriods.end())
+		{
+			ATH_MSG_ERROR("Unknown period " << kv.first);
+			success = false;
+			continue;
+		}
+		int years = 0;
+		for(int k=0;k<32;++k)
+		{
+			auto itr = m_dataPeriods.find(std::to_string(2015+k));
+			if(itr != m_dataPeriods.end() && itrPeriod->second.first <= itr->second.second 
+				&& itrPeriod->second.second >= itr->second.first)
+			{
+				years |= (1<<k);
+			}
+		}
+		auto triggers = parseTriggerString(kv.second,success);
+		if(!success) continue;
+		for(auto& trig : triggers)
+		{
+			for(std::size_t leg : trig.leg)
+			{
+				if(leg && associatedLeptonFlavour(leg, success)==xAOD::Type::Electron)
+				{
+					auto insertion = legs.emplace(leg,years);
+					if(!insertion.second) insertion.first->second |= years;
+				}
+			}
+		}
+	}
+	if(!success) return false;
+
+	std::map<std::size_t,std::map<std::size_t,int> > allKeys;
+	if(!importMapKeys(version, allKeys)) return false;
+	std::map<std::size_t,std::vector<std::size_t> > allLegsPerKey;
+	while(legs.size())
+	{
+		allLegsPerKey.clear();
+		for(auto& kvLegs : legs) // loop on remaining legs
+		{
+			std::size_t leg = kvLegs.first;
+			int years = kvLegs.second;
+			auto itrKeys = allKeys.find(leg); // list of keys for that leg
+			if(itrKeys != allKeys.end())
+			{
+				for(auto& kvKeys : itrKeys->second) // loop on those keys
+				{
+					if((kvKeys.second & years) == years) // key must support all years needed for that leg
+					{
+						auto insertion = allLegsPerKey.emplace(kvKeys.first,std::vector<std::size_t>{leg});
+						if(!insertion.second) insertion.first->second.push_back(leg); 
+					}
+				}
+			}
+			else
+			{
+				ATH_MSG_ERROR("Sorry, no idea what the map key should be for the trigger leg '" 
+						<< m_dictionary.at(leg) << "', manual configuration is needed");
+				success = false;
+			}
+		}
+		if(!success)
+		{
+			legsPerKey.clear();
+			break;
+		}
+
+		using T = decltype(allLegsPerKey)::value_type;
+		auto itrKey = std::max_element(allLegsPerKey.begin(), allLegsPerKey.end(),
+			[](T& x,T& y){return x.second.size()<y.second.size();});
+		std::string& strLegs = legsPerKey[m_dictionary.at(itrKey->first)];
+		for(std::size_t leg : itrKey->second)
+		{
+			legs.erase(leg);
+			if(strLegs.length()>0) strLegs += ',';
+			strLegs += m_dictionary.at(leg);
+		}
+	}
+	return success;
 }
