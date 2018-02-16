@@ -99,10 +99,10 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
   MsgStream log(m_msgSvc, "MuGM:MuonChamber");
   bool debug   = log.level() <= MSG::DEBUG;
   bool verbose = log.level() <= MSG::VERBOSE;
-  if (verbose) log<<MSG::VERBOSE << " Building a MuonChamber for m_station "
-                           << m_station->GetName() << " at zi, fi "
-                           << zi << " " << fi+1 << " is_mirrored " << is_mirrored
-                           << " is assembly = " << isAssembly << endmsg;
+  log<<MSG::VERBOSE << " Building a MuonChamber for m_station "
+     << m_station->GetName() << " at zi, fi "
+     << zi << " " << fi+1 << " is_mirrored " << is_mirrored
+     << " is assembly = " << isAssembly << endmsg;
   std::string stname(m_station->GetName(), 0, 3);
   MYSQL* mysql=MYSQL::GetPointer();
   //MDT* mdtobj = (MDT*)mysql->GetATechnology("MDT0");
@@ -413,9 +413,12 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
       double depth = -thickness/2.+d->posz+d->GetThickness()/2.;
       // std::cerr << " nRpc, nDoubletR, depth " << nRpc << " " << nDoubletR 
       //           << " " << depth;
-      if ( nDoubletR == 1 &&  nRpc>1 && depth*previous_depth < 0) nDoubletR++;
+      // BI RPC Chambers have one one doubletR
+      if (!(stname.substr(0,2)=="BI") && nDoubletR == 1 &&  nRpc>1 && depth*previous_depth < 0) nDoubletR++; 
       // std::cerr<<" updated to "<<nDoubletR<<std::endl;
+      
       previous_depth = depth;
+      
     }
     if (cn == "CSC") {nCsc++;}
     if (cn == "TGC") {nTgc++;}        
@@ -1208,8 +1211,11 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
       int ml = 1;
       int tubel = 1;
       int tube = 1;
-      if (ypos > 0.) ml = 2;
+      //      if (ypos > 0.) ml = 2;
+      if (ypos > 5.) ml = 2;	// MODIFIED TO COPE WITH BIS78
       std::string stag = "ml["+MuonGM::buildString(ml,0)+"]"+techname+"component";
+
+
       GeoNameTag* nm = new GeoNameTag(stag);
       ptrd->add(new GeoIdentifierTag(c->index));
       ptrd->add(nm);
@@ -1465,16 +1471,17 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
           // implement really the mirror symmetry
           if (is_mirrored) xpos = -xpos;
 
-		// ... putting back to here!
-                //                log<<MSG::DEBUG<<" In station "<<stName<<" with "
-                //		   <<nDoubletR<<" doubletR," 
-                //                   <<" RPC "<<(c->name).substr(3,2)
-                //                   <<" has swap flag = "<<rp->iswap
-                //                   <<" ypos, yd, zpos, zd "
-                //                   <<ypos<<" "<<yd<<" "<<zpos<<" "<<zd<<endmsg;
-                //                    htcomponent = HepGeom::TranslateX3D(ypos)*HepGeom::TranslateY3D(xpos)
-                //		      *HepGeom::TranslateZ3D(zpos);
-                //		    xfcomponent = new GeoTransform(htcomponent);
+          // ... putting back to here!
+          //log<<MSG::DEBUG<<" In station "<<stName<<" with "
+          //   <<nDoubletR<<" doubletR," 
+          //   <<" RPC "<<(c->name).substr(3,2)
+           //  <<" has swap flag = "<<rp->iswap
+           //  <<"ypos, zpos, ndivz, ndivy "
+           //  <<ypos<<" "<<zpos<<" "
+           //  <<ndivz << " " << ndivy <<endmsg;
+          //htcomponent = HepGeom::TranslateX3D(ypos)*HepGeom::TranslateY3D(xpos)
+          //		      *HepGeom::TranslateZ3D(zpos);
+          //		    xfcomponent = new GeoTransform(htcomponent);
 
           const RpcIdHelper* rpc_id = manager->rpcIdHelper();
           int stationEta = zi;
@@ -1486,19 +1493,22 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
           if (nRpc > 1 && nDoubletR == 2 && ypos>0.) doubletR=2;
           ndbz[doubletR-1]++;
 
-          if (zi <= 0 && !is_mirrored) {
+
+          float zdivision=100.;// point between doubletZ=1 and 2;          
+          if (stname=="BIS"&&std::abs(zi)==7)  zdivision=400.;//BIS78 (RPC8 is small)
+
+          if    (zi <= 0 && !is_mirrored) {
             // the special cases 
             doubletZ = 1;
-            if (zpos<-100.*CLHEP::mm)    doubletZ=2;
+            if (zpos<-zdivision*CLHEP::mm)    doubletZ=2;
             if (fabs(xpos) > 100.*CLHEP::mm && ndbz[doubletR-1] > 2) {
               doubletZ = 3;
               nfields++;
             }
             if (fabs(xpos) > 100.*CLHEP::mm ) ndbz[doubletR-1]--;
-
           } else {
             doubletZ = 1;
-            if (zpos > 100.*CLHEP::mm) doubletZ=2;
+            if (zpos > zdivision*CLHEP::mm) doubletZ=2;
             if (fabs(xpos) > 100.*CLHEP::mm && ndbz[doubletR-1] > 2) {
               doubletZ = 3;
               nfields++;
@@ -1523,8 +1533,6 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
             doubletPhi++;
             if (doubletPhi>2) doubletPhi=1;
           }
-	  //std::cout<<" doubletPhi = "<<doubletPhi<<std::endl;
-                    
           // never defined fields: set to the lower limit 
           int gasGap      = 1;
           int measuresPhi = 0;
