@@ -30,10 +30,10 @@ WPs = [
          # track-to-vertex-association WPs
          "TTVA",
          # BadMuon veto SFs
-       #  "BadMuonVeto_HighPt",
+         "BadMuonVeto_HighPt",
          # isolation WPs
-        # "FixedCutLooseIso", "LooseTrackOnlyIso", "LooseIso", "GradientIso", "GradientLooseIso",
-        # "FixedCutTightTrackOnlyIso", "FixedCutHighPtTrackOnlyIso", "FixedCutTightIso"
+         "FixedCutLooseIso", "LooseTrackOnlyIso", "LooseIso", "GradientIso", "GradientLooseIso",
+         "FixedCutTightTrackOnlyIso", "FixedCutHighPtTrackOnlyIso", "FixedCutTightIso"
         ]
 
 for WP in WPs: 
