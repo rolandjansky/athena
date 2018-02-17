@@ -33,26 +33,6 @@ AuxTypeRegistry::getAuxID (const std::string& name,
 
 
 /**
- * @brief Lock the registry for shared access.
- */
-inline
-void AuxTypeRegistry::lock_shared() const
-{
-  m_mutex.lock_shared();
-}
-
-
-/**
- * @brief Unlock the registry for shared access.
- */
-inline
-void AuxTypeRegistry::unlock_shared() const
-{
-  m_mutex.unlock_shared();
-}
-
-
-/**
  * @brief Return the vector factory for a given auxid.
  * @param auxid The desired aux data item.
  *
@@ -63,27 +43,8 @@ inline
 const IAuxTypeVectorFactory*
 AuxTypeRegistry::getFactory (SG::auxid_t auxid) const
 {
-  lock_t lock (*this);
   if (auxid >= m_types.size())
     return 0;
-  return m_types[auxid].m_factory;
-}
-
-
-/**
- * @brief Return the vector factory for a given auxid.  (external locking)
- * @param lock The registry lock.
- * @param auxid The desired aux data item.
- *
- * Returns 0 if the type is not known.
- * (Use @c addFactory to add new mappings.)
- */
-inline
-const IAuxTypeVectorFactory*
-AuxTypeRegistry::getFactory (lock_t& /*lock*/,
-                             SG::auxid_t auxid) const
-{
-  if (auxid >= m_types.size()) return 0;
   return m_types[auxid].m_factory;
 }
 

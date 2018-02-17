@@ -182,68 +182,6 @@ void test_type(const std::string& typname,
 
 
 template <class T>
-void test_type_extlock(const std::string& typname,
-                       const std::string& name,
-                       const std::string& clsname = "")
-{
-  SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
-  SG::AuxTypeRegistry::lock_t lock (r);
-
-  SG::auxid_t auxid = r.getAuxID<T> (name, clsname);
-
-  assert (r.getName (lock, auxid) == name);
-  assert (r.getClassName (lock, auxid) == clsname);
-  assert (r.getType (lock, auxid) == &typeid(T));
-  assert (r.getTypeName (lock, auxid) == typname);
-  if (typeid(T) == typeid(bool)) {
-    assert (r.getVecType (lock, auxid) == &typeid(std::vector<char>));
-    assert (r.getVecTypeName (lock, auxid) == "std::vector<char>");
-  }
-  else {
-    assert (r.getVecType (lock, auxid) == &typeid(std::vector<T>));
-    assert (r.getVecTypeName (lock, auxid) == "std::vector<" + typname + ">");
-  }
-
-  assert (r.getName (lock, 999) == "");
-  assert (r.getType (lock, 999) == 0);
-  assert (r.getTypeName (lock, 999) == "");
-  assert (r.getVecTypeName (lock, 999) == "");
-
-  std::unique_ptr<SG::IAuxTypeVector> v = r.makeVector (lock, auxid, 10, 20);
-  T* ptr = reinterpret_cast<T*> (v->toPtr());
-  ptr[0] = makeT(0);
-  ptr[1] = makeT(1);
-
-  v->reserve (50);
-  ptr = reinterpret_cast<T*> (v->toPtr());
-  v->resize (40);
-  assert (ptr == reinterpret_cast<T*> (v->toPtr()));
-  ptr[49] = makeT(123);
-
-  std::unique_ptr<SG::IAuxTypeVector> v2 = r.makeVector (lock, auxid, 10, 20);
-  T* ptr2 = reinterpret_cast<T*> (v2->toPtr());
-  r.copy (lock, auxid, ptr2, 0, ptr, 1);
-  r.copy (lock, auxid, ptr2, 1, ptr, 0);
-  r.copyForOutput (lock, auxid, ptr2, 1, ptr, 0);
-
-  assert (ptr2[0] == makeT(1));
-  assert (ptr2[1] == makeT(0));
-
-  r.clear (lock, auxid, ptr2, 0);
-  assert (ptr2[0] == makeT());
-  assert (ptr2[1] == makeT(0));
-
-  ptr2[0] = makeT(10);
-  ptr2[1] = makeT(11);
-  r.swap (lock, auxid, ptr, 0, ptr2, 1);
-  assert (ptr[0] == makeT(11));
-  assert (ptr[1] == makeT(1));
-  assert (ptr2[0] == makeT(10));
-  assert (ptr2[1] == makeT(0));
-}
-
-
-template <class T>
 void test_makeVector (const std::string& name)
 {
   SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
@@ -283,8 +221,6 @@ void test2()
   test_type<bool> ("bool", "aBool");
   test_type<Payload> ("Payload", "aPayload");
   test_makeVector<int> ("anInt");
-
-  test_type_extlock<int> ("int", "anInt");
 }
 
 
@@ -341,24 +277,6 @@ struct FacTest2DynFac
 public:
   virtual bool isDynamic() const { return true; }
 };
-
-
-void test_factories_extlock()
-{
-  std::cout << "test_factories_extlock\n";
-
-  SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
-
-  {
-    SG::AuxTypeRegistry::lock_t lock (r);
-
-    const SG::IAuxTypeVectorFactory* fac = r.getFactory (lock, typeid(char));
-    assert (fac->getEltSize() == sizeof(char));
-    assert (fac->tiVec() == &typeid(std::vector<char>));
-
-    assert (r.getFactory (lock, typeid (FacTest2)) == 0);
-  }
-}
 
 
 struct FacTest3 {};
