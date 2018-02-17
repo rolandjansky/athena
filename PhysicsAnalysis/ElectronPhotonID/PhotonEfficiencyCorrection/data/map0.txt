@@ -2,40 +2,40 @@ ID_Tight_Converted=PhotonEfficiencyCorrection/2015_2017/rel21.2/Winter2018_Prere
 
 ID_Tight_Unconverted=PhotonEfficiencyCorrection/2015_2017/rel21.2/Winter2018_Prerec_v1/PIDSF/efficiencySF.offline.Tight.13TeV.rel21.25ns.unc.v00.root
 
-ISO_Loose_Converted=/afs/cern.ch/work/m/mpitt/PhotonSFxAODTool/inputs_r21/isolation/efficiencySF.Isolation.isolFixedCutLoose.13TeV.rel21.25ns.con.TrkCaloRadZTrkCaloSgPh.v18.root
+ISO_Loose_Converted=/afs/cern.ch/user/m/mpitt/public/PhotonEfficiencyCorrection/inputs_r21/isolation/efficiencySF.Isolation.isolFixedCutLoose.13TeV.rel21.25ns.con.TrkCaloRadZTrkCaloSgPh.v18.root
 
-ISO_Loose_Unconverted=/afs/cern.ch/work/m/mpitt/PhotonSFxAODTool/inputs_r21/isolation/efficiencySF.Isolation.isolFixedCutLoose.13TeV.rel21.25ns.unc.TrkCaloRadZTrkCaloSgPh.v18.root
+ISO_Loose_Unconverted=/afs/cern.ch/user/m/mpitt/public/PhotonEfficiencyCorrection/inputs_r21/isolation/efficiencySF.Isolation.isolFixedCutLoose.13TeV.rel21.25ns.unc.TrkCaloRadZTrkCaloSgPh.v18.root
 
-ISO_Tight_Converted=/afs/cern.ch/work/m/mpitt/PhotonSFxAODTool/inputs_r21/isolation/efficiencySF.Isolation.isolFixedCutTight.13TeV.rel21.25ns.con.TrkCaloRadZTrkCaloSgPh.v18.root
+ISO_Tight_Converted=/afs/cern.ch/user/m/mpitt/public/PhotonEfficiencyCorrection/inputs_r21/isolation/efficiencySF.Isolation.isolFixedCutTight.13TeV.rel21.25ns.con.TrkCaloRadZTrkCaloSgPh.v18.root
 
-ISO_Tight_Unconverted=/afs/cern.ch/work/m/mpitt/PhotonSFxAODTool/inputs_r21/isolation/efficiencySF.Isolation.isolFixedCutTight.13TeV.rel21.25ns.unc.TrkCaloRadZTrkCaloSgPh.v18.root
+ISO_Tight_Unconverted=/afs/cern.ch/user/m/mpitt/public/PhotonEfficiencyCorrection/inputs_r21/isolation/efficiencySF.Isolation.isolFixedCutTight.13TeV.rel21.25ns.unc.TrkCaloRadZTrkCaloSgPh.v18.root
 
-ISO_TightCaloOnly_Converted=/afs/cern.ch/work/m/mpitt/PhotonSFxAODTool/inputs_r21/isolation/efficiencySF.Isolation.isolFixedCutTightCaloOnly.13TeV.rel21.25ns.con.CaloRadZCaloSgPh.v18.root
+ISO_TightCaloOnly_Converted=/afs/cern.ch/user/m/mpitt/public/PhotonEfficiencyCorrection/inputs_r21/isolation/efficiencySF.Isolation.isolFixedCutTightCaloOnly.13TeV.rel21.25ns.con.CaloRadZCaloSgPh.v18.root
 
-ISO_TightCaloOnly_Unconverted=/afs/cern.ch/work/m/mpitt/PhotonSFxAODTool/inputs_r21/isolation/efficiencySF.Isolation.isolFixedCutTightCaloOnly.13TeV.rel21.25ns.unc.CaloRadZCaloSgPh.v18.root
+ISO_TightCaloOnly_Unconverted=/afs/cern.ch/user/m/mpitt/public/PhotonEfficiencyCorrection/inputs_r21/isolation/efficiencySF.Isolation.isolFixedCutTightCaloOnly.13TeV.rel21.25ns.unc.CaloRadZCaloSgPh.v18.root
 
-Trigger_HLT_g20_tight_icalovloose_L1EM15VHI_Loose=/afs/cern.ch/work/m/mpitt/PhotonSFxAODTool/inputs_r21/trigger/efficiencySF.DI_g_2017_v1_HLT_g20_tight_icalovloose_L1EM15VHI.FixedCutLoose.root
+Trigger_HLT_g20_tight_icalovloose_L1EM15VHI_Loose=/afs/cern.ch/user/m/mpitt/public/PhotonEfficiencyCorrection/inputs_r21/trigger/efficiencySF.DI_g_2017_v1_HLT_g20_tight_icalovloose_L1EM15VHI.FixedCutLoose.root
 
-Trigger_HLT_g20_tight_icalovloose_L1EM15VHI_TightCaloOnly=/afs/cern.ch/work/m/mpitt/PhotonSFxAODTool/inputs_r21/trigger/efficiencySF.DI_g_2017_v1_HLT_g20_tight_icalovloose_L1EM15VHI.FixedCutTightCaloOnly.root
+Trigger_HLT_g20_tight_icalovloose_L1EM15VHI_TightCaloOnly=/afs/cern.ch/user/m/mpitt/public/PhotonEfficiencyCorrection/inputs_r21/trigger/efficiencySF.DI_g_2017_v1_HLT_g20_tight_icalovloose_L1EM15VHI.FixedCutTightCaloOnly.root
 
-Trigger_HLT_g22_tight_L1EM15VHI_Loose=/afs/cern.ch/work/m/mpitt/PhotonSFxAODTool/inputs_r21/trigger/efficiencySF.DI_g_2017_v1_HLT_g22_tight_L1EM15VHI.FixedCutLoose.root
+Trigger_HLT_g22_tight_L1EM15VHI_Loose=/afs/cern.ch/user/m/mpitt/public/PhotonEfficiencyCorrection/inputs_r21/trigger/efficiencySF.DI_g_2017_v1_HLT_g22_tight_L1EM15VHI.FixedCutLoose.root
 
-Trigger_HLT_g22_tight_L1EM15VHI_TightCaloOnly=/afs/cern.ch/work/m/mpitt/PhotonSFxAODTool/inputs_r21/trigger/efficiencySF.DI_g_2017_v1_HLT_g22_tight_L1EM15VHI.FixedCutTightCaloOnly.root
+Trigger_HLT_g22_tight_L1EM15VHI_TightCaloOnly=/afs/cern.ch/user/m/mpitt/public/PhotonEfficiencyCorrection/inputs_r21/trigger/efficiencySF.DI_g_2017_v1_HLT_g22_tight_L1EM15VHI.FixedCutTightCaloOnly.root
 
-Trigger_HLT_g25_loose_Loose=/afs/cern.ch/work/m/mpitt/PhotonSFxAODTool/inputs_r21/trigger/efficiencySF.DI_g_2017_v1_HLT_g25_loose.FixedCutLoose.root
+Trigger_HLT_g25_loose_Loose=/afs/cern.ch/user/m/mpitt/public/PhotonEfficiencyCorrection/inputs_r21/trigger/efficiencySF.DI_g_2017_v1_HLT_g25_loose.FixedCutLoose.root
 
-Trigger_HLT_g25_loose_TightCaloOnly=/afs/cern.ch/work/m/mpitt/PhotonSFxAODTool/inputs_r21/trigger/efficiencySF.DI_g_2017_v1_HLT_g25_loose.FixedCutTightCaloOnly.root
+Trigger_HLT_g25_loose_TightCaloOnly=/afs/cern.ch/user/m/mpitt/public/PhotonEfficiencyCorrection/inputs_r21/trigger/efficiencySF.DI_g_2017_v1_HLT_g25_loose.FixedCutTightCaloOnly.root
 
-Trigger_HLT_g25_medium_L1EM20VH_TightCaloOnly=/afs/cern.ch/work/m/mpitt/PhotonSFxAODTool/inputs_r21/trigger/efficiencySF.DI_g_2017_v1_HLT_g25_medium_L1EM20VH.FixedCutTightCaloOnly.root
+Trigger_HLT_g25_medium_L1EM20VH_TightCaloOnly=/afs/cern.ch/user/m/mpitt/public/PhotonEfficiencyCorrection/inputs_r21/trigger/efficiencySF.DI_g_2017_v1_HLT_g25_medium_L1EM20VH.FixedCutTightCaloOnly.root
 
-Trigger_HLT_g35_loose_Loose=/afs/cern.ch/work/m/mpitt/PhotonSFxAODTool/inputs_r21/trigger/efficiencySF.DI_g_2017_v1_HLT_g35_loose.FixedCutLoose.root
+Trigger_HLT_g35_loose_Loose=/afs/cern.ch/user/m/mpitt/public/PhotonEfficiencyCorrection/inputs_r21/trigger/efficiencySF.DI_g_2017_v1_HLT_g35_loose.FixedCutLoose.root
 
-Trigger_HLT_g35_loose_TightCaloOnly=/afs/cern.ch/work/m/mpitt/PhotonSFxAODTool/inputs_r21/trigger/efficiencySF.DI_g_2017_v1_HLT_g35_loose.FixedCutTightCaloOnly.root
+Trigger_HLT_g35_loose_TightCaloOnly=/afs/cern.ch/user/m/mpitt/public/PhotonEfficiencyCorrection/inputs_r21/trigger/efficiencySF.DI_g_2017_v1_HLT_g35_loose.FixedCutTightCaloOnly.root
 
-Trigger_HLT_g35_medium_L1EM20VH_TightCaloOnly=/afs/cern.ch/work/m/mpitt/PhotonSFxAODTool/inputs_r21/trigger/efficiencySF.DI_g_2017_v1_HLT_g35_medium_L1EM20VH.FixedCutTightCaloOnly.root
+Trigger_HLT_g35_medium_L1EM20VH_TightCaloOnly=/afs/cern.ch/user/m/mpitt/public/PhotonEfficiencyCorrection/inputs_r21/trigger/efficiencySF.DI_g_2017_v1_HLT_g35_medium_L1EM20VH.FixedCutTightCaloOnly.root
 
-Trigger_HLT_g50_loose_L1EM20VH_Loose=/afs/cern.ch/work/m/mpitt/PhotonSFxAODTool/inputs_r21/trigger/efficiencySF.DI_g_2017_v1_HLT_g50_loose_L1EM20VH.FixedCutLoose.root
+Trigger_HLT_g50_loose_L1EM20VH_Loose=/afs/cern.ch/user/m/mpitt/public/PhotonEfficiencyCorrection/inputs_r21/trigger/efficiencySF.DI_g_2017_v1_HLT_g50_loose_L1EM20VH.FixedCutLoose.root
 
-Trigger_HLT_g50_loose_L1EM20VH_TightCaloOnly=/afs/cern.ch/work/m/mpitt/PhotonSFxAODTool/inputs_r21/trigger/efficiencySF.DI_g_2017_v1_HLT_g50_loose_L1EM20VH.FixedCutTightCaloOnly.root
+Trigger_HLT_g50_loose_L1EM20VH_TightCaloOnly=/afs/cern.ch/user/m/mpitt/public/PhotonEfficiencyCorrection/inputs_r21/trigger/efficiencySF.DI_g_2017_v1_HLT_g50_loose_L1EM20VH.FixedCutTightCaloOnly.root
 
 
