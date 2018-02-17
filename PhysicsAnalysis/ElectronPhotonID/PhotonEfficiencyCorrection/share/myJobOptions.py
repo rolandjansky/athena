@@ -12,15 +12,10 @@ algSeq = CfgMgr.AthSequencer("AthAlgSeq")
 from PhotonEfficiencyCorrection.PhotonEfficiencyCorrectionConf import testAthenaPhotonAlg
 alg = testAthenaPhotonAlg()
 
-#define input files, for now it uses my own directory where the tool is, since it not a working part of the athena, please note that the current recomendation of PhotonID WG can be found here: https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/PhotonEfficiencyCorrection
+#define input files, please note that the current recomendation of PhotonID WG can be found here: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/PhotonEfficiencyRun2
 
-#Set inputs for ID efficiency
-alg.PhotonEfficiencyCorrectionTool.CorrectionFileNameConv = "PhotonEfficiencyCorrection/v1/efficiencySF.offline.Tight.2015.13TeV.rel20.con.v01.root";
-alg.PhotonEfficiencyCorrectionTool.CorrectionFileNameUnconv = "PhotonEfficiencyCorrection/v1/efficiencySF.offline.Tight.2015.13TeV.rel20.unc.v01.root";
-
-#Or set inputs for track isolation efficiency (comment previous)
-#alg.PhotonEfficiencyCorrectionTool.CorrectionFileNameConv = "PhotonEfficiencyCorrection/efficiencySF.offline.isolFixedCutLoose.2015.13TeV.rel20.con.v01.root";
-#alg.PhotonEfficiencyCorrectionTool.CorrectionFileNameUnconv = "PhotonEfficiencyCorrection/efficiencySF.offline.isolFixedCutLoose.2015.13TeV.rel20.unc.v01.root";
+#Set Properties for photonID_SF tool - setup the map.txt file
+alg.PhotonEfficiencyCorrectionTool.MapFilePath = "PhotonEfficiencyCorrection/2015_2016/rel20.7/Moriond2017_v1/map2.txt";
 
 #Set DataType: for data use 0 (or don't run the tool - faster), for FULLSIM use 1, and for FASTSIM use 3, please note that the input files are also should be different
 alg.PhotonEfficiencyCorrectionTool.ForceDataType = 1

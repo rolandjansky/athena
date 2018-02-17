@@ -11,8 +11,8 @@
    @class AthPhotonEfficiencyCorrectionTool
    @brief Calculate the egamma scale factors in Athena
 
-   @author Rob Roy Fletcher, Karsten Koeneke, Michael Pitt, Giovanni Marchiori
-   @date   August 2014
+   @author Michael Pitt <michael.pitt@cern.ch>, Giovanni Marchiori
+   @date   February 2018
 */
 
 // STL includes
@@ -103,9 +103,6 @@ private:
   /// Pointer to the underlying ROOT based tool
   Root::TPhotonEfficiencyCorrectionTool* m_rootTool_unc;
   Root::TPhotonEfficiencyCorrectionTool* m_rootTool_con;
-  /// additional pointers for ISO SF using RadZ decays
-  Root::TPhotonEfficiencyCorrectionTool* m_rootTool_uncRadZ;
-  Root::TPhotonEfficiencyCorrectionTool* m_rootTool_conRadZ;
   
   /// A dummy return TResult object
   Root::TResult m_resultDummy;
@@ -121,7 +118,12 @@ private:
   std::string m_sysSubstringRadZ;
   
   // Get the correction filename from the map
-  std::string getFileName(std::string isoWP, bool isConv, std::string sufix);
+  std::string getFileName(std::string isoWP, std::string trigWP, bool isConv);
+  
+  // Set prefix of the corresponding calibration filenames:
+  std::string file_prefix_ID="offline.Tight";
+  std::string file_prefix_ISO="Isolation.isolFixedCut";
+  std::string file_prefix_Trig="HLT";
   
   // Properties
   
@@ -141,15 +143,16 @@ private:
   /// Isolation working point
   std::string m_isoWP;
   
+  /// Trigger name for trigger SF
+  std::string m_trigger;
+  
   /// map filename
   std::string m_mapFile;  
   
-  /// photonPT threshold for different isolation menus
-  float m_Threshold_lowPT;
-  float m_Threshold_highPT;
-  bool  m_UseRadZ_mediumPT;
-
-
+  //use RandomRun Number
+  bool m_useRandomRunNumber;
+  int m_defaultRandomRunNumber;
+ 
 
 }; // End: class definition
 
