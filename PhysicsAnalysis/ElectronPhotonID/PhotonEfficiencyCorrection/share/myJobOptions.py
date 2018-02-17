@@ -3,7 +3,7 @@ theApp.EvtMax = 100
 
 #set input files - svcMgr has a property that lets you specify the input files, as a list:
 import AthenaPoolCnvSvc.ReadAthenaPool
-svcMgr.EventSelector.InputCollections = [ " /afs/cern.ch/atlas/project/PAT/xAODs/r6630/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.AOD.e3601_s2576_s2132_r6630_tid05358812_00/AOD.05358812._000010.pool.root.1" ]
+svcMgr.EventSelector.InputCollections = [ "/afs/cern.ch/atlas/project/PAT/xAODs/r9315/mc16_13TeV.410501.PowhegPythia8EvtGen_A14_ttbar_hdamp258p75_nonallhad.merge.AOD.e5458_s3126_r9364_r9315/AOD.11182705._000001.pool.root.1" ]
 
 #One of the existing master sequences where one should attach all algorithms
 algSeq = CfgMgr.AthSequencer("AthAlgSeq")

@@ -141,7 +141,7 @@ int main( int argc, char* argv[] ) {
    // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/PhotonEfficiencyRun2#Systematic_variations
 
    std::cout << "restructure all recommended systematic variations for the SF tool"<<std::endl;
-   std::vector<CP::SystematicSet> syst_PhotonID, syst_PhotonIso;
+   std::vector<CP::SystematicSet> syst_PhotonID, syst_PhotonIso, syst_PhotonTrig;
    for (auto SystematicsVariation : CP::make_systematics_vector(photonSF_ID.recommendedSystematics()))
    {
      syst_PhotonID.push_back(CP::SystematicSet());

@@ -112,8 +112,8 @@ StatusCode AsgPhotonEfficiencyCorrectionTool::initialize()
 
   // First check if the tool is initialized using the input files or map
   if(m_mapFile.size()){ // using map file
-     m_corrFileNameList.push_back(getFileName(m_isoWP,m_trigger,true,""));	// converted photons input
-	 m_corrFileNameList.push_back(getFileName(m_isoWP,m_trigger,false,""));  // unconverted photons input
+     m_corrFileNameList.push_back(getFileName(m_isoWP,m_trigger,true));	// converted photons input
+	 m_corrFileNameList.push_back(getFileName(m_isoWP,m_trigger,false));  // unconverted photons input
   }
   else if(m_corrFileNameConv.size() && m_corrFileNameUnconv.size()){ // initialize the tool using input files (old scheme)
   	m_corrFileNameList.push_back(m_corrFileNameConv);
@@ -213,14 +213,7 @@ const Root::TResult& AsgPhotonEfficiencyCorrectionTool::calculate( const xAOD::E
       return m_resultDummy;
     }
   
-  // Get the run number 
-  const xAOD::EventInfo* eventInfo = evtStore()->retrieve< const xAOD::EventInfo> ("EventInfo");
-  if(!eventInfo){
-    ATH_MSG_ERROR ( "Could not retrieve EventInfo object!" );
-    return m_resultDummy;
-  }
-  
-  // Get the run number
+   // Get the run number
   const xAOD::EventInfo* eventInfo = evtStore()->retrieve< const xAOD::EventInfo> ("EventInfo");
   if(!eventInfo){
     ATH_MSG_ERROR ( "Could not retrieve EventInfo object!" );
