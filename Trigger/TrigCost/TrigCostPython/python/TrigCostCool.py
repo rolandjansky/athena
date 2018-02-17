@@ -1383,7 +1383,6 @@ def GetRates(runnumber,lb_beg,lb_end,options=[]):
                 collection.lbbeg=lb
             collection.lbbeg=min(lb,collection.lbbeg)
             collection.lbend=max(lb,collection.lbend)
-            log.info("Getting rates data for run=%d lb=%d" % (runnumber,lb))
 
             # find name from ctpid
             chain          = CostChain()
@@ -1459,7 +1458,7 @@ def GetHLTRates(runnumber, config, lbset, lb_beg, lb_end, lvl, options=[]):
     #
     # Read Counters
     #
-    hltcounters_foldername = '/TRIGGER/LUMI/HLTPrefLumi'
+    hltcounters_foldername = '/TRIGGER/HLT/Rates'
     itr = GetFolderItrForRun(hltcounters_foldername, runnumber)
     try:
         while itr.goToNext():
@@ -1471,7 +1470,11 @@ def GetHLTRates(runnumber, config, lbset, lb_beg, lb_end, lvl, options=[]):
                 continue
 
             # Blob encodes data
-            blob = obj.payload()['Data'].read()
+            blob = obj.payload()['rates'].read()
+            floatarr = array.array("f", blob).tolist()
+
+
+
             if len(blob)==0:
                 continue
 

@@ -70,8 +70,7 @@ def ReadTRP(runnumber, lb_beg, lb_end, options=[], myafspath='', myhttppath='', 
             log.info("Now processing new lumiblock == %d", lb)
 
             # Append to collection, if necessary
-            if StopLoopOrInstantiate(lb, lb_beg, lb_end, lblast, lvl, collection, options):
-                break
+            if StopLoopOrInstantiate(lb, lb_beg, lb_end, lblast, lvl, collection, options): break
 
             # Loop over branch names
             for bname in branches:
@@ -233,31 +232,17 @@ def GetBranches(tree, lvl, sfx_out):
 
 #----------------------------------------------------------------------
 # Return True to break out of event loop
-#
 def StopLoopOrInstantiate(lb, lb_beg, lb_end, lblast, lvl, collection, options):
-
-#	    if lb>20: return True # TODO
-
-    if 'fast' in options and lb==lblast:
-        return False
-
-    if lb < lb_beg:
-        return False
-
-    # This breaks loop
-    if lb > lb_end and lb_end!=-1:
-        print "Done reading ",lvl
-        return True
-
-    if not (lblast>0 and lb!=lblast):
-        return False
+    if 'fast' in options and lb==lblast: return False                               # If in same lumiblock
+    if lb < lb_beg: return False                                                    # Current LB is below beginning LB range
+    if lb > lb_end and lb_end!=-1: log.info("Done reading %s" % lvl) ; return True  # Breaks Loop
+    if not (lblast > 0 and lb != lblast): return False                              # Not sure what this is
 
     # If new LB, then dump previous LB data
-    if lvl=='L1':
-        collection.results[lb] = TrigCostAnalysis.CostResult()
+    if lvl=='L1':  collection.results[lb] = TrigCostAnalysis.CostResult()
+    if lvl=='HLT': collection.results[lb] = TrigCostAnalysis.CostResult()
 
     sys.stdout.flush()
-
     return False
 
 #----------------------------------------------------------------------
@@ -463,21 +448,7 @@ def SetOldChainHLT(tree, ch, bname, count, sfx_in, sfx_ps, sfx_out):
     ch.SetTAVRateErr(math.sqrt( (getattr(ch,"cumulativeTAV")/getattr(ch,"ratesCounts")) / (getattr(ch,"ratesCounts")*samplingrate) )) 
     return
 
-# tmhong: Not used anywhere, so commenting out
-##----------------------------------------------------------------------
-def NonChainTRP(chname):
-    return string.count(chname,"_grp_") != 0 \
-           or string.count(chname,"_str_") != 0 \
-           or string.count(chname,"L1_EMPTY_") != 0\
-           or string.count(chname,"_recording") != 0\
-           or string.count(chname,"_LB_Num") != 0\
-           or string.count(chname,"_L1A") != 0\
-           or string.count(chname,"_total") != 0\
-           or string.count(chname,"_time") != 0\
-           or string.count(chname,"HLT_RATE") != 0\
-           or string.count(chname,"HLT_Providers") != 0
-
-#----------------------------------------------------------------------
+# ----------------------------------------------------------------------
 # E-mail thread for the Naming change after 178292
 #
 #	On 04/15/2011 Antonio Sidoti wrote to Tomasz, Ivana, Francesca, Tae

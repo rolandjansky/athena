@@ -372,7 +372,6 @@ for i, runMap in enumerate(goodrunList):
     # Make file
     rootname = ''
     if   opts.trp : rootname = '%s/%d_trp.root'  % (opts.dir, run)
-    elif opts.cool: rootname = '%s/%d_cool.root' % (opts.dir, run)
     else:           rootname = '%s/%d_cool.root' % (opts.dir, run)
     rootlist.append(rootname)
 
