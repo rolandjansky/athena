@@ -310,3 +310,39 @@ void iGeant4::Geant4TruthIncident::prepareChildren() const {
     m_childrenPrepared  = true;
   }
 }
+
+/**  The interaction classifications are described as follows:
+     case 0: interaction of a particle without a pre-defined decay;
+     case 1: a particle with a pre-defined decay under-going a
+     non-destructive interaction;
+     case 2: a particle with a pre-defined decay under-going a
+     destructive interaction other than its pre-defined decay;
+     case 3: a particle under-going its pre-defined decay */
+int iGeant4::Geant4TruthIncident::interactionClassification() const {
+  G4Track* track=m_step->GetTrack();
+  const G4DynamicParticle* dynPart = track->GetDynamicParticle();
+  bool parentIsQuasiStable = (nullptr!=(dynPart->GetPreAssignedDecayProducts()));
+  const G4VProcess *process = m_step->GetPostStepPoint()->GetProcessDefinedStep();
+  const int processType = process->GetProcessType();
+  const int processSubType = process->GetProcessSubType();
+  int classification(0); // interaction of a particle without a
+                         // pre-defined decay;
+  if(parentIsQuasiStable) {
+    if(this->parentSurvivesIncident()) {
+      classification = 1; // a particle with a pre-defined decay
+                          // under-going a non-destructive
+                          // interaction;
+
+    }
+    else if(processType==6 && processSubType==201) {
+      classification = 3; // a particle under-going its pre-defined decay
+    }
+    else {
+      classification = 2; // a particle with a pre-defined decay
+                          // under-going a destructive interaction
+                          // other than its pre-defined decay;
+    }
+  }
+  return classification;
+  // end of code to determine interaction type
+}

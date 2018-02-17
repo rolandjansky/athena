@@ -83,6 +83,15 @@ namespace iGeant4 {
       /** Set the the barcode of all child particles to the given bc */
       void                      setAllChildrenBarcodes(Barcode::ParticleBarcode bc) override final;
 
+      /**  The interaction classifications are described as follows:
+           case 0: interaction of a particle without a pre-defined decay;
+           case 1: a particle with a pre-defined decay under-going a
+           non-destructive interaction;
+           case 2: a particle with a pre-defined decay under-going a
+           destructive interaction other than its pre-defined decay;
+           case 3: a particle under-going its pre-defined decay */
+      int                        interactionClassification() const override final;
+
       // only called once accepted
 
       /** Return the parent particle as a HepMC particle type */

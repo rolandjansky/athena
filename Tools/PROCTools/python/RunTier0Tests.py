@@ -27,7 +27,8 @@ logging.getLogger('').addHandler(console)
 
 def RunCleanSTest(stest,input_file,pwd,release,extraArg,CleanRunHeadDir,UniqID):
     s=stest 
-    logging.info("Running clean in rel "+release+" \"Sim_tf.py --AMIConfig "+s+" --inputEVNTFile "+ input_file + " --outputHITSFile myHITS.pool.root " + extraArg+"\"")
+    logging.info("Running clean in rel "+release)
+    logging.info("\"Sim_tf.py --AMIConfig "+s+" --inputEVNTFile "+ input_file + " --outputHITSFile myHITS.pool.root --imf False " + extraArg+"\"")
 
     CleanDirName="clean_run_"+s+"_"+UniqID
 
@@ -36,35 +37,34 @@ def RunCleanSTest(stest,input_file,pwd,release,extraArg,CleanRunHeadDir,UniqID):
             " mkdir -p " + CleanDirName    +" ;" + 
             " cd "       + CleanDirName    +" ;" + 
             " source $AtlasSetup/scripts/asetup.sh "+release+" >& /dev/null ;" +
-            " Sim_tf.py --AMIConfig="+s+" --inputEVNTFile "+input_file + " --outputHITSFile myHITS.pool.root " +extraArg+" > "+s+".log 2>&1"
-           )
+            " Sim_tf.py --AMIConfig="+s+" --inputEVNTFile "+input_file + " --outputHITSFile myHITS.pool.root --imf False " +extraArg+" > "+s+".log 2>&1" )
     subprocess.call(cmd,shell=True)
 
-    logging.info("Finished clean in rel "+release+" \"Sim_tf.py --AMIConfig "+s+" --inputEVNTFile "+ input_file + " --outputHITSFile myHITS.pool.root " + extraArg+"\"")
+    logging.info("Finished clean in rel "+release)
+    logging.info("\"Sim_tf.py --AMIConfig "+s+" --inputEVNTFile "+ input_file + " --outputHITSFile myHITS.pool.root --imf False " + extraArg+"\"")
     pass
 
-def RunPatchedSTest(stest,input_file,pwd,release,extraArg):
+def RunPatchedSTest(stest,input_file,pwd,release,extraArg,nosetup=False):
     s=stest 
-    logging.info("Running patched in rel "+release+" \"Sim_tf.py --AMIConfig "+s+" --inputEVNTFile "+ input_file + " --outputHITSFile myHITS.pool.root " + extraArg+"\"")
+    logging.info("Running patched in rel "+release)
+    logging.info("\"Sim_tf.py --AMIConfig "+s+" --inputEVNTFile "+ input_file + " --outputHITSFile myHITS.pool.root --imf False " + extraArg+"\"")
 
-    if 'WorkDir_DIR' in os.environ:
+    cmd = " cd "+pwd+" ;"
+    if nosetup:
+        pass
+    elif 'WorkDir_DIR' in os.environ:
         cmake_build_dir = (os.environ['WorkDir_DIR'])
-        cmd = ( " cd "+pwd+" ;" + 
-                " source $AtlasSetup/scripts/asetup.sh "+release+"  >& /dev/null;" + 
-                " source "+cmake_build_dir+"/setup.sh ;" + 
-                " mkdir -p run_"+s+"; cd run_"+s+";" + 
-                " Sim_tf.py --AMIConfig="+s+" --inputEVNTFile "+input_file + " --outputHITSFile myHITS.pool.root " +extraArg+" > "+s+".log 2>&1"
-              )
-        subprocess.call(cmd,shell=True)
+        cmd += ( " source $AtlasSetup/scripts/asetup.sh "+release+"  >& /dev/null;" + 
+                 " source "+cmake_build_dir+"/setup.sh ;" )
     else :
-        cmd = ( " cd "+pwd+" ;" + 
-                " source $AtlasSetup/scripts/asetup.sh "+release+"  >& /dev/null;" + 
-                " mkdir -p run_"+s+"; cd run_"+s+";" + 
-                " Sim_tf.py --AMIConfig="+s+" --inputEVNTFile "+input_file + " --outputHITSFile myHITS.pool.root " +extraArg+" > "+s+".log 2>&1"
-              )
-        subprocess.call(cmd,shell=True)
+        cmd = ( " source $AtlasSetup/scripts/asetup.sh "+release+"  >& /dev/null;" )
+    cmd += " mkdir -p run_"+s+"; cd run_"+s+";"
+    cmd += " Sim_tf.py --AMIConfig="+s+" --inputEVNTFile "+input_file + " --outputHITSFile myHITS.pool.root --imf False " +extraArg+" > "+s+".log 2>&1" 
+    
+    subprocess.call(cmd,shell=True)
 
-    logging.info("Finished patched in rel "+release+" \"Sim_tf.py --AMIConfig "+s+" --inputEVNTFile "+ input_file + " --outputHITSFile myHITS.pool.root " + extraArg+"\"")
+    logging.info("Finished patched in rel "+release)
+    logging.info("\"Sim_tf.py --AMIConfig "+s+" --inputEVNTFile "+ input_file + " --outputHITSFile myHITS.pool.root --imf False " + extraArg+"\"")
     pass
 
 def RunCleanQTest(qtest,pwd,release,extraArg,CleanRunHeadDir,UniqID, doR2A=False, trigConfig="2017"):
@@ -80,17 +80,22 @@ def RunCleanQTest(qtest,pwd,release,extraArg,CleanRunHeadDir,UniqID, doR2A=False
     if trigConfig == "2016":
         extraArg += "--preExec \"all:from TriggerJobOpts.TriggerFlags import TriggerFlags as TF;TF.run2Config='2016'\""
 
-    logging.info("Running clean in rel "+release+" \"Reco_tf.py --AMI "+q+" "+extraArg+"\"")
+    logging.info("Running clean in rel "+release+" \"Reco_tf.py --AMI "+q+" --imf False "+extraArg+"\"")
     #Check if CleanRunHead directory exists if not exist with a warning 
 
     CleanDirName="clean_run_"+q+"_"+UniqID
 
-    cmd = "mkdir -p "+CleanRunHeadDir+" ; cd "+CleanRunHeadDir+"; mkdir -p "+CleanDirName+" ; cd "+CleanDirName+" ; source $AtlasSetup/scripts/asetup.sh "+release+" >& /dev/null ; Reco_tf.py --AMI="+q+" "+extraArg+" > "+q+".log 2>&1"
+    cmd = ( " mkdir -p "+ CleanRunHeadDir +" ;" + 
+            " cd "      + CleanRunHeadDir +" ;" + 
+            " mkdir -p "+ CleanDirName    +" ;" + 
+            " cd "      + CleanDirName    +" ;" + 
+            " source $AtlasSetup/scripts/asetup.sh "+release+" >& /dev/null ;" +
+            " Reco_tf.py --AMI="+q+" --imf False "+extraArg+" > "+q+".log 2>&1" )
     subprocess.call(cmd,shell=True)
     logging.info("Finished clean \"Reco_tf.py --AMI "+q+"\"")
     pass
 
-def RunPatchedQTest(qtest,pwd,release,extraArg, doR2A=False, trigConfig="2017"):
+def RunPatchedQTest(qtest,pwd,release,extraArg, doR2A=False, trigConfig="2017", nosetup=False):
     q=qtest
     if q == 'q431' and doR2A:
         extraArg += " --steering='doRAWtoALL'"
@@ -103,16 +108,21 @@ def RunPatchedQTest(qtest,pwd,release,extraArg, doR2A=False, trigConfig="2017"):
     if trigConfig == "2016":
         extraArg += "--preExec \"all:from TriggerJobOpts.TriggerFlags import TriggerFlags as TF;TF.run2Config='2016'\""
 
+    logging.info("Running patched in rel "+release+" \"Reco_tf.py --AMI "+q+" --imf False "+extraArg+"\"")
 
-    logging.info("Running patched in rel "+release+" \"Reco_tf.py --AMI "+q+" "+extraArg+"\"")
-
-    if 'WorkDir_DIR' in os.environ:
+    cmd = " cd "+pwd+" ;"
+    if nosetup:
+        pass
+    elif 'WorkDir_DIR' in os.environ:
         cmake_build_dir = (os.environ['WorkDir_DIR'])
-        cmd = "cd "+pwd+"; source $AtlasSetup/scripts/asetup.sh "+release+"  >& /dev/null    ; source "+cmake_build_dir+"/setup.sh ; mkdir -p run_"+q+"; cd run_"+q+"; Reco_tf.py --AMI="+q+" "+extraArg+" > "+q+".log 2>&1"
-        subprocess.call(cmd,shell=True)
+        cmd += ( " source $AtlasSetup/scripts/asetup.sh "+release+"  >& /dev/null;" + 
+                 " source "+cmake_build_dir+"/setup.sh ;" )
     else :
-        cmd = "cd "+pwd+"; source $AtlasSetup/scripts/asetup.sh "+release+" >& /dev/null  ; mkdir -p run_"+q+"; cd run_"+q+"; Reco_tf.py --AMI="+q+" "+extraArg+" > "+q+".log 2>&1"
-        subprocess.call(cmd,shell=True)
+        cmd = ( " source $AtlasSetup/scripts/asetup.sh "+release+"  >& /dev/null;" )
+    cmd += " mkdir -p run_"+q+"; cd run_"+q+";"
+    cmd += " Reco_tf.py --AMI="+q+" --imf False "+extraArg+" > "+q+".log 2>&1" 
+    
+    subprocess.call(cmd,shell=True)
 
     logging.info("Finished patched \"Reco_tf.py --AMI "+q+"\"")
     pass
@@ -122,8 +132,15 @@ def pwd():
     Out = (Proc.communicate()[0])[:-1]     
     return Out
     
-def GetReleaseSetup():
-    
+def GetReleaseSetup(isCImode=False):
+
+    if isCImode:
+        logging.info("")    
+        logging.info("No release information is extracted in CI-mode.")    
+        logging.info("")    
+        setup = ""
+        return setup
+
     current_nightly = os.environ['AtlasBuildStamp']
     release_base=os.environ['AtlasBuildBranch']
     release_head=os.environ['Athena_VERSION']
@@ -131,7 +148,13 @@ def GetReleaseSetup():
     project=os.environ['AtlasProject']
     builds_dir_searchStr='/cvmfs/atlas-nightlies.cern.ch/repo/sw/'+release_base+'/[!latest_]*/'+project+'/'+release_head
     # finds all directories matching above search pattern, and sorts by modification time
-    latest_nightly = sorted(glob.glob(builds_dir_searchStr), key=os.path.getmtime)[-1].split('/')[-3]
+    # suggest to use latest opt over dbg
+    sorted_list = sorted(glob.glob(builds_dir_searchStr), key=os.path.getmtime)
+    latest_nightly = ''
+    for folder in reversed(sorted_list):
+        if not glob.glob(folder+'/../../'+release_base+'__'+project+'*-opt*.log') : continue
+        latest_nightly = folder.split('/')[-3]
+        break
 
     if current_nightly != latest_nightly:
         logging.info("Please be aware that you are not testing your tags in the latest available nightly, which is "+latest_nightly )
@@ -144,7 +167,14 @@ def GetReleaseSetup():
 
 ###############################
 ########### List patch packages
-def list_patch_packages():
+def list_patch_packages(isCImode=False):
+
+    if isCImode:
+        logging.info("")    
+        logging.info("No patch information is extracted in CI-mode.")    
+        logging.info("")    
+        return
+
     if 'WorkDir_DIR' in os.environ :                 
         logging.info("Patch packages in your build to be tested:\n")
         myfilepath = os.environ['WorkDir_DIR']                                                                                  
@@ -212,7 +242,8 @@ def RunFrozenTier0PolicyTest(q,inputFormat,maxEvents,CleanRunHeadDir,UniqID,RunP
     clean_dir = CleanRunHeadDir+"/clean_run_"+q+"_"+UniqID
 
     if RunPatchedOnly: #overwrite
-        clean_dir = '/afs/cern.ch/work/g/gencomm/public/referenceFiles/'+q
+        #clean_dir = '/afs/cern.ch/work/g/gencomm/public/referenceFiles/'+q
+        clean_dir = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/'+q
 
     comparison_command = "acmd.py diff-root "+clean_dir+"/my"+inputFormat+".pool.root run_"+q+"/my"+inputFormat+".pool.root --error-mode resilient --ignore-leaves  RecoTimingObj_p1_EVNTtoHITS_timings  RecoTimingObj_p1_HITStoRDO_timings  RecoTimingObj_p1_RAWtoESD_mems  RecoTimingObj_p1_RAWtoESD_timings  RAWtoESD_mems  RAWtoESD_timings  ESDtoAOD_mems  ESDtoAOD_timings  HITStoRDO_mems  HITStoRDO_timings --entries "+str(maxEvents)+" > run_"+q+"/diff-root-"+q+"."+inputFormat+".log 2>&1"   
     output,error = subprocess.Popen(['/bin/bash', '-c', comparison_command], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()
@@ -280,17 +311,17 @@ def RunTest(q,qTestsToRun,TestName,SearchString,MeasurementUnit,FieldNumber,Thre
             # Error if the factor increases (very bad things)
             # Warning if the factor decreases (should be an understood feature)
             if  factor > float(1+Threshold) :
-                logging.error(SearchString+" in the",step," step with(out) your tag is",test,"(",ref,") "+MeasurementUnit  )
-                logging.error("Your tag changes "+SearchString+" by a factor "+str(factor)                                 )
-                logging.error("Is this an expected outcome of your tag(s)?"                                                )
+                logging.error(SearchString+" in the "+str(step)+" step with(out) your tag is "+str(test)+" ("+str(ref)+") "+str(MeasurementUnit))
+                logging.error("Your tag changes "+SearchString+" by a factor "+str(factor)                                                      )
+                logging.error("Is this an expected outcome of your tag(s)?"                                                                     )
                 _Test=False
                 logging.error(step+" : "+TestName                       )
                 logging.error("ref  "+str(ref)+" "+str(MeasurementUnit) )
                 logging.error("test "+str(test)+" "+str(MeasurementUnit))
             if factor < float(1-Threshold) :
-                logging.warning(SearchString+" in the",step," step with(out) your tag is",test,"(",ref,") "+MeasurementUnit  )
-                logging.warning("Your tag changes "+SearchString+" by a factor "+str(factor)                                 )
-                logging.warning("Is this an expected outcome of your tag(s)?"                                                )
+                logging.warning(SearchString+" in the "+str(step)+" step with(out) your tag is "+str(test)+" ("+str(ref)+") "+str(MeasurementUnit))
+                logging.warning("Your tag changes "+SearchString+" by a factor "+str(factor)                                                      )
+                logging.warning("Is this an expected outcome of your tag(s)?"                                                                     )
                 _Test=True
                 logging.warning(step+" : "+TestName                       )
                 logging.warning("ref  "+str(ref)+" "+str(MeasurementUnit) )
@@ -410,15 +441,73 @@ def main():
 
     parser=OptionParser(usage="\n ./RunTier0Test.py \n")
 
-    parser.add_option("-e","--extra"     ,type="string"       ,dest="extraArgs"        ,default=""    ,help="define additional args to pass e.g. --preExec 'r2e':'from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup=\"MC_pp_v5\"' ")
-    parser.add_option("-a","--r2a"      ,action="store_true"       ,dest="r2a_flag"         ,default=False    ,help="r2a option will run q431 test in r2a mode")
-    parser.add_option("-f","--fast"     ,action="store_true"       ,dest="fast_flag"        ,default=False    ,help="fast option will run all q tests simultaneously, such that it will run faster if you have 4 cpu core slots on which to run. Be warned! Only recommended when running on a high performance machine, not lxplus")
-    parser.add_option("-c","--cleanDir"     ,type="string"       ,dest="cleanDir"        ,default="/tmp/"    ,help="specify the head directory for running the clean Tier0 tests. The default is /tmp/${USER}")
-    parser.add_option("-r","--ref"     ,type="string"        ,dest="ref"   ,default=None    ,help="define a particular reference release")
-    parser.add_option("-v","--val"     ,type="string"        ,dest="val"   ,default=None    ,help="define a particular validation release")
-    parser.add_option("-t","--trigRun2Config", type="string", dest="trigRun2Config_flag", default="2017"       ,help="specify the value of run2Config variable used by trigger. Allowed values are \"2016\" and \"2017\" (default)")
-    parser.add_option("-s","--sim", action="store_true", dest="sim_flag", default=False, help="sim will run the Sim_tf.py test")
-    parser.add_option("-p","--patched"     ,action="store_true"       ,dest="patched_flag"        ,default=False    ,help="patched option will run q-tests just on your patched version of packages. Be warned! File output comparisons will only be performed against pre-defined reference files stored in the directory /afs/cern.ch/work/g/gencomm/public/referenceFiles and performance comparison tests will not be run.")
+    parser.add_option("-e",
+                      "--extra",
+                      type="string",
+                      dest="extraArgs",
+                      default="",
+                      help="define additional args to pass e.g. --preExec 'r2e':'from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup=\"MC_pp_v5\"' ")
+    parser.add_option("-a",
+                      "--r2a",
+                      action="store_true",
+                      dest="r2a_flag",
+                      default=False,
+                      help="r2a option will run q431 test in r2a mode")
+    parser.add_option("-f",
+                      "--fast",
+                      action="store_true",
+                      dest="fast_flag",
+                      default=False,
+                      help="""fast option will run all q tests simultaneously,
+                              such that it will run faster if you have 4 cpu core slots on which to run. Be
+                              warned! Only recommended when running on a high performance machine, not
+                              lxplus""")
+    parser.add_option("-c",
+                      "--cleanDir",
+                      type="string",
+                      dest="cleanDir",
+                      default="/tmp/",
+                      help="specify the head directory for running the clean Tier0 tests. The default is /tmp/${USER}")
+    parser.add_option("-r",
+                      "--ref",
+                      type="string",
+                      dest="ref",
+                      default=None,
+                      help="define a particular reference release")
+    parser.add_option("-v",
+                      "--val",
+                      type="string",
+                      dest="val",
+                      default=None,
+                      help="define a particular validation release")
+    parser.add_option("-t",
+                      "--trigRun2Config",
+                      type="string",
+                      dest="trigRun2Config_flag",
+                      default="2017",
+                      help="specify the value of run2Config variable used by trigger. Allowed values are \"2016\" and \"2017\" (default)")
+    parser.add_option("-s",
+                      "--sim",
+                      action="store_true",
+                      dest="sim_flag",
+                      default=False,
+                      help="sim will run the Sim_tf.py test")
+    parser.add_option("-p",
+                      "--patched",
+                      action="store_true",
+                      dest="patched_flag",
+                      default=False,
+                      help="""patched option will run q-tests just on your
+                              patched version of packages. Be warned! File output comparisons will only be
+                              performed against pre-defined reference files stored in the directory
+                              /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests and performance comparison
+                              tests will not be run.""")
+    parser.add_option("-n",
+                      "--no-setup",
+                      action="store_true",
+                      dest="ci_flag",
+                      default=False,
+                      help="no-setup will not setup athena - only for CI tests!")
 
 
     (options,args)=parser.parse_args()
@@ -429,21 +518,32 @@ def main():
     else:
         extraArg = options.extraArgs
 
-    RunSim  = options.sim_flag
-    RunFast = options.fast_flag
-    RunPatchedOnly = options.patched_flag
-    CleanRunHeadDir=options.cleanDir
-    r2aMode = options.r2a_flag
-    trigRun2Config = options.trigRun2Config_flag    
+    RunSim          = options.sim_flag
+    RunFast         = options.fast_flag
+    RunPatchedOnly  = options.patched_flag
+    CleanRunHeadDir = options.cleanDir
+    r2aMode         = options.r2a_flag
+    trigRun2Config  = options.trigRun2Config_flag    
+    ciMode          = options.ci_flag
 
 #        tct_ESD = "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/rtt/prod/tct/"+latest_nightly+"/"+release+"/"+platform+"/offline/Tier0ChainTests/"+q+"/myESD.pool.root"          
 
+########### Are we running in CI
+    if ciMode:
+        logging.info("")
+        logging.info("You're running with no-setup. This is suggested to be used only in CI tests.")
+        logging.info("This mode assumes athena is setup w/ necessary patches and only runs patched tests.")
+        logging.info("Then results are checked against reference files and no performance test is run.")
+        logging.info("If you don't know what this mode does, you shouldn't be using it.")
+        logging.info("")
+        RunPatchedOnly = True   
+ 
 ########### Is TriggerFlags.run2Config defined properly?
     if trigRun2Config != "2016" and trigRun2Config != "2017":
         logging.error("")
         logging.error("Exit. The value of trigRun2Config can be \"2016\" or \"2017\"")
         logging.error("")
-        sys.exit(0)
+        sys.exit(-1)
         
 
 ########### Does the clean run head directory exist?
@@ -456,11 +556,11 @@ def main():
         if RunPatchedOnly:
             logging.info("You are running in patched only mode whereby only q-tests against your build are being run.")
             logging.info("In this mode ESD and AOD outputs are compared with pre-defined reference files found in the directory")
-            logging.info("/afs/cern.ch/work/g/gencomm/public/referenceFiles")
-            logging.info("")
-            if not os.path.exists('/afs/cern.ch/work/g/gencomm/public/referenceFiles'):
-                logging.error("Exit. Patched only mode can only be run on nodes with access to /afs/cern.ch/work/g/gencomm/public/referenceFiles")
-                sys.exit(0)            
+            logging.info("/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests")
+            if not os.path.exists('/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests'):
+                logging.info("")
+                logging.error("Exit. Patched only mode can only be run on nodes with access to /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests")
+                sys.exit(-1)            
         else:
             logging.info("The head directory for the output of the clean Tier0 q-tests will be "+CleanRunHeadDir)
         logging.info("")
@@ -470,15 +570,15 @@ def main():
         logging.error("")
         logging.error("RunTier0Tests.py  --cleanDir <ExistingDirectory>")
         logging.error("")
-        sys.exit(0)            
+        sys.exit(-1)            
 
 
 ########### Is an ATLAS release setup?
-    if 'AtlasPatchVersion' not in os.environ and 'AtlasArea' not in os.environ and 'AtlasBaseDir' not in os.environ:
+    if 'AtlasPatchVersion' not in os.environ and 'AtlasArea' not in os.environ and 'AtlasBaseDir' not in os.environ and 'AtlasVersion' not in os.environ:
         logging.error("Exit. Please setup the an ATLAS release")
-        sys.exit(0)
+        sys.exit(-1)
     else:
-        if 'AtlasPatchVersion' not in os.environ and 'AtlasArea' not in os.environ and 'AtlasBaseDir' in os.environ:
+        if 'AtlasPatchVersion' not in os.environ and 'AtlasArea' not in os.environ and 'AtlasBaseDir' in os.environ and 'AtlasVersion' not in os.environ:
             logging.warning("Please be aware that you are running a release which seems to not be a Tier0 release, where in general q-tests are not guaranteed to work.")
 
 ########### Define which q-tests to run
@@ -502,7 +602,7 @@ def main():
         
 ########### Get release info
         if not (options.ref and options.val):
-            mysetup = GetReleaseSetup()
+            mysetup = GetReleaseSetup(ciMode)
             cleanSetup = mysetup
         mypwd   = pwd()
 
@@ -513,7 +613,7 @@ def main():
             logging.info("WARNING: You have specified a dedicated release as reference %s and as validation %s release, Your local setup area will not be considered!!!" %(cleanSetup, mysetup))
             logging.info("this option is mainly designed for comparing release versions!!")
         else:
-            list_patch_packages()
+            list_patch_packages(ciMode)
 
 ########### Get unique name for the clean run directory
         UniqName = str(uuid.uuid4())
@@ -558,9 +658,9 @@ def main():
 
                 def mypatchedqtest():
                     if RunSim:
-                        RunPatchedSTest(q,sim_input_file,mypwd,cleanSetup,extraArg)
+                        RunPatchedSTest(q,sim_input_file,mypwd,cleanSetup,extraArg, nosetup=ciMode)
                     else:
-                        RunPatchedQTest(q,mypwd,mysetup,extraArg, doR2A=r2aMode, trigConfig=trigRun2Config)
+                        RunPatchedQTest(q,mypwd,mysetup,extraArg, doR2A=r2aMode, trigConfig=trigRun2Config, nosetup=ciMode)
                     pass
             
                 mythreads[q+"_patched"] = threading.Thread(target=mypatchedqtest)
@@ -651,9 +751,7 @@ def main():
             logging.info("ALL TESTS: PASSED (0)")
         else:
             logging.error("ALL TESTS: FAILED (-1)")
-
-
-
+            sys.exit(-1)
 
 if __name__ == '__main__':
         main()

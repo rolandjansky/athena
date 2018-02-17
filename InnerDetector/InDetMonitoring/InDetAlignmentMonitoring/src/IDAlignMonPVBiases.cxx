@@ -183,7 +183,7 @@ StatusCode IDAlignMonPVBiases::bookHistograms()
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Running in collision mode "<<std::endl;
   }
 
-  std::string outputDirName = "IDAlignMon/" + m_tracksName + "_" + m_triggerChainName + "/GenericTracks";
+  std::string outputDirName = "IDAlignMon/" + m_tracksName + "_" + m_triggerChainName + "/GenericTracks/PVbiases";
   MonGroup al_mon ( this, outputDirName, run );
   MonGroup al_mon_ls ( this, outputDirName, lowStat );
   

@@ -207,41 +207,41 @@ class CaloClusterTopoGetter ( Configured )  :
         TopoMoments.UsePileUpNoise = True
         TopoMoments.TwoGaussianNoise = jobproperties.CaloTopoClusterFlags.doTwoGaussianNoise()
         TopoMoments.MinBadLArQuality = 4000
-        TopoMoments.MomentsNames = ["FIRST_PHI" 
-                                    ,"FIRST_ETA"
-                                    ,"SECOND_R" 
-                                    ,"SECOND_LAMBDA"
-                                    ,"DELTA_PHI"
-                                    ,"DELTA_THETA"
-                                    ,"DELTA_ALPHA" 
+        TopoMoments.MomentsNames = ["AVG_LAR_Q"
+                                    ,"AVG_TILE_Q"
+                                    ,"BAD_CELLS_CORR_E"
+                                    ,"BADLARQ_FRAC"
+                                    ,"CELL_SIGNIFICANCE"
+                                    ,"CELL_SIG_SAMPLING"
+                                    ,"CENTER_LAMBDA"
+                                    ,"CENTER_MAG"
                                     ,"CENTER_X"
                                     ,"CENTER_Y"
                                     ,"CENTER_Z"
-                                    ,"CENTER_MAG"
-                                    ,"CENTER_LAMBDA"
-                                    ,"LATERAL"
-                                    ,"LONGITUDINAL"
-                                    ,"FIRST_ENG_DENS" 
+                                    ,"DELTA_ALPHA" 
+                                    ,"DELTA_PHI"
+                                    ,"DELTA_THETA"
+                                    ,"ENG_BAD_CELLS"
+                                    ,"ENG_BAD_HV_CELLS"
+                                    ,"ENG_FRAC_CORE" 
                                     ,"ENG_FRAC_EM" 
                                     ,"ENG_FRAC_MAX" 
-                                    ,"ENG_FRAC_CORE" 
-                                    ,"FIRST_ENG_DENS" 
-                                    ,"SECOND_ENG_DENS" 
-                                    ,"ISOLATION"
-                                    ,"ENG_BAD_CELLS"
-                                    ,"N_BAD_CELLS"
-                                    ,"N_BAD_CELLS_CORR"
-                                    ,"BAD_CELLS_CORR_E"
-                                    ,"BADLARQ_FRAC"
                                     ,"ENG_POS"
-                                    ,"SIGNIFICANCE"
-                                    ,"CELL_SIGNIFICANCE"
-                                    ,"CELL_SIG_SAMPLING"
-                                    ,"AVG_LAR_Q"
-                                    ,"AVG_TILE_Q"
+                                    ,"FIRST_ENG_DENS" 
+                                    ,"FIRST_ETA"
+                                    ,"FIRST_PHI" 
+                                    ,"ISOLATION"
+                                    ,"LATERAL"
+                                    ,"LONGITUDINAL"
+                                    ,"MASS"
+                                    ,"N_BAD_CELLS"
+                                    ,"N_BAD_HV_CELLS"
+                                    ,"N_BAD_CELLS_CORR"
                                     ,"PTD"
-                                    ,"EM_PROBABILITY"
-                                    ]
+                                    ,"SECOND_ENG_DENS" 
+                                    ,"SECOND_LAMBDA"
+                                    ,"SECOND_R" 
+                                    ,"SIGNIFICANCE"]
 
         doDigiTruthFlag = False
         try:
@@ -450,7 +450,6 @@ class CaloClusterTopoGetter ( Configured )  :
         CaloTopoCluster += TopoSplitter
         CaloTopoCluster += BadChannelListCorr
         CaloTopoCluster += TopoMoments
-        from RecExConfig.RecFlags import rec
         if doDigiTruthFlag:
           CaloTopoCluster += TopoMoments_Truth
         

@@ -29,6 +29,7 @@
 #include "EvtGenBase/EvtRandomEngine.hh"
 #include "EvtGenBase/EvtDecayTable.hh"
 
+#include "PathResolver/PathResolver.h"
 #include "HepMC/GenEvent.h"
 #include "HepMC/GenVertex.h"
 #include "HepMC/GenParticle.h"
@@ -736,6 +737,12 @@ std::string EvtInclusiveDecay::xmlpath(){
       testFile.close();
     }
 
+  }
+
+ else {
+// If the CMT environment is missing, try to find the xmldoc directory
+// using PathResolver:
+    foundpath = PathResolverFindCalibDirectory( "Pythia8/xmldoc" );
   }
 
   return foundpath;

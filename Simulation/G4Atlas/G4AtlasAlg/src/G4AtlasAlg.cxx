@@ -202,8 +202,6 @@ void G4AtlasAlg::initializeOnce()
     ui->ApplyCommand("/MagneticField/Initialize");
   }
 
-  ui->ApplyCommand("/geometry/navigator/check_mode true");
-
   if (m_rndmGen=="athena" || m_rndmGen=="ranecu") {
     // Set the random number generator to AtRndmGen
     if (m_rndmGenSvc.retrieve().isFailure()) {

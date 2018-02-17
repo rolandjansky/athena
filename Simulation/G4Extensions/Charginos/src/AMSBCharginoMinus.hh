@@ -13,7 +13,7 @@ class AMSBCharginoMinus: public G4ParticleDefinition
 {
 private:
 
-  static AMSBCharginoMinus* theInstance;
+  static AMSBCharginoMinus* s_theInstance;
   AMSBCharginoMinus(){}
   ~AMSBCharginoMinus(){}
 

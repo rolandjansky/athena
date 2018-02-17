@@ -1275,7 +1275,7 @@ sub run_test($){
 	} elsif( substr($reffile, 0, 3) eq "../" ){
 	  print "=== This test looks for reference in another directory\n";
         } elsif (substr($reffile, 0, 1) eq "/" ){
-	  print "=== This test looks for reference in /afs or /localhome directory\n";
+	  print "=== This test looks for reference in /cvmfs or /afs or /localhome directory\n";
   	} else {
 	  print "=== This test looks for reference from svn\n";
 	}
@@ -1298,7 +1298,7 @@ sub run_test($){
 	    # print failure keyword here to flag it as an error
 	    print "=== Alert! $warnkey Output differs from reference for $algoname\n";
 	    print "    If this change is understood, please update the reference file";
-            if(substr($reffile, 0, 4) eq "/afs" ){
+            if(substr($reffile, 0, 6) eq "/cvmfs" ){
 		print "by typing:\n    cp $newfile $reffile\n";
 	    } else {
 		print ".\n";
