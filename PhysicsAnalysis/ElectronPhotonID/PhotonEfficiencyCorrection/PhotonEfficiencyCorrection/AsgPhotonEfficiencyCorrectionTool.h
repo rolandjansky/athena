@@ -115,7 +115,6 @@ private:
   
   // The prefix for the systematic name
   std::string m_sysSubstring;
-  std::string m_sysSubstringRadZ;
   
   // Get the correction filename from the map
   std::string getFileName(std::string isoWP, std::string trigWP, bool isConv);
