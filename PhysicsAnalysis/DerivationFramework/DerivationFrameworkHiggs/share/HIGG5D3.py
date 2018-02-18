@@ -44,73 +44,15 @@ HIGG5D3ThinningHelper.TriggerChains = 'HLT_g.*|HLT_2g.*|HLT_mu.*|HLT_j.*|HLT_b.*
 HIGG5D3ThinningHelper.AppendToStream(HIGG5D3Stream) 
 
 
-# # MC truth thinning (not for data)
-# truth_cond_WZH    = "((abs(TruthParticles.pdgId) >= 23) && (abs(TruthParticles.pdgId) <= 25))" # W, Z and Higgs
-# truth_cond_Lepton = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.pdgId) <= 16))" # Leptons
-# truth_cond_Quark  = "((abs(TruthParticles.pdgId) ==  6) || (abs(TruthParticles.pdgId) ==  5))" # Top quark and Bottom quark
-# truth_cond_Photon = "((abs(TruthParticles.pdgId) == 22) && (TruthParticles.pt > 1*GeV))"       # Photon
-# truth_expression = '('+truth_cond_WZH+' || '+truth_cond_Lepton +' || '+truth_cond_Quark +' || '+truth_cond_Photon+')'
-# from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
-# HIGG5D3MCThinningTool = DerivationFramework__GenericTruthThinning(
-#     name                    = "HIGG5D3MCThinningTool", 
-#     ThinningService         = HIGG5D3ThinningHelper.ThinningSvc(),
-#     ParticleSelectionString = truth_expression,
-#     PreserveDescendants     = False,
-#     PreserveGeneratorDescendants = True,
-#     PreserveAncestors       = True)
-# if DerivationFrameworkIsMonteCarlo :
-#     ToolSvc += HIGG5D3MCThinningTool
-#     thinningTools.append(HIGG5D3MCThinningTool)
+import DerivationFrameworkHiggs.HIGG5Common as HIGG5Common
+thinningTools.append( HIGG5Common.getInDetTrackParticleThinning(        'HIGG5D3',HIGG5D3ThinningHelper) )
+
+thinningTools.append( HIGG5Common.getAntiKt4EMTopoTrackParticleThinning('HIGG5D3',HIGG5D3ThinningHelper,   ApplyAnd=True) )
+thinningTools.append( HIGG5Common.getMuonTrackParticleThinning(         'HIGG5D3',HIGG5D3ThinningHelper) )
+thinningTools.append( HIGG5Common.getElectronTrackParticleThinning(     'HIGG5D3',HIGG5D3ThinningHelper) )
+thinningTools.append( HIGG5Common.getPhotonTrackParticleThinning(       'HIGG5D3',HIGG5D3ThinningHelper) )
 
 
-# MET/Jet tracks
-thinning_expression = "( abs(InDetTrackParticles.d0) < 2 ) && ( abs(DFCommonInDetTrackZ0AtPV*sin(InDetTrackParticles.theta)) < 3 )"
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-HIGG5D3TPThinningTool = DerivationFramework__TrackParticleThinning( name                = "HIGG5D3TPThinningTool",
-                                                                  ThinningService         = HIGG5D3ThinningHelper.ThinningSvc(),
-                                                                  SelectionString         = thinning_expression,
-                                                                  InDetTrackParticlesKey  = "InDetTrackParticles")
-ToolSvc += HIGG5D3TPThinningTool
-thinningTools.append(HIGG5D3TPThinningTool)
-
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
-HIGG5D3JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "HIGG5D3JetTPThinningTool",
-                                                                ThinningService         = HIGG5D3ThinningHelper.ThinningSvc(),
-                                                                JetKey                  = "AntiKt4EMTopoJets",
-                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                #SelectionString         = "AntiKt4EMTopoJets.pt > 20*GeV",
-                                                                ApplyAnd                = True)
-ToolSvc += HIGG5D3JetTPThinningTool
-thinningTools.append(HIGG5D3JetTPThinningTool)
-
-# Tracks associated with Muons
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
-HIGG5D3MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "HIGG5D3MuonTPThinningTool",
-                                                                            ThinningService         = HIGG5D3ThinningHelper.ThinningSvc(),
-                                                                            MuonKey                 = "Muons",
-                                                                            InDetTrackParticlesKey  = "InDetTrackParticles")
-ToolSvc += HIGG5D3MuonTPThinningTool
-thinningTools.append(HIGG5D3MuonTPThinningTool)
-
-# Tracks associated with Electrons
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
-HIGG5D3ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(       name                    = "HIGG5D3ElectronTPThinningTool",
-                                                                                        ThinningService         = HIGG5D3ThinningHelper.ThinningSvc(),
-                                                                                        SGKey                   = "Electrons",
-                                                                                        InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                                        BestMatchOnly           = True)
-ToolSvc += HIGG5D3ElectronTPThinningTool
-thinningTools.append(HIGG5D3ElectronTPThinningTool)
-
-# Tracks associated with Photons
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
-HIGG5D3PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(       name                    = "HIGG5D3PhotonTPThinningTool",
-                                                                                      ThinningService         = HIGG5D3ThinningHelper.ThinningSvc(),
-                                                                                      SGKey                   = "Photons",
-                                                                                      InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                                      BestMatchOnly           = True)
-ToolSvc += HIGG5D3PhotonTPThinningTool
-thinningTools.append(HIGG5D3PhotonTPThinningTool)
 
 #====================================================================
 # Skimming Tool
@@ -311,21 +253,11 @@ higg5d3Seq += CfgMgr.DerivationFramework__DerivationKernel(
 if not "HIGG5D3Jets" in OutputJets:
     OutputJets["HIGG5D3Jets"] = []
 
-    #AntiKt2PV0TrackJets
-    addStandardJets("AntiKt", 0.2, "PV0Track", 2000, mods="track_ungroomed", algseq=higg5d3Seq, outputGroup="HIGG5D3Jets")
-    OutputJets["HIGG5D3Jets"].append("AntiKt2PV0TrackJets")
-    #AntiKt4PV0TrackJets
-    addStandardJets("AntiKt", 0.4, "PV0Track", 2000, mods="track_ungroomed", algseq=higg5d3Seq, outputGroup="HIGG5D3Jets")
-    OutputJets["HIGG5D3Jets"].append("AntiKt4PV0TrackJets")
+    addAntiKt2PV0TrackJets(higg5d3Seq, 'HIGG5D3Jets')
+    addAntiKt4PV0TrackJets(higg5d3Seq, "HIGG5D3Jets")
 
-#====================================================================
-# Special jets
-#====================================================================
-# if not "HIGG5D3Jets" in OutputJets:
     if jetFlags.useTruth:
-      #AntiKt4TruthJets
-      addStandardJets("AntiKt", 0.4, "Truth", 5000, mods="truth_ungroomed", algseq=higg5d3Seq, outputGroup="HIGG5D3Jets")
-      OutputJets["HIGG5D3Jets"].append("AntiKt4TruthJets")
+      addAntiKt4TruthJets(higg5d3Seq, "HIGG5D3Jets")
 
 higg5d3Seq += CfgMgr.DerivationFramework__DerivationKernel(
     "HIGG5D3Kernel",
@@ -336,12 +268,9 @@ higg5d3Seq += CfgMgr.DerivationFramework__DerivationKernel(
 #===================================================================
 # Run b-tagging
 #===================================================================
-from BTagging.BTaggingFlags import BTaggingFlags
-from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
-FlavorTagInit( JetCollections = ["AntiKt4PV0TrackJets", "AntiKt2PV0TrackJets"], Sequencer = higg5d3Seq )
 
 # Jet calibration should come after fat jets
-applyJetCalibration_xAODColl(jetalg="AntiKt4EMTopo", sequence=higg5d3Seq)
+# applyJetCalibration_xAODColl(jetalg="AntiKt4EMTopo", sequence=higg5d3Seq)
 
 #====================================================================
 # Add non-prompt lepton tagging
