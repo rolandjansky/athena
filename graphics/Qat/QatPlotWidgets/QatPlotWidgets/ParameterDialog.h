@@ -1,5 +1,5 @@
-#ifndef _ParameterDialog_h_
-#define _ParameterDialog_h_
+#ifndef QATPLOTWIDGETS_PARAMETERDIALOG_H
+#define QATPLOTWIDGETS_PARAMETERDIALOG_H
 #include "CLHEP/GenericFunctions/Parameter.hh"
 #include <QtGui/QDialog>
 class ParameterDialog:public QDialog {
@@ -31,7 +31,7 @@ Q_OBJECT
 
   // Internals:
   class Clockwork;
-  Clockwork *c;
+  Clockwork *m_c;
 
 };
 
