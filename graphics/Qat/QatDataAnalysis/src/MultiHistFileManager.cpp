@@ -34,70 +34,70 @@ MultiHistFileManager::MultiHistFileManager()
 }
 
 MultiHistFileManager::~MultiHistFileManager(){
-  for (unsigned int i=0; i<_outputFileManager.size(); i++) {
-    _outputDrivers[i]->write(_outputFileManager[i]);
-    _outputDrivers[i]->close(_outputFileManager[i]);
-    delete _outputFileManager[i];
+  for (unsigned int i=0; i<m_outputFileManager.size(); i++) {
+    m_outputDrivers[i]->write(m_outputFileManager[i]);
+    m_outputDrivers[i]->close(m_outputFileManager[i]);
+    delete m_outputFileManager[i];
   }
-  for (unsigned int i=0; i<_inputFileManager.size(); i++) {
-    _inputDrivers[i]->close(_inputFileManager[i]);
-    delete _inputFileManager[i];
+  for (unsigned int i=0; i<m_inputFileManager.size(); i++) {
+    m_inputDrivers[i]->close(m_inputFileManager[i]);
+    delete m_inputFileManager[i];
   }
 } 
 
 int MultiHistFileManager::getNumInputManagers() {
-  return _inputFileManager.size();
+  return m_inputFileManager.size();
 }
 
 const HistogramManager *MultiHistFileManager::getInputFileManager(int i) const {
-  return _inputFileManager[i];
+  return m_inputFileManager[i];
 }
 
 std::string   MultiHistFileManager::getInputFileName(int i) const {
-  return _inputFileName[i];
+  return m_inputFileName[i];
 }
 
 MultiHistFileManager::FileFormat  MultiHistFileManager::getInputFileFormat(int i) const {
-  return _inputFileFormat[i];
+  return m_inputFileFormat[i];
 }
 
 int MultiHistFileManager::getNumOutputManagers() {
-  return _outputFileManager.size();
+  return m_outputFileManager.size();
 }
 
 HistogramManager *MultiHistFileManager::getOutputFileManager(int i) const {
-  return _outputFileManager[i];
+  return m_outputFileManager[i];
 }
 
 std::string   MultiHistFileManager::getOutputFileName(int i) const {
-  return _outputFileName[i];
+  return m_outputFileName[i];
 }
 
 MultiHistFileManager::FileFormat  MultiHistFileManager::getOutputFileFormat(int i) const {
-  return _outputFileFormat[i];
+  return m_outputFileFormat[i];
 }
 
 MultiHistFileManager::Status MultiHistFileManager::addInputFileManager (std::string name) {
 
-  const IODriver *pvsdriver = _loader.ioDriver("PVSDriver");
+  const IODriver *pvsdriver = m_loader.ioDriver("PVSDriver");
   if (pvsdriver) {
     const HistogramManager *manager = pvsdriver->openManager(name);
     if (manager) {
-      _inputFileManager.push_back(manager);
-      _inputFileFormat.push_back(NATIVE);
-      _inputFileName.push_back(name);
-      _inputDrivers.push_back(pvsdriver);
+      m_inputFileManager.push_back(manager);
+      m_inputFileFormat.push_back(NATIVE);
+      m_inputFileName.push_back(name);
+      m_inputDrivers.push_back(pvsdriver);
       return NORMAL;
     }
   }
-  const IODriver *rootdriver = _loader.ioDriver("RootDriver");
+  const IODriver *rootdriver = m_loader.ioDriver("RootDriver");
   if (rootdriver) {
     const HistogramManager *manager = rootdriver->openManager(name);
     if (manager) {
-      _inputFileManager.push_back(manager);
-      _inputFileFormat.push_back(ROOT);
-      _inputFileName.push_back(name);
-      _inputDrivers.push_back(rootdriver);
+      m_inputFileManager.push_back(manager);
+      m_inputFileFormat.push_back(ROOT);
+      m_inputFileName.push_back(name);
+      m_inputDrivers.push_back(rootdriver);
       return NORMAL;
     }
   }
@@ -109,27 +109,27 @@ MultiHistFileManager::Status MultiHistFileManager::addInputFileManager (std::str
 MultiHistFileManager::Status MultiHistFileManager::addOutputFileManager (std::string  name) {
 
    if (name.find(".pvs")!= name.npos) {
-    const IODriver *pvsdriver = _loader.ioDriver("PVSDriver");
+    const IODriver *pvsdriver = m_loader.ioDriver("PVSDriver");
     if (pvsdriver) {
       HistogramManager *manager = pvsdriver->newManager(name);
       if (manager) {
-	_outputFileManager.push_back(manager);
-	_outputFileFormat.push_back(NATIVE);
-	_outputFileName.push_back(name);
-	_outputDrivers.push_back(pvsdriver);
+	m_outputFileManager.push_back(manager);
+	m_outputFileFormat.push_back(NATIVE);
+	m_outputFileName.push_back(name);
+	m_outputDrivers.push_back(pvsdriver);
 	return NORMAL;
       }
     }
   }
   else {
-    const IODriver *rootdriver = _loader.ioDriver("RootDriver");
+    const IODriver *rootdriver = m_loader.ioDriver("RootDriver");
     if (rootdriver) {
       HistogramManager *manager = rootdriver->newManager(name);
       if (manager) {
-	_outputFileManager.push_back(manager);
-	_outputFileFormat.push_back(ROOT);
-	_outputFileName.push_back(name);
-	_outputDrivers.push_back(rootdriver);
+	m_outputFileManager.push_back(manager);
+	m_outputFileFormat.push_back(ROOT);
+	m_outputFileName.push_back(name);
+	m_outputDrivers.push_back(rootdriver);
 	return NORMAL;
       }
     }
