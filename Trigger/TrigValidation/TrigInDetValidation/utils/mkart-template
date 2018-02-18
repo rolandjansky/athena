@@ -324,6 +324,11 @@ for xmlfile in $FILES; do
 
     fi
 
+    echo -e "\nprintf \"\${RED}done: \$SECONDS seconds\${NC}\\\n\"\n" >> $outfile
+
+    echo -e "\nprintf \"\${RED}done: job duration:  \$(converttime \$SECONDS)\${NC}\\\n\"\n" >> $outfile
+
+
     if [ -e  $outfile ]; then 
 
       USENEXTFILE=0

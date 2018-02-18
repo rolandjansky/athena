@@ -2,7 +2,26 @@
 RED='\033[0;31m'
 NC='\033[0m'
 
+# generate a time stamp
+
 function timestamp { printf "${RED}Timestamp: $1 $(date)${NC}\n"  ; }
+
+# poor quality function to convert seconds to a proper time
+
+function converttime { 
+    local totes=$1
+    [ $totes -lt 0 ] && ((totes=$totes+86400))
+    ((H=$totes/3600))
+    ((M=($totes%3600)/60))
+    ((S=$totes%60))
+    echo "$H : $M : $S"
+}
+
+timestamp "starting"
+
+# reset seconds counter - not really needed, but hey 
+
+SECONDS=0
 
 
 # stuff to control running concurrent 
@@ -22,6 +41,8 @@ unset  ATHENA_PROC_NUMBER
  
 env | grep ATHENA_NUM_PROC
 env | grep ATHENA_PROC_NUMBER
+
+
 
 
 # count how many jobs are running ...
@@ -163,9 +184,9 @@ for PID in $BGPROCS ; do
      for CHILD in $(ps --ppid $PID -o pid h) ; do PPROCS="$PPROCS $CHILD" ; done 
 done
 
+[ -e topp.log ] && rm topp.log
 
-ps -aF --pid $PPROCS 
-ps -aF --pid $PPROCS >> topp.log
+ps -aF --pid $PPROCS | grep $USER >> topp.log
 
 echo >> topp.log
 
@@ -198,7 +219,7 @@ saveoutput output-cost     trig_cost.root
 timestamp "combining expert histograms ..."
 
 # add the expert timing histgrams
-hadd expert-monitoring.root athena-*/expert-monitoring.root
+hadd expert-monitoring.root athena-*/expert-monitoring.root &> hadd.log 
 
 # this is a hack to get the script to work without needing to fix 
 # TIDArun-art.sh which expects TrkNtple-0000.root
