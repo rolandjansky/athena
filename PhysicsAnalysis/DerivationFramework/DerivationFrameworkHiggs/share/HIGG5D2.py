@@ -339,16 +339,10 @@ higg5d2Seq += CfgMgr.DerivationFramework__DerivationKernel(
 if not "HIGG5D2Jets" in OutputJets:
     OutputJets["HIGG5D2Jets"] = []
 
-    #AntiKt2PV0TrackJets
-    addStandardJets("AntiKt", 0.2, "PV0Track", 2000, mods="track_ungroomed", algseq=higg5d2Seq, outputGroup="HIGG5D2Jets")
-    OutputJets["HIGG5D2Jets"].append("AntiKt2PV0TrackJets")
+    reducedJetList = ["AntiKt2PV0TrackJets",
+                      "AntiKt4PV0TrackJets"]
 
-    #AntiKt4PV0TrackJets
-    addStandardJets("AntiKt", 0.4, "PV0Track", 2000, mods="track_ungroomed", algseq=higg5d2Seq, outputGroup="HIGG5D2Jets")
-    OutputJets["HIGG5D2Jets"].append("AntiKt4PV0TrackJets")
-    #AntiKt10LCTopoJets
-    # addStandardJets("AntiKt", 1.0, "LCTopo", mods="lctopo_ungroomed", ptmin=40000, ptminFilter=50000, calibOpt="none", algseq=higg5d2Seq, outputGroup="HIGG5D2Jets")
-    # OutputJets["HIGG5D2Jets"].append("AntiKt10LCTopoJets")
+    replaceAODReducedJets(reducedJetList,higg5d2Seq,"HIGG5D2Jets")
 
 #====================================================================
 # Special jets
@@ -370,6 +364,7 @@ if not "HIGG5D2Jets" in OutputJets:
 
     # addFilteredJets("CamKt", 1.2, "LCTopo", mumax=1.0, ymin=0.15, includePreTools=False, algseq=higg5d2Seq,outputGroup="HIGG5D2Jets")
     addTrimmedJets("AntiKt", 1.0, "LCTopo", rclus=0.2, ptfrac=0.05, includePreTools=False, algseq=higg5d2Seq,outputGroup="HIGG5D2Jets")
+#    addDefaultTrimmedJets(higg5d2Seq,"HIGG5D2Jets")
 
 #====================================================================
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
@@ -387,11 +382,6 @@ from BTagging.BTaggingFlags import BTaggingFlags
 
 # alias for VR
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
-
-from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
-# must re-tag AntiKt4LCTopoJets and AntiKt4PV0TrackJets to make JetFitterNN work with corresponding VR jets (nikola: why?)
-# also, re-tag R=0.2 track jets
-# FlavorTagInit( JetCollections = ["AntiKt4PV0TrackJets", "AntiKtVR30Rmax4Rmin02TrackJets", "AntiKt2PV0TrackJets"], Sequencer = higg5d2Seq )
 
 
 # Jet calibration should come after fat jets
