@@ -14,7 +14,9 @@ function usage {
 
 
 function timestamp { 
-    echo -e "\n\necho \"TIMESTAMP: \$(date)\"\n\n"
+    stamp=""
+    [ $# -gt 0 ] && stamp=$1
+    echo -e "\n\ntimestamp \"$stamp\"\n\n"
 }
 
 DIR=$PWD
@@ -82,7 +84,7 @@ for xmlfile in $FILES; do
 	DATASET=$(grep dataset $basedir/$SAMPLE | grep -v "<\!-" | head -1 | sed 's|.*<dataset>||g' | sed 's|</dataset>.*||g' )
     fi 
 
-    echo "file:            $outfile"
+#   echo -e "file: $outfile"
 
     if [ -e $outfile ]; then 
       if [ $NOGLOB -eq 0 ]; then 
@@ -115,122 +117,89 @@ for xmlfile in $FILES; do
     echo "# art-output: *.dat "   >>  $outfile 
     echo "# art-output: *.root"   >>  $outfile 
     echo "# art-output: *.log"    >>  $outfile 
+    echo "# art-output: output-dataset" >>  $outfile 
+    echo "# art-output: output-cost"    >>  $outfile 
+    echo "# art-output: output-logs"    >>  $outfile 
 
     echo "# art-input-nfiles: 10" >> $outfile 
+    echo "# art-cores:         8" >> $outfile 
     echo ""                       >> $outfile 
     echo ""                       >> $outfile 
 
 
-    echo "" >>  $outfile 
-    echo "export RTTJOBNAME=$(basename $_file .sh)" >> $outfile
+    RTTJOBNAME=$(basename $_file .sh)
 
-
-    echo "" >>  $outfile 
-    echo "" >>  $outfile 
-
-#   echo "if [ ! -z \"\$ArtInFile\" ]; then " >>  $outfile 
-    
-
-
-
-    echo "if [ \$# -gt 0 -a \"x\$1\" == \"x--local\" ]; then" >> $outfile
-    echo "       ARGS=\"XMLDataSet='\$RTTJOBNAME'\""    >> $outfile
-    echo "else"                                         >> $outfile 
-    echo "      fileList=\"['\${ArtInFile//,/', '}']\"" >> $outfile 
-    echo "      echo \"List of files = \$fileList\""    >> $outfile 
-    echo "      ARGS=\"ARTConfig=\$fileList\""          >> $outfile
-    echo "fi" >> $outfile 
-
-#   echo "else"                       >> $outfile
-#   echo "  fileList=[\"$DATASET\"]"  >> $outfile
-#   echo "fi"                         >> $outfile
-
-    chmod u+x $outfile
+ 
+    ARGFILE=$(mktemp -u /tmp/.args-XXXX)
 
 
     # get all the exerunner stages
+    
+    grep "<argvalue>" /tmp/$_file.xml |  $SED 's|<argvalue>||g' | $SED 's|</argvalue>||g' | grep -v check_log.pl > $ARGFILE
 
-    grep "<argvalue>" /tmp/$_file.xml |  $SED 's|<argvalue>||g' | $SED 's|</argvalue>||g' | grep -v check_log.pl > /tmp/_args
-
-    cmdlineflags=$(grep "<commandLineFlags>" /tmp/$_file.xml |  sed 's|<commandLineFlags>||g' | sed 's|</commandLineFlags>||g' | sed "s/'/"\""/g")
-
+#   cmdlineflags=$(grep "<commandLineFlags>" /tmp/$_file.xml |  sed 's|<commandLineFlags>||g' | sed 's|</commandLineFlags>||g' | sed "s/'/"\""/g")
+    cmdlineflags=$(grep "<commandLineFlags>" /tmp/$_file.xml |  sed 's|<commandLineFlags>||g' | sed 's|</commandLineFlags>||g' | sed "s|\"|'|g")
+    
     joboptions=$(grep "<options>" /tmp/$_file.xml |  sed 's|<options>||g' | sed 's|</options>||g')
-
+    
     jobid=$(basename $xmlfile .xml)
-
-#   echo "joboption $joboptions    cmdlineflags $cmdlineflags"
-
     
 
     if [ "x$joboptions" != "x" ]; then
 
-#        echo  "athena.py  -c 'include("\"$pyfile\"";$cmdlineflags' $joboptions.py" >> $_file.sh
-#        echo  "athena.py  -c 'XMLDataSet="\"$jobid\"";$cmdlineflags' $joboptions.py" >> $outfile
+    	 if ( echo $cmdlineflags | grep -q EventMax ); then 
 
-#        echo  "athena.py  -c 'from AthenaCommon.AthenaCommonFlags import athenaCommonFlags;athenaCommonFlags.FilesInput=[\"$DATASET\"];$cmdlineflags' $joboptions.py" >> $outfile
+	     jobbase=$( basename $outfile .sh)
+	    
+ 	     events=$(echo $cmdlineflags | sed 's|.*EventMax[[:space:]]*=[[:space:]]*\([0-9]*[[:space:]]*\);.*|\1|g' | sed 's|EventMax[[:space:]]*=[[:space:]]*\([0-9]*\)[[:space:]]*.*|\1|g' )
+ 	     newevents=$( echo "2*$events" | bc )
+	     [ -e utils/art-events.dat ] && newevents=$(grep "$jobbase " utils/art-events.dat | awk '{print $2}')
+             cmdlineflags=$(echo $cmdlineflags | sed "s|EventMax[[:space:]]*=[[:space:]]*$events|EventMax=$newevents|g")
+	    
+	     if [ -e utils/art-nfiles.dat ]; then
+		 nfiles=$(grep "$jobbase " utils/art-nfiles.dat | awk '{print $2}')
+		 cat $outfile | sed  "s|# art-input-nfiles: .*|# art-input-nfiles: $nfiles|g" >> $outfile-
+		 mv $outfile{-,}
 
-#	 DATASET=$(dirname $DATASET)
+                 ncores=8
+                 [ $nfiles -lt 8 ] && ncores=$nfiles
+		 cat $outfile | sed  "s|# art-cores: .*|# art-ncores: $ncores|g" >> $outfile-
+		 mv $outfile{-,}
 
-#	 echo "CMD: " $cmdlineflags
+	     fi
+		 
+ 	 fi
 
-	 if ( echo $cmdlineflags | grep -q EventMax ); then 
+	 # replace the variables 
 
-	     events=$(echo $cmdlineflags | sed 's|.*EventMax[[:space:]]*=[[:space:]]*\([0-9]*[[:space:]]*\);.*|\1|g' | sed 's|EventMax[[:space:]]*=[[:space:]]*\([0-9]*\)[[:space:]]*.*|\1|g' )
-	     newevents=$( echo "2*$events" | bc )
-	     cmdlineflags=$(echo $cmdlineflags | sed "s|EventMax[[:space:]]*=[[:space:]]*$events|EventMax=$newevents|g")
+	 TFILE=$(mktemp -u /tmp/.template-XXXX)
 
-	 fi
+	 cat utils/template.sh | sed "s|@REPLACERTTJOBNAME|$RTTJOBNAME|g"    > $TFILE-0.sh
+         cat $TFILE-0.sh       | sed "s|@REPLACECOMMAND|$cmdlineflags|g"     > $TFILE-1.sh
+         cat $TFILE-1.sh       | sed "s|@REPLACEJOBOPTIONS|$joboptions.py|g" > $TFILE-2.sh
 
-#	 cmdlineflags=$(echo $cmdlineflags | sed 's|EventMax[[:space:]]*=[[:space:]]*[0-9]*[[:space:]]*;||g' | sed 's|EventMax[[:space:]]*=[[:space:]]*[0-9]*[[:space:]]*||g' )
- 
-# 	 echo "CMD: " $cmdlineflags 
- 
-#        echo  "athena.py  -c 'import glob;from AthenaCommon.AthenaCommonFlags import athenaCommonFlags;athenaCommonFlags.FilesInput=glob.glob(\"$DATASET/*\");$cmdlineflags' $joboptions.py" >> $outfile
-#        echo  "athena.py  -c 'ARTConfig=[\"$DATASET\"];$cmdlineflags' $joboptions.py" >> $outfile
+         cat $TFILE-2.sh  >> $outfile
 
-         echo "ARGS=\"\$ARGS;$cmdlineflags\"" >> $outfile 
+	 rm  $TFILE-?.sh
 
-         echo "echo \"\$ARGS\"" >> $outfile
-
-	 echo >> $outfile
-
-         echo -e "get_files -jo $joboptions.py\n" >> $outfile
-
-	 timestamp >> $outfile
-
-#        echo  "athena.py  -c \"ARTConfig=\$fileList;$cmdlineflags\" $joboptions.py 2>&1 | tee athena-local.log" >> $outfile
-         echo  "athena.py  -c \"\$ARGS\" $joboptions.py 2>&1 | tee &> athena-local.log" >> $outfile
-
-	 echo  "echo \"art-result: \$? athena_$COUNTER\"" >> $outfile
-	 echo  "" >> $outfile
-
-	 timestamp >> $outfile
-
-	 echo -e "\nls -l\n" >> $outfile
-
-	 ((COUNTER++))
-
+  	 ((COUNTER++))
 
     fi
   
-#   cat $outfile
 
-#   continue
-
-    N=$(cat /tmp/_args | wc -l)
-
+    N=$(cat $ARGFILE | wc -l)
+    
 #   echo "file: $outfile"
-
+    
     [ $N -gt  0 ] || continue
 
     command=
     runcommand=
     oldcommand=
-
+    
     while [ $N -gt 0 ]; do
 
-  
-           arg=$(tail -$N /tmp/_args | head -1 | sed 's|^[[:space:]]*||' | sed 's|[[:space:]]*$||g')
+           arg=$(tail -$N $ARGFILE | head -1 | sed 's|^[[:space:]]*||' | sed 's|[[:space:]]*$||g')
 
 #	   echo "arg:$arg:"
 
@@ -250,13 +219,35 @@ for xmlfile in $FILES; do
                 "$arg" == "RunTrigCostD3PD.exe" -o \
 	        "$arg" == "RunTrigCostD3PDe" ]; then 
 
-               if [ "$command" != "" ]; then 
-#	          echo    "$command"
+               if [ "$command" != "" ]; then
+
+		  command="$(echo $command | sed 's|^ *||g')"
+ 
+		  if ( echo $command | grep -q TIDArdict ); then 
+                      echo ""         >> $outfile
+		      echo "for DATFILE in *.dat ; do"                      >> $outfile 
+		      echo "    if ( grep -q DataFile \$DATFILE ); then"   >> $outfile
+		      echo "         mv  \$DATFILE  \$DATFILE.bak" 	     >> $outfile      
+		      echo "         grep -v \"\\(DataSets\\|DataFiles\\)\"  \$DATFILE.bak > \$DATFILE" >> $outfile	    
+		      echo "         echo \"DataSets = { \\\"./output-dataset/\\\" };\"   >> \$DATFILE" >> $outfile	      
+		      echo "    fi" >> $outfile	    
+	              echo "done"     >> $outfile
+	              echo ""         >> $outfile
+
+		  fi  
+
+
+		  command=$(echo $command | sed 's|\.exe | |g')
+
+		  ( echo "$command" | grep -q trig_cost.root ) && command=$(echo "$command" | sed 's|-f trig_cost.root|--files output-cost/*trig_cost.root|g')
+
+#	          echo    "CMD0: $command"
 #                 echo    "$command"               >> $outfile
 		  echo -e "\n$command  2>&1 | tee ${oldcommand}_$COUNTER.log" >> $outfile
 		  echo    "echo \"art-result: \$? ${oldcommand}_$COUNTER\"" >> $outfile
                   echo    ""                       >> $outfile
-       	          timestamp >> $outfile
+       	     
+		  timestamp $command >> $outfile
 
 		  ((COUNTER++))
 	       fi	  
@@ -316,15 +307,17 @@ for xmlfile in $FILES; do
     if [ "$command" != "" ]; then
 
 	  command=$(echo $command | sed 's|\.exe | |g')
+	  ( echo "$command" | grep -q trig_cost.root ) && command=$(echo "$command" | sed 's|-f trig_cost.root|--files output-cost/*trig_cost.root|g')
  
-#         echo    "$command"
+
+#	  echo    "CMD1: $command"
           echo -e "\n$command  2>&1 | tee ${oldcommand}_$COUNTER.log"  >> $outfile
 	  echo -e "echo \"art-result: \$? ${oldcommand}_$COUNTER\"\n" >> $outfile
 	  oldcommand=$(echo $runcommand | sed 's|\..*||g')
 #	  echo -e "JOBSTATUS_$COUNTER=\$?\n" >> $outfile
           echo    ""                         >> $outfile
 
- 	  timestamp >> $outfile
+ 	  timestamp $command >> $outfile
 
 	  ((COUNTER++))
 
@@ -335,6 +328,8 @@ for xmlfile in $FILES; do
 
       USENEXTFILE=0
       [ -e $outfile.extra ] && rm $outfile.extra
+
+#     grep cpu $outfile 
 
       for TOUTDIR in $(cat $outfile | grep -v cpu ); do 
 	[ $USENEXTFILE -eq 1 ] &&  echo "# art-output: $TOUTDIR" >> $outfile.extra && USENEXTFILE=0 &&  continue 
@@ -347,11 +342,19 @@ for xmlfile in $FILES; do
       done
     
       [ -e $outfile.extra ] &&  sed "/art-type/ r $outfile.extra" $outfile > $outfile.tmp && mv $outfile{.tmp,}
-     
+ 
+#     cat   $outfile.extra
+    
       if [ $DELETE -eq 1 ]; then 
          [ -e $outfile.extra  ] && rm $outfile.extra
          [ -e $outfile.bak  ]   && rm $outfile.bak
       fi
+
+    
+      [ -e $ARGFILE ] && rm $ARGFILE
+
+ #    grep art-output $outfile
+ #    echo ""
 
       chmod 755 $outfile
 

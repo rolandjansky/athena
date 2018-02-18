@@ -384,7 +384,7 @@ class ArtGrid(ArtBase):
             log.error('%s for %s status', str(e.code), str(jedi_id))
         return None
 
-    def task_job(self, grid_options, sub_cmd, script_directory, sequence_tag, package, outfile, job_type='', number_of_tests=0, split=0, job_name='', inds='', n_files=0, in_file=False, no_action=False):
+    def task_job(self, grid_options, sub_cmd, script_directory, sequence_tag, package, outfile, job_type='', number_of_tests=0, split=0, job_name='', inds='', n_files=0, n_cores=0, in_file=False, no_action=False):
         """
         Submit a single job.
 
@@ -404,6 +404,7 @@ class ArtGrid(ArtBase):
             cmd = ' '.join((cmd,
                             '--inds ' + inds if inds != '' else '',
                             '--n-files ' + str(n_files) if n_files > 0 else '',
+                            '--nCores ' + str(n_cores) if n_cores > 0 else '',
                             '--split ' + str(split) if split > 0 else '',
                             '--in' if in_file else ''))
 
@@ -499,6 +500,7 @@ class ArtGrid(ArtBase):
             header = ArtHeader(job)
             inds = header.get(ArtHeader.ART_INPUT)
             n_files = header.get(ArtHeader.ART_INPUT_NFILES)
+            n_cores = header.get(ArtHeader.ART_NCORES)
             split = header.get(ArtHeader.ART_INPUT_SPLIT)
 
             outfile_test = self.rucio.get_outfile(user, package, self.get_nightly_release_short(), self.project, self.platform, self.nightly_tag, sequence_tag, str(index))
@@ -506,7 +508,7 @@ class ArtGrid(ArtBase):
 
             # Single
             log.info("Single")
-            jedi_id = self.task_job(grid_options, "single", script_directory, sequence_tag, package, outfile_test, split=split, job_name=job_name, inds=inds, n_files=n_files, in_file=True, no_action=no_action)
+            jedi_id = self.task_job(grid_options, "single", script_directory, sequence_tag, package, outfile_test, split=split, job_name=job_name, inds=inds, n_files=n_files, n_cores=n_cores, in_file=True, no_action=no_action)
 
             if jedi_id > 0:
                 result[jedi_id] = (package, job_name, outfile_test)

@@ -14,7 +14,7 @@ def importRTTdatasets(jobID):
     for job in root.iter(namespace + 'athena'):
         if job.get('userJobId') == jobID:
             for dataset in job.findall(namespace + 'dataset'):
-                eosDataset = "root://eosatlas.cern.ch/" + dataset.text
+                eosDataset = "root://eosatlas/" + dataset.text
                 datasetList.append(eosDataset)
     return datasetList
 #--------------------------------------------------------------------------------------------------

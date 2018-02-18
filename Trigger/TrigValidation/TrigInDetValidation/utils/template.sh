@@ -1,25 +1,3 @@
-#!/bin/bash
-# art-description: art job for beamspot_ttbar_pu80_zfinder
-# art-type: grid
-# art-output: pid
-# art-output: HLTL2-test-plots
-# art-output: times
-# art-output: times-FTF
-# art-output: cost-perCall
-# art-output: cost-perEvent
-# art-output: cost-perCall-chain
-# art-output: cost-perEvent-chain
-# art-input:  mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.recon.RDO.e3698_s2608_s2183_r7195
-# art-output: *.dat 
-# art-output: *.root
-# art-output: *.log
-# art-output: output-dataset
-# art-output: output-cost
-# art-output: output-logs
-# art-input-nfiles: 3
-# art-ncores: 3
-
-
 
 RED='\033[0;31m'
 NC='\033[0m'
@@ -96,7 +74,7 @@ function runathena {
      pwd
      echo "ARGS: $ARGS"
      echo -e "\nrunning athena in athena-$1\n"
-     athena.py  -c "$ARGS"               TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BeamspotSlice.py  &> athena-local-$1.log
+     athena.py  -c "$ARGS"   @REPLACEJOBOPTIONS  &> athena-local-$1.log
      echo "art-result: $? athena_$iathena"
 
      ((iathena++))
@@ -132,7 +110,7 @@ function saveoutput {
 
 
 
-export RTTJOBNAME=TrigInDetValidation_beamspot_ttbar_pu80_zfinder
+export RTTJOBNAME=@REPLACERTTJOBNAME
 
 jobList=
 
@@ -145,7 +123,7 @@ else
       for git in $_jobList ; do jobList="$jobList ARTConfig=[$git]" ; done
 fi
 
-get_files -jo             TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BeamspotSlice.py
+get_files -jo @REPLACEJOBOPTIONS
 
 
 # run athena in separate directories
@@ -157,7 +135,7 @@ i=0
 
 for git in $jobList ; do 
 
-    ARGS="$git;EventMax=1000;fastZFinder=True;rec.doFloatingPointException.set_Value_and_Lock(False)"
+    ARGS="$git;@REPLACECOMMAND"
  
     echo "ARGS: $ARGS"
 
@@ -231,101 +209,5 @@ hadd expert-monitoring.root athena-*/expert-monitoring.root
 for git in output-dataset/*.root ; do ln -s $git TrkNtuple-0000.root ; break ; done  
 
 ls -lt
-
-
-get_files -data TIDAdata11-rtt.dat
-get_files -data TIDAdata_cuts.dat
-get_files -data TIDAdata_chains.dat
-get_files -data TIDAbeam.dat
-get_files -data Test_bin.dat
-
-for DATFILE in *.dat ; do
-    if ( grep -q DataFile $DATFILE ); then
-         mv  $DATFILE  $DATFILE.bak
-         grep -v "\(DataSets\|DataFiles\)"  $DATFILE.bak > $DATFILE
-         echo "DataSets = { \"./output-dataset/\" };"   >> $DATFILE
-    fi
-done
-
-
-TIDArdict TIDAdata11-rtt.dat -f data-all.root -b Test_bin.dat  2>&1 | tee TIDArdict_1.log
-echo "art-result: $? TIDArdict_1"
-
-
-
-timestamp "TIDArdict"
-
-
-
-TIDArun-art.sh data-all.root data-beamspot_ttbar_pu80_zfinder-reference.root HLT_beamspot_allTE_trkfast_InDetTrigTrackingxAODCnv_BeamSpot_FTF -d HLTL2-test-plots  2>&1 | tee TIDArun_2.log
-echo "art-result: $? TIDArun_2"
-
-
-
-timestamp "TIDArun-art.sh"
-
-
-
-TIDArun-art.sh expert-monitoring.root expert-monitoring*-ref.root --auto -o times  2>&1 | tee TIDArun_3.log
-echo "art-result: $? TIDArun_3"
-
-
-
-timestamp "TIDArun-art.sh"
-
-
-
-TIDArun-art.sh expert-monitoring.root expert-monitoring*-ref.root --auto -p FastTrack -o times-FTF  2>&1 | tee TIDArun_4.log
-echo "art-result: $? TIDArun_4"
-
-
-
-timestamp "TIDArun-art.sh"
-
-
-
-RunTrigCostD3PD --files output-cost/*trig_cost.root --outputTagFromAthena --costMode --linkOutputDir  2>&1 | tee RunTrigCostD3PD_5.log
-echo "art-result: $? RunTrigCostD3PD_5"
-
-
-
-timestamp "RunTrigCostD3PD"
-
-
-
-TIDAcpucost costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perCall --auto -d "/Algorithm" -p "_Time_perCall"  2>&1 | tee TIDAcpucost_6.log
-echo "art-result: $? TIDAcpucost_6"
-
-
-
-timestamp "TIDAcpucost"
-
-
-
-TIDAcpucost costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perEvent --auto -d "/Algorithm" -p "_Time_perEvent"  2>&1 | tee TIDAcpucost_7.log
-echo "art-result: $? TIDAcpucost_7"
-
-
-
-timestamp "TIDAcpucost"
-
-
-
-TIDAcpucost costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perCall-chain --auto -d "/Chain_Algorithm" -p "_Time_perCall"  2>&1 | tee TIDAcpucost_8.log
-echo "art-result: $? TIDAcpucost_8"
-
-
-
-timestamp "TIDAcpucost"
-
-
-
-TIDAcpucost costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perEvent-chain --auto -d "/Chain_Algorithm" -p "_Time_perEvent"  2>&1 | tee TIDAcpucost_9.log
-echo "art-result: $? TIDAcpucost_9"
-
-
-
-
-timestamp "TIDAcpucost"
 
 
