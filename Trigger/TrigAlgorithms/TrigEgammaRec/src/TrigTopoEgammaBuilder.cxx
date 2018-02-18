@@ -898,12 +898,34 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
     //--------------------------------
     //Create a shallow copy, the elements of this can be modified,
     //but no need to recreate the cluster
-    std::pair<xAOD::CaloClusterContainer*, xAOD::ShallowAuxContainer* > inputShallowcopy = xAOD::shallowCopyContainer(*clusContainer );
+
+    ATH_MSG_DEBUG( "clusContainer: ownPolicy = " << clusContainer->ownPolicy() );
+    ATH_MSG_DEBUG( "clusContainer: getStore = " << clusContainer->getStore() << ", getConstStore = " << clusContainer->getConstStore() );
+    ATH_MSG_DEBUG( "clusContainer: hasStore = " << clusContainer->hasStore() << ", hasNonConstStore = " << clusContainer->hasNonConstStore() );
+
+    xAOD::CaloClusterContainer clusContainer_tmp;
+    xAOD::CaloClusterAuxContainer clusContainer_tmpAux;
+    clusContainer_tmp.setStore(&clusContainer_tmpAux);
+
+    ATH_MSG_DEBUG( "before copy clusters" );
+
+    xAOD::CaloClusterContainer::const_iterator cciter = clusContainer->begin();
+    xAOD::CaloClusterContainer::const_iterator ccend  = clusContainer->end();
+    for (; cciter != ccend; ++cciter) {
+        ATH_MSG_DEBUG("->CHECKING Cluster at eta,phi,et " << (*cciter)->eta() << " , "<< (*cciter)->phi() << " , " << (*cciter)->et());
+        clusContainer_tmp.push_back( new xAOD::CaloCluster( **cciter ) );
+    }
+
+    ATH_MSG_DEBUG( "before xAOD::shallowCopyContainer" );
+
+    std::pair<xAOD::CaloClusterContainer*, xAOD::ShallowAuxContainer* > inputShallowcopy = xAOD::shallowCopyContainer( clusContainer_tmp );
 
     //Here it just needs to be a view copy ,
     //i.e the collection we create does not really
     //own its elements
     ConstDataVector<xAOD::CaloClusterContainer>* viewCopy =  new ConstDataVector <xAOD::CaloClusterContainer> (SG::VIEW_ELEMENTS );
+
+    ATH_MSG_DEBUG( "before topoclustercopier" );
 
     //First run the egamma Topo Copier that will select copy over cluster of interest to egammaTopoCluster
     {
