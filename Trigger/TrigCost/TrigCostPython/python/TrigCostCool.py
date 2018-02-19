@@ -1458,9 +1458,41 @@ def GetHLTRates(runnumber, config, lbset, lb_beg, lb_end, lvl, options=[]):
     #
     # Read Counters
     #
+    hltchains_foldername = '/TRIGGER/HLT/Chains'
     hltcounters_foldername = '/TRIGGER/HLT/Rates'
-    itr = GetFolderItrForRun(hltcounters_foldername, runnumber)
+    chaintag = "TriggerHltChains-Physics-01"
+
+    dbSvc=cool.DatabaseSvcFactory.databaseService()
+    dbconnect = "COOLONL_TDAQ/CONDBR2"
+    readonly = True
+    lb=2
+    runlb = (runnumber << 32) + lb
+
     try:
+        db=dbSvc.openDatabase(dbconnect,readonly)
+        chainfolder=db.getFolder(hltchains_foldername)
+    except Exception,e:
+        print "Reading data from",hltchains_foldername,"failed:",e
+        traceback.print_exc(file=sys.stdout)
+        sys.exit(-1)
+
+    try:
+        chainobj = chainfolder.findObject(runlb, coolchannel, self.chaintag);
+    except Exception,e:
+        print("Can't get chains object from chain folder!")
+        print("Exception: {0}".format(e))
+        sys.exit(0)
+
+    since = chainobj.since()
+    runnumber = since >> 32
+    until = chainobj.until()
+    channel = chainobj.channelId() # In chain folder, channel should be always 0
+    payload = chainobj.payload()
+    chains = payload["chains"].split(",")
+    print(" runnumber: {0} / Chain Names(first 3, last 3): {1} ... {2} ".format(runnumber,chains[0:3],chains[-3:]))
+
+    try:
+        itr = GetFolderItrForRun(hltcounters_foldername, runnumber)
         while itr.goToNext():
             obj = itr.currentRef()
             lb  = (obj.since() & 0xffff)
