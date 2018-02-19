@@ -431,11 +431,11 @@ StatusCode JetMETCPTools::setupLargeRJetsCalibration() {
   std::vector<std::string>* variables = nullptr;
   std::string largeRJES_config = m_config->largeRJESUncertaintyConfig();
   std::string calibArea  = "CalibArea-01";
-  std::string MC_type = "MC15";
+  std::string MC_type = "MC16";
 
-  conference = "Moriond2017";
-  configDir  = "UJ_2016";
-  MC_type += "c";
+  conference = "Moriond2018";
+  configDir  = "rel21";
+  MC_type += "a";
 
   variables = new std::vector<std::string>;
   variables->push_back("pT");
@@ -449,23 +449,23 @@ StatusCode JetMETCPTools::setupLargeRJetsCalibration() {
   variables->push_back(largeRJES_config);
 
   largeRJES_config = m_config->largeRJESJMSConfig();
-  if (largeRJES_config.find("UJ2016_") != 0) largeRJES_config.insert(0, "UJ2016_");
+  //if (largeRJES_config.find("UJ2016_") != 0) largeRJES_config.insert(0, "UJ2016_");
 
   m_jetUncertaintiesToolLargeR_strong
     = setupJetUncertaintiesTool("JetUncertaintiesToolLargeR_Strong",
                                 jetCalibrationNameLargeR, MC_type,
                                 configDir+"/"+conference
-                                + "/"+largeRJES_config+"_strong.config",variables);
+                                + "/R10_"+largeRJES_config+"_strong.config",variables,"",calibArea);
   m_jetUncertaintiesToolLargeR_medium
     = setupJetUncertaintiesTool("JetUncertaintiesToolLargeR_Medium",
                                 jetCalibrationNameLargeR, MC_type,
                                 configDir+"/"+conference
-                                + "/"+largeRJES_config+"_medium.config",variables);
+                                + "/R10_"+largeRJES_config+"_medium.config",variables,"",calibArea);
   m_jetUncertaintiesToolLargeR_weak
     = setupJetUncertaintiesTool("JetUncertaintiesToolLargeR_Weak",
                                 jetCalibrationNameLargeR, MC_type,
                                 configDir+"/"+conference
-                                + "/"+largeRJES_config+"_weak.config",variables);
+                                + "/R10_"+largeRJES_config+"_weak.config",variables,"",calibArea);
 
   if (variables) delete variables;
   return StatusCode::SUCCESS;
