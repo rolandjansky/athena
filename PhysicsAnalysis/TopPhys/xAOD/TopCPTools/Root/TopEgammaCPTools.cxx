@@ -78,6 +78,11 @@ StatusCode EgammaCPTools::initialize() {
   else {
     ATH_MSG_INFO("top::EgammaCPTools: no need to initialise anything since using neither electrons nor photons");
   }
+
+  // Update for R21 is to remove radiative Z corrections, so if the option is used, it will be ignored
+  if(m_config->photonUseRadiativeZ()){
+    ATH_MSG_INFO("top::EgammaCPTools: You have requested radiative corrections for photons however these are not yet available in R21. This options will be ignored.");
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -220,10 +225,8 @@ StatusCode EgammaCPTools::setupCalibration() {
                     "Failed to set MapFilePath for " + photonIsoSFName);
         top::check(asg::setProperty(photonIsoSFTool, "ForceDataType", data_type),
                     "Failed to set ForceDataType for " + photonIsoSFName);
-        top::check(asg::setProperty(photonIsoSFTool, "UseRadiativeZSF_mediumPT", m_config->photonUseRadiativeZ()),
-                    "Failed to set useRadiativeZSF_mediumPT for " + photonIsoSFName);
-        top::check(asg::setProperty(photonIsoSFTool, "IsoWP", isoWP),
-                    "Failed to set IsoWP for " + photonIsoSFName);
+        top::check(asg::setProperty(photonIsoSFTool, "IsoKey", isoWP),
+                    "Failed to set IsoKey for " + photonIsoSFName);
         top::check(photonIsoSFTool->initialize(),
                     "Failed to initialize " + photonIsoSFName);
         m_photonIsoSFTools.push_back(photonIsoSFTool);
