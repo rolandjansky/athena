@@ -6,8 +6,8 @@
 #include "TrigT1CaloEvent/RODHeader.h"
 #endif
 
-#include "CLIDSvc/CLASS_DEF.h"
-#include "DataModel/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
 
 CLASS_DEF( LVL1::RODHeader , 208212898 , 1 )
 CLASS_DEF( DataVector<LVL1::RODHeader> , 105792013 , 1 )

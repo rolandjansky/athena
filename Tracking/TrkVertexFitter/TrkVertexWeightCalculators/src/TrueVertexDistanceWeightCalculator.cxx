@@ -4,7 +4,6 @@
 
  #include "TrkVertexWeightCalculators/TrueVertexDistanceWeightCalculator.h"
  #include "VxVertex/VxTrackAtVertex.h"
- #include "GeneratorObjects/McEventCollection.h"
 
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/TrackParticle.h"
@@ -13,16 +12,11 @@ namespace Trk{
  
   StatusCode TrueVertexDistanceWeightCalculator::initialize()
   {
-    StatusCode sc = AthAlgTool::initialize();
-    
+    ATH_CHECK( m_mcEventCollectionKey.initialize() );
     //initializing the AlgTool itself
-    if(sc.isFailure())
-    {
-      msg(MSG::ERROR)<<" Unable to initialize the AlgTool"<<endmsg;
-      return StatusCode::FAILURE;
-    }
-    
+    ATH_CHECK( AthAlgTool::initialize() );
     msg(MSG::INFO)<<"Initialization successfull"<<endmsg;
+
     return StatusCode::SUCCESS;
   }//end of initialize method
   
@@ -35,10 +29,8 @@ namespace Trk{
  
   //class constructor implementation
   TrueVertexDistanceWeightCalculator::TrueVertexDistanceWeightCalculator(const std::string& t, const std::string& n, const IInterface*  p):
-          AthAlgTool(t,n,p),
-          m_McEventCollectionName("TruthEvent")
+          AthAlgTool(t,n,p)
   {
-    declareProperty("McTruthCollection",m_McEventCollectionName);
     declareInterface<IVertexWeightCalculator>(this);
   }
  
@@ -52,13 +44,11 @@ namespace Trk{
 
   double TrueVertexDistanceWeightCalculator::mEstimateSignalCompatibility(const Amg::Vector3D& vtxPosition)
   {
-    const McEventCollection * mcColl = 0;
-    StatusCode sc = StatusCode::SUCCESS;
-    sc = evtStore()->retrieve( mcColl, m_McEventCollectionName);
+    SG::ReadHandle<McEventCollection> mcColl( m_mcEventCollectionKey );
 
-     if ( sc.isFailure() )
+    if ( !mcColl.isValid() )
     {
-      ATH_MSG_WARNING("Could not retrieve McEventCollection " << m_McEventCollectionName 
+      ATH_MSG_WARNING("Could not retrieve McEventCollection " << m_mcEventCollectionKey.key() 
 		      << " from StoreGate. Returning 0 distance.");
       return 0;
     } 

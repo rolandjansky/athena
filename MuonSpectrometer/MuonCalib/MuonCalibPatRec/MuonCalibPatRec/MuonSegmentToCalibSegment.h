@@ -121,10 +121,10 @@ output the muon calibration input.
     int m_updateForT0Shift;
     bool m_doTof;
     bool m_cosmics_tof;
-  };
 
-  /** maximum number of segments each algorithm can store in ntuple */
-  int m_maxStoredSegs;
+    /** maximum number of segments each algorithm can store in ntuple */
+    int m_maxStoredSegs;
+  };
 
 }
 

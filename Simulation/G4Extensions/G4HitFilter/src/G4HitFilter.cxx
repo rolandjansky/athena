@@ -20,35 +20,31 @@
 
 #include "StoreGate/ReadHandle.h"
 
-#include <iostream>
-
-
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IMessageSvc.h"
 
-namespace G4UA{
 
+namespace G4UA
+{
 
-  G4HitFilter::G4HitFilter(const Config& config):
-    AthMessaging(Gaudi::svcLocator()->service< IMessageSvc >( "MessageSvc" ),"G4HitFilter"),
-    m_config(config),m_report(),
-    m_evtStore("StoreGateSvc/StoreGateSvc","G4HitFilter"),
-    m_detStore("StoreGateSvc/DetectorStore","G4HitFilter"){;
-  }
+  //----------------------------------------------------------------------------
+  G4HitFilter::G4HitFilter(const Config& config)
+    : AthMessaging(Gaudi::svcLocator()->service< IMessageSvc >( "MessageSvc" ),
+                   "G4HitFilter"),
+      m_config(config)
+  {}
 
-
-  void G4HitFilter::BeginOfRunAction(const G4Run*){
-
+  //----------------------------------------------------------------------------
+  void G4HitFilter::BeginOfRunAction(const G4Run*)
+  {
     if(m_config.volumenames.size()==0){
-
       ATH_MSG_ERROR("No hit containers declared");
-
     }
 
     int hitType = 999;
 
-    for(auto vol: m_config.volumenames){
+    for(const auto& vol: m_config.volumenames){
       if(vol == "BCMHits") hitType = SI;
       else if(vol == "BLMHits") hitType = SI;
       else if(vol == "CSC_Hits") hitType = CSC;
@@ -69,79 +65,70 @@ namespace G4UA{
       else if(vol == "TRTUncompressedHits") hitType = TRT;
       else if(vol == "TileHitVec") hitType = TILE;
 
-
-      if(hitType==999){
-
-        ATH_MSG_ERROR("unknown hit tipe"<<vol);
-
+      if(hitType == 999){
+        ATH_MSG_ERROR("unknown hit tipe" << vol);
       }
 
-      m_hitContainers.push_back(std::make_pair(hitType,vol));
-
+      m_hitContainers.push_back( std::make_pair(hitType,vol) );
     }
-
-
-
   }
 
-
-  void G4HitFilter::EndOfEventAction(const G4Event*){
+  //----------------------------------------------------------------------------
+  void G4HitFilter::EndOfEventAction(const G4Event*)
+  {
     unsigned int counter = 0;
 
     m_report.ntot++;
 
-    std::vector<std::pair<int, std::string> >::iterator itr = m_hitContainers.begin();
-    std::vector<std::pair<int, std::string> >::iterator itr_end = m_hitContainers.end();
+    for(const auto& hitCont : m_hitContainers) {
 
-    for(;itr!=itr_end;++itr) {
-
-      if((*itr).first == CALOCALIB) {
-        SG::ReadHandle<CaloCalibrationHitContainer> cont((*itr).second);
+      if(hitCont.first == CALOCALIB) {
+        SG::ReadHandle<CaloCalibrationHitContainer> cont(hitCont.second);
         if(! cont.isValid()) continue;
         counter += cont->size();
       }
-      else if((*itr).first == CSC) {
-        SG::ReadHandle<CSCSimHitCollection> cont((*itr).second);
+      else if(hitCont.first == CSC) {
+        SG::ReadHandle<CSCSimHitCollection> cont(hitCont.second);
         if(! cont.isValid()) continue;
         counter += cont->size();
       }
-      else if((*itr).first == LAR) {
-        SG::ReadHandle<LArHitContainer> cont((*itr).second);
+      else if(hitCont.first == LAR) {
+        SG::ReadHandle<LArHitContainer> cont(hitCont.second);
         if(! cont.isValid()) continue;
         counter += cont->size();
       }
-      else if((*itr).first == LUCID) {
-        SG::ReadHandle<LUCID_SimHitCollection> cont((*itr).second);
+      else if(hitCont.first == LUCID) {
+        SG::ReadHandle<LUCID_SimHitCollection> cont(hitCont.second);
         if(! cont.isValid()) continue;
         counter += cont->size();
       }
-      else if((*itr).first == MDT) {
-        SG::ReadHandle<MDTSimHitCollection> cont((*itr).second);
+      else if(hitCont.first == MDT) {
+        SG::ReadHandle<MDTSimHitCollection> cont(hitCont.second);
         if(! cont.isValid()) continue;
         counter += cont->size();
       }
-      else if((*itr).first == RPC) {
-        SG::ReadHandle<RPCSimHitCollection> cont((*itr).second);
+      else if(hitCont.first == RPC) {
+        SG::ReadHandle<RPCSimHitCollection> cont(hitCont.second);
         if(! cont.isValid()) continue;
         counter += cont->size();
       }
-      else if((*itr).first == SI) {
-        SG::ReadHandle<SiHitCollection> cont((*itr).second);
+      else if(hitCont.first == SI) {
+        SG::ReadHandle<SiHitCollection> cont(hitCont.second);
         if(! cont.isValid()) continue;
         counter += cont->size();
       }
-      else if((*itr).first == TGC) {
-        SG::ReadHandle<TGCSimHitCollection> cont((*itr).second);
+      else if(hitCont.first == TGC) {
+        SG::ReadHandle<TGCSimHitCollection> cont(hitCont.second);
         if(! cont.isValid()) continue;
         counter += cont->size();
       }
-      else if((*itr).first == TILE) {
-        SG::ReadHandle<TileHitVector> cont((*itr).second);
+      else if(hitCont.first == TILE) {
+        SG::ReadHandle<TileHitVector> cont(hitCont.second);
         if(! cont.isValid()) continue;
         counter += cont->size();
       }
-      else if((*itr).first == TRT) {
-        SG::ReadHandle<TRTUncompressedHitCollection> cont((*itr).second);
+      else if(hitCont.first == TRT) {
+        SG::ReadHandle<TRTUncompressedHitCollection> cont(hitCont.second);
         if(! cont.isValid()) continue;
         counter += cont->size();
       }
@@ -159,11 +146,8 @@ namespace G4UA{
     }
     else {
       ATH_MSG_INFO("G4HitFilter: passing the event");
-
       m_report.npass++;
-
     }
-
   }
 
 } // namespace G4UA

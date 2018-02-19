@@ -143,7 +143,7 @@ ALP::ALP(){
  
   m_CITimePercentInReject=inst->addFloat(m_childInfo,"TimePercentInReject");
   m_CITimePercentInWait=inst->addFloat(m_childInfo,"TimePercentInWait");
-  m_CITimePercentInSend=inst->addFloat(m_childInfo,"TimePercentInSend");;
+  m_CITimePercentInSend=inst->addFloat(m_childInfo,"TimePercentInSend");
     
   m_configTree=new boost::property_tree::ptree();
   m_prepareForRunTree=new boost::property_tree::ptree();

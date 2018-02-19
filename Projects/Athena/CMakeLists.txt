@@ -24,8 +24,8 @@ if( LCG_NIGHTLY )
     set( DQM-COMMON_VERSION "99-00-00" )
     set( TDAQ_VERSION "99-00-00" )
 else()
-    set( TDAQ-COMMON_VERSION "02-02-00" )
-    set( DQM-COMMON_VERSION "01-02-00" )
+    set( TDAQ-COMMON_VERSION "02-04-00" )
+    set( DQM-COMMON_VERSION "01-04-00" )
     set( TDAQ_VERSION "07-01-00" )
 endif()
 
@@ -45,6 +45,7 @@ find_package( Gaudi REQUIRED )
 
 # Find some auxiliary packages:
 find_package( Doxygen )
+find_package( PNG )
 
 # Load all the files from the externals/ subdirectory:
 file( GLOB _externals "${CMAKE_CURRENT_SOURCE_DIR}/externals/*.cmake" )

@@ -168,7 +168,6 @@ SCTHitEffMonTool::SCTHitEffMonTool(const string &type, const string &name, const
   m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator", this),
   m_rotcreator("InDet::SCT_ClusterOnTrackTool/SCT_ClusterOnTrackTool", this),
   m_holeSearchTool("InDet::InDetTrackHoleSearchTool", this),
-  m_flaggedConditionSvc("SCT_FlaggedConditionSvc", name),
   m_configConditions("InDetSCT_ConfigurationConditionsSvc", name),
   m_Eff_Total(nullptr),
   m_Eff_TotalBCID(nullptr),
@@ -224,7 +223,6 @@ SCTHitEffMonTool::SCTHitEffMonTool(const string &type, const string &name, const
   declareProperty("RequireGuardRing", m_requireGuardRing);
   declareProperty("VetoBadChips", m_vetoBadChips);
   declareProperty("LookAtDatabase", m_usedatabase);
-  declareProperty("FlaggedConditionService", m_flaggedConditionSvc);
   declareProperty("DetectorMode", m_DetectorMode);
   declareProperty("RunningMode", m_RunningMode);
   declareProperty("effDistanceCut", m_effdistcut);

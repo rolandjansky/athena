@@ -71,18 +71,6 @@ namespace pool {
                                      const void* object,
                                      const RootType& type ) = 0;
     
-    /** Deletes an object from the persistent store
-     *
-     * @param  token        [IN]  reference to the token for the object
-     *
-     * @return bool   Indicates whether operation was successfull.
-     *
-     */
-    virtual bool destroyObject( const Token& token ) = 0;
-
-    /// Returns the container name for object
-    virtual std::string getContName( const Token& token ) = 0;
-
     /// Returns the underlying global session
     virtual ISession& session() = 0;
 

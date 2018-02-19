@@ -35,9 +35,10 @@
 #include "../SCT_ReadCalibChipNoiseCondAlg.h"
 
 #include "../SCT_SiliconConditionsSvc.h"
+#include "../SCT_SiliconTempCondAlg.h"
+#include "../SCT_SiliconHVCondAlg.h"
 #include "../SCT_SiliconConditionsTestAlg.h"
 
-#include "../SCT_ReadoutTool.h"
 #include "../SCT_ReadoutTestAlg.h"
 
 #include "../SCT_LinkMaskingSvc.h"
@@ -49,11 +50,11 @@
 #include "../SCT_TdaqEnabledTestAlg.h"
 
 #include "../SCT_ConditionsParameterSvc.h"
+#include "../SCT_ConditionsParameterCondAlg.h"
 #include "../SCT_ConditionsParameterTestAlg.h"
 
 #include "../SCT_SensorsSvc.h"
 #include "../SCT_SensorsCondAlg.h"
-#include "../SCT_SensorsTestAlg.h"
 
 #include "../SCT_MajorityConditionsSvc.h"
 #include "../SCT_MajorityCondAlg.h"
@@ -64,7 +65,6 @@
 
 #include "../SCT_ChargeTrappingSvc.h"
 #include "../SCT_RadDamageSummarySvc.h"
-#include "../SCT_ElectricFieldTool.h"
 
 #include "../SCT_RODVetoSvc.h"
 #include "../SCT_RODVetoTestWriteAlg.h"
@@ -86,6 +86,8 @@ DECLARE_COMPONENT( SCT_ReadCalibDataTestAlg )
 DECLARE_COMPONENT( SCT_ReadCalibChipDataTestAlg )
 DECLARE_COMPONENT( SCT_ReadCalibChipGainCondAlg )
 DECLARE_COMPONENT( SCT_ReadCalibChipNoiseCondAlg )
+DECLARE_COMPONENT( SCT_SiliconTempCondAlg )
+DECLARE_COMPONENT( SCT_SiliconHVCondAlg )
 DECLARE_COMPONENT( SCT_SiliconConditionsTestAlg )
 DECLARE_COMPONENT( SCT_ReadoutTestAlg )
 DECLARE_COMPONENT( SCT_ReadCalibDataCondAlg )
@@ -95,9 +97,9 @@ DECLARE_COMPONENT( SCT_ConfigurationConditionsTestAlg )
 DECLARE_COMPONENT( SCT_ConfigurationCondAlg )
 DECLARE_COMPONENT( SCT_MajorityCondAlg )
 DECLARE_COMPONENT( SCT_MajorityConditionsTestAlg )
+DECLARE_COMPONENT( SCT_ConditionsParameterCondAlg )
 DECLARE_COMPONENT( SCT_ConditionsParameterTestAlg )
 DECLARE_COMPONENT( SCT_SensorsCondAlg )
-DECLARE_COMPONENT( SCT_SensorsTestAlg )
 DECLARE_COMPONENT( SCT_TdaqEnabledCondAlg )
 DECLARE_COMPONENT( SCT_TdaqEnabledTestAlg )
 DECLARE_COMPONENT( SCT_RODVetoTestWriteAlg )
@@ -123,9 +125,6 @@ DECLARE_COMPONENT( SCT_MajorityConditionsSvc )
 DECLARE_COMPONENT( SCT_ChargeTrappingSvc )
 DECLARE_COMPONENT( SCT_RadDamageSummarySvc )
 DECLARE_COMPONENT( SCT_RODVetoSvc )
-
-DECLARE_COMPONENT( SCT_ReadoutTool )
-DECLARE_COMPONENT( SCT_ElectricFieldTool )
 
 
 

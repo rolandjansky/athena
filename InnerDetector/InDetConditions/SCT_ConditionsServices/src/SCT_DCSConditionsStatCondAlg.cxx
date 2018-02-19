@@ -4,8 +4,9 @@
 
 #include "SCT_DCSConditionsStatCondAlg.h"
 
+#include <memory>
+
 #include "Identifier/IdentifierHash.h"
-#include "SCT_Cabling/SCT_OnlineId.h"
 
 #include "GaudiKernel/EventIDRange.h"
 
@@ -117,7 +118,7 @@ StatusCode SCT_DCSConditionsStatCondAlg::execute() {
   ATH_MSG_INFO("Range of state input is " << rangeState);
   
   // Construct the output Cond Object and fill it in
-  SCT_DCSStatCondData* writeCdoState{new SCT_DCSStatCondData()};
+  std::unique_ptr<SCT_DCSStatCondData> writeCdoState{std::make_unique<SCT_DCSStatCondData>()};
 
   // Read state info
   std::string paramState{"STATE"};
@@ -151,14 +152,12 @@ StatusCode SCT_DCSConditionsStatCondAlg::execute() {
     const CondAttrListCollection* readCdoHV{*readHandleHV};
     if (readCdoHV==nullptr) {
       ATH_MSG_FATAL("Null pointer to the read conditions object (HV)");
-      delete writeCdoState;
       return StatusCode::FAILURE;
     }
     // Get the validitiy range (HV)
     EventIDRange rangeHV;
     if (not readHandleHV.range(rangeHV)) {
       ATH_MSG_FATAL("Failed to retrieve validity range for " << readHandleHV.key());
-      delete writeCdoState;
       return StatusCode::FAILURE;
     }
     ATH_MSG_INFO("Size of CondAttrListCollection " << readHandleHV.fullKey() << " readCdo->size()= " << readCdoHV->size());
@@ -168,7 +167,6 @@ StatusCode SCT_DCSConditionsStatCondAlg::execute() {
     EventIDRange rangeIntersection{EventIDRange::intersect(rangeState, rangeHV)};
     if(rangeIntersection.start()>rangeIntersection.stop()) {
       ATH_MSG_FATAL("Invalid intersection range: " << rangeIntersection);
-      delete writeCdoState;
       return StatusCode::FAILURE;
     }
     rangeState = rangeIntersection;
@@ -195,11 +193,10 @@ StatusCode SCT_DCSConditionsStatCondAlg::execute() {
   }
 
   // Record the output cond object
-  if (writeHandle.record(rangeState, writeCdoState).isFailure()) {
+  if (writeHandle.record(rangeState, std::move(writeCdoState)).isFailure()) {
     ATH_MSG_FATAL("Could not record SCT_DCSStatCondData " << writeHandle.key() 
                   << " with EventRange " << rangeState
                   << " into Conditions Store");
-    delete writeCdoState;
     return StatusCode::FAILURE;
   }
   ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << rangeState << " into Conditions Store");

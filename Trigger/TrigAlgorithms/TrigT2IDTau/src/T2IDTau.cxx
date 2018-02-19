@@ -167,7 +167,7 @@ HLT::ErrorCode T2IDTau::hltExecute(const HLT::TriggerElement* inputTE, //ccuenca
 
   const TrigInDetTrackCollection* firstTracks(0);
   if ( m_secondStep ) { 
-    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: Finding leading track in 2nd step using tracks from 1st step" << endmsg;;
+    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: Finding leading track in 2nd step using tracks from 1st step" << endmsg;
     hltStatus = getFeature(inputTE, firstTracks);
 
     if(hltStatus== HLT::OK) { 

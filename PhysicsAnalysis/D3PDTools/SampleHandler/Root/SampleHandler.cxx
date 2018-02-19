@@ -159,7 +159,7 @@ namespace SH
     RCU_REQUIRE_SOFT (!sample->name().empty());
 
     if (!sample->name().empty() && m_named.find (sample->name()) != m_named.end())
-      RCU_THROW_MSG ("can't add sample of name " + sample->name() + "\na sample with that name already exists\nold sample:\n" + dbg (*m_named.find (sample->name())->second, 9999) + "\nnew sample:\n" + dbg (*sample, 9999));;
+      RCU_THROW_MSG ("can't add sample of name " + sample->name() + "\na sample with that name already exists\nold sample:\n" + dbg (*m_named.find (sample->name())->second, 9999) + "\nnew sample:\n" + dbg (*sample, 9999));
 
     try
     {

@@ -15,11 +15,16 @@ atlas_depends_on_subdirs( PUBLIC
                           graphics/VP1/VP1Gui
                           graphics/VP1/VP1UtilsBase )
 
+# "Externals" dependencies - They are needed at runtime, only
+find_package( libxkbcommon ) 
+find_package( glib ) 
+
 # Component(s) in the package:
 atlas_add_component( VP1Algs
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel EventInfo PathResolver VP1Gui VP1UtilsBase )
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel EventInfo PathResolver 
+                     PRIVATE_LINK_LIBRARIES VP1Gui VP1UtilsBase )
 
 # Install files from the package:
 atlas_install_headers( VP1Algs )

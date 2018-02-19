@@ -457,7 +457,7 @@ StatusCode HLTMuonMonTool::fillMuFastDQA()
 
 
     // if muFast succeeded segment reconstruction.
-    //std::cout << "L1_MBTS_2 " << getTDT()->isPassed( "L1_MBTS_2" ) << " L1_MU0 " << getTDT()->isPassed( "L1_MU0" ) << std::endl;;
+    //std::cout << "L1_MBTS_2 " << getTDT()->isPassed( "L1_MBTS_2" ) << " L1_MU0 " << getTDT()->isPassed( "L1_MU0" ) << std::endl;
       if( !isEndcap ){//barrel
         for(int i_tube=0; i_tube<n_mdt_hits; i_tube++) {
           

@@ -37,6 +37,10 @@ namespace xAODMaker {
       return StatusCode::SUCCESS;
    }
 
+   StatusCode FileMetaDataTool::endInputFile() {
+      // Return gracefully:
+      return StatusCode::SUCCESS;
+   }
    StatusCode FileMetaDataTool::beginInputFile() {
 
       // Whatever happens, we've seen the incident:

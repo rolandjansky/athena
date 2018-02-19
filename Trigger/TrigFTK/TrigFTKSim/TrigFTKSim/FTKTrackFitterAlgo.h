@@ -52,7 +52,6 @@ private:
   // Number of regions/banks
   int m_nbanks;
   int m_nsubregions;
-  int m_verbosity;
   
   // for set parameter
   int m_chi2cut;

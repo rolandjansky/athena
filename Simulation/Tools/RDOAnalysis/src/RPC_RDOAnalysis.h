@@ -71,36 +71,36 @@ private:
   std::vector< std::vector<double> >* m_radius_vec;
   std::vector< std::vector<float> >* m_localZ_vec;
 
-  TH1* h_rpcID;
-  TH1* h_status;
-  TH1* h_err;
-  TH1* h_onlineID;
-  TH1* h_lvl1ID;
-  TH1* h_bcID;
-  TH1* h_sector;
+  TH1* m_h_rpcID;
+  TH1* m_h_status;
+  TH1* m_h_err;
+  TH1* m_h_onlineID;
+  TH1* m_h_lvl1ID;
+  TH1* m_h_bcID;
+  TH1* m_h_sector;
 
-  TH1* h_coinRpcID;
-  TH1* h_coinOnID;
-  TH1* h_coinCrc;
-  TH1* h_coinFel1ID;
-  TH1* h_coinFebcID;
+  TH1* m_h_coinRpcID;
+  TH1* m_h_coinOnID;
+  TH1* m_h_coinCrc;
+  TH1* m_h_coinFel1ID;
+  TH1* m_h_coinFebcID;
 
-  TH1* h_firedBcID;
-  TH1* h_firedTime;
-  TH1* h_firedIjk;
-  TH1* h_firedChan;
-  TH1* h_firedOvl;
-  TH1* h_firedThr;
+  TH1* m_h_firedBcID;
+  TH1* m_h_firedTime;
+  TH1* m_h_firedIjk;
+  TH1* m_h_firedChan;
+  TH1* m_h_firedOvl;
+  TH1* m_h_firedThr;
 
-  TH1* h_sdoID;
-  TH1* h_sdoWord;
-  TH1* h_xPos;
-  TH1* h_yPos;
-  TH1* h_zPos;
-  TH1* h_barcode;
-  TH1* h_eventIndex;
-  TH1* h_radius;
-  TH1* h_localZ;
+  TH1* m_h_sdoID;
+  TH1* m_h_sdoWord;
+  TH1* m_h_xPos;
+  TH1* m_h_yPos;
+  TH1* m_h_zPos;
+  TH1* m_h_barcode;
+  TH1* m_h_eventIndex;
+  TH1* m_h_radius;
+  TH1* m_h_localZ;
 
   TTree* m_tree;
   std::string m_ntupleFileName;

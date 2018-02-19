@@ -85,7 +85,7 @@ namespace ShowerLib {
       } else { //statistics for the genlib, shorter version
       std::stringstream out;
       out << getName() <<" PARTICLE: " << m_particle << " DETECTOR: "<< m_detector << ", ";
-      out << m_release << " " << m_geometry << " " << m_geantVersion << " " << m_physicsList << std::endl;;
+      out << m_release << " " << m_geometry << " " << m_geantVersion << " " << m_physicsList << std::endl;
       if (printParameters().length() > 0)
 	      out << printParameters() << std::endl;
       out << m_comment << std::endl;

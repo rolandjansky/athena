@@ -382,7 +382,7 @@ StatusCode SGImplSvc::symLink(const CLID& id, const TKEY& key, const CLID& linkI
 // Retrieve the default object (with no key) as a const pointer
 //////////////////////////////////////////////////////////////////
 template <typename T> 
-StatusCode SGImplSvc::retrieve(const T*& ptr)
+StatusCode SGImplSvc::retrieve(const T*& ptr) const
 {
   lock_t lock (m_mutex);
   const DataHandle<T> handle; 
@@ -400,7 +400,7 @@ StatusCode SGImplSvc::retrieve(const T*& ptr)
 // Retrieve the default object (with no key) as a pointer (non-const)
 //////////////////////////////////////////////////////////////////
 template <typename T> 
-StatusCode SGImplSvc::retrieve(T*& ptr)
+StatusCode SGImplSvc::retrieve(T*& ptr) const
 {
   lock_t lock (m_mutex);
   DataHandle<T> handle;
@@ -418,7 +418,7 @@ StatusCode SGImplSvc::retrieve(T*& ptr)
 // Retrieve the keyed object as a const pointer
 //////////////////////////////////////////////////////////////////
 template <typename T, typename TKEY>
-StatusCode SGImplSvc::retrieve(const T*& ptr, const TKEY& key)
+StatusCode SGImplSvc::retrieve(const T*& ptr, const TKEY& key) const
 {
 
   lock_t lock (m_mutex);
@@ -437,7 +437,7 @@ StatusCode SGImplSvc::retrieve(const T*& ptr, const TKEY& key)
 // Retrieve the keyed object as a non-const pointer
 //////////////////////////////////////////////////////////////////
 template <typename T, typename TKEY>
-StatusCode SGImplSvc::retrieve(T*& ptr, const TKEY& key)
+StatusCode SGImplSvc::retrieve(T*& ptr, const TKEY& key) const
 {
 
   lock_t lock (m_mutex);
@@ -458,7 +458,7 @@ StatusCode SGImplSvc::retrieve(T*& ptr, const TKEY& key)
 // Retrieve the default object (with no key) as a const DataHandle
 //////////////////////////////////////////////////////////////////
 template <typename T> 
-StatusCode SGImplSvc::retrieve(const DataHandle<T>& handle)
+StatusCode SGImplSvc::retrieve(const DataHandle<T>& handle) const
 {
   lock_t lock (m_mutex);
   SG::DataProxy* dp(proxy(ClassID_traits<T>::ID()));
@@ -486,7 +486,7 @@ StatusCode SGImplSvc::retrieve(const DataHandle<T>& handle)
 // Retrieve the default object (with no key) as a non-const DataHandle
 //////////////////////////////////////////////////////////////////
 template <typename T> 
-StatusCode SGImplSvc::retrieve(DataHandle<T>& handle)
+StatusCode SGImplSvc::retrieve(DataHandle<T>& handle) const
 {
 
   lock_t lock (m_mutex);
@@ -518,7 +518,7 @@ StatusCode SGImplSvc::retrieve(DataHandle<T>& handle)
 //////////////////////////////////////////////////////////////////
 template <typename T, typename TKEY>
 StatusCode SGImplSvc::retrieve(const DataHandle<T>& handle, 
-                               const TKEY& key)
+                               const TKEY& key) const
 {
   lock_t lock (m_mutex);
 #ifndef __clang__
@@ -551,7 +551,7 @@ StatusCode SGImplSvc::retrieve(const DataHandle<T>& handle,
 //////////////////////////////////////////////////////////////////
 template <typename T, typename TKEY> 
 StatusCode SGImplSvc::retrieve(DataHandle<T>& handle, 
-                               const TKEY& key)
+                               const TKEY& key) const
 {
   lock_t lock (m_mutex);
 #ifndef __clang__
@@ -587,7 +587,7 @@ StatusCode SGImplSvc::retrieve(DataHandle<T>& handle,
 //////////////////////////////////////////////////////////////////
 template <typename T> 
 StatusCode SGImplSvc::retrieve(SG::ConstIterator<T>& cibegin,
-                               SG::ConstIterator<T>& ciend )
+                               SG::ConstIterator<T>& ciend ) const
 {
   lock_t lock (m_mutex);
   const DataHandle<T> chbegin, chend;
@@ -606,7 +606,7 @@ StatusCode SGImplSvc::retrieve(SG::ConstIterator<T>& cibegin,
 //////////////////////////////////////////////////////////////////
 template <typename T> 
 StatusCode SGImplSvc::retrieve(const DataHandle<T>& chbegin,
-                               const DataHandle<T>& chend )
+                               const DataHandle<T>& chend ) const
 {
   lock_t lock (m_mutex);
   SG::ConstProxyIterator first;
@@ -645,7 +645,7 @@ StatusCode SGImplSvc::retrieve(const DataHandle<T>& chbegin,
  * @param key The key to use for the lookup.
  **/
 template <typename T>
-T* SGImplSvc::retrieve ()
+T* SGImplSvc::retrieve () const
 {
   T* p = 0;
   retrieve (p).ignore();
@@ -658,7 +658,7 @@ T* SGImplSvc::retrieve ()
  * @param key The key to use for the lookup.
  **/
 template <typename T, class TKEY>
-T* SGImplSvc::retrieve (const TKEY& key)
+T* SGImplSvc::retrieve (const TKEY& key) const
 {
   T* p = 0;
   retrieve (p, key).ignore();
@@ -671,7 +671,7 @@ T* SGImplSvc::retrieve (const TKEY& key)
  * @param key The key to use for the lookup.
  **/
 template <typename T>
-T* SGImplSvc::tryRetrieve ()
+T* SGImplSvc::tryRetrieve () const
 {
   lock_t lock (m_mutex);
   //FIXME should call addNewPersObject
@@ -684,7 +684,7 @@ T* SGImplSvc::tryRetrieve ()
 }
 
 template <typename T>
-const T* SGImplSvc::tryConstRetrieve()
+const T* SGImplSvc::tryConstRetrieve() const
 {
   lock_t lock (m_mutex);
   //FIXME should call addNewPersObject
@@ -702,7 +702,7 @@ const T* SGImplSvc::tryConstRetrieve()
  * @param key The key to use for the lookup.
  **/
 template <typename T, class TKEY>
-T* SGImplSvc::tryRetrieve (const TKEY& key)
+T* SGImplSvc::tryRetrieve (const TKEY& key) const
 {
   lock_t lock (m_mutex);
   DataHandle<T> handle;
@@ -714,7 +714,7 @@ T* SGImplSvc::tryRetrieve (const TKEY& key)
 }
 
 template <typename T, class TKEY>
-const T* SGImplSvc::tryConstRetrieve (const TKEY& key)
+const T* SGImplSvc::tryConstRetrieve (const TKEY& key) const
 {
   lock_t lock (m_mutex);
   const DataHandle<T> handle;
@@ -732,7 +732,7 @@ const T* SGImplSvc::tryConstRetrieve (const TKEY& key)
  * @param key The key to use for the lookup.
  **/
 template <typename T, class TKEY>
-T* SGImplSvc::retrieveAux (const TKEY& key)
+T* SGImplSvc::retrieveAux (const TKEY& key) const
 {
   lock_t lock (m_mutex);
   //FIXME should call addNewPersObject
@@ -745,7 +745,7 @@ T* SGImplSvc::retrieveAux (const TKEY& key)
 }
 
 template <typename T, class TKEY>
-const T* SGImplSvc::constRetrieveAux (const TKEY& key)
+const T* SGImplSvc::constRetrieveAux (const TKEY& key) const
 {
   lock_t lock (m_mutex);
   //FIXME should call addNewPersObject
@@ -1171,7 +1171,7 @@ SGImplSvc::regFcn( const std::string& toolName,
 template <typename T, class TKEY>
 StatusCode 
 SGImplSvc::retrieveHighestVersion(SG::ObjectWithVersion<T>& dobjWithVersion, 
-                                  const TKEY& requestedKey) {
+                                  const TKEY& requestedKey) const {
   std::list< SG::ObjectWithVersion<T> > allVersions;
   StatusCode sc(this->retrieveAllVersions(allVersions,requestedKey));
   if (sc.isSuccess()) {
@@ -1191,7 +1191,7 @@ SGImplSvc::retrieveHighestVersion(SG::ObjectWithVersion<T>& dobjWithVersion,
 template <typename T, class TKEY>
 StatusCode
 SGImplSvc::retrieveAllVersions(std::list< SG::ObjectWithVersion<T> >& allVersions,
-                               const TKEY& requestedKey) {
+                               const TKEY& requestedKey) const {
   lock_t lock (m_mutex);
   StatusCode sc(StatusCode::FAILURE);
   const DataHandle<T> i,e;
@@ -1254,7 +1254,7 @@ void SGImplSvc::remap (CLID clid,
  * @param key The key to use for the lookup.
  **/
 template <class DOBJ, class AUXSTORE>
-bool SGImplSvc::associateAux_impl(DataHandle<DOBJ>& handle, const AUXSTORE*)
+bool SGImplSvc::associateAux_impl(DataHandle<DOBJ>& handle, const AUXSTORE*) const
 {
   const std::string& key(handle.key());
   SG_MSG_VERBOSE("called associateAux_impl non const for key " + key);
@@ -1275,7 +1275,7 @@ bool SGImplSvc::associateAux_impl(DataHandle<DOBJ>& handle, const AUXSTORE*)
  * @param key The key to use for the lookup.
  **/
 template <class DOBJ, class AUXSTORE>
-bool SGImplSvc::associateAux_impl(const DataHandle<DOBJ>& handle, const AUXSTORE*)
+bool SGImplSvc::associateAux_impl(const DataHandle<DOBJ>& handle, const AUXSTORE*) const
 {
   const std::string& key(handle.key());
   SG_MSG_VERBOSE("called associateAux_impl const for key " + key);
@@ -1296,7 +1296,7 @@ bool SGImplSvc::associateAux_impl(const DataHandle<DOBJ>& handle, const AUXSTORE
  * @param key The key to use for the lookup.
  **/
 template <class DOBJ>
-bool SGImplSvc::associateAux (DataHandle<DOBJ>& handle, bool ignoreMissing)
+bool SGImplSvc::associateAux (DataHandle<DOBJ>& handle, bool ignoreMissing) const
 {
   lock_t lock (m_mutex);
   typename SG::AuxStore_traits<DOBJ>::type* pDummy(0); //used to pass down auxstore type
@@ -1309,7 +1309,7 @@ bool SGImplSvc::associateAux (DataHandle<DOBJ>& handle, bool ignoreMissing)
 }
 
 template <class DOBJ>
-bool SGImplSvc::associateAux (const DataHandle<DOBJ>& handle, bool ignoreMissing)
+bool SGImplSvc::associateAux (const DataHandle<DOBJ>& handle, bool ignoreMissing) const
 {
   lock_t lock (m_mutex);
   typename SG::AuxStore_traits<DOBJ>::const_type* pDummy(0); //used to pass down auxstore type

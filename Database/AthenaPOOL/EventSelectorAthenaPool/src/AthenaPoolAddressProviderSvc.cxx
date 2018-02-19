@@ -51,7 +51,6 @@ StoreGateSvc* AthenaPoolAddressProviderSvc::eventStore() const {
 }
 //________________________________________________________________________________
 StatusCode AthenaPoolAddressProviderSvc::initialize() {
-   ATH_MSG_INFO("Initializing " << name() << " - package version " << PACKAGE_VERSION);
    if (!::AthService::initialize().isSuccess()) {
       ATH_MSG_FATAL("Cannot initialize AthService base class.");
       return(StatusCode::FAILURE);
@@ -62,14 +61,13 @@ StatusCode AthenaPoolAddressProviderSvc::initialize() {
       return(StatusCode::FAILURE);
    }
    // Get scoped BackNavigation hints
-   for (std::vector<std::string>::const_iterator iter = m_backNavigationScope.value().begin(),
-		   last = m_backNavigationScope.value().end(); iter != last; iter++) {
-      const std::string::size_type p_colon = iter->find("::");
+   for (const auto& navigationHint : m_backNavigationScope) {
+      const std::string::size_type p_colon = navigationHint.find("::");
       if (p_colon == std::string::npos) {
-         ATH_MSG_FATAL("Unexpected format in BackNavigationScope: " << *iter);
+         ATH_MSG_FATAL("Unexpected format in BackNavigationScope: " << navigationHint);
          return(StatusCode::FAILURE);
       }
-      std::pair<std::string, std::string> entry(iter->substr(p_colon + 2), iter->substr(0, p_colon));
+      std::pair<std::string, std::string> entry(navigationHint.substr(p_colon + 2), navigationHint.substr(0, p_colon));
       m_backNavigationMap.insert(entry);
       ATH_MSG_INFO("BackNavigationScope for: " << entry.first << " :: " << entry.second);
    }
@@ -98,26 +96,25 @@ StatusCode AthenaPoolAddressProviderSvc::preLoadAddresses(StoreID::type storeID,
       ATH_MSG_ERROR("Cannot get DetectorStore.");
       return(StatusCode::FAILURE);
    }
-   std::list<SG::ObjectWithVersion<DataHeader> > allVersions;
-   if (!detectorStoreSvc->retrieveAllVersions(allVersions, "CondProxyProvider").isSuccess()) {
+   const DataHandle<DataHeader> dataHeader;
+   if (!detectorStoreSvc->contains<DataHeader>("CondProxyProvider")) {
+      ATH_MSG_DEBUG("Cannot find DataHeader in DetectorStore.");
+      return(StatusCode::SUCCESS);
+   }
+   if (!detectorStoreSvc->retrieve(dataHeader, "CondProxyProvider").isSuccess()) {
       ATH_MSG_DEBUG("Cannot retrieve DataHeader from DetectorStore.");
       return(StatusCode::SUCCESS);
    }
-   for (std::list<SG::ObjectWithVersion<DataHeader> >::const_iterator iter = allVersions.begin();
-		   iter != allVersions.end(); iter++) {
-      const DataHeader* dataHeader = iter->dataObject;
-      ATH_MSG_DEBUG("The current File contains: " << dataHeader->size() << " objects");
-      for (std::vector<DataHeaderElement>::const_iterator iter = dataHeader->begin(),
-		      last = dataHeader->end(); iter != last; iter++) {
-         SG::TransientAddress* tadd = iter->getAddress();
-         if (tadd->clID() == ClassID_traits<DataHeader>::ID()) {
-            delete tadd; tadd = 0;
-         } else {
-            ATH_MSG_DEBUG("preLoadAddresses: DataObject address, clid = " << tadd->clID() << ", name = " << tadd->name());
-            tads.push_back(tadd);
-         }
-         EventSelectorAthenaPoolUtil::registerKeys(*iter, &*detectorStoreSvc);
+   ATH_MSG_DEBUG("The current File contains: " << dataHeader->size() << " objects");
+   for (const auto& element : *dataHeader) {
+      SG::TransientAddress* tadd = element.getAddress();
+      if (tadd->clID() == ClassID_traits<DataHeader>::ID()) {
+         delete tadd; tadd = 0;
+      } else {
+         ATH_MSG_DEBUG("preLoadAddresses: DataObject address, clid = " << tadd->clID() << ", name = " << tadd->name());
+         tads.push_back(tadd);
       }
+      EventSelectorAthenaPoolUtil::registerKeys(element, &*detectorStoreSvc);
    }
    if (!detectorStoreSvc.release().isSuccess()) {
       ATH_MSG_WARNING("Cannot release DetectorStoreSvc.");
@@ -133,7 +130,7 @@ StatusCode AthenaPoolAddressProviderSvc::loadAddresses(StoreID::type storeID,
 
    Guid thisFile = Guid::null();
    long int oid2 = 0L;
-   if (m_dataHeaderIterator) {
+   if (m_dataHeaderIterator) { // Get oid2 (event file entry number) from DataHeader proxy
       const SG::DataProxy* dhProxy = eventStore()->proxy(ClassID_traits<DataHeader>::ID(), m_dataHeaderKey.value());
       if (dhProxy != 0 && dhProxy->address() != 0) {
          Token token;
@@ -142,7 +139,7 @@ StatusCode AthenaPoolAddressProviderSvc::loadAddresses(StoreID::type storeID,
          oid2 = token.oid().second;
       }
    }
-   if (thisFile == Guid::null() || oid2 == 0L || thisFile != m_guid) {
+   if (thisFile == Guid::null() || oid2 == 0L || thisFile != m_guid) { // New file (or reading DataHeader)
       const DataHandle<DataHeader> dataHeader;
       if (!eventStore()->retrieve(dataHeader, m_dataHeaderKey.value()).isSuccess() || !dataHeader.isValid()) {
          ATH_MSG_ERROR("Cannot retrieve DataHeader from StoreGate.");
@@ -150,9 +147,8 @@ StatusCode AthenaPoolAddressProviderSvc::loadAddresses(StoreID::type storeID,
       }
       dataHeader->setStatus(DataHeader::Primary);
       ATH_MSG_DEBUG("The current Event contains: " << dataHeader->size() << " objects");
-      for (std::vector<DataHeaderElement>::const_iterator iter = dataHeader->begin(),
-		      last = dataHeader->end(); iter != last; iter++) {
-         SG::TransientAddress* tadd = iter->getAddress();
+      for (const auto& element : *dataHeader) {
+         SG::TransientAddress* tadd = element.getAddress();
          if (tadd->clID() == ClassID_traits<DataHeader>::ID()) { // self reference
             if (tadd->name() != "StreamRAW") {
                if (tadd->name().empty() && dataHeader->sizeProvenance() == 1) { // reading DataHeader satellite
@@ -173,14 +169,12 @@ StatusCode AthenaPoolAddressProviderSvc::loadAddresses(StoreID::type storeID,
             }
             tads.push_back(tadd);
          }
-         EventSelectorAthenaPoolUtil::registerKeys(*iter, eventStore());
+         EventSelectorAthenaPoolUtil::registerKeys(element, eventStore());
       }
       m_guid = thisFile;
-   } else {
-      std::vector<const SG::DataProxy*> preExistingProxies = eventStore()->proxies();
-      for (std::vector<const SG::DataProxy*>::const_iterator iter = preExistingProxies.begin(),
-		      last = preExistingProxies.end(); iter != last; iter++) {
-         TokenAddress* tokAddr = dynamic_cast<TokenAddress*>((*iter)->address());
+   } else { // Iterating in current file, use DataHeader file entry number for all object references.
+      for (const auto& proxy : eventStore()->proxies()) {
+         TokenAddress* tokAddr = dynamic_cast<TokenAddress*>(proxy->address());
          if (tokAddr != 0 && tokAddr->getToken() != 0) {
             const_cast<Token*>(tokAddr->getToken())->oid().second = oid2;
          }
@@ -211,10 +205,9 @@ StatusCode AthenaPoolAddressProviderSvc::updateAddress(StoreID::type storeID,
          return(StatusCode::FAILURE);
       }
       const SG::TransientAddress* defObj = 0;
-      for (std::vector<DataHeaderElement>::const_iterator iter = dataHeader->begin(),
-		      last = dataHeader->end(); iter != last; iter++) {
-         const SG::TransientAddress* tadd = iter->getAddress();
-         std::set<CLID> ids = iter->getClassIDs();
+      for (const auto& element : *dataHeader) {
+         const SG::TransientAddress* tadd = element.getAddress();
+         const std::set<CLID>& ids = element.getClassIDs();
          if (ids.find(tad->clID()) != ids.end()) {
             if (defObj == 0 && tad->name() == tadd->name()) {
                defObj = tadd; tadd = 0;
@@ -229,7 +222,7 @@ StatusCode AthenaPoolAddressProviderSvc::updateAddress(StoreID::type storeID,
                }
             }
          }
-         EventSelectorAthenaPoolUtil::registerKeys(*iter, eventStore());
+         EventSelectorAthenaPoolUtil::registerKeys(element, eventStore());
          delete tadd; tadd = 0;
       }
       if (defObj !=0) {
@@ -292,14 +285,13 @@ StatusCode AthenaPoolAddressProviderSvc::chaseAddress(SG::TransientAddress* tad,
          return(StatusCode::FAILURE);
       }
       const SG::TransientAddress* defObj = 0;
-      for (std::vector<DataHeaderElement>::const_iterator iter = pDataHeader->begin(),
-		      last = pDataHeader->end(); iter != last; iter++) {
-         const SG::TransientAddress* tadd = iter->getAddress();
-         std::set<CLID> ids = iter->getClassIDs();
+      for (const auto& element: *pDataHeader) {
+         const SG::TransientAddress* tadd = element.getAddress();
+         const std::set<CLID>& ids = element.getClassIDs();
          if (defObj == 0 && ids.find(tad->clID()) != ids.end() && tad->name() == tadd->name()) {
             defObj = tadd; tadd = 0;
          }
-         EventSelectorAthenaPoolUtil::registerKeys(*iter, eventStore());
+         EventSelectorAthenaPoolUtil::registerKeys(element, eventStore());
          delete tadd; tadd = 0;
       }
       if (defObj !=0) {
@@ -312,20 +304,20 @@ StatusCode AthenaPoolAddressProviderSvc::chaseAddress(SG::TransientAddress* tad,
    if (!m_backNavigationFlag.value() && processTag.empty()) {
       return(StatusCode::FAILURE);
    }
-   std::vector<DataHeaderElement>::const_iterator thisInputToken = dataHeader->beginProvenance();
-   if (thisInputToken != dataHeader->endProvenance()) {
-      const Token* token = thisInputToken->getToken();
+   std::vector<DataHeaderElement>::const_iterator firstInputToken = dataHeader->beginProvenance();
+   if (firstInputToken != dataHeader->endProvenance()) {
+      const Token* token = firstInputToken->getToken();
       const std::string key = token != 0 ? token->dbID().toString() : "";
       const DataHandle<DataHeader> pDataHeader;
       if (!eventStore()->contains<DataHeader>(key)) {
-         GenericAddress* genAddr = new GenericAddress(thisInputToken->getStorageType(),
+         GenericAddress* genAddr = new GenericAddress(firstInputToken->getStorageType(),
 		         ClassID_traits<DataHeader>::ID(),
 		         token != 0 ? token->toString() : "");
          if (!eventStore()->recordAddress(key, genAddr).isSuccess()) {
             ATH_MSG_ERROR("chaseAddress2: Cannot record Input DataHeader, key = " << key);
             return(StatusCode::FAILURE);
          }
-         EventSelectorAthenaPoolUtil::registerKeys(*thisInputToken, eventStore());
+         EventSelectorAthenaPoolUtil::registerKeys(*firstInputToken, eventStore());
       }
       if (!eventStore()->retrieve(pDataHeader, key).isSuccess()) {
          ATH_MSG_ERROR("chaseAddress2: Cannot retrieve Input DataHeader, key = " << key);

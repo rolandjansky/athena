@@ -157,7 +157,7 @@ namespace Trk
 
 
   private:
-    long   m_maxIterations;
+    int   m_maxIterations;
     double m_maxDchi2PerNdf;
     double m_maxR;
     double m_maxZ;
@@ -165,8 +165,6 @@ namespace Trk
     bool   m_deltaR;
 
     /** Data members to store the results */
-    long                    m_iter;
-    FitError                m_error;
 
     ToolHandle< Trk::IExtrapolator > m_extrapolator;
     ServiceHandle < MagField::IMagFieldSvc > m_magFieldSvc;

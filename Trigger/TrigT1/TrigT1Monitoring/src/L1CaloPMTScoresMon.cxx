@@ -366,7 +366,7 @@ double L1CaloPMTScoresMon::tileNonNominal(const CaloCell* cell)
   int gain1(-9),gain2(-9);
   float score(0.0),multiplier(1.0);
   bool adc1_noGainL1(false),adc1_halfGainL1(false);
-  bool pmt2Valid(false),adc2_noGainL1(false),adc2_halfGainL1(false);;
+  bool pmt2Valid(false),adc2_noGainL1(false),adc2_halfGainL1(false);
 
   // PMT 1
   gain1 = tileCell->gain1();

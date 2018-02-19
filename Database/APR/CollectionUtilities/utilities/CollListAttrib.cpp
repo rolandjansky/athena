@@ -102,7 +102,7 @@ int main(int argc, const char *argv[])
 	    collection = collectionService.handle( srcinfo.name(i), srcinfo.type(i), srcinfo.connect(), readOnly );
 	 }
 	 catch ( pool::Exception& poolException ) {
-	    std::cerr << "pool::Exception: " << poolException.what() << std::endl;;
+	    std::cerr << "pool::Exception: " << poolException.what() << std::endl;
 	    cout << "Unable to open collection " << srcinfo.name(i) << endl;
 	    cout << "---> STOPPING HERE" << endl;
 	    return 5;
@@ -202,17 +202,17 @@ int main(int argc, const char *argv[])
    }
    catch( pool::Exception& poolException )
    {
-      std::cerr << "pool::Exception: " << poolException.what() << std::endl;;
+      std::cerr << "pool::Exception: " << poolException.what() << std::endl;
       return 1;
    }
    catch( std::exception& exception )
    {
-      std::cerr << "std::exception: " << exception.what() << std::endl;;
+      std::cerr << "std::exception: " << exception.what() << std::endl;
       return 1;
    }
    catch( ... )
    {
-      std::cerr << "Unknown exception caught in main()." << std::endl;;
+      std::cerr << "Unknown exception caught in main()." << std::endl;
       return 1;
    }
 }

@@ -36,7 +36,7 @@ atlas_add_component( ByteStreamCnvSvcBase
 
 atlas_add_test( ROBDataProviderSvcMT		 
 		SCRIPT test/test_ROBDataProviderSvcMT.sh		
-		TIMEOUT 1200 )
+		PROPERTIES TIMEOUT 1200 )
 #
 
 # Install files from the package:

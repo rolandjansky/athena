@@ -73,7 +73,7 @@ topSequence += AthenaPoolOutputStream( "Stream1", noTag=True )
 # Must make sure that no OutStream's have been declared
 theApp.OutStream     = []; 
 # Stream's output file
-Stream1.WritingTool = "AthenaPoolOutputStreamTool"
+Stream1.WritingTool = "AthenaOutputStreamTool"
 Stream1.OutputFile  = "SimplePoolFile1.root"
 # List of DO's to write out
 #Stream1.ItemList   += fullItemList

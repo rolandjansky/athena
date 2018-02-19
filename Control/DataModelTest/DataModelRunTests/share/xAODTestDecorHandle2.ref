@@ -1,4 +1,4 @@
-Thu Nov  2 15:52:32 EDT 2017
+Mon Jan 29 12:06:33 EST 2018
 WARNING: TCMALLOCDIR not defined, will use libc malloc
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
 Py:Athena            INFO using release [?-21.0.0] [i686-slc5-gcc43-dbg] [?/?] -- built on [?]
@@ -7,7 +7,7 @@ Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "DataModelRunTests/xAODTestDecorHandle2_jo.py"
-Py:ConfigurableDb    INFO Read module info for 467 configurables from 2 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 468 configurables from 2 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
 # setting LC_ALL to "C"
@@ -15,7 +15,7 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
-                                          running on karma on Thu Nov  2 15:52:59 2017
+                                          running on karma on Mon Jan 29 12:06:39 2018
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -23,7 +23,7 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 10025 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 10097 CLIDRegistry entries for module ALL
 ChronoStatSvc        INFO  Number of skipped events for MemStat-1
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
@@ -42,28 +42,27 @@ PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
-EventSelector        INFO reinitialization...
-EventSelector        INFO EventSelection with query 
-Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] D45552C7-3AA1-9A49-A420-3F8F30601500
-Domain[ROOT_All]     INFO                           xaoddata.root
-RootDatabase.open    INFO xaoddata.root File version:60806
-EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
 EventSelector        INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-00-00
 EventSelector        INFO reinitialization...
 EventSelector        INFO EventSelection with query 
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] B0544B8E-9BE7-6A4D-B280-F60BD34489CB
+Domain[ROOT_All]     INFO                           xaoddata.root
+RootDatabase.open    INFO xaoddata.root File version:60806
+EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
+ClassIDSvc           INFO  getRegistryEntries: read 1084 CLIDRegistry entries for module ALL
 AthenaPoolAddre...   INFO Initializing AthenaPoolAddressProviderSvc - package version EventSelectorAthenaPool-00-00-00
 HistogramPersis...WARNING Histograms saving not required.
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ApplicationMgr       INFO Application Manager Initialized successfully
 xaoddata.root        INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] D45552C7-3AA1-9A49-A420-3F8F30601500
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] B0544B8E-9BE7-6A4D-B280-F60BD34489CB
+Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] D45552C7-3AA1-9A49-A420-3F8F30601500
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] B0544B8E-9BE7-6A4D-B280-F60BD34489CB
 Domain[ROOT_All]     INFO                           xaoddata.root
 RootDatabase.open    INFO xaoddata.root File version:60806
 ApplicationMgr       INFO Application Manager Started successfully
-ClassIDSvc           INFO  getRegistryEntries: read 1084 CLIDRegistry entries for module ALL
 AlgResourcePool      INFO TopAlg list empty. Recovering the one of Application Manager
 AthenaPoolConve...   INFO massageEventInfo: unable to get OverrideRunNumberFromInput property from EventSelector 
 ClassIDSvc           INFO  getRegistryEntries: read 16 CLIDRegistry entries for module ALL
@@ -71,86 +70,126 @@ AthenaEventLoopMgr   INFO   ===>>>  start of run 0    <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #0, run #0 0 events processed so far  <<<===
 xAODTestReadDecor    INFO cvec.dInt1: 401 402 403 404 405 406 407 408 409 410
 xAODTestReadDecor    INFO cinfo.dInt1: 3000
+xAODTestReadDecor    INFO cinfo.dInt1Base: 3001
+xAODTestReadDecor    INFO cinfo.dInt1: 3000
 ClassIDSvc           INFO  getRegistryEntries: read 54 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #0, run #0 1 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #0 1 events processed so far  <<<===
 xAODTestReadDecor    INFO cvec.dInt1: 801 802 803 804 805 806 807 808 809 810
 xAODTestReadDecor    INFO cinfo.dInt1: 6000
+xAODTestReadDecor    INFO cinfo.dInt1Base: 6001
+xAODTestReadDecor    INFO cinfo.dInt1: 6000
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #1, run #0 2 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #0 2 events processed so far  <<<===
 xAODTestReadDecor    INFO cvec.dInt1: 1201 1202 1203 1204 1205 1206 1207 1208 1209 1210
+xAODTestReadDecor    INFO cinfo.dInt1: 9000
+xAODTestReadDecor    INFO cinfo.dInt1Base: 9001
 xAODTestReadDecor    INFO cinfo.dInt1: 9000
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #2, run #0 3 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #3, run #0 3 events processed so far  <<<===
 xAODTestReadDecor    INFO cvec.dInt1: 1601 1602 1603 1604 1605 1606 1607 1608 1609 1610
 xAODTestReadDecor    INFO cinfo.dInt1: 12000
+xAODTestReadDecor    INFO cinfo.dInt1Base: 12001
+xAODTestReadDecor    INFO cinfo.dInt1: 12000
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #3, run #0 4 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #0 4 events processed so far  <<<===
 xAODTestReadDecor    INFO cvec.dInt1:
+xAODTestReadDecor    INFO cinfo.dInt1: 15000
+xAODTestReadDecor    INFO cinfo.dInt1Base: 15001
 xAODTestReadDecor    INFO cinfo.dInt1: 15000
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #4, run #0 5 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #5, run #0 5 events processed so far  <<<===
 xAODTestReadDecor    INFO cvec.dInt1: 2401 2402 2403 2404 2405 2406 2407 2408 2409 2410
 xAODTestReadDecor    INFO cinfo.dInt1: 18000
+xAODTestReadDecor    INFO cinfo.dInt1Base: 18001
+xAODTestReadDecor    INFO cinfo.dInt1: 18000
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #5, run #0 6 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #6, run #0 6 events processed so far  <<<===
 xAODTestReadDecor    INFO cvec.dInt1: 2801 2802 2803 2804 2805 2806 2807 2808 2809 2810
+xAODTestReadDecor    INFO cinfo.dInt1: 21000
+xAODTestReadDecor    INFO cinfo.dInt1Base: 21001
 xAODTestReadDecor    INFO cinfo.dInt1: 21000
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #6, run #0 7 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #7, run #0 7 events processed so far  <<<===
 xAODTestReadDecor    INFO cvec.dInt1: 3201 3202 3203 3204 3205 3206 3207 3208 3209 3210
 xAODTestReadDecor    INFO cinfo.dInt1: 24000
+xAODTestReadDecor    INFO cinfo.dInt1Base: 24001
+xAODTestReadDecor    INFO cinfo.dInt1: 24000
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #7, run #0 8 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #8, run #0 8 events processed so far  <<<===
 xAODTestReadDecor    INFO cvec.dInt1: 3601 3602 3603 3604 3605 3606 3607 3608 3609 3610
+xAODTestReadDecor    INFO cinfo.dInt1: 27000
+xAODTestReadDecor    INFO cinfo.dInt1Base: 27001
 xAODTestReadDecor    INFO cinfo.dInt1: 27000
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #8, run #0 9 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #9, run #0 9 events processed so far  <<<===
 xAODTestReadDecor    INFO cvec.dInt1: 4001 4002 4003 4004 4005 4006 4007 4008 4009 4010
 xAODTestReadDecor    INFO cinfo.dInt1: 30000
+xAODTestReadDecor    INFO cinfo.dInt1Base: 30001
+xAODTestReadDecor    INFO cinfo.dInt1: 30000
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #9, run #0 10 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #10, run #0 10 events processed so far  <<<===
 xAODTestReadDecor    INFO cvec.dInt1: 4401 4402 4403 4404 4405 4406 4407 4408 4409 4410
+xAODTestReadDecor    INFO cinfo.dInt1: 33000
+xAODTestReadDecor    INFO cinfo.dInt1Base: 33001
 xAODTestReadDecor    INFO cinfo.dInt1: 33000
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #10, run #0 11 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #11, run #0 11 events processed so far  <<<===
 xAODTestReadDecor    INFO cvec.dInt1: 4801 4802 4803 4804 4805 4806 4807 4808 4809 4810
 xAODTestReadDecor    INFO cinfo.dInt1: 36000
+xAODTestReadDecor    INFO cinfo.dInt1Base: 36001
+xAODTestReadDecor    INFO cinfo.dInt1: 36000
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #11, run #0 12 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #12, run #0 12 events processed so far  <<<===
 xAODTestReadDecor    INFO cvec.dInt1: 5201 5202 5203 5204 5205 5206 5207 5208 5209 5210
+xAODTestReadDecor    INFO cinfo.dInt1: 39000
+xAODTestReadDecor    INFO cinfo.dInt1Base: 39001
 xAODTestReadDecor    INFO cinfo.dInt1: 39000
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #12, run #0 13 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #13, run #0 13 events processed so far  <<<===
 xAODTestReadDecor    INFO cvec.dInt1: 5601 5602 5603 5604 5605 5606 5607 5608 5609 5610
 xAODTestReadDecor    INFO cinfo.dInt1: 42000
+xAODTestReadDecor    INFO cinfo.dInt1Base: 42001
+xAODTestReadDecor    INFO cinfo.dInt1: 42000
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #13, run #0 14 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #14, run #0 14 events processed so far  <<<===
 xAODTestReadDecor    INFO cvec.dInt1: 6001 6002 6003 6004 6005 6006 6007 6008 6009 6010
+xAODTestReadDecor    INFO cinfo.dInt1: 45000
+xAODTestReadDecor    INFO cinfo.dInt1Base: 45001
 xAODTestReadDecor    INFO cinfo.dInt1: 45000
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #14, run #0 15 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #15, run #0 15 events processed so far  <<<===
 xAODTestReadDecor    INFO cvec.dInt1: 6401 6402 6403 6404 6405 6406 6407 6408 6409 6410
 xAODTestReadDecor    INFO cinfo.dInt1: 48000
+xAODTestReadDecor    INFO cinfo.dInt1Base: 48001
+xAODTestReadDecor    INFO cinfo.dInt1: 48000
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #15, run #0 16 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #16, run #0 16 events processed so far  <<<===
 xAODTestReadDecor    INFO cvec.dInt1: 6801 6802 6803 6804 6805 6806 6807 6808 6809 6810
+xAODTestReadDecor    INFO cinfo.dInt1: 51000
+xAODTestReadDecor    INFO cinfo.dInt1Base: 51001
 xAODTestReadDecor    INFO cinfo.dInt1: 51000
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #16, run #0 17 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #17, run #0 17 events processed so far  <<<===
 xAODTestReadDecor    INFO cvec.dInt1: 7201 7202 7203 7204 7205 7206 7207 7208 7209 7210
 xAODTestReadDecor    INFO cinfo.dInt1: 54000
+xAODTestReadDecor    INFO cinfo.dInt1Base: 54001
+xAODTestReadDecor    INFO cinfo.dInt1: 54000
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #17, run #0 18 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #18, run #0 18 events processed so far  <<<===
 xAODTestReadDecor    INFO cvec.dInt1: 7601 7602 7603 7604 7605 7606 7607 7608 7609 7610
+xAODTestReadDecor    INFO cinfo.dInt1: 57000
+xAODTestReadDecor    INFO cinfo.dInt1Base: 57001
 xAODTestReadDecor    INFO cinfo.dInt1: 57000
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #18, run #0 19 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #19, run #0 19 events processed so far  <<<===
 xAODTestReadDecor    INFO cvec.dInt1: 8001 8002 8003 8004 8005 8006 8007 8008 8009 8010
 xAODTestReadDecor    INFO cinfo.dInt1: 60000
+xAODTestReadDecor    INFO cinfo.dInt1Base: 60001
+xAODTestReadDecor    INFO cinfo.dInt1: 60000
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #0 20 events processed so far  <<<===
 xaoddata.root        INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] D45552C7-3AA1-9A49-A420-3F8F30601500
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] B0544B8E-9BE7-6A4D-B280-F60BD34489CB
 ApplicationMgr       INFO Application Manager Stopped successfully
 IncidentProcAlg1     INFO Finalize
 IncidentProcAlg2     INFO Finalize

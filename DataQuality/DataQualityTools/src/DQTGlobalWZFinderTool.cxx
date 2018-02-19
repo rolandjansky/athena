@@ -117,6 +117,13 @@ DQTGlobalWZFinderTool::DQTGlobalWZFinderTool(const std::string & type,
 
 }
 
+
+StatusCode DQTGlobalWZFinderTool::initialize() {
+  ATH_CHECK(m_muonSelectionTool.retrieve());
+  ATH_CHECK(m_isolationSelectionTool.retrieve());
+  return DataQualityFatherMonTool::initialize();
+}
+
 //----------------------------------------------------------------------------------
 DQTGlobalWZFinderTool::~DQTGlobalWZFinderTool()
 //----------------------------------------------------------------------------------

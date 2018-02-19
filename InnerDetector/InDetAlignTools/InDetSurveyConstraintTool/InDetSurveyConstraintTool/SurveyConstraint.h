@@ -74,9 +74,9 @@ class SurveyConstraint : virtual public ISurveyConstraint, public AthAlgTool{
   
 
   IToolSvc*                              m_toolsvc;            //!< Pointer to tool service
-  IInDetAlignDBTool*                     current_IDAlignDBTool;
-  IInDetAlignDBTool*                     survey_IDAlignDBTool;
-  IRndmGenSvc*                           randsvc;
+  IInDetAlignDBTool*                     m_current_IDAlignDBTool;
+  IInDetAlignDBTool*                     m_survey_IDAlignDBTool;
+  IRndmGenSvc*                           m_randsvc;
   //ServiceHandle<IRndmGenSvc>             randsvc;
 
   // dictionary of module constrain objects, indexed by moduleID

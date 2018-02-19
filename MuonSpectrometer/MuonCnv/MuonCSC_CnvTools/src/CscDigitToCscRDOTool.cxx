@@ -359,8 +359,8 @@ StatusCode CscDigitToCscRDOTool::fill_CSCdata()
       ATH_MSG_DEBUG ( "CSC Digit->RDO: Digit offline info " << m_cscHelper->show_to_string(offlineChannelId)
                       << " " << cscDigit->charge() );	  
 
-      int zsec = m_cscHelper->stationEta(offlineChannelId);;
-      int phisec = m_cscHelper->stationPhi(offlineChannelId);;
+      int zsec = m_cscHelper->stationEta(offlineChannelId);
+      int phisec = m_cscHelper->stationPhi(offlineChannelId);
       int istation = m_cscHelper->stationName(offlineChannelId) - 49;
       int sector = zsec*(2*phisec-istation+1);
       int wlay = m_cscHelper->wireLayer(offlineChannelId);

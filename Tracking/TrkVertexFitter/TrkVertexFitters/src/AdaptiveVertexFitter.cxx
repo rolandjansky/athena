@@ -25,7 +25,6 @@
 #include "TrkParticleBase/TrackParticleBase.h"
 #include "TrkLinks/LinkToXAODTrackParticle.h"
 #include "TrkLinks/LinkToXAODNeutralParticle.h"
-#include "TrkVxEdmCnv/IVxCandidateXAODVertex.h"
 
 //xAOD includes
 #include "xAODTracking/Vertex.h"
@@ -44,7 +43,6 @@ namespace Trk
     m_VertexUpdator("Trk::KalmanVertexUpdator"),
     m_VertexSmoother("Trk::DummyVertexSmoother"),
     m_AnnealingMaker("Trk::DetAnnealingMaker"),
-    m_xaodConverter("Trk::VxCandidateXAODVertex"),
     m_maxIterations(50),
     m_maxDistToLinPoint(0.5),
     m_initialError(0.0001),
@@ -61,7 +59,6 @@ namespace Trk
     declareProperty("VertexUpdator",m_VertexUpdator);
     declareProperty("VertexSmoother",m_VertexSmoother);
     declareProperty("AnnealingMaker",m_AnnealingMaker);
-    declareProperty("XAODConverter",m_xaodConverter);
     declareProperty("onlyzseed",m_onlyzseed);
     declareProperty("DoSmoothing",m_doSmoothing);
     declareInterface<IVertexFitter>(this);
@@ -129,15 +126,6 @@ namespace Trk
   } else {
     msg(MSG::INFO) << "Retrieved tool " << m_AnnealingMaker << endmsg;
   }
-  
-  //XAOD Converter  
-  if ( m_xaodConverter.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_xaodConverter << endmsg;
-    return StatusCode::FAILURE;
-   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_xaodConverter << endmsg;
-   }
-  
   
     msg(MSG::INFO)  << "Initialize successful" << endmsg;
     return StatusCode::SUCCESS;

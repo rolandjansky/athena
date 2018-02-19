@@ -4,6 +4,8 @@
 
 #include "SCT_LinkMaskingCondAlg.h"
 
+#include <memory>
+
 #include "GaudiKernel/EventIDRange.h"
 
 SCT_LinkMaskingCondAlg::SCT_LinkMaskingCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
@@ -71,7 +73,7 @@ StatusCode SCT_LinkMaskingCondAlg::execute() {
   ATH_MSG_INFO("Range of input is " << rangeW);
   
   // Construct the output Cond Object and fill it in
-  SCT_ModuleVetoCondData* writeCdo{new SCT_ModuleVetoCondData()};
+  std::unique_ptr<SCT_ModuleVetoCondData> writeCdo{std::make_unique<SCT_ModuleVetoCondData>()};
 
   // Read bad wafer info
   CondAttrListCollection::const_iterator linkItr{readCdo->begin()};
@@ -87,7 +89,7 @@ StatusCode SCT_LinkMaskingCondAlg::execute() {
   if (writeCdo->size()!=0) writeCdo->setFilled();
 
   // Record the output cond object
-  if (writeHandle.record(rangeW, writeCdo).isFailure()) {
+  if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
     ATH_MSG_FATAL("Could not record SCT_ModuleVetoCondData " << writeHandle.key() 
                   << " with EventRange " << rangeW
                   << " into Conditions Store");

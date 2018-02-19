@@ -69,8 +69,8 @@ CaloSurfaceBuilder::CaloSurfaceBuilder(const std::string& type,
   m_tile_dd(nullptr),
   m_lar_mat("LArRecoMaterialTool"),
   m_lar_simplegeom("LArRecoSimpleGeomTool"),
-  m_calodepth("CaloDepthTool"),
-  m_tileVolumeBuilder("Tile::TileVolumeBuilder/TileVolumeBuilder")
+  m_calodepth("CaloDepthTool")
+  //m_tileVolumeBuilder("Tile::TileVolumeBuilder/TileVolumeBuilder")
 {
   declareInterface<ICaloSurfaceBuilder>( this );
 
@@ -78,7 +78,7 @@ CaloSurfaceBuilder::CaloSurfaceBuilder(const std::string& type,
   declareProperty ("LArRecoMaterialTool",       m_lar_mat);
   declareProperty ("LarRecoSimpleGeometryTool", m_lar_simplegeom);
   declareProperty ("CaloDepthTool",             m_calodepth);
-  declareProperty ("TileVolumeBuilder",         m_tileVolumeBuilder);
+  //declareProperty ("TileVolumeBuilder",         m_tileVolumeBuilder);
 
 }
 

@@ -146,7 +146,7 @@ SoNode*     SurfaceToSoNode::translatePlaneSurface(const Trk::PlaneSurface& psf 
      x.push_back(-cdiabo->minHalflengthX());y.push_back( -2*cdiabo->halflengthY1());
 
      SbPolyhedronPolygonXSect sbPoly(x,y,dz);
-     return new SoPolyhedron(sbPoly);;
+     return new SoPolyhedron(sbPoly);
    }
    
    const Trk::AnnulusBounds* cannulus = dynamic_cast<const Trk::AnnulusBounds*>(&(psf.bounds()));

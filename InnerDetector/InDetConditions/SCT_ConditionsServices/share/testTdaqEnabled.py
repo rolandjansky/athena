@@ -15,14 +15,11 @@ import AthenaCommon.AtlasUnixStandardJob
 from AthenaCommon.AppMgr import ServiceMgr
 
 from GaudiSvc.GaudiSvcConf import AuditorSvc
-#from AthenaCommon.AppMgr import theApp
 
 ServiceMgr += AuditorSvc()
 theAuditorSvc = ServiceMgr.AuditorSvc
 theAuditorSvc.Auditors  += [ "ChronoAuditor"]
-#ChronoStatSvc = Service ( "ChronoStatSvc")
 theAuditorSvc.Auditors  += [ "MemStatAuditor" ]
-#MemStatAuditor = theAuditorSvc.auditor( "MemStatAuditor" )
 theApp.AuditAlgorithms=False
 
 #--------------------------------------------------------------
@@ -78,13 +75,6 @@ condSeq = AthSequencer("AthCondSeq")
 from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
 condSeq+=xAODMaker__EventInfoCnvAlg(OutputLevel=2)
 
-from IOVSvc.IOVSvcConf import CondInputLoader 
-condSeq += CondInputLoader( "CondInputLoader",OutputLevel=2)
-import StoreGate.StoreGateConf as StoreGateConf 
-ServiceMgr += StoreGateConf.StoreGateSvc("ConditionStore")
-from  SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_TdaqEnabledCondAlg
-condSeq += SCT_TdaqEnabledCondAlg( "SCT_TdaqEnabledCondAlg" ) 
-
 #--------------------------------------------------------------
 # Load DCSConditions Alg and Service
 #--------------------------------------------------------------
@@ -93,12 +83,6 @@ topSequence = AlgSequence()
 
 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_TdaqEnabledTestAlg
 topSequence+= SCT_TdaqEnabledTestAlg()
-
-from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_TdaqEnabledSvc
-ServiceMgr += SCT_TdaqEnabledSvc()
-
-SCT_TdaqEnabledSvc.AttrListCollFolders=["/TDAQ/Resources/ATLAS/SCT/Robins"]
-
 
 #--------------------------------------------------------------
 # Event selector settings. Use McEventSelector
@@ -124,11 +108,13 @@ ServiceMgr.MessageSvc.OutputLevel = 3
 #--------------------------------------------------------------
 IOVDbSvc = Service("IOVDbSvc")
 from IOVDbSvc.CondDB import conddb
-#IOVDbSvc.GlobalTag="HEAD"
 IOVDbSvc.GlobalTag="CONDBR2-BLKPA-2017-06"
 IOVDbSvc.OutputLevel = 3
-conddb.addFolder("TDAQ", "/TDAQ/Resources/ATLAS/SCT/Robins", className="CondAttrListCollection")
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/ROD", "/SCT/DAQ/Config/ROD")
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/Geog", "/SCT/DAQ/Config/Geog")
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/RODMUR", "/SCT/DAQ/Config/RODMUR")
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/MUR", "/SCT/DAQ/Config/MUR")
+
+from SCT_ConditionsServices.SCT_TdaqEnabledSvcSetup import SCT_TdaqEnabledSvcSetup
+sct_TdaqEnabledSvcSetup = SCT_TdaqEnabledSvcSetup()
+sct_TdaqEnabledSvcSetup.setup()

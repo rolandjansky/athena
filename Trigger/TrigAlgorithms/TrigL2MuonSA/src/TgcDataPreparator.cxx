@@ -217,7 +217,7 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
      }
    } else {
      ATH_MSG_ERROR("Null pointer to ActiveStore");
-     return StatusCode::FAILURE;;
+     return StatusCode::FAILURE;
    }  
  
    //Find closest wires in Middle

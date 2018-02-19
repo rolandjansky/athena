@@ -17,7 +17,7 @@
 using namespace std;
 
 FTKRawHit::FTKRawHit()
-  : TObject(), m_truth(0), m_channels()
+  : TObject(), m_truth(nullptr), m_channels()
 {
   // nothing to do
   reset();
@@ -25,7 +25,7 @@ FTKRawHit::FTKRawHit()
 
 /* Special constructor for SCTtrk hits*/
 FTKRawHit::FTKRawHit(const FTKTrack* trk, int) :
-  TObject(), m_truth(0), m_channels()
+  TObject(), m_truth(nullptr), m_channels()
 {
   reset();
   m_x = trk->getPhi();
@@ -65,10 +65,12 @@ FTKRawHit::FTKRawHit(const FTKRawHit &cpy) :
   m_barcode(cpy.m_barcode),
   m_barcode_pt(cpy.m_barcode_pt),
   m_parentage_mask(cpy.m_parentage_mask),
-  m_truth(0), m_channels(cpy.m_channels)
+  m_channels(cpy.m_channels)
 {
   if (cpy.m_truth)
     m_truth = new MultiTruth(*(cpy.m_truth));
+  else
+    m_truth = nullptr;
 }
 
 FTKRawHit::~FTKRawHit()
@@ -76,7 +78,7 @@ FTKRawHit::~FTKRawHit()
   if (m_truth) delete m_truth;
 }
 
-// shallow copy - MultiTruth is NOT copied!
+// shallow copy - MultiTruth did not used to be copied, but is now!
 FTKRawHit& FTKRawHit::operator=(const FTKRawHit &cpy)
 {
 #ifdef PROTECT_SA // speedup
@@ -104,8 +106,11 @@ FTKRawHit& FTKRawHit::operator=(const FTKRawHit &cpy)
       m_barcode_pt = cpy.m_barcode_pt;
       m_parentage_mask = cpy.m_parentage_mask;
       m_hw_word = cpy.m_hw_word;
-      m_truth = 0;
+      m_truth = nullptr;
       m_channels.assign(cpy.m_channels.begin(),cpy.m_channels.end());
+      if (cpy.m_truth)
+	m_truth = new MultiTruth(*(cpy.m_truth));
+      ///
     }
   return *this;
 }
@@ -396,9 +401,10 @@ FTKHit FTKRawHit::getFTKHit(const FTKPlaneMap *pmap) const {
     break;
   case ftk::SCT:
     //    reshit[0] = m_ei_strip+(m_n_strips-1.)/2.;
-    //    reshit.setNStrips(getNStrips());
     reshit[0] = m_ei_strip+m_dPhi;
     reshit.setNStrips(getNStrips());
+    reshit.setEtaWidth(getEtaWidth());
+    reshit.setPhiWidth(getPhiWidth());
     break;
   case ftk::SCTtrk:
     // cy to adjust 8L track pars if they exceed thresholds

@@ -11,7 +11,7 @@
   #ifndef CMXEtSums_H
   #define CMXEtSums_H
   
-  #include "CLIDSvc/CLASS_DEF.h"
+  #include "AthenaKernel/CLASS_DEF.h"
 
 
   #include <iostream>

@@ -4,16 +4,16 @@
 
 #include "SCT_ConfigurationCondAlg.h"
 
+// STL include
+#include <memory>
+
 // Athena include
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "SCT_Cabling/SCT_SerialNumber.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-
-// Local includes
-#include "SCT_ReadoutTool.h"
-#include "SCT_Chip.h"
+#include "SCT_ConditionsTools/SCT_Chip.h"
 
 // Static folder names 
 const std::string SCT_ConfigurationCondAlg::s_coolChannelFolderName{"/SCT/DAQ/Configuration/Chip"};
@@ -27,7 +27,6 @@ const std::string SCT_ConfigurationCondAlg::s_coolMurFolderName2{"/SCT/DAQ/Confi
 
 SCT_ConfigurationCondAlg::SCT_ConfigurationCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthAlgorithm(name, pSvcLocator)
-  , m_writeCdo{nullptr}
   , m_readKeyChannel{"/SCT/DAQ/Config/Chip"}
   , m_readKeyModule{"/SCT/DAQ/Config/Module"}
   , m_readKeyMur{"/SCT/DAQ/Config/MUR"}
@@ -86,6 +85,8 @@ StatusCode SCT_ConfigurationCondAlg::initialize() {
     return StatusCode::FAILURE;
   }
 
+  ATH_CHECK( m_readoutTool.retrieve() );
+
   return StatusCode::SUCCESS;
 }
 
@@ -106,21 +107,17 @@ StatusCode SCT_ConfigurationCondAlg::execute() {
   }
 
   // Construct the output Cond Object and fill it in
-  m_writeCdo = new SCT_ConfigurationCondData();
+  std::unique_ptr<SCT_ConfigurationCondData> writeCdo{std::make_unique<SCT_ConfigurationCondData>()};
   // clear structures before filling
-  m_writeCdo->clear();
+  writeCdo->clear();
 
   // Fill module data
-  if (fillModuleData().isFailure()) {
-    delete m_writeCdo;
-    m_writeCdo = nullptr;
+  if (fillModuleData(writeCdo.get()).isFailure()) {
     return StatusCode::FAILURE;
   }
 
   // Fill strip, chip and link info if Chip or MUR folders change
-  if (fillChannelData().isFailure()) {
-    delete m_writeCdo;
-    m_writeCdo = nullptr;
+  if (fillChannelData(writeCdo.get()).isFailure()) {
     return StatusCode::FAILURE;
   }
 
@@ -128,11 +125,9 @@ StatusCode SCT_ConfigurationCondAlg::execute() {
   EventIDRange rangeW{EventIDRange::intersect(m_rangeChannel, m_rangeModule, m_rangeMur)};
   if(rangeW.start()>rangeW.stop()) {
     ATH_MSG_FATAL("Invalid intersection range: " << rangeW << " " << m_rangeChannel << " " << m_rangeModule << " " << m_rangeMur);
-    delete m_writeCdo;
-    m_writeCdo = nullptr;
     return StatusCode::FAILURE;
   }
-  if (writeHandle.record(rangeW, m_writeCdo).isFailure()) {
+  if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
     ATH_MSG_FATAL("Could not record SCT_ConfigurationCondData " << writeHandle.key() 
                   << " with EventRange " << rangeW
                   << " into Conditions Store");
@@ -140,16 +135,13 @@ StatusCode SCT_ConfigurationCondAlg::execute() {
   }
   ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
 
-  // Set null pointer for the next execute.
-  m_writeCdo = nullptr;
-
   return StatusCode::SUCCESS;
 }
 
 // Fill bad strip, chip and link info
-StatusCode SCT_ConfigurationCondAlg::fillChannelData() {
+StatusCode SCT_ConfigurationCondAlg::fillChannelData(SCT_ConfigurationCondData* writeCdo) {
   // Check if the pointer of derived conditions object is valid.
-  if (m_writeCdo==nullptr) {
+  if (writeCdo==nullptr) {
     ATH_MSG_FATAL("Pointer of derived conditions object is null");
     return StatusCode::FAILURE;
   }
@@ -181,10 +173,10 @@ StatusCode SCT_ConfigurationCondAlg::fillChannelData() {
   const unsigned int mask3Index{ run1 ? static_cast<unsigned int>(MASK3_1)  : static_cast<unsigned int>(MASK3_2)};
 
   // Clear previous information at callback
-  m_writeCdo->clearBadStripIds();
-  m_writeCdo->clearBadChips();
+  writeCdo->clearBadStripIds();
+  writeCdo->clearBadChips();
   // Fill link status
-  if (fillLinkStatus().isFailure()) return StatusCode::FAILURE;
+  if (fillLinkStatus(writeCdo).isFailure()) return StatusCode::FAILURE;
 
   // Get channel folder for link info 
   SG::ReadCondHandle<CondAttrListVec> readHandle{m_readKeyChannel};
@@ -217,11 +209,11 @@ StatusCode SCT_ConfigurationCondAlg::fillChannelData() {
     IdentifierHash oppWaferHash;
     m_pHelper->get_other_side(hash, oppWaferHash);
     const Identifier oppWaferId{m_pHelper->wafer_id(oppWaferHash)};
-    bool isBadModule{m_writeCdo->isBadModuleId(moduleId)};
+    bool isBadModule{writeCdo->isBadModuleId(moduleId)};
 
     // Get link status 
     // Can maybe be smarter if both links are bad (but the module will probably be bad then)
-    std::pair<bool, bool> linkResults{m_writeCdo->areBadLinks(moduleId)};
+    std::pair<bool, bool> linkResults{writeCdo->areBadLinks(moduleId)};
     bool link0ok{linkResults.first};
     bool link1ok{linkResults.second};
     // Loop over chips within module
@@ -244,8 +236,8 @@ StatusCode SCT_ConfigurationCondAlg::fillChannelData() {
       if (id>=0 and id< 6 and (mask0!=0 or mask1!=0 or mask2!=0 or mask3!=0)) isBadSide0 = false;
       if (id>=6 and id<12 and (mask0!=0 or mask1!=0 or mask2!=0 or mask3!=0)) isBadSide1 = false;
     }
-    if (isBadSide0) m_writeCdo->setBadWaferId(waferId);
-    if (isBadSide1) m_writeCdo->setBadWaferId(oppWaferId);
+    if (isBadSide0) writeCdo->setBadWaferId(waferId);
+    if (isBadSide1) writeCdo->setBadWaferId(oppWaferId);
     
     // Check the module readout to look for bypassed chips, disabled links etc
     if (m_readoutTool->determineReadout(moduleId, chipsInMod, link0ok, link1ok).isFailure()) return StatusCode::FAILURE;
@@ -263,7 +255,7 @@ StatusCode SCT_ConfigurationCondAlg::fillChannelData() {
         for (const auto& thisBadStrip:badStripsVec) {
           Identifier stripId{getStripId(truncatedSerialNumber, thisChip->id(), thisBadStrip)};
           // If in rough order, may be better to call with itr of previous insertion as a suggestion    
-          if (stripId.is_valid()) m_writeCdo->setBadStripId(stripId);
+          if (stripId.is_valid()) writeCdo->setBadStripId(stripId);
         }
       }
       // Bad chips (= all strips bad) bitpacked
@@ -279,7 +271,7 @@ StatusCode SCT_ConfigurationCondAlg::fillChannelData() {
     }
     // Store chip status if not all good (==0)
     if (chipStatusWord!=0) {
-      m_writeCdo->setBadChips(moduleId, chipStatusWord);
+      writeCdo->setBadChips(moduleId, chipStatusWord);
     }
     // Clear up memory associated with chips    
     for (const auto& thisChip: chipsInMod) {
@@ -287,7 +279,7 @@ StatusCode SCT_ConfigurationCondAlg::fillChannelData() {
     }
   }
 
-  const long unsigned int totalBad{m_writeCdo->getBadStripIds()->size()};
+  const long unsigned int totalBad{writeCdo->getBadStripIds()->size()};
   ATH_MSG_INFO("Total number of bad chips is " << nDisabledChips);
   ATH_MSG_INFO("Total number of bad chips not in bad modules is " << nDisabledChipsExclusive);
   ATH_MSG_INFO("Total number of bad strip identifiers is " << totalBad);
@@ -297,9 +289,9 @@ StatusCode SCT_ConfigurationCondAlg::fillChannelData() {
 }
 
 // Fill bad module info
-StatusCode SCT_ConfigurationCondAlg::fillModuleData() {
+StatusCode SCT_ConfigurationCondAlg::fillModuleData(SCT_ConfigurationCondData* writeCdo) {
   // Check if the pointer of derived conditions object is valid.
-  if (m_writeCdo==nullptr) {
+  if (writeCdo==nullptr) {
     ATH_MSG_FATAL("Pointer of derived conditions object is null");
     return StatusCode::FAILURE;
   }
@@ -310,8 +302,8 @@ StatusCode SCT_ConfigurationCondAlg::fillModuleData() {
   unsigned int totalNumberOfValidModules{0};
 
   // Clear previous information at callback
-  m_writeCdo->clearBadModuleIds();
-  m_writeCdo->clearBadWaferIds();
+  writeCdo->clearBadModuleIds();
+  writeCdo->clearBadWaferIds();
 
   // Get Module folder
   SG::ReadCondHandle<CondAttrListVec> readHandle{m_readKeyModule};
@@ -355,13 +347,13 @@ StatusCode SCT_ConfigurationCondAlg::fillModuleData() {
     const short group{itr->second[groupIndex].data<short>()};
     if (group<0) { 
       // Insert module/wafer ID into set of bad modules/wafers IDs
-      m_writeCdo->setBadModuleId(moduleId);
-      m_writeCdo->setBadWaferId(waferId);
-      m_writeCdo->setBadWaferId(oppWaferId);
+      writeCdo->setBadModuleId(moduleId);
+      writeCdo->setBadWaferId(waferId);
+      writeCdo->setBadWaferId(oppWaferId);
     }
   }  
 
-  const long unsigned int totalBad{m_writeCdo->getBadModuleIds()->size()};
+  const long unsigned int totalBad{writeCdo->getBadModuleIds()->size()};
   ATH_MSG_INFO("Total number of module identifiers is " << totalNumberOfModules);
   ATH_MSG_INFO("Total number of modules also found in the cabling is " << totalNumberOfValidModules);
   ATH_MSG_INFO("Total number of bad module identifiers is " << totalBad);
@@ -370,9 +362,9 @@ StatusCode SCT_ConfigurationCondAlg::fillModuleData() {
 }
 
 // Fill link info
-StatusCode SCT_ConfigurationCondAlg::fillLinkStatus() {
+StatusCode SCT_ConfigurationCondAlg::fillLinkStatus(SCT_ConfigurationCondData* writeCdo) {
   // Check if the pointer of derived conditions object is valid.
-  if (m_writeCdo==nullptr) {
+  if (writeCdo==nullptr) {
     ATH_MSG_FATAL("Pointer of derived conditions object is null");
     return StatusCode::FAILURE;
   }
@@ -381,7 +373,7 @@ StatusCode SCT_ConfigurationCondAlg::fillLinkStatus() {
   const bool run1{murFolderName==s_coolMurFolderName};
 
   // Clear previous information at call back
-  m_writeCdo->clearBadLinks();
+  writeCdo->clearBadLinks();
 
   // Get MUR folder for link info 
   SG::ReadCondHandle<CondAttrListVec> readHandle{m_readKeyMur};
@@ -426,7 +418,7 @@ StatusCode SCT_ConfigurationCondAlg::fillLinkStatus() {
 
     // Store the modules with bad links, represented by badLink (enum in header) = 255 = 0xFF 
     if (link0==badLink or link1==badLink) {
-      m_writeCdo->setBadLinks(moduleId, (link0!=badLink), (link1!=badLink));
+      writeCdo->setBadLinks(moduleId, (link0!=badLink), (link1!=badLink));
     }
   }
 

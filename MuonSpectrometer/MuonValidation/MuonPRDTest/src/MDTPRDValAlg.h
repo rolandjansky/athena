@@ -102,14 +102,14 @@ class MDTPRDValAlg: public AthAlgorithm {
  private:
  
 
-  TTree* mdttree; /** Pointer to the NTuple tree
+  TTree* m_mdttree; /** Pointer to the NTuple tree
 		      The tree that will contain our "AANtuple" with one entry per hit*/
 
   /**Simple method for accessing root histo service for booking*/
   ITHistSvc*     ToolRootHistSvc();
 
   
-  int event_counter;
+  int m_event_counter;
   bool m_DoMDTTest;		  
  
   bool m_writeNtuple;                 /**jobOption: write data to AANtuple*/
@@ -125,17 +125,15 @@ class MDTPRDValAlg: public AthAlgorithm {
   /**MDT barrel eta cut, applicable to the MDT 2D cross section plot */
   double m_BarrelEtaCut;
 
-  std::vector<std::string> hardware_name_list;
-  bool histo_flag;
+  bool m_histo_flag;
   std::string m_chamberName;
   std::string m_StationSize;
   int m_StationEta;
   int m_StationPhi;
   int m_LastEvent;
-  std::map<std::string,int> hitsperchamber_map;
 
   /**Pointer On MuonDetectorManager */
-  const MuonGM::MdtReadoutElement* descriptor;
+  const MuonGM::MdtReadoutElement* m_descriptor;
   const MuonGM::MuonDetectorManager* m_pMuonMgr;
 
   /**Pointers On Helpers */
@@ -160,7 +158,7 @@ class MDTPRDValAlg: public AthAlgorithm {
   void cleanUp( TruthMap& truthMap ) const;
 
   /**Athena-Aware Ntuple variable declaration, explanation in MDTPRDValAlg.cxx*/
-  int counter_ValHitNumber ;
+  int m_counter_ValHitNumber ;
   int m_Validation_MDT_Type;
   int m_Validation_MDT_NumberOfHits;
   int m_Validation_MDT_EventNumber;

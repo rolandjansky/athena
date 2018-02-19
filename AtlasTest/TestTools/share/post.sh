@@ -170,6 +170,8 @@ PP="$PP"'|DEBUG Calling destructor'
 
 PP="$PP"'|INFO TopAlg list empty.'
 
+# Ignore annoying error from root 6.10.06
+PP="$PP"'|no interpreter information for class TSelectorCint'
 
 if [ "$extrapatterns" != "" ]; then
  PP="$PP""|$extrapatterns"

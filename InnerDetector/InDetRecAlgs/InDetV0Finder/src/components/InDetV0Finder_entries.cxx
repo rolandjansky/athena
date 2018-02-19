@@ -1,5 +1,5 @@
 #include "InDetV0Finder/InDetV0FinderTool.h"
-#include "InDetV0Finder/InDetV0Finder.h"
+#include "../InDetV0Finder.h"
 //#include "InDetV0Finder/InDetSimpleV0Finder.h"
 
 using namespace InDet;

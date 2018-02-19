@@ -194,7 +194,7 @@ GeoFullPhysVol* LArGeo::HECWheelConstruction::GetEnvelope()
 
   //--- From the depth Size, calculate the boundary planes of the Wheel Mother volume ---------
   //    (Add 0.2 mm to avoid clashes)
-  double g4allow   = shrinkCold * 0.2*mm;;
+  double g4allow   = shrinkCold * 0.2*mm;
   double zCoordinate[4];
   if (m_frontWheel){
     zCoordinate[0] = shrinkCold * 0.0*cm; 

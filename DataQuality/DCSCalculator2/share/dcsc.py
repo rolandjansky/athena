@@ -9,7 +9,7 @@ if __name__ == "__main__":
     # ROOT from intercepting arguments. This might be necessary is main() is 
     # called from elsewhere
     our_argv = sys.argv[:]
-    sys.argv[:] = []
-    sys.original_argv = our_argv
+    #sys.argv[:] = []
+    #sys.original_argv = our_argv
     
     main(our_argv)

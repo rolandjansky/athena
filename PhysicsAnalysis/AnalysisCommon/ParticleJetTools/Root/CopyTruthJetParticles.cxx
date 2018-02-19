@@ -48,6 +48,13 @@ CopyTruthJetParticles::CopyTruthJetParticles(const std::string& name)
   declareProperty("FSRPhotonCone", m_photonCone);
 }
 
+StatusCode CopyTruthJetParticles::initialize() {
+  ATH_CHECK(m_classif.retrieve());
+  return StatusCode::SUCCESS;
+}
+
+
+
 bool CopyTruthJetParticles::classifyJetInput(const xAOD::TruthParticle* tp, int barcodeOffset,
                                              std::vector<const xAOD::TruthParticle*>& promptLeptons,
                                              std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap) const {

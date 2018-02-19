@@ -317,19 +317,6 @@ bool timerFillingWorked( ToolHandle<GenericMonitoringTool>& monTool, ITHistSvc* 
 
 
 
-template<typename T>
-class InvalidToolHandle : public ToolHandle<T> {
-public:
-  InvalidToolHandle() : ToolHandle<T>( "" ) {}
-  virtual StatusCode retrieve( ) const override {
-    return StatusCode::FAILURE;
-  }
-  virtual StatusCode retrieve( T*& ) const override {
-    return StatusCode::FAILURE;
-  }
-
-};
-
 
 int main() {
   //CxxUtils::ubsan_suppress ( []() { TInterpreter::Instance(); } );
@@ -347,8 +334,8 @@ int main() {
   }
   
   // we need to test what happens to the monitoring when tool is not valid
-  InvalidToolHandle<GenericMonitoringTool> emptyMon;
-  VALUE( emptyMon.isValid() ) EXPECTED( false ); // self test
+  ToolHandle<GenericMonitoringTool> emptyMon("");
+  VALUE( emptyMon.isEnabled() ) EXPECTED( false ); // self test
   log << MSG::DEBUG << " mon tool validity " << emptyMon.isValid() << endmsg;
 
     

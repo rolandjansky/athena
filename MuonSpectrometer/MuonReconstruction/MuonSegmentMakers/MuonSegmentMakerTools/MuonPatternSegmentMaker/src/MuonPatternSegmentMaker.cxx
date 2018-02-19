@@ -640,7 +640,7 @@ namespace Muon {
       ISPrdIt pit = mit->second.triggerPrds.begin();
       ISPrdIt pit_end = mit->second.triggerPrds.end();
       for( ;pit!=pit_end;++pit ){
-	msg(MSG::INFO) << "  " << m_printer->print(*(pit->second)) << std::endl;;
+	msg(MSG::INFO) << "  " << m_printer->print(*(pit->second)) << std::endl;
       }
 
       RegionIdMapIt idit = mit->second.mdtPrdsPerChamber.begin();

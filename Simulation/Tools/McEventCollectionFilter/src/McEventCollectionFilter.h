@@ -36,7 +36,7 @@ private:
   StatusCode ReduceMCEventCollection();
   StatusCode FindTRTElectronHits();
   StatusCode SiliconHitsTruthRelink();
-  StatusCode SiHitsTruthRelink(SG::ReadHandle<SiHitCollection>& m_inputHits, SG::WriteHandle<SiHitCollection>& m_outputHits);
+  StatusCode SiHitsTruthRelink(SG::ReadHandle<SiHitCollection>& inputHits, SG::WriteHandle<SiHitCollection>& outputHits);
   StatusCode TRTHitsTruthRelink();
   StatusCode MDTHitsTruthRelink();
   StatusCode CSCHitsTruthRelink();

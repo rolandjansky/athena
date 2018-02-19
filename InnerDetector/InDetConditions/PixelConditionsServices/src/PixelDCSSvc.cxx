@@ -34,7 +34,6 @@ PixelDCSSvc::PixelDCSSvc(const std::string& name, ISvcLocator* sl):
   m_par_HVKey(""),
   m_par_FSMStatusKey(""),
   m_par_FSMStateKey(""),
-  m_par_pixelDCSDataSGKey("/InDetConditions/PixelDCSData"),
   m_par_temperatureField("temperature"),
   m_par_HVField("HV"),
   m_par_FSMStatusField("FSM_status"),
@@ -45,7 +44,6 @@ PixelDCSSvc::PixelDCSSvc(const std::string& name, ISvcLocator* sl):
   m_par_useFSMState(true),
   m_par_registerCallback(true)
 {
-
   declareProperty("TemperatureFolder", m_par_temperatureKey); 
   declareProperty("HVFolder", m_par_HVKey); 
   declareProperty("FSMStatusFolder", m_par_FSMStatusKey);
@@ -61,8 +59,6 @@ PixelDCSSvc::PixelDCSSvc(const std::string& name, ISvcLocator* sl):
   declareProperty("UseHV", m_par_useHV); 
   declareProperty("UseFSMStatus", m_par_useFSMStatus); 
   declareProperty("UseFSMState", m_par_useFSMState); 
-
-
 }
 
 PixelDCSSvc::~PixelDCSSvc(){}
@@ -85,402 +81,259 @@ inline StatusCode PixelDCSSvc::queryInterface(const InterfaceID& riid, void** pp
 }
 
 
-StatusCode PixelDCSSvc::initialize()
-{
+StatusCode PixelDCSSvc::initialize() {
+  ATH_MSG_INFO("PixelDCSSvc::initialize()");
 
+  CHECK(m_detStore.retrieve());
 
-   msg(MSG::INFO) << " Entering PixelDCSSvc::initialize()" << endmsg;
+  CHECK(m_detStore->retrieve(m_pixman,"Pixel"));
 
-  StatusCode sc;
-
-  sc = m_detStore.retrieve();
-  if (!sc.isSuccess() || 0 == m_detStore)  {
-    msg(MSG::FATAL)<< "Unable to retrieve detector store" << endmsg;
-    return StatusCode::FAILURE;
-  }
-  msg(MSG::INFO) << "Detector store retrieved" << endmsg;
-
-
-  // Get the geometry 
-  InDetDD::SiDetectorElementCollection::const_iterator iter, itermin, itermax; 
-  if(StatusCode::SUCCESS != m_detStore->retrieve(m_pixman, "Pixel") || m_pixman==0){
-     msg(MSG::FATAL)<< "Could not find Pixel manager "<<endmsg; 
-    return StatusCode::FAILURE; 
-  }
-
+  InDetDD::SiDetectorElementCollection::const_iterator itermin, itermax; 
   itermin = m_pixman->getDetectorElementBegin(); 
   itermax = m_pixman->getDetectorElementEnd(); 
 
-  sc = m_detStore->retrieve( m_pixid, "PixelID" );
-  if( !sc.isSuccess() ){
-    ATH_MSG_FATAL( "Unable to retrieve pixel ID helper" );
-    return StatusCode::FAILURE;
-  }
+  CHECK(m_detStore->retrieve(m_pixid,"PixelID"));
 
-
-  if (this->createDCSData().isFailure()) {
-    msg(MSG::FATAL) << "Could not create DCS data" << endmsg;
-    return StatusCode::FAILURE;
-  }
+  CHECK(createDCSData());
 
   //Register a callback
-  if(m_par_registerCallback){
-
-    if(m_par_useTemperature){
-
+  if (m_par_registerCallback) {
+    if (m_par_useTemperature) {
       const DataHandle<CondAttrListCollection> attrListCollT;
-      if( (m_detStore->regFcn(&IPixelDCSSvc::IOVCallBack, dynamic_cast<IPixelDCSSvc*>(this),
-			      attrListCollT, m_par_temperatureKey, true)).isFailure()){ 
-	msg(MSG::FATAL) << "Unable to register callback for folder " << m_par_temperatureKey << endmsg; 
-	return StatusCode::FAILURE; 
-      }
-
+      CHECK(m_detStore->regFcn(&IPixelDCSSvc::IOVCallBack,dynamic_cast<IPixelDCSSvc*>(this),attrListCollT,m_par_temperatureKey,true));
     }
-    
-    if(m_par_useHV){
 
+    if (m_par_useHV) {
       const DataHandle<CondAttrListCollection> attrListCollHV;
-      if( (m_detStore->regFcn(&IPixelDCSSvc::IOVCallBack, dynamic_cast<IPixelDCSSvc*>(this),
-			      attrListCollHV, m_par_HVKey, true)).isFailure()){ 
-	msg(MSG::FATAL) << "Unable to register callback for folder " << m_par_HVKey << endmsg; 
-	return StatusCode::FAILURE; 
-      }
-
+      CHECK(m_detStore->regFcn(&IPixelDCSSvc::IOVCallBack,dynamic_cast<IPixelDCSSvc*>(this),attrListCollHV,m_par_HVKey,true));
     }
 
-    if(m_par_useFSMStatus){
-
+    if (m_par_useFSMStatus) {
       const DataHandle<CondAttrListCollection> attrListCollFSMS;
-      if( (m_detStore->regFcn(&IPixelDCSSvc::IOVCallBack, dynamic_cast<IPixelDCSSvc*>(this),
-			      attrListCollFSMS, m_par_FSMStatusKey, true)).isFailure()){ 
-	msg(MSG::FATAL)  << "Unable to register callback for folder " << m_par_FSMStatusKey << endmsg; 
-	return StatusCode::FAILURE; 
-      }
-
+      CHECK(m_detStore->regFcn(&IPixelDCSSvc::IOVCallBack,dynamic_cast<IPixelDCSSvc*>(this),attrListCollFSMS,m_par_FSMStatusKey,true));
     }
 
-    if(m_par_useFSMState){
-
+    if (m_par_useFSMState) {
       const DataHandle<CondAttrListCollection> attrListCollFSMSt;
-      if( (m_detStore->regFcn(&IPixelDCSSvc::IOVCallBack, dynamic_cast<IPixelDCSSvc*>(this),
-			      attrListCollFSMSt, m_par_FSMStateKey, true)).isFailure()){ 
-	msg(MSG::FATAL) << "Unable to register callback for folder " << m_par_FSMStateKey << endmsg; 
-	return StatusCode::FAILURE; 
-      }
- 
+      CHECK(m_detStore->regFcn(&IPixelDCSSvc::IOVCallBack,dynamic_cast<IPixelDCSSvc*>(this),attrListCollFSMSt,m_par_FSMStateKey,true));
     }
-
   }
-
   return StatusCode::SUCCESS; 
 }
 
-StatusCode PixelDCSSvc::finalize(){
-  msg(MSG::INFO) << "Entering PixelDCSSvc::finalize()" << endmsg; 
-
-  if(m_pixelDCSData) delete m_pixelDCSData;
-
+StatusCode PixelDCSSvc::finalize() {
+  ATH_MSG_INFO("PixelDCSSvc::finalize()");
+  if (m_pixelDCSData) { delete m_pixelDCSData; }
   return StatusCode::SUCCESS; 
 } 
 
-
-
-StatusCode PixelDCSSvc::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys))
-{
+StatusCode PixelDCSSvc::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I,keys)) {
 
   static ServiceHandle<IIOVDbSvc> lIOVDbSvc("IOVDbSvc",this->name());
-  StatusCode sc = StatusCode::SUCCESS; 
   std::list<std::string>::const_iterator si; 
 
-  for(si=keys.begin(); si!=keys.end(); ++si){
+  for (si=keys.begin(); si!=keys.end(); ++si) {
+    ATH_MSG_DEBUG("IOVCALLBACK for key " << *si << " number " << I);
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "IOVCALLBACK for key " << *si << " number " << I << endmsg; 
-
-    if(*si == m_par_temperatureKey ){ 
-
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Loading DCS temperature from DB "  << endmsg; 
+    if (*si==m_par_temperatureKey) {
+      ATH_MSG_DEBUG("Loading DCS temperature from DB");
 
       const CondAttrListCollection* atrc_temp; 
-      sc = m_detStore->retrieve(atrc_temp, m_par_temperatureKey); 
+      CHECK(m_detStore->retrieve(atrc_temp,m_par_temperatureKey)); 
 
-      if(sc.isFailure()) { 
-	msg(MSG::ERROR) <<"could not retrieve CondAttrListCollection from DB folder "<<m_par_temperatureKey<<endmsg; 
-	return sc; 
-      }
-      
       CondAttrListCollection::const_iterator itrx_temp; 
-      for(itrx_temp = atrc_temp->begin(); itrx_temp !=atrc_temp->end(); ++itrx_temp){ 
-	CondAttrListCollection::ChanNum channum_temp = itrx_temp->first;
-	const coral::AttributeList& atr_temp = itrx_temp->second; 
+      for (itrx_temp=atrc_temp->begin(); itrx_temp!=atrc_temp->end(); ++itrx_temp) {
+        CondAttrListCollection::ChanNum channum_temp = itrx_temp->first;
+        const coral::AttributeList& atr_temp = itrx_temp->second; 
         float temperaturedata;
-	
-        //if(atr_temp["temperaturem_par_temperatureField.c_str()"].isNull()){
-        if(atr_temp[m_par_temperatureField.c_str()].isNull()){
-	 temperaturedata = -999.;
-         msg(MSG::DEBUG) << " Id_hash = " << channum_temp << " ** Temperature =  "  <<  temperaturedata << endmsg;
-	}else{
-	 temperaturedata = atr_temp[m_par_temperatureField.c_str()].data<float>();
-         msg(MSG::DEBUG) << " Id_hash = " << channum_temp << " ** Temperature =  "  <<  temperaturedata << endmsg;
-	}
-	
-	(*m_pixelDCSData)[channum_temp]->setTemperature(temperaturedata);
-      }
 
+        //if(atr_temp["temperaturem_par_temperatureField.c_str()"].isNull()){
+        if (atr_temp[m_par_temperatureField.c_str()].isNull()) {
+          temperaturedata = -999.;
+          ATH_MSG_DEBUG(" Id_hash = " << channum_temp << " ** Temperature =  "  <<  temperaturedata);
+        }
+        else {
+          temperaturedata = atr_temp[m_par_temperatureField.c_str()].data<float>();
+          ATH_MSG_DEBUG(" Id_hash = " << channum_temp << " ** Temperature =  "  <<  temperaturedata);
+        }
+        (*m_pixelDCSData)[channum_temp]->setTemperature(temperaturedata);
+      }
     }
 
-    if( *si == m_par_HVKey ){ 
-
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Loading DCS  HV from DB "  << endmsg; 
+    if (*si==m_par_HVKey) { 
+      ATH_MSG_DEBUG("Loading DCS  HV from DB ");
 
       const CondAttrListCollection* atrc_hv; 
-      sc = m_detStore->retrieve(atrc_hv, m_par_HVKey); 
-
-      if(sc.isFailure()) { 
-	msg(MSG::ERROR) <<"could not retrieve CondAttrListCollection from DB folder "<<m_par_HVKey<<endmsg; 
-	return sc; 
-      }
+      CHECK(m_detStore->retrieve(atrc_hv, m_par_HVKey));
 
       CondAttrListCollection::const_iterator itrx_hv; 
-      for(itrx_hv = atrc_hv->begin(); itrx_hv !=atrc_hv->end(); ++itrx_hv){ 
-	CondAttrListCollection::ChanNum channum_hv = itrx_hv->first;
-	const coral::AttributeList& atr_hv = itrx_hv->second; 
-	float hvdata;
-	
+      for (itrx_hv=atrc_hv->begin(); itrx_hv!=atrc_hv->end(); ++itrx_hv) { 
+        CondAttrListCollection::ChanNum channum_hv = itrx_hv->first;
+        const coral::AttributeList& atr_hv = itrx_hv->second; 
+        float hvdata;
+
         //if(atr_hv["hv"m_par_HVField.c_str()].isNull()){
-        if(atr_hv[m_par_HVField.c_str()].isNull()){
-	 hvdata = -999.;
-         msg(MSG::DEBUG) << " Id_hash = " << channum_hv << " ** HV =  "  << hvdata << endmsg;
-	}else{
-  	 hvdata = atr_hv[m_par_HVField.c_str()].data<float>();
-         msg(MSG::DEBUG) << " Id_hash = " << channum_hv << " ** HV =  "  << hvdata << endmsg;
-	}
-
-	(*m_pixelDCSData)[channum_hv]->setHV(hvdata);
-
+        if (atr_hv[m_par_HVField.c_str()].isNull()) {
+          hvdata = -999.;
+          ATH_MSG_DEBUG(" Id_hash = " << channum_hv << " ** HV =  "  << hvdata);
+        }
+        else {
+          hvdata = atr_hv[m_par_HVField.c_str()].data<float>();
+          ATH_MSG_DEBUG(" Id_hash = " << channum_hv << " ** HV =  "  << hvdata);
+        }
+        (*m_pixelDCSData)[channum_hv]->setHV(hvdata);
       }
-
     }
 
-    if( *si ==m_par_FSMStatusKey ){ 
-
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Loading DCS  FSM status from DB "  << endmsg; 
+    if (*si==m_par_FSMStatusKey) { 
+      ATH_MSG_DEBUG("Loading DCS  FSM status from DB ");
 
       const CondAttrListCollection* atrc_fsmstatus; 
-      sc = m_detStore->retrieve(atrc_fsmstatus, m_par_FSMStatusKey); 
-      
-      if(sc.isFailure()) { 
-	msg(MSG::ERROR) <<"could not retrieve CondAttrListCollection from DB folder "<<m_par_FSMStatusKey<<endmsg; 
-	return sc; 
-      }
+      CHECK(m_detStore->retrieve(atrc_fsmstatus, m_par_FSMStatusKey));
 
       CondAttrListCollection::const_iterator itrx_fsmstatus; 
-      for(itrx_fsmstatus = atrc_fsmstatus->begin(); itrx_fsmstatus !=atrc_fsmstatus->end(); ++itrx_fsmstatus){ 
-	CondAttrListCollection::ChanNum channum_fsmstatus = itrx_fsmstatus->first;
-	const coral::AttributeList& atr_fsmstatus = itrx_fsmstatus->second; 
-	std::string fsmstatusdata;
+      for (itrx_fsmstatus=atrc_fsmstatus->begin(); itrx_fsmstatus!=atrc_fsmstatus->end(); ++itrx_fsmstatus) {
+        CondAttrListCollection::ChanNum channum_fsmstatus = itrx_fsmstatus->first;
+        const coral::AttributeList& atr_fsmstatus = itrx_fsmstatus->second; 
+        std::string fsmstatusdata;
 
-        if(atr_fsmstatus[m_par_FSMStatusField.c_str()].isNull()){
-	 fsmstatusdata = "ERROR";
-         msg(MSG::DEBUG) << " Id_hash = " << channum_fsmstatus << " ** FSMSTATUS =  "  << fsmstatusdata << endmsg;
-	}else{
-  	 fsmstatusdata = atr_fsmstatus[m_par_FSMStatusField.c_str()].data<std::string>();
-         msg(MSG::DEBUG) << " Id_hash = " << channum_fsmstatus << " ** FSMSTATUS =  "  << fsmstatusdata << endmsg;
-	}
-
-	(*m_pixelDCSData)[channum_fsmstatus]->setFSMStatus(fsmstatusdata);
-
+        if (atr_fsmstatus[m_par_FSMStatusField.c_str()].isNull()) {
+          fsmstatusdata = "ERROR";
+          ATH_MSG_DEBUG(" Id_hash = " << channum_fsmstatus << " ** FSMSTATUS =  "  << fsmstatusdata);
+        }
+        else {
+          fsmstatusdata = atr_fsmstatus[m_par_FSMStatusField.c_str()].data<std::string>();
+          ATH_MSG_DEBUG(" Id_hash = " << channum_fsmstatus << " ** FSMSTATUS =  "  << fsmstatusdata);
+        }
+        (*m_pixelDCSData)[channum_fsmstatus]->setFSMStatus(fsmstatusdata);
       }
-
     }
 
-    if(*si ==m_par_FSMStateKey){ 
-
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Loading DCS  FSM state from DB "  << endmsg; 
+    if (*si==m_par_FSMStateKey) {
+      ATH_MSG_DEBUG("Loading DCS  FSM state from DB ");
 
       const CondAttrListCollection* atrc_fsmstate; 
-      sc = m_detStore->retrieve(atrc_fsmstate, m_par_FSMStateKey); 
-      
-      if(sc.isFailure()) { 
-	msg(MSG::ERROR) <<"could not retrieve CondAttrListCollection from DB folder "<<m_par_FSMStateKey<<endmsg; 
-	return sc; 
-      }
+      CHECK(m_detStore->retrieve(atrc_fsmstate,m_par_FSMStateKey));
 
       CondAttrListCollection::const_iterator itrx_fsmstate; 
-      for(itrx_fsmstate = atrc_fsmstate->begin(); itrx_fsmstate !=atrc_fsmstate->end(); ++itrx_fsmstate){ 
-	CondAttrListCollection::ChanNum channum_fsmstate = itrx_fsmstate->first;
-	const coral::AttributeList& atr_fsmstate = itrx_fsmstate->second; 
-	std::string fsmstatedata = atr_fsmstate[m_par_FSMStateField.c_str()].data<std::string>();
+      for (itrx_fsmstate=atrc_fsmstate->begin(); itrx_fsmstate!=atrc_fsmstate->end(); ++itrx_fsmstate) { 
+        CondAttrListCollection::ChanNum channum_fsmstate = itrx_fsmstate->first;
+        const coral::AttributeList& atr_fsmstate = itrx_fsmstate->second; 
+        std::string fsmstatedata = atr_fsmstate[m_par_FSMStateField.c_str()].data<std::string>();
 
-        if(atr_fsmstate[m_par_FSMStateField.c_str()].isNull()){
-	 fsmstatedata = "UNDEFINED";
-         msg(MSG::DEBUG) << " Id_hash = " << channum_fsmstate << " ** FSMSTATE =  "  << fsmstatedata << endmsg;
-	}else{
-  	 fsmstatedata = atr_fsmstate[m_par_FSMStateField.c_str()].data<std::string>();
-         msg(MSG::DEBUG) << " Id_hash = " << channum_fsmstate << " ** FSMSTATE =  "  << fsmstatedata << endmsg;
-	}
-
-	(*m_pixelDCSData)[channum_fsmstate]->setFSMState(fsmstatedata);
-
+        if (atr_fsmstate[m_par_FSMStateField.c_str()].isNull()) {
+          fsmstatedata = "UNDEFINED";
+          ATH_MSG_DEBUG(" Id_hash = " << channum_fsmstate << " ** FSMSTATE =  "  << fsmstatedata);
+        }
+        else {
+          fsmstatedata = atr_fsmstate[m_par_FSMStateField.c_str()].data<std::string>();
+          ATH_MSG_DEBUG(" Id_hash = " << channum_fsmstate << " ** FSMSTATE =  "  << fsmstatedata);
+        }
+        (*m_pixelDCSData)[channum_fsmstate]->setFSMState(fsmstatedata);
       }
-
     }
     // lIOVDbSvc->dropObject(*si,false); // commented, bug 55586
-
   } /// keys
 
-  return sc; 
-
+  return StatusCode::SUCCESS; 
 }
 
-StatusCode PixelDCSSvc::createDCSData()
-{
+StatusCode PixelDCSSvc::createDCSData() {
 
   // Get the geometry 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in createDCSData" << endmsg;
+  ATH_MSG_DEBUG("in createDCSData");
 
   InDetDD::SiDetectorElementCollection::const_iterator iter, itermin, itermax; 
   itermin = m_pixman->getDetectorElementBegin(); 
   itermax = m_pixman->getDetectorElementEnd(); 
-
-
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "get iterator to detector element ok" << endmsg;
+  ATH_MSG_DEBUG("get iterator to detector element ok");
 
   m_pixelDCSData = new PixelDCSData();
   m_pixelDCSData->resize(m_pixid->wafer_hash_max());
 
-
-
-  for( iter=itermin; iter !=itermax; ++iter){ 
+  for (iter=itermin; iter!=itermax; ++iter) { 
     const InDetDD::SiDetectorElement* element = *iter; 
-    if(element !=0){ 
+    if (element!=0) { 
       Identifier ident = element->identify(); 
-      if(m_pixid->is_pixel(ident)){ 
-	IdentifierHash id_hash = m_pixid->wafer_hash(ident); 
-	PixelModuleDCSData* mdcsd = new PixelModuleDCSData(ident);
-	(*m_pixelDCSData)[id_hash] = mdcsd;
+      if (m_pixid->is_pixel(ident)) { 
+        IdentifierHash id_hash = m_pixid->wafer_hash(ident); 
+        PixelModuleDCSData* mdcsd = new PixelModuleDCSData(ident);
+        (*m_pixelDCSData)[id_hash] = mdcsd;
       }
     }
   }
-
   return StatusCode::SUCCESS; 
-
 } 
 
+StatusCode PixelDCSSvc::printData() const {
 
+  ATH_MSG_INFO(" in PixelDCSSvc::printData ");
+  ATH_MSG_ALWAYS(":::::: Printing  CondAttrListCollection objects ::::::");
 
-
-
-StatusCode PixelDCSSvc::printData() const
-{
-
-
-  msg(MSG::INFO)  << " in PixelDCSSvc::printData " << endmsg;
-
-  msg(MSG::ALWAYS) << ":::::: Printing  CondAttrListCollection objects ::::::" << endmsg;
-
-  StatusCode sc;
-
-  if(m_par_useTemperature){
+  if (m_par_useTemperature) {
     const CondAttrListCollection* atrc_temp; 
-    sc = m_detStore->retrieve(atrc_temp, m_par_temperatureKey); 
-
-    if(sc.isFailure()) { 
-      msg(MSG::ERROR)  <<"could not retrieve CondAttrListCollection from DB folder "<<m_par_temperatureKey<<endmsg; 
-      return sc; 
-    }
-    msg(MSG::ALWAYS) << "Temperature key at " << std::hex << (void*)atrc_temp << std::dec << endmsg;
+    CHECK(m_detStore->retrieve(atrc_temp,m_par_temperatureKey)); 
+    ATH_MSG_ALWAYS("Temperature key at " << std::hex << (void*)atrc_temp << std::dec);
 
     CondAttrListCollection::const_iterator itrx_temp; 
-    for(itrx_temp = atrc_temp->begin(); itrx_temp !=atrc_temp->end(); ++itrx_temp){ 
+    for (itrx_temp=atrc_temp->begin(); itrx_temp!=atrc_temp->end(); ++itrx_temp) { 
       CondAttrListCollection::ChanNum channum_temp = itrx_temp->first;
       const coral::AttributeList& atr_temp = itrx_temp->second; 
       std::ostringstream attrStr_temp;
       atr_temp.toOutputStream(attrStr_temp);
-      msg(MSG::ALWAYS) << "ChanNum " << channum_temp << " Attribute list " << attrStr_temp.str() << endmsg;
-
+      ATH_MSG_ALWAYS("ChanNum " << channum_temp << " Attribute list " << attrStr_temp.str());
     }
-
   }
 
-  if(m_par_useHV){
-
+  if (m_par_useHV) {
     const CondAttrListCollection* atrc_hv; 
-    sc = m_detStore->retrieve(atrc_hv, m_par_HVKey); 
-
-    if(sc.isFailure()) { 
-      msg(MSG::ERROR)  <<"could not retrieve CondAttrListCollection from DB folder "<<m_par_HVKey<<endmsg; 
-      return sc; 
-    }
-    msg(MSG::ALWAYS) << "HV key at " << std::hex << (void*)atrc_hv << std::dec << endmsg;
+    CHECK(m_detStore->retrieve(atrc_hv,m_par_HVKey));
+    ATH_MSG_ALWAYS("HV key at " << std::hex << (void*)atrc_hv << std::dec);
 
     CondAttrListCollection::const_iterator itrx_hv; 
-    for(itrx_hv = atrc_hv->begin(); itrx_hv !=atrc_hv->end(); ++itrx_hv){ 
+    for (itrx_hv=atrc_hv->begin(); itrx_hv!=atrc_hv->end(); ++itrx_hv) { 
       CondAttrListCollection::ChanNum channum_hv = itrx_hv->first;
       const coral::AttributeList& atr_hv = itrx_hv->second; 
       std::ostringstream attrStr_hv;
       atr_hv.toOutputStream(attrStr_hv);
-      msg(MSG::ALWAYS) << "ChanNum " << channum_hv << " Attribute list " << attrStr_hv.str() << endmsg;
-
+      ATH_MSG_ALWAYS("ChanNum " << channum_hv << " Attribute list " << attrStr_hv.str());
     }
-
   }
 
-  if(m_par_useFSMStatus){
-
+  if (m_par_useFSMStatus) {
     const CondAttrListCollection* atrc_fsmstatus; 
-    sc = m_detStore->retrieve(atrc_fsmstatus, m_par_FSMStatusKey); 
-
-    if(sc.isFailure()) { 
-      msg(MSG::ERROR) <<"could not retrieve CondAttrListCollection from DB folder "<<m_par_FSMStatusKey<<endmsg; 
-      return sc; 
-    }
-    msg(MSG::ALWAYS) << "FSM status key at " << std::hex << (void*)atrc_fsmstatus << std::dec << endmsg;
+    CHECK(m_detStore->retrieve(atrc_fsmstatus,m_par_FSMStatusKey)); 
+    ATH_MSG_ALWAYS("FSM status key at " << std::hex << (void*)atrc_fsmstatus << std::dec);
 
     CondAttrListCollection::const_iterator itrx_fsmstatus; 
-    for(itrx_fsmstatus = atrc_fsmstatus->begin(); itrx_fsmstatus !=atrc_fsmstatus->end(); ++itrx_fsmstatus){ 
+    for (itrx_fsmstatus=atrc_fsmstatus->begin(); itrx_fsmstatus!=atrc_fsmstatus->end(); ++itrx_fsmstatus) {
       CondAttrListCollection::ChanNum channum_fsmstatus = itrx_fsmstatus->first;
       const coral::AttributeList& atr_fsmstatus = itrx_fsmstatus->second; 
       std::ostringstream attrStr_fsmstatus;
       atr_fsmstatus.toOutputStream(attrStr_fsmstatus);
-      msg(MSG::ALWAYS) << "ChanNum " << channum_fsmstatus << " Attribute list " << attrStr_fsmstatus.str() << endmsg;
-
+      ATH_MSG_ALWAYS("ChanNum " << channum_fsmstatus << " Attribute list " << attrStr_fsmstatus.str());
     }
-
   }
 
-  if(m_par_useFSMState){
-
-
+  if (m_par_useFSMState) {
     const CondAttrListCollection* atrc_fsmstate; 
-    sc = m_detStore->retrieve(atrc_fsmstate, m_par_FSMStateKey); 
-
-    if(sc.isFailure()) { 
-      msg(MSG::ERROR) <<"could not retrieve CondAttrListCollection from DB folder "<<m_par_FSMStateKey<<endmsg; 
-      return sc; 
-    }
-    msg(MSG::ALWAYS) << "FSM state key at " << std::hex << (void*)atrc_fsmstate << std::dec << endmsg;
+    CHECK(m_detStore->retrieve(atrc_fsmstate,m_par_FSMStateKey));
+    ATH_MSG_ALWAYS("FSM state key at " << std::hex << (void*)atrc_fsmstate << std::dec);
 
     CondAttrListCollection::const_iterator itrx_fsmstate; 
-    for(itrx_fsmstate = atrc_fsmstate->begin(); itrx_fsmstate !=atrc_fsmstate->end(); ++itrx_fsmstate){ 
+    for (itrx_fsmstate=atrc_fsmstate->begin(); itrx_fsmstate !=atrc_fsmstate->end(); ++itrx_fsmstate) {
       CondAttrListCollection::ChanNum channum_fsmstate = itrx_fsmstate->first;
       const coral::AttributeList& atr_fsmstate = itrx_fsmstate->second; 
       std::ostringstream attrStr_fsmstate;
       atr_fsmstate.toOutputStream(attrStr_fsmstate);
-      msg(MSG::ALWAYS) << "ChanNum " << channum_fsmstate << " Attribute list " << attrStr_fsmstate.str() << endmsg;
-
+      ATH_MSG_ALWAYS("ChanNum " << channum_fsmstate << " Attribute list " << attrStr_fsmstate.str());
     }
-
-
   }
+  ATH_MSG_ALWAYS(":::::: Printing  PixelDCSData Objects ::::::");
 
-  msg(MSG::ALWAYS) << ":::::: Printing  PixelDCSData Objects ::::::" << endmsg;
-
-  for(unsigned int dcsditr=0; dcsditr < m_pixid->wafer_hash_max();  dcsditr++){
-
-    msg(MSG::ALWAYS) << *(*m_pixelDCSData)[dcsditr] << endmsg;
-
+  for (unsigned int dcsditr=0; dcsditr<m_pixid->wafer_hash_max(); dcsditr++) {
+    ATH_MSG_ALWAYS(*(*m_pixelDCSData)[dcsditr]);
   }
-
   return StatusCode::SUCCESS;
-    
 }
+

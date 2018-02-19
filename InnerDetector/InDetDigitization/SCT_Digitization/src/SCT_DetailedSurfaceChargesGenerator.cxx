@@ -227,6 +227,14 @@ StatusCode SCT_DetailedSurfaceChargesGenerator::initialize() {
   ATH_MSG_INFO ("\tn.charg " <<m_numberOfCharges);
   ATH_MSG_INFO ("\tdigi steps "<<m_smallStepLength<<" mm");
 #endif
+
+
+ if (m_doDistortions) {
+   ATH_CHECK(m_distortionsTool.retrieve());
+ } else {
+   m_distortionsTool.disable();
+ }
+
   return sc ;
 }
 

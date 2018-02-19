@@ -31,13 +31,8 @@ class FTKAMSplit
 private:
     int m_DCSplit;
     int m_DCThreshold;
-    int m_AMPatternThreshold;
     int m_deltaThresholdBin;
     int m_totalDeltaPatterns;
-
-    double m_BankVolume;
-    double m_volumeReduction;
-
 
     int countSetBits( UInt_t dc_mask );
     int clusterDistanceZeroDCmask( std::pair<UInt_t, UInt_t> &iPair, //

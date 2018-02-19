@@ -4,6 +4,9 @@
 
 #include "SCT_ReadCalibChipNoiseCondAlg.h"
 
+#include <limits>
+#include <memory>
+
 #include "GaudiKernel/EventIDRange.h"
 
 #include "Identifier/IdentifierHash.h"
@@ -11,8 +14,6 @@
 #include "SCT_ConditionsServices/SCT_ConditionsParameters.h"
 
 #include "SCT_ReadCalibChipUtilities.h"
-
-#include <limits>
 
 using namespace SCT_ConditionsServices;
 using namespace SCT_ReadCalibChipUtilities;
@@ -85,7 +86,7 @@ StatusCode SCT_ReadCalibChipNoiseCondAlg::execute() {
   ATH_MSG_INFO("Range of input is " << rangeW);
   
   // Construct the output Cond Object and fill it in
-  SCT_NoiseCalibData* writeCdo{new SCT_NoiseCalibData()};
+  std::unique_ptr<SCT_NoiseCalibData> writeCdo{std::make_unique<SCT_NoiseCalibData>()};
 
   // Initialization
   const float errVal{std::numeric_limits<float>::quiet_NaN()};
@@ -114,11 +115,10 @@ StatusCode SCT_ReadCalibChipNoiseCondAlg::execute() {
   }
 
   // Record the output cond object
-  if (writeHandle.record(rangeW, writeCdo).isFailure()) {
+  if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
     ATH_MSG_FATAL("Could not record SCT_NoiseCalibData " << writeHandle.key() 
                   << " with EventRange " << rangeW
                   << " into Conditions Store");
-    delete writeCdo;
     return StatusCode::FAILURE;
   }
   ATH_MSG_INFO("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");

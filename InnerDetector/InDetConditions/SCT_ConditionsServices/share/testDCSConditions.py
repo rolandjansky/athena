@@ -13,16 +13,11 @@ import AthenaCommon.AtlasUnixStandardJob
 # use auditors
 #--------------------------------------------------------------
 from AthenaCommon.AppMgr import ServiceMgr
-
 from GaudiSvc.GaudiSvcConf import AuditorSvc
-#from AthenaCommon.AppMgr import theApp
-
 ServiceMgr += AuditorSvc()
 theAuditorSvc = ServiceMgr.AuditorSvc
 theAuditorSvc.Auditors  += [ "ChronoAuditor"]
-#ChronoStatSvc = Service ( "ChronoStatSvc")
 theAuditorSvc.Auditors  += [ "MemStatAuditor" ]
-#MemStatAuditor = theAuditorSvc.auditor( "MemStatAuditor" )
 theApp.AuditAlgorithms=True
 
 #--------------------------------------------------------------
@@ -79,26 +74,21 @@ topSequence = AlgSequence()
 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsTestAlg
 topSequence+= SCT_DCSConditionsTestAlg()
 
-from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsSvc
-ServiceMgr += SCT_DCSConditionsSvc()
-
-#SCT_DCSConditionsSvc=ServiceMgr.SCT_DCSConditionsSvc
-SCT_DCSConditionsSvc.AttrListCollFolders=["/SCT/DCS/HV","/SCT/DCS/MODTEMP","/SCT/DCS/CHANSTAT","/SCT/DCS/MPS/LV"]
+# Set up SCT_DCSConditionsSvc and required conditions folders and conditions algorithms
+from SCT_ConditionsServices.SCT_DCSConditionsSvcSetup import SCT_DCSConditionsSvcSetup
+sct_DCSConditionsSvcSetup = SCT_DCSConditionsSvcSetup()
+sct_DCSConditionsSvcSetup.setup()
 
 #--------------------------------------------------------------
 # Event selector settings. Use McEventSelector
 #--------------------------------------------------------------
 import AthenaCommon.AtlasUnixGeneratorJob
-#ServiceMgr+= EventSelector()
-#ServiceMgr.EventSelector.FirstEvent = 1
-#ServiceMgr.EventSelector.EventsPerRun = 5
 ServiceMgr.EventSelector.RunNumber = 310809
 # initial time stamp - this is number of seconds since 1st Jan 1970 GMT
 ServiceMgr.EventSelector.InitialTimeStamp  = 1476741326 # LB 18 of run 310809, 10/17/2016 @ 9:55pm (UTC)
-# increment of 3 minutes
-ServiceMgr.EventSelector.TimeStampInterval = 180
+ServiceMgr.EventSelector.TimeStampInterval = 180 # increment of 3 minutes
 
-theApp.EvtMax                   = 10
+theApp.EvtMax = 10
 
 #--------------------------------------------------------------
 # Set output lvl (VERBOSE, DEBUG, INFO, WARNING, ERROR, FATAL)
@@ -112,41 +102,5 @@ ServiceMgr.MessageSvc.OutputLevel = 3
 #--------------------------------------------------------------
 IOVDbSvc = Service("IOVDbSvc")
 from IOVDbSvc.CondDB import conddb
-#IOVDbSvc.GlobalTag="HEAD"
 IOVDbSvc.GlobalTag="CONDBR2-BLKPA-2017-06"
 IOVDbSvc.OutputLevel = 3
-
-# Conditions sequence for Athena MT
-from AthenaCommon.AlgSequence import AthSequencer
-condSeq = AthSequencer("AthCondSeq")
-
-sctDCSStateFolder = '/SCT/DCS/CHANSTAT'
-sctDCSTempFolder = '/SCT/DCS/MODTEMP'
-sctDCSHVFolder = '/SCT/DCS/HV'
-if not conddb.folderRequested(sctDCSStateFolder):
-    conddb.addFolder("DCS_OFL", sctDCSStateFolder, className="CondAttrListCollection")
-if not conddb.folderRequested(sctDCSTempFolder):
-    conddb.addFolder("DCS_OFL", sctDCSTempFolder, className="CondAttrListCollection")
-if not conddb.folderRequested(sctDCSHVFolder):
-    conddb.addFolder("DCS_OFL", sctDCSHVFolder, className="CondAttrListCollection")
-if not hasattr(condSeq, "SCT_DCSConditionsHVCondAlg"):
-    from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsHVCondAlg
-    condSeq += SCT_DCSConditionsHVCondAlg(name = "SCT_DCSConditionsHVCondAlg",
-                                          ReadKey = sctDCSHVFolder)
-if not hasattr(condSeq, "SCT_DCSConditionsStatCondAlg"):
-    from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsStatCondAlg
-    condSeq += SCT_DCSConditionsStatCondAlg(name = "SCT_DCSConditionsStatCondAlg",
-                                            ReadKeyHV = sctDCSHVFolder,
-                                            ReadKeyState = sctDCSStateFolder)
-if not hasattr(condSeq, "SCT_DCSConditionsTempCondAlg"):
-    from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsTempCondAlg
-    condSeq += SCT_DCSConditionsTempCondAlg(name = "SCT_DCSConditionsTempCondAlg",
-                                            ReadKey = sctDCSTempFolder)
-
-#InDetSCT_ConditionsSummarySvc.ConditionsServices+=["InDetSCT_DCSConditionsSvc"]
-#Temporary access to May Barrel COOL 2.0 data
-#CoolSCTDCS='<dbConnection>impl=cool;techno=oracle;schema=ATLAS_COOL_SCT;ATLAS_COOLPROD:DCSP200:ATLAS_COOL_READER</dbConnection>'
-#CoolSCTDCS='<dbConnection>impl=cool;techno=sqlite;schema=ATLAS_COOL_SCT;ATLAS_COOLPROD:DCSP200:ATLAS_COOL_READER</dbConnection>'
-#IOVDbSvc.Folders+= [ CoolSCTDCS + ' /SCT/DCS/HV' ]
-#IOVDbSvc.Folders+= [ CoolSCTDCS + ' /SCT/DCS/MODTEMP' ]
-#IOVDbSvc.OutputLevel =INFO

@@ -8,6 +8,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AsgTools/ToolHandle.h"
+#include "StoreGate/ReadHandleKey.h"
 
 #include "ParticlesInConeTools/IPFlowObjectsInConeTool.h"
 #include "IParticlesLookUpTable.h"
@@ -39,8 +40,9 @@ namespace xAOD {
 
     /** to retrieve pflow objects */
 
-    std::string m_pfokey;
-    const PFOContainer* retrievePFOContainer() const;
+    SG::ReadHandleKey<PFOContainer> m_pfokey {this,
+	"PFlowKey", "CHSNeutralParticleFlowObjects", 
+	"StoreGate key for PFOs"};
     
     // init look-up table
     const LookUpTable* getTable() const;

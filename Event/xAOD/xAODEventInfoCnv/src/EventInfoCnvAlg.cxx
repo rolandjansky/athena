@@ -26,13 +26,13 @@ namespace xAODMaker {
 
    EventInfoCnvAlg::EventInfoCnvAlg( const std::string& name,
                                      ISvcLocator* svcLoc )
-      : AthAlgorithm( name, svcLoc ),
+      : AthReentrantAlgorithm( name, svcLoc ),
         m_cnvTool( "xAODMaker::EventInfoCnvTool/EventInfoCnvTool", this ) {
 
       declareProperty( "AODKey", m_aodKey = "" );
       declareProperty( "xAODKey", m_xaodKey = "EventInfo" );
+      declareProperty( "PileupKey", m_pileupKey = "" );
       declareProperty( "CnvTool", m_cnvTool );
-      declareProperty( "ForceOverwrite", m_overwrite = false );
    }
 
    StatusCode EventInfoCnvAlg::initialize() {
@@ -40,27 +40,37 @@ namespace xAODMaker {
       // Greet the user:
       ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
       ATH_MSG_DEBUG( " AOD Key: " << m_aodKey );
-      ATH_MSG_DEBUG( "xAOD Key: " << m_xaodKey );
-      ATH_MSG_DEBUG( "ForceOverwrite: " << m_overwrite );
+      ATH_MSG_DEBUG( "xAOD Key: " << m_xaodKey.key() );
 
       // Retrieve the converter tool:
       CHECK( m_cnvTool.retrieve() );
+
+      if (m_pileupKey.key().empty()) {
+        m_pileupKey = "Pileup" + m_xaodKey.key();
+      }
+
+      CHECK( m_xaodKey.initialize() );
+
+      /// FIXME: Should do this only if we have a PileUpEventInfo.
+      CHECK( m_pileupKey.initialize() );
 
       // Return gracefully:
       return StatusCode::SUCCESS;
    }
 
-   StatusCode EventInfoCnvAlg::execute() {
+   StatusCode EventInfoCnvAlg::execute_r (const EventContext& ctx) const {
 
       // Check if anything needs to be done:
-      if( evtStore()->contains< xAOD::EventInfo >( m_xaodKey ) &&
-          ( ! m_overwrite ) ) {
-         ATH_MSG_DEBUG( "xAOD::EventInfo with key \"" << m_xaodKey
-                        << "\" is already in StoreGate" );
+      // FIXME: Job configuration should be fixed so we don't need this test.
+      if( evtStore()->contains< xAOD::EventInfo >( m_xaodKey.key() ) ) {
+        ATH_MSG_WARNING( "xAOD::EventInfo with key \"" << m_xaodKey.key()
+                          << "\" is already in StoreGate; "
+                          << "EventInfoCnvAlg should not be scheduled.");
          return StatusCode::SUCCESS;
       }
 
       // Retrieve the AOD object:
+      // FIXME: Use a ReadHandle.
       const EventInfo* aod = 0;
       if( m_aodKey == "" ) {
          CHECK( evtStore()->retrieve( aod ) );
@@ -68,27 +78,13 @@ namespace xAODMaker {
          CHECK( evtStore()->retrieve( aod, m_aodKey ) );
       }
 
-      // Create the xAOD object(s):
-      std::unique_ptr< xAOD::EventAuxInfo > aux( new xAOD::EventAuxInfo() );
-      std::unique_ptr< xAOD::EventInfo > xaod( new xAOD::EventInfo() );
-      xaod->setStore( aux.get() );
+      // Create/record the xAOD object(s):
+      SG::WriteHandle<xAOD::EventInfo> ei (m_xaodKey, ctx);
+      CHECK( ei.record (std::make_unique<xAOD::EventInfo>(),
+                        std::make_unique<xAOD::EventAuxInfo>()) );
 
       // Do the translation:
-      CHECK( m_cnvTool->convert( aod, xaod.get() ) );
-
-      // Before the record, keep a pointer to the EventInfo object, to be able
-      // to add ElementLinks to it afterwards.
-      xAOD::EventInfo* ei = xaod.get();
-
-      // Record the xAOD object(s):
-      if( m_overwrite ) {
-         CHECK( evtStore()->overwrite( std::move( aux ), m_xaodKey + "Aux.",
-                                       false ) );
-         CHECK( evtStore()->overwrite( std::move( xaod ), m_xaodKey, false ) );
-      } else {
-         CHECK( evtStore()->record( std::move( aux ), m_xaodKey + "Aux." ) );
-         CHECK( evtStore()->record( std::move( xaod ), m_xaodKey ) );
-      }
+      CHECK( m_cnvTool->convert( aod, ei.ptr() ) );
 
       // Check if this is a PileUpEventInfo object:
       const PileUpEventInfo* paod =
@@ -99,11 +95,9 @@ namespace xAODMaker {
       }
 
       // Create an EventInfoContainer for the pileup events:
-      std::unique_ptr< xAOD::EventInfoContainer >
-         puei( new xAOD::EventInfoContainer() );
-      std::unique_ptr< xAOD::EventInfoAuxContainer >
-         puaux( new xAOD::EventInfoAuxContainer() );
-      puei->setStore( puaux.get() );
+      SG::WriteHandle<xAOD::EventInfoContainer> puei (m_pileupKey, ctx);
+      CHECK( puei.record (std::make_unique<xAOD::EventInfoContainer>(),
+                          std::make_unique<xAOD::EventInfoAuxContainer>()) );
 
       // Sub-events for the main EventInfo object:
       std::vector< xAOD::EventInfo::SubEvent > subEvents;
@@ -148,26 +142,13 @@ namespace xAODMaker {
          subEvents.push_back( xAOD::EventInfo::SubEvent( pu_itr->time(),
                                                          pu_itr->index(),
                                                          type,
-                                                         EiLink( "PileUp" +
-                                                                 m_xaodKey,
+                                                         EiLink( m_pileupKey.key(),
                                                                  puei->size() -
                                                                  1 ) ) );
       }
 
       // And now update the main EventInfo object with the sub-events:
       ei->setSubEvents( subEvents );
-
-      // Record the xAOD object(s):
-      if( m_overwrite ) {
-         CHECK( evtStore()->overwrite( std::move( puaux ),
-                                       "PileUp" + m_xaodKey + "Aux.", false ) );
-         CHECK( evtStore()->overwrite( std::move( puei ),
-                                       "PileUp" + m_xaodKey, false ) );
-      } else {
-         CHECK( evtStore()->record( std::move( puaux ),
-                                    "PileUp" + m_xaodKey + "Aux." ) );
-         CHECK( evtStore()->record( std::move( puei ), "PileUp" + m_xaodKey ) );
-      }
 
       // Return gracefully:
       return StatusCode::SUCCESS;
@@ -180,7 +161,7 @@ namespace xAODMaker {
        ATH_MSG_DEBUG( "Preparing xAOD::EventInfo object in beginRun()" );
        
        // Run the conversion using the execute function:
-       CHECK( execute() );
+       CHECK( execute_r (Gaudi::Hive::currentContext()) );
      }
 
       // Return gracefully:

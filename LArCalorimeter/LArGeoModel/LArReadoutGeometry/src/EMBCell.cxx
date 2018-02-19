@@ -116,5 +116,5 @@ unsigned int EMBCell::getNumHVPathologies ()const{
 }
 
 const EMBHVPathologiesConstLink & EMBCell::getHVPathologies (unsigned int i) const{
-  return m_hvPathologies[i];;
+  return m_hvPathologies[i];
 }

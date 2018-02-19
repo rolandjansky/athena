@@ -98,6 +98,8 @@ StatusCode InDet::TRT_SeededTrackFinder::initialize()
     }else{
       msg(MSG::INFO) << "Got refitting tool " << m_fitterTool << endmsg;
     }
+  } else {
+    m_fitterTool.disable();
   }
 
   if (m_SiExtensionCuts) {
@@ -115,6 +117,8 @@ StatusCode InDet::TRT_SeededTrackFinder::initialize()
       msg(MSG::INFO) << "Could not find BeamCondSvc." << endmsg;
       return StatusCode::FAILURE;
     }
+  } else {
+    m_extrapolator.disable();
   }
 
   // Get tool for track ectension to TRT
@@ -126,6 +130,8 @@ StatusCode InDet::TRT_SeededTrackFinder::initialize()
     else {
       msg(MSG::INFO) << "Retrieved tool " << m_trtExtension << endmsg;
     }
+  } else {
+    m_trtExtension.disable();
   }
 
   // Get output print level

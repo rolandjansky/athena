@@ -132,22 +132,24 @@ StatusCode SCT_ClusterCacheTool::initialize()  {
       return StatusCode::FAILURE; 
     } 
 
-    if (m_byteStreamErrSvc.retrieve().isFailure()) 
-      {
+    if (m_byteStreamErrSvc.retrieve().isFailure()) {
 	ATH_MSG_ERROR("initialize(): Can't get "<<m_byteStreamErrSvc);
 	return StatusCode::FAILURE; 
-      }
-  }
-  if(m_useOfflineClustering)
-    {
-      if (m_clusteringTool.retrieve().isFailure()) 
-	{
-	  ATH_MSG_ERROR("initialize(): Can't get "<<m_clusteringTool);
-	  return StatusCode::FAILURE; 
-	}
-      else 
-	ATH_MSG_INFO("retrieved "<<m_clusteringTool);
     }
+  } else {
+    m_offlineDecoder.disable();
+  }
+
+  if(m_useOfflineClustering) {
+    if (m_clusteringTool.retrieve().isFailure())  {
+      ATH_MSG_ERROR("initialize(): Can't get "<<m_clusteringTool);
+      return StatusCode::FAILURE; 
+    } else {
+      ATH_MSG_INFO("retrieved "<<m_clusteringTool);
+    }
+  } else {
+    m_clusteringTool.disable();
+  }
 
   ITrigTimerSvc* timerSvc;
   StatusCode scTime = service( "TrigTimerSvc", timerSvc);

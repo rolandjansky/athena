@@ -109,7 +109,7 @@ StatusCode L1CaloPedestalMaker::initialize()
 	 	}
 
 	 	if (m_bStore2POOL) {
-	 		sc = toolSvc->retrieveTool("AthenaPoolOutputStreamTool", m_streamName, m_streamer);
+	 		sc = toolSvc->retrieveTool("AthenaOutputStreamTool", m_streamName, m_streamer);
 			if (sc.isFailure()) {
 			    ATH_MSG_INFO( "Unable to find AthenaOutputStreamTool" );
 			    return StatusCode::FAILURE;

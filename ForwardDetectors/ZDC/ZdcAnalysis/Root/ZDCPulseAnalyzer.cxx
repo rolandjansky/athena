@@ -826,7 +826,7 @@ void ZDCPulseAnalyzer::DoFitCombined()
 
     theFitter->SetParameter(ipar + 1, s_combinedFitFunc->GetParName(ipar), s_combinedFitFunc->GetParameter(ipar), 0.01, parLimitLow, parLimitHigh);
 
-    // arglist[0] = ipar + 2;;
+    // arglist[0] = ipar + 2;
     // arglist[1] = s_combinedFitFunc->GetParameter(ipar);
     // theFitter->ExecuteCommand("SET PAR ", arglist, 2);
 

@@ -43,9 +43,6 @@ public:
   /** Pointer to class that deals with histograms for neutral PFO */
   std::unique_ptr<PFONeutralValidationPlots> m_PFONeutralValidationPlots;
   
-  /** Select which PFO setup to use - LC or EM */
-  bool m_useLCScale;
-  
   /** Select whether to use neutral or charged PFO */
   bool m_useNeutralPFO;
 

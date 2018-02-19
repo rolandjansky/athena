@@ -1422,7 +1422,7 @@ void MuonAlignmentDbTool::dumpBLines(const std::string& folderName)
   m_log << MSG::INFO << "dumping B-lines for folder "<<folderName<<endmsg;
   if( m_debug ) m_log << MSG::DEBUG << "B "
 	    << "type jff jzz job bs       bp        bn        sp        sn        tw        pg        tr        eg        ep        en        ID"
-		      << endmsg;;
+		      << endmsg;
   
   for (ciBLineMap cibline = m_blineData->begin(); cibline != m_blineData->end(); ++cibline) {
     Identifier BLineId = (*cibline).first;
@@ -1462,7 +1462,7 @@ void MuonAlignmentDbTool::dumpILines(const std::string& folderName)
   m_log << MSG::INFO << "dumping I-lines for folder "<<folderName<<endmsg;
   if( m_debug ) m_log << MSG::DEBUG << "I "
 	    << "\ttype\tjff\tjzz\tjob\tjlay\ttras\ttraz\ttrat\trots\trotz\trott"
-		      << endmsg;;
+		      << endmsg;
   
   for (ciCscInternalAlignmentMap ciiline = m_ilineData->begin(); ciiline != m_ilineData->end(); ++ciiline) {
     Identifier ILineId = (*ciiline).first;

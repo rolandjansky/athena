@@ -131,11 +131,11 @@ InDetPhysValLargeD0Tool::initialize() {
     std::move(std::unique_ptr<InDetRttLargeD0Plots> (new InDetRttLargeD0Plots(0, "IDPerformanceMon/" + m_folder)));
 
   if (this->msgLvl(MSG::VERBOSE)) {
-    std::string _sid;
+    std::string sid;
     for (auto pdgid: m_signalIds) {
-      _sid.append(std::to_string(pdgid) + std::string(" "));
+      sid.append(std::to_string(pdgid) + std::string(" "));
     }
-    ATH_MSG_DEBUG("Signal PDGID to be checked: " << _sid);
+    ATH_MSG_DEBUG("Signal PDGID to be checked: " << sid);
   }
 
   return StatusCode::SUCCESS;

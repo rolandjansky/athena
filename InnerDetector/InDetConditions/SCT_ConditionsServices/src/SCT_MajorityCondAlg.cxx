@@ -3,6 +3,8 @@
 */
 
 #include "SCT_MajorityCondAlg.h"
+
+#include <memory>
 #include "GaudiKernel/EventIDRange.h"
 #include "SCT_ConditionsServices/SCT_ConditionsParameters.h"
 
@@ -78,7 +80,7 @@ StatusCode SCT_MajorityCondAlg::execute()
   int numFilled{0};
 
   // Construct the output Cond Object and fill it in
-  SCT_MajorityCondData* writeCdo{new SCT_MajorityCondData()};
+  std::unique_ptr<SCT_MajorityCondData> writeCdo{std::make_unique<SCT_MajorityCondData>()};
 
   CondAttrListCollection::const_iterator majItr{readCdo->begin()};
   CondAttrListCollection::const_iterator majEnd{readCdo->end()};
@@ -123,7 +125,7 @@ StatusCode SCT_MajorityCondAlg::execute()
   writeCdo->setFilled(numFilled==SCT_ConditionsServices::N_REGIONS);
 
   // Record the out output Cond Object
-  if(writeHandle.record(rangeW, writeCdo).isFailure()) {
+  if(writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
     ATH_MSG_FATAL("Could not record SCT_MajorityCondData " << writeHandle.key() 
 		  << " with EventRange " << rangeW
 		  << " into Conditions Store");

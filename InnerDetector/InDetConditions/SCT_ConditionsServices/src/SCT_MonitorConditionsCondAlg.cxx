@@ -4,6 +4,8 @@
 
 #include "SCT_MonitorConditionsCondAlg.h"
 
+#include <memory>
+
 #include "GaudiKernel/EventIDRange.h"
 
 SCT_MonitorConditionsCondAlg::SCT_MonitorConditionsCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
@@ -76,7 +78,7 @@ StatusCode SCT_MonitorConditionsCondAlg::execute()
   }
 
   // Construct the output Cond Object and fill it in
-  SCT_MonitorConditionsCondData* writeCdo{new SCT_MonitorConditionsCondData()};
+  std::unique_ptr<SCT_MonitorConditionsCondData> writeCdo{std::make_unique<SCT_MonitorConditionsCondData>()};
 
   // Fill Write Cond Handle
   static const unsigned int defectListIndex{7};
@@ -90,7 +92,7 @@ StatusCode SCT_MonitorConditionsCondAlg::execute()
   }
 
   // Record validity of the output cond obbject
-  if(writeHandle.record(rangeW, writeCdo).isFailure()) {
+  if(writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
     ATH_MSG_ERROR("Could not record SCT_TdaqEnabledCondData " << writeHandle.key()
                   << " with EventRange " << rangeW
                   << " into Conditions Store");

@@ -334,6 +334,10 @@ HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
       eg.makePrivateStore();
       eg.setCaloClusterLinks(clLinks);
 
+      // Without this, AsgElectronLikelihoodTool::accept will throw
+      // an exception due to the missing xAOD variable.
+      eg.setAuthor (xAOD::EgammaParameters::AuthorUnknown);
+
       // Run the tools for each object
       ATH_MSG_DEBUG("REGTEST: Run the tools on eg object");
       if(m_fourMomBuilder->hltExecute(&eg));

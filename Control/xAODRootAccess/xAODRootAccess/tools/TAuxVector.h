@@ -53,7 +53,7 @@ namespace xAOD {
       /// @{
 
       /// Copy the managed vector
-      virtual SG::IAuxTypeVector* clone() const override;
+     virtual std::unique_ptr<SG::IAuxTypeVector> clone() const override;
 
       /// Return a pointer to the start of the vector's data
       virtual void* toPtr() override;

@@ -296,7 +296,7 @@ inline double EMECDetectorManager::getRefToActive () const
 inline double EMECDetectorManager::getActiveLength () const
 {
   
-  return m_MagicNumbers->activeLength;;
+  return m_MagicNumbers->activeLength;
   
 }
 

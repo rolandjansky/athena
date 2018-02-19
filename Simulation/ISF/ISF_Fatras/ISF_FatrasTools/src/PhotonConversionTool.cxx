@@ -206,14 +206,14 @@ void iFatras::PhotonConversionTool::recordChilds(double time,
     double p1 = sqrt(childEnergy*childEnergy-s_particleMasses.mass[childType]*s_particleMasses.mass[childType]);    
 
     // now properly : energy-momentum conservation
-    CLHEP::HepLorentzVector _vtmp;
+    CLHEP::HepLorentzVector vtmp;
     CLHEP::Hep3Vector photonDirectionHep( photonDirection.x(), photonDirection.y(), photonDirection.z() );
     CLHEP::Hep3Vector childDirectionHep( childDirection.x(), childDirection.y(), childDirection.z() );
-    _vtmp = CLHEP::HepLorentzVector(photonEnergy*photonDirectionHep, photonEnergy) 
+    vtmp = CLHEP::HepLorentzVector(photonEnergy*photonDirectionHep, photonEnergy) 
       - CLHEP::HepLorentzVector(p1*childDirectionHep, childEnergy);
 
-    double p2 = _vtmp.vect().mag();
-    //Amg::Vector3D secondChildDir(_vtmp.vect().unit());
+    double p2 = vtmp.vect().mag();
+    //Amg::Vector3D secondChildDir(vtmp.vect().unit());
 
     // charge sampling
     double charge1, charge2;
@@ -318,14 +318,14 @@ ISF::ISFParticleVector iFatras::PhotonConversionTool::getChilds(const ISF::ISFPa
     double p1 = sqrt(childEnergy*childEnergy-s_particleMasses.mass[childType]*s_particleMasses.mass[childType]);    
 
     // now properly : energy-momentum conservation
-    CLHEP::HepLorentzVector _vtmp;
+    CLHEP::HepLorentzVector vtmp;
     CLHEP::Hep3Vector photonDirectionHep( photonDirection.x(), photonDirection.y(), photonDirection.z() );
     CLHEP::Hep3Vector childDirectionHep( childDirection.x(), childDirection.y(), childDirection.z() );
-    _vtmp = CLHEP::HepLorentzVector(photonEnergy*photonDirectionHep, photonEnergy) 
+    vtmp = CLHEP::HepLorentzVector(photonEnergy*photonDirectionHep, photonEnergy) 
       - CLHEP::HepLorentzVector(p1*childDirectionHep, childEnergy);
 
-    double p2 = _vtmp.vect().mag();
-    //Amg::Vector3D secondChildDir(_vtmp.vect().unit());
+    double p2 = vtmp.vect().mag();
+    //Amg::Vector3D secondChildDir(vtmp.vect().unit());
 
     // charge sampling
     double charge1, charge2;

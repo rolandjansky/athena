@@ -1,29 +1,26 @@
 #! /usr/bin/env bash
 
-DCSC2_SYSTEMS="-sMDT -sTile -sTGC -sRPC -sTDQ -sCSC"
-DEST_DB=COOLOFL_GLOBAL/COMP200
-#DEST_DB=deleteme.db
+DCSC2_SYSTEMS="-sMDT -sTile -sTGC -sRPC -sTDQ -sCSC -sMagnets -sGlobal -sPixels -sTRT -sSCT -sLAr -sLucid"
+#DCSC2_SYSTEMS="-sMDT -sTile -sTGC -sRPC -sTDQ -sCSC -sMagnets -sGlobal -sPixels -sTRT -sLAr -sLucid"
+#DEST_DB=COOLOFL_GLOBAL/COMP200
+DEST_DB=COOLOFL_GLOBAL/CONDBR2
 
-LOG_PATH=/afs/cern.ch/user/a/atlasdqm/DQCalculators/DCSCalc/RunDCSCalc/logfiles
 RUN=$1
 shift
 
 if [ -z $RUN ]; then 
-    echo "Usage: ./RunDCSC2.sh [run_number]"
-    exit
+    echo "Usage: ./ExecuteDCSC2.sh [run_number]"
+    exit 1
 fi
 
 echo "Running for $RUN"
 
-AtlasSetup=/afs/cern.ch/atlas/software/dist/AtlasSetup
-asetup=$AtlasSetup/scripts/asetup.sh
-pushd /afs/cern.ch/user/a/atlasdqm/DQCalculators/DCSCalc/prodarea > /dev/null
-source $asetup 16.0.0
-#15.6.12
-
+export AtlasSetup=/afs/cern.ch/atlas/software/dist/AtlasSetup
+pushd /afs/cern.ch/user/a/atlasdqm/ws/DCSCalc/prodarea > /dev/null
+#source $AtlasSetup/scripts/asetup.sh 17.2.8.6,slc5
+source $AtlasSetup/scripts/asetup.sh 20.7.8.1
 
 CORAL_AUTH_PATH=/afs/cern.ch/user/a/atlasdqm/private
 CORAL_DBLOOKUP_PATH=/afs/cern.ch/user/a/atlasdqm/private
 
-dcsc.py -v $@ $DCSC2_SYSTEMS -r$RUN -o$DEST_DB
-echo "Run $RUN" | mail -s "New DCSC ran on run $RUN." pwaller
+dcsc.py $@ $DCSC2_SYSTEMS -r$RUN -o$DEST_DB --email-on-failure

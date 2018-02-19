@@ -104,12 +104,14 @@ StatusCode TrackDepositInCaloTool::initialize() {
     return StatusCode::FAILURE;
   }
 
-  ATH_MSG_INFO("initialize() successful in " << name());
-  return StatusCode::SUCCESS;
-
   ATH_CHECK(m_extrapolator.retrieve());
   ATH_CHECK(m_caloExtensionTool.retrieve()   );
   ATH_CHECK(m_caloCellAssociationTool.retrieve());
+
+  ATH_MSG_INFO("initialize() successful in " << name());
+  return StatusCode::SUCCESS;
+
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////

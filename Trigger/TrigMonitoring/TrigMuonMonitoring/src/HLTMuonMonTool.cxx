@@ -600,7 +600,7 @@ StatusCode HLTMuonMonTool::init()
     ATH_MSG_VERBOSE("initMuZTPDQA failed");
   }
 
-  StatusCode sc = scMuFast && scMuComb && scMuIso && scTileMu && scMuonEF && scMuGirl && scMuZTP;
+  StatusCode sc = scMuFast & scMuComb & scMuIso & scTileMu & scMuonEF & scMuGirl & scMuZTP;
   return sc;
 }
 
@@ -709,7 +709,7 @@ StatusCode HLTMuonMonTool::book()
     ATH_MSG_VERBOSE("bookMuZTPDQA failed");
   }
 
-  StatusCode sc = scCommon && scChain && scMuFast && scMuComb && scMuIso && scTileMu && scMuonEF && scMuGirl && scMuZTP;
+  StatusCode sc = scCommon & scChain & scMuFast & scMuComb & scMuIso & scTileMu & scMuonEF & scMuGirl & scMuZTP;
   return sc;
 }
 
@@ -863,7 +863,7 @@ StatusCode HLTMuonMonTool::fill()
     scMuZTP=StatusCode::RECOVERABLE;
   }
 
-  StatusCode sc = scCommon && scRecMuon && scChain && scMuFast && scMuComb && scMuIso && scTileMu && scMuonEF && scMuGirl && scMuZTP;
+  StatusCode sc = scCommon & scRecMuon & scChain & scMuFast & scMuComb & scTileMu & scMuonEF & scMuGirl & scMuZTP;
 
   ATH_MSG_DEBUG( " scCommon " << scCommon  
 		<< " scRecMuon " << scRecMuon 
@@ -994,6 +994,6 @@ StatusCode HLTMuonMonTool::proc()
 
   //
 
-  StatusCode sc = scChain && scMuFast && scMuComb && scMuIso && scTileMu && scMuonEF && scMuGirl && scMuZTP;
+  StatusCode sc = scChain & scMuFast & scMuComb & scMuIso & scTileMu & scMuonEF & scMuGirl & scMuZTP;
   return sc;
 }

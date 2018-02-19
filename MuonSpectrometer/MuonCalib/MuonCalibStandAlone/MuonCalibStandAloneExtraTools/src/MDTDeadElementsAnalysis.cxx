@@ -595,7 +595,7 @@ void MDTDeadElementsAnalysis::deadLayers(TH1F* idh1,TH1F* HRef, TH1F* deadTubesM
   //  if(verbose){
   //    cout<<" average bin content "<<average_bin_content<<endl;
   //    cout<<"minimum position content "<<minimum_position<<" "
-  //	<<minimum_content<<" average "<<average_non_zero_bins<<endl;;
+  //	<<minimum_content<<" average "<<average_non_zero_bins<<endl;
   //    cout<<" rms "<<rms_non_zero_bins<<endl;
   //    cout<<" test value "<< average_non_zero_bins-8.*rms_non_zero_bins/pow(double(indlayer-1),0.5)<<
   //      " is larger than "<<minimum_content<<"?"<<endl;
@@ -604,7 +604,7 @@ void MDTDeadElementsAnalysis::deadLayers(TH1F* idh1,TH1F* HRef, TH1F* deadTubesM
     int tubestart = (minimum_position-1)*nbins_per_layer[0]+1;
     int tubeend = minimum_position*nbins_per_layer[0];
     // cout <<"Dead layer "<<minimum_position<<" found "<<endl;
-    deadLayer.push_back(minimum_position);;
+    deadLayer.push_back(minimum_position);
     deadLayerChamber.push_back(chambname);
     //    if(verbose){
     //      cout <<"tubestart tubeend "<<tubestart<<" "<<tubeend<<endl;
@@ -2870,7 +2870,7 @@ void MDTDeadElementsAnalysis::deadMultilayers(TH1F *idh1,  TH1F *HRef, TH1F *dea
      abs(averageLevelML1/averageLevelML2)<0.1) {
     deadAna <<" dead MultiLayer 1 found in chamber "<<chambname<<endl;
     // cout <<" dead MultiLayer 1 found in chamber "<<chambname<<endl;
-    deadMultilayer.push_back(1);;
+    deadMultilayer.push_back(1);
     deadMLChamber.push_back(chambname);
     deadMLCounts.push_back(nonisolatedCountsML1);
     deadMLLevel.push_back(averageLevelML1);
@@ -2895,7 +2895,7 @@ void MDTDeadElementsAnalysis::deadMultilayers(TH1F *idh1,  TH1F *HRef, TH1F *dea
      abs(averageLevelML2/averageLevelML1)<0.1) {
     deadAna <<" dead MultiLayer 2 found in chamber "<<chambname<<endl;
     // cout <<" dead MultiLayer 2 found in chamber "<<chambname<<endl;
-    deadMultilayer.push_back(2);;
+    deadMultilayer.push_back(2);
     deadMLChamber.push_back(chambname);
     deadMLCounts.push_back(nonisolatedCountsML2);
     deadMLLevel.push_back(averageLevelML2);

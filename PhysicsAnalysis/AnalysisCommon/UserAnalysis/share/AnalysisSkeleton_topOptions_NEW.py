@@ -49,7 +49,7 @@ LumiBlockMetaDataTool.applyDQCuts = True
 LumiBlockMetaDataTool.OutputLevel = INFO
 
 # add ToolSvc.LumiBlockMetaDataTool to MetaDataSvc
-from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import MetaDataSvc
+from AthenaServices.AthenaServicesConf import MetaDataSvc
 svcMgr += MetaDataSvc( "MetaDataSvc" )
 svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.LumiBlockMetaDataTool ]
 

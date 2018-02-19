@@ -4,6 +4,8 @@
 
 #include "SCT_SensorsCondAlg.h"
 
+#include <memory>
+
 #include "GaudiKernel/EventIDRange.h"
 
 SCT_SensorsCondAlg::SCT_SensorsCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
@@ -76,7 +78,7 @@ StatusCode SCT_SensorsCondAlg::execute()
   }
 
   // Construct the output Cond Object and fill it in
-  SCT_SensorsCondData* writeCdo{new SCT_SensorsCondData()};
+  std::unique_ptr<SCT_SensorsCondData> writeCdo{std::make_unique<SCT_SensorsCondData>()};
 
   // Fill write conditions data object
   CondAttrListCollection::const_iterator attrList{readCdo->begin()};
@@ -103,7 +105,7 @@ StatusCode SCT_SensorsCondAlg::execute()
   }
 
   // Record write conditions data object
-  if(writeHandle.record(rangeW, writeCdo).isFailure()) {
+  if(writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
     ATH_MSG_FATAL("Could not record SCT_SensorsCondData " << writeHandle.key() 
                   << " with EventRange " << rangeW
                   << " into Conditions Store");

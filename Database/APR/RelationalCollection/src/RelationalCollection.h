@@ -12,10 +12,7 @@
 
 #include "RelationalCollectionFragmentData.h"
 
-#ifdef HAVE_GAUDI_PLUGINSVC
 #include "Gaudi/PluginService.h"
-#endif
-#include "GAUDI_VERSION.h"
 
 #include <map>
 
@@ -50,13 +47,7 @@ namespace pool {
      class RelationalCollection : virtual public ICollection, public ICollectionRelationalExtensions
     {
     public:
-#ifdef HAVE_GAUDI_PLUGINSVC
-  #if GAUDI_VERSION > CALC_GAUDI_VERSION(25, 3) 
     typedef Gaudi::PluginService::Factory<ICollection*, const ICollectionDescription*, ICollection::OpenMode, ISession*> Factory;
-  #else  
-    typedef Gaudi::PluginService::Factory3<ICollection*, const ICollectionDescription*, ICollection::OpenMode, ISession*> Factory;
-  #endif
-#endif
 
       /** 
        * Constructor.

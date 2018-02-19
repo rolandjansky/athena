@@ -354,7 +354,7 @@ namespace VKalVrtAthena {
             if( aTemp_truth )
               {
                 barcode = aTemp_truth->barcode();
-                matchProb= trk->auxdataConst< float >( "truthMatchProbability" );;    
+                matchProb= trk->auxdataConst< float >( "truthMatchProbability" );
               }
           }
       

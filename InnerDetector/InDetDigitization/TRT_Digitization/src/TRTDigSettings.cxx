@@ -100,9 +100,6 @@ void TRTDigSettings::defineVariables() {
   defineNewVariable("highThresholdECBwheelsArgon",  &m_highThresholdECBwheelsArgon,  "High Threshold B type wheels Argon",  "keV",CLHEP::keV,1.0,10.0);
   defineNewVariable("highThresholdECBwheelsKrypton",&m_highThresholdECBwheelsKrypton,"High Threshold B type wheels Krypton","keV",CLHEP::keV,1.0,10.0);
 
-  defineNewVariable("strawLengthBarrel",&m_strawLengthBarrel,"Long barrel straw length","mm",CLHEP::mm,1400.0,1450.0); // 1425.5
-  defineNewVariable("innerRadiusEndcap",&m_innerRadiusEndcap,"Inner radius of the endcap straws","mm",CLHEP::mm,600.0,640.0); // 621.18
-  defineNewVariable("outerRadiusEndcap",&m_outerRadiusEndcap,"Outer radius of the endcap straws","mm",CLHEP::mm,1060.0,1070.0); // 1067
   defineNewVariable("innerRadiusOfStraw",&m_innerRadiusOfStraw,"Inner radius of straw","mm",CLHEP::mm,1.0,3.0); // 2.0 mm
   defineNewVariable("outerRadiusOfWire",&m_outerRadiusOfWire,"Outer radius of wire","micrometer",CLHEP::micrometer,5.0,40.0); // 0.0155 mm
   defineNewVariable("lengthOfDeadRegion",&m_lengthOfDeadRegion,"Length of dead region at straw ends","mm",CLHEP::mm,1.0,3.0);
@@ -509,9 +506,6 @@ void TRTDigSettings::fillDefaults(const InDetDD::TRT_DetectorManager* detmgr) {
   m_ltT0shiftECBwheelsAr=0;
 
   // length
-  m_strawLengthBarrel  = 1425.5*CLHEP::mm;
-  m_innerRadiusEndcap  = 621.18*CLHEP::mm;
-  m_outerRadiusEndcap  = 1067.0*CLHEP::mm;
   m_innerRadiusOfStraw =    2.0*CLHEP::mm;
   m_outerRadiusOfWire  = 0.0155*CLHEP::mm;
   m_lengthOfDeadRegion =    3.0*CLHEP::mm;

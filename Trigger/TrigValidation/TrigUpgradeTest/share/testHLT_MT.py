@@ -16,7 +16,6 @@
 # Existing modifiers can be found in "TriggerRelease/python/Modifiers.py"
 #
 class opt :
-    FilesInput       = None           # Input files (string or list of strings)
     setupForMC       = None           # force MC setup
     setLVL1XML       = 'TriggerMenuXML/LVL1config_Physics_pp_v7.xml'
     setDetDescr      = None           # force geometry tag
@@ -31,8 +30,6 @@ class opt :
     doDBConfig       = None           # dump trigger configuration
     trigBase         = None           # file name for trigger config dump
     enableCostD3PD   = False          # enable cost monitoring
-    EvtMax           = -1             # events to process
-    SkipEvents       =  0             # events to skip
 #
 ################################################################################
 
@@ -63,8 +60,7 @@ from TriggerJobOpts.TriggerFlags import TriggerFlags
 import TriggerRelease.Modifiers
 
 # Input format and file for athena running
-if opt.FilesInput is not None:
-    athenaCommonFlags.FilesInput = [opt.FilesInput] if isinstance(opt.FilesInput,str) else opt.FilesInput
+if athenaCommonFlags.FilesInput is not None:
     from RecExConfig.AutoConfiguration import ConfigureFromListOfKeys, GetRunNumber
     ConfigureFromListOfKeys(['everything'])
     TriggerRelease.Modifiers._run_number = GetRunNumber()
@@ -340,13 +336,6 @@ else:
         svcMgr.MessageSvc.useErsError = ['*']
         svcMgr.MessageSvc.alwaysUseMsgStream = True
 
-# ----------------------------------------------------------------
-# Number of events to be processed - for athena
-# ----------------------------------------------------------------
-theApp.EvtMax = opt.EvtMax
-if hasattr(svcMgr,"EventSelector"):
-    svcMgr.EventSelector.SkipEvents = opt.SkipEvents 
-    
 #-------------------------------------------------------------
 # Apply modifiers
 #-------------------------------------------------------------

@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PRIVATE
                           MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry
                           MuonSpectrometer/MuonIdHelpers
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonRIO_OnTrack
+                          MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonCompetingRIOsOnTrack
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonSegment
                           MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecHelperTools
                           MuonSpectrometer/MuonReconstruction/MuonSegmentMakers/MuonSegmentMakerTools/MuonSegmentMakerToolInterfaces
@@ -33,5 +34,5 @@ atlas_add_component( MuonSegmentMatchingTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives GaudiKernel MagFieldInterfaces MuonReadoutGeometry MuonIdHelpersLib MuonRIO_OnTrack MuonSegment MuonRecHelperToolsLib TrkDetDescrUtils TrkGeometry TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrkToolInterfaces )
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives GaudiKernel MagFieldInterfaces MuonReadoutGeometry MuonIdHelpersLib MuonRIO_OnTrack MuonCompetingRIOsOnTrack MuonSegment MuonRecHelperToolsLib TrkDetDescrUtils TrkGeometry TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrkToolInterfaces )
 

@@ -7,7 +7,6 @@
 #include "AthLinks/AssociationMap.h"
 #include "SGTools/CurrentEventStore.h"
 #include "AthenaKernel/CLASS_DEF.h"
-#include "CxxUtils/checker_macros.h"
 #include <iostream>
 #include <vector>
 
@@ -106,7 +105,7 @@ void test1 (SGTest::TestStore& store)
   store.record (cCont, "cCont");
   store.record (tCont, "tCont");
 
-  PTAss* aMap = new PTAss();
+  PTAss aMap;
   size_t tCtr = 0;
   size_t cCtr = 0;
 
@@ -131,14 +130,14 @@ void test1 (SGTest::TestStore& store)
 		<< std::endl;
       try {
 	if ( 0 == tCtr ) {
-	  aMap->addAssociation(cCont,(*cCont)[cCtr],tCont,(*tCont)[tCtr]);
+	  aMap.addAssociation(cCont,(*cCont)[cCtr],tCont,(*tCont)[tCtr]);
 	}
 	else if ( 1 == tCtr ) {
-	  aMap->addAssociation(ElementLink<ClusterContainer> ("cCont", cCtr),
+	  aMap.addAssociation(ElementLink<ClusterContainer> ("cCont", cCtr),
                                ElementLink<TrackContainer> ("tCont", tCtr));
 	}
         else {
-	  aMap->addAssociation(cCont,cCtr,tCont,tCtr);
+	  aMap.addAssociation(cCont,cCtr,tCont,tCtr);
 	}
       } catch(std::exception& error) {
 	std::cerr << "Caught std::exception:" << std::endl
@@ -153,7 +152,7 @@ void test1 (SGTest::TestStore& store)
   ///  Exploring AssociationMap const interface
   ///
 
-  const PTAss   * const cstMap    = aMap;
+  const PTAss   * const cstMap    = &aMap;
   const Cluster * const myCluster = (*cCont)[0];
   const Track   * const myTrack   = (*tCont)[0];
 
@@ -279,10 +278,10 @@ void test1 (SGTest::TestStore& store)
 }
 
 
-int main ATLAS_NOT_THREAD_SAFE () 
+int main()
 {
-  initTestStore();
-  test1 (store);
+  std::unique_ptr<SGTest::TestStore> store = SGTest::getTestStore();
+  test1 (*store);
 
   return 0;
 }

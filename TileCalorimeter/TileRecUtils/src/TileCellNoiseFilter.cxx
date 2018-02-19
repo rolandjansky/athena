@@ -81,9 +81,14 @@ StatusCode TileCellNoiseFilter::initialize() {
     //=== get TileBadChanTool
     CHECK( m_tileBadChanTool.retrieve() );
 
+    m_noiseTool.disable();
+
   } else {
     //=== CaloNoiseTool
     CHECK( m_noiseTool.retrieve());
+
+    m_tileToolNoiseSample.disable();
+    m_tileBadChanTool.disable();
   }
 
   return StatusCode::SUCCESS;

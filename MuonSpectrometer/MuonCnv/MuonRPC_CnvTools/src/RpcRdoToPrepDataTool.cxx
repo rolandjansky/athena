@@ -136,19 +136,10 @@ StatusCode Muon::RpcRdoToPrepDataTool::initialize() {
   
   
   // Get RpcRawDataProviderTool
-  if (m_useBStoRdoTool && m_rawDataProviderTool.retrieve().isFailure()) {
-    msg (MSG::FATAL) << "Failed to retrieve " << m_rawDataProviderTool << endmsg;
-    return StatusCode::FAILURE;
-  } else
-    msg (MSG::INFO) << "Retrieved Tool " << m_rawDataProviderTool << endmsg;
+  ATH_CHECK( m_rawDataProviderTool.retrieve( DisableTool{ !m_useBStoRdoTool } ));
   
   // Get RpcRdoDecoderTool
-  if (m_rpcRdoDecoderTool.retrieve().isFailure()) {
-    msg (MSG::FATAL) << "Failed to retrieve " << m_rpcRdoDecoderTool << endmsg;
-    return StatusCode::FAILURE;
-  } else
-    msg (MSG::INFO) << "Retrieved Tool " << m_rpcRdoDecoderTool << endmsg;
-  
+  ATH_CHECK( m_rpcRdoDecoderTool.retrieve() );  
 
   /// init rpcidhelper 
   m_rpcHelper = m_muonMgr->rpcIdHelper();

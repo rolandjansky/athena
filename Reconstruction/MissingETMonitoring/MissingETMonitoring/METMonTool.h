@@ -13,7 +13,9 @@
 
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
-#include "GaudiKernel/ITHistSvc.h"
+#include "AthenaMonitoring/GenericMonitoringTool.h"
+
+
 #include "JetInterface/IJetSelector.h"
 #include <string>
 #include <vector>
@@ -64,34 +66,47 @@ class METMonTool : public ManagedMonitorToolBase
     StatusCode procHistograms( );
 
   protected:
-  
-    std::string m_suffix;
-    
-    std::vector<std::string> m_metKeys;
-    std::string              m_metFinKey;
-    std::string              m_metCalKey;
-    std::string              m_metRegKey;
-    std::string              m_jetColKey;
-    std::string              m_eleColKey;
-    std::string              m_muoColKey;
-    
-    std::vector<int>      m_calIndices;
-    std::vector<int> m_regIndices;
-    std::vector<std::string>                   m_calStrings;
-    std::vector<std::string>                   m_regStrings;
-    bool m_met_cut_80;
 
-    int   m_etabin;
-    int   m_phibin;
-    int   m_etbin;
-    float   m_met_cut;
-    float              m_etrange;
-    float              m_etrangeSumFactor;
-    std::vector<float> m_etrangeCalFactors;
-    std::vector<float> m_etrangeRegFactors;
-    bool               m_doFillNegativeSumEt;
-    float              m_tos;
-    float              m_truncatedMean;
+    ToolHandle<GenericMonitoringTool> m_genTool{ this, "GenTool",  "", "Generic monitoring tool" };
+
+  
+    Gaudi::Property<std::string> m_suffix{ this, "NameSuffix", "", "" };
+    // TB this needs to be converted into the ReadHandles, for now doing c++11 move
+    std::vector<std::string> m_metKeys;
+    std::string              m_metFinKey = "MET_RefFinal";
+    std::string              m_metCalKey = "MET_LocHadTopo";
+    std::string              m_metRegKey = "";
+    std::string              m_jetColKey = "AntiKt4LCTopoJets";
+    std::string              m_eleColKey = "Electrons";
+    std::string              m_muoColKey = "Muons";
+
+
+
+
+    const size_t m_calIndices = 7;
+    const size_t m_regIndices = 3;
+    const std::vector<std::string>                   m_calStrings {
+      "PEMB", "EMB", "PEME", "EME", "TILE", "HEC", "FCAL" };
+    std::vector<std::string>                   m_regStrings {
+      "Central", "EndCap", "Forward" };
+    Gaudi::Property<bool> m_met_cut_80 { this, "doMetCut80", false, "Documentation?" };
+
+    Gaudi::Property<int>   m_etabin{ this, "nEtaBins", 100, "Documentation?" };
+    Gaudi::Property<int>   m_phibin{ this, "nPhiBins", 100, "Documentation?" };
+    Gaudi::Property<int>   m_etbin { this, "nEtBins", 800, "Documentation?" };
+    Gaudi::Property<float> m_met_cut{ this, "metCut", 0., "Documentation?" };
+    Gaudi::Property<float> m_etrange{ this, "EtRange", 400., "Documentation?" };
+    Gaudi::Property<float> m_etrangeSumFactor{ this, "SumEtRangeFactor", 10., "Documentation?" };
+
+    Gaudi::Property<std::vector<float>> m_etrangeCalFactors{ this, "EtRangeCalFactors",  
+	{ 0.2, 0.6, 0.1, 0.5, 0.5, 0.4, 0.3 }, "" };
+
+    Gaudi::Property<std::vector<float>> m_etrangeRegFactors{ this, "EtRangeRegFactors", 
+	{ 0.1, 0.1, 0.1 }, "" };
+
+    Gaudi::Property<bool>  m_doFillNegativeSumEt{ this, "FillNegativeSumEt", false , "" };
+    Gaudi::Property<float> m_tos{ this, "YaxisTitleOffset", 1.25, ""}; 
+    float m_truncatedMean = 200.;
     
     std::vector<TH1*> m_et;
     std::vector<TH1*> m_ex;
@@ -139,21 +154,18 @@ class METMonTool : public ManagedMonitorToolBase
 
   
 
-    bool m_doJetcleaning;
-    bool m_badJets;
+    Gaudi::Property<bool> m_doJetcleaning{ this, "doJetcleaning", false, "" };
+    Gaudi::Property<bool> m_badJets{ this, "badJets", false, "" };
     
     /// Set Number of WARNINGs displayed for failure of container retrieval
-    int m_maxNumContainerWarnings;
-    int m_ContainerWarnings_Muon, m_ContainerWarnings_Ele, m_ContainerWarnings_Jet;
+    Gaudi::Property<int> m_maxNumContainerWarnings{ this, "maxNumContainerWarnings", 10, "" };
+
+    int m_ContainerWarnings_Muon{}, m_ContainerWarnings_Ele{}, m_ContainerWarnings_Jet{}; 
     std::vector<int> m_ContainerWarnings_metKeys; 
 
-    ToolHandle<IJetSelector> m_selTool; /// used only if m_selType == FromTool
+    ToolHandle<IJetSelector> m_selTool{ this, "JetSelectorTool", "", ""}; /// used only if m_selType == FromTool
 
     ITHistSvc * m_thistSvc;   
-  private:
-
-    float m_Pi;
-
 };
 
 

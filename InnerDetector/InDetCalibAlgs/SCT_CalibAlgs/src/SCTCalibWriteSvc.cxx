@@ -85,7 +85,7 @@ SCTCalibWriteSvc::SCTCalibWriteSvc(const std::string& name, ISvcLocator* pSvcLoc
 
   m_regSvc(0),
   //m_streamer(0),
-  m_streamer(((m_version == 0) ? "AthenaOutputStreamTool" : "AthenaPoolOutputStreamTool"), this),
+  m_streamer(((m_version == 0) ? "AthenaOutputStreamTool" : "AthenaOutputStreamTool"), this),
   m_badIds(),
   
   m_defectRecorded(false),
@@ -148,18 +148,6 @@ StatusCode SCTCalibWriteSvc::initialize(){
   m_attrListColl_BSErr = new CondAttrListCollection(true);
   m_attrListColl_LA = new CondAttrListCollection(true);
 
-  // Get Output Stream tool for writing
-  /* if (m_writeCondObjs) {
-    IToolSvc* toolSvc(0);// Pointer to Tool Service
-    if (service("ToolSvc", toolSvc).isFailure()) return msg(MSG:: ERROR)<< " Tool Service not found "<< endmsg,StatusCode::FAILURE;
-    if (m_version == 0) {
-      sc = toolSvc->retrieveTool("AthenaOutputStreamTool",m_streamName, m_streamer);
-    } else {
-      sc = toolSvc->retrieveTool("AthenaPoolOutputStreamTool",m_streamName, m_streamer);
-    }
-    if (sc.isFailure()) return msg(MSG:: ERROR)<< "Unable to find Athena(Pool)OutputStreamTool" << endmsg, StatusCode::FAILURE;
-  } */
-    
   // Get the IOVRegistrationSvc when needed
   if (m_regIOV) {
     if (service("IOVRegistrationSvc", m_regSvc).isFailure()) return msg(MSG:: ERROR)<< "Unable to find IOVRegistrationSvc "<< endmsg, StatusCode::FAILURE;
@@ -584,7 +572,7 @@ StatusCode SCTCalibWriteSvc::wrapUpDeadStrips(){
 
 ///////////////////////////////////////////////////////////////////////////////////////
 StatusCode SCTCalibWriteSvc::wrapUpDeadChips(){
-  if (recordAndStream(m_attrListColl_deadChip,s_deadChipFolderName,m_deadChipRecorded).isFailure())  return StatusCode::FAILURE;;
+  if (recordAndStream(m_attrListColl_deadChip,s_deadChipFolderName,m_deadChipRecorded).isFailure())  return StatusCode::FAILURE;
   if (registerCondObjectsWithErrMsg(s_deadChipFolderName, m_tagID4DeadChips).isFailure()) return StatusCode::FAILURE;  
   return StatusCode::SUCCESS;
 }
@@ -612,7 +600,7 @@ StatusCode SCTCalibWriteSvc::wrapUpRawOccupancy(){
 
 ///////////////////////////////////////////////////////////////////////////////////////
 StatusCode SCTCalibWriteSvc::wrapUpBSErrors(){
-  if (recordAndStream(m_attrListColl_BSErr, s_BSErrFolderName,m_BSErrRecorded).isFailure()) return StatusCode::FAILURE;;
+  if (recordAndStream(m_attrListColl_BSErr, s_BSErrFolderName,m_BSErrRecorded).isFailure()) return StatusCode::FAILURE;
   if (registerCondObjectsWithErrMsg(s_BSErrFolderName, m_tagID4BSErrors).isFailure()) return StatusCode::FAILURE;
   return StatusCode::SUCCESS;
 }

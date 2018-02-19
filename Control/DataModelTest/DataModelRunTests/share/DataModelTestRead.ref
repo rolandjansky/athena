@@ -1,84 +1,12 @@
-Thu Nov  2 15:25:04 EDT 2017
-WARNING: TCMALLOCDIR not defined, will use libc malloc
-Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [?-21.0.0] [i686-slc5-gcc43-dbg] [?/?] -- built on [?]
-Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
-Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
-Py:Athena            INFO executing ROOT6Setup
-Py:Athena            INFO including file "AthenaCommon/Execution.py"
-Py:Athena            INFO including file "DataModelRunTests/DataModelTestRead_jo.py"
-Py:ConfigurableDb    INFO Read module info for 467 configurables from 2 genConfDb files
-Py:ConfigurableDb    INFO No duplicates have been found: that's good !
-Py:Athena            INFO including file "EventAthenaPool/EventAthenaPoolItemList_joboptions.py"
-Py:Athena            INFO including file "AthenaCommon/runbatch.py"
-# setting LC_ALL to "C"
-ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
-ApplicationMgr    SUCCESS 
-====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
-                                          running on karma on Thu Nov  2 15:25:31 2017
-====================================================================================================================================
-ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
-ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
-StatusCodeSvc        INFO initialize
-AthDictLoaderSvc     INFO in initialize...
-AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 10078 CLIDRegistry entries for module ALL
-ChronoStatSvc        INFO  Number of skipped events for MemStat-1
-CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
-CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
-AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
-ClassIDSvc           INFO  getRegistryEntries: read 690 CLIDRegistry entries for module ALL
-DecisionSvc          INFO Inserting stream: Stream1 with no Algs
-MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
-AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
-PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
-PoolSvc              INFO Frontier compression level set to 5
-DBReplicaSvc         INFO Read replica configuration from /home/sss/atlas/dvtest/build/share/dbreplica.config
-DBReplicaSvc         INFO No specific match for domain found - use default fallback
-DBReplicaSvc         INFO Total of 1 servers found for host karma [atlas_dd ]
-PoolSvc              INFO Successfully setup replica sorting algorithm
-PoolSvc              INFO Setting up APR FileCatalog and Streams
-PoolSvc              INFO POOL WriteCatalog is file:DataModelTestRead_catalog.xml
-DbSession            INFO     Open     DbSession    
-Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
-EventSelector        INFO reinitialization...
-EventSelector        INFO EventSelection with query 
-Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 886F031B-9F53-BF44-9C66-82044E649879
-Domain[ROOT_All]     INFO                           SimplePoolFile.root
-RootDatabase.open    INFO SimplePoolFile.root File version:60806
-EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
-EventSelector        INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-00-00
-EventSelector        INFO reinitialization...
-EventSelector        INFO EventSelection with query 
-AthenaPoolAddre...   INFO Initializing AthenaPoolAddressProviderSvc - package version EventSelectorAthenaPool-00-00-00
-OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-00-00-00
-ClassIDSvc           INFO  getRegistryEntries: read 1040 CLIDRegistry entries for module ALL
-Stream1.Stream1...   INFO Initializing Stream1.Stream1Tool - package version OutputStreamAthenaPool-00-00-00
-Stream1.Stream1...   INFO streamProperty ProcessingTag = Stream1
 Stream1              INFO Found HelperTools = PrivateToolHandleArray([])
 Stream1              INFO Data output: SimplePoolFile2.root
-Stream1              INFO I/O reinitialization...
-HistogramPersis...WARNING Histograms saving not required.
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ApplicationMgr       INFO Application Manager Initialized successfully
-SimplePoolFile....   INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 886F031B-9F53-BF44-9C66-82044E649879
-DbSession            INFO     Open     DbSession    
-Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 886F031B-9F53-BF44-9C66-82044E649879
-Domain[ROOT_All]     INFO                           SimplePoolFile.root
-RootDatabase.open    INFO SimplePoolFile.root File version:60806
-ApplicationMgr       INFO Application Manager Started successfully
 AlgResourcePool      INFO TopAlg list empty. Recovering the one of Application Manager
-AthenaPoolConve...   INFO massageEventInfo: unable to get OverrideRunNumberFromInput property from EventSelector 
-ClassIDSvc           INFO  getRegistryEntries: read 16 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO   ===>>>  start of run 0    <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #0, run #0 0 events processed so far  <<<===
-ClassIDSvc           INFO  getRegistryEntries: read 12 CLIDRegistry entries for module ALL
 bvec as DataVector<DMTest::B>: 0 1 2 3 4 5 6 7 8 9 
-ClassIDSvc           INFO  getRegistryEntries: read 54 CLIDRegistry entries for module ALL
 bder as DMTest::BDer: 100 101 102 103 104 105 106 107 108 109 
 dvec as DataVector<DMTest::D>: 200 201 202 203 204 205 206 207 208 209 
 dder as DMTest::DDer: 300 301 302 303 304 305 306 307 308 309 
@@ -89,11 +17,6 @@ dder as DataVector<DMTest::D>: 300 301 302 303 304 305 306 307 308 309
 elvec: 0 3 6 9 101 104 107 
 elv_remap: 100 101 102 103 104 105 106 107 108 109 200 201 202 203 204 205 206 207 208 209 
 elv_remap v2: 100 101 102 103 104 105 106 107 108 109 200 201 202 203 204 205 206 207 208 209 
-DbSession            INFO     Open     DbSession    
-Domain[ROOT_All]     INFO >   Access   DbDomain     UPDATE    [ROOT_All] 
-Domain[ROOT_All]     INFO ->  Access   DbDatabase   CREATE    [ROOT_All] 5B4CB2C3-AC45-0241-A50A-43F874AC370F
-Domain[ROOT_All]     INFO                           SimplePoolFile2.root
-RootDatabase.open    INFO SimplePoolFile2.root File version:60806
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #0, run #0 1 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #0 1 events processed so far  <<<===
 bvec as DataVector<DMTest::B>: 1 2 3 4 5 6 7 8 9 10 
@@ -342,20 +265,7 @@ elvec: 19 22 25 28 120 123 126
 elv_remap: 119 120 121 122 123 124 125 126 127 128 219 220 221 222 223 224 225 226 227 228 
 elv_remap v2: 119 120 121 122 123 124 125 126 127 128 219 220 221 222 223 224 225 226 227 228 
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #0 20 events processed so far  <<<===
-Stream1              INFO Records written: 21
-SimplePoolFile....   INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 886F031B-9F53-BF44-9C66-82044E649879
-SimplePoolFile2...   INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   CREATE    [ROOT_All] 5B4CB2C3-AC45-0241-A50A-43F874AC370F
-Domain[ROOT_All]     INFO >   Deaccess DbDomain     UPDATE    [ROOT_All] 
-ApplicationMgr       INFO Application Manager Stopped successfully
 IncidentProcAlg1     INFO Finalize
 IncidentProcAlg2     INFO Finalize
-Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
-DecisionSvc          INFO Finalized successfully.
-AthDictLoaderSvc     INFO in finalize...
-ToolSvc              INFO Removing all tools created by ToolSvc
-ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully
 ApplicationMgr       INFO Application Manager Terminated successfully
-Py:Athena            INFO leaving with code 0: "successful run"

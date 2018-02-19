@@ -21,62 +21,62 @@
 
 
  BeamSpotPdf::BeamSpotPdf(const char *name, const char *title, 
-                        RooAbsReal& _x,
-                        RooAbsReal& _y,
-                        RooAbsReal& _z,
-                        RooAbsReal& _vxx,
-                        RooAbsReal& _vyy,
-                        RooAbsReal& _vxy,
-                        RooAbsReal& _mx,
-                        RooAbsReal& _sx,
-                        RooAbsReal& _ax,
-                        RooAbsReal& _my,
-                        RooAbsReal& _sy,
-                        RooAbsReal& _ay,
-                        RooAbsReal& _mz,
-                        RooAbsReal& _sz,
-                        RooAbsReal& _k,
-			  RooAbsReal& _rho
+                        RooAbsReal& x,
+                        RooAbsReal& y,
+                        RooAbsReal& z,
+                        RooAbsReal& vxx,
+                        RooAbsReal& vyy,
+                        RooAbsReal& vxy,
+                        RooAbsReal& mx,
+                        RooAbsReal& sx,
+                        RooAbsReal& ax,
+                        RooAbsReal& my,
+                        RooAbsReal& sy,
+                        RooAbsReal& ay,
+                        RooAbsReal& mz,
+                        RooAbsReal& sz,
+                        RooAbsReal& k,
+                        RooAbsReal& rho
 			 ) :
    RooAbsPdf(name,title), 
-   x("x","x",this,_x),
-   y("y","y",this,_y),
-   z("z","z",this,_z),
-   vxx("vxx","vxx",this,_vxx),
-   vyy("vyy","vyy",this,_vyy),
-   vxy("vxy","vxy",this,_vxy),
-   mx("mx","mx",this,_mx),
-   sx("sx","sx",this,_sx),
-   ax("ax","ax",this,_ax),
-   my("my","my",this,_my),
-   sy("sy","sy",this,_sy),
-   ay("ay","ay",this,_ay),
-   mz("mz","mz",this,_mz),
-   sz("sz","sz",this,_sz),
-   k("k","k",this,_k),
-  rho("rho","rho",this,_rho)
+   m_x("x","x",this,x),
+   m_y("y","y",this,y),
+   m_z("z","z",this,z),
+   m_vxx("vxx","vxx",this,vxx),
+   m_vyy("vyy","vyy",this,vyy),
+   m_vxy("vxy","vxy",this,vxy),
+   m_mx("mx","mx",this,mx),
+   m_sx("sx","sx",this,sx),
+   m_ax("ax","ax",this,ax),
+   m_my("my","my",this,my),
+   m_sy("sy","sy",this,sy),
+   m_ay("ay","ay",this,ay),
+   m_mz("mz","mz",this,mz),
+   m_sz("sz","sz",this,sz),
+   m_k("k","k",this,k),
+   m_rho("rho","rho",this,rho)
  { 
  } 
 
 
  BeamSpotPdf::BeamSpotPdf(const BeamSpotPdf& other, const char* name) :  
    RooAbsPdf(other,name), 
-   x("x",this,other.x),
-   y("y",this,other.y),
-   z("z",this,other.z),
-   vxx("vxx",this,other.vxx),
-   vyy("vyy",this,other.vyy),
-   vxy("vxy",this,other.vxy),
-   mx("mx",this,other.mx),
-   sx("sx",this,other.sx),
-   ax("ax",this,other.ax),
-   my("my",this,other.my),
-   sy("sy",this,other.sy),
-   ay("ay",this,other.ay),
-   mz("mz",this,other.mz),
-   sz("sz",this,other.sz),
-   k("k",this,other.k),
-   rho("rho",this,other.rho)
+   m_x("x",this,other.m_x),
+   m_y("y",this,other.m_y),
+   m_z("z",this,other.m_z),
+   m_vxx("vxx",this,other.m_vxx),
+   m_vyy("vyy",this,other.m_vyy),
+   m_vxy("vxy",this,other.m_vxy),
+   m_mx("mx",this,other.m_mx),
+   m_sx("sx",this,other.m_sx),
+   m_ax("ax",this,other.m_ax),
+   m_my("my",this,other.m_my),
+   m_sy("sy",this,other.m_sy),
+   m_ay("ay",this,other.m_ay),
+   m_mz("mz",this,other.m_mz),
+   m_sz("sz",this,other.m_sz),
+   m_k("k",this,other.m_k),
+   m_rho("rho",this,other.m_rho)
  { 
  } 
 
@@ -85,19 +85,19 @@
  Double_t BeamSpotPdf::evaluate() const 
  { 
    // ENTER EXPRESSION IN TERMS OF VARIABLE ARGUMENTS HERE 
-   double dx = x - (mx + ax*(z-mz));
-   double dy = y - (my + ay*(z-mz));
-   double dz = z - mz;
-   double k2 = k*k;
-   double wxx = sx*sx + k2*vxx;
-   double wyy = sy*sy + k2*vyy;
-   double wxy = rho*sx*sy + k2*vxy;
+   double dx = m_x - (m_mx + m_ax*(m_z-m_mz));
+   double dy = m_y - (m_my + m_ay*(m_z-m_mz));
+   double dz = m_z - m_mz;
+   double k2 = m_k*m_k;
+   double wxx = m_sx*m_sx + k2*m_vxx;
+   double wyy = m_sy*m_sy + k2*m_vyy;
+   double wxy = m_rho*m_sx*m_sy + k2*m_vxy;
    double detw = wxx*wyy - wxy*wxy;
    double iwxx = wyy/detw;
    double iwyy = wxx/detw;
    double iwxy = -wxy/detw;
    double arg = dx*iwxx*dx + 2*dx*iwxy*dy + dy*iwyy*dy;
-   arg += dz*dz/(sz*sz);
+   arg += dz*dz/(m_sz*m_sz);
    return exp(-0.5*arg);
  }
 
@@ -109,19 +109,19 @@ Int_t BeamSpotPdf::getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars
    
  //  int mult = 5;
 // 
-  // if (matchArgs(allVars,analVars,x,y,z)){
-    // if ((x.min(rangeName) < mx - mult*sx) && (x.max(rangeName) > mx + mult*sx)){
-      // if ((y.min(rangeName) < my - mult*sy) && (y.max(rangeName) > my + mult*sy)){
-	// if ((z.min(rangeName) < mz - mult*sz) && (z.max(rangeName) > mz + mult*sz)){
+  // if (matchArgs(allVars,analVars,m_x,m_y,m_z)){
+    // if ((m_x.min(rangeName) < m_mx - mult*m_sx) && (m_x.max(rangeName) > m_mx + mult*m_sx)){
+      // if ((m_y.min(rangeName) < m_my - mult*m_sy) && (m_y.max(rangeName) > m_my + mult*m_sy)){
+	// if ((m_z.min(rangeName) < m_mz - mult*m_sz) && (m_z.max(rangeName) > m_mz + mult*m_sz)){
 //	   return 1 ;
 //	 }
 //       }
 //     }
 //     
 //   }
-//   if (matchArgs(allVars,analVars,x,y)){
-//     if ((x.min(rangeName) < mx - mult*sx ) && (x.max(rangeName) > mx + mult*sx)){
-//       if ((y.min(rangeName) < my - mult*sy) && (y.max(rangeName) > my + mult*sy)){
+//   if (matchArgs(allVars,analVars,m_x,m_y)){
+//     if ((m_x.min(rangeName) < m_mx - mult*m_sx ) && (m_x.max(rangeName) > m_mx + mult*m_sx)){
+//       if ((m_y.min(rangeName) < m_my - mult*m_sy) && (m_y.max(rangeName) > m_my + mult*m_sy)){
 //	 return 2 ; 
 //       }
 //     }
@@ -133,10 +133,10 @@ Int_t BeamSpotPdf::getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars
    //(void) rangeName;
 
    //Now we can use the Erf approximation over the entire integration range:
-     if (matchArgs(allVars,analVars,x,y,z)) return 1;
-     if (matchArgs(allVars,analVars,x,y) ) return 2;
-     if (matchArgs(allVars,analVars,x,z) ) return 3;
-     if (matchArgs(allVars,analVars,y,z) ) return 4;
+     if (matchArgs(allVars,analVars,m_x,m_y,m_z)) return 1;
+     if (matchArgs(allVars,analVars,m_x,m_y) ) return 2;
+     if (matchArgs(allVars,analVars,m_x,m_z) ) return 3;
+     if (matchArgs(allVars,analVars,m_y,m_z) ) return 4;
    
    return 0 ; 
  } 
@@ -144,59 +144,59 @@ Int_t BeamSpotPdf::getAnalyticalIntegral(RooArgSet& allVars, RooArgSet& analVars
  Double_t BeamSpotPdf::analyticalIntegral(Int_t code, const char* rangeName) const  
  { 
    // RETURN ANALYTICAL INTEGRAL DEFINED BY RETURN CODE ASSIGNED BY getAnalyticalIntegral
-   // THE MEMBER FUNCTION x.min(rangeName) AND x.max(rangeName) WILL RETURN THE INTEGRATION
-   // BOUNDARIES FOR EACH OBSERVABLE x
+   // THE MEMBER FUNCTION m_x.min(rangeName) AND m_x.max(rangeName) WILL RETURN THE INTEGRATION
+   // BOUNDARIES FOR EACH OBSERVABLE m_x
 
    double pi = TMath::Pi();
-   double k2 = k*k;
-   double wxx = sx*sx + k2*vxx;
-   double wyy = sy*sy + k2*vyy;
-   double wxy = rho*sx*sy + k2*vxy;
-   double wzz = sz*sz;
+   double k2 = m_k*m_k;
+   double wxx = m_sx*m_sx + k2*m_vxx;
+   double wyy = m_sy*m_sy + k2*m_vyy;
+   double wxy = m_rho*m_sx*m_sy + k2*m_vxy;
+   double wzz = m_sz*m_sz;
    double detw = wxx*wyy - wxy*wxy;
   
    if (code==1) {
      //integrating over x,y,z
     
-  //   return sqrt((0.5*pi)*(0.5*pi)*(0.5*pi))*sqrt(wxx)*sqrt(wyy)*sz*
-  //     (TMath::Erf((mx-x.min(rangeName))/sqrt(2*wxx))-TMath::Erf((mx-x.max(rangeName))/sqrt(2*wxx)))
-  //     *(TMath::Erf((my-y.min(rangeName))/sqrt(2*wyy))-TMath::Erf((my-y.max(rangeName))/sqrt(2*wyy)))
-  //     *(TMath::Erf((mz-z.min(rangeName))/sqrt(2*wzz))-TMath::Erf((mz-z.max(rangeName))/sqrt(2*wzz)));
+  //   return sqrt((0.5*pi)*(0.5*pi)*(0.5*pi))*sqrt(wxx)*sqrt(wyy)*m_sz*
+  //     (TMath::Erf((m_mx-m_x.min(rangeName))/sqrt(2*wxx))-TMath::Erf((m_mx-m_x.max(rangeName))/sqrt(2*wxx)))
+  //     *(TMath::Erf((m_my-m_y.min(rangeName))/sqrt(2*wyy))-TMath::Erf((m_my-m_y.max(rangeName))/sqrt(2*wyy)))
+  //     *(TMath::Erf((m_mz-m_z.min(rangeName))/sqrt(2*wzz))-TMath::Erf((m_mz-m_z.max(rangeName))/sqrt(2*wzz)));
   //
      //The next line is used if we want to approximate the integral with that over -inf to +inf     
-     return 2*pi*sqrt(detw)*sqrt(2*pi)*sz;
+     return 2*pi*sqrt(detw)*sqrt(2*pi)*m_sz;
    } 
    
    
    if (code==2) {
      //integrating over x,y only
-     double dz = z - mz;
+     double dz = m_z - m_mz;
      //erf approximation
     //
     //   return 0.5*pi*sqrt(wxx)*sqrt(wyy)*
-    //   (TMath::Erf((mx-x.min(rangeName))/sqrt(2*wxx))-TMath::Erf((mx-x.max(rangeName))/sqrt(2*wxx)))
-    //   *(TMath::Erf((my-y.min(rangeName))/sqrt(2*wyy))-TMath::Erf((my-y.max(rangeName))/sqrt(2*wyy)))
-    //   *exp(-0.5*dz*dz/(sz*sz));
+    //   (TMath::Erf((m_mx-m_x.min(rangeName))/sqrt(2*wxx))-TMath::Erf((m_mx-m_x.max(rangeName))/sqrt(2*wxx)))
+    //   *(TMath::Erf((m_my-m_y.min(rangeName))/sqrt(2*wyy))-TMath::Erf((m_my-m_y.max(rangeName))/sqrt(2*wyy)))
+    //   *exp(-0.5*dz*dz/(m_sz*m_sz));
     //
        
      //inf approximation
-     return 2*pi*sqrt(detw)*exp(-0.5*dz*dz/(sz*sz));
+     return 2*pi*sqrt(detw)*exp(-0.5*dz*dz/(m_sz*m_sz));
    }
    if (code==3){
      //integrating over x,z
-     double dy = y-my;
+     double dy = m_y-m_my;
      return 0.5*pi*sqrt(wxx)*sqrt(wzz)*
-       (TMath::Erf((mx-x.min(rangeName))/sqrt(2*wxx))-TMath::Erf((mx-x.max(rangeName))/sqrt(2*wxx)))
-       *(TMath::Erf((mz-z.min(rangeName))/sqrt(2*wzz))-TMath::Erf((mz-z.max(rangeName))/sqrt(2*wzz)))
-       *exp(-0.5*dy*dy/(wyy));;
+       (TMath::Erf((m_mx-m_x.min(rangeName))/sqrt(2*wxx))-TMath::Erf((m_mx-m_x.max(rangeName))/sqrt(2*wxx)))
+       *(TMath::Erf((m_mz-m_z.min(rangeName))/sqrt(2*wzz))-TMath::Erf((m_mz-m_z.max(rangeName))/sqrt(2*wzz)))
+       *exp(-0.5*dy*dy/(wyy));
    }
    if (code==4){
      //integrating over y,z
-     double dx = x-mx;
+     double dx = m_x-m_mx;
      return 0.5*pi*sqrt(wyy)*sqrt(wzz)*
-       (TMath::Erf((my-y.min(rangeName))/sqrt(2*wyy))-TMath::Erf((my-y.max(rangeName))/sqrt(2*wyy)))
-       *(TMath::Erf((mz-z.min(rangeName))/sqrt(2*wzz))-TMath::Erf((mz-z.max(rangeName))/sqrt(2*wzz)))
-       *exp(-0.5*dx*dx/(wxx));;
+       (TMath::Erf((m_my-m_y.min(rangeName))/sqrt(2*wyy))-TMath::Erf((m_my-m_y.max(rangeName))/sqrt(2*wyy)))
+       *(TMath::Erf((m_mz-m_z.min(rangeName))/sqrt(2*wzz))-TMath::Erf((m_mz-m_z.max(rangeName))/sqrt(2*wzz)))
+       *exp(-0.5*dx*dx/(wxx));
    }
    
    return 0 ; 

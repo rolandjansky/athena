@@ -105,6 +105,9 @@ Trk::MaterialEffectsUpdator::initialize() {
       ATH_MSG_DEBUG("Retrieved tool " << m_eLossUpdator);
     }
   }
+  else {
+    m_eLossUpdator.disable();
+  }
 
   if (m_doMs) {
     if (m_msUpdator.retrieve().isFailure()) {
@@ -116,6 +119,9 @@ Trk::MaterialEffectsUpdator::initialize() {
       ATH_MSG_DEBUG("Retrieved tool " << m_msUpdator);
     }
   }
+  else {
+    m_msUpdator.disable();
+  }
 
   // retrieve the material mapper for the validation mode
   if (m_validationMode) {
@@ -125,6 +131,9 @@ Trk::MaterialEffectsUpdator::initialize() {
     } else {
       ATH_MSG_DEBUG("Retrieved tool " << m_materialMapper);
     }
+  }
+  else {
+    m_materialMapper.disable();
   }
 
   return StatusCode::SUCCESS;

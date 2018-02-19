@@ -18,7 +18,7 @@
   #ifndef CMMCPHits_H
   #define CMMCPHits_H
   
-  #include "CLIDSvc/CLASS_DEF.h"
+  #include "AthenaKernel/CLASS_DEF.h"
 
 
   #include <iostream>

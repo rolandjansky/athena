@@ -132,10 +132,11 @@ StatusCode TruthParticleCnvTool::initialize()
   }
 
   // retrieve the TruthIsolation tool only if asked for.
-  if ( m_doEtIsolation.value() &&
-       !m_isolationTool.retrieve().isSuccess() ) {
-    ATH_MSG_ERROR("Creation of TruthIsolationTool FAILED !");
-    return StatusCode::FAILURE;    
+  if ( m_doEtIsolation.value() ) {
+    ATH_CHECK(m_isolationTool.retrieve());
+  }
+  else {
+    m_isolationTool.disable();
   }
 
 

@@ -22,6 +22,8 @@
 #include "TrackVertexAssociationTool/ITrackVertexAssociationTool.h"
 
 //xAOD 
+#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTracking/VertexContainer.h"
 
 class TrackVertexAssoTestAlg
   : public ::AthAlgorithm
@@ -70,8 +72,9 @@ class TrackVertexAssoTestAlg
 
   /// Containers
   
-  std::string m_trkContname;
-  std::string m_vertexContname;
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trkContname 
+                                                  { this, "TrackContainer", "InDetTrackParticles", "Input track particles" };
+  SG::ReadHandleKey<xAOD::VertexContainer> m_vertexContname { this, "VertexContainer", "PrimaryVertices", "Input vertices" };
 
 }; 
 

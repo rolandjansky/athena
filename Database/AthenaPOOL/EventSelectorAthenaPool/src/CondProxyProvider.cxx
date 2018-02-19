@@ -45,7 +45,6 @@ StatusCode CondProxyProvider::initialize() {
       ATH_MSG_FATAL("Cannot initialize AthService base class.");
       return(StatusCode::FAILURE);
    }
-
    // Check for input collection
    if (m_inputCollectionsProp.value().size() == 0) {
       return(StatusCode::FAILURE);
@@ -101,60 +100,52 @@ StatusCode CondProxyProvider::preLoadAddresses(StoreID::type storeID,
    }
    // Create DataHeader iterators
    m_headerIterator = &m_poolCollectionConverter->executeQuery();
-   for (int verNumber = 0; verNumber < 100; verNumber++) {
-      if (!m_headerIterator->next()) {
-         if (m_poolCollectionConverter != 0) {
-            m_poolCollectionConverter->disconnectDb().ignore();
-            delete m_poolCollectionConverter; m_poolCollectionConverter = 0;
+   if (!m_headerIterator->next()) {
+      if (m_poolCollectionConverter != 0) {
+         m_poolCollectionConverter->disconnectDb().ignore();
+         delete m_poolCollectionConverter; m_poolCollectionConverter = 0;
+      }
+      m_inputCollectionsIterator++;
+      if (m_inputCollectionsIterator != m_inputCollectionsProp.value().end()) {
+         // Create PoolCollectionConverter for input file
+         m_poolCollectionConverter = getCollectionCnv();
+         if (m_poolCollectionConverter == 0) {
+            return(StatusCode::FAILURE);
          }
-         m_inputCollectionsIterator++;
-         if (m_inputCollectionsIterator != m_inputCollectionsProp.value().end()) {
-            // Create PoolCollectionConverter for input file
-            m_poolCollectionConverter = getCollectionCnv();
-            if (m_poolCollectionConverter == 0) {
-               return(StatusCode::FAILURE);
-            }
-            // Get DataHeader iterator
-            m_headerIterator = &m_poolCollectionConverter->executeQuery();
-            if (!m_headerIterator->next()) {
-               return(StatusCode::FAILURE);
-            }
-         } else {
-            break;
+         // Get DataHeader iterator
+         m_headerIterator = &m_poolCollectionConverter->executeQuery();
+         if (!m_headerIterator->next()) {
+            return(StatusCode::FAILURE);
          }
       }
-      //const std::string tokenStr = m_headerIterator->eventRef().toString();
-      SG::VersionedKey myVersKey(name(), verNumber);
-      GenericAddress* genAddr = new GenericAddress(POOL_StorageType,
-	      ClassID_traits<DataHeader>::ID(),
-	      m_headerIterator->eventRef().toString(),
-	      myVersKey);
-      if (!detectorStoreSvc->recordAddress(genAddr).isSuccess()) {
-         ATH_MSG_ERROR("Cannot record DataHeader.");
-         return(StatusCode::FAILURE);
-      }
-   } //data headers loop
-   std::list<SG::ObjectWithVersion<DataHeader> > allVersions;
-   if (!detectorStoreSvc->retrieveAllVersions(allVersions, "CondProxyProvider").isSuccess()) {
+   }
+   GenericAddress* genAddr = new GenericAddress(POOL_StorageType,
+	   ClassID_traits<DataHeader>::ID(),
+	   m_headerIterator->eventRef().toString(),
+	   name());
+   if (!detectorStoreSvc->recordAddress(genAddr).isSuccess()) {
+      ATH_MSG_ERROR("Cannot record DataHeader.");
+      return(StatusCode::FAILURE);
+   }
+   if (!detectorStoreSvc->contains<DataHeader>("CondProxyProvider")) {
+      ATH_MSG_DEBUG("Cannot find DataHeader in DetectorStore.");
+      return(StatusCode::SUCCESS);
+   }
+   const DataHandle<DataHeader> dataHeader;
+   if (!detectorStoreSvc->retrieve(dataHeader, "CondProxyProvider").isSuccess()) {
       ATH_MSG_DEBUG("Cannot retrieve DataHeader from DetectorStore.");
       return(StatusCode::SUCCESS);
    }
-   for (std::list<SG::ObjectWithVersion<DataHeader> >::const_iterator iter = allVersions.begin();
-                   iter != allVersions.end(); iter++) {
-      const DataHeader* dataHeader = iter->dataObject;
-      ATH_MSG_DEBUG("The current File contains: " << dataHeader->size() << " objects");
-      for (std::vector<DataHeaderElement>::const_iterator iter = dataHeader->begin(),
-                      last = dataHeader->end(); iter != last; iter++) {
-         SG::TransientAddress* tadd = iter->getAddress();
-         if (tadd->clID() == ClassID_traits<DataHeader>::ID()) {
-            delete tadd; tadd = 0;
-         } else {
-            ATH_MSG_DEBUG("preLoadAddresses: DataObject address, clid = " << tadd->clID() << ", name = " << tadd->name()
-);
-            tads.push_back(tadd);
-         }
-         EventSelectorAthenaPoolUtil::registerKeys(*iter, &*detectorStoreSvc);
+   ATH_MSG_DEBUG("The current File contains: " << dataHeader->size() << " objects");
+   for (const auto& element : *dataHeader) {
+      SG::TransientAddress* tadd = element.getAddress();
+      if (tadd->clID() == ClassID_traits<DataHeader>::ID()) {
+         delete tadd; tadd = 0;
+      } else {
+         ATH_MSG_DEBUG("preLoadAddresses: DataObject address, clid = " << tadd->clID() << ", name = " << tadd->name());
+         tads.push_back(tadd);
       }
+      EventSelectorAthenaPoolUtil::registerKeys(element, &*detectorStoreSvc);
    }
    if (!detectorStoreSvc.release().isSuccess()) {
       ATH_MSG_WARNING("Cannot release DetectorStoreSvc.");
@@ -175,9 +166,7 @@ StatusCode CondProxyProvider::updateAddress(StoreID::type /*storeID*/,
 //__________________________________________________________________________
 PoolCollectionConverter* CondProxyProvider::getCollectionCnv() {
    ATH_MSG_DEBUG("Try item: \"" << *m_inputCollectionsIterator << "\" from the collection list.");
-   PoolCollectionConverter* pCollCnv = new PoolCollectionConverter(msgSvc(),
-	   "ImplicitROOT",
-	   "",
+   PoolCollectionConverter* pCollCnv = new PoolCollectionConverter("ImplicitROOT",
 	   *m_inputCollectionsIterator,
 	   "",
 	   m_athenaPoolCnvSvc->getPoolSvc());

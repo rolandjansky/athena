@@ -8,9 +8,7 @@ from GaudiSvc.GaudiSvcConf import AuditorSvc
 ServiceMgr += AuditorSvc()
 theAuditorSvc = ServiceMgr.AuditorSvc
 theAuditorSvc.Auditors  += [ "ChronoAuditor"]
-#ChronoStatSvc = Service ( "ChronoStatSvc")
 theAuditorSvc.Auditors  += [ "MemStatAuditor" ]
-#MemStatAuditor = theAuditorSvc.auditor( "MemStatAuditor" )
 theApp.AuditAlgorithms=True
 
 
@@ -80,8 +78,9 @@ conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/Geog", "/SCT/DAQ/Config/Geog")
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/RODMUR", "/SCT/DAQ/Config/RODMUR")
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/MUR", "/SCT/DAQ/Config/MUR")
 
-from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_RODVetoSvc
-ServiceMgr += SCT_RODVetoSvc()
+from SCT_ConditionsServices.SCT_RODVetoSvcSetup import SCT_RODVetoSvcSetup
+sct_RODVetoSvcSetup = SCT_RODVetoSvcSetup()
+sct_RODVetoSvcSetup.setup()
 
 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_RODVetoTestWriteAlg
 job+= SCT_RODVetoTestWriteAlg()
@@ -95,5 +94,5 @@ import AthenaCommon.AtlasUnixGeneratorJob
 ServiceMgr.SCT_CablingSvc.OutputLevel = INFO
 ServiceMgr.SCT_RODVetoSvc.OutputLevel=VERBOSE
 ServiceMgr.EventSelector.InitialTimeStamp = 1500000000
-ServiceMgr.EventSelector.RunNumber  = 300000 # MC16c 2017 run number
-theApp.EvtMax                   = 1
+ServiceMgr.EventSelector.RunNumber = 300000 # MC16c 2017 run number
+theApp.EvtMax = 1

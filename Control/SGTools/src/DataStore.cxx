@@ -194,11 +194,9 @@ DataStore::removeProxy(DataProxy* proxy, bool forceRemove, bool hard)
 
     // first remove the alias key:
     SG::DataProxy::AliasCont_t alias_set = proxy->alias();
-    for (SG::DataProxy::AliasCont_t::const_iterator i = alias_set.begin();
-         i != alias_set.end(); ++i)
-    {
-      m_keyMap.erase (m_pool.stringToKey (*i, clid));
-      if (pmap && 1 == pmap->erase(*i)) proxy->release();
+    for (const std::string& alias : alias_set) {
+      m_keyMap.erase (m_pool.stringToKey (alias, clid));
+      if (pmap && 1 == pmap->erase(alias)) proxy->release();
     }
       
     // then remove the primary key
@@ -218,17 +216,21 @@ DataStore::removeProxy(DataProxy* proxy, bool forceRemove, bool hard)
     }
 
     // Remove all symlinks too.
-    for (SG::DataProxy::CLIDCont_t::const_iterator i = clids.begin();
-         i != clids.end(); ++i)
+    for (CLID symclid : clids) 
     {
-      if (*i == clid) continue;
-      m_keyMap.erase (m_pool.stringToKey (name, *i));
-      storeIter = m_storeMap.find(*i);
+      if (symclid == clid) continue;
+      m_keyMap.erase (m_pool.stringToKey (name, symclid));
+      storeIter = m_storeMap.find(symclid);
       if (storeIter != m_storeMap.end()) {
         SG::ProxyIterator it = storeIter->second.find (name);
         if (it != storeIter->second.end() && it->second == proxy) {
           storeIter->second.erase (it);
           proxy->release();
+        }
+
+        for (const std::string& alias : alias_set) {
+          m_keyMap.erase (m_pool.stringToKey (alias, symclid));
+          if (1 == storeIter->second.erase (alias)) proxy->release();
         }
       }
     } //symlinks loop
@@ -274,27 +276,27 @@ DataStore::addSymLink(const CLID& linkid, DataProxy* dp)
 StatusCode
 DataStore::addAlias(const std::string& aliasKey, DataProxy* dp)
 {
-  // locate proxy map and add alias to proxymap
-  ProxyMap& pmap = m_storeMap[dp->clID()];
+  for (CLID clid : dp->transientID()) {
+    // locate proxy map and add alias to proxymap
+    ProxyMap& pmap = m_storeMap[clid];
 
-  // check if another proxy for the same type caries the same alias.
-  // if yes, then remove that alias from that proxy and establish the
-  // alias in the new proxy.
-  // pmap.insert will overwrite, associate alias with new proxy.
-  ConstProxyIterator p_iter = pmap.find(aliasKey);
-  if (p_iter != pmap.end() && dp->clID() == p_iter->second->clID()) {
-    if (dp->name() == p_iter->second->name()) return StatusCode::SUCCESS;
-    p_iter->second->removeAlias(aliasKey);
-    p_iter->second->release();
+    // check if another proxy for the same type caries the same alias.
+    // if yes, then remove that alias from that proxy and establish the
+    // alias in the new proxy.
+    // pmap.insert will overwrite, associate alias with new proxy.
+    ConstProxyIterator p_iter = pmap.find(aliasKey);
+    if (p_iter != pmap.end() && dp->clID() == p_iter->second->clID()) {
+      if (dp->name() == p_iter->second->name()) return StatusCode::SUCCESS;
+      p_iter->second->removeAlias(aliasKey);
+      p_iter->second->release();
+    }
+    dp->addRef();
+    pmap[aliasKey] = dp;
+    m_keyMap[m_pool.stringToKey (aliasKey, clid)] = std::make_pair (-1, dp);
   }
+
   // set alias in proxy
   dp->setAlias(aliasKey);
-  dp->addRef();
-  pmap[aliasKey] = dp;
-
-  m_keyMap[m_pool.stringToKey (aliasKey, dp->clID())] = std::make_pair (-1, dp);
-  //  pmap.insert(ProxyMap::value_type(aliasKey, dp));
-  // use [] as it overwrites, .insert ignores second entry
 
   return StatusCode::SUCCESS;
 }
@@ -335,28 +337,31 @@ DataProxy* DataStore::proxy(const CLID& id, const std::string& key) const
     } else if (key == SG::DEFAULTKEY && !pmap.empty()) {
       // we did not find the object using key.
       // Now check for default object.
-      // Simple case first --- single object.
-      if (pmap.size() == 1) {
-        p = pmap.begin()->second;
-      } else {
-        // Otherwise, match only the exact type requested.
-        ConstProxyIterator p_match = pmap.end();
-        size_t nmatch = 0;
-        for (p_iter = pmap.begin(); p_iter != pmap.end(); ++p_iter) {
-          if (p_iter->second->clID() == id) {
-            ++nmatch;
-            if (p_match == pmap.end()) p_match = p_iter;
-          }
+      // If there are multiple entries, they must all be
+      // referring to the same proxy (aliases).
+      for (const auto& ent : pmap) {
+        if (!p) {
+          p = ent.second;
         }
+        else if (p != ent.second) {
+          p = nullptr;
+          break;
+        }
+      }
 
-        // We must have matched only one object, not counting its aliases.
-        // Notice: we test that there are less than two matches: symlinked objects
-        // may carry aliases from the concrete class. In that case nmatch
-        // may be equal to or even smaller than the number of aliases
-        if (nmatch > 0 &&
-            (int(nmatch - p_match->second->alias().size()) < 2))
-        {
-          p = pmap.begin()->second;
+      // If that didn't work, try it again, considering only objects that
+      // are exactly the type being requested.
+      if (!p) {
+        for (const auto& ent : pmap) {
+          if (ent.second->clID() == id) {
+            if (!p) {
+              p = ent.second;
+            }
+            else if (p != ent.second) {
+              p = nullptr;
+              break;
+            }
+          }
         }
       }
     }

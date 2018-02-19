@@ -7,8 +7,8 @@ using namespace std;
 
 ALFA_MDOverlap::ALFA_MDOverlap()
 {
-	histU_PT = NULL;
-	histV_PT = NULL;
+	m_histU_PT = NULL;
+	m_histV_PT = NULL;
 
 	m_fFiberD = 0.0;
 	m_fHitBU  = 0.0;
@@ -126,8 +126,8 @@ StatusCode ALFA_MDOverlap::Finalize(Float_t &fRecXPos, Float_t &fRecYPos)
 StatusCode ALFA_MDOverlap::SelectHitInLayer()
 {
 	// Reset Histograms
-	histU_PT->Reset();
-	histV_PT->Reset();
+	m_histU_PT->Reset();
+	m_histV_PT->Reset();
 
 	// U (V) vs Z and Hough Transformed 2D histograms
 	Float_t fU = 0;
@@ -178,7 +178,7 @@ StatusCode ALFA_MDOverlap::SelectHitInLayer()
 					fTheta  = m_fTLow + (k+0.5)*(m_fTHigh-m_fTLow)/m_iTBins;
 					fRadius = fZ*cos(fTheta)+fU*sin(fTheta);
 
-					histU_PT->Fill(fTheta, fRadius, 1.0);
+					m_histU_PT->Fill(fTheta, fRadius, 1.0);
 				}
 			}
 			else	// for V-fibers
@@ -191,7 +191,7 @@ StatusCode ALFA_MDOverlap::SelectHitInLayer()
 					fTheta  = m_fTLow + (k+0.5)*(m_fTHigh-m_fTLow)/m_iTBins;
 					fRadius = fZ*cos(fTheta)+fU*sin(fTheta);
 
-					histV_PT->Fill(fTheta, fRadius, 1.0);
+					m_histV_PT->Fill(fTheta, fRadius, 1.0);
 				}
 			}
 		}
@@ -201,8 +201,8 @@ StatusCode ALFA_MDOverlap::SelectHitInLayer()
 	Int_t iULocMax, iULocMay, iULocMaz;
 	Int_t iVLocMax, iVLocMay, iVLocMaz;
 
-	histU_PT->GetMaximumBin(iULocMax, iULocMay, iULocMaz);
-	histV_PT->GetMaximumBin(iVLocMax, iVLocMay, iVLocMaz);
+	m_histU_PT->GetMaximumBin(iULocMax, iULocMay, iULocMaz);
+	m_histV_PT->GetMaximumBin(iVLocMax, iVLocMay, iVLocMaz);
 
 	// Select Hits closest to seed track ( dr < 2.0 )
 	Float_t fRMinU, fRMinV, fRTmp, fRdr;
@@ -439,14 +439,14 @@ StatusCode ALFA_MDOverlap::Overlap()
 
 void ALFA_MDOverlap::HistInitialize()
 {
-	histU_PT = new TH2D("histU_PT", "Hough Trans. of U", m_iTBins, m_fTLow, m_fTHigh, m_iRBins, m_fRLow, m_fRHigh);
-	histV_PT = new TH2D("histV_PT", "Hough Trans. of V", m_iTBins, m_fTLow, m_fTHigh, m_iRBins, m_fRLow, m_fRHigh);
+	m_histU_PT = new TH2D("histU_PT", "Hough Trans. of U", m_iTBins, m_fTLow, m_fTHigh, m_iRBins, m_fRLow, m_fRHigh);
+	m_histV_PT = new TH2D("histV_PT", "Hough Trans. of V", m_iTBins, m_fTLow, m_fTHigh, m_iRBins, m_fRLow, m_fRHigh);
 }
 
 void ALFA_MDOverlap::HistFinalize()
 {
-	delete histU_PT;
-	delete histV_PT;
+	delete m_histU_PT;
+	delete m_histV_PT;
 }
 
 void ALFA_MDOverlap::GetData(Int_t (&iFibSel)[ALFALAYERSCNT*ALFAPLATESCNT])

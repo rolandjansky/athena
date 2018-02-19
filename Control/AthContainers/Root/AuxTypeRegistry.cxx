@@ -14,7 +14,6 @@
 #include "AthContainers/AuxTypeRegistry.h"
 #include "AthContainers/exceptions.h"
 #include "AthContainers/normalizedTypeinfoName.h"
-#include "AthLinks/ElementLinkBase.h"
 #include "CxxUtils/checker_macros.h"
 #include <cassert>
 #include <sstream>
@@ -83,9 +82,10 @@ AuxTypeRegistry::findAuxID( const std::string& name,
  * @param size Initial size of the new vector.
  * @param capacity Initial capacity of the new vector.
  */
-IAuxTypeVector* AuxTypeRegistry::makeVector (SG::auxid_t auxid,
-                                             size_t size,
-                                             size_t capacity) const
+std::unique_ptr<IAuxTypeVector>
+AuxTypeRegistry::makeVector (SG::auxid_t auxid,
+                             size_t size,
+                             size_t capacity) const
 {
   const SG::IAuxTypeVectorFactory* factory = getFactory (auxid);
   assert (factory != 0);
@@ -100,10 +100,10 @@ IAuxTypeVector* AuxTypeRegistry::makeVector (SG::auxid_t auxid,
  * @param size Initial size of the new vector.
  * @param capacity Initial capacity of the new vector.
  */
-IAuxTypeVector* AuxTypeRegistry::makeVector (lock_t& lock,
-                                             SG::auxid_t auxid,
-                                             size_t size,
-                                             size_t capacity) const
+std::unique_ptr<IAuxTypeVector> AuxTypeRegistry::makeVector (lock_t& lock,
+                                                             SG::auxid_t auxid,
+                                                             size_t size,
+                                                             size_t capacity) const
 {
   const SG::IAuxTypeVectorFactory* factory = getFactory (lock, auxid);
   assert (factory != 0);
@@ -124,12 +124,12 @@ IAuxTypeVector* AuxTypeRegistry::makeVector (lock_t& lock,
  * should instead point at an object of type @c SG::PackedContainer<T>.
  *
  * Returns a newly-allocated object.
- * FIXME: Should return a unique_ptr.
  */
-IAuxTypeVector* AuxTypeRegistry::makeVectorFromData (SG::auxid_t auxid,
-                                                     void* data,
-                                                     bool isPacked,
-                                                     bool ownMode) const
+std::unique_ptr<IAuxTypeVector>
+AuxTypeRegistry::makeVectorFromData (SG::auxid_t auxid,
+                                     void* data,
+                                     bool isPacked,
+                                     bool ownMode) const
 {
   const SG::IAuxTypeVectorFactory* factory = getFactory (auxid);
   assert (factory != 0);
@@ -394,14 +394,7 @@ void AuxTypeRegistry::copyForOutput (SG::auxid_t auxid,
 {
   const SG::IAuxTypeVectorFactory* factory = getFactory (auxid);
   if (factory) {
-    factory->copy (dst, dst_index, src, src_index);
-
-    // It would be cleaner, safer, and more flexible to add a new factory
-    // interface for this.  But that would require a full rebuild,
-    // which we want to avoid at this point.
-    upgrading_lock_t lock (m_mutex);
-    if (m_isEL[auxid]) applyELThinning (reinterpret_cast<char*>(dst) + dst_index * factory->getEltSize());
-    if (m_isELVec[auxid]) applyELVecThinning (reinterpret_cast<char*>(dst) + dst_index * factory->getEltSize());
+    factory->copyForOutput (dst, dst_index, src, src_index);
   }
 }
 
@@ -425,13 +418,7 @@ void AuxTypeRegistry::copyForOutput (lock_t& lock,
 {
   const SG::IAuxTypeVectorFactory* factory = getFactory (lock, auxid);
   if (factory) {
-    factory->copy (dst, dst_index, src, src_index);
-
-    // It would be cleaner, safer, and more flexible to add a new factory
-    // interface for this.  But that would require a full rebuild,
-    // which we want to avoid at this point.
-    if (m_isEL[auxid]) applyELThinning (reinterpret_cast<char*>(dst) + dst_index * factory->getEltSize());
-    if (m_isELVec[auxid]) applyELVecThinning (reinterpret_cast<char*>(dst) + dst_index * factory->getEltSize());
+    factory->copyForOutput (dst, dst_index, src, src_index);
   }
 }
 
@@ -734,7 +721,6 @@ AuxTypeRegistry::findAuxID (const std::string& name,
   t.m_ti = &ti;
   t.m_factory = fac;
 
-  setELFlags (lock, auxid);
   return auxid;
 }
 
@@ -755,67 +741,6 @@ AuxTypeRegistry::getFactoryLocked (const std::type_info& ti) const
     return it->second;
   return 0;
 }
-
-
-/**
- * @brief Initialize the m_isEL* flags for a given variable.
- * @param auxid The variable for which the flags should be initialized.
- * @param lock The registry lock (must be locked).
- *
- * ??? Should go away when we extend the factory interface.
- */
-void AuxTypeRegistry::setELFlags (upgrading_lock_t& /*lock*/, auxid_t auxid)
-{
-  m_isEL.resize (auxid+1);
-  m_isELVec.resize (auxid+1);
-  std::string tname =  normalizedTypeinfoName (*m_types[auxid].m_ti);
-  static const std::string pat1 = "ElementLink<";
-  static const std::string pat2 = "std::vector<ElementLink<";
-  if (tname.substr (0, pat1.size()) == pat1)
-    m_isEL[auxid] = true;
-  else if (tname.substr (0, pat2.size()) == pat2)
-    m_isELVec[auxid] = true;
-}
-
-
-/**
- * @brief Apply @c ElementLink output transformations to a single element.
- * @param dst Pointer to the element.
- *
- * ??? Should go away when we extend the factory interface.
- */
-#ifdef XAOD_STANDALONE
-void AuxTypeRegistry::applyELThinning (void*)
-{
-}
-#else
-void AuxTypeRegistry::applyELThinning (void* dst)
-{
-  reinterpret_cast<ElementLinkBase*> (dst)->thin();
-}
-#endif
-
-
-/**
- * @brief Apply @c ElementLink output transformations to a vector.
- * @param dst Pointer to the vector.
- *
- * ??? Should go away when we extend the factory interface.
- */
-#ifdef XAOD_STANDALONE
-void AuxTypeRegistry::applyELVecThinning (void*)
-{
-}
-#else
-void AuxTypeRegistry::applyELVecThinning (void* dst)
-{
-  std::vector<ElementLinkBase>& v = 
-    *reinterpret_cast<std::vector<ElementLinkBase>* > (dst);
-  size_t sz = v.size();
-  for (size_t i = 0; i < sz; i++)
-    v[i].thin();
-}
-#endif
 
 
 #ifndef XAOD_STANDALONE

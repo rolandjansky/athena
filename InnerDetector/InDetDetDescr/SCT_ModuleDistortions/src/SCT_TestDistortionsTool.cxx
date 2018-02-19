@@ -138,6 +138,6 @@ SCT_TestDistortionsTool::execute(){
 
 StatusCode
 SCT_TestDistortionsTool::finalize(){
-  msg(MSG::INFO)<<"finalize()"<<endmsg;;
+  msg(MSG::INFO)<<"finalize()"<<endmsg;
   return StatusCode::SUCCESS;
 }

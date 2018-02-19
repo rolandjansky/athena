@@ -65,12 +65,6 @@ from IOVDbSvc.CondDB import conddb
 IOVDbSvc.GlobalTag='OFLCOND-RUN12-SDR-25'
 IOVDbSvc.OutputLevel = DEBUG
 
-#--------------------------------------------------------------
-# Load AthCondSeq
-#--------------------------------------------------------------
-from AthenaCommon.AlgSequence import AthSequencer
-condSeq = AthSequencer("AthCondSeq")
-
 test='MC'
 #
 #NOTE: Testing with run2 requires presence of local sqlite file 'configTest.db'
@@ -125,47 +119,35 @@ else:
   '''
 
   #test perfect DB on server
-  conddb.addFolder("","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/Chip <tag>SctDaqConfigChip-PERFECT-Oct2016_00</tag><forceRunNumber>200805</forceRunNumber>", className="CondAttrListVec")
-  conddb.addFolder("","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/Module <tag>SctDaqConfigModule-PERFECT-Oct2016_00</tag><forceRunNumber>200805</forceRunNumber>", className="CondAttrListVec")
-  conddb.addFolder("","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/MUR <tag>SctDaqConfigMur-PERFECT-Oct2016_00</tag><forceRunNumber>200805</forceRunNumber>", className="CondAttrListVec")
+  # conddb.addFolder("","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/Chip <tag>SctDaqConfigChip-PERFECT-Oct2016_00</tag><forceRunNumber>200805</forceRunNumber>", className="CondAttrListVec")
+  # conddb.addFolder("","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/Module <tag>SctDaqConfigModule-PERFECT-Oct2016_00</tag><forceRunNumber>200805</forceRunNumber>", className="CondAttrListVec")
+  # conddb.addFolder("","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/MUR <tag>SctDaqConfigMur-PERFECT-Oct2016_00</tag><forceRunNumber>200805</forceRunNumber>", className="CondAttrListVec")
   conddb.addFolder("","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/ROD <tag>SctDaqConfigRod-PERFECT-Oct2016_00</tag><forceRunNumber>200805</forceRunNumber>")
   conddb.addFolder("","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/Geog <tag>SctDaqConfigGeog-PERFECT-Oct2016_00</tag><forceRunNumber>200805</forceRunNumber>")
   conddb.addFolder("","<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/RODMUR <tag>SctDaqConfigRodmur-PERFECT-Oct2016_00</tag><forceRunNumber>200805</forceRunNumber>")
-  if not hasattr(condSeq, "SCT_ConfigurationCondAlg"):
-    from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConfigurationCondAlg
-    condSeq += SCT_ConfigurationCondAlg(name = "SCT_ConfigurationCondAlg",
-                                        ReadKeyChannel = "/SCT/DAQ/Config/Chip",
-                                        ReadKeyModule = "/SCT/DAQ/Config/Module",
-                                        ReadKeyMur = "/SCT/DAQ/Config/MUR")
 
   from SCT_Cabling.SCT_CablingConf import SCT_CablingSvc
   ToolSvc = ServiceMgr.ToolSvc
   ServiceMgr+=SCT_CablingSvc()
   ServiceMgr.SCT_CablingSvc.DataSource='COOLVECTOR'
 
-from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConfigurationConditionsSvc
-MyConfigConditions = SCT_ConfigurationConditionsSvc("MyConfigConditions")
-ServiceMgr += MyConfigConditions
+from SCT_ConditionsServices.SCT_ConfigurationConditionsSvcSetup import SCT_ConfigurationConditionsSvcSetup
+sct_ConfigurationConditionsSvcSetup = SCT_ConfigurationConditionsSvcSetup()
+sct_ConfigurationConditionsSvcSetup.setChannelFolderDb("<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/Chip <tag>SctDaqConfigChip-PERFECT-Oct2016_00</tag><forceRunNumber>200805</forceRunNumber>")
+sct_ConfigurationConditionsSvcSetup.setModuleFolderDb("<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/Module <tag>SctDaqConfigModule-PERFECT-Oct2016_00</tag><forceRunNumber>200805</forceRunNumber>")
+sct_ConfigurationConditionsSvcSetup.setMurFolderDb("<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/MUR <tag>SctDaqConfigMur-PERFECT-Oct2016_00</tag><forceRunNumber>200805</forceRunNumber>")
+sct_ConfigurationConditionsSvcSetup.setDbInstance("")
+sct_ConfigurationConditionsSvcSetup.setup()
 
 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConfigurationConditionsTestAlg
 MyConfigTestAlg = SCT_ConfigurationConditionsTestAlg("MyConfigTestAlg")
-MyConfigTestAlg.ConfigConditions = MyConfigConditions
+MyConfigTestAlg.ConfigConditions = sct_ConfigurationConditionsSvcSetup.getSvc()
 job += MyConfigTestAlg
 
 import AthenaCommon.AtlasUnixGeneratorJob
 ServiceMgr.EventSelector.RunNumber =200805
 ServiceMgr.EventSelector.InitialTimeStamp=1333597198
-#runNumber=2000805
-#timeStamp=1228142560
-#if (test!='run1'):
-#  timeStamp=1333597198
+theApp.EvtMax = 1
 
-#ServiceMgr.EventSelector.RunNumber  = runNumber
-#import time, calendar
-#time in seconds , now
-#ServiceMgr.EventSelector.InitialTimeStamp  = calendar.timegm(time.gmtime())
-#ServiceMgr.EventSelector.InitialTimeStamp  = timeStamp
-theApp.EvtMax                              = 1
-
-ServiceMgr.MessageSvc.Format           = "% F%40W%S%7W%R%T %0W%M"
+ServiceMgr.MessageSvc.Format = "% F%40W%S%7W%R%T %0W%M"
 ServiceMgr.MessageSvc.OutputLevel = DEBUG

@@ -192,11 +192,11 @@ namespace asg
       return sc.isSuccess(); }
 
     /// \brief produce a status code to report success
-    static inline decltype(StatusCode::SUCCESS) successCode () {
+    static constexpr inline auto successCode () {
       return StatusCode::SUCCESS;}
 
     /// \brief produce a status code to report failure
-    static inline decltype(StatusCode::FAILURE) failureCode () {
+    static constexpr inline auto failureCode () {
       return StatusCode::FAILURE;}
   };
 
@@ -207,11 +207,11 @@ namespace asg
       return sc.isSuccess(); }
 
     /// \brief produce a status code to report success
-    static inline decltype (xAOD::TReturnCode::kSuccess) successCode () {
+    static constexpr inline auto successCode () {
       return xAOD::TReturnCode::kSuccess;}
 
     /// \brief produce a status code to report failure
-    static inline decltype (xAOD::TReturnCode::kFailure) failureCode () {
+    static constexpr inline auto failureCode () {
       return xAOD::TReturnCode::kFailure;}
   };
 

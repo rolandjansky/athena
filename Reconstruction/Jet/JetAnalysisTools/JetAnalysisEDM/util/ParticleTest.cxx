@@ -84,8 +84,8 @@ int dumpjets(Index ient1 =0, Index nent =1, int detail =2, int maxobj =0,
         ostringstream ssjetline;
         ssjetline << "pT ="  << setw(6) << std::fixed << setprecision(1) << mevtogev*pjet->pt() << " GeV";
         ssjetline << ", m =" << setw(6) << std::fixed << setprecision(1) << mevtogev*pjet->m() << " GeV";
-        ssjetline << ", eta =" << setw(5) << std::fixed << setprecision(2) << pjet->eta();;
-        ssjetline << ", phi =" << setw(5) << std::fixed << setprecision(2) << pjet->phi();;
+        ssjetline << ", eta =" << setw(5) << std::fixed << setprecision(2) << pjet->eta();
+        ssjetline << ", phi =" << setw(5) << std::fixed << setprecision(2) << pjet->phi();
         cout << "    Jet " << ijet << ": " << ssjetline.str() << endl;
         // All properties.
         if ( detail > 1 ) {

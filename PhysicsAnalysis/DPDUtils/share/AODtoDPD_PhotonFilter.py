@@ -81,8 +81,6 @@ include( "DPDUtils/ThinningSvcWrapper_jobOptions.py" )
 #--------------------------------------------------------------
 ###############################################################
 
-from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-from OutputStreamAthenaPool.OutputStreamAthenaPoolConf import AthenaPoolOutputStreamTool
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
 StreamDPD = MSMgr.NewStream("StreamDPD","SkimmedThin.AOD.pool.root")
 
@@ -103,6 +101,3 @@ StreamDPD.AcceptAlgs(["DPDPhotonFilter"])
 
 #Write everything in the AOD
 StreamDPD.Stream.TakeItemsFromInput=True
-StreamDPD.Stream_FH.TakeItemsFromInput=True
-
-

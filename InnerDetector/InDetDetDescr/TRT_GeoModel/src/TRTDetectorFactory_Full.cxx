@@ -2190,7 +2190,7 @@ const GeoShape * TRTDetectorFactory_Full::makeModule ( double length, CLHEP::Hep
   // instead.
   //
   // (Whether the involved diagonal is 2-4 or 1-3 depends on the sign).
-  double commonSide = (delta14.mag() + delta23.mag() + (sign==1?delta24.mag():delta13.mag()) ) / 3.;;
+  double commonSide = (delta14.mag() + delta23.mag() + (sign==1?delta24.mag():delta13.mag()) ) / 3.;
   double base1 = delta12.mag(); // Inner base
   double base2 = delta34.mag(); // Outer base
 

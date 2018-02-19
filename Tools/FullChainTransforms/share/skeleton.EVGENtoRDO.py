@@ -158,7 +158,7 @@ simFlags.SeedsG4.set_Off()
 
 ## Always enable the looper killer, unless it's been disabled
 if not hasattr(runArgs, "enableLooperKiller") or runArgs.enableLooperKiller:
-    simFlags.OptionalUserActionList.addAction('G4UA::LooperKillerTool', ['Step'])
+    simFlags.OptionalUserActionList.addAction('G4UA::LooperKillerTool')
 else:
     fast_chain_log.warning("The looper killer will NOT be run in this job.")
 
