@@ -83,7 +83,8 @@ class InputConverter_test: public ::testing::Test {
     m_propMgr = m_appMgr;
     ASSERT_TRUE( m_propMgr.isValid() );
     ASSERT_TRUE( m_propMgr->setProperty( "EvtSel",         "NONE" ).isSuccess() );
-    ASSERT_TRUE( m_propMgr->setProperty( "JobOptionsType", "NONE" ).isSuccess() );
+    ASSERT_TRUE( m_propMgr->setProperty( "JobOptionsType", "FILE" ).isSuccess() );
+    ASSERT_TRUE( m_propMgr->setProperty( "JobOptionsPath", "InputConverter_test.txt" ).isSuccess() );
 
     m_toolSvc = m_svcLoc->service("ToolSvc");
     ASSERT_TRUE( m_toolSvc.isValid() );
@@ -295,7 +296,6 @@ TEST_F(InputConverter_test, convertParticle_using_particleDataTable_electron) {
   int bcid = 11;
   // call the InputConverter's private method
   ISF::ISFParticle* returned = convertParticle(genPart, bcid);
-  std::cout << " EMASS=" << std::setprecision(20) << returned->mass() << std::endl;
   ASSERT_TRUE( returned );
 
   ASSERT_EQ( expected, *returned );
@@ -403,6 +403,7 @@ TEST_F(InputConverter_test, passesFilters_two_filters) {
   ASSERT_TRUE( passesFilters(genPart) );
 
 }
+
 
 } // <-- namespace ISFTesting
 

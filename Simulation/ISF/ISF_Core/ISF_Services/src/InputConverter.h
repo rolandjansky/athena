@@ -66,9 +66,6 @@ namespace ISF {
     virtual StatusCode  initialize() override final;
     virtual StatusCode  finalize() override final;
 
-    /** ReturnGaudi InterfaceID */
-    DeclareInterfaceID( ISF::IInputConverter, 1, 0 );
-
     /** Convert selected particles from the given McEventCollection into ISFParticles
         and push them into the given ISFParticleContainer */
     virtual StatusCode convert(const McEventCollection& inputGenEvents,

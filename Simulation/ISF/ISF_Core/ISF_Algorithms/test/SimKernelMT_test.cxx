@@ -22,7 +22,9 @@
 
 // Framework includes
 #include "AthenaBaseComps/AthService.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/IAppMgrUI.h"
+#include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/SmartIF.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GaudiKernel/PhysicalConstants.h"
@@ -91,16 +93,37 @@ DECLARE_SERVICE_FACTORY( MockSimulationSvc )
 //
 const std::string mockSimulationSelectorName = "ISFTesting::MockSimulationSelector/MyTestSimulationSelector";
 
-class MockSimulationSelector : public ISF::ISimulationSelector {
+class MockSimulationSelector : public extends<AthAlgTool, ISF::ISimulationSelector> { //public ISF::BaseSimulationSelector {
 
 public:
   MockSimulationSelector(const std::string& type, const std::string& name, const IInterface* svclocator)
-    : ISimulationSelector(type, name, svclocator)
-  { declareInterface<ISF::ISimulationSelector>(this); };
+    : base_class(type, name, svclocator),
+      m_simulator(mockSimulationSvcName, name)
+  {
+  };
   virtual ~MockSimulationSelector() { };
 
   MOCK_METHOD0(finalize, StatusCode());
   MOCK_CONST_METHOD1(passSelectorCuts, bool(const ISF::ISFParticle&));
+
+  // dummy methods implementing in pure virtual interface methods (to make class non-abstract)
+  StatusCode initialize() {
+    ATH_CHECK( m_simulator.retrieve() );
+    return StatusCode::SUCCESS;
+  };
+  ServiceHandle<ISF::ISimulationSvc>* simulator() { return &m_simulator; };
+  bool isDynamic() { return false; };
+  ISF::SimSvcID simSvcID() { return m_simulator->simSvcID(); };
+  ISF::SimulationFlavor simFlavor() { return ISF::UndefinedSim; };
+  void initializeSelector() { };
+  void beginEvent() { };
+  void endEvent() { };
+  void update(const ISF::ISFParticle& ) { };
+  bool selfSelect(const ISF::ISFParticle& particle) { return passSelectorCuts(particle); };
+
+private:
+  ServiceHandle<ISF::ISimulationSvc> m_simulator;  //!< simulation service assigned to a single advisor
+
 }; // MockSimulationSelector class
 
 DECLARE_TOOL_FACTORY( MockSimulationSelector )
@@ -140,6 +163,9 @@ protected:
 
     ASSERT_TRUE( m_appMgr->configure().isSuccess() );
     ASSERT_TRUE( m_appMgr->initialize().isSuccess() );
+
+    m_jobOptionsSvc = m_svcLoc->service("JobOptionsSvc");
+    ASSERT_TRUE( m_jobOptionsSvc.isValid() );
   }
 
   void TearDownGaudi() {
@@ -152,11 +178,12 @@ protected:
   }
 
   // protected member variables for Core Gaudi components
-  IAppMgrUI*             m_appMgr = nullptr;
-  SmartIF<ISvcLocator>   m_svcLoc;
-  SmartIF<ISvcManager>   m_svcMgr;
-  SmartIF<IToolSvc>      m_toolSvc;
-  SmartIF<IProperty>     m_propMgr;
+  IAppMgrUI*               m_appMgr = nullptr;
+  SmartIF<ISvcLocator>     m_svcLoc;
+  SmartIF<ISvcManager>     m_svcMgr;
+  SmartIF<IJobOptionsSvc>  m_jobOptionsSvc;
+  SmartIF<IToolSvc>        m_toolSvc;
+  SmartIF<IProperty>       m_propMgr;
 };
 
 
@@ -205,9 +232,13 @@ protected:
 
   template<typename T>
   T* retrieveTool(const std::string& name) {
-    T* tool = nullptr;
-    EXPECT_TRUE( m_toolSvc->retrieveTool(name, tool).isSuccess() );
+    IAlgTool* toolInterface = nullptr;
+    EXPECT_TRUE( m_toolSvc->retrieveTool(name, toolInterface).isSuccess() );
+    EXPECT_NE(nullptr, toolInterface);
+
+    T* tool = dynamic_cast<T*>(toolInterface);
     EXPECT_NE(nullptr, tool);
+
     EXPECT_TRUE( tool->setProperties().isSuccess() );
     EXPECT_TRUE( tool->configure().isSuccess() );
 
@@ -600,6 +631,7 @@ TEST_F(SimKernelMT_test, filledInputCollectionAndEmptySimulationSelectors_expect
 
   ASSERT_TRUE( m_alg->execute().isSuccess() );
 }
+
 
 } // namespace ISFTesting
 
