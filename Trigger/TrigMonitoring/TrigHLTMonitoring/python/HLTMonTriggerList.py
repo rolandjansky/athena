@@ -60,6 +60,7 @@ class HLTMonTriggerList:
 	monitoring_muonIso = []
 	monitoring_MSonly = []
 	monitoring_muonEFFS = []
+	monitoring_muonLowpt = []
 	monitoring_muon_Support = []
 	monitoring_tau = []
 	monitoring_singleTau = []
@@ -171,6 +172,7 @@ class HLTMonTriggerList:
 		self.monitoring_muonIso = muon.monitoring_muonIso
 		self.monitoring_MSonly = muon.monitoring_MSonly
 		self.monitoring_muonEFFS = muon.monitoring_muonEFFS
+		self.monitoring_muonLowpt = muon.monitoring_muonLowpt
 		self.monitoring_muon_Support = muon.monitoring_muon_Support
 
 		# set the tau triggers to the default values
@@ -197,6 +199,7 @@ class HLTMonTriggerList:
 		self.monitoring_muonIso = muon.monitoring_muonIso_pp
 		self.monitoring_MSonly = muon.monitoring_MSonly_pp
 		self.monitoring_muonEFFS = muon.monitoring_muonEFFS_pp
+		self.monitoring_muonLowpt = muon.monitoring_muonLowpt
 		self.monitoring_muon_Support = muon.monitoring_muon_Support_pp
 
 		self.monitoring_tau = tau.monitoring_tau_pp
@@ -219,6 +222,7 @@ class HLTMonTriggerList:
 		self.monitoring_muonIso = muon.monitoring_muonIso_HI
 		self.monitoring_MSonly = muon.monitoring_MSonly_HI
 		self.monitoring_muonEFFS = muon.monitoring_muonEFFS_HI
+		self.monitoring_muonLowpt = monitoring_muonLowpt
 		self.monitoring_muon_Support = muon.monitoring_muon_Support_HI
 
 	def set_HLTMonTrigList_cosmic (self):
