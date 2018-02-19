@@ -32,124 +32,124 @@ public:
 };
 
 
-Serializer::Serializer (unsigned int version) :c(new Clockwork()){
-  c->buffer = new QBuffer(&c->byteArray);
-  c->buffer->open(QIODevice::WriteOnly);
-  c->state = new QDataStream(c->buffer);
-  c->treeWidget=NULL;
-  c->currentItem=NULL;
+Serializer::Serializer (unsigned int version) :m_c(new Clockwork()){
+  m_c->buffer = new QBuffer(&m_c->byteArray);
+  m_c->buffer->open(QIODevice::WriteOnly);
+  m_c->state = new QDataStream(m_c->buffer);
+  m_c->treeWidget=NULL;
+  m_c->currentItem=NULL;
   save(version);
 }
 
-Deserializer::Deserializer(const QByteArray &ba):c(new Clockwork()){
-  c->byteArray=ba;
-  c->buffer=new QBuffer(&c->byteArray);
-  if (!c->buffer->open(QIODevice::ReadOnly)) {
-    delete c->buffer;
-    c->buffer=NULL;
+Deserializer::Deserializer(const QByteArray &ba):m_c(new Clockwork()){
+  m_c->byteArray=ba;
+  m_c->buffer=new QBuffer(&m_c->byteArray);
+  if (!m_c->buffer->open(QIODevice::ReadOnly)) {
+    delete m_c->buffer;
+    m_c->buffer=NULL;
     throw std::runtime_error("Cannot Deserialize!");
   }
   else {
-    c->state=new QDataStream(c->buffer);
-    restore(c->version);
+    m_c->state=new QDataStream(m_c->buffer);
+    restore(m_c->version);
   }
-  c->treeWidget=NULL;
-  c->currentItem=NULL;
+  m_c->treeWidget=NULL;
+  m_c->currentItem=NULL;
 }
   
 
 
 Serializer::~Serializer () {
 
-  c->buffer->close();
-  delete c->state;
-  delete c->buffer;
+  m_c->buffer->close();
+  delete m_c->state;
+  delete m_c->buffer;
 
-  delete c;
+  delete m_c;
 }
 
 Deserializer::~Deserializer(){
-  if (c->buffer) {
-    if (!c->buffer->atEnd()) {
+  if (m_c->buffer) {
+    if (!m_c->buffer->atEnd()) {
       std::cout << "Warning, buffer not at end" << std::endl;
     }
-    c->buffer->close();
+    m_c->buffer->close();
   }
-  delete c->state;
-  delete c->buffer;
-  delete c;
+  delete m_c->state;
+  delete m_c->buffer;
+  delete m_c;
 }
 
 
 unsigned int Deserializer::version() const{
-  return c->version;
+  return m_c->version;
 }
 
 QByteArray Serializer::result() const {
-  return c->byteArray;
+  return m_c->byteArray;
 }
 
 //==================int=========================
 
 void Serializer::save(unsigned int i) {
-  (*c->state) << i;
+  (*m_c->state) << i;
 }
 
 
 void Deserializer::restore(unsigned int & i){
-  (*c->state) >> i;
+  (*m_c->state) >> i;
 }
 
 //==================int=========================
 void Serializer::save(int i) {
-  (*c->state) << i;
+  (*m_c->state) << i;
 }
 
 void Deserializer::restore(int & i){
-  (*c->state) >> i;
+  (*m_c->state) >> i;
 }
 
 
 //==================double=========================
 void Serializer::save(double d) {
-  (*c->state) << d;
+  (*m_c->state) << d;
 }
 
 void Deserializer::restore(double & d){
-  (*c->state) >> d;
+  (*m_c->state) >> d;
 }
 
 //==================bool=========================
 
 void Serializer::save(bool i) {
-  (*c->state) << i;
+  (*m_c->state) << i;
 }
 
 void Deserializer::restore(bool & b){
-  (*c->state) >> b;
+  (*m_c->state) >> b;
 }
 
 //==================std::string=========================
 
 void Serializer::save(const std::string & name) {
   QString nameString=QString::fromStdString(name);
-  (*c->state) << nameString;
+  (*m_c->state) << nameString;
 }
 void Deserializer::restore(std::string & name){
 
   QString nameString;
-  (*c->state) >> nameString;
+  (*m_c->state) >> nameString;
   name = nameString.toStdString();
 
 }
 
 //==QTextEdit==//
 void Serializer::save(QTextEdit *tE) {
-  (*c->state) << tE->document()->toHtml();
+  (*m_c->state) << tE->document()->toHtml();
 }
 void Deserializer::restore(QTextEdit *tE) {
   QString html;
-  (*c->state) >> html;
+  (*m_c->state) >> html;
   tE->clear();
   tE->append(html);
 }
@@ -157,136 +157,136 @@ void Deserializer::restore(QTextEdit *tE) {
  
 //==PlotView==/
 void Serializer::save(PlotView *plotView) {
-  (*c->state) << plotView->titleTextEdit()->document()->toHtml();
-  (*c->state) << plotView->xLabelTextEdit()->document()->toHtml();
-  (*c->state) << plotView->yLabelTextEdit()->document()->toHtml();
-  (*c->state) << plotView->vLabelTextEdit()->document()->toHtml();
-  (*c->state) << plotView->statTextEdit()->document()->toHtml();
+  (*m_c->state) << plotView->titleTextEdit()->document()->toHtml();
+  (*m_c->state) << plotView->xLabelTextEdit()->document()->toHtml();
+  (*m_c->state) << plotView->yLabelTextEdit()->document()->toHtml();
+  (*m_c->state) << plotView->vLabelTextEdit()->document()->toHtml();
+  (*m_c->state) << plotView->statTextEdit()->document()->toHtml();
   
   QRectF rect;
-  if (plotView->rect()) (*c->state) << *plotView->rect();
+  if (plotView->rect()) (*m_c->state) << *plotView->rect();
 
   // Page 1:
-  (*c->state) << plotView->isBox();
-  (*c->state) << plotView->isLogX();
-  (*c->state) << plotView->isLogY();
-  (*c->state) << plotView->isGrid();
-  (*c->state) << plotView->isXZero();
-  (*c->state) << plotView->isYZero();
-  (*c->state) << plotView->statBoxX();
-  (*c->state) << plotView->statBoxY();
+  (*m_c->state) << plotView->isBox();
+  (*m_c->state) << plotView->isLogX();
+  (*m_c->state) << plotView->isLogY();
+  (*m_c->state) << plotView->isGrid();
+  (*m_c->state) << plotView->isXZero();
+  (*m_c->state) << plotView->isYZero();
+  (*m_c->state) << plotView->statBoxX();
+  (*m_c->state) << plotView->statBoxY();
 
 
-  (*c->state) << plotView->xAxisFont();
-  (*c->state) << plotView->yAxisFont();
+  (*m_c->state) << plotView->xAxisFont();
+  (*m_c->state) << plotView->yAxisFont();
 
-  (*c->state) << plotView->statBoxX();
-  (*c->state) << plotView->statBoxY();
-  (*c->state) << plotView->labelXSizePercentage();
-  (*c->state) << plotView->labelYSizePercentage();
+  (*m_c->state) << plotView->statBoxX();
+  (*m_c->state) << plotView->statBoxY();
+  (*m_c->state) << plotView->labelXSizePercentage();
+  (*m_c->state) << plotView->labelYSizePercentage();
 }
 
 void Deserializer::restore(PlotView *plotView) {
   {
     QString html;
-    (*c->state) >> html;
+    (*m_c->state) >> html;
     plotView->titleTextEdit()->clear();
     plotView->titleTextEdit()->append(html);
   }
   {
     QString html;
-    (*c->state) >> html;
+    (*m_c->state) >> html;
     plotView->xLabelTextEdit()->clear();
     plotView->xLabelTextEdit()->append(html);
   }
   {
     QString html;
-    (*c->state) >> html;
+    (*m_c->state) >> html;
     plotView->yLabelTextEdit()->clear();
     plotView->yLabelTextEdit()->append(html);
   }
   {
     QString html;
-    (*c->state) >> html;
+    (*m_c->state) >> html;
     plotView->vLabelTextEdit()->clear();
     plotView->vLabelTextEdit()->append(html);
   }
   {
     QString html;
-    (*c->state) >> html;
+    (*m_c->state) >> html;
     plotView->statTextEdit()->clear();
     plotView->statTextEdit()->append(html);
   }
 
   {
     QRectF rect;
-    (*c->state) >> rect;
+    (*m_c->state) >> rect;
     plotView->setRect(rect);
   }
 
   {
     bool flag;
-    (*c->state) >> flag;
+    (*m_c->state) >> flag;
     plotView->setBox(flag);
   }
 
   {
     bool flag;
-    (*c->state) >> flag;
+    (*m_c->state) >> flag;
     plotView->setLogX(flag);
   }
 
   {
     bool flag;
-    (*c->state) >> flag;
+    (*m_c->state) >> flag;
     plotView->setLogY(flag);
   }
 
   {
     bool flag;
-    (*c->state) >> flag;
+    (*m_c->state) >> flag;
     plotView->setGrid(flag);
   }
 
   {
     bool flag;
-    (*c->state) >> flag;
+    (*m_c->state) >> flag;
     plotView->setXZero(flag);
   }
 
   {
     bool flag;
-    (*c->state) >> flag;
+    (*m_c->state) >> flag;
     plotView->setYZero(flag);
   }
 
 
   {
     qreal x,y;
-    (*c->state) >> x >> y;
+    (*m_c->state) >> x >> y;
     plotView->setLabelPos(x,y);
   }
 
   {
     QFont font;
-    (*c->state) >> font;
+    (*m_c->state) >> font;
     plotView->xAxisFont()=font;
   }
 
 
   {
     QFont font;
-    (*c->state) >> font;
+    (*m_c->state) >> font;
     plotView->yAxisFont()=font;
   }
 
   {
     qreal x,y, w, h;
     if (version()>=3) {
-      (*c->state) >> x;
-      (*c->state) >> y;
-      (*c->state) >> w;
-      (*c->state) >> h;
+      (*m_c->state) >> x;
+      (*m_c->state) >> y;
+      (*m_c->state) >> w;
+      (*m_c->state) >> h;
       plotView->setLabelPos(x,y);
       plotView->setLabelXSizePercentage(w);
       plotView->setLabelYSizePercentage(h);
@@ -299,12 +299,12 @@ void Deserializer::restore(PlotView *plotView) {
 //==================QSpinBox=========================
 
 void Serializer::save(QSpinBox *spinBox) {
-  (*c->state) << spinBox->value();
+  (*m_c->state) << spinBox->value();
 }
 
 void Deserializer::restore(QSpinBox *spinBox){
   int value;
-  (*c->state) >> value;
+  (*m_c->state) >> value;
   spinBox->setValue(value);
 }
 
@@ -318,12 +318,12 @@ struct ItemRep {
 
 class MatchItem {
 public:
-  MatchItem(QTreeWidgetItem *item):item(item) {;}
+  MatchItem(QTreeWidgetItem *item):m_item(item) {;}
   bool operator () (const ItemRep & rep) {
-    return rep.s0==item->text(0).toStdString() && rep.s1==item->text(1).toStdString();
+    return rep.s0==m_item->text(0).toStdString() && rep.s1==m_item->text(1).toStdString();
   }
 private:
-  QTreeWidgetItem *item;
+  QTreeWidgetItem *m_item;
 };
     
 
@@ -332,8 +332,8 @@ private:
 
 void Serializer::save(QTreeWidget * treeWidget) {
   //Prepare:
-  c->treeWidget  = treeWidget;
-  c->currentItem = treeWidget->currentItem();
+  m_c->treeWidget  = treeWidget;
+  m_c->currentItem = treeWidget->currentItem();
 
   // Go:
   save(treeWidget->headerItem()->text(0).toStdString());
@@ -345,14 +345,14 @@ void Serializer::save(QTreeWidget * treeWidget) {
   }
 
   // End:
-  c->treeWidget  = NULL;
-  c->currentItem = NULL;
+  m_c->treeWidget  = NULL;
+  m_c->currentItem = NULL;
 }
 
 void Deserializer::restore(QTreeWidget *treeWidget){
   //Prepare:
-  c->treeWidget  = treeWidget;
-  c->currentItem = treeWidget->currentItem();
+  m_c->treeWidget  = treeWidget;
+  m_c->currentItem = treeWidget->currentItem();
   
   // Go:
   { std::string  s; restore(s)   ;   treeWidget->headerItem()->setText(0, s.c_str());};
@@ -391,14 +391,14 @@ void Deserializer::restore(QTreeWidget *treeWidget){
     } else{
       restore(item, mismatch,s0,s1); //item gets dereferenced in restore
     }
-    if (c->buffer->atEnd()) break;
+    if (m_c->buffer->atEnd()) break;
     if (mismatch) i--;
     
   }
 
   // End:
-  c->treeWidget  = NULL;
-  c->currentItem = NULL;
+  m_c->treeWidget  = NULL;
+  m_c->currentItem = NULL;
 }
 
 //==================QTreeWidgetItem=========================
@@ -469,48 +469,48 @@ void Deserializer::restore(QTreeWidgetItem *item, bool & mismatch,
 
 
 void Deserializer::restore  (PlotHist1DProperties & prop) {
-  (*c->state) >> prop.pen;
-  (*c->state) >> prop.brush;
+  (*m_c->state) >> prop.pen;
+  (*m_c->state) >> prop.brush;
 
   int plotStyle;
-  (*c->state) >> plotStyle;
+  (*m_c->state) >> plotStyle;
   prop.plotStyle= PlotHist1DProperties::PlotStyle(plotStyle);
 
   int symbolStyle;
-  (*c->state) >> symbolStyle;
+  (*m_c->state) >> symbolStyle;
   prop.symbolStyle=PlotHist1DProperties::SymbolStyle(symbolStyle);
-  (*c->state) >> prop.symbolSize;
+  (*m_c->state) >> prop.symbolSize;
   
 }
 
 void Deserializer::restore  (PlotFunction1DProperties & prop) {
-  (*c->state) >> prop.pen;
-  (*c->state) >> prop.brush;
+  (*m_c->state) >> prop.pen;
+  (*m_c->state) >> prop.brush;
 
 }
 
 void Deserializer::restore (PlotHist2DProperties & prop) {
-  (*c->state) >> prop.pen;
-  (*c->state) >> prop.brush;
+  (*m_c->state) >> prop.pen;
+  (*m_c->state) >> prop.brush;
 }
 
 
 void Serializer::save (const PlotHist1DProperties & prop) {
-  (*c->state) << prop.pen;
-  (*c->state) << prop.brush;
-  (*c->state) << (int) prop.plotStyle;
-  (*c->state) << (int) prop.symbolStyle;
-  (*c->state) << prop.symbolSize;
+  (*m_c->state) << prop.pen;
+  (*m_c->state) << prop.brush;
+  (*m_c->state) << (int) prop.plotStyle;
+  (*m_c->state) << (int) prop.symbolStyle;
+  (*m_c->state) << prop.symbolSize;
   
 }
 
 void Serializer::save (const PlotFunction1DProperties & prop) {
-  (*c->state) << prop.pen;
-  (*c->state) << prop.brush;
+  (*m_c->state) << prop.pen;
+  (*m_c->state) << prop.brush;
 }
 
 void Serializer::save (const PlotHist2DProperties & prop) {
-  (*c->state) << prop.pen;
-  (*c->state) << prop.brush;
+  (*m_c->state) << prop.pen;
+  (*m_c->state) << prop.brush;
 }
 
