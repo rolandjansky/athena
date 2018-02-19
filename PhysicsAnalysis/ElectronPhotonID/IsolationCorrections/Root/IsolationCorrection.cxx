@@ -531,19 +531,19 @@ namespace CP {
 	m_graph_dd_2015_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoetcone20_DataDriven_converted_photon_eta_1.81_2.37_2015"));
 	
     }
-    for (auto gr : m_graph_dd_2015_cone40_conv_photon_shift) {
+    for (TGraph* gr : m_graph_dd_2015_cone40_conv_photon_shift) {
       if (gr == nullptr)
 	ATH_MSG_ERROR("Null pointer for one of the DD correction bins (conv,40)");
     }
-    for (auto gr : m_graph_dd_2015_cone40_unconv_photon_shift) {
+    for (TGraph* gr : m_graph_dd_2015_cone40_unconv_photon_shift) {
       if (gr == nullptr)
 	ATH_MSG_ERROR("Null pointer for one of the DD correction bins (unconv,40)");
     }
-    for (auto gr : m_graph_dd_2015_cone20_conv_photon_shift) {
+    for (TGraph* gr : m_graph_dd_2015_cone20_conv_photon_shift) {
       if (gr == nullptr)
 	ATH_MSG_ERROR("Null pointer for one of the DD correction bins (conv,20)");
     }
-    for (auto gr : m_graph_dd_2015_cone20_unconv_photon_shift) {
+    for (TGraph* gr : m_graph_dd_2015_cone20_unconv_photon_shift) {
       if (gr == nullptr)
 	ATH_MSG_ERROR("Null pointer for one of the DD correction bins (unconv, 20)");
     }
@@ -600,19 +600,19 @@ namespace CP {
 	m_graph_dd_2015_2016_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_converted_photon_eta_1.81_2.37_2016"));
 	
     }
-    for (auto gr : m_graph_dd_2015_2016_cone40_conv_photon_shift) {
+    for (TGraph* gr : m_graph_dd_2015_2016_cone40_conv_photon_shift) {
       if (gr == nullptr)
 	ATH_MSG_ERROR("Null pointer for one of the DD correction bins (conv,40)");
     }
-    for (auto gr : m_graph_dd_2015_2016_cone40_unconv_photon_shift) {
+    for (TGraph* gr : m_graph_dd_2015_2016_cone40_unconv_photon_shift) {
       if (gr == nullptr)
 	ATH_MSG_ERROR("Null pointer for one of the DD correction bins (unconv,40)");
     }
-    for (auto gr : m_graph_dd_2015_2016_cone20_conv_photon_shift) {
+    for (TGraph* gr : m_graph_dd_2015_2016_cone20_conv_photon_shift) {
       if (gr == nullptr)
 	ATH_MSG_ERROR("Null pointer for one of the DD correction bins (conv,20)");
     }
-    for (auto gr : m_graph_dd_2015_2016_cone20_unconv_photon_shift) {
+    for (TGraph* gr : m_graph_dd_2015_2016_cone20_unconv_photon_shift) {
       if (gr == nullptr)
 	ATH_MSG_ERROR("Null pointer for one of the DD correction bins (unconv, 20)");
     }
@@ -668,19 +668,19 @@ namespace CP {
 	m_graph_dd_2017_cone20_conv_photon_shift.push_back( (TGraph*) file_ptleakagecorr->Get("topoETcone20_DataDriven_converted_photon_eta_1.81_2.37_2017"));
 	
     }
-    for (auto gr : m_graph_dd_2017_cone40_conv_photon_shift) {
+    for (TGraph* gr : m_graph_dd_2017_cone40_conv_photon_shift) {
       if (gr == nullptr)
 	ATH_MSG_ERROR("Null pointer for one of the DD correction bins (conv,40)");
     }
-    for (auto gr : m_graph_dd_2017_cone40_unconv_photon_shift) {
+    for (TGraph* gr : m_graph_dd_2017_cone40_unconv_photon_shift) {
       if (gr == nullptr)
 	ATH_MSG_ERROR("Null pointer for one of the DD correction bins (unconv,40)");
     }
-    for (auto gr : m_graph_dd_2017_cone20_conv_photon_shift) {
+    for (TGraph* gr : m_graph_dd_2017_cone20_conv_photon_shift) {
       if (gr == nullptr)
 	ATH_MSG_ERROR("Null pointer for one of the DD correction bins (conv,20)");
     }
-    for (auto gr : m_graph_dd_2017_cone20_unconv_photon_shift) {
+    for (TGraph* gr : m_graph_dd_2017_cone20_unconv_photon_shift) {
       if (gr == nullptr)
 	ATH_MSG_ERROR("Null pointer for one of the DD correction bins (unconv, 20)");
     }
