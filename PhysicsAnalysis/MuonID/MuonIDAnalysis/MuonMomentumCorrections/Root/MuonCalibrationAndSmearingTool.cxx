@@ -293,7 +293,7 @@ namespace CP {
       ATH_MSG_INFO("Will be correcting the sagitta for data ");
     }
 
-    if(m_Tdata == MCAST::DataType::Data16 && ( m_doSagittaCorrection || m_doSagittaMCDistortion) ){
+    if(m_Tdata >= MCAST::DataType::Data15    && ( m_doSagittaCorrection || m_doSagittaMCDistortion) ){
       m_GlobalZScales.clear();
       m_GlobalZScales.push_back(90.2893);  m_GlobalZScales.push_back(90.4996);    m_GlobalZScales.push_back(90.1407);
 
