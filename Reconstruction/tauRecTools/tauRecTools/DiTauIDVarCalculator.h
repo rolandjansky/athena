@@ -74,23 +74,6 @@ private:
   virtual StatusCode calculateHadHadIDVariables(const xAOD::DiTauJet& xDiTau);
   virtual StatusCode calculateHadElIDVariables (const xAOD::DiTauJet& xDiTau);
   virtual StatusCode calculateHadMuIDVariables (const xAOD::DiTauJet& xDiTau);
-  asg::AnaToolHandle<CP::IMuonSelectionTool> m_muSelTool_loose;    
-  asg::AnaToolHandle<CP::IMuonSelectionTool> m_muSelTool_medium;   
-  asg::AnaToolHandle<CP::IMuonSelectionTool> m_muSelTool_tight;    
-  asg::AnaToolHandle<CP::IMuonSelectionTool> m_muSelTool_veryloose;
-  asg::AnaToolHandle<CP::IMuonSelectionTool> m_muSelTool_highpt;   
-
-  asg::AnaToolHandle<CP::IMuonCalibrationAndSmearingTool> m_muonCalibrationTool;
-  asg::AnaToolHandle<CP::IIsolationSelectionTool> m_isoSelTool;
-  asg::AnaToolHandle<AsgElectronLikelihoodTool> m_electronLikeliHoodTool_medium;
-  asg::AnaToolHandle<AsgElectronLikelihoodTool> m_electronLikeliHoodTool_loose;
-  asg::AnaToolHandle<AsgElectronLikelihoodTool> m_electronLikeliHoodTool_loose_CutBL;
-  asg::AnaToolHandle<AsgElectronLikelihoodTool> m_electronLikeliHoodTool_tight;
-  asg::AnaToolHandle<AsgElectronLikelihoodTool> m_electronLikeliHoodTool_veryloose;
-
-  asg::AnaToolHandle<ITauToolBase> m_muonTrackRemoval;
-  asg::AnaToolHandle<ITauToolBase> m_tauSubstructureVariables;
-  asg::AnaToolHandle<ITauToolBase> m_tauCommonCalcVars;
   
   float getElectronInfo(const xAOD::Electron* el, const xAOD::EgammaParameters::ShowerShapeType information);
 
@@ -138,6 +121,24 @@ private:
   enum DecayChannel{ HadHad, HadEl, HadMu, Default };
   DecayChannel m_eDecayChannel;
   double m_dDefault;
+
+  asg::AnaToolHandle<CP::IMuonSelectionTool> m_muSelTool_loose;    
+  asg::AnaToolHandle<CP::IMuonSelectionTool> m_muSelTool_medium;   
+  asg::AnaToolHandle<CP::IMuonSelectionTool> m_muSelTool_tight;    
+  asg::AnaToolHandle<CP::IMuonSelectionTool> m_muSelTool_veryloose;
+  asg::AnaToolHandle<CP::IMuonSelectionTool> m_muSelTool_highpt;   
+
+  asg::AnaToolHandle<CP::IMuonCalibrationAndSmearingTool> m_muonCalibrationTool;
+  asg::AnaToolHandle<CP::IIsolationSelectionTool> m_isoSelTool;
+  asg::AnaToolHandle<AsgElectronLikelihoodTool> m_electronLikeliHoodTool_medium;
+  asg::AnaToolHandle<AsgElectronLikelihoodTool> m_electronLikeliHoodTool_loose;
+  asg::AnaToolHandle<AsgElectronLikelihoodTool> m_electronLikeliHoodTool_loose_CutBL;
+  asg::AnaToolHandle<AsgElectronLikelihoodTool> m_electronLikeliHoodTool_tight;
+  asg::AnaToolHandle<AsgElectronLikelihoodTool> m_electronLikeliHoodTool_veryloose;
+
+  asg::AnaToolHandle<ITauToolBase> m_muonTrackRemoval;
+  asg::AnaToolHandle<ITauToolBase> m_tauSubstructureVariables;
+  asg::AnaToolHandle<ITauToolBase> m_tauCommonCalcVars;
   
   StatusCode decorNtracks (const xAOD::DiTauJet& xDiTau);
   TauEventData m_data;
