@@ -12,6 +12,7 @@
 #define CPIBTAGGINGEFFICIENCYTOOL_H
 
 #include "AsgTools/IAsgTool.h"
+#include "PATInterfaces/ISystematicsTool.h"
 #include "PATInterfaces/CorrectionCode.h"
 #include "PATInterfaces/SystematicCode.h"
 #include "PATInterfaces/SystematicSet.h"
