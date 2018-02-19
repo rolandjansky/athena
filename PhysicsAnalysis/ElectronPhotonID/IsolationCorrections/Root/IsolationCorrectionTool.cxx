@@ -23,11 +23,11 @@ namespace CP {
   IsolationCorrectionTool::IsolationCorrectionTool( const std::string &name )
     : asg::AsgMetadataTool(name), m_systDDonoff("PH_Iso_DDonoff"){
     declareProperty("CorrFile",                    m_corr_file                    = "IsolationCorrections/v1/isolation_ptcorrections_rel20_2.root");
-    declareProperty("CorrFile_ddshift_2015_2016",  m_corr_ddshift_2015_2016_file  = "PhotonEfficiencyCorrection/2015_2017/rel21.2/Winter2018_Prerec_v1/isolation/isolation_ddcorrection_shift_rel21_2016.root");
-    declareProperty("CorrFile_ddshift_2017",       m_corr_ddshift_2017_file       = "PhotonEfficiencyCorrection/2015_2017/rel21.2/Winter2018_Prerec_v1/isolation/isolation_ddcorrection_shift_rel21_2017.root");
+    declareProperty("CorrFile_ddshift_2015_2016",  m_corr_ddshift_2015_2016_file  = "PhotonEfficiencyCorrection/2015_2017/REL21.2/Winter2018_Prerec_v1/isolation/isolation_ddcorrection_shift_REL21_2016.root");
+    declareProperty("CorrFile_ddshift_2017",       m_corr_ddshift_2017_file       = "PhotonEfficiencyCorrection/2015_2017/REL21.2/Winter2018_Prerec_v1/isolation/isolation_ddcorrection_shift_REL21_2017.root");
     declareProperty("CorrFile_ddsmearing",         m_corr_ddsmearing_file         = "IsolationCorrections/v1/isolation_ddcorrection_smearing.root");
     declareProperty("ToolVer",                     m_tool_ver_str                 = "REL21");
-    declareProperty("DataDrivenVer",               m_ddVersion                    = "2015_2016");
+    declareProperty("DataDrivenVer",               m_ddVersion                    = "2017");
     declareProperty("UseMetadata",                 m_usemetadata                  = true);
     declareProperty("AFII_corr",                   m_AFII_corr                    = false);
     declareProperty("IsMC",                        m_is_mc                        = true);
@@ -94,8 +94,8 @@ namespace CP {
     // Note that systematics in Rel 21 are NOT done with the DD-Corr ON/OFF method! 
     if (m_apply_ddDefault) {
       if (m_ddVersion == "2015_2016" or m_ddVersion == "2017") {
-	    //if not Rel21, register ourselves with the systematic registry! 
-	    if( m_tool_ver_str!="Rel21" ){
+	    //if not REL21, register ourselves with the systematic registry! 
+	    if( m_tool_ver_str!="REL21" ){
 		  CP::SystematicRegistry& registry = CP::SystematicRegistry::getInstance();
 		  if( registry.registerSystematics( *this ) != CP::SystematicCode::Ok ) return StatusCode::FAILURE;
 		}
@@ -177,10 +177,10 @@ namespace CP {
     }
     //
     // Check if tag is from mc16a of mc16c (determines which year of DD corrections to use) 
-    std::string amiTag; 
-    fmd->value(xAOD::FileMetaData::amiTag, amiTag); // AMI tag used to process the file the last time
-    if (TPRegexp("r9364").MatchB(amiTag)) { m_ddVersion = "2015_2016" ; } // mc16a
-    else if (TPRegexp("r9781").MatchB(amiTag)) { m_ddVersion = "2017" ; } // mc16c
+//     std::string amiTag; 
+//     fmd->value(xAOD::FileMetaData::amiTag, amiTag); // AMI tag used to process the file the last time
+//     if (TPRegexp("r9364").MatchB(amiTag)) { m_ddVersion = "2015_2016" ; } // mc16a
+//     else if (TPRegexp("r9781").MatchB(amiTag)) { m_ddVersion = "2017" ; } // mc16c
     //
     return StatusCode::SUCCESS;    
   }
@@ -244,7 +244,7 @@ namespace CP {
     //
     //If not metadata have been available and want to use them go via event info 
     const xAOD::EventInfo* evtInfo(0);
-    if( (evtStore()->retrieve(evtInfo, "")).isFailure()){
+    if( (evtStore()->retrieve(evtInfo, "EventInfo")).isFailure()){
       ATH_MSG_WARNING(" No default Event Info collection found") ;
       return StatusCode::SUCCESS;
     }
@@ -312,7 +312,7 @@ namespace CP {
 
 	  // Use the Random Run Number from the Event Info to check which year's DD-Corrections to use 
 	  // If the RandomRunNo can't be obtained, then default to what is set by either the default choice or by the AuxData check 
-	  unsigned int theRunNumber = 0 ; 
+	  unsigned int theRunNumber = 325713 ; 
 	  const xAOD::EventInfo *eventInfo = evtStore()->retrieve< const xAOD::EventInfo>("EventInfo");  
 	  if(eventInfo){ 
 	  static const SG::AuxElement::Accessor<unsigned int> randomrunnumber("RandomRunNumber"); 
@@ -320,7 +320,7 @@ namespace CP {
 	    theRunNumber = randomrunnumber(*(eventInfo)) ; 
 	    }
 	  } else ATH_MSG_WARNING("Could not retrieve EventInfo object"); 
-	  if (theRunNumber>=320000) m_ddVersion = "2017" ; // RunNo found, and is in 2017 range 
+	  if (theRunNumber>=325713) m_ddVersion = "2017" ; // RunNo found, and is in 2017 range 
 	  else if( theRunNumber > 0 ) m_ddVersion = "2015_2016" ; // RunNo found, but less than 2017 range
 	  // otherwise, stick with default (m_ddVersion is already assigned)
 	  
@@ -394,10 +394,8 @@ namespace CP {
 
   CP::SystematicSet IsolationCorrectionTool::affectingSystematics() const {
     CP::SystematicSet result;
-
-    if (m_apply_ddDefault && m_tool_ver_str!="Rel21")
-      result.insert( m_systDDonoff );
-
+//     if (m_apply_ddDefault && m_tool_ver_str!="REL21")
+//       result.insert( m_systDDonoff );
     return result;
   }
 
