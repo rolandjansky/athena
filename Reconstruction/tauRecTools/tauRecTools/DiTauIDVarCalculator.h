@@ -69,6 +69,9 @@ public:
 
   // calculate ID variables
   virtual StatusCode execute(const xAOD::DiTauJet& xDiTau) override;
+
+  // get decay mode
+  virtual std::string getDecayMode() override;
   
 private:
   virtual StatusCode calculateHadHadIDVariables(const xAOD::DiTauJet& xDiTau);

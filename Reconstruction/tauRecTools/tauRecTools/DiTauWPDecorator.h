@@ -32,6 +32,8 @@ public:
     virtual StatusCode retrieveHistos();
     virtual StatusCode storeLimits();
     virtual double transformScore(double score, double cut_lo, double eff_lo, double cut_hi, double eff_hi);
+    // get decay mode
+    virtual std::string getDecayMode() override;
 
 private:
     std::string m_sFile; //!

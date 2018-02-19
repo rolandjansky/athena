@@ -23,9 +23,9 @@ class DiTauProcessorTool : public asg::AsgTool, virtual public ITauToolExecBase 
   virtual StatusCode finalize() override;
 
  private:
-  std :: string                 m_sDiTauContainerNameHadHad;
-  std :: string                 m_sDiTauContainerNameHadEl;
-  std :: string                 m_sDiTauContainerNameHadMu;
+  std::string                 m_sDiTauContainerNameHadHad;
+  std::string                 m_sDiTauContainerNameHadEl;
+  std::string                 m_sDiTauContainerNameHadMu;
 
   ToolHandleArray<tauRecTools::IDiTauToolBase>  m_aVarCalculatorTools;
   

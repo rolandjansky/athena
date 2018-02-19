@@ -10,6 +10,7 @@
 
 // EDM include(s):
 #include "xAODTau/DiTauJet.h"
+#include <string>
 
 namespace tauRecTools
 {
@@ -24,7 +25,8 @@ namespace tauRecTools
     public:
     // calculate ID variables
     virtual StatusCode execute(const xAOD::DiTauJet& xDiTau) = 0;
-
+    // decay mode tool was initialized for
+    virtual std::string getDecayMode() = 0;
   }; // class IDiTauToolBase
 
 } // namespace tauRecTools

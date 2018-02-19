@@ -31,15 +31,7 @@ StatusCode DiTauProcessorTool::initialize(){
       ATH_MSG_ERROR("Failed initializing DiTauVarCalculatorTool "<<varCalculator->name());
       return StatusCode::FAILURE;
     }
-    
-    const std::string* pDecayChannel = dynamic_cast<asg::AsgTool*>(&*varCalculator)->getProperty<std::string>("DiTauDecayChannel");
-    
-    if(!pDecayChannel){
-      ATH_MSG_ERROR("VariableCalculatorTool" << varCalculator->name() << "has no valid DecayModePropery.");
-      return StatusCode::FAILURE;    
-    }
-    
-    std::string decayChannel = *pDecayChannel;
+    std::string decayChannel = varCalculator->getDecayMode();
     if(decayChannel == "HadHad"){
       m_aVarCalculatorToolsHadHad.push_back(varCalculator);
       continue;

@@ -682,6 +682,9 @@ StatusCode DiTauIDVarCalculator::calculateHadElIDVariables(const xAOD::DiTauJet&
   return StatusCode::SUCCESS;
 }
 
+std::string DiTauIDVarCalculator::getDecayMode(){
+  return m_sDecayChannel;
+}
 
 //=================================PRIVATE-PART=================================
 //______________________________________________________________________________

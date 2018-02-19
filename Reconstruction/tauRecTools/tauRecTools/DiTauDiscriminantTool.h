@@ -54,10 +54,13 @@ public:
   virtual StatusCode initialize() override;
 
   // get ID score depricated
-  virtual double getJetBDTScore(const xAOD::DiTauJet& xDiTau);
+  double getJetBDTScore(const xAOD::DiTauJet& xDiTau);
 
   // calculate and decorate BDTJetScore
   virtual StatusCode execute(const xAOD::DiTauJet& xDiTau) override;
+  
+  // get decay mode
+  virtual std::string getDecayMode() override;
   
 private:
 

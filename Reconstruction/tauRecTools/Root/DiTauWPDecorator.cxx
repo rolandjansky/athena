@@ -42,7 +42,8 @@ StatusCode DiTauWPDecorator::retrieveHistos() {
   TFile * myFile = TFile::Open(weights_file.c_str(), "READ");
 
   if(!myFile || myFile->IsZombie()) {
-    ATH_MSG_FATAL("Could not open file " << m_sFile.c_str());
+    ATH_MSG_ERROR("Could not open file " << m_sFile.c_str());
+    return StatusCode::FAILURE;
   }
 
   ATH_MSG_INFO("Loading working points from" << m_sFile.c_str());
@@ -212,4 +213,8 @@ StatusCode DiTauWPDecorator::execute(const xAOD::DiTauJet& xDiTau)
   }
     
   return StatusCode::SUCCESS;
+}
+
+std::string DiTauWPDecorator::getDecayMode(){
+  return m_sDecayChannel;
 }

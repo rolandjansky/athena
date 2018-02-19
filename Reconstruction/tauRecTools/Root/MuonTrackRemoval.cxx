@@ -49,7 +49,7 @@ StatusCode MuonTrackRemoval::execute(xAOD::TauJet& xTau){
     if(taup4.DeltaR(muonp4) < 0.4){
       mu = nullptr;
       if( !(*m_thMuonCalibrationTool).correctedCopy( *xMuon, mu ) ) {
-	ATH_MSG_ERROR( "MuonCalibrationTool can not really apply calibration nor smearing" );
+	ATH_MSG_WARNING( "MuonCalibrationTool can not really apply calibration nor smearing" );
 	continue;
       }
       xAOD::Muon::Quality quality = (*m_thMuonSelectionTool).getQuality(*mu);
