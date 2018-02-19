@@ -1590,6 +1590,14 @@ def setupMenu():
 
         ['mu6_mu2noL1_msonly_bJpsimumu_noid','L1_MU6', ['L1_MU6',''], [PhysicsStream], ['RATE:IDMonitoring',BW_BphysTag, 'BW:ID'], -1, ['serial',-1,['mu6','mu2noL1_msonly']]],
 
+
+        # bTauTight sets tight pt cuts on tracks, while bTau uses 3.65 GeV for all tracks
+        ['mu20_mu6btrk_bTauTight',        'L1_MU20MU21', ['L1_MU20','L2_mu20'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1,['serial',-1,['mu20','mu6btrk']]],
+        ['mu20_2mu2btrk_bTauTight',       'L1_MU20MU21', ['L1_MU20','L2_mu20'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1,['serial',-1,['mu20','2mu2btrk']]],
+        ['mu11_mu6btrk_bTauTight_L1MU11_2MU6',  'L1_MU11_2MU6', ['L1_MU11','L2_mu6'], [BPhysicsStream, 'express'], [RATE_BphysTag,BW_BphysTag], -1,['serial',-1,['mu11','mu6btrk']]],
+        ['mu11_2mu4btrk_bTauTight_L1MU11_2MU6', 'L1_MU11_2MU6', ['L1_MU11','L2_mu11'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1,['serial',-1,['mu11','2mu4btrk']]],
+        ['mu11_2mu3btrk_bTauTight_L1MU11_2MU6', 'L1_MU11_2MU6', ['L1_MU11','L2_mu11'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1,['serial',-1,['mu11','2mu3btrk']]],
+
         ]
 
     if TriggerFlags.doFTK():
