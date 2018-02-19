@@ -12,27 +12,23 @@
 #ifndef SCT_ElectricFieldTool_h
 #define SCT_ElectricFieldTool_h
 
-//Gaudi Includes
-//#include "GaudiKernel/IInterface.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "SCT_ConditionsTools/ISCT_ElectricFieldTool.h"
 
 class TF1;
-class IInterface;
 
 /**
  * @class Tool to provide electric field in silicon detector at a given depth in the silicon,
  * assuming a given field model (uniform or flat diode).
  **/
-class SCT_ElectricFieldTool:  public AthAlgTool , virtual public ISCT_ElectricFieldTool
+class SCT_ElectricFieldTool: public extends<AthAlgTool, ISCT_ElectricFieldTool>
 {
 public:
-  SCT_ElectricFieldTool(const std::string& t, const std::string& n, const IInterface*  p);
+  SCT_ElectricFieldTool(const std::string& t, const std::string& n, const IInterface* p);
 
-  virtual ~SCT_ElectricFieldTool();
-  virtual StatusCode initialize();          //!< Service init
-  virtual StatusCode finalize();            //!< Service finalize
-//  static const InterfaceID & interfaceID();
+  virtual ~SCT_ElectricFieldTool() = default;
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
  
   virtual double getElectricField(double positionZ,
                                   double fluence,
@@ -45,5 +41,4 @@ private:
   std::unique_ptr<TF1> m_model;
 };
 
-
-#endif
+#endif // SCT_ElectricFieldTool_h

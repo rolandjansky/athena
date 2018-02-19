@@ -8,16 +8,10 @@
 
 #include "TF1.h"
 
-
-
 SCT_ElectricFieldTool::SCT_ElectricFieldTool(const std::string& t, const std::string& n, const IInterface* p) : 
-        AthAlgTool(t,n,p),
-        m_model{nullptr}{
-  declareInterface<ISCT_ElectricFieldTool> ( this );
+  base_class(t, n, p),
+  m_model{nullptr} {
   declareProperty("EFieldModel", m_eFieldModel=1); //!< flat diode model as default
-}
-
-SCT_ElectricFieldTool::~SCT_ElectricFieldTool(){
 }
 
 StatusCode 

@@ -23,8 +23,6 @@
 // Forward declarations
 class SCT_Chip;
 
-static const InterfaceID IID_ISCT_ReadoutTool{"InDet::ISCT_ReadoutTool", 1, 0};
-
 /**
  * @class ISCT_ReadoutTool
  * Interface for SCT_ReadoutTool
@@ -34,9 +32,10 @@ static const InterfaceID IID_ISCT_ReadoutTool{"InDet::ISCT_ReadoutTool", 1, 0};
 class ISCT_ReadoutTool : virtual public IAlgTool {
  public:
 
-  virtual ~ISCT_ReadoutTool() {};
+  virtual ~ISCT_ReadoutTool() = default;
   
-  static const InterfaceID& interfaceID() { return IID_ISCT_ReadoutTool; };
+  /// Creates the InterfaceID and interfaceID() method
+  DeclareInterfaceID(ISCT_ReadoutTool, 1, 0);
   
   /** Determine which chips are in the readout for a module of a particular type by Identifier*/
   virtual StatusCode determineReadout(const Identifier& moduleId, std::vector<SCT_Chip*>& chips, bool link0ok, bool link1ok)=0;
