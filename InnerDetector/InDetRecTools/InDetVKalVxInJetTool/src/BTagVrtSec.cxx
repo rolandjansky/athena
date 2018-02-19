@@ -908,13 +908,13 @@ namespace InDet{
       m_fitSvc->setMomCovCalc(1);                     // Total momentum and its covariance matrix are calculated
       for (i=0; i<NTracks-1; i++) {
 	 //double adp1=trkPtCorr(TrackPt[i]);
-	 double adp1=pow(TrackPt[i]/JetDir.Perp(),0.5);
+        double adp1=sqrt(TrackPt[i]/JetDir.Perp());
          for (j=i+1; j<NTracks; j++) {
              //if(m_MultiVertex || m_MultiWithPrimary){m_WorkArray->m_Incomp.push_back(i);m_WorkArray->m_Incomp.push_back(j);} // For PGRAPH multivertex   !!!ALL SELECTIONS MUST BE AFTER THIS LINE!!!
  	     if(TrackSignif[i]==0.)continue; // Pileup and other problems
  	     if(TrackSignif[j]==0.)continue; // Pileup and other problems
 	     //double adp2=trkPtCorr(TrackPt[j]);
-	     double adp2=pow(TrackPt[j]/JetDir.Perp(),0.5);
+	     double adp2=sqrt(TrackPt[j]/JetDir.Perp());
 	     if(!m_MultiWithPrimary) {  // Not used for multi-vertex with primary one search
 	        if(TrackSignif[i] < SelLim +adp1 +addNTrkDep) continue;
  	        if(TrackSignif[j] < SelLim +adp2 +addNTrkDep) continue;
