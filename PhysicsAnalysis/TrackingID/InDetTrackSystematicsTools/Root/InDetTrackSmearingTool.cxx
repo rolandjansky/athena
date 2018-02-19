@@ -144,36 +144,38 @@ namespace InDet {
       throw std::runtime_error( "Multiple incompatible D0 systematics are activated." );
     }
 
-    if ( isActiveD0Meas || isActiveD0MeasUp || isActiveD0MeasDown ) {
-      TH2* d0hist_lowpt = m_smearD0_lowpt;
-      TH2* d0hist_highpt = m_smearD0_highpt;
-      if(isActiveD0MeasUp) {
-        d0hist_lowpt = m_smearD0_lowpt_sys_up;
-        d0hist_highpt = m_smearD0_highpt_sys_up;
-      }
-      if(isActiveD0MeasDown) {
-        d0hist_lowpt = m_smearD0_lowpt_sys_dw;
-        d0hist_highpt = m_smearD0_highpt_sys_dw;
-      }
-                                               
-      if (d0hist_lowpt == nullptr) ATH_MSG_ERROR( "d0 lowpt histogram is null!" );
-      if (d0hist_highpt == nullptr) ATH_MSG_ERROR( "d0 highpt histogram is null!" );
+    TH2* d0hist_lowpt = nullptr;
+    TH2* d0hist_highpt = nullptr;
 
-      float d0Smear = 0.f;
-      if (pt < 15) {
-        d0Smear = readHistogram(d0hist_lowpt, pt, eta);
-      } else {
-        d0Smear = readHistogram(d0hist_highpt, pt, eta);
-      }
-
-      // Apply a minimum smearing in the case where there is an empty bin
-      // TODO: Remove for next round of recommendations
-      if (d0Smear == 0) {
-        d0Smear = 0.002;
-      }
-
-      sigma_D0 += d0Smear*d0Smear;
+    if(isActiveD0Meas) {
+      d0hist_lowpt = m_smearD0_lowpt;
+      d0hist_highpt = m_smearD0_highpt;
+    } else if(isActiveD0MeasUp) {
+      d0hist_lowpt = m_smearD0_lowpt_sys_up;
+      d0hist_highpt = m_smearD0_highpt_sys_up;
+    } else if(isActiveD0MeasDown) {
+      d0hist_lowpt = m_smearD0_lowpt_sys_dw;
+      d0hist_highpt = m_smearD0_highpt_sys_dw;
     }
+                                               
+    if (d0hist_lowpt == nullptr) ATH_MSG_ERROR( "d0 lowpt histogram is null!" );
+    if (d0hist_highpt == nullptr) ATH_MSG_ERROR( "d0 highpt histogram is null!" );
+
+    float d0Smear = 0.f;
+    if (pt < 15) {
+      d0Smear = readHistogram(d0hist_lowpt, pt, eta);
+    } else {
+      d0Smear = readHistogram(d0hist_highpt, pt, eta);
+    }
+
+    // Apply a minimum smearing in the case where there is an empty bin
+    // TODO: Remove for next round of recommendations
+    if (d0Smear == 0) {
+      d0Smear = 0.002;
+    }
+
+    sigma_D0 += d0Smear*d0Smear;
+
 
     return std::sqrt(sigma_D0);
   }   
@@ -200,35 +202,37 @@ namespace InDet {
       throw std::runtime_error( "Multiple incompatible Z0 systematics are activated." );
     }
 
-    if ( isActiveZ0Meas || isActiveZ0MeasUp || isActiveZ0MeasDown ) {
-      TH2* z0hist_lowpt = m_smearZ0_lowpt;
-      TH2* z0hist_highpt = m_smearZ0_highpt;
-      if(isActiveZ0MeasUp) {
-        z0hist_lowpt = m_smearZ0_lowpt_sys_up;
-        z0hist_highpt = m_smearZ0_highpt_sys_up;
-      }
-      if(isActiveZ0MeasDown) {
-        z0hist_lowpt = m_smearZ0_lowpt_sys_dw;
-        z0hist_highpt = m_smearZ0_highpt_sys_dw;
-      }
-      if (z0hist_lowpt == nullptr) ATH_MSG_ERROR( "z0 lowpt histogram is null!" );
-      if (z0hist_highpt == nullptr) ATH_MSG_ERROR( "z0 highpt histogram is null!" );
+    TH2* z0hist_lowpt = nullptr;
+    TH2* z0hist_highpt = nullptr;
 
-      float z0Smear = 0.f;
-      if (pt < 15) {
-        z0Smear = readHistogram(z0hist_lowpt, pt, eta);
-      } else {
-        z0Smear = readHistogram(z0hist_highpt, pt, eta);
-      }
-
-      // Apply a minimum smearing in the case where there is an empty bin
-      // TODO: Remove for next round of recommendations
-      if (z0Smear == 0) {
-        z0Smear = 0.03;
-      }
-
-      sigma_Z0 += z0Smear*z0Smear;
+    if(isActiveZ0Meas) {
+      z0hist_lowpt = m_smearZ0_lowpt;
+      z0hist_highpt = m_smearZ0_highpt;
+    } else if(isActiveZ0MeasUp) {
+      z0hist_lowpt = m_smearZ0_lowpt_sys_up;
+      z0hist_highpt = m_smearZ0_highpt_sys_up;
+    } else if(isActiveZ0MeasDown) {
+      z0hist_lowpt = m_smearZ0_lowpt_sys_dw;
+      z0hist_highpt = m_smearZ0_highpt_sys_dw;
     }
+
+    if (z0hist_lowpt == nullptr) ATH_MSG_ERROR( "z0 lowpt histogram is null!" );
+    if (z0hist_highpt == nullptr) ATH_MSG_ERROR( "z0 highpt histogram is null!" );
+
+    float z0Smear = 0.f;
+    if (pt < 15) {
+      z0Smear = readHistogram(z0hist_lowpt, pt, eta);
+    } else {
+      z0Smear = readHistogram(z0hist_highpt, pt, eta);
+    }
+
+    // Apply a minimum smearing in the case where there is an empty bin
+    // TODO: Remove for next round of recommendations
+    if (z0Smear == 0) {
+      z0Smear = 0.03;
+    }
+
+    sigma_Z0 += z0Smear*z0Smear;
 
     return std::sqrt(sigma_Z0);
   }
