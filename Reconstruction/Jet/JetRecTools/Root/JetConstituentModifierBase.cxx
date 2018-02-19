@@ -8,6 +8,7 @@
 #include "JetRecTools/JetConstituentModifierBase.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODPFlow/PFO.h"
+#include "xAODPFlow/TrackCaloCluster.h"
 
 JetConstituentModifierBase::JetConstituentModifierBase(const std::string & name): asg::AsgTool(name) {
 #ifdef ASGTOOL_ATHENA  
@@ -86,6 +87,15 @@ StatusCode JetConstituentModifierBase::setEnergyPt(xAOD::IParticle* obj, float e
       }
     }
     break;
+  case xAOD::Type::TrackCaloCluster:
+    {
+      xAOD::TrackCaloCluster* tcc = static_cast<xAOD::TrackCaloCluster*>(obj);
+      if( tcc->taste() != 0) {
+        if(weightAcc) (*weightAcc)(*tcc) = pt / tcc->pt();
+        tcc->setParameters(pt, tcc->eta(), tcc->phi(), tcc->m(), xAOD::TrackCaloCluster::Taste(tcc->taste()), tcc->trackParticleLink(), tcc->caloClusterLinks());
+      }
+    }
+    break;
   default:
     // Should not get here, because type-checking should happen in process()
     ATH_MSG_ERROR("No specialisation for object type " << m_inputType);
@@ -118,6 +128,17 @@ StatusCode JetConstituentModifierBase::setP4(xAOD::IParticle* obj, const xAOD::J
       }
       break;
     }
+
+  case xAOD::Type::TrackCaloCluster:
+    {
+      xAOD::TrackCaloCluster* tcc = static_cast<xAOD::TrackCaloCluster*>(obj);
+      if( tcc->taste() != 0) {
+	      if(weightAcc) (*weightAcc)(*tcc) = tcc->pt() > FLT_MIN ? p4.pt() / tcc->pt() : 0.;
+        tcc->setParameters(p4.pt(), p4.eta(), p4.phi(), p4.mass(), xAOD::TrackCaloCluster::Taste(tcc->taste()), tcc->trackParticleLink(), tcc->caloClusterLinks());
+      }
+      break;
+    }
+
   default:
     // Should not get here, because type-checking should happen in process()
     ATH_MSG_ERROR("No specialisation for object type " << m_inputType);

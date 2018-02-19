@@ -13,6 +13,7 @@
 #include "fastjet/Selector.hh"
 
 #include "xAODPFlow/PFO.h"
+#include "xAODPFlow/TrackCaloCluster.h"
 
 using namespace fastjet;
 ConstituentSubtractorTool::ConstituentSubtractorTool(const std::string & name): JetConstituentModifierBase(name) {
@@ -75,6 +76,10 @@ StatusCode ConstituentSubtractorTool::process_impl(xAOD::IParticleContainer* con
     if(m_inputType==xAOD::Type::ParticleFlow && m_ignoreChargedPFOs) {
       xAOD::PFO* pfo = static_cast<xAOD::PFO*>(part);
       accept &= fabs(pfo->charge())<FLT_MIN;
+    }
+    if(m_inputType==xAOD::Type::TrackCaloCluster) {
+      xAOD::TrackCaloCluster* tcc = static_cast<xAOD::TrackCaloCluster*>(part);
+      accept &= (tcc->taste()!= 0);
     }
     // Reject object if outside maximum eta range
     accept &= fabs(part->eta()) <= m_maxEta;
