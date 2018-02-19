@@ -28,7 +28,7 @@ namespace CP {
     declareProperty("CorrFile_ddsmearing",         m_corr_ddsmearing_file         = "IsolationCorrections/v1/isolation_ddcorrection_smearing.root");
     declareProperty("ToolVer",                     m_tool_ver_str                 = "REL21");
     declareProperty("DataDrivenVer",               m_ddVersion                    = "2017");
-    declareProperty("UseMetadata",                 m_usemetadata                  = true);
+    declareProperty("UseMetadata",                 m_usemetadata                  = false);
     declareProperty("AFII_corr",                   m_AFII_corr                    = false);
     declareProperty("IsMC",                        m_is_mc                        = true);
     declareProperty("Correct_etcone",              m_correct_etcone               = false);
@@ -320,7 +320,7 @@ namespace CP {
 	    theRunNumber = randomrunnumber(*(eventInfo)) ; 
 	    }
 	  } else ATH_MSG_WARNING("Could not retrieve EventInfo object"); 
-	  if (theRunNumber>=320000) m_ddVersion = "2017" ; // RunNo found, and is in 2017 range 
+	  if (theRunNumber>=300000) m_ddVersion = "2017" ; // RunNo found, and is in 2017 range 
 	  else if( theRunNumber > 0 ) m_ddVersion = "2015_2016" ; // RunNo found, but less than 2017 range
 	  // otherwise, stick with default (m_ddVersion is already assigned)
 	  
