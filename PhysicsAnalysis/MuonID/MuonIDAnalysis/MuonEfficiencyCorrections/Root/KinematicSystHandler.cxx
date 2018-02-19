@@ -31,7 +31,9 @@ namespace CP {
 
     }
     CorrectionCode PtDependentSystHandler::GetKineDependent(const xAOD::Muon &mu, float& Eff) const {
-        if (mu.pt() <= 20.e3) return CorrectionCode::Ok;
+        // Account for catastrophic energy loss for  very high
+        // pt's
+        if (mu.pt() <= 200.e3) return CorrectionCode::Ok;
 
         int binsys = -1;
         CorrectionCode cc = m_Handler->FindBin(mu, binsys);
@@ -91,10 +93,10 @@ namespace CP {
             std::string LowRange_str = GetNextProperty(ObjName);
             std::string HighRange_str = GetNextProperty(ObjName);
             if (!LowRange_str.empty()) {
-                lowRange = atof(LowRange_str.c_str()) / 10.;
+                lowRange = atof(LowRange_str.c_str()) / pow(10, LowRange_str.size() -1);
             }
             if (!HighRange_str.empty()) {
-                highRange = atof(HighRange_str.c_str()) / 10.;
+                highRange = atof(HighRange_str.c_str()) / pow(10, LowRange_str.size() -1);
             }
             m_SystPolynomials.insert(std::pair<Ranges, std::unique_ptr<TF1>>(Ranges(lowRange, highRange), std::unique_ptr<TF1>(TF)));
         }
@@ -112,9 +114,8 @@ namespace CP {
             if (cc != CorrectionCode::Ok) {
                 return cc;
             }
-            RelHighPtSys = fabs(1 - Poly->Eval((this->*m_FirstVar)(mu)));
-//            std::cout<<"SystWeight: "<<m_SystWeight<<"  Blub: "<<1 - Poly->Eval((this->*m_FirstVar)(mu))
-//                    <<"Muon: " <<(this->*m_FirstVar)(mu)<<std::endl;
+//            RelHighPtSys = fabs(1 - Poly->Eval((this->*m_FirstVar)(mu)));
+            RelHighPtSys = Poly->Eval((this->*m_FirstVar)(mu));
 
         } else {
             //Apply flat 0.5% systematic

@@ -112,7 +112,11 @@ namespace CP {
             // a string name assigned to each sys variation
             std::string sysname() const;
             std::string toolname() const;
-
+            
+            unsigned int firstRun() const;
+            unsigned int lastRun() const;
+            bool coversRunNumber(unsigned int run) const;
+            void setFirstLastRun(unsigned int first, unsigned int last);
         private:
             // use some maps for easy histo loading / arithmetics by name
 
@@ -185,7 +189,12 @@ namespace CP {
 
             EfficiencyScaleFactor* m_NominalFallBack;
             int m_SystematicBin;
-
+            
+            mutable unsigned int m_warnsPrinted;
+            static unsigned int m_warningLimit;
+            
+            unsigned int m_firstRun;
+            unsigned int m_lastRun;
     };
 } /* namespace CP */
 

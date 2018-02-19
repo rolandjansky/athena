@@ -17,10 +17,16 @@ theJob = AlgSequence()
 from MuonEfficiencyCorrections.MuonEfficiencyCorrectionsConf import CP__MuonEfficiencyCorrections_TestAlg
 alg = CP__MuonEfficiencyCorrections_TestAlg("EffiTestAlg")
 alg.PileupReweightingTool = GetPRWTool()
+alg.DefaultRelease="cRecommendationsSep17"
+alg.ValidationRelease="cRecommendationsToday"
 
 WPs = [
          # reconstruction WPs
-         "Loose", "Medium", "Tight", "HighPt",
+        # "LowPt",
+         "Loose", 
+         "Medium", 
+         "Tight", 
+         "HighPt",
          # track-to-vertex-association WPs
          "TTVA",
          # BadMuon veto SFs
@@ -30,7 +36,9 @@ WPs = [
          "FixedCutTightTrackOnlyIso", "FixedCutHighPtTrackOnlyIso", "FixedCutTightIso"
         ]
 
-for WP in WPs: alg.EfficiencyTools += [GetMuonEfficiencyTool(WP)]
+for WP in WPs: 
+    alg.EfficiencyTools += [GetMuonEfficiencyTool(WP)]
+    alg.EfficiencyToolsForComparison += [GetMuonEfficiencyTool(WP, Release="MoriondTest", CustomInput = "/afs/cern.ch/user/j/jojungge/public/MCP/ScaleFactorFiles/180214_Moriond21")]
 theJob += alg
 
 # Do some additional tweaking:
