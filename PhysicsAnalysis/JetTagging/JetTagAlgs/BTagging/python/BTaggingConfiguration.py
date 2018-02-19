@@ -462,7 +462,7 @@ class Configuration:
           if jetcol in self._BTaggingConfig_JetBTaggerTools:
               returnlist.append(self._BTaggingConfig_JetBTaggerTools.get(jetcol, None))
               print self.BTagTag()+' - INFO - Updating JetBTaggerTool for '+jetcol
-              self.ConfigureMainAssociatorTool(self._BTaggingConfig_MainAssociatorTools[jetcol], jetcol)
+              # self.ConfigureMainAssociatorTool(self._BTaggingConfig_MainAssociatorTools[jetcol], jetcol)
               continue
           # Check if this jet collection has been correctly set up.
           if not jetcol in self._BTaggingConfig_JetCollections:
