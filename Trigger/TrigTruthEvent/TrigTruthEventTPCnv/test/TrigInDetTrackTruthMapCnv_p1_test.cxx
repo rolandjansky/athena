@@ -14,12 +14,15 @@
 #undef NDEBUG
 #include "TrigTruthEventTPCnv/TrigInDetTrackTruthMapCnv_p1.h"
 #include "TrigTruthEventTPCnv/TrigInDetTrackTruthMapCnv_tlp2.h"
-#include "SGTools/TestStore.h"
-#include "CxxUtils/make_unique.h"
+#include "StoreGate/WriteHandle.h"
 #include "GaudiKernel/MsgStream.h"
 #include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
+
+#include "GeneratorObjectsTPCnv/initMcEventCollection.h"
+#include "HepMC/GenParticle.h"
+#include "HepMC/GenEvent.h"
 
 
 void compare (const TrigIDHitStats& p1,
@@ -106,11 +109,16 @@ void testit (const TrigInDetTrackTruthMap& trans1)
 }
 
 
-void test1()
+void test1(std::vector<HepMC::GenParticle*>& genPartVector)
 {
   std::cout << "test1\n";
+  const HepMC::GenParticle *particle = genPartVector.at(0);
+  // Create HepMcParticleLink outside of leak check.
+  HepMcParticleLink dummyHMPL(particle->barcode(),particle->parent_event()->event_number());
+  assert(dummyHMPL.cptr()==particle);
 
-  auto coll = CxxUtils::make_unique<TrigInDetTrackCollection>();
+  SG::WriteHandle<TrigInDetTrackCollection> coll{"coll"};
+  coll = std::make_unique<TrigInDetTrackCollection>();
   for (int i=0; i<10; i++) {
     int o = i*10;
     auto param = CxxUtils::make_unique<TrigInDetTrackFitPar>
@@ -119,8 +127,7 @@ void test1()
     trk->algorithmId (static_cast<TrigInDetTrack::AlgoId>(i+1));
     coll->push_back (std::move (trk));
   }
-  const TrigInDetTrackCollection* collp = coll.get();
-  SGTest::store.record (coll.release(), "coll");
+  const TrigInDetTrackCollection* collp = coll.ptr();
 
   Athena::getMessageSvc();
   Athena_test::Leakcheck check;
@@ -145,7 +152,13 @@ void test1()
 
 int main()
 {
-  SGTest::initTestStore();
-  test1();
+  ISvcLocator* pSvcLoc = nullptr;
+  std::vector<HepMC::GenParticle*> genPartVector;
+  if (!Athena_test::initMcEventCollection(pSvcLoc, genPartVector)) {
+    std::cerr << "This test can not be run" << std::endl;
+    return 0;
+  }
+
+  test1(genPartVector);
   return 0;
 }

@@ -28,9 +28,9 @@ DECLARE_TPCNV_FACTORY(TrigInDetTrackTruthMapCnv_tlp1,
 DECLARE_TPCNV_FACTORY(TrigInDetTrackTruthMapCnv_tlp2,
                       TrigInDetTrackTruthMap,
                       TrigInDetTrackTruthMap_tlp2,
-                      Athena::TPCnvVers::Current)                    
+                      Athena::TPCnvVers::Old)
 
 DECLARE_TPCNV_FACTORY(TrigInDetTrackTruthMapCnv_tlp3,
                       TrigInDetTrackTruthMap,
                       TrigInDetTrackTruthMap_tlp3,
-                      Athena::TPCnvVers::Old)
+                      Athena::TPCnvVers::Current)
