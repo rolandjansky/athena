@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GeomACTS/PrintSiElements.h"
+#include "GeomACTS/ACTSTrackingGeometry.h"
 
 #include "StoreGate/StoreGateSvc.h"
 
@@ -90,7 +90,7 @@ const Amg::Vector3D origin(0., 0., 0.);
 
 /////////////////////////////////////////////////////////////////////////////
 
-PrintSiElements::PrintSiElements(const std::string& name,
+ACTSTrackingGeometry::ACTSTrackingGeometry(const std::string& name,
                                  ISvcLocator* pSvcLocator)
     : AthAlgorithm(name, pSvcLocator),
       m_firstEvent(true),
@@ -112,7 +112,7 @@ PrintSiElements::PrintSiElements(const std::string& name,
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-StatusCode PrintSiElements::initialize() {
+StatusCode ACTSTrackingGeometry::initialize() {
   // Get GeoModelSvc
   const IGeoModelSvc* geoModel;
   ATH_CHECK(service("GeoModelSvc", geoModel));
@@ -135,7 +135,7 @@ StatusCode PrintSiElements::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode PrintSiElements::buildTrackingGeometry() {
+StatusCode ACTSTrackingGeometry::buildTrackingGeometry() {
   //const InDetDD::SiDetectorManager* siDetManager;
   //ATH_CHECK(detStore()->retrieve(siDetManager, managerName));
       //if ( detStore()->retrieve(m_TRTGeoManager, "TRT").isFailure()) {
@@ -270,7 +270,7 @@ StatusCode PrintSiElements::buildTrackingGeometry() {
 
   //std::mt19937 rng;
   ParticleGun::Config pgCfg;
-  pgCfg.nParticles = 50000;
+  pgCfg.nParticles = 120;
   pgCfg.pID = 11;
   pgCfg.mass = 0.51099891 * Acts::units::_MeV;
   pgCfg.charge = -1.;
@@ -387,7 +387,7 @@ StatusCode PrintSiElements::buildTrackingGeometry() {
   rootEccWriter->write(cCells);
   rootEccWriter->endRun();
 
-  //objEccWriter->write(cCells);
+  objEccWriter->write(cCells);
 
 
   ofs->close();
@@ -396,7 +396,7 @@ StatusCode PrintSiElements::buildTrackingGeometry() {
   return StatusCode::SUCCESS;
 }
 
-Acts::InterpolatedBFieldMap::FieldMapper<3, 3> PrintSiElements::bfield() const
+Acts::InterpolatedBFieldMap::FieldMapper<3, 3> ACTSTrackingGeometry::bfield() const
 {
   std::function<size_t(std::array<size_t, 3> binsXYZ,
                        std::array<size_t, 3> nBinsXYZ)> localToGlobalBin = 
@@ -465,7 +465,7 @@ Acts::InterpolatedBFieldMap::FieldMapper<3, 3> PrintSiElements::bfield() const
 
 
 std::shared_ptr<const Acts::ITrackingVolumeBuilder> 
-PrintSiElements::makeVolumeBuilder(const InDetDD::InDetDetectorManager* manager, std::shared_ptr<const Acts::CylinderVolumeHelper> cvh, bool toBeamline)
+ACTSTrackingGeometry::makeVolumeBuilder(const InDetDD::InDetDetectorManager* manager, std::shared_ptr<const Acts::CylinderVolumeHelper> cvh, bool toBeamline)
 {
   std::string managerName = manager->getName();
 
@@ -601,7 +601,7 @@ PrintSiElements::makeVolumeBuilder(const InDetDD::InDetDetectorManager* manager,
 }
 
 void 
-PrintSiElements::writeTrackingGeometry(const Acts::TrackingGeometry& trackingGeometry)
+ACTSTrackingGeometry::writeTrackingGeometry(const Acts::TrackingGeometry& trackingGeometry)
 {
   std::vector<std::string> subDetectors
       = {"Pixel", "SCT", "TRT"};
@@ -647,7 +647,7 @@ PrintSiElements::writeTrackingGeometry(const Acts::TrackingGeometry& trackingGeo
 
 }
 
-StatusCode PrintSiElements::execute() {
+StatusCode ACTSTrackingGeometry::execute() {
   if (m_firstEvent) {
     m_firstEvent = false;
     //ATH_CHECK(printElements("Pixel"));
@@ -658,12 +658,12 @@ StatusCode PrintSiElements::execute() {
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-StatusCode PrintSiElements::finalize() {
+StatusCode ACTSTrackingGeometry::finalize() {
   m_fileout.close();
   return StatusCode::SUCCESS;
 }
 
-std::string PrintSiElements::printTransform(
+std::string ACTSTrackingGeometry::printTransform(
     const Amg::Transform3D& trans) const {
   Amg::Vector3D xyz = trans * origin;
   std::ostringstream ostr;
@@ -684,7 +684,7 @@ std::string PrintSiElements::printTransform(
   return ostr.str();
 }
 
-void PrintSiElements::extractAlphaBetaGamma(const Amg::Transform3D& trans,
+void ACTSTrackingGeometry::extractAlphaBetaGamma(const Amg::Transform3D& trans,
                                             double& alpha, double& beta,
                                             double& gamma) const {
   double siny = trans(0, 2);

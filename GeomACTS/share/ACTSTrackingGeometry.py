@@ -45,25 +45,25 @@ job = AlgSequence()
 
 # Load algorithms
 
-# from InDetDetDescrExample.InDetDetDescrExampleConf import PrintSiElements
+# from InDetDetDescrExample.InDetDetDescrExampleConf import ACTSTrackingGeometry
 
-# job += PrintSiElements()
-#job.PrintSiElements.ModulesOnly = True
-#job.PrintSiElements.ExpandId = True
-#job.PrintSiElements.NominalPosition = True
-#job.PrintSiElements.AlignedPosition = False
-#job.PrintSiElements.FullRotationMatrix = False
-#job.PrintSiElements.OutputFile = "geometry.dat"
-# print job.PrintSiElements
+# job += ACTSTrackingGeometry()
+#job.ACTSTrackingGeometry.ModulesOnly = True
+#job.ACTSTrackingGeometry.ExpandId = True
+#job.ACTSTrackingGeometry.NominalPosition = True
+#job.ACTSTrackingGeometry.AlignedPosition = False
+#job.ACTSTrackingGeometry.FullRotationMatrix = False
+#job.ACTSTrackingGeometry.OutputFile = "geometry.dat"
+# print job.ACTSTrackingGeometry
 
 # include("GeneratorUtils/StdEvgenSetup.py")
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.PoolEvgenInput.set_Off()
 athenaCommonFlags.EvtMax = 1
 
-from GeomACTS.GeomACTSConf import PrintSiElements
+from GeomACTS.GeomACTSConf import ACTSTrackingGeometry
 
-alg = PrintSiElements()
+alg = ACTSTrackingGeometry()
 alg.OutputLevel = DEBUG
 job += alg
 
@@ -84,7 +84,7 @@ simFlags.OptionalUserActionList.addAction('G4UA::VolumeDebuggerTool',['BeginOfRu
 # #--------------------------------------------------------------
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
 #--------------------------------------------------------------
-# job.PrintSiElements.OutputLevel = INFO
+# job.ACTSTrackingGeometry.OutputLevel = INFO
 
 
 # To set global output level use 

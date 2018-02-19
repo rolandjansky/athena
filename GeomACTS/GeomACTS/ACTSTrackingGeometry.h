@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef GeomACTS_PrintSiElements_h
-#define GeomACTS_PrintSiElements_h
+#ifndef GeomACTS_ACTSTrackingGeometry_h
+#define GeomACTS_ACTSTrackingGeometry_h
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -30,9 +30,9 @@ namespace InDetDD {
 }
 
 
-class PrintSiElements : public AthAlgorithm {
+class ACTSTrackingGeometry : public AthAlgorithm {
 public:
-  PrintSiElements (const std::string& name, ISvcLocator* pSvcLocator);
+  ACTSTrackingGeometry (const std::string& name, ISvcLocator* pSvcLocator);
   StatusCode initialize();
   StatusCode execute();
   StatusCode finalize();
@@ -63,4 +63,4 @@ private:
   ServiceHandle<IGeoModelSvc> m_geoModelSvc;
 };
 
-#endif // GeomACTS_PrintSiElements_h
+#endif // GeomACTS_ACTSTrackingGeometry_h

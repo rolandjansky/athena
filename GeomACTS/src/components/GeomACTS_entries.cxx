@@ -22,14 +22,11 @@
     //DECLARE_ALGORITHM( PrintSiElements )
 //}
 
-#include "GeomACTS/ReadSiDetectorElements.h"
-#include "GeomACTS/PrintSiElements.h"
+#include "GeomACTS/ACTSTrackingGeometry.h"
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
-DECLARE_ALGORITHM_FACTORY( ReadSiDetectorElements )
-DECLARE_ALGORITHM_FACTORY( PrintSiElements )
+DECLARE_ALGORITHM_FACTORY( ACTSTrackingGeometry )
 
 DECLARE_FACTORY_ENTRIES(GeomACTS) {
-    DECLARE_ALGORITHM( ReadSiDetectorElements )
-    DECLARE_ALGORITHM( PrintSiElements )
+    DECLARE_ALGORITHM( ACTSTrackingGeometry )
 }
