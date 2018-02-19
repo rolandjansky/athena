@@ -226,7 +226,7 @@ StatusCode EgammaCPTools::setupCalibration() {
         top::check(asg::setProperty(photonIsoSFTool, "ForceDataType", data_type),
                     "Failed to set ForceDataType for " + photonIsoSFName);
         top::check(asg::setProperty(photonIsoSFTool, "IsoKey", isoWP),
-                    "Failed to set IsoWP for " + photonIsoSFName);
+                    "Failed to set IsoKey for " + photonIsoSFName);
         top::check(photonIsoSFTool->initialize(),
                     "Failed to initialize " + photonIsoSFName);
         m_photonIsoSFTools.push_back(photonIsoSFTool);
