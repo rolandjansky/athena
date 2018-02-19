@@ -558,6 +558,15 @@ def setupMenu():
         ['j340_a10t_lcw_jes_60smcINF_j340_a10t_lcw_jes_L1SC111',   'L1_SC111-CJ15', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
         ['j360_a10t_lcw_jes_60smcINF_j360_a10t_lcw_jes_L1SC111',   'L1_SC111-CJ15', [], [PhysicsStream], ['Primary:17000','RATE:SingleJet', 'BW:Jet'], -1],
 
+
+        # ATR-17691 Trimmed large-R jet trigger analysis specific chains with mass cuts
+        ['j370_a10t_lcw_jes_40smcINF_j370_a10t_lcw_jes_L1SC111',   'L1_SC111-CJ15', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j370_a10t_lcw_jes_50smcINF_j370_a10t_lcw_jes_L1SC111',   'L1_SC111-CJ15', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j370_a10t_lcw_jes_60smcINF_j370_a10t_lcw_jes_L1SC111',   'L1_SC111-CJ15', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j380_a10t_lcw_jes_40smcINF_j380_a10t_lcw_jes_L1SC111',   'L1_SC111-CJ15', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['j380_a10t_lcw_jes_50smcINF_j380_a10t_lcw_jes_L1SC111',   'L1_SC111-CJ15', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+
+
         # Trimmed + mass-cut di-jet support triggers (for mass efficiency bootstrap)
         ['2j330_a10t_lcw_jes_L1J100',                       'L1_J100', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
         ['2j330_a10t_lcw_jes_L1HT190-J15.ETA21',            'L1_HT190-J15.ETA21', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
@@ -1717,6 +1726,8 @@ def setupMenu():
         ['g70_loose',                     'L1_EM24VHI', [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
 
         # Rerun mode
+        ['g6_loose',                            'L1_EM3',  [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
+        ['g6_tight_icalotight',                            'L1_EM3',  [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
         ['g10_medium',                    'L1_EM7',   [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
         ['g15_loose_L1EM3',               'L1_EM3',   [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
         ['g20_loose',                     'L1_EM15VH',[], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
@@ -2523,6 +2534,12 @@ def setupMenu():
         ['j85_gsc100_bmv2c1050_split_xe80_mht_L1XE60','L1_XE60',[],[PhysicsStream], ['Primary:20000','RATE:MultiBJet', 'BW:BJet_combined', 'BW:MET'], -1,['serial',-1,['xe80_mht_L1XE60','j85_gsc100_bmv2c1050_split']]],
         ['2j35_gsc45_bmv2c1070_split_xe80_mht_L12J15_XE55','L1_2J15_XE55',[],[PhysicsStream], ['Primary:20000','RATE:MultiBJet', 'BW:BJet_combined', 'BW:MET'], -1,['serial',-1,['xe80_mht','2j35_gsc45_bmv2c1070_split']]],
         ['3j35_bmv2c1077_split_xe60_mht_L13J15.0ETA25_XE40',"L1_3J15.0ETA25_XE40",[],[PhysicsStream], ['Primary:20000','RATE:MultiBJet', 'BW:BJet_combined', 'BW:MET'], -1, ['serial',-1,['xe60_mht','3j35_bmv2c1077_split']]],
+
+
+        # b-jet+MET ATR-17678
+        ['2j35_gsc45_bmv2c1070_split_xe85_pufit_xe50_L12J15_XE55',"L1_2J15_XE55",[],[PhysicsStream], ['RATE:MultiBJet', 'BW:BJet_combined', 'BW:MET'], -1, ['serial',-1,['xe85_pufit','xe50_L12J15_XE55','2j35_gsc45_bmv2c1070_split']]],
+        ['3j35_bmv2c1077_split_xe70_pufit_xe50_L13J15.0ETA25_XE40',"L1_3J15.0ETA25_XE40",[],[PhysicsStream], ['RATE:MultiBJet', 'BW:BJet_combined', 'BW:MET'], -1, ['serial',-1,['xe70_pufit','xe50_L13J15.0ETA25_XE40','3j35_bmv2c1077_split']]],
+        ['j85_gsc100_bmv2c1050_split_xe85_pufit_xe50_L1XE55',"L1_XE55",[],[PhysicsStream], ['RATE:MultiBJet', 'BW:BJet_combined', 'BW:MET'], -1, ['serial',-1,['xe85_pufit','xe50_L1XE55','j85_gsc100_bmv2c1050_split']]],
 
 
 
