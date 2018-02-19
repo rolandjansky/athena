@@ -169,36 +169,36 @@ StatusCode TrigCaloDataAccessSvc::lateInit() { // non-const this thing
   m_nSlots = SG::getNSlots();
 
   // preparing full container list of ROBs - tile will be included soon
-  std::vector<uint32_t> m_vrodid32lar;
-  std::vector<uint32_t> m_vrodid32em;
-  std::vector<uint32_t> m_vrodid32hec;
-  std::vector<uint32_t> m_vrodid32hec0;
-  std::vector<uint32_t> m_vrodid32hec1;
-  std::vector<uint32_t> m_vrodid32hec2;
-  std::vector<uint32_t> m_vrodid32hec3;
-  std::vector<uint32_t> m_vrodid32fcalem;
-  std::vector<uint32_t> m_vrodid32fcalhad;
-  std::vector<uint32_t> m_vrodid32tile;
-  std::vector<uint32_t> m_vrodid32ros; //  for virtual  lar ros in ROBs
-  std::vector<uint32_t> m_vrodid32tros; // for virtual tile ros in ROBs
+  std::vector<uint32_t> vrodid32lar;
+  std::vector<uint32_t> vrodid32em;
+  std::vector<uint32_t> vrodid32hec;
+  std::vector<uint32_t> vrodid32hec0;
+  std::vector<uint32_t> vrodid32hec1;
+  std::vector<uint32_t> vrodid32hec2;
+  std::vector<uint32_t> vrodid32hec3;
+  std::vector<uint32_t> vrodid32fcalem;
+  std::vector<uint32_t> vrodid32fcalhad;
+  std::vector<uint32_t> vrodid32tile;
+  std::vector<uint32_t> vrodid32ros; //  for virtual  lar ros in ROBs
+  std::vector<uint32_t> vrodid32tros; // for virtual tile ros in ROBs
 
   TrigRoiDescriptor tmproi(true);
   // TTEM
-  m_regionSelector->DetROBIDListUint(TTEM,-1,tmproi,m_vrodid32em);
+  m_regionSelector->DetROBIDListUint(TTEM,-1,tmproi,vrodid32em);
   // TTHEC
-  m_regionSelector->DetROBIDListUint(TTHEC,0,tmproi,m_vrodid32hec0);
-  m_regionSelector->DetROBIDListUint(TTHEC,1,tmproi,m_vrodid32hec1);
-  m_regionSelector->DetROBIDListUint(TTHEC,2,tmproi,m_vrodid32hec2);
-  m_regionSelector->DetROBIDListUint(TTHEC,3,tmproi,m_vrodid32hec3);
+  m_regionSelector->DetROBIDListUint(TTHEC,0,tmproi,vrodid32hec0);
+  m_regionSelector->DetROBIDListUint(TTHEC,1,tmproi,vrodid32hec1);
+  m_regionSelector->DetROBIDListUint(TTHEC,2,tmproi,vrodid32hec2);
+  m_regionSelector->DetROBIDListUint(TTHEC,3,tmproi,vrodid32hec3);
   // FCALHAD
-  m_regionSelector->DetROBIDListUint(FCALHAD,-1,tmproi,m_vrodid32fcalhad);
-  m_regionSelector->DetROBIDListUint(FCALEM,-1,tmproi,m_vrodid32fcalem);
-  m_vrodid32lar.insert(m_vrodid32lar.end(),m_vrodid32em.begin(),m_vrodid32em.end());
-  m_vrodid32hec.insert(m_vrodid32hec.end(),m_vrodid32hec0.begin(),m_vrodid32hec0.end());
-  m_vrodid32lar.insert(m_vrodid32lar.end(),m_vrodid32hec.begin(),m_vrodid32hec.end());
-  m_vrodid32lar.insert(m_vrodid32lar.end(),m_vrodid32fcalhad.begin(),m_vrodid32fcalhad.end());
-  m_vrodid32lar.insert(m_vrodid32lar.end(),m_vrodid32fcalem.begin(),m_vrodid32fcalem.end());
-  m_vrodid32fullDet.insert(m_vrodid32fullDet.end(), m_vrodid32lar.begin(), m_vrodid32lar.end() );
+  m_regionSelector->DetROBIDListUint(FCALHAD,-1,tmproi,vrodid32fcalhad);
+  m_regionSelector->DetROBIDListUint(FCALEM,-1,tmproi,vrodid32fcalem);
+  vrodid32lar.insert(vrodid32lar.end(),vrodid32em.begin(),vrodid32em.end());
+  vrodid32hec.insert(vrodid32hec.end(),vrodid32hec0.begin(),vrodid32hec0.end());
+  vrodid32lar.insert(vrodid32lar.end(),vrodid32hec.begin(),vrodid32hec.end());
+  vrodid32lar.insert(vrodid32lar.end(),vrodid32fcalhad.begin(),vrodid32fcalhad.end());
+  vrodid32lar.insert(vrodid32lar.end(),vrodid32fcalem.begin(),vrodid32fcalem.end());
+  m_vrodid32fullDet.insert(m_vrodid32fullDet.end(), vrodid32lar.begin(), vrodid32lar.end() );
 
   unsigned int nFebs=70;
   unsigned int high_granu = (unsigned int)ceilf(m_vrodid32fullDet.size()/((float)nFebs) );
