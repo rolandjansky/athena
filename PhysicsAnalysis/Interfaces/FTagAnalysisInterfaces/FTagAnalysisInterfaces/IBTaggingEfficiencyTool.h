@@ -24,7 +24,7 @@
 
 #include "CalibrationDataInterface/CalibrationDataInterfaceROOT.h"
 
-class IBTaggingEfficiencyTool : virtual public asg::IAsgTool {
+class IBTaggingEfficiencyTool : virtual public CP::ISystematicsTool {
 
   /// Declare the interface that the class provides
   ASG_TOOL_INTERFACE( IBTagEfficiencyTool )
@@ -37,33 +37,33 @@ class IBTaggingEfficiencyTool : virtual public asg::IAsgTool {
 
   virtual CP::CorrectionCode getEfficiency( const xAOD::Jet & jet,
 					    float & eff) const=0;
-  
+
   virtual CP::CorrectionCode getInefficiency( const xAOD::Jet & jet,
 					      float & eff) const=0;
-  
+
   virtual CP::CorrectionCode getInefficiencyScaleFactor( const xAOD::Jet & jet,
 							float & sf) const=0;
-  
+
   virtual CP::CorrectionCode getMCEfficiency( const xAOD::Jet & jet,
 					      float & eff) const=0;
 
   // utility methods
   virtual const std::map<CP::SystematicVariation, std::vector<std::string> > listSystematics() const = 0;
-  // 
+  //
   virtual std::string getTaggerName() const = 0;
   //
   virtual std::string getOperatingPoint() const = 0;
   //
   virtual std::string getJetAuthor() const = 0;
-  
+
   virtual CP::SystematicCode applySystematicVariation(const CP::SystematicSet & set) = 0;
-  // 
+  //
   virtual CP::SystematicSet affectingSystematics() const = 0;
   //
   virtual CP::SystematicSet recommendedSystematics() const = 0;
   //
   virtual bool isAffectedBySystematic(const CP::SystematicVariation & systematic) const = 0;
-  
+
   virtual bool setMapIndex(const std::string& flavour, unsigned int index) = 0;
   // virtual bool setMapIndex(const std::string& flavour, const std::string & type) = 0;
 
