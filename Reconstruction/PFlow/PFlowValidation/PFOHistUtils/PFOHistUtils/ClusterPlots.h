@@ -32,6 +32,13 @@ namespace PFO {
      TH1* m_Cluster_time;
      TH1* m_Cluster_clusterSize;
 
+     TH1* m_Cluster_eta_lowpt;
+     TH1* m_Cluster_pt_interval;
+     TH1* m_Cluster_pt_zoom;
+
+     TH1* m_Cluster_eSample_EM;
+     TH1* m_Cluster_eSample_HAD;
+
      void initializePlots();
      std::string m_sClusterContainerName;
 
