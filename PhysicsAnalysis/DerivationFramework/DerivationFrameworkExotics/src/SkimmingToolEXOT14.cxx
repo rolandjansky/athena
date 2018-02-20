@@ -10,30 +10,24 @@
 #include <string>
 
 #include "CLHEP/Units/SystemOfUnits.h"
-
 #include "xAODEventInfo/EventInfo.h"
-// #include "xAODTracking/TrackingPrimitives.h"
-
-// #include "JetCalibTools/JetCalibrationTool.h"
-
 
 // Constructor
 DerivationFramework::SkimmingToolEXOT14::SkimmingToolEXOT14(const std::string& t,
-							    const std::string& n,
-							    const IInterface* p) : 
-  AthAlgTool(t, n, p),
-  m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool"),
-  m_JESTool("JetCalibrationTool/m_JESTool"),
-  n_tot(0),
-  n_passGRL(0),
-  n_passLArError(0),
-  n_passTrigger(0),
-  n_passPreselect(0),
-  n_passJetPts(0),
-  n_passJetsDEta(0),
-  n_passDiJetMass(0),
-  n_passJetsDPhi(0),
-  n_pass(0)
+ const std::string& n,
+ const IInterface* p) :
+AthAlgTool(t, n, p),
+m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool"),
+n_tot(0),
+n_passGRL(0),
+n_passLArError(0),
+n_passTrigger(0),
+n_passPreselect(0),
+n_passJetPts(0),
+n_passJetsDEta(0),
+n_passDiJetMass(0),
+n_passJetsDPhi(0),
+n_pass(0)
 {
 
   declareInterface<DerivationFramework::ISkimmingTool>(this);
@@ -52,7 +46,7 @@ DerivationFramework::SkimmingToolEXOT14::SkimmingToolEXOT14(const std::string& t
   declareProperty("GoodRunList",           m_goodRunList = "");
 
   declareProperty("DefaultTrigger",        m_defaultTrigger = "HLT_xe100");
-  declareProperty("Triggers",              m_triggers = std::vector<std::string>()); 
+  declareProperty("Triggers",              m_triggers = std::vector<std::string>());
 
   declareProperty("MinimumJetPt",          m_minJetPt = 25*CLHEP::GeV);
   declareProperty("MaxEta",                m_maxEta = 4.8);
@@ -84,10 +78,10 @@ DerivationFramework::SkimmingToolEXOT14::SkimmingToolEXOT14(const std::string& t
   e_DiJetMass = 0;
   e_JetsDPhi = 999;
 }
-  
+
 // Destructor
 DerivationFramework::SkimmingToolEXOT14::~SkimmingToolEXOT14() {
-}  
+}
 
 // Athena initialize and finalize
 StatusCode DerivationFramework::SkimmingToolEXOT14::initialize()
@@ -102,14 +96,6 @@ StatusCode DerivationFramework::SkimmingToolEXOT14::initialize()
   }
   if (!m_triggers.size()) m_triggers.push_back(m_defaultTrigger);
   ATH_MSG_INFO("Retrieved tool: " << m_trigDecisionTool);
-  ////////////////////////////
-  
-
-  ////////////////////////////
-  // jet energy calibration
-  m_JESTool.setTypeAndName("JetCalibrationTool/m_JESTool");
-  CHECK( m_JESTool.retrieve() ); //optional, just forces initializing the tool here instead of at first use
-  ATH_MSG_INFO("Retrieved tool: " << m_JESTool);
   ////////////////////////////
 
 
@@ -137,39 +123,35 @@ StatusCode DerivationFramework::SkimmingToolEXOT14::finalize()
 // The filter itself
 bool DerivationFramework::SkimmingToolEXOT14::eventPassesFilter() const
 {
-
   n_tot++;
 
   bool writeEvent(false);
 
   const xAOD::EventInfo *eventInfo(0);
   ATH_CHECK(evtStore()->retrieve(eventInfo));
-  m_isMC = eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION);   
+  m_isMC = eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION);
 
-  // int *leading    = new int(0);
-  // if (!evtStore()->contains<int>("leading"))    CHECK(evtStore()->record(leading,    "leading"));
-
+  ATH_MSG_DEBUG("\n\n--------- Event Number = " << eventInfo->eventNumber() << "---------\n");
   if (!SubcutGoodRunList() && m_reqGRL      ) return false;
   if (!SubcutLArError()    && m_reqLArError ) return false;
   if (!SubcutTrigger()     && m_reqTrigger  ) return false;
 
   SubcutPreselect();
-  if (!m_reqPreselection) writeEvent = true;	    
+  if (!m_reqPreselection) writeEvent = true;
 
-  // There *must* be two jets for the remaining 
+  // There *must* be two jets for the remaining
   // pieces, but you can still save the event...
   if (e_passPreselect) {
-
-    bool passDiJets(true);     
+    bool passDiJets(true);
     if (!SubcutJetPts()        && m_reqJetPts   ) passDiJets = false;
     if (!SubcutJetDEta()       && m_reqJetsDEta ) passDiJets = false;
     if (!SubcutDijetMass()     && m_reqDiJetMass) passDiJets = false;
     if (!SubcutJetDPhi()       && m_reqJetsDPhi ) passDiJets = false;
-    if (passDiJets) writeEvent = true; 
+    if (passDiJets) writeEvent = true;
   }
 
   if (!writeEvent) return false;
-  
+
   n_pass++;
   return true;
 
@@ -180,7 +162,7 @@ bool DerivationFramework::SkimmingToolEXOT14::SubcutGoodRunList() const {
   // Placeholder
 
   e_passGRL = true;
-  
+
   if (e_passGRL) n_passGRL++;
   return e_passGRL;
 
@@ -190,10 +172,10 @@ bool DerivationFramework::SkimmingToolEXOT14::SubcutLArError() const {
 
   // Retrieve EventInfo
   const xAOD::EventInfo *eventInfo(0);
-  ATH_CHECK(evtStore()->retrieve(eventInfo)); 
+  ATH_CHECK(evtStore()->retrieve(eventInfo));
 
   e_passLArError = !(eventInfo->errorState(xAOD::EventInfo::LAr) == xAOD::EventInfo::Error);
-  
+
   if (e_passLArError) n_passLArError++;
   return e_passLArError;
 
@@ -209,10 +191,10 @@ bool DerivationFramework::SkimmingToolEXOT14::SubcutTrigger() const {
   for (unsigned int i = 0; i < m_triggers.size(); i++) {
     bool thisTrig = m_trigDecisionTool->isPassed(m_triggers.at(i));
     eventInfo->auxdecor< bool >(TriggerVarName(m_triggers.at(i))) = thisTrig;
-    // ATH_MSG_INFO("TRIGGER = " << m_triggers.at(i) <<  " -->> " << thisTrig);
+    ATH_MSG_DEBUG("TRIGGER = " << m_triggers.at(i) <<  " -->> " << thisTrig);
     e_passTrigger |= thisTrig;
   }
-  
+
   //  temporary pass-through of trigger cut for MC
   if (m_isMC) e_passTrigger = true;
 
@@ -223,13 +205,15 @@ bool DerivationFramework::SkimmingToolEXOT14::SubcutTrigger() const {
 
 bool DerivationFramework::SkimmingToolEXOT14::SubcutPreselect() const {
 
+  const xAOD::EventInfo *eventInfo(0);
+  ATH_CHECK(evtStore()->retrieve(eventInfo));
+
   // xAOD::TStore store;
-  const xAOD::JetContainer *jets(0); 
+  const xAOD::JetContainer *jets(0);
   ATH_CHECK(evtStore()->retrieve(jets, m_jetSGKey));
   xAOD::JetContainer::const_iterator jet_itr(jets->begin());
   xAOD::JetContainer::const_iterator jet_end(jets->end());
 
-  xAOD::Jet* jetC = 0; // new xAOD::Jet();
   j1TLV.SetPtEtaPhiE(0, 0, 0, 0);
   j2TLV.SetPtEtaPhiE(0, 0, 0, 0);
 
@@ -237,28 +221,27 @@ bool DerivationFramework::SkimmingToolEXOT14::SubcutPreselect() const {
   jFirst.SetPtEtaPhiE(0,0,0,0); //Just take the first jet that passes as a reference
   bool filledFirstJet=false;
 
+  e_JetsDEta = 0;
+  e_DiJetMass = 0;
+  e_JetsDPhi = 999;
+
   for(int i = 0; jet_itr != jet_end; ++jet_itr, ++i) {
 
-    jetC = 0;
-    CP::CorrectionCode cc = m_JESTool->calibratedCopy(**jet_itr, jetC);
-
-    if (abs(jetC->eta()) > m_maxEta) { delete jetC; continue; }
-    // ATH_MSG_INFO("jet uncalib=" << (*jet_itr)->pt() << "   calib=" << jetC->pt());
-
-    if (jetC->pt() > j1TLV.Pt()) {
+    if ((*jet_itr)->pt() > j1TLV.Pt()) {
 
       j2TLV = j1TLV;
-      j1TLV.SetPtEtaPhiE(jetC->pt(), jetC->eta(), jetC->phi(), jetC->e());
+      j1TLV.SetPtEtaPhiE((*jet_itr)->pt(), (*jet_itr)->eta(), (*jet_itr)->phi(), (*jet_itr)->e());
 
-    } else if (jetC->pt() > j2TLV.Pt()) {
+    } else if ((*jet_itr)->pt() > j2TLV.Pt()) {
 
-      j2TLV.SetPtEtaPhiE(jetC->pt(), jetC->eta(), jetC->phi(), jetC->e());
+      j2TLV.SetPtEtaPhiE((*jet_itr)->pt(), (*jet_itr)->eta(), (*jet_itr)->phi(), (*jet_itr)->e());
     }
-    
-    if(filledFirstJet){
+
+    // Compute DEta, Mjj, Dphi for jets above a certain pt
+    if(filledFirstJet && (*jet_itr)->pt() > 40000){
       //The first time through, this is always false so it won't be entered
       TLorentzVector e_tmp; //setup a temporary 4-vector
-      e_tmp.SetPtEtaPhiE(jetC->pt(), jetC->eta(), jetC->phi(), jetC->e());
+      e_tmp.SetPtEtaPhiE((*jet_itr)->pt(), (*jet_itr)->eta(), (*jet_itr)->phi(), (*jet_itr)->e());
       //compute variables
       float tmpDEta = fabs(jFirst.Eta()-e_tmp.Eta());
       float tmpJetMass = (jFirst+e_tmp).M();
@@ -271,11 +254,9 @@ bool DerivationFramework::SkimmingToolEXOT14::SubcutPreselect() const {
     }
 
     if(!filledFirstJet){
-      jFirst.SetPtEtaPhiE(jetC->pt(), jetC->eta(), jetC->phi(), jetC->e());
-      filledFirstJet=true;//Now we filled the jet, so say so
+      jFirst.SetPtEtaPhiE((*jet_itr)->pt(), (*jet_itr)->eta(), (*jet_itr)->phi(), (*jet_itr)->e());
+      if((*jet_itr)->pt() > 40000) filledFirstJet=true;//Now we filled the jet, so say so
     }
-
-    delete jetC;
   }
 
   // save this for this code.
@@ -292,8 +273,6 @@ bool DerivationFramework::SkimmingToolEXOT14::SubcutPreselect() const {
 
 bool DerivationFramework::SkimmingToolEXOT14::SubcutJetPts() const {
 
-  // ATH_MSG_INFO("j1_pt=" << j1TLV.Pt() << "  min=" << m_leadingJetPt);
-  // ATH_MSG_INFO("j2_pt=" << j2TLV.Pt() << "  min=" << m_subleadingJetPt);
 
   e_passJetPts =  (!m_leadingJetPt    || j1TLV.Pt() > m_leadingJetPt);
   e_passJetPts &= (!m_subleadingJetPt || j2TLV.Pt() > m_subleadingJetPt);
@@ -305,8 +284,7 @@ bool DerivationFramework::SkimmingToolEXOT14::SubcutJetPts() const {
 
 bool DerivationFramework::SkimmingToolEXOT14::SubcutJetDEta() const {
 
-  //e_JetsDEta = fabs(j1TLV.Eta() - j2TLV.Eta());
-  //ATH_MSG_INFO("deta=" << e_JetsDEta << "  min=" << m_etaSeparation);
+  ATH_MSG_DEBUG("deta=" << e_JetsDEta << "  min=" << m_etaSeparation);
 
   e_passJetsDEta = e_JetsDEta > m_etaSeparation;
 
@@ -317,8 +295,7 @@ bool DerivationFramework::SkimmingToolEXOT14::SubcutJetDEta() const {
 
 bool DerivationFramework::SkimmingToolEXOT14::SubcutDijetMass() const {
 
-  //e_DiJetMass = (j1TLV + j2TLV).M();
-  // ATH_MSG_INFO("mass=" << e_DiJetMass << "  min=" << m_dijetMass);
+  ATH_MSG_DEBUG("mass=" << e_DiJetMass << "  min=" << m_dijetMass);
 
   e_passDiJetMass = e_DiJetMass > m_dijetMass;
 
@@ -329,8 +306,7 @@ bool DerivationFramework::SkimmingToolEXOT14::SubcutDijetMass() const {
 
 bool DerivationFramework::SkimmingToolEXOT14::SubcutJetDPhi() const {
 
-  //e_JetsDPhi = fabs(j1TLV.DeltaPhi(j2TLV));
-  // ATH_MSG_INFO("dphi=" << e_JetsDPhi << "  max=" << m_jetDPhi);
+  ATH_MSG_DEBUG("dphi=" << e_JetsDPhi << "  max=" << m_jetDPhi);
 
   e_passJetsDPhi = e_JetsDPhi < m_jetDPhi;
 
