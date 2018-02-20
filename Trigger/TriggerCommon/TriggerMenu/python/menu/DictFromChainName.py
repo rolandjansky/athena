@@ -32,7 +32,7 @@ class DictFromChainName(object):
         m_chainName = chainInfo[0]
 
         # check if name is in principle ok - no forbidden characters
-        assert len(re.findall(r"[^A-Za-z0-9_.]", m_chainName))==0, "Forbidden characters in chain name "+m_chainName
+        assert len(re.findall(r"[^A-Za-z0-9_.-]", m_chainName))==0, "Forbidden characters in chain name "+m_chainName
 
         m_L1item = chainInfo[1]
         m_L1items_chainParts = chainInfo[2]
