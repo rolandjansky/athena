@@ -12,6 +12,8 @@ __author__  = 'Moritz Backes & Catrin Bernius & Joerg Stelzer'
 __version__=""
 __doc__="Obtaining Dictionaries from Chain Names"
 
+import re 
+
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
 logDict = logging.getLogger('TriggerMenu.menu.DictFromChainName')
