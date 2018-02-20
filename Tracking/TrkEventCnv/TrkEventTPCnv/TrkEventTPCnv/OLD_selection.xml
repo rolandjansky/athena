@@ -52,6 +52,8 @@
  <class name="std::vector<Trk::CylinderBounds_p1>" />
  <class name="Trk::DiamondBounds_p1" />
  <class name="std::vector<Trk::DiamondBounds_p1>" />
+ <class name="Trk::RotatedDiamondBounds_p1" />
+ <class name="std::vector<Trk::RotatedDiamondBounds_p1>" />
  <class name="Trk::DiscBounds_p1" />
  <class name="std::vector<Trk::DiscBounds_p1>" />
  <class name="Trk::RectangleBounds_p1" />

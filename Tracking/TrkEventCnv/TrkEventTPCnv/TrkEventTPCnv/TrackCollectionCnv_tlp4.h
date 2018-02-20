@@ -30,6 +30,7 @@
 #include "TrkEventTPCnv/TrkSurfaces/SurfaceCnv_p1.h"                 
 #include "TrkEventTPCnv/TrkSurfaces/CylinderBoundsCnv_p1.h"          
 #include "TrkEventTPCnv/TrkSurfaces/DiamondBoundsCnv_p1.h"           
+#include "TrkEventTPCnv/TrkSurfaces/RotatedDiamondBoundsCnv_p1.h"           
 #include "TrkEventTPCnv/TrkSurfaces/DiscBoundsCnv_p1.h"              
 #include "TrkEventTPCnv/TrkSurfaces/RectangleBoundsCnv_p1.h"         
 #include "TrkEventTPCnv/TrkSurfaces/TrapezoidBoundsCnv_p1.h"         
@@ -103,6 +104,7 @@ protected:
   SurfaceCnv_p1                     m_surfacesCnv;
   CylinderBoundsCnv_p1              m_cylinderBoundsCnv;
   DiamondBoundsCnv_p1               m_diamondBoundsCnv;
+  RotatedDiamondBoundsCnv_p1        m_rotatedDiamondBoundsCnv;
   DiscBoundsCnv_p1                  m_discBoundsCnv;
   RectangleBoundsCnv_p1             m_rectangleBoundsCnv;
   TrapezoidBoundsCnv_p1             m_trapesoidBoundsCnv;
