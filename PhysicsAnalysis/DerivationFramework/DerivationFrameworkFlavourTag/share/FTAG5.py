@@ -30,7 +30,21 @@ from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import (
 # flavor tagging
 from DerivationFrameworkFlavourTag.HbbCommon import addVRJets
 from DerivationFrameworkFlavourTag import BTaggingContent as bvars
-from DerivationFrameworkFlavourTag.JSSVariables import JSSVariables
+from DerivationFrameworkJetEtMiss.JSSVariables import JSSHighLevelVariables
+
+#====================================================================
+# SET UP STREAM
+#====================================================================
+
+# The base name (DAOD_FTAG5 here) must match the string in
+streamName = derivationFlags.WriteDAOD_FTAG5Stream.StreamName
+fileName   = buildFileName( derivationFlags.WriteDAOD_FTAG5Stream )
+FTAG5Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+# Only events that pass the filters listed below are written out.
+# Name must match that of the kernel above
+# AcceptAlgs  = logical OR of filters
+# RequireAlgs = logical AND of filters
+FTAG5Stream.AcceptAlgs(["FTAG5Kernel"])
 
 
 #====================================================================
@@ -44,6 +58,29 @@ FTAG5StringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(
 
 ToolSvc += FTAG5StringSkimmingTool
 print FTAG5StringSkimmingTool
+
+#=====================================================================
+# Thinning tools
+#=====================================================================
+
+FTAG5ThinningHelper = ThinningHelper( "FTAG5ThinningHelper" )
+FTAG5ThinningHelper.TriggerChains = ''
+FTAG5ThinningHelper.AppendToStream( FTAG5Stream )
+
+
+from DerivationFrameworkFlavourTag.DerivationFrameworkFlavourTagConf import (
+    DerivationFramework__HbbTrackThinner as HbbThinner )
+FTAG5HbbThinningTool = HbbThinner(
+    name = "FTAG5HbbThinningTool",
+    thinningService = FTAG5ThinningHelper.ThinningSvc(),
+    largeJetPtCut = 200e3,
+    largeJetEtaCut = 2.1,
+    smallJetPtCut = 7e3,
+    nLeadingSubjets = 3,
+    addConstituents = True,
+    addConeAssociated = True)
+ToolSvc += FTAG5HbbThinningTool
+print FTAG5HbbThinningTool
 
 #====================================================================
 # TRUTH SETUP
@@ -129,23 +166,14 @@ for jc in OutputJets["FTAG5"]:
 FTAG5Seq += CfgMgr.DerivationFramework__DerivationKernel(
     "FTAG5Kernel",
     SkimmingTools = [FTAG5StringSkimmingTool],
+    ThinningTools = [FTAG5HbbThinningTool],
     AugmentationTools = []
 )
 
 
 #====================================================================
-# SET UP STREAM
+# Add slimming tools
 #====================================================================
-
-# The base name (DAOD_FTAG5 here) must match the string in
-streamName = derivationFlags.WriteDAOD_FTAG5Stream.StreamName
-fileName   = buildFileName( derivationFlags.WriteDAOD_FTAG5Stream )
-FTAG5Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-# Only events that pass the filters listed below are written out.
-# Name must match that of the kernel above
-# AcceptAlgs  = logical OR of filters
-# RequireAlgs = logical AND of filters
-FTAG5Stream.AcceptAlgs(["FTAG5Kernel"])
 
 FTAG5SlimmingHelper = SlimmingHelper("FTAG5SlimmingHelper")
 
@@ -153,12 +181,12 @@ fatJetCollection = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
 subJetCollection = "AntiKtVR30Rmax4Rmin02TrackJets"
 
 FTAG5SlimmingHelper.SmartCollections = [
-    "Electrons","Muons",
+    "Muons",
     "InDetTrackParticles",
     "BTagging_AntiKtVR30Rmax4Rmin02Track_expert",
     fatJetCollection]
 
-jssVariables = ['.'.join([fatJetCollection] + JSSVariables) ]
+jssVariables = ['.'.join([fatJetCollection] + JSSHighLevelVariables) ]
 FTAG5SlimmingHelper.ExtraVariables += jssVariables
 
 FTAG5SlimmingHelper.ExtraVariables += [
@@ -177,10 +205,5 @@ FTAG5SlimmingHelper.IncludeEGammaTriggerContent = False
 FTAG5SlimmingHelper.IncludeJetTriggerContent = False
 FTAG5SlimmingHelper.IncludeEtMissTriggerContent = False
 FTAG5SlimmingHelper.IncludeBJetTriggerContent = False
-
-#FTAG5 TrigNav Thinning
-FTAG5ThinningHelper = ThinningHelper( "FTAG5ThinningHelper" )
-FTAG5ThinningHelper.TriggerChains = ''
-FTAG5ThinningHelper.AppendToStream( FTAG5Stream )
 
 FTAG5SlimmingHelper.AppendContentToStream(FTAG5Stream)
