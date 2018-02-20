@@ -257,9 +257,17 @@ int Prompt::Def::RegisterAllVars()
   result += RegisterVar( ip3_cu,          "ip3_cu");
   result += RegisterVar( EtTopoCone20Rel, "EtTopoCone20Rel");
   result += RegisterVar( EtTopoCone30Rel, "EtTopoCone30Rel");
+  result += RegisterVar( TopoEtCone30Rel, "TopoEtCone30Rel");
   result += RegisterVar( PtVarCone30Rel,  "PtVarCone30Rel");
   result += RegisterVar( DRlj,            "DRlj");
   result += RegisterVar( LepJetPtFrac,    "LepJetPtFrac");
+  result += RegisterVar( PtFrac,          "PtFrac");
+  result += RegisterVar( PtRel,           "PtRel");
+  result += RegisterVar( DL1mu,           "DL1mu");
+  result += RegisterVar( rnnip,           "rnnip");
+  result += RegisterVar( MV2c10rnn,       "MV2c10rnn");
+  result += RegisterVar( SV1,             "SV1");
+  result += RegisterVar( JetF,            "JetF");
   
   return result;
 }

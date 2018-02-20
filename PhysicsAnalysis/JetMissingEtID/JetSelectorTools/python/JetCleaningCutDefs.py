@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 ##=============================================================================
 ## Name:        JetCleaningCutDefs
@@ -9,11 +9,6 @@
 ## Description: Define the cut values for jet cleaning
 ##
 ##=============================================================================
-
-# import the needed Reflex and ROOT stuff
-import PyCintex
-PyCintex.Cintex.Enable()
-import ROOT
 
 # Import a needed helper
 from PATCore.HelperUtils import GetTool

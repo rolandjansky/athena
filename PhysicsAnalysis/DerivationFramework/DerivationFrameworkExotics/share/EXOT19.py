@@ -125,11 +125,16 @@ streamName = derivationFlags.WriteDAOD_EXOT19Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_EXOT19Stream )
 EXOT19Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 EXOT19Stream.AcceptAlgs(["EXOT19Kernel"])
-# Thinning 
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="EXOT19ThinningSvc", outStreams=[evtStream] )
+
+#=====================
+# TRIGGER NAV THINNING
+#=====================
+#Establish the thinning helper
+from DerivationFrameworkCore.ThinningHelper import ThinningHelper
+EXOT19ThinningHelper = ThinningHelper("EXOT19ThinningHelper")
+#trigger navigation content
+EXOT19ThinningHelper.TriggerChains = 'HLT_e.*|HLT_2e.*'
+EXOT19ThinningHelper.AppendToStream( EXOT19Stream )
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
@@ -146,6 +151,4 @@ if globalflags.DataSource()=='geant4':
   EXOT19SlimmingHelper.ExtraVariables += EXOT19ExtraVariablesTruth
 
 EXOT19SlimmingHelper.IncludeEGammaTriggerContent = True
-EXOT19SlimmingHelper.IncludeMuonTriggerContent = True
 EXOT19SlimmingHelper.AppendContentToStream(EXOT19Stream)
-

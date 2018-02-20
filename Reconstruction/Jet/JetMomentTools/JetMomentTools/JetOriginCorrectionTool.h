@@ -46,6 +46,7 @@ public:
   std::string m_eInfoName;
 
   bool m_onlyAssignPV;
+  bool m_doForceEMScale;
 };
 
 #endif

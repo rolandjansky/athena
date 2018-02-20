@@ -58,7 +58,7 @@ class ThinningSvc( _ThinningSvc ):
                     msg.warning('could not infer clid-name for: "%s"', s)
                     clid = None
             return clid
-        
+
         from PyUtils.Decorators import memoize
         @memoize
         def _retrieve_items_from_input():
@@ -71,6 +71,8 @@ class ThinningSvc( _ThinningSvc ):
             items = _pf.extract_items(svcMgr.EventSelector.InputCollections[0])
             input_items = []
             for item in items:
+                if item[0] is None:
+                    continue
                 clid = _clid_from_string(item[0])
                 if clid is None:
                     msg.warning('could not infer clid for: "%s"', item[0])

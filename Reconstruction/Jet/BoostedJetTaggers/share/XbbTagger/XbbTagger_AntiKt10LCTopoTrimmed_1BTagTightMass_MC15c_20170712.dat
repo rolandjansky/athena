@@ -17,6 +17,8 @@
 # - only valid with combined mass calibration
 ####################################################################################
 
+DecorationName: XbbTagOneTagMassTight
+
 NumBTags                1
 BTagCut                 0.3706
 JetMassMin              -5316.24/x-0.0080948*x+124.69

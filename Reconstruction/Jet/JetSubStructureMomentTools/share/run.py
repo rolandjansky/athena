@@ -231,17 +231,17 @@ if 1:
   subjetfinder.SubjetRecorder = subjetrecorder
   jetrec2.JetModifiers += [subjetfinder]
  
-  from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import BosonTagTool
-  ToolSvc += BosonTagTool("bosontag")
-  bosontag = ToolSvc.bosontag
-  bosontag.Debug = True
-  jetrec2.JetModifiers += [bosontag]
+  #from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import BosonTagTool
+  #ToolSvc += BosonTagTool("bosontag")
+  #bosontag = ToolSvc.bosontag
+  #bosontag.Debug = True
+  #jetrec2.JetModifiers += [bosontag]
 
-  from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import BoostedXbbTagTool
-  ToolSvc += BoostedXbbTagTool("boostedxbbtag")
-  boostedxbbtag = ToolSvc.boostedxbbtag
-  boostedxbbtag.Debug = True
-  jetrec2.JetModifiers += [boostedxbbtag]
+  #from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import BoostedXbbTagTool
+  #ToolSvc += BoostedXbbTagTool("boostedxbbtag")
+  #boostedxbbtag = ToolSvc.boostedxbbtag
+  #boostedxbbtag.Debug = True
+  #jetrec2.JetModifiers += [boostedxbbtag]
 
 # Dump copied jets.
 if 1:
@@ -272,8 +272,8 @@ if 1:
   jdmp2.FloatMoments += ["Charge"]
   #jdmp2.FloatMoments += ["Volatility"]
   jdmp2.FloatMoments += ["ShowerDeconstructionW", "ShowerDeconstructionTop"]
-  jdmp2.IntMoments += ["BosonTag"]
-  jdmp2.IntMoments += ["BoostedXbbTag"]
+  #jdmp2.IntMoments += ["BosonTag"]
+  #jdmp2.IntMoments += ["BoostedXbbTag"]
   jdmp2.FloatVectorMoments += ["SubjetKt30_e"]
  # jdmp2.FourVectorMoments = ["ActiveArea4vec"]
   jdmp2.AssociatedParticleVectors += ["Kt3Subjets"]

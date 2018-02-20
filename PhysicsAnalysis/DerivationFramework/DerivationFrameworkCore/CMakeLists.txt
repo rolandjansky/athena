@@ -21,11 +21,11 @@ atlas_add_library( DerivationFrameworkCoreLib
                    src/*.cxx
                    PUBLIC_HEADERS DerivationFrameworkCore
                    LINK_LIBRARIES AthenaBaseComps GaudiKernel StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES AthenaKernel DataModel SGTools )
+                   PRIVATE_LINK_LIBRARIES AthenaKernel DataModel SGTools AsgAnalysisInterfaces AthAnalysisBaseCompsLib GoodRunsListsLib PathResolver )
 
 atlas_add_component( DerivationFrameworkCore
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel AthenaKernel DataModel SGTools StoreGateLib SGtests DerivationFrameworkCoreLib )
+                     LINK_LIBRARIES AthenaBaseComps GaudiKernel AthenaKernel DataModel SGTools StoreGateLib SGtests DerivationFrameworkCoreLib AsgAnalysisInterfaces )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

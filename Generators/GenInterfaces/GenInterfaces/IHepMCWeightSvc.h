@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef GENINTERFACES_IHEPMCWEIGHTSVC_H
-#define GENINTERFACES_IHEPMCWEIGHTSVC_H
+#ifndef EVGENPRODTOOLS_IHEPMCWEIGHTSVC_H
+#define EVGENPRODTOOLS_IHEPMCWEIGHTSVC_H
 
 #include "GaudiKernel/IInterface.h"
 #include <string>

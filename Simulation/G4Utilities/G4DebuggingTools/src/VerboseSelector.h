@@ -9,10 +9,9 @@
 #include <string>
 
 
-#include "G4AtlasInterfaces/ISteppingAction.h"
-#include "G4AtlasInterfaces/IPreTrackingAction.h"
-#include "G4AtlasInterfaces/IPostTrackingAction.h"
-#include "G4AtlasInterfaces/IBeginEventAction.h"
+#include "G4UserSteppingAction.hh"
+#include "G4UserTrackingAction.hh"
+#include "G4UserEventAction.hh"
 #include "AthenaBaseComps/AthMessaging.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -20,7 +19,7 @@
 namespace G4UA{ 
 
 class VerboseSelector: 
-  public AthMessaging, public IBeginEventAction, public ISteppingAction,  public IPreTrackingAction,  public IPostTrackingAction
+  public AthMessaging, public G4UserEventAction, public G4UserSteppingAction, public G4UserTrackingAction
   {
     
   public:
@@ -40,10 +39,10 @@ class VerboseSelector:
     };
 
     VerboseSelector(const Config& config);
-    virtual void processStep(const G4Step*) override;
-    virtual void preTracking(const G4Track*) override;
-    virtual void postTracking(const G4Track*) override;
-    virtual void beginOfEvent(const G4Event*) override;
+    virtual void UserSteppingAction(const G4Step*) override;
+    virtual void PreUserTrackingAction(const G4Track*) override;
+    virtual void PostUserTrackingAction(const G4Track*) override;
+    virtual void BeginOfEventAction(const G4Event*) override;
 
   private:
     typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;

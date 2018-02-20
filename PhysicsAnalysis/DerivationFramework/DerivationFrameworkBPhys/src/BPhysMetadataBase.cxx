@@ -35,7 +35,7 @@
 
 #include "DerivationFrameworkBPhys/BPhysMetadataBase.h"
 #include "xAODMetaData/FileMetaData.h"
-#include "xAODCore/AuxInfoBase.h"
+#include "xAODMetaData/FileMetaDataAuxInfo.h"
 
 namespace DerivationFramework {
 
@@ -112,7 +112,7 @@ namespace DerivationFramework {
     } else {
       // create a FileMetaData object
       auto fm    = std::make_unique< xAOD::FileMetaData >();
-      auto fmAux = std::make_unique< xAOD::AuxInfoBase >();
+      auto fmAux = std::make_unique< xAOD::FileMetaDataAuxInfo >();
       fm->setStore( fmAux.get() );
       
       // fill it
@@ -141,66 +141,67 @@ namespace DerivationFramework {
   }
 #undef SET_VALUES_IMP
   //--------------------------------------------------------------------------
-  std::string BPhysMetadataBase::buildFolderName(std::string fname) const {
+  std::string BPhysMetadataBase::buildFolderName(const std::string& fname) const {
 
+    std::string result = fname;
     if ( m_mdFolderName != "_NONE_" && m_mdFolderName != "" ) {
-      fname += m_mdFolderName;
+      result += m_mdFolderName;
     } else {
       if ( m_derivationName != "_NOSUCHFORMAT_" && m_derivationName != "" ) {
-	fname += m_derivationName;
+        result += m_derivationName;
       } else {
-	// default to the tool's name
-	fname += name();
+        // default to the tool's name
+        result += name();
       }
     }
-    return fname;
+    return result;
   }
   //--------------------------------------------------------------------------
-  void BPhysMetadataBase::recordPropertyI(std::string name, int val) {
+  void BPhysMetadataBase::recordPropertyI(const std::string& name, int val) {
     ATH_MSG_INFO("Calling recordProperty(int)");
     declareProperty(name, m_propInt[name] = val);
   }
   //--------------------------------------------------------------------------
-  void BPhysMetadataBase::recordPropertyD(std::string name, double val) {
+  void BPhysMetadataBase::recordPropertyD(const std::string& name, double val) {
     ATH_MSG_INFO("Calling recordProperty(double)");
     declareProperty(name, m_propDouble[name] = val);
   }
   //--------------------------------------------------------------------------
-  void BPhysMetadataBase::recordPropertyB(std::string name, bool val) {
+  void BPhysMetadataBase::recordPropertyB(const std::string& name, bool val) {
     ATH_MSG_INFO("Calling recordProperty(bool)");
     declareProperty(name, m_propBool[name] = val);
   }
   //--------------------------------------------------------------------------
-  void BPhysMetadataBase::recordPropertyS(std::string name, std::string val) {
+  void BPhysMetadataBase::recordPropertyS(const std::string& name, const std::string& val) {
     ATH_MSG_INFO("Calling recordProperty(string)");
     declareProperty(name, m_propString[name] = val);
   }
   //--------------------------------------------------------------------------
-  void BPhysMetadataBase::recordPropertyVI(std::string name,
-					   std::vector<int> val) {
+  void BPhysMetadataBase::recordPropertyVI(const std::string& name,
+					   const std::vector<int>& val) {
     ATH_MSG_INFO("Calling recordProperty(vector<int>)");
     declareProperty(name, m_propVInt[name] = val);
   }
   //--------------------------------------------------------------------------
-  void BPhysMetadataBase::recordPropertyVD(std::string name,
-					   std::vector<double> val) {
+  void BPhysMetadataBase::recordPropertyVD(const std::string& name,
+					   const std::vector<double>& val) {
     ATH_MSG_INFO("Calling recordProperty(vector<double>)");
     declareProperty(name, m_propVDouble[name] = val);
   }
   //--------------------------------------------------------------------------
-  void BPhysMetadataBase::recordPropertyVB(std::string name,
-					std::vector<bool> val) {
+  void BPhysMetadataBase::recordPropertyVB(const std::string& name,
+					const std::vector<bool>& val) {
     ATH_MSG_INFO("Calling recordProperty(vector<bool>)");
     declareProperty(name, m_propVBool[name] = val);
   }
   //--------------------------------------------------------------------------
-  void BPhysMetadataBase::recordPropertyVS(std::string name,
-					   std::vector<std::string> val) {
+  void BPhysMetadataBase::recordPropertyVS(const std::string& name,
+					   const std::vector<std::string>& val) {
     ATH_MSG_INFO("Calling recordProperty(vector<string>)");
     declareProperty(name, m_propVString[name] = val);
   }
   //--------------------------------------------------------------------------
-  std::string BPhysMetadataBase::vecToString(std::vector<int> v) const {
+  std::string BPhysMetadataBase::vecToString(const std::vector<int>& v) const {
     std::string str("[");
     for (unsigned int i=0; i<v.size(); ++i) {
       str += std::to_string(v[i]);
@@ -210,7 +211,7 @@ namespace DerivationFramework {
     return str;
   }
   //--------------------------------------------------------------------------
-  std::string BPhysMetadataBase::vecToString(std::vector<double> v) const {
+  std::string BPhysMetadataBase::vecToString(const std::vector<double>& v) const {
     std::string str("[");
     for (unsigned int i=0; i<v.size(); ++i) {
       str += std::to_string(v[i]);
@@ -220,7 +221,7 @@ namespace DerivationFramework {
     return str;
   }
   //--------------------------------------------------------------------------
-  std::string BPhysMetadataBase::vecToString(std::vector<bool> v) const {
+  std::string BPhysMetadataBase::vecToString(const std::vector<bool>& v) const {
     std::string str("[");
     for (unsigned int i=0; i<v.size(); ++i) {
       str += std::to_string(v[i]);
@@ -230,7 +231,7 @@ namespace DerivationFramework {
     return str;
   }
   //--------------------------------------------------------------------------
-  std::string BPhysMetadataBase::vecToString(std::vector<std::string> v) const {
+  std::string BPhysMetadataBase::vecToString(const std::vector<std::string>& v) const {
     std::string str("[");
     for (unsigned int i=0; i<v.size(); ++i) {
       str += "'";

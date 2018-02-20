@@ -165,3 +165,4 @@ atlas_add_executable( top-xaod-v2
 				     PathResolver
                                      ${ROOT_LIBRARIES}
                                      TopAnalysis )
+

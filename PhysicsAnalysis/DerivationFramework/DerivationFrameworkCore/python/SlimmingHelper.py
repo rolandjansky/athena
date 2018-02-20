@@ -38,6 +38,8 @@ from DerivationFrameworkCore.CompulsoryContent import *
 from DerivationFrameworkCore.ContentHandler import *
 from DerivationFrameworkCore.ContainersForExpansion import ContainersForExpansion
 from DerivationFrameworkCore.ContainersOnTheFly import ContainersOnTheFly
+from DerivationFrameworkCore.AllVariablesDisallowed import AllVariablesDisallowed
+from DerivationFrameworkCore.FullListOfSmartContainers import FullListOfSmartContainers
 from AthenaCommon.BeamFlags import jobproperties
 from AthenaCommon.GlobalFlags  import globalflags
 import PyUtils.Logging as L
@@ -64,11 +66,6 @@ class lockable_list(list):
                         self.__dict__[name] = value
         def lock(self):
                 self.__dict__["_locked"] = True
-
-###This Include builds some Truth Information needed by the smart slimming list
-if globalflags.DataSource()=='geant4':
-	from DerivationFrameworkMCTruth.MCTruthCommon import *
-
 
 def buildNamesAndTypes():
         from RecExConfig.InputFilePeeker import inputFileSummary
@@ -137,7 +134,12 @@ class SlimmingHelper:
                 allVariablesList = []          
                 # Add all-variable collections
                 if len(self.AllVariables)>0:
+                        formatName = Stream.Name.strip("Stream_DAOD")
                         for item in self.AllVariables:
+                                # Block AllVariables for containers with smart slimming lists, for those formats for which it is disallowed
+                                if (formatName in AllVariablesDisallowed) and (item in FullListOfSmartContainers):
+                                        msg.error("Using AllVariables for a container with a smart slimming list ("+item+") is not permitted for the format "+formatName+" - please use smart slimming and/or ExtraVariables")
+                                        raise RuntimeError("AllVariables not permitted for requested DAOD format")
                                 masterItemList.extend(self.GetWholeContentItems(item))
                 for item in masterItemList:
                         if "Aux." in item:
@@ -187,7 +189,6 @@ class SlimmingHelper:
                 if len(self.SmartCollections)>0:
                         for collection in self.SmartCollections:
                                 masterItemList.extend(self.GetSmartItems(collection))
-                                #masterItemList.extend(self.GetKinematicsItems(collection))
 
                 # Run some basic tests to prevent clashes with CompulsoryContent content                
                 self.CheckList(masterItemList)
@@ -323,17 +324,16 @@ class SlimmingHelper:
         def GetSmartItems(self,collectionName):
                 # Look up what is needed for this container type
                 items = []
+                if collectionName not in FullListOfSmartContainers:
+                        raise RuntimeError("Smart slimming container "+collectionName+" does not exist or does not have a smart slimming list")
                 if collectionName=="Electrons":
                         from DerivationFrameworkEGamma.ElectronsCPContent import ElectronsCPContent
-                        #from DerivationFrameworkCore.ElectronsCPContent import ElectronsCPContent
                         items.extend(ElectronsCPContent)
                 elif collectionName=="Photons":
                         from DerivationFrameworkEGamma.PhotonsCPContent import PhotonsCPContent
-                        #from DerivationFrameworkCore.PhotonsCPContent import PhotonsCPContent
                         items.extend(PhotonsCPContent)
                 elif collectionName=="Muons":
                         from DerivationFrameworkMuons.MuonsCPContent import MuonsCPContent
-#                       from DerivationFrameworkCore.MuonsCPContent import MuonsCPContent
                         items.extend(MuonsCPContent)
                 elif collectionName=="TauJets":
                         from DerivationFrameworkTau.TauJetsCPContent import TauJetsCPContent
@@ -352,10 +352,27 @@ class SlimmingHelper:
                 elif collectionName=="MET_Reference_AntiKt4EMPFlow":
                         from DerivationFrameworkJetEtMiss.MET_Reference_AntiKt4EMPFlowCPContent import MET_Reference_AntiKt4EMPFlowCPContent
                         items.extend(MET_Reference_AntiKt4EMPFlowCPContent)
+                elif collectionName=="AntiKt4TruthJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt4TruthJetsCPContent import AntiKt4TruthJetsCPContent
+                        items.extend(AntiKt4TruthJetsCPContent)
+                elif collectionName=="AntiKt4TruthWZJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt4TruthWZJetsCPContent import AntiKt4TruthWZJetsCPContent
+                        items.extend(AntiKt4TruthWZJetsCPContent)
+                elif collectionName=="AntiKt4TruthDressedWZJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt4TruthDressedWZJetsCPContent import AntiKt4TruthDressedWZJetsCPContent
+                        items.extend(AntiKt4TruthDressedWZJetsCPContent)
+                elif collectionName=="AntiKt2LCTopoJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt2LCTopoJetsCPContent import AntiKt2LCTopoJetsCPContent
+                        #from DerivationFrameworkCore.AntiKt2LCTopoJetsCPContent import AntiKt2LCTopoJetsCPContent
+                        items.extend(AntiKt2LCTopoJetsCPContent)
                 elif collectionName=="AntiKt4LCTopoJets":
                         from DerivationFrameworkJetEtMiss.AntiKt4LCTopoJetsCPContent import AntiKt4LCTopoJetsCPContent
                         #from DerivationFrameworkCore.AntiKt4LCTopoJetsCPContent import AntiKt4LCTopoJetsCPContent
                         items.extend(AntiKt4LCTopoJetsCPContent)
+                elif collectionName=="AntiKt6LCTopoJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt6LCTopoJetsCPContent import AntiKt6LCTopoJetsCPContent
+                        #from DerivationFrameworkCore.AntiKt6LCTopoJetsCPContent import AntiKt6LCTopoJetsCPContent
+                        items.extend(AntiKt6LCTopoJetsCPContent)
                 elif collectionName=="AntiKt4EMTopoJets":
                         from DerivationFrameworkJetEtMiss.AntiKt4EMTopoJetsCPContent import AntiKt4EMTopoJetsCPContent
                         #from DerivationFrameworkCore.AntiKt4EMTopoJetsCPContent import AntiKt4EMTopoJetsCPContent
@@ -374,6 +391,24 @@ class SlimmingHelper:
                         from DerivationFrameworkJetEtMiss.AntiKt4EMPFlowJetsCPContent import AntiKt4EMPFlowJetsCPContent
                         #from DerivationFrameworkCore.AntiKt4EMPFlowJetsCPContent import AntiKt4EMPFlowJetsCPContent
                         items.extend(AntiKt4EMPFlowJetsCPContent)
+                elif collectionName=="AntiKt2LCTopoJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt2LCTopoJetsCPContent import AntiKt2LCTopoJetsCPContent
+                        items.extend(AntiKt2LCTopoJetsCPContent)
+                elif collectionName=="AntiKt3LCTopoJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt3LCTopoJetsCPContent import AntiKt3LCTopoJetsCPContent
+                        items.extend(AntiKt3LCTopoJetsCPContent)
+                elif collectionName=="AntiKt5LCTopoJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt5LCTopoJetsCPContent import AntiKt5LCTopoJetsCPContent
+                        items.extend(AntiKt5LCTopoJetsCPContent)
+                elif collectionName=="AntiKt6LCTopoJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt6LCTopoJetsCPContent import AntiKt6LCTopoJetsCPContent
+                        items.extend(AntiKt6LCTopoJetsCPContent)
+                elif collectionName=="AntiKt7LCTopoJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt7LCTopoJetsCPContent import AntiKt7LCTopoJetsCPContent
+                        items.extend(AntiKt7LCTopoJetsCPContent)
+                elif collectionName=="AntiKt8LCTopoJets":
+                        from DerivationFrameworkJetEtMiss.AntiKt8LCTopoJetsCPContent import AntiKt8LCTopoJetsCPContent
+                        items.extend(AntiKt8LCTopoJetsCPContent)
                 elif collectionName=="BTagging_AntiKt4LCTopo":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
                         items.extend(BTaggingStandardContent("AntiKt4LCTopoJets"))
@@ -392,6 +427,12 @@ class SlimmingHelper:
                 elif collectionName=="BTagging_AntiKt4Track":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
                         items.extend(BTaggingStandardContent("AntiKt4TrackJets"))
+                elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02Track":
+                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
+                        items.extend(BTaggingStandardContent("AntiKtVR30Rmax4Rmin02TrackJets"))
+                elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02Track_expert":
+                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
+                        items.extend(BTaggingExpertContent("AntiKtVR30Rmax4Rmin02TrackJets"))
                 elif collectionName=="InDetTrackParticles":
                         #from DerivationFrameworkInDet.InDetTrackParticlesCPContent import InDetTrackParticlesCPContent
                         from DerivationFrameworkCore.InDetTrackParticlesCPContent import InDetTrackParticlesCPContent

@@ -1,8 +1,7 @@
 #====================================================================
 # BPHY7.py
 # 
-#  
-# Requires the reductionConf flag BPHY7 in Reco_tf.py   
+# https://twiki.cern.ch/twiki/bin/view/AtlasProtected/LfvBphy7 
 #====================================================================
 
 
@@ -101,7 +100,6 @@ triggersToMetadata= ["HLT_2mu10",
                      "HLT_2mu6_bJpsimumu_delayed",
                      "HLT_2mu6_bJpsimumu_Lxy0_delayed",
                      "HLT_2mu6_nomucomb_bPhi",
-                     "HLT_2mu6_nomucomb_bPhi",
                      "HLT_2mu6_nomucomb_mu4_nomucomb_bTau_L12MU6_3MU4",
                      "HLT_3mu4",
                      "HLT_3mu4_bDimu",
@@ -154,24 +152,32 @@ triggersToMetadata= ["HLT_2mu10",
                      "HLT_mu6_mu4_bBmumuxv2_delayed",
                      "HLT_mu6_mu4_bDimu_noinvm_novtx_ss",
                      "HLT_mu6_nomucomb_2mu4_nomucomb_bTau_L1MU6_3MU4",
-                     "HLT_mu6_nomucomb_2mu4_nomucomb_delayed_L1MU6_3MU4" ]
+                     "HLT_mu6_nomucomb_2mu4_nomucomb_delayed_L1MU6_3MU4",
+                     "HLT_mu20_mu6noL1_bTau",
+                     "HLT_2mu6_mu4_bTau_L12MU6_3MU4",
+                     "HLT_mu6_2mu4_bTau_L1MU6_3MU4",
+                     "HLT_mu11_2mu4noL1_bTau_L1MU11_2MU6",
+                     "HLT_mu11_mu6_bTau",
+                     "HLT_mu11_mu6noL1_bTau_L1MU11_2MU6",
+                     "HLT_3mu4_bPhi",
+                     "HLT_mu11_mu6_bPhi",
+                     "HLT_mu11_mu6noL1_bPhi_L1MU11_2MU6",
+                     "HLT_mu11_nomucomb_mu6_nomucomb_bPhi",
+                     "HLT_mu11_nomucomb_mu6noL1_nscan03_L1MU11_2MU6_bPhi",
+                     "HLT_mu11_mu6_bDimu2700" ]
 
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__TriggerCountToMetadata
-BPHY7TriggerCountToMetadata = DerivationFramework__TriggerCountToMetadata( name = "BPHY7TriggerCount",
-                                                                     TriggerList = triggersToMetadata,
-                                                                     FolderName = "BPHY7" )
+BPHY7TriggerCountToMetadata = DerivationFramework__TriggerCountToMetadata(name = "BPHY7TriggerCount",
+                                                                          TriggerList = triggersToMetadata,
+                                                                          FolderName = "BPHY7")
 
 ToolSvc += BPHY7TriggerCountToMetadata
 
 # Additional metadata output
-BPHY7Stream.AddMetaDataItem([ "xAOD::FileMetaData#%s*" %
- 	                              BPHY7TriggerCountToMetadata.FolderName,
- 	                              "xAOD::AuxInfoBase#%s*Aux." %
- 	                              BPHY7TriggerCountToMetadata.FolderName] )
+BPHY7Stream.AddMetaDataItem(["xAOD::FileMetaData#%s*" % BPHY7TriggerCountToMetadata.FolderName,
+                             "xAOD::FileMetaDataAuxInfo#%s*Aux." % BPHY7TriggerCountToMetadata.FolderName] )
 
 #BPHY7Stream.AddMetaDataItem([ "TH1D#%s*" %BPHY7TriggerCountToMetadata.HistogramName ] )
-
-
 
 #====================================================================
 # PRESELECTION for Kernel1 #Added by Matteo
@@ -184,72 +190,78 @@ BPHY7Stream.AddMetaDataItem([ "xAOD::FileMetaData#%s*" %
 #To inhibit triggers one can remove this tool from Kernel1 (look for "BPHY7TriggerSkim")
 #This list is used for the trigger thinning tool
 triggerList = [ "HLT_2mu10",
-		    	"HLT_2mu10_l2msonly",
-		    	"HLT_2mu10_nomucomb",
-		    	"HLT_2mu14",
-			    "HLT_mu50",
-		    	"HLT_2mu14_l2msonly",
-		    	"HLT_2mu14_nomucomb",
-		    	"HLT_2mu6_l2msonly_mu4_l2msonly_L12MU6_3MU4",
-		    	"HLT_2mu6_nomucomb_mu4_nomucomb_L12MU6_3MU4",
-		    	"HLT_mu6_2mu4",
-		    	"HLT_mu6_l2msonly_2mu4_l2msonly_L1MU6_3MU4",
-		    	"HLT_mu6_nomucomb_2mu4_nomucomb_L1MU6_3MU4",
-		    	"HLT_3mu6",
-		    	"HLT_3mu6_msonly",
-		    	"HLT_3mu6_nomucomb",
-		    	"HLT_mu4","HLT_mu6","HLT_mu10","HLT_mu18",
-		    	"HLT_mu14",
-		    	"HLT_mu24",
-			    "HLT_mu24_L1MU15",
-		    	"HLT_2mu4",
-			    "HLT_2mu6",
-			    "HLT_mu20_L1MU15",
-		    	"HLT_mu18_2mu4noL1",
-		    	"HLT_mu18_nomucomb_2mu4noL1",
-		    	"HLT_mu20_2mu4noL1",
-		    	"HLT_mu20_l2idonly_2mu4noL1",
-		    	"HLT_mu20_nomucomb_2mu4noL1",
-		    	"HLT_mu18_mu8noL1",
-		    	"HLT_mu18_nomucomb_mu8noL1",
-		 	    "HLT_mu20_mu8noL1",
-			    "HLT_mu20_l2idonly_2mu4noL1",
-			    "HLT_mu20_nomucomb_mu8noL1",
-		 	    "HLT_mu22_mu8noL1",
-			    "HLT_mu22_l2idonly_2mu4noL1",
-			    "HLT_mu22_nomucomb_mu8noL1",
-			    "HLT_mu22_2mu4noL1",
-			    "HLT_mu22_nomucomb_2mu4noL1",
-				"HLT_mu20_2mu4noL1", "HLT_mu20_mu8noL1",
-				"HLT_mu14_tau25_medium1_tracktwo",
-				"HLT_mu14_tau35_medium1_tracktwo",
-				"HLT_mu14_tau25_medium1_tracktwo_xe50",
-				"HLT_mu14_tau35_medium1_tracktwo_L1TAU20",
-		     	"HLT_mu24_mu8noL1", #Triggers with high Lumi*Efficiency values (missing in the wildcards)
-		        "HLT_mu6_nomucomb_2mu4_nomucomb_delayed_L1MU6_3MU4", 
-		     	"HLT_2mu6_bBmumuxv2_delayed", 
-		     	"HLT_2mu4_bDimu_noinvm_novtx_ss", 
-				"HLT_2mu6_bDimu_noinvm_novtx_ss", 
-				"HLT_mu24_2mu4noL1", 
-		 		"HLT_mu10_mu6_bUpsimumu", 
-		   		"HLT_mu10_mu6_bBmumuxv2", 
-				"HLT_mu10_mu6_bJpsimumu", 
+                "HLT_2mu10_l2msonly",
+                "HLT_2mu10_nomucomb",
+                "HLT_2mu14",
+                "HLT_mu50",
+                "HLT_2mu14_l2msonly",
+                "HLT_2mu14_nomucomb",
+                "HLT_2mu6_l2msonly_mu4_l2msonly_L12MU6_3MU4",
+                "HLT_2mu6_nomucomb_mu4_nomucomb_L12MU6_3MU4",
+                "HLT_mu6_2mu4",
+                "HLT_mu6_l2msonly_2mu4_l2msonly_L1MU6_3MU4",
+                "HLT_mu6_nomucomb_2mu4_nomucomb_L1MU6_3MU4",
+                "HLT_3mu6",
+                "HLT_3mu6_msonly",
+                "HLT_3mu6_nomucomb",
+                "HLT_mu4","HLT_mu6","HLT_mu10","HLT_mu18",
+                "HLT_mu14",
+                "HLT_mu24",
+                "HLT_mu24_L1MU15",
+                "HLT_2mu4",
+                "HLT_2mu6",
+                "HLT_mu20_L1MU15",
+                "HLT_mu18_2mu4noL1",
+                "HLT_mu18_nomucomb_2mu4noL1",
+                "HLT_mu20_2mu4noL1",
+                "HLT_mu20_l2idonly_2mu4noL1",
+                "HLT_mu20_nomucomb_2mu4noL1",
+                "HLT_mu18_mu8noL1",
+                "HLT_mu18_nomucomb_mu8noL1",
+                "HLT_mu20_mu8noL1",
+                "HLT_mu20_l2idonly_2mu4noL1",
+                "HLT_mu20_nomucomb_mu8noL1",
+                "HLT_mu22_mu8noL1",
+                "HLT_mu22_l2idonly_2mu4noL1",
+                "HLT_mu22_nomucomb_mu8noL1",
+                "HLT_mu22_2mu4noL1",
+                "HLT_mu22_nomucomb_2mu4noL1",
+                "HLT_mu20_2mu4noL1", "HLT_mu20_mu8noL1",
+                "HLT_mu14_tau25_medium1_tracktwo",
+                "HLT_mu14_tau35_medium1_tracktwo",
+                "HLT_mu14_tau25_medium1_tracktwo_xe50",
+                "HLT_mu14_tau35_medium1_tracktwo_L1TAU20",
+                "HLT_mu24_mu8noL1", #Triggers with high Lumi*Efficiency values (missing in the wildcards)
+                "HLT_mu6_nomucomb_2mu4_nomucomb_delayed_L1MU6_3MU4", 
+                "HLT_2mu6_bBmumuxv2_delayed", 
+                "HLT_2mu4_bDimu_noinvm_novtx_ss", 
+                "HLT_2mu6_bDimu_noinvm_novtx_ss", 
+                "HLT_mu24_2mu4noL1", 
+                "HLT_mu10_mu6_bUpsimumu", 
+                "HLT_mu10_mu6_bBmumuxv2", 
+                "HLT_mu10_mu6_bJpsimumu", 
                 "HLT_mu6_mu4_bBmumuxv2_delayed", 
                 "HLT_2mu6_10invm30_pt2_z10", 
                 "HLT_2mu6_nomucomb_bPhi",
                 "HLT_mu6_mu4_bDimu_noinvm_novtx_ss",
                 "HLT_mu11_mu6_bDimu2700",
-
                 "HLT_.*mu11_mu6.*", # Lazy addition to keep the latest of interest
                 "HLT_.*3mu4.*",
-				"HLT_.*mu.*imedium.*",	# Trigger with looser isolation selection 
-				"HLT_.*mu.*iloose.*",
-				"HLT_.*bTau.*",		# Our tau triggers
-				"HLT_.*nscan.*"  ]	# Narrow scan triggers
+                "HLT_.*mu.*imedium.*",	# Trigger with looser isolation selection 
+                "HLT_.*mu.*iloose.*",
+                "HLT_.*mu6.*2mu4.*",
+                "HLT_.*mu11.*2mu4noL1.*",
+                "HLT_.*2mu14_nomucomb.*",
+                "HLT_.*bTau.*",		# Our tau triggers
+                "HLT_.*bDimu2700.*",
+                "HLT_.*bPhi.*",
+                "HLT_.*bBmumuxv2.*",
+                "HLT_.*nscan.*"  ]	# Narrow scan triggers
+
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
-BPHY7TriggerSkim = DerivationFramework__TriggerSkimmingTool( name = "BPHY7TriggerSkim",
-                                                                     TriggerListOR = triggerList,
-                                                                     TriggerListAND = [] )
+BPHY7TriggerSkim = DerivationFramework__TriggerSkimmingTool(name = "BPHY7TriggerSkim",
+                                                            TriggerListOR = triggerList,
+                                                            TriggerListAND = [] )
 
 ToolSvc += BPHY7TriggerSkim
 
@@ -260,30 +272,29 @@ ToolSvc += BPHY7TriggerSkim
 
 from JpsiUpsilonTools.JpsiUpsilonToolsConf import Analysis__JpsiFinder
 BPHY7DiMuon_Finder = Analysis__JpsiFinder(name                         = "BPHY7DiMuon_Finder",
-                                    #    OutputLevel                 = DEBUG,
-                                        muAndMu                     = True,
-                                        muAndTrack                  = False,
-                                        TrackAndTrack               = False,
-                                        assumeDiMuons               = True, 
-                                        invMassUpper                = 2900.0, # Cut just below the J/psi
-                                        invMassLower                = 0.0,
-                                        Chi2Cut                     = 110., #CHANGED! Was 200
-                                        oppChargesOnly	            = False,
-					allChargeCombinations	    = True,
-                                        combOnly		    = False,
-					atLeastOneComb		    = True,
-                                        useCombinedMeasurement      = False, # Only takes effect if combOnly=True	
-                                        muonCollectionKey           = "Muons",
-                                        TrackParticleCollection     = "InDetTrackParticles",
-                                        V0VertexFitterTool          = BPHY7_VertexTools.TrkV0Fitter,             # V0 vertex fitter
-                                        useV0Fitter                 = False,                   # if False a TrkVertexFitterTool will be used
-                                        TrkVertexFitterTool         = BPHY7_VertexTools.TrkVKalVrtFitter,        # VKalVrt vertex fitter
-                                        TrackSelectorTool           = BPHY7_VertexTools.InDetTrackSelectorTool,
-                                        ConversionFinderHelperTool  = BPHY7_VertexTools.InDetConversionHelper,
-                                        VertexPointEstimator        = BPHY7_VertexTools.VtxPointEstimator,
-                                        useMCPCuts                  = False)
+                                          #    OutputLevel                 = DEBUG,
+                                          muAndMu                     = True,
+                                          muAndTrack                  = False,
+                                          TrackAndTrack               = False,
+                                          assumeDiMuons               = True, 
+                                          invMassUpper                = 2900.0, # Cut just below the J/psi
+                                          invMassLower                = 0.0,
+                                          Chi2Cut                     = 110., #CHANGED! Was 200
+                                          oppChargesOnly	            = False,
+                                          allChargeCombinations	    = True,
+                                          combOnly		    = False,
+                                          atLeastOneComb		    = True,
+                                          useCombinedMeasurement      = False, # Only takes effect if combOnly=True	
+                                          muonCollectionKey           = "Muons",
+                                          TrackParticleCollection     = "InDetTrackParticles",
+                                          V0VertexFitterTool          = BPHY7_VertexTools.TrkV0Fitter,             # V0 vertex fitter
+                                          useV0Fitter                 = False,                   # if False a TrkVertexFitterTool will be used
+                                          TrkVertexFitterTool         = BPHY7_VertexTools.TrkVKalVrtFitter,        # VKalVrt vertex fitter
+                                          TrackSelectorTool           = BPHY7_VertexTools.InDetTrackSelectorTool,
+                                          ConversionFinderHelperTool  = BPHY7_VertexTools.InDetConversionHelper,
+                                          VertexPointEstimator        = BPHY7_VertexTools.VtxPointEstimator,
+                                          useMCPCuts                  = False)
 ToolSvc += BPHY7DiMuon_Finder
-print      BPHY7DiMuon_Finder
 
 #--------------------------------------------------------------------
 ##Comment from BPHY2...
@@ -294,87 +305,70 @@ print      BPHY7DiMuon_Finder
 ##    Reco tool is the JpsiFinder mass window is wide enough.
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Reco_mumu
 BPHY7DiMuon_SelectAndWrite = DerivationFramework__Reco_mumu(name              = "BPHY7DiMuon_SelectAndWrite",
-                                                       JpsiFinder    	      = BPHY7DiMuon_Finder,
-                                                       OutputVtxContainerName = "BPHY7TwoMuCandidates",
-                                                       PVContainerName        = "PrimaryVertices",
-                                                       RefPVContainerName     = "SHOULDNOTBEUSED_DiMuonRefittedPV")
+                                                            JpsiFinder    	      = BPHY7DiMuon_Finder,
+                                                            OutputVtxContainerName = "BPHY7TwoMuCandidates",
+                                                            PVContainerName        = "PrimaryVertices",
+                                                            RefPVContainerName     = "SHOULDNOTBEUSED_DiMuonRefittedPV")
 ToolSvc += BPHY7DiMuon_SelectAndWrite
-print BPHY7DiMuon_SelectAndWrite
 
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Select_onia2mumu
 
 ## a/ augment and select Jpsi->mumu candidates
-BPHY7DiMuon_Decorator = DerivationFramework__Select_onia2mumu(
-  	name                  = "BPHY7DiMuon_Decorator",
-  	HypothesisName        = "Jpsi",
-  	InputVtxContainerName = "BPHY7TwoMuCandidates",
-  	VtxMassHypo           = 1230,   # used to determine time-of-flight and thus lifetime (deviations and sigmas are also added to the vertex)
-  	MassMin               = 0.0,
-  	MassMax               = 2900.0,
-  	Chi2Max               = 200,
-   	DoVertexType =1)              #	1 = Pt, 2 = A0, 4 = Z0
-
+BPHY7DiMuon_Decorator = DerivationFramework__Select_onia2mumu(name                  = "BPHY7DiMuon_Decorator",
+                                                              HypothesisName        = "Jpsi",
+                                                              InputVtxContainerName = "BPHY7TwoMuCandidates",
+                                                              VtxMassHypo           = 1230,   # used to determine time-of-flight and thus lifetime (deviations and sigmas are also added to the vertex)
+                                                              MassMin               = 0.0,
+                                                              MassMax               = 2900.0,
+                                                              Chi2Max               = 200,
+                                                              DoVertexType =1)              #	1 = Pt, 2 = A0, 4 = Z0
   
 ToolSvc += BPHY7DiMuon_Decorator
-print BPHY7DiMuon_Decorator
-
-
 #====================================================================
 # 3mu/2mu+trk vertex for Kernel2 #Added by Matteo
 #====================================================================
-
-
 ## 4/ setup a new vertexing tool (necessary due to use of mass constraint) 
 from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
-BpmVertexFit = Trk__TrkVKalVrtFitter(
-                                         name                = "BpmVertexFit",
-                                         Extrapolator        = BPHY7_VertexTools.InDetExtrapolator,
-                                         FirstMeasuredPoint  = True,
-                                         MakeExtendedVertex  = True)
+BpmVertexFit = Trk__TrkVKalVrtFitter(name                = "BpmVertexFit",
+                                     Extrapolator        = BPHY7_VertexTools.InDetExtrapolator,
+                                     FirstMeasuredPoint  = True,
+                                     MakeExtendedVertex  = True)
 ToolSvc += BpmVertexFit
-print      BpmVertexFit
-
-
-
-
 
 ## 5/ setup the Jpsi+1 track finder
 from JpsiUpsilonTools.JpsiUpsilonToolsConf import Analysis__JpsiPlus1Track
-BPHY7ThreeMuon_Finder = Analysis__JpsiPlus1Track(		name 				= "BPHY7ThreeMuon_Finder",
-                                              			OutputLevel 			= INFO,
-								pionHypothesis			= True,
-								kaonHypothesis			= False,
-								trkThresholdPt			= 1000.0,
-								#trkMaxEta			= 2.5, # is this value fine?? default would be 102.5
-								BThresholdPt			= 1000.0,
-								BMassUpper			= 5000.0, # What is this??
-								BMassLower			= 0.0,
-								JpsiContainerKey		= "BPHY7TwoMuCandidates",
-								TrackParticleCollection		= "InDetTrackParticles",
-								MuonsUsedInJpsi			= "NONE", #cannnot allow, would kill 3muons
-								ExcludeCrossJpsiTracks		= False,
-								TrkVertexFitterTool		= BpmVertexFit,
-								TrackSelectorTool		= BPHY7_VertexTools.InDetTrackSelectorTool,
-								UseMassConstraint		= False, 
-    								Chi2Cut 			= 150) #Cut on chi2/Ndeg_of_freedom, so is very loose
+BPHY7ThreeMuon_Finder = Analysis__JpsiPlus1Track(name 				= "BPHY7ThreeMuon_Finder",
+                                                 OutputLevel 			= INFO,
+                                                 pionHypothesis			= True,
+                                                 kaonHypothesis			= False,
+                                                 trkThresholdPt			= 1000.0,
+                                                 #trkMaxEta			= 2.5, # is this value fine?? default would be 102.5
+                                                 BThresholdPt			= 1000.0,
+                                                 BMassUpper			= 5000.0, # What is this??
+                                                 BMassLower			= 0.0,
+                                                 JpsiContainerKey		= "BPHY7TwoMuCandidates",
+                                                 TrackParticleCollection		= "InDetTrackParticles",
+                                                 MuonsUsedInJpsi			= "NONE", #cannnot allow, would kill 3muons
+                                                 ExcludeCrossJpsiTracks		= False,
+                                                 TrkVertexFitterTool		= BpmVertexFit,
+                                                 TrackSelectorTool		= BPHY7_VertexTools.InDetTrackSelectorTool,
+                                                 UseMassConstraint		= False, 
+                                                 Chi2Cut 			= 150) #Cut on chi2/Ndeg_of_freedom, so is very loose
 												
         
 ToolSvc += BPHY7ThreeMuon_Finder
-print      BPHY7ThreeMuon_Finder    
 
 ## 6/ setup the combined augmentation/skimming tool for the Bpm
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Reco_dimuTrk
-BPHY7ThreeMuon_SelectAndWrite = DerivationFramework__Reco_dimuTrk(	
-							   name                     = "BPHY7ThreeMuon_SelectAndWrite",
-							   OutputLevel              = INFO,
-                                                           Jpsi1PlusTrackName       = BPHY7ThreeMuon_Finder,
-                                                           OutputVtxContainerName   = "BPHY7Tau3MuCandidates",
-                                                           PVContainerName          = "PrimaryVertices",
-                                                           RefPVContainerName       = "BPHY7RefittedPrimaryVertices",
-                                                           RefitPV                  = True,
-                                                           MaxPVrefit = 1000)
+BPHY7ThreeMuon_SelectAndWrite = DerivationFramework__Reco_dimuTrk(name                     = "BPHY7ThreeMuon_SelectAndWrite",
+                                                                  OutputLevel              = INFO,
+                                                                  Jpsi1PlusTrackName       = BPHY7ThreeMuon_Finder,
+                                                                  OutputVtxContainerName   = "BPHY7Tau3MuCandidates",
+                                                                  PVContainerName          = "PrimaryVertices",
+                                                                  RefPVContainerName       = "BPHY7RefittedPrimaryVertices",
+                                                                  RefitPV                  = True,
+                                                                  MaxPVrefit = 1000)
 ToolSvc += BPHY7ThreeMuon_SelectAndWrite 
-print BPHY7ThreeMuon_SelectAndWrite
 
 ## b/ augment and select Bplus->JpsiKplus candidates
 BPHY7ThreeMuon_Decorator = DerivationFramework__Select_onia2mumu(
@@ -389,8 +383,6 @@ BPHY7ThreeMuon_Decorator = DerivationFramework__Select_onia2mumu(
   Chi2Max                    = 100.)
 
 ToolSvc += BPHY7ThreeMuon_Decorator
-print BPHY7ThreeMuon_Decorator
-
 
 ## b/ augment and select Bplus->JpsiKplus candidates
 BPHY7ThreeMuon_Decorator2 = DerivationFramework__Select_onia2mumu(
@@ -405,7 +397,6 @@ BPHY7ThreeMuon_Decorator2 = DerivationFramework__Select_onia2mumu(
   Chi2Max                    = 100.)
 
 ToolSvc += BPHY7ThreeMuon_Decorator2
-print BPHY7ThreeMuon_Decorator2
 
 #Track isolation for candidates
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__VertexTrackIsolation
@@ -418,7 +409,6 @@ BPHY7TrackIsolationDecorator = DerivationFramework__VertexTrackIsolation(
   PassFlags                       = ["passed_Tau3MuLoose", "passed_Ds2MuPi"] )
 
 ToolSvc += BPHY7TrackIsolationDecorator
-print BPHY7TrackIsolationDecorator
 
 #CaloIsolationTool explicitly declared to avoid pointless warnings (it works!!!)
 from IsolationTool.IsolationToolConf import xAOD__CaloIsolationTool
@@ -443,8 +433,6 @@ BPHY7CaloIsolationDecorator = DerivationFramework__VertexCaloIsolation(
   PassFlags                       = ["passed_Tau3MuLoose", "passed_Ds2MuPi"] )
 
 ToolSvc += BPHY7CaloIsolationDecorator
-print BPHY7CaloIsolationDecorator
-
 
 #====================================================================
 # Skimming tool to select only events with the correct vertices
@@ -463,14 +451,12 @@ print BPHY7CaloIsolationDecorator
 expression = "count(BPHY7Tau3MuCandidates.passed_Tau3MuLoose) > 0 || count(BPHY7Tau3MuCandidates.passed_Ds2MuPi) > 0"
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-BPHY7_SelectEvent = DerivationFramework__xAODStringSkimmingTool(
-		name 		= "BPHY7_SelectEvent",
-		OutputLevel   	= INFO,
-                expression 	= expression)
+BPHY7_SelectEvent = DerivationFramework__xAODStringSkimmingTool(name 		= "BPHY7_SelectEvent",
+                                                                OutputLevel   	= INFO,
+                                                                expression 	= expression)
 
 ToolSvc += BPHY7_SelectEvent
 print BPHY7_SelectEvent
-
 
 #====================================================================
 # Thinning Helper and various thinning tools
@@ -499,13 +485,12 @@ BPHY7ThinningHelper.AppendToStream( BPHY7Stream )
 ## 12/ Cleans up, removing duplicate vertices. An issue caused by the logic of Jpsi+1 track in the case of 3-muon candidates
 
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Thin_vtxDuplicates
-BPHY7Thin_vtxDuplicates = DerivationFramework__Thin_vtxDuplicates(
-  name                       = "BPHY7Thin_vtxDuplicates",
-  OutputLevel                = INFO,
-  ThinningService            = BPHY7ThinningHelper.ThinningSvc(),
-  TrackParticleContainerName = "InDetTrackParticles",
-  VertexContainerNames       = ["BPHY7Tau3MuCandidates"],
-  PassFlags                  = ["passed_Tau3MuLoose", "passed_Ds2MuPi"] )
+BPHY7Thin_vtxDuplicates = DerivationFramework__Thin_vtxDuplicates(name                       = "BPHY7Thin_vtxDuplicates",
+                                                                  OutputLevel                = INFO,
+                                                                  ThinningService            = BPHY7ThinningHelper.ThinningSvc(),
+                                                                  TrackParticleContainerName = "InDetTrackParticles",
+                                                                  VertexContainerNames       = ["BPHY7Tau3MuCandidates"],
+                                                                  PassFlags                  = ["passed_Tau3MuLoose", "passed_Ds2MuPi"])
 
 ToolSvc += BPHY7Thin_vtxDuplicates
 
@@ -513,7 +498,6 @@ ToolSvc += BPHY7Thin_vtxDuplicates
 ##    selected vertices. The "VertexContainerNames" is a list of the vertex containers, and "PassFlags"
 ##    contains all pass flags for Select_* tools that must be satisfied. The vertex is kept is it 
 ##    satisfy any of the listed selections.
-
 
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Thin_vtxTrk
 BPHY7Thin_vtxTrk = DerivationFramework__Thin_vtxTrk(
@@ -532,54 +516,43 @@ ToolSvc += BPHY7Thin_vtxTrk
 ## 13/ thinning out tracks that are not attached to muons. The final thinning decision is based on the OR operation
 ##     between decision from this and the previous tools.
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
-BPHY7MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(
-						name                    = "BPHY7MuonTPThinningTool",
-                                                ThinningService         = BPHY7ThinningHelper.ThinningSvc(),
-                                                MuonKey                 = "Muons",
-                                                InDetTrackParticlesKey  = "InDetTrackParticles")
+BPHY7MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "BPHY7MuonTPThinningTool",
+                                                                         ThinningService         = BPHY7ThinningHelper.ThinningSvc(),
+                                                                         MuonKey                 = "Muons",
+                                                                         InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += BPHY7MuonTPThinningTool
 
-
-#Newest addition
 from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__BPhysPVThinningTool
-BPHY7_thinningTool_PV = DerivationFramework__BPhysPVThinningTool(
-  name                       = "BPHY7_thinningTool_PV",
-  ThinningService            = BPHY7ThinningHelper.ThinningSvc(),
-  CandidateCollections       = ["BPHY7Tau3MuCandidates"],
-  KeepPVTracks  =True
- )
+BPHY7_thinningTool_PV = DerivationFramework__BPhysPVThinningTool(name                       = "BPHY7_thinningTool_PV",
+                                                                 ThinningService            = BPHY7ThinningHelper.ThinningSvc(),
+                                                                 CandidateCollections       = ["BPHY7Tau3MuCandidates"],
+                                                                 KeepPVTracks  =True)
 
 ToolSvc += BPHY7_thinningTool_PV
 
-
-#added by MBedognetti
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
-BPHY7TauTPThinningTool = DerivationFramework__TauTrackParticleThinning(
-						name                    = "BPHY7TauTPThinningTool",
-                                                ThinningService         = BPHY7ThinningHelper.ThinningSvc(),
-                                                TauKey                 = "TauJets",
-                                                InDetTrackParticlesKey  = "InDetTrackParticles")
+BPHY7TauTPThinningTool = DerivationFramework__TauTrackParticleThinning(name                    = "BPHY7TauTPThinningTool",
+                                                                       ThinningService         = BPHY7ThinningHelper.ThinningSvc(),
+                                                                       TauKey                 = "TauJets",
+                                                                       InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += BPHY7TauTPThinningTool
 
-
-#modified by MBedognetti
 # Only save truth informtion directly associated with muons
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
 BPHY7TruthThinTool = DerivationFramework__GenericTruthThinning(name                    = "BPHY7TruthThinTool",
-                                                        ThinningService         = BPHY7ThinningHelper.ThinningSvc(),
-                                                        ParticleSelectionString = "abs(TruthParticles.pdgId) == 13 || abs(TruthParticles.pdgId) == 431",
-                                                        PreserveDescendants     = True,
-                                                        PreserveAncestors      = True)
+                                                               ThinningService         = BPHY7ThinningHelper.ThinningSvc(),
+                                                               ParticleSelectionString = "abs(TruthParticles.pdgId) == 13 || abs(TruthParticles.pdgId) == 431",
+                                                               PreserveDescendants     = True,
+                                                               PreserveAncestors      = True)
 ToolSvc += BPHY7TruthThinTool
 
-#modified by MBedognetti
 # Only save truth informtion directly associated with muons
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
 BPHY7TruthMetTool = DerivationFramework__GenericTruthThinning(name                    = "BPHY7TruthMetTool",
-                                                        ThinningService         = BPHY7ThinningHelper.ThinningSvc(),
-                                                        ParticleSelectionString = "abs(TruthParticles.pdgId) == 12 || abs(TruthParticles.pdgId) == 14 || abs(TruthParticles.pdgId) == 16",
-                                                        PreserveDescendants     = False,
-                                                        PreserveAncestors      = False)
+                                                              ThinningService         = BPHY7ThinningHelper.ThinningSvc(),
+                                                              ParticleSelectionString = "abs(TruthParticles.pdgId) == 12 || abs(TruthParticles.pdgId) == 14 || abs(TruthParticles.pdgId) == 16",
+                                                              PreserveDescendants     = False,
+                                                              PreserveAncestors      = False)
 ToolSvc += BPHY7TruthMetTool
 
 
@@ -597,17 +570,6 @@ BPHY7JetThinningTool = DerivationFramework__GenericObjectThinning( name		       
 
 ToolSvc += BPHY7JetThinningTool;
 
-#==================================================================================
-# Add everything which is needed to calibrate objects and to followingly make MET
-#==================================================================================
-
-#Erase if not re-activated
-
-#from DerivationFrameworkTau.TruthObjectTools import *  # should give me the definition of TERUTH1TauTool
-
-if isSimulation:
-    from DerivationFrameworkTau.TauTruthCommon import *
-#also added the TruthTau containers to the output
 
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS  
@@ -626,7 +588,7 @@ BPHY7AugmentationTools = [BPHY7DiMuon_SelectAndWrite, BPHY7DiMuon_Decorator, BPH
 Kernel1Tools = [BPHY7TriggerSkim]
 
 if isSimulation:
-    BPHY7AugmentationTools.append(DFCommonTauTruthMatchingWrapper)
+    #BPHY7AugmentationTools.append(DFCommonTauTruthMatchingWrapper)
     if thinTruth:
        BPHY7ThinningTools.append(BPHY7TruthThinTool)
        BPHY7ThinningTools.append(BPHY7TruthMetTool)
@@ -648,25 +610,19 @@ if onlyAugmentations:
 # Kernel n1 PRESELECTION
 # The name of the kernel (BPHY7Kernel1 in this case) must be unique to this derivation
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-BPHY7_Sequence += CfgMgr.DerivationFramework__DerivationKernel(
-  "BPHY7Kernel1",
-   AugmentationTools = [BPHY7TriggerCountToMetadata] ,
-   SkimmingTools     = Kernel1Tools
-
-   )
+BPHY7_Sequence += CfgMgr.DerivationFramework__DerivationKernel("BPHY7Kernel1",
+                                                               AugmentationTools = [BPHY7TriggerCountToMetadata] ,
+                                                               SkimmingTools     = Kernel1Tools)
 
 
 #  ////// k 2 \\\\\\
 # Kernel n2 deep Derivation
 # The name of the kernel (BPHY7Kernel2 in this case) must be unique to this derivation
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-BPHY7_Sequence += CfgMgr.DerivationFramework__DerivationKernel(
-  "BPHY7Kernel2",
-   AugmentationTools = BPHY7AugmentationTools,
-   SkimmingTools     = BPHY7SkimmingTools, 
-   ThinningTools     = BPHY7ThinningTools  
-
-   )
+BPHY7_Sequence += CfgMgr.DerivationFramework__DerivationKernel("BPHY7Kernel2",
+                                                               AugmentationTools = BPHY7AugmentationTools,
+                                                               SkimmingTools     = BPHY7SkimmingTools, 
+                                                               ThinningTools     = BPHY7ThinningTools)
 
 #Vital, replaces the adding of kernels directly
 DerivationFrameworkJob += BPHY7_Sequence
@@ -674,7 +630,6 @@ DerivationFrameworkJob += BPHY7_Sequence
 #====================================================================
 # Slimming 
 #====================================================================
-## 16/
 
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 BPHY7SlimmingHelper = SlimmingHelper("BPHY7SlimmingHelper")
@@ -682,46 +637,32 @@ BPHY7SlimmingHelper = SlimmingHelper("BPHY7SlimmingHelper")
 
 # Smart collection will add all extra info needed to have the selecte object fully functional
 # Includes loads of variables. TODO: can we reduce this information???
-SmartCollections = ["MET_Reference_AntiKt4EMTopo"] # , "MET_Reference_AntiKt4LCTopo"]
+SmartCollections = ["MET_Reference_AntiKt4EMTopo"]
 
 #for calculation of MET
 #if isSimulation:
-SmartCollections += ["Electrons", "Photons", "TauJets"]
+SmartCollections += ["Electrons", "Photons", "TauJets", "AntiKt4EMTopoJets", "BTagging_AntiKt4EMTopo"]
 
 AllVariables = []
 
 AllVariables += ['MET_Reference_AntiKt4EMTopo',
-	    	'METAssoc_AntiKt4EMTopo',
-	    	'MET_Core_AntiKt4EMTopo',
-	    	'MET_Truth',
-	    	'MET_Track',
-	    	'MET_LocHadTopo']
+                 'METAssoc_AntiKt4EMTopo',
+                 'MET_Core_AntiKt4EMTopo',
+                 'MET_Truth',
+                 'MET_Track',
+                 'MET_LocHadTopo']
 
-
-#Should maybe skim these??
-#Can be done with the example thinning tool (if based on Pt & || similar stuff)
-AllVariables += ["AntiKt4EMTopoJets"]
-AllVariables += ["BTagging_AntiKt4EMTopo"]
 AllVariables += ["Kt4EMTopoOriginEventShape"]
-
+AllVariables += ["Kt4EMTopoEventShape"]
 
 StaticContent = [] 
-# "xAOD::TauJetAuxContainer#TauJetsAux.IsTruthMatched", "xAOD::TauJetAuxContainer#TauJetsAux.truthJetLink", "xAOD::TauJetAuxContainer#TauJetsAux.truthParticleLink" ] 
 
 # Needed for trigger objects
 BPHY7SlimmingHelper.IncludeMuonTriggerContent = True
 BPHY7SlimmingHelper.IncludeBPhysTriggerContent = True
 
-#BPHY7SlimmingHelper.masterItemList.extend(BPHY7SlimmingHelper.GetKinematicsItems("Electrons"))
-#BPHY7SlimmingHelper.masterItemList.extend(BPHY7SlimmingHelper.GetKinematicsItems("Photons"))
-#BPHY7SlimmingHelper.masterItemList.extend(BPHY7SlimmingHelper.GetKinematicsItems("TauJets"))
+BPHY7SlimmingHelper.ExtraVariables = ["Photons.pt.eta.phi.m","Electrons.pt.eta.phi.m","TauJets.pt.eta.phi.m.IsTruthMatched.truthJetLink.truthParticleLink", "AntiKt4EMTopoJets.JetPileupScaleMomentum_pt.JetPileupScaleMomentum_eta.JetPileupScaleMomentum_phi.JetPileupScaleMomentum_m", "AntiKt4EMTopoJets.JvtJvfcorr", "AntiKt4EMTopoJets.JetEtaJESScaleMomentum_pt.JetEtaJESScaleMomentum_eta.JetEtaJESScaleMomentum_phi.JetEtaJESScaleMomentum_m"]
 
-#Following instruction has no effect, since it is overruled by the smartSlimmer for MET (which takes extra information)
-BPHY7SlimmingHelper.ExtraVariables = ["Photons.pt.eta.phi.m","Electrons.pt.eta.phi.m","TauJets.pt.eta.phi.m.IsTruthMatched.truthJetLink.truthParticleLink"]
-
-#AllVariables +=["Electrons", "Photons", "TauJets"]
-
-## primary vertices and add the refitted vertices!!
 AllVariables += ["PrimaryVertices"]
 StaticContent += ["xAOD::VertexContainer#BPHY7RefittedPrimaryVertices"]
 StaticContent += ["xAOD::VertexAuxContainer#BPHY7RefittedPrimaryVerticesAux."]
@@ -729,12 +670,8 @@ StaticContent += ["xAOD::VertexAuxContainer#BPHY7RefittedPrimaryVerticesAux."]
 ## TruthTaus (needed to calibrate taus, then used for MET)
 
 if isSimulation:
-    StaticContent += ["xAOD::TruthParticleContainer#TruthTaus"]
-    StaticContent += ["xAOD::TruthParticleAuxContainer#TruthTausAux."]
     AllVariables += ["AntiKt4TruthJets"] 
 
-
-## ID track particlest
 AllVariables += ["InDetTrackParticles"]
 
 ## combined / extrapolated muon track particles 
@@ -746,13 +683,6 @@ AllVariables += ["MuonSpectrometerTrackParticles"]
 
 ## muon container
 AllVariables += ["Muons"]
-
-
-# Very random try
-#BPHY7Stream.AddItem("xAOD::MuonContainer#*")
-#BPHY7Stream.AddItem("xAOD::MuonAuxContainer#*")
-
-
 
 #print "Something's off, since I do not have the desired Aux info for my verteces"
 ## Jpsi candidates 
@@ -775,5 +705,4 @@ BPHY7SlimmingHelper.AllVariables = AllVariables
 BPHY7SlimmingHelper.StaticContent = StaticContent
 BPHY7SlimmingHelper.SmartCollections = SmartCollections
 BPHY7SlimmingHelper.AppendContentToStream(BPHY7Stream)
-
 

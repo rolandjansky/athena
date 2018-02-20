@@ -65,6 +65,7 @@ class IBTaggingSelectionTool;
 
 class IMETMaker;
 class IMETSystematicsTool;
+class IMETSignificance;
 
 namespace CP {
   class IMuonSelectionTool;
@@ -168,6 +169,17 @@ namespace ST {
 			   // const xAOD::PhotonContainer* gamma = 0,
 			   // const xAOD::TauJetContainer* taujet = 0,
 			   ) override final;
+
+    StatusCode GetMETSig(xAOD::MissingETContainer& met,
+                      double& metSignificance,
+		      const xAOD::JetContainer* jet,
+                      const xAOD::ElectronContainer* elec = 0,
+                      const xAOD::MuonContainer* muon = 0,
+                      const xAOD::PhotonContainer* gamma = 0,
+                      const xAOD::TauJetContainer* taujet = 0,
+                      bool doTST = true, bool doJVTCut = true,
+		      const xAOD::IParticleContainer* invis = 0 
+		      ) override final;
 
     bool IsSignalJet(const xAOD::Jet& input, const float ptcut, const float etacut) const override final;
 
@@ -376,6 +388,9 @@ namespace ST {
 
   protected:
 
+    // autoconfiguration of pileup-reweighting tool       
+    StatusCode autoconfigurePileupRWTool();
+
     StatusCode readConfig() override final; 
     StatusCode validConfig(bool strict = false) const;
 
@@ -399,6 +414,9 @@ namespace ST {
     std::string EG_WP(const std::string& wp) const; //translate our WPs to make egamma selectors happy
 
     std::vector<std::string> getElSFkeys(const std::string& mapFile) const;
+
+    bool m_autoconfigPRW;
+    std::string m_mcCampaign;
 
 #ifdef XAOD_STANDALONE // more convenient for property setting
     DataSource m_dataSource;
@@ -439,16 +457,25 @@ namespace ST {
     std::string m_outMETTerm;
     bool m_metRemoveOverlappingCaloTaggedMuons;
     bool m_metDoSetMuonJetEMScale;
-    bool m_metDoMuonJetOR;
+    bool m_metDoRemoveMuonJets;
+    bool m_metUseGhostMuons;
+    bool m_metDoMuonEloss; 
 
-    bool m_metGreedyPhotons;
+    std::string m_metsysConfigPrefix;
 
     bool m_trkMETsyst;
     bool m_caloMETsyst;
 
+    int m_softTermParam;
+    bool m_treatPUJets;
+    bool m_doPhiReso;
+
     std::vector<std::string> m_prwConfFiles;
     std::vector<std::string> m_prwLcalcFiles;
     double m_muUncert;
+    double m_prwDataSF;
+    double m_prwDataSF_UP;
+    double m_prwDataSF_DW;
 
     // bookkeep supported configurations (in increasing order of tightness)
     std::vector<std::string> el_id_support;
@@ -470,7 +497,6 @@ namespace ST {
     std::string m_photonIdBaseline;
     std::string m_tauId;
     std::string m_tauIdBaseline;
-    bool        m_tauMVACalib; //!< Use the MVA calibration for taus
     bool        m_tauIDrecalc; //!< Recalculate TauID definition (20.7.8.2 bugfix) 
     std::string m_eleIso_WP;
     std::string m_eleChID_WP;
@@ -525,7 +551,6 @@ namespace ST {
     std::string m_tauConfigPathBaseline;
     bool m_tauDoTTM;
     bool m_tauRecalcOLR;
-    bool m_tauNoAODFixCheck;
 
     double m_jetPt;
     double m_jetEta;
@@ -562,7 +587,6 @@ namespace ST {
     double m_orMuJetInnerDR;
     bool m_orDoMuonJetGhostAssociation;
     bool m_orRemoveCaloMuons;
-    bool m_orApplyJVT;
     std::string m_orBtagWP;
     std::string m_orInputLabel;
 
@@ -661,6 +685,7 @@ namespace ST {
     //
     asg::AnaToolHandle<IMETMaker> m_metMaker;
     asg::AnaToolHandle<IMETSystematicsTool> m_metSystTool;
+    asg::AnaToolHandle<IMETSignificance> m_metSignif;
     //
     asg::AnaToolHandle<TrigConf::ITrigConfigTool> m_trigConfTool;
     asg::AnaToolHandle<Trig::TrigDecisionTool> m_trigDecTool;

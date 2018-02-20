@@ -20,6 +20,11 @@
 #include "tauRecTools/TauIDVarCalculator.h"
 #include "tauRecTools/TauEleOLRDecorator.h"
 #include "tauRecTools/BuildTruthTaus.h"
+#include "tauRecTools/DiTauProcessorTool.h"
+#include "tauRecTools/DiTauIDVarCalculator.h"
+#include "tauRecTools/DiTauDiscriminantTool.h"
+#include "tauRecTools/DiTauWPDecorator.h"
+#include "tauRecTools/MuonTrackRemoval.h"
 
 #ifdef __CINT__
 
@@ -52,5 +57,10 @@
 #pragma link C++ class TauIDVarCalculator+;
 #pragma link C++ class TauEleOLRDecorator+;
 #pragma link C++ class BuildTruthTaus+;
+#pragma link C++ class DiTauProcessorTool+;
+#pragma link C++ class tauRecTools::DiTauIDVarCalculator+;
+#pragma link C++ class tauRecTools::DiTauDiscriminantTool+;
+#pragma link C++ class tauRecTools::DiTauWPDecorator+;
+#pragma link C++ class tauRecTools::MuonTrackRemoval+;
 
 #endif

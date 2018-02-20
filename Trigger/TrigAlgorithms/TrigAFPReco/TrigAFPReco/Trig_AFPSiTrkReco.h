@@ -66,6 +66,8 @@ private:
   std::string m_siHitContainerName;
    /// Name of the AFP tracks container that will be stored in storegate to be used by the hypothesis algorithm. Default: "AFPTrackContainer"
   std::string m_trackContainerName;
+
+  static const std::vector<unsigned int> s_robIDs;
 };
 
 #endif

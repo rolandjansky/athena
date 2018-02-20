@@ -193,7 +193,6 @@ int main(int argc, char* argv[])
   if(optEntries >= 0) entries = std::min(entries, optEntries);
   Info(APP_NAME, "Processing %lli entries", entries);
 
-
   // Overlap removal tool configuration flags
   ORUtils::ORFlags orFlags("OverlapRemovalTool", inputLabel, outputLabel);
 
@@ -288,13 +287,12 @@ int main(int argc, char* argv[])
     selectObjects(taus);
     selectObjects(photons);
 
-    Info(APP_NAME,
-         "nEle %lu, nMuo %lu, nJet %lu, nTau %lu, nPho %lu",
+    Info(APP_NAME, "nEle %lu, nMuo %lu, nJet %lu, nTau %lu, nPho %lu",
          electrons->size(), muons->size(),
          jets->size(), taus->size(),
          photons->size());
 
-    // Apply the overlap removal to all objects (dumb example)
+    // Apply the overlap removal to all objects
     CHECK( orTool->removeOverlaps(electrons, muons, jets, taus, photons) );
 
     //
@@ -361,15 +359,15 @@ int main(int argc, char* argv[])
   Info(APP_NAME, "=====================================");
   Info(APP_NAME, "End of event processing");
   Info(APP_NAME, "Object count summaries: nOverlap / nSelected / nTotal");
-  Info(APP_NAME, "Number overlap elecs:   %4i / %4i / %5i",
+  Info(APP_NAME, "Number overlap elecs:   %5i / %5i / %5i",
        nOverlapElectrons, nSelectedElectrons, nTotalElectrons);
-  Info(APP_NAME, "Number overlap muons:   %4i / %4i / %5i",
+  Info(APP_NAME, "Number overlap muons:   %5i / %5i / %5i",
        nOverlapMuons, nSelectedMuons, nTotalMuons);
-  Info(APP_NAME, "Number overlap jets:    %4i / %4i / %5i",
+  Info(APP_NAME, "Number overlap jets:    %5i / %5i / %5i",
        nOverlapJets, nSelectedJets, nTotalJets);
-  Info(APP_NAME, "Number overlap taus:    %4i / %4i / %5i",
+  Info(APP_NAME, "Number overlap taus:    %5i / %5i / %5i",
        nOverlapTaus, nSelectedTaus, nTotalTaus);
-  Info(APP_NAME, "Number overlap photons: %4i / %4i / %5i",
+  Info(APP_NAME, "Number overlap photons: %5i / %5i / %5i",
        nOverlapPhotons, nSelectedPhotons, nTotalPhotons);
 
   Info(APP_NAME, "Application finished successfully");

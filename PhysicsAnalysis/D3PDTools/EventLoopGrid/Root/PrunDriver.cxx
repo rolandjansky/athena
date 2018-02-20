@@ -154,7 +154,7 @@ static bool downloadContainer(const std::string& name,
     std::vector<std::string> datasets;
     for (auto& entry : SH::rucioListDids (name))
     {
-      if (entry.type == "DATASET")
+      if (entry.type == "CONTAINER")
         datasets.push_back (entry.name);
     }
 
@@ -434,12 +434,10 @@ static void saveJobDef(const std::string& fileName,
 		       const SH::SampleHandler sh)
 {    
   TFile file(fileName.c_str(), "RECREATE"); 
-  TList algs, outputs; 
-  for (EL::Job::algsIter a = job.algsBegin(); a != job.algsEnd(); ++a)
-    algs.Add((*a)->Clone());
+  TList outputs; 
   for (EL::Job::outputIter o = job.outputBegin(); o !=job.outputEnd(); ++o) 
     outputs.Add(o->Clone());
-  file.WriteTObject(&algs, "algorithms", "SingleKey");        
+  file.WriteTObject(&job.jobConfig(), "jobConfig", "SingleKey");        
   file.WriteTObject(&outputs, "outputs", "SingleKey");        
   for (SH::SampleHandler::iterator s = sh.begin(); s != sh.end(); ++s) {
     const SH::MetaObject& meta = *((*s)->meta());

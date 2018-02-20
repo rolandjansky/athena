@@ -4,7 +4,6 @@
 
 // Local includes
 #include "G4AtlasSteppingAction.h"
-#include "G4AtlasInterfaces/ISteppingAction.h"
 
 namespace G4UA
 {
@@ -22,15 +21,15 @@ namespace G4UA
   void G4AtlasSteppingAction::UserSteppingAction(const G4Step* step)
   {
     // Loop over my actions and apply each one in turn
-    for(ISteppingAction* action : m_actions){
-      action->processStep(step);
+    for(auto action : m_actions){
+      action->UserSteppingAction(step);
     }
   }
 
   //---------------------------------------------------------------------------
   // Add one action to the action list
   //---------------------------------------------------------------------------
-  void G4AtlasSteppingAction::addAction(ISteppingAction* action)
+  void G4AtlasSteppingAction::addAction(G4UserSteppingAction* action)
   {
     m_actions.push_back(action);
   }

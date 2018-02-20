@@ -88,6 +88,7 @@ private:
   std::string m_config;
   std::string m_calibSeq;
   std::string m_calibAreaTag;
+  std::string m_originScale;
   bool m_devMode;
   bool m_isData;
   bool m_timeDependentCalib;

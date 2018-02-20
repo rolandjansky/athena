@@ -19,11 +19,14 @@ rec.doWriteAOD.set_Value_and_Lock(True)
 if not acf.EvtMax.is_locked():
     acf.EvtMax = 10
 
-
-if not ('athenaCommonFlags.PoolAODInput' in dir()):
-  acf.PoolAODInput = ['../AthenaTrigRDOtoAOD_MC/AOD.pool.root']
-#if not ('athenaCommonFlags.PoolAODOutput' in dir()):
-  #acf.PoolAODOutput='AOD.pool.root'
+if not ('PoolAODInput' in dir()):
+    acf.PoolAODInput = ['AOD.pool.root']
+else:
+    acf.PoolAODInput = PoolAODInput
+if not ('PoolAODOutput' in dir()):
+    acf.PoolAODOutput = 'AODSlim.pool.root'
+else:
+    acf.PoolAODOutput = PoolAODOutput
 
 acf.FilesInput=acf.PoolAODInput()
 

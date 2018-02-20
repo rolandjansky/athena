@@ -4,5 +4,6 @@
   <class name="PMGTools::PMGSherpa22VJetsWeightTool" />
   <class name="PMGTools::PMGCrossSectionTool" />
   <class name="PMGTools::PMGSherpaVjetsSysTool" />
+  <class name="PMGTools::PMGTruthWeightTool" />
 
 </lcgdict>

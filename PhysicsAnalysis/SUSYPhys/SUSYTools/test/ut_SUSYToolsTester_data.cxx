@@ -5,33 +5,26 @@
 #include <iostream>
 #include <cstdlib>
 
+#include <AsgTools/MessageCheck.h>
+
 int main()
 {
-  std::cout << "Unit test for SUSYTools on data" << std::endl;
-  std::cout << std::endl;
-  std::cout << "Result of 'ls'" << std::endl;
-  system("ls");
-  system("echo PWD=$PWD");
-  
-  std::cout << "Result of 'ls SUSYTools/data'" << std::endl;
-  system("ls $ROOTCOREBIN/../SUSYTools/data");
+  using namespace asg::msgUserCode;
 
-  std::cout << std::endl;
-  std::cout << "list of RootCore/lib" << std::endl;
-  system("ls $ROOTCOREDIR/lib");
+  ATH_MSG_INFO ("Unit test for SUSYTools on data");
 
-  std::cout << std::endl;
-  std::cout << "Environment variables" << std::endl;
-  system("env");
+  // Full `env` makes log file diffs useless.  Check if the input file changed, though - points us quickly to an issue.
+  ATH_MSG_INFO ("Test files");
+  system("env | grep ASG_TEST_FILE_ | sort");
 
   std::string cmd("SUSYToolsTester $ASG_TEST_FILE_DATA maxEvents=500 isData=1 isAtlfast=0 Debug=0");
-  std::cout << "Will now run this command: " << cmd << std::endl;
+  ATH_MSG_INFO ("Will now run this command: " << cmd);
   int ret = system(cmd.c_str());
 
   if (ret != 0) {
-    std::cout << "Test failed (return code was " << ret << ")" << std::endl;
+    ATH_MSG_ERROR ("Test failed (return code was " << ret << ")");
     return 1;
   }
-  std::cout << "Finished (return code was " << ret << ")" << std::endl;
+  ATH_MSG_INFO ("Finished (return code was " << ret << ")");
   return 0;
 }

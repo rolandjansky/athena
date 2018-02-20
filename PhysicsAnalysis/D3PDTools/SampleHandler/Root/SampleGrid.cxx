@@ -102,6 +102,6 @@ namespace SH
       = meta()->castString (MetaFields::gridName, name());
     const std::string file_filter
       = meta()->castString (MetaFields::gridFilter, MetaFields::gridFilter_default);
-    return faxListFilesGlob (sample_name, file_filter);
+    return rucioDirectAccessGlob (sample_name, file_filter);
   }
 }

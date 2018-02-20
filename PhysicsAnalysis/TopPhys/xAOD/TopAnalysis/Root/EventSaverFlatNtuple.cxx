@@ -659,9 +659,29 @@ namespace top {
                   systematicTree->makeOutputVariable(m_jet_isTrueHS, "jet_isTrueHS");
                 }
                 for( auto& tagWP : m_config -> bTagWP_available()){
-                  if (tagWP!= "Continuous") systematicTree->makeOutputVariable(m_jet_isbtagged[tagWP] , "jet_isbtagged_"+shortBtagWP(tagWP));
-                  else systematicTree->makeOutputVariable(m_jet_tagWeightBin , "jet_tagWeightBin");
+                  if (tagWP.find("Continuous") == std::string::npos) systematicTree->makeOutputVariable(m_jet_isbtagged[tagWP] , "jet_isbtagged_"+shortBtagWP(tagWP));
+                  else systematicTree->makeOutputVariable(m_jet_tagWeightBin[tagWP] , "jet_tagWeightBin_"+tagWP);
                 }
+		// R21 - new b-tagging variables
+		if(m_config->getReleaseSeries() == 25){
+		  systematicTree->makeOutputVariable(m_jet_MV2c10mu, "jet_MV2c10mu");
+		  systematicTree->makeOutputVariable(m_jet_MV2c10rnn, "jet_MV2c10rnn");
+		  systematicTree->makeOutputVariable(m_jet_DL1, "jet_DL1");
+		  systematicTree->makeOutputVariable(m_jet_DL1mu, "jet_DL1mu");
+		  systematicTree->makeOutputVariable(m_jet_DL1rnn, "jet_DL1rnn");
+		  systematicTree->makeOutputVariable(m_jet_MV2cl100, "jet_MV2cl100");
+		  systematicTree->makeOutputVariable(m_jet_MV2c100, "jet_MV2c100");
+		  systematicTree->makeOutputVariable(m_jet_DL1_pu, "jet_DL1_pu");
+		  systematicTree->makeOutputVariable(m_jet_DL1_pc, "jet_DL1_pc");
+		  systematicTree->makeOutputVariable(m_jet_DL1_pb, "jet_DL1_pb");
+		  systematicTree->makeOutputVariable(m_jet_DL1mu_pu, "jet_DL1mu_pu");
+		  systematicTree->makeOutputVariable(m_jet_DL1mu_pc, "jet_DL1mu_pc");
+		  systematicTree->makeOutputVariable(m_jet_DL1mu_pb, "jet_DL1mu_pb");
+		  systematicTree->makeOutputVariable(m_jet_DL1rnn_pu, "jet_DL1rnn_pu");
+		  systematicTree->makeOutputVariable(m_jet_DL1rnn_pc, "jet_DL1rnn_pc");
+		  systematicTree->makeOutputVariable(m_jet_DL1rnn_pb, "jet_DL1rnn_pb");
+		}
+
             }
 
             //large-R jets
@@ -690,8 +710,8 @@ namespace top {
                 systematicTree->makeOutputVariable(m_tjet_mv2c10,  "tjet_mv2c10");
                 systematicTree->makeOutputVariable(m_tjet_mv2c20,  "tjet_mv2c20");
                 for( auto& tagWP : m_config -> bTagWP_available_trkJet()){
-                  if (tagWP!= "Continuous") systematicTree->makeOutputVariable(m_tjet_isbtagged[tagWP] , "tjet_isbtagged_"+shortBtagWP(tagWP));
-                  else systematicTree->makeOutputVariable(m_tjet_tagWeightBin , "tjet_tagWeightBin");
+                  if (tagWP.find("Continuous") == std::string::npos) systematicTree->makeOutputVariable(m_tjet_isbtagged[tagWP] , "tjet_isbtagged_"+shortBtagWP(tagWP));
+                  else systematicTree->makeOutputVariable(m_tjet_tagWeightBin[tagWP] , "tjet_tagWeightBin_"+tagWP);
                 }
             }
 
@@ -759,74 +779,134 @@ namespace top {
 
                 if( m_config->KLFitterOutput() == "FULL" || m_config->KLFitterOutput() == "JETPERM_ONLY" ) {
                   /// Model
-                  systematicTree->makeOutputVariable(m_klfitter_model_bhad_pt,"klfitter_model_bhad_pt");
-                  systematicTree->makeOutputVariable(m_klfitter_model_bhad_eta,"klfitter_model_bhad_eta");
-                  systematicTree->makeOutputVariable(m_klfitter_model_bhad_phi,"klfitter_model_bhad_phi");
-                  systematicTree->makeOutputVariable(m_klfitter_model_bhad_E,"klfitter_model_bhad_E");
-                  systematicTree->makeOutputVariable(m_klfitter_model_bhad_jetIndex,"klfitter_model_bhad_jetIndex");
+                  if (m_config->KLFitterLH() == "ttbar" || m_config->KLFitterLH() == "ttZTrilepton" || m_config->KLFitterLH() == "ttH" || m_config->KLFitterLH() == "ttbar_JetAngles" || m_config->KLFitterLH() == "ttbar_BoostedLJets"){
+                    systematicTree->makeOutputVariable(m_klfitter_model_bhad_pt,"klfitter_model_bhad_pt");
+                    systematicTree->makeOutputVariable(m_klfitter_model_bhad_eta,"klfitter_model_bhad_eta");
+                    systematicTree->makeOutputVariable(m_klfitter_model_bhad_phi,"klfitter_model_bhad_phi");
+                    systematicTree->makeOutputVariable(m_klfitter_model_bhad_E,"klfitter_model_bhad_E");
+                    systematicTree->makeOutputVariable(m_klfitter_model_bhad_jetIndex,"klfitter_model_bhad_jetIndex");
 
-                  systematicTree->makeOutputVariable(m_klfitter_model_blep_pt,"klfitter_model_blep_pt");
-                  systematicTree->makeOutputVariable(m_klfitter_model_blep_eta,"klfitter_model_blep_eta");
-                  systematicTree->makeOutputVariable(m_klfitter_model_blep_phi,"klfitter_model_blep_phi");
-                  systematicTree->makeOutputVariable(m_klfitter_model_blep_E,"klfitter_model_blep_E");
-                  systematicTree->makeOutputVariable(m_klfitter_model_blep_jetIndex,"klfitter_model_blep_jetIndex");
+                    systematicTree->makeOutputVariable(m_klfitter_model_blep_pt,"klfitter_model_blep_pt");
+                    systematicTree->makeOutputVariable(m_klfitter_model_blep_eta,"klfitter_model_blep_eta");
+                    systematicTree->makeOutputVariable(m_klfitter_model_blep_phi,"klfitter_model_blep_phi");
+                    systematicTree->makeOutputVariable(m_klfitter_model_blep_E,"klfitter_model_blep_E");
+                    systematicTree->makeOutputVariable(m_klfitter_model_blep_jetIndex,"klfitter_model_blep_jetIndex");
 
-                  systematicTree->makeOutputVariable(m_klfitter_model_lq1_pt,"klfitter_model_lq1_pt");
-                  systematicTree->makeOutputVariable(m_klfitter_model_lq1_eta,"klfitter_model_lq1_eta");
-                  systematicTree->makeOutputVariable(m_klfitter_model_lq1_phi,"klfitter_model_lq1_phi");
-                  systematicTree->makeOutputVariable(m_klfitter_model_lq1_E,"klfitter_model_lq1_E");
-                  systematicTree->makeOutputVariable(m_klfitter_model_lq1_jetIndex,"klfitter_model_lq1_jetIndex");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lq1_pt,"klfitter_model_lq1_pt");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lq1_eta,"klfitter_model_lq1_eta");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lq1_phi,"klfitter_model_lq1_phi");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lq1_E,"klfitter_model_lq1_E");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lq1_jetIndex,"klfitter_model_lq1_jetIndex");
 
-                  systematicTree->makeOutputVariable(m_klfitter_model_lq2_pt,"klfitter_model_lq2_pt");
-                  systematicTree->makeOutputVariable(m_klfitter_model_lq2_eta,"klfitter_model_lq2_eta");
-                  systematicTree->makeOutputVariable(m_klfitter_model_lq2_phi,"klfitter_model_lq2_phi");
-                  systematicTree->makeOutputVariable(m_klfitter_model_lq2_E,"klfitter_model_lq2_E");
-                  systematicTree->makeOutputVariable(m_klfitter_model_lq2_jetIndex,"klfitter_model_lq2_jetIndex");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lep_pt,"klfitter_model_lep_pt");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lep_eta,"klfitter_model_lep_eta");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lep_phi,"klfitter_model_lep_phi");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lep_E,"klfitter_model_lep_E");
 
-                  systematicTree->makeOutputVariable(m_klfitter_model_lep_pt,"klfitter_model_lep_pt");
-                  systematicTree->makeOutputVariable(m_klfitter_model_lep_eta,"klfitter_model_lep_eta");
-                  systematicTree->makeOutputVariable(m_klfitter_model_lep_phi,"klfitter_model_lep_phi");
-                  systematicTree->makeOutputVariable(m_klfitter_model_lep_E,"klfitter_model_lep_E");
+                    systematicTree->makeOutputVariable(m_klfitter_model_nu_pt,"klfitter_model_nu_pt");
+                    systematicTree->makeOutputVariable(m_klfitter_model_nu_eta,"klfitter_model_nu_eta");
+                    systematicTree->makeOutputVariable(m_klfitter_model_nu_phi,"klfitter_model_nu_phi");
+                    systematicTree->makeOutputVariable(m_klfitter_model_nu_E,"klfitter_model_nu_E");
 
-                  systematicTree->makeOutputVariable(m_klfitter_model_nu_pt,"klfitter_model_nu_pt");
-                  systematicTree->makeOutputVariable(m_klfitter_model_nu_eta,"klfitter_model_nu_eta");
-                  systematicTree->makeOutputVariable(m_klfitter_model_nu_phi,"klfitter_model_nu_phi");
-                  systematicTree->makeOutputVariable(m_klfitter_model_nu_E,"klfitter_model_nu_E");
+                    if(m_config->KLFitterLH() != "ttbar_BoostedLJets"){
+                      systematicTree->makeOutputVariable(m_klfitter_model_lq2_pt,"klfitter_model_lq2_pt");
+                      systematicTree->makeOutputVariable(m_klfitter_model_lq2_eta,"klfitter_model_lq2_eta");
+                      systematicTree->makeOutputVariable(m_klfitter_model_lq2_phi,"klfitter_model_lq2_phi");
+                      systematicTree->makeOutputVariable(m_klfitter_model_lq2_E,"klfitter_model_lq2_E");
+                      systematicTree->makeOutputVariable(m_klfitter_model_lq2_jetIndex,"klfitter_model_lq2_jetIndex");
 
-                  if(m_config->KLFitterLH() == "ttH"){
+                      if(m_config->KLFitterLH() == "ttZTrilepton"){
+                        systematicTree->makeOutputVariable(m_klfitter_model_lep_index,"klfitter_model_lep_index");
 
-                    systematicTree->makeOutputVariable(m_klfitter_model_Higgs_b1_pt,"klfitter_model_Higgs_b1_pt");
-                    systematicTree->makeOutputVariable(m_klfitter_model_Higgs_b1_eta,"klfitter_model_Higgs_b1_eta");
-                    systematicTree->makeOutputVariable(m_klfitter_model_Higgs_b1_phi,"klfitter_model_Higgs_b1_phi");
-                    systematicTree->makeOutputVariable(m_klfitter_model_Higgs_b1_E,"klfitter_model_Higgs_b1_E");
-                    systematicTree->makeOutputVariable(m_klfitter_model_Higgs_b1_jetIndex,"klfitter_model_Higgs_b1_jetIndex");
+                        systematicTree->makeOutputVariable(m_klfitter_model_lepZ1_pt,"klfitter_model_lepZ1_pt");
+                        systematicTree->makeOutputVariable(m_klfitter_model_lepZ1_eta,"klfitter_model_lepZ1_eta");
+                        systematicTree->makeOutputVariable(m_klfitter_model_lepZ1_phi,"klfitter_model_lepZ1_phi");
+                        systematicTree->makeOutputVariable(m_klfitter_model_lepZ1_E,"klfitter_model_lepZ1_E");
+                        systematicTree->makeOutputVariable(m_klfitter_model_lepZ1_index,"klfitter_model_lepZ1_index");
 
-                    systematicTree->makeOutputVariable(m_klfitter_model_Higgs_b2_pt,"klfitter_model_Higgs_b2_pt");
-                    systematicTree->makeOutputVariable(m_klfitter_model_Higgs_b2_eta,"klfitter_model_Higgs_b2_eta");
-                    systematicTree->makeOutputVariable(m_klfitter_model_Higgs_b2_phi,"klfitter_model_Higgs_b2_phi");
-                    systematicTree->makeOutputVariable(m_klfitter_model_Higgs_b2_E,"klfitter_model_Higgs_b2_E");
-                    systematicTree->makeOutputVariable(m_klfitter_model_Higgs_b2_jetIndex,"klfitter_model_Higgs_b2_jetIndex");
+                        systematicTree->makeOutputVariable(m_klfitter_model_lepZ2_pt,"klfitter_model_lepZ2_pt");
+                        systematicTree->makeOutputVariable(m_klfitter_model_lepZ2_eta,"klfitter_model_lepZ2_eta");
+                        systematicTree->makeOutputVariable(m_klfitter_model_lepZ2_phi,"klfitter_model_lepZ2_phi");
+                        systematicTree->makeOutputVariable(m_klfitter_model_lepZ2_E,"klfitter_model_lepZ2_E");
+                        systematicTree->makeOutputVariable(m_klfitter_model_lepZ2_index,"klfitter_model_lepZ2_index");
+                      }
+
+                      if(m_config->KLFitterLH() == "ttH"){
+
+                        systematicTree->makeOutputVariable(m_klfitter_model_Higgs_b1_pt,"klfitter_model_Higgs_b1_pt");
+                        systematicTree->makeOutputVariable(m_klfitter_model_Higgs_b1_eta,"klfitter_model_Higgs_b1_eta");
+                        systematicTree->makeOutputVariable(m_klfitter_model_Higgs_b1_phi,"klfitter_model_Higgs_b1_phi");
+                        systematicTree->makeOutputVariable(m_klfitter_model_Higgs_b1_E,"klfitter_model_Higgs_b1_E");
+                        systematicTree->makeOutputVariable(m_klfitter_model_Higgs_b1_jetIndex,"klfitter_model_Higgs_b1_jetIndex");
+
+                        systematicTree->makeOutputVariable(m_klfitter_model_Higgs_b2_pt,"klfitter_model_Higgs_b2_pt");
+                        systematicTree->makeOutputVariable(m_klfitter_model_Higgs_b2_eta,"klfitter_model_Higgs_b2_eta");
+                        systematicTree->makeOutputVariable(m_klfitter_model_Higgs_b2_phi,"klfitter_model_Higgs_b2_phi");
+                        systematicTree->makeOutputVariable(m_klfitter_model_Higgs_b2_E,"klfitter_model_Higgs_b2_E");
+                        systematicTree->makeOutputVariable(m_klfitter_model_Higgs_b2_jetIndex,"klfitter_model_Higgs_b2_jetIndex");
+                      }
+                    }
+                  } else if (m_config->KLFitterLH() == "ttbar_AllHadronic"){
+
+                    systematicTree->makeOutputVariable(m_klfitter_model_b_from_top1_pt,"klfitter_model_b_from_top1_pt");
+                    systematicTree->makeOutputVariable(m_klfitter_model_b_from_top1_eta,"klfitter_model_b_from_top1_eta");
+                    systematicTree->makeOutputVariable(m_klfitter_model_b_from_top1_phi,"klfitter_model_b_from_top1_phi");
+                    systematicTree->makeOutputVariable(m_klfitter_model_b_from_top1_E,"klfitter_model_b_from_top1_E");
+                    systematicTree->makeOutputVariable(m_klfitter_model_b_from_top1_jetIndex,"klfitter_model_b_from_top1_jetIndex");
+
+                    systematicTree->makeOutputVariable(m_klfitter_model_b_from_top2_pt,"klfitter_model_b_from_top2_pt");
+                    systematicTree->makeOutputVariable(m_klfitter_model_b_from_top2_eta,"klfitter_model_b_from_top2_eta");
+                    systematicTree->makeOutputVariable(m_klfitter_model_b_from_top2_phi,"klfitter_model_b_from_top2_phi");
+                    systematicTree->makeOutputVariable(m_klfitter_model_b_from_top2_E,"klfitter_model_b_from_top2_E");
+                    systematicTree->makeOutputVariable(m_klfitter_model_b_from_top2_jetIndex,"klfitter_model_b_from_top2_jetIndex");
+
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj1_from_top1_pt,"klfitter_model_lj1_from_top1_pt");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj1_from_top1_eta,"klfitter_model_lj1_from_top1_eta");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj1_from_top1_phi,"klfitter_model_lj1_from_top1_phi");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj1_from_top1_E,"klfitter_model_lj1_from_top1_E");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj1_from_top1_jetIndex,"klfitter_model_lj1_from_top1_jetIndex");
+
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top1_pt,"klfitter_model_lj1_from_top1_pt");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top1_eta,"klfitter_model_lj1_from_top1_eta");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top1_phi,"klfitter_model_lj1_from_top1_phi");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top1_E,"klfitter_model_lj1_from_top1_E");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top1_jetIndex,"klfitter_model_lj1_from_top1_jetIndex");
+
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj1_from_top2_pt,"klfitter_model_lj1_from_top2_pt");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj1_from_top2_eta,"klfitter_model_lj1_from_top2_eta");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj1_from_top2_phi,"klfitter_model_lj1_from_top2_phi");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj1_from_top2_E,"klfitter_model_lj1_from_top2_E");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj1_from_top2_jetIndex,"klfitter_model_lj1_from_top2_jetIndex");
+
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top2_pt,"klfitter_model_lj1_from_top2_pt");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top2_eta,"klfitter_model_lj1_from_top2_eta");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top2_phi,"klfitter_model_lj1_from_top2_phi");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top2_E,"klfitter_model_lj1_from_top2_E");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top2_jetIndex,"klfitter_model_lj1_from_top2_jetIndex");
+
                   }
                 }
 
                 if( m_config->KLFitterOutput() == "FULL" || m_config->KLFitterOutput() == "FITTEDTOPS_ONLY" ){
-                  systematicTree->makeOutputVariable(m_klfitter_bestPerm_topLep_pt,"klfitter_bestPerm_topLep_pt");
-                  systematicTree->makeOutputVariable(m_klfitter_bestPerm_topLep_eta,"klfitter_bestPerm_topLep_eta");
-                  systematicTree->makeOutputVariable(m_klfitter_bestPerm_topLep_phi,"klfitter_bestPerm_topLep_phi");
-                  systematicTree->makeOutputVariable(m_klfitter_bestPerm_topLep_E,"klfitter_bestPerm_topLep_E");
-                  systematicTree->makeOutputVariable(m_klfitter_bestPerm_topLep_m,"klfitter_bestPerm_topLep_m");
+                  if (m_config->KLFitterLH() == "ttbar" || m_config->KLFitterLH() == "ttZTrilepton" || m_config->KLFitterLH() == "ttH" || m_config->KLFitterLH() == "ttbar_JetAngles"){
+                    systematicTree->makeOutputVariable(m_klfitter_bestPerm_topLep_pt,"klfitter_bestPerm_topLep_pt");
+                    systematicTree->makeOutputVariable(m_klfitter_bestPerm_topLep_eta,"klfitter_bestPerm_topLep_eta");
+                    systematicTree->makeOutputVariable(m_klfitter_bestPerm_topLep_phi,"klfitter_bestPerm_topLep_phi");
+                    systematicTree->makeOutputVariable(m_klfitter_bestPerm_topLep_E,"klfitter_bestPerm_topLep_E");
+                    systematicTree->makeOutputVariable(m_klfitter_bestPerm_topLep_m,"klfitter_bestPerm_topLep_m");
 
-                  systematicTree->makeOutputVariable(m_klfitter_bestPerm_topHad_pt,"klfitter_bestPerm_topHad_pt");
-                  systematicTree->makeOutputVariable(m_klfitter_bestPerm_topHad_eta,"klfitter_bestPerm_topHad_eta");
-                  systematicTree->makeOutputVariable(m_klfitter_bestPerm_topHad_phi,"klfitter_bestPerm_topHad_phi");
-                  systematicTree->makeOutputVariable(m_klfitter_bestPerm_topHad_E,"klfitter_bestPerm_topHad_E");
-                  systematicTree->makeOutputVariable(m_klfitter_bestPerm_topHad_m,"klfitter_bestPerm_topHad_m");
+                    systematicTree->makeOutputVariable(m_klfitter_bestPerm_topHad_pt,"klfitter_bestPerm_topHad_pt");
+                    systematicTree->makeOutputVariable(m_klfitter_bestPerm_topHad_eta,"klfitter_bestPerm_topHad_eta");
+                    systematicTree->makeOutputVariable(m_klfitter_bestPerm_topHad_phi,"klfitter_bestPerm_topHad_phi");
+                    systematicTree->makeOutputVariable(m_klfitter_bestPerm_topHad_E,"klfitter_bestPerm_topHad_E");
+                    systematicTree->makeOutputVariable(m_klfitter_bestPerm_topHad_m,"klfitter_bestPerm_topHad_m");
 
-                  systematicTree->makeOutputVariable(m_klfitter_bestPerm_ttbar_pt,"klfitter_bestPerm_ttbar_pt");
-                  systematicTree->makeOutputVariable(m_klfitter_bestPerm_ttbar_eta,"klfitter_bestPerm_ttbar_eta");
-                  systematicTree->makeOutputVariable(m_klfitter_bestPerm_ttbar_phi,"klfitter_bestPerm_ttbar_phi");
-                  systematicTree->makeOutputVariable(m_klfitter_bestPerm_ttbar_E,"klfitter_bestPerm_ttbar_E");
-                  systematicTree->makeOutputVariable(m_klfitter_bestPerm_ttbar_m,"klfitter_bestPerm_ttbar_m");
+                    systematicTree->makeOutputVariable(m_klfitter_bestPerm_ttbar_pt,"klfitter_bestPerm_ttbar_pt");
+                    systematicTree->makeOutputVariable(m_klfitter_bestPerm_ttbar_eta,"klfitter_bestPerm_ttbar_eta");
+                    systematicTree->makeOutputVariable(m_klfitter_bestPerm_ttbar_phi,"klfitter_bestPerm_ttbar_phi");
+                    systematicTree->makeOutputVariable(m_klfitter_bestPerm_ttbar_E,"klfitter_bestPerm_ttbar_E");
+                    systematicTree->makeOutputVariable(m_klfitter_bestPerm_ttbar_m,"klfitter_bestPerm_ttbar_m");
+                  }
                 }
             }
 
@@ -1607,14 +1687,33 @@ namespace top {
             m_jet_ip3dsv1.resize(event.m_jets.size());
             m_jet_jvt.resize(event.m_jets.size());
             m_jet_passfjvt.resize(event.m_jets.size());
+	    // R21 b-tagging
+	    if(m_config->getReleaseSeries() == 25){
+	      m_jet_MV2c10mu.resize(event.m_jets.size());
+	      m_jet_MV2c10rnn.resize(event.m_jets.size());
+	      m_jet_DL1.resize(event.m_jets.size());
+	      m_jet_DL1mu.resize(event.m_jets.size());
+	      m_jet_DL1rnn.resize(event.m_jets.size());
+	      m_jet_MV2cl100.resize(event.m_jets.size());
+	      m_jet_MV2c100.resize(event.m_jets.size());
+	      m_jet_DL1_pu.resize(event.m_jets.size());
+	      m_jet_DL1_pc.resize(event.m_jets.size());
+	      m_jet_DL1_pb.resize(event.m_jets.size());
+	      m_jet_DL1mu_pu.resize(event.m_jets.size());
+	      m_jet_DL1mu_pc.resize(event.m_jets.size());
+	      m_jet_DL1mu_pb.resize(event.m_jets.size());
+	      m_jet_DL1rnn_pu.resize(event.m_jets.size());
+	      m_jet_DL1rnn_pc.resize(event.m_jets.size());
+	      m_jet_DL1rnn_pb.resize(event.m_jets.size());
+	    }
             if (m_config->isMC()) {
               m_jet_truthflav.resize(event.m_jets.size());
               m_jet_truthPartonLabel.resize(event.m_jets.size());
               m_jet_isTrueHS.resize(event.m_jets.size());
             }
             for( auto& tagWP : m_config -> bTagWP_available()){
-              if (tagWP!= "Continuous") m_jet_isbtagged[tagWP].resize(event.m_jets.size());
-              else m_jet_tagWeightBin.resize(event.m_jets.size());
+              if (tagWP.find("Continuous") == std::string::npos) m_jet_isbtagged[tagWP].resize(event.m_jets.size());
+              else m_jet_tagWeightBin[tagWP].resize(event.m_jets.size());
             }
             for (const auto* const jetPtr : event.m_jets) {
                 m_jet_pt[i] = jetPtr->pt();
@@ -1644,15 +1743,15 @@ namespace top {
                   }
                 }
                 for( auto& tagWP : m_config -> bTagWP_available()){
-                  if (tagWP!= "Continuous") {
+                  if (tagWP.find("Continuous") == std::string::npos) {
                     m_jet_isbtagged[tagWP][i] = false;
                     if(jetPtr->isAvailable<char>("isbtagged_"+tagWP))
                       m_jet_isbtagged[tagWP][i] = jetPtr->auxdataConst<char>("isbtagged_"+tagWP);
                   }
                   else {
-                    m_jet_tagWeightBin[i] = -2;// AT default value
-                    if(jetPtr->isAvailable<int>("tagWeightBin"))
-                      m_jet_tagWeightBin[i] = jetPtr->auxdataConst<int>("tagWeightBin");
+                    m_jet_tagWeightBin[tagWP][i] = -2;// AT default value
+                    if(jetPtr->isAvailable<int>("tagWeightBin_"+tagWP))
+                      m_jet_tagWeightBin[tagWP][i] = jetPtr->auxdataConst<int>("tagWeightBin_"+tagWP);
                   }
                 }
 
@@ -1676,6 +1775,75 @@ namespace top {
                 if (jetPtr->isAvailable<char>("passFJVT")) {
                     m_jet_passfjvt[i] = jetPtr->getAttribute<char>("passFJVT");
                 }
+
+		// BTagging variables supported for R21 but method is only in newer version so preprocessor requirement
+		#if ROOTCORE_RELEASE_SERIES >= 25
+		if(m_config->getReleaseSeries() == 25){
+		  m_jet_MV2c10mu[i] = -999;
+		  m_jet_MV2c10rnn[i] = -999;
+		  // DL1 can now be provided by btagging selector tool (see TopCorrections/BTagScaleFactorCalculator)
+		  m_jet_DL1[i]    = jetPtr->auxdataConst<float>("AnalysisTop_DL1");
+		  m_jet_DL1mu[i]  = jetPtr->auxdataConst<float>("AnalysisTop_DL1mu");
+		  m_jet_DL1rnn[i] = jetPtr->auxdataConst<float>("AnalysisTop_DL1rnn");
+		  m_jet_MV2cl100[i] = -999;
+		  m_jet_MV2c100[i] = -999;
+		  m_jet_DL1_pu[i] = -999;
+		  m_jet_DL1_pc[i] = -999;
+		  m_jet_DL1_pb[i] = -999;
+		  m_jet_DL1mu_pu[i] = -999;
+		  m_jet_DL1mu_pc[i] = -999;
+		  m_jet_DL1mu_pb[i] = -999;
+		  m_jet_DL1rnn_pu[i] = -999;
+                  m_jet_DL1rnn_pc[i] = -999;
+		  m_jet_DL1rnn_pb[i] = -999;
+
+		  if(btag){
+		    // MVX
+		    mvx = -999;
+		    btag->MVx_discriminant("MV2c10mu", mvx);
+		    m_jet_MV2c10mu[i] = mvx;
+		    
+		    mvx = -999;
+		    btag->MVx_discriminant("MV2c10rnn", mvx);
+		    m_jet_MV2c10rnn[i] = mvx;
+		    
+		    mvx = -999;
+                    btag->MVx_discriminant("MV2cl100", mvx);
+                    m_jet_MV2cl100[i] = mvx;
+
+		    mvx = -999;
+                    btag->MVx_discriminant("MV2c100", mvx);
+                    m_jet_MV2c100[i] = mvx;
+		    
+		    // DL1
+		    double _pu, _pc, _pb = -999;
+
+		    // DL1rnnCTag - Calculation in xAODBTaggingEfficiency/BTaggingSelectionTool.cxx but depends on fraction
+		    // so just providing the DL1rnn weights to construct tagger offline
+		    btag->pu("DL1rnn",_pu);
+		    btag->pb("DL1rnn",_pb);
+                    btag->pc("DL1rnn",_pc);
+		    m_jet_DL1rnn_pu[i] = _pu;
+                    m_jet_DL1rnn_pc[i] = _pc;
+                    m_jet_DL1rnn_pb[i] = _pb;		    
+		    // DL1mu - as above
+		    btag->pu("DL1mu",_pu);
+                    btag->pb("DL1mu",_pb);
+                    btag->pc("DL1mu",_pc);
+		    m_jet_DL1mu_pu[i] = _pu;
+		    m_jet_DL1mu_pc[i] = _pc;
+		    m_jet_DL1mu_pb[i] = _pb;
+		    // DL1 - as above
+		    btag->pu("DL1",_pu);
+                    btag->pb("DL1",_pb);
+                    btag->pc("DL1",_pc);
+		    m_jet_DL1_pu[i] = _pu;
+		    m_jet_DL1_pc[i] = _pc;
+		    m_jet_DL1_pb[i] = _pb;
+		    
+		  }
+		} // getReleaseSeries == 25
+                #endif // ROOTCORE_RELEASE_SERIES
 
                 ++i;
             }
@@ -1729,8 +1897,8 @@ namespace top {
             m_tjet_mv2c10.resize(event.m_trackJets.size());
             m_tjet_mv2c20.resize(event.m_trackJets.size());
             for( auto& tagWP : m_config -> bTagWP_available_trkJet()) {
-              if (tagWP!= "Continuous") m_tjet_isbtagged[tagWP].resize(event.m_trackJets.size());
-              else m_tjet_tagWeightBin.resize(event.m_trackJets.size());
+              if (tagWP.find("Continuous") == std::string::npos) m_tjet_isbtagged[tagWP].resize(event.m_trackJets.size());
+              else m_tjet_tagWeightBin[tagWP].resize(event.m_trackJets.size());
             }
             for (const auto* const jetPtr : event.m_trackJets) {
                 m_tjet_pt[i] = jetPtr->pt();
@@ -1750,15 +1918,15 @@ namespace top {
                 if (btag) btag->MVx_discriminant("MV2c20", mvx);
                 m_tjet_mv2c20[i] = mvx;
                 for( auto& tagWP : m_config -> bTagWP_available_trkJet()){
-                  if (tagWP!= "Continuous") {
+                  if (tagWP.find("Continuous") == std::string::npos) {
                     m_tjet_isbtagged[tagWP][i] = false;
                     if(jetPtr->isAvailable<char>("isbtagged_"+tagWP))
                       m_tjet_isbtagged[tagWP][i] = jetPtr->auxdataConst<char>("isbtagged_"+tagWP);
                   }
                   else {
-                    m_tjet_tagWeightBin[i] = -2;// AT default value
-                    if(jetPtr->isAvailable<int>("tagWeightBin"))
-                      m_tjet_tagWeightBin[i] = jetPtr->auxdataConst<int>("tagWeightBin");
+                    m_tjet_tagWeightBin[tagWP][i] = -2;// AT default value
+                    if(jetPtr->isAvailable<int>("tagWeightBin_"+tagWP))
+                      m_tjet_tagWeightBin[tagWP][i] = jetPtr->auxdataConst<int>("tagWeightBin_"+tagWP);
                   }
                 }
                 ++i;
@@ -1996,56 +2164,111 @@ namespace top {
             m_klfitter_parameters.resize(nPermutations);
             m_klfitter_parameterErrors.resize(nPermutations);
 
-            /// Model
-            m_klfitter_model_bhad_pt.resize(nPermutations);
-            m_klfitter_model_bhad_eta.resize(nPermutations);
-            m_klfitter_model_bhad_phi.resize(nPermutations);
-            m_klfitter_model_bhad_E.resize(nPermutations);
-            m_klfitter_model_bhad_jetIndex.resize(nPermutations);
+            if (m_config->KLFitterLH() == "ttbar" || m_config->KLFitterLH() == "ttZTrilepton" || m_config->KLFitterLH() == "ttH" || m_config->KLFitterLH() == "ttbar_JetAngles" || m_config->KLFitterLH() == "ttbar_BoostedLJets"){
+              /// Model
+              m_klfitter_model_bhad_pt.resize(nPermutations);
+              m_klfitter_model_bhad_eta.resize(nPermutations);
+              m_klfitter_model_bhad_phi.resize(nPermutations);
+              m_klfitter_model_bhad_E.resize(nPermutations);
+              m_klfitter_model_bhad_jetIndex.resize(nPermutations);
 
-            m_klfitter_model_blep_pt.resize(nPermutations);
-            m_klfitter_model_blep_eta.resize(nPermutations);
-            m_klfitter_model_blep_phi.resize(nPermutations);
-            m_klfitter_model_blep_E.resize(nPermutations);
-            m_klfitter_model_blep_jetIndex.resize(nPermutations);
+              m_klfitter_model_blep_pt.resize(nPermutations);
+              m_klfitter_model_blep_eta.resize(nPermutations);
+              m_klfitter_model_blep_phi.resize(nPermutations);
+              m_klfitter_model_blep_E.resize(nPermutations);
+              m_klfitter_model_blep_jetIndex.resize(nPermutations);
 
-            m_klfitter_model_lq1_pt.resize(nPermutations);
-            m_klfitter_model_lq1_eta.resize(nPermutations);
-            m_klfitter_model_lq1_phi.resize(nPermutations);
-            m_klfitter_model_lq1_E.resize(nPermutations);
-            m_klfitter_model_lq1_jetIndex.resize(nPermutations);
+              m_klfitter_model_lq1_pt.resize(nPermutations);
+              m_klfitter_model_lq1_eta.resize(nPermutations);
+              m_klfitter_model_lq1_phi.resize(nPermutations);
+              m_klfitter_model_lq1_E.resize(nPermutations);
+              m_klfitter_model_lq1_jetIndex.resize(nPermutations);
 
-            m_klfitter_model_lq2_pt.resize(nPermutations);
-            m_klfitter_model_lq2_eta.resize(nPermutations);
-            m_klfitter_model_lq2_phi.resize(nPermutations);
-            m_klfitter_model_lq2_E.resize(nPermutations);
-            m_klfitter_model_lq2_jetIndex.resize(nPermutations);
+              if(m_config -> KLFitterLH() != "ttbar_BoostedLJets"){
+                m_klfitter_model_lq2_pt.resize(nPermutations);
+                m_klfitter_model_lq2_eta.resize(nPermutations);
+                m_klfitter_model_lq2_phi.resize(nPermutations);
+                m_klfitter_model_lq2_E.resize(nPermutations);
+                m_klfitter_model_lq2_jetIndex.resize(nPermutations);
 
-	    if(m_config -> KLFitterLH() == "ttH"){
+	        if(m_config -> KLFitterLH() == "ttH"){
 
-	      m_klfitter_model_Higgs_b1_pt.resize(nPermutations);
-	      m_klfitter_model_Higgs_b1_eta.resize(nPermutations);
-	      m_klfitter_model_Higgs_b1_phi.resize(nPermutations);
-	      m_klfitter_model_Higgs_b1_E.resize(nPermutations);
-	      m_klfitter_model_Higgs_b1_jetIndex.resize(nPermutations);
+	          m_klfitter_model_Higgs_b1_pt.resize(nPermutations);
+	          m_klfitter_model_Higgs_b1_eta.resize(nPermutations);
+	          m_klfitter_model_Higgs_b1_phi.resize(nPermutations);
+	          m_klfitter_model_Higgs_b1_E.resize(nPermutations);
+	          m_klfitter_model_Higgs_b1_jetIndex.resize(nPermutations);
 
-	      m_klfitter_model_Higgs_b2_pt.resize(nPermutations);
-	      m_klfitter_model_Higgs_b2_eta.resize(nPermutations);
-	      m_klfitter_model_Higgs_b2_phi.resize(nPermutations);
-	      m_klfitter_model_Higgs_b2_E.resize(nPermutations);
-	      m_klfitter_model_Higgs_b2_jetIndex.resize(nPermutations);
+	          m_klfitter_model_Higgs_b2_pt.resize(nPermutations);
+	          m_klfitter_model_Higgs_b2_eta.resize(nPermutations);
+	          m_klfitter_model_Higgs_b2_phi.resize(nPermutations);
+	          m_klfitter_model_Higgs_b2_E.resize(nPermutations);
+	          m_klfitter_model_Higgs_b2_jetIndex.resize(nPermutations);
 
-	    }
+	        }
+              }
 
-            m_klfitter_model_lep_pt.resize(nPermutations);
-            m_klfitter_model_lep_eta.resize(nPermutations);
-            m_klfitter_model_lep_phi.resize(nPermutations);
-            m_klfitter_model_lep_E.resize(nPermutations);
+              m_klfitter_model_lep_pt.resize(nPermutations);
+              m_klfitter_model_lep_eta.resize(nPermutations);
+              m_klfitter_model_lep_phi.resize(nPermutations);
+              m_klfitter_model_lep_E.resize(nPermutations);
+              m_klfitter_model_lep_index.resize(nPermutations);
 
-            m_klfitter_model_nu_pt.resize(nPermutations);
-            m_klfitter_model_nu_eta.resize(nPermutations);
-            m_klfitter_model_nu_phi.resize(nPermutations);
-            m_klfitter_model_nu_E.resize(nPermutations);
+              m_klfitter_model_lepZ1_pt.resize(nPermutations);
+              m_klfitter_model_lepZ1_eta.resize(nPermutations);
+              m_klfitter_model_lepZ1_phi.resize(nPermutations);
+              m_klfitter_model_lepZ1_E.resize(nPermutations);
+              m_klfitter_model_lepZ1_index.resize(nPermutations);
+
+              m_klfitter_model_lepZ2_pt.resize(nPermutations);
+              m_klfitter_model_lepZ2_eta.resize(nPermutations);
+              m_klfitter_model_lepZ2_phi.resize(nPermutations);
+              m_klfitter_model_lepZ2_E.resize(nPermutations);
+              m_klfitter_model_lepZ2_index.resize(nPermutations);
+
+              m_klfitter_model_nu_pt.resize(nPermutations);
+              m_klfitter_model_nu_eta.resize(nPermutations);
+              m_klfitter_model_nu_phi.resize(nPermutations);
+              m_klfitter_model_nu_E.resize(nPermutations);
+
+            } else if (m_config->KLFitterLH() == "ttbar_AllHadronic"){
+              m_klfitter_model_b_from_top1_pt.resize(nPermutations);
+              m_klfitter_model_b_from_top1_eta.resize(nPermutations);
+              m_klfitter_model_b_from_top1_phi.resize(nPermutations);
+              m_klfitter_model_b_from_top1_E.resize(nPermutations);
+              m_klfitter_model_b_from_top1_jetIndex.resize(nPermutations);
+
+              m_klfitter_model_b_from_top2_pt.resize(nPermutations);
+              m_klfitter_model_b_from_top2_eta.resize(nPermutations);
+              m_klfitter_model_b_from_top2_phi.resize(nPermutations);
+              m_klfitter_model_b_from_top2_E.resize(nPermutations);
+              m_klfitter_model_b_from_top2_jetIndex.resize(nPermutations);
+
+              m_klfitter_model_lj1_from_top1_pt.resize(nPermutations);
+              m_klfitter_model_lj1_from_top1_eta.resize(nPermutations);
+              m_klfitter_model_lj1_from_top1_phi.resize(nPermutations);
+              m_klfitter_model_lj1_from_top1_E.resize(nPermutations);
+              m_klfitter_model_lj1_from_top1_jetIndex.resize(nPermutations);
+
+              m_klfitter_model_lj2_from_top1_pt.resize(nPermutations);
+              m_klfitter_model_lj2_from_top1_eta.resize(nPermutations);
+              m_klfitter_model_lj2_from_top1_phi.resize(nPermutations);
+              m_klfitter_model_lj2_from_top1_E.resize(nPermutations);
+              m_klfitter_model_lj2_from_top1_jetIndex.resize(nPermutations);
+
+              m_klfitter_model_lj1_from_top2_pt.resize(nPermutations);
+              m_klfitter_model_lj1_from_top2_eta.resize(nPermutations);
+              m_klfitter_model_lj1_from_top2_phi.resize(nPermutations);
+              m_klfitter_model_lj1_from_top2_E.resize(nPermutations);
+              m_klfitter_model_lj1_from_top2_jetIndex.resize(nPermutations);
+
+              m_klfitter_model_lj2_from_top2_pt.resize(nPermutations);
+              m_klfitter_model_lj2_from_top2_eta.resize(nPermutations);
+              m_klfitter_model_lj2_from_top2_phi.resize(nPermutations);
+              m_klfitter_model_lj2_from_top2_E.resize(nPermutations);
+              m_klfitter_model_lj2_from_top2_jetIndex.resize(nPermutations);
+
+            }
 
             if (validKLFitter) {
                 for (const auto* const klPtr : *event.m_KLFitterResults) {
@@ -2065,94 +2288,150 @@ namespace top {
                     m_klfitter_parameterErrors[iPerm] = klPtr->parameterErrors();
 
                     /// Model
-                    m_klfitter_model_bhad_pt[iPerm] = klPtr->model_bhad_pt();
-                    m_klfitter_model_bhad_eta[iPerm] = klPtr->model_bhad_eta();
-                    m_klfitter_model_bhad_phi[iPerm] = klPtr->model_bhad_phi();
-                    m_klfitter_model_bhad_E[iPerm] = klPtr->model_bhad_E();
-                    m_klfitter_model_bhad_jetIndex[iPerm] = klPtr->model_bhad_jetIndex();
+                    if (m_config->KLFitterLH() == "ttbar" || m_config->KLFitterLH() == "ttZTrilepton" || m_config->KLFitterLH() == "ttH" || m_config->KLFitterLH() == "ttbar_JetAngles" || m_config->KLFitterLH() == "ttbar_BoostedLJets"){
+                      m_klfitter_model_bhad_pt[iPerm] = klPtr->model_bhad_pt();
+                      m_klfitter_model_bhad_eta[iPerm] = klPtr->model_bhad_eta();
+                      m_klfitter_model_bhad_phi[iPerm] = klPtr->model_bhad_phi();
+                      m_klfitter_model_bhad_E[iPerm] = klPtr->model_bhad_E();
+                      m_klfitter_model_bhad_jetIndex[iPerm] = klPtr->model_bhad_jetIndex();
 
-                    m_klfitter_model_blep_pt[iPerm] = klPtr->model_blep_pt();
-                    m_klfitter_model_blep_eta[iPerm] = klPtr->model_blep_eta();
-                    m_klfitter_model_blep_phi[iPerm] = klPtr->model_blep_phi();
-                    m_klfitter_model_blep_E[iPerm] = klPtr->model_blep_E();
-                    m_klfitter_model_blep_jetIndex[iPerm] = klPtr->model_blep_jetIndex();
+                      m_klfitter_model_blep_pt[iPerm] = klPtr->model_blep_pt();
+                      m_klfitter_model_blep_eta[iPerm] = klPtr->model_blep_eta();
+                      m_klfitter_model_blep_phi[iPerm] = klPtr->model_blep_phi();
+                      m_klfitter_model_blep_E[iPerm] = klPtr->model_blep_E();
+                      m_klfitter_model_blep_jetIndex[iPerm] = klPtr->model_blep_jetIndex();
 
-                    m_klfitter_model_lq1_pt[iPerm] = klPtr->model_lq1_pt();
-                    m_klfitter_model_lq1_eta[iPerm] = klPtr->model_lq1_eta();
-                    m_klfitter_model_lq1_phi[iPerm] = klPtr->model_lq1_phi();
-                    m_klfitter_model_lq1_E[iPerm] = klPtr->model_lq1_E();
-                    m_klfitter_model_lq1_jetIndex[iPerm] = klPtr->model_lq1_jetIndex();
+                      m_klfitter_model_lq1_pt[iPerm] = klPtr->model_lq1_pt();
+                      m_klfitter_model_lq1_eta[iPerm] = klPtr->model_lq1_eta();
+                      m_klfitter_model_lq1_phi[iPerm] = klPtr->model_lq1_phi();
+                      m_klfitter_model_lq1_E[iPerm] = klPtr->model_lq1_E();
+                      m_klfitter_model_lq1_jetIndex[iPerm] = klPtr->model_lq1_jetIndex();
 
-                    m_klfitter_model_lq2_pt[iPerm] = klPtr->model_lq2_pt();
-                    m_klfitter_model_lq2_eta[iPerm] = klPtr->model_lq2_eta();
-                    m_klfitter_model_lq2_phi[iPerm] = klPtr->model_lq2_phi();
-                    m_klfitter_model_lq2_E[iPerm] = klPtr->model_lq2_E();
-                    m_klfitter_model_lq2_jetIndex[iPerm] = klPtr->model_lq2_jetIndex();
+                      if(m_config -> KLFitterLH() != "ttbar_BoostedLJets"){
+                        m_klfitter_model_lq2_pt[iPerm] = klPtr->model_lq2_pt();
+                        m_klfitter_model_lq2_eta[iPerm] = klPtr->model_lq2_eta();
+                        m_klfitter_model_lq2_phi[iPerm] = klPtr->model_lq2_phi();
+                        m_klfitter_model_lq2_E[iPerm] = klPtr->model_lq2_E();
+                        m_klfitter_model_lq2_jetIndex[iPerm] = klPtr->model_lq2_jetIndex();
 
-		    if(m_config -> KLFitterLH() == "ttH"){
+		        if(m_config -> KLFitterLH() == "ttH"){
 
-		      m_klfitter_model_Higgs_b1_pt[iPerm] = klPtr->model_Higgs_b1_pt();
-		      m_klfitter_model_Higgs_b1_eta[iPerm] = klPtr->model_Higgs_b1_eta();
-		      m_klfitter_model_Higgs_b1_phi[iPerm] = klPtr->model_Higgs_b1_phi();
-		      m_klfitter_model_Higgs_b1_E[iPerm] = klPtr->model_Higgs_b1_E();
-		      m_klfitter_model_Higgs_b1_jetIndex[iPerm] = klPtr->model_Higgs_b1_jetIndex();
+		          m_klfitter_model_Higgs_b1_pt[iPerm] = klPtr->model_Higgs_b1_pt();
+		          m_klfitter_model_Higgs_b1_eta[iPerm] = klPtr->model_Higgs_b1_eta();
+		          m_klfitter_model_Higgs_b1_phi[iPerm] = klPtr->model_Higgs_b1_phi();
+		          m_klfitter_model_Higgs_b1_E[iPerm] = klPtr->model_Higgs_b1_E();
+		          m_klfitter_model_Higgs_b1_jetIndex[iPerm] = klPtr->model_Higgs_b1_jetIndex();
 
-		      m_klfitter_model_Higgs_b2_pt[iPerm] = klPtr->model_Higgs_b2_pt();
-		      m_klfitter_model_Higgs_b2_eta[iPerm] = klPtr->model_Higgs_b2_eta();
-		      m_klfitter_model_Higgs_b2_phi[iPerm] = klPtr->model_Higgs_b2_phi();
-		      m_klfitter_model_Higgs_b2_E[iPerm] = klPtr->model_Higgs_b2_E();
-		      m_klfitter_model_Higgs_b2_jetIndex[iPerm] = klPtr->model_Higgs_b2_jetIndex();
+		          m_klfitter_model_Higgs_b2_pt[iPerm] = klPtr->model_Higgs_b2_pt();
+		          m_klfitter_model_Higgs_b2_eta[iPerm] = klPtr->model_Higgs_b2_eta();
+		          m_klfitter_model_Higgs_b2_phi[iPerm] = klPtr->model_Higgs_b2_phi();
+		          m_klfitter_model_Higgs_b2_E[iPerm] = klPtr->model_Higgs_b2_E();
+		          m_klfitter_model_Higgs_b2_jetIndex[iPerm] = klPtr->model_Higgs_b2_jetIndex();
 
-		    }
+		        }
+                      }
+                      m_klfitter_model_lep_pt[iPerm] = klPtr->model_lep_pt();
+                      m_klfitter_model_lep_eta[iPerm] = klPtr->model_lep_eta();
+                      m_klfitter_model_lep_phi[iPerm] = klPtr->model_lep_phi();
+                      m_klfitter_model_lep_E[iPerm] = klPtr->model_lep_E();
+                      m_klfitter_model_lep_index[iPerm] = klPtr->model_lep_index();
 
-                    m_klfitter_model_lep_pt[iPerm] = klPtr->model_lep_pt();
-                    m_klfitter_model_lep_eta[iPerm] = klPtr->model_lep_eta();
-                    m_klfitter_model_lep_phi[iPerm] = klPtr->model_lep_phi();
-                    m_klfitter_model_lep_E[iPerm] = klPtr->model_lep_E();
+                      m_klfitter_model_lepZ1_pt[iPerm] = klPtr->model_lepZ1_pt();
+                      m_klfitter_model_lepZ1_eta[iPerm] = klPtr->model_lepZ1_eta();
+                      m_klfitter_model_lepZ1_phi[iPerm] = klPtr->model_lepZ1_phi();
+                      m_klfitter_model_lepZ1_E[iPerm] = klPtr->model_lepZ1_E();
+                      m_klfitter_model_lepZ1_index[iPerm] = klPtr->model_lepZ1_index();
 
-                    m_klfitter_model_nu_pt[iPerm] = klPtr->model_nu_pt();
-                    m_klfitter_model_nu_eta[iPerm] = klPtr->model_nu_eta();
-                    m_klfitter_model_nu_phi[iPerm] = klPtr->model_nu_phi();
-                    m_klfitter_model_nu_E[iPerm] = klPtr->model_nu_E();
+                      m_klfitter_model_lepZ2_pt[iPerm] = klPtr->model_lepZ2_pt();
+                      m_klfitter_model_lepZ2_eta[iPerm] = klPtr->model_lepZ2_eta();
+                      m_klfitter_model_lepZ2_phi[iPerm] = klPtr->model_lepZ2_phi();
+                      m_klfitter_model_lepZ2_E[iPerm] = klPtr->model_lepZ2_E();
+                      m_klfitter_model_lepZ2_index[iPerm] = klPtr->model_lepZ2_index();
+
+                      m_klfitter_model_nu_pt[iPerm] = klPtr->model_nu_pt();
+                      m_klfitter_model_nu_eta[iPerm] = klPtr->model_nu_eta();
+                      m_klfitter_model_nu_phi[iPerm] = klPtr->model_nu_phi();
+                      m_klfitter_model_nu_E[iPerm] = klPtr->model_nu_E();
+                    
+                    } else if (m_config->KLFitterLH() == "ttbar_AllHadronic"){
+                      m_klfitter_model_b_from_top1_pt[iPerm] = klPtr->model_b_from_top1_pt();
+                      m_klfitter_model_b_from_top1_eta[iPerm] = klPtr->model_b_from_top1_eta();
+                      m_klfitter_model_b_from_top1_phi[iPerm] = klPtr->model_b_from_top1_phi();
+                      m_klfitter_model_b_from_top1_E[iPerm] = klPtr->model_b_from_top1_E();
+                      m_klfitter_model_b_from_top1_jetIndex[iPerm] = klPtr->model_b_from_top1_jetIndex();
+
+                      m_klfitter_model_b_from_top2_pt[iPerm] = klPtr->model_b_from_top2_pt();
+                      m_klfitter_model_b_from_top2_eta[iPerm] = klPtr->model_b_from_top2_eta();
+                      m_klfitter_model_b_from_top2_phi[iPerm] = klPtr->model_b_from_top2_phi();
+                      m_klfitter_model_b_from_top2_E[iPerm] = klPtr->model_b_from_top2_E();
+                      m_klfitter_model_b_from_top2_jetIndex[iPerm] = klPtr->model_b_from_top2_jetIndex();
+
+                      m_klfitter_model_lj1_from_top1_pt[iPerm] = klPtr->model_lj1_from_top1_pt();
+                      m_klfitter_model_lj1_from_top1_eta[iPerm] = klPtr->model_lj1_from_top1_eta();
+                      m_klfitter_model_lj1_from_top1_phi[iPerm] = klPtr->model_lj1_from_top1_phi();
+                      m_klfitter_model_lj1_from_top1_E[iPerm] = klPtr->model_lj1_from_top1_E();
+                      m_klfitter_model_lj1_from_top1_jetIndex[iPerm] = klPtr->model_lj1_from_top1_jetIndex();
+
+                      m_klfitter_model_lj2_from_top1_pt[iPerm] = klPtr->model_lj2_from_top1_pt();
+                      m_klfitter_model_lj2_from_top1_eta[iPerm] = klPtr->model_lj2_from_top1_eta();
+                      m_klfitter_model_lj2_from_top1_phi[iPerm] = klPtr->model_lj2_from_top1_phi();
+                      m_klfitter_model_lj2_from_top1_E[iPerm] = klPtr->model_lj2_from_top1_E();
+                      m_klfitter_model_lj2_from_top1_jetIndex[iPerm] = klPtr->model_lj2_from_top1_jetIndex();
+
+                      m_klfitter_model_lj1_from_top2_pt[iPerm] = klPtr->model_lj1_from_top2_pt();
+                      m_klfitter_model_lj1_from_top2_eta[iPerm] = klPtr->model_lj1_from_top2_eta();
+                      m_klfitter_model_lj1_from_top2_phi[iPerm] = klPtr->model_lj1_from_top2_phi();
+                      m_klfitter_model_lj1_from_top2_E[iPerm] = klPtr->model_lj1_from_top2_E();
+                      m_klfitter_model_lj1_from_top2_jetIndex[iPerm] = klPtr->model_lj1_from_top2_jetIndex();
+
+                      m_klfitter_model_lj2_from_top2_pt[iPerm] = klPtr->model_lj2_from_top2_pt();
+                      m_klfitter_model_lj2_from_top2_eta[iPerm] = klPtr->model_lj2_from_top2_eta();
+                      m_klfitter_model_lj2_from_top2_phi[iPerm] = klPtr->model_lj2_from_top2_phi();
+                      m_klfitter_model_lj2_from_top2_E[iPerm] = klPtr->model_lj2_from_top2_E();
+                      m_klfitter_model_lj2_from_top2_jetIndex[iPerm] = klPtr->model_lj2_from_top2_jetIndex();
+
+                    }
 
 
                     ++iPerm;
                 }
 
                 // now take the best permutation and build the tops and the ttbar system!
-                if(nPermutations != 0){
-                    TLorentzVector bhad,blep,lq1,lq2,lep,nu,top_had,top_lep,ttbar;
+                if (m_config->KLFitterLH() == "ttbar" || m_config->KLFitterLH() == "ttZTrilepton" || m_config->KLFitterLH() == "ttH" || m_config->KLFitterLH() == "ttbar_JetAngles"){
+                  if(nPermutations != 0){
+                      TLorentzVector bhad,blep,lq1,lq2,lep,nu,top_had,top_lep,ttbar;
 
-                    bhad.SetPtEtaPhiE(m_klfitter_model_bhad_pt[bestPerm], m_klfitter_model_bhad_eta[bestPerm], m_klfitter_model_bhad_phi[bestPerm], m_klfitter_model_bhad_E[bestPerm]);
-                    blep.SetPtEtaPhiE(m_klfitter_model_blep_pt[bestPerm], m_klfitter_model_blep_eta[bestPerm], m_klfitter_model_blep_phi[bestPerm], m_klfitter_model_blep_E[bestPerm]);
-                    lq1.SetPtEtaPhiE(m_klfitter_model_lq1_pt[bestPerm],   m_klfitter_model_lq1_eta[bestPerm],  m_klfitter_model_lq1_phi[bestPerm],  m_klfitter_model_lq1_E[bestPerm]);
-                    lq2.SetPtEtaPhiE(m_klfitter_model_lq2_pt[bestPerm],   m_klfitter_model_lq2_eta[bestPerm],  m_klfitter_model_lq2_phi[bestPerm],  m_klfitter_model_lq2_E[bestPerm]);
-                    lep.SetPtEtaPhiE(m_klfitter_model_lep_pt[bestPerm],   m_klfitter_model_lep_eta[bestPerm],  m_klfitter_model_lep_phi[bestPerm],  m_klfitter_model_lep_E[bestPerm]);
-                    nu.SetPtEtaPhiE(m_klfitter_model_nu_pt[bestPerm],     m_klfitter_model_nu_eta[bestPerm],   m_klfitter_model_nu_phi[bestPerm],   m_klfitter_model_nu_E[bestPerm]);
+                      bhad.SetPtEtaPhiE(m_klfitter_model_bhad_pt[bestPerm], m_klfitter_model_bhad_eta[bestPerm], m_klfitter_model_bhad_phi[bestPerm], m_klfitter_model_bhad_E[bestPerm]);
+                      blep.SetPtEtaPhiE(m_klfitter_model_blep_pt[bestPerm], m_klfitter_model_blep_eta[bestPerm], m_klfitter_model_blep_phi[bestPerm], m_klfitter_model_blep_E[bestPerm]);
+                      lq1.SetPtEtaPhiE(m_klfitter_model_lq1_pt[bestPerm],   m_klfitter_model_lq1_eta[bestPerm],  m_klfitter_model_lq1_phi[bestPerm],  m_klfitter_model_lq1_E[bestPerm]);
+                      lq2.SetPtEtaPhiE(m_klfitter_model_lq2_pt[bestPerm],   m_klfitter_model_lq2_eta[bestPerm],  m_klfitter_model_lq2_phi[bestPerm],  m_klfitter_model_lq2_E[bestPerm]);
+                      lep.SetPtEtaPhiE(m_klfitter_model_lep_pt[bestPerm],   m_klfitter_model_lep_eta[bestPerm],  m_klfitter_model_lep_phi[bestPerm],  m_klfitter_model_lep_E[bestPerm]);
+                      nu.SetPtEtaPhiE(m_klfitter_model_nu_pt[bestPerm],     m_klfitter_model_nu_eta[bestPerm],   m_klfitter_model_nu_phi[bestPerm],   m_klfitter_model_nu_E[bestPerm]);
 
-                    top_had = bhad+lq1+lq2;
-                    top_lep = blep+lep+nu;
-                    ttbar   = top_had+top_lep;
+                      top_had = bhad+lq1+lq2;
+                      top_lep = blep+lep+nu;
+                      ttbar   = top_had+top_lep;
 
-                    m_klfitter_bestPerm_topLep_pt  = top_lep.Pt();
-                    m_klfitter_bestPerm_topLep_eta = top_lep.Eta();
-                    m_klfitter_bestPerm_topLep_phi = top_lep.Phi();
-                    m_klfitter_bestPerm_topLep_E   = top_lep.E();
-                    m_klfitter_bestPerm_topLep_m   = top_lep.M();
+                      m_klfitter_bestPerm_topLep_pt  = top_lep.Pt();
+                      m_klfitter_bestPerm_topLep_eta = top_lep.Eta();
+                      m_klfitter_bestPerm_topLep_phi = top_lep.Phi();
+                      m_klfitter_bestPerm_topLep_E   = top_lep.E();
+                      m_klfitter_bestPerm_topLep_m   = top_lep.M();
 
-                    m_klfitter_bestPerm_topHad_pt  = top_had.Pt();
-                    m_klfitter_bestPerm_topHad_eta = top_had.Eta();
-                    m_klfitter_bestPerm_topHad_phi = top_had.Phi();
-                    m_klfitter_bestPerm_topHad_E   = top_had.E();
-                    m_klfitter_bestPerm_topHad_m   = top_had.M();
+                      m_klfitter_bestPerm_topHad_pt  = top_had.Pt();
+                      m_klfitter_bestPerm_topHad_eta = top_had.Eta();
+                      m_klfitter_bestPerm_topHad_phi = top_had.Phi();
+                      m_klfitter_bestPerm_topHad_E   = top_had.E();
+                      m_klfitter_bestPerm_topHad_m   = top_had.M();
 
-                    m_klfitter_bestPerm_ttbar_pt   = ttbar.Pt();
-                    m_klfitter_bestPerm_ttbar_eta  = ttbar.Eta();
-                    m_klfitter_bestPerm_ttbar_phi  = ttbar.Phi();
-                    m_klfitter_bestPerm_ttbar_E    = ttbar.E();
-                    m_klfitter_bestPerm_ttbar_m    = ttbar.M();
+                      m_klfitter_bestPerm_ttbar_pt   = ttbar.Pt();
+                      m_klfitter_bestPerm_ttbar_eta  = ttbar.Eta();
+                      m_klfitter_bestPerm_ttbar_phi  = ttbar.Phi();
+                      m_klfitter_bestPerm_ttbar_E    = ttbar.E();
+                      m_klfitter_bestPerm_ttbar_m    = ttbar.M();
+                  }
+
                 }
-
 
             }
 

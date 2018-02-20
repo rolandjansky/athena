@@ -12,6 +12,7 @@ from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 import AthenaCommon.SystemOfUnits as Units
+from DerivationFrameworkSM import STDMTriggers
 
 # Add sumOfWeights metadata for LHE3 multiweights =======
 from DerivationFrameworkCore.LHE3WeightMetadata import *
@@ -114,10 +115,8 @@ electronOnlySelection = 'count('+electronsRequirements+') >= 2'
 electronMuonSelection = '(count('+electronsRequirements+') + count('+muonsRequirements+')) >= 2'
 offlineexpression = '('+muonOnlySelection+' || '+electronOnlySelection+' || '+electronMuonSelection+')'
 
-ElectronTriggerRequirement = '( HLT_2e12_loose_L12EM10VH || HLT_2e15_loose_L12EM13VH || HLT_2e17_loose || HLT_2e17_loose_L12EM15 || HLT_2e12_lhloose_L12EM10VH || HLT_2e12_lhvloose_L12EM10VH || HLT_2e15_lhloose_L12EM13VH || HLT_2e17_lhloose || HLT_2e17_lhloose_L12EM15 || HLT_e24_lhtight_nod0_ivarloose || HLT_e24_lhmedium_nod0_L1EM20VH || HLT_e60_lhmedium_nod0 || HLT_e26_lhtight_nod0_ivarloose || HLT_2e15_lhvloose_nod0_L12EM13VH || HLT_2e17_lhvloose_nod0 )'
 MuonTriggerRequirement='( HLT_2mu10 || HLT_2mu14 ||  HLT_2mu6_10invm30_pt2_z10  || HLT_mu4_iloose_mu4_11invm60_noos || HLT_mu4_iloose_mu4_11invm60_noos_novtx || HLT_mu4_iloose_mu4_7invm9_noos || HLT_mu4_iloose_mu4_7invm9_noos_novtx || HLT_mu6_iloose_mu6_11invm24_noos || HLT_mu6_iloose_mu6_11invm24_noos_novtx || HLT_mu6_iloose_mu6_24invm60_noos || HLT_mu6_iloose_mu6_24invm60_noos_novtx || HLT_mu18_mu8noL1 || HLT_mu20_iloose_L1MU15 || HLT_2mu6_bBmumu || HLT_mu6_mu4_bBmumu ||  HLT_2mu4_bUpsimumu ||  HLT_mu6_mu4_bUpsimumu || HLT_2mu6_bUpsimumu || HLT_mu4_iloose_mu4_11invm60_noos_L1_MU6_2MU4 || HLT_mu4_iloose_mu4_11invm60_noos_novtx_L1_MU6_2MU4 || HLT_mu4_iloose_mu4_7invm9_noos_L1_MU6_2MU4 || HLT_mu4_iloose_mu4_7invm9_noos_novtx_L1_MU6_2MU4 || HLT_mu24_imedium || HLT_mu26_ivarmedium || HLT_mu50 || HLT_mu24_iloose || HLT_mu24_iloose_L1MU15 )'
-ElectronMuonTriggerRequirement='( HLT_e17_loose_mu14 || HLT_e24_lhmedium_L1EM20VHI_mu8noL1 || HLT_e17_lhloose_nod0_mu14 || HLT_e7_lhmedium_nod0_mu24  )'
-triggerRequirement='('+ElectronTriggerRequirement+'||'+MuonTriggerRequirement+'||'+ElectronMuonTriggerRequirement+')'
+triggerRequirement="(" + STDMTriggers.list_combine_OR(STDMTriggers.single_e_triggers + STDMTriggers.multi_e_triggers + STDMTriggers.multi_mu_triggers + STDMTriggers.mixed_emu_triggers) + " || " + MuonTriggerRequirement + ")"
 
 expression = triggerRequirement+' && '+offlineexpression
 print "STDM7 skimming expression: ",expression

@@ -133,6 +133,16 @@ namespace EL
     virtual std::string batchJobId () const;
 
 
+    /// \brief the code for setting up the release
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   out of memory II\n
+    ///   failed to read environment variables
+  private:
+    virtual std::string batchReleaseSetup (bool sharedFileSystem) const;
+
+
     /// effects: perform the actual batch submission with njob jobs
     /// guarantee: strong
     /// failures: submission errors

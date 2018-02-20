@@ -18,7 +18,13 @@
 #include "tauRecTools/TauJetBDTEvaluator.h"
 #include "tauRecTools/TauIDVarCalculator.h"
 #include "tauRecTools/TauEleOLRDecorator.h"
+#include "tauRecTools/TauProcessorTool.h"
 #include "tauRecTools/BuildTruthTaus.h"
+#include "tauRecTools/DiTauProcessorTool.h"
+#include "tauRecTools/DiTauIDVarCalculator.h"
+#include "tauRecTools/DiTauDiscriminantTool.h"
+#include "tauRecTools/DiTauWPDecorator.h"
+#include "tauRecTools/MuonTrackRemoval.h"
 
 REGISTER_TOOL(TauCalibrateLC)
 REGISTER_TOOL(TauCommonCalcVars)
@@ -36,4 +42,10 @@ REGISTER_TOOL(TauWPDecorator)
 REGISTER_TOOL(TauJetBDTEvaluator)
 REGISTER_TOOL(TauEleOLRDecorator)
 REGISTER_TOOL(TauIDVarCalculator)
+REGISTER_TOOL(TauProcessorTool)
 REGISTER_TOOL(tauRecTools::BuildTruthTaus)
+REGISTER_TOOL(DiTauProcessorTool)
+REGISTER_TOOL(tauRecTools::DiTauIDVarCalculator)
+REGISTER_TOOL(tauRecTools::DiTauDiscriminantTool)
+REGISTER_TOOL(tauRecTools::MuonTrackRemoval)
+REGISTER_TOOL(tauRecTools::DiTauWPDecorator)

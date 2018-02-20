@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EgammaObjectCollectionMaker.cxx 806381 2017-06-09 14:58:44Z iconnell $
+// $Id: EgammaObjectCollectionMaker.cxx 811374 2017-10-24 13:04:52Z iconnell $
 #include "TopSystematicObjectMaker/EgammaObjectCollectionMaker.h"
 #include "TopConfiguration/TopConfig.h"
 #include "TopEvent/EventTools.h"
@@ -41,6 +41,7 @@ namespace top{
     m_isolationTool_FixedCutTightTrackOnly("CP::IsolationTool_FixedCutTightTrackOnly"),
     m_isolationTool_FixedCutTightCaloOnly("CP::IsolationTool_FixedCutTightCaloOnly"),
     m_isolationTool_FixedCutLoose("CP::IsolationTool_FixedCutLoose"),
+    m_isolationTool_FixedCutHighPtCaloOnly("CP::IsolationTool_FixedCutHighPtCaloOnly"),
     m_isolationCorr("CP::IsolationCorrectionTool")
   {
     declareProperty( "config" , m_config ); 
@@ -55,6 +56,7 @@ namespace top{
     declareProperty( "IsolationTool_FixedCutTightTrackOnly" , m_isolationTool_FixedCutTightTrackOnly );
     declareProperty( "IsolationTool_FixedCutTightCaloOnly" , m_isolationTool_FixedCutTightCaloOnly );
     declareProperty( "IsolationTool_FixedCutLoose" , m_isolationTool_FixedCutLoose );
+    declareProperty( "IsolationTool_FixedCutHighPtCaloOnly", m_isolationTool_FixedCutHighPtCaloOnly );
     declareProperty( "IsolationCorrectionTool", m_isolationCorr );
   } 
   
@@ -63,23 +65,11 @@ namespace top{
     ATH_MSG_INFO(" top::EgammaObjectCollectionMaker initialize" );
     
     top::check( m_calibrationTool.retrieve() , "Failed to retrieve egamma calibration tool" );
-    
-    // Release 21 scrutiny effort currently requires that no egamma calibrations are applied
-    // We will use the tools with R20.7 settings, but not store the calibrated objects
-    // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/AtlasRelease21Scrutiny#Temporary_Recommendations_for_Co
-    if(m_config->getReleaseSeries() == 25){
-      ATH_MSG_INFO( "Configuring EgammaObjectCollectionMaker for Release 21 scrutiny" );
-      ATH_MSG_INFO( "... We should not currently apply any calibrations ..." );
-      ATH_MSG_INFO( "... The tools will be setup, but the calibrated objects will not be saved ..." );
-      calibrateElectrons = false;
-      calibratePhotons   = false;
-    }
-    else{
-      calibrateElectrons = true;
-      calibratePhotons   = true;
-    }
-
-
+   
+    // These flags were for early R21 when we were asked not to calibrate egamma objects
+    calibrateElectrons = true;
+    calibratePhotons   = true;
+   
     if (m_config->usePhotons()) {
       top::check(m_isolationTool_FixedCutTight.retrieve(),
                  "Failed to retrieve Isolation Tool" );
@@ -266,6 +256,7 @@ namespace top{
         ///-- Isolation selection --///
         char passIsol_LooseTrackOnly(0),passIsol_Loose(0),passIsol_FixedCutTight(0),passIsol_FixedCutTightTrackOnly(0),passIsol_FixedCutLoose(0);
         char passIsol_Gradient(0),passIsol_GradientLoose(0);
+	char passIsol_FixedCutHighPtCaloOnly(0);
         if (m_isolationTool_LooseTrackOnly->accept( *electron )) {passIsol_LooseTrackOnly = 1;}
         if (m_isolationTool_Loose->accept( *electron )) {passIsol_Loose = 1;}
         if (m_isolationTool_Gradient->accept( *electron )) {passIsol_Gradient = 1;}
@@ -273,15 +264,20 @@ namespace top{
 	if (m_isolationTool_FixedCutTight->accept( *electron )) {passIsol_FixedCutTight = 1;}
 	if (m_isolationTool_FixedCutTightTrackOnly->accept( *electron )) {passIsol_FixedCutTightTrackOnly = 1;}	
 	if (m_isolationTool_FixedCutLoose->accept( *electron )) {passIsol_FixedCutLoose = 1;}	
+	if (m_isolationTool_FixedCutHighPtCaloOnly->accept( *electron )) {passIsol_FixedCutHighPtCaloOnly = 1;}
 
-        electron->auxdecor<char>("AnalysisTop_Isol_LooseTrackOnly") = passIsol_LooseTrackOnly;
-        electron->auxdecor<char>("AnalysisTop_Isol_Loose") = passIsol_Loose;
-        electron->auxdecor<char>("AnalysisTop_Isol_Gradient") = passIsol_Gradient;
-        electron->auxdecor<char>("AnalysisTop_Isol_GradientLoose") = passIsol_GradientLoose;        
-	electron->auxdecor<char>("AnalysisTop_Isol_FixedCutTight") = passIsol_FixedCutTight;
+        electron->auxdecor<char>("AnalysisTop_Isol_LooseTrackOnly")         = passIsol_LooseTrackOnly;
+        electron->auxdecor<char>("AnalysisTop_Isol_Loose")                  = passIsol_Loose;
+        electron->auxdecor<char>("AnalysisTop_Isol_Gradient")               = passIsol_Gradient;
+        electron->auxdecor<char>("AnalysisTop_Isol_GradientLoose")          = passIsol_GradientLoose;        
+	electron->auxdecor<char>("AnalysisTop_Isol_FixedCutTight")          = passIsol_FixedCutTight;
 	electron->auxdecor<char>("AnalysisTop_Isol_FixedCutTightTrackOnly") = passIsol_FixedCutTightTrackOnly;
-	electron->auxdecor<char>("AnalysisTop_Isol_FixedCutLoose") = passIsol_FixedCutLoose;
-        
+	electron->auxdecor<char>("AnalysisTop_Isol_FixedCutLoose")          = passIsol_FixedCutLoose;
+	electron->auxdecor<char>("AnalysisTop_Isol_FixedCutHighPtCaloOnly") = passIsol_FixedCutHighPtCaloOnly;
+
+	// For electron prompt isolation tagger, check a cut on the tagger and also loose isolation
+	electron->auxdecor<char>("AnalysisTop_Isol_PromptLepton") = (electron->auxdata<float>("PromptLeptonIso_TagWeight") < -0.5) ? 1 : 0;
+
       }
       
       ///-- set links to original objects- needed for MET calculation --///

@@ -10,13 +10,13 @@ atlas_depends_on_subdirs( PUBLIC
                           TopEvent
                           PileupReweighting
                           ElectronEfficiencyCorrection
-                          MuonEfficiencyCorrections
-                          xAODBTaggingEfficiency
                           TauAnalysisTools
                           JetJvtEfficiency
                           PhotonEfficiencyCorrection
                           PMGTools
-			  PATInterfaces )
+			  PATInterfaces 
+			  FTagAnalysisInterfaces 
+			  MuonAnalysisInterfaces )
 
 # This package uses LHAPDF:
 find_package( Lhapdf )
@@ -36,13 +36,13 @@ atlas_add_library( TopCorrections Root/*.cxx Root/*.h Root/*.icc
                                   TopEvent
                                   PileupReweightingLib
                                   ElectronEfficiencyCorrectionLib
-                                  MuonEfficiencyCorrectionsLib
-                                  xAODBTaggingEfficiencyLib
                                   TauAnalysisToolsLib
                                   JetJvtEfficiencyLib
                                   PhotonEfficiencyCorrectionLib
                                   PMGToolsLib
 				  PATInterfaces
+				  FTagAnalysisInterfacesLib
+				  MuonAnalysisInterfacesLib
 				  ${LHAPDF_LIBRARIES}
                                   ${ROOT_LIBRARIES}
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} 

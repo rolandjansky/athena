@@ -186,7 +186,7 @@ def getKernel_GenericSimulator(name="ISF_Kernel_GenericSimulator", **kwargs):
     kwargs.setdefault("InputConverter", "ISF_InputConverter")
     kwargs.setdefault("ParticleBroker", "ISF_ParticleBrokerSvc")
     from G4AtlasApps.SimFlags import simFlags
-    kwargs.setdefault("TruthRecordService", simFlags.TruthService.get_Value())
+    kwargs.setdefault("TruthRecordService", simFlags.TruthStrategy.TruthServiceName())
     kwargs.setdefault("SimHitService", "ISF_SimHitService")
     kwargs.setdefault("MemoryMonitoringTool", "ISF_MemoryMonitor")
     kwargs.setdefault("DoCPUMonitoring", ISF_Flags.DoTimeMonitoring())
@@ -413,7 +413,7 @@ def getKernel_G4HS_FastPileup(name="ISF_Kernel_G4HS_FastPileup", **kwargs):
                                                        'ISF_FullGeant4Selector' ]            )
     kwargs.setdefault("CaloSimulationSelectors"    , [ 'ISF_MuonFatrasPileupSelector',
                                                        'ISF_EtaGreater5PileupParticleKillerSimSelector',
-                                                       'ISF_FastCaloSimPileupSelector',
+                                                       'ISF_FastCaloSimPileupOTSelector',
                                                        'ISF_FullGeant4Selector' ]       )
     kwargs.setdefault("MSSimulationSelectors"      , [ 'ISF_FatrasPileupSelector', 'ISF_FullGeant4Selector']            )
     kwargs.setdefault("CavernSimulationSelectors"  , [ 'ISF_DefaultParticleKillerSelector' ]    )

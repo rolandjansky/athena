@@ -235,6 +235,123 @@ def addVRJets(sequence, VRJetName, VRGhostLabel, VRJetAlg="AntiKt", VRJetRadius=
     jetassoctool = getJetExternalAssocTool('AntiKt10LCTopo', LargeRJetPrefix, MomentPrefix='', ListOfOldLinkNames=[VRGhostLabel])
     applyJetAugmentation('AntiKt10LCTopo', LinkTransferAlg, sequence, jetassoctool)
 
+##################################################################
+# Build variable-R subjets, recluster AntiKt10TCCjet with ghost VR and copy ghost link to AntiKt10TCC - Copy and pasting this defintion is an ugly temporary solution. We need to properly rewrite this for a more general use and remove the hardcoded jet collection. 
+##################################################################
+def addVRJetsTCC(sequence, VRJetName, VRGhostLabel, VRJetAlg="AntiKt", VRJetRadius=0.4, VRJetInputs="pv0track", **VRJetOptions):
+    from JetRec.JetRecStandard import jtm
+
+    #==========================================================
+    # Build VR jets
+    #==========================================================
+
+    VRJetAlgName = "jfind_%sJets" % (VRJetName)
+    VRJetRecToolName = "%sJets" % (VRJetName)
+    VRJetBTagName = "BTagging_%s" % (VRJetName)
+
+    #make the btagging tool for VR jets
+    btag_vrjets = ConfInst.setupJetBTaggerTool(ToolSvc, JetCollection=VRJetRecToolName, AddToToolSvc=True, Verbose=True,
+                 options={"name"         : VRJetBTagName.lower(), 
+                          "BTagName"     : VRJetBTagName, 
+                          "BTagJFVtxName": "JFVtx",                  
+                          "BTagSVName"   : "SecVtx",                 
+                          },
+                 SetupScheme = "",
+                 TaggerList = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu', 
+                               'MV2c10', 'MV2c10mu', 'MV2c10rnn', 'JetVertexCharge', 'MV2cl100' , 'MVb', 'DL1', 'DL1rnn', 'DL1mu', 'RNNIP', 'MV2c10Flip']
+                 )
+
+    if VRJetAlgName in DFJetAlgs:
+        print "Algorithm", VRJetAlgName, "already built before"
+
+        if hasattr(sequence, VRJetAlgName):
+            print "   Sequence", sequence, "already has an instance of algorithm", VRJetAlgName
+        else:
+            print "   Add algorithm", VRJetAlgName, "to sequence", sequence
+            sequence += DFJetAlgs[VRJetAlgName]
+    else:
+        print "Create algorithm", VRJetAlgName
+
+        if hasattr(jtm, VRJetRecToolName):
+            print "   JetRecTool", VRJetRecToolName, "is alredy in jtm.tools in sequence ", sequence
+        else:
+            print "   Create JetRecTool", VRJetRecToolName
+            #can only run trackjetdrlabeler with truth labels, so MC only
+            if globalflags.DataSource()!='data': 
+                jtm.addJetFinder(VRJetRecToolName, VRJetAlg, VRJetRadius, VRJetInputs, modifiersin=[btag_vrjets,jtm.trackjetdrlabeler], **VRJetOptions) 
+            else:
+                jtm.addJetFinder(VRJetRecToolName, VRJetAlg, VRJetRadius, VRJetInputs, modifiersin=[btag_vrjets], **VRJetOptions)
+
+        from JetRec.JetRecConf import JetAlgorithm
+        jetalg_smallvr30_track = JetAlgorithm(VRJetAlgName, Tools = [ jtm[VRJetRecToolName] ])
+        sequence += jetalg_smallvr30_track
+        DFJetAlgs[VRJetAlgName] = jetalg_smallvr30_track
+
+    #==========================================================
+    # Build PseudoJet Getter
+    #==========================================================
+
+    pjgettername = VRGhostLabel.lower()
+
+    if hasattr(jtm, pjgettername):
+        print "Found", pjgettername, "in jtm in sequence", sequence
+    else:
+        print "Add", pjgettername, "to jtm in sequence", sequence
+
+        from JetRec.JetRecConf import PseudoJetGetter
+        jtm += PseudoJetGetter(
+          pjgettername,                                                          # give a unique name
+          InputContainer = jetFlags.containerNamePrefix() + VRJetName + "Jets",  # SG key
+          Label = VRGhostLabel,                                                  # this is the name you'll use to retrieve ghost associated VR track jets
+          OutputContainer = "PseudoJet" + VRGhostLabel,
+          SkipNegativeEnergy = True,
+          GhostScale = 1.e-20,                                                   # this makes the PseudoJet Ghosts, and thus the reco flow will treat them as such
+        )
+
+    #==========================================================
+    # Re-cluster large-R jet with VR ghost associated on it 
+    # AntiKt10TCC hard-coded for now
+    #==========================================================
+    LargeRJetAlg     = "jfind_akt10trackcalocluster_%s" %(VRJetName.lower())
+    LargeRJets       = "AKt10TrackCaloCluster_%sJets"   %(VRJetName)
+    LargeRJetPrefix  = "AKt10TrackCaloCluster_%s"       %(VRJetName)
+    newLCTopo        = "tcc_%s"            %(VRJetName.lower())
+    LinkTransferAlg  = "LinkTransfer_%s"     %(VRJetName)
+
+    if LargeRJetAlg in DFJetAlgs:
+        print "  Found ", LargeRJetAlg," in DFJetAlgs in", sequence
+        if hasattr(sequence, LargeRJetAlg):
+            print "   Algsequence", sequence, "already has an instance of", LargeRJetAlg
+        else:
+            print "   Added ", LargeRJetAlg," to sequence ", sequence
+            sequence += DFJetAlgs[LargeRJetAlg]
+
+    else:
+        if hasattr(jtm, LargeRJets):
+            print  LargeRJets, " is alredy in jtm.tools in sequence ", sequence
+        else:
+            print "  Create new ", LargeRJets,"in", sequence
+            OutputJets.setdefault("CustomJets" , [] ).append(LargeRJets)
+            jtm.gettersMap[newLCTopo] = list(jtm.gettersMap["tcc"])
+            jtm.gettersMap[newLCTopo] += [ jtm[pjgettername] ] 
+            jtm.addJetFinder(LargeRJets, "AntiKt", 1.0, newLCTopo , "tcc_ungroomed",
+                             ghostArea = 0 , ptmin = 40000, ptminFilter = 50000,
+                             calibOpt = "none")
+        from JetRec.JetRecConf import JetAlgorithm
+        jetalg_largefr10_tcc = JetAlgorithm(LargeRJetAlg, Tools = [ jtm[LargeRJets] ])
+        sequence += jetalg_largefr10_tcc
+        DFJetAlgs[LargeRJetAlg] = jetalg_largefr10_tcc
+
+    #==========================================================
+    # Transfer the link from re-clustered jet to original jet
+    # AntiKt10TCC hard-coded for now
+    # Issue here: If addVRJets() is called more than once for different VR, only link to first VR would be transferred
+    # Solution: decouple the following part with parts above
+    #==========================================================
+
+    jetassoctool = getJetExternalAssocTool('AntiKt10TrackCaloCluster', LargeRJetPrefix, MomentPrefix='', ListOfOldLinkNames=[VRGhostLabel])
+    applyJetAugmentation('AntiKt10TrackCaloCluster', LinkTransferAlg, sequence, jetassoctool)
+    
 #===================================================================
 # Utils: Copy Jets
 #===================================================================

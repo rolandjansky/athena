@@ -30,8 +30,8 @@
 #include "PATInterfaces/SystematicSet.h"
 
 // CP Tool include(s):
-#include "MuonEfficiencyCorrections/IMuonTriggerScaleFactors.h"
-#include "MuonEfficiencyCorrections/IMuonEfficiencyScaleFactors.h"
+#include "MuonAnalysisInterfaces/IMuonTriggerScaleFactors.h"
+#include "MuonAnalysisInterfaces/IMuonEfficiencyScaleFactors.h"
 
 // Forward declaration(s):
 namespace top {

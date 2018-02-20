@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 740786 2016-04-16 13:57:11Z krasznaa $
+# $Id: CMakeLists.txt 804522 2017-05-09 17:32:26Z angerami $
 ################################################################################
 # Package: HIJetRec
 ################################################################################
@@ -15,6 +15,7 @@ atlas_depends_on_subdirs(
   Event/xAOD/xAODCaloEvent
   Event/xAOD/xAODHIEvent
   Event/xAOD/xAODJet
+  Event/xAOD/xAODEventInfo
   PhysicsAnalysis/HeavyIonPhys/HIEventUtils
   Reconstruction/Jet/JetInterface
   Reconstruction/Jet/JetRec

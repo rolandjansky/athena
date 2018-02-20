@@ -86,27 +86,11 @@ reducedJetList = ["AntiKt2PV0TrackJets",
 replaceAODReducedJets(reducedJetList,jetm9Seq,"JETM9")
 
 OutputJets["JETM9"] = ["AntiKt4EMTopoJets","AntiKt4LCTopoJets",
-                       "AntiKt4TruthJets","AntiKt4TruthWZJets"]
+                       "AntiKt4TruthJets","AntiKt4TruthWZJets","AntiKt2PV0TrackJets"]
 
 #====================================================================
 # Jets for R-scan 
 #====================================================================
-from JetRec.JetRecStandard import jtm
-from JetRec.JetRecConf import JetAlgorithm
-
-def addRscanJets(jetalg,radius,inputtype,sequence,outputlist):
-    jetname = "{0}{1}{2}Jets".format(jetalg,int(radius*10),inputtype)
-    algname = "jetalg"+jetname
-
-    if not hasattr(sequence,algname):
-        if inputtype == "Truth":
-            addStandardJets(jetalg, radius, "Truth", mods="truth_ungroomed", ptmin=5000, algseq=sequence, outputGroup=outputlist)
-        if inputtype == "TruthWZ":
-            addStandardJets(jetalg, radius, "TruthWZ", mods="truth_ungroomed", ptmin=5000, algseq=sequence, outputGroup=outputlist)
-        elif inputtype == "LCTopo":
-            addStandardJets(jetalg, radius, "LCTopo", mods="lctopo_ungroomed",
-                            ghostArea=0.01, ptmin=2000, ptminFilter=7000, calibOpt="none", algseq=sequence, outputGroup=outputlist)
-
 for radius in [0.2, 0.3, 0.5, 0.6, 0.7, 0.8]:
     if jetFlags.useTruth:
         addRscanJets("AntiKt",radius,"Truth",jetm9Seq,"JETM9")
@@ -118,7 +102,7 @@ for radius in [0.2, 0.3, 0.5, 0.6, 0.7, 0.8]:
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 JETM9SlimmingHelper = SlimmingHelper("JETM9SlimmingHelper")
-JETM9SlimmingHelper.SmartCollections = ["AntiKt4EMTopoJets","AntiKt4LCTopoJets","PrimaryVertices"]
+JETM9SlimmingHelper.SmartCollections = ["AntiKt4EMTopoJets","AntiKt2LCTopoJets","AntiKt3LCTopoJets","AntiKt4LCTopoJets","AntiKt5LCTopoJets","AntiKt6LCTopoJets","AntiKt7LCTopoJets","AntiKt8LCTopoJets","PrimaryVertices"]
 JETM9SlimmingHelper.AllVariables = ["TruthEvents","MuonSegments","Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape"]
 JETM9SlimmingHelper.ExtraVariables = ["TruthVertices.z"]
 
@@ -126,7 +110,15 @@ JETM9SlimmingHelper.ExtraVariables = ["TruthVertices.z"]
 JETM9SlimmingHelper.IncludeJetTriggerContent = True
 
 # Add the jet containers to the stream
-addJetOutputs(JETM9SlimmingHelper,["JETM9"])
+SmartListJets = [
+    "AntiKt2LCTopoJets",
+    "AntiKt3LCTopoJets",
+    "AntiKt5LCTopoJets",
+    "AntiKt6LCTopoJets",
+    "AntiKt7LCTopoJets",
+    "AntiKt8LCTopoJets"
+    ]
+addJetOutputs(JETM9SlimmingHelper,["JETM9"],SmartListJets)
 JETM9SlimmingHelper.AppendContentToStream(JETM9Stream)
 JETM9Stream.RemoveItem("xAOD::TrigNavigation#*")
 JETM9Stream.RemoveItem("xAOD::TrigNavigationAuxInfo#*")

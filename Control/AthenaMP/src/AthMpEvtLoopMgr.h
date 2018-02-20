@@ -3,7 +3,7 @@
 */
 
 #ifndef ATHENAMP_ATHMPEVTLOOPMGR_H
-#define ATHENAMP_ATHMPEVTLOOPMGR_H 1
+#define ATHENAMP_ATHMPEVTLOOPMGR_H
 
 #include "GaudiKernel/IEventProcessor.h"
 #include "AthenaBaseComps/AthService.h"
@@ -38,6 +38,7 @@ class AthMpEvtLoopMgr
 
  private:
   ServiceHandle<IEventProcessor> m_evtProcessor;
+  IService*                      m_evtSelector;
   int                            m_nWorkers;
   std::string                    m_workerTopDir;
   std::string                    m_outputReportName;
@@ -64,7 +65,8 @@ class AthMpEvtLoopMgr
   StatusCode wait();
   StatusCode generateOutputReport(); 
   boost::shared_ptr<AthenaInterprocess::FdsRegistry> extractFds();
-  StatusCode afterRestart(int&);
+  StatusCode afterRestart(int& maxevt);
+  StatusCode updateSkipEvents(int skipEvents);
 }; 
 
 #endif

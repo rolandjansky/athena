@@ -20,8 +20,8 @@
 #include "JetInterface/IJetModifier.h"
 #include "JetJvtEfficiency/IJetJvtEfficiency.h"
 
-#include "xAODBTaggingEfficiency/IBTaggingEfficiencyTool.h"
-#include "xAODBTaggingEfficiency/IBTaggingSelectionTool.h"
+#include "FTagAnalysisInterfaces/IBTaggingEfficiencyTool.h"
+#include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
 
 #include "METUtilities/METHelpers.h"
 
@@ -79,12 +79,6 @@ namespace ST {
       ATH_MSG_DEBUG("Not retrieving jet collecton, using existing one provided by user");
       jets=copy;
     }
-
-    // ghost associate the muons to the jets (needed by MET muon-jet OR later)
-    ATH_MSG_VERBOSE("Run muon-to-jet ghost association");
-    const xAOD::MuonContainer* muons(nullptr);
-    ATH_CHECK( evtStore()->retrieve(muons, "Muons") );
-    met::addGhostMuonsToJets(*muons, *copy);
 
     // Update the jets
     for (const auto& jet : *copy) {
@@ -303,7 +297,7 @@ namespace ST {
           ATH_MSG_ERROR( "Failed to apply JES correction" );
           break;
         case CP::CorrectionCode::OutOfValidityRange:
-          ATH_MSG_WARNING( "JES correction OutOfValidity range (|eta|<2.0)."); // Jet (pt,eta,phi) = (" << input.pt() << ", " << input.eta() << ", " << input.phi() << ")");
+          ATH_MSG_WARNING( "JES correction OutOfValidity range."); // Jet (pt,eta,phi) = (" << input.pt() << ", " << input.eta() << ", " << input.phi() << ")");
           break;
         default:
           break;

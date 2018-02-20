@@ -77,6 +77,7 @@ install( FILES ${CMAKE_BINARY_DIR}/env_setup_install.sh
    DESTINATION . RENAME env_setup.sh )
 
 # Configure and install the post-configuration file:
+set( GAUDI_VERSION $ENV{GAUDI_VERSION} )
 string( REPLACE "$ENV{TDAQ_RELEASE_BASE}" "\$ENV{TDAQ_RELEASE_BASE}"
    TDAQ-COMMON_ROOT "${TDAQ-COMMON_ROOT}" )
 string( REPLACE "${TDAQ-COMMON_VERSION}" "\${TDAQ-COMMON_VERSION}"

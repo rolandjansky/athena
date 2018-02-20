@@ -41,6 +41,9 @@ void addSample (SH::SampleHandler& sh, const std::string& name)
 
 int main ()
 {
+  // disabled right now
+  return EXIT_SUCCESS;
+
   if (getenv ("ROOTCORE_AUTO_UT") != 0)
     return EXIT_SUCCESS;
 

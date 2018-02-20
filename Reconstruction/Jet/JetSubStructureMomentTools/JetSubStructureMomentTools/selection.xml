@@ -1,7 +1,5 @@
 <lcgdict>
 <class name="AngularityTool"/>
-<class name="BoostedXbbTagTool"/>
-<class name="BosonTagTool"/>
 <class name="CenterOfMassShapesTool"/>
 <class name="DipolarityTool"/>
 <class name="EnergyCorrelatorRatiosTool"/>

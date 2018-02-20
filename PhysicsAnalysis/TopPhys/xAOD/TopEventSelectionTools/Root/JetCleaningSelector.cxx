@@ -10,38 +10,43 @@
 namespace top {
 
   JetCleaningSelector::JetCleaningSelector(const std::string& level, std::shared_ptr<top::TopConfig> config) :
-    m_jetCleaningToolLooseBad("JetCleaningToolLooseBad"),
-    m_jetCleaningToolTightBad("JetCleaningToolTightBad"),
-    m_jetEventCleaningToolLooseBad("JetEventCleaningToolLooseBad"),
-    m_jetEventCleaningToolTightBad("JetEventCleaningToolTightBad"),
     m_level(level),
     m_useLooseBad(true),
     m_config(config)
   {
+    if (!m_config->isTruthDxAOD()) {
 
-    if (m_level != "LooseBad" && m_level != "TightBad") {
-      std::cout << "JetCleaningSelector level not recognised - " << m_level << "\n";
-      std::cout << "Should be LooseBad or TightBad\n";
-      exit(1);
-    }
-    
-    if (m_level == "LooseBad") m_useLooseBad = true;
-    if (m_level == "TightBad") m_useLooseBad = false;
-    
-    // we can't yet use jet cleaning for particle-flow jets
-    if (!m_config->useParticleFlowJets()) {
-      if (m_useLooseBad){
-	top::check( m_jetCleaningToolLooseBad.retrieve()      , "Failed to retrieve JetCleaningToolLooseBad" );
-	top::check( m_jetEventCleaningToolLooseBad.retrieve() , "Failed to retrieve JetEventCleaningToolLooseBad" );
+      m_jetCleaningToolLooseBad = ToolHandle<IJetSelector>("JetCleaningToolLooseBad");
+      m_jetCleaningToolTightBad = ToolHandle<IJetSelector>("JetCleaningToolTightBad");
+      m_jetEventCleaningToolLooseBad = ToolHandle<ECUtils::IEventCleaningTool>("JetEventCleaningToolLooseBad");
+      m_jetEventCleaningToolTightBad = ToolHandle<ECUtils::IEventCleaningTool>("JetEventCleaningToolTightBad");
+
+      if (m_level != "LooseBad" && m_level != "TightBad") {
+        std::cout << "JetCleaningSelector level not recognised - " << m_level << "\n";
+        std::cout << "Should be LooseBad or TightBad\n";
+        exit(1);
       }
-      if (!m_useLooseBad){
-	top::check( m_jetCleaningToolTightBad.retrieve()      , "Failed to retrieve JetCleaningToolTightBad" );
-	top::check( m_jetEventCleaningToolTightBad.retrieve() , "Failed to retrieve JetEventCleaningToolTightBad" );
+      
+      if (m_level == "LooseBad") m_useLooseBad = true;
+      if (m_level == "TightBad") m_useLooseBad = false;
+      
+      // we can't yet use jet cleaning for particle-flow jets
+      if (!m_config->useParticleFlowJets()) {
+        if (m_useLooseBad){
+          top::check( m_jetCleaningToolLooseBad.retrieve()      , "Failed to retrieve JetCleaningToolLooseBad" );
+          top::check( m_jetEventCleaningToolLooseBad.retrieve() , "Failed to retrieve JetEventCleaningToolLooseBad" );
+        }
+        if (!m_useLooseBad){
+          top::check( m_jetCleaningToolTightBad.retrieve()      , "Failed to retrieve JetCleaningToolTightBad" );
+          top::check( m_jetEventCleaningToolTightBad.retrieve() , "Failed to retrieve JetEventCleaningToolTightBad" );
+        }
       }
     }
   }
 
   bool JetCleaningSelector::apply(const top::Event& event) const {
+
+    if (m_config->isTruthDxAOD()) return true;
     
     // There are two jet cleaning tools and we have a request to test the event level one
     // These should be very close/ equivalent as we already handle the OR and JVT elsewhere

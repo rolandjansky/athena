@@ -57,6 +57,7 @@
 #include "xAODTruth/TruthEventContainer.h"
 #include "xAODTruth/TruthVertexContainer.h"
 #include "xAODTau/TauJetContainer.h"
+#include "xAODTau/DiTauJetContainer.h"
 #include "xAODMissingET/MissingETContainer.h"
 #include "xAODBTagging/BTaggingContainer.h"
 #include "xAODPFlow/PFOContainer.h"
@@ -167,6 +168,7 @@ namespace ExpressionParsing {
     TRY_VECTOR(xAOD::TruthEventContainer);
     TRY_VECTOR(xAOD::TruthVertexContainer);
     TRY_VECTOR(xAOD::TauJetContainer);
+    TRY_VECTOR(xAOD::DiTauJetContainer);
     TRY_VECTOR(xAOD::BTaggingContainer);
     TRY_VECTOR(xAOD::PFOContainer);
     TRY_VECTOR(xAOD::ParticleContainer);

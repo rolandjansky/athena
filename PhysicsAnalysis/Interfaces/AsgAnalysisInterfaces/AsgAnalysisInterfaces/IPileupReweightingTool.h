@@ -54,10 +54,6 @@ class TPileupReweighting;
          /// Get the corrected average mu of a lumiblock ... (averaging is over all filled BCID in the fill)
          /// The additional flag indicates if the returned value should include the data scale factor or not.
          /// Note: if the lumiblock is not present in the input lumicalc file, then -1.0 will be returned
-         /// This method will soon be deprecated in favour of the new naming: getCorrectedAverageInteractionsPerCrossing
-         virtual float getCorrectedMu( const xAOD::EventInfo& eventInfo, bool includedDataScaleFactor=false ) {
-            return getCorrectedAverageInteractionsPerCrossing( eventInfo, includedDataScaleFactor );
-         }
          virtual float getCorrectedAverageInteractionsPerCrossing( const xAOD::EventInfo& eventInfo, bool includedDataScaleFactor=false ) = 0;
          
          /// Get the actual mu of a lumiblock ... (BCID-specific mu)

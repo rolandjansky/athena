@@ -660,7 +660,7 @@ namespace Trk{
    xAOD::Vertex constraint;
    constraint.makePrivateStore();
    constraint.setPosition( startingPoint );
-   constraint.setCovariancePosition( AmgSymMatrix(3)(3,3) );
+   constraint.setCovariancePosition( AmgSymMatrix(3)::Zero(3,3) );
    constraint.setFitQuality( 0.,0.);			 
    return fit(vectorTrk, vectorNeut, constraint);				 
  }//end of the xAOD starting point fit method

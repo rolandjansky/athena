@@ -1,6 +1,14 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-triggersNavThin = [
+#====================================================================
+# Importing common triggers
+#====================================================================
+from DerivationFrameworkSUSY.SUSYCommonTriggerList import MET_2017,MET_2016,MET_2015
+from DerivationFrameworkSUSY.SUSYCommonTriggerList import SingleLepton_2017,SingleLepton_2016,SingleLepton_2015
+from DerivationFrameworkSUSY.SUSYCommonTriggerList import DiLepton_2017,DiLepton_2016,DiLepton_2015
+from DerivationFrameworkSUSY.SUSYCommonTriggerList import SinglePhoton_2017,SinglePhoton_2016,SinglePhoton_2015
+
+NonMetTriggers = [
 'HLT_e26_lhtight_smooth_iloose',
 'HLT_e26_lhtight_smooth_ivarloose',
 'HLT_e26_lhtight_iloose',
@@ -56,7 +64,6 @@ triggersNavThin = [
 'HLT_e24_lhmedium_nod0_ringer_ivarloose',
 'HLT_mu26_imedium',
 'HLT_mu26_ivarmedium',
-'HLT_mu50_HLT_mu60_0eta105_msonly',
 'HLT_mu24_mu8noL1',
 'HLT_mu24_2mu4noL1',
 'HLT_mu22_2mu4noL1',
@@ -100,6 +107,7 @@ triggersNavThin = [
 'HLT_mu14_iloose_3j20_L1MU10_3J20',
 'HLT_mu14_ivarloose_3j20_L1MU10_3J20',
 'HLT_mu50',
+'HLT_mu60_0eta105_msonly',
 'HLT_e24_lhmedium_L1EM18VH',
 'HLT_e17_loose_mu14',
 'HLT_e17_lhloose_mu14',
@@ -117,30 +125,6 @@ triggersNavThin = [
 'HLT_mu24_5j30_0eta240_L1MU10_3J20',
 'HLT_e26_lhmedium_5j30_0eta240_L1EM13VH_3J20',
 'HLT_mu26_5j30_0eta240_L1MU10_3J20',
-]
-
-# for fake factor method
-PrescaledTriggers = [
-'HLT_e5_lhvloose',
-'HLT_e10_lhvloose_L1EM7',
-'HLT_e12_lhvloose_L1EM10VH',
-'HLT_e15_lhvloose_L1EM13VH',
-'HLT_e17_lhvloose',
-'HLT_e20_lhvloose',
-'HLT_e24_lhvloose_nod0_L1EM18VH',
-'HLT_e26_lhvloose_L1EM20VH',
-'HLT_e30_lhvloose_L1EM15',
-'HLT_e40_lhvloose_L1EM15',
-'HLT_e50_lhvloose_L1EM15',
-'HLT_e5_lhtight_idperf',
-'HLT_e10_lhtight_idperf',
-'HLT_e24_lhtight_L1EM20VH',
-'HLT_mu4',
-'HLT_mu10',
-'HLT_mu14',
-'HLT_mu18',
-'HLT_mu20_idperf',
-'HLT_mu24_idperf',
 ]
 
 MetTriggers = [
@@ -183,6 +167,7 @@ MetTriggers = [
 'HLT_xe80_tc_lcw_L1XE50',
 'HLT_xe70',
 'HLT_xe70_tc_lcw',
+'HLT_xe70_mht',
 'HLT_g300_etcut',
 'HLT_g140_loose',
 'HLT_g120_loose',
@@ -194,6 +179,76 @@ MetTriggers = [
 'HLT_g200_loose',
 'HLT_xe110_mht_L1XE50',
 'HLT_xe110_mht_L1XE50_AND_xe70_L1XE50',
-'HLT_xe110_mht_L1XE50_AND_xe70_L1XE55'
+'HLT_xe110_mht_L1XE50_AND_xe70_L1XE55',
+'HLT_noalg_L1J400',
 ]
+
+# for fake factor method
+PrescaledLowPtTriggers = [
+'HLT_e5_etcut',
+'HLT_e5_lhloose_nod0',
+'HLT_e5_lhloose_idperf',
+'HLT_e5_lhloose_nod0_idperf',
+'HLT_e5_lhvloose',
+'HLT_e5_lhvloose_nod0',
+'HLT_e5_lhtight_idperf',
+'HLT_e5_lhtight_nod0',
+'HLT_e9_lhloose_nod0',
+'HLT_e10_etcut_L1EM7',
+'HLT_e10_lhvloose_nod0_L1EM7',
+'HLT_e10_lhtight_idperf',
+'HLT_e10_lhvloose_L1EM7',
+'HLT_e12_lhloose_nod0',
+'HLT_e12_lhvloose_L1EM10VH',
+'HLT_e12_lhvloose_nod0_L1EM10VH',
+'HLT_e15_etcut_L1EM7',
+'HLT_e15_lhvloose_L1EM13VH',
+'HLT_e15_lhvloose_nod0_L1EM7',
+'HLT_e17_lhvloose',
+'HLT_e17_lhvloose_nod0',
+'HLT_e17_lhvloose_nod0_L1EM15VHI',
+'HLT_e19_lhvloose_nod0',
+'HLT_mu4',
+'HLT_mu6',
+'HLT_mu10',
+'HLT_mu10_idperf',
+'HLT_mu14',
+'HLT_mu14_ivarloose',
+'HLT_mu18',
+]
+
+PrescaledHighPtTriggers = [
+'HLT_e20_etcut_L1EM12',
+'HLT_e20_lhvloose',
+'HLT_e20_lhvloose_nod0',
+'HLT_e24_lhvloose_nod0_L1EM18VH',
+'HLT_e24_lhvloose_nod0_L1EM20VH',
+'HLT_e24_lhtight_L1EM20VH',
+'HLT_e25_lhvloose_nod0_L1EM15',
+'HLT_e26_lhvloose_L1EM20VH',
+'HLT_e26_lhvloose_nod0',
+'HLT_e26_lhvloose_nod0_L1EM20VH',
+'HLT_e26_lhvloose_nod0_L1EM22VHIM',
+'HLT_e28_lhvloose_nod0_L1EM20VH',
+'HLT_e30_lhvloose_nod0_L1EM15',
+'HLT_e30_etcut_L1EM15',
+'HLT_e30_lhvloose_L1EM15',
+'HLT_e40_etcut_L1EM15',
+'HLT_e40_lhvloose_L1EM15',
+'HLT_e40_lhvloose_nod0',
+'HLT_e40_lhvloose_nod0_L1EM15',
+'HLT_e50_lhvloose_L1EM15',
+'HLT_e50_etcut_L1EM15',
+'HLT_e50_lhvloose_nod0_L1EM15',
+'HLT_mu20',
+'HLT_mu20_idperf',
+'HLT_mu20_ivarmedium_L1MU10',
+'HLT_mu22',
+'HLT_mu24',
+'HLT_mu24_idperf',
+]
+
+METorPhoton_triggers = MetTriggers+MET_2017+MET_2016+MET_2015+SinglePhoton_2017+SinglePhoton_2016+SinglePhoton_2015
+Lepton_triggers = NonMetTriggers+SingleLepton_2017+SingleLepton_2016+SingleLepton_2015+DiLepton_2017+DiLepton_2016+DiLepton_2015
+triggersNavThin = METorPhoton_triggers+Lepton_triggers+PrescaledHighPtTriggers+PrescaledLowPtTriggers
 

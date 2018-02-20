@@ -7,12 +7,12 @@ from AthenaCommon import CfgMgr
 
 def getMCTruthUserActionTool(name='ISFMCTruthUserActionTool', **kwargs):
     from G4AtlasApps.SimFlags import simFlags
-    kwargs.setdefault('TruthRecordSvc',  simFlags.TruthService.get_Value())
+    kwargs.setdefault('TruthRecordSvc',  simFlags.TruthStrategy.TruthServiceName())
     return CfgMgr.G4UA__iGeant4__MCTruthUserActionTool(name, **kwargs)
 
 def addMCTruthUserActionTool(name="ISFMCTruthUserActionTool",system=False):
     from G4AtlasServices import G4AtlasServicesConfig
-    G4AtlasServicesConfig.addAction(name,['BeginOfRun','BeginOfTracking','EndOfTracking'],system)
+    G4AtlasServicesConfig.addAction(name,['Run','Tracking'],system)
 
 ## -----------------------------------------------------------------------------
 ### Base Version
@@ -69,7 +69,7 @@ def getAFII_G4TrackProcessorUserActionTool(name='AFII_G4TrackProcessorUserAction
 
 def addTrackProcessorTool(name,system=False):
     from G4AtlasServices import G4AtlasServicesConfig
-    G4AtlasServicesConfig.addAction(name,['BeginOfRun','BeginOfTracking','BeginOfEvent','Step'],system)
+    G4AtlasServicesConfig.addAction(name,['Run','Tracking','Event','Step'],system)
 
 ## -----------------------------------------------------------------------------
 ### Base Version

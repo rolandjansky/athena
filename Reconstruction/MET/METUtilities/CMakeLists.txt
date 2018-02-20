@@ -33,13 +33,13 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODTracking
    InnerDetector/InDetRecTools/InDetTrackSelectionTool
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
+   PhysicsAnalysis/Interfaces/MuonAnalysisInterfaces
    Reconstruction/MET/METInterface
    PRIVATE
    Event/EventPrimitives
    Event/FourMomUtils
    Event/xAOD/xAODCore
    PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
-   PhysicsAnalysis/MuonID/MuonSelectorTools
    PhysicsAnalysis/TauID/TauAnalysisTools
    Reconstruction/Jet/JetResolution
    PhysicsAnalysis/ElectronPhotonID/ElectronPhotonFourMomentumCorrection
@@ -59,14 +59,14 @@ atlas_add_library( METUtilitiesLib
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}  ${GTEST_INCLUDE_DIRS} 
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEgamma xAODJet xAODMissingET
    xAODMuon xAODTau xAODTracking InDetTrackSelectionToolLib PATInterfaces JetResolutionLib ElectronPhotonFourMomentumCorrectionLib MuonMomentumCorrectionsLib tauRecToolsLib
-   METInterface
+   METInterface MuonAnalysisInterfacesLib
    PRIVATE_LINK_LIBRARIES EventPrimitives FourMomUtils xAODCore PathResolver )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( METUtilities
       src/*.h src/*.cxx src/components/*.cxx
       LINK_LIBRARIES GaudiKernel AthenaBaseComps METInterface xAODEgamma
-      xAODMuon xAODTau xAODMissingET xAODJet MuonSelectorToolsLib JetResolutionLib ElectronPhotonFourMomentumCorrectionLib MuonMomentumCorrectionsLib tauRecToolsLib
+      xAODMuon xAODTau xAODMissingET xAODJet JetResolutionLib ElectronPhotonFourMomentumCorrectionLib MuonMomentumCorrectionsLib tauRecToolsLib
       ElectronPhotonSelectorToolsLib TauAnalysisToolsLib METUtilitiesLib  )
 endif()
 

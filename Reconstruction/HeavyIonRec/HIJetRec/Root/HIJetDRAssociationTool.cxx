@@ -49,7 +49,7 @@ int HIJetDRAssociationTool::modify(xAOD::JetContainer& jets) const
     xAOD::Jet* theJet=(*ijet);
     for(xAOD::IParticleContainer::const_iterator pItr=ppars->begin(); pItr!=ppars->end(); pItr++)
     {
-      xAOD::IParticle* ap=(*pItr);
+      const xAOD::IParticle* ap=(*pItr);
       if(theJet->p4().DeltaR( ap->p4()) < m_DR) ParticleVector.push_back(ap);
     }
     theJet->setAssociatedObjects(m_assoc_name,ParticleVector);

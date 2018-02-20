@@ -422,7 +422,7 @@ int main(int argc, char** argv) {
   tdir->cd();
 
 
-#ifdef RENE_IS_PROBABLY_AN_ARSE
+#ifdef USE_SLOW_ROOT_FILE_DELETION
 
   std::cout << "deleting ftest" << std::endl;
 
@@ -439,10 +439,6 @@ int main(int argc, char** argv) {
 
   //  delete testtimers;
   delete ftest;
-
-  //#else
-
-  //  std::cout << "***REMOVED***" << std::endl;
 
 #endif
 

@@ -18,7 +18,8 @@ atlas_add_library( GenInterfacesLib
    INTERFACE
    PUBLIC_HEADERS GenInterfaces
    INCLUDE_DIRS ${HEPMC_INCLUDE_DIRS}
-   LINK_LIBRARIES ${HEPMC_LIBRARIES} GaudiKernel xAODEventInfo xAODTruth )
+   LINK_LIBRARIES ${HEPMC_LIBRARIES} AsgTools GaudiKernel xAODEventInfo
+   xAODTruth )
 
 atlas_add_dictionary( GenInterfacesDict
    GenInterfaces/GenInterfacesDict.h

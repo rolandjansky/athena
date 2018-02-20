@@ -96,22 +96,28 @@ bool fileExists(const TString& fileName)
     return gSystem->AccessPathName(fileName) == false;
 }
 
-TString findFilePath(const TString& fileName, const TString& path)
+TString findFilePath(const TString& fileName, const TString& path, const TString& calibArea)
 {
     TString pathToGet = "";
 
     // First, try the raw filename plus path (user-specified), then raw filename (local)
-    if (fileExists(fileName))
-        pathToGet = fileName;
-    else if (fileExists(path+(path.EndsWith("/")?"":"/")+fileName))
+    if (fileExists(path+(path.EndsWith("/")?"":"/")+fileName))
         pathToGet = path+(path.EndsWith("/")?"":"/")+fileName;
-
-    // Next, try PathResolver
-    if (pathToGet == "")
-        pathToGet = TString(PathResolverFindCalibFile(Form("JetUncertainties/%s",fileName.Data())).c_str());
-
+    else if (fileExists(fileName))
+        pathToGet = fileName;
     
-    // Try backup locations now
+    // Next, try PathResolver in a few configurations
+    // PathResolver #1: versioned CalibArea (most users should be in this case)
+    if (pathToGet == "" && calibArea != "")
+        pathToGet = TString(PathResolverFindCalibFile(Form("JetUncertainties/%s/%s",calibArea.Data(),fileName.Data())).c_str());
+    // PathResolver #2: unversioned CalibArea (legacy support)
+    if (pathToGet == "" && calibArea == "")
+        pathToGet = TString(PathResolverFindCalibFile(Form("JetUncertainties/%s",fileName.Data())).c_str());
+    // PathResolver #3: general search in case of files residing in other packages (request from a Higgs group)
+    if (pathToGet == "")
+        pathToGet = TString(PathResolverFindCalibFile(fileName.Data()).c_str());    
+    
+    // Try backup locations now (legacy support)
     if (pathToGet == "")
     {
         // Try ROOTCOREBIN
@@ -130,12 +136,12 @@ TString findFilePath(const TString& fileName, const TString& path)
     return pathToGet;
 }
 
-TFile* readRootFile(const TString& fileName, const TString& path)
+TFile* readRootFile(const TString& fileName, const TString& path, const TString& calibArea)
 {
     TFile* rootFile = NULL;
     
-    TString pathToGet = findFilePath(fileName,path);
-    std::cout << "Looking for file " << fileName << " in path " << path << std::endl;
+    TString pathToGet = findFilePath(fileName,path,calibArea);
+    //std::cout << "Looking for file " << fileName << " in path " << path << std::endl;
 
     if (pathToGet != "")
         rootFile = new TFile(pathToGet,"READ");

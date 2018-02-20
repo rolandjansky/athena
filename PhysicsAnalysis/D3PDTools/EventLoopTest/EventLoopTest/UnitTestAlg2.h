@@ -23,6 +23,8 @@
 #include <EventLoopTest/Global.h>
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
+#include <AsgTools/IAsgTool.h>
+#include <EventLoopTest/IUnitTestTool.h>
 
 class TBranch;
 class TH1;
@@ -93,6 +95,10 @@ namespace EL
     /// \brief the string property our owner sets
   public:
     std::string m_string_property;
+
+    /// \brief the tool handle property our owner sets
+  public:
+    ToolHandle<IUnitTestTool> m_toolHandle;
 
     /// description: the name of the variable we are using
   private:

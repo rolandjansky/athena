@@ -7,15 +7,15 @@
 #include "JetSubStructureMomentTools/JetChargeTool.h"
 #include "JetSubStructureMomentTools/NSubjettinessRatiosTool.h"
 #include "JetSubStructureMomentTools/ShowerDeconstructionTool.h"
-#include "JetSubStructureMomentTools/BoostedXbbTagTool.h"
 #include "JetSubStructureMomentTools/EnergyCorrelatorRatiosTool.h"
+#include "JetSubStructureMomentTools/EnergyCorrelatorGeneralizedRatiosTool.h"
 #include "JetSubStructureMomentTools/JetPullTool.h"
 #include "JetSubStructureMomentTools/KTSplittingScaleTool.h"
 #include "JetSubStructureMomentTools/NSubjettinessTool.h"
 #include "JetSubStructureMomentTools/SubjetFinderTool.h"
 #include "JetSubStructureMomentTools/VolatilityTool.h"
-#include "JetSubStructureMomentTools/BosonTagTool.h"
 #include "JetSubStructureMomentTools/EnergyCorrelatorTool.h"
+#include "JetSubStructureMomentTools/EnergyCorrelatorGeneralizedTool.h"
 #include "JetSubStructureMomentTools/JetSubStructureMomentToolsBase.h"
 #include "JetSubStructureMomentTools/KtDeltaRTool.h"
 #include "JetSubStructureMomentTools/PlanarFlowTool.h"
@@ -25,6 +25,9 @@
 #include "JetSubStructureMomentTools/KtMassDropTool.h"
 #include "JetSubStructureMomentTools/QwTool.h"
 #include "JetSubStructureMomentTools/SubjetRecorderTool.h"
+#include "JetSubStructureMomentTools/HEPTopTaggerMomentsTool.h"
+#include "JetSubStructureMomentTools/IVariableRPseudoJetCalTool.h"
+#include "JetSubStructureMomentTools/VariableRPseudoJetCalTool.h"
 
 #ifdef __CINT__
 
@@ -34,12 +37,12 @@
 #pragma link C++ nestedclass;
 
 #pragma link C++ class AngularityTool+;
-#pragma link C++ class BoostedXbbTagTool+;
-#pragma link C++ class BosonTagTool+;
 #pragma link C++ class CenterOfMassShapesTool+;
 #pragma link C++ class DipolarityTool+;
 #pragma link C++ class EnergyCorrelatorRatiosTool+;
 #pragma link C++ class EnergyCorrelatorTool+;
+#pragma link C++ class EnergyCorrelatorGeneralizedRatiosTool+;
+#pragma link C++ class EnergyCorrelatorGeneralizedTool+;
 #pragma link C++ class ISubjetRecorderTool+;
 #pragma link C++ class JetChargeTool+;
 #pragma link C++ class JetPullTool+;
@@ -56,5 +59,8 @@
 #pragma link C++ class SubjetMakerTool+;
 #pragma link C++ class SubjetRecorderTool+;
 #pragma link C++ class VolatilityTool+;
+#pragma link C++ class HEPTopTaggerMomentsTool+;
+#pragma link C++ class IVariableRPseudoJetCalTool+;
+#pragma link C++ class VariableRPseudoJetCalTool+;
 
 #endif

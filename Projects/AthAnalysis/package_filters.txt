@@ -29,6 +29,7 @@
 # Just for AthAnalysis, also include xAODTruthCnv
 # This is for EVNT support (allows otf conversion to xAOD-format)
 + Event/xAOD/xAODTruthCnv
++ Event/xAOD/xAODEventInfoCnv
 
 - Event/xAOD/.*Cnv
 + Event/xAOD/.*
@@ -57,6 +58,7 @@
 + PhysicsAnalysis/AnalysisCommon/PileupReweighting
 + PhysicsAnalysis/AnalysisCommon/PMGOverlapRemovalTools/HFORTools
 + PhysicsAnalysis/AnalysisCommon/ReweightUtils
++ PhysicsAnalysis/AnalysisCommon/HDF5Utils
 + PhysicsAnalysis/BPhys/BPhysTools
 + PhysicsAnalysis/D3PDTools/RootCoreUtils
 + PhysicsAnalysis/D3PDTools/SampleHandler
@@ -112,6 +114,7 @@
 + Trigger/TrigEvent/TrigRoiConversion
 + Trigger/TrigEvent/TrigSteeringEvent
 + Trigger/TrigValidation/TrigAnalysisTest
++ Trigger/TriggerSimulation/TrigBtagEmulationTool
 + Reconstruction/RecoTools/IsolationTool
 + Reconstruction/RecoTools/RecoToolInterfaces
 
@@ -138,6 +141,9 @@
 + Control/PerformanceMonitoring/PerfMonKernel
 + Control/Navigation
 
+#scripts package contains useful commands like get_files
++ Tools/Scripts
+
 + Tools/PyUtils
 # Pycmt is pulled in by PyUtils, which is pulled in by athena.py
 + Tools/PyCmt
@@ -160,6 +166,7 @@
 + Database/PersistentDataModel.*
 + Database/TPTools
 + Database/CoraCool
++ Database/AtlasSTLAddReflex
 + Control/DataModelAthenaPool
 
 

@@ -51,24 +51,24 @@ namespace DerivationFramework {
       virtual StatusCode addBranches() const;
 
   protected:
-      virtual void recordPropertyI(std::string name, int         val);
-      virtual void recordPropertyD(std::string name, double      val);
-      virtual void recordPropertyB(std::string name, bool        val);
-      virtual void recordPropertyS(std::string name, std::string val);
+      virtual void recordPropertyI(const std::string& name, int         val);
+      virtual void recordPropertyD(const std::string& name, double      val);
+      virtual void recordPropertyB(const std::string& name, bool        val);
+      virtual void recordPropertyS(const std::string& name, const std::string& val);
 	
-      virtual void recordPropertyVI(std::string name, std::vector<int>    val);
-      virtual void recordPropertyVD(std::string name, std::vector<double> val);
-      virtual void recordPropertyVB(std::string name, std::vector<bool>   val);
-      virtual void recordPropertyVS(std::string name,
-				    std::vector<std::string> val);
+      virtual void recordPropertyVI(const std::string& name, const std::vector<int>&    val);
+      virtual void recordPropertyVD(const std::string& name, const std::vector<double>& val);
+      virtual void recordPropertyVB(const std::string& name, const std::vector<bool>&   val);
+      virtual void recordPropertyVS(const std::string& name,
+				    const std::vector<std::string>& val);
 	
   private:
       virtual StatusCode saveMetaDataBPhys()                      const;
-      virtual std::string buildFolderName(std::string fname="")   const;
-      virtual std::string vecToString(std::vector<int> v)         const;
-      virtual std::string vecToString(std::vector<double> v)      const;
-      virtual std::string vecToString(std::vector<bool> v)        const;
-      virtual std::string vecToString(std::vector<std::string> v) const;
+      virtual std::string buildFolderName(const std::string& fname="")   const;
+      virtual std::string vecToString(const std::vector<int>& v)         const;
+      virtual std::string vecToString(const std::vector<double>& v)      const;
+      virtual std::string vecToString(const std::vector<bool>& v)        const;
+      virtual std::string vecToString(const std::vector<std::string>& v) const;
       
   private:
       /// Object accessing the output metadata store

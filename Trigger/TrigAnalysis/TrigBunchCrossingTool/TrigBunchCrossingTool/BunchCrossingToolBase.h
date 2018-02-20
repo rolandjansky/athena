@@ -4,7 +4,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: BunchCrossingToolBase.h 618331 2014-09-24 11:55:26Z krasznaa $
 #ifndef TRIGBUNCHCROSSINGTOOL_BUNCHCROSSINGTOOLBASE_H
 #define TRIGBUNCHCROSSINGTOOL_BUNCHCROSSINGTOOLBASE_H
 
@@ -169,6 +168,10 @@ namespace Trig {
       int m_tailLength;
 
       /// @}
+
+   private:
+      /// Get the apparent bunch spacing in the current configuration
+      int bunchSpacing( const std::vector< int >& bunches ) const;
 
    }; // class BunchCrossingToolBase
 

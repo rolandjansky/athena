@@ -2624,58 +2624,6 @@ StatusCode  IDAlignMonResiduals::getSiResiduals(const Trk::Track* track, const T
 	
 }
 
-//_______________________
-
-
-bool IDAlignMonResiduals::isEdge(const Trk::RIO_OnTrack* hit)
-{
-  bool IsAEdgeChannel = false;
-	
-  // check if it is an SCT or Pixel hit
-  const Identifier & hitId = hit->identify();
-  int detType = 99; 
-  //Since isEdge is called only in silicon detector we have detType = 0 or detType = 1
-  if (m_idHelper->is_sct(hitId)) detType = 1;
-  else detType = 0;
-  
-  
-  const Trk::PrepRawData* hit_PRD = hit->prepRawData();
-  if (!hit_PRD) return false;
-  const std::vector<Identifier> hit_ID_list = hit_PRD->rdoList() ;
-	
-	
-  for( unsigned int i=0; i!=hit_ID_list.size() ; ++i ) {
-    if (detType ==1 )
-      {
-	int stripId = m_sctID->strip(hit_ID_list[i]) ;
-	if( stripId == 0 || stripId == 767 ) {
-	  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "SCT Overlap in Phi" << stripId <<  endreq;
-	  return true;
-	}
-      }
-    else //(detType == 0)
-      {
-	int pixelIdPhi = m_pixelID->phi_index(hit_ID_list[i]) ;
-	int pixelIdEta = m_pixelID->eta_index(hit_ID_list[i]) ;
-			
-	if(pixelIdEta == 0 || pixelIdEta == 143 ) {
-	  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Pixel Overlap in Eta" << pixelIdEta <<  endreq;
-	  return true ;
-	}
-			
-	if( pixelIdPhi == 0 || pixelIdPhi == 327 ){
-	  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Pixel Overlap in Phi" << pixelIdPhi <<  endreq;
-	  return true ;
-	}
-      }
-  }
-	
-  return IsAEdgeChannel;
-  
-	
-}
-
-
 //__________________________________________________________________________
 std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAlignMonResiduals::findOverlapHit(const Trk::Track* trk, const Trk::RIO_OnTrack* hit)
 {
@@ -2694,13 +2642,7 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
   
   const Trk::TrackStateOnSurface* xOverlap = NULL;
   const Trk::TrackStateOnSurface* yOverlap = NULL;
-  if (isEdge(hit))
-    {
-      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "overlap rejected because hit is an edge hit (1st hit)" << endreq;     
-    }
-  else
-    {		
-      
+     
       const Identifier & hitId = hit->identify();
       int detType = 99; 
       int barrelEC = 99;
@@ -2775,14 +2717,6 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
 	if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "testing hit2 " << nHits << " for overlap detType = " << detType2 
 					   << ", modEta = " << modEta2 << ", modPhi = " << modPhi2 << " , layerDisk= "<<layerDisk2
 					   << ", barrelEC= "<<barrelEC2<< endreq;
-	
-       
-	if (isEdge(hit2))
-	  {
-	    if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "overlap rejected because hit is an edge hit (2nd hit)" << endreq;
-	    continue;
-	  }
-			
 			
 	if(!(*tsos2)->type(Trk::TrackStateOnSurface::Measurement)) {
 	  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "overlap rejected because hit is an outlier" << endreq;
@@ -2900,7 +2834,7 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
 	  yOverlap = (*tsos2);	  
 	}
       }		
-    }
+    
   //std::pair <const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> result(xOverlap, yOverlap);
   return std::pair <const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> (xOverlap, yOverlap);
 }

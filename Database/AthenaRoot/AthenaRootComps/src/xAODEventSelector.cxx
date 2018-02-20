@@ -72,6 +72,10 @@
 #include <map>
 
 
+#include "xAODCore/tools/ReadStats.h"
+#include "xAODCore/tools/PerfStats.h"
+#include "xAODCore/tools/IOStats.h"
+
 namespace Athena {
 
 /** @class xAODEventContext 
@@ -130,6 +134,8 @@ xAODEventSelector::xAODEventSelector( const std::string& name,
    declareProperty( "AccessMode", m_accessMode = -1, "-1 = use TEvent Default; 0 = BranchAccess; 1 = ClassAccess; 2 = AthenaAccess" );
 
    declareProperty( "FillEventInfo", m_fillEventInfo=false,"If True, will fill old EDM EventInfo with xAOD::EventInfo content, necessary for database reading (IOVDbSvc)");
+
+   declareProperty( "PrintPerfStats", m_printPerfStats=false,"If True, at end of job will print the xAOD perf stats");
 
 //Expert Properties:
   declareProperty( "EvtStore", m_dataStore,       "Store where to publish data");
@@ -308,6 +314,8 @@ StatusCode xAODEventSelector::initialize()
   //checked above that there's at least one file
   CHECK( setFile(m_inputCollectionsName.value()[0]) );
 
+  if(m_printPerfStats) xAOD::PerfStats::instance().start();
+
 
   return StatusCode::SUCCESS;
 }
@@ -318,6 +326,13 @@ StatusCode xAODEventSelector::finalize()
   // FIXME: this should be tweaked/updated if/when a selection function
   //        or filtering predicate is applied (one day?)
   ATH_MSG_INFO ("Total events read: " << (m_nbrEvts - m_skipEvts));
+
+  if(m_printPerfStats) {
+    xAOD::PerfStats::instance().stop();
+    xAOD::IOStats::instance().stats().Print();
+  }
+  
+
   return StatusCode::SUCCESS;
 }
 
@@ -359,7 +374,7 @@ xAODEventSelector::next( IEvtSelector::Context& ctx ) const
   xAODEventContext* rctx = dynamic_cast<xAODEventContext*>(&ctx);
   if ( 0 == rctx ) {
     ATH_MSG_ERROR ("Could not dyn-cast to xAODEventContext !!");
-    throw "xAODEventSelector: Unable to get xAODEventContext";
+    throw GaudiException("xAODEventSelector::next() - Unable to get xAODEventContext","xAODEventSelector",StatusCode::FAILURE);
   }
   
 
@@ -367,16 +382,20 @@ xAODEventSelector::next( IEvtSelector::Context& ctx ) const
   if (!file) { //must be starting another file ...
     auto& fnames = rctx->files();
     //std::size_t fidx = rctx->fileIndex();
-    CHECK( rctx->setFile("") );
+    if( rctx->setFile("").isFailure() ) {
+      throw GaudiException("xAODEventSelector::next() - Fatal error when trying to setFile('')","xAODEventSelector",StatusCode::FAILURE);
+    }
 
     while( m_tevent_entries == 0 ) { //iterate through files until we have one with entries
       if (m_collIdx < int(rctx->files().size())) {
          const std::string& fname = fnames[m_collIdx];
-         CHECK( rctx->setFile( fname ) );
+         if( rctx->setFile( fname ).isFailure() ) {
+	   throw GaudiException("xAODEventSelector::next() - Fatal error when trying to setFile('" + fname + "')","xAODEventSelector",StatusCode::FAILURE);
+	 }
          ATH_MSG_DEBUG("TEvent entries = " << m_tevent_entries);
       } else {
          // end of collections
-         return StatusCode::FAILURE;
+	return StatusCode::FAILURE; //this is a valid failure ... athena will interpret as 'finished looping'
       }
       if( m_tevent_entries==0) m_collIdx++;
       
@@ -407,6 +426,7 @@ xAODEventSelector::next( IEvtSelector::Context& ctx ) const
     // Load the event:
     if( m_tevent->getEntry( entry ) < 0 ) {
          ATH_MSG_ERROR( "Failed to load entry " << static_cast< int >( entry ) );
+	 throw GaudiException("xAODEventSelector::next() - xAOD::TEvent::getEntry returned less than 0 bytes","xAODEventSelector",StatusCode::FAILURE);
     }
 
     ++m_nbrEvts;
@@ -419,7 +439,8 @@ xAODEventSelector::next( IEvtSelector::Context& ctx ) const
     const xAOD::EventInfo* xaodEventInfo = 0;
     if(m_fillEventInfo) {
       if(m_tevent->retrieve( xaodEventInfo , "EventInfo").isFailure()) {
-	ATH_MSG_ERROR("Could not find xAOD::EventInfo");return StatusCode::FAILURE;
+	ATH_MSG_ERROR("Could not find xAOD::EventInfo");
+	throw GaudiException("xAODEventSelector::next() - Could not find xAOD::EventInfo","xAODEventSelector",StatusCode::FAILURE);
       }
     }
     EventType* evtType = new EventType;
@@ -429,7 +450,7 @@ xAODEventSelector::next( IEvtSelector::Context& ctx ) const
     if ( !m_dataStore->record( evtInfo, "EventInfo" ).isSuccess() ) {
       ATH_MSG_ERROR ("Could not record EventInfo !");
       delete evtInfo; evtInfo = 0;
-      return StatusCode::FAILURE;
+      throw GaudiException("xAODEventSelector::next() - Could not record EventInfo","xAODEventSelector",StatusCode::FAILURE);
     }
 
     return StatusCode::SUCCESS;
@@ -718,17 +739,22 @@ xAODEventSelector::createRootBranchAddresses(StoreID::type storeID,
     return StatusCode::FAILURE;
   }
 
+  TTree* inputTree = dynamic_cast<TTree*>(m_tfile->Get(m_tupleName.value().c_str()));
+  
+  if(inputTree!=0) {
 
-  ATH_MSG_DEBUG("Reading xAOD::EventFormat");
 
-  //  m_tevent->dump();
+    ATH_MSG_DEBUG("Reading xAOD::EventFormat");
 
-  const void* value_ptr = m_tevent; //passed as 'parameter' to the address object
+    //  m_tevent->dump();
 
-  std::set<std::string> missingAux;
+    const void* value_ptr = m_tevent; //passed as 'parameter' to the address object
 
-  for( auto itr = m_tevent->inputEventFormat()->begin(); itr!=m_tevent->inputEventFormat()->end();++itr) {
-    //ATH_MSG_DEBUG("EFE:" << itr->first << " branchName = " << itr->second.branchName() << " className=" << itr->second.className());
+    std::set<std::string> missingAux;
+
+    for( auto itr = m_tevent->inputEventFormat()->begin(); itr!=m_tevent->inputEventFormat()->end();++itr) {
+      if(inputTree->GetBranch(itr->second.branchName().c_str())==0) continue; //skip branches that are not available in the input collection
+      ATH_MSG_VERBOSE("EFE:" << itr->first << " branchName = " << itr->second.branchName() << " className=" << itr->second.className());
       CLID id = 0;
       if( m_clidsvc->getIDOfTypeInfoName(itr->second.className(), id).isFailure() &&
 	  m_clidsvc->getIDOfTypeName(itr->second.className(), id).isFailure()) {
@@ -797,13 +823,17 @@ xAODEventSelector::createRootBranchAddresses(StoreID::type storeID,
         m_rootAddresses.insert(std::make_pair(taddr, true));
       }
       // }
-  }
+    }
 
-  if(missingAux.size()) {
-    std::string allAux; for(auto& s : missingAux) allAux += s + ", ";
-    ATH_MSG_WARNING("The following AuxStore types are not directly accessible (missing CLID, possibly from schema evolution): " << allAux);
+
+    if(missingAux.size()) {
+      std::string allAux; for(auto& s : missingAux) allAux += s + ", ";
+      ATH_MSG_WARNING("The following AuxStore types are not directly accessible (missing CLID, possibly from schema evolution): " << allAux);
+    }
+  } //end if block of requiring input tree to exist
+  else {
+    ATH_MSG_DEBUG("No input collection " << m_tupleName.value() << " found in input file " << m_tfile->GetTitle() );
   }
-  
 
   m_needReload = false;
   // remember that we need to fire a BeginInputFile incident.

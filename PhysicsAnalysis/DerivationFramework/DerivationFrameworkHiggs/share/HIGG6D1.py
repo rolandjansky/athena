@@ -30,8 +30,8 @@ print "HIGG6D1.py globalflags.DataSource()", globalflags.DataSource()
 print "HIGG6D1.py jobproperties.Beam.energy()", jobproperties.Beam.energy()
 
 if is_MC:
-  from DerivationFrameworkMCTruth.MCTruthCommon import *
-  from DerivationFrameworkTau.TauTruthCommon import * 
+  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+  addStandardTruthContents()
   from DerivationFrameworkCore.LHE3WeightMetadata import *
 
 #====================================================================

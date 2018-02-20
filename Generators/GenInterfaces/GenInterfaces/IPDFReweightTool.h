@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef GENINTERFACES_IPDFREWEIGHTTOOL_H
-#define GENINTERFACES_IPDFREWEIGHTTOOL_H
+#ifndef IPDFREWEIGHTTOOL_H
+#define IPDFREWEIGHTTOOL_H
 
 #include "GaudiKernel/IAlgTool.h"
 //#include "AthenaBaseComps/AthAlgTool.h"

@@ -46,6 +46,7 @@ EventSelection::EventSelection(const std::string& name, const std::vector<std::s
             m_cutflowBScaleFactors(nullptr),
             m_cutflowBScaleFactors_Loose(nullptr),
 	    m_cutflowParticleLevel(nullptr),
+	    m_cutflowParticleLevelMCWeights(nullptr),
             m_cutflowUpgradeLevel(nullptr),
             m_name(name),
             m_isMC(false),
@@ -99,6 +100,7 @@ EventSelection::EventSelection(const std::string& name, const std::vector<std::s
 
     if ( config->doTopParticleLevel() ){
 	m_cutflowParticleLevel = new TH1D("cutflow_particle_level", (name + " cutflow_particle_level").c_str(), cutNames.size(), -0.5, cutNames.size() - 0.5);
+	m_cutflowParticleLevelMCWeights = new TH1D("cutflow_particle_level_mc", (name + " cutflow_particle_level_mc").c_str(), cutNames.size(), -0.5, cutNames.size() - 0.5);
     }
 
     if ( config->HLLHC() ){
@@ -170,6 +172,10 @@ EventSelection::EventSelection(const std::string& name, const std::vector<std::s
 	    m_cutflowParticleLevel->GetXaxis()->SetBinLabel(i + 1, m_allCuts[i]->name().c_str());
 	}
 
+	if ( m_cutflowParticleLevelMCWeights ){
+	    m_cutflowParticleLevelMCWeights->GetXaxis()->SetBinLabel(i + 1, m_allCuts[i]->name().c_str());
+	}
+
         if ( m_cutflowUpgradeLevel ){
             m_cutflowUpgradeLevel->GetXaxis()->SetBinLabel(i + 1, m_allCuts[i]->name().c_str());
         }
@@ -206,6 +212,7 @@ EventSelection::EventSelection(EventSelection&& other) :
             m_cutflowBScaleFactors(std::move(other.m_cutflowBScaleFactors)),
 	    m_cutflowBScaleFactors_Loose(std::move(other.m_cutflowBScaleFactors_Loose)),
 	    m_cutflowParticleLevel(std::move(other.m_cutflowParticleLevel)),
+	    m_cutflowParticleLevelMCWeights(std::move(other.m_cutflowParticleLevelMCWeights)),
             m_cutflowUpgradeLevel(std::move(other.m_cutflowUpgradeLevel)),
             m_name(std::move(other.m_name)),
             m_isMC(std::move(other.m_isMC)),
@@ -398,6 +405,7 @@ bool EventSelection::applyParticleLevel(const top::ParticleLevelEvent& plEvent) 
     // check. Return false here because "do-not-do-particle-level" is equivalent
     // to "do-no-save-particle-level".
     if ( not m_cutflowParticleLevel ){ return false; }
+    if ( not m_cutflowParticleLevelMCWeights ){ return false; }
 
     unsigned int i(0);
     bool passEvent(false);
@@ -410,6 +418,9 @@ bool EventSelection::applyParticleLevel(const top::ParticleLevelEvent& plEvent) 
 	    break;
 
 	m_cutflowParticleLevel->Fill(i);
+
+        double mcweight = plEvent.m_info->mcEventWeight(0);
+	m_cutflowParticleLevelMCWeights->Fill(i, mcweight);
 
 	passEvent |= (currentCut->name() == "SAVE");
 	++i;
@@ -476,6 +487,10 @@ void EventSelection::finalise() const {
     if( m_cutflowParticleLevel ) {
 	std::cout << std::setw(15) << "particle level";
     }
+
+    if( m_cutflowParticleLevelMCWeights ) {
+	std::cout << std::setw(15) << "particle level mc";
+    }
  
     if( m_cutflowUpgradeLevel ) {
        std::cout << std::setw(15) << "upgrade level";
@@ -497,6 +512,10 @@ void EventSelection::finalise() const {
 
 	if ( m_cutflowParticleLevel ){
 	    std::cout << std::setw(15) << m_cutflowParticleLevel->GetBinContent(i);
+	}
+
+	if ( m_cutflowParticleLevelMCWeights ){
+	    std::cout << std::setw(15) << m_cutflowParticleLevelMCWeights->GetBinContent(i);
 	}
  
         if ( m_cutflowUpgradeLevel ){
@@ -525,6 +544,10 @@ void EventSelection::finalise() const {
         std::cout << std::setw(15) << "particle level";
     }
 
+    if( m_cutflowParticleLevelMCWeights ) {
+        std::cout << std::setw(15) << "particle level mc";
+    }
+
     if( m_cutflowUpgradeLevel ) {
         std::cout << std::setw(15) << "upgrade level";
     }
@@ -546,6 +569,10 @@ void EventSelection::finalise() const {
 
         if ( m_cutflowParticleLevel ){
             std::cout << std::setw(15) << m_cutflowParticleLevel->GetBinContent(i);
+        }
+
+        if ( m_cutflowParticleLevelMCWeights ){
+            std::cout << std::setw(15) << m_cutflowParticleLevelMCWeights->GetBinContent(i);
         }
 
         if ( m_cutflowUpgradeLevel ){

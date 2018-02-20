@@ -10,6 +10,7 @@
 
 #include "METInterface/IMETMaker.h"
 #include "METInterface/IMETSystematicsTool.h"
+#include "METInterface/IMETSignificance.h"
 #include "xAODMissingET/MissingETAuxContainer.h"
 #include "METUtilities/METHelpers.h"
 
@@ -221,5 +222,30 @@ StatusCode SUSYObjDef_xAOD::GetTrackMET(xAOD::MissingETContainer &met,
 
 }
 
+StatusCode SUSYObjDef_xAOD::GetMETSig(xAOD::MissingETContainer &met,
+                                   double &metSignificance, 
+				   const xAOD::JetContainer* jet,
+                                   const xAOD::ElectronContainer* elec,
+                                   const xAOD::MuonContainer* muon,
+                                   const xAOD::PhotonContainer* gamma,
+                                   const xAOD::TauJetContainer* taujet,
+                                   bool doTST, bool doJVTCut,
+      			           const xAOD::IParticleContainer* invis) {
+  
+  std::string softTerm = "SoftClus";
+  if (doTST) {
+    softTerm = "PVSoftTrk";
+  } else if (doJVTCut) {
+    ATH_MSG_WARNING( "Requested CST MET and a JVT cut.  This is not a recommended configuration - please consider switching to TST." );
+  }
+
+  ATH_CHECK( this->GetMET( met, jet, elec, muon, gamma, taujet, false, false, invis ) );
+  ATH_CHECK( m_metSignif->varianceMET( &met, m_jetTerm, softTerm, m_outMETTerm) );
+  metSignificance = m_metSignif->GetSignificance();
+  ATH_MSG_VERBOSE( "Obtained MET Significance: " << metSignificance  );
+
+  return StatusCode::SUCCESS;
+
+}
 
 }

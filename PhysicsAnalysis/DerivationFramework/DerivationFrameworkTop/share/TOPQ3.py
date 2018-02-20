@@ -21,7 +21,8 @@ DFisMC = (globalflags.DataSource()=='geant4')
 
 # no truth info for data xAODs
 if DFisMC:
-  from DerivationFrameworkMCTruth.MCTruthCommon import *
+  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+  addStandardTruthContents()
 
 #====================================================================
 # SET UP STREAM
@@ -109,9 +110,18 @@ DerivationFrameworkTop.TOPQCommonJets.addMSVVariables("AntiKt4EMTopoJets", TOPQ3
 # Then apply thinning
 TOPQ3Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ3Kernel", ThinningTools = thinningTools)
 
+#====================================================================
 # JetTagNonPromptLepton decorations
-import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as Config
-TOPQ3Sequence += Config.GetDecoratePromptLeptonAlgs()
+#====================================================================
+import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
+
+# Build AntiKt4PV0TrackJets and run b-tagging
+JetTagConfig.ConfigureAntiKt4PV0TrackJets(TOPQ3Sequence, 'TOPQ3')
+
+# Add BDT decoration algs
+TOPQ3Sequence += JetTagConfig.GetDecoratePromptLeptonAlgs()
+TOPQ3Sequence += JetTagConfig.GetDecoratePromptTauAlgs()
+
 
 # Finally, add the private sequence to the main job
 DerivationFrameworkJob += TOPQ3Sequence

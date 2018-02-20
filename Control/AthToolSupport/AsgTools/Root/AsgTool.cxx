@@ -77,7 +77,7 @@ namespace asg {
 #endif // ASGTOOL_STANDALONE
    {
 #ifdef ASGTOOL_STANDALONE
-      declareProperty( "OutputLevel", msg().mutable_level() );
+     msg().declarePropertyFor (*this);
       
 #endif // ASGTOOL_STANDALONE
       ToolStore::put( this ).ignore(); // Register the tool in the ToolStore

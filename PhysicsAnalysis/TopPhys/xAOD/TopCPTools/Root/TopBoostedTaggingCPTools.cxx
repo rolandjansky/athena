@@ -47,50 +47,38 @@ StatusCode BoostedTaggingCPTools::initialize() {
   m_topTag50 = nullptr;
   m_topTag50 = std::unique_ptr<SmoothedTopTagger>( new SmoothedTopTagger( "topTag50" ) );
   top::check(m_topTag50->setProperty( "ConfigFile","SmoothedTopTaggers/"+m_topTag_configFile_50),"Failed to set property ConfigFile to topTag50");
-#if ROOTCORE_RELEASE_SERIES==25
   top::check(m_topTag50->setProperty( "DecorateJet",false),"Failed to set property ConfigFile to topTag50");
-#endif
   top::check(m_topTag50->initialize(),"Failed to retrieve topTag50 tool");
   
   m_topTag80 = nullptr;
   m_topTag80 = std::unique_ptr<SmoothedTopTagger>( new SmoothedTopTagger( "topTag80" ) );
   top::check(m_topTag80->setProperty( "ConfigFile","SmoothedTopTaggers/"+m_topTag_configFile_80),"Failed to set property ConfigFile to topTag80");
-#if ROOTCORE_RELEASE_SERIES==25
   top::check(m_topTag80->setProperty( "DecorateJet",false),"Failed to set property ConfigFile to topTag80");
-#endif
   top::check(m_topTag80->initialize(),"Failed to retrieve topTag80 tool");  
   
   // Boosted boson W/Z/H tagging
   m_WTag50 = nullptr;
   m_WTag50 = std::unique_ptr<SmoothedWZTagger>( new SmoothedWZTagger( "WTag50" ) );
   top::check(m_WTag50->setProperty( "ConfigFile", m_WTag_configFile_50 ),"Failed to set property ConfigFile to WTag50");
-#if ROOTCORE_RELEASE_SERIES==25
   top::check(m_WTag50->setProperty( "DecorateJet",false),"Failed to set property ConfigFile to WTag50");
-#endif
   top::check(m_WTag50->initialize(),"Failed to retrieve W tight tagger tool");
   
   m_WTag80 = nullptr;
   m_WTag80 = std::unique_ptr<SmoothedWZTagger>( new SmoothedWZTagger( "WTag80" ) );
   top::check(m_WTag80->setProperty( "ConfigFile", m_WTag_configFile_80 ),"Failed to set property ConfigFile to WTag80");
-#if ROOTCORE_RELEASE_SERIES==25
   top::check(m_WTag80->setProperty( "DecorateJet",false),"Failed to set property ConfigFile to WTag80");
-#endif
   top::check(m_WTag80->initialize(),"Failed to retrieve W loose tagger tool");
   
   m_ZTag50 = nullptr;
   m_ZTag50 = std::unique_ptr<SmoothedWZTagger>( new SmoothedWZTagger( "ZTag50" ) );
   top::check(m_ZTag50->setProperty( "ConfigFile", m_ZTag_configFile_50 ),"Failed to set property ConfigFile to ZTag50");
-#if ROOTCORE_RELEASE_SERIES==25
   top::check(m_ZTag50->setProperty( "DecorateJet",false),"Failed to set property ConfigFile to ZTag50");
-#endif
   top::check(m_ZTag50->initialize(),"Failed to retrieve Z tight tagger tool");
   
   m_ZTag80 = nullptr;
   m_ZTag80 = std::unique_ptr<SmoothedWZTagger>( new SmoothedWZTagger( "ZTag80" ) );
   top::check(m_ZTag80->setProperty( "ConfigFile", m_ZTag_configFile_80 ),"Failed to set property ConfigFile to ZTag80");
-#if ROOTCORE_RELEASE_SERIES==25
   top::check(m_ZTag80->setProperty( "DecorateJet",false),"Failed to set property ConfigFile to ZTag80");
-#endif
   top::check(m_ZTag80->initialize(),"Failed to retrieve Z loose tagger tool");
 
   return StatusCode::SUCCESS;

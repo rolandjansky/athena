@@ -22,8 +22,7 @@ if HIJetFlags.UseHITracks() :
                                           minPt                = HIJetFlags.TrackInputPtMin(),
                                           maxAbsEta            = 2.5,
                                           minNSiHits           = 7,
-                                          maxNPixelSharedHits  = 1,
-                                          maxOneSharedModule   = True,
+                                          maxNSiSharedModules  = 100,
                                           maxNSiHoles          = 2,
                                           maxNPixelHoles       = 1)
 
@@ -54,8 +53,7 @@ if HIJetFlags.UseHITracks() :
                                           minPt                = 400.*Units.MeV,
                                           maxAbsEta            = 2.5,
                                           minNSiHits           = 7,
-                                          maxNPixelSharedHits  = 1,
-                                          maxOneSharedModule   = True,
+                                          maxNSiSharedModules  = 100,
                                           maxNSiHoles          = 2,
                                           maxNPixelHoles       = 1)
     #select the tracks for jet finding
@@ -76,10 +74,6 @@ if HIJetFlags.UseHITracks() :
     jtm.jvf.unlock()
     jtm.jvf.TrackVertexAssociation=jtm.tvassoc_HI.TrackVertexAssociation
     jtm.jvf.lock()
-
-    jtm.jvt.unlock()
-    jtm.jvt.TrackVertexAssociation=jtm.tvassoc_HI.TrackVertexAssociation
-    jtm.jvt.lock()
 
     jtm.trkmoms.unlock()
     jtm.trkmoms.TrackVertexAssociation=jtm.tvassoc_HI.TrackVertexAssociation
@@ -176,23 +170,31 @@ jtm.add(HIJetCellSubtractorTool("HIJetCellSubtractor"))
 
 from HIJetRec.HIJetRecConf import HIJetClusterSubtractorTool
 cl_subtr_tool=HIJetClusterSubtractorTool("HIJetClusterSubtractor")
-cl_subtr_tool.ConfigDir='HIJetRec/'
+cl_subtr_tool.ConfigDir='HIEventUtils/'
 jtm.add(cl_subtr_tool)
 
-
-if HIJetFlags.ApplyOriginCorrection() : hi_modifiers +=  [jtm.jetorigincorr]
+hi_calib_map={}
 if HIJetFlags.ApplyEtaJESCalibration() :
     from JetCalibTools.JetCalibToolsConf import JetCalibrationTool
-    calib_tool=JetCalibrationTool('HICalibTool',JetCollection='AntiKt4EMTopo',ConfigFile='JES_Full2012dataset_Preliminary_Jan13.config',CalibSequence='AbsoluteEtaJES')
-    jtm.add(calib_tool)
-    hi_modifiers += [jtm.HICalibTool]
+    for R in HIJetFlags.AntiKtRValues() : 
+        calib_seq='EtaJES'
+        JES_is_data=True
+        if jetFlags.useTruth(): JES_is_data=False
+        elif R is 0.4 : calib_seq='EtaJES_Insitu' #only do in situ for R=0.4 jets in data
+        calib_tool=JetCalibrationTool('HICalibToolR%d' % int(10*R),JetCollection='AntiKt%dHI' % int(10*R),
+                                      ConfigFile='JES_MC15c_HI_Nov2016.config',CalibSequence=calib_seq,IsData=JES_is_data)
+
+        jtm.add(calib_tool)
+        hi_calib_map['AntiKt%dHIJets' % int(10*R)]=calib_tool
+jtm.HICalibMap=hi_calib_map
 hi_modifiers += [jtm.jetfilHI,jtm.jetsorter]
 hi_modifiers+=[jtm.width,jtm.jetens,jtm.larhvcorr]
 
 if jetFlags.useCaloQualityTool():
     hi_modifiers += [jtm.caloqual_cluster]
 if jetFlags.useTracks(): 
-    hi_modifiers += [jtm.jvf, jtm.jvt, jtm.trkmoms]
+    hi_modifiers += [jtm.trkmoms, jtm.jvf, jtm.jvt]
+#    hi_modifiers += [jtm.jvf, jtm.jvt, jtm.trkmoms]
 if jetFlags.useTruth():
     hi_modifiers += [jtm.truthpartondr,jtm.partontruthlabel]
     hi_trk_modifiers += [jtm.truthpartondr,jtm.partontruthlabel]

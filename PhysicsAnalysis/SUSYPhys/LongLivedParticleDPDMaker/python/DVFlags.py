@@ -30,10 +30,88 @@ class DV_MultiJetTriggerFlags(JobProperty):
 			"HLT_5j60_gsc100_boffperf_split","HLT_6j45_gsc60_boffperf_split","HLT_6j50_gsc65_boffperf_split", 
 			"HLT_6j50_gsc70_boffperf_split","HLT_6j60_gsc85_boffperf_split","HLT_7j25_gsc45_boffperf_split_L14J20",
 			"HLT_7j25_gsc50_boffperf_split_L14J20" ]#gsc 
+    triggers += ["HLT_2j275_j140","HLT_2j250_j120","HLT_2j220_j120"]#3jet
     pass
 primRPVLLDESDM.add_JobProperty(DV_MultiJetTriggerFlags)
 
+### Additional multijet filter for DV+Jets
+
+class DV_2JetFilterFlags_HighpTCut(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+    cutEtMin=500.0*Units.GeV
+    nPassed=2
+    pass
+primRPVLLDESDM.add_JobProperty(DV_2JetFilterFlags_HighpTCut)
+
+class DV_3JetFilterFlags_HighpTCut(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+    cutEtMin=180.0*Units.GeV
+    nPassed=3
+    pass
+primRPVLLDESDM.add_JobProperty(DV_3JetFilterFlags_HighpTCut)
+
+class DV_4JetFilterFlags_HighpTCut(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+    cutEtMin=220.0*Units.GeV
+    nPassed=4
+    pass
+primRPVLLDESDM.add_JobProperty(DV_4JetFilterFlags_HighpTCut)
+
+class DV_5JetFilterFlags_HighpTCut(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+    cutEtMin=170.0*Units.GeV
+    nPassed=5
+    pass
+primRPVLLDESDM.add_JobProperty(DV_5JetFilterFlags_HighpTCut)
+
+class DV_6JetFilterFlags_HighpTCut(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+    cutEtMin=100.0*Units.GeV
+    nPassed=6
+    pass
+primRPVLLDESDM.add_JobProperty(DV_6JetFilterFlags_HighpTCut)
+
+class DV_7JetFilterFlags_HighpTCut(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+    cutEtMin=75.0*Units.GeV
+    nPassed=7
+    pass
+primRPVLLDESDM.add_JobProperty(DV_7JetFilterFlags_HighpTCut)
+
+
+
+
 ### multi-jet filter just to verify trigger - 4j80 OR 5j55 OR 6j45
+
+class DV_2JetFilterFlags(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+    cutEtMin=220.0*Units.GeV
+    nPassed=2
+    pass
+primRPVLLDESDM.add_JobProperty(DV_2JetFilterFlags)
+
+class DV_3JetFilterFlags(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+    cutEtMin=120.0*Units.GeV
+    nPassed=3
+    pass
+primRPVLLDESDM.add_JobProperty(DV_3JetFilterFlags)
 
 class DV_4JetFilterFlags(JobProperty):
     statusOn=True
@@ -184,3 +262,4 @@ class DV_PrescalerFlags(JobProperty):
     prescale=20
     pass
 primRPVLLDESDM.add_JobProperty(DV_PrescalerFlags)
+

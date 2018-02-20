@@ -84,14 +84,18 @@ StatusCode ToolExamplesAlg::execute() {
 
   //GRL Example
   bool passGRL = m_grl->passRunLB(*ei);
-  
+  ATH_MSG_VERBOSE( "passGRL = " << passGRL );
+
   //PRW Example
   CHECK( m_prw->apply(*ei) );
-  float pileupWeight = ei->auxdecor<float>("PileupWeight");
-  uint randomRunNumber = ei->auxdecor<uint>("RandomRunNumber");
+  float pileupWeight = ei->auxdata<float>("PileupWeight");
+  uint randomRunNumber = ei->auxdata<uint>("RandomRunNumber");
+  ATH_MSG_VERBOSE( "pileupWeight = " << pileupWeight );
+  ATH_MSG_VERBOSE( "randomRunNumber = " << randomRunNumber );
 
   //Trigger Decision Example
   bool passTrigger = m_tdt->isPassed("HLT_e24_lhmedium_L1EM20VH");
+  ATH_MSG_VERBOSE( "passTrigger = " << passTrigger );
 
 
   //Electron Calibration, Iso Calibration, LH Selection, Iso Selection, Scale Factor Example

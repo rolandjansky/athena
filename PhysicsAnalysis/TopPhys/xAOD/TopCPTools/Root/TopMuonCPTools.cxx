@@ -27,7 +27,9 @@ MuonCPTools::MuonCPTools(const std::string& name) :
   declareProperty("config", m_config);
   declareProperty("release_series", m_release_series );
 
-  declareProperty( "MuonCalibrationAndSmearingTool" , m_muonCalibrationAndSmearingTool );
+  declareProperty( "MuonCalibrationAndSmearingTool"    , m_muonCalibrationAndSmearingTool );
+  declareProperty( "MuonCalibrationAndSmearingTool2017", m_muonCalibrationAndSmearingTool2017 );
+
   declareProperty( "MuonSelectionTool" , m_muonSelectionTool );
   declareProperty( "MuonSelectionToolLoose" , m_muonSelectionToolLoose );
   declareProperty( "MuonSelectionToolVeryLooseVeto" , m_muonSelectionToolVeryLooseVeto );
@@ -63,27 +65,63 @@ StatusCode MuonCPTools::initialize() {
 StatusCode MuonCPTools::setupCalibration() {
   ///-- Calibration and smearing --///
   using IMuCalibSmearTool = CP::IMuonCalibrationAndSmearingTool;
+  ATH_MSG_INFO("Setting up MuonCalibrationAndSmearingTool configured for 2015+2016 data");
   const std::string mu_calib_smearing_name = "CP::MuonCalibrationAndSmearingTool";
   if (asg::ToolStore::contains<IMuCalibSmearTool>(mu_calib_smearing_name)) {
     m_muonCalibrationAndSmearingTool = asg::ToolStore::get<IMuCalibSmearTool>(mu_calib_smearing_name);
   } 
   else {
     IMuCalibSmearTool* muonCalibrationAndSmearingTool = new CP::MuonCalibrationAndSmearingTool(mu_calib_smearing_name);
-    
-    // Adding Release 21 scrutiny settings (https://twiki.cern.ch/twiki/bin/view/AtlasProtected/AtlasRelease21Scrutiny#Temporary_Recommendations_for_Co)
-    if(m_release_series == 25){
-      ATH_MSG_INFO( "CP::MuonCalibrationAndSmearingTool will be configured for Rel21 scrutiny exercise" );
-      ATH_MSG_INFO( "Setting CP::MuonCalibrationAndSmearingTool -> StatComb to false" );
-      top::check(asg::setProperty(muonCalibrationAndSmearingTool, "StatComb", false),
-                 "Unable to change StatComb property in " + mu_calib_smearing_name);
-    }
-    
+   
+    // StatComb recommended to be false in R21
+    top::check(asg::setProperty(muonCalibrationAndSmearingTool, "StatComb", false),
+	       "Unable to change StatComb property in " + mu_calib_smearing_name);    
+    // Sagitta bias file
+    top::check(asg::setProperty(muonCalibrationAndSmearingTool, "SagittaRelease", "sagittaBiasDataAll_25_07_17"),
+	       "Unable to set SagittaBiasFile in " +  mu_calib_smearing_name);
+    // Sagitta correction (apply to data)
+    top::check(asg::setProperty(muonCalibrationAndSmearingTool, "SagittaCorr", true ),
+               "Unable to set Sagitta correction in " + mu_calib_smearing_name);
+    // Sagitta MC distortion (apply to MC)
+    top::check(asg::setProperty(muonCalibrationAndSmearingTool, "doSagittaMCDistortion", false ),
+               "Unable to set Sagitta MC distortion in " + mu_calib_smearing_name);
+    // Initialise the tool
     top::check(muonCalibrationAndSmearingTool->initialize(),
 	       "Failed to initialize " + mu_calib_smearing_name);
     
     m_muonCalibrationAndSmearingTool = muonCalibrationAndSmearingTool;
   }
 
+  ///-- Additional tool for 2017 data/MC - Different Sagitta recommendation --///
+  ///-- See: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/MCPAnalysisGuidelinesMC16#How_to_setup_for_2015_and_2016_d --///
+  ATH_MSG_INFO("Setting up MuonCalibrationAndSmearingTool configured for 2017 data");
+  const std::string mu_calib_smearing_name_2017 = "CP::MuonCalibrationAndSmearingTool2017";
+  if (asg::ToolStore::contains<IMuCalibSmearTool>(mu_calib_smearing_name_2017)) {
+    m_muonCalibrationAndSmearingTool2017 = asg::ToolStore::get<IMuCalibSmearTool>(mu_calib_smearing_name_2017);
+  }
+  else {
+    IMuCalibSmearTool* muonCalibrationAndSmearingTool2017 = new CP::MuonCalibrationAndSmearingTool(mu_calib_smearing_name_2017);
+
+    // StatComb recommended to be false in R21                                                                  
+    top::check(asg::setProperty(muonCalibrationAndSmearingTool2017, "StatComb", false),
+	       "Unable to change StatComb property in " + mu_calib_smearing_name_2017);
+    // Sagitta bias file                                                                                        
+    top::check(asg::setProperty(muonCalibrationAndSmearingTool2017, "SagittaRelease", "sagittaBiasDataAll_25_07_17"),
+	       "Unable to set SagittaBiasFile in " +  mu_calib_smearing_name_2017);
+    // Sagitta correction (apply to data)                                                                       
+    top::check(asg::setProperty(muonCalibrationAndSmearingTool2017, "SagittaCorr", false ),
+	       "Unable to set Sagitta correction in " + mu_calib_smearing_name_2017);
+    // Sagitta MC distortion (apply to MC)                                                                      
+    top::check(asg::setProperty(muonCalibrationAndSmearingTool2017, "doSagittaMCDistortion", true ),
+	       "Unable to set Sagitta MC distortion in " + mu_calib_smearing_name_2017);
+    // Initialise the tool                                                                                      
+    top::check(muonCalibrationAndSmearingTool2017->initialize(),
+	       "Failed to initialize " + mu_calib_smearing_name_2017);
+
+    m_muonCalibrationAndSmearingTool2017 = muonCalibrationAndSmearingTool2017;
+  }
+
+  
   ///-- Selection --///
   m_muonSelectionTool = setupMuonSelectionTool("CP::MuonSelectionTool",
                                                 m_config->muonQuality(),
@@ -181,8 +219,8 @@ StatusCode MuonCPTools::setupScaleFactors() {
     // Add iso as a suffix (see above for consistency between tools :) )
     std::string muon_isolation = m_config->muonIsolation();
     muon_isolation += "Iso";
-    m_muonEfficiencyCorrectionsToolIso
-      = setupMuonSFTool("CP::MuonEfficiencyScaleFactorsToolIso",
+    m_muonEfficiencyCorrectionsToolIso = 
+      setupMuonSFTool("CP::MuonEfficiencyScaleFactorsToolIso",
                         muon_isolation);
   }
 
@@ -206,6 +244,14 @@ StatusCode MuonCPTools::setupScaleFactors() {
   m_muonEfficiencyCorrectionsToolTTVA
     = setupMuonSFTool("CP::MuonEfficiencyScaleFactorsToolTTVA",
                       "TTVA");
+
+  // WARNING - The PromptLeptonIsolation scale factors are only derived with respect to the loose PID
+  //         - Hence we need to fail if this has occured
+  if( (m_config->muonQuality() != "Loose" && m_config->muonIsolation() == "PromptLepton")
+      || (m_config->muonQualityLoose() !="Loose" && m_config->muonIsolationLoose() == "PromptLepton") ){
+    ATH_MSG_ERROR("Cannot use PromptLeptonIsolation on muons without using Loose quality - Scale factors are not available");
+    return StatusCode::FAILURE;
+  }
 
   return StatusCode::SUCCESS;
 }

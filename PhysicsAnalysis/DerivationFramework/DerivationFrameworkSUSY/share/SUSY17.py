@@ -9,9 +9,12 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 if DerivationFrameworkIsMonteCarlo:
-    from DerivationFrameworkMCTruth.MCTruthCommon import *
+  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+  addStandardTruthContents()
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
+from DerivationFrameworkFlavourTag.FlavourTagCommon import *
+
 
 ### Set up stream
 streamName = derivationFlags.WriteDAOD_SUSY17Stream.StreamName
@@ -155,20 +158,24 @@ objectSelection = '(count('+electronsRequirements+') + count('+muonsRequirements
 
 expression = objectSelection
 
-applyJetCalibration_xAODColl("AntiKt4EMTopo", SeqSUSY17)
+# now done in ExtendedJetCommon
+#applyJetCalibration_xAODColl("AntiKt4EMTopo", SeqSUSY17)
 
-from DerivationFrameworkSUSY.SUSY17TriggerList import triggersNavThin
-from DerivationFrameworkSUSY.SUSY17TriggerList import MetTriggers
-from DerivationFrameworkSUSY.SUSY17TriggerList import PrescaledTriggers
-trig_expression = '(' + ' || '.join(MetTriggers + triggersNavThin) + ')' 
-MEttrig_expression ='(' + ' || '.join(MetTriggers) + ')' 
+from DerivationFrameworkSUSY.SUSY5TriggerList import triggersNavThin
+from DerivationFrameworkSUSY.SUSY5TriggerList import METorPhoton_triggers
+from DerivationFrameworkSUSY.SUSY5TriggerList import Lepton_triggers
+from DerivationFrameworkSUSY.SUSY5TriggerList import PrescaledLowPtTriggers
+from DerivationFrameworkSUSY.SUSY5TriggerList import PrescaledHighPtTriggers
+
+trig_expression = '(' + ' || '.join(METorPhoton_triggers+Lepton_triggers) + ')' 
+MEttrig_expression ='(' + ' || '.join(METorPhoton_triggers) + ')' 
+Prestrig_expression ='(' + ' || '.join(PrescaledLowPtTriggers + PrescaledHighPtTriggers) + ')' 
+
 JetEleExpression = '(count(AntiKt4EMTopoJets.DFCommonJets_Calib_pt>25*GeV && abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta)<2.8)>=2)'
-Prestrig_expression ='(' + ' || '.join(PrescaledTriggers) + ')' 
-LepTrigexpression = '('+'('+trig_expression+'&&'+objectSelectionHL+')'+'||'+'('+MEttrig_expression +'&&'+ objectSelectionSL+')'+'||'+'('+Prestrig_expression +'&&'+ JetEleExpression +'&&'+ objectSelection+')'+')'
 
-expression = '('+LepTrigexpression+'&&('+JetEleExpression+'))'
-if DerivationFrameworkIsMonteCarlo:
-    expression = LepTrigexpression
+LepTrigexpression = '('+'('+trig_expression+'&&'+objectSelectionHL+'&&'+JetEleExpression+')'+'||'+'('+MEttrig_expression +'&&'+ objectSelectionSL+'&&'+JetEleExpression+')'+'||'+'('+Prestrig_expression +'&&'+ JetEleExpression +'&&'+ objectSelection+')'+')'
+
+expression = LepTrigexpression
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 SUSY17SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY17SkimmingTool",
@@ -210,6 +217,10 @@ SeqSUSY17 += CfgMgr.DerivationFramework__DerivationKernel(
 #==============================================================================
 # Jet building
 #==============================================================================
+#re-tag PFlow jets so they have b-tagging info.
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = SeqSUSY17)
+
+#==============================================================================
 OutputJets["SUSY17"] = []
 reducedJetList = [ "AntiKt2PV0TrackJets" ]
 # now part of MCTruthCommon
@@ -250,9 +261,15 @@ SUSY17SlimmingHelper.SmartCollections = ["Electrons",
                                         "Muons",
                                         "TauJets",
                                         "AntiKt4EMTopoJets",
+"AntiKt4EMPFlowJets",
+
  #K.Onogi removed 15/11/16              "AntiKt4LCTopoJets",
                                         "MET_Reference_AntiKt4EMTopo",
+"MET_Reference_AntiKt4EMPFlow",
+
                                         "BTagging_AntiKt4EMTopo",
+"BTagging_AntiKt4EMPFlow",
+
                                         "InDetTrackParticles",
                                         "PrimaryVertices"]
 SUSY17SlimmingHelper.AllVariables = ["TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth", "MET_Track"]
@@ -286,7 +303,8 @@ SUSY17SlimmingHelper.IncludeBJetTriggerContent   = False
 # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
 if DerivationFrameworkIsMonteCarlo:
 
-  SUSY17SlimmingHelper.AppendToDictionary = {'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
+  SUSY17SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4EMPFlow':'xAOD::BTaggingContainer','BTagging_AntiKt4EMPFlowAux':'xAOD::BTaggingAuxContainer',
+'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
                                              'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
                                              'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
   

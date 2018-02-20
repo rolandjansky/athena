@@ -32,7 +32,8 @@ STDM9ExtraVariablesTruth = [".".join(["Electrons",
     "firstEgMotherTruthOrigin", 
     "firstEgMotherTruthParticleLink", 
     "firstEgMotherPdgId"
-    ])]
+    ]),
+    "InDetTrackParticles.truthMatchProbability"]
 
 STDM9AllVariablesContent = [
      ### TRUTH ###

@@ -11,12 +11,17 @@
 #include "TSystem.h"
 
 SmoothedWZTagger::SmoothedWZTagger( const std::string& name ) :
-  JSSTaggerBase( name ){
+  JSSTaggerBase( name ),
+  m_dec_mcutL("mcutL"),
+  m_dec_mcutH("mcutH"),
+  m_dec_d2cut("d2cut")
+{
 
   declareProperty( "ConfigFile",   m_configFile="");
 
   declareProperty( "WorkingPoint", m_wkpt="" );
   declareProperty( "TaggerType",   m_tagType="");
+  declareProperty( "Decoration",   m_decorationName="XX");
   declareProperty( "DecorateJet",  m_decorate=true);
 
   declareProperty( "JetPtMin",              m_jetPtMin = 200000.0);
@@ -40,11 +45,12 @@ StatusCode SmoothedWZTagger::initialize(){
     // check for the existence of the configuration file
     std::string configPath;
     configPath = PathResolverFindDataFile(("BoostedJetTaggers/"+m_configFile).c_str());
+
     /* https://root.cern.ch/root/roottalk/roottalk02/5332.html */
     FileStat_t fStats;
     int fSuccess = gSystem->GetPathInfo(configPath.c_str(), fStats);
     if(fSuccess != 0){
-      ATH_MSG_ERROR("Recommendations file could not be found : " << configPath);
+      ATH_MSG_ERROR("Recommendations file could not be found : ");
       return StatusCode::FAILURE;
     }
     else {
@@ -68,6 +74,9 @@ StatusCode SmoothedWZTagger::initialize(){
       m_strD2Cut=configReader.GetValue((m_wkpt+".D2Cut").c_str() ,"");
     }
 
+    // get the decoration name
+    m_decorationName = configReader.GetValue("DecorationName" ,"");
+
   }
   else { // no config file
     // Assume the cut functions have been set through properties.
@@ -76,8 +85,21 @@ StatusCode SmoothedWZTagger::initialize(){
       ATH_MSG_ERROR( "No config file provided AND no parameters specified." ) ;
       return StatusCode::FAILURE;
     }
-
   }
+
+  // initialize decorators as decorationName+_decorator
+  ATH_MSG_INFO( "Decorators that will be attached to jet :" );
+  std::string dec_name;
+
+  dec_name = m_decorationName+"_Cut_mlow";
+  ATH_MSG_INFO( "  "<<dec_name<<" : lower mass cut for tagger choice" );
+  m_dec_mcutL = SG::AuxElement::Decorator<float>((dec_name).c_str());
+  dec_name = m_decorationName+"_Cut_mhigh";
+  ATH_MSG_INFO( "  "<<dec_name<<" : upper mass cut for tagger choice" );
+  m_dec_mcutH = SG::AuxElement::Decorator<float>((dec_name).c_str());
+  dec_name = m_decorationName+"_Cut_D2";
+  ATH_MSG_INFO( "  "<<dec_name<<" : D2 cut for tagger choice" );
+  m_dec_d2cut = SG::AuxElement::Decorator<float>((dec_name).c_str());
 
   // transform these strings into functions
   m_funcMassCutLow   = new TF1("strMassCutLow",  m_strMassCutLow.c_str(),  0, 14000);
@@ -85,10 +107,11 @@ StatusCode SmoothedWZTagger::initialize(){
   m_funcD2Cut        = new TF1("strD2Cut",       m_strD2Cut.c_str(),       0, 14000);
 
   ATH_MSG_INFO( "Smoothed WZ Tagger tool initialized" );
-  ATH_MSG_INFO( "  Mass cut low   : "<< m_strMassCutLow );
-  ATH_MSG_INFO( "  Mass cut High  : "<< m_strMassCutHigh );
-  ATH_MSG_INFO( "  D2 cut low : "<< m_strD2Cut );
-  ATH_MSG_INFO( "  Decorate   : "<< m_decorate );
+  ATH_MSG_INFO( "  Mass cut low    : "<< m_strMassCutLow );
+  ATH_MSG_INFO( "  Mass cut High   : "<< m_strMassCutHigh );
+  ATH_MSG_INFO( "  D2 cut low      : "<< m_strD2Cut );
+  ATH_MSG_INFO( "  Decorate        : "<< m_decorate );
+  ATH_MSG_INFO( "  DecorationName  : "<< m_decorationName );
 
   //setting the possible states that the tagger can be left in after the JSSTaggerBase::tag() function is called
   m_accept.addCut( "ValidPtRangeHigh"    , "True if the jet is not too high pT"  );
@@ -173,13 +196,9 @@ Root::TAccept SmoothedWZTagger::tag(const xAOD::Jet& jet) const {
 
   // decorate the cut value if needed;
   if(m_decorate){
-    static SG::AuxElement::Decorator<float>    dec_mcutL ("WZLowMassCut");
-    static SG::AuxElement::Decorator<float>    dec_mcutH ("WZHighMassCut");
-    static SG::AuxElement::Decorator<float>    dec_d2cut ("WZD2Cut");
-
-    dec_d2cut(jet) = cut_d2;
-    dec_mcutH(jet) = cut_mass_high;
-    dec_mcutL(jet) = cut_mass_low;
+    m_dec_d2cut(jet) = cut_d2;
+    m_dec_mcutH(jet) = cut_mass_high;
+    m_dec_mcutL(jet) = cut_mass_low;
   }
 
   // evaluate the cut criteria on mass and d2

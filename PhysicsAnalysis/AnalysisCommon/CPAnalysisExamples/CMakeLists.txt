@@ -40,6 +40,8 @@ atlas_depends_on_subdirs(
    PhysicsAnalysis/ElectronPhotonID/ElectronEfficiencyCorrection
    PhysicsAnalysis/ElectronPhotonID/ElectronPhotonFourMomentumCorrection
    PhysicsAnalysis/ElectronPhotonID/IsolationCorrections
+   PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces
+   PhysicsAnalysis/Interfaces/MuonAnalysisInterfaces
    PhysicsAnalysis/JetMissingEtID/JetSelectorTools
    PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/xAODBTaggingEfficiency
    PhysicsAnalysis/MuonID/MuonIDAnalysis/MuonEfficiencyCorrections
@@ -93,9 +95,10 @@ if( NOT XAOD_STANDALONE )
       src/*.h src/*.cxx src/components/*.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} AthAnalysisBaseCompsLib
-      ElectronPhotonFourMomentumCorrectionLib xAODEgamma xAODCore xAODBase
-      AsgTools xAODTracking xAODMuon AthenaBaseComps AsgTools GaudiKernel
-      AthAnalysisBaseCompsLib CPAnalysisExamplesLib )
+      xAODEgamma xAODCore xAODBase AsgTools xAODTracking xAODMuon
+      AthenaBaseComps AsgTools GaudiKernel AthAnalysisBaseCompsLib
+      EgammaAnalysisInterfacesLib MuonAnalysisInterfacesLib
+      CPAnalysisExamplesLib )
 endif()
 
 atlas_add_dictionary( CPAnalysisExamplesDict
@@ -159,8 +162,7 @@ else()
       test/ut_ath_EgammaCalibrationAndSmearingTool_test.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} AthAnalysisBaseCompsLib POOLRootAccessLib
-      GaudiKernel AsgTools xAODEgamma xAODCore
-      ElectronPhotonFourMomentumCorrectionLib )
+      GaudiKernel AsgTools xAODEgamma xAODCore EgammaAnalysisInterfacesLib )
 
    atlas_add_executable( ut_ath_checkTrigger_test
       test/ut_ath_checkTrigger_test.cxx

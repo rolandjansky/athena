@@ -9,85 +9,136 @@
 
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/contrib/ConstituentSubtractor.hh"
-#include "fastjet/tools/JetMedianBackgroundEstimator.hh"
+#include "fastjet/tools/GridMedianBackgroundEstimator.hh"
 #include "fastjet/Selector.hh"
+
+#include "xAODPFlow/PFO.h"
+#include "xAODPFlow/TrackCaloCluster.h"
 
 using namespace fastjet;
 ConstituentSubtractorTool::ConstituentSubtractorTool(const std::string & name): JetConstituentModifierBase(name) {
 
-#ifdef ASG_TOOL_ATHENA
-  declareInterface<IJetConstituentModifier>(this);
-#endif
   declareProperty("MaxDeltaR", m_maxDeltaR=0.25);
   declareProperty("Alpha", m_alpha=0.);
-  declareProperty("MaxEta", m_maxEta=2.5);
+  declareProperty("MaxEta", m_maxEta=4.5);
+  declareProperty("MaxRapForRhoComputation", m_maxRapForRhoComputation=2.0);
+  declareProperty("GhostArea", m_ghost_area=0.01);
+  declareProperty("CommonBGEForRhoAndRhom",m_common_bge_for_rho_and_rhom=false);
+
+  // Option to disregard cPFOs in the weight calculation
+  declareProperty("IgnoreChargedPFO", m_ignoreChargedPFOs=true);
 }
 
-StatusCode ConstituentSubtractorTool::process(xAOD::IParticleContainer* cont) const {
-  xAOD::CaloClusterContainer* clust = dynamic_cast<xAOD::CaloClusterContainer*> (cont); // Get CaloCluster container
-  if(clust) return process(clust);   
 
-  return StatusCode::FAILURE;
+StatusCode ConstituentSubtractorTool::initialize() {
+
+  if(m_inputType==xAOD::Type::ParticleFlow) {
+    if(m_ignoreChargedPFOs && m_applyToChargedPFO) {
+      ATH_MSG_ERROR("Incompatible configuration: setting both IgnoreChargedPFO and ApplyToChargedPFO to true"
+		    <<  "will set all cPFOs to zero");
+      return StatusCode::FAILURE;
+    }
+    if(!m_applyToNeutralPFO) {
+      ATH_MSG_ERROR("Incompatible configuration: ApplyToNeutralPFO=False -- what kind of pileup do you wish to suppress?");
+      return StatusCode::FAILURE;
+    }
+  }
+  return StatusCode::SUCCESS;
 }
 
-// Apply PU weighting and decorate the CaloCluster container appropriately:
 	
-StatusCode ConstituentSubtractorTool::process(xAOD::CaloClusterContainer* cont) const {
-
+StatusCode ConstituentSubtractorTool::process_impl(xAOD::IParticleContainer* cont) const {
 
   contrib::ConstituentSubtractor subtractor;
-  subtractor.set_max_standardDeltaR(m_maxDeltaR); // free parameter for the maximal allowed distance sqrt((y_i-y_k)^2+(phi_i-phi_k)^2) between particle i and ghost k
-  subtractor.set_alpha(m_alpha);  // free parameter for the distance measure (the exponent of particle pt). The larger the parameter alpha, the more are favoured the lower pt particles in the subtraction process
-  subtractor.set_ghost_area(0.01); // free parameter for the density of ghosts. The smaller, the better - but also the computation is slower.
+  
+  // free parameter for the maximal allowed distance sqrt((y_i-y_k)^2+(phi_i-phi_k)^2) between particle i and ghost k
+  subtractor.set_max_standardDeltaR(m_maxDeltaR); 
 
-  // prepare PseudoJet input from 
-  std::vector<PseudoJet>  full_event; full_event.reserve( cont->size() );
-  int i =0;
-  for(xAOD::CaloCluster * part: *cont){
-    if(part->e() > 0 ) {
-      PseudoJet pj( part->p4() );
-      pj.set_user_index( i );
-      full_event.push_back(pj);
+  // free parameter for the distance measure (the exponent of particle pt). The larger the parameter alpha, the more are favoured the lower pt particles in the subtraction process
+  subtractor.set_alpha(m_alpha);  
+
+  // free parameter for the density of ghosts. The smaller, the better - but also the computation is slower.
+  subtractor.set_ghost_area(m_ghost_area); 
+
+  // prepare PseudoJet input
+  std::vector<PseudoJet> inputs_to_correct, inputs_to_not_correct;
+  inputs_to_correct.reserve(cont->size());
+  inputs_to_not_correct.reserve(cont->size());
+  size_t i =0; // Corresponds to the index in the input container
+  // We don't use part->index() because it might be a view container
+  // combining more than one owning container
+  for(xAOD::IParticle * part: *cont){
+    // Only use positive E
+    bool accept = part->e() > -1*FLT_MIN;
+    // For PFlow we would only want to apply the correction to neutral PFOs,
+    // because charged hadron subtraction handles the charged PFOs.
+    // However, we might still want to use the cPFOs for the min pt calculation
+    if(m_inputType==xAOD::Type::ParticleFlow && m_ignoreChargedPFOs) {
+      xAOD::PFO* pfo = static_cast<xAOD::PFO*>(part);
+      accept &= fabs(pfo->charge())<FLT_MIN;
     }
-    i++;
+    if(m_inputType==xAOD::Type::TrackCaloCluster) {
+      xAOD::TrackCaloCluster* tcc = static_cast<xAOD::TrackCaloCluster*>(part);
+      accept &= (tcc->taste()!= 0);
+    }
+    // Reject object if outside maximum eta range
+    accept &= fabs(part->eta()) <= m_maxEta;
+
+    PseudoJet pj( part->p4() );
+    pj.set_user_index( i );
+    if(accept) {
+      ATH_MSG_VERBOSE("Using " << part->type() << " with pt " << part->pt());
+      inputs_to_correct.push_back(pj);
+    } else {
+      ATH_MSG_VERBOSE("Will not correct " << part->type() << " with pt " << part->pt());
+      inputs_to_not_correct.push_back(pj);
+    }
+
+    ++i;
   }
-
-
-  // keep the particles up to 4 units in rapidity
-  full_event = SelectorAbsEtaMax(m_maxEta)(full_event);
-
-  // do the clustering with ghosts and get the jets
-  //----------------------------------------------------------
-  AreaDefinition area_def(active_area_explicit_ghosts,GhostedAreaSpec(m_maxEta,1)); // the area definiton is used only for the jet backgroud estimator. It is not important for the ConstituentSubtractor when subtracting the whole event - this is not true when subtracting the individual jets
-
 
   // create what we need for the background estimation
   //----------------------------------------------------------
-  JetDefinition jet_def_for_rho(kt_algorithm, 0.4);
-  Selector rho_range =  SelectorAbsEtaMax(m_maxEta-0.4);
-
-  JetMedianBackgroundEstimator bge_rho(rho_range, jet_def_for_rho, area_def);
-  BackgroundJetScalarPtDensity *scalarPtDensity=new BackgroundJetScalarPtDensity();
-  bge_rho.set_jet_density_class(scalarPtDensity); // this changes the computation of pt of patches from vector sum to scalar sum. The scalar sum seems more reasonable.
-  bge_rho.set_particles(full_event);
+  // maximal rapidity is used (not pseudo-rapidity). Since the inputs are massless, it does not matter
+  GridMedianBackgroundEstimator bge_rho(m_maxRapForRhoComputation, 0.5);
+  bge_rho.set_particles(inputs_to_correct);
   subtractor.set_background_estimator(&bge_rho);
 
   // this sets the same background estimator to be used for deltaMass density, rho_m, as for pt density, rho:
-  subtractor.set_common_bge_for_rho_and_rhom(false); // for massless input particles it does not make any difference (rho_m is always zero)
+  subtractor.set_common_bge_for_rho_and_rhom(m_common_bge_for_rho_and_rhom); 
+  // for massless input particles it does not make any difference (rho_m is always zero)
 
-  std::vector<PseudoJet> corrected_event=subtractor.subtract_event(full_event,m_maxEta);
-  
-  // Now reset the clusters 4-vec to 0
-  for(xAOD::CaloCluster * cl: *cont){
-    cl->setE(0);
-  }  
-  // Revive only the clusters from corrected_event
-  for(PseudoJet & pj : corrected_event) {    
-    xAOD::CaloCluster * cl = (*cont)[pj.user_index()];
-    cl->setE(pj.e());
-    cl->setPhi(pj.phi());
-    cl->setEta(pj.eta());
+  ATH_MSG_DEBUG("Subtracting event density from constituents");
+  std::vector<PseudoJet> corrected_event=subtractor.subtract_event(inputs_to_correct,m_maxEta);
+
+  // Define a vector holding the corrected four-momenta for all output constituents
+  // This is defaulted to zero, because fastjet will only return non-zero pseudojets
+  std::vector<xAOD::JetFourMom_t> corrected_p4s(cont->size(),xAOD::JetFourMom_t(0.,0.,0.,0.));
+  // Set the corrected four-vectors
+  for(PseudoJet & pj : corrected_event) {
+    ATH_MSG_VERBOSE("Setting four-mom for constituent " << pj.user_index() << ", pt = " << pj.pt());
+    corrected_p4s[pj.user_index()].SetCoordinates(pj.pt(),pj.eta(),pj.phi(),pj.m());
   }
+  for(PseudoJet & pj : inputs_to_not_correct) {
+    ATH_MSG_VERBOSE("Setting four-mom for constituent " << pj.user_index() << ", pt = " << pj.pt());
+    corrected_p4s[pj.user_index()].SetCoordinates(pj.pt(),pj.eta(),pj.phi(),pj.m());
+  }
+  for(PseudoJet & pj : inputs_to_not_correct) {
+    ATH_MSG_VERBOSE("Setting four-mom for constituent " << pj.user_index() << ", pt = " << pj.pt());
+    corrected_p4s[pj.user_index()].SetCoordinates(pj.pt(),pj.eta(),pj.phi(),pj.m());
+  }
+
+  // Set every constituent's four-vector in the output container
+  i = 0; // Again, we need to track the input container index, not the owning container index
+  const static SG::AuxElement::Accessor<float> weightAcc("CSWeight"); // Handle for PU weighting here
+  for(xAOD::IParticle * part: *cont){
+    ATH_MSG_VERBOSE("Now on constituent " << i);
+    ATH_MSG_VERBOSE("Initial pt: " << part->pt() << ", subtracted pt: " << corrected_p4s[i].Pt());
+    ATH_MSG_VERBOSE("Initial eta: " << part->eta() << ", subtracted pt: " << corrected_p4s[i].Eta());
+    ATH_MSG_VERBOSE("Initial phi: " << part->phi() << ", subtracted pt: " << corrected_p4s[i].Phi());
+    ATH_CHECK( setP4(part,corrected_p4s[i], &weightAcc) );
+    ++i;
+  }  
 
   return StatusCode::SUCCESS;
 }

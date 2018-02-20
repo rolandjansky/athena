@@ -3,7 +3,7 @@
 */
 
 /////////////////////////////////////////////////////////////////
-// ClusterEnergyPerLayerDecorator.cxx, (c) ATLAS Detector software
+// ClusterDecorator.cxx, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 // Author: Ludovica Aperio Bella
 #include "egammaInterfaces/IegammaSwTool.h"
@@ -22,13 +22,15 @@ DerivationFramework::ClusterDecorator::ClusterDecorator(const std::string& t,
   AthAlgTool(t,n,p),
   m_SGKey_photons(""),
   m_SGKey_electrons(""),
-  m_OutputClusterSGKey("EgammaSwClusters")
+  m_OutputClusterSGKey("SwClusters"),
+  m_OutputClusterLink("SwClusterLink")
 {
   declareInterface<DerivationFramework::IAugmentationTool>(this);
   declareProperty("ClusterCorrectionToolName", m_ClusterCorrectionToolName = "egammaSwTool/egammaswtool");
   declareProperty("SGKey_photons", m_SGKey_photons);
   declareProperty("SGKey_electrons", m_SGKey_electrons);
-  declareProperty("OutputClusterSGKey",m_OutputClusterSGKey="swCluster");	
+  declareProperty("OutputClusterSGKey",m_OutputClusterSGKey="SwClusters");
+  declareProperty("OutputClusterLink",m_OutputClusterLink="SwClusterLink");	
   declareProperty("SGKey_caloCells", m_CellCollectionName="AODCellContainer","Name of the CaloCellContainer");
   
   m_caloCellDetPos = CxxUtils::make_unique<CaloCellDetPos>();
@@ -66,19 +68,24 @@ StatusCode DerivationFramework::ClusterDecorator::initialize()
 
 StatusCode DerivationFramework::ClusterDecorator::finalize()
 {
-
   return StatusCode::SUCCESS;
 }
 
 // The decoration itself
 StatusCode DerivationFramework::ClusterDecorator::addBranches() const
 {
-  ///Make new container
- // Create output cluster container and register in StoreGate
+
+  if (evtStore()->contains<xAOD::CaloClusterContainer>(m_OutputClusterSGKey.c_str())) {
+    ATH_MSG_WARNING("The calo cluster container " << m_OutputClusterSGKey << " is already present in the event, no action will be taken. If this is not intended, modify your code to use a different container name.");
+    return StatusCode::SUCCESS;
+  }
+
+  // Make new container
+  // Create output cluster container and register in StoreGate
   xAOD::CaloClusterContainer* SWClusterContainer = 0;
-  SWClusterContainer = CaloClusterStoreHelper::makeContainer(&*evtStore(),                                                                        
-							     m_OutputClusterSGKey,                                                         
-							     msg());                                                                              
+  SWClusterContainer = CaloClusterStoreHelper::makeContainer(&*evtStore(),
+							     m_OutputClusterSGKey,
+							     msg());
   
   for (const std::string& SGkey : {m_SGKey_photons, m_SGKey_electrons})
   {
@@ -93,11 +100,11 @@ StatusCode DerivationFramework::ClusterDecorator::addBranches() const
     }
   }
   
-  ///Finalize clusters
+  // Finalize clusters
   CHECK( CaloClusterStoreHelper::finalizeClusters(&*evtStore(),  
 						  SWClusterContainer,
-						  m_OutputClusterSGKey,                                          
-						  msg()));               
+						  m_OutputClusterSGKey,
+						  msg()));
   
   
   return StatusCode::SUCCESS;
@@ -152,7 +159,7 @@ StatusCode DerivationFramework::ClusterDecorator::decorateObject(const xAOD::Ega
 	  ATH_MSG_WARNING("Problem executing cluster correction tool");
 	  delete egcClone;
 	  ElementLink < xAOD::CaloClusterContainer > ldummyClusterLink;
-	  egamma->auxdecor< ElementLink< xAOD::CaloClusterContainer > >("SwClusterLink") = ldummyClusterLink;
+	  egamma->auxdecor< ElementLink< xAOD::CaloClusterContainer > >(m_OutputClusterLink.c_str()) = ldummyClusterLink;
 	  return StatusCode::SUCCESS;
 	} else {
 	  
@@ -161,14 +168,14 @@ StatusCode DerivationFramework::ClusterDecorator::decorateObject(const xAOD::Ega
 	    ATH_MSG_WARNING("Supercluster doesn't have energy in layer 2. Skipping...");
 	    delete egcClone;
 	    ElementLink < xAOD::CaloClusterContainer > ldummyClusterLink;
-	    egamma->auxdecor< ElementLink< xAOD::CaloClusterContainer > >("SwClusterLink") = ldummyClusterLink;
+	    egamma->auxdecor< ElementLink< xAOD::CaloClusterContainer > >(m_OutputClusterLink.c_str()) = ldummyClusterLink;
 	    return StatusCode::SUCCESS;
 	  }
 	  if (!egcClone->hasSampling(CaloSampling::EMB1) &&  !egcClone->hasSampling(CaloSampling::EME1)) {
 	    ATH_MSG_WARNING("Supercluster doesn't have energy in layer 1. Skipping...");
 	    delete egcClone;
 	    ElementLink < xAOD::CaloClusterContainer > ldummyClusterLink;
-	    egamma->auxdecor< ElementLink< xAOD::CaloClusterContainer > >("SwClusterLink") = ldummyClusterLink;
+	    egamma->auxdecor< ElementLink< xAOD::CaloClusterContainer > >(m_OutputClusterLink.c_str()) = ldummyClusterLink;
 	    return StatusCode::SUCCESS;
 	  }	
 	  
@@ -184,7 +191,7 @@ StatusCode DerivationFramework::ClusterDecorator::decorateObject(const xAOD::Ega
 	  
 	  outputClusterContainer->push_back(egcClone);
 	  ElementLink < xAOD::CaloClusterContainer > lSwClusterLink(egcClone, *outputClusterContainer);
-	  egamma->auxdecor< ElementLink< xAOD::CaloClusterContainer > >("SwClusterLink") = lSwClusterLink;
+	  egamma->auxdecor< ElementLink< xAOD::CaloClusterContainer > >(m_OutputClusterLink.c_str()) = lSwClusterLink;
 	  return StatusCode::SUCCESS;
 	}
       } //egcClone
@@ -193,7 +200,7 @@ StatusCode DerivationFramework::ClusterDecorator::decorateObject(const xAOD::Ega
   
   // Set the link to the new cluster
   ElementLink < xAOD::CaloClusterContainer > ldummyClusterLink;
-  egamma->auxdecor< ElementLink< xAOD::CaloClusterContainer > >("SwClusterLink") = ldummyClusterLink;
+  egamma->auxdecor< ElementLink< xAOD::CaloClusterContainer > >(m_OutputClusterLink.c_str()) = ldummyClusterLink;
   return StatusCode::SUCCESS;
 
 }

@@ -602,19 +602,17 @@ int main(int argc, char** argv) {
 
     std::string rawrun = refrun.erase( refrun.find("run"), 4 );
 
-    //    if ( frefname!=ftestname && contains(frefname, rawrun) ) { 
     if ( contains(frefname, rawrun) ) { 
       
       std::string release = frefname;
 
       release.erase( 0, release.find(rawrun) ); 
    
-      //      release.erase( release.find(rawrun)+1, release.find("HIST")+5);
-
-      if ( contains(release,"HIST") ) release.erase( 0, release.find("HIST")+5 ); 
-      if ( contains(release,"-") ) release.erase( release.find("-"), release.size() ); 
-      if ( contains(release,"_") ) release.erase( release.find("_"), release.size() ); 
-      if ( contains(release,".") ) release.erase( release.find("."), release.size() ); 
+      if    ( contains(release,"HIST") ) release.erase( 0, release.find("HIST")+5 ); 
+      while ( contains(release,".") ) release.erase( release.find("."), release.size() ); 
+      while ( contains(release,"-") ) release.erase( release.find("-"), release.size() ); 
+      while ( contains(release,"_p") ) release.erase( release.find("_p"), release.size() ); 
+      while ( contains(release,"_t") ) release.erase( release.find("_t"), release.size() ); 
 
       newtag += " ";
       newtag += release;
@@ -1214,11 +1212,11 @@ int main(int argc, char** argv) {
 	    //	    if ( contains(histos[i],"npix") || contains(histos[i],"nsct") ) rtest.Finalise(Resplot::FitNull);
 	    //      else   rtest.Finalise(Resplot::FitNull95);
 	    if ( rtest.finalised() ) { 
-	      if ( contains(histos[i],"npix") || contains(histos[i],"nsct") ) rtest.Refit(Resplot::FitNull);
+	      if ( contains(histos[i],"npix") || contains(histos[i],"nsct") || contains(histos[i],"nsi") || contains(histos[i],"nbl") ) rtest.Refit(Resplot::FitNull);
 	      else  rtest.Refit(Resplot::FitNull95);
 	    }
 	    else {
-	      if ( contains(histos[i],"npix") || contains(histos[i],"nsct") ) rtest.Finalise(Resplot::FitNull);
+	      if ( contains(histos[i],"npix") || contains(histos[i],"nsct") || contains(histos[i],"nsi") || contains(histos[i],"nbl") ) rtest.Finalise(Resplot::FitNull);
 	      else  rtest.Finalise(Resplot::FitNull95);
 	    }
 
@@ -1308,6 +1306,22 @@ int main(int argc, char** argv) {
 	  if ( htest==0 ) std::cerr << "missing histogram: " << (chains[j]+"/"+reghist) << " " << htest<< std::endl; 
 	  continue;
 	}
+
+	
+	
+	if ( std::string(htest->ClassName()).find("TH2")!=std::string::npos ) { 
+	  std::cout << "Class TH2: " << htest->GetName() << std::endl;
+	  continue;
+	}
+
+	if ( std::string(htest->ClassName()).find("TH1")!=std::string::npos ) { 
+	  std::cout << "Class TH1: " << htest->GetName() << std::endl; 
+	}
+	else if ( std::string(htest->ClassName()).find("TProfile")!=std::string::npos ) {  
+	  std::cout << "Class TProf: " << htest->GetName() << std::endl; 
+	}
+
+
 
 	if ( !noreftmp && hreft==0 ) { 
 	  if ( hreft==0 ) std::cerr << "missing histogram: " << (refchain+"/"+reghist)  << " " << hreft << std::endl; 

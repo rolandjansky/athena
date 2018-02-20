@@ -9,7 +9,8 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 if DerivationFrameworkIsMonteCarlo:
-    from DerivationFrameworkMCTruth.MCTruthCommon import *
+  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+  addStandardTruthContents()
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import *
@@ -44,9 +45,9 @@ SUSY7ThinningHelper.AppendToStream( SUSY7Stream )
 # THINNING TOOL 
 #====================================================================\
 
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-
 # B.M.: likely not used
+#from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
+
 #SUSY7TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY7TPThinningTool",
 #								 ThinningService	 = SUSY7ThinningHelper.ThinningSvc(),
 #								 SelectionString	 = "InDetTrackParticles.pt > 10*GeV",
@@ -133,8 +134,7 @@ thinningTools.append(SUSY7MuonCCThinningTool)
 #                                                                     ThinningService         = SUSY7ThinningHelper.ThinningSvc(),
 #                                                                      SGKey                   = "AntiKt4LCTopoJets",
 #                                                                      TopoClCollectionSGKey   = "CaloCalTopoClusters",
-#                                                                      SelectionString         = "AntiKt4LCTopoJets.pt > 20*GeV",
-#                                                                      ConeSize                = 0)
+#                                                                      SelectionString         = "AntiKt4LCTopoJets.pt > 20*GeV")
 #ToolSvc += SUSY7aKt4CCThinningTool
 #thinningTools.append(SUSY7aKt4CCThinningTool)
 
@@ -169,9 +169,10 @@ if DerivationFrameworkIsMonteCarlo:
   thinningTools.append(SUSY7TruthThinningTool)
 
 
-applyJetCalibration_xAODColl("AntiKt4EMTopo", SeqSUSY7)
-updateJVT_xAODColl("AntiKt4EMTopo", SeqSUSY7)
-applyBTagging_xAODColl('AntiKt4EMTopo', SeqSUSY7)
+# now done in ExtendedJetCommon
+#applyJetCalibration_xAODColl("AntiKt4EMTopo", SeqSUSY7)
+#updateJVT_xAODColl("AntiKt4EMTopo", SeqSUSY7)
+#applyBTagging_xAODColl('AntiKt4EMTopo', SeqSUSY7)
 
 
 #dilepton selection

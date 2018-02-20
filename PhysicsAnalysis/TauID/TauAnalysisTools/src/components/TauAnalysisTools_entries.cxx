@@ -16,7 +16,10 @@
 #include "TauAnalysisTools/TauEfficiencyJetIDTool.h"
 #include "TauAnalysisTools/TauEfficiencyTriggerTool.h"
 #include "TauAnalysisTools/TauOverlappingElectronLLHDecorator.h"
+#include "TauAnalysisTools/DiTauTruthMatchingTool.h"
 #include "../TauAnalysisToolsExampleAthena.h"
+
+DECLARE_NAMESPACE_TOOL_FACTORY( TauAnalysisTools , DiTauTruthMatchingTool )
 
 DECLARE_NAMESPACE_TOOL_FACTORY( TauAnalysisTools, CommonEfficiencyTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( TauAnalysisTools, CommonSmearingTool )
@@ -50,5 +53,8 @@ DECLARE_FACTORY_ENTRIES( TauAnalysisTools )
   DECLARE_NAMESPACE_TOOL( TauAnalysisTools, TauEfficiencyTriggerTool )
   DECLARE_NAMESPACE_TOOL( TauAnalysisTools, TauOverlappingElectronLLHDecorator )
 
+  DECLARE_NAMESPACE_TOOL( TauAnalysisTools , DiTauTruthMatchingTool )
+
   DECLARE_NAMESPACE_ALGORITHM( TauAnalysisTools, TauAnalysisToolsExampleAthena )
+  
 }

@@ -38,6 +38,6 @@ def toolDL1FlipTag(name, useBTagFlagsDefaults = True, **options):
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name
-    options['LocalNNConfigurationFile'] = BTaggingFlags._DL1LocalNNConfig
+    options['LocalNNConfigurationFile'] = BTaggingFlags.DL1LocalNNConfig
     from JetTagTools.JetTagToolsConf import Analysis__DL1Tag
     return Analysis__DL1Tag(**options)

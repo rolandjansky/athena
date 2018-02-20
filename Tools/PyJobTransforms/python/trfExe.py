@@ -1078,8 +1078,9 @@ class athenaExecutor(scriptExecutor):
             ignorePatterns = trfValidation.ignorePatterns(files = athenaExecutor._defaultIgnorePatternFile, extraSearch=igPat)
         
         # Now actually scan my logfile
-        msg.info('Scanning logfile {0} for errors'.format(self._logFileName))
-        self._logScan = trfValidation.athenaLogFileReport(logfile = self._logFileName, ignoreList = ignorePatterns)
+        msg.info('Scanning logfile {0} for errors in substep {1}'.format(self._logFileName, self._substep))
+        self._logScan = trfValidation.athenaLogFileReport(logfile=self._logFileName, substepName=self._substep,
+                                                          ignoreList=ignorePatterns)
         worstError = self._logScan.worstError()
         self._dbMonitor = self._logScan.dbMonitor()
         
@@ -1249,7 +1250,17 @@ class athenaExecutor(scriptExecutor):
                         AtlasSetupDirectory = os.environ['AtlasSetup'],
                         asetupStatus        = asetup
                     )
-                    print >>wrapper, 'if [ ${?} != "0" ]; then exit 255; fi'
+                    print >>wrapper, 'if [ ${?} != "0" ]; then exit 255; fi '
+                    #check for TestArea if it exists then source setup.sh, used for local patches areas
+                    print >>wrapper, '#Need to check and source for  TestArea/build/cfgdir/setup.sh  '
+                    print >>wrapper, 'if [ ${TestArea} ]; then '
+                    print >>wrapper, '    cfgdir=`/bin/ls ${TestArea}/build/ | grep gcc` '
+                    print >>wrapper, '    if [ ${?} == "0" ]; then ' 
+                    print >>wrapper, '        echo "${TestArea}/build/${cfgdir} exist , will source setup.sh " '
+                    print >>wrapper, '        source ${TestArea}/build/${cfgdir}/setup.sh '
+                    print >>wrapper, '    fi '
+                    print >>wrapper, 'fi '
+
                 if dbsetup:
                     dbroot = path.dirname(dbsetup)
                     dbversion = path.basename(dbroot)
@@ -1876,6 +1887,7 @@ class archiveExecutor(scriptExecutor):
 
     def preExecute(self, input = set(), output = set()):
         self.setPreExeStart()
+        self._memMonitor = False
 
         if 'exe' in self.conf.argdict:
             self._exe = self.conf.argdict['exe']
@@ -1892,6 +1904,8 @@ class archiveExecutor(scriptExecutor):
                     pass
         elif self._exe == 'zip':
             self._cmd = [self._exe]
+            if 'compressionLevel' in self.conf.argdict:
+                self._cmd.append(self.conf.argdict['compressionLevel'])
             self._cmd.extend([self.conf.argdict['outputArchFile'].value[0]])
             if '.' not in self.conf.argdict['outputArchFile'].value[0]:
                 errmsg = 'Output filename must end in ".", ".zip" or ".anyname" '

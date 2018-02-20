@@ -106,6 +106,12 @@ pmon_properties.PerfMonFlags.doMonitoring=True
 pmon_properties.PerfMonFlags.doSemiDetailedMonitoring=True
 pmon_properties.PerfMonFlags.OutputFile = "ntuple_POOLMerge"
 
+# For (all) DAOD merging make sure that the BPhysics metadata is propagated
+# correctly as well:
+if len( DAOD_Input_Key ) is 1:
+    include( "DerivationFrameworkBPhys/SaveExtraMetadataInMerge_jobOFragment.py" )
+    pass
+
 ## Post-include
 if hasattr(runArgs,"postInclude"): 
     for fragment in runArgs.postInclude:

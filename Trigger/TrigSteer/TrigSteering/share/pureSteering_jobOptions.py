@@ -2,7 +2,7 @@ from AthenaCommon.Logging import logging
 log = logging.getLogger( 'PureSteeringJob' )
 
 svcMgr.MessageSvc.Format = "% F%52W%S%7W%R%T %0W%M"
-svcMgr.MessageSvc.OutputLevel = DEBUG
+svcMgr.MessageSvc.OutputLevel = WARNING
 svcMgr.MessageSvc.defaultLimit = 0
 svcMgr.StoreGateSvc.Dump = True  #true will dump data store contents
 
@@ -31,6 +31,7 @@ if not "usePrescaleMenu" in dir(): usePrescaleMenu = False
 if not "useMultiSeedingMenu" in dir(): useMultiSeedingMenu = False
 if not "useMenuWithAcceptInput" in dir(): useMenuWithAcceptInput = False
 if not "useBusyEventSetup" in dir(): useBusyEventSetup = False
+if not "l1SeedingTest" in dir(): l1SeedingTest = False
 
 # Default L1 RoIs if not set otherwise below
 
@@ -103,6 +104,24 @@ EM15i,EM25i
 EM15i,EM25i
 """
 
+elif l1SeedingTest:
+    include("TrigSteering/pureSteering_l1Seeding_menu.py")
+    RoIs = "MU6, MU20\n"*7
+    # see for info about 
+    # 106 is ctp ID of L1_MU06 120 is for L1_MU20 and 121 for L1_MU21
+    #
+    ctpbits = "106:1,0 120:1,1\n" 
+    ctpbits += "106:1,1 120:0,0 121:1,1\n" # L1_MU21 active
+    ctpbits += "106:1,0 120:1,1 121:0,0\n"  # L1_MU20 acts ( the other is inactive )
+    ctpbits += "106:1,1 120:1,1 121:0,0\n"
+    ctpbits += "106:1,1 120:1,1 121:0,0\n"
+    ctpbits += "106:1,1 120:1,1 121:0,0\n"
+    ctpbits += "106:1,1 120:1,0 121:0,0\n" # L1_MU20 activated but prescaled
+
+    ctpfile=open("Lvl1CTPResults.txt", "w")
+    ctpfile.write(ctpbits)
+    ctpfile.close()
+
 else:
     include("TrigSteering/pureSteering_menu.py")
 
@@ -120,6 +139,9 @@ for i in xrange(0,repeat):
     roifile.write(RoIs)
 roifile.write("\n")
 roifile.close()
+
+
+
 
 
 ###    Setup  TrigConfigSvc      ###
@@ -173,7 +195,23 @@ if runMergedSteering:
         hltSteer.ResultBuilder.ErrorStreamTags = ["ABORT_CHAIN ALGO_ERROR GAUDI_EXCEPTION: hltexceptions physics", "ABORT_EVENT ALGO_ERROR TIMEOUT: hlttimeout debug"]
         hltSteer.softEventTimeout = 1 * Units.s
 
+    if l1SeedingTest:
+        from TrigSteering.TestingTrigSteeringConfig import TestingLvl1Converter
+        lvl1Converter = TestingLvl1Converter()
+        hltSteer += lvl1Converter        
+        hltSteer.LvlConverterTool = lvl1Converter
+        hltSteer.LvlConverterTool.useL1Calo = False
+        hltSteer.LvlConverterTool.useL1Muon = False
+        hltSteer.LvlConverterTool.useL1JetEnergy = False
+        hltSteer.LvlConverterTool.OutputLevel = DEBUG
+        from TrigFake.TrigFakeConf import FakeRoIB
+        fakeRoIB = FakeRoIB()
+        fakeRoIB.OutputLevel = DEBUG
+        fakeRoIB.InputFile="Lvl1CTPResults.txt"
+        job += fakeRoIB
+
     job += hltSteer
+
 
 else:
     ### L2 TopAlgorithm from configurable ###

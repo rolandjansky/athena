@@ -351,7 +351,7 @@ namespace xAOD {
       return true;
    }
 
-   float TruthParticle_v1::polarizationPatameter( PolParam param ) const {
+   float TruthParticle_v1::polarizationParameter( PolParam param ) const {
 
       // Get the accessor object:
       Accessor< float >* acc = polarizationAccessorV1( param );

@@ -25,6 +25,7 @@ JetSoftDrop::JetSoftDrop(std::string name)
   //https://indico.cern.ch/event/439039/contributions/2223279/attachments/1311773/1963161/BOOST16_toptagging_CMS.pdf
   declareProperty("ZCut", m_zcut =0.1);
   declareProperty("Beta", m_beta =0.0);
+  declareProperty("R0",   m_R0   =1.0);
   declareProperty("JetBuilder", m_bld);
 }
 
@@ -42,6 +43,10 @@ StatusCode JetSoftDrop::initialize() {
   }
   if ( m_beta < 0.0 || m_beta > 10.0 ) {
     ATH_MSG_ERROR("Invalid value for Beta " << m_beta);
+    return StatusCode::FAILURE;
+  }
+  if ( m_R0 < 0.0 || m_R0 > 10.0 ) {
+    ATH_MSG_ERROR("Invalid value for R0 " << m_R0);
     return StatusCode::FAILURE;
   }
   if ( m_bld.empty() ) {
@@ -68,13 +73,14 @@ int JetSoftDrop::groom(const xAOD::Jet& jin, xAOD::JetContainer& jets) const {
   //configure soft drop tool
   //http://fastjet.hepforge.org/svn/contrib/contribs/RecursiveTools/tags/1.0.0/SoftDrop.hh
   ////////////////////////
-  fastjet::contrib::SoftDrop softdropper(m_beta, m_zcut);
+  fastjet::contrib::SoftDrop softdropper(m_beta, m_zcut, m_R0);
   PseudoJet pjsoftdrop = softdropper(*ppjin);
   int npsoftdrop = pjsoftdrop.pieces().size();
   xAOD::Jet* pjet = m_bld->add(pjsoftdrop, jets, &jin);
   //pjet->SetAttribute<int>("TransformType", xAOD::JetTransform::SoftDrop); //xAOD::JetTransform::SoftDrop probably doesn't exist yet
   pjet->setAttribute("ZCut", m_zcut);
   pjet->setAttribute("SoftDropBeta", m_beta);
+  pjet->setAttribute("SoftDropR0", m_R0);
   pjet->setAttribute<int>("NSoftDropSubjets", npsoftdrop);
 
   ATH_MSG_DEBUG("Properties after softdrop:");
@@ -94,6 +100,7 @@ int JetSoftDrop::groom(const xAOD::Jet& jin, xAOD::JetContainer& jets) const {
 void JetSoftDrop::print() const {
   ATH_MSG_INFO("  Asymmetry measure min: " << m_zcut);
   ATH_MSG_INFO("  Angular exponent: " << m_beta);
+  ATH_MSG_INFO("  Characteristic jet radius: " << m_R0);
   ATH_MSG_INFO("  Jet builder: " << m_bld.name());
 }
 

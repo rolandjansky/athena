@@ -43,7 +43,7 @@ namespace met {
   {
     ATH_MSG_DEBUG (__PRETTY_FUNCTION__ );
 
-    declareProperty( "ConfigPrefix",      m_configPrefix      = "METUtilities/data17_13TeV/prerec_Aug2");
+    declareProperty( "ConfigPrefix",      m_configPrefix      = "METUtilities/data17_13TeV/prerec_Jan16");
     declareProperty( "ConfigSoftTrkFile", m_configSoftTrkFile = "TrackSoftTerms.config"                     );
     //    declareProperty( "ConfigSoftTrkFile", m_configSoftTrkFile = "TrackSoftTerms_afii.config"            );//for ATLFAST
     declareProperty( "ConfigJetTrkFile",  m_configJetTrkFile  = ""                                          );
@@ -776,8 +776,8 @@ namespace met {
     }
 
     ATH_MSG_INFO( "Searching for configFile: " << configfile);
-    ATH_MSG_INFO( "PWD: "        << gSystem->Getenv("PWD")  )  ;
-    ATH_MSG_INFO( "CALIBPATH: "  << gSystem->Getenv("CALIBPATH") );
+    ATH_MSG_DEBUG( "PWD: "        << gSystem->Getenv("PWD")  )  ;
+    ATH_MSG_DEBUG( "CALIBPATH: "  << gSystem->Getenv("CALIBPATH") );
 
     if(configpath.empty() || configfile.empty() ){
       ATH_MSG_ERROR( "Path Resolver couldn't find config file");

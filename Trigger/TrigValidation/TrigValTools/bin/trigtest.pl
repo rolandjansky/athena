@@ -964,6 +964,11 @@ sub run_test($){
       print "$prog debug: post_command #commands: ".@postrc."  return codes: @postrc \n" if ($debug);
     }
 
+    my %reldata = release_metadata();
+    my $nightly = (exists $reldata{'nightly name'} ? $reldata{'nightly name'} : "UNKNOWN");
+    $nightly = $nightly . "/latest";
+    print "$prog: looking for histograms and references for nightly $nightly \n";
+
     # run any post-tests    
     unlink "$posttestrc" if (-f "$posttestrc");
     if ( defined(@{$config{$id}->{'post_test'}}) ) {
@@ -977,6 +982,8 @@ sub run_test($){
         # Replace '$logfile' with the actual file name
         my $post_test_cmd = $post_test->{'cmd'};
         $post_test_cmd =~ s/\$logfile/$logfile/;
+	# If there is a comparison to a reference file, make sure that the correct path is used
+        $post_test_cmd =~ s/latest/$nightly/g;
         my $rc = systemcall("($post_test_cmd) > $post_test_log 2>&1");
         $total_rc += $rc;
         # Save return codes in separate text file
@@ -1061,10 +1068,6 @@ sub run_test($){
     #make short file with last 600 lines only
     systemcall("tail -600 $logfile > $logfiletail");
  
-    my %reldata = release_metadata();
-    my $nightly = (exists $reldata{'nightly name'} ? $reldata{'nightly name'} : "UNKNOWN");
-    $nightly = $nightly . "/latest";
-    print "$prog: looking for histograms and references for nightly $nightly \n";
 
     # rootcomp
     if ($config{$id}->{'rootcomp'}){

@@ -129,6 +129,9 @@ from AODFix.AODFix import *
 AODFix_Init()
 AODFix_preInclude()
 
+from RecoFix.RecoFix import *
+RecoFix_Init()
+
 
 ###################
 # Common Services #
@@ -184,6 +187,7 @@ else:
 
 
 AODFix_addMetaData()
+RecoFix_addMetaData()
 
 if rec.oldFlagCompatibility:
     print "RecExCommon_flags.py flags values:"
@@ -1059,6 +1063,12 @@ if rec.doFileMetaData():
         # EventFormat tool
         ToolSvc += CfgMgr.xAODMaker__EventFormatMetaDataTool( "EventFormatMetaDataTool" )
         svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.EventFormatMetaDataTool ]
+        # FileMetaData tool
+        ToolSvc += CfgMgr.xAODMaker__FileMetaDataTool( "FileMetaDataTool" )
+        svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.FileMetaDataTool ]
+        # TruthMetaData tool
+        ToolSvc += CfgMgr.xAODMaker__TruthMetaDataTool( "TruthMetaDataTool" )
+        svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.TruthMetaDataTool ]
 
     else:
         # Create LumiBlock meta data containers *before* creating the output StreamESD/AOD
@@ -1432,6 +1442,9 @@ if rec.doWriteAOD():
         if AODFlags.ThinNegativeEnergyNeutralPFOs:
             from ThinningUtils.ThinNegativeEnergyNeutralPFOs import ThinNegativeEnergyNeutralPFOs
             ThinNegativeEnergyNeutralPFOs()
+        if AODFlags.ThinInDetForwardTrackParticles():
+            from ThinningUtils.ThinInDetForwardTrackParticles import ThinInDetForwardTrackParticles
+            ThinInDetForwardTrackParticles()
 
         #Thin Trk::Tracks for Electons and Muons (GSF/Combined)
         if  (AODFlags.AddEgammaMuonTracksInAOD and not rec.doTruth()) or (AODFlags.AddEgammaTracksInMCAOD and rec.doTruth()): 
@@ -1457,14 +1470,28 @@ if rec.doWriteAOD():
     StreamAOD_Augmented=MSMgr.NewPoolStream(streamAODName,athenaCommonFlags.PoolAODOutput(),asAlg=True)
 
     if rec.doFileMetaData():
-        # Trigger tool
-        ToolSvc += CfgMgr.xAODMaker__TriggerMenuMetaDataTool( "TriggerMenuMetaDataTool")
+        if not ( rec.readESD() or rec.readAOD() ):
+            # Trigger tool
+            ToolSvc += \
+                CfgMgr.xAODMaker__TriggerMenuMetaDataTool( "TriggerMenuMetaDataTool" )
+            svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.TriggerMenuMetaDataTool ]
 
-        svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.TriggerMenuMetaDataTool ]
-        # EventFormat tool
-        ToolSvc += CfgMgr.xAODMaker__EventFormatMetaDataTool( "EventFormatMetaDataTool")
+            # EventFormat tool
+            ToolSvc += \
+                CfgMgr.xAODMaker__EventFormatMetaDataTool( "EventFormatMetaDataTool")
+            svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.EventFormatMetaDataTool ]
 
-        svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.EventFormatMetaDataTool ]
+            # FileMetaCreatorData tool
+            ToolSvc += \
+                CfgMgr.xAODMaker__FileMetaDataCreatorTool( "FileMetaDataCreatorTool" )
+            svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.FileMetaDataCreatorTool ]
+
+            # TruthMetaData tool
+            ToolSvc += \
+                CfgMgr.xAODMaker__TruthMetaDataTool( "TruthMetaDataTool" )
+            svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.TruthMetaDataTool ]
+            pass
+
         # Put MetaData in AOD stream via AugmentedPoolStream_
         # Write all meta data containers
         StreamAOD_Augmented.AddMetaDataItem(dfMetadataItemList())

@@ -6,8 +6,8 @@
    @class AthPhotonEfficiencyCorrectionTool
    @brief Calculate the photon scale factors in Athena
 
-   @author Rob Roy Fletcher <rob.fletcher@cern.ch>, Karsten Koeneke, Michael Pitt
-   @date   August 2014
+   @author Michael Pitt <michael.pitt@cern.ch>, Giovanni Marchiori
+   @date   February 2018
 */
 
 // Include this class's header
@@ -16,7 +16,6 @@
 // STL includes
 #include <string>
 #include <cfloat>
-//#include <climits>
 #include <iostream>
 #include <limits.h>
 
@@ -38,7 +37,11 @@
 #define MIN_ET 10000.0
 #define MIN_ET_OF_SF 10000.0
 #define MIN_ET_Iso_SF 10000.0
-#define MAX_ET_OF_SF 2999999.9
+#define MIN_ET_Trig_SF 10000.0
+#define MAX_ET_OF_SF 1499999.99
+#define MAX_ET_Iso_SF 999999.99
+#define MAX_ET_Trig_SF 99999.99
+
 
 // =============================================================================
 // Standard constructor
@@ -47,18 +50,13 @@ AsgPhotonEfficiencyCorrectionTool::AsgPhotonEfficiencyCorrectionTool( std::strin
   AsgTool(myname),
   m_rootTool_unc(0),
   m_rootTool_con(0),
-  m_rootTool_uncRadZ(0),
-  m_rootTool_conRadZ(0),  
   m_appliedSystematics(0),
-  m_sysSubstring(""),
-  m_sysSubstringRadZ("")
+  m_sysSubstring("")
 {
 
   // Create an instances of the underlying ROOT tools
   m_rootTool_unc = new Root::TPhotonEfficiencyCorrectionTool();
   m_rootTool_con = new Root::TPhotonEfficiencyCorrectionTool();
-  m_rootTool_uncRadZ = new Root::TPhotonEfficiencyCorrectionTool();
-  m_rootTool_conRadZ = new Root::TPhotonEfficiencyCorrectionTool();
 
   // Declare the needed properties
   declareProperty( "CorrectionFileNameConv", m_corrFileNameConv="",
@@ -77,10 +75,17 @@ AsgPhotonEfficiencyCorrectionTool::AsgPhotonEfficiencyCorrectionTool( std::strin
   declareProperty( "ResultName",         m_resultName="",   "The string for the result");
   
   // Properties needed for isolation corrections
-  declareProperty( "IsoWP",         m_isoWP="",   "Set isolation WP, if this string is empty the tool will return ID SF");
-  declareProperty( "Threshold_lowPT",         m_Threshold_lowPT=25.0,    "low pT threshold for ISO SF(default=25)");
-  declareProperty( "Threshold_highPT",        m_Threshold_highPT=100.0,   "high pT threshold for ISO SF (default=100)");
-  declareProperty( "UseRadiativeZSF_mediumPT",m_UseRadZ_mediumPT=false,   "use RadZ derived SF (default=true)");
+  declareProperty( "IsoKey",         m_isoWP="",   "Set isolation WP, if this string is empty the tool will return ID SF");
+  
+  // Properties needed for trigger SF
+  declareProperty( "TriggerKey",         m_trigger="",   "Set trigger, if this string is empty the tool will return ID SF");
+  
+  // Properties related to the receiving of event run number
+  declareProperty("UseRandomRunNumber",  m_useRandomRunNumber = true,
+                                        "Set if use RandomRunNumber from eventinfo");
+  declareProperty("DefaultRandomRunNumber",  m_defaultRandomRunNumber = 999999,
+                                        "Set default run number manually");
+										
 
 }
 
@@ -95,8 +100,6 @@ AsgPhotonEfficiencyCorrectionTool::~AsgPhotonEfficiencyCorrectionTool()
 
   if ( m_rootTool_unc ) delete m_rootTool_unc;
   if ( m_rootTool_con ) delete m_rootTool_con;
-  if ( m_rootTool_uncRadZ ) delete m_rootTool_uncRadZ;
-  if ( m_rootTool_conRadZ ) delete m_rootTool_conRadZ;  
 }
 
 // =============================================================================
@@ -109,13 +112,8 @@ StatusCode AsgPhotonEfficiencyCorrectionTool::initialize()
 
   // First check if the tool is initialized using the input files or map
   if(m_mapFile.size()){ // using map file
-     m_corrFileNameList.push_back(getFileName(m_isoWP,true,""));	// converted photons input
-	 m_corrFileNameList.push_back(getFileName(m_isoWP,false,""));  // unconverted photons input
-	// if isolation SF are initialized, then read RadZ inputs:
-	if(m_isoWP.size()){
-     m_corrFileNameList.push_back(getFileName(m_isoWP,true,"_RadZ"));	// converted photons input
-	 m_corrFileNameList.push_back(getFileName(m_isoWP,false,"_RadZ"));  // unconverted photons input	
-	}
+     m_corrFileNameList.push_back(getFileName(m_isoWP,m_trigger,true));	// converted photons input
+	 m_corrFileNameList.push_back(getFileName(m_isoWP,m_trigger,false));  // unconverted photons input
   }
   else if(m_corrFileNameConv.size() && m_corrFileNameUnconv.size()){ // initialize the tool using input files (old scheme)
   	m_corrFileNameList.push_back(m_corrFileNameConv);
@@ -129,41 +127,31 @@ StatusCode AsgPhotonEfficiencyCorrectionTool::initialize()
   // once the input files are retrieved, update the path using PathResolver or TOOL/data folder
   for ( unsigned int i=0; i<m_corrFileNameList.size(); ++i ){
 
-    //First try the PathResolver
+    //Using the PathResolver to locate the file
     std::string filename = PathResolverFindCalibFile( m_corrFileNameList.at(i) );
-
-    // ROOTCore: Data folder
-    char *rootCoreArea = getenv("ROOTCOREBIN");
-    if(filename.empty() && rootCoreArea != NULL){
-      filename = std::string(rootCoreArea) + "/data/"+ m_corrFileNameList.at(i);
-    }  
 
     if (filename.empty()){
       ATH_MSG_ERROR ( "Could NOT resolve file name " << m_corrFileNameList.at(i) );
       return StatusCode::FAILURE ;
     } else{
-      ATH_MSG_INFO(" Path found = "<<filename);
+      ATH_MSG_INFO(" Using path = "<<filename);
     }
 
     m_corrFileNameList.at(i) = filename;
 
   }
    
-  // Set prefix for sustematics if this is ISO or ID SF
-  if( m_corrFileNameList[0].find("offline.Tight") != std::string::npos) m_sysSubstring="ID_";
-  if( m_corrFileNameList[0].find("Isolation.isolFixedCut") != std::string::npos) {m_sysSubstring="TRKISO_"; m_sysSubstringRadZ="LOWPTISO_";}
+  // Set prefix for sustematics if this is ISO, Trigger or ID SF
+  if( m_corrFileNameList[0].find(file_prefix_ID) != std::string::npos) m_sysSubstring="ID_";
+  if( m_corrFileNameList[0].find(file_prefix_ISO) != std::string::npos) m_sysSubstring="ISO_";
+  if( m_corrFileNameList[0].find(file_prefix_Trig) != std::string::npos) m_sysSubstring="TRIGGER_";
   if(m_sysSubstring == "") {ATH_MSG_ERROR ( "Invalid input file" ); return StatusCode::FAILURE;}
 
   // Configure the underlying Root tool
   m_rootTool_con->addFileName( m_corrFileNameList[0] );
   m_rootTool_unc->addFileName( m_corrFileNameList[1] );
 
-  m_rootTool_con->setResultPrefix( m_resultPrefix );
-  m_rootTool_con->setResultName( m_resultName );
-  m_rootTool_unc->setResultPrefix( m_resultPrefix );
-  m_rootTool_unc->setResultName( m_resultName );  
-  
-  // Forward the message level
+    // Forward the message level
   m_rootTool_con->msg().setLevel(this->msg().level());
   m_rootTool_unc->msg().setLevel(this->msg().level());
 
@@ -187,23 +175,6 @@ StatusCode AsgPhotonEfficiencyCorrectionTool::initialize()
       return StatusCode::FAILURE;
     }
   
-  // For isolation SF initialize additional instances for lowPT photons
-  if(m_isoWP.size()){
-    m_rootTool_conRadZ->addFileName( m_corrFileNameList[2] );
-    m_rootTool_uncRadZ->addFileName( m_corrFileNameList[3] ); 
-    m_rootTool_conRadZ->setResultPrefix( m_resultPrefix );
-    m_rootTool_conRadZ->setResultName( m_resultName );
-    m_rootTool_uncRadZ->setResultPrefix( m_resultPrefix );
-    m_rootTool_uncRadZ->setResultName( m_resultName );  
-    m_rootTool_conRadZ->msg().setLevel(this->msg().level());
-    m_rootTool_uncRadZ->msg().setLevel(this->msg().level());
-    if ( (0 == m_rootTool_conRadZ->initialize()) || (0 == m_rootTool_uncRadZ->initialize()) )
-    {
-      ATH_MSG_ERROR("Could not initialize the TPhotonEfficiencyCorrectionTool!");
-      return StatusCode::FAILURE;
-    }
-  }
-
   // Copy the now filled TResult to the dummy
   m_resultDummy = m_rootTool_con->getTResult();  // do only for converted photons instance
 
@@ -226,14 +197,6 @@ StatusCode AsgPhotonEfficiencyCorrectionTool::finalize()
       ATH_MSG_ERROR("Something went wrong at finalize!");
       return StatusCode::FAILURE;
     }
-  // finilize instances in case of IsolationSF	
-  if(m_isoWP.size()){
-    if ( !(m_rootTool_conRadZ->finalize()) || !(m_rootTool_uncRadZ->finalize()) )
-    {
-      ATH_MSG_ERROR("Something went wrong at finalize!");
-      return StatusCode::FAILURE;
-    }
-  }  
 
   return StatusCode::SUCCESS ;
 }
@@ -250,14 +213,24 @@ const Root::TResult& AsgPhotonEfficiencyCorrectionTool::calculate( const xAOD::E
       return m_resultDummy;
     }
   
-  // Get the run number 
+   // Get the run number
   const xAOD::EventInfo* eventInfo = evtStore()->retrieve< const xAOD::EventInfo> ("EventInfo");
   if(!eventInfo){
     ATH_MSG_ERROR ( "Could not retrieve EventInfo object!" );
     return m_resultDummy;
   }
-  const unsigned int runnumber = eventInfo->runNumber();
 
+  //Retrieve the proper random Run Number
+  unsigned int runnumber = m_defaultRandomRunNumber;
+  if (m_useRandomRunNumber) {
+    static const SG::AuxElement::Accessor<unsigned int> randomrunnumber("RandomRunNumber");
+        if (!randomrunnumber.isAvailable(*eventInfo)) {
+          ATH_MSG_WARNING("Pileup tool not run before using PhotonEfficiencyTool! SFs do not reflect PU distribution in data");
+          return m_resultDummy;
+        }
+        runnumber = randomrunnumber(*(eventInfo));
+  }
+  
   // Get the needed values (et, etas2, conv. flag) from the egamma object
   
   // check if converted
@@ -265,25 +238,41 @@ const Root::TResult& AsgPhotonEfficiencyCorrectionTool::calculate( const xAOD::E
 
   // retrieve transvrse energy from e/cosh(etaS2)
   const xAOD::CaloCluster* cluster  = egam->caloCluster(); 
+  if (!cluster){
+        ATH_MSG_ERROR("ERROR no cluster associated to the Photon \n"); 
+        return m_resultDummy;
+    }
   double eta2   = fabsf(cluster->etaBE(2));
   double et = egam->pt();
   	
   // Check if photon in the range to get the SF
   if(eta2>MAXETA) {
-	ATH_MSG_WARNING( "No correction factor provided for eta "<<cluster->etaBE(2)<<" Returning SF = 1 + / - 1");
-	return m_resultDummy;
+        ATH_MSG_WARNING( "No correction factor provided for eta "<<cluster->etaBE(2)<<" Returning SF = 1 + / - 1");
+        return m_resultDummy;
   }
   if(et<MIN_ET_OF_SF && m_sysSubstring=="ID_") {
-	ATH_MSG_WARNING( "No ID scale factor uncertainty provided for et "<<et/1e3<<"GeV Returning SF = 1 + / - 1");
-	return m_resultDummy;
-  } 
-  if(m_sysSubstring=="TRKISO_" && et<MIN_ET_Iso_SF) {
-	ATH_MSG_WARNING( "No isolation scale factor uncertainty provided for et "<<et/1e3<<"GeV Returning SF = 1 + / - 1");
-	return m_resultDummy;
-  }   
-  if(et>MAX_ET_OF_SF) {
-	ATH_MSG_WARNING( "No scale factor provided for et "<<et/1e3<<"GeV Returning SF for "<<MAX_ET_OF_SF/1e3<<"GeV");
-	et=MAX_ET_OF_SF;
+        ATH_MSG_WARNING( "No ID scale factor uncertainty provided for et "<<et/1e3<<"GeV Returning SF = 1 + / - 1");
+        return m_resultDummy;
+  }
+  if(et<MIN_ET_Iso_SF && m_sysSubstring=="ISO_") {
+        ATH_MSG_WARNING( "No isolation scale factor uncertainty provided for et "<<et/1e3<<"GeV Returning SF = 1 + / - 1");
+        return m_resultDummy;
+  }
+  if(et<MIN_ET_Trig_SF && m_sysSubstring=="TRIGGER_") {
+        ATH_MSG_WARNING( "No trigger scale factor uncertainty provided for et "<<et/1e3<<"GeV Returning SF = 1 + / - 1");
+        return m_resultDummy;
+  }
+  if(et>MAX_ET_OF_SF && m_sysSubstring=="ID_") {
+        ATH_MSG_WARNING( "No scale factor provided for et "<<et/1e3<<"GeV Returning SF for "<<MAX_ET_OF_SF/1e3<<"GeV");
+        et=MAX_ET_OF_SF;
+  }
+  if(et>MAX_ET_Iso_SF && m_sysSubstring=="ISO_") {
+        ATH_MSG_WARNING( "No isolation scale factor provided for et "<<et/1e3<<"GeV Returning SF for "<<MAX_ET_Iso_SF/1e3<<"GeV");
+        et=MAX_ET_Iso_SF;
+  }
+  if(et>MAX_ET_Trig_SF && m_sysSubstring=="TRIGGER_") {
+        ATH_MSG_WARNING( "No trigger scale factor provided for et "<<et/1e3<<"GeV Returning SF for "<<MAX_ET_Trig_SF/1e3<<"GeV");
+        et=MAX_ET_Trig_SF;
   }   
   
   // Get the DataType of the current egamma object
@@ -297,13 +286,6 @@ const Root::TResult& AsgPhotonEfficiencyCorrectionTool::calculate( const xAOD::E
   if ( m_dataTypeOverwrite >= 0 ) dataType = (PATCore::ParticleDataType::DataType)m_dataTypeOverwrite;
 
   // Call the ROOT tool to get an answer, check if the SF is for isolation or ID
-  if(m_isoWP.size()){
-    double RadZ_ptcut = m_UseRadZ_mediumPT ? m_Threshold_highPT : m_Threshold_lowPT;
-    if(et<RadZ_ptcut*1e3)
-	  return isConv ? m_rootTool_conRadZ->calculate( dataType,runnumber,eta2,et /* in MeV */) : m_rootTool_uncRadZ->calculate( dataType,runnumber,eta2,et /* in MeV */);
-	else
-	  return isConv ? m_rootTool_con->calculate( dataType,runnumber,eta2,et /* in MeV */) : m_rootTool_unc->calculate( dataType,runnumber,eta2,et /* in MeV */);
-  }
   return isConv ? m_rootTool_con->calculate( dataType,runnumber,eta2,et /* in MeV */) : m_rootTool_unc->calculate( dataType,runnumber,eta2,et /* in MeV */);
   
 }
@@ -311,21 +293,26 @@ const Root::TResult& AsgPhotonEfficiencyCorrectionTool::calculate( const xAOD::E
 const Root::TResult& AsgPhotonEfficiencyCorrectionTool::calculate( const xAOD::IParticle *part ) const
 {
   const xAOD::Egamma* egam = dynamic_cast<const xAOD::Egamma*>(part);
-  if ( egam )
-    {
+  if ( egam ){
       return calculate(egam);
     } 
-  else
-    {
+  else{
       ATH_MSG_ERROR ( " Could not cast to const egamma pointer!" );
       return m_resultDummy;
     }
 }
 
 CP::CorrectionCode AsgPhotonEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD::Egamma& inputObject, double& efficiencyScaleFactor) const{
-   
-  // if not in the range: return OutOfVelidityRange with SF = 1 +/- 1
-  if(fabs((inputObject.caloCluster())->etaBE(2))>MAXETA || inputObject.pt()<MIN_ET){
+
+    const xAOD::CaloCluster* cluster  = inputObject.caloCluster();  
+    if (!cluster){
+        ATH_MSG_ERROR("No  cluster associated to the Photon \n"); 
+        efficiencyScaleFactor=1;
+        return  CP::CorrectionCode::Error;
+    } 
+    // if not in the range: return OutOfVelidityRange with SF = 1 +/- 1
+  
+    if(fabs(cluster->etaBE(2))>MAXETA || inputObject.pt()<MIN_ET){
     efficiencyScaleFactor=1;
     if(m_appliedSystematics!=nullptr) efficiencyScaleFactor+=appliedSystematics().getParameterByBaseName("PH_EFF_"+m_sysSubstring+"Uncertainty");
 	return CP::CorrectionCode::OutOfValidityRange;
@@ -338,12 +325,9 @@ CP::CorrectionCode AsgPhotonEfficiencyCorrectionTool::getEfficiencyScaleFactor(c
   
   //Get the result + the uncertainty
   float m_sigma(0);
-  // will check if it isolation SF and if it correspong to low or high PT
-  if(m_isoWP.size() && (inputObject.pt()<((m_UseRadZ_mediumPT ? m_Threshold_highPT : m_Threshold_lowPT)*1e3)))
-    m_sigma=appliedSystematics().getParameterByBaseName("PH_EFF_"+m_sysSubstringRadZ+"Uncertainty");
-  else
-    m_sigma=appliedSystematics().getParameterByBaseName("PH_EFF_"+m_sysSubstring+"Uncertainty");
+  m_sigma=appliedSystematics().getParameterByBaseName("PH_EFF_"+m_sysSubstring+"Uncertainty");
   efficiencyScaleFactor=calculate(&inputObject).getScaleFactor()+m_sigma*calculate(&inputObject).getTotalUncertainty();
+  
   return  CP::CorrectionCode::Ok;
 }
 
@@ -401,14 +385,7 @@ CP::SystematicSet AsgPhotonEfficiencyCorrectionTool::affectingSystematics() cons
   mySysSet.insert(CP::SystematicVariation("PH_EFF_"+m_sysSubstring+"Uncertainty", CP::SystematicVariation::CONTINUOUS));
   mySysSet.insert(CP::SystematicVariation("PH_EFF_"+m_sysSubstring+"Uncertainty", 1));
   mySysSet.insert(CP::SystematicVariation("PH_EFF_"+m_sysSubstring+"Uncertainty", -1));
-  
-  // Add systematics for lowPT isolation
-  if(m_isoWP.size()){
-  mySysSet.insert(CP::SystematicVariation("PH_EFF_"+m_sysSubstringRadZ+"Uncertainty", CP::SystematicVariation::CONTINUOUS));
-  mySysSet.insert(CP::SystematicVariation("PH_EFF_"+m_sysSubstringRadZ+"Uncertainty", 1));
-  mySysSet.insert(CP::SystematicVariation("PH_EFF_"+m_sysSubstringRadZ+"Uncertainty", -1));
-  }
-  
+   
   return mySysSet;
 }
 
@@ -427,13 +404,7 @@ CP::SystematicSet AsgPhotonEfficiencyCorrectionTool::recommendedSystematics() co
   CP::SystematicSet mySysSet;
   mySysSet.insert(CP::SystematicVariation("PH_EFF_"+m_sysSubstring+"Uncertainty", 1));
   mySysSet.insert(CP::SystematicVariation("PH_EFF_"+m_sysSubstring+"Uncertainty", -1));
-  
-  // Add systematics for lowPT isolation
-  if(m_isoWP.size()){
-  mySysSet.insert(CP::SystematicVariation("PH_EFF_"+m_sysSubstringRadZ+"Uncertainty", 1));
-  mySysSet.insert(CP::SystematicVariation("PH_EFF_"+m_sysSubstringRadZ+"Uncertainty", -1));
-  }
-  
+   
   return mySysSet;
 }
 
@@ -468,11 +439,8 @@ applySystematicVariation ( const CP::SystematicSet& systConfig )
 // Map Key Feature
 //===============================================================================
 // Gets the correction filename from map
-std::string AsgPhotonEfficiencyCorrectionTool::getFileName(std::string isoWP, bool isConv, std::string sufix) {
-  
-  // Check if isoWP is TightCaloOnly, then will read the inputs from RadZ files
-  if(0==isoWP.compare("TightCaloOnly")) sufix="_RadZ";
-  
+std::string AsgPhotonEfficiencyCorrectionTool::getFileName(std::string isoWP, std::string trigWP, bool isConv) {  
+
   // First locate the map file:
   std::string mapFileName = PathResolverFindCalibFile( m_mapFile );
   if(mapFileName.empty()){
@@ -480,8 +448,14 @@ std::string AsgPhotonEfficiencyCorrectionTool::getFileName(std::string isoWP, bo
 	return mapFileName;	// return an empty string
   }
   
-  std::string correction_type = isoWP.empty() ? "ID_Tight" : "ISO_"+isoWP+sufix;
-  correction_type += isConv ? "_Converted" : "_Unconverted";
+  // Construct correction type:
+  std::string correction_type = "ID_Tight";
+  if(!trigWP.empty()) correction_type = "Trigger_"+trigWP+"_"+isoWP;
+  else if(!isoWP.empty()) correction_type = "ISO_"+isoWP;
+  
+  // trigger SF same for con/unc photons
+  if(trigWP.empty()) {correction_type += isConv ? "_Converted" : "_Unconverted";}
+
   std::string value;
   
   // Read the map file to find the proper correction filename
@@ -492,7 +466,7 @@ std::string AsgPhotonEfficiencyCorrectionTool::getFileName(std::string isoWP, bo
   }
   while (!is.eof()) {
     std::string strLine;
-	getline(is,strLine);
+    getline(is,strLine);
 	
 	int nPos = strLine.find('=');
 	

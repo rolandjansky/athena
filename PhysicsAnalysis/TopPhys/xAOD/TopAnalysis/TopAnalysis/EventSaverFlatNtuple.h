@@ -499,7 +499,24 @@ private:
     std::vector<int>   m_jet_truthPartonLabel;
     std::vector<char>  m_jet_isTrueHS;
     std::unordered_map<std::string, std::vector<char>>  m_jet_isbtagged;//one vector per jet per WP
-    std::vector<int>  m_jet_tagWeightBin;//tag-weight bin in case Continuous WP is used
+    std::unordered_map<std::string, std::vector<int>>   m_jet_tagWeightBin;// one vector per jet per tag-weight bin in case Continuous WP is used
+    // R21 b-tagging
+    std::vector<float> m_jet_MV2c10mu;
+    std::vector<float> m_jet_MV2c10rnn;
+    std::vector<float> m_jet_DL1;
+    std::vector<float> m_jet_DL1mu;
+    std::vector<float> m_jet_DL1rnn;
+    std::vector<float> m_jet_MV2cl100;
+    std::vector<float> m_jet_MV2c100;
+    std::vector<float> m_jet_DL1_pu;
+    std::vector<float> m_jet_DL1_pc;
+    std::vector<float> m_jet_DL1_pb;
+    std::vector<float> m_jet_DL1mu_pu;
+    std::vector<float> m_jet_DL1mu_pc;
+    std::vector<float> m_jet_DL1mu_pb;
+    std::vector<float> m_jet_DL1rnn_pu;
+    std::vector<float> m_jet_DL1rnn_pc;
+    std::vector<float> m_jet_DL1rnn_pb;
 
     // for upgrade, we store the tagging efficiency per jet & whether it is from pileup
     std::vector<float> m_jet_mv1eff;
@@ -529,7 +546,7 @@ private:
     std::vector<float> m_tjet_mv2c10;
     std::vector<float> m_tjet_mv2c20;
     std::unordered_map<std::string, std::vector<char>>  m_tjet_isbtagged;//one vector per jet per WP
-    std::vector<int>  m_tjet_tagWeightBin;//tag-weight bin in case Continuous WP is used
+    std::unordered_map<std::string, std::vector<int>>   m_tjet_tagWeightBin;//one vector per jet tag-weight bin in case Continuous WP is used
 
     //re-clustered jets
     //  -> need unordered map for systematics
@@ -619,11 +636,60 @@ private:
     std::vector<float> m_klfitter_model_lep_eta;
     std::vector<float> m_klfitter_model_lep_phi;
     std::vector<float> m_klfitter_model_lep_E;
+    std::vector<unsigned int> m_klfitter_model_lep_index;
+
+    std::vector<float> m_klfitter_model_lepZ1_pt;
+    std::vector<float> m_klfitter_model_lepZ1_eta;
+    std::vector<float> m_klfitter_model_lepZ1_phi;
+    std::vector<float> m_klfitter_model_lepZ1_E;
+    std::vector<unsigned int> m_klfitter_model_lepZ1_index;
+
+    std::vector<float> m_klfitter_model_lepZ2_pt;
+    std::vector<float> m_klfitter_model_lepZ2_eta;
+    std::vector<float> m_klfitter_model_lepZ2_phi;
+    std::vector<float> m_klfitter_model_lepZ2_E;
+    std::vector<unsigned int> m_klfitter_model_lepZ2_index;
 
     std::vector<float> m_klfitter_model_nu_pt;
     std::vector<float> m_klfitter_model_nu_eta;
     std::vector<float> m_klfitter_model_nu_phi;
     std::vector<float> m_klfitter_model_nu_E;
+
+    std::vector<float> m_klfitter_model_b_from_top1_pt;
+    std::vector<float> m_klfitter_model_b_from_top1_eta;
+    std::vector<float> m_klfitter_model_b_from_top1_phi;
+    std::vector<float> m_klfitter_model_b_from_top1_E;
+    std::vector<unsigned int> m_klfitter_model_b_from_top1_jetIndex;
+
+    std::vector<float> m_klfitter_model_b_from_top2_pt;
+    std::vector<float> m_klfitter_model_b_from_top2_eta;
+    std::vector<float> m_klfitter_model_b_from_top2_phi;
+    std::vector<float> m_klfitter_model_b_from_top2_E;
+    std::vector<unsigned int> m_klfitter_model_b_from_top2_jetIndex;
+
+    std::vector<float> m_klfitter_model_lj1_from_top1_pt;
+    std::vector<float> m_klfitter_model_lj1_from_top1_eta;
+    std::vector<float> m_klfitter_model_lj1_from_top1_phi;
+    std::vector<float> m_klfitter_model_lj1_from_top1_E;
+    std::vector<unsigned int> m_klfitter_model_lj1_from_top1_jetIndex;
+
+    std::vector<float> m_klfitter_model_lj2_from_top1_pt;
+    std::vector<float> m_klfitter_model_lj2_from_top1_eta;
+    std::vector<float> m_klfitter_model_lj2_from_top1_phi;
+    std::vector<float> m_klfitter_model_lj2_from_top1_E;
+    std::vector<unsigned int> m_klfitter_model_lj2_from_top1_jetIndex;
+
+    std::vector<float> m_klfitter_model_lj1_from_top2_pt;
+    std::vector<float> m_klfitter_model_lj1_from_top2_eta;
+    std::vector<float> m_klfitter_model_lj1_from_top2_phi;
+    std::vector<float> m_klfitter_model_lj1_from_top2_E;
+    std::vector<unsigned int> m_klfitter_model_lj1_from_top2_jetIndex;
+
+    std::vector<float> m_klfitter_model_lj2_from_top2_pt;
+    std::vector<float> m_klfitter_model_lj2_from_top2_eta;
+    std::vector<float> m_klfitter_model_lj2_from_top2_phi;
+    std::vector<float> m_klfitter_model_lj2_from_top2_E;
+    std::vector<unsigned int> m_klfitter_model_lj2_from_top2_jetIndex;
 
     // calculated KLFitter variables for best perm
     float m_klfitter_bestPerm_topLep_pt;
@@ -972,12 +1038,11 @@ protected:
   const std::vector<float>& jet_mv2c20() const { return m_jet_mv2c20;}
   const std::vector<float>& jet_jvt() const { return m_jet_jvt;}
   const std::vector<char>& jet_passfjvt() const { return m_jet_passfjvt;}
-  const std::vector<float>& jet_ip3dsv1() const { return m_jet_ip3dsv1;}
   const std::vector<int>& jet_truthflav() const { return m_jet_truthflav;}
   const std::vector<int>& jet_truthPartonLabel() const { return m_jet_truthPartonLabel;}
   const std::vector<char>& jet_isTrueHS() const { return m_jet_isTrueHS;}
   const std::unordered_map<std::string, std::vector<char>>& jet_isbtagged() const { return m_jet_isbtagged;}//one vector per jet per WP
-  const std::vector<int>& jet_tagWeightBin() const { return m_jet_tagWeightBin;}//tag-weight bin in case Continuous WP is used
+  const std::unordered_map<std::string, std::vector<int>> & jet_tagWeightBin() const { return m_jet_tagWeightBin;}//one vector per jet tag-weight bin in case Continuous WP is used
   // for upgrade, we store the tagging efficiency per jet & whether it is from pileup
   const std::vector<float>& jet_mv1eff() const { return m_jet_mv1eff;}
   const std::vector<float>& jet_isPileup() const { return m_jet_isPileup;}
@@ -1005,7 +1070,7 @@ protected:
   const std::vector<float>& tjet_mv2c10() const { return m_tjet_mv2c10;}
   const std::vector<float>& tjet_mv2c20() const { return m_tjet_mv2c20;}
   const std::unordered_map<std::string, std::vector<char>>& tjet_isbtagged() const { return m_tjet_isbtagged;}//one vector per jet per WP
-  const std::vector<int>& tjet_tagWeightBin() const { return m_tjet_tagWeightBin;}//tag-weight bin in case Continuous WP is used
+  const std::unordered_map<std::string, std::vector<int>>&  tjet_tagWeightBin() const { return m_tjet_tagWeightBin;}//one vector per jet tag-weight bin in case Continuous WP is used
 
   //re-clustered jets
   // -> need unordered map for systematics
@@ -1091,6 +1156,37 @@ protected:
   const std::vector<float>& klfitter_model_nu_eta() const { return m_klfitter_model_nu_eta;}
   const std::vector<float>& klfitter_model_nu_phi() const { return m_klfitter_model_nu_phi;}
   const std::vector<float>& klfitter_model_nu_E() const { return m_klfitter_model_nu_E;}
+  const std::vector<float>& klfitter_model_b_from_top1_pt() const { return m_klfitter_model_b_from_top1_pt;}
+  const std::vector<float>& klfitter_model_b_from_top1_eta() const { return m_klfitter_model_b_from_top1_eta;}
+  const std::vector<float>& klfitter_model_b_from_top1_phi() const { return m_klfitter_model_b_from_top1_phi;}
+  const std::vector<float>& klfitter_model_b_from_top1_E() const { return m_klfitter_model_b_from_top1_E;}
+  const std::vector<unsigned int>& klfitter_model_b_from_top1_jetIndex() const { return m_klfitter_model_b_from_top1_jetIndex;}
+  const std::vector<float>& klfitter_model_b_from_top2_pt() const { return m_klfitter_model_b_from_top2_pt;}
+  const std::vector<float>& klfitter_model_b_from_top2_eta() const { return m_klfitter_model_b_from_top2_eta;}
+  const std::vector<float>& klfitter_model_b_from_top2_phi() const { return m_klfitter_model_b_from_top2_phi;}
+  const std::vector<float>& klfitter_model_b_from_top2_E() const { return m_klfitter_model_b_from_top2_E;}
+  const std::vector<unsigned int>& klfitter_model_b_from_top2_jetIndex() const { return m_klfitter_model_b_from_top2_jetIndex;}
+  const std::vector<float>& klfitter_model_lj1_from_top1_pt() const { return m_klfitter_model_lj1_from_top1_pt;}
+  const std::vector<float>& klfitter_model_lj1_from_top1_eta() const { return m_klfitter_model_lj1_from_top1_eta;}
+  const std::vector<float>& klfitter_model_lj1_from_top1_phi() const { return m_klfitter_model_lj1_from_top1_phi;}
+  const std::vector<float>& klfitter_model_lj1_from_top1_E() const { return m_klfitter_model_lj1_from_top1_E;}
+  const std::vector<unsigned int>& klfitter_model_lj1_from_top1_jetIndex() const { return m_klfitter_model_lj1_from_top1_jetIndex;}
+  const std::vector<float>& klfitter_model_lj2_from_top1_pt() const { return m_klfitter_model_lj2_from_top1_pt;}
+  const std::vector<float>& klfitter_model_lj2_from_top1_eta() const { return m_klfitter_model_lj2_from_top1_eta;}
+  const std::vector<float>& klfitter_model_lj2_from_top1_phi() const { return m_klfitter_model_lj2_from_top1_phi;}
+  const std::vector<float>& klfitter_model_lj2_from_top1_E() const { return m_klfitter_model_lj2_from_top1_E;}
+  const std::vector<unsigned int>& klfitter_model_lj2_from_top1_jetIndex() const { return m_klfitter_model_lj2_from_top1_jetIndex;}
+  const std::vector<float>& klfitter_model_lj1_from_top2_pt() const { return m_klfitter_model_lj1_from_top2_pt;}
+  const std::vector<float>& klfitter_model_lj1_from_top2_eta() const { return m_klfitter_model_lj1_from_top2_eta;}
+  const std::vector<float>& klfitter_model_lj1_from_top2_phi() const { return m_klfitter_model_lj1_from_top2_phi;}
+  const std::vector<float>& klfitter_model_lj1_from_top2_E() const { return m_klfitter_model_lj1_from_top2_E;}
+  const std::vector<unsigned int>& klfitter_model_lj1_from_top2_jetIndex() const { return m_klfitter_model_lj1_from_top2_jetIndex;}
+  const std::vector<float>& klfitter_model_lj2_from_top2_pt() const { return m_klfitter_model_lj2_from_top2_pt;}
+  const std::vector<float>& klfitter_model_lj2_from_top2_eta() const { return m_klfitter_model_lj2_from_top2_eta;}
+  const std::vector<float>& klfitter_model_lj2_from_top2_phi() const { return m_klfitter_model_lj2_from_top2_phi;}
+  const std::vector<float>& klfitter_model_lj2_from_top2_E() const { return m_klfitter_model_lj2_from_top2_E;}
+  const std::vector<unsigned int>& klfitter_model_lj2_from_top2_jetIndex() const { return m_klfitter_model_lj2_from_top2_jetIndex;}
+  
   // calculated KLFitter variables for best perm
   const float& klfitter_bestPerm_topLep_pt() const { return m_klfitter_bestPerm_topLep_pt;}
   const float& klfitter_bestPerm_topLep_eta() const { return m_klfitter_bestPerm_topLep_eta;}

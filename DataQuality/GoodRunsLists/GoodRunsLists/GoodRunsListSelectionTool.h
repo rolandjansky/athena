@@ -18,6 +18,10 @@
 #include "AsgAnalysisInterfaces/IGoodRunsListSelectionTool.h"
 #include "GoodRunsLists/TGRLCollection.h"
 
+#ifndef XAOD_STANDALONE
+#include "DerivationFrameworkInterfaces/ISkimmingTool.h"
+#endif
+
 /// Tool implementing the GRL selection
 ///
 /// This tool needs to be used to select good lumiblocks for a physics
@@ -27,10 +31,13 @@
 /// $Date$
 ///
 class GoodRunsListSelectionTool : virtual public IGoodRunsListSelectionTool,
+#ifndef XAOD_STANDALONE
+  virtual public DerivationFramework::ISkimmingTool,
+#endif
       public asg::AsgTool {
 
    // Declare the proper constructor(s) for Athena:
-   ASG_TOOL_CLASS( GoodRunsListSelectionTool, IGoodRunsListSelectionTool )
+  ASG_TOOL_CLASS2( GoodRunsListSelectionTool, IGoodRunsListSelectionTool, DerivationFramework::ISkimmingTool )
 
 public:
    GoodRunsListSelectionTool( const std::string& name =
@@ -72,6 +79,12 @@ public:
       return m_brlcollection;
    }
 
+#ifndef XAOD_STANDALONE
+   /// ISkimmingTool method:
+   /// will retrieve eventInfo from storegate and use that with above methods
+   virtual bool eventPassesFilter() const;
+#endif
+   
    /// @}
 
 protected:

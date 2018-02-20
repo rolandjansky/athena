@@ -11,8 +11,9 @@ from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
 if DerivationFrameworkIsMonteCarlo:
-    from DerivationFrameworkMCTruth.MCTruthCommon import *
-  
+  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+  addStandardTruthContents()
+ 
 ### Set up stream
 streamName = derivationFlags.WriteDAOD_SUSY12Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_SUSY12Stream )
@@ -45,10 +46,9 @@ SUSY12ThinningHelper.AppendToStream( SUSY12Stream )
 # THINNING TOOL
 #====================================================================\
 
-# MET/Jet tracks -> no longer needed, 11.05.2015
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-
 # B.M.: likely not used
+#from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
+
 #SUSY12TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY12TPThinningTool",
 #                                 ThinningService     = SUSY12ThinningHelper.ThinningSvc(),
 #                                 SelectionString     = "InDetTrackParticles.pt > 10*GeV",  # TODO: Check with 5 geV
@@ -137,7 +137,7 @@ SUSY12aKt4CCThinningTool = DerivationFramework__JetCaloClusterThinning(name     
                                                                       SGKey                   = "AntiKt4EMTopoJets",
                                                                       TopoClCollectionSGKey   = "CaloCalTopoClusters",
                                                                       SelectionString         = "AntiKt4EMTopoJets.pt > 0*GeV",
-                                                                      ConeSize                = 0.4)
+                                                                      AdditionalClustersKey   = ["EMOriginTopoClusters"])
 ToolSvc += SUSY12aKt4CCThinningTool
 thinningTools.append(SUSY12aKt4CCThinningTool)
 
@@ -176,7 +176,8 @@ if DerivationFrameworkIsMonteCarlo:
 #====================================================================
 # SKIMMING
 #====================================================================
-applyJetCalibration_xAODColl("AntiKt4EMTopo", SeqSUSY12) # default: sequence=DerivationFrameworkJob
+# now done in ExtendedJetCommon
+#applyJetCalibration_xAODColl("AntiKt4EMTopo", SeqSUSY12) # default: sequence=DerivationFrameworkJob
 #updateJVT_xAODColl("AntiKt4EMTopo") # TODO: for next cache?
 
 

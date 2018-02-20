@@ -4,7 +4,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventFormatSvc.h 721421 2016-02-02 15:17:05Z krasznaa $
 #ifndef XAODEVENTFORMATCNV_EVENTFORMATSVC_H
 #define XAODEVENTFORMATCNV_EVENTFORMATSVC_H
 
@@ -76,6 +75,8 @@ namespace xAODMaker {
       ServiceHandle< IClassIDSvc > m_clidSvc;
       /// Connection to the event store
       ServiceHandle< StoreGateSvc > m_eventStore;
+      /// Connection to the input metadata store
+      ServiceHandle< StoreGateSvc > m_inputMetaStore;
       /// Connection to the metadata store
       ServiceHandle< StoreGateSvc > m_metaStore;
       /// Connection to the incident service

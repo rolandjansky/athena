@@ -15,20 +15,19 @@
 #include "AssociationUtils/IOverlapRemovalTool.h"
 
 ///Electrons
-#include "ElectronPhotonFourMomentumCorrection/IEgammaCalibrationAndSmearingTool.h"
+#include "EgammaAnalysisInterfaces/IEgammaCalibrationAndSmearingTool.h"
 #include "IsolationCorrections/IIsolationCorrectionTool.h"
 #include "PATCore/IAsgSelectionTool.h"
 
 #include "IsolationSelection/IIsolationSelectionTool.h"
 #include "IsolationSelection/IIsolationCloseByCorrectionTool.h"
 
-#include "ElectronEfficiencyCorrection/IAsgElectronEfficiencyCorrectionTool.h"
+#include "EgammaAnalysisInterfaces/IAsgElectronEfficiencyCorrectionTool.h"
 
 ///Muons
-#include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
-#include "MuonSelectorTools/IMuonSelectionTool.h"
-
-#include "MuonEfficiencyCorrections/IMuonEfficiencyScaleFactors.h"
+#include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
+#include "MuonAnalysisInterfaces/IMuonEfficiencyScaleFactors.h"
 
 
 ///Jets

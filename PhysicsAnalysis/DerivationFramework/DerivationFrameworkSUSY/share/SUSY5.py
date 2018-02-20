@@ -9,9 +9,12 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 if DerivationFrameworkIsMonteCarlo:
-    from DerivationFrameworkMCTruth.MCTruthCommon import *
+  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+  addStandardTruthContents()
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
+from DerivationFrameworkFlavourTag.FlavourTagCommon import *
+
 
 ### Set up stream
 streamName = derivationFlags.WriteDAOD_SUSY5Stream.StreamName
@@ -155,28 +158,28 @@ objectSelection = '(count('+electronsRequirements+') + count('+muonsRequirements
 
 expression = objectSelection
 
-applyJetCalibration_xAODColl("AntiKt4EMTopo", SeqSUSY5)
+# now done in ExtendedJetCommon
+#applyJetCalibration_xAODColl("AntiKt4EMTopo", SeqSUSY5)
 
 from DerivationFrameworkSUSY.SUSY5TriggerList import triggersNavThin
-from DerivationFrameworkSUSY.SUSY5TriggerList import MetTriggers
-from DerivationFrameworkSUSY.SUSY5TriggerList import PrescaledTriggers
+from DerivationFrameworkSUSY.SUSY5TriggerList import METorPhoton_triggers
+from DerivationFrameworkSUSY.SUSY5TriggerList import Lepton_triggers
+from DerivationFrameworkSUSY.SUSY5TriggerList import PrescaledLowPtTriggers
+from DerivationFrameworkSUSY.SUSY5TriggerList import PrescaledHighPtTriggers
+
+trig_expression = '(' + ' || '.join(METorPhoton_triggers+Lepton_triggers) + ')' 
+MEttrig_expression ='(' + ' || '.join(METorPhoton_triggers) + ')' 
 
 if not DerivationFrameworkIsMonteCarlo:
-  trig_expression = '(' + ' || '.join(MetTriggers + triggersNavThin) + ')' 
-  MEttrig_expression ='(' + ' || '.join(MetTriggers) + ')' 
+  Prestrig_expression ='(' + ' || '.join(PrescaledLowPtTriggers + PrescaledHighPtTriggers) + ')' 
+  PresLowPttrig_expression ='(' + ' || '.join(PrescaledLowPtTriggers) + ')' 
   JetEleExpression = '(count(AntiKt4EMTopoJets.DFCommonJets_Calib_pt>25*GeV && abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta)<2.8)>=2)'
-  Prestrig_expression ='(' + ' || '.join(PrescaledTriggers) + ')' 
-  LepTrigexpression = '('+'('+trig_expression+'&&'+objectSelectionHL+')'+'||'+'('+MEttrig_expression +'&&'+ objectSelectionSL+')'+'||'+'('+Prestrig_expression +'&&'+ JetEleExpression +'&&'+ objectSelection+')'+')'
+  JetEleLooseExpression = '(count(AntiKt4EMTopoJets.DFCommonJets_Calib_pt>10*GeV && abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta)<2.8)>=1)'
+  LepTrigexpression = '('+'('+trig_expression+'&&'+objectSelectionHL+'&&'+JetEleExpression+')'+'||'+'('+MEttrig_expression +'&&'+ objectSelectionSL+'&&'+JetEleExpression+')'+'||'+'('+Prestrig_expression +'&&'+ JetEleExpression +'&&'+ objectSelection+')'+'||'+'('+PresLowPttrig_expression +'&&'+ JetEleLooseExpression +'&&'+ objectSelectionSL+')'+')'
 else :
-  trig_expression = '(' + ' || '.join(MetTriggers + triggersNavThin) + ')' 
-  MEttrig_expression ='(' + ' || '.join(MetTriggers) + ')' 
-  JetEleExpression = '(count(AntiKt4EMTopoJets.DFCommonJets_Calib_pt>25*GeV && abs(AntiKt4EMTopoJets.DFCommonJets_Calib_eta)<2.8)>=2)'
   LepTrigexpression = '('+'('+trig_expression+'&&'+objectSelectionHL+')'+'||'+'('+MEttrig_expression +'&&'+ objectSelectionSL+')'+')' 
 
-
-expression = '('+LepTrigexpression+'&&('+JetEleExpression+'))'
-if DerivationFrameworkIsMonteCarlo:
-    expression = LepTrigexpression
+expression = LepTrigexpression
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 SUSY5SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY5SkimmingTool",
@@ -218,6 +221,10 @@ SeqSUSY5 += CfgMgr.DerivationFramework__DerivationKernel(
 #==============================================================================
 # Jet building
 #==============================================================================
+#re-tag PFlow jets so they have b-tagging info.
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = SeqSUSY5)
+
+#==============================================================================
 OutputJets["SUSY5"] = [] 
 reducedJetList = [ "AntiKt2PV0TrackJets" ]
 
@@ -235,7 +242,7 @@ replaceAODReducedJets(reducedJetList, SeqSUSY5, "SUSY5")
 if DerivationFrameworkIsMonteCarlo:
 #  from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
 #  addTruthTaus(AugmentationTools)
-  DFCommonTauTruthMatchingTool.WriteInvisibleFourMomentum = True
+  ToolSvc.DFCommonTauTruthMatchingTool.WriteInvisibleFourMomentum = True
 
 #==============================================================================
 # Augment after skim
@@ -258,9 +265,15 @@ SUSY5SlimmingHelper.SmartCollections = ["Electrons",
                                         "Muons",
                                         "TauJets",
                                         "AntiKt4EMTopoJets",
-                                        "AntiKt4LCTopoJets",
+"AntiKt4EMPFlowJets",
+
+                                        #"AntiKt4LCTopoJets",
                                         "MET_Reference_AntiKt4EMTopo",
+"MET_Reference_AntiKt4EMPFlow",
+
                                         "BTagging_AntiKt4EMTopo",
+"BTagging_AntiKt4EMPFlow",
+
                                         "InDetTrackParticles",
                                         "PrimaryVertices"]
 SUSY5SlimmingHelper.AllVariables = ["TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth", "MET_Track"]
@@ -296,7 +309,8 @@ SUSY5SlimmingHelper.IncludeBJetTriggerContent   = False
 # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
 if DerivationFrameworkIsMonteCarlo:
 
-  SUSY5SlimmingHelper.AppendToDictionary = {'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
+  SUSY5SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4EMPFlow':'xAOD::BTaggingContainer','BTagging_AntiKt4EMPFlowAux':'xAOD::BTaggingAuxContainer',
+'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
                                             'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
                                             'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
   

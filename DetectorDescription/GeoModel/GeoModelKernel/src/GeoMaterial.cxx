@@ -29,6 +29,7 @@
 #include <cfloat>
 #include <iostream>
 #include <algorithm>
+#include <iterator>
 
 //## end module%3CD878BB0006.includes
 
@@ -379,7 +380,10 @@ void GeoMaterial::lock ()
       int iZ = (int) (m_element[e]->getZ () + 0.5) - 1;	// Atomic number index     
 
       dEDxConstant += w * C0 * dovera * Z;
-      dEDxI0 += w * s_ionizationPotential[iZ];
+      // Make sure we don't overflow the table:
+      // the `Ether' special `element' has Z set to 500.
+      if (iZ >= 0 && iZ < (std::end(s_ionizationPotential)-std::begin(s_ionizationPotential)))
+        dEDxI0 += w * s_ionizationPotential[iZ];
       NILinv += n * pow (N, 2.0 / 3.0) * CLHEP::amu * inv_lambda0;
 
       double nAtomsPerVolume = A ? CLHEP::Avogadro*m_density*m_fraction[e]/A : 0.;

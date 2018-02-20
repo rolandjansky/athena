@@ -51,7 +51,7 @@ extern const std::array<std::string, kNumModulesDBM> ModulesDBM;
  *
  * This object is given to all histogram classes and determines for which
  * components the histograms are initialised.
-  *   - Pix  = pixel components (L0, L1, L2, ECA, ECC)
+ *   - Pix  = pixel components (L0, L1, L2, ECA, ECC)
  *   - IBL  = IBL
  *   - IBL2D3D = IBL plus additional IBL2D and IBL3D
  *   - DBM  = DBM
@@ -66,6 +66,6 @@ enum class HistConf {kPix = 0, kPixIBL, kPixIBL2D3D, kPixDBM, kPixDBMIBL, kPixDB
  * @param component: the pixel detector component to be tested
  */
 bool HasComponent(const HistConf& config, const LayerIBL2D3DDBM& component);
-}
+}  // namespace PixMon
 
 #endif  // PIXMON_COMPONENTS_H_

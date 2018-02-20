@@ -161,7 +161,8 @@ bool TtresNeutrinoBuilder::candidatesFromWMass_Scaling(const TLorentzVector* L, 
     
   } while( (delta < 0) && (count < 10000) && ( ptNu > 20 *1000));
   if (delta < 0){
-    if(m_debug>0) std::cout << "no solution delta still<0" << std::endl; return false;
+    if(m_debug>0) std::cout << "no solution delta still<0" << std::endl;
+    return false;
   }
   delta = sqrt(delta);
   // instantiate Neutrino

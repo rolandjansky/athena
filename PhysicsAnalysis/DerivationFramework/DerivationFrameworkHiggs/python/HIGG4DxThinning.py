@@ -15,51 +15,26 @@ DFisMC = (globalflags.DataSource()=='geant4')
 # trigger navigation
 def TriggerChains(HIGG4DxName):
     if HIGG4DxName == 'HIGG4D1': 
-        return 'HLT_e.*|HLT_2e.*|HLT_mu.*|HLT_2mu.*'
+        # single-e, single-mu, di-e, di-mu, and mu-e triggers.
+        # removing combined lepton + jet, missingET, gamma, bphys, and performance triggers
+        return '^(?!.*_[0-9]*(j|xe|tau|g|b|perf|idperf))(HLT_e.*|HLT_2e.*|HLT_mu.*|HLT_2mu.*)'
     elif HIGG4DxName == 'HIGG4D2': 
-        return 'HLT_e.*|HLT_mu.*'
+        # single-e, single-mu, and combined lepton+tau triggers
+        # Removing multiplepton triggers (also with asymmetric thresholds), lepton+jet, lepton+missingET, lepton-photon, b-phys, and performance triggers
+        return '(^(?!.*_[0-9]*(mu|j|xe|g|b|perf|idperf))(?!HLT_e.*_[0-9]*e.*)(HLT_e.*))|(^(?!.*_[0-9]*(e|j|xe|g|b|perf|idperf))(?!HLT_mu.*_[0-9]*mu.*)(HLT_mu.*))'
     elif HIGG4DxName in ['HIGG4D3', 'HIGG4D4', 'HIGG4D5']:
+        # keeping all tau triggers as there isn't that many of them
         return 'HLT_tau.*'
+    elif HIGG4DxName in ['HIGG4D6']:
+        return ''
     else :
         assert False, "HIGG4DxThinning: Unknown derivation stream '{}'".format(HIGG4DxName)
 
 def setup(HIGG4DxName, HIGG4DxThinningSvc, ToolSvc):
     thinningTools=[]
 
-#    #calo clusters for MVA TES
-#    if HIGG4DxName in ['HIGG4D1', 'HIGG4D2', 'HIGG4D3']:
-#        from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
-#        HIGG4DxCaloClusterThinningTool = DerivationFramework__CaloClusterThinning(name                      = HIGG4DxName+"CaloCalTopoClustersTauThinning",
-#                                                                                  ThinningService           = HIGG4DxThinningSvc,
-#                                                                                  SGKey                     = "TauJets",
-#                                                                                  SelectionString           = "TauJets.pt > 13*GeV",
-#                                                                                  TopoClCollectionSGKey     = "CaloCalTopoClusters")
-
-#        ToolSvc += HIGG4DxCaloClusterThinningTool
-#        thinningTools.append(HIGG4DxCaloClusterThinningTool)
-
-    #jets and tracks
-    from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
-    HIGG4DxJetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          		= HIGG4DxName+"JetTPThinningTool",
-                                                                              ThinningService         	= HIGG4DxThinningSvc,
-                                                                              JetKey                  = "AntiKt4EMTopoJets",
-                                                                              SelectionString         = "AntiKt4EMTopoJets.pt > 20*GeV",
-                                                                              InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                              ApplyAnd                = True)
-    ToolSvc += HIGG4DxJetTPThinningTool
-    thinningTools.append(HIGG4DxJetTPThinningTool)
-    
-    HIGG4DxJetLCTPThinningTool = DerivationFramework__JetTrackParticleThinning( name                    = HIGG4DxName+"JetLCTPThinningTool",
-                                                                                ThinningService         = HIGG4DxThinningSvc,
-                                                                                JetKey                  = "AntiKt4LCTopoJets",
-                                                                                SelectionString         = "AntiKt4LCTopoJets.pt > 20*GeV",
-                                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                                ApplyAnd                = True)
-    ToolSvc += HIGG4DxJetLCTPThinningTool
-    thinningTools.append(HIGG4DxJetLCTPThinningTool)
-
     #fat jets and track thinning
-    if HIGG4DxName in ['HIGG4D2', 'HIGG4D3']:
+    if HIGG4DxName in ['HIGG4D2', 'HIGG4D3', 'HIGG4D6']:
         from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
         HIGG4DxJetTrackThinningTool1 = DerivationFramework__JetTrackParticleThinning( name          	    = HIGG4DxName+"JetTrackThinningTool1",
                                                                                       ThinningService        = HIGG4DxThinningSvc,
@@ -70,7 +45,7 @@ def setup(HIGG4DxName, HIGG4DxThinningSvc, ToolSvc):
         ToolSvc += HIGG4DxJetTrackThinningTool1
         thinningTools.append(HIGG4DxJetTrackThinningTool1)
 
-    if HIGG4DxName in ['HIGG4D2', 'HIGG4D3']:
+    if HIGG4DxName in ['HIGG4D2', 'HIGG4D3', 'HIGG4D6']:
         from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
         HIGG4DxJetTrackThinningTool2 = DerivationFramework__JetTrackParticleThinning( name          	    = HIGG4DxName+"JetTrackThinningTool2",
                                                                                       ThinningService        = HIGG4DxThinningSvc,
@@ -83,7 +58,7 @@ def setup(HIGG4DxName, HIGG4DxThinningSvc, ToolSvc):
 
     # Tracks associated with Muons
     HIGG4DxMuonSelectionString = ""
-    if HIGG4DxName in ['HIGG4D3', 'HIGG4D4', 'HIGG4D5']:
+    if HIGG4DxName in ['HIGG4D3', 'HIGG4D4', 'HIGG4D5', 'HIGG4D6']:
         HIGG4DxMuonSelectionString = "Muons.pt > 1*GeV"
     from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
     HIGG4DxMuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = HIGG4DxName+"MuonTPThinningTool",
@@ -96,7 +71,7 @@ def setup(HIGG4DxName, HIGG4DxThinningSvc, ToolSvc):
 
     # Tracks associated with Electrons
     HIGG4DxElectronSelectionString = ""
-    if HIGG4DxName in ['HIGG4D3', 'HIGG4D4', 'HIGG4D5']:
+    if HIGG4DxName in ['HIGG4D3', 'HIGG4D4', 'HIGG4D5', 'HIGG4D6']:
         HIGG4DxElectronSelectionString = "Electrons.pt > 5*GeV"
     from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
     HIGG4DxElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = HIGG4DxName+"ElectronTPThinningTool",
@@ -109,7 +84,7 @@ def setup(HIGG4DxName, HIGG4DxThinningSvc, ToolSvc):
 
     # Tracks associated with taus
     HIGG4DxTauSelectionString = "TauJets.pt > 18*GeV"
-    if HIGG4DxName in ['HIGG4D4', 'HIGG4D5']:
+    if HIGG4DxName in ['HIGG4D4', 'HIGG4D5', 'HIGG4D6']:
         HIGG4DxTauSelectionString = "TauJets.pt > 40*GeV"
     from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
     HIGG4DxTauTPThinningTool = DerivationFramework__TauTrackParticleThinning(name                    = HIGG4DxName+"TauTPThinningTool",
@@ -122,7 +97,7 @@ def setup(HIGG4DxName, HIGG4DxThinningSvc, ToolSvc):
     thinningTools.append(HIGG4DxTauTPThinningTool)
 
     # tracks associated with DiTaus
-    if HIGG4DxName in ['HIGG4D2', 'HIGG4D3']:
+    if HIGG4DxName in ['HIGG4D2', 'HIGG4D3', 'HIGG4D5', 'HIGG4D6']:
         from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__DiTauTrackParticleThinning
         HIGG4DxDiTauTPThinningTool = DerivationFramework__DiTauTrackParticleThinning(name                    = HIGG4DxName+"DiTauTPThinningTool",
                                                                                      ThinningService         = HIGG4DxThinningSvc,
@@ -182,16 +157,35 @@ def setup(HIGG4DxName, HIGG4DxThinningSvc, ToolSvc):
         WriteFirstN = 15
         WriteBHadrons = False
         PreserveAncestors = True
-        #relevant for D3,D4 only
-        if HIGG4DxName in ['HIGG4D3', 'HIGG4D4', 'HIGG4D5']:
+        #relevant for D3,D4,D5,D6 only
+        if HIGG4DxName in ['HIGG4D3', 'HIGG4D4', 'HIGG4D5', 'HIGG4D6']:
             WriteBHadrons = True
+
+            # adding more samples
+            dsids = []
+            #graviton, 2HDM, Non-resonant HH samples
+            dsids += range(303349,303436+1)
+            dsids += range(342626,342643+1)
+            dsids += range(342622, 342623+1)
+            # 2HDM
+            dsids += [342626,342627,342628,342629,342630,342631,342632,342633,342634,345190,345191,345192,345193,345194]
+            # 2HDM NLO
+            dsids += [343722,343725,343727,343729,343733]
+            # AZH
+            dsids += [344981,344983,344985,344987,344989,344991,344993,344995,344997,344999,345001,345003,345005,345007,345009,345011,345013,345015,345017,345019]
+            # LQ3
+            dsids += [308043,308044,308045,308046,308046,308047,308048,308049,308050,308051,308052,308053,308054,308055,308056,308443,308444,308445,308446,308447,308448,308449]
+            # RSG
+            dsids += [303395,303396,303397,303398,303399,303400,303401,303402,303403,303417,303421,308272,308273,308274,308289,308290,308450,308451,308452,308453,308454,308455,308456,308457,308458]
+            # variable lambda hh samples
+            dsids += [345569,345568,345567,345564,345565,345566,345695,345696]
 
             import PyUtils.AthFile as af
             from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
             f = af.fopen(athenaCommonFlags.PoolAODInput()[0])
             if len(f.mc_channel_number) > 0:
                 mcn = int(f.mc_channel_number[0])
-                if( mcn in range(303349,303436+1) or mcn in range(342626,342643+1) or mcn in range(342622, 342623+1)):
+                if mcn in dsids:
                     WriteFirstN = 30 #graviton, 2HDM, Non-resonant HH samples
 
 

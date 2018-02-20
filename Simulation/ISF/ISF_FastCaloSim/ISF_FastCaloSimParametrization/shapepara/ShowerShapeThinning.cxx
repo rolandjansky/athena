@@ -21,17 +21,15 @@
 #include "TH2.h"
 
 #include "ShowerShapeThinning.h"
-#include "tools/CaloGeometryFromFile.h"
-#include "tools/CaloDetDescr/CaloDetDescrElement.h"
-
-
+#include "ISF_FastCaloSimParametrization/CaloGeometryFromFile.h"
+#include "ISF_FastCaloSimParametrization/CaloGeoDetDescrElement.h"
 
 using namespace std;
 
 
 ShowerShapeThinning::ShowerShapeThinning()
 {
-   m_debug = 0;
+   m_debug = 1;
 
    m_calolayer      = -1;
    m_PCAbin         = 0;
@@ -142,7 +140,19 @@ void ShowerShapeThinning::CreateHitsNtuple(TFile *file)
 
    int pcaEvent = -1;
 
+   int nevent = 0;
+
    // * loop over events
+
+
+   int previousEvent = -1;
+
+   cout << " No of events = " << m_chain->GetEntries() << endl;
+
+   TH1F *hEventEnergy = new TH1F("hEventEnergy", "hEventEnergy", m_chain->GetEntries(), 0, m_chain->GetEntries());
+
+   TH1F *hEventHit = new TH1F("hEventHit", "hEventHit", m_chain->GetEntries(), 0, m_chain->GetEntries());
+
 
    for (int ievent = 0; ievent < m_chain->GetEntries(); ievent++)
    {
@@ -170,17 +180,31 @@ void ShowerShapeThinning::CreateHitsNtuple(TFile *file)
          continue;
       }
 
+      nevent++;
 
       // * loop over the cells and hits in each cell
 
+      if (m_debug) cout << " event number = " << ievent << endl;
+      // cout << " no of cells = " << (*m_cellVector).size() << endl;
+
+      int hitCount = 0;
+      float energyEvent = 0.;
+
+
       for (unsigned int icell = 0; icell < (*m_cellVector).size(); icell++)
       {
+
          for (unsigned int ihit = 0; ihit < ((FCS_matchedcell)(*m_cellVector)[icell]).hit.size(); ihit++)
          {
+            hitCount++;
+
             float energy = ((FCS_matchedcell)(*m_cellVector)[icell]).hit[ihit].hit_energy;
+            energyEvent += energy;
             float posx   = ((FCS_matchedcell)(*m_cellVector)[icell]).hit[ihit].hit_x;
             float posy   = ((FCS_matchedcell)(*m_cellVector)[icell]).hit[ihit].hit_y;
             float posz   = ((FCS_matchedcell)(*m_cellVector)[icell]).hit[ihit].hit_z;
+
+            if (m_debug) std::cout << " event = " << ievent << " cell = " << icell << " hit = " << ihit << " energy = " << energy << " pos x = " << posx << " pos y = " << posy << " pos z = " << posz << std::endl;
 
             TVector3 *pos = new TVector3(posx, posy, posz);
 
@@ -188,16 +212,20 @@ void ShowerShapeThinning::CreateHitsNtuple(TFile *file)
             float etaHit = pos->PseudoRapidity();
             float phiHit = pos->Phi();
 
+            if (m_debug) std::cout << " event = " << ievent << " cell = " << icell << " hit = " << ihit << " energy = " << energy << " eta hit = " << etaHit << " phi hit = " << phiHit << std::endl;
+
             // * entrance eta
-            float etaEntrance = (*m_truthCollection)[0].TTC_entrance_eta[0];
-            float phiEntrance = (*m_truthCollection)[0].TTC_entrance_phi[0];
+            float etaEntrance = (*m_truthCollection)[0].newTTC_entrance_eta[0];
+            float phiEntrance = (*m_truthCollection)[0].newTTC_entrance_phi[0];
+
+            if (m_debug) std::cout << " event No = " << ievent << " eta entrance = " << etaEntrance << " phi entrance = " << phiEntrance << std::endl;
 
             float deta = etaHit - etaEntrance;
 
 
             // * calculate dphi
-            float y_entrance = ((*m_truthCollection)[0].TTC_entrance_r[0]) * TMath::Sin((*m_truthCollection)[0].TTC_entrance_phi[0]);
-            float x_entrance = ((*m_truthCollection)[0].TTC_entrance_r[0]) * TMath::Cos((*m_truthCollection)[0].TTC_entrance_phi[0]);
+            float y_entrance = ((*m_truthCollection)[0].newTTC_entrance_r[0]) * TMath::Sin((*m_truthCollection)[0].newTTC_entrance_phi[0]);
+            float x_entrance = ((*m_truthCollection)[0].newTTC_entrance_r[0]) * TMath::Cos((*m_truthCollection)[0].newTTC_entrance_phi[0]);
 
             TVector2 *entrance = new TVector2(x_entrance, y_entrance);
             TVector2 *hit      = new TVector2(pos->X(), pos->Y());
@@ -217,8 +245,17 @@ void ShowerShapeThinning::CreateHitsNtuple(TFile *file)
             sumPhi += phiHit;
             nhits++;
 
+            bool newEvent = false;
+            if ((ievent == 0 and icell == 0 and ihit == 0 ) or ievent != previousEvent)
+            {
+               //cout << " --> Start of a new event " << endl;
+               newEvent = true;
+
+            }
+
             // * fill the hits TTree
             m_eventNumber = ievent; // save the event number;
+            m_newEvent    = newEvent;
             m_energy      = energy;
             m_etaHit      = etaHit;
             m_phiHit      = phiHit;
@@ -228,8 +265,21 @@ void ShowerShapeThinning::CreateHitsNtuple(TFile *file)
             m_dphi        = dphi;
             m_PCA         = vbinsPCA.at(pcaEvent);
             m_hitsNtuple->Fill();
+            previousEvent = ievent;
          } // end loop over cells
       }    // end loop over hits
+
+      if (m_debug)
+      {
+         cout << " ==> hitCount = " << hitCount << endl;
+         cout << " ==> event energy = " << energyEvent << endl;
+         cout << " ==> total_hit_energy = " << m_total_hit_energy << endl;
+         cout << " ==> total_g4hit_energy = " << m_total_g4hit_energy << endl;
+      }
+
+      hEventEnergy->SetBinContent(ievent, energyEvent);
+      hEventHit->SetBinContent(ievent, hitCount);
+
    }       // end loop over events
 
    if (m_debug)
@@ -267,7 +317,7 @@ void ShowerShapeThinning::CreateHitsNtuple(TFile *file)
       cout << " cell r = " << cellr << ", cell z = " << cellz << ", cell eta = " << celleta << ", cell deta= " << cellDeta << ", cell dpi = " << cellDphi << endl;
    }
 
-
+   cout << " Number of events = " << nevent << endl;
 
    //* fill global TTree
 
@@ -288,6 +338,8 @@ void ShowerShapeThinning::CreateHitsNtuple(TFile *file)
    file->cd();
    m_hitsNtuple->Write();
    m_globalNtuple->Write();
+   hEventEnergy->Write();
+   hEventHit->Write();
    file->Close();
 }
 
@@ -558,6 +610,12 @@ void ShowerShapeThinning::GetCellGeom(float etacentre, float phicentre)
 
 
    const CaloGeoDetDescrElement *cell;
+
+   // const CaloGeoGeometry *cell;
+   //
+
+
+
    cell = geo->getDDE(layer, etacentre, phicentre);
 
    cellr    = cell->r();
@@ -616,6 +674,9 @@ void ShowerShapeThinning::InitInputTree()
    m_truthPz         = nullptr;
    m_truthE          = nullptr;
 
+   m_total_hit_energy = 0.;
+   m_total_g4hit_energy = 0.;
+
 
    TString layer = Form("Sampling_%i", m_calolayer);
    if (m_debug)
@@ -630,12 +691,15 @@ void ShowerShapeThinning::InitInputTree()
    m_chain->SetBranchAddress("TruthPy", &m_truthPy);
    m_chain->SetBranchAddress("TruthPz", &m_truthPz);
    m_chain->SetBranchAddress("TruthE", &m_truthE);
+   m_chain->SetBranchAddress("total_hit_energy", &m_total_hit_energy);
+   m_chain->SetBranchAddress("total_g4hit_energy", &m_total_g4hit_energy);
 }
 
 
 void ShowerShapeThinning::BookHitsTree(TTree *hitsNtuple, TTree *globalNtuple)
 {
    m_eventNumber = -1;
+   m_newEvent = false;
    m_energy      = 0.;
    m_etaHit      = 0.;
    m_phiHit      = 0.;
@@ -656,6 +720,7 @@ void ShowerShapeThinning::BookHitsTree(TTree *hitsNtuple, TTree *globalNtuple)
    m_cellDphi  = 0.;
 
    hitsNtuple->Branch("eventNumber", &m_eventNumber);
+   hitsNtuple->Branch("newEvent", &m_newEvent);
    hitsNtuple->Branch("energy_hit", &m_energy);
    hitsNtuple->Branch("eta_hit", &m_etaHit);
    hitsNtuple->Branch("phi_hit", &m_phiHit);
@@ -681,6 +746,7 @@ void ShowerShapeThinning::BookHitsTree(TTree *hitsNtuple, TTree *globalNtuple)
 void ShowerShapeThinning::InitHitsTree(TTree *hitsNtuple, TTree *globalNtuple)
 {
    m_eventNumber = -1;
+   m_newEvent = false;
    m_energy      = 0.;
    m_etaHit      = 0.;
    m_phiHit      = 0.;
@@ -701,6 +767,7 @@ void ShowerShapeThinning::InitHitsTree(TTree *hitsNtuple, TTree *globalNtuple)
    m_cellDphi  = 0.;
 
    hitsNtuple->SetBranchAddress("eventNumber", &m_eventNumber);
+   hitsNtuple->SetBranchAddress("newEvent", &m_newEvent);
    hitsNtuple->SetBranchAddress("energy_hit", &m_energy);
    hitsNtuple->SetBranchAddress("eta_hit", &m_etaHit);
    hitsNtuple->SetBranchAddress("phi_hit", &m_phiHit);

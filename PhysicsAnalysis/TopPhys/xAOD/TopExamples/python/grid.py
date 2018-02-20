@@ -6,6 +6,8 @@ import sys
 import distutils.spawn
 import logger
 import analysis
+import ROOT
+from PathResolver import PathResolver
 
 try:
     import rucio.client
@@ -65,21 +67,48 @@ def Samples(names):
         samples.append(availableDatasets[n])
     return samples
 
+def basicInDSNameShortener(*args):
+    # don't ask what args[0] is; just use args[1] (sorry for my lack of understanding of python)
+    # if you want to use a different function defined outside this module, you don't need to bother
+    inDSName = args[1]
+    splitted = inDSName.split('.')
+
+    runNumber = splitted[1]
+    physicsName = splitted[2]
+    if splitted[0] == "user" or splitted[0] == "group": #this is in case we run on private derivations, either produced with user or group role
+        runNumber = splitted[2]
+        physicsName = splitted[3]
+    derivation = splitted[-2]
+    tags = splitted[-1].replace('/','')
+
+    #grid complains dataset names are too long
+    #stupid grid
+    if len(physicsName) > 20:
+        physicsName = physicsName.split('_')[0]
+
+    outDSName = runNumber + '.' + physicsName + '.' + derivation + '.' + tags
+    return outDSName
+
 class Config:
     code = 'top-xaod'
     cutsFile = 'nocuts.txt'
 
-    gridUsername = ''
-    suffix = ''
-    excludedSites = ''
-    forceSite = ''
-    noSubmit = False
-    CMake    = False # False by default - need to set to True for CMake-based releases (release 21)
-    mergeType = 'Default' #None, Default, xAOD 
-    destSE = ''
-    memory = '2000' #in MB
+    gridUsername    = ''
+    groupProduction = False
+    suffix          = ''
+    excludedSites   = ''
+    forceSite       = ''
+    noSubmit        = False
+    CMake           = (os.getenv('ROOTCORE_RELEASE_SERIES')=='25') # ROOTCORE_RELEASE_SERIES variable used to identify release (CMake required for R21)
+    mergeType       = 'Default' #None, Default, xAOD 
+    destSE          = ''
+    memory          = '2000' #in MB
     maxNFilesPerJob = ''
-    otherOptions = ''
+    otherOptions    = ''
+    nameShortener   = basicInDSNameShortener # default shortener function
+    customTDPFile   = None
+    reuseTarBall    = False
+    checkPRW        = False
 
     def details(self):
         cutsFileIsARealFile = checkForFile(self.settingsFile)
@@ -99,8 +128,11 @@ class Config:
         print ' -NoSubmit:      ', self.noSubmit
         print ' -MergeType:     ', self.mergeType, 'out of (None, Default, xAOD)'
         print ' -memory:        ', self.memory, 'in MB'
-        print ' -maxNFilesPerJob', self.maxNFilesPerJob
-        print ' -OtherOptions:  ', self.otherOptions
+        print ' -maxNFilesPerJob', self.maxNFilesPerJob        
+        print ' -OtherOptions:  ', self.otherOptions 
+        print ' -nameShortener: ', self.nameShortener
+        print ' -reuseTarBall:  ', self.reuseTarBall
+        print ' -checkPRW:      ', self.checkPRW
 
         txt = self.destSE
         if len(txt) == 0:
@@ -153,33 +185,44 @@ def submit(config, allSamples):
   checkForPrun()
   checkMergeType(config)
   config.details()
-  checkForShowerAlgorithm(allSamples)
+  checkForShowerAlgorithm(allSamples, config.settingsFile)
+  if config.checkPRW:
+      checkPRWFile(allSamples, config.settingsFile)
 
   tarfile = 'top-xaod.tar.gz'
 
-  #We don't want to use an old, out-of-date file
-  #Delete the file if it exists
-  try:
-      os.remove(tarfile)
-  except OSError, e:
-      #Number 2 is 'file doesn't exist' which is okay for us
-      if e.errno == 2:
-          pass
-      else:
-          raise
+  # Delete the old tarball if requested
+  if not config.reuseTarBall:
+      try:
+          os.remove(tarfile)
+      except OSError, e:
+          #Number 2 is 'file doesn't exist' which is okay for us
+          if e.errno == 2:
+              pass
+          else:
+              raise
 
 
   #Check for cuts file
   if not checkForFile(config.settingsFile):
-      print logger.FAIL + "DANGER DANGER. HIGH VOLTAGE" + logger.ENDC
-      print '%s does not exist in this directory' % config.settingsFile
-      print 'please make it before submitting'
-
-      if config.settingsFile == 'dil-cuts.txt' or config.settingsFile == 'ljets-cuts.txt':
-         print 'or... copy it with'
-         print 'cp $ROOTCOREBIN/data/TopAnalysis/%s .' % config.settingsFile
-
-      sys.exit(1)
+      print logger.FAIL    + " Error - %s does not exist in this directory "%(config.settingsFile) + logger.ENDC
+      print logger.WARNING + "       - Attempt to find this file in a sensible location... " + logger.ENDC
+      settingsFilePath = ROOT.PathResolver.find_file(config.settingsFile, "DATAPATH", ROOT.PathResolver.RecursiveSearch)      
+      if settingsFilePath == "":
+          print logger.FAIL + "DANGER DANGER. HIGH VOLTAGE" + logger.ENDC
+          print '%s does not exist in this directory and cannot be found' % config.settingsFile
+          print 'Please make it before submitting'
+          sys.exit(1)      
+      else:
+          print logger.WARNING + "       - Found an appropriate file " + logger.ENDC
+          print logger.WARNING + "       - Will copy " + logger.ENDC + config.settingsFile + logger.WARNING + " from " + logger.ENDC + settingsFilePath 
+          print logger.WARNING + "       - Confirm this is okay before continuing " + logger.ENDC
+          user_check = raw_input(logger.OKBLUE + "Type yes/y/Y in order to proceed ...: " + logger.ENDC)
+          if(user_check != "yes" and user_check != "y" and user_check != "Y"):
+              print logger.FAIL + " Exiting submission " + logger.ENDC
+              sys.exit(2)
+          print logger.OKGREEN + "       - Confirmed " + logger.ENDC
+          os.system("cp %s %s"%(settingsFilePath,"./"))
 
   #Look in the cuts file for the output filename
   outputFilename = 'EMPTY'
@@ -227,27 +270,17 @@ def submit(config, allSamples):
   for i, d in enumerate(these):
      print logger.OKBLUE + 'Submitting %d of %d' % (i+1, len(these)) + logger.ENDC
 
-     splitted = d.split('.')
-     
-     runNumber = splitted[1]
-     txt = splitted[2]
-     if splitted[0] == "user":
-         runNumber = splitted[2]
-         txt = splitted[3]
-     derivation = splitted[-2]
-     tags = splitted[-1].replace('/','')
-
-     #grid complains dataset names are too long
-     #stupid grid
-     if len(txt) > 20:
-         txt = txt.split('_')[0]
-
-     n = runNumber + '.' + txt + '.' + derivation + '.' + tags
-
      #Make the output dataset name
-     output = 'user.' + config.gridUsername + '.' + n + '.' + config.suffix
+     #for group production it has to start with "group." and we asume that gridUsername is the name of the group (e.g. phys-top)
+     if config.groupProduction:
+         output = 'group.' + config.gridUsername + '.' + config.nameShortener(d) + '.' + config.suffix
+     else:
+         output = 'user.' + config.gridUsername + '.' + config.nameShortener(d) + '.' + config.suffix
 
      cmd = 'prun \\\n'
+     #special care for group production - we assume that gridUsername is the name of the group (e.g. phys-top)
+     if config.groupProduction:
+         cmd += '--official --voms atlas:/atlas/' + config.gridUsername + '/Role=production  \\\n'
      cmd += '--inDS=' + d + ' \\\n'
      cmd += '--outDS=' + output + ' \\\n'
      if config.CMake:
@@ -380,9 +413,24 @@ if __name__ == '__main__':
     print 'For an example, see 01SubmitToGrid.py'
 
 
-def checkForShowerAlgorithm(Samples):
+def checkForShowerAlgorithm(Samples, cutfile):    
     noShowerDatasets = []
-    tdp = analysis.TopDataPreparation(os.getenv('ROOTCOREBIN') + '/data/TopDataPreparation/XSection-MC15-13TeV.data')
+    customTDPFile = None
+    tmp = open(cutfile, "r")
+    for line in tmp.readlines():
+        if "TDPPath" not in line:
+            continue
+        else:
+            customTDPFile = line.strip().split("TDPPath")[1]
+            break
+    print customTDPFile
+    if customTDPFile:
+        tdpFile = ROOT.PathResolver.find_file(customTDPFile, "PATH", ROOT.PathResolver.RecursiveSearch)
+    else:
+        tdpFile = ROOT.PathResolver.find_file("dev/AnalysisTop/TopDataPreparation/XSection-MC15-13TeV.data", "CALIBPATH", ROOT.PathResolver.RecursiveSearch)
+    # Load the file
+    print tdpFile
+    tdp = analysis.TopDataPreparation(tdpFile)
     for TopSample in availableDatasets.values():
         for List in Samples:
             SublistSamples = List.datasets
@@ -402,3 +450,43 @@ def checkForShowerAlgorithm(Samples):
         for ds in set(noShowerDatasets):
             print ds
         raise RuntimeError("Datasets without shower.")
+
+def checkPRWFile(Samples, cutfile):
+    # Some imports
+    import subprocess, shlex
+
+    # We need to find the PRW files being used and make use of the checkPRW 
+    # checkPRW.py --inDsTxt=my.datasets.txt  path/to/prwConfigs/*.root
+    # First, find the PRW names from cutfile
+    print logger.OKBLUE + " - Processing checks for PRWConfig" + logger.ENDC
+    tmp = open(cutfile, "r")
+    PRWConfig = None
+    for line in tmp.readlines():
+        if "PRWConfigFiles" not in line:
+            continue
+        else:
+            PRWConfig = [ ROOT.PathResolver.find_file( x, "CALIBPATH", ROOT.PathResolver.RecursiveSearch ) for x in line.strip().split()[1:] ]
+            PRWConfig.extend( [ ROOT.PathResolver.find_file( x, "DATAPATH", ROOT.PathResolver.RecursiveSearch ) for x in line.strip().split()[1:] ]  )
+            PRWConfig.extend( [ ROOT.PathResolver.find_file( x, "PATH", ROOT.PathResolver.RecursiveSearch ) for x in line.strip().split()[1:] ]  )
+
+    if not PRWConfig:
+        print logger.FAIL + " - Error reading PRWConfigFiles from cutfile" + logger.ENDC
+        return 
+    # Print the PRW files
+    print logger.OKGREEN + "\n".join(PRWConfig) + logger.ENDC
+    # Create a temporary sample list
+    tmpFileName = "samplesforprwcheck.txt"
+    tmpOut = open(tmpFileName,"w")
+    for List in Samples:
+        SublistSamples = List.datasets
+        for sample in SublistSamples:
+            tmpOut.write(sample+"\n")
+    tmpOut.close()
+    # Make a command
+    cmd = "checkPRW.py --inDsTxt %s %s"%(tmpFileName, " ".join(PRWConfig))
+    print logger.OKBLUE + " - Running command : " + cmd + logger.ENDC
+    # Run
+    proc = subprocess.Popen(shlex.split(cmd))
+    proc.wait()
+    # At the moment, just print the output, but we need to learn what to catch also
+    

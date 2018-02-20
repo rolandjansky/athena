@@ -52,6 +52,7 @@ EGammaAmbiguityTool::EGammaAmbiguityTool(std::string myname) :
 		  "Electron container name");
   declareProperty("PhotonContainerName", m_photonContainerName = "Photons",
 		  "Photon container name");
+  declareProperty("AcceptAmbiguous", m_acceptAmbiguous = true,"When used as a selector accept the ambiguous as default");
 
 }
 
@@ -161,7 +162,7 @@ unsigned int EGammaAmbiguityTool::ambiguityResolve(const xAOD::CaloCluster* clus
 
   if( track_ep > m_maxEoverPCut) {
     ATH_MSG_DEBUG("Returning Ambiguous due to E over P");
-    type=xAOD::AmbiguityTool::ambiguousTrackLowEoverP;
+    type=xAOD::AmbiguityTool::ambiguousTrackHighEoverP;
     return xAOD::EgammaParameters::AuthorAmbiguous;
   }
 
@@ -266,7 +267,7 @@ unsigned int EGammaAmbiguityTool::ambiguityResolve(const xAOD::Egamma& egamma) c
 }
 
 /** Accept or reject egamma object based on ambiguity resolution */
-bool EGammaAmbiguityTool::accept( const xAOD::Egamma& egamma, bool acceptAmbiguous ) const{
+bool EGammaAmbiguityTool::accept( const xAOD::Egamma& egamma) const{
   unsigned int author = ambiguityResolve(egamma);
 
   if (author == xAOD::EgammaParameters::AuthorFwdElectron ||
@@ -274,7 +275,7 @@ bool EGammaAmbiguityTool::accept( const xAOD::Egamma& egamma, bool acceptAmbiguo
     return true;
   }
 
-  if (acceptAmbiguous && author == xAOD::EgammaParameters::AuthorAmbiguous){
+  if (m_acceptAmbiguous && author == xAOD::EgammaParameters::AuthorAmbiguous){
     return true;
   }
 

@@ -43,9 +43,17 @@ namespace Prompt
       ip3_cu,
       EtTopoCone20Rel,
       EtTopoCone30Rel,
+      TopoEtCone30Rel,
       PtVarCone30Rel,
-      LepJetPtFrac,
       DRlj,
+      LepJetPtFrac,
+      PtFrac,
+      PtRel,
+      DL1mu,
+      rnnip,
+      MV2c10rnn,
+      SV1,
+      JetF
     };
 
     int RegisterAllVars();

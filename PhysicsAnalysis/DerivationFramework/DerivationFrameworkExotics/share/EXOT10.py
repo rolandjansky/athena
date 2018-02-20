@@ -46,8 +46,9 @@ from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFram
 EXOT10MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning( name                    = "EXOT10MuonTPThinningTool",
 		                                                                   ThinningService         = EXOT10ThinningHelper.ThinningSvc(),
 		                                                                   MuonKey                 = "Muons",
-		                                                                   InDetTrackParticlesKey  = "InDetTrackParticles"
-		                                                                   )
+		                                                                   InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                           ConeSize                = 0.4)
+
 #ToolSvc += EXOT10MuonTPThinningTool
 
 # Tracks associated with Electrons

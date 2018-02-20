@@ -433,6 +433,11 @@ StatusCode TRTFastDigitizationTool::createAndStoreRIOs()
     InDet::TRT_DriftCircle *trtDriftCircle = ( hitsInOneStraw.first )->second;
     IdentifierHash hash = trtDriftCircle->detectorElement()->identifyHash();
     idHashMap.insert( std::multimap<IdentifierHash, InDet::TRT_DriftCircle * >::value_type( hash, trtDriftCircle ) );
+    // delete all driftCircles in TRT straw excert the first one, see ATLPHYSVAL-395
+    for ( DriftCircleMapItr itr2 = ++( hitsInOneStraw.first ); itr2 != hitsInOneStraw.second; ++itr2 ) {
+      InDet::TRT_DriftCircle *trtDriftCircle = itr2->second;
+      delete trtDriftCircle;
+    } 
   }
 
   for ( HashMapItr itr = idHashMap.begin(); itr != idHashMap.end(); itr = idHashMap.upper_bound( itr->first ) ) {

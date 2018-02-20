@@ -2,22 +2,17 @@ LibraryNames libTopEventSelectionTools libTopEventReconstructionTools
 
 ### Good Run List
 GRLDir  GoodRunsLists
-GRLFile data15_13TeV/20160720/physics_25ns_20.7.xml data16_13TeV/20170215/physics_25ns_20.7.xml
+GRLFile data15_13TeV/20170619/physics_25ns_21.0.19.xml data16_13TeV/20170605/physics_25ns_21.0.19.xml data17_13TeV/20170714/physics_25ns_HLTNo17e33primaries_21.0.30.xml
 
 ### Pile-up reweighting tool - this is now mandatory
-### Now requires only PRWLumiCalcFiles
-### No PRWDefaultChannel anymore
-### The nominal mc15c PU distribution is now appended to PRWConfigFiles automatically
-### Will hence be using mc15c_v2_defaults.NotRecommended.prw.root if nothing is provided for PRWConfigFiles
-# PRWConfigFiles TopCorrections/PRW.410000.mc15c.r7725_r7676.root
-PRWConfigFiles
-PRWLumiCalcFiles GoodRunsLists/data15_13TeV/20160720/physics_25ns_20.7.lumicalc.OflLumi-13TeV-005.root GoodRunsLists/data16_13TeV/20170215/physics_25ns_20.7.lumicalc.OflLumi-13TeV-008.root
-# no PRWDefaultChannel anymore
+PRWConfigFiles dev/AnalysisTop/PileupReweighting/user.iconnell.Top.PRW.MC16a.v1/CI.prw.merged.root
+PRWLumiCalcFiles GoodRunsLists/data15_13TeV/20170619/PHYS_StandardGRL_All_Good_25ns_276262-284484_OflLumi-13TeV-008.root GoodRunsLists/data16_13TeV/20170605/PHYS_StandardGRL_All_Good_25ns_297730-311481_OflLumi-13TeV-008.root GoodRunsLists/data17_13TeV/20170714/physics_25ns_HLTNo17e33primaries_21.0.30.lumicalc.OflLumi-13TeV-001.root
 
 ElectronCollectionName Electrons
 MuonCollectionName Muons
 JetCollectionName AntiKt4EMTopoJets
-LargeJetCollectionName AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets
+LargeJetCollectionName AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets 
+LargeRJESJMSConfig CaloMass
 LargeRJetPt 200000
 LargeRJetEta 2
 LargeJetSubstructure None
@@ -40,7 +35,7 @@ OutputFilename output.root
 PerfStats No
 
 Systematics Nominal
-JetUncertainties_NPModel GlobalReduction
+JetUncertainties_NPModel CategoryReduction
 JetUncertainties_BunchSpacing 25ns
 LargeRJESUncertaintyConfig Split23,Tau32WTA
 
@@ -79,7 +74,7 @@ DoLoose Data
 UseAodMetaData False
 IsAFII False
 
-BTaggingWP FixedCutBEff_77
+BTaggingWP MV2c10:FixedCutBEff_77 DL1:HybBEff_60
 
 # Example of how to remove systematics from b-tag EV
 #BTaggingSystExcludedFromEV FT_EFF_JET_BJES_Response;FT_EFF_JET_EffectiveNP_1;FT_EFF_EG_RESOLUTION_ALL
@@ -185,6 +180,18 @@ SELECTION ejets_2016
 . ejets_basic
 SAVE
 
+SELECTION ejets_wbjets_2015
+. EL_2015
+. ejets_basic
+JET_N_BTAG MV2c10:FixedCutBEff_77 >= 1
+SAVE
+
+SELECTION ejets_wbjets_2016
+. EL_2016
+. ejets_basic
+JET_N_BTAG MV2c10:FixedCutBEff_77 >= 1
+SAVE
+
 SELECTION ejets_particle
 PRIVTX
 PARTICLE_LEVEL
@@ -222,6 +229,18 @@ SAVE
 SELECTION mujets_2016
 . MU_2016
 . mujets_basic
+SAVE
+
+SELECTION mujets_wbjets_2015
+. MU_2015
+. mujets_basic
+JET_N_BTAG MV2c10:FixedCutBEff_77 >= 1
+SAVE
+
+SELECTION mujets_wbjets_2016
+. MU_2016
+. mujets_basic
+JET_N_BTAG MV2c10:FixedCutBEff_77 >= 1
 SAVE
 
 SELECTION mujets_particle

@@ -27,7 +27,7 @@ void run_shapepara(int layer, int binpca)
 {
 // * set the input parameters -----------------------------------------------------------------------------
 
-   string particle = "el_1mm"; // pion, el_1mm, el_opt, photon
+   string particle = "pion"; // pion, el_1mm, el_opt, photon
    float  energy   = 50;     // in GeV
    float  etamin   = 0.20;
    float  etamax   = 0.25;
@@ -114,7 +114,8 @@ void run_shapepara(int layer, int binpca)
       if (particle == "pion")
       {
          // * input sample
-         input.push_back("/afs/cern.ch/work/a/ahasib/FastCaloSim/old/StandAlone/ISF_FastCaloSimParametrization_WorkingBranch/ISF_HitAnalysis6_evgen_calo__211_E50000_50000_eta20_25_Evts0-5500_vz_0_origin_calo.merged.pool.root");
+         // input.push_back("/afs/cern.ch/work/a/ahasib/FastCaloSim/old/StandAlone/ISF_FastCaloSimParametrization_WorkingBranch/ISF_HitAnalysis6_evgen_calo__211_E50000_50000_eta20_25_Evts0-5500_vz_0_origin_calo.merged.pool.root");
+         input.push_back("/afs/cern.ch/user/a/ahasib/public/NewInputSamples/pion_50GeV_eta_020_025.root");
 
          // * PCA file
          pca.push_back("/afs/cern.ch/user/a/ahasib/WorkDir/FastCaloSim/ISF_FastCaloSim/PCAs/pion/firstPCA.root");
@@ -242,7 +243,7 @@ void run_shapepara(int layer, int binpca)
       std::ifstream hitsfile(HitsFile);
       std::ifstream hitsalphadrfile(HitsAlphaDrFile);
 
-      bool force = false;
+      bool force = true;
 
       if (!hitsfile or force)
       {

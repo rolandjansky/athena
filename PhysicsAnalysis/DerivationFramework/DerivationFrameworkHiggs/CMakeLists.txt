@@ -29,7 +29,8 @@ atlas_depends_on_subdirs(
    Generators/TruthRivetTools
    Generators/TruthUtils
    Tools/PathResolver
-   PhysicsAnalysis/ElectronPhotonID/PhotonVertexSelection )
+   PhysicsAnalysis/ElectronPhotonID/PhotonVertexSelection
+   PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces )
 
 # External dependencies:
 find_package( CLHEP )
@@ -43,7 +44,7 @@ atlas_add_component( DerivationFrameworkHiggs
    xAODEgamma xAODJet xAODMuon xAODTracking TrkVKalVrtFitterLib
    TrkVertexFitterInterfaces TrigDecisionToolLib xAODEventInfo
    GaudiKernel VxVertex xAODTrigger PhotonVertexSelection AthContainers
-   TruthConvertersLib TruthRivetToolsLib TruthUtils PathResolver )
+   TruthConvertersLib TruthRivetToolsLib TruthUtils PathResolver EgammaAnalysisInterfacesLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

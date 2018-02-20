@@ -65,15 +65,13 @@ namespace EL
 	       &val_sample->meta), output),
       m_job (val_job), m_sample (val_sample), m_segment (val_segment)
   {
+    setJobConfig (JobConfig (val_job->job.jobConfig()));
+
     for (Job::outputIter out = m_job->job.outputBegin(),
 	   end = m_job->job.outputEnd(); out != end; ++ out)
     {
       addOutputWriter (out->label(), out->output()->makeWriter ("", m_segment->name, -1, ".root"));
     }
-
-    for (std::vector<Algorithm*>::const_iterator alg = m_job->job.algsBegin(),
-	   end = m_job->job.algsEnd(); alg != end; ++ alg)
-      addAlg (dynamic_cast<EL::Algorithm*>((*alg)->Clone()));
 
     RCU_NEW_INVARIANT (this);
   }
@@ -146,7 +144,7 @@ namespace EL
       std::ostringstream job_name;
       job_name << job_id;
       Driver::saveOutput (job->location + "/fetch", segment->name, output);
-      std::ofstream completed ((job->location + "/fetch/completed-" + job_name.str()).c_str());
+      std::ofstream completed ((job->location + "/status/completed-" + job_name.str()).c_str());
     } catch (std::exception& e)
     {
       std::cout << "exception caught: " << e.what() << std::endl;

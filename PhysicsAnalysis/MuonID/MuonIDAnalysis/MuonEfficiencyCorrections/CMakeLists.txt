@@ -22,7 +22,6 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODEventInfo
    Event/xAOD/xAODMuon
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
-   PhysicsAnalysis/AnalysisCommon/PileupReweighting
    PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
    PhysicsAnalysis/Interfaces/MuonAnalysisInterfaces
    PRIVATE
@@ -32,16 +31,15 @@ atlas_depends_on_subdirs(
    ${extra_dep} )
 
 # External dependencies:
-find_package( Boost )
 find_package( ROOT COMPONENTS Core Tree RIO Hist Physics )
+
 
 # Libraries in the package:
 atlas_add_library( MuonEfficiencyCorrectionsLib
    MuonEfficiencyCorrections/*.h Root/*.cxx
    PUBLIC_HEADERS MuonEfficiencyCorrections
-   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AsgTools xAODEventInfo MuonAnalysisInterfacesLib
-   xAODMuon PATInterfaces
+   INCLUDE_DIRS  ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES  ${ROOT_LIBRARIES} AsgTools xAODMuon xAODEventInfo MuonAnalysisInterfacesLib PATInterfaces
    PRIVATE_LINK_LIBRARIES xAODTrigger PathResolver )
 
 if( NOT XAOD_STANDALONE )
@@ -67,8 +65,8 @@ macro( _add_exec name )
 endmacro( _add_exec )
 
 if( XAOD_STANDALONE )
-   _add_exec( MuonEfficiencyCorrectionsRootCoreTest )
-   _add_exec( MuonEfficiencyCorrectionsSFFilesTest )
+   _add_exec( MuonEfficiencyScaleFactorsTest )
+   _add_exec( MuonEfficiencyScaleFactorsSFFileTester )
    _add_exec( MuonTriggerSFRootCoreTest )
    _add_exec( MuonTriggerSFFilesTest )
    _add_exec( MuonTriggerSFConfGenerator )

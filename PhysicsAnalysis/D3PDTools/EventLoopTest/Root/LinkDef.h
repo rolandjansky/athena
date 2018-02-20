@@ -14,6 +14,7 @@
 #pragma link off all functions;
 #pragma link C++ nestedclass;
 
+#pragma link C++ class EL::UnitTestTool+;
 #pragma link C++ class EL::UnitTestAlg+;
 #pragma link C++ class EL::UnitTestAlg1+;
 #pragma link C++ class EL::UnitTestAlg2+;

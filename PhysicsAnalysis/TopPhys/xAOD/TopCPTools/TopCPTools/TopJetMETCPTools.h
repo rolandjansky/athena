@@ -60,6 +60,9 @@ class JetMETCPTools final : public asg::AsgTool {
   std::string m_jetAntiKt4_PFlow_MCFS_ConfigFile;
   std::string m_jetAntiKt4_PFlow_MCFS_CalibSequence;
 
+  std::string m_jetAntiKt4_Data_PFlow_ConfigFile;
+  std::string m_jetAntiKt4_Data_PFlow_CalibSequence;
+
   ToolHandle<IJetCalibrationTool> m_jetCalibrationTool;
   ToolHandle<IJetCalibrationTool> m_jetCalibrationToolLargeR;
 
@@ -104,10 +107,11 @@ class JetMETCPTools final : public asg::AsgTool {
                               const std::string& mc_type,
                               const std::string& config_file,
                               std::vector<std::string>* variables,
-                              const std::string& analysis_file = "");
+                              const std::string& analysis_file = "",
+                              const std::string& calib_area = "None");
 
   IJetSelector* setupJetCleaningTool(const std::string& WP);
-  ECUtils::IEventCleaningTool* setupJetEventCleaningTool(const std::string& WP);
+  ECUtils::IEventCleaningTool* setupJetEventCleaningTool(const std::string& WP, ToolHandle<IJetSelector> JetCleaningToolHandle);
 
 };
 }  // namespace top

@@ -302,14 +302,19 @@ def shQuoteStrings(strArray = sys.argv):
 ## @brief Generator to return lines and line count from a file
 #  @param filename: Filename to open and deliver lines from
 #  @param strip: If lines get stripped before being returned (default @c True)
+#  @param removeTimestamp: Removes timestamp from left.(default @c True) Since strings are removed only from left,
+#                          this option requires explicit removal of substepName.
+#  @param substepName: Removes substepName from left, if it's value is provided. (default @c None)
 #  @note This is useful so that multiple parts of code can co-operatively take lines from the file
-def lineByLine(filename, strip = True, removeTimestamp = True):
+def lineByLine(filename, strip=True, removeTimestamp=True, substepName=None):
     linecounter = 0
     f = open(filename, 'r')
     for line in f:
         linecounter += 1
+        if substepName and isinstance(substepName, str):    # Remove substepName only if caller provides that string.
+            line = line.lstrip(substepName)
         if removeTimestamp:
-            line = line.lstrip('0123456789:-, ') # Remove timestamps in both serial and MP mode.
+            line = line.lstrip('0123456789:-, ')            # Remove timestamps in both serial and MP mode.
         if strip:
             line = line.strip()
         yield line, linecounter

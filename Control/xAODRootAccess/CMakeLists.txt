@@ -56,6 +56,9 @@ atlas_add_dictionary( xAODRootAccessDict
 # Install the Python modules of the package:
 atlas_install_python_modules( python/*.py )
 
+# Install the checkxAOD.py script
+atlas_install_scripts( scripts/checkxAOD.py )
+
 # Build the executables of the package:
 foreach( exec xAODChecker xAODMerge xAODFileReadTest )
    atlas_add_executable( ${exec} util/${exec}.cxx
@@ -74,7 +77,9 @@ macro( _add_test name )
 endmacro( _add_test )
 
 # Build/run unit tests for the package:
-_add_test( ut_xaodrootaccess_metadata_test )
+if( NOT SIMULATIONBASE )
+   _add_test( ut_xaodrootaccess_metadata_test )
+endif()
 _add_test( ut_xaodrootaccess_remap_test )
 _add_test( ut_xaodrootaccess_slimming_test )
 _add_test( ut_xaodrootaccess_stats_test )

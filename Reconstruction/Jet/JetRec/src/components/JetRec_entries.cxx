@@ -12,6 +12,9 @@
 #include "JetRec/JetSplitter.h"
 #include "JetRec/JetTrimmer.h"
 #include "JetRec/JetPruner.h"
+#include "JetRec/JetSoftDrop.h"
+#include "JetRec/JetBottomUpSoftDrop.h"
+#include "JetRec/JetRecursiveSoftDrop.h"
 #include "JetRec/JetReclusterer.h"
 #include "JetRec/FastJetInterfaceTool.h"
 #include "GaudiKernel/DeclareFactoryEntries.h"
@@ -22,6 +25,7 @@
 #include "JetRec/JetPseudojetCopier.h"
 #include "JetRec/JetFilterTool.h"
 #include "JetRec/JetConstitRemover.h"
+#include "JetRec/JetSJCalibrationGroomer.h"
 
 DECLARE_TOOL_FACTORY(JetToolRunner)
 DECLARE_TOOL_FACTORY(JetRecTool)
@@ -36,12 +40,16 @@ DECLARE_TOOL_FACTORY(JetFilterTool)
 DECLARE_TOOL_FACTORY(JetSplitter)
 DECLARE_TOOL_FACTORY(JetTrimmer)
 DECLARE_TOOL_FACTORY(JetPruner)
+DECLARE_TOOL_FACTORY(JetSoftDrop)
+DECLARE_TOOL_FACTORY(JetBottomUpSoftDrop)
+DECLARE_TOOL_FACTORY(JetRecursiveSoftDrop)
 DECLARE_TOOL_FACTORY(JetReclusterer)
 DECLARE_TOOL_FACTORY(FastJetInterfaceTool)
 DECLARE_TOOL_FACTORY(JetPseudojetRetriever)
 DECLARE_TOOL_FACTORY(JetConstituentsRetriever)
 DECLARE_TOOL_FACTORY(JetPseudojetCopier)
 DECLARE_TOOL_FACTORY(JetConstitRemover)
+DECLARE_TOOL_FACTORY(JetSJCalibrationGroomer)
 
 DECLARE_ALGORITHM_FACTORY(JetAlgorithm)
 
@@ -59,12 +67,16 @@ DECLARE_FACTORY_ENTRIES(JetRec) {
   DECLARE_TOOL(JetSplitter)
   DECLARE_TOOL(JetTrimmer)
   DECLARE_TOOL(JetPruner)
+  DECLARE_TOOL(JetSoftDrop)
+  DECLARE_TOOL(JetBottomUpSoftDrop)
+  DECLARE_TOOL(JetRecursiveSoftDrop)
   DECLARE_TOOL(JetReclusterer)
   DECLARE_TOOL(FastJetInterfaceTool)
   DECLARE_TOOL(JetPseudojetRetriever)
   DECLARE_TOOL(JetConstituentsRetriever)
   DECLARE_TOOL(JetPseudojetCopier)
   DECLARE_TOOL(JetConstitRemover)
+  DECLARE_TOOL(JetSJCalibrationGroomer)
 
   DECLARE_ALGORITHM(JetAlgorithm)
 }

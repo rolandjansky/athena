@@ -102,7 +102,7 @@ StatusCode SUSYObjDef_xAOD::FillTau(xAOD::TauJet& input) {
   
 
   // If the MVA calibration is being used, be sure to apply the calibration to data as well
-  if (fabs(input.eta()) <= 2.5 && input.nTracks() > 0 && (!isData() || m_tauMVACalib)) {
+  if (fabs(input.eta()) <= 2.5 && input.nTracks() > 0) {
 
     if(m_tauDoTTM) m_tauTruthMatch->getTruth(input);  // do truth matching first if required (e.g. for running on primary xAOD)
                                                                         
@@ -254,6 +254,12 @@ double SUSYObjDef_xAOD::GetTauTriggerEfficiencySF(const xAOD::TauJet& tau, const
     trigIdx = std::distance(tau_trig_support.begin(), itpos);
   }
 
+  // Tau Trig SFs doc says: IMPORTANT: Use the tool only for taus matched to the trigger!
+  // https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauEfficiencyCorrectionsTool_Trigger.rst
+  if (!IsTrigMatched({&tau},trigExpr)){
+    ATH_MSG_VERBOSE("Tau did not match trigger " << trigExpr);
+    return eff;
+  }
 
   CP::CorrectionCode ret = CP::CorrectionCode::Ok;
   switch(trigIdx){

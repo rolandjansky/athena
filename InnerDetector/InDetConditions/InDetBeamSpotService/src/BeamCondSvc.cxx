@@ -18,31 +18,31 @@
 BeamCondSvc::BeamCondSvc(const std::string& name, ISvcLocator* svc) :
   AthService(name,svc),
   p_detstore("DetectorStore",name),
-  par_usedb(true),
-  par_status(1),
-  par_posx(0.),
-  par_posy(0.),
-  par_posz(0.),
-  par_sigx(0.015),
-  par_sigy(0.015),
-  par_sigz(53.),
-  par_sigxy(0.),
-  par_tiltx(0.),
-  par_tilty(0.),
+  m_par_usedb(true),
+  m_par_status(1),
+  m_par_posx(0.),
+  m_par_posy(0.),
+  m_par_posz(0.),
+  m_par_sigx(0.015),
+  m_par_sigy(0.015),
+  m_par_sigz(53.),
+  m_par_sigxy(0.),
+  m_par_tiltx(0.),
+  m_par_tilty(0.),
   m_status(0)
 {
   // declare properties
-  declareProperty("useDB",par_usedb);
-  declareProperty("status",par_status);
-  declareProperty("posX",par_posx);
-  declareProperty("posY",par_posy);
-  declareProperty("posZ",par_posz);
-  declareProperty("sigmaX",par_sigx);
-  declareProperty("sigmaY",par_sigy);
-  declareProperty("sigmaZ",par_sigz);
-  declareProperty("sigmaXY",par_sigxy);
-  declareProperty("tiltX",par_tiltx);
-  declareProperty("tiltY",par_tilty);
+  declareProperty("useDB",m_par_usedb);
+  declareProperty("status",m_par_status);
+  declareProperty("posX",m_par_posx);
+  declareProperty("posY",m_par_posy);
+  declareProperty("posZ",m_par_posz);
+  declareProperty("sigmaX",m_par_sigx);
+  declareProperty("sigmaY",m_par_sigy);
+  declareProperty("sigmaZ",m_par_sigz);
+  declareProperty("sigmaXY",m_par_sigxy);
+  declareProperty("tiltX",m_par_tiltx);
+  declareProperty("tiltY",m_par_tilty);
 }
 
 BeamCondSvc::~BeamCondSvc() {}
@@ -66,33 +66,33 @@ StatusCode BeamCondSvc::initialize()
 {
   // service initialisation - get parameters, setup default cache
   // and register for condDB callbacks if needed
-  msg(MSG::INFO) << "in initialize()" << endreq;
+  msg(MSG::INFO) << "in initialize()" << endmsg;
 
   // get detector store
   if (p_detstore.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Detector store not found" << endreq; 
+    msg(MSG::FATAL) << "Detector store not found" << endmsg; 
     return StatusCode::FAILURE;
   }
   // always init cache to joboption values in case CondDB read fails
-  initCache(par_status,par_posx,par_posy,par_posz,par_sigx,par_sigy,par_sigz,
-	      par_sigxy,par_tiltx,par_tilty);
-  if (par_usedb) {
+  initCache(m_par_status,m_par_posx,m_par_posy,m_par_posz,m_par_sigx,m_par_sigy,m_par_sigz,
+	      m_par_sigxy,m_par_tiltx,m_par_tilty);
+  if (m_par_usedb) {
     // register callback function for cache updates
     const DataHandle<AthenaAttributeList> aptr;
     if (StatusCode::SUCCESS==p_detstore->regFcn(&BeamCondSvc::update,this,
 						aptr, INDET_BEAMPOS )) {
-      msg(MSG::DEBUG) << "Registered callback for beam position" << endreq;
+      msg(MSG::DEBUG) << "Registered callback for beam position" << endmsg;
     } else {
-      msg(MSG::ERROR) << "Callback registration failed" << endreq;
+      msg(MSG::ERROR) << "Callback registration failed" << endmsg;
     }
   } else {
     msg(MSG::INFO) << 
      "Default beamspot parameters will be used (from jobopt) " << 
-      endreq << "Beamspot status " << par_status << 
-      endreq << "Beamspot position  (" << par_posx << "," << par_posy << "," <<
-      par_posz << ")" << endreq << "RMS size (" << par_sigx << "," << par_sigy
-	<< "," << par_sigz << ")" << endreq << "Tilt xz yz/radian (" << 
-      par_tiltx << "," << par_tilty << ")" << endreq;
+      endmsg << "Beamspot status " << m_par_status << 
+      endmsg << "Beamspot position  (" << m_par_posx << "," << m_par_posy << "," <<
+      m_par_posz << ")" << endmsg << "RMS size (" << m_par_sigx << "," << m_par_sigy
+	<< "," << m_par_sigz << ")" << endmsg << "Tilt xz yz/radian (" << 
+      m_par_tiltx << "," << m_par_tilty << ")" << endmsg;
   }
   return StatusCode::SUCCESS;
 }
@@ -152,24 +152,24 @@ bool BeamCondSvc::fillRec() const {
   aspec->extend("tiltY","float");
   aspec->extend("sigmaXY","float");
   if (!aspec->size()) msg(MSG::ERROR) << 
-			"Attribute list specification is empty!" << endreq;
+			"Attribute list specification is empty!" << endmsg;
   AthenaAttributeList* alist=new AthenaAttributeList(*aspec);
   // set status to 1 for now - for future use
-  (*alist)["status"].setValue(par_status);
-  (*alist)["posX"].setValue(par_posx);
-  (*alist)["posY"].setValue(par_posy);
-  (*alist)["posZ"].setValue(par_posz);
-  (*alist)["sigmaX"].setValue(par_sigx);
-  (*alist)["sigmaY"].setValue(par_sigy);
-  (*alist)["sigmaZ"].setValue(par_sigz);
-  (*alist)["tiltX"].setValue(par_tiltx);
-  (*alist)["tiltY"].setValue(par_tilty);
-  (*alist)["sigmaXY"].setValue(par_sigxy);
+  (*alist)["status"].setValue(m_par_status);
+  (*alist)["posX"].setValue(m_par_posx);
+  (*alist)["posY"].setValue(m_par_posy);
+  (*alist)["posZ"].setValue(m_par_posz);
+  (*alist)["sigmaX"].setValue(m_par_sigx);
+  (*alist)["sigmaY"].setValue(m_par_sigy);
+  (*alist)["sigmaZ"].setValue(m_par_sigz);
+  (*alist)["tiltX"].setValue(m_par_tiltx);
+  (*alist)["tiltY"].setValue(m_par_tilty);
+  (*alist)["sigmaXY"].setValue(m_par_sigxy);
   // record Beampos object in TDS
   if (StatusCode::SUCCESS==p_detstore->record(alist, INDET_BEAMPOS )) {
-    if (msgLvl(MSG::INFO)) msg() << "Recorded Beampos object in TDS" << endreq;
+    if (msgLvl(MSG::INFO)) msg() << "Recorded Beampos object in TDS" << endmsg;
   } else {
-    msg(MSG::ERROR) << "Could not record Beampos object" << endreq;
+    msg(MSG::ERROR) << "Could not record Beampos object" << endmsg;
     return false;
   }
   return true;
@@ -181,7 +181,7 @@ StatusCode BeamCondSvc::update( IOVSVC_CALLBACK_ARGS_P(I,keys) ) {
     msg() << "update callback invoked for I=" << I << " keys: ";
   for (std::list<std::string>::const_iterator itr=keys.begin();
        itr!=keys.end(); ++itr) msg() << " " << *itr;
-  msg() << endreq;
+  msg() << endmsg;
   // read the Beampos object
   const AthenaAttributeList* atrlist=0;
   if (StatusCode::SUCCESS==p_detstore->retrieve(atrlist, INDET_BEAMPOS ) &&
@@ -204,7 +204,7 @@ StatusCode BeamCondSvc::update( IOVSVC_CALLBACK_ARGS_P(I,keys) ) {
     catch (coral::AttributeListException& e) {
       sigxy=0.;
       if (msgLvl(MSG::DEBUG))
-	msg() << "No sigmaXY retrieved from conditions DB, assume 0" << endreq;
+	msg() << "No sigmaXY retrieved from conditions DB, assume 0" << endmsg;
     }
     if (msgLvl(MSG::INFO))
       msg() << "Read from condDB"
@@ -213,10 +213,10 @@ StatusCode BeamCondSvc::update( IOVSVC_CALLBACK_ARGS_P(I,keys) ) {
             << " sigma (" << sigx << "," << sigy << "," << sigz << ")"
             << " tilt (" << tiltx << "," << tilty << ")"
             << " sigmaXY " << sigxy
-            << endreq;
+            << endmsg;
     initCache(status,posx,posy,posz,sigx,sigy,sigz,sigxy,tiltx,tilty);
   } else {
-    msg(MSG::ERROR) << "Problem reading condDB object" << endreq;
+    msg(MSG::ERROR) << "Problem reading condDB object" << endmsg;
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;

@@ -72,16 +72,6 @@ StatusCode PhysValPFO::fillHistograms(){
 	}//If we have a vertex of type primary vertex
       }//iterate over the vertices and check their type
 
-      if (nullptr == theVertex) {
-	ATH_MSG_VERBOSE("Could not find a primary vertex in this event " );
-	for (auto vertex : (*m_vertexContainerReadHandle.ptr())) {
-	  if (xAOD::VxType::NoVtx == theVertex->vertexType() ) {
-	    theVertex = vertex;
-	    break;
-	  }//if vertex of type NoVtx found
-	}//iterate over the vertices and check their type
-      }//if did not find PrimaryVertex
-
       if (nullptr == theVertex) ATH_MSG_WARNING("Did not find either a PriVtx or a NoVtx in this event");
       
     }//if valid read handle

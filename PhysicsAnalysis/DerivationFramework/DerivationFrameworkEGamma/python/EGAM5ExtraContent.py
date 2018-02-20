@@ -95,27 +95,31 @@ ExtraContainersElectrons=["Electrons",
 
 # for trigger studies
 ExtraContainersTrigger=[
-	# to access the HLT egamma xAOD collections
 	"HLT_xAOD__ElectronContainer_egamma_Electrons",
+	"HLT_xAOD__ElectronContainer_egamma_ElectronsAux.",
 	"HLT_xAOD__PhotonContainer_egamma_Photons",
+	"HLT_xAOD__PhotonContainer_egamma_PhotonsAux.",
 	"HLT_xAOD__TrigElectronContainer_L2ElectronFex",
+	"HLT_xAOD__TrigElectronContainer_L2ElectronFexAux.",
 	"HLT_xAOD__TrigPhotonContainer_L2PhotonFex",
-	# to access information about EF clusters and tracks
+	"HLT_xAOD__TrigPhotonContainer_L2PhotonFexAux.",
 	"HLT_xAOD__CaloClusterContainer_TrigEFCaloCalibFex",
+	"HLT_xAOD__CaloClusterContainer_TrigEFCaloCalibFexAux.",
 	"HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Electron_EFID",
-	# for L1 studies
+	"HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Electron_EFIDAux.",
 	"LVL1EmTauRoIs",
+	"LVL1EmTauRoIsAux.",
 	"HLT_TrigPassBitsCollection_passbits",
+	"HLT_TrigPassBitsCollection_passbitsAux.",
 	"HLT_TrigPassFlagsCollection_passflags",
-	"HLT_TrigRoiDescriptorCollection_initialRoI"
+	"HLT_TrigPassFlagsCollection_passflagsAux.",
+	"HLT_TrigRoiDescriptorCollection_initialRoI",
+	"HLT_TrigRoiDescriptorCollection_initialRoIAux."
 	]
 
 ExtraContainersTriggerDataOnly=[
 	"HLT_xAOD__TrigEMClusterContainer_TrigT2CaloEgamma",
-	"HLT_xAOD__CaloClusterContainer_TrigCaloClusterMaker",
-	"HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Electron_FTF",
-	"HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Electron_L2ID",
-	"HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Electron_IDTrig"
+	"HLT_xAOD__TrigEMClusterContainer_TrigT2CaloEgammaAux."
 	]
 
 #should probably slim electron/fwdelectrons/cluster collections and keep only relevant subset of variables..

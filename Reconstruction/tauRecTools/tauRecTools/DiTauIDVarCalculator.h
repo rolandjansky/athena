@@ -17,6 +17,7 @@
 
 // Framework include(s):
 #include "AsgTools/AsgTool.h"
+#include "AsgTools/AnaToolHandle.h"
 
 // Core include(s):
 // #include "TruthUtils/PIDHelpers.h"
@@ -26,22 +27,33 @@
 // EDM include(s):
 #include "xAODTau/TauxAODHelpers.h"
 #include "xAODTau/DiTauJetContainer.h"
+#include "xAODEgamma/ElectronContainer.h"
+
+#include "tauRecTools/TauEventData.h"
+
+// Selection Tools include:
+
 
 // Local include(s):
-#include "tauRecTools/IDiTauIDVarCalculator.h"
+#include "tauRecTools/IDiTauToolBase.h"
+#include "tauRecTools/ITauToolBase.h"
 
+namespace CP{
+  class IIsolationSelectionTool;
+  class IMuonSelectionTool;
+  class IMuonCalibrationAndSmearingTool;
+}
+class AsgElectronLikelihoodTool;
 
-namespace tauRecTools
-{
-
+namespace tauRecTools{
 
 class DiTauIDVarCalculator
-  : public tauRecTools::IDiTauIDVarCalculator
+  : public tauRecTools::IDiTauToolBase
   , public asg::AsgTool
 {
   /// Create a proper constructor for Athena
   ASG_TOOL_CLASS( DiTauIDVarCalculator,
-                  tauRecTools::IDiTauIDVarCalculator )
+                  tauRecTools::IDiTauToolBase )
 
 public:
 
@@ -50,15 +62,24 @@ public:
   virtual ~DiTauIDVarCalculator();
 
   // initialize the tool
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
-  // set pointer to event
-  virtual StatusCode initializeEvent();
-
-  // calculate ID variables
+  // calculate ID variables depricated
   virtual StatusCode calculateIDVariables(const xAOD::DiTauJet& xDiTau);
 
+  // calculate ID variables
+  virtual StatusCode execute(const xAOD::DiTauJet& xDiTau) override;
+
+  // get decay mode
+  virtual std::string getDecayMode() override;
+  
 private:
+  virtual StatusCode calculateHadHadIDVariables(const xAOD::DiTauJet& xDiTau);
+  virtual StatusCode calculateHadElIDVariables (const xAOD::DiTauJet& xDiTau);
+  virtual StatusCode calculateHadMuIDVariables (const xAOD::DiTauJet& xDiTau);
+  
+  float getElectronInfo(const xAOD::Electron* el, const xAOD::EgammaParameters::ShowerShapeType information);
+
   double n_subjets(const xAOD::DiTauJet& xDiTau) const;
   double ditau_pt(const xAOD::DiTauJet& xDiTau) const;
   double f_core(const xAOD::DiTauJet& xDiTau, int iSubjet) const;
@@ -76,11 +97,11 @@ private:
   double R_isotrack(const xAOD::DiTauJet& xDiTau) const;
   double R_core(const xAOD::DiTauJet& xDiTau, int iSubjet) const;
   double R_tracks(const xAOD::DiTauJet& xDiTau, int iSubjet) const;
-  double m_track(const xAOD::DiTauJet& xDiTau) const;
-  double m_track_core(const xAOD::DiTauJet& xDiTau) const;
-  double m_core(const xAOD::DiTauJet& xDiTau, int iSubjet) const;
-  double m_track_all(const xAOD::DiTauJet& xDiTau) const;
-  double m_tracks(const xAOD::DiTauJet& xDiTau, int iSubjet) const;
+  double mass_track(const xAOD::DiTauJet& xDiTau) const;
+  double mass_track_core(const xAOD::DiTauJet& xDiTau) const;
+  double mass_core(const xAOD::DiTauJet& xDiTau, int iSubjet) const;
+  double mass_track_all(const xAOD::DiTauJet& xDiTau) const;
+  double mass_tracks(const xAOD::DiTauJet& xDiTau, int iSubjet) const;
   double E_frac(const xAOD::DiTauJet& xDiTau, int iSubjet) const;
   double R_subjets(const xAOD::DiTauJet& xDiTau, int iSubjet) const;
   double d0_leadtrack(const xAOD::DiTauJet& xDiTau, int iSubjet) const;
@@ -97,13 +118,35 @@ private:
   std::string m_sDiTauContainerName;
   std::string m_DiTauContainerNameAux;
   bool m_bCalcCluserVariables;
+  bool m_bMuonTrackRemoval;
   std::string m_sTruthTauContainerName;
-
+  std::string m_sDecayChannel;
+  enum DecayChannel{ HadHad, HadEl, HadMu, Default };
+  DecayChannel m_eDecayChannel;
   double m_dDefault;
 
-  StatusCode decorNtracks (const xAOD::DiTauJet& xDiTau);
+  asg::AnaToolHandle<CP::IMuonSelectionTool> m_muSelTool_loose;    
+  asg::AnaToolHandle<CP::IMuonSelectionTool> m_muSelTool_medium;   
+  asg::AnaToolHandle<CP::IMuonSelectionTool> m_muSelTool_tight;    
+  asg::AnaToolHandle<CP::IMuonSelectionTool> m_muSelTool_veryloose;
+  asg::AnaToolHandle<CP::IMuonSelectionTool> m_muSelTool_highpt;   
 
+  asg::AnaToolHandle<CP::IMuonCalibrationAndSmearingTool> m_muonCalibrationTool;
+  asg::AnaToolHandle<CP::IIsolationSelectionTool> m_isoSelTool;
+  asg::AnaToolHandle<AsgElectronLikelihoodTool> m_electronLikeliHoodTool_medium;
+  asg::AnaToolHandle<AsgElectronLikelihoodTool> m_electronLikeliHoodTool_loose;
+  asg::AnaToolHandle<AsgElectronLikelihoodTool> m_electronLikeliHoodTool_loose_CutBL;
+  asg::AnaToolHandle<AsgElectronLikelihoodTool> m_electronLikeliHoodTool_tight;
+  asg::AnaToolHandle<AsgElectronLikelihoodTool> m_electronLikeliHoodTool_veryloose;
+
+  asg::AnaToolHandle<ITauToolBase> m_muonTrackRemoval;
+  asg::AnaToolHandle<ITauToolBase> m_tauSubstructureVariables;
+  asg::AnaToolHandle<ITauToolBase> m_tauCommonCalcVars;
+  
+  StatusCode decorNtracks (const xAOD::DiTauJet& xDiTau);
+  TauEventData m_data;
 }; // class DiTauIDVarCalculator
 
 }
+
 #endif // TAURECTOOLS_DITAUIDVARCALCULATOR_H

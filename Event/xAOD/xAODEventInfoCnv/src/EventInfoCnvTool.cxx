@@ -153,6 +153,12 @@ namespace xAODMaker {
          // Only add MC information for simulation files:
          if( xaod->eventType( xAOD::EventInfo::IS_SIMULATION ) ) {
             xaod->setMCChannelNumber( aod->event_type()->mc_channel_number() );
+            // Special case: sometimes in MC we have not yet copied the run number
+            //  into the channel number.  The channel number comes out 0, even
+            //  when it should be set.  To protect, if we get zero use the run #.
+            if (aod->event_type()->mc_channel_number()==0){
+               xaod->setMCChannelNumber( aod->event_ID()->run_number() );
+            }
             xaod->setMCEventNumber( aod->event_type()->mc_event_number() );
             std::vector< float >
                eventWeights( aod->event_type()->n_mc_event_weights(), 0.0 );

@@ -7,6 +7,7 @@
 // METMaker.cxx
 // Implementation file for class METMaker
 // Author: T.J.Khoo<khoo@cern.ch>
+// Author: D.S.Schaefer<schae@cern.ch>
 ///////////////////////////////////////////////////////////////////
 
 // METUtilities includes
@@ -137,10 +138,10 @@ namespace met {
     
     //default jet selection i.e. pre-recommendation
     ATH_MSG_VERBOSE("Use jet selection criterion: " << m_jetSelection);
-    if (m_jetSelection == "Loose")     { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 20e3; if(m_doPFlow){ m_JvtCut = 0.2; } else {m_JvtCut = 0.59;} m_JvtPtMax = 60e3;}
-    else if (m_jetSelection == "PFlow")  { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 20e3; m_JvtCut = 0.2; m_JvtPtMax = 60e3;}
-    else if (m_jetSelection == "Tight")  { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 30e3; if(m_doPFlow){ m_JvtCut = 0.2; } else {m_JvtCut = 0.59;} m_JvtPtMax = 60e3;}
-    else if (m_jetSelection == "Tier0")  { m_CenJetPtCut = 0;    m_FwdJetPtCut = 0;    m_JvtCut = -1;   m_JvtPtMax = 0;}
+    if (m_jetSelection == "Loose")     { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 20e3; if(m_doPFlow){ m_JvtCut = 0.2; } else {m_JvtCut = 0.59;} m_JvtPtMax = 60e3; }
+    else if (m_jetSelection == "PFlow")  { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 20e3; m_JvtCut = 0.2; m_JvtPtMax = 60e3; }
+    else if (m_jetSelection == "Tight")  { m_CenJetPtCut = 20e3; m_FwdJetPtCut = 30e3; if(m_doPFlow){ m_JvtCut = 0.2; } else {m_JvtCut = 0.59;} m_JvtPtMax = 60e3; }
+    else if (m_jetSelection == "Tier0")  { m_CenJetPtCut = 0;    m_FwdJetPtCut = 0;    m_JvtCut = -1;   m_JvtPtMax = 0; }
     else if (m_jetSelection == "Expert")  { 
       ATH_MSG_INFO("Custom jet selection configured. *** FOR EXPERT USE ONLY ***");
       m_CenJetPtCut = m_customCenJetPtCut;
@@ -293,8 +294,17 @@ namespace met {
         if(!originalInputs) { orig = *acc_originalObject(*obj); }
 	std::vector<const xAOD::MissingETAssociation*> assocs = xAOD::MissingETComposition::getAssociations(map,orig);
 	if(assocs.empty()) {
-	  ATH_MSG_WARNING("Object is not in association map. Did you make a deep copy but fail to set the \"originalObjectLinks\" decoration?");
+	    ATH_MSG_WARNING("Object is not in association map. Did you make a deep copy but fail to set the \"originalObjectLinks\" decoration?");
 	  ATH_MSG_WARNING("If not, Please apply xAOD::setOriginalObjectLinks() from xAODBase/IParticleHelpers.h");
+	  // if this is an uncalibrated electron below the threshold, then we put it into the soft term
+	  if(orig->type()==xAOD::Type::Electron){
+	    uniqueLinks.emplace_back( iplink_t(*static_cast<const IParticleContainer*>(obj->container()),obj->index()) );
+	    uniqueWeights.emplace_back( 0. );
+	    ATH_MSG_WARNING("Missing an electron from the MET map. Included as a track in the soft term. pT: " << obj->pt());
+	    continue;
+	  }else{
+	    ATH_MSG_ERROR("Missing an object: " << orig->type() << " pT: " << obj->pt() << " may be duplicated in the soft term.");
+	  }
 	}
 
 	// If the object has already been selected and processed, ignore it.
@@ -381,6 +391,8 @@ namespace met {
 	return StatusCode::FAILURE;
       }
     }
+    ATH_MSG_VERBOSE( "metSoftClus: " << metSoftClus << " metSoftTrk: " << metSoftTrk 
+		     << " coreSoftClus: " << coreSoftClus << " coreSoftTrk: " << coreSoftTrk);
 
     return rebuildJetMET(metJet, jets, map,
                          metSoftClus, coreSoftClus,
@@ -419,6 +431,8 @@ namespace met {
       ATH_MSG_ERROR("failed to fill MET term \"" << softKey << "\"");
       return StatusCode::FAILURE;
     }
+    ATH_MSG_VERBOSE( " rebuildTrackMET - metSoftTrk: " << metSoftTrk 
+		     << " coreSoftTrk: " << coreSoftTrk);
 
     return rebuildTrackMET(metJet, jets, map,
 			   metSoftTrk,  coreSoftTrk,
@@ -464,6 +478,9 @@ namespace met {
       ATH_MSG_ERROR("failed to fill MET term \"" << softTrkKey << "\"");
       return StatusCode::FAILURE;
     }
+
+    ATH_MSG_VERBOSE( ":::rebuildJetMET - metSoftClus: " << metSoftClus << " metSoftTrk: " << metSoftTrk 
+		     << " coreSoftClus: " << coreSoftClus << " coreSoftTrk: " << coreSoftTrk);
 
     return rebuildJetMET(metJet, jets, map,
                          metSoftClus, coreSoftClus,
@@ -982,19 +999,20 @@ namespace met {
 	ATH_MSG_VERBOSE("Mu total eloss " << total_eloss);
 
 	MissingETBase::Types::constvec_t mu_calovec;
-	// borrowed from overlapCalVec
+	// borrowed from overlapCalVec	
 	for(size_t iKey = 0; iKey < assoc->sizeCal(); iKey++) {
 	  bool selector = (muons_selflags & assoc->calkey()[iKey]);
 	  ATH_MSG_VERBOSE("This key: " << assoc->calkey()[iKey] << ", selector: " << selector
 			  << " this calvec E: " << assoc->calVec(iKey).ce());
 	  if(selector) mu_calovec += assoc->calVec(iKey);
 	}
-	if(m_muEloss) mu_calovec *= std::max(0.,1-(total_eloss/mu_calovec.ce()));
-	opx += mu_calovec.cpx();
-	opy += mu_calovec.cpy();
-	osumpt += mu_calovec.sumpt();
+	if(m_muEloss){
+	  mu_calovec *= std::max(0.,1-(total_eloss/mu_calovec.ce()));
+	  opx += mu_calovec.cpx();
+	  opy += mu_calovec.cpy();
+	  osumpt += mu_calovec.sumpt();
+	}
 	ATH_MSG_VERBOSE("Mu cluster sumpt " << mu_calovec.sumpt());
-
 
 	ATH_MSG_VERBOSE( "Misc cluster px, py, sumpt = " << opx << ", " << opy << ", " << osumpt );
 	metSoftClus->add(opx,opy,osumpt);
@@ -1052,6 +1070,10 @@ namespace met {
       if(softTermsSource && MissingETBase::Source::isSoftTerm(met->source())) {
 	if(!MissingETBase::Source::hasPattern(met->source(),softTermsSource)) continue;
       }
+      // skip the duplicate terms
+      if( met->name().find("_Duplicate")!=std::string::npos){
+	continue;
+      }
       ATH_MSG_VERBOSE("Add MET term " << met->name() );
       *metFinal += *met;
     }
@@ -1076,15 +1098,17 @@ namespace met {
     }
     metCont->reserve(10);
 
+    // add the new container as a "duplicate". This should be for the soft term to make sure the jet term is reconstructed correctly
+    std::string duplicate = "";
     if(metCont->find(metKey)!=metCont->end()){
       ATH_MSG_VERBOSE("avoiding adding a duplicate term");
-      return StatusCode::SUCCESS;
+      duplicate = "_Duplicate";
     }
 
     met = new xAOD::MissingET();
     metCont->push_back(met);
 
-    met->setName  (metKey);
+    met->setName  (metKey+duplicate);
     met->setSource(metSource);
 
     return StatusCode::SUCCESS;

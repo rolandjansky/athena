@@ -235,12 +235,7 @@ namespace EL {
 
   {//Save the Algorithms and sample MetaObjects to be sent with the jobs 
     TFile f(jobDefFile.c_str(), "RECREATE"); 
-    TList algs; 
-    for (EL::Job::algsIter alg = job.algsBegin(),
-	   end = job.algsEnd(); alg != end; ++ alg) {
-      algs.Add((*alg)->Clone());
-    }      
-    f.WriteTObject(&algs, "algorithms", "SingleKey");      
+    f.WriteTObject(&job.jobConfig(), "jobConfig", "SingleKey");      
 
     for (EL::Job::outputIter out = job.outputBegin(),
 	   end = job.outputEnd(); out != end; ++out) {
@@ -341,7 +336,7 @@ namespace EL {
     gangaCmd << gangaTrfCmd(trfDef, *this);
     gangaCmd << endl;
 
-    outDSs.push_back(std::string(outDS));	
+    outDSs.push_back(std::string(outDS.Data()));	
   }
 
   string taskName = location;
@@ -578,7 +573,7 @@ bool EL::GridDriver::doRetrieve(const std::string& location) const {
 	jobDownloadDir + "/" + (*sample)->name() + "/" + unitName;	
       const string findCmd 
 	= "find " + unitDir + " -name \"*.hist-output.root*\" |  tr '\n' ' '";
-      filesToMerge += gSystem->GetFromPipe(findCmd.c_str());		
+      filesToMerge += gSystem->GetFromPipe(findCmd.c_str()).Data();		
     }
     if (transformCompleted) nTotalTransformsCompleted++;
     if (nUnits == 0) transformCompleted = false;
@@ -608,7 +603,10 @@ bool EL::GridDriver::doRetrieve(const std::string& location) const {
   if (isRunning) return false;
 
   //At this point, task should be either completed or failed
-  RCU_ASSERT(isFailed == isIncomplete); 
+  if (isFailed != isIncomplete) {
+    std::cerr << "At this point, task should be either completed or failed\n"
+              << "somehow it's not" << std::endl;
+  }
 
   if (isFailed) {
     cerr << "The job has failed and has reached maximum number of retries.";

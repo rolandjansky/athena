@@ -44,7 +44,7 @@ atlas_add_library( JetRecLib
   PRIVATE_INCLUDE_DIRS ${FASTJETCONTRIB_INCLUDE_DIRS}
   LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} AthLinks AsgTools
   xAODCaloEvent xAODJet xAODMuon EventShapeInterface JetEDM
-  JetInterface
+  JetInterface JetCalibToolsLib
   PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} xAODBase xAODCore
   xAODEventInfo xAODTracking )
 
@@ -61,4 +61,4 @@ atlas_add_dictionary( JetRecDict
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
-atlas_install_joboptions( share/JetRec_jobOptions.py share/myjets.py )
+atlas_install_joboptions( share/*.py )

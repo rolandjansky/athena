@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////////
 // Author: Clement Camincher (ccaminch@cern.ch)
 ///////////////////////////////////////////////////////////////////////
-#ifndef JetInputElRemoval_JetInputElRemovalTooL_H
+#ifndef JetInputElRemoval_JetInputElRemovalTool_H
 #define JetInputElRemoval_JetInputElRemovalTool_H
 
 

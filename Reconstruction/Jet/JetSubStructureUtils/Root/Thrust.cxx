@@ -4,7 +4,7 @@
 
 #include "JetSubStructureUtils/Thrust.h"
 #include "TLorentzVector.h"
-#include "./BoostToCenterOfMass.h"
+#include "JetSubStructureUtils/BoostToCenterOfMass.h"
 
 using namespace std;
 using namespace JetSubStructureUtils;

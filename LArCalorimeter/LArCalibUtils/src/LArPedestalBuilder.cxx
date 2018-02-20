@@ -45,14 +45,14 @@ LArPedestalBuilder::~LArPedestalBuilder()
 StatusCode LArPedestalBuilder::initialize()
 {
   StatusCode sc;
-  msg(MSG::INFO) << ">>> Initialize" << endmsg;
+  ATH_MSG_INFO( ">>> Initialize" );
 
   //m_mean.resize(1);
   //m_rms.resize(1);  
   
   sc = detStore()->retrieve(m_onlineHelper, "LArOnlineID");
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endmsg;
+    ATH_MSG_ERROR( "Could not get LArOnlineID helper !" );
     return StatusCode::FAILURE;
   }
   
@@ -71,7 +71,7 @@ StatusCode LArPedestalBuilder::initialize()
  m_accu.setGroupingType(LArConditionsContainerBase::SingleGroup);
  m_accu.initialize(); 
  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed initialize LArConditionsContainer 'm_accu'" << endmsg;
+    ATH_MSG_ERROR( "Failed initialize LArConditionsContainer 'm_accu'" );
     return sc;
   }
  return StatusCode::SUCCESS;
@@ -86,7 +86,7 @@ StatusCode LArPedestalBuilder::execute()
   StatusCode sc;
   ++m_event_counter;
   if (m_keylist.size()==0) {
-    msg(MSG::ERROR) << "Key list is empty! No containers processed!" << endmsg;
+    ATH_MSG_ERROR( "Key list is empty! No containers processed!" );
     return StatusCode::FAILURE;
   } 
   
@@ -95,13 +95,13 @@ StatusCode LArPedestalBuilder::execute()
   if (evtStore()->contains<LArFebErrorSummary>("LArFebErrorSummary")) {
     sc=evtStore()->retrieve(febErrSum);
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Failed to retrieve FebErrorSummary object!" << endmsg;
+      ATH_MSG_ERROR( "Failed to retrieve FebErrorSummary object!" );
       return sc;
     }
   }
   else
     if (m_event_counter==1)
-      msg(MSG::WARNING) << "No FebErrorSummaryObject found! Feb errors not checked!" << endmsg;
+      ATH_MSG_WARNING( "No FebErrorSummaryObject found! Feb errors not checked!" );
  
 
 
@@ -140,8 +140,8 @@ StatusCode LArPedestalBuilder::execute()
 	if (febErrs & m_fatalFebErrorPattern) {
 	  if (febid!=lastFailedFEB) {
 	    lastFailedFEB=febid;
-	    msg(MSG::ERROR) << "Event " << m_event_counter << " Feb " <<  m_onlineHelper->channel_name(febid) 
-		<< " reports error(s):" << febErrSum->error_to_string(febErrs) << ". Data ignored." << endmsg;
+	    ATH_MSG_ERROR( "Event " << m_event_counter << " Feb " <<  m_onlineHelper->channel_name(febid) 
+		<< " reports error(s):" << febErrSum->error_to_string(febErrs) << ". Data ignored." );
 	  }
 	  continue;
 	} //end if fatal feb error
@@ -151,7 +151,7 @@ StatusCode LArPedestalBuilder::execute()
 
       LArAccumulatedDigit& accDg=m_accu.get(chid,gain);
       if (!accDg.setAddSubStep(*dg)) 
-	msg(MSG::ERROR) << "Failed to accumulate sub-steps! Inconsistent number of ADC samples" << endmsg;
+	ATH_MSG_ERROR( "Failed to accumulate sub-steps! Inconsistent number of ADC samples" );
     } //end loop over input container
   }//end loop over keys
   return StatusCode::SUCCESS;
@@ -165,12 +165,12 @@ StatusCode LArPedestalBuilder::execute()
   // Initialize LArPedestalComplete 
   StatusCode sc=larPedestalComplete->setGroupingType(m_groupingType,msg());
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to set groupingType for LArPedestalComplete object" << endmsg;
+    ATH_MSG_ERROR( "Failed to set groupingType for LArPedestalComplete object" );
     return sc;
   }
   sc=larPedestalComplete->initialize(); 
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed initialize LArPedestalComplete object" << endmsg;
+    ATH_MSG_ERROR( "Failed initialize LArPedestalComplete object" );
     return sc;
   }
 
@@ -201,9 +201,9 @@ StatusCode LArPedestalBuilder::execute()
       NPedestal++;
     }//end loop over all cells
 
-    msg(MSG::DEBUG) << "Gain " << gain << " Number of cells with 0 events to compute pedestal: " <<  n_zero << endmsg;
-    msg(MSG::DEBUG) << "Gain " << gain << " Minimum number of events*samples to compute pedestal: " <<  n_min << endmsg;
-    msg(MSG::DEBUG) << "Gain " << gain << " Maximum number of events*samples to compute pedestal: " <<  n_max << endmsg;
+    ATH_MSG_DEBUG( "Gain " << gain << " Number of cells with 0 events to compute pedestal: " <<  n_zero );
+    ATH_MSG_DEBUG( "Gain " << gain << " Minimum number of events*samples to compute pedestal: " <<  n_min );
+    ATH_MSG_DEBUG( "Gain " << gain << " Maximum number of events*samples to compute pedestal: " <<  n_max );
   }// End loop over all containers
   
   //ATH_MSG_INFO(" Summary : Number of cells with a pedestal value computed : " << larPedestalComplete->totalNumberOfConditions() );
@@ -217,17 +217,17 @@ StatusCode LArPedestalBuilder::execute()
   // Record LArPedestalComplete
   sc = detStore()->record(larPedestalComplete,m_pedContName);
   if (sc != StatusCode::SUCCESS) {
-    msg(MSG::ERROR)	 << " Cannot store LArPedestalComplete in TDS " << endmsg;
+    ATH_MSG_ERROR( " Cannot store LArPedestalComplete in TDS " );
     delete larPedestalComplete;
     return sc;
   }
   else
-    msg(MSG::INFO) << "Recorded LArPedestalComplete object with key " << m_pedContName << endmsg;
+    ATH_MSG_INFO( "Recorded LArPedestalComplete object with key " << m_pedContName );
     
   // Make symlink
   sc = detStore()->symLink(larPedestalComplete, (ILArPedestal*)larPedestalComplete);
   if (sc != StatusCode::SUCCESS) {
-    msg(MSG::ERROR)  << " Cannot make link for Data Object " << endmsg;
+    ATH_MSG_ERROR( " Cannot make link for Data Object " );
     return sc;
   }
   

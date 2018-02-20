@@ -11,7 +11,7 @@
 include("RecJobTransforms/CommonRecoSkeletonJobOptions.py")
 
 from AthenaCommon.Logging import logging
-skelLog = logging.getLogger('PhysicsValidaiton')
+skelLog = logging.getLogger('PhysicsValidation')
 skelLog.info( '****************** Starting Physics Validation *****************' )
 
 from RecExConfig.RecFlags import rec
@@ -34,19 +34,6 @@ monMan.ManualRunLBSetup    = True
 monMan.Run                 = 1
 monMan.LumiBlock           = 1
 
-# Only for now due to xAOD issues
-from AthenaCommon.AlgSequence import AlgSequence
-topSequence = AlgSequence()
-topSequence += monMan
-
-from AthenaCommon.AppMgr import ServiceMgr
-from GaudiSvc.GaudiSvcConf import THistSvc
-ServiceMgr += THistSvc()
-svcMgr.THistSvc.Output += ["PhysVal DATAFILE='" + runArgs.outputNTUP_PHYSVALFile + "' OPT='RECREATE'"]
-monMan.FileKey = "PhysVal" 
-
-
-
 if hasattr(runArgs,"inputESDFile"):
     rec.readESD.set_Value_and_Lock( True )
     athenaCommonFlags.PoolESDInput.set_Value_and_Lock( runArgs.inputESDFile )
@@ -59,6 +46,9 @@ elif hasattr(runArgs,"inputAODFile"):
     rec.readAOD = True
 else:
     raise RuntimeError('No input file argument given (ESD or AOD input required)')
+
+from AthenaCommon.AlgSequence import AlgSequence
+topSequence = AlgSequence()
 
 # Validation dictionary with default run setting:
 validationDict = {
@@ -81,6 +71,7 @@ validationDict = {
                   'SecondaryTracking': False,
                   'Tau': False,
                   'Top': False,
+                  'TopoCluster': False,
                   }
 
 # Switch on/off various validation routines:
@@ -98,6 +89,23 @@ if hasattr(runArgs,"validationFlags"):
             
 skelLog.info("Validation switches are set to: {0}".format(validationDict))
 
+# Add containers needed for running on AOD if necessary
+# This will check for existence, so no action will be taken
+# if running on DAOD_PHYSVAL or non-reduced derivations
+from PhysValMonitoring.PhysValUtils import addPhysValAODContent
+addPhysValAODContent(topSequence,
+                     doJets=validationDict['Jet'],
+                     doTopoCluster=validationDict['TopoCluster'])
+
+# Only for now due to xAOD issues?
+topSequence += monMan
+
+from AthenaCommon.AppMgr import ServiceMgr
+from GaudiSvc.GaudiSvcConf import THistSvc
+ServiceMgr += THistSvc()
+svcMgr.THistSvc.Output += ["PhysVal DATAFILE='" + runArgs.outputNTUP_PHYSVALFile + "' OPT='RECREATE'"]
+monMan.FileKey = "PhysVal" 
+
 # Schedule individual validations
 from PyJobTransforms.trfUtils import findFile
 for validationType, enabled in validationDict.iteritems():
@@ -106,7 +114,8 @@ for validationType, enabled in validationDict.iteritems():
         if findFile(os.environ['JOBOPTSEARCHPATH'], JOFile):
             rec.UserAlgs += [JOFile]
         else:
-            skelLog.warning("Job options file for {0} ({1}) was not found in JOBOPTSEARCHPATH!".format(validationType, JOFile))
+            skelLog.fatal("Job options file for {0} ({1}) was not found in JOBOPTSEARCHPATH!".format(validationType, JOFile))
+            raise RuntimeError('Cannot find JobOptions for {0} slice -- is the name correct?'.format(validationType))
 
 ## Pre-exec
 if hasattr(runArgs,"preExec"):

@@ -11,7 +11,6 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
-if globalflags.DataSource()!='data': from DerivationFrameworkMCTruth.MCTruthCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 
@@ -57,6 +56,14 @@ FTAG4TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(name = "FTAG
                                                                     TriggerListOR = triggersSkim)
 ToolSvc += FTAG4TriggerSkimmingTool
 print FTAG4TriggerSkimmingTool
+
+#====================================================================
+# TRUTH SETUP
+#====================================================================
+if globalflags.DataSource()!='data':
+    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents, addHFAndDownstreamParticles
+    addStandardTruthContents()
+    addHFAndDownstreamParticles()
 
 #====================================================================
 # CREATE PRIVATE SEQUENCE
@@ -109,7 +116,6 @@ FTAG4SlimmingHelper = SlimmingHelper("FTAG4SlimmingHelper")
 # container variables. Thus BTagging_AntiKt4EMTopo is needed in SmartCollections as well as AllVariables
 FTAG4SlimmingHelper.SmartCollections = ["Electrons","Muons",
                                         "InDetTrackParticles",
-                                        "PrimaryVertices",
                                         "AntiKt4EMTopoJets",
                                         "BTagging_AntiKt4EMTopo",
                                         "MET_Reference_AntiKt4EMTopo"]
@@ -127,7 +133,10 @@ FTAG4SlimmingHelper.AllVariables = ["AntiKt4EMTopoJets",
                                     ]
 
 FTAG4SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("AntiKt4EMTopoJetsAux","AntiKt10LCTopoJets"),
-                                       "BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtVertex"]
+                                       "PrimaryVertices.x.y.numberDoF.covariance",
+                                       "InDetTrackParticles.vx.vy.vz.truthMatchProbability",
+                                       "BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtVertex",
+                                       "BTagging_AntiKt2TrackSecVtx.-vxTrackAtVertex"]
 
 addJetOutputs(FTAG4SlimmingHelper,["FTAG4"],[],[])
 
@@ -146,9 +155,9 @@ addJetOutputs(FTAG4SlimmingHelper,["FTAG4"])
 
 FTAG4SlimmingHelper.IncludeMuonTriggerContent = True
 FTAG4SlimmingHelper.IncludeEGammaTriggerContent = True
-FTAG4SlimmingHelper.IncludeJetTriggerContent = False
+FTAG4SlimmingHelper.IncludeJetTriggerContent = True
 FTAG4SlimmingHelper.IncludeEtMissTriggerContent = False
-FTAG4SlimmingHelper.IncludeBJetTriggerContent = False
+FTAG4SlimmingHelper.IncludeBJetTriggerContent = True
 
 #FTAG4 TrigNav Thinning
 FTAG4ThinningHelper = ThinningHelper( "FTAG4ThinningHelper" )

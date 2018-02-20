@@ -49,7 +49,7 @@ namespace ORUtils
     /// Enable overlap object ElementLinks.
     bool linkOverlapObjects = false;
     /// Do electron-electron overlap
-    bool doEleEleOR = false;
+    bool doEleEleOR = true;
 
     /// @name Objects to configure tools for
     /// @{

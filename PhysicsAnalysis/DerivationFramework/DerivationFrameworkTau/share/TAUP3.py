@@ -10,8 +10,8 @@ from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 if DerivationFrameworkIsMonteCarlo:
-  from DerivationFrameworkMCTruth.MCTruthCommon import *
-from DerivationFrameworkTau.TauCommon import *
+  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+  addStandardTruthContents()
 
 
 # =============================================
@@ -122,7 +122,7 @@ thinningTools += TAUP3TruthThinningTools
 # Skimming tool
 # =============================================
 muRequirement    = "( count( (Muons.pt > 22.0*GeV) && Muons.DFCommonGoodMuon ) >= 1 )"
-tauRequirement   = "( count( (TauJets.pt > 18.0*GeV) && (abs(TauJets.charge)==1.0) && ((TauJets.nTracks == 1) || (TauJets.nTracks == 3)) ) >= 1 )"
+tauRequirement   = "( count( (TauJets.pt > 18.0*GeV || TauJets.ptFinalCalib > 18.0*GeV) && (abs(TauJets.charge)==1.0) && ((TauJets.nTracks == 1) || (TauJets.nTracks == 3)) ) >= 1 )"
 
 expression       = muRequirement + " && " + tauRequirement
 
@@ -189,10 +189,11 @@ if DerivationFrameworkIsMonteCarlo:
                                         "xAOD::TruthParticleAuxContainer#TruthNeutrinosAux."]
 
 TAUP3SlimmingHelper.IncludeMuonTriggerContent    = True
-TAUP3SlimmingHelper.IncludeEGammaTriggerContent  = True
-TAUP3SlimmingHelper.IncludeEtMissTriggerContent  = True
-TAUP3SlimmingHelper.IncludeJetTriggerContent     = True
-TAUP3SlimmingHelper.IncludeBJetTriggerContent    = True
+TAUP3SlimmingHelper.IncludeTauTriggerContent     = True
+TAUP3SlimmingHelper.IncludeEGammaTriggerContent  = False
+TAUP3SlimmingHelper.IncludeEtMissTriggerContent  = False
+TAUP3SlimmingHelper.IncludeJetTriggerContent     = False
+TAUP3SlimmingHelper.IncludeBJetTriggerContent    = False
 
 TAUP3SlimmingHelper.ExtraVariables               = ExtraContentTAUP3
 TAUP3SlimmingHelper.AllVariables                 = ExtraContainersTAUP3

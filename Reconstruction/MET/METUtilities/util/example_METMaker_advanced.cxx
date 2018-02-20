@@ -224,6 +224,7 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
 
     //Now time to rebuild jetMet and get the soft term
     //these functions create an xAODMissingET object with the given names inside the container
+    if(debug) std::cout << "TST MET " << std::endl;
     ANA_CHECK( metMaker->rebuildJetMET("RefJet",        //name of jet met
 				    "SoftClus",      //name of soft cluster term met
 				    "PVSoftTrk",     //name of soft track term met
@@ -235,6 +236,18 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
 				    )
 	     );
 
+    if(debug){
+      if(newMetContainer->find("PVSoftTrk")!=newMetContainer->end())
+	std::cout << "Soft term: "  << static_cast<xAOD::MissingET*>(*(newMetContainer->find("PVSoftTrk")))->met() 
+		  << " phi: " << static_cast<xAOD::MissingET*>(*(newMetContainer->find("PVSoftTrk")))->phi() 
+		  << std::endl;
+      if(newMetContainer->find("RefJet")!=newMetContainer->end())
+	std::cout << "RefJet: "  << static_cast<xAOD::MissingET*>(*(newMetContainer->find("RefJet")))->met() 
+		  << " phi: " << static_cast<xAOD::MissingET*>(*(newMetContainer->find("RefJet")))->phi() 
+		  << std::endl;
+    }
+    if(debug) std::cout << "Track MET " << std::endl;
+    
     ANA_CHECK( metMaker->rebuildTrackMET("RefJetTrk",    //name of jet track met
 				      "PVSoftTrk",	  //name of soft track term met
 				      newMetContainer,//adding to this new met container
@@ -244,7 +257,16 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
 				      false		  //don't apply jet jvt cut
 				      )
 	     );
-
+    if(debug){
+      if(newMetContainer->find("PVSoftTrk")!=newMetContainer->end())
+	std::cout << "Track Soft term: "  << static_cast<xAOD::MissingET*>(*(newMetContainer->find("PVSoftTrk")))->met() 
+		  << " phi: " << static_cast<xAOD::MissingET*>(*(newMetContainer->find("PVSoftTrk")))->phi() 
+		  << std::endl;
+      if(newMetContainer->find("RefJetTrk")!=newMetContainer->end())
+	std::cout << "RefJetTrk term: "  << static_cast<xAOD::MissingET*>(*(newMetContainer->find("RefJetTrk")))->met() 
+		  << " phi: " << static_cast<xAOD::MissingET*>(*(newMetContainer->find("RefJetTrk")))->phi() 
+		  << std::endl;
+    }
 
     //this builds the final track and cluster met sums, using systematic varied container
     ANA_CHECK( metMaker->buildMETSum("FinalTrk" , newMetContainer, MissingETBase::Source::Track ) );

@@ -33,7 +33,7 @@ namespace EgammaSelectors {
   const std::map<std::string,std::string> PhotonCutPointToConfFile={
     {"LoosePhoton","ElectronPhotonSelectorTools/offline/mc15_20150712/PhotonIsEMLooseSelectorCutDefs.conf"},
     {"MediumPhoton","ElectronPhotonSelectorTools/offline/mc15_20160512/PhotonIsEMMediumSelectorCutDefs.conf"},
-    {"TightPhoton","ElectronPhotonSelectorTools/offline/mc15_20150712/PhotonIsEMTightSelectorCutDefs.conf"},
+    {"TightPhoton","ElectronPhotonSelectorTools/offline/20180116/PhotonIsEMTightSelectorCutDefs.conf"},
   };
   const std::map<std::string,std::string> ForwardElectronCutPointToConfFile={
     {"LooseForwardElectron","ElectronPhotonSelectorTools/offline/mc15_20150812/ForwardElectronIsEMLooseSelectorCutDefs.conf"},
@@ -48,8 +48,8 @@ namespace EgammaSelectors {
   //----------------------------------------------------------
   //Map enums to masks , needed for photons
   const std::map<std::string,unsigned int> PhotonCutPointToMask={{"LoosePhoton",egammaPID::PhotonLoose},
-								   {"MediumPhoton",egammaPID::PhotonMedium},
-								   {"TightPhoton",egammaPID::PhotonTight},
+                                                                 {"MediumPhoton",egammaPID::PhotonMedium},
+                                                                 {"TightPhoton",egammaPID::PhotonTight},
   };
 }
 ////////////////////////////////////////////

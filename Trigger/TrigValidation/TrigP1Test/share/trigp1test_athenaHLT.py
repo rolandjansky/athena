@@ -3,7 +3,7 @@
 
 from glob import glob
 from fnmatch import fnmatch
-from subprocess import Popen, PIPE, STDOUT, call
+from subprocess import Popen, PIPE, STDOUT, check_call
  
 #EOS walking Code courtesy of James Robinson
 def get_file_list( DATAPATH ) :
@@ -22,7 +22,9 @@ def get_file_list( DATAPATH ) :
           eos_ls = Popen( args = cmd, bufsize = 1, shell = False, stdout = PIPE, stderr = STDOUT )
           while eos_ls.poll() is None :
             line = eos_ls.stdout.readline()
-            if line : subdirectories.append( line.replace('\n','') )
+            if line : 
+              if not 'INFO: ' in line:
+                subdirectories.append( line.replace('\n','') )
           for subdirectory in subdirectories :
             if fnmatch( subdirectory, directory ) :
               new_paths.append( path+'/'+subdirectory )
@@ -54,8 +56,9 @@ def main():
   print subset 
 
   trigCmd = "athenaHLT.py -f \"" + str(subset) + "\" -c \"" + opts.modifiers + "\" TriggerRelease/runHLT_standalone.py"
-  call("echo " + trigCmd, shell=True)
-  call(trigCmd, shell=True)
+  trigCmdEsc = trigCmd.replace("\\","\\\\").replace("\"","\\\"")#For output to echo
+  check_call("echo \"" + trigCmdEsc + "\"", shell=True)#Call echo rather than print so that it completes first
+  check_call(trigCmd, shell=True)
 
 if __name__ == "__main__":
   main()

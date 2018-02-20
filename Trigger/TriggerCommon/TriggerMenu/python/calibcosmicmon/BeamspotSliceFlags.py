@@ -2,7 +2,7 @@
 
 """ Beamspot slice specific flags  """
 
-from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer, jobproperties
+from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from TriggerMenu.menu.CommonSliceHelper import CommonSliceHelper
 
 __author__  = ''
@@ -20,7 +20,6 @@ _flags.append(signatures)
 
 
 # create container
-from TriggerMenu.menu.CommonSliceHelper import CommonSliceHelper
 
 class BeamspotSlice(JobPropertyContainer, CommonSliceHelper):
     """ Beamspot Slice Flags """

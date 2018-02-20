@@ -27,7 +27,7 @@ TEST10Stream.AcceptAlgs(["TEST10Kernel"])
 # Plug in the required triggers
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 TEST10ThinningHelper = ThinningHelper( "TEST10ThinningHelper" )
-TEST10ThinningHelper.TriggerChains = 'HLT_e.*|HLT_g.*|HLT_mu.*|HLT_tau.*'
+TEST10ThinningHelper.TriggerChains = '^(?!.*_[0-9]*(mu|j|xe|tau|ht|xs|te))(?!HLT_e.*_[0-9]*e.*)HLT_e.*'
 TEST10ThinningHelper.AppendToStream( TEST10Stream )
 
 

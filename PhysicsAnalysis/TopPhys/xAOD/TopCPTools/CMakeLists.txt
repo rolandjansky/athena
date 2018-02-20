@@ -16,7 +16,8 @@ atlas_depends_on_subdirs( PUBLIC
                           TriggerMatchingTool
                           TrigTauMatching
                           GoodRunsLists
-                          ElectronPhotonFourMomentumCorrection
+			  EgammaAnalysisInterfaces
+			  ElectronPhotonFourMomentumCorrection
                           ElectronPhotonSelectorTools
                           ElectronEfficiencyCorrection
                           ElectronPhotonShowerShapeFudgeTool
@@ -46,7 +47,9 @@ atlas_depends_on_subdirs( PUBLIC
                           JetJvtEfficiency
                           PMGTools
                           InDetTrackSystematicsTools
-                          BoostedJetTaggers )
+                          BoostedJetTaggers 
+			  FTagAnalysisInterfaces 
+			  MuonAnalysisInterfaces )
 
 # This package uses ROOT:
 find_package( ROOT REQUIRED COMPONENTS Core Gpad Tree Hist RIO MathCore Graf )
@@ -70,7 +73,8 @@ atlas_add_library( TopCPTools Root/*.cxx Root/*.h Root/*.icc
                                   TriggerMatchingToolLib
                                   TrigTauMatchingLib
                                   GoodRunsListsLib
-                                  ElectronPhotonFourMomentumCorrectionLib
+                                  EgammaAnalysisInterfacesLib
+				  ElectronPhotonFourMomentumCorrectionLib
                                   ElectronPhotonSelectorToolsLib
                                   ElectronEfficiencyCorrectionLib
                                   ElectronPhotonShowerShapeFudgeToolLib
@@ -101,6 +105,8 @@ atlas_add_library( TopCPTools Root/*.cxx Root/*.h Root/*.icc
                                   PMGToolsLib
                                   InDetTrackSystematicsToolsLib
                                   BoostedJetTaggersLib
+				  FTagAnalysisInterfacesLib
+				  MuonAnalysisInterfacesLib
                                   ${ROOT_LIBRARIES}
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} )
 

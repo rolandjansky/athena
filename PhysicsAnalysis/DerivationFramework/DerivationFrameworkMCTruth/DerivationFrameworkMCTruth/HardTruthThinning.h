@@ -3,7 +3,7 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-// HardTruthThinning, (c) ATLAS Detector software
+// HardTruthThinning
 // Author: Frank Paige
 // ThinningSvc tool to use with CompactHardTruth and truth jets.
 // Selects:

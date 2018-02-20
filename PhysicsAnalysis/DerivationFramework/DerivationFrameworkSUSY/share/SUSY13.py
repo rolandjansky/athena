@@ -9,9 +9,12 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 if DerivationFrameworkIsMonteCarlo:
-    from DerivationFrameworkMCTruth.MCTruthCommon import *
+  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+  addStandardTruthContents()
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
+from DerivationFrameworkFlavourTag.FlavourTagCommon import *
+
 
 ### Set up stream
 streamName = derivationFlags.WriteDAOD_SUSY13Stream.StreamName
@@ -150,7 +153,8 @@ ToolSvc += SUSY13SkimmingTool
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
 #=======================================
-applyJetCalibration_xAODColl("AntiKt4EMTopo", SeqSUSY13)
+# now done in ExtendedJetCommon
+#applyJetCalibration_xAODColl("AntiKt4EMTopo", SeqSUSY13)
 
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 
@@ -182,6 +186,10 @@ SeqSUSY13 += CfgMgr.DerivationFramework__DerivationKernel(
 
 #==============================================================================
 # Jet building
+#==============================================================================
+#re-tag PFlow jets so they have b-tagging info.
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = SeqSUSY13)
+
 #==============================================================================
 # now part of MCTruthCommon
 #if DerivationFrameworkIsMonteCarlo:
@@ -217,7 +225,13 @@ SeqSUSY13 += CfgMgr.DerivationFramework__DerivationKernel(
 # This might be the kind of set-up one would have for a muon based analysis
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 SUSY13SlimmingHelper = SlimmingHelper("SUSY13SlimmingHelper")
-SUSY13SlimmingHelper.SmartCollections = ["Electrons","Photons","Muons","TauJets","AntiKt4EMTopoJets","MET_Reference_AntiKt4EMTopo","BTagging_AntiKt4EMTopo", "InDetTrackParticles", "PrimaryVertices"]
+SUSY13SlimmingHelper.SmartCollections = ["Electrons","Photons","Muons","TauJets","AntiKt4EMTopoJets",
+"AntiKt4EMPFlowJets",
+"MET_Reference_AntiKt4EMTopo",
+"MET_Reference_AntiKt4EMPFlow",
+"BTagging_AntiKt4EMTopo",
+"BTagging_AntiKt4EMPFlow",
+ "InDetTrackParticles", "PrimaryVertices"]
 SUSY13SlimmingHelper.AllVariables = ["TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth", "MET_Track"]
 SUSY13SlimmingHelper.ExtraVariables = ["BTagging_AntiKt4EMTopo.MV1_discriminant.MV1c_discriminant",
                 "Muons.ptcone30.ptcone20.charge.quality.InnerDetectorPt.MuonSpectrometerPt.CaloLRLikelihood.CaloMuonIDTag",
@@ -251,7 +265,8 @@ SUSY13SlimmingHelper.IncludeBJetTriggerContent   = False
 # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
 if DerivationFrameworkIsMonteCarlo:
 
-  SUSY13SlimmingHelper.AppendToDictionary = {'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
+  SUSY13SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4EMPFlow':'xAOD::BTaggingContainer','BTagging_AntiKt4EMPFlowAux':'xAOD::BTaggingAuxContainer',
+'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
                                              'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
                                              'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
   

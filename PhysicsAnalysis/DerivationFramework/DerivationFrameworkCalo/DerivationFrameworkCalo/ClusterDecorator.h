@@ -27,7 +27,7 @@ class CaloCellDetPos;
 
 namespace DerivationFramework {
   
-  /** Decorate egamma objects with the Sliding-Windows cluster
+  /** Decorate egamma objects with the Sliding-Windows cluster, created from a user-defined cell collection
     **/
   class ClusterDecorator : public AthAlgTool, public IAugmentationTool {
     public:
@@ -39,17 +39,29 @@ namespace DerivationFramework {
       void fillPositionsInCalo(xAOD::CaloCluster* cluster) const ;
 
     private:
+      /** @brief Name of photon container to decorate with links to clusters  */
       std::string m_SGKey_photons;
+
+      /** @brief Name of electron container to decorate with links to clusters  */
       std::string m_SGKey_electrons;
+
+      /** @brief Name of cluster container to be saved in StoreGate  */
       std::string m_OutputClusterSGKey;
+
+      /** @brief Name of decoration containg link to cluster container  */
+      std::string m_OutputClusterLink;
+
       std::vector<unsigned int> m_layers;
       
       /** @brief Tool to handle cluster corrections */
       ToolHandle<IegammaSwTool>   m_clusterCorrectionTool;
+
       /** @brief Name of tool for cluster corrections */
       std::string            m_ClusterCorrectionToolName;
+
       /** @brief Name of cell collection  */
       std::string m_CellCollectionName;
+
       /** @brief Position in Calo frame**/  
       std::unique_ptr<CaloCellDetPos> m_caloCellDetPos;      
       StatusCode decorateObject(const xAOD::Egamma* egamma, xAOD::CaloClusterContainer *outputClusterContainer) const;

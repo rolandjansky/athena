@@ -13,8 +13,6 @@
 
 namespace ISF {
 
-  static const InterfaceID IID_IEventFilterTool("IEventFilterTool", 1, 0);
-   
   /**
    @class IEventFilterTool
        
@@ -27,8 +25,8 @@ namespace ISF {
        /** Virtual destructor */
        virtual ~IEventFilterTool(){}
 
-       /** AlgTool interface methods */
-       static const InterfaceID& interfaceID() { return IID_IEventFilterTool; }
+       /// Creates the InterfaceID and interfaceID() method
+       DeclareInterfaceID(IEventFilterTool, 1, 0);
        
        /** Check that the current event passes this filter */
        virtual bool eventPassesFilter() const = 0;

@@ -97,25 +97,6 @@ ToolSvc += STDM2_PhotonVertexSelectionWrapper
 #====================================================================
 # THINNING TOOLS
 #====================================================================
-# Generic track thinning
-thinning_expression = "(InDetTrackParticles.pt > 0.5*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 5) && (abs(DFCommonInDetTrackZ0AtPV) < 1.5)"
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-STDM2TPThinningTool = DerivationFramework__TrackParticleThinning( name                  = "STDM2TPThinningTool",
-                                                                ThinningService         = "STDM2ThinningSvc",
-                                                                SelectionString         = thinning_expression,
-                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                ApplyAnd                = False)
-ToolSvc += STDM2TPThinningTool
-
-# Tracks associated with Jets
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
-STDM2JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name            = "STDM2JetTPThinningTool",
-                                                                ThinningService         = "STDM2ThinningSvc",
-                                                                JetKey                  = "AntiKt4LCTopoJets",
-                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                SelectionString = "AntiKt4LCTopoJets.pt > 15*GeV",
-                                                                ApplyAnd                = False)
-ToolSvc += STDM2JetTPThinningTool
 
 # All Track within a cone DeltaR=0.6 around Electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
@@ -149,7 +130,7 @@ STDM2PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(nam
                                                            GSFTrackParticlesKey   = "GSFTrackParticles",
                                                            InDetTrackParticlesKey = "InDetTrackParticles",
                                                            SelectionString        = photonRequirements,
-                                                           BestMatchOnly          = True,
+                                                           BestMatchOnly          = False,
                                                            ConeSize               = 0.6,
                                                            ApplyAnd               = False)
 ToolSvc += STDM2PhotonTPThinningTool
@@ -180,7 +161,7 @@ STDM2Sequence = CfgMgr.AthSequencer("STDM2Sequence")
 STDM2Sequence += CfgMgr.DerivationFramework__DerivationKernel("STDM2Kernel",
                               SkimmingTools = [STDM2SkimmingTool],
                               AugmentationTools = [STDM2_PhotonVertexSelectionWrapper,STDM2_MaxCellDecoratorTool],
-                              ThinningTools = [STDM2TPThinningTool,STDM2JetTPThinningTool,STDM2ElectronTPThinningTool,STDM2ElectronTPThinningToolAR,STDM2PhotonTPThinningTool])
+                              ThinningTools = [STDM2ElectronTPThinningTool,STDM2ElectronTPThinningToolAR,STDM2PhotonTPThinningTool])
 
 
 
@@ -220,7 +201,6 @@ STDM2SlimmingHelper = SlimmingHelper("STDM2SlimmingHelper")
 STDM2SlimmingHelper.SmartCollections = ["Electrons",
                                         "Photons",
                                         "AntiKt4EMTopoJets",
-                                        "AntiKt4LCTopoJets",
                                         "BTagging_AntiKt4EMTopo",
                                         "InDetTrackParticles",
                                         "PrimaryVertices" ]
@@ -228,6 +208,12 @@ STDM2SlimmingHelper.SmartCollections = ["Electrons",
 STDM2SlimmingHelper.IncludeEGammaTriggerContent = True
 
 STDM2SlimmingHelper.ExtraVariables = ExtraContentElectrons+ExtraContentPhotons+ExtraContentBtag+ExtraContentVtx+ExtraContentTrk+ExtraContentJets+["Electrons.maxEcell_time.maxEcell_energy.maxEcell_gain.maxEcell_onlId.maxEcell_x.maxEcell_y.maxEcell_z"]+["Photons.maxEcell_time.maxEcell_energy.maxEcell_gain.maxEcell_onlId.maxEcell_x.maxEcell_y.maxEcell_z"]+["PrimaryVertices.STDM2_sumPt.STDM2_sumPt2.STDM2_pt.STDM2_eta.STDM2_phi"]+ExtraVariablesEventShape
+STDM2SlimmingHelper.ExtraVariables += [
+  "Photons.neflowisol20.neflowisol30.neflowisol40.neflowisolCorrBitset.neflowisolcoreConeEnergyCorrection",
+  "NeutralParticleFlowIsoCentralEventShape.Density.DensityArea.DensitySigma.Density.DensityArea.DensitySigma",
+  "NeutralParticleFlowIsoForwardEventShape.Density.DensityArea.DensitySigma.Density.DensityArea.DensitySigma",
+  "ParticleFlowIsoCentralEventShape.Density.DensityArea.DensitySigma",
+  "ParticleFlowIsoForwardEventShape.Density.DensityArea.DensitySigma"]
 STDM2SlimmingHelper.ExtraVariables += ["AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m"]
 STDM2SlimmingHelper.AllVariables = ExtraContainersJets + ["CaloCalTopoClusters"] #+ExtraContainers6Jets #do not exist for now
 

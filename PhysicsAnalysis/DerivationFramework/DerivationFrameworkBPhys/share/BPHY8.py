@@ -73,9 +73,9 @@ print "BPHY8: release 21 or up: %s" % BPHY8cf.isRelease21
 #====================================================================
 # MC dataset categories (lists of dataset numbers)
 #====================================================================
-BPHY8cf.mcBsmumu          = [300203,300306,300307,300402,300426,300430,300432,300433,300434,300446,300447]
-BPHY8cf.mcBplusJpsiKplus  = [300203,300306,300307,300999,300404,300405,300406,300437]
-BPHY8cf.mcBsJpsiPhi       = [300203,300306,300307,300401,300438,300448,300449]
+BPHY8cf.mcBsmumu          = [300203,300306,300307,300308,300402,300426,300430,300432,300433,300434,300446,300447]
+BPHY8cf.mcBplusJpsiKplus  = [300203,300306,300307,300308,300997,300999,300404,300405,300406,300437]
+BPHY8cf.mcBsJpsiPhi       = [300203,300306,300307,300308,300401,300438,300448,300449]
 BPHY8cf.mcBplusJpsiPiplus = [300406,300437]
 BPHY8cf.mcBhh             = [300431]
 BPHY8cf.mcNoTrigger       = [300446,300447,300448,300449]
@@ -156,6 +156,18 @@ else:
 #
 # data 16
     if BPHY8cf.projectTag.startswith("data16"):
+        BPHY8cf.McstYear                  = "Data16";
+        BPHY8cf.McstRelease               = "_READ_"
+        BPHY8cf.McstStatComb              = True
+        BPHY8cf.McstSagittaCorr           = True
+        BPHY8cf.McstSagittaRelease        = "_READ_"
+        BPHY8cf.McstDoSagittaMCDistortion = False
+#
+# data 17
+# w.w., 2017-10-07 for now the Data16 tag as there  is no Data17
+# tag for McstYear in the MuonCalibrationAndSmearingTool yet.
+# TODO: Revise once Data17 tag becomes available.
+    if BPHY8cf.projectTag.startswith("data17"):
         BPHY8cf.McstYear                  = "Data16";
         BPHY8cf.McstRelease               = "_READ_"
         BPHY8cf.McstStatComb              = True
@@ -333,7 +345,8 @@ BPHY8cf.DebugTrkToVtxMaxEvents = 0
 #====================================================================
 # run number
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-BPHY8_f = af.fopen(athenaCommonFlags.PoolAODInput()[0])
+import PyUtils.AthFile as BPHY8_af
+BPHY8_f = BPHY8_af.fopen(athenaCommonFlags.PoolAODInput()[0])
 if len(BPHY8_f.run_numbers) > 0:
     BPHY8cf.runNumber = int(BPHY8_f.run_numbers[0])
 
@@ -378,6 +391,8 @@ assert len(BPHY8cf.doChannels) > 0
 #====================================================================
 BPHY8cf.GlobalBMassUpperCut      = 7000.
 BPHY8cf.GlobalBMassLowerCut      = 3500.
+BPHY8cf.GlobalTrksMassUpperCut   = 7500.
+BPHY8cf.GlobalTrksMassLowerCut   = 3000.
 BPHY8cf.GlobalDiMuonMassUpperCut = 7000.
 BPHY8cf.GlobalDiMuonMassLowerCut = 2000.
 BPHY8cf.GlobalJpsiMassUpperCut   = 7000.
@@ -388,6 +403,8 @@ BPHY8cf.GlobalBlindUpperCut      = 5526.
 if BPHY8cf.doUseWideMuMuMassRange:
     BPHY8cf.GlobalBMassUpperCut      = 10000.
     BPHY8cf.GlobalBMassLowerCut      =  3250.
+    BPHY8cf.GlobalTrksMassUpperCut   = 10500.
+    BPHY8cf.GlobalTrksMassLowerCut   =  2750.
     BPHY8cf.GlobalDiMuonMassUpperCut = 10000.
     BPHY8cf.GlobalDiMuonMassLowerCut =  2000.
     BPHY8cf.GlobalJpsiMassUpperCut   = 10000.
@@ -533,6 +550,7 @@ for BPHY8_reco in BPHY8_recoList:
             trackThresholdPt            = BPHY8cf.JfTrackThresholdPt,
             invMassUpper                = BPHY8cf.GlobalDiMuonMassUpperCut,
             invMassLower                = BPHY8cf.GlobalDiMuonMassLowerCut,
+            # For JpsiFinder the cut is really on chi2 and not on chi2/ndf
             Chi2Cut                     = BPHY8cf.Chi2Cut2Prong,
             oppChargesOnly	        = True,
             sameChargesOnly             = False,
@@ -562,6 +580,8 @@ for BPHY8_reco in BPHY8_recoList:
             trkThresholdPt              = BPHY8cf.GlobalKaonPtCut,
             trkMaxEta                   = BPHY8cf.GlobalKaonEtaCut,
             BThresholdPt                = 1000.,
+            TrkTrippletMassUpper        = BPHY8cf.GlobalTrksMassUpperCut,
+            TrkTrippletMassLower        = BPHY8cf.GlobalTrksMassLowerCut,
             BMassUpper                  = BPHY8cf.GlobalBMassUpperCut,
             BMassLower                  = BPHY8cf.GlobalBMassLowerCut,
             JpsiContainerKey            = BPHY8cf.DerivationName+"DiMuonCandidates",
@@ -571,6 +591,8 @@ for BPHY8_reco in BPHY8_recoList:
             TrackParticleCollection     = BPHY8cf.TrkPartContName,
             TrkVertexFitterTool         = BPHY8_VertexTools[BPHY8_reco].TrkVKalVrtFitter,        # VKalVrt vertex fitter
             TrackSelectorTool           = BPHY8_VertexTools[BPHY8_reco].InDetTrackSelectorTool,
+            # This JO should rather be named Chi2byNdfCut
+            Chi2Cut                     = BPHY8cf.GlobalChi2CutBase,
             UseMassConstraint           = True)
     
 # c) for BsJpsiPhi
@@ -584,6 +606,8 @@ for BPHY8_reco in BPHY8_recoList:
             trkThresholdPt              = BPHY8cf.GlobalKaonPtCut,
             trkMaxEta                   = BPHY8cf.GlobalKaonEtaCut,
             BThresholdPt                = 1000.,
+            TrkQuadrupletMassUpper      = BPHY8cf.GlobalTrksMassUpperCut,
+            TrkQuadrupletMassLower      = BPHY8cf.GlobalTrksMassLowerCut,
             BMassUpper                  = BPHY8cf.GlobalBMassUpperCut,
             BMassLower                  = BPHY8cf.GlobalBMassLowerCut,
             JpsiContainerKey            = BPHY8cf.DerivationName+"DiMuonCandidates",
@@ -593,6 +617,8 @@ for BPHY8_reco in BPHY8_recoList:
             TrackParticleCollection     = BPHY8cf.TrkPartContName,
             TrkVertexFitterTool         = BPHY8_VertexTools[BPHY8_reco].TrkVKalVrtFitter,        # VKalVrt vertex fitter
             TrackSelectorTool           = BPHY8_VertexTools[BPHY8_reco].InDetTrackSelectorTool,
+            # This JO should rather be named Chi2byNdfCut
+            Chi2Cut                     = BPHY8cf.GlobalChi2CutBase,
             UseMassConstraint           = True)
         
 ToolSvc += BPHY8_FinderTools.values()
@@ -1304,7 +1330,7 @@ BPHY8Stream.AcceptAlgs(["BPHY8Kernel"])
 # Additional metadata output
 BPHY8Stream.AddMetaDataItem([ "xAOD::FileMetaData#%s*" %
                               BPHY8cf.DerivationName,
-                              "xAOD::AuxInfoBase#%s*Aux." %
+                              "xAOD::FileMetaDataAuxInfo#%s*Aux." %
                               BPHY8cf.DerivationName] )
 
 #====================================================================

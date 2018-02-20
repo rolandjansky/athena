@@ -28,6 +28,10 @@ using namespace SH;
 
 int main ()
 {
+  // disabled right now
+  return EXIT_SUCCESS;
+
+
   if (getenv ("ROOTCORE_AUTO_UT") != 0)
     return EXIT_SUCCESS;
 

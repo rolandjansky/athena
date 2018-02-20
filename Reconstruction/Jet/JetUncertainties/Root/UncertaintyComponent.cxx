@@ -329,5 +329,30 @@ double UncertaintyComponent::getMassOverPt(const xAOD::Jet& jet, const CompMassD
 
 }
 
+double UncertaintyComponent::getMassOverE(const xAOD::Jet& jet, const CompMassDef::TypeEnum massDef) const
+{
+    static JetFourMomAccessor scale(CompMassDef::getJetScaleString(massDef).Data());
+    static SG::AuxElement::ConstAccessor<float> scaleTAMoment("JetTrackAssistedMassCalibrated");
+
+    // UNKNOWN is just use the assigned scale
+    if (massDef == CompMassDef::UNKNOWN)
+        return jet.m()/jet.e();
+    
+    // Check if the specified scale is available and return it if so
+    if (scale.isAvailable(jet))
+        return scale(jet).M()/scale(jet).E();
+    // Fall-back on the TA moment as a float if applicable (TODO: temporary until JetCalibTools updated)
+    if (massDef == CompMassDef::TAMass && scaleTAMoment.isAvailable(jet))
+        return scaleTAMoment(jet)/jet.e();
+    // Fall-back on the calo mass as the 4-vec if applicable (TODO: temporary until JetCalibTools updated)
+    if (massDef == CompMassDef::CaloMass)
+        return jet.m()/jet.e();
+
+    // Specified scale is not available, error
+    ATH_MSG_ERROR("Failed to retrieve the " << CompMassDef::enumToString(massDef).Data() << " mass from the jet");
+    return JESUNC_ERROR_CODE;
+
+}
+
 } // end jet namespace
 

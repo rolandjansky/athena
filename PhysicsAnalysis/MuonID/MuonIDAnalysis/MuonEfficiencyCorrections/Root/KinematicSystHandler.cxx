@@ -25,13 +25,15 @@ namespace CP {
         return nullptr;
     }
 
-    PtDependentSystHandler::PtDependentSystHandler(HistHandler* HistHandler) :
+    PtDependentSystHandler::PtDependentSystHandler(HistHandler_Ptr HistHandler) :
                     m_Handler(HistHandler),
                     m_SystWeight(0) {
 
     }
     CorrectionCode PtDependentSystHandler::GetKineDependent(const xAOD::Muon &mu, float& Eff) const {
-        if (mu.pt() <= 20.e3) return CorrectionCode::Ok;
+        // Account for catastrophic energy loss for  very high
+        // pt's
+        if (mu.pt() <= 200.e3) return CorrectionCode::Ok;
 
         int binsys = -1;
         CorrectionCode cc = m_Handler->FindBin(mu, binsys);
@@ -45,10 +47,9 @@ namespace CP {
         m_SystWeight = SystWeight;
     }
     bool PtDependentSystHandler::initialize() {
-        return m_Handler != nullptr;
+        return m_Handler.get() != nullptr;
     }
     PtDependentSystHandler::~PtDependentSystHandler() {
-        if (m_Handler) delete m_Handler;
     }
 
     std::string BadMuonVetoSystHandler::GetNextProperty(std::string &sstr) {
@@ -92,12 +93,12 @@ namespace CP {
             std::string LowRange_str = GetNextProperty(ObjName);
             std::string HighRange_str = GetNextProperty(ObjName);
             if (!LowRange_str.empty()) {
-                lowRange = atof(LowRange_str.c_str()) / 10.;
+                lowRange = atof(LowRange_str.c_str()) / pow(10, LowRange_str.size() -1);
             }
             if (!HighRange_str.empty()) {
-                highRange = atof(HighRange_str.c_str()) / 10.;
+                highRange = atof(HighRange_str.c_str()) / pow(10, LowRange_str.size() -1);
             }
-            m_SystPolynomials.insert(std::pair<Ranges, TF1*>(Ranges(lowRange, highRange), TF));
+            m_SystPolynomials.insert(std::pair<Ranges, std::unique_ptr<TF1>>(Ranges(lowRange, highRange), std::unique_ptr<TF1>(TF)));
         }
 
     }
@@ -113,9 +114,8 @@ namespace CP {
             if (cc != CorrectionCode::Ok) {
                 return cc;
             }
-            RelHighPtSys = fabs(1 - Poly->Eval((this->*m_FirstVar)(mu)));
-//            std::cout<<"SystWeight: "<<m_SystWeight<<"  Blub: "<<1 - Poly->Eval((this->*m_FirstVar)(mu))
-//                    <<"Muon: " <<(this->*m_FirstVar)(mu)<<std::endl;
+//            RelHighPtSys = fabs(1 - Poly->Eval((this->*m_FirstVar)(mu)));
+            RelHighPtSys = Poly->Eval((this->*m_FirstVar)(mu));
 
         } else {
             //Apply flat 0.5% systematic
@@ -141,10 +141,8 @@ namespace CP {
         return true;
     }
     BadMuonVetoSystHandler::~BadMuonVetoSystHandler() {
-        for (auto& Syst : m_SystPolynomials) {
-            if (Syst.second) delete Syst.second;
-        }
     }
+
     CP::CorrectionCode BadMuonVetoSystHandler::FindAppropiatePolynomial(const xAOD::Muon& mu, TF1* &Poly) const {
         if (!m_SecondVar) {
             Error("BadMuonVetoSystHandler()", "Something went wrong with the initialization");
@@ -152,7 +150,7 @@ namespace CP {
         }
         for (const auto& BinnedPoly : m_SystPolynomials) {
             if (BinnedPoly.first.first <= (this->*m_SecondVar)(mu) && (this->*m_SecondVar)(mu) < BinnedPoly.first.second) {
-                Poly = BinnedPoly.second;
+                Poly = BinnedPoly.second.get();
                 return CorrectionCode::Ok;
             }
         }

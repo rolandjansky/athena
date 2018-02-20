@@ -1,14 +1,9 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 #ifndef GENERATOR_PYTHIA8_H
 #define GENERATOR_PYTHIA8_H
 
 #include "GeneratorModules/GenModule.h"
 
 #include "Pythia8/Pythia.h"
-//#include "Pythia8/../Pythia8Plugins/HepMC2.h"
 #include "Pythia8Plugins/HepMC2.h"
 
 // calls to fortran routines
@@ -88,7 +83,9 @@ private:
   
   static std::string xmlpath();
   
-  static std::string findValue(const std::string &command, const std::string &key);
+  // Add the pythia.process, which is the LHE record for external ME events, to the
+  // HepMC record
+  void addLHEToHepMC(HepMC::GenEvent *evt);
   
   int m_internal_event_number;
   
@@ -111,8 +108,10 @@ private:
   std::string m_lheFile;
   
   bool m_doCKKWLAcceptance;
+  bool m_doFxFxXS;
   double m_nAccepted;
   double m_nMerged;
+  double m_sigmaTotal;
   
   unsigned int m_maxFailures;
   unsigned int m_failureCount;
@@ -126,7 +125,7 @@ private:
   // ptr to possible user process
   Pythia8::Sigma2Process *m_procPtr;
   
-  std::string m_userHook;
+  std::vector<std::string> m_userHooks;
   
   Pythia8::UserHooks *m_userHookPtr;
   
@@ -142,8 +141,6 @@ private:
   std::vector<string> m_weightIDs;
   bool m_doLHE3Weights;
   
-  static int s_allowedTunes(double version);
-
 };
 
 #endif

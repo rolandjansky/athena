@@ -17,8 +17,11 @@ authors : Niels van Eldik (CERN PH-ATC)
 
 #include "ParticleCaloExtension/ParticleClusterAssociation.h"
 
+#include "TrackCaloClusterRecInterfaces/IParticleExtrapolationTool.h"
+#include "TrackVertexAssociationTool/ITrackVertexAssociationTool.h"
+
+
 namespace Trk {
-  class IParticleCaloExtensionTool;
   class CaloExtension;
 }
 namespace xAOD {
@@ -51,8 +54,8 @@ namespace Rec {
                               The same is true if the function is called once without container and once with on the same particle.
         @return true if the call was successful
     */
-    bool particleClusterAssociation( const xAOD::IParticle& particle,  const ParticleClusterAssociation*& association, float dr, 
-                                     const xAOD::CaloClusterContainer* container = 0, bool useCaching = true ) const final;
+    bool particleClusterAssociation( const xAOD::IParticle& particle,  std::vector< ElementLink< xAOD::CaloClusterContainer > >& association, float dr, 
+                                     const xAOD::CaloClusterContainer* container = 0) const final;
     
   private:
 
@@ -60,13 +63,19 @@ namespace Rec {
     void associateClusters( const xAOD::CaloClusterContainer* container, 
                             const Trk::CaloExtension& caloExtension,
                             float dr,
-                            ParticleClusterAssociation::Data& clusters ) const;
+                            ParticleClusterAssociation::Data& clusters,
+                            const xAOD::IParticle& particle) const;
+    
+    const xAOD::CaloClusterContainer* getClusterContainer() const;
 
-    ToolHandle< Trk::IParticleCaloExtensionTool >  m_caloExtensionTool;
+    ToolHandle< IParticleExtrapolationTool >  m_caloExtensionTool;
     // FIXME: mutable
     mutable ToolHandle< xAOD::ICaloClustersInConeTool >     m_clustersInConeTool;
-    std::string m_containerName;
+    std::string m_caloClusters;
+    std::string m_assCollection;
+    std::string m_caloEntryMapName;
     double      m_coneSize;
+    bool        m_useCovariance;
 
   };
 

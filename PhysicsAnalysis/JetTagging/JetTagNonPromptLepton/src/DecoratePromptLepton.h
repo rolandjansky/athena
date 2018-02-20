@@ -28,6 +28,7 @@
 // xAOD
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODMuon/MuonContainer.h"
+#include "xAODTau/TauJetContainer.h"
 #include "xAODJet/JetContainer.h"
 
 // ROOT
@@ -56,6 +57,7 @@ namespace Prompt
   private:
 
     bool initializeTMVAReader();
+    bool initializeTMVAReaderTau();
 
     void initializeDecorators();
     
@@ -65,13 +67,21 @@ namespace Prompt
 			  const xAOD::JetContainer* trackJets);
     void decorateMuon    (const xAOD::Muon*     muon, 
 		          const xAOD::JetContainer* trackJets);
+    void decorateTau     (const xAOD::TauJet*   tau, 
+		          const xAOD::JetContainer* trackJets);
 
     int  getJetVariables   (const xAOD::Jet* jet,            Prompt::VarHolder &vars);
     void getLeptonVariables(const xAOD::IParticle* particle, Prompt::VarHolder &vars);
     void getMutualVariables(const xAOD::IParticle* particle, 
 			    const xAOD::Jet* jet,
+			    const xAOD::TrackParticle* track,
 			    Prompt::VarHolder &vars,
 			    float DRlj);
+
+    void getMutualTauVariables(const xAOD::TauJet* tau, 
+			       const xAOD::Jet* jet,
+			       Prompt::VarHolder &vars,
+			       float DRlj);
 
     float accessIsolation(SG::AuxElement::ConstAccessor<float>* isoAccessor, 
 			  const xAOD::IParticle* particle);
@@ -83,6 +93,11 @@ namespace Prompt
     void decorateAuxLepton(const xAOD::IParticle* particle, 
 			   Prompt::VarHolder &vars, 
 			   bool goodJet);
+
+    void decorateAuxTau(const xAOD::TauJet* tau, 
+			Prompt::VarHolder &vars, 
+			bool goodJet,
+			const int ntracktau);
 
     template<class T> std::pair<double, const xAOD::Jet*>
       FindNearestTrackJet(const T &part, const xAOD::JetContainer* jets);
@@ -97,14 +112,21 @@ namespace Prompt
     typedef SG::AuxElement::ConstAccessor<float>                                             AccessFloat;
     typedef SG::AuxElement::ConstAccessor<std::vector<ElementLink<xAOD::VertexContainer> > > AccessVertex;
 
+    typedef std::pair<Prompt::Def::Var, double> VarPair;
+
   private:
 
     // Properties:
     std::string                           m_leptonContainerName;
     std::string                           m_trackJetContainerName;
     std::string                           m_configFileVersion;
+    std::string                           m_configFileVersionOneTrack;
+    std::string                           m_configFileVersionThreeTrack;
     std::string                           m_configPathOverride;
     std::string                           m_methodTitleMVA;
+    std::string                           m_methodTitleMVAOneTrack;
+    std::string                           m_methodTitleMVAThreeTrack;
+    std::string                           m_BDTName;
     std::string                           m_auxVarPrefix;
 
     std::vector<std::string>              m_stringIntVars;
@@ -116,6 +138,7 @@ namespace Prompt
     // Variables:
     const xAOD::ElectronContainer*        m_electrons;
     const xAOD::MuonContainer*            m_muons;
+    const xAOD::TauJetContainer*          m_taus;
 
     std::vector<Prompt::Def::Var>         m_intVars;
     std::vector<Prompt::Def::Var>         m_floatVars;
@@ -125,6 +148,8 @@ namespace Prompt
     floatDecoratorMap                     m_floatMap;
 
     TMVA::Reader                         *m_TMVAReader;
+    TMVA::Reader                         *m_TMVAReaderOneTrack;
+    TMVA::Reader                         *m_TMVAReaderThreeTrack;
 
     std::vector<Float_t*>                 m_varTMVA;
 
@@ -139,6 +164,7 @@ namespace Prompt
     TStopwatch                            m_timerAll;
     TStopwatch                            m_timerExec;
     TStopwatch                            m_timerMuon;
+    TStopwatch                            m_timerTau;
     TStopwatch                            m_timerElec;
     TStopwatch                            m_timerJet;
   };

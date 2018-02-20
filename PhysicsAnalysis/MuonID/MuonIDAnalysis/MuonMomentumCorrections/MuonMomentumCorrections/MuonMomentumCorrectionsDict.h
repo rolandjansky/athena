@@ -9,7 +9,7 @@
 #define EIGEN_DONT_VECTORIZE
 #endif // __GCCXML__
 
-#include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
+#include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
 #include "MuonMomentumCorrections/MuonCalibrationAndSmearingTool.h"
 
 #endif // not MUONMOMENTUMCORRECTIONS_MUONMOMENTUMCORRECTIONSDICT_H

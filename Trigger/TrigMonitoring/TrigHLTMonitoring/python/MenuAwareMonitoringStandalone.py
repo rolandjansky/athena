@@ -30,7 +30,7 @@ class MenuAwareMonitoringStandalone:
         self.version = '1.4.8'
         # flag for setting whether to print out anything to screen or not
         self.print_output = True
-         # create oracle interaction object
+         # create oracle interaction objects
         self.oi = OracleInterface()
         # holder for current user
         self.current_user = ""
@@ -38,6 +38,7 @@ class MenuAwareMonitoringStandalone:
         # Since this code is Athena-independent, we use a dummy 'Athena version'
         # If called from MenuAwareMonitoring, this will be updated to the real version
         self.current_athena_version = "MaMStandalone"
+        self.current_nightly_version = "MaMStandalone"
         # holder for default global_info
         self.default_global_info = {}
         # holder for current local global_info
@@ -620,17 +621,12 @@ class MenuAwareMonitoringStandalone:
         """ Check if two releases versions are compatible.
         If they do, MAM will apply MCKs from either release in the other."""
 
-        project1 = "DummyProject"
-        project2 = project1
-
-        if ( "-" in version1 ) and ( "-" in version2 ):
-            project1 = version1.split("-")[0]
-            version1 = version1.split("-")[1]
-            project2 = version2.split("-")[0]
-            version2 = version2.split("-")[1]
-
-        if ( version1.startswith(version2) or version1.startswith(version2) ) and project1.upper() == project2.upper():
-            return True
+        if type(version2) is list:
+            if version1 in version2:
+                return True
+        elif version1 == version2:
+                return True
+        return False
 
 
     def clone_mck_for_new_release(self,mck_id,project="",version=""):

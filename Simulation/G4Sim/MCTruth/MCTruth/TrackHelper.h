@@ -17,11 +17,10 @@ public:
   bool IsRegisteredSecondary() const ;
   bool IsSecondary() const ;
   int GetBarcode() const ;
-  TrackInformation * GetTrackInformation() {return trackInfo;}
+  TrackInformation * GetTrackInformation() {return m_trackInfo;}
   HepMcParticleLink GetParticleLink();
 private:
-  const G4Track* theTrack;
-  TrackInformation *trackInfo;
+  TrackInformation *m_trackInfo;
 };
 
 #endif

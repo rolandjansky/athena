@@ -164,7 +164,7 @@ class BtagFexFTK (TrigBtagFex):
             self.JetKey = "FarawayJet"
             instance = "EF"
         
-        self.PriVtxKey = "HLT_PrimVertexFTK" #"EFHistoPrmVtx"
+        self.PriVtxKey = "PrimVertexFTK" #"EFHistoPrmVtx"
         self.TrackKey  = "InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig"
         
         # IMPORT OFFLINE TOOLS
@@ -219,7 +219,7 @@ class BtagFexFTKRefit (TrigBtagFex):
             self.JetKey = "FarawayJet"
             instance = "EF"
         
-        self.PriVtxKey = "HLT_PrimVertexFTK" #"EFHistoPrmVtx"
+        self.PriVtxKey = "PrimVertexFTK" #"EFHistoPrmVtx"
         self.TrackKey  = "InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig"
         
         # IMPORT OFFLINE TOOLS
@@ -274,7 +274,7 @@ class BtagFexFTKVtx (TrigBtagFex):
             self.JetKey = "FarawayJet"
             instance = "EF"
         
-        self.PriVtxKey = "HLT_PrimVertexFTK" #"EFHistoPrmVtx"
+        self.PriVtxKey = "PrimVertexFTK" #"EFHistoPrmVtx"
         self.TrackKey  = "InDetTrigTrackingxAODCnv_Bjet_IDTrig"
         
         # IMPORT OFFLINE TOOLS

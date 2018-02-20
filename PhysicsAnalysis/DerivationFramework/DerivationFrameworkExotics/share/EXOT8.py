@@ -58,19 +58,6 @@ EXOT8Ak10r2JetTPThinningTool = DerivationFramework__JetTrackParticleThinning(nam
 ToolSvc += EXOT8Ak10r2JetTPThinningTool
 thinningTools.append(EXOT8Ak10r2JetTPThinningTool)
 
-#############################################
-# clusters associated with large-R jets (0.2)
-#############################################
-from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__JetCaloClusterThinning
-EXOT8Ak10r2CCThinningTool = DerivationFramework__JetCaloClusterThinning(name                    = "EXOT8Ak10r2CCThinningTool",
-                                                                        ThinningService         = "EXOT8ThinningSvc",
-                                                                        SGKey                   = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
-                                                                        TopoClCollectionSGKey   = "CaloCalTopoClusters",
-                                                                        SelectionString         = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 200*GeV",
-                                                                        ConeSize                = 0)
-ToolSvc += EXOT8Ak10r2CCThinningTool
-thinningTools.append(EXOT8Ak10r2CCThinningTool)
-
 #########################################
 # truth thinning
 #########################################
@@ -98,6 +85,20 @@ EXOT8TruthTool = DerivationFramework__MenuTruthThinning(name                    
 if globalflags.DataSource()=="geant4":
     ToolSvc += EXOT8TruthTool
     thinningTools.append(EXOT8TruthTool)
+
+#====================================================================
+# AUGMENTATION TOOLS
+#====================================================================
+augmentationTools = []
+from DerivationFrameworkExotics.DerivationFrameworkExoticsConf import DerivationFramework__BJetRegressionVariables
+EXOT8BJetRegressionVariables = DerivationFramework__BJetRegressionVariables(name = "EXOT8BJetRegressionVariables",
+                                                                            ContainerName = "AntiKt4EMTopoJets",
+                                                                            AssociatedTracks = "GhostTrack",
+                                                                            MinTrackPtCuts = [0])
+
+ToolSvc += EXOT8BJetRegressionVariables
+augmentationTools.append(EXOT8BJetRegressionVariables)
+print EXOT8BJetRegressionVariables
    
 #========================================================================================================================================
 # Triggers (https://indico.cern.ch/event/403233/contribution/4/material/slides/0.pdf)
@@ -234,7 +235,9 @@ applyJetCalibration_xAODColl("AntiKt4EMTopo", exot8Seq)
 applyJetCalibration_CustomColl("AntiKt10LCTopoTrimmedPtFrac5SmallR20", exot8Seq)
 
 exot8Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT8Kernel_skim",SkimmingTools = [EXOT8SkimmingTool])
-exot8Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT8Kernel", ThinningTools = thinningTools)
+exot8Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT8Kernel", ThinningTools = thinningTools,
+                                                                        AugmentationTools = augmentationTools)
+
 
 #========================================================================================================================================
 # Set up Stream
@@ -243,6 +246,7 @@ streamName  = derivationFlags.WriteDAOD_EXOT8Stream.StreamName
 fileName    = buildFileName( derivationFlags.WriteDAOD_EXOT8Stream )
 EXOT8Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 EXOT8Stream.AcceptAlgs(["EXOT8Kernel"])
+
 
 # Thinning
 from AthenaServices.Configurables import ThinningSvc, createThinningSvc
@@ -257,7 +261,6 @@ EXOT8SlimmingHelper = SlimmingHelper("EXOT8SlimmingHelper")
 EXOT8SlimmingHelper.SmartCollections = ["AntiKt4EMTopoJets",
                                         "BTagging_AntiKt4EMTopo",
                                         "BTagging_AntiKt2Track",
-                                        "InDetTrackParticles",
                                         "PrimaryVertices",
                                         "Electrons",
                                         "Muons",
@@ -266,12 +269,18 @@ EXOT8SlimmingHelper.SmartCollections = ["AntiKt4EMTopoJets",
 
 EXOT8SlimmingHelper.ExtraVariables = ["Electrons.charge", 
                                       "Muons.charge", 
-                                      "AntiKt4EMTopoJets.DFCommonJets_TrackSumMass", 
+                                      "AntiKt4EMTopoJets.DFCommonJets_TrackSumMass",
                                       "AntiKt4EMTopoJets.DFCommonJets_TrackSumPt",
+                                      "AntiKt4EMTopoJets.TrackSumPt",
+                                      "AntiKt4EMTopoJets.ScalSumPtTrkPt0",
+                                      "AntiKt4EMTopoJets.VecSumPtTrkPt0",
+                                      "AntiKt4EMTopoJets.ScalSumPtTrkCleanPt0PV0",
+                                      "AntiKt4EMTopoJets.VecSumPtTrkCleanPt0PV0",
                                       "BTagging_AntiKt4EMTopo.JetVertexCharge_discriminant",
                                       "BTagging_AntiKt4EMTopo.SV1_normdist",
                                       "BTagging_AntiKt4EMTopo.SV1_masssvx",
                                       "BTagging_AntiKt2Track.JetVertexCharge_discriminant",
+                                      
                                       ]
 
 EXOT8SlimmingHelper.AllVariables   = ["TruthParticles",
@@ -302,14 +311,16 @@ EXOT8SlimmingHelper.AppendToDictionary = {
                                
 # Add all variabless for VR track-jets
 EXOT8SlimmingHelper.AllVariables  += ["AntiKtVR30Rmax4Rmin02TrackJets"]
+EXOT8SlimmingHelper.SmartCollections  += ["BTagging_AntiKtVR30Rmax4Rmin02Track"]
 
 # Save certain b-tagging variables for VR track-jet
 EXOT8SlimmingHelper.ExtraVariables += [
     "BTagging_AntiKtVR30Rmax4Rmin02Track.SV1_pb.SV1_pu.IP3D_pb.IP3D_pu",
-    "BTagging_AntiKtVR30Rmax4Rmin02Track.MV2c10_discriminant.MV2c100_discriminant",
+    "BTagging_AntiKtVR30Rmax4Rmin02Track.MV2c100_discriminant",
     "BTagging_AntiKtVR30Rmax4Rmin02Track.SV1_badTracksIP.SV1_vertices.BTagTrackToJetAssociator.MSV_vertices",
-    "BTagging_AntiKtVR30Rmax4Rmin02Track.BTagTrackToJetAssociatorBB.JetFitter_JFvertices.JetFitter_tracksAtPVlinks.MSV_badTracksIP"
+    "BTagging_AntiKtVR30Rmax4Rmin02Track.BTagTrackToJetAssociatorBB.JetFitter_JFvertices.JetFitter_tracksAtPVlinks.MSV_badTracksIP",
 ]
+
 
 if globalflags.DataSource()=="geant4":
     EXOT8SlimmingHelper.StaticContent += [

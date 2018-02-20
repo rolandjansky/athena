@@ -17,8 +17,8 @@
 #include "PathResolver/PathResolver.h"
 
 // Including all the abstract interfaces - for systematics functions
-#include "xAODBTaggingEfficiency/IBTaggingEfficiencyTool.h"
-#include "xAODBTaggingEfficiency/IBTaggingSelectionTool.h"
+#include "FTagAnalysisInterfaces/IBTaggingEfficiencyTool.h"
+#include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
 
 #include "JetInterface/IJetSelector.h"
 #include "JetResolution/IJERTool.h"
@@ -58,6 +58,7 @@
 
 #include "METInterface/IMETMaker.h"
 #include "METInterface/IMETSystematicsTool.h"
+#include "METInterface/IMETSignificance.h"
 
 #include "TrigConfInterfaces/ITrigConfigTool.h"
 #include "TriggerMatchingTool/IMatchingTool.h"
@@ -67,6 +68,9 @@
 #include "PATInterfaces/IWeightTool.h"
 #include "AsgAnalysisInterfaces/IPileupReweightingTool.h"
 #include "AssociationUtils/IOverlapRemovalTool.h"
+
+// For reading metadata
+#include "xAODMetaData/FileMetaData.h"
 
 // For configuration -- TEnv uses THashList
 #include "THashList.h"
@@ -85,6 +89,8 @@ using namespace xAOD;
 
 SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   : asg::AsgMetadataTool( name ),
+    m_autoconfigPRW(false),
+    m_mcCampaign(""),
     m_dataSource(Undefined),
     m_jetInputType(xAOD::JetInput::Uncategorized),
     m_force_noElId(false),
@@ -108,8 +114,17 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_outMETTerm(""),
     m_metRemoveOverlappingCaloTaggedMuons(true),
     m_metDoSetMuonJetEMScale(true),
-    m_metDoMuonJetOR(true),
+    m_metDoRemoveMuonJets(true),
+    m_metUseGhostMuons(false),
+    m_metDoMuonEloss(false),
+    m_metsysConfigPrefix(""),
+    m_softTermParam(met::Random),  
+    m_treatPUJets(true),
+    m_doPhiReso(true),
     m_muUncert(-99.),
+    m_prwDataSF(1./1.03), // default for mc16, see: https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/ExtendedPileupReweighting#Tool_Properties
+    m_prwDataSF_UP(1.), // old value for mc15 (mc16 uncertainties still missing)
+    m_prwDataSF_DW(1./1.18), // old value for mc15 (mc16 uncertainties still missing)   
     m_electronTriggerSFStringSingle(""),
     m_electronTriggerSFStringDiLepton(""),
     m_electronTriggerSFStringMixedLepton(""),
@@ -170,7 +185,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_tauConfigPathBaseline(""),
     m_tauDoTTM(false),
     m_tauRecalcOLR(false),
-    m_tauNoAODFixCheck(true),
     //
     m_jetPt(-99.),
     m_jetEta(-99.),
@@ -203,7 +217,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_orMuJetInnerDR(-999),
     m_orDoMuonJetGhostAssociation(true),
     m_orRemoveCaloMuons(true),
-    m_orApplyJVT(true),
     m_orBtagWP(""),
     m_orInputLabel(""),
     m_orDoFatjets(false),
@@ -287,6 +300,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     //
     m_metMaker(""),
     m_metSystTool(""),
+    m_metSignif(""),
     //
     m_trigConfTool(""),
     m_trigDecTool(""),
@@ -330,7 +344,6 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "ORMuJetPtRatio", m_orMuJetPtRatio);
   declareProperty( "ORMuJetInnerDR", m_orMuJetInnerDR );
   declareProperty( "ORJetTrkPtRatio", m_orMuJetTrkPtRatio);
-  declareProperty( "ORApplyJVT", m_orApplyJVT);
   declareProperty( "ORInputLabel", m_orInputLabel);
 
   declareProperty( "DoFatJetOR", m_orDoFatjets);
@@ -349,12 +362,18 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "METDoTrkSyst",   m_trkMETsyst  );
   declareProperty( "METDoCaloSyst",  m_caloMETsyst );
   declareProperty( "METJetSelection",  m_metJetSelection );
+  declareProperty( "METSysConfigPrefix",  m_metsysConfigPrefix );
 
   declareProperty( "METRemoveORCaloTaggedMuons", m_metRemoveOverlappingCaloTaggedMuons);
   declareProperty( "METDoSetMuonJetEMScale", m_metDoSetMuonJetEMScale);
-  declareProperty( "METDoMuonJetOR",  m_metDoMuonJetOR );
+  declareProperty( "METDoRemoveMuonJets",  m_metDoRemoveMuonJets );
+  declareProperty( "METUseGhostMuons",  m_metUseGhostMuons );
+  declareProperty( "METDoMuonEloss",  m_metDoMuonEloss );
 
-  declareProperty( "METGreedyPhotons",  m_metGreedyPhotons );
+
+  declareProperty( "SoftTermParam",  m_softTermParam);
+  declareProperty( "TreatPUJets",  m_treatPUJets);  
+  declareProperty( "DoPhiReso",  m_doPhiReso);  
 
   //JETS
   declareProperty( "FwdJetDoJVT",  m_doFwdJVT );
@@ -419,10 +438,8 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "TauId", m_tauId);
   declareProperty( "TauIdConfigPathBaseline", m_tauConfigPathBaseline);
   declareProperty( "TauIdConfigPath", m_tauConfigPath);
-  declareProperty( "TauMVACalibration", m_tauMVACalib);
   declareProperty( "TauDoTruthMatching", m_tauDoTTM);
   declareProperty( "TauRecalcElOLR", m_tauRecalcOLR);
-  declareProperty( "TauIgnoreAODFixCheck", m_tauNoAODFixCheck);
   declareProperty( "TauIDRedecorate", m_tauIDrecalc); 
 
   //Leptons
@@ -436,9 +453,14 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
 
   //--- Tools configuration
   //PRW
-  declareProperty( "PRWConfigFiles",    m_prwConfFiles );
-  declareProperty( "PRWLumiCalcFiles",  m_prwLcalcFiles );
-  declareProperty( "PRWMuUncertainty",  m_muUncert); // = 0.2);
+  declareProperty( "AutoconfigurePRWTool", m_autoconfigPRW );
+  declareProperty( "mcCampaign",           m_mcCampaign );
+  declareProperty( "PRWConfigFiles",       m_prwConfFiles );
+  declareProperty( "PRWLumiCalcFiles",     m_prwLcalcFiles );
+  declareProperty( "PRWMuUncertainty",     m_muUncert); // = 0.2);
+  declareProperty( "PRWDataScaleFactor",   m_prwDataSF);
+  declareProperty( "PRWDataScaleFactorUP", m_prwDataSF_UP);
+  declareProperty( "PRWDataScaleFactorDOWN", m_prwDataSF_DW);
   //JES Unc.
   declareProperty( "JESNuisanceParameterSet", m_jesNPset );
   //LargeR uncertainties config, as from https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/JetUncertainties2016PrerecLargeR#Understanding_which_configuratio
@@ -517,6 +539,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   //
   m_metMaker.declarePropertyFor( this, "METMaker", "The METMaker instance");
   m_metSystTool.declarePropertyFor( this, "METSystTool", "The METSystematicsTool");
+  m_metSignif.declarePropertyFor( this, "METSignificance", "The METSignifiance instance");
   //
   m_trigConfTool.declarePropertyFor( this, "TrigConfigTool", "The TrigConfigTool" );
   m_trigDecTool.declarePropertyFor( this, "TrigDecisionTool", "The TrigDecisionTool" );
@@ -535,12 +558,17 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   //m_orToolbox.declarePropertyFor( this, "OverlapRemovalTool", "The overlap removal tool");
 
   //load supported WPs (by tightness order)
+  el_id_support.push_back("VeryLooseLLH_Rel20p7");
   el_id_support.push_back("VeryLooseLLH");
+  el_id_support.push_back("LooseLLH_Rel20p7");
   el_id_support.push_back("LooseLLH");
-  el_id_support.push_back("LooseAndBLayerLLH"); 
-  el_id_support.push_back("MediumLLH"); 
+  el_id_support.push_back("LooseAndBLayerLLH_Rel20p7"); 
+  el_id_support.push_back("LooseAndBLayerLLH");
+  el_id_support.push_back("MediumLLH_Rel20p7"); 
+  el_id_support.push_back("MediumLLH");
+  el_id_support.push_back("TightLLH_Rel20p7");
   el_id_support.push_back("TightLLH");
-  
+
   ph_id_support.push_back("Loose");
   ph_id_support.push_back("Medium");
   ph_id_support.push_back("Tight");
@@ -630,7 +658,7 @@ StatusCode SUSYObjDef_xAOD::initialize() {
   if (m_dataSource < 0) {
     ATH_MSG_FATAL( "Data source incorrectly configured!!" );
     ATH_MSG_FATAL("You must set the DataSource property to Data, FullSim or AtlfastII !!");
-    if (autoconf) ATH_MSG_FATAL("Auto-configuration seems to have failed!");
+    if (autoconf) ATH_MSG_FATAL("Autoconfiguration seems to have failed!");
     // if(m_useLeptonTrigger<0) ATH_MSG_ERROR( " UseLeptonTrigger not set");
     ATH_MSG_FATAL( "Exiting... " );
     return StatusCode::FAILURE;
@@ -656,6 +684,9 @@ StatusCode SUSYObjDef_xAOD::initialize() {
   m_inputMETMap = "METAssoc_" + m_inputMETSuffix;
   ATH_MSG_INFO("Build MET with map: " << m_inputMETMap);
 
+  // autoconfigure PRW tool if m_autoconfigPRW==true
+  ATH_CHECK( autoconfigurePileupRWTool() );
+
   ATH_CHECK( this->SUSYToolsInit() );
 
   ATH_MSG_VERBOSE("Done with tool retrieval");
@@ -666,7 +697,96 @@ StatusCode SUSYObjDef_xAOD::initialize() {
   return StatusCode::SUCCESS;
 }
 
-
+StatusCode SUSYObjDef_xAOD::autoconfigurePileupRWTool() {
+  // doing here some black magic to autoconfigure the pileup reweighting tool 
+  std::string prwConfigFile = "";
+  if ( !isData() && m_autoconfigPRW ) {
+    prwConfigFile = PathResolverFindCalibDirectory("dev/SUSYTools/PRW_AUTOCONGIF/files/");
+    // ::
+    float dsid = -999;
+    std::string amiTag = "";
+    std::string mcCampaignMD = "";
+    const xAOD::FileMetaData* fmd = 0;
+    if( inputMetaStore()->contains<xAOD::FileMetaData>("FileMetaData") && inputMetaStore()->retrieve(fmd,"FileMetaData").isSuccess() ) {
+      fmd->value(xAOD::FileMetaData::mcProcID, dsid);
+      fmd->value(xAOD::FileMetaData::amiTag, amiTag);
+      if( amiTag.find("r9364")!=string::npos ) mcCampaignMD = "mc16a";
+      else if( amiTag.find("r9781")!=string::npos ) mcCampaignMD = "mc16c";
+      else if( amiTag.find("r10201")!=string::npos ) mcCampaignMD = "mc16d";
+      else {
+	ATH_MSG_ERROR( "autoconfigurePileupRWTool(): unrecognized xAOD::FileMetaData::amiTag, \'" << amiTag << "'. Please check your input sample and make sure it's mc16a, c or d. If it is, contact the Background Forum conveners." );
+	return StatusCode::FAILURE;
+      }
+    } else  {
+#ifndef XAOD_STANDALONE
+      ATH_MSG_ERROR( "autoconfigurePileupRWTool(): access to FileMetaData failed, can't get mc channel number -> please get in touch with the Background Forum conveners reporting what sample you're running over." );
+      return StatusCode::FAILURE;
+#else
+      ATH_MSG_WARNING( "autoconfigurePileupRWTool(): access to FileMetaData failed -> getting the mc channel number (DSID) from the event store." );
+      const xAOD::EventInfo* evtInfo = 0;
+      ATH_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
+      dsid = evtInfo->mcChannelNumber();
+#endif
+    }
+    // ::
+    // Sanity checks
+    bool mc16X_GoodFromProperty = false;
+    bool mc16X_GoodFromMetadata = false;
+    if( m_mcCampaign == "mc16a" || m_mcCampaign == "mc16c" || m_mcCampaign == "mc16d") mc16X_GoodFromProperty = true;
+    if( mcCampaignMD == "mc16a" || mcCampaignMD == "mc16c" || mcCampaignMD == "mc16d") mc16X_GoodFromMetadata = true;
+    if( !mc16X_GoodFromMetadata && mc16X_GoodFromProperty ) {
+      // ::
+      std::string NoMetadataButPropertyOK(""); 
+      NoMetadataButPropertyOK += "autoconfigurePileupRWTool(): access to FileMetaData failed, but the 'mcCampaign' property is passed to SUSYTools as '";
+      NoMetadataButPropertyOK += m_mcCampaign;
+      NoMetadataButPropertyOK += "'. Autocongiguring PRW accordingly.";
+      ATH_MSG_WARNING( NoMetadataButPropertyOK );
+      mcCampaignMD = m_mcCampaign;
+      // ::
+    } else if ( mc16X_GoodFromProperty && mc16X_GoodFromMetadata && m_mcCampaign != mcCampaignMD ) {
+      // ::
+      std::string MetadataAndPropertyConflict("");
+      MetadataAndPropertyConflict += "autoconfigurePileupRWTool(): access to FileMetaData indicates a " + mcCampaignMD;
+      MetadataAndPropertyConflict += " sample, but the 'mcCampaign' property passed to SUSYTools is set to '" +m_mcCampaign;
+      MetadataAndPropertyConflict += "'. Prioritizing the value extracted from MetaData: PLEASE DOUBLE-CHECK the value you set the 'mcCampaign' property to!";
+      m_mcCampaign = mcCampaignMD;
+      ATH_MSG_WARNING( MetadataAndPropertyConflict );
+      // ::
+    } else if( !mc16X_GoodFromMetadata && !mc16X_GoodFromProperty ) {
+      // ::
+      std::string MetadataAndPropertyBAD("");
+      MetadataAndPropertyBAD += "autoconfigurePileupRWTool(): access to FileMetaData failed, but don't panic. You can try to manually set the 'mcCampaign' SUSYTools property to ";
+      MetadataAndPropertyBAD += "'mc16a', 'mc16c' or 'mc16d' and restart your job. If you set it to any other string, you will still incur in this error.";
+      ATH_MSG_ERROR( MetadataAndPropertyBAD );
+      return StatusCode::FAILURE;
+      // :: 
+    }
+    // ::
+    // Retrieve the input file
+    int DSID_INT = (int) dsid; 
+    prwConfigFile += "pileup_" + mcCampaignMD + "_dsid" + std::to_string(DSID_INT) + ".root";
+    TFile testF(prwConfigFile.data(),"read");
+    if(testF.IsZombie()) {
+      ATH_MSG_WARNING( "autoconfigurePileupRWTool(): file not found -> " << prwConfigFile.data() << " ! Now trying with one of the background forum merged mc16 prw input files (it won't however work for signal samples!)." );
+      // ::
+      prwConfigFile = PathResolverFindCalibDirectory("dev/SUSYTools/");
+      if ( mcCampaignMD == "mc16a" ) prwConfigFile += "merged_prw_mc16a_latest.root";
+      // SOON TO BE // else if ( mcCampaignMD == "mc16c" ) prwConfigFile += '';
+      // SOON TO BE // else if ( mcCampaignMD == "mc16d" ) prwConfigFile += '';
+      TFile testF2(prwConfigFile.data(),"read");
+      if(testF2.IsZombie()) {
+	ATH_MSG_ERROR( "autoconfigurePileupRWTool(): file not found -> " << prwConfigFile.data() << " ! Impossible to autocongigure PRW. Aborting." );
+	return StatusCode::FAILURE;
+      }
+    }
+    m_prwConfFiles.clear();
+    m_prwConfFiles.push_back( prwConfigFile );
+    ATH_MSG_INFO( "autoconfigurePileupRWTool(): configuring PRW tool using " << prwConfigFile.data() );
+  }
+  // Return gracefully
+  return StatusCode::SUCCESS;
+}
+  
 void SUSYObjDef_xAOD::setDataSource(int source) {
   if (source == 0) m_dataSource = Data;
   else if (source == 1) m_dataSource = FullSim;
@@ -693,7 +813,6 @@ std::string SUSYObjDef_xAOD::EG_WP(const std::string& wp) const {
   return TString(wp).Copy().ReplaceAll("AndBLayer","BL").ReplaceAll("LLH","LHElectron").Data();
 }
 
-
 std::vector<std::string> SUSYObjDef_xAOD::getElSFkeys(const std::string& mapFile) const {
   
   if( mapFile.empty() )
@@ -716,12 +835,15 @@ std::vector<std::string> SUSYObjDef_xAOD::getElSFkeys(const std::string& mapFile
 void SUSYObjDef_xAOD::configFromFile(bool& property, const std::string& propname, TEnv& rEnv,
                                      bool defaultValue)
 {
-  if(m_bool_prop_set.find(m_conf_to_prop[propname])!= m_bool_prop_set.end()){
+  if(m_bool_prop_set.find(m_conf_to_prop[propname])!=m_bool_prop_set.end()){
     ATH_MSG_INFO( "configFromFile(): property \"" << propname << "\" already set with value " << property << ". Ignoring change request." );
+    rEnv.GetTable()->Remove( rEnv.GetTable()->FindObject(propname.c_str() ) );
     return;
   }
   property = rEnv.GetValue(propname.c_str(), (int) defaultValue);
   ATH_MSG_INFO( "configFromFile(): Loaded property \"" << propname << "\" with value " << property );
+  // Remove the item from the table
+  rEnv.GetTable()->Remove( rEnv.GetTable()->FindObject(propname.c_str() ) );
 }
 
 
@@ -731,10 +853,13 @@ void SUSYObjDef_xAOD::configFromFile(double& property, const std::string& propna
   // ignore if already configured
   if (property > -90.) { 
     ATH_MSG_INFO( "configFromFile(): property \"" << propname << "\" already set with value " << property << ". Ignoring change request." );
+    rEnv.GetTable()->Remove( rEnv.GetTable()->FindObject(propname.c_str() ) );
     return;
   }
   property = rEnv.GetValue(propname.c_str(), defaultValue);
   ATH_MSG_INFO( "configFromFile(): Loaded property \"" << propname << "\" with value " << property );
+  // Remove the item from the table
+  rEnv.GetTable()->Remove( rEnv.GetTable()->FindObject(propname.c_str() ) );
 }
 
 
@@ -744,10 +869,13 @@ void SUSYObjDef_xAOD::configFromFile(int& property, const std::string& propname,
   // ignore if already configured
   if (property > -90){
     ATH_MSG_INFO( "configFromFile(): property \"" << propname << "\" already set with value " << property << ". Ignoring change request." );
+    rEnv.GetTable()->Remove( rEnv.GetTable()->FindObject(propname.c_str() ) );
     return;
   }
   property = rEnv.GetValue(propname.c_str(), defaultValue);
   ATH_MSG_INFO( "configFromFile(): Loaded property \"" << propname << "\" with value " << property );
+  // Remove the item from the table
+  rEnv.GetTable()->Remove( rEnv.GetTable()->FindObject(propname.c_str() ) );
 }
 
 
@@ -757,6 +885,7 @@ void SUSYObjDef_xAOD::configFromFile(std::string& property, const std::string& p
   // ignore if already configured
   if (!property.empty()){
     ATH_MSG_INFO( "configFromFile(): property \"" << propname << "\" already set with value " << property << ". Ignoring change request." );
+    rEnv.GetTable()->Remove( rEnv.GetTable()->FindObject(propname.c_str() ) );
     return;
   }
   property = rEnv.GetValue(propname.c_str(), defaultValue.c_str());
@@ -775,6 +904,8 @@ void SUSYObjDef_xAOD::configFromFile(std::string& property, const std::string& p
   }
 
   ATH_MSG_INFO( "configFromFile(): Loaded property \"" << propname << "\" with value " << property );
+  // Remove the item from the table
+  rEnv.GetTable()->Remove( rEnv.GetTable()->FindObject(propname.c_str() ) );
 }
 
 
@@ -794,18 +925,23 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   if (m_jetInputType == xAOD::JetInput::Uncategorized) {
     m_jetInputType = xAOD::JetInput::Type(rEnv.GetValue("Jet.InputType", 1));
     ATH_MSG_INFO( "readConfig(): Loaded property Jet.InputType with value " << (int)m_jetInputType);
+    // Remove the item from the table
+    rEnv.GetTable()->Remove( rEnv.GetTable()->FindObject("Jet.InputType") );
   }
   
   if (m_muId == static_cast<int>(xAOD::Muon::Quality(xAOD::Muon::VeryLoose))) {
     int muIdTmp = rEnv.GetValue("Muon.Id", 1);
     m_muId = (muIdTmp<4 ? (int)xAOD::Muon::Quality(muIdTmp) : muIdTmp);
     ATH_MSG_INFO( "readConfig(): Loaded property Muon.Id with value " << m_muId);
-
+    // Remove the item from the table
+    rEnv.GetTable()->Remove( rEnv.GetTable()->FindObject("Muon.Id") );
   }
   if (m_muIdBaseline == static_cast<int>(xAOD::Muon::Quality(xAOD::Muon::VeryLoose))) {
     int muIdTmp = rEnv.GetValue("MuonBaseline.Id", 1);
     m_muIdBaseline = (muIdTmp<4 ? (int)xAOD::Muon::Quality(muIdTmp) : muIdTmp);
     ATH_MSG_INFO( "readConfig(): Loaded property MuonBaseline.Id with value " << m_muIdBaseline);
+    // Remove the item from the table
+    rEnv.GetTable()->Remove( rEnv.GetTable()->FindObject("MuonBaseline.Id") );
   }
 
   //load config file to Properties map  (only booleans for now)
@@ -839,7 +975,6 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   m_conf_to_prop["OR.DoFatJets"] = "DoFatJetOR";
   m_conf_to_prop["OR.RemoveCaloMuons"] = "ORRemoveCaloMuons";
   m_conf_to_prop["OR.MuJetApplyRelPt"] = "ORMuJetApplyRelPt";
-  m_conf_to_prop["OR.ApplyJVT"] = "ORApplyJVT";
   m_conf_to_prop["OR.InputLabel"] = "ORInputLabel";
  
   m_conf_to_prop["SigLep.RequireIso"] = "SigLepRequireIso";
@@ -849,15 +984,15 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   m_conf_to_prop["SigLepPh.IsoCloseByOR"] = "SigLepPhIsoCloseByOR";
   m_conf_to_prop["MET.RemoveOverlappingCaloTaggedMuons"] = "METRemoveORCaloTaggedMuons";
   m_conf_to_prop["MET.DoSetMuonJetEMScale"] = "METDoSetMuonJetEMScale";
-  m_conf_to_prop["MET.DoMuonJetOR"] = "METDoMuonJetOR";
+  m_conf_to_prop["MET.DoRemoveMuonJets"] = "METDoRemoveMuonJets";
+  m_conf_to_prop["MET.DoUseGhostMuons"] = "METUseGhostMuons";
+  m_conf_to_prop["MET.DoMuonEloss"] = "METDoMuonEloss";
+
   m_conf_to_prop["MET.DoTrkSyst"] = "METDoTrkSyst";
   m_conf_to_prop["MET.DoCaloSyst"] = "METDoCaloSyst";
-  m_conf_to_prop["MET.GreedyPhotons"] = "METGreedyPhotons";
 
-  m_conf_to_prop["Tau.MVACalibration"] = "TauMVACalibration";
   m_conf_to_prop["Tau.DoTruthMatching"] = "TauDoTruthMatching";
   m_conf_to_prop["Tau.RecalcElOLR"] = "TauRecalcElOLR";
-  m_conf_to_prop["Tau.IgnoreAODFixCheck"] = "TauIgnoreAODFixCheck";
   m_conf_to_prop["Tau.IDRedecorate"] = "TauIDRedecorate";  
   //
 
@@ -921,10 +1056,8 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_tauConfigPath, "Tau.ConfigPath", rEnv, "default");
   configFromFile(m_tauIdBaseline, "TauBaseline.Id", rEnv, "Medium");
   configFromFile(m_tauConfigPathBaseline, "TauBaseline.ConfigPath", rEnv, "default");
-  configFromFile(m_tauMVACalib, "Tau.MVACalibration", rEnv, false);
   configFromFile(m_tauDoTTM, "Tau.DoTruthMatching", rEnv, false);
   configFromFile(m_tauRecalcOLR, "Tau.RecalcElOLR", rEnv, false);
-  configFromFile(m_tauNoAODFixCheck, "Tau.IgnoreAODFixCheck", rEnv, true);
   configFromFile(m_tauIDrecalc, "Tau.IDRedecorate", rEnv, false);
   //
   configFromFile(m_jetPt, "Jet.Pt", rEnv, 20000.);
@@ -948,7 +1081,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_useBtagging, "Btag.enable", rEnv, true);
   configFromFile(m_BtagTagger, "Btag.Tagger", rEnv, "MV2c10");
   configFromFile(m_BtagWP, "Btag.WP", rEnv, "FixedCutBEff_77");
-  configFromFile(m_bTaggingCalibrationFilePath, "Btag.CalibPath", rEnv, "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2017-07-02_v1.root");
+  configFromFile(m_bTaggingCalibrationFilePath, "Btag.CalibPath", rEnv, "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2017-12-22_v1.root");
   configFromFile(m_BtagSystStrategy, "Btag.SystStrategy", rEnv, "Envelope");
   //
   configFromFile(m_orDoBoostedElectron, "OR.DoBoostedElectron", rEnv, false);
@@ -972,7 +1105,6 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_orMuJetPtRatio, "OR.MuJetPtRatio", rEnv, -999.);
   configFromFile(m_orMuJetTrkPtRatio, "OR.MuJetTrkPtRatio", rEnv, -999.);
   configFromFile(m_orRemoveCaloMuons, "OR.RemoveCaloMuons", rEnv, true);
-  configFromFile(m_orApplyJVT, "OR.ApplyJVT", rEnv, true);
   configFromFile(m_orMuJetInnerDR, "OR.MuJetInnerDR", rEnv, -999.);
   configFromFile(m_orBtagWP, "OR.BtagWP", rEnv, "FixedCutBEff_85");
   configFromFile(m_orInputLabel, "OR.InputLabel", rEnv, "selected"); //"baseline"
@@ -995,15 +1127,30 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_outMETTerm, "MET.OutputTerm", rEnv, "Final");
   configFromFile(m_metRemoveOverlappingCaloTaggedMuons, "MET.RemoveOverlappingCaloTaggedMuons", rEnv, true);
   configFromFile(m_metDoSetMuonJetEMScale, "Met.DoSetMuonJetEMScale", rEnv, true);
-  configFromFile(m_metDoMuonJetOR, "MET.DoMuonJetOR", rEnv, true);
+  configFromFile(m_metDoRemoveMuonJets, "MET.DoRemoveMuonJets", rEnv, true);
+  configFromFile(m_metUseGhostMuons, "MET.UseGhostMuons", rEnv, false);
+  configFromFile(m_metDoMuonEloss, "MET.DoMuonEloss", rEnv, false);
+
   configFromFile(m_trkMETsyst, "MET.DoTrkSyst", rEnv, true);
   configFromFile(m_caloMETsyst, "MET.DoCaloSyst", rEnv, false);
-  configFromFile(m_metGreedyPhotons, "MET.GreedyPhotons", rEnv, false);
-  configFromFile(m_metJetSelection, "MET.JetSelection", rEnv, "Tight"); // set to non-empty to override default
+  configFromFile(m_metsysConfigPrefix, "METSys.ConfigPrefix", rEnv, "METUtilities/data17_13TeV/prerec_Jan16"); 
+  configFromFile(m_metJetSelection, "MET.JetSelection", rEnv, "Tight"); // Tight (default), Loose, etc
+  configFromFile(m_softTermParam, "METSig.SoftTermParam", rEnv, met::Random);
+  configFromFile(m_treatPUJets, "METSig.TreatPUJets", rEnv, true);
+  configFromFile(m_doPhiReso, "METSig.DoPhiReso", rEnv, true);
   //
   configFromFile(m_muUncert, "PRW.MuUncertainty", rEnv, 0.2);
   //
   configFromFile(m_strictConfigCheck, "StrictConfigCheck", rEnv, false);
+
+  // By now rEnv should be empty!
+  if (rEnv.GetTable() && rEnv.GetTable()->GetSize()>0){
+    ATH_MSG_ERROR("Found " << rEnv.GetTable()->GetSize() << " unparsed environment options:");
+    rEnv.Print();
+    ATH_MSG_ERROR("Please fix your configuration!");
+    return StatusCode::FAILURE;
+  }
+
 
   //** validate configuration
   ATH_CHECK( validConfig(m_strictConfigCheck) );
@@ -1194,14 +1341,12 @@ StatusCode SUSYObjDef_xAOD::validConfig(bool strict) const {
     if(strict) return StatusCode::FAILURE;
   }
 
-  //Btagging //OR-wp tighter than signal-wp?
-  if( m_BtagWP.compare(0, m_BtagWP.size()-3, m_orBtagWP) == 0 ){ //same tagger WP (FlatEff or FixedCut)
+  //Btagging //OR-wp looser than signal-wp?
+  if( m_BtagWP.compare(0, m_BtagWP.size()-3, m_orBtagWP, 0, m_BtagWP.size()-3) == 0 ){ //same tagger WP (FixedCutBEff_XX or HybBEff_XX)
     if( atoi(m_BtagWP.substr(m_BtagWP.size()-2, m_BtagWP.size()).c_str()) < atoi(m_orBtagWP.substr(m_orBtagWP.size()-2, m_orBtagWP.size()).c_str()) ){ 
-      ATH_MSG_WARNING("Your btagging configuration is inconsistent!  Signal : " << m_BtagWP << " is looser than OR-Baseline : " << m_orBtagWP);
-      if(strict) return StatusCode::FAILURE;
+      ATH_MSG_WARNING("Your btagging configuration is inconsistent!  Signal : " << m_BtagWP << " is tighter than OR-Baseline : " << m_orBtagWP);
     }
   }
-
 
   //Taus
   ///baseline vs signal pt check 
@@ -2128,7 +2273,7 @@ float SUSYObjDef_xAOD::GetCorrectedAverageInteractionsPerCrossing(bool includeDa
 
   const xAOD::EventInfo* evtInfo = 0;
   ATH_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
-  return m_prwTool->getCorrectedMu( *evtInfo, includeDataSF );
+  return m_prwTool->getCorrectedAverageInteractionsPerCrossing( *evtInfo, includeDataSF );
 }
 
 double SUSYObjDef_xAOD::GetSumOfWeights(int channel) {

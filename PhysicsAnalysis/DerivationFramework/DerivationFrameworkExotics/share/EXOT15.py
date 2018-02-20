@@ -5,6 +5,7 @@
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
@@ -35,16 +36,18 @@ EXOT15ThinningHelper.AppendToStream( EXOT15Stream )
 
 thinningTools = []
 
-thinning_expression = "(InDetTrackParticles.pt > 1.0*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 3)"
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-EXOT15TPThinningTool = DerivationFramework__TrackParticleThinning( name              = "EXOT15TPThinningTool",
-                                                                ThinningService         = "EXOT15ThinningSvc",
-                                                                SelectionString         = thinning_expression,
-                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                ApplyAnd                = False)
+# track thinning
+#thinning_expression = "(InDetTrackParticles.pt > 1.0*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 3)"
+#from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
+#EXOT15TPThinningTool = DerivationFramework__TrackParticleThinning( name              = "EXOT15TPThinningTool",
+#                                                                ThinningService         = "EXOT15ThinningSvc",
+#                                                                SelectionString         = thinning_expression,
+#                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
+#                                                                ApplyAnd                = False)
 #ToolSvc += EXOT15TPThinningTool  # do not use track thinning
 #thinningTools.append(EXOT15TPThinningTool)
 
+# menu truth thinning
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
 EXOT15TMCThinningTool = DerivationFramework__MenuTruthThinning(name = "EXOT15TMCThinningTool",
                                                               ThinningService         = EXOT15ThinningHelper.ThinningSvc(),
@@ -74,6 +77,7 @@ if SkipTriggerRequirement:
     ToolSvc += EXOT15TMCThinningTool
     thinningTools.append(EXOT15TMCThinningTool)
 
+# generic truth thinning
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
 EXOT15MCGenThinningTool = DerivationFramework__GenericTruthThinning(name = "EXOT15MCGenThinningTool",
                                                                    ThinningService         = EXOT15ThinningHelper.ThinningSvc(),
@@ -81,11 +85,9 @@ EXOT15MCGenThinningTool = DerivationFramework__GenericTruthThinning(name = "EXOT
                                                                    PreserveDescendants = True,
                                                                    PreserveAncestors   = True)
 
-
 if SkipTriggerRequirement:
     ToolSvc += EXOT15MCGenThinningTool
     thinningTools.append(EXOT15MCGenThinningTool)
-
 
 #=======================================
 # SKIMMING
@@ -121,8 +123,6 @@ else:
     EXOT15TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(name = "EXOT15TriggerSkimmingTool",
                                                                          TriggerListAND = [],
                                                                          TriggerListOR  = [
-                                                                             "HLT_j30_jes_PS_llp_L1TAU30",
-                                                                             "HLT_j30_jes_PS_llp_L1TAU40",
                                                                              "HLT_j30_jes_PS_llp_L1TAU60",
                                                                              "HLT_j30_jes_PS_llp_noiso_L1TAU60",
                                                                              "HLT_j30_muvtx","HLT_j30_muvtx_noiso",
@@ -130,16 +130,7 @@ else:
                                                                              #"HLT_j400",
                                                                              "HLT_j30_jes_cleanLLP_PS_llp_L1LLP-RO",
                                                                              "HLT_j30_jes_cleanLLP_PS_llp_noiso_L1LLP-RO",
-                                                                             "HLT_j30_jes_PS_llp_L1LLP-NOMATCH",
-                                                                             "HLT_j30_jes_PS_llp_noiso_L1LLP-NOMATCH",
-                                                                             "HLT_j30_jes_PS_llp_L1TAU40",
-                                                                             "HLT_j30_jes_PS_llp_L1TAU8_EMPTY",
-                                                                             "HLT_j30_jes_PS_llp_L1TAU30_EMPTY",
-                                                                             "HLT_j30_jes_PS_llp_L1TAU8_UNPAIRED_ISO",
-                                                                             "HLT_j30_jes_PS_llp_L1TAU30_UNPAIRED_ISO",
-                                                                             "HLT_j30_jes_PS_llp_L1TAU8_UNPAIRED_NONISO",
                                                                              "HLT_j30_jes_cleanLLP_PS_llp_L1TAU30", # adding cleanLLP chains for the future
-                                                                             "HLT_j30_jes_cleanLLP_PS_llp_L1TAU40",
                                                                              "HLT_j30_jes_cleanLLP_PS_llp_L1TAU60", 
                                                                              "HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU60", 
                                                                              "HLT_j30_jes_cleanLLP_PS_llp_L1LLP-NOMATCH",    
@@ -157,7 +148,9 @@ else:
                                                                              "HLT_j30_muvtx_L1MU6_EMPTY",
                                                                              "HLT_j30_muvtx_noiso_L1MU6_EMPTY", # adding noiso in EMPTY, UNPAIRED for the future
                                                                              "HLT_j30_muvtx_L1MU4_UNPAIRED_ISO",
-                                                                             "HLT_j30_muvtx_noiso_L1MU4_UNPAIRED_ISO"])
+                                                                             "HLT_j30_muvtx_noiso_L1MU4_UNPAIRED_ISO",
+                                                                             "HLT_j30_jes_cleanLLP_PS_llp_L1TAU100", 
+                                                                             "HLT_j30_jes_cleanLLP_PS_llp_noiso_L1TAU100"])
 
     ToolSvc += EXOT15TriggerSkimmingTool
     skimmingTools.append(EXOT15TriggerSkimmingTool)
@@ -166,7 +159,6 @@ if not SkipTriggerRequirement and not rec.triggerStream() == 'ZeroBias':
     from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
     EXOT15ORSkimmingTool = DerivationFramework__FilterCombinationOR(name = "EXOT15ORSkimmingTool", FilterList = skimmingTools )
     ToolSvc += EXOT15ORSkimmingTool
-
 
 #=======================================
 # JETS
@@ -192,7 +184,6 @@ elif rec.triggerStream() == 'ZeroBias':
 else:
     exot15Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT15Kernel", SkimmingTools = [EXOT15ORSkimmingTool])
 
-
 #====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================
@@ -201,12 +192,10 @@ from DerivationFrameworkExotics.EXOT15ContentList import *
 EXOT15SlimmingHelper = SlimmingHelper("EXOT15SlimmingHelper")
 EXOT15SlimmingHelper.SmartCollections = EXOT15SmartContent
 EXOT15SlimmingHelper.AllVariables = EXOT15AllVariablesContent
-
-#EXOT15SlimmingHelper.IncludeJetTauEtMissTriggerContent = True
+EXOT15SlimmingHelper.ExtraVariables += ['HLT_xAOD__JetContainer_a4tcemsubjesFS.m.EMFrac','Electrons.LHMedium','PrimaryVertices.x.y']
 EXOT15SlimmingHelper.IncludeJetTriggerContent = True
 EXOT15SlimmingHelper.IncludeBJetTriggerContent = True
 EXOT15SlimmingHelper.IncludeTauTriggerContent = True
 #EXOT15SlimmingHelper.IncludeMuonTriggerContent = True
-EXOT15SlimmingHelper.ExtraVariables += ['HLT_xAOD__JetContainer_a4tcemsubjesFS.m.EMFrac','Electrons.LHMedium','PrimaryVertices.x.y']
-
+addOriginCorrectedClusters(EXOT15SlimmingHelper,writeLC=False,writeEM=True)
 EXOT15SlimmingHelper.AppendContentToStream(EXOT15Stream)

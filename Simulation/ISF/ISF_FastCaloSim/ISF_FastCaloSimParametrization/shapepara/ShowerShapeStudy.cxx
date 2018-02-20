@@ -94,6 +94,8 @@ std::tuple<float, float> ShowerShapeStudy::GetShift(int ievent)
 
 void ShowerShapeStudy::EachParticleShower()
 {
+
+
    // * get the input hits file
 
    cout << "* Reading input hits file = " << m_hitsNtupleName.c_str() << endl;
@@ -138,8 +140,30 @@ void ShowerShapeStudy::EachParticleShower()
    TH2F *hdetadphiE0 = nullptr;
    TH1F *hdetaE0     = nullptr;
 
+   TH2F *hEnergy = nullptr;
+   TH2F *hEnergyAvg = nullptr;
+
+   TH1F *hDrEnergy = nullptr;
+   TH1F *hDrEnergyAvg = nullptr;
+
    std::string file     = m_topDir + m_particle + "/EachParticleShower_" + m_fileName + ".root";
    TFile       *outfile = new TFile(file.c_str(), "recreate");
+
+   std::string GetBinningFile = m_topDir + m_particle + "/InputDistribution_" + m_particle + "_" + std::to_string(m_particleEnergy) + "GeV" + "_eta_" + std::to_string(m_etamin) + "_" + std::to_string(m_etamax) + ".root";
+
+   cout << " GetBinningFile = " << GetBinningFile << endl;
+
+   TFile *BinFile = TFile::Open(GetBinningFile.c_str());
+
+   std::string BinHistoName = "hEnergy_layer" + std::to_string(m_calolayer) + "_pca" + std::to_string(m_PCAbin);
+
+   cout << " BinHistoName = " << BinHistoName << endl;
+
+   TH2F* BinHisto = (TH2F*)BinFile->Get(BinHistoName.c_str());
+
+   int nBinsAlpha = BinHisto->GetNbinsX();
+   int nBinsR = BinHisto->GetNbinsY();
+
 
 
 
@@ -148,8 +172,31 @@ void ShowerShapeStudy::EachParticleShower()
 
    float etaShift2, phiShift2 = 0;
 
+   cout << " nbins alpha, nbins r = " << nBinsAlpha << " , " << nBinsR << endl;
+
+
+   double Alphabinsx[nBinsAlpha + 1], Rbinsy[nBinsR + 1];
+
+
+
+
+   for (int i = 1; i <= BinHisto->GetNbinsX() + 1; i++) {
+      //cout << " x bins ..." << endl;
+      cout << BinHisto->GetXaxis()->GetBinLowEdge(i) << endl;
+      Alphabinsx[i - 1] = BinHisto->GetXaxis()->GetBinLowEdge(i);
+   }
+
+   for (int i = 1; i <= BinHisto->GetNbinsY() + 1; i++) {
+      //cout << " y bins..." << endl;
+      cout << BinHisto->GetYaxis()->GetBinLowEdge(i) << endl;
+      Rbinsy[i - 1] = BinHisto->GetYaxis()->GetBinLowEdge(i);
+   }
+
+
+
    for (int ihit = 0; ihit < hitsTree->GetEntries(); ihit++)
    {
+
       hitsTree->GetEntry(ihit);
 
       if (m_PCA != m_PCAbin)
@@ -162,6 +209,8 @@ void ShowerShapeStudy::EachParticleShower()
 
       bool isNewEvent      = false;
       int  NextEventNumber = -1;
+
+
 
       if (ihit != hitsTree->GetEntries() - 1)
       {
@@ -183,16 +232,16 @@ void ShowerShapeStudy::EachParticleShower()
       float eta_entrance = m_etaEntrance;
       float phi_entrance = m_phiEntrance;
 
-      float etaShift2 = 0, phiShift2 = 0;
-      if (passEvent == 1 or NextEventNumber != eventNumber)
-      {
-         tie(etaShift2, phiShift2) = GetShift(eventNumber);
-      }
+      // float etaShift2 = 0, phiShift2 = 0;
+      // if (passEvent == 1 or NextEventNumber != eventNumber)
+      // {
+      //    tie(etaShift2, phiShift2) = GetShift(eventNumber);
+      // }
 
       // * calculate the corrected deta, dphi
 
-      float deta0 = m_deta - etaShift2;
-      float dphi0 = m_dphi - phiShift2;
+      float deta0 = m_deta - etaShift;
+      float dphi0 = m_dphi - phiShift;
 
       float deta0_mm, dphi0_mm;
       tie(deta0_mm, dphi0_mm) = GetUnitsmm(eta_hit, deta0, dphi0, cell_r, cell_z);
@@ -202,11 +251,28 @@ void ShowerShapeStudy::EachParticleShower()
          cout << "deta0 = " << deta0 << ", " << "dphi0 = " << dphi0 << ", deta0_mm =" << deta0_mm << ", dphi0_mm =" << dphi0_mm << endl;
       }
 
+      // * calculate r and alpha co-ordiantes
+
+      float delta_r = TMath::Sqrt(dphi0_mm * dphi0_mm + deta0_mm * deta0_mm);
+      float alpha   = TMath::ATan2(dphi0_mm, deta0_mm);
+
+      if (alpha < (TMath::Pi() / 8.))
+      {
+         alpha = 2 * TMath::Pi() + alpha;
+      }
+
+      if (m_debug)
+      {
+         cout << " delta r = " << delta_r << " mm, alpha = " << alpha << " mm" << endl;
+      }
+
+
       int nbins = 400;
       int low   = -100;
       int high  = 100;
 
 
+      cout << "particleCount = " << particleCount << endl;
 
       if (passEvent == 1)
       {
@@ -215,12 +281,28 @@ void ShowerShapeStudy::EachParticleShower()
          hdetaE0     = new TH1F(Form("hdetaE0_%i", eventNumber), Form("hdetaE0_%i", eventNumber), nbins, low, high);
          hdetadphi0  = new TH2F(Form("hdetadphi0_%i", eventNumber), Form("hdetadphi0_%i", eventNumber), nbins, low, high, nbins, low, high);
          hdetadphiE0 = new TH2F(Form("hdetadphiE0_%i", eventNumber), Form("hdetadphiE0_%i", eventNumber), nbins, low, high, nbins, low, high);
+
+         hEnergy = new TH2F(Form("hEnergy_%i", particleCount), Form("hEnergy_%i", particleCount), nBinsAlpha, Alphabinsx, nBinsR, Rbinsy);
+         hEnergy->Sumw2();
+
+         hEnergyAvg = new TH2F("hEnergyAvg", "hEnergyAvg", nBinsAlpha, Alphabinsx, nBinsR, Rbinsy);
+         hEnergyAvg->Sumw2();
+
+
+         hDrEnergy = new TH1F(Form("hDrEnergy_%i", particleCount), Form("hDrEnergy_%i", particleCount), nBinsR, Rbinsy);
+         hDrEnergy->Sumw2();
+
+         hDrEnergyAvg = new TH1F("hDrEnergyAvg", "hDrEnergyAvg", nBinsR, Rbinsy);
+         hDrEnergyAvg->Sumw2();
       }
 
       hdetaE0->Fill(deta0_mm, energy_hit);
       hdetadphi0->Fill(deta0_mm, dphi0_mm);
       hdetadphiE0->Fill(deta0_mm, dphi0_mm, energy_hit);
-
+      hEnergy->Fill(alpha, delta_r, energy_hit);
+      hDrEnergy->Fill(delta_r, energy_hit);
+      hDrEnergyAvg->Fill(delta_r, energy_hit);
+      hEnergyAvg->Fill(alpha, delta_r, energy_hit);
 
 
       if (NextEventNumber != eventNumber or ihit == hitsTree->GetEntries() - 1)
@@ -231,29 +313,50 @@ void ShowerShapeStudy::EachParticleShower()
          particleCount++;
 
          outfile->cd();
-         hdetaE0->Write();
-         hdetadphi0->Write();
-         hdetadphiE0->Write();
+         //detaE0->Write();
+         // hdetadphi0->Write();
+         // hdetadphiE0->Write();
+
+         hEnergy->Scale(1.0 / (hEnergy->Integral()));
+         //hEnergyAvg->Add(hEnergy);
+
+         hDrEnergy->Scale(1.0 / (hDrEnergy->Integral()));
+         //hDrEnergyAvg->Add(hDrEnergy);
+
+         hEnergy->Write();
+         hDrEnergy->Write();
+
 
          delete hdetaE0;
          delete hdetadphi0;
          delete hdetadphiE0;
+         delete hEnergy;
       }
 
 
 
-      if (isNewEvent and ihit != hitsTree->GetEntries() - 1)
+      if (isNewEvent and ihit != hitsTree->GetEntries())
       {
          hdetaE0     = new TH1F(Form("hdetaE0_%i", eventNumber), Form("hdetaE0_%i", eventNumber), nbins, low, high);
          hdetadphi0  = new TH2F(Form("hdetadphi0_%i", eventNumber), Form("hdetadphi0_%i", eventNumber), nbins, low, high, nbins, low, high);
          hdetadphiE0 = new TH2F(Form("hdetadphiE0_%i", eventNumber), Form("hdetadphiE0_%i", eventNumber), nbins, low, high, nbins, low, high);
+         hEnergy = new TH2F(Form("hEnergy_%i", particleCount), Form("hEnergy_%i", particleCount), nBinsAlpha, Alphabinsx, nBinsR, Rbinsy);
+
+         hDrEnergy = new TH1F(Form("hDrEnergy_%i", particleCount), Form("hDrEnergy_%i", particleCount), nBinsR, Rbinsy);
       }
 
 
-      if (particleCount == 20)
+      if (/*particleCount == 200 or*/ ihit == hitsTree->GetEntries() - 1)
       {
-         outfile->Close();
          cout << " Reach number of particles = " << particleCount << " exiting..." << endl;
+         outfile->cd();
+         hEnergyAvg->Scale(1.0 / particleCount);
+         hEnergyAvg->Scale(1.0 / hEnergyAvg->Integral());
+         hEnergyAvg->Write();
+         hDrEnergyAvg->Scale(1.0 / particleCount);
+         hDrEnergyAvg->Scale(1.0 / hDrEnergyAvg->Integral());
+         hDrEnergyAvg->Write();
+         outfile->Close();
          break;
       }
    }

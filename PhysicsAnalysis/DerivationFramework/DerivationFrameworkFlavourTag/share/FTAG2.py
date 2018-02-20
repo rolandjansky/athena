@@ -12,8 +12,6 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
-if globalflags.DataSource()!='data': from DerivationFrameworkMCTruth.MCTruthCommon import *
-
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 from DerivationFrameworkExotics.JetDefinitions import *
 from JetRec.JetRecStandard import jtm
@@ -35,6 +33,14 @@ FTAG2StringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "FT
 
 ToolSvc += FTAG2StringSkimmingTool
 print FTAG2StringSkimmingTool
+
+#====================================================================
+# TRUTH SETUP
+#====================================================================
+if globalflags.DataSource()!='data':
+    from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents, addHFAndDownstreamParticles
+    addStandardTruthContents()
+    addHFAndDownstreamParticles()
 
 #====================================================================                                                                                                                   
 # AUGMENTATION TOOLS
@@ -104,17 +110,15 @@ FlavorTagInit(JetCollections  = ['AntiKt4EMPFlowJets',
 # NOTE: this is commented out until we figure out why the tool can't
 # find jet collections.
 #
-#FTAG2Seq += CfgMgr.BTagVertexAugmenter()
-#for jc in OutputJets["FTAG2"]:
-#    if 'Truth' in jc:
-#        continue
-#    FTAG2Seq += CfgMgr.BTagTrackAugmenter(
-#        "BTagTrackAugmenter_" + jc,
-#        OutputLevel=INFO,
-#        JetCollectionName = jc,
-#        TrackToVertexIPEstimator = FTAG2IPETool,
-#        SaveTrackVectors = True,
-#    )
+FTAG2Seq += CfgMgr.BTagVertexAugmenter()
+for jc in ["AntiKt4EMTopoJets"]:
+    FTAG2Seq += CfgMgr.BTagTrackAugmenter(
+        "BTagTrackAugmenter_" + jc,
+        OutputLevel=INFO,
+        JetCollectionName = jc,
+        TrackToVertexIPEstimator = FTAG2IPETool,
+        SaveTrackVectors = True,
+    )
 
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS
@@ -182,6 +186,9 @@ FTAG2SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("An
                                        "MuonSpectrometerTrackParticles.vx.vy.vz",
                                        "InDetForwardTrackParticles.phi.qOverP.theta",
                                        "BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtVertex",
+                                       "BTagging_AntiKt4EMPFlowSecVtx.-vxTrackAtVertex",
+                                       "BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtVertex",
+                                       "BTagging_AntiKt2TrackSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtx.-vxTrackAtVertex",
                                        "BTagging_AntiKt4EMPFlow.MV1_discriminant.MV1c_discriminant.SV1_pb.SV1_pu.IP3D_pb.IP3D_pu.MV2c10_discriminant",
                                        "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet.GhostVR30Rmax4Rmin02TrackJetPt.GhostVR30Rmax4Rmin02TrackJetCount",
@@ -197,8 +204,8 @@ addJetOutputs(FTAG2SlimmingHelper,["FTAG2"],[],[])
 FTAG2SlimmingHelper.AppendToDictionary = {      
   "BTagging_AntiKt4EMPFlow"                        :   "xAOD::BTaggingContainer", 
   "BTagging_AntiKt4EMPFlowAux"                     :   "xAOD::BTaggingAuxContainer", 
-  "BTagging_AntiKt4EMPFlowJFVtx"                   :   "xAOD::BTaggingContainer",
-  "BTagging_AntiKt4EMPFlowJFVtxAux"                :   "xAOD::BTaggingAuxContainer",
+  "BTagging_AntiKt4EMPFlowJFVtx"                   :   "xAOD::BTagVertexContainer",
+  "BTagging_AntiKt4EMPFlowJFVtxAux"                :   "xAOD::BTagVertexAuxContainer",
   "AntiKtVR30Rmax4Rmin02Track"                     :   "xAOD::JetContainer"        ,
   "AntiKtVR30Rmax4Rmin02TrackAux"                  :   "xAOD::JetAuxContainer"     ,
   "BTagging_AntiKtVR30Rmax4Rmin02Track"            :   "xAOD::BTaggingContainer"   ,

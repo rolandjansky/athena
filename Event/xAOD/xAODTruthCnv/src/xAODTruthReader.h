@@ -1,49 +1,62 @@
+// Dear emacs, this is -*- c++ -*-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef XAODCREATORALGS_XAODTRUTHREADER_H
-#define XAODCREATORALGS_XAODTRUTHREADER_H
+#ifndef XAODTRUTHCNV_XAODTRUTHREADER_H
+#define XAODTRUTHCNV_XAODTRUTHREADER_H
 
+// Gaudi/Athena include(s):
 #include "AthenaBaseComps/AthAlgorithm.h"
 
+// EDM include(s):
 #include "xAODTruth/TruthEvent.h"
 #include "xAODTruth/TruthPileupEvent.h"
 
 namespace xAODReader {
 
+   /// Algorithm demonstrating reading of xAOD truth, and printing to screen
+   ///
+   /// @author James Catmore <James.Catmore@cern.ch>
+   /// @author Andy Buckley <Andy.Buckley@cern.ch>
+   ///
+   class xAODTruthReader : public AthAlgorithm {
 
-  /// @short Algorithm demonstrating reading of xAOD truth, and printing to screen
-  /// @author James Catmore <James.Catmore@cern.ch>
-  /// @author Andy Buckley <Andy.Buckley@cern.ch>
-  class xAODTruthReader : public AthAlgorithm {
-  public:
+   public:
+      /// Regular algorithm constructor
+      xAODTruthReader( const std::string& name, ISvcLocator* svcLoc );
 
-    /// Regular algorithm constructor
-    xAODTruthReader(const std::string& name, ISvcLocator* svcLoc);
+      /// Function initialising the algorithm
+      virtual StatusCode initialize() override;
 
-    /// Function initialising the algorithm
-    virtual StatusCode initialize();
+      /// Function executing the algorithm
+      virtual StatusCode execute() override;
 
-    /// Function executing the algorithm
-    virtual StatusCode execute();
+   private:
+      /// @name Internal functions for printing the properties of xAOD objects
+      /// @{
 
+      /// Print the properties of one event
+      void printEvent( const xAOD::TruthEventBase& event );
+      /// Print the properties of one vertex
+      void printVertex( const xAOD::TruthVertex& vertex );
+      /// Print the properties of one particle
+      void printParticle( const xAOD::TruthParticle& particle );
 
-  private:
+      /// @}
 
-    /// The keys for the input xAOD truth containers
-    std::string m_xaodTruthEventContainerName;
-    std::string m_xaodTruthPUEventContainerName;
-    std::string m_xaodTruthParticleContainerName;
-    std::string m_xaodTruthVertexContainerName;
+      /// @name The keys for the input xAOD truth containers
+      /// @{
 
-    void printEvent(const xAOD::TruthEventBase*);
-    void printVertex(const xAOD::TruthVertex*);
-    void printParticle(const xAOD::TruthParticle*);
+      std::string m_xaodTruthEventContainerName;
+      std::string m_xaodTruthPUEventContainerName;
+      std::string m_xaodTruthParticleContainerName;
+      std::string m_xaodTruthVertexContainerName;
 
-  }; // class xAODTruthReader
+      // @}
 
+   }; // class xAODTruthReader
 
 } // namespace xAODReader
 
-#endif // XAODCREATORALGS_XAODTRUTHREADER_H
+#endif // XAODTRUTHCNV_XAODTRUTHREADER_H

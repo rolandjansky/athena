@@ -10,6 +10,7 @@ EXOT6SmartContent = [
     "MET_Reference_AntiKt4LCTopo",
     "AntiKt4LCTopoJets",
     "AntiKt4EMTopoJets",
+    "AntiKt4TruthJets",
     "TauJets",
     "BTagging_AntiKt4EMTopo"
 ]
@@ -19,7 +20,6 @@ EXOT6AllVariablesContent = [
     "MuonTruthParticles",
     "TruthParticles",
     "MET_Truth",
-    "AntiKt4TruthJets",
     "MET_LocHadTopo"
 ]
 

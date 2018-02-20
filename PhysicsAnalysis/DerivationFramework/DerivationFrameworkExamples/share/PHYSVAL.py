@@ -64,6 +64,12 @@ addVRJets(DerivationFrameworkJob, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4R
 FlavorTagInit(JetCollections  = [ 'AntiKt4EMTopoJets','AntiKt4EMPFlowJets'], Sequencer = DerivationFrameworkJob)
 
 #====================================================================
+# Truth collections
+#====================================================================
+from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+addStandardTruthContents()
+
+#====================================================================
 # SET UP STREAM   
 #====================================================================
 
@@ -77,39 +83,54 @@ PHYSVALStream.AcceptAlgs(["PHYSVALKernel"])
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 PHYSVALSlimmingHelper = SlimmingHelper("PHYSVALSlimmingHelper")
-PHYSVALSlimmingHelper.AllVariables = [ "Electrons", "Photons", "Muons", "PrimaryVertices", "InDetTrackParticles",
+PHYSVALSlimmingHelper.AllVariables = [ "Electrons", "ForwardElectrons", "Photons", "Muons", "PrimaryVertices", "InDetTrackParticles",
                                        "AntiKt4EMTopoJets","AntiKt4LCTopoJets", "AntiKt4EMPFlowJets",
                                        "AntiKt10PV0TrackJets", "AntiKt4TruthWZJets", "AntiKt10TruthJets",
                                        "AntiKt10TruthWZJets", "AntiKt10LCTopoJets", "AntiKt2PV0TrackJets",
                                        "AntiKt4PV0TrackJets", "AntiKt4TruthJets",
                                        "AntiKt4EMTopoLowPtJets","AntiKt4LCTopoLowPtJets","AntiKt4EMPFlowLowPtJets",
+                                       "JetETMissNeutralParticleFlowObjects", "JetETMissChargedParticleFlowObjects",
                                        "Kt4EMPFlowEventShape","Kt4LCTopoOriginEventShape","Kt4EMTopoOriginEventShape",
-                                       "LCOriginTopoClusters","EMOriginTopoClusters",
+                                       "LCOriginTopoClusters","EMOriginTopoClusters","CaloCalTopoClusters",
                                        "BTagging_AntiKt4EMTopoJFVtx",
                                        "BTagging_AntiKt4EMTopo",
                                        "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtx",
                                        "BTagging_AntiKtVR30Rmax4Rmin02Track",
                                        "BTagging_AntiKt4EMPFlowJFVtx",
                                        "BTagging_AntiKt4EMPFlow",
+                                       "BTagging_AntiKt2Track",
                                        "METAssoc_AntiKt4EMTopo","METAssoc_AntiKt4LCTopo","METAssoc_AntiKt4EMPFlow",
                                        "MET_Core_AntiKt4EMTopo","MET_Core_AntiKt4LCTopo","MET_Core_AntiKt4EMPFlow",
                                        "MET_Reference_AntiKt4EMTopo","MET_Reference_AntiKt4LCTopo","MET_Reference_AntiKt4EMPFlow",
                                        "MET_LocHadTopo","MET_LocHadTopoRegions","MET_EMTopo","MET_EMTopoRegions",
                                        "MET_Truth","MET_TruthRegions","MET_Track","MET_Calo",
-                                       "TauJets",
-                                       "TruthParticles", "TruthEvents", "TruthVertices"
+                                       "TauJets", "TauTracks", 
+                                       "TruthParticles", "TruthEvents", "TruthVertices", "MuonTruthParticles", "egammaTruthParticles",
+                                       "CombinedMuonTrackParticles",
+                                       "ExtrapolatedMuonTrackParticles",
+                                       "MuonSpectrometerTrackParticles",
+                                       "MSOnlyExtrapolatedMuonTrackParticles",
+                                       "InDetForwardTrackParticles",
+                                       "MuonTruthSegments",
+                                       "MET_Truth","MET_TruthRegions",
+                                       "TruthElectrons","TruthMuons","TruthPhotons","TruthTaus","TruthNeutrinos","TruthBSM","TruthTop","TruthBoson"
                                      ]
 
 PHYSVALSlimmingHelper.SmartCollections = [ "Electrons", "Photons", "Muons", "PrimaryVertices", "InDetTrackParticles",
                                            "AntiKt4EMTopoJets","AntiKt4LCTopoJets", "AntiKt4EMPFlowJets",
                                            "BTagging_AntiKt4EMTopo",
                                            "MET_Reference_AntiKt4EMTopo","MET_Reference_AntiKt4LCTopo","MET_Reference_AntiKt4EMPFlow",
-                                           "TauJets"
-                                     ]
+                                           "TauJets",
+                                           ]
 
 PHYSVALSlimmingHelper.ExtraVariables = [ "BTagging_AntiKt4EMTopoSecVtx.-vxTrackAtVertex",
                                          "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtx.-vxTrackAtVertex",
-                                         "BTagging_AntiKt4EMPFlowSecVtx.-vxTrackAtVertex" ]
+                                         "BTagging_AntiKt4EMPFlowSecVtx.-vxTrackAtVertex",
+                                         "CaloCalTopoClusters.rawEta.rawPhi.rawE.rawM.calEta.calPhi.calE.calM.AVG_LAR_Q.AVG_TILE_Q.BADLARQ_FRAC.CENTER_LAMBDA.ENG_BAD_CELLS.ENG_POS.ISOLATION.N_BAD_CELLS.SECOND_R",
+                                         "TauNeutralParticleFlowObjects.pt.eta.phi.m.bdtPi0Score.nPi0Proto",
+                                         "TauChargedParticleFlowObjects.pt.eta.phi.m.bdtPi0Score",
+                                         "AntiKt4TruthDressedWZJets.GhostCHadronsFinalCount.GhostBHadronsFinalCount.pt.HadronConeExclTruthLabelID.ConeTruthLabelID.PartonTruthLabelID.TrueFlavor",
+                                         ]
 
 
 # Trigger content
@@ -170,10 +191,36 @@ PHYSVALSlimmingHelper.AppendToDictionary = {
   "BTagging_AntiKt4EMPFlowSecVtxAux"           :   "xAOD::VertexAuxContainer"  ,
   "BTagging_AntiKt4EMPFlow"                    :   "xAOD::BTaggingContainer"   ,
   "BTagging_AntiKt4EMPFlowAux"                 :   "xAOD::BTaggingAuxContainer",
+  "BTagging_AntiKt2Track"                      :   "xAOD::BTaggingContainer"   ,
+  "BTagging_AntiKt2TrackAux"                   :   "xAOD::BTaggingAuxContainer",
   "LCOriginTopoClusters"                       :   "xAOD::CaloClusterContainer",
   "LCOriginTopoClustersAux"                    :   "xAOD::ShallowAuxContainer",
   "EMOriginTopoClusters"                       :   "xAOD::CaloClusterContainer",
   "EMOriginTopoClustersAux"                    :   "xAOD::ShallowAuxContainer", 
+  "MuonTruthSegments"                          :   "xAOD::MuonSegmentContainer",
+  "MuonTruthSegmentsAux"                       :   "xAOD::MuonSegmentAuxContainer", 
+  "MET_Truth"                                  :   "xAOD::MissingETContainer",
+  "MET_TruthAux"                               :   "xAOD::MissingETAuxContainer",
+  "MET_TruthRegions"                           :   "xAOD::MissingETContainer",
+  "MET_TruthRegionsAux"                        :   "xAOD::MissingETAuxContainer",
+  "TruthElectrons"                             :   "xAOD::TruthParticleContainer",
+  "TruthElectronsAux"                          :   "xAOD::TruthParticleAuxContainer",
+  "TruthMuons"                                 :   "xAOD::TruthParticleContainer",
+  "TruthMuonsAux"                              :   "xAOD::TruthParticleAuxContainer",
+  "TruthPhotons"                               :   "xAOD::TruthParticleContainer",
+  "TruthPhotonsAux"                            :   "xAOD::TruthParticleAuxContainer",
+  "TruthTaus"                                  :   "xAOD::TruthParticleContainer",
+  "TruthTausAux"                               :   "xAOD::TruthParticleAuxContainer",
+  "TruthNeutrinos"                             :   "xAOD::TruthParticleContainer",
+  "TruthNeutrinosAux"                          :   "xAOD::TruthParticleAuxContainer",
+  "TruthBSM"                                   :   "xAOD::TruthParticleContainer",
+  "TruthBSMAux"                                :   "xAOD::TruthParticleAuxContainer",
+  "TruthBoson"                                 :   "xAOD::TruthParticleContainer",
+  "TruthBosonAux"                              :   "xAOD::TruthParticleAuxContainer",
+  "TruthTop"                                   :   "xAOD::TruthParticleContainer",
+  "TruthTopAux"                                :   "xAOD::TruthParticleAuxContainer",
+  "AntiKt4TruthDressedWZJets"                  :   "xAOD::JetContainer",
+  "AntiKt4TruthDressedWZJetsAux"               :   "xAOD::JetAuxContainer",
   }
 #----------------------------------------------------------------------
 

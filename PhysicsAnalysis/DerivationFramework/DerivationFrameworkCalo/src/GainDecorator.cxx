@@ -124,11 +124,11 @@ void DerivationFramework::GainDecorator::decorateObject(const xAOD::Egamma*& ega
     // Compute energy and number of cells per gain per layer
     // Set the initial values to 0 (needed?)
     std::map< std::pair<int, int>, float > E;
-    std::map< std::pair<int, int>, uint8_t > nCells;
+    std::map< std::pair<int, int>, float > nCells;       // you need a float here!
     for (const auto kv : m_names_E)
     {
       E[kv.first] = 0.;
-      nCells[kv.first] = 0;
+      nCells[kv.first] = 0.;
     }
     
     // Skip the computation for missing cell links (like topo-seeded photons)
@@ -136,20 +136,22 @@ void DerivationFramework::GainDecorator::decorateObject(const xAOD::Egamma*& ega
     const CaloClusterCellLink* cellLinks = egamma->caloCluster() ? egamma->caloCluster()->getCellLinks() : 0;
     if (cellLinks) 
     {
-      for (const CaloCell *cell : *cellLinks)
-      {
-        if (!cell) continue;
-        std::pair<int, int> key( static_cast<int>(cell->gain()), getLayer(cell) );
-        // Increment the corresponding entry (not important if it is not initialised)
-        E[key] += cell->energy();
-        nCells[key]++;
-      }
+
+      xAOD::CaloCluster::const_cell_iterator itr = egamma->caloCluster()->cell_begin();
+      xAOD::CaloCluster::const_cell_iterator last  = egamma->caloCluster()->cell_end();
+      for (; itr != last; ++itr) {        
+	const CaloCell* cell = *itr;
+	if (!cell) continue;
+	std::pair<int, int> key( static_cast<int>(cell->gain()), getLayer(cell) );
+	// Increment the corresponding entry (not important if it is not initialised)
+	E[key] += (cell->energy()*itr.weight());
+	nCells [key]+= itr.weight(); 
+      }    
     }
     
     // Decorate    
     for (const auto kv : m_names_E) egamma->auxdecor<float>(kv.second) = E[ kv.first ];
-    for (const auto kv : m_names_nCells) egamma->auxdecor<uint8_t>(kv.second) = nCells[ kv.first ];
-
+    for (const auto kv : m_names_nCells) egamma->auxdecor<uint8_t>(kv.second) = static_cast<uint8_t> (std::round (nCells[ kv.first ]));
 }
 
 int DerivationFramework::GainDecorator::getLayer(const CaloCell *cell)

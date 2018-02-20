@@ -10,9 +10,12 @@ from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkTau.TauCommon import *
 if DerivationFrameworkIsMonteCarlo:
-    from DerivationFrameworkMCTruth.MCTruthCommon import *
+  from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
+  addStandardTruthContents()
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkJetEtMiss.METCommon import *
+from DerivationFrameworkFlavourTag.FlavourTagCommon import *
+
 
 ### Set up stream
 streamName = derivationFlags.WriteDAOD_SUSY18Stream.StreamName
@@ -45,9 +48,9 @@ SUSY18ThinningHelper.AppendToStream( SUSY18Stream )
 # THINNING TOOLS
 #====================================================================
 
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-
 # B.M.: likely not used
+#from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
+
 # TrackParticles directly
 #SUSY18TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY18TPThinningTool",
 #                                                                  ThinningService         = SUSY18ThinningHelper.ThinningSvc(),
@@ -66,15 +69,6 @@ SUSY18JetEMTPThinningTool = DerivationFramework__JetTrackParticleThinning(name  
 
 ToolSvc += SUSY18JetEMTPThinningTool
 thinningTools.append(SUSY18JetEMTPThinningTool)
-
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
-SUSY18JetLCTPThinningTool = DerivationFramework__JetTrackParticleThinning(name                    = "SUSY18JetTPThinningTool",
-                                                                          ThinningService         = SUSY18ThinningHelper.ThinningSvc(),
-                                                                          JetKey                  = "AntiKt4LCTopoJets",
-                                                                          SelectionString         = "AntiKt4LCTopoJets.pt > 20*GeV",
-                                                                          InDetTrackParticlesKey  = "InDetTrackParticles")
-ToolSvc += SUSY18JetLCTPThinningTool
-thinningTools.append(SUSY18JetLCTPThinningTool)
 
 # TrackParticles associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
@@ -225,15 +219,21 @@ MuTau_SMT_2015        = mu18p0+' && '+tau18p0+' && ('+trig.SMT_OR_2015+')'
 MuTau_SMT_2016_A      = mu21p6+' && '+tau18p0+' && ('+trig.SMT_OR_2016_A+')'
 MuTau_SMT_2016_B_D3   = mu21p6+' && '+tau18p0+' && ('+trig.SMT_OR_2016_B_D3+')'
 MuTau_SMT_2016_D4_End = mu23p4+' && '+tau18p0+' && ('+trig.SMT_OR_2016_D4_End+')'
+MuTau_SMT_2017	      = mu23p4+' && '+tau18p0+' && ('+trig.SMT_OR_2017+')'
 
 #Ele triggers
 # conservative pT offline derivations = pT online x 0.9
 ElTau_SET_2015 = e21p6+' && '+tau18p0+' && ('+trig.SET_OR_2015+')'
 ElTau_SET_2016 = e23p4+' && '+tau22p5+' && ('+trig.SET_OR_2016+')'
+ElTau_SET_2017 = e23p4+' && '+tau22p5+' && ('+trig.SET_OR_2017+')'
 
 # tau + lepton triggers
 MuTau_MTT = mu12p6+' && '+tau22p5+' && ('+trig.MTT_OR+')'
 ElTau_ETT = e15p3+' && '+tau22p5+' && ('+trig.ETT_OR+')'
+
+# tau + lepton + met triggers
+MuTau_MTMT = mu12p6+' && '+tau22p5+' && ('+trig.MTMT_OR+')'
+ElTau_ETMT = e15p3+' && '+tau22p5+' && ('+trig.ETMT_OR+')'
 
 #final skim: object+trigger selection
 ORdelim = '||'
@@ -242,10 +242,14 @@ skim_expression = \
 '('+MuTau_SMT_2016_A+')' + ORdelim + \
 '('+MuTau_SMT_2016_B_D3+')' + ORdelim + \
 '('+MuTau_SMT_2016_D4_End+')' + ORdelim + \
+'('+MuTau_SMT_2017+')' + ORdelim + \
 '('+ElTau_SET_2015+')' + ORdelim + \
 '('+ElTau_SET_2016+')' + ORdelim + \
+'('+ElTau_SET_2017+')' + ORdelim + \
 '('+MuTau_MTT+')' + ORdelim + \
-'('+ElTau_ETT+')'
+'('+ElTau_ETT+')' + ORdelim + \
+'('+MuTau_MTMT+')' + ORdelim + \
+'('+ElTau_ETMT+')'
 
 print "SUSY18 skimming expression", skim_expression
 
@@ -289,6 +293,10 @@ SeqSUSY18 += CfgMgr.DerivationFramework__DerivationKernel(
 #==============================================================================
 # Jet building
 #==============================================================================
+#re-tag PFlow jets so they have b-tagging info.
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = SeqSUSY18)
+
+#==============================================================================
 # now part of MCTruthCommon
 #if DerivationFrameworkIsMonteCarlo:
 #
@@ -305,7 +313,7 @@ SeqSUSY18 += CfgMgr.DerivationFramework__DerivationKernel(
 if DerivationFrameworkIsMonteCarlo:
 #  from DerivationFrameworkSUSY.SUSYTruthCommon import addTruthTaus
 #  addTruthTaus(AugmentationTools)
-  DFCommonTauTruthMatchingTool.WriteInvisibleFourMomentum = True
+  ToolSvc.DFCommonTauTruthMatchingTool.WriteInvisibleFourMomentum = True
 
 #==============================================================================
 # Augment after skim
@@ -331,19 +339,26 @@ SUSY18SlimmingHelper.SmartCollections = ["Electrons",
                                          "Muons",
                                          "TauJets",
                                          "AntiKt4EMTopoJets",
-                                         "AntiKt4LCTopoJets",
+"AntiKt4EMPFlowJets",
+
                                          "MET_Reference_AntiKt4EMTopo",
+"MET_Reference_AntiKt4EMPFlow",
+
                                          "BTagging_AntiKt4EMTopo",
+"BTagging_AntiKt4EMPFlow",
+
                                          "InDetTrackParticles",
-                                         "PrimaryVertices"]
+                                         "PrimaryVertices",
+                                         "AntiKt4TruthJets",
+                                         "AntiKt4TruthWZJets"]
 
 #all variables
 SUSY18SlimmingHelper.AllVariables = ["TruthParticles",
                                      "TruthEvents",
                                      "TruthVertices",
                                      "MET_Truth",
-                                     "AntiKt4TruthJets",
-                                     "AntiKt4TruthWZJets",
+                                     #"AntiKt4TruthJets",
+                                     #"AntiKt4TruthWZJets",
                                      "LVL1JetRoIs",
                                      "MET_Track" #needed for the forward JVT
                                      ]
@@ -458,7 +473,8 @@ SUSY18SlimmingHelper.IncludeTauTriggerContent = True
 # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
 if DerivationFrameworkIsMonteCarlo:
 
-  SUSY18SlimmingHelper.AppendToDictionary = {'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
+  SUSY18SlimmingHelper.AppendToDictionary = {'BTagging_AntiKt4EMPFlow':'xAOD::BTaggingContainer','BTagging_AntiKt4EMPFlowAux':'xAOD::BTaggingAuxContainer',
+'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
                                              'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
                                              'TruthBoson':'xAOD::TruthParticleContainer','TruthBosonAux':'xAOD::TruthParticleAuxContainer'}
 

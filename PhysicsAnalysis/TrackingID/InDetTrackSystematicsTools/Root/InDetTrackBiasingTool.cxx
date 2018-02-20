@@ -38,6 +38,10 @@ namespace InDet {
     declareProperty("runNumber", m_runNumber);
     declareProperty("isData", m_isData);
     declareProperty("isSimulation", m_isSimulation);
+
+    declareProperty("calibFileData15", m_calibFileData15 = "InDetTrackSystematicsTools/CalibData_21.2_2018-v15/data15_13TeV_all_CorrectionResult.root");
+    declareProperty("calibFileData16_preTS1", m_calibFileData16_preTS1 = "InDetTrackSystematicsTools/CalibData_21.2_2018-v15/data16_13TeV_preTS1_CorrectionResult.root");
+    declareProperty("calibFileData16_postTS1", m_calibFileData16_postTS1 = "InDetTrackSystematicsTools/CalibData_21.2_2018-v15/data16_13TeV_preTS1_CorrectionResult.root");
   }
 
   InDetTrackBiasingTool::~InDetTrackBiasingTool() = default;
@@ -62,6 +66,10 @@ namespace InDet {
       ATH_MSG_INFO( "overall QoverP sagitta bias added = " << m_biasQoverPsagitta
 		    << " TeV^-1 (not part of an official recommendation)" );
     }
+
+    ATH_MSG_INFO( "Using for Data15 the calibration file " << PathResolverFindCalibFile(m_calibFileData15) );
+    ATH_MSG_INFO( "Using for Data16 preTS1 the calibration file " << PathResolverFindCalibFile(m_calibFileData16_preTS1) );
+    ATH_MSG_INFO( "Using for Data16 postTS1 the calibration file " << PathResolverFindCalibFile(m_calibFileData16_postTS1) );
 
     ATH_CHECK( InDetTrackSystematicsTool::initialize() );
 
@@ -150,14 +158,14 @@ namespace InDet {
       return StatusCode::FAILURE;
     } else if (runNumber <= 311481) {
       if (runNumber < 297730) {
-	ATH_MSG_INFO( "Calibrating for 2015 runs (before 297730)." );
-	rootfileName = "data15_13TeV_all_CorrectionResult.root";
+        ATH_MSG_INFO( "Calibrating for 2015 runs (before 297730)." );
+        rootfileName = m_calibFileData15;
       } else if (runNumber <= 300908) {
-	ATH_MSG_INFO( "Calibrating for 2016 runs before IBL temperature change (297730 to 300908)." ); // pre-TSI: 297730 - 300908
-	rootfileName = "data16_13TeV_preTS1_CorrectionResult.root";
+        ATH_MSG_INFO( "Calibrating for 2016 runs before IBL temperature change (297730 to 300908)." ); // pre-TSI: 297730 - 300908
+        rootfileName = m_calibFileData16_preTS1;
       } else {  // post TS1: 301912 - 311481
-	ATH_MSG_INFO( "Calibrating for 2016 runs after IBL temperature change (301912 to 311481)." );
-	rootfileName = "data16_13TeV_postTS1_CorrectionResult.root";
+        ATH_MSG_INFO( "Calibrating for 2016 runs after IBL temperature change (301912 to 311481)." );
+        rootfileName = m_calibFileData16_postTS1;
       } 
       ATH_CHECK ( initObject<TH2>(m_biasD0Histogram, rootfileName, "d0/theNominal_d0") );
       ATH_CHECK ( initObject<TH2>(m_biasZ0Histogram, rootfileName, "z0/theNominal_z0") );

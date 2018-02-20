@@ -116,7 +116,7 @@ namespace top {
     else if (toolname == "HT")
         return new top::HTSelector(param);
     else if (toolname == "NOBADMUON")
-        return new top::NoBadMuonSelector();
+        return new top::NoBadMuonSelector(config);
     else if (toolname == "OS")
         return new top::OSLeptonSelector();
     else if (toolname == "OS_TIGHT")

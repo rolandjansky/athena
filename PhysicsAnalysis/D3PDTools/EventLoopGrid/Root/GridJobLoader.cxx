@@ -15,10 +15,12 @@
 #include <TObject.h>
 
 #include "RootCoreUtils/Assert.h"
+#include "RootCoreUtils/ThrowMsg.h"
 #include "SampleHandler/SampleGrid.h"
 #include "SampleHandler/MetaObject.h"
 #include "SampleHandler/SampleHandler.h"
 #include "EventLoop/Algorithm.h"
+#include "EventLoop/JobConfig.h"
 #include "EventLoopGrid/GridWorker.h"
 #include "EventLoopGrid/PandaRootTools.h"
 #include "EventLoop/Driver.h"
@@ -32,7 +34,7 @@ namespace EL {
     using namespace std;
     TList output;
     TList bigOutputs;
-    TList algorithms;
+    std::unique_ptr<JobConfig> jobConfig;
     SH::MetaObject *mo = 0;
     PandaRootTools pandaTools;
 
@@ -45,29 +47,9 @@ namespace EL {
 	  throw "Could not read in sample meta object";
 	}
 	
-	TList *algs = (TList*)f->Get("algorithms");
-	if (algs) {  
-	  TIter itr(algs);
-	  TObject *obj = 0;
-	  while ((obj = itr())) {
-	    if (obj->InheritsFrom("EL::Algorithm")) {
-	      EL::Algorithm * alg = dynamic_cast<EL::Algorithm*>(obj);
-	      if (alg) {
-		algorithms.Add(alg->Clone());
-	      }
-	      else {
-		throw "Encountered unexpected entry in list of algorithms"; 
-	      }
-	    }
-	    else {
-	      throw "Encountered unexpected entry in list of algorithms"; 
-	    }
-	    //delete obj;
-	  }
-	}
-	else {throw "Could not read list of algorithms"; }
-	delete algs;
-
+        jobConfig.reset (dynamic_cast<JobConfig*>(f->Get("jobConfig")));
+        if (jobConfig == nullptr)
+          RCU_THROW_MSG ("failed to read jobConfig object");
 
 	TList *outs = (TList*)f->Get("outputs");
 	if (outs) {  
@@ -100,7 +82,7 @@ namespace EL {
       EL::GridWorker worker(mo, 
 			    &output, 
 			    bigOutputs, 
-			    algorithms, 
+			    std::move (*jobConfig),
 			    location, 
 			    pandaTools);
 

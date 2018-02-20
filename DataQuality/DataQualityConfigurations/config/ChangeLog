@@ -1,6 +1,8 @@
-2017-02-12 Shunsuke Honda <shunsuke.shonda@cern.ch>
-	* SCT/collision_run.config: added fraction of sctflagged events, number of BSerrors with sctflag
-
+2017-10-23 Lianyou SHAN <lshan@cern.ch>
+	* Tau/collision_run.config: added histos for tauTrack hits, 
+	*                           added folders of tauJetBDTinputs, EleVetoBDTinputs for tau Identification.
+	* Tau/collision_minutes10.config:  added Eta,Phi dependence on LumiBlocks
+	* Algorithms and Thresholds are simplified
 2016-11-28 Shunsuke Honda <shunsuke.shonda@cern.ch>
 	* SCT/collision_run.config: added hitoccupancy histograms
 	* SCT/heavyions_run.config: copied from collision_run.config for updating HI configuration

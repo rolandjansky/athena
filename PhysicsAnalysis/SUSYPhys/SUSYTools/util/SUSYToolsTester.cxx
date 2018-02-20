@@ -125,13 +125,14 @@ int main( int argc, char* argv[] ) {
   // Check if we received a file name:
   if ( argc < 2 ) {
     Error( APP_NAME, "No file name received!" );
-    Error( APP_NAME, "  Usage: %s [xAOD file name] [nEvtMax] [isData=0/1 isAtlfast=0/1] [NoSyst] [Debug] [ConfigFile=<cfile.conf>] [PRWFile=<prwfile.root>] [doRTT] [SUSYx]", APP_NAME );
+    Error( APP_NAME, "  Usage: %s [xAOD file name] [maxEvents] [isData=0/1 isAtlfast=0/1] [NoSyst] [Debug] [ConfigFile=<cfile.conf>] [PRWFile=<prwfile.root>] [doRTT] [SUSYx] [autoconfigPRW]", APP_NAME );
     return 1;
   }
 
 
   /// READ CONFIG ------------
 
+  int autoconfigPRW = -1;
   int isData = -1;
   int isAtlfast = -1;
   int NoSyst = 1;
@@ -152,6 +153,7 @@ int main( int argc, char* argv[] ) {
 
     Info( APP_NAME,  "processing key %s  with value %s", key, val );
 
+    if (strcmp(key, "autoconfigPRW") == 0) autoconfigPRW = atoi(val);
     if (strcmp(key, "isData") == 0) isData = atoi(val);
     if (strcmp(key, "isAtlfast") == 0) isAtlfast = atoi(val);
     if (strcmp(key, "NoSyst") == 0) NoSyst = atoi(val);
@@ -168,7 +170,7 @@ int main( int argc, char* argv[] ) {
 
   if (isData < 0 || isAtlfast < 0) {
     Error( APP_NAME, "One of the flags isData or isAtlfast was not set! Must provide isData or isAtlfast." );
-    Error( APP_NAME, "  Usage: %s [xAOD file name] [nEvtMax] [isData=0/1 isAtlfast=0/1] [NoSyst] [Debug]", APP_NAME );
+    Error( APP_NAME, "  Usage: %s [xAOD file name] [maxEvents] [isData=0/1 isAtlfast=0/1] [NoSyst] [Debug]", APP_NAME );
     return 10;
   }
   ST::ISUSYObjDef_xAODTool::DataSource datasource = (isData ? ST::ISUSYObjDef_xAODTool::Data : (isAtlfast ? ST::ISUSYObjDef_xAODTool::AtlfastII : ST::ISUSYObjDef_xAODTool::FullSim));
@@ -280,21 +282,24 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
   ////       ****        AND SHOULD NOT BE USED FOR SERIOUS ANALYSIS          ****       ////
   ////                                                                                   ////
   ///////////////////////////////////////////////////////////////////////////////////////////
-  std::vector<std::string> prw_conf;
-  if (prw_file == "DUMMY") {
-    prw_conf.push_back("dev/PileupReweighting/mc15ab_defaults.NotRecommended.prw.root");
-    prw_conf.push_back("dev/PileupReweighting/mc15c_v2_defaults.NotRecommended.prw.root");
-  }
-  else {
-    prw_conf = getTokens(prw_file,",");
-    //    prw_conf.push_back(prw_file);
-  }
-  ANA_CHECK( objTool.setProperty("PRWConfigFiles", prw_conf) );
+  if ( autoconfigPRW != 1 ) {
+    std::vector<std::string> prw_conf;
+    if (prw_file == "DUMMY") {
+      prw_conf.push_back("dev/SUSYTools/merged_prw_mc16a_latest.root");
+      //prw_conf.push_back("dev/SUSYTools/merged_prw_mc16c_latest.root");
+    }
+    else {
+      prw_conf = getTokens(prw_file,",");
+      //    prw_conf.push_back(prw_file);
+    }
+    ANA_CHECK( objTool.setProperty("PRWConfigFiles", prw_conf) );
+  } 
 
   std::vector<std::string> prw_lumicalc;
   if (ilumicalc_file == "DUMMY") {
-    prw_lumicalc.push_back(PathResolverFindCalibFile("GoodRunsLists/data15_13TeV/20160720/physics_25ns_20.7.lumicalc.OflLumi-13TeV-005.root"));
-    prw_lumicalc.push_back(PathResolverFindCalibFile("GoodRunsLists/data16_13TeV/20160720/physics_25ns_20.7.lumicalc.OflLumi-13TeV-005.root"));
+    prw_lumicalc.push_back(PathResolverFindCalibFile("GoodRunsLists/data15_13TeV/20170619/PHYS_StandardGRL_All_Good_25ns_276262-284484_OflLumi-13TeV-008.root"));
+    prw_lumicalc.push_back(PathResolverFindCalibFile("GoodRunsLists/data16_13TeV/20170720/physics_25ns_20.7.lumicalc.OflLumi-13TeV-009.root"));
+    //prw_lumicalc.push_back(PathResolverFindCalibFile("GoodRunsLists/data17_13TeV/20171130/physics_25ns_Triggerno17e33prim.lumicalc.OflLumi-13TeV-001.root"));
   }
   else {
     prw_lumicalc = getTokens(ilumicalc_file,",");
@@ -320,6 +325,12 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
 
   if (debug) objTool.msg().setLevel( MSG::VERBOSE );
   ANA_CHECK(objTool.setBoolProperty("DebugMode", (bool)debug) );
+
+  // autoconfiguring PRW tool
+  if ( autoconfigPRW==1 ) {
+    objTool.setBoolProperty("AutoconfigurePRWTool", true);
+    //objTool.setProperty("mcCampaign", "mc16a");
+  }
 
   if ( objTool.initialize() != StatusCode::SUCCESS) {
     Error( APP_NAME, "Cannot initialize SUSYObjDef_xAOD..." );
@@ -595,10 +606,14 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
     metcst_nominal->setStore(metcst_nominal_aux);
     metcst_nominal->reserve(10);
 
+    double metsig_cst (0.);
+
     xAOD::MissingETContainer* mettst_nominal = new xAOD::MissingETContainer;
     xAOD::MissingETAuxContainer* mettst_nominal_aux = new xAOD::MissingETAuxContainer;
     mettst_nominal->setStore(mettst_nominal_aux);
     mettst_nominal->reserve(10);
+
+    double metsig_tst (0.);
 
     // Set up the event weights
     // Base should include all weights that do not depend on individual objects
@@ -837,7 +852,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
       if (isNominal || (sysInfo.affectsKinematics && (syst_affectsElectrons || syst_affectsMuons || syst_affectsJets))) {
         if(xStream.Contains("SUSY3")){
           ANA_CHECK( objTool.OverlapRemoval(electrons, muons, jets, 0, taus) );
-        }
+	}
         else if(xStream.Contains("SUSY10")){
           ANA_CHECK( objTool.OverlapRemoval(electrons, muons, jets, 0, 0, fatjets_nominal) );
         }
@@ -868,6 +883,17 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
                                     false, // CST
 				    false) ); // No JVT if you use CST
 
+	  if (debug) Info(APP_NAME, "METSignificance CST?");
+	  ANA_CHECK( objTool.GetMETSig(*metcst,
+				       metsig_cst,
+	  			       jets,
+	  			       electrons,
+	  			       muons,
+	  			       photons,
+	  			       taus, // taus
+				       false,
+				       false) );
+
 	  if (debug) Info(APP_NAME, "METTST?");
 	  ANA_CHECK( objTool.GetMET(*mettst,
 				    jets,
@@ -876,6 +902,18 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
 				    photons,
 				    taus,
 				    true) );
+
+	  if (debug) Info(APP_NAME, "METSignificance TST?");
+	  ANA_CHECK( objTool.GetMETSig(*mettst,
+				       metsig_tst,
+	  			       jets,
+	  			       electrons,
+	  			       muons,
+	  			       photons,
+	  			       taus, // taus
+				       true,
+				       true) );
+
 	}
 	else{
 	  if (debug) Info(APP_NAME, "METCST?");
@@ -888,6 +926,17 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
 	  			    false, // CST
 	  			    false) ); // No JVT if you use CST
 
+	  if (debug) Info(APP_NAME, "METSignificance CST?");
+	  ANA_CHECK( objTool.GetMETSig(*metcst,
+				       metsig_cst,
+	  			       jets,
+	  			       electrons,
+	  			       muons,
+	  			       photons,
+	  			       0, // taus
+				       false,
+				       false) );
+
           if (debug) Info(APP_NAME, "METTST?");
           ANA_CHECK( objTool.GetMET(*mettst,
                                     jets,
@@ -896,6 +945,18 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
                                     photons,
                                     0, // taus,
                                     true) );
+
+	  if (debug) Info(APP_NAME, "METSignificance TST?");
+	  ANA_CHECK( objTool.GetMETSig(*mettst,
+				       metsig_tst,
+	  			       jets,
+	  			       electrons,
+	  			       muons,
+	  			       photons,
+	  			       0, // taus
+				       true,
+				       true) );
+
 
         }
         if (debug) Info(APP_NAME, "MET done");
@@ -1140,7 +1201,6 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
     //  Unfortunately, this manipulation is needed in order for the METMaker to find all of its
     //  objects.  See also ATLASG-801
     //event.fill();
-
 
     // The containers created by the shallow copy are owned by you. Remember to delete them.
     // In our case, all of these were put into the store

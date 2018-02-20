@@ -31,8 +31,12 @@ G4double LArWheelSolid::DistanceToIn(const G4ThreeVector &inputP) const
 
 	int p_fan = 0;
 	const G4double d = fabs(GetCalculator()->DistanceToTheNearestFan(p, p_fan));
-	if(d > m_FHTplusT) return d - m_FanHalfThickness;
-	LWSDBG(2, std::cout << "already inside" << MSG_VECTOR(p) << std::endl);
+	if(d > m_FHTplusT){
+		const G4double result = d - m_FanHalfThickness;
+		LWSDBG(2, std::cout << "dti result = " << result << std::endl);
+		return result;
+	}
+	LWSDBG(2, std::cout << "already inside, return 0" << MSG_VECTOR(p) << std::endl);
 	return 0.;
 }
 
@@ -70,27 +74,31 @@ G4double LArWheelSolid::DistanceToIn(const G4ThreeVector &inputP,
 	}
 	G4ThreeVector v(inputV);
 	v.rotateZ(p.phi() - phi0);
+
 	const G4double d0 = distance_to_in(p, v, p_fan);
-	
+	distance += d0;
+
 #ifdef DEBUG_LARWHEELSOLID
 	if(Verbose > 2){
 		if(Verbose > 3){
 			std::cout << MSG_VECTOR(inputP)
 			          << " " << MSG_VECTOR(inputV) << std::endl;
 		}
-		std::cout << "DTI: " << d0 << std::endl;
+		std::cout << "dti: " << d0 << ", DTI: " << distance << std::endl;
 	}
-	//distance += d0;
 	if(Verbose > 3){
-		if(distance < kInfinity){
-			G4ThreeVector p2 = inputP + inputV * (distance+d0);
+		if(d0 < kInfinity){
+			G4ThreeVector p2 = inputP + inputV*distance;
 			EInside i = Inside(p2);
-			std::cout << "DTI hit at " << MSG_VECTOR(p2) << ", "
+			std::cout << "DTI hit at dist. " << distance << ", point "
+			          << MSG_VECTOR(p2) << ", "
 			          << inside(i) << std::endl;
+		} else {
+			std::cout << "got infinity from dti" << std::endl;
 		}
 	}
 #ifdef LWS_HARD_TEST_DTI
-	if(test_dti(inputP, inputV, distance+d0 )){
+	if(test_dti(inputP, inputV, distance)){
 		if(Verbose == 1){
 			std::cout << TypeStr() << " DisToIn" << MSG_VECTOR(inputP)
 	                  << MSG_VECTOR(inputV) << std::endl;
@@ -98,15 +106,13 @@ G4double LArWheelSolid::DistanceToIn(const G4ThreeVector &inputP,
 	}
 	if(Verbose == 1){
 		std::cout << TypeStr() << " DisToIn" << MSG_VECTOR(inputP)
-	              << MSG_VECTOR(inputV) << " " << distance+d0 << std::endl;
+	              << MSG_VECTOR(inputV) << " " << distance << std::endl;
 	}
 #endif // ifdef LWS_HARD_TEST_DTI
 
 #endif // ifdef DEBUG_LARWHEELSOLID
 
-  return distance+d0;
-//#else
-//	return distance + distance_to_in(p, v);
+  return distance;
 }
 
 // This functions should be called in the case when we are sure that
@@ -249,7 +255,7 @@ G4double LArWheelSolid::distance_to_in(G4ThreeVector &p, const G4ThreeVector &v,
 		LWSDBG(5, std::cout << "outside fan dist_p=" << dist_p << ", m_FHTplusT=" << m_FHTplusT << std::endl);
 	} else {
 		LWSDBG(5, std::cout << "on fan surface dist_p=" << dist_p << ", m_FHTplusT=" << m_FHTplusT << ", m_FHTminusT=" << m_FHTminusT << std::endl);
-		
+
 		const G4ThreeVector d = GetCalculator()->NearestPointOnNeutralFibre(p, p_fan);
 		// check dot product between normal and v
 		if ( (p-d).cosTheta(v) < -AngularTolerance ) {

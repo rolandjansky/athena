@@ -54,18 +54,6 @@ STDM3ThinningHelper.AppendToStream( STDM3Stream )
 # TRACK  THINNING
 #=====================  
 
-
-# Tracks associated with Jets
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
-STDM3JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name          = "STDM3JetTPThinningTool",
-                                                                        ThinningService         = STDM3ThinningHelper.ThinningSvc(),
-                                                                        JetKey                  = "AntiKt4EMTopoJets",
-                                                                        SelectionString         = "AntiKt4EMTopoJets.pt > 10*GeV",
-                                                                        InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                        ApplyAnd                = False)
-ToolSvc += STDM3JetTPThinningTool
-thinningTools.append(STDM3JetTPThinningTool)
-
 # Tracks associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 STDM3MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "STDM3MuonTPThinningTool",
@@ -187,8 +175,8 @@ loose_electronMuonSelection = '(count('+loose_electronsRequirements+') + count('
 offlineexpression = " || ".join([muonOnlySelection,electronOnlySelection,electronMuonSelection,
                                loose_muonOnlySelection,loose_electronOnlySelection,loose_electronMuonSelection])
 
-diElectronTriggerRequirement = '( HLT_2e12_loose_L12EM10VH || HLT_2e15_loose_L12EM13VH || HLT_2e17_loose || HLT_2e17_loose_L12EM15 || HLT_2e12_lhloose_L12EM10VH || HLT_2e15_lhloose_L12EM13VH || HLT_2e17_lhloose || HLT_2e17_lhloose_L12EM15 || HLT_2e12_lhvloose_L12EM10VH || HLT_2e17_lhvloose_nod0)'
-diMuonTriggerRequirement='(HLT_2mu10 || HLT_2mu14 || HLT_mu24_mu8noL1 || HLT_mu22_mu8noL1 || HLT_mu20_mu8noL1)'
+diElectronTriggerRequirement = STDMTriggers.list_combine_OR(STDMTriggers.multi_e_triggers) 
+diMuonTriggerRequirement     = STDMTriggers.list_combine_OR(STDMTriggers.multi_mu_triggers) 
 lggTriggerRequirement = '( HLT_e20_lhmedium_nod0_2g10_loose || HLT_e20_lhmedium_nod0_2g10_loose_L1EM15VH_3EM8VH || HLT_e24_lhmedium_nod0_2g12_loose || HLT_e24_lhmedium_nod0_2g12_medium || HLT_2g10_loose_mu20)'
 triggerRequirement='('+diElectronTriggerRequirement+'||'+diMuonTriggerRequirement+"||"+ lggTriggerRequirement+')'
 
@@ -255,7 +243,6 @@ STDM3SlimmingHelper.SmartCollections = ["Electrons",
                                         "TauJets",
                                         "MET_Reference_AntiKt4EMTopo",
                                         "AntiKt4EMTopoJets",
-                                        "AntiKt4LCTopoJets",
                                         "BTagging_AntiKt4EMTopo",
                                         "InDetTrackParticles",
                                         "PrimaryVertices" ]

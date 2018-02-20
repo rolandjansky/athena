@@ -35,19 +35,19 @@ BuildTruthTaus::BuildTruthTaus( const std::string& name )
   , m_bIsTruthMatchedAvailable(false)
   , m_bIsTruthMatchedAvailableChecked(false)
   , m_bNewEvent(false)
-  , m_xTruthParticleContainer(0)
-  , m_xTruthTauAuxContainer(0)
-  , m_sNewTruthTauContainerNameAux("TruthTausAux.")
   , m_bTruthMuonAvailable(true)
   , m_bTruthElectronAvailable(true)
   , m_bTruthJetAvailable(true)
+  , m_xTruthParticleContainer(0)
+  , m_xTruthTauAuxContainer(0)
+  , m_sNewTruthTauContainerNameAux("TruthTausAux.")
   , m_iNChargedPions(0)
   , m_iNNeutralPions(0)
   , m_iNChargedOthers(0)
   , m_iNNeutralOthers(0)
   , m_iNChargedDaughters(0)
   , m_bIsHadronicTau(false)
-  , m_tMCTruthClassifier("MCTruthClassifierTool", this)
+  , m_tMCTruthClassifier("MCTruthClassifier", this)
 {
   declareProperty( "WriteTruthTaus", m_bWriteTruthTaus = false);
 
@@ -282,7 +282,8 @@ StatusCode BuildTruthTaus::examineTruthTau(const xAOD::TruthParticle& xTruthPart
   // define truth visible kinematic variables
   m_vTruthVisTLV = TLorentzVector();
   m_vTruthVisTLVCharged = TLorentzVector();
-  m_vTruthVisTLVNeutral = TLorentzVector();
+  m_vTruthVisTLVNeutralPions = TLorentzVector();
+  m_vTruthVisTLVNeutralOthers = TLorentzVector();
 
   // default false, if there is a hadron in decay products, it is
   // switched to true
@@ -370,14 +371,23 @@ StatusCode BuildTruthTaus::examineTruthTau(const xAOD::TruthParticle& xTruthPart
 
   if ( m_bWriteVisibleNeutralFourMomentum )
   {
-    static SG::AuxElement::Decorator<double> decPtVisNeutral("pt_vis_neutral");
-    static SG::AuxElement::Decorator<double> decEtaVisNeutral("eta_vis_neutral");
-    static SG::AuxElement::Decorator<double> decPhiVisNeutral("phi_vis_neutral");
-    static SG::AuxElement::Decorator<double> accMVisNeutral("m_vis_neutral");
-    decPtVisNeutral(xTruthParticle)  = m_vTruthVisTLVNeutral.Pt();
-    decEtaVisNeutral(xTruthParticle) = m_vTruthVisTLVNeutral.Eta();
-    decPhiVisNeutral(xTruthParticle) = m_vTruthVisTLVNeutral.Phi();
-    accMVisNeutral(xTruthParticle)   = m_vTruthVisTLVNeutral.M();
+    static SG::AuxElement::Decorator<double> decPtVisNeutralPions("pt_vis_neutral_pions");
+    static SG::AuxElement::Decorator<double> decEtaVisNeutralPions("eta_vis_neutral_pions");
+    static SG::AuxElement::Decorator<double> decPhiVisNeutralPions("phi_vis_neutral_pions");
+    static SG::AuxElement::Decorator<double> accMVisNeutralPions("m_vis_neutral_pions");
+    decPtVisNeutralPions(xTruthParticle)  = m_vTruthVisTLVNeutralPions.Pt();
+    decEtaVisNeutralPions(xTruthParticle) = m_vTruthVisTLVNeutralPions.Eta();
+    decPhiVisNeutralPions(xTruthParticle) = m_vTruthVisTLVNeutralPions.Phi();
+    accMVisNeutralPions(xTruthParticle)   = m_vTruthVisTLVNeutralPions.M();
+    
+    static SG::AuxElement::Decorator<double> decPtVisNeutralOthers("pt_vis_neutral_others");
+    static SG::AuxElement::Decorator<double> decEtaVisNeutralOthers("eta_vis_neutral_others");
+    static SG::AuxElement::Decorator<double> decPhiVisNeutralOthers("phi_vis_neutral_others");
+    static SG::AuxElement::Decorator<double> accMVisNeutralOthers("m_vis_neutral_others");
+    decPtVisNeutralOthers(xTruthParticle)  = m_vTruthVisTLVNeutralOthers.Pt();
+    decEtaVisNeutralOthers(xTruthParticle) = m_vTruthVisTLVNeutralOthers.Eta();
+    decPhiVisNeutralOthers(xTruthParticle) = m_vTruthVisTLVNeutralOthers.Phi();
+    accMVisNeutralOthers(xTruthParticle)   = m_vTruthVisTLVNeutralOthers.M();
   }
 
   if ( m_bWriteDecayModeVector )
@@ -444,8 +454,15 @@ StatusCode BuildTruthTaus::examineTruthTauDecay(const xAOD::TruthParticle& xTrut
       if ( xTruthDaughter->isCharged() )
         m_vTruthVisTLVCharged += xTruthDaughter->p4();
     if ( m_bWriteVisibleNeutralFourMomentum )
+    {
       if ( xTruthDaughter->isNeutral() )
-        m_vTruthVisTLVNeutral += xTruthDaughter->p4();
+      {
+        if (iAbsPdgId==111)
+          m_vTruthVisTLVNeutralPions += xTruthDaughter->p4();
+        else
+          m_vTruthVisTLVNeutralOthers += xTruthDaughter->p4();
+      }
+    }
 
     // only count charged decay particles
     if ( xTruthDaughter->isCharged() )
@@ -480,7 +497,7 @@ void BuildTruthTaus::printDecay(const xAOD::TruthParticle& xTruthParticle, int d
     const xAOD::TruthParticle* xTruthDaughter = xDecayVertex->outgoingParticle(iOutgoingParticle);
     if (!xTruthDaughter)
     {
-      ATH_MSG_FATAL("Truth daughter of tau decay was not found in "<<m_sTruthParticlesContainerName<<" container. Please ensure that this container has the full tau decay information or produce the TruthTaus container in AtlasDerivation.\nInformation on how to do this can be found here:\nhttps://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/TauPreRecommendations2015#Accessing_Tau_Truth_Information");
+      ATH_MSG_WARNING("Truth daughter of tau decay was not found in "<<m_sTruthParticlesContainerName<<" container. Please ensure that this container has the full tau decay information or produce the TruthTaus container in AtlasDerivation.\nInformation on how to do this can be found here:\nhttps://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/TauPreRecommendations2015#Accessing_Tau_Truth_Information");
       return;
     }
     ATH_MSG_WARNING("depth "<<depth
