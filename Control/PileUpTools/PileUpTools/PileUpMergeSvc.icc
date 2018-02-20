@@ -136,6 +136,56 @@ PileUpMergeSvc::retrieveSubEvtsData(const KEY& dataKey, //orig evt key
   return StatusCode::SUCCESS;
 }
 
+///retrieve keyed DATA objs for subset of sub-events
+template <typename KEY, typename TIMEDDATA>
+StatusCode 
+PileUpMergeSvc::retrieveSubSetEvtData(const KEY& dataKey, //orig evt key
+				      TIMEDDATA& timedData, int bunchXing,
+				      SubEventIterator bSubEvents, SubEventIterator eSubEvents)
+{
+  typedef typename TIMEDDATA::value_type value_type;  //pair<time_t,DataLink..
+  typedef typename value_type::second_type DataLink_t;
+  typedef typename DataLink_t::value_type data_t;
+
+  SubEventIterator iEvt = bSubEvents;
+  for (; iEvt != eSubEvents; iEvt++) {
+
+    StoreGateSvc &seStore = *iEvt->ptr()->evtStore();
+    ATH_MSG_VERBOSE("SubEvt StoreGate " << seStore.name() << " :"
+		    << " bunch crossing : " << bunchXing
+		    << " time offset : " << iEvt->time()
+		    << " event number : " <<
+		    iEvt->ptr()->eventNumber()
+		    << " run number : " <<
+		    iEvt->ptr()->runNumber());
+
+    DataLink_t dLink;
+    fillLink(dLink, dataKey, iEvt->ptr()->evtStore());
+    if (dLink.isValid()) {
+
+      double sigTime(0.0);
+      unsigned int evtIndex(0);
+
+      if (m_returnTimedData.value()) {
+	sigTime=iEvt->time();
+	evtIndex = iEvt->index();
+      }
+
+      value_type tData(PileUpTimeEventIndex(int(sigTime),evtIndex), dLink);
+      timedData.push_back(tData);
+
+    } else {
+
+      ATH_MSG_FATAL("Could not retrieve hit collection from: " << seStore.name() << " with key: " << dataKey);
+      return StatusCode::FAILURE;
+
+    }
+  }
+
+  return StatusCode::SUCCESS;
+
+}
+
 ///retrieve keyed DATA objs for all sub-events and attach a time to them
 template <typename KEY, typename TIMEDDATA>
 StatusCode 
