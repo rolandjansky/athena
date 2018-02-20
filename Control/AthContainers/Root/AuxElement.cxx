@@ -435,10 +435,9 @@ void AuxElement::clearAux()
     throw SG::ExcConstAuxData ("clearAux", SG::null_auxid);
 
   SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
-  SG::AuxTypeRegistry::lock_t lock (r);
   for (SG::auxid_t auxid : m_container->getWritableAuxIDs()) {
     void* dst = m_container->getDataArray (auxid);
-    r.clear (lock, auxid, dst, m_index);
+    r.clear (auxid, dst, m_index);
   }
 }
 

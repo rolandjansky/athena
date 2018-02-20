@@ -66,13 +66,13 @@ SG::auxid_t
 AuxTypeRegistry::findAuxID( const std::string& name,
                             const std::string& clsname ) const
 {
-   upgrading_lock_t lock (const_cast<mutex_t&>(m_mutex));
-   key_t key (name, clsname);
-   id_map_t::const_iterator i = m_auxids.find (key);
-   if (i != m_auxids.end()) {
-      return i->second;
-   }
-   return null_auxid;
+  lock_t lock (m_mutex);
+  key_t key (name, clsname);
+  id_map_t::const_iterator i = m_auxids.find (key);
+  if (i != m_auxids.end()) {
+    return i->second;
+  }
+  return null_auxid;
 }
 
 
@@ -88,24 +88,6 @@ AuxTypeRegistry::makeVector (SG::auxid_t auxid,
                              size_t capacity) const
 {
   const SG::IAuxTypeVectorFactory* factory = getFactory (auxid);
-  assert (factory != 0);
-  return factory->create (size, capacity);
-}
-
-
-/**
- * @brief Construct a new vector to hold an aux item (external locking).
- * @param lock The registry lock.
- * @param auxid The desired aux data item.
- * @param size Initial size of the new vector.
- * @param capacity Initial capacity of the new vector.
- */
-std::unique_ptr<IAuxTypeVector> AuxTypeRegistry::makeVector (lock_t& lock,
-                                                             SG::auxid_t auxid,
-                                                             size_t size,
-                                                             size_t capacity) const
-{
-  const SG::IAuxTypeVectorFactory* factory = getFactory (lock, auxid);
   assert (factory != 0);
   return factory->create (size, capacity);
 }
@@ -144,19 +126,6 @@ AuxTypeRegistry::makeVectorFromData (SG::auxid_t auxid,
  */
 std::string AuxTypeRegistry::getName (SG::auxid_t auxid) const
 {
-  lock_t lock (*this);
-  return getName (lock, auxid);
-}
-
-
-/**
- * @brief Return the name of an aux data item (external locking).
- * @param lock The registry lock.
- * @param auxid The desired aux data item.
- */
-std::string AuxTypeRegistry::getName (lock_t& /*lock*/,
-                                      SG::auxid_t auxid) const
-{
   if (auxid >= m_types.size())
     return "";
   return m_types[auxid].m_name;
@@ -170,20 +139,6 @@ std::string AuxTypeRegistry::getName (lock_t& /*lock*/,
  */
 std::string AuxTypeRegistry::getClassName (SG::auxid_t auxid) const
 {
-  lock_t lock(*this);
-  return getClassName (lock, auxid);
-}
-
-
-/**
- * @brief Return the class name associated with an aux data item
- *        (may be blank).  [external locking] 
- * @param lock The registry lock.
- * @param auxid The desired aux data item.
- */
-std::string AuxTypeRegistry::getClassName (lock_t& /*lock*/,
-                                           SG::auxid_t auxid) const
-{
   if (auxid >= m_types.size())
     return "";
   return m_types[auxid].m_clsname;
@@ -195,19 +150,6 @@ std::string AuxTypeRegistry::getClassName (lock_t& /*lock*/,
  * @param auxid The desired aux data item.
  */
 const std::type_info* AuxTypeRegistry::getType (SG::auxid_t auxid) const
-{
-  lock_t lock (*this);
-  return getType (lock, auxid);
-}
-
-
-/**
- * @brief Return the type of an aux data item (external locking).
- * @param lock The registry lock.
- * @param auxid The desired aux data item.
- */
-const std::type_info* AuxTypeRegistry::getType (lock_t& /*lock*/,
-                                                SG::auxid_t auxid) const
 {
   if (auxid >= m_types.size())
     return 0;
@@ -223,21 +165,6 @@ const std::type_info* AuxTypeRegistry::getType (lock_t& /*lock*/,
  */
 std::string AuxTypeRegistry::getTypeName (SG::auxid_t auxid) const
 {
-  lock_t lock (*this);
-  return getTypeName (lock, auxid);
-}
-
-
-/**
- * @brief Return the type name of an aux data item (external locking).
- * @param lock The registry lock.
- * @param auxid The desired aux data item.
- *
- * Returns an empty string if the type is not known.
- */
-std::string AuxTypeRegistry::getTypeName (lock_t& /*lock*/,
-                                          SG::auxid_t auxid) const
-{
   if (auxid >= m_types.size())
     return "";
   return normalizedTypeinfoName (*m_types[auxid].m_ti);
@@ -251,22 +178,6 @@ std::string AuxTypeRegistry::getTypeName (lock_t& /*lock*/,
 const std::type_info* AuxTypeRegistry::getVecType (SG::auxid_t auxid) const
 {
   const SG::IAuxTypeVectorFactory* factory = getFactory (auxid);
-  if (factory)
-    return factory->tiVec();
-  return 0;
-}
-
-
-/**
- * @brief Return the type of the STL vector used to hold an aux data item.
- *        (external locking)
- * @param lock The registry lock.
- * @param auxid The desired aux data item.
- */
-const std::type_info* AuxTypeRegistry::getVecType (lock_t& lock,
-                                                   SG::auxid_t auxid) const
-{
-  const SG::IAuxTypeVectorFactory* factory = getFactory (lock, auxid);
   if (factory)
     return factory->tiVec();
   return 0;
@@ -289,46 +200,12 @@ std::string AuxTypeRegistry::getVecTypeName (SG::auxid_t auxid) const
 
 
 /**
- * @brief Return the type name of the STL vector used to hold an aux data item.
- *        (external locking)
- * @param lock The registry lock.
- * @param auxid The desired aux data item.
- *
- * Returns an empty string if the type is not known.
- */
-std::string AuxTypeRegistry::getVecTypeName (lock_t& lock,
-                                             SG::auxid_t auxid) const
-{
-  const SG::IAuxTypeVectorFactory* factory = getFactory (lock, auxid);
-  if (factory)
-    return normalizedTypeinfoName (*factory->tiVec());
-  return "";
-}
-
-
-/**
  * @brief Return size of an element in the STL vector.
  * @param auxid The desired aux data item.
  */
 size_t AuxTypeRegistry::getEltSize (SG::auxid_t auxid) const
 {
   const SG::IAuxTypeVectorFactory* factory = getFactory (auxid);
-  if (factory)
-    return factory->getEltSize();
-  return 0;
-}
-
-
-/**
- * @brief Return size of an element in the STL vector
- *        (external locking).
- * @param lock The registry lock.
- * @param auxid The desired aux data item.
- */
-size_t AuxTypeRegistry::getEltSize (lock_t& lock,
-                                    SG::auxid_t auxid) const
-{
-  const SG::IAuxTypeVectorFactory* factory = getFactory (lock, auxid);
   if (factory)
     return factory->getEltSize();
   return 0;
@@ -350,28 +227,6 @@ void AuxTypeRegistry::copy (SG::auxid_t auxid,
                             const void* src, size_t src_index)
 {
   const SG::IAuxTypeVectorFactory* factory = getFactory (auxid);
-  if (factory)
-    factory->copy (dst, dst_index, src, src_index);
-}
-
-
-/**
- * @brief Copy an element between vectors (external locking).
- * @param lock The registry lock.
- * @param auxid The aux data item being operated on.
- * @param dst Pointer to the start of the destination vector's data.
- * @param dst_index Index of destination element in the vector.
- * @param src Pointer to the start of the source vector's data.
- * @param src_index Index of source element in the vector.
- *
- * @c dst and @ src can be either the same or different.
- */
-void AuxTypeRegistry::copy (lock_t& lock,
-                            SG::auxid_t auxid,
-                            void* dst,       size_t dst_index,
-                            const void* src, size_t src_index)
-{
-  const SG::IAuxTypeVectorFactory* factory = getFactory (lock, auxid);
   if (factory)
     factory->copy (dst, dst_index, src, src_index);
 }
@@ -400,30 +255,6 @@ void AuxTypeRegistry::copyForOutput (SG::auxid_t auxid,
 
 
 /**
- * @brief Copy an element between vectors (external locking).
- *        Apply any transformations needed for output.
- * @param lock The registry lock.
- * @param auxid The aux data item being operated on.
- * @param dst Pointer to the start of the destination vector's data.
- * @param dst_index Index of destination element in the vector.
- * @param src Pointer to the start of the source vector's data.
- * @param src_index Index of source element in the vector.
- *
- * @c dst and @ src can be either the same or different.
- */
-void AuxTypeRegistry::copyForOutput (lock_t& lock,
-                                     SG::auxid_t auxid,
-                                     void* dst,       size_t dst_index,
-                                     const void* src, size_t src_index)
-{
-  const SG::IAuxTypeVectorFactory* factory = getFactory (lock, auxid);
-  if (factory) {
-    factory->copyForOutput (dst, dst_index, src, src_index);
-  }
-}
-
-
-/**
  * @brief Swap an element between vectors.
  * @param auxid The aux data item being operated on.
  * @param a Pointer to the start of the first vector's data.
@@ -444,28 +275,6 @@ void AuxTypeRegistry::swap (SG::auxid_t auxid,
 
 
 /**
- * @brief Swap an element between vectors (external locking).
- * @param lock The registry lock.
- * @param auxid The aux data item being operated on.
- * @param a Pointer to the start of the first vector's data.
- * @param aindex Index of the element in the first vector.
- * @param b Pointer to the start of the second vector's data.
- * @param bindex Index of the element in the second vector.
- *
- * @c a and @ b can be either the same or different.
- */
-void AuxTypeRegistry::swap (lock_t& lock,
-                            SG::auxid_t auxid,
-                            void* a, size_t aindex,
-                            void* b, size_t bindex)
-{
-  const SG::IAuxTypeVectorFactory* factory = getFactory (lock, auxid);
-  if (factory)
-    factory->swap (a, aindex, b, bindex);
-}
-
-
-/**
  * @brief Clear an element within a vector.
  * @param auxid The aux data item being operated on.
  * @param dst Pointer to the start of the vector's data.
@@ -474,22 +283,6 @@ void AuxTypeRegistry::swap (lock_t& lock,
 void AuxTypeRegistry::clear (SG::auxid_t auxid, void* dst, size_t dst_index)
 {
   const SG::IAuxTypeVectorFactory* factory = getFactory (auxid);
-  if (factory)
-    factory->clear (dst, dst_index);
-}
-
-
-/**
- * @brief Clear an element within a vector (external locking).
- * @param lock The registry lock.
- * @param auxid The aux data item being operated on.
- * @param dst Pointer to the start of the vector's data.
- * @param dst_index Index of the element in the vector.
- */
-void AuxTypeRegistry::clear (lock_t& lock,
-                             SG::auxid_t auxid, void* dst, size_t dst_index)
-{
-  const SG::IAuxTypeVectorFactory* factory = getFactory (lock, auxid);
   if (factory)
     factory->clear (dst, dst_index);
 }
@@ -505,7 +298,7 @@ void AuxTypeRegistry::clear (lock_t& lock,
 const IAuxTypeVectorFactory*
 AuxTypeRegistry::getFactory (const std::type_info& ti) const
 {
-  lock_t lock (*this);
+  lock_t lock (m_mutex);
   return getFactory (lock, ti);
 }
 
@@ -523,24 +316,10 @@ const IAuxTypeVectorFactory*
 AuxTypeRegistry::getFactory (lock_t& /*lock*/,
                              const std::type_info& ti) const
 {
-  return getFactoryLocked (ti);
-}
-
-
-/**
- * @brief Return the vector factory for a given vector element type.
- *        (external locking)
- * @param lock The registry lock.
- * @param ti The type of the vector element.
- *
- * Returns 0 if the type is not known.
- * (Use @c addFactory to add new mappings.)
- */
-const IAuxTypeVectorFactory*
-AuxTypeRegistry::getFactory (upgrading_lock_t& /*lock*/,
-                             const std::type_info& ti) const
-{
-  return getFactoryLocked (ti);
+  ti_map_t::const_iterator it = m_factories.find (ti.name());
+  if (it != m_factories.end())
+    return it->second;
+  return 0;
 }
 
 
@@ -557,7 +336,7 @@ AuxTypeRegistry::getFactory (upgrading_lock_t& /*lock*/,
 void AuxTypeRegistry::addFactory (const std::type_info& ti,
                                   IAuxTypeVectorFactory* factory)
 {
-  upgrading_lock_t lock (m_mutex);
+  lock_t lock (m_mutex);
   return addFactory (lock, ti, factory);
 }
 
@@ -573,12 +352,10 @@ void AuxTypeRegistry::addFactory (const std::type_info& ti,
  * factory is discarded, unless the old one is a dynamic factory and
  * the new one isn't, in which case the new replaces the old one.
  */
-void AuxTypeRegistry::addFactory (upgrading_lock_t& lock,
+void AuxTypeRegistry::addFactory (lock_t& /*lock*/,
                                   const std::type_info& ti,
                                   IAuxTypeVectorFactory* factory)
 {
-  lock.upgrade();
-
   ti_map_t::iterator it = m_factories.find (ti.name());
   if (it != m_factories.end()) {
     if (it->second->isDynamic() && !factory->isDynamic()) {
@@ -604,6 +381,8 @@ void AuxTypeRegistry::addFactory (upgrading_lock_t& lock,
  */
 AuxTypeRegistry::AuxTypeRegistry()
 {
+  m_types.reserve (auxid_set_size_hint);
+
   // Make sure we have factories registered for common C++ types.
 #define ADD_FACTORY(T) addFactory(typeid(T), new AuxTypeVectorFactory<T>)
   ADD_FACTORY (bool);
@@ -670,7 +449,7 @@ AuxTypeRegistry::findAuxID (const std::string& name,
                             const std::type_info& ti,
                             IAuxTypeVectorFactory* (AuxTypeRegistry::*makeFactory) () const)
 {
-  upgrading_lock_t lock (m_mutex);
+  lock_t lock (m_mutex);
   key_t key (name, clsname);
   id_map_t::iterator i = m_auxids.find (key);
   if (i != m_auxids.end()) {
@@ -686,8 +465,7 @@ AuxTypeRegistry::findAuxID (const std::string& name,
     // we still accept the match as long as the names are the same.
     if (&ti == m.m_ti || strcmp(ti.name(), m.m_ti->name()) == 0) {
       // Try to upgrade a dynamic factory.
-      if (m.m_factory->isDynamic()) {
-        lock.upgrade();
+      if ((*m.m_factory).isDynamic()) {
         IAuxTypeVectorFactory* fac2 = (*this.*makeFactory)();
         if (fac2) {
           addFactory (lock, ti, fac2);
@@ -702,7 +480,6 @@ AuxTypeRegistry::findAuxID (const std::string& name,
     // fall through, get a new auxid and real type info
     // new auxid needed so a new data vector is created in the AuxStore
   }
-  lock.upgrade();
   const IAuxTypeVectorFactory* fac = getFactory (lock, ti);
   if (!fac || fac->isDynamic()) {
     IAuxTypeVectorFactory* fac2 = (*this.*makeFactory)();
@@ -714,32 +491,15 @@ AuxTypeRegistry::findAuxID (const std::string& name,
   if (!fac) return null_auxid;
   SG::auxid_t auxid = m_types.size();
   m_types.resize (auxid+1);
-  m_auxids[key] = auxid;
   typeinfo_t& t = m_types[auxid];
   t.m_name = name;
   t.m_clsname = clsname;
   t.m_ti = &ti;
   t.m_factory = fac;
+  AthContainers_detail::fence_seq_cst();
+  m_auxids[key] = auxid;
 
   return auxid;
-}
-
-
-/**
- * @brief Return the vector factory for a given vector element type.
- *        The registry lock must be held.
- * @param ti The type of the vector element.
- *
- * Returns 0 if the type is not known.
- * (Use @c addFactory to add new mappings.)
- */
-const IAuxTypeVectorFactory*
-AuxTypeRegistry::getFactoryLocked (const std::type_info& ti) const
-{
-  ti_map_t::const_iterator it = m_factories.find (ti.name());
-  if (it != m_factories.end())
-    return it->second;
-  return 0;
 }
 
 
@@ -758,7 +518,7 @@ void
 AuxTypeRegistry::setInputRenameMap (const Athena::IInputRename::InputRenameMap_t* map,
                                     const IStringPool& pool)
 {
-  lock_t lock(*this);
+  lock_t lock (m_mutex);
   m_renameMap.clear();
   if (!map) return;
   for (const auto& p : *map) {
@@ -792,7 +552,7 @@ AuxTypeRegistry::setInputRenameMap (const Athena::IInputRename::InputRenameMap_t
 const std::string& AuxTypeRegistry::inputRename (const std::string& key,
                                                  const std::string& name) const
 {
-  lock_t lock(*this);
+  lock_t lock (m_mutex);
   if (m_renameMap.empty())
     return name;
 
