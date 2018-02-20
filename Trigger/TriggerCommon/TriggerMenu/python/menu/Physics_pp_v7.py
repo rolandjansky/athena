@@ -2123,12 +2123,17 @@ def setupMenu():
         #AFP egamma       
         ['g10_loose_L1EM3_AFP_A_OR_C',                  'L1_EM3_AFP_A_OR_C',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
         ['g10_loose_L1EM3_AFP_A_AND_C',                  'L1_EM3_AFP_A_AND_C',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['g15_loose_L1EM7_AFP_A_OR_C',  'L1_EM7_AFP_A_OR_C',   [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['g20_loose_L1EM12_AFP_A_OR_C', 'L1_EM12_AFP_A_OR_C',   [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
 
         ['e10_lhloose_L1EM3_AFP_A_OR_C',                  'L1_EM3_AFP_A_OR_C',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
         ['e10_lhloose_L1EM3_AFP_A_AND_C',                  'L1_EM3_AFP_A_AND_C',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['e15_lhloose_L1EM7_AFP_A_OR_C', 'L1_EM7_AFP_A_OR_C',  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['e20_lhloose_L1EM12_AFP_A_OR_C', 'L1_EM12_AFP_A_OR_C',  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
 
         ['g10_loose_L1EM3',                  'L1_EM3',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
         ['e10_lhloose_L1EM3',                  'L1_EM3',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['e20_lhloose_L1EM12',                  'L1_EM12',                  [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
         
         #HI egamma for 5TeV run ATR-17162 going to Main stream
         ['g15_etcut_L1EM7',                     'L1_EM7', [], [PhysicsStream], ['RATE:SinglePhoton', 'BW:Egamma'],-1],
@@ -3914,6 +3919,11 @@ def setupMenu():
         ['calibAFP_L1AFP_A_AND_C',                   'L1_AFP_A_AND_C'    ,              [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
         ['calibAFP_L1AFP_A_OR_C',                   'L1_AFP_A_OR_C'    ,              [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
         ['calibAFP_L1AFP_A_AND_C_SPECTOF',                   'L1_AFP_A_AND_C_SPECTOF'    ,              [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
+        ['calibAFP_L1AFP_NSA',     'L1_AFP_NSA', [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
+        ['calibAFP_L1AFP_NSC',     'L1_AFP_NSC', [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
+        ['calibAFP_L1AFP_FSA_SIT', 'L1_AFP_FSA_SIT', [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
+        ['calibAFP_L1AFP_FSC_SIT', 'L1_AFP_FSC_SIT', [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
+        ['calibAFP_L1RD0_FILLED',  'L1_RD0_FILLED', [],  ['AFP'], ['RATE:CalibrationAFP','BW:Detector'], -1],
 
         ['rpcpeb_L1RD0_EMPTY', 'L1_RD0_EMPTY', [], ['RPCNoise'], ["BW:Detector", "RATE:Calibration", "RATE:RPCCalibration",], -1],
 
@@ -4302,7 +4312,10 @@ def setupMenu():
         ['noalg_L1AFP_A_AND_C_SPECTOF_J100',                        'L1_AFP_A_AND_C_SPECTOF_J100',                  [],  [PhysicsStream], [ 'RATE:MinBias','BW:MinBias'], -1],
         ['noalg_L1AFP_A_SPECTOF',                      'L1_AFP_A_SPECTOF',               [], [PhysicsStream, 'express'], ["BW:MinBias", "RATE:MinBias"], -1],
         ['noalg_L1AFP_C_SPECTOF',                      'L1_AFP_C_SPECTOF',               [], [PhysicsStream, 'express'], ["BW:MinBias", "RATE:MinBias"], -1],
-
+        ['noalg_L1AFP_NSA',      'L1_AFP_NSA',     [], [PhysicsStream, 'express'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['noalg_L1AFP_NSC',      'L1_AFP_NSC',     [], [PhysicsStream, 'express'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['noalg_L1AFP_FSA_SIT',  'L1_AFP_FSA_SIT', [], [PhysicsStream, 'express'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['noalg_L1AFP_FSC_SIT',  'L1_AFP_FSC_SIT', [], [PhysicsStream, 'express'], ["BW:MinBias", "RATE:MinBias"], -1],
 
         ['noalg_L1MBTS_2',                        'L1_MBTS_2',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
 
