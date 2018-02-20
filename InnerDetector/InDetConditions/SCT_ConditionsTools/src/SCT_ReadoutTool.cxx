@@ -42,7 +42,7 @@ bool sortById(SCT_Chip* a, SCT_Chip* b) {
 
 // Constructor
 SCT_ReadoutTool::SCT_ReadoutTool(const std::string &type, const std::string &name, const IInterface *parent) :
-  AthAlgTool(type,name,parent),
+  base_class(type, name, parent),
   m_sctId(nullptr),
   m_cablingSvc("SCT_CablingSvc",name),
   m_chips{},
@@ -53,7 +53,6 @@ SCT_ReadoutTool::SCT_ReadoutTool(const std::string &type, const std::string &nam
   m_chipsOnLink0{},
   m_chipsOnLink1{}
 {
-  declareInterface<ISCT_ReadoutTool>(this);
 }
 
 // Initialize

@@ -15,7 +15,6 @@
 #include <string> 
 #include <vector> 
 #include <bitset>
-//#include <array>
 
 // Gaudi
 #include "GaudiKernel/ServiceHandle.h"
@@ -70,15 +69,15 @@ private:
  * Class to represent the SCT module readout
 **/
 
-class SCT_ReadoutTool : public AthAlgTool, virtual public ISCT_ReadoutTool{
+class SCT_ReadoutTool : public extends<AthAlgTool, ISCT_ReadoutTool> {
 
 public:
 
   /** Usual framework methods for an AlgTool*/
   SCT_ReadoutTool(const std::string &type, const std::string &name, const IInterface *parent);
-  virtual ~SCT_ReadoutTool() {}
-  StatusCode initialize();
-  StatusCode finalize();
+  virtual ~SCT_ReadoutTool() = default;
+  StatusCode initialize() override;
+  StatusCode finalize() override;
   
   /** Determine which chips are in the readout for a module of a particular type by Identifier*/
   StatusCode determineReadout(const Identifier& moduleId, std::vector<SCT_Chip*>& chips, bool link0ok, bool link1ok);
