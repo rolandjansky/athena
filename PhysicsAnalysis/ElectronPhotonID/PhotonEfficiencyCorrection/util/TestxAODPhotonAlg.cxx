@@ -91,16 +91,16 @@ int main( int argc, char* argv[] ) {
 
 
    //Set Properties for photonID_SF tool
-   CHECK(photonSF_ID.setProperty("MapFilePath","PhotonEfficiencyCorrection/map0.txt"));
+   //CHECK(photonSF_ID.setProperty("MapFilePath","PhotonEfficiencyCorrection/map0.txt"));
    CHECK(photonSF_ID.setProperty("ForceDataType",1));
 
    //Set Properties for photonISO_SF tool
-   CHECK(photonSF_Iso.setProperty("MapFilePath","PhotonEfficiencyCorrection/map0.txt"));
+   //CHECK(photonSF_Iso.setProperty("MapFilePath","PhotonEfficiencyCorrection/map0.txt"));
    CHECK(photonSF_Iso.setProperty("IsoKey","Loose"));   // Set isolation WP: Loose,Tight,TightCaloOnly
    CHECK(photonSF_Iso.setProperty("ForceDataType",1)); //set data type: 1 for FULLSIM, 3 for AF2
 
    //Set Properties for PhotonTrig_SF tool
-   CHECK(photonSF_Trig.setProperty("MapFilePath","PhotonEfficiencyCorrection/map0.txt"));
+   //CHECK(photonSF_Trig.setProperty("MapFilePath","PhotonEfficiencyCorrection/map0.txt"));
    CHECK(photonSF_Trig.setProperty("IsoKey","Loose"));  // Set isolation WP: Loose,Tight,TightCaloOnly
    CHECK(photonSF_Trig.setProperty("TriggerKey","HLT_g20_tight_icalovloose_L1EM15VHI"));        // Set photon trigger
    CHECK(photonSF_Trig.setProperty("ForceDataType",1)); //set data type: 1 for FULLSIM, 3 for AF2
