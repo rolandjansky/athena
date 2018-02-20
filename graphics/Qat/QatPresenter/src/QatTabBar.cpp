@@ -65,24 +65,24 @@ class QatTabBar::Private
 
 QatTabBar::QatTabBar( QWidget *parent )
     : QTabBar( parent ),
-      d( new Private )
+      m_d( new Private )
 {
   setAcceptDrops( true );
   setMouseTracking( true );
 
-  //d->mEnableCloseButtonTimer = new QTimer( this );
-  //connect( d->mEnableCloseButtonTimer, SIGNAL( timeout() ), SLOT( enableCloseButton() ) );
+  //m_d->mEnableCloseButtonTimer = new QTimer( this );
+  //connect( m_d->mEnableCloseButtonTimer, SIGNAL( timeout() ), SLOT( enableCloseButton() ) );
 
-  d->mActivateDragSwitchTabTimer = new QTimer( this );
-  d->mActivateDragSwitchTabTimer->setSingleShot( true );
-  connect( d->mActivateDragSwitchTabTimer, SIGNAL( timeout() ), SLOT( activateDragSwitchTab() ) );
+  m_d->mActivateDragSwitchTabTimer = new QTimer( this );
+  m_d->mActivateDragSwitchTabTimer->setSingleShot( true );
+  connect( m_d->mActivateDragSwitchTabTimer, SIGNAL( timeout() ), SLOT( activateDragSwitchTab() ) );
 
   //connect( this, SIGNAL( layoutChanged() ), SLOT( onLayoutChange() ) );
 }
 
 QatTabBar::~QatTabBar()
 {
-  delete d;
+  delete m_d;
 }
 
 void QatTabBar::mouseDoubleClickEvent( QMouseEvent *event )
@@ -102,8 +102,8 @@ void QatTabBar::mouseDoubleClickEvent( QMouseEvent *event )
 void QatTabBar::mousePressEvent( QMouseEvent *event )
 {
   if ( event->button() == Qt::LeftButton ) {
-    //d->mEnableCloseButtonTimer->stop();
-    d->mDragStart = event->pos();
+    //m_d->mEnableCloseButtonTimer->stop();
+    m_d->mDragStart = event->pos();
   } else if( event->button() == Qt::RightButton ) {
     int tab = selectTab( event->pos() );
     if ( tab != -1 ) {
@@ -119,30 +119,30 @@ void QatTabBar::mouseMoveEvent( QMouseEvent *event )
 {
   if ( event->buttons() == Qt::LeftButton ) {
     int tab = selectTab( event->pos() );
-    if ( d->mDragSwitchTab && tab != d->mDragSwitchTab ) {
-      d->mActivateDragSwitchTabTimer->stop();
-      d->mDragSwitchTab = 0;
+    if ( m_d->mDragSwitchTab && tab != m_d->mDragSwitchTab ) {
+      m_d->mActivateDragSwitchTabTimer->stop();
+      m_d->mDragSwitchTab = 0;
     }
 
     int delay = 5;//TK fixme KGlobalSettings::dndEventDelay();
     QPoint newPos = event->pos();
-    if ( newPos.x() > d->mDragStart.x() + delay || newPos.x() < d->mDragStart.x() - delay ||
-         newPos.y() > d->mDragStart.y() + delay || newPos.y() < d->mDragStart.y() - delay ) {
+    if ( newPos.x() > m_d->mDragStart.x() + delay || newPos.x() < m_d->mDragStart.x() - delay ||
+         newPos.y() > m_d->mDragStart.y() + delay || newPos.y() < m_d->mDragStart.y() - delay ) {
       if ( tab != -1 ) {
         emit initiateDrag( tab );
         return;
       }
     }
   } else if ( event->buttons() == Qt::MidButton ) {
-    if ( d->mReorderStartTab == -1 ) {
+    if ( m_d->mReorderStartTab == -1 ) {
       int delay = 5;//TK fixme KGlobalSettings::dndEventDelay();
       QPoint newPos = event->pos();
 
-      if ( newPos.x() > d->mDragStart.x() + delay || newPos.x() < d->mDragStart.x() - delay ||
-           newPos.y() > d->mDragStart.y() + delay || newPos.y() < d->mDragStart.y() - delay ) {
+      if ( newPos.x() > m_d->mDragStart.x() + delay || newPos.x() < m_d->mDragStart.x() - delay ||
+           newPos.y() > m_d->mDragStart.y() + delay || newPos.y() < m_d->mDragStart.y() - delay ) {
         int tab = selectTab( event->pos() );
-        if ( tab != -1 && d->mTabReorderingEnabled ) {
-          d->mReorderStartTab = tab;
+        if ( tab != -1 && m_d->mTabReorderingEnabled ) {
+          m_d->mReorderStartTab = tab;
           grabMouse( Qt::SizeAllCursor );
           return;
         }
@@ -151,11 +151,11 @@ void QatTabBar::mouseMoveEvent( QMouseEvent *event )
       int tab = selectTab( event->pos() );
       if ( tab != -1 ) {
         int reorderStopTab = tab;
-        if ( d->mReorderStartTab != reorderStopTab && d->mReorderPreviousTab != reorderStopTab ) {
-          emit moveTab( d->mReorderStartTab, reorderStopTab );
+        if ( m_d->mReorderStartTab != reorderStopTab && m_d->mReorderPreviousTab != reorderStopTab ) {
+          emit moveTab( m_d->mReorderStartTab, reorderStopTab );
 
-          d->mReorderPreviousTab = d->mReorderStartTab;
-          d->mReorderStartTab = reorderStopTab;
+          m_d->mReorderPreviousTab = m_d->mReorderStartTab;
+          m_d->mReorderStartTab = reorderStopTab;
 
           return;
         }
@@ -170,16 +170,16 @@ void QatTabBar::mouseMoveEvent( QMouseEvent *event )
 void QatTabBar::activateDragSwitchTab()
 {
   int tab = selectTab( mapFromGlobal( QCursor::pos() ) );
-  if ( tab != -1 && d->mDragSwitchTab == tab )
-    setCurrentIndex( d->mDragSwitchTab );
+  if ( tab != -1 && m_d->mDragSwitchTab == tab )
+    setCurrentIndex( m_d->mDragSwitchTab );
 
-  d->mDragSwitchTab = 0;
+  m_d->mDragSwitchTab = 0;
 }
 
 void QatTabBar::mouseReleaseEvent( QMouseEvent *event )
 {
   if ( event->button() == Qt::MidButton ) {
-    if ( d->mReorderStartTab == -1 ) {
+    if ( m_d->mReorderStartTab == -1 ) {
       int tab = selectTab( event->pos() );
       if ( tab != -1 ) {
         emit mouseMiddleClick( tab );
@@ -188,8 +188,8 @@ void QatTabBar::mouseReleaseEvent( QMouseEvent *event )
     } else {
       releaseMouse();
       setCursor( Qt::ArrowCursor );
-      d->mReorderStartTab = -1;
-      d->mReorderPreviousTab = -1;
+      m_d->mReorderStartTab = -1;
+      m_d->mReorderPreviousTab = -1;
     }
   }
 
@@ -211,8 +211,8 @@ void QatTabBar::dragMoveEvent( QDragMoveEvent *event )
     // 'accept' accordingly.
     emit testCanDecode( event, accept );
     if ( accept && tab != currentIndex() ) {
-      d->mDragSwitchTab = tab;
-      d->mActivateDragSwitchTabTimer->start( QApplication::doubleClickInterval() * 2 );
+      m_d->mDragSwitchTab = tab;
+      m_d->mActivateDragSwitchTabTimer->start( QApplication::doubleClickInterval() * 2 );
     }
 
     event->setAccepted( accept );
@@ -227,8 +227,8 @@ void QatTabBar::dropEvent( QDropEvent *event )
 {
   int tab = selectTab( event->pos() );
   if ( tab != -1 ) {
-    d->mActivateDragSwitchTabTimer->stop();
-    d->mDragSwitchTab = 0;
+    m_d->mActivateDragSwitchTabTimer->stop();
+    m_d->mDragSwitchTab = 0;
     emit receivedDropEvent( tab , event );
     return;
   }
@@ -248,29 +248,29 @@ void QatTabBar::wheelEvent( QWheelEvent *event )
 
 bool QatTabBar::isTabReorderingEnabled() const
 {
-  return d->mTabReorderingEnabled;
+  return m_d->mTabReorderingEnabled;
 }
 
 void QatTabBar::setTabReorderingEnabled( bool on )
 {
-  d->mTabReorderingEnabled = on;
+  m_d->mTabReorderingEnabled = on;
 }
 
 bool QatTabBar::tabCloseActivatePrevious() const
 {
-  return d->mTabCloseActivatePrevious;
+  return m_d->mTabCloseActivatePrevious;
 }
 
 void QatTabBar::setTabCloseActivatePrevious( bool on )
 {
-  d->mTabCloseActivatePrevious = on;
+  m_d->mTabCloseActivatePrevious = on;
 }
 
 
 void QatTabBar::tabLayoutChange()
 {
-  d->mActivateDragSwitchTabTimer->stop();
-  d->mDragSwitchTab = 0;
+  m_d->mActivateDragSwitchTabTimer->stop();
+  m_d->mDragSwitchTab = 0;
 }
 
 int QatTabBar::selectTab( const QPoint &pos ) const
