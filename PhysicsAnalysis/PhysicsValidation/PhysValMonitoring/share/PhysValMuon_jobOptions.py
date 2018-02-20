@@ -4,21 +4,23 @@ getPublicTool("MuonCombinedInDetDetailedTrackSelectorTool")
 from MuonPhysValMonitoring.MuonPhysValMonitoringConf import MuonPhysValMonitoring__MuonPhysValMonitoringTool
 from RecExConfig.RecFlags import rec as recFlags
 
-tool1 = MuonPhysValMonitoring__MuonPhysValMonitoringTool()
+tool1 = MuonPhysValMonitoring__MuonPhysValMonitoringTool( name = 'muphysval' )
 tool1.IsData = not recFlags.doTruth()
 
 #
 tool1.MuonContainerName = 'Muons';
+tool1.SlowMuonContainerName = '';
 tool1.MuonTruthParticleContainerName = 'MuonTruthParticles';
 tool1.DoBinnedResolutionPlots = True
 
 #comment out if you don't need any of the following containers
 tool1.TrackContainerName = 'InDetTrackParticles'
-#tool1.FwdTrackContainerName='InDetForwardTrackParticles'
+# #tool1.FwdTrackContainerName='InDetForwardTrackParticles'
 tool1.MuonTrackContainerName = 'MuonSpectrometerTrackParticles'
 tool1.MuonExtrapolatedTrackContainerName = 'ExtrapolatedMuonTrackParticles'
 tool1.MuonOnlyExtrapolatedTrackContainerName = 'MSOnlyExtrapolatedMuonTrackParticles'
 tool1.MuonSegmentContainerName = 'MuonSegments'
+
 
 #tool1.MuonTruthParticleContainerName = 'MuonTruthParticle' # uncomment for release 19
 # tool1.DoTrigMuonValidation =True
@@ -48,7 +50,7 @@ tool1.SelectL1MuonItems = [
 #Select Muon Working Points... (empty: all, -1: None, 0: Tight, 1: Medium, 2: Loose, 3: VeryLoose)
 tool1.SelectMuonWorkingPoints = [ 1 ]
 
-#Select Muon Authors... (empty: all authors, 1: combined, 2: STACO, 4: MuTagIMO, 5: Standalone, 6: MuGirl, 8: CaloTag)
+#Select Muon Authors... (empty: all authors, 0: None, 1: combined, 2: STACO, 4: MuTagIMO, 5: Standalone, 6: MuGirl, 8: CaloTag)
 tool1.SelectMuonAuthors = [ 1, 2, 4 ,5, 6, 8, 9 ]
 
 #Select Muon Categories... (origin of muons, empty: all categories, 0: ALL, 1: PROMPT, 2: IN-FLIGHT, 3: NON-ISOLATED, 4: REST)

@@ -16,10 +16,14 @@ void LArG4TBPosOptions::saveMe()
 
   if(result.isSuccess())
   {
-    StoreGateSvc* m_detStore = dynamic_cast<StoreGateSvc*>(pSvc);
-    result=m_detStore->record(this,"LArG4TBPosOptions");
+    StoreGateSvc* detStore = dynamic_cast<StoreGateSvc*>(pSvc);
+    if (!detStore){
+      std::cout << "LArG4TBPosOptions::saveMe ERROR Could not dynamic cast det store" << std::endl;
+      return;
+    }
+    result=detStore->record(this,"LArG4TBPosOptions");
     if(!result.isSuccess())
-      std::cout << "Can not record LArG4BarrelOptions" << std::endl;
+      std::cout << "Can not record LArG4TBPosOptions" << std::endl;
 
   }
 }

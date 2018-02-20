@@ -4,7 +4,7 @@
 #include "../TruthAssocSimSelector.h"
 #include "../HistorySimSelector.h"
 #include "../ConeSimSelector.h"
-#include "../PileupSimSelector.h"
+#include "../KinematicPileupSimSelector.h"
 #include "../RandomSimSelector.h"
 
 DECLARE_NAMESPACE_TOOL_FACTORY( ISF , DefaultSimSelector         )
@@ -12,7 +12,7 @@ DECLARE_NAMESPACE_TOOL_FACTORY( ISF , KinematicSimSelector       )
 DECLARE_NAMESPACE_TOOL_FACTORY( ISF , TruthAssocSimSelector      )
 DECLARE_NAMESPACE_TOOL_FACTORY( ISF , HistorySimSelector         )
 DECLARE_NAMESPACE_TOOL_FACTORY( ISF , ConeSimSelector            )
-DECLARE_NAMESPACE_TOOL_FACTORY( ISF , PileupSimSelector        )
+DECLARE_NAMESPACE_TOOL_FACTORY( ISF , KinematicPileupSimSelector        )
 DECLARE_NAMESPACE_TOOL_FACTORY( ISF , RandomSimSelector        )
 
 DECLARE_FACTORY_ENTRIES( ISF_SimulationSelectors ) {
@@ -21,7 +21,7 @@ DECLARE_FACTORY_ENTRIES( ISF_SimulationSelectors ) {
   DECLARE_NAMESPACE_TOOL( ISF ,  TruthAssocSimSelector      )
   DECLARE_NAMESPACE_TOOL( ISF ,  HistorySimSelector         )
   DECLARE_NAMESPACE_TOOL( ISF ,  ConeSimSelector            )
-  DECLARE_NAMESPACE_TOOL( ISF ,  PileupSimSelector        )
+  DECLARE_NAMESPACE_TOOL( ISF ,  KinematicPileupSimSelector        )
   DECLARE_NAMESPACE_TOOL( ISF ,  RandomSimSelector        )
 }
 

@@ -84,6 +84,7 @@ InDet::SiSpacePointsSeedMaker_ATLxk::SiSpacePointsSeedMaker_ATLxk
   m_OneSeeds  = 0       ;
   m_seedOutput= 0       ;
   m_maxNumberVertices = 99;
+  m_skipIBLcut = false  ;
  
   m_xbeam[0]  = 0.      ; m_xbeam[1]= 1.; m_xbeam[2]=0.; m_xbeam[3]=0.;
   m_ybeam[0]  = 0.      ; m_ybeam[1]= 0.; m_ybeam[2]=1.; m_ybeam[3]=0.;
@@ -142,6 +143,7 @@ InDet::SiSpacePointsSeedMaker_ATLxk::SiSpacePointsSeedMaker_ATLxk
   declareProperty("useOverlapSpCollection", m_useOverlap           );
   declareProperty("UseAssociationTool"    ,m_useassoTool           ); 
   declareProperty("MagFieldSvc"           , m_fieldServiceHandle   );
+  declareProperty("SkipIBLcut"            , m_skipIBLcut           );
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -1245,7 +1247,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::fillLists()
       }
     }
   }
-  if(!m_sct && ir0 && float(ir0)*r_rstep < 43.) m_umax = -200.;
+  if(!m_skipIBLcut && !m_sct && ir0 && float(ir0)*r_rstep < 43.) m_umax = -200.;
   m_state = 0;
 }
    
@@ -1868,7 +1870,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::fillSeeds ()
 
     float w = (*l).first ;
     s       = (*l).second;
-    if(l!=lf && s->spacepoint0()->radius() < 43. && w > -200.) continue;
+    if(!m_skipIBLcut && l!=lf && s->spacepoint0()->radius() < 43. && w > -200.) continue;
     if(!s->setQuality(w)) continue;
     
     if(i_seede!=l_seeds.end()) {

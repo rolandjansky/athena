@@ -19,8 +19,8 @@ from RecExConfig.RecFlags  import rec
 # if not 'HLTMonFlags' in dir():
 #   from TrigHLTMonitoring.HLTMonFlags import HLTMonFlags
 #
-# if not 'DQMonFlags' in dir():
-#   from AthenaMonitoring.DQMonFlags import DQMonFlags
+if not 'DQMonFlags' in dir():
+    from AthenaMonitoring.DQMonFlags import DQMonFlags
 
 ################ Mon Tools #################
 
@@ -29,7 +29,10 @@ if HLTMonFlags.doMonTier0:
     if HLTMonFlags.doBphys and rec.doInDet:
       include( "TrigBphysMonitoring/RunJpsiFinder.py" )
 
-topSequence += AthenaMonManager("HLTMonManager")
+topSequence += AthenaMonManager("HLTMonManager",
+        Run=DQMonFlags.monManRun(),
+        DataType=DQMonFlags.monManDataType(),
+        Environment=DQMonFlags.monManEnvironment())
 HLTMonManager = topSequence.HLTMonManager
 
 #Global HLTMonTool
@@ -45,8 +48,6 @@ if HLTMonFlags.doMonTier0:
     if HLTMonFlags.doEgamma:
       try:
        if rec.doCalo and rec.doInDet:
-        #from TrigEgammaMonitoring.TrigEgammaMonitoringConfig import HLTEgammaMonitoringTool
-        #HLTMonManager.AthenaMonTools += HLTEgammaMonitoringTool()
         from TrigEgammaMonitoring.TrigEgammaMonitoringConfig import TrigEgammaMonitoringTool
         HLTMonManager.AthenaMonTools += TrigEgammaMonitoringTool()
       except:

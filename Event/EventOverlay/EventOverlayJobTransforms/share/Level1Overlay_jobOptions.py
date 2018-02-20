@@ -36,6 +36,7 @@ if DetFlags.overlay.LVL1_on():
     
     if DetFlags.simulateLVL1.Tile_on():
         include( "TileSimAlgs/TileTTL1_jobOptions.py" )
+        include( "TileSimAlgs/TileMuonReceiver_jobOptions.py" )
 
     if DetFlags.digitize.LVL1_on():
        #--------------------------------------------------------------

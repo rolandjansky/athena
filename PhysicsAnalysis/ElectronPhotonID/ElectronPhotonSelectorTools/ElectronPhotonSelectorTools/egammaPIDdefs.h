@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ELECTRONPHOTONSELECTORTOOLS_EGAMMAPIDDEFS_H
-#define ELECTRONPHOTONSELECTORTOOLS_EGAMMAPIDDEFS_H
+#ifndef _EGAMMAPIDDEFS_H
+#define _EGAMMAPIDDEFS_H
 /**
   @class egammaPIDdefs
      This file defines the bit-occupation of the PID and OQ flags of egamma 

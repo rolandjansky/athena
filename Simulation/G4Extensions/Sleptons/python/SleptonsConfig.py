@@ -2,9 +2,9 @@
 
 from AthenaCommon import CfgMgr
 def getSleptonsPhysicsTool(name="SleptonsPhysicsTool", **kwargs):
-    from G4AtlasApps import AtlasG4Eng
+    from G4AtlasApps.SimFlags import simFlags
     from AthenaCommon.SystemOfUnits import GeV,MeV,eplus,ns
-    GMSBStau    = eval(AtlasG4Eng.G4Eng.Dict_SpecialConfiguration["GMSBStau"])
+    GMSBStau    = eval(simFlags.specialConfiguration.get_Value().get("GMSBStau", None))
     kwargs.setdefault("G4STauMinusMass",             GMSBStau)
     ##kwargs.setdefault("G4STauMinusWidth",            0.0*GeV)
     ##kwargs.setdefault("G4STauMinusCharge",           -1.*eplus)
@@ -21,8 +21,8 @@ def getSleptonsPhysicsTool(name="SleptonsPhysicsTool", **kwargs):
     ##kwargs.setdefault("G4STauPlusLifetime",          -1)
     ##kwargs.setdefault("G4STauPlusShortlived",        False)
 
-    if AtlasG4Eng.G4Eng.Dict_SpecialConfiguration.has_key("GMSBSlepton"):
-        GMSBSlepton = eval(AtlasG4Eng.G4Eng.Dict_SpecialConfiguration.get("GMSBSlepton", None))
+    if simFlags.specialConfiguration.get_Value().has_key("GMSBSlepton"):
+        GMSBSlepton = eval(simFlags.specialConfiguration.get_Value().get("GMSBSlepton", None))
 
         kwargs.setdefault("G4SElectronMinusMass",        GMSBSlepton)
         ##kwargs.setdefault("G4SElectronMinusWidth",       0.0*GeV)
@@ -56,4 +56,4 @@ def getSleptonsPhysicsTool(name="SleptonsPhysicsTool", **kwargs):
         ##kwargs.setdefault("G4SMuonPlusLifetime",         -1)
         ##kwargs.setdefault("G4SMuonPlusShortlived",       False)
 
-    return CfgMgr.SleptonsPhysicsToolTool(name, **kwargs)
+    return CfgMgr.SleptonsPhysicsTool(name, **kwargs)

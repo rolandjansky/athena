@@ -23,6 +23,7 @@
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkParameters/TrackParameters.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
+#include "MuonReadoutGeometry/CscReadoutElement.h"
 
 namespace Muon {
 
@@ -32,7 +33,8 @@ namespace Muon {
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_truthClassifier("MCTruthClassifier/MCTruthClassifier"),
-    m_extrapolator("Trk::Extrapolator/AtlasExtrapolator")
+    m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
+    m_muonMgr(0)
   {  
     
     m_trackRecordCollectionNames.push_back("CaloEntryLayer");
@@ -81,6 +83,10 @@ namespace Muon {
     ATH_CHECK(m_printer.retrieve());
     ATH_CHECK(m_truthClassifier.retrieve());
     ATH_CHECK(m_extrapolator.retrieve());
+    if (detStore()->retrieve( m_muonMgr ).isFailure()) {
+      ATH_MSG_ERROR(" Cannot retrieve MuonGeoModel ");
+      return StatusCode::FAILURE;
+    }
 
     return StatusCode::SUCCESS;
   }
@@ -261,9 +267,9 @@ namespace Muon {
                                                const MuonTruthDecorationAlg::ChamberIdMap& ids, 
 					       xAOD::MuonSegmentContainer& segmentContainer,
 					       const std::vector<const MuonSimDataCollection*>& sdoCollections,
-					       const CscSimDataCollection* /*cscCollection*/ ) const {
+					       const CscSimDataCollection* cscCollection ) const {
 
-    bool useSDO = !sdoCollections.empty(); // || cscCollection );
+    bool useSDO =( !sdoCollections.empty() || cscCollection );
     std::map<Muon::MuonStationIndex::ChIndex,int> matchMap;
     ATH_MSG_DEBUG(" Creating Truth segments " );
     // loop over chamber layers
@@ -306,7 +312,7 @@ namespace Muon {
 	    etaLayers.insert( m_idHelper->gasGap(id) );
 	  }
 	}
-	// use SDO to look-up truth position of the hit, only CSC for now
+	// use SDO to look-up truth position of the hit
 	if( useSDO ){
 	  Amg::Vector3D gpos(0.,0.,0.);
 	  bool ok = false;
@@ -319,24 +325,44 @@ namespace Muon {
 		if( gpos.perp() > 0.1 ) ok = true; // sanity check
 	      }
 	    }
-	  } 
-	  // look up successfull, calculate 
-	  if( ok ){
-	    // small comparison function
-	    auto isSmaller = [isEndcap]( const Amg::Vector3D& p1, const Amg::Vector3D& p2 ){ 
-	      if( isEndcap ) return fabs(p1.z()) < fabs(p2.z()); 
-	      else           return p1.perp() < p2.perp(); 
-	    };
-	    if( !firstPos ) firstPos  = new Amg::Vector3D(gpos);
-            else if( !secondPos ){
-	      secondPos = new Amg::Vector3D(gpos);
-	      if( isSmaller(*secondPos,*firstPos) ) std::swap(firstPos,secondPos);
-	    }else{
-	      // update position if we can increase the distance between the two positions
-	      if( isSmaller(gpos,*firstPos) )       *firstPos  = gpos;
- 	      else if( isSmaller(*secondPos,gpos) ) *secondPos = gpos;
+	    // look up successfull, calculate 
+	    if( ok ){
+	      // small comparison function
+	      auto isSmaller = [isEndcap]( const Amg::Vector3D& p1, const Amg::Vector3D& p2 ){ 
+		if( isEndcap ) return fabs(p1.z()) < fabs(p2.z()); 
+		else           return p1.perp() < p2.perp(); 
+	      };
+	      if( !firstPos ) firstPos  = new Amg::Vector3D(gpos);
+	      else if( !secondPos ){
+		secondPos = new Amg::Vector3D(gpos);
+		if( isSmaller(*secondPos,*firstPos) ) std::swap(firstPos,secondPos);
+	      }else{
+		// update position if we can increase the distance between the two positions
+		if( isSmaller(gpos,*firstPos) )       *firstPos  = gpos;
+		else if( isSmaller(*secondPos,gpos) ) *secondPos = gpos;
+	      }
 	    }
 	  }
+	  else{
+	    auto pos = cscCollection->find(id);
+	    if( pos != cscCollection->end() ) {
+	      const MuonGM::CscReadoutElement * descriptor = m_muonMgr->getCscReadoutElement(id);
+	      ATH_MSG_DEBUG("found csc sdo with "<<pos->second.getdeposits().size()<<" deposits");
+	      Amg::Vector3D locpos(0,pos->second.getdeposits()[0].second.ypos(),pos->second.getdeposits()[0].second.zpos());
+	      gpos=descriptor->localToGlobalCoords(locpos,m_idHelper->cscIdHelper().elementID(id));
+	      ATH_MSG_DEBUG("got CSC global position "<<gpos);
+	      if( !firstPos ) firstPos  = new Amg::Vector3D(gpos);
+              else if( !secondPos ){
+                secondPos = new Amg::Vector3D(gpos);
+		if(secondPos->perp()<firstPos->perp()) std::swap(firstPos,secondPos);
+	      }
+	      else{
+		if( gpos.perp()<firstPos->perp() )       *firstPos  = gpos;
+                else if( secondPos->perp()<gpos.perp() ) *secondPos = gpos;
+              }
+	    }
+	  }
+
 	}
       }
       if( precLayers.size() > 2 ){
@@ -498,6 +524,13 @@ namespace Muon {
                           << " pull p " << (parameters[i+1].second.mag() - exPars->momentum().mag())/errorp);
           delete exPars;
         }
+      }
+    }
+    std::vector<float> emptyVec;
+    for( const auto& col : trackRecords ){
+      const std::string name = col.second;
+      if(!truthParticle.isAvailable<std::vector<float> >(name+"_cov_extr")){
+	truthParticle.auxdata<std::vector<float> >(name+"_cov_extr")=emptyVec;
       }
     }
   }

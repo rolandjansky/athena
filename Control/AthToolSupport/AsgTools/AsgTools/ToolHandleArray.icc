@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: ToolHandleArray.icc 612816 2014-08-21 12:03:06Z krasznaa $
+// $Id: ToolHandleArray.icc 802972 2017-04-15 18:13:17Z krumnack $
 #ifndef ASGTOOLS_TOOLHANDLEARRAY_ICC
 #define ASGTOOLS_TOOLHANDLEARRAY_ICC
 
@@ -45,6 +45,26 @@ StatusCode ToolHandleArray< T >::retrieve() const {
 
    // Return gracefully:
    return StatusCode::SUCCESS;
+}
+
+namespace asg
+{
+  namespace detail
+  {
+    template<typename T> struct GetStringHelper;
+
+    template<typename T> struct GetStringHelper<ToolHandleArray<T> >
+      : public GetStringHelper<std::vector<ToolHandle<T> > >
+    {
+    };
+
+    template<typename T> struct SetStringHelper;
+
+    template<typename T> struct SetStringHelper<ToolHandleArray<T> >
+      : public SetStringHelper<std::vector<ToolHandle<T> > >
+    {
+    };
+  }
 }
 
 #endif // ASGTOOLS_TOOLHANDLEARRAY_ICC

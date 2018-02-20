@@ -7,18 +7,18 @@
 #include <exception>
 #include <iostream>
 #include <string>
-#include "TestTools/initGaudi.h"
 #include "GaudiKernel/IClassManager.h"
 #include "GaudiKernel/IProperty.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/SmartIF.h"
-#include "AthenaKernel/IClassIDSvc.h"
+#include "GaudiKernel/IAppMgrUI.h"
+#include "GaudiKernel/IClassIDSvc.h"
+#include "GaudiKernel/Bootstrap.h"
 
 #include <boost/program_options.hpp>
 namespace po = boost::program_options;
 
 using namespace std;
-using namespace Athena_test;
 
 int inputError(std::string errDescr, const po::options_description& optDescr ) {
   cerr << errDescr << "\n" << optDescr << endl;
@@ -27,6 +27,22 @@ int inputError(std::string errDescr, const po::options_description& optDescr ) {
 int gaudiError(std::string errDescr) {
   cerr << errDescr << endl;
   return 2;
+}
+
+//wrote a better version!
+IAppMgrUI* initGaudi(const std::string& options, ISvcLocator*& svcLocator) {
+  IAppMgrUI* theApp = Gaudi::createApplicationMgr();
+  SmartIF<IProperty> propMgr(theApp);
+  if(strlen(options.c_str())) {
+    propMgr->setProperty("JobOptionsPath",options); 
+  } else {
+    propMgr->setProperty( "JobOptionsType", "NONE" ); //no joboptions given
+  }
+  theApp->configure();
+  theApp->initialize();
+  svcLocator = Gaudi::svcLocator();
+  return theApp;
+
 }
 
 int main(int argc, char* argv[]) {
@@ -79,7 +95,7 @@ int main(int argc, char* argv[]) {
       return gaudiError("clidDB_gen can not run");
     }  
   } else {
-    if (!initGaudi(pSvcLoc)) {
+    if (!initGaudi("CLIDComps/minimalPrintout.opts",pSvcLoc)) {
       return gaudiError("clidDB_gen can not run");
     }  
   }

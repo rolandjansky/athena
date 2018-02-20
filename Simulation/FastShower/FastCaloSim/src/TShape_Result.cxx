@@ -102,7 +102,7 @@ void TShape_Result::Streamer(TBuffer &R__b)
       R__b.CheckByteCount(R__s, R__c, TShape_Result::IsA());
 
       if(m_fitsplines_EnergyDistribution) {
-        Int_t np=((TSplineAccess*)(m_fitsplines_EnergyDistribution))->GetN();
+        Int_t np=m_fitsplines_EnergyDistribution->GetNp();
         double fY;
         m_fitsplines_EnergyDistribution->GetKnot(np-1,m_fitsplines_EnergyDistribution_maxx,fY);
       } else {
@@ -110,7 +110,7 @@ void TShape_Result::Streamer(TBuffer &R__b)
       }  
 
       if(m_fitsplines_EtaPhiAspectRatio) {
-        Int_t np=((TSplineAccess*)(m_fitsplines_EtaPhiAspectRatio))->GetN();
+        Int_t np=m_fitsplines_EtaPhiAspectRatio->GetNp();
         double fY;
         m_fitsplines_EtaPhiAspectRatio->GetKnot(0   ,m_fitsplines_EtaPhiAspectRatio_minx,fY);
         m_fitsplines_EtaPhiAspectRatio->GetKnot(np-1,m_fitsplines_EtaPhiAspectRatio_maxx,fY);
@@ -245,7 +245,7 @@ Double_t TShape_Result::SplineEval(TSpline3* sp,Double_t x,Double_t xmin,Double_
 {
   double res;
   if(x>xmax) {
-    Int_t np=((TSplineAccess*)(sp))->GetN();
+    Int_t np=sp->GetNp();
     double fX,fY,fB,fC,fD;
     sp->GetCoeff(np-1,fX,fY,fB,fC,fD);
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-"""TBD."""
+"""Miscellaneous functions."""
 
 __author__ = "Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>"
 
@@ -15,7 +15,7 @@ MODULE = "art.misc"
 
 
 def set_log(kwargs):
-    """TBD."""
+    """Set the default log level and message format depending on --verbose or --quiet options."""
     level = logging.DEBUG if kwargs['verbose'] else logging.WARN if kwargs['quiet'] else logging.INFO
     log = logging.getLogger("art")
     log.setLevel(level)
@@ -30,15 +30,30 @@ def set_log(kwargs):
     log.propagate = False
 
 
-def run_command(cmd, dir=None, shell=False, env=None):
+def get_atlas_env():
+    """Get all environment variables."""
+    log = logging.getLogger(MODULE)
+    try:
+        nightly_release = os.environ['AtlasBuildBranch']
+        project = os.environ['AtlasProject']
+        platform = os.environ[project + '_PLATFORM']
+        nightly_tag = os.environ['AtlasBuildStamp']
+        return (nightly_release, project, platform, nightly_tag)
+    except KeyError, e:
+        log.critical("Environment variable not set %s", e)
+        sys.exit(1)
+
+
+def run_command(cmd, dir=None, shell=False, env=None, verbose=True):
     """
     Run the given command locally.
 
     The command runs as separate subprocesses for every piped command.
     Returns tuple of exit_code, output and err.
     """
-    log = logging.getLogger(MODULE)
-    log.debug("Execute: %s", cmd)
+    # leave at print for basic debugging, log sometimes lost
+    if verbose:
+        print "Execute:", cmd
     if "|" in cmd:
         cmd_parts = cmd.split('|')
     else:
@@ -59,9 +74,9 @@ def run_command(cmd, dir=None, shell=False, env=None):
     return exit_code, str(output), str(err)
 
 
-def is_exe(fpath):
-    """Return True if fpath is executable."""
-    return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+def is_exe(path):
+    """Return True if path is executable."""
+    return os.path.isfile(path) and os.access(path, os.X_OK)
 
 
 def make_executable(path):
@@ -83,13 +98,7 @@ def mkdir_p(path):
 
 
 def which(program):
-    """TBD."""
-    import os
-
-    def is_exe(fpath):
-        """TBD."""
-        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
-
+    """Show which program is actually found on the PATH."""
     fpath, fname = os.path.split(program)
     if fpath:
         if is_exe(program):

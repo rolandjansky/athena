@@ -55,8 +55,6 @@ if isFullSim:
 # ELECTRON SELECTION (loose, medium and tight LLH)
 # see http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/Reconstruction/egamma/egammaTools/python/EMPIDBuilderBase.py on how to configure the selectors
 #====================================================================
-import PyCintex
-PyCintex.loadDictionary('ElectronPhotonSelectorToolsDict')
 from ROOT import LikeEnum
 
 from ElectronPhotonSelectorTools.ConfiguredAsgElectronLikelihoodTools import ConfiguredAsgElectronLikelihoodTool

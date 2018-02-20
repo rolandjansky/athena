@@ -10,12 +10,10 @@
 #include "KinematicSimSelector.h"
 
 /** Constructor **/
-ISF::KinematicSimSelector::KinematicSimSelector(const std::string& t, const std::string& n, const IInterface* p) : 
-  ISimulationSelector(t,n,p),
-  KinematicParticleCuts()
+ISF::KinematicSimSelector::KinematicSimSelector(const std::string& t, const std::string& n, const IInterface* p)
+  : BaseSimulationSelector(t,n,p)
+  , KinematicParticleCuts()
 {
-  declareInterface<ISF::ISimulationSelector>(this);
-
   declareProperty("MinPosEta",            m_cut_minPosEta  , "Minimum Position Pseudorapidity" );
   declareProperty("MaxPosEta",            m_cut_maxPosEta  , "Maximum Position Pseudorapidity" );
   declareProperty("MinMomEta",            m_cut_minMomEta  , "Minimum Momentum Pseudorapidity" );
@@ -50,6 +48,7 @@ StatusCode  ISF::KinematicSimSelector::finalize()
   return StatusCode::SUCCESS;
 }
 
-bool  ISF::KinematicSimSelector::passSelectorCuts(const ISFParticle& particle) const {
+bool  ISF::KinematicSimSelector::passSelectorCuts(const ISFParticle& particle) const
+{
   return ISF::KinematicParticleCuts::pass(particle);
 }

@@ -10,7 +10,7 @@
  *
  *
  */
-class G4mplEqMagElectricFieldTool:  public AthAlgTool, virtual public IEquationOfMotionTool  {
+class G4mplEqMagElectricFieldTool:  public extends<AthAlgTool, IEquationOfMotionTool>  {
 public:
   /// Standard constructor
   G4mplEqMagElectricFieldTool( const std::string& type , const std::string& name,

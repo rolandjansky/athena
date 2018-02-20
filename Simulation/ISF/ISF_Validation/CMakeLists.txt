@@ -11,4 +11,4 @@ atlas_depends_on_subdirs( PRIVATE
 
 # Install files from the package:
 atlas_install_runtime( test/ISF_Validation_TestConfiguration.xml )
-atlas_install_scripts( scripts/*.sh )
+atlas_install_scripts( scripts/*.sh test/*.sh )

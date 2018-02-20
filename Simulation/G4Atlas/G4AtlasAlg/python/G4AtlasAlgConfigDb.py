@@ -2,11 +2,7 @@
 
 from AthenaCommon.CfgGetter import addAlgorithm, addTool
 
-# V1 user action migration
-addTool("G4AtlasAlg.G4AtlasAlgConfig.getAthenaTrackingAction","AthenaTrackingAction")
-addTool("G4AtlasAlg.G4AtlasAlgConfig.getAthenaStackingAction","AthenaStackingAction")
 
-# V2 user action migration
 addTool("G4AtlasAlg.G4AtlasAlgConfig.getAthenaTrackingActionTool",
         "G4UA::AthenaTrackingActionTool")
 addTool("G4AtlasAlg.G4AtlasAlgConfig.getAthenaStackingActionTool",

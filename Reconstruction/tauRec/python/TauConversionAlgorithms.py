@@ -90,10 +90,12 @@ def getPhotonConversionTool():
                                        name                           = "tauInDetPrdAssociationTool",
                                        PixelClusterAmbiguitiesMapName = 'PixelClusterAmbiguitiesMap')
         ToolSvc += tauInDetPrdAssociationTool
+        from InDetRecExample.InDetJobProperties import InDetFlags
         from InDetTrackHoleSearch.InDetTrackHoleSearchConf import InDet__InDetTrackHoleSearchTool
         tauInDetHoleSearchTool = InDet__InDetTrackHoleSearchTool( 
                                        name                           = "tauInDetHoleSearchTool",
-                                       Extrapolator                   = theAtlasExtrapolator )
+                                       Extrapolator                   = theAtlasExtrapolator,
+                                       checkBadSCTChip                = InDetFlags.checkDeadElementsOnTrack())
         ToolSvc += tauInDetHoleSearchTool
 
         from AthenaCommon.DetFlags import DetFlags

@@ -27,7 +27,6 @@
 #include <string>
 //for o/p to file
 #include <iostream>
-#include <fstream>
 #include <cstdlib>
 
 using namespace std;
@@ -65,7 +64,8 @@ StatusCode SCT_SensorsTestAlg::execute(){
   m_SensorsSvc->getSensorsData(values);
   for (std::vector<std::string>::const_iterator i=values.begin();i!=values.end();++i){
     cout<< "------------" << *i << "------------" <<endl;
-    }
+  }
+  m_SensorsSvc->printManufacturers();
   return sc;
 }
 

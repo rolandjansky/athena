@@ -10,7 +10,8 @@
 from LArCalibUtils.LArCalibUtilsConf import LArCalibDigitMaker
 LArCalibDigitMaker = LArCalibDigitMaker("LArCalibDigitMaker")
 LArCalibDigitMaker.KeyList += GainList
-LArCalibDigitMaker.DontRun  = True
+LArCalibDigitMaker.KeyList += ["FREE"]
+LArCalibDigitMaker.DontRun  = False
 
 from LArROD.LArRODConf import LArCalibDigitsAccumulator
 LArCalibDigitsAccumulator = LArCalibDigitsAccumulator("LArCalibDigitsAccumulator")
@@ -33,9 +34,9 @@ LArCalibDigitMaker.BoardIDs += [ 1007091712, 1007616000, 1008140288, 1008664576,
 # Calibration patterns
 #
 
-LArCalibDigitMaker.nTrigger = 100
+LArCalibDigitMaker.NTrigger = 100
 LArCalibDigitMaker.DAC     += DACs
-LArCalibDigitMaker.Delay   += [0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230]
+LArCalibDigitMaker.Delay   += Delays
 LArCalibDigitMaker.Pattern += [0x10001,0x10001,0x10001,0x0000001]
 LArCalibDigitMaker.Pattern += [0x20002,0x20002,0x20002,0x0000002]
 LArCalibDigitMaker.Pattern += [0x40004,0x40004,0x40004,0x0000004]
@@ -56,7 +57,11 @@ LArCalibDigitMaker.Pattern += [0x80008000,0x80008000,0x80008000,0x0008000]
 topSequence += LArCalibDigitMaker
 topSequence += LArCalibDigitsAccumulator
 
-ByteStreamAddressProviderSvc.TypeNames += [ "LArAccumulatedCalibDigitContainer/HIGH"  ]
-ByteStreamAddressProviderSvc.TypeNames += [ "LArAccumulatedCalibDigitContainer/MEDIUM"]
-ByteStreamAddressProviderSvc.TypeNames += [ "LArAccumulatedCalibDigitContainer/LOW"   ]
+svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/HIGH"]
+svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/MEDIUM"]
+svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/LOW"]
+svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ "LArAccumulatedCalibDigitContainer/HIGH"  ]
+svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ "LArAccumulatedCalibDigitContainer/MEDIUM"]
+svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ "LArAccumulatedCalibDigitContainer/LOW"   ]
+svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["LArFebHeaderContainer/LArFebHeader"]
 

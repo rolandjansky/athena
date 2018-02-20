@@ -18,21 +18,21 @@ theApp.Dlls += [ "TrigT1RPCmonitoring" ]
 if DetFlags.overlay.MDT_on():
         from MuonByteStreamCnvTest.MuonByteStreamCnvTestConf import MdtDigitToMdtRDO
         job += MdtDigitToMdtRDO( "SigMdtDigitToMdtRDO" )
-        job.SigMdtDigitToMdtRDO.Store = job.MdtOverlay.MCStore
+        job.SigMdtDigitToMdtRDO.EvtStore = job.MdtOverlay.MCStore
         #ACH if readBS==False:
            #ACH job += MdtDigitToMdtRDO( "BkgMdtDigitToMdtRDO" )
            #ACH job.BkgMdtDigitToMdtRDO.Store = job.MdtOverlay.TempBkgStore
 if DetFlags.overlay.RPC_on():
         from MuonByteStreamCnvTest.MuonByteStreamCnvTestConf import RpcDigitToRpcRDO
         job += RpcDigitToRpcRDO( "SigRpcDigitToRpcRDO" )
-        job.SigRpcDigitToRpcRDO.Store = job.RpcOverlay.MCStore
+        job.SigRpcDigitToRpcRDO.EvtStore = job.RpcOverlay.MCStore
         #ACH if readBS==False:
            #ACH job += RpcDigitToRpcRDO( "BkgRpcDigitToRpcRDO" )
            #ACH job.BkgRpcDigitToRpcRDO.Store = job.RpcOverlay.TempBkgStore
 if DetFlags.overlay.TGC_on():
         from MuonByteStreamCnvTest.MuonByteStreamCnvTestConf import TgcDigitToTgcRDO
         job += TgcDigitToTgcRDO( "SigTgcDigitToTgcRDO" )
-        job.SigTgcDigitToTgcRDO.Store = job.TgcOverlay.MCStore
+        job.SigTgcDigitToTgcRDO.EvtStore = job.TgcOverlay.MCStore
         #ACH if readBS==False:
            #ACH job += TgcDigitToTgcRDO( "BkgTgcDigitToTgcRDO" )
            #ACH job.BkgTgcDigitToTgcRDO.Store = job.TgcOverlay.TempBkgStore

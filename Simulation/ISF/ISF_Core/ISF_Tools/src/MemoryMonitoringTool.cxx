@@ -16,14 +16,13 @@
 ISF::MemoryMonitoringTool::MemoryMonitoringTool( const std::string& t,
                                                  const std::string& n,
                                                  const IInterface* p ) :
-  AthAlgTool(t,n,p),
+  base_class(t,n,p),
   m_numCalls(0),
   m_prevCallMemUsage(0),
   m_accumulatedCallMemory(0.),
   m_accumulatedIncrMemory(0.),
   m_table()
 {
-  declareInterface<ISF::IMonitoringTool>(this);
 }
 
 /** Destructor */
@@ -114,7 +113,7 @@ void ISF::MemoryMonitoringTool::recordCurrent( const char *infoStr) {
 /** dump all internally stored memory monitoring information */
 void ISF::MemoryMonitoringTool::dumpSummary(const char *desc) const {
 
-  ATH_MSG_INFO("*****************************************************"<<endreq<<
+  ATH_MSG_INFO("*****************************************************"<<endmsg<<
                "*  (VmMem) MEMORY SUMMARY: (kBytes)");
 
   // loop over all (infoStr,memUsage) pairs and print them

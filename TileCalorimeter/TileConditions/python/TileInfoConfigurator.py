@@ -122,7 +122,7 @@ class _TileInfoConfigurator( TileInfoLoader ):
         - defTag          : Tag to be added to each folder tag (NGO change this to a hierarchical tag!)
         - dbConnection    : The DB connection string to use [default "": auto-initialization by CondDBSetup.py]
         - type              Pulse type - PHY or LAS or CIS
-        - ofcType         : Optimla filtering methods - OF1 or OF2
+        - ofcType         : Optimal filtering methods - OF1 or OF2
         """
 
         name = 'TileCondToolOfcCool'
@@ -208,7 +208,6 @@ class _TileInfoConfigurator( TileInfoLoader ):
             self.setupCOOLLASPULSE(defTag,dbConnection)
         else:
             self.setupCOOLPHYPULSE(defTag,dbConnection)
-            self.setupCOOLAutoCr(defTag,dbConnection)
 
     #_______________________________________________________________
     def setupCOOLCISPULSE(self, defTag = "", dbConnection = ""):
@@ -371,7 +370,7 @@ class _TileInfoConfigurator( TileInfoLoader ):
         return
 
     #_______________________________________________________________
-    def setupCOOLDCS(self, defTag = "", dbConnection = ""):
+    def setupCOOLDCS(self, defTag = "", dbConnection = "", useHV = True, useHVSET = False, useSTATUS = True):
         """
         Call this function to read DCS from COOL folder.
         Input parameters:
@@ -395,9 +394,9 @@ class _TileInfoConfigurator( TileInfoLoader ):
             self._msg.info("setting up DCS TileCal conditions data")
             dbConnStr = 'DCS_OFL'
             from IOVDbSvc.CondDB import conddb
-            conddb.addFolder(dbConnStr, "/TILE/DCS/HV")
-            conddb.addFolder(dbConnStr, "/TILE/DCS/HVSET")
-            conddb.addFolder(dbConnStr, "/TILE/DCS/STATES")
+            if useHV:     conddb.addFolder(dbConnStr, "/TILE/DCS/HV")
+            if useHVSET:  conddb.addFolder(dbConnStr, "/TILE/DCS/HVSET")
+            if useSTATUS: conddb.addFolder(dbConnStr, "/TILE/DCS/STATES")
             self._msg.info("Adding TileDCSSvc to ServiceMgr")
             svcMgr += CfgMgr.TileDCSSvc()
 

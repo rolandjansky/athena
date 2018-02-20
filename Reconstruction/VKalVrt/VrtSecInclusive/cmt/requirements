@@ -19,8 +19,12 @@ use TrkExInterfaces           TrkExInterfaces-*           Tracking/TrkExtrapolat
 use TrkSurfaces               TrkSurfaces-*               Tracking/TrkDetDescr
 use TrkDetDescrInterfaces     TrkDetDescrInterfaces-*     Tracking/TrkDetDescr
 use ITrackToVertex            ITrackToVertex-*            Reconstruction/RecoTools
+use InDetConditionsSummaryService  InDetConditionsSummaryService*  InnerDetector/InDetConditions
+use InDetIdentifier           InDetIdentifier-*           InnerDetector/InDetDetDescr
 use xAODEventInfo             xAODEventInfo-*             Event/xAOD
 use xAODTracking              xAODTracking-*              Event/xAOD
+use xAODMuon                  xAODMuon-*                  Event/xAOD
+use xAODEgamma                xAODEgamma-*                Event/xAOD
 use xAODTruth                 xAODTruth-*                 Event/xAOD
 
 # for McTruth
@@ -32,7 +36,7 @@ private
 #use TruthHelper                 TruthHelper-*                   Generators/GenAnalysisTools
 use TrkTrackSummary     TrkTrackSummary-*       Tracking/TrkEvent
 use VxVertex            VxVertex-*              Tracking/TrkEvent
-
+use EventPrimitives     EventPrimitives-*       Event/EventPrimitives
 use xAODEventInfo			xAODEventInfo-*			    Event/xAOD
 
 

@@ -17,11 +17,12 @@
 #include "AthContainers/AuxTypeRegistry.h"
 #include "SGTools/TestStore.h"
 #include "TestTools/initGaudi.h"
-#include "CxxUtils/make_unique.h"
-#include "TSystem.h"
+#include "CxxUtils/ubsan_suppress.h"
 #include "AthenaPoolCnvSvcTestDict.h"
 #include "TestThinningSvc.icc"
 #include "TestCnvSvcBase.icc"
+#include "TSystem.h"
+#include "TInterpreter.h"
 #include <iostream>
 #include <cassert>
 #include <vector>
@@ -70,7 +71,7 @@ public:
   
   Trans_t* createTransient (const Pers_t* pers, MsgStream& msg)
   {
-    auto trans = CxxUtils::make_unique<Trans_t>();
+    auto trans = std::make_unique<Trans_t>();
     persToTrans (pers, trans.get(), msg);
     return trans.release();
   }
@@ -249,6 +250,7 @@ void test2 (ISvcLocator* svcloc, TestCnvSvc& testsvc)
 
 int main()
 {
+  CxxUtils::ubsan_suppress ([]() {TInterpreter::Instance(); });
   SGTest::initTestStore();
   ISvcLocator* pSvcLoc = nullptr;
   if (!Athena_test::initGaudi("test.txt", pSvcLoc)) {

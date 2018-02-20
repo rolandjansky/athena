@@ -35,8 +35,6 @@ namespace ISF {
   
 namespace iFatras
 {
-  static const InterfaceID IID_ISimHitCreator("ISimHitCreator", 1, 0);
-
   /** 
    @class ISimHitCreator
 
@@ -54,8 +52,8 @@ namespace iFatras
     /** Virtual destructor */
     virtual ~ISimHitCreator() {}
     
-    /** AlgTool interface methods */
-    static const InterfaceID& interfaceID() { return IID_ISimHitCreator; }
+    /// Creates the InterfaceID and interfaceID() method
+    DeclareInterfaceID(ISimHitCreator, 1, 0);
     
     /** Loop over the hits, create simhits and store in hit collection */
     virtual void createHits(const ISF::ISFParticle& isp, 

@@ -143,17 +143,17 @@ StatusCode photonMonTool::bookHistogramsForOnePhotonType(photonHist& myHist)
 
   // EtaPhi
   hname = std::string("photonEtaPhiPt2.5GeV") + myHist.m_nameOfPhotonType;
-  hlongname =  std::string("Photon #eta,#phi map") + std::string (" (") + myHist.m_nameOfPhotonType + std::string (")");
+  hlongname =  std::string("Photon #eta,#phi map (candidates with Pt>2.5 GeV)") + std::string (" (") + myHist.m_nameOfPhotonType + std::string (")");
   bookTH2F(myHist.m_hEtaPhi, *m_photonGroup, hname, hlongname, 64, -3.2, 3.2, 64, -3.2, 3.2);
 
   // EtaPhi4GeV
   hname = std::string("photonEtaPhiPtgt4GeV") + myHist.m_nameOfPhotonType;
-  hlongname =  std::string("Photon #eta,#phi map (candidates with E>4 GeV)") + std::string (" (") + myHist.m_nameOfPhotonType + std::string (")");
+  hlongname =  std::string("Photon #eta,#phi map (candidates with Pt>4 GeV)") + std::string (" (") + myHist.m_nameOfPhotonType + std::string (")");
   bookTH2F(myHist.m_hEtaPhi4GeV, *m_photonGroup, hname, hlongname, 64, -3.2, 3.2, 64, -3.2, 3.2);
 
   // EtaPhi20GeV
   hname = std::string("photonEtaPhiPtgt20GeV") + myHist.m_nameOfPhotonType;
-  hlongname =  std::string("Photon #eta,#phi map (candidates with E>20 GeV)") + std::string (" (") + myHist.m_nameOfPhotonType + std::string (")");
+  hlongname =  std::string("Photon #eta,#phi map (candidates with Pt>20 GeV)") + std::string (" (") + myHist.m_nameOfPhotonType + std::string (")");
   bookTH2F(myHist.m_hEtaPhi20GeV, *m_photonGroup, hname, hlongname, 64, -3.2, 3.2, 64, -3.2, 3.2);
 
   // Eta
@@ -424,6 +424,8 @@ StatusCode photonMonTool::fillHistogramsForOnePhoton(xAOD::PhotonContainer::cons
   int ir = GetRegion(eta);
     
   //ATH_MSG_DEBUG("photon et, eta and phi " << et << " " << eta << " " << phi << " region " << ir << " defined " << myHist.m_hvEt.size());
+
+  if (et<2500) return StatusCode::SUCCESS;
 
   ++myHist.m_nPhotonsPerRegion[ir];  
   ++myHist.m_nPhotons;    

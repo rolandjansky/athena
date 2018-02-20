@@ -775,6 +775,7 @@ namespace Analysis
 	for(int kt=0; kt<(int)SVtx->nTrackParticles(); kt++) d_jet_mu_sv_dmaxPt=TMath::Max(d_jet_mu_sv_dmaxPt,(SVtx->trackParticle(kt)->p4()).Perp(tlv.Vect()));
 	jet_mu_sv_dmaxPt=(float)d_jet_mu_sv_dmaxPt;
 	ATH_MSG_DEBUG("**********ANDREA: SV mass= "<< jet_mu_sv_mass <<" efrc= "<< jet_mu_sv_efrc <<" ntrk= "<< jet_mu_sv_ntrk<<" VtxnormDist= "<< jet_mu_sv_VtxnormDist);
+    delete SVtx;  
       }   
       
 
@@ -1044,6 +1045,7 @@ namespace Analysis
     //if(inputVars.size()<10) BTag->setVariable<double>(xAODBaseName, "discriminant", smt);
     //else            	  BTag->setVariable<double>("SVMT", "discriminant", smt);
     BTag->setVariable<double>(xAODBaseName, "discriminant", smt);
+    BTag->setVariable<char>(xAODBaseName, "discriminantIsValid", true);
 
     /** ANDREA **/
 

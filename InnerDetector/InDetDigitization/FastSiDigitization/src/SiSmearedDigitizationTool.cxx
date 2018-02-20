@@ -31,11 +31,6 @@
 #include "CLHEP/Random/RandLandau.h"
 #include "CLHEP/Vector/ThreeVector.h"
 
-// Gaudi includes
-#include "GaudiKernel/SmartDataPtr.h"
-#include "GaudiKernel/AlgFactory.h"
-#include "GaudiKernel/PropertyMgr.h"
-
 // DataHandle
 #include "StoreGate/DataHandle.h"
 

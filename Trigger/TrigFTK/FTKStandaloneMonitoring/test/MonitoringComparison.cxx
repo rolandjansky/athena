@@ -35,7 +35,7 @@ using namespace std;
 // Globals
 int verbose = FALSE;
 int readfile = FALSE;
-char filename[200] = {0};
+char filename[1000] = {0};
 
 
 
@@ -129,10 +129,8 @@ int main(int argc, char **argv)
   }
 
   // initialization of the class to compare FTK events of HW (BS_FTK) and SW (NTUP_FTK)
-  CompareFTKEvents *comparison= new CompareFTKEvents(inputfilenameBS,inputfilenameNTUPFTK);
-  if (setup_partition) comparison->SetupPartition(partition_name);
-  if (verbose) comparison->SetVerbose();  
-  if (evtmax!=0)    comparison->SetNEvents(evtmax);
+  CompareFTKEvents comparison(inputfilenameBS,inputfilenameNTUPFTK);
+  if (verbose) comparison.SetVerbose();  
   // create list of histograms to be published on oh
   std::vector<std::string> variable_list={"pt","eta","phi","d0","z0","chi2","ETA_PHI"};//  
   std::vector<std::string> histo_list;
@@ -164,8 +162,10 @@ int main(int argc, char **argv)
   histo_list.push_back("nTrk_only_sw");
   histo_list.push_back("nTrk_HW");
   histo_list.push_back("nTrk_SW");
-  comparison->SetHistos(histo_list);
-  comparison->Execute();      
+  comparison.SetHistos(histo_list);
+  comparison.ExecuteEventLoop(evtmax);
+  if (setup_partition) comparison.PublishHistosToPartition(partition_name);
+  comparison.WriteHistosToFile();
   return 0;
 }
 

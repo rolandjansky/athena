@@ -23,6 +23,7 @@ atlas_depends_on_subdirs( PUBLIC
                           TileCalorimeter/TileDetDescr
                           TileCalorimeter/TileG4/TileGeoG4SD
                           TileCalorimeter/TileSimEvent
+                          TileCalorimeter/TileG4/TileG4Interfaces
                           Tools/PathResolver )
 
 # External dependencies:

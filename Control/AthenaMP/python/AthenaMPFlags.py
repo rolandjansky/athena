@@ -35,7 +35,7 @@ class Strategy(JobProperty):
     """ Switch to choose event scheduling strategy"""
     statusOn = True
     allowedTypes = ['str']
-    allowedValues = ['SharedQueue','FileScheduling','SharedReader','EventService','RoundRobin']    
+    allowedValues = ['SharedQueue','FileScheduling','EventService','RoundRobin']    
     StoredValue = 'SharedQueue'
 
 class CollectSubprocessLogs(JobProperty):
@@ -109,6 +109,20 @@ class EventOrdersFile(JobProperty):
     allowedTypes = ['str']
     StoredValue = 'athenamp_eventorders.txt'
 
+class UseSharedReader(JobProperty):
+    """ Flag for activating shared reader process
+    """
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+
+class UseSharedWriter(JobProperty):
+    """ Flag for activating shared writer process
+    """
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+
 # Defines the container for the performance monitoring flags  
 class AthenaMPFlags(JobPropertyContainer):
     """ The global AthenaMP job property container.
@@ -134,6 +148,8 @@ list_jobproperties = [
     ChunkSize,
     ReadEventOrders,
     EventOrdersFile,
+    UseSharedReader,
+    UseSharedWriter,
     ]
 
 for i in list_jobproperties:

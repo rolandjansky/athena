@@ -60,6 +60,7 @@ FTKRegionalWrapper::FTKRegionalWrapper (const std::string& name, ISvcLocator* pS
   m_DiagClustering(true),
   m_SctClustering(false),
   m_PixelClusteringMode(1),
+  m_Ibl3DRealistic(false),
   m_DuplicateGanged(true),
   m_GangedPatternRecognition(false),
   m_WriteClustersToESD(false),
@@ -151,6 +152,7 @@ FTKRegionalWrapper::FTKRegionalWrapper (const std::string& name, ISvcLocator* pS
   declareProperty("DiagClustering",m_DiagClustering);
   declareProperty("SctClustering",m_SctClustering);
   declareProperty("PixelClusteringMode",m_PixelClusteringMode);
+  declareProperty("Ibl3DRealistic",m_Ibl3DRealistic);
   declareProperty("DuplicateGanged",m_DuplicateGanged);
   declareProperty("GangedPatternRecognition",m_GangedPatternRecognition);
 
@@ -365,6 +367,7 @@ StatusCode FTKRegionalWrapper::initialize()
   DIAG_CLUSTERING = m_DiagClustering;
   SCT_CLUSTERING = m_SctClustering;
   PIXEL_CLUSTERING_MODE = m_PixelClusteringMode;
+  IBL3D_REALISTIC = m_Ibl3DRealistic;
   DUPLICATE_GANGED = m_DuplicateGanged;
   GANGED_PATTERN_RECOGNITION = m_GangedPatternRecognition;
 
@@ -691,6 +694,31 @@ StatusCode FTKRegionalWrapper::execute()
   // if the clustering is requested it has to be done before the hits are distributed
   if (m_Clustering ) {
     atlClusteringLNF(fulllist);
+    vector<FTKRawHit>::iterator ihit = fulllist.begin();
+    vector<FTKRawHit>::iterator ihitE = fulllist.end();
+    for (;ihit!=ihitE;++ihit) { // hit loop
+      FTKRawHit &currawhit = *ihit;
+
+      // now we add truth info back in since we did clustering here!
+      MultiTruth mt;
+      if( currawhit.getTruth() ) {
+        mt.maximize( *(currawhit.getTruth()));
+      } else {
+	MultiTruth::Barcode uniquecode(currawhit.getEventIndex(),
+                                       currawhit.getBarcode());
+        mt.maximize(uniquecode,currawhit.getBarcodePt());
+      }
+      MultiTruth::Barcode tbarcode;
+      MultiTruth::Weight tfrac;
+      const bool ok = mt.best(tbarcode,tfrac);
+      Int_t index(-1), barcode(0);
+      if( ok ) {
+        index = tbarcode.first;
+        barcode = tbarcode.second;
+      }
+      currawhit.setEventIndex(index);
+      currawhit.setBarcode(barcode);
+    }
   }
 
   if (m_getOffline) {

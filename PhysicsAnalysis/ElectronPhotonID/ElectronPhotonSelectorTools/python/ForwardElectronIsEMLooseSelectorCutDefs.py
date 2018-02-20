@@ -24,5 +24,5 @@ def ForwardElectronIsEMLooseSelectorConfigMC15(theTool) :
     
     theTool = GetTool(theTool)
 
-    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150812/ForwardElectronIsEMLooseSelectorCutDefs.conf"
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20170711/ForwardElectronIsEMLooseSelectorCutDefs.conf"
 

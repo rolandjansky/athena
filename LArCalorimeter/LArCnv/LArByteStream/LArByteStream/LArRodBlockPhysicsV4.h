@@ -23,7 +23,7 @@
 //#define LARBSDBGOUTPUT
 #ifdef LARBSDBGOUTPUT
 #define MYLEVEL (MSG::FATAL)
-#define LARBSDBG(text) logstr<<MYLEVEL<<text<<endreq
+#define LARBSDBG(text) logstr<<MYLEVEL<<text<<endmsg
 #else
 #define LARBSDBG(text)
 #endif
@@ -183,7 +183,7 @@ inline int LArRodBlockPhysicsV4::getNextEnergy(int& channelNumber,int32_t& energ
       quality = m_TimeQualityPointer[m_TimeQualityIndex++]; 
 
 #ifdef LARBSDBGOUTPUT
-      logstr << MYLEVEL <<"This cell has time and Quality information "<<endreq;
+      logstr << MYLEVEL <<"This cell has time and Quality information "<<endmsg;
 #endif
     }
   else  // Data has no Time and Quality information
@@ -194,14 +194,14 @@ inline int LArRodBlockPhysicsV4::getNextEnergy(int& channelNumber,int32_t& energ
 
 
 #ifdef LARBSDBGOUTPUT
-  logstr << MYLEVEL <<"Range = "<<range<<endreq;
-  logstr << MYLEVEL <<"Sign = "<<sign<<endreq;
+  logstr << MYLEVEL <<"Range = "<<range<<endmsg;
+  logstr << MYLEVEL <<"Sign = "<<sign<<endmsg;
   logstr << MYLEVEL <<" Encoded Energy ="<< MSG::hex << encodedEnergy << MSG::dec << " E=" << energy
 	 << " t=" << time 
 	 << " Q=" << quality 
 	 << " G=" << gain 
 	 << " channel Number=" << channelNumber
-	 << endreq;
+	 << endmsg;
 #endif
  
   return 1;

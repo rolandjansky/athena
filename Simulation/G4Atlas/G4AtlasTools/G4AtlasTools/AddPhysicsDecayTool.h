@@ -20,12 +20,12 @@
  *  @author Andrea Dell'Acqua
  *  @date   2014-10-01
  */
-class AddPhysicsDecayTool : public G4VPhysicsConstructor, public AthAlgTool, virtual public IPhysicsOptionTool
+class AddPhysicsDecayTool : public G4VPhysicsConstructor, public extends<AthAlgTool, IPhysicsOptionTool>
 {
 public:
   /// Standard constructor
   AddPhysicsDecayTool( const std::string& type , const std::string& name,
-                       const IInterface* parent ) ;
+                       const IInterface* parent );
 
   virtual ~AddPhysicsDecayTool( ); ///< Destructor
 
@@ -37,10 +37,6 @@ public:
 
   virtual void ConstructParticle() override;
 
-  /** Implements
-   */
-
-
 protected:
   std::string m_ParticleName;
   double m_BR;
@@ -48,7 +44,5 @@ protected:
   std::vector<std::string> m_Daughters_vec;
 
 };
-
-
 
 #endif //G4ATLASTOOLS_ADDPHYSICSDECAYTOOL_H

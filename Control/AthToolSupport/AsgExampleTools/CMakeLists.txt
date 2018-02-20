@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 765747 2016-08-01 09:00:33Z will $
+# $Id: CMakeLists.txt 779405 2016-10-20 13:44:57Z krasznaa $
 ################################################################################
 # Package: AsgExampleTools
 ################################################################################
@@ -6,44 +6,61 @@
 # Declare the package name:
 atlas_subdir( AsgExampleTools )
 
-# External dependencies:
-find_package( GTest )
+# Extra dependencies based on the build environment:
+set( extra_deps )
+if( XAOD_STANDALONE )
+   set( extra_deps Control/xAODRootAccess )
+else()
+   set( extra_deps Control/AthenaBaseComps GaudiKernel )
+endif()
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
    PUBLIC
    Control/AthToolSupport/AsgTools
    PRIVATE
-   Control/AthenaBaseComps
-   GaudiKernel )
+   ${extra_deps} )
 
-# Component(s) in the package:
-atlas_add_component( AsgExampleTools
-   src/*.cxx
-   Root/AsgHelloTool.cxx
-   AsgTools/UnitTestTool1.h AsgTools/UnitTestTool1A.h AsgTools/UnitTestTool2.h
-	Root/UnitTestTool1.cxx Root/UnitTestTool1A.cxx Root/UnitTestTool2.cxx
-   src/components/*.cxx
-   LINK_LIBRARIES AsgTools AthenaBaseComps GaudiKernel )
+# External dependencies:
+find_package( GTest )
 
-# Install files from the package:
-atlas_install_headers( AsgExampleTools )
+# Libraries in the package:
+atlas_add_root_dictionary( AsgExampleToolsLib AsgExampleToolsCintDict
+   ROOT_HEADERS AsgExampleTools/UnitTestTool1.h Root/LinkDef.h
+   EXTERNAL_PACKAGES ROOT )
+
+atlas_add_library( AsgExampleToolsLib
+   AsgExampleTools/*.h Root/*.cxx ${AsgExampleToolsCintDict}
+   PUBLIC_HEADERS AsgExampleTools
+   LINK_LIBRARIES AsgTools )
+
+if( NOT XAOD_STANDALONE )
+   atlas_add_component( AsgExampleTools
+      src/*.h src/*.cxx src/components/*.cxx
+      LINK_LIBRARIES AthenaBaseComps GaudiKernel AsgExampleToolsLib )
+endif()
+
+atlas_add_dictionary( AsgExampleToolsDict
+   AsgExampleTools/AsgExampleToolsDict.h
+   AsgExampleTools/selection.xml
+   LINK_LIBRARIES AsgExampleToolsLib )
+
+# Executable(s) in the package:
+atlas_add_executable( AsgExampleTools_hello
+   util/hello.cxx
+   LINK_LIBRARIES AsgExampleToolsLib )
 
 # Test(s) in the package:
+set( extra_libs )
+if( XAOD_STANDALONE )
+   set( extra_libs xAODRootAccess )
+endif()
 atlas_add_test( gt_ToolHandle_test
    SOURCES test/gt_ToolHandle_test.cxx
-   Root/UnitTestTool1.cxx Root/UnitTestTool2.cxx
    INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
-   LINK_LIBRARIES ${GTEST_LIBRARIES} AsgTools )
+   LINK_LIBRARIES ${GTEST_LIBRARIES} AsgTools AsgExampleToolsLib ${extra_libs} )
 
 atlas_add_test( gt_AnaToolHandle_test
    SOURCES test/gt_AnaToolHandle_test.cxx
-   Root/UnitTestTool1.cxx Root/UnitTestTool2.cxx
    INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
-   LINK_LIBRARIES ${GTEST_LIBRARIES} AsgTools )
-
-#atlas_add_test( gt_UnitTest_test
-#   SOURCES test/gt_UnitTest_test.cxx
-#   INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
-#   LINK_LIBRARIES ${GTEST_LIBRARIES} AsgTools )
-
+   LINK_LIBRARIES ${GTEST_LIBRARIES} AsgTools AsgExampleToolsLib )

@@ -32,7 +32,7 @@
 
 //================ Constructor ================================================
 iParSim::MuonSmearer::MuonSmearer(const std::string& t, const std::string& n, const IInterface*  p ) :
-  AthAlgTool(t,n,p),
+  base_class(t,n,p),
   m_filenamesMC12MuonSmearer(),
   m_filenameMC12MuonPtBins("MC12MuonParametrisationPtBins.txt"),
   m_filenameMC12MuonEtaBins("MC12MuonParametrisationEtaBins.txt"),
@@ -47,8 +47,6 @@ iParSim::MuonSmearer::MuonSmearer(const std::string& t, const std::string& n, co
   m_randomEngineName("ParSimRnd")
 
 {
-
-    declareInterface<iParSim::IChargedSmearer>(this);
     // Mode of the param simulation: 1 ID only, 2 MS only, 3 combined
     declareProperty("MuonSmearerMode"          ,    m_para_code                );
     // std::map containing names of the MC12MuonSmearer files

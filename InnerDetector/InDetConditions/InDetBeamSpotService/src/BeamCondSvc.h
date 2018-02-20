@@ -54,17 +54,17 @@ private:
   ServiceHandle<StoreGateSvc> p_detstore;
 
   // properties
-  bool par_usedb;
-  int par_status;
-  float par_posx;
-  float par_posy;
-  float par_posz;
-  float par_sigx;
-  float par_sigy;
-  float par_sigz;
-  float par_sigxy;
-  float par_tiltx;
-  float par_tilty;
+  bool m_par_usedb;
+  int m_par_status;
+  float m_par_posx;
+  float m_par_posy;
+  float m_par_posz;
+  float m_par_sigx;
+  float m_par_sigy;
+  float m_par_sigz;
+  float m_par_sigxy;
+  float m_par_tiltx;
+  float m_par_tilty;
   // beamspot data cache - 3D point, error parameters (sigma and tilt) 
   // and RecVertex information
   int m_status;

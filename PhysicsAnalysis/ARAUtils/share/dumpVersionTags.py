@@ -25,7 +25,7 @@ import ROOT
 sys.argv.remove('-b')
 from PyCool import coral
 from time import ctime
-import PyCintex
+import cppyy
 import AthenaROOTAccess.transientTree
 
 from optparse import OptionParser
@@ -129,17 +129,17 @@ def iovPrint(self):
 if __name__ == "__main__":
 
 
-    t = PyCintex.makeClass("IOVPayloadContainer")
+    t = cppyy.makeClass("IOVPayloadContainer")
     # Add on iterators for the different containers
     t.iter  = iter
     #print "t type ",t
-    t = PyCintex.makeClass("CondAttrListCollection")
+    t = cppyy.makeClass("CondAttrListCollection")
     # Add on iterators for the different containers
     t.attr_iter  = attr_iter
     t.iov_iter   = iov_iter
     t.name_iter  = name_iter
     #print "t type ",t
-    IOVRange = PyCintex.makeClass('IOVRange')
+    IOVRange = cppyy.makeClass('IOVRange')
     IOVRange.iovPrint = iovPrint
 
     # Skip branches with problems

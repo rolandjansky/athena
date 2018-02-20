@@ -18,7 +18,7 @@
 #include "TRT_ConditionsServices/ITRT_CalDbSvc.h"
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h"
 #include "TRT_DriftFunctionTool/ITRT_DriftFunctionTool.h"
-
+#include "InDetReadoutGeometry/TRT_DetectorManager.h"
 
 #include <string>
 
@@ -27,6 +27,9 @@ class ITRT_CalDbSvc ;
 class ITRT_DriftFunctionTool;
 class ITRT_StrawSummarySvc;
 
+namespace InDetDD {
+  class TRT_DetectorManager;
+}
 
 class TRT_PrepDataToxAOD : public AthAlgorithm  {
 
@@ -57,6 +60,7 @@ private:
   ServiceHandle<ITRT_StrawNeighbourSvc>     m_neighbourSvc      ;
   ServiceHandle<ITRT_StrawStatusSummarySvc> m_TRTStrawSummarySvc; 
   const TRT_ID *m_TRTHelper;
+  const InDetDD::TRT_DetectorManager* m_trtman;
 
   // ---- Internal members
   bool m_firstEventWarnings;

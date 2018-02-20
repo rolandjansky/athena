@@ -27,6 +27,7 @@
 #include "InDetRecToolInterfaces/IInDetTestPixelLayerTool.h"
 #include "TrkVolumes/Volume.h"
 #include "TrkVolumes/CylinderVolumeBounds.h"
+#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include <set>
 
 //================ Constructor =================================================
@@ -38,10 +39,12 @@ InDet::InDetTrackHoleSearchTool::InDetTrackHoleSearchTool(const std::string& t,
   m_pixelCondSummarySvc("PixelConditionsSummarySvc",n),
   m_sctCondSummarySvc  ("SCT_ConditionsSummarySvc",n),
   m_pixelLayerTool("InDet::InDetTestPixelLayerTool"),
+  m_geoModelSvc("GeoModelSvc", n),
   m_extendedListOfHoles(false),
   m_cosmic(false),
   m_usepix(true),
   m_usesct(true),
+  m_checkBadSCTChip(false),
   m_warning(0)
 {
   declareInterface<ITrackHoleSearchTool>(this);
@@ -49,10 +52,12 @@ InDet::InDetTrackHoleSearchTool::InDetTrackHoleSearchTool(const std::string& t,
   declareProperty("PixelSummarySvc"      , m_pixelCondSummarySvc);
   declareProperty("SctSummarySvc"        , m_sctCondSummarySvc);
   declareProperty("PixelLayerTool"       , m_pixelLayerTool);
+  declareProperty("GeoModelService"      , m_geoModelSvc);
   declareProperty("ExtendedListOfHoles"  , m_extendedListOfHoles = false);
   declareProperty("Cosmics"              , m_cosmic);
   declareProperty("usePixel"             , m_usepix);
   declareProperty("useSCT"               , m_usesct);
+  declareProperty("checkBadSCTChip"      , m_checkBadSCTChip);
   declareProperty("minSiHits"            , m_minSiHits = 3);  
   declareProperty("CountDeadModulesAfterLastHit", m_countDeadModulesAfterLastHit = true);  
   declareProperty("phitol"               , m_phitol = 3.);
@@ -72,32 +77,32 @@ StatusCode InDet::InDetTrackHoleSearchTool::initialize()
 
   sc = detStore()->retrieve(m_atlasId, "AtlasID");
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not get AtlasID helper !" << endreq;
+    ATH_MSG_ERROR("Could not get AtlasID helper !");
     return StatusCode::FAILURE;
   }
 
   // Get TrkExtrapolator from ToolService
   if ( m_extrapolator.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endreq;
+    ATH_MSG_FATAL("Failed to retrieve tool " << m_extrapolator);
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endreq;
+    ATH_MSG_INFO("Retrieved tool " << m_extrapolator);
   }
 
   if (m_usepix) {
     // Get PixelConditionsSummarySvc
     if ( m_pixelCondSummarySvc.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_pixelCondSummarySvc << endreq;
+      ATH_MSG_FATAL("Failed to retrieve tool " << m_pixelCondSummarySvc);
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_pixelCondSummarySvc << endreq;
+      ATH_MSG_INFO("Retrieved tool " << m_pixelCondSummarySvc);
     }
     // Get InDetPixelLayerTool from ToolService
     if ( m_pixelLayerTool.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_pixelLayerTool << endreq;
+      ATH_MSG_FATAL("Failed to retrieve tool " << m_pixelLayerTool);
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_pixelLayerTool << endreq;
+      ATH_MSG_INFO("Retrieved tool " << m_pixelLayerTool);
     }
 
   }
@@ -105,17 +110,31 @@ StatusCode InDet::InDetTrackHoleSearchTool::initialize()
   if (m_usesct) {
     // Get SctConditionsSummarySvc
     if ( m_sctCondSummarySvc.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_sctCondSummarySvc << endreq;
+      ATH_MSG_FATAL("Failed to retrieve service " << m_sctCondSummarySvc);
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_sctCondSummarySvc << endreq;
+      ATH_MSG_INFO("Retrieved service " << m_sctCondSummarySvc);
+    }
+
+    if(m_checkBadSCTChip) {
+      // Check if ITk Strip is used because isBadSCTChip method is valid only for SCT.
+      if(m_geoModelSvc.retrieve().isFailure()) {
+	ATH_MSG_FATAL("Could not locate GeoModelSvc");
+	return StatusCode::FAILURE;
+      }
+      if(m_geoModelSvc->geoConfig()==GeoModel::GEO_RUN4 or
+	 m_geoModelSvc->geoConfig()==GeoModel::GEO_ITk) {
+	ATH_MSG_WARNING("Since ITk Strip is used, m_checkBadSCTChip is turned off.");
+	m_checkBadSCTChip = false;
+      }
     }
   }
 
-  if (m_extendedListOfHoles) 
-    msg(MSG::INFO) << "Search for extended list of holes " << endreq;
+  if (m_extendedListOfHoles) {
+    ATH_MSG_INFO("Search for extended list of holes ");
+  }
 
-  msg(MSG::INFO) << "initialize() successful in " << name() << endreq;
+  ATH_MSG_INFO("initialize() successful in " << name());
   return StatusCode::SUCCESS;
 }
 
@@ -284,9 +303,9 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track ,
                 ++imeas;
                 if (!(*iterTSOS)->trackParameters() && m_warning<10) {
                   m_warning++;
-                  msg(MSG::WARNING) << "No track parameters available for state of type measurement" << endreq;
-                  msg(MSG::WARNING) << "Don't run this tool on slimmed tracks!" << endreq;
-                  if (m_warning==10) msg(MSG::WARNING) << "(last message!)" << endreq;
+                  ATH_MSG_WARNING("No track parameters available for state of type measurement");
+                  ATH_MSG_WARNING("Don't run this tool on slimmed tracks!");
+                  if (m_warning==10) ATH_MSG_WARNING("(last message!)");
                 }
               }
 	      // for cosmics: remember parameters of first SI TSOS
@@ -524,20 +543,20 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track ,
 		    {
 		      if (!foundFirst && !(*iterTSOS)->type(Trk::TrackStateOnSurface::Outlier))
 			{
-                          if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Found first Si measurement !" << endreq;
+                          ATH_MSG_VERBOSE("Found first Si measurement !");
 			  foundFirst = true;
 			}
 		      
 		      // is this a surface which might have a better prediction ?
 		      if (iTSOS->second->trackParameters())
 			{
-                          if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Found track parameter on Si surface, take it" << endreq;
+                          ATH_MSG_VERBOSE("Found track parameter on Si surface, take it");
 			  delete startParameters;
 			  startParameters = iTSOS->second->trackParameters()->clone();
 			}
 		      else
 			{
-                          if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "No parameter, take extrapolation" << endreq;
+                          ATH_MSG_VERBOSE("No parameter, take extrapolation");
 			  delete startParameters;
 			  startParameters = thisParameters->clone();
 			}
@@ -547,10 +566,10 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track ,
 		  const Trk::TrackParameters *clonepar=thisParameters->clone();
 		  std::pair<const Trk::TrackParameters*,const bool> trackparampair (clonepar,true);
  		  if (mapOfPredictions.insert(std::pair<const Identifier, std::pair<const Trk::TrackParameters*,const bool> >(id2,trackparampair)).second){
-		     if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Added Si surface to mapOfPredictions" << endreq;
+		    ATH_MSG_VERBOSE("Added Si surface to mapOfPredictions");
 		  } 
 		  else {
-		     if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Had this, it is a double, skipped" << endreq;
+		    ATH_MSG_VERBOSE("Had this, it is a double, skipped");
 		    delete clonepar;
 		  }
 		}
@@ -565,7 +584,7 @@ bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track ,
 	      
 	      if ( !(m_atlasId->is_pixel(id) || m_atlasId->is_sct(id)) )
 		{
-		   if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Target was no longer an Si element, break loop" << endreq;
+		  ATH_MSG_VERBOSE("Target was no longer an Si element, break loop");
 		  break;
   		}
 	      
@@ -799,7 +818,7 @@ void InDet::InDetTrackHoleSearchTool::performHoleSearchStepWise(std::map<const I
 	  else if (iter->second->type(Trk::TrackStateOnSurface::Measurement))
 	    ++imeasurements;
 	  else
-	    msg(MSG::ERROR) << "Found wrong TSOS in map !!!" << endreq;
+	    ATH_MSG_ERROR("Found wrong TSOS in map !!!");
 	}
 
       if ( imeasurements > 0 ) {
@@ -915,6 +934,13 @@ bool InDet::InDetTrackHoleSearchTool::isSensitive(const Trk::TrackParameters* pa
 	// this detElement is only cosidered as hole if the extrapolation of
 	// the track plus its error hits the active material
 	if (isActiveElement) {
+
+	  if(m_checkBadSCTChip and isBadSCTChip(id, *parameters, *siElement)) {
+	    ATH_MSG_VERBOSE ("Track is hiting a bad SCT chip, this is not a hole candidate!");
+	    isgood = false;
+	    return false;
+	  }
+
 	  ATH_MSG_VERBOSE ("SCT module is good, this is a hole candidate !");
 	  return true;
 	}
@@ -924,7 +950,7 @@ bool InDet::InDetTrackHoleSearchTool::isSensitive(const Trk::TrackParameters* pa
       }
     }
   } else {
-    msg(MSG::WARNING) << "unknown identifier type, this should not happen !" << endreq; 
+    ATH_MSG_WARNING("unknown identifier type, this should not happen !");
     return false;
   }
   // the extrapolation of the track plus its error might not 
@@ -987,7 +1013,7 @@ const Trk::Track*  InDet::InDetTrackHoleSearchTool::addHolesToTrack(const Trk::T
 	 DataVector doesn't have stable sort, so we need to tamper with
 	 its vector content in order to avoid sort to get caught in DV full
 	 object ownership */
-      if (msgLvl(MSG::DEBUG)) msg() << "sorting vector with stable_sort "<<endreq;
+      ATH_MSG_DEBUG("sorting vector with stable_sort ");
       std::vector<const Trk::TrackStateOnSurface*>* PtrVector
 	= const_cast<std::vector<const Trk::TrackStateOnSurface*>* > (&trackTSOS->stdcont());
       stable_sort( PtrVector->begin(), PtrVector->end(), *CompFunc );
@@ -1003,3 +1029,28 @@ const Trk::Track*  InDet::InDetTrackHoleSearchTool::addHolesToTrack(const Trk::T
   return newTrack;
 }
 
+// ====================================================================================================================
+bool InDet::InDetTrackHoleSearchTool::isBadSCTChip(const Identifier& waferId, 
+						   const Trk::TrackParameters& parameters,
+						   const InDetDD::SiDetectorElement& siElement) const {
+  // Check if the track passes through a bad SCT ABCD chip
+  // A chip is determined by the extrapolated position.
+  // Algorithm is based on InnerDetector/InDetMonitoring/SCT_Monitoring/src/SCTHitEffMonTool.cxx
+
+  // Check the input
+  if(not m_atlasId->is_sct(waferId)) {
+    ATH_MSG_WARNING(waferId << " is not an SCT Identifier");
+    return true;
+  }
+
+  // There is at least one bad chip on the side.
+  // Get strip id from local position
+  const Amg::Vector2D localPos(parameters.localPosition());
+  const Identifier stripIdentifier(siElement.identifierOfPosition(localPos));
+  if(not m_atlasId->is_sct(stripIdentifier)) {
+    ATH_MSG_WARNING(stripIdentifier << " is not an SCT Identifier");
+    return true;
+  }
+  
+  return (not m_sctCondSummarySvc->isGood(stripIdentifier, InDetConditions::SCT_CHIP));
+}

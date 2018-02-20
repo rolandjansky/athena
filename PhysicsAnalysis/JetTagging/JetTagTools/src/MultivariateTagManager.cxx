@@ -59,6 +59,7 @@ namespace Analysis {
     declareProperty("inputJFSourceName", m_jftNN_infosource = "JetFitter");
     declareProperty("inputSoftMuonSourceName", m_softmuon_infosource = "SMT");
     declareProperty("arbitraryAuxData", m_arbitrary_aux_data);
+    declareProperty("auxDataNameMap", m_aux_data_name_map);
   }
 
   StatusCode MultivariateTagManager::initialize()
@@ -286,6 +287,10 @@ namespace Analysis {
     float ip2_c = NAN;
     float ip2_cu= NAN;
 
+    float ip2_nan   = NAN;
+    float ip2_c_nan = NAN;
+    float ip2_cu_nan= NAN;
+
     std::vector<float> weightBofTracksIP2D;
     BTag->variable<std::vector<float> >(m_ip2d_infosource, "weightBofTracks", weightBofTracksIP2D);
     int ntrk_ip2 = weightBofTracksIP2D.size();
@@ -293,19 +298,37 @@ namespace Analysis {
     if(ntrk_ip2>0) {
 
       if( m_ip2d_infosource == "IP2D" ) {
-  ip2d_pb = BTag->IP2D_pb();
-  ip2d_pc = BTag->IP2D_pc();
-  ip2d_pu = BTag->IP2D_pu();
+	ip2d_pb = BTag->IP2D_pb();
+	ip2d_pc = BTag->IP2D_pc();
+	ip2d_pu = BTag->IP2D_pu();
       }
       else {
-  BTag->variable<double>(m_ip2d_infosource, "pb", ip2d_pb);
-  BTag->variable<double>(m_ip2d_infosource, "pc", ip2d_pc);
-  BTag->variable<double>(m_ip2d_infosource, "pu", ip2d_pu);
+	BTag->variable<double>(m_ip2d_infosource, "pb", ip2d_pb);
+	BTag->variable<double>(m_ip2d_infosource, "pc", ip2d_pc);
+	BTag->variable<double>(m_ip2d_infosource, "pu", ip2d_pu);
       }
-
+     
       ip2    = BTag->calcLLR(ip2d_pb,ip2d_pu);
       ip2_c  = BTag->calcLLR(ip2d_pb,ip2d_pc);
       ip2_cu = BTag->calcLLR(ip2d_pc,ip2d_pu);
+
+      if(ip2d_pb<=0. or ip2d_pu<=0. or ip2d_pb==NAN or ip2d_pu==NAN) {
+	ip2_nan = NAN;
+      } else {
+	ip2_nan = log(ip2d_pb/ip2d_pu);
+      }
+
+      if(ip2d_pb<=0. or ip2d_pc<=0. or ip2d_pb==NAN or ip2d_pc==NAN) {
+	ip2_c_nan = NAN;
+      } else {
+	ip2_c_nan = log(ip2d_pb/ip2d_pc);
+      }
+
+      if(ip2d_pc<=0. or ip2d_pu<=0. or ip2d_pc==NAN or ip2d_pu==NAN) {
+	ip2_cu_nan = NAN;
+      } else {
+	ip2_cu_nan = log(ip2d_pc/ip2d_pu);
+      }
     }
 
     // add variables to input map
@@ -315,6 +338,9 @@ namespace Analysis {
     inputs[btagvar::IP2]     = ip2;
     inputs[btagvar::IP2_C]   = ip2_c;
     inputs[btagvar::IP2_CU]  = ip2_cu;
+    inputs[btagvar::IP2_NAN]     = ip2_nan;
+    inputs[btagvar::IP2_C_NAN]   = ip2_c_nan;
+    inputs[btagvar::IP2_CU_NAN]  = ip2_cu_nan;
 
   }
 
@@ -328,24 +354,46 @@ namespace Analysis {
     float ip3_c = NAN;
     float ip3_cu= NAN;
 
+    float ip3_nan    = NAN;
+    float ip3_c_nan  = NAN;
+    float ip3_cu_nan = NAN;
+
     std::vector<float> weightBofTracksIP3D;
     BTag->variable<std::vector<float> >(m_ip3d_infosource, "weightBofTracks", weightBofTracksIP3D);
     int ntrk_ip3= weightBofTracksIP3D.size();
     if(ntrk_ip3>0) {
       if( m_ip3d_infosource == "IP3D" ) {
-  ip3d_pb = BTag->IP3D_pb();
-  ip3d_pc = BTag->IP3D_pc();
-  ip3d_pu = BTag->IP3D_pu();
+	ip3d_pb = BTag->IP3D_pb();
+	ip3d_pc = BTag->IP3D_pc();
+	ip3d_pu = BTag->IP3D_pu();
       }
       else {
-  BTag->variable<double>(m_ip3d_infosource, "pb", ip3d_pb);
-  BTag->variable<double>(m_ip3d_infosource, "pc", ip3d_pc);
-  BTag->variable<double>(m_ip3d_infosource, "pu", ip3d_pu);
+	BTag->variable<double>(m_ip3d_infosource, "pb", ip3d_pb);
+	BTag->variable<double>(m_ip3d_infosource, "pc", ip3d_pc);
+	BTag->variable<double>(m_ip3d_infosource, "pu", ip3d_pu);
       }
 
       ip3    = BTag->calcLLR(ip3d_pb,ip3d_pu);
       ip3_c  = BTag->calcLLR(ip3d_pb,ip3d_pc);
       ip3_cu = BTag->calcLLR(ip3d_pc,ip3d_pu);
+
+      if(ip3d_pb<=0. or ip3d_pu<=0. or ip3d_pb==NAN or ip3d_pu==NAN) {
+	ip3_nan = NAN;
+      } else {
+	ip3_nan = log(ip3d_pb/ip3d_pu);
+      }
+
+      if(ip3d_pb<=0. or ip3d_pc<=0. or ip3d_pb==NAN or ip3d_pc==NAN) {
+	ip3_c_nan = NAN;
+      } else {
+	ip3_c_nan = log(ip3d_pb/ip3d_pc);
+      }
+
+      if(ip3d_pc<=0. or ip3d_pu<=0. or ip3d_pc==NAN or ip3d_pu==NAN) {
+	ip3_cu_nan = NAN;
+      } else {
+	ip3_cu_nan = log(ip3d_pc/ip3d_pu);
+      }
     }
 
     // add variables to input map
@@ -355,6 +403,9 @@ namespace Analysis {
     inputs[btagvar::IP3]     = ip3;
     inputs[btagvar::IP3_C]   = ip3_c;
     inputs[btagvar::IP3_CU]  = ip3_cu;
+    inputs[btagvar::IP3_NAN]     = ip3_nan;
+    inputs[btagvar::IP3_C_NAN]   = ip3_c_nan;
+    inputs[btagvar::IP3_CU_NAN]  = ip3_cu_nan;
 
   }
 
@@ -417,6 +468,7 @@ namespace Analysis {
     // default values
     double sv1_pb = NAN, sv1_pc = NAN, sv1_pu = NAN;
     float     sv1 = NAN, sv1_c  = NAN, sv1_cu = NAN;
+    float     sv1_nan = NAN, sv1_c_nan  = NAN, sv1_cu_nan = NAN;
 
     int   sv1_n2t    = INT_MISSING;
     int   sv1_ntrkv  = INT_MISSING;
@@ -439,26 +491,26 @@ namespace Analysis {
 
     if (sv1_ok) {
       if (m_sv1_infosource == "SV1") {
-  sv1_pb=BTag->SV1_pb();
-  sv1_pu=BTag->SV1_pu();
-  sv1_pc=BTag->SV1_pc();
-
-  BTag->taggerInfo(sv1_mass, xAOD::BTagInfo::SV1_masssvx);
-  BTag->taggerInfo(sv1_efrc, xAOD::BTagInfo::SV1_efracsvx);
-  BTag->taggerInfo(sv1_n2t,  xAOD::BTagInfo::SV1_N2Tpair);
-  BTag->taggerInfo(sv1_ntrkv, xAOD::BTagInfo::SV1_NGTinSvx);
-  BTag->taggerInfo(sv1_sig3d, xAOD::BTagInfo::SV1_normdist);
+	sv1_pb=BTag->SV1_pb();
+	sv1_pu=BTag->SV1_pu();
+	sv1_pc=BTag->SV1_pc();
+	
+	BTag->taggerInfo(sv1_mass, xAOD::BTagInfo::SV1_masssvx);
+	BTag->taggerInfo(sv1_efrc, xAOD::BTagInfo::SV1_efracsvx);
+	BTag->taggerInfo(sv1_n2t,  xAOD::BTagInfo::SV1_N2Tpair);
+	BTag->taggerInfo(sv1_ntrkv, xAOD::BTagInfo::SV1_NGTinSvx);
+	BTag->taggerInfo(sv1_sig3d, xAOD::BTagInfo::SV1_normdist);
       }
       else {
-  BTag->variable<double>(m_sv1_infosource, "pu", sv1_pu);
-  BTag->variable<double>(m_sv1_infosource, "pb", sv1_pb);
-  BTag->variable<double>(m_sv1_infosource, "pc", sv1_pc);
-
-  BTag->variable<float>(m_sv1_infosource, "masssvx",  sv1_mass);
-  BTag->variable<float>(m_sv1_infosource, "efracsvx", sv1_efrc);
-  BTag->variable<int>(m_sv1_infosource,   "N2Tpair",  sv1_n2t);
-  BTag->variable<int>(m_sv1_infosource,   "NGTinSvx", sv1_ntrkv);
-  BTag->variable<float>(m_sv1_infosource, "normdist", sv1_sig3d);
+	BTag->variable<double>(m_sv1_infosource, "pu", sv1_pu);
+	BTag->variable<double>(m_sv1_infosource, "pb", sv1_pb);
+	BTag->variable<double>(m_sv1_infosource, "pc", sv1_pc);
+	
+	BTag->variable<float>(m_sv1_infosource, "masssvx",  sv1_mass);
+	BTag->variable<float>(m_sv1_infosource, "efracsvx", sv1_efrc);
+	BTag->variable<int>(m_sv1_infosource,   "N2Tpair",  sv1_n2t);
+	BTag->variable<int>(m_sv1_infosource,   "NGTinSvx", sv1_ntrkv);
+	BTag->variable<float>(m_sv1_infosource, "normdist", sv1_sig3d);
       }
       BTag->variable<float>(m_sv1_infosource, "dstToMatLay" , sv1_distmatlay);
       BTag->variable<float>(m_sv1_infosource, "deltaR", sv1_dR);
@@ -468,6 +520,24 @@ namespace Analysis {
       sv1    = BTag->calcLLR(sv1_pb,sv1_pu);
       sv1_c  = BTag->calcLLR(sv1_pb,sv1_pc);
       sv1_cu = BTag->calcLLR(sv1_pc,sv1_pu);
+
+      if(sv1_pb<=0. or sv1_pu<=0. or sv1_pb==NAN or sv1_pu==NAN) {
+	sv1_nan = NAN;
+      } else {
+	sv1_nan = log(sv1_pb/sv1_pu);
+      }
+
+      if(sv1_pb<=0. or sv1_pc<=0. or sv1_pb==NAN or sv1_pc==NAN) {
+	sv1_c_nan = NAN;
+      } else {
+	sv1_c_nan = log(sv1_pb/sv1_pc);
+      }
+
+      if(sv1_pc<=0. or sv1_pu<=0. or sv1_pc==NAN or sv1_pu==NAN) {
+	sv1_cu_nan = NAN;
+      } else {
+	sv1_cu_nan = log(sv1_pc/sv1_pu);
+      }
     }
 
     // add variables to input map
@@ -477,6 +547,9 @@ namespace Analysis {
     inputs[btagvar::SV1]    = sv1;
     inputs[btagvar::SV1_C]  = sv1_c;
     inputs[btagvar::SV1_CU] = sv1_cu;
+    inputs[btagvar::SV1_NAN]    = sv1_nan;
+    inputs[btagvar::SV1_C_NAN]  = sv1_c_nan;
+    inputs[btagvar::SV1_CU_NAN] = sv1_cu_nan;
 
     inputs[btagvar::SV1_EFRC]  = sv1_efrc;
     inputs[btagvar::SV1_MASS]  = sv1_mass;
@@ -747,12 +820,23 @@ namespace Analysis {
   void MultivariateTagManager::fill_arbitrary_aux_data(
     var_map& inputs, xAOD::BTagging* BTag) const {
 
-    for (const auto key: m_arbitrary_aux_data) {
+    for (const auto& raw_key: m_arbitrary_aux_data) {
+      auto key = raw_key;
+      if (m_aux_data_name_map.count(raw_key)) {
+        key = m_aux_data_name_map.at(raw_key);
+      }
       // note: we should extend this to data types beyond double at
       // some point
+      std::string valid_key = key + "IsValid";
       if ( ! BTag->isAvailable<double>(key) ) {
         ATH_MSG_WARNING("aux data '" + key + "' is missing,"
                         " tagger inputs may be incomplete");
+      } else if (!BTag->isAvailable<char>(valid_key)) {
+        ATH_MSG_WARNING("no key '" + valid_key + "' found, invalid inputs"
+                        " may be interperated incorrectly");
+        inputs[key] = BTag->auxdata<double>(key);
+      } else if (!BTag->auxdata<char>(valid_key)) {
+        inputs[key] = NAN;
       } else {
         inputs[key] = BTag->auxdata<double>(key);
       }

@@ -4,23 +4,23 @@
 
 #include "TrackParticleTruthAlg.h"
 
-#include "TrkTruthData/TrackTruthCollection.h"
-#include "TrkTruthData/TrackTruthKey.h"
 
-#include "GeneratorObjects/xAODTruthParticleLink.h"
-#include "xAODTracking/TrackParticleContainer.h"
+#include "TrkTruthData/TrackTruthKey.h"
 #include "xAODCore/AuxStoreAccessorMacros.h"
 #include "GeneratorObjects/McEventCollection.h"
 #include "MCTruthClassifier/IMCTruthClassifier.h"
 
 TrackParticleTruthAlg::TrackParticleTruthAlg(const std::string &name,ISvcLocator *pSvcLocator) :
   AthAlgorithm(name,pSvcLocator),
+  m_particles("InDetTrackParticles"),
+  m_truthParticleLinkVec("xAODTruthLinks"),
+  m_truthTracks("TrackTruthCollection"),
   m_truthClassifier("MCTruthClassifier/MCTruthClassifier")
 {
   declareProperty("MCTruthClassifier",  m_truthClassifier);
-  declareProperty("TrackTruthName",     m_truthName="TrackTruthCollection");
-  declareProperty("TrackParticleName",  m_trackParticleName="InDetTrackParticles");
-  declareProperty("xAODTruthLinkVector",m_truthLinkVecName="xAODTruthLinks");
+  declareProperty("TrackTruthName",     m_truthTracks);
+  declareProperty("TrackParticleName",  m_particles);
+  declareProperty("xAODTruthLinkVector",m_truthParticleLinkVec);
 }
 
 // -----------------------------------------------------------------------------------------------------
@@ -38,27 +38,35 @@ StatusCode TrackParticleTruthAlg::finalize() {
 // -----------------------------------------------------------------------------------------------------
 StatusCode TrackParticleTruthAlg::execute() {
 
-  xAOD::TrackParticleContainer* particles = 0;
-  if(evtStore()->contains<xAOD::TrackParticleContainer>(m_trackParticleName)){
-    ATH_CHECK(evtStore()->retrieve(particles, m_trackParticleName));
-  }else return StatusCode::SUCCESS;
 
-
-  const xAODTruthParticleLinkVector* truthParticleLinkVec = 0;
-  if(evtStore()->contains<xAODTruthParticleLinkVector>(m_truthLinkVecName)){
-    ATH_CHECK(evtStore()->retrieve(truthParticleLinkVec, m_truthLinkVecName));
-  }else return StatusCode::SUCCESS;
+  //if(!m_particles.isPresent()){ //no track particle container of this name is in SG
+  if(!evtStore()->contains<xAOD::TrackParticleContainer>(m_particles.name())){ //isPresent doesn't seem to work right now so keep the old way
+    ATH_MSG_WARNING("TrackParticleTruthAlg: "<<m_particles.name()<<" not found");
+    return StatusCode::SUCCESS;
+  }
   
-  const TrackTruthCollection* truthTracks = 0;
-  // Retrieve the input
-  if( evtStore()->contains<TrackTruthCollection>(m_truthName)){
-    ATH_CHECK(evtStore()->retrieve(truthTracks, m_truthName));
-  }else return StatusCode::SUCCESS;
+  if(!m_particles.isValid()){
+    ATH_MSG_ERROR("Could not read " << m_particles.name());
+    return StatusCode::FAILURE;
+  }
 
-  for( auto particle : *particles ){
+  if(!m_truthParticleLinkVec.isValid()){
+    ATH_MSG_ERROR("Could not read " << m_truthParticleLinkVec.name());
+    return StatusCode::FAILURE;
+  }
+
+  if(!m_truthTracks.isValid()){
+    ATH_MSG_ERROR("Could not read " << m_truthTracks.name());
+    return StatusCode::FAILURE;
+  }
+
+
+  for( auto particle : *m_particles ){
     
     if( !particle->trackLink().isValid() ){
       ATH_MSG_WARNING("Found TrackParticle with Invalid element link, skipping");
+      //add dummy truth link
+      const_cast<xAOD::TrackParticle*>(particle)->auxdata<ElementLink<xAOD::TruthParticleContainer> >("truthParticleLink" ) = ElementLink<xAOD::TruthParticleContainer>();
       continue;
     }
     ATH_MSG_DEBUG("Looking up truth for pt " << particle->pt() << " eta " << particle->eta() << " phi " << particle->phi());
@@ -68,12 +76,12 @@ StatusCode TrackParticleTruthAlg::execute() {
     ElementLink<xAOD::TruthParticleContainer> link;
     // look-up associdated truth particle
     Trk::TrackTruthKey key(particle->trackLink());
-    auto result = truthTracks->find(key);
+    auto result = m_truthTracks->find(key);
     
     // if we found a match use it
-    if( result != truthTracks->end() ){
+    if( result != m_truthTracks->end() ){
       ATH_MSG_VERBOSE("Found track Truth: barcode  " << result->second.particleLink().barcode() << " evt " << result->second.particleLink().eventIndex());
-      link = truthParticleLinkVec->find(result->second.particleLink());
+      link = m_truthParticleLinkVec->find(result->second.particleLink());
       
       // if configured also get truth classification
       if( link.isValid()&& !m_truthClassifier.empty() ){
@@ -84,16 +92,21 @@ StatusCode TrackParticleTruthAlg::execute() {
       }
     }
     
-    ElementLink<xAOD::TruthParticleContainer>& theLink = particle->auxdata<ElementLink<xAOD::TruthParticleContainer> >("truthParticleLink" );
+    
     if( link.isValid() ){
       ATH_MSG_DEBUG("Found matching xAOD Truth: barcode " << (*link)->barcode() << " pt " << (*link)->pt() << " eta " << (*link)->eta() << " phi " << (*link)->phi());
       // set element link 
       link.toPersistent();
-      theLink = link;
+      //BREAKS THREAD SAFETY FIX LATER
+      const_cast<xAOD::TrackParticle*>(particle)->auxdata<ElementLink<xAOD::TruthParticleContainer> >("truthParticleLink" ) = link;
+    }
+    else{ //no truth link, add a dummy
+      const_cast<xAOD::TrackParticle*>(particle)->auxdata<ElementLink<xAOD::TruthParticleContainer> >("truthParticleLink" ) = ElementLink<xAOD::TruthParticleContainer>();
     }
     if( !m_truthClassifier.empty() ){
-      particle->auxdata<int>("truthType") = static_cast<int>(type);
-      particle->auxdata<int>("truthOrigin") = static_cast<int>(origin);
+      //BREAKS THREAD SAFETY FIX LATER
+      const_cast<xAOD::TrackParticle*>(particle)->auxdata<int>("truthType") = static_cast<int>(type);
+      const_cast<xAOD::TrackParticle*>(particle)->auxdata<int>("truthOrigin") = static_cast<int>(origin);
     } 
   }
   return StatusCode::SUCCESS;

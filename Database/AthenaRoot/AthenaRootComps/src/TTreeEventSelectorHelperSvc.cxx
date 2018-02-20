@@ -64,7 +64,7 @@ TTreeEventSelectorHelperSvc::~TTreeEventSelectorHelperSvc()
 StatusCode TTreeEventSelectorHelperSvc::initialize()
 {
   ATH_MSG_INFO ("Initializing " << name() << "..." 
-		<< endreq
+		<< endmsg
 		<< "loading chain of trees into ITHistSvc...");
 
   if ( !configureTupleSvc().isSuccess() ) {
@@ -135,7 +135,7 @@ TTreeEventSelectorHelperSvc::configureTupleSvc()
   const std::size_t nbrInputFiles = m_inputCollectionsName.value().size();
   if ( nbrInputFiles < 1 ) {
     ATH_MSG_ERROR
-      ("You need to give at least 1 input file !!" << endreq
+      ("You need to give at least 1 input file !!" << endmsg
        << "(Got [" << nbrInputFiles << "] file instead !)");
     return StatusCode::FAILURE;
   }

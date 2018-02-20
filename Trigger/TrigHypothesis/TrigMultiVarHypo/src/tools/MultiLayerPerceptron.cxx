@@ -25,7 +25,9 @@ MultiLayerPerceptron::MultiLayerPerceptron(std::vector<unsigned int> &n,
                                            REAL etmin, 
                                            REAL etmax, 
                                            REAL etamin, 
-                                           REAL etamax)
+                                           REAL etamax,
+                                           REAL mumin,
+                                           REAL mumax)
   : m_nodes(n),
     m_weights(0),
     m_bias(0),
@@ -34,7 +36,9 @@ MultiLayerPerceptron::MultiLayerPerceptron(std::vector<unsigned int> &n,
     m_etmin(etmin),
     m_etmax(etmax),
     m_etamin(etamin),
-    m_etamax(etamax)
+    m_etamax(etamax),
+    m_mumin(mumin),
+    m_mumax(mumax)
 {
   if ( !n.size() )  throw BAD_BIAS_SIZE; //Nothing to do
   

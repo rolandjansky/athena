@@ -13,7 +13,7 @@
 
 //#define LARBSDBGOUTPUT
 #ifdef  LARBSDBGOUTPUT
-#define LARBSDBG(text) logstr<<MSG::DEBUG<<text<<endreq
+#define LARBSDBG(text) logstr<<MSG::DEBUG<<text<<endmsg
 #else
 #define LARBSDBG(text)
 #endif
@@ -84,7 +84,7 @@ LArRodBlockTransparentV0<DSPHEADER>::initializeFragment(std::vector<uint32_t>& f
       uint16_t currFebSize=getHeader32(DSPHEADER::NWTot); //Size of this FEB-Block
       if (FebIter+currFebSize>fragment.end()) {
 	fragment.clear(); //Clear existing vector
-	logstr << MSG::ERROR << "initializeFragment: Got inconsistent ROD-Fragment!" << endreq; 
+	logstr << MSG::ERROR << "initializeFragment: Got inconsistent ROD-Fragment!" << endmsg; 
 	return;
       }
       m_mFebBlocks[currFEBid].assign(FebIter,FebIter+currFebSize); //Copy data from ROD-fragment into FEB-Block
@@ -111,7 +111,7 @@ void LArRodBlockTransparentV0<DSPHEADER>::setRawDataFixed(const int channel, con
 {   
   MsgStream logstr(Athena::getMessageSvc(), BlockType());
   if (channel>=m_channelsPerFEB) {
-    logstr << MSG::ERROR << "Attempt to write Raw Data for channel "<< channel << endreq; 
+    logstr << MSG::ERROR << "Attempt to write Raw Data for channel "<< channel << endmsg; 
     return; //Return error
   }
  // Expected Gain values: 
@@ -119,7 +119,7 @@ void LArRodBlockTransparentV0<DSPHEADER>::setRawDataFixed(const int channel, con
  //1..medium gain
  //2..low gain
  if (gain>2)
-   {logstr << MSG::ERROR << "Attempt to write raw data with gain "<< gain << endreq; 
+   {logstr << MSG::ERROR << "Attempt to write raw data with gain "<< gain << endmsg; 
     return;
    }
  unsigned int nsamples = getVectorHeader16(DSPHEADER::NSamples) & 0xff;
@@ -127,7 +127,7 @@ void LArRodBlockTransparentV0<DSPHEADER>::setRawDataFixed(const int channel, con
  if(samples.size() != nsamples) {
    logstr << MSG::ERROR << "Number of samples mismatch!\n";
    logstr << "  nsamples       =" << nsamples;
-   logstr << "  samples.size() =" << samples.size() << endreq;
+   logstr << "  samples.size() =" << samples.size() << endmsg;
    exit(0);
  }
  //std::cout << "Size of Raw Data block # " << febgain << " = " << m_RawDataBlock.size();

@@ -30,6 +30,8 @@ public:
 private:
   void addMuon( const xAOD::TruthParticleContainer& truthParticles, const xAOD::MuonContainer& muons );
 
+  void setDummyTruthInfo(const xAOD::Muon& muon);
+
   std::string m_muonTruthParticleContainerName;
   std::string m_muonName;
 

@@ -112,6 +112,9 @@ def generateCaloSensitiveDetectorList():
             SensitiveDetectorList += [ 'TileGeoG4CalibSD' ] # mode 1 : With CaloCalibrationHits
         else:
             SensitiveDetectorList += [ 'TileGeoG4SD' ]      # mode 0 : No CaloCalibrationHits
+    from G4AtlasApps.SimFlags import simFlags
+    if simFlags.RecordStepInfo.get_Value():
+        SensitiveDetectorList += [ 'FCS_StepInfoSensitiveDetector' ]
     return SensitiveDetectorList
 
 def generateMuonSensitiveDetectorList():
@@ -121,12 +124,17 @@ def generateMuonSensitiveDetectorList():
         from G4AtlasApps.SimFlags import simFlags
         from AthenaCommon.BeamFlags import jobproperties
         if jobproperties.Beam.beamType() == 'cosmics':
-            SensitiveDetectorList += [ 'MDTSensitiveDetectorCosmics' , 'RPCSensitiveDetectorCosmics' , 'TGCSensitiveDetectorCosmics' ]
+            if DetFlags.simulate.MDT_on() : SensitiveDetectorList += [ 'MDTSensitiveDetectorCosmics' ]
+            if DetFlags.simulate.RPC_on() : SensitiveDetectorList += [ 'RPCSensitiveDetectorCosmics' ]
+            if DetFlags.simulate.TGC_on() : SensitiveDetectorList += [ 'TGCSensitiveDetectorCosmics' ]
         else:
-            SensitiveDetectorList += [ 'MDTSensitiveDetector' , 'RPCSensitiveDetector' , 'TGCSensitiveDetector' ]
+            if DetFlags.simulate.MDT_on() : SensitiveDetectorList += [ 'MDTSensitiveDetector' ]
+            if DetFlags.simulate.RPC_on() : SensitiveDetectorList += [ 'RPCSensitiveDetector' ]
+            if DetFlags.simulate.TGC_on() : SensitiveDetectorList += [ 'TGCSensitiveDetector' ]
         if simFlags.SimulateNewSmallWheel():
-            SensitiveDetectorList += [ 'sTGCSensitiveDetector' , 'MicromegasSensitiveDetector' ]
-        else:
+            if DetFlags.simulate.sTGC_on() : SensitiveDetectorList += [ 'sTGCSensitiveDetector' ]
+            if DetFlags.simulate.Micromegas_on() : SensitiveDetectorList += [ 'MicromegasSensitiveDetector' ]
+        elif DetFlags.simulate.CSC_on():
             # CSCs built instead of NSW
             if jobproperties.Beam.beamType() == 'cosmics':
                 SensitiveDetectorList += [ 'CSCSensitiveDetectorCosmics' ]
@@ -183,6 +191,7 @@ def generateTestBeamSensitiveDetectorList():
             SensitiveDetectorList += [ 'TileCTBGeoG4CalibSD' ] # mode 1 : With CaloCalibrationHits
         else:
             SensitiveDetectorList += [ 'TileCTBGeoG4SD' ]      # mode 0 : No CaloCalibrationHits
+            SensitiveDetectorList += [ 'MuonWallSD' ]
     if DetFlags.geometry.Muon_on():
         SensitiveDetectorList += [ 'MuonEntryRecord' ]
     SensitiveDetectorList += generateMuonSensitiveDetectorList()

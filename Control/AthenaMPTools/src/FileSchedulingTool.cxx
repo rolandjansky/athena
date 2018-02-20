@@ -161,7 +161,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> FileSchedulingTool::bootstrap
   // ________________________ Get IncidentSvc and fire PostFork ________________________
   IIncidentSvc* p_incidentSvc(0);
   if(!serviceLocator()->service("IncidentSvc", p_incidentSvc).isSuccess()) {
-    msg(MSG::ERROR) << "Unable to retrieve IncidentSvc" << endmsg;
+    ATH_MSG_ERROR("Unable to retrieve IncidentSvc");
     return outwork;
   }
   p_incidentSvc->fireIncident(Incident(name(),"PostFork"));

@@ -12,7 +12,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/AthenaKernel
                           Control/AthenaPython
-                          Control/CxxUtils
                           Control/DataModelRoot
                           Control/RootUtils
                           Control/StoreGate
@@ -32,13 +31,14 @@ atlas_depends_on_subdirs( PUBLIC
 
 # External dependencies:
 find_package( ROOT COMPONENTS RIO Core Graf Tree MathCore Hist pthread )
+find_package( Xrootd )
 
 # Component(s) in the package:
 atlas_add_component( AthenaRootComps
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} SGTools AthenaBaseComps AthenaKernel CxxUtils DataModelRoot RootUtils RootUtilsPyROOT StoreGateLib SGtests CollectionBase CollectionUtilities POOLCore PersistencySvc StorageSvc AthenaRootKernel PersistentDataModel EventInfo GaudiKernel xAODRootAccess xAODEventInfo)
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} SGTools AthenaBaseComps AthenaKernel DataModelRoot RootUtils RootUtilsPyROOT StoreGateLib SGtests CollectionBase CollectionUtilities POOLCore PersistencySvc StorageSvc AthenaRootKernel PersistentDataModel EventInfo GaudiKernel xAODRootAccess xAODEventInfo)
 
 # Install files from the package:
 atlas_install_headers( AthenaRootComps )

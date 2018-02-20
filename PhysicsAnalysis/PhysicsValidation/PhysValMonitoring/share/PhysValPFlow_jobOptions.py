@@ -3,9 +3,7 @@ from PFODQA.PFODQAConf import PhysValPFO
 PhysValPFO_charged = PhysValPFO("PhysValPFO_charged")
 PhysValPFO_charged.OutputLevel = WARNING
 PhysValPFO_charged.DetailLevel = 10
-PhysValPFO_charged.fillEMHistograms = True
 PhysValPFO_charged.EnableLumi = False
-PhysValPFO_charged.PFOContainerName = ""
 
 from PFlowUtils.PFlowUtilsConf import CP__RetrievePFOTool
 RetrievePFOTool = CP__RetrievePFOTool()
@@ -21,7 +19,6 @@ PhysValPFO_neutral_EM.OutputLevel = WARNING
 PhysValPFO_neutral_EM.DetailLevel = 10
 PhysValPFO_neutral_EM.EnableLumi = False
 PhysValPFO_neutral_EM.useNeutralPFO = True
-PhysValPFO_neutral_EM.fillEMHistograms = True
 PhysValPFO_neutral_EM.RetrievePFOTool = RetrievePFOTool
 
 ToolSvc += PhysValPFO_neutral_EM

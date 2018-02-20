@@ -3,9 +3,6 @@
 */
 
 
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Service.h"
-
 #include "StoreGate/StoreGateSvc.h"
 
 #include "CaloIdentifier/CaloCell_ID.h"
@@ -51,9 +48,8 @@ LArFCalTowerBuilderTool::~LArFCalTowerBuilderTool(){
 /////////////////////////////
 
 StatusCode LArFCalTowerBuilderTool::initializeTool(){
-  MsgStream log(msgSvc(),name());
   // ignore other input!
-  log << MSG::INFO  << "CaloTowerBuilder for the FCal initiated" << endreq;
+  ATH_MSG_INFO( "CaloTowerBuilder for the FCal initiated"  );
 
   return StatusCode::SUCCESS;
 }
@@ -134,13 +130,6 @@ LArFCalTowerBuilderTool::execute(CaloTowerContainer* theTowers,
                                  const CaloCellContainer* theCells,
                                  const CaloTowerSeg::SubSeg* subseg)
 {
-  //////////////
-  // Services //
-  //////////////
-
-  // messaging
-  MsgStream log(msgSvc(),name());
-
   ///////////////////////////
   // Create Cell Fragments //
   ///////////////////////////
@@ -148,29 +137,29 @@ LArFCalTowerBuilderTool::execute(CaloTowerContainer* theTowers,
   // only once if not done alread in begin run (for converter usage)
   if (!m_cacheValid )
     {
-      log << MSG::DEBUG << " m_cacheValid false, initializing Fcal lookup in first event " << endreq;
+      ATH_MSG_DEBUG( " m_cacheValid false, initializing Fcal lookup in first event "  );
       if ( ! m_cellStore->buildLookUp(theTowers) ){
-	  	log << MSG::ERROR << "cannot construct cell fragment lookup, fatal!" << endreq;
-	  	return StatusCode::FAILURE;
-		}
-       m_cacheValid=true;
+        ATH_MSG_ERROR( "cannot construct cell fragment lookup, fatal!"  );
+        return StatusCode::FAILURE;
+      }
+      m_cacheValid=true;
     }
 
   // retrieve cells
   if (!theCells) {
     StatusCode checkOut = m_storeGate->retrieve(theCells,m_cellContainerName);
     if ( checkOut.isFailure() ){
-      log << MSG::WARNING << "cannot allocate CaloCellContainer with key <"
-	  << m_cellContainerName<< ">, skip tool!"<< endreq;
+      ATH_MSG_WARNING( "cannot allocate CaloCellContainer with key <"
+                       << m_cellContainerName<< ">, skip tool!" );
       return StatusCode::SUCCESS;
     }
   }
 
   // check if any FCal in container
   if ( theCells->nCellsCalo(m_caloIndex) == 0 ){
-      log << MSG::DEBUG << "no FCal cells in CaloCellContainer, skip tool!"<< endreq;
-      return StatusCode::SUCCESS;
-    }
+    ATH_MSG_DEBUG( "no FCal cells in CaloCellContainer, skip tool!" );
+    return StatusCode::SUCCESS;
+  }
 
   /////////////////////////
   // Map Cells on Towers // 
@@ -190,22 +179,21 @@ LArFCalTowerBuilderTool::execute(CaloTowerContainer* theTowers,
 
 void  LArFCalTowerBuilderTool::handle(const Incident&) 
 {
-  MsgStream log( msgSvc(), name() );
-  log << MSG::DEBUG << "In Incident-handle" << endreq;    
+  ATH_MSG_DEBUG( "In Incident-handle"  );
   if (m_cacheValid) {
-    log << MSG::DEBUG << "Cached data already computed." << endreq; 
+    ATH_MSG_DEBUG( "Cached data already computed."  );
     return; 
   }
   CaloTowerContainer* theTowers = new CaloTowerContainer(m_theTowerSeg);
 
   if ( ! m_cellStore->buildLookUp(theTowers) ){
-       log << MSG::ERROR<< "cannot construct cell fragment lookup, fatal!" << endreq; 
-       m_cacheValid=false;
+    ATH_MSG_ERROR( "cannot construct cell fragment lookup, fatal!"  );
+    m_cacheValid=false;
   }
   else {
     m_cacheValid=true;
   }
-  log << MSG::DEBUG << " built Fcal tower lookup " << m_cacheValid << endreq;
+  ATH_MSG_DEBUG( " built Fcal tower lookup " << m_cacheValid  );
   delete theTowers;
 
 }

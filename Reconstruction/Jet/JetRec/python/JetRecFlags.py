@@ -227,7 +227,7 @@ class detailLevel(JobProperty):
   """
   statusOn = True
   allowedTypes = ['int']
-  StoredValue = JetContentDetail.Full
+  StoredValue = JetContentDetail.Reduced
 
 
 

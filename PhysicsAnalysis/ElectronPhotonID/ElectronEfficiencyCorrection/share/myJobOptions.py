@@ -16,6 +16,8 @@ input_files=["ElectronEfficiencyCorrection/2015_2016/rel20.7/ICHEP_June2016_v1/o
 alg.ElectronEfficiencyCorrectionTool.CorrectionFileNameList = input_files;
 #Set DataType: for data use 0 (or don't run the tool - faster), for FULLSIM use 1, and for FASTSIM use 3, please note that the input files are also should be different
 alg.ElectronEfficiencyCorrectionTool.ForceDataType = 1
+alg.ElectronEfficiencyCorrectionTool.CorrelationModel="MCTOYS"
+alg.ElectronEfficiencyCorrectionTool.UseRandomRunNumber= False
 alg.ElectronEfficiencyCorrectionTool.OutputLevel = INFO
 alg.OutputLevel = DEBUG
 algSeq += alg

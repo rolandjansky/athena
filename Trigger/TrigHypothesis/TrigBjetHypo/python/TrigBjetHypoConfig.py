@@ -32,8 +32,10 @@ class BjetHypo (TrigBjetHypo):
         
         AllowedCuts      = ["loose","medium","tight","offloose","offmedium","offtight",
                             "mv2c2040","mv2c2050","mv2c2060","mv2c2070","mv2c2077","mv2c2085",
-                            "mv2c1040","mv2c1050","mv2c1060","mv2c1070","mv2c1077","mv2c1085" ]
-        AllowedVersions  = ["2012", "2015", "2017", "MuJetChain_2012", "MuJetChain_2015"]
+                            "mv2c1040","mv2c1050","mv2c1060","mv2c1070","mv2c1077","mv2c1085",
+                            "hmv2c1040","hmv2c1050","hmv2c1060","hmv2c1070","hmv2c1077","hmv2c1085" ]
+
+        AllowedVersions  = ["2012", "2015", "2017", "2018", "MuJetChain_2012", "MuJetChain_2015"]
         AllowedInstances = ["EF", "MuJetChain"]
         
         if instance not in AllowedInstances :
@@ -119,6 +121,29 @@ class BjetHypo (TrigBjetHypo):
                 elif cut=="mv2c1085":
                     # Actually ~90% efficient
                     self.CutMV2c10 = -0.494
+
+            if version=="2018" :
+#                self.MethodTag = "MV2c10_hybrid" # Temporary use mv2c00 for hybrid tuning   
+                self.MethodTag = "MV2c00"
+                # These are the offline working points
+                if cut=="hmv2c1040":
+                    # Actually ~45% efficient
+                    self.CutMV2c10_hybrid =  0.978
+                elif cut=="hmv2c1050":
+                    # Actually ~55% efficient
+                    self.CutMV2c10_hybrid =  0.948
+                elif cut=="hmv2c1060":
+                    # Actually ~65% efficient
+                    self.CutMV2c10_hybrid = 0.846
+                elif cut=="hmv2c1070":
+                    # Actually ~75% efficient
+                    self.CutMV2c10_hybrid = 0.580
+                elif cut=="hmv2c1077":
+                    # Actually ~80% efficient
+                    self.CutMV2c10_hybrid = 0.162
+                elif cut=="hmv2c1085":
+                    # Actually ~90% efficient
+                    self.CutMV2c10_hybrid = -0.494
             
  
 
@@ -169,8 +194,9 @@ class BjetHypoSplit (TrigBjetHypo):
         
         AllowedCuts      = ["loose","medium","tight","offloose","offmedium","offtight",
                             "mv2c2040","mv2c2050","mv2c2060","mv2c2070","mv2c2077","mv2c2085",
-                            "mv2c1040","mv2c1050","mv2c1060","mv2c1070","mv2c1077","mv2c1085" ]
-        AllowedVersions  = ["2012","2015","2017"]
+                            "mv2c1040","mv2c1050","mv2c1060","mv2c1070","mv2c1077","mv2c1085",
+                            "hmv2c1040","hmv2c1050","hmv2c1060","hmv2c1070","hmv2c1077","hmv2c1085" ]
+        AllowedVersions  = ["2012","2015","2017","2018"]
         AllowedInstances = ["EF", "MuJetChain"]
         
         if instance not in AllowedInstances :
@@ -260,6 +286,29 @@ class BjetHypoSplit (TrigBjetHypo):
                     # Actually ~90% efficient
                     self.CutMV2c10 = -0.494
 
+            if version=="2018" :
+#                self.MethodTag = "MV2c10_hybrid" # Temporary use mv2c00 for hybrid tuning   
+                self.MethodTag = "MV2c00"
+                # These are the hybrid working points
+                if cut=="hmv2c1040":
+                    # Actually ~45% efficient
+                    self.CutMV2c10_hybrid =  0.978
+                elif cut=="hmv2c1050":
+                    # Actually ~55% efficient
+                    self.CutMV2c10_hybrid =  0.948
+                elif cut=="hmv2c1060":
+                    # Actually ~65% efficient
+                    self.CutMV2c10_hybrid = 0.846
+                elif cut=="hmv2c1070":
+                    # Actually ~75% efficient
+                    self.CutMV2c10_hybrid = 0.580
+                elif cut=="hmv2c1077":
+                    # Actually ~80% efficient
+                    self.CutMV2c10_hybrid = 0.162
+                elif cut=="hmv2c1085":
+                    # Actually ~90% efficient
+                    self.CutMV2c10_hybrid = -0.494
+
                     
 
 
@@ -314,7 +363,7 @@ class BjetHypoAllTE (TrigBjetHypoAllTE):
         
         mlog = logging.getLogger('BjetHypoAllTEConfig.py')
         #mlog.setLevel(0)
-        AllowedVersions  = ["2015","2017"]
+        AllowedVersions  = ["2017"]
         AllowedInstances = ["EF"  ]
 
         if instance not in AllowedInstances :

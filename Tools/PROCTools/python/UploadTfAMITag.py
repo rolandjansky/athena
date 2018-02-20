@@ -21,11 +21,8 @@ cphiProjTag = "data[0-9][0-9]_(cos|1beam|.*eV|comm|hi)" # Above plus hi, HI
 pphipProjTag = "data[0-9][0-9]_(.*eV|hip)" # pp or hip, for hip outputs in pp
 
 #Setup script locations
-setupScript = "/afs/cern.ch/atlas/tzero/software/setup/setuptrf.sh"
-specialT0Setup_Oracle = "/afs/cern.ch/atlas/tzero/software/setup/specialsetup_tier0.sh" # Direct-Oracle - for everything but f-tags
-specialT0Setup_Frontier = "/afs/cern.ch/atlas/tzero/software/setup/specialsetup_tier0_frontier.sh" # FronTier - for f-tags. Will also use for v tags with an alert
-
-specialT0Setup = specialT0Setup_Oracle # By Default
+setupScript = "/afs/cern.ch/atlas/tzero/software/setup/usetuptrf.sh"
+specialT0Setup = ""
 
 #For Commissioning, Colissions and Heavy Ions
 OutputsVsStreams = {
@@ -43,7 +40,7 @@ OutputsVsStreams = {
     #'outputESDFile': {'dstype': '!replace RAW ESD', 'ifMatch': '(?!.*DRAW.*)(?!.*physics_Main.*)', 'HumanOutputs': 'always produced, except for DRAW input and physics_Main'},
     'outputESDFile': {'dstype': '!replace RAW ESD', 'ifMatch': '(?!.*DRAW.*)(?!.(.*physics_Main\..*|.*Background.*|.*L1Topo.*))', 'HumanOutputs': 'always produced, except for DRAW input and physics_Main'},
     'outputAODFile': {'dstype': '!replace RAW AOD', 'ifMatch': cphiProjTag+'(?!.*DRAW_RPVLL.*)(?!.*Background.*)', 'HumanOutputs': 'always produced except for DRAW_RPVLL.'},
-    'outputTAGFile': {'dstype': 'TAG', 'ifMatch': HIProjTag+'(?!.(.*DRAW.*))', 'HumanOutputs': 'Produced in AOD merging'},
+    'outputTAGFile': {'dstype': 'TAG', 'ifMatch': 'data[0-9][0-9]_(cos|1beam|.*eV|comm)(.*express_express\..*)(?!.(.*DRAW.*))', 'HumanOutputs': 'Produced in express stream'},
     'outputHISTFile': {'dstype': 'HIST', 'ifMatch': '(?!.(.*DRAW.*|.*debugrec.*))', 'HumanOutputs': 'always produced except for DRAW and debugrec'},  # note was disabled for Pb-Pb HardProbes
     'outputRDOFile': {'dstype': 'RDO', 'ifMatch': cphiProjTag, 'HumanOutputs': 'always produced.'},
 # NTuples
@@ -70,6 +67,14 @@ OutputsVsStreams = {
 
     'outputDRAW_RPVLLFile'  : {'dstype': 'DRAW_RPVLL', 'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Main\..*)',
                                'HumanOutputs': 'produced for collision runs, for the physics_Main stream.'},
+
+    'outputDRAW_BCID1File'  : {'dstype': 'DRAW_BCID1', 'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Main\..*|.*physics_EnhancedBias\..*)',
+                             'HumanOutputs': 'produced for collision runs, for the physics_Main & EnhancedBias stream.'},
+    'outputDRAW_BCID2File'  : {'dstype': 'DRAW_BCID2', 'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Main\..*|.*physics_EnhancedBias\..*)',
+                             'HumanOutputs': 'produced for collision runs, for the physics_Main & EnhancedBias stream.'},
+
+    'outputDRAW_TOPSLMUFile'  : {'dstype': 'DRAW_TOPSLMU', 'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Main\..*)',
+                             'HumanOutputs': 'produced for collision runs, for the physics_Main.'},
 
 # Special reconstruction outputs for DRAW
 #    'outputDESDM_MSPerfFile'  : {'dstype': '!replace RAW DESDM_MCP DDESDM_MCP_ZMUMU DESDM_ZMCP', 'ifMatch': pcProjTag+'(.*physics_Main\..*|.*CosmicMuons.*)(.*\.RAW\.*|.*DRAW_ZMUMU.*)',
@@ -107,7 +112,6 @@ OutputsVsStreams = {
     'outputDAOD_SCTVALIDFile': {'dstype': 'DAOD_SCTVALID', 'ifMatch': cphiProjTag+'(?!.*DRAW.*)(.*express_express.*)',
                                 'HumanOutputs': 'produced for express stream only'},
 
-
     'outputDAOD_IDTIDEFile' : {'dstype': 'DAOD_IDTIDE', 'ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Main.*)',
                                  'HumanOutputs': 'produced for collision runs, for physics_Main stream.'},
 
@@ -132,6 +136,9 @@ OutputsVsStreams = {
     'outputDESDM_TILEMUFile': {'dstype': 'DESDM_TILEMU','ifMatch': ppProjTag+'(?!.*DRAW.*)(.*physics_Main.*)',
                               'HumanOutputs': 'produced for collision runs, for physics_Main stream.'},
 
+    'outputDAOD_L1CALO2File': {'dstype': 'DAOD_L1CALO2','ifMatch': cphiProjTag+'(?!.*DRAW.*)(.*physics_Main.*|.*ZeroBias.*)',
+                              'HumanOutputs': 'produced for special L1Calo runs, for physics_Main and ZeroBias streams'},
+
 }
 
 #Print for debugging...
@@ -142,9 +149,8 @@ OutputsVsStreams = {
 ##         print outputKey,": always produced"
 
 #-------------------------------------------------------------------------------------
-def GetProcessConfigs(release,patcharea):
+def GetProcessConfigs(release):
     rel = str(release)
-    pa = str(patcharea)
     #print "Got release",release
     #print "Got Patch area",pa
     processConfigs = {}
@@ -156,7 +162,7 @@ def GetProcessConfigs(release,patcharea):
         'phconfig': {},
         'transformation': 'DQM_Tier0Wrapper_trf.py',
         'tasktransinfo': {'trfpath': 'DQM_Tier0Wrapper_trf.py',
-                          'trfsetupcmd': setupScript+' '+pa+' '+rel+' '+specialT0Setup }, 
+                          'trfsetupcmd': setupScript+' '+rel+' '+specialT0Setup },
         'description': 'Trf for combined DQM histogram merging and DQM webpage creation, to get periodic DQ monitoring updates. '}
 
     # TAG merging (no TAG_COMM anymore)
@@ -166,7 +172,7 @@ def GetProcessConfigs(release,patcharea):
         'phconfig': {},
         'transformation': 'TAGMerge_tf.py',
         'tasktransinfo': {'trfpath': 'TAGMerge_tf.py', 
-                          'trfsetupcmd': setupScript + ' '+pa+' '+rel+' none'},
+                          'trfsetupcmd': setupScript+' '+rel+' '+specialT0Setup },
         'description': 'Trf for TAG merging, runs CollAppend from release area. ' }
     
     # NTUP merging
@@ -176,7 +182,7 @@ def GetProcessConfigs(release,patcharea):
         'phconfig': {}, #{'skipFileValidation': 'True'},
         'transformation': 'NTUPMerge_tf.py',
         'tasktransinfo': {'trfpath': 'NTUPMerge_tf.py', 
-                          'trfsetupcmd': setupScript + ' '+pa+' '+rel+' none'},
+                          'trfsetupcmd': setupScript+' '+rel+' '+specialT0Setup },
 
         'description': 'Trf for plain-ROOT n-tuple merging. '}
 
@@ -189,7 +195,7 @@ def GetProcessConfigs(release,patcharea):
         'phconfig': {'ignoreErrors': 'True', 'autoConfiguration': 'everything'},
         'transformation': 'AODMerge_tf.py',
         'tasktransinfo': {'trfpath': 'AODMerge_tf.py',
-                          'trfsetupcmd':  setupScript+' '+pa+' '+rel+' '+specialT0Setup },
+                          'trfsetupcmd':  setupScript+' '+rel+' '+specialT0Setup },
         'description': 'Produces merged AODs with AODMerge_tf.py. '}
 
     # DAOD merging
@@ -199,7 +205,7 @@ def GetProcessConfigs(release,patcharea):
         'phconfig': {'ignoreErrors': 'True', 'autoConfiguration': 'everything'},
         'transformation': 'AODMerge_tf.py',
         'tasktransinfo': {'trfpath': 'AODMerge_tf.py',
-                          'trfsetupcmd':  setupScript+' '+pa+' '+rel+' '+specialT0Setup },
+                          'trfsetupcmd':  setupScript+' '+rel+' '+specialT0Setup },
         'description': 'Produces merged DAODs with AODMerge_tf.py. '}
 
     # DPD merging
@@ -209,7 +215,7 @@ def GetProcessConfigs(release,patcharea):
         'phconfig': {'ignoreErrors': 'True', 'autoConfiguration': 'everything'},
         'transformation': 'ESDMerge_tf.py',
         'tasktransinfo': {'trfpath': 'ESDMerge_tf.py',
-                          'trfsetupcmd': setupScript+' '+pa+' '+rel+' '+specialT0Setup }, 
+                          'trfsetupcmd': setupScript+' '+rel+' '+specialT0Setup },
         'description': 'Produces merged DPDs with ESDMerge_tf. ' }
 
 
@@ -220,7 +226,7 @@ def GetProcessConfigs(release,patcharea):
         'phconfig': {'ignoreerrors': 'ALL', 'autoConfiguration': 'everything' },
         'transformation': 'Reco_tf.py',
         'tasktransinfo': {'trfpath': 'Reco_tf.py',
-                          'trfsetupcmd':  setupScript+' '+pa+' '+rel+' '+specialT0Setup },
+                          'trfsetupcmd':  setupScript+' '+rel+' '+specialT0Setup },
         'description': 'Produces Fast Physics Monitoring ntuple with Reco_tf.py  '}
 
 
@@ -231,7 +237,7 @@ def GetProcessConfigs(release,patcharea):
         'phconfig': None,
         'transformation': 'Reco_tf.py',
         'tasktransinfo': {'trfpath': 'Reco_tf.py',
-                          'trfsetupcmd': setupScript+' '+pa+' '+rel+' '+specialT0Setup }, 
+                          'trfsetupcmd': setupScript+' '+rel+' '+specialT0Setup },
 
         'description': 'Runs reconstruction with Reco_tf. ' }
     return processConfigs
@@ -242,9 +248,7 @@ if __name__ == '__main__':
         print "##############"
         print "Application to create or update AMI tags (for manager only)\n"
         print "Usage:"
-        print "UploadAMITag.py inputDictionary.pickle create_AMITag <release> <description> [patcharea] [updateConditionsTag]"
-        print "or"
-        print "UploadAMITag.py inputDictionary.pickle update_AMITag <release> <description> [patcharea] [updateConditionsTag]"
+        print "UploadAMITag.py inputDictionary.pickle create_AMITag <release number> <description> [updateConditionsTag] [coolsource] [project] [patcharea]"
         print "\nTo create inputDictionary.pickle, execute:"
         print "Reco_tf.py --dumpPickle inputDictionary.pickle ..."
         print "or"
@@ -260,25 +264,36 @@ if __name__ == '__main__':
 
     inPickleFile=str(sys.argv[1])
     amiTagTmp=str(sys.argv[2])
-    release=str(sys.argv[3])
+    release_number=str(sys.argv[3])
     description=str(sys.argv[4])
+    ### Defaults for optional arguements
     updateConditionsTag = True # Switch to enable/disable the CURRENT conditions tag update
+    coolSource = ""
+    project    = ""
+    patchArea  = ""
     if len(sys.argv)>5:
         print sys.argv
-        patcharea=str(sys.argv[5])
-        if not os.access(patcharea,os.R_OK):
-            print "WARNING Can't access patch area at",patcharea
-        if not patcharea.startswith("/afs/cern.ch/"):
-            print "WARNING Patch area does not start with /afs/cern.ch/ - this is probably a mistake!"
-        if len(sys.argv)>6:
-            try:
-                updateConditionsTag = int(sys.argv[6])
-            except:
-                if sys.argv[6].lower() == "false":
-                    updateConditionsTag = False
-
-    else:
-        patcharea="/afs/cern.ch/atlas/tzero/software/patches/"+release
+        ### Update conditions
+        try:
+            updateConditionsTag = int(sys.argv[5])
+        except:
+            if sys.argv[5].lower() == "false":
+                updateConditionsTag = False
+        ### coolSource
+        try:
+            coolSource = sys.argv[6]
+        except:
+            print "INFO: No coolSource specified -- this defaults to fronTier"
+        ### Release project
+        try:
+            project = sys.argv[7]
+        except:
+            print "INFO: No project specified -- this defaults to Athena"
+        ### Patch Area
+        try:
+            patchArea = sys.argv[8]
+        except:
+            print "INFO: No patch area specified -- this defaults to the default set by Tier0"
 
     doWhat="Dunno"
     amiTag=''
@@ -289,10 +304,16 @@ if __name__ == '__main__':
         doWhat="update"
         amiTag=amiTagTmp.replace("update_","")
 
-    if amiTag.startswith("f") or amiTag.startswith("v"):
-        specialT0Setup=specialT0Setup_Frontier
-        if amiTag.startswith("v"):
-            print "INFO: This v-tag is being created with specialT0Setup =",specialT0Setup
+    ### Completing the setup script arguements
+    specialT0Setup = ""
+    if coolSource:
+        specialT0Setup += (' ' + coolSource)
+    elif not (amiTag.startswith("f") or amiTag.startswith("v") ):
+        specialT0Setup += (' oracleCOOL')
+    if project:
+        specialT0Setup += (' ' + project)
+    if patchArea:
+        specialT0Setup += (' ' + patchArea)
 
     process=None
     if inPickleFile.endswith('.pickle'): 
@@ -306,24 +327,20 @@ if __name__ == '__main__':
         raise RuntimeError(s)
 
     #Check if release exists
-    relSp=release.split("-")
-    if len(relSp)!=2:
-        s="ERROR: Expected parameter 'release' in the form Project-number, got "+releases
-        raise RuntimeError(s)
-    relProj=relSp[0]
-    relNbr=relSp[1]
-    baseRelNbr=".".join(relNbr.split(".")[:3])
-    relPaths=("/afs/cern.ch/atlas/software/builds/"+relProj+"/"+relNbr,
-              "/afs/cern.ch/atlas/software/releases/"+baseRelNbr+"/"+relProj+"/"+relNbr)
-    for relPath in relPaths:
-        if not os.path.isdir(relPath):
-            s="ERROR Release directory " + relPath + " does not exists"
-            #raise RuntimeError(s)
-        #else:
-        #    print "Found",relPath
-    #Release exists in both releases and builds area if we reach this point
+    relProj = ""
+    if project:
+        relProj = project
+    else:
+        relProj = "Athena" # the default
+    baseRelNbr=".".join(release_number.split(".")[:2])
+    relPath = "/cvmfs/atlas.cern.ch/repo/sw/software/%s/%s/%s" % (baseRelNbr, relProj, release_number)
+    if not os.path.isdir(relPath):
+        s="ERROR Release directory " + relPath + " does not exists"
+        #raise RuntimeError(s)
+    else:
+        print "INFO: Found",relPath
 
-    processConfigs=GetProcessConfigs(release,patcharea)
+    processConfigs=GetProcessConfigs(release_number)
     humanReadableOutputs=""
 
     if process=='reco':
@@ -459,9 +476,9 @@ if __name__ == '__main__':
     c['inputs']=str(processConfigs[process]['inputs'].__str__())
     c['outputs']=str(processConfigs[process]['outputs'].__str__())
     if humanReadableOutputs: c['humanReadableOutputs']=str(humanReadableOutputs)
-    c['SWReleaseCache']=str(release).replace('-','_')
+    c['SWReleaseCache']= "%s_%s" % (relProj, release_number)
     c['transformation']=str(processConfigs[process]['transformation'])
-    c['description']=processConfigs[process]['description']+description+" Using "+release
+    c['description']=processConfigs[process]['description']+description+" Using "+ relProj + "-" + release_number
     c['trfsetupcmd']=str(moreInfoDic['tasktransinfo']['trfsetupcmd'])
     c['moreInfo']=str(moreInfoDic.__str__())
     if amiTag.startswith("f") or amiTag.startswith("x") or amiTag.startswith("q") or amiTag.startswith("v") or amiTag.startswith("c"):

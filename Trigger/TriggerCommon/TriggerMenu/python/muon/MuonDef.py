@@ -28,6 +28,7 @@ from TrigMuonEF.TrigMuonEFConfig import (TrigMuonEFTrackIsolationConfig,
                                          TrigMuonEFIDTrackRoiMakerConfig)
 
 from TrigMuonHypo.TrigMuonHypoConfig import (TrigMuonEFTrackIsolationHypoConfig,
+                                             TrigMuonEFTrackIsolationMultiHypoConfig,
                                              TrigMuonEFCombinerHypoConfig,
                                              TrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig,
                                              TrigMuonEFCaloIsolationHypoConfig)
@@ -247,6 +248,8 @@ class L2EFChain_mu(L2EFChainDef):
       EFExtrapolatorThresh = "passthrough"
     elif "0eta105" in self.chainPart['etaRange']:
       EFExtrapolatorThresh = str(self.chainPart['threshold'])+ "GeV" + "_barrelOnly"
+    elif "3layersEC" in self.chainName:
+      EFExtrapolatorThresh = str(self.chainPart['threshold'])+ "GeV" + "_msonlyCut"
     else:
       EFExtrapolatorThresh = str(self.chainPart['threshold'])+ "GeV"
     return EFExtrapolatorThresh
@@ -421,6 +424,10 @@ class L2EFChain_mu(L2EFChainDef):
         theTrigMuonEFTrackIsolationHypoConfig = TrigMuonEFTrackIsolationHypoConfig("Muon","RelEFOnlyVarMedium")
       elif self.chainPart['isoInfo'] == "ivarmedium":
         theTrigMuonEFTrackIsolationHypoConfig = TrigMuonEFTrackIsolationHypoConfig("Muon","RelEFOnlyVarTightWide")
+      elif self.chainPart['isoInfo'] == "ivartight":
+        theTrigMuonEFTrackIsolationHypoConfig = TrigMuonEFTrackIsolationHypoConfig("Muon","RelEFOnlyVarTighterWide")
+      elif self.chainPart['isoInfo'] == "ivarverytight":
+        theTrigMuonEFTrackIsolationHypoConfig = TrigMuonEFTrackIsolationHypoConfig("Muon","RelEFOnlyVarVeryTightWide")
       elif self.chainPart['isoInfo'] == "icalo":
         theTrigMuonEFCaloIsolationHypoConfig = TrigMuonEFCaloIsolationHypoConfig("Muon", "Rel")
       elif self.chainPart['isoInfo'] == "iloosecalo":
@@ -460,9 +467,15 @@ class L2EFChain_mu(L2EFChainDef):
         self.EFsequenceList += [[['EF_mu_step4'],
                                  [theTrigMuonEFTrackIsolationHypoConfig],
                                  'EF_mu_hypo3']]
-      elif self.chainPart['isoInfo'] == "ivarloose" or self.chainPart['isoInfo'] == "ivarmedium" or self.chainPart['isoInfo'] == "ivarloosecalo" or self.chainPart['isoInfo'] == "ivarmediumcalo":
+      elif self.chainPart['isoInfo'] == "ivarloose" or self.chainPart['isoInfo'] == "ivarmedium" or self.chainPart['isoInfo'] == "ivartight" or self.chainPart['isoInfo'] == "ivarverytight" or self.chainPart['isoInfo'] == "ivarloosecalo" or self.chainPart['isoInfo'] == "ivarmediumcalo":
+        # we activate the track selection by the trigger name
+        isoAlgoName = "TrigMuonEFTrackIsolationVar"
+        if 'tsloose' in self.chainPart['addInfo']:
+          isoAlgoName = isoAlgoName + 'LooseTSel'
+        elif 'tstight' in self.chainPart['addInfo']:
+          isoAlgoName = isoAlgoName + 'TightTSel'        
         self.EFsequenceList += [[['EF_mu_step3'],
-                                 [TrigMuonEFTrackIsolationVarConfig("TrigMuonEFTrackIsolationVar")],
+                                 [TrigMuonEFTrackIsolationVarConfig(isoAlgoName)],
                                  'EF_mu_step4']]
         self.EFsequenceList += [[['EF_mu_step4'],
                                  [theTrigMuonEFTrackIsolationHypoConfig],
@@ -1163,7 +1176,33 @@ class L2EFChain_mu(L2EFChainDef):
       hypocutEF="MultiComb"     
       for i in range(0,len(self.allMuThrs)):        
         hypocutEF +=  "_%s" %(self.allMuThrs[i])
-
+    run_isolation = False
+    if self.chainPart['isoInfo'] == "ivarloose" or self.chainPart['isoInfo'] == "ivarmedium" or self.chainPart['isoInfo'] == "ivartight" or self.chainPart['isoInfo'] == "ivarverytight" or self.chainPart['isoInfo'] == "ivarloosecalo" or self.chainPart['isoInfo'] == "ivarmediumcalo":
+      run_isolation = True
+      [_, trkiso, _] = TrigInDetSequence("Muon", "muon", "IDTrig", sequenceFlavour=["2step"]).getSequence()
+      if self.chainPart['isoInfo'] == "iloose":
+        theTrigMuonEFTrackIsolationMultiHypoConfig = TrigMuonEFTrackIsolationMultiHypoConfig("Muon","RelEFOnlyMedium", self.allMuThrs)
+      elif self.chainPart['isoInfo'] == "imedium":
+        theTrigMuonEFTrackIsolationMultiHypoConfig = TrigMuonEFTrackIsolationMultiHypoConfig("Muon","RelEFOnlyTightWide")
+      elif self.chainPart['isoInfo'] == "ivarloose":
+        theTrigMuonEFTrackIsolationMultiHypoConfig = TrigMuonEFTrackIsolationMultiHypoConfig("Muon","RelEFOnlyVarMedium")
+      elif self.chainPart['isoInfo'] == "ivarmedium":
+        theTrigMuonEFTrackIsolationMultiHypoConfig = TrigMuonEFTrackIsolationMultiHypoConfig("Muon","RelEFOnlyVarTightWide", self.allMuThrs)
+      elif self.chainPart['isoInfo'] == "ivartight":
+        theTrigMuonEFTrackIsolationMultiHypoConfig = TrigMuonEFTrackIsolationMultiHypoConfig("Muon","RelEFOnlyVarTighterWide")
+      elif self.chainPart['isoInfo'] == "ivarverytight":
+        theTrigMuonEFTrackIsolationMultiHypoConfig = TrigMuonEFTrackIsolationMultiHypoConfig("Muon","RelEFOnlyVarVeryTightWide")
+      else:
+        log.error("Isolation %s not yet supported." % (self.chainPart['isoInfo']))
+        return False
+      if (("ds1" in self.chainPart['addInfo'])):
+        chainPartNameNoMultNoDS = self.chainPartNameNoMult.replace('_ds1', '')
+      elif (("ds2" in self.chainPart['addInfo'])):
+        chainPartNameNoMultNoDS = self.chainPartNameNoMult.replace('_ds2', '')
+      elif ("ds3" in self.chainPart['addInfo']): 
+        chainPartNameNoMultNoDS = self.chainPartNameNoMult.replace('_ds3', '') 
+      else:
+        chainPartNameNoMultNoDS = self.chainPartNameNoMult
 
     ########### Sequence List ##############
     if 'msonly' in self.chainPart['reccalibInfo']:
@@ -1202,9 +1241,23 @@ class L2EFChain_mu(L2EFChainDef):
                                [TrigMuonEFRoiAggregatorConfig('TrigMuonEFFSRoiAggregator')],
                                'EF_CB_ROI']]
       self.EFsequenceList += [['EF_CB_ROI',
-                                [theTrigMuonEFCombinerMultiHypoConfig],
+                               [theTrigMuonEFCombinerMultiHypoConfig],
                                'EF_CB_FS']]
-
+      if run_isolation:
+        self.EFsequenceList += [['EF_CB_FS_single',
+                                 trkiso,
+                                 'EF_ID_FS']]
+        self.EFsequenceList += [['EF_ID_FS',
+                                 [TrigMuonEFRoiAggregatorConfig('TrigMuonEFFSRoiAggregator')],
+                                 'EF_ID_FS_single']]
+        isoAlgoName = "TrigMuonEFTrackIsolationVar"
+        self.EFsequenceList += [[['EF_ID_FS_single'],
+                                 [TrigMuonEFTrackIsolationVarConfig(isoAlgoName)],
+                                 'EF_ISO_FS']]
+        self.EFsequenceList += [[['EF_ISO_FS'],
+                                 [theTrigMuonEFTrackIsolationMultiHypoConfig],
+                                 'EF_ISO_HYPO']]
+        
     ########### Signatures ###########
       
     self.EFsignatureList += [ [['EF_dummy']] ]
@@ -1216,7 +1269,11 @@ class L2EFChain_mu(L2EFChainDef):
       self.EFsignatureList += [ [['EF_CB_FS_single']] ]
       self.EFsignatureList += [ [['EF_CB_ROI']] ]
       self.EFsignatureList += [ [['EF_CB_FS','EF_SA_FS2']] ]
-
+      if run_isolation:
+        self.EFsignatureList += [ [['EF_ID_FS']] ]
+        self.EFsignatureList += [ [['EF_ID_FS_single']] ]
+        self.EFsignatureList += [ [['EF_ISO_FS']] ]
+        self.EFsignatureList += [ [['EF_ISO_HYPO']] ]
     ########### TE renaming ##########
 
     if 'msonly' in self.chainPart['reccalibInfo']:
@@ -1231,12 +1288,15 @@ class L2EFChain_mu(L2EFChainDef):
         'EF_SAR_FS': mergeRemovingOverlap('EF_SAR_FS_','SAFSHypo'),
         'EF_FStracksMuon': mergeRemovingOverlap('EF_FStracksMuon_', 'SAFSHypo'),
         'EF_CB_FS_single': mergeRemovingOverlap('EF_CB_FS_single_','SAFSHypo'), 
-        'EF_CB_ROI': mergeRemovingOverlap('EF_CB_ROI_','SAFSRoi'), 
-        'EF_CB_FS': mergeRemovingOverlap('EF_CB_FS_', 'SAFSHypo'+hypocut+'_'+hypocutEF),
-
       }
-
-
+      self.TErenamingDict['EF_CB_ROI'] = mergeRemovingOverlap('EF_CB_ROI_','SAFSRoi')
+      self.TErenamingDict['EF_CB_FS'] = mergeRemovingOverlap('EF_CB_FS_', 'SAFSHypo'+hypocut+'_'+hypocutEF)
+      if run_isolation:
+        self.TErenamingDict['EF_ID_FS_single'] = mergeRemovingOverlap('EF_trkIso_', chainPartNameNoMultNoDS+'EFFSID')
+        self.TErenamingDict['EF_ID_FS'] = mergeRemovingOverlap('EF_ID_FS_', 'SAFSHypo'+hypocut+'_'+hypocutEF + "_ID")
+        self.TErenamingDict['EF_ISO_FS'] = mergeRemovingOverlap('EF_ISO_FS_', chainPartNameNoMultNoDS+'EFFSISO')
+        self.TErenamingDict['EF_ISO_HYPO'] = mergeRemovingOverlap('EF_ISO_FS_', chainPartNameNoMultNoDS+'EFFSISOHypo')
+      
  #################################################################################################
   #################################################################################################
   def setup_muXX_noL1FTK(self):
@@ -1311,7 +1371,7 @@ class L2EFChain_mu(L2EFChainDef):
                              [CfgGetter.getAlgorithm("InDetTrkRoiMaker_Muon")],#[InDetTrkRoiMaker_Muon("EFInDetTrkRoiMaker")],
                              'EF_trk_ROIFTK']]
     self.EFsequenceList += [['EF_trk_ROIFTK',
-                            [CfgGetter.getAlgorithm("TrigMuSuperEF_SAonly")],
+                            [CfgGetter.getAlgorithm("TrigMuSuperEF_FSSA")],
                              'EF_SA_FSFTK']]
     self.EFsequenceList += [['EF_SA_FSFTK',
                              [theTrigMuonEFSA_FS_Hypo],
@@ -2250,6 +2310,17 @@ class L2EFChain_mu(L2EFChainDef):
     from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
     [trkfast, trkprec] = TrigInDetSequence("Muon", "muon", "IDTrig").getSequence()
 
+    L2AlgName = self.getL2AlgName()
+    muFastThresh = self.getMuFastThresh()
+
+    #--- L2 algos ---
+    if "l2muonSA" in self.chainPart['L2SAAlg']:
+       theL2StandAloneAlg  = TrigL2MuonSAConfig(L2AlgName)
+       theL2StandAloneHypo = MufastHypoConfig(L2AlgName, muFastThresh)
+    else:
+       log.error("Chain built with %s but so far only l2muonSA is supported." % (self.chainPart['L2SAAlg']))
+       return False
+
     ########### EF algos  #################
     print self.chainPart['EFAlg']
     if 'SuperEF' in self.chainPart['EFAlg']:
@@ -2269,30 +2340,40 @@ class L2EFChain_mu(L2EFChainDef):
     if "inTimeRoI" not in self.chainPart['addInfo']:
       from TrigmuRoI.TrigmuRoIConfig import TrigmuRoIConfig
       Roimaker = TrigmuRoIConfig("TrigMuRoIMGonly")
-      self.EFsequenceList += [[ '' , [Roimaker], 'EF_mu_step2a' ]]
-      self.EFsequenceList += [[ 'EF_mu_step2a' , trkfast+trkprec, 'EF_mu_step2b']]
+      self.L2sequenceList += [[ '', [Roimaker], 'L2_mu_step0']]
+      self.L2sequenceList += [[ 'L2_mu_step0', [theL2StandAloneAlg], 'L2_mu_step1']]
     else:
-      self.EFsequenceList += [[ self.L2InputTE , trkfast+trkprec, 'EF_mu_step2b']]
-    self.EFsequenceList += [[ 'EF_mu_step2b' , [theEFAlg], 'EF_mu_step2']]
-    self.EFsequenceList += [[ 'EF_mu_step2'  , [theTrigMuonEFCombinerHypoConfig], 'EF_mu_step3']]
+      self.L2sequenceList += [[ self.L2InputTE, [theL2StandAloneAlg], 'L2_mu_step1']]
+
+    self.L2sequenceList += [[ 'L2_mu_step1' , [theL2StandAloneHypo], 'L2_mu_hypo1']]
+    self.EFsequenceList += [[ 'L2_mu_hypo1' , trkfast+trkprec, 'EF_mu_step1']]
+    self.EFsequenceList += [[ 'EF_mu_step1' , [theEFAlg], 'EF_mu_step2']]
+    self.EFsequenceList += [[ 'EF_mu_step2' , [theTrigMuonEFCombinerHypoConfig], 'EF_mu_step3']]
 
     if "inTimeRoI" not in self.chainPart['addInfo']:
-      self.EFsignatureList += [ [['EF_mu_step2a']] ]
-    self.EFsignatureList += [ [['EF_mu_step2b']] ]
+      self.L2signatureList += [ [['L2_mu_step0']] ]
+
+    self.L2signatureList += [ [['L2_mu_step1']] ]
+    self.L2signatureList += [ [['L2_mu_hypo1']] ]
+    self.EFsignatureList += [ [['EF_mu_step1']] ]
     self.EFsignatureList += [ [['EF_mu_step2']] ]
     self.EFsignatureList += [ [['EF_mu_step3']] ]
 
     if "inTimeRoI" not in self.chainPart['addInfo']:
       self.TErenamingDict = {
-        'EF_mu_step2a': mergeRemovingOverlap('EF_SuperEF_MGOnly_L1x',  self.L2InputTE ),
-        'EF_mu_step2b': mergeRemovingOverlap('EF_SuperEF_MGOnly_',  '2b' + self.L2InputTE ),
-        'EF_mu_step2':  mergeRemovingOverlap('EF_SuperEF_MGOnly',  self.chainPartNameNoMult),
+        'L2_mu_step0':  mergeRemovingOverlap('L2_mu_SA_MGOnly_',       "TrigMuRoIMGonly_L1x"+self.L2InputTE ),
+        'L2_mu_step1':  mergeRemovingOverlap('L2_mu_SA_MGOnly_',       L2AlgName+"_L1x"+self.L2InputTE ),
+        'L2_mu_hypo1':  mergeRemovingOverlap('L2_mu_SA_MGOnly_',       L2AlgName+"_"+muFastThresh+"_L1x"+self.L2InputTE ),
+        'EF_mu_step1':  mergeRemovingOverlap('EF_SuperEF_MGOnly_L1x',  self.L2InputTE ),
+        'EF_mu_step2':  mergeRemovingOverlap('EF_SuperEF_MGOnly_L1x',  self.chainPartNameNoMult),
         'EF_mu_step3':  mergeRemovingOverlap('EF_SuperEFHypo_MGOnly',  self.chainPartNameNoMult)
       }
     else:
       self.TErenamingDict = {
-        'EF_mu_step2b': mergeRemovingOverlap('EF_SuperEF_MGOnly_inTimeRoI_',  '2b' + self.L2InputTE ),
-        'EF_mu_step2':  mergeRemovingOverlap('EF_SuperEF_MGOnly_inTimeRoI',  self.chainPartNameNoMult),
+        'L2_mu_step1':  mergeRemovingOverlap('EF_SuperEF_MGOnly_inTimeRoI_',     L2AlgName+"_L1x"+self.L2InputTE ),
+        'L2_mu_hypo1':  mergeRemovingOverlap('EF_SuperEF_MGOnly_inTimeRoI_',     L2AlgName+"_"+muFastThresh+"_L1x"+self.L2InputTE ),
+        'EF_mu_step1':  mergeRemovingOverlap('EF_SuperEF_MGOnly_inTimeRoI_',     self.L2InputTE ),
+        'EF_mu_step2':  mergeRemovingOverlap('EF_SuperEF_MGOnly_inTimeRoI_',     self.chainPartNameNoMult),
         'EF_mu_step3':  mergeRemovingOverlap('EF_SuperEFHypo_MGOnly_inTimeRoI',  self.chainPartNameNoMult)
       }
 

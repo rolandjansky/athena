@@ -624,7 +624,7 @@ namespace xAOD {
 					   const CaloCellContainer* container ) {
 
     // for now always use track, should move to extrapolation to calo entrance 
-    const Trk::Track* track = *tp.trackLink();
+    const Trk::Track* track = tp.track();
     if( !track  ) {
       ATH_MSG_WARNING("Failed to access track");
       return false;

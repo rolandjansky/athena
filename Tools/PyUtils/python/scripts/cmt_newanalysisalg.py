@@ -9,7 +9,7 @@
 
 from __future__ import with_statement
 
-__version__ = "$Revision: 734631 $"
+__version__ = "$Revision: 801634 $"
 __author__ = "Will Buttinger"
 __doc__ = "streamline and ease the creation of new AthAnalysisAlgorithm"
 
@@ -27,6 +27,10 @@ class Templates:
 
 #include "AthAnalysisBaseComps/AthAnalysisAlgorithm.h"
 
+//Example ROOT Includes
+//#include "TTree.h"
+//#include "TH1D.h"
+
 %(namespace_begin)s
 
 class %(klass)s: public ::AthAnalysisAlgorithm { 
@@ -34,13 +38,35 @@ class %(klass)s: public ::AthAnalysisAlgorithm {
   %(klass)s( const std::string& name, ISvcLocator* pSvcLocator );
   virtual ~%(klass)s(); 
 
-  virtual StatusCode  initialize();
-  virtual StatusCode  execute();
-  virtual StatusCode  finalize();
+  ///uncomment and implement methods as required
+
+                                        //IS EXECUTED:
+  virtual StatusCode  initialize();     //once, before any input is loaded
+  virtual StatusCode  beginInputFile(); //start of each input file, only metadata loaded
+  //virtual StatusCode  firstExecute();   //once, after first eventdata is loaded (not per file)
+  virtual StatusCode  execute();        //per event
+  //virtual StatusCode  endInputFile();   //end of each input file
+  //virtual StatusCode  metaDataStop();   //when outputMetaStore is populated by MetaDataTools
+  virtual StatusCode  finalize();       //once, after all events processed
   
-  virtual StatusCode beginInputFile();
+
+  ///Other useful methods provided by base class are:
+  ///evtStore()        : ServiceHandle to main event data storegate
+  ///inputMetaStore()  : ServiceHandle to input metadata storegate
+  ///outputMetaStore() : ServiceHandle to output metadata storegate
+  ///histSvc()         : ServiceHandle to output ROOT service (writing TObjects)
+  ///currentFile()     : TFile* to the currently open input file
+  ///retrieveMetadata(...): See twiki.cern.ch/twiki/bin/view/AtlasProtected/AthAnalysisBase#ReadingMetaDataInCpp
+
 
  private: 
+
+   //Example algorithm property, see constructor for declaration:
+   //int m_nProperty = 0;
+
+   //Example histogram, see initialize method for registration to output histSvc
+   //TH1D* m_myHist = 0;
+   //TTree* m_myTree = 0;
 
 }; 
 %(namespace_end)s
@@ -53,16 +79,12 @@ class %(klass)s: public ::AthAnalysisAlgorithm {
 
 //#include "xAODEventInfo/EventInfo.h"
 
-//uncomment the line below to use the HistSvc for outputting trees and histograms
-//#include "GaudiKernel/ITHistSvc.h"
-//#include "TTree.h"
-//#include "TH1D.h"
 
 %(namespace_begin)s
 
 %(klass)s::%(klass)s( const std::string& name, ISvcLocator* pSvcLocator ) : AthAnalysisAlgorithm( name, pSvcLocator ){
 
-  //declareProperty( "Property", m_nProperty ); //example property declaration
+  //declareProperty( "Property", m_nProperty = 0, "My Example Integer Property" ); //example property declaration
 
 }
 
@@ -79,13 +101,12 @@ StatusCode %(klass)s::initialize() {
 
   //HERE IS AN EXAMPLE
   //We will create a histogram and a ttree and register them to the histsvc
-  //Remember to uncomment the configuration of the histsvc stream in the joboptions
+  //Remember to configure the histsvc stream in the joboptions
   //
-  //ServiceHandle<ITHistSvc> histSvc("THistSvc",name());
-  //TH1D* myHist = new TH1D("myHist","myHist",10,0,10);
-  //CHECK( histSvc->regHist("/MYSTREAM/myHist", myHist) ); //registers histogram to output stream (like SetDirectory in EventLoop)
-  //TTree* myTree = new TTree("myTree","myTree");
-  //CHECK( histSvc->regTree("/MYSTREAM/SubDirectory/myTree", myTree) ); //registers tree to output stream (like SetDirectory in EventLoop) inside a sub-directory
+  //m_myHist = new TH1D("myHist","myHist",100,0,100);
+  //CHECK( histSvc()->regHist("/MYSTREAM/myHist", m_myHist) ); //registers histogram to output stream
+  //m_myTree = new TTree("myTree","myTree");
+  //CHECK( histSvc()->regTree("/MYSTREAM/SubDirectory/myTree", m_myTree) ); //registers tree to output stream inside a sub-directory
 
 
   return StatusCode::SUCCESS;
@@ -116,9 +137,10 @@ StatusCode %(klass)s::execute() {
 
 
   //HERE IS AN EXAMPLE
-  //const xAOD::EventInfo* evtInfo = 0;
-  //CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );
-  //ATH_MSG_INFO("eventNumber=" << evtInfo->eventNumber() );
+  //const xAOD::EventInfo* ei = 0;
+  //CHECK( evtStore()->retrieve( ei , "EventInfo" ) );
+  //ATH_MSG_INFO("eventNumber=" << ei->eventNumber() );
+  //m_myHist->Fill( ei->averageInteractionsPerCrossing() ); //fill mu into histogram
 
 
   setFilterPassed(true); //if got here, assume that means algorithm passed
@@ -143,6 +165,7 @@ StatusCode %(klass)s::beginInputFile() {
 
   return StatusCode::SUCCESS;
 }
+
 
 %(namespace_end)s
 """
@@ -249,7 +272,7 @@ def main(args):
                   print "#use xAODEventInfo xAODEventInfo-* Event/xAOD"
                   print ""
                 if not hasAsgTools:
-                  print "use AsgTools AsgTools-* Control/AthToolSupport"
+                  print "#use AsgTools AsgTools-* Control/AthToolSupport"
                   print ""
                 if not inPrivate: print "end_private"
             if line.startswith("private"): inPrivate=True

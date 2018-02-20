@@ -52,6 +52,11 @@ protected:
   /// The value of the factor is 25/1024 nanoseconds
   static constexpr double s_timeConversionFactor = 25./1024.;
 
+  /// @brief Factor converting pulse length to time
+  ///
+  /// The value of the factor is 0.521 nanoseconds
+  static constexpr double s_pulseLengthFactor = 0.521;
+
   /// @brief Function that transforms time-over-threshold to charge
   ///
   /// Transformation function can be set in steering cards

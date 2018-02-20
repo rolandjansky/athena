@@ -15,6 +15,7 @@
 #include "GaudiKernel/ClassID.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
+#include "GaudiKernel/FileIncident.h"
 
 #include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IAthenaOutputTool.h"
@@ -24,6 +25,7 @@
 
 #include "StoreGate/StoreGateSvc.h"
 #include "SGTools/DataProxy.h"
+#include "SGTools/TransientAddress.h"
 #include "SGTools/ProxyMap.h"
 #include "SGTools/SGIFolder.h"
 #include "SGTools/CLIDRegistry.h"
@@ -72,9 +74,12 @@ namespace {
     : public DataBucketBase
   {
   public:
-    AltDataBucket (void* ptr, CLID clid, const std::type_info& tinfo)
-      : m_ptr (ptr), m_clid (clid), m_tinfo (tinfo)
+    AltDataBucket (void* ptr, CLID clid, const std::type_info& tinfo,
+                   const SG::DataProxy& proxy)
+      : m_proxy(this, makeTransientAddress(clid, proxy).release()),
+        m_ptr (ptr), m_clid (clid), m_tinfo (tinfo)
     {
+      addRef();
     }
 
     virtual const CLID& clID() const override { return m_clid; }
@@ -97,11 +102,38 @@ namespace {
 
     
   private:
+    static
+    std::unique_ptr<SG::TransientAddress>
+    makeTransientAddress (CLID clid, const SG::DataProxy& oldProxy);
+
+    SG::DataProxy m_proxy;
     void* m_ptr;
     CLID  m_clid;
     const std::type_info& m_tinfo;
   };
-}
+
+
+  std::unique_ptr<SG::TransientAddress>
+  AltDataBucket::makeTransientAddress (CLID clid, const SG::DataProxy& oldProxy)
+  {
+    const SG::TransientAddress& oldTad = *oldProxy.transientAddress();
+    auto newTad = std::make_unique<SG::TransientAddress>
+      (clid, oldTad.name());
+    newTad->setAlias (oldTad.alias());
+    for (CLID clid : oldTad.transientID()) {
+      // Note: this will include derived CLIDs.
+      // Strictly speaking, that's not right; however, filtering them
+      // out can break ElementLinks (for example those used by
+      // ShallowAuxContainer).  One will not actually be able to get
+      // a pointer of the derived type, as the conversions in StorableConversion
+      // only support derived->base, not the other way around.
+      newTad->setTransientID (clid);
+    }
+    return newTad;
+  }
+
+
+} // anonymous namespace
 
 
 //****************************************************************************
@@ -336,6 +368,30 @@ void AthenaOutputStream::handle(const Incident& inc) {
             }
          }
       }
+   }
+   else if (inc.type() == "UpdateOutputFile") {
+     const FileIncident* fileInc  = dynamic_cast<const FileIncident*>(&inc);
+     if(fileInc!=nullptr) {
+       if(m_outputName != fileInc->fileName()) {
+	 m_outputName = fileInc->fileName();
+	 ServiceHandle<IIoComponentMgr> iomgr("IoComponentMgr", name());
+	 if(iomgr.retrieve().isFailure()) {
+	   ATH_MSG_FATAL("Cannot retrieve IoComponentMgr from within the incident handler");
+	   return;
+	 }
+	 if(iomgr->io_register(this, IIoComponentMgr::IoMode::WRITE, m_outputName).isFailure()) {
+	   ATH_MSG_FATAL("Cannot register new output name with IoComponentMgr");
+	   return;
+	 }
+       }
+       else {
+	 ATH_MSG_DEBUG("New output file name received through the UpdateOutputFile incident is the same as the already defined output name. Nothing to do");
+       }
+     }
+     else {
+       ATH_MSG_FATAL("Cannot dyn-cast the UpdateOutputFile incident to FileIncident");
+       return;
+     }
    }
    ATH_MSG_DEBUG("Leaving handle");
 }
@@ -588,8 +644,8 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
                    auto altbucket =
                      CxxUtils::make_unique<AltDataBucket>
                        (ptr, item.id(),
-                        *CLIDRegistry::CLIDToTypeinfo (item.id()));
-                   altbucket->setRegistry (itemProxy);
+                        *CLIDRegistry::CLIDToTypeinfo (item.id()),
+                        *itemProxy);
                    m_objects.push_back(altbucket.get());
                    m_ownedObjects.push_back (std::move(altbucket));
                    m_altObjects.push_back (itemProxy->object());
@@ -811,6 +867,7 @@ StatusCode AthenaOutputStream::io_reinit() {
       return StatusCode::FAILURE;
    }
    incSvc->addListener(this, "MetaDataStop", 50);
+   incSvc->addListener(this, "UpdateOutputFile", 50);
    for (std::vector<ToolHandle<IAthenaOutputTool> >::const_iterator iter = m_helperTools.begin();
        iter != m_helperTools.end(); iter++) {
       if (!(*iter)->postInitialize().isSuccess()) {

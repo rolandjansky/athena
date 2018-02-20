@@ -164,12 +164,21 @@ def getSCT_FrontEnd(name="SCT_FrontEnd", **kwargs):
         ServiceMgr += InDetSCT_ReadCalibChipDataSvc
     # DataCompressionMode: 1 is level mode x1x (default), 2 is edge mode 01x, 3 is expanded any hit xxx
     from AthenaCommon.BeamFlags import jobproperties
-    if (jobproperties.Beam.bunchSpacing() <= 50):
+    from AthenaCommon.GlobalFlags import globalflags
+    if digitizationFlags.PileUpPremixing:
+        kwargs.setdefault("DataCompressionMode", 3)
+    elif globalflags.isOverlay() and globalflags.DataSource == 'geant4':
+        kwargs.setdefault("DataCompressionMode", 2)
+    elif (jobproperties.Beam.bunchSpacing() <= 50):
         kwargs.setdefault("DataCompressionMode", 1) 
     else: 
         kwargs.setdefault("DataCompressionMode", 3) 
         kwargs.setdefault("NoiseExpandedMode", True)
-    kwargs.setdefault("DataReadOutMode", 1) # 0 is condensed mode and 1 is expanded mode
+    # DataReadOutMode: 0 is condensed mode and 1 is expanded mode
+    if globalflags.isOverlay() and globalflags.DataSource == 'geant4':
+        kwargs.setdefault("DataReadOutMode", 0)
+    else:
+        kwargs.setdefault("DataReadOutMode", 1)
     from SCT_Digitization.SCT_DigitizationConf import SCT_FrontEnd
     return SCT_FrontEnd(name, **kwargs)
 

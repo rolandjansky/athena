@@ -23,8 +23,8 @@ def getBtagFexSplitInstance( instance, version, algo):
                          PriVtxKey="xPrimVx",TrackKey="InDetTrigTrackingxAODCnv_Bjet_IDTrig")
 
 def getBtagFexFTKInstance( instance, version, algo):
-    return BtagFexSplit( instance=instance, version=version, name=instance+"BtagFexFTK_"+algo,
-                       PriVtxKey="HLT_PrimVertexFTK", TrackKey="InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig")
+    return BtagFex( instance=instance, version=version, name=instance+"BtagFexFTK_"+algo,
+                    PriVtxKey="HLT_PrimVertexFTK", TrackKey="InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig")
 
 def getBtagFexFTKRefitInstance( instance, version, algo):
     return BtagFexSplit( instance=instance, version=version, name=instance+"BtagFexFTKRefit_"+algo,
@@ -37,7 +37,7 @@ def getBtagFexFTKVtxInstance( instance, version, algo):
 class BtagFex (TrigBtagFex):
     __slots__ = []
     
-    def __init__(self, instance, version, name):
+    def __init__(self, instance, version, name, PriVtxKey = "EFHistoPrmVtx", TrackKey = "" ):
         super( BtagFex, self ).__init__( name )
         
         mlog = logging.getLogger('BtagHypoConfig.py')
@@ -54,8 +54,8 @@ class BtagFex (TrigBtagFex):
             return None
         
         self.JetKey = ""       
-        self.PriVtxKey = "EFHistoPrmVtx"
-        self.TrackKey  = ""
+        self.PriVtxKey = PriVtxKey
+        self.TrackKey  = TrackKey
 
         # IMPORT OFFLINE TOOLS
         self.setupOfflineTools = True

@@ -369,7 +369,6 @@
    }//HECHVManager 
 
    const FCALHVManager *hvManager_FCAL=manager->getFCALHVManager();
-   CaloPhiRange _range;  
    for (unsigned int iSide=hvManager_FCAL->beginSideIndex();iSide<hvManager_FCAL->endSideIndex();iSide++) { // loop over HV modules
        float eta_min=3.1,eta_max=4.9;
        if (iSide==0) { eta_min=-4.9; eta_max=-3.1; }
@@ -382,12 +381,12 @@
                  //std::cout << " FCAL HVModule side,sampling,sector " << iSide << " " << iSampling << " " << iSector << std::endl;
                  //std::cout << "   HV nominal " << HVnominal << std::endl;
   
-                 float dphi=_range.twopi()/16;
-                 if (iSampling==1) dphi=_range.twopi()/8.;
-                 if (iSampling==2) dphi=_range.twopi()/4.;
+                 float dphi=CaloPhiRange::twopi()/16;
+                 if (iSampling==1) dphi=CaloPhiRange::twopi()/8.;
+                 if (iSampling==2) dphi=CaloPhiRange::twopi()/4.;
                  float phi_min = ((float)(iSector))*dphi;
-                 phi_min =   _range.fix(phi_min);
-                 float phi_max = _range.fix(dphi+phi_min);
+                 phi_min =   CaloPhiRange::fix(phi_min);
+                 float phi_max = CaloPhiRange::fix(dphi+phi_min);
                  float phi = 0.5*(phi_min+phi_max);
          
                  for (unsigned int iLine=0;iLine<hvMod->getNumHVLines();iLine++) {

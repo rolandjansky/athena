@@ -18,6 +18,7 @@
 #include <xAODEgamma/PhotonContainer.h>
 
 #include "ElectronPhotonSelectorTools/AsgPhotonIsEMSelector.h"
+#include "ElectronPhotonSelectorTools/egammaPIDdefs.h"
 
 class TH1;
 class TGraph;

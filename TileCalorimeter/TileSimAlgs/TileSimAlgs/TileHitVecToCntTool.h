@@ -91,14 +91,15 @@ class TileHitVecToCntTool: public PileUpToolBase {
   private:
     StatusCode createContainers();
     void processHitVectorForOverlay(const TileHitVector* inputHits, int& nHit, double& eHitTot);
-    void processHitVectorForPileUp(const TileHitVector* inputHits, double SubEvtTimOffset, int& nHit, double& eHitTot);
-    void processHitVectorWithoutPileUp(const TileHitVector* inputHits, int& nHit, double& eHitTot);
+    void processHitVectorForPileUp(const TileHitVector* inputHits, double SubEvtTimOffset, int& nHit, double& eHitTot, bool isSignal = false);
+    void processHitVectorWithoutPileUp(const TileHitVector* inputHits, int& nHit, double& eHitTot, TileHitContainer* &m_hitCont);
     double applyPhotoStatistics(double energy, Identifier pmt_id);    //!< Method to apply photostatistics effect
-    void findAndMergeE1(const TileHitCollection* const_coll, int frag_id);
-    void findAndMergeMBTS(const TileHitCollection* const_coll, int frag_id);
+    void findAndMergeE1(const TileHitCollection* const_coll, int frag_id, TileHitContainer* &m_hitCont);
+    void findAndMergeMBTS(const TileHitCollection* const_coll, int frag_id, TileHitContainer* &m_hitCont);
 
     std::vector<std::string> m_hitVectorNames;  //!< vector with the names of TileHitVectors to use
     std::string m_hitContainer;                 //!< name of the TileHitCointainer
+    std::string m_hitContainer_DigiHSTruth;                 //!< name of the TileHitCointainer
     std::string m_infoName;                     //!< name of TileInfo object in TES
     bool m_run2;                                //!< if true => RUN2 geometry with E4' and merged E1
     bool m_pileUp;                              //!< if true => pileup mode is activated
@@ -111,6 +112,7 @@ class TileHitVecToCntTool: public PileUpToolBase {
     bool m_skipNoHit;                           //!< if true => skip events with no Tile hits 
     bool m_rndmEvtOverlay;                      //!< If true => overlay with random event (zero-luminosity pile-up)
     bool m_useTriggerTime;                      //!< if true => take trigger time from external tool or from m_triggerTime
+    bool m_doDigiTruth;                       //!
     ToolHandle<ITriggerTime> m_triggerTimeTool; //!< tool to take the time from
 
     PileUpMergeSvc* m_mergeSvc;                 //!< Pointer to PileUpMergeService
@@ -125,7 +127,10 @@ class TileHitVecToCntTool: public PileUpToolBase {
     ServiceHandle<IAtRndmGenSvc> m_rndmSvc;     //!< Random number generator engine to use
 
     std::vector<TileHit*> m_allHits;           //!< vector for all TileHits
+    std::vector<TileHit*> m_allHits_DigiHSTruth;           //!< vector for all TileHits
     TileHitContainer* m_hits;                   //!< pointer to hits container
+    TileHitContainer* m_hits_DigiHSTruth;                   //!< pointer to hits container
+
 
     bool m_doChecks;                             //!< initial value of do_checks flag in TileID helper
     bool m_doChecksTB;                          //!< initial value of do_checks flag in TileTBID helper

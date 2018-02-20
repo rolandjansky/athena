@@ -1,6 +1,6 @@
-#! /usr/bin/env python
+#  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+#! /usr/bin/env python
 
 """
 Run event simulation and produce an EVNT file.
@@ -14,6 +14,7 @@ from PyJobTransforms.trfArgs import addAthenaArguments
 from PyJobTransforms.trfDecorators import stdTrfExceptionHandler, sigUsrStackTrace
 from EvgenJobTransforms.evgenTrfArgs import addStdEvgenArgs
 import PyJobTransforms.trfArgClasses as trfArgClasses
+from EvgenJobTransforms.jo_proxy import mk_jo_proxy
 
 
 ## Prodsys1 hack...
@@ -45,36 +46,6 @@ class EvgenExecutor(athenaExecutor):
                 zf = zipfile.ZipFile(filename)
                 zf.extractall()
                 zf.close()
-
-        def get_immediate_subdirectories(a_dir):
-            return [name for name in os.listdir(a_dir)
-                    if os.path.isdir(os.path.join(a_dir, name))]                
-
-        def mk_jo_proxy(targetbasepath, pkgname, proxypath, addtosearch=True):
-            "Make a JO proxy dir such that the MCxxJobOptions/dddd dirs contents are found via include(MCxxJobOptions/yyyy)"
-            if proxypath:
-                if os.path.exists(proxypath):
-                    shutil.rmtree(proxypath)
-                os.mkdir(proxypath)
-            os.environ['LOCAL_INSTALL_DIR'] = (os.environ['JOBOPTSEARCHPATH']).split(":")[0]
-            comdir = os.path.join(targetbasepath, "common")
-            subdirlist = get_immediate_subdirectories(comdir)
-            subdirlist1 = ['common/%s' % item for item in subdirlist]
-            dirlist = ['common','share','gencontrol','susycontrol']
-            for d in (dirlist+subdirlist1):
-                # TODO: we could _maybe_ add the appropriate share/DSIDxxxx/ dir to the path based on the jobConfig arg... too much magic?
-                if (d != 'common/.svn'):
-                  dpath = os.path.join(proxypath, d)
-
-                  if proxypath:
-                    os.mkdir(dpath)
-                    os.symlink(os.path.join(targetbasepath, d), os.path.join(dpath, pkgname))
-                  if addtosearch:
-                    os.environ["JOBOPTSEARCHPATH"] = dpath+":"+os.environ["JOBOPTSEARCHPATH"]
-                    os.environ["DATAPATH"] =os.path.join(targetbasepath, d)+":"+os.environ["DATAPATH"]
-
-            os.environ["JOBOPTSEARCHPATH"] = os.environ['LOCAL_INSTALL_DIR']+":"+os.environ["JOBOPTSEARCHPATH"]
-        
 
         ## Handle locating of evgen job options / fragments, either from a tarball or CVMFS
         if "evgenJobOpts" in self._trf.argdict: ## Use a specified JO tarball

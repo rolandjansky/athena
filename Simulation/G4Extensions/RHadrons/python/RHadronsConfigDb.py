@@ -2,4 +2,6 @@
 
 from AthenaCommon.CfgGetter import addTool
 
-addTool("RHadrons.RHadronsToolsConf.SG_StepNtuple", "SG_StepNtuple")
+addTool("RHadrons.RHadronsConfig.getSG_StepNtupleTool", "G4UA::SG_StepNtupleTool")
+addTool("RHadrons.RHadronsConfig.getRHadronsPythiaPhysicsTool", "RHadronsPythiaPhysicsTool")
+addTool("RHadrons.RHadronsConfig.getRHadronsPythia8PhysicsTool", "RHadronsPythia8PhysicsTool")
