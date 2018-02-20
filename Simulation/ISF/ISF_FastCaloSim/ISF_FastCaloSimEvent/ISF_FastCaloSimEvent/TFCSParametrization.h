@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FASTCALOSIMEVENT_TFCSParametrization_h
@@ -9,7 +9,7 @@
 
 class TFCSParametrization:public ::TFCSParametrizationBase {
 public:
-  TFCSParametrization(const char* name=0, const char* title=0);
+  TFCSParametrization(const char* name=nullptr, const char* title=nullptr);
   void clear();
 
   virtual bool is_match_pdgid(int id) const {return m_pdgid.find(id)!=m_pdgid.end();};
@@ -44,7 +44,7 @@ private:
   ClassDef(TFCSParametrization,1)  //TFCSParametrization
 };
 
-#if defined(__MAKECINT__) && defined(__FastCaloSimStandAlone__)
+#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
 #pragma link C++ class TFCSParametrization+;
 #endif
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FASTCALOSIMEVENT_TFCSTruthState_h
@@ -28,7 +28,7 @@ class TFCSTruthState:public TLorentzVector {
   ClassDef(TFCSTruthState,1)  //TFCSTruthState
 };
 
-#if defined(__MAKECINT__) && defined(__FastCaloSimStandAlone__)
+#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
 #pragma link C++ class TFCSTruthState+;
 #endif
 

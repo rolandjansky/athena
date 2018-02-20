@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TFCSLateralShapeParametrization_h
@@ -9,7 +9,7 @@
 
 class TFCSLateralShapeParametrization:public TFCSParametrization {
 public:
-  TFCSLateralShapeParametrization(const char* name=0, const char* title=0);
+  TFCSLateralShapeParametrization(const char* name=nullptr, const char* title=nullptr);
 
   bool is_match_Ekin_bin(int Ekin_bin) const {return Ekin_bin==m_Ekin_bin;};
   bool is_match_calosample(int calosample) const {return calosample==m_calosample;};
@@ -20,11 +20,6 @@ public:
   int calosample() const {return m_calosample;};
   void set_calosample(int cs);
 
-  // simulated one hit position with weight that should be put into simulstate
-  // sometime later all hit weights should be resacled such that their final sum is simulstate->E(sample)
-  // someone also needs to map all hits into cells
-  virtual void simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol);
-
   void Print(Option_t *option = "") const;
 private:
   int m_Ekin_bin;
@@ -33,7 +28,7 @@ private:
   ClassDef(TFCSLateralShapeParametrization,1)  //TFCSLateralShapeParametrization
 };
 
-#if defined(__MAKECINT__) && defined(__FastCaloSimStandAlone__)
+#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
 #pragma link C++ class TFCSLateralShapeParametrization+;
 #endif
 

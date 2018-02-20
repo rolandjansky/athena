@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TFCSLateralShapeParametrizationHitNumberFromE_h
@@ -13,7 +13,19 @@
 
 class TFCSLateralShapeParametrizationHitNumberFromE:public TFCSLateralShapeParametrizationHitBase {
 public:
-  TFCSLateralShapeParametrizationHitNumberFromE(const char* name=0, const char* title=0,double stochastic=0.1,double constant=0);
+  /// LAr: 10.1%/sqrt(E)
+  ///    stochastic=0.101;
+  ///    constant=0.002;
+  /// HadEC: 21.4%/sqrt(E)
+  ///    stochastic=0.214;
+  ///    constant=0.0;
+  /// TileCal: 56.4%/sqrt(E)
+  ///    stochastic=0.564;
+  ///    constant=0.055;
+  /// FCAL:    28.5%/sqrt(E)
+  ///    stochastic=0.285;
+  ///    constant=0.035;
+  TFCSLateralShapeParametrizationHitNumberFromE(const char* name=nullptr, const char* title=nullptr,double stochastic=0.1,double constant=0);
 
   int get_number_of_hits(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const;
 
@@ -26,7 +38,7 @@ private:
   ClassDef(TFCSLateralShapeParametrizationHitNumberFromE,1)  //TFCSLateralShapeParametrizationHitNumberFromE
 };
 
-#if defined(__MAKECINT__) && defined(__FastCaloSimStandAlone__)
+#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
 #pragma link C++ class TFCSLateralShapeParametrizationHitNumberFromE+;
 #endif
 

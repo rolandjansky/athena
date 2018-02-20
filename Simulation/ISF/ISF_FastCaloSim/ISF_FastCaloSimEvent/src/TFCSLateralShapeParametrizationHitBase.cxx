@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitBase.h"
@@ -7,8 +7,6 @@
 
 #include "ISF_FastCaloSimEvent/TFCSSimulationState.h"
 #include "ISF_FastCaloSimEvent/TFCSExtrapolationState.h"
-
-#include <iostream>
 
 //=============================================
 //======= TFCSLateralShapeParametrization =========
@@ -33,12 +31,11 @@ int TFCSLateralShapeParametrizationHitBase::get_number_of_hits(TFCSSimulationSta
   return -1;
 }
 
-void TFCSLateralShapeParametrizationHitBase::simulate_hit(t_hit& hit,TFCSSimulationState& /*simulstate*/,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* extrapol)
+void TFCSLateralShapeParametrizationHitBase::simulate_hit(Hit& hit,TFCSSimulationState& /*simulstate*/,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* extrapol)
 {
   int cs=calosample();
   hit.eta()=0.5*( extrapol->eta(cs, CaloSubPos::SUBPOS_ENT) + extrapol->eta(cs, CaloSubPos::SUBPOS_EXT) );
   hit.phi()=0.5*( extrapol->phi(cs, CaloSubPos::SUBPOS_ENT) + extrapol->phi(cs, CaloSubPos::SUBPOS_EXT) );
-  hit.E()*=1;
 }
 
 void TFCSLateralShapeParametrizationHitBase::Print(Option_t *option) const
@@ -47,13 +44,6 @@ void TFCSLateralShapeParametrizationHitBase::Print(Option_t *option) const
   if(!opt.IsWhitespace()) opt="";
   TFCSParametrization::Print(option);
 
-  std::cout << opt <<"  Ekin_bin="<<Ekin_bin()<<std::endl;
-  std::cout << opt <<"  calosample="<<calosample()<<std::endl;
+  ATH_MSG_INFO(opt <<"  Ekin_bin="<<Ekin_bin());
+  ATH_MSG_INFO(opt <<"  calosample="<<calosample());
 }
-
-//=============================================
-//========== ROOT persistency stuff ===========
-//=============================================
-
-ClassImp(TFCSLateralShapeParametrizationHitBase)
-

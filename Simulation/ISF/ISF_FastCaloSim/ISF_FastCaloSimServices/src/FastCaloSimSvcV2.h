@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -149,7 +149,7 @@ namespace ISF {
       double phi_isfp;
       double R;
       
-      IntArray *m_layers;
+      std::vector<int> m_layers;
       double r_layer;
       double z_particle;
       int layer;
@@ -164,7 +164,7 @@ namespace ISF {
       
       TFCSSimulationState simulstate;
       // iterator over layers
-      int ilayer;
+      unsigned int ilayer;
 
       //** Array for the hit-to-cell assignment accordion structure fix (wiggle)  **//
       //** To be moved to the conditions database at some point **// 

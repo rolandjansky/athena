@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FASTCALOSIMEVENT_TFCSSimulationState_h
@@ -29,10 +29,10 @@ class TFCSSimulationState:public TObject
     void set_E(double E) { m_Etot=E; } ;
     void add_E(int sample,double Esample) { m_E[sample]+=Esample;m_Etot+=Esample; };
 
-    typedef std::map<const CaloDetDescrElement*,float> t_cellmap;
+    typedef std::map<const CaloDetDescrElement*,float> Cellmap_t;
 
-    t_cellmap& cells() {return m_cells;};
-    const t_cellmap& cells() const {return m_cells;};
+    Cellmap_t& cells() {return m_cells;};
+    const Cellmap_t& cells() const {return m_cells;};
     void deposit(const CaloDetDescrElement* cellele, float E);
     
     void Print(Option_t *option="") const;
@@ -45,12 +45,12 @@ class TFCSSimulationState:public TObject
     double m_E[CaloCell_ID_FCS::MaxSample];
     double m_Efrac[CaloCell_ID_FCS::MaxSample];
     
-    t_cellmap m_cells;
+    Cellmap_t m_cells;
     
   ClassDef(TFCSSimulationState,1)  //TFCSSimulationState
 };
 
-#if defined(__MAKECINT__) && defined(__FastCaloSimStandAlone__)
+#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
 #pragma link C++ class TFCSSimulationState+;
 #endif
 

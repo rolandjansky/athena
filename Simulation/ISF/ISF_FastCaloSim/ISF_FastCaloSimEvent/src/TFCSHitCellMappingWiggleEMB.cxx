@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimEvent/TFCSHitCellMappingWiggleEMB.h"
 #include "ISF_FastCaloSimEvent/TFCSSimulationState.h"
-#include <iostream>
 #include "TRandom3.h"
 #include "TVector2.h"
 #include "TMath.h"
@@ -74,7 +73,7 @@ double TFCSHitCellMappingWiggleEMB::doWiggle()
  return wiggle;
 }
 
-void TFCSHitCellMappingWiggleEMB::simulate_hit(t_hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol)
+void TFCSHitCellMappingWiggleEMB::simulate_hit(Hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol)
 {
   int cs=calosample();
 
@@ -86,9 +85,3 @@ void TFCSHitCellMappingWiggleEMB::simulate_hit(t_hit& hit,TFCSSimulationState& s
   
   TFCSHitCellMapping::simulate_hit(hit,simulstate,truth,extrapol);
 }
-
-//=============================================
-//========== ROOT persistency stuff ===========
-//=============================================
-
-ClassImp(TFCSHitCellMappingWiggleEMB)

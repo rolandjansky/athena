@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimParametrization/TFCSSimpleLateralShapeParametrization.h"
@@ -18,13 +18,15 @@ TFCSSimpleLateralShapeParametrization::TFCSSimpleLateralShapeParametrization(con
 {
     m_sigmaX = 0;
     m_sigmaY = 0;
+}
 
-    //sigma2_x = 0;
-    //sigma2_y = 0;
+TFCSSimpleLateralShapeParametrization::~TFCSSimpleLateralShapeParametrization()
+{
+  if(m_rnd) delete m_rnd;
 }
 
 
-void TFCSSimpleLateralShapeParametrization::simulate_hit(t_hit& hit,TFCSSimulationState& /*simulstate*/,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* extrapol)
+void TFCSSimpleLateralShapeParametrization::simulate_hit(Hit& hit,TFCSSimulationState& /*simulstate*/,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* extrapol)
 {
   int cs=calosample();
   hit.eta()=0.5*( extrapol->eta(cs, CaloSubPos::SUBPOS_ENT) + extrapol->eta(cs, CaloSubPos::SUBPOS_EXT) );
@@ -40,7 +42,6 @@ void TFCSSimpleLateralShapeParametrization::simulate_hit(t_hit& hit,TFCSSimulati
 
   hit.eta() += delta_eta;
   hit.phi() += delta_phi;
-  //simulstate.deposit_HIT(cs,hit_eta,hit_phi,hit_weight);
 }
 
 
@@ -72,13 +73,8 @@ bool TFCSSimpleLateralShapeParametrization::Initialize(const char* filepath, con
 
     // Function to fit with
     double hiEdge  = inputShape->GetYaxis()->GetBinLowEdge( inputShape->GetNbinsY() );
-    //TF1 *x_func = new TF1("dlbgx","gaus(0)+gaus(3)",-hiEdge,hiEdge);
-    //TF1 *y_func = new TF1("dlbgy","gaus(0)+gaus(3)",-hiEdge,hiEdge);
     TF1 *x_func = new TF1("fx","gaus",-hiEdge,hiEdge);
     TF1 *y_func = new TF1("fy","gaus",-hiEdge,hiEdge);
-
-    //test
-    //TFile *out = new TFile("out.root","recreate");
 
     // Project into x and y histograms
     TH1F *h_xrms = new TH1F("h_xrms","h_xrms",100,-hiEdge,hiEdge);
@@ -118,10 +114,6 @@ bool TFCSSimpleLateralShapeParametrization::Initialize(const char* filepath, con
     TF1 *fity = h_yrms->GetFunction("fy");
     // posibly center
 
-    //test
-    //out->Write();
-    //out->Close();
-
     // Finally set sigma
     m_sigmaX = fitx->GetParameter(2);
     m_sigmaY = fity->GetParameter(2);
@@ -147,8 +139,3 @@ void TFCSSimpleLateralShapeParametrization::getHitXY(double &x, double &y)
 
 }
 
-//=============================================
-//========== ROOT persistency stuff ===========
-//=============================================
-
-ClassImp(TFCSSimpleLateralShapeParametrization)

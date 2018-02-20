@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FASTCALOSIMEVENT_TFCSEnergyParametrization_h
@@ -9,20 +9,20 @@
 
 class TFCSEnergyParametrization:public TFCSParametrization {
 public:
-  TFCSEnergyParametrization(const char* name=0, const char* title=0);
+  TFCSEnergyParametrization(const char* name=nullptr, const char* title=nullptr);
 
   virtual bool is_match_Ekin_bin(int /*Ekin_bin*/) const {return true;};
   virtual bool is_match_calosample(int /*calosample*/) const {return true;};
 
   // return number of energy parametrization bins
-  virtual int n_bins() {return 0;};
+  virtual int n_bins() const {return 0;};
 
 private:
 
   ClassDef(TFCSEnergyParametrization,1)  //TFCSEnergyParametrization
 };
 
-#if defined(__MAKECINT__) && defined(__FastCaloSimStandAlone__)
+#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
 #pragma link C++ class TFCSEnergyParametrization+;
 #endif
 

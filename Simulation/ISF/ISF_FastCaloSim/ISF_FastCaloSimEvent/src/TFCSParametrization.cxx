@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimEvent/TFCSParametrization.h"
@@ -74,9 +74,3 @@ void TFCSParametrization::set_eta_max(double max)
 {
   m_eta_max=max;
 }
-
-//=============================================
-//========== ROOT persistency stuff ===========
-//=============================================
-
-//ClassImp(TFCSParametrization)

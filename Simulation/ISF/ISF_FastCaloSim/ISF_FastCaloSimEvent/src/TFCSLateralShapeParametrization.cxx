@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrization.h"
 #include "ISF_FastCaloSimEvent/FastCaloSim_CaloCell_ID.h"
-#include <iostream>
 
 //=============================================
 //======= TFCSLateralShapeParametrization =========
@@ -24,28 +23,11 @@ void TFCSLateralShapeParametrization::set_calosample(int cs)
   m_calosample=cs;
 }
 
-void TFCSLateralShapeParametrization::simulate(TFCSSimulationState& /*simulstate*/,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/)
-{
-//  int cs=calosample();
-//  double hit_eta=0.5*( extrapol->eta(cs, CaloSubPos::SUBPOS_ENT) + extrapol->eta(cs, CaloSubPos::SUBPOS_EXT) );
-//  double hit_phi=0.5*( extrapol->phi(cs, CaloSubPos::SUBPOS_ENT) + extrapol->phi(cs, CaloSubPos::SUBPOS_EXT) );
-//  double hit_weight=1;
-
-//  simulstate.deposit_HIT(cs,hit_eta,hit_phi,hit_weight);
-}
-
 void TFCSLateralShapeParametrization::Print(Option_t *option) const
 {
   TString opt(option);
   if(!opt.IsWhitespace()) opt="";
   TFCSParametrization::Print(option);
-  std::cout << opt <<"  Ekin_bin="<<Ekin_bin()<<std::endl;
-  std::cout << opt <<"  calosample="<<calosample()<<std::endl;
+  ATH_MSG_INFO(opt <<"  Ekin_bin="<<Ekin_bin());
+  ATH_MSG_INFO(opt <<"  calosample="<<calosample());
 }
-
-//=============================================
-//========== ROOT persistency stuff ===========
-//=============================================
-
-ClassImp(TFCSLateralShapeParametrization)
-

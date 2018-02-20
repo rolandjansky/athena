@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitChain.h"
 #include "ISF_FastCaloSimEvent/FastCaloSim_CaloCell_ID.h"
-#include <iostream>
 
 #include "ISF_FastCaloSimEvent/TFCSSimulationState.h"
 
@@ -12,11 +11,11 @@
 //======= TFCSLateralShapeParametrization =========
 //=============================================
 
-TFCSLateralShapeParametrizationHitChain::TFCSLateralShapeParametrizationHitChain(const char* name, const char* title):TFCSLateralShapeParametrization(name,title),m_number_of_hits_simul(NULL)
+TFCSLateralShapeParametrizationHitChain::TFCSLateralShapeParametrizationHitChain(const char* name, const char* title):TFCSLateralShapeParametrization(name,title),m_number_of_hits_simul(nullptr)
 {
 }
 
-TFCSLateralShapeParametrizationHitChain::TFCSLateralShapeParametrizationHitChain(TFCSLateralShapeParametrizationHitBase* hitsim):TFCSLateralShapeParametrization(TString("hit_chain_")+hitsim->GetName(),TString("hit chain for ")+hitsim->GetTitle()),m_number_of_hits_simul(NULL)
+TFCSLateralShapeParametrizationHitChain::TFCSLateralShapeParametrizationHitChain(TFCSLateralShapeParametrizationHitBase* hitsim):TFCSLateralShapeParametrization(TString("hit_chain_")+hitsim->GetName(),TString("hit chain for ")+hitsim->GetTitle()),m_number_of_hits_simul(nullptr)
 {
   set_calosample(hitsim->calosample());
   
@@ -39,8 +38,6 @@ void TFCSLateralShapeParametrizationHitChain::set_geometry(ICaloGeometry* geo)
   for(TFCSLateralShapeParametrizationHitBase* hitsim : m_chain) hitsim->set_geometry(geo);
 }
 
-
-
 int TFCSLateralShapeParametrizationHitChain::get_number_of_hits(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const
 {
   if(m_number_of_hits_simul) {
@@ -62,7 +59,7 @@ void TFCSLateralShapeParametrizationHitChain::simulate(TFCSSimulationState& simu
 
   float Ehit=simulstate.E(calosample())/nhit;
   for(int i=0;i<nhit;++i) {
-    TFCSLateralShapeParametrizationHitBase::t_hit hit; 
+    TFCSLateralShapeParametrizationHitBase::Hit hit; 
     hit.E()=Ehit;
     for(TFCSLateralShapeParametrizationHitBase* hitsim : m_chain) {
       //std::cout<<"  do "<<hitsim->ClassName()<<":"<<hitsim->GetName()<<" hit="<<i<<std::endl;
@@ -77,17 +74,11 @@ void TFCSLateralShapeParametrizationHitChain::Print(Option_t *option) const
   TString opt(option);
   if(!opt.IsWhitespace()) opt=option; else opt=opt+"  ";
   if(m_number_of_hits_simul) {
-    std::cout << opt <<"#hits";
+    ATH_MSG_INFO(opt <<"#hits simulation:");
     m_number_of_hits_simul->Print(opt);
   }
+  ATH_MSG_INFO(opt <<"Simulation chain:");
   for(TFCSLateralShapeParametrizationHitBase* hitsim : m_chain) {
     hitsim->Print(opt);
   } 
 }
-
-//=============================================
-//========== ROOT persistency stuff ===========
-//=============================================
-
-ClassImp(TFCSLateralShapeParametrizationHitChain)
-

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TFCSSimpleLateralShapeParametrization_h
@@ -14,12 +14,13 @@
 
 class TFCSSimpleLateralShapeParametrization:public TFCSLateralShapeParametrizationHitBase {
 public:
-  TFCSSimpleLateralShapeParametrization(const char* name=0, const char* title=0);
+  TFCSSimpleLateralShapeParametrization(const char* name=nullptr, const char* title=nullptr);
+  ~TFCSSimpleLateralShapeParametrization();
 
   // simulated one hit position with weight that should be put into simulstate
   // sometime later all hit weights should be resacled such that their final sum is simulstate->E(sample)
   // someone also needs to map all hits into cells
-  virtual void simulate_hit(t_hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol);
+  virtual void simulate_hit(Hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol);
 
   // Init and fill sigma
   bool Initialize(const char* filepath, const char* histname);
@@ -47,7 +48,7 @@ private:
   ClassDef(TFCSSimpleLateralShapeParametrization,1)  //TFCSSimpleLateralShapeParametrization
 };
 
-#if defined(__MAKECINT__) && defined(__FastCaloSimStandAlone__)
+#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
 #pragma link C++ class TFCSSimpleLateralShapeParametrization+;
 #endif
 

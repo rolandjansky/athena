@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FASTCALOSIMEVENT_TFCSParametrizationChain_h
@@ -9,11 +9,14 @@
 
 class TFCSParametrizationChain:public TFCSParametrization {
 public:
-  TFCSParametrizationChain(const char* name=0, const char* title=0):TFCSParametrization(name,title) {};
+  TFCSParametrizationChain(const char* name=nullptr, const char* title=nullptr):TFCSParametrization(name,title) {};
   TFCSParametrizationChain(const TFCSParametrizationChain& ref):TFCSParametrization(ref.GetName(),ref.GetTitle()),m_chain(ref.chain()) {};
 
-  const std::vector< TFCSParametrizationBase* >& chain() const {return m_chain;};
-  void push_back(TFCSParametrizationBase* param) {m_chain.push_back(param);recalc();};
+  typedef std::vector< TFCSParametrizationBase* > Chain_t;
+  Chain_t::size_type size() const {return m_chain.size();};
+  const Chain_t& chain() const {return m_chain;};
+  Chain_t& chain() {return m_chain;};
+  void push_back(const Chain_t::value_type& param) {m_chain.push_back(param);recalc();};
 
   virtual void set_geometry(ICaloGeometry* geo);
   
@@ -24,14 +27,14 @@ public:
 
   void Print(Option_t *option = "") const;
 private:
-  std::vector< TFCSParametrizationBase* > m_chain;
+  Chain_t m_chain;
   
   void recalc();
 
   ClassDef(TFCSParametrizationChain,1)  //TFCSParametrizationChain
 };
 
-#if defined(__MAKECINT__) && defined(__FastCaloSimStandAlone__)
+#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
 #pragma link C++ class TFCSParametrizationChain+;
 #endif
 
