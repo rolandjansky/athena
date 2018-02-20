@@ -86,7 +86,7 @@ class SCT_ConfigurationConditionsSvcSetup:
         from AthenaCommon.AlgSequence import AthSequencer
         condSeq = AthSequencer("AthCondSeq")
         if not hasattr(condSeq, self.algName):
-            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConfigurationCondAlg
+            from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_ConfigurationCondAlg
             condSeq += SCT_ConfigurationCondAlg(name = self.algName,
                                                 ReadKeyChannel = self.channelFolder,
                                                 ReadKeyModule = self.moduleFolder,

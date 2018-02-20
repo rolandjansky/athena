@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
  * @file SCT_SensorsTestAlg.cxx
  *
  * @brief Implementation file for the SCT_SensorsTestAlg class 
- * in package SCT_ConditionsServices
+ * in package SCT_ConditionsAlgorithms
  *
  * @author Shaun Roe
  **/
@@ -37,17 +37,13 @@ SCT_SensorsTestAlg::SCT_SensorsTestAlg(const std::string& name,
   //nop
 }
 
-SCT_SensorsTestAlg::~SCT_SensorsTestAlg()
-{ 
-}
-
 //Initialize
 StatusCode SCT_SensorsTestAlg::initialize(){
   StatusCode sc(StatusCode::SUCCESS);
-  msg(MSG::INFO) << "Calling initialize" << endmsg;
+  ATH_MSG_INFO("Calling initialize");
   sc = m_SensorsSvc.retrieve();
   if (StatusCode::SUCCESS not_eq sc) {
-    msg(MSG::ERROR)<<"Could not retrieve the service"<<endmsg;
+    ATH_MSG_ERROR("Could not retrieve the service");
   }
   return sc;
 }
@@ -57,11 +53,11 @@ StatusCode SCT_SensorsTestAlg::execute(){
   //This method is only used to test the summary service, and only used within this package,
   // so the INFO level messages have no impact on performance of these services when used by clients
   StatusCode sc(StatusCode::SUCCESS);
-  msg(MSG::INFO) << "Calling execute" << endmsg;
+  ATH_MSG_INFO("Calling execute");
   std::vector<std::string> values;
   m_SensorsSvc->getSensorsData(values);
   for (std::vector<std::string>::const_iterator i=values.begin();i!=values.end();++i){
-    cout<< "------------" << *i << "------------" <<endl;
+    ATH_MSG_INFO("------------" << *i << "------------");
   }
   m_SensorsSvc->printManufacturers();
   return sc;
@@ -70,7 +66,6 @@ StatusCode SCT_SensorsTestAlg::execute(){
 //Finalize
 StatusCode SCT_SensorsTestAlg::finalize(){
   StatusCode sc(StatusCode::SUCCESS);
-  MsgStream log(msgSvc(),name());
-  log << MSG::INFO << "Calling finalize" << endmsg;
+  ATH_MSG_INFO("Calling finalize");
   return sc;
 }

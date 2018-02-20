@@ -50,7 +50,7 @@ class SCT_SiliconConditionsSvcSetup:
         condSeq = AthSequencer("AthCondSeq")
 
         if not hasattr(condSeq, self.hvAlgName):
-            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SiliconHVCondAlg
+            from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_SiliconHVCondAlg
             if self.dcsSvc is None:
                 condSeq += SCT_SiliconHVCondAlg(name = self.hvAlgName)
             else:
@@ -60,7 +60,7 @@ class SCT_SiliconConditionsSvcSetup:
         self.hvAlg = getattr(condSeq, self.hvAlgName)
 
         if not hasattr(condSeq, self.tempAlgName):
-            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SiliconTempCondAlg
+            from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_SiliconTempCondAlg
             if self.dcsSvc is None:
                 condSeq += SCT_SiliconTempCondAlg(name = self.tempAlgName)
             else:

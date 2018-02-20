@@ -105,7 +105,7 @@ class SCT_DCSConditionsSvcSetup:
         
         if ((self.readAllDBFolders and self.returnHVTemp) or (not self.readAllDBFolders and not self.returnHVTemp)):
             if not hasattr(condSeq, self.stateAlgName):
-                from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsStatCondAlg
+                from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_DCSConditionsStatCondAlg
                 condSeq += SCT_DCSConditionsStatCondAlg(name = self.stateAlgName,
                                                         ReturnHVTemp = self.returnHVTemp,
                                                         ReadKeyHV = self.hvFolder,
@@ -114,13 +114,13 @@ class SCT_DCSConditionsSvcSetup:
 
         if ((self.readAllDBFolders and self.returnHVTemp) or self.returnHVTemp):
             if not hasattr(condSeq, self.hvAlgName):
-                from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsHVCondAlg
+                from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_DCSConditionsHVCondAlg
                 condSeq += SCT_DCSConditionsHVCondAlg(name = self.hvAlgName,
                                                       ReadKey = self.hvFolder)
             self.hvAlg = getattr(condSeq, self.hvAlgName)
 
             if not hasattr(condSeq, self.tempAlgName):
-                from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsTempCondAlg
+                from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_DCSConditionsTempCondAlg
                 condSeq += SCT_DCSConditionsTempCondAlg(name = self.tempAlgName,
                                                         ReadKey = self.tempFolder)
             self.tempAlg = getattr(condSeq, self.tempAlgName)

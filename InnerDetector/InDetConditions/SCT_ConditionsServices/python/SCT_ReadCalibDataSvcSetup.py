@@ -34,7 +34,7 @@ class SCT_ReadCalibDataSvcSetup:
         from AthenaCommon.AlgSequence import AthSequencer
         condSeq = AthSequencer("AthCondSeq")
         if not hasattr(condSeq, self.algName):
-            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibDataCondAlg
+            from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_ReadCalibDataCondAlg
             condSeq += SCT_ReadCalibDataCondAlg(name = self.algName,
                                                 ReadKeyGain = self.gainFolder,
                                                 ReadKeyNoise = self.noiseFolder)
