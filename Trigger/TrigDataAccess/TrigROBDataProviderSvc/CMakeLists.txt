@@ -9,6 +9,7 @@ atlas_subdir( TrigROBDataProviderSvc )
 atlas_depends_on_subdirs( PUBLIC
                           Event/ByteStreamData
                           GaudiKernel
+                          Trigger/TrigEvent/TrigSteeringEvent	
                           PRIVATE
                           Control/CxxUtils
                           Control/StoreGate
