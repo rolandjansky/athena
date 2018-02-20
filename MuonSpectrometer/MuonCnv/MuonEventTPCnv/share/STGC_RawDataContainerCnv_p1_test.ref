@@ -8,7 +8,7 @@ JobOptionsSvc        INFO Job options successfully read in from ../share/MuonEve
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v30r1)
-                                          running on pcumass4 on Tue Feb 20 15:43:38 2018
+                                          running on pcumass4 on Tue Feb 20 15:49:09 2018
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : StoreGate, CLIDComps
 ApplicationMgr       INFO Application Manager Configured successfully
