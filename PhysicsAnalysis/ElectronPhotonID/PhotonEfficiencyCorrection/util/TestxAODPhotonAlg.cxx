@@ -101,8 +101,8 @@ int main( int argc, char* argv[] ) {
 
    //Set Properties for PhotonTrig_SF tool
    //CHECK(photonSF_Trig.setProperty("MapFilePath","PhotonEfficiencyCorrection/map0.txt"));
-   CHECK(photonSF_Trig.setProperty("IsoKey","Loose"));  // Set isolation WP: Loose,Tight,TightCaloOnly
-   CHECK(photonSF_Trig.setProperty("TriggerKey","HLT_g20_tight_icalovloose_L1EM15VHI"));        // Set photon trigger
+   CHECK(photonSF_Trig.setProperty("IsoKey","Loose"));  // Set isolation WP: Loose,TightCaloOnly
+   CHECK(photonSF_Trig.setProperty("TriggerKey","HLT_g22_tight_L1EM15VHI"));        // Set photon trigger
    CHECK(photonSF_Trig.setProperty("ForceDataType",1)); //set data type: 1 for FULLSIM, 3 for AF2
 
    // If the Pileup reweighting tool is not initialized, one can use next properties:

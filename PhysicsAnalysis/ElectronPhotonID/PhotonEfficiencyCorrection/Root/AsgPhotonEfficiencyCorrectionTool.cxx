@@ -33,14 +33,14 @@
 // ROOT includes
 #include "TSystem.h"
 
-#define MAXETA 2.47
+#define MAXETA 2.37
 #define MIN_ET 10000.0
 #define MIN_ET_OF_SF 10000.0
 #define MIN_ET_Iso_SF 10000.0
 #define MIN_ET_Trig_SF 10000.0
 #define MAX_ET_OF_SF 1499999.99
 #define MAX_ET_Iso_SF 999999.99
-#define MAX_ET_Trig_SF 99999.99
+#define MAX_ET_Trig_SF 999999.99
 
 
 // =============================================================================
