@@ -15,7 +15,7 @@
 #include "SCT_ConditionsData/SCT_ModuleCalibParameter.h"
 #include "SCT_ConditionsData/SCT_ModuleGainCalibData.h"
 #include "SCT_ConditionsData/SCT_ModuleNoiseCalibData.h"
-#include "SCT_ReadCalibChipUtilities.h"
+#include "SCT_ConditionsServices/SCT_ReadCalibChipUtilities.h"
 
 // Include Gaudi stuff
 #include "GaudiKernel/StatusCode.h"

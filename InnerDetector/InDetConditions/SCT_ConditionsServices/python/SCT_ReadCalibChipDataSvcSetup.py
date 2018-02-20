@@ -62,12 +62,12 @@ class SCT_ReadCalibChipDataSvcSetup:
         from AthenaCommon.AlgSequence import AthSequencer
         condSeq = AthSequencer("AthCondSeq")
         if not hasattr(condSeq, self.noiseAlgName):
-            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibChipNoiseCondAlg
+            from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_ReadCalibChipNoiseCondAlg
             condSeq += SCT_ReadCalibChipNoiseCondAlg(name = self.noiseAlgName,
                                                      ReadKey=self.noiseFolder)
         self.noiseAlg = getattr(condSeq, self.noiseAlgName)
         if not hasattr(condSeq, self.gainAlgName):
-            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibChipGainCondAlg
+            from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_ReadCalibChipGainCondAlg
             condSeq += SCT_ReadCalibChipGainCondAlg(name = self.gainAlgName,
                                                     ReadKey=self.gainFolder)
         self.alg = getattr(condSeq, self.gainAlgName)

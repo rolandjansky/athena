@@ -58,7 +58,7 @@ class SCT_TdaqEnabledSvcSetup:
         from AthenaCommon.AlgSequence import AthSequencer
         condSeq = AthSequencer("AthCondSeq")
         if not hasattr(condSeq, self.algName):
-            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_TdaqEnabledCondAlg
+            from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_TdaqEnabledCondAlg
             condSeq += SCT_TdaqEnabledCondAlg(name = self.algName,
                                               ReadKey = self.folder,
                                               EventInfoKey = self.eventInfoKey)

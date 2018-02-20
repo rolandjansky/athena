@@ -54,9 +54,9 @@ class SCT_SensorsSvcSetup:
         from AthenaCommon.AlgSequence import AthSequencer
         condSeq = AthSequencer("AthCondSeq")
         if not hasattr(condSeq, self.algName):
-            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SensorsCondAlg
+            from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmesConf import SCT_SensorsCondAlg
             condSeq += SCT_SensorsCondAlg(name = self.algName,
-                                              ReadKey = self.folder)
+                                          ReadKey = self.folder)
         self.alg = getattr(condSeq, self.algName)
 
     def setSvc(self):

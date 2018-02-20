@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-/** @file SCT_ConditionsParameterTestAlg.h  Header file for TestConditionsParameter class.
+/** @file SCT_SensorsTestAlg.h Header file for SCT_SensorsTestAlg class.
  * @author  Shaun Roe
  **/
 
@@ -20,26 +20,22 @@
 
 // Forward declarations
 class ISCT_SensorsSvc;
-class StatusCode;
-class ISvcLocator;
-namespace InDetDD{class SCT_DetectorManager;}
 
-  /** This class acts as a test/sample client the ConditionsParameter class. 
-  */
-  class SCT_SensorsTestAlg : public AthAlgorithm {
-public:
-    // Structors
-    SCT_SensorsTestAlg (const std::string& name, ISvcLocator* pSvcLocator); 
-    ~SCT_SensorsTestAlg();                                                  
+/** This class acts as a test/sample client the ConditionsParameter class. 
+ */
+class SCT_SensorsTestAlg : public AthAlgorithm {
+ public:
+  // Structors
+  SCT_SensorsTestAlg (const std::string& name, ISvcLocator* pSvcLocator); 
+  virtual ~SCT_SensorsTestAlg() = default;
     
-    // Standard Gaudi functions
-    StatusCode initialize(); //!< Gaudi initialiser
-    StatusCode execute();    //!< Gaudi executer
-    StatusCode finalize();   //!< Gaudi finaliser
+  // Standard Gaudi functions
+  StatusCode initialize() override; //!< Gaudi initialiser
+  StatusCode execute() override;    //!< Gaudi executer
+  StatusCode finalize() override;   //!< Gaudi finaliser
     
-private:
-    ServiceHandle<ISCT_SensorsSvc> m_SensorsSvc;
-   };
+ private:
+  ServiceHandle<ISCT_SensorsSvc> m_SensorsSvc;
+};
 
-#endif //
-
+#endif // SCT_SensorsTestAlg_H

@@ -10,22 +10,29 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/AthenaKernel
                           Control/StoreGate
+                          Database/AthenaPOOL/AthenaPoolUtilities
                           DetectorDescription/Identifier
                           GaudiKernel
+                          InnerDetector/InDetConditions/InDetConditionsSummaryService
+                          InnerDetector/InDetConditions/SCT_ConditionsData
+                          InnerDetector/InDetConditions/SCT_ConditionsTools
+                          InnerDetector/InDetDetDescr/SCT_Cabling
+                          Event/EventInfo
+                          Event/xAOD/xAODEventInfo
                           PRIVATE
+                          InnerDetector/InDetDetDescr/InDetIdentifier
+                          InnerDetector/InDetDetDescr/InDetReadoutGeometry 
                           InnerDetector/InDetConditions/SCT_ConditionsServices )
 
 # External dependencies:
+find_package( Boost COMPONENTS filesystem thread system )
 
 # Component(s) in the package:
 atlas_add_component( SCT_ConditionsAlgorithms
+                     src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps AthenaKernel StoreGateLib SGtests Identifier GaudiKernel SCT_ConditionsAlgorithmsLib )
-
-atlas_add_library ( SCT_ConditionsAlgorithmsLib
-		    src/*.cxx
-		    # PUBLIC_HEADERS SCT_ConditionsAlgorithms
-		    LINK_LIBRARIES AthenaBaseComps AthenaKernel Identifier GaudiKernel StoreGateLib SGtests )
+                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${Boost_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests Identifier GaudiKernel SCT_ConditionsData SCT_CablingLib EventInfo xAODEventInfo AthenaPoolUtilities InDetIdentifier InDetReadoutGeometry SCT_ConditionsServicesLib SCT_ConditionsToolsLib )
 
 # Add unit tests
 

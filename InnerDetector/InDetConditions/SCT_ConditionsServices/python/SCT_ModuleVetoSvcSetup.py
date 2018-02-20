@@ -55,7 +55,7 @@ class SCT_ModuleVetoSvcSetup:
         from AthenaCommon.AlgSequence import AthSequencer
         condSeq = AthSequencer("AthCondSeq")
         if not hasattr(condSeq, self.algName):
-            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ModuleVetoCondAlg
+            from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_ModuleVetoCondAlg
             condSeq += SCT_ModuleVetoCondAlg(name = self.algName,
                                               ReadKey = self.folder)
         self.alg = getattr(condSeq, self.algName)
