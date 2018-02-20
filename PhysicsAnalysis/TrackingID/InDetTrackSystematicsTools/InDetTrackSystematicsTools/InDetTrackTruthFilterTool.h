@@ -72,8 +72,8 @@ namespace InDet {
     
     float m_fPrim = 1.;
     float m_fSec = 1.;
-    float m_fFakeLoose = 0.29; // +- 0.009
-    float m_fFakeTight = 1.61; // +- 0.14 // this value is nonsense (no tracks will pass), as the method breaks down for large one-sided uncertainties
+    float m_fFakeLoose = 0.10;
+    float m_fFakeTight = 1.00; // this method breaks down for uncertainties > 1.00 (as was present in previous iterations)
     float m_fPU = 1.;
     float m_fFrag = 1.;
     float m_fFromC = 1.;
