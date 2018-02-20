@@ -17,7 +17,6 @@
 #include "TrkDetElementBase/TrkDetElementBase.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkExInterfaces/IIntersector.h"
-#include "TrkExInterfaces/IPropagator.h"
 #include "TrkExUtils/TrackSurfaceIntersection.h"
 #include "TrkGeometry/TrackingGeometry.h"
 #include "TrkGeometry/TrackingVolume.h"
@@ -50,7 +49,6 @@ MaterialAllocator::MaterialAllocator (const std::string&	type,
 	m_spectrometerExtrapolator	("Trk::Extrapolator/AtlasExtrapolator"),
 	m_trackingGeometrySvc		("TrackingGeometrySvc/AtlasTrackingGeometrySvc",name),
 	m_trackingVolumesSvc		("Trk::TrackingVolumesSvc/TrackingVolumesSvc",name),
-        m_stepPropagator                ("Trk::STEP_Propagator/AtlasSTEP_Propagator"),
 	m_aggregateMaterial		(true),
 	m_allowReordering		(false),
         m_useStepPropagator             (1),

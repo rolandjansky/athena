@@ -46,7 +46,6 @@
 
 #include "InDetAlignGenTools/IInDetAlignHitQualSelTool.h"
 #include "TrackSelectionTool.h"
-#include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
 
 
 // *********************************************************************
@@ -58,8 +57,7 @@ IDAlignMonPVBiases::IDAlignMonPVBiases( const std::string & type, const std::str
   m_events(0),
   m_histosBooked(0),
   m_tracksName("ExtendedTracks"),
-  m_triggerChainName("NoTriggerSelection"),
-  m_trackToVertexIPEstimator("Trk::TrackToVertexIPEstimator")
+  m_triggerChainName("NoTriggerSelection")
   //m_TreeFolder("/PVbiases/PVbiases"),
   //m_Tree(0),
   //m_TreeName("PVbiases")

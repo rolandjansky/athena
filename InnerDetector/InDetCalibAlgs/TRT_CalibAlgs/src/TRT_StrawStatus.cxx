@@ -55,7 +55,6 @@ m_DCSSvc("TRT_DCS_ConditionsSvc",name),
 m_TRTStrawNeighbourSvc("TRT_StrawNeighbourSvc", name), // use this service to retrieve barrel and end-cap straw number later on, as well as DTMROC,.. 
 m_TRTStrawStatusSummarySvc("TRT_StrawStatusSummarySvc", name),
 m_trt_hole_finder("TRTTrackHoleSearchTool"),
-m_updator("Trk::KalmanUpdator/TrkKalmanUpdator"),
 m_locR_cut(1.4),
 m_fileName("TRT_StrawStatusOutput"),
 m_skipBusyEvents(0), // for cosmics - reject events that are either showers or noise bursts

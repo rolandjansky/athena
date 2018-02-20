@@ -13,8 +13,6 @@ decription           : Implementation code for GsfMeasurementUpdator class
 
 #include "TrkGaussianSumFilter/GsfMeasurementUpdator.h"
 
-#include "TrkGaussianSumFilter/IMultiComponentStateAssembler.h"
-#include "TrkGaussianSumFilter/IPosteriorWeightsCalculator.h"
 
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkEventPrimitives/FitQuality.h"
@@ -31,8 +29,6 @@ Trk::GsfMeasurementUpdator::GsfMeasurementUpdator(const std::string type, const 
   AthAlgTool(type, name, parent),
   m_outputlevel(0),
   m_updator("Trk::KalmanUpdator/KalmanUpdator"),
-  m_posteriorWeightsCalculator("Trk::PosteriorWeightsCalculator/PosteriorWeightsCalculator"),
-  m_stateAssembler("Trk::MultiComponentStateAssembler/GsfMeasurementStateAssembler"),
   m_chronoSvc("ChronoStatSvc", name)
 {
   declareInterface<IMultiStateMeasurementUpdator>(this);
