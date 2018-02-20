@@ -71,16 +71,16 @@ public:
 
 VP1CaloLegoSystem::VP1CaloLegoSystem()
   :IVP13DSystemSimple("CaloLego","Display the readout in an eta-phi view","boudreau@pitt.edu"),
-   _clockwork(new Clockwork())
+   m_clockwork(new Clockwork())
 {
-  _clockwork->dummyCubeSep = 0;
-  _clockwork->root = 0;
+  m_clockwork->dummyCubeSep = 0;
+  m_clockwork->root = 0;
 }
 
 VP1CaloLegoSystem::~VP1CaloLegoSystem()
 {
-  delete _clockwork;
-  _clockwork = 0;
+  delete m_clockwork;
+  m_clockwork = 0;
 }
 
 QWidget* VP1CaloLegoSystem::buildController()
@@ -95,24 +95,24 @@ QWidget* VP1CaloLegoSystem::buildController()
   }
 
   // Populate Check Box Names Map
-  _clockwork->checkBoxNamesMap.insert(ui.chbxEMB0, "EMB0");
-  _clockwork->checkBoxNamesMap.insert(ui.chbxEMB1, "EMB1");
-  _clockwork->checkBoxNamesMap.insert(ui.chbxEMB2, "EMB2");
-  _clockwork->checkBoxNamesMap.insert(ui.chbxEMB3, "EMB3");
-  _clockwork->checkBoxNamesMap.insert(ui.chbxEMEC0,"EMEC0");
-  _clockwork->checkBoxNamesMap.insert(ui.chbxEMEC1,"EMEC1");
-  _clockwork->checkBoxNamesMap.insert(ui.chbxEMEC2,"EMEC2");
-  _clockwork->checkBoxNamesMap.insert(ui.chbxEMEC3,"EMEC3");
-  _clockwork->checkBoxNamesMap.insert(ui.chbxHEC0, "HEC0");
-  _clockwork->checkBoxNamesMap.insert(ui.chbxHEC1, "HEC1");
-  _clockwork->checkBoxNamesMap.insert(ui.chbxHEC2, "HEC2");
-  _clockwork->checkBoxNamesMap.insert(ui.chbxHEC3, "HEC3");
+  m_clockwork->checkBoxNamesMap.insert(ui.chbxEMB0, "EMB0");
+  m_clockwork->checkBoxNamesMap.insert(ui.chbxEMB1, "EMB1");
+  m_clockwork->checkBoxNamesMap.insert(ui.chbxEMB2, "EMB2");
+  m_clockwork->checkBoxNamesMap.insert(ui.chbxEMB3, "EMB3");
+  m_clockwork->checkBoxNamesMap.insert(ui.chbxEMEC0,"EMEC0");
+  m_clockwork->checkBoxNamesMap.insert(ui.chbxEMEC1,"EMEC1");
+  m_clockwork->checkBoxNamesMap.insert(ui.chbxEMEC2,"EMEC2");
+  m_clockwork->checkBoxNamesMap.insert(ui.chbxEMEC3,"EMEC3");
+  m_clockwork->checkBoxNamesMap.insert(ui.chbxHEC0, "HEC0");
+  m_clockwork->checkBoxNamesMap.insert(ui.chbxHEC1, "HEC1");
+  m_clockwork->checkBoxNamesMap.insert(ui.chbxHEC2, "HEC2");
+  m_clockwork->checkBoxNamesMap.insert(ui.chbxHEC3, "HEC3");
 
   // Populate Check Box Map and connect slots
-  foreach(QCheckBox* cb,_clockwork->checkBoxNamesMap.keys())
+  foreach(QCheckBox* cb,m_clockwork->checkBoxNamesMap.keys())
   {
     connect(cb,SIGNAL(toggled(bool)),this,SLOT(checkboxChanged()));
-    _clockwork->checkBoxMap.insert(_clockwork->checkBoxNamesMap[cb],cb);
+    m_clockwork->checkBoxMap.insert(m_clockwork->checkBoxNamesMap[cb],cb);
   }
 
   return controller;
@@ -128,11 +128,11 @@ void VP1CaloLegoSystem::buildPermanentSceneGraph(StoreGateSvc*, SoSeparator *roo
   if (!VP1JobConfigInfo::hasLArGeometry()||!VP1JobConfigInfo::hasTileGeometry())
     return;
 
-  _clockwork->root = root;
+  m_clockwork->root = root;
 
   for (int i=0;i<3;i++) {
-    _clockwork->fcalSwitch[i] = new SoSwitch();
-    root->addChild(_clockwork->fcalSwitch[i]);
+    m_clockwork->fcalSwitch[i] = new SoSwitch();
+    root->addChild(m_clockwork->fcalSwitch[i]);
   }
 
   //We add a fully transparent dummy cube in order to get proper
@@ -153,29 +153,29 @@ void VP1CaloLegoSystem::buildPermanentSceneGraph(StoreGateSvc*, SoSeparator *roo
   root->addChild(dummyCubeSep);
 
   for (int i=0;i<4;i++) {
-    _clockwork->embSwitch[i] = new SoSwitch();
-    root->addChild(_clockwork->embSwitch[i]);
+    m_clockwork->embSwitch[i] = new SoSwitch();
+    root->addChild(m_clockwork->embSwitch[i]);
 
-    _clockwork->emecSwitch[i] = new SoSwitch();
-    root->addChild(_clockwork->emecSwitch[i]);
+    m_clockwork->emecSwitch[i] = new SoSwitch();
+    root->addChild(m_clockwork->emecSwitch[i]);
 
-    _clockwork->hecSwitch[i] = new SoSwitch();
-    root->addChild(_clockwork->hecSwitch[i]);
+    m_clockwork->hecSwitch[i] = new SoSwitch();
+    root->addChild(m_clockwork->hecSwitch[i]);
   }
-  _clockwork->switchMap["EMB0"] = _clockwork->embSwitch[0];
-  _clockwork->switchMap["EMB1"] = _clockwork->embSwitch[1];
-  _clockwork->switchMap["EMB2"] = _clockwork->embSwitch[2];
-  _clockwork->switchMap["EMB3"] = _clockwork->embSwitch[3];
+  m_clockwork->switchMap["EMB0"] = m_clockwork->embSwitch[0];
+  m_clockwork->switchMap["EMB1"] = m_clockwork->embSwitch[1];
+  m_clockwork->switchMap["EMB2"] = m_clockwork->embSwitch[2];
+  m_clockwork->switchMap["EMB3"] = m_clockwork->embSwitch[3];
 
-  _clockwork->switchMap["EMEC0"] = _clockwork->emecSwitch[0];
-  _clockwork->switchMap["EMEC1"] = _clockwork->emecSwitch[1];
-  _clockwork->switchMap["EMEC2"] = _clockwork->emecSwitch[2];
-  _clockwork->switchMap["EMEC3"] = _clockwork->emecSwitch[3];
+  m_clockwork->switchMap["EMEC0"] = m_clockwork->emecSwitch[0];
+  m_clockwork->switchMap["EMEC1"] = m_clockwork->emecSwitch[1];
+  m_clockwork->switchMap["EMEC2"] = m_clockwork->emecSwitch[2];
+  m_clockwork->switchMap["EMEC3"] = m_clockwork->emecSwitch[3];
 
-  _clockwork->switchMap["HEC0"] = _clockwork->hecSwitch[0];
-  _clockwork->switchMap["HEC1"] = _clockwork->hecSwitch[1];
-  _clockwork->switchMap["HEC2"] = _clockwork->hecSwitch[2];
-  _clockwork->switchMap["HEC3"] = _clockwork->hecSwitch[3];
+  m_clockwork->switchMap["HEC0"] = m_clockwork->hecSwitch[0];
+  m_clockwork->switchMap["HEC1"] = m_clockwork->hecSwitch[1];
+  m_clockwork->switchMap["HEC2"] = m_clockwork->hecSwitch[2];
+  m_clockwork->switchMap["HEC3"] = m_clockwork->hecSwitch[3];
 
   createEtaPhi();
 
@@ -183,11 +183,11 @@ void VP1CaloLegoSystem::buildPermanentSceneGraph(StoreGateSvc*, SoSeparator *roo
 
 void VP1CaloLegoSystem::systemerase()
 {
-  if (_clockwork->dummyCubeSep) {
-    if (_clockwork->root->findChild(_clockwork->dummyCubeSep)>=0)
-      _clockwork->root->removeChild(_clockwork->dummyCubeSep);
-    _clockwork->dummyCubeSep->unref();
-    _clockwork->dummyCubeSep = 0;
+  if (m_clockwork->dummyCubeSep) {
+    if (m_clockwork->root->findChild(m_clockwork->dummyCubeSep)>=0)
+      m_clockwork->root->removeChild(m_clockwork->dummyCubeSep);
+    m_clockwork->dummyCubeSep->unref();
+    m_clockwork->dummyCubeSep = 0;
   }
 
 }
@@ -197,25 +197,25 @@ void VP1CaloLegoSystem::systemuncreate()
   if (!VP1JobConfigInfo::hasLArGeometry()||!VP1JobConfigInfo::hasTileGeometry())
     return;
 
-  _clockwork->root->enableNotify(false);
+  m_clockwork->root->enableNotify(false);
   for (int i=0;i<4;i++) {
     if (i<3) {
-      _clockwork->fcalSwitch[i]->enableNotify(false);
-      _clockwork->fcalSwitch[i]->removeAllChildren();
+      m_clockwork->fcalSwitch[i]->enableNotify(false);
+      m_clockwork->fcalSwitch[i]->removeAllChildren();
     }
-    _clockwork->embSwitch[i]->enableNotify(false);
-    _clockwork->emecSwitch[i]->enableNotify(false);
-    _clockwork->hecSwitch[i]->enableNotify(false);
-    _clockwork->embSwitch[i]->removeAllChildren();
-    _clockwork->emecSwitch[i]->removeAllChildren();
-    _clockwork->hecSwitch[i]->removeAllChildren();
+    m_clockwork->embSwitch[i]->enableNotify(false);
+    m_clockwork->emecSwitch[i]->enableNotify(false);
+    m_clockwork->hecSwitch[i]->enableNotify(false);
+    m_clockwork->embSwitch[i]->removeAllChildren();
+    m_clockwork->emecSwitch[i]->removeAllChildren();
+    m_clockwork->hecSwitch[i]->removeAllChildren();
   }
 
-  _clockwork->TileMap.clear();
-  _clockwork->HECMap.clear();
-  _clockwork->EMECMap.clear();
-  _clockwork->EMBMap.clear();
-  _clockwork->root->removeAllChildren();
+  m_clockwork->TileMap.clear();
+  m_clockwork->HECMap.clear();
+  m_clockwork->EMECMap.clear();
+  m_clockwork->EMBMap.clear();
+  m_clockwork->root->removeAllChildren();
 }
 
 void VP1CaloLegoSystem::createEtaPhi() {
@@ -240,19 +240,19 @@ void VP1CaloLegoSystem::createEtaPhi() {
 
   for (int i=0;i<4;i++) {
     if (i<3) {
-      _clockwork->fcalSwitch[i]->addChild(drawStyle);
-      _clockwork->fcalSwitch[i]->addChild(lm);
-      _clockwork->fcalSwitch[i]->addChild(green);
+      m_clockwork->fcalSwitch[i]->addChild(drawStyle);
+      m_clockwork->fcalSwitch[i]->addChild(lm);
+      m_clockwork->fcalSwitch[i]->addChild(green);
     }
-    _clockwork->embSwitch[i]->addChild(drawStyle);
-    _clockwork->emecSwitch[i]->addChild(drawStyle);
-    _clockwork->hecSwitch[i]->addChild(drawStyle);
-    _clockwork->embSwitch[i]->addChild(lm);
-    _clockwork->emecSwitch[i]->addChild(lm);
-    _clockwork->hecSwitch[i]->addChild(lm);
-    _clockwork->embSwitch[i]->addChild(blue);
-    _clockwork->emecSwitch[i]->addChild(magenta);
-    _clockwork->hecSwitch[i]->addChild(yellow);
+    m_clockwork->embSwitch[i]->addChild(drawStyle);
+    m_clockwork->emecSwitch[i]->addChild(drawStyle);
+    m_clockwork->hecSwitch[i]->addChild(drawStyle);
+    m_clockwork->embSwitch[i]->addChild(lm);
+    m_clockwork->emecSwitch[i]->addChild(lm);
+    m_clockwork->hecSwitch[i]->addChild(lm);
+    m_clockwork->embSwitch[i]->addChild(blue);
+    m_clockwork->emecSwitch[i]->addChild(magenta);
+    m_clockwork->hecSwitch[i]->addChild(yellow);
   }
 
   VP1DetInfo::ensureInit(this);
@@ -291,10 +291,10 @@ void VP1CaloLegoSystem::createEtaPhi() {
 	  ls->vertexProperty=vtxProperty;
 	  sep->addNode(ls);
 
-	  _clockwork->TileMap[ls]=&(*t);
+	  m_clockwork->TileMap[ls]=&(*t);
 	}
 	int sp = fcalMod->getModuleIndex()-1;
-	_clockwork->fcalSwitch[sp]->addChild(sep1);
+	m_clockwork->fcalSwitch[sp]->addChild(sep1);
 
       }
     }
@@ -342,11 +342,11 @@ void VP1CaloLegoSystem::createEtaPhi() {
 	      ls->vertexProperty=vtxProperty;
 	      sep->addNode(ls);
 
-	      _clockwork->HECMap[ls]=cellPtr;
+	      m_clockwork->HECMap[ls]=cellPtr;
 	    }
 	  }
 	}
-	_clockwork->hecSwitch[region->getSamplingIndex()]->addChild(sep1);
+	m_clockwork->hecSwitch[region->getSamplingIndex()]->addChild(sep1);
       }
     }
   }
@@ -398,10 +398,10 @@ void VP1CaloLegoSystem::createEtaPhi() {
 	    ls->numVertices=5;
 	    ls->vertexProperty=vtxProperty;
 	    sep->addNode(ls);
-	    _clockwork->EMECMap[ls]=cellPtr;
+	    m_clockwork->EMECMap[ls]=cellPtr;
 	  }
 	}
-	_clockwork->emecSwitch[region->getSamplingIndex()]->addChild(sep1);
+	m_clockwork->emecSwitch[region->getSamplingIndex()]->addChild(sep1);
       }
     }
   }
@@ -445,10 +445,10 @@ void VP1CaloLegoSystem::createEtaPhi() {
 	    ls->numVertices=5;
 	    ls->vertexProperty=vtxProperty;
 	    sep->addNode(ls);
-	    _clockwork->EMBMap[ls]=cellPtr;
+	    m_clockwork->EMBMap[ls]=cellPtr;
 	  }
 	}
-	_clockwork->embSwitch[region->getSamplingIndex()]->addChild(sep1);
+	m_clockwork->embSwitch[region->getSamplingIndex()]->addChild(sep1);
       }
     }
   }
@@ -465,21 +465,21 @@ void VP1CaloLegoSystem::checkboxChanged()
 
   // Get ChB pointer
   QCheckBox* cb = dynamic_cast<QCheckBox*>(sender());
-  if(cb && _clockwork->checkBoxNamesMap.contains(cb))
+  if(cb && m_clockwork->checkBoxNamesMap.contains(cb))
   {
     // Get technology name
-    QString swName = _clockwork->checkBoxNamesMap[cb];
+    QString swName = m_clockwork->checkBoxNamesMap[cb];
 
-    if(_clockwork->switchMap.contains(swName))
+    if(m_clockwork->switchMap.contains(swName))
     {
-      // Get swtich
-      SoSwitch* _switch = _clockwork->switchMap[swName];
+      // Get switch
+      SoSwitch* sw = m_clockwork->switchMap[swName];
       if(cb->isChecked())
       {
-	_switch->whichChild = SO_SWITCH_ALL;
+	sw->whichChild = SO_SWITCH_ALL;
       }
       else
-	_switch->whichChild = SO_SWITCH_NONE;
+	sw->whichChild = SO_SWITCH_NONE;
     }
   }
 }
@@ -496,7 +496,7 @@ QByteArray VP1CaloLegoSystem::saveState()
   serialise.save(IVP13DSystemSimple::saveState());
 
   //Checkboxes (by name for greater stability in case we change content of map):
-  QMapIterator<QString,QCheckBox*> it(_clockwork->checkBoxMap);
+  QMapIterator<QString,QCheckBox*> it(m_clockwork->checkBoxMap);
   QMap<QString,bool> checkboxstate;
   while (it.hasNext()) {
     it.next();
@@ -525,7 +525,7 @@ void VP1CaloLegoSystem::restoreFromState(QByteArray ba)
 
   //Checkboxes (by name for greater stability in case we change content of map):
   QMap<QString,bool> checkboxstate(state.restore<QMap<QString,bool> >());
-  QMapIterator<QString,QCheckBox*> it(_clockwork->checkBoxMap);
+  QMapIterator<QString,QCheckBox*> it(m_clockwork->checkBoxMap);
   while (it.hasNext()) {
     it.next();
     state.widgetHandled(it.value());
