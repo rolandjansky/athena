@@ -20,7 +20,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( RatesAnalysisExamplesXAOD
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES GaudiKernel xAODJet RatesAnalysis )
+                     LINK_LIBRARIES GaudiKernel xAODMuon xAODTau xAODEgamma xAODMissingET xAODJet RatesAnalysis )
 
 # Install files from the package:
 atlas_install_headers( RatesAnalysisExamplesXAOD )
