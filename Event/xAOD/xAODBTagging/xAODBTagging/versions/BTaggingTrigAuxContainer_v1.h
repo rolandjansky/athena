@@ -200,6 +200,19 @@ namespace xAOD {
      std::vector< double >  DL1mu_pb;
      std::vector< double >  DL1mu_pc;
 
+     std::vector< int > JetFitter_nTrk_vtx1; 
+     std::vector< float > JetFitter_mass_first_vtx;
+     std::vector< float > JetFitter_e_first_vtx;
+     std::vector< float > JetFitter_e_frac_vtx1;
+     std::vector< float > JetFitter_closestVtx_L3D;
+     std::vector< float > JetFitter_JF_Lxy1;
+     std::vector< float > JetFitter_vtx1_MaxTrkRapidity_jf_path;
+     std::vector< float > JetFitter_vtx1_AvgTrkRapidity_jf_path;
+     std::vector< float > JetFitter_vtx1_MinTrkRapidity_jf_path;
+     std::vector< float > JetFitter_MaxTrkRapidity_jf_path;
+     std::vector< float > JetFitter_MinTrkRapidity_jf_path;
+     std::vector< float > JetFitter_AvgTrkRapidity_jf_path;
+     
    }; // class BTaggingTrigAuxContainer_v1
 
 } // namespace xAOD

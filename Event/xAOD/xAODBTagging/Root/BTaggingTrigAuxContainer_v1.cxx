@@ -125,30 +125,30 @@ namespace xAOD {
      // AUX_VARIABLE( rnnip_TrackParticles );
      AUX_VARIABLE( rnnip_TrackParticleLinks ); 
 
-     AUX_VARIABLE( rnnip_valD0wrtPVofTracks );
-     AUX_VARIABLE( rnnip_sigD0wrtPVofTracks );
-     AUX_VARIABLE( rnnip_valZ0wrtPVofTracks );
-     AUX_VARIABLE( rnnip_sigZ0wrtPVofTracks );
-     //     AUX_VARIABLE( rnnip_dphiofTracks );
-     //     AUX_VARIABLE( rnnip_ptfracofTracks );
-     //     AUX_VARIABLE( rnnip_drofTracks );
-     //     AUX_VARIABLE( rnnip_detaofTracks ); 
-     AUX_VARIABLE( rnnip_flagFromV0ofTracks ); 
-     AUX_VARIABLE( rnnip_gradeOfTracks );
+     // AUX_VARIABLE( rnnip_valD0wrtPVofTracks );
+     // AUX_VARIABLE( rnnip_sigD0wrtPVofTracks );
+     // AUX_VARIABLE( rnnip_valZ0wrtPVofTracks );
+     // AUX_VARIABLE( rnnip_sigZ0wrtPVofTracks );
+     // AUX_VARIABLE( rnnip_dphiofTracks );
+     // AUX_VARIABLE( rnnip_ptfracofTracks );
+     // AUX_VARIABLE( rnnip_drofTracks );
+     // AUX_VARIABLE( rnnip_detaofTracks ); 
+     // AUX_VARIABLE( rnnip_flagFromV0ofTracks ); 
+     // AUX_VARIABLE( rnnip_gradeOfTracks );
 
 
      AUX_VARIABLE( SMT_discriminant );
-
-     //     AUX_VARIABLE( SMT_mu_pt );
-     //     AUX_VARIABLE( SMT_dR );
-     AUX_VARIABLE( SMT_qOverPratio );
+     AUX_VARIABLE( SMT_mu_link );
+     
+     // AUX_VARIABLE( SMT_mu_pt );
+     // AUX_VARIABLE( SMT_dR );
+     // AUX_VARIABLE( SMT_qOverPratio );
      AUX_VARIABLE( SMT_mombalsignif );
      AUX_VARIABLE( SMT_scatneighsignif );
-     //     AUX_VARIABLE( SMT_pTrel );
-     AUX_VARIABLE( SMT_mu_d0 );
-     AUX_VARIABLE( SMT_mu_z0 );
-     AUX_VARIABLE( SMT_ID_qOverP );
-
+     // AUX_VARIABLE( SMT_pTrel );
+     // AUX_VARIABLE( SMT_mu_d0 );
+     // AUX_VARIABLE( SMT_mu_z0 );
+     // AUX_VARIABLE( SMT_ID_qOverP );
 
 
      AUX_VARIABLE( MV2c10rnn_discriminant );
@@ -166,6 +166,19 @@ namespace xAOD {
      AUX_VARIABLE( DL1mu_pb );
      AUX_VARIABLE( DL1mu_pu );
      AUX_VARIABLE( DL1mu_pc );
+
+     AUX_VARIABLE( JetFitter_nTrk_vtx1 );
+     AUX_VARIABLE( JetFitter_mass_first_vtx );
+     AUX_VARIABLE( JetFitter_e_first_vtx );
+     AUX_VARIABLE( JetFitter_e_frac_vtx1 );
+     AUX_VARIABLE( JetFitter_closestVtx_L3D );
+     AUX_VARIABLE( JetFitter_JF_Lxy1 );
+     AUX_VARIABLE( JetFitter_vtx1_MaxTrkRapidity_jf_path );
+     AUX_VARIABLE( JetFitter_vtx1_AvgTrkRapidity_jf_path );
+     AUX_VARIABLE( JetFitter_vtx1_MinTrkRapidity_jf_path );
+     AUX_VARIABLE( JetFitter_MaxTrkRapidity_jf_path );
+     AUX_VARIABLE( JetFitter_MinTrkRapidity_jf_path );
+     AUX_VARIABLE( JetFitter_AvgTrkRapidity_jf_path );
 
    }
 
