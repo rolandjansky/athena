@@ -40,7 +40,9 @@ triggerRegEx = [
   ".?j.*",
   "xe.*",
   "e.*",
+  "2e.*",
   "mu.*",
+  "2mu.*",
   "tau.*",
   "g.*"
 ]
@@ -323,7 +325,62 @@ triggers = [
     'HLT_g300_etcut',
     'HLT_mu60_0eta105_msonly',
     ]
-expression = ' || '.join(triggers)
+lepton_triggers = [
+   # el - y2015
+   "HLT_e24_lhmedium_L1EM20VH",
+   "HLT_e60_lhmedium",
+   "HLT_e120_lhloose",
+   "HLT_2e12_lhloose_L12EM10VH",
+   # el - y2016
+   "HLT_e24_lhtight_nod0_ivarloose",
+   "HLT_e24_lhmedium_nod0_L1EM20VH",
+   "HLT_e26_lhtight_nod0_ivarloose",
+   "HLT_e60_lhmedium_nod0",
+   "HLT_e60_medium",
+   "HLT_e140_lhloose_nod0",
+   "HLT_e300_etcut",
+   "HLT_2e15_lhvloose_nod0_L12EM13VH",
+   "HLT_2e17_lhvloose_nod0",
+   # el - y2017
+   "HLT_e26_lhtight_nod0_ivarloose_L1EM22VHIM",
+   "HLT_e28_lhtight_nod0_ivarloose",
+   "HLT_e28_lhtight_nod0_ivarloose_L1EM24VHIM",
+   "HLT_e60_lhmedium_nod0_L1EM24VHI",
+   "HLT_e140_lhloose_nod0_L1EM24VHI",
+   "HLT_e300_etcut_L1EM24VHI",
+
+   # mu - y2015
+   "HLT_mu20_iloose_L1MU15",
+   "HLT_mu40",
+   "HLT_mu60_0eta105_msonly",
+   "HLT_2mu10",
+   "HLT_mu18_mu8noL1",
+   # mu - y2016
+   "HLT_mu24_iloose",
+   "HLT_mu24_iloose_L1MU15",
+   "HLT_mu24_ivarloose",
+   "HLT_mu24_ivarloose_L1MU15",
+   "HLT_mu24_ivarmedium",
+   "HLT_mu24_imedium",
+   "HLT_mu26_ivarmedium",
+   "HLT_mu26_imedium",
+   "HLT_mu50",
+   "HLT_2mu10_nomucomb",
+   "HLT_2mu14",
+   "HLT_2mu14_nomucomb",
+   "HLT_mu20_mu8noL1",
+   "HLT_mu20_nomucomb_mu6noL1_nscan03",
+   "HLT_mu20_msonly_mu10noL1_msonly_nscan05_noComb",
+   "HLT_mu22_mu8noL1",
+   # mu - y2017
+   "HLT_mu60",
+   "HLT_mu22_mu8noL1_calotag_0eta010",
+   "HLT_mu24_mu8noL1",
+   "HLT_mu24_mu8noL1_calotag_0eta010",
+   "HLT_mu26_mu10noL1"
+    ]
+
+expression = ' || '.join(triggers+lepton_triggers)
 
 if not DerivationFrameworkIsMonteCarlo:
     EXOT5StringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(
@@ -356,6 +413,7 @@ replaceAODReducedJets(reducedJetList,exot5Seq,"EXOT5")
 
 #jet calibration
 applyJetCalibration_xAODColl("AntiKt4EMTopo", exot5Seq)
+applyJetCalibration_xAODColl("AntiKt4EMPFlow", exot5Seq)
 
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM
@@ -381,8 +439,11 @@ EXOT5SlimmingHelper.SmartCollections = [
     'InDetTrackParticles',
     'PrimaryVertices',
     'MET_Reference_AntiKt4EMTopo',
+    'MET_Reference_AntiKt4EMPFlow',
     'BTagging_AntiKt4EMTopo',
-    'AntiKt4EMTopoJets'
+    'BTagging_AntiKt4EMPFlow',
+    'AntiKt4EMTopoJets',
+    'AntiKt4EMPFlowJets',
     ]
 EXOT5SlimmingHelper.ExtraVariables = [
     'AntiKt4EMTopoJets.ConstituentScale.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m.InputType.AlgorithmType.SizeParameter.btaggingLink.JetEtaJESScaleMomentum_eta.JetEtaJESScaleMomentum_m.JetEtaJESScaleMomentum_phi.JetEtaJESScaleMomentum_pt.JetGhostArea.JetLCScaleMomentum_eta.JetLCScaleMomentum_m.JetLCScaleMomentum_phi.JetLCScaleMomentum_pt.LArBadHVEnergyFrac.LArBadHVNCell.LeadingClusterCenterLambda.LeadingClusterPt.LeadingClusterSecondLambda.LeadingClusterSecondR.N90Constituents.NegativeE.NumTrkPt1000.NumTrkPt500.OotFracClusters10.OotFracClusters5.OriginCorrected.OriginVertex.PartonTruthLabelID.PileupCorrected.SumPtTrkPt1000.SumPtTrkPt500.Timing.TrackSumMass.TrackSumPt.TrackWidthPt1000.TrackWidthPt500.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.Width.WidthPhi.ActiveArea.AverageLArQF.BchCorrCell.CentroidR.Charge.ConeExclBHadronsFinal.ConeExclCHadronsFinal.ConeExclTausFinal.ConeTruthLabelID.DFCommonJets_Calib_eta.DFCommonJets_Calib_m.DFCommonJets_Calib_phi.DFCommonJets_Calib_pt.DetectorEta.DetectorPhi.ECPSFraction.EMFrac.EnergyPerSampling.FracSamplingMax.FracSamplingMaxIndex.GhostAntiKt2TrackJet.GhostAntiKt2TrackJetCount.GhostAntiKt2TrackJetPt.GhostAntiKt4TrackJet.GhostAntiKt4TrackJetCount.GhostAntiKt4TrackJetPt.GhostBHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostBHadronsInitial.GhostBHadronsInitialCount.GhostBHadronsInitialPt.GhostBQuarksFinal.GhostBQuarksFinalCount.GhostBQuarksFinalPt.GhostCHadronsFinal.GhostCHadronsFinalCount.GhostCHadronsFinalPt.GhostCHadronsInitial.GhostCHadronsInitialCount.GhostCHadronsInitialPt.GhostCQuarksFinal.GhostCQuarksFinalCount.GhostCQuarksFinalPt.GhostHBosons.GhostHBosonsCount.GhostHBosonsPt.GhostMuonSegment.GhostMuonSegmentCount.GhostPartons.GhostPartonsCount.GhostPartonsPt.GhostTQuarksFinal.GhostTQuarksFinalCount.GhostTQuarksFinalPt.GhostTausFinal.GhostTausFinalCount.GhostTausFinalPt.GhostTrack.GhostTrackAssociationFraction.GhostTrackAssociationLink.GhostTrackCount.GhostTrackPt.GhostTruth.GhostTruthAssociationFraction.GhostTruthAssociationLink.GhostTruthCount.GhostTruthPt.GhostWBosons.GhostWBosonsCount.GhostWBosonsPt.GhostZBosons.GhostZBosonsCount.GhostZBosonsPt.HECFrac.HECQuality.HadronConeExclExtendedTruthLabelID.HadronConeExclTruthLabelID.HighestJVFVtx',
@@ -394,6 +455,30 @@ EXOT5SlimmingHelper.ExtraVariables = [
     'Photons.author.Loose.Tight',
     'TauJets.TruthCharge.TruthProng.IsTruthMatched.TruthPtVis.truthOrigin.truthType.truthParticleLink.truthJetLink',
     ]
+# For VBF h > Inv
+EXOT5SlimmingHelper.ExtraVariables = [
+    'AntiKt4EMTopoJets.Jvt.JVFCorr.JvtRpt.LArQuality.JetPileupScaleMomentum_eta.JetPileupScaleMomentum_m..JetPileupScaleMomentum_phi.JetPileupScaleMomentum_pt',
+    'AntiKt4EMPFlowJets.pt.eta.phi.m.JetConstitScaleMomentum_pt.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_m.btaggingLink.Jvt.NumTrkPt500.SumPtTrkPt500.EnergyPerSampling.EMFrac.ActiveArea4vec_eta.ActiveArea4vec_m.ActiveArea4vec_phi.ActiveArea4vec_pt.AverageLArQF.DetectorEta.FracSamplingMax.FracSamplingMaxIndex.GhostMuonSegmentCount.GhostTrack.GhostTruthAssociationLink.HECFrac.HECQuality.HadronConeExclTruthLabelID.JVFCorr.JvtRpt.LArQuality.NegativeE.NumTrkPt1000.PartonTruthLabelID.Timing.TrackWidthPt1000.JetEtaJESScaleMomentum_eta.JetEtaJESScaleMomentum_m.JetEtaJESScaleMomentum_phi.JetEtaJESScaleMomentum_pt.JetPileupScaleMomentum_eta.JetPileupScaleMomentum_m.JetPileupScaleMomentum_phi.JetPileupScaleMomentum_pt.OriginCorrected.PileupCorrected',
+    'BTagging_AntiKt4EMTopo.MV2c10_discriminant',
+    'CombinedMuonTrackParticles.chiSquared.numberDoF.numberOfSCTDeadSensors.theta.numberOfTRTHits.qOverP.numberOfTRTOutliers.numberOfPixelHits.numberOfPixelHoles.numberOfPixelDeadSensors.numberOfSCTHits.numberOfSCTHoles',
+    'Electrons.trackParticleLinks.topoetcone20ptCorrection.topoetcone30ptCorrection.topoetcone40ptCorrection.ptvarcone20.topoetcone20.topoetcone30.topoetcone40.caloClusterLinks.OQ.f1.f3.weta2.wtots1.Reta.Rphi.Eratio.Rhad.Rhad1.deltaEta1.deltaPhiRescaled2.ambiguityType',
+    'ExtrapolatedMuonTrackParticles.phi.theta.qOverP.numberOfPixelHits.numberOfPixelDeadSensors',
+    'GSFTrackParticles.phi.numberOfSCTDeadSensors.d0.z0.theta.qOverP.definingParametersCovMatrix.vz.numberOfInnermostPixelLayerHits.numberOfPixelHits.numberOfPixelDeadSensors.numberOfSCTHits.eProbabilityHT.numberOfInnermostPixelLayerOutliers.expectInnermostPixelLayerHit.numberOfNextToInnermostPixelLayerHits.parameterPX.numberOfNextToInnermostPixelLayerOutliers.parameterPY.parameterPZ.parameterPosition.expectNextToInnermostPixelLayerHit.parameterX.originalTrackParticle',
+    'InDetTrackParticles.phi.numberOfSCTDeadSensors.theta.numberOfTRTHits.qOverP.numberOfTRTOutliers.definingParametersCovMatrix.numberOfPixelHits.numberOfPixelHoles.numberOfPixelDeadSensors.numberOfSCTHits.numberOfSCTHoles',
+    'Kt4EMTopoOriginEventShape.Density',
+    'LVL1EmTauRoIs.eta.phi.roiWord.etScale.emIsol.hadIsol',
+    'LVL1EnergySumRoI.energyX.energyY',
+    'LVL1JetRoIs.eta.phi.et8x8',
+    'LVL1MuonRoIs.eta.phi.thrValue',
+    'METAssoc_AntiKt4EMTopo.jetLink.objectLinks.calpx.calpy.calpz.cale.calsumpt.calkey.trkpx.trkpy.trkpz.trke.trksumpt.trkkey.jettrkpx.jettrkpy.jettrkpz.jettrke.jettrksumpt.overlapIndices.overlapTypes.isMisc',
+    'MET_Core_AntiKt4EMTopo.name.mpx.mpy.sumet.source',
+    'MuonSpectrometerTrackParticles..phi.theta.qOverP',
+    'Muons.pt.eta.phi.EnergyLoss.charge.numberOfPrecisionLayers.numberOfPrecisionHoleLayers.ptvarcone30.topoetcone20.author.inDetTrackParticleLink.muonType.muonSpectrometerTrackParticleLink.extrapolatedMuonSpectrometerTrackParticleLink.combinedTrackParticleLink.InnerDetectorPt.MuonSpectrometerPt.combinedTrackOutBoundsPrecisionHits.isSmallGoodSectors.numberOfGoodPrecisionLayers.energyLossType.innerSmallHits.innerLargeHits.middleSmallHits.middleLargeHits.outerSmallHits.outerLargeHits.extendedSmallHits.extendedLargeHits.extendedSmallHoles',
+    'PrimaryVertices.trackParticleLinks.z.vertexType',
+    'TriggerMenu.smk.l1psk.hltpsk.itemCtpIds.itemNames.itemPrescales.chainIds.chainNames.chainParentNames.chainPrescales.chainRerunPrescales.chainPassthroughPrescales.chainSignatureCounters.chainSignatureLogics.chainSignatureOutputTEs.sequenceInputTEs.sequenceOutputTEs.sequenceAlgorithms.bunchGroupBunches',
+    'egammaClusters.calE.calEta.calPhi.ETACALOFRAME.e_sampl.PHICALOFRAME.eta_sampl',
+    'xTrigDecision.bgCode.tav.tap.tbp.lvl2PassedRaw.efPassedRaw.lvl2PassedThrough.efPassedThrough.lvl2Prescaled.efPrescaled.lvl2Resurrected.efResurrected'
+]
 if DerivationFrameworkIsMonteCarlo:
     EXOT5SlimmingHelper.StaticContent = [
         'xAOD::TruthParticleContainer#EXOT5TruthMuons',
@@ -411,6 +496,14 @@ if DerivationFrameworkIsMonteCarlo:
         'TruthEvents.truthParticleLinks.truthVertexLinks.signalProcessVertexLink.beamParticle1Link.beamParticle2Link.crossSectionError.weights.PDFID1.PDFID2.PDGID1.PDGID2.Q.X1.X2.XF1.XF2.crossSection',
         'TruthParticles.px.py.pz.pdgId.status.e'
     ]
+    # For VBF h > Inv
+    EXOT5SlimmingHelper.ExtraVariables = [
+        'AntiKt4TruthJets.pt.eta.phi.m',
+        'AntiKt4EMPFlowJets.GhostTruthAssociationLink.HadronConeExclTruthLabelID.PartonTruthLabelID',
+        'TruthParticles.prodVtxLink.px.py.pz.e.pdgId.barcode.status',
+        'TruthVertices.incomingParticleLinks'
+    ]
+
 EXOT5SlimmingHelper.UserContent = []
 EXOT5SlimmingHelper.IncludeMuonTriggerContent = True
 EXOT5SlimmingHelper.IncludeEGammaTriggerContent = True

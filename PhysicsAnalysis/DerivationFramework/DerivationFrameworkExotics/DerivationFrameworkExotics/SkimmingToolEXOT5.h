@@ -21,7 +21,7 @@ namespace DerivationFramework {
 
   class SkimmingToolEXOT5 : public AthAlgTool, public ISkimmingTool {
 
-    public: 
+    public:
       SkimmingToolEXOT5( const std::string& t, const std::string& n, const IInterface* p );
 
       ~SkimmingToolEXOT5();
@@ -42,12 +42,13 @@ namespace DerivationFramework {
       double m_leadingJetPt;
       double m_subleadingJetPt;
       double m_Mjj;
+      double m_DEta;
 
       mutable bool m_isMC;
       mutable unsigned int m_ntot;
       mutable unsigned int m_npass;
 
-  }; 
+  };
 
 }
 
