@@ -19,7 +19,7 @@ namespace DerivationFramework {
     AthAlgTool(t,n,p),
     m_v0FinderTool("InDet::V0FinderTool"),
     m_V0Tools("Trk::V0Tools"),
-    m_particleDataTable(0),
+    m_particleDataTable(nullptr),
     m_masses(1),
     m_masspi(139.57),
     m_massp(938.272),
@@ -59,23 +59,13 @@ namespace DerivationFramework {
     ATH_MSG_DEBUG("in initialize()");
  
     // get the V0Finder tool
-    if ( m_v0FinderTool.retrieve().isFailure() ) {
-      ATH_MSG_FATAL("Failed to retrieve tool " << m_v0FinderTool);
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_INFO("Retrieved tool " << m_v0FinderTool);
-    }
+    ATH_CHECK( m_v0FinderTool.retrieve());
 
     // uploading the V0 tools
-    if ( m_V0Tools.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_V0Tools << endmsg;
-      return StatusCode::FAILURE;
-    } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_V0Tools << endmsg;
-    }
+    ATH_CHECK( m_V0Tools.retrieve());
 
     // get the Particle Properties Service
-    IPartPropSvc* partPropSvc = 0;
+    IPartPropSvc* partPropSvc = nullptr;
     StatusCode sc = service("PartPropSvc", partPropSvc, true);
     if (sc.isFailure()) {
       msg(MSG::ERROR) << "Could not initialize Particle Properties Service" << endmsg;
@@ -161,22 +151,19 @@ namespace DerivationFramework {
     }
 
 // InDetV0 container and its auxilliary store
-    xAOD::VertexContainer*    v0Container(0);
-    xAOD::VertexAuxContainer* v0AuxContainer(0);
-    xAOD::VertexContainer*    ksContainer(0);
-    xAOD::VertexAuxContainer* ksAuxContainer(0);
-    xAOD::VertexContainer*    laContainer(0);
-    xAOD::VertexAuxContainer* laAuxContainer(0);
-    xAOD::VertexContainer*    lbContainer(0);
-    xAOD::VertexAuxContainer* lbAuxContainer(0);
+    xAOD::VertexContainer*    v0Container(nullptr);
+    xAOD::VertexAuxContainer* v0AuxContainer(nullptr);
+    xAOD::VertexContainer*    ksContainer(nullptr);
+    xAOD::VertexAuxContainer* ksAuxContainer(nullptr);
+    xAOD::VertexContainer*    laContainer(nullptr);
+    xAOD::VertexAuxContainer* laAuxContainer(nullptr);
+    xAOD::VertexContainer*    lbContainer(nullptr);
+    xAOD::VertexAuxContainer* lbAuxContainer(nullptr);
 
     if (callV0Finder && !skip) {
 
-    if ( !m_v0FinderTool->performSearch(v0Container,v0AuxContainer,ksContainer,ksAuxContainer,laContainer,laAuxContainer,lbContainer,lbAuxContainer,primaryVertex,m_VxPrimaryCandidateName).isSuccess() )
-    {
-      ATH_MSG_FATAL("Reco_V0Finder (" << m_v0FinderTool << ") failed.");
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(m_v0FinderTool->performSearch(v0Container, v0AuxContainer, ksContainer, ksAuxContainer, laContainer, laAuxContainer, lbContainer, lbAuxContainer, primaryVertex, m_VxPrimaryCandidateName));
+
     ATH_MSG_DEBUG("Reco_V0Finder v0Container->size() " << v0Container->size());
     ATH_MSG_DEBUG("Reco_V0Finder ksContainer->size() " << ksContainer->size());
     ATH_MSG_DEBUG("Reco_V0Finder laContainer->size() " << laContainer->size());
@@ -313,29 +300,21 @@ namespace DerivationFramework {
     }
 
     //---- Recording section: write the results to StoreGate ---//
-    if (!evtStore()->contains<xAOD::VertexContainer>(m_v0ContainerName))
-      CHECK(evtStore()->record(v0Container, m_v0ContainerName));
+    CHECK(evtStore()->record(v0Container, m_v0ContainerName));
   
-    if (!evtStore()->contains<xAOD::VertexAuxContainer>(m_v0ContainerName+"Aux."))
-      CHECK(evtStore()->record(v0AuxContainer, m_v0ContainerName+"Aux."));
+    CHECK(evtStore()->record(v0AuxContainer, m_v0ContainerName+"Aux."));
   
-    if (!evtStore()->contains<xAOD::VertexContainer>(m_ksContainerName))
-      CHECK(evtStore()->record(ksContainer, m_ksContainerName));
+    CHECK(evtStore()->record(ksContainer, m_ksContainerName));
   
-    if (!evtStore()->contains<xAOD::VertexAuxContainer>(m_ksContainerName+"Aux."))
-      CHECK(evtStore()->record(ksAuxContainer, m_ksContainerName+"Aux."));
+    CHECK(evtStore()->record(ksAuxContainer, m_ksContainerName+"Aux."));
   
-    if (!evtStore()->contains<xAOD::VertexContainer>(m_laContainerName))
-      CHECK(evtStore()->record(laContainer, m_laContainerName));
+    CHECK(evtStore()->record(laContainer, m_laContainerName));
   
-    if (!evtStore()->contains<xAOD::VertexAuxContainer>(m_laContainerName+"Aux."))
-      CHECK(evtStore()->record(laAuxContainer, m_laContainerName+"Aux."));
+    CHECK(evtStore()->record(laAuxContainer, m_laContainerName+"Aux."));
   
-    if (!evtStore()->contains<xAOD::VertexContainer>(m_lbContainerName))
-      CHECK(evtStore()->record(lbContainer, m_lbContainerName));
+    CHECK(evtStore()->record(lbContainer, m_lbContainerName));
   
-    if (!evtStore()->contains<xAOD::VertexAuxContainer>(m_lbContainerName+"Aux."))
-      CHECK(evtStore()->record(lbAuxContainer, m_lbContainerName+"Aux."));
+    CHECK(evtStore()->record(lbAuxContainer, m_lbContainerName+"Aux."));
 
     return StatusCode::SUCCESS;    
   }

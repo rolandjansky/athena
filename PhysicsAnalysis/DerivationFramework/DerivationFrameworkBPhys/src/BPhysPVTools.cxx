@@ -451,15 +451,17 @@ vector<const xAOD::Vertex*> DerivationFramework::BPhysPVTools::GetGoodPV(const x
     }
     return goodPrimaryVertices;
 }
-
-
+//-----------------------------------------------------------------------------
+// added by WW:
+//
 void DerivationFramework::BPhysPVTools::SetMinNTracksInPV(size_t PV_minNTracks)
 {
 
   m_PV_minNTracks = PV_minNTracks;
 }
-
-
+//-----------------------------------------------------------------------------
+// added by WW:
+//
 Amg::Vector3D DerivationFramework::BPhysPVTools::GetBeamSpot(bool resetCache)
   const {
 
@@ -479,8 +481,9 @@ Amg::Vector3D DerivationFramework::BPhysPVTools::GetBeamSpot(bool resetCache)
   }
   return m_beamspot;
 }
-
-
+//-----------------------------------------------------------------------------
+// added by WW:
+//
 size_t DerivationFramework::BPhysPVTools::FindLowZ0BAIndex(const xAOD::BPhysHelper &obj,
 							   const std::vector<const xAOD::Vertex*> &PVlist,
 							   const size_t PV_minNTracks) const {
@@ -498,8 +501,9 @@ size_t DerivationFramework::BPhysPVTools::FindLowZ0BAIndex(const xAOD::BPhysHelp
   }
   return ilowZ0BA;
 }
-
-
+//-----------------------------------------------------------------------------
+// added by WW:
+//
 double DerivationFramework::BPhysPVTools::DistInZtoDOCA(const xAOD::BPhysHelper &obj, const xAOD::Vertex* vertex) const {
 
   Amg::Vector3D pv    = vertex->position();
@@ -507,8 +511,9 @@ double DerivationFramework::BPhysPVTools::DistInZtoDOCA(const xAOD::BPhysHelper 
   Amg::Vector3D vec   = pv - xDOCA;
   return vec.z();
 }
-
-
+//-----------------------------------------------------------------------------
+// added by WW:
+//
 Amg::Vector3D DerivationFramework::BPhysPVTools::DocaExtrapToBeamSpot(const xAOD::BPhysHelper& obj) const {
 
   Amg::Vector3D xDOCA(-99999., -99999., -99999.);

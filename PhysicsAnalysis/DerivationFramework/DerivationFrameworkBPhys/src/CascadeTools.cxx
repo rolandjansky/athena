@@ -19,6 +19,8 @@ CascadeTools::CascadeTools(const std::string& t, const std::string& n, const IIn
 
 CascadeTools::~CascadeTools() {}
 
+//Light speed constant for various calculations
+constexpr double s_CONST = 1000./299.792;
 
 double CascadeTools::invariantMass(const std::vector<TLorentzVector> &particleMom) const
 {
@@ -112,14 +114,14 @@ double CascadeTools::invariantMassError(const std::vector<TLorentzVector> &parti
 double CascadeTools::pT(const std::vector<TLorentzVector> &particleMom) const
 {
   if(particleMom.size() == 0) return -999999.;
-  Amg::Vector3D P = Momentum(particleMom);;
+  Amg::Vector3D P = momentum(particleMom);;
   return P.perp();
 }
 
 double CascadeTools::pTError(const std::vector<TLorentzVector> &particleMom, const Amg::MatrixX& cov) const
 {
   if(particleMom.size() == 0) return -999999.;
-  Amg::Vector3D P = Momentum(particleMom);;
+  Amg::Vector3D P = momentum(particleMom);;
   double Px = P.x();
   double Py = P.y();
   double PT = P.perp();
@@ -143,7 +145,7 @@ double CascadeTools::lxy(const std::vector<TLorentzVector> &particleMom, const x
   auto vert = SV->position() - PV->position();
   double dx = vert.x();
   double dy = vert.y();
-  Amg::Vector3D P = Momentum(particleMom);;
+  Amg::Vector3D P = momentum(particleMom);;
   double dxy = (P.x()*dx + P.y()*dy)/P.perp();
   return dxy;
 }
@@ -154,7 +156,7 @@ double CascadeTools::lxyError(const std::vector<TLorentzVector> &particleMom, co
   auto vert = SV->position() - PV->position();
   double dx = vert.x();
   double dy = vert.y();
-  Amg::Vector3D P = Momentum(particleMom);;
+  Amg::Vector3D P = momentum(particleMom);;
   double Px = P.x();
   double Py = P.y();
   double PT = P.perp();
@@ -194,22 +196,20 @@ double CascadeTools::lxyError(const std::vector<TLorentzVector> &particleMom, co
 double CascadeTools::tau(const std::vector<TLorentzVector> &particleMom, const xAOD::Vertex* SV, const xAOD::Vertex* PV) const
 {
   if(particleMom.size() == 0) return -999999.;
-  double CONST = 1000./299.792;
   double M = invariantMass(particleMom);
   double LXY = lxy(particleMom,SV,PV);
   double PT = pT(particleMom);
-  return CONST*M*LXY/PT;
+  return s_CONST*M*LXY/PT;
 }
 
 double CascadeTools::tauError(const std::vector<TLorentzVector> &particleMom, const Amg::MatrixX& cov, const xAOD::Vertex* SV, const xAOD::Vertex* PV) const
 {
   if(particleMom.size() == 0) return -999999.;
-  double CONST = 1000./299.792;
   double M = invariantMass(particleMom);
   auto vert = SV->position() - PV->position();
   double dx = vert.x();
   double dy = vert.y();
-  Amg::Vector3D P = Momentum(particleMom);;
+  Amg::Vector3D P = momentum(particleMom);;
   double Px = P.x();
   double Py = P.y();
   double PT = P.perp();
@@ -246,26 +246,24 @@ double CascadeTools::tauError(const std::vector<TLorentzVector> &particleMom, co
   double tauErrsq = V_err(0,0);
   if (tauErrsq <= 0.) ATH_MSG_DEBUG("tauError: negative sqrt tauErrsq " << tauErrsq);
   double tauErr = (tauErrsq>0.) ? sqrt(tauErrsq) : 0.;
-  return CONST*tauErr;
+  return s_CONST*tauErr;
 }
 
 double CascadeTools::tau(const std::vector<TLorentzVector> &particleMom, const xAOD::Vertex* SV, const xAOD::Vertex* PV, double M) const
 {
   if(particleMom.size() == 0) return -999999.;
-  double CONST = 1000./299.792;
   double LXY = lxy(particleMom,SV,PV);
   double PT = pT(particleMom);
-  return CONST*M*LXY/PT;
+  return s_CONST*M*LXY/PT;
 }
 
 double CascadeTools::tauError(const std::vector<TLorentzVector> &particleMom, const Amg::MatrixX& cov, const xAOD::Vertex* SV, const xAOD::Vertex* PV, double M) const
 {
   if(particleMom.size() == 0) return -999999.;
-  double CONST = 1000./299.792;
   auto vert = SV->position() - PV->position();
   double dx = vert.x();
   double dy = vert.y();
-  Amg::Vector3D P = Momentum(particleMom);;
+  Amg::Vector3D P = momentum(particleMom);;
   double Px = P.x();
   double Py = P.y();
   double PT = P.perp();
@@ -302,7 +300,7 @@ double CascadeTools::tauError(const std::vector<TLorentzVector> &particleMom, co
   double tauErrsq = V_err(0,0);
   if (tauErrsq <= 0.) ATH_MSG_DEBUG("tauError: negative sqrt tauErrsq " << tauErrsq);
   double tauErr = (tauErrsq>0.) ? sqrt(tauErrsq) : 0.;
-  return CONST*tauErr;
+  return s_CONST*tauErr;
 }
 
 Amg::Vector3D CascadeTools::pca(const std::vector<TLorentzVector> &particleMom, const xAOD::Vertex* SV, const xAOD::Vertex* PV) const
@@ -313,7 +311,7 @@ Amg::Vector3D CascadeTools::pca(const std::vector<TLorentzVector> &particleMom, 
   }
   Amg::Vector3D pv = PV->position();
   Amg::Vector3D sv = SV->position();
-  Amg::Vector3D P = Momentum(particleMom);;
+  Amg::Vector3D P = momentum(particleMom);;
   double p2 = P.mag2();
   double pdr = P.dot((sv - pv));
   return sv - P*pdr/p2;
@@ -322,7 +320,7 @@ Amg::Vector3D CascadeTools::pca(const std::vector<TLorentzVector> &particleMom, 
 double CascadeTools::cosTheta(const std::vector<TLorentzVector> &particleMom, const xAOD::Vertex* SV, const xAOD::Vertex* PV) const
 {
   if(particleMom.size() == 0) return -999999.;
-  Amg::Vector3D P = Momentum(particleMom);;
+  Amg::Vector3D P = momentum(particleMom);;
   Amg::Vector3D vtx = SV->position();
   vtx -= PV->position();
   return (P.dot(vtx))/(P.mag()*vtx.mag());
@@ -331,7 +329,7 @@ double CascadeTools::cosTheta(const std::vector<TLorentzVector> &particleMom, co
 double CascadeTools::cosTheta_xy(const std::vector<TLorentzVector> &particleMom, const xAOD::Vertex* SV, const xAOD::Vertex* PV) const
 {
   if(particleMom.size() == 0) return -999999.;
-  Amg::Vector3D P = Momentum(particleMom);;
+  Amg::Vector3D P = momentum(particleMom);;
   Amg::Vector3D vtx = SV->position();
   vtx -= PV->position();
   double pT = P.perp();
@@ -354,7 +352,7 @@ double CascadeTools::a0zError(const std::vector<TLorentzVector> &particleMom, co
   double dx = vert.x();
   double dy = vert.y();
   double dz = vert.z();
-  Amg::Vector3D P = Momentum(particleMom);;
+  Amg::Vector3D P = momentum(particleMom);;
   double Px = P.x();
   double Py = P.y();
   double Pz = P.z();
@@ -409,7 +407,7 @@ double CascadeTools::a0xyError(const std::vector<TLorentzVector> &particleMom, c
   auto vert = SV->position() - PV->position();
   double dx = vert.x();
   double dy = vert.y();
-  Amg::Vector3D P = Momentum(particleMom);;
+  Amg::Vector3D P = momentum(particleMom);;
   double Px = P.x();
   double Py = P.y();
   double P2 = P.perp()*P.perp();
@@ -463,7 +461,7 @@ double CascadeTools::a0Error(const std::vector<TLorentzVector> &particleMom, con
   double dx = vert.x();
   double dy = vert.y();
   double dz = vert.z();
-  Amg::Vector3D P = Momentum(particleMom);;
+  Amg::Vector3D P = momentum(particleMom);;
   double Px = P.x();
   double Py = P.y();
   double Pz = P.z();
@@ -505,7 +503,7 @@ double CascadeTools::a0Error(const std::vector<TLorentzVector> &particleMom, con
   return (a0Errsq>0.) ? sqrt(a0Errsq) : 0.;
 }
 
-Amg::Vector3D CascadeTools::Momentum(const std::vector<TLorentzVector> &particleMom) const
+Amg::Vector3D CascadeTools::momentum(const std::vector<TLorentzVector> &particleMom) const
 {
   if(particleMom.size() == 0) {
     Amg::Vector3D p; p.setZero();
@@ -567,7 +565,7 @@ Amg::MatrixX * CascadeTools::convertCovMatrix(const xAOD::Vertex * vxCandidate) 
   } else if (matrix.size() == (5*NTrk+3)*(5*NTrk+3+1)/2) {
     ndim = 5*NTrk+3;
   } else {
-    return NULL;
+    return nullptr;
   }
 
   Amg::MatrixX* mtx = new Amg::MatrixX(ndim,ndim);

@@ -591,7 +591,7 @@ namespace DerivationFramework {
     m_V0MassUpper(10000.0),
     m_MassLower(0.0),
     m_MassUpper(20000.0),
-    m_particleDataTable(0),
+    m_particleDataTable(nullptr),
     m_mass_muon   ( 0 ),
     m_mass_pion   ( 0 ),
     m_mass_proton ( 0 ),

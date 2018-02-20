@@ -13,7 +13,7 @@
 using namespace std;
 
 DerivationFramework::BPhysPVCascadeTools::BPhysPVCascadeTools(CascadeTools *cascadeTools) :
-  m_cascadeTools(cascadeTools), m_beamSpotSvc(NULL), m_PV_minNTracks(0),
+  m_cascadeTools(cascadeTools), m_beamSpotSvc(nullptr), m_PV_minNTracks(0),
   m_BScached(false)
 {
 }
@@ -142,7 +142,6 @@ vector<const xAOD::Vertex*> DerivationFramework::BPhysPVCascadeTools::GetGoodPV(
     return goodPrimaryVertices;
 }
 //-----------------------------------------------------------------------------
-// added by WW:
 //
 void DerivationFramework::BPhysPVCascadeTools::SetMinNTracksInPV(size_t PV_minNTracks)
 {
@@ -150,7 +149,6 @@ void DerivationFramework::BPhysPVCascadeTools::SetMinNTracksInPV(size_t PV_minNT
   m_PV_minNTracks = PV_minNTracks;
 }
 //-----------------------------------------------------------------------------
-// added by WW:
 //
 Amg::Vector3D DerivationFramework::BPhysPVCascadeTools::GetBeamSpot(bool resetCache)
   const {
@@ -161,7 +159,7 @@ Amg::Vector3D DerivationFramework::BPhysPVCascadeTools::GetBeamSpot(bool resetCa
     m_BScached = false;
   } else {
     if ( !m_BScached ) {
-      if ( m_beamSpotSvc != NULL ) { 
+      if ( m_beamSpotSvc != nullptr ) { 
 	// obtain beamspot from BeamCondSvc
 	m_beamspot = (*m_beamSpotSvc)->beamPos();
       } else {
@@ -172,7 +170,6 @@ Amg::Vector3D DerivationFramework::BPhysPVCascadeTools::GetBeamSpot(bool resetCa
   return m_beamspot;
 }
 //-----------------------------------------------------------------------------
-// added by WW:
 //
 size_t DerivationFramework::BPhysPVCascadeTools::FindLowZ0BAIndex(const std::vector<TLorentzVector> &mom, const xAOD::BPhysHelper &obj,
 							   const std::vector<const xAOD::Vertex*> &PVlist,
@@ -192,7 +189,6 @@ size_t DerivationFramework::BPhysPVCascadeTools::FindLowZ0BAIndex(const std::vec
   return ilowZ0BA;
 }
 //-----------------------------------------------------------------------------
-// added by WW:
 //
 double DerivationFramework::BPhysPVCascadeTools::DistInZtoDOCA(const std::vector<TLorentzVector> &mom, const xAOD::BPhysHelper &obj, const xAOD::Vertex* vertex) const {
 
@@ -202,7 +198,6 @@ double DerivationFramework::BPhysPVCascadeTools::DistInZtoDOCA(const std::vector
   return vec.z();
 }
 //-----------------------------------------------------------------------------
-// added by WW:
 //
 Amg::Vector3D DerivationFramework::BPhysPVCascadeTools::DocaExtrapToBeamSpot(const std::vector<TLorentzVector> &mom, const xAOD::BPhysHelper& obj) const {
 

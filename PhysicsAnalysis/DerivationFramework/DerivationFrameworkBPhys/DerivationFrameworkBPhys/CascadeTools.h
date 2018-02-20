@@ -48,7 +48,7 @@ namespace DerivationFramework {
   }
 
 
-    Amg::Vector3D Momentum(const std::vector<TLorentzVector> &particleMom) const;
+    Amg::Vector3D momentum(const std::vector<TLorentzVector> &particleMom) const;
     Amg::Vector3D pca(const std::vector<TLorentzVector> &particleMom, const xAOD::Vertex* SV, const xAOD::Vertex* PV) const;
 
     double invariantMass(const std::vector<TLorentzVector> &moms, const std::vector<double> &masses) const;
