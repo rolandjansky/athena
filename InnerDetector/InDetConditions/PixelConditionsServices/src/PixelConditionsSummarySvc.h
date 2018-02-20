@@ -14,7 +14,6 @@
 #include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
 
-
 class Identifier;
 class IdentifierHash;
 class PixelID;
@@ -26,7 +25,6 @@ class StoreGateSvc;
 class IPixelTDAQSvc;
 class IBLParameterSvc;
 
-
 /**
  * Returns the status of pixel modules, frontends or single pixels
  * as determined by the PixelDCSSvc, PixelByteStreamErrorsSvc and SpecialPixelMapSvc.
@@ -35,56 +33,53 @@ class IBLParameterSvc;
  *
  */
 
+class PixelConditionsSummarySvc: public AthService, virtual public IInDetConditionsSvc {
+  public:
+    static const InterfaceID& interfaceID();
 
+    PixelConditionsSummarySvc(const std::string& name, ISvcLocator* sl);
+    virtual ~PixelConditionsSummarySvc();
 
-class PixelConditionsSummarySvc: public AthService, virtual public IInDetConditionsSvc{
+    virtual StatusCode initialize();
+    virtual StatusCode finalize();
 
- public:
-  static const InterfaceID& interfaceID();
+    virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvIf);
 
-  PixelConditionsSummarySvc(const std::string& name, ISvcLocator* sl);
-  virtual ~PixelConditionsSummarySvc();
+    virtual bool isActive(const Identifier & elementId, const InDetConditions::Hierarchy h=InDetConditions::DEFAULT);
+    virtual bool isActive(const IdentifierHash & elementHash);
+    virtual bool isActive(const IdentifierHash & elementHash, const Identifier & elementId);
+    virtual double activeFraction(const IdentifierHash & elementHash, const Identifier & idStart, const Identifier & idEnd);
 
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
+    virtual bool isGood(const Identifier & elementId, const InDetConditions::Hierarchy h=InDetConditions::DEFAULT);
+    virtual bool isGood(const IdentifierHash & elementHash);
+    virtual bool isGood(const IdentifierHash & elementHash, const Identifier & elementId);
+    virtual double goodFraction(const IdentifierHash & elementHash, const Identifier & idStart, const Identifier & idEnd);
 
-  virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvIf);
+    virtual StatusCode specialPixelMapCallBack(IOVSVC_CALLBACK_ARGS);
 
-  virtual bool isActive(const Identifier & elementId, const InDetConditions::Hierarchy h=InDetConditions::DEFAULT);
-  virtual bool isActive(const IdentifierHash & elementHash);
-  virtual bool isActive(const IdentifierHash & elementHash, const Identifier & elementId);
-  virtual double activeFraction(const IdentifierHash & elementHash, const Identifier & idStart, const Identifier & idEnd);
+  private:
+    ServiceHandle< StoreGateSvc > m_detStore;
 
-  virtual bool isGood(const Identifier & elementId, const InDetConditions::Hierarchy h=InDetConditions::DEFAULT);
-  virtual bool isGood(const IdentifierHash & elementHash);
-  virtual bool isGood(const IdentifierHash & elementHash, const Identifier & elementId);
-  virtual double goodFraction(const IdentifierHash & elementHash, const Identifier & idStart, const Identifier & idEnd);
+    const PixelID* m_pixelID;
 
-  virtual StatusCode specialPixelMapCallBack(IOVSVC_CALLBACK_ARGS);
+    std::string m_specialPixelMapKey;
 
-private:
-  ServiceHandle< StoreGateSvc > m_detStore;
+    const DetectorSpecialPixelMap* m_specialPixelMap;
 
-  const PixelID* m_pixelID;
+    ServiceHandle< ISpecialPixelMapSvc > m_specialPixelMapSvc;
+    ServiceHandle< IPixelDCSSvc > m_pixelDCSSvc;
+    ServiceHandle< IBLParameterSvc> m_IBLParameterSvc;
+    ServiceHandle< IPixelByteStreamErrorsSvc > m_pixelBSErrorsSvc;
+    ServiceHandle< IPixelTDAQSvc > m_pixelTDAQSvc;
+    std::vector<std::string> m_isActiveStatus;
+    std::vector<std::string> m_isActiveStates;
 
-  std::string m_specialPixelMapKey;
+    bool m_useSpecialPixelMap;
+    bool m_useDCS;
+    bool m_useBS;
+    bool m_useTDAQ;
 
-  const DetectorSpecialPixelMap* m_specialPixelMap;
-
-  ServiceHandle< ISpecialPixelMapSvc > m_specialPixelMapSvc;
-  ServiceHandle< IPixelDCSSvc > m_pixelDCSSvc;
-  ServiceHandle< IBLParameterSvc> m_IBLParameterSvc;
-  ServiceHandle< IPixelByteStreamErrorsSvc > m_pixelBSErrorsSvc;
-  ServiceHandle< IPixelTDAQSvc > m_pixelTDAQSvc;
-  std::vector<std::string> m_isActiveStatus;
-  std::vector<std::string> m_isActiveStates;
-
-  bool m_useSpecialPixelMap;
-  bool m_useDCS;
-  bool m_useBS;
-  bool m_useTDAQ;
-
-  void getID(const Identifier& id, unsigned int& pixID, unsigned int& mchips) const;
+    void getID(const Identifier& id, unsigned int& pixID, unsigned int& mchips) const;
 
 };
 

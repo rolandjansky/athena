@@ -199,9 +199,6 @@ class PixelConditionsServicesSetup:
     from PixelConditionsServices.PixelConditionsServicesConf import PixelSiliconConditionsSvc
     pixelSiliconConditionsSvc=PixelSiliconConditionsSvc(name=self.instanceName('PixelSiliconConditionsSvc'),
                                                         PixelDCSSvc = 'TrigPixelDCSSvc')
-    pixelSiliconConditionsSvc.ForceUseGeoModel = False
-    pixelSiliconConditionsSvc.UseDBForHV=True
-    pixelSiliconConditionsSvc.UseDBForTemperature=True
     ServiceMgr += pixelSiliconConditionsSvc
 
     PixelLorentzAngleSvc.SiConditionsServices = pixelSiliconConditionsSvc

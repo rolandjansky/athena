@@ -20,6 +20,9 @@
 #include "GaudiKernel/StatusCode.h"
 #include "PixelGeoModel/IBLParameterSvc.h"
 
+#include "InDetReadoutGeometry/SiDetectorElement.h"
+#include "InDetReadoutGeometry/PixelModuleDesign.h"
+
 // Tools to fill the cabling
 //#include "GaudiKernel/IToolSvc.h"
 
@@ -56,6 +59,7 @@ PixelCablingSvc::PixelCablingSvc(const std::string& name, ISvcLocator*svc) :
     m_cablingTool("PixelFillCablingData"),
     m_detStore("DetectorStore", name),
     m_IBLParameterSvc("IBLParameterSvc",name),
+    m_detManager(0),
     m_idHelper(0),
     m_cabling(new PixelCablingData),
     m_callback_calls(0),
@@ -167,6 +171,8 @@ StatusCode PixelCablingSvc::initialize() {
   ATH_MSG_INFO("PixelCablingSvc::initialize()");
 
   CHECK(m_detStore.retrieve());
+  
+  CHECK(m_detStore->retrieve(m_detManager,"Pixel"));
 
   CHECK(m_detStore->retrieve(m_idHelper,"PixelID"));
 
@@ -1036,6 +1042,52 @@ PixelCablingSvc::moduletype PixelCablingSvc::getModuleType(const Identifier& id)
   }
   return isType;
 }
+
+PixelCablingSvc::pixeltype PixelCablingSvc::getPixelType(Identifier *pixelId) {
+  Identifier offlineId = m_idHelper->wafer_id(*pixelId);
+  uint32_t row = getRow(pixelId,offlineId);
+  uint32_t col = getColumn(pixelId,offlineId);
+
+  const InDetDD::SiDetectorElement *element = m_detManager->getDetectorElement(offlineId);
+  const InDetDD::PixelModuleDesign *p_design = static_cast<const InDetDD::PixelModuleDesign*>(&element->design());
+
+  if (p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI4) {
+    if (p_design->numberOfCircuits()==2) {
+      if (col==0 || col==p_design->columnsPerCircuit()-1) {   // column edge =0,79
+        return LONG;
+      }
+    }
+    return NORMAL;
+  }
+  else if (p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI3) {
+    if (col>0 && col<p_design->columnsPerCircuit()-1) {
+      if (row>=p_design->rowsPerCircuit()/2-1-6-1 && row<=p_design->rowsPerCircuit()/2-1) {
+        if ((row-p_design->rowsPerCircuit()/2-1-6+1)%2+1==1) {
+          return LONG;
+        }
+        else if ((row-p_design->rowsPerCircuit()/2-1-6+1)%2+1==2) {
+          return GANGED;
+        }
+        else {
+          std::cout << "STSTST STRANGE!! " << (row-p_design->rowsPerCircuit()/2-1-6+1)%2+1 << std::endl;
+        }
+      }
+      else {
+        return NORMAL; 
+      }
+    } 
+    else if (col==0 || col==p_design->columnsPerCircuit()-1) {
+      if (row>=p_design->rowsPerCircuit()/2-1-6-1) {
+        return GANGED;
+      }
+      else {
+        return LONG;
+      }
+    }
+  }
+  return NORMAL;
+}
+
 
 ////////////////////////
 // getHitDiscCnfg - wrapper function to PixelCablingData::getHitDiscCnfg

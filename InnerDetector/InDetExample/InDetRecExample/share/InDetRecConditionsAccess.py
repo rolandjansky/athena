@@ -118,11 +118,8 @@ if DetFlags.haveRIO.pixel_on():
         InDetPixelConditionsSummarySvc.UseDCS         = isData
         InDetPixelConditionsSummarySvc.IsActiveStates = [ 'READY', 'ON', 'UNKNOWN', 'TRANSITION', 'UNDEFINED' ]
         InDetPixelConditionsSummarySvc.IsActiveStatus = [ 'OK', 'WARNING', 'ERROR', 'FATAL' ]
-        # Force Lorentz angle calculation to use DCS for data
-        if (globalflags.DataSource() == 'data'):
-            pixelLorentzAngleSvcSetup.forceUseDB()
     else:
-        pixelLorentzAngleSvcSetup.forceUseGeoModel()
+        pixelLorentzAngleSvcSetup.useDefault()
 
     # Load Pixel BS errors service
     if ( globalflags.DataSource == 'geant4' ) :

@@ -63,9 +63,7 @@ PixelDCSSvc::PixelDCSSvc(const std::string& name, ISvcLocator* sl):
 
 PixelDCSSvc::~PixelDCSSvc(){}
 
-
-inline StatusCode PixelDCSSvc::queryInterface(const InterfaceID& riid, void** ppvIf){
-
+inline StatusCode PixelDCSSvc::queryInterface(const InterfaceID& riid, void** ppvIf) {
   if (riid == interfaceID()){
     *ppvIf = dynamic_cast<PixelDCSSvc*>(this);
     addRef();
@@ -77,9 +75,7 @@ inline StatusCode PixelDCSSvc::queryInterface(const InterfaceID& riid, void** pp
     return StatusCode::SUCCESS;
   }
   return AthService::queryInterface( riid, ppvIf );
-
 }
-
 
 StatusCode PixelDCSSvc::initialize() {
   ATH_MSG_INFO("PixelDCSSvc::initialize()");
@@ -87,10 +83,6 @@ StatusCode PixelDCSSvc::initialize() {
   CHECK(m_detStore.retrieve());
 
   CHECK(m_detStore->retrieve(m_pixman,"Pixel"));
-
-  InDetDD::SiDetectorElementCollection::const_iterator itermin, itermax; 
-  itermin = m_pixman->getDetectorElementBegin(); 
-  itermax = m_pixman->getDetectorElementEnd(); 
 
   CHECK(m_detStore->retrieve(m_pixid,"PixelID"));
 
