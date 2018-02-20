@@ -187,16 +187,18 @@ jtm += TrackVertexAssociationTool(
 #--------------------------------------------------------------
 
 if jetFlags.useTruth:
-    truthClassifier = MCTruthClassifier(name = "JetMCTruthClassifier",
-                                       ParticleCaloExtensionTool="")
-    jtm += truthClassifier
+  from MCTruthClassifier.MCTruthClassifierConfig import firstSimCreatedBarcode
+  truthClassifier = MCTruthClassifier(name = "JetMCTruthClassifier",
+                                      barcodeG4Shift= firstSimCreatedBarcode(),
+                                      ParticleCaloExtensionTool="")
+  jtm += truthClassifier
 
-    jtm += CopyTruthJetParticles("truthpartcopy", OutputName="JetInputTruthParticles",
-                                 MCTruthClassifier=truthClassifier)
-    jtm += CopyTruthJetParticles("truthpartcopywz", OutputName="JetInputTruthParticlesNoWZ",
-                                 MCTruthClassifier=truthClassifier,
-                                 IncludePromptLeptons=False,
-                                 IncludeMuons=True,IncludeNeutrinos=True)
+  jtm += CopyTruthJetParticles("truthpartcopy", OutputName="JetInputTruthParticles",
+                               MCTruthClassifier=truthClassifier)
+  jtm += CopyTruthJetParticles("truthpartcopywz", OutputName="JetInputTruthParticlesNoWZ",
+                               MCTruthClassifier=truthClassifier,
+                               IncludePromptLeptons=False,
+                               IncludeMuons=True,IncludeNeutrinos=True)
 
 
 #--------------------------------------------------------------
