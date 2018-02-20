@@ -505,6 +505,7 @@ namespace ST {
     std::string m_eleChID_WP;
     bool        m_runECIS; //run ChargeIDSelector if valid WP was selected
     std::string m_photonIso_WP;
+    std::string m_photonTriggerName;
     std::string m_muIso_WP;
     std::string m_BtagWP;
     std::string m_BtagTagger;
@@ -546,6 +547,8 @@ namespace ST {
     bool   m_photonBaselineCrackVeto;
     bool   m_photonCrackVeto;
     bool   m_photonAllowLate;
+
+    std::string m_photonEffCorrFilePath;
 
     double m_tauPrePtCut;
     double m_tauPt;
@@ -676,6 +679,7 @@ namespace ST {
     asg::AnaToolHandle<IAsgPhotonIsEMSelector>     m_photonSelIsEMBaseline;
     asg::AnaToolHandle<IAsgPhotonEfficiencyCorrectionTool> m_photonEfficiencySFTool;
     asg::AnaToolHandle<IAsgPhotonEfficiencyCorrectionTool> m_photonIsolationSFTool;
+    asg::AnaToolHandle<IAsgPhotonEfficiencyCorrectionTool> m_photonTriggerSFTool;
     asg::AnaToolHandle<IElectronPhotonShowerShapeFudgeTool> m_electronPhotonShowerShapeFudgeTool;
     asg::AnaToolHandle<IEGammaAmbiguityTool> m_egammaAmbiguityTool;
     asg::AnaToolHandle<IAsgElectronLikelihoodTool> m_elecChargeIDSelectorTool;

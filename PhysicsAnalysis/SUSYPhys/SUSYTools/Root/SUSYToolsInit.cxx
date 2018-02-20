@@ -837,12 +837,12 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   if (!m_photonEfficiencySFTool.isUserConfigured() && !isData()) {
     m_photonEfficiencySFTool.setTypeAndName("AsgPhotonEfficiencyCorrectionTool/AsgPhotonEfficiencyCorrectionTool_" + m_photonId);
 
-    if (m_photonId != "Tight" ) { ATH_MSG_WARNING( "No Photon efficiency available for " << m_photonId << ", using Tight instead..." );  }
+    if (m_photonId != "Tight" ) { 
+      ATH_MSG_WARNING( "No Photon efficiency available for " << m_photonId << ", using Tight instead..." );  
+    }
 
-    ATH_CHECK( m_photonEfficiencySFTool.setProperty("MapFilePath", "PhotonEfficiencyCorrection/map0.txt") );
-    if(!isData())
-      ATH_CHECK( m_photonEfficiencySFTool.setProperty("ForceDataType", 1) ); //force to fullsim until we get AFII recommendations
-    //      ATH_CHECK( m_photonEfficiencySFTool.setProperty("ForceDataType", (int) data_type) );
+    ATH_CHECK( m_photonEfficiencySFTool.setProperty("MapFilePath", m_photonEffCorrFilePath) );
+    ATH_CHECK( m_photonEfficiencySFTool.setProperty("ForceDataType", 1) ); //set data type: 1 for FULLSIM, 3 for AF2
     ATH_CHECK( m_photonEfficiencySFTool.retrieve() );
   }
 
@@ -853,14 +853,28 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
       ATH_MSG_WARNING( "No Photon efficiency available for " << m_photonIso_WP);
     }
 
-    ATH_CHECK( m_photonIsolationSFTool.setProperty("MapFilePath", "PhotonEfficiencyCorrection/map0.txt"));
-    ATH_CHECK( m_photonIsolationSFTool.setProperty("IsoWP", m_photonIso_WP.substr(8) ));    // Set isolation WP: Loose,Tight,TightCaloOnly (remove the 'FixedCut', because egamma is egamma...)
-
-    if(!isData())
-      ATH_CHECK( m_photonIsolationSFTool.setProperty("ForceDataType", 1) );
+    ATH_CHECK( m_photonIsolationSFTool.setProperty("MapFilePath", m_photonEffCorrFilePath));
+    ATH_CHECK( m_photonIsolationSFTool.setProperty("IsoKey", m_photonIso_WP.substr(8) ));    // Set isolation WP: Loose,Tight,TightCaloOnly (remove the 'FixedCut', because egamma is egamma...)
+    ATH_CHECK( m_photonIsolationSFTool.setProperty("ForceDataType", 1) ); //set data type: 1 for FULLSIM, 3 for AF2
     ATH_CHECK( m_photonIsolationSFTool.retrieve() );
 
   }
+/*
+  // the trigger scale factors are new in Release 21 
+  if (!m_photonTriggerSFTool.isUserConfigured() && !isData()) {
+    m_photonTriggerSFTool.setTypeAndName("AsgPhotonEfficiencyCorrectionTool/AsgPhotonEfficiencyCorrectionTool_trig" + m_photonTriggerName);
+
+    if (m_photonTriggerName != "HLT_g20_tight_icalovloose_L1EM15VH") { // need to check which trigger sfs would be available
+      ATH_MSG_WARNING( "No Photon trigger efficiency available for " << m_photonTriggerName);
+    }
+
+    ATH_CHECK( m_photonTriggerSFTool.setProperty("MapFilePath", m_photonEffCorrFilePath));
+    ATH_CHECK( m_photonTriggerSFTool.setProperty("TriggerKey", m_photonTriggerName ));    
+    ATH_CHECK( m_photonTriggerSFTool.setProperty("ForceDataType", 1) ); //set data type: 1 for FULLSIM, 3 for AF2
+    ATH_CHECK( m_photonTriggerSFTool.retrieve() );
+
+  }
+*/
 
  ///////////////////////////////////////////////////////////////////////////////////////////
  // Initialize the MC fudge tool

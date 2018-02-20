@@ -141,6 +141,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_eleChID_WP(""),
     m_runECIS(false),
     m_photonIso_WP(""),
+    m_photonTriggerName(""),
     m_muIso_WP(""),
     m_BtagWP(""),
     m_BtagTagger(""),
@@ -277,6 +278,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_photonSelIsEMBaseline(""),
     m_photonEfficiencySFTool(""),
     m_photonIsolationSFTool(""),
+    m_photonTriggerSFTool(""),
     m_electronPhotonShowerShapeFudgeTool(""),
     m_egammaAmbiguityTool(""),
     m_elecChargeIDSelectorTool(""),
@@ -431,9 +433,11 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   declareProperty( "PhotonBaselineId", m_photonIdBaseline);
   declareProperty( "PhotonId", m_photonId);
   declareProperty( "PhotonIso", m_photonIso_WP);
+  declareProperty( "PhotonTriggerName", m_photonTriggerName);
   declareProperty( "PhotonBaselineCrackVeto", m_photonBaselineCrackVeto);
   declareProperty( "PhotonCrackVeto", m_photonCrackVeto);
   declareProperty( "PhotonAllowLate", m_photonAllowLate);
+  declareProperty( "PhotonEffCorrFilePath", m_photonEffCorrFilePath);
 
   //TAUS
   declareProperty( "TauBaselineId", m_tauIdBaseline);
@@ -517,6 +521,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
   m_photonSelIsEMBaseline.declarePropertyFor( this, "PhotonIsEMSelectorBaseline" , "The PhotonIsEMSelectorTool for baseline photons" );
   m_photonEfficiencySFTool.declarePropertyFor( this, "PhotonEfficiencyCorrectionTool", "The PhotonEfficiencyCorrectionTool for reco SFs" );
   m_photonIsolationSFTool.declarePropertyFor( this, "PhotonIsolationCorrectionTool", "The PhotonEfficiencyCorrectionTool for iso SFs" );
+  m_photonTriggerSFTool.declarePropertyFor( this, "PhotonTriggerEfficiencyCorrectionTool", "The PhotonEfficiencyCorrectionTool for trigger SFs" );
   m_electronPhotonShowerShapeFudgeTool.declarePropertyFor( this, "PhotonShowerShapeFudgeTool", "The ElectronPhotonShowerShapeFudgeTool" );
   //
   m_egammaCalibTool.declarePropertyFor( this, "EgammaCalibrationAndSmearingTool", "The EgammaCalibrationAndSmearingTool");
@@ -1048,8 +1053,11 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_photonEta, "Photon.Eta", rEnv, 2.37);
   configFromFile(m_photonId, "Photon.Id", rEnv, "Tight");
   configFromFile(m_photonIso_WP, "Photon.Iso", rEnv, "FixedCutTight");
+  configFromFile(m_photonTriggerName, "Photon.TriggerName", rEnv, "HLT_g20_tight_icalovloose_L1EM15VHI"); // how is it changed across years?
   configFromFile(m_photonCrackVeto, "Photon.CrackVeto", rEnv, true);
   configFromFile(m_photonAllowLate, "Photon.AllowLate", rEnv, false);
+  configFromFile(m_photonEffCorrFilePath, "Photon.EffCorrFilePath", rEnv, "PhotonEfficiencyCorrection/map0.txt");
+  //configFromFile(m_photonEffMapFilePath, "Photon.EffMapFilePath", rEnv, "PhotonEfficiencyCorrection/2015_2017/rel21.2/Winter2018_Prerec_v1/map0.txt"); // R21 recommendation not yet available
   //
   configFromFile(m_tauPrePtCut, "Tau.PrePtCut", rEnv, 0.);
   configFromFile(m_tauPt, "Tau.Pt", rEnv, 20000.);
@@ -1708,6 +1716,17 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
       ATH_MSG_VERBOSE("AsgPhotonEfficiencyCorrectionTool configured for systematic var. " << systConfig.name() );
     }
   }
+/*
+  if (!isData() && !m_photonTriggerSFTool.empty()) {
+    CP::SystematicCode ret = m_photonTriggerSFTool->applySystematicVariation(systConfig);
+    if (ret != CP::SystematicCode::Ok) {
+      ATH_MSG_ERROR("Cannot configure AsgPhotonEfficiencyCorrectionTool for systematic var. " << systConfig.name() );
+      return ret;
+    } else {
+      ATH_MSG_VERBOSE("AsgPhotonEfficiencyCorrectionTool configured for systematic var. " << systConfig.name() );
+    }
+  }
+*/
   if (!m_egammaCalibTool.empty()) {
     CP::SystematicCode ret = m_egammaCalibTool->applySystematicVariation(systConfig);
     if (ret != CP::SystematicCode::Ok) {
@@ -2040,6 +2059,15 @@ ST::SystInfo SUSYObjDef_xAOD::getSystInfo(const CP::SystematicVariation& sys) co
       sysInfo.affectedWeights.insert(ST::Weights::Photon::Isolation);
     }
   }
+/*
+  if (!isData() && !m_photonTriggerSFTool.empty()) {
+    if (m_photonTriggerSFTool->isAffectedBySystematic(sys)) {
+      sysInfo.affectsWeights = true;
+      sysInfo.affectsType = SystObjType::Photon;
+      sysInfo.affectedWeights.insert(ST::Weights::Photon::Trigger);
+    }
+  }
+*/
   if ( !m_btagEffTool.empty() ) {
     if ( m_btagEffTool->isAffectedBySystematic(sys) ) {
       sysInfo.affectsWeights = true;
