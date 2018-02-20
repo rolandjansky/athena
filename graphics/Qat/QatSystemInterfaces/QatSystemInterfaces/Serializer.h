@@ -1,5 +1,5 @@
-#ifndef _SERIALIZER_H_
-#define _SERIALIZER_H_
+#ifndef QATSYSTEMINTERFACES_SERIALIZER_H
+#define QATSYSTEMINTERFACES_SERIALIZER_H
 #include <QtCore/QByteArray>
 #include <QtGui/QSpinBox>
 #include <QtGui/QTreeWidget>
@@ -48,7 +48,7 @@ class Serializer {
 
 
   class Clockwork;
-  Clockwork *c;
+  Clockwork *m_c;
 
 };
 
@@ -86,7 +86,7 @@ public:
 private:
 
   class Clockwork;
-  Clockwork *c;
+  Clockwork *m_c;
 };
 
 #endif
