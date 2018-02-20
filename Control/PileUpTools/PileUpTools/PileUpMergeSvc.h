@@ -15,6 +15,7 @@
 
 #include "EventInfo/PileUpTimeEventIndex.h"
 #include "EventInfo/PileUpEventInfo.h"  /*needed by the icc*/
+#include "PileUpTools/IPileUpTool.h"    /*needed by the icc*/
 
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/ClassID.h"
@@ -81,6 +82,12 @@ public:
   StatusCode 
   retrieveSubEvtsData(const KEY& dataKey, //orig evt key
  		      TIMEDDATA& timedData);
+
+  template <typename KEY, typename TIMEDDATA>
+  StatusCode 
+  retrieveSubSetEvtData(const KEY& dataKey, //orig evt key
+			TIMEDDATA& timedData, int bunchXing,
+			SubEventIterator bSubEvents, SubEventIterator eSubEvents);
 
   ///retrieve keyed DATA objs for all sub-events and attach a time to them
   template <typename KEY, typename TIMEDDATA>
