@@ -28,4 +28,4 @@ addTool("ISF_Tools.ISF_ToolsConfig.getMC16LLPEntryLayerFilter"              , "I
 addTool("ISF_Tools.ISF_ToolsConfig.getMC18EntryLayerFilter"                 , "ISF_MC18EntryLayerFilter"            )
 addTool("ISF_Tools.ISF_ToolsConfig.getMC18LLPEntryLayerFilter"              , "ISF_MC18LLPEntryLayerFilter"         )
 addTool("ISF_Tools.ISF_ToolsConfig.getValidationEntryLayerFilter"           , "ISF_ValidationEntryLayerFilter"      )
-addTool("ISF_Tools.ISF_ToolsConfig.getISF_StoppedParticleFilterTool"        , "ISF_StoppedParticleFilterTool"       )
+addTool("ISF_Tools.ISF_ToolsConfig.getISF_StoppedParticleFilter"            , "ISF_StoppedParticleFilter"           )

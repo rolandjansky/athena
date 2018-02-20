@@ -116,7 +116,7 @@ def getCosmicEventFilterTool(name="ISF_CosmicEventFilter", **kwargs):
         kwargs.setdefault('ptMax'  , simFlags.CosmicFilterPTmax.get_Value() )
     return CfgMgr.ISF__CosmicEventFilterTool(name, **kwargs)
 
-def getISF_StoppedParticleFilterTool(name="ISF_StoppedParticleFilterTool", **kwargs):
+def getStoppedParticleFilter(name="ISF_StoppedParticleFilter", **kwargs):
     kwargs.setdefault("VolumeNames",'StoppingPositions')
     return  CfgMgr.ISF__CosmicEventFilterTool(name, **kwargs)
 
