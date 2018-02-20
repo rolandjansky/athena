@@ -119,7 +119,7 @@ public:
   
   bool CheckLinkStart(const bool Link_start, const int rodId, const unsigned int mLink, const unsigned int mBCID, const unsigned int mLVL1ID, const int LVL1A);
 
-  uint32_t treatmentFEFlagInfo(unsigned int serviceCode, unsigned int serviceCodeCounter);
+  uint32_t treatmentFEFlagInfo(IdentifierHash module, unsigned int fe_number, unsigned int serviceCode, unsigned int serviceCodeCounter);
   void addToFlaggedErrorCounter(const unsigned int & serviceCodeCounter);
 
  private:

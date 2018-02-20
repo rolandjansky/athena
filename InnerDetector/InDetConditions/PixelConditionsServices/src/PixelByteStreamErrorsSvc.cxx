@@ -31,7 +31,6 @@ PixelByteStreamErrorsSvc::PixelByteStreamErrorsSvc( const std::string& name,
 										 m_event_read(0),
 										 m_FE_errors(0),
 										 m_module_isread(0),
-                                         m_ServiceRecords(),
                                          m_readESD(false),
                                          m_errormask_pixel(0),
                                          m_errormask_ibl(0)
@@ -291,7 +290,7 @@ PixelByteStreamErrorsSvc::resetCounts() {
   m_numLimitError=0;
 
   // Also reset FE-I4B service records
-  for (int i = 0; i < 32; ++i) m_ServiceRecords[i] = 0;
+  m_all_service_codes.clear();
 
 }
 
@@ -303,6 +302,7 @@ PixelByteStreamErrorsSvc::resetPixelCounts() {
     m_FE_errors[i]=0;
   }
   m_all_FE_errors.clear();
+  m_all_service_codes.clear();
 }
 
 int 
@@ -345,6 +345,7 @@ void PixelByteStreamErrorsSvc::reset(){
     m_module_isread[i]=m_readESD;
   }
   m_all_FE_errors.clear();
+  m_all_service_codes.clear();
 }
 
 // retrieve the data from Storegate: for one event, one entry per module with errors
