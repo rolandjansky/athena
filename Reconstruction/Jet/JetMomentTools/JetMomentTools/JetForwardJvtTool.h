@@ -86,10 +86,10 @@
     bool m_tightOP;
     mutable std::vector<TVector2> m_pileupMomenta;
     mutable size_t m_pvind;
-    SG::AuxElement::Decorator<char>* Dec_OR = NULL;
-    SG::AuxElement::Decorator<char>* Dec_out = NULL;
-    SG::AuxElement::Decorator<char>* Dec_outFjvt = NULL;
-    SG::AuxElement::Decorator<char>* Dec_outTiming = NULL;
+    std::unique_ptr<SG::AuxElement::Decorator<char> > Dec_OR;
+    std::unique_ptr<SG::AuxElement::Decorator<char> > Dec_out;
+    std::unique_ptr<SG::AuxElement::Decorator<char> > Dec_outFjvt;
+    std::unique_ptr<SG::AuxElement::Decorator<char> > Dec_outTiming;
     void getPV() const;
 
     /// Default constructor:

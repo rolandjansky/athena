@@ -62,10 +62,10 @@
     ATH_MSG_INFO ("Initializing " << name() << "...");
     if (m_tightOP) m_fjvtThresh = 0.4;
     else m_fjvtThresh = 0.5;
-    if (m_orLabel!="")  Dec_OR = new SG::AuxElement::Decorator<char>(m_orLabel);
-    Dec_out = new SG::AuxElement::Decorator<char>(m_outLabel);
-    Dec_outFjvt = new SG::AuxElement::Decorator<char>(m_outLabelFjvt);
-    Dec_outTiming = new SG::AuxElement::Decorator<char>(m_outLabelTiming);
+    if (m_orLabel!="")  Dec_OR = std::make_unique<SG::AuxElement::Decorator<char> >(m_orLabel);
+    Dec_out = std::make_unique<SG::AuxElement::Decorator<char> >(m_outLabel);
+    Dec_outFjvt = std::make_unique<SG::AuxElement::Decorator<char> >(m_outLabelFjvt);
+    Dec_outTiming = std::make_unique<SG::AuxElement::Decorator<char> >(m_outLabelTiming);
     return StatusCode::SUCCESS;
   }
 
