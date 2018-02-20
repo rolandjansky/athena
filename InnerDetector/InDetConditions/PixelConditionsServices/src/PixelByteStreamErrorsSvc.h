@@ -192,6 +192,10 @@ private:
   
   unsigned int m_max_hashes;
   bool m_readESD;
+
+  // Error masks
+  unsigned int m_errormask_pixel;
+  unsigned int m_errormask_ibl;
 };
 
 #endif
