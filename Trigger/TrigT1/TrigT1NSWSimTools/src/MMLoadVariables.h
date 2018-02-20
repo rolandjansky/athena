@@ -209,7 +209,7 @@ namespace MuonGM {
     const MmIdHelper*                  m_MmIdHelper;        //!< MM offline Id helper
     StoreGateSvc*                      m_evtStore;
     MMT_Parameters* m_par;
-    bool striphack = false;
+    bool m_striphack = false;
     std::string getWedgeType(const MmDigitContainer *nsw_MmDigitContainer);
 
 
