@@ -192,15 +192,13 @@ higg5d1Seq += CfgMgr.DerivationFramework__DerivationKernel(
 if not "HIGG5D1Jets" in OutputJets:
     OutputJets["HIGG5D1Jets"] = []
 
-    #AntiKt2PV0TrackJets
-    addAntiKt2PV0TrackJets(higg5d1Seq, 'HIGG5D1Jets')
-    addAntiKt4PV0TrackJets(higg5d1Seq, "HIGG5D1Jets")
-    addDefaultTrimmedJets(higg5d1Seq,"HIGG5D1");
-
+    reducedJetList = ["AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets", "AntiKt10LCTopoJets"]
     if jetFlags.useTruth:
-      addAntiKt4TruthJets(higg5d1Seq, "HIGG5D1Jets")
-      addAntiKt4TruthWZJets(higg5d1Seq, "HIGG5D1Jets")
+        reducedJetList += ['AntiKt4TruthJets','AntiKt4TruthWZJets']
+    replaceAODReducedJets(reducedJetList, higg5d1Seq, "HIGG5D1Jets")
 
+    addDefaultTrimmedJets(higg5d1Seq,"HIGG5D1");
+    if jetFlags.useTruth:
       HIGG5Common.addTrimmedTruthWZJets(higg5d1Seq,'HIGG5D1Jets')
 
 

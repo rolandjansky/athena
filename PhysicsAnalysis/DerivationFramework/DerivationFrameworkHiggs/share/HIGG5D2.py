@@ -39,13 +39,14 @@ thinningTools=[]
 
 # Establish the thinning helper (which will set up the services behind the scenes) 
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper 
+# HIGG5D2ThinningHelper_AntiKt10LCTopoJet = ThinningHelper("HIGG5D2ThinningHelperAntiKt10LCTopoJet")
 HIGG5D2ThinningHelper = ThinningHelper("HIGG5D2ThinningHelper")
 #trigger navigation content
 HIGG5D2ThinningHelper.TriggerChains = 'HLT_e.*|HLT_mu.*|HLT_xe.*|HLT_j.*' 
 HIGG5D2ThinningHelper.AppendToStream(HIGG5D2Stream) 
 
 import DerivationFrameworkHiggs.HIGG5Common as HIGG5Common
-thinningTools.append( HIGG5Common.getAntiKt4EMTopoTrackParticleThinning('HIGG5D2',HIGG5D2ThinningHelper, SelectionString = "AntiKt4EMTopoJets.pt > 100000*GeV", ApplyAnd = True) )
+thinningTools.append( HIGG5Common.getAntiKt4EMTopoTrackParticleThinning('HIGG5D2',HIGG5D2ThinningHelper))
 thinningTools.append( HIGG5Common.getAntiKt10LCTopoTrackParticleThinning('HIGG5D2',HIGG5D2ThinningHelper))
 thinningTools.append( HIGG5Common.getMuonTrackParticleThinning(         'HIGG5D2',HIGG5D2ThinningHelper) )
 thinningTools.append( HIGG5Common.getElectronTrackParticleThinning(     'HIGG5D2',HIGG5D2ThinningHelper) )
@@ -74,7 +75,7 @@ jetSel = '(( count( (AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 15.*GeV) && (abs(
 jetSel += '|| (( count( (AntiKt4EMTopoJets.pt > 100.0*GeV) && (abs(AntiKt4EMTopoJets.eta) < 2.6) ) ) > 0)'
 jetSel += '|| (( count( (AntiKt10LCTopoJets.pt > 100.0*GeV) && (abs(AntiKt10LCTopoJets.eta) < 2.6) ) ) > 0)'
 jetSel += '|| (( count( (AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.pt > 100.0*GeV) && (abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.eta) < 2.6) ) ) > 0)'
-jetSel += '|| (( count( (AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.pt > 100.0*GeV) && (abs(AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.eta) < 2.6) ) ) > 0)'
+# jetSel += '|| (( count( (AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.pt > 100.0*GeV) && (abs(AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.eta) < 2.6) ) ) > 0)'
 
 
 #====================================================================
@@ -265,15 +266,13 @@ if not "HIGG5D2Jets" in OutputJets:
     OutputJets["HIGG5D2Jets"] = []
 
     #AntiKt2PV0TrackJets
-    addAntiKt2PV0TrackJets(higg5d2Seq, 'HIGG5D2Jets')
-    addAntiKt4PV0TrackJets(higg5d2Seq, "HIGG5D2Jets")
+    reducedJetList = ["AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets", "AntiKt10LCTopoJets"]
+    if jetFlags.useTruth:
+        reducedJetList += ['AntiKt4TruthJets','AntiKt4TruthWZJets']
+    replaceAODReducedJets(reducedJetList, higg5d2Seq, "HIGG5D2Jets")
 
     addDefaultTrimmedJets(higg5d2Seq,"HIGG5D2");
-
     if jetFlags.useTruth:
-      addAntiKt4TruthJets(higg5d2Seq, "HIGG5D2Jets")
-      addAntiKt4TruthWZJets(higg5d2Seq, "HIGG5D2Jets")
-
       HIGG5Common.addTrimmedTruthWZJets(higg5d2Seq,'HIGG5D2Jets') 
 
     #=======================================
@@ -283,10 +282,10 @@ if not "HIGG5D2Jets" in OutputJets:
     # Set up geometry and BField
     import AthenaCommon.AtlasUnixStandardJob
 
-    include("RecExCond/AllDet_detDescr.py")
-    runTCCReconstruction(higg5d2Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles")
-    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addTCCTrimmedJets
-    addTCCTrimmedJets(higg5d2Seq, "HIGG5D2")
+    #  include("RecExCond/AllDet_detDescr.py")
+    #  runTCCReconstruction(higg5d2Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles")
+    #  from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addTCCTrimmedJets
+    #  addTCCTrimmedJets(higg5d2Seq, "HIGG5D2")
 
 #====================================================================
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
@@ -399,7 +398,9 @@ if DerivationFrameworkIsMonteCarlo :
 addJetOutputs(HIGG5D2SlimmingHelper,["HIGG5D2Jets"],slimmed_content)
 
 # Add the MET containers to the stream
-addMETOutputs(HIGG5D2SlimmingHelper,[],["Track","AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets","AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets"])
+addMETOutputs(HIGG5D2SlimmingHelper,[],["Track","AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
+#                                        ,"AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets"
+])
 
 
 HIGG5D2SlimmingHelper.IncludeMuonTriggerContent = True

@@ -253,11 +253,10 @@ higg5d3Seq += CfgMgr.DerivationFramework__DerivationKernel(
 if not "HIGG5D3Jets" in OutputJets:
     OutputJets["HIGG5D3Jets"] = []
 
-    addAntiKt2PV0TrackJets(higg5d3Seq, 'HIGG5D3Jets')
-    addAntiKt4PV0TrackJets(higg5d3Seq, "HIGG5D3Jets")
-
+    reducedJetList = ["AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets", "AntiKt10LCTopoJets"]
     if jetFlags.useTruth:
-      addAntiKt4TruthJets(higg5d3Seq, "HIGG5D3Jets")
+        reducedJetList += ['AntiKt4TruthJets']
+    replaceAODReducedJets(reducedJetList, higg5d3Seq, "HIGG5D3Jets")
 
 higg5d3Seq += CfgMgr.DerivationFramework__DerivationKernel(
     "HIGG5D3Kernel",

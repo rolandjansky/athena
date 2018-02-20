@@ -223,17 +223,14 @@ higg2d4Seq += CfgMgr.DerivationFramework__DerivationKernel(
 if not "HIGG2D4Jets" in OutputJets:
     OutputJets["HIGG2D4Jets"] = []
 
-    addAntiKt2PV0TrackJets(higg2d4Seq, 'HIGG2D4Jets')
-    addAntiKt4PV0TrackJets(higg2d4Seq, "HIGG2D4Jets")
-    addDefaultTrimmedJets(higg2d4Seq,"HIGG2D4");
-
+    reducedJetList = ["AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets", "AntiKt10LCTopoJets"]
     if jetFlags.useTruth:
-      addAntiKt4TruthJets(higg2d4Seq, "HIGG2D4Jets")
-      addAntiKt4TruthWZJets(higg2d4Seq, "HIGG2D4Jets")
+        reducedJetList += ['AntiKt4TruthJets','AntiKt4TruthWZJets']
+    replaceAODReducedJets(reducedJetList, higg2d4Seq, "HIGG2D4Jets")
 
+    addDefaultTrimmedJets(higg2d4Seq,"HIGG2D4");
+    if jetFlags.useTruth:
       HIGG5Common.addTrimmedTruthWZJets(higg2d4Seq,'HIGG2D4Jets')
-      # reducedJetList = ["AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets", "AntiKt10LCTopoJets"]
-      # replaceAODReducedJets(reducedJetList, higg2d4Seq, "HIGG2D4Jets")
 
 #====================================================================
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
