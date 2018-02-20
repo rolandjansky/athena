@@ -1,5 +1,5 @@
-dataset_number/I:physics_short/C:crossSection_pb/D:kFactor/D:genFiltEff/D:crossSectionTotalRelUncertUP/D
-#id/I:name/C:xsec/F:kfac/F:eff/F:relunc/F
+Bdataset_number/I:physics_short/C:crossSection_pb/D:kFactor/D:genFiltEff/D:crossSectionTotalRelUncertUP/D
+#1;95;0cid/I:name/C:xsec/F:kfac/F:eff/F:relunc/F
 # cross-sections are in pb
 
 # DSID	Physics short								xsec	k-fac	eff		rel. unc.
@@ -145,6 +145,7 @@ dataset_number/I:physics_short/C:crossSection_pb/D:kFactor/D:genFiltEff/D:crossS
 410050  MadGraphPythiaEvtGen_P2012_tZ_4fl_tchan_noAllHad              0.24013           1.0             1.0000E+00         0.0    
 410560  MadGraphPythia8EvtGen_A14_tZ_4fl_tchan_noAllHad               0.24037           1.0             1.0000E+00         0.0    
 410049  MadGraphPythiaEvtGen_P2012_tZ_4fl_tchan_trilepton             0.0090636         1.0             1.0000E+00         0.0    
+410550  MadGraphPythia8EvtGen_A14_tZ_4fl_tchan_trilepton              0.020733          1.0             1.0000E+00         0.0
 
 410064  PowhegPythiaEvtGen_P2012_Wt_DS_dilepton_top                   3.4133            1.054           1.0000E+00         0.0    
 410065  PowhegPythiaEvtGen_P2012_Wt_DS_dilepton_antitop               3.409             1.054           1.0000E+00         0.0    
