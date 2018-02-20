@@ -53,17 +53,17 @@ StatusCode HadMuBuilder::execute()
   static SG::AuxElement::Accessor<char> acc_isHadMu  ("isHadMu" );
   static SG::AuxElement::Accessor<char> acc_isHadEl  ("isHadEl" );
 
-  static SG::AuxElement::Accessor<double> acc_muon_pt  ("muon_pt"  );
-  static SG::AuxElement::Accessor<double> acc_muon_eta ("muon_eta" );
-  static SG::AuxElement::Accessor<double> acc_muon_phi ("muon_phi" );
-  static SG::AuxElement::Accessor<double> acc_muon_E   ("muon_E"   );
+  static SG::AuxElement::Accessor<float> acc_muon_pt  ("muon_pt"  );
+  static SG::AuxElement::Accessor<float> acc_muon_eta ("muon_eta" );
+  static SG::AuxElement::Accessor<float> acc_muon_phi ("muon_phi" );
+  static SG::AuxElement::Accessor<float> acc_muon_E   ("muon_E"   );
 					              
-  static SG::AuxElement::Accessor<double> acc_tau_pt   ("tau_pt"  );
-  static SG::AuxElement::Accessor<double> acc_tau_eta  ("tau_eta" );
-  static SG::AuxElement::Accessor<double> acc_tau_phi  ("tau_phi" );
-  static SG::AuxElement::Accessor<double> acc_tau_E    ("tau_E"   );
+  static SG::AuxElement::Accessor<float> acc_tau_pt   ("tau_pt"  );
+  static SG::AuxElement::Accessor<float> acc_tau_eta  ("tau_eta" );
+  static SG::AuxElement::Accessor<float> acc_tau_phi  ("tau_phi" );
+  static SG::AuxElement::Accessor<float> acc_tau_E    ("tau_E"   );
 
-  static SG::AuxElement::Accessor<double> acc_DeltaR   ("DeltaR" );
+  static SG::AuxElement::Accessor<float> acc_DeltaR   ("DeltaR" );
   
   for(auto muon : *muonContainer){
     TLorentzVector p4_muon = muon->p4();

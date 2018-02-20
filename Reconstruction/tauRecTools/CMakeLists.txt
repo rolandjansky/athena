@@ -68,7 +68,9 @@ else()
       Tracking/TrkTools/TrkToolInterfaces
       Tracking/TrkVertexFitter/TrkVertexFitterInterfaces
       Tracking/TrkVertexFitter/TrkVertexFitters
-      Tracking/TrkVertexFitter/TrkVxEdmCnv )
+      Tracking/TrkVertexFitter/TrkVxEdmCnv
+      PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
+      )
 endif()
 
 # External dependencies:
@@ -96,6 +98,11 @@ atlas_add_root_dictionary( tauRecToolsLib tauRecToolsLibCintDict
   tauRecTools/TauIDVarCalculator.h
   tauRecTools/TauEleOLRDecorator.h
   tauRecTools/TauProcessorTool.h
+  tauRecTools/DiTauProcessorTool.h
+  tauRecTools/DiTauIDVarCalculator.h
+  tauRecTools/DiTauDiscriminantTool.h
+  tauRecTools/DiTauWPDecorator.h
+  tauRecTools/MuonTrackRemoval.h  
   Root/LinkDef.h
   EXTERNAL_PACKAGES ROOT
   )
@@ -112,7 +119,8 @@ if( XAOD_STANDALONE OR XAOD_ANALYSIS )
       AthLinks AsgTools CxxUtils xAODCaloEvent xAODEventInfo xAODPFlow xAODEgamma xAODTau
       xAODTracking MCTruthClassifierLib
       PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} FourMomUtils xAODJet
-      PathResolver MVAUtils ElectronPhotonSelectorToolsLib )
+      PathResolver MVAUtils ElectronPhotonSelectorToolsLib IsolationSelectionLib
+      MuonSelectorToolsLib MuonMomentumCorrectionsLib MuonAnalysisInterfacesLib)
 else()
    atlas_add_library( tauRecToolsLib
       tauRecTools/*.h Root/*.cxx  ${tauRecToolsLibCintDict}
@@ -124,7 +132,8 @@ else()
       AthLinks AsgTools CxxUtils xAODCaloEvent xAODEventInfo xAODPFlow xAODEgamma xAODTau
       xAODTracking MCTruthClassifierLib CaloUtilsLib Particle
       PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} FourMomUtils xAODJet
-      PathResolver MVAUtils ElectronPhotonSelectorToolsLib)
+      PathResolver MVAUtils ElectronPhotonSelectorToolsLib IsolationSelectionLib
+      MuonSelectorToolsLib MuonMomentumCorrectionsLib MuonAnalysisInterfacesLib)
 endif()
 
 if( NOT XAOD_STANDALONE )
@@ -134,7 +143,8 @@ if( NOT XAOD_STANDALONE )
          INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
          LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} xAODTau
          xAODTracking xAODEgamma AthContainers FourMomUtils xAODCaloEvent xAODJet 
-         xAODPFlow MVAUtils ElectronPhotonSelectorToolsLib GaudiKernel tauRecToolsLib )
+         xAODPFlow MVAUtils ElectronPhotonSelectorToolsLib GaudiKernel tauRecToolsLib
+	 IsolationSelectionLib MuonSelectorToolsLib MuonMomentumCorrectionsLib MuonAnalysisInterfacesLib)
    else()
       atlas_add_component( tauRecTools
          src/*.h src/*.cxx src/components/*.cxx
@@ -146,7 +156,8 @@ if( NOT XAOD_STANDALONE )
          RecoToolInterfaces TrkLinks TrkParametersIdentificationHelpers
          TrkTrackSummary VxVertex TrkToolInterfaces TrkVertexFitterInterfaces
          TrkVertexFittersLib TrkVxEdmCnvLib InDetTrackSelectionToolLib
-         tauRecToolsLib )
+         tauRecToolsLib IsolationSelectionLib MuonSelectorToolsLib MuonMomentumCorrectionsLib
+	 MuonAnalysisInterfacesLib)
    endif()
 endif()
 
