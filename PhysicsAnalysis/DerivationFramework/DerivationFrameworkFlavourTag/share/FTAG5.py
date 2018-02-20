@@ -22,6 +22,7 @@ from DerivationFrameworkJetEtMiss.JetCommon import (
     OutputJets, addJetOutputs)
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import (
     addDefaultTrimmedJets, replaceAODReducedJets)
+from JetRec.JetRecStandard import jtm
 
 # tracking
 from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import (
@@ -131,11 +132,13 @@ addDefaultTrimmedJets(FTAG5Seq,"FTAG5",dotruth=True)
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet
 # Note that the ghost association to the 'AntiKt10LCTopo' jets is
 # hardcoded within this function "for now".
+pseudoJetGetters = jtm.gettersMap['pv0track'] + ["gtrackget"]
+
 addVRJets(FTAG5Seq,
           VRJetName="AntiKtVR30Rmax4Rmin02Track",
           VRGhostLabel="GhostVR30Rmax4Rmin02TrackJet",
           VRJetAlg="AntiKt", VRJetRadius=0.4,
-          VRJetInputs="pv0track", #or should this be lctopo?
+          VRJetInputs=pseudoJetGetters,
           ghostArea = 0 , ptmin = 2000, ptminFilter = 7000,
           variableRMinRadius = 0.02, variableRMassScale = 30000,
           calibOpt = "none")
