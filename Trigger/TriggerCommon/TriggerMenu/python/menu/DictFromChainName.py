@@ -18,17 +18,9 @@ logDict = logging.getLogger('TriggerMenu.menu.DictFromChainName')
 
 class DictFromChainName(object):
 
-    def chainNameCorrect(self,m_name):
-        forbiddenChars = [' ', '&', '*', '#', '@', ';', '~',  ]
-        for ichar in forbiddenChars:
-            if ichar in m_name:
-                return False
-        return True 
-
     def getChainDict(self,chainInfo):
         logDict.debug("chainInfo %s", chainInfo)
         
-
         # ---- Loop over all chains (keys) in dictionary ----
         # ---- Then complete the dict with other info    ----
         # ---- of formate: # chainName :                ----
@@ -36,8 +28,9 @@ class DictFromChainName(object):
         # ---- chainName = chainInfo[0]    
         
         m_chainName = chainInfo[0]
+
         # check if name is in principle ok - no forbidden characters
-        assert self.chainNameCorrect(m_chainName), "Forbidden characters in chain name "+m_chainName
+        assert len(re.findall(r"[^A-Za-z0-9_.]", m_chainName))==0, "Forbidden characters in chain name "+m_chainName
 
         m_L1item = chainInfo[1]
         m_L1items_chainParts = chainInfo[2]
