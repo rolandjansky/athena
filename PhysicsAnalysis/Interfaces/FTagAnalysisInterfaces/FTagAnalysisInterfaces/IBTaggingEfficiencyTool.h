@@ -57,14 +57,6 @@ class IBTaggingEfficiencyTool : virtual public CP::ISystematicsTool {
   //
   virtual std::string getJetAuthor() const = 0;
 
-  virtual CP::SystematicCode applySystematicVariation(const CP::SystematicSet & set) = 0;
-  //
-  virtual CP::SystematicSet affectingSystematics() const = 0;
-  //
-  virtual CP::SystematicSet recommendedSystematics() const = 0;
-  //
-  virtual bool isAffectedBySystematic(const CP::SystematicVariation & systematic) const = 0;
-
   virtual bool setMapIndex(const std::string& flavour, unsigned int index) = 0;
   // virtual bool setMapIndex(const std::string& flavour, const std::string & type) = 0;
 
