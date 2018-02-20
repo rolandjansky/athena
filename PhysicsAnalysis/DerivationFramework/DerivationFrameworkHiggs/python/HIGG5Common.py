@@ -136,7 +136,7 @@ def getAntiKt10LCTopoTrackParticleThinning(tool_prefix, thinning_helper, **kwarg
     kwargs.setdefault( 'name', tool_prefix + 'AntiKt10LCTopoJetTPThinningTool')
     kwargs.setdefault( 'JetKey',         'AntiKt10LCTopoJets')
     kwargs.setdefault( 'SelectionString','(AntiKt10LCTopoJets.pt > 100*GeV && abs(AntiKt10LCTopoJets.eta)<2.6)')
-    kwargs.setdefault( 'ApplyAnd',       True)
+    kwargs.setdefault( 'ApplyAnd',       False)
     return getJetTrackParticleThinning(tool_prefix, thinning_helper, **kwargs)
 
 def getTCCTrackParticleThinning(tool_prefix, thinning_helper) :
@@ -175,7 +175,7 @@ def getTauCaloClusterThinning(tool_prefix, thinning_helper) :
     thinning_tool = DerivationFramework__CaloClusterThinning(name                  = tool_prefix + "TauCCThinningTool",
                                                              ThinningService       = thinning_helper.ThinningSvc(),
                                                              SGKey                 = "TauJets",
-                                                            TopoClCollectionSGKey = "CaloCalTopoClusters")
+                                                             TopoClCollectionSGKey = "CaloCalTopoClusters")
     from AthenaCommon.AppMgr import ToolSvc
     ToolSvc+= thinning_tool
     return thinning_tool
@@ -188,7 +188,7 @@ def getJetCaloClusterThinning(tool_prefix, thinning_helper, **kwargs) :
     kwargs.setdefault('name',                 tool_prefix + 'FatjetCCThinningTool')
     kwargs.setdefault('ThinningService',      thinning_helper.ThinningSvc())
     kwargs.setdefault('TopoClCollectionSGKey','CaloCalTopoClusters')
-    kwargs.setdefault('ApplyAnd',             True)
+    kwargs.setdefault('ApplyAnd',             False)
     thinning_tool = DerivationFramework__JetCaloClusterThinning(name                  = kwargs.pop('name'), **kwargs)
 
     from AthenaCommon.AppMgr import ToolSvc
