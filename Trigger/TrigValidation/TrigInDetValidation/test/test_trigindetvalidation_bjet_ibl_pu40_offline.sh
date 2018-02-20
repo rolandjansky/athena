@@ -240,6 +240,9 @@ saveoutput output-dataset "Trk*.root"
 saveoutput output-logs    "ath*.log"
 saveoutput output-cost     trig_cost.root
 
+grep ERROR   athena-*/ath*.log | grep -v ERRORS | grep -v MATRIX | grep -v DERIV &> errors.log 
+grep WARNING athena-*/ath*.log &> warnings.log
+
 timestamp "combining expert histograms ..."
 
 # add the expert timing histgrams

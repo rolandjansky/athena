@@ -219,6 +219,8 @@ for xmlfile in $FILES; do
                 "$arg" == "RunTrigCostD3PD.exe" -o \
 	        "$arg" == "RunTrigCostD3PDe" ]; then 
 
+	       arg=$(echo $arg | sed 's|\.exe||g')
+
                if [ "$command" != "" ]; then
 
 		  command="$(echo $command | sed 's|^ *||g')"
