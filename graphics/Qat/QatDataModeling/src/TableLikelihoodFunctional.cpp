@@ -27,7 +27,7 @@
 #include "CLHEP/GenericFunctions/AbsFunction.hh"
 #include <cmath>
 TableLikelihoodFunctional::TableLikelihoodFunctional(const Table & table):
-_table(table)
+m_table(table)
 {}
 
 TableLikelihoodFunctional::~TableLikelihoodFunctional() {
@@ -38,7 +38,7 @@ double TableLikelihoodFunctional::operator [] (const Genfun::AbsFunction & funct
 
  for  (size_t t=0; ; t++) {
 
-   TupleConstLink tuple = _table [t];
+   TupleConstLink tuple = m_table [t];
    if (!tuple) break;
 	    
    const Genfun::Argument & a  = tuple->asDoublePrec();

@@ -21,8 +21,8 @@
 
 
 // Write this class now.  Abstract it later.
-#ifndef _MinuitMinimizer_h_
-#define _MinuitMinimizer_h_
+#ifndef QATDATAMODELING_MINUITMINIMIZER_H
+#define QATDATAMODELING_MINUITMINIMIZER_H
 #include <vector>
 #include "CLHEP/Matrix/Vector.h"
 #include "CLHEP/Matrix/SymMatrix.h"
@@ -89,22 +89,22 @@ public:
   
 private:
 
-  std::vector<const Genfun::AbsFunctional *> _functionalList;
-  std::vector<const Genfun::AbsFunction   *> _functionList;
-  std::vector<const ObjectiveFunction     *> _objectiveList;
-  std::vector<Genfun::Parameter *>           _parList;
-  CLHEP::HepVector                           _valList;
-  CLHEP::HepSymMatrix                        _errorList;
-  double                                     _fcnMin;
-  int                                        _status;
-  bool                                       _verbose;
-  std::string                                _minimizeCommand;
+  std::vector<const Genfun::AbsFunctional *> m_functionalList;
+  std::vector<const Genfun::AbsFunction   *> m_functionList;
+  std::vector<const ObjectiveFunction     *> m_objectiveList;
+  std::vector<Genfun::Parameter *>           m_parList;
+  CLHEP::HepVector                           m_valList;
+  CLHEP::HepSymMatrix                        m_errorList;
+  double                                     m_fcnMin;
+  int                                        m_status;
+  bool                                       m_verbose;
+  std::string                                m_minimizeCommand;
 
-  static void                                      _worldWideCallback(int &, double *, double &, double *, int &, void *);
-  static std::vector<const Genfun::AbsFunctional *>       *_worldWideFunctionalList;
-  static std::vector<const Genfun::AbsFunction *>         *_worldWideFunctionList;
-  static std::vector<const ObjectiveFunction   *>         *_worldWideObjectiveList;
-  static std::vector<Genfun::Parameter *>                 *_worldWideParameterList;
+  static void                                      s_worldWideCallback(int &, double *, double &, double *, int &, void *);
+  static std::vector<const Genfun::AbsFunctional *>       *s_worldWideFunctionalList;
+  static std::vector<const Genfun::AbsFunction *>         *s_worldWideFunctionList;
+  static std::vector<const ObjectiveFunction   *>         *s_worldWideObjectiveList;
+  static std::vector<Genfun::Parameter *>                 *s_worldWideParameterList;
  
     
 };
