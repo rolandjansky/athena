@@ -32,9 +32,13 @@ PixelByteStreamErrorsSvc::PixelByteStreamErrorsSvc( const std::string& name,
 										 m_FE_errors(0),
 										 m_module_isread(0),
                                          m_ServiceRecords(),
-                                         m_readESD(false)
+                                         m_readESD(false),
+                                         m_errormask_pixel(0),
+                                         m_errormask_ibl(0)
 { 
-  declareProperty("ReadingESD",m_readESD,"Get summary of BS errors from StoreGate, if available"); 
+  declareProperty("ReadingESD", m_readESD, "Get summary of BS errors from StoreGate, if available"); 
+  declareProperty("ErrorMaskPixel", m_errormask_pixel = 0xFFF1F00F, "Mask for pixel errors"); 
+  declareProperty("ErrorMaskIBL", m_errormask_ibl = 0, "Mask for IBL errors"); 
 }
 
 //Initialize
@@ -231,17 +235,23 @@ bool
 PixelByteStreamErrorsSvc::isGood(const IdentifierHash & elementIdHash) {
 
     Identifier dehashedId = m_pixel_id->wafer_id(elementIdHash);
-
-    if (m_ibl_is_present || m_dbm_is_present) {
-        // If module is IBL of DBM, return isActive
-        if ((m_pixel_id->barrel_ec(dehashedId) == 0 && m_pixel_id->layer_disk(dehashedId) == 0)
-                || m_pixel_id->is_dbm(dehashedId)) {
-            return isActive(elementIdHash);
-        }
-    }
-
+ 
     int errorcode = m_module_errors[elementIdHash];
-    if ((errorcode & 0xFFF1F00F) == 0) // Mask FE errors
+    int masked_error_code = 0;
+
+    // Use the correct error mask depending on whether the module is IBL/DBM or pixel
+    
+    // IBL:
+    if (m_ibl_is_present && m_pixel_id->barrel_ec(dehashedId) == 0 && m_pixel_id->layer_disk(dehashedId) == 0)
+        masked_error_code = errorcode & m_errormask_ibl;
+    // DBM (same):
+    else if (m_dbm_is_present && m_pixel_id->is_dbm(dehashedId))
+        masked_error_code = errorcode & m_errormask_ibl;
+    // Pixel:
+    else 
+        masked_error_code = errorcode & m_errormask_pixel;
+
+    if (masked_error_code == 0)
         return isActive(elementIdHash);
     else
         return false;
