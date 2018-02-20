@@ -48,14 +48,20 @@ theFastCaloAlgo.OutputLevel=VERBOSE
 theFastCaloAlgo.ClustersName="L2CaloClusters"
 svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
 
+ 
+from TrigMultiVarHypo.TrigL2CaloRingerFexMTInit import init_ringer
+trigL2CaloRingerFexMT = init_ringer()
+trigL2CaloRingerFexMT.OutputLevel = DEBUG    
+
+
+
 from AthenaCommon.CFElements import parOR, seqOR, seqAND, stepSeq
 
 from DecisionHandling.DecisionHandlingConf import RoRSeqFilter, DumpDecisions
 
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 
-fastCaloInViewAlgs = seqAND("fastCaloInViewAlgs", [ theFastCaloAlgo ])
-
+fastCaloInViewAlgs = seqAND("fastCaloInViewAlgs", [theFastCaloAlgo, trigL2CaloRingerFexMT])
 
 filterL1RoIsAlg = RoRSeqFilter("filterL1RoIsAlg")
 filterL1RoIsAlg.Input = ["EMRoIDecisions"]
@@ -64,17 +70,16 @@ filterL1RoIsAlg.Chains = testChains
 filterL1RoIsAlg.OutputLevel = DEBUG
 
 
-  
-
-
 fastCaloViewsMaker = EventViewCreatorAlgorithm("fastCaloViewsMaker", OutputLevel=DEBUG)
 fastCaloViewsMaker.ViewFallThrough = True
 fastCaloViewsMaker.Decisions = "FilteredEMRoIDecisions" # from EMRoIsUnpackingTool
 fastCaloViewsMaker.RoIsLink = "initialRoI" # -||-
 fastCaloViewsMaker.InViewRoIs = "EMCaloRoIs" # contract with the fastCalo
 fastCaloViewsMaker.Views = "EMCaloViews"
+#fastCaloViewsMaker.AlgorithmNameSequence = [theFastCaloAlgo.getName(), trigL2CaloRingerFexMT.getName()]
 fastCaloViewsMaker.ViewNodeName = "fastCaloInViewAlgs"
 theFastCaloAlgo.RoIs = fastCaloViewsMaker.InViewRoIs
+
 
 
 
