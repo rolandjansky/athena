@@ -1,6 +1,6 @@
 /*
   Event Filter Z_mu+mu- Online Tag and Probe algorithm
-  Authors: JJamieson, University of Glasgow, Created: 09/10/2017, Last edit: 05/02/2018
+  Authors: JJamieson, University of Glasgow, Created: 09/10/2017, Last edit: 20/02/2018
   
   Summary:-----------------------------------------------------------------------------------------  
   
@@ -168,8 +168,6 @@ TrigMuonEFTagandProbe::TrigMuonEFTagandProbe(const std::string &name, ISvcLocato
   declareMonitoredStdContainer("EF_Pt_Eff_thr6_b",          m_pt_eff_thr6_b,             IMonitoredAlgo::AutoClear);
   declareMonitoredStdContainer("EF_Pt_Eff_thr6_e",          m_pt_eff_thr6_e,             IMonitoredAlgo::AutoClear);
 
-  declareMonitoredStdContainer("Event_Test",                m_event_test,                IMonitoredAlgo::AutoClear);
-
 }
 
 TrigMuonEFTagandProbe::~TrigMuonEFTagandProbe(){} //Destructor
@@ -184,7 +182,6 @@ HLT::ErrorCode TrigMuonEFTagandProbe::hltInitialize()
 
   ATH_MSG_DEBUG("TrigMuonEFTagandProbe::hltInitialize()"); 
   ATH_MSG_DEBUG("TrigMuonEFTagandProbe::hltInitialize(); building framework for monitored variables"); 
-
 
   //Set up Monitoring framework to handle sensible filling of per threshold monitoring values for efficiency calculations
 
@@ -295,8 +292,6 @@ HLT::ErrorCode TrigMuonEFTagandProbe::hltFinalize()
 HLT::ErrorCode TrigMuonEFTagandProbe::hltExecute(const HLT::TriggerElement* inputTE, HLT::TriggerElement* TEout) 
 {
 
-  m_event_test.push_back(0); //testo 0
-
   //Reset temporary containers
   m_good_muons.clear(); //holds all combined muons
 
@@ -319,22 +314,19 @@ HLT::ErrorCode TrigMuonEFTagandProbe::hltExecute(const HLT::TriggerElement* inpu
   
   //Have to access directly from Storegate as AllTE combiner algorithms remove regular access back to seeding RoIs
   //Check for LVL1 muon RoI information in current event first, if there is no info then we shouldn't bother calculating anything else and should move to next event 
-
+  
   m_l1_muon_RoIs=0;
+
   if(evtStore()->retrieve(m_l1_muon_RoIs).isFailure()){
     ATH_MSG_DEBUG("Problem retrieving L1 muon ROI");
     return HLT::MISSING_FEATURE; 
   }
   
-  m_event_test.push_back(1); //testo 1
-
   if(m_l1_muon_RoIs->empty()){ //Save compute by killing if there is no L1 information
     ATH_MSG_DEBUG("L1 RoI size = 0, moving to next event");
     return HLT::OK; 
   }
   
-  m_event_test.push_back(2); //testo 2
-
   ATH_MSG_DEBUG("Number of L1 RoIs found = "<<m_l1_muon_RoIs->size());    
 
 
@@ -353,15 +345,11 @@ HLT::ErrorCode TrigMuonEFTagandProbe::hltExecute(const HLT::TriggerElement* inpu
 
 
   else { //If get feature succeeds
-    m_event_test.push_back(3); //testo 3
     if (!muonContainer) { // if muonContainer entry is null
       ATH_MSG_DEBUG("null xAOD::MuonContainer Feature found");
       return HLT::MISSING_FEATURE;
     } 
     
-    m_event_test.push_back(4); //testo 4
-
-
     ATH_MSG_DEBUG("xAOD::MuonContainer found with size " << muonContainer->size());
   }
   
@@ -410,7 +398,6 @@ HLT::ErrorCode TrigMuonEFTagandProbe::hltExecute(const HLT::TriggerElement* inpu
     }
   }
   
-  m_event_test.push_back(5); //testo 5
 
   //------------------------Check and ensure exactly 2 good muons per event--------------------------------
 
@@ -419,7 +406,6 @@ HLT::ErrorCode TrigMuonEFTagandProbe::hltExecute(const HLT::TriggerElement* inpu
     return HLT::OK;
   }
 
-  m_event_test.push_back(6); //testo 6
 
   if (m_good_muons.size()>2 || (m_good_muons)[0]->charge() == (m_good_muons)[1]->charge())
     {
@@ -433,8 +419,6 @@ HLT::ErrorCode TrigMuonEFTagandProbe::hltExecute(const HLT::TriggerElement* inpu
       
       ATH_MSG_DEBUG("container trimmed, no. of good muons = " << m_good_muons.size());
     }
-  
-  m_event_test.push_back(7); //testo 7
 
   //---------------------------Check isolation criteria for muon pair---------------------------------------
   //Require deltaR > 0.2 between the two muons in order to keep probe muons unbiased from the event trigger
@@ -447,7 +431,6 @@ HLT::ErrorCode TrigMuonEFTagandProbe::hltExecute(const HLT::TriggerElement* inpu
     return HLT::OK;
   }
 
-  m_event_test.push_back(8); //testo 8  
 
   //-------------------Calculate dimuon invariant mass from 4 momenta for probe selection----------------
     
@@ -498,8 +481,6 @@ HLT::ErrorCode TrigMuonEFTagandProbe::hltExecute(const HLT::TriggerElement* inpu
     }
   }
 
-  m_event_test.push_back(9); //testo 9
-
   ATH_MSG_DEBUG("NUMBER of tag and probe pairs = " << TaP.size()); 
 
 
@@ -544,8 +525,6 @@ HLT::ErrorCode TrigMuonEFTagandProbe::hltExecute(const HLT::TriggerElement* inpu
       }
     }
   }
-
-  m_event_test.push_back(10); //testo 10
 
   return HLT::OK;
   

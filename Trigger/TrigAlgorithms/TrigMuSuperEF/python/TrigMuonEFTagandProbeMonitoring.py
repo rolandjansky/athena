@@ -196,8 +196,3 @@ class TrigMuonEFTagandProbeMonitoring(TrigGenericMonitoringToolConfig):
 
 
 
-
-
-        self.Histograms += [ defineHistogram('Event_Test', type='TH1I', title="Position Passed In Code;Positon_Code;No. of Muon pairs",
-                                             xbins=11, xmin=0, xmax=11) ]
-
