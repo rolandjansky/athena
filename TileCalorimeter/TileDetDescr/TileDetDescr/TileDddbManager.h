@@ -310,6 +310,8 @@ class TileDddbManager
   bool m_verbose;
   bool m_buildCuts;
   bool m_buildSaddle;
+
+  MsgStream * m_log;
 };
 
 #endif
