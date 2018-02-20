@@ -381,7 +381,7 @@ namespace Analysis
 
       /** @brief utility function taking care of object retrieval */
       // CalibrationDataContainer* retrieveContainer(const std::string& name, bool isSF);
-      CalibrationDataContainer* retrieveContainer(const std::string& dir, const std::string& cntname, bool isSF);
+      CalibrationDataContainer* retrieveContainer(const std::string& dir, const std::string& cntname, bool isSF, bool doPrint = true);
 
       /** @brief utility function taking care of eigenvector objects retrieval */
       //      const CalibrationDataEigenVariations* retrieveCalibrationDataEV(const CalibrationDataContainer* calibrationDataContainer) const;
