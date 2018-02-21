@@ -45,8 +45,8 @@ StatusCode FilterUsingMBTS::execute()
 	ctp.setRDO(theCTP_RDO);
 	uint32_t numberBC = theCTP_RDO->getNumberOfBunches();
 
-  unsigned int m_nA=0; // Number of A side triggers per event
-  unsigned int m_nC=0; // Number of C side triggers per event
+  unsigned int nA=0; // Number of A side triggers per event
+  unsigned int nC=0; // Number of C side triggers per event
 
 	if (numberBC > 0) 
 	{
@@ -64,14 +64,14 @@ StatusCode FilterUsingMBTS::execute()
 			if (TBP.test(m_ctpID[c]))
 			{
                                 ATH_MSG_INFO( "Trigger fired for : " << m_counterLabel[c]  );
-				if(c<16) m_nA++;
-				else     m_nC++;
+				if(c<16) nA++;
+				else     nC++;
 			}
 		} // end MBTS counter loop
 	} // end if nBC>0
 
 	// Check if filter is passed
-	if( (m_nA >= m_nA_required) && (m_nC >= m_nC_required) )
+	if( (nA >= m_nA_required) && (nC >= m_nC_required) )
 	{
                 ATH_MSG_INFO( "MBTS filter passed"  );
 		this->setFilterPassed(true);
