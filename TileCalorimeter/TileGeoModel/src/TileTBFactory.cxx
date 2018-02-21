@@ -51,8 +51,8 @@ TileTBFactory::TileTBFactory(StoreGateSvc *pDetStore,
   , m_detectorManager(manager)
   , m_log(log)
   , m_addPlatesToCellVolume(addPlates)
-  , m_Ushape(ushape)
-  , m_Glue(glue)
+  , m_uShape(ushape)
+  , m_glue(glue)
   , m_testbeamGeometry(true)
   , m_verbose(log->level()<=MSG::VERBOSE)
 {
@@ -79,7 +79,7 @@ void TileTBFactory::create(GeoPhysVol *world)
 
   // -------- -------- SECTION BUILDER  -------- ----------
   TileDddbManager* dbManager = m_detectorManager->getDbManager();
-  TileGeoSectionBuilder* sectionBuilder = new TileGeoSectionBuilder(theMaterialManager,dbManager,m_Ushape,m_Glue,m_log);
+  TileGeoSectionBuilder* sectionBuilder = new TileGeoSectionBuilder(theMaterialManager,dbManager,m_uShape,m_glue,m_log);
 
   //Tile envelope thickness, Extended & ITC offset
   //and Central module center Z coordinate

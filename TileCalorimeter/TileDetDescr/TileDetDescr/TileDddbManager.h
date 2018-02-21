@@ -41,8 +41,7 @@ class TileDddbManager
 
   TileDddbManager(IRDBAccessSvc* access,
 		  std::string    version_tag,
-		  std::string    version_node,
-                  MsgStream *log);
+		  std::string    version_node);
 
   virtual ~TileDddbManager() {}
     
@@ -307,7 +306,6 @@ class TileDddbManager
   std::vector<unsigned int> m_modTypes;
   void FillModTypes();
 
-  bool m_verbose;
   bool m_buildCuts;
   bool m_buildSaddle;
 

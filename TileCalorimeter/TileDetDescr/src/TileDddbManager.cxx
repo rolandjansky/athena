@@ -17,8 +17,7 @@
 
 TileDddbManager::TileDddbManager(IRDBAccessSvc* access,
 		                 std::string    version_tag,
-				 std::string    version_node,
-                                 MsgStream *    log)
+				 std::string    version_node)
   : m_n_cuts(0)
   , m_n_saddle(0)
   , m_currentTileGlob(0)
@@ -37,13 +36,11 @@ TileDddbManager::TileDddbManager(IRDBAccessSvc* access,
 {
   m_log = new MsgStream(Athena::getMessageSvc(), "TileDddbManager");
 
-  m_verbose = (log->level()<=MSG::VERBOSE);
- 
-  (*log) << MSG::INFO << "TileDddbManager: m_tag = " << m_tag << endmsg;
+  MLOG(INFO) << "m_tag = " << m_tag << endmsg;
 
   m_tiglob = access->getRecordsetPtr("TileGlobals",m_tag,m_node);
   m_n_tiglob = m_tiglob->size();
-  (*log) << MSG::INFO << "TileDddbManager: n_tiglob = " << m_n_tiglob << endmsg;
+  MLOG(INFO) << "n_tiglob = " << m_n_tiglob << endmsg;
  
   if(access->getChildTag("TileModule",m_tag,m_node)!="") {
    m_timod = access->getRecordsetPtr("TileModule",m_tag,m_node);
@@ -51,13 +48,13 @@ TileDddbManager::TileDddbManager(IRDBAccessSvc* access,
    m_timod = access->getRecordsetPtr("TileModules",m_tag,m_node);
   }
   m_n_timod = m_timod->size();
-  (*log) << MSG::INFO << "TileDddbManager: n_timod = " << m_n_timod << endmsg;
+  MLOG(INFO) << "n_timod = " << m_n_timod << endmsg;
   
   if (access->getChildTag("TileCuts",m_tag,m_node)!="") 
    { m_buildCuts = true;
      m_cuts = access->getRecordsetPtr("TileCuts",m_tag,m_node);
      m_n_cuts = m_cuts->size();
-     (*log) << MSG::INFO << "TileDddbManager: n_cuts = " << m_n_cuts << endmsg;
+     MLOG(INFO) << "n_cuts = " << m_n_cuts << endmsg;
 
    } else {
      m_buildCuts = false;
@@ -67,7 +64,7 @@ TileDddbManager::TileDddbManager(IRDBAccessSvc* access,
    { m_buildSaddle = true;
      m_saddle = access->getRecordsetPtr("TileSaddleSup",m_tag,m_node);
      m_n_saddle = m_saddle->size();
-     (*log) << MSG::INFO << "TileDddbManager: n_saddle = " << m_n_saddle << endmsg;
+     MLOG(INFO) << "n_saddle = " << m_n_saddle << endmsg;
 
    } else {
      m_buildSaddle = false;
@@ -77,7 +74,7 @@ TileDddbManager::TileDddbManager(IRDBAccessSvc* access,
 
   m_tilb = access->getRecordsetPtr("TILB",m_tag,m_node);
   m_n_tilb = m_tilb->size();
-  (*log) << MSG::INFO << "TileDddbManager: n_tilb = " << m_n_tilb << endmsg;
+  MLOG(INFO) << "n_tilb = " << m_n_tilb << endmsg;
 
   m_tigr = access->getRecordsetPtr("TIGR",m_tag,m_node);
   m_n_tigr = m_tigr->size();
@@ -96,7 +93,7 @@ TileDddbManager::TileDddbManager(IRDBAccessSvc* access,
 
   m_tileSwitches = access->getRecordsetPtr("TileSwitches",m_tag,m_node);
   m_n_tileSwitches = m_tileSwitches->size();
-  (*log) << MSG::INFO << "TileDddbManager: n_tileSwitches = " << m_n_tileSwitches << endmsg;
+  MLOG(INFO) << "n_tileSwitches = " << m_n_tileSwitches << endmsg;
 
 
   m_EnvNum = 0;
@@ -445,7 +442,7 @@ int TileDddbManager::SetCurrentModuleByNumber(unsigned int Number)
     }
   }
   else {
-    MLOG(ERROR) <<" TileDddbManager::SetCurrentModuleByNumber() - Current Envelope not set, returning -999" << endmsg;
+    MLOG(ERROR) << "TileDddbManager::SetCurrentModuleByNumber() - Current Envelope not set, returning -999" << endmsg;
     return -999;
   } 
 }
