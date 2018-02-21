@@ -614,7 +614,7 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::doRPCSimHit()
 	 StationName=5;
 	}
         else if(stationName=="BIR"){ 
-            StationName=7;
+         StationName=7;
 	}
 	else if(stationName=="BMF"){ 
 	 StationName=8;
@@ -626,7 +626,7 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::doRPCSimHit()
 	 StationName=10;
 	}
         else if(stationName=="BIM"){ 
-            StationName=52;
+         StationName=52;
         }
 	else if(stationName=="BME"){ 
 	 StationName=53;

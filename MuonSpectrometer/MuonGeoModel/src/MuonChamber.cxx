@@ -99,10 +99,10 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
   MsgStream log(m_msgSvc, "MuGM:MuonChamber");
   bool debug   = log.level() <= MSG::DEBUG;
   bool verbose = log.level() <= MSG::VERBOSE;
-  log<<MSG::VERBOSE << " Building a MuonChamber for m_station "
-     << m_station->GetName() << " at zi, fi "
-     << zi << " " << fi+1 << " is_mirrored " << is_mirrored
-     << " is assembly = " << isAssembly << endmsg;
+  if (verbose) log<<MSG::VERBOSE << " Building a MuonChamber for m_station "
+                  << m_station->GetName() << " at zi, fi "
+                  << zi << " " << fi+1 << " is_mirrored " << is_mirrored
+                  << " is assembly = " << isAssembly << endmsg;
   std::string stname(m_station->GetName(), 0, 3);
   MYSQL* mysql=MYSQL::GetPointer();
   //MDT* mdtobj = (MDT*)mysql->GetATechnology("MDT0");
@@ -1211,8 +1211,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
       int ml = 1;
       int tubel = 1;
       int tube = 1;
-      //      if (ypos > 0.) ml = 2;
-      if (ypos > 5.) ml = 2;	// MODIFIED TO COPE WITH BIS78
+      if (ypos > 5.) ml = 2;// Need >5 instead of >0 because BIS78 is not perfectly centered 
       std::string stag = "ml["+MuonGM::buildString(ml,0)+"]"+techname+"component";
 
 
@@ -1495,7 +1494,7 @@ MuonChamber::build(MuonDetectorManager* manager, int zi,
 
 
           float zdivision=100.;// point between doubletZ=1 and 2;          
-          if (stname=="BIS"&&std::abs(zi)==7)  zdivision=400.;//BIS78 (RPC8 is small)
+          if (stname=="BIS"&&std::abs(zi)==7)  zdivision=400.;//BIS78 : RPC8 is smaller than other RPCs
 
           if    (zi <= 0 && !is_mirrored) {
             // the special cases 
