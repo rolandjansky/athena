@@ -41,10 +41,10 @@ namespace EL
     //
 
   public:
-    virtual StatusCode initialize () override;
+    virtual ::StatusCode initialize () override;
 
   public:
-    virtual StatusCode execute () override;
+    virtual ::StatusCode execute () override;
 
 
 
