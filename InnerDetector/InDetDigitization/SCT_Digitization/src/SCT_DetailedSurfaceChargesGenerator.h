@@ -17,6 +17,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "SCT_Digitization/ISCT_SurfaceChargesGenerator.h"
 #include "SCT_ModuleDistortions/ISCT_ModuleDistortionsTool.h"
+#include "SiPropertiesSvc/ISiPropertiesTool.h"
 
 // C++ Standard Library
 #include <iostream>
@@ -44,7 +45,6 @@ namespace CLHEP {
 }
 
 class ISiliconConditionsSvc;
-class ISiPropertiesSvc;
 
 /**
  * Class to take calculate Charge Transport in the SCT with a detailed charge transport model.
@@ -190,9 +190,9 @@ class SCT_DetailedSurfaceChargesGenerator : public AthAlgTool, virtual public IS
   
   //ToolHandles
   ToolHandle<ISCT_ModuleDistortionsTool> m_distortionsTool{this, "SCTDistortionsTool", "SCT_DistortionsTool", "Tool to retrieve SCT distortions"};
+  ToolHandle<ISiPropertiesTool> m_siPropertiesTool{this, "SiPropertiesTool", "SCT_SiPropertiesTool", "Tool to retrieve SCT silicon properties"};
   //ServiceHandles
   ServiceHandle<ISiliconConditionsSvc> m_siConditionsSvc;
-  ServiceHandle<ISiPropertiesSvc> m_siPropertiesSvc;
 
   const InDetDD::SiDetectorElement * m_element;   
   CLHEP::HepRandomEngine *           m_rndmEngine;          //!< Random Engine
