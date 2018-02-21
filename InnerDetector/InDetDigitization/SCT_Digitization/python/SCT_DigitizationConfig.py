@@ -43,11 +43,11 @@ def getSCT_SurfaceChargesGenerator(name="SCT_SurfaceChargesGenerator", **kwargs)
     sct_SiliconConditionsSvcSetup = SCT_SiliconConditionsSvcSetup()
     sct_SiliconConditionsSvcSetup.setDcsSvc(sct_DCSConditionsSvcSetup.getSvc())
     sct_SiliconConditionsSvcSetup.setup()
-    # Set up SCT_SiPropertiesSvc
-    from SiPropertiesSvc.SCT_SiPropertiesSvcSetup import SCT_SiPropertiesSvcSetup
-    sct_SiPropertiesSvcSetup = SCT_SiPropertiesSvcSetup()
-    sct_SiPropertiesSvcSetup.setSiliconSvc(sct_SiliconConditionsSvcSetup.getSvc())
-    sct_SiPropertiesSvcSetup.setup()
+    # Set up SCT_SiPropertiesTool
+    from SiPropertiesSvc.SCT_SiPropertiesToolSetup import SCT_SiPropertiesToolSetup
+    sct_SiPropertiesToolSetup = SCT_SiPropertiesToolSetup()
+    sct_SiPropertiesToolSetup.setSiliconSvc(sct_SiliconConditionsSvcSetup.getSvc())
+    sct_SiPropertiesToolSetup.setup()
     ## Charge trapping service - used by SCT_SurfaceChargesGenerator
     from AthenaCommon.AppMgr import ServiceMgr
     if not hasattr(ServiceMgr, "InDetSCT_RadDamageSummarySvc"):
@@ -62,6 +62,7 @@ def getSCT_SurfaceChargesGenerator(name="SCT_SurfaceChargesGenerator", **kwargs)
     kwargs.setdefault("SmallStepLength", 5)
     kwargs.setdefault("DepletionVoltage", 70)
     kwargs.setdefault("BiasVoltage", 150)
+    kwargs.setdefault("SiPropertiesTool", sct_SiPropertiesToolSetup.getTool())
     from AthenaCommon.GlobalFlags import globalflags
     kwargs.setdefault("isOverlay", globalflags.isOverlay())
 
