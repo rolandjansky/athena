@@ -36,6 +36,11 @@ class TrigMuSuperEFValidationMonitoring(TrigGenericMonitoringToolConfig):
         self.defineTarget( ["Validation"] )
 
         # overall histograms for full algorithm
+
+        self.Histograms += [ defineHistogram('TEST_histo', type='TH1F', title="TEST pt ; MuEF Track pt [GeV]",
+                                             xbins=100, xmin=0, xmax=200) ]  # &&&&& adding in test histogram
+
+
         self.Histograms += [ defineHistogram('EF_trks_type', type='TH1F', title="author;1=TrigMuonEF 2=TrigMuGirl 3=TrigMuGirlTag",
                                              xbins=3, xmin=0.5, xmax=3.5) ]
         self.Histograms += [ defineHistogram('EF_trks_chi2', type='TH1F', title="chi2; MuEF Track chi2",
@@ -50,8 +55,10 @@ class TrigMuSuperEFValidationMonitoring(TrigGenericMonitoringToolConfig):
                                              xbins=100, xmin=-10, xmax=10) ]
         self.Histograms += [ defineHistogram('EF_trks_z0', type='TH1F', title="z0 ; MuEF Track z0 [mm]",
                                              xbins=100, xmin=-250, xmax=250) ]
+#        self.Histograms += [ defineHistogram('EF_trks_nMdt', type='TH1F', title="Number of Mdt ; MuEF Mdt hits",
+#                                             xbins=51, xmin=-0.5, xmax=50.5) ]
         self.Histograms += [ defineHistogram('EF_trks_nMdt', type='TH1F', title="Number of Mdt ; MuEF Mdt hits",
-                                             xbins=51, xmin=-0.5, xmax=50.5) ]
+                                             xbins=6, xmin=-0.0, xmax=5.5) ]
         self.Histograms += [ defineHistogram('EF_trks_nRpcEta', type='TH1F', title="Number of Rpc eta; MuEF Rpc Eta hits",
                                              xbins=51, xmin=-0.5, xmax=50.5) ]
         self.Histograms += [ defineHistogram('EF_trks_nRpcPhi', type='TH1F', title="Number of Rpc phi ; MuEF Rpc Phi hits",

@@ -181,6 +181,8 @@ TrigMuSuperEF::TrigMuSuperEF(const std::string& name, ISvcLocator* pSvcLocator) 
   declareMonitoredStdContainer ("EF_IDtrks_phi",           m_monVars.IDTrk_phi,      IMonitoredAlgo::AutoClear);
   declareMonitoredStdContainer ("EF_IDtrks_eta",           m_monVars.IDTrk_eta,      IMonitoredAlgo::AutoClear);
   declareMonitoredStdContainer ("EF_IDtrks_pT",            m_monVars.IDTrk_pT,       IMonitoredAlgo::AutoClear);
+
+  declareMonitoredStdContainer ("TEST_histo",              TEST_vec,                 IMonitoredAlgo::AutoClear);
   
   declareCombinedMonitoringVariables(m_TMEF_monVars.CB);
   declareCaloTagMonitoringVariables(m_TrigCaloTag_monVars);
@@ -1362,16 +1364,22 @@ void TrigMuSuperEF::fillCTMonitoringVars( const xAOD::TrackParticleContainer& id
     uint8_t numberOfPixelHits=0;
     uint8_t numberOfSCTHits=0;
     uint8_t numberOfTRTHits=0;
+    //    uint8_t numberOfPrecisionLayers=0;
+
     if( trk->summaryValue(numberOfPixelHits,xAOD::numberOfPixelHits) )
       ATH_MSG_DEBUG("Successfully retrieved the integer value, numberOfPixelHits");
     if( trk->summaryValue(numberOfSCTHits,xAOD::numberOfSCTHits) )
       ATH_MSG_DEBUG("Successfully retrieved the integer value, numberOfSCTHits");
     if( trk->summaryValue(numberOfTRTHits,xAOD::numberOfTRTHits) )
       ATH_MSG_DEBUG("Successfully retrieved the integer value, numberOfTRTHits");
+    //    if( trk->summaryValue(numberOfPrecisionLayers,xAOD::numberOfPrecisionLayers) )
+    //      ATH_MSG_DEBUG("Successfully retrieved the integer value, numberOfPrecisionLayers");
+
 
     m_TrigCaloTag_monVars.nSct.push_back(numberOfSCTHits);
     m_TrigCaloTag_monVars.nPixel.push_back(numberOfPixelHits);
     m_TrigCaloTag_monVars.nTrt.push_back(numberOfTRTHits);
+    //    m_TrigCaloTag_monVars.nMdt.push_back(numberOfPrecisionLayers); // &&&& calotag Mdt hits &&&&
     m_TrigCaloTag_monVars.IDTrk_CaloTag.push_back(trk->auxdata<unsigned short>("CaloTag"));
     m_TrigCaloTag_monVars.d0.push_back( trk->d0() );
     m_TrigCaloTag_monVars.z0.push_back( trk->z0() );
@@ -1394,7 +1402,7 @@ void TrigMuSuperEF::fillMonitoringVars(  ) {
 
     ATH_MSG_DEBUG("muon type " << muon->muonType() << " muon pt " << muon->pt() << " trk d0 " << trkpart->d0() << " trk z0 " << trkpart->z0() << " trk chi2 " <<trkpart->chiSquared() << " trk charge "<<trkpart->charge());
     ++nTracks;
-    if(m_debug) {
+    if(m_debug){
       if(muon->muonSpectrometerTrackParticleLink()) {
 	const ElementLink<xAOD::TrackParticleContainer> msTrackLink = muon->muonSpectrometerTrackParticleLink();
 	if(msTrackLink.isValid()) ATH_MSG_DEBUG(" muon MS track before extrapolation pt = " << (*msTrackLink)->pt());
@@ -1405,6 +1413,7 @@ void TrigMuSuperEF::fillMonitoringVars(  ) {
     uint8_t numberOfPixelHits=0;
     uint8_t numberOfSCTHits=0;
     uint8_t numberOfTRTHits=0;
+    uint8_t numberOfPrecisionLayers=0;
     if( trkpart->summaryValue(numberOfPixelHits,xAOD::numberOfPixelHits) ){
       ATH_MSG_DEBUG("Successfully retrieved the integer value, numberOfPixelHits");
     }
@@ -1414,7 +1423,14 @@ void TrigMuSuperEF::fillMonitoringVars(  ) {
     if( trkpart->summaryValue(numberOfTRTHits,xAOD::numberOfTRTHits) ){
       ATH_MSG_DEBUG("Successfully retrieved the integer value, numberOfTRTHits");
     }
-
+    if(muon->muonSpectrometerTrackParticleLink()) {
+      const ElementLink<xAOD::TrackParticleContainer> msTrackLink = muon->muonSpectrometerTrackParticleLink();
+      ATH_MSG_DEBUG(" muon MS track before extrapolation pt = " << (*msTrackLink)->pt());
+    
+      if( (*msTrackLink)->summaryValue(numberOfPrecisionLayers,xAOD::numberOfPrecisionLayers) ){
+	ATH_MSG_DEBUG("Successfully retrieved the integer value, numberOfPrecisionLayers from MS track link");
+      }
+    }
     m_monVars.type.push_back(muon->muonType());
     m_monVars.charge.push_back( trkpart->charge() );
     m_monVars.chi2.push_back( trkpart->chiSquared() );
@@ -1430,6 +1446,10 @@ void TrigMuSuperEF::fillMonitoringVars(  ) {
     m_monVars.nSct.push_back( numberOfSCTHits );
     m_monVars.nPixel.push_back( numberOfPixelHits );
     m_monVars.nTrt.push_back( numberOfTRTHits );
+
+    m_monVars.nMdt.push_back( numberOfPrecisionLayers ); // testphrase test to check whether Mdt fills with precision layers 
+    TEST_vec.push_back ( muon->pt() / Units::GeV ); // testphrase try filling new hist with data we know is there 
+
   }//loop over muons
   m_monVars.numberOfTracks.push_back(nTracks);
   
@@ -1458,6 +1478,8 @@ void TrigMuSuperEF::fillCBMonitoringVars() {
     uint8_t numberOfPixelHits=0;
     uint8_t numberOfSCTHits=0;
     uint8_t numberOfTRTHits=0;
+    uint8_t numberOfPrecisionLayers=0;
+
     if( trkpart->summaryValue(numberOfPixelHits,xAOD::numberOfPixelHits) ){
       ATH_MSG_DEBUG("Successfully retrieved the integer value, numberOfPixelHits");
     }
@@ -1467,6 +1489,10 @@ void TrigMuSuperEF::fillCBMonitoringVars() {
     if( trkpart->summaryValue(numberOfTRTHits,xAOD::numberOfTRTHits) ){
       ATH_MSG_DEBUG("Successfully retrieved the integer value, numberOfTRTHits");
     }
+    if( trkpart->summaryValue(numberOfPrecisionLayers,xAOD::numberOfPrecisionLayers) ){
+      ATH_MSG_DEBUG("Successfully retrieved the integer value, numberOfPrecisionLayers");
+    }
+
 
     m_TMEF_monVars.CB.chi2.push_back( trkpart->chiSquared() );
     float matchchi2 = 0.0;
@@ -1480,6 +1506,9 @@ void TrigMuSuperEF::fillCBMonitoringVars() {
     m_TMEF_monVars.CB.nSct.push_back( numberOfSCTHits );
     m_TMEF_monVars.CB.nPixel.push_back( numberOfPixelHits );
     m_TMEF_monVars.CB.nTrt.push_back( numberOfTRTHits );
+
+    m_TMEF_monVars.CB.nMdt.push_back( numberOfPrecisionLayers ); // testphrase Number of CB muon Mdt hits 
+
   }//loop over muons
   m_TMEF_monVars.CB.numberOfTracks.push_back(nTracks);
   

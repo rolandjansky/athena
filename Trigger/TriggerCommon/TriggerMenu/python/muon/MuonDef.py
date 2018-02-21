@@ -36,6 +36,9 @@ from TrigMuonHypo.TrigMuonHypoConfig import (TrigMuonEFTrackIsolationHypoConfig,
 from TrigHIHypo.HFMuonHypos import hiHFMuonHypos
 from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyCopyAllTEAlgo
 from TriggerMenu.commonUtils.makeCaloSequences import getFullScanCaloSequences
+
+from TrigMuSuperEF.TrigMuonEFTagandProbeConfig import TrigMuonEFTagandProbeConfig 
+
 #-----------------------------------
 class L2EFChain_mu(L2EFChainDef):
 #-----------------------------------
@@ -1243,6 +1246,13 @@ class L2EFChain_mu(L2EFChainDef):
       self.EFsequenceList += [['EF_CB_ROI',
                                [theTrigMuonEFCombinerMultiHypoConfig],
                                'EF_CB_FS']]
+
+      if 'TagandProbe' in self.chainPart['FSinfo']:
+        TrigMuonEFTagandProbeInstance = TrigMuonEFTagandProbeConfig()
+        self.EFsequenceList += [['EF_CB_FS',
+                                 [TrigMuonEFTagandProbeInstance],
+                                 'EF_CB_FSTaP']]      
+
       if run_isolation:
         self.EFsequenceList += [['EF_CB_FS_single',
                                  trkiso,
@@ -1257,7 +1267,8 @@ class L2EFChain_mu(L2EFChainDef):
         self.EFsequenceList += [[['EF_ISO_FS'],
                                  [theTrigMuonEFTrackIsolationMultiHypoConfig],
                                  'EF_ISO_HYPO']]
-        
+                                
+
     ########### Signatures ###########
       
     self.EFsignatureList += [ [['EF_dummy']] ]
@@ -1269,11 +1280,16 @@ class L2EFChain_mu(L2EFChainDef):
       self.EFsignatureList += [ [['EF_CB_FS_single']] ]
       self.EFsignatureList += [ [['EF_CB_ROI']] ]
       self.EFsignatureList += [ [['EF_CB_FS','EF_SA_FS2']] ]
+      if 'TagandProbe' in self.chainPart['FSinfo']:
+        self.EFsignatureList += [ [['EF_CB_FSTaP']] ]
+
       if run_isolation:
         self.EFsignatureList += [ [['EF_ID_FS']] ]
         self.EFsignatureList += [ [['EF_ID_FS_single']] ]
         self.EFsignatureList += [ [['EF_ISO_FS']] ]
         self.EFsignatureList += [ [['EF_ISO_HYPO']] ]
+
+
     ########### TE renaming ##########
 
     if 'msonly' in self.chainPart['reccalibInfo']:
@@ -1291,11 +1307,15 @@ class L2EFChain_mu(L2EFChainDef):
       }
       self.TErenamingDict['EF_CB_ROI'] = mergeRemovingOverlap('EF_CB_ROI_','SAFSRoi')
       self.TErenamingDict['EF_CB_FS'] = mergeRemovingOverlap('EF_CB_FS_', 'SAFSHypo'+hypocut+'_'+hypocutEF)
+
+      if 'TagandProbe' in self.chainPart['FSinfo'] : self.TErenamingDict['EF_CB_FSTaP'] = mergeRemovingOverlap('EF_CB_FSTaP_', 'SAFSHypo'+hypocut+'_'+hypocutEF)
+
       if run_isolation:
         self.TErenamingDict['EF_ID_FS_single'] = mergeRemovingOverlap('EF_trkIso_', chainPartNameNoMultNoDS+'EFFSID')
         self.TErenamingDict['EF_ID_FS'] = mergeRemovingOverlap('EF_ID_FS_', 'SAFSHypo'+hypocut+'_'+hypocutEF + "_ID")
         self.TErenamingDict['EF_ISO_FS'] = mergeRemovingOverlap('EF_ISO_FS_', chainPartNameNoMultNoDS+'EFFSISO')
         self.TErenamingDict['EF_ISO_HYPO'] = mergeRemovingOverlap('EF_ISO_FS_', chainPartNameNoMultNoDS+'EFFSISOHypo')
+
       
  #################################################################################################
   #################################################################################################
