@@ -462,7 +462,7 @@ StatusCode ISF_HitAnalysis::initialize()
   return StatusCode::FAILURE;
  }
  //#########################
- TFile* dummyFile = new TFile("dummyFile.root", "RECREATE"); //This is added to suppress the error messages about memory-resident trees
+ std::unique_ptr<TFile> dummyFile = std::unique_ptr<TFile>(TFile::Open("dummyFile.root", "RECREATE")); //This is added to suppress the error messages about memory-resident trees
  m_tree = new TTree("FCS_ParametrizationInput", "FCS_ParametrizationInput");
  std::string fullNtupleName =  "/"+m_ntupleFileName+"/"+m_ntupleTreeName;
  sc = m_thistSvc->regTree(fullNtupleName, m_tree);
@@ -645,7 +645,7 @@ StatusCode ISF_HitAnalysis::finalize()
 {
 
  ATH_MSG_INFO( "doing finalize()" );
- TFile* dummyGeoFile = new TFile("dummyGeoFile.root", "RECREATE"); //This is added to suppress the error messages about memory-resident trees
+ std::unique_ptr<TFile> dummyGeoFile = std::unique_ptr<TFile>(TFile::Open("dummyGeoFile.root", "RECREATE")); //This is added to suppress the error messages about memory-resident trees
  TTree* geo = new TTree( m_geoModel->atlasVersion().c_str() , m_geoModel->atlasVersion().c_str() );
  std::string fullNtupleName =  "/"+m_geoFileName+"/"+m_geoModel->atlasVersion();
  StatusCode sc = m_thistSvc->regTree(fullNtupleName, geo);
