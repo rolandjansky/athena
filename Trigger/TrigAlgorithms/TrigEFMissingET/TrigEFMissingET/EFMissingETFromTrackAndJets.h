@@ -57,9 +57,6 @@ class EFMissingETFromTrackAndJets : public EFMissingETBaseTool
                                const xAOD::MuonContainer *muon);
 
     TH1* getHistogramFromFile(TString hname, TString fname);
-    bool forwardJet(const xAOD::Jet *jet) const;
-    bool centralJet(const xAOD::Jet *jet, float jvt, std::vector<double> sumpts) const;
-    float getDrpt(const xAOD::Jet *jet, std::vector<double> sumpts) const;
 
   private:
     float m_etacut;

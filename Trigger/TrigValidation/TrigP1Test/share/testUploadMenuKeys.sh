@@ -191,6 +191,8 @@ echo "smk=${smk}" > prescaleKeys.txt
 echo "l1psk=${l1psk2}" >> prescaleKeys.txt
 echo "hltpsk=${hltpsk2}" >> prescaleKeys.txt
 
+rm -rf TrigMenuRulebook
+
 exit 0
 
 

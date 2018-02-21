@@ -649,6 +649,8 @@ def defineMenu():
         'L1_AFP_A_AND_C_SPECTOF_J50',
         'L1_AFP_A_AND_C_SPECTOF_J75',
         'L1_AFP_A_AND_C_SPECTOF_J100',
+	'L1_AFP_NSA','L1_AFP_NSC','L1_AFP_FSA_SIT','L1_AFP_FSC_SIT',
+	'L1_EM7_AFP_A_OR_C','L1_EM7_AFP_A_AND_C','L1_EM12_AFP_A_OR_C','L1_EM12_AFP_A_AND_C',
 
 
         #--------------------------------
@@ -1171,7 +1173,15 @@ def defineMenu():
         'L1_AFP_A_AND_C_SPECTOF_J50': 444,
         'L1_AFP_A_AND_C_SPECTOF_J75': 446,
         'L1_AFP_A_AND_C_SPECTOF_J100': 457,
-       
+	'L1_AFP_NSA': 407,
+	'L1_AFP_NSC': 410,
+	'L1_AFP_FSA_SIT': 415,
+	'L1_AFP_FSC_SIT': 418,
+	'L1_EM7_AFP_A_OR_C': 434,
+	'L1_EM7_AFP_A_AND_C': 435,
+	'L1_EM12_AFP_A_OR_C': 445,
+	'L1_EM12_AFP_A_AND_C': 455,     
+
 #        'L1_EM8I' : 183,
 #        'L1_EM15I': 184,
         'L1_MBTS_4_A_UNPAIRED_ISO' : 185,
