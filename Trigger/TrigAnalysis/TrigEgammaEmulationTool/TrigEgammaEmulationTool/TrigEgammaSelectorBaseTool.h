@@ -1,6 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+ *   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ *   */
+
 
 #ifndef TrigEgammaSelectorBaseTool_H_
 #define TrigEgammaSelectorBaseTool_H_
@@ -17,14 +18,9 @@
 #include <map>
 #include <boost/any.hpp>
 
-//define RINGER_OFFLINE_PACKAGES
-#ifdef RINGER_OFFLINE_PACKAGES
-//////////////////////// Ringer Offline //////////////////////////
-#include "xAODCaloRings/RingSetContainer.h"                     //
-#include "xAODCaloRings/CaloRingsContainer.h"                   //
-#include "xAODCaloRings/tools/getCaloRingsDecorator.h"          //
-//////////////////////////////////////////////////////////////////
-#endif
+//#include "xAODCaloRings/RingSetContainer.h"                     //
+//#include "xAODCaloRings/CaloRingsContainer.h"                   //
+//#include "xAODCaloRings/tools/getCaloRingsDecorator.h"          //
 
 
 namespace Trig{
@@ -47,12 +43,14 @@ namespace Trig{
       //how generate this for these levels.
       bool emulation(const xAOD::EmTauRoI               *, bool&, const Trig::Info &){return true;};
       bool emulation(const xAOD::TrigEMCluster          *, bool&, const Trig::Info &){return true;};
+      bool emulation(const xAOD::IParticle              *, bool&, const Trig::Info &){return true;};
       bool emulation(const xAOD::IParticleContainer     *, bool&, const Trig::Info &){return true;};
+      
       //parser TDT tool as a pointer
-      void setParents(ToolHandle<Trig::TrigDecisionTool> &t, StoreGateSvc *s, std::map<std::string,boost::any> *d)
-      { m_trigdec=&(*t); m_storeGate=s; m_decorations=d;};
-      void setParents(Trig::TrigDecisionTool *t, StoreGateSvc *s, std::map<std::string,boost::any> *d)
-      { m_trigdec=t; m_storeGate=s; m_decorations=d;};
+      void setParents(ToolHandle<Trig::TrigDecisionTool> &t, StoreGateSvc *s)
+      { m_trigdec=&(*t); m_storeGate=s;};
+      void setParents(Trig::TrigDecisionTool *t, StoreGateSvc *s)
+      { m_trigdec=t; m_storeGate=s;};
       void setTe(const HLT::TriggerElement *te){m_te=te;}; 
 
     protected:
@@ -79,7 +77,6 @@ namespace Trig{
       StoreGateSvc                    *m_storeGate;
       Trig::TrigDecisionTool          *m_trigdec;
       const HLT::TriggerElement       *m_te;
-      std::map<std::string, boost::any> *m_decorations;
   };
 
 

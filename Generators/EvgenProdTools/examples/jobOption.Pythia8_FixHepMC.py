@@ -1,5 +1,3 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
 ## Example job option script to run an event generator with FixHepMC filtering
 ## Author: Andy Buckley <andy.buckley@cern.ch>
 

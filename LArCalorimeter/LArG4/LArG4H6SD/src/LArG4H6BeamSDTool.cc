@@ -10,12 +10,13 @@
 LArG4H6BeamSDTool::LArG4H6BeamSDTool(const std::string& type, const std::string& name, const IInterface *parent)
   : SensitiveDetectorBase(type,name,parent)
 {
-  declareInterface<ISensitiveDetector>(this);
 }
 
 G4VSensitiveDetector* LArG4H6BeamSDTool::makeSD()
 {
   ATH_MSG_DEBUG( "Initializing SD" );
+  //FIXME better to use a configurable property here?
+
   // be smart, and take only last part of the name
   G4String colname = G4String(name()).strip(G4String::both,':');
   if ( colname.contains(':') )

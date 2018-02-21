@@ -62,16 +62,22 @@ class MonitorDef:
 
         counters = []
 
-        from operator import attrgetter
-        emthresholds = sorted([thr for thr in thresholds if thr.ttype=='EM'], key = attrgetter('mapping'))
-        
-        thrNames = [thr.name for thr in thresholds]
-        if "MBTS_A" in thrNames:
-            counters += [ Lvl1CtpmonCounter("MBTS_A",1) ]
-        if "MBTS_C" in thrNames:
-            counters += [ Lvl1CtpmonCounter("MBTS_C",1) ]
-        if emthresholds:
-            counters += [ Lvl1CtpmonCounter(emthresholds[0].name,1) ] # lowest EM threshold
+        tomonitor = [
+        "1MBTS_A0","1MBTS_A1","1MBTS_A2","1MBTS_A3","1MBTS_A4","1MBTS_A5","1MBTS_A6","1MBTS_A7","1MBTS_A8","1MBTS_A10","1MBTS_A12","1MBTS_A14",
+        "1MBTS_C0","1MBTS_C1","1MBTS_C2","1MBTS_C3","1MBTS_C4","1MBTS_C5","1MBTS_C6","1MBTS_C7","1MBTS_C8","1MBTS_C10","1MBTS_C12","1MBTS_C14",
+        "1MBTS_A","1MBTS_C","1LUCID_A","1LUCID_C",
+        "1AFP_FSA_SIT","1AFP_FSA_TOF","1AFP_FSC_SIT","1AFP_FSC_TOF","1AFP_NSA","1AFP_NSC",
+        "1EM12","2EM12","3EM12","4EM12","5EM12","6EM12","7EM12",
+        "1MU4","2MU4","3MU4","4MU4","5MU4","6MU4","7MU4",
+        "1J20","2J20","3J20","4J20","5J20","6J20","7J20",
+        "1XE35","1XE60","1TE50",
+        "1BPTX0","1BPTX1",
+        ]
+
+        for item in tomonitor:
+            mult = int(item[0])
+            item = item[1:]
+            counters += [ Lvl1CtpmonCounter(item,mult) ]
 
         return counters
 

@@ -759,12 +759,16 @@ namespace {
                          const lwt::ValueMap& vals) {
     size_t found = 0;
     for (const auto& out: outputs) {
-      double val = NAN;         // see jira: AFT-194
+      double val = 0;         // was NaN, see jira: AFT-194, ATLASRECTS-3897
+      bool is_valid = false;
       if (vals.count(out)) {
         val = vals.at(out);
         found++;
+        is_valid = true;
       }
       tag.setVariable<double>(author, out, val);
+      std::string valid_key = out + "IsValid";
+      tag.setVariable<char>(author, valid_key, is_valid);
     }
     return found;
   }

@@ -695,7 +695,7 @@ class argFile(argList):
                 msg.debug('Found root filesystem input - activating globbing')
                 newValue = []
                 for filename in self._value:
-                    if str(filename).startswith("https") or not(str(filename).endswith('/')) and '*' not in filename and '?' not in filename:
+                    if str(filename).startswith("https") or str(filename).startswith("davs") or not(str(filename).endswith('/')) and '*' not in filename and '?' not in filename:
                         msg.debug('Seems that only one file was given: {0}'.format(filename))
                         newValue.extend(([filename]))
                     else:
@@ -2057,11 +2057,14 @@ class argSubstepSteering(argSubstep):
     # usecases of steering. 
     # "no" - a convenience null option for production managers, does nothing
     # "doRDO_TRIG" - run split trigger for Reco_tf and friends
+    # "doOverlay" - run event overlay on premixed RDOs instead of standard HITtoRDO digitization
     # "afterburn" - run the B decay afterburner for event generation
     # "doRAWtoALL" - produce all DESDs and AODs directly from bytestream
     steeringAlises = {
                       'no': {},
                       'doRDO_TRIG': {'RAWtoESD': [('in', '-', 'RDO'), ('in', '+', 'RDO_TRIG'), ('in', '-', 'BS')]},
+                      'doOverlay': {'HITtoRDO': [('in', '-', 'HITS'), ('out', '-', 'RDO'), ('out', '-', 'RDO_FILT')],
+                                    'OverlayPool': [('in', '+', ('HITS', 'RDO_BKG')), ('out', '+', 'RDO')]},
                       'afterburn': {'generate': [('out', '-', 'EVNT')]},
                       'doRAWtoALL': {'RAWtoALL': [('in', '+', 'BS'), ('in', '+', 'RDO'), ('in', '+', 'RDO_FTK'),
                                                   ('in', '+', 'DRAW_ZMUMU'), ('in', '+', 'DRAW_ZEE'), ('in', '+', 'DRAW_EMU'), ('in', '+', 'DRAW_RPVLL'), 

@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef G4ATLASINTERFACES_SENSITIVEDETECTORBASE_H
-#define G4ATLASINTERFACES_SENSITIVEDETECTORBASE_H
+#ifndef G4ATLASTOOLS_SENSITIVEDETECTORBASE_H
+#define G4ATLASTOOLS_SENSITIVEDETECTORBASE_H
 
 // Base classes
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -37,7 +37,7 @@ class G4VSensitiveDetector;
 /// for preparing and post-processing output collections at the beginning or
 /// end of an Athena event.
 ///
-class SensitiveDetectorBase : virtual public ISensitiveDetector, public AthAlgTool
+class SensitiveDetectorBase : public extends<AthAlgTool, ISensitiveDetector>
 {
 
  public:
@@ -65,10 +65,12 @@ class SensitiveDetectorBase : virtual public ISensitiveDetector, public AthAlgTo
       If we are using a WriteHandle, then this can be empty! */
   virtual StatusCode Gather() override { return StatusCode::SUCCESS; }
 
-  /** Query interface method to make athena happy */
-  virtual StatusCode queryInterface(const InterfaceID&, void**) override;
-
  protected:
+
+  /// @brief Assign SD to a list of volumes
+  /** This method supports wild card matching */
+  StatusCode assignSD(G4VSensitiveDetector* sd,
+                      const std::vector<std::string>& volumes) const;
 
   /// @brief Retrieve the current SD.
   /** In AthenaMT, this means the thread-local SD.

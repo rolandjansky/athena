@@ -37,7 +37,6 @@ MagField::ForwardRegionFieldSvc::ForwardRegionFieldSvc(const std::string& name,I
   AthService(name,svc),
   IMagFieldSvc(),
   m_magnet(-1),
-  m_refCounter(0),
   m_magDataType(0),
   m_MQXA_DataFile(""), //"MQXA_NOMINAL.dat" if name = Q1 or Q3
   m_MQXB_DataFile(""), //"MQXB_NOMINAL.dat" if name = Q2

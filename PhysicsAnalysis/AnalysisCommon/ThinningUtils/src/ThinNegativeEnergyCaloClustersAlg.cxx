@@ -100,7 +100,7 @@ StatusCode ThinNegativeEnergyCaloClustersAlg::execute()
     // Increase the event counter
     ++m_nEventsProcessed;
     
-    // Is truth thinning required?
+    // Is thinning required?
     if (!m_doThinning) {
         return StatusCode::SUCCESS;
     } 
@@ -110,8 +110,9 @@ StatusCode ThinNegativeEnergyCaloClustersAlg::execute()
     if (evtStore()->contains<xAOD::CaloClusterContainer>(m_caloClustersKey)) {
         CHECK( evtStore()->retrieve( caloClusters , m_caloClustersKey ) );
     } else {
-        ATH_MSG_FATAL("No CaloClusterContainer with key "+m_caloClustersKey+" found.");
-        return StatusCode::FAILURE;
+        ATH_MSG_INFO("No CaloClusterContainer with key "+m_caloClustersKey+" found. Thinning cannot be applied for this container");
+        m_doThinning = false;
+        return StatusCode::SUCCESS;
     }
 
     // Set up masks

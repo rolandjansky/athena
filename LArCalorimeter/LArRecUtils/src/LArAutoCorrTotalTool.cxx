@@ -4,7 +4,6 @@
 
 #include "LArRecUtils/LArAutoCorrTotalTool.h"
 #include "GaudiKernel/ToolFactory.h"
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "LArElecCalib/LArConditionsException.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -62,40 +61,27 @@ LArAutoCorrTotalTool::LArAutoCorrTotalTool(const std::string& type,
 
 StatusCode LArAutoCorrTotalTool::initialize()
 {
-  MsgStream log( msgSvc(), name() );
-
-  log << MSG::DEBUG << "LArAutoCorrTotalTool initialize() begin" << endreq;
+  ATH_MSG_DEBUG( "LArAutoCorrTotalTool initialize() begin"  );
 
   if ( !m_isSC ) {
 
-    const LArOnlineID* laron;
-    StatusCode sc  = detStore()->retrieve(laron,"LArOnlineID");
-    if (sc.isFailure()) {
-      log << MSG::ERROR << "Unable to retrieve  LArOnlineID from DetectorStore" << endreq;
-      return StatusCode::FAILURE;
-    } else m_lar_on_id = (LArOnlineID_Base*) laron;
+    const LArOnlineID* laron = nullptr;
+    ATH_CHECK(  detStore()->retrieve(laron,"LArOnlineID") );
+    m_lar_on_id = (LArOnlineID_Base*) laron;
 
     ToolHandle<LArCablingService> larcab("LArCablingService");
-    if(larcab.retrieve().isFailure()){
-      log << MSG::ERROR << "Unable to get CablingService" << endreq;
-      return StatusCode::FAILURE;
-    } else m_cablingService = (LArCablingBase*) &(*larcab);
+    ATH_CHECK( larcab.retrieve() );
+    m_cablingService = (LArCablingBase*) &(*larcab);
 
   } else {
 
-    const LArOnline_SuperCellID* laron;
-    StatusCode sc = detStore()->retrieve(laron,"LArOnline_SuperCellID");
-    if (sc.isFailure()) {
-      log << MSG::ERROR << "Unable to retrieve  LArOnlineID from DetectorStore" << endreq;
-      return StatusCode::FAILURE;
-    } else m_lar_on_id = (LArOnlineID_Base*) laron;
+    const LArOnline_SuperCellID* laron = nullptr;
+    ATH_CHECK(  detStore()->retrieve(laron,"LArOnline_SuperCellID") );
+    m_lar_on_id = (LArOnlineID_Base*) laron;
 
     ToolHandle<LArSuperCellCablingTool> larcab("LArSuperCellCablingTool");
-    if(larcab.retrieve().isFailure()){
-      log << MSG::ERROR << "Unable to get CablingService" << endreq;
-      return StatusCode::FAILURE;
-    } else m_cablingService = (LArCablingBase*) &(*larcab);
-    
+    ATH_CHECK( larcab.retrieve() );
+    m_cablingService = (LArCablingBase*) &(*larcab);
   }
 
   //retrieves helpers for LArCalorimeter
@@ -113,33 +99,25 @@ StatusCode LArAutoCorrTotalTool::initialize()
 
 
   if (m_MCSym) {
-    if (m_larmcsym.retrieve().isFailure()){
-      log << MSG::ERROR << "Unable to get LArMCSym Tool " << endreq;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( m_larmcsym.retrieve() );
   }
   
-  if (m_adc2mevTool.retrieve().isFailure()) 
-    {
-      log << MSG::ERROR << "Unable to find tool for LArADC2MeVTool" << endreq;
-      return StatusCode::FAILURE;
-    }
-  else 
-    log << MSG::DEBUG << " -- ILArADC2MeVTool retrieved" << endreq;
+  ATH_CHECK( m_adc2mevTool.retrieve() );
+  ATH_MSG_DEBUG( " -- ILArADC2MeVTool retrieved"  );
   
   
   if (StatusCode::SUCCESS==detStore()->regFcn(&ILArAutoCorrTotalTool::LoadCalibration,
 					      dynamic_cast<ILArAutoCorrTotalTool*>(this),m_dd_shape,m_keyShape)) {
-    log << MSG::INFO << "Registered callback for key: " <<m_keyShape << endreq;
+    ATH_MSG_INFO( "Registered callback for key: " <<m_keyShape  );
   } else {
-    log << MSG::ERROR << "Cannot register testCallback function for key " << m_keyShape << endreq;
+    ATH_MSG_ERROR( "Cannot register testCallback function for key " << m_keyShape  );
   }
   
   if (StatusCode::SUCCESS==detStore()->regFcn(&ILArAutoCorrTotalTool::LoadCalibration,
 					      dynamic_cast<ILArAutoCorrTotalTool*>(this),m_dd_autocorr,m_keyAutoCorr)) {
-    log << MSG::INFO << "Registered callback for key: " << m_keyAutoCorr << endreq;
+    ATH_MSG_INFO( "Registered callback for key: " << m_keyAutoCorr  );
   } else {
-    log << MSG::ERROR << "Cannot register testCallback function for key " << m_keyAutoCorr << endreq;
+    ATH_MSG_ERROR( "Cannot register testCallback function for key " << m_keyAutoCorr  );
   }
   
   m_NoPile=false;
@@ -150,54 +128,49 @@ StatusCode LArAutoCorrTotalTool::initialize()
       if(m_isMC){
 	if (StatusCode::SUCCESS==detStore()->regFcn(&ILArAutoCorrTotalTool::LoadCalibration,
 						    dynamic_cast<ILArAutoCorrTotalTool*>(this),m_dd_noise,m_keyNoise)) {
-	  log << MSG::INFO << "Registered callback for key: " << m_keyNoise << endreq;
+	  ATH_MSG_INFO( "Registered callback for key: " << m_keyNoise  );
 	} else {
-	  log << MSG::ERROR << "Cannot register testCallback function for key " << m_keyNoise << endreq;
+	  ATH_MSG_ERROR( "Cannot register testCallback function for key " << m_keyNoise  );
 	}
       }else{
 	if (StatusCode::SUCCESS==detStore()->regFcn(&ILArAutoCorrTotalTool::LoadCalibration,
 						    dynamic_cast<ILArAutoCorrTotalTool*>(this),m_dd_pedestal,m_keyPedestal)) {
-	  log << MSG::INFO << "Registered callback for key: " << m_keyPedestal << endreq;
+	  ATH_MSG_INFO( "Registered callback for key: " << m_keyPedestal  );
 	} else {
-	  log << MSG::ERROR << "Cannot register testCallback function for key " << m_keyPedestal << endreq;
+	  ATH_MSG_ERROR( "Cannot register testCallback function for key " << m_keyPedestal  );
 	}
       }
       
       if (StatusCode::SUCCESS==detStore()->regFcn(&ILArAutoCorrTotalTool::LoadCalibration,
 						  dynamic_cast<ILArAutoCorrTotalTool*>(this),m_dd_fSampl,m_keyfSampl)) {
-	log << MSG::INFO << "Registered callback for key: " << m_keyfSampl << endreq;
+	ATH_MSG_INFO( "Registered callback for key: " << m_keyfSampl  );
       } else {
-	log << MSG::ERROR << "Cannot register testCallback function for key " << m_keyfSampl << endreq;
+	ATH_MSG_ERROR( "Cannot register testCallback function for key " << m_keyfSampl  );
       }
       
       if (StatusCode::SUCCESS==detStore()->regFcn(&ILArAutoCorrTotalTool::LoadCalibration,
 						  dynamic_cast<ILArAutoCorrTotalTool*>(this),m_dd_minbias,m_keyMinBias)) {
-	log << MSG::INFO << "Registered callback for key: " << m_keyMinBias << endreq;
+	ATH_MSG_INFO( "Registered callback for key: " << m_keyMinBias  );
       } else {
-	log << MSG::ERROR << "Cannot register testCallback function for key " << m_keyMinBias << endreq;
+	ATH_MSG_ERROR( "Cannot register testCallback function for key " << m_keyMinBias  );
       }
       
       // force calling first callback function of LArADC2MeV, and then callback of LArAutoCorrTotalTool
       if (StatusCode::SUCCESS==detStore()->regFcn(&ILArADC2MeVTool::LoadCalibration,&(*m_adc2mevTool),
 						  &ILArAutoCorrTotalTool::LoadCalibration,dynamic_cast<ILArAutoCorrTotalTool*>(this))) {
-	log << MSG::INFO << "Registered callback for LArAutoCorrTool/LArADC2MeVTool" << endreq;
+	ATH_MSG_INFO( "Registered callback for LArAutoCorrTool/LArADC2MeVTool"  );
       } else {
-	log << MSG::ERROR << "Cannot register testCallback function for LArAutoCorrTotalTool/LArAdc2MeVTool" << endreq;
+	ATH_MSG_ERROR( "Cannot register testCallback function for LArAutoCorrTotalTool/LArAdc2MeVTool"  );
       }
       
     }
   
   
   if (m_loadAtBegin) {
-    log << MSG::DEBUG << "Setting callback function to load calibration at begin of run" << endreq;
+    ATH_MSG_DEBUG( "Setting callback function to load calibration at begin of run"  );
     // Incident Service: 
-    IIncidentSvc* incSvc;
-    StatusCode sc = service("IncidentSvc", incSvc);
-    if (sc.isFailure()) {
-      log << MSG::ERROR << "Unable to retrieve pointer to IncidentSvc "
-	  << endreq;
-      return sc;
-    }
+    IIncidentSvc* incSvc = nullptr;
+    ATH_CHECK(  service("IncidentSvc", incSvc) );
     
     //start listening to "BeginRun". The incident should be fired AFTER the IOV callbacks and only once.
     //const long priority=std::numeric_limits<long>::min(); //Very low priority
@@ -206,7 +179,7 @@ StatusCode LArAutoCorrTotalTool::initialize()
   }
     
   //
-  log << MSG::DEBUG << "LArAutoCorrTotalTool initialize() end" << endreq;
+  ATH_MSG_DEBUG( "LArAutoCorrTotalTool initialize() end"  );
   
   return StatusCode::SUCCESS;
 }
@@ -223,12 +196,9 @@ StatusCode LArAutoCorrTotalTool::finalize()
 // *** retrieves needed data from the DB *** 
 StatusCode LArAutoCorrTotalTool::LoadCalibration(IOVSVC_CALLBACK_ARGS_K(keys))
 {
+  ATH_MSG_DEBUG( "in LoadCalibration "  );
   
-
-  MsgStream log( msgSvc(), name() );
-  log << MSG::DEBUG << "in LoadCalibration " << endreq;
-  
-  log << MSG::DEBUG << "Callback invoked for " << keys.size() << " keys" << endreq;
+  ATH_MSG_DEBUG( "Callback invoked for " << keys.size() << " keys"  );
   
   m_cacheValid = false; 
 
@@ -240,13 +210,9 @@ StatusCode LArAutoCorrTotalTool::LoadCalibration(IOVSVC_CALLBACK_ARGS_K(keys))
 // *** compute some terms of the calculation of the autocorr function *** 
 StatusCode LArAutoCorrTotalTool::getTerms()
 {
-
-  
-  MsgStream log( msgSvc(), name() );
-
-  log << MSG::DEBUG << "in getAutoCorrTotal" << endreq;
-  log << MSG::INFO << "  Bunch spacing (25 ns units ) " << m_deltaBunch << endreq;
-  log << MSG::INFO << "  N(MB)/bunch crossing " << m_Nminbias << endreq;
+  ATH_MSG_DEBUG( "in getAutoCorrTotal"  );
+  ATH_MSG_INFO( "  Bunch spacing (25 ns units ) " << m_deltaBunch  );
+  ATH_MSG_INFO( "  N(MB)/bunch crossing " << m_Nminbias  );
 
   // get HWIdentifier iterator
   std::vector<HWIdentifier>::const_iterator it   =m_lar_on_id->channel_begin();
@@ -259,7 +225,7 @@ StatusCode LArAutoCorrTotalTool::getTerms()
   int count = 0;
   int count2 = 0;
   // loop over em Identifiers
-  log << MSG::DEBUG << "start loop over cells in getAutoCorrTotal" << endreq;
+  ATH_MSG_DEBUG( "start loop over cells in getAutoCorrTotal"  );
   for(;it!=it_e;++it)
   {    
     count ++;
@@ -279,10 +245,10 @@ StatusCode LArAutoCorrTotalTool::getTerms()
 	const bool isEMB    = m_lar_on_id->isEMBchannel(id);
 	const bool isEMECOW = m_lar_on_id->isEMECOW(id);
 	if (isEMB || isEMECOW ) {
-	  log << MSG::DEBUG << "No Pileup AutoCorr for ChID 0x" << MSG::hex << id << MSG::dec << endreq;
+	  ATH_MSG_DEBUG( "No Pileup AutoCorr for ChID 0x" << MSG::hex << id << MSG::dec  );
 	  m_NoPile = true;
 	} else { 
-	  log << MSG::DEBUG << "Using Pileup AutoCorr for ChID 0x" << MSG::hex << id << MSG::dec << endreq;
+	  ATH_MSG_DEBUG( "Using Pileup AutoCorr for ChID 0x" << MSG::hex << id << MSG::dec  );
 	  m_NoPile = false;
 	}
       }
@@ -316,7 +282,7 @@ StatusCode LArAutoCorrTotalTool::getTerms()
         unsigned int ihecshift=0;
         if(m_lar_on_id->isHECchannel(id) && m_nsamples_AC_OFC == 4 && m_firstSample == 0) {
              ihecshift=1;
-             //log << MSG::DEBUG << "Using firstSample +1 for HEC ChID 0x" << MSG::hex << id << MSG::dec << endreq;        
+             //ATH_MSG_DEBUG( "Using firstSample +1 for HEC ChID 0x" << MSG::hex << id << MSG::dec  );
         }
 
 	//:::::::::::::::::::::::::::::::
@@ -354,13 +320,12 @@ StatusCode LArAutoCorrTotalTool::getTerms()
 	  if(fSampl==0 || SigmaNoise==0 || Adc2MeV==0) 	 
 	  {
             if (m_isMC) {
-	    log << MSG::ERROR
-		<< m_lar_em_id
-	            ->show_to_string(m_cablingService->cnvToIdentifier(id))
-		<< "fSampl ("<<fSampl<<"), SigmaNoise ("
-		<<SigmaNoise<<") or Adc2MeV ("<<Adc2MeV<<") null "
-		<<"=> AutoCorrTotal = only AutoCorr elect. part " 
-		<< endreq;
+              ATH_MSG_ERROR( m_lar_em_id
+                             ->show_to_string(m_cablingService->cnvToIdentifier(id))
+                             << "fSampl ("<<fSampl<<"), SigmaNoise ("
+                             <<SigmaNoise<<") or Adc2MeV ("<<Adc2MeV<<") null "
+                             <<"=> AutoCorrTotal = only AutoCorr elect. part " 
+                             );
             }
 	    fSigma2=0.;
 	  }
@@ -427,9 +392,9 @@ StatusCode LArAutoCorrTotalTool::getTerms()
       }
 
   }
-  log << MSG::INFO   << "LArAutoCorrTotal Ncell " << count << endreq;
-  log << MSG::INFO   << "LArAutoCorrTotal Nsymcell " << count2 << endreq;
-  log << MSG::DEBUG << "end of loop over cells " << endreq;
+  ATH_MSG_INFO( "LArAutoCorrTotal Ncell " << count  );
+  ATH_MSG_INFO( "LArAutoCorrTotal Nsymcell " << count2  );
+  ATH_MSG_DEBUG( "end of loop over cells "  );
 
   m_cacheValid = true;
   return StatusCode::SUCCESS;
@@ -458,7 +423,6 @@ Rij(total) = ------------------------------------------------------------------
  
   */
 
-  MsgStream log( msgSvc(), name() );
   if(Nminbias<0) Nminbias=m_Nminbias;// takes the value in the property
 
   std::vector<double> vResult;
@@ -503,7 +467,6 @@ const std::vector<double>
 LArAutoCorrTotalTool::autoCorrTotal(const HWIdentifier& CellID,
 				    int gain, float Nminbias) const
 {
-  MsgStream log( msgSvc(), name() );
   int thisgain = (m_isSC ? 0 : gain);
 
   if(!m_cacheValid){
@@ -511,9 +474,7 @@ LArAutoCorrTotalTool::autoCorrTotal(const HWIdentifier& CellID,
     StatusCode  sc = this2->getTerms();
     if (sc.isFailure()) 
       {
-	log << MSG::ERROR
-	    << "getTerms failed "
-	    << endreq;
+	ATH_MSG_ERROR( "getTerms failed " );
 	throw LArConditionsException("Could not compute in LArAutoCorrTotalTool::autoCorrTotal");
       }
   }
@@ -527,9 +488,7 @@ LArAutoCorrTotalTool::autoCorrTotal(const HWIdentifier& CellID,
 
   MAP::const_iterator it = (m_terms[thisgain]).find(id32) ; 
   if(it == (m_terms[thisgain]).end()){
-    log << MSG::DEBUG
-	<< "Unable to find ID = " << CellID << " in m_terms" 
-	<< endreq;
+    ATH_MSG_DEBUG( "Unable to find ID = " << CellID << " in m_terms" );
     static std::vector<double> empty; 
     return empty; 
   }
@@ -549,16 +508,13 @@ LArAutoCorrTotalTool::autoCorrTotal(const Identifier& CellID,
 }
 
 void LArAutoCorrTotalTool::handle(const Incident&) {
-     MsgStream log( msgSvc(), name() );
-     log << MSG::DEBUG << "In Incident-handle" << endreq;
+     ATH_MSG_DEBUG( "In Incident-handle"  );
 
      if(!m_cacheValid){
        StatusCode  sc = this->getTerms();
        if (sc.isFailure()) 
 	 {
-	   log << MSG::ERROR
-	       << "getTerms failed "
-	       << endreq;
+	   ATH_MSG_ERROR( "getTerms failed " );
 	   throw LArConditionsException("Could not getTerms in LArAutoCorrTotalTool::handle ");
 	 }
      }
@@ -579,10 +535,7 @@ LArAutoCorrTotalTool::samplRMS(const HWIdentifier& CellID,
 
   MAP::const_iterator it = (m_terms[thisgain]).find(id32) ;
   if(it == (m_terms[thisgain]).end()){
-    MsgStream log( msgSvc(), name() );
-    log << MSG::ERROR
-        << "Unable to find ID = " << CellID << " in m_terms" 
-        << endreq; 
+    ATH_MSG_ERROR( "Unable to find ID = " << CellID << " in m_terms" );
     static std::vector<double> empty;  
     return empty;  
   }

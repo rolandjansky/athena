@@ -92,7 +92,7 @@ def get_recent(path,pathsplit):
     return good_rel_refease
 
 ###Add EOS prefix###
-def eoscp(filename,jobname,tag,store_tag,release):
+def eoscp(package,filename,jobname,nightly,tag,store_tag,release):
     ##rel_list=["0","1","2","3","4","5","6"]
     current=os.getcwd()
     if os.environ.has_key('LS_SUBCWD'):
@@ -110,18 +110,21 @@ def eoscp(filename,jobname,tag,store_tag,release):
     ##        elif tag=="yesterday":
     ##            release=arg_list[0]+"_"+rel_list[int(arg_list[1])-1]
     ##            print release
-    postfix='/'.join(argv[-3:])
+    #postfix='/'.join(argv[-3:])
+    
+    postfix="x86_64-slc6-gcc62-opt/Athena/"+package
     #middle='/'.join(argv[-6:-5])
-    middle=argv[-5]
+    #middle=argv[-5]
+    middle=nightly
     pathlist=["prod","batch"]#This 2nd option should make the script work on the RTT test instance.
 #    status=0
     for path in pathlist:
         prefix="root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/rtt/"+path+"/rtt"
-        ##print "postfix: "+postfix
-        ##print "middle: "+middle
-        ##print "prefix: "+prefix
-        ##print "jobname: "+jobname
-        ##print "filename: "+filename
+        #print "postfix: "+postfix
+        #print "middle: "+middle
+        #print "prefix: "+prefix
+        #print "jobname: "+jobname
+        #print "filename: "+filename
         path=prefix+'/'+release+'/'+middle+'/'+postfix+'/'+jobname+'/'+filename
         print "Path to check on eos: "+path
         if store_tag!='':
@@ -161,7 +164,7 @@ if __name__ == "__main__":
     pwdmon=''
     prepath='/afs/cern.ch/atlas/project/RTT/prod/Results/rtt/rel_0/'
     #TODO: make postpath configurable
-    postpath='/build/x86_64-slc6-gcc49-opt/offline/'
+    postpath='/build/x86_64-slc6-gcc62-opt/Athena/'
     currel='NOREL'
     if sys.argv[6] == 'current' or sys.argv[2] == 'current' :
       curdir=os.getcwd()
@@ -188,7 +191,7 @@ if __name__ == "__main__":
     #establish path to reference release, rel num is just dummy at this stage  
     pwdref=''
     prepath='/afs/cern.ch/atlas/project/RTT/prod/Results/rtt/rel_0/'
-    postpath='/build/x86_64-slc6-gcc49-opt/offline/'
+    postpath='/build/x86_64-slc6-gcc62-opt/Athena/'
     relref=sys.argv[2]
     if sys.argv[2] == 'current' : 
       relref=currel
@@ -296,7 +299,7 @@ if __name__ == "__main__":
             if len(file_list_val)!=0:
                 print "The following files were not found in the output directory of today's job: "+str(file_list_val)+", will try to copy them from EOS instead."
                 for val_f in file_list_val:
-                    if eoscp(val_f,sys.argv[8],"today",store_tag,good_rel_mon)!=0 :
+                    if eoscp(sys.argv[5],val_f,sys.argv[7],sys.argv[6],"today",store_tag,good_rel_mon)!=0 :
                         print "File does not exist in EOS."
                     else:
                         file_list_val.remove(val_f)
@@ -337,7 +340,7 @@ if __name__ == "__main__":
                     if len(file_list_ref)!=0:
                         print "The following files were not found in the output directory of "+good_rel_ref+"'s job: "+str(file_list_ref)+", will try to copy them from EOS instead."
                         for ref_f in file_list_ref :
-                            if eoscp(ref_f,sys.argv[4],"yesterday",store_tag,good_rel_ref)!=0:
+                            if eoscp(sys.argv[1],ref_f,sys.argv[3],sys.argv[2],"yesterday",store_tag,good_rel_ref)!=0:
                                 print "File does not exist in EOS."
                             else:
                                 file_list_ref.remove(ref_f)

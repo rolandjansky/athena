@@ -36,6 +36,8 @@ namespace pool  {
   protected:
     /// Default compression level
     int m_defCompression;
+    /// Default compression algorithm
+    int m_defCompressionAlg;
     /// Default split level
     int m_defSplitLevel;
     /// Default Autosave parameter for trees

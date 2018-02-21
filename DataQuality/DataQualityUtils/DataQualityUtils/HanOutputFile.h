@@ -72,6 +72,9 @@ public:
 
   virtual bool saveHistogramToFile( std::string nameHis, std::string location,
                  TDirectory* groupDir, bool drawRefs,std::string run_min_LB, std::string pathName );
+  virtual std::string getHistogramPNG( std::string nameHis,
+				       TDirectory* groupDir, bool drawRefs,
+				       std::string run_min_LB, std::string pathName );
   virtual bool saveHistogramToFileSuperimposed( std::string nameHis, std::string location,
                  TDirectory* groupDir1, TDirectory* groupDir2, bool drawRefs,std::string run_min_LB, std::string pathName );
 

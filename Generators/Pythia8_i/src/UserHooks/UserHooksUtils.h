@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 #ifndef PYTHIA8_USERHOOKS_USERHOOKSUTILS_H
 #define PYTHIA8_USERHOOKS_USERHOOKSUTILS_H
 #include "Pythia8/Event.h"

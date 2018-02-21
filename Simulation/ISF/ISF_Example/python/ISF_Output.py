@@ -70,6 +70,9 @@ def getHITSStreamItemList():
     ## TimingAlg
     hitsItemList +=["RecoTimingObj#EVNTtoHITS_timings"]
 
+    if simFlags.RecordStepInfo.get_Value():
+        hitsItemList +=["ISF_FCS_Parametrization::FCS_StepInfoCollection#MergedEventSteps"]
+
     ## add xAOD::TrackParticles output collection Parametric Simulation
     if simFlags.SimulationFlavour == "ParametricSimulation":
         hitsItemList +=["xAOD::TrackParticleContainer#*",
@@ -93,10 +96,12 @@ def getHITSStreamItemList():
     return hitsItemList
 
 def getEVNTStreamItemList():
-    evntItemList=[]
+    evntItemList = ["EventInfo#*"]
     from G4AtlasApps.SimFlags import simFlags
     if simFlags.CavernBG.statusOn and 'Write' in simFlags.CavernBG.get_Value():
         evntItemList += ["TrackRecordCollection#NeutronBG"]
+    elif hasattr(simFlags,'StoppedParticleFile') and simFlags.StoppedParticleFile.statusOn:
+        evntItemList += ["TrackRecordCollection#StoppingPositions"]
     else:
         evntItemList += ["TrackRecordCollection#CosmicRecord"]
     return evntItemList
@@ -127,6 +132,10 @@ class ISF_HITSStream:
         ## Write geometry tag info
         import EventInfoMgt.EventInfoMgtInit
 
+        ## Patch metadata if required
+        from ISF_Example.ISF_Metadata import patch_mc_channel_numberMetadata
+        patch_mc_channel_numberMetadata()
+
         ## Instantiate StreamHITS
         ## NB. Two-arg constructor is needed, since otherwise metadata writing fails!
         stream1 = None
@@ -142,13 +151,13 @@ class ISF_HITSStream:
         # TODO: Can this be merged into the cosmics sec above, or do the AthenaPool includes *need* to be in-between?
         layout = simFlags.SimLayout.get_Value()
         if "tb" not in layout:
-            if hasattr(simFlags, "WriteTR") and simFlags.WriteTR.statusOn:
-                stream2 = AthenaPoolOutputStream("StreamEVGEN", simFlags.WriteTR.get_Value())
+            if hasattr(simFlags, "WriteTR") and simFlags.WriteTR.statusOn or\
+               hasattr(simFlags,'StoppedParticleFile') and simFlags.StoppedParticleFile.statusOn:
+                streamName = simFlags.WriteTR.get_Value() if simFlags.WriteTR.statusOn else simFlags.StoppedParticleFile.get_Value()
+                stream2 = AthenaPoolOutputStream("StreamEVGEN", streamName)
                 stream2.ItemList = getEVNTStreamItemList()
                 ## Make stream aware of aborted events
                 stream2.AcceptAlgs = [ISF_Flags.Simulator.KernelName()]
-
-
         #
         #  Setup and add metadata to the HITS file.
         #  ( heavily based on G4AtlasApps/python/SimAtlasKernel.py )

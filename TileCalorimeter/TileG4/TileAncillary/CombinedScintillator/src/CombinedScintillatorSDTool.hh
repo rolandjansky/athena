@@ -10,8 +10,8 @@
 //
 //**************************************************************
 
-#ifndef CombinedScintillator_CombinedScintillatorSDTool_H
-#define CombinedScintillator_CombinedScintillatorSDTool_H
+#ifndef COMBINEDSCINTILLATOR_COMBINEDSCINTILLATORSDTOOL_H
+#define COMBINEDSCINTILLATOR_COMBINEDSCINTILLATORSDTOOL_H
 
 // Base class header
 #include "G4AtlasTools/SensitiveDetectorBase.h"
@@ -21,20 +21,19 @@
 
 class G4VSensitiveDetector;
 
-class CombinedScintillatorSDTool : public SensitiveDetectorBase
-{
-public:
-  CombinedScintillatorSDTool(const std::string& type, const std::string& name, const IInterface *parent);
+class CombinedScintillatorSDTool: public SensitiveDetectorBase {
+  public:
+    CombinedScintillatorSDTool(const std::string& type, const std::string& name, const IInterface *parent);
 
-  ~CombinedScintillatorSDTool();
+    ~CombinedScintillatorSDTool();
 
-  virtual StatusCode SetupEvent() override final;
+    virtual StatusCode SetupEvent() override final;
 
-  virtual StatusCode Gather() override final;
+    virtual StatusCode Gather() override final;
 
-protected:
-  // Make me an SD!
-  G4VSensitiveDetector* makeSD() override final;
+  protected:
+    // Make me an SD!
+    G4VSensitiveDetector* makeSD() override final;
 };
 
-#endif // CombinedScintillator_CombinedScintillatorSDTool_H
+#endif // COMBINEDSCINTILLATOR_COMBINEDSCINTILLATORSDTOOL_H

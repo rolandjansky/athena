@@ -90,8 +90,8 @@ Barcode::ParticleBarcode ISF::ISFTruthIncident::parentBarcode() const {
   return m_parent.barcode();
 }
 
-Barcode::ParticleBarcode ISF::ISFTruthIncident::parentExtraBarcode() const {
-  return m_parent.getExtraBC();
+int ISF::ISFTruthIncident::parentBCID() const {
+  return m_parent.getBCID();
 }
 
 bool ISF::ISFTruthIncident::parentSurvivesIncident() const {
@@ -150,29 +150,6 @@ void ISF::ISFTruthIncident::setAllChildrenBarcodes(Barcode::ParticleBarcode bc) 
   }
 
   return;
-}
-
-
-void ISF::ISFTruthIncident::setAllChildrenExtraBarcodes(Barcode::ParticleBarcode bc) 
-{
-  unsigned short numSec = numberOfChildren();
-  for (unsigned short i=0; i<numSec; i++) {
-     setChildExtraBarcode(i,bc);
-  }
-  return;
-}
-
-
-void ISF::ISFTruthIncident::setChildExtraBarcode(unsigned short index, Barcode::ParticleBarcode bc) 
-{
-  ISF::ISFParticle *p = m_children[index];
-
-  // MB : this can be removed at some point
-  if (p->getUserInformation()==0) {
-    p->setUserInformation( new ParticleUserInformation() );
-  }
-
-  p->setExtraBC( bc );
 }
 
 

@@ -1,6 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+ *   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ *   */
+
 
 #ifndef TrigEgammaL1SelectorTool_H
 #define TrigEgammaL1SelectorTool_H
@@ -36,7 +37,14 @@ class TrigEgammaL1SelectorTool:
     bool isolationL1(const float min, const float offset, const float slope, const float energy, const float emE);
     bool variableEtL1(const std::string L1item, const float l1energy, const float l1eta);
 
-
+    float                     m_isolMaxCut;
+    std::vector<float>        m_hadCoreCutMin;
+    std::vector<float>        m_hadCoreCutOff;
+    std::vector<float>        m_hadCoreSlope;
+    std::vector<float>        m_emIsolCutMin;
+    std::vector<float>        m_emIsolCutOff;
+    std::vector<float>        m_emIsolCutSlope;
+    std::vector<std::string>  m_wpNames;
 
 };
 

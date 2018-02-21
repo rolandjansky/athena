@@ -24,7 +24,7 @@ namespace SG {
 PackedConverter::PackedConverter (const PackedParameters& parms)
   : m_parms (parms),
     m_packer (parms.nbits(),
-              parms.nmantissa(),
+              parms.nmantissa() + (parms.isSigned()?1:0),
               parms.scale(),
               parms.isSigned(),
               parms.rounding())

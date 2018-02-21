@@ -23,9 +23,12 @@ class Identifier;
 class AtlasID;
 class IInDetConditionsSvc;
 namespace InDet {class IInDetTestPixelLayerTool; }
+class IGeoModelSvc;
 
 namespace Trk { class RIO_OnTrack; class TrackStateOnSurface; class Track;}
 namespace Trk { class IExtrapolator;}
+
+namespace InDetDD { class SiDetectorElement; }
 
 namespace InDet 
 {
@@ -112,11 +115,17 @@ namespace InDet
       ServiceHandle <IInDetConditionsSvc> m_pixelCondSummarySvc, m_sctCondSummarySvc;
       ToolHandle< IInDetTestPixelLayerTool >  m_pixelLayerTool;
 
+      /** Handle for IGeoModelSvc to retrieve geo model information */
+      ServiceHandle<IGeoModelSvc> m_geoModelSvc;
+
       /** Configure outwards hole search */
       bool m_extendedListOfHoles,m_cosmic;
 
       /** Control usage of pixel, SCT and TRT info */
       bool m_usepix, m_usesct;
+
+      /** Control check of bad SCT chip (should be false for ITk Strip) */
+      bool m_checkBadSCTChip;
 
       /** Min number of hits **/
       int m_minSiHits;
@@ -169,6 +178,8 @@ namespace InDet
       const Trk::Track*  addHolesToTrack(const Trk::Track& oldTrack, 
 					 std::vector<const Trk::TrackStateOnSurface*>* listOfHoles) const;
 
+      /** This method checks the SCT ABCD chip where the track passes through is bad or not */
+      bool isBadSCTChip(const Identifier& waferId, const Trk::TrackParameters& parameters, const InDetDD::SiDetectorElement& siElement) const;
     };
 
 } // end of namespace

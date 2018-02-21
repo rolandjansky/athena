@@ -3,7 +3,7 @@
 */
 
 #include "InDetTrackSelectorTool/InDetTrtDriftCircleCutTool.h"
-#include "TRT_ConditionsServices/ITRT_ActiveFractionSvc.h"
+#include "InDetRecToolInterfaces/ITRT_ActiveFractionSvc.h"
 
 StatusCode  InDet::InDetTrtDriftCircleCutTool::initialize()
 {

@@ -10,6 +10,7 @@
 #include "AthenaPoolCnvSvc.h"
 
 #include "GaudiKernel/ClassID.h"
+#include "GaudiKernel/FileIncident.h"
 #include "GaudiKernel/IChronoStatSvc.h"
 #include "GaudiKernel/IOpaqueAddress.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
@@ -29,7 +30,7 @@
 
 #include "StorageSvc/DbReflex.h"
 
-#include <set>
+#include "AuxDiscoverySvc.h"
 
 //______________________________________________________________________________
 // Initialize the service.
@@ -70,6 +71,7 @@ StatusCode AthenaPoolCnvSvc::initialize() {
    }
    // Retrieve OutputStreamingTool (if configured)
    if (!m_outputStreamingTool.empty()) {
+      m_streamClientFiles = m_streamClientFilesProp.value();
       if (!m_outputStreamingTool.retrieve().isSuccess()) {
          ATH_MSG_FATAL("Cannot get Output AthenaIPCTool");
          return(StatusCode::FAILURE);
@@ -174,30 +176,29 @@ StatusCode AthenaPoolCnvSvc::queryInterface(const InterfaceID& riid, void** ppvI
 }
 //______________________________________________________________________________
 StatusCode AthenaPoolCnvSvc::createObj(IOpaqueAddress* pAddress, DataObject*& refpObject) {
-#ifdef ATHENAHIVE  
+#ifdef ATHENAHIVE
   std::lock_guard<CallMutex> lock(m_i_mut);
 #endif
 
    assert(pAddress);
-   if (m_useDetailChronoStat.value() && m_doChronoStat) {
-      std::string objName, keyName = "#" + *(pAddress->par() + 1);
+   std::string objName = "ALL";
+   if (m_useDetailChronoStat.value()) {
       if (m_clidSvc->getTypeNameOfID(pAddress->clID(), objName).isFailure()) {
          std::ostringstream oss;
          oss << std::dec << pAddress->clID();
          objName = oss.str();
       }
-      objName += keyName;
+      objName += "#" + *(pAddress->par() + 1);
+   }
+   if (m_doChronoStat) {
       m_chronoStatSvc->chronoStart("cObj_" + objName);
-      m_className.push_back(objName);
    }
    // Save pool input context to be used in setObjPtr for "this" converter
    m_contextIds.push_back(*(pAddress->ipar()));
 
    // Forward to base class createObj
    StatusCode status = ::AthCnvSvc::createObj(pAddress, refpObject);
-   if (m_useDetailChronoStat.value() && m_doChronoStat) {
-      std::string objName = m_className.back();
-      m_className.pop_back();
+   if (m_doChronoStat) {
       m_chronoStatSvc->chronoStop("cObj_" + objName);
    }
    // Remove pool input context for "this" converter
@@ -206,40 +207,39 @@ StatusCode AthenaPoolCnvSvc::createObj(IOpaqueAddress* pAddress, DataObject*& re
 }
 //______________________________________________________________________________
 StatusCode AthenaPoolCnvSvc::createRep(DataObject* pObject, IOpaqueAddress*& refpAddress) {
-#ifdef ATHENAHIVE  
+#ifdef ATHENAHIVE
   std::lock_guard<CallMutex> lock(m_o_mut);
 #endif
    assert(pObject);
-   if (m_useDetailChronoStat.value() && m_doChronoStat) {
-      std::string objName, keyName = "#" + pObject->registry()->name();
+   std::string objName = "ALL";
+   if (m_useDetailChronoStat.value()) {
       if (m_clidSvc->getTypeNameOfID(pObject->clID(), objName).isFailure()) {
          std::ostringstream oss;
          oss << std::dec << pObject->clID();
          objName = oss.str();
       }
-      objName += keyName;
+      objName += "#" + pObject->registry()->name();
+   }
+   if (m_doChronoStat) {
       m_chronoStatSvc->chronoStart("cRep_" + objName);
-      m_className.push_back(objName);
    }
    StatusCode status = StatusCode::FAILURE;
    if (pObject->clID() == 1) {
       // No transient object was found use cnv to write default persistent object
       SG::DataProxy* proxy = dynamic_cast<SG::DataProxy*>(pObject->registry());
-      if (proxy != 0) {
+      if (proxy != nullptr) {
          IConverter* cnv = converter(proxy->clID());
          status = cnv->createRep(pObject, refpAddress);
       }
    } else {
       // Forward to base class createRep
-      try { 
+      try {
          status = ::AthCnvSvc::createRep(pObject, refpAddress);
       } catch(std::runtime_error& e) {
          ATH_MSG_FATAL(e.what());
       }
    }
-   if (m_useDetailChronoStat.value() && m_doChronoStat) {
-      std::string objName = m_className.back();
-      m_className.pop_back();
+   if (m_doChronoStat) {
       m_chronoStatSvc->chronoStop("cRep_" + objName);
    }
    return(status);
@@ -247,22 +247,23 @@ StatusCode AthenaPoolCnvSvc::createRep(DataObject* pObject, IOpaqueAddress*& ref
 //______________________________________________________________________________
 StatusCode AthenaPoolCnvSvc::fillRepRefs(IOpaqueAddress* pAddress, DataObject* pObject) {
    assert(pObject);
-   if (m_useDetailChronoStat.value() && m_doChronoStat) {
-      std::string objName, keyName = "#" + pObject->registry()->name();
+   std::string objName = "ALL";
+   if (m_useDetailChronoStat.value()) {
       if (m_clidSvc->getTypeNameOfID(pObject->clID(), objName).isFailure()) {
          std::ostringstream oss;
          oss << std::dec << pObject->clID();
          objName = oss.str();
       }
-      objName += keyName;
+      objName += "#" + pObject->registry()->name();
+   }
+   if (m_doChronoStat) {
       m_chronoStatSvc->chronoStart("fRep_" + objName);
-      m_className.push_back(objName);
    }
    StatusCode status = StatusCode::FAILURE;
    if (pObject->clID() == 1) {
       // No transient object was found use cnv to write default persistent object
       SG::DataProxy* proxy = dynamic_cast<SG::DataProxy*>(pObject->registry());
-      if (proxy != 0) {
+      if (proxy != nullptr) {
          IConverter* cnv = converter(proxy->clID());
          status = cnv->fillRepRefs(pAddress, pObject);
       }
@@ -272,11 +273,9 @@ StatusCode AthenaPoolCnvSvc::fillRepRefs(IOpaqueAddress* pAddress, DataObject* p
          status = ::AthCnvSvc::fillRepRefs(pAddress, pObject);
       } catch(std::runtime_error& e) {
          ATH_MSG_FATAL(e.what());
-      } 
+      }
    }
-   if (m_useDetailChronoStat.value() && m_doChronoStat) {
-      std::string objName = m_className.back();
-      m_className.pop_back();
+   if (m_doChronoStat) {
       m_chronoStatSvc->chronoStop("fRep_" + objName);
    }
    return(status);
@@ -321,7 +320,12 @@ StatusCode AthenaPoolCnvSvc::connectOutput(const std::string& outputConnectionSp
       return(StatusCode::FAILURE);
    }
 
-   if (!m_outputStreamingTool.empty() && m_outputStreamingTool->isClient()) {
+   if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient()) {
+      return(StatusCode::SUCCESS);
+   }
+   if (!m_outputStreamingTool.empty()
+		   && (m_streamServer == m_outputStreamingTool.size() || !m_outputStreamingTool[0]->isServer())) {
+      ATH_MSG_DEBUG("connectOutput SKIPPED for expired server.");
       return(StatusCode::SUCCESS);
    }
    try {
@@ -342,110 +346,157 @@ StatusCode AthenaPoolCnvSvc::connectOutput(const std::string& outputConnectionSp
    return(StatusCode::SUCCESS);
 }
 //______________________________________________________________________________
-StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& /*outputConnectionSpec*/, bool doCommit) {
+StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpec, bool doCommit) {
 // This is called after all DataObjects are converted.
-   if (!m_outputStreamingTool.empty() && m_outputStreamingTool->isClient()) {
-      StatusCode sc = m_outputStreamingTool->lockObject("release");
+   if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient()) {
+      std::size_t streamClient = 0;
+      for (std::vector<std::string>::const_iterator iter = m_streamClientFiles.begin(), last = m_streamClientFiles.end(); iter != last; iter++) {
+         if (*iter == outputConnectionSpec) break;
+         streamClient++;
+      }
+      if (streamClient == m_streamClientFiles.size()) {
+         if (m_streamClientFiles.size() < m_outputStreamingTool.size()) {
+            m_streamClientFiles.push_back(outputConnectionSpec);
+         } else {
+            streamClient = 0;
+         }
+      }
+      StatusCode sc = m_outputStreamingTool[streamClient]->lockObject("release");
       while (sc.isRecoverable()) {
          usleep(100);
-         sc = m_outputStreamingTool->lockObject("release");
+         sc = m_outputStreamingTool[streamClient]->lockObject("release");
+      }
+      if (!this->cleanUp().isSuccess()) {
+         ATH_MSG_ERROR("commitOutput FAILED to cleanup converters.");
+         return(StatusCode::FAILURE);
       }
       return(StatusCode::SUCCESS);
    }
-   if (!m_outputStreamingTool.empty() && m_outputStreamingTool->isServer()) {
+   if (!m_outputStreamingTool.empty() && m_metadataContainerProp.value().empty()
+                  && m_streamServer == m_outputStreamingTool.size()) {
+      ATH_MSG_DEBUG("commitOutput SKIPPED for expired server.");
+      return(StatusCode::SUCCESS);
+   }
+   if (!m_outputStreamingTool.empty() && !m_outputStreamingTool[0]->isServer()) {
+      ATH_MSG_DEBUG("commitOutput SKIPPED for uninitialized server.");
+      return(StatusCode::SUCCESS);
+   }
+   std::map<void*, RootType> commitCache;
+   if (!m_outputStreamingTool.empty() && m_streamServer < m_outputStreamingTool.size()
+		   && m_outputStreamingTool[m_streamServer]->isServer()) {
       // Clear object to get Placements for all objects in a Stream
-      char* placementStr = 0;
+      char* placementStr = nullptr;
       int num = -1;
-      StatusCode sc = m_outputStreamingTool->clearObject(&placementStr, num);
-      if (sc.isSuccess() && placementStr != 0 && strlen(placementStr) > 0 && num > 0) {
-         char* fileStr = strstr(placementStr, "[FILE=") + 6;
-         char* endPos = strpbrk(fileStr, "]"); *endPos = 0;
-         std::string fileName(fileStr); *endPos = ']';
+      StatusCode sc = m_outputStreamingTool[m_streamServer]->clearObject(&placementStr, num);
+      if (sc.isSuccess() && placementStr != nullptr && strlen(placementStr) > 0 && num > 0) {
+         std::string fileName = strstr(placementStr, "[FILE=");
+         fileName = fileName.substr(6, fileName.find(']') - 6);
          if (!this->connectOutput(fileName).isSuccess()) {
             ATH_MSG_ERROR("Failed to connectOutput for " << fileName);
-            delete placementStr; placementStr = 0;
             return(StatusCode::FAILURE);
          }
-         while (strncmp(placementStr, "release", 7) != 0) {
-            // Get object
-            void* buffer = 0;
-            size_t nbytes = 0;
-            sc = m_outputStreamingTool->getObject(&buffer, nbytes, num);
-            while (sc.isRecoverable()) {
-               usleep(100);
-               sc = m_outputStreamingTool->getObject(&buffer, nbytes, num);
+         while (num > 0 && strncmp(placementStr, "release", 7) != 0) {
+            std::string objName = "ALL";
+            if (m_useDetailChronoStat.value()) {
+               std::string objName(placementStr); //FIXME, better descriptor
             }
-            if (!sc.isSuccess()) {
-               ATH_MSG_ERROR("Failed to get Data for " << placementStr);
-               delete placementStr; placementStr = 0;
-               return(StatusCode::FAILURE);
+            if (m_doChronoStat) {
+               m_chronoStatSvc->chronoStart("cRep_" + objName);
             }
-            // Deserialize object
-            Guid classId(std::string(strstr(placementStr, "[PCLID=")).substr(7, 36));
-            const void* obj = m_serializeSvc->deserialize(buffer, nbytes, classId);
-            // Write object
-            Placement placement;
-            placement.fromString(placementStr);
-            delete placementStr; placementStr = 0;
-            const Token* token = this->registerForWrite(&placement, obj, pool::DbReflex::forGuid(classId));
-            if (token == 0) {
-               ATH_MSG_ERROR("Failed to write Data for: " << classId.toString());
-               return(StatusCode::FAILURE);
-            }
+            std::string tokenStr = placementStr;
+            std::string contName = strstr(placementStr, "[CONT=");
+            tokenStr = tokenStr.substr(0, tokenStr.find("[CONT=")) + contName.substr(contName.find(']') + 1);
+            contName = contName.substr(6, contName.find(']') - 6);
+            std::string className = strstr(placementStr, "[PNAME=");
+            className = className.substr(7, className.find(']') - 7);
+            RootType classDesc = RootType::ByName(className);
+            void* obj = nullptr;
+            std::string::size_type len = m_metadataContainerProp.value().size();
+            // For Metadata fire incident to read object into store
+            if (len > 0 && contName.substr(0, len) == m_metadataContainerProp.value()
+		            && contName.substr(len, 1) == "(") {
+               ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", name());
+               std::ostringstream oss;
+               oss << std::dec << num;
+               FileIncident proxyIncident(name(), "ShmProxy", std::string(placementStr) + "[NUM=" + oss.str() + "]");
+               incSvc->fireIncident(proxyIncident); // Object will be pulled out of shared memory by setObjPtr()
+            } else {
+               Token readToken;
+               readToken.setOid(Token::OID_t(num, 0));
+               readToken.setAuxString("[PNAME=" + className + "]");
+               this->setObjPtr(obj, &readToken); // Pull/read Obbject out of shared memory
+               if (len > 0 && contName.substr(0, len) == m_metadataContainerProp.value()) {
+                  ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", name());
+                  if (contName.substr(len, 7) == "HdrForm") {
+                     FileIncident beginInputIncident(name(), "BeginInputFile", "SHM");
+                     incSvc->fireIncident(beginInputIncident);
+                  } else if (contName.substr(len, 3) == "Hdr") {
+                     FileIncident endInputIncident(name(), "EndInputFile", "SHM");
+                     incSvc->fireIncident(endInputIncident);
+                  }
+               } else {
+                  // Write object
+                  Placement placement;
+                  placement.fromString(placementStr); placementStr = nullptr;
+                  const Token* token = this->registerForWrite(&placement, obj, classDesc);
+                  if (token == nullptr) {
+                     ATH_MSG_ERROR("Failed to write Data for: " << className);
+                     return(StatusCode::FAILURE);
+                  }
+                  tokenStr = token->toString();
+                  delete token; token = nullptr;
 
-            // For DataHeaderForm, Token needs to be inserted to DataHeader Object
-            if (classId == "3397D8A3-BBE6-463C-9F8E-4B3DFD8831FE") {
-               GenericAddress address(POOL_StorageType, ClassID_traits<DataHeader>::ID(), token->toString(), placement.auxString());
-               IConverter* cnv = converter(ClassID_traits<DataHeader>::ID());
-               if (!cnv->updateRepRefs(&address, (DataObject*)obj).isSuccess()) {
-                  ATH_MSG_ERROR("Failed updateRepRefs for obj = " << token->toString());
-                  delete token; token = 0;
-                  return(StatusCode::FAILURE);
-               }
-            }
+                  // For DataHeaderForm, Token needs to be inserted to DataHeader Object
+                  if (className == "DataHeaderForm_p5") {
+                     GenericAddress address(POOL_StorageType, ClassID_traits<DataHeader>::ID(), tokenStr, placement.auxString());
+                     IConverter* cnv = converter(ClassID_traits<DataHeader>::ID());
+                     if (!cnv->updateRepRefs(&address, static_cast<DataObject*>(obj)).isSuccess()) {
+                        ATH_MSG_ERROR("Failed updateRepRefs for obj = " << tokenStr);
+                        return(StatusCode::FAILURE);
+                     }
+                  // Found DataHeader
+                  } else if (className == "DataHeader_p5") {
+                     GenericAddress address(POOL_StorageType, ClassID_traits<DataHeader>::ID(), tokenStr, placement.auxString());
+                     IConverter* cnv = converter(ClassID_traits<DataHeader>::ID());
+                     if (!cnv->updateRep(&address, static_cast<DataObject*>(obj)).isSuccess()) {
+                        ATH_MSG_ERROR("Failed updateRep for obj = " << tokenStr);
+                        return(StatusCode::FAILURE);
+                     }
+                     commitCache.insert(std::pair<void*, RootType>(obj, classDesc));
+                  } else if (className != "Token" && !classDesc.IsFundamental()) {
+                     commitCache.insert(std::pair<void*, RootType>(obj, classDesc));
+                  }
 
-            // Found DataHeader
-            if (classId == "D82968A1-CF91-4320-B2DD-E0F739CBC7E6") {
-               GenericAddress address(POOL_StorageType, ClassID_traits<DataHeader>::ID(), token->toString(), placement.auxString());
-               IConverter* cnv = converter(ClassID_traits<DataHeader>::ID());
-               if (!cnv->updateRep(&address, (DataObject*)obj).isSuccess()) {
-                  ATH_MSG_ERROR("Failed updateRep for obj = " << token->toString());
-                  delete token; token = 0;
-                  return(StatusCode::FAILURE);
                }
             }
 
             // Send Token back to Client
-            sc = m_outputStreamingTool->lockObject(token->toString().c_str(), num);
+            sc = m_outputStreamingTool[m_streamServer]->lockObject(tokenStr.c_str(), num);
             if (!sc.isSuccess()) {
-               ATH_MSG_ERROR("Failed to lock Data for " << token->toString());
-               delete token; token = 0;
+               ATH_MSG_ERROR("Failed to lock Data for " << tokenStr);
                return(StatusCode::FAILURE);
             }
-            delete token; token = 0;
-            sc = m_outputStreamingTool->clearObject(&placementStr, num);
+            sc = m_outputStreamingTool[m_streamServer]->clearObject(&placementStr, num);
             while (sc.isRecoverable()) {
-               usleep(100);
-               sc = m_outputStreamingTool->clearObject(&placementStr, num);
+               sc = m_outputStreamingTool[m_streamServer]->clearObject(&placementStr, num);
             }
             if (!sc.isSuccess()) {
                ATH_MSG_ERROR("Failed to get Data for client: " << num);
-               delete placementStr; placementStr = 0;
                return(StatusCode::FAILURE);
             }
+            if (m_doChronoStat) {
+               m_chronoStatSvc->chronoStop("cRep_" + objName);
+            }
          }
-         delete placementStr; placementStr = 0;
+         placementStr = nullptr;
       } else if (sc.isRecoverable() || num == -1) {
-         delete placementStr; placementStr = 0;
          return(StatusCode::RECOVERABLE);
       } else {
-         ATH_MSG_ERROR("Failed to get first Data for client: " << num);
-         delete placementStr; placementStr = 0;
+         ATH_MSG_INFO("Failed to get Data for client: " << num);
          return(StatusCode::FAILURE);
       }
    }
-
-   if (m_useDetailChronoStat.value()) {
+   if (m_doChronoStat) {
       m_chronoStatSvc->chronoStart("commitOutput");
    }
    if (!processPoolAttributes(m_domainAttr, m_outputConnectionSpec, IPoolSvc::kOutputStream).isSuccess()) {
@@ -480,6 +531,9 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& /*outputConnectionS
       ATH_MSG_ERROR("commitOutput FAILED to cleanup converters.");
       return(StatusCode::FAILURE);
    }
+   for (std::map<void*, RootType>::iterator iter = commitCache.begin(), last = commitCache.end(); iter != last; iter++) {
+      iter->second.Destruct(iter->first);
+   }
    // Check FileSize
    long long int currentFileSize = m_poolSvc->getFileSize(m_outputConnectionSpec, m_dbType.type(), IPoolSvc::kOutputStream);
    if (m_databaseMaxFileSize.find(m_outputConnectionSpec) != m_databaseMaxFileSize.end()) {
@@ -494,19 +548,30 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& /*outputConnectionS
    // For "safety" we reset the output file and the technology type
    m_outputConnectionSpec = "";
    m_dbType = pool::DbType();
-   if (m_useDetailChronoStat.value()) {
+   if (m_doChronoStat) {
       m_chronoStatSvc->chronoStop("commitOutput");
    }
-   // prepare chrono for next commit, keep disabled for streaming mode
-   if (m_inputStreamingTool.empty() && m_outputStreamingTool.empty()) {
-      m_doChronoStat = true;
-   }
+   // Prepare chrono for next commit
+   m_doChronoStat = true;
    return(StatusCode::SUCCESS);
 }
 //______________________________________________________________________________
 StatusCode AthenaPoolCnvSvc::disconnectOutput() {
-   if (!m_outputStreamingTool.empty() && m_outputStreamingTool->isClient()) {
+   if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient()) {
       return(StatusCode::SUCCESS);
+   }
+   if (!m_outputStreamingTool.empty()) {
+      if (m_metadataContainerProp.value().empty() && m_streamServer == m_outputStreamingTool.size()) {
+         ATH_MSG_DEBUG("disconnectOutput SKIPPED for expired server.");
+         return(StatusCode::SUCCESS);
+      } else if (!m_metadataContainerProp.value().empty() && m_streamServer < m_outputStreamingTool.size()) {
+         m_streamServer = m_outputStreamingTool.size();
+         ATH_MSG_DEBUG("disconnectOutput SKIPPED to expire server.");
+         return(StatusCode::SUCCESS);
+      } else {
+         m_streamServer = m_outputStreamingTool.size();
+      }
+      ATH_MSG_DEBUG("disconnectOutput not SKIPPED for server: " << m_streamServer);
    }
    // Setting default 'TREE_MAX_SIZE' for ROOT to 1024 GB to avoid file chains.
    std::vector<std::string> maxFileSize;
@@ -536,9 +601,9 @@ std::string AthenaPoolCnvSvc::getOutputContainer(const std::string& typeName,
    if (typeName.substr(0, 13) == "AttributeList") {
       return(m_collContainerPrefix + "(" + key + ")");
    }
-   if (key.empty()) {  
-      return(m_containerPrefix + typeName);  
-   }  
+   if (key.empty()) {
+      return(m_containerPrefix + typeName);
+   }
    const std::string typeTok = "<type>", keyTok = "<key>";
    std::string ret = m_containerPrefix + m_containerNameHint;
    if (!m_branchNameHint.empty()) {
@@ -568,87 +633,185 @@ IPoolSvc* AthenaPoolCnvSvc::getPoolSvc() {
 }
 //______________________________________________________________________________
 const Token* AthenaPoolCnvSvc::registerForWrite(const Placement* placement,
-	const void* obj,
-	const RootType& classDesc) const {
-   if (m_useDetailChronoStat.value() && m_doChronoStat) {
-      m_chronoStatSvc->chronoStart("cRepR_" + m_className.back());
+		const void* obj,
+		const RootType& classDesc) const {
+   if (m_doChronoStat) {
+      m_chronoStatSvc->chronoStart("cRepR_ALL");
    }
-   const Token* token = 0;
-   if (!m_outputStreamingTool.empty() && m_outputStreamingTool->isClient()) {
-      ATH_MSG_VERBOSE("Requesting write object for: " << placement->toString());
+   const Token* token = nullptr;
+   if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient()) {
+      std::size_t streamClient = 0;
+      std::string fileName = placement->fileName();
+      for (std::vector<std::string>::const_iterator iter = m_streamClientFiles.begin(), last = m_streamClientFiles.end(); iter != last; iter++) {
+         if (*iter == fileName) break;
+         streamClient++;
+      }
+      if (streamClient == m_streamClientFiles.size()) {
+         if (m_streamClientFiles.size() < m_outputStreamingTool.size()) {
+            m_streamClientFiles.push_back(fileName);
+         } else {
+            streamClient = 0;
+         }
+      }
       // Lock object
-      Guid classID = pool::DbReflex::guid(classDesc);
-      std::string placementStr = placement->toString() + "[PCLID=" + classID.toString() + "]";
-      StatusCode sc = m_outputStreamingTool->lockObject(placementStr.c_str());
+      std::string placementStr = placement->toString();
+      std::size_t formPos = placementStr.find("[FORM=");
+      if (formPos != std::string::npos) {
+         placementStr = placementStr.substr(0, formPos) + "[PNAME=" + classDesc.Name() + "]" + placementStr.substr(formPos);
+      } else {
+         placementStr += "[PNAME=" + classDesc.Name() + "]";
+      }
+      ATH_MSG_VERBOSE("Requesting write object for: " << placementStr);
+      StatusCode sc = m_outputStreamingTool[streamClient]->lockObject(placementStr.c_str());
       while (sc.isRecoverable()) {
          usleep(100);
-         sc = m_outputStreamingTool->lockObject(placementStr.c_str());
+         sc = m_outputStreamingTool[streamClient]->lockObject(placementStr.c_str());
       }
       if (!sc.isSuccess()) {
          ATH_MSG_ERROR("Failed to lock Data for " << placementStr);
-         return(0);
+         return(nullptr);
       }
       // Serialize object via ROOT
-      void* buffer = 0;
-      size_t nbytes = 0;
-      buffer = m_serializeSvc->serialize(obj, classID, nbytes);
+      const void* buffer = nullptr;
+      std::size_t nbytes = 0;
+      bool own = true;
+      if (classDesc.Name() == "Token") {
+         nbytes = strlen(static_cast<const char*>(obj)) + 1;
+         buffer = obj;
+         own = false;
+      } else if (classDesc.IsFundamental()) {
+         nbytes = classDesc.SizeOf();
+         buffer = obj;
+         own = false;
+      } else {
+         buffer = m_serializeSvc->serialize(obj, classDesc, nbytes);
+      }
       // Share object
-      sc = m_outputStreamingTool->putObject(buffer, nbytes);
+      sc = m_outputStreamingTool[streamClient]->putObject(buffer, nbytes);
       while (sc.isRecoverable()) {
          usleep(100);
-         sc = m_outputStreamingTool->putObject(buffer, nbytes);
+         sc = m_outputStreamingTool[streamClient]->putObject(buffer, nbytes);
       }
+      if (own) { delete [] static_cast<const char*>(buffer); }
+      buffer = nullptr;
       if (!sc.isSuccess()) {
+         ATH_MSG_ERROR("Could not share object for: " << placementStr);
+         return(nullptr);
+      }
+      AuxDiscoverySvc auxDiscover;
+      if (!auxDiscover.sendStore(const_cast<IAthenaSerializeSvc*>(m_serializeSvc.get()), dynamic_cast<const IAthenaIPCTool*>(m_outputStreamingTool[streamClient].get()), obj, pool::DbReflex::guid(classDesc), placement->containerName()).isSuccess()) {
+         ATH_MSG_ERROR("Could not share dynamic aux store for: " << placementStr);
+         return(nullptr);
+      }
+      if (!m_outputStreamingTool[streamClient]->putObject(nullptr, 0).isSuccess()) {
          ATH_MSG_ERROR("Failed to put Data for " << placementStr);
-         return(0);
+         return(nullptr);
       }
       // Get Token back from Server
-      char* tokenStr = 0;
+      char* tokenStr = nullptr;
       int num = -1;
-      sc = m_outputStreamingTool->clearObject(&tokenStr, num);
+      sc = m_outputStreamingTool[streamClient]->clearObject(&tokenStr, num);
       while (sc.isRecoverable()) {
          usleep(100);
-         sc = m_outputStreamingTool->clearObject(&tokenStr, num);
+         sc = m_outputStreamingTool[streamClient]->clearObject(&tokenStr, num);
       }
       if (!sc.isSuccess()) {
          ATH_MSG_ERROR("Failed to get Token");
-         delete tokenStr; tokenStr = 0;
-         return(0);
+         return(nullptr);
       }
-      token = new Token();
-      const_cast<Token*>(token)->fromString(tokenStr);
-      delete tokenStr; tokenStr = 0;
+      Token* tempToken = new Token();
+      tempToken->fromString(tokenStr); tokenStr = nullptr;
+      tempToken->setClassID(pool::DbReflex::guid(classDesc));
+      token = tempToken; tempToken = nullptr;
    } else {
-      token = m_poolSvc->registerForWrite(placement, obj, classDesc);
+      if (!m_outputStreamingTool.empty() && m_metadataContainerProp.value().empty()
+		      && (m_streamServer == m_outputStreamingTool.size() || !m_outputStreamingTool[0]->isServer())) {
+         ATH_MSG_DEBUG("registerForWrite SKIPPED for expired server, Placement = " << placement->toString());
+         Token* tempToken = new Token();
+         tempToken->setClassID(pool::DbReflex::guid(classDesc));
+         token = tempToken; tempToken = nullptr;
+      } else if (!m_outputStreamingTool.empty() && !m_outputStreamingTool[0]->isServer()) {
+         ATH_MSG_DEBUG("registerForWrite SKIPPED for uninitialized server, Placement = " << placement->toString());
+         Token* tempToken = new Token();
+         tempToken->setClassID(pool::DbReflex::guid(classDesc));
+         token = tempToken; tempToken = nullptr;
+      } else {
+         token = m_poolSvc->registerForWrite(placement, obj, classDesc);
+      }
    }
-   if (m_useDetailChronoStat.value() && m_doChronoStat) {
-      m_chronoStatSvc->chronoStop("cRepR_" + m_className.back());
+   if (m_doChronoStat) {
+      m_chronoStatSvc->chronoStop("cRepR_ALL");
    }
    return(token);
 }
 //______________________________________________________________________________
 void AthenaPoolCnvSvc::setObjPtr(void*& obj, const Token* token) const {
-   if (m_useDetailChronoStat.value() && m_doChronoStat) {
-      m_chronoStatSvc->chronoStart("cObjR_" + m_className.back());
+   if (m_doChronoStat) {
+      m_chronoStatSvc->chronoStart("cObjR_ALL");
+   }
+   if (!m_outputStreamingTool.empty() && m_streamServer < m_outputStreamingTool.size()
+		   && m_outputStreamingTool[m_streamServer]->isServer()) {
+      if (token->dbID() == Guid::null()) {
+         int num = token->oid().first;
+         // Get object from SHM
+         void* buffer = nullptr;
+         std::size_t nbytes = 0;
+         StatusCode sc = m_outputStreamingTool[m_streamServer]->getObject(&buffer, nbytes, num);
+         while (sc.isRecoverable()) {
+            usleep(100);
+            sc = m_outputStreamingTool[m_streamServer]->getObject(&buffer, nbytes, num);
+         }
+         if (!sc.isSuccess()) {
+            ATH_MSG_ERROR("Failed to get Data for " << token->toString());
+            return;
+         }
+         if (token->classID() != Guid::null()) {
+            // Deserialize object
+            RootType cltype(pool::DbReflex::forGuid(token->classID()));
+            obj = m_serializeSvc->deserialize(buffer, nbytes, cltype); buffer = nullptr;
+         } else {
+            // Deserialize object
+            std::string className = token->auxString();
+            className = className.substr(className.find("[PNAME="));
+            className = className.substr(7, className.find(']') - 7);
+            RootType cltype(RootType::ByName(className));
+            obj = m_serializeSvc->deserialize(buffer, nbytes, cltype); buffer = nullptr;
+         }
+         AuxDiscoverySvc auxDiscover;
+         if (!auxDiscover.receiveStore(const_cast<IAthenaSerializeSvc*>(m_serializeSvc.get()), dynamic_cast<const IAthenaIPCTool*>(m_outputStreamingTool[m_streamServer].get()), obj, num).isSuccess()) {
+            ATH_MSG_ERROR("Failed to get Dynamic Aux Store for " << token->toString());
+         }
+         return;
+      }
    }
    if (!m_inputStreamingTool.empty() && m_inputStreamingTool->isClient()) {
       ATH_MSG_VERBOSE("Requesting object for: " << token->toString());
       if (!m_inputStreamingTool->lockObject(token->toString().c_str()).isSuccess()) {
          ATH_MSG_WARNING("Failed to lock Data for " << token->toString());
-         obj = 0;
+         obj = nullptr;
       } else {
-         void* buffer = 0;
-         size_t nbytes = 0;
+         if (m_doChronoStat) {
+            m_chronoStatSvc->chronoStart("gObj_ALL");
+         }
+         void* buffer = nullptr;
+         std::size_t nbytes = 0;
          StatusCode sc = m_inputStreamingTool->getObject(&buffer, nbytes);
          while (sc.isRecoverable()) {
-            usleep(100);
+            // sleep
             sc = m_inputStreamingTool->getObject(&buffer, nbytes);
+         }
+         if (m_doChronoStat) {
+            m_chronoStatSvc->chronoStop("gObj_ALL");
          }
          if (!sc.isSuccess()) {
             ATH_MSG_WARNING("Failed to get Data for " << token->toString());
-            obj = 0;
+            obj = nullptr;
          } else {
-            obj = m_serializeSvc->deserialize(buffer, nbytes, token->classID());
+            obj = m_serializeSvc->deserialize(buffer, nbytes, token->classID()); buffer = nullptr;
+            AuxDiscoverySvc auxDiscover;
+            if (!auxDiscover.receiveStore(const_cast<IAthenaSerializeSvc*>(m_serializeSvc.get()), dynamic_cast<const IAthenaIPCTool*>(m_inputStreamingTool.get()), obj).isSuccess()) {
+               ATH_MSG_ERROR("Failed to get Dynamic Aux Store for " << token->toString());
+            }
          }
       }
    } else if (!m_inputStreamingTool.empty() && m_inputStreamingTool->isServer()) {
@@ -657,8 +820,8 @@ void AthenaPoolCnvSvc::setObjPtr(void*& obj, const Token* token) const {
    } else {
       m_poolSvc->setObjPtr(obj, token, m_contextIds.back());
    }
-   if (m_useDetailChronoStat.value() && m_doChronoStat) {
-      m_chronoStatSvc->chronoStop("cObjR_" + m_className.back());
+   if (m_doChronoStat) {
+      m_chronoStatSvc->chronoStop("cObjR_ALL");
    }
 }
 //______________________________________________________________________________
@@ -675,8 +838,14 @@ StatusCode AthenaPoolCnvSvc::createAddress(long svcType,
       ATH_MSG_ERROR("createAddress: svcType != POOL_StorageType " << svcType << " " << POOL_StorageType);
       return(StatusCode::FAILURE);
    }
-   Token* token = 0;
-   if (!m_inputStreamingTool.empty() && m_inputStreamingTool->isClient()) {
+   Token* token = nullptr;
+   if (par[0] == "SHM") {
+      token = new Token();
+      token->setOid(Token::OID_t(ip[0], ip[1]));
+      token->setAuxString("[PNAME=" + par[2] + "]");
+      RootType classDesc = RootType::ByName(par[2]);
+      token->setClassID(pool::DbReflex::guid(classDesc));
+   } else if (!m_inputStreamingTool.empty() && m_inputStreamingTool->isClient()) {
       Token addressToken;
       addressToken.setDb(par[0].substr(4));
       addressToken.setCont(par[1]);
@@ -685,30 +854,30 @@ StatusCode AthenaPoolCnvSvc::createAddress(long svcType,
          ATH_MSG_WARNING("Failed to lock Address Token: " << addressToken.toString());
          return(StatusCode::FAILURE);
       }
-      void* buffer = 0;
-      size_t nbytes = 0;
+      void* buffer = nullptr;
+      std::size_t nbytes = 0;
       StatusCode sc = m_inputStreamingTool->getObject(&buffer, nbytes);
       while (sc.isRecoverable()) {
-         usleep(100);
+         // sleep
          sc = m_inputStreamingTool->getObject(&buffer, nbytes);
       }
       if (!sc.isSuccess()) {
          ATH_MSG_WARNING("Failed to get Address Token: " << addressToken.toString());
          return(StatusCode::FAILURE);
-      } else {
-         token = new Token();
-         token->fromString((char*)buffer);
-         if (token->classID() == Guid::null()) {
-            delete token; token = 0;
-         }
       }
+      token = new Token();
+      token->fromString(static_cast<char*>(buffer)); buffer = nullptr;
+      if (token->classID() == Guid::null()) {
+         delete token; token = nullptr;
+      }
+      m_inputStreamingTool->getObject(&buffer, nbytes).ignore();
    } else {
       token = m_poolSvc->getToken(par[0], par[1], ip[0]);
    }
-   if (token == 0) {
+   if (token == nullptr) {
       return(StatusCode::RECOVERABLE);
    }
-   refpAddress = new TokenAddress(POOL_StorageType, clid, "", "", 0, token);
+   refpAddress = new TokenAddress(POOL_StorageType, clid, "", par[1], ip[0], token);
    return(StatusCode::SUCCESS);
 }
 //______________________________________________________________________________
@@ -761,32 +930,40 @@ StatusCode AthenaPoolCnvSvc::setInputAttributes(const std::string& fileName) {
 }
 //______________________________________________________________________________
 StatusCode AthenaPoolCnvSvc::makeServer(int num) {
-   if (!m_outputStreamingTool.empty() && !m_outputStreamingTool->isServer()) {
-      ATH_MSG_DEBUG("makeServer: " << m_outputStreamingTool << " = " << num);
-      if (m_outputStreamingTool->makeServer(num).isFailure()) {
-         ATH_MSG_ERROR("makeServer: " << m_outputStreamingTool << " failed");
-         return(StatusCode::FAILURE);
+   if (num < 0) {
+      num = -num;
+      m_streamServer = int(num / 1024);
+      num = num % 1024;
+      if (!m_outputStreamingTool.empty() && m_streamServer < m_outputStreamingTool.size()
+		      && !m_outputStreamingTool[m_streamServer]->isServer()) {
+         ATH_MSG_DEBUG("makeServer: " << m_outputStreamingTool << " = " << num);
+         if (m_outputStreamingTool[m_streamServer]->makeServer(num).isFailure()) {
+            ATH_MSG_ERROR("makeServer: " << m_outputStreamingTool << " failed");
+            return(StatusCode::FAILURE);
+         }
+         return(StatusCode::SUCCESS);
       }
+      return(StatusCode::RECOVERABLE);
    }
    if (m_inputStreamingTool.empty()) {
       return(StatusCode::RECOVERABLE);
    }
-   m_doChronoStat = false;
    ATH_MSG_DEBUG("makeServer: " << m_inputStreamingTool << " = " << num);
    return(m_inputStreamingTool->makeServer(num));
 }
 //________________________________________________________________________________
 StatusCode AthenaPoolCnvSvc::makeClient(int num) {
-   m_doChronoStat = false;
-   if (!m_outputStreamingTool.empty() && !m_outputStreamingTool->isClient() && num > 0) {
+   if (!m_outputStreamingTool.empty() && !m_outputStreamingTool[0]->isClient() && num > 0) {
       ATH_MSG_DEBUG("makeClient: " << m_outputStreamingTool << " = " << num);
-      if (m_outputStreamingTool->makeClient(num).isFailure()) {
-         ATH_MSG_ERROR("makeClient: " << m_outputStreamingTool << " failed");
-         return(StatusCode::FAILURE);
+      for (std::size_t streamClient = 0; streamClient < m_outputStreamingTool.size(); streamClient++) {
+         if (m_outputStreamingTool[streamClient]->makeClient(num).isFailure()) {
+            ATH_MSG_ERROR("makeClient: " << m_outputStreamingTool << ", " << streamClient << " failed");
+            return(StatusCode::FAILURE);
+         }
       }
    }
    if (m_inputStreamingTool.empty()) {
-      return(StatusCode::RECOVERABLE);
+      return(StatusCode::SUCCESS);
    }
    ATH_MSG_DEBUG("makeClient: " << m_inputStreamingTool << " = " << num);
    return(m_inputStreamingTool->makeClient(num));
@@ -796,49 +973,67 @@ StatusCode AthenaPoolCnvSvc::readData() const {
    if (m_inputStreamingTool.empty()) {
       return(StatusCode::FAILURE);
    }
-   char* tokenStr = 0;
+   char* tokenStr = nullptr;
    int num = -1;
    StatusCode sc = m_inputStreamingTool->clearObject(&tokenStr, num);
-   if (sc.isSuccess() && tokenStr != 0 && strlen(tokenStr) > 0 && num > 0) {
+   if (sc.isSuccess() && tokenStr != nullptr && strlen(tokenStr) > 0 && num > 0) {
       ATH_MSG_DEBUG("readData: " << tokenStr << ", for client: " << num);
    } else {
-      delete tokenStr; tokenStr = 0;
       return(sc);
    }
    // Read object instance via POOL/ROOT
-   void* instance = 0;
+   void* instance = nullptr;
    Token token;
-   token.fromString(tokenStr);
-   delete tokenStr; tokenStr = 0;
+   token.fromString(tokenStr); tokenStr = nullptr;
    if (token.classID() != Guid::null()) {
+      std::string objName = "ALL";
+      if (m_useDetailChronoStat.value()) {
+         objName = token.classID().toString();
+      }
+      if (m_doChronoStat) {
+         m_chronoStatSvc->chronoStart("cObj_" + objName);
+      }
       this->setObjPtr(instance, &token);
       // Serialize object via ROOT
-      void* buffer = 0;
-      size_t nbytes = 0;
-      buffer = m_serializeSvc->serialize(instance, token.classID(), nbytes);
-      // Share object
+      RootType cltype(pool::DbReflex::forGuid(token.classID()));
+      void* buffer = nullptr;
+      std::size_t nbytes = 0;
+      buffer = m_serializeSvc->serialize(instance, cltype, nbytes);
       sc = m_inputStreamingTool->putObject(buffer, nbytes, num);
-      delete [] (char*)buffer; buffer = 0;
+      while (sc.isRecoverable()) {
+         usleep(100);
+         sc = m_inputStreamingTool->putObject(buffer, nbytes, num);
+      }
+      delete [] static_cast<char*>(buffer); buffer = nullptr;
       if (!sc.isSuccess()) {
          ATH_MSG_ERROR("Could not share object for: " << token.toString());
          return(StatusCode::FAILURE);
       }
+      AuxDiscoverySvc auxDiscover;
+      if (!auxDiscover.sendStore(const_cast<IAthenaSerializeSvc*>(m_serializeSvc.get()), dynamic_cast<const IAthenaIPCTool*>(m_inputStreamingTool.get()), instance, token.classID(), token.contID(), num).isSuccess()) {
+         ATH_MSG_ERROR("Could not share dynamic aux store for: " << token.toString());
+         return(StatusCode::FAILURE);
+      }
+      cltype.Destruct(instance); instance = nullptr;
+      if (!m_inputStreamingTool->putObject(nullptr, 0, num).isSuccess()) {
+         ATH_MSG_ERROR("Could not share object for: " << token.toString());
+         return(StatusCode::FAILURE);
+      }
+      if (m_doChronoStat) {
+         m_chronoStatSvc->chronoStop("cObj_" + objName);
+      }
    } else if (token.dbID() != Guid::null()) {
       std::string returnToken;
       const Token* metadataToken = m_poolSvc->getToken("FID:" + token.dbID().toString(), token.contID(), token.oid().first);
-      if (metadataToken != 0) {
+      if (metadataToken != nullptr) {
          returnToken = metadataToken->toString();
       } else {
          returnToken = token.toString();
       }
-      delete metadataToken; metadataToken = 0;
+      delete metadataToken; metadataToken = nullptr;
       // Share token
       sc = m_inputStreamingTool->putObject(returnToken.c_str(), returnToken.size() + 1, num);
-      while (sc.isRecoverable()) {
-         usleep(100);
-         sc = m_inputStreamingTool->putObject(returnToken.c_str(), returnToken.size() + 1, num);
-      }
-      if (!sc.isSuccess()) {
+      if (!sc.isSuccess() || !m_inputStreamingTool->putObject(nullptr, 0, num).isSuccess()) {
          ATH_MSG_ERROR("Could not share token for: " << token.toString());
          return(StatusCode::FAILURE);
       }
@@ -869,7 +1064,8 @@ AthenaPoolCnvSvc::AthenaPoolCnvSvc(const std::string& name, ISvcLocator* pSvcLoc
 	m_clidSvc("ClassIDSvc", name),
 	m_serializeSvc("AthenaRootSerializeSvc", name),
 	m_inputStreamingTool("", this),
-	m_outputStreamingTool("", this),
+	m_outputStreamingTool(this),
+	m_streamServer(0),
 	m_containerPrefix(),
 	m_containerNameHint(),
 	m_branchNameHint(),
@@ -881,19 +1077,21 @@ AthenaPoolCnvSvc::AthenaPoolCnvSvc(const std::string& name, ISvcLocator* pSvcLoc
    declareProperty("SubLevelBranchName", m_branchNameHintProp = "<type>/<key>");
    declareProperty("PoolAttributes", m_poolAttr);
    declareProperty("InputPoolAttributes", m_inputPoolAttr);
+   declareProperty("OutputPoolFileAllocator", m_streamClientFilesProp);
    declareProperty("PrintInputAttrPerEvt", m_inputPoolAttrPerEvent);
    declareProperty("MaxFileSizes", m_maxFileSizes);
    declareProperty("CommitInterval", m_commitInterval = 0);
    declareProperty("SkipFirstChronoCommit", m_skipFirstChronoCommit = false);
    declareProperty("InputStreamingTool", m_inputStreamingTool);
    declareProperty("OutputStreamingTool", m_outputStreamingTool);
+   declareProperty("OutputMetadataContainer", m_metadataContainerProp);
 }
 //______________________________________________________________________________
 AthenaPoolCnvSvc::~AthenaPoolCnvSvc() {
 }
 //__________________________________________________________________________
 StatusCode AthenaPoolCnvSvc::decodeOutputSpec(std::string& fileSpec,
-	pool::DbType& outputTech) const {
+		pool::DbType& outputTech) const {
    outputTech = pool::ROOTTREE_StorageType;
    if (fileSpec.find("oracle") == 0 || fileSpec.find("mysql") == 0) {
       outputTech = pool::POOL_RDBMS_StorageType;
@@ -908,9 +1106,9 @@ StatusCode AthenaPoolCnvSvc::decodeOutputSpec(std::string& fileSpec,
 }
 //__________________________________________________________________________
 void AthenaPoolCnvSvc::extractPoolAttributes(const StringArrayProperty& property,
-	std::vector<std::vector<std::string> >* contAttr,
-	std::vector<std::vector<std::string> >* dbAttr,
-	std::vector<std::vector<std::string> >* domAttr) const {
+		std::vector<std::vector<std::string> >* contAttr,
+		std::vector<std::vector<std::string> >* dbAttr,
+		std::vector<std::vector<std::string> >* domAttr) const {
    std::vector<std::string> opt;
    std::string attributeName, containerName, databaseName, valueString;
    for (std::vector<std::string>::const_iterator iter = property.value().begin(),
@@ -964,11 +1162,11 @@ void AthenaPoolCnvSvc::extractPoolAttributes(const StringArrayProperty& property
 }
 //__________________________________________________________________________
 StatusCode AthenaPoolCnvSvc::processPoolAttributes(std::vector<std::vector<std::string> >& attr,
-	const std::string& fileName,
-	unsigned long contextId,
-	bool doGet,
-	bool doSet,
-	bool doClear) const {
+		const std::string& fileName,
+		unsigned long contextId,
+		bool doGet,
+		bool doSet,
+		bool doClear) const {
    bool retError = false;
    if (!m_inputStreamingTool.empty() && m_inputStreamingTool->isClient()) doGet = false;
    for (std::vector<std::vector<std::string> >::iterator iter = attr.begin(), last = attr.end();

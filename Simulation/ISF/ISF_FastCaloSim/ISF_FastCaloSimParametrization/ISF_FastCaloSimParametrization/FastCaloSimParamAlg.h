@@ -3,8 +3,9 @@
 */
 
 
-#ifndef ISF_FastCaloSimParamAlg_H
-#define ISF_FastCaloSimParamAlg_H
+#ifndef ISF_FASTCALOSIMPARAMETRIZATION_ISF_FastCaloSimParamAlg_H
+#define ISF_FASTCALOSIMPARAMETRIZATION_ISF_FastCaloSimParamAlg_H
+
 
 // STL includes
 #include <string>
@@ -12,6 +13,9 @@
 #include <map>
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+
+#include "StoreGate/ReadHandleKey.h"
+#include "StoreGate/WriteHandleKey.h"
 
 #include "CaloDetDescr/CaloDetDescrManager.h"
 //#include "CaloIdentifier/CaloCell_ID.h"
@@ -29,7 +33,6 @@ namespace HepMC {
   class GenParticle;
 }
 
-
   /**
    *
    *   @short Modified class for shower library generation algorithm
@@ -38,31 +41,27 @@ namespace HepMC {
 class FastCaloSimParamAlg : public AthAlgorithm {
 
  public:
-  
+
   FastCaloSimParamAlg(const std::string& name, ISvcLocator* pSvcLocator);
 
-  StatusCode initialize();
-  StatusCode finalize();
-  StatusCode execute();
+  virtual StatusCode initialize() override final;
+  virtual StatusCode execute() override final;
 
  private:
 
-  void clusterize(ISF_FCS_Parametrization::FCS_StepInfoCollection* stepinfo);
+  StatusCode clusterize(ISF_FCS_Parametrization::FCS_StepInfoCollection* stepinfo) const;
 
-  const ISF_FCS_Parametrization::FCS_StepInfoCollection* getFCS_StepInfo();
+  // const ISF_FCS_Parametrization::FCS_StepInfoCollection* getFCS_StepInfo();
 
-  ISF_FCS_Parametrization::FCS_StepInfoCollection* copyFCS_StepInfo(const ISF_FCS_Parametrization::FCS_StepInfoCollection* stepinfo);
+  // ISF_FCS_Parametrization::FCS_StepInfoCollection* copyFCS_StepInfo(const ISF_FCS_Parametrization::FCS_StepInfoCollection* stepinfo);
 
   //ISF_FCS_Parametrization::FCS_StepInfoList* copyFCS_StepInfoZeroCleanup(const ISF_FCS_Parametrization::FCS_StepInfoCollection* stepinfo);
 
-  void truncate(ISF_FCS_Parametrization::FCS_StepInfoCollection* stepinfo);
-
-  //! return first MC truth particle for event
-  const HepMC::GenParticle* getParticleFromMC();
-  //! adding tag information (release, detector description, ...) to library comment
-  void addingTagsToLibrary();
+  StatusCode truncate(ISF_FCS_Parametrization::FCS_StepInfoCollection* stepinfo) const;
 
   /* data members */
+  SG::ReadHandleKey<ISF_FCS_Parametrization::FCS_StepInfoCollection> m_inputCollectionKey;
+  SG::WriteHandleKey<ISF_FCS_Parametrization::FCS_StepInfoCollection> m_outputCollectionKey;
   BooleanProperty           m_clusterize; //Y/N to merge nearby hits
   DoubleProperty            m_truncate; // Drop E<0 (if >1), t>1000 (if >2)
   DoubleProperty            m_maxDistance;
@@ -83,18 +82,10 @@ class FastCaloSimParamAlg : public AthAlgorithm {
   DoubleProperty            m_containmentEnergy;    //!< property, see @link LArG4GenShowerLib::LArG4GenShowerLib @endlink
   DoubleProperty            m_energyFraction;       //!< property, see @link LArG4GenShowerLib::LArG4GenShowerLib @endlink
 
-  StringArrayProperty		m_lib_struct_files;
+  StringArrayProperty       m_lib_struct_files;
 
-  //  typedef std::map<std::string, ShowerLib::IShowerLib*> libMap;
-  // libMap m_libraries;                  //!< pointer to shower library
-  //libMap m_libraries_by_filename;
-
-  //int m_stat_valid;
-  //int m_stat_invalid;
-  //int m_stat_nolib;
-  //int m_stat_notsaved;
   const CaloDetDescrManager* m_calo_dd_man;
 
-}; // 
+}; //
 
-#endif
+#endif // ISF_FASTCALOSIMPARAMETRIZATION_ISF_FastCaloSimParamAlg_H

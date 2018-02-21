@@ -1,7 +1,7 @@
          <athena trendId='all_pu40' userJobId='TrigInDetValidation_all_ttbar_pu40'>
-            <doc>All slices, ttbar events, pu40, run2 chains</doc>
-            <displayName>All slices, ttbar, pu40, run2 chains</displayName>
-	    <commandLineFlags>EventMax=1000;runMergedChain=True;doIDNewTracking=True;rec.doFloatingPointException.set_Value_and_Lock(False)</commandLineFlags>
+            <doc>All slices, ttbar events, pu40,</doc>
+            <displayName>All slices, ttbar, pu40,</displayName>
+	    <commandLineFlags>EventMax=1000;doIDNewTracking=True;rec.doFloatingPointException.set_Value_and_Lock(False)</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_AllSlices</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>

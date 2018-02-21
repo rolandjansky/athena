@@ -21,12 +21,7 @@ Root::TElectronIsEMSelector::TElectronIsEMSelector(const char* name) :
   asg::AsgMessaging(std::string(name)), 
   isEMMask(0), //All will pass if not specified
   useTRTOutliers(true),
-  useBLOutliers(true),
-  usePIXOutliers(true),
-  usePIXDeadSensors(true),
-  useSCTOutliers(true),
   useTRTXenonHits(false),
-  useBLayerHitPrediction(true),
   m_isEM(~0),
   /** @brief cluster eta range */
   m_cutPositionClusterEtaRange_Electron(0),    
@@ -420,20 +415,12 @@ const Root::TAccept& Root::TElectronIsEMSelector::accept(
 							 // fraction of energy reconstructed in the 3rd sampling
 							 float f3,
 							 //////////////// - tracking
-							 // number of B-layer hits
-							 int nBL,
-							 int nBLOutliers,
-							 // number of next to inner-most B-layer hits
-							 int nNextToInnerMostLayer,
-							 int nNextToInnerMostLayerOutliers,
-							 // number of Pixel hits
-							 int nPi,
-							 int nPiOutliers,
-							 int nPiDeadSensors,
-							 // number of SCT hits
-							 int nSCT,
-							 int nSCTOutliers,
-							 int nSCTDeadSensors,
+							 // is effective number of BL hits+outliers at least 1?
+                                                         bool passBLayerRequirement,
+							 // number of pixel hits + dead sensors
+                                                         int nPixHitsPlusDeadSensors,
+							 // number of silicon hits + dead sensors
+							 int nSiHitsPlusDeadSensors,
 							 // TRT hits
 							 int nTRThigh,
 							 int nTRThighOutliers,
@@ -447,9 +434,7 @@ const Root::TAccept& Root::TElectronIsEMSelector::accept(
 							 float deltaeta,
 							 float deltaphi,
 							 // E/p
-							 double ep,
-							 bool expectHitInBLayer,
-							 bool expectHitNextInBLayer) const 
+							 double ep) const 
 {
   // Reset the cut result bits to zero (= fail cut)
   m_accept.clear();
@@ -472,16 +457,9 @@ const Root::TAccept& Root::TElectronIsEMSelector::accept(
 		    wtot,
 		    fracm,
 		    f3,
-		    nBL,
-		    nBLOutliers,
-		    nNextToInnerMostLayer,
-		    nNextToInnerMostLayerOutliers,
-		    nPi,
-		    nPiOutliers,
-		    nPiDeadSensors,
-		    nSCT,
-		    nSCTOutliers,
-		    nSCTDeadSensors,
+                    passBLayerRequirement,
+                    nPixHitsPlusDeadSensors,
+                    nSiHitsPlusDeadSensors,
 		    nTRThigh,
 		    nTRThighOutliers,
 		    nTRT,
@@ -491,9 +469,7 @@ const Root::TAccept& Root::TElectronIsEMSelector::accept(
 		    trackd0,
 		    deltaeta,
 		    deltaphi,
-		    ep,
-		    expectHitInBLayer,
-		    expectHitNextInBLayer);
+		    ep);
 
   return fillAccept();
 
@@ -534,21 +510,13 @@ unsigned int Root::TElectronIsEMSelector::calcIsEm(
 						   float fracm,
 						   // fraction of energy reconstructed in the 3rd sampling
 						   float f3,
-						   //////////////// - tracking
-						   // number of B-layer hits
-						   int nBL,
-						   int nBLOutliers,
-						   // number of next to inner-most B-layer hits
-						   int nNextToInnerMostLayer,
-						   int nNextToInnerMostLayerOutliers,
-						   // number of Pixel hits
-						   int nPi,
-						   int nPiOutliers,
-						   int nPiDeadSensors,
-						   // number of SCT hits
-						   int nSCT,
-						   int nSCTOutliers,
-						   int nSCTDeadSensors,
+                                                   //////////////// - tracking
+                                                   // is effective number of BL hits+outliers at least 1?
+                                                   bool passBLayerRequirement,
+                                                   // number of pixel hits + dead sensors
+                                                   int nPixHitsPlusDeadSensors,
+                                                   // number of silicon hits + dead sensors
+                                                   int nSiHitsPlusDeadSensors,
 						   // TRT hits
 						   int nTRThigh,
 						   int nTRThighOutliers,
@@ -562,9 +530,7 @@ unsigned int Root::TElectronIsEMSelector::calcIsEm(
 						   float deltaeta,
 						   float deltaphi,
 						   // E/p
-						   double ep,
-						   bool expectHitInBLayer,
-						   bool expectHitNextInBLayer) const
+						   double ep) const
 { 
   unsigned int iflag = calocuts_electrons(eta2,
 					  et,
@@ -586,16 +552,9 @@ unsigned int Root::TElectronIsEMSelector::calcIsEm(
 
   iflag = TrackCut(eta2,
 		   et,
-		   nBL,
-		   nBLOutliers,
-		   nNextToInnerMostLayer,
-		   nNextToInnerMostLayerOutliers,
-		   nPi,
-		   nPiOutliers,
-		   nPiDeadSensors,
-		   nSCT,
-		   nSCTOutliers,
-		   nSCTDeadSensors,
+                   passBLayerRequirement,
+                   nPixHitsPlusDeadSensors,
+                   nSiHitsPlusDeadSensors,
 		   nTRThigh,
 		   nTRThighOutliers,
 		   nTRT,
@@ -606,8 +565,6 @@ unsigned int Root::TElectronIsEMSelector::calcIsEm(
 		   deltaeta,
 		   deltaphi,
 		   ep,
-		   expectHitInBLayer,
-		   expectHitNextInBLayer,
 		   iflag);
 
   return iflag;
@@ -766,21 +723,14 @@ unsigned int Root::TElectronIsEMSelector::TrackCut(
 						   // eta of the cluster in the 2nd sampling
 						   float eta2,
 						   // transverse energy in calorimeter (using eta position in second sampling)
-						   double et,
-						   // number of B-layer hits
-						   int nBL,
-						   int nBLOutliers,
-						   // number of next to the innerm most B-layer hits
-						   int nNextToInnerMostLayer,
-						   int nNextToInnerMostLayerOutliers,
-						   // number of Pixel hits
-						   int nPi,
-						   int nPiOutliers,
-						   int nPiDeadSensors,
-						   // number of SCT hits
-						   int nSCT,
-						   int nSCTOutliers,
-						   int nSCTDeadSensors,
+                                                   double et,
+                                                   // is effective number of BL hits+outliers at least 1?
+                                                   bool passBLayerRequirement,
+                                                   // number of pixel hits + dead sensors
+                                                   int nPixHitsPlusDeadSensors,
+                                                   // number of silicon hits + dead sensors
+                                                   int nSiHitsPlusDeadSensors,
+
 						   // TRT hits
 						   int nTRThigh,
 						   int nTRThighOutliers,
@@ -795,8 +745,6 @@ unsigned int Root::TElectronIsEMSelector::TrackCut(
 						   float deltaphi,
 						   // E/p
 						   double ep,
-						   bool expectHitInBLayer,
-						   bool expectHitNextInBLayer,
 						   unsigned int iflag) const
 {
   // check the bin number
@@ -804,51 +752,22 @@ unsigned int Root::TElectronIsEMSelector::TrackCut(
   int ibin_eta= bins.at(1);
   int ibin_combined= bins.at(2);
 
-  int nSi = nPi + nSCT;
-  int nSiDeadSensors = nPiDeadSensors + nSCTDeadSensors;
-  
-  if (useBLOutliers) {
-    nBL += nBLOutliers;
-    nNextToInnerMostLayer += nNextToInnerMostLayerOutliers;
-  }
-  if (usePIXOutliers) {
-    nPi += nPiOutliers;
-    nSi += nPiOutliers;
-  }
-  if (usePIXDeadSensors) {
-    nPi += nPiDeadSensors;
-    nSi += nSiDeadSensors;
-  }
-  if (useSCTOutliers) {
-    nSi += nSCTOutliers;
-  }
-  
   if (ibin_eta>=0) {
+
     // Track quality cuts
-    // cuts on number of b-layer hits - check if module was alive
-    if ((useBLayerHitPrediction &&
-	 (nPi == 0 || expectHitInBLayer)) || 
-	!useBLayerHitPrediction) {
-      if (CheckVar(CutBL,1)) {
-	if (nBL<CutBL[ibin_eta])
-	  iflag |= ( 0x1 << egammaPID::TrackBlayer_Electron) ; 
-      }
-    } else if  ((useBLayerHitPrediction && (nPi == 0 || expectHitNextInBLayer)) || !useBLayerHitPrediction) {
-      if (CheckVar(CutBL,1)) {
-	if (nNextToInnerMostLayer<CutBL[ibin_eta])
-	  iflag |= ( 0x1 << egammaPID::TrackBlayer_Electron) ; 
-      }
+
+    // cuts on number of b-layer hits
+    if(CheckVar(CutBL,1) && CutBL[ibin_eta] == 1 && !passBLayerRequirement){
+      iflag |= ( 0x1 << egammaPID::TrackBlayer_Electron); 
     }
-
-
     // cuts on number of pixel hits
     if (CheckVar(CutPi,1)) {
-      if (nPi<CutPi[ibin_eta]) 
+      if (nPixHitsPlusDeadSensors<CutPi[ibin_eta]) 
 	iflag |= ( 0x1 << egammaPID::TrackPixel_Electron) ; 
     }
     // cuts on number of precision hits
     if (CheckVar(CutSi,1)) {
-      if (nSi<CutSi[ibin_eta]) 
+      if (nSiHitsPlusDeadSensors<CutSi[ibin_eta]) 
 	iflag |= ( 0x1 << egammaPID::TrackSi_Electron) ; 
     }
     // cuts on transverse impact parameter

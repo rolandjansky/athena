@@ -44,7 +44,7 @@ topSequence = AlgSequence()
 #  Set up TilePulseForTileMuonReceiver
 topSequence += CfgMgr.TilePulseForTileMuonReceiver('TilePulseForTileMuonReceiver'
 #                                                   , OutputLevel = VERBOSE 
-                                                   , IntegerDigits = True
+                                                   , IntegerDigits = not jobproperties.Digitization.PileUpPremixing()
                                                    , UseCoolPedestal = False
                                                    , UseCoolPulseShapes = True
                                                    , TileCondToolPulseShape = toolSvc.TileCondToolMuRcvPulseShape

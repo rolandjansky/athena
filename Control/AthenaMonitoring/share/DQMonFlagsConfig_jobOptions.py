@@ -110,6 +110,7 @@ else:
 #      DQMonFlags.doJetMon=False
       # ??
       DQMonFlags.doCTPMon=False
+      DQMonFlags.doPixelMon=False
       DQMonFlags.doSCTMon=False
       DQMonFlags.doTRTMon=False
       DQMonFlags.doTRTElectronMon=False
@@ -127,6 +128,7 @@ else:
    elif DQMonFlags.monManEnvironment == 'tier0ESD':
       DQMonFlags.histogramFile='MonitorESD.root'
       DQMonFlags.doCTPMon=False
+      DQMonFlags.doPixelMon=False
       DQMonFlags.doSCTMon=False
       DQMonFlags.doTRTMon=False
       DQMonFlags.doTRTElectronMon=False
@@ -290,6 +292,7 @@ if DQMonFlags.doStreamAwareMon:
       LArMonFlags.doLArHVCorrectionMonTool=True
       LArMonFlags.doLArCoverage=True
       LArMonFlags.doLArDigitMon=False
+      LArMonFlags.doLArCollisionTimeMon=True
       doCaloCellVecMon=True
       HLTMonFlags.doBjet=False
       HLTMonFlags.doEgamma=False
@@ -297,6 +300,7 @@ if DQMonFlags.doStreamAwareMon:
       HLTMonFlags.doJet=False
       HLTMonFlags.doCalo=False
       HLTMonFlags.doMuon=False
+      HLTMonFlags.doGeneral=False
       DQMonFlags.doTauMon=False
       DQMonFlags.doPixelMon=False
       DQMonFlags.doMuonRawMon=False
@@ -314,6 +318,7 @@ if DQMonFlags.doStreamAwareMon:
       DQMonFlags.doSCTMon=False
       DQMonFlags.doTRTMon=False
       LArMonFlags.doLArRawChannelMon=False
+      HLTMonFlags.doGeneral=False
    elif (rec.triggerStream()=='Egamma'):
       DQMonFlags.doJetMon=False
       DQMonFlags.doMissingEtMon=False
@@ -322,6 +327,7 @@ if DQMonFlags.doStreamAwareMon:
       HLTMonFlags.doTau=False
       HLTMonFlags.doJet=False
       HLTMonFlags.doMuon=False
+      HLTMonFlags.doGeneral=False
       DQMonFlags.doMuonRawMon=False
       DQMonFlags.doMuonTrackMon=False
       DQMonFlags.doMuonAlignMon=False
@@ -344,6 +350,7 @@ if DQMonFlags.doStreamAwareMon:
       HLTMonFlags.doTau=False
       HLTMonFlags.doJet=False
       HLTMonFlags.doCalo=False
+      HLTMonFlags.doGeneral=False
       DQMonFlags.doTileMon=False
       DQMonFlags.doPixelMon=False
       DQMonFlags.doSCTMon=False
@@ -371,6 +378,7 @@ if DQMonFlags.doStreamAwareMon:
       DQMonFlags.doMuonPhysicsMon=False
       DQMonFlags.doCaloMon=False
       DQMonFlags.doJetTagMon=False
+      HLTMonFlags.doGeneral=False
       #LArMonFlags.doLArFEBMon=False
       #LArMonFlags.doLArDigitMon=False
       #LArMonFlags.doLArNoisyROMon=False
@@ -382,6 +390,7 @@ if DQMonFlags.doStreamAwareMon:
       HLTMonFlags.doJet=False
       HLTMonFlags.doCalo=False
       HLTMonFlags.doMuon=False
+      HLTMonFlags.doGeneral=False
       DQMonFlags.doPixelMon=True
       DQMonFlags.doMuonRawMon=False
       DQMonFlags.doMuonTrackMon=False
@@ -405,6 +414,7 @@ if DQMonFlags.doStreamAwareMon:
    elif (rec.triggerStream()=='L1Calo' or rec.triggerStream()=='L1Topo'):
       HLTMonFlags.doBjet=False
       HLTMonFlags.doMuon=False
+      HLTMonFlags.doGeneral=False
       DQMonFlags.doPixelMon=False
       DQMonFlags.doMuonRawMon=False
       DQMonFlags.doMuonTrackMon=False
@@ -426,6 +436,8 @@ if DQMonFlags.doStreamAwareMon:
       DQMonFlags.doTauMon=False
       # HLT experts need monitoring in various unspecified streams
       #DQMonFlags.doHLTMon=False
+      # except they don't need General
+      HLTMonFlags.doGeneral=False
       DQMonFlags.doMuonTrackMon=False
       DQMonFlags.doMuonAlignMon=False
       DQMonFlags.doMuonCombinedMon=False

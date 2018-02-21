@@ -7,15 +7,6 @@
 
 #include "AthenaMPToolBase.h"
 
-/*
-#include "AthenaInterprocess/SharedQueue.h"
-#include "yampl/Exceptions.h"
-#include "yampl/utils/SharedMemory.h"
-
-#include "boost/shared_ptr.hpp"
-*/
-
-class IEventShare;
 class IConversionSvc;
 
 class SharedWriterTool : public AthenaMPToolBase
@@ -47,7 +38,10 @@ class SharedWriterTool : public AthenaMPToolBase
   SharedWriterTool(const SharedWriterTool&);
   SharedWriterTool& operator= (const SharedWriterTool&);
 
-  IEventShare*                   m_evtShare;
+  int  m_rankId;          // Each worker has its own unique RankID from the range (0,...,m_nprocs-1)
+  int  m_writer;          // Number of writer stream servers
+
+  AthenaInterprocess::SharedQueue*  m_sharedRankQueue;
   IConversionSvc*             m_cnvSvc;
 
 };

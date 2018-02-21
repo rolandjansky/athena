@@ -8,8 +8,9 @@
 // helper class to replace G4Polycone
 // in certain LArWheelSolid operations
 
-struct LArFanSections
+class LArFanSections
 {
+public:
 	G4double Amin, Amax;
 	G4double Bmin, Bmax;
 	G4double Amin2, Amax2;

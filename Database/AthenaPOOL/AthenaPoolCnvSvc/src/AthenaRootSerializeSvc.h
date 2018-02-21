@@ -31,11 +31,13 @@ public:
    StatusCode finalize();
    StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
 
-   void* serialize(const void* object, const std::string& name, size_t& nbytes);
-   void* serialize(const void* object, const Guid& id, size_t& nbytes);
+   void* serialize(const void* object, const std::string& name, size_t& nbytes) const;
+   void* serialize(const void* object, const Guid& id, size_t& nbytes) const;
+   void* serialize(const void* object, const RootType& cltype, size_t& nbytes) const;
 
-   void* deserialize(void* buffer, size_t nbytes, const std::string& name);
-   void* deserialize(void* buffer, size_t nbytes, const Guid& id);
+   void* deserialize(void* buffer, size_t& nbytes, const std::string& name) const;
+   void* deserialize(void* buffer, size_t& nbytes, const Guid& id) const;
+   void* deserialize(void* buffer, size_t& nbytes, const RootType& cltype) const;
 };
 
 #endif

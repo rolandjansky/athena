@@ -1,9 +1,0 @@
-PACKAGE          = PileupReweighting
-PACKAGE_CXXFLAGS = 
-PACKAGE_LDFLAGS  = 
-PACKAGE_PRELOAD  = Hist
-PACKAGE_DEP = AsgTools ReweightUtils xAODEventInfo PathResolver xAODCore PATInterfaces GoodRunsLists
-PACKAGE_REFLEX = 1
-PACKAGE_PEDANTIC = 1
-
-include $(ROOTCOREDIR)/Makefile-common

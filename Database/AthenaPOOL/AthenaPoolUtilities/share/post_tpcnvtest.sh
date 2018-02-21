@@ -221,6 +221,15 @@ PP="$PP"'|has no streamer or dictionary'
 PP="$PP"'|^RootDatabase.open Always'
 PP="$PP"'|No valid proxy for object /Generation/Parameters'
 
+# Messages that differ between tests run in AtlasCore vs AtlasEvent.
+PP="$PP"'|^RalDatabaseSvc Info|^CoralApplication Info|^TRT_GeoModel +WARNING|Xtomo'
+
+# ubsan
+PP="$PP"'|bits/regex.h:1545'
+
+PP="$PP"'|Cannot convert TrigRNNOutput'
+
+
 test=$1
 if [ -z "$testStatus" ]; then
     echo "post.sh> Warning: athena exit status is not available "
@@ -232,6 +241,30 @@ else
         if [ ! -r $reflog ]; then
 	  reflog=../share/${test}.ref
         fi
+
+        # If we can't find the reference file, maybe it's located outside
+        # the repo.  With the switch to git, we have to fall back
+        # to versioning these files by hand.
+        # ATLAS_REFERENCE_TAG should be a string of the form PACKAGE/VERSION.
+        # We first look for it in DATAPATH.  If we don't find it,
+        # we then look under ATLAS_REFERENCE_DATA, which falls back
+        # to an afs path if it's not found.
+        if [ \( ! -r $reflog \) -a "$ATLAS_REFERENCE_TAG" != "" ]; then
+            # Look for the file in DATAPATH.
+            # We have to look for the directory, not the file itself,
+            # since get_files is hardcoded not to look more than two
+            # levels down.
+            get_files -data -symlink $ATLAS_REFERENCE_TAG > /dev/null
+            reflog=`basename $ATLAS_REFERENCE_TAG`/${test}.ref
+            if [ ! -r $reflog ]; then
+                testdata=$ATLAS_REFERENCE_DATA
+                if [ "$testdata" = "" ]; then
+                    testdata=/afs/cern.ch/atlas/maxidisk/d33/referencefiles
+                fi
+                reflog=$testdata/$ATLAS_REFERENCE_TAG/${test}.ref
+            fi
+        fi
+
 	if [ -r $reflog ]; then
             jobdiff=${joblog}-todiff.bz2
             refdiff=`basename ${reflog}`-todiff.bz2

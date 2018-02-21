@@ -1,8 +1,8 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+ Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef CPTOOLTESTS_MuonEfficiencyCorrections_TESTALG
 #define CPTOOLTESTS_MuonEfficiencyCorrections_TESTALG
@@ -13,34 +13,38 @@
 
 #include "MuonEfficiencyCorrections/IMuonEfficiencyScaleFactors.h"
 #include "MuonEfficiencyCorrections/IMuonTriggerScaleFactors.h"
+#include "PileupReweighting/IPileupReweightingTool.h"
+//#include "AsgAnalysisInterfaces/IPileupReweightingTool.h"
 
 namespace CP {
 
 /// small test algorithm to quickly test/demonstrate the usage of the MuonEfficiencyCorrections code within athena
 
-class MuonEfficiencyCorrections_TestAlg : public AthAlgorithm {
+    class MuonEfficiencyCorrections_TestAlg: public AthAlgorithm {
 
-public:
-    /// Regular Algorithm constructor
-    MuonEfficiencyCorrections_TestAlg( const std::string& name, ISvcLocator* svcLoc );
+        public:
+            /// Regular Algorithm constructor
+            MuonEfficiencyCorrections_TestAlg(const std::string& name, ISvcLocator* svcLoc);
 
-    /// Function initialising the algorithm
-    virtual StatusCode initialize();
-    /// Function executing the algorithm
-    virtual StatusCode execute();
+            /// Function initialising the algorithm
+            virtual StatusCode initialize();
+            /// Function executing the algorithm
+            virtual StatusCode execute();
 
-private:
-  /// muon container
-  std::string m_sgKey;
-  
-  /// Scale factor tool
-  ToolHandle< IMuonEfficiencyScaleFactors > m_sf_Tool;
-  ToolHandle< IMuonEfficiencyScaleFactors > m_isosf_Tool;
-  ToolHandle< IMuonEfficiencyScaleFactors > m_ttvasf_Tool;
-  ToolHandle< IMuonTriggerScaleFactors > m_trigsf_Tool;
+        private:
+            /// muon container
+            std::string m_sgKey;
 
-}; // class MuonEfficiencyCorrections_TestAlg
+            /// Scale factor tool
+            ToolHandle<IMuonEfficiencyScaleFactors> m_sf_Tool;
+            ToolHandle<IMuonEfficiencyScaleFactors> m_isosf_Tool;
+            ToolHandle<IMuonEfficiencyScaleFactors> m_ttvasf_Tool;
+            ToolHandle<IMuonTriggerScaleFactors> m_trigsf_Tool;
+            ToolHandle<IPileupReweightingTool> m_prw_Tool;
 
-} // namespace CP
+    };
+// class MuonEfficiencyCorrections_TestAlg
+
+}// namespace CP
 
 #endif //CPTOOLTESTS_MuonEfficiencyCorrections_TESTALG

@@ -57,7 +57,10 @@ svcMgr.IOVDbSvc.DBInstance=""
 svcMgr.PoolSvc.CheckDictionary=False
 svcMgr.PoolSvc.SortReplicas=False
 
-runNoForFileName=2147483647
+if 'IOVBegin' in dir():
+   runNoForFileName=IOVBegin
+else:   
+   runNoForFileName=2147483647
 
 outObjects=[]
 outTags=[]
@@ -79,7 +82,7 @@ for f in folderInfo:
   if 'OFC' in fn and not 'mu_20' in tag:
      continue
   if fn in mergeFolders:
-    if since>0 and since<runNoForFileName:
+    if since>0 and since<runNoForFileName and 'IOVBegin' not in dir():
       runNoForFileName=since
     if len(keySuffix)>0 and key.endswith(keySuffix):
       key=key[:-len(keySuffix)]
@@ -115,6 +118,8 @@ svcMgr.IOVDbSvc.dbConnection  = outputDB
 from RegistrationServices.RegistrationServicesConf import IOVRegistrationSvc
 svcMgr += IOVRegistrationSvc()
 svcMgr.IOVRegistrationSvc.RecreateFolders = True
+if 'IOVBegin' in dir():
+   svcMgr.IOVRegistrationSvc.BeginRun=IOVBegin
 
 svcMgr.DetectorStore.Dump=True
 

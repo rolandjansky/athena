@@ -1,7 +1,6 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-
 // Niels van Eldik 2010
 
 #include "MuonDecayTruthTrajectoryBuilder.h"
@@ -23,8 +22,8 @@ namespace Muon {
   MuonDecayTruthTrajectoryBuilder(const std::string& type,
 				  const std::string& name,
 				  const IInterface* parent)
-    :  AthAlgTool(type,name,parent),
-       m_isDecayIntoTwoMuons(false)
+    :  AthAlgTool(type,name,parent)
+       // ,m_isDecayIntoTwoMuons(false)
   {
     declareInterface<Trk::ITruthTrajectoryBuilder>(this);
   }
@@ -86,7 +85,7 @@ namespace Muon {
 
   //================================================================
   MuonDecayTruthTrajectoryBuilder::MotherDaughter
-  MuonDecayTruthTrajectoryBuilder::truthTrajectoryCuts(const HepMC::GenVertex *vtx)
+  MuonDecayTruthTrajectoryBuilder::truthTrajectoryCuts(const HepMC::GenVertex *vtx) const
   {
     const HepMC::GenParticle *mother(0), *daughter(0);
 
@@ -139,7 +138,7 @@ namespace Muon {
 	    daughter = passed_cuts;
 	  if( nDecayMuons == 2 ){
 	    ATH_MSG_DEBUG( " decay into two muons ");
-	    m_isDecayIntoTwoMuons = true;
+	    // m_isDecayIntoTwoMuons = true;
 	  }
 	}
       } // if( mother && (mother->status() == 1) )
@@ -173,7 +172,7 @@ namespace Muon {
     if(daughter) {
       MotherDaughter res = truthTrajectoryCuts(daughter->production_vertex());
       mother = res.first;
-      m_isDecayIntoTwoMuons = false;
+      // m_isDecayIntoTwoMuons = false; // Don't think this does anything? EJWM.
     }
 
     return mother;

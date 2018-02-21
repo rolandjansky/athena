@@ -24,7 +24,6 @@ SCT_SensorsSvc::SCT_SensorsSvc( const std::string& name, ISvcLocator* pSvcLocato
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode SCT_SensorsSvc::initialize(){
-  std::cout <<" hi there "<<std::endl;
   m_sensorsManufacturer = new std::map<CondAttrListCollection::ChanNum, std::string >;
   // Retrieve detector store
   if (m_detStore.retrieve().isFailure())  return msg(MSG:: FATAL)<< "Detector service is not found!" << endmsg, StatusCode::FAILURE;
@@ -32,7 +31,7 @@ StatusCode SCT_SensorsSvc::initialize(){
   if (m_detStore->regFcn(&SCT_SensorsSvc::fillSensorsData, this, 
 			 m_sensorsData,sensorsFolderName).isFailure()) {
     return msg(MSG::FATAL) << "Failed to register callback function for sensors" << endmsg, StatusCode::FAILURE;
-     }
+  }
   
   return StatusCode::SUCCESS;
 }
@@ -54,29 +53,35 @@ StatusCode SCT_SensorsSvc::queryInterface(const InterfaceID& riid, void** ppvInt
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-void SCT_SensorsSvc::getSensorsData(std::vector<std::string> & /*userVector*/){ 
-
-  //for (unsigned int i(0);i!=m_sensorsValues.size();++i){
-  //userVector.push_back(m_sensorsValues[i]); 
-  //}
+void SCT_SensorsSvc::getSensorsData(std::vector<std::string> & userVector){ 
+  for (unsigned int i(0);i!=m_sensorsValues.size();++i){
+    userVector.push_back(m_sensorsValues[i]);
+  }
 }
 
-//std::string SCT_SensorsSvc::getManufacturer(const IdentifierHash &hashId){
 std::string SCT_SensorsSvc::getManufacturer(unsigned int i){
-
   std::string manufacturer="";
   manufacturer = (*m_sensorsManufacturer)[i];
   return manufacturer;
 }
 
+void SCT_SensorsSvc::printManufacturers() {
+  for(auto it: *m_sensorsManufacturer) {
+    ATH_MSG_INFO("channel " << it.first << " manufacturer " << it.second);
+  }
+}
+
 StatusCode SCT_SensorsSvc::fillSensorsData(int& /* i */ , std::list<std::string>& /*keys*/){
-   if (m_detStore->retrieve(m_sensorsData,sensorsFolderName).isFailure())  return msg(MSG:: ERROR)<< "Could not fill sensors data" << endmsg, StatusCode::FAILURE;
+  if (m_detStore->retrieve(m_sensorsData,sensorsFolderName).isFailure()) {
+    msg(MSG:: ERROR)<< "Could not fill sensors data" << endmsg;
+    return StatusCode::FAILURE;
+  }
 
   CondAttrListCollection::const_iterator sensorsData_itr;
   for(sensorsData_itr = m_sensorsData->begin(); sensorsData_itr!= m_sensorsData->end(); ++sensorsData_itr)
     {
       CondAttrListCollection::ChanNum  channelNumber=sensorsData_itr->first;
-      m_sensorsManufacturer->insert(std::make_pair(channelNumber, sensorsData_itr->second[0].data<std::string>()));
+      (*m_sensorsManufacturer)[channelNumber] = sensorsData_itr->second[0].data<std::string>();
     }
 
   return StatusCode::SUCCESS;

@@ -21,7 +21,7 @@ void LArSingleFloatBlob::readBlob(const CondAttrListCollection* attrList, const 
   CondAttrListCollection::const_iterator gainIt_e=attrList->end();
   
   m_pValues.resize(attrList->size());
-  msg << MSG::DEBUG << "Found data for " << attrList->size() << " gains." << endreq;
+  msg << MSG::DEBUG << "Found data for " << attrList->size() << " gains." << endmsg;
   
   int blobSize=0;  //FIXME Force size to hash-max??? m_onlineHelper->channelHashMax()
 
@@ -31,7 +31,7 @@ void LArSingleFloatBlob::readBlob(const CondAttrListCollection* attrList, const 
     if (gain==1 && attrList->size()==1) gain=0;
 
     if (gain>=attrList->size() || gain>2) { 
-      msg << MSG::ERROR << "Found unexpected COOL-channel (=gain) number:" << gain << endreq;
+      msg << MSG::ERROR << "Found unexpected COOL-channel (=gain) number:" << gain << endmsg;
       return; //ERROR
     }
 
@@ -43,12 +43,12 @@ void LArSingleFloatBlob::readBlob(const CondAttrListCollection* attrList, const 
     }
     else {
       if (blobSize!=myBlob.size()) 
-	msg << MSG::ERROR << "Unequal blob size (" << blobSize << "/" << myBlob.size() << ")" << endreq;
+	msg << MSG::ERROR << "Unequal blob size (" << blobSize << "/" << myBlob.size() << ")" << endmsg;
     }
   }// end loop over COOL channels
 
   m_nChannels=blobSize/sizeof(float);
-  msg << MSG::DEBUG << "Found data for " << m_nChannels << " Channels" << endreq;
+  msg << MSG::DEBUG << "Found data for " << m_nChannels << " Channels" << endmsg;
   return;
 }
  

@@ -25,8 +25,10 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/errorcheck.h"
+#include "CxxUtils/ubsan_suppress.h"
 
 #include "../src/AthenaOutputStream.h"
+#include "TInterpreter.h"
 
 using std::cerr;
 using std::cout;
@@ -35,6 +37,7 @@ using std::vector;
 using namespace Athena_test;
 
 int main() {
+  CxxUtils::ubsan_suppress ([]() { TInterpreter::Instance(); });
   errorcheck::ReportMessage::hideErrorLocus();
   const std::string appName = "AthenaOutputStream_test";
   cout << "*** " << appName << " starts ***" <<endl;

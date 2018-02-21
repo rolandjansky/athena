@@ -362,13 +362,13 @@ StatusCode LArADC2MeVTool::getADC2MeV() const {
 	
         // ###
 	 if (msgLvl(MSG::VERBOSE)) {
-	   msg( MSG::VERBOSE) << " Gain = " << igain << endreq ;
+	   msg( MSG::VERBOSE) << " Gain = " << igain << endmsg ;
 	   if ( ADC2DAC.size() > 0 ) {
-	     msg(MSG::VERBOSE) << " DAC2uA   = " << DAC2uA << endreq ;
-	     msg(MSG::VERBOSE) << " uA2MeV   = " << uA2MeV << endreq ;
+	     msg(MSG::VERBOSE) << " DAC2uA   = " << DAC2uA << endmsg ;
+	     msg(MSG::VERBOSE) << " uA2MeV   = " << uA2MeV << endmsg ;
 	   } 
 	   else 
-	     msg(MSG::VERBOSE) << " has empty ramps" << endreq ;
+	     msg(MSG::VERBOSE) << " has empty ramps" << endmsg ;
 	 }//end if VERBOSE
 	 // ###	
       

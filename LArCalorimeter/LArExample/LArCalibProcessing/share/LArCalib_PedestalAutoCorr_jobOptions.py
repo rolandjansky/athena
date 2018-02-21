@@ -10,7 +10,12 @@ import commands
 #                                                                         
 ###############################################################################
 
-include("LArCalibProcessing/LArCalib_Flags.py")
+if not "SuperCells" in dir():
+   SuperCells=False
+
+
+if not SuperCells: include("LArCalibProcessing/LArCalib_Flags.py")
+if SuperCells:     include("LArCalibProcessing/LArCalib_FlagsSC.py")
 #include("RecExCommission/GetInputFiles.py")
 include("LArCalibProcessing/GetInputFiles.py")
 
@@ -297,8 +302,9 @@ theByteStreamInputSvc.MaxBadEvents=0
 ## All three are vectors of integers
 #################################################################
 
-from LArByteStream.LArByteStreamConf import LArRodDecoder
-svcMgr.ToolSvc += LArRodDecoder()
+if not SuperCells:
+   from LArByteStream.LArByteStreamConf import LArRodDecoder
+   svcMgr.ToolSvc += LArRodDecoder()
 
 #ToolSvc.LArRodDecoder.BEPreselection     = [0]                                                   ## : [Barrel=0,Endcap=1]
 #ToolSvc.LArRodDecoder.PosNegPreselection = [1]                                                   ## : [C-side (negative eta)=0, A-side (positive eta)=1]
@@ -312,14 +318,18 @@ svcMgr.ToolSvc += LArRodDecoder()
 theByteStreamAddressProviderSvc =svcMgr.ByteStreamAddressProviderSvc
 theByteStreamAddressProviderSvc.TypeNames += ["LArFebHeaderContainer/LArFebHeader"]
 
-theByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/HIGH"]
-theByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/MEDIUM"]
-theByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/LOW"]
-theByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/FREE"]
+if not SuperCells:
+   theByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/HIGH"]
+   theByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/MEDIUM"]
+   theByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/LOW"]
+   theByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/FREE"]
 
-theByteStreamAddressProviderSvc.TypeNames += ["LArAccumulatedDigitContainer/HIGH"]
-theByteStreamAddressProviderSvc.TypeNames += ["LArAccumulatedDigitContainer/MEDIUM"]
-theByteStreamAddressProviderSvc.TypeNames += ["LArAccumulatedDigitContainer/LOW"]
+   theByteStreamAddressProviderSvc.TypeNames += ["LArAccumulatedDigitContainer/HIGH"]
+   theByteStreamAddressProviderSvc.TypeNames += ["LArAccumulatedDigitContainer/MEDIUM"]
+   theByteStreamAddressProviderSvc.TypeNames += ["LArAccumulatedDigitContainer/LOW"]
+   
+if SuperCells:
+   theByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/SC"]
 
 
 ## This algorithm verifies that no FEBs are dropping out of the run
@@ -359,6 +369,9 @@ if 'MissingFEBsLArCalibFolderTag' in dir() :
    conddb.addFolder("",MissingFEBsFolder+"<tag>"+MissingFEBsTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
 else :
    conddb.addFolder("",MissingFEBsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
+   
+if SuperCells:
+   conddb.addFolder("","/LAR/IdentifierOfl/OnOffIdMap_SC<db>COOLOFL_LAR/OFLP200</db><tag>LARIdentifierOflOnOffIdMap_SC-000</tag>") 
 
 from LArCalibProcessing.LArCalibCatalogs import larCalibCatalogs
 svcMgr.PoolSvc.ReadCatalog += larCalibCatalogs
@@ -371,25 +384,25 @@ except:
    pass
 
 # Temperature folder
-conddb.addFolder("DCS_OFL","/LAR/DCS/FEBTEMP")
-svcMgr.EventSelector.InitialTimeStamp = 1284030331
-import cx_Oracle
-import time
-import datetime
-try:   
-   connection=cx_Oracle.connect("ATLAS_SFO_T0_R/readmesfotz2008@atlr")
-   cursor=connection.cursor()
-   sRequest=("SELECT RUNNR,CREATION_TIME FROM SFO_TZ_RUN WHERE RUNNR='%s'")%(RunNumberList[0])
-   cursor.execute(sRequest)
-   times= cursor.fetchall()
-   d=times[0][1]
-   iovtemp=int(time.mktime(d.timetuple()))
-except:
-   iovtemp=1284030331
+#conddb.addFolder("DCS_OFL","/LAR/DCS/FEBTEMP")
+#svcMgr.EventSelector.InitialTimeStamp = 1284030331
+#import cx_Oracle
+#import time
+#import datetime
+#try:   
+#   connection=cx_Oracle.connect("ATLAS_SFO_T0_R/readmesfotz2008@atlr")
+#   cursor=connection.cursor()
+#   sRequest=("SELECT RUNNR,CREATION_TIME FROM SFO_TZ_RUN WHERE RUNNR='%s'")%(RunNumberList[0])
+#   cursor.execute(sRequest)
+#   times= cursor.fetchall()
+#   d=times[0][1]
+#   iovtemp=int(time.mktime(d.timetuple()))
+#except:
+#   iovtemp=1284030331
 
 #print "Setting timestamp for run ",RunNumberList[0]," to ",iovtemp
 #svcMgr.IOVDbSvc.forceTimestamp = 1283145454
-svcMgr.IOVDbSvc.forceTimestamp = iovtemp
+#svcMgr.IOVDbSvc.forceTimestamp = iovtemp
 
 if ( doLArCalibDataQuality  ) :
    if  Pedestal :
@@ -411,8 +424,9 @@ if runAccumulator:
       LArPedestalMaker.KeyList      = GainList
       LArPedestalMaker.KeyOutput    = KeyOutputPed
       LArPedestalMaker.GroupingType = GroupingType
-      LArPedestalMaker.sample_min   = MinSample
-      LArPedestalMaker.sample_max   = MaxSample
+      if not SuperCells:
+         LArPedestalMaker.sample_min   = MinSample
+         LArPedestalMaker.sample_max   = MaxSample
 
       topSequence += LArPedestalMaker
 
@@ -436,8 +450,9 @@ else :
       LArPedACBuilder.PedestalKey     = KeyOutputPed
       LArPedACBuilder.AutoCorrKey     = KeyOutputAC      
       LArPedACBuilder.GroupingType    = GroupingType
-      LArPedACBuilder.sample_min      = MinSample
-      LArPedACBuilder.sample_max      = MaxSample
+      if not SuperCells:
+         LArPedACBuilder.sample_min      = MinSample
+         LArPedACBuilder.sample_max      = MaxSample
       
       topSequence += LArPedACBuilder
 
@@ -602,6 +617,7 @@ if ( WriteNtuple ) :
       LArPedestals2Ntuple = LArPedestals2Ntuple("LArPedestals2Ntuple")
       LArPedestals2Ntuple.ContainerKey = KeyOutputPed
       LArPedestals2Ntuple.AddFEBTempInfo = False
+      LArPedestals2Ntuple.isSC = SuperCells
       
       topSequence += LArPedestals2Ntuple
 
@@ -611,6 +627,7 @@ if ( WriteNtuple ) :
       LArAutoCorr2Ntuple.Nsamples     = NSamples
       LArAutoCorr2Ntuple.AddFEBTempInfo  = False
       LArAutoCorr2Ntuple.ContainerKey = KeyOutputAC
+      LArAutoCorr2Ntuple.isSC = SuperCells
       
       topSequence += LArAutoCorr2Ntuple
 

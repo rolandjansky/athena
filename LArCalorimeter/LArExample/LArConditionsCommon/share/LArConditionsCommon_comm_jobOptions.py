@@ -7,6 +7,9 @@
 
 include.block ( "LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py" )
 
+if not "SuperCells" in dir():
+   SuperCells=False
+
 from RecExConfig.RecFlags import rec
 from LArConditionsCommon.LArCondFlags import larCondFlags 
 
@@ -47,6 +50,12 @@ rekeyBC="<key>/LAR/BadChannels/BadChannels</key>"
 rekeyMF="<key>/LAR/BadChannels/MissingFEBs</key>"
 conddb.addFolderSplitOnline("LAR","/LAR/BadChannels/BadChannels","/LAR/BadChannelsOfl/BadChannels"+forceRN+rekeyBC)
 conddb.addFolderSplitOnline("LAR","/LAR/BadChannels/MissingFEBs","/LAR/BadChannelsOfl/MissingFEBs"+forceRN+rekeyMF)
+# and the same for Known Noisy and MNB FEBs
+if (rec.doESD() or rec.doRDOTrigger()) and ('COMP200' not in conddb.GetInstance()):
+   rekeyBADF="<key>/LAR/BadChannels/KnownBADFEBs</key>"
+   rekeyMNBF="<key>/LAR/BadChannels/KnownMNBFEBs</key>"
+   conddb.addFolderSplitOnline("LAR","/LAR/BadChannels/KnownBADFEBs","/LAR/BadChannelsOfl/KnownBADFEBs"+forceRN+rekeyBADF)
+   conddb.addFolderSplitOnline("LAR","/LAR/BadChannels/KnownMNBFEBs","/LAR/BadChannelsOfl/KnownMNBFEBs"+forceRN+rekeyMNBF)
 
 
 if not larCondFlags.LoadElecCalib.is_locked():
@@ -90,6 +99,7 @@ if larCondFlags.LoadElecCalib():
 
 
   if (haveElecCalibInline):
+   if not SuperCells: 
       # Run 2 case:
       #1. uA2MeV
       if larCondFlags.ua2MeVFolder()=="":
@@ -132,8 +142,12 @@ if larCondFlags.LoadElecCalib():
           theLArCondSvc.OFCInput="/LAR/ElecCalibFlat/OFC"
       else:
           #Load from offline DB
-          conddb.addFolder("LAR_OFL","/LAR/ElecCalibOfl/OFC/PhysWave/RTM/"+larCondFlags.OFCShapeFolder()+selection+forceRN)
+          if 'RekeyOFC' in dir():    
+             conddb.addFolder("LAR_OFL","/LAR/ElecCalibOfl/OFC/PhysWave/RTM/"+larCondFlags.OFCShapeFolder()+selection+forceRN+"<key>"+RekeyOFC+"</key>")
+          else:   
+             conddb.addFolder("LAR_OFL","/LAR/ElecCalibOfl/OFC/PhysWave/RTM/"+larCondFlags.OFCShapeFolder()+selection+forceRN)
           pass
+      pass       
       #8.Shape
       if larCondFlags.useShape():
           if larCondFlags.OFCShapeFolder()=="":
@@ -141,13 +155,19 @@ if larCondFlags.LoadElecCalib():
               theLArCondSvc.ShapeInput="/LAR/ElecCalibFlat/Shape"
           else:
               #Load from offline database
-              conddb.addFolder("LAR_OFL","/LAR/ElecCalibOfl/Shape/RTM/"+larCondFlags.OFCShapeFolder()+selection+forceRN)
+              if 'RekeyShape' in dir():
+                 conddb.addFolder("LAR_OFL","/LAR/ElecCalibOfl/Shape/RTM/"+larCondFlags.OFCShapeFolder()+selection+forceRN+"<key>"+RekeyShape+"</key>")
+              else:   
+                 conddb.addFolder("LAR_OFL","/LAR/ElecCalibOfl/Shape/RTM/"+larCondFlags.OFCShapeFolder()+selection+forceRN)
               pass
           pass
       pass
+   else:
+      print "In SuperCell case... so far will not initialise folders."   
 
   else: #Run 1 case, no COOL-inline electronic calibration
 
+   if not SuperCells: 
       #For run 1 we read some electronic calibration constants from the offline DB:
       if not larCondFlags.ua2MeVFolder.is_locked():
           larCondFlags.ua2MeVFolder="uA2MeV/Symmetry"
@@ -206,4 +226,6 @@ if larCondFlags.LoadElecCalib():
               pass
           pass
       pass
+   else:
+      print "In SuperCell case... so far will not initialise folders."   
   pass

@@ -14,6 +14,7 @@
 
 #include "GeoModelKernel/GeoShape.h"
 #include "GeoSpecialShapes/LArWheelCalculator.h"
+#include "GeoSpecialShapes/LArWheelCalculatorEnums.h"
 
 
 // Forward declaration
@@ -23,7 +24,7 @@ class GeoShapeAction;
 class LArCustomShape : public GeoShape {
  public:
   	typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
-  	typedef std::pair<LArWheelCalculator::LArWheelCalculator_t, int> CalcDef_t;
+  	typedef std::pair<LArG4::LArWheelCalculator_t, int> CalcDef_t;
   	typedef std::map<std::string,  CalcDef_t> ShapeCalc_typemap;
 
   // The custom shape has only one property: a string that contains

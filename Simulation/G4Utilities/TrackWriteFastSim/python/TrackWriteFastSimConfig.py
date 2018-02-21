@@ -18,6 +18,8 @@ def getNeutronFastSim(name='NeutronFastSim', **kwargs):
     # Cannot actually get these from the job options in a normal fashion;
     #  would need to know what they are for a "normal" job and configure
     #  to match that.  Not obvious how to do that!
+
+    kwargs.setdefault('TrackFastSimSDName', "ToolSvc.SensitiveDetectorMasterTool.TrackFastSimSD")
     kwargs.setdefault('PrimaryEtaCut',6.0)
     kwargs.setdefault('NeutronTimeCut',150.)
     return CfgMgr.NeutronFastSimTool(name, **kwargs)

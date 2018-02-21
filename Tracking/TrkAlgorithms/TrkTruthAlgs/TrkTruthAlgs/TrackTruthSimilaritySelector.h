@@ -19,16 +19,16 @@ class TrackTruthSimilaritySelector: public AthAlgorithm {
 public:
   TrackTruthSimilaritySelector(const std::string &name,ISvcLocator *pSvcLocator);
   
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override;
   
 private:
   // DetailedTrackTruthCollection input name
-  std::string m_detailedTrackTruthName;
+  SG::ReadHandle<DetailedTrackTruthCollection> m_detailed; //std::string m_detailedTrackTruthName;
   
   // TrackTruthCollection output name
-  std::string m_outputName;
+  SG::WriteHandle<TrackTruthCollection> m_out; //std::string m_outputName;
 
   // Match quality tool
   ToolHandle<Trk::IDetailedTrackTruthSimilarity> m_matchTool;

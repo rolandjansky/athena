@@ -124,7 +124,6 @@ def getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='', ca
     
     from tauRecTools.tauRecToolsConf import TauCalibrateLC
     TauCalibrateLC = TauCalibrateLC(name = _name,
-                                    #calibrationFile = "EnergyCalibrationLC2012_retuned.root",
                                     calibrationFile = calibFileName,
                                     doEnergyCorrection = correctEnergy,
                                     doAxisCorrection = correctAxis)
@@ -133,6 +132,37 @@ def getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='', ca
             
     cached_instances[_name] = TauCalibrateLC                
     return TauCalibrateLC
+
+########################################################################
+# MvaTESVariableDecorator
+def getMvaTESVariableDecorator():
+
+    _name = sPrefix + 'MvaTESVariableDecorator'
+
+    if _name in cached_instances:
+        return cached_instances[_name]
+
+    from tauRecTools.tauRecToolsConf import MvaTESVariableDecorator
+    MvaTESVariableDecorator = MvaTESVariableDecorator(name = _name)
+
+    cached_instances[_name] = MvaTESVariableDecorator
+    return MvaTESVariableDecorator
+
+########################################################################
+# MvaTESEvaluator
+def getMvaTESEvaluator():
+
+    _name = sPrefix + 'MvaTESEvaluator'
+
+    if _name in cached_instances:
+        return cached_instances[_name]
+
+    from tauRecTools.tauRecToolsConf import MvaTESEvaluator
+    MvaTESEvaluator = MvaTESEvaluator(name = _name,
+                                      WeightFileName = 'OnlineMvaTES_BRT_v0.weights.root')
+
+    cached_instances[_name] = MvaTESEvaluator
+    return MvaTESEvaluator
 
 ########################################################################
 # Tau cell variables calculation
@@ -725,7 +755,55 @@ def getTauGenericPi0Cone():
     cached_instances[_name] = TauGenericPi0Cone
     return TauGenericPi0Cone
 
-#end
+########################################################################
+# TauTrackClassifier
+def getTauTrackClassifier():
+
+    _name = sPrefix + 'TauTrackClassifier'
+
+    if _name in cached_instances:
+        return cached_instances[_name]
+    
+    from AthenaCommon.AppMgr import ToolSvc
+    from tauRecTools.tauRecToolsConf import tauRecTools__TauTrackClassifier as TauTrackClassifier
+    from tauRecTools.tauRecToolsConf import tauRecTools__TrackMVABDT as TrackMVABDT
+
+    import PyUtils.RootUtils as ru
+    ROOT = ru.import_root()
+    import cppyy
+    cppyy.loadDictionary('xAODTau_cDict')
+
+    input_file_name = 'EFtracks_BDT_classifier_v0.root'
+    calibrationFolder = 'TrigTauRec/00-11-02/'
+    threshold = 0.45
+
+    # =========================================================================
+    _EFtracks_bdt = TrackMVABDT(
+        name = _name + "_MVABDT",
+        InputWeightsPath=input_file_name,
+        Threshold=threshold,
+        ExpectedFlag   = ROOT.xAOD.TauJetParameters.unclassified, 
+        SignalType     = ROOT.xAOD.TauJetParameters.classifiedCharged,
+        BackgroundType = ROOT.xAOD.TauJetParameters.classifiedIsolation,
+        inTrigger      = True,
+        calibFolder    = calibrationFolder
+    )
+
+    ToolSvc += _EFtracks_bdt
+
+    classifier = TauTrackClassifier(
+        name=_name, 
+        Classifiers=[_EFtracks_bdt]
+    )
+
+    cached_instances[_name] = classifier
+    return classifier
+
+
+# end
+
+
+
 
 """ obsolete methods
 

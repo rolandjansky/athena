@@ -12,8 +12,8 @@ import TrackD3PDMaker
 import egammaD3PDMaker
 import EventCommonD3PDMaker
 ##from egammaD3PDMaker.isem_version import isem_version ## use 16
-import PyCintex
-PyCintex.loadDictionary('egammaEnumsDict')
+import cppyy
+cppyy.loadDictionary('egammaEnumsDict')
 from ROOT import egammaPID
 
 import D3PDMakerCoreComps

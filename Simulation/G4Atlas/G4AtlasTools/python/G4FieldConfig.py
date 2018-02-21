@@ -85,85 +85,85 @@ def getBasicFwdFieldMangerTool(name='FwdFieldManagerTool', **kwargs):
     return getBasicDetectorFieldManagerTool(name, **kwargs)
 
 def getQ1FwdFieldMangerTool(name='Q1FwdFieldManager', **kwargs):
-    kwargs.setdefault("FieldSvc",           "Q1")
+    kwargs.setdefault("FieldSvc",           "Q1FwdG4FieldSvc")
     kwargs.setdefault("LogicalVolumes", ['FwdRegion::LQXAA.1R1MagQ1'])
     return getBasicFwdFieldMangerTool(name, **kwargs)
 def getQ2FwdFieldMangerTool(name='Q2FwdFieldManager', **kwargs):
-    kwargs.setdefault("FieldSvc",           "Q2")
+    kwargs.setdefault("FieldSvc",           "Q2FwdG4FieldSvc")
     kwargs.setdefault("LogicalVolumes", ['FwdRegion::LQXBA.2R1MagQ2a', 'FwdRegion::LQXBA.2R1MagQ2b'])
     return getBasicFwdFieldMangerTool(name, **kwargs)
 def getQ3FwdFieldMangerTool(name='Q3FwdFieldManager', **kwargs):
-    kwargs.setdefault("FieldSvc",           "Q3")
+    kwargs.setdefault("FieldSvc",           "Q3FwdG4FieldSvc")
     kwargs.setdefault("LogicalVolumes", ['FwdRegion::LQXAG.3R1MagQ3'])
     return getBasicFwdFieldMangerTool(name, **kwargs)
 def getD1FwdFieldMangerTool(name='D1FwdFieldManager', **kwargs):
-    kwargs.setdefault("FieldSvc",           "D1")
+    kwargs.setdefault("FieldSvc",           "D1FwdG4FieldSvc")
     kwargs.setdefault("LogicalVolumes", ['FwdRegion::MBXW.A4R1MagD1a', 'FwdRegion::MBXW.B4R1MagD1b',
                                          'FwdRegion::MBXW.C4R1MagD1c', 'FwdRegion::MBXW.D4R1MagD1d',
                                          'FwdRegion::MBXW.E4R1MagD1e', 'FwdRegion::MBXW.F4R1MagD1f'])
     return getBasicFwdFieldMangerTool(name, **kwargs)
 def getD2FwdFieldMangerTool(name='D2FwdFieldManager', **kwargs):
-    kwargs.setdefault("FieldSvc",           "D2")
+    kwargs.setdefault("FieldSvc",           "D2FwdG4FieldSvc")
     kwargs.setdefault("LogicalVolumes", ['FwdRegion::LBRCD.4R1MagD2'])
     return getBasicFwdFieldMangerTool(name, **kwargs)
 def getQ4FwdFieldMangerTool(name='Q4FwdFieldManager', **kwargs):
-    kwargs.setdefault("FieldSvc",           "Q4")
+    kwargs.setdefault("FieldSvc",           "Q4FwdG4FieldSvc")
     kwargs.setdefault("LogicalVolumes", ['FwdRegion::LQYCH.4R1MagQ4'])
     return getBasicFwdFieldMangerTool(name, **kwargs)
 def getQ5FwdFieldMangerTool(name='Q5FwdFieldManager', **kwargs):
-    kwargs.setdefault("FieldSvc",           "Q5")
+    kwargs.setdefault("FieldSvc",           "Q5FwdG4FieldSvc")
     kwargs.setdefault("LogicalVolumes", ['FwdRegion::LQNDC.5R1MagQ5'])
     return getBasicFwdFieldMangerTool(name, **kwargs)
 def getQ6FwdFieldMangerTool(name='Q6FwdFieldManager', **kwargs):
-    kwargs.setdefault("FieldSvc",           "Q6")
+    kwargs.setdefault("FieldSvc",           "Q6FwdG4FieldSvc")
     kwargs.setdefault("LogicalVolumes", ['FwdRegion::LQNDD.6R1MagQ6'])
     return getBasicFwdFieldMangerTool(name, **kwargs)
 def getQ7FwdFieldMangerTool(name='Q7FwdFieldManager', **kwargs):
-    kwargs.setdefault("FieldSvc",           "Q7")
+    kwargs.setdefault("FieldSvc",           "Q7FwdG4FieldSvc")
     kwargs.setdefault("LogicalVolumes", ['FwdRegion::LQNFD.7R1MagQ7a', 'FwdRegion::LQNFD.7R1MagQ7b'])
     return getBasicFwdFieldMangerTool(name, **kwargs)
 def getQ1HKickFwdFieldMangerTool(name='Q1HKickFwdFieldManager', **kwargs):
-    kwargs.setdefault("FieldSvc",           "Q1HKick")
+    kwargs.setdefault("FieldSvc",           "Q1HKickFwdG4FieldSvc")
     kwargs.setdefault("LogicalVolumes", ['FwdRegion::LQXAA.1R1MagQ1HKick'])
     return getBasicFwdFieldMangerTool(name, **kwargs)
 def getQ1VKickFwdFieldMangerTool(name='Q1VKickFwdFieldManager', **kwargs):
-    kwargs.setdefault("FieldSvc",           "Q1VKick")
+    kwargs.setdefault("FieldSvc",           "Q1VKickFwdG4FieldSvc")
     kwargs.setdefault("LogicalVolumes", ['FwdRegion::LQXAA.1R1MagQ1VKick'])
     return getBasicFwdFieldMangerTool(name, **kwargs)
 def getQ2HKickFwdFieldMangerTool(name='Q2HKickFwdFieldManager', **kwargs):
-    kwargs.setdefault("FieldSvc",           "Q2HKick")
+    kwargs.setdefault("FieldSvc",           "Q2HKickFwdG4FieldSvc")
     kwargs.setdefault("LogicalVolumes", ['FwdRegion::LQXBA.2R1MagQ2HKick'])
     return getBasicFwdFieldMangerTool(name, **kwargs)
 def getQ2VKickFwdFieldMangerTool(name='Q2VKickFwdFieldManager', **kwargs):
-    kwargs.setdefault("FieldSvc",           "Q2VKick")
+    kwargs.setdefault("FieldSvc",           "Q2VKickFwdG4FieldSvc")
     kwargs.setdefault("LogicalVolumes", ['FwdRegion::LQXBA.2R1MagQ2VKick'])
     return getBasicFwdFieldMangerTool(name, **kwargs)
 def getQ3HKickFwdFieldMangerTool(name='Q3HKickFwdFieldManager', **kwargs):
-    kwargs.setdefault("FieldSvc",           "Q3HKick")
+    kwargs.setdefault("FieldSvc",           "Q3HKickFwdG4FieldSvc")
     kwargs.setdefault("LogicalVolumes", ['FwdRegion::LQXAG.3R1MagQ3HKick'])
     return getBasicFwdFieldMangerTool(name, **kwargs)
 def getQ3VKickFwdFieldMangerTool(name='Q3VKickFwdFieldManager', **kwargs):
-    kwargs.setdefault("FieldSvc",           "Q3VKick")
+    kwargs.setdefault("FieldSvc",           "Q3VKickFwdG4FieldSvc")
     kwargs.setdefault("LogicalVolumes", ['FwdRegion::LQXAG.3R1MagQ3VKick'])
     return getBasicFwdFieldMangerTool(name, **kwargs)
 def getQ4VKickAFwdFieldMangerTool(name='Q4VKickAFwdFieldManager', **kwargs):
-    kwargs.setdefault("FieldSvc",           "Q4VKickA")
+    kwargs.setdefault("FieldSvc",           "Q4VKickAFwdG4FieldSvc")
     kwargs.setdefault("LogicalVolumes", ['FwdRegion::LQYCH.4R1MagQ4VKickA'])
     return getBasicFwdFieldMangerTool(name, **kwargs)
 def getQ4HKickFwdFieldMangerTool(name='Q4HKickFwdFieldManager', **kwargs):
-    kwargs.setdefault("FieldSvc",           "Q4HKick")
+    kwargs.setdefault("FieldSvc",           "Q4HKickFwdG4FieldSvc")
     kwargs.setdefault("LogicalVolumes", ['FwdRegion::LQYCH.4R1MagQ4HKick'])
     return getBasicFwdFieldMangerTool(name, **kwargs)
 def getQ4VKickBFwdFieldMangerTool(name='Q4VKickBFwdFieldManager', **kwargs):
-    kwargs.setdefault("FieldSvc",           "Q4VKickB")
+    kwargs.setdefault("FieldSvc",           "Q4VKickBFwdG4FieldSvc")
     kwargs.setdefault("LogicalVolumes", ['FwdRegion::LQYCH.4R1MagQ4VKickB'])
     return getBasicFwdFieldMangerTool(name, **kwargs)
 def getQ5HKickFwdFieldMangerTool(name='Q5HKickFwdFieldManager', **kwargs):
-    kwargs.setdefault("FieldSvc",           "Q5HKick")
+    kwargs.setdefault("FieldSvc",           "Q5HKickFwdG4FieldSvc")
     kwargs.setdefault("LogicalVolumes", ['FwdRegion::LQNDC.5R1MagQ5HKick'])
     return getBasicFwdFieldMangerTool(name, **kwargs)
 def getQ6VKickFwdFieldMangerTool(name='Q6VKickFwdFieldManager', **kwargs):
-    kwargs.setdefault("FieldSvc",           "Q6VKick")
+    kwargs.setdefault("FieldSvc",           "Q6VKickFwdG4FieldSvc")
     kwargs.setdefault("LogicalVolumes", ['FwdRegion::LQNDD.6R1MagQ6VKick'])
     return getBasicFwdFieldMangerTool(name, **kwargs)
 

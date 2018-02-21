@@ -8,6 +8,7 @@
 #include "CaloRec/CaloClusterCopier.h"
 #include "CaloRec/CaloClusterBuilderSW.h"
 #include "CaloRec/CaloClusterMomentsMaker.h"
+#include "CaloRec/CaloClusterMomentsMaker_DigiHSTruth.h"
 #include "CaloRec/CaloCell2ClusterMapper.h"
 #include "CaloRec/CaloCellContainerMergerTool.h"
 #include "CaloRec/CaloCellContainerCorrectorTool.h"
@@ -29,6 +30,10 @@
 #include "CaloRec/CaloTowerxAODFromCells.h"
 #include "CaloRec/CaloTowerxAODFromClusters.h"
 #include "CaloRec/CaloClusterSnapshot.h"
+#include "CaloRec/CaloTowerxAODAlgoBase.h"
+#include "CaloRec/CaloTopoClusterFromTowerMaker.h"
+#include "CaloRec/CaloTopoClusterFromTowerCalibrator.h"
+ 
 
 
 #include "GaudiKernel/DeclareFactoryEntries.h"
@@ -51,12 +56,17 @@ DECLARE_ALGORITHM_FACTORY( CaloClusterCellLinksUpdater )
 
 DECLARE_ALGORITHM_FACTORY( CaloTowerxAODFromCells )
 DECLARE_ALGORITHM_FACTORY( CaloTowerxAODFromClusters )
+DECLARE_ALGORITHM_FACTORY( CaloTowerxAODAlgoBase )
+DECLARE_TOOL_FACTORY ( CaloTopoClusterFromTowerMaker )
+DECLARE_TOOL_FACTORY ( CaloTopoClusterFromTowerCalibrator )
+ 
 
 DECLARE_TOOL_FACTORY( CaloTopoClusterMaker )
 DECLARE_TOOL_FACTORY( CaloTopoClusterSplitter )
 DECLARE_TOOL_FACTORY( CaloClusterCopier )
 DECLARE_TOOL_FACTORY( CaloClusterBuilderSW )
 DECLARE_TOOL_FACTORY( CaloClusterMomentsMaker )
+DECLARE_TOOL_FACTORY( CaloClusterMomentsMaker_DigiHSTruth )
 DECLARE_TOOL_FACTORY( CaloCellContainerMergerTool )
 DECLARE_TOOL_FACTORY( CaloCellContainerCorrectorTool )
 DECLARE_TOOL_FACTORY( CaloCellContainerCheckerTool )
@@ -83,14 +93,19 @@ DECLARE_FACTORY_ENTRIES(CaloRec) {
     DECLARE_ALGORITHM( CaloTopoTowerAlg )
     DECLARE_ALGORITHM( CaloCellOverwrite )
     DECLARE_ALGORITHM ( CaloClusterCellLinksUpdater )
+    DECLARE_ALGORITHM( CaloTowerxAODAlgoBase )
     DECLARE_ALGORITHM( CaloTowerxAODFromCells )
     DECLARE_ALGORITHM( CaloTowerxAODFromClusters )
+    DECLARE_TOOL( CaloTopoClusterFromTowerMaker )
+    DECLARE_TOOL( CaloTopoClusterFromTowerCalibrator )
+
 
     DECLARE_TOOL( CaloTopoClusterMaker );
     DECLARE_TOOL( CaloTopoClusterSplitter );
     DECLARE_TOOL( CaloClusterBuilderSW );
     DECLARE_TOOL( CaloClusterCopier );
     DECLARE_TOOL( CaloClusterMomentsMaker );
+    DECLARE_TOOL( CaloClusterMomentsMaker_DigiHSTruth );
     DECLARE_TOOL( CaloCellContainerMergerTool );
     DECLARE_TOOL( CaloCellContainerCorrectorTool );
     DECLARE_TOOL( CaloCellContainerCheckerTool );

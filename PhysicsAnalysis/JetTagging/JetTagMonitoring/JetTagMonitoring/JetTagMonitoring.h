@@ -28,6 +28,7 @@
 #include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 
 #include "xAODJet/Jet.h"
+#include "TrigDecisionTool/TrigDecisionTool.h" // added by SARA
 
 class TH1F_LW;
 class TH2F_LW;
@@ -80,25 +81,27 @@ private:
     virtual StatusCode registerHist (MonGroup& theGroup, TH1* h1);
     virtual StatusCode registerHist (MonGroup& theGroup, LWHist* h1);
 
-    bool applyKinematicCuts(const xAOD::Jet *jet);
-    Jet_t applyQualityCuts(const xAOD::Jet *jet);
-
     void fillJetHistograms();
     void fillGoodJetHistos(const xAOD::Jet *jet);
     void fillSuspectJetHistos(const xAOD::Jet *jet);
     void fillBadJetHistos(const xAOD::Jet *jet);
-    void fillDetailedHistograms(const xAOD::Jet *jet, Jet_t quality);
+    void fillDetailedHistograms(const xAOD::Jet *jet, Jet_t taggabilityLabel);
     void fillTrackInJetHistograms(const xAOD::Jet *jet);
+    void fillBtagHistograms(const xAOD::Jet *jet, bool fill_top_histos); // added by SARA;
     void fillBadTrackBits(const std::bitset<17> failedCuts, double eta, double phi);
     void fillEffHist(TH1 * h_passed, TH1 * h_all, TH1F_LW * effHist);
     //void fillBadZone(int zone, double w);
-    bool isGoodJet(const xAOD::Jet *jet);
+    bool passJetQualityCuts(const xAOD::Jet *jet);
+    bool passKinematicCuts(const xAOD::Jet *jet);
+    Jet_t getTaggabilityLabel(const xAOD::Jet *jet);
+    bool isTopEvent(); // added by SARA
 
     ServiceHandle<StoreGateSvc> m_storeGate;
 
 
     ToolHandle< Analysis::TrackSelector > m_trackSelectorTool;
     ToolHandle<Reco::ITrackToVertex> m_trackToVertexTool;
+    ToolHandle< Trig::TrigDecisionTool > m_trigDecTool; // added by SARA
     /* ToolHandle<InDet::IInDetTestBLayerTool> m_blayerTool; */
     bool m_histogramsCreated;
 
@@ -111,6 +114,10 @@ private:
     std::string m_trackParticleName;
     /** @brief String to retrieve PrimaryVertexContainer from StoreGate. */
     std::string m_primaryVertexName;
+    /** @brief String to retrieve ElectronContainer from StoreGate. */
+    std::string m_electronName; // added by SARA
+    /** @brief String to retrieve MuonContainer from StoreGate. */
+    std::string m_muonName; // added by SARA
     /** @brief DQ cuts switcher. */
     bool m_do_cuts;
     double m_trk_d0_min_cut;
@@ -120,9 +127,27 @@ private:
     double m_jet_eta_cut;
     unsigned int m_trk_n;
     double m_sv1ip3d_weight_cut;
-    double m_mv2c20_50_weight_cut;
-    double m_mv2c20_70_weight_cut;
-    double m_mv2c20_80_weight_cut;    
+    double m_mv_60_weight_cut;
+    double m_mv_70_weight_cut;
+    double m_mv_77_weight_cut;
+    double m_mv_85_weight_cut;
+    std::string m_mv_algorithmName;
+    double m_MuonPtCut; // added by SARA
+    double m_MuonEtaCut; // added by SARA
+    double m_ElectronPtCut; // added by SARA
+    double m_ElectronEtaCut; // added by SARA
+    double m_ElectronEtaCrackLowCut; // added by SARA
+    double m_ElectronEtaCrackHighCut; // added by SARA
+    double m_ElectronTopoEtCone20Cut; // added by SARA
+    double m_ElectronPtVarCone20Cut; // added by SARA
+    double m_MuonTopoEtCone20Cut; // added by SARA
+    double m_MuonPtVarCone20Cut; // added by SARA
+    std::string m_ElectronTrigger_2016; // added by SARA
+    std::string m_MuonTrigger_2016; // added by SARA
+    std::string m_JetTrigger_2016; // added by SARA
+    std::string m_ElectronTrigger_2017; // added by SARA
+    std::string m_MuonTrigger_2017; // added by SARA
+    std::string m_JetTrigger_2017; // added by SARA
 
     /** @brief Master kill if no tools found. */
     bool m_switch_off;
@@ -132,7 +157,7 @@ private:
 
     /** @brief Use Analysis::TrigDecisionTool. */
     bool m_use_trigdectool;
-
+    
     /** @brief To monitor number of tracks used to evaluate IP2D weight. */
     TH1F_LW* m_tag_ip2d_n = nullptr;
     TH1F_LW* m_tag_ip2d_n_sj = nullptr;
@@ -188,82 +213,82 @@ private:
     TH1F_LW* m_tag_sv1ip3d_w = nullptr;
     TH1F_LW* m_tag_sv1ip3d_w_sj = nullptr;
    
-    /** @brief To monitor likelihood weight based on MV2c20 tagger. */
-    TH1F_LW* m_tag_mv2c20_w = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_pT10_20 = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_pT20_50 = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_pT50_100 = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_pT100_200 = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_pT200 = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_LS = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_pT10_20_LS = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_pT20_50_LS = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_pT50_100_LS = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_pT100_200_LS = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_pT200_LS = nullptr;
+    /** @brief To monitor likelihood weight based on Mv tagger. */
+    TH1F_LW* m_tag_mv_w = nullptr;
+    TH1F_LW* m_tag_mv_w_pT10_20 = nullptr;
+    TH1F_LW* m_tag_mv_w_pT20_50 = nullptr;
+    TH1F_LW* m_tag_mv_w_pT50_100 = nullptr;
+    TH1F_LW* m_tag_mv_w_pT100_200 = nullptr;
+    TH1F_LW* m_tag_mv_w_pT200 = nullptr;
+    TH1F_LW* m_tag_mv_w_LS = nullptr;
+    TH1F_LW* m_tag_mv_w_pT10_20_LS = nullptr;
+    TH1F_LW* m_tag_mv_w_pT20_50_LS = nullptr;
+    TH1F_LW* m_tag_mv_w_pT50_100_LS = nullptr;
+    TH1F_LW* m_tag_mv_w_pT100_200_LS = nullptr;
+    TH1F_LW* m_tag_mv_w_pT200_LS = nullptr;
 
-    TH1F_LW* m_tag_mv2c20_w_eta0_05 = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_eta05_10 = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_eta10_15 = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_eta15_20 = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_eta20_25 = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_phi0_07 = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_phi07_14 = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_phi14_21 = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_phi21_28 = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_phi28 = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_phi_sum85OP = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_phi_sum77OP = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_phi_sum70OP = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_phi_sum50OP = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_phi_sumAll = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_phi_frac85OP = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_phi_frac77OP = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_phi_frac70OP = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_phi_frac50OP = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_eta_sum85OP = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_eta_sum77OP = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_eta_sum70OP = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_eta_sum50OP = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_eta_sumAll = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_eta_frac85OP = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_eta_frac77OP = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_eta_frac70OP = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_eta_frac50OP = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_sj = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_sj_pT10_20 = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_sj_pT20_50 = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_sj_pT50_100 = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_sj_pT100_200 = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_sj_pT200 = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_sj_eta0_05 = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_sj_eta05_10 = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_sj_eta10_15 = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_sj_eta15_20 = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_sj_eta20_25 = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_sj_phi0_07 = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_sj_phi07_14 = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_sj_phi14_21 = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_sj_phi21_28 = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_sj_phi28 = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_sj_phi_sum85OP = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_sj_phi_sum77OP = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_sj_phi_sum70OP = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_sj_phi_sum50OP = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_sj_phi_sumAll = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_sj_phi_frac85OP = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_sj_phi_frac77OP = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_sj_phi_frac70OP = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_sj_phi_frac50OP = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_sj_eta_sum85OP = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_sj_eta_sum77OP = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_sj_eta_sum70OP = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_sj_eta_sum50OP = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_sj_eta_sumAll = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_sj_eta_frac85OP = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_sj_eta_frac77OP = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_sj_eta_frac70OP = nullptr;
-    TH1F_LW* m_tag_mv2c20_w_sj_eta_frac50OP = nullptr;
+    TH1F_LW* m_tag_mv_w_eta0_05 = nullptr;
+    TH1F_LW* m_tag_mv_w_eta05_10 = nullptr;
+    TH1F_LW* m_tag_mv_w_eta10_15 = nullptr;
+    TH1F_LW* m_tag_mv_w_eta15_20 = nullptr;
+    TH1F_LW* m_tag_mv_w_eta20_25 = nullptr;
+    TH1F_LW* m_tag_mv_w_phi0_07 = nullptr;
+    TH1F_LW* m_tag_mv_w_phi07_14 = nullptr;
+    TH1F_LW* m_tag_mv_w_phi14_21 = nullptr;
+    TH1F_LW* m_tag_mv_w_phi21_28 = nullptr;
+    TH1F_LW* m_tag_mv_w_phi28 = nullptr;
+    TH1F_LW* m_tag_mv_w_phi_sum85OP = nullptr;
+    TH1F_LW* m_tag_mv_w_phi_sum77OP = nullptr;
+    TH1F_LW* m_tag_mv_w_phi_sum70OP = nullptr;
+    TH1F_LW* m_tag_mv_w_phi_sum60OP = nullptr;
+    TH1F_LW* m_tag_mv_w_phi_sumAll = nullptr;
+    TH1F_LW* m_tag_mv_w_phi_frac85OP = nullptr;
+    TH1F_LW* m_tag_mv_w_phi_frac77OP = nullptr;
+    TH1F_LW* m_tag_mv_w_phi_frac70OP = nullptr;
+    TH1F_LW* m_tag_mv_w_phi_frac60OP = nullptr;
+    TH1F_LW* m_tag_mv_w_eta_sum85OP = nullptr;
+    TH1F_LW* m_tag_mv_w_eta_sum77OP = nullptr;
+    TH1F_LW* m_tag_mv_w_eta_sum70OP = nullptr;
+    TH1F_LW* m_tag_mv_w_eta_sum60OP = nullptr;
+    TH1F_LW* m_tag_mv_w_eta_sumAll = nullptr;
+    TH1F_LW* m_tag_mv_w_eta_frac85OP = nullptr;
+    TH1F_LW* m_tag_mv_w_eta_frac77OP = nullptr;
+    TH1F_LW* m_tag_mv_w_eta_frac70OP = nullptr;
+    TH1F_LW* m_tag_mv_w_eta_frac60OP = nullptr;
+    TH1F_LW* m_tag_mv_w_sj = nullptr;
+    TH1F_LW* m_tag_mv_w_sj_pT10_20 = nullptr;
+    TH1F_LW* m_tag_mv_w_sj_pT20_50 = nullptr;
+    TH1F_LW* m_tag_mv_w_sj_pT50_100 = nullptr;
+    TH1F_LW* m_tag_mv_w_sj_pT100_200 = nullptr;
+    TH1F_LW* m_tag_mv_w_sj_pT200 = nullptr;
+    TH1F_LW* m_tag_mv_w_sj_eta0_05 = nullptr;
+    TH1F_LW* m_tag_mv_w_sj_eta05_10 = nullptr;
+    TH1F_LW* m_tag_mv_w_sj_eta10_15 = nullptr;
+    TH1F_LW* m_tag_mv_w_sj_eta15_20 = nullptr;
+    TH1F_LW* m_tag_mv_w_sj_eta20_25 = nullptr;
+    TH1F_LW* m_tag_mv_w_sj_phi0_07 = nullptr;
+    TH1F_LW* m_tag_mv_w_sj_phi07_14 = nullptr;
+    TH1F_LW* m_tag_mv_w_sj_phi14_21 = nullptr;
+    TH1F_LW* m_tag_mv_w_sj_phi21_28 = nullptr;
+    TH1F_LW* m_tag_mv_w_sj_phi28 = nullptr;
+    TH1F_LW* m_tag_mv_w_sj_phi_sum85OP = nullptr;
+    TH1F_LW* m_tag_mv_w_sj_phi_sum77OP = nullptr;
+    TH1F_LW* m_tag_mv_w_sj_phi_sum70OP = nullptr;
+    TH1F_LW* m_tag_mv_w_sj_phi_sum60OP = nullptr;
+    TH1F_LW* m_tag_mv_w_sj_phi_sumAll = nullptr;
+    TH1F_LW* m_tag_mv_w_sj_phi_frac85OP = nullptr;
+    TH1F_LW* m_tag_mv_w_sj_phi_frac77OP = nullptr;
+    TH1F_LW* m_tag_mv_w_sj_phi_frac70OP = nullptr;
+    TH1F_LW* m_tag_mv_w_sj_phi_frac60OP = nullptr;
+    TH1F_LW* m_tag_mv_w_sj_eta_sum85OP = nullptr;
+    TH1F_LW* m_tag_mv_w_sj_eta_sum77OP = nullptr;
+    TH1F_LW* m_tag_mv_w_sj_eta_sum70OP = nullptr;
+    TH1F_LW* m_tag_mv_w_sj_eta_sum60OP = nullptr;
+    TH1F_LW* m_tag_mv_w_sj_eta_sumAll = nullptr;
+    TH1F_LW* m_tag_mv_w_sj_eta_frac85OP = nullptr;
+    TH1F_LW* m_tag_mv_w_sj_eta_frac77OP = nullptr;
+    TH1F_LW* m_tag_mv_w_sj_eta_frac70OP = nullptr;
+    TH1F_LW* m_tag_mv_w_sj_eta_frac60OP = nullptr;
     /** @brief To monitor number of Jets. */
     TH1F_LW* m_jet_n = nullptr;
     /** @brief To monitor number of TrackParticles. */
@@ -278,8 +303,8 @@ private:
     /** @brief To monitor z of primary vertex. */
     TH1F_LW* m_global_zPrimVtx = nullptr;
 
-    /** @brief To monitor number of b layer hits in TrackParticle. */
-    TH1F_LW* m_global_BLayerHits = nullptr;
+      /** @brief To monitor number of b layer hits in TrackParticle. */
+    TH1F_LW* m_global_BLayerHits = nullptr; // IBL hits in Run 2, old B-layer in Run-1
     /** @brief To monitor number of pixel hits in TrackParticle. */
     TH1F_LW* m_global_PixelHits = nullptr;
     /** @brief To monitor number of SCT hits in TrackParticle. */
@@ -311,7 +336,7 @@ private:
     TH1F_LW* m_jet_tracks_z0 = nullptr;
     TH1F_LW* m_jet_tracks_z0_LS = nullptr;
    /** @brief To monitor number of b layer hits in a jet. */
-    TH1F_LW* m_jet_tracks_BLayerHits = nullptr;
+    TH1F_LW* m_jet_tracks_BLayerHits = nullptr; // IBL hits in Run-2, old b-layer in Run-1
     /** @brief To monitor number of pixel hits in a jet. */
     TH1F_LW* m_jet_tracks_PixelHits = nullptr;
     /** @brief To monitor number of SCT hits in a jet. */
@@ -327,6 +352,9 @@ private:
     /** @brief To monitor Pt of electrons in a jet. */
     TH1F_LW* m_jet_electrons_pt = nullptr;
 
+    TH1F_LW* m_n_iso_el = nullptr; // added by SARA
+    TH1F_LW* m_n_iso_mu = nullptr; // added by SARA
+
     TH1F_LW* m_trigPassed = nullptr;
     TH1F_LW* m_cutflow = nullptr;
 
@@ -341,6 +369,17 @@ private:
     TH2F_LW* m_track_selector_all = nullptr;
     TH2F_LW* m_track_selector_all_LS = nullptr;
 
+    /** top histograms */
+    TH1F_LW* m_jet_top = nullptr; // added by SARA
+    TH1F_LW* m_jet_pt_top = nullptr; // added by SARA
+    TH1F_LW* m_jet_mv_w_top = nullptr; // added by SARA
+    
+    TH1F_LW* m_jet_top_tagged = nullptr; // added by SARA
+    TH1F_LW* m_jet_pt_top_tagged = nullptr; // added by SARA
+    
+    TH1F_LW* m_jet_top_eff = nullptr; // added by SARA
+    TH1F_LW* m_jet_pt_top_eff = nullptr; // added by SARA
+    
     /** @brief 2D map of jets at various cuts. */
     TH2F_LW* m_jet_2D_all = nullptr;
     TH2F_LW* m_jet_2D_good = nullptr;
@@ -354,16 +393,16 @@ private:
     TH2F_LW* m_sv1ip3d_tag_pos_rate_2D = nullptr;
     TH2F_LW* m_sv1ip3d_tag_neg_rate_2D = nullptr;
 
-    TH2F_LW* m_mv2c20_tag_50_2D = nullptr;
-    TH2F_LW* m_mv2c20_tag_70_2D = nullptr;
-    TH2F_LW* m_mv2c20_tag_80_2D = nullptr;   
-    TH2F_LW* m_mv2c20_tag_80_2D_LS = nullptr;    
+    TH2F_LW* m_mv_tag_60_2D = nullptr;
+    TH2F_LW* m_mv_tag_70_2D = nullptr;
+    TH2F_LW* m_mv_tag_77_2D = nullptr;   
+    TH2F_LW* m_mv_tag_77_2D_LS = nullptr;    
 
-    TH1F_LW* m_tag_mv2c20_w_eta_sum85OP_LS =nullptr;
-    TH1F_LW* m_tag_mv2c20_w_eta_sum77OP_LS =nullptr;
-    TH1F_LW* m_tag_mv2c20_w_eta_sum70OP_LS =nullptr;
-    TH1F_LW* m_tag_mv2c20_w_eta_sum50OP_LS =nullptr;
-    TH1F_LW* m_tag_mv2c20_w_eta_sumAll_LS =nullptr;
+    TH1F_LW* m_tag_mv_w_eta_sum85OP_LS =nullptr;
+    TH1F_LW* m_tag_mv_w_eta_sum77OP_LS =nullptr;
+    TH1F_LW* m_tag_mv_w_eta_sum70OP_LS =nullptr;
+    TH1F_LW* m_tag_mv_w_eta_sum60OP_LS =nullptr;
+    TH1F_LW* m_tag_mv_w_eta_sumAll_LS =nullptr;
 
     enum Cuts_t { pTMin, d0Max, z0Max, sigd0Max, sigz0Max, etaMax,
                   nHitBLayer, deadBLayer, nHitPix, nHitSct, nHitSi, nHitTrt, nHitTrtHighE,

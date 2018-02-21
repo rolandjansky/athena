@@ -16,6 +16,19 @@ using std::pair;        using std::find;        using std::vector;
 
 namespace G4UA{ 
   
+ // Formats print string for timer output
+  
+  inline std::string vPrFmt (double time, double nEv, double tRun, int depth, std::string id)
+  {
+    std::string dprnt = stringify(depth);
+    if (depth == -999) dprnt = "      ";
+    std::ostringstream oss;
+    oss << std::setw(12) << time << std::setw(12) << time/nEv << std::setw(12) << time/tRun
+	<< std::setw(6) << dprnt << "  " << id;
+    return oss.str();
+  }
+  
+
   typedef std::map<VolTree, TestActionVPTimer::volumeData> VolMap;
   typedef VolMap::const_iterator VolIt;
 
@@ -35,28 +48,18 @@ namespace G4UA{
   }
   StatusCode TestActionVPTimerTool::queryInterface(const InterfaceID& riid, void** ppvIf){
     
-    if(riid == IBeginEventActionTool::interfaceID()) {
-      *ppvIf = (IBeginEventActionTool*) this;
+    if(riid == IG4EventActionTool::interfaceID()) {
+      *ppvIf = (IG4EventActionTool*) this;
       addRef();
       return StatusCode::SUCCESS;
     }
-    if(riid == IEndEventActionTool::interfaceID()) {
-      *ppvIf = (IEndEventActionTool*) this;
+    if(riid == IG4RunActionTool::interfaceID()) {
+      *ppvIf = (IG4RunActionTool*) this;
       addRef();
       return StatusCode::SUCCESS;
     }
-    if(riid == IBeginRunActionTool::interfaceID()) {
-      *ppvIf = (IBeginRunActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    if(riid == IEndRunActionTool::interfaceID()) {
-      *ppvIf = (IEndRunActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-    if(riid == ISteppingActionTool::interfaceID()) {
-      *ppvIf = (ISteppingActionTool*) this;
+    if(riid == IG4SteppingActionTool::interfaceID()) {
+      *ppvIf = (IG4SteppingActionTool*) this;
       addRef();
       return StatusCode::SUCCESS;
     }
@@ -67,12 +70,10 @@ namespace G4UA{
   StatusCode TestActionVPTimerTool::finalize(){
 
     for(auto tidAction : this->actions()) {
-      ((IEndRunAction*)tidAction.second)->endOfRun(0);
+      ((G4UserRunAction*)tidAction.second)->EndOfRunAction(0);
     }
  
-  
-  
-  mergeReports();
+    mergeReports();
     
     if(m_report.time_index.size()){
 
@@ -152,18 +153,6 @@ namespace G4UA{
     double tOther = vp.second.tTotal - vp.second.tElectron - vp.second.tPhoton - vp.second.tNeutron - vp.second.tPion;
     ATH_MSG_INFO(vPrFmt(tOther, m_report.nev, m_report.runTime, depth-1, " - other particles") );
     return;
-  }
-  
- // Formats print string for timer output
-  
-  inline std::string vPrFmt (double time, double nEv, double tRun, int depth, std::string id)
-  {
-    std::string dprnt = stringify(depth);
-    if (depth == -999) dprnt = "      ";
-    std::ostringstream oss;
-    oss << std::setw(12) << time << std::setw(12) << time/nEv << std::setw(12) << time/tRun
-	<< std::setw(6) << dprnt << "  " << id;
-    return oss.str();
   }
   
 

@@ -1,10 +1,21 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
+from G4AtlasApps.SimFlags import simFlags
+
+from ISF_Algorithms.collection_merger_helpers import generate_mergeable_collection_name
+
+
 def getSctSensorSD(name="SctSensorSD", **kwargs):
+    bare_collection_name = "SCT_Hits"
+    mergeable_collection_suffix = "_G4"
+    merger_input_property = "SCTHits"
+    hits_collection_name = generate_mergeable_collection_name(bare_collection_name,
+                                                              mergeable_collection_suffix,
+                                                              merger_input_property)
     kwargs.setdefault("LogicalVolumeNames", ["SCT::BRLSensor","SCT::ECSensor0","SCT::ECSensor1",
                                              "SCT::ECSensor2","SCT::ECSensor3"])
-    kwargs.setdefault("OutputCollectionNames", ["SCT_Hits"])
+    kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
     return CfgMgr.SctSensorSDTool(name, **kwargs)
 
 

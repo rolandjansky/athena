@@ -50,10 +50,10 @@ jobproperties.Global.DetDescrVersion = "ATLAS-H6-2004-00"
 
 #--- Simulation flags -----------------------------------------
 # Choose H6 2004 (Emec/HEC/FCAL) testbeam layout
-from G4AtlasApps.SimFlags import SimFlags
-SimFlags.load_atlas_flags()
-SimFlags.SimLayout='tb_LArH6_2004'
-SimFlags.load_tbLArH6_flags()
+from G4AtlasApps.SimFlags import simFlags
+simFlags.load_atlas_flags()
+simFlags.SimLayout='tb_LArH6_2004'
+simFlags.load_tbLArH6_flags()
 
 #--- Conditions global  tag ------
 from AthenaCommon.GlobalFlags import globalflags
@@ -65,34 +65,34 @@ include.block ( "CaloConditions/CaloTTIdMap_ATLAS_jobOptions.py" )
 #include("LArDetDescr/LArDetDescr_H6_joboptions.py")
 
 # Set the cryostat and table at their (0,0) position:
-SimFlags.LArTB_H1CryoXPos.set_Value_and_Lock(CryoXPos)
-SimFlags.LArTB_H1TableYPos.set_Value_and_Lock(TableYPos)
-SimFlags.LArTB_H1XSmear.set_Value_and_Lock(35.)
-SimFlags.LArTB_H1YSmear.set_Value_and_Lock(35.)
-SimFlags.LArTB_H6Hec.set_Value_and_Lock(True)
-SimFlags.LArTB_H6Emec.set_Value_and_Lock(True)
-SimFlags.LArTB_H6Fcal.set_Value_and_Lock(True)
-SimFlags.LArTB_H6Coldnose.set_Value_and_Lock(True)
-SimFlags.LArTB_H6Run1.set_Value_and_Lock(False)
-SimFlags.LArTB_H6Step.set_Value_and_Lock(False)
+simFlags.LArTB_H1CryoXPos.set_Value_and_Lock(CryoXPos)
+simFlags.LArTB_H1TableYPos.set_Value_and_Lock(TableYPos)
+simFlags.LArTB_H1XSmear.set_Value_and_Lock(35.)
+simFlags.LArTB_H1YSmear.set_Value_and_Lock(35.)
+simFlags.LArTB_H6Hec.set_Value_and_Lock(True)
+simFlags.LArTB_H6Emec.set_Value_and_Lock(True)
+simFlags.LArTB_H6Fcal.set_Value_and_Lock(True)
+simFlags.LArTB_H6Coldnose.set_Value_and_Lock(True)
+simFlags.LArTB_H6Run1.set_Value_and_Lock(False)
+simFlags.LArTB_H6Step.set_Value_and_Lock(False)
 
 
 # Uncomment for calibration run
-SimFlags.CalibrationRun='LAr'
+simFlags.CalibrationRun='LAr'
 
-SimFlags.EventFilter.set_Off()
+simFlags.EventFilter.set_Off()
 
 #--- Generator flags ------------------------------------------
 from AthenaServices.AthenaServicesConf import AtRanluxGenSvc
 ServiceMgr += AtRanluxGenSvc()
 ServiceMgr.AtRanluxGenSvc.Seeds = ["SINGLE 2000160768 643921183"]
 
-SimFlags.RandomSeedOffset.set_Value_and_Lock(1234)
+simFlags.RandomSeedOffset.set_Value_and_Lock(1234)
 
-SimFlags.PhysicsList.set_Value_and_Lock('QGSP_BERT')
+simFlags.PhysicsList.set_Value_and_Lock('QGSP_BERT')
 
 #--------- Birk's law on -----------------------
-SimFlags.DoLArBirk.set_Value_and_Lock(True)
+simFlags.DoLArBirk.set_Value_and_Lock(True)
 
 #---  Output printout level ----------------------------------- 
 #output threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL)
@@ -116,38 +116,16 @@ NTupleSvc.Output = [ "FILE1 DATAFILE='Ntuple.root' OPT='NEW'" ]
 
 #>## this starts the space to customize the simulation ####### 
 
-# Visualisation
-def run_vis():
-   from G4AtlasApps import AtlasG4Eng
-   Vis1=AtlasG4Eng.G4Eng.menu_Visualization()
-   Vis1.set_Parameters('VisDriver','DAWNFILE')
-   #Vis1.add_volume2vis('LARTBWORLD::LARTBWORLD')
-   Vis1.add_volume2vis('LArMgr::LArGeoTB::EMEC::Excluder')
-   Vis1.add_volume2vis('LAr')
-   #Vis1.add_volume2vis('LArMgr::LAr::HEC::Module::Depth::Absorber')
-   #Vis1.add_volume2vis('LArMgr::LAr::HEC::Module::Depth')
-   Vis1.add_volume2vis('LArMgr::LAr::TB::BPCOLD::bpco_plane')
-   Vis1.add_volume2vis('LArMgr::LAr::TB::BPCOLD::bpc_mylar')
-   Vis1.add_volume2vis('LArMgr::LAr::TB::BPCOLD::bpco_div')
-   Vis1.add_volume2vis('LArMgr::LAr::TB::BPCOLD::bpco_plane')
-   Vis1.add_volume2Notvis('*')
-   Vis1.set_active()
-   Vis1.set_VisTrack()
-
-#SimFlags.InitFunctions.add_function("postInit",run_vis)
-
 # - ex1: change the verbosity 
-def change_verb():
-   from G4AtlasApps import AtlasG4Eng
-   AtlasG4Eng.G4Eng.gbl.G4Commands().tracking.verbose(3)
+#simFlags.G4Commands += ['/tracking/verbose 3']
 
-#SimFlags.InitFunctions.add_function("postInit",change_verb)
+include("G4AtlasApps/G4Atlas.flat.configuration.py")
 
 #==============================================================
 # Job configuration
 #==============================================================
-from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
-topSeq += PyG4AtlasAlg()
+from AthenaCommon.CfgGetter import getAlgorithm
+topSeq += getAlgorithm("G4AtlasAlg",tryDefaultConfigurable=True)
 
 #--- LArH6 setup description  ----------------------------------
 # Adding TB specific output

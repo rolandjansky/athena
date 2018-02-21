@@ -37,24 +37,12 @@ class InDetAlignOverlapTool : virtual public IInDetAlignOverlapTool, public AthA
   
   int getNumberOverlapPIX( const AlignTrk& ) const ;
   int getNumberOverlapSCT( const AlignTrk& ) const ;
-  // bool getOverlapHit( const AlignSiHit&, const AlignTrk& ) const ;
-  //AlignSiHit getOverlapHit( const AlignTrk& ) const ;
-  //const DataVector<AlignSiHit>* getOverlapHit( const AlignTrk& ) const ;
-  //std::vector<AlignSiHit> getOverlapHit( const AlignTrk& ) ;//const ;
   std::vector<AlignSiHit> getOverlapHit( const AlignTrk& );// const ;
 
 
  private:
-  //ServiceHandle < IToolSvc > p_toolsvc;
-  //StatusCode FindOverlap(const AlignTrk& );  
-  //AlignSiHit* Overlaphits;
-  //DataVector<AlignSiHit>*  m_Overlaphits;
-
   std::vector<AlignSiHit>  m_Overlaphits;
-    
-  int m_minPixelOverlapPerTrack;
-  int m_minSCTOverlapPerTrack;
- 
+     
   const AlignSiModuleList* p_modlist;  
   
   

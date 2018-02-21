@@ -2,8 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: BunchCrossingToolBase.cxx 618313 2014-09-24 10:05:46Z krasznaa $
-
 // STL include(s):
 #include <algorithm>
 #include <functional>
@@ -13,6 +11,7 @@
 #include "TrigBunchCrossingTool/BunchCrossingToolBase.h"
 #include "unary_compose.h"
 #include "SetPrint.h"
+#include "count_bunch_neighbors.h"
 
 namespace Trig {
 
@@ -893,7 +892,7 @@ namespace Trig {
       //
       // Calculate the allowed maximum BCID separation between single bunches:
       //
-      const int maxBCSpacing = m_maxBunchSpacing / BunchCrossing::BUNCH_SPACING;
+      const int maxBCSpacing = bunchSpacing( bunches );
 
       // Reset the cache:
       m_filledBunches.clear();
@@ -1010,7 +1009,7 @@ namespace Trig {
       //
       // Calculate the allowed maximum BCID separation between single bunches:
       //
-      const int maxBCSpacing = m_maxBunchSpacing / BunchCrossing::BUNCH_SPACING;
+      const int maxBCSpacing = bunchSpacing( bunches );
 
       // Reset the cache:
       m_bunchTrains.clear();
@@ -1211,6 +1210,61 @@ namespace Trig {
       }
 
       return;
+   }
+
+   /**
+    * This function tries to figure out what's the right bunch spacing for the
+    * current configuration, before the code would try to properly interpret
+    * the configuration.
+    *
+    * This allows us to set a "MaxBunchSpacing" property of a relatively large
+    * number, but still be able to interpret configurations with very small gaps
+    * between bunch trains. (Like the 8b4e 2017 configurations.)
+    *
+    * @param bunches The filled bunches in the current configuration
+    * @return The apparent bunch spacing of the configuration in bunch crossings
+    */
+   int BunchCrossingToolBase::
+   bunchSpacing( const std::vector< int >& bunches ) const {
+
+      // The maximum BC spacing to start from.
+      const int maxSpacing = m_maxBunchSpacing / BunchCrossing::BUNCH_SPACING;
+
+      // Iterate downwards from the maximum spacing, searching for the minimum
+      // spacing with which bunches exist.
+      int result = maxSpacing;
+      for( ; result > 0; --result ) {
+
+         // Test how many bunches have neighbors inside of the current window.
+         const int nbunches =
+            std::count_if( bunches.begin(), bunches.end(),
+                           count_bunch_neighbors( bunches, result ) );
+         ATH_MSG_VERBOSE( "Number of bunches with " << result
+                          << " BC neighbors: " << nbunches );
+
+         // If none of them do, then we're finished.
+         if( ! nbunches ) {
+            // If we're not at the max spacing anymore, then it means that in
+            // the previous step there were still bunches with neighbors in this
+            // window. That's the spacing we need then.
+            //
+            // But if we're still at the maximum spacing, then let's just keep
+            // that as the final answer.
+            if( result != maxSpacing ) {
+               ++result;
+            }
+            break;
+         }
+      }
+      // If we went down to 0, then the right answer is 1. This is just how this
+      // algorithm works...
+      if( result == 0 ) {
+         result = 1;
+      }
+      ATH_MSG_DEBUG( "Bunch spacing: " << result << " BCs" );
+
+      // Return the smallest spacing found:
+      return result;
    }
 
 } // namespace Trig

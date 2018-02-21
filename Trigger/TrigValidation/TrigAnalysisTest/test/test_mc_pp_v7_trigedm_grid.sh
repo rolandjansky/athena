@@ -17,6 +17,7 @@
 # art-output: *.root
 # art-output: ntuple.pmon.gz
 # art-output: *perfmon*
+# art-output: TotalEventsProcessed.txt
 
 export NAME="mc_pp_v7_trigedm_grid"
 export JOB_LOG="athena.log"
@@ -24,6 +25,6 @@ export TEST="TrigAnalysisTest"
 export DS='["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigAnalysisTest/AthenaTrigAOD_TrigEDMandTDTCheck_MC_pp_v7_chain/AOD.pool.root"]'
 
 athena.py -c "RunningRTT=TRUE;jp.AthenaCommonFlags.PoolAODInput=${DS}" -b TrigAnalysisTest/testAthenaTrigAOD_TrigEDMCheck.py | tee ${JOB_LOG}
-echo "art-result: $?"
+echo "art-result: ${PIPESTATUS[0]} ${JOB_LOG%%.*}"
 
 source exec_art_triggertest_post.sh

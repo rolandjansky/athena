@@ -26,6 +26,7 @@ class LArDigitContainer;
 class LArRawDataContByteStreamTool ; 
 class IROBDataProviderSvc; 
 class ByteStreamCnvSvc;
+class LArABBADecoder;
 
 /** This class is the coverter to read/write LArDigitContainer from/to ByteStream
    * @author W. Lampl, R. Lafaye
@@ -60,6 +61,7 @@ private:
 
    MsgStream* m_log;
    BYTESTREAMTOOL* m_tool ; 
+   LArABBADecoder* m_scTool;
    ByteStreamCnvSvc* m_ByteStreamEventAccess; 
    IROBDataProviderSvc *m_rdpSvc;
    StoreGateSvc* m_storeGate; 

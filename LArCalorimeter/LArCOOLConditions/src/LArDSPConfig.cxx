@@ -35,6 +35,13 @@ bool  LArDSPConfig::useMGRampInterceptByHash(const IdentifierHash& febHash) cons
   return ((m_pBlob[febHash] & MGRAMPINTERCEPT_MASK) !=0);
 }
 
+bool  LArDSPConfig::useHGRampInterceptByHash(const IdentifierHash& febHash) const {
+  return ((m_pBlob[febHash] & HGRAMPINTERCEPT_MASK) !=0);
+}
+
+bool  LArDSPConfig::useLGRampInterceptByHash(const IdentifierHash& febHash) const {
+  return ((m_pBlob[febHash] & LGRAMPINTERCEPT_MASK) !=0);
+}
 
 LArDSPConfigWrite::LArDSPConfigWrite() : m_pBlob_nc(nullptr)  {
 
@@ -59,6 +66,8 @@ LArDSPConfigWrite::LArDSPConfigWrite() : m_pBlob_nc(nullptr)  {
   for (unsigned i=0;i<m_nFebs;++i)
     m_pBlob_nc[i]=0;
 
+  // cppcheck-suppress memleak
+  spec = nullptr;
   return;
 }
 
@@ -66,9 +75,10 @@ void LArDSPConfigWrite::set(const IdentifierHash febId,
 			    const uint8_t peakSample, const bool useMGRampIntercept) {
   
   m_pBlob_nc[febId]= (peakSample & PEAKSAMPLE_MASK);
-  if (useMGRampIntercept) 
+  if (useMGRampIntercept) { 
     m_pBlob_nc[febId] |= MGRAMPINTERCEPT_MASK;
-
+  }
+  m_pBlob_nc[febId] |= LGRAMPINTERCEPT_MASK;
   return;
 
 }

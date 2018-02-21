@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: IAsgTool.h 615760 2014-09-09 12:50:01Z krasznaa $
+// $Id: IAsgTool.h 804869 2017-05-15 20:14:34Z krumnack $
 #ifndef ASGTOOLS_IASGTOOL_H
 #define ASGTOOLS_IASGTOOL_H
 
@@ -9,6 +9,7 @@
 // Local include(s):
 #include "AsgTools/AsgToolsConf.h"
 #include "AsgTools/AsgToolMacros.h"
+#include "AsgTools/INamedInterface.h"
 
 // Environment specific include(s):
 #ifdef ASGTOOL_ATHENA
@@ -29,12 +30,14 @@ namespace asg {
    ///
    /// @author David Adams <dladams@bnl.gov>
    ///
-   /// $Revision: 615760 $
-   /// $Date: 2014-09-09 14:50:01 +0200 (Tue, 09 Sep 2014) $
+   /// $Revision: 804869 $
+   /// $Date: 2017-05-15 22:14:34 +0200 (Mon, 15 May 2017) $
    ///
    class IAsgTool
 #ifdef ASGTOOL_ATHENA
       : virtual public ::IAlgTool
+#else
+   : virtual public INamedInterface
 #endif // ASGTOOL_ATHENA
    {
 

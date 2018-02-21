@@ -9,6 +9,8 @@
 #ifndef ISF_EVENT_PARTICLEUSERINFORMATION_H
 #define ISF_EVENT_PARTICLEUSERINFORMATION_H
 
+#include <cmath>
+
 namespace ISF {
 
   /**
@@ -36,6 +38,15 @@ namespace ISF {
      */
     void updatePath( float d) { dCollected += d; }
 
+    /** comparison */
+    bool operator==(const MaterialPathInfo& rhs) {
+      float epsilon = 1e-6;
+      bool pass = true;
+      pass &= std::fabs(dMax-rhs.dMax) < epsilon;
+      pass &= std::fabs(dCollected-rhs.dCollected) < epsilon;
+      pass &= process == rhs.process;
+      return pass;
+    }
   };
 
   class ParticleUserInformation {
@@ -56,6 +67,9 @@ namespace ISF {
     void setProcess(int proc);
     void setGeneration(int gen);
     void setMaterialLimit(int process, float x0lim, float x0coll);
+
+    /** Comparison */
+    bool operator==(const ParticleUserInformation& rhs) const;
 
   private:
 

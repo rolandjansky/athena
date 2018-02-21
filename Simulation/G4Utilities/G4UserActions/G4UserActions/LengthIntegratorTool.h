@@ -10,9 +10,8 @@
 #include "GaudiKernel/ITHistSvc.h"
 
 // User action infrastructure includes
-#include "G4AtlasInterfaces/IBeginEventActionTool.h"
-#include "G4AtlasInterfaces/IEndEventActionTool.h"
-#include "G4AtlasInterfaces/ISteppingActionTool.h"
+#include "G4AtlasInterfaces/IG4EventActionTool.h"
+#include "G4AtlasInterfaces/IG4SteppingActionTool.h"
 #include "G4AtlasTools/ActionToolBase.h"
 
 // Local includes
@@ -27,9 +26,8 @@ namespace G4UA
   /// Creates the LengthIntegrator for each worker thread.
   ///
   class LengthIntegratorTool : public ActionToolBase<LengthIntegrator>,
-                               public IBeginEventActionTool,
-                               public IEndEventActionTool,
-                               public ISteppingActionTool
+                               public IG4EventActionTool,
+                               public IG4SteppingActionTool
   {
 
     public:
@@ -41,21 +39,13 @@ namespace G4UA
       /// Initialize the tool
       virtual StatusCode initialize() override;
 
-      /// Retrieve the begin-event action interface
-      virtual IBeginEventAction* getBeginEventAction() override final
-      { return static_cast<IBeginEventAction*>( getAction() ); }
-
-      /// Retrieve the end-event action interface
-      virtual IEndEventAction* getEndEventAction() override final
-      { return static_cast<IEndEventAction*>( getAction() ); }
+      /// Retrieve the event action interface
+      virtual G4UserEventAction* getEventAction() override final
+      { return static_cast<G4UserEventAction*>( getAction() ); }
 
       /// Retrieve the stepping action interface
-      virtual ISteppingAction* getSteppingAction() override final
-      { return static_cast<ISteppingAction*>( getAction() ); }
-
-      /// Query interface for gaudi
-      virtual StatusCode
-      queryInterface(const InterfaceID& riid, void** ppvInterface) override;
+      virtual G4UserSteppingAction* getSteppingAction() override final
+      { return static_cast<G4UserSteppingAction*>( getAction() ); }
 
     protected:
 

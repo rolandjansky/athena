@@ -460,11 +460,41 @@ std::string EvtRangeScatterer::getNewRangeRequest(yampl::ISocket* socket2Process
 					       , yampl::ISocket* socket2Pilot
 					       , int& procReportPending)
 {
-//  ATH_MSG_DEBUG("In getNewRangeRequest ..." );
   void* processor_request(0);
   ssize_t processorRequestSize = socket2Processor->tryRecv(processor_request);
 
   if(processorRequestSize==-1) return std::string("");
+  if(processorRequestSize==sizeof(pid_t)+sizeof(AthenaMPToolBase::ESRange_Status)) {
+    ATH_MSG_INFO("Processor reported event range processing error");
+    pid_t pid = *((pid_t*)processor_request);
+    AthenaMPToolBase::ESRange_Status status = *((AthenaMPToolBase::ESRange_Status*)((pid_t*)processor_request+1));
+    std::string errorStr("ERR_ATHENAMP_PROCESS "+ m_pid2RangeID[pid] + ": ");
+    switch(status) {
+    case AthenaMPToolBase::ESRANGE_NOTFOUND:
+      errorStr+=std::string("Not found in the input file");
+      break;
+    case AthenaMPToolBase::ESRANGE_SEEKFAILED :	
+      errorStr+=std::string("Seek failed");
+      break;
+    case AthenaMPToolBase::ESRANGE_PROCFAILED :
+      errorStr+=std::string("Failed to process event range");
+      break;
+    case AthenaMPToolBase::ESRANGE_FILENOTMADE :
+      errorStr+=std::string("Failed to make output file");
+      break;
+    case AthenaMPToolBase::ESRANGE_BADINPFILE :
+      errorStr+=std::string("Failed to set input file");
+      break;
+    default:
+      break;
+    }
+    void* errorMessage = malloc(errorStr.size());
+    memcpy(errorMessage,errorStr.data(),errorStr.size());
+    socket2Pilot->send(errorMessage,errorStr.size());
+    procReportPending--;
+    ATH_MSG_INFO("Error reported to the pilot. Reports pending: " << procReportPending);
+    return std::string("");
+  }
   std::string strProcessorRequest((const char*)processor_request,processorRequestSize);
   ATH_MSG_INFO("Received request from a processor: " << strProcessorRequest);
   // Decode the request. If it contains output file name then pass it over to the pilot and return empty string

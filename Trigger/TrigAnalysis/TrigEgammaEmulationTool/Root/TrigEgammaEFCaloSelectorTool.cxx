@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+ *   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ *   */
 
 /**********************************************************************
  * AsgTool: TrigEgammaEFCaloSelectorTool
@@ -87,8 +87,10 @@ bool TrigEgammaEFCaloSelectorTool::emulation(const xAOD::IParticleContainer *con
       if (el->caloCluster()->et()*1.e-3 < etthr) continue;
       //ATH_MSG_INFO("Original LHValue: " << el->likelihoodValue("LHCaloValue"));
       //calo cuts for photon and electron using the same asgTool
-      if (!ApplyCaloPid(el, info.pidname, avgmu)) continue;
-      ATH_MSG_DEBUG("Apply Pid " << info.pidname);
+      if(info.applyEFCaloPid){
+        if (!ApplyCaloPid(el, info.pidname, avgmu)) continue;
+        ATH_MSG_DEBUG("Apply Pid " << info.pidname);
+      }
       ATH_MSG_DEBUG("Apply Et cut " << etthr << " cluster Et " << el->caloCluster()->et()*1.e-3);
       bitAccept.set(bit-1,true); //at least one electron
     }

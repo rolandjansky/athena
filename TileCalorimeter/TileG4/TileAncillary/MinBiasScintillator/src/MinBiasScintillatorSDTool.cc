@@ -15,7 +15,6 @@
 MinBiasScintillatorSDTool::MinBiasScintillatorSDTool(const std::string& type, const std::string& name, const IInterface *parent)
   : SensitiveDetectorBase( type , name , parent )
 {
-  declareInterface<ISensitiveDetector>(this);
   declareProperty( "DeltaTHit" , m_options.deltaTHit );
   declareProperty( "TimeCut" , m_options.timeCut );
   declareProperty( "TileTB" , m_options.tileTB );

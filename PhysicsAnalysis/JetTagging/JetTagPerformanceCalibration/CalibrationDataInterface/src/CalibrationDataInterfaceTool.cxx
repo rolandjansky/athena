@@ -225,7 +225,7 @@ Analysis::CalibrationDataInterfaceTool::getScaleFactor (const Jet& jet, const st
   }
 
   double uncertainty = combinedUncertainty(stat, resSyst);
-  Analysis::CalibResult result = std::make_pair<double, double>(value, uncertainty);
+  Analysis::CalibResult result = std::make_pair(value, uncertainty);
 
   result.first = std::max(0., result.first);
   if (TMath::Abs(result.first) < Analysis::CalibZERO)
@@ -289,7 +289,7 @@ Analysis::CalibrationDataInterfaceTool::getMCEfficiency (const Jet& jet, const s
   }
 
   double uncertainty = combinedUncertainty(stat, resSyst);
-  Analysis::CalibResult result = std::make_pair<double, double>(value, uncertainty);
+  Analysis::CalibResult result = std::make_pair(value, uncertainty);
 
   result.first = std::max(0., std::min(1., result.first));
   return result;

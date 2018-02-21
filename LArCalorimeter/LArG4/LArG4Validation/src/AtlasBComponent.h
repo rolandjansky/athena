@@ -34,7 +34,7 @@ namespace Genfun {
     
   private:
     
-    unsigned int           _index;
+    unsigned int           m_index;
 
     // Don't allow assignment (avoid coverity warning).
     AtlasBComponent& operator= (const AtlasBComponent&);

@@ -125,6 +125,7 @@ def generateChainDefs(chainDict):
     is2015Tagger = (not chainDict['chainName'].find("bmv2c20") == -1 or not chainDict['chainName'].find("bperf") == -1)
     isMuDr       = (not chainDict['chainName'].find("mu") == -1 and not chainDict['chainName'].find("_dr") == -1)
     isMuDz       = (not chainDict['chainName'].find("mu") == -1 and not chainDict['chainName'].find("_dz") == -1)
+    isIsoLep     = (not chainDict['chainName'].find("ivarmedium") == -1 or not chainDict['chainName'].find("ivarloose") == -1)
     isSingleJet  = ( (len(chainDict['chainParts']) == 1) and (int(chainDict['chainParts'][0]['multiplicity']) == 1))
 
     #
@@ -146,8 +147,8 @@ def generateChainDefs(chainDict):
     # Need all the ouput bjet TEs to properly match to muons
     #  so dont use all TE here either
     #
-    if isMuDz or isMuDr: doAllTEConfig = False
-
+    if isMuDz or isMuDr or isIsoLep: doAllTEConfig = False
+    
 
     if doAllTEConfig:
         log.debug("Doing new buildBjetChainsAllTE")
@@ -474,7 +475,7 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
 #        from TrigBjetHypo.TrigBjetFexConfig  import getBjetFexSplitInstance
 #        theBjetFex = getBjetFexSplitInstance(algoInstance,"2012","EFID")
 
-    if ('boffperf' in chainParts['bTag'] or 'bmv2c20' in chainParts['bTag'] or 'bmv2c10' in chainParts['bTag']):
+    if ('boffperf' in chainParts['bTag'] or 'bmv2c20' in chainParts['bTag'] or 'bmv2c10' or 'bhmv2c10' in chainParts['bTag']):
         # Offline taggers
         if('FTKRefit' in chainParts['bTracking']):
             theBjetFex = getBtagFexFTKRefitInstance(algoInstance,"2012","EFID") 
@@ -508,6 +509,9 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
     elif ('bmv2c10' in chainParts['bTag']  ):
         # MV2c10 tagger series
         theBtagReq = getBjetHypoSplitInstance(algoInstance,"2017", btagcut)
+    elif ('bhmv2c10' in chainParts['bTag']) :
+        # MV2c10hybrid tagger series 
+        theBtagReq = getBjetHypoSplitInstance(algoInstance,"2018", btagcut)
     else:
         # Run 1 style chains
         theBtagReq = getBjetHypoSplitInstance(algoInstance,"2012", btagcut)
@@ -664,6 +668,9 @@ def myBjetConfig1(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=1):
         ef_hypo = getBjetHypoInstance("EF","2015", btagcut)
     elif ('bmv2c10' in chainParts['bTag']):
         ef_hypo = getBjetHypoInstance("EF","2017", btagcut)
+    elif ('bhmv2c10' in chainParts['bTag']):
+        ef_hypo = getBjetHypoInstance("EF","2018", btagcut)
+
     else:
         ef_hypo = getBjetHypoInstance("EF","2012", btagcut)
 

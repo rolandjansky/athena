@@ -6,6 +6,7 @@
 
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IToolSvc.h"
+#include "GaudiKernel/ListItem.h"
 
 LArFill::LArFill(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),

@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ############################################################################################
 # @file: Script to extract information for previously uploaded runs in the COOL DB.

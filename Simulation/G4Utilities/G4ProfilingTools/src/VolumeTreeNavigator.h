@@ -2,21 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//////////////////////////////////////////////////////////////////
-//								//
-//			VolumeTreeNavigator.h			//
-//	Class containing functions to allow a general   	//
-//	navigation of uniquely specified GEANT4 volumes		//
-//	and collection of their tree patterns and locations.	//
-//								//
-//	Written by 	Kevin Sapp				//
-//			University of Pittsburgh		//
-//			kcs34@pitt.edu				//
-//	Last update	02.02.10				//
-//                                                              //
-//                                                              //
-//////////////////////////////////////////////////////////////////
-
 #ifndef VolumeTreeNavigator_H
 #define VolumeTreeNavigator_H
 
@@ -36,6 +21,12 @@ class G4VPhysicalVolume;
 typedef std::pair<G4VPhysicalVolume*,int> VolID;
 typedef std::vector<VolID> VolTree;
 typedef VolTree::iterator VolNav;
+
+/*! @class VolumeTreeNavigator
+    @brief Class containing functions to allow a general navigation of
+    uniquely specified GEANT4 volumes and collection of their tree
+    patterns and locations. Last update 02.02.10
+    @author Kevin Sapp, University of Pittsburgh, kcs34@pitt.edu */
 
 class VolumeTreeNavigator {
   public:

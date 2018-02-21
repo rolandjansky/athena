@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SiLorentzAngleSvc/SiLorentzAngleSvc.h"
@@ -125,19 +125,28 @@ StatusCode SiLorentzAngleSvc::geoInitialize() {
   }
   m_isPixel = (m_detectorName == "Pixel");
  
-  // Get conditions summary service. 
-  CHECK(m_siConditionsSvc.retrieve());
+  // Get conditions summary service.
+  if (!m_siConditionsSvc.empty()) {
+    ATH_MSG_DEBUG("Conditions Summary Service not empty --> attempting to retrieve.");
+    CHECK(m_siConditionsSvc.retrieve());
+  }
+  else {
+    ATH_MSG_DEBUG("Conditions Summary Service not requested.");
+  }
 
   // Get the detector manager
   CHECK(m_detStore->retrieve(m_detManager, m_detectorName));
 
-  if (m_siConditionsSvc->hasCallBack()) {
-    //Register callback. To be triggered after SiConditionsSvc's callback,
-    ATH_MSG_INFO("Registering callback." );
-    CHECK(m_detStore->regFcn(&ISiliconConditionsSvc::callBack,&*m_siConditionsSvc,&ISiLorentzAngleSvc::callBack,dynamic_cast<ISiLorentzAngleSvc*>(this),true));
-  } 
-  else {
-    ATH_MSG_WARNING("Conditions Summary Service has no callback." );
+  if (!m_siConditionsSvc.empty()) {
+    ATH_MSG_DEBUG("Conditions Summary Service not empty --> checking if has callback.");
+    if (m_siConditionsSvc->hasCallBack()) {
+      //Register callback. To be triggered after SiConditionsSvc's callback,
+      ATH_MSG_INFO("Registering callback." );
+      CHECK(m_detStore->regFcn(&ISiliconConditionsSvc::callBack,&*m_siConditionsSvc,&ISiLorentzAngleSvc::callBack,dynamic_cast<ISiLorentzAngleSvc*>(this),true));
+    } 
+    else {
+      ATH_MSG_WARNING("Conditions Summary Service has no callback." );
+    }
   }
 
   // Get maximum hash for vector sizes. We need the idhelper for this.

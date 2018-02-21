@@ -8,6 +8,13 @@ else
    type=""
 fi
 
+if [ $# -ge 2 ]; then
+   uploadPrescale=1
+   echo "Will try to upload prescaled menu" 
+else
+   uploadPrescale=0
+fi
+
 #setup the TT
 export DBConn="TRIGGERDBATN"
 export TNS_ADMIN=/afs/cern.ch/atlas/offline/external/oracle/latest/admin
@@ -75,6 +82,9 @@ p1_rel="AthenaP1"
 if [ $NICOS_ATLAS_RELEASE ]
 then
     p1_rel=$NICOS_ATLAS_RELEASE
+elif [ $AtlasBuildBranch ]
+then
+    p1_rel=${AtlasBuildBranch}-${AtlasBuildStamp}
 fi
 
 nightly="AthenaP1Test"
@@ -87,14 +97,22 @@ rel=""
 if [ $NICOS_PROJECT_RELNAME_COPY ]
 then
     rel=$NICOS_PROJECT_RELNAME_COPY
+elif [ $AtlasBuildStamp ]
+then
+    rel=${AtlasBuildStamp}
 fi
 
 #menuname=`grep menu_name $hltmenu1 | cut -f2 -d= | cut -f1 -d" "`
-rundate=`date +%F" "%H:%M" "`
+rundate=`date +%F","%H:%M","`
+
+echo "p1_rel=${p1_rel}"
+echo "nightly=${nightly}"
+echo "rel=${rel}"
+echo "rundate=${rundate}"
 
 # Upload SMK
 
-cmd="/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -up -release $p1_rel --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu1 --hlt_setup $hlt__setup1 --name 'AthenaP1Test' -l INFO --SMcomment \"\\\"${rundate}${nightly}_${rel}\"\\\" --dbConn $DBConn -w_n 50 -w_t 60"
+cmd="/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -up -release $p1_rel --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu1 --hlt_setup $hlt__setup1 --name 'AthenaP1Test' -l INFO --SMcomment \"${rundate}${nightly}_${rel}\" --dbConn $DBConn -w_n 50 -w_t 60"
 
 echo $cmd "&> uploadSMK.log"
 eval $cmd &> uploadSMK.log
@@ -119,34 +137,60 @@ echo "l1psk=${l1psk}" >> exportMenuKeys.sh
 echo "hltpsk=${hltpsk1}" >> exportMenuKeys.sh
 
 # Generate and upload prescales
+if ! [ $uploadPrescale -eq 1 ]; then
+  exit 0
+fi
+
 echo "Uploading prescale keys..."
-echo 'Skipping this step.. not configured yet'
-exit 0
+# the upload of the xmls is now done standalone following the discussion on ATR-16799
 
-# Run rule book
-lumi=1000
-costxml=TriggerCosts_Physics_pp_v6.xml
-get_files -xmls -symlink $costxml
+# test checking out RB with atnight user
+ART_dir=${PWD}
+echo 'ART_dir: '${ART_dir}
+MENU='Physics_pp_v7'
+echo 'Menu:' ${MENU}
+export ATLAS_LOCAL_ROOT_BASE="/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase"
+source $ATLAS_LOCAL_ROOT_BASE/packageSetups/localSetup.sh git
+#TODO: at the moment working on RB master
+git clone https://:@gitlab.cern.ch:8443/atlas-trigger-menu/TrigMenuRulebook.git
+RB_dir=${PWD}/TrigMenuRulebook
+echo 'RB_dir: '${RB_dir}
+echo 'l1menu: '${l1menu}
+echo 'l1topo: '${l1topo}
+echo 'hltmenu: '${hltmenu1}
+cd ${RB_dir}/scripts
+rm -f l1.xml hlt.xml
 
-cmdps="running: processRules.py --rulebook=Physics_pp_v6_rules --log=rulebook.log --force-rates-metadata --use_lowest_rule --target_lumi=$lumi --target_filled=1318 --target_empty=350 --target_unp_iso=60 --target_unp_noniso=60 --lvl1-xml=$l1menu --hlt-xml=$hltmenu1 --rates-xml=$costxml"
-echo $cmd
-eval $cmd 
+ln -s ${ART_dir}/${l1menu}   l1.xml
+ln -s ${ART_dir}/${hltmenu1}   hlt.xml
+ls -alhtr
 
+#TODO: configure RB properly, which lumi point?
+sed -i -e 's/ignoreErrors = False/ignoreErrors = True/g' runOptions.py
+./runRuleBook.py 20000
+cd ${ART_dir}
+PSdir=`find TrigMenuRulebook/scripts -name "prescales_*" -type d`
+echo "PSdir: "${PSdir}
+rm $PSdir/Set_*.xml
+ls $PSdir
 
-# Convert to uploadable XML file
-echo "Generating RuleBook_HLTPS_Physics${lumi}.xml by running\ncnvXML.py --ps_name=Physics${lumi} --ps_xml=prescales${lumi}.xml"
-cnvXML.py --ps_name=Physics${lumi} --ps_xml=prescales${lumi}.xml
-
-# Upload
-afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -dbConn $DBConn -psup RuleBook_HLTPS_Physics${lumi}.xml -smk $smk -w_n 50 -w_t 60 &> uploadPSK.log
-hltpsk2=`grep 'HLT Prescale set saved with id' uploadPSK.log | sed 's#.*: \([0-9]*\)\.#\1#'`
-if [ -z "$hltpsk2" ]; then
+# upload PS keys
+#/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -dbConn $DBConn -psup /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/Rules -smk $smk -w_n 50 -w_t 60 &> uploadPSK_prescaled.log
+/afs/cern.ch/user/a/attrgcnf/public/TriggerTool/cmake/run_TriggerTool_MenuExperts.sh -dbConn $DBConn -psup $PSdir -smk $smk -w_n 50 -w_t 60 &> uploadPSK_prescaled.log
+hltpsk2=`grep 'INFO: HLT Prescale set saved with id' uploadPSK_prescaled.log | sed 's#.*: \([0-9]*\)\.#\1#'`
+l1psk2=`grep 'INFO: Prescale set saved with id' uploadPSK_prescaled.log | sed 's#.*: \([0-9]*\)\.#\1#'`
+if [ -z "$hltpsk2" ] || [ -z "$l1psk2" ]; then
     echo "ERROR Upload of prescale key failed"
-    echo 'In ./uploadSMK.log:'
-    grep "Can't obtain write lock" uploadPSK.log
-    grep "SEVERE" uploadPSK.log
+    echo 'In ./uploadPSK_prescaled.log:'
+    grep "Can't obtain write lock" uploadPSK_prescaled.log
+    grep "SEVERE" uploadPSK_prescaled.log
     exit 1
 fi
 
-echo $hltpsk1 > "prescales.txt"
-echo $hltpsk2 >> "prescales.txt"
+echo "smk=${smk}" > prescaleKeys.txt
+echo "l1psk=${l1psk2}" >> prescaleKeys.txt
+echo "hltpsk=${hltpsk2}" >> prescaleKeys.txt
+
+exit 0
+
+

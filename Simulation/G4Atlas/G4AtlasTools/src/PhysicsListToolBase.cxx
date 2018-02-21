@@ -17,12 +17,11 @@
 #include <limits>
 
 PhysicsListToolBase::PhysicsListToolBase(const std::string& type, const std::string& name, const IInterface* parent)
-  : AthAlgTool(type,name,parent)
+  : base_class(type,name,parent)
   , m_phys_option(this)
   , m_phys_decay(this)
   , m_physicsList(nullptr)
 {
-  declareInterface<IPhysicsListTool>(this);
   declareProperty("PhysicsList"     , m_physicsListName = "FTFP_BERT", "Name for physics list");
   declareProperty("NeutronTimeCut"  , m_neutronTimeCut = 0,            "Time cut for neutron killer");
   declareProperty("NeutronEnergyCut", m_neutronEnergyCut = 0,          "Energy cut for neutron killer");
@@ -57,7 +56,7 @@ StatusCode PhysicsListToolBase::initialize( )
 
 void PhysicsListToolBase::CreatePhysicsList()
 {
-
+  ATH_MSG_DEBUG("PhysicsListToolBase::CreatePhysicsList()");
   if (m_physicsListName != ""){
     G4PhysListFactory factory;
     AtlasPhysListFactory Atlasfactory;
@@ -81,31 +80,33 @@ void PhysicsListToolBase::CreatePhysicsList()
   //   them...
 
   //Register physics options to the G4VModularPhysicsList
-  for (auto itr: m_phys_option)
+  for (auto& physOptTool: m_phys_option)
     {
-      m_physicsList->RegisterPhysics(itr->GetPhysicsOption());
+      m_physicsList->RegisterPhysics(physOptTool->GetPhysicsOption());
     }
   //Register decays to the G4VModularPhysicsList
-  for (auto itr: m_phys_decay)
+  for (auto& physDecayTool: m_phys_decay)
     {
-      m_physicsList->RegisterPhysics(itr->GetPhysicsOption());
+      m_physicsList->RegisterPhysics(physDecayTool->GetPhysicsOption());
     }
 
   //ConstructProcess();
+  ATH_MSG_DEBUG("end of PhysicsListToolBase::CreatePhysicsList()");
 }
 
 G4VUserPhysicsList* PhysicsListToolBase::GetPhysicsList()
 {
-  if (!m_physicsList)
-    {
-      CreatePhysicsList();
-    }
+  if (!m_physicsList) {
+    this->CreatePhysicsList();
+  }
   return m_physicsList;
 }
 
 void PhysicsListToolBase::SetPhysicsList()
 {
-  CreatePhysicsList();
+  if(!m_physicsList) {
+    this->CreatePhysicsList();
+  }
   G4RunManager::GetRunManager()->SetUserInitialization(m_physicsList);
 }
 
