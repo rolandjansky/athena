@@ -1,23 +1,15 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "SCT_LinkMaskingSvc.h"
-
-// STL includes
-
-// Gaudi includes
-#include "GaudiKernel/StatusCode.h"
+#include "SCT_LinkMaskingTool.h"
 
 // Athena includes
-#include "StoreGate/StoreGateSvc.h"
-#include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
 
 // Constructor
-SCT_LinkMaskingSvc::SCT_LinkMaskingSvc(const std::string& name, ISvcLocator* pSvcLocator) : 
-  AthService(name, pSvcLocator),
-  m_detStore{"DetectorStore", name},
+SCT_LinkMaskingTool::SCT_LinkMaskingTool(const std::string &type, const std::string &name, const IInterface *parent) : 
+  base_class(type, name, parent),
   m_sctHelper{nullptr},
   m_mutex{},
   m_cache{},
@@ -28,17 +20,11 @@ SCT_LinkMaskingSvc::SCT_LinkMaskingSvc(const std::string& name, ISvcLocator* pSv
 }
 
 // Initialize
-StatusCode SCT_LinkMaskingSvc::initialize() {
+StatusCode SCT_LinkMaskingTool::initialize() {
   ATH_MSG_INFO("Initializing configuration");
 
-  // Retrieve detector store
-  if (m_detStore.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Detector service  not found !");
-    return StatusCode::FAILURE;
-  }
-   
   // Retrieve SCT ID helper
-  if (m_detStore->retrieve(m_sctHelper, "SCT_ID").isFailure()) {
+  if (detStore()->retrieve(m_sctHelper, "SCT_ID").isFailure()) {
     ATH_MSG_FATAL("Could not get SCT ID helper");
     return StatusCode::FAILURE;
   }
@@ -50,30 +36,18 @@ StatusCode SCT_LinkMaskingSvc::initialize() {
 }
 
 // Finalize
-StatusCode SCT_LinkMaskingSvc::finalize() {
+StatusCode SCT_LinkMaskingTool::finalize() {
   ATH_MSG_INFO("Configuration finalize");
   return StatusCode::SUCCESS;
 }
 
-// Query interfaces.
-StatusCode SCT_LinkMaskingSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
-  if (ISCT_ConditionsSvc::interfaceID().versionMatch(riid)) {
-    *ppvInterface = dynamic_cast<ISCT_ConditionsSvc*>(this);
-  } else {
-    // Interface is not directly available : try out a base class
-    return AthService::queryInterface(riid, ppvInterface);
-  }
-  addRef();
-  return StatusCode::SUCCESS;
-}
-
 // What level of element can this service report about
-bool SCT_LinkMaskingSvc::canReportAbout(InDetConditions::Hierarchy h) {
+bool SCT_LinkMaskingTool::canReportAbout(InDetConditions::Hierarchy h) {
   return (h==InDetConditions::SCT_SIDE or h==InDetConditions::DEFAULT); 
 }
 
 // Is an element with this Identifier and hierachy good?
-bool SCT_LinkMaskingSvc::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) {
+bool SCT_LinkMaskingTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) {
   if (not canReportAbout(h)) return true;
 
   const EventContext& ctx{Gaudi::Hive::currentContext()};
@@ -86,20 +60,13 @@ bool SCT_LinkMaskingSvc::isGood(const Identifier& elementId, InDetConditions::Hi
 }
 
 // Is a wafer with this IdentifierHash good?
-bool SCT_LinkMaskingSvc::isGood(const IdentifierHash& hashId) {
+bool SCT_LinkMaskingTool::isGood(const IdentifierHash& hashId) {
   Identifier elementId{m_sctHelper->wafer_id(hashId)};
   return isGood(elementId);
 }
 
-// Is the information filled?
-bool SCT_LinkMaskingSvc::filled() const {
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
-  const SCT_ModuleVetoCondData* condData{getCondData(ctx)};
-  return (condData!=nullptr);
-}
-
 const SCT_ModuleVetoCondData*
-SCT_LinkMaskingSvc::getCondData(const EventContext& ctx) const {
+SCT_LinkMaskingTool::getCondData(const EventContext& ctx) const {
   static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
   EventContext::ContextID_t slot{ctx.slot()};
   EventContext::ContextEvt_t evt{ctx.evt()};

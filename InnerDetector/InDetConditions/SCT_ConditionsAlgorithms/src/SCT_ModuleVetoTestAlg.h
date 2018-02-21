@@ -18,10 +18,10 @@
 
 //Gaudi
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 
 //Athena
-#include "SCT_ConditionsServices/ISCT_ConditionsSvc.h"
+#include "SCT_ConditionsTools/ISCT_ConditionsTool.h"
 
 ///Example algorithm to show calling the SCT_ModuleVetoSvc to exclude bad components
 class SCT_ModuleVetoTestAlg : public AthAlgorithm {
@@ -34,7 +34,7 @@ class SCT_ModuleVetoTestAlg : public AthAlgorithm {
   StatusCode finalize() override;
    
  private:
-   ServiceHandle<ISCT_ConditionsSvc> m_pModuleVetoSvc;
+  ToolHandle<ISCT_ConditionsTool> m_pModuleVetoTool{this, "ModuleVetoTool", "SCT_ModuleVetoTool", "Tool to retrieve vetoed modules"};
 }; //end of class
 
 #endif // SCT_ModuleVetoTestAlg_H

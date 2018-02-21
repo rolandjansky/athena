@@ -1,25 +1,25 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
- * @file SCT_ConditionsParameterSvc.cxx
- * implementation file for SCT conditions service giving numerical parameters
+ * @file SCT_ConditionsParameterTool.cxx
+ * implementation file for SCT conditions tool giving numerical parameters
  * @author shaun.roe@cern.ch
  **/
 #include <limits>
 
-#include "SCT_ConditionsParameterSvc.h"
+#include "SCT_ConditionsParameterTool.h"
 
 //c'tor
-SCT_ConditionsParameterSvc::SCT_ConditionsParameterSvc(const std::string& name, ISvcLocator* pSvcLocator):
-  AthService(name, pSvcLocator),
+SCT_ConditionsParameterTool::SCT_ConditionsParameterTool(const std::string &type, const std::string &name, const IInterface *parent) :
+  base_class(type, name, parent),
   m_condKey{"SCT_CondParameterData"} {
-  }
+}
 
 //
 StatusCode
-SCT_ConditionsParameterSvc::initialize() {
+SCT_ConditionsParameterTool::initialize() {
   ATH_CHECK(m_condKey.initialize());
 
   return StatusCode::SUCCESS;
@@ -27,32 +27,19 @@ SCT_ConditionsParameterSvc::initialize() {
 
 //
 StatusCode
-SCT_ConditionsParameterSvc::finalize() {
-  return StatusCode::SUCCESS;
-}
-
-//
-StatusCode
-SCT_ConditionsParameterSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
-  if (ISCT_ConditionsParameterSvc::interfaceID().versionMatch(riid)) {
-    *ppvInterface = this;
-  } else {
-    // Interface is not directly available : try out a base class
-    return AthService::queryInterface(riid, ppvInterface);
-  }
-  addRef();
+SCT_ConditionsParameterTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
 ///Is the required parameter available?
 bool
-SCT_ConditionsParameterSvc::available(const SCT_CondParameterData::ParameterIndex iparam) {
+SCT_ConditionsParameterTool::available(const SCT_CondParameterData::ParameterIndex iparam) {
   return (iparam==SCT_CondParameterData::AVG_THRESHOLD);
 }
 
 ///Give the indicated value for a module identifier hash
 float
-SCT_ConditionsParameterSvc::value(const IdentifierHash& idHash, const SCT_CondParameterData::ParameterIndex iparam) {
+SCT_ConditionsParameterTool::value(const IdentifierHash& idHash, const SCT_CondParameterData::ParameterIndex iparam) {
   const SCT_CondParameterData* data{getCondData()};
   if (data==nullptr) return invalid(iparam);
   return data->getValue(idHash, iparam);
@@ -60,13 +47,13 @@ SCT_ConditionsParameterSvc::value(const IdentifierHash& idHash, const SCT_CondPa
 
 ///Measure of how many valid values went to calculate it. Should be 1 but if, say, 3 chip values were valid out of 6, it could be less (0.5 in this case)
 float
-SCT_ConditionsParameterSvc::validity(const IdentifierHash& /*idHash*/, const SCT_CondParameterData::ParameterIndex /*iparam*/) {
+SCT_ConditionsParameterTool::validity(const IdentifierHash& /*idHash*/, const SCT_CondParameterData::ParameterIndex /*iparam*/) {
   return 1.0;
 }
 
 ///Is a given value within acceptable limits?
 bool 
-SCT_ConditionsParameterSvc::isValid(const float parameterValue, const SCT_CondParameterData::ParameterIndex iparam) {
+SCT_ConditionsParameterTool::isValid(const float parameterValue, const SCT_CondParameterData::ParameterIndex iparam) {
   const SCT_CondParameterData* data{getCondData()};
   if (data==nullptr) return invalid(iparam);
   return data->isValid(parameterValue, iparam);
@@ -74,7 +61,7 @@ SCT_ConditionsParameterSvc::isValid(const float parameterValue, const SCT_CondPa
 
 ///What is the default error value for this parameter?
 float
-SCT_ConditionsParameterSvc::invalid(const unsigned int iparam) const {
+SCT_ConditionsParameterTool::invalid(const unsigned int iparam) const {
   float result{0.0};
   if (iparam==SCT_CondParameterData::AVG_THRESHOLD) {
     result=std::numeric_limits<float>::quiet_NaN();
@@ -84,7 +71,7 @@ SCT_ConditionsParameterSvc::invalid(const unsigned int iparam) const {
 
 ///Maximum value read in from the database
 float
-SCT_ConditionsParameterSvc::max(const SCT_CondParameterData::ParameterIndex iparam) {
+SCT_ConditionsParameterTool::max(const SCT_CondParameterData::ParameterIndex iparam) {
   const SCT_CondParameterData* data{getCondData()};
   if (data==nullptr) return invalid(iparam);
   return data->max(iparam);
@@ -92,7 +79,7 @@ SCT_ConditionsParameterSvc::max(const SCT_CondParameterData::ParameterIndex ipar
 
 ///Minimum value read in from the database
 float
-SCT_ConditionsParameterSvc::min(const SCT_CondParameterData::ParameterIndex iparam) {
+SCT_ConditionsParameterTool::min(const SCT_CondParameterData::ParameterIndex iparam) {
   const SCT_CondParameterData* data{getCondData()};
   if (data==nullptr) return invalid(iparam);
   return data->min(iparam);
@@ -100,7 +87,7 @@ SCT_ConditionsParameterSvc::min(const SCT_CondParameterData::ParameterIndex ipar
 
 ///Average value
 float
-SCT_ConditionsParameterSvc::avg(const SCT_CondParameterData::ParameterIndex iparam) {
+SCT_ConditionsParameterTool::avg(const SCT_CondParameterData::ParameterIndex iparam) {
   const SCT_CondParameterData* data{getCondData()};
   if (data==nullptr) return invalid(iparam);
   return data->avg(iparam);
@@ -108,7 +95,7 @@ SCT_ConditionsParameterSvc::avg(const SCT_CondParameterData::ParameterIndex ipar
 
 ///Standard deviation
 float
-SCT_ConditionsParameterSvc::sd(const SCT_CondParameterData::ParameterIndex iparam) {
+SCT_ConditionsParameterTool::sd(const SCT_CondParameterData::ParameterIndex iparam) {
   const SCT_CondParameterData* data{getCondData()};
   if (data==nullptr) return invalid(iparam);
   return data->sd(iparam);
@@ -116,7 +103,7 @@ SCT_ConditionsParameterSvc::sd(const SCT_CondParameterData::ParameterIndex ipara
 
 ///Number of values read in
 unsigned int
-SCT_ConditionsParameterSvc::n(const SCT_CondParameterData::ParameterIndex iparam) {
+SCT_ConditionsParameterTool::n(const SCT_CondParameterData::ParameterIndex iparam) {
   const SCT_CondParameterData* data{getCondData()};
   if (data==nullptr) return 0;
   return data->n(iparam);
@@ -124,7 +111,7 @@ SCT_ConditionsParameterSvc::n(const SCT_CondParameterData::ParameterIndex iparam
 
 ///Fill a user-provided vector with the values (hopefully won't be needed?)
 void
-SCT_ConditionsParameterSvc::getValues(std::vector<float>& userVector, const SCT_CondParameterData::ParameterIndex iparam) {
+SCT_ConditionsParameterTool::getValues(std::vector<float>& userVector, const SCT_CondParameterData::ParameterIndex iparam) {
   const SCT_CondParameterData* data{getCondData()};
   if (data!=nullptr) data->getValues(userVector, iparam);
   //no return value
@@ -132,18 +119,12 @@ SCT_ConditionsParameterSvc::getValues(std::vector<float>& userVector, const SCT_
 
 ///Report whether the structure was filled
 bool
-SCT_ConditionsParameterSvc::filled() const {
+SCT_ConditionsParameterTool::filled() const {
   const SCT_CondParameterData* data{getCondData()};
   return (data!=nullptr);
 }
 
-///Callback for fill from database
-StatusCode
-SCT_ConditionsParameterSvc::fillData(int& /* i */, std::list<std::string>& /*keys*/) {
-  return StatusCode::SUCCESS;
-}
-
-const SCT_CondParameterData* SCT_ConditionsParameterSvc::getCondData() const {
+const SCT_CondParameterData* SCT_ConditionsParameterTool::getCondData() const {
   SG::ReadCondHandle<SCT_CondParameterData> condData{m_condKey};
   if (not condData.isValid()) {
     ATH_MSG_ERROR("Failed to get " << m_condKey.key());

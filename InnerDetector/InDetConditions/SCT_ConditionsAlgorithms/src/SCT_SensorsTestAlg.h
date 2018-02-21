@@ -12,14 +12,12 @@
 
 // Include Athena stuff
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "Identifier/Identifier.h"
+#include "SCT_ConditionsTools/ISCT_SensorsTool.h"
 
 // Include STL stuff
 #include <string>
-
-// Forward declarations
-class ISCT_SensorsSvc;
 
 /** This class acts as a test/sample client the ConditionsParameter class. 
  */
@@ -35,7 +33,7 @@ class SCT_SensorsTestAlg : public AthAlgorithm {
   StatusCode finalize() override;   //!< Gaudi finaliser
     
  private:
-  ServiceHandle<ISCT_SensorsSvc> m_SensorsSvc;
+  ToolHandle<ISCT_SensorsTool> m_SensorsTool{this, "SCT_SensorsTool", "SCT_SensorsTool", "Tool to retrieve SCT sensor information"};
 };
 
 #endif // SCT_SensorsTestAlg_H

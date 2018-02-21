@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
-class SCT_SensorsSvcSetup:
-    "Class to simplify setup of SCT_SensorsSvc and required conditions algorithms"
+class SCT_SensorsToolSetup:
+    "Class to simplify setup of SCT_SensorsTool and required conditions algorithms"
 
     def __init__(self):
         self.folder = "/SCT/Sensors"
@@ -10,8 +10,8 @@ class SCT_SensorsSvcSetup:
         self.dbInstance = "SCT_OFL"
         self.algName = "SCT_SensorsCondAlg"
         self.alg = None
-        self.svcName = "SCT_SensorsSvc"
-        self.svc = None
+        self.toolName = "SCT_SensorsTool"
+        self.tool = None
 
     def getFolder(self):
         return self.folder
@@ -54,22 +54,22 @@ class SCT_SensorsSvcSetup:
         from AthenaCommon.AlgSequence import AthSequencer
         condSeq = AthSequencer("AthCondSeq")
         if not hasattr(condSeq, self.algName):
-            from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmesConf import SCT_SensorsCondAlg
+            from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_SensorsCondAlg
             condSeq += SCT_SensorsCondAlg(name = self.algName,
                                           ReadKey = self.folder)
         self.alg = getattr(condSeq, self.algName)
 
-    def setSvc(self):
-        from AthenaCommon.AppMgr import ServiceMgr
-        if not hasattr(ServiceMgr, self.svcName):
-            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SensorsSvc
-            ServiceMgr += SCT_SensorsSvc(name = self.svcName)
-        self.svc = getattr(ServiceMgr, self.svcName)
+    def setTool(self):
+        from AthenaCommon.AppMgr import ToolSvc
+        if not hasattr(ToolSvc, self.toolName):
+            from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_SensorsTool
+            ToolSvc += SCT_SensorsTool(name = self.toolName)
+        self.tool = getattr(ToolSvc, self.toolName)
 
-    def getSvc(self):
-        return self.svc
+    def getTool(self):
+        return self.tool
 
     def setup(self):
         self.setFolders()
         self.setAlgs()
-        self.setSvc()
+        self.setTool()

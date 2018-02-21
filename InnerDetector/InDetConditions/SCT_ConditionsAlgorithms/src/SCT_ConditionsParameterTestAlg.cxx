@@ -6,9 +6,8 @@
  *  @author Shaun Roe, based on Jorgen Dalmau example
  **/
 
-// Include SCT_ConditionsParameterTestAlg and Svc
+// Include SCT_ConditionsParameterTestAlg and Tool
 #include "SCT_ConditionsParameterTestAlg.h"
-#include "SCT_ConditionsServices/ISCT_ConditionsParameterSvc.h"
 #include "SCT_ConditionsServices/SCT_ConditionsParameters.h"
 #include "SCT_ConditionsData/SCT_CondParameterData.h"
 
@@ -35,8 +34,7 @@ using namespace SCT_ConditionsAlgorithms;
 
 SCT_ConditionsParameterTestAlg::SCT_ConditionsParameterTestAlg(const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthAlgorithm(name, pSvcLocator),
-  m_currentEventKey{std::string("EventInfo")},
-  m_conditionsParameterSvc{"SCT_ConditionsParameterSvc", name} //use SCT_ConditionsParameterSvc if you are not running with InDetRecExample
+  m_currentEventKey{std::string("EventInfo")}
 { //nop
 }
 
@@ -46,7 +44,7 @@ StatusCode SCT_ConditionsParameterTestAlg::initialize() {
   ATH_MSG_INFO("in initialize()");
   //
   StatusCode sc{StatusCode::SUCCESS};
-  sc = m_conditionsParameterSvc.retrieve();
+  sc = m_conditionsParameterTool.retrieve();
   if (StatusCode::SUCCESS not_eq sc) {
     ATH_MSG_ERROR("Unable to get the parameter conditions service");
     return sc;
@@ -80,22 +78,22 @@ StatusCode SCT_ConditionsParameterTestAlg::execute() {
                 << "]");
   
   bool paramFilled{false};
-  ATH_MSG_INFO(m_conditionsParameterSvc);
+  ATH_MSG_INFO(m_conditionsParameterTool);
   
   try {
-    paramFilled =(m_conditionsParameterSvc->filled());
+    paramFilled =(m_conditionsParameterTool->filled());
   } catch (...) {
     ATH_MSG_FATAL("Exception caught while trying to determine whether the data object was filled");
     return StatusCode::FAILURE;
   }
 
   try {
-    float maxval{m_conditionsParameterSvc->max(SCT_CondParameterData::AVG_THRESHOLD)};
-    float minval{m_conditionsParameterSvc->min(SCT_CondParameterData::AVG_THRESHOLD)};
-    float avg{m_conditionsParameterSvc->avg(SCT_CondParameterData::AVG_THRESHOLD)};
-    float sd{m_conditionsParameterSvc->sd(SCT_CondParameterData::AVG_THRESHOLD)};
-    unsigned int n{m_conditionsParameterSvc->n(SCT_CondParameterData::AVG_THRESHOLD)};
-    float thresh{m_conditionsParameterSvc->value(IdentifierHash{1760}, SCT_CondParameterData::AVG_THRESHOLD)};
+    float maxval{m_conditionsParameterTool->max(SCT_CondParameterData::AVG_THRESHOLD)};
+    float minval{m_conditionsParameterTool->min(SCT_CondParameterData::AVG_THRESHOLD)};
+    float avg{m_conditionsParameterTool->avg(SCT_CondParameterData::AVG_THRESHOLD)};
+    float sd{m_conditionsParameterTool->sd(SCT_CondParameterData::AVG_THRESHOLD)};
+    unsigned int n{m_conditionsParameterTool->n(SCT_CondParameterData::AVG_THRESHOLD)};
+    float thresh{m_conditionsParameterTool->value(IdentifierHash{1760}, SCT_CondParameterData::AVG_THRESHOLD)};
     ATH_MSG_INFO("   value element 1760: " << thresh);
     ATH_MSG_INFO("        max threshold: " << maxval);
     ATH_MSG_INFO("        min threshold: " << minval);
@@ -110,7 +108,7 @@ StatusCode SCT_ConditionsParameterTestAlg::execute() {
   SCT_ConditionsAlgorithms::S_t histo;
   init(histo, 0.0, 8.0, 100);
   std::vector<float> values;
-  m_conditionsParameterSvc->getValues(values, SCT_CondParameterData::AVG_THRESHOLD);
+  m_conditionsParameterTool->getValues(values, SCT_CondParameterData::AVG_THRESHOLD);
   for (float i: values) {
     fill(histo, i);
   }

@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
-class SCT_LinkMaskingSvcSetup:
-    "Class to simplify setup of SCT_LinkMaskingSvc and required conditions algorithms"
+class SCT_LinkMaskingToolSetup:
+    "Class to simplify setup of SCT_LinkMaskingTool and required conditions algorithms"
 
     def __init__(self):
         self.folder = "/purple/pants"
@@ -9,8 +9,8 @@ class SCT_LinkMaskingSvcSetup:
         self.dbInstance = ""
         self.algName = "SCT_LinkMaskingCondAlg"
         self.alg = None
-        self.svcName = "SCT_LinkMaskingSvc"
-        self.svc = None
+        self.toolName = "SCT_LinkMaskingTool"
+        self.tool = None
 
     def getFolder(self):
         return self.folder
@@ -49,17 +49,17 @@ class SCT_LinkMaskingSvcSetup:
                                               ReadKey = self.folder)
         self.alg = getattr(condSeq, self.algName)
 
-    def setSvc(self):
-        from AthenaCommon.AppMgr import ServiceMgr
-        if not hasattr(ServiceMgr, self.svcName):
-            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_LinkMaskingSvc
-            ServiceMgr += SCT_LinkMaskingSvc(name = self.svcName)
-        self.svc = getattr(ServiceMgr, self.svcName)
+    def setTool(self):
+        from AthenaCommon.AppMgr import ToolSvc
+        if not hasattr(ToolSvc, self.toolName):
+            from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_LinkMaskingTool
+            ToolSvc += SCT_LinkMaskingTool(name = self.toolName)
+        self.tool = getattr(ToolSvc, self.toolName)
 
-    def getSvc(self):
-        return self.svc
+    def getTool(self):
+        return self.tool
 
     def setup(self):
         self.setFolders()
         self.setAlgs()
-        self.setSvc()
+        self.setTool()
