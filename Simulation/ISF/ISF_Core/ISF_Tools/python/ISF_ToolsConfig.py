@@ -117,7 +117,7 @@ def getCosmicEventFilterTool(name="ISF_CosmicEventFilter", **kwargs):
     return CfgMgr.ISF__CosmicEventFilterTool(name, **kwargs)
 
 def getStoppedParticleFilter(name="ISF_StoppedParticleFilter", **kwargs):
-    kwargs.setdefault("VolumeNames",'StoppingPositions')
+    kwargs.setdefault("VolumeNames", ['StoppingPositions'] )
     return  CfgMgr.ISF__CosmicEventFilterTool(name, **kwargs)
 
 def getInToOutSubDetOrderingTool(name="ISF_InToOutSubDetOrderingTool", **kwargs):
