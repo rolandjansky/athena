@@ -2310,10 +2310,9 @@ class L2EFChain_mu(L2EFChainDef):
 #################################################################################################
   def setup_muXX_noL1btrk(self):
 
-    from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyUnseededAllTEAlgo
     
     from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFExtrapolatorMultiHypoConfig, TrigMuonEFExtrapolatorHypoConfig
-    from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFCombinerMultiHypoConfig, TrigMuonEFCombinerDiMuonMassHypoConfig
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFCombinerMultiHypoConfig
     
     ########### EF algos  #################
     
