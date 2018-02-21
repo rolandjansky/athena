@@ -20,6 +20,7 @@
 #include "TTree.h"
 #include "TROOT.h"
 #include "TFile.h"
+#include "TEfficiency.h"
 #include "LWHists/LWHist.h"
 #include "LWHists/LWHistControls.h"
 #include "LWHistAthMonWrapper.h"
@@ -254,6 +255,14 @@ getHist( TH2*& h, const std::string& hName )
    }
 
    return StatusCode::FAILURE;
+}
+
+
+StatusCode ManagedMonitorToolBase::MonGroup::regEfficiency( TEfficiency* e ) {
+    if( m_tool != 0 ) {
+        return m_tool->regEfficiency( e, *this );
+    }
+    return StatusCode::FAILURE;
 }
 
 
@@ -1583,6 +1592,12 @@ getHist( TH2*& h, const std::string& hName, const MonGroup& group )
 {
    std::string streamName = streamNameFunction()->getStreamName( this, group, hName );
    return m_THistSvc->getHist( streamName, h );
+}
+
+
+StatusCode ManagedMonitorToolBase::regEfficiency( TEfficiency* e, const MonGroup& group ) {
+    if (!e) return StatusCode::FAILURE;
+    return regGraph( reinterpret_cast<TGraph*>(e), group );
 }
 
 
