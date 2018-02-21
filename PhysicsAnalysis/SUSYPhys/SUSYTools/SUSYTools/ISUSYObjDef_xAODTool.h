@@ -156,7 +156,7 @@ namespace ST {
   static inline int getMCShowerType(const std::string& sample_name) {
     /** Get MC generator index for the b-tagging efficiency maps*/
     // This needs VERY careful syncing with m_showerType in SUSYToolsInit!  Change with care!
-    const static std::vector<TString> gen_mc_generator_keys = {"PYTHIA8EVTGEN"};
+    const static std::vector<TString> gen_mc_generator_keys = {"PYTHIA8EVTGEN", "HERWIG", "SHERPA_CT", "SHERPA"};
     //This was the 20.7 vector... {"PYTHIAEVTGEN", "HERWIGPPEVTGEN", "PYTHIA8EVTGEN", "SHERPA_CT10", "SHERPA"};
 
     //pre-process sample name
