@@ -34,6 +34,7 @@ class TH1;
 class TH2;
 class TTree;
 class ITHistSvc;
+class TEfficiency;
 namespace Trig {
    class ITrigDecisionTool;
 }
@@ -47,6 +48,7 @@ class IDQFilterTool;
 #include "TH1.h"
 #include "TH2.h"
 #include "TTree.h"
+#include "TEfficiency.h"
 //#include "../src/AthMonBench.h"
 
 #include "GaudiKernel/IHistogramSvc.h"
@@ -179,6 +181,13 @@ class ManagedMonitorToolBase : public AthAlgTool, virtual public IMonitorToolBas
              */
 
             StatusCode getHist( TH2*& h, const std::string& hName );
+
+
+            /**
+             * Registers a TEfficiency to be included in the output stream.
+             */
+
+            StatusCode regEfficiency( TEfficiency* e );
 
 
             /**
@@ -533,6 +542,15 @@ class ManagedMonitorToolBase : public AthAlgTool, virtual public IMonitorToolBas
       virtual StatusCode getHist( TH2*& h, const std::string& hName, const MonGroup& group );
 
 
+
+      /**
+       * Registers a TGraph to be included in the output stream
+       * using logical parameters that describe the graph.
+       */
+      virtual StatusCode regEfficiency( TEfficiency* e, const MonGroup& group );
+
+
+
       /**
        * Registers a TGraph to be included in the output stream
        * using logical parameters that describe the graph.
@@ -653,7 +671,7 @@ class ManagedMonitorToolBase : public AthAlgTool, virtual public IMonitorToolBas
 
 
       /**
-       * Average mu, i.e. <mu>
+       * Average mu, i.e. \<mu\>
        *
        */
        virtual float lbAverageInteractionsPerCrossing();
