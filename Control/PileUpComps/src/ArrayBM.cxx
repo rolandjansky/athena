@@ -27,6 +27,7 @@ ArrayBM::ArrayBM(const std::string& name,ISvcLocator* svc)
                   "An array of floats containing the beam intensity distribution as a function of time in bins of 25ns. ArrayBM normalizes the distribution and uses it as a stencil to determine the relative intensity at each beam xing in the simulated range"
                   );
   declareProperty("RandomSvc", m_atRndmGenSvc, "The random number service that will be used.");
+  declareProperty("EmptyBunchOption", m_emptyBunches=0, "Option for empty bunches.  0: normal treatment.  Positive N: first N BCIDs after filled.  Negative N: any empty BCID is allowed.");
   m_intensityPattern[0]=1.0;
 }
 
@@ -39,7 +40,9 @@ ArrayBM::~ArrayBM()
 StatusCode ArrayBM::initialize()
 {
   ATH_CHECK(m_atRndmGenSvc.retrieve());
-  const std::vector<float>& rProp(m_intensityPatternProp.value());
+
+  // Need to copy to make modifications for empty bunches
+  std::vector<float> rProp(m_intensityPatternProp.value());
   std::vector<float>::const_iterator pBegin(rProp.begin());
   std::vector<float>::const_iterator pEnd(rProp.end());
   m_ipLength = rProp.size();
@@ -49,6 +52,39 @@ StatusCode ArrayBM::initialize()
       ATH_MSG_ERROR("IntensityPattern length (" << m_ipLength << "), exceeds the maximum number of bunch crossings per orbit (" << m_maxBunchCrossingPerOrbit << ").");
       return StatusCode::FAILURE;
     }
+
+  // Modification for empty bunches option
+  if (m_emptyBunches<0 || std::abs(m_emptyBunches)>m_ipLength){
+    // Easy case: Just flip all the bunches
+    for (size_t i=0;i<m_ipLength;++i){
+      if (rProp[i]>0.) rProp[i]=0.;
+      else rProp[i]=1.;
+    } // Loop over all bunches in the pattern
+  } else if (m_emptyBunches>0){
+    // Harder case: N BCIDs after filled
+    int sinceFilled=0;
+    // Set sinceFilled for the beginning of the pattern; assume we will not wrap (otherwise caught above)
+    for (size_t i=m_ipLength-m_emptyBunches;i<m_ipLength;++i){
+      if (rProp[i]>0) sinceFilled=0;
+      else sinceFilled+=1;
+    } // Done with the loop over previous BCIDs
+    // Now do the loop setting the intensity pattern
+    for (size_t i=0;i<m_ipLength;++i){
+      if (rProp[i]>0){
+        // Filled BCID.  Reset count, don't allow signal.
+        sinceFilled=0;
+        rProp[i]=0.;
+      } else if (sinceFilled<m_emptyBunches){
+        // First N BCIDs.  Increment count, allow signal.
+        sinceFilled+=1;
+        rProp[i]=1.;
+      } else {
+        // Beyond N BCIDs.  Increment count, don't allow signal.
+        sinceFilled+=1;
+        rProp[i]=0.;
+      }
+    } // Done with loop over previous BCIDs
+  }
 
   // Normalise the pattern so that the non-zero elements average to 1.0
   float nonZeroElementCount(static_cast<float>(std::count_if(pBegin, pEnd, IsNonZero)));

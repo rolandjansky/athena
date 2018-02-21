@@ -67,5 +67,10 @@ private:
   /// m_intensityPattern from having max value 1.0 to having mean
   /// value 1.0.
   float m_largestElementInPattern;
+  /// Empty bunch option.  Default (0) means no special treatment of
+  /// empty bunches, signal goes in filled bunches.  Negative number
+  /// means put signal in any empty bunch.  Positive number means put
+  /// signal in one of the first N bunches after a filled bunch.
+  int m_emptyBunches;
 };
 #endif
