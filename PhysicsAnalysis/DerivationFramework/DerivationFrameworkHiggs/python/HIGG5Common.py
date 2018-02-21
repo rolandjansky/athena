@@ -14,6 +14,8 @@ def getHIGG5Common() :
         ("AntiKtVR30Rmax4Rmin02TrackJets.-JetConstitScaleMomentum_pt.-JetConstitScaleMomentum_eta.-JetConstitScaleMomentum_phi.-JetConstitScaleMomentum_m"
             ".-constituentLinks.-constituentWeight.-ConstituentScale"),
         "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet",
+        ("AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.pt.eta.phi.m.constituentLinks.JetConstitScaleMomentum_pt.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_m"
+            ".Angularity.Aplanarity.DetectorEta.ECF1.ECF2.ECF3.FoxWolfram0.FoxWolfram2.GhostMuonSegmentCount.GhostTrackCount.KtDR.Parent.PlanarFlow.Qw.Split12.Split23.Tau1_wta.Tau2_wta.Tau3_wta.ZCut12"),
         "BTagging_AntiKtVR30Rmax4Rmin02Track.MV2c10_discriminant",
         "BTagging_AntiKt4EMTopo.MV2cl100_discriminant",
         "CaloCalTopoClusters.CENTER_MAG.calE.calEta.calM.calPhi.calPt.e_sampl.etaCalo.eta_sampl.phiCalo.phi_sampl.rawE.rawEta.rawM.rawPhi",
@@ -265,4 +267,3 @@ def addJetOutputs(slimhelper,contentlist,smartlist=[],vetolist=[]):
             if add_item :
                 dfjetlog.info( "Add full jet collection "+item )
                 slimhelper.AllVariables.append(item)
-
