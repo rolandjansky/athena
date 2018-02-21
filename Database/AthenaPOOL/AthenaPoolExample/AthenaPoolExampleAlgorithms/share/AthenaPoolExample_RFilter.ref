@@ -1,4 +1,3 @@
-Warning in <TInterpreter::ReadRootmapFile>: class  Event found in libG4AtlasControlDict.so  is already in libtest_GPyTestDict.so 
 Preloading tcmalloc_minimal.so
 Athena               INFO including file "AthenaCommon/Preparation.py"
 Athena               INFO including file "AthenaCommon/Bootstrap.py"
@@ -34,7 +33,7 @@ PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'Conn
 PoolSvc              INFO Frontier compression level set to 5
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc             DEBUG OutputLevel is 2
-PoolSvc              INFO Re-initializing PoolSvc
+PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc             DEBUG POOL ReadCatalog is file:Catalog.xml
 PoolSvc             DEBUG POOL ReadCatalog is file:Catalog1.xml
 PoolSvc              INFO POOL WriteCatalog is file:Catalog2.xml
@@ -45,6 +44,7 @@ PoolXMLFileCatalog Debug Xerces-c initialization Number 1
 XMLFileCatalog Info Connecting to the catalog
 PoolXMLFileCatalog Debug Xerces-c initialization Number 2
 PoolXMLFileCatalog Info File Catalog2.xml does not exist, a new one is created
+PoolSvc              INFO Re-initializing PoolSvc
 EventSelector       DEBUG Property update for OutputLevel : new value = 2
 EventSelector        INFO Initializing EventSelector - package version EventSelectorAthenaPool-??-??-??
 EventSelector        INFO reinitialization...
