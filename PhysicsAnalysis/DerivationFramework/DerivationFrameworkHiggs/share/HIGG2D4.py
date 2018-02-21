@@ -228,7 +228,7 @@ if not "HIGG2D4Jets" in OutputJets:
         reducedJetList += ['AntiKt4TruthJets','AntiKt4TruthWZJets']
     replaceAODReducedJets(reducedJetList, higg2d4Seq, "HIGG2D4Jets")
 
-    addDefaultTrimmedJets(higg2d4Seq,"HIGG2D4");
+    addDefaultTrimmedJets(higg2d4Seq,"HIGG2D4Jets");
     if jetFlags.useTruth:
       HIGG5Common.addTrimmedTruthWZJets(higg2d4Seq,'HIGG2D4Jets')
 
@@ -311,7 +311,7 @@ if DerivationFrameworkIsMonteCarlo :
              "AntiKt4TruthJets",
              "AntiKt4TruthWZJets"
              ]
-addJetOutputs(HIGG2D4SlimmingHelper,["HIGG2D4Jets"],slimmed_content)
+HIGG5Common.addJetOutputs(HIGG2D4SlimmingHelper,["HIGG2D4Jets"],slimmed_content)
 # Add MET_RefFinalFix
 addMETOutputs(HIGG2D4SlimmingHelper,[],["Track","AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"])
 

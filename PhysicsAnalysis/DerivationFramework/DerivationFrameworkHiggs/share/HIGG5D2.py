@@ -47,7 +47,7 @@ HIGG5D2ThinningHelper.AppendToStream(HIGG5D2Stream)
 
 import DerivationFrameworkHiggs.HIGG5Common as HIGG5Common
 thinningTools.append( HIGG5Common.getAntiKt4EMTopoTrackParticleThinning('HIGG5D2',HIGG5D2ThinningHelper))
-thinningTools.append( HIGG5Common.getAntiKt10LCTopoTrackParticleThinning('HIGG5D2',HIGG5D2ThinningHelper))
+# thinningTools.append( HIGG5Common.getAntiKt10LCTopoTrackParticleThinning('HIGG5D2',HIGG5D2ThinningHelper))
 thinningTools.append( HIGG5Common.getMuonTrackParticleThinning(         'HIGG5D2',HIGG5D2ThinningHelper) )
 thinningTools.append( HIGG5Common.getElectronTrackParticleThinning(     'HIGG5D2',HIGG5D2ThinningHelper) )
 thinningTools.append( HIGG5Common.getPhotonTrackParticleThinning(       'HIGG5D2',HIGG5D2ThinningHelper) )
@@ -271,7 +271,7 @@ if not "HIGG5D2Jets" in OutputJets:
         reducedJetList += ['AntiKt4TruthJets','AntiKt4TruthWZJets']
     replaceAODReducedJets(reducedJetList, higg5d2Seq, "HIGG5D2Jets")
 
-    addDefaultTrimmedJets(higg5d2Seq,"HIGG5D2");
+    addDefaultTrimmedJets(higg5d2Seq,"HIGG5D2Jets");
     if jetFlags.useTruth:
       HIGG5Common.addTrimmedTruthWZJets(higg5d2Seq,'HIGG5D2Jets') 
 
@@ -282,10 +282,10 @@ if not "HIGG5D2Jets" in OutputJets:
     # Set up geometry and BField
     import AthenaCommon.AtlasUnixStandardJob
 
-    #  include("RecExCond/AllDet_detDescr.py")
-    #  runTCCReconstruction(higg5d2Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles")
-    #  from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addTCCTrimmedJets
-    #  addTCCTrimmedJets(higg5d2Seq, "HIGG5D2")
+    include("RecExCond/AllDet_detDescr.py")
+    runTCCReconstruction(higg5d2Seq, ToolSvc, "LCOriginTopoClusters", "InDetTrackParticles")
+    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addTCCTrimmedJets
+    addTCCTrimmedJets(higg5d2Seq, "HIGG5D2Jets")
 
 #====================================================================
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet 
@@ -387,7 +387,8 @@ if DerivationFrameworkIsMonteCarlo :
 HIGG5D2SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 
 # Add the jet containers to the stream
-slimmed_content=["HIGG5D2Jets","AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
+slimmed_content=["HIGG5D2Jets",
+                 "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
 #        ,"AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets"
         ]
 if DerivationFrameworkIsMonteCarlo :
@@ -395,7 +396,8 @@ if DerivationFrameworkIsMonteCarlo :
              "AntiKt4TruthJets",
              "AntiKt4TruthWZJets"
              ]
-addJetOutputs(HIGG5D2SlimmingHelper,["HIGG5D2Jets"],slimmed_content)
+HIGG5Common.addJetOutputs(HIGG5D2SlimmingHelper,["HIGG5D2Jets"],slimmed_content)
+
 
 # Add the MET containers to the stream
 addMETOutputs(HIGG5D2SlimmingHelper,[],["Track","AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"

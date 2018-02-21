@@ -226,3 +226,43 @@ def getAntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Thinning(tool_prefix, thinn
 def addTrimmedTruthWZJets(sequence, output_group) :
     from DerivationFrameworkJetEtMiss.JetCommon import addTrimmedJets
     addTrimmedJets("AntiKt", 1.0, "TruthWZ", rclus=0.2, ptfrac=0.05, mods="groomed", includePreTools=False, algseq=sequence,outputGroup=output_group)
+
+def addJetOutputs(slimhelper,contentlist,smartlist=[],vetolist=[]):
+    '''
+    copy from  DerivationFrameworkJetEtMiss.JetCommon, which only adds the jet to
+    all variables if the jet content is not already listed in the ExtraVariables
+    '''
+    outputlist = []
+    from AthenaCommon import Logging
+    dfjetlog = Logging.logging.getLogger('JetCommon')
+
+    from DerivationFrameworkJetEtMiss.JetCommon import OutputJets
+    for content in contentlist:
+        if content in OutputJets.keys():
+            for item in OutputJets[content]:
+                if item in vetolist: continue
+                outputlist.append(item)
+        else:
+            outputlist.append(content)
+
+    for item in outputlist:
+        if not slimhelper.AppendToDictionary.has_key(item):
+            slimhelper.AppendToDictionary[item]='xAOD::JetContainer'
+            slimhelper.AppendToDictionary[item+"Aux"]='xAOD::JetAuxContainer'
+        if item in smartlist:
+            dfjetlog.info( "Add smart jet collection "+item )
+            slimhelper.SmartCollections.append(item)
+        else :
+            head=item + '.'
+            add_item=True
+            for var in slimhelper.ExtraVariables :
+                if len(var) > len(head) :
+                    print 'DEBUG HIGG5Commong.addJetOutputs %s == %s ' %(var[0:len(head)], head)
+                    if var[0:len(head)] == head :
+                        dfjetlog.info( "Add specialised content for jet collection "+item )
+                        add_item=False
+                        break
+            if add_item :
+                dfjetlog.info( "Add full jet collection "+item )
+                slimhelper.AllVariables.append(item)
+

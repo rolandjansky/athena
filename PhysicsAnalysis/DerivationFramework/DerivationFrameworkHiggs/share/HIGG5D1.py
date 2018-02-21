@@ -197,7 +197,7 @@ if not "HIGG5D1Jets" in OutputJets:
         reducedJetList += ['AntiKt4TruthJets','AntiKt4TruthWZJets']
     replaceAODReducedJets(reducedJetList, higg5d1Seq, "HIGG5D1Jets")
 
-    addDefaultTrimmedJets(higg5d1Seq,"HIGG5D1");
+    addDefaultTrimmedJets(higg5d1Seq,"HIGG5D1Jets");
     if jetFlags.useTruth:
       HIGG5Common.addTrimmedTruthWZJets(higg5d1Seq,'HIGG5D1Jets')
 
@@ -308,7 +308,7 @@ if DerivationFrameworkIsMonteCarlo :
              "AntiKt4TruthWZJets"
              ]
 
-addJetOutputs(HIGG5D1SlimmingHelper,["HIGG5D1Jets"],slimmed_content)
+HIGG5Common.addJetOutputs(HIGG5D1SlimmingHelper,["HIGG5D1Jets"],slimmed_content)
 
 # Add the MET containers to the stream
 addMETOutputs(HIGG5D1SlimmingHelper,[],["Track","AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"])
