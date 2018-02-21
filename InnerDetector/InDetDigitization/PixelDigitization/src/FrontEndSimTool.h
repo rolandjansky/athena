@@ -27,6 +27,9 @@
 
 #include "CommissionEvent/ComTime.h"
 
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/ReadHandleKey.h"
+
 static const InterfaceID IID_IFrontEndSimTool("FrontEndSimTool", 1, 0);
 
 class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
@@ -42,10 +45,10 @@ class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
       m_timeBCN(1),
       m_timeZero(5.0),
       m_timePerBCO(25.0),
-      m_useComTime(false),
-      m_ComputedTime(nullptr),
       m_comTime(0.0),
+      m_useComTime(false),
       m_timeJitter(0.0),
+      m_ComTimeKey("ComTime"),
       m_eventStore("StoreGateSvc", name),
       m_BarrelEC(0),
       m_Analogthreshold({-1,-1,-1,-1,-1,-1,-1}),
@@ -98,10 +101,11 @@ class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
         ATH_MSG_DEBUG("Found RndmEngine : " << m_rndmEngineName);
       }
 
+      ATH_CHECK(m_ComTimeKey.initialize(m_useComTime));
       if (m_useComTime) {
-        CHECK(m_eventStore.retrieve());
-        if (StatusCode::SUCCESS==m_eventStore->retrieve(m_ComputedTime,"ComTime")) {
-          m_comTime = m_ComputedTime->getTime();
+        SG::ReadHandle<ComTime> comTime(m_ComTimeKey);
+        if (comTime.isValid()) {
+          m_comTime = comTime->getTime();
           ATH_MSG_DEBUG("Found tool for cosmic/commissioning timing: ComTime");
         } 
         else {
@@ -207,10 +211,10 @@ class FrontEndSimTool:public AthAlgTool,virtual public IAlgTool {
     double m_timeBCN;
     double m_timeZero;
     double m_timePerBCO;
-    bool   m_useComTime;    /**< use ComTime for timing */
-    ComTime  *m_ComputedTime;
     double m_comTime;       /**< cosmics timing ofs */
+    bool   m_useComTime;    /**< use ComTime for timing */
     double m_timeJitter; 
+    SG::ReadHandleKey<ComTime>   m_ComTimeKey;
     ServiceHandle<StoreGateSvc>  m_eventStore;
     int m_BarrelEC;
     std::vector<int> m_Analogthreshold;

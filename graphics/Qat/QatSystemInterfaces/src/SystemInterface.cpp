@@ -16,70 +16,70 @@ public:
   VisFunctionLocator *presenterVisFunctionLocator;
 };
 
-DASystem::DASystem():c(new Clockwork()){
-  c->hist1DSet=NULL;
-  c->hist2DSet=NULL;
-  c->visFunctionSet=NULL;
-  c->tableSet =NULL;
-  c->presenterTreeWidget=NULL;
-  c->presenterMessageTextEdit=NULL;
-  c->presenterH1Locator=NULL;
-  c->presenterH2Locator=NULL;
-  c->presenterVisFunctionLocator=NULL;
+DASystem::DASystem():m_c(new Clockwork()){
+  m_c->hist1DSet=NULL;
+  m_c->hist2DSet=NULL;
+  m_c->visFunctionSet=NULL;
+  m_c->tableSet =NULL;
+  m_c->presenterTreeWidget=NULL;
+  m_c->presenterMessageTextEdit=NULL;
+  m_c->presenterH1Locator=NULL;
+  m_c->presenterH2Locator=NULL;
+  m_c->presenterVisFunctionLocator=NULL;
 }
 
 DASystem::~DASystem() {
-  delete c;
+  delete m_c;
 }
 
 void DASystem::setHist1DSet(Hist1DSet * hist1DSet) {
-  c->hist1DSet=hist1DSet;
+  m_c->hist1DSet=hist1DSet;
 }
 
 void DASystem::setHist2DSet(Hist2DSet * hist2DSet) {
-  c->hist2DSet=hist2DSet;
+  m_c->hist2DSet=hist2DSet;
 }
 
 
 void DASystem::setTableSet(TableSet * tableSet) {
-  c->tableSet=tableSet;
+  m_c->tableSet=tableSet;
 }
 
 void DASystem::setVisFunctionSet(VisFunctionSet * visFunctionSet) {
-  c->visFunctionSet = visFunctionSet;
+  m_c->visFunctionSet = visFunctionSet;
 }
 
 const Hist1DSet *DASystem::hist1DSet() const {
-  return c->hist1DSet;
+  return m_c->hist1DSet;
 }
 
 
 const Hist2DSet *DASystem::hist2DSet() const {
-  return c->hist2DSet;
+  return m_c->hist2DSet;
 }
 
 const VisFunctionSet *DASystem::visFunctionSet() const {
-  return c->visFunctionSet;
+  return m_c->visFunctionSet;
 }
 
 const TableSet *DASystem::tableSet() const {
-  return c->tableSet;
+  return m_c->tableSet;
 }
 
 QTreeWidget *DASystem::presenterTreeWidget() const {
-  return c->presenterTreeWidget;
+  return m_c->presenterTreeWidget;
 }
 
 void DASystem::setPresenterTreeWidget (QTreeWidget *presenterTreeWidget) {
-  c->presenterTreeWidget=presenterTreeWidget;
+  m_c->presenterTreeWidget=presenterTreeWidget;
 }
 
 QTextEdit *DASystem::presenterMessageTextEdit()  const {
-  return c->presenterMessageTextEdit;
+  return m_c->presenterMessageTextEdit;
 }
 
 void DASystem::setPresenterMessageTextEdit (QTextEdit *presenterMessageTextEdit) {
-  c->presenterMessageTextEdit=presenterMessageTextEdit;
+  m_c->presenterMessageTextEdit=presenterMessageTextEdit;
 }
 
 
@@ -90,25 +90,25 @@ void DASystem::dblClickedVisFunction(const VisFunction*) {;}
 
 
 HistoLocator1D *DASystem::presenterH1Locator() const {
-  return c->presenterH1Locator;
+  return m_c->presenterH1Locator;
 }
 
 void DASystem::setPresenterH1Locator(HistoLocator1D *locator) {
-  c->presenterH1Locator=locator;
+  m_c->presenterH1Locator=locator;
 }
 
 HistoLocator2D *DASystem::presenterH2Locator() const {
-  return c->presenterH2Locator;
+  return m_c->presenterH2Locator;
 }
 
 void DASystem::setPresenterH2Locator(HistoLocator2D *locator) {
-  c->presenterH2Locator=locator;
+  m_c->presenterH2Locator=locator;
 }
 
 VisFunctionLocator *DASystem::presenterVisFunctionLocator() const {
-  return c->presenterVisFunctionLocator;
+  return m_c->presenterVisFunctionLocator;
 }
 
 void DASystem::setPresenterVisFunctionLocator(VisFunctionLocator *locator) {
-  c->presenterVisFunctionLocator=locator;
+  m_c->presenterVisFunctionLocator=locator;
 }

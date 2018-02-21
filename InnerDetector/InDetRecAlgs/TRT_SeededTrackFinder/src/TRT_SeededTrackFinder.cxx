@@ -98,6 +98,8 @@ StatusCode InDet::TRT_SeededTrackFinder::initialize()
     }else{
       msg(MSG::INFO) << "Got refitting tool " << m_fitterTool << endmsg;
     }
+  } else {
+    m_fitterTool.disable();
   }
 
   if (m_SiExtensionCuts) {
@@ -106,7 +108,7 @@ StatusCode InDet::TRT_SeededTrackFinder::initialize()
     if (sc.isFailure()) {
       msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endmsg;
       return StatusCode::FAILURE;
-    } else 
+    } else
       msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endmsg;
 
     // get beam spot service
@@ -115,6 +117,8 @@ StatusCode InDet::TRT_SeededTrackFinder::initialize()
       msg(MSG::INFO) << "Could not find BeamCondSvc." << endmsg;
       return StatusCode::FAILURE;
     }
+  } else {
+    m_extrapolator.disable();
   }
 
   // Get tool for track ectension to TRT
@@ -122,10 +126,12 @@ StatusCode InDet::TRT_SeededTrackFinder::initialize()
   if(m_doExtension){
     if( m_trtExtension.retrieve().isFailure()) {
       msg(MSG::FATAL)<< "Could not get " << m_trtExtension << endmsg; return StatusCode::FAILURE;
-    } 
+    }
     else {
       msg(MSG::INFO) << "Retrieved tool " << m_trtExtension << endmsg;
     }
+  } else {
+    m_trtExtension.disable();
   }
 
   // Get output print level
@@ -138,7 +144,7 @@ StatusCode InDet::TRT_SeededTrackFinder::initialize()
   m_nTrtSegGoodTotal  = 0;
   m_nTrtLimitTotal    = 0;
   m_nTrtNoSiExtTotal  = 0;
-  m_nExtCutTotal      = 0;      
+  m_nExtCutTotal      = 0;
   m_nBckTrkTrtTotal   = 0;
   m_nTrtExtCallsTotal = 0;
   m_nTrtExtTotal      = 0;
@@ -146,7 +152,7 @@ StatusCode InDet::TRT_SeededTrackFinder::initialize()
   m_nTrtExtFailTotal  = 0;
   m_nBckTrkSiTotal    = 0;
   m_nBckTrkTotal      = 0;
-  
+
   return sc;
 
 }
@@ -194,11 +200,11 @@ StatusCode InDet::TRT_SeededTrackFinder::execute()
   // Initialize the TRT seeded track tool's new event
   m_trackmaker  ->newEvent();
   m_trtExtension->newEvent();
-  
+
 //  TrackCollection* outTracks  = new TrackCollection;           //Tracks to be finally output
   m_outTracks = CxxUtils::make_unique<TrackCollection>();
 
-  std::vector<Trk::Track*> tempTracks;                           //Temporary track collection 
+  std::vector<Trk::Track*> tempTracks;                           //Temporary track collection
   tempTracks.reserve(128);
   // loop over event
   ATH_MSG_DEBUG ("Begin looping over all TRT segments in the event");
@@ -213,7 +219,7 @@ StatusCode InDet::TRT_SeededTrackFinder::execute()
       continue;
     }else{
 
-      // the segment finder is applying a TRT(eta) cut and a pt preselection, so we don't do that here  
+      // the segment finder is applying a TRT(eta) cut and a pt preselection, so we don't do that here
 
       //Ask for at least 10 TRT hits in order to process
       if(trackTRT->numberOfMeasurementBases() < m_minTRTonSegment) {
@@ -302,7 +308,7 @@ StatusCode InDet::TRT_SeededTrackFinder::execute()
 	        // statistics
 	        m_nExtCut++;
 	        continue;
-	      } 
+	      }
 	      if (fabs(input->eta()) > m_maxEta) {
 	        ATH_MSG_DEBUG ("Track eta > "<<m_maxEta<<", reject it");
 	        // cleanup
@@ -323,7 +329,7 @@ StatusCode InDet::TRT_SeededTrackFinder::execute()
 	      const Trk::TrackParameters* parm = m_extrapolator->extrapolateDirectly(*input, perigeeSurface);
 	      delete input;
 
-	      const Trk::Perigee*extrapolatedPerigee = dynamic_cast<const Trk::Perigee*> (parm ); 
+	      const Trk::Perigee*extrapolatedPerigee = dynamic_cast<const Trk::Perigee*> (parm );
 	      if (!extrapolatedPerigee) {
 	        msg(MSG::WARNING) << "Extrapolation of perigee failed, this should never happen" << endmsg;
 	        // cleanup
@@ -333,9 +339,9 @@ StatusCode InDet::TRT_SeededTrackFinder::execute()
 	        m_nExtCut++;
 	        continue;
 	      }
-	       
+
 	      ATH_MSG_VERBOSE ("extrapolated perigee: "<<*extrapolatedPerigee);
-	      
+
 	      //if (fabs(extrapolatedPerigee->parameters()[Trk::d0]*extrapolatedPerigee->sinTheta()) > m_maxRPhiImp) {
 	      if (fabs(extrapolatedPerigee->parameters()[Trk::d0]) > m_maxRPhiImp) {
 	        ATH_MSG_DEBUG ("Track Rphi impact > "<<m_maxRPhiImp<<", reject it");
@@ -361,7 +367,7 @@ StatusCode InDet::TRT_SeededTrackFinder::execute()
 
 	    // do re run a Track extension into TRT ?
 	    Trk::Track* globalTrackNew = 0;
-	    
+
 	    // do we have 4 and extension is enabled ?
             if(int(temptsos->size())>=4 && m_doExtension){
 
@@ -389,7 +395,7 @@ StatusCode InDet::TRT_SeededTrackFinder::execute()
 
  		// Use the extension to instead of the segment
 		ATH_MSG_DEBUG ("Successful extension, number of TRT hits : " << tn.size() << " was : " << (trackTRT->numberOfMeasurementBases()));
- 
+
 		// merge the extension with the Si track
                 globalTrackNew = mergeExtension(**itt,tn);
 
@@ -485,7 +491,7 @@ StatusCode InDet::TRT_SeededTrackFinder::execute()
   m_nBckTrkSiTotal    += m_nBckTrkSi;
   m_nBckTrkTotal      += m_nBckTrk;
 
-  
+
   for (auto p : tempTracks){
     delete p;
   }
@@ -563,7 +569,7 @@ MsgStream& InDet::TRT_SeededTrackFinder::dumpevent( MsgStream& out ) const
   int nsg  = m_nTrtSegGood;
   int nlim = m_nTrtLimit;
   int nnsi = m_nTrtNoSiExt;
-  int nsic = m_nExtCut; 
+  int nsic = m_nExtCut;
   int ntrt = m_nBckTrkTrt;
   int next = m_nTrtExtCalls;
   int ngex = m_nTrtExt;
@@ -578,7 +584,7 @@ MsgStream& InDet::TRT_SeededTrackFinder::dumpevent( MsgStream& out ) const
     nsg  = m_nTrtSegGoodTotal;
     nlim = m_nTrtLimitTotal;
     nnsi = m_nTrtNoSiExtTotal;
-    nsic = m_nExtCutTotal; 
+    nsic = m_nExtCutTotal;
     ntrt = m_nBckTrkTrtTotal;
     next = m_nTrtExtCallsTotal;
     ngex = m_nTrtExtTotal;
@@ -636,87 +642,91 @@ std::ostream& InDet::TRT_SeededTrackFinder::dump( std::ostream& out ) const
 // Overload of << operator MsgStream
 ///////////////////////////////////////////////////////////////////
 
-MsgStream& InDet::operator    << 
+MsgStream& InDet::operator    <<
   (MsgStream& sl,const InDet::TRT_SeededTrackFinder& se)
-{ 
-  return se.dump(sl); 
+{
+  return se.dump(sl);
 }
 
 ///////////////////////////////////////////////////////////////////
 // Overload of << operator std::ostream
 ///////////////////////////////////////////////////////////////////
 
-std::ostream& InDet::operator << 
+std::ostream& InDet::operator <<
   (std::ostream& sl,const InDet::TRT_SeededTrackFinder& se)
 {
-  return se.dump(sl); 
-}   
+  return se.dump(sl);
+}
 
 ///////////////////////////////////////////////////////////////////
 // Merge a Si extension and a TRT segment.Refit at the end
 ///////////////////////////////////////////////////////////////////
 
-Trk::Track* InDet::TRT_SeededTrackFinder::mergeSegments(const Trk::Track& tT, const Trk::TrackSegment& tS)
-{
-  // TSOS from the track
-  const DataVector<const Trk::TrackStateOnSurface>* stsos = tT.trackStateOnSurfaces();
-  // fitQuality from track
-  const Trk::FitQuality* fq = tT.fitQuality()->clone();
-  // output datavector of TSOS
-  DataVector<const Trk::TrackStateOnSurface>*       ntsos = new DataVector<const Trk::TrackStateOnSurface>;
+Trk::Track* InDet::TRT_SeededTrackFinder::mergeSegments(const Trk::Track& tT, const Trk::TrackSegment& tS) {
+	// TSOS from the track
+	const DataVector<const Trk::TrackStateOnSurface>* stsos = tT.trackStateOnSurfaces();
+	// fitQuality from track
+	const Trk::FitQuality* fq = tT.fitQuality()->clone();
+	// output datavector of TSOS
+	DataVector<const Trk::TrackStateOnSurface>* ntsos = new DataVector<const Trk::TrackStateOnSurface>;
 
-  int siHits = 0;
-  // copy track Si states into track
-  DataVector<const Trk::TrackStateOnSurface>::const_iterator p_stsos;
-  for(p_stsos=stsos->begin();p_stsos!=stsos->end();++p_stsos){
-    ntsos->push_back( (*p_stsos)->clone() );
-    if ((*p_stsos)->type(Trk::TrackStateOnSurface::Measurement)) siHits++;
-  }
+	int siHits = 0;
+	// copy track Si states into track
+	DataVector<const Trk::TrackStateOnSurface>::const_iterator p_stsos;
+	for (p_stsos=stsos->begin(); p_stsos != stsos->end(); ++p_stsos) {
+		ntsos->push_back( (*p_stsos)->clone() );
+		if ((*p_stsos)->type(Trk::TrackStateOnSurface::Measurement)) siHits++;
+	}
 
-  // loop over segment
-  for(int it=0; it<int(tS.numberOfMeasurementBases()); it++){
-    //test if it is a pseudo measurement
-    if ( dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(tS.measurement(it)) ) {
-      if (siHits<4) {
-	ATH_MSG_DEBUG ("Too few Si hits.Will keep pseudomeasurement...");
-	const Trk::TrackStateOnSurface* seg_tsos = new Trk::TrackStateOnSurface(tS.measurement(it)->clone(),0);
-	ntsos->push_back(seg_tsos);
+	// loop over segment
+	for (int it = 0; it < int(tS.numberOfMeasurementBases()); it++) {
+		//test if it is a pseudo measurement
+		if ( dynamic_cast<const Trk::PseudoMeasurementOnTrack*>(tS.measurement(it)) ) {
+			if (siHits < 4) {
+				ATH_MSG_DEBUG ("Too few Si hits.Will keep pseudomeasurement...");
+				const Trk::TrackStateOnSurface* seg_tsos = new Trk::TrackStateOnSurface(tS.measurement(it)->clone(), 0);
+				ntsos->push_back(seg_tsos);
+			}
+		} else {
+			std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
+			typePattern.set(Trk::TrackStateOnSurface::Measurement);
+			// Possible memory leak
+			const Trk::TrackStateOnSurface* seg_tsos = new Trk::TrackStateOnSurface(tS.measurement(it)->clone(), 0, 0, 0, typePattern);
+			ntsos->push_back(seg_tsos);
+		}
+	}
+
+	///Construct the new track
+	Trk::TrackInfo info;
+	info.setPatternRecognitionInfo(Trk::TrackInfo::TRTSeededTrackFinder);
+	Trk::Track* newTrack = new Trk::Track(info, ntsos, fq);
+
+	//Careful refitting at the end
+	if (m_doRefit) {
+		Trk::Track* fitTrack = m_fitterTool->fit(*newTrack, false, Trk::pion);
+		delete newTrack;
+		if (!fitTrack) {
+			ATH_MSG_DEBUG ("Refit of TRT+Si track segment failed!");
+			delete ntsos;
+			return 0;
+		}
+
+		//Protect for tracks that have no really defined locz and theta parameters
+		//const Trk::MeasuredPerigee* perTrack=dynamic_cast<const Trk::MeasuredPerigee*>(fitTrack->perigeeParameters());
+
+		const Trk::Perigee* perTrack=fitTrack->perigeeParameters();
+
+		if (perTrack) {
+			//const Trk::CovarianceMatrix& CM = perTrack->localErrorMatrix().covariance();
+			const AmgSymMatrix(5)* CM = perTrack->covariance();
+			if (!CM || sqrt((*CM)(1,1)) == 0. || sqrt((*CM)(3,3)) == 0.) {
+				delete fitTrack;
+        delete ntsos;
+        return 0;
       }
-    } else {
-      std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
-      typePattern.set(Trk::TrackStateOnSurface::Measurement);
-      const Trk::TrackStateOnSurface* seg_tsos = new Trk::TrackStateOnSurface(tS.measurement(it)->clone(),0,0,0,typePattern);
-      ntsos->push_back(seg_tsos);
-    }
-  }  
-
-  ///Construct the new track
-  Trk::TrackInfo info;
-  info.setPatternRecognitionInfo(Trk::TrackInfo::TRTSeededTrackFinder);
-  Trk::Track* newTrack = new Trk::Track(info, ntsos, fq);
-
-  //Careful refitting at the end
-  if(m_doRefit){ 
-    Trk::Track* fitTrack = m_fitterTool->fit(*newTrack,false,Trk::pion);
-    delete newTrack;
-    if(!fitTrack){
-      ATH_MSG_DEBUG ("Refit of TRT+Si track segment failed!");
-      return 0;
-    }
-  
-    //Protect for tracks that have no really defined locz and theta parameters
-    //const Trk::MeasuredPerigee* perTrack=dynamic_cast<const Trk::MeasuredPerigee*>(fitTrack->perigeeParameters());
-
-    const Trk::Perigee* perTrack=fitTrack->perigeeParameters();
-
-    if(perTrack){
-      //const Trk::CovarianceMatrix& CM = perTrack->localErrorMatrix().covariance();
-      const AmgSymMatrix(5)* CM = perTrack->covariance();
-      if((!CM)||(sqrt((*CM)(1,1))==0.)||(sqrt((*CM)(3,3))==0.)){delete fitTrack; return 0;}
     }
     return fitTrack;
   }
-
   return newTrack;
 }
 
@@ -724,65 +734,74 @@ Trk::Track* InDet::TRT_SeededTrackFinder::mergeSegments(const Trk::Track& tT, co
 // Transform a TRT segment to track
 ///////////////////////////////////////////////////////////////////
 
-Trk::Track* InDet::TRT_SeededTrackFinder::segToTrack(const Trk::TrackSegment& tS)
-{
-  ATH_MSG_DEBUG ("Transforming the TRT segment into a track...");
+Trk::Track* InDet::TRT_SeededTrackFinder::segToTrack(const Trk::TrackSegment& tS) {
+	ATH_MSG_DEBUG ("Transforming the TRT segment into a track...");
 
-  //Get the track segment information and build the initial track parameters
-  const Trk::StraightLineSurface*       surf = dynamic_cast<const Trk::StraightLineSurface*>(&(tS.associatedSurface()));
-  if (!surf) {
-    throw std::logic_error("Unhandled surface.");
-  }
-  const AmgVector(5)&                         p = tS.localParameters();
-  AmgSymMatrix(5)*  ep = new AmgSymMatrix(5)(tS.localCovariance());
-  
-  DataVector<const Trk::TrackStateOnSurface>* ntsos = new DataVector<const Trk::TrackStateOnSurface>;
+	//Get the track segment information and build the initial track parameters
+	const Trk::StraightLineSurface* surf = dynamic_cast<const Trk::StraightLineSurface*>(&(tS.associatedSurface()));
+	if (!surf) {
+		throw std::logic_error("Unhandled surface.");
+	}
+	const AmgVector(5)& p = tS.localParameters();
+	AmgSymMatrix(5)* ep = new AmgSymMatrix(5)(tS.localCovariance());
 
-  std::unique_ptr<const Trk::TrackParameters> segPar( surf->createParameters<5,Trk::Charged>(p(0),p(1),p(2),p(3),p(4),ep) );
-  if(segPar){
-    if(msgLvl(MSG::DEBUG)) {msg(MSG::DEBUG) << "Initial TRT Segment Parameters for refitting " << (*segPar) << endmsg;}
-  }else{
-    if(msgLvl(MSG::DEBUG)) {msg(MSG::DEBUG) << "Could not get initial TRT segment parameters! " << endmsg;}
-    return 0;
-  }
+	DataVector<const Trk::TrackStateOnSurface>* ntsos = new DataVector<const Trk::TrackStateOnSurface>;
 
-  for(int it=0; it<int(tS.numberOfMeasurementBases()); it++){
-    // on first measurement add parameters
-    const Trk::TrackStateOnSurface* seg_tsos = 0;
-    std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
-    typePattern.set(Trk::TrackStateOnSurface::Measurement);
-    if(it==0) 
-      seg_tsos = new Trk::TrackStateOnSurface(tS.measurement(it)->clone(),segPar.release(),0,0,typePattern);
-    else
-      seg_tsos = new Trk::TrackStateOnSurface(tS.measurement(it)->clone(),0,0,0,typePattern);
-    ntsos->push_back(seg_tsos);
-  }  
+	std::unique_ptr<const Trk::TrackParameters> segPar(surf->createParameters<5, Trk::Charged>(p(0), p(1), p(2), p(3), p(4), ep));
+	if (segPar) {
+		if (msgLvl(MSG::DEBUG)) {
+			msg(MSG::DEBUG) << "Initial TRT Segment Parameters for refitting " << (*segPar) << endmsg;
+		}
+	} else {
+		if (msgLvl(MSG::DEBUG)) {
+			msg(MSG::DEBUG) << "Could not get initial TRT segment parameters! " << endmsg;
+		}
+		delete ntsos;
+		return 0;
+	}
 
-  // Construct the new track
-  //  Trk::Track* newTrack = new Trk::Track(Trk::Track::TRT_SeededTrackFinder, ntsos, 0);
+	for (int it = 0; it < int(tS.numberOfMeasurementBases()); it++) {
+		// on first measurement add parameters
+		const Trk::TrackStateOnSurface* seg_tsos = 0;
+		std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
+		typePattern.set(Trk::TrackStateOnSurface::Measurement);
+		if (it == 0)
+			seg_tsos = new Trk::TrackStateOnSurface(tS.measurement(it)->clone(), segPar.release(), 0, 0, typePattern);
+		else
+			seg_tsos = new Trk::TrackStateOnSurface(tS.measurement(it)->clone(), 0, 0, 0, typePattern);
+		ntsos->push_back(seg_tsos);
+	}
 
-  Trk::TrackInfo info;
-  info.setPatternRecognitionInfo(Trk::TrackInfo::TRTSeededTrackFinder);
-  Trk::Track* newTrack = new Trk::Track(info, ntsos, 0);
-  
-  // Careful refitting of the TRT stand alone track
-  if(m_doRefit){
-    Trk::Track* fitTrack = m_fitterTool->fit(*newTrack,false,Trk::pion);
-    delete newTrack; // cleanup
-    if(!fitTrack){
-      ATH_MSG_DEBUG ("Refit of TRT track segment failed!");
-      return 0;
-    }
-  
-    //Protect for tracks that have no really defined locz and theta parameters
-    const Trk::Perigee* perTrack=fitTrack->perigeeParameters();
-    if(perTrack){
-      const AmgSymMatrix(5)* CM = perTrack->covariance();
-      if((!CM)||(sqrt((*CM)(1,1))==0.)||(sqrt((*CM)(3,3))==0.)){delete fitTrack; return 0;}
+	// Construct the new track
+	//  Trk::Track* newTrack = new Trk::Track(Trk::Track::TRT_SeededTrackFinder, ntsos, 0);
+
+	Trk::TrackInfo info;
+	info.setPatternRecognitionInfo(Trk::TrackInfo::TRTSeededTrackFinder);
+	Trk::Track* newTrack = new Trk::Track(info, ntsos, 0);
+
+	// Careful refitting of the TRT stand alone track
+	if (m_doRefit) {
+		Trk::Track* fitTrack = m_fitterTool->fit(*newTrack, false, Trk::pion);
+		delete newTrack; // cleanup
+		if (!fitTrack) {
+			ATH_MSG_DEBUG ("Refit of TRT track segment failed!");
+			delete ntsos;
+			return 0;
+		}
+
+		//Protect for tracks that have no really defined locz and theta parameters
+		const Trk::Perigee* perTrack=fitTrack->perigeeParameters();
+		if (perTrack) {
+			const AmgSymMatrix(5)* CM = perTrack->covariance();
+      if (!CM || sqrt((*CM)(1,1)) == 0. || sqrt((*CM)(3,3)) == 0.) {
+	      delete fitTrack;
+	      delete ntsos;
+	      return 0;
+      }
     }
     return fitTrack;
   }
- 
+
   return newTrack;
 }
 
@@ -791,30 +810,29 @@ Trk::Track* InDet::TRT_SeededTrackFinder::segToTrack(const Trk::TrackSegment& tS
 ///////////////////////////////////////////////////////////////////
 
 Trk::Track* InDet::TRT_SeededTrackFinder::
-mergeExtension(const Trk::Track& tT, std::vector<const Trk::MeasurementBase*>& tS)
-{
+mergeExtension(const Trk::Track& tT, std::vector<const Trk::MeasurementBase*>& tS) {
   // TSOS from the track
   const DataVector<const Trk::TrackStateOnSurface>* stsos = tT.trackStateOnSurfaces();
   // fitQuality from track
   const Trk::FitQuality* fq = tT.fitQuality()->clone();
   // output datavector of TSOS
-  DataVector<const Trk::TrackStateOnSurface>*       ntsos = new DataVector<const Trk::TrackStateOnSurface>;
+  DataVector<const Trk::TrackStateOnSurface>* ntsos = new DataVector<const Trk::TrackStateOnSurface>;
 
   int siHits = 0;
   // copy track Si states into track
   DataVector<const Trk::TrackStateOnSurface>::const_iterator p_stsos;
-  for(p_stsos=stsos->begin();p_stsos!=stsos->end();++p_stsos){
-    ntsos->push_back( (*p_stsos)->clone() );
+  for (p_stsos = stsos->begin(); p_stsos != stsos->end(); ++p_stsos) {
+    ntsos->push_back((*p_stsos)->clone());
     if ((*p_stsos)->type(Trk::TrackStateOnSurface::Measurement)) siHits++;
   }
 
   // loop over TRT track extension
-  for(int it=0; it<int(tS.size()); it++){
+  for (int it = 0; it < int(tS.size()); it++) {
     std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
     typePattern.set(Trk::TrackStateOnSurface::Measurement);
-    const Trk::TrackStateOnSurface* seg_tsos = new Trk::TrackStateOnSurface(tS[it]->clone(),0,0,0,typePattern);
+    const Trk::TrackStateOnSurface* seg_tsos = new Trk::TrackStateOnSurface(tS[it]->clone(), 0, 0, 0, typePattern);
     ntsos->push_back(seg_tsos);
-  }  
+  }
 
   ///Construct the new track
 
@@ -823,19 +841,24 @@ mergeExtension(const Trk::Track& tT, std::vector<const Trk::MeasurementBase*>& t
   Trk::Track* newTrack = new Trk::Track(info, ntsos, fq);
 
   //Careful refitting at the end
-  if(m_doRefit){ 
-    Trk::Track* fitTrack = m_fitterTool->fit(*newTrack,false,Trk::pion);
+  if (m_doRefit) {
+    Trk::Track* fitTrack = m_fitterTool->fit(*newTrack, false, Trk::pion);
     delete newTrack;
-    if(!fitTrack){
+    if (!fitTrack) {
       ATH_MSG_DEBUG ("Refit of TRT+Si track segment failed!");
+      delete ntsos;
       return 0;
     }
-  
+
     //Protect for tracks that have no really defined locz and theta parameters
     const Trk::Perigee* perTrack=fitTrack->perigeeParameters();
-    if(perTrack){
+    if (perTrack) {
       const AmgSymMatrix(5)* CM = perTrack->covariance();
-      if((!CM)||(sqrt((*CM)(1,1))==0.)||(sqrt((*CM)(3,3))==0.)){delete fitTrack; return 0;}
+      if (!CM || sqrt((*CM)(1,1)) == 0. || sqrt((*CM)(3,3)) == 0.) {
+	      delete fitTrack; 
+	      delete ntsos;
+	      return 0;
+      }
     }
     return fitTrack;
   }

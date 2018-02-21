@@ -149,7 +149,9 @@ StatusCode CscClusterValAlg::initialize(){
     }
     //m_doEvtSel = false;
   }
-
+  else {
+    m_trigDec.disable();
+  }
   sc = m_cscCalibTool.retrieve();
   if ( sc.isFailure() ) {
     ATH_MSG_WARNING ( "CscClusterValAlg: Unable to retrieve cluster fitter ");

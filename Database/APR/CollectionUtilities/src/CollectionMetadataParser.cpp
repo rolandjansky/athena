@@ -93,7 +93,7 @@ bool CollectionMetadataParser::init(pool::ICollectionMetadata& cmd)
 
 bool CollectionMetadataParser::hasSelfData() const
 {
-   std::vector<ProvNode> Level = getParents(ProvNode(SELFIE));;
+   std::vector<ProvNode> Level = getParents(ProvNode(SELFIE));
    std::vector<ProvNode>::const_iterator self_it= std::find(Level.begin(),Level.end(),SELFIE);
    return (self_it != Level.end());
 }
@@ -157,7 +157,7 @@ std::map<ProvNode, std::vector<ProvNode> > CollectionMetadataParser::getTree() c
 
 void CollectionMetadataParser::buildTree()
 {
-   std::vector<ProvNode> currentLevel = getParents(ProvNode(SELFIE));;
+   std::vector<ProvNode> currentLevel = getParents(ProvNode(SELFIE));
    std::vector<ProvNode> nextLevel;
    m_numLevels = 0;
    std::vector<ProvNode> selfvec; selfvec.push_back(ProvNode(SELFIE));

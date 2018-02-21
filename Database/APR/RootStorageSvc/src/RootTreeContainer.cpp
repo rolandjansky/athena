@@ -206,11 +206,7 @@ DbStatus RootTreeContainer::writeObject(TransactionStack::value_type& ent) {
                    // cout << "---    store object= " <<hex << store <<dec << " in " << dsc.branch->GetName()  <<endl;
                    // cout << "       obj=" << hex << dsc.object << dec << "  offset=" <<  dsc.aux_iostore_IFoffset << endl;
                    log << DbPrintLvl::Debug << "       Attributes= " << store->getSelectedAuxIDs().size() << DbPrint::endmsg;
-                   // Need to make a copy in case it changes.
-                   // FIXME: may be able to get rid of this copy
-                   // if we switch to a thread-safe container.
-                   const SG::auxid_set_t ids = store->getSelectedAuxIDs();
-                   for(SG::auxid_t id : ids ) {
+                   for(SG::auxid_t id : store->getSelectedAuxIDs()) {
                       BranchDesc&       newBrDsc( m_auxBranchMap[id] );
                       if( !newBrDsc.branch ) {
                          auto &reg = SG::AuxTypeRegistry::instance();

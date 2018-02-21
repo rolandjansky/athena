@@ -120,6 +120,7 @@ StatusCode MetaDataSvc::initialize() {
       ATH_MSG_FATAL("Cannot get " << m_metaDataTools);
       return(StatusCode::FAILURE);
    }
+
    m_incSvc->addListener(this, "FirstInputFile", 90);
    m_incSvc->addListener(this, "BeginTagFile", 90);
    m_incSvc->addListener(this, "BeginInputFile", 90);
@@ -127,6 +128,7 @@ StatusCode MetaDataSvc::initialize() {
    m_incSvc->addListener(this, "EndTagFile", 10);
    m_incSvc->addListener(this, "LastInputFile", 10);
    m_incSvc->addListener(this, "ShmProxy", 90);
+
    // Register this service for 'I/O' events
    ServiceHandle<IIoComponentMgr> iomgr("IoComponentMgr", this->name());
    if (!iomgr.retrieve().isSuccess()) {
@@ -200,6 +202,13 @@ StatusCode MetaDataSvc::stop() {
                }
             }
          }
+      }
+   }
+   // finalizing tools via metaDataStop
+   for (auto it = m_metaDataTools.begin(); it != m_metaDataTools.end(); ++it) {
+      ATH_MSG_DEBUG(" calling metaDataStop for " << (*it)->name());
+      if ( (*it)->metaDataStop().isFailure() ) {
+         ATH_MSG_ERROR("Unable to call metaDataStop for " << it->name());
       }
    }
    ATH_MSG_DEBUG("Releasing MetaDataTools");
@@ -297,13 +306,18 @@ void MetaDataSvc::handle(const Incident& inc) {
             ATH_MSG_WARNING("Unable to initialize InputMetaDataStore");
          }
       }
-   } else if (inc.type() == "EndInputFile") {
-/*
-      if (!m_inputDataStore->clearStore().isSuccess()) {
-         ATH_MSG_WARNING("Unable to clear input MetaData Proxies");
+      for (auto it = m_metaDataTools.begin(); it != m_metaDataTools.end(); ++it) {
+         ATH_MSG_DEBUG(" calling beginInputFile for " << (*it)->name());
+         if ( (*it)->beginInputFile().isFailure() ) {
+            ATH_MSG_ERROR("Unable to call beginInputFile for " << it->name());
+         }
       }
-      m_clearedInputDataStore = true;
-*/
+   } else if (inc.type() == "EndInputFile") {
+      for (auto it = m_metaDataTools.begin(); it != m_metaDataTools.end(); ++it) {
+         if ( (*it)->endInputFile().isFailure() ) {
+            ATH_MSG_ERROR("Unable to call endInputFile for " << it->name());
+         }
+      }
       m_allowMetaDataStop = true;
    } else if (inc.type() == "LastInputFile") {
       if (!m_metaDataTools.release().isSuccess()) {
@@ -330,6 +344,12 @@ StatusCode MetaDataSvc::transitionMetaDataFile(bool ignoreInputFile) {
    // Set to be listener for end of event
    Incident metaDataStopIncident(name(), "MetaDataStop");
    m_incSvc->fireIncident(metaDataStopIncident);
+   for (auto it = m_metaDataTools.begin(); it != m_metaDataTools.end(); ++it) {
+      ATH_MSG_DEBUG(" calling metaDataStop for " << (*it)->name());
+      if ( (*it)->metaDataStop().isFailure() ) {
+         ATH_MSG_ERROR("Unable to call metaDataStop for " << it->name());
+      }
+   }
    if (!m_metaDataTools.release().isSuccess()) {
       ATH_MSG_WARNING("Cannot release " << m_metaDataTools);
    }
@@ -348,6 +368,12 @@ StatusCode MetaDataSvc::transitionMetaDataFile(bool ignoreInputFile) {
       ATH_MSG_FATAL("Cannot get " << m_metaDataTools);
       return(StatusCode::FAILURE);
    }
+   else {
+     for (auto it = m_metaDataTools.begin(); it != m_metaDataTools.end(); ++it) {
+       ATH_MSG_INFO("TESST " << it->name());
+     }
+   }
+
    return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
@@ -355,8 +381,8 @@ StatusCode MetaDataSvc::io_reinit() {
    ATH_MSG_INFO("I/O reinitialization...");
    ATH_MSG_INFO("Dumping InputMetaDataStore: " << m_inputDataStore->dump());
    ATH_MSG_INFO("Dumping OutputMetaDataStore: " << m_outputDataStore->dump());
-   for (ToolHandleArray<IAlgTool>::iterator iter = m_metaDataTools.begin(),
-		   last = m_metaDataTools.end(); iter != last; iter++) {
+   for (auto iter = m_metaDataTools.begin(),
+ 	     last = m_metaDataTools.end(); iter != last; iter++) {
       ATH_MSG_INFO("Attached MetadDataTool: " << (*iter)->name());
    }
    return(StatusCode::SUCCESS);
@@ -385,7 +411,7 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
    CLID clid = m_persToClid[className];
    if (clid == 167728019) { // EventStreamInfo, will change tool to combine input metadata, clearing things before...
       bool foundTool = false;
-      for (ToolHandleArray<IAlgTool>::const_iterator iter = m_metaDataTools.begin(), iterEnd = m_metaDataTools.end(); iter != iterEnd; iter++) {
+      for (auto iter = m_metaDataTools.begin(), iterEnd = m_metaDataTools.end(); iter != iterEnd; iter++) {
          if ((*iter)->name() == "ToolSvc.CopyEventStreamInfo") foundTool = true;
       }
       if (!foundTool) {
@@ -406,11 +432,11 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
    const std::string toolName = m_toolForClid[clid];
    if (!toolName.empty()) {
       bool foundTool = false;
-      for (ToolHandleArray<IAlgTool>::const_iterator iter = m_metaDataTools.begin(), iterEnd = m_metaDataTools.end(); iter != iterEnd; iter++) {
+      for (auto iter = m_metaDataTools.begin(), iterEnd = m_metaDataTools.end(); iter != iterEnd; iter++) {
          if ((*iter)->name() == "ToolSvc." + toolName) foundTool = true;
       }
       if (!foundTool) {
-         ToolHandle<IAlgTool> metadataTool(toolName);
+         ToolHandle<IMetaDataTool> metadataTool(toolName);
          m_metaDataTools.push_back(metadataTool);
          if (!metadataTool.retrieve().isSuccess()) {
             ATH_MSG_FATAL("Cannot get " << toolName);

@@ -6,8 +6,8 @@
 #include "TrigT1CaloEvent/CPMTower.h"
 #endif
 
-#include "CLIDSvc/CLASS_DEF.h"
-#include "DataModel/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
 
 
 CLASS_DEF(LVL1::CPMTower, 105961588 , 1)

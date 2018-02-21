@@ -81,40 +81,14 @@ StatusCode SCT_DCSConditionsSvc::initialize() {
   }
   ATH_MSG_INFO("Test: How many folders in Coll: " << m_par_atrcollist.value().size());
   
-  // These callbacks are still needed for SiLonrentzAngleSvc (2017-09-29)
-  //Register callbacks for folders in CondAttrListCollection using vector of keys (not hard-coded)
-  std::vector<std::string>::const_iterator itr{m_par_atrcollist.value().begin()};
-  std::vector<std::string>::const_iterator end{m_par_atrcollist.value().end()};
-  for (; itr!=end; ++itr) {
-    std::string key{*itr};
-    ATH_MSG_INFO(key);
-    if (key==m_folderPrefix+std::string("/HV")) {
-      if (StatusCode::SUCCESS==m_detStore->regFcn(&SCT_DCSConditionsSvc::fillData, this, m_DCSData_HV, key)) {
-        ATH_MSG_INFO("Registered callback for key: " << key);
-      } else {
-        ATH_MSG_ERROR("Cannot register callback function for key " <<  key);
-      }
-    } else if (key==m_folderPrefix+std::string("/MODTEMP")) {
-      if (StatusCode::SUCCESS==m_detStore->regFcn(&SCT_DCSConditionsSvc::fillData, this, m_DCSData_MT, key)) {
-        ATH_MSG_INFO("Registered callback for key: " << key);
-      } else {
-        ATH_MSG_ERROR("Cannot register callback function for key " <<  key);
-      }
-    } else if (key==m_folderPrefix+std::string("/CHANSTAT")) {
-      if (StatusCode::SUCCESS==m_detStore->regFcn(&SCT_DCSConditionsSvc::fillData, this, m_DCSData_CS, key)) {
-        ATH_MSG_INFO("Registered callback for key: " << key);
-      } else {
-        ATH_MSG_ERROR("Cannot register callback function for key " <<  key);
-      }
-    } else { 
-      ATH_MSG_INFO("Cannot registered callback for key: " << key <<" Missing data handle.");
-    }
-  }
-
   // Read Cond Handle Keys
-  ATH_CHECK(m_condKeyState.initialize());
-  ATH_CHECK(m_condKeyHV.initialize());
-  ATH_CHECK(m_condKeyTemp0.initialize());
+  if ((m_readAllDBFolders and m_returnHVTemp) or m_returnHVTemp) {
+    ATH_CHECK(m_condKeyHV.initialize());
+    ATH_CHECK(m_condKeyTemp0.initialize());
+  }
+  if ((m_readAllDBFolders and m_returnHVTemp) or (not m_readAllDBFolders and not m_returnHVTemp)) {
+    ATH_CHECK(m_condKeyState.initialize());
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -173,11 +147,15 @@ bool SCT_DCSConditionsSvc::isGood(const Identifier& elementId, InDetConditions::
   m_moduleId=getModuleID(elementId, h);
   if (not m_moduleId.is_valid()) return true; // not canreportabout
 
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
-  const SCT_DCSStatCondData* condDataState{getCondDataState(ctx)};
-  if (!condDataState) return false; // no cond data
-  else if (condDataState->output(castId(m_moduleId))==0) return true; //No params are listed as bad
-  else return false;
+  if ((m_readAllDBFolders and m_returnHVTemp) or (not m_readAllDBFolders and not m_returnHVTemp)) {
+    const EventContext& ctx{Gaudi::Hive::currentContext()};
+    const SCT_DCSStatCondData* condDataState{getCondDataState(ctx)};
+    if (!condDataState) return false; // no cond data
+    else if (condDataState->output(castId(m_moduleId))==0) return true; //No params are listed as bad
+    else return false;
+  } else {
+    return true;
+  }
 }
 
 //Does the same for hashIds
@@ -274,7 +252,8 @@ float SCT_DCSConditionsSvc::sensorTemperature(const IdentifierHash& hashId) {
 // This is kept for SiLorentzAngleSvc callback of SCT_SiliconConditionsSvc and SCT_DCSConditionsSvc
 // (2017-09-29)
 StatusCode SCT_DCSConditionsSvc::fillData(int& /* i */, std::list<std::string>& /*keys*/) {
-   return StatusCode::SUCCESS;
+  ATH_MSG_FATAL("SCT_DCSConditionsSvc::fillData should not be used anymore!");
+  return StatusCode::FAILURE;
 }
 
 const SCT_DCSStatCondData*

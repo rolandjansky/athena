@@ -90,9 +90,9 @@ public:
 
 private:
   
-  RecoToTruthTrackMap _rttTrackMap; // mapping from reconstructed track to mc barcode
-  TruthToRecoTrackMap _ttrTrackMap; // mapping from mc barcode to reconstructed track (index into m_tracksName TrackCollection)
-  TruthToRecoProbMap _ttrProbMap;  // mapping from mc barcode to matching fraction for corresponding rttTrackMap entry
+  RecoToTruthTrackMap m_rttTrackMap; // mapping from reconstructed track to mc barcode
+  TruthToRecoTrackMap m_ttrTrackMap; // mapping from mc barcode to reconstructed track (index into m_tracksName TrackCollection)
+  TruthToRecoProbMap m_ttrProbMap;  // mapping from mc barcode to matching fraction for corresponding rttTrackMap entry
 
   typedef enum { TAU_PARENT_BIT , B_PARENT_BIT , PION_PARENT_BIT , PION_IMMEDIATE_PARENT_BIT , NBITS } Bits;
   typedef std::bitset<NBITS> ParentBitmask;
@@ -182,8 +182,8 @@ private:
   // output
   // ================================================================
 
-  mutable boost::shared_ptr<boost::iostreams::filtering_ostream> ofl;
-  mutable boost::shared_ptr<boost::iostreams::filtering_ostream> oflraw;
+  mutable boost::shared_ptr<boost::iostreams::filtering_ostream> m_ofl;
+  mutable boost::shared_ptr<boost::iostreams::filtering_ostream> m_oflraw;
 
 };
 

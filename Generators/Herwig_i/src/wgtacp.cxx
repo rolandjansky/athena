@@ -6,7 +6,7 @@
 #include "Herwig_i/wgtacp.h"
 
 // set pointer to zero at start
-Wgtacp::WGTACP* Wgtacp::_wgtacp = 0;
+Wgtacp::WGTACP* Wgtacp::s_wgtacp = 0;
 
 // Constructor
 Wgtacp::Wgtacp(){

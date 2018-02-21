@@ -14,17 +14,17 @@ TRTStrawStatusWrite::TRTStrawStatusWrite( const std::string &name, ISvcLocator *
   AthAlgorithm( name, pSvcLocator ),
   m_trtStrawStatusIF("TRT_StrawStatusSummarySvc",name),
   m_trtStrawStatus("TRT_StrawStatusSummarySvc",name),
-  //par_statusfile("/afs/cern.ch/user/i/idcalib/w0/TRT_Calibration/uploadedDB/Status/AprilRepro/listHotStraws.collisions2010.athenaFormat.txt"),
-  par_statusfile("dummyNonExisting_TRT_StrawStatus_InputFile"), //  /afs/cern.ch/user/i/idcalib/w0/TRT_Calibration/uploadedDB/Status/2010_09_10_sasa/listNoisyStraws.0162690.athenaFormat.txt"), 
-  par_statusfilepermanent(""),
-  par_statusfileHT("HTtest.t"),
+  //m_par_statusfile("/afs/cern.ch/user/i/idcalib/w0/TRT_Calibration/uploadedDB/Status/AprilRepro/listHotStraws.collisions2010.athenaFormat.txt"),
+  m_par_statusfile("dummyNonExisting_TRT_StrawStatus_InputFile"), //  /afs/cern.ch/user/i/idcalib/w0/TRT_Calibration/uploadedDB/Status/2010_09_10_sasa/listNoisyStraws.0162690.athenaFormat.txt"), 
+  m_par_statusfilepermanent(""),
+  m_par_statusfileHT("HTtest.t"),
   m_setup(false)
 { 
   declareProperty("StatusTool",m_trtStrawStatusIF);
   declareProperty("StrawStatusTool",m_trtStrawStatus);
-  declareProperty("StatusInputFile",par_statusfile);
-  declareProperty("StatusInputFilePermanent",par_statusfilepermanent);
-  declareProperty("StatusInputFileHT",par_statusfileHT);
+  declareProperty("StatusInputFile",m_par_statusfile);
+  declareProperty("StatusInputFilePermanent",m_par_statusfilepermanent);
+  declareProperty("StatusInputFileHT",m_par_statusfileHT);
 }
 
 TRTStrawStatusWrite::~TRTStrawStatusWrite( )
@@ -33,8 +33,8 @@ TRTStrawStatusWrite::~TRTStrawStatusWrite( )
 StatusCode TRTStrawStatusWrite::initialize()
 {
 
-//	par_statusfile= "/afs/cern.ch/user/i/idcalib/w0/TRT_Calibration/uploadedDB/Status/AprilRepro/listHotStraws.collisions2010.athenaFormat.txt";
-//  par_statusfile="/afs/cern.ch/user/i/idcalib/w0/TRT_Calibration/uploadedDB/Status/2010_09_10_sasa/listNoisyStraws.0162690.athenaFormat.txt";
+//	m_par_statusfile= "/afs/cern.ch/user/i/idcalib/w0/TRT_Calibration/uploadedDB/Status/AprilRepro/listHotStraws.collisions2010.athenaFormat.txt";
+//  m_par_statusfile="/afs/cern.ch/user/i/idcalib/w0/TRT_Calibration/uploadedDB/Status/2010_09_10_sasa/listNoisyStraws.0162690.athenaFormat.txt";
 //"/afs/cern.ch/user/a/attrtcal/TRT_Calibration/uploadedDB/Status/2010_06_30/listNoisyStraws.0158269.athenaFormat.txt";
 
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRTStrawStatusWrite initialise" << endmsg;
@@ -71,27 +71,27 @@ StatusCode TRTStrawStatusWrite::execute()
 
   StatusCode sc;
 
-  //par_statusfile= "/afs/cern.ch/user/i/idcalib/w0/TRT_Calibration/uploadedDB/Status/AprilRepro/listHotStraws.collisions2010.athenaFormat.txt";
-//  par_statusfile="/afs/cern.ch/user/i/idcalib/w0/TRT_Calibration/uploadedDB/Status/2010_09_10_sasa/listNoisyStraws.0162690.athenaFormat.txt";
+  //m_par_statusfile= "/afs/cern.ch/user/i/idcalib/w0/TRT_Calibration/uploadedDB/Status/AprilRepro/listHotStraws.collisions2010.athenaFormat.txt";
+//  m_par_statusfile="/afs/cern.ch/user/i/idcalib/w0/TRT_Calibration/uploadedDB/Status/2010_09_10_sasa/listNoisyStraws.0162690.athenaFormat.txt";
 // "/afs/cern.ch/user/a/attrtcal/TRT_Calibration/uploadedDB/Status/2010_06_30/listNoisyStraws.0158269.athenaFormat.txt";
 
-  msg(MSG::INFO) << "TRTStrawStatusWrite::execute write DB tag for straw status file " << par_statusfile << endmsg;
+  msg(MSG::INFO) << "TRTStrawStatusWrite::execute write DB tag for straw status file " << m_par_statusfile << endmsg;
 
   //
   // at first event:
 //  if (!m_setup) {
 //    m_setup=true;
 
-//    if ( (par_statusfile!="") ||  (par_statusfilepermanent!="") ) {
+//    if ( (m_par_statusfile!="") ||  (m_par_statusfilepermanent!="") ) {
       // read status constants from text file
-//      if (par_statusfile!="") 
-sc=m_trtStrawStatus->readFromTextFile(par_statusfile);
-//      if (par_statusfilepermanent!="") sc=m_trtStrawStatus->readFromTextFile(par_statusfilepermanent);
-//      if (par_statusfileHT!="") sc=m_trtStrawStatus->readFromTextFile(par_statusfileHT);
+//      if (m_par_statusfile!="") 
+sc=m_trtStrawStatus->readFromTextFile(m_par_statusfile);
+//      if (m_par_statusfilepermanent!="") sc=m_trtStrawStatus->readFromTextFile(m_par_statusfilepermanent);
+//      if (m_par_statusfileHT!="") sc=m_trtStrawStatus->readFromTextFile(m_par_statusfileHT);
 
       if(sc!=StatusCode::SUCCESS) {
         msg(MSG::ERROR) << " Could not read TRT StrawStatusSummary objects from "
-              << par_statusfile << endmsg;
+              << m_par_statusfile << endmsg;
         return StatusCode::FAILURE;
       }
 //

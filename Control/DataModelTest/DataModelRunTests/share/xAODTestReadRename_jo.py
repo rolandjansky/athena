@@ -39,6 +39,8 @@ AddressRemappingSvc.addInputRename ('DMTest::CVec', 'cvec.dInt1',
                                     'cvec_renamed.dInt1_renamed')
 AddressRemappingSvc.addInputRename ('DMTest::C', 'cinfo.dInt1',
                                     'cinfo.dInt1_renamed')
+AddressRemappingSvc.addInputRename ('DMTest::C', 'cinfo.dInt1Base',
+                                    'cinfo.dInt1_renamedBase')
 
 #--------------------------------------------------------------
 # Event related parameters

@@ -46,7 +46,7 @@ class MuonsDxAODStreamConfigurer:
 
     ### all varaible containers
 #     commonAllVarList = ["Muons", "PrimaryVertices", "InDetTrackParticles", "MuonSegments", "MuonTruthParticles", "CombinedMuonTrackParticles", "ExtrapolatedMuonTrackParticles", "MuonSpectrometerTrackParticles", "InDetForwardTrackParticles"]
-    commonAllVarList = ["Muons", "InDetTrackParticles", "MuonSegments", "MuonTruthParticles", "CombinedMuonTrackParticles", "ExtrapolatedMuonTrackParticles", "MuonSpectrometerTrackParticles", "InDetForwardTrackParticles"]
+    commonAllVarList = ["Muons", "InDetTrackParticles", "MuonSegments", "MuonTruthParticles", "CombinedMuonTrackParticles", "ExtrapolatedMuonTrackParticles", "MuonSpectrometerTrackParticles", "InDetForwardTrackParticles","MSOnlyExtrapolatedMuonTrackParticles"]
     MUON0OnlyAllVar = ['Staus','ExtrapolatedStauTrackParticles','CombinedStauTrackParticles','SlowMuons'] # slow muons
     MUON1OnlyAllVar = ['CaloCalTopoClusters', 'MuonClusterCollection']
     MUON2OnlyAllVar = ['PrimaryVertices']
@@ -84,6 +84,7 @@ class MuonsDxAODStreamConfigurer:
     ### For FSR check
     extraVariables['MUON1'].append('Photons.truthType.truthOrigin.topoetcone40')
     extraVariables['MUON1'].append('Electrons.truthType.truthOrigin.topoetcone40')
+    extraVariables['MUON1'].append('InDetTrackParticles.deltaphi_0.deltatheta_0.sigmadeltaphi_0.sigmadeltatheta_0.deltaphi_1.deltatheta_1.sigmadeltaphi_1.sigmadeltatheta_1')
 
     ### PV slimming for size reduction
     pvExtra = 'PrimaryVertices.numberDoF.chiSquared.sumPt2.x.y.z'

@@ -7,9 +7,9 @@ atlas_subdir( TrkTrack )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
-                          Control/CLIDSvc
-                          Control/DataModel
-                          Control/SGTools
+                          Control/AthenaKernel
+                          Control/AthLinks
+                          Control/AthContainers
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/TrkMaterialOnTrack
                           Tracking/TrkEvent/TrkMeasurementBase
@@ -30,13 +30,13 @@ atlas_add_library( TrkTrack
                    src/*.cxx
                    PUBLIC_HEADERS TrkTrack
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES DataModel SGTools TrkEventPrimitives TrkMaterialOnTrack TrkMeasurementBase TrkNeutralParameters TrkParameters
+                   LINK_LIBRARIES AthLinks AthContainers TrkEventPrimitives TrkMaterialOnTrack TrkMeasurementBase TrkNeutralParameters TrkParameters
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} Identifier GaudiKernel TrkSurfaces TrkTrackSummary )
 
 atlas_add_dictionary( TrkTrackDict
                       TrkTrack/TrkTrackDict.h
                       TrkTrack/selection.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} DataModel SGTools TrkEventPrimitives TrkMaterialOnTrack TrkMeasurementBase TrkNeutralParameters TrkParameters Identifier GaudiKernel TrkSurfaces TrkTrackSummary TrkTrack
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthLinks AthContainers TrkEventPrimitives TrkMaterialOnTrack TrkMeasurementBase TrkNeutralParameters TrkParameters Identifier GaudiKernel TrkSurfaces TrkTrackSummary TrkTrack
                       ELEMENT_LINKS TrackCollection )
 

@@ -71,7 +71,7 @@ StatusCode RpcRdoToRpcPrepData::initialize(){
 
 StatusCode RpcRdoToRpcPrepData::execute() {
 
-    StatusCode status= StatusCode::SUCCESS;;
+    StatusCode status= StatusCode::SUCCESS;
 
     
     ATH_MSG_DEBUG("**************** in RpcRdoToRpcPrepData::execute() ***********************************************");

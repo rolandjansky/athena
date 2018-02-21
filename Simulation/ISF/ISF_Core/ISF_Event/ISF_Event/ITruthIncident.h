@@ -106,6 +106,14 @@ namespace ISF {
     /** Set whether this TruthIncident should pass the vertex as a whole or individual children */
     inline void                       setPassWholeVertices(bool passWholeVertex);
 
+    /**  The interaction classifications are described as follows:
+         case 0: interaction of a particle without a pre-defined decay;
+         case 1: a particle with a pre-defined decay under-going a
+         non-destructive interaction;
+         case 2: a particle with a pre-defined decay under-going a
+         destructive interaction other than its pre-defined decay;
+         case 3: a particle under-going its pre-defined decay */
+    virtual int                        interactionClassification() const {return 0;};
   private:
     AtlasDetDescr::AtlasRegion        m_geoID; //!< region that the TruthIncident is located in
   protected:

@@ -532,7 +532,7 @@ uint64_t FTKPattGenRoot::trackInvertion(u_int64_t ntrials, bool smear) {
                (Amg::Vector3D(m_beamspot[0],m_beamspot[1],0.));
 
             Trk::MagneticFieldProperties magnet
-               =Trk::MagneticFieldProperties(Trk::FullField);;
+               =Trk::MagneticFieldProperties(Trk::FullField);
             const Trk::TrackParameters* tP=
                (*m_propagator)->propagate
                (trackpar,beamspot,Trk::anyDirection, false,magnet);

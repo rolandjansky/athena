@@ -14,11 +14,10 @@ def getSCT_DetectorTool(name="SCT_DetectorTool", **kwargs):
         # SCTLorentzAngleSvc needed for digi and reco
         from AthenaCommon.AppMgr        import ServiceMgr
         if not hasattr(ServiceMgr,'SCTLorentzAngleSvc'):
-            from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleSvc
-            SCTLorentzAngleSvc = SiLorentzAngleSvc(name = "SCTLorentzAngleSvc",
-                                                   SiConditionsServices = None,
-                                                   UseMagFieldSvc = False,
-                                                   DetectorName = "SCT")
+            from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleCHSvc
+            SCTLorentzAngleSvc = SiLorentzAngleCHSvc(name = "SCTLorentzAngleSvc",
+                                                     UseMagFieldSvc = False,
+                                                     DetectorName = "SCT")
             ServiceMgr+=SCTLorentzAngleSvc
         kwargs.setdefault("LorentzAngleSvc",  "SCTLorentzAngleSvc");
     else:

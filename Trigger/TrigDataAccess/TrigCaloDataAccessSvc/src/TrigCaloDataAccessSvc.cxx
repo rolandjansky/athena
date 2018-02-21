@@ -3,10 +3,11 @@
 */
 #include "AthenaMonitoring/MonitoredScope.h"
 #include "TrigCaloDataAccessSvc.h"
-
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
 
 TrigCaloDataAccessSvc::TrigCaloDataAccessSvc( const std::string& name, ISvcLocator* pSvcLocator )
-  : base_class( name, pSvcLocator ) {
+  : base_class( name, pSvcLocator ), m_lateInitDone(false), m_nSlots(0) {
 }
 
 TrigCaloDataAccessSvc::~TrigCaloDataAccessSvc() {}
@@ -20,25 +21,32 @@ StatusCode TrigCaloDataAccessSvc::initialize() {
   return StatusCode::SUCCESS;
 }
 
-static const std::vector<unsigned> LAr { TTEM, TTHEC, FCALEM, FCALHAD };
+StatusCode TrigCaloDataAccessSvc::finalize() {
 
-TrigCaloDataAccessSvc::Status 
-TrigCaloDataAccessSvc::prepareCollections( const EventContext& context,
-					   const IRoiDescriptor& roi, 
-					   DETID detid ) {
-  if ( std::count( LAr.begin(), LAr.end(),  detid ) )
-    return prepareLArCollections( context, roi, detid );
-  else
-    return Status::InternalError;
+  std::lock_guard<std::mutex> lock( m_initMutex ); // use the initMutex to finalize
+  if ( m_lateInitDone ) { // otherwise nothing to delete
+  m_vrodid32fullDet.clear();
+  for( size_t ii=0;ii<m_vrodid32fullDetHG.size();ii++) { m_vrodid32fullDetHG[ii].clear(); }
+  m_vrodid32fullDetHG.clear(); 
+  for ( size_t slot  = 0; slot <  m_nSlots; ++ slot ) {
+      EventContext ec;
+      ec.setSlot( slot );
+      HLTCaloEventCache *cache = m_larcell.get( ec );
+      cache->container->finalize();
+      delete cache->container;
+      cache->lastFSEvent = 0xFFFFFFFF;
+      delete cache->fullcont;
+  } // end of for slots
+  } // end of m_lateInitDone
+  m_lateInitDone=false;
+  return StatusCode::SUCCESS;
 }
 
-TrigCaloDataAccessSvc::Status 
-TrigCaloDataAccessSvc::prepareFullCollections( const EventContext& context, DETID detid ) {
 
-  if ( std::count( LAr.begin(), LAr.end(),  detid ) )
-    return prepareLArFullCollections( context, detid );
-  else
-    return Status::InternalError;
+TrigCaloDataAccessSvc::Status 
+TrigCaloDataAccessSvc::prepareFullCollections( const EventContext& context ) {
+
+  return prepareLArFullCollections( context );
   
 }
 
@@ -46,22 +54,25 @@ TrigCaloDataAccessSvc::prepareFullCollections( const EventContext& context, DETI
 TrigCaloDataAccessSvc::Status 
 TrigCaloDataAccessSvc::loadCollections ( const EventContext& context,
 					 const IRoiDescriptor& roi,
+					 const DETID detID,
+					 const int sampling,
 					 LArTT_Selector<LArCellCont>& loadedCells ) {
 
   std::vector<IdentifierHash> requestHashIDs;  
   Status status;
 
   ATH_MSG_DEBUG( "LArTT requested for event " << context << " and RoI " << roi );  
-  status += prepareLArCollections( context, roi, TTEM );
-  status += prepareLArCollections( context, roi, TTHEC );
-  status += prepareLArCollections( context, roi, FCALEM );
-  status += prepareLArCollections( context, roi, FCALHAD );
+  status += prepareLArCollections( context, roi, sampling, detID );
   
   if ( not status.success() )
     return status;
   
   
-  m_regionSelector->DetHashIDList( TTEM, roi, requestHashIDs );
+  { 
+    // this has to be guarded because getTT called on the LArCollection bu other threads updates internal map
+    std::lock_guard<std::mutex> getCollClock{ m_larcell.get( context )->mutex };       
+    m_regionSelector->DetHashIDList( detID, sampling, roi, requestHashIDs );
+  }
   
   ATH_MSG_DEBUG( "requestHashIDs.size() in LoadColl = " << requestHashIDs.size()  << " hash checksum " 
     		 << std::accumulate( requestHashIDs.begin(), requestHashIDs.end(), IdentifierHash( 0 ),  
@@ -70,7 +81,7 @@ TrigCaloDataAccessSvc::loadCollections ( const EventContext& context,
     for( unsigned int i = 0 ; i < requestHashIDs.size() ; i++ )
       ATH_MSG_VERBOSE( "m_rIds[" << i << "]=" << requestHashIDs[i] );
   }
-  loadedCells.setContainer( & ( m_larcell.get( context )->container ) );
+  loadedCells.setContainer( ( m_larcell.get( context )->container ) );
   loadedCells.setMap( m_roiMapTool.operator->() );    
 
   { 
@@ -81,125 +92,203 @@ TrigCaloDataAccessSvc::loadCollections ( const EventContext& context,
   return status;
 }
 
-
-
-
-
 TrigCaloDataAccessSvc::Status 
 TrigCaloDataAccessSvc::loadFullCollections ( const EventContext& context,
-					     DETID detid,
-					     LArTT_Selector<LArCellCont>::const_iterator& begin,
-					     LArTT_Selector<LArCellCont>::const_iterator& end ) {
-  std::lock_guard<std::mutex> getCollClock{ m_getCollMutex };   
-  Status status = prepareLArFullCollections( context, detid );
-  auto setIterators = [&]( const LArTT_Selector<LArCellCont>& selector ) {
-    begin = selector.begin();
-    end   = selector.end();
-  };
+					     ConstDataVector<CaloCellContainer>& cont ) {
 
-  if ( detid == 0 ) {
-    setIterators( m_larcell.get( context )->allSelector );
-  } else if ( detid == TTEM ) {
-    setIterators ( m_larcell.get( context )->ttemSelector );
-  } else if ( detid == TTHEC ) {
-    setIterators(  m_larcell.get( context )->tthecSelector );
-  } else if ( detid == FCALEM ) {
-    setIterators( m_larcell.get( context )->fcalemSelector );
-  } else if ( detid == FCALHAD ) {
-    setIterators( m_larcell.get( context )->fcalhadSelector );
-  } else {
-    ATH_MSG_ERROR( "Impossible detector ID " << detid );
-    return Status::InternalError;
-  }
+  Status status = prepareLArFullCollections( context );
+
+  std::lock_guard<std::mutex> getCollClock{ m_getCollMutex };   
+  CaloCellContainer* cont_to_copy = m_larcell.get(context)->fullcont ;
+  cont.clear();
+  cont.reserve( cont_to_copy->size() );
+  for( const CaloCell* c : *cont_to_copy ) cont.push_back( c );
       
   return status;
 }
 
 
 TrigCaloDataAccessSvc::Status 
-TrigCaloDataAccessSvc::prepareLArFullCollections( const EventContext& context, DETID detid ) {
+TrigCaloDataAccessSvc::prepareLArFullCollections( const EventContext& context ) {
 
-  ATH_MSG_DEBUG( "Full LArTT " << detid << " requested for event " << context );
-  if ( lateInit().isFailure() ) {
+  ATH_MSG_DEBUG( "Full Col " << " requested for event " << context );
+  if ( !m_lateInitDone && lateInit().isFailure() ) {
     return Status::InternalError;
   }
-  
-  m_roiMapTool->CollectionID( 0 ); // triggers init of the inner structures
 
-  const std::vector<uint32_t>* requestROBs = nullptr;
-  if ( detid == 0 ) {
-    requestROBs =  &m_allLArIDs.robs;
-  } else {
-    DETIDtoIdentifiers::const_iterator ids = m_detectorIDs.find( detid );
-    if ( ids == m_detectorIDs.end() ) {
-      ATH_MSG_ERROR( "Impossible detector ID " << detid );
-      return Status::InternalError;
-    }    
-    requestROBs = &( ids->second.robs );
-  }
-
-  std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> robFrags;
-  {
-    std::lock_guard<std::mutex> dataPrepLock { m_dataPrepMutex };
-    m_robDataProvider->addROBData( *requestROBs );
-    m_robDataProvider->getROBData( *requestROBs, robFrags );      
-  }
-
-  LArEventCache* cache = m_larcell.get( context );
+  HLTCaloEventCache* cache = m_larcell.get( context );
   
   auto lockTime = Monitored::MonitoredTimer::declare ( "TIME_locking_LAr_FullDet" );  
   std::lock_guard<std::mutex> collectionLock { cache->mutex };  
   lockTime.stop();
 
-  cache->container.eventNumber( context.evt() );
-  
-  Status status = convertROBs( robFrags, &( cache->container ) );
+  if ( cache->lastFSEvent == context.evt() ) return Status(0);
 
-  if ( requestROBs->size() != robFrags.size() ) {
-    ATH_MSG_DEBUG( "Missing ROBs, requested " << requestROBs->size() << " obtained " << robFrags.size() );
-    status.addError( Status::MissingROB );
-    clearMissing( *requestROBs, robFrags, &( cache->container ) );
-  }
+  Status status;
+
+  for( size_t ii=0;ii<m_vrodid32fullDetHG.size();ii++) {
+      std::vector<uint32_t>& vrodid32fullDet = m_vrodid32fullDetHG[ii];
+      std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> robFrags;
+      {
+        std::lock_guard<std::mutex> dataPrepLock { m_dataPrepMutex };
+        // To be confirmed whether we need this or not
+        m_robDataProvider->addROBData( vrodid32fullDet );
+        m_robDataProvider->getROBData( context, vrodid32fullDet, robFrags );      
+      }
+      cache->container->eventNumber( context.evt() ) ;
+      
+      Status status_loc = ( convertROBs( robFrags, ( cache->container ) ) );
+      status.addError(status_loc.mask());
+      
+      if ( vrodid32fullDet.size() != robFrags.size() ) {
+        ATH_MSG_DEBUG( "Missing ROBs, requested " << vrodid32fullDet.size() << " obtained " << robFrags.size() );
+        status.addError( Status::MissingROB );
+        clearMissing( vrodid32fullDet, robFrags, ( cache->container ) );
+      }
+
+  } // end of for m_vrodid32fullDetHG.size()
+
+  int detid(0);
   auto detidMon = Monitored::MonitoredScalar::declare<int>( "det", detid );
 
   Monitored::MonitoredScope::declare( m_monTool, lockTime, detidMon );
+  // collection prepared
+  cache->lastFSEvent = context.evt();
   return status;  
 }
 
+StatusCode TrigCaloDataAccessSvc::lateInit() { // non-const this thing
 
-
-StatusCode TrigCaloDataAccessSvc::lateInit() {
   std::lock_guard<std::mutex> lock( m_initMutex );
   if ( m_lateInitDone ) 
     return StatusCode::SUCCESS;
   
   ATH_MSG_DEBUG( "Performing late init" );
-  // filling all sub det selectors
-  for ( auto detector: {TTEM, TTHEC, FCALEM, FCALHAD } ) {
-    m_regionSelector->DetROBIDListUint( detector, m_detectorIDs[detector].robs );
-    m_regionSelector->DetHashIDList(    detector, m_detectorIDs[detector].ids );
-    m_allLArIDs.merge( { m_detectorIDs[detector] } );
+
+  // allocate collections
+  m_nSlots = SG::getNSlots();
+
+  // preparing full container list of ROBs - tile will be included soon
+  std::vector<uint32_t> vrodid32lar;
+  std::vector<uint32_t> vrodid32em;
+  std::vector<uint32_t> vrodid32hec;
+  std::vector<uint32_t> vrodid32hec0;
+  std::vector<uint32_t> vrodid32hec1;
+  std::vector<uint32_t> vrodid32hec2;
+  std::vector<uint32_t> vrodid32hec3;
+  std::vector<uint32_t> vrodid32fcalem;
+  std::vector<uint32_t> vrodid32fcalhad;
+  std::vector<uint32_t> vrodid32tile;
+  std::vector<uint32_t> vrodid32ros; //  for virtual  lar ros in ROBs
+  std::vector<uint32_t> vrodid32tros; // for virtual tile ros in ROBs
+
+  TrigRoiDescriptor tmproi(true);
+  // TTEM
+  m_regionSelector->DetROBIDListUint(TTEM,-1,tmproi,vrodid32em);
+  // TTHEC
+  m_regionSelector->DetROBIDListUint(TTHEC,0,tmproi,vrodid32hec0);
+  m_regionSelector->DetROBIDListUint(TTHEC,1,tmproi,vrodid32hec1);
+  m_regionSelector->DetROBIDListUint(TTHEC,2,tmproi,vrodid32hec2);
+  m_regionSelector->DetROBIDListUint(TTHEC,3,tmproi,vrodid32hec3);
+  // FCALHAD
+  m_regionSelector->DetROBIDListUint(FCALHAD,-1,tmproi,vrodid32fcalhad);
+  m_regionSelector->DetROBIDListUint(FCALEM,-1,tmproi,vrodid32fcalem);
+  vrodid32lar.insert(vrodid32lar.end(),vrodid32em.begin(),vrodid32em.end());
+  vrodid32hec.insert(vrodid32hec.end(),vrodid32hec0.begin(),vrodid32hec0.end());
+  vrodid32lar.insert(vrodid32lar.end(),vrodid32hec.begin(),vrodid32hec.end());
+  vrodid32lar.insert(vrodid32lar.end(),vrodid32fcalhad.begin(),vrodid32fcalhad.end());
+  vrodid32lar.insert(vrodid32lar.end(),vrodid32fcalem.begin(),vrodid32fcalem.end());
+  m_vrodid32fullDet.insert(m_vrodid32fullDet.end(), vrodid32lar.begin(), vrodid32lar.end() );
+
+  unsigned int nFebs=70;
+  unsigned int high_granu = (unsigned int)ceilf(m_vrodid32fullDet.size()/((float)nFebs) );
+  unsigned int jj=0;
+  unsigned int kk=0;
+  m_vrodid32fullDetHG.resize(high_granu);
+  for( unsigned int ii=0; ii<m_vrodid32fullDet.size();ii++){
+	if ( kk >= nFebs ) {
+	   kk-=nFebs;
+	   jj++;
+	}
+	std::vector<uint32_t> & vec = m_vrodid32fullDetHG.at(jj);
+	vec.push_back(m_vrodid32fullDet[ii]);
+	kk++;
   }
-    
+  const CaloDetDescrManager* theCaloDDM = CaloDetDescrManager::instance();
+  const CaloCell_ID* theCaloCCIDM = theCaloDDM->getCaloCell_ID();
+  unsigned int hashMax = theCaloCCIDM->calo_cell_hash_max();
 
-  for ( LArEventCache& cache: m_larcell ) { 
-    CHECK( cache.container.initialize( m_applyOffsetCorrection ) );
+  // Prepare cache containers to be used for LAr unpacking.
+  for ( size_t slot  = 0; slot <  m_nSlots; ++ slot ) {
+  EventContext ec;
+  ec.setSlot( slot );
+  HLTCaloEventCache *cache = m_larcell.get( ec );
+  cache->container = new LArCellCont();
+  CHECK( cache->container->initialize( m_applyOffsetCorrection ) );
+  std::vector<CaloCell*> local_cell_copy;
+  local_cell_copy.reserve(200000);
+  LArCellCont* larcell = cache->container;
+  cache->lastFSEvent = 0xFFFFFFFF;
+  CaloCellContainer* cachefullcont = new CaloCellContainer(SG::VIEW_ELEMENTS);
+  cachefullcont->reserve(190000);
+  for(unsigned int lcidx=0; lcidx < larcell->size(); lcidx++){
+          LArCellCollection* lcc = larcell->at(lcidx);
+          unsigned int lccsize = lcc->size();
+          for(unsigned int lccidx=0; lccidx<lccsize; lccidx++){
+                  CaloCell* cell = ((*lcc).at(lccidx));
+                  if ( cell && cell->caloDDE() ) local_cell_copy.push_back( cell );
+          } // end of loop over cells
+    } // end of loop over collection
 
-    auto prepareSelectors = [&]( LArTT_Selector<LArCellCont>& selector, const FullDetIDs& i ) {
-      selector.setContainer( &( cache.container ) );
-      selector.setMap( m_roiMapTool.operator->() );
-      selector.setRoIs( i.ids );      
+// This should stay here as this will be enabled when tile is ready to be decoded as well
+/*
+    for(unsigned int lcidx=0; lcidx < m_tilecell->size(); lcidx++){
+          TileCellCollection* lcc = m_tilecell->at(lcidx);
+          unsigned int lccsize = lcc->size();
+          for(unsigned int lccidx=0; lccidx<lccsize; lccidx++){
+                  CaloCell* cell = ((*lcc).at(lccidx));
+                  if ( cell ) local_cell_copy.push_back( cell );
+          } // end of loop over cells
+    } // end of loop over collection
+*/
 
-    };
-    prepareSelectors( cache.allSelector,     m_allLArIDs );
-    prepareSelectors( cache.ttemSelector,    m_detectorIDs[TTEM] );
-    prepareSelectors( cache.tthecSelector,   m_detectorIDs[TTHEC] );
-    prepareSelectors( cache.fcalemSelector,  m_detectorIDs[FCALEM] );
-    prepareSelectors( cache.fcalhadSelector, m_detectorIDs[FCALHAD] );    
+  // For the moment the container has to be completed by hand (again, because of tile)
+  for(unsigned int i=0;i<hashMax;i++){
+        cachefullcont->push_back_fast(nullptr);
   }
 
+  unsigned int localcellMax = local_cell_copy.size();
+  for(unsigned int i=0;i<localcellMax;i++){
+        unsigned int j = local_cell_copy.at(i)->caloDDE()->calo_hash();
+        if ( j < hashMax ) {
+                cachefullcont->at(j) = local_cell_copy.at(i);
+        }
+  }
+  for(unsigned int i=0;i<hashMax;i++)
+        if ( cachefullcont->at(i) == nullptr ){
+                Identifier id = theCaloCCIDM->cell_id(i);
+                if ( id!=0 ){
+                  const CaloDetDescrElement* el = theCaloDDM->get_element(id);
+                  cachefullcont->at(i) = (new CaloCell(el,0,0,0,(CaloGain::CaloGain)0) );
+                }
+        }
 
+  cachefullcont->setHasCalo(CaloCell_ID::LAREM);
+  cachefullcont->setHasCalo(CaloCell_ID::LARHEC);
+  cachefullcont->setHasCalo(CaloCell_ID::LARFCAL);
+  cachefullcont->setHasCalo(CaloCell_ID::TILE); //lying... But this needs to be checked later
 
+  // make sure this "map" container has a good hashID
+  cachefullcont->order();
+
+  if ( hashMax != cachefullcont->size() )
+    ATH_MSG_ERROR("Problem in the size of the full container");
+  cachefullcont->setIsOrdered(true);
+  cachefullcont->setIsOrderedAndComplete(true);
+  cache->fullcont = cachefullcont;
+
+  local_cell_copy.clear();
+  }
   m_lateInitDone = true;
   return StatusCode::SUCCESS;
 }
@@ -208,7 +297,6 @@ TrigCaloDataAccessSvc::Status
 TrigCaloDataAccessSvc::convertROBs( const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& robFrags, LArCellCont* larcell ) {
 
   Status status;
-  ATH_MSG_DEBUG( "start decoding" );
   for ( auto rob: robFrags ) {
     uint32_t sourceID = rob->source_id();
     const std::vector<LArCellCollection*>::const_iterator it = larcell->find( sourceID );
@@ -243,28 +331,13 @@ TrigCaloDataAccessSvc::convertROBs( const std::vector<const OFFLINE_FRAGMENTS_NA
 	  // Data seems corrupted
 	  status.addError( Status::RawDataCorrupted );
 	  reset_LArCol ( coll );
-	  //return StatusCode::SUCCESS;
 	} else { // End of if small size
 	  //TB the converter has state
 	  m_larDecoder->setRobFrag( rob );
 	  m_larDecoder->fillCollectionHLT( roddata, roddatasize, *coll );
 
-
-	  // size_t collsize = coll->size();	  
-	  // for(int i=0;i<collsize;i++) {
-	  //   std::cout << sourceID << " " << collsize << " " << i << " ";
-	  //   std::cout << coll->at(i) << "ID " << coll->at(i)->ID() << " ";
-	  //   std::cout << coll->at(i)->energy() << " DDE ";
-	  //   std::cout << coll->at(i)->caloDDE() << "\n";
-	  //   if ( coll->at(i)->caloDDE() ) {
-	  //     std::cout << coll->at(i)->eta() << " ";
-	  //     std::cout << coll->at(i)->phi() << " \n";
-	  //   }
-	  // }
-	  
-
 	  // Accumulates inferior byte from ROD Decoder
-	  // TB the converter has state! we need to fix it
+	  // TB the converter has state
 	  status.addError( m_larDecoder->report_error() );
 
 	  if ( m_applyOffsetCorrection ) larcell->applyBCIDCorrection( sourceID );
@@ -311,24 +384,28 @@ void TrigCaloDataAccessSvc::clearMissing( const std::vector<uint32_t>& request,
 TrigCaloDataAccessSvc::Status 
 TrigCaloDataAccessSvc::prepareLArCollections( const EventContext& context,
 					      const IRoiDescriptor& roi, 
+					      const int sampling,
 					      DETID detector ) {
-  if ( lateInit().isFailure() ) {
+
+  // If the full event was already unpacked, don't need to unpack RoI
+  if ( !m_lateInitDone && lateInit().isFailure() ) {
     return Status::InternalError;
   }
+  HLTCaloEventCache* cache = m_larcell.get( context );
+  if ( cache->lastFSEvent == context.evt() ) return Status(0);
 
   std::vector<uint32_t> requestROBs;
 
   std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> robFrags;
   {
     std::lock_guard<std::mutex> dataPrepLock { m_dataPrepMutex };
-    m_regionSelector->DetROBIDListUint( detector, roi, requestROBs ); // we know that the RegSelSvc is thread safe   
-    m_robDataProvider->getROBData( requestROBs, robFrags );
+    m_regionSelector->DetROBIDListUint( detector, sampling, roi, requestROBs ); // we know that the RegSelSvc is thread safe   
+    m_robDataProvider->addROBData( requestROBs );
+    m_robDataProvider->getROBData( context, requestROBs, robFrags );
   }
   if ( robFrags.empty() ) {
     return Status();
   }
-
-  LArEventCache* cache = m_larcell.get( context );
 
   auto lockTime = Monitored::MonitoredTimer::declare ( "TIME_locking_LAr_RoI" );  
   std::lock_guard<std::mutex> collectionLock { cache->mutex };  
@@ -338,14 +415,14 @@ TrigCaloDataAccessSvc::prepareLArCollections( const EventContext& context,
   // if this event number is different than the one for each collection the unpacking will happen, 
   // if it is the same the unpacking will not be repeated
   // same in prepareLArFullCollections
-  cache->container.eventNumber( context.evt() );
+  cache->container->eventNumber( context.evt() );
   
-  Status status = convertROBs( robFrags, &( cache->container ) );
+  Status status = convertROBs( robFrags, ( cache->container ) );
 
   if ( requestROBs.size() != robFrags.size() ) {
     ATH_MSG_DEBUG( "Missing ROBs, requested " << requestROBs.size() << " obtained " << robFrags.size() );
     status.addError( Status::MissingROB );
-    clearMissing( requestROBs, robFrags, &( cache->container ) );
+    clearMissing( requestROBs, robFrags, ( cache->container ) );
   }
   auto roiROBs = Monitored::MonitoredScalar::declare( "roiROBs_LAr", robFrags.size() );
   auto roiEta = Monitored::MonitoredScalar::declare( "roiEta_LAr", roi.eta() );

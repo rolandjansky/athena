@@ -293,7 +293,7 @@ TGCSlaveBoard& TGCSlaveBoard::operator=(const TGCSlaveBoard& right)
     patchPanelOut=0;
     if(right.patchPanelOut) patchPanelOut = new TGCPatchPanelOut(*right.patchPanelOut);
 
-    lengthOfCoincidenceOut = right.lengthOfCoincidenceOut;;
+    lengthOfCoincidenceOut = right.lengthOfCoincidenceOut;
     if(coincidenceOut!=0) delete coincidenceOut;
     coincidenceOut=0;
     if(right.coincidenceOut) coincidenceOut = new TGCHitPattern(*right.coincidenceOut);

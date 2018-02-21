@@ -110,7 +110,7 @@ StatusCode InDetDD::BLM_Builder::build(GeoVPhysVol* pv)
 //  ATH_MSG_INFO("BLMBuilder building..."); //commented out by D.Dobos on request by M.Elsing
  
   const StoredMaterialManager * materialManager;
-  const AbsMaterialManager * mat_mgr = 0;;
+  const AbsMaterialManager * mat_mgr = 0;
   if (StatusCode::SUCCESS == detStore()->retrieve(materialManager, std::string("MATERIALS"))) {
     mat_mgr = materialManager;
   }

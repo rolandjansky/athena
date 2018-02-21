@@ -61,9 +61,6 @@ namespace pool {
       /// Checks if a transaction is active
       bool isTransactionActive() const;
 
-      /// Returns the container name for object
-      std::string getContName(const Token& token);
-
       /// Gives the list of containers
       std::vector< std::string > containers();
 
@@ -96,9 +93,6 @@ namespace pool {
 
       /// Reads an object given a token
       void* readObject( const Token& token, void* object = 0 );
-
-      /// Deletes an object from the persistent store
-      bool destroyObject( const Token& token );
 
       /// Returns an attrtibute
       bool attribute( const std::string& attributeName,

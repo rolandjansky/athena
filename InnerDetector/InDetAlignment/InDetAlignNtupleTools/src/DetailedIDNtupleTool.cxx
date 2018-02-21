@@ -19,7 +19,6 @@
 #include "InDetIdentifier/TRT_ID.h"
 
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
-#include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkAlignEvent/AlignModuleList.h"
 #include "TrkAlignEvent/AlignModule.h"
 #include "TrkAlignEvent/AlignTSOS.h"
@@ -27,7 +26,6 @@
 #include "TrkAlignEvent/AlignPar.h"
 #include "TrkAlignEvent/Residual.h"
 
-#include "TrkToolInterfaces/ITruthToTrack.h"
 #include "TrkTruthData/TrackTruth.h"
 #include "TrkTruthData/TrackTruthCollection.h"
 #include "HepMC/GenParticle.h"
@@ -55,9 +53,6 @@ DetailedIDNtupleTool::DetailedIDNtupleTool(const std::string& type, const std::s
 	: AthAlgTool(type,name,parent)
 	, m_trackSumTool("Trk::TrackSummaryTool/TrackSummaryTool", this)
         , m_alignModuleTool("")
-        , m_truthToTrack("Trk::TruthToTrack/InDetTruthToTrack")
-        , m_extrapolator("Trk::Extrapolator/AtlasExtrapolator")
-        , m_idHelper(0)
         , m_storeNormalRefittedOnly(false)
         , m_storeConstrainedOnly(true)
         , m_storeTruth(true)

@@ -53,8 +53,12 @@ def run_one(system, lbtime, run_iovs):
         if config.opts.dont_ignore_system_exceptions:
             raise
         log.exception("Continuing. Use -e -X commandline to investigate")
-        from traceback import format_exc
-        #print format_exc()
+        if config.opts.email_on_failure:
+            from DataQualityUtils.panic import panic
+            from traceback import format_exc
+            runnum = lbtime[0].Run if len(lbtime)>0 else '??????'
+            panicmsg = "DCS Calculator failed to execute in run %s for system %s.\n\n%s" % (runnum, system, format_exc())
+            panic(panicmsg)
         return None
     except (KeyboardInterrupt, SystemExit):
         raise
@@ -87,7 +91,7 @@ def run_sequential(systems, lbtime, run_iovs):
             
     return result_iovs
 
-def go(iov, systems, db, timewise=False):
+def go(iov, systems, db, indb, timewise=False):
     """
     Run the DCS calculator for `run` on the `systems` specified, saving the 
     result to the `database`.
@@ -96,7 +100,7 @@ def go(iov, systems, db, timewise=False):
 
     with timer("Read LBLB"):
         # fetch lumi block info
-        lblb = fetch_iovs("LBLB", since, until, with_channel=False)
+        lblb = fetch_iovs("LBLB", since, until, with_channel=False, database='COOLONL_TRIGGER/%s' % indb)
         assert lblb, "No luminosity blocks for desired range. [%s, %s)" % (since, until)
         
         # lumi block time info
@@ -147,8 +151,9 @@ def go(iov, systems, db, timewise=False):
                                    iov.comment,
                                    'sys:defectcalculator',
                                    iov.present)
-            dest = "%s::/GLOBAL/DETSTATUS/DCSOFL" % db
-            write_iovs(dest, dcsofl_iovs, dcsofl_cool_record(), create=True)
+            #disable DCSOFL
+            #dest = "%s::/GLOBAL/DETSTATUS/DCSOFL" % db
+            #write_iovs(dest, dcsofl_iovs, dcsofl_cool_record(), create=True)
         
     args = len(result_iovs), hash(result_iovs)
     log.info("Success. Calculated %i iovs. Result hash: 0x%0x8." % args)
@@ -156,7 +161,7 @@ def go(iov, systems, db, timewise=False):
 def main(argv):
     
     optp, opts, args = config.parse_options(argv)
-        
+
     init_logger(opts.verbose)
     
     log.info("Using %s" % get_package_version("DQUtils"))
@@ -167,8 +172,11 @@ def main(argv):
     log.debug("Current configuration: %s" % (opts))
     
     if opts.shell_on_exception: 
-        from IPython.Shell import IPShellEmbed
-        ipython_instance = IPShellEmbed(["-pdb"], rc_override=dict(quiet=True))   
+        import sys
+        from IPython.core import ultratb
+        sys.excepthook = ultratb.FormattedTB(call_pdb=True)
+        #from IPython.Shell import IPShellEmbed
+        #ipython_instance = IPShellEmbed(["-pdb"], rc_override=dict(quiet=True))
     
     if opts.systems is None:
         systems = ALL_SYSTEMS
@@ -180,7 +188,8 @@ def main(argv):
             if system not in SYSTEM_MAP:
                 invalid_systems.append(system)
             else:
-                systems.append(SYSTEM_MAP[system])
+		if system != "Pixels":                
+		    systems.append(SYSTEM_MAP[system])
                 
         if invalid_systems:
             optp.error("Invalid system(s) specified: {0}. "
@@ -203,5 +212,5 @@ def main(argv):
     else:
         iov = RunLumi(since, 0), RunLumi(until+1, 0)
     
-    go(iov, systems, opts.output_database, opts.timewise)
+    go(iov, systems, opts.output_database, opts.input_database, opts.timewise)
 

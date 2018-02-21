@@ -40,7 +40,7 @@ TileMuonReceiverObj::operator std::string() const
    text << " Tile decision (4-bit word) ";
    for (unsigned int i=0; i<m_TileMuRcvDecision.size(); ++i) text << " " << m_TileMuRcvDecision[i];
    text << " Thres d6H d6L d56H d56L "; 
-   for (unsigned int i=0; i<m_TileMuRcvThresholds.size(); ++i) text << " " << m_TileMuRcvThresholds[i];;
+   for (unsigned int i=0; i<m_TileMuRcvThresholds.size(); ++i) text << " " << m_TileMuRcvThresholds[i];
    text << " e(d6) e(d5+d6) ";
    for (unsigned int i=0; i<m_TileMuRcvEne.size(); ++i) text << " " << m_TileMuRcvEne[i];
    text << " t(d6) t(d5+d6/2.) "; 

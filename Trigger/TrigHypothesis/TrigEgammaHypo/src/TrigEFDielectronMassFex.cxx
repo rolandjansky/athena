@@ -249,7 +249,7 @@ void TrigEFDielectronMassFex::process(HLT::TEConstVec& inputTE, xAOD::TrigCompos
                 // good combination found
                 m_monCut = 3;
                 m_monMassAccepted = mass;
-                xAOD::TrigComposite *comp=new xAOD::TrigComposite();;
+                xAOD::TrigComposite *comp=new xAOD::TrigComposite();
                 objs->push_back(comp);
                 comp->setName("elel");
                 comp->setDetail("mass",mass);
@@ -287,7 +287,7 @@ void TrigEFDielectronMassFex::process(HLT::TEConstVec& inputTE, xAOD::TrigCompos
                 // good combination found
                 m_monCut = 5;
                 m_monMassAccepted = mass;
-                xAOD::TrigComposite *comp=new xAOD::TrigComposite();;
+                xAOD::TrigComposite *comp=new xAOD::TrigComposite();
                 objs->push_back(comp);
                 comp->setName("elcl");
                 comp->setDetail("mass",mass);

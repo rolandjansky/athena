@@ -59,11 +59,10 @@ elif ( DetFlags.detdescr.ID_on() ):
                 sctSLHCTool.ServiceBuilderTool = InDetServMatBuilderToolSLHC
             GeoModelSvc.DetectorTools += [ sctSLHCTool ]
             if not hasattr(svcMgr,'SCTLorentzAngleSvc'):
-                from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleSvc
-                SCTLorentzAngleSvc = SiLorentzAngleSvc(name = "SCTLorentzAngleSvc",
-                                                       SiConditionsServices = None,
-                                                       UseMagFieldSvc = False,
-                                                       DetectorName = "SCT")
+                from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleCHSvc
+                SCTLorentzAngleSvc = SiLorentzAngleCHSvc(name = "SCTLorentzAngleSvc",
+                                                         UseMagFieldSvc = False,
+                                                         DetectorName = "SCT")
                 svcMgr+=SCTLorentzAngleSvc
         else:
             # Current atlas specific code

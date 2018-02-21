@@ -142,6 +142,8 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltInitialize() {
     else {
       msg() << MSG::INFO << "Retrieved tool " << m_zvertexmaker << endmsg; 
     }
+  } else {
+    m_zvertexmaker.disable();
   }
 
   // Get track-finding tool

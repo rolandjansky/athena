@@ -60,7 +60,6 @@ FakeLvl1MultipleRoIsatFixedEtaPhi::FakeLvl1MultipleRoIsatFixedEtaPhi(const std::
 						   const IInterface* parent)
   : HLT::LvlConverter(name, type, parent), 
     m_roiId(0),
-    instance(""),
     m_lvl1ID(1)
 {
   declareProperty( "FakeEmRoiPhi", m_emRoiPhi);

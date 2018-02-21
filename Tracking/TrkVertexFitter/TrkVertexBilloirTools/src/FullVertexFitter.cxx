@@ -20,7 +20,6 @@
 #include <math.h>
 #include "TrkVertexFitterInterfaces/IVertexLinearizedTrackFactory.h"
 #include "TrkLinks/LinkToXAODTrackParticle.h" 
-#include "TrkVxEdmCnv/IVxCandidateXAODVertex.h" 
 //xAOD includes 
 #include "xAODTracking/Vertex.h" 
 #include "xAODTracking/TrackParticle.h" 
@@ -112,15 +111,6 @@ namespace Trk
 			msg(MSG::INFO) << "Retrieved tool " << m_linFactory << endmsg;
 		}
 
-		//XAOD Converter   
-		if ( m_xaodConverter.retrieve().isFailure() ) { 
-		  msg(MSG::FATAL) << "Failed to retrieve tool " << m_xaodConverter << endmsg; 
-		  return StatusCode::FAILURE; 
-		} else { 
-		  msg(MSG::INFO) << "Retrieved tool " << m_xaodConverter << endmsg; 
-		} 
-		
-		
 		msg(MSG::INFO)  << "Initialize successful" << endmsg;
 		return StatusCode::SUCCESS;
 	}
@@ -134,13 +124,12 @@ namespace Trk
 	FullVertexFitter::FullVertexFitter ( const std::string& t, const std::string& n, const IInterface*  p ) : AthAlgTool ( t,n,p ),
 														  m_maxIterations ( 5 ),
 														  m_maxDchi2PerNdf ( 0.000001 ),
-														  m_extrapolator ( "Trk::Extrapolator" ),
-														  m_xaodConverter("Trk::VxCandidateXAODVertex")
+														  m_extrapolator ( "Trk::Extrapolator" )
+
 	{
 		declareProperty ( "MaxIterations",        m_maxIterations );
 		declareProperty ( "MaxChi2PerNdf",        m_maxDchi2PerNdf );
 		declareProperty ( "Extrapolator",         m_extrapolator );
-		declareProperty("XAODConverter",m_xaodConverter); 	
 		declareProperty ( "LinearizedTrackFactory", m_linFactory );
 		declareInterface<IVertexFitter> ( this );
 	}
@@ -264,7 +253,6 @@ namespace Trk
 	{
 		if ( originalPerigees.empty() )
 		{
-			m_error = NOTRKS;
 			ATH_MSG_VERBOSE("No tracks to fit in this event.");
 			return 0;
 		}
@@ -531,8 +519,7 @@ namespace Trk
 
 				if ( ( *BTIter ).chi2 < 0 )
 				{
-					std::cout << "FullVertexFitter::calculate: error in chi2_per_track\n";
-					m_error = NEGTRCHI2;
+					ATH_MSG_WARNING( "FullVertexFitter::calculate: error in chi2_per_track" );
 					return 0;
 				}
 				chi2New += ( *BTIter ).chi2;

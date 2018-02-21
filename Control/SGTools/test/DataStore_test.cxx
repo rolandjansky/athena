@@ -205,7 +205,7 @@ void test_proxy()
 
   SG::DataProxy* dp3 = make_proxy (123, "dp3");
   assert (store.addToStore (123, dp3).isSuccess());
-  assert (store.proxy (123, "") == 0);
+  assert (store.proxy (123, "") == nullptr);
   assert (store.proxy (123, "dp3") == dp3);
 }
 
@@ -371,11 +371,11 @@ void test_removeProxy ATLAS_NOT_THREAD_SAFE ()
   assert (store.proxy (124, "dp1") == dp1);
   assert (store.proxy (123, "dp1x") == dp1);
 
-  assert (dp1->refCount() == 4);
+  assert (dp1->refCount() == 5);
 
   dp1->resetOnly (true);
   assert (store.removeProxy (dp1, false, false).isSuccess());
-  assert (dp1->refCount() == 4);
+  assert (dp1->refCount() == 5);
 
   dp1->resetOnly (false);
   assert (store.removeProxy (dp1, false, false).isSuccess());

@@ -50,20 +50,20 @@ namespace TrigConf {
       virtual int parse(const std::string& expr, bool enclosed=false);
       virtual std::string logicRep() const;
     
-      void setState(char s) { mState = s; }
-      void setElement(const std::string& e) { mElement = e; }
+      void setState(char s) { m_State = s; }
+      void setElement(const std::string& e) { m_Element = e; }
       void addSubLogic(const LogicExpression& sub) {
-         mSubLogics.push_back(new LogicExpression(sub));
+         m_SubLogics.push_back(new LogicExpression(sub));
       }
 
-      char                    state()         const { return mState; }
-      std::string             element()       const { return mElement; }
-      const LogicV_t &        subLogics()     const { return mSubLogics; }
+      char                    state()         const { return m_State; }
+      std::string             element()       const { return m_Element; }
+      const LogicV_t &        subLogics()     const { return m_SubLogics; }
       const LogicExpression * subLogic(int i) const { return subLogics()[i]; }
-      bool                    isPlaceHolder() const { return (mState==kOPEN && mSubLogics.size()==1); }
+      bool                    isPlaceHolder() const { return (m_State==kOPEN && m_SubLogics.size()==1); }
 
 
-      //LogicV_t&        LogicExpression::subLogics() { return mSubLogics; }
+      //LogicV_t&        LogicExpression::subLogics() { return m_SubLogics; }
 
       int totalNumberOfElements() const;
 
@@ -76,12 +76,12 @@ namespace TrigConf {
 
    protected:
 
-      std::string mLogicRep;
+      std::string m_LogicRep;
 
-      char mState;
+      char m_State;
 
-      LogicV_t mSubLogics;
-      std::string mElement;
+      LogicV_t m_SubLogics;
+      std::string m_Element;
 
       std::ostream & m_ostream; ///< output stream for all messages
  

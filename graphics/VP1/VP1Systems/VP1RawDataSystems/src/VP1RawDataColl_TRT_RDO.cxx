@@ -40,11 +40,11 @@ public:
 
 //____________________________________________________________________
 VP1RawDataColl_TRT_RDO::VP1RawDataColl_TRT_RDO(VP1RawDataCommonData*common,const QString& key)
-  : VP1RawDataCollBase(common,key), d(new Imp)
+  : VP1RawDataCollBase(common,key), m_d(new Imp)
 {
-  d->requireHT = true;
-  d->useSpecialTRTHTMaterial = true;
-  d->allowedToT = VP1Interval();
+  m_d->requireHT = true;
+  m_d->useSpecialTRTHTMaterial = true;
+  m_d->allowedToT = VP1Interval();
 
   connect(common->controller(),SIGNAL(trtAllowedToTChanged(const VP1Interval&)),
 	  this,SLOT(setAllowedToT(const VP1Interval&)));
@@ -62,7 +62,7 @@ VP1RawDataColl_TRT_RDO::VP1RawDataColl_TRT_RDO(VP1RawDataCommonData*common,const
 //____________________________________________________________________
 VP1RawDataColl_TRT_RDO::~VP1RawDataColl_TRT_RDO()
 {
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
@@ -103,19 +103,19 @@ bool VP1RawDataColl_TRT_RDO::load()
 bool VP1RawDataColl_TRT_RDO::cut(VP1RawDataHandleBase* handle)
 {
 
-  if (d->requireHT && !static_cast<VP1RawDataHandle_TRT_RDO*>(handle)->highThreshold())
+  if (m_d->requireHT && !static_cast<VP1RawDataHandle_TRT_RDO*>(handle)->highThreshold())
     return false;
-  return d->allowedToT.contains(static_cast<VP1RawDataHandle_TRT_RDO*>(handle)->timeOverThreshold());
+  return m_d->allowedToT.contains(static_cast<VP1RawDataHandle_TRT_RDO*>(handle)->timeOverThreshold());
 }
 
 //____________________________________________________________________
 void VP1RawDataColl_TRT_RDO::setAllowedToT(const VP1Interval& i)
 {
-  if (d->allowedToT==i)
+  if (m_d->allowedToT==i)
     return;
-  bool relaxed(i.contains(d->allowedToT));
-  bool tightened(d->allowedToT.contains(i));
-  d->allowedToT=i;
+  bool relaxed(i.contains(m_d->allowedToT));
+  bool tightened(m_d->allowedToT.contains(i));
+  m_d->allowedToT=i;
   if (relaxed)
     recheckCutStatusOfAllNotVisibleHandles();
   else if (tightened)
@@ -127,9 +127,9 @@ void VP1RawDataColl_TRT_RDO::setAllowedToT(const VP1Interval& i)
 //____________________________________________________________________
 void VP1RawDataColl_TRT_RDO::setRequireHT(bool b)
 {
-  if (d->requireHT==b)
+  if (m_d->requireHT==b)
     return;
-  d->requireHT=b;
+  m_d->requireHT=b;
   if (b)
     recheckCutStatusOfAllVisibleHandles();
   else
@@ -139,9 +139,9 @@ void VP1RawDataColl_TRT_RDO::setRequireHT(bool b)
 //____________________________________________________________________
 void VP1RawDataColl_TRT_RDO::setUseSpecialTRTHTMaterial(bool b)
 {
-  if (d->useSpecialTRTHTMaterial==b)
+  if (m_d->useSpecialTRTHTMaterial==b)
     return;
-  d->useSpecialTRTHTMaterial=b;
+  m_d->useSpecialTRTHTMaterial=b;
 
   std::vector<VP1RawDataHandleBase*>::iterator it(getHandles().begin()),itE(getHandles().end());
   for (;it!=itE;++it) {
@@ -154,5 +154,5 @@ void VP1RawDataColl_TRT_RDO::setUseSpecialTRTHTMaterial(bool b)
 //____________________________________________________________________
 bool VP1RawDataColl_TRT_RDO::useSpecialHTMat()
 {
-  return d->useSpecialTRTHTMaterial;
+  return m_d->useSpecialTRTHTMaterial;
 }

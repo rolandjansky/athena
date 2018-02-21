@@ -28,20 +28,11 @@ namespace xAOD {
 
   TrackIsolationTool::TrackIsolationTool (const std::string& name):
     asg::AsgTool(name)
-#ifndef XAOD_ANALYSIS
-    , m_tracksInConeTool("xAOD::TrackParticlesInConeTool/TrackParticlesInConeTool", this),
-	m_trkselTool( "InDet::InDetTrackSelectionTool/TrackSelectionTool", this )
-#endif // XAOD_ANALYSIS
   {
 #ifndef XAOD_ANALYSIS
     declareInterface<ITrackIsolationTool>(this);
     //declareInterface<IChargedEFlowIsolationTool>(this);
-    declareProperty("TracksInConeTool", m_tracksInConeTool);
 #endif // XAOD_ANALYSIS
-    declareProperty("TrackParticleLocation",m_indetTrackParticleLocation = "InDetTrackParticles");
-    declareProperty("SimpleIsolation",  m_simpleIsolation = false);
-    declareProperty("OverlapCone",      m_overlapCone2 = 0.1); // will be squared later
-    declareProperty("TrackSelectionTool", m_trkselTool );
   }
 
   TrackIsolationTool::~TrackIsolationTool()
@@ -52,7 +43,7 @@ namespace xAOD {
   StatusCode TrackIsolationTool::initialize() 
   {
 #ifndef XAOD_ANALYSIS
-    if( !m_simpleIsolation ) ATH_CHECK(m_tracksInConeTool.retrieve());
+    ATH_CHECK(m_tracksInConeTool.retrieve( DisableTool{m_simpleIsolation} ));
 #endif // XAOD_ANALYSIS
 
       if(m_trkselTool.retrieve().isFailure()){
@@ -61,45 +52,29 @@ namespace xAOD {
       }
 
     /** square cone */
-    m_overlapCone2 *= m_overlapCone2;
+    m_overlapCone2 = m_overlapCone*m_overlapCone;
+
+    // the read handles
+    ATH_CHECK(m_indetTrackParticleLocation.initialize());
+    ATH_CHECK(m_vertexLocation.initialize());
     
     return StatusCode::SUCCESS;
   }
 
-  const TrackParticleContainer* TrackIsolationTool::retrieveTrackParticleContainer() const 
+  const Vertex* TrackIsolationTool::retrieveIDBestPrimaryVertex(const VertexContainer* vtxC) const 
   {
-    const TrackParticleContainer* indetTrackParticles = 0;
-    if(evtStore()->contains<TrackParticleContainer>(m_indetTrackParticleLocation)) {
-      if(evtStore()->retrieve(indetTrackParticles,m_indetTrackParticleLocation).isFailure()) {
-        ATH_MSG_FATAL( "Unable to retrieve " << m_indetTrackParticleLocation );
-        return 0;
+    if (vtxC) {
+      if (vtxC->size() == 0) {
+	ATH_MSG_INFO("No vertex in container.");
+	return nullptr;
+      }
+      // In fact, should rather do like that, in case front is not PriVtx
+      for (const auto* const vtx : *vtxC ) {
+	if (vtx->vertexType() == xAOD::VxType::PriVtx) 
+	  return vtx;
       }
     }
-    return indetTrackParticles;
-  }
-
-  const Vertex* TrackIsolationTool::retrieveIDBestPrimaryVertex() const 
-  {
-    std::string PVXLocation = "PrimaryVertices";
-    const VertexContainer *vtxC = 0;
-    if (evtStore()->contains<VertexContainer>(PVXLocation)) {
-      if (evtStore()->retrieve(vtxC,PVXLocation).isFailure()) {
-        ATH_MSG_FATAL( "Unable to retrieve " << PVXLocation);
-        return 0;
-      } else {
-	if (vtxC->size() == 0) {
-	  ATH_MSG_INFO("No vertex in container " << PVXLocation);
-	  return 0;
-	}
-	//return vtxC->front(); // the first one, probably the beam spot if a single one in the container
-	// In fact, should rather do like that, in case front is not PriVtx
-	for (const auto* const vtx : *vtxC ) {
-	  if (vtx->vertexType() == xAOD::VxType::PriVtx) 
-	    return vtx;
-	}
-      }
-    }
-    return 0;
+    return nullptr;
   }
 
   const IParticle* TrackIsolationTool::getReferenceParticle(const IParticle& particle) const {
@@ -129,8 +104,14 @@ namespace xAOD {
   {
     /// prepare input
     // If not vertex is given, use the ID best one. If one does not want to cut on z0sinT, use the TrackSelectionTool config
+    SG::ReadHandle<VertexContainer> vtxH;
     if (vertex == 0) { 
-      vertex = retrieveIDBestPrimaryVertex();
+      vtxH = SG::makeHandle(m_vertexLocation);
+      if (!vtxH.isValid()) {
+	ATH_MSG_ERROR("Did not find a vertex container with key " << m_vertexLocation.key());
+	return false;
+      }
+      vertex = retrieveIDBestPrimaryVertex(vtxH.ptr());
       if (vertex) 
 	ATH_MSG_DEBUG("No vertex provided, is required. Use the ID-chosen pvx, z = " << vertex->z());
     }
@@ -148,7 +129,7 @@ namespace xAOD {
     for( auto isoType : isoTypes ){
       Iso::IsolationFlavour flavour = Iso::isolationFlavour(isoType);
       if( flavour != Iso::ptcone ) {
-        ATH_MSG_WARNING("Unsupported isolation type passed, cannot calculate isolation " << Iso::toString(isoType));
+        ATH_MSG_WARNING("Unsupported isolation type passed, cannot calculate isolation " << Iso::toCString(isoType));
         return false;
       }
       float conesize = Iso::coneSize(isoType);
@@ -156,7 +137,7 @@ namespace xAOD {
     }
 
     for(size_t i=1; i<input.coneSizesSquared.size(); i++){
-      if(input.coneSizesSquared[i]>input.coneSizesSquared[i-1]) ATH_MSG_ERROR("Isolation Cone should be in decreasing order. "<< i << "th variable is " << Iso::toString(isoTypes[i]) << " is larger than the one before it: " << Iso::toString(isoTypes[i-1]));
+      if(input.coneSizesSquared[i]>input.coneSizesSquared[i-1]) ATH_MSG_ERROR("Isolation Cone should be in decreasing order. "<< i << "th variable is " << Iso::toCString(isoTypes[i]) << " is larger than the one before it: " << Iso::toCString(isoTypes[i-1]));
     }
 
     std::sort(input.coneSizesSquared.begin(),input.coneSizesSquared.end(),[](float i, float j) { return i>j; });
@@ -219,7 +200,7 @@ namespace xAOD {
     for( auto ctype : correctionTypes ){
       auto el = result.coreCorrections.find(ctype);
       if( el == result.coreCorrections.end() ){
-	ATH_MSG_WARNING("Correction value not found " << Iso::toString(ctype) );         
+	ATH_MSG_WARNING("Correction value not found " << Iso::toCString(ctype) );         
 	continue;
       }
       SG::AuxElement::Decorator< float >* isoCorAcc = getIsolationCorrectionDecorator( Iso::isolationFlavour(cones[0]), ctype );
@@ -287,9 +268,19 @@ namespace xAOD {
 
   bool TrackIsolationTool::simpleIsolation( TrackIsolationInput& input, TrackIsolation& result, const TrackParticleContainer* indetTrackParticles ) const 
   {
+
+    SG::ReadHandle<TrackParticleContainer> tpH;
     /// retrieve track particles if not passed into the interface
-    if( !indetTrackParticles ) indetTrackParticles = retrieveTrackParticleContainer();
-    
+    if( !indetTrackParticles ) {
+      tpH = SG::makeHandle(m_indetTrackParticleLocation);
+      if (!tpH.isValid()) {
+	ATH_MSG_ERROR("Could not open a TrackParticle container with key " 
+		      << m_indetTrackParticleLocation.key());
+	return false;
+      }
+      indetTrackParticles = tpH.ptr();
+    }
+
     // exit if not track particles found
     if( !indetTrackParticles ) return false;
 
@@ -366,8 +357,12 @@ namespace xAOD {
   bool TrackIsolationTool::getparticlesInCone( float eta, float phi, float dr, std::vector< const TrackParticle*>& output ) const {
 
     /// retrieve container
-    const TrackParticleContainer* trks = retrieveTrackParticleContainer();
-    if(!trks) return false;
+    SG::ReadHandle<TrackParticleContainer> trks(m_indetTrackParticleLocation);
+    if(!trks.isValid()) {
+      ATH_MSG_ERROR("Could not find TrackParticle container with key " 
+		    << m_indetTrackParticleLocation.key());
+      return false;
+    }
 
     ATH_MSG_DEBUG("checing track eta=" << eta << ", phi=" << phi);
     /// make selection

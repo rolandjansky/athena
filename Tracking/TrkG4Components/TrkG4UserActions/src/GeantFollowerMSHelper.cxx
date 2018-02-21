@@ -13,7 +13,6 @@
 #include "GaudiKernel/ITHistSvc.h" 
 // Trk
 #include "TrkExInterfaces/IExtrapolator.h"
-#include "TrkExInterfaces/IEnergyLossUpdator.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/PlaneSurface.h"
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
@@ -27,7 +26,6 @@
 Trk::GeantFollowerMSHelper::GeantFollowerMSHelper(const std::string& t, const std::string& n, const IInterface* p)
  : base_class(t,n,p)
  , m_extrapolator("")
- , m_elossupdator("Trk::EnergyLossUpdator/AtlasEnergyLossUpdator")
  , m_extrapolateDirectly(false)
  , m_extrapolateIncrementally(false)
  , m_speedup(false)
@@ -369,7 +367,7 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
         // construct the intial parameters
         
         m_parameterCache = new Trk::CurvilinearParameters(npos, nmom, charge);
-        AmgSymMatrix(5)* covMatrix = new AmgSymMatrix(5);;
+        AmgSymMatrix(5)* covMatrix = new AmgSymMatrix(5);
         covMatrix->setZero();
         ATH_MSG_DEBUG( " covMatrix " << covMatrix);
         m_parameterCacheCov = new Trk::CurvilinearParameters(npos, nmom, charge, covMatrix);
@@ -381,11 +379,11 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
     m_tX0Cache              += tX0;
     ATH_MSG_DEBUG(" position R " << npos.perp() << " z " << npos.z() << " X0 " << X0 << " t " << t << " m_tX0Cache " << m_tX0Cache);
 
-    bool m_useMuonEntry = true;
+    bool useMuonEntry = true;
 // Stop in ID temp
-//    if(m_useMuonEntry&&!m_crossedMuonEntry&&(fabs(npos.z())>2744||npos.perp()>1106)) {
+//    if(useMuonEntry&&!m_crossedMuonEntry&&(fabs(npos.z())>2744||npos.perp()>1106)) {
 // Muon Entry 
-    if(m_useMuonEntry&&!m_crossedMuonEntry&&(fabs(npos.z())>zMuonEntry||npos.perp()>4254)) {
+    if(useMuonEntry&&!m_crossedMuonEntry&&(fabs(npos.z())>zMuonEntry||npos.perp()>4254)) {
         m_m_x        = npos.x();
         m_m_y        = npos.y();
         m_m_z        = npos.z();

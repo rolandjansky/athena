@@ -22,7 +22,6 @@ InputCollectionMetadataCopy::InputCollectionMetadataCopy(const std::string& type
    AthAlgTool(type, name, parent), 
    m_pMetaDataStore ("StoreGateSvc/MetaDataStore",      name), 
    m_pInputStore    ("StoreGateSvc/TagMetaDataStore", name) {
-   declareInterface<IMetaDataTool>(this);
 }
 
 //___________________________________________________________________________

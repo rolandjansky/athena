@@ -258,6 +258,13 @@ StatusCode SCT_SurfaceChargesGenerator::initialize() {
             "\tMake sure the two flags are not set simultaneously in jo");
         return StatusCode::FAILURE;
     }
+
+    if (m_doDistortions) {
+      ATH_CHECK(m_distortionsTool.retrieve());
+    } else {
+      m_distortionsTool.disable();
+    }
+
     return StatusCode::SUCCESS;
 }
 

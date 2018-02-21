@@ -6,6 +6,7 @@
 #ifndef TRT_CALIBALGS_TRTCALIBRATIONMGR_H
 #define TRT_CALIBALGS_TRTCALIBRATIONMGR_H
 
+#include "TRT_CalibTools/ITRTCalibrator.h"
 #include <string>
 #include <vector>
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -30,7 +31,6 @@ namespace Trk{
  class ITrackFitter;
 }
 class IFillAlignTrkInfo;
-class ITRTCalibrator;
 class IAccumulator;
 class IFitTool;
 
@@ -73,7 +73,8 @@ public:
 private:
 
   ToolHandleArray<IFillAlignTrkInfo>  m_TrackInfoTools;
-  ToolHandleArray<ITRTCalibrator>     m_TRTCalibTools;
+  PublicToolHandleArray<ITRTCalibrator>     m_TRTCalibTools
+     {this,"TRTCalibrator",{ /* "TRTCalibrator"*/ },"" };
   ToolHandleArray<IAccumulator>       m_AccumulatorTools;
   ToolHandleArray<IFitTool>           m_FitTools;
   ToolHandle<Trk::ITrackFitter>       m_trackFitter;

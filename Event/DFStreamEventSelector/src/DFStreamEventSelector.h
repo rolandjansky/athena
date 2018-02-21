@@ -48,11 +48,11 @@ public:
   typedef IEvtSelector::Context   EvtContext;
   class DFContext:public EvtContext{
   public:
-    DFContext():L1id(0){};
+    DFContext():m_L1id(0){};
     virtual ~DFContext(){};
-    virtual void* identifier() const override final {return (void*)&L1id;}  ;
+    virtual void* identifier() const override final {return (void*)&m_L1id;}  ;
   private:
-    uint32_t L1id;
+    uint32_t m_L1id;
   };
   /**Create and return a context object that will
      keep track of the state of selection.

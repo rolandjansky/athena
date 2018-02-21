@@ -1,9 +1,9 @@
 #==============================================================
 #
 #
-#		This job option runs the G4 simulation
-#		of the ATLAS detector and the GeantinoMapping.
-#		It can be run using athena.py
+#               This job option runs the G4 simulation
+#               of the ATLAS detector and the GeantinoMapping.
+#               It can be run using athena.py
 #
 __version__="$Revision: 729147 $"
 #==============================================================
@@ -82,11 +82,11 @@ topSeq += pg
 simFlags.RandomSeedOffset = myRandomOffset
 simFlags.RandomSeedList.addSeed( "ParticleGun", myRandomSeed1, myRandomSeed2 )
 
-from RngComps.RngCompsConf import AtRndmGenSvc 
+from RngComps.RngCompsConf import AtRndmGenSvc
 myAtRndmGenSvc = AtRndmGenSvc()
-myAtRndmGenSvc.Seeds = ["ParticleGun "+str(myRandomSeed1)+" "+str(myRandomSeed2) ] 
-myAtRndmGenSvc.OutputLevel 	    = VERBOSE
-myAtRndmGenSvc.EventReseeding   = False
+myAtRndmGenSvc.Seeds = ["ParticleGun "+str(myRandomSeed1)+" "+str(myRandomSeed2) ]
+myAtRndmGenSvc.OutputLevel = VERBOSE
+myAtRndmGenSvc.EventReseeding = False
 ServiceMgr += myAtRndmGenSvc
 
 ############### The Material hit collection ##################
@@ -105,12 +105,12 @@ ServiceMgr.THistSvc.Output += [ "val DATAFILE='/tmp/salzburg/EnergyLossRecorder.
 #ServiceMgr.AthenaPoolCnvSvc.OutputLevel = DEBUG
 #ServiceMgr.AthenaPoolCnvSvc.CommitInterval = 10
 #MaterialStream              = AthenaPoolOutputStream ( 'MaterialStream' )
-#MaterialStream.OutputFile   =   "MaterialStepFile.root" 
+#MaterialStream.OutputFile   =   "MaterialStepFile.root"
 #MaterialStream.ItemList    += [ 'MaterialStepVector#*']
 
 ##############################################################
 
-simFlags.OptionalUserActionList.addAction('G4UA::EnergyLossRecorderTool',['Step','BeginOfEvent','EndOfEvent','BeginOfRun','EndOfRun'])
+simFlags.OptionalUserActionList.addAction('G4UA::EnergyLossRecorderTool')
 
 include("G4AtlasApps/G4Atlas.flat.configuration.py")
 

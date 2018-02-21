@@ -23,7 +23,7 @@
 #include <string>
 #include <vector>
 
-#include "SCT_ElectricFieldTool.h"
+#include "SCT_ConditionsTools/ISCT_ElectricFieldTool.h"
 
 //forward declarations
 class IdentifierHash;
@@ -68,14 +68,9 @@ public:
   bool getdoCTrap(const IdentifierHash & elementHash, const  double & pos);
   virtual void getHoleTransport(double & x0, double & y0, double & xfin, double & yfin, double &  Q_m2, double & Q_m1, double & Q_00, double & Q_p1, double & Q_p2 )const;
   virtual void getInitPotentialValue();
-  /// IOV CallBack
-  virtual StatusCode callBack(IOVSVC_CALLBACK_ARGS);
   
 private:
   void updateCache(const IdentifierHash & elementHash, const  double & pos);
-
-  bool valid(const IdentifierHash & elementHash);
-  void invalidateCache();
 
   void initPotentialValue();
   double induced(int istrip, double x, double y)const;
@@ -93,7 +88,6 @@ private:
   double m_temperatureMax;
   double m_deplVoltage;
   double m_biasVoltage;
-  //bool m_ignoreLocalPos; // Makes methods using localPosition  behave as method without passing localPosition.
   ServiceHandle<ISiliconConditionsSvc> m_siConditionsSvc;
   ServiceHandle<StoreGateSvc> m_detStore;
   bool m_conditionsSvcValid;
@@ -107,7 +101,6 @@ private:
   double m_fluence;
   double m_betaElectrons;
   double m_betaHoles;
-  std::vector<double> m_cacheValid;
   std::vector<double> m_electricField;
   std::vector<double> m_meanFreePathElectrons; 
   std::vector<double> m_meanFreePathHoles;

@@ -19,7 +19,7 @@
   #ifndef JETCMXDATA_H
   #define JETCMXDATA_H
   
-  #include "CLIDSvc/CLASS_DEF.h"
+  #include "AthenaKernel/CLASS_DEF.h"
   #include "TrigT1CaloEvent/JEMTobRoI.h"
 
   namespace LVL1 {

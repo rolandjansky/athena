@@ -28,7 +28,8 @@ public:
   virtual StatusCode finalize();
   virtual bool decorateTruth(const xAOD::TruthParticle& particle, const std::string& prefix = "");
 private:
-  ToolHandle<IMCTruthClassifier>        m_truthClassifier;
+  PublicToolHandle<IMCTruthClassifier>        m_truthClassifier
+     {this,"MCTruthClassifier","MCTruthClassifier/MCTruthClassifier",""};
 };
 
 

@@ -158,6 +158,8 @@ class TrigEgammaMonToolBuilder:
                 DefaultProbePid="LHMedium",
                 File="",
                 OutputLevel=self.debugLevel,DetailedHistograms=self.detailLevel)
+        from AthenaCommon.AppMgr import ToolSvc
+        ToolSvc += ElectronAnalysis
 
     def configurePhotonMonTool(self,plotTool,toolList):
         PhotonAnalysis = TrigEgammaNavAnalysisTool(name='HLTEgammaPhotonAnalysis',
@@ -167,6 +169,8 @@ class TrigEgammaMonToolBuilder:
             TriggerList=self.photonList,
             File="",
             OutputLevel=self.debugLevel,DetailedHistograms=self.detailLevel)
+        from AthenaCommon.AppMgr import ToolSvc
+        ToolSvc += PhotonAnalysis
 
     def configureTPMonTool(self,plotTool,toolList):    
         if self.emulation == True:
@@ -195,6 +199,8 @@ class TrigEgammaMonToolBuilder:
                 TagTriggerList=self.tagItems,
                 RemoveCrack=False,
                 OutputLevel=self.debugLevel,DetailedHistograms=self.detailLevel)
+        from AthenaCommon.AppMgr import ToolSvc
+        ToolSvc += TPAnalysis
   
     def configureJpsiMonTool(self,plotTool,toolList):        
         JpsiTPAnalysis = TrigEgammaNavTPJpsieeAnalysisTool(name='HLTEgammaTPJpsieeAnalysis',
@@ -204,6 +210,8 @@ class TrigEgammaMonToolBuilder:
                                                             TriggerList=self.jpsiList,
                                                             File="",
                                                             TagTriggerList= self.JpsitagItems)
+        from AthenaCommon.AppMgr import ToolSvc
+        ToolSvc += JpsiTPAnalysis
     def configureAllMonTools(self,plotTool,toolList):        
         self.configureElectronMonTool(plotTool,toolList)
         self.configurePhotonMonTool(plotTool,toolList)
@@ -211,6 +219,7 @@ class TrigEgammaMonToolBuilder:
         self.configureJpsiMonTool(plotTool,toolList)
     
     def configureTools(self):
+        from AthenaCommon.AppMgr import ToolSvc
         HLTEgammaPlotTool = TrigEgammaPlotTool.copy(name="HLTEgammaPlotTool",
                 DirectoryPath=self.basePath,
                 MaM=self.mam,
@@ -218,10 +227,14 @@ class TrigEgammaMonToolBuilder:
                 Distribution=plots_distribution,
                 Resolution=plots_resolution,
                 OutputLevel=self.debugLevel)
+        ToolSvc += HLTEgammaPlotTool()
 
         HLTEgammaEffTool = EfficiencyTool.copy(name="HLTEgammaEffTool",PlotTool=HLTEgammaPlotTool,OutputLevel=self.debugLevel)
+        ToolSvc += HLTEgammaEffTool()
         HLTEgammaResTool = ResolutionTool.copy(name="HLTEgammaResTool",PlotTool=HLTEgammaPlotTool,OutputLevel=self.debugLevel)
+        ToolSvc += HLTEgammaResTool()
         HLTEgammaDistTool = DistTool.copy(name="HLTEgammaDistTool",PlotTool=HLTEgammaPlotTool,OutputLevel=self.debugLevel)
+        ToolSvc += HLTEgammaDistTool()
         
         toolList = [HLTEgammaEffTool,HLTEgammaResTool,HLTEgammaDistTool]
         # For MaM, most important is the list of triggers to monitor

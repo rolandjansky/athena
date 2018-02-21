@@ -6,8 +6,8 @@
 #include "TrigT1CaloEvent/TriggerTower.h"
 #endif
 
-#include "CLIDSvc/CLASS_DEF.h"
-#include "DataModel/DataVector.h"
+#include "AthenaKernel/CLASS_DEF.h"
+#include "AthContainers/DataVector.h"
 
 
 CLASS_DEF(LVL1::TriggerTower,   6206, 1)

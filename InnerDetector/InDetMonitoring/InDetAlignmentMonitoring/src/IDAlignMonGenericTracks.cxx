@@ -46,7 +46,6 @@
 
 #include "InDetAlignGenTools/IInDetAlignHitQualSelTool.h"
 #include "TrackSelectionTool.h"
-#include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
 
 
 // *********************************************************************
@@ -73,7 +72,6 @@ IDAlignMonGenericTracks::IDAlignMonGenericTracks( const std::string & type, cons
 	m_etaRange(3.0),
 	m_NTracksRange(200),
         m_beamCondSvc("BeamCondSvc",name),
-        m_trackToVertexIPEstimator("Trk::TrackToVertexIPEstimator"), 
 	m_hWeightInFile(0),
 	m_etapTWeight(0)
 	

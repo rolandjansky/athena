@@ -132,7 +132,7 @@ TgcRawDataValAlg::bookHistogramsLowStat(){
     //Wire Strip Coincidence per GasGap
     ss.str(""); ss<< "Wire_Strip_Coincidence_Per_GasGap_In_10LBs_" << side[ac];
     m_tgcwirestripcoinlowstat[ac] = new TH2F( ss.str().c_str(), ss.str() .c_str(),43, 0, 43, 48, 1, 49 );
-    ATH_CHECK( tgcprd_lowstat_ac[ac]->regHist(m_tgcwirestripcoinlowstat[ac]) );;
+    ATH_CHECK( tgcprd_lowstat_ac[ac]->regHist(m_tgcwirestripcoinlowstat[ac]) );
 
     for(int sec=1;sec<=12;sec++){
       for(int phi=0;phi<=3;phi+=4){

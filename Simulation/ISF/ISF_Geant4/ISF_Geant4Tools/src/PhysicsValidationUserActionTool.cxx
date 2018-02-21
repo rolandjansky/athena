@@ -5,16 +5,18 @@
 #include "CxxUtils/make_unique.h"
 #include "PhysicsValidationUserActionTool.h"
 
-namespace G4UA{
-  
-  namespace iGeant4{
-    
-    PhysicsValidationUserActionTool::PhysicsValidationUserActionTool(const std::string& type, const std::string& name,const IInterface* parent)
-      : ActionToolBase<PhysicsValidationUserAction>(type, name, parent)
-      , m_config()
+namespace G4UA
+{
+
+  namespace iGeant4
+  {
+
+    PhysicsValidationUserActionTool::
+    PhysicsValidationUserActionTool(const std::string& type,
+                                    const std::string& name,
+                                    const IInterface* parent)
+      : UserActionToolBase<PhysicsValidationUserAction>(type, name, parent)
     {
-      
-      
       declareProperty( "ValidationOutput",
 		       m_config.validationOutput,
 		       "If turned on, write out a ROOT tree.");
@@ -36,12 +38,12 @@ namespace G4UA{
       declareProperty("MuonZmean",m_config.muonZmean);
       declareProperty("CavernRmean",m_config.cavernRmean);
       declareProperty("CavernZmean",m_config.cavernZmean);
-      
     }
-    
-    std::unique_ptr<PhysicsValidationUserAction>  PhysicsValidationUserActionTool::makeAction()
+
+    std::unique_ptr<PhysicsValidationUserAction>
+    PhysicsValidationUserActionTool::makeAndFillAction(G4AtlasUserActions& actionList)
     {
-      ATH_MSG_DEBUG("makeAction");
+      ATH_MSG_DEBUG("Constructing a PhysicsValidationUserAction");
       if(msgLvl(MSG::VERBOSE))      { m_config.verboseLevel = MSG::VERBOSE; }
       else if(msgLvl(MSG::DEBUG))   { m_config.verboseLevel = MSG::DEBUG;   }
       else if(msgLvl(MSG::INFO))    { m_config.verboseLevel = MSG::INFO;    }
@@ -49,32 +51,11 @@ namespace G4UA{
       else if(msgLvl(MSG::ERROR))   { m_config.verboseLevel = MSG::ERROR;   }
       else if(msgLvl(MSG::FATAL))   { m_config.verboseLevel = MSG::FATAL;   }
       auto action = CxxUtils::make_unique<PhysicsValidationUserAction>(m_config);
-      return std::move(action);
-    }
-
-    StatusCode PhysicsValidationUserActionTool::queryInterface(const InterfaceID& riid, void** ppvIf)
-    {
-      if(riid == IG4EventActionTool::interfaceID()) {
-        *ppvIf = (IG4EventActionTool*) this;
-        addRef();
-        return StatusCode::SUCCESS;
-      }
-      if(riid == IG4RunActionTool::interfaceID()) {
-        *ppvIf = (IG4RunActionTool*) this;
-        addRef();
-        return StatusCode::SUCCESS;
-      }
-      if(riid == IG4SteppingActionTool::interfaceID()) {
-        *ppvIf = (IG4SteppingActionTool*) this;
-        addRef();
-        return StatusCode::SUCCESS;
-      }
-      if(riid == IG4TrackingActionTool::interfaceID()) {
-        *ppvIf = (IG4TrackingActionTool*) this;
-        addRef();
-        return StatusCode::SUCCESS;
-      }
-      return ActionToolBase<PhysicsValidationUserAction>::queryInterface(riid, ppvIf);
+      actionList.runActions.push_back( action.get() );
+      actionList.eventActions.push_back( action.get() );
+      actionList.trackingActions.push_back( action.get() );
+      actionList.steppingActions.push_back( action.get() );
+      return action;
     }
 
   } // iGeant4

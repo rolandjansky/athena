@@ -19,7 +19,6 @@
 
 PixelDCSTestReadWrite::PixelDCSTestReadWrite(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_pixelDCSTool("PixelDCSTool"),
   m_write(false)
 {
 

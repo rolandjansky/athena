@@ -274,27 +274,22 @@ class SCT_ConditionsServicesSetup:
 
   def initSummarySvc(self, instanceName):
     "Init summary conditions servic"
-        
-    if hasattr(self.svcMgr,instanceName):
-      summarySvc = getattr(self.svcMgr, instanceName); 
-    else:
-      from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConditionsSummarySvc
-      summarySvc = SCT_ConditionsSummarySvc(name = instanceName)
-      self.svcMgr += summarySvc
-      if self._print:  print summarySvc
+    from SCT_ConditionsServices.SCT_ConditionsSummarySvcSetup import SCT_ConditionsSummarySvcSetup
+    sct_ConditionsSummarySvcSetup = SCT_ConditionsSummarySvcSetup()
+    sct_ConditionsSummarySvcSetup.setSvcName(instanceName)
+    sct_ConditionsSummarySvcSetup.setup()
+    summarySvc = sct_ConditionsSummarySvcSetup.getSvc()
+    if self._print:  print summarySvc
     return summarySvc
 
   def initFlaggedSvc(self, instanceName):
     "Init flagged conditions service"
-      
-    if hasattr(self.svcMgr,instanceName):
-      flaggedSvc = getattr(self.svcMgr, instanceName); 
-    else :
-      from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_FlaggedConditionSvc
-      flaggedSvc = SCT_FlaggedConditionSvc(name = instanceName)
-      self.svcMgr += flaggedSvc
-      if self._print:  print flaggedSvc
-
+    from SCT_ConditionsServices.SCT_FlaggedConditionSvcSetup import SCT_FlaggedConditionSvcSetup
+    sct_FlaggedConditionSvcSetup = SCT_FlaggedConditionSvcSetup()
+    sct_FlaggedConditionSvcSetup.setSvcName(instanceName)
+    sct_FlaggedConditionSvcSetup.setup()
+    flaggedSvc = sct_FlaggedConditionSvcSetup.getSvc()
+    if self._print:  print flaggedSvc
     self.summarySvc.ConditionsServices+=[instanceName]
     return flaggedSvc
 
@@ -311,53 +306,15 @@ class SCT_ConditionsServicesSetup:
     if InDetTrigFlags.ForceCoolVectorPayload():
       sctdaqpath='/SCT/DAQ/Config'
 
-
-    if not self.condDB.folderRequested(sctdaqpath+'/Chip'):
-      self.condDB.addFolderSplitMC("SCT",
-                                   sctdaqpath+'/Chip',
-                                   sctdaqpath+'/Chip',
-                                   className="CondAttrListVec")
-    if not self.condDB.folderRequested(sctdaqpath+'/Module'):
-      self.condDB.addFolderSplitMC("SCT",
-                                   sctdaqpath+'/Module',
-                                   sctdaqpath+'/Module',
-                                   className="CondAttrListVec")
-    if not self.condDB.folderRequested(sctdaqpath+'/MUR'):
-      self.condDB.addFolderSplitMC("SCT",
-                                   sctdaqpath+'/MUR',
-                                   sctdaqpath+'/MUR',
-                                   className="CondAttrListVec")
-
-    if not self.condDB.folderRequested(sctdaqpath+'/ROD'):
-      self.condDB.addFolderSplitMC("SCT",
-                                   sctdaqpath+'/ROD',
-                                   sctdaqpath+'/ROD')
-    if not self.condDB.folderRequested(sctdaqpath+'/RODMUR'):
-      self.condDB.addFolderSplitMC("SCT",
-                                   sctdaqpath+'/RODMUR',
-                                   sctdaqpath+'/RODMUR')
-    if not self.condDB.folderRequested(sctdaqpath+'/Geog'):
-      self.condDB.addFolderSplitMC("SCT",
-                                   sctdaqpath+'/Geog',
-                                   sctdaqpath+'/Geog')
-
-    if hasattr(self.svcMgr,instanceName):
-      configSvc = getattr(self.svcMgr, instanceName); 
-    else:
-      from AthenaCommon.AlgSequence import AthSequencer
-      condSeq = AthSequencer("AthCondSeq")
-      if not hasattr(condSeq, "SCT_ConfigurationCondAlg"):
-        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConfigurationCondAlg
-        condSeq += SCT_ConfigurationCondAlg(name = "SCT_ConfigurationCondAlg",
-                                            ReadKeyChannel= sctdaqpath+'/Chip',
-                                            ReadKeyModule = sctdaqpath+'/Module',
-                                            ReadKeyMur = sctdaqpath+'/MUR')
-
-      from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConfigurationConditionsSvc
-      configSvc = SCT_ConfigurationConditionsSvc(name = instanceName)
-      self.svcMgr += configSvc
-      if self._print:  print configSvc
-
+    from SCT_ConditionsServices.SCT_ConfigurationConditionsSvcSetup import SCT_ConfigurationConditionsSvcSetup
+    sct_ConfigurationConditionsSvcSetup = SCT_ConfigurationConditionsSvcSetup()
+    sct_ConfigurationConditionsSvcSetup.setChannelFolder(sctdaqpath+"/Chip")
+    sct_ConfigurationConditionsSvcSetup.setModuleFolder(sctdaqpath+"/Module")
+    sct_ConfigurationConditionsSvcSetup.setMurFolder(sctdaqpath+"/MUR")
+    sct_ConfigurationConditionsSvcSetup.setSvcName(instanceName)
+    sct_ConfigurationConditionsSvcSetup.setup()
+    configSvc = sct_ConfigurationConditionsSvcSetup.getSvc()
+    if self._print:  print configSvc
     self.summarySvc.ConditionsServices+=[instanceName]
 
     if self._print:  print self.condDB
@@ -365,94 +322,60 @@ class SCT_ConditionsServicesSetup:
 
   def initMonitorSvc(self, instanceName):
     "Init monitoring conditions service"
-    
-    if hasattr(self.svcMgr,instanceName):
-      monitorSvc = getattr(self.svcMgr, instanceName); 
-    else:        
-      from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_MonitorConditionsSvc
-      monitorSvc = SCT_MonitorConditionsSvc(name = instanceName)
-                                            #OutputLevel = INFO)
-      self.svcMgr += monitorSvc
-
+    from SCT_ConditionsServices.SCT_MonitorConditionsSvcSetup import SCT_MonitorConditionsSvcSetup
+    sct_MonitorConditionsSvcSetup = SCT_MonitorConditionsSvcSetup()
+    sct_MonitorConditionsSvcSetup.setSvcName(instanceName)
+    sct_MonitorConditionsSvcSetup.setup()
+    monitorSvc = sct_MonitorConditionsSvcSetup.getSvc()
     self.summarySvc.ConditionsServices+=[instanceName]
-    
-    #if not self.condDB.folderRequested('/SCT/Derived/Monitoring'):
-    #  self.condDB.addFolder("SCT","/SCT/Derived/Monitoring")
-        
     return monitorSvc
 
   def initDcsSvc(self, instanceName):
     "Init DCS conditions service"
+
+    from SCT_ConditionsServices.SCT_DCSConditionsSvcSetup import SCT_DCSConditionsSvcSetup
+    sct_DCSConditionsSvcSetup = SCT_DCSConditionsSvcSetup()
+    sct_DCSConditionsSvcSetup.setSvcName(instanceName)
+
     dcs_folder="/SCT/DCS"
     db_loc = "DCS_OFL"
     if (not self.isMC): 
       dcs_folder="/SCT/HLT/DCS"
       db_loc = "SCT"
+    sct_DCSConditionsSvcSetup.setDbInstance(db_loc)
+    sct_DCSConditionsSvcSetup.setStateFolder(dcs_folder+"/CHANSTAT")
+    sct_DCSConditionsSvcSetup.setHVFolder(dcs_folder+"/HV")
+    sct_DCSConditionsSvcSetup.setTempFolder(dcs_folder+"/MODTEMP")
 
-    sctDCSStateFolder = dcs_folder+'/CHANSTAT'
-    sctDCSTempFolder = dcs_folder+'/MODTEMP'
-    sctDCSHVFolder = dcs_folder+'/HV'
-
-    if hasattr(self.svcMgr,instanceName):
-      dcsSvc = getattr(self.svcMgr, instanceName); 
-    else:
-      from AthenaCommon.AlgSequence import AthSequencer
-      condSeq = AthSequencer("AthCondSeq")
-      if not hasattr(condSeq, "SCT_DCSConditionsHVCondAlg"):
-        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsHVCondAlg
-        condSeq += SCT_DCSConditionsHVCondAlg(name = "SCT_DCSConditionsHVCondAlg",
-                                              ReadKey = sctDCSHVFolder)
-      if not hasattr(condSeq, "SCT_DCSConditionsStatCondAlg"):
-        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsStatCondAlg
-        condSeq += SCT_DCSConditionsStatCondAlg(name = "SCT_DCSConditionsStatCondAlg",
-                                                ReadKeyHV = sctDCSHVFolder,
-                                                ReadKeyState = sctDCSStateFolder)
-      if not hasattr(condSeq, "SCT_DCSConditionsTempCondAlg"):
-        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsTempCondAlg
-        condSeq += SCT_DCSConditionsTempCondAlg(name = "SCT_DCSConditionsTempCondAlg",
-                                                ReadKey = sctDCSTempFolder)
-
-      from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsSvc
-      dcsSvc = SCT_DCSConditionsSvc(name = instanceName)
-      if (not self.isMC):
-        dcsSvc.FolderLocation="/SCT/HLT/DCS"
-        dcsSvc.ReadAllDBFolders=False
-        dcsSvc.ReturnHVTemp=True
-
+    readAllDBFolders = True
+    if (not self.isMC):
+      readAllDBFolders = False
     if self.onlineMode:
-      dcsSvc.ReadAllDBFolders=False
-      dcsSvc.ReturnHVTemp=True
+      readAllDBFolders = False
+    sct_DCSConditionsSvcSetup.setReadAllDBFolders(readAllDBFolders)
 
-    self.svcMgr += dcsSvc
-      
+    sct_DCSConditionsSvcSetup.setup()
+    dcsSvc = sct_DCSConditionsSvcSetup.getSvc()
+    if (not self.isMC):
+      dcsSvc.FolderLocation="/SCT/HLT/DCS"
+ 
     self.summarySvc.ConditionsServices+=[instanceName]
 
-    if not self.condDB.folderRequested(sctDCSHVFolder):
-      self.condDB.addFolder(db_loc, sctDCSHVFolder, className="CondAttrListCollection")
-    if not self.condDB.folderRequested(sctDCSTempFolder):
-      self.condDB.addFolder(db_loc, sctDCSTempFolder, className="CondAttrListCollection")
-      
     if self.isMC:
-      if not self.condDB.folderRequested('/SCT/DCS/MPS/LV'):
+      if not self.condDB.folderRequested("/SCT/DCS/MPS/LV"):
         self.condDB.addFolder(db_loc,"/SCT/DCS/MPS/LV")
-      if not self.condDB.folderRequested(sctDCSStateFolder):
-        self.condDB.addFolder(db_loc, sctDCSStateFolder, className="CondAttrListCollection")
-
-      
       
     return dcsSvc           
 
   def initBSErrSvc(self, instanceName):
     "Init ByteStream errors service"
-    
-    if hasattr(self.svcMgr,instanceName):
-      bsErrSvc = getattr(self.svcMgr, instanceName); 
-    else:
-      from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ByteStreamErrorsSvc
-      bsErrSvc = SCT_ByteStreamErrorsSvc(name = instanceName)
-      self.svcMgr += bsErrSvc
-      if self._print:  print bsErrSvc
-      
+    from SCT_ConditionsServices.SCT_ByteStreamErrorsSvcSetup import SCT_ByteStreamErrorsSvcSetup
+    sct_ByteStreamErrorsSvcSetup = SCT_ByteStreamErrorsSvcSetup()
+    sct_ByteStreamErrorsSvcSetup.setSvcName(instanceName)
+    sct_ByteStreamErrorsSvcSetup.setConfigSvc(self.configSvc)
+    sct_ByteStreamErrorsSvcSetup.setup()
+    bsErrSvc =sct_ByteStreamErrorsSvcSetup.getSvc()
+    if self._print:  print bsErrSvc
     self.summarySvc.ConditionsServices+=[instanceName]
     return  bsErrSvc
 
@@ -460,53 +383,47 @@ class SCT_ConditionsServicesSetup:
     "Init Calibration Data service"
     from AthenaCommon.GlobalFlags import globalflags
     if (globalflags.DataSource() == 'data'):
-      if hasattr(self.svcMgr,instanceName):
-        calibSvc = getattr(self.svcMgr, instanceName); 
-      else:
-        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibDataSvc
-        calibSvc = SCT_ReadCalibDataSvc(name = instanceName)
-        self.svcMgr += calibSvc
-
+      from SCT_ConditionsServices.SCT_ReadCalibDataSvcSetup import SCT_ReadCalibDataSvcSetup
+      sct_ReadCalibDataSvcSetup = SCT_ReadCalibDataSvcSetup()
+      sct_ReadCalibDataSvcSetup.setSvcName(instanceName)
+      sct_ReadCalibDataSvcSetup.setup()
+      calibSvc = sct_ReadCalibDataSvcSetup.getSvc()
       self.summarySvc.ConditionsServices+=[instanceName]
-
-      sctGainDefectFolder="/SCT/DAQ/Calibration/NPtGainDefects"
-      if not self.condDB.folderRequested(sctGainDefectFolder):
-        self.condDB.addFolderSplitMC("SCT", sctGainDefectFolder, sctGainDefectFolder, className="CondAttrListCollection")
-      sctNoiseDefectFolder="/SCT/DAQ/Calibration/NoiseOccupancyDefects"
-      if not self.condDB.folderRequested(sctNoiseDefectFolder):
-        self.condDB.addFolderSplitMC("SCT", sctNoiseDefectFolder, sctNoiseDefectFolder, className="CondAttrListCollection")
-      
-      from AthenaCommon.AlgSequence import AthSequencer
-      condSeq = AthSequencer("AthCondSeq")
-      if not hasattr(condSeq, "SCT_ReadCalibDataCondAlg"):
-        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibDataCondAlg
-        condSeq += SCT_ReadCalibDataCondAlg(name = "SCT_ReadCalibDataCondAlg",
-                                            ReadKeyGain = sctGainDefectFolder,
-                                            ReadKeyNoise = sctNoiseDefectFolder)
-
       return  calibSvc
     else:
       return None
 
   def initLorentzAngleSvc(self, instanceName):
-    "Inititalize Lorentz angle Service"
-    from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleSvc
-    SCTLorentzAngleSvc = SiLorentzAngleSvc(name=instanceName,
-                                           DetectorName="SCT")
-    from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SiliconConditionsSvc
-    sctSiliconConditionsSvc=\
-                              SCT_SiliconConditionsSvc(name=self.instanceName('InDetSCT_SiliconConditionsSvc'),
-                                                       DCSConditionsSvc=self.dcsSvc)
+    # Set up Silicon Conditions Service
+    from SCT_ConditionsServices.SCT_SiliconConditionsSvcSetup import SCT_SiliconConditionsSvcSetup
+    sct_SiliconConditionsSvcSetup = SCT_SiliconConditionsSvcSetup()
+    sct_SiliconConditionsSvcSetup.setDcsSvc(self.dcsSvc)
+    sct_SiliconConditionsSvcSetup.setSvcName("InDetSCT_SiliconConditionsSvc")
+    sct_SiliconConditionsSvcSetup.setup()
+    sctSiliconConditionsSvc = sct_SiliconConditionsSvcSetup.getSvc()
     sctSiliconConditionsSvc.CheckGeoModel = False
     sctSiliconConditionsSvc.ForceUseGeoModel = False
-    #sctSiliconConditionsSvc.OutputLevel=1
-    self.svcMgr += sctSiliconConditionsSvc
     if self._print: print sctSiliconConditionsSvc
 
-    SCTLorentzAngleSvc.SiConditionsServices = sctSiliconConditionsSvc
-    SCTLorentzAngleSvc.UseMagFieldSvc = True       #may need also MagFieldSvc instance
+    # Set up SCTSiLorentzAngleCondAlg
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSeq = AthSequencer("AthCondSeq")
+    if not hasattr(condSeq, "SCTSiLorentzAngleCondAlg"):
+      from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SCTSiLorentzAngleCondAlg
+      from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+      condSeq += SCTSiLorentzAngleCondAlg(name = "SCTSiLorentzAngleCondAlg",
+                                          SiConditionsServices = sctSiliconConditionsSvc,
+                                          UseMagFieldSvc = True,
+                                          UseMagFieldDcs = (not athenaCommonFlags.isOnline()))
+      sctSiLorentzAngleCondAlg = condSeq.SCTSiLorentzAngleCondAlg
 
-    self.svcMgr += SCTLorentzAngleSvc
+    "Inititalize Lorentz angle Service"
+    if not hasattr(self.svcMgr, instanceName):
+      from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleCHSvc
+      self.svcMgr += SiLorentzAngleCHSvc(name = instanceName,
+                                         DetectorName = "SCT")
+    SCTLorentzAngleSvc = getattr(self.svcMgr, instanceName)
+    SCTLorentzAngleSvc.UseMagFieldSvc = True #may need also MagFieldSvc instance
     
   def instanceName(self, toolname):
     return self.prefix+toolname

@@ -80,6 +80,7 @@ private:
   SG::ReadHandleKey<EventInfo> m_eventInfoKey;
   SG::WriteDecorHandleKey<CVec> m_cvecDecorKey;
   SG::WriteDecorHandleKey<C>    m_cinfoDecorKey;
+  SG::WriteDecorHandleKey<SG::AuxElement> m_objDecorKey;
   SG::WriteDecorHandleKey<CVec> m_ctrigDecorKey;
 };
 

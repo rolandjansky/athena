@@ -675,7 +675,7 @@ void TrackHandleBase::Imp::rebuild3DObjects()
   line->ref();
   theclass->registerTrack();
 
-  SoVertexProperty * vertices = new SoVertexProperty();;
+  SoVertexProperty * vertices = new SoVertexProperty();
 
   int iver(0), numlines(0);
 

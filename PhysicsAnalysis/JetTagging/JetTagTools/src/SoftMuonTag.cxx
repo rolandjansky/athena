@@ -97,8 +97,8 @@ namespace Analysis
     declareProperty("TaggingAlgType", m_algMode                = "L1D");
     declareProperty("BTagJetPTmin",   m_pTjetmin               = 15.*Gaudi::Units::GeV);
     declareProperty("BTagJetEtamin",  m_etajetmin              = 2.7);
-    declareProperty("LikelihoodTool", m_likelihoodTool);
-    declareProperty("TrackToVertexTool"       , m_trackToVertexTool);
+    declareProperty("LikelihoodTool", m_likelihoodTool=nullptr);
+    declareProperty("TrackToVertexTool"       , m_trackToVertexTool=nullptr);
     declareProperty("TrackToVertexIPEstimator", m_trackToVertexIPEstimator);   
     declareProperty("muonSelectorTool", 	m_muonSelectorTool);
     declareProperty("checkOverflows", m_checkOverflows         = false);
@@ -242,6 +242,8 @@ namespace Analysis
     /* ------------------------------------------------------------------------- */
     /*                 READ IN REFHISTOS IF IN ANALYSIS MODE                     */
     /* ------------------------------------------------------------------------- */
+    m_likelihoodTool.disable(); //WL Disable this tools since it's not used as long as the section below is commented out
+
     /* // VD: commenting out
        if (m_runModus == "analysis") {
        ATH_MSG_INFO("#BTAG# Reading histos...");
@@ -345,7 +347,7 @@ namespace Analysis
 	}
       }
       m_histoHelper->print();
-	
+
     }
   
     return StatusCode::SUCCESS;
@@ -781,6 +783,7 @@ namespace Analysis
 	for(int kt=0; kt<(int)SVtx->nTrackParticles(); kt++) d_jet_mu_sv_dmaxPt=TMath::Max(d_jet_mu_sv_dmaxPt,(SVtx->trackParticle(kt)->p4()).Perp(tlv.Vect()));
 	jet_mu_sv_dmaxPt=(float)d_jet_mu_sv_dmaxPt;
 	ATH_MSG_DEBUG("**********ANDREA: SV mass= "<< jet_mu_sv_mass <<" efrc= "<< jet_mu_sv_efrc <<" ntrk= "<< jet_mu_sv_ntrk<<" VtxnormDist= "<< jet_mu_sv_VtxnormDist);
+    delete SVtx;  
       }   
       
 
@@ -1074,7 +1077,7 @@ namespace Analysis
 
     //ATH_MSG_DEBUG( "#BTAG# tagJet is done" );
 
-    return  StatusCode::SUCCESS;;
+    return  StatusCode::SUCCESS;
   }
 
 

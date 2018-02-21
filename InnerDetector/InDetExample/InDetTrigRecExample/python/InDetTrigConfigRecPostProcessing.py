@@ -463,7 +463,6 @@ class InDetTrigConversionFinder_EF( InDet__TrigConversionFinder ):
                                                                          VertexFitterTool           = InDetTrigConversionVxFitterTool,
                                                                          TrackSelectorTool          = InDetTrigConversionTrackSelector,
                                                                          TrackPairsSelector         = InDetTrigConversionTrackPairsSelector,
-                                                                         ConversionFinderHelperTool = InDetTrigConversionHelper,
                                                                          VertexPointEstimator       = InDetTrigConversionVtxPointEstimator,
                                                                          PostSelector               = InDetTrigConversionPostSelector,
                                                                          SingleTrackConversionTool  = InDetTrigSingleTrackConversion,

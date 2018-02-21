@@ -65,7 +65,8 @@ class LorentzAngleSvcSetup:
         if ( DetFlags.detdescr.SCT_on() ):
             # Init SCTLorentzAngleSvc
 
-            from SCTLorentzAngleSvcSetup import sctLorentzAngleSvcSetup
+            from SCTLorentzAngleSvcSetup import SCTLorentzAngleSvcSetup
+            sctLorentzAngleSvcSetup = SCTLorentzAngleSvcSetup()
             self.sct   = sctLorentzAngleSvcSetup.SCTLorentzAngleSvc
             self.sctSiliconConditionsSvc  = sctLorentzAngleSvcSetup.SCT_SiliconConditionsSvc
             self.SCT_SiliconConditionsSvc = sctLorentzAngleSvcSetup.SCT_SiliconConditionsSvc
@@ -117,4 +118,6 @@ from AthenaCommon.DetFlags      import DetFlags
 if ( DetFlags.detdescr.pixel_on() ):
    from PixelLorentzAngleSvcSetup import PixelLorentzAngleSvc
 if ( DetFlags.detdescr.SCT_on() ):
-   from SCTLorentzAngleSvcSetup import SCTLorentzAngleSvc
+   from SCTLorentzAngleSvcSetup import SCTLorentzAngleSvcSetup
+   sctLorentzAngleSvcSetup = SCTLorentzAngleSvcSetup()
+   SCTLorentzAngleSvc = sctLorentzAngleSvcSetup.SCTLorentzAngleSvc

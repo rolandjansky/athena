@@ -21,7 +21,7 @@ from AthenaServices.AthenaServicesConf import AthenaSealSvc
 from AthenaPoolServices.AthenaRootStreamerSvcConf import AthenaRootStreamerSvc
 from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import EventSelectorAthenaPool
 from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import AthenaPoolAddressProviderSvc
-from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import MetaDataSvc
+from AthenaServices.AthenaServicesConf import MetaDataSvc
 #-------------------------------------------------------------------------------
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
@@ -174,7 +174,7 @@ svcMgr.MergingEventLoopMgr.ShareSecondaryProxies = True
 
 
 #-------------------------------------------------------------------------------
-# AthenaPoolOutputStreamTool
+# AthenaOutputStreamTool
 #-------------------------------------------------------------------------------
 #http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/Control/AthenaExamples/AthExThinning/share/WriteSlimmedData_jobOptions.py
 #import AthenaPoolCnvSvc.WriteAthenaPool

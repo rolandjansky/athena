@@ -419,7 +419,7 @@ pool::ICollection* PoolSvc::createCollection(const std::string& collectionType,
       }
    }
    // Check whether Collection Container exists.
-   if (collectionType == "ImplicitCollection" || collectionType == "SeekableCollection") {
+   if (collectionType == "ImplicitCollection") {
       std::unique_ptr<pool::IDatabase> dbH = getDbHandle(contextId, connection);
       if (dbH == nullptr) {
          ATH_MSG_INFO("Failed to get Session/DatabaseHandle to create POOL collection.");
@@ -453,7 +453,7 @@ pool::ICollection* PoolSvc::createCollection(const std::string& collectionType,
       }
    }
    pool::CollectionFactory* collFac = pool::CollectionFactory::get();
-   pool::CollectionDescription collDes(collection, collectionType, (collectionType == "ImplicitCollection" || collectionType == "SeekableCollection") ? connection : "");
+   pool::CollectionDescription collDes(collection, collectionType, collectionType == "ImplicitCollection" ? connection : "");
    pool::ICollection* collPtr = nullptr;
    if (collectionType == "RootCollection" && contextId == IPoolSvc::kOutputStream) {
       ATH_MSG_INFO("Writing ExplicitROOT Collection - do not pass session pointer");

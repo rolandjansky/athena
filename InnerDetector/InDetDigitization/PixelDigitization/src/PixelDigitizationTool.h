@@ -21,6 +21,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "StoreGate/WriteHandle.h"
+#include "StoreGate/WriteHandleKey.h"
 
 #include "InDetSimData/InDetSimDataCollection.h"
 #include "SensorSimTool.h"
@@ -54,8 +55,10 @@ class PixelDigitizationTool : public PileUpToolBase {
 
     std::vector<SiHitCollection*> m_hitCollPtrs;
 
-    SG::WriteHandle<PixelRDO_Container>     m_rdoContainer;
-    SG::WriteHandle<InDetSimDataCollection> m_simDataColl;
+    SG::WriteHandleKey<PixelRDO_Container>     m_rdoContainerKey;
+    SG::WriteHandle<PixelRDO_Container>        m_rdoContainer;
+    SG::WriteHandleKey<InDetSimDataCollection> m_simDataCollKey;
+    SG::WriteHandle<InDetSimDataCollection>    m_simDataColl;
 
     int               m_HardScatterSplittingMode;
     bool              m_HardScatterSplittingSkipper;
@@ -65,7 +68,7 @@ class PixelDigitizationTool : public PileUpToolBase {
 
     ToolHandleArray<SensorSimTool>                 m_chargeTool;
     ToolHandleArray<FrontEndSimTool>               m_fesimTool;
-    ToolHandle<EnergyDepositionTool>                     m_energyDepositionTool;
+    ToolHandle<EnergyDepositionTool>               m_energyDepositionTool;
 
     const PixelID            *m_detID;
 

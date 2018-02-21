@@ -26,6 +26,8 @@
 #ifndef _VKalVrt_InDetVKalPriVxFinderTool_H
 #define _VKalVrt_InDetVKalPriVxFinderTool_H
 // Normal STL and physical vectors
+#include "TrkToolInterfaces/ITrackSelectorTool.h"
+#include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include <vector>
 // Gaudi includes
 #include  "TrkTrack/TrackCollection.h"
@@ -50,8 +52,6 @@ class IBeamCondSvc;
 
 
 namespace Trk {
-   class ITrackSummaryTool;
-   class ITrackSelectorTool;
 }
 
 namespace InDet {
@@ -112,12 +112,15 @@ namespace InDet {
       long int m_NPVertexMax;
 
 
-   ToolHandle< Trk::ITrkVKalVrtFitter > m_fitSvc;
-   ToolHandle< Trk::ITrackSummaryTool > m_sumSvc; //!< Pointer to the track summary tool
+   PublicToolHandle< Trk::ITrkVKalVrtFitter > m_fitSvc
+      {this,"TrkVKalVrtFitter","Trk::TrkVKalVrtFitter",""};
+   PublicToolHandle< Trk::ITrackSummaryTool > m_sumSvc
+      {this,"TrackSummaryTool","Trk::TrackSummaryTool/AtlasTrackSummaryTool",""}; //!< Pointer to the track summary tool
    ServiceHandle< IBeamCondSvc >  m_iBeamCondSvc; //!< pointer to the beam condition service
    //Trk::ITrkVKalVrtFitter*      m_fitSvc;
    //IBeamCondSvc* m_iBeamCondSvc; 
-   ToolHandle<Trk::ITrackSelectorTool>  m_trkSelector;
+   PublicToolHandle<Trk::ITrackSelectorTool>  m_trkSelector
+      {this,"DefaultTrackSelection","DefaultTrackSelection",""};
 
    Amg::Vector3D m_BeamCnst;
    std::vector<double> m_BeamCnstWid;

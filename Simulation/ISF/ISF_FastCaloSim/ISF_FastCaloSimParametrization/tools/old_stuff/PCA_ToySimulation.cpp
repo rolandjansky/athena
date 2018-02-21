@@ -556,7 +556,7 @@ void PCA_ToySimulation(TString InputFile="PCAOutput.root", TString InputFile2="P
     //int Layers[] = {0,1,2,3,4,5,6,7,8,12,13,14,15,16,17,18,19};
     int Layers[] = {0,1,2,3,12,13,14};
 
-    std::vector<int> Relevant_Layers (Layers, Layers + sizeof(Layers) / sizeof(int) );;
+    std::vector<int> Relevant_Layers (Layers, Layers + sizeof(Layers) / sizeof(int) );
     
     TreeReader* nr = new TreeReader;
 	nr->SetTree(T_Id);

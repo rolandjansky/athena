@@ -54,15 +54,15 @@ SCT_ChargeTrappingSvc::SCT_ChargeTrappingSvc( const std::string& name,  ISvcLoca
   declareProperty("TemperatureMin",m_temperatureMin = -80.,  "Minimum temperature allowed in Celcius.");
   declareProperty("TemperatureMax",m_temperatureMax = 100.,  "Maximum temperature allowed in Celcius.");
   declareProperty("BiasVoltage", m_biasVoltage = 150., "Default  bias voltage in Volt.");
-  declareProperty("DepletionVoltage", m_deplVoltage = 70.,  "Default depletion voltage in Volt.");
+  declareProperty("DepletionVoltage", m_deplVoltage = -30.,  "Default depletion voltage in Volt.");
   // declareProperty("IgnoreLocalPos", m_ignoreLocalPos = false,  "Treat methods that take a local position as if one "
   //     "called the methods without a local position" );
   declareProperty("DetStore", m_detStore);
   
   // -- Radiation damage specific
-  declareProperty("CalcHoles", m_calcHoles=false,"Default is to ignore holes in signal formation.");
+  declareProperty("CalcHoles", m_calcHoles=true, "Default is to consider holes in signal formation.");
   // -- Fluence: Need to make it layer-dependent
-  declareProperty("Fluence", m_fluence=(double)1.0E15, "Fluence received by the detector."); 
+  declareProperty("Fluence", m_fluence=(double)3.0E13, "Fluence received by the detector.");
   declareProperty("BetaElectrons",m_betaElectrons=(double)3.1E-16,"Constant for the trapping model for electrons, in [cm^2/ns] " 
                   "-- average value from Table 2 in ATL-INDET-2003-014");
   declareProperty("BetaHoles",m_betaHoles=(double)5.1E-16,"Constant for the trapping model for holes in [cm^2/ns] " 
@@ -115,19 +115,6 @@ SCT_ChargeTrappingSvc::initialize()
     return StatusCode::FAILURE;
   }
   
-  if (m_conditionsSvcValid) {
-    if (m_siConditionsSvc->hasCallBack()) {
-      sc = m_detStore->regFcn(&ISiliconConditionsSvc::callBack,  &*m_siConditionsSvc,
-                              &ISCT_ChargeTrappingSvc::callBack,  dynamic_cast<ISCT_ChargeTrappingSvc *>(this),
-                              true);
-      if (sc.isFailure()) {
-        msg(MSG::ERROR) << "Could not register callback." << endmsg;
-        return sc;
-      }
-    } else {
-    }
-  }
-  
   // Get maximum hash for vector sizes. We need the idhelper for  this.
   unsigned int maxHash = 0;
   if (m_isSCT) {
@@ -144,10 +131,7 @@ SCT_ChargeTrappingSvc::initialize()
     return StatusCode::FAILURE;
   }
   
-  // In case geoInitialize is called more than once (not likely in  practice)
-  m_cacheValid.clear();
 
-  
   // Initialize the caches
   m_electricField.resize(maxHash);
   m_meanFreePathElectrons.resize(maxHash);
@@ -180,18 +164,6 @@ StatusCode SCT_ChargeTrappingSvc::queryInterface(const InterfaceID& riid, void**
     return Service::queryInterface(riid, ppvInterface);
   }
   addRef();
-  return StatusCode::SUCCESS;
-}
-
-
-StatusCode SCT_ChargeTrappingSvc::callBack(IOVSVC_CALLBACK_ARGS_P(I,keys))
-{
-  (void) I; // avoid warning about unused parameter
-  (void) keys;
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Callback called." <<  endmsg;
-  
-  invalidateCache();
-  
   return StatusCode::SUCCESS;
 }
 
@@ -273,29 +245,6 @@ void SCT_ChargeTrappingSvc::getInitPotentialValue()
   initPotentialValue();
 }
 
-void SCT_ChargeTrappingSvc::invalidateCache()
-{
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Invalidating general  cache." << endmsg;
-  
-  // Invalidate all caches.
-  std::fill(m_cacheValid.begin(), m_cacheValid.end(), false);
-  
-  // InDetReadoutGometry caches the result so we need to invalidate
-  // the InDetReadoutGometry cache.
-  for (InDetDD::SiDetectorElementCollection::const_iterator iter =  m_detManager->getDetectorElementBegin();
-       iter != m_detManager->getDetectorElementEnd();
-       ++iter){
-    const InDetDD::SiDetectorElement * element = *iter;
-    if (element) element->invalidateConditions();
-  }
-  
-}
-
-
-bool SCT_ChargeTrappingSvc::valid(const IdentifierHash & elementHash){
-  return m_cacheValid[elementHash];
-}
-
 
 void SCT_ChargeTrappingSvc::updateCache(const IdentifierHash & elementHash,  const double & pos) {  
   
@@ -309,8 +258,6 @@ void SCT_ChargeTrappingSvc::updateCache(const IdentifierHash & elementHash,  con
       << "Effects of radiation damage may be wrong!"
       << endmsg;
   }
-  
-  //  m_cacheValid[elementHash] = true;
   
   
   const InDetDD::SiDetectorElement * element = m_detManager->getDetectorElement(elementHash);
@@ -359,7 +306,7 @@ void SCT_ChargeTrappingSvc::updateCache(const IdentifierHash & elementHash,  con
   
   double electricField=m_electricFieldTool->getElectricField(pos,//posZ
                                                              totalFluence,
-                                                             fabs(deplVoltage),
+                                                             deplVoltage,
                                                              element->thickness(),
                                                              fabs(biasVoltage));
 

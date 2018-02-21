@@ -19,7 +19,6 @@
 
 PixelCalibDbTestWriteRead::PixelCalibDbTestWriteRead(const std::string& name, ISvcLocator* pSvcLocator)
     :AthAlgorithm   (name, pSvcLocator),
-     m_calibdbtool("PixelCalibDbTool"),
      m_setup(false),
      m_par_read(false),
      m_par_write(false),

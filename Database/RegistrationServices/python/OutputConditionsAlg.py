@@ -27,10 +27,10 @@ def OutputConditionsAlg(name='OutputConditionsAlg',outputFile='condobjs.root',
     topSequence += myAlg
 
     # create outputStream tool with given filename and pass to myOCA
-    from OutputStreamAthenaPool.OutputStreamAthenaPoolConf import AthenaPoolOutputStreamTool
+    from AthenaServices.AthenaServicesConf import AthenaOutputStreamTool
     toolname=name+"Tool"
     myAlg.StreamName=toolname
-    condstream=AthenaPoolOutputStreamTool(toolname)
+    condstream=AthenaOutputStreamTool(toolname)
     condstream.OutputFile=outputFile
     condstream.PoolContainerPrefix="ConditionsContainer"
     from AthenaCommon.AppMgr import ToolSvc

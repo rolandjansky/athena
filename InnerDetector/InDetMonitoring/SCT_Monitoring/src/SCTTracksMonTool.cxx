@@ -119,7 +119,6 @@ SCTTracksMonTool::SCTTracksMonTool(const string &type,
   m_path(""),
   m_useIDGlobal(false),
   m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator", this),
-  m_updator("Trk::KalmanUpdator/TrkKalmanUpdator", this),
   m_pSCTHelper(nullptr) {
   /** sroe 3 Sept 2015:
      histoPathBase is declared as a property in the base class, assigned to m_path
@@ -154,7 +153,7 @@ StatusCode SCTTracksMonTool::initialize() {
   ATH_CHECK( SCTMotherTrigMonTool::initialize() );
 
   ATH_CHECK( m_tracksName.initialize() );
-
+  CHECK(m_residualPullCalculator.retrieve());
   return StatusCode::SUCCESS;
 }
 
@@ -191,7 +190,7 @@ SCTTracksMonTool::bookHistogramsRecurrent() {                                   
       ATH_MSG_WARNING("Error in booking track histograms for " << names[sys]);
     }
   }
-  CHECK(m_residualPullCalculator.retrieve());
+
   return StatusCode::SUCCESS;
 }
 
@@ -228,7 +227,7 @@ SCTTracksMonTool::bookHistograms() {                                            
       ATH_MSG_WARNING("Error in booking track histograms for " << names[sys]);
     }
   }
-  CHECK(m_residualPullCalculator.retrieve());
+
   return StatusCode::SUCCESS;
 }
 

@@ -21,8 +21,8 @@
 // Gaudi kernel stuff.
 
 #include "TrigT1CaloEvent/TriggerTower_ClassDEF.h"
-#include "DataModel/ElementLink.h"
-#include "DataModel/DataVector.h"
+#include "AthLinks/ElementLink.h"
+#include "AthContainers/DataVector.h"
 
 
 //LVL1 Calo trigger includes

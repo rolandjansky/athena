@@ -132,6 +132,7 @@ LArCosmicsMonTool::initialize()
     return sc;
   }
   
+  ATH_CHECK( m_badChannelMask.retrieve() );
   
   // Get LAr Cabling Service
   sc=m_larCablingService.retrieve();
@@ -351,7 +352,7 @@ LArCosmicsMonTool::fillHistograms() {
     
     if(m_LArOnlineIDHelper->isFCALchannel(id)){
       
-      int sampling = m_LArFCAL_IDHelper->module(offlineID);;
+      int sampling = m_LArFCAL_IDHelper->module(offlineID);
       const std::vector < short > samples = pLArDigit->samples();
       
       // Look for Muons Candidates in sampling 2

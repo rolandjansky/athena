@@ -51,7 +51,6 @@ public:
 
 private:
   int m_nplanes;
-  int m_bankID;
   int m_threshold;
   int m_nroads;
   int m_npatterns; // Number of TSP patterns loaded

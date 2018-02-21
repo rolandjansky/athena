@@ -7,12 +7,12 @@
 #include <iostream>
 
 HelloWorld::HelloWorld() :
-   fMessage("")
+   m_message("")
 {}
 
 
 HelloWorld::HelloWorld(const std::string& s) :
-   fMessage(s)
+   m_message(s)
 {}
 
 
@@ -23,19 +23,19 @@ HelloWorld::~HelloWorld()
 void
 HelloWorld::greetings()
 {
-   std::cout << fMessage << std::endl;
+   std::cout << m_message << std::endl;
 }
 
 
 void
 HelloWorld::setGreetings(const std::string& s) {
-   fMessage = s;
+   m_message = s;
 }
 
 
 void
 HelloWorld::setStrPtr(const std::string* p) {
-   fMessage = *p;
+   m_message = *p;
 }
 
 

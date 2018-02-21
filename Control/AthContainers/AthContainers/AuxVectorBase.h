@@ -701,7 +701,6 @@ private:
     std::vector<size_t> m_rmap;
     std::vector<void*> m_auxdata;
     std::vector<SG::auxid_t> m_auxids;
-    SG::AuxTypeRegistry::lock_t m_lock;
 
     ResortAuxHelper();
   };

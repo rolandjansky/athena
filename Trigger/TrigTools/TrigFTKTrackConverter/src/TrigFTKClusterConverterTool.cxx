@@ -332,18 +332,18 @@ InDet::PixelCluster* TrigFTKClusterConverterTool::createPixelCluster(IdentifierH
 }
 
 
-void TrigFTKClusterConverterTool::createSCT_Truth(Identifier id, const MultiTruth& mt, PRD_MultiTruthCollection*  sctTruth, const McEventCollection*  m_mcEventCollection, StoreGateSvc* m_evtStore,  std::string m_mcTruthName) {
+void TrigFTKClusterConverterTool::createSCT_Truth(Identifier id, const MultiTruth& mt, PRD_MultiTruthCollection*  sctTruth, const McEventCollection*  mcEventCollection, StoreGateSvc* evtStore,  std::string mcTruthName) {
 
-  StatusCode sc = m_evtStore->retrieve(m_mcEventCollection, m_mcTruthName ); 
+  StatusCode sc = evtStore->retrieve(mcEventCollection, mcTruthName ); 
   
   if ( sc.isFailure() ){ 
-    ATH_MSG_WARNING("Cannot retrieve McEventCollection "<<m_mcTruthName); 
+    ATH_MSG_WARNING("Cannot retrieve McEventCollection "<<mcTruthName); 
   } 
   int barCode = mt.best_barcode();
   unsigned eventIdx=0;
 
-  McEventCollection::const_iterator event = m_mcEventCollection->begin();
-  for ( ; event != m_mcEventCollection->end(); ++event, ++eventIdx ){
+  McEventCollection::const_iterator event = mcEventCollection->begin();
+  for ( ; event != mcEventCollection->end(); ++event, ++eventIdx ){
     const HepMC::GenParticle* p = (*event)->barcode_to_particle(barCode);
     if(p!=NULL) {
       sctTruth->insert(std::make_pair(id,HepMcParticleLink(p,eventIdx)));
@@ -354,20 +354,20 @@ void TrigFTKClusterConverterTool::createSCT_Truth(Identifier id, const MultiTrut
 }
 
 
-void TrigFTKClusterConverterTool::createPixelTruth(Identifier id, const MultiTruth& mt, PRD_MultiTruthCollection*  pxlTruth, const McEventCollection*  m_mcEventCollection, StoreGateSvc* m_evtStore, std::string m_mcTruthName) {
+void TrigFTKClusterConverterTool::createPixelTruth(Identifier id, const MultiTruth& mt, PRD_MultiTruthCollection*  pxlTruth, const McEventCollection*  mcEventCollection, StoreGateSvc* evtStore, std::string mcTruthName) {
 
-  StatusCode sc = m_evtStore->retrieve(m_mcEventCollection, m_mcTruthName ); 
+  StatusCode sc = evtStore->retrieve(mcEventCollection, mcTruthName ); 
   
   if ( sc.isFailure() ){ 
-    ATH_MSG_WARNING("Cannot retrieve McEventCollection "<<m_mcTruthName); 
+    ATH_MSG_WARNING("Cannot retrieve McEventCollection "<<mcTruthName); 
   } 
 
   int barCode = mt.best_barcode();
   //if (barCode>100000) return;
   unsigned eventIdx=0;
 
-  McEventCollection::const_iterator event = m_mcEventCollection->begin();
-  for ( ; event != m_mcEventCollection->end(); ++event, ++eventIdx ){
+  McEventCollection::const_iterator event = mcEventCollection->begin();
+  for ( ; event != mcEventCollection->end(); ++event, ++eventIdx ){
     const HepMC::GenParticle* p = (*event)->barcode_to_particle(barCode);
     if(p!=NULL) {
       pxlTruth->insert(std::make_pair(id,HepMcParticleLink(p,eventIdx)));
@@ -416,47 +416,47 @@ InDet::SCT_ClusterCollection*  TrigFTKClusterConverterTool::getCollection(InDet:
   return pcoll;
 }
 
-StatusCode TrigFTKClusterConverterTool::getMcTruthCollections(StoreGateSvc* m_evtStore,  const McEventCollection*  m_mcEventCollection, std::string m_ftkPixelTruthName, std::string m_ftkSctTruthName, std::string m_mcTruthName) {
+StatusCode TrigFTKClusterConverterTool::getMcTruthCollections(StoreGateSvc* evtStore,  const McEventCollection*  mcEventCollection, std::string ftkPixelTruthName, std::string ftkSctTruthName, std::string mcTruthName) {
 
-  StatusCode sc = m_evtStore->retrieve(m_mcEventCollection, m_mcTruthName ); 
+  StatusCode sc = evtStore->retrieve(mcEventCollection, mcTruthName ); 
 
   if ( sc.isFailure() ){ 
-    ATH_MSG_WARNING("Cannot retrieve McEventCollection "<<m_mcTruthName); 
+    ATH_MSG_WARNING("Cannot retrieve McEventCollection "<<mcTruthName); 
     return StatusCode::FAILURE; 
   } 
-  if(!m_evtStore->contains<PRD_MultiTruthCollection>(m_ftkPixelTruthName)) { 
+  if(!evtStore->contains<PRD_MultiTruthCollection>(ftkPixelTruthName)) { 
 
      m_ftkPixelTruth = new PRD_MultiTruthCollection;
             
-     sc=m_evtStore->record(m_ftkPixelTruth,m_ftkPixelTruthName,false); 
+     sc=evtStore->record(m_ftkPixelTruth,ftkPixelTruthName,false); 
      if(sc.isFailure()) { 
-       ATH_MSG_WARNING("Pixel FTK Truth Container " << m_ftkPixelTruthName  
+       ATH_MSG_WARNING("Pixel FTK Truth Container " << ftkPixelTruthName  
            <<" cannot be recorded in StoreGate !"); 
        return sc; 
      } else { 
-       ATH_MSG_DEBUG("Pixel FTK Truth Container " << m_ftkPixelTruthName   
+       ATH_MSG_DEBUG("Pixel FTK Truth Container " << ftkPixelTruthName   
          << " is recorded in StoreGate"); 
      } 
   } else {     
-    ATH_MSG_DEBUG("Pixel FTK Truth Container " << m_ftkPixelTruthName     
+    ATH_MSG_DEBUG("Pixel FTK Truth Container " << ftkPixelTruthName     
         << " is found in StoreGate"); 
   }
 
-  if(!m_evtStore->contains<PRD_MultiTruthCollection>(m_ftkSctTruthName)) { 
+  if(!evtStore->contains<PRD_MultiTruthCollection>(ftkSctTruthName)) { 
 
      m_ftkSctTruth = new PRD_MultiTruthCollection;
             
-     sc=m_evtStore->record(m_ftkSctTruth,m_ftkSctTruthName,false); 
+     sc=evtStore->record(m_ftkSctTruth,ftkSctTruthName,false); 
      if(sc.isFailure()) { 
-       ATH_MSG_WARNING("SCT FTK Truth Container " << m_ftkSctTruthName  
+       ATH_MSG_WARNING("SCT FTK Truth Container " << ftkSctTruthName  
 		 <<" cannot be recorded in StoreGate !"); 
        return sc; 
      } else { 
-	 ATH_MSG_DEBUG("SCT FTK Truth Container " << m_ftkSctTruthName   
+	 ATH_MSG_DEBUG("SCT FTK Truth Container " << ftkSctTruthName   
 		   << " is recorded in StoreGate"); 
      } 
   } else {     
-      ATH_MSG_DEBUG("SCT FTK Truth Container " << m_ftkSctTruthName     
+      ATH_MSG_DEBUG("SCT FTK Truth Container " << ftkSctTruthName     
 		<< " is found in StoreGate"); 
   }
   return sc;

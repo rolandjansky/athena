@@ -61,8 +61,10 @@ namespace InDet
       // enter declaration of your interface-defining member functions here
       
     protected:
-      ToolHandle<Trk::IExtrapolator>        m_extrapolator; //!< extrapolator
-      ToolHandle<Trk::IRIO_OnTrackCreator > m_rotcreator; //!< Creator ROT
+      PublicToolHandle<Trk::IExtrapolator>        m_extrapolator
+         {this,"Extrapolator","Trk::Extrapolator",""}; //!< extrapolator
+      PublicToolHandle<Trk::IRIO_OnTrackCreator > m_rotcreator
+         {this,"RIO_OnTrackCreator","Trk::RIO_OnTrackCreator/InDetRotCreator",""}; //!< Creator ROT
       mutable TrackCollection*              m_seedsegmentsCollection; //!< output collection for seed
       std::string                           m_seedsegmentsOutput; //!< SiSpSeedSegments Output Collection
       Trk::TrackInfo                        m_trackinfo     ; //!< TrackInfo for seeds 

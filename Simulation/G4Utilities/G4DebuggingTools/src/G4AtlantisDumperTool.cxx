@@ -11,7 +11,7 @@ namespace G4UA
   G4AtlantisDumperTool::G4AtlantisDumperTool(const std::string& type,
                                              const std::string& name,
                                              const IInterface* parent)
-    : ActionToolBase<G4AtlantisDumper>(type, name, parent)
+    : UserActionToolBase<G4AtlantisDumper>(type, name, parent)
   {
     declareProperty("Edep", m_config.tedep_cut);
     declareProperty("Length", m_config.length_cut);
@@ -19,24 +19,14 @@ namespace G4UA
     declareProperty("KE", m_config.ke_cut);
   }
 
-  std::unique_ptr<G4AtlantisDumper> G4AtlantisDumperTool::makeAction()
+  std::unique_ptr<G4AtlantisDumper>
+  G4AtlantisDumperTool::makeAndFillAction(G4AtlasUserActions& actionList)
   {
-    ATH_MSG_DEBUG("makeAction");
+    ATH_MSG_DEBUG("Constructing a G4AtlasDumper action");
     auto action = CxxUtils::make_unique<G4AtlantisDumper>(m_config);
+    actionList.eventActions.push_back( action.get() );
+    actionList.steppingActions.push_back( action.get() );
     return action;
-  }
-
-  StatusCode G4AtlantisDumperTool::queryInterface(const InterfaceID& riid, void** ppvIf)
-  {
-    if(riid == IG4SteppingActionTool::interfaceID()) {
-      *ppvIf = (IG4SteppingActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    } if(riid == IG4EventActionTool::interfaceID()) {
-      *ppvIf = (IG4EventActionTool*) this;
-      addRef();
-      return StatusCode::SUCCESS;
-    } return ActionToolBase<G4AtlantisDumper>::queryInterface(riid, ppvIf);
   }
 
 } // namespace G4UA

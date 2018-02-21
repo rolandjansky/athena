@@ -87,9 +87,7 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
   // Get tool for space points seed maker
   //
   ATH_CHECK( m_seedsmaker.retrieve() );
-  if(m_useZvertexTool) {
-    ATH_CHECK( m_zvertexmaker.retrieve() );
-  }
+  ATH_CHECK( m_zvertexmaker.retrieve( DisableTool{ !m_useZvertexTool } ));
 
   // Get track-finding tool
   //
@@ -120,9 +118,15 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
       m_zhistogram = new double[m_histsize];
       m_phistogram = new double[m_histsize];
       m_zstep      = double(m_histsize)/(2.*m_zcut);
+    } else {
+      m_proptool.disable();
+      m_useNewStrategy = false;
+      m_useZBoundaryFinding = false;
     }
-    else {m_useNewStrategy = false; m_useZBoundaryFinding = false;}
+  } else {
+    m_proptool.disable();
   }
+
 
   // Get output print level
   //

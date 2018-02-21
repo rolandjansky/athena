@@ -7,6 +7,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "StoreGate/ReadHandleKey.h"
 
 #include "ParticlesInConeTools/ITruthParticlesInConeTool.h"
 #include "IParticlesLookUpTable.h"
@@ -35,14 +36,13 @@ namespace xAOD {
         typedef IParticlesLookUpTable<TruthParticle> LookUpTable;
 
     private:
-        /** retrieve Truth  particles */
-        const TruthParticleContainer* retrieveTruthParticleContainer() const; 
 
         // init look-up table
         const LookUpTable* getTable() const;
 
         /** Truth Particle collection name */
-        std::string m_truthParticleLocation;
+        SG::ReadHandleKey<TruthParticleContainer> m_truthParticleLocation {this,
+	    "TruthParticleLocation", "TruthParticles"};
     };
 }	// end of namespace
 

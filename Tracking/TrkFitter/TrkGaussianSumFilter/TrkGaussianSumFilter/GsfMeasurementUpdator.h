@@ -15,6 +15,8 @@ decription           : Class for performing updates on multi-component states fo
 #ifndef TrkGsfMeasurementUpdator_H
 #define TrkGsfMeasurementUpdator_H
 
+#include "TrkGaussianSumFilter/IMultiComponentStateAssembler.h"
+#include "TrkGaussianSumFilter/IPosteriorWeightsCalculator.h"
 #include "TrkGaussianSumFilter/IMultiStateMeasurementUpdator.h"
 #include "TrkEventPrimitives/FitQualityOnSurface.h"
 
@@ -27,8 +29,6 @@ decription           : Class for performing updates on multi-component states fo
 
 namespace Trk{
 
-class IPosteriorWeightsCalculator;
-class IMultiComponentStateAssembler;
 class LocalParameters;
 
 class GsfMeasurementUpdator : public AthAlgTool, virtual public IMultiStateMeasurementUpdator {
@@ -73,13 +73,20 @@ class GsfMeasurementUpdator : public AthAlgTool, virtual public IMultiStateMeasu
   const MultiComponentState* calculateFilterStep( const MultiComponentState&, 
                                                   const MeasurementBase&, 
                                                   std::unique_ptr<FitQualityOnSurface>& fitQoS ) const;
+                                                  
+  bool invalidComponent(const Trk::TrackParameters* trackParameters ) const;
+  
+  Trk::MultiComponentState*  rebuildState(const Trk::MultiComponentState& stateBeforeUpdate) const;
+                                                  
 
  private:
   int                                      m_outputlevel;                      //!< to cache current output level
   ToolHandle<IUpdator>                     m_updator;                          //!< Linear (Kalman) updator
-  ToolHandle<IPosteriorWeightsCalculator>  m_posteriorWeightsCalculator;       //!< GSF Weights updator
+  PublicToolHandle<IPosteriorWeightsCalculator>  m_posteriorWeightsCalculator
+     {this,"PosteriorWeightsCalculator","Trk::PosteriorWeightsCalculator/PosteriorWeightsCalculator",""};       //!< GSF Weights updator
 
-  ToolHandle<IMultiComponentStateAssembler> m_stateAssembler;                   //!< State assembler
+  PublicToolHandle<IMultiComponentStateAssembler> m_stateAssembler
+     {this,"MultiComponentStateAssembler","Trk::MultiComponentStateAssembler/GsfMeasurementStateAssembler",""};                   //!< State assembler
 
   ServiceHandle<IChronoStatSvc>            m_chronoSvc;                        //!< Timing: The Gaudi time auditing service
 

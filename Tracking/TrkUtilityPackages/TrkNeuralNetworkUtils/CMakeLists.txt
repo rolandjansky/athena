@@ -35,3 +35,5 @@ atlas_add_component( TrkNeuralNetworkUtils
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} AthenaBaseComps GaudiKernel TrkNeuralNetworkUtilsLib )
 
+atlas_add_test( test_buffer
+        SOURCES test/test_TargetBuffer_t.cxx  )

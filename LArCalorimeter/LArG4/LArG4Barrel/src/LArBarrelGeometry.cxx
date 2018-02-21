@@ -1043,7 +1043,7 @@ namespace LArG4 {
     LArG4Identifier Geometry::CalculateECAMIdentifier(const G4Step* a_step, const G4int indECAM, const bool inSTAC, int zside) const
     {
 
-      LArG4Identifier result = LArG4Identifier();;
+      LArG4Identifier result = LArG4Identifier();
 
       // Get all the information about the step
 

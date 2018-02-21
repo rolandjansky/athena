@@ -99,19 +99,19 @@ CollAppendBase::execute( std::vector<std::string> argv_v )
    catch( pool::Exception& poolException )
    {
       if( m_committed ) cout << "At least one COMMIT has occurred" << endl;
-      std::cerr << "pool::Exception: " << poolException.what() << std::endl;;
+      std::cerr << "pool::Exception: " << poolException.what() << std::endl;
       return 1;
    }
    catch( std::exception& exception )
    {
       if( m_committed ) cout << "At least one COMMIT has occurred" << endl;
-      std::cerr << "std::exception: " << exception.what() << std::endl;;
+      std::cerr << "std::exception: " << exception.what() << std::endl;
       return 1;
    }
    catch( ... )
    {
       if( m_committed ) cout << "At least one COMMIT has occurred" << endl;
-      std::cerr << "Unknown exception caught in main()." << std::endl;;
+      std::cerr << "Unknown exception caught in main()." << std::endl;
       return 1;
    }
 }

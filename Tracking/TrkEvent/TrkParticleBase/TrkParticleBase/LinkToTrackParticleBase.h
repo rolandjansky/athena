@@ -7,7 +7,7 @@
 
 #include "TrkTrackLink/ITrackLink.h"
 #include "TrkParticleBase/TrackParticleBaseCollection.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 
 namespace Trk
 {

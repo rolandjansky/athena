@@ -37,7 +37,7 @@ namespace xAOD {
         DEFINE_ACCESSOR( float,deltaPhiRescaled0);
         DEFINE_ACCESSOR( float,deltaPhiRescaled1);
         DEFINE_ACCESSOR( float,deltaPhiRescaled2);
-        DEFINE_ACCESSOR( float,deltaPhiRescaled3);;
+        DEFINE_ACCESSOR( float,deltaPhiRescaled3);
       default:                  
          std::cerr << "xAOD::Electron  ERROR Unknown float TrackCaloMatchType ("
                    << type << ") requested" << std::endl;

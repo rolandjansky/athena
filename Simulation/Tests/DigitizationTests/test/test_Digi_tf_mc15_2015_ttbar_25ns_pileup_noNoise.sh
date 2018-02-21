@@ -11,14 +11,7 @@ Digi_tf.py --inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Dig
 
 rm -rf mc15_valid.361035.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e3581_s2578_s2169_tid05098387_00/ mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/
 
-SCRIPT_DIRECTORY=$1
-PACKAGE=$2
-TYPE=$3
-TEST_NAME=$4
-NIGHTLY_RELEASE=$5
-PROJECT=$6
-PLATFORM=$7
-NIGHTLY_TAG=$8
-
+ArtPackage=$1
+ArtJobName=$2
 # TODO This is a regression test I think. We would also need to compare these files to fixed references and add DCube tests
-art.py compare grid $NIGHTLY_RELEASE $PROJECT $PLATFORM $NIGHTLY_TAG $PACKAGE $TEST_NAME mc15_2015_ttbar.RDO.pool.root
+art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName}

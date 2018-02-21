@@ -7,11 +7,11 @@
 # Principally for documentation, to illustrate available OutputStreamAthenaPool properties
 #
 #==============================================================
-# The next lines tell Athena to load the OutputStreamAthenaPool, and also where to find it.
+# The next lines tell Athena to load the AthenaOutputStreamTool, and also where to find it.
 
-from OutputStreamAthenaPool.OutputStreamAthenaPool import *
+from AthenaServices.AthenaServices import AthenaOutputStreamTool
 
-WritingTool = AthenaPoolOutputStreamTool( "StreamTool" )
+WritingTool = AthenaOutputStreamTool( "StreamTool" )
 
 # List of additional DataHeader, which point to subset of DataObjects only
 # - "<SatelliteName>:<Type>[#<Key>],...",

@@ -7,8 +7,6 @@
 #include <algorithm>
 
 // Interfaces
-#include "TrkExInterfaces/IExtrapolator.h"
-#include "TrkExInterfaces/IEnergyLossUpdator.h"
 
 #include "TrkMaterialOnTrack/EnergyLoss.h"
 #include "TrkMaterialOnTrack/ScatteringAngles.h"
@@ -46,7 +44,7 @@ void myLocal_resetTrack( const Trk::Track& ctrack ){
 
   if( track.m_cachedMeasurementVector ){
     delete track.m_cachedMeasurementVector;
-    track.m_cachedMeasurementVector = 0;;
+    track.m_cachedMeasurementVector = 0;
   }
   if( track.m_cachedOutlierVector ){
     delete track.m_cachedOutlierVector;
@@ -57,8 +55,6 @@ void myLocal_resetTrack( const Trk::Track& ctrack ){
 // constructor
 Trk::TrkMaterialProviderTool::TrkMaterialProviderTool(const std::string& t, const std::string& n, const IInterface* p)
   :	AthAlgTool(t,n,p),
-	m_muonExtrapolator("Trk::Extrapolator/AtlasExtrapolator"),
-	m_elossupdator("Trk::EnergyLossUpdator/AtlasEnergyLossUpdator"),
 	m_trackingVolumesSvc("TrackingVolumesSvc/TrackingVolumesSvc",n),
 	m_trackingGeometrySvc("TrackingGeometrySvc/AtlasTrackingGeometrySvc",n),
         m_scattool("Trk::MultipleScatteringUpdator/AtlasMultipleScatteringUpdator"),
@@ -165,7 +161,7 @@ Trk::TrkMaterialProviderTool::finalize()
 
 
 // Update Calorimeter TSOS using TG
-void Trk::TrkMaterialProviderTool::updateCaloTSOS(Trk::Track& track, const Trk::TrackParameters* startParameters)
+void Trk::TrkMaterialProviderTool::updateCaloTSOS(Trk::Track& track, const Trk::TrackParameters* startParameters) const
 {
   ATH_MSG_VERBOSE("updateCaloTSOS(Trk::Track& track, const Trk::TrackParameters* startParameters)");    
 
@@ -290,7 +286,7 @@ void Trk::TrkMaterialProviderTool::updateCaloTSOS(Trk::Track& track, const Trk::
 
 
 // Update Calorimeter TSOS using TG for the combined fit
-void Trk::TrkMaterialProviderTool::updateCaloTSOS(Trk::Track& idTrack, Trk::Track& extrapolatedTrack)
+void Trk::TrkMaterialProviderTool::updateCaloTSOS(Trk::Track& idTrack, Trk::Track& extrapolatedTrack) const
 {
   ATH_MSG_VERBOSE("updateCaloTSOS(Trk::Track& idTrack, Trk::Track& extrapolatedTrack)");    
   
@@ -426,7 +422,7 @@ void Trk::TrkMaterialProviderTool::updateCaloTSOS(Trk::Track& idTrack, Trk::Trac
 
 // Get Calorimeter MEOT using TG for the combined fit
 void Trk::TrkMaterialProviderTool::getCaloMEOT(const Trk::Track& idTrack, const Trk::Track& msTrack, 
-					  std::vector<MaterialEffectsOnTrack>& calomeots)
+					  std::vector<MaterialEffectsOnTrack>& calomeots) const
 {
   ATH_MSG_VERBOSE("getCaloMEOT(const Trk::Track& idTrack, const Trk::Track& msTrack, std::vector<MaterialEffectsOnTrack>& calomeots)");    
 
@@ -992,7 +988,7 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm,
   return finalCaloTSOS;
 }
 
-CaloEnergy* Trk::TrkMaterialProviderTool::getParamCaloELoss(Trk::Track* track)
+CaloEnergy* Trk::TrkMaterialProviderTool::getParamCaloELoss(Trk::Track* track) const
 {
   for (const Trk::TrackStateOnSurface* tsos : *track->trackStateOnSurfaces()) {
     if(tsos->materialEffectsOnTrack()) {
@@ -1137,7 +1133,7 @@ void Trk::TrkMaterialProviderTool::removeMS(std::vector<const Trk::TrackStateOnS
 void Trk::TrkMaterialProviderTool::updateVector(DataVector<const Trk::TrackStateOnSurface>* inputTSOS, 
 						DataVector<const Trk::TrackStateOnSurface>::iterator firstCALO, 
 						DataVector<const Trk::TrackStateOnSurface>::iterator firstMS, 
-						DataVector<const Trk::TrackStateOnSurface>* caloTSOS)
+						DataVector<const Trk::TrackStateOnSurface>* caloTSOS) const
 {
   //printTSOS(*firstCALO, "UPD->FIRST CALO");
   //printTSOS(*firstMS, "UPD->FIRST MS");
@@ -1166,7 +1162,7 @@ void Trk::TrkMaterialProviderTool::updateVector(DataVector<const Trk::TrackState
 }
 void Trk::TrkMaterialProviderTool::updateVectorMS(DataVector<const Trk::TrackStateOnSurface>* inputTSOS, 
 						  DataVector<const Trk::TrackStateOnSurface>::iterator firstMS, 
-                                                  double X0ScaleMS, double ElossScaleMS) 
+                                                  double X0ScaleMS, double ElossScaleMS) const
 {
 
   bool debug = false;

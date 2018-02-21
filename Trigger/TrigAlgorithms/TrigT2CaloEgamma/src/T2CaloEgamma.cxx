@@ -305,7 +305,7 @@ HLT::ErrorCode T2CaloEgamma::hltExecute(const HLT::TriggerElement* inputTE, HLT:
   
   float calZ0 = 0;
   /// don't use calculated z position yet ...
-  //  calZ0 = calculateZ0((*ptrigEmCluster).Eta1(), (*ptrigEmCluster).eta());;
+  //  calZ0 = calculateZ0((*ptrigEmCluster).Eta1(), (*ptrigEmCluster).eta());
 
 
   // Print out Cluster produced  

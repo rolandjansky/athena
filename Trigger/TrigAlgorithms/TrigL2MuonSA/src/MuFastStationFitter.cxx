@@ -87,9 +87,22 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::initialize()
    if ( !sc.isSuccess() ) {
      ATH_MSG_ERROR("Could not retrieve " << m_backExtrapolator);
     return sc;
-  } 
+   } 
 
-   // 
+   sc = m_alphaBetaEstimate.retrieve();
+   if ( sc.isFailure() ) {
+     ATH_MSG_ERROR("Could not retrieve " << m_alphaBetaEstimate);
+     return sc;
+   }
+   ATH_MSG_DEBUG("Retrieved service " << m_alphaBetaEstimate);
+
+   sc = m_ptFromAlphaBeta.retrieve();
+   if ( sc.isFailure() ) {
+     ATH_MSG_ERROR("Could not retrieve " << m_ptFromAlphaBeta);
+     return sc;
+   }
+   ATH_MSG_DEBUG("Retrieved service " << m_ptFromAlphaBeta);
+
    return StatusCode::SUCCESS; 
 }
 
@@ -111,23 +124,9 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::setMCFlag(BooleanProperty use_mcLU
   }
 
   // Calculation of alpha and beta
-  sc = m_alphaBetaEstimate.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR("Could not retrieve " << m_alphaBetaEstimate);
-    return sc;
-  }
-  ATH_MSG_DEBUG("Retrieved service " << m_alphaBetaEstimate);
-
   m_alphaBetaEstimate->setMCFlag(m_use_mcLUT, m_ptEndcapLUTSvc);
 
   // conversion: alpha, beta -> pT
-  sc = m_ptFromAlphaBeta.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR("Could not retrieve " << m_ptFromAlphaBeta);
-    return sc;
-  }
-  ATH_MSG_DEBUG("Retrieved service " << m_ptFromAlphaBeta);
-
   m_ptFromAlphaBeta->setMCFlag(m_use_mcLUT, m_ptEndcapLUTSvc);
 
   return StatusCode::SUCCESS;

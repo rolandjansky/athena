@@ -23,48 +23,48 @@ DerivationFramework::SkimmingToolHIGG1::SkimmingToolHIGG1(const std::string& t,
   AthAlgTool(t, n, p),
   m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool"),
   m_isMC(false),
-  n_tot(0),
-  n_passGRL(0),
-  n_passLArError(0),
-  n_passTrigger(0),
-  n_passPreselect(0),
-  n_passSingleElectronPreselect(0),
-  n_passDoubleElectronPreselect(0),
-  n_passSingleMuonPreselect(0),
-  n_passKinematic(0),
-  n_passQuality(0),
-  n_passIsolation(0),
-  n_passInvariantMass(0),
-  n_pass(0),
-  e_tot(false),
-  e_passGRL(false),
-  e_passLArError(false),
-  e_passTrigger(false),
-  e_passPreselect(false),
-  e_passSingleElectronPreselect(false),
-  e_passDoubleElectronPreselect(false),
-  e_passSingleMuonPreselect(false),
-  e_passKinematic(false),
-  e_passQuality(false),
-  e_passIsolation(false),
-  e_passInvariantMass(false),
-  e_pass(false),
-  ph_pos_lead(0),
-  ph_pos_subl(0),
-  ph_pt_lead(0.),
-  ph_eta_lead(0.),
-  ph_phi_lead(0.),
-  ph_e_lead(0.),
-  ph_pt_subl(0.),
-  ph_eta_subl(0.),
-  ph_phi_subl(0.),
-  ph_e_subl(0.),
-  ph_tight_lead(0),
-  ph_tight_subl(0.),
-  ph_iso_lead(0),
-  ph_iso_subl(0),
-  e_invariantMass(0.),
-  e_diphotonZ(0.) 
+  m_n_tot(0),
+  m_n_passGRL(0),
+  m_n_passLArError(0),
+  m_n_passTrigger(0),
+  m_n_passPreselect(0),
+  m_n_passSingleElectronPreselect(0),
+  m_n_passDoubleElectronPreselect(0),
+  m_n_passSingleMuonPreselect(0),
+  m_n_passKinematic(0),
+  m_n_passQuality(0),
+  m_n_passIsolation(0),
+  m_n_passInvariantMass(0),
+  m_n_pass(0),
+  m_e_tot(false),
+  m_e_passGRL(false),
+  m_e_passLArError(false),
+  m_e_passTrigger(false),
+  m_e_passPreselect(false),
+  m_e_passSingleElectronPreselect(false),
+  m_e_passDoubleElectronPreselect(false),
+  m_e_passSingleMuonPreselect(false),
+  m_e_passKinematic(false),
+  m_e_passQuality(false),
+  m_e_passIsolation(false),
+  m_e_passInvariantMass(false),
+  m_e_pass(false),
+  m_ph_pos_lead(0),
+  m_ph_pos_subl(0),
+  m_ph_pt_lead(0.),
+  m_ph_eta_lead(0.),
+  m_ph_phi_lead(0.),
+  m_ph_e_lead(0.),
+  m_ph_pt_subl(0.),
+  m_ph_eta_subl(0.),
+  m_ph_phi_subl(0.),
+  m_ph_e_subl(0.),
+  m_ph_tight_lead(0),
+  m_ph_tight_subl(0.),
+  m_ph_iso_lead(0),
+  m_ph_iso_subl(0),
+  m_e_invariantMass(0.),
+  m_e_diphotonZ(0.) 
 {
 
   declareInterface<DerivationFramework::ISkimmingTool>(this);
@@ -131,27 +131,27 @@ StatusCode DerivationFramework::SkimmingToolHIGG1::initialize()
 StatusCode DerivationFramework::SkimmingToolHIGG1::finalize()
 {
   ATH_MSG_VERBOSE("finalize() ...");
-  ATH_MSG_INFO("Processed " << n_tot << " events, " << n_pass << " events passed filter ");
+  ATH_MSG_INFO("Processed " << m_n_tot << " events, " << m_n_pass << " events passed filter ");
 
   
-  ATH_MSG_INFO("GRL       :: " << n_passGRL);
-  ATH_MSG_INFO("lar       :: " << n_passLArError);
-  ATH_MSG_INFO("trig      :: " << n_passTrigger);
+  ATH_MSG_INFO("GRL       :: " << m_n_passGRL);
+  ATH_MSG_INFO("lar       :: " << m_n_passLArError);
+  ATH_MSG_INFO("trig      :: " << m_n_passTrigger);
   ATH_MSG_INFO("----------------------------");
   if(m_incDoubleElectron)
-    ATH_MSG_INFO("2e        :: " << n_passDoubleElectronPreselect);
+    ATH_MSG_INFO("2e        :: " << m_n_passDoubleElectronPreselect);
   if(m_incSingleElectron)
-    ATH_MSG_INFO("1y1e      :: " << n_passSingleElectronPreselect);
+    ATH_MSG_INFO("1y1e      :: " << m_n_passSingleElectronPreselect);
   if(m_incSingleMuon)
-    ATH_MSG_INFO("1y1mu     :: " << n_passSingleMuonPreselect);
-  ATH_MSG_INFO("2y        :: " << n_passPreselect);
+    ATH_MSG_INFO("1y1mu     :: " << m_n_passSingleMuonPreselect);
+  ATH_MSG_INFO("2y        :: " << m_n_passPreselect);
   ATH_MSG_INFO("----------------------------");
-  ATH_MSG_INFO("2y - kin       :: " << n_passKinematic);
-  ATH_MSG_INFO("2y - qual      :: " << n_passQuality);
-  ATH_MSG_INFO("2y - iso       :: " << n_passIsolation);
-  ATH_MSG_INFO("2y - inv       :: " << n_passInvariantMass);
+  ATH_MSG_INFO("2y - kin       :: " << m_n_passKinematic);
+  ATH_MSG_INFO("2y - qual      :: " << m_n_passQuality);
+  ATH_MSG_INFO("2y - iso       :: " << m_n_passIsolation);
+  ATH_MSG_INFO("2y - inv       :: " << m_n_passInvariantMass);
   ATH_MSG_INFO("----------------------------");
-  ATH_MSG_INFO("passed     :: " << n_pass);
+  ATH_MSG_INFO("passed     :: " << m_n_pass);
   
   return StatusCode::SUCCESS;
 }
@@ -160,12 +160,12 @@ StatusCode DerivationFramework::SkimmingToolHIGG1::finalize()
 bool DerivationFramework::SkimmingToolHIGG1::eventPassesFilter() const
 {
 
-  n_tot++;
+  m_n_tot++;
 
   bool writeEvent(false);
 
   const xAOD::EventInfo *eventInfo(0);
-  ATH_CHECK(evtStore()->retrieve(eventInfo));
+  ATH_CHECK(evtStore()->retrieve(eventInfo), false);
   m_isMC = eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION);   
 
   if (!SubcutGoodRunList() && m_reqGRL      ) return false;
@@ -182,7 +182,7 @@ bool DerivationFramework::SkimmingToolHIGG1::eventPassesFilter() const
 
   // There *must* be two photons for the remaining 
   // pieces, but you can still save the event...
-  if (e_passPreselect) {
+  if (m_e_passPreselect) {
     GetDiphotonVertex(); 
     CalculateInvariantMass();
 
@@ -197,7 +197,7 @@ bool DerivationFramework::SkimmingToolHIGG1::eventPassesFilter() const
 
   if (!writeEvent) return false;
   
-  n_pass++;
+  m_n_pass++;
   return true;
 }
 
@@ -205,10 +205,10 @@ bool DerivationFramework::SkimmingToolHIGG1::SubcutGoodRunList() const {
 
   // Placeholder
 
-  e_passGRL = true;
+  m_e_passGRL = true;
   
-  if (e_passGRL) n_passGRL++;
-  return e_passGRL;
+  if (m_e_passGRL) m_n_passGRL++;
+  return m_e_passGRL;
 
 }
   
@@ -217,12 +217,12 @@ bool DerivationFramework::SkimmingToolHIGG1::SubcutLArError() const {
 
   // Retrieve EventInfo
   const xAOD::EventInfo *eventInfo(0);
-  ATH_CHECK(evtStore()->retrieve(eventInfo)); 
+  ATH_CHECK(evtStore()->retrieve(eventInfo), false);
 
-  e_passLArError = !(eventInfo->errorState(xAOD::EventInfo::LAr) == xAOD::EventInfo::Error);
+  m_e_passLArError = !(eventInfo->errorState(xAOD::EventInfo::LAr) == xAOD::EventInfo::Error);
   
-  if (e_passLArError) n_passLArError++;
-  return e_passLArError;
+  if (m_e_passLArError) m_n_passLArError++;
+  return m_e_passLArError;
 
 }
 
@@ -230,18 +230,18 @@ bool DerivationFramework::SkimmingToolHIGG1::SubcutLArError() const {
 bool DerivationFramework::SkimmingToolHIGG1::SubcutTrigger() const {
 
   //just for counting purposes
-  e_passTrigger = m_reqTrigger ? false : true;
+  m_e_passTrigger = m_reqTrigger ? false : true;
   
-  if(m_triggers.size()==0) e_passTrigger = true;
+  if(m_triggers.size()==0) m_e_passTrigger = true;
 
   for (unsigned int i = 0; i < m_triggers.size(); i++) {
     ATH_MSG_DEBUG("TRIGGER = " << m_triggers.at(i));
     if(m_trigDecisionTool->isPassed(m_triggers.at(i)))
-      e_passTrigger = true;
+      m_e_passTrigger = true;
   }
   
-  if (e_passTrigger) n_passTrigger++;
-  return e_passTrigger;
+  if (m_e_passTrigger) m_n_passTrigger++;
+  return m_e_passTrigger;
 
 }
 
@@ -249,48 +249,48 @@ bool DerivationFramework::SkimmingToolHIGG1::SubcutTrigger() const {
 bool DerivationFramework::SkimmingToolHIGG1::SubcutPreselect() const {
 
   const xAOD::PhotonContainer *photons(0); 
-  ATH_CHECK(evtStore()->retrieve(photons, m_photonSGKey));
+  ATH_CHECK(evtStore()->retrieve(photons, m_photonSGKey), false);
   xAOD::PhotonContainer::const_iterator ph_itr(photons->begin());
   xAOD::PhotonContainer::const_iterator ph_end(photons->end());
 
-  e_passPreselect = false;
-  ph_pos_lead = ph_pos_subl = -1;
-  ph_pt_lead = ph_pt_subl= 0;
+  m_e_passPreselect = false;
+  m_ph_pos_lead = m_ph_pos_subl = -1;
+  m_ph_pt_lead = m_ph_pt_subl= 0;
 
   for(int i = 0; ph_itr != ph_end; ++ph_itr, ++i) {
 
     if (PhotonPreselect(*ph_itr)) {
 
-      if ((*ph_itr)->pt() > ph_pt_lead) {
+      if ((*ph_itr)->pt() > m_ph_pt_lead) {
 
-        ph_pos_subl = ph_pos_lead; ph_pos_lead = i;
-        ph_pt_subl = ph_pt_lead; 
-        ph_pt_lead = (*ph_itr)->pt();
+        m_ph_pos_subl = m_ph_pos_lead; m_ph_pos_lead = i;
+        m_ph_pt_subl = m_ph_pt_lead; 
+        m_ph_pt_lead = (*ph_itr)->pt();
 
-      } else if ((*ph_itr)->pt() > ph_pt_subl) {
-        ph_pos_subl = i;
-        ph_pt_subl = (*ph_itr)->pt();
+      } else if ((*ph_itr)->pt() > m_ph_pt_subl) {
+        m_ph_pos_subl = i;
+        m_ph_pt_subl = (*ph_itr)->pt();
       }
     }
   }
 
   // save this for the derivation.
   //std::vector<int> *leadingV = new std::vector<int>();
-  //leadingV->push_back(ph_pos_lead);
-  //leadingV->push_back(ph_pos_subl);
+  //leadingV->push_back(m_ph_pos_lead);
+  //leadingV->push_back(m_ph_pos_subl);
   //if (!evtStore()->contains<std::vector<int> >("leadingV")) CHECK(evtStore()->record(leadingV, "leadingV"));
 
   // save this for this code.
-  if (ph_pos_subl != -1) {
-    e_leadingPhotons.clear();
-    e_leadingPhotons.push_back(*(photons->begin() + ph_pos_lead));
-    e_leadingPhotons.push_back(*(photons->begin() + ph_pos_subl));
-    e_passPreselect = true;
-    n_passPreselect++;
+  if (m_ph_pos_subl != -1) {
+    m_e_leadingPhotons.clear();
+    m_e_leadingPhotons.push_back(*(photons->begin() + m_ph_pos_lead));
+    m_e_leadingPhotons.push_back(*(photons->begin() + m_ph_pos_subl));
+    m_e_passPreselect = true;
+    m_n_passPreselect++;
     return true;
   }
 
-  e_passPreselect = false;
+  m_e_passPreselect = false;
   return false;
 
 }
@@ -336,32 +336,32 @@ bool DerivationFramework::SkimmingToolHIGG1::PhotonPreselect(const xAOD::Photon 
 bool DerivationFramework::SkimmingToolHIGG1::SubcutKinematic() const {
 
   if (m_relativePtCuts) {
-    e_passKinematic =  (ph_pt_lead > e_invariantMass * m_leadingPhotonPt);
-    e_passKinematic &= (ph_pt_subl > e_invariantMass * m_subleadingPhotonPt);
+    m_e_passKinematic =  (m_ph_pt_lead > m_e_invariantMass * m_leadingPhotonPt);
+    m_e_passKinematic &= (m_ph_pt_subl > m_e_invariantMass * m_subleadingPhotonPt);
   } else {
-    e_passKinematic =  (ph_pt_lead > m_leadingPhotonPt);
-    e_passKinematic &= (ph_pt_subl > m_subleadingPhotonPt);
+    m_e_passKinematic =  (m_ph_pt_lead > m_leadingPhotonPt);
+    m_e_passKinematic &= (m_ph_pt_subl > m_subleadingPhotonPt);
   }
 
-  if (e_passKinematic) n_passKinematic++;
-  return e_passKinematic;
+  if (m_e_passKinematic) m_n_passKinematic++;
+  return m_e_passKinematic;
 
 }
 
 bool DerivationFramework::SkimmingToolHIGG1::SubcutQuality() const {
 
   bool val(0);
-  e_passQuality = false;
-  e_leadingPhotons.at(0)->passSelection(val, "Tight");
-  ph_tight_lead = val;
+  m_e_passQuality = false;
+  m_e_leadingPhotons.at(0)->passSelection(val, "Tight");
+  m_ph_tight_lead = val;
 
-  e_leadingPhotons.at(1)->passSelection(val, "Tight");
-  ph_tight_subl = val;
+  m_e_leadingPhotons.at(1)->passSelection(val, "Tight");
+  m_ph_tight_subl = val;
 
-  e_passQuality = (ph_tight_lead && ph_tight_subl);
+  m_e_passQuality = (m_ph_tight_lead && m_ph_tight_subl);
 
-  if (e_passQuality) n_passQuality++;
-  return e_passQuality;
+  if (m_e_passQuality) m_n_passQuality++;
+  return m_e_passQuality;
 
 }
 
@@ -369,50 +369,50 @@ bool DerivationFramework::SkimmingToolHIGG1::SubcutIsolation() const {
 
   // PLACEHOLDER!!!
 
-  e_passIsolation= true;
+  m_e_passIsolation= true;
   
-  if (e_passIsolation) n_passIsolation++;
-  return e_passIsolation;
+  if (m_e_passIsolation) m_n_passIsolation++;
+  return m_e_passIsolation;
 
 }
 
 
 bool DerivationFramework::SkimmingToolHIGG1::SubcutInvariantMass() const {
 
-// ATH_MSG_INFO("val=" << e_invariantMass << "  min=" << m_minInvariantMass << "  max=" << m_maxInvariantMass);
+// ATH_MSG_INFO("val=" << m_e_invariantMass << "  min=" << m_minInvariantMass << "  max=" << m_maxInvariantMass);
 
-  e_passInvariantMass =  (!m_minInvariantMass || 
-                           m_minInvariantMass < e_invariantMass);
+  m_e_passInvariantMass =  (!m_minInvariantMass || 
+                           m_minInvariantMass < m_e_invariantMass);
 
-  e_passInvariantMass &= (!m_maxInvariantMass || 
-                           e_invariantMass < m_maxInvariantMass);
+  m_e_passInvariantMass &= (!m_maxInvariantMass || 
+                           m_e_invariantMass < m_maxInvariantMass);
 
-  if (e_passInvariantMass) n_passInvariantMass++;
-  return e_passInvariantMass;
+  if (m_e_passInvariantMass) m_n_passInvariantMass++;
+  return m_e_passInvariantMass;
 
 }
 
 void DerivationFramework::SkimmingToolHIGG1::CalculateInvariantMass() const {
 
   /// CAUTION - PLACEHOLDERS
-  ph_e_lead   = CorrectedEnergy(e_leadingPhotons.at(0));
-  ph_e_subl   = CorrectedEnergy(e_leadingPhotons.at(1));
+  m_ph_e_lead   = CorrectedEnergy(m_e_leadingPhotons.at(0));
+  m_ph_e_subl   = CorrectedEnergy(m_e_leadingPhotons.at(1));
 
   /// CAUTION - CONSTANTS SHOULD BE UPDATED.
-  ph_eta_lead = CorrectedEta(e_leadingPhotons.at(0));
-  ph_eta_subl = CorrectedEta(e_leadingPhotons.at(1));
+  m_ph_eta_lead = CorrectedEta(m_e_leadingPhotons.at(0));
+  m_ph_eta_subl = CorrectedEta(m_e_leadingPhotons.at(1));
 
-  ph_phi_lead = e_leadingPhotons.at(0)->phi();
-  ph_phi_subl = e_leadingPhotons.at(1)->phi();
+  m_ph_phi_lead = m_e_leadingPhotons.at(0)->phi();
+  m_ph_phi_subl = m_e_leadingPhotons.at(1)->phi();
 
-  ph_pt_lead  = ph_e_lead / cosh(ph_eta_lead);
-  ph_pt_subl  = ph_e_subl / cosh(ph_eta_subl);
+  m_ph_pt_lead  = m_ph_e_lead / cosh(m_ph_eta_lead);
+  m_ph_pt_subl  = m_ph_e_subl / cosh(m_ph_eta_subl);
 
 
-  leadPhotonLV.SetPtEtaPhiM(ph_pt_lead, ph_eta_lead, ph_phi_lead, 0.);
-  sublPhotonLV.SetPtEtaPhiM(ph_pt_subl, ph_eta_subl, ph_phi_subl, 0.);
+  m_leadPhotonLV.SetPtEtaPhiM(m_ph_pt_lead, m_ph_eta_lead, m_ph_phi_lead, 0.);
+  m_sublPhotonLV.SetPtEtaPhiM(m_ph_pt_subl, m_ph_eta_subl, m_ph_phi_subl, 0.);
 
-  e_invariantMass = (leadPhotonLV + sublPhotonLV).M();
+  m_e_invariantMass = (m_leadPhotonLV + m_sublPhotonLV).M();
 
   return;
 
@@ -422,7 +422,7 @@ void DerivationFramework::SkimmingToolHIGG1::CalculateInvariantMass() const {
 
 void DerivationFramework::SkimmingToolHIGG1::GetDiphotonVertex() const {
 
-  e_diphotonZ = 0; 
+  m_e_diphotonZ = 0; 
 
 }
 
@@ -449,7 +449,7 @@ double DerivationFramework::SkimmingToolHIGG1::CorrectedEta(const xAOD::Photon *
     R_photon_front = Z_photon_front/sinh(eta1);
   }
 
-  return asinh((Z_photon_front - e_diphotonZ)/R_photon_front);
+  return asinh((Z_photon_front - m_e_diphotonZ)/R_photon_front);
 
 }
 
@@ -475,81 +475,81 @@ double DerivationFramework::SkimmingToolHIGG1::ReturnRZ_1stSampling_cscopt2(doub
 bool DerivationFramework::SkimmingToolHIGG1::SubcutOnePhotonOneElectron() const {
 
   const xAOD::PhotonContainer *photons(0); 
-  ATH_CHECK(evtStore()->retrieve(photons, m_photonSGKey));
+  ATH_CHECK(evtStore()->retrieve(photons, m_photonSGKey), false);
   xAOD::PhotonContainer::const_iterator ph_itr(photons->begin());
   xAOD::PhotonContainer::const_iterator ph_end(photons->end());
 
   const xAOD::ElectronContainer *electrons(0);
-  ATH_CHECK(evtStore()->retrieve(electrons, m_electronSGKey));
+  ATH_CHECK(evtStore()->retrieve(electrons, m_electronSGKey), false);
   xAOD::ElectronContainer::const_iterator el_itr(electrons->begin());
   xAOD::ElectronContainer::const_iterator el_end(electrons->end());
 
-  e_passSingleElectronPreselect = false;
+  m_e_passSingleElectronPreselect = false;
 
   for( ; ph_itr != ph_end; ++ph_itr){
     if(PhotonPreselect(*ph_itr)){
       for( ; el_itr != el_end; ++el_itr){
         if(ElectronPreselect(*el_itr)){
-          e_passSingleElectronPreselect = true;
+          m_e_passSingleElectronPreselect = true;
         }
       }
     }
   }
 
 
-  if(e_passSingleElectronPreselect) n_passSingleElectronPreselect++;
-  return e_passSingleElectronPreselect;
+  if(m_e_passSingleElectronPreselect) m_n_passSingleElectronPreselect++;
+  return m_e_passSingleElectronPreselect;
 }
 
 bool DerivationFramework::SkimmingToolHIGG1::SubcutTwoElectrons() const {
 
   const xAOD::ElectronContainer *electrons(0);
-  ATH_CHECK(evtStore()->retrieve(electrons, m_electronSGKey));
+  ATH_CHECK(evtStore()->retrieve(electrons, m_electronSGKey), false);
   xAOD::ElectronContainer::const_iterator el_itr(electrons->begin());
   xAOD::ElectronContainer::const_iterator el_end(electrons->end());
 
   int nEle(0);
-  e_passDoubleElectronPreselect = false;
+  m_e_passDoubleElectronPreselect = false;
   
   for( ; el_itr != el_end; ++el_itr){
     if(ElectronPreselect(*el_itr))
       nEle++;
   }
   
-  if(nEle >=2) e_passDoubleElectronPreselect = true;
+  if(nEle >=2) m_e_passDoubleElectronPreselect = true;
   
-  if(e_passDoubleElectronPreselect) n_passDoubleElectronPreselect++;
-  return e_passDoubleElectronPreselect;
+  if(m_e_passDoubleElectronPreselect) m_n_passDoubleElectronPreselect++;
+  return m_e_passDoubleElectronPreselect;
 }
 
 
 bool DerivationFramework::SkimmingToolHIGG1::SubcutOnePhotonOneMuon() const {
 
   const xAOD::PhotonContainer *photons(0); 
-  ATH_CHECK(evtStore()->retrieve(photons, m_photonSGKey));
+  ATH_CHECK(evtStore()->retrieve(photons, m_photonSGKey), false);
   xAOD::PhotonContainer::const_iterator ph_itr(photons->begin());
   xAOD::PhotonContainer::const_iterator ph_end(photons->end());
 
   const xAOD::MuonContainer *muons(0);
-  ATH_CHECK(evtStore()->retrieve(muons, m_muonSGKey));
+  ATH_CHECK(evtStore()->retrieve(muons, m_muonSGKey), false);
   xAOD::MuonContainer::const_iterator mu_itr(muons->begin());
   xAOD::MuonContainer::const_iterator mu_end(muons->end());
 
-  e_passSingleMuonPreselect = false;
+  m_e_passSingleMuonPreselect = false;
 
   for( ; ph_itr != ph_end; ++ph_itr){
     if(PhotonPreselect(*ph_itr)){
       for( ; mu_itr != mu_end; ++mu_itr){
         if(MuonPreselect(*mu_itr)){
-          e_passSingleMuonPreselect = true;
+          m_e_passSingleMuonPreselect = true;
         }
       }
     }
   }
 
 
-  if(e_passSingleMuonPreselect) n_passSingleMuonPreselect++;
-  return e_passSingleMuonPreselect;
+  if(m_e_passSingleMuonPreselect) m_n_passSingleMuonPreselect++;
+  return m_e_passSingleMuonPreselect;
 }
 
 bool DerivationFramework::SkimmingToolHIGG1::ElectronPreselect(const xAOD::Electron *el) const {

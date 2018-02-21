@@ -186,10 +186,13 @@ StatusCode TileDigitsMaker::initialize() {
     m_digitShapeHi.push_back(0.0);
     m_digitShapeLo = m_tileInfo->digitsFullShapeLo();
     m_digitShapeLo.push_back(0.0);
+    m_tileToolPulseShape.disable();
   }
 
   if (m_maskBadChannels || m_rndmEvtOverlay) {
     CHECK( m_tileBadChanTool.retrieve() );
+  } else {
+    m_tileBadChanTool.disable();
   }
 
   m_nShapeHi = m_tileInfo->digitsNBinsHi();
@@ -219,6 +222,7 @@ StatusCode TileDigitsMaker::initialize() {
     CHECK( m_beamInfo.retrieve() );
 
   } else {
+    m_beamInfo.disable();
     if (msgLvl(MSG::INFO)) {
       msg(MSG::INFO) << "Obtained info from TileInfo" << endmsg;
       msg(MSG::INFO) << "tileNoise=" << ((m_tileNoise) ? "true" : "false")

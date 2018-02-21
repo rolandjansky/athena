@@ -5,6 +5,7 @@
 #ifndef  TRKALIGNGENTOOLS_BEAMSPOTVERTEXPREPROCESSOR_H
 #define  TRKALIGNGENTOOLS_BEAMSPOTVERTEXPREPROCESSOR_H
 
+#include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/IAlgTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -48,7 +49,6 @@ namespace Trk {
   class VxCandidate;
   class VertexOnTrack;
   class VxTrackAtVertex;
-  class ITrackToVertexIPEstimator;
   class IAlignModuleTool;
 
   class BeamspotVertexPreProcessor : virtual public Trk::IAlignTrackPreProcessor, public AthAlgTool
@@ -103,7 +103,8 @@ namespace Trk {
     //ToolHandle<ITrackSelectorTool>    m_BSTrackSelector; //!< track selector tool for tracks to be used with beam-spot constraint
     ToolHandle<InDet::IInDetTrackSelectionTool> m_BSTrackSelector; //!< new track selector tool for tracks to be used with beam-spot constraint
     //MD:
-    ToolHandle<ITrackToVertexIPEstimator>        m_ITrackToVertexIPEstimator;  //!< vertex updating tool, such as reomving one track from vertex
+    PublicToolHandle<ITrackToVertexIPEstimator>        m_ITrackToVertexIPEstimator
+       {this,"TrackToVertexIPEstimator","Trk::TrackToVertexIPEstimator",""};  //!< vertex updating tool, such as reomving one track from vertex
 
     /** Pointer to AlignModuleTool*/
     ToolHandle <Trk::IAlignModuleTool> m_alignModuleTool;
@@ -133,7 +134,6 @@ namespace Trk {
     bool m_refitTracks;                       //!< flag to refit tracks
     bool m_storeFitMatrices;  			         //!< flag to store derivative and covariance matrices after refit
     bool m_useSingleFitter;                   //!< only use 1 fitter for refitting track
-    bool m_selectTracks;                    //!< do the track selection
     double m_BSScalingFactor;               //!< scaling factor on beasmpot width
     double m_PVScalingFactor;               //!< scaling factor on primary vertex position error
 
@@ -144,7 +144,7 @@ namespace Trk {
     int m_nFailedBSRefits;
     int m_nFailedPVRefits;
 
-    DataVector<AlignVertex> AlignVertices;	         //!< collection of AlignVertices used in FullVertex constraint option
+    DataVector<AlignVertex> m_AlignVertices;	         //!< collection of AlignVertices used in FullVertex constraint option
 
 
   };

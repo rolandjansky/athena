@@ -105,7 +105,7 @@ C   YST FROM YST-YSTMIN OR YSTMAX-YST
       X(1) = SQRT(TAU)*EXP(YST)
       X(2) = SQRT(TAU)*EXP(-YST)
       IF(X(1).LT.TAU.OR.X(2).LT.TAU.OR.X(1).GT.1D0.OR.X(2).GT.1D0)
-     &   WRITE(*,*),'WARNING! ERROR IN X1,X2 GENERATION'
+     &   WRITE(*,*) 'WARNING! ERROR IN X1,X2 GENERATION'
 
 C...Set alpha_em and alpha_s as for 2->3 process
       Q2=SQM4

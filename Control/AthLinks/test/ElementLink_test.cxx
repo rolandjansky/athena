@@ -14,7 +14,6 @@
 #include "AthenaKernel/ExtendedEventContext.h"
 #include "SGTools/CurrentEventStore.h"
 #include "AthenaKernel/CLASS_DEF.h"
-#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/EventContext.h"
 #include <vector>
 #include <set>
@@ -1193,23 +1192,23 @@ void test13 (SGTest::TestStore& store)
 }
 
 
-int main ATLAS_NOT_THREAD_SAFE ()
+int main()
 {
   Athena::getMessageSvcQuiet = true;
-  initTestStore();
+  std::unique_ptr<SGTest::TestStore> store = SGTest::getTestStore();
 
-  test1 (store);
-  test2 (store);
-  test3 (store);
-  test4 (store);
-  test5 (store);
-  test6 (store);
-  test7 (store);
-  test8 (store);
-  test9 (store);
-  test10 (store);
-  test11 (store);
-  test12 (store);
-  test13 (store);
+  test1 (*store);
+  test2 (*store);
+  test3 (*store);
+  test4 (*store);
+  test5 (*store);
+  test6 (*store);
+  test7 (*store);
+  test8 (*store);
+  test9 (*store);
+  test10 (*store);
+  test11 (*store);
+  test12 (*store);
+  test13 (*store);
   return 0;
 }

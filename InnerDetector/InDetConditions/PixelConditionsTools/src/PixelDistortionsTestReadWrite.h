@@ -44,7 +44,8 @@ class PixelDistortionsTestReadWrite: public AthAlgorithm{
   //mutable MsgStream m_log;
   const InDetDD::SiDetectorManager * m_detManager;
 
-  ToolHandle<IModuleDistortionsTool >  m_pixelDistoTool;
+  PublicToolHandle<IModuleDistortionsTool >  m_pixelDistoTool
+     {this,"PixelDistortionsTool","PixelDistortionsTool",""};
   bool m_fullTest;
 
 };

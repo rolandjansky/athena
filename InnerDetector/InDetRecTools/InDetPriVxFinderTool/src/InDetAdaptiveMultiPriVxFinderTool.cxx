@@ -53,7 +53,6 @@
 #include "xAODTracking/VertexAuxContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
-#include "TrkVxEdmCnv/IVxCandidateXAODVertex.h"
 
 //added for cuts in case of displaced vertex
 // #include "TrkExInterfaces/IExtrapolator.h"
@@ -67,7 +66,6 @@ InDetAdaptiveMultiPriVxFinderTool::InDetAdaptiveMultiPriVxFinderTool(const std::
     m_MultiVertexFitter("Trk::AdaptiveMultiVertexFitter"),
     m_SeedFinder("Trk::ZScanSeedFinder"),
     m_trkFilter("InDet::InDetTrackSelection"),
-    m_VertexEdmFactory("Trk::VertexInternalEdmFactory"),
     m_iBeamCondSvc("BeamCondSvc",n),
     m_useBeamConstraint(true),
     m_TracksMaxZinterval(5.),
@@ -91,7 +89,6 @@ InDetAdaptiveMultiPriVxFinderTool::InDetAdaptiveMultiPriVxFinderTool(const std::
     declareProperty("SeedFinder"       , m_SeedFinder);
     declareProperty("VertexFitterTool", m_MultiVertexFitter);
     declareProperty("TrackSelector",m_trkFilter);
-    declareProperty("InternalEdmFactory", m_VertexEdmFactory);
 
     //finder options
     declareProperty("TracksMaxZinterval",m_TracksMaxZinterval);

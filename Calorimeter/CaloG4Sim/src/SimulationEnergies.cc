@@ -81,11 +81,9 @@
 #include "G4Track.hh"
 #include "G4TrackStatus.hh"
 #include "G4ParticleDefinition.hh"
-#include "G4ParticleTable.hh"
 #include "G4ThreeVector.hh"
 #include "G4VProcess.hh"
 #include "G4RunManager.hh"
-// #include "G4EmProcessSubType.hh"
 
 // Particle definitions
 #include "G4Electron.hh"
@@ -122,56 +120,13 @@
 #include "G4TouchableHistory.hh"
 
 #include "G4ios.hh"
-#include <vector>
-#include <string>
 
 
 namespace CaloG4
 {
 
-  /* 20-Apr-2006 M. Leltchouk
-  G4double SimulationEnergies::electronMass = 0;
-  G4double SimulationEnergies::protonMass   = 0;
-  G4double SimulationEnergies::neutronMass  = 0;
-  G4double SimulationEnergies::deuteronMass = 0;
-  G4double SimulationEnergies::tritonMass   = 0;
-  G4double SimulationEnergies::alphaMass    = 0;
-  G4double SimulationEnergies::helium3Mass  = 0;
-  */
-
   SimulationEnergies::SimulationEnergies()
-  {
-    // Initialize some static variables.
-    // FIXME: thread-unsafe static!!!
-    static G4bool initialized = false;
-    if ( ! initialized )
-    {
-      initialized = true;
-
-      /*
-      // Constructor: initialize some useful constants.
-      electronMass = G4ParticleTable::GetParticleTable()->FindParticle("e-")      ->GetPDGMass();
-      protonMass   = G4ParticleTable::GetParticleTable()->FindParticle("proton")  ->GetPDGMass();
-      neutronMass  = G4ParticleTable::GetParticleTable()->FindParticle("neutron") ->GetPDGMass();
-      deuteronMass = G4ParticleTable::GetParticleTable()->FindParticle("deuteron")->GetPDGMass();
-      tritonMass   = G4ParticleTable::GetParticleTable()->FindParticle("triton")  ->GetPDGMass();
-      alphaMass    = G4ParticleTable::GetParticleTable()->FindParticle("alpha")   ->GetPDGMass();
-      helium3Mass  = G4ParticleTable::GetParticleTable()->FindParticle("He3")     ->GetPDGMass();
-
-#ifdef DEBUG_ENERGIES
-      G4cout << "SimulationEnergies initialization: " << G4endl;
-      G4cout << ">>>> electronMass="<<electronMass << G4endl;
-      G4cout << ">>>> protonMass="<<protonMass << G4endl;
-      G4cout << ">>>> neutronMass="<<neutronMass << G4endl;
-      G4cout << ">>>> deuteronMass="<<deuteronMass << G4endl;
-      G4cout << ">>>> tritonMass="<<tritonMass << G4endl;
-      G4cout << ">>>> alphaMass="<<alphaMass << G4endl;
-      G4cout << ">>>> helium3Mass="<<helium3Mass << G4endl;
-#endif
-      */
-    }
-  }
-
+  {}
 
   SimulationEnergies::~SimulationEnergies()
   {}
@@ -469,11 +424,6 @@ namespace CaloG4
                                                 G4double totalEnergy,
                                                 G4double kineticEnergy) const
   {
-
-    //static const G4double electronMass = G4Electron::Electron()->GetPDGMass();
-    //static const G4double protonMass   = G4Proton::Proton()->GetPDGMass();
-    //static const G4double neutronMass  = G4Neutron::Neutron()->GetPDGMass();
-
     const G4double electronMass = G4Electron::Definition()->GetPDGMass();
     const G4double protonMass = G4Proton::Definition()->GetPDGMass();
     const G4double neutronMass = G4Neutron::Definition()->GetPDGMass();
@@ -543,6 +493,7 @@ namespace CaloG4
   }
 
 
+  // FIXME: can we change the `G4ThreeVector` arg to `const G4ThreeVector&`?
   G4bool SimulationEnergies::ProcessEscapedEnergy(G4ThreeVector a_point,
                                                   G4double a_energy ) const
   {

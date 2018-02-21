@@ -7,6 +7,7 @@
 
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolHandle.h"
+#include "StoreGate/ReadHandleKey.h"
 #include "RecoToolInterfaces/ITrackIsolationTool.h"
 #include "RecoToolInterfaces/IsolationCommon.h"
 
@@ -18,6 +19,7 @@
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/Vertex.h"
 
 #include "xAODPrimitives/IsolationType.h"
@@ -99,9 +101,6 @@ namespace xAOD {
       return phi;
     }
 
-    /** retrieve track particles */
-    const TrackParticleContainer* retrieveTrackParticleContainer() const; 
-
     /** simple isolation (loop) */
     bool simpleIsolation( TrackIsolationInput& input, TrackIsolation& result, const TrackParticleContainer* indetTrackParticles = 0 ) const;
 
@@ -121,18 +120,32 @@ namespace xAOD {
     bool getparticlesInCone( float eta, float phi, float dr, std::vector< const TrackParticle*>& output ) const;
 #endif // XAOD_STANDALONE
 
-    std::string m_indetTrackParticleLocation; /// track particle location
+    /// track particle location
+    SG::ReadHandleKey<TrackParticleContainer> m_indetTrackParticleLocation {this,
+	"TrackParticleLocation", "InDetTrackParticles"};
 
-    bool m_simpleIsolation; /// flag to select calculation type
+    /// flag to select calculation type
+    Gaudi::Property<bool> m_simpleIsolation{this, "SimpleIsolation", false};
     
+    Gaudi::Property<float> m_overlapCone{this, "OverlapCone", 0.1};
+
     float m_overlapCone2; /// overlap cone size squared
 #ifndef XAOD_ANALYSIS
-    ToolHandle<ITrackParticlesInConeTool> m_tracksInConeTool; /// tracks in cone tool
+    /// tracks in cone tool
+    ToolHandle<ITrackParticlesInConeTool> m_tracksInConeTool {this, 
+	"TracksInConeTool", "xAOD::TrackParticlesInConeTool/TrackParticlesInConeTool"};
 #endif // XAOD_STANDALONE
-    ToolHandle<InDet::IInDetTrackSelectionTool> m_trkselTool; /// selection of tracks
+    /// selection of tracks
+    ToolHandle<InDet::IInDetTrackSelectionTool> m_trkselTool {this,
+	"TrackSelectionTool", "InDet::InDetTrackSelectionTool/TrackSelectionTool"};
+
+    // JM: I made it to require the vertex container; if we need to use it
+    //    without a vertex container, we need to modify the initialization a bit.
+    SG::ReadHandleKey<VertexContainer> m_vertexLocation {this,
+	"VertexLocation", "PrimaryVertices"};
 
     /** retrieve pvx if not given */
-    const Vertex* retrieveIDBestPrimaryVertex() const;
+    const Vertex* retrieveIDBestPrimaryVertex(const VertexContainer* vtxC) const;
 
   };
 

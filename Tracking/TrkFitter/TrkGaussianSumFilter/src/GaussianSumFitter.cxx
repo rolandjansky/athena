@@ -17,7 +17,6 @@ decription           : Implementation code for Gaussian Sum Fitter class
 #include "TrkGaussianSumFilter/IMultiComponentStateCombiner.h"
 #include "TrkGaussianSumFilter/IMultiStateExtrapolator.h"
 #include "TrkGaussianSumFilter/IForwardGsfFitter.h"
-#include "TrkGaussianSumFilter/IGsfOutlierLogic.h"
 #include "TrkGaussianSumFilter/IGsfSmoother.h"
 #include "TrkGaussianSumFilter/IBremsstrahlungFinder.h"
 
@@ -60,7 +59,6 @@ Trk::GaussianSumFitter::GaussianSumFitter(const std::string& type, const std::st
   m_rioOnTrackCreator("Trk::RioOnTrackCreator/RIO_OnTrackCreator"),
   m_forwardGsfFitter("Trk::ForwardGsfFitter/ForwardGsfFitter"),
   m_gsfSmoother("Trk::GsfSmoother/GsfSmoother"),
-  m_outlierLogic("Trk::GsfOutlierLogic/GsfOutlierLogic"),
   m_reintegrateOutliers(false),
   m_makePerigee(true),
   m_directionToPerigee(Trk::oppositeMomentum),
@@ -179,6 +177,11 @@ StatusCode Trk::GaussianSumFitter::initialize()
       m_runBremFinder = false; 
     }
   }
+  else {
+    m_BremFind.disable();
+    m_BremFind2.disable();
+  }
+  
   // Request the RIO_OnTrack creator
   // No need to return if RioOnTrack creator tool, only if PrepRawData is used in fit
   if( m_rioOnTrackCreator.retrieve().isFailure() ){

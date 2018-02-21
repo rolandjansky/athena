@@ -30,7 +30,6 @@
 InDetPhysValTruthDecoratorTool::InDetPhysValTruthDecoratorTool(const std::string& type, const std::string& name,
                                                                const IInterface* parent) :
   AthAlgTool(type, name, parent),
-  m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
   m_beamSpotSvc("BeamCondSvc", name) {
   declareInterface<IInDetPhysValDecoratorTool>(this);
 }

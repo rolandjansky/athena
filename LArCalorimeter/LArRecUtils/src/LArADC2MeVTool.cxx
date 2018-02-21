@@ -67,40 +67,38 @@ StatusCode LArADC2MeVTool::initialize() {
   StatusCode sc;
   
   if ( !m_isSC ) {
-  const LArOnlineID* laron;
-  sc = detStore()->retrieve(laron,"LArOnlineID");
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR("Unable to retrieve  LArOnlineID from DetectorStore");
-    return StatusCode::FAILURE;
-  } else m_lar_on_id = (LArOnlineID_Base*) laron;
-
-  ToolHandle<LArCablingService> larcab("LArCablingService");
-  if(larcab.retrieve().isFailure()){
-    ATH_MSG_ERROR("Unable to get CablingService");
-    return StatusCode::FAILURE;
-  } else m_cablingService = (LArCablingBase*) &(*larcab);
-
-  if (m_MCSym) {
-    if (m_larmcsym.retrieve().isFailure()){
-      ATH_MSG_ERROR("Unable to get LArMCSymTool");
+    const LArOnlineID* laron;
+    sc = detStore()->retrieve(laron,"LArOnlineID");
+    if (sc.isFailure()) {
+      ATH_MSG_ERROR("Unable to retrieve  LArOnlineID from DetectorStore");
       return StatusCode::FAILURE;
-    }
-  }
+    } else m_lar_on_id = (LArOnlineID_Base*) laron;
+    
+    ToolHandle<LArCablingService> larcab("LArCablingService");
+    if(larcab.retrieve().isFailure()){
+      ATH_MSG_ERROR("Unable to get CablingService");
+      return StatusCode::FAILURE;
+    } else m_cablingService = (LArCablingBase*) &(*larcab);
+    
+    ATH_CHECK( m_larmcsym.retrieve( DisableTool{ !m_MCSym } ));
+
   } else { // isSC
 
-  const LArOnline_SuperCellID* laron;
-  sc = detStore()->retrieve(laron,"LArOnline_SuperCellID");
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR("Unable to retrieve  LArOnlineID from DetectorStore");
-    return StatusCode::FAILURE;
-  } else m_lar_on_id = (LArOnlineID_Base*) laron;
+    m_larmcsym.disable();    
 
-  ToolHandle<LArSuperCellCablingTool> larcab("LArSuperCellCablingTool");
-  if(larcab.retrieve().isFailure()){
-    ATH_MSG_ERROR("Unable to get CablingService");
-    return StatusCode::FAILURE;
-  } else m_cablingService = (LArCablingBase*) &(*larcab);
-
+    const LArOnline_SuperCellID* laron;
+    sc = detStore()->retrieve(laron,"LArOnline_SuperCellID");
+    if (sc.isFailure()) {
+      ATH_MSG_ERROR("Unable to retrieve  LArOnlineID from DetectorStore");
+      return StatusCode::FAILURE;
+    } else m_lar_on_id = (LArOnlineID_Base*) laron;
+    
+    ToolHandle<LArSuperCellCablingTool> larcab("LArSuperCellCablingTool");
+    if(larcab.retrieve().isFailure()){
+      ATH_MSG_ERROR("Unable to get CablingService");
+      return StatusCode::FAILURE;
+    } else m_cablingService = (LArCablingBase*) &(*larcab);
+    
   }
 
   if (m_IOVDbSvc.retrieve().isFailure()) {
@@ -162,19 +160,7 @@ StatusCode LArADC2MeVTool::initialize() {
     }
   }
 
-
-  if (m_useFEBGainThresholds) {
-    sc = m_febConfigReader.retrieve();
-    if (sc.isSuccess()) 
-      ATH_MSG_INFO("Successfully retrieved FebConfigReader");
-    else {
-      ATH_MSG_ERROR("Failed to retriev FebConfigReader");
-      return sc;
-    }
-  }
-
-
-
+  ATH_CHECK( m_febConfigReader.retrieve( DisableTool{ !m_useFEBGainThresholds } ));
 
   if (m_loadAtBegin) {
     ATH_MSG_DEBUG( "Setting callback function to load calibration at begin of run");

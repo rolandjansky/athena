@@ -272,6 +272,3 @@ def getG4GeometryNotifierSvc(name="G4GeometryNotifierSvc", **kwargs):
     kwargs.setdefault("ActivateLVNotifier", True)
     kwargs.setdefault("ActivatePVNotifier", False)
     return CfgMgr.G4GeometryNotifierSvc(name, **kwargs)
-
-#back-compatibility hack
-from G4AtlasServices.G4AtlasUserActionConfig import addAction

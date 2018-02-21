@@ -59,7 +59,7 @@ RegionSelectionSvc :: ~RegionSelectionSvc()
 
 StatusCode RegionSelectionSvc::queryInterface(const InterfaceID& riid, 
 							void** ppvUnknown) {
-	ATH_MSG_INFO("StatusCode RegionSelectionSvc::queryInterface");
+	ATH_MSG_VERBOSE("StatusCode RegionSelectionSvc::queryInterface");
 
 	if (IID_IRegionSelectionSvc.versionMatch(riid)) { 
 		*ppvUnknown = (RegionSelectionSvc *)this; 

@@ -725,7 +725,7 @@ void VP1AODSystem::dumpToJSON()
       // std::cout<<"collNum="<<collNum++<<std::endl;
       
       if (ahandle->xAODType()!=lastType) {
-        // std::cout<<"Last type = "<<lastType<<", new type="<<ahandle->xAODType()<<std::endl;;
+        // std::cout<<"Last type = "<<lastType<<", new type="<<ahandle->xAODType()<<std::endl;
         // New type, so Terminate the 'type' enclosure add a new level of JSON enclosure. 
         if (lastType != xAOD::Type::EventInfo) {
           // std::cout<<"Not first loop, so do add },"<<std::endl;

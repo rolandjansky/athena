@@ -11,23 +11,12 @@ def getDefaultRunActions():
 
 # begin of event
 def getDefaultEventActions():
-    from G4AtlasApps.SimFlags import simFlags
-    from AthenaCommon.BeamFlags import beamFlags
     defaultUA=[]
-    if hasattr(simFlags, 'CalibrationRun') and simFlags.CalibrationRun() == 'LAr+Tile':
-        defaultUA+=['G4UA::CaloG4::CalibrationDefaultProcessingTool']
-    # Cosmic filter
-    if flag_on('StoppedParticleFile') or (
-       beamFlags.beamType() == 'cosmics' and not simFlags.ISFRun):
-        defaultUA += ['G4UA::G4CosmicFilterTool']
     return defaultUA
 
 # stepping
 def getDefaultSteppingActions():
-    from G4AtlasApps.SimFlags import simFlags
     defaultUA=[]
-    if hasattr(simFlags, 'CalibrationRun') and simFlags.CalibrationRun() == 'LAr+Tile':
-        defaultUA+=['G4UA::CaloG4::CalibrationDefaultProcessingTool']
     return defaultUA
 
 # tracking
@@ -62,22 +51,27 @@ def getDefaultActions():
     if not simFlags.ISFRun:
         actions += ['G4UA::AthenaTrackingActionTool',
                     'G4UA::MCTruthSteppingActionTool',
-                    'G4UA::G4SimTimerTool',
-                    ]
+                    'G4UA::G4SimTimerTool']
     # Track counter
     actions += ['G4UA::G4TrackCounterTool']
     # Cosmic Perigee action
     if beamFlags.beamType() == 'cosmics' and flag_off('CavernBG'):
         actions += ['G4UA::CosmicPerigeeActionTool']
-    # Stopped particle action
+    # Cosmic filter
+    if beamFlags.beamType() == 'cosmics' and not simFlags.ISFRun:
+        actions += ['G4UA::G4CosmicFilterTool']
     if flag_on('StoppedParticleFile'):
-        actions += ['G4UA::StoppedParticleActionTool']
+        actions += ['G4UA::StoppedParticleFilterTool',
+                    'G4UA::StoppedParticleActionTool']
     # Hit wrapper action
     if flag_on('CavernBG') and simFlags.CavernBG.get_Value() == 'Read':
         actions += ['G4UA::HitWrapperTool']
     # Photon killer
     if simFlags.PhysicsList == 'QGSP_BERT_HP':
         actions += ['G4UA::PhotonKillerTool']
+    # Calo calibration default processing
+    if simFlags.CalibrationRun == 'LAr+Tile':
+        actions+=['G4UA::CaloG4::CalibrationDefaultProcessingTool']
 
     return actions
 
@@ -148,21 +142,16 @@ def getISFUserActionSvc(name="G4UA::ISFUserActionSvc", **kwargs):
 
     from G4AtlasApps.SimFlags import simFlags
     optActions = simFlags.OptionalUserActionList.get_Value()
-    run = (
-        getDefaultRunActions() + optActions['Run'] +
-        PhysicsValidationUserAction)
-    event = (
-        getDefaultEventActions() + optActions['Event'] +
-        TrackProcessorUserAction + PhysicsValidationUserAction)
-    tracking = (
-        TrackProcessorUserAction + MCTruthUserAction +
-        getDefaultTrackingActions() + optActions['Tracking'] +
-        PhysicsValidationUserAction)
-    stepping = (
-        getDefaultSteppingActions() + optActions['Step'] +
-        TrackProcessorUserAction + PhysicsValidationUserAction)
+    run = getDefaultRunActions() + optActions['Run']
+    event = getDefaultEventActions() + optActions['Event']
+    tracking = getDefaultTrackingActions() + optActions['Tracking']
+    stepping = getDefaultSteppingActions() + optActions['Step']
     stacking = getDefaultStackingActions()
-    generalActions = getDefaultActions() + optActions['General']
+    generalActions = (
+        TrackProcessorUserAction + MCTruthUserAction +
+        getDefaultActions() + optActions['General'] +
+        PhysicsValidationUserAction
+    )
 
     kwargs.setdefault('RunActionTools', run)
     kwargs.setdefault('EventActionTools', event)
@@ -209,55 +198,3 @@ def getISFQuasiStableUserActionSvc(name="G4UA::ISFQuasiStableUserActionSvc", **k
     if ISF_Flags.ValidationMode.get_Value():
         kwargs.setdefault('PhysicsValidationUserAction',['QuasiStableG4PhysicsValidationUserActionTool'])
     return getISFFullUserActionSvc(name, **kwargs)
-
-
-def addAction(actionTool, roles, systemAction=False):
-    """
-    Add an action tool to the list for a requested role.
-
-    This should only be used in very special cases, by experts. Normally, you
-    should use the getter for one of the specialized UASvc versions listed
-    above to add an action. If systemAction=True, the action is prepended to
-    the list. Otherwise, it is appended.
-    """
-
-    from AthenaCommon.AppMgr import theApp, AthAppMgr, ServiceMgr
-
-    roleMap={'Run': 'RunActionTools',
-             'Event': 'EventActionTools',
-             'Tracking': 'TrackingActionTools',
-             'Step': 'SteppingActionTools',
-             'Stack': 'StackingActionTools'}
-
-    ##hack to allow for different named Configurations of the UserActionSvc
-    basename='UserActionSvc'
-    serviceName=''
-    for s in ServiceMgr.getAllChildren():
-        if basename in s.getName():
-            serviceName = s.getName()
-            break
-    if ''==serviceName:
-        Logging.logging.getLogger('G4UASvc').error('addAction: Could not find ' + basename + ' instance in ServiceMgr!')
-        raise AttributeError('addAction: Could not find ' + basename + ' instance in ServiceMgr!')
-    else:
-        Logging.logging.getLogger('G4UASvc').info('addAction: Found a ' + basename + ' instance called ' + serviceName)
-    from AthenaCommon.CfgGetter import getService
-    theSvc=getService(serviceName)
-
-    if theApp.state() > AthAppMgr.State.CONFIGURED:
-        Logging.logging.getLogger('G4UASvc').fatal('Attempt to add a User Action when athena is ' +
-                                                   'already initialized. Check your configuration')
-        return
-
-    for role in roles:
-        roleAttr = roleMap[role]
-        if not role in roleMap.keys():
-            Logging.logging.getLogger('G4UASvc').fatal('Unkown role '+role+' requested for action ')
-        else:
-            currentActionList = getattr(theSvc, roleAttr)
-            if not actionTool in currentActionList:
-                # Add to beginning of list if system, otherwise the end
-                if systemAction:
-                    setattr(theSvc, roleAttr, [actionTool] + currentActionList)
-                else:
-                    setattr(theSvc, roleAttr, currentActionList + [actionTool])

@@ -11,7 +11,51 @@
  */
 
 
+#ifndef XAOD_STANDALONE
+#include "AthLinks/ElementLink.h"
+#endif
+
+
 namespace SG { 
+
+
+/**
+ * @brief Apply output thinning to one item.
+ *
+ * Generic version; doesn't do anything.
+ */
+template <class T>
+inline
+void applyAuxThinning (T*)
+{
+}
+
+
+#ifndef XAOD_STANDALONE
+/**
+ * @brief Apply output thinning to an ElementLink.
+ * @param p Object being written.
+ */
+template <class T>
+inline
+void applyAuxThinning (ElementLink<T>* p)
+{
+  p->thin();
+}
+
+
+/**
+ * @brief Apply output thinning to a vector of ElementLinks.
+ * @param p Object being written.
+ */
+template <class T>
+void applyAuxThinning (std::vector<ElementLink<T> >* p)
+{
+  for (ElementLink<T>& el : *p) {
+    el.thin();
+  }
+}
+#endif
 
 
 /**
@@ -125,13 +169,13 @@ typename AuxTypeVectorHolder<T, CONT>::vector_type& AuxTypeVectorHolder<T, CONT>
  */
 template <class T, class CONT>
 inline
-IAuxTypeVector* AuxTypeVectorHolder<T, CONT>::clone() const
+std::unique_ptr<IAuxTypeVector> AuxTypeVectorHolder<T, CONT>::clone() const
 {
   if (m_ownFlag) {
     vector_type* vecPtr = new vector_type (*m_vecPtr);
-    return new AuxTypeVectorHolder<T, CONT> (vecPtr, true);
+    return std::make_unique<AuxTypeVectorHolder<T, CONT> > (vecPtr, true);
   }
-  return new AuxTypeVectorHolder<T, CONT> (m_vecPtr, false);
+  return std::make_unique<AuxTypeVectorHolder<T, CONT> > (m_vecPtr, false);
 }
 
 
@@ -390,11 +434,11 @@ namespace DataModel_detail {
 
 /// Specialization for the case of types that can be packed.
 template <class T>
-SG::IAuxTypeVector* makePacked (std::vector<T>& v, std::true_type)
+std::unique_ptr<SG::IAuxTypeVector> makePacked (std::vector<T>& v, std::true_type)
 {
   // Make the new container and move our contents.
-  SG::AuxTypeVector<T, SG::PackedContainer<T> >* iv =
-     new SG::AuxTypeVector<T, SG::PackedContainer<T> > (0, 0);
+  auto iv =
+    std::make_unique<SG::AuxTypeVector<T, SG::PackedContainer<T> > > (0, 0);
   iv->vec().swap (v);
   return iv;
 }
@@ -402,7 +446,7 @@ SG::IAuxTypeVector* makePacked (std::vector<T>& v, std::true_type)
 
 /// Specialization for the case of types that cannot be packed.
 template <class T, class FLAG>
-SG::IAuxTypeVector* makePacked (T&, FLAG)
+std::unique_ptr<SG::IAuxTypeVector> makePacked (T&, FLAG)
 {
   return nullptr;
 }
@@ -455,7 +499,7 @@ namespace SG {
  * Returns null on failure.
  */
 template <class T, class CONT>
-IAuxTypeVector* AuxTypeVectorHolder<T, CONT>::toPacked()
+std::unique_ptr<IAuxTypeVector> AuxTypeVectorHolder<T, CONT>::toPacked()
 {
   /// Use the proper instantiation depending on whether or not
   /// this type can be packed.
@@ -480,6 +524,26 @@ void AuxTypeVectorHolder<T, CONT>::copy (void* dst,       size_t dst_index,
 {
   (reinterpret_cast<vector_value_type*>(dst))[dst_index] = 
     (reinterpret_cast<const vector_value_type*>(src))[src_index];
+}
+
+
+/**
+ * @brief Copy an element between vectors (static method), possibly with thinning.
+ * @param dst Pointer to the start of the destination vector's data.
+ * @param dst_index Index of destination element in the vector.
+ * @param src Pointer to the start of the source vector's data.
+ * @param src_index Index of source element in the vector.
+ *
+ * @c dst and @ src can be either the same or different.
+ */
+template <class T, class CONT>
+inline
+void AuxTypeVectorHolder<T, CONT>::copyForOutput (void* dst,       size_t dst_index,
+                                                  const void* src, size_t src_index)
+{
+  vector_value_type* vdst = reinterpret_cast<vector_value_type*>(dst) + dst_index;
+  *vdst = (reinterpret_cast<const vector_value_type*>(src))[src_index];
+  applyAuxThinning (vdst);
 }
 
 
@@ -589,9 +653,9 @@ AuxTypeVector<T, CONT>::operator= (AuxTypeVector&& other)
  */
 template <class T, class CONT>
 inline
-IAuxTypeVector* AuxTypeVector<T, CONT>::clone() const
+std::unique_ptr<IAuxTypeVector> AuxTypeVector<T, CONT>::clone() const
 {
-  return new AuxTypeVector<T, CONT> (*this);
+  return std::make_unique<AuxTypeVector<T, CONT> > (*this);
 }
 
 

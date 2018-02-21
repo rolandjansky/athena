@@ -63,7 +63,7 @@ int main(int argc, char** argv)
     if( commands.Exists("u") ){
       myuri=commands.GetByName("u");
     }else{
-       myuri=SystemTools::GetEnvStr("POOL_CATALOG");
+      myuri=SystemTools::GetEnvStr("POOL_CATALOG");
     }       
     if( commands.Exists("p") ){
       mypfn=commands.GetByName("p");

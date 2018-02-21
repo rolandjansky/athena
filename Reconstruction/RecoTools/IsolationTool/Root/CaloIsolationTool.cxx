@@ -11,6 +11,7 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 #include "IsolationTool/CaloIsolationTool.h"
 #include "CaloGeoHelpers/CaloSampling.h"
+#include "StoreGate/ReadHandle.h"
 
 #ifndef XAOD_ANALYSIS
 #include "CaloEvent/CaloCell.h"
@@ -54,48 +55,13 @@ size_t cluster_size (const xAOD::CaloCluster* cl) { return cl->size(); }
 namespace xAOD {
  
   CaloIsolationTool::CaloIsolationTool (const std::string& name):
-        asg::AsgTool(name),
-#ifndef XAOD_ANALYSIS
-        m_assoTool("Rec::ParticleCaloCellAssociationTool/ParticleCaloCellAssociationTool", this),
-        m_caloExtTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool", this),
-	m_clustersInConeTool("xAOD::CaloClustersInConeTool/CaloClustersInConeTool", this),
-        m_pflowObjectsInConeTool("", this),
-        m_caloFillRectangularTool("", this),
-#endif // XAOD_ANALYSIS
-        m_IsoLeakCorrectionTool("", this)
+        asg::AsgTool(name)
   {
 #ifndef XAOD_ANALYSIS
     declareInterface<ICaloCellIsolationTool>(this);
     declareInterface<ICaloTopoClusterIsolationTool>(this);
     declareInterface<INeutralEFlowIsolationTool>(this);
-    declareProperty("ParticleCaloCellAssociationTool", m_assoTool);
-    declareProperty("ParticleCaloExtensionTool",       m_caloExtTool);      
-    declareProperty("ClustersInConeTool",             m_clustersInConeTool);
-    declareProperty("PFlowObjectsInConeTool",         m_pflowObjectsInConeTool);
-    declareProperty("CaloFillRectangularClusterTool", m_caloFillRectangularTool, "Handle of the CaloFillRectangularClusterTool");
-    declareProperty("UseCaloExtensionCaching", m_useCaloExtensionCaching = true, "Use cached caloExtension if avaliable.");
 #endif // XAOD_ANALYSIS
-
-    declareProperty("IsoLeakCorrectionTool",          m_IsoLeakCorrectionTool,         "Handle on the leakage correction tool");
-    // Topo Isolation parameters
-    declareProperty("UseEMScale",                     m_useEMScale = true, "Use TopoClusters at the EM scale.");
-    // Handle of the calorimetric isolation tool
-    declareProperty("doEnergyDensityCorrection",      m_doEnergyDensityCorrection    = true, "Correct isolation variables based on energy density estimations");
-    declareProperty("saveOnlyRequestedCorrections",   m_saveOnlyRequestedCorrections = false, "save only requested corrections (trigger usage mainly)");
-    // list of calo to treat
-    declareProperty("EMCaloNums",  m_EMCaloNums,  "list of EM calo to treat");
-    declareProperty("HadCaloNums", m_HadCaloNums, "list of Had calo to treat");
-    declareProperty("TopoClusterEDCentralContainer", m_tpEDCentral = "TopoClusterIsoCentralEventShape", "Name of TopoCluster ED Central");
-    declareProperty("TopoClusterEDForwardContainer", m_tpEDForward = "TopoClusterIsoForwardEventShape", "Name of TopoCluster ED Forward");
-    declareProperty("TopoClusterEDveryForwardContainer", m_tpEDveryForward = "TopoClusterIsoVeryForwardEventShape", "Name of TopoCluster ED very Forward");
-    declareProperty("EFlowEDCentralContainer", m_efEDCentral = "NeutralParticleFlowIsoCentralEventShape", "Name of energy flow ED Central");
-    declareProperty("EFlowEDForwardContainer", m_efEDForward = "NeutralParticleFlowIsoForwardEventShape", "Name of energy flow ED Forward");
-    declareProperty("coneCoreSizeEg",          m_coneCoreSizeEg = 0.1,  "size of the coneCore core energy correction for egamma objects");
-    declareProperty("coneCoreSizeMu",          m_coneCoreSizeMu = 0.05, "size of the coneCore core energy correction for muons");
-
-    // Choose whether TileGap3 cells are excluded 
-    declareProperty("ExcludeTG3", m_ExcludeTG3 = true, "Exclude the TileGap3 cells");
-    declareProperty("addCaloExtensionDecoration", m_addCaloDeco = true, "Add the calo decorations");
   }
 
   CaloIsolationTool::~CaloIsolationTool() { }
@@ -145,6 +111,13 @@ namespace xAOD {
     if (!m_IsoLeakCorrectionTool.empty())
       ATH_CHECK(m_IsoLeakCorrectionTool.retrieve());
     
+    // initialize the read handles (for now do all of them in all cases)
+    ATH_CHECK(m_tpEDCentral.initialize());
+    ATH_CHECK(m_tpEDForward.initialize());
+    ATH_CHECK(m_tpEDveryForward.initialize());
+    ATH_CHECK(m_efEDCentral.initialize());
+    ATH_CHECK(m_efEDForward.initialize());
+
     // Exit function
     return StatusCode::SUCCESS;
   }
@@ -1278,7 +1251,7 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
 // #endif // XAOD_ANALYSIS
       if (result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::ptCorrection))) {
 	result.etcones[i] -= corrvec[i];
-	ATH_MSG_DEBUG("eta = " << eg.eta() << ", phi = " << eg.phi() << ", pt = " << eg.pt() << ", isoType = " << Iso::toString(isoTypes[i]) 
+	ATH_MSG_DEBUG("eta = " << eg.eta() << ", phi = " << eg.phi() << ", pt = " << eg.pt() << ", isoType = " << Iso::toCString(isoTypes[i]) 
 		      << ", ptcorr = " << corrvec[i] << ", isol pt corrected = " << result.etcones[i] );    
       }
     }
@@ -1296,23 +1269,25 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
                                        const CaloCluster* fwdClus) const
 
   {
-    // assume two densities for the time being
-    const EventShape* edShape;
-    
-    std::string esName = (fabs(eta) < 1.5) ? m_tpEDCentral : m_tpEDForward;
-    if(type == "PFlow") esName = (fabs(eta) < 1.5) ? m_efEDCentral : m_efEDForward;
-    else if (fwdClus != nullptr)
-      esName = m_tpEDveryForward;
+    // assume two densities for the time being    
+    const SG::ReadHandleKey<EventShape>* esKey = (fabs(eta) < 1.5) ? &m_tpEDCentral : &m_tpEDForward;
+    if (type == "PFlow") {
+      esKey = (fabs(eta) < 1.5) ? &m_efEDCentral : &m_efEDForward;
+    } else if (fwdClus != nullptr) {
+      esKey = &m_tpEDveryForward;
+    }
 
-    if (evtStore()->retrieve(edShape,esName).isFailure()) {
-      ATH_MSG_WARNING("Cannot retrieve density container " << esName << " for isolation correction. No ED correction");
+    SG::ReadHandle<EventShape> edShape(*esKey);
+    // check is only used for serial running; remove when MT scheduler used
+    if(!edShape.isValid()) {
+      ATH_MSG_FATAL("Failed to retrieve "<< esKey->key());
       return false;
-    }	
+    }
 
     double rho = 0;
     bool gotDensity = edShape->getDensity(EventShape::Density,rho);
     if (!gotDensity) {
-      ATH_MSG_WARNING("Cannot retrieve density " << esName << " for isolation correction. No ED correction");
+      ATH_MSG_WARNING("Cannot retrieve density " << esKey->key() << " for isolation correction. No ED correction");
       return false;
     }
 
@@ -1390,7 +1365,7 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
     if( bitsetAcc )
       (*bitsetAcc)(tp) = corrections.calobitset.to_ulong();
     else
-      ATH_MSG_WARNING("Cannot find bitset accessor for flavour " << toString(Iso::isolationFlavour(cones[0])));
+      ATH_MSG_WARNING("Cannot find bitset accessor for flavour " << toCString(Iso::isolationFlavour(cones[0])));
     
     // Fill all computed corrections
     // core correction type (e.g. coreMuon, core57cells)
@@ -1401,10 +1376,10 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
 	if (par.first == Iso::coreArea) continue; // do not store area, as they are constant ! (pi R**2 or 5*0.025 * 7*pi/128)
 	SG::AuxElement::Decorator< float >* isoCorAcc = getIsolationCorrectionDecorator( Iso::isolationFlavour(cones[0]), ctype, par.first );
 	if (isoCorAcc) { 
-	  ATH_MSG_DEBUG("Storing core correction " << Iso::toString(ctype) << " var " << Iso::toString(par.first) << " = " << par.second);
+	  ATH_MSG_DEBUG("Storing core correction " << Iso::toCString(ctype) << " var " << Iso::toCString(par.first) << " = " << par.second);
 	  (*isoCorAcc)(tp) = par.second;
 	} else {
-	  ATH_MSG_WARNING("Accessor not found for core correction " << Iso::toString(ctype) << ", var " << Iso::toString(par.first));
+	  ATH_MSG_WARNING("Accessor not found for core correction " << Iso::toCString(ctype) << ", var " << Iso::toCString(par.first));
 	}
       }
     }
@@ -1414,16 +1389,16 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
       if (ctype == Iso::pileupCorrection) continue; // do not store pileup corrections as they are rho * pi * (R**2 - areaCore) and rho is stored...
       std::vector<float> corrvec         = corrtype.second;
       if (corrvec.size() != cones.size()) {
-	ATH_MSG_WARNING("Only cone size-based corrections are supported. Will do nothing to" << Iso::toString(ctype) );
+	ATH_MSG_WARNING("Only cone size-based corrections are supported. Will do nothing to" << Iso::toCString(ctype) );
 	continue;
       }
       for (unsigned int i = 0; i < corrvec.size();i++) {
 	SG::AuxElement::Decorator< float >* isoCorAcc = getIsolationCorrectionDecorator(cones[i],ctype);
 	if (isoCorAcc) {
-	  ATH_MSG_DEBUG("Storing non core correction " << Iso::toString(ctype) << " of iso type " << Iso::toString(cones[i]) << " = " << corrvec[i]);
+	  ATH_MSG_DEBUG("Storing non core correction " << Iso::toCString(ctype) << " of iso type " << Iso::toCString(cones[i]) << " = " << corrvec[i]);
 	  (*isoCorAcc)(tp) = corrvec[i];
 	} else
-	  ATH_MSG_WARNING("Accessor not found for non core correction " << Iso::toString(ctype) << " of iso type " << Iso::toString(cones[i]));
+	  ATH_MSG_WARNING("Accessor not found for non core correction " << Iso::toCString(ctype) << " of iso type " << Iso::toCString(cones[i]));
       }
     }
 
@@ -1435,10 +1410,10 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
 	Iso::IsolationType type = cones[i];
         SG::AuxElement::Decorator< float >* isoTypeAcc = getIsolationDecorator(type);
         if ( isoTypeAcc ) {
-	  ATH_MSG_DEBUG("Filling " << Iso::toString(type) << " = " << result.etcones[i]);
+	  ATH_MSG_DEBUG("Filling " << Iso::toCString(type) << " = " << result.etcones[i]);
           (*isoTypeAcc)(tp) = result.etcones[i];
         } else 
-	  ATH_MSG_WARNING("Cannot find accessor for " << Iso::toString(type));
+	  ATH_MSG_WARNING("Cannot find accessor for " << Iso::toCString(type));
       }
     } else if( !result.etcones.empty() )
       ATH_MSG_WARNING("Inconsistent etcones vector size: results : " << result.etcones.size() << ", number of wanted cones : " << cones.size() );

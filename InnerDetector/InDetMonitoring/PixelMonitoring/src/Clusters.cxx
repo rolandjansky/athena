@@ -546,7 +546,11 @@ StatusCode PixelMainMon::fillClustersMon(void) {
         if (pixlayer == PixLayer::kIBL && m_clusize_ontrack_mod[pixlayeribl2d3d]) m_clusize_ontrack_mod[pixlayeribl2d3d]->Fill(npixHitsInClusterRaw);
       } else {
         if (m_cluseff_mod) m_cluseff_mod->fill(m_manager->lumiBlockNumber(), 0., clusID, m_pixelid);
-        if (m_clusize_offtrack_mod[pixlayer]) m_clusize_offtrack_mod[pixlayer]->Fill(cluster.rdoList().size());
+        if (pixlayer < PixLayerIBL2D3D::COUNT &&
+            m_clusize_offtrack_mod[pixlayer])
+        {
+          m_clusize_offtrack_mod[pixlayer]->Fill(cluster.rdoList().size());
+        }
         if (pixlayer == PixLayer::kIBL && m_clusize_offtrack_mod[pixlayeribl2d3d]) m_clusize_offtrack_mod[pixlayeribl2d3d]->Fill(npixHitsInClusterRaw);
       }
 

@@ -14,7 +14,6 @@
 #include "eflowRec/eflowEEtaBinnedParameters.h"
 #include "eflowRec/eflowLayerIntegrator.h"
 #include "eflowRec/PFTrackClusterMatchingTool.h"
-#include "eflowRec/cycle.h"
 #include "eflowRec/eflowRingSubtractionManager.h"
 #include "eflowRec/eflowCellSubtractionFacilitator.h"
 #include "eflowRec/eflowSubtractor.h"
@@ -227,6 +226,7 @@ void PFCellLevelSubtractionTool::calculateRadialEnergyProfiles(xAOD::CaloCluster
         
 	int n;
 	/* 100 is chosen as a number higher than the number of cells found in a normal list */
+	bool breakloop = false;
 	for (n=1; n<100; n++){
 	  
 	  CellIt beginRing = calorimeterCellList.getLowerBound((eflowCaloENUM)i, ringThickness*(n-1));
@@ -246,7 +246,12 @@ void PFCellLevelSubtractionTool::calculateRadialEnergyProfiles(xAOD::CaloCluster
 	  for (auto thisPair : tempVector){
 	    const CaloDetDescrElement* DDE = (thisPair.first)->caloDDE();
 	    CaloCell_ID::CaloSample sampling = DDE->getSampling();
-            
+
+	    if(eflowCalo::translateSampl(sampling)!=(eflowCaloENUM)i){
+	      breakloop = true;
+	      break;
+	    }
+	    
 	    ATH_MSG_DEBUG(" cell eta and phi are " << (thisPair.first)->eta() << " and " << (thisPair.first)->phi() << " with index " << thisPair.second << " and sampling of " << sampling);
 	    ATH_MSG_DEBUG(" cell energy is " << (thisPair.first)->energy());
             
@@ -269,6 +274,7 @@ void PFCellLevelSubtractionTool::calculateRadialEnergyProfiles(xAOD::CaloCluster
 	    averageEnergyDensityPerRing = energyDensityPerRing/((totalCellsinRing)*(efRecTrack->getTrack()->e()/1000.));
 	  }
 	  
+	  ATH_MSG_DEBUG(" track eta is " << efRecTrack->getTrack()->eta());
 	  ATH_MSG_DEBUG(" track E is " << efRecTrack->getTrack()->e()/1000.);
 	  ATH_MSG_DEBUG(" Average E density per Ring is " << averageEnergyDensityPerRing);
 	  
@@ -282,6 +288,7 @@ void PFCellLevelSubtractionTool::calculateRadialEnergyProfiles(xAOD::CaloCluster
 	    radiusToStoreVector.push_back(radiusToStore);
 	  }
 	  else {ATH_MSG_DEBUG("averageEnergyDensityPerRing = 0");}
+	  if (breakloop) break;
 	}//loop on 100 cells
       }//loop on calo regions
 	
