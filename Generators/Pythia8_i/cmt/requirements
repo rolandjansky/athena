@@ -32,7 +32,7 @@ end_private
 
 macro_append pythia8_ifiles 'Pythia8_i.cxx UserProcessFactory.cxx UserHooksFactory.cxx UserResonanceFactory.cxx'
 macro_append UserProcessFiles 'UserProcesses/Sigma2qqbar2emu.cxx UserProcesses/Sigma2qqbar2lStarlBar.cxx UserProcesses/Sigma2qqbar2lStarlStarBar.cxx'
-macro_append UserHookFiles 'UserHooks/WZVetoedShower.cxx UserHooks/QCDVetoedShower.cxx UserHooks/PoWHEGVetoedShower.cxx UserHooks/GravFlat.cxx UserHooks/JetMatchingMadGraphHook.cxx  UserHooks/SuppressMPI.cxx UserHooks/EnhanceMPI.cxx UserHooks/ISRVetoedShower.cxx UserHooks/PTRelVetoedShower.cxx UserHooks/WprimeFlat.cxx UserHooks/WprimeWZFlat.cxx UserHooks/main31.cxx'
+macro_append UserHookFiles 'UserHooks/GravFlat.cxx UserHooks/JetMatchingMadGraphHook.cxx  UserHooks/SuppressMPI.cxx UserHooks/EnhanceMPI.cxx UserHooks/WprimeFlat.cxx UserHooks/ZprimeFlatpT.cxx   UserHooks/WprimeWZFlat.cxx UserHooks/mHatReweight.cxx UserHooks/main31.cxx UserHooks/SingleTopWideEta.cxx UserHooks/SettableColourReconnection.cxx UserHooks/PowhegBB4L.cxx'
 macro_append UserResonanceFiles 'UserResonances/ResonanceExcitedCI.cxx UserResonances/ResonanceLQ.cxx'
 
 apply_pattern named_dual_use_library library="Pythia8_i" files="$(pythia8_ifiles) $(UserProcessFiles) $(UserHookFiles) $(UserResonanceFiles)"

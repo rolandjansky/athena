@@ -5,6 +5,12 @@
 # Declare the package name:
 atlas_subdir( Pythia8_i )
 
+set( PYTHIA8_VERSION 226 )
+set( PYTHIA8_ROOT
+    /cvmfs/sft.cern.ch/lcg/releases/LCG_88/MCGenerators/pythia8/${PYTHIA8_VERSION}/${LCG_PLATFORM} )
+MESSAGE (STATUS "Pythia8 version  " ${PYTHIA8_VERSION})
+MESSAGE (STATUS "PYTHIA8 ROOT " ${PYTHIA8_ROOT})
+
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
@@ -13,10 +19,6 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           Generators/GeneratorObjects
                           Tools/PathResolver )
-
-#set( PYTHIA8_VERSION 226.pdf6plugin )
-#set( PYTHIA8_ROOT
-#   /cvmfs/sft.cern.ch/lcg/releases/LCG_88/MCGenerators/pythia8/${PYTHIA8_VERSION}/${LCG_PLATFORM} )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
@@ -32,7 +34,6 @@ atlas_disable_as_needed()
 # Component(s) in the package:
 atlas_add_library( Pythia8_iLib
                    src/Pythia8_i.cxx
-                   src/CompoundUserHook.cxx
                    src/UserProcessFactory.cxx
                    src/UserHooksFactory.cxx
                    src/UserResonanceFactory.cxx
@@ -49,12 +50,10 @@ atlas_add_library( Pythia8_iLib
                    src/UserHooks/ISRVetoedShower.cxx
                    src/UserHooks/PTRelVetoedShower.cxx
                    src/UserHooks/WprimeFlat.cxx
+                   src/UserHooks/ZprimeFlatpT.cxx
                    src/UserHooks/WprimeWZFlat.cxx
                    src/UserHooks/mHatReweight.cxx
                    src/UserHooks/main31.cxx
-                   src/UserHooks/SingleTopWideEta.cxx
-                   src/UserHooks/SettableColourReconnection.cxx
-                   src/UserHooks/PowhegBB4L.cxx
                    src/UserResonances/ResonanceExcitedCI.cxx
                    src/UserResonances/ResonanceLQ.cxx
                    PUBLIC_HEADERS Pythia8_i

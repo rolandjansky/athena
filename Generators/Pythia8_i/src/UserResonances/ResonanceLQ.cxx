@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 // The ResonanceLQ class modifies the default Pythia8 setup 
 // to allow leptoquarks to decay to top quarks
 // This is a copy of existing pythia ResonanceLeptoquark class
