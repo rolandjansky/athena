@@ -73,7 +73,7 @@ TVector3 AFPLocalToGlobalCSTool::localToGlobalCS(const double localX, const doub
   const HepGeom::Point3D<double> localPoint (localX, localY, localZ);
   HepGeom::Point3D<double> globalPoint;
 
-  if (m_geometry->GetPointInSIDSensorGlobalCS(stationID, 0, localPoint, globalPoint).isSuccess()) {
+  if (m_geometry->getPointInSIDSensorGlobalCS(stationID, 0, localPoint, globalPoint).isSuccess()) {
     // if transformation was successful return new coordinates corrected for the offset
     return TVector3(globalPoint.x() + m_xCorrection[stationID], globalPoint.y(), globalPoint.z());
   }
