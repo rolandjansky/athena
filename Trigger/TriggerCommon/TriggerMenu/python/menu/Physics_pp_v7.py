@@ -792,7 +792,7 @@ def setupMenu():
         ['ht300_2j40_0eta490_invm700_L1HT150-J20s5.ETA31_MJJ-400-CF_AND_2j35_gsc45_bmv2c1070_split','L1_HT150-J20s5.ETA31_MJJ-400-CF', [], [PhysicsStream], ['Primary:20000','RATE:MultiBJet',  'BW:BJet', 'BW:Jet'],-1,['serial',-1,[  'ht300', '2j40_0eta490_invm700_L1HT150-J20s5.ETA31_MJJ-400-CF_AND','2j35_gsc45_bmv2c1070_split']]],
 
 
-        # VBF triggers
+        # VBF triggers with updated algo
         ['j80_0eta240_2j60_320eta490_invm700',  'L1_J40.0ETA25_2J15.31ETA49',['',''], [PhysicsStream], ['RATE:MultiBJet', 'BW:BJet' ], -1 ], #Bjet rate but needs to be in the Jet slice
         ['j70_j50_0eta490_invm900j50_dphi24_L1MJJ-400-NFF', 'L1_MJJ-400-NFF',[], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
         ['j70_j50_0eta490_invm900j50_dphi26_L1MJJ-400-NFF', 'L1_MJJ-400-NFF',[], [PhysicsStream], ['RATE:MultiJet', 'BW:Jet'], -1],
