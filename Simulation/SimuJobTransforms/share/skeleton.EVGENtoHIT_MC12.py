@@ -10,7 +10,7 @@ if hasattr(runArgs, 'useISF') and runArgs.useISF:
     raise RuntimeError("Unsupported configuration! If you want to run with useISF=True, please use Sim_tf.py!")
 
 ## Simulation flags need to be imported first
-from G4AtlasApps.SimFlags import SimFlags, simFlags #FIXME drop import of SimFlags rather than simFlags asap
+from G4AtlasApps.SimFlags import simFlags
 simFlags.load_atlas_flags()
 
 
@@ -190,7 +190,7 @@ simFlags.SeedsG4.set_Off()
 ## Set the Run Number (if required)
 if hasattr(runArgs,"DataRunNumber"):
     if runArgs.DataRunNumber>0:
-        atlasG4log.info( 'Overriding run number to be: %s ', runArgs.DataRunNumber )
+        atlasG4log.info( 'Overriding run number to be: %s ' % runArgs.DataRunNumber )
         simFlags.RunNumber=runArgs.DataRunNumber
 elif hasattr(runArgs,'jobNumber'):
     if runArgs.jobNumber>=0:
@@ -207,7 +207,6 @@ if jobproperties.Beam.beamType.get_Value() == 'cosmics':
         if hasattr(runArgs, "outputEVNT_TRFile"):
             simFlags.WriteTR = runArgs.outputEVNT_TRFile
         include( 'CosmicGenerator/jobOptions_ConfigCosmicProd.py' )
-
 
 ## Add filters for non-cosmics simulation
 ## FIXME: This block should be moved out of the skeleton into job options.
