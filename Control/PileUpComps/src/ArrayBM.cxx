@@ -42,7 +42,7 @@ StatusCode ArrayBM::initialize()
   ATH_CHECK(m_atRndmGenSvc.retrieve());
 
   // Need to copy to make modifications for empty bunches
-  std::vector<float> rProp(m_intensityPatternProp.value());
+  const std::vector<float>& rProp(m_intensityPatternProp.value());
   std::vector<float>::const_iterator pBegin(rProp.begin());
   std::vector<float>::const_iterator pEnd(rProp.end());
   m_ipLength = rProp.size();
@@ -53,12 +53,17 @@ StatusCode ArrayBM::initialize()
       return StatusCode::FAILURE;
     }
 
+  // Initialize the signal pattern if we need one different from the intensity pattern
+  delete [] m_signalPattern;
+  if (m_emptyBunches!=0){
+    m_signalPattern = new double[m_ipLength];
+  }
   // Modification for empty bunches option
   if (m_emptyBunches<0 || std::abs(m_emptyBunches)>m_ipLength){
     // Easy case: Just flip all the bunches
     for (size_t i=0;i<m_ipLength;++i){
-      if (rProp[i]>0.) rProp[i]=0.;
-      else rProp[i]=1.;
+      if (rProp[i]>0.) m_signalPattern[i]=0.;
+      else m_signalPattern[i]=1.;
     } // Loop over all bunches in the pattern
   } else if (m_emptyBunches>0){
     // Harder case: N BCIDs after filled
@@ -73,15 +78,15 @@ StatusCode ArrayBM::initialize()
       if (rProp[i]>0){
         // Filled BCID.  Reset count, don't allow signal.
         sinceFilled=0;
-        rProp[i]=0.;
+        m_signalPattern[i]=0.;
       } else if (sinceFilled<m_emptyBunches){
         // First N BCIDs.  Increment count, allow signal.
         sinceFilled+=1;
-        rProp[i]=1.;
+        m_signalPattern[i]=1.;
       } else {
         // Beyond N BCIDs.  Increment count, don't allow signal.
         sinceFilled+=1;
-        rProp[i]=0.;
+        m_signalPattern[i]=0.;
       }
     } // Done with loop over previous BCIDs
   }
@@ -112,6 +117,10 @@ StatusCode ArrayBM::initialize()
         }
       m_intensityPattern[i] = rProp[i] * inv_maxElement; // this ensures that the elements are all in the range [0,1]
     }
+  // If we don't want to have signal in empty crossings, then our signal pattern is just the intensity pattern
+  if (m_emptyBunches==0){
+    m_signalPattern = m_intensityPattern;
+  }
 
   // Will be used to convert values in the m_intensityPattern
   // from having max value 1.0 to having mean value 1.0
@@ -121,7 +130,7 @@ StatusCode ArrayBM::initialize()
   delete m_biRandom;
   //the engine is created if not there already
   m_biRandom = new CLHEP::RandGeneral(*(m_atRndmGenSvc->GetEngine("BEAMINT")),
-                                      m_intensityPattern,
+                                      m_signalPattern,
                                       m_ipLength,
                                       /*IntType=*/1); //discrete distribution
   return StatusCode::SUCCESS;

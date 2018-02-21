@@ -72,5 +72,8 @@ private:
   /// means put signal in any empty bunch.  Positive number means put
   /// signal in one of the first N bunches after a filled bunch.
   int m_emptyBunches;
+  /// Additional array for keeping the locations we want signal in
+  /// By default, will match the intensity pattern
+  double* m_signalPattern;
 };
 #endif
