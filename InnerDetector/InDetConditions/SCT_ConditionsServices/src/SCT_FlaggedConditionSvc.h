@@ -24,6 +24,7 @@
 // Local
 #include "SCT_ConditionsServices/ISCT_FlaggedConditionSvc.h"
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
+#include "SCT_ConditionsData/SCT_FlaggedCondData.h"
 
 // Forward declarations
 template <class TYPE> class SvcFactory;
@@ -99,7 +100,7 @@ public:
 
  private:
   bool                                                m_filled;      //!< Has this been filles
-  std::map<IdentifierHash, std::string> m_badIds;  //!< Map of bad IdentiferHash and reason
+  SCT_FlaggedCondData m_badIds;  //!< Map of bad IdentiferHash and reason
 
   ServiceHandle<StoreGateSvc>                         m_detStore;    //!< Handle on detector store
   const SCT_ID*                                       m_sctID;       //!< ID helper for SCT
