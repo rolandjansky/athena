@@ -125,18 +125,20 @@ namespace xAOD {
      // AUX_VARIABLE( rnnip_TrackParticles );
      AUX_VARIABLE( rnnip_TrackParticleLinks ); 
 
-     // AUX_VARIABLE( rnnip_valD0wrtPVofTracks );
-     // AUX_VARIABLE( rnnip_sigD0wrtPVofTracks );
-     // AUX_VARIABLE( rnnip_valZ0wrtPVofTracks );
-     // AUX_VARIABLE( rnnip_sigZ0wrtPVofTracks );
-     // AUX_VARIABLE( rnnip_dphiofTracks );
-     // AUX_VARIABLE( rnnip_ptfracofTracks );
-     // AUX_VARIABLE( rnnip_drofTracks );
-     // AUX_VARIABLE( rnnip_detaofTracks ); 
-     // AUX_VARIABLE( rnnip_flagFromV0ofTracks ); 
-     // AUX_VARIABLE( rnnip_gradeOfTracks );
+     // rnnip input variables from : https://gitlab.cern.ch/atlas/athena/blob/21.0/PhysicsAnalysis/JetTagging/JetTagTools/src/RNNIPTag.cxx#L79
+     AUX_VARIABLE( rnnip_d0 );
+     AUX_VARIABLE( rnnip_d0sig );
+     AUX_VARIABLE( rnnip_z0 );
+     AUX_VARIABLE( rnnip_z0sig );
+     // AUX_VARIABLE( rnnip_dphi );
+     // AUX_VARIABLE( rnnip_pTFrac );
+     // AUX_VARIABLE( rnnip_dR )
+     // AUX_VARIABLE( rnnip_dEta );
+     AUX_VARIABLE( rnnip_fromV0 );
+     AUX_VARIABLE( rnnip_grade );
 
 
+     // SMT variables from : https://gitlab.cern.ch/atlas/athena/blob/21.0/PhysicsAnalysis/JetTagging/JetTagTools/src/SoftMuonTag.cxx#L976
      AUX_VARIABLE( SMT_discriminant );
      AUX_VARIABLE( SMT_mu_link );
      
@@ -148,7 +150,7 @@ namespace xAOD {
      // AUX_VARIABLE( SMT_pTrel );
      // AUX_VARIABLE( SMT_mu_d0 );
      // AUX_VARIABLE( SMT_mu_z0 );
-     // AUX_VARIABLE( SMT_ID_qOverP );
+     AUX_VARIABLE( SMT_ID_qOverP );
 
 
      AUX_VARIABLE( MV2c10rnn_discriminant );
@@ -167,6 +169,7 @@ namespace xAOD {
      AUX_VARIABLE( DL1mu_pu );
      AUX_VARIABLE( DL1mu_pc );
 
+     // Additional JetFitter variables for DL1
      AUX_VARIABLE( JetFitter_nTrk_vtx1 );
      AUX_VARIABLE( JetFitter_mass_first_vtx );
      AUX_VARIABLE( JetFitter_e_first_vtx );
