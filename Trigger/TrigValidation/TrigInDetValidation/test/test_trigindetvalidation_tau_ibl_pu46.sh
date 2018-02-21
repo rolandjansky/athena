@@ -159,7 +159,12 @@ export RTTJOBNAME=TrigInDetValidation_tau_IBL_pu46
 jobList=
 
 if [ $# -gt 0 -a "x$1" == "x--local" ]; then
-       jobList="XMLDataSet='$RTTJOBNAME'"
+      echo "running locally"
+      # get number of files 
+      NFILES=$(grep "^#[[:space:]]*art-input-nfiles:" $0 | sed 's|.*art-input-nfiles:[[:space:]]*||g')
+      [ $NFILES -lt 1 ] && echo "not enough files: $NFILES" && exit -1
+      _jobList=$(TIDAdataset.py $RTTJOBNAME)
+      for git in $_jobList ; do [ $NFILES -gt 0 ] || break ; jobList="$jobList ARTConfig=['$git']" ; ((NFILES--)) ; echo "running over $git"  ; done
 else
       fileList="['${ArtInFile//,/', '}']"
       _jobList="'../${ArtInFile//,/' '../}'"
@@ -222,7 +227,11 @@ cat topp.log
 # cat topp.log | mail sutt@cern.ch
 
 
-echo -e "\n\nwaiting on athena jobs\n"
+echo -e "\n\n"
+
+timestamp "waiting on athena jobs ..."
+
+# echo -e "\n\nwaiting on athena jobs...\n"
 
 waitonallproc
 

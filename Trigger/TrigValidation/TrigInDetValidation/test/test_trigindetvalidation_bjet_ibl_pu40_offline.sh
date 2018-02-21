@@ -7,7 +7,6 @@
 # art-output: HLTL2-vtx
 # art-output: times
 # art-output: times-FTF
-# art-output: cost-perCall
 # art-output: cost-perEvent
 # art-output: cost-perCall-chain
 # art-output: cost-perEvent-chain
@@ -160,7 +159,12 @@ export RTTJOBNAME=TrigInDetValidation_bjet_IBL_pu40_offline
 jobList=
 
 if [ $# -gt 0 -a "x$1" == "x--local" ]; then
-       jobList="XMLDataSet='$RTTJOBNAME'"
+      echo "running locally"
+      # get number of files 
+      NFILES=$(grep "^#[[:space:]]*art-input-nfiles:" $0 | sed 's|.*art-input-nfiles:[[:space:]]*||g')
+      [ $NFILES -lt 1 ] && echo "not enough files: $NFILES" && exit -1
+      _jobList=$(TIDAdataset.py $RTTJOBNAME)
+      for git in $_jobList ; do [ $NFILES -gt 0 ] || break ; jobList="$jobList ARTConfig=['$git']" ; ((NFILES--)) ; echo "running over $git"  ; done
 else
       fileList="['${ArtInFile//,/', '}']"
       _jobList="'../${ArtInFile//,/' '../}'"
@@ -223,7 +227,11 @@ cat topp.log
 # cat topp.log | mail sutt@cern.ch
 
 
-echo -e "\n\nwaiting on athena jobs\n"
+echo -e "\n\n"
+
+timestamp "waiting on athena jobs ..."
+
+# echo -e "\n\nwaiting on athena jobs...\n"
 
 waitonallproc
 
@@ -337,7 +345,7 @@ timestamp "RunTrigCostD3PD"
 
 
 
-TIDAcpucost costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perCall --auto -d "/Algorithm" -p "_Time_perCall"  2>&1 | tee TIDAcpucost_8.log
+TIDAcpucost  2>&1 | tee TIDAcpucost_8.log
 echo "art-result: $? TIDAcpucost_8"
 
 
