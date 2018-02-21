@@ -211,8 +211,7 @@ StatusCode EgammaCPTools::setupCalibration() {
   // To retrieve Isolation Eff scale factors
   // N.B. Naming for isolation working points for AsgPhotonEfficiencyCorrectionTool isolation scale factors
   // are different than those for the IsolationCorrectionTool (preceded by FixedCut)
-  std::set<std::string> photon_isolations = {"TightCaloOnly",
-					     "Tight",
+  std::set<std::string> photon_isolations = {"Tight",
 					     "Loose",};
   for (const std::string& isoWP : photon_isolations) {
     std::string photonIsoSFName = "AsgPhotonEfficiencyCorrectionTool_IsoSF" + isoWP;
