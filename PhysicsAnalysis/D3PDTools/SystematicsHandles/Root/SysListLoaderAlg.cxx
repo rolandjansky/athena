@@ -92,7 +92,7 @@ namespace EL
     }
 
     std::unique_ptr<SysListType> list (new SysListType (m_systematicsVector));
-    evtStore()->record (list.release(), m_systematicsName);
+    ANA_CHECK (evtStore()->record (list.release(), m_systematicsName));
     return StatusCode::SUCCESS;
   }
 }
