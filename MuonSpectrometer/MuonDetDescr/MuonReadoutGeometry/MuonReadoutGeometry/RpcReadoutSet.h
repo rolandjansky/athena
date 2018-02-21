@@ -36,9 +36,9 @@ public:
    // this is a channelId
  
    const RpcReadoutElement* readoutElement(int dbz, int dbp) const;
-   unsigned int NreadoutElements() const;
-   unsigned int NdoubletZ() const;
-   unsigned int NsegmentedDoubletZ() const;
+   unsigned int NreadoutElements();
+   unsigned int NdoubletZ();
+   unsigned int NsegmentedDoubletZ();
    unsigned int NPhimodules(int dbz) const;  
     
 private:
@@ -46,6 +46,9 @@ private:
    Identifier m_id; // this is a detectorId
    const RpcIdHelper*  m_helper;
    const MuonDetectorManager* m_mgr;
+   unsigned int m_nreadoutelemets;
+   unsigned int m_ndoubletz;
+   unsigned int m_nsegmenteddoubletz;
 };
 
 } // namespace MuonGM

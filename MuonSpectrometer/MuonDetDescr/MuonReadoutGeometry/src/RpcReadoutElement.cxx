@@ -34,7 +34,7 @@ namespace MuonGM {
       m_netastrippanels(-1), m_nphistripsperpanel(-1), m_netastripsperpanel(-1),
       m_phistripwidth(-9999.), m_etastripwidth(-9999.), m_phistrippitch(-9999.),
       m_etastrippitch(-9999.), m_phistriplength(-9999.), m_etastriplength(-9999.),
-      m_phipaneldead(-9999.), m_etapaneldead(-9999.), m_exthonthick(-9999.)
+      m_phipaneldead(-9999.), m_etapaneldead(-9999.), m_exthonthick(-9999.), m_set(nullptr)
   {
     m_MsgStream = new MsgStream(mgr->msgSvc(),"MuGM:RpcReadoutElement");
     //MsgStream log(Athena::getMessageSvc(), "MuGM:RpcReadoutElement");
@@ -93,6 +93,7 @@ namespace MuonGM {
 
   RpcReadoutElement::~RpcReadoutElement()
   {
+    if(m_set) delete m_set;
     clearCache();
   }
 
@@ -740,20 +741,25 @@ namespace MuonGM {
   {
     // P is a point in the global reference frame
     // we want to have the distance from the side of the phi readout (length travelled along a phi strip) from a signal produced at P)
-    RpcReadoutSet Set(manager(), identify());
-    int ndbz = Set.NdoubletZ();  
+    // m_set will not be null but be initialized in "initDesign()" earlier
+    // if it is null the code should crash! - because we're time-critical here a check for null was not implemented
+    unsigned int ndbz = m_set->NdoubletZ();
     double dist = -999.;
+    double zPoint = P.z();
+    double Zsizehalf = getZsize()/2.;
+    double recenter = REcenter().z();
+    double zLow = recenter - Zsizehalf;
+    double zUp = recenter + Zsizehalf;
     
     if (ndbz == 1) {
-      double zPoint = P.z();
-      double zLow = REcenter().z() - getZsize()/2.;
-      double zUp = REcenter().z() + getZsize()/2.;
       if (zPoint < zLow || zPoint > zUp) {
 	//MsgStream log(m_msgSvc, "MuGM:RpcReadoutElement");
-	const RpcIdHelper* idh = manager()->rpcIdHelper();
-	reLog()<<MSG::DEBUG<<"RpcReadoutElement with id "<<idh->show_to_string(identify())
-	       <<" ::distanceToPhiReadout --- z of the Point  "<<P.z()<<" is out of the rpc-module range ("<<zLow<<","<<zUp<<")"
-	       <<" /// input id(never used) = "<<idh->show_to_string(id)<<endreq;
+	if(reLog().level() <= MSG::DEBUG) {
+	  const RpcIdHelper* idh = manager()->rpcIdHelper();
+	  reLog()<<MSG::DEBUG<<"RpcReadoutElement with id "<<idh->show_to_string(identify())
+	         <<" ::distanceToPhiReadout --- z of the Point  "<<P.z()<<" is out of the rpc-module range ("<<zLow<<","<<zUp<<")"
+	         <<" /// input id(never used) = "<<idh->show_to_string(id)<<endreq;
+	}
 	// return dist;
 	if( zPoint < zLow ) zPoint = zLow;
 	else if( zPoint > zUp ) zPoint = zUp;
@@ -762,15 +768,14 @@ namespace MuonGM {
       else dist = zPoint - zLow;
 
     } else {
-      double zUp    = REcenter().z() + getZsize()/2.;
-      double zLow   = REcenter().z() - getZsize()/2.;
-      double zPoint = P.z();
       if (zPoint < zLow || zPoint > zUp) {
 	//  MsgStream log(Athena::getMessageSvc(), "MuGM:RpcReadoutElement");
-	const RpcIdHelper* idh = manager()->rpcIdHelper();
-	reLog()<<MSG::DEBUG<<"RpcReadoutElement with id "<<idh->show_to_string(identify())
-	       <<" ::distanceToPhiReadout --- z of the Point  "<<P.z()<<" is out of the rpc-module range ("<<zLow<<","<<zUp<<")"
-	       <<" /// input id(never used) = "<<idh->show_to_string(id)<<endreq;
+	if(reLog().level() <= MSG::DEBUG) {
+	  const RpcIdHelper* idh = manager()->rpcIdHelper();
+	  reLog()<<MSG::DEBUG<<"RpcReadoutElement with id "<<idh->show_to_string(identify())
+	         <<" ::distanceToPhiReadout --- z of the Point  "<<P.z()<<" is out of the rpc-module range ("<<zLow<<","<<zUp<<")"
+	         <<" /// input id(never used) = "<<idh->show_to_string(id)<<endreq;
+	}
 	// return dist;
 	if( zPoint < zLow ) zPoint = zLow;
 	else if( zPoint > zUp ) zPoint = zUp;
@@ -949,6 +954,9 @@ namespace MuonGM {
 
       m_etaDesigns.push_back(etaDesign);
     }
+
+    m_set = new RpcReadoutSet(manager(), identify());
+
   }
 
   void RpcReadoutElement::fillCache() const
