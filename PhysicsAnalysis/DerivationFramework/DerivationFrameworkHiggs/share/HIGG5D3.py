@@ -334,9 +334,9 @@ if DerivationFrameworkIsMonteCarlo :
              "AntiKt4TruthJets",
 #              "AntiKt4TruthWZJets"
              ]
-HIGG5Common.addJetOutputs(HIGG5D3SlimmingHelper,["HIGG5D3Jets"],slimmed_content)
-# Add the MET containers to the stream
-addMETOutputs(HIGG5D3SlimmingHelper,[],["AntiKt4EMTopo"])
+# AntiKt4PV0TrackJets are needed in conjunction with AntiKt10LCTopoJets, but the can be removed from the
+# output
+HIGG5Common.addJetOutputs(HIGG5D3SlimmingHelper,["HIGG5D3Jets"],slimmed_content,['AntiKt4PV0TrackJets'])
 
 HIGG5D3SlimmingHelper.IncludeEGammaTriggerContent = True
 HIGG5D3SlimmingHelper.IncludeJetTriggerContent = True

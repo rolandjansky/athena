@@ -311,9 +311,10 @@ if DerivationFrameworkIsMonteCarlo :
              "AntiKt4TruthJets",
              "AntiKt4TruthWZJets"
              ]
-HIGG5Common.addJetOutputs(HIGG2D4SlimmingHelper,["HIGG2D4Jets"],slimmed_content)
-# Add MET_RefFinalFix
-addMETOutputs(HIGG2D4SlimmingHelper,[],["Track","AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"])
+
+# AntiKt4PV0TrackJets are needed in conjunction with AntiKt10LCTopoJets, but the can be removed from the
+# output
+HIGG5Common.addJetOutputs(HIGG2D4SlimmingHelper,["HIGG2D4Jets"],slimmed_content, ['AntiKt4PV0TrackJets'])
 
 HIGG2D4SlimmingHelper.IncludeMuonTriggerContent = True
 HIGG2D4SlimmingHelper.IncludeEGammaTriggerContent = True
