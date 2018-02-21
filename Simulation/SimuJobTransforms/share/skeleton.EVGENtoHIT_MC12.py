@@ -85,6 +85,12 @@ else:
 atlasG4log.info( '**** Transformation run arguments' )
 atlasG4log.info( str(runArgs) )
 
+from AthenaCommon.AlgSequence import AlgSequence
+topSeq = AlgSequence()
+
+## Set Overall per-Algorithm time-limit on the AlgSequence
+topSeq.TimeOut = 43200 * Units.s
+
 
 #==============================================================
 # Job Configuration parameters:
@@ -107,17 +113,18 @@ if hasattr(runArgs, "inputEVNT_STOPPEDFile"):
 
 # Avoid command line preInclude for cavern background
 if jobproperties.Beam.beamType.get_Value() != 'cosmics':
-    if hasattr(runArgs, "inputEVNT_TRFile"):
+    # If it was already there, then we have a stopped particle file
+    if hasattr(runArgs, "inputEVNT_TRFile") and\
+        not hasattr(topSeq,'TrackRecordGenerator'):
         include('SimulationJobOptions/preInclude.G4ReadCavern.py')
-    if hasattr(runArgs, "outputEVNT_TRFile"):
+    # If there's a stopped particle file, don't do all the cavern stuff
+    if hasattr(runArgs, "outputEVNT_TRFile") and\
+        not (hasattr(simFlags,'StoppedParticleFile') and simFlags.StoppedParticleFile.statusOn and simFlags.StoppedParticleFile.get_Value()!=''):
         include('SimulationJobOptions/preInclude.G4WriteCavern.py')
 
 # Avoid command line preInclude for event service
 if hasattr(runArgs, "eventService") and runArgs.eventService:
     include('AthenaMP/AthenaMP_EventService.py')
-
-if jobproperties.Beam.beamType.get_Value() == 'cosmics':
-    include('SimulationJobOptions/preInclude.Cosmics.py')
 
 ## Select detectors
 if 'DetFlags' not in dir():
@@ -225,12 +232,6 @@ if not hasattr(runArgs, "enableLooperKiller") or runArgs.enableLooperKiller:
     simFlags.OptionalUserActionList.addAction('G4UA::LooperKillerTool', ['Step'])
 else:
     atlasG4log.warning("The looper killer will NOT be run in this job.")
-
-from AthenaCommon.AlgSequence import AlgSequence
-topSeq = AlgSequence()
-
-## Set Overall per-Algorithm time-limit on the AlgSequence
-topSeq.TimeOut = 43200 * Units.s
 
 try:
     from RecAlgs.RecAlgsConf import TimingAlg
