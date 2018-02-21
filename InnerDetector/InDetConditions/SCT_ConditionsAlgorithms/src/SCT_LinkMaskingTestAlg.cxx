@@ -14,23 +14,19 @@
 #include "SCT_LinkMaskingTestAlg.h"
 
 //Athena includes
-#include "Identifier/Identifier.h"
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
-#include "SCT_ConditionsServices/ISCT_ConditionsSvc.h"
 
 SCT_LinkMaskingTestAlg::SCT_LinkMaskingTestAlg(const std::string& name, ISvcLocator* pSvcLocator) : 
-  AthAlgorithm(name, pSvcLocator),
-  m_linkMaskingSvc("SCT_LinkMaskingSvc", name) {
-  declareProperty("LinkMaskingSvc", m_linkMaskingSvc);
+  AthAlgorithm(name, pSvcLocator) {
 }
 
 //Initialize
 StatusCode SCT_LinkMaskingTestAlg::initialize() {
   ATH_MSG_INFO("Calling initialize");
   
-  // Retrieve link masking service
-  if (m_linkMaskingSvc.retrieve().isFailure()) {
-    ATH_MSG_FATAL("Could not retrieve the link masking service");
+  // Retrieve link masking tool
+  if (m_linkMaskingTool.retrieve().isFailure()) {
+    ATH_MSG_FATAL("Could not retrieve the link masking tool");
     return StatusCode::FAILURE;
   }
 
@@ -40,10 +36,10 @@ StatusCode SCT_LinkMaskingTestAlg::initialize() {
 //Execute
 StatusCode SCT_LinkMaskingTestAlg::execute() {
 
-  ATH_MSG_INFO("Wafer 167772160 is " << (m_linkMaskingSvc->isGood(Identifier{167772160}) ? "not masked" : "masked"));
-  ATH_MSG_INFO("Wafer 167773184 is " << (m_linkMaskingSvc->isGood(Identifier{167773184}) ? "not masked" : "masked"));
-  ATH_MSG_INFO("Wafer 167786496 is " << (m_linkMaskingSvc->isGood(Identifier{167786496}) ? "not masked" : "masked"));
-  ATH_MSG_INFO("Wafer 167787520 is " << (m_linkMaskingSvc->isGood(Identifier{167787520}) ? "not masked" : "masked"));
+  ATH_MSG_INFO("Wafer 167772160 is " << (m_linkMaskingTool->isGood(Identifier{167772160}) ? "not masked" : "masked"));
+  ATH_MSG_INFO("Wafer 167773184 is " << (m_linkMaskingTool->isGood(Identifier{167773184}) ? "not masked" : "masked"));
+  ATH_MSG_INFO("Wafer 167786496 is " << (m_linkMaskingTool->isGood(Identifier{167786496}) ? "not masked" : "masked"));
+  ATH_MSG_INFO("Wafer 167787520 is " << (m_linkMaskingTool->isGood(Identifier{167787520}) ? "not masked" : "masked"));
 
   return StatusCode::SUCCESS;
 }

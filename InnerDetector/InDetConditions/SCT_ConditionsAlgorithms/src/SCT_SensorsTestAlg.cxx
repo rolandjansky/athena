@@ -20,9 +20,6 @@
 #include "Identifier/IdentifierHash.h"
 #include "Identifier/Identifier.h"
 
-//local includes
-#include "SCT_ConditionsServices/ISCT_SensorsSvc.h"
-
 // Include STL stuff
 #include <string>
 //for o/p to file
@@ -33,7 +30,7 @@ using namespace std;
 
 SCT_SensorsTestAlg::SCT_SensorsTestAlg(const std::string& name, 
                                        ISvcLocator* pSvcLocator ) : 
-  AthAlgorithm( name, pSvcLocator ), m_SensorsSvc("SCT_SensorsSvc",name){
+  AthAlgorithm( name, pSvcLocator ) {
   //nop
 }
 
@@ -41,7 +38,7 @@ SCT_SensorsTestAlg::SCT_SensorsTestAlg(const std::string& name,
 StatusCode SCT_SensorsTestAlg::initialize(){
   StatusCode sc(StatusCode::SUCCESS);
   ATH_MSG_INFO("Calling initialize");
-  sc = m_SensorsSvc.retrieve();
+  sc = m_SensorsTool.retrieve();
   if (StatusCode::SUCCESS not_eq sc) {
     ATH_MSG_ERROR("Could not retrieve the service");
   }
@@ -55,11 +52,11 @@ StatusCode SCT_SensorsTestAlg::execute(){
   StatusCode sc(StatusCode::SUCCESS);
   ATH_MSG_INFO("Calling execute");
   std::vector<std::string> values;
-  m_SensorsSvc->getSensorsData(values);
+  m_SensorsTool->getSensorsData(values);
   for (std::vector<std::string>::const_iterator i=values.begin();i!=values.end();++i){
     ATH_MSG_INFO("------------" << *i << "------------");
   }
-  m_SensorsSvc->printManufacturers();
+  m_SensorsTool->printManufacturers();
   return sc;
 }
 

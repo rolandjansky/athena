@@ -1,15 +1,15 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
- * @file SCT_SensorsSvc.h
- * header file for service allowing one to get Vdep, crystal orientation and Mfr for sensors from a modules
+ * @file SCT_SensorsTool.h
+ * header file for tool allowing one to get Vdep, crystal orientation and Mfr for sensors from a modules
  * @author shaun.roe@cern.ch
  **/
 
-#ifndef SCT_SensorsSvc_h
-#define SCT_SensorsSvc_h
+#ifndef SCT_SensorsTool_h
+#define SCT_SensorsTool_h
 
 //STL includes
 #include <string>
@@ -17,39 +17,30 @@
 #include <mutex>
 
 //Interface include
-#include "SCT_ConditionsServices/ISCT_SensorsSvc.h"
+#include "SCT_ConditionsTools/ISCT_SensorsTool.h"
 
 //Gaudi includes
-#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ContextSpecificPtr.h"
 
 //Athena includes
-#include "AthenaBaseComps/AthService.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "SCT_ConditionsData/SCT_SensorsCondData.h"
 
 // Read Handle Key
 #include "StoreGate/ReadCondHandleKey.h"
 
-//forward declarations
-template <class TYPE> class SvcFactory;
-class ISvcLocator;
-class StatusCode;
-
 /**
- * @class SCT_SensorsSvc
- * Service allowing one to manually get Vdep, crystal orientation and Mfr for a sensor(s)
+ * @class SCT_SensorsTool
+ * Tool allowing one to manually get Vdep, crystal orientation and Mfr for a sensor(s)
  **/
-class SCT_SensorsSvc: virtual public ISCT_SensorsSvc, virtual public AthService {
-  friend class SvcFactory<SCT_SensorsSvc>;
+class SCT_SensorsTool: public extends<AthAlgTool, ISCT_SensorsTool> {
  public:
 
-  SCT_SensorsSvc(const std::string & name, ISvcLocator* svc);
-  virtual ~SCT_SensorsSvc(){}
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
-  virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
-  static const InterfaceID& interfaceID();
+  SCT_SensorsTool(const std::string& type, const std::string& name, const IInterface* parent);
+  virtual ~SCT_SensorsTool() = default;
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
   
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
   virtual void getSensorsData(std::vector<std::string>& userVector);
@@ -57,8 +48,6 @@ class SCT_SensorsSvc: virtual public ISCT_SensorsSvc, virtual public AthService 
   virtual std::string getManufacturer(unsigned int truncatedSerialNumber);
   virtual void printManufacturers();
 
-  ///Callback for fill from database
-  virtual StatusCode fillSensorsData(int& i, std::list<std::string>& keys);
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
  private:
@@ -76,8 +65,4 @@ class SCT_SensorsSvc: virtual public ISCT_SensorsSvc, virtual public AthService 
   const SCT_SensorsCondData* getCondData(const EventContext& ctx) const;
 };
 
-inline const InterfaceID& SCT_SensorsSvc::interfaceID() {
-  return ISCT_SensorsSvc::interfaceID();
-}
-
-#endif // SCT_SensorsSvc_h
+#endif // SCT_SensorsTool_h

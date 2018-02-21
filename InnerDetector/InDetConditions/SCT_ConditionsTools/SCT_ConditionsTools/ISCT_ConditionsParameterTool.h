@@ -1,36 +1,36 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
- * @file ISCT_ConditionsParameterSvc.h
- * header file for baseclass of SCT conditions services
+ * @file ISCT_ConditionsParameterTool.h
+ * header file for baseclass of SCT conditions parameter tool
  * @author shaun.roe@cern.ch
  **/
 
-#ifndef ISCT_ConditionsParameterSvc_h
-#define ISCT_ConditionsParameterSvc_h
+#ifndef ISCT_ConditionsParameterTool_h
+#define ISCT_ConditionsParameterTool_h
 
 //STL includes
 #include <vector>
 
 //Gaudi Includes
-#include "GaudiKernel/IInterface.h"
+#include "GaudiKernel/IAlgTool.h"
 
-//local includes
+//Athena includes
 #include "SCT_ConditionsData/SCT_CondParameterData.h"
-
-//fwd declarations
-class IdentifierHash;
+#include "Identifier/IdentifierHash.h"
 
 /**
  * @class ISCT_ConditionsParameterSvc
  * Base class to give a numerical value from conditions for each detector element (module side)
  **/
-class ISCT_ConditionsParameterSvc: virtual public IInterface {
+class ISCT_ConditionsParameterTool: virtual public IAlgTool {
  public:
-  virtual ~ISCT_ConditionsParameterSvc() {}
-  static const InterfaceID& interfaceID(); //!< reimplemented from IInterface
+  virtual ~ISCT_ConditionsParameterTool() = default;
+
+  /// Creates the InterfaceID and interfaceID() method
+  DeclareInterfaceID(ISCT_ConditionsParameterTool, 1, 0);
   
   ///Is the required parameter available?
   virtual bool available(const SCT_CondParameterData::ParameterIndex iparam)=0;
@@ -69,10 +69,4 @@ class ISCT_ConditionsParameterSvc: virtual public IInterface {
   virtual bool filled() const =0;
 };
 
-
-inline const InterfaceID& ISCT_ConditionsParameterSvc::interfaceID() {
-  static const InterfaceID IID{"ISCT_ConditionsParameterSvc", 1, 0};
-  return IID;
-}
-
-#endif // ISCT_ConditionsParameterSvc_h
+#endif // ISCT_ConditionsParameterTool_h

@@ -2,9 +2,7 @@ import AthenaCommon.AtlasUnixStandardJob
 
 # use auditors
 from AthenaCommon.AppMgr import ServiceMgr
-
 from GaudiSvc.GaudiSvcConf import AuditorSvc
-
 ServiceMgr += AuditorSvc()
 theAuditorSvc = ServiceMgr.AuditorSvc
 theAuditorSvc.Auditors  += [ "ChronoAuditor"]
@@ -16,25 +14,11 @@ theApp.AuditAlgorithms=True
 # Load Geometry
 #--------------------------------------------------------------
 from AthenaCommon.GlobalFlags import globalflags
-globalflags.DetDescrVersion="ATLAS-R1-2012-03-00-00"
-globalflags.ConditionsTag="COMCOND-BLKPA-RUN1-09"
+globalflags.DetDescrVersion="ATLAS-R2-2015-03-01-00"
 globalflags.DetGeo="atlas"
 globalflags.InputFormat="pool"
-globalflags.DataSource="data"
+globalflags.DataSource="geant4"
 print globalflags
-
-#--------------------------------------------------------------
-# Set up conditions
-#--------------------------------------------------------------
-from RecExConfig.RecFlags import rec
-rec.projectName.set_Value_and_Lock("data12_8TeV")
-
-# Load IOVDbSvc
-IOVDbSvc = Service("IOVDbSvc")
-IOVDbSvc.GlobalTag=globalflags.ConditionsTag()
-IOVDbSvc.OutputLevel = 3
-from IOVDbSvc.CondDB import conddb
-conddb.dbdata="COMP200"
 
 #--------------------------------------------------------------
 # Set Detector setup
@@ -70,20 +54,43 @@ import AtlasGeoModel.GeoModelInit
 ServiceMgr.GeoModelSvc.DetectorTools['PixelDetectorTool'].LorentzAngleSvc=""
 ServiceMgr.GeoModelSvc.DetectorTools['SCT_DetectorTool'].LorentzAngleSvc=""
 
-from SCT_ConditionsTools.SCT_SensorsToolSetup import SCT_SensorsToolSetup
-sct_SensorsToolSetup = SCT_SensorsToolSetup()
-sct_SensorsToolSetup.setFolderTag("SctSensors-Sep03-14")
-sct_SensorsToolSetup.setup()
-
 from AthenaCommon.AlgSequence import AlgSequence
+
 job = AlgSequence()
 
-from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_SensorsTestAlg
-job+= SCT_SensorsTestAlg(name="SCT_SensorsTestAlg",
-                         SCT_SensorsTool=sct_SensorsToolSetup.getTool())
+#--------------------------------------------------------------
+# Load IOVDbSvc
+#--------------------------------------------------------------
+
+IOVDbSvc = Service("IOVDbSvc")
+from IOVDbSvc.CondDB import conddb
+IOVDbSvc.GlobalTag="OFLCOND-MC16-SDR-18"
+
+### Use COOL database for SCT_ModuleVetoSvc
+useDB = True # False
+
+from SCT_ConditionsTools.SCT_ModuleVetoToolSetup import SCT_ModuleVetoToolSetup
+sct_ModuleVetoToolSetup = SCT_ModuleVetoToolSetup()
+if useDB:
+    sct_ModuleVetoToolSetup.setFolderTag("SCTManualBadModules-000-00")
+
+sct_ModuleVetoToolSetup.setUseDB(useDB)
+sct_ModuleVetoToolSetup.setup()
+SCT_ModuleVetoTool = sct_ModuleVetoToolSetup.getTool()
+if useDB:
+    SCT_ModuleVetoTool.BadModuleIdentifiers=["database"]
+else:
+    SCT_ModuleVetoTool.BadModuleIdentifiers=["1", "2"]
+
+SCT_ModuleVetoTool.OutputLevel=DEBUG
+
+from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_ModuleVetoTestAlg
+job+= SCT_ModuleVetoTestAlg(ModuleVetoTool=SCT_ModuleVetoTool)
+
 
 import AthenaCommon.AtlasUnixGeneratorJob
 
 
-ServiceMgr.EventSelector.RunNumber  = 140975
-theApp.EvtMax                   = 1
+ServiceMgr.EventSelector.RunNumber = 300000 # MC16c 2017 run number
+ServiceMgr.EventSelector.InitialTimeStamp = 1500000000 # MC16c 2017 time stamp
+theApp.EvtMax = 1

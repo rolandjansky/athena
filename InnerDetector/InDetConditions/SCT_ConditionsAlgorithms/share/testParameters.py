@@ -106,9 +106,9 @@ topSequence = AlgSequence()
 from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
 topSequence += xAODMaker__EventInfoCnvAlg(OutputLevel=2)
 
-from SCT_ConditionsServices.SCT_ConditionsParameterSvcSetup import SCT_ConditionsParameterSvcSetup
-sct_ConditionsParameterSvcSetup = SCT_ConditionsParameterSvcSetup()
-sct_ConditionsParameterSvcSetup.setup()
+from SCT_ConditionsTools.SCT_ConditionsParameterToolSetup import SCT_ConditionsParameterToolSetup
+sct_ConditionsParameterToolSetup = SCT_ConditionsParameterToolSetup()
+sct_ConditionsParameterToolSetup.setup()
 
 from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_ConditionsParameterTestAlg
 topSequence+= SCT_ConditionsParameterTestAlg()
