@@ -125,7 +125,7 @@ namespace EL
     /// \brief the name under which the systematics list is stored in
     /// the event store
   private:
-    std::string m_systematicsListName;
+    std::string m_systematicsListName {"systematics"};
 
     /// \brief the regular expression for affecting systematics
   private:
