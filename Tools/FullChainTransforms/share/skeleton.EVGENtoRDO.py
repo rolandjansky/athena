@@ -76,8 +76,9 @@ else:
 if hasattr(runArgs, "outputHITSFile"):
     athenaCommonFlags.PoolHitsOutput.set_Value_and_Lock( runArgs.outputHITSFile )
 else:
-    if hasattr(runArgs, "outputEVNT_STOPPEDFile"):
-        simFlags.StoppedParticleFile.set_Value_and_Lock( runArgs.outputEVNT_STOPPEDFile )
+    if hasattr(runArgs, "outputEVNT_TRFile"):
+        if hasattr(runArgs,"trackRecordType") and runArgs.trackRecordType=="stopped":
+            simFlags.StoppedParticleFile.set_Value_and_Lock( runArgs.outputEVNT_TRFile )
     #raise RuntimeError("No outputHITSFile provided.")
     fast_chain_log.info('No outputHITSFile provided. This simulation job will not write out any HITS file.')
     athenaCommonFlags.PoolHitsOutput = ""
@@ -97,6 +98,10 @@ if hasattr(runArgs, "preSimExec"):
 if hasattr(runArgs, "preSimInclude"):
     for fragment in runArgs.preSimInclude:
         include(fragment)
+
+if hasattr(runArgs, "inputEVNT_TRFile"):
+    if hasattr(runArgs,"trackRecordType") and runArgs.trackRecordType=="stopped":
+        include('SimulationJobOptions/preInclude.ReadStoppedParticles.py')
 
 # Avoid command line preInclude for cavern background
 if jobproperties.Beam.beamType.get_Value() != 'cosmics':
@@ -232,9 +237,9 @@ if hasattr(runArgs, "postSimInclude"):
     for fragment in runArgs.postSimInclude:
         include(fragment)
 
-# Avoid command line postInclude for stopped particles
-if hasattr(runArgs, "outputEVNT_STOPPEDFile"):
-    include('SimulationJobOptions/postInclude.StoppedParticleWrite.py')
+if hasattr(runArgs, "outputEVNT_TRFile"):
+    if hasattr(runArgs,"trackRecordType") and runArgs.trackRecordType=="stopped":
+        include('SimulationJobOptions/postInclude.StoppedParticleWrite.py')
 
 ## Post-exec
 if hasattr(runArgs, "postSimExec"):

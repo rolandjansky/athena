@@ -46,8 +46,6 @@ if hasattr(runArgs, "inputEVNTFile"):
     setInputEvgenFileJobProperties( runArgs.inputEVNTFile )
 elif hasattr(runArgs, "inputEVNT_TRFile"):
     setInputEvgenFileJobProperties( runArgs.inputEVNT_TRFile )
-elif hasattr(runArgs, "inputEVNT_STOPPEDFile"):
-    setInputEvgenFileJobProperties( runArgs.inputEVNT_STOPPEDFile )
 elif jobproperties.Beam.beamType.get_Value() == 'cosmics':
     atlasG4log.debug('No inputEVNTFile provided. OK, as performing cosmics simulation.')
     athenaCommonFlags.PoolEvgenInput.set_Off()
@@ -73,8 +71,9 @@ if jobproperties.Beam.beamType.get_Value() == 'cosmics':
 if hasattr(runArgs, "outputHITSFile"):
     athenaCommonFlags.PoolHitsOutput.set_Value_and_Lock( runArgs.outputHITSFile )
 else:
-    if hasattr(runArgs, "outputEVNT_STOPPEDFile"):
-        simFlags.StoppedParticleFile.set_Value_and_Lock( runArgs.outputEVNT_STOPPEDFile )
+    if hasattr(runArgs, "outputEVNT_TRFile"):
+        if hasattr(runArgs,"trackRecordType") and runArgs.trackRecordType=="stopped":
+            simFlags.StoppedParticleFile.set_Value_and_Lock( runArgs.outputEVNT_TRFile )
     #raise RuntimeError("No outputHITSFile provided.")
     atlasG4log.info('No outputHITSFile provided. This simulation job will not write out any HITS file.')
     athenaCommonFlags.PoolHitsOutput = ""
@@ -107,9 +106,9 @@ if hasattr(runArgs, "preInclude"):
     for fragment in runArgs.preInclude:
         include(fragment)
 
-# Avoid command line preInclude for stopped particles
-if hasattr(runArgs, "inputEVNT_STOPPEDFile"):
-    include('SimulationJobOptions/preInclude.ReadStoppedParticles.py')
+if hasattr(runArgs, "inputEVNT_TRFile"):
+    if hasattr(runArgs,"trackRecordType") and runArgs.trackRecordType=="stopped":
+        include('SimulationJobOptions/preInclude.ReadStoppedParticles.py')
 
 # Avoid command line preInclude for cavern background
 if jobproperties.Beam.beamType.get_Value() != 'cosmics':
@@ -270,9 +269,9 @@ if hasattr(runArgs, "postInclude"):
     for fragment in runArgs.postInclude:
         include(fragment)
 
-# Avoid command line postInclude for stopped particles
-if hasattr(runArgs, "outputEVNT_STOPPEDFile"):
-    include('SimulationJobOptions/postInclude.StoppedParticleWrite.py')
+if hasattr(runArgs, "outputEVNT_TRFile"):
+    if hasattr(runArgs,"trackRecordType") and runArgs.trackRecordType=="stopped":
+        include('SimulationJobOptions/postInclude.StoppedParticleWrite.py')
 
 ## Post-exec
 if hasattr(runArgs, "postExec"):
