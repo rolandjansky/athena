@@ -284,9 +284,6 @@ if DerivationFrameworkIsMonteCarlo:
                                                      'TruthBoson':'xAOD::TruthParticleContainer',
                                                      'TruthBosonAux':'xAOD::TruthParticleAuxContainer'})
 
-# Add MET_RefFinalFix
-addMETOutputs(HIGG2D1SlimmingHelper,["Track"])
-
 HIGG2D1SlimmingHelper.IncludeMuonTriggerContent = True
 HIGG2D1SlimmingHelper.IncludeEGammaTriggerContent = True
 

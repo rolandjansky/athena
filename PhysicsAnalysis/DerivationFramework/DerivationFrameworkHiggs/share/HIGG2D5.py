@@ -582,9 +582,6 @@ if DerivationFrameworkIsMonteCarlo:
 # For J/psi vertex augmentation
 HIGG2D5SlimmingHelper.StaticContent = HIGG2D5StaticContent
 
-# Add MET_RefFinalFix
-addMETOutputs(HIGG2D5SlimmingHelper,["Track"])
-
 HIGG2D5SlimmingHelper.IncludeMuonTriggerContent = True
 HIGG2D5SlimmingHelper.IncludeBPhysTriggerContent = True
 HIGG2D5SlimmingHelper.IncludeTauTriggerContent = True
