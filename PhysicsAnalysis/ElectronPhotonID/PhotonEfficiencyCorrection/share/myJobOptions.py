@@ -14,8 +14,14 @@ alg = testAthenaPhotonAlg()
 
 #define input files, please note that the current recomendation of PhotonID WG can be found here: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/PhotonEfficiencyRun2
 
-#Set Properties for photonID_SF tool - setup the map.txt file
-alg.PhotonEfficiencyCorrectionTool.MapFilePath = "PhotonEfficiencyCorrection/2015_2016/rel20.7/Moriond2017_v1/map2.txt";
+#Set Properties for photonID_SF tool, in case it is used for Iso or Trigger SF:
+#alg.PhotonEfficiencyCorrectionTool.IsoKey = 'Loose'
+#alg.PhotonEfficiencyCorrectionTool.TriggerKey = 'HLT_g22_tight_L1EM15VHI'
+
+#next option can be used in case the PileUpReweighting is not set before
+#alg.PhotonEfficiencyCorrectionTool.UseRandomRunNumber = False
+#alg.PhotonEfficiencyCorrectionTool.DefaultRandomRunNumber = 325713
+
 
 #Set DataType: for data use 0 (or don't run the tool - faster), for FULLSIM use 1, and for FASTSIM use 3, please note that the input files are also should be different
 alg.PhotonEfficiencyCorrectionTool.ForceDataType = 1
