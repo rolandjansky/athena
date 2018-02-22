@@ -866,11 +866,11 @@ namespace top {
                     systematicTree->makeOutputVariable(m_klfitter_model_lj1_from_top1_E,"klfitter_model_lj1_from_top1_E");
                     systematicTree->makeOutputVariable(m_klfitter_model_lj1_from_top1_jetIndex,"klfitter_model_lj1_from_top1_jetIndex");
 
-                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top1_pt,"klfitter_model_lj1_from_top1_pt");
-                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top1_eta,"klfitter_model_lj1_from_top1_eta");
-                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top1_phi,"klfitter_model_lj1_from_top1_phi");
-                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top1_E,"klfitter_model_lj1_from_top1_E");
-                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top1_jetIndex,"klfitter_model_lj1_from_top1_jetIndex");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top1_pt,"klfitter_model_lj2_from_top1_pt");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top1_eta,"klfitter_model_lj2_from_top1_eta");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top1_phi,"klfitter_model_lj2_from_top1_phi");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top1_E,"klfitter_model_lj2_from_top1_E");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top1_jetIndex,"klfitter_model_lj2_from_top1_jetIndex");
 
                     systematicTree->makeOutputVariable(m_klfitter_model_lj1_from_top2_pt,"klfitter_model_lj1_from_top2_pt");
                     systematicTree->makeOutputVariable(m_klfitter_model_lj1_from_top2_eta,"klfitter_model_lj1_from_top2_eta");
@@ -878,11 +878,11 @@ namespace top {
                     systematicTree->makeOutputVariable(m_klfitter_model_lj1_from_top2_E,"klfitter_model_lj1_from_top2_E");
                     systematicTree->makeOutputVariable(m_klfitter_model_lj1_from_top2_jetIndex,"klfitter_model_lj1_from_top2_jetIndex");
 
-                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top2_pt,"klfitter_model_lj1_from_top2_pt");
-                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top2_eta,"klfitter_model_lj1_from_top2_eta");
-                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top2_phi,"klfitter_model_lj1_from_top2_phi");
-                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top2_E,"klfitter_model_lj1_from_top2_E");
-                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top2_jetIndex,"klfitter_model_lj1_from_top2_jetIndex");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top2_pt,"klfitter_model_lj2_from_top2_pt");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top2_eta,"klfitter_model_lj2_from_top2_eta");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top2_phi,"klfitter_model_lj2_from_top2_phi");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top2_E,"klfitter_model_lj2_from_top2_E");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top2_jetIndex,"klfitter_model_lj2_from_top2_jetIndex");
 
                   }
                 }
