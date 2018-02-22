@@ -5,122 +5,168 @@
 /**
  * @file SCT_RODVetoTool_test.cxx
  * Unit tests to test the methods of 
- * SCT_RodVetoSvc
+ * SCT_RodVetoTool
  *
  * @author fschenck@cern.ch
  *
  * */
 
-// Framework
-#include "TestTools/initGaudi.h"
+// GenParticleGenericFilter_test.cxx
+// http://acode-browser1.usatlas.bnl.gov/lxr/source/athena/Simulation/ISF/ISF_HepMC/ISF_HepMC_Tools/test/GenParticleGenericFilter_test.cxx
 
 // Google Test
 #include "gtest/gtest.h"
-//#include "gmock/gmock.h"
 
+// Framework
+#include "TestTools/initGaudi.h"
+
+//Gaudi includes
+// #include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/IAppMgrUI.h"
+#include "GaudiKernel/SmartIF.h"
+#include "GaudiKernel/IToolSvc.h"
+#include "GaudiKernel/ISvcLocator.h"
+#include "GaudiKernel/IProperty.h"
+#include "GaudiKernel/ServiceHandle.h"
+
+// Tested AthAlgTool
+#include "../src/SCT_RODVetoTool.h"
 
 // ATLAS C++
 #include "CxxUtils/make_unique.h"
 
-// Tested Algorithms
-#include "../src/SCT_RODVetoTool.h"
-
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "AthenaBaseComps/AthService.h"
 
+#include "StoreGate/DataHandle.h"
+#include "StoreGate/StoreGateSvc.h"
 
 #include "Identifier/IdentifierHash.h"
 #include "Identifier/Identifier.h"
 
-//Gaudi includes
-#include "AthenaBaseComps/AthService.h"
-#include "StoreGate/DataHandle.h"
-#include "StoreGate/StoreGateSvc.h"
-
-//local includes
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
 #include "SCT_ConditionsTools/ISCT_ConditionsTool.h"
 #include "SCT_Cabling/SCT_CablingSvc.h"
 #include "SCT_Cabling/ISCT_FillCabling.h"
-#include "src/SCT_FillCablingFromText.h"
-//#include "mock_CablingSvc.h"
-
+// #include "src/SCT_FillCablingFromText.h"
 
 #include "InDetIdentifier/SCT_ID.h"
 
+namespace SCT_test {
 
-// global test environment takes care of setting up Gaudi
-class GaudiEnvironment : public ::testing::Environment {
-  protected:
-    virtual void SetUp() override {
-        ISvcLocator* g_svcLoc =  Gaudi::svcLocator();
+// Gaudi Test fixture that provides a clean Gaudi environment for
+// each individual test case
+class GaudiFixture {
 
-	Athena_test::initGaudi(g_svcLoc);
+protected:
+  GaudiFixture() {
+    SetUpGaudi();
+  }
+  ~GaudiFixture() {
+    TearDownGaudi();
+  }
 
-        // Needed for the setup of StorgateSvc
-        const SCT_ID * pHelper = new SCT_ID();
+  void SetUpGaudi() {
+    m_appMgr = Gaudi::createApplicationMgr();
+    ASSERT_TRUE( m_appMgr!=nullptr );
 
-        // Easy way to set up services
-        const ServiceLocatorHelper helper(*g_svcLoc, "HELPER");
+    m_svcLoc = m_appMgr;
+    ASSERT_TRUE( m_svcLoc.isValid() );
 
-        // Set up a new StoreGateSvc instance named DetectorStore, as SCT_RODVetoTool needs
-        IService* i_svc = helper.service("StoreGateSvc/DetectorStore", true /*quiet*/ , true /*createIf*/);
-        StoreGateSvc* detStore = dynamic_cast<StoreGateSvc*> (i_svc);
-        if (detStore) {
-            StatusCode sc = detStore->record(pHelper, "SCT_ID");
-        } else {
-            delete pHelper;
-            pHelper = nullptr;
-        }
+    m_svcMgr = m_appMgr;
+    ASSERT_TRUE( m_svcMgr.isValid() );
+
+    m_propMgr = m_appMgr;
+    ASSERT_TRUE( m_propMgr.isValid() );
+    ASSERT_TRUE( m_propMgr->setProperty("EvtSel", "NONE").isSuccess() );
+    ASSERT_TRUE( m_propMgr->setProperty("JobOptionsType", "NONE").isSuccess() );
+
+    m_toolSvc = m_svcLoc->service("ToolSvc");
+    ASSERT_TRUE( m_toolSvc.isValid() );
+
+    ASSERT_TRUE( m_appMgr->configure().isSuccess() );
+    ASSERT_TRUE( m_appMgr->initialize().isSuccess() );
+
+    // Easy way to set up services
+    const ServiceLocatorHelper helper(*m_svcLoc, "HELPER");
+
+    // Set up a new StoreGateSvc instance named DetectorStore, as SCT_RODVetoTool needs
+    IService* i_svcD = helper.service("StoreGateSvc/DetectorStore", true /*quiet*/ , true /*createIf*/);
+    StoreGateSvc* detStore = dynamic_cast<StoreGateSvc*>(i_svcD);
+    if (detStore) {
+      if (not detStore->contains<SCT_ID>("SCT_ID")) {
+        // Needed for SCT_RODVetoTool
+        const SCT_ID* pHelper = new SCT_ID();
+        StatusCode sc = detStore->record(pHelper, "SCT_ID");
+        sc.setChecked();
+      }
     }
+
+    IService* i_svcE = helper.service("StoreGateSvc/StoreGateSvc", true /*quiet*/ , true /*createIf*/);
+    StoreGateSvc* evtStore = dynamic_cast<StoreGateSvc*>(i_svcE);
+    if (evtStore) {
+      if (not evtStore->contains<IdentifierSet>("BadSCTModuleIds_RODVeto")) {
+        IdentifierSet* pseudoData = new IdentifierSet{};
+        StatusCode sc = evtStore->record(pseudoData, "BadSCTModuleIds_RODVeto");
+        if (sc.isFailure()) {
+          std::cout << "evtStore could not record BadSCTModuleIds_RODVeto" << std::endl;
+        }
+      }
+    } else {
+      std::cout << "evtStore could not be retrieved" << std::endl;
+    }
+  }
+
+  void TearDownGaudi() {
+    ASSERT_TRUE( m_appMgr->finalize().isSuccess() );
+    ASSERT_TRUE( m_appMgr->terminate().isSuccess() );
+    Gaudi::setInstance( static_cast<IAppMgrUI*>(nullptr) );
+  }
+
+  // protected member variables for Core Gaudi components
+  IAppMgrUI* m_appMgr = nullptr;
+  SmartIF<ISvcLocator> m_svcLoc;
+  SmartIF<ISvcManager> m_svcMgr;
+  SmartIF<IToolSvc> m_toolSvc;
+  SmartIF<IProperty> m_propMgr;
 };
 
+class SCT_RODVetoTool_test: public ::testing::Test, public GaudiFixture {
 
+protected:
+  virtual void SetUp() override {
+    IAlgTool* tool = nullptr;
+    m_toolSvc->retrieveTool("SCT_RODVetoTool/SCT_RODVetoTool", tool);
+    m_tool = dynamic_cast<SCT_RODVetoTool*>(tool);
+  }
 
-class SCT_RODVetoTool_test: public ::testing::Test{
-
-  protected:
-
-
-    virtual void SetUp() override {
-        ISCT_ConditionsTool* parent{nullptr};
-        m_tool = new SCT_RODVetoTool("SCT_RODVetoTool", "SCT_RODVetoTool", parent);
-        
+  virtual void TearDown() override {
+    for (size_t refCount = m_tool->refCount(); refCount>0; refCount--) {
+      StatusCode sc = m_toolSvc->releaseTool(m_tool);
+      ASSERT_TRUE( sc.isSuccess() );
     }
+  }   
 
-
-    virtual void TearDown() override {
-    	delete m_tool;
-    }   
-
-
-
-    SCT_RODVetoTool* m_tool = nullptr;
-    };
-
-
-
+  // the tested AthAlgTool
+  SCT_RODVetoTool* m_tool = nullptr;
+};
 
 TEST_F(SCT_RODVetoTool_test, Initialization) {
   ASSERT_TRUE( m_tool->initialize().isSuccess() );
 }
-
+  
 TEST_F(SCT_RODVetoTool_test, Finalization) {
   ASSERT_TRUE( m_tool->finalize().isSuccess() );
-  }
-
+}
 
 TEST_F(SCT_RODVetoTool_test, queryInterface) {
-
   //It wants a pointer to a pointer, I give it a pointer to a pointer
   void* b = nullptr;
   void** ppvInterface = &b;
-  const InterfaceID rrid("ISCT_ConditionsSvc", 1, 0);
+  const InterfaceID rrid("ISCT_ConditionsTool", 1, 0);
   ASSERT_TRUE( m_tool->queryInterface(rrid  ,ppvInterface ).isSuccess() );
-  }
+}
 
-
- 
 TEST_F(SCT_RODVetoTool_test, canReportAbout) {
   ASSERT_TRUE(  m_tool->canReportAbout(InDetConditions::DEFAULT)  );
 }
@@ -143,52 +189,15 @@ TEST_F(SCT_RODVetoTool_test, isGood) {
 }
 */
 
-
 TEST_F(SCT_RODVetoTool_test, isGood) {
   m_tool->initialize(); 
-  const Identifier elementId (0);
-
-
+  const Identifier elementId(0);
   ASSERT_TRUE(  m_tool->isGood( elementId , InDetConditions::DEFAULT)  );
 }
-     
 
+} // namespace SCT_test
 
-// TEST_F(SCT_RODVetoTool_test, fillData ) {
-//   m_tool->initialize();
-//   ASSERT_FALSE(  m_tool->fillData().isSuccess()  );
-// }
-
-
-// TEST_F(SCT_RODVetoTool_test, canFillDuringInitialization) {
-//   ASSERT_FALSE(  m_tool->canFillDuringInitialize()  );
-// }
-
-
-// TEST_F(SCT_RODVetoTool_test, isFilled ) {
-//  m_tool->initialize();
- 
-//   auto bad_elems = CxxUtils::make_unique< std::vector<unsigned int> > ();
-//   SG::WriteHandle< std::vector<unsigned int> > wh_badRODElements{"BadRODIdentifiers"};
-//   wh_badRODElements.initialize();
-//   wh_badRODElements.record( std::move(bad_elems) );
-//   wh_badRODElements->push_back(0x240100 );
-//   std::cout << wh_badRODElements.key() << std::endl;
-//   std::cout << wh_badRODElements->at(0) << std::endl;
-
-
-//   m_tool->fillData();
-
-//   ASSERT_TRUE(  m_tool->filled()   );
-// }
-
-
-
-
-int main(int argc, char *argv[]){
-      
-     ::testing::InitGoogleTest( &argc, argv );
-     //::testing::InitGoogleMock( &argc, argv );
-     ::testing::AddGlobalTestEnvironment( new GaudiEnvironment );
-     return RUN_ALL_TESTS();
+int main(int argc, char *argv[]) {
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }
