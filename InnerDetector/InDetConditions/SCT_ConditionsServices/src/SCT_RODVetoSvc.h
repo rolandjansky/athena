@@ -26,12 +26,10 @@
 //Athena includes
 #include "Identifier/Identifier.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
-
-//local includes
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
 #include "SCT_ConditionsServices/ISCT_ConditionsSvc.h"
 #include "SCT_Cabling/ISCT_CablingSvc.h"
-
+#include "SCT_ConditionsData/IdentifierSet.h"
 
 //forward declarations
 template <class TYPE> class SvcFactory;
@@ -98,7 +96,8 @@ private:
 
   // The vector of bad rods should be kept in a threadsafe way so it can 
   // be called and read safely.
-  SG::ReadHandleKey< std::vector<unsigned int> > m_badRODElements;
+  SG::ReadHandleKey<std::vector<unsigned int> > m_badRODElements;
+  SG::ReadHandleKey<IdentifierSet> m_badModuleIds;
 
   std::set<Identifier> m_badIds;
 

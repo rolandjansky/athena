@@ -50,12 +50,14 @@ SCT_RODVetoSvc::SCT_RODVetoSvc( const std::string& name, ISvcLocator* pSvcLocato
   AthService(name, pSvcLocator), 
   m_cabling("SCT_CablingSvc",name),
   m_badRODElements("BadRODIdentifiers"),
+  m_badModuleIds{"BadModuleIdentifiers"},
   m_wFilled("isFilled"), 
   m_rFilled("isFilled"),
   m_pHelper{nullptr},
   m_detStore("DetectorStore", name)
   {
-    declareProperty("BadRODIdentifiers",m_badRODElements );
+    declareProperty("BadRODIdentifiers", m_badRODElements, "Read key for bad ROD identifiers");
+    declareProperty("BadModuleIdentifiers", m_badModuleIds, "Read key for bad module identifiers");
     declareProperty("w_isFilled", m_wFilled );
     declareProperty("r_isFilled", m_rFilled );
   }
@@ -67,6 +69,7 @@ SCT_RODVetoSvc::initialize(){
   ATH_CHECK(m_detStore->retrieve(m_pHelper, "SCT_ID"));
   ATH_CHECK(m_cabling.retrieve());
   ATH_CHECK(m_badRODElements.initialize());
+  ATH_CHECK(m_badModuleIds.initialize());
   ATH_CHECK(m_wFilled.initialize());
   ATH_CHECK(m_rFilled.initialize());
  
