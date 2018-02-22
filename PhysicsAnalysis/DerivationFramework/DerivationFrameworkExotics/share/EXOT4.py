@@ -134,9 +134,7 @@ if isMC:
 # in the next lines: actually make the AntiKt4Truth, Track and EMTopo jet using
 # the topo clusters lists that have the electron-matched clusters removed
 if isMC:
-   jfind_noel_truth = jtm.addStandardJets("AntiKt", 0.4, "TruthNoEl", customGetters = "truthNoEl", mods = "truthNoEl",
-                ptmin=10000, algseq = exot4Seq,
-                calibOpt="")
+   jfind_noel_truth = jtm.addJetFinder("AntiKt4TruthNoElJets", "AntiKt", 0.4, "truthNoEl","truthNoEl", ghostArea=0.0 , ptmin=10000, ptminFilter=70000,calibOpt="")
 
 
 # add algorithms in the sequence that calculate the b-tagging variables
@@ -165,11 +163,11 @@ btag_jetnoel_track = ConfInst.setupJetBTaggerTool(ToolSvc, JetCollection="AntiKt
 jtm.modifiersMap["akt4tracknoel"] = jtm.modifiersMap["track"] + [btag_jetnoel_track]
 jtm.modifiersMap["akt4emtoponoel"] = jtm.modifiersMap["emtopo_ungroomed"] + [btag_jetnoel]
 
-jfind_smallnoel_trk = jtm.addStandardJets("AntiKt", 0.4, "TrackNoEl", customGetters = "TrkJetElRemovalgetter", mods = "akt4tracknoel",
-                ptmin=10000, algseq = exot4Seq)
+jfind_smallnoel_trk = jtm.addJetFinder("AntiKt4TrackNoElJets", "AntiKt", 0.4, "TrkJetElRemovalgetter", "akt4tracknoel",
+                ghostArea=0.01 , ptmin=10000, ptminFilter=10000)
 
-jfind_smallnoel_emtopo = jtm.addStandardJets("AntiKt", 0.4, "EMTopoNoEl", customGetters = "JetElRemovalgetter", mods = "akt4emtoponoel",
-                ptmin=10000, algseq = exot4Seq,
+jfind_smallnoel_emtopo = jtm.addJetFinder("AntiKt4EMTopoNoElJets", "AntiKt", 0.4, "JetElRemovalgetter", "akt4emtoponoel",
+                ghostArea=0.01 , ptmin=10000, ptminFilter=10000,
                 calibOpt="none")
 
 # the jet finder tool has been created, but
