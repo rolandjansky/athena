@@ -88,8 +88,7 @@ private:
 
   ServiceHandle<ISCT_CablingSvc> m_cabling;
 
-  
-
+  const IdentifierSet* getCondData() const;
 
   //UnsignedIntegerArrayProperty m_badRODElements;
   

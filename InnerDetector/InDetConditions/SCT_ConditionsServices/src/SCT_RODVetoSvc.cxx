@@ -111,8 +111,14 @@ SCT_RODVetoSvc::canReportAbout(InDetConditions::Hierarchy h){
 bool 
 SCT_RODVetoSvc::isGood(const Identifier & elementId, InDetConditions::Hierarchy h){
   if (not canReportAbout(h)) return true;
-  if (not filled() and fillData().isFailure()) ATH_MSG_WARNING("Data structure could not be filled");
-  bool result = (m_badIds.find(elementId) == m_badIds.end());
+  //  if (not filled() and fillData().isFailure()) ATH_MSG_WARNING("Data structure could not be filled");
+  //  bool result = (m_badIds.find(elementId) == m_badIds.end());
+  const IdentifierSet* badIds{getCondData()};
+  if (badIds==nullptr) {
+    ATH_MSG_ERROR("IdentifierSet cannot be retrieved in isGood. true is returned.");
+    return true;
+  }
+  bool result = (badIds->find(elementId) == badIds->end());
   return result;
 }
 
@@ -216,4 +222,14 @@ SCT_RODVetoSvc::filled() const{
     ATH_MSG_INFO("No value found for isFilled in SG, assuming false");
     return false;
   }else return *rFilled;
+}
+
+const IdentifierSet*
+SCT_RODVetoSvc::getCondData() const {
+  SG::ReadHandle<IdentifierSet> condData{m_badModuleIds};
+  if (not condData.isValid()) {
+    ATH_MSG_ERROR("Failed to get " << m_badModuleIds.key());
+    return nullptr;
+  }
+  return condData.cptr();
 }
