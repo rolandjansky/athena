@@ -51,8 +51,7 @@ from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFram
 HIGG2D1TPThinningTool = DerivationFramework__TrackParticleThinning(name                   = "HIGG2D1TPThinningTool",
                                                                    ThinningService        = HIGG2D1ThinningHelper.ThinningSvc(),
                                                                    SelectionString        = thinning_expression,
-                                                                   InDetTrackParticlesKey = "InDetTrackParticles",
-                                                                   ApplyAnd               = True)
+                                                                   InDetTrackParticlesKey = "InDetTrackParticles")
 ToolSvc += HIGG2D1TPThinningTool
 thinningTools.append(HIGG2D1TPThinningTool)
 
@@ -60,8 +59,7 @@ from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFram
 HIGG2D1EMJetTPThinningTool = DerivationFramework__JetTrackParticleThinning(name                   = "HIGG2D1EMJetTPThinningTool",
                                                                            ThinningService        = HIGG2D1ThinningHelper.ThinningSvc(),
                                                                            JetKey                 = "AntiKt4EMTopoJets",
-                                                                           InDetTrackParticlesKey = "InDetTrackParticles",
-                                                                           ApplyAnd               = True)
+                                                                           InDetTrackParticlesKey = "InDetTrackParticles")
 ToolSvc += HIGG2D1EMJetTPThinningTool
 thinningTools.append(HIGG2D1EMJetTPThinningTool)
 
