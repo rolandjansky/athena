@@ -64,6 +64,13 @@ Bdataset_number/I:physics_short/C:crossSection_pb/D:kFactor/D:genFiltEff/D:cross
 410189  Sherpa_NNPDF30NNLO_ttbar_dilepton_MEPS_NLO                    76.22             1.1484          1.0000E+00         0.0    
 
 # Filtered samples
+407342  PhPy8EG_A14_ttbarHT1k5_hdamp258p75_nonallhad                  729.77            1.1397          6.1293E-04         0.0
+407343  PhPy8EG_A14_ttbarHT1k_1k5_hdamp258p75_nonallhad               729.77            1.1397          3.5564E-03         0.0
+407344  PhPy8EG_A14_ttbarHT6c_1k_hdamp258p75_nonallhad                729.77            1.1397          2.5639E-02         0.0
+407345  PhPy8EG_A14_ttbarMET200_300_hdamp258p75_nonallhad             729.77            1.1397          8.0692E-03         0.0
+407346  PhPy8EG_A14_ttbarMET300_400_hdamp258p75_nonallhad             729.77            1.1397          1.1196E-03         0.0
+407347  PhPy8EG_A14_ttbarMET400_hdamp258p75_nonallhad                 729.77            1.1397          3.1421E-04         0.0
+
 407009  PowhegPythiaEvtGen_P2012CT10_ttbarHT6c_1k_hdamp172p5_nonAH    696.22            1.1949          0.022921           0.0    
 407010  PowhegPythiaEvtGen_P2012CT10_ttbarHT1k_1k5_hdamp172p5_nonAH   696.23            1.1949          0.003204335        0.0    
 407011  PowhegPythiaEvtGen_P2012CT10_ttbarHT1k5_hdamp172p5_nonAH      696.23            1.1949          0.000565234        0.0    
