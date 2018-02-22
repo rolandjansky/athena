@@ -156,7 +156,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_eled0sig(-99.),
     m_elez0(-99.),
     m_elebaselined0sig(-99.),
-    m_elebaselinez0(-99.),
+    m_elebaselinez0(0.5),
     //
     m_muBaselinePt(-99.),
     m_muBaselineEta(-99.),
@@ -165,7 +165,7 @@ SUSYObjDef_xAOD::SUSYObjDef_xAOD( const std::string& name )
     m_mud0sig(-99.),
     m_muz0(-99.),
     m_mubaselined0sig(-99.),
-    m_mubaselinez0(-99.),
+    m_mubaselinez0(0.5),
     m_murequirepassedHighPtCuts(false),
     m_muCosmicz0(-99.),
     m_muCosmicd0(-99.),
@@ -1019,7 +1019,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_eled0sig, "Ele.d0sig", rEnv, 5.);
   configFromFile(m_elez0, "Ele.z0", rEnv, 0.5);
   configFromFile(m_elebaselined0sig, "EleBaseline.d0sig", rEnv, -99.);
-  configFromFile(m_elebaselinez0, "EleBaseline.z0", rEnv, -99.);
+  configFromFile(m_elebaselinez0, "EleBaseline.z0", rEnv, 0.5);
   configFromFile(m_EG_corrModel, "Ele.EffNPcorrModel", rEnv, "TOTAL");
   configFromFile(m_electronTriggerSFStringSingle, "Ele.TriggerSFStringSingle", rEnv, "SINGLE_E_2015_e24_lhmedium_L1EM20VH_OR_e60_lhmedium_OR_e120_lhloose_2016_e26_lhtight_nod0_ivarloose_OR_e60_lhmedium_nod0_OR_e140_lhloose_nod0");
   configFromFile(m_electronTriggerSFStringDiLepton, "Ele.TriggerSFStringDi", rEnv, "DI_E_2015_e12_lhloose_L1EM10VH_2016_e17_lhvloose_nod0");
@@ -1036,7 +1036,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_mud0sig, "Muon.d0sig", rEnv, 3.);
   configFromFile(m_muz0, "Muon.z0", rEnv, 0.5);
   configFromFile(m_mubaselined0sig, "MuonBaseline.d0sig", rEnv, -99.);
-  configFromFile(m_mubaselinez0, "MuonBaseline.z0", rEnv, -99.);
+  configFromFile(m_mubaselinez0, "MuonBaseline.z0", rEnv, 0.5);
   configFromFile(m_murequirepassedHighPtCuts, "Muon.passedHighPt", rEnv, false);
   //
   configFromFile(m_muCosmicz0, "MuonCosmic.z0", rEnv, 1.);
