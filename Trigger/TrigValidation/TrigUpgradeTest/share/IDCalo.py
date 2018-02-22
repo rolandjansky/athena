@@ -18,18 +18,7 @@ from AthenaCommon.AlgSequence import AthSequencer
 viewSeq = AthSequencer("AthViewSeq", Sequential=True, ModeOR=False, StopOverride=False)
 topSequence += viewSeq
 
-#Create IdentifiableCaches
-from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__CacheCreator
-InDetCacheCreatorTrigViews = InDet__CacheCreator(name = "InDetCacheCreatorTrigViews",
-                                     Pixel_ClusterKey = "PixelTrigClustersCache",
-                                     SCT_ClusterKey   = "SCT_ClustersCache",
-                                     SpacePointCachePix = "PixelSpacePointCache",
-                                     SpacePointCacheSCT   = "SctSpacePointCache",
-                                     SCTRDOCacheKey       = "SctRDOCache",
-                                     PixRDOCacheKey = "PixRDOCache",
-                                     OutputLevel=DEBUG)
-viewSeq += InDetCacheCreatorTrigViews
-
+  
 # View maker alg
 viewNodeName = "allViewAlgorithms"
 viewMaker = CfgMgr.AthViews__RoiCollectionToViews("viewMaker")
@@ -43,10 +32,6 @@ viewSeq += viewMaker
 # Set of view algs
 allViewAlgorithms = AthSequencer(viewNodeName, Sequential=False, ModeOR=False, StopOverride=False)
 viewSeq += allViewAlgorithms
-
-
-from InDetRecExample.InDetKeys import InDetKeys
-
 
 
 if TriggerFlags.doID:
@@ -75,6 +60,18 @@ if TriggerFlags.doID:
   include("InDetRecExample/InDetRecConditionsAccess.py")
   
   from InDetRecExample.InDetKeys import InDetKeys
+  #Create IdentifiableCaches
+  from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__CacheCreator
+  InDetCacheCreatorTrigViews = InDet__CacheCreator(name = "InDetCacheCreatorTrigViews",
+                                       Pixel_ClusterKey = "PixelTrigClustersCache",
+                                       SCT_ClusterKey   = "SCT_ClustersCache",
+                                       SpacePointCachePix = "PixelSpacePointCache",
+                                       SpacePointCacheSCT   = "SctSpacePointCache",
+                                       SCTRDOCacheKey       = "SctRDOCache",
+                                       PixRDOCacheKey = "PixRDOCache",
+                                       OutputLevel=DEBUG)
+  viewSeq += InDetCacheCreatorTrigViews
+
   
   #Only add raw data decoders to AlgSeq if we're running over raw data
   if isData:
