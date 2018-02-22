@@ -31,10 +31,13 @@ using xAOD::IParticle;
 
 
 BTaggingTruthTaggingTool::BTaggingTruthTaggingTool( const std::string & name)
-  : asg::AsgTool( name ){
+  : asg::AsgTool( name ),
+    m_effTool ("BTaggingEfficiencyTool/effTool", this),
+    m_selTool ("BTaggingSelectionTool/selTool", this)
+  {
 
   m_initialised = false;
-
+  m_jets = NULL;
   //  m_taggerName, m_OP, m_jetAuthor, m_SFfile
 
   // properties of BTaggingTruthTaggingTool
@@ -42,14 +45,10 @@ BTaggingTruthTaggingTool::BTaggingTruthTaggingTool( const std::string & name)
   declareProperty( "UsePermutations", m_usePerm=true, "if the chosen permutation is used, a reweighting is applied to the TRF weight for systematics");
   declareProperty( "UseQuantile", m_useQuntile=true, "if the chosen quantile is used, a reweighting is applied to the TRF weight for systematics");
 
-
   // properties of BtaggingSelectionTool
   declareProperty( "MaxEta", m_maxEta = 2.5 );
   declareProperty( "MinPt", m_minPt = 20000 /*MeV*/);
   declareProperty( "MaxRangePt", m_maxRangePt = 1000000 /*MeV*/);
-
-  // I put it = to CDI file for SF
-  //  declareProperty( "FlvTagCutDefinitionsFileName", m_CutFileName = "", "name of the files containing official cut definitions (uses PathResolver)");
 
   // properties of BTaggingEfficiencyTool
   declareProperty("TaggerName",                      m_taggerName="MV2c10",            "tagging algorithm name as specified in CDI file");
@@ -70,7 +69,6 @@ BTaggingTruthTaggingTool::BTaggingTruthTaggingTool( const std::string & name)
   declareProperty("EfficiencyTCalibrations",         m_EffTName = "default",     "(semicolon-separated) name(s) of tau-jet efficiency object(s)");
   declareProperty("EfficiencyLightCalibrations",     m_EffLightName = "default", "(semicolon-separated) name(s) of light-flavour-jet efficiency object(s)");
   declareProperty("ExcludeFromEigenVectorTreatment", m_excludeFromEV = "",       "(semicolon-separated) names of uncertainties to be excluded from eigenvector decomposition (if used)");
-  // declareProperty("ExcludeJESFromEVTreatment",       m_excludeJESFromEV = true,  "specify whether or not to exclude JES uncertainties from eigenvector decomposition (if used)");
   declareProperty("SystematicsStrategy",             m_systStrategy = "SFEigen", "name of systematics model; presently choose between 'SFEigen' and 'Envelope'");
   declareProperty("ConeFlavourLabel",                m_coneFlavourLabel = true, "specify whether or not to use the cone-based flavour labelling instead of the default ghost association based labelling");
   declareProperty("OldConeFlavourLabel",          m_oldConeFlavourLabel = false, "when using cone-based flavour labelling, specify whether or not to use the (deprecated) Run-1 legacy labelling");
@@ -96,42 +94,38 @@ StatusCode BTaggingTruthTaggingTool::initialize() {
 
   m_initialised = true;
 
-  m_selTool = new BTaggingSelectionTool(name()+"_sel");
+  ANA_CHECK(m_selTool.setProperty("MaxEta",  m_maxEta));
+  ANA_CHECK(m_selTool.setProperty("MaxRangePt",  m_maxRangePt));
+  ANA_CHECK(m_selTool.setProperty("MinPt",  m_minPt));
+  ANA_CHECK(m_selTool.setProperty("TaggerName",  m_taggerName));
+  ANA_CHECK(m_selTool.setProperty("OperatingPoint", m_OP));
+  ANA_CHECK(m_selTool.setProperty("JetAuthor", m_jetAuthor));
+  ANA_CHECK(m_selTool.setProperty("FlvTagCutDefinitionsFileName", m_SFFile));
+  ANA_CHECK(m_selTool.initialize());
 
-  ANA_CHECK(m_selTool->setProperty("MaxEta",  m_maxEta));
-  ANA_CHECK(m_selTool->setProperty("MaxRangePt",  m_maxRangePt));
-  ANA_CHECK(m_selTool->setProperty("MinPt",  m_minPt));
-  ANA_CHECK(m_selTool->setProperty("TaggerName",  m_taggerName));
-  ANA_CHECK(m_selTool->setProperty("OperatingPoint", m_OP));
-  ANA_CHECK(m_selTool->setProperty("JetAuthor", m_jetAuthor));
-  ANA_CHECK(m_selTool->setProperty("FlvTagCutDefinitionsFileName", m_SFFile));
-  ANA_CHECK(m_selTool->initialize());
+  ANA_CHECK(m_effTool.setProperty("TaggerName",                      m_taggerName));
+  ANA_CHECK(m_effTool.setProperty("OperatingPoint",                  m_OP));
+  ANA_CHECK(m_effTool.setProperty("JetAuthor",                       m_jetAuthor));
+  ANA_CHECK(m_effTool.setProperty("ScaleFactorFileName",             m_SFFile ));
+  ANA_CHECK(m_effTool.setProperty("UseDevelopmentFile",              m_useDevFile ));
+  ANA_CHECK(m_effTool.setProperty("EfficiencyFileName",              m_EffFile ));
+  ANA_CHECK(m_effTool.setProperty("ScaleFactorBCalibration",         m_SFBName ));
+  ANA_CHECK(m_effTool.setProperty("ScaleFactorCCalibration",         m_SFCName ));
+  ANA_CHECK(m_effTool.setProperty("ScaleFactorTCalibration",         m_SFTName ));
+  ANA_CHECK(m_effTool.setProperty("ScaleFactorLightCalibration",     m_SFLightName ));
+  ANA_CHECK(m_effTool.setProperty("EigenvectorReductionB",           m_EVReductionB ));
+  ANA_CHECK(m_effTool.setProperty("EigenvectorReductionC",           m_EVReductionC ));
+  ANA_CHECK(m_effTool.setProperty("EigenvectorReductionLight",       m_EVReductionLight ));
+  ANA_CHECK(m_effTool.setProperty("EfficiencyBCalibrations",         m_EffBName ));
+  ANA_CHECK(m_effTool.setProperty("EfficiencyCCalibrations",         m_EffCName ));
+  ANA_CHECK(m_effTool.setProperty("EfficiencyTCalibrations",         m_EffTName ));
+  ANA_CHECK(m_effTool.setProperty("EfficiencyLightCalibrations",     m_EffLightName ));
+  ANA_CHECK(m_effTool.setProperty("ExcludeFromEigenVectorTreatment", m_excludeFromEV ));
+  ANA_CHECK(m_effTool.setProperty("SystematicsStrategy",             m_systStrategy ));
+  ANA_CHECK(m_effTool.setProperty("ConeFlavourLabel",                m_coneFlavourLabel ));
+  ANA_CHECK(m_effTool.setProperty("OldConeFlavourLabel",          m_oldConeFlavourLabel ));
 
-  m_effTool = new BTaggingEfficiencyTool(name()+"_eff");
-  ANA_CHECK(m_effTool->setProperty("TaggerName",                      m_taggerName));
-  ANA_CHECK(m_effTool->setProperty("OperatingPoint",                  m_OP));
-  ANA_CHECK(m_effTool->setProperty("JetAuthor",                       m_jetAuthor));
-  ANA_CHECK(m_effTool->setProperty("ScaleFactorFileName",             m_SFFile ));
-  ANA_CHECK(m_effTool->setProperty("UseDevelopmentFile",              m_useDevFile ));
-  ANA_CHECK(m_effTool->setProperty("EfficiencyFileName",              m_EffFile ));
-  ANA_CHECK(m_effTool->setProperty("ScaleFactorBCalibration",         m_SFBName ));
-  ANA_CHECK(m_effTool->setProperty("ScaleFactorCCalibration",         m_SFCName ));
-  ANA_CHECK(m_effTool->setProperty("ScaleFactorTCalibration",         m_SFTName ));
-  ANA_CHECK(m_effTool->setProperty("ScaleFactorLightCalibration",     m_SFLightName ));
-  ANA_CHECK(m_effTool->setProperty("EigenvectorReductionB",           m_EVReductionB ));
-  ANA_CHECK(m_effTool->setProperty("EigenvectorReductionC",           m_EVReductionC ));
-  ANA_CHECK(m_effTool->setProperty("EigenvectorReductionLight",       m_EVReductionLight ));
-  ANA_CHECK(m_effTool->setProperty("EfficiencyBCalibrations",         m_EffBName ));
-  ANA_CHECK(m_effTool->setProperty("EfficiencyCCalibrations",         m_EffCName ));
-  ANA_CHECK(m_effTool->setProperty("EfficiencyTCalibrations",         m_EffTName ));
-  ANA_CHECK(m_effTool->setProperty("EfficiencyLightCalibrations",     m_EffLightName ));
-  ANA_CHECK(m_effTool->setProperty("ExcludeFromEigenVectorTreatment", m_excludeFromEV ));
-  // ANA_CHECK(m_effTool->setProperty("ExcludeJESFromEVTreatment",       m_excludeJESFromEV ));
-  ANA_CHECK(m_effTool->setProperty("SystematicsStrategy",             m_systStrategy ));
-  ANA_CHECK(m_effTool->setProperty("ConeFlavourLabel",                m_coneFlavourLabel ));
-  ANA_CHECK(m_effTool->setProperty("OldConeFlavourLabel",          m_oldConeFlavourLabel ));
-
-  ANA_CHECK(m_effTool->initialize());
+  ANA_CHECK(m_effTool.initialize());
 
   if(m_OP.find("FlatBEff") != std::string::npos){
     m_availableOP.resize(m_availableOP_fixEff.size());
@@ -165,39 +159,34 @@ StatusCode BTaggingTruthTaggingTool::initialize() {
   if(m_useQuntile){
     ATH_MSG_INFO("m_useQuantile true");
     for(unsigned int iop=0; iop<m_availableOP.size(); iop++){
-      std::string toolname = name()+"_eff_"+m_availableOP.at(iop);
-      if(iop == m_OperatingPoint_index){
-	m_effTool_allOP[m_availableOP.at(iop)] = m_effTool;
-	continue;
-      }
-      else {
-	m_effTool_allOP[m_availableOP.at(iop)] = new BTaggingEfficiencyTool(toolname);
-      }
 
-      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)]->setProperty("OperatingPoint", m_availableOP.at(iop)));
-      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)]->setProperty("TaggerName",                      m_taggerName));
-      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)]->setProperty("JetAuthor",                       m_jetAuthor));
-      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)]->setProperty("ScaleFactorFileName",             m_SFFile ));
-      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)]->setProperty("UseDevelopmentFile",              m_useDevFile ));
-      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)]->setProperty("EfficiencyFileName",              m_EffFile ));
-      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)]->setProperty("ScaleFactorBCalibration",         m_SFBName ));
-      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)]->setProperty("ScaleFactorCCalibration",         m_SFCName ));
-      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)]->setProperty("ScaleFactorTCalibration",         m_SFTName ));
-      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)]->setProperty("ScaleFactorLightCalibration",     m_SFLightName ));
-      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)]->setProperty("EigenvectorReductionB",           m_EVReductionB ));
-      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)]->setProperty("EigenvectorReductionC",           m_EVReductionC ));
-      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)]->setProperty("EigenvectorReductionLight",       m_EVReductionLight ));
-      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)]->setProperty("EfficiencyBCalibrations",         m_EffBName ));
-      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)]->setProperty("EfficiencyCCalibrations",         m_EffCName ));
-      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)]->setProperty("EfficiencyTCalibrations",         m_EffTName ));
-      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)]->setProperty("EfficiencyLightCalibrations",     m_EffLightName ));
-      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)]->setProperty("ExcludeFromEigenVectorTreatment", m_excludeFromEV ));
-      // ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)]->setProperty("ExcludeJESFromEVTreatment",       m_excludeJESFromEV ));
-      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)]->setProperty("SystematicsStrategy",             m_systStrategy ));
-      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)]->setProperty("ConeFlavourLabel",                m_coneFlavourLabel ));
-      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)]->setProperty("OldConeFlavourLabel",          m_oldConeFlavourLabel ));
+       std::string toolname = name()+"_eff_"+m_availableOP.at(iop);
 
-      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)]->initialize());
+       m_effTool_allOP[m_availableOP.at(iop)] = asg::AnaToolHandle<IBTaggingEfficiencyTool>("BTaggingEfficiencyTool/"+toolname, this);
+
+      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("OperatingPoint", m_availableOP.at(iop)));
+      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("TaggerName",                      m_taggerName));
+      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("JetAuthor",                       m_jetAuthor));
+      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("ScaleFactorFileName",             m_SFFile ));
+      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("UseDevelopmentFile",              m_useDevFile ));
+      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("EfficiencyFileName",              m_EffFile ));
+      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("ScaleFactorBCalibration",         m_SFBName ));
+      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("ScaleFactorCCalibration",         m_SFCName ));
+      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("ScaleFactorTCalibration",         m_SFTName ));
+      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("ScaleFactorLightCalibration",     m_SFLightName ));
+      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("EigenvectorReductionB",           m_EVReductionB ));
+      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("EigenvectorReductionC",           m_EVReductionC ));
+      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("EigenvectorReductionLight",       m_EVReductionLight ));
+      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("EfficiencyBCalibrations",         m_EffBName ));
+      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("EfficiencyCCalibrations",         m_EffCName ));
+      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("EfficiencyTCalibrations",         m_EffTName ));
+      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("EfficiencyLightCalibrations",     m_EffLightName ));
+      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("ExcludeFromEigenVectorTreatment", m_excludeFromEV ));
+      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("SystematicsStrategy",             m_systStrategy ));
+      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("ConeFlavourLabel",                m_coneFlavourLabel ));
+      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].setProperty("OldConeFlavourLabel",          m_oldConeFlavourLabel ));
+
+      ANA_CHECK(m_effTool_allOP[m_availableOP.at(iop)].initialize());
     }
   }
   return StatusCode::SUCCESS;
@@ -259,9 +248,9 @@ StatusCode BTaggingTruthTaggingTool::setJets(std::vector<int>* flav, std::vector
     m_jets->push_back(jetVar_appo);
   }
   m_njets=m_jets->size();
-  for(unsigned int i =0; i< m_jets->size(); i++){
-    //    m_jets->at(i).print();
-  }
+  // for(unsigned int i =0; i< m_jets->size(); i++){
+  //   m_jets->at(i).print();
+  // }
   return StatusCode::SUCCESS;
 }
 
@@ -272,15 +261,13 @@ bool BTaggingTruthTaggingTool::fillVariables( const xAOD::Jet & jet, Calibration
   x.jetEta = jet.eta();
   x.jetTagWeight = 0.;
   x.jetAuthor = m_jetAuthor;
-  //bool weightOK = true;
-  //  if (m_isContinuous) {
+
   const xAOD::BTagging* tagInfo = jet.btagging();
   if (!tagInfo) return false;
-  // x.jetTagWeight = (tagInfo->*m_getTagWeight)();
+
   return tagInfo->MVx_discriminant(m_taggerName, x.jetTagWeight);
   delete tagInfo;
-  //  }
-  //  return true;
+
 }
 
 bool BTaggingTruthTaggingTool::fillVariables( const double jetPt, const double jetEta, const double jetTagWeight, CalibrationDataVariables& x){
@@ -329,11 +316,7 @@ StatusCode BTaggingTruthTaggingTool::getTruthTagWei(unsigned int nbtag, std::vec
   m_trfRes.trfwsys_in.resize(m_eff_syst.size());
 
   std::vector<double> trf_weight_ex,  trf_weight_in;
-  //  trf_weight_ex.clear();
-  //  trf_weight_in.clear();
-  //  ANA_CHECK( getTruthTagWei(nbtag, trf_weight_ex, trf_weight_in, 0));
 
-  //for (auto& x: m_eff_syst) {
   for(unsigned int i =0; i< m_eff_syst.size(); i++){
     trf_weight_ex.clear();
     trf_weight_in.clear();
@@ -351,14 +334,6 @@ StatusCode BTaggingTruthTaggingTool::getTruthTagWei(unsigned int nbtag, std::vec
     }
   }
 
-  /*  for (auto& x: m_trfRes.trfwsys_ex) {
-    map_trf_weight_ex[x.first].resize(x.second.size());
-    map_trf_weight_ex[x.first]=x.second;
-  }
-  for (auto& x: m_trfRes.trfwsys_in) {
-    map_trf_weight_in[x.first].resize(x.second.size());
-    map_trf_weight_in[x.first]=x.second;
-    }*/
   return StatusCode::SUCCESS;
 }
 
@@ -403,7 +378,8 @@ StatusCode BTaggingTruthTaggingTool::getTruthTagWei(unsigned int nbtag, std::vec
 
 
 StatusCode BTaggingTruthTaggingTool::getAllEffMC(){
-  //  ANA_CHECK_SET_TYPE (CP::CorrectionCode);
+  ANA_CHECK_SET_TYPE (StatusCode);
+
   float eff =1.;
   float eff_all =1.;
   m_trfRes.effMC.clear();
@@ -413,18 +389,20 @@ StatusCode BTaggingTruthTaggingTool::getAllEffMC(){
   }
   for(unsigned int i=0; i<m_jets->size(); i++){
     eff=1.;
-    m_effTool->getMCEfficiency(m_jets->at(i).flav, m_jets->at(i).vars, eff);
-    m_trfRes.effMC.push_back(eff);
+     ANA_CHECK( m_effTool->getMCEfficiency(m_jets->at(i).flav, m_jets->at(i).vars, eff) );
+     m_trfRes.effMC.push_back(eff);
+
     if(m_useQuntile){
       // loop on OP
       for(auto op_appo: m_availableOP){
-	if (op_appo==m_OP) {
-	  m_trfRes.effMC_allOP[op_appo].push_back(eff);
-	  continue;
-	}
-	eff_all=1.;
-	m_effTool_allOP[op_appo]->getMCEfficiency(m_jets->at(i).flav, m_jets->at(i).vars, eff_all);
-	m_trfRes.effMC_allOP[op_appo].push_back(eff_all);
+	         if (op_appo==m_OP) {
+	           m_trfRes.effMC_allOP[op_appo].push_back(eff);
+	           continue;
+	     }
+
+      eff_all=1.;
+	    ANA_CHECK( m_effTool_allOP[op_appo]->getMCEfficiency(m_jets->at(i).flav, m_jets->at(i).vars, eff_all) );
+	    m_trfRes.effMC_allOP[op_appo].push_back(eff_all);
       } // end loop on OP
     } // if useQuantile
   } // end loop on jets
@@ -433,7 +411,7 @@ StatusCode BTaggingTruthTaggingTool::getAllEffMC(){
 
 
 StatusCode BTaggingTruthTaggingTool::getAllEffSF(int sys){
-  //  ANA_CHECK_SET_TYPE (CP::CorrectionCode);
+  ANA_CHECK_SET_TYPE ( StatusCode );
 
   m_trfRes.eff.clear();
   m_trfRes.eff.resize(m_trfRes.effMC.size());
@@ -465,18 +443,18 @@ StatusCode BTaggingTruthTaggingTool::getAllEffSF(int sys){
   float SF_all =1.;
 
   if(sys!=0){
-    m_effTool->applySystematicVariation(m_eff_syst[sys]);
+    ANA_CHECK( m_effTool->applySystematicVariation(m_eff_syst[sys]) );
     if(m_useQuntile){
       for(auto op_appo: m_availableOP){
 	if (op_appo==m_OP) continue;
-	m_effTool_allOP[op_appo]->applySystematicVariation(m_eff_syst[sys]);
+	ANA_CHECK( m_effTool_allOP[op_appo]->applySystematicVariation(m_eff_syst[sys]) );
       }
     }
   }
 
   for(unsigned int i=0; i<m_jets->size(); i++){
     SF=1.;
-    m_effTool->getScaleFactor(m_jets->at(i).flav, m_jets->at(i).vars, SF);
+    ANA_CHECK( m_effTool->getScaleFactor(m_jets->at(i).flav, m_jets->at(i).vars, SF) );
     m_trfRes.eff.at(i) = m_trfRes.effMC.at(i)*SF;
     if(m_useQuntile){
       // loop on OP
@@ -486,17 +464,17 @@ StatusCode BTaggingTruthTaggingTool::getAllEffSF(int sys){
 	  continue;
 	}
 	SF_all=1.;
-	m_effTool_allOP[op_appo]->getScaleFactor(m_jets->at(i).flav, m_jets->at(i).vars, SF_all);
+	ANA_CHECK( m_effTool_allOP[op_appo]->getScaleFactor(m_jets->at(i).flav, m_jets->at(i).vars, SF_all) );
 	m_trfRes.eff_allOP[op_appo].at(i) = m_trfRes.effMC_allOP[op_appo].at(i)*SF_all;
       } // end loop on OP
     } // if useQuantile
   }
 
   CP::SystematicSet defaultSet;
-  m_effTool->applySystematicVariation(defaultSet);
+  ANA_CHECK( m_effTool->applySystematicVariation(defaultSet) );
   if(m_useQuntile){
     for(auto op_appo: m_availableOP){
-      m_effTool_allOP[op_appo]->applySystematicVariation(defaultSet);
+      ANA_CHECK( m_effTool_allOP[op_appo]->applySystematicVariation(defaultSet) );
     }
   }
 
@@ -871,24 +849,6 @@ double BTaggingTruthTaggingTool::getTagBinsConfProb(std::vector<int> &tagws){
   return prob;
 }
 
-/*
-bool BTaggingTruthTaggingTool::checkRange(double pT, double eta) const
-{
-  // Do the |eta| cut:
-  if( eta > m_maxEta ) {
-    return false;
-  }
-
-  // Do the pT cut:
-  ATH_MSG_VERBOSE( "Jet pT: " << pT );
-  if( pT < m_minPt ) {
-    return false;
-  }
-
-  return true;
-}
-*/
-
 StatusCode BTaggingTruthTaggingTool::getDirectTaggedJets(std::vector<bool> &is_tagged){
   is_tagged.clear();
   std::vector<int> appo;
@@ -910,30 +870,29 @@ double BTaggingTruthTaggingTool::getEvtSF(int sys){
   ANA_CHECK(getDirectTaggedJets(is_tagged));
 
   if(sys!=0) {
-    //    ANA_CHECK_SET_TYPE(CP::SystematicCode);
-    m_effTool->applySystematicVariation(m_eff_syst[sys]);
+
+    ANA_CHECK( m_effTool->applySystematicVariation(m_eff_syst[sys]) );
   }
 
-  //  for(const auto jet : *m_jets) {
   for(unsigned int i =0; i< m_jets->size(); i++) {
     bool is_btagged = is_tagged.at(i);
     float ineffSF =1;
     float effSF=1;
-    //    ANA_CHECK_SET_TYPE(CP::CorrectionCode);
+
     if(is_btagged){    // tagged --> look at sf
-      m_effTool->getScaleFactor(m_jets->at(i).flav, m_jets->at(i).vars, ineffSF);
+      ANA_CHECK(m_effTool->getScaleFactor(m_jets->at(i).flav, m_jets->at(i).vars, ineffSF));
       SF*=ineffSF;
     }
     else{    // not tagged --> loop at ineff SF
-      ANA_CHECK(m_effTool->getInefficiencyScaleFactor(m_jets->at(i).flav, m_jets->at(i).vars, effSF));
+       ANA_CHECK(m_effTool->getInefficiencyScaleFactor(m_jets->at(i).flav, m_jets->at(i).vars, effSF));
       SF *= effSF;
     }
   }
 
   if(sys!=0) {  // reset syst to nominal
     CP::SystematicSet defaultSet;
-    //    ANA_CHECK_SET_TYPE(CP::SystematicCode);
-    m_effTool->applySystematicVariation(defaultSet);
+
+    ANA_CHECK( m_effTool->applySystematicVariation(defaultSet) );
   }
   return SF;
 }
@@ -951,18 +910,6 @@ BTaggingTruthTaggingTool::~BTaggingTruthTaggingTool(){
 
   delete m_jets;
 
-  delete m_selTool;
-  delete m_effTool;
-
-  if(m_useQuntile){
-    for(unsigned int iop=0; iop<m_availableOP.size(); iop++){
-      std::string toolname = name()+"_eff_"+m_availableOP.at(iop);
-      if(iop == m_OperatingPoint_index){
-      	continue;
-      }
-      delete m_effTool_allOP[m_availableOP.at(iop)];
-    }
-  }
 }
 
 
@@ -986,9 +933,6 @@ int BTaggingTruthTaggingTool::GAFinalHadronFlavourLabel (const xAOD::Jet& jet) {
   std::vector<const IParticle*> ghostTau;
   if (jet.getAssociatedObjects<IParticle>(labelTau, ghostTau) && ghostTau.size() > 0) return 15;
 
-  //  for(auto part: ghostB) delete part;
-  //  for(auto part: ghostC) delete part;
-  //  for(auto part: ghostTau) delete part;
 
   return 0;
 }

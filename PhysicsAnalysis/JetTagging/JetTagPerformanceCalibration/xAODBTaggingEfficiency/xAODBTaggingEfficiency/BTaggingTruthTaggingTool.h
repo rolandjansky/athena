@@ -25,8 +25,10 @@
 #include <map>
 
 // include xAODBtaggingEfficiency classes
+#include "FTagAnalysisInterfaces/IBTaggingEfficiencyTool.h"
+#include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
 #include "xAODBTaggingEfficiency/BTaggingEfficiencyTool.h"
-#include "xAODBTaggingEfficiency/BTaggingSelectionTool.h"
+#include <AsgTools/AnaToolHandle.h>
 
 // calibration data variable
 #include "CalibrationDataInterface/CalibrationDataVariables.h"
@@ -178,9 +180,14 @@ private:
   unsigned int m_OperatingPoint_index;
 
   // xAODBTaggingEfficiency classes
-  BTaggingEfficiencyTool* m_effTool;
-  std::map<std::string,BTaggingEfficiencyTool*> m_effTool_allOP; // tagbin
-  BTaggingSelectionTool* m_selTool;
+  // BTaggingEfficiencyTool* m_effTool;
+  //std::map<std::string,BTaggingEfficiencyTool*> m_effTool_allOP; // tagbin
+  // BTaggingSelectionTool* m_selTool;
+
+  std::map<std::string, asg::AnaToolHandle<IBTaggingEfficiencyTool> > m_effTool_allOP;
+
+  asg::AnaToolHandle<IBTaggingEfficiencyTool> m_effTool; //!
+  asg::AnaToolHandle<IBTaggingSelectionTool> m_selTool; //!
 
   //  other members
   unsigned int m_njets;
