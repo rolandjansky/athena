@@ -223,8 +223,6 @@ def setupMenu():
         ['mu4_mu2noL1_L1MU4', 'L1_MU4',  ['L1_MU4',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu4','mu2noL1']]],
         ['mu6_mu2noL1_L1MU6', 'L1_MU6',  ['L1_MU6',''], [PhysicsStream], ['RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu6','mu2noL1']]],
 
-	  #ATR-17600
-	  ['mu6_mu2noL1_msonly_bJpsimumu_noid','L1_MU6', ['L1_MU6',''], [PhysicsStream], ['RATE:IDMonitoring',BW_BphysTag, 'BW:ID'], -1, ['serial',-1,['mu6','mu2noL1_msonly']]],
 
 			 ]
 
@@ -2407,6 +2405,10 @@ def setupMenu():
         ['2mu4_bJpsimumu',                 'L1_2MU4', [], [PhysicsStream], [RATE_BphysTag,BW_BphysTag], -1],
         ['2mu4_bUpsimumu',                 'L1_2MU4', [], [PhysicsStream], [RATE_BphysTag,BW_BphysTag], -1],
 
+			 
+	  # ATR-17600 
+	  ['mu6_mu2noL1_msonly_bJpsimumu_noid','L1_MU6', ['L1_MU6',''], [PhysicsStream], ['RATE:IDMonitoring',BW_BphysTag, 'BW:ID'], -1, ['serial',-1,['mu6','mu2noL1_msonly']]],
+			 
 			 ]
 
     TriggerFlags.CombinedSlice.signatures = [
