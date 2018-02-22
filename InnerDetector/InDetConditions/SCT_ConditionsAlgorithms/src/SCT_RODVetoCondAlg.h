@@ -16,13 +16,16 @@
 // STL
 #include <string>
 #include <vector>
+#include <set>
 
 // Athena
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/WriteHandle.h"
-
-// Local
 #include "SCT_ConditionsServices/ISCT_ConditionsSvc.h"
+#include "SCT_Cabling/ISCT_CablingSvc.h"
+
+// Forward declarations
+class SCT_ID;
 
 /// Algorithm needs to show calling the SCT_RODVeto to exclude bad components
 class SCT_RODVetoCondAlg : public AthAlgorithm {
@@ -35,7 +38,10 @@ class SCT_RODVetoCondAlg : public AthAlgorithm {
   StatusCode finalize() override;
    
  private:
+  ServiceHandle<ISCT_CablingSvc> m_cabling;
+  const SCT_ID* m_pHelper;
   SG::WriteHandle<std::vector<unsigned int>> m_badRODElements;
+  std::set<Identifier> m_badIds;
   std::vector<unsigned int> m_badRODElementsInput;
 }; //end of class
 
