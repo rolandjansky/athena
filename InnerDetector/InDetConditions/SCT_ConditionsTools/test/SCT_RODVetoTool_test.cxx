@@ -11,8 +11,8 @@
  *
  * */
 
-// GenParticleGenericFilter_test.cxx
-// http://acode-browser1.usatlas.bnl.gov/lxr/source/athena/Simulation/ISF/ISF_HepMC/ISF_HepMC_Tools/test/GenParticleGenericFilter_test.cxx
+// This code was updated on 2018-02-22 by following
+// Simulation/ISF/ISF_HepMC/ISF_HepMC_Tools/test/GenParticleGenericFilter_test.cxx
 
 // Google Test
 #include "gtest/gtest.h"
@@ -21,35 +21,17 @@
 #include "TestTools/initGaudi.h"
 
 //Gaudi includes
-// #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/IAppMgrUI.h"
 #include "GaudiKernel/SmartIF.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IProperty.h"
-#include "GaudiKernel/ServiceHandle.h"
 
 // Tested AthAlgTool
 #include "../src/SCT_RODVetoTool.h"
 
 // ATLAS C++
-#include "CxxUtils/make_unique.h"
-
-#include "AthenaBaseComps/AthAlgorithm.h"
-#include "AthenaBaseComps/AthService.h"
-
-#include "StoreGate/DataHandle.h"
-#include "StoreGate/StoreGateSvc.h"
-
-#include "Identifier/IdentifierHash.h"
-#include "Identifier/Identifier.h"
-
-#include "InDetConditionsSummaryService/InDetHierarchy.h"
 #include "SCT_ConditionsTools/ISCT_ConditionsTool.h"
-#include "SCT_Cabling/SCT_CablingSvc.h"
-#include "SCT_Cabling/ISCT_FillCabling.h"
-// #include "src/SCT_FillCablingFromText.h"
-
 #include "InDetIdentifier/SCT_ID.h"
 
 namespace SCT_test {
@@ -88,43 +70,32 @@ protected:
     ASSERT_TRUE( m_appMgr->initialize().isSuccess() );
 
     // Easy way to set up services
-    const ServiceLocatorHelper helper(*m_svcLoc, "HELPER");
+    const ServiceLocatorHelper helper{*m_svcLoc, "HELPER"};
 
     // Set up a new StoreGateSvc instance named DetectorStore, as SCT_RODVetoTool needs
-    IService* i_svcD = helper.service("StoreGateSvc/DetectorStore", true /*quiet*/ , true /*createIf*/);
-    StoreGateSvc* detStore = dynamic_cast<StoreGateSvc*>(i_svcD);
+    IService* i_svcD{helper.service("StoreGateSvc/DetectorStore", true /*quiet*/ , true /*createIf*/)};
+    StoreGateSvc* detStore{dynamic_cast<StoreGateSvc*>(i_svcD)};
     if (detStore) {
       if (not detStore->contains<SCT_ID>("SCT_ID")) {
         // Needed for SCT_RODVetoTool
-        const SCT_ID* pHelper = new SCT_ID();
-        StatusCode sc = detStore->record(pHelper, "SCT_ID");
-        sc.setChecked();
+        const SCT_ID* pHelper{new SCT_ID()};
+        ASSERT_TRUE( detStore->record(pHelper, "SCT_ID").isSuccess() );
       }
     }
 
-    IService* i_svcE = helper.service("StoreGateSvc/StoreGateSvc", true /*quiet*/ , true /*createIf*/);
-    StoreGateSvc* evtStore = dynamic_cast<StoreGateSvc*>(i_svcE);
-    if (evtStore) {
-      if (not evtStore->contains<IdentifierSet>("BadSCTModuleIds_RODVeto")) {
-        IdentifierSet* pseudoData = new IdentifierSet{};
-        StatusCode sc = evtStore->record(pseudoData, "BadSCTModuleIds_RODVeto");
-        if (sc.isFailure()) {
-          std::cout << "evtStore could not record BadSCTModuleIds_RODVeto" << std::endl;
-        }
-      }
-    } else {
-      std::cout << "evtStore could not be retrieved" << std::endl;
-    }
+    std::unique_ptr<IdentifierSet> dummyData{std::make_unique<IdentifierSet>()};
+    SG::WriteHandle<IdentifierSet> dummyDataHandle{"BadSCTModuleIds_RODVeto"};
+    ASSERT_TRUE( dummyDataHandle.record(std::move(dummyData)).isSuccess() );
   }
 
   void TearDownGaudi() {
     ASSERT_TRUE( m_appMgr->finalize().isSuccess() );
     ASSERT_TRUE( m_appMgr->terminate().isSuccess() );
-    Gaudi::setInstance( static_cast<IAppMgrUI*>(nullptr) );
+    Gaudi::setInstance(static_cast<IAppMgrUI*>(nullptr));
   }
 
   // protected member variables for Core Gaudi components
-  IAppMgrUI* m_appMgr = nullptr;
+  IAppMgrUI* m_appMgr{nullptr};
   SmartIF<ISvcLocator> m_svcLoc;
   SmartIF<ISvcManager> m_svcMgr;
   SmartIF<IToolSvc> m_toolSvc;
@@ -135,20 +106,19 @@ class SCT_RODVetoTool_test: public ::testing::Test, public GaudiFixture {
 
 protected:
   virtual void SetUp() override {
-    IAlgTool* tool = nullptr;
+    IAlgTool* tool{nullptr};
     m_toolSvc->retrieveTool("SCT_RODVetoTool/SCT_RODVetoTool", tool);
     m_tool = dynamic_cast<SCT_RODVetoTool*>(tool);
   }
 
   virtual void TearDown() override {
-    for (size_t refCount = m_tool->refCount(); refCount>0; refCount--) {
-      StatusCode sc = m_toolSvc->releaseTool(m_tool);
-      ASSERT_TRUE( sc.isSuccess() );
+    for (size_t refCount{m_tool->refCount()}; refCount>0; refCount--) {
+      ASSERT_TRUE( m_toolSvc->releaseTool(m_tool) );
     }
   }   
 
   // the tested AthAlgTool
-  SCT_RODVetoTool* m_tool = nullptr;
+  SCT_RODVetoTool* m_tool{nullptr};
 };
 
 TEST_F(SCT_RODVetoTool_test, Initialization) {
@@ -161,38 +131,35 @@ TEST_F(SCT_RODVetoTool_test, Finalization) {
 
 TEST_F(SCT_RODVetoTool_test, queryInterface) {
   //It wants a pointer to a pointer, I give it a pointer to a pointer
-  void* b = nullptr;
-  void** ppvInterface = &b;
-  const InterfaceID rrid("ISCT_ConditionsTool", 1, 0);
-  ASSERT_TRUE( m_tool->queryInterface(rrid  ,ppvInterface ).isSuccess() );
+  void* b{nullptr};
+  void** ppvInterface{&b};
+  const InterfaceID rrid{"ISCT_ConditionsTool", 1, 0};
+  ASSERT_TRUE( m_tool->queryInterface(rrid, ppvInterface).isSuccess() );
 }
 
 TEST_F(SCT_RODVetoTool_test, canReportAbout) {
-  ASSERT_TRUE(  m_tool->canReportAbout(InDetConditions::DEFAULT)  );
+  ASSERT_TRUE( m_tool->canReportAbout(InDetConditions::DEFAULT) );
 }
 
 
 /*
- //This segfaults  the tests
- //
- //This test should probably be done as well,
- //but to do it you have to create the cabling
- //service and properly initialize it with
- //rods etc.
-TEST_F(SCT_RODVetoTool_test, isGood) {
-  //m_tool->initialize();
-  //m_tool->fillData();
-  //IdentifierHash * hashId = new IdentifierHash(0x240100);
-  //IdentifierHash anyRandomHash(1000); 
-  ASSERT_FALSE(  m_tool->isGood(0x240100)  );
-  //ASSERT_FALSE(  m_tool->isGood(0)  );
+  This segfaults the tests.
+  This test should probably be done as well,
+  but to do it you have to create the cabling
+  service and properly initialize it with
+  rods etc.
+
+TEST_F(SCT_RODVetoTool_test, isGood_Hash) {
+  m_tool->initialize();
+  IdentifierHash hashId{1234};
+  ASSERT_FALSE( m_tool->isGood(hashId) );
 }
 */
 
-TEST_F(SCT_RODVetoTool_test, isGood) {
+TEST_F(SCT_RODVetoTool_test, isGood_Id) {
   m_tool->initialize(); 
-  const Identifier elementId(0);
-  ASSERT_TRUE(  m_tool->isGood( elementId , InDetConditions::DEFAULT)  );
+  const Identifier elementId{0};
+  ASSERT_TRUE( m_tool->isGood(elementId, InDetConditions::DEFAULT) );
 }
 
 } // namespace SCT_test
