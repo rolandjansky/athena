@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimEvent/TFCSParametrization.h"
@@ -8,14 +8,30 @@
 //======= TFCSParametrization =========
 //=============================================
 
-TFCSParametrization::TFCSParametrization(const char* name, const char* title):TFCSParametrizationBase(name,title),m_Ekin_nominal(0),m_Ekin_min(0),m_Ekin_max(0),m_eta_nominal(100),m_eta_min(100),m_eta_max(100)
+TFCSParametrization::TFCSParametrization(const char* name, const char* title):TFCSParametrizationBase(name,title),m_Ekin_nominal(0),m_Ekin_min(0),m_Ekin_max(14000000),m_eta_nominal(0),m_eta_min(-10),m_eta_max(10)
 {
+}
+
+void TFCSParametrization::clear()
+{
+  m_pdgid.clear();
+  m_Ekin_nominal=0;
+  m_Ekin_min=0;
+  m_Ekin_max=14000000;
+  m_eta_nominal=0;
+  m_eta_min=-10;
+  m_eta_max=10;
 }
 
 void TFCSParametrization::set_pdgid(int id)
 {
   m_pdgid.clear();
   m_pdgid.insert(id);
+}
+
+void TFCSParametrization::set_pdgid(const std::set< int > &ids)
+{
+  m_pdgid=ids;
 }
 
 void TFCSParametrization::add_pdgid(int id)
