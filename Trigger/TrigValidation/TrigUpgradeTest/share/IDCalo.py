@@ -31,7 +31,6 @@ viewSeq += viewMaker
 
 # Set of view algs
 allViewAlgorithms = AthSequencer(viewNodeName, Sequential=False, ModeOR=False, StopOverride=False)
-viewSeq += allViewAlgorithms
 
 
 if TriggerFlags.doID:
@@ -268,3 +267,4 @@ if TriggerFlags.doCalo:
   algo.RoIs="EMViewRoIs"
   allViewAlgorithms += algo
 
+viewSeq += allViewAlgorithms
