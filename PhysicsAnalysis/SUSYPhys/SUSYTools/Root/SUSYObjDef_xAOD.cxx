@@ -1056,7 +1056,7 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_photonTriggerName, "Photon.TriggerName", rEnv, "HLT_g20_tight_icalovloose_L1EM15VHI"); // how is it changed across years?
   configFromFile(m_photonCrackVeto, "Photon.CrackVeto", rEnv, true);
   configFromFile(m_photonAllowLate, "Photon.AllowLate", rEnv, false);
-  configFromFile(m_photonEffCorrFilePath, "Photon.EffCorrFilePath", rEnv, "PhotonEfficiencyCorrection/map0.txt");
+  configFromFile(m_photonEffCorrFilePath, "Photon.EffCorrFilePath", rEnv, "PhotonEfficiencyCorrection/2015_2016/rel20.7/Moriond2017_v1/map2.txt");
   //configFromFile(m_photonEffMapFilePath, "Photon.EffMapFilePath", rEnv, "PhotonEfficiencyCorrection/2015_2017/rel21.2/Winter2018_Prerec_v1/map0.txt"); // R21 recommendation not yet available
   //
   configFromFile(m_tauPrePtCut, "Tau.PrePtCut", rEnv, 0.);
@@ -1076,8 +1076,8 @@ StatusCode SUSYObjDef_xAOD::readConfig()
   configFromFile(m_jetUncertaintiesConfig, "Jet.UncertConfig", rEnv, "rel21/Moriond2018/R4_StrongReduction_Scenario1.config"); // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Moriond2018SmallR 
   configFromFile(m_jetUncertaintiesCalibArea, "Jet.UncertCalibArea", rEnv, "CalibArea-02");
   configFromFile(m_fatJets, "Jet.LargeRcollection", rEnv, "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets");
-  configFromFile(m_fatJetUncConfig, "Jet.LargeRuncConfig", rEnv, "UJ2016_CombinedMass_medium.config"); //MultiTagging_medium.config");
-  configFromFile(m_fatJetUncVars, "Jet.LargeRuncVars", rEnv, "default"); //do all if not specified
+  configFromFile(m_fatJetUncConfig, "Jet.LargeRuncConfig", rEnv, "rel21/Moriond2018/R10_CombMass_medium.config"); // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Moriond2018LargeR
+  configFromFile(m_fatJetUncVars, "Jet.LargeRuncVars", rEnv, "default"); // do all if not specified
   configFromFile(m_WtagConfig, "Jet.WtaggerConfig", rEnv, "SmoothedWZTaggers/SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC15c_20161215.dat");
   configFromFile(m_ZtagConfig, "Jet.ZtaggerConfig", rEnv, "SmoothedWZTaggers/SmoothedContainedZTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC15c_20161215.dat");
   configFromFile(m_jesConfig, "Jet.JESConfig", rEnv, "JES_data2017_2016_2015_Recommendation_Feb2018_rel21.config");

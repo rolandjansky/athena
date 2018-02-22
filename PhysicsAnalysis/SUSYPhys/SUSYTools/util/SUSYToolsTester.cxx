@@ -306,8 +306,6 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
   ANA_CHECK( objTool.setProperty("PRWLumiCalcFiles", prw_lumicalc) );
   ///////////////////////////////////////////////////////////////////////////////////////////
 
-  //ANA_CHECK(objTool.setBoolProperty("UseBtagging", false) );
-
   //Guess shower type for btagging MC/MC SFs
   if(!isData){
     //unsigned int ishower = objTool.getMCShowerType("mc15_13TeV.Sherpa_blabla"); //

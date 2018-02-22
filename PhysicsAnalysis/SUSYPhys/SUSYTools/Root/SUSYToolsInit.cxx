@@ -301,7 +301,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_jetUncertaintiesTool.setProperty("JetDefinition", jetdef) );
     //ATH_CHECK( m_jetUncertaintiesTool.setProperty("MCType", isAtlfast() ? "AFII" : "MC16") );
     ATH_CHECK( m_jetUncertaintiesTool.setProperty("MCType", "MC16") );
-    ATH_CHECK( m_jetUncertaintiesTool.setProperty("ConfigFile", m_jetUncertaintiesConfig) );
+    // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Moriond2018SmallR
+    ATH_CHECK( m_jetUncertaintiesTool.setProperty("ConfigFile", m_jetUncertaintiesConfig) ); 
     ATH_CHECK( m_jetUncertaintiesTool.setProperty("CalibArea", m_jetUncertaintiesCalibArea) );
     ATH_CHECK( m_jetUncertaintiesTool.retrieve() );
   }
@@ -312,11 +313,10 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     m_fatjetUncertaintiesTool.setTypeAndName("JetUncertaintiesTool/"+toolName);
 
     ATH_CHECK( m_fatjetUncertaintiesTool.setProperty("JetDefinition", fatjetcoll) );
-    ATH_CHECK( m_fatjetUncertaintiesTool.setProperty("MCType", "MC15c") );
-
-    //Configs from here: https://svnweb.cern.ch/trac/atlasoff/browser/Reconstruction/Jet/JetUncertainties/trunk/share/UJ_2016/Moriond2017/
-    std::string configfile("UJ_2016/Moriond2017/"+m_fatJetUncConfig);
-    ATH_CHECK( m_fatjetUncertaintiesTool.setProperty("ConfigFile", configfile) );
+    ATH_CHECK( m_fatjetUncertaintiesTool.setProperty("MCType", "MC16a") );
+    // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/JetUncertaintiesRel21Moriond2018LargeR
+    ATH_CHECK( m_fatjetUncertaintiesTool.setProperty("ConfigFile", m_fatJetUncConfig) ); 
+    ATH_CHECK( m_fatjetUncertaintiesTool.setProperty("CalibArea", m_jetUncertaintiesCalibArea) );
 
     //Restrict variables to be shifted if (required)
     if( m_fatJetUncVars != "default" ){
@@ -866,7 +866,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
   }
 /*
-  // the trigger scale factors are new in Release 21 
+  // the trigger scale factors are new in Release 21 but not yet available 
   if (!m_photonTriggerSFTool.isUserConfigured() && !isData()) {
     m_photonTriggerSFTool.setTypeAndName("AsgPhotonEfficiencyCorrectionTool/AsgPhotonEfficiencyCorrectionTool_trig" + m_photonTriggerName);
 
@@ -888,10 +888,9 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   if (!m_electronPhotonShowerShapeFudgeTool.isUserConfigured()) {
     m_electronPhotonShowerShapeFudgeTool.setTypeAndName("ElectronPhotonShowerShapeFudgeTool/ElectronPhotonShowerShapeFudgeTool");
 
-    int FFset = 22; // see ATLSUSYSW-339
+    int FFset = 22;
     ATH_CHECK( m_electronPhotonShowerShapeFudgeTool.setProperty("Preselection", FFset));
     ATH_CHECK( m_electronPhotonShowerShapeFudgeTool.setProperty("FFCalibFile", "ElectronPhotonShowerShapeFudgeTool/v2/PhotonFudgeFactors.root"));
-    //      ATH_CHECK( m_electronPhotonShowerShapeFudgeTool.setProperty("ConfigFile", "ElectronPhotonShowerShapeFudgeTool/May2016_ShiftsForMCBasedLHTuneUsing20pt7.conf"));
     ATH_CHECK( m_electronPhotonShowerShapeFudgeTool.retrieve());
   }
 

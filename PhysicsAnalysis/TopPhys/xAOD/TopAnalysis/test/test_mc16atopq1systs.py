@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# art-description: DxAOD MC16a TOPQ1 - top-xaod validation-cuts.txt
+# art-description: DxAOD MC16a TOPQ1 - top-xaod validation-cuts.txt - configured to process all systematics
 # art-type: grid
 # art-output: output.root
 
@@ -34,6 +34,11 @@ shutil.copyfile(cutfilepath, cutfilename)
 inputfilepath = open("input.txt","w")
 inputfilepath.write(inputfilename+"\n")
 inputfilepath.close()
+
+# -- Edit the validation cutfile to run all systematics --
+cmd  = "sed -i -e 's/Systematics Nominal/Systematics All/g' %s"%(cutfilename)
+proc = subprocess.Popen(shlex.split(cmd))
+proc.wait()
 
 # -- Run top-xaod --
 cmd  = "top-xaod %s input.txt"%(cutfilename)

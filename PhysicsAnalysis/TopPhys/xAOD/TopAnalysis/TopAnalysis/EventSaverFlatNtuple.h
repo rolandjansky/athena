@@ -498,6 +498,7 @@ private:
     std::vector<int>   m_jet_truthflav;
     std::vector<int>   m_jet_truthPartonLabel;
     std::vector<char>  m_jet_isTrueHS;
+    std::vector<int>   m_jet_HadronConeExclExtendedTruthLabelID; // Newer jet truth flavour label
     std::unordered_map<std::string, std::vector<char>>  m_jet_isbtagged;//one vector per jet per WP
     std::unordered_map<std::string, std::vector<int>>   m_jet_tagWeightBin;// one vector per jet per tag-weight bin in case Continuous WP is used
     // R21 b-tagging
@@ -1041,6 +1042,7 @@ protected:
   const std::vector<int>& jet_truthflav() const { return m_jet_truthflav;}
   const std::vector<int>& jet_truthPartonLabel() const { return m_jet_truthPartonLabel;}
   const std::vector<char>& jet_isTrueHS() const { return m_jet_isTrueHS;}
+  const std::vector<int>& jet_truthflavExtended() const { return m_jet_HadronConeExclExtendedTruthLabelID;}
   const std::unordered_map<std::string, std::vector<char>>& jet_isbtagged() const { return m_jet_isbtagged;}//one vector per jet per WP
   const std::unordered_map<std::string, std::vector<int>> & jet_tagWeightBin() const { return m_jet_tagWeightBin;}//one vector per jet tag-weight bin in case Continuous WP is used
   // for upgrade, we store the tagging efficiency per jet & whether it is from pileup
