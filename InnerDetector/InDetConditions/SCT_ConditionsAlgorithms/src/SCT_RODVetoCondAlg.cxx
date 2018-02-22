@@ -23,11 +23,11 @@ SCT_RODVetoCondAlg::SCT_RODVetoCondAlg(const std::string& name,
   AthAlgorithm(name, pSvcLocator),
   m_cabling("SCT_CablingSvc", name),
   m_pHelper{nullptr},
-  m_badIds{"BadSCTModuleIdentifiers_RODVeto"},
-  m_badRODElementsInput{0x240100}
+  m_badIds{"BadSCTModuleIds_RODVeto"},
+  m_badRODElementsInput{}
 {
-  declareProperty("BadModuleIdentifiers", m_badIds, "Write key for bad module identifiers");
-  declareProperty("BadRODIdentifiers", m_badRODElementsInput, "Input list of RODs to be vetoed");
+  declareProperty("BadModuleIds", m_badIds, "Write key for bad module identifiers");
+  declareProperty("BadRODIds", m_badRODElementsInput, "Input list of RODs to be vetoed");
 }
 
 StatusCode SCT_RODVetoCondAlg::initialize() {

@@ -81,7 +81,7 @@ conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/MUR", "/SCT/DAQ/Config/MUR")
 from SCT_ConditionsServices.SCT_RODVetoSvcSetup import SCT_RODVetoSvcSetup
 sct_RODVetoSvcSetup = SCT_RODVetoSvcSetup()
 sct_RODVetoSvcSetup.setup()
-sct_RODVetoSvcSetup.getAlg().BadRODIdentifiers = [0x240100, 0x240030]
+sct_RODVetoSvcSetup.getAlg().BadRODIds = [0x240100, 0x240030]
 
 from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_RODVetoTestAlg
 job+= SCT_RODVetoTestAlg()

@@ -33,11 +33,11 @@
 SCT_RODVetoSvc::SCT_RODVetoSvc( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthService(name, pSvcLocator), 
   m_cabling("SCT_CablingSvc",name),
-  m_badModuleIds{"BadSCTModuleIdentifiers_RODVeto"},
+  m_badModuleIds{"BadSCTModuleIds_RODVeto"},
   m_pHelper{nullptr},
   m_detStore("DetectorStore", name)
   {
-    declareProperty("BadModuleIdentifiers", m_badModuleIds, "Read key for bad module identifiers");
+    declareProperty("BadModuleIds", m_badModuleIds, "Read key for bad module identifiers");
   }
 
 //Initialize
@@ -120,7 +120,7 @@ SCT_RODVetoSvc::canFillDuringInitialize(){
 }
 bool
 SCT_RODVetoSvc::filled() const{
-  return (!getCondData());
+  return static_cast<bool>(getCondData());
 }
 
 const IdentifierSet*
