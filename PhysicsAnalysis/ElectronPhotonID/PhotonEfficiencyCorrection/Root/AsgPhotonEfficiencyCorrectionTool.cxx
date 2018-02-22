@@ -59,7 +59,7 @@ AsgPhotonEfficiencyCorrectionTool::AsgPhotonEfficiencyCorrectionTool( std::strin
   m_rootTool_con = new Root::TPhotonEfficiencyCorrectionTool();
 
   // Declare the needed properties
-  declareProperty("MapFilePath", m_mapFile = "PhotonEfficiencyCorrection/map0.txt" ,
+  declareProperty("MapFilePath", m_mapFile = "PhotonEfficiencyCorrection/2015_2017/rel21.2/Winter2018_Prerec_v1/map0.txt" ,
                   "Full path to the map file");  
 				  
   declareProperty( "ForceDataType", m_dataTypeOverwrite=-1,
