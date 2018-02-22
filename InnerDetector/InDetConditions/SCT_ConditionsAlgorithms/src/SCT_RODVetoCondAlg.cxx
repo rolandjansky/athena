@@ -3,21 +3,17 @@
 */
 
 /**
- * @file SCT_RODVetoTestWriteAlg.cxx
+ * @file SCT_RODVetoCondAlg.cxx
  *
- * @brief Implementation file for the SCT_RODVetoTestWriteAlg class 
+ * @brief Implementation file for the SCT_RODVetoCondAlg class 
  * in package SCT_ConditionsAlgorithms
  *
  * @author Susumu Oda
  **/
 
-#include "SCT_RODVetoTestWriteAlg.h"
+#include "SCT_RODVetoCondAlg.h"
 
-
-//Gaudi includes
-#include "GaudiKernel/StatusCode.h"
-
-SCT_RODVetoTestWriteAlg::SCT_RODVetoTestWriteAlg(const std::string& name, 
+SCT_RODVetoCondAlg::SCT_RODVetoCondAlg(const std::string& name, 
                                                  ISvcLocator* pSvcLocator) : 
   AthAlgorithm(name, pSvcLocator),
   m_badRODElements("BadRODIdentifiers"),
@@ -26,13 +22,13 @@ SCT_RODVetoTestWriteAlg::SCT_RODVetoTestWriteAlg(const std::string& name,
   declareProperty("BadRODIdentifiers", m_badRODElementsInput);
 }
 
-StatusCode SCT_RODVetoTestWriteAlg::initialize() {
+StatusCode SCT_RODVetoCondAlg::initialize() {
   ATH_CHECK(m_badRODElements.initialize());
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode SCT_RODVetoTestWriteAlg::execute() {
+StatusCode SCT_RODVetoCondAlg::execute() {
   SG::WriteHandle<std::vector<unsigned int> > out(m_badRODElements);
   ATH_CHECK( out.record( std::make_unique<std::vector<unsigned int> >() ) );
   for (auto itr=m_badRODElementsInput.begin(); itr!=m_badRODElementsInput.end(); itr++) {
@@ -42,6 +38,6 @@ StatusCode SCT_RODVetoTestWriteAlg::execute() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode SCT_RODVetoTestWriteAlg::finalize() {
+StatusCode SCT_RODVetoCondAlg::finalize() {
   return StatusCode::SUCCESS;
 }
