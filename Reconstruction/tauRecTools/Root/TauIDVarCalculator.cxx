@@ -20,7 +20,8 @@ const float TauIDVarCalculator::LOW_NUMBER = -1111.;
 TauIDVarCalculator::TauIDVarCalculator(const std::string& name):
   TauRecToolBase(name),
   m_vertexContainerKey("PrimaryVertices"),
-  m_nVtx(1)
+  m_nVtx(1),
+  m_mu(0.)
 {
   declareProperty("vertexContainerKey", m_vertexContainerKey);
 }
@@ -45,6 +46,21 @@ StatusCode TauIDVarCalculator::eventInitialize()
 	}
       }
     }
+
+    const xAOD::EventInfo* m_xEventInfo = 0;
+    ATH_CHECK( evtStore()->retrieve(m_xEventInfo,"EventInfo") );
+    m_mu = m_xEventInfo->averageInteractionsPerCrossing();
+  }
+  else {
+
+    double mu_tmp = 0.;
+    if( tauEventData()->hasObject("AvgInteractions") && tauEventData()->getObject("AvgInteractions", mu_tmp).isSuccess() ) {
+      m_mu = mu_tmp;      
+    }
+    else {
+      m_mu = 0.;
+      ATH_MSG_WARNING("AvgInteractions could not be retrieved, will use mu=0.");      
+    }    
   }
   
   return StatusCode::SUCCESS;
@@ -61,13 +77,9 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
   //define accessors:
   static SG::AuxElement::Accessor<int> acc_numTrack("NUMTRACK");
   acc_numTrack(tau) = tau.nTracks();
-
-
-  const xAOD::EventInfo* m_xEventInfo;  //!
-
+ 
   static SG::AuxElement::Accessor<float> acc_mu("MU");
-  ATH_CHECK( evtStore()->retrieve(m_xEventInfo,"EventInfo") );
-  acc_mu(tau) = m_xEventInfo->averageInteractionsPerCrossing();
+  acc_mu(tau) = m_mu;
 
   if(!inTrigger()){
     static SG::AuxElement::Accessor<int> acc_nVertex("NUMVERTICES");
