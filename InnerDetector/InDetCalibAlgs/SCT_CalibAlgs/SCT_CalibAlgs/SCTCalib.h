@@ -36,6 +36,7 @@
 
 // Gaudi
 #include "GaudiKernel/ServiceHandle.h" //member
+#include "GaudiKernel/ToolHandle.h" //member
 #include "GaudiKernel/IIncidentSvc.h" //template parameter, so not fwd declared
 #include "GaudiKernel/IIncidentListener.h" //baseclass
 #include "StoreGate/StoreGateSvc.h"
@@ -60,7 +61,7 @@
 #include "SCT_ConditionsServices/ISCT_DCSConditionsSvc.h" //template parameter
 #include "SCT_ConditionsServices/ISCT_ConfigurationConditionsSvc.h" //template parameter
 #include "SCT_ConditionsServices/ISCT_ReadCalibDataSvc.h"  //template parameter
-#include "SCT_ConditionsServices/ISCT_DetectorLevelConditionsSvc.h" //template parameter
+#include "SCT_ConditionsTools/ISCT_DetectorLevelConditionsTool.h" //template parameter
 #include "SCT_ConditionsServices/ISCT_ByteStreamErrorsSvc.h"  //template parameter
 
 // SCT Cabling
@@ -114,7 +115,7 @@ class SCTCalib : public AthAlgorithm {
         ServiceHandle<ISCT_DCSConditionsSvc>            m_DCSConditionsSvc;
         ServiceHandle<ISCT_ConfigurationConditionsSvc>  m_ConfigurationConditionsSvc;
         ServiceHandle<ISCT_ReadCalibDataSvc>            m_ReadCalibDataSvc;
-        ServiceHandle<ISCT_DetectorLevelConditionsSvc>  m_MajorityConditionsSvc;
+        ToolHandle<ISCT_DetectorLevelConditionsTool>    m_MajorityConditionsTool{this, "SCT_MajorityConditionsTool", "SCT_MajorityConditionsTool", "Tool to retrieve the majority conditions of SCT"};
         ServiceHandle<ISCT_CablingSvc>                  m_CablingSvc;
 
         //shaun added
