@@ -138,16 +138,16 @@ def bjetChains(doIDNewTracking, doFTK, doBperf):
     #
     'HLT_j55_bperf_split_FTKVtx:key=InDetTrigTrackingxAODCnv_Bjet_IDTrig',
     'HLT_j55_bperf_split_FTKVtx:key=InDetTrigTrackingxAODCnv_Bjet_FTF',
-    'HLT_j55_bperf_split_FTK:key=InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig',
-    'HLT_j55_bperf_split_FTK:key=InDetTrigTrackingxAODCnv_Bjet_FTK',
-    'HLT_j55_bperf_split_FTKRefit:key=InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig',
-    'HLT_j55_bperf_split_FTKRefit:key=InDetTrigTrackingxAODCnv_Bjet_FTKRefit',
+    'HLT_j55_bperf_split_FTK:key=InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig:roi=SplitJet',
+    'HLT_j55_bperf_split_FTK:key=InDetTrigTrackingxAODCnv_Bjet_FTK:roi=SplitJet:roi=SplitJet',
+    'HLT_j55_bperf_split_FTKRefit:key=InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig:roi=SplitJet',
+    'HLT_j55_bperf_split_FTKRefit:key=InDetTrigTrackingxAODCnv_Bjet_FTKRefit:roi=SplitJet',
     'HLT_j55_boffperf_split_FTKVtx:key=InDetTrigTrackingxAODCnv_Bjet_IDTrig',
     'HLT_j55_boffperf_split_FTKVtx:key=InDetTrigTrackingxAODCnv_Bjet_FTF',
-    'HLT_j55_boffperf_split_FTK:key=InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig',
-    'HLT_j55_boffperf_split_FTK:key=InDetTrigTrackingxAODCnv_Bjet_FTK',
-    'HLT_j55_boffperf_split_FTKRefit:key=InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig',
-    'HLT_j55_boffperf_split_FTKRefit:key=InDetTrigTrackingxAODCnv_Bjet_FTKRefit',
+    'HLT_j55_boffperf_split_FTK:key=InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig:roi=SplitJet',
+    'HLT_j55_boffperf_split_FTK:key=InDetTrigTrackingxAODCnv_Bjet_FTK:roi=SplitJet',
+    'HLT_j55_boffperf_split_FTKRefit:key=InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig:roi=SplitJet',
+    'HLT_j55_boffperf_split_FTKRefit:key=InDetTrigTrackingxAODCnv_Bjet_FTKRefit:roi=SplitJet',
     ]
   return (idTrigChainlist, tidaAnalysischains)
 

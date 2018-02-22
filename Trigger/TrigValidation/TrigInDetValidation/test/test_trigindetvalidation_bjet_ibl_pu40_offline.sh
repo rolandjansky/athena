@@ -7,6 +7,7 @@
 # art-output: HLTL2-vtx
 # art-output: times
 # art-output: times-FTF
+# art-output: cost-perCall
 # art-output: cost-perEvent
 # art-output: cost-perCall-chain
 # art-output: cost-perEvent-chain
@@ -345,7 +346,7 @@ timestamp "RunTrigCostD3PD"
 
 
 
-TIDAcpucost  2>&1 | tee TIDAcpucost_8.log
+TIDAcpucost costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perCall --auto -d "/Algorithm" -p "_Time_perCall"  2>&1 | tee TIDAcpucost_8.log
 echo "art-result: $? TIDAcpucost_8"
 
 
