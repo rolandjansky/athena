@@ -42,9 +42,6 @@ if TriggerFlags.doID:
   
   from InDetRecExample.InDetJobProperties import InDetFlags
   InDetFlags.doCaloSeededBrem = False
-  
-  
-  from InDetRecExample.InDetJobProperties import InDetFlags
   InDetFlags.InDet25nsec = True 
   InDetFlags.doPrimaryVertex3DFinding = False 
   InDetFlags.doPrintConfigurables = False
@@ -243,18 +240,19 @@ if TriggerFlags.doID:
                                                                     ProcessPixels          = DetFlags.haveRIO.pixel_on(),
                                                                     ProcessSCTs            = DetFlags.haveRIO.SCT_on(),
                                                                     ProcessOverlaps        = DetFlags.haveRIO.SCT_on(),
+                                                                    SpacePointCacheSCT = InDetCacheCreatorTrigViews.SpacePointCacheSCT,
+                                                                    SpacePointCachePix = InDetCacheCreatorTrigViews.SpacePointCachePix,
                                                                     OutputLevel=INFO)
+
+  allViewAlgorithms += InDetSiTrackerSpacePointFinder
   
   
   from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_eGamma
   theFTF = TrigFastTrackFinder_eGamma()
   
-  allViewAlgorithms += InDetSiTrackerSpacePointFinder
+  TrigFastTrackFinder_eGamma.isRoI_Seeded = True
+  TrigFastTrackFinder_eGamma.RoIs = "EMViewRoIs"
   allViewAlgorithms += theFTF
-  allViewAlgorithms.TrigFastTrackFinder_eGamma.isRoI_Seeded = True
-  allViewAlgorithms.TrigFastTrackFinder_eGamma.RoIs = "EMViewRoIs"
-  InDetSiTrackerSpacePointFinder.SpacePointCacheSCT = InDetCacheCreatorTrigViews.SpacePointCacheSCT
-  InDetSiTrackerSpacePointFinder.SpacePointCachePix = InDetCacheCreatorTrigViews.SpacePointCachePix
 
 if TriggerFlags.doCalo:
   svcMgr.ToolSvc.TrigDataAccess.ApplyOffsetCorrection=False
@@ -262,7 +260,6 @@ if TriggerFlags.doCalo:
   from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_FastAlgo
   algo=T2CaloEgamma_FastAlgo("testFastAlgo")
   algo.OutputLevel=VERBOSE
-  #TopHLTSeq += algo
 
   algo.RoIs="EMViewRoIs"
   allViewAlgorithms += algo
