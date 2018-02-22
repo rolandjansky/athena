@@ -1132,9 +1132,9 @@ class L1TopoCheck(_modifier):
     def postSetup(self):
         from AthenaCommon.Include import include, IncludeError
         try:
-            include("TrigOnlineMonitor/TrigL1TopoROBMonitor.py")
+            include("TrigOnlineMonitor/TrigL1TopoWriteValData.py")
         except IncludeError:
-            print '  No L1Topo ROB monitoring available.'        
+            print '  No L1Topo WriteValData available.'        
 
 class muCTPicheck(_modifier):
     """
