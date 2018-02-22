@@ -8,6 +8,12 @@
 #include "InDetOverlay/InDetOverlay.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
+#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "CLHEP/Random/RandomEngine.h"
+#include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+
+
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
 #include "StoreGate/ReadHandle.h"
@@ -18,7 +24,6 @@
 #include "GeneratorObjects/McEventCollection.h"
 #include "InDetSimData/InDetSimDataCollection.h"
 
-#include "InDetRawData/TRT_RDO_Container.h"
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "InDetRawData/PixelRDO_Container.h"
 
@@ -28,14 +33,8 @@
 //#include "InDetRawData/Pixel1RawData.h"
 
 #include "InDetIdentifier/SCT_ID.h"
-<<<<<<< HEAD
-
-//#include "InDetReadoutGeometry/SiDetectorElement.h"
-//#include "InDetReadoutGeometry/PixelDetectorManager.h"
-=======
 #include "InDetIdentifier/TRT_ID.h"
 
->>>>>>> 760407ada1... Move occupancy calculation from InDetOverlay to the TRT_LocalOccupancyTool
 #include <iostream>
 #include <sstream>
 #include <typeinfo>
@@ -305,8 +304,9 @@ InDetOverlay::InDetOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
   declareProperty("mainInputPixelName", m_mainInputPixel_Name="PixelRDOs");
   declareProperty("overlayInputPixelName", m_overlayInputPixel_Name="PixelRDOs");
   
-  declareProperty("TRT_HT_OccupancyCorrection",m_HTOccupancyCorrection=0.1);
-  
+  declareProperty("TRT_HT_OccupancyCorrectionBarrel",m_HTOccupancyCorrectionB=0.1);
+  declareProperty("TRT_HT_OccupancyCorrectionEndcap",m_HTOccupancyCorrectionEC=0.9);
+
   declareProperty("RndmSvc",    m_rndmSvc,       "Random Number Service");
   declareProperty("RndmEngine", m_rndmEngineName,"Random engine name");
   
@@ -633,7 +633,9 @@ void InDetOverlay::mergeTRTCollections(TRT_RDO_Collection *mc_coll,
           if( !(pr1->getWord() & 0x04020100) ) {
             unsigned int newword = 0;
             //Get random number 
-            if( occupancy * m_HTOccupancyCorrection > CLHEP::RandFlat::shoot( m_rndmEngine, 0, 1) ) 
+            int det =  m_trt_id->barrel_ec( pr1->identify() );
+            float HTOccupancyCorrection = abs(det) > 1 ? m_HTOccupancyCorrectionEC : m_HTOccupancyCorrectionB;  
+            if( occupancy * HTOccupancyCorrection > CLHEP::RandFlat::shoot( m_rndmEngine, 0, 1) ) 
               newword += 1 << (26-9);
             //
             TRT_LoLumRawData newrdo( pr1->identify(), newword); 

@@ -71,6 +71,7 @@ private:
 
   ServiceHandle<StoreGateSvc> m_detStore;
   const SCT_ID *m_sct_id;
+  const TRT_ID *m_trt_id;
 
   // ----------------------------------------------------------------
   //! jO controllable properties.
@@ -93,7 +94,8 @@ private:
   std::string                   m_rndmEngineName;
   CLHEP::HepRandomEngine *      m_rndmEngine;
   
-  double                               m_HTOccupancyCorrection;
+  double                                      m_HTOccupancyCorrectionB;
+  double                                      m_HTOccupancyCorrectionEC;
   ToolHandle< InDet::ITRT_LocalOccupancy >    m_TRT_LocalOccupancyTool; 
 };
 
