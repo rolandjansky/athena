@@ -657,6 +657,7 @@ namespace top {
                   systematicTree->makeOutputVariable(m_jet_truthflav, "jet_truthflav");
                   systematicTree->makeOutputVariable(m_jet_truthPartonLabel, "jet_truthPartonLabel");
                   systematicTree->makeOutputVariable(m_jet_isTrueHS, "jet_isTrueHS");
+		  systematicTree->makeOutputVariable(m_jet_HadronConeExclExtendedTruthLabelID, "jet_truthflavExtended");
                 }
                 for( auto& tagWP : m_config -> bTagWP_available()){
                   if (tagWP.find("Continuous") == std::string::npos) systematicTree->makeOutputVariable(m_jet_isbtagged[tagWP] , "jet_isbtagged_"+shortBtagWP(tagWP));
@@ -1710,6 +1711,7 @@ namespace top {
               m_jet_truthflav.resize(event.m_jets.size());
               m_jet_truthPartonLabel.resize(event.m_jets.size());
               m_jet_isTrueHS.resize(event.m_jets.size());
+	      m_jet_HadronConeExclExtendedTruthLabelID.resize(event.m_jets.size());
             }
             for( auto& tagWP : m_config -> bTagWP_available()){
               if (tagWP.find("Continuous") == std::string::npos) m_jet_isbtagged[tagWP].resize(event.m_jets.size());
@@ -1741,6 +1743,10 @@ namespace top {
                   if(jetPtr->isAvailable<char>("AnalysisTop_isHS")){
                     jetPtr->getAttribute("AnalysisTop_isHS", m_jet_isTrueHS[i]);
                   }
+		  m_jet_HadronConeExclExtendedTruthLabelID[i] = -99;
+		  if(jetPtr->isAvailable<int>("HadronConeExclExtendedTruthLabelID")){
+		    jetPtr->getAttribute("HadronConeExclExtendedTruthLabelID", m_jet_HadronConeExclExtendedTruthLabelID[i]);
+		  }
                 }
                 for( auto& tagWP : m_config -> bTagWP_available()){
                   if (tagWP.find("Continuous") == std::string::npos) {
