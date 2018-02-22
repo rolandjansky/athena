@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 using namespace std;
@@ -18,28 +18,7 @@ TFCS1DFunctionHistogram::TFCS1DFunctionHistogram(TH1* hist, int verbose, double 
 
 void TFCS1DFunctionHistogram::Initialize(TH1* hist, int verbose,double cut_maxdev)
 {
-
   smart_rebin_loop(hist, verbose,cut_maxdev);
-
-  //test the sampling
-  /*
-     TH1D* h_test=new TH1D("h_test","h_test",5000,m_histo->GetXaxis()->GetXmin(),m_histo->GetXaxis()->GetXmax());
-     for(int i=0;i<10000;i++)
-     {
-     double random=myRandom->Uniform(1);
-     double *histoVals=histo_to_array();
-     double value=sample_from_histo(random,histoVals);
-     h_test->Fill(value);
-     }
-     TH1* h_cum=get_cumul(h_test);
-     TFile* testfile=new TFile("samplingtest.root","RECREATE");
-     testfile->Add(h_test);
-     testfile->Add(h_cum);
-     testfile->Add(m_histo);
-     testfile->Write();
-     */
-
-
 }
 
 double* TFCS1DFunctionHistogram::histo_to_array(TH1* hist)
