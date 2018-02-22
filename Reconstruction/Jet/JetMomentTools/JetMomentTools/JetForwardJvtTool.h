@@ -69,7 +69,10 @@
 
     std::string m_orLabel;
     std::string m_outLabel;
+    std::string m_outLabelFjvt;
+    std::string m_outLabelTiming;
     double m_etaThresh;
+    double m_timingCut;
     double m_forwardMinPt;
     double m_forwardMaxPt;
     double m_centerMinPt;
@@ -83,8 +86,10 @@
     bool m_tightOP;
     mutable std::vector<TVector2> m_pileupMomenta;
     mutable size_t m_pvind;
-    SG::AuxElement::Decorator<char>* Dec_OR = NULL;
-    SG::AuxElement::Decorator<char>* Dec_out = NULL;
+    std::unique_ptr<SG::AuxElement::Decorator<char> > Dec_OR;
+    std::unique_ptr<SG::AuxElement::Decorator<char> > Dec_out;
+    std::unique_ptr<SG::AuxElement::Decorator<char> > Dec_outFjvt;
+    std::unique_ptr<SG::AuxElement::Decorator<char> > Dec_outTiming;
     void getPV() const;
 
     /// Default constructor:

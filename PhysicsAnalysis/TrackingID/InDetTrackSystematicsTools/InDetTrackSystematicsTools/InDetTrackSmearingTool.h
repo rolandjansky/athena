@@ -81,18 +81,26 @@ namespace InDet {
     TH1* m_smearD0Dead = nullptr;
     TH1* m_smearZ0Dead = nullptr;
 
-    TH2* m_smearD0 = nullptr;
-    TH2* m_smearZ0 = nullptr;
-    TH2* m_smearD0_sys_up = nullptr;
-    TH2* m_smearZ0_sys_up = nullptr;
-    TH2* m_smearD0_sys_dw = nullptr;
-    TH2* m_smearZ0_sys_dw = nullptr;
+    TH2* m_smearD0_lowpt = nullptr;
+    TH2* m_smearZ0_lowpt = nullptr;
+    TH2* m_smearD0_lowpt_sys_up = nullptr;
+    TH2* m_smearZ0_lowpt_sys_up = nullptr;
+    TH2* m_smearD0_lowpt_sys_dw = nullptr;
+    TH2* m_smearZ0_lowpt_sys_dw = nullptr;
+
+    TH2* m_smearD0_highpt = nullptr;
+    TH2* m_smearZ0_highpt = nullptr;
+    TH2* m_smearD0_highpt_sys_up = nullptr;
+    TH2* m_smearZ0_highpt_sys_up = nullptr;
+    TH2* m_smearD0_highpt_sys_dw = nullptr;
+    TH2* m_smearZ0_highpt_sys_dw = nullptr;
 
     // allow the user to configure which calibration files to use if desired
     std::string m_calibFileD0Dead;
     std::string m_calibFileZ0Dead;
     
-    std::string m_calibFileIP;
+    std::string m_calibFileIP_lowpt;
+    std::string m_calibFileIP_highpt;
      
   }; /// class InDetTrackSmearingTool
 
