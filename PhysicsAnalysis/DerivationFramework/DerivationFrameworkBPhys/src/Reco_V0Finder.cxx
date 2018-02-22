@@ -104,18 +104,12 @@ namespace DerivationFramework {
   StatusCode Reco_V0Finder::addBranches() const
   {
     bool callV0Finder = false;
-    size_t emptyContainers =0;
     // Jpsi container and its auxilliary store
     for(const auto &str : m_CollectionsToCheck){
        const xAOD::VertexContainer*    vertContainer = nullptr;
-       CHECK( evtStore()->retrieve(vertContainer, str) );
-       if(vertContainer==nullptr){ 
-          ATH_MSG_ERROR("Could not retrieve Container  " << str);
-          return StatusCode::FAILURE;
-       }
+       ATH_CHECK( evtStore()->retrieve(vertContainer, str) );
        if(vertContainer->size() == 0) {
           ATH_MSG_DEBUG("Container VertexContainer (" << str << ") is empty");
-          emptyContainers++;
        }else{
           callV0Finder = true;
           ATH_MSG_DEBUG("Container VertexContainer (" << str << ") has events N= " << vertContainer->size());
@@ -123,32 +117,8 @@ namespace DerivationFramework {
        }
     }
 
-    //All containers are empty so skip V0 Finder
-    
-    bool skip = emptyContainers > 0 && emptyContainers == m_CollectionsToCheck.size();
-
     // Call V0Finder
 
-    // Get primary vertex from StoreGate
-    const xAOD::Vertex * primaryVertex(0);
-    const xAOD::VertexContainer * importedVxContainer(0);
-    //StatusCode sc = evtStore()->retrieve(importedVxContainer,m_VxPrimaryCandidateName);
-    CHECK( evtStore()->retrieve(importedVxContainer, m_VxPrimaryCandidateName) );
-    if (importedVxContainer==nullptr) { 
-    //if (sc.isFailure() ) {
-      ATH_MSG_WARNING("No VxPrimaryCandidate found in StoreGate");
-      return StatusCode::RECOVERABLE;
-    } else {
-      ATH_MSG_DEBUG("Found " << m_VxPrimaryCandidateName << " in StoreGate!");
-    }
-    if (importedVxContainer!=0) {
-      if (importedVxContainer->size()==0){
-        ATH_MSG_WARNING("You have no primary vertices: " << importedVxContainer->size());
-      } else {
-        xAOD::VertexContainer::const_iterator pvItr = importedVxContainer->begin();
-        primaryVertex = *pvItr;
-      }
-    }
 
 // InDetV0 container and its auxilliary store
     xAOD::VertexContainer*    v0Container(nullptr);
@@ -160,7 +130,18 @@ namespace DerivationFramework {
     xAOD::VertexContainer*    lbContainer(nullptr);
     xAOD::VertexAuxContainer* lbAuxContainer(nullptr);
 
-    if (callV0Finder && !skip) {
+    if (callV0Finder) {
+
+    // Get primary vertex from StoreGate
+    const xAOD::Vertex * primaryVertex(0);
+    const xAOD::VertexContainer * importedVxContainer(0);
+    ATH_CHECK( evtStore()->retrieve(importedVxContainer, m_VxPrimaryCandidateName) );
+    ATH_MSG_DEBUG("Found " << m_VxPrimaryCandidateName << " in StoreGate!");
+    if (importedVxContainer->size()==0){
+        ATH_MSG_WARNING("You have no primary vertices: " << importedVxContainer->size());
+    } else {
+        primaryVertex = (*importedVxContainer)[0];
+    }
 
     ATH_CHECK(m_v0FinderTool->performSearch(v0Container, v0AuxContainer, ksContainer, ksAuxContainer, laContainer, laAuxContainer, lbContainer, lbAuxContainer, primaryVertex, m_VxPrimaryCandidateName));
 
@@ -284,7 +265,7 @@ namespace DerivationFramework {
     }
 
 
-    if(skip){
+    if(!callV0Finder){ //Fill with empty containers
       v0Container = new xAOD::VertexContainer;
       v0AuxContainer = new xAOD::VertexAuxContainer;
       v0Container->setStore(v0AuxContainer);
