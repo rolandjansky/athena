@@ -746,21 +746,6 @@ exot4Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT4Kernel_jet", Skim
 # the jet skimming done above
 exot4Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT4Kernel", ThinningTools = thinningTools, AugmentationTools = augTools)
 
-
-# these lines were removed, due to the change in structure
-# needed to create EXOT4's own sequence
-# in the past all derivations ran in a single sequence
-# the sequence separation makes it easier to avoid that one derivation
-# influences the other a lot
-#
-# SPECIAL LINES FOR THINNING
-# Thinning service name must match the one passed to the thinning tools 
-#from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-#augStream = MSMgr.GetStream( streamName )
-#evtStream = augStream.GetEventStream()
-#svcMgr += createThinningSvc( svcName="EXOT4ThinningSvc", outStreams=[evtStream] )
-
-
 # now that all is said and done, we need to save it all
 # save only what we want for EXOT4
 # and therefore, everything that was auxiliary will be dropped

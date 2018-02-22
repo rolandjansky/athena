@@ -20,11 +20,6 @@ fileName   = buildFileName( derivationFlags.WriteDAOD_EXOT15Stream )
 EXOT15Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 EXOT15Stream.AcceptAlgs(["EXOT15Kernel"])
 
-#from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-#svcMgr += createThinningSvc( svcName="EXOT15ThinningSvc", outStreams=[evtStream] )
-
 SkipTriggerRequirement=(globalflags.DataSource()=='geant4')  #apply triggers only to data
 
 #====================================================================

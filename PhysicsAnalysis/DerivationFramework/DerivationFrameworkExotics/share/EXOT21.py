@@ -108,14 +108,6 @@ DerivationFrameworkJob += exot21Seq
 exot21Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT21Kernel_skim", SkimmingTools = [EXOT21AllEventsTool])
 exot21Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT21Kernel", ThinningTools = thinningTools)
 
-# SPECIAL LINES FOR THINNING
-# Thinning service name must match the one passed to the thinning tools 
-#from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-#augStream = MSMgr.GetStream( streamName )
-#evtStream = augStream.GetEventStream()
-#svcMgr += createThinningSvc( svcName="EXOT21ThinningSvc", outStreams=[evtStream] )
-
-
 #====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================

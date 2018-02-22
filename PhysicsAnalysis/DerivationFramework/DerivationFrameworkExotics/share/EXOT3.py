@@ -297,11 +297,6 @@ streamName = derivationFlags.WriteDAOD_EXOT3Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_EXOT3Stream )
 EXOT3Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 EXOT3Stream.AcceptAlgs(["EXOT3Kernel"])
-# Thinning
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="EXOT3ThinningSvc", outStreams=[evtStream] )
 
 #====================================================================
 # Add the containers to the output stream - slimming done here

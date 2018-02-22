@@ -247,13 +247,6 @@ fileName    = buildFileName( derivationFlags.WriteDAOD_EXOT8Stream )
 EXOT8Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 EXOT8Stream.AcceptAlgs(["EXOT8Kernel"])
 
-
-# Thinning
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="EXOT8ThinningSvc", outStreams=[evtStream] )
-
 # Add the containers to the output stream - slimming done here
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 EXOT8SlimmingHelper = SlimmingHelper("EXOT8SlimmingHelper")
