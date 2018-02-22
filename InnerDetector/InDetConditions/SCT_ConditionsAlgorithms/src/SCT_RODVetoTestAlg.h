@@ -18,10 +18,10 @@
 
 //Gaudi
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 
 //Athena
-#include "SCT_ConditionsServices/ISCT_ConditionsSvc.h"
+#include "SCT_ConditionsTools/ISCT_ConditionsTool.h"
 
 ///Example algorithm to show calling the SCT_RODVeto to exclude bad components
 class SCT_RODVetoTestAlg : public AthAlgorithm {
@@ -34,7 +34,7 @@ class SCT_RODVetoTestAlg : public AthAlgorithm {
   StatusCode finalize() override;
    
  private:
-  ServiceHandle<ISCT_ConditionsSvc> m_pRODVetoSvc;
+  ToolHandle<ISCT_ConditionsTool> m_pRODVetoTool{this, "SCT_RODVetoTool", "SCT_RODVetoTool", "Tool to retrieve bad modules due to vetoed RODs"};
 }; //end of class
 
 #endif // SCT_RODVetoTestAlg_H

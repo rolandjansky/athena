@@ -78,10 +78,10 @@ conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/Geog", "/SCT/DAQ/Config/Geog")
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/RODMUR", "/SCT/DAQ/Config/RODMUR")
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/MUR", "/SCT/DAQ/Config/MUR")
 
-from SCT_ConditionsServices.SCT_RODVetoSvcSetup import SCT_RODVetoSvcSetup
-sct_RODVetoSvcSetup = SCT_RODVetoSvcSetup()
-sct_RODVetoSvcSetup.setup()
-sct_RODVetoSvcSetup.getAlg().BadRODIds = [0x240100, 0x240030]
+from SCT_ConditionsTools.SCT_RODVetoToolSetup import SCT_RODVetoToolSetup
+sct_RODVetoToolSetup = SCT_RODVetoToolSetup()
+sct_RODVetoToolSetup.setup()
+sct_RODVetoToolSetup.getAlg().BadRODIds = [0x240100, 0x240030]
 
 from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_RODVetoTestAlg
 job+= SCT_RODVetoTestAlg()
@@ -89,7 +89,7 @@ job+= SCT_RODVetoTestAlg()
 
 import AthenaCommon.AtlasUnixGeneratorJob
 ServiceMgr.SCT_CablingSvc.OutputLevel = INFO
-ServiceMgr.SCT_RODVetoSvc.OutputLevel=VERBOSE
+ToolSvc.SCT_RODVetoTool.OutputLevel=VERBOSE
 ServiceMgr.EventSelector.InitialTimeStamp = 1500000000
 ServiceMgr.EventSelector.RunNumber = 300000 # MC16c 2017 run number
 theApp.EvtMax = 1

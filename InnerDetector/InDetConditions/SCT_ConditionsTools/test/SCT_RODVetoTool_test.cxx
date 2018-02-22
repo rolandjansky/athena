@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
- * @file SCT_RODVetoSvc_test.cxx
+ * @file SCT_RODVetoTool_test.cxx
  * Unit tests to test the methods of 
  * SCT_RodVetoSvc
  *
@@ -23,7 +23,7 @@
 #include "CxxUtils/make_unique.h"
 
 // Tested Algorithms
-#include "../src/SCT_RODVetoSvc.h"
+#include "../src/SCT_RODVetoTool.h"
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -39,7 +39,7 @@
 
 //local includes
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
-#include "SCT_ConditionsServices/ISCT_ConditionsSvc.h"
+#include "SCT_ConditionsTools/ISCT_ConditionsTool.h"
 #include "SCT_Cabling/SCT_CablingSvc.h"
 #include "SCT_Cabling/ISCT_FillCabling.h"
 #include "src/SCT_FillCablingFromText.h"
@@ -63,8 +63,8 @@ class GaudiEnvironment : public ::testing::Environment {
         // Easy way to set up services
         const ServiceLocatorHelper helper(*g_svcLoc, "HELPER");
 
-        // Set up a new StoreGateSvc instance named DetectorStore, as SCT_RODVetoSvc needs
-        IService* i_svc = helper.service("StoreGateSvc/DetectorStore", true /*queit*/ , true /*createIf*/);
+        // Set up a new StoreGateSvc instance named DetectorStore, as SCT_RODVetoTool needs
+        IService* i_svc = helper.service("StoreGateSvc/DetectorStore", true /*quiet*/ , true /*createIf*/);
         StoreGateSvc* detStore = dynamic_cast<StoreGateSvc*> (i_svc);
         if (detStore) {
             StatusCode sc = detStore->record(pHelper, "SCT_ID");
@@ -77,52 +77,52 @@ class GaudiEnvironment : public ::testing::Environment {
 
 
 
-class SCT_RODVetoSvc_test: public ::testing::Test{
+class SCT_RODVetoTool_test: public ::testing::Test{
 
   protected:
 
 
     virtual void SetUp() override {
-        ISvcLocator* g_svcLoc =  Gaudi::svcLocator();
-    	m_svc = new SCT_RODVetoSvc("SCT_RODVetoSvc", g_svcLoc );
+        ISCT_ConditionsTool* parent{nullptr};
+        m_tool = new SCT_RODVetoTool("SCT_RODVetoTool", "SCT_RODVetoTool", parent);
         
     }
 
 
     virtual void TearDown() override {
-    	delete m_svc;
+    	delete m_tool;
     }   
 
 
 
-    SCT_RODVetoSvc* m_svc = nullptr;
+    SCT_RODVetoTool* m_tool = nullptr;
     };
 
 
 
 
-TEST_F(SCT_RODVetoSvc_test, Initialization) {
-  ASSERT_TRUE( m_svc->initialize().isSuccess() );
+TEST_F(SCT_RODVetoTool_test, Initialization) {
+  ASSERT_TRUE( m_tool->initialize().isSuccess() );
 }
 
-TEST_F(SCT_RODVetoSvc_test, Finalization) {
-  ASSERT_TRUE( m_svc->finalize().isSuccess() );
+TEST_F(SCT_RODVetoTool_test, Finalization) {
+  ASSERT_TRUE( m_tool->finalize().isSuccess() );
   }
 
 
-TEST_F(SCT_RODVetoSvc_test, queryInterface) {
+TEST_F(SCT_RODVetoTool_test, queryInterface) {
 
   //It wants a pointer to a pointer, I give it a pointer to a pointer
   void* b = nullptr;
   void** ppvInterface = &b;
   const InterfaceID rrid("ISCT_ConditionsSvc", 1, 0);
-  ASSERT_TRUE( m_svc->queryInterface(rrid  ,ppvInterface ).isSuccess() );
+  ASSERT_TRUE( m_tool->queryInterface(rrid  ,ppvInterface ).isSuccess() );
   }
 
 
  
-TEST_F(SCT_RODVetoSvc_test, canReportAbout) {
-  ASSERT_TRUE(  m_svc->canReportAbout(InDetConditions::DEFAULT)  );
+TEST_F(SCT_RODVetoTool_test, canReportAbout) {
+  ASSERT_TRUE(  m_tool->canReportAbout(InDetConditions::DEFAULT)  );
 }
 
 
@@ -133,54 +133,54 @@ TEST_F(SCT_RODVetoSvc_test, canReportAbout) {
  //but to do it you have to create the cabling
  //service and properly initialize it with
  //rods etc.
-TEST_F(SCT_RODVetoSvc_test, isGood) {
-  //m_svc->initialize();
-  //m_svc->fillData();
+TEST_F(SCT_RODVetoTool_test, isGood) {
+  //m_tool->initialize();
+  //m_tool->fillData();
   //IdentifierHash * hashId = new IdentifierHash(0x240100);
   //IdentifierHash anyRandomHash(1000); 
-  ASSERT_FALSE(  m_svc->isGood(0x240100)  );
-  //ASSERT_FALSE(  m_svc->isGood(0)  );
+  ASSERT_FALSE(  m_tool->isGood(0x240100)  );
+  //ASSERT_FALSE(  m_tool->isGood(0)  );
 }
 */
 
 
-TEST_F(SCT_RODVetoSvc_test, isGood) {
-  m_svc->initialize(); 
+TEST_F(SCT_RODVetoTool_test, isGood) {
+  m_tool->initialize(); 
   const Identifier elementId (0);
 
 
-  ASSERT_TRUE(  m_svc->isGood( elementId , InDetConditions::DEFAULT)  );
+  ASSERT_TRUE(  m_tool->isGood( elementId , InDetConditions::DEFAULT)  );
 }
      
 
 
-TEST_F(SCT_RODVetoSvc_test, fillData ) {
-  m_svc->initialize();
-  ASSERT_FALSE(  m_svc->fillData().isSuccess()  );
-}
+// TEST_F(SCT_RODVetoTool_test, fillData ) {
+//   m_tool->initialize();
+//   ASSERT_FALSE(  m_tool->fillData().isSuccess()  );
+// }
 
 
-TEST_F(SCT_RODVetoSvc_test, canFillDuringInitialization) {
-  ASSERT_FALSE(  m_svc->canFillDuringInitialize()  );
-}
+// TEST_F(SCT_RODVetoTool_test, canFillDuringInitialization) {
+//   ASSERT_FALSE(  m_tool->canFillDuringInitialize()  );
+// }
 
 
-TEST_F(SCT_RODVetoSvc_test, isFilled ) {
- m_svc->initialize();
+// TEST_F(SCT_RODVetoTool_test, isFilled ) {
+//  m_tool->initialize();
  
-  auto bad_elems = CxxUtils::make_unique< std::vector<unsigned int> > ();
-  SG::WriteHandle< std::vector<unsigned int> > wh_badRODElements{"BadRODIdentifiers"};
-  wh_badRODElements.initialize();
-  wh_badRODElements.record( std::move(bad_elems) );
-  wh_badRODElements->push_back(0x240100 ); 
-  std::cout << wh_badRODElements.key() << std::endl;
-  std::cout << wh_badRODElements->at(0) << std::endl;
+//   auto bad_elems = CxxUtils::make_unique< std::vector<unsigned int> > ();
+//   SG::WriteHandle< std::vector<unsigned int> > wh_badRODElements{"BadRODIdentifiers"};
+//   wh_badRODElements.initialize();
+//   wh_badRODElements.record( std::move(bad_elems) );
+//   wh_badRODElements->push_back(0x240100 );
+//   std::cout << wh_badRODElements.key() << std::endl;
+//   std::cout << wh_badRODElements->at(0) << std::endl;
 
 
-  m_svc->fillData();
+//   m_tool->fillData();
 
-  ASSERT_TRUE(  m_svc->filled()   );
-}
+//   ASSERT_TRUE(  m_tool->filled()   );
+// }
 
 
 

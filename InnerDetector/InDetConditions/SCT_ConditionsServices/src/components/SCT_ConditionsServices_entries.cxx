@@ -27,8 +27,6 @@
 #include "../SCT_ChargeTrappingSvc.h"
 #include "../SCT_RadDamageSummarySvc.h"
 
-#include "../SCT_RODVetoSvc.h"
-
 DECLARE_COMPONENT( SCT_ConditionsSummarySvc )
 DECLARE_COMPONENT( SCT_CachedSummarySvc )
 DECLARE_COMPONENT( SCT_ModuleVetoSvc )
@@ -44,7 +42,6 @@ DECLARE_COMPONENT( SCT_TdaqEnabledSvc )
 DECLARE_COMPONENT( SCT_MajorityConditionsSvc )
 DECLARE_COMPONENT( SCT_ChargeTrappingSvc )
 DECLARE_COMPONENT( SCT_RadDamageSummarySvc )
-DECLARE_COMPONENT( SCT_RODVetoSvc )
 
 
 

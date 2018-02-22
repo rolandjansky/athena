@@ -1,13 +1,13 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
-class SCT_RODVetoSvcSetup:
-    "Class to simplify setup of SCT_RODVetoSvc and required conditions algorithm"
+class SCT_RODVetoToolSetup:
+    "Class to simplify setup of SCT_RODVetoTool and required conditions algorithm"
 
     def __init__(self):
         self.algName = "SCT_RODVetoCondAlg"
         self.alg = None
-        self.svcName = "SCT_RODVetoSvc"
-        self.svc = None
+        self.toolName = "SCT_RODVetoTool"
+        self.tool = None
 
     def setAlg(self):
         # In this case, conditions algorithm is scheduled in NOT AthCondSeq but AthAlgSeq 
@@ -22,16 +22,16 @@ class SCT_RODVetoSvcSetup:
     def getAlg(self):
         return self.alg
 
-    def setSvc(self):
-        from AthenaCommon.AppMgr import ServiceMgr
-        if not hasattr(ServiceMgr, self.svcName):
-            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_RODVetoSvc
-            ServiceMgr += SCT_RODVetoSvc(name = self.svcName)
-        self.svc = getattr(ServiceMgr, self.svcName)
+    def setTool(self):
+        from AthenaCommon.AppMgr import ToolSvc
+        if not hasattr(ToolSvc, self.toolName):
+            from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_RODVetoTool
+            ToolSvc += SCT_RODVetoTool(name = self.toolName)
+        self.tool = getattr(ToolSvc, self.toolName)
 
-    def getSvc(self):
-        return self.svc
+    def getTool(self):
+        return self.tool
 
     def setup(self):
         self.setAlg()
-        self.setSvc()
+        self.setTool()
