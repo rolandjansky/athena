@@ -13,6 +13,7 @@
 #include <TRandom3.h>
 #include <TClass.h>
 namespace CP {
+    unsigned int EfficiencyScaleFactor::m_warningLimit = 10;
     EfficiencyScaleFactor::EfficiencyScaleFactor() :
                 m_toolname(),
                 m_sf(nullptr),
@@ -33,7 +34,23 @@ namespace CP {
                 m_default_eff_ttva(1.),
                 m_Type(CP::MuonEfficiencyType::Undefined),
                 m_NominalFallBack(nullptr),
-                m_SystematicBin(-1) {
+                m_SystematicBin(-1),
+                m_warnsPrinted(0),
+                m_firstRun(0),
+                m_lastRun(999999) {
+    }
+    unsigned int EfficiencyScaleFactor::firstRun() const{
+        return m_firstRun;
+    }
+    unsigned int EfficiencyScaleFactor::lastRun() const{
+        return m_lastRun;
+    }
+    bool EfficiencyScaleFactor::coversRunNumber(unsigned int run) const{
+        return m_firstRun <= run && run <= m_lastRun;
+    }
+    void EfficiencyScaleFactor::setFirstLastRun(unsigned int first, unsigned int last){
+        m_firstRun = first;
+        m_lastRun = last;
     }
     std::string EfficiencyScaleFactor::toolname() const {
         return m_toolname;
@@ -77,6 +94,8 @@ namespace CP {
         m_is_lowpt = other.m_is_lowpt;
         m_respond_to_kineDepSyst = other.m_respond_to_kineDepSyst;
         m_Type = other.m_Type;
+        m_firstRun = other.m_firstRun;
+        m_lastRun = other.m_lastRun;
         CopyHistHandler(m_sf, other.m_sf);
         CopyHistHandler(m_eff, other.m_eff);
         CopyHistHandler(m_mc_eff, other.m_mc_eff);
@@ -263,13 +282,17 @@ namespace CP {
     CorrectionCode EfficiencyScaleFactor::GetContentFromHist(HistHandler_Ptr Hist, IKinematicSystHandler_Ptr PtDepHist, const xAOD::Muon& mu, float & Eff, bool PtDepHistNeeded) const {
         Eff = m_default_eff;
         if (!Hist) {
-            Warning("EfficiencyScaleFactor", "Could not find histogram for variation %s and muon with pt=%.4f, eta=%.2f and phi=%.2f, returning %.1f", sysname().c_str(), mu.pt(), mu.eta(), mu.phi(), m_default_eff);
+            if (m_warnsPrinted < m_warningLimit){
+                Warning("EfficiencyScaleFactor", "Could not find histogram for variation %s and muon with pt=%.4f, eta=%.2f and phi=%.2f, returning %.1f", sysname().c_str(), mu.pt(), mu.eta(), mu.phi(), m_default_eff);
+                ++m_warnsPrinted;
+            }
             return CorrectionCode::OutOfValidityRange;
         }
         if (m_Type == CP::MuonEfficiencyType::TTVA && fabs(mu.eta()) > 2.5 && fabs(mu.eta()) <= 2.7 && mu.muonType() == xAOD::Muon::MuonType::MuonStandAlone) {
-            static bool Warned = false;
-            if (!Warned) Info("EfficiencyScaleFactor", "No TTVA sf/efficiency provided for standalone muons with 2.5<|eta|<2.7 for variation %s and muon with pt=%.4f, eta=%.2f and phi=%.2f, returning %.1f", sysname().c_str(), mu.pt(), mu.eta(), mu.phi(), m_default_eff_ttva);
-            Warned = true;
+            if (m_warnsPrinted < m_warningLimit){
+                Info("EfficiencyScaleFactor", "No TTVA sf/efficiency provided for standalone muons with 2.5<|eta|<2.7 for variation %s and muon with pt=%.4f, eta=%.2f and phi=%.2f, returning %.1f", sysname().c_str(), mu.pt(), mu.eta(), mu.phi(), m_default_eff_ttva);
+                ++m_warnsPrinted;
+            }
             Eff = m_default_eff_ttva;
             return CorrectionCode::Ok;
         }

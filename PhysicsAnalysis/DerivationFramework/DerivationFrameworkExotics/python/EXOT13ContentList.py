@@ -5,22 +5,22 @@ EXOT13SmartContent = [
     "Electrons",
     "Muons",
     "PrimaryVertices",
-    "AntiKt4EMTopoJets"
+    "MET_Reference_AntiKt4EMTopo",
+    "AntiKt4EMTopoJets",
+    "AntiKt4TruthJets",
+    "AntiKt4TruthWZJets"
 ]
 
 EXOT13AllVariablesContent = [
-    "ExtrapolatedMuonTrackParticles",
     "MuonSpectrometerTrackParticles",
+    "ExtrapolatedMuonTrackParticles",
     "METAssoc_AntiKt4EMTopo",
     "MET_Core_AntiKt4EMTopo",
-    "MET_Reference_AntiKt4EMTopo",
     "MET_Truth",
     "TruthEvents",
     "TruthVertices",
     "TruthParticles",
-    "LVL1MuonRoIs",
-    "AntiKt4TruthJets",
-    "AntiKt4TruthWZJets"
+    "LVL1MuonRoIs"
 ]
 
 EXOT13ExtraVariables = [
@@ -30,3 +30,4 @@ EXOT13ExtraVariables = [
 ]
 
 EXOT13UnslimmedContent = []
+

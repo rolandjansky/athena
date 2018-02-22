@@ -88,7 +88,7 @@ CommonSmearingTool::CommonSmearingTool(std::string sName)
   declareProperty("InputFilePath",       m_sInputFilePath       = "" );
   declareProperty("SkipTruthMatchCheck", m_bSkipTruthMatchCheck = false );
   declareProperty("ApplyFading",         m_bApplyFading         = true );
-  declareProperty("ApplyMVATES",         m_bApplyMVATES         = false );
+  declareProperty("ApplyMVATES",         m_bApplyMVATES         = true );
   declareProperty("ApplyCombinedTES",    m_bApplyCombinedTES    = false );
   declareProperty("ApplyMVATESQualityCheck", m_bApplyMVATESQualityCheck = true );
 }
@@ -141,21 +141,10 @@ StatusCode CommonSmearingTool::initialize()
   if (applySystematicVariation(CP::SystematicSet()) != CP::SystematicCode::Ok )
     return StatusCode::FAILURE;
 
-#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
-  if (m_bApplyMVATES)
-  {
-    ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tMvaTESVariableDecorator, MvaTESVariableDecorator));
-    ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tMvaTESEvaluator, MvaTESEvaluator));
-    ATH_CHECK(m_tMvaTESEvaluator.setProperty("WeightFileName", "MvaTES_20161015_pi0fix_BDTG.weights.xml"));
-    ATH_CHECK(m_tMvaTESVariableDecorator.initialize());
-    ATH_CHECK(m_tMvaTESEvaluator.initialize());
-  }
-#endif
-
   if (m_bApplyCombinedTES || m_bApplyMVATES) // CombinedTES has to be available for MVA fix
   {
     ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tCombinedP4FromRecoTaus, CombinedP4FromRecoTaus));
-    ATH_CHECK(m_tCombinedP4FromRecoTaus.setProperty("WeightFileName", "CalibLoopResult.root"));
+    ATH_CHECK(m_tCombinedP4FromRecoTaus.setProperty("WeightFileName", "CalibLoopResult_v04-04.root"));
     ATH_CHECK(m_tCombinedP4FromRecoTaus.initialize());
   }
 

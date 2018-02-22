@@ -52,14 +52,19 @@ case ${TYPE} in
             shift
         fi
         NFILES=""
+        NFILES_PER_JOB=""
         if [ $1 == "--n-files" ]; then
-            NFILES="--nFiles $2 --nFilesPerJob $2"
+            NFILES="--nFiles $2"
+            NFILES_PER_JOB="--nFilesPerJob $2"
             shift
             shift
         fi
         SPLIT=""
+        LARGE_JOB="--long --memory 4096"
         if [ $1 == "--split" ]; then
             SPLIT="--split $2"
+            NFILES_PER_JOB=""
+            LARGE_JOB=""
             shift
             shift
         fi
@@ -116,6 +121,15 @@ case ${TYPE} in
         ;;
 esac
 
+# general options
+PATHENA_OPTIONS="--destSE=CERN-PROD_SCRATCHDISK"
+OUT="%OUT.tar"
+
+# we seem to have to copy the env variables locally
+GRID_OPTIONS=$ART_GRID_OPTIONS
+echo "GRID_OPTIONS=${GRID_OPTIONS}"
+
+
 if [ ${SKIP_SETUP} -eq 0 ]; then
     # maybe not necessary
     PLATFORM=${AtlasProject}_PLATFORM
@@ -131,18 +145,10 @@ if [ ${SKIP_SETUP} -eq 0 ]; then
     lsetup panda "asetup --platform=${!PLATFORM} ${AtlasBuildBranch},${AtlasBuildStamp},${AtlasProject}" || true
     echo "Setting up panda and release done"
 
-    voms-proxy-init --rfc -noregen -cert ./grid.proxy -voms atlas || true
+    voms-proxy-init --rfc -noregen -cert ./grid.proxy -voms atlas --valid 24:00 || true
     echo "Setting up proxy done"
 
 fi
-
-# general options
-PATHENA_OPTIONS="--destSE=CERN-PROD_SCRATCHDISK"
-OUT="%OUT.tar"
-
-# we seem to have to copy the env variables locally
-GRID_OPTIONS=$ART_GRID_OPTIONS
-echo "GRID_OPTIONS=${GRID_OPTIONS}"
 
 case ${TYPE} in
 
@@ -157,7 +163,7 @@ case ${TYPE} in
     'single')
         # <script_directory> <sequence_tag> <package> <outfile> <job_name>
         INTERNAL_COMMAND="grid single"
-        PATHENA_TYPE_OPTIONS="--long --memory 4096 ${INDS} ${NFILES}"
+        PATHENA_TYPE_OPTIONS="${LARGE_JOB} ${INDS} ${NFILES} ${NFILES_PER_JOB}"
         ARGS="${JOB_NAME}"
         echo "PATHENA_TYPE_OPTIONS=${PATHENA_TYPE_OPTIONS}"
         echo "ARGS=${ARGS}"
@@ -168,7 +174,7 @@ esac
 # NOTE: for art-internal.py the current dir can be used as it is copied there
 cd ${SUBMIT_DIRECTORY}/${PACKAGE}/run
 SUBCOMMAND="./art-internal.py ${INTERNAL_COMMAND} ${IN_FILE} ${SCRIPT_DIRECTORY} ${SEQUENCE_TAG} ${PACKAGE} ${OUT} ${ARGS}"
-CMD="pathena --disableAutoRetry ${GRID_OPTIONS} ${PATHENA_OPTIONS} ${PATHENA_TYPE_OPTIONS} --noBuild --expertOnly_skipScout --trf \"${SUBCOMMAND}\" ${SPLIT} --outDS ${OUTFILE} --extOutFile art-job.json"
+CMD="pathena ${GRID_OPTIONS} ${PATHENA_OPTIONS} ${PATHENA_TYPE_OPTIONS} --noBuild --expertOnly_skipScout --trf \"${SUBCOMMAND}\" ${SPLIT} --outDS ${OUTFILE} --extOutFile art-job.json"
 
 #--disableAutoRetry
 #--excludedSite=ANALY_TECHNION-HEP-CREAM

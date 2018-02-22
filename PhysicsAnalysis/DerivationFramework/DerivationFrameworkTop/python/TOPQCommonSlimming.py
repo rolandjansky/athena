@@ -104,7 +104,8 @@ def setup(TOPQname, stream):
   TOPQSlimmingHelper.IncludeTauTriggerContent    = True
   TOPQSlimmingHelper.IncludeEtMissTriggerContent = True
   #TOPQSlimmingHelper.IncludeJetTauEtMissTriggerContent = True
-  #TOPQSlimmingHelper.IncludeBJetTriggerContent         = True
+  if TOPQname == 'TOPQ4':
+    TOPQSlimmingHelper.IncludeBJetTriggerContent         = True
   #TOPQSlimmingHelper.IncludeBPhysTriggerContent        = True
   #TOPQSlimmingHelper.IncludeMinBiasTriggerContent      = True
 

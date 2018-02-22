@@ -22,9 +22,6 @@ namespace EL
 {
   class Algorithm;
   class AnaAlgorithmWrapper;
-  struct BackgroundJob;
-  class BackgroundSocket;
-  class BackgroundWorker;
   class BatchDriver;
   struct BatchJob;
   struct BatchSample;
@@ -36,14 +33,11 @@ namespace EL
   class Driver;
   class GEDriver;
   class Job;
+  class JobConfig;
   class LLDriver;
   class LSFDriver;
   class LocalDriver;
   class OutputStream;
-  struct ProofArgs;
-  class ProofDriver;
-  class ProofTSelector;
-  class ProofWorker;
   class SlurmDriver;
   class StatusCode;
   class TorqueDriver;

@@ -8,6 +8,7 @@ from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
+from DerivationFrameworkInDet.InDetCommon import *
 
 if globalflags.DataSource()=='geant4':
     from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
@@ -77,7 +78,7 @@ thinningTools=[]
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 EXOT21TPThinningTool = DerivationFramework__TrackParticleThinning(name                    =  "EXOT21TPThinningTool",
                                                                   ThinningService = EXOT21ThinningHelper.ThinningSvc(),
-                                                                  SelectionString         =  "InDetTrackParticles.pt > 0.5*GeV && InDetTrackParticles.eta > -2.5 && InDetTrackParticles.eta < 2.5",
+                                                                  SelectionString         =  "InDetTrackParticles.pt > 0.5*GeV && InDetTrackParticles.eta > -2.5 && InDetTrackParticles.eta < 2.5 && abs(DFCommonInDetTrackZ0AtPV)*sin(InDetTrackParticles.theta) <= 1.5",
                                                                   InDetTrackParticlesKey  =  "InDetTrackParticles")
 ToolSvc += EXOT21TPThinningTool
 thinningTools.append(EXOT21TPThinningTool)

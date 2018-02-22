@@ -36,11 +36,8 @@ namespace CP {
     //static const double commonSystMTSG = 0.01;
     static const double muon_barrel_endcap_boundary = 1.05;
     unsigned int MuonTriggerScaleFactors::getFallBackRunNumber() const{
-        return 311481;
+        return 340453;
     }
-    // ==================================================================================
-    // == MuonTriggerScaleFactors::MuonTriggerScaleFactors
-    // ==================================================================================
     MuonTriggerScaleFactors::MuonTriggerScaleFactors(const std::string& name) :
                 asg::AsgTool(name),
 
@@ -53,45 +50,58 @@ namespace CP {
 
                 m_muonquality("Medium"),
 
-                m_calibration_version("170128_Moriond"),
+                m_calibration_version("180214_Moriond21"),
                 m_custom_dir(),
                 m_binning("fine"),
+		m_eventInfoContName("EventInfo"),
                 m_allowZeroSF(false),
+		m_experimental(false),
+		m_useRel207(false),
                 m_replicaTriggerList(),
                 m_replicaSet(),
                 m_nReplicas(100),
                 m_ReplicaRandomSeed(12345) {
+      
         declareProperty("MuonQuality", m_muonquality); // HighPt,Tight,Medium,Loose
         declareProperty("CalibrationRelease", m_calibration_version);
         // these are for debugging / testing, *not* for general use!
         declareProperty("filename", m_fileName);
         declareProperty("CustomInputFolder", m_custom_dir);
         declareProperty("Binning", m_binning); // fine or coarse
-
+        declareProperty("UseExperimental", m_experimental); // enable experimental features like single muon SF
+        declareProperty("useRel207", m_useRel207); // fine or coarse	
         //Properties needed for TOY setup for a given trigger: No replicas if m_replicaTriggerList is empty
         declareProperty("ReplicaTriggerList", m_replicaTriggerList, "List of triggers on which we want to generate stat. uncertainty toy replicas.");
         declareProperty("NReplicas", m_nReplicas, "Number of generated toy replicas, if replicas are required.");
         declareProperty("ReplicaRandomSeed", m_ReplicaRandomSeed, "Random seed for toy replica generation.");
         declareProperty("AllowZeroSF", m_allowZeroSF, "If a trigger is not available will return 0 instead of throwing an error. More difficult to spot configuration issues. Use at own risk");
+	declareProperty("EventInfoContName", m_eventInfoContName, "Overwrite default event info container name");
+
     }
 
-    // ==================================================================================
-    // == MuonTriggerScaleFactors::~MuonTriggerScaleFactors()
-    // ==================================================================================
-    MuonTriggerScaleFactors::~MuonTriggerScaleFactors() {
-    }
-    StatusCode MuonTriggerScaleFactors::LoadTriggerMap(unsigned int year) {
+    MuonTriggerScaleFactors::~MuonTriggerScaleFactors() { }
+
+  StatusCode MuonTriggerScaleFactors::LoadTriggerMap(unsigned int year) {
 
         std::string fileName = m_fileName;
-        if (fileName.empty()) {
-            if (year == 2015) fileName = "muontrigger_sf_2015_mc15c_v01.root";
-            else if (year == 2016) fileName = "muontrigger_sf_2016_mc15c_v02.root";
+        if (fileName.empty() && !m_useRel207) {
+            if (year == 2015) fileName = "muontrigger_sf_2015_mc16a_v01.root";
+            else if (year == 2016) fileName = "muontrigger_sf_2016_mc16a_v01.root";
+	    else if (year == 2017) fileName = "muontrigger_sf_2017_mc16c_v01.root";
             else {
                 ATH_MSG_WARNING("There is no SF file for year " << year << " yet");
                 return StatusCode::SUCCESS;
-            }
+            }	    
         }
-
+	else if (fileName.empty()) {
+	  if (year == 2015) fileName = "muontrigger_sf_2015_mc15c_v01.root";
+	  else if (year == 2016) fileName = "muontrigger_sf_2016_mc15c_v02.root";
+	  else {
+	    ATH_MSG_WARNING("There is no SF file for year " << year << " yet");
+	    return StatusCode::SUCCESS;
+	  }  
+        }
+	
         TDirectory* origDir = gDirectory;
 
         std::string filePath;
@@ -101,7 +111,8 @@ namespace CP {
             if (filePath.empty()) {
                 ATH_MSG_ERROR("Unable to resolve the input file " << fileName << " via PathResolver.");
             }
-        } else {
+        }
+	else {
             ATH_MSG_INFO("Note: setting up with user specified input file location " << m_custom_dir << " - this is not encouraged!");
             filePath = Form("%s/%s", m_custom_dir.c_str(), fileName.c_str());
         }
@@ -202,6 +213,8 @@ namespace CP {
         ATH_MSG_INFO("CalibrationRelease = '" << m_calibration_version << "'");
         ATH_MSG_INFO("CustomInputFolder = '" << m_custom_dir << "'");
         ATH_MSG_INFO("AllowZeroSF = " << m_allowZeroSF);
+	ATH_MSG_INFO("experimental = " << m_experimental);
+	ATH_MSG_INFO("useRel27 = " << m_useRel207);
 
         if (registerSystematics() != CP::SystematicCode::Ok) {
             return StatusCode::FAILURE;
@@ -220,30 +233,64 @@ namespace CP {
             ATH_CHECK(LoadTriggerMap(i));
         }
         return StatusCode::SUCCESS;
-    } // end of initialize function
+    }
+  
+    CorrectionCode MuonTriggerScaleFactors::getTriggerScaleFactor(const xAOD::Muon& muon, Double_t& triggersf, const std::string& trigger) const {
+      if(!m_experimental){
+	ATH_MSG_ERROR("MuonTriggerScaleFactors::getTriggerScaleFactor This is an experimental function. If you really know what you are doing set UseExperimental property.");
+      return CorrectionCode::Error;
+      }
+	
+      if (trigger.empty()) {
+	ATH_MSG_ERROR("MuonTriggerScaleFactors::getTriggerScaleFactor Trigger must have value.");
+	return CorrectionCode::Error;
+      }
 
-    ///////////////////////
-    // Public functions  //
-    ///////////////////////
+      unsigned int run = getRunNumber();
+      auto year = getYear(run);
+      if(year == 2017 && m_muonquality=="HighPt"){
+	ATH_MSG_ERROR("Scale factors for HighPt working point are currently not supported for 2017. Returning 1. Update coming soon, so please stay tuned.");
+	triggersf = 1.;
+	return CorrectionCode::Ok;
+      }
+      
+      TrigMuonEff::Configuration configuration;
 
+      if (trigger == "HLT_mu8noL1")
+	ATH_MSG_WARNING("What you are trying to do is not correct. For di-muon triggers you should get the efficiency with getTriggerEfficiency and compute the SF by yourself.");
+      else if (trigger.find("HLT_2mu10") != std::string::npos || trigger.find("HLT_2mu14") != std::string::npos)
+	ATH_MSG_WARNING("Di-muon trigger scale factors for single reco muons are not supported!");
+      else
+	return GetTriggerSF(triggersf, configuration, muon, trigger);
+      return CorrectionCode::Ok;
+    }
     
-    // ==================================================================================
-    // == MuonTriggerScaleFactors::getTriggerScaleFactor
-    // ==================================================================================
-    CorrectionCode MuonTriggerScaleFactors::getTriggerScaleFactor(const xAOD::MuonContainer& mucont, Double_t& triggersf, const std::string& trigger) {
+    CorrectionCode MuonTriggerScaleFactors::getTriggerScaleFactor(const xAOD::MuonContainer& mucont, Double_t& triggersf, const std::string& trigger) const{
         if (trigger.empty()) {
             ATH_MSG_ERROR("MuonTriggerScaleFactors::getTriggerScaleFactor Trigger must have value.");
             return CorrectionCode::Error;
         }
 
+	unsigned int run = getRunNumber();
+	auto year = getYear(run);
+	if(year == 2017 && m_muonquality=="HighPt"){
+	  ATH_MSG_ERROR("Scale factors for HighPt working point are currently not supported for 2017. Returning 1. Update coming soon, so please stay tuned.");
+	  triggersf = 1.;
+	  return CorrectionCode::Ok;
+	}
+
         TrigMuonEff::Configuration configuration;
 
         if (trigger == "HLT_mu8noL1") {
-            //if(trigger == "HLT_mu8noL1" || trigger == "HLT_mu10" || trigger == "HLT_mu14" || trigger == "HLT_mu18" || trigger == "HLT_mu20" || trigger == "HLT_mu22" || trigger == "HLT_mu24" || trigger == "HLT_mu26"){
             ATH_MSG_WARNING("What you are trying to do is not correct. For di-muon triggers you should get the efficiency with getTriggerEfficiency and compute the SF by yourself.");
-        } else if (trigger.find("HLT_2mu10") != std::string::npos || trigger.find("HLT_2mu14") != std::string::npos) {
+        }
+	else if (trigger.find("HLT_2mu10") != std::string::npos || trigger.find("HLT_2mu14") != std::string::npos) {
+	  if(!m_useRel207){
+	    ATH_MSG_ERROR("You try to retrieve scale factors for di-muon triggers which have not been measured in release 21, yet. If you want to use the SFs measured in release 20.7, please set m_useRel207. This will be updated soon, for now giving up.");
+	    return CorrectionCode::Error;
+	  }
             CorrectionCode cc = GetTriggerSF_dimu(triggersf, configuration, mucont, trigger);
-            return cc;
+	  return cc;
         } else {
             CorrectionCode cc = GetTriggerSF(triggersf, configuration, mucont, trigger);
             return cc;
@@ -257,17 +304,14 @@ namespace CP {
     // Gets  replica index correponding to the toy.
     // Also checks if the sys_name contains "MCTOY" and if the trigger has replicas generated.
     // Returns -1 if conditions are note satisfied
-    int MuonTriggerScaleFactors::getReplica_index(std::string sysBaseName, const std::string trigStr) {
+    int MuonTriggerScaleFactors::getReplica_index(std::string sysBaseName, const std::string trigStr) const{
         if (m_replicaSet.find(trigStr) == m_replicaSet.end()) return -1; //No toys for this trigger
         std::size_t pos = sysBaseName.find("MCTOY");
         if (pos == std::string::npos) return -1; //sys variation not affected by TOYS
         return atoi(sysBaseName.substr(pos + 5, pos + 8).c_str()); //toys for this trigger are around get the 3-digit number
     }
 
-    // ==================================================================================
-    // == MuonTriggerScaleFactors::getTriggerEfficiency
-    // ==================================================================================
-    CorrectionCode MuonTriggerScaleFactors::getTriggerEfficiency(const xAOD::Muon& mu, Double_t& efficiency, const std::string& trigger, Bool_t dataType) {
+    CorrectionCode MuonTriggerScaleFactors::getTriggerEfficiency(const xAOD::Muon& mu, Double_t& efficiency, const std::string& trigger, Bool_t dataType) const{
         if (trigger.empty()) {
             ATH_MSG_ERROR("MuonTriggerScaleFactors::getTriggerEfficiency Trigger must have value.");
             return CorrectionCode::Error;
@@ -349,9 +393,27 @@ namespace CP {
         return replica_v;
     }
 
-    // ==================================================================================
-    // == MuonTriggerScaleFactors::getMuonEfficiency
-    // ==================================================================================
+  int MuonTriggerScaleFactors::getBinNumber(const xAOD::Muon& muon, const std::string& trigger) const{
+    if(!m_experimental){
+      ATH_MSG_ERROR("MuonTriggerScaleFactors::getTriggerScaleFactor This is an experimental function. If you really know what you are doing set UseExperimental property.");
+      return CorrectionCode::Error;
+    }
+
+    const double mu_eta = muon.eta();
+    const double mu_phi = muon.phi();
+    bool isBarrel = fabs(mu_eta) < muon_barrel_endcap_boundary;
+    TH1_Ptr cit = getEfficiencyHistogram(trigger, true, "nominal", isBarrel);
+    if(!cit.get()){
+      ATH_MSG_ERROR("Could not find efficiency map for muon with eta: " << mu_eta << " and phi: " << mu_phi << ". Something is inconsistent. Please check your settings for year, mc and trigger." );
+      return -1;
+    }
+    auto eff_h2 = cit;
+    double mu_phi_corr = mu_phi;
+    if (mu_phi_corr < eff_h2->GetYaxis()->GetXmin()) mu_phi_corr += 2.0 * TMath::Pi();
+    if (mu_phi_corr > eff_h2->GetYaxis()->GetXmax()) mu_phi_corr -= 2.0 * TMath::Pi();
+    return eff_h2->FindFixBin(mu_eta, mu_phi_corr);
+  }
+
     unsigned int MuonTriggerScaleFactors::encodeHistoName(const std::string& period, const std::string& Trigger, bool isData, const std::string& Systematic, bool isBarrel) const {
         //keep the string as short as possible
         const std::string histName = period + "_" + Trigger + "_" + (isBarrel ? "b" : "e") + "_" + (isData ? "data" : "mc") + Systematic;
@@ -376,7 +438,7 @@ namespace CP {
         return getEfficiencyHistogram(getYear(run), getDataPeriod(run), trigger, isData, Systematic, isBarrel);
     }
 
-    CorrectionCode MuonTriggerScaleFactors::getMuonEfficiency(Double_t& eff, const TrigMuonEff::Configuration& configuration, const xAOD::Muon& muon, const std::string& trigger, const std::string& systematic) {
+    CorrectionCode MuonTriggerScaleFactors::getMuonEfficiency(Double_t& eff, const TrigMuonEff::Configuration& configuration, const xAOD::Muon& muon, const std::string& trigger, const std::string& systematic) const{
         const double mu_eta = muon.eta();
         const double mu_phi = muon.phi();
         bool isBarrel = fabs(mu_eta) < muon_barrel_endcap_boundary;
@@ -434,10 +496,7 @@ namespace CP {
 
     }
 
-    // ==================================================================================
-    // == MuonTriggerScaleFactors::GetTriggerSF_dimu
-    // ==================================================================================
-    CorrectionCode MuonTriggerScaleFactors::GetTriggerSF_dimu(Double_t& TriggerSF, TrigMuonEff::Configuration& configuration, const xAOD::MuonContainer& mucont, const std::string& trigger) {
+    CorrectionCode MuonTriggerScaleFactors::GetTriggerSF_dimu(Double_t& TriggerSF, TrigMuonEff::Configuration& configuration, const xAOD::MuonContainer& mucont, const std::string& trigger) const{
 
         if (mucont.size() != 2) {
             ATH_MSG_FATAL("MuonTriggerScaleFactors::GetTriggerSF;Currently dimuon trigger chains only implemented for events with exactly 2 muons.");
@@ -497,10 +556,7 @@ namespace CP {
         return CorrectionCode::Ok;
     }
 
-    // ==================================================================================
-    // == MuonTriggerScaleFactors::GetTriggerSF
-    // ==================================================================================
-    CorrectionCode MuonTriggerScaleFactors::GetTriggerSF(Double_t& TriggerSF, TrigMuonEff::Configuration& configuration, const xAOD::MuonContainer& mucont, const std::string& trigger) {
+    CorrectionCode MuonTriggerScaleFactors::GetTriggerSF(Double_t& TriggerSF, TrigMuonEff::Configuration& configuration, const xAOD::MuonContainer& mucont, const std::string& trigger) const{
         Int_t threshold;
         CorrectionCode result = getThreshold(threshold, trigger);
         if (result != CorrectionCode::Ok) return result;
@@ -580,10 +636,73 @@ namespace CP {
         return CorrectionCode::Ok;
     }
 
-    // ==================================================================================
-    // == MuonTriggerScaleFactors::getDimuonEfficiency
-    // ==================================================================================
-    CorrectionCode MuonTriggerScaleFactors::getDimuonEfficiency(Double_t& eff, const TrigMuonEff::Configuration& configuration, const xAOD::MuonContainer& mucont, const std::string& chain, const std::string& systematic) {
+  CorrectionCode MuonTriggerScaleFactors::GetTriggerSF(Double_t& TriggerSF, TrigMuonEff::Configuration& configuration, const xAOD::Muon& mu, const std::string& trigger) const{
+        Int_t threshold;
+        CorrectionCode result = getThreshold(threshold, trigger);
+        if (result != CorrectionCode::Ok)
+	  return result;
+
+        double rate_not_fired_data = 1.;
+        double rate_not_fired_mc = 1.;
+	double eff_data = 0., eff_mc = 0.;
+
+	if (mu.pt() < threshold) {
+	  eff_data = 0.;
+	  eff_mc = 0.;
+	  TriggerSF = 1.;
+	  return CorrectionCode::Ok;
+	}
+
+	std::string muon_trigger_name = trigger;
+	std::string data_err = "";
+	std::string mc_err = "";
+
+	// Pre-define uncertainty variations
+	static const CP::SystematicVariation stat_up("MUON_EFF_TrigStatUncertainty", 1);
+	static const CP::SystematicVariation stat_down("MUON_EFF_TrigStatUncertainty", -1);
+	static const CP::SystematicVariation syst_up("MUON_EFF_TrigSystUncertainty", 1);
+	static const CP::SystematicVariation syst_down("MUON_EFF_TrigSystUncertainty", -1);
+	
+	if (appliedSystematics().matchSystematic(syst_down)) {
+	  data_err = "nominal";
+	  mc_err = "syst_up";
+	} else if (appliedSystematics().matchSystematic(syst_up)) {
+	  data_err = "nominal";
+	  mc_err = "syst_down";
+	} else if (appliedSystematics().matchSystematic(stat_down)) {
+	  data_err = "stat_down";
+	  mc_err = "nominal";
+	} else if (appliedSystematics().matchSystematic(stat_up)) {
+	  data_err = "stat_up";
+	  mc_err = "nominal";
+	} else {
+	  data_err = "nominal";
+	  mc_err = "nominal";
+	}
+
+	if (!appliedSystematics().empty()) {
+	  configuration.replicaIndex = getReplica_index(appliedSystematics().begin()->basename(), trigger);
+	  if (configuration.replicaIndex != -1) data_err = "replicas";
+	}
+
+	configuration.isData = true;
+	CorrectionCode result_data = getMuonEfficiency(eff_data, configuration, mu, muon_trigger_name, data_err);
+	if (result_data != CorrectionCode::Ok)
+	  return result_data;
+	configuration.isData = false;
+	configuration.replicaIndex = -1;
+	CorrectionCode result_mc = getMuonEfficiency(eff_mc, configuration, mu, muon_trigger_name, mc_err);
+	if (result_mc != CorrectionCode::Ok)
+	  return result_data;
+	if (1 - rate_not_fired_data == 0)
+	  TriggerSF =  0;
+        if (fabs(1. - rate_not_fired_mc) > 0.0001)
+	  TriggerSF = (1. - rate_not_fired_data) / (1. - rate_not_fired_mc);
+
+        return CorrectionCode::Ok;
+  }
+  
+    CorrectionCode MuonTriggerScaleFactors::getDimuonEfficiency(Double_t& eff, const TrigMuonEff::Configuration& configuration, const xAOD::MuonContainer& mucont, const std::string& chain, const std::string& systematic) const{
 
         std::string trigger = getTriggerCorrespondingToDimuonTrigger(chain);
         Int_t threshold;
@@ -608,19 +727,13 @@ namespace CP {
         return CorrectionCode::Ok;
     }
 
-    // ==================================================================================
-    // == MuonTriggerScaleFactors::getTriggerCorrespondingToDimuonTrigger
-    // ==================================================================================
     std::string MuonTriggerScaleFactors::getTriggerCorrespondingToDimuonTrigger(const std::string& trigger) const {
         if (trigger.find("2mu10") != std::string::npos) return "HLT_mu10";
         if (trigger.find("2mu14") != std::string::npos) return "HLT_mu14";
         throw std::runtime_error("Unknown dimuon trigger");
     }
 
-    // ==================================================================================
-    // == MuonTriggerScaleFactors::getThreshold
-    // ==================================================================================
-    CorrectionCode MuonTriggerScaleFactors::getThreshold(Int_t& threshold, const std::string& trigger) {
+    CorrectionCode MuonTriggerScaleFactors::getThreshold(Int_t& threshold, const std::string& trigger) const{
         std::size_t index = trigger.find("HLT_mu");
         if (index != std::string::npos) {
             std::string rawNumber = trigger.substr(index + 6);
@@ -635,20 +748,20 @@ namespace CP {
         return CorrectionCode::Error;
     }
 
-    // ==================================================================================
-    // == MuonTriggerScaleFactors::getDataPeriod
-    // ==================================================================================
     unsigned int MuonTriggerScaleFactors::getYear(unsigned int run) const {
         if (run <= 284484) return 2015;
         else if (run <= 311481) return 2016;
         else return 2017;
     }
+  
     std::string MuonTriggerScaleFactors::getDataPeriod() const {
         return getDataPeriod(getRunNumber());
     }
+
     std::string MuonTriggerScaleFactors::getDataPeriod(unsigned int run) const {
         return getDataPeriod(run, getYear(run));
     }
+
     std::string MuonTriggerScaleFactors::getDataPeriod(unsigned int runNumber, unsigned year) const {
         if (year == 2015) {
             if (runNumber >= 266904 && runNumber <= 272531) return "AC";
@@ -659,7 +772,8 @@ namespace CP {
             else if (runNumber >= 281130 && runNumber <= 281411) return "H";
             else if (runNumber >= 281662 && runNumber <= 282482) return "I"; // special ALFA run
             else if (runNumber >= 282625 && runNumber <= 284484) return "J";
-        } else if (year == 2016) {
+        }
+	else if (year == 2016) {
             if (runNumber >= 296939 && runNumber <= 300287) return "A";
             else if (runNumber >= 300345 && runNumber <= 300908) return "B";
             else if (runNumber >= 301912 && runNumber <= 302393) return "C";
@@ -671,6 +785,19 @@ namespace CP {
             else if (runNumber >= 307124 && runNumber <= 308084) return "I";
             else if (runNumber >= 309311 && runNumber <= 309759) return "K";
             else if (runNumber >= 310015 && runNumber <= 311481) return "L";
+	}
+	else if (year == 2017) {
+            if (runNumber >= 324320 && runNumber <= 325558) return "A";
+            else if (runNumber >= 325713 && runNumber <= 328393) return "B";
+            else if (runNumber >= 329385 && runNumber <= 330470) return "C";
+            else if (runNumber >= 331033 && runNumber <= 331239) return "D";
+            else if (runNumber >= 331697 && runNumber <= 332304) return "D";
+            else if (runNumber >= 332720 && runNumber <= 334779) return "E";
+            else if (runNumber >= 334842 && runNumber <= 335290) return "F";
+            else if (runNumber >= 336497 && runNumber <= 336782) return "H";
+            else if (runNumber >= 336832 && runNumber <= 337833) return "I";
+            else if (runNumber >= 338183 && runNumber <= 339070) return "K";
+            else if (runNumber >= 339205 && runNumber <= 340453) return "K";
         }
     
         //Return some  default  value
@@ -679,8 +806,8 @@ namespace CP {
     unsigned int MuonTriggerScaleFactors::getRunNumber() const {
         static const SG::AuxElement::ConstAccessor<unsigned int> acc_rnd("RandomRunNumber");
         const xAOD::EventInfo* info = nullptr;
-        if (!evtStore()->contains<xAOD::EventInfo>("EventInfo") || !evtStore()->retrieve(info, "EventInfo").isSuccess()) {
-            ATH_MSG_WARNING("Could not retrieve the xAOD::EventInfo. Return "<<getFallBackRunNumber() );
+        if (!evtStore()->contains<xAOD::EventInfo>(m_eventInfoContName) || !evtStore()->retrieve(info, m_eventInfoContName).isSuccess()) {
+	  ATH_MSG_WARNING("Could not retrieve the xAOD::EventInfo with name: " << m_eventInfoContName << " Return "<<getFallBackRunNumber() );
             return getFallBackRunNumber() ;
         }
         if (!info->eventType(xAOD::EventInfo::IS_SIMULATION)) {
@@ -697,9 +824,6 @@ namespace CP {
         return std::min(acc_rnd(*info), getFallBackRunNumber());
     }
 
-    // ==================================================================================
-    // == MuonTriggerScaleFactors::getTemporaryDirectory
-    // ==================================================================================
     TDirectory* MuonTriggerScaleFactors::getTemporaryDirectory(void) const {
         gROOT->cd();
         TDirectory* tempDir = 0;
@@ -765,7 +889,7 @@ namespace CP {
         return affectingSystematics();
     }
 
-    CP::SystematicCode MuonTriggerScaleFactors::applySystematicVariation(const CP::SystematicSet& systConfig) {
+    CP::SystematicCode MuonTriggerScaleFactors::applySystematicVariation(const CP::SystematicSet& systConfig){
         // First, check if we already know this systematic configuration
         auto itr = m_systFilter.find(systConfig);
 

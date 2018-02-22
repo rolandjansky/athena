@@ -38,6 +38,7 @@
 + PhysicsAnalysis/AnalysisCommon/PileupReweighting
 + PhysicsAnalysis/AnalysisCommon/PMGOverlapRemovalTools/HFORTools
 + PhysicsAnalysis/AnalysisCommon/ReweightUtils
++ PhysicsAnalysis/AnalysisCommon/HDF5Utils
 + PhysicsAnalysis/BPhys/BPhysTools
 + PhysicsAnalysis/D3PDTools/.*
 - PhysicsAnalysis/ElectronPhotonID/ElectronPhotonTagTools

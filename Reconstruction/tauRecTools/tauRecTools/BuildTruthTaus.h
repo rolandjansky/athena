@@ -118,7 +118,7 @@ private:
 
   bool m_bIsHadronicTau;
 
-private:
+protected:
 
   asg::AnaToolHandle<IMCTruthClassifier> m_tMCTruthClassifier;
 

@@ -11,6 +11,7 @@
 #include "PATInterfaces/SystematicRegistry.h"
 #include "PathResolver/PathResolver.h"
 #include <boost/algorithm/string.hpp>
+#include "TPRegexp.h"
 
 #ifndef ROOTCORE
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
@@ -22,11 +23,11 @@ namespace CP {
   IsolationCorrectionTool::IsolationCorrectionTool( const std::string &name )
     : asg::AsgMetadataTool(name), m_systDDonoff("PH_Iso_DDonoff"){
     declareProperty("CorrFile",                    m_corr_file                    = "IsolationCorrections/v1/isolation_ptcorrections_rel20_2.root");
-    declareProperty("CorrFile_ddshift_2015",       m_corr_ddshift_2015_file       = "IsolationCorrections/v1/isolation_ddcorrection_shift_2015_v3.root");
-    declareProperty("CorrFile_ddshift",            m_corr_ddshift_file            = "IsolationCorrections/v1/isolation_ddcorrection_shift.root");
+    declareProperty("CorrFile_ddshift_2015_2016",  m_corr_ddshift_2015_2016_file  = "PhotonEfficiencyCorrection/2015_2017/rel21.2/Winter2018_Prerec_v1/isolation/isolation_ddcorrection_shift_rel21_2016.root");
+    declareProperty("CorrFile_ddshift_2017",       m_corr_ddshift_2017_file       = "PhotonEfficiencyCorrection/2015_2017/rel21.2/Winter2018_Prerec_v1/isolation/isolation_ddcorrection_shift_rel21_2017.root");
     declareProperty("CorrFile_ddsmearing",         m_corr_ddsmearing_file         = "IsolationCorrections/v1/isolation_ddcorrection_smearing.root");
-    declareProperty("ToolVer",                     m_tool_ver_str                 = "REL20_2");
-    declareProperty("DataDrivenVer",               m_ddVersion                    = "2015");
+    declareProperty("ToolVer",                     m_tool_ver_str                 = "REL21");
+    declareProperty("DataDrivenVer",               m_ddVersion                    = "2017");
     declareProperty("UseMetadata",                 m_usemetadata                  = false);
     declareProperty("AFII_corr",                   m_AFII_corr                    = false);
     declareProperty("IsMC",                        m_is_mc                        = true);
@@ -45,8 +46,8 @@ namespace CP {
     // Resolve the paths to the input files
     std::vector < std::string > corrFileNameList;
     corrFileNameList.push_back(m_corr_file);
-    corrFileNameList.push_back(m_corr_ddshift_2015_file);
-    corrFileNameList.push_back(m_corr_ddshift_file);
+    corrFileNameList.push_back(m_corr_ddshift_2015_2016_file);
+    corrFileNameList.push_back(m_corr_ddshift_2017_file);
     corrFileNameList.push_back(m_corr_ddsmearing_file);
 
     for ( unsigned int i=0; i<corrFileNameList.size(); ++i ){
@@ -66,12 +67,13 @@ namespace CP {
     CP::IsolationCorrection::Version tool_ver;
     
     m_metadata_retrieved = false;
-    	   
-    if      (m_tool_ver_str == "REL20_2") tool_ver = CP::IsolationCorrection::REL20_2;
+    
+    if      (m_tool_ver_str == "REL21")   tool_ver = CP::IsolationCorrection::REL21;	   
+    else if (m_tool_ver_str == "REL20_2") tool_ver = CP::IsolationCorrection::REL20_2;
     else if (m_tool_ver_str == "REL20")   tool_ver = CP::IsolationCorrection::REL20;
     else if (m_tool_ver_str == "REL17_2") tool_ver = CP::IsolationCorrection::REL17_2;
     else {
-      ATH_MSG_WARNING("Tool version not recognized: "<<m_tool_ver_str<<"\nAllowed versions: REL20_2, REL20, REL17_2");
+      ATH_MSG_WARNING("Tool version not recognized: "<<m_tool_ver_str<<"\nAllowed versions: REL21, REL20_2, REL20, REL17_2");
       return StatusCode::FAILURE;
     }
 
@@ -80,26 +82,32 @@ namespace CP {
       return StatusCode::FAILURE;
     }
 
-    if(TString(corrFileNameList[0]).Contains("isolation_ptcorrections_rel20_2.root") && m_tool_ver_str != "REL20_2"){
+    if(TString(corrFileNameList[0]).Contains("isolation_ptcorrections_rel20_2.root") && !( m_tool_ver_str == "REL20_2" || m_tool_ver_str == "REL21" ) ){
       ATH_MSG_WARNING("The specified correction file is not for "<<m_tool_ver_str<<" please use proper correction file");
       return StatusCode::FAILURE;
     }
 
-    m_isol_corr->SetCorrectionFile(m_corr_file, m_corr_ddshift_file, m_corr_ddsmearing_file, m_corr_ddshift_2015_file);
+    m_isol_corr->SetCorrectionFile(m_corr_file, m_corr_ddshift_2017_file, m_corr_ddsmearing_file, m_corr_ddshift_2015_2016_file);
     m_isol_corr->SetToolVer(tool_ver);
     m_isol_corr->SetTroubleCategories(m_trouble_categories);
-
-    // If Default is false, there is no correction, and no topoEtconeXX systematic uncertainty !
+    
+    // Note that systematics in Rel 21 are NOT done with the DD-Corr ON/OFF method! 
     if (m_apply_ddDefault) {
-      if (m_ddVersion == "2012" or m_ddVersion == "2015") {
-	//register ourselves with the systematic registry! 
-	CP::SystematicRegistry& registry = CP::SystematicRegistry::getInstance();
-	if( registry.registerSystematics( *this ) != CP::SystematicCode::Ok ) return StatusCode::FAILURE;
-      } else
-	ATH_MSG_WARNING("Unknown data driven correction");
-    } else{
-      m_apply_dd = false;
-    }
+      if (m_ddVersion == "2015_2016" or m_ddVersion == "2017") {
+	    //if not REL21, register ourselves with the systematic registry! 
+	    if( m_tool_ver_str!="REL21" ){
+		  CP::SystematicRegistry& registry = CP::SystematicRegistry::getInstance();
+		  if( registry.registerSystematics( *this ) != CP::SystematicCode::Ok ) return StatusCode::FAILURE;
+		}
+		m_apply_dd = true;
+        } else{
+	  ATH_MSG_WARNING("Unknown data driven correction");
+	  m_apply_dd = false;
+	  }
+    } else m_apply_dd = false;
+    
+    // Don't use DD Corrections for AFII (not yet available for mc16) 
+    if( m_tool_ver_str == "REL21" && m_AFII_corr) m_apply_dd = false;
 
     //If we do not want to use metadata
     if(!m_usemetadata) {
@@ -168,6 +176,12 @@ namespace CP {
       return StatusCode::SUCCESS;    
     }
     //
+    // Check if tag is from mc16a of mc16c (determines which year of DD corrections to use) 
+//     std::string amiTag; 
+//     fmd->value(xAOD::FileMetaData::amiTag, amiTag); // AMI tag used to process the file the last time
+//     if (TPRegexp("r9364").MatchB(amiTag)) { m_ddVersion = "2015_2016" ; } // mc16a
+//     else if (TPRegexp("r9781").MatchB(amiTag)) { m_ddVersion = "2017" ; } // mc16c
+    //
     return StatusCode::SUCCESS;    
   }
   
@@ -199,7 +213,7 @@ namespace CP {
       ATH_MSG_INFO("is MC = " << m_is_mc);
       ATH_MSG_INFO("use AFII = " << m_AFII_corr);
       ATH_MSG_DEBUG("metadata from new file: " << (result == PATCore::ParticleDataType::Data ? "data" : 
-						   (result == PATCore::ParticleDataType::Full ? "full simulation" : "fast simulation")));
+						   (result == PATCore::ParticleDataType::Full ? "full simulation" : "fast simulation")));    
     }
     else {
       ATH_MSG_WARNING("Not possible to retrieve metadata in the begin Input File");
@@ -230,7 +244,7 @@ namespace CP {
     //
     //If not metadata have been available and want to use them go via event info 
     const xAOD::EventInfo* evtInfo(0);
-    if( (evtStore()->retrieve(evtInfo, "")).isFailure()){
+    if( (evtStore()->retrieve(evtInfo, "EventInfo")).isFailure()){
       ATH_MSG_WARNING(" No default Event Info collection found") ;
       return StatusCode::SUCCESS;
     }
@@ -292,12 +306,31 @@ namespace CP {
       float oldiso  = 0;
       bool gotIso   = eg.isolationValue(oldiso,type);
       if (!gotIso) continue;
-      if (eg.pt() > 25e3) 
-	ATH_MSG_DEBUG("pt = " << eg.pt() << " eta = " << eg.eta() << ", def Iso " << xAOD::Iso::toString(type) << " = " << oldiso
-		      << " old leak = " << oldleak << " new leak = " << newleak);
+//      if (eg.pt() > 25e3) 
+//	ATH_MSG_DEBUG("pt = " << eg.pt() << " eta = " << eg.eta() << ", def Iso " << xAOD::Iso::toString(type) << " = " << oldiso
+//		      << " old leak = " << oldleak << " new leak = " << newleak);
+
+	  // Use the Random Run Number from the Event Info to check which year's DD-Corrections to use 
+	  // If the RandomRunNo can't be obtained, then default to what is set by either the default choice or by the AuxData check 
+	  unsigned int theRunNumber = 0 ; 
+	  const xAOD::EventInfo *eventInfo = evtStore()->retrieve< const xAOD::EventInfo>("EventInfo");  
+	  if(eventInfo){ 
+	  static const SG::AuxElement::Accessor<unsigned int> randomrunnumber("RandomRunNumber"); 
+	  if(randomrunnumber.isAvailable(*eventInfo)){ 
+	    theRunNumber = randomrunnumber(*(eventInfo)) ; 
+	    }
+	  } else ATH_MSG_WARNING("Could not retrieve EventInfo object"); 
+	  if (theRunNumber>=300000) m_ddVersion = "2017" ; // RunNo found, and is in 2017 range 
+	  else if( theRunNumber > 0 ) m_ddVersion = "2015_2016" ; // RunNo found, but less than 2017 range
+	  // otherwise, stick with default (m_ddVersion is already assigned)
+	  
+	  // Don't use DD Corrections for AFII (not yet available for mc16) 
+      if( m_tool_ver_str == "REL21" && m_AFII_corr) m_apply_dd = false;
+	  
       float iso     = oldiso + (oldleak-newleak);
       float ddcorr  = 0;
       if (m_is_mc && m_apply_dd && type != xAOD::Iso::topoetcone30) {
+      
 	ddcorr = this->GetDDCorrection(eg,type);
 	if (type == xAOD::Iso::topoetcone20)
 	  decDDcor20(eg) = ddcorr;
@@ -305,8 +338,7 @@ namespace CP {
 	  decDDcor40(eg) = ddcorr;
 	iso += ddcorr;
       }
-      if (eg.pt() > 25e3) 
-	ATH_MSG_DEBUG("ddcor = " << ddcorr << " new Iso = " << iso << "\n");
+      //if (eg.pt() > 25e3) ATH_MSG_DEBUG("ddcor = " << ddcorr << " new Iso = " << iso << "\n");
       bool setIso = eg.setIsolationValue(iso,type);
       setIso = (setIso && eg.setIsolationCaloCorrection(newleak-ddcorr,type,xAOD::Iso::ptCorrection));
       if (!setIso) {
@@ -323,12 +355,12 @@ namespace CP {
   float IsolationCorrectionTool::GetPtCorrection(const xAOD::Egamma& input, xAOD::Iso::IsolationType isol) const {
     return m_isol_corr->GetPtCorrection(input, isol);
   }
-  
+    
   float IsolationCorrectionTool::GetDDCorrection(const xAOD::Egamma& input, xAOD::Iso::IsolationType isol){
-    if (m_ddVersion == "2012") {
-      if (isol == xAOD::Iso::topoetcone40) return m_isol_corr->GetDDCorrection(input);
-    } else if (m_ddVersion == "2015")
-      return m_isol_corr->GetDDCorrection_2015(input, isol);
+	if (m_ddVersion == "2015_2016") {   // corrections derived in 2018 (Rel 21), 2015+2016 data
+      return m_isol_corr->GetDDCorrection_2015_2016(input, isol);
+    } else if (m_ddVersion == "2017")   // corrections derived in 2018 (Rel 21), 2017 data
+      return m_isol_corr->GetDDCorrection_2017(input, isol);
 
     return 0;
   }
@@ -362,10 +394,8 @@ namespace CP {
 
   CP::SystematicSet IsolationCorrectionTool::affectingSystematics() const {
     CP::SystematicSet result;
-
-    if (m_apply_ddDefault)
-      result.insert( m_systDDonoff );
-
+//     if (m_apply_ddDefault && m_tool_ver_str!="REL21")
+//       result.insert( m_systDDonoff );
     return result;
   }
 
@@ -374,10 +404,6 @@ namespace CP {
   }
 
   CP::SystematicCode IsolationCorrectionTool::applySystematicVariation( const CP::SystematicSet& systConfig ) {
-    if (systConfig.find(m_systDDonoff) != systConfig.end())
-      m_apply_dd = false;
-    else
-      m_apply_dd = m_apply_ddDefault ? true  : false;
     return CP::SystematicCode::Ok;
   }
 

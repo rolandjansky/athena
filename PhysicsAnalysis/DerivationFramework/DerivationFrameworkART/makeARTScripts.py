@@ -1,7 +1,7 @@
 import os
 
-makeDataDAODs=True
-makeMCDAODs=True
+makeDataDAODs=False
+makeMCDAODs=False
 makeTruthDAODs=False
 makeTrains=True
 
@@ -17,14 +17,15 @@ formatList = [#'PHYSVAL',
               'STDM2', 'STDM3', 'STDM4', 'STDM5', 'STDM6', 'STDM7', 'STDM8', 'STDM9',
               'TAUP1', 'TAUP2', 'TAUP3', 'TAUP4',
               'SUSY1', 'SUSY2', 'SUSY3', 'SUSY4', 'SUSY5', 'SUSY6', 'SUSY7', 'SUSY8', 'SUSY9', 'SUSY10', 'SUSY11', 'SUSY12', 'SUSY13', 'SUSY14', 'SUSY15', 'SUSY16', 'SUSY17', 'SUSY18',
-              'EXOT0', 'EXOT2', 'EXOT3', 'EXOT4', 'EXOT5', 'EXOT6', 'EXOT7', 'EXOT8', 'EXOT9', 'EXOT10', 'EXOT12', 'EXOT13', 'EXOT15', 'EXOT17', 'EXOT18', 'EXOT19', 'EXOT20', 'EXOT21', 'EXOT22', 'EXOT23',
+              'EXOT0', 'EXOT2', 'EXOT3', 'EXOT4', 'EXOT5', 'EXOT6', 'EXOT7', 'EXOT8', 'EXOT9', 'EXOT10', 'EXOT12', 'EXOT13', 'EXOT15', 'EXOT17', 'EXOT19', 'EXOT20', 'EXOT21', 'EXOT22', 'EXOT23',
               'JETM1', 'JETM2', 'JETM3', 'JETM4', 'JETM5', 'JETM6', 'JETM7', 'JETM8', 'JETM9', 'JETM10', 'JETM11',
               'IDTR1',
               'EGAM1', 'EGAM2', 'EGAM3', 'EGAM4', 'EGAM5', 'EGAM6', 'EGAM7', 'EGAM8', 'EGAM9',
-              'FTAG1', 'FTAG2', 'FTAG3', 'FTAG4',
+              'FTAG1', 'FTAG2', 'FTAG3', 'FTAG4', 'FTAG5',
               'BPHY1', 'BPHY2', 'BPHY3', 'BPHY4', 'BPHY5', 'BPHY6', 'BPHY7', 'BPHY8', 'BPHY9', 'BPHY10', 'BPHY11', 'BPHY12',
               'MUON0', 'MUON1', 'MUON2', 'MUON3', 'MUON4',
-              'TCAL1'
+              'TCAL1',
+              'HION1', 'HION2', 'HION3', 'HION4', 'HION5', 'HION6', 'HION7', 'HION8', 'HION9', 'HION10'
 ]
 
 truthFormatList = ['TRUTH0', 'TRUTH1', 'TRUTH3']
@@ -37,7 +38,7 @@ trainList = [ ["HIGG2D5","FTAG3","TCAL1","SUSY14"], # < 0.1%
               ["BPHY4","BPHY7","HIGG4D5","EXOT15","EXOT9","BPHY1","EGAM7"], # 0.4-0.5%
               ["SUSY16","EXOT20","HIGG1D1","STDM3","TOPQ2"], # 0.5-0.6%
               ["SUSY18","JETM4","HIGG4D1","HIGG6D1","SUSY7"], # 0.6-0.7%
-              ["HIGG4D3","EXOT18","STDM2","STDM7","SUSY3","EXOT5","TOPQ5"], # 0.8-1%
+              ["HIGG4D3","STDM2","STDM7","SUSY3","EXOT5","TOPQ5"], # 0.8-1%
               ["JETM2","SUSY11","EXOT3","SUSY4","JETM6","EXOT19","EGAM1","EXOT7"], # 1-1.3%
               ["JETM1","HIGG2D4","EGAM8","SUSY1","SUSY5","HIGG8D1","EXOT21","EXOT22"], # 1.3-1.6%
               ["STDM9","HIGG5D3","BPHY9","HIGG5D1","BPHY6"], # 1.6-1.8%
@@ -61,6 +62,7 @@ dataFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFramewor
 dataFileEXOT23 = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/DAOD_RPVLL.09788089._000056.pool.root.1"
 dataFileDelayed = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/AOD.11270451._000007.pool.root.1"
 dataFileBLS = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/data17_13TeV.00337491.physics_BphysLS.merge.AOD.f873_m1885._lb0100._0001.1"
+heavyIonFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/data17_hi.00338037.physics_MinBias.merge.AOD.f900_m1912._lb0292._0009.1"
 truthFile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/EVNT.05192704._020091.pool.root.1"
 dataPreExec = " --preExec \'rec.doApplyAODFix.set_Value_and_Lock(True);from BTagging.BTaggingFlags import BTaggingFlags;BTaggingFlags.CalibrationTag = \"BTagCalibRUN12Onl-08-40\" \' "
 mcPreExec = " --preExec \'rec.doApplyAODFix.set_Value_and_Lock(True);from BTagging.BTaggingFlags import BTaggingFlags;BTaggingFlags.CalibrationTag = \"BTagCalibRUN12-08-40\" \' "
@@ -122,8 +124,11 @@ if (makeDataDAODs or makeMCDAODs):
             generateText(formatName,delayedStreamLabel,dataFileDelayed,False,False,"-1")
             generateText(formatName,blsStreamLabel,dataFileBLS,False,False,"1000") 
          elif formatName=='BPHY10':
+            generateText(formatName,dataLabel,dataFile,False,False,"-1")
             generateText(formatName,delayedStreamLabel,dataFileDelayed,False,False,"-1")
             generateText(formatName,blsStreamLabel,dataFileBLS,False,False,"-1")
+         elif formatName[0:4]=='HION':
+            generateText(formatName,dataLabel,heavyIonFile,False,False,"-1")
          else: generateText(formatName,dataLabel,dataFile,False,False,"-1")
       if (makeMCDAODs):
          if formatName=="EXOT23":

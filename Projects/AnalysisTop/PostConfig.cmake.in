@@ -1,4 +1,3 @@
-# $Id: PostConfig.cmake.in 787191 2016-11-29 19:41:54Z krasznaa $
 #
 # File setting up some basic properties for the installed analysis releases.
 #
@@ -19,3 +18,7 @@ set( XAOD_STANDALONE TRUE CACHE BOOL
    "Flag specifying that this is a standalone build" )
 set( XAOD_ANALYSIS TRUE CACHE BOOL
    "Flag specifying that this is an analysis release" )
+
+# Since many libraries of the release end up linked to the imported interface
+# library Threads::Threads, pull it into existence here.
+find_package( Threads )

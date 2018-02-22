@@ -185,6 +185,7 @@ for FT1_bjetTriggerVtx in FTAllVars_bjetTriggerVtx:
     FTAG1SlimmingHelper.AllVariables.append(FT1_bjetTriggerVtx)
 
 FTAG1SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("AntiKt4EMTopoJetsAux","AntiKt10LCTopoJets"),
+                                       "InDetTrackParticles.truthMatchProbability",
                                        "AntiKt10LCTopoJets.ConeExclBHadronsFinal",
                                        "AntiKt10LCTopoJets.GhostAntiKt2TrackJet.GhostAntiKt2TrackJetPt.GhostAntiKt2TrackJetCount",
                                        "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet.GhostVR30Rmax4Rmin02TrackJetPt.GhostVR30Rmax4Rmin02TrackJetCount",

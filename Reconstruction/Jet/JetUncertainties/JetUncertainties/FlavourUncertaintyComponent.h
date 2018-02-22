@@ -19,7 +19,8 @@ class FlavourUncertaintyComponent : public UncertaintyComponent
         FlavourUncertaintyComponent(const ComponentHelper& component,
                                     const TString jetType,
                                     const TString analysisRootFileName,
-                                    const TString path
+                                    const TString path,
+                                    const TString calibArea
                                     );
         FlavourUncertaintyComponent(const FlavourUncertaintyComponent& toCopy);
         virtual FlavourUncertaintyComponent* clone() const;
@@ -46,6 +47,7 @@ class FlavourUncertaintyComponent : public UncertaintyComponent
         const TString m_jetType;
         const TString m_analysisFileName;
         const TString m_path;
+        const TString m_calibArea;
         const bool m_absEta;
         const TString m_secondUncName;
         

@@ -8,7 +8,10 @@
 #   athena.py <myJobOptions.py> runbatch.py
 
 try:
-   #first check if command-line evtMax or skipEvents options were provided
+   from AthenaCommon.AthenaCommonFlags import jobproperties as jps
+   
+
+   #check if command-line evtMax or skipEvents options were provided
    if opts.evtMax != None:
       theApp.EvtMax = jps.AthenaCommonFlags.EvtMax()
    if opts.skipEvents != None:

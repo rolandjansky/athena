@@ -165,37 +165,41 @@ ctm.add( ConstituentSubtractorTool("JetConstit_ConstSub"),
 clustOrigSeq = ctm.buildConstitModifSequence( 'ConstitOrigSeq',
                                               OutputContainer = 'OrigTopoClusters',
                                               InputContainer= 'CaloCalTopoClusters',
-                                              modList = [  'lc_origin'] )
+                                              modList = [  'clus_origin'] )
+
+# Hardcoding the equivalent value from the enum in xAODBase/ObjectType.h
+# as loading the relevant dictionary seems to cause problems later
+xAOD_Type_CaloCluster = 1
 
 clustSKSeq = ctm.buildConstitModifSequence( 'ConstitOrigSKSeq',
                                             OutputContainer = 'OrigSKTopoClusters',
                                             InputContainer= 'OrigTopoClusters',
-                                            modList = [  'softkiller'] , InputType="CaloCluster")
+                                            modList = [  'softkiller'] , InputType=xAOD_Type_CaloCluster)
 
 clustVorSeq = ctm.buildConstitModifSequence( 'ConstitOrigVorSeq',
                                             OutputContainer = 'OrigVorTopoClusters',
                                             InputContainer= 'OrigTopoClusters',
-                                            modList = [  'voronoi'] , InputType="CaloCluster")
+                                            modList = [  'voronoi'] , InputType=xAOD_Type_CaloCluster)
 
 clustVorSuppSeq = ctm.buildConstitModifSequence( 'ConstitOrigVorSuppSeq',
                                                  OutputContainer = 'OrigVorSuppTopoClusters',
                                                  InputContainer= 'OrigTopoClusters',
-                                                 modList = [  'voronoiSupp'] , InputType="CaloCluster")
+                                                 modList = [  'voronoiSupp'] , InputType=xAOD_Type_CaloCluster)
 
 clustVorSKSeq = ctm.buildConstitModifSequence( 'ConstitOrigVorSKSeq',
                                             OutputContainer = 'OrigVorSuppSKTopoClusters',
                                             InputContainer= 'OrigVorSuppTopoClusters',
-                                            modList = [  'softkiller'] , InputType="CaloCluster")
+                                            modList = [  'softkiller'] , InputType=xAOD_Type_CaloCluster)
 
 clustCSSeq = ctm.buildConstitModifSequence( 'ConstitOrigCSSeq',
                                             OutputContainer = 'OrigCSTopoClusters',
                                             InputContainer= 'OrigTopoClusters',
-                                            modList = [  'constsub'] , InputType="CaloCluster")
+                                            modList = [  'constsub'] , InputType=xAOD_Type_CaloCluster)
 
 clustCSSKSeq = ctm.buildConstitModifSequence( 'ConstitOrigCSSKSeq',
                                             OutputContainer = 'OrigCSSKTopoClusters',
                                             InputContainer= 'OrigCSTopoClusters',
-                                            modList = [  'softkiller'] , InputType="CaloCluster")
+                                            modList = [  'softkiller'] , InputType=xAOD_Type_CaloCluster)
 
 correctedClusters = [ "OrigTopoClusters", "OrigSKTopoClusters", "OrigCSTopoClusters", "OrigCSSKTopoClusters", "OrigVorSuppSKTopoClusters", "OrigVorTopoClusters", "OrigVorSuppTopoClusters" ]
 
@@ -227,13 +231,6 @@ addAntiKt4PV0TrackJets(jetm8Seq, "JETM8")
 if DerivationFrameworkIsMonteCarlo:
      addAntiKt4TruthJets(jetm8Seq, "JETM8")
      addAntiKt10TruthJets(jetm8Seq, "JETM8")
-
-#=======================================
-# SCHEDULE REPLACEMENT B-TAG COLLECTIONS
-#=======================================
-
-from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
-FlavorTagInit(JetCollections  = ['AntiKt2PV0TrackJets'], Sequencer = jetm8Seq)
 
 #====================================================================
 # SET UP STREAM   

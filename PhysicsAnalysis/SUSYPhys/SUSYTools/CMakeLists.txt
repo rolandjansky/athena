@@ -131,6 +131,13 @@ atlas_add_executable( SUSYToolsTester
    PileupReweightingLib PATInterfaces PathResolver METUtilitiesLib xAODCutFlow
    SUSYToolsLib ${extra_libs} )
 
+atlas_add_executable( SUSYTruthTester
+   util/SUSYTruthTester.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo 
+   xAODTruth xAODCore xAODBase PATInterfaces PathResolver xAODCutFlow
+   SUSYToolsLib ${extra_libs} )
+
 atlas_add_executable( SUSYTools_check_xsections
    util/check_xsections.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
