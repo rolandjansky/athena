@@ -60,6 +60,11 @@ if( XAOD_STANDALONE )
    atlas_add_executable( BTaggingSelectionToolTester
       util/BTaggingSelectionToolTester.cxx
       LINK_LIBRARIES xAODJet xAODBTagging xAODBTaggingEfficiencyLib )
+
+   atlas_add_executable( BTaggingTruthTaggingTester
+      util/BTaggingTruthTaggingTester.cxx
+      LINK_LIBRARIES xAODJet xAODBTagging xAODBTaggingEfficiencyLib )
+
 endif()
 
 # Install files from the package:

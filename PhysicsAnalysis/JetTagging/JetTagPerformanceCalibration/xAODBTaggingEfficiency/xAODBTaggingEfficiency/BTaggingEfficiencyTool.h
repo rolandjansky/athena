@@ -56,7 +56,7 @@ class BTaggingEfficiencyTool: public asg::AsgTool,
       The tagger and operating point under consideration are part of the configuration and hence aren't function arguments.
    */
   CP::CorrectionCode getScaleFactor( const xAOD::Jet & jet,
-				     float & sf) const;
+             float & sf) const;
 
   /** Computes the data efficiency for the given jet.
       The tagger and operating point under consideration are part of the configuration and hence aren't function arguments.
@@ -68,19 +68,19 @@ class BTaggingEfficiencyTool: public asg::AsgTool,
       The tagger and operating point under consideration are part of the configuration and hence aren't function arguments.
    */
   CP::CorrectionCode getInefficiency( const xAOD::Jet & jet,
-				      float & eff) const;
+              float & eff) const;
 
   /** Computes the data/MC inefficiency scale factor for the given jet.
       The tagger and operating point under consideration are part of the configuration and hence aren't function arguments.
    */
   CP::CorrectionCode getInefficiencyScaleFactor( const xAOD::Jet & jet,
-						 float & sf) const;
+             float & sf) const;
 
   /** Computes the MC efficiency for the given jet.
       The tagger and operating point under consideration are part of the configuration and hence aren't function arguments.
    */
   CP::CorrectionCode getMCEfficiency( const xAOD::Jet & jet,
-				      float & eff) const;
+              float & eff) const;
 
   /// @name Methods equivalent to those above but not relying on the xAOD format
   /// @{
@@ -89,19 +89,19 @@ class BTaggingEfficiencyTool: public asg::AsgTool,
       The tagger and operating point under consideration are part of the configuration and hence aren't function arguments.
   */
   CP::CorrectionCode getScaleFactor( int flavour, const Analysis::CalibrationDataVariables& v,
-				     float & sf) const;
+             float & sf) const;
 
   /** Computes the data efficiency for the jet, given its kinematics, (possibly) tagger weight and truth flavour.
       The tagger and operating point under consideration are part of the configuration and hence aren't function arguments.
    */
   CP::CorrectionCode getEfficiency( int flavour, const Analysis::CalibrationDataVariables& v,
-				    float & eff) const;
+            float & eff) const;
 
   /** Computes the data inefficiency for the jet, given its kinematics, (possibly) tagger weight and truth flavour.
       The tagger and operating point under consideration are part of the configuration and hence aren't function arguments.
    */
   CP::CorrectionCode getInefficiency( int flavour, const Analysis::CalibrationDataVariables& v,
-				      float & eff) const;
+              float & eff) const;
 
   /** Computes the data/MC inefficiency scale factor for the jet, given its kinematics, (possibly) tagger weight and truth flavour.
       The tagger and operating point under consideration are part of the configuration and hence aren't function arguments.
@@ -113,7 +113,7 @@ class BTaggingEfficiencyTool: public asg::AsgTool,
       The tagger and operating point under consideration are part of the configuration and hence aren't function arguments.
    */
   CP::CorrectionCode getMCEfficiency( int flavour, const Analysis::CalibrationDataVariables& v,
-				      float & eff) const;
+              float & eff) const;
 
   /// @}
 

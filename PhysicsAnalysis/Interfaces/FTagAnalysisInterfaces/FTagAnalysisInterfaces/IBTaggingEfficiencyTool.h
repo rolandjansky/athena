@@ -23,6 +23,7 @@
 #include <string>
 #include <set>
 
+#include "CalibrationDataInterface/CalibrationDataVariables.h"
 #include "CalibrationDataInterface/CalibrationDataInterfaceROOT.h"
 
 class IBTaggingEfficiencyTool : virtual public CP::ISystematicsTool {
@@ -34,19 +35,30 @@ class IBTaggingEfficiencyTool : virtual public CP::ISystematicsTool {
 
 
   virtual CP::CorrectionCode getScaleFactor( const xAOD::Jet & jet,
-					     float & sf) const =0 ;
+               float & sf) const =0 ;
 
   virtual CP::CorrectionCode getEfficiency( const xAOD::Jet & jet,
-					    float & eff) const=0;
+              float & eff) const=0;
 
   virtual CP::CorrectionCode getInefficiency( const xAOD::Jet & jet,
-					      float & eff) const=0;
+                float & eff) const=0;
 
   virtual CP::CorrectionCode getInefficiencyScaleFactor( const xAOD::Jet & jet,
-							float & sf) const=0;
+              float & sf) const=0;
 
   virtual CP::CorrectionCode getMCEfficiency( const xAOD::Jet & jet,
-					      float & eff) const=0;
+                float & eff) const=0;
+
+
+  virtual CP::CorrectionCode getScaleFactor( int flavour, const Analysis::CalibrationDataVariables& v,
+             float & sf) const=0;
+
+  virtual CP::CorrectionCode getMCEfficiency( int flavour, const Analysis::CalibrationDataVariables& v,
+              float & eff) const=0;
+
+  virtual CP::CorrectionCode getInefficiencyScaleFactor( int flavour, const Analysis::CalibrationDataVariables& v,
+             float & sf) const=0;
+
 
   // utility methods
   virtual const std::map<CP::SystematicVariation, std::vector<std::string> > listSystematics() const = 0;
