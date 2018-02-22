@@ -1,12 +1,12 @@
 import os
 import logging
-msg = logging.getLogger(__name__)
+msg = logging.getLogger('MetaReader')
 
 import re
 import ast
 import sys
 
-def read_metadata(filenames, file_type=None, full=False):
+def read_metadata(filenames, file_type=None, mode='lite'):
     """
     This tool is independent of Athena framework and returns the metadata from a given file.
     :param filename: the input file from which metadata needs to be extracted.
@@ -16,13 +16,15 @@ def read_metadata(filenames, file_type=None, full=False):
     :return: a dictionary of metadata for the given input file.
     """
 
-    # Check if the input is a filename or a list of filenames.
+    # Check if the input is a file or a list of files.
     if isinstance(filenames, basestring):
         filenames = [filenames]
-
+    # Check the value of mode parameter
+    if mode not in ['tiny', 'lite', 'full']:
+        raise NameError('Allowed values for mode are: tiny, lite or full')
+    msg.info('Current mode used: {0}'.format(mode))
     # create the storage object for metadata.
     metaDict = {}
-
 
     for filename in filenames:
         current_file_type = None
@@ -53,37 +55,46 @@ def read_metadata(filenames, file_type=None, full=False):
         # ----------------------------------------------------------------------------------------------------------------#
         # retrieves metadata from POOL files.
         if current_file_type == 'POOL':
-
             from CLIDComps.clidGenerator import clidGenerator
+            global clidgen
             clidgen = clidGenerator(db = None)
 
             evt = ROOT.POOL.TEvent()
             evt.readFrom(filename)
             evt.getEntry(0)
 
-            # add the missing keys from the basis "lite" metadata dictionary
+            # add the missing keys from the basis "tiny" metadata dictionary
             metaDict[filename]['file_guid'] = __read_guid(filename),
-            metaDict[filename]['file_type'] = 'POOL'
+            metaDict[filename]['file_type'] = 'pool'
             metaDict[filename]['nentries'] = evt.getEntries()
 
-
-            # if the flag full is set to true then grab all metadata
+            # if the flag is not set to tiny them it will retrieve more metadata
             # ----------------------------------------------------------------------------------------------------------------#
-            if full:
-                metaDict[';00;MetaDataSvc'] = __convert_DataHeader(evt.retrieveMetaInput('DataHeader', ';00;MetaDataSvc'))
+            if mode != 'tiny':
+                # this information is duplicated but is used with the AthFile
+                metaDict[filename]['file_name'] = filename
 
-                for name, cls in metaDict[';00;MetaDataSvc']:
+                meta_data_srv = __convert_DataHeader(evt.retrieveMetaInput('DataHeader', ';00;MetaDataSvc'))
+
+                for name, cls in meta_data_srv:
                     try:
                         a = evt.retrieveMetaInput(cls, name)
                     except LookupError:
                         continue
 
                     if cls == 'IOVMetaDataContainer':
-                        metaDict[name] = __convert_IOVMetaDataContainer(a)
+                        metaDict[filename][name] = __convert_IOVMetaDataContainer(a)
                     if cls == 'xAOD::EventFormat':
-                        metaDict[name] = __convert_EventFormat(a)
+                        metaDict[filename][name] = __convert_EventFormat(a)
                     if cls == 'EventStreamInfo':
-                        metaDict[name] = __convert_EventStreamInfo(a)
+                        metaDict[filename][name] = __convert_EventStreamInfo(a)
+
+                # if the flag full is set to true then grab all metadata
+                if mode == 'lite':
+                    for key in list(metaDict[filename]):
+                        if key not in ['file_type', 'file_size', 'file_guid', 'nentries', 'run_number']:
+                            metaDict[filename].pop(key, None)
+
 
         # ----------------------------------------------------------------------------------------------------------------#
         # retrieves metadata from bytestream (BS) files (RAW, DRAW)
@@ -104,7 +115,7 @@ def read_metadata(filenames, file_type=None, full=False):
 
             # if the flag full is set to true then grab all metadata
             # ----------------------------------------------------------------------------------------------------------------#
-            if full:
+            if mode != "tiny":
                 bs_metadata = {}
 
                 for md in data_reader.freeMetaDataStrings():
@@ -164,6 +175,11 @@ def read_metadata(filenames, file_type=None, full=False):
                     metaDict[filename]['run_number'].append(bs_metadata.get('run_number', 0))
                     metaDict[filename]['lumi_block'].append(bs_metadata.get('LumiBlock', 0))
 
+                if mode == 'lite':
+                    print('This is the lite version for BS files')
+                    pass
+
+
         # ----------------------------------------------------------------------------------------------------------------#
         # Thow an error if the user provide other file types
         else:
@@ -177,12 +193,12 @@ def __convert_EventStreamInfo(esi):
     d = {}
     d['run_number'] = list(esi.getRunNumbers())
     d['processing_tags'] = list(esi.getProcessingTags())
-    d['lumi_blocks'] = list(esi.getLumiBlockNumbers())
-    d['event_types'] = []
+    d['lumi_block'] = list(esi.getLumiBlockNumbers())
+    d['evt_type'] = list()
+    d['evt_number'] =
     for evtype in esi.getEventTypes():
         t = {}
         t['IS_CALIBRATION'] = evtype.IS_CALIBRATION
-
         t['IS_SIMULATION'] = evtype.IS_SIMULATION
         t['IS_TESTBEAM'] = evtype.IS_TESTBEAM
         t['mc_channel_number'] = evtype.mc_channel_number()
@@ -191,7 +207,13 @@ def __convert_EventStreamInfo(esi):
         d['event_types'].append(t)
     d['ItemList'] = []
     for e in esi.getItemList():
-        d['ItemList'].append((clidgen.getNameFromClid(e.first), e.second))
+        clid_name = clidgen.getNameFromClid(e.first)
+        if clid_name:
+            d['ItemList'].append((clid_name, e.second))
+        else:
+            msg.info('Unable to find a name for clid {0} with value {1}.'.format(e.first, e.second))
+            d['ItemList'].append(('clid_{0}'.format(e.first), e.second))
+
     return d
 
 
@@ -263,5 +285,3 @@ def __read_guid(filename):
                 return value
 
     return None
-
-# Methos for BS

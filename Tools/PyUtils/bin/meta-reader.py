@@ -32,6 +32,11 @@ def __pretty_print(content, indent=4, fd=sys.stdout, level=0):
         print >> fd, ' ' * indent * (level + 1) + str(content)
 
 
+def __format_output(metadata):
+    for key, value in metadata.items():
+        print('{key:>15}: {value}'.format(key = key, value = value))
+
+
 def __main():
     # Parsing the arguments provided by user
     parser = argparse.ArgumentParser(description='This script reads metadata from a given file')
@@ -55,11 +60,16 @@ def __main():
                         type=int,
                         default=2,
                         help="Sets the indent spaces in the output either on screen (without -o flag) either on file (with -o flag). By default, uses two spaces as indent.")
-    parser.add_argument('-f',
-                        '--full',
-                        action='store_true',
-                        default=False,
-                        help="Retrieve the full set of metadata from file.")
+    parser.add_argument('-m',
+                        '--mode',
+                        default= 'lite',
+                        metavar='MODE',
+                        type=str,
+                        choices=['tiny', 'lite', 'full'],
+                        help="This flag provides the user capability to select the amount of metadata retrieved. There three options: "
+                             "tiny (only those values used in PyJobTransforms), "
+                             "lite (same output as dump-athfile) "
+                             "and full ( all  available data found) ")
     parser.add_argument('-t',
                         '--type',
                         default= None,
@@ -74,38 +84,38 @@ def __main():
     output = args.output
     is_json = args.json
     indent = args.indent
-    is_full = args.full
+    mode = args.mode
     file_type = args.type
 
-    if verbose:
-        msg.setLevel(logging.INFO)
-        # create a stream handler
-        handler = logging.StreamHandler()
-        handler.setLevel(logging.INFO)
-        # create a logging format
-        formatter = logging.Formatter('%(name)s                       %(levelname)s %(message)s')
-        handler.setFormatter(formatter)
-        # add the handlers to the logger
-        msg.addHandler(handler)
+    msg.setLevel(logging.INFO if verbose else logging.WARNING)
+    # create a stream handler
+    handler = logging.StreamHandler()
+    handler.setLevel(logging.INFO if verbose else logging.WARNING)
+    # create a logging format
+    formatter = logging.Formatter('%(name)s                       %(levelname)s %(message)s')
+    handler.setFormatter(formatter)
+    # add the handlers to the logger
+    msg.addHandler(handler)
 
     startTime = time.time()
     msg.info('Imported headers in: {0} miliseconds'.format((time.time() - startTime) * 1e3)) 
     msg.info('The output file is: {0}'.format(output))
 
-    d = read_metadata(filenames, file_type, full= is_full)
+    metadata = read_metadata(filenames, file_type, mode= mode)
     
     if output is None:
         if is_json:
-            print json.dumps(d, indent=indent)
+            print(json.dumps(metadata, indent=indent))
         else:
-            __pretty_print(d, indent=indent)
+            __format_output(metadata)
+            # __pretty_print(metadata, indent=indent)
     else:
         if is_json:
             with open(output, 'w') as fd:
-                print >> fd, json.dumps(d, indent=indent)
+                print >> fd, json.dumps(metadata, indent=indent)
         else:
             with open(output, 'w') as fd:
-                __pretty_print(d, indent=indent, fd=fd)
+                __pretty_print(metadata, indent=indent, fd=fd)
     
     msg.info('Done!')
 

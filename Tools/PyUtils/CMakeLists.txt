@@ -17,7 +17,7 @@ find_package( ROOT COMPONENTS Core PyROOT Tree MathCore Hist RIO pthread )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py python/AthFile python/scripts )
-atlas_install_scripts( bin/acmd.py bin/atl-gen-athena-d3pd-reader bin/checkFile.py bin/checkPlugins.py bin/checkSG.py bin/checkMetaSG.py bin/checkTP.py bin/checkTag.py bin/checkxAOD.py bin/diff-athfile bin/diff-jobo-cfg.py bin/diffConfigs.py bin/diffPoolFiles.py bin/diffTAGTree.py bin/dlldep.py bin/dso-stats.py bin/dump-athfile.py bin/dumpAthfilelite.py bin/filter-and-merge-d3pd.py bin/getMetadata.py bin/gen_klass.py bin/get-tag-diff.py bin/gprof2dot bin/issues bin/magnifyPoolFile.py bin/merge-poolfiles.py bin/pep8.py bin/pool_extractFileIdentifier.py bin/pool_insertFileToCatalog.py bin/print_auditor_callgraph.py bin/pyroot.py bin/vmem-sz.py )
+atlas_install_scripts( bin/acmd.py bin/atl-gen-athena-d3pd-reader bin/checkFile.py bin/checkPlugins.py bin/checkSG.py bin/checkMetaSG.py bin/checkTP.py bin/checkTag.py bin/checkxAOD.py bin/diff-athfile bin/diff-jobo-cfg.py bin/diffConfigs.py bin/diffPoolFiles.py bin/diffTAGTree.py bin/dlldep.py bin/dso-stats.py bin/dump-athfile.py bin/dumpAthfilelite.py bin/filter-and-merge-d3pd.py bin/getMetadata.py bin/gen_klass.py bin/get-tag-diff.py bin/gprof2dot bin/issues bin/magnifyPoolFile.py bin/merge-poolfiles.py bin/pep8.py bin/pool_extractFileIdentifier.py bin/pool_insertFileToCatalog.py bin/print_auditor_callgraph.py bin/pyroot.py bin/vmem-sz.py bin/meta-reader.py)
 
 # Aliases:
 atlas_add_alias( checkFile "checkFile.py" )
@@ -41,3 +41,4 @@ atlas_add_alias( diff-jobo-cfg "diff-jobo-cfg.py" )
 atlas_add_alias( acmd "acmd.py" )
 atlas_add_alias( vmem-sz "vmem-sz.py" )
 atlas_add_alias( getMetadata "getMetadata.py" )
+atlas_add_alias( meta-reader "meta-reader.py" )
