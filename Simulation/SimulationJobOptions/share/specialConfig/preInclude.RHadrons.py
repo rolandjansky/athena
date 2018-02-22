@@ -371,7 +371,13 @@ try:
   f = af.fopen(athenaCommonFlags.FilesInput()[0])
   if 'generators' in f.infos['tag_info']:
     usePythia8 = 'Py8' in f.infos['tag_info']['generators'] or 'Pythia8' in f.infos['tag_info']['generators']
-  runNumber = f.infos['run_number'][0]
+  # MC Channel Number.  Try the standard two spots, and fall back to the run number for evgen
+  if 'mc_channel_number' in f.infos and len(f.infos['mc_channel_number'])>0:
+    runNumber = f.infos['mc_channel_number'][0]
+  elif 'mc_channel_number' in f.infos['tag_info']:
+    runNumber = f.infos['tag_info']['mc_channel_number']
+  else:
+    runNumber = f.infos['run_number'][0]
   if "StreamHITS" in f.infos["stream_names"]:
     from Digitization.DigitizationFlags import digitizationFlags
     simdict = digitizationFlags.specialConfiguration.get_Value()
