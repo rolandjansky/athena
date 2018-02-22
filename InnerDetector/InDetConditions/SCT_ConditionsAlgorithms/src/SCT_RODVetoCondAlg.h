@@ -20,9 +20,11 @@
 
 // Athena
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "Identifier/Identifier.h"
 #include "StoreGate/WriteHandle.h"
 #include "SCT_ConditionsServices/ISCT_ConditionsSvc.h"
 #include "SCT_Cabling/ISCT_CablingSvc.h"
+#include "SCT_ConditionsData/IdentifierSet.h"
 
 // Forward declarations
 class SCT_ID;
@@ -41,7 +43,7 @@ class SCT_RODVetoCondAlg : public AthAlgorithm {
   ServiceHandle<ISCT_CablingSvc> m_cabling;
   const SCT_ID* m_pHelper;
   SG::WriteHandle<std::vector<unsigned int>> m_badRODElements;
-  std::set<Identifier> m_badIds;
+  SG::WriteHandle<IdentifierSet> m_badIds;
   std::vector<unsigned int> m_badRODElementsInput;
 }; //end of class
 
