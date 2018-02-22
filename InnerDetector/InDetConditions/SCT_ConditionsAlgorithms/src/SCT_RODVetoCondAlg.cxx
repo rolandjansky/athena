@@ -23,35 +23,24 @@ SCT_RODVetoCondAlg::SCT_RODVetoCondAlg(const std::string& name,
   AthAlgorithm(name, pSvcLocator),
   m_cabling("SCT_CablingSvc", name),
   m_pHelper{nullptr},
-  m_badRODElements{"BadRODIdentifiers"},
-  m_badIds{"BadModuleIdentifiers"},
+  m_badIds{"BadSCTModuleIdentifiers_RODVeto"},
   m_badRODElementsInput{0x240100}
 {
-  declareProperty("WriteKeyBadRODIdentifiers", m_badRODElements, "Write key for bad ROD identifiers");
-  declareProperty("WriteKeyBadModuleIdentifiers", m_badIds, "Write key for bad module identifiers");
-  declareProperty("BadRODIdentifiers", m_badRODElementsInput);
+  declareProperty("BadModuleIdentifiers", m_badIds, "Write key for bad module identifiers");
+  declareProperty("BadRODIdentifiers", m_badRODElementsInput, "Input list of RODs to be vetoed");
 }
 
 StatusCode SCT_RODVetoCondAlg::initialize() {
   ATH_CHECK(m_cabling.retrieve());
   ATH_CHECK(detStore()->retrieve(m_pHelper, "SCT_ID"));
-  ATH_CHECK(m_badRODElements.initialize());
   ATH_CHECK(m_badIds.initialize());
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode SCT_RODVetoCondAlg::execute() {
-  SG::WriteHandle<std::vector<unsigned int> > out{m_badRODElements};
-  ATH_CHECK( out.record( std::make_unique<std::vector<unsigned int> >() ) );
-  for (auto itr{m_badRODElementsInput.begin()}; itr!=m_badRODElementsInput.end(); itr++) {
-    out->push_back(*itr);
-  }
+  ATH_MSG_INFO(m_badRODElementsInput.size() <<" RODs were declared bad");
 
-  ATH_MSG_INFO(out->size() <<" RODs were declared bad");
-
-  bool success(true);
-  
   std::vector<unsigned int> allRods;
   m_cabling->getAllRods(allRods);
   
@@ -83,7 +72,6 @@ StatusCode SCT_RODVetoCondAlg::execute() {
       if (not thisInsertionOk) {
         ATH_MSG_WARNING("Insertion failed for rod " << std::hex << "0x" << thisRod << std::dec << " and module (hash,id): " << thisHash << ", " << modId);
       }
-      success &= thisInsertionOk;
     }
   }
 

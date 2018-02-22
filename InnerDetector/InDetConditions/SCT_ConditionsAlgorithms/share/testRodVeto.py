@@ -93,3 +93,5 @@ ServiceMgr.SCT_RODVetoSvc.OutputLevel=VERBOSE
 ServiceMgr.EventSelector.InitialTimeStamp = 1500000000
 ServiceMgr.EventSelector.RunNumber = 300000 # MC16c 2017 run number
 theApp.EvtMax = 1
+
+ServiceMgr.MessageSvc.infoLimit = 50000

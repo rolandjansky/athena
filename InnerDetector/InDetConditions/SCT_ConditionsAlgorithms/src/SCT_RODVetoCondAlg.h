@@ -42,7 +42,6 @@ class SCT_RODVetoCondAlg : public AthAlgorithm {
  private:
   ServiceHandle<ISCT_CablingSvc> m_cabling;
   const SCT_ID* m_pHelper;
-  SG::WriteHandle<std::vector<unsigned int>> m_badRODElements;
   SG::WriteHandle<IdentifierSet> m_badIds;
   std::vector<unsigned int> m_badRODElementsInput;
 }; //end of class

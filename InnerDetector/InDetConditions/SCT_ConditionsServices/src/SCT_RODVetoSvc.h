@@ -13,7 +13,6 @@
 //STL includes
 #include <string>
 #include <set>
-#include <vector>
 
 //Gaudi includes
 #include "AthenaBaseComps/AthService.h"
@@ -95,16 +94,10 @@ private:
 
   // The vector of bad rods should be kept in a threadsafe way so it can 
   // be called and read safely.
-  SG::ReadHandleKey<std::vector<unsigned int> > m_badRODElements;
   SG::ReadHandleKey<IdentifierSet> m_badModuleIds;
 
   std::set<Identifier> m_badIds;
 
-  // These are the read- and writehandle keys for the boolean that checks
-  // if the service has been filled. 
-  SG::WriteHandleKey<bool> m_wFilled;
-  SG::ReadHandleKey<bool>  m_rFilled;
-  
   const SCT_ID * m_pHelper;
   ServiceHandle<StoreGateSvc> m_detStore;
 };
