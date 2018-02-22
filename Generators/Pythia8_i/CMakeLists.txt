@@ -5,11 +5,11 @@
 # Declare the package name:
 atlas_subdir( Pythia8_i )
 
-set( PYTHIA8_VERSION 226 )
-set( PYTHIA8_ROOT
-    /cvmfs/sft.cern.ch/lcg/releases/LCG_88/MCGenerators/pythia8/${PYTHIA8_VERSION}/${LCG_PLATFORM} )
-MESSAGE (STATUS "Pythia8 version  " ${PYTHIA8_VERSION})
-MESSAGE (STATUS "PYTHIA8 ROOT " ${PYTHIA8_ROOT})
+# set( PYTHIA8_VERSION 226 )
+# set( PYTHIA8_ROOT    
+# /cvmfs/sft.cern.ch/lcg/releases/LCG_88/MCGenerators/pythia8/${PYTHIA8_VERSION}/${LCG_PLATFORM} )
+# MESSAGE (STATUS "Pythia8 version  " ${PYTHIA8_VERSION})
+# MESSAGE (STATUS "PYTHIA8 ROOT " ${PYTHIA8_ROOT})
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
