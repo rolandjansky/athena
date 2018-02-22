@@ -96,7 +96,8 @@ if DetFlags.overlay.pixel_on() or DetFlags.overlay.SCT_on() or DetFlags.overlay.
         indetovl.TRT_LocalOccupancyTool = TRT_LocalOccupancy  
         
         #HT hit correction fraction 
-        indetovl.TRT_HT_OccupancyCorrection = 0.12
+        indetovl.TRT_HT_OccupancyCorrectionBarrel = 0.160
+        indetovl.TRT_HT_OccupancyCorrectionEndcap = 0.130
 
 
         from InDetRecExample.InDetJobProperties import InDetFlags
