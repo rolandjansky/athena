@@ -93,7 +93,6 @@ namespace MuonGM {
 
   RpcReadoutElement::~RpcReadoutElement()
   {
-    if(m_set) delete m_set;
     clearCache();
   }
 
@@ -955,7 +954,7 @@ namespace MuonGM {
       m_etaDesigns.push_back(etaDesign);
     }
 
-    m_set = new RpcReadoutSet(manager(), identify());
+    m_set = std::make_unique<RpcReadoutSet>(manager(), identify());
 
   }
 

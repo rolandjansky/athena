@@ -275,7 +275,7 @@ namespace MuonGM {
 
     std::vector<MuonStripDesign> m_phiDesigns;
     std::vector<MuonStripDesign> m_etaDesigns;
-    RpcReadoutSet* m_set;
+    std::unique_ptr<RpcReadoutSet> m_set;
     
   };
   
