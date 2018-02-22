@@ -68,19 +68,27 @@ def read_metadata(filenames, file_type=None, mode='lite'):
             metaDict[filename]['file_type'] = 'pool'
             metaDict[filename]['nentries'] = evt.getEntries()
 
+
             # if the flag is not set to tiny them it will retrieve more metadata
             # ----------------------------------------------------------------------------------------------------------------#
             if mode != 'tiny':
                 # this information is duplicated but is used with the AthFile
                 metaDict[filename]['file_name'] = filename
+                # create a container for class name and instance name for metadata_items
+                metaDict[filename]['metadata_items'] = list()
 
                 meta_data_srv = __convert_DataHeader(evt.retrieveMetaInput('DataHeader', ';00;MetaDataSvc'))
+                # fill metadata_items
+                metaDict[filename]['metadata_items'].append(('DataHeader', ';00;MetaDataSvc'))
 
                 for name, cls in meta_data_srv:
                     try:
                         a = evt.retrieveMetaInput(cls, name)
                     except LookupError:
                         continue
+
+                    # fill metadata_items
+                    metaDict[filename]['metadata_items'].append((cls, name))
 
                     if cls == 'IOVMetaDataContainer':
                         metaDict[filename][name] = __convert_IOVMetaDataContainer(a)
@@ -194,25 +202,30 @@ def __convert_EventStreamInfo(esi):
     d['run_number'] = list(esi.getRunNumbers())
     d['processing_tags'] = list(esi.getProcessingTags())
     d['lumi_block'] = list(esi.getLumiBlockNumbers())
+    d['evt_number'] = list()
+    d['mc_channel_number'] = list()
+    d['mc_event_weight'] = list()
     d['evt_type'] = list()
-    d['evt_number'] =
-    for evtype in esi.getEventTypes():
-        t = {}
-        t['IS_CALIBRATION'] = evtype.IS_CALIBRATION
-        t['IS_SIMULATION'] = evtype.IS_SIMULATION
-        t['IS_TESTBEAM'] = evtype.IS_TESTBEAM
-        t['mc_channel_number'] = evtype.mc_channel_number()
-        t['mc_event_number'] = evtype.mc_event_number()
-        t['detdescr_tags'] = evtype.get_detdescr_tags()
-        d['event_types'].append(t)
-    d['ItemList'] = []
+    d['detdescr_tags'] = list()
+
+    for evt_type in esi.getEventTypes():
+        d['evt_number'].append(evt_type.mc_event_number())
+        d['mc_channel_number'].append(evt_type.mc_channel_number())
+        d['mc_event_weight'].append(evt_type.mc_event_weight())
+        d['detdescr_tags'].append(evt_type.get_detdescr_tags())
+
+        d['evt_type'].append( 'IS_SIMULATION' if evt_type.test(evt_type.IS_SIMULATION) else 'IS_DATA')
+        d['evt_type'].append( 'IS_TESTBEAM' if evt_type.test(evt_type.IS_TESTBEAM) else 'IS_ATLAS')
+        d['evt_type'].append( 'IS_CALIBRATION' if evt_type.test(evt_type.IS_CALIBRATION) else 'IS_PHYSICS')
+
+    d['eventdata_items'] = []
     for e in esi.getItemList():
         clid_name = clidgen.getNameFromClid(e.first)
         if clid_name:
-            d['ItemList'].append((clid_name, e.second))
+            d['eventdata_items'].append((clid_name, e.second))
         else:
             msg.info('Unable to find a name for clid {0} with value {1}.'.format(e.first, e.second))
-            d['ItemList'].append(('clid_{0}'.format(e.first), e.second))
+            d['eventdata_items'].append(('clid_{0}'.format(e.first), e.second))
 
     return d
 
@@ -276,7 +289,7 @@ def __read_guid(filename):
         params.GetEntry(i)
         param = params.db_string
 
-        result =  regex.match(param)
+        result = regex.match(param)
         if result:
             name = result.group(1)
             value = result.group(2)
