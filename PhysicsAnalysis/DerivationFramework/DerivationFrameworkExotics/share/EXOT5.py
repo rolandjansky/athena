@@ -241,19 +241,6 @@ if DerivationFrameworkIsMonteCarlo:
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 from DerivationFrameworkExotics.DerivationFrameworkExoticsConf import DerivationFramework__SkimmingToolEXOT5
 
-# if DerivationFrameworkIsMonteCarlo:
-#     ToolSvc += CfgMgr.JetCalibrationTool('EXOT5JESTool',
-#         IsData        = False,
-#         ConfigFile    = 'JES_MC15cRecommendation_May2016.config',
-#         CalibSequence = 'JetArea_Residual_Origin_EtaJES_GSC',
-#         JetCollection = 'AntiKt4EMTopo')
-# else:
-#     ToolSvc += CfgMgr.JetCalibrationTool('EXOT5JESTool',
-#         IsData        = True,
-#         ConfigFile    = 'JES_MC15cRecommendation_May2016.config',
-#         CalibSequence = 'JetArea_Residual_Origin_EtaJES_GSC_Insitu',
-#         JetCollection = 'AntiKt4EMTopo')
-
 triggers = [
     # MET
     'HLT_xe35',

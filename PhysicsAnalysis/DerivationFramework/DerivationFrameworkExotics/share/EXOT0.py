@@ -147,7 +147,7 @@ if DerivationFrameworkIsMonteCarlo:
 #expression = '(count(Electrons.pt > 20*GeV && (Electrons.DFCommonElectronsLHLoose||Electrons.DFCommonElectronsLHMedium||Electrons.DFCommonElectronsLHTight)) >= 2) || (count(Muons.pt > 20*GeV && (Muons.DFCommonGoodMuon && (Muons.muonType==0 || Muons.muonType==1 || Muons.muonType==2))) >= 2)'
 goodelectron = "Electrons.pt>20*GeV && (Electrons.DFCommonElectronsLHLoose||Electrons.DFCommonElectronsLHMedium||Electrons.DFCommonElectronsLHTight)"
 goodmuon     = "Muons.pt>20*GeV && (Muons.DFCommonGoodMuon && (Muons.muonType==0 || Muons.muonType==1 || Muons.muonType==2))"
-expression   = '(count('+goodelectron+')>=2)  ||  (count('+goodmuon+')>=2)  ||  ((count('+goodelectron+')>=1) && (count('+goodmuon+')>=1))'
+expression   = '( ( count('+goodelectron+') + count('+goodmuon+') ) >= 2 )'
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 EXOT0SkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "EXOT0SkimmingTool1", expression = expression)
 ToolSvc += EXOT0SkimmingTool
