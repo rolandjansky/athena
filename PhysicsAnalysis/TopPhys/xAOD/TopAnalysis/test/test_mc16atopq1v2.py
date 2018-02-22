@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# art-description: DxAOD MC16a TOPQ1 - top-xaod validation-cuts.txt
+# art-description: DxAOD MC16a TOPQ1 - top-xaod-v2 validation-cuts.txt - Provide a test for comparing our two exectuables and move towards a switch
 # art-type: grid
 # art-output: output.root
 
@@ -36,7 +36,7 @@ inputfilepath.write(inputfilename+"\n")
 inputfilepath.close()
 
 # -- Run top-xaod --
-cmd  = "top-xaod %s input.txt"%(cutfilename)
+cmd  = "top-xaod-v2 %s input.txt"%(cutfilename)
 proc = subprocess.Popen(shlex.split(cmd))
 proc.wait()
 
