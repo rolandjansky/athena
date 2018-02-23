@@ -91,6 +91,20 @@ StatusCode OtherCPTools::setupPileupReweighting() {
     for (std::string& s : pileup_lumi_calc)
       s = PathResolverFindCalibFile(s);
 
+    std::vector<std::string> pileup_config_FS = m_config->PileupConfig_FS();
+    for (std::string& s : pileup_config_FS)
+      s = PathResolverFindCalibFile(s);
+
+    std::vector<std::string> pileup_config_AF = m_config->PileupConfig_AF();
+    for (std::string& s : pileup_config_AF)
+      s = PathResolverFindCalibFile(s);
+
+    // New checks - If FS or AF size != 0, then the general option should be empty
+    if( (pileup_config_AF.size() > 0 || pileup_config_FS.size() > 0) && (pileup_config.size() > 0) ){
+      ATH_MSG_ERROR("You have used PRWConfigFiles as well as PRWConfigFiles_FS || PRWConfigFiles_AF and we don't know what you want");
+      return StatusCode::FAILURE;
+    }    
+
     if (m_config->PileupUseGRLTool())
       top::check(asg::setProperty(pileupReweightingTool, "GRLTool", m_grlTool),
                 "Failed to give GRLtool to pileup reweighting tool");
@@ -98,15 +112,24 @@ StatusCode OtherCPTools::setupPileupReweighting() {
     // Config file is not needed on Data
     // see "Just random run numbers and lumi corrections"
     // case in twiki page below
-    // However, the tool would spit out warnings for Data if we didn't supply ConfigFiles.
-    top::check(asg::setProperty(pileupReweightingTool, "ConfigFiles", pileup_config),
-              "Failed to set pileup reweighting config files");
-
+    // However, the tool would spit out warnings for Data if we didn't supply ConfigFiles.   
+    if(pileup_config.size() > 0){
+      top::check(asg::setProperty(pileupReweightingTool, "ConfigFiles", pileup_config),
+		 "Failed to set pileup reweighting config files");
+    }
+    else if(m_config->isAFII()){
+      top::check(asg::setProperty(pileupReweightingTool, "ConfigFiles", pileup_config_AF),
+                 "Failed to set pileup reweighting config files");
+    }
+    else{
+      top::check(asg::setProperty(pileupReweightingTool, "ConfigFiles", pileup_config_FS),
+                 "Failed to set pileup reweighting config files");
+    }
     // data scale-factors, initialised to recommended values
     // can also be customised, thanks to PRWCustomScaleFactor option
     double SF_nominal = 1.0/1.03;
-    double SF_up = 1.0;
-    double SF_down = 1.0/1.18;
+    double SF_up = 1.0/0.99;
+    double SF_down = 1.0/1.07;
 
     // if custom data SFs
     if (m_config->PileUpCustomScaleFactors().size()!=0) {
@@ -128,6 +151,9 @@ StatusCode OtherCPTools::setupPileupReweighting() {
               "Failed to set pileup reweighting data scale factor up");
     top::check(asg::setProperty(pileupReweightingTool, "DataScaleFactorDOWN", SF_down),
               "Failed to set pileup reweighting data scale factor down");
+    // Set the unrepresented data tolerence (default is 5% same as the PRW tool)
+    top::check(asg::setProperty(pileupReweightingTool, "UnrepresentedDataThreshold", m_config->PileupDataTolerance()),
+	       "Failed to set pileup reweighting data tolerance");
     top::check(pileupReweightingTool->initialize(),
               "Failed to initialize pileup reweighting tool");
 
