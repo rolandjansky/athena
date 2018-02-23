@@ -163,18 +163,18 @@ jtm.modifiersMap["akt4emtoponoel"] = jtm.modifiersMap["emtopo_ungroomed"] + [bta
 addStandardJets("AntiKt", 0.4, "TrackNoEl",
                 ptmin = 10000, ptminFilter = 10000,
                 mods = "akt4tracknoel", calibOpt="none", ghostArea=0.01,
-                customGetters = "TrkJetElRemovalgetter", pretools=[EXOT16ElRemovalTool])
+                customGetters = "TrkJetElRemovalgetter", algseq = exot4Seq, pretools=[EXOT16ElRemovalTool])
 
 addStandardJets("AntiKt", 0.4, "EMTopoNoEl",
                 ptmin = 10000, ptminFilter = 10000,
                 mods = "akt4emtoponoel", calibOpt="none", ghostArea=0.01,
-                customGetters = "JetElRemovalgetter", pretools=[])
+                customGetters = "JetElRemovalgetter", algseq = exot4Seq, pretools=[])
 
 if isMC:
   addStandardJets("AntiKt", 0.4, "TruthNoEl",
                   ptmin = 10000, ptminFilter = 70000,
                   mods = "truthNoEl", calibOpt="", ghostArea=0.0,
-                  customGetters = "truthNoEl", pretools=[jtm.truthpartcopyNoEl])
+                  customGetters = "truthNoEl", algseq = exot4Seq, pretools=[jtm.truthpartcopyNoEl])
 
 # at this point we have new on-the-fly jets
 # in the containers AntiKt4TruthNoElJets, AntiKt4TrackNoElJets, AntiKt4EMTopoNoElJets
