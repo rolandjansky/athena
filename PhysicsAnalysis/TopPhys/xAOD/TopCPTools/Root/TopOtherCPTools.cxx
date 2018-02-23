@@ -101,7 +101,8 @@ StatusCode OtherCPTools::setupPileupReweighting() {
 
     // New checks - If FS or AF size != 0, then the general option should be empty
     if( (pileup_config_AF.size() > 0 || pileup_config_FS.size() > 0) && (pileup_config.size() > 0) ){
-      ATH_MSG_ERROR("You have used PRWConfigFiles as well as PRWConfigFiles_FS || PRWConfigFiles_AF and we don't know what you want");
+      ATH_MSG_ERROR("You have used PRWConfigFiles as well as PRWConfigFiles_FS and/or PRWConfigFiles_AF");
+      ATH_MSG_ERROR("We do not know how to configure with all these options");
       return StatusCode::FAILURE;
     }    
 
@@ -114,16 +115,25 @@ StatusCode OtherCPTools::setupPileupReweighting() {
     // case in twiki page below
     // However, the tool would spit out warnings for Data if we didn't supply ConfigFiles.   
     if(pileup_config.size() > 0){
+      ATH_MSG_INFO("PRW tool is being configured without any FS/AF information");
       top::check(asg::setProperty(pileupReweightingTool, "ConfigFiles", pileup_config),
 		 "Failed to set pileup reweighting config files");
     }
-    else if(m_config->isAFII()){
+    else if(m_config->isAFII() && pileup_config_AF.size() > 0){
+      ATH_MSG_INFO("This sample is fast sim");
+      ATH_MSG_INFO("PRW tool is being configured only with fast simulation (AF) config files");
       top::check(asg::setProperty(pileupReweightingTool, "ConfigFiles", pileup_config_AF),
                  "Failed to set pileup reweighting config files");
     }
-    else{
+    else if(!m_config->isAFII() && pileup_config_FS.size() > 0){
+      ATH_MSG_INFO("This sample is full sim");
+      ATH_MSG_INFO("PRW tool is being configured only with full simulation (FS) config files");
       top::check(asg::setProperty(pileupReweightingTool, "ConfigFiles", pileup_config_FS),
                  "Failed to set pileup reweighting config files");
+    }
+    else{
+      ATH_MSG_ERROR("There are not any PRW config files provided with any allowed options");
+      return StatusCode::FAILURE;
     }
     // data scale-factors, initialised to recommended values
     // can also be customised, thanks to PRWCustomScaleFactor option
