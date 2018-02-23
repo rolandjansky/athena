@@ -78,6 +78,12 @@ namespace xAOD {
       nameToTypemap["EMTopo"] =             EMTopo;
       nameToTypemap["LCTopoOrigin"] =       LCTopoOrigin;
       nameToTypemap["EMTopoOrigin"] =       EMTopoOrigin;
+      nameToTypemap["EMTopoOriginSK"] =     EMTopoOriginSK;
+      nameToTypemap["EMTopoOriginCSSK"] =   EMTopoOriginCSSK;
+      nameToTypemap["EMTopoOriginVorSK"] =  EMTopoOriginVorSK;
+      nameToTypemap["EMPFlowSK"] =          EMPFlowSK;
+      nameToTypemap["EMPFlowCSSK"] =        EMPFlowCSSK;
+      nameToTypemap["EMPFlowVorSK"] =       EMPFlowVorSK;
       nameToTypemap["TopoTower"] =          TopoTower;
       nameToTypemap["Tower"] =              Tower;
       nameToTypemap["Truth"] =              Truth;

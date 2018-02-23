@@ -67,6 +67,12 @@ namespace xAOD {
       EMTopoOrigin,
       TrackCaloCluster,
       TruthDressedWZ, // Truth jets without prompt e/mu (or dressed photons) or prompt gammas
+      EMTopoOriginSK,
+      EMTopoOriginCSSK,
+      EMTopoOriginVorSK,
+      EMPFlowSK,
+      EMPFlowCSSK,
+      EMPFlowVorSK,
       Other = 100,
       Uncategorized= 1000
     };
