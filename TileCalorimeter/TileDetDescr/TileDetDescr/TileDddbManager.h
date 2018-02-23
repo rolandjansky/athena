@@ -255,7 +255,7 @@ class TileDddbManager
 
   // fields of tile switches
   bool addPlatesToCell() const;
-  int  Ushape()  const;
+  int  uShape()  const;
   int  glue() const;
  private:
 

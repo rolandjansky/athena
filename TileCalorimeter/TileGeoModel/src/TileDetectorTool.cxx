@@ -97,7 +97,7 @@ StatusCode TileDetectorTool::create()
 
     CHECK( initIds() );
 
-    int uShapeDB = dbManager->Ushape();
+    int uShapeDB = dbManager->uShape();
     if (m_uShape < 0) {
       m_uShape = uShapeDB;
       ATH_MSG_INFO(" U-shape parameter from database is: " << m_uShape);

@@ -1764,14 +1764,14 @@ bool TileDddbManager::addPlatesToCell() const
     }
 }
 
-int TileDddbManager::Ushape() const
+int TileDddbManager::uShape() const
 {
   if (m_tileSwitches)
     {
         try {
           if ((*m_tileSwitches)[0]->isFieldNull("USHAPE"))
             {
-              MLOG(DEBUG) << "TileDddbManager::Ushape() - TileSwitches(USHAPE) is EMPTY, returning Ushape= 0" << endmsg;
+              MLOG(DEBUG) << "TileDddbManager::uShape() - TileSwitches(USHAPE) is EMPTY, returning uShape= 0" << endmsg;
               return 0;
             }
           else
@@ -1779,13 +1779,13 @@ int TileDddbManager::Ushape() const
 	      return (*m_tileSwitches)[0]->getInt("USHAPE");
 	    }
         } catch (std::exception& e) {
-          MLOG(WARNING) << "TileDddbManager::Ushape() - TileSwitches table does not contain field USHAPE, returning Ushape= 0" << endmsg;
+          MLOG(WARNING) << "TileDddbManager::uShape() - TileSwitches table does not contain field USHAPE, returning uShape= 0" << endmsg;
           return 0;
       }
     }
   else
     {
-      MLOG(ERROR) << "TileDddbManager::Ushape() - TileSwitches is not set, returning Ushape= 0" << endmsg;
+      MLOG(ERROR) << "TileDddbManager::uShape() - TileSwitches is not set, returning uShape= 0" << endmsg;
       return 0;
     }
 }
