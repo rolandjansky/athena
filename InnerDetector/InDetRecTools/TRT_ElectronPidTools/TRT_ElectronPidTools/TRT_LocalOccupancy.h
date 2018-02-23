@@ -68,7 +68,7 @@ namespace InDet
    virtual float LocalOccupancy(const double eta, const double phi);
 
    /** Return a map of the occupancy in the barrel (-1,+1) and endcaps (-2,+2) */
-   virtual std::map<int, double> getDetectorOccupancy( const TRT_RDO_Container* p_trtRDOContainer );
+   virtual std::map<int, double> getDetectorOccupancy( const TRT_RDO_Container* p_trtRDOContainer ) const;
 
    /** Return the global occupancy of the event*/ 
    /** 7 Floats: TRT, Barrel A / C, endcapA/B A/C */ 
@@ -93,8 +93,8 @@ namespace InDet
 
       int **m_track_local; // records number of track hits in each region, for each track
 
-      bool isMiddleBXOn(unsigned int word);
-      bool passValidityGate(unsigned int word, float t0);
+      bool isMiddleBXOn(unsigned int word) const;
+      bool passValidityGate(unsigned int word, float t0) const;
 
       void  countHitsNearTrack();
       //   void  countHitsNearTrack(std::vector<IdentifierHash>* hash_vec);

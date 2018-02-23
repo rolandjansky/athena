@@ -48,7 +48,7 @@ namespace InDet
    virtual float LocalOccupancy(const double eta, const double phi) = 0;
     
    /** Return a map of the occupancy in the barrel (-1,+1) and endcaps (-2,+2) */
-   virtual std::map<int, double>  getDetectorOccupancy( const TRT_RDO_Container* p_trtRDOContainer ) = 0;
+   virtual std::map<int, double>  getDetectorOccupancy( const TRT_RDO_Container* p_trtRDOContainer ) const  = 0;
      
 
    /** Return the global occupancy of the event*/ 

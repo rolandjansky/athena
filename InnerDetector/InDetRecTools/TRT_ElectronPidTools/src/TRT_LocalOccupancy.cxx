@@ -318,7 +318,8 @@ float TRT_LocalOccupancy::LocalOccupancy(const Trk::Track& track ){
 }
 
 
-std::map<int, double>  TRT_LocalOccupancy::getDetectorOccupancy( const TRT_RDO_Container* p_trtRDOContainer ){
+std::map<int, double>  TRT_LocalOccupancy::getDetectorOccupancy( const TRT_RDO_Container* p_trtRDOContainer ) const
+{
   
   std::map<int,int> hitCounter;
   std::map<int,double> occResults;
@@ -510,7 +511,7 @@ void  TRT_LocalOccupancy::countHitsNearTrack(){
 
 
 // ========================================================================
-bool TRT_LocalOccupancy::isMiddleBXOn(unsigned int word) {
+bool TRT_LocalOccupancy::isMiddleBXOn(unsigned int word) const {
   // check that there is at least one hit in middle 25 ns
   unsigned mask = 0x00010000;
   int i=0;
@@ -521,7 +522,7 @@ bool TRT_LocalOccupancy::isMiddleBXOn(unsigned int word) {
 return false;
 }
 
-bool TRT_LocalOccupancy::passValidityGate(unsigned int word, float t0) {
+bool TRT_LocalOccupancy::passValidityGate(unsigned int word, float t0) const {
   bool foundInterval = false;
   unsigned  mask = 0x02000000;
   int i = 0;
