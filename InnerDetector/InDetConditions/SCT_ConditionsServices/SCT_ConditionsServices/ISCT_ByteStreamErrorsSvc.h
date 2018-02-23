@@ -119,9 +119,6 @@ class ISCT_ByteStreamErrorsSvc: virtual public ISCT_ConditionsSvc {
 
   virtual bool HVisOn()=0;
 
-  virtual void setDecodedROD(const boost::uint32_t rodId)=0;
-  virtual std::vector<boost::uint32_t> getRODOuts() const =0;
-
   /** Set first temporarily masked chip information from byte stream trailer */
   virtual void setFirstTempMaskedChip(const IdentifierHash& hashId, const unsigned int firstTempMaskedChip)=0;
   /** Get first temporarily masked chip information */
