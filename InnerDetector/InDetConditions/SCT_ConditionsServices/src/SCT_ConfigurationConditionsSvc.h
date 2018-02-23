@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -23,7 +23,6 @@
 
 // Athena includes
 #include "AthenaBaseComps/AthService.h"
-#include "Identifier/Identifier.h"
 #include "SCT_ConditionsServices/ISCT_ConditionsSvc.h"
 #include "SCT_ConditionsServices/ISCT_ConfigurationConditionsSvc.h"
 #include "SCT_ConditionsData/SCT_ConfigurationCondData.h"
@@ -33,10 +32,8 @@
 
 // Forward declarations
 template <class TYPE> class SvcFactory;
-class ISvcLocator;
-class IdentifierHash;
 class SCT_ID;
-class StatusCode;
+class StoreGateSvc;
 namespace InDetDD { class SCT_DetectorManager; }
 
 /**
@@ -52,48 +49,48 @@ public:
   //@name Service methods
   //@{
   SCT_ConfigurationConditionsSvc(const std::string& name, ISvcLocator* svc);
-  virtual ~SCT_ConfigurationConditionsSvc() {}
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
+  virtual ~SCT_ConfigurationConditionsSvc() = default;
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
   virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
   static const InterfaceID& interfaceID();
   //@}
   
   /**Can the service report about the given component? (chip, module...)*/
-  virtual bool                          canReportAbout(InDetConditions::Hierarchy h);
+  virtual bool                          canReportAbout(InDetConditions::Hierarchy h) override;
   
   /**Is the detector element good?*/
-  virtual bool                          isGood(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT);
+  virtual bool                          isGood(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) override;
   
   /**Is it good?, using wafer hash*/
-  virtual bool                          isGood(const IdentifierHash& hashId);
+  virtual bool                          isGood(const IdentifierHash& hashId) override;
 
   /**Manually get the data in the structure before proceding*/
-  virtual StatusCode                    fillData() { return StatusCode::FAILURE; }
+  virtual StatusCode                    fillData() override { return StatusCode::FAILURE; }
   
   /**Fill data from an IOVDbSvc callback*/
-  virtual StatusCode                    fillData(int& i, std::list<std::string>& l);
+  virtual StatusCode                    fillData(int& i, std::list<std::string>& l) override;
   
   /**Are the data available?*/
-  virtual bool                          filled() const;
+  virtual bool                          filled() const override;
   
   /**Can the data be filled during the initialize phase?*/
-  virtual bool                          canFillDuringInitialize() { return false; }
+  virtual bool                          canFillDuringInitialize() override { return false; }
 
   /**List of bad modules*/
-  virtual const std::set<Identifier>*   badModules();
+  virtual const std::set<Identifier>*   badModules() override;
   /**List of bad strips*/
-  virtual void                          badStrips(std::set<Identifier>& strips, bool ignoreBadModules=false, bool ignoreBadChips=false);
+  virtual void                          badStrips(std::set<Identifier>& strips, bool ignoreBadModules=false, bool ignoreBadChips=false) override;
   /**List of bad strips for a given module*/
-  virtual void                          badStrips(const Identifier& moduleId, std::set<Identifier>& strips, bool ignoreBadModules=false, bool ignoreBadChips=false);
+  virtual void                          badStrips(const Identifier& moduleId, std::set<Identifier>& strips, bool ignoreBadModules=false, bool ignoreBadChips=false) override;
   /**List of bad links*/
-  virtual std::pair<bool, bool>         badLinks(const Identifier& moduleId);
+  virtual std::pair<bool, bool>         badLinks(const Identifier& moduleId) override;
   /**Bad links for a given module*/
-  virtual const std::map<Identifier, std::pair<bool, bool>>* badLinks();
+  virtual const std::map<Identifier, std::pair<bool, bool>>* badLinks() override;
   /**List of bad chips*/
-  virtual const std::map<Identifier, unsigned int>* badChips();
+  virtual const std::map<Identifier, unsigned int>* badChips() override;
   /**Bad chips for a given module*/
-  virtual unsigned int                  badChips(const Identifier& moduleId) const;
+  virtual unsigned int                  badChips(const Identifier& moduleId) const override;
   /** Get the chip number containing a particular strip*/
   int                                   getChip(const Identifier& stripId) const;
 
@@ -126,4 +123,4 @@ private:
   const SCT_ConfigurationCondData* getCondData(const EventContext& ctx) const;
 };
 
-#endif
+#endif // SCT_ConfigurationConditionsSvc_h
