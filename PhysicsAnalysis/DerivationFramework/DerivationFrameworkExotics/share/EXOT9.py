@@ -18,25 +18,38 @@ if globalflags.DataSource()=='geant4':
 exot9Seq = CfgMgr.AthSequencer("EXOT9Sequence")
 
 #====================================================================
+# SET UP STREAM   
+#====================================================================
+streamName = derivationFlags.WriteDAOD_EXOT9Stream.StreamName
+fileName   = buildFileName( derivationFlags.WriteDAOD_EXOT9Stream )
+EXOT9Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+EXOT9Stream.AcceptAlgs(["EXOT9Kernel"])
+
+#====================================================================
 # THINNING TOOLS
 #====================================================================
+
+#thinning helper
+from DerivationFrameworkCore.ThinningHelper import ThinningHelper
+EXOT9ThinningHelper = ThinningHelper( "EXOT9ThinningHelper" )
+EXOT9ThinningHelper.AppendToStream( EXOT9Stream )
 
 thinningTools = []
 
 # Tracks associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 EXOT9MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "EXOT9MuonTPThinningTool",
-                                                                            ThinningService         = "EXOT9ThinningSvc",
-                                                                            MuonKey                 = "Muons",
-                                                                            InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                            ConeSize                =  0.4)
+                                                                         ThinningService         = EXOT9ThinningHelper.ThinningSvc(),
+                                                                         MuonKey                 = "Muons",
+                                                                         InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                         ConeSize                =  0.4)
 ToolSvc += EXOT9MuonTPThinningTool
 thinningTools.append(EXOT9MuonTPThinningTool)
 
 # Tracks associated with Electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 EXOT9ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = "EXOT9ElectronTPThinningTool",
-                                                                               ThinningService         = "EXOT9ThinningSvc",
+                                                                               ThinningService         = EXOT9ThinningHelper.ThinningSvc(),
                                                                                SGKey                   = "Electrons",
                                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
                                                                                ConeSize                =  0.4)
@@ -46,7 +59,7 @@ thinningTools.append(EXOT9ElectronTPThinningTool)
 # Tracks associated with Photons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 EXOT9PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = "EXOT9PhotonTPThinningTool",
-                                                                             ThinningService         = "EXOT9ThinningSvc",
+                                                                             ThinningService         = EXOT9ThinningHelper.ThinningSvc(),
                                                                              SGKey                   = "Photons",
                                                                              InDetTrackParticlesKey  = "InDetTrackParticles",
                                                                              ConeSize                =  0.4)
@@ -56,7 +69,7 @@ thinningTools.append(EXOT9PhotonTPThinningTool)
 # truth thinning
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
 EXOT9TruthTool = DerivationFramework__MenuTruthThinning(name                  = "EXOT9TruthTool",
-                                                        ThinningService       = "EXOT9ThinningSvc",
+                                                        ThinningService       = EXOT9ThinningHelper.ThinningSvc(),
                                                         WritePartons          = False,
                                                         WriteHadrons          = False,
                                                         WriteBHadrons         = False,
@@ -83,7 +96,7 @@ truth_cond_Lepton = "((abs(TruthParticles.pdgId) >= 11) && (abs(TruthParticles.p
 
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
 EXOT9TruthTool2 = DerivationFramework__GenericTruthThinning(name                         = "EXOT9TruthTool2",
-                                                            ThinningService              = "EXOT9ThinningSvc",
+                                                            ThinningService              = EXOT9ThinningHelper.ThinningSvc(),
                                                             ParticleSelectionString      = truth_cond_Lepton,
                                                             PreserveDescendants          = False,
                                                             PreserveGeneratorDescendants = True,
@@ -120,14 +133,6 @@ OutputJets["EXOT9"] = []
 reducedJetList = [
   "AntiKt4TruthWZJets"]
 replaceAODReducedJets(reducedJetList,exot9Seq,"EXOT9")
-
-#====================================================================
-# SET UP STREAM   
-#====================================================================
-streamName = derivationFlags.WriteDAOD_EXOT9Stream.StreamName
-fileName   = buildFileName( derivationFlags.WriteDAOD_EXOT9Stream )
-EXOT9Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-EXOT9Stream.AcceptAlgs(["EXOT9Kernel"])
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
