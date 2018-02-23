@@ -141,7 +141,7 @@ def addVRJets(sequence, VRJetName, VRGhostLabel, VRJetAlg="AntiKt", VRJetRadius=
                           },
                  SetupScheme = "",
                  TaggerList = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu', 
-                               'MV2c10', 'MV2c10mu', 'MV2c10rnn', 'JetVertexCharge', 'MV2cl100' , 'MVb', 'DL1', 'DL1rnn', 'DL1mu', 'RNNIP', 'MV2c10Flip']
+                               'MV2c10', 'MV2c10mu', 'MV2c10rnn', 'JetVertexCharge', 'MV2cl100' , 'MVb', 'DL1', 'DL1rnn', 'DL1mu', 'RNNIP']
                  )
 
     pseudoJetGetters = jtm.gettersMap[VRJetInputs]
