@@ -420,6 +420,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   case (int)xAOD::Muon::Quality(xAOD::Muon::Medium): muQualBaseline = "Medium"; break;
   case (int)xAOD::Muon::Quality(xAOD::Muon::Tight):  muQualBaseline = "Tight";  break;
   case 4:  muQualBaseline = "HighPt";  break;
+  case 5:  muQualBaseline = "LowPt";  break;
   default:
     ATH_MSG_ERROR("Invalid muon working point provided: " << m_muIdBaseline << ". Cannot initialise!");
     return StatusCode::FAILURE;
@@ -449,6 +450,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   case (int)xAOD::Muon::Quality(xAOD::Muon::Medium): muQual = "Medium"; break;
   case (int)xAOD::Muon::Quality(xAOD::Muon::Tight):  muQual = "Tight";  break;
   case 4:  muQual = "HighPt";  break;
+  case 5:  muQual = "LowPt";  break;
   default:
     ATH_MSG_ERROR("Invalid muon working point provided: " << m_muId << ". Cannot initialise!");
     return StatusCode::FAILURE;
@@ -516,7 +518,11 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
   if (!m_muonTriggerSFTool.isUserConfigured()) {
     toolName = "MuonTriggerScaleFactors_" + muQual;
     m_muonTriggerSFTool.setTypeAndName("CP::MuonTriggerScaleFactors/"+toolName);
-    ATH_CHECK( m_muonTriggerSFTool.setProperty("MuonQuality", muQual));
+    if ( muQual=="LowPt" ) {
+      ATH_MSG_WARNING("You're using the LowPt muon selection, which is not supported yet in terms of muon trigger scale facorts. TEMPORAIRLY configuring the muonTriggerSFTool for Medium muons. Beware!");
+      ATH_CHECK( m_muonTriggerSFTool.setProperty("MuonQuality", "Medium" ));
+    }
+    else ATH_CHECK( m_muonTriggerSFTool.setProperty("MuonQuality", muQual));
     //ATH_CHECK( m_muonTriggerSFTool.setProperty("Isolation", m_muIso_WP)); This property has been depreacted long time ago
     ATH_CHECK( m_muonTriggerSFTool.setProperty("AllowZeroSF", true));
     ATH_CHECK( m_muonTriggerSFTool.retrieve());
