@@ -253,6 +253,14 @@ StatusCode JetMETCPTools::setupJetsCalibration() {
   // Is our MC full or fast simulation?
   std::string MC_type = (m_config->isAFII()) ? "AFII" : "MC16";
 
+  // Normally this is fine, but currently the jet group doesn't support uncertainties on AFII, so we have to tell it to configure for full sim
+  if(MC_type == "AFII"){
+    ATH_MSG_WARNING("JetUncertainties - CalibArea-02 does not support AFII uncertainties");
+    ATH_MSG_WARNING("JetUncertainties - Fast sim jets will need to have full sim uncertainties");
+    ATH_MSG_WARNING("JetUncertainties - This will be an underestimation of your JES uncertainty");
+    MC_type = "MC16";
+  }
+
   std::string conference = "Moriond2018";
 
   // interpret uncertainty model aliases
@@ -267,16 +275,8 @@ StatusCode JetMETCPTools::setupJetsCalibration() {
   
   // Rel21 calibrations are stored in a non-default area - therefore configure
   // the tool to look for the calibration in the correct fille.
-  std::string calib_area = "CalibArea-01";
+  std::string calib_area = "CalibArea-02";
 
-  // PFlow QG fraction file missing in calibarea-01 
-  // Use version loaded by AT - remove this as soon 
-  // as file becomes avaliable! 
-  if(jetCalibrationName.find("PFlow") != std::string::npos ){
-    m_config->jetUncertainties_QGFracFile("//cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/AnalysisTop/JetUncertainties/CalibArea-01-PFlow/analysisInputs/UnknownFlavourComp.root");
-
-    // m_config->jetUncertainties_QGFracFile("//afs/cern.ch/atlas/www/GROUPS/DATABASE/GroupData/dev/AnalysisTop/JetUncertainties/CalibArea-01-PFlow/analysisInputs/UnknownFlavourComp.root");
-  }
   // Are we doing multiple JES for the reduced NP senarios?
   if (!m_config->doMultipleJES()) {
     m_jetUncertaintiesTool
