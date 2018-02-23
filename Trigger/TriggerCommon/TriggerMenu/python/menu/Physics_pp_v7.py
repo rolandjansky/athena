@@ -41,9 +41,13 @@ def setupMenu():
     TriggerFlags.TestSlice.signatures = []
 
     TriggerFlags.AFPSlice.signatures = [
-        ['afp_jetexc_L1AFP_A_AND_C_SPECTOF_J50',  'L1_AFP_A_AND_C_SPECTOF_J50',  [],  [PhysicsStream], [ 'RATE:MinBias','BW:MinBias'], -1],
-        ['afp_jetexc_L1AFP_A_AND_C_SPECTOF_J75',  'L1_AFP_A_AND_C_SPECTOF_J75',  [],  [PhysicsStream], [ 'RATE:MinBias','BW:MinBias'], -1],
-        ['afp_jetexc_L1AFP_A_AND_C_SPECTOF_J100',  'L1_AFP_A_AND_C_SPECTOF_J100',  [],  [PhysicsStream], [ 'RATE:MinBias','BW:MinBias'], -1],
+        ['afp_jetexc_L1AFP_A_AND_C_SPECTOF_J50',  'L1_AFP_A_AND_C_SPECTOF_J50',  [],  [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['afp_jetexc_L1AFP_A_AND_C_SPECTOF_J75',  'L1_AFP_A_AND_C_SPECTOF_J75',  [],  [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['afp_jetexc_L1AFP_A_AND_C_SPECTOF_J100',  'L1_AFP_A_AND_C_SPECTOF_J100',  [],  [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+
+        ['afp_jetexc_L1J50',  'L1_J50',  [],  [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['afp_jetexc_L1J75',  'L1_J75',  [],  [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
+        ['afp_jetexc_L1J100',  'L1_J100',  [],  [PhysicsStream], ['RATE:SingleJet', 'BW:Jet'], -1],
         ]
 
     TriggerFlags.MuonSlice.signatures = [
@@ -863,6 +867,7 @@ def setupMenu():
         ['2j10_deta20_L1AFP_A_OR_C',                        'L1_AFP_A_OR_C',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
         ['j10_320eta490_L1AFP_A_AND_C',                        'L1_AFP_A_AND_C',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
         ['2j10_deta20_L1AFP_A_AND_C',                        'L1_AFP_A_AND_C',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
+       ['j10_320eta490_L1RD0_FILLED',  'L1_RD0_FILLED',  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
         
         ['j10_L1MBTS_2',                    'L1_MBTS_2', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
         ['j20_L1MBTS_2',                    'L1_MBTS_2', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
@@ -4223,15 +4228,15 @@ def setupMenu():
         ['noalg_L1AFP_A_OR_C_EMPTY',                        'L1_AFP_A_OR_C_EMPTY',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
         ['noalg_L1AFP_A_OR_C_FIRSTEMPTY',                        'L1_AFP_A_OR_C_FIRSTEMPTY',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
 
-        ['noalg_L1AFP_A_AND_C_SPECTOF_J50',                        'L1_AFP_A_AND_C_SPECTOF_J50',                  [],  [PhysicsStream], [ 'RATE:MinBias','BW:MinBias'], -1],
-        ['noalg_L1AFP_A_AND_C_SPECTOF_J75',                        'L1_AFP_A_AND_C_SPECTOF_J75',                  [],  [PhysicsStream], [ 'RATE:MinBias','BW:MinBias'], -1],
-        ['noalg_L1AFP_A_AND_C_SPECTOF_J100',                        'L1_AFP_A_AND_C_SPECTOF_J100',                  [],  [PhysicsStream], [ 'RATE:MinBias','BW:MinBias'], -1],
+        ['noalg_L1AFP_A_AND_C_SPECTOF_J50', 'L1_AFP_A_AND_C_SPECTOF_J50', [],  [PhysicsStream], ["RATE:SeededStreamers", "BW:Jet"], -1],
+        ['noalg_L1AFP_A_AND_C_SPECTOF_J75', 'L1_AFP_A_AND_C_SPECTOF_J75', [],  [PhysicsStream], ["RATE:SeededStreamers", "BW:Jet"], -1],
+        ['noalg_L1AFP_A_AND_C_SPECTOF_J100', 'L1_AFP_A_AND_C_SPECTOF_J100', [],  [PhysicsStream], ["RATE:SeededStreamers", "BW:Jet"], -1],
         ['noalg_L1AFP_A_SPECTOF',                      'L1_AFP_A_SPECTOF',               [], [PhysicsStream, 'express'], ["BW:MinBias", "RATE:MinBias"], -1],
         ['noalg_L1AFP_C_SPECTOF',                      'L1_AFP_C_SPECTOF',               [], [PhysicsStream, 'express'], ["BW:MinBias", "RATE:MinBias"], -1],
-        ['noalg_L1AFP_NSA',      'L1_AFP_NSA',     [], [PhysicsStream, 'express'], ["BW:MinBias", "RATE:MinBias"], -1],
-        ['noalg_L1AFP_NSC',      'L1_AFP_NSC',     [], [PhysicsStream, 'express'], ["BW:MinBias", "RATE:MinBias"], -1],
-        ['noalg_L1AFP_FSA_SIT',  'L1_AFP_FSA_SIT', [], [PhysicsStream, 'express'], ["BW:MinBias", "RATE:MinBias"], -1],
-        ['noalg_L1AFP_FSC_SIT',  'L1_AFP_FSC_SIT', [], [PhysicsStream, 'express'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['noalg_L1AFP_NSA',      'L1_AFP_NSA',     [], ['MinBias', 'express'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['noalg_L1AFP_NSC',      'L1_AFP_NSC',     [], ['MinBias', 'express'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['noalg_L1AFP_FSA_SIT',  'L1_AFP_FSA_SIT', [], ['MinBias', 'express'], ["BW:MinBias", "RATE:MinBias"], -1],
+        ['noalg_L1AFP_FSC_SIT',  'L1_AFP_FSC_SIT', [], ['MinBias', 'express'], ["BW:MinBias", "RATE:MinBias"], -1],
 
         ['noalg_L1MBTS_2',                        'L1_MBTS_2',                  [],  ['MinBias'], [ 'RATE:MinBias','BW:MinBias'], -1],
 
