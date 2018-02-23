@@ -61,6 +61,7 @@ def buildRNNIP(basename, special_config=False, calibration=None):
             if special_config == 'neg':
                 defaults.update({
                     'flipIPSign' : True,
+                    'flipZIPSign' : True,
                     'usePosIP'   : True,
                     'useNegIP'   : False,
                     'tagNameSuffix': 'neg',
@@ -68,6 +69,7 @@ def buildRNNIP(basename, special_config=False, calibration=None):
             elif special_config == 'flip':
                 defaults.update({
                     'flipIPSign' : True,
+                    'flipZIPSign' : True,
                     'usePosIP'   : True,
                     'useNegIP'   : True,
                     'tagNameSuffix': 'flip',
