@@ -44,15 +44,14 @@ public:
   // retrieve all track classifier sub tools
   virtual StatusCode initialize();
   // retrieve mu for online track classification
-  virtual StatusCode eventInitialize();  
- // pass all tracks in the tau cone to all track classifier sub tools
+  virtual StatusCode eventInitialize(); 
+  // pass all tracks in the tau cone to all track classifier sub tools
   virtual StatusCode execute(xAOD::TauJet& pTau);
 
 private:
   ToolHandleArray<TrackMVABDT> m_vClassifier;
   std::string m_tauTrackConName;
   std::vector<std::string> m_vClassifierNames;//optional
-  // for trigger
   double m_mu;
 
 }; // class TauTrackClassifier
@@ -83,10 +82,6 @@ class TrackMVABDT
   // set BDT input variables in the corresponding map entries
   StatusCode setVars(const xAOD::TauTrack& xTrack, const xAOD::TauJet& xTau);
 
-  // equivalent for trigger
-  StatusCode classifyTriggerTrack(xAOD::TauTrack& xTrack, const xAOD::TauJet& xTau, const xAOD::TauTrack* lead_track, double mu);
-  StatusCode setTriggerVars(const xAOD::TauTrack& xTrack, const xAOD::TauJet& xTau, const xAOD::TauTrack* lead_track);
-
   // load the root weights file and configure the MVA object with the correct
   // variable addresses
   StatusCode addWeightsFile();
@@ -101,9 +96,7 @@ private:
   int m_iSignalType;
   int m_iBackgroundType;
   int m_iExpectedFlag;
-  // for trigger
-  float m_deltaZ0;
-
+  
 private:
   MVAUtils::BDT* m_rReader; //!
   

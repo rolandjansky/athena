@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ################################################################################
 ##
@@ -298,25 +298,20 @@ class TauRecVariablesProcessor ( TauRecConfigured ) :
 
             if tauFlags.doRunTauDiscriminant():
                 tools.append(taualgs.getTauIDVarCalculator())
-                tools.append(taualgs.getTauJetBDTEvaluator(suffix="TauJetBDT1P", weightsFile="vars2016_pt_gamma_1p_isofix.root", minNTracks=0, maxNTracks=1)) #update config?
-                tools.append(taualgs.getTauJetBDTEvaluator(suffix="TauJetBDT3P", weightsFile="vars2016_pt_gamma_3p_isofix.root", minNTracks=2, maxNTracks=1000)) #update config?
+                tools.append(taualgs.getTauJetBDTEvaluator("TauJetBDT1P", weightsFile="vars2016_pt_gamma_1p_isofix.root", minNTracks=0, maxNTracks=1)) #update config?
+                tools.append(taualgs.getTauJetBDTEvaluator("TauJetBDT3P", weightsFile="vars2016_pt_gamma_3p_isofix.root", minNTracks=2, maxNTracks=1000)) #update config?
                 tools.append(taualgs.getTauWPDecoratorJetBDT())
-                tools.append(taualgs.getTauJetBDTEvaluator(suffix="TauEleBDT_def", weightsFile="", outputVarName="BDTEleScore"))#just inits values
-                tools.append(taualgs.getTauJetBDTEvaluator(suffix="TauEleBDT_bar", 
+                tools.append(taualgs.getTauJetBDTEvaluator("TauEleBDT_def", weightsFile="", outputVarName="BDTEleScore"))#just inits values
+                tools.append(taualgs.getTauJetBDTEvaluator("TauEleBDT_bar", 
                                                            weightsFile="EleBDT1PBar.root", minNTracks=1, maxAbsTrackEta=1.37, 
                                                            outputVarName="BDTEleScore")) #update config?
-                tools.append(taualgs.getTauJetBDTEvaluator(suffix="TauEleBDT_end1", 
+                tools.append(taualgs.getTauJetBDTEvaluator("TauEleBDT_end1", 
                                                            weightsFile="EleBDT1PEnd1.root", minNTracks=1, minAbsTrackEta=1.37, 
                                                            maxAbsTrackEta=2.0, outputVarName="BDTEleScore")) #update config?
-                tools.append(taualgs.getTauJetBDTEvaluator(suffix="TauEleBDT_end23", 
+                tools.append(taualgs.getTauJetBDTEvaluator("TauEleBDT_end23", 
                                                            weightsFile="EleBDT1PEnd23.root", minNTracks=1, minAbsTrackEta=2.0, 
                                                            maxAbsTrackEta=3.0, outputVarName="BDTEleScore")) #update config?
                 tools.append(taualgs.getTauWPDecoratorEleBDT())
-                tools.append(taualgs.getTauJetRNNEvaluator(suffix="TauJetRNN",
-                                                           NetworkFile1P="rnnid_prelim_config_deep_1p.json",
-                                                           NetworkFile3P="rnnid_prelim_config_deep_3p.json",
-                                                           OutputVarname="RNNJetScore", MaxTracks=10, MaxClusters=6))
-                tools.append(taualgs.getTauWPDecoratorJetRNN())
                 tools.append(taualgs.getTauEleOLRDecorator())
                 pass
 

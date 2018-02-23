@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TauDefs.h 796092 2017-02-08 00:14:16Z griffith $
@@ -86,11 +86,7 @@ namespace TauJetParameters
         //!
         // = 19,  // new
         //! needed by TauJet_v1/2
-        PanTauScore= 20, //deprecated
-        //! RNN score for Jet rejection (not transformed)
-        RNNJetScore           = 21,
-        //! RNN score which is signal transformed/flattened
-        RNNJetScoreSigTrans   = 22 // new
+        PanTauScore= 20 //deprecated
       };
 
     //-------------------------------------------------------------------------
@@ -140,10 +136,10 @@ namespace TauJetParameters
         JetBDTBkgLoose       = 25, // new
         JetBDTBkgMedium      = 26, // new
         JetBDTBkgTight       = 27, // new
-	JetRNNSigVeryLoose      = 28,
-        JetRNNSigLoose          = 29,
-        JetRNNSigMedium         = 30,
-        JetRNNSigTight          = 31,
+	// = 28,
+	// = 29,
+	// = 30, 
+	// = 31,
       };
 
     //-------------------------------------------------------------------------

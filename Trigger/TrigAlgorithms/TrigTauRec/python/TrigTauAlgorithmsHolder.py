@@ -142,11 +142,9 @@ def getMvaTESVariableDecorator():
     if _name in cached_instances:
         return cached_instances[_name]
 
-    from AthenaCommon.AppMgr import ToolSvc
     from tauRecTools.tauRecToolsConf import MvaTESVariableDecorator
     MvaTESVariableDecorator = MvaTESVariableDecorator(name = _name)
 
-    ToolSvc += MvaTESVariableDecorator
     cached_instances[_name] = MvaTESVariableDecorator
     return MvaTESVariableDecorator
 
@@ -159,12 +157,10 @@ def getMvaTESEvaluator():
     if _name in cached_instances:
         return cached_instances[_name]
 
-    from AthenaCommon.AppMgr import ToolSvc
     from tauRecTools.tauRecToolsConf import MvaTESEvaluator
     MvaTESEvaluator = MvaTESEvaluator(name = _name,
                                       WeightFileName = 'OnlineMvaTES_BRT_v0.weights.root')
 
-    ToolSvc += MvaTESEvaluator
     cached_instances[_name] = MvaTESEvaluator
     return MvaTESEvaluator
 
@@ -779,116 +775,29 @@ def getTauTrackClassifier():
 
     input_file_name = 'EFtracks_BDT_classifier_v0.root'
     calibrationFolder = 'TrigTauRec/00-11-02/'
-    BDTcut = 0.45
-    deltaZ0 = 1.0
+    threshold = 0.45
 
     # =========================================================================
-    EFtrackBDT = TrackMVABDT(
+    _EFtracks_bdt = TrackMVABDT(
         name = _name + "_MVABDT",
-        InputWeightsPath = input_file_name,
-        Threshold        = BDTcut,
-        DeltaZ0          = deltaZ0,
-        ExpectedFlag     = ROOT.xAOD.TauJetParameters.unclassified, 
-        inTrigger        = True,
-        calibFolder      = calibrationFolder        
+        InputWeightsPath=input_file_name,
+        Threshold=threshold,
+        ExpectedFlag   = ROOT.xAOD.TauJetParameters.unclassified, 
+        SignalType     = ROOT.xAOD.TauJetParameters.classifiedCharged,
+        BackgroundType = ROOT.xAOD.TauJetParameters.classifiedIsolation,
+        inTrigger      = True,
+        calibFolder    = calibrationFolder
     )
 
-    ToolSvc += EFtrackBDT
+    ToolSvc += _EFtracks_bdt
 
     classifier = TauTrackClassifier(
         name=_name, 
-        Classifiers=[EFtrackBDT]
+        Classifiers=[_EFtracks_bdt]
     )
 
     cached_instances[_name] = classifier
     return classifier
-
-########################################################################
-# TauIDVarCalculator
-def getTauIDVarCalculator():
-
-    _name = sPrefix + 'TauIDVarCalculator'
-
-    if _name in cached_instances:
-        return cached_instances[_name]
-    
-    from AthenaCommon.AppMgr import ToolSvc
-    from tauRecTools.tauRecToolsConf import TauIDVarCalculator            
-    TauIDVarCalculator = TauIDVarCalculator(name=_name)
-    
-    ToolSvc += TauIDVarCalculator                                 
-    cached_instances[_name] = TauIDVarCalculator
-    return TauIDVarCalculator
-
-########################################################################
-# TauJetRNNEvaluator
-def getTauJetRNNEvaluator(NetworkFile1P="", NetworkFile3P="", OutputVarname="RNNJetScore", 
-                          MinChargedTracks=1, MaxTracks=10, MaxClusters=6, MaxClusterDR=1.0, 
-                          InputLayerScalar="scalar", InputLayerTracks="tracks", InputLayerClusters="clusters", 
-                          OutputLayer="rnnid_output", OutputNode="sig_prob"):
-
-    _name = sPrefix + 'TauJetRNNEvaluator'
-
-    if _name in cached_instances:
-        return cached_instances[_name]
-
-    from AthenaCommon.AppMgr import ToolSvc
-    from tauRecTools.tauRecToolsConf import TauJetRNNEvaluator
-    TauJetRNNEvaluator = TauJetRNNEvaluator(name=_name,
-                                      NetworkFile1P=NetworkFile1P,
-                                      NetworkFile3P=NetworkFile3P,
-                                      OutputVarname=OutputVarname,
-                                      MinChargedTracks=MinChargedTracks,
-                                      MaxTracks=MaxTracks,
-                                      MaxClusters=MaxClusters,
-                                      MaxClusterDR=MaxClusterDR,
-                                      InputLayerScalar=InputLayerScalar,
-                                      InputLayerTracks=InputLayerTracks,
-                                      InputLayerClusters=InputLayerClusters,
-                                      OutputLayer=OutputLayer,
-                                      OutputNode=OutputNode)
-
-    ToolSvc += TauJetRNNEvaluator
-    cached_instances[_name] = TauJetRNNEvaluator
-    return TauJetRNNEvaluator
-
-########################################################################
-# TauWPDecoratorJetRNN
-def getTauWPDecoratorJetRNN():
-
-    _name = sPrefix + 'TauWPDecoratorJetRNN'
-
-    if _name in cached_instances:
-        return cached_instances[_name]
-
-    import PyUtils.RootUtils as ru
-    ROOT = ru.import_root()
-    import cppyy
-    cppyy.loadDictionary('xAODTau_cDict')
-
-    from AthenaCommon.AppMgr import ToolSvc
-    from tauRecTools.tauRecToolsConf import TauWPDecorator
-    TauWPDecorator = TauWPDecorator( name=_name,
-                                     flatteningFile1Prong = "rnnid_flat_deep_1p_v0.root",
-                                     flatteningFile3Prong = "rnnid_flat_deep_3p_v0.root",
-                                     CutEnumVals =
-                                     [ ROOT.xAOD.TauJetParameters.JetRNNSigVeryLoose, ROOT.xAOD.TauJetParameters.JetRNNSigLoose,
-                                       ROOT.xAOD.TauJetParameters.JetRNNSigMedium, ROOT.xAOD.TauJetParameters.JetRNNSigTight ],
-                                     SigEff1P = [0.992, 0.99, 0.98, 0.96],
-                                     SigEff3P = [0.99, 0.98, 0.95, 0.90],
-                                     ScoreName = "RNNJetScore",
-                                     NewScoreName = "RNNJetScoreSigTrans",
-                                     DefineWPs = True,
-                                 )
-
-    ToolSvc += TauWPDecorator
-    cached_instances[_name] = TauWPDecorator
-    return TauWPDecorator
-
-# target efficiencies used for 2017 BDT:
-# SigEff1P = [0.995, 0.99, 0.97, 0.90],
-# SigEff3P = [0.995, 0.94, 0.88, 0.78],
-
 
 
 # end

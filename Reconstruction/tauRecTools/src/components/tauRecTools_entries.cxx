@@ -37,7 +37,6 @@
 #include "tauRecTools/DiTauDiscriminantTool.h"
 #include "tauRecTools/DiTauIDVarCalculator.h"
 #include "tauRecTools/TauJetBDTEvaluator.h"
-#include "tauRecTools/TauJetRNNEvaluator.h"
 #include "tauRecTools/TauEleOLRDecorator.h"
 #include "tauRecTools/TauIDVarCalculator.h"
 
@@ -84,6 +83,5 @@ DECLARE_TOOL_FACTORY( TauWPDecorator )
 DECLARE_NAMESPACE_TOOL_FACTORY( tauRecTools, DiTauDiscriminantTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( tauRecTools, DiTauIDVarCalculator )
 DECLARE_TOOL_FACTORY( TauJetBDTEvaluator )
-DECLARE_TOOL_FACTORY( TauJetRNNEvaluator )
 DECLARE_TOOL_FACTORY( TauEleOLRDecorator )
 DECLARE_TOOL_FACTORY( TauIDVarCalculator )
