@@ -266,8 +266,10 @@ namespace MuonGM {
       };
     enum RpcGMRanges
       {
-        NRpcStatType     = 12,
-        NRpcStatTypeOff  = -2,
+	//        NRpcStatType     = 12,
+        NRpcStatType     = 16, // Massimo: ADD BIL,BIS,BIR, BIM RPC	
+        //NRpcStatTypeOff  = -2,
+        NRpcStatTypeOff  =  0,// start from zero to inclide BI
         NRpcStatEta      = 17,
         NRpcStEtaOffset  = 8,
         NRpcStatPhi      = 8,

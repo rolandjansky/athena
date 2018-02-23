@@ -595,7 +595,13 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::doRPCSimHit()
         int         measphi     = muonHelper->GetMeasuresPhi(idHit);
  	 
 
-	if(stationName=="BML"){ 
+	if(stationName=="BIL"){ 
+	 StationName=0;
+	}
+        else if(stationName=="BIS"){ 
+	 StationName=1;
+	}
+        else if(stationName=="BML"){ 
 	 StationName=2;
 	}
 	else if(stationName=="BMS"){ 
@@ -607,6 +613,9 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::doRPCSimHit()
 	else if(stationName=="BOS"){ 
 	 StationName=5;
 	}
+        else if(stationName=="BIR"){ 
+         StationName=7;
+	}
 	else if(stationName=="BMF"){ 
 	 StationName=8;
 	}
@@ -616,10 +625,13 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::doRPCSimHit()
 	else if(stationName=="BOG"){ 
 	 StationName=10;
 	}
+        else if(stationName=="BIM"){ 
+         StationName=52;
+        }
 	else if(stationName=="BME"){ 
 	 StationName=53;
-	
-}	else if(stationName=="BOE"){ 
+	}
+	else if(stationName=="BOE"){ 
 	 StationName=54;
 	}
 
