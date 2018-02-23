@@ -1,8 +1,11 @@
 /*                 
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
 
-  In progress header for TrigMuonEFTagandProbe algorithm
-  JJamieson, University of Glasgow, Created 09/10/2017, Last edit: 05/02/18
+/*
+  TrigMuonEFTagandProbe
+  Package: Trigger/TrigAlgorithms/TrigMuSuperEF
+  Authors: Jonathan Jamieson, University of Glasgow, Created 09/10/2017, Last edit: 23/02/18
 */
 
 #ifndef TRIGMUONEFTAGANDPROBE_TRIGMUONEFTAGANDPROBE_H

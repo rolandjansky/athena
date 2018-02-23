@@ -1,6 +1,10 @@
 /*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration 
+*/
+
+/*--------------------------------------------------------------------------------------
   Event Filter Z_mu+mu- Online Tag and Probe algorithm
-  Authors: JJamieson, University of Glasgow, Created: 09/10/2017, Last edit: 20/02/2018
+  Authors: Jonathan Jamieson, University of Glasgow, Created: 09/10/2017, Last edit: 23/02/2018
   
   Summary:-----------------------------------------------------------------------------------------  
   
@@ -30,22 +34,18 @@
   Running:-----------------------------------------------------------------------------------------  
 
   athenaHLT: 
-  from glob import glob;athenaHLT.py -M -f "glob("/path/to/dir1/star“)+glob("/path/to/dir2/star“)+glob(etc..)" -o HLT_MCV7  -c 'testMCV7=True;HLTOutputLevel=INFO;ServiceMgr.MessageSvc.defaultLimit=9999999;doValidation=True;fpeAuditor=True' -C "topSequence.TrigSteer_HLT.TrigMuonEFTagandProbe.OutputLevel=DEBUG" TriggerRelease/runHLT_standalone.py >& log 
+  from glob import glob;athenaHLT.py -M -f "glob("/path/to/dir1/star")+glob("/path/to/dir2/star")+glob(etc..)" -o HLT_MCV7  -c 'testMCV7=True;HLTOutputLevel=INFO;ServiceMgr.MessageSvc.defaultLimit=9999999;doValidation=True;fpeAuditor=True' -C "topSequence.TrigSteer_HLT.TrigMuonEFTagandProbe.OutputLevel=DEBUG" TriggerRelease/runHLT_standalone.py >& log 
 
   Output of online histogramming will be in r000...HLT-Histogramming.root
 
-
   athena (data):
 
-  athena.py -c 'testMCV7=True;HLTOutputLevel=INFO;ServiceMgr.MessageSvc.defaultLimit=9999999;doValidation=True;fpeAuditor=True;from glob import glob;BSRDOInput=glob("/path/to/dir1/star“)+glob("/path/to/dir2/star“)+glob(etc..)'  TriggerRelease/runHLT_standalone.py Path/To/localDebug.py >& log_file
-
+  athena.py -c 'testMCV7=True;HLTOutputLevel=INFO;ServiceMgr.MessageSvc.defaultLimit=9999999;doValidation=True;fpeAuditor=True;from glob import glob;BSRDOInput=glob("/path/to/dir1/star")+glob("/path/to/dir2/star")+glob(etc..)'  TriggerRelease/runHLT_standalone.py Path/To/localDebug.py >& log_file
 
   athena (MC):
 
-/usr/bin/time -f "mem=%K RSS=%M elapsed=%E cpu.sys=%S .user=%U" athena.py -c 'menu="MC_pp_v7";sliceName="muon";ServiceMgr.MessageSvc.defaultLimit=9999999;EvtMax=-1;from glob import glob;jp.AthenaCommonFlags.FilesInput=glob("/path/to/dir1/star")+glob("/path/to/dir2/star“)+glob(etc..)' TriggerTest/testCommonSliceAthenaTrigRDO.py Path/To/localDebug.py >& log_file_MC
-
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration 
- */
+/usr/bin/time -f "mem=%K RSS=%M elapsed=%E cpu.sys=%S .user=%U" athena.py -c 'menu="MC_pp_v7";sliceName="muon";ServiceMgr.MessageSvc.defaultLimit=9999999;EvtMax=-1;from glob import glob;jp.AthenaCommonFlags.FilesInput=glob("/path/to/dir1/star")+glob("/path/to/dir2/star")+glob(etc..)' TriggerTest/testCommonSliceAthenaTrigRDO.py Path/To/localDebug.py >& log_file_MC
+*/
 
 
 #include <iomanip>
