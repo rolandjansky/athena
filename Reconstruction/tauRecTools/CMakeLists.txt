@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 796274 2017-02-08 17:13:03Z griffith $
+# $Id: CMakeLists.txt 796274 2017-02-08 17:13:03Z griffith $ 
 ################################################################################
 # Package: tauRecTools
 ################################################################################
@@ -58,7 +58,7 @@ else()
       Reconstruction/RecoTools/ITrackToVertex
       Reconstruction/RecoTools/RecoToolInterfaces
       Tools/PathResolver
-      PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
+      PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools	
       Tracking/TrkEvent/TrkLinks
       Tracking/TrkEvent/TrkParametersIdentificationHelpers
       Tracking/TrkEvent/TrkTrackSummary
@@ -75,7 +75,6 @@ find_package( ROOT COMPONENTS Core Tree Hist RIO )
 find_package( FastJet COMPONENTS fastjetplugins fastjettools siscone
 	        siscone_spherical )
 find_package( FastJetContrib COMPONENTS VariableR )
-find_package( lwtnn )
 
 # Component(s) in the package:
 if( XAOD_STANDALONE OR XAOD_ANALYSIS )
@@ -84,24 +83,24 @@ if( XAOD_STANDALONE OR XAOD_ANALYSIS )
       PUBLIC_HEADERS tauRecTools
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
       ${FASTJET_INCLUDE_DIRS}
-      PRIVATE_INCLUDE_DIRS ${FASTJETCONTRIB_INCLUDE_DIRS} ${LWTNN_INCLUDE_DIRS}
+      PRIVATE_INCLUDE_DIRS ${FASTJETCONTRIB_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} ${Boost_LIBRARIES}
       AthLinks AsgTools CxxUtils xAODCaloEvent xAODEventInfo xAODPFlow xAODEgamma xAODTau
       xAODTracking
-      PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} ${LWTNN_LIBRARIES}
-      FourMomUtils xAODJet PathResolver MVAUtils ElectronPhotonSelectorToolsLib )
+      PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} FourMomUtils xAODJet
+      PathResolver MVAUtils ElectronPhotonSelectorToolsLib )
 else()
    atlas_add_library( tauRecToolsLib
       tauRecTools/*.h Root/*.cxx
       PUBLIC_HEADERS tauRecTools
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
       ${FASTJET_INCLUDE_DIRS}
-      PRIVATE_INCLUDE_DIRS ${FASTJETCONTRIB_INCLUDE_DIRS} ${LWTNN_INCLUDE_DIRS}
+      PRIVATE_INCLUDE_DIRS ${FASTJETCONTRIB_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} ${Boost_LIBRARIES}
       AthLinks AsgTools CxxUtils xAODCaloEvent xAODEventInfo xAODPFlow xAODEgamma xAODTau
       xAODTracking CaloUtilsLib Particle
-      PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} ${LWTNN_LIBRARIES}
-      FourMomUtils xAODJet PathResolver MVAUtils ElectronPhotonSelectorToolsLib)
+      PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} FourMomUtils xAODJet
+      PathResolver MVAUtils ElectronPhotonSelectorToolsLib)
 endif()
 
 if( NOT XAOD_STANDALONE )
@@ -109,24 +108,21 @@ if( NOT XAOD_STANDALONE )
       atlas_add_component( tauRecTools
          src/*.h src/*.cxx src/components/*.cxx
          INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-         ${LWTNN_INCLUDE_DIRS}
-         LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${LWTNN_LIBRARIES}
-         xAODTau xAODTracking xAODEgamma AthContainers FourMomUtils
-         xAODCaloEvent xAODJet xAODPFlow MVAUtils ElectronPhotonSelectorToolsLib
-         GaudiKernel tauRecToolsLib )
+         LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} xAODTau
+         xAODTracking xAODEgamma AthContainers FourMomUtils xAODCaloEvent xAODJet 
+         xAODPFlow MVAUtils ElectronPhotonSelectorToolsLib GaudiKernel tauRecToolsLib )
    else()
       atlas_add_component( tauRecTools
          src/*.h src/*.cxx src/components/*.cxx
          INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-         ${LWTNN_INCLUDE_DIRS}
-         LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${LWTNN_LIBRARIES}
-         CaloUtilsLib xAODTau xAODTracking xAODEgamma AthContainers FourMomUtils
-         NavFourMom xAODCaloEvent xAODJet xAODPFlow MVAUtils
-         ElectronPhotonSelectorToolsLib GaudiKernel InDetRecToolInterfaces
-         JetEDM Particle ITrackToVertex RecoToolInterfaces TrkLinks
-         TrkParametersIdentificationHelpers TrkTrackSummary VxVertex
-         TrkToolInterfaces TrkVertexFitterInterfaces TrkVertexFittersLib
-         TrkVxEdmCnvLib InDetTrackSelectionToolLib tauRecToolsLib )
+         LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} CaloUtilsLib
+         xAODTau xAODTracking xAODEgamma AthContainers FourMomUtils NavFourMom
+         xAODCaloEvent xAODJet xAODPFlow MVAUtils ElectronPhotonSelectorToolsLib GaudiKernel
+         InDetRecToolInterfaces JetEDM Particle ITrackToVertex
+         RecoToolInterfaces TrkLinks TrkParametersIdentificationHelpers
+         TrkTrackSummary VxVertex TrkToolInterfaces TrkVertexFitterInterfaces
+         TrkVertexFittersLib TrkVxEdmCnvLib InDetTrackSelectionToolLib
+         tauRecToolsLib )
    endif()
 endif()
 
