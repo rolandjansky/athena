@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 // contact: jmaurer@cern.ch
@@ -132,7 +132,7 @@ bool CheckConfig::basicConfigChecks()
 	if(!success) return false;
 
 	/*
-	 *  More checks that are done in other places:
+	 *  More checks that are done in other places (or still need to be implemented!):
 	 *
 	 * - [advancedConfigChecks()] for each entry in ListOfLegsPerTag there must be a suitable tool for that tag and leg(s)
 	 * - [enumerateTools()] no two electron tools share the same {leg,tag} combination
@@ -146,6 +146,8 @@ bool CheckConfig::basicConfigChecks()
 	 * - [UNCHECKED] some unfinished functions in advancedConfigChecks
 	 * - [advancedConfigChecks()] user-specified periods are orthogonal
 	 * - [ImportData::parseTriggerString()] no duplicated triggers in the combination
+	 * - [UNCHECKED] for each configured electron tool there is at least one associated tag^leg pair in 'ListOfLegsPerTag' (unless no electron tags used)
+	 * - [UNCHECKED] for each configured muon tool there is at least one associated tag in 'MuonLegsPerTag' (unless empty)
 	 */
 	
 	return success;
@@ -257,49 +259,6 @@ bool CheckConfig::advancedConfigChecks()
 		}
 	}
 	if(!success) return false;
-	
-	/*
-	/// Check that for each configured electron tool there is at least one associated tag^leg pair in 'ListOfLegsPerTag' (unless no electron tags used)
-	if(m_electronLegsPerTag.size())
-	{
-		std::map<ToolHandle<IAsgElectronEfficiencyCorrectionTool>*,bool> safeTools;
-		for(auto& kv : m_electronEffTools)
-		{
-			bool& safe = safeTools.emplace(kv.second,false).first->second;
-			safe = safe || m_validLegTagPairs.count(kv.first);
-		}
-		for(auto& kv : safeTools)
-		{
-			if(kv.second) continue;
-			for(auto& xy : m_electronLegsPerTag)
-			{
-				ATH_MSG_INFO(xy.first<<" "<<xy.second);
-			}
-			std::string name = kv.first->name();
-			auto itrLegs = m_legsPerTool.find(name);
-			std::string legs = (itrLegs!=m_legsPerTool.end())? "'"+itrLegs->second+"'" : "<not filled>";
-			auto itrTags = m_tagsPerTool.find(name);
-			std::string tags =  (itrTags!=m_tagsPerTool.end())? "'"+itrTags->second+"'" : "<not filled>";
-			ATH_MSG_ERROR("the electron tool " << name <<" has been associated to leg(s) " << legs
-				<< " and tag(s) " << tags <<", but none of the possible (tag,leg) combination has been found in the property 'ElectronLegsPerTag. "
-				<< "Please double-check the properties 'ListOfLegsPerTool', 'ListOfTagsPerTool' and 'ElectronLegsPerTag'");
-			success = false;
-		}
-	}
-	
-	/// Check that for each configured muon tool there is at least one associated tag in 'MuonLegsPerTag' (unless empty)
-	/// Or should we let the default behaviour
-	if(m_muonLegsPerTag.size())
-	{
-		for(auto& tool : m_suppliedMuonTools)
-		{
-			m_tagsPerTool[tool->name()] 
-			need to check that all muon tools are mentioned in m_tagsPerTool
-			bool& safe = safeTools.emplace(kv.second,false).first->second;
-			safe = safe || m_validLegTagPairs.count(kv.first);
-		}
-	}
-	*/
 	
 	return success;
 }
