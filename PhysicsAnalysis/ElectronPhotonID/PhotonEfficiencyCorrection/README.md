@@ -1,0 +1,36 @@
+This is a short README of the TPhotonEfficiencyCorrection class, this class inherit structure from TElectronEfficiencyCorrection tool (February 2018)
+
+### contact authors
+* Felix Buehrer felix.buehrer@cern.ch (TElectronEfficiencyCorrection)
+* Giovanni Marchiori Giovanni.Marchiori@cern.ch (TPhotonEfficiencyCorrection)
+* Michael Pitt Michael.Pitt@cern.ch (TPhotonEfficiencyCorrection)
+
+### TPhotonEfficiencyCorrection - class to retrieve the photon scale factors
+
+Up-to-date information about the tool. can be found on its dedicated twiki pages:
+* [PhotonEfficiencyRun2](https://twiki.cern.ch/twiki/bin/view/AtlasProtected/PhotonEfficiencyRun2)
+* [IsolationFeb2018RecomRel21](https://twiki.cern.ch/twiki/bin/view/AtlasProtected/IsolationFeb2018RecomRel21)
+
+In case you feel that some piece of information is missing, please feel free to contact the author (Michael.Pitt@cern.ch).
+
+### example in ROOT:
+
+`mkdir source build run; cd build`
+
+`asetup 21.2,AnalysisBase,latest`
+
+`mv CMakeLists.txt ../source`
+
+`cmake ../source`
+
+`make; source x86_64-slc6-gcc62-opt/setup.sh`
+
+`cd ../run`
+
+to test on a AOD file run
+
+`TestxAODPhotonTool [filename]`
+
+to test the output of the input files (stored in the CalibArea) run
+
+`PrintPhotonSF [input]`

@@ -33,14 +33,14 @@
 // ROOT includes
 #include "TSystem.h"
 
-#define MAXETA 2.47
+#define MAXETA 2.37
 #define MIN_ET 10000.0
 #define MIN_ET_OF_SF 10000.0
 #define MIN_ET_Iso_SF 10000.0
 #define MIN_ET_Trig_SF 10000.0
 #define MAX_ET_OF_SF 1499999.99
 #define MAX_ET_Iso_SF 999999.99
-#define MAX_ET_Trig_SF 99999.99
+#define MAX_ET_Trig_SF 999999.99
 
 
 // =============================================================================
@@ -59,13 +59,7 @@ AsgPhotonEfficiencyCorrectionTool::AsgPhotonEfficiencyCorrectionTool( std::strin
   m_rootTool_con = new Root::TPhotonEfficiencyCorrectionTool();
 
   // Declare the needed properties
-  declareProperty( "CorrectionFileNameConv", m_corrFileNameConv="",
-                   "File that stores the correction factors for simulation for converted photons");
-
-  declareProperty( "CorrectionFileNameUnconv", m_corrFileNameUnconv="",
-                   "File that stores the correction factors for simulation for unconverted photons");
-				   
-  declareProperty("MapFilePath", m_mapFile = "" ,
+  declareProperty("MapFilePath", m_mapFile = "PhotonEfficiencyCorrection/2015_2017/rel21.2/Winter2018_Prerec_v1/map0.txt" ,
                   "Full path to the map file");  
 				  
   declareProperty( "ForceDataType", m_dataTypeOverwrite=-1,
@@ -115,12 +109,8 @@ StatusCode AsgPhotonEfficiencyCorrectionTool::initialize()
      m_corrFileNameList.push_back(getFileName(m_isoWP,m_trigger,true));	// converted photons input
 	 m_corrFileNameList.push_back(getFileName(m_isoWP,m_trigger,false));  // unconverted photons input
   }
-  else if(m_corrFileNameConv.size() && m_corrFileNameUnconv.size()){ // initialize the tool using input files (old scheme)
-  	m_corrFileNameList.push_back(m_corrFileNameConv);
-	m_corrFileNameList.push_back(m_corrFileNameUnconv);
-  }
   else{
-      ATH_MSG_ERROR ( "Fail to resolve input file name, check if you set MapFilePath or CorrectionFileName properly" );
+      ATH_MSG_ERROR ( "Map file is not properly set, this shouldn't happen, check if you set MapFilePath to an empty string" );
       return StatusCode::FAILURE ; 
   }
 
