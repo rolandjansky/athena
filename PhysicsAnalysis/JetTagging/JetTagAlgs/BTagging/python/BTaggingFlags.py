@@ -31,7 +31,7 @@ class _BTaggingFlags:
               'MV2c10mu','MV2c10rnn','MV2c100','MV2cl100',
               'MV1Flip', 'MV1cFlip', 'MV2Flip',
               'MV2c10Flip','MV2c10muFlip','MV2c10rnnFlip','MV2c100Flip','MV2cl100Flip',
-              'RNNIP', 'RNNIPNeg',
+              'RNNIP', 'RNNIPNeg', 'RNNIPFlip',
               'DL1', 'DL1Flip','DL1mu', 'DL1muFlip','DL1rnn', 'DL1rnnFlip',
               'TagNtupleDumper',
               'JetVertexCharge']
@@ -160,6 +160,7 @@ class _BTaggingFlags:
 
       self.RNNIP = True
       self.RNNIPNeg = False
+      self.RNNIPFlip = False
       self.RNNIPConfig = {'rnnip':''}
       self.WriteRNNInputs = False
 
@@ -171,8 +172,11 @@ class _BTaggingFlags:
       self.MultivariateTagManagerAuxNameMap = {
           'rnnipneg_p' + x: 'rnnip_p' + x for x in rnnip_outputs
       }
+      self.MultivariateTagManagerAuxNameMap.update({
+          'rnnipflip_p' + x: 'rnnip_p' + x for x in rnnip_outputs
+      })
       self.MultivariateFlipTagManagerAuxBranches = [
-          'rnnipneg_p' + x for x in rnnip_outputs
+          'rnnipflip_p' + x for x in rnnip_outputs
       ]
 
       # you can force the NN tool off with this flag (avoids loading
