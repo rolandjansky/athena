@@ -163,9 +163,7 @@ void Pythia8ForDecays::fillParticle(const G4Track& aTrack, Pythia8::Event& event
 
 bool Pythia8ForDecays::isGluinoRHadron(int pdgId) const{
   const unsigned short q1 = MCUtils::PID::_digit(MCUtils::PID::Location::nq1,pdgId);
-  const unsigned short q2 = MCUtils::PID::_digit(MCUtils::PID::Location::nq2,pdgId);
   const unsigned short ql = MCUtils::PID::_digit(MCUtils::PID::Location::nl,pdgId);
-  //std::cout << "RHadron test: " << q1 << "\t" << pdgId << "\t" << MCUtils::PID::_digit(MCUtils::PID::Location::nl,pdgId) << "\t" << MCUtils::PID::_digit(MCUtils::PID::Location::nr,pdgId) << "\t" << MCUtils::PID::isRHadron(pdgId) << "\t" << MCUtils::PID::Location::nq1 << "\t" <<  MCUtils::PID::_digit(MCUtils::PID::Location::nl,pdgId) << std::endl;
   if (q1 == 0 || q1 == 9 || ql == 9){
     return true;
   }
@@ -209,7 +207,6 @@ void Pythia8ForDecays::Py1ent(const G4Track& aTrack, std::vector<G4DynamicPartic
   
   double mRBef = pdt.mSel(idRBef);
   double fracR = mRBef / mRHad;
-  std::cout << "Is triplet? " << isTriplet << "\t" << idRHad << "\t" << idRBef << "\t" << mRBef << "\t" << mRHad << "\t" << idRGo << std::endl;
   if (fracR >= 1.) return;
 
   //Squark case
@@ -247,9 +244,7 @@ void Pythia8ForDecays::Py1ent(const G4Track& aTrack, std::vector<G4DynamicPartic
   // Generate events. Quit if failure.
   if (!m_pythia->next()) {
     m_pythia->forceRHadronDecays();
-    event.list();
   }
-  event.list();
 
   ///////////////////////////////////////////////////////////////////////////
   // Add the particles from the Pythia event into the GEANT particle vector
