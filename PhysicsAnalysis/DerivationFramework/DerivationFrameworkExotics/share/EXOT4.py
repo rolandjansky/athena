@@ -160,17 +160,17 @@ btag_jetnoel_track = ConfInst.setupJetBTaggerTool(ToolSvc, JetCollection="AntiKt
 jtm.modifiersMap["akt4tracknoel"] = jtm.modifiersMap["track"] + [btag_jetnoel_track]
 jtm.modifiersMap["akt4emtoponoel"] = jtm.modifiersMap["emtopo_ungroomed"] + [btag_jetnoel]
 
-jfind_smallnoel_trk = addStandardJet("AntiKt", 0.4, "TrackNoEl",
+jfind_smallnoel_trk = addStandardJets("AntiKt", 0.4, "TrackNoEl",
                                      ptmin = 10000, ptminFilter = 10000,
                                      mods = "akt4tracknoel", calibOpt="none", ghostArea=0.01,
                                      customGetters = "TrkJetElRemovalgetter", pretools=[EXOT16ElRemovalTool])
 
-jfind_smallnoel_emtopo = addStandardJet("AntiKt", 0.4, "EMTopoNoEl",
+jfind_smallnoel_emtopo = addStandardJets("AntiKt", 0.4, "EMTopoNoEl",
                                      ptmin = 10000, ptminFilter = 10000,
                                      mods = "akt4emtoponoel", calibOpt="none", ghostArea=0.01,
                                      customGetters = "JetElRemovalgetter", pretools=[])
 
-jfind_smallnoel_truth = addStandardJet("AntiKt", 0.4, "TruthNoEl",
+jfind_smallnoel_truth = addStandardJets("AntiKt", 0.4, "TruthNoEl",
                                      ptmin = 10000, ptminFilter = 70000,
                                      mods = "truthNoEl", calibOpt="", ghostArea=0.0,
                                      customGetters = "truthNoEl", pretools=[jtm.truthpartcopyNoEl])
