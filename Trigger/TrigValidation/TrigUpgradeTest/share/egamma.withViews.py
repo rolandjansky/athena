@@ -111,6 +111,12 @@ egammaCaloStep = stepSeq("egammaCaloStep", filterL1RoIsAlg, [ fastCaloSequence, 
 from TrigUpgradeTest.InDetSetup import makeInDetAlgs
 
 (viewAlgs, eventAlgs) = makeInDetAlgs()
+from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_eGamma
+
+theFTF = TrigFastTrackFinder_eGamma()
+theFTF.isRoI_Seeded = True
+viewAlgs.append(theFTF)
+
 
 # A simple algorithm to confirm that data has been inherited from parent view
 # Required to satisfy data dependencies

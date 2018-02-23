@@ -59,6 +59,13 @@ if TriggerFlags.doID:
   
   (viewAlgs, eventAlgs) = makeInDetAlgs()
 
+  from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_eGamma
+  
+  TrigFastTrackFinder_eGamma.isRoI_Seeded = True
+  TrigFastTrackFinder_eGamma.RoIs = "EMViewRoIs"
+  viewAlgs.append(TrigFastTrackFinder_eGamma())
+
+
   for eventAlg in eventAlgs:
     viewSeq += eventAlg
 

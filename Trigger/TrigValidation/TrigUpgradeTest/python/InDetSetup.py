@@ -212,12 +212,6 @@ def makeInDetAlgs():
   viewAlgs.append(InDetSiTrackerSpacePointFinder)
   
   
-  from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_eGamma
-  
-  TrigFastTrackFinder_eGamma.isRoI_Seeded = True
-  TrigFastTrackFinder_eGamma.RoIs = "EMViewRoIs"
-  viewAlgs.append(TrigFastTrackFinder_eGamma())
-
   from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
   from TrigInDetConf.TrigInDetPostTools import  InDetTrigParticleCreatorToolFTF
 
