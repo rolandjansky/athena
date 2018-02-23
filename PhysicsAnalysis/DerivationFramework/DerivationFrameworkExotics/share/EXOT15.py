@@ -20,58 +20,44 @@ fileName   = buildFileName( derivationFlags.WriteDAOD_EXOT15Stream )
 EXOT15Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 EXOT15Stream.AcceptAlgs(["EXOT15Kernel"])
 
-#from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-#svcMgr += createThinningSvc( svcName="EXOT15ThinningSvc", outStreams=[evtStream] )
-
 SkipTriggerRequirement=(globalflags.DataSource()=='geant4')  #apply triggers only to data
 
 #====================================================================
 # THINNING TOOLS
 #====================================================================
+
+#thinning helper
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 EXOT15ThinningHelper = ThinningHelper( "EXOT15ThinningHelper" )
 EXOT15ThinningHelper.AppendToStream( EXOT15Stream )
 
 thinningTools = []
 
-# track thinning
-#thinning_expression = "(InDetTrackParticles.pt > 1.0*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 3)"
-#from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-#EXOT15TPThinningTool = DerivationFramework__TrackParticleThinning( name              = "EXOT15TPThinningTool",
-#                                                                ThinningService         = "EXOT15ThinningSvc",
-#                                                                SelectionString         = thinning_expression,
-#                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
-#                                                                ApplyAnd                = False)
-#ToolSvc += EXOT15TPThinningTool  # do not use track thinning
-#thinningTools.append(EXOT15TPThinningTool)
-
 # menu truth thinning
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
 EXOT15TMCThinningTool = DerivationFramework__MenuTruthThinning(name = "EXOT15TMCThinningTool",
-                                                              ThinningService         = EXOT15ThinningHelper.ThinningSvc(),
-                                                              WritePartons               = True,
-                                                              WriteHadrons               = True,
-                                                              WriteBHadrons              = True,
-                                                              WriteGeant                 = False,
-                                                              GeantPhotonPtThresh        = -1.0,
-                                                              WriteTauHad                = False,
-                                                              PartonPtThresh             = -1.0,
-                                                              WriteBSM                   = True,
-                                                              WriteBosons                = False,
-                                                              WriteBosonProducts         = False,
-                                                              WriteBSMProducts           = True,
-                                                              WriteTopAndDecays          = False,
-                                                              WriteEverything            = False,
-                                                              WriteAllLeptons            = False,
-                                                              WriteLeptonsNotFromHadrons = False,
-                                                              WriteStatus3               = False,
-                                                              WriteFirstN                = -1,
-                                                              PreserveDescendants        = False,
-                                                              PreserveGeneratorDescendants        = False,
-                                                              PreserveAncestors        = False,
-                                                              PreserveParentsSiblingsChildren         = True)
+                                                               ThinningService         = EXOT15ThinningHelper.ThinningSvc(),
+                                                               WritePartons               = True,
+                                                               WriteHadrons               = True,
+                                                               WriteBHadrons              = True,
+                                                               WriteGeant                 = False,
+                                                               GeantPhotonPtThresh        = -1.0,
+                                                               WriteTauHad                = False,
+                                                               PartonPtThresh             = -1.0,
+                                                               WriteBSM                   = True,
+                                                               WriteBosons                = False,
+                                                               WriteBosonProducts         = False,
+                                                               WriteBSMProducts           = True,
+                                                               WriteTopAndDecays          = False,
+                                                               WriteEverything            = False,
+                                                               WriteAllLeptons            = False,
+                                                               WriteLeptonsNotFromHadrons = False,
+                                                               WriteStatus3               = False,
+                                                               WriteFirstN                = -1,
+                                                               PreserveDescendants        = False,
+                                                               PreserveGeneratorDescendants  = False,
+                                                               PreserveAncestors          = False,
+                                                               PreserveParentsSiblingsChildren = True)
 
 if SkipTriggerRequirement:
     ToolSvc += EXOT15TMCThinningTool
@@ -80,10 +66,10 @@ if SkipTriggerRequirement:
 # generic truth thinning
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
 EXOT15MCGenThinningTool = DerivationFramework__GenericTruthThinning(name = "EXOT15MCGenThinningTool",
-                                                                   ThinningService         = EXOT15ThinningHelper.ThinningSvc(),
-                                                                   ParticleSelectionString = "abs(TruthParticles.pdgId)==25 || abs(TruthParticles.pdgId)==35", 
-                                                                   PreserveDescendants = True,
-                                                                   PreserveAncestors   = True)
+                                                                    ThinningService         = EXOT15ThinningHelper.ThinningSvc(),
+                                                                    ParticleSelectionString = "abs(TruthParticles.pdgId)==25 || abs(TruthParticles.pdgId)==35", 
+                                                                    PreserveDescendants = True,
+                                                                    PreserveAncestors   = True)
 
 if SkipTriggerRequirement:
     ToolSvc += EXOT15MCGenThinningTool
@@ -102,8 +88,7 @@ else:
 expression = topology_selection
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-EXOT15SkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "EXOT15SkimmingTool",
-                                                                      expression = expression)
+EXOT15SkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "EXOT15SkimmingTool", expression = expression)
 
 ToolSvc += EXOT15SkimmingTool
 if not SkipTriggerRequirement and not rec.triggerStream() == 'ZeroBias': # add topology selection only to data. Keep all events in MC

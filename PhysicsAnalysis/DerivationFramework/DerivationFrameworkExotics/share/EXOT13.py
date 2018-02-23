@@ -63,30 +63,30 @@ thinningTools=[]
 # Thin all inner detector tracks
 from DerivationFrameworkInDet.InDetCommon import *
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-EXOT13TPThinningTool = DerivationFramework__TrackParticleThinning( name                    =  "EXOT13TPThinningTool",
-                                                                    ThinningService = EXOT13ThinningHelper.ThinningSvc(),
-                                                                    SelectionString         =  "InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV) < 1.5*mm && InDetTrackParticles.pt > 0.5*GeV && InDetTrackParticles.eta > -2.5 && InDetTrackParticles.eta < 2.5",
-                                                                    InDetTrackParticlesKey  =  "InDetTrackParticles")
+EXOT13TPThinningTool = DerivationFramework__TrackParticleThinning(name                    = "EXOT13TPThinningTool",
+                                                                  ThinningService         = EXOT13ThinningHelper.ThinningSvc(),
+                                                                  SelectionString         = "InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV) < 1.5*mm && InDetTrackParticles.pt > 0.5*GeV && InDetTrackParticles.eta > -2.5 && InDetTrackParticles.eta < 2.5",
+                                                                  InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += EXOT13TPThinningTool
 thinningTools.append(EXOT13TPThinningTool)
 
 #Thin all electrons
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
-EXOT13ElectronsThinningTool = DerivationFramework__GenericObjectThinning( name = "EXOT13ElectronsThinningTool",
-                                        ThinningService = "EXOT13ThinningSvc",
-                                        ContainerName = "Electrons",
-                                        ApplyAnd = False,
-                                        SelectionString = "Electrons.pt > 25*GeV && Electrons.eta>-2.5 && Electrons.eta<2.5")
+EXOT13ElectronsThinningTool = DerivationFramework__GenericObjectThinning(name            = "EXOT13ElectronsThinningTool",
+                                                                         ThinningService = EXOT13ThinningHelper.ThinningSvc(),
+                                                                         ContainerName   = "Electrons",
+                                                                         ApplyAnd        = False,
+                                                                         SelectionString = "Electrons.pt > 25*GeV && Electrons.eta>-2.5 && Electrons.eta<2.5")
 ToolSvc += EXOT13ElectronsThinningTool
 thinningTools.append(EXOT13ElectronsThinningTool)
 
 #Thin all Muons
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
-EXOT13MuonsThinningTool = DerivationFramework__GenericObjectThinning( name = "EXOT13MuonsThinningTool",
-                                        ThinningService = "EXOT13ThinningSvc",
-                                        ContainerName = "Muons",
-                                        ApplyAnd = False,
-                                        SelectionString = "Muons.pt > 6*GeV && Muons.eta>-2.5 && Muons.eta<2.5")
+EXOT13MuonsThinningTool = DerivationFramework__GenericObjectThinning(name            = "EXOT13MuonsThinningTool",
+                                                                     ThinningService = EXOT13ThinningHelper.ThinningSvc(),
+                                                                     ContainerName   = "Muons",
+                                                                     ApplyAnd        = False,
+                                                                     SelectionString = "Muons.pt > 6*GeV && Muons.eta>-2.5 && Muons.eta<2.5")
 ToolSvc += EXOT13ElectronsThinningTool
 thinningTools.append(EXOT13ElectronsThinningTool)
 

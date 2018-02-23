@@ -21,14 +21,27 @@ if DerivationFrameworkIsMonteCarlo:
     addStandardTruthContents()
 
 #====================================================================
+# SET UP STREAM   
+#====================================================================
+streamName = derivationFlags.WriteDAOD_EXOT6Stream.StreamName
+fileName   = buildFileName( derivationFlags.WriteDAOD_EXOT6Stream )
+EXOT6Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+EXOT6Stream.AcceptAlgs(["EXOT6Kernel"])
+
+#====================================================================
 # THINNING TOOL 
 #====================================================================
 
+#thinning helper
+from DerivationFrameworkCore.ThinningHelper import ThinningHelper
+EXOT6ThinningHelper = ThinningHelper( "EXOT6ThinningHelper" )
+EXOT6ThinningHelper.AppendToStream( EXOT6Stream )
+    
 # Track thinning   
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 thinExpression = '(InDetTrackParticles.d0 < 1.5) && ((DFCommonInDetTrackZ0AtPV * sin(InDetTrackParticles.theta )) <= 1.5)'
 EXOT6TPThinningTool = DerivationFramework__TrackParticleThinning(name = "EXOT6TPThinningTool",
-                                                                 ThinningService         = "EXOT6ThinningSvc",
+                                                                 ThinningService         = EXOT6ThinningHelper.ThinningSvc(),
                                                                  SelectionString         = thinExpression,
                                                                  InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += EXOT6TPThinningTool
@@ -36,40 +49,40 @@ ToolSvc += EXOT6TPThinningTool
 # Tracks associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 EXOT6MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "EXOT6MuonTPThinningTool",
-                                                                            ThinningService         = "EXOT6ThinningSvc",
-                                                                            MuonKey                 = "Muons",
-                                                                            InDetTrackParticlesKey  = "InDetTrackParticles")
+                                                                         ThinningService         = EXOT6ThinningHelper.ThinningSvc(),
+                                                                         MuonKey                 = "Muons",
+                                                                         InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += EXOT6MuonTPThinningTool
 
 # Tracks associated with Electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
-EXOT6ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(    	name                    = "EXOT6ElectronTPThinningTool",
-                                                                                        ThinningService         = "EXOT6ThinningSvc",
-                                                                                        SGKey             	= "Electrons",
-                                                                                        InDetTrackParticlesKey  = "InDetTrackParticles")
+EXOT6ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = "EXOT6ElectronTPThinningTool",
+                                                                               ThinningService         = EXOT6ThinningHelper.ThinningSvc(),
+                                                                               SGKey             	   = "Electrons",
+                                                                               InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += EXOT6ElectronTPThinningTool
 
 # Tracks associated with Photons
-EXOT6PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(    	name                    = "EXOT6PhotonTPThinningTool",
-                                                                                        ThinningService         = "EXOT6ThinningSvc",
-                                                                                        SGKey             	= "Photons",
-                                                                                        InDetTrackParticlesKey  = "InDetTrackParticles")
+EXOT6PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = "EXOT6PhotonTPThinningTool",
+                                                                             ThinningService         = EXOT6ThinningHelper.ThinningSvc(),
+                                                                             SGKey             	     = "Photons",
+                                                                             InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += EXOT6PhotonTPThinningTool
 
 # Calo Clusters associated with Photons
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__CaloClusterThinning
-EXOT6PhotonCCThinningTool = DerivationFramework__CaloClusterThinning( name                    = "EXOT6PhotonCCThinningTool",
-                                                                                     ThinningService         = "EXOT6ThinningSvc",
-                                                                                     SGKey                   = "Photons",
-                                                                                     CaloClCollectionSGKey   = "egammaClusters",
-                                                                                     #SelectionString         = "Photons.pt > 30*GeV",
-                                                                                     #FrwdClCollectionSGKey   = "LArClusterEMFrwd",
-                                                                                     ConeSize                = 0.6)
+EXOT6PhotonCCThinningTool = DerivationFramework__CaloClusterThinning(name = "EXOT6PhotonCCThinningTool",
+                                                                     ThinningService         = EXOT6ThinningHelper.ThinningSvc(),
+                                                                     SGKey                   = "Photons",
+                                                                     CaloClCollectionSGKey   = "egammaClusters",
+                                                                     #SelectionString         = "Photons.pt > 30*GeV",
+                                                                     #FrwdClCollectionSGKey   = "LArClusterEMFrwd",
+                                                                     ConeSize                = 0.6)
 ToolSvc += EXOT6PhotonCCThinningTool
 
 # Calo Clusters associated with Electrons
 EXOT6ElectronCCThinningTool = DerivationFramework__CaloClusterThinning(name = "EXOT6ElectronCCThinningTool",
-                                                                       ThinningService         = "EXOT6ThinningSvc",
+                                                                       ThinningService         = EXOT6ThinningHelper.ThinningSvc(),
                                                                        SGKey                   = "Electrons",
                                                                        CaloClCollectionSGKey   = "egammaClusters",
                                                                        #SelectionString         = "Electrons.pt > 15*GeV",
@@ -92,10 +105,9 @@ ToolSvc += EXOT6SkimmingTool
 #====================================================================
 
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__MaxCellDecorator
-EXOT6_MaxCellDecoratorTool = DerivationFramework__MaxCellDecorator( name                    = "EXOT6_MaxCellDecoratorTool",
-                                                                    SGKey_electrons         = "Electrons",
-                                                                    SGKey_photons           = "Photons",
-                                                                    )
+EXOT6_MaxCellDecoratorTool = DerivationFramework__MaxCellDecorator(name                    = "EXOT6_MaxCellDecoratorTool",
+                                                                   SGKey_electrons         = "Electrons",
+                                                                   SGKey_photons           = "Photons")
 ToolSvc += EXOT6_MaxCellDecoratorTool
 augTools.append(EXOT6_MaxCellDecoratorTool)
 
@@ -120,20 +132,6 @@ OutputJets["EXOT6"] = []
 reducedJetList = [
     "AntiKt4TruthJets"]
 replaceAODReducedJets(reducedJetList,exot6Seq,"EXOT6")
-
-#====================================================================
-# SET UP STREAM   
-#====================================================================
-streamName = derivationFlags.WriteDAOD_EXOT6Stream.StreamName
-fileName   = buildFileName( derivationFlags.WriteDAOD_EXOT6Stream )
-EXOT6Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-EXOT6Stream.AcceptAlgs(["EXOT6Kernel"])
-# SPECIAL LINES FOR THINNING
-# Thinning service name must match the one passed to the thinning tools
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="EXOT6ThinningSvc", outStreams=[evtStream] )
 
 #====================================================================
 # Add the containers to the output stream - slimming done here

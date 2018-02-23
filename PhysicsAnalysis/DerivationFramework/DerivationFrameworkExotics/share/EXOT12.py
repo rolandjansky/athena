@@ -13,53 +13,66 @@ from DerivationFrameworkCore.WeightMetadata import *
 exot12Seq = CfgMgr.AthSequencer("EXOT12Sequence")
 
 #====================================================================
+# SET UP STREAM   
+#====================================================================
+streamName = derivationFlags.WriteDAOD_EXOT12Stream.StreamName
+fileName   = buildFileName( derivationFlags.WriteDAOD_EXOT12Stream )
+EXOT12Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+EXOT12Stream.AcceptAlgs(["EXOT12Kernel"])
+
+#====================================================================
 # THINNING TOOLS
 #====================================================================
+
+#thinning helper
+from DerivationFrameworkCore.ThinningHelper import ThinningHelper
+EXOT12ThinningHelper = ThinningHelper( "EXOT12ThinningHelper" )
+EXOT12ThinningHelper.AppendToStream( EXOT12Stream )
 
 thinningTools = []
 
 # Tracks associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
-EXOT12MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                       = "EXOT12MuonTPThinningTool",
-                                                                            ThinningService         = "EXOT12ThinningSvc",
-                                                                            MuonKey                 = "Muons",
-                                                                            InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                            ConeSize                =  0) # change wrt. EXOT0 that uses 0.4
+EXOT12MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "EXOT12MuonTPThinningTool",
+                                                                          ThinningService         = EXOT12ThinningHelper.ThinningSvc(),
+                                                                          MuonKey                 = "Muons",
+                                                                          InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                          ConeSize                =  0) # change wrt. EXOT0 that uses 0.4
 ToolSvc += EXOT12MuonTPThinningTool
 thinningTools.append(EXOT12MuonTPThinningTool)
 
 # Tracks associated with Electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
-EXOT12ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(    	name                    = "EXOT12ElectronTPThinningTool",
-                                                                                        ThinningService         = "EXOT12ThinningSvc",
-                                                                                        SGKey                   = "Electrons",
-                                                                                        InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                                        ConeSize                =  0) # change wrt. EXOT0 that uses 0.4
+EXOT12ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = "EXOT12ElectronTPThinningTool",
+                                                                                ThinningService         = EXOT12ThinningHelper.ThinningSvc(),
+                                                                                SGKey                   = "Electrons",
+                                                                                InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                                ConeSize                =  0) # change wrt. EXOT0 that uses 0.4
 ToolSvc += EXOT12ElectronTPThinningTool
 thinningTools.append(EXOT12ElectronTPThinningTool)
 
 # truth thinning
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
 EXOT12TruthTool = DerivationFramework__MenuTruthThinning(name                  = "EXOT12TruthTool",
-                                                        ThinningService       = "EXOT12ThinningSvc",
-                                                        WritePartons          = False,
-                                                        WriteHadrons          = False,
-                                                        WriteBHadrons         = False,
-                                                        WriteGeant            = False,
-                                                        GeantPhotonPtThresh   = -1.0,
-                                                        WriteTauHad           = False,
-                                                        PartonPtThresh        = -1.0,
-                                                        WriteBSM              = True,
-                                                        WriteBosons           = True,
-                                                        WriteBSMProducts      = True,
-                                                        WriteBosonProducts    = True,
-                                                        WriteTopAndDecays     = True,
-                                                        WriteEverything       = False,
-                                                        WriteAllLeptons       = False,
-                                                        WriteStatus3          = False,
-                                                        PreserveGeneratorDescendants  = False,
-                                                        PreserveAncestors     = True,
-                                                        WriteFirstN           = -1)
+                                                         ThinningService       = EXOT12ThinningHelper.ThinningSvc(),
+                                                         WritePartons          = False,
+                                                         WriteHadrons          = False,
+                                                         WriteBHadrons         = False,
+                                                         WriteGeant            = False,
+                                                         GeantPhotonPtThresh   = -1.0,
+                                                         WriteTauHad           = False,
+                                                         PartonPtThresh        = -1.0,
+                                                         WriteBSM              = True,
+                                                         WriteBosons           = True,
+                                                         WriteBSMProducts      = True,
+                                                         WriteBosonProducts    = True,
+                                                         WriteTopAndDecays     = True,
+                                                         WriteEverything       = False,
+                                                         WriteAllLeptons       = False,
+                                                         WriteStatus3          = False,
+                                                         PreserveGeneratorDescendants  = False,
+                                                         PreserveAncestors     = True,
+                                                         WriteFirstN           = -1)
 
 from AthenaCommon.GlobalFlags import globalflags
 if globalflags.DataSource()=='geant4':
@@ -71,11 +84,11 @@ truth_cond += "|| (abs(TruthParticles.pdgId) == 9900041) || (abs(TruthParticles.
 
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
 EXOT12TruthTool2 = DerivationFramework__GenericTruthThinning(name                         = "EXOT12TruthTool2",
-                                                            ThinningService              = "EXOT12ThinningSvc",
-                                                            ParticleSelectionString      = truth_cond,
-                                                            PreserveDescendants          = False,
-                                                            PreserveGeneratorDescendants = True,
-                                                            PreserveAncestors            = True)
+                                                             ThinningService              = EXOT12ThinningHelper.ThinningSvc(),
+                                                             ParticleSelectionString      = truth_cond,
+                                                             PreserveDescendants          = False,
+                                                             PreserveGeneratorDescendants = True,
+                                                             PreserveAncestors            = True)
 if globalflags.DataSource()=='geant4':
   ToolSvc += EXOT12TruthTool2
   thinningTools.append(EXOT12TruthTool2)
@@ -113,19 +126,6 @@ reducedJetList = [
   "AntiKt4TruthJets",
   "AntiKt4TruthWZJets"]
 replaceAODReducedJets(reducedJetList,exot12Seq,"EXOT12")
-
-#====================================================================
-# SET UP STREAM   
-#====================================================================
-streamName = derivationFlags.WriteDAOD_EXOT12Stream.StreamName
-fileName   = buildFileName( derivationFlags.WriteDAOD_EXOT12Stream )
-EXOT12Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-EXOT12Stream.AcceptAlgs(["EXOT12Kernel"])
-# Thinning 
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="EXOT12ThinningSvc", outStreams=[evtStream] )
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
