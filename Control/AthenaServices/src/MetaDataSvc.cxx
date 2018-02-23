@@ -72,6 +72,7 @@ MetaDataSvc::MetaDataSvc(const std::string& name, ISvcLocator* pSvcLocator) : ::
    m_toolForClid.insert(std::pair<CLID, std::string>(1234982351, "BookkeeperTool"));
    m_toolForClid.insert(std::pair<CLID, std::string>(1107011239, "xAODMaker::TriggerMenuMetaDataTool"));
    m_toolForClid.insert(std::pair<CLID, std::string>(1115934851, "LumiBlockMetaDataTool"));
+   m_toolForClid.insert(std::pair<CLID, std::string>(178309087, "xAODMaker::FileMetaDataTool"));
    m_toolForClid.insert(std::pair<CLID, std::string>(1188015687, "xAODMaker::TruthMetaDataTool"));
 }
 //__________________________________________________________________________
@@ -403,16 +404,44 @@ StatusCode MetaDataSvc::addProxyToInputMetaDataStore(const std::string& tokenStr
    }
    const std::string toolName = m_toolForClid[clid];
    if (!toolName.empty()) {
+      std::string toolInstName;
+      std::size_t pos = toolName.find("::");
+      if (pos != std::string::npos) {
+         toolInstName = toolName.substr(pos + 2);
+      } else {
+         toolInstName = toolName;
+      }
+      if (clid == 178309087) { // Some MetaData have multiple objects needing seperate tools for propagation
+         toolInstName += "_" + keyName;
+      }
       bool foundTool = false;
       for (ToolHandleArray<IAlgTool>::const_iterator iter = m_metaDataTools.begin(), iterEnd = m_metaDataTools.end(); iter != iterEnd; iter++) {
-         if ((*iter)->name() == "ToolSvc." + toolName) foundTool = true;
+         if ((*iter)->name() == "ToolSvc." + toolInstName) foundTool = true;
       }
       if (!foundTool) {
-         ToolHandle<IAlgTool> metadataTool(toolName);
+         if (toolInstName != toolName) {
+            toolInstName = toolName + "/" + toolInstName;
+         }
+         ToolHandle<IAlgTool> metadataTool(toolInstName);
          m_metaDataTools.push_back(metadataTool);
          if (!metadataTool.retrieve().isSuccess()) {
-            ATH_MSG_FATAL("Cannot get " << toolName);
+            ATH_MSG_FATAL("Cannot get " << toolInstName);
             return(StatusCode::FAILURE);
+         }
+         if (clid == 178309087) { // Set keys for FileMetaDataTool
+            IProperty* property = dynamic_cast<IProperty*>(metadataTool.get());
+            if (property == nullptr) {
+               ATH_MSG_FATAL("addProxyToInputMetaDataStore: Cannot set input key " << tokenStr);
+               return(StatusCode::FAILURE);
+            }
+            if (!property->setProperty("InputKey", keyName).isSuccess()) {
+               ATH_MSG_FATAL("addProxyToInputMetaDataStore: Cannot set input key " << tokenStr);
+               return(StatusCode::FAILURE);
+            }
+            if (!property->setProperty("OutputKey", keyName).isSuccess()) {
+               ATH_MSG_FATAL("addProxyToInputMetaDataStore: Cannot set output key " << tokenStr);
+               return(StatusCode::FAILURE);
+            }
          }
       }
    }
