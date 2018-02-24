@@ -322,7 +322,6 @@ if DetFlags.haveRIO.SCT_on():
         
     # Setup Lorentz angle service.
     from SiLorentzAngleSvc.SCTLorentzAngleSvcSetup import SCTLorentzAngleSvcSetup
-    from SiLorentzAngleSvc.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
 
     forceUseDB = False
     forceUseGeoModel = False
@@ -335,9 +334,7 @@ if DetFlags.haveRIO.SCT_on():
         forceUseGeoModel = True
 
     sctLorentzAngleSvcSetup = SCTLorentzAngleSvcSetup(forceUseDB=forceUseDB, forceUseGeoModel=forceUseGeoModel)
-    sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup(forceUseDB=forceUseDB, forceUseGeoModel=forceUseGeoModel)
     SCTLorentzAngleSvc = sctLorentzAngleSvcSetup.SCTLorentzAngleSvc
-    SCTLorentzAngleTool = sctLorentzAngleToolSetup.SCTLorentzAngleTool
             
 #
 # --- Load necessary TRT conditions folders
