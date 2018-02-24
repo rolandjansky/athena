@@ -70,9 +70,11 @@ namespace xAOD {
       EMTopoOriginSK,
       EMTopoOriginCSSK,
       EMTopoOriginVorSK,
+      EMTopoOriginTime,
       EMPFlowSK,
       EMPFlowCSSK,
       EMPFlowVorSK,
+      EMPFlowTime,
       Other = 100,
       Uncategorized= 1000
     };
