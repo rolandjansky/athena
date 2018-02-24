@@ -24,10 +24,10 @@ class SCTSiPropertiesCondAlg : public AthAlgorithm
 {  
  public:
   SCTSiPropertiesCondAlg(const std::string& name, ISvcLocator* pSvcLocator);
-  ~SCTSiPropertiesCondAlg();
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize();
+  virtual ~SCTSiPropertiesCondAlg() = default;
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute() override;
+  virtual StatusCode finalize() override;
 
  private:
   double m_temperatureMin;
