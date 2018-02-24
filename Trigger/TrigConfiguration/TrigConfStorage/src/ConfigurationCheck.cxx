@@ -743,9 +743,9 @@ public:
    virtual void execute(const Exc_t&) {
       if ( !m_ctp ) return;
 
-      int m_l1Version = m_ctp->menu().thresholdConfig().l1Version();
+      int l1Version = m_ctp->menu().thresholdConfig().l1Version();
       
-      L1DataDef::setMaxThresholdsFromL1Version(m_l1Version);
+      L1DataDef::setMaxThresholdsFromL1Version(l1Version);
       //L1DataDef::printMaxThresholds();
       
       unsigned int em_max  = L1DataDef::typeConfig(L1DataDef::EM).max;  

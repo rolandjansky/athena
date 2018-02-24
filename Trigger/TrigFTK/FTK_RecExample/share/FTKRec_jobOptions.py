@@ -43,3 +43,24 @@ if rec.doFTK():
         FTK_RefitTracksTruth = ConfiguredFTK_TrackTruth(Tracks="FTK_TrackCollectionRefit", 
                                                      TracksTruth = "FTK_RefitTracks_TruthCollection",
                                                      DetailedTruth = "FTK_RefitTracks_DetailedTruthCollection")
+        from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackParticleCnvAlg
+
+        FTKTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg("FTKTrackParticleCnvAlg")
+        FTKTrackParticleCnvAlg.xAODTrackParticlesFromTracksContainerName = "Converted_FTKTrackParticleContainer"
+        FTKTrackParticleCnvAlg.TrackContainerName = "FTK_TrackCollection"
+        FTKTrackParticleCnvAlg.ConvertTrackParticles = False
+        FTKTrackParticleCnvAlg.ConvertTracks = True
+        FTKTrackParticleCnvAlg.AddTruthLink = True
+        FTKTrackParticleCnvAlg.TrackTruthContainerName = "FTK_Tracks_TruthCollection"
+        FTKTrackParticleCnvAlg.PrintIDSummaryInfo = True
+        topSequence += FTKTrackParticleCnvAlg
+
+        FTKRefitTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg("FTKRefitTrackParticleCnvAlg")
+        FTKRefitTrackParticleCnvAlg.xAODTrackParticlesFromTracksContainerName = "Converted_FTKTrackParticleContainerRefit" 
+        FTKRefitTrackParticleCnvAlg.TrackContainerName = "FTK_TrackCollectionRefit"
+        FTKRefitTrackParticleCnvAlg.ConvertTrackParticles = False
+        FTKRefitTrackParticleCnvAlg.ConvertTracks = True
+        FTKRefitTrackParticleCnvAlg.AddTruthLink = True
+        FTKRefitTrackParticleCnvAlg.TrackTruthContainerName = "FTK_RefitTracks_TruthCollection"
+        FTKRefitTrackParticleCnvAlg.PrintIDSummaryInfo = True
+        topSequence += FTKRefitTrackParticleCnvAlg

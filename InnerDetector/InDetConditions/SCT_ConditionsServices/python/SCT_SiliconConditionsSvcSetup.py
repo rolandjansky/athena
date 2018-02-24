@@ -13,7 +13,10 @@ class SCT_SiliconConditionsSvcSetup:
         self.svcName = "SCT_SiliconConditionsSvc"
         self.svc = None
 
+        self.dcsSvc = None
+
         self.useDB = True
+        self.forceUseGeoModel = False
 
     def getHVAlgName(self):
         return self.hvAlgName
@@ -30,8 +33,14 @@ class SCT_SiliconConditionsSvcSetup:
     def getSvcName(self):
         return self.svcName
 
+    def setSvcName(self, svcName):
+        self.svcName = svcName
+
     def getSvc(self):
         return self.svc
+
+    def setDcsSvc(self, dcsSvc):
+        self.dcsSvc = dcsSvc
 
     def getUseDB(self):
         return self.useDB
@@ -41,32 +50,42 @@ class SCT_SiliconConditionsSvcSetup:
         condSeq = AthSequencer("AthCondSeq")
 
         if not hasattr(condSeq, self.hvAlgName):
-            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SiliconHVCondAlg
-            condSeq += SCT_SiliconHVCondAlg(name = self.hvAlgName)
+            from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_SiliconHVCondAlg
+            if self.dcsSvc is None:
+                condSeq += SCT_SiliconHVCondAlg(name = self.hvAlgName)
+            else:
+                condSeq += SCT_SiliconHVCondAlg(name = self.hvAlgName,
+                                                UseState = self.dcsSvc.ReadAllDBFolders,
+                                                DCSConditionsSvc = self.dcsSvc)
         self.hvAlg = getattr(condSeq, self.hvAlgName)
 
         if not hasattr(condSeq, self.tempAlgName):
-            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SiliconTempCondAlg
-            condSeq += SCT_SiliconTempCondAlg(name = self.tempAlgName)
+            from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_SiliconTempCondAlg
+            if self.dcsSvc is None:
+                condSeq += SCT_SiliconTempCondAlg(name = self.tempAlgName)
+            else:
+                condSeq += SCT_SiliconTempCondAlg(name = self.tempAlgName,
+                                                  UseState = self.dcsSvc.ReadAllDBFolders,
+                                                  DCSConditionsSvc = self.dcsSvc)
         self.tempAlg = getattr(condSeq, self.tempAlgName)
 
     def setSvc(self):
         from AthenaCommon.AppMgr import ServiceMgr
         if not hasattr(ServiceMgr, self.svcName):
             from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SiliconConditionsSvc
-            ServiceMgr += SCT_SiliconConditionsSvc(name = self.svcName)
+            ServiceMgr += SCT_SiliconConditionsSvc(name = self.svcName,
+                                                   UseDB = self.useDB,
+                                                   ForceUseGeoModel = self.forceUseGeoModel)
         self.svc = getattr(ServiceMgr, self.svcName)
 
     def setUseDB(self, useDB):
         self.useDB = useDB
 
+    def setForceUseGeoModel(self, forceUseGeoModel):
+        self.forceUseGeoModel = forceUseGeoModel
+
     def setup(self):
         if self.useDB:
-            from SCT_ConditionsServices.SCT_DCSConditionsSvcSetup import SCT_DCSConditionsSvcSetup
-            SCT_DCSConditionsSvcSetup = SCT_DCSConditionsSvcSetup()
-            SCT_DCSConditionsSvcSetup.setup()
             self.setAlgs()
         self.setSvc()
         self.svc.UseDB = self.useDB
-
-sct_SiliconConditionsSvcSetup = SCT_SiliconConditionsSvcSetup()

@@ -15,7 +15,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/StoreGate
                           DetectorDescription/Identifier
                           InnerDetector/InDetConditions/InDetConditionsSummaryService
-                          InnerDetector/InDetDetDescr/InDetIdentifier )
+                          InnerDetector/InDetDetDescr/InDetIdentifier
+                          InnerDetector/InDetConditions/SCT_ConditionsData )
 
 # External dependencies:
 find_package( CLHEP )
@@ -34,3 +35,5 @@ atlas_add_component( SiPropertiesSvc
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                      LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel InDetReadoutGeometry SCT_ConditionsData StoreGateLib SGtests Identifier InDetIdentifier SiPropertiesSvcLib )
 
+# Install files from the package:
+atlas_install_python_modules( python/*.py )

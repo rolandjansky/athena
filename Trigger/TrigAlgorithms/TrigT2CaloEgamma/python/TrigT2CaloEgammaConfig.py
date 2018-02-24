@@ -20,7 +20,7 @@ from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
 t2catime = TrigTimeHistToolConfig("Time")
 #t2catime=TrigTimeTreeToolConfig("T2CaloEgammaTimer")
 
-#from AthenaCommon.Constants import VERBOSE,DEBUG
+from AthenaCommon.Constants import VERBOSE,DEBUG
 
 class EgammaSamp2FexConfig (EgammaSamp2Fex):
    __slots__ = []
@@ -328,7 +328,7 @@ class RingerFexConfig( RingerFex ):
   __slots__ = []
   def __init__(self, name = "RingerFexConfig"):
     super(RingerFexConfig, self).__init__(name)
-
+    #self.TrigTimerSvc=""
     self.HltFeature = "HLT_TrigT2CaloEgamma"
     self.Feature = "TrigT2CaloEgamma"
     self.EtaBins = [0.0000, 2.5000] # bin pairs: min < eta <= max, PS,barrel,crack,endcap
@@ -408,10 +408,15 @@ class T2CaloEgamma_FastAlgo (T2CaloEgammaFastAlgo):
        ToolSvc+=EgammaSamp1FexNoTimerConfig("FaAlgoSamp1FexConfig")
        ToolSvc+=EgammaEmEnFexNoTimerConfig("FaAlgoEmEnFexConfig")
        ToolSvc+=EgammaHadEnFexNoTimerConfig("FaAlgoHadEnFexConfig")
+       ToolSvc+=RingerFexConfig("RingsMaker") 
+       ToolSvc.RingsMaker.OutputLevel=DEBUG
+       ToolSvc.RingsMaker.RingsKey="CaloRings"
        self.IAlgToolList = [ EgammaSamp2FexNoTimerConfig("FaAlgoSamp2FexConfig") ]
        self.IAlgToolList+= [ EgammaSamp1FexNoTimerConfig("FaAlgoSamp1FexConfig") ]
        self.IAlgToolList+= [ EgammaEmEnFexNoTimerConfig("FaAlgoEmEnFexConfig") ]
        self.IAlgToolList+= [ EgammaHadEnFexNoTimerConfig("FaAlgoHadEnFexConfig") ]
+       self.IAlgToolList+= [ ToolSvc.RingsMaker ] 
+
        self.EtaWidth = 0.2
        self.PhiWidth = 0.2
        #self.EtaWidthForID = 0.1

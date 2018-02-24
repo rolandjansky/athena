@@ -7,8 +7,6 @@
 #include <algorithm>
 
 // Interfaces
-#include "TrkExInterfaces/IExtrapolator.h"
-#include "TrkExInterfaces/IEnergyLossUpdator.h"
 
 #include "TrkMaterialOnTrack/EnergyLoss.h"
 #include "TrkMaterialOnTrack/ScatteringAngles.h"
@@ -57,8 +55,6 @@ void myLocal_resetTrack( const Trk::Track& ctrack ){
 // constructor
 Trk::TrkMaterialProviderTool::TrkMaterialProviderTool(const std::string& t, const std::string& n, const IInterface* p)
   :	AthAlgTool(t,n,p),
-	m_muonExtrapolator("Trk::Extrapolator/AtlasExtrapolator"),
-	m_elossupdator("Trk::EnergyLossUpdator/AtlasEnergyLossUpdator"),
 	m_trackingVolumesSvc("TrackingVolumesSvc/TrackingVolumesSvc",n),
 	m_trackingGeometrySvc("TrackingGeometrySvc/AtlasTrackingGeometrySvc",n),
         m_scattool("Trk::MultipleScatteringUpdator/AtlasMultipleScatteringUpdator"),

@@ -16,7 +16,6 @@
 #include "TRT_CalibData/TrackInfo.h"
 #include "TRT_ConditionsData/FloatArrayStore.h"
 #include "TRT_CalibTools/IFillAlignTrkInfo.h"
-#include "TRT_CalibTools/ITRTCalibrator.h"
 #include "TRT_CalibTools/IAccumulator.h"
 #include "TRT_CalibTools/IFitTool.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"

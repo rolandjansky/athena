@@ -21,7 +21,6 @@
 #include "PixelConditionsData/PixelCalibDataColl.h"
 #include "InDetIdentifier/PixelID.h"
 #include "PixelConditionsServices/IPixelOfflineCalibSvc.h" 
-#include "PixelConditionsTools/IPixelRecoDbTool.h"
 #include "PixelConditionsData/PixelOfflineCalibData.h"
 #include "PixelOfflineCalibServiceTest.h"
 #include "GaudiKernel/IToolSvc.h"
@@ -32,7 +31,6 @@ PixelOfflineCalibServiceTest::PixelOfflineCalibServiceTest(const std::string& na
      // m_sgSvc (0),
      //m_detStore  (0), 
      m_calibsvc("PixelOfflineCalibSvc",name),
-     m_dbTool("PixelRecoDbTool"),
      m_pat(0),
      m_setup(0),
      m_par_rfile1(""),

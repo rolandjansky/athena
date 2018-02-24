@@ -22,7 +22,6 @@
 
 // Athena
 #include "GeneratorObjects/HepMcParticleLink.h"
-#include "SiPropertiesSvc/ISiPropertiesSvc.h"
 #include "SiPropertiesSvc/SiliconProperties.h"
 #include "InDetConditionsSummaryService/ISiliconConditionsSvc.h"
 #include "SCT_ConditionsServices/ISCT_RadDamageSummarySvc.h"
@@ -47,8 +46,7 @@ using namespace std;
 SCT_SurfaceChargesGenerator::SCT_SurfaceChargesGenerator(const
                                                          std::string &type,
                                                          const std::string &name,
-                                                         const IInterface *
-parent)
+                                                         const IInterface *parent)
     : AthAlgTool(type, name, parent),
     m_tHalfwayDrift(0),
     m_distInterStrip(1.0),
@@ -88,7 +86,6 @@ parent)
     m_h_trap_pos{nullptr},
     m_hashId(0),
     m_siConditionsSvc("SCT_SiliconConditionsSvc", name),
-    m_siPropertiesSvc("SCT_SiPropertiesSvc", name),
     m_radDamageSvc("SCT_RadDamageSummarySvc", name),
     m_element(0),
     m_rndmEngine(0),
@@ -105,7 +102,6 @@ parent)
     declareProperty("NumberOfCharges", m_numberOfCharges = 1);
     declareProperty("SmallStepLength", m_smallStepLength = 5);
     declareProperty("SiConditionsSvc", m_siConditionsSvc);
-    declareProperty("SiPropertiesSvc", m_siPropertiesSvc);
     //  declareProperty("rndmEngineName",m_rndmEngineName="SCT_Digitization");
     declareProperty("doDistortions", m_doDistortions,
                     "Simulation of module distortions");
@@ -140,8 +136,8 @@ StatusCode SCT_SurfaceChargesGenerator::initialize() {
      **/
     ATH_MSG_DEBUG("SCT_SurfaceChargesGenerator::initialize()");
 
-    // Get ISiPropertiesSvc
-    ATH_CHECK(m_siPropertiesSvc.retrieve());
+    // Get ISiPropertiesTool
+    ATH_CHECK(m_siPropertiesTool.retrieve());
 
     // Get ISiliconConditionsSvc
     ATH_CHECK(m_siConditionsSvc.retrieve());
@@ -258,6 +254,13 @@ StatusCode SCT_SurfaceChargesGenerator::initialize() {
             "\tMake sure the two flags are not set simultaneously in jo");
         return StatusCode::FAILURE;
     }
+
+    if (m_doDistortions) {
+      ATH_CHECK(m_distortionsTool.retrieve());
+    } else {
+      m_distortionsTool.disable();
+    }
+
     return StatusCode::SUCCESS;
 }
 
@@ -841,9 +844,9 @@ void SCT_SurfaceChargesGenerator::setVariables() {
     m_biasVoltage = m_vbias * CLHEP::volt;
   }
 
-  m_holeDriftMobility = m_siPropertiesSvc->getSiProperties(m_hashId).holeDriftMobility();
-  m_holeDiffusionConstant = m_siPropertiesSvc->getSiProperties(m_hashId).holeDiffusionConstant();
-  m_electronHolePairsPerEnergy = m_siPropertiesSvc->getSiProperties(m_hashId).electronHolePairsPerEnergy();
+  m_holeDriftMobility = m_siPropertiesTool->getSiProperties(m_hashId).holeDriftMobility();
+  m_holeDiffusionConstant = m_siPropertiesTool->getSiProperties(m_hashId).holeDiffusionConstant();
+  m_electronHolePairsPerEnergy = m_siPropertiesTool->getSiProperties(m_hashId).electronHolePairsPerEnergy();
 
   // get sensor thickness and tg lorentz from SiDetectorDesign
   if(m_design) {

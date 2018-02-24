@@ -14,6 +14,7 @@
 
 //<<<<<< INCLUDES                                                       >>>>>>
 
+#include "TrkExInterfaces/IPropagator.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -33,7 +34,6 @@ class FitMeasurement;
 class FitParameters;
 class IExtrapolator;
 class IIntersector;    
-class IPropagator;
 class TrackingVolume;
 class TrackStateOnSurface;
 class Volume;    
@@ -135,7 +135,8 @@ private:
     ToolHandle<IExtrapolator>				m_spectrometerExtrapolator;
     mutable ServiceHandle<ITrackingGeometrySvc> 	m_trackingGeometrySvc;	// init with callback
     ServiceHandle<ITrackingVolumesSvc>			m_trackingVolumesSvc;
-    ToolHandle<IPropagator>				m_stepPropagator;
+    PublicToolHandle<IPropagator>			m_stepPropagator
+       {this,"STEP_Propagator","Trk::STEP_Propagator/AtlasSTEP_Propagator",""};
     bool						m_aggregateMaterial;
     bool						m_allowReordering;
     int 						m_useStepPropagator;

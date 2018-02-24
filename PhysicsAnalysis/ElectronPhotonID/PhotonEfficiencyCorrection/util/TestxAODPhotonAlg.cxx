@@ -83,29 +83,45 @@ int main( int argc, char* argv[] ) {
 	// Initialize photonFS tool
    AsgPhotonEfficiencyCorrectionTool photonSF_ID("AsgPhotonEfficiencyCorrectionTool_idSF");
    AsgPhotonEfficiencyCorrectionTool photonSF_Iso("AsgPhotonEfficiencyCorrectionTool_isoSF");
-  
-   //  photonSF_ID.msg().setLevel( MSG::DEBUG ); 
+   AsgPhotonEfficiencyCorrectionTool photonSF_Trig("AsgPhotonEfficiencyCorrectionTool_TrigSF");
+
+   //  photonSF_ID.msg().setLevel( MSG::DEBUG );
+   //  photonSF_Iso.msg().setLevel( MSG::DEBUG );
+   //  photonSF_Trig.msg().setLevel( MSG::DEBUG );
 
 
    //Set Properties for photonID_SF tool
    CHECK(photonSF_ID.setProperty("MapFilePath","PhotonEfficiencyCorrection/map0.txt"));
-   CHECK(photonSF_ID.setProperty("ForceDataType",1)); 
-   
+   CHECK(photonSF_ID.setProperty("ForceDataType",1));
+
    //Set Properties for photonISO_SF tool
    CHECK(photonSF_Iso.setProperty("MapFilePath","PhotonEfficiencyCorrection/map0.txt"));
-   CHECK(photonSF_Iso.setProperty("IsoWP","Loose"));	// Set isolation WP: Loose,Tight,TightCaloOnly
-   CHECK(photonSF_Iso.setProperty("Threshold_lowPT",25.0));	// this is a default value, no need to set if using it
-   CHECK(photonSF_Iso.setProperty("Threshold_highPT",100.0));	// this is a default value, no need to set if using it
-   CHECK(photonSF_Iso.setProperty("UseRadiativeZSF_mediumPT",false));	// default=false, set to true to use RadZSF up to Threshold_highPT
+   CHECK(photonSF_Iso.setProperty("IsoKey","Loose"));   // Set isolation WP: Loose,Tight,TightCaloOnly
    CHECK(photonSF_Iso.setProperty("ForceDataType",1)); //set data type: 1 for FULLSIM, 3 for AF2
-   
-   
-   
+
+   //Set Properties for PhotonTrig_SF tool
+   CHECK(photonSF_Trig.setProperty("MapFilePath","PhotonEfficiencyCorrection/map0.txt"));
+   CHECK(photonSF_Trig.setProperty("IsoKey","Loose"));  // Set isolation WP: Loose,Tight,TightCaloOnly
+   CHECK(photonSF_Trig.setProperty("TriggerKey","HLT_g20_tight_icalovloose_L1EM15VHI"));        // Set photon trigger
+   CHECK(photonSF_Trig.setProperty("ForceDataType",1)); //set data type: 1 for FULLSIM, 3 for AF2
+
+   // If the Pileup reweighting tool is not initialized, one can use next properties:
+   CHECK(photonSF_ID.setProperty("UseRandomRunNumber",false));
+   CHECK(photonSF_ID.setProperty("DefaultRandomRunNumber",325713)); // set first runnumber from 2017
+   CHECK(photonSF_Iso.setProperty("UseRandomRunNumber",false));
+   CHECK(photonSF_Iso.setProperty("DefaultRandomRunNumber",325713)); // set first runnumber from 2017
+   CHECK(photonSF_Trig.setProperty("UseRandomRunNumber",false));
+   CHECK(photonSF_Trig.setProperty("DefaultRandomRunNumber",325713)); // set first runnumber from 2017
+
    if(!photonSF_ID.initialize()){
      std::cout <<"Failed to initialize the tool, check for errors"<<std::endl;
      return 0;
    }
    if(!photonSF_Iso.initialize()){
+     std::cout <<"Failed to initialize the tool, check for errors"<<std::endl;
+     return 0;
+   }
+   if(!photonSF_Trig.initialize()){
      std::cout <<"Failed to initialize the tool, check for errors"<<std::endl;
      return 0;
    }
@@ -121,9 +137,11 @@ int main( int argc, char* argv[] ) {
    }
    
    // restructure all recommended systematic variations for the SF tool
-   // for +/- nsigma variation see https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/PhotonEfficiencyCorrection#Systematic_variations
+   // for +/- nsigma variation see
+   // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/PhotonEfficiencyRun2#Systematic_variations
+
    std::cout << "restructure all recommended systematic variations for the SF tool"<<std::endl;
-   std::vector<CP::SystematicSet> syst_PhotonID, syst_PhotonIso;
+   std::vector<CP::SystematicSet> syst_PhotonID, syst_PhotonIso, syst_PhotonTrig;
    for (auto SystematicsVariation : CP::make_systematics_vector(photonSF_ID.recommendedSystematics()))
    {
      syst_PhotonID.push_back(CP::SystematicSet());
@@ -134,7 +152,11 @@ int main( int argc, char* argv[] ) {
      syst_PhotonIso.push_back(CP::SystematicSet());
    	 syst_PhotonIso.back().insert(SystematicsVariation);
    }
-
+   for (auto SystematicsVariation : CP::make_systematics_vector(photonSF_Trig.recommendedSystematics()))
+   {
+     syst_PhotonTrig.push_back(CP::SystematicSet());
+         syst_PhotonTrig.back().insert(SystematicsVariation);
+   }
    //Print all recomended systemtaics
    for (auto sSystematicSet: syst_PhotonID){
 	  Info(APP_NAME,"PhotonEfficiencyCorrectionTool ID instance has next systematic variation  %s ",sSystematicSet.name().c_str());
@@ -142,7 +164,10 @@ int main( int argc, char* argv[] ) {
    for (auto sSystematicSet: syst_PhotonIso){
 	  Info(APP_NAME,"PhotonEfficiencyCorrectionTool Iso instance has next systematic variation  %s ",sSystematicSet.name().c_str());
    }   
-
+   for (auto sSystematicSet: syst_PhotonTrig){
+          Info(APP_NAME,"PhotonEfficiencyCorrectionTool Iso instance has next systematic variation  %s ",sSystematicSet.name().c_str());
+   }
+   
    double efficiencyScaleFactor=0, efficiencyScaleFactorError=0;
    // Loop over the events:
    std::cout << "loop on " << entries << " entries"<<std::endl;
@@ -185,6 +210,7 @@ int main( int argc, char* argv[] ) {
 	   // Get photon ID SF and the uncertainty
 	   CHECK(photonSF_ID.getEfficiencyScaleFactor(*ph,efficiencyScaleFactor));
 	   CHECK(photonSF_ID.getEfficiencyScaleFactorError(*ph,efficiencyScaleFactorError));
+	   CHECK(photonSF_Trig.applySystematicVariation(syst_PhotonTrig.at(0)));
 	   
        Info( APP_NAME,"===>>> Result ID: ScaleFactor %f, TotalUncertainty %f ",efficiencyScaleFactor,efficiencyScaleFactorError);
 
@@ -194,13 +220,19 @@ int main( int argc, char* argv[] ) {
 	   
        Info( APP_NAME,"===>>> Result Iso: ScaleFactor %f, TotalUncertainty %f ",efficiencyScaleFactor,efficiencyScaleFactorError);
 
+	   // Get photon trigger SF and the uncertainty
+       CHECK(photonSF_Trig.getEfficiencyScaleFactor(*ph,efficiencyScaleFactor));
+       CHECK(photonSF_Trig.getEfficiencyScaleFactorError(*ph,efficiencyScaleFactorError));
+
+       Info( APP_NAME,"===>>> Result Trigger: ScaleFactor %f, TotalUncertainty %f ",efficiencyScaleFactor,efficiencyScaleFactorError);
 	   
 	   // decorate photon (for different name use photonSF_ID.setProperty("ResultName","ID_"); or photonSF_Iso.setProperty("ResultName","Iso_");)
 	   CHECK(photonSF_ID.applyEfficiencyScaleFactor(*ph));
        Info( "applyEfficiencyScaleFactor()","===>>> new decoration: (xAOD::Photon*)ph->auxdata<float>(\"SF\")=%f",ph->auxdata<float>("SF"));
 	   CHECK(photonSF_Iso.applyEfficiencyScaleFactor(*ph));
        Info( "applyEfficiencyScaleFactor()","===>>> new decoration: (xAOD::Photon*)ph->auxdata<float>(\"SF\")=%f",ph->auxdata<float>("SF"));
-
+	   CHECK(photonSF_Trig.applyEfficiencyScaleFactor(*ph));
+       Info( "applyEfficiencyScaleFactor()","===>>> new decoration: (xAOD::Photon*)ph->auxdata<float>(\"SF\")=%f",ph->auxdata<float>("SF"));
 	   
 	   // get SF for all recommended systematic variations (nominal is also included):
 	   for (const auto sSystematicSet: syst_PhotonID){
@@ -212,6 +244,11 @@ int main( int argc, char* argv[] ) {
 		CHECK(photonSF_Iso.applySystematicVariation(sSystematicSet));
 	    CHECK(photonSF_Iso.getEfficiencyScaleFactor(*ph,efficiencyScaleFactor));
 		Info( APP_NAME,"===>>> apply %s: ScaleFactor = %f",photonSF_Iso.appliedSystematics().name().c_str(),efficiencyScaleFactor);
+       }
+	   for (const auto sSystematicSet: syst_PhotonTrig){
+                CHECK(photonSF_Trig.applySystematicVariation(sSystematicSet));
+            CHECK(photonSF_Trig.getEfficiencyScaleFactor(*ph,efficiencyScaleFactor));
+                Info( APP_NAME,"===>>> apply %s: ScaleFactor = %f",photonSF_Trig.appliedSystematics().name().c_str(),efficiencyScaleFactor);
        }	   
 
 	}  // END LOOP ON PHOTONS
@@ -219,6 +256,8 @@ int main( int argc, char* argv[] ) {
    } // END LOOP ON EVENTS
    CHECK(photonSF_ID.finalize());
    CHECK(photonSF_Iso.finalize());
+   CHECK(photonSF_Trig.finalize());
+
    
    // Return gracefully:
    return 1;

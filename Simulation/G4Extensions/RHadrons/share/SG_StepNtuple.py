@@ -1,5 +1,5 @@
 from G4AtlasApps.SimFlags import simFlags
-simFlags.OptionalUserActionList.addAction('G4UA::SG_StepNtupleTool', ['General'])
+simFlags.OptionalUserActionList.addAction('G4UA::SG_StepNtupleTool')
 
 theApp.HistogramPersistency = "ROOT"
 NTupleSvc = Service( "NTupleSvc" )

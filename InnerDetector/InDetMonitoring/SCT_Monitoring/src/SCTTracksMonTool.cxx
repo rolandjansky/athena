@@ -119,7 +119,6 @@ SCTTracksMonTool::SCTTracksMonTool(const string &type,
   m_path(""),
   m_useIDGlobal(false),
   m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator", this),
-  m_updator("Trk::KalmanUpdator/TrkKalmanUpdator", this),
   m_pSCTHelper(nullptr) {
   /** sroe 3 Sept 2015:
      histoPathBase is declared as a property in the base class, assigned to m_path

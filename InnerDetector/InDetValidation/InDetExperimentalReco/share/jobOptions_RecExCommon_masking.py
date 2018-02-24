@@ -204,6 +204,9 @@ InDetFlags.doSCTModuleVeto.set_Value_and_Lock                      (True)
 
 include ("RecExCommon/RecExCommon_topOptions.py")
 
+from IOVDbSvc.CondDB import conddb
+conddb.addOverride ('/SCT/Manual/BadModules', 'SCTManualBadModules-000-00')
+
 
 ServiceMgr.SpecialPixelMapSvc.MaskLayers = True
 ServiceMgr.SpecialPixelMapSvc.LayersToMask = [0]

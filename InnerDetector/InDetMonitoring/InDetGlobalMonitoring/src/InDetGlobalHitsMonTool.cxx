@@ -57,7 +57,6 @@ InDetGlobalHitsMonTool::InDetGlobalHitsMonTool(const std::string & type,
 				               const IInterface* parent)
     : InDetGlobalMotherMonTool(type, name, parent),
       m_updator(nullptr),
-      m_iUpdator("Trk::KalmanUpdator"),
       m_nTracks(0),
       m_tracks(nullptr),
       m_ID_hitmap_x_y(nullptr),

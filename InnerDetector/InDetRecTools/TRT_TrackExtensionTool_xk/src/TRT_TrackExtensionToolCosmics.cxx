@@ -101,6 +101,10 @@ StatusCode InDet::TRT_TrackExtensionToolCosmics::initialize()
     msg(MSG::INFO) << "Retrieved tool " << m_riontrackN << endmsg;
   }
 
+
+  ATH_CHECK( m_extrapolator.retrieve() );
+  ATH_CHECK( m_propagator.retrieve() );
+
   if ((detStore()->retrieve(m_trtid)).isFailure()) {
     msg(MSG::FATAL) << "Problem retrieving TRTID helper" << endmsg;
     return StatusCode::FAILURE;

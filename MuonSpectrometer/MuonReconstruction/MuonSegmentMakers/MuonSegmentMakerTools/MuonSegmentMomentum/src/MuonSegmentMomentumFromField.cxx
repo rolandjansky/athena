@@ -20,6 +20,7 @@
 #include "MuonIdHelpers/RpcIdHelper.h"
 #include "MuonIdHelpers/CscIdHelper.h"
 #include "MuonIdHelpers/TgcIdHelper.h"
+#include "MuonIdHelpers/sTgcIdHelper.h"
 #include "GeoPrimitives/GeoPrimitivesToStringConverter.h"
 
 MuonSegmentMomentumFromField::MuonSegmentMomentumFromField(const std::string& type,const std::string& name,const IInterface* 
@@ -65,6 +66,8 @@ StatusCode MuonSegmentMomentumFromField::initialize()
   ATH_CHECK( detStore()->retrieve( m_rpcid ) );
 
   ATH_CHECK( detStore()->retrieve( m_tgcid ) );
+
+  ATH_CHECK( detStore()->retrieve( m_stgcid ) );
 
   ATH_MSG_VERBOSE("End of Initializing");  
 
@@ -178,7 +181,8 @@ void MuonSegmentMomentumFromField::fitMomentum2Segments( const Muon::MuonSegment
     if (!rot) continue;
     Identifier id=rot->identify();
 
-    if ((m_rpcid->is_rpc(id) && m_rpcid->measuresPhi(id)) || (m_cscid->is_csc(id) && m_cscid->measuresPhi(id)) || (m_tgcid->is_tgc(id) && m_tgcid->isStrip(id))){    
+    if ((m_rpcid->is_rpc(id) && m_rpcid->measuresPhi(id)) || (m_cscid->is_csc(id) && m_cscid->measuresPhi(id)) || (m_tgcid->is_tgc(id) && m_tgcid->isStrip(id))
+        || (m_tgcid->is_stgc(id) && m_stgcid->measuresPhi(id) ) ){    
       if (!firstphi1) firstphi1=rot;
       lastphi1=rot;
     }
@@ -191,37 +195,89 @@ void MuonSegmentMomentumFromField::fitMomentum2Segments( const Muon::MuonSegment
     }
     if (!rot) continue;
     Identifier id=rot->identify();
-    if ((m_rpcid->is_rpc(id) && m_rpcid->measuresPhi(id)) || (m_cscid->is_csc(id) && m_cscid->measuresPhi(id)) || (m_tgcid->is_tgc(id) && m_tgcid->isStrip(id))){
+    if ((m_rpcid->is_rpc(id) && m_rpcid->measuresPhi(id)) || (m_cscid->is_csc(id) && m_cscid->measuresPhi(id)) || (m_tgcid->is_tgc(id) && m_tgcid->isStrip(id))
+        || (m_tgcid->is_stgc(id) && m_stgcid->measuresPhi(id) ) ){    
       if (!firstphi2) firstphi2=rot;
       lastphi2=rot;
     }
   }
-
+  bool flip = false;
   if (firstphi1) dist1=fabs((firstphi1->globalPosition()-lastphi1->globalPosition()).dot(myseg1->globalDirection()));
   if (firstphi2) dist2=fabs((firstphi2->globalPosition()-lastphi2->globalPosition()).dot(myseg2->globalDirection()));
   if (dist2>dist1) {
+    flip = true;
     bestseg=myseg2;
     worstseg=myseg1;
   }
-  signedMomentum =-.3e3*fieldintegral/deltatheta;
-  ATH_MSG_DEBUG("integral: " << fieldintegral << " deltatheta: " << deltatheta << " signedmomentum : " << signedMomentum);
-  for (int i=0;i<3;i++){
-    Trk::TransportJacobian *jac=0;
-    Trk::AtaPlane startpar(bestseg->globalPosition(),bestseg->globalDirection().phi(),
-			   bestseg->globalDirection().theta(),1/signedMomentum,bestseg->associatedSurface());
-    const Trk::TrackParameters *par=m_propagator->propagateParameters(startpar,worstseg->associatedSurface(),
+  
+  for (int itry=0;itry<2;itry++){
+
+    if(itry==1) {
+// retry with other as best segmt segment
+      if(!flip) {
+        bestseg = myseg2;  
+        worstseg=myseg1;
+      } else {
+        bestseg = myseg1;  
+        worstseg=myseg2;
+      }
+    }
+
+    signedMomentum =-.3e3*fieldintegral/deltatheta;
+    if(fabs(signedMomentum)<1000.) signedMomentum = 1e6;
+    ATH_MSG_DEBUG("integral: " << fieldintegral << " deltatheta: " << deltatheta << " signedmomentum : " << signedMomentum);
+    double residual = 9999.;
+    double resi[4],qoverp[4];
+    for (int i=0;i<4;i++){
+      Trk::TransportJacobian *jac=0;
+      Trk::AtaPlane startpar(bestseg->globalPosition(),bestseg->globalDirection().phi(),
+ 	 		     bestseg->globalDirection().theta(),1/signedMomentum,bestseg->associatedSurface());
+      const Trk::TrackParameters *par=m_propagator->propagateParameters(startpar,worstseg->associatedSurface(),
 								      (bestseg==myseg1) ? Trk::alongMomentum : Trk::oppositeMomentum,false,
 								      Trk::MagneticFieldProperties(Trk::FullField),jac,Trk::nonInteracting);
-    if (m_debug) std::cout << "par: " << par << " jac: " << jac << std::endl;
-    if (par && jac && (*jac)(1,4)!=0){
-      double residual=worstseg->localParameters()[Trk::locY] - par->parameters()[Trk::locY];
-      double delta_qoverp=residual/(*jac)(1,4);
-      signedMomentum=1/(1/signedMomentum+delta_qoverp);
-      ATH_MSG_DEBUG("residual: " << residual << " jac " << (*jac)(1,4) << " dp " << delta_qoverp << " signedmomentum: " << signedMomentum);
-      delete par;
-      delete jac;
-      if (std::abs(residual)<1) break;
+      if (m_debug) std::cout << "par: " << par << " jac: " << jac << std::endl;
+      if (par && jac && (*jac)(1,4)!=0){
+        residual = worstseg->localParameters()[Trk::locY] - par->parameters()[Trk::locY];
+        resi[i]   = residual; 
+        qoverp[i] = 1/signedMomentum; 
+// update qoverp
+        double delta_qoverp=residual/(*jac)(1,4);
+        double der_simple = -10.*(bestseg->globalPosition()-worstseg->globalPosition()).mag()/(.3*fieldintegral);
+        if(bestseg->globalDirection().z()<0) der_simple = - der_simple;
+        if(i>0) {
+          if(qoverp[i]!=qoverp[i-1]) {
+            double derivative = -(resi[i]-resi[i-1])/(qoverp[i]-qoverp[i-1]);
+            ATH_MSG_DEBUG(" numerical derivative " << derivative << " derivative from track " << (*jac)(1,4) << " der_simple " << der_simple);
+            if(fabs(derivative)>fabs((*jac)(1,4))) {
+              ATH_MSG_DEBUG(" use numerical derivative " << derivative << " derivative from track " << (*jac)(1,4));
+              delta_qoverp = residual/derivative;
+            }
+          }
+        } else {
+          if(fabs(der_simple)>fabs((*jac)(1,4))) {
+            ATH_MSG_DEBUG(" use simple numerical derivative " << der_simple << " derivative from track " << (*jac)(1,4));
+            delta_qoverp = residual/der_simple;
+          }
+        }
+        ATH_MSG_DEBUG("residual: " << residual << " jac " << (*jac)(1,4) << " signedmomentum: " << signedMomentum << " delta_qoverp " << delta_qoverp);
+        double signedMomentum_updated = signedMomentum/(1+signedMomentum*delta_qoverp);
+        if(fabs(signedMomentum_updated)<1000.) {
+          ATH_MSG_DEBUG("Too low signed momentum " << signedMomentum_updated );
+//      protect against too low momenta as propagation will fail
+          signedMomentum = signedMomentum_updated>0? 1000.:-1000;
+        } else {  
+// do not change momentum beyond last iteration
+          if(i<3) signedMomentum = signedMomentum_updated;
+        }
+        delete par;
+        delete jac;
+        if (std::abs(residual)<1) break;
+      }
     }
+    if(fabs(residual)>10.) {
+       ATH_MSG_DEBUG("NOT converged residual: " << residual << " itry " << itry);
+       if(itry==1) ATH_MSG_DEBUG("NOT converged residual after two trials ");
+    } else break;
   }
 }
 

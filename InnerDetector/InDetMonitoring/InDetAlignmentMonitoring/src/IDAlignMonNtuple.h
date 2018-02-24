@@ -10,6 +10,8 @@
 // AUTHORS: Ben Cooper
 // **********************************************************************
 
+#include "TrkExInterfaces/IPropagator.h"
+#include "TrkToolInterfaces/IUpdator.h"
 #include <vector>
 
 #include "GaudiKernel/StatusCode.h"
@@ -32,8 +34,6 @@ namespace InDetDD{
 }
 
 namespace Trk {
-  class IUpdator;
-  class IPropagator;
   class RIO_OnTrack;
   class Track;
   class TrackStateOnSurface;
@@ -82,8 +82,10 @@ protected:
 	const InDetDD::SCT_DetectorManager*   m_SCT_Mgr;
 	const PixelID*                        m_pixelID;
 	const SCT_ID*                         m_sctID; 
-	ToolHandle<Trk::IUpdator>             m_iUpdator;
-	ToolHandle<Trk::IPropagator>          m_propagator;
+	PublicToolHandle<Trk::IUpdator>             m_iUpdator
+	   {this,"KalmanUpdator","Trk::KalmanUpdator",""};
+	PublicToolHandle<Trk::IPropagator>          m_propagator
+	   {this,"RungeKuttaPropagator","Trk::RungeKuttaPropagator",""};
 	ToolHandle<Trk::ITruthToTrack>        m_truthToTrack;
 	ToolHandle<Trk::IResidualPullCalculator>    m_residualPullCalculator;   //!< The residual and pull calculator tool handle
 	INTupleSvc*                           m_ntupleSvc;

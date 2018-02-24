@@ -13,7 +13,7 @@ class SCT_ConfigurationConditionsSvcSetup:
         self.dbInstance = "SCT"
         self.algName = "SCT_ConfigurationCondAlg"
         self.alg = None
-        self.svcName = "SCT_ReadCalibChipDataSvc"
+        self.svcName = "InDetSCT_ConfigurationConditionsSvc"
         self.svc = None
 
     def getChannelFolder(self):
@@ -24,6 +24,15 @@ class SCT_ConfigurationConditionsSvcSetup:
 
     def getMurFolder(self):
         return self.murFolder
+
+    def setChannelFolder(self, channelFolder):
+        self.channelFolder = channelFolder
+
+    def setModuleFolder(self, moduleFolder):
+        self.moduleFolder = moduleFolder
+
+    def setMurFolder(self, murFolder):
+        self.murFolder = murFolder
 
     def getChannelFolderDb(self):
         return self.channelFolderDb
@@ -77,7 +86,7 @@ class SCT_ConfigurationConditionsSvcSetup:
         from AthenaCommon.AlgSequence import AthSequencer
         condSeq = AthSequencer("AthCondSeq")
         if not hasattr(condSeq, self.algName):
-            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConfigurationCondAlg
+            from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_ConfigurationCondAlg
             condSeq += SCT_ConfigurationCondAlg(name = self.algName,
                                                 ReadKeyChannel = self.channelFolder,
                                                 ReadKeyModule = self.moduleFolder,
@@ -97,9 +106,10 @@ class SCT_ConfigurationConditionsSvcSetup:
     def getSvcName(self):
         return self.svcName
 
+    def setSvcName(self, svcName):
+        self.svcName = svcName
+
     def setup(self):
         self.setFolders()
         self.setAlgs()
         self.setSvc()
-
-sct_ConfigurationConditionsSvcSetup = SCT_ConfigurationConditionsSvcSetup()

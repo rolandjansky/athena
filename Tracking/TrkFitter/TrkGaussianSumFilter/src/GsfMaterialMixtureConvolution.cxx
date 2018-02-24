@@ -16,8 +16,6 @@ decription           : Implementation code for GSF material mixture convolution
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
 
 #include "TrkGaussianSumFilter/IMultiStateMaterialEffectsUpdator.h"
-#include "TrkGaussianSumFilter/IMultiComponentStateAssembler.h"
-#include "TrkGaussianSumFilter/IMultiComponentStateCombiner.h"
 
 #include "TrkSurfaces/PerigeeSurface.h"
 
@@ -28,9 +26,7 @@ Trk::GsfMaterialMixtureConvolution::GsfMaterialMixtureConvolution( const std::st
   :
   AthAlgTool( type, name, parent ),
   m_outputlevel(0),
-  m_updator("Trk::GsfMaterialEffectsUpdator/GsfMaterialEffectsUpdator"),
-  m_stateCombiner("Trk::MultiComponentStateCombiner/MultiComponentStateCombiner"),
-  m_stateAssembler("Trk::MultiComponentStateAssembler/MaterialConvolutionAssembler")
+  m_updator("Trk::GsfMaterialEffectsUpdator/GsfMaterialEffectsUpdator")
 {
 
   declareInterface< IMaterialMixtureConvolution >( this );

@@ -38,7 +38,7 @@ AthAlgorithm(name, svcLocator),
 //  m_timeStamp(0),
 //  m_humanTimestamp(""),
 m_evtInfoDone(false),
-eventInfo{},
+m_eventInfo{},
 m_nEvent(0),
 m_indexFile(0),
 m_lastIndexFile(0),
@@ -91,21 +91,21 @@ StatusCode VP1BatchOnLatestEvent::execute()
 	//----------------------------
 	// Event information
 	//---------------------------
-	eventInfo = 0; //NOTE: Everything that comes from the storegate direct from the input files is const!
+	m_eventInfo = 0; //NOTE: Everything that comes from the storegate direct from the input files is const!
 
 	// ask the event store to retrieve the xAOD EventInfo container
-	//CHECK( evtStore()->retrieve( eventInfo, "EventInfo") );  // the second argument ("EventInfo") is the key name
-	//CHECK( evtStore()->retrieve( eventInfo, "McEventInfo") );  // the second argument ("McEventInfo") is the key name
-	//	   CHECK( evtStore()->retrieve( eventInfo) );
-	StatusCode status = evtStore()->retrieve( eventInfo);
+	//CHECK( evtStore()->retrieve( m_eventInfo, "EventInfo") );  // the second argument ("EventInfo") is the key name
+	//CHECK( evtStore()->retrieve( m_eventInfo, "McEventInfo") );  // the second argument ("McEventInfo") is the key name
+	//	   CHECK( evtStore()->retrieve( m_eventInfo) );
+	StatusCode status = evtStore()->retrieve( m_eventInfo);
 	// if there is only one container of that type in the xAOD (as with the EventInfo container), you do not need to pass
 	// the key name, the default will be taken as the only key name in the xAOD
 
-	if(status.isSuccess() && eventInfo!=0) {
+	if(status.isSuccess() && m_eventInfo!=0) {
 		m_evtInfoDone = true;
 	}
 
-	if (eventInfo) getEventDetails();
+	if (m_eventInfo) getEventDetails();
 
 	return StatusCode::SUCCESS;
 }
@@ -316,11 +316,11 @@ void VP1BatchOnLatestEvent::getEventDetails()
 
 	if(m_evtInfoDone) {
 
-		ATH_MSG_DEBUG(*(eventInfo->event_ID()));
+		ATH_MSG_DEBUG(*(m_eventInfo->event_ID()));
 
-		m_eventNumber = eventInfo->event_ID()->event_number();
-		m_runNumber = eventInfo->event_ID()->run_number();
-		m_timeStamp = eventInfo->event_ID()->time_stamp(); // posix time in seconds from 1970, 32 bit unsigned
+		m_eventNumber = m_eventInfo->event_ID()->event_number();
+		m_runNumber = m_eventInfo->event_ID()->run_number();
+		m_timeStamp = m_eventInfo->event_ID()->time_stamp(); // posix time in seconds from 1970, 32 bit unsigned
 
 		ATH_MSG_DEBUG("run number: "<< m_runNumber
 				<< ", event number: "
@@ -329,10 +329,10 @@ void VP1BatchOnLatestEvent::getEventDetails()
 				<< "] ");
 		std::stringstream stream;
 		stream << "Event type: user type '"
-				<< eventInfo->event_type()->user_type()
+				<< m_eventInfo->event_type()->user_type()
 				<< "' - ";
-		for (unsigned int i = 0; i < eventInfo->event_type()->n_mc_event_weights (); ++i) {
-			stream << " weight " << i << ": " << eventInfo->event_type()->mc_event_weight(i);
+		for (unsigned int i = 0; i < m_eventInfo->event_type()->n_mc_event_weights (); ++i) {
+			stream << " weight " << i << ": " << m_eventInfo->event_type()->mc_event_weight(i);
 		}
 		ATH_MSG_DEBUG(stream.str());
 	}

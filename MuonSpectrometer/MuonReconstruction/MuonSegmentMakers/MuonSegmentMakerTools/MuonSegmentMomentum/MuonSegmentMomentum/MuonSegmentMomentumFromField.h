@@ -13,6 +13,7 @@
 class RpcIdHelper;
 class CscIdHelper;
 class TgcIdHelper;
+class sTgcIdHelper;
 
 namespace Muon {
   class MuonSegment;
@@ -59,6 +60,7 @@ class MuonSegmentMomentumFromField : public AthAlgTool, virtual public Muon::IMu
   const RpcIdHelper*                  m_rpcid;
   const TgcIdHelper*                  m_tgcid;
   const CscIdHelper*                  m_cscid;
+  const sTgcIdHelper*                  m_stgcid;
   bool m_doOld;
 };
 

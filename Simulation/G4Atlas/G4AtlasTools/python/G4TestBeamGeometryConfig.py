@@ -1,6 +1,62 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
+from AthenaCommon.SystemOfUnits import mm
+
+#########################################################################################
+#--- Ancillary volumes TB 2000-2003  ------------------------------------------------
+#########################################################################################
+
+def getTileTB_Beampipe1(name="TileTB_BeamPipe1", **kwargs):
+    kwargs.setdefault("DetectorName", "BEAMPIPE1")
+    kwargs.setdefault("InnerRadius", 0.*mm)
+    kwargs.setdefault("OuterRadius", 100.*mm)
+    kwargs.setdefault("dZ", 268500.*mm)
+    kwargs.setdefault("Material", 'Vacuum')
+    kwargs.setdefault("OffsetX",-280574.*mm)
+    import math
+    kwargs.setdefault("RotateY", math.radians(-90.))
+    return CfgMgr.CylindricalEnvelope(name, **kwargs)
+
+def getTileTB_Beampipe2(name="TileTB_BeamPipe2", **kwargs):
+    kwargs.setdefault("DetectorName", "BEAMPIPE2")
+    kwargs.setdefault("InnerRadius", 0.*mm)
+    kwargs.setdefault("OuterRadius", 100.*mm)
+    kwargs.setdefault("dZ", 6419.8*mm)
+    kwargs.setdefault("Material", 'Vacuum')
+    kwargs.setdefault("OffsetX",-4474.8*mm)
+    import math
+    kwargs.setdefault("RotateY", math.radians(-90.))
+    return CfgMgr.CylindricalEnvelope(name, **kwargs)
+
+def getTileTB_MYLAREQUIV(name="TileTB_MYLAREQUIV", **kwargs):
+    kwargs.setdefault("DetectorName", "MYLAREQUIV")
+    kwargs.setdefault("InnerRadius", 0.*mm)
+    kwargs.setdefault("OuterRadius", 100.*mm)
+    kwargs.setdefault("dZ", 0.00168*mm)
+    kwargs.setdefault("Material", 'Mylar')
+    kwargs.setdefault("OffsetX",-13980.*mm)
+    import math
+    kwargs.setdefault("RotateY", math.radians(-90.))
+    return CfgMgr.CylindricalEnvelope(name, **kwargs)
+
+def getTileTB_S1(name="TileTB_S1", **kwargs):
+    kwargs.setdefault("DetectorName", "S1")
+    kwargs.setdefault("dX", 5.*mm)
+    kwargs.setdefault("dY", 52.5*mm)
+    kwargs.setdefault("dZ", 50.*mm)
+    kwargs.setdefault("Material", 'Scintillator')
+    kwargs.setdefault("OffsetX",-12074.6*mm)
+    return CfgMgr.BoxEnvelope(name, **kwargs)
+
+def getTileTB_S2(name="TileTB_S2", **kwargs):
+    kwargs.setdefault("DetectorName", "S2")
+    kwargs.setdefault("dX", 10.*mm)
+    kwargs.setdefault("dY", 40.*mm)
+    kwargs.setdefault("dZ", 27.5*mm)
+    kwargs.setdefault("Material", 'Scintillator')
+    kwargs.setdefault("OffsetX",-11294.6*mm)
+    return CfgMgr.BoxEnvelope(name, **kwargs)
 
 #########################################################################################
 #--- Tile TB 2000-2003  ------------------------------------------------
@@ -12,9 +68,9 @@ def getTileTB_CALOEnvelope(name="TileTB_CALO", **kwargs):
     kwargs.setdefault("StartPhi", math.radians(-27))
     kwargs.setdefault("DeltaPhi", math.radians(60))
     kwargs.setdefault("NSurfaces", 3)
-    kwargs.setdefault("InnerRadii", [2269.,950.,950.]) #FIXME Units?
-    kwargs.setdefault("OuterRadii", [5140.,5140.,5140.]) #FIXME Units?
-    kwargs.setdefault("ZSurfaces",  [-2830.,-1050.,6310.]) #FIXME Units?
+    kwargs.setdefault("InnerRadii", [2269.*mm,950.*mm,950.*mm])
+    kwargs.setdefault("OuterRadii", [5145.*mm,5145.*mm,5145.*mm])
+    kwargs.setdefault("ZSurfaces",  [-3400.*mm,-1050.*mm,6600.*mm])
     from G4AtlasApps.SimFlags import simFlags
     # Check the consistency of the flags
     if simFlags.Eta.statusOn and (simFlags.Theta.statusOn or simFlags.Z.statusOn):
@@ -81,13 +137,15 @@ def getTileTB_CALOEnvelope(name="TileTB_CALO", **kwargs):
 
 def getTileTB_WorldEnvelope(name="TileTB_World", **kwargs):
     kwargs.setdefault("DetectorName", "CTB")
-    kwargs.setdefault("dX", 20000.) #FIXME Units?
-    kwargs.setdefault("dY", 20000.) #FIXME Units?
-    kwargs.setdefault("dZ", 20000.) #FIXME Units?
+    kwargs.setdefault("dX", 600000.*mm)
+    kwargs.setdefault("dY",  5000.*mm)
+    kwargs.setdefault("dZ", 10000.*mm)
     SubDetectorList=[]
     from AthenaCommon.DetFlags import DetFlags
     if DetFlags.geometry.Calo_on():
         SubDetectorList += ['TileTB_CALO']
+    SubDetectorList += ['TileTB_BeamPipe1','TileTB_BeamPipe2','TileTB_S1','TileTB_S2']
+    #SubDetectorList += ['TileTB_MYLAREQUIV']
     kwargs.setdefault("SubDetectors", SubDetectorList)
     return CfgMgr.BoxEnvelope(name, **kwargs)
 
@@ -100,17 +158,17 @@ def getLArTB_WorldEnvelope(name="LArTB_World", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
     mode = simFlags.SimLayout.get_Value()
     if (mode=='tb_LArH6_2003'):
-        kwargs.setdefault("dx", 25500.) #FIXME Units?
-        kwargs.setdefault("dy", 25500.) #FIXME Units?
-        kwargs.setdefault("dz", 50500.) #FIXME Units?
+        kwargs.setdefault("dx", 25500.*mm)
+        kwargs.setdefault("dy", 25500.*mm)
+        kwargs.setdefault("dz", 50500.*mm)
     elif (mode=='tb_LArH6_2002' or mode=='tb_LArH6_2004'):
-        kwargs.setdefault("dx", 14500.) #FIXME Units?
-        kwargs.setdefault("dy", 14500.) #FIXME Units?
-        kwargs.setdefault("dz", 50500.) #FIXME Units?
+        kwargs.setdefault("dx", 14500.*mm)
+        kwargs.setdefault("dy", 14500.*mm)
+        kwargs.setdefault("dz", 50500.*mm)
     elif (mode=='tb_LArH6EC_2002'):
-        kwargs.setdefault("dx", 5500.) #FIXME Units?
-        kwargs.setdefault("dy", 5500.) #FIXME Units?
-        kwargs.setdefault("dz", 15500.) #FIXME Units?
+        kwargs.setdefault("dx", 5500.*mm)
+        kwargs.setdefault("dy", 5500.*mm)
+        kwargs.setdefault("dz", 15500.*mm)
     else:
         raise ValueError('Unsupported GeometryVersion: %s' % mode)
     SubDetectorList=[]

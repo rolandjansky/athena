@@ -15,6 +15,7 @@ decription           : Material effects for the GsfExtrapolator. It is an Alg
 #ifndef TrkGsfMaterialEffectsUpdator_H
 #define TrkGsfMaterialEffectsUpdator_H
 
+#include "TrkGaussianSumFilter/IMultiComponentStateAssembler.h"
 #include "TrkGaussianSumFilter/IMultiStateMaterialEffectsUpdator.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -23,7 +24,6 @@ decription           : Material effects for the GsfExtrapolator. It is an Alg
 namespace Trk{
 
 class IMultiStateMaterialEffects;
-class IMultiComponentStateAssembler;
 
 class GsfMaterialEffectsUpdator : public AthAlgTool, virtual public IMultiStateMaterialEffectsUpdator {
   
@@ -81,7 +81,8 @@ class GsfMaterialEffectsUpdator : public AthAlgTool, virtual public IMultiStateM
 
   int                                m_outputlevel;                      //!< to cache current output level
 
-  ToolHandle<IMultiComponentStateAssembler> m_stateAssembler;
+  PublicToolHandle<IMultiComponentStateAssembler> m_stateAssembler
+     {this,"MultiComponentStateAssembler","Trk::MultiComponentStateAssembler/GsfMaterialEffectsStateAssembler",""};
 
   ToolHandle<IMultiStateMaterialEffects>    m_materialEffects;
 

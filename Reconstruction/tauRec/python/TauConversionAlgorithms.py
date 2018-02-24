@@ -267,7 +267,6 @@ def getPhotonConversionTool():
                                                 VertexFitterTool           = InDetConversionVxFitterTool,
                                                 TrackSelectorTool          = InDetConversionTrackSelector,
                                                 TrackPairsSelector         = InDetConversionTrackPairsSelector,
-                                                ConversionFinderHelperTool = InDetConversionHelper,
                                                 VertexPointEstimator       = InDetConversionVtxPointEstimator,
                                                 PostSelector               = InDetConversionPostSelector,
                                                 SingleTrackConversionTool  = InDetSingleTrackConversion,

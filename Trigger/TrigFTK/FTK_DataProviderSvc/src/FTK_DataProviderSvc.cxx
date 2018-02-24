@@ -154,30 +154,6 @@ FTK_DataProviderSvc::FTK_DataProviderSvc(const std::string& name, ISvcLocator* s
   m_nErrors(0),
   m_reverseIBLlocx(false)
 {
-  m_pixelBarrelPhiOffsets.reserve(4);
-  m_pixelBarrelEtaOffsets.reserve(4);
-  m_pixelEndCapPhiOffsets.reserve(3);
-  m_pixelEndCapEtaOffsets.reserve(3);
-  for (int ib=0; ib<4; ib++) {
-    m_pixelBarrelPhiOffsets.push_back(0.); 
-    m_pixelBarrelEtaOffsets.push_back(0.);
-  }
-  for (int ie=0; ie<3; ie++) {
-    m_pixelEndCapPhiOffsets.push_back(0.); 
-    m_pixelEndCapEtaOffsets.push_back(0.);
-  }
-  m_nFailedSCTClusters.reserve(8);
-  m_nMissingSCTClusters.reserve(8);
-  m_nFailedPixelClusters.reserve(4);
-  m_nMissingPixelClusters.reserve(4);
-  for (int ie=0; ie<4; ie++){
-    m_nFailedPixelClusters.push_back(0);
-    m_nMissingPixelClusters.push_back(0);
-  }
-  for (int ie=0; ie<8; ie++){
-    m_nFailedSCTClusters.push_back(0);
-    m_nMissingSCTClusters.push_back(0);
-  }
 
   declareProperty("TrackCollectionName",m_trackCacheName);
   declareProperty("TrackParticleContainerName",m_trackParticleCacheName);
@@ -205,10 +181,10 @@ FTK_DataProviderSvc::FTK_DataProviderSvc(const std::string& name, ISvcLocator* s
   declareProperty("rejectBadTracks", m_rejectBadTracks);
   declareProperty("BadTrackdPhiCut", m_dPhiCut);
   declareProperty("BadTrackdEtaCut", m_dEtaCut);
-  declareProperty("PixelBarrelPhiOffsets", m_pixelBarrelPhiOffsets," Pixel Barrel Phi Offsets in mm" );
-  declareProperty("PixelBarrelEtaOffsets", m_pixelBarrelEtaOffsets," Pixel Barrel Eta Offsets in mm" );
-  declareProperty("PixelEndCapPhiOffsets", m_pixelEndCapPhiOffsets," Pixel EndCap Phi Offsets in mm" );
-  declareProperty("PixelEndCapEtaOffsets", m_pixelEndCapEtaOffsets," Pixel EndCap Eta Offsets in mm" );
+  declareProperty("PixelBarrelPhiOffsets", m_pixelBarrelPhiOffsets={0.,0.,0.,0.}," Pixel Barrel Phi Offsets in mm" );
+  declareProperty("PixelBarrelEtaOffsets", m_pixelBarrelEtaOffsets={0.,0.,0.,0.}," Pixel Barrel Eta Offsets in mm" );
+  declareProperty("PixelEndCapPhiOffsets", m_pixelEndCapPhiOffsets={0.,0.,0.}," Pixel EndCap Phi Offsets in mm" );
+  declareProperty("PixelEndCapEtaOffsets", m_pixelEndCapEtaOffsets={0.,0.,0.}," Pixel EndCap Eta Offsets in mm" );
   declareProperty("CorrectPixelClusters",m_correctPixelClusters);
   declareProperty("CorrectSCTClusters",m_correctSCTClusters);
   declareProperty("setBroadPixelClusterOnTrackErrors",m_broadPixelErrors);
@@ -318,6 +294,15 @@ StatusCode FTK_DataProviderSvc::initialize() {
     if (m_broadSCT_Errors) ATH_MSG_INFO( "Creating SCT_ClusterOnTrack with broad errors");
   } 
 
+  for (int ie=0; ie<4; ie++){
+    m_nFailedPixelClusters.push_back(0);
+    m_nMissingPixelClusters.push_back(0);
+  }
+  for (int ie=0; ie<8; ie++){
+    m_nFailedSCTClusters.push_back(0);
+    m_nMissingSCTClusters.push_back(0);
+  }
+
 
   return StatusCode::SUCCESS;
 
@@ -346,7 +331,7 @@ unsigned int FTK_DataProviderSvc::nTrackParticleErrors(const bool withRefit) {
 
 unsigned int FTK_DataProviderSvc::nRawTracks() {
   if (!m_gotRawTracks) getFTK_RawTracksFromSG();
-  return m_ftk_tracks->size();
+  return (m_gotRawTracks ? m_ftk_tracks->size() : 0);
 }
 
 
@@ -1619,9 +1604,16 @@ const Trk::RIO_OnTrack* FTK_DataProviderSvc::createSCT_Cluster(const FTK_RawSCT_
 
   const IdentifierHash hash=raw_cluster.getModuleID();
   const int rawStripCoord= raw_cluster.getHitCoord();
-  const int clusterWidth=raw_cluster.getHitWidth();
+  int clusterWidth=raw_cluster.getHitWidth();
 
-  // clusterWidth is 0 for a 1-strip cluster, 1 for 2-strips, etc.
+  if (clusterWidth == 0) { // fix for case that width is not set
+    if ((int)rawStripCoord%2==1) { 
+      clusterWidth=2; // cluster position is odd => between strips => width 2
+    } else {
+      clusterWidth=1; //  // cluster position is even => on strip => width 1
+    } 
+  }
+  
 
   double stripCoord = ((double) rawStripCoord)/2.; // rawStribCoord is in units of half a strip
 
@@ -1646,11 +1638,11 @@ const Trk::RIO_OnTrack* FTK_DataProviderSvc::createSCT_Cluster(const FTK_RawSCT_
   std::vector<Identifier> rdoList;
   rdoList.push_back(strip_id);
 
-  int firstStrip = (int)(stripCoord-0.5*clusterWidth);
-  int lastStrip  = (int)(stripCoord+0.5*clusterWidth);
+  int firstStrip = (int)(stripCoord-0.5*(clusterWidth-1));
+  int lastStrip  = (int)(stripCoord+0.5*(clusterWidth-1));
 
   ATH_MSG_VERBOSE( "FTK_DataProviderSvc::createSCT_Cluster: raw coord= " << rawStripCoord << " stripCoord " << stripCoord << 
-		   " width " << clusterWidth+1 << " strip, firstStrip, lastStrip= "  << strip << "," << firstStrip << "," << lastStrip);
+		   " width " << clusterWidth << " strip, firstStrip, lastStrip= "  << strip << "," << firstStrip << "," << lastStrip);
 
   if (firstStrip < 0) {
     firstStrip = 0;
@@ -1671,26 +1663,16 @@ const Trk::RIO_OnTrack* FTK_DataProviderSvc::createSCT_Cluster(const FTK_RawSCT_
   const double width((double(nStrips)/double(nStrips+1))*( lastStripPos.xPhi()-firstStripPos.xPhi()));
   const InDetDD::SiLocalPosition centre((firstStripPos+lastStripPos)/2.0);
 
-  Amg::Vector2D localPos(centre.xPhi(),  centre.xEta());
+  double shift = pDE->getLorentzCorrection();
+  Amg::Vector2D localPos(centre.xPhi()+shift,  centre.xEta());
 
   ATH_MSG_VERBOSE(" centre.xPhi() " << centre.xPhi()  << " centre.xEta() " << centre.xEta());
 
   const std::pair<InDetDD::SiLocalPosition, InDetDD::SiLocalPosition> ends(design->endsOfStrip(centre));
   double stripLength(fabs(ends.first.xEta()-ends.second.xEta()));
 
-  ATH_MSG_VERBOSE(" creating SiWidth with nstrips   = " << clusterWidth+1 << " width " << width << " stripLength " << stripLength);
-  InDet::SiWidth siWidth(Amg::Vector2D(clusterWidth+1,1), Amg::Vector2D(width,stripLength) );
-
-  //  double shift = pDE->getLorentzCorrection();
-
-  //  double derivedPos = localPos[Trk::locX]+shift;
-  //double derivedPos = localPos[Trk::locX];
-  //double rawPos = (strip-0.5*design->cells())*pDE->phiPitch();
-
-  //  if(fabs(derivedPos-rawPos)>0.5*pDE->phiPitch()) {
-  //  derivedPos = rawPos+shift;
-  // }
-  //  Amg::Vector2D position(derivedPos, localPos[Trk::locY]);
+  ATH_MSG_VERBOSE(" creating SiWidth with nstrips   = " << clusterWidth << " width " << width << " stripLength " << stripLength);
+  InDet::SiWidth siWidth(Amg::Vector2D(clusterWidth,1), Amg::Vector2D(width,stripLength) );
 
   Amg::Vector2D position(localPos[Trk::locX], localPos[Trk::locY]);
 
@@ -1835,10 +1817,19 @@ const Trk::RIO_OnTrack*  FTK_DataProviderSvc::createPixelCluster(const FTK_RawPi
 
 
 
-  // zero is center of the row coordinates, so to find the cell we can use it, units of 6.25 microns
-  // zero is edge of the column coordinates, so to find the cell we add 0.5, units of 25 microns
+  // ftk row coordinates: units of 6.25 microns, origin is centre of zeroth pixel
+  // ftk column coordinates: units of 25 microns, origin is edge of the zeroth coordinate
+
   double phiPos = ((double) rawLocalPhiCoord) * 6.25e-3 + phi0; // rawLocalPhiCoord=0 is the centre of the zeroth pixel
-  double etaPos = ((double) rawLocalEtaCoord) * 25.0e-3 + eta0 - 0.3; // rawLocalEtaCoord=0 is the edge (-0.3mm) of the zeroth pixel.
+
+  if (!isBarrel) phiPos-=0.025; // correcttion for the fact that rawLocalPhiCoord=0 seems to be the edge of the endcap pixel, not the centre!
+  
+  double etaPos=0.;
+  if (isBarrel && layer==0) {
+    etaPos = ((double) rawLocalEtaCoord) * 25.0e-3 + eta0 - 0.25; // rawLocalEtaCoord=0 is the edge (-0.25mm) of the zeroth IBL pixel.
+  } else {
+    etaPos = ((double) rawLocalEtaCoord) * 25.0e-3 + eta0 - 0.3; // rawLocalEtaCoord=0 is the edge (-0.3mm) of the zeroth pixel.
+  }
 
   if (isBarrel)  {
     phiPos += m_pixelBarrelPhiOffsets[layer];

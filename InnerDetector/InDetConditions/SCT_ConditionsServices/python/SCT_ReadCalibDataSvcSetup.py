@@ -8,7 +8,7 @@ class SCT_ReadCalibDataSvcSetup:
         self.gainFolder = "/SCT/DAQ/Calibration/NPtGainDefects"
         self.algName = "SCT_ReadCalibDataCondAlg"
         self.alg = None
-        self.svcName = "SCT_ReadCalibDataSvc"
+        self.svcName = "InDetSCT_ReadCalibDataSvc"
         self.svc = None
 
     def getNoiseFolder(self):
@@ -26,15 +26,15 @@ class SCT_ReadCalibDataSvcSetup:
     def setFolders(self):
         from IOVDbSvc.CondDB import conddb
         if not conddb.folderRequested(self.noiseFolder):
-            conddb.addFolder("SCT", self.noiseFolder, className="CondAttrListCollection")
+            conddb.addFolderSplitMC("SCT", self.noiseFolder, self.noiseFolder, className="CondAttrListCollection")
         if not conddb.folderRequested(self.gainFolder):
-            conddb.addFolder("SCT", self.gainFolder, className="CondAttrListCollection")
+            conddb.addFolderSplitMC("SCT", self.gainFolder, self.gainFolder, className="CondAttrListCollection")
 
     def setAlgs(self):
         from AthenaCommon.AlgSequence import AthSequencer
         condSeq = AthSequencer("AthCondSeq")
         if not hasattr(condSeq, self.algName):
-            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibDataCondAlg
+            from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_ReadCalibDataCondAlg
             condSeq += SCT_ReadCalibDataCondAlg(name = self.algName,
                                                 ReadKeyGain = self.gainFolder,
                                                 ReadKeyNoise = self.noiseFolder)
@@ -50,9 +50,13 @@ class SCT_ReadCalibDataSvcSetup:
     def getSvc(self):
         return self.svc
 
+    def getSvcName(self):
+        return self.svcName
+
+    def setSvcName(self, svcName):
+        self.svcName = svcName
+
     def setup(self):
         self.setFolders()
         self.setAlgs()
         self.setSvc()
-
-sct_ReadCalibDataSvcSetup = SCT_ReadCalibDataSvcSetup()

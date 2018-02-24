@@ -4,7 +4,9 @@ from AthenaCommon.KeyStore import CfgItemList
 
 # for the FileMetaData for MC
 from RecExConfig.InputFilePeeker import inputFileSummary
-if inputFileSummary['evt_type'][0] == 'IS_SIMULATION':
+if (inputFileSummary['evt_type'][0] == 'IS_SIMULATION' and
+    inputFileSummary['metadata'] and
+    '/Simulation/Parameters' in inputFileSummary['metadata']):
   svcMgr.IOVDbSvc.Folders += ['/Simulation/Parameters']
 
 # ESD

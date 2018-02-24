@@ -20,6 +20,7 @@
 
 //Gaudi headers
 //#include "GaudiKernel/AlgTool.h"
+#include "AthenaKernel/IAthenaOutputStreamTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 //#include "GaudiKernel/MsgStream.h"
 
@@ -44,7 +45,6 @@
 class AtlasDetectorID;
 //class StoreGateSvc;
 class IIOVRegistrationSvc; 
-class IAthenaOutputStreamTool; 
 class IToolSvcl; 
 class IIOVSvc; 
 class IClassIDSvc;
@@ -99,7 +99,8 @@ class PixelDCSTool: virtual public AthAlgTool,
   ServiceHandle< IIOVRegistrationSvc > m_IOVRegistrationSvc;
 
   //  IAthenaOutputStreamTool* m_streamer;
-  ToolHandle< IAthenaOutputStreamTool > m_streamer;
+  PublicToolHandle< IAthenaOutputStreamTool > m_streamer
+     {this,"AthenaPoolOutputStreamTool","AthenaPoolOutputStreamTool/CondStreamPixelDCSTest",""};
 
   const InDetDD::PixelDetectorManager* m_pixman; 
   const PixelID* m_pixid; 

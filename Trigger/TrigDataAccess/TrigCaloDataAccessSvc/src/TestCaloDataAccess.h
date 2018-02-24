@@ -16,6 +16,8 @@
  * service robustness
  **/
 
+class ParallelCallTest;
+
 class TestCaloDataAccess
   : public ::AthReentrantAlgorithm
 { 
@@ -28,7 +30,13 @@ class TestCaloDataAccess
  
  private: 
   TestCaloDataAccess();
+  void emulateRoIs( const EventContext& context, std::vector<ParallelCallTest*>& allRoIs ) const;
+  void emulateFixedRoIs( const EventContext& context, std::vector<ParallelCallTest*>& allRoIs ) const;
   ServiceHandle<ITrigCaloDataAccessSvc> m_dataAccessSvc; 
+
+  int m_nFixedRoIs;
+  bool m_emulateRoIs;
+  bool m_emulateFixedRoIs;
 }; 
 
 

@@ -37,86 +37,70 @@
 
 class SCTLorentzAngleSvcSetup:
     "Class to simplify setup of LorentzAngleSvc"
-    def __init__(self):
+    def __init__(self, forceUseDB=False, forceUseGeoModel=False):
+        if forceUseDB and forceUseGeoModel:
+            from AthenaCommon import Logging
+            msg = Logging.logging.getLogger("SCTLorentzAngleSvcSetup")
+            msg.error("Setting is wrong: both forceUseDB and forceUseGeoModel cannot be True at the same time")
+            return
 
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        from AthenaCommon.AppMgr import ToolSvc
-   
-        from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleSvc
+        # Set up SCT_DCSConditiosnSvc if necessary
+        if not forceUseGeoModel:
+            from SCT_ConditionsServices.SCT_DCSConditionsSvcSetup import SCT_DCSConditionsSvcSetup
+            sct_DCSConditionsSvcSetup = SCT_DCSConditionsSvcSetup()
+            sct_DCSConditionsSvcSetup.setup()
 
-        # Init SCTLorentzAngleSvc
-        if hasattr(svcMgr,'SCTLorentzAngleSvc'):
-            sctLorentzAngleSvc = svcMgr.SCTLorentzAngleSvc
-        else :
-            sctLorentzAngleSvc = SiLorentzAngleSvc(name="SCTLorentzAngleSvc",
-                                                   DetectorName="SCT")
-            svcMgr+=sctLorentzAngleSvc     
-            
-       
-        # Init PixelSiliconConditionsSvc
-        if hasattr(svcMgr,'SCT_SiliconConditionsSvc'):
-            sctSiliconConditionsSvc = svcMgr.SCT_SiliconConditionsSvc
-        else :
-            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SiliconConditionsSvc
-            sctSiliconConditionsSvc=SCT_SiliconConditionsSvc()
-            svcMgr+=sctSiliconConditionsSvc
-            
-            from IOVDbSvc.CondDB import conddb
-            from AthenaCommon.AlgSequence import AthSequencer
-            condSeq = AthSequencer("AthCondSeq")
-            if not conddb.folderRequested("/SCT/DCS/HV"):
-                conddb.addFolder("DCS_OFL", "/SCT/DCS/HV", className="CondAttrListCollection")
-            if not hasattr(condSeq, "SCT_DCSConditionsHVCondAlg"):
-                from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsHVCondAlg
-                condSeq += SCT_DCSConditionsHVCondAlg(name = "SCT_DCSConditionsHVCondAlg",
-                                                      ReadKey = '/SCT/DCS/HV')
-            if not conddb.folderRequested("/SCT/DCS/CHANSTAT"):
-                conddb.addFolder("DCS_OFL", "/SCT/DCS/CHANSTAT", className="CondAttrListCollection")
-            if not hasattr(condSeq, "SCT_DCSConditionsStatCondAlg"):
-                from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsStatCondAlg
-                condSeq += SCT_DCSConditionsStatCondAlg(name = "SCT_DCSConditionsStatCondAlg",
-                                                        ReadKeyHV = '/SCT/DCS/HV',
-                                                        ReadKeyState = '/SCT/DCS/CHANSTAT')
-            if not conddb.folderRequested("/SCT/DCS/MODTEMP"):
-                conddb.addFolder("DCS_OFL", "/SCT/DCS/MODTEMP", className="CondAttrListCollection")
-            if not hasattr(condSeq, "SCT_DCSConditionsTempCondAlg"):
-                from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsTempCondAlg
-                condSeq += SCT_DCSConditionsTempCondAlg(name = "SCT_DCSConditionsTempCondAlg",
-                                                        ReadKey = '/SCT/DCS/MODTEMP')
-            if not hasattr(condSeq, "SCT_SiliconHVCondAlg"):
-                from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SiliconHVCondAlg
-                condSeq += SCT_SiliconHVCondAlg(name = "SCT_SiliconHVCondAlg")
-            if not hasattr(condSeq, "SCT_SiliconTempCondAlg"):
-                from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_SiliconTempCondAlg
-                condSeq += SCT_SiliconTempCondAlg(name = "SCT_SiliconTempCondAlg")
-            if not hasattr(svcMgr, "InDetSCT_DCSConditionsSvc"):
-                from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_DCSConditionsSvc
-                InDetSCT_DCSConditionsSvc = SCT_DCSConditionsSvc(name = "InDetSCT_DCSConditionsSvc")
-                svcMgr += InDetSCT_DCSConditionsSvc
+        # Set up SCT_SiliconConditionsSvc
+        from SCT_ConditionsServices.SCT_SiliconConditionsSvcSetup import SCT_SiliconConditionsSvcSetup
+        sct_SiliconConditionsSvcSetup = SCT_SiliconConditionsSvcSetup()
+        if forceUseGeoModel:
+            sct_SiliconConditionsSvcSetup.setUseDB(False)
+            sct_SiliconConditionsSvcSetup.setForceUseGeoModel(True)
+        else:
+            sct_SiliconConditionsSvcSetup.setDcsSvc(sct_DCSConditionsSvcSetup.getSvc())
+        sct_SiliconConditionsSvcSetup.setup()
+        sctSiliconConditionsSvc = sct_SiliconConditionsSvcSetup.getSvc()
+        self.sctSiliconConditionsSvc = sctSiliconConditionsSvc
+        self.SCT_SiliconConditionsSvc = sctSiliconConditionsSvc
 
+        # Set up SCTSiLorentzAngleCondAlg
+        from AthenaCommon.AlgSequence import AthSequencer
+        condSeq = AthSequencer("AthCondSeq")
+        if not hasattr(condSeq, "SCTSiLorentzAngleCondAlg"):
+            from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SCTSiLorentzAngleCondAlg
+            from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+            condSeq += SCTSiLorentzAngleCondAlg(name = "SCTSiLorentzAngleCondAlg",
+                                                SiConditionsServices = sctSiliconConditionsSvc,
+                                                UseMagFieldSvc = True,
+                                                UseMagFieldDcs = (not athenaCommonFlags.isOnline()),
+                                                UseGeoModel = forceUseGeoModel)
+        sctSiLorentzAngleCondAlg = condSeq.SCTSiLorentzAngleCondAlg
+        if forceUseDB:
+            sctSiLorentzAngleCondAlg.useSctDefaults = False
+
+        # Set up SCTLorentzAngleSvc
+        from AthenaCommon.AppMgr import ServiceMgr
+        if not hasattr(ServiceMgr, "SCTLorentzAngleSvc"):
+            from SiLorentzAngleSvc.SiLorentzAngleSvcConf import SiLorentzAngleCHSvc
+            ServiceMgr += SiLorentzAngleCHSvc(name="SCTLorentzAngleSvc", DetectorName="SCT")
+        sctLorentzAngleSvc = ServiceMgr.SCTLorentzAngleSvc
         # Pass the silicon conditions services to the Lorentz angle service
         # Also make sure UseMagFieldTool is True as AtlasGeoModel sets this to False
         # if loaded first.
         sctLorentzAngleSvc.UseMagFieldSvc = True
-        sctLorentzAngleSvc.SiConditionsServices = sctSiliconConditionsSvc
-
         self.SCTLorentzAngleSvc = sctLorentzAngleSvc
-        self.sctSiliconConditionsSvc = sctSiliconConditionsSvc
-        self.SCT_SiliconConditionsSvc = sctSiliconConditionsSvc
-
 
     # Force the Lorentz angle sercive to use SiliconConditions service (which are assumed to use the DB)
     # Default is to decide based on GeoModel.
     def forceUseDB(self) :
         "Force usage of conditions DB"
         self.SCT_SiliconConditionsSvc.CheckGeoModel = False
-        self.SCTLorentzAngleSvc.useSctDefaults = False
+        from AthenaCommon import Logging
+        msg = Logging.logging.getLogger("SCTLorentzAngleSvcSetup")
+        msg.warning("Please set forceUseDB in constructor. Unnecessary service, algorithms, folders are configured")
 
     # Force to use the defaults from GeoModel. In case it is not possible to use DCS
     def forceUseGeoModel(self) :
         "Force usage of GeoModel defaults"
         self.SCT_SiliconConditionsSvc.ForceUseGeoModel = True
-
-# configuration instance
-sctLorentzAngleSvcSetup = SCTLorentzAngleSvcSetup()
-SCTLorentzAngleSvc = sctLorentzAngleSvcSetup.SCTLorentzAngleSvc
+        msg.warning("Please set forceUseGeoModel in constructor. Unnecessary service, algorithms, folders are configured")

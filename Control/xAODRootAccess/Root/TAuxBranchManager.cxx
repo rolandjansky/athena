@@ -32,7 +32,7 @@ namespace xAOD {
          m_holder = new THolder( *parent.m_holder );
       }
       if( parent.m_vector ) {
-         m_vector = SG::AuxTypeRegistry::instance().makeVector( m_auxId, (size_t)0, (size_t)0 );
+         m_vector = SG::AuxTypeRegistry::instance().makeVector( m_auxId, (size_t)0, (size_t)0 ).release();
       }
    }
 
@@ -66,7 +66,7 @@ namespace xAOD {
       m_auxId = rhs.m_auxId;
       if( m_vector ) delete m_vector;
       if( rhs.m_vector ) {
-         m_vector = SG::AuxTypeRegistry::instance().makeVector( m_auxId, (size_t)0, (size_t)0 );
+         m_vector = SG::AuxTypeRegistry::instance().makeVector( m_auxId, (size_t)0, (size_t)0 ).release();
       } else {
          m_vector = 0;
       }
@@ -132,7 +132,7 @@ namespace xAOD {
       // Otherwise let's create a default object:
       m_isSet = kTRUE;
       if( ! m_vector ) {
-         m_vector = SG::AuxTypeRegistry::instance().makeVector( m_auxId, (size_t)0, (size_t)0 );
+         m_vector = SG::AuxTypeRegistry::instance().makeVector( m_auxId, (size_t)0, (size_t)0 ).release();
       }
       // ...and use it to fill the current event:
       m_holder->setOwner( kFALSE );

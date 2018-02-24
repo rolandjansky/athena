@@ -13,7 +13,7 @@ def writeEmulationFiles(data):
 # Testing menu used in the L1 decoders
 class MenuTest:
     CTPToChainMapping = ["0:HLT_e3_etcut",
-                         "0:HLT_e5_etcut"
+                         "0:HLT_e5_etcut",
                          "0:HLT_g5_etcut",
                          "1:HLT_e7_etcut",
                          "23:HLT_2e3_etcut",
@@ -21,7 +21,11 @@ class MenuTest:
                          "15:HLT_mu6",
                          "33:HLT_2mu6",
                          "15:HLT_mu6idperf",
-                         "42:HLT_e15mu4"]
+                         "42:HLT_e15mu4",
+                         "68:HLT_xe10", # the item is L1_XE10
+                         "152:HLT_xs20",
+                         "50:HLT_te15", # the seed is L1_TE15.0ETA24
+                         ]
 
     EMThresholdToChainMapping = ["EM3 : HLT_e3_etcut",
                                  "EM3 : HLT_e5_etcut",
@@ -37,6 +41,11 @@ class MenuTest:
                                  "MU4 : HLT_e15mu4"]
 
 
+    METThresholdToChainMapping = ["UNUSED : HLT_xe10",
+                                  "UNUSED : HLT_xs20",
+                                  "UNUSED : HLT_te15"]
+
+    
 # L1Decoder for bytestream
 from L1Decoder.L1DecoderConf import L1Decoder
 class L1DecoderTest(L1Decoder) :
@@ -45,7 +54,7 @@ class L1DecoderTest(L1Decoder) :
 
         from TriggerJobOpts.TriggerFlags import TriggerFlags
         from L1Decoder.L1DecoderMonitoring import CTPUnpackingMonitoring, RoIsUnpackingMonitoring
-        from L1Decoder.L1DecoderConf import CTPUnpackingTool, EMRoIsUnpackingTool, MURoIsUnpackingTool
+        from L1Decoder.L1DecoderConf import CTPUnpackingTool, EMRoIsUnpackingTool, MURoIsUnpackingTool, METRoIsUnpackingTool
 
         # CTP unpacker
 
@@ -65,6 +74,11 @@ class L1DecoderTest(L1Decoder) :
             emUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="EM", maxCount=30 )
             self.roiUnpackers += [emUnpacker]
 
+            metUnpacker = METRoIsUnpackingTool(OutputLevel = self.OutputLevel,
+                                               Decisions = "METRoIDecisions",
+                                               OutputTrigRoI = "METRoI")
+            metUnpacker.ThresholdToChainMapping = MenuTest.METThresholdToChainMapping            
+            self.roiUnpackers += [metUnpacker]
 
         # MU unpacker
         if TriggerFlags.doMuon():
@@ -129,3 +143,7 @@ class L1EmulationTest(L1Decoder) :
 
         self.Chains="HLTChainsResult"
 
+if __name__ == "__main__":
+    from AthenaCommon.Constants import DEBUG
+    real = L1DecoderTest(OutputLevel=DEBUG)
+    

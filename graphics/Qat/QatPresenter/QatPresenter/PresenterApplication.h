@@ -1,5 +1,5 @@
-#ifndef _PRESENTERAPPLICATION_H_
-#define _PRESENTERAPPLICATION_H_
+#ifndef QATPRESENTER_PRESENTERAPPLICATION_H
+#define QATPRESENTER_PRESENTERAPPLICATION_H 
 #include "QatDataAnalysis/IOLoader.h"
 #include <QtGui/QMainWindow>
 #include <string>
@@ -45,7 +45,7 @@ class PresenterApplication: public QMainWindow {
 
   // Internals
   class Clockwork;
-  Clockwork *c;
+  Clockwork *m_c;
 
   public slots:
 

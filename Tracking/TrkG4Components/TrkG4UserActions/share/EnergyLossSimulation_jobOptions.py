@@ -110,7 +110,7 @@ ServiceMgr.THistSvc.Output += [ "val DATAFILE='/tmp/salzburg/EnergyLossRecorder.
 
 ##############################################################
 
-simFlags.OptionalUserActionList.addAction('G4UA::EnergyLossRecorderTool',['Step','BeginOfEvent','EndOfEvent','BeginOfRun','EndOfRun'])
+simFlags.OptionalUserActionList.addAction('G4UA::EnergyLossRecorderTool')
 
 include("G4AtlasApps/G4Atlas.flat.configuration.py")
 

@@ -21,5 +21,5 @@ from G4UserActions.G4UserActionsConf import G4UA__RadiationMapsMakerTool
 # radmaptool.PhiMinZoom      =  -180.0 # in degrees
 # radmaptool.PhiMaxZoom      =   180.0 # in degrees
 #
-simFlags.OptionalUserActionList.addAction('G4UA::RadiationMapsMakerTool',['Run','Step'])
+simFlags.OptionalUserActionList.addAction('G4UA::RadiationMapsMakerTool')
 

@@ -18,6 +18,7 @@
 
 
 #include <cstddef>
+#include <memory>
 #include <typeinfo>
 
 
@@ -46,7 +47,7 @@ public:
   /**
    * @brief Make a copy of this vector.
    */
-  virtual IAuxTypeVector* clone() const = 0;
+  virtual std::unique_ptr<IAuxTypeVector> clone() const = 0;
 
 
   /**
@@ -156,7 +157,7 @@ public:
    * A null pointer is returned on failure (operation not supported,
    * type can't be packed, type is already packed).
    */
-  virtual IAuxTypeVector* toPacked() { return 0; }
+  virtual std::unique_ptr<IAuxTypeVector> toPacked() { return 0; }
 
 
   /**

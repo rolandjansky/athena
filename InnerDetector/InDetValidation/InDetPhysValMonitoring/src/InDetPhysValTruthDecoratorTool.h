@@ -30,7 +30,8 @@ public:
   virtual StatusCode finalize();
   virtual bool decorateTruth(const xAOD::TruthParticle& particle, const std::string& prefix);
 private:
-  ToolHandle<Trk::IExtrapolator> m_extrapolator;
+  PublicToolHandle<Trk::IExtrapolator> m_extrapolator
+     {this,"Extrapolator","Trk::Extrapolator/AtlasExtrapolator",""};
   ServiceHandle<IBeamCondSvc> m_beamSpotSvc;
 };
 #endif

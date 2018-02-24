@@ -140,9 +140,11 @@ private:
 
     ServiceHandle <IBLParameterSvc> m_IBLParameterSvc;
     ToolHandle <Trk::ITrackHoleSearchTool> m_holes_search_tool;
-    ToolHandle <Trk::ITrackSummaryTool> m_trkSummaryTool;
+    PublicToolHandle <Trk::ITrackSummaryTool> m_trkSummaryTool
+       {this,"TrackSummaryTool","Trk::TrackSummaryTool/InDetTrackSummaryTool",""};
     ToolHandle<Trk::IResidualPullCalculator> m_residualPullCalculator;
-    ToolHandle< Trk::ITrackToVertexIPEstimator >  m_trackToVertexIPEstimator;
+    PublicToolHandle< Trk::ITrackToVertexIPEstimator >  m_trackToVertexIPEstimator
+       {this,"TrackToVertexIPEstimator","Trk::TrackToVertexIPEstimator",""};
     ToolHandle<Trk::IUpdator>             m_iUpdator;
     
     SG::ReadHandleKey<TrackCollection> m_CombinedTracksName{this,"TrackCollection","Tracks","Combined Track Collection for Global Monitoring"};

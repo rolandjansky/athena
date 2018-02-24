@@ -24,6 +24,9 @@
 #ifdef ATHCONTAINERS_NO_THREADS
 
 
+#include <vector>
+
+
 namespace AthContainers_detail {
 
 
@@ -95,6 +98,24 @@ inline void fence_acq_rel() {}
 inline void fence_seq_cst() {}
 
 
+template <class T>
+using concurrent_vector = std::vector<T>;
+
+
+/// Dummy version of atomic.
+template <class T>
+class atomic
+{
+public:
+  atomic() : m_val() {}
+  operator T() const { return m_val; }
+  atomic& operator= (const T& val) { m_val = val; return *this; }
+
+private:
+  T m_val;
+};
+
+
 } // namespace AthContainers_detail
 
 
@@ -109,6 +130,7 @@ inline void fence_seq_cst() {}
 
 #include "boost/thread/shared_mutex.hpp"
 #include "boost/thread/tss.hpp"
+#include "tbb/concurrent_vector.h"
 #include <atomic>
 #include <mutex>
 #include <thread>
@@ -124,6 +146,9 @@ using boost::thread_specific_ptr;
 using std::mutex;
 using std::lock_guard;
 using std::thread;
+using std::atomic;
+
+using tbb::concurrent_vector;
 
 
 /**

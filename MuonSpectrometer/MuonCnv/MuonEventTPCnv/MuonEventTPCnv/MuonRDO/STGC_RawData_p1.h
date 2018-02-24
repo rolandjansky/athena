@@ -3,19 +3,11 @@
 */
 
 
-#ifndef STGC_RAWDATA_P1_TRK_H
-#define STGC_RAWDATA_P1_TRK_H
-
-//-----------------------------------------------------------------------------
-//
-// file:   STGC_RawData_p1.h
-//
-//-----------------------------------------------------------------------------
+#ifndef STGC_RAWDATA_P1_H
+#define STGC_RAWDATA_P1_H
 
 namespace Muon
 {
-  /** 
-  */
     class STGC_RawData_p1
     {
     public:

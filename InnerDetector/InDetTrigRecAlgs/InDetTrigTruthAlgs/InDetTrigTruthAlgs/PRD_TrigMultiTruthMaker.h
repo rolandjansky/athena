@@ -23,6 +23,7 @@
 #ifndef PRD_TRIGMULTITRUTHMAKER_H
 #define PRD_TRIGMULTITRUTHMAKER_H
 
+#include "InDetTruthInterfaces/IPRD_MultiTruthBuilder.h"
 #include <string>
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
@@ -62,7 +63,8 @@ namespace InDet {
     std::string m_PRDTruthNameSCT;
     std::string m_PRDTruthNameTRT;
 
-    ToolHandle<InDet::IPRD_MultiTruthBuilder> m_PRDTruthTool;
+    PublicToolHandle<InDet::IPRD_MultiTruthBuilder> m_PRDTruthTool
+       {this,"PRD_MultiTruthBuilder","InDet::PRD_MultiTruthBuilder",""};
 
     bool m_doTruth; //!< flag which governs whether the truth association is done or not
 

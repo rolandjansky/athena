@@ -25,6 +25,7 @@
 #ifndef PIXELCABLINGSVC_H
 #define PIXELCABLINGSVC_H
 
+#include "PixelFillCablingData.h"
 #include "PixelCabling/IPixelCablingSvc.h"
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -48,7 +49,6 @@ class PixelCablingData;
 class Identifier;
 class IdentifierHash;
 class StoreGateSvc;
-class PixelFillCablingData;
 class IBLParameterSvc;
 
 /**
@@ -87,7 +87,6 @@ class IBLParameterSvc;
  *
  */
 class PixelCablingSvc: virtual public IPixelCablingSvc, public AthService {
-
   public:
     /** Constructor */
     PixelCablingSvc(const std::string& name, ISvcLocator* svc ) ;
@@ -176,7 +175,7 @@ class PixelCablingSvc: virtual public IPixelCablingSvc, public AthService {
      * @return Enumerator moduletype, see IPixelCablingSvc.h
      */
     moduletype getModuleType(const Identifier& id);
-    pixeltype  getPixelType(Identifier *pixelId);
+//    pixeltype  getPixelType(Identifier *pixelId);
 
     ///@}
 
@@ -242,7 +241,7 @@ class PixelCablingSvc: virtual public IPixelCablingSvc, public AthService {
 
     unsigned int m_eta_module_offset;
     ///@}
-
+ 
 };
 
 #endif   // PIXELCABLINGSVC_H
