@@ -34,6 +34,7 @@ class ConstitTimeCutTool : public JetConstituentModifierBase{
   float m_timeCutSmallQ; 
   float m_etaMax;
 		
+  bool m_ignoreChargedPFOs;
 };
 
 

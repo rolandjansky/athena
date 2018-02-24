@@ -13,6 +13,9 @@ ConstitTimeCutTool::ConstitTimeCutTool(const std::string& name) : JetConstituent
   declareProperty("TimeCutLargeQ", m_timeCutLargeQ = 5);
   declareProperty("TimeCutSmallQ", m_timeCutSmallQ = 15);
   declareProperty("MaxEtaForCut", m_etaMax = 2.5);
+
+  declareProperty("IgnoreChargedPFO", m_ignoreChargedPFOs);
+
 }
 
 StatusCode ConstitTimeCutTool::initialize() {
@@ -22,6 +25,12 @@ StatusCode ConstitTimeCutTool::initialize() {
       ATH_MSG_ERROR("Incompatible configuration: ApplyToNeutralPFO=False -- what kind of pileup do you wish to suppress?");
       return StatusCode::FAILURE;
     }
+    else if(m_ignoreChargedPFOs && m_applyToChargedPFO) {
+      ATH_MSG_ERROR("Incompatible configuration: setting both IgnoreChargedPFO and ApplyToChargedPFO to true"
+		    <<  "will set all cPFOs to zero");
+      return StatusCode::FAILURE;
+    }
+
   } else {
     if(m_inputType!=xAOD::Type::CaloCluster) {
       ATH_MSG_ERROR("Incompatible configuration: ConstitTimeCutTool is not specialised for inputs of type "
@@ -86,7 +95,7 @@ StatusCode ConstitTimeCutTool::applyTimingCut(xAOD::IParticle* part, float time)
       // Apply variable timing cut based on he cluster quality
       // -- a larger spread is observed for clusters with small Q
       float timeCut = quality > m_qualityCut ? m_timeCutLargeQ : m_timeCutSmallQ;
-      if( abs(time) > timeCut ) {setEnergyPt( part, 0., 0. );}
+      if( abs(time) > timeCut ) { ATH_CHECK( setEnergyPt( part, 0., 0. )); }
     }
   }
 
