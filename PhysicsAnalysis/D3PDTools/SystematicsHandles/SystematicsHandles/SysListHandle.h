@@ -129,7 +129,7 @@ namespace EL
 
     /// \brief the regular expression for affecting systematics
   private:
-    std::string m_affectingRegex;
+    std::string m_affectingRegex {".*"};
 
     /// \brief the full affecting systematics including the inputs
   private:

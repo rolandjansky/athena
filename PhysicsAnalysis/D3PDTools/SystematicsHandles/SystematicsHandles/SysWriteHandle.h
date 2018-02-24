@@ -11,6 +11,7 @@
 // reports, feature suggestions, praise and complaints.
 
 
+#include <AsgTools/MsgStream.h>
 #include <PATInterfaces/SystematicSet.h>
 #include <SystematicsHandles/ISysHandleBase.h>
 #include <memory>
@@ -94,6 +95,13 @@ namespace EL
   private:
     std::function<StoreGateSvc*()> m_evtStoreGetter;
 #endif
+
+    /// \brief the message object we are using
+    ///
+    /// Note that this violates the ATLAS naming convention to be
+    /// compatible with the ATLAS messaging macros.
+  private:
+    std::function<MsgStream& (const MSG::Level lvl)> msg;
   };
 
 
@@ -157,6 +165,13 @@ namespace EL
   private:
     std::function<StoreGateSvc*()> m_evtStoreGetter;
 #endif
+
+    /// \brief the message object we are using
+    ///
+    /// Note that this violates the ATLAS naming convention to be
+    /// compatible with the ATLAS messaging macros.
+  private:
+    std::function<MsgStream& (const MSG::Level lvl)> msg;
   };
 }
 

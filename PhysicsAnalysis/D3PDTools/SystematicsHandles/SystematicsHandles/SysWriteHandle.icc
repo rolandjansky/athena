@@ -12,6 +12,7 @@
 // includes
 //
 
+#include <AsgTools/MessageCheck.h>
 #include <SystematicsHandles/Helpers.h>
 
 //
@@ -26,6 +27,7 @@ namespace EL
                  const std::string& propertyDescription)
     : m_outputName (propertyValue)
     , m_evtStoreGetter ([owner] () {return &*owner->evtStore();})
+    , msg ([owner] (const MSG::Level lvl) -> MsgStream& {return owner->msg (lvl);})
   {
     owner->declareProperty (propertyName, m_outputName, propertyDescription);
   }
@@ -40,6 +42,7 @@ namespace EL
     if (cache == m_outputNameCache.end())
     {
       std::string newName = detail::makeSystematicsName (m_outputName, sys);
+      ANA_MSG_INFO ("SysWriteHandle: " << newName << " (" << sys.name() << ")");
       m_outputNameCache.insert (std::make_pair (sys, newName));
       cache = m_outputNameCache.find (sys);
       assert (cache != m_outputNameCache.end());
@@ -70,6 +73,7 @@ namespace EL
                  const std::string& propertyDescription)
     : m_outputName (propertyValue)
     , m_evtStoreGetter ([owner] () {return &*owner->evtStore();})
+    , msg ([owner] (const MSG::Level lvl) -> MsgStream& {return owner->msg (lvl);})
   {
     owner->declareProperty (propertyName, m_outputName, propertyDescription);
   }
@@ -83,6 +87,7 @@ namespace EL
     if (cache == m_outputNameCache.end())
     {
       std::string newName = detail::makeSystematicsName (m_outputName, sys);
+      ANA_MSG_INFO ("SysWriteHandle: " << newName << " (" << sys.name() << ")");
       m_outputNameCache.insert (std::make_pair (sys, newName));
       cache = m_outputNameCache.find (sys);
       assert (cache != m_outputNameCache.end());

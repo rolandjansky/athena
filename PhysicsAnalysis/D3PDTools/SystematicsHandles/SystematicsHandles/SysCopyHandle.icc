@@ -12,6 +12,7 @@
 // includes
 //
 
+#include <AsgTools/MessageCheck.h>
 #include <SystematicsHandles/CopyHelpers.h>
 #include <SystematicsHandles/Helpers.h>
 
@@ -27,6 +28,7 @@ namespace EL
                  const std::string& propertyDescription)
     : m_inputName (propertyValue)
     , m_evtStoreGetter ([owner] () {return &*owner->evtStore();})
+    , msg ([owner] (const MSG::Level lvl) -> MsgStream& {return owner->msg (lvl);})
   {
     owner->declareProperty (propertyName, m_inputName, propertyDescription);
     owner->declareProperty (propertyName + "Regex", m_affectingRegex, "affecting systematics for " + propertyDescription);
@@ -43,6 +45,7 @@ namespace EL
     {
       std::string inputName = detail::makeSystematicsName (m_inputName, m_affectingRegex, sys);
       std::string outputName = detail::makeSystematicsName (m_outputName, sys);
+      ANA_MSG_INFO ("SysCopyHandle: " << inputName << " -> " << outputName << " (" << sys.name() << ")");
       m_nameCache.insert (std::make_pair (sys, std::make_tuple (inputName, outputName, outputName+"Aux.")));
       cache = m_nameCache.find (sys);
       assert (cache != m_nameCache.end());

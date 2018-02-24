@@ -11,6 +11,7 @@
 // reports, feature suggestions, praise and complaints.
 
 
+#include <AsgTools/MsgStream.h>
 #include <PATInterfaces/SystematicSet.h>
 #include <SystematicsHandles/ISysHandleBase.h>
 #include <string>
@@ -73,7 +74,7 @@ namespace EL
 
     /// \brief the regular expression for affecting systematics
   private:
-    std::string m_affectingRegex;
+    std::string m_affectingRegex {".*"};
 
     /// \brief the cache of names we use
   private:
@@ -96,6 +97,13 @@ namespace EL
   private:
     std::function<StoreGateSvc*()> m_evtStoreGetter;
 #endif
+
+    /// \brief the message object we are using
+    ///
+    /// Note that this violates the ATLAS naming convention to be
+    /// compatible with the ATLAS messaging macros.
+  private:
+    std::function<MsgStream& (const MSG::Level lvl)> msg;
   };
 }
 
