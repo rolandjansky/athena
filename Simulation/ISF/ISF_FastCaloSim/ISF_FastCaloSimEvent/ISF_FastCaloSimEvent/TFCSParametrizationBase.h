@@ -66,14 +66,25 @@ class TFCSParametrizationBase:public TNamed {
 public:
   TFCSParametrizationBase(const char* name=nullptr, const char* title=nullptr);
 
-  virtual bool is_match_pdgid(int /*id*/) const {return false;};
+  enum FCSStatusBits {
+     /// Set this bit in the TObject bit field if valid for all PDGID
+     kMatchAllPDGID = BIT(14)
+  };
+
+  virtual bool is_match_pdgid(int /*id*/) const {return TestBit(kMatchAllPDGID);};
   virtual bool is_match_Ekin(float /*Ekin*/) const {return false;};
   virtual bool is_match_eta(float /*eta*/) const {return false;};
 
   virtual bool is_match_Ekin_bin(int /*Ekin_bin*/) const {return false;};
   virtual bool is_match_calosample(int /*calosample*/) const {return false;};
 
-  virtual const std::set< int > &pdgid() const {return m_no_pdgid;};
+  virtual bool is_match_all_pdgid() const {return TestBit(kMatchAllPDGID);};
+  virtual bool is_match_all_Ekin() const {return false;};
+  virtual bool is_match_all_eta() const {return false;};
+  virtual bool is_match_all_Ekin_bin() const {return false;};
+  virtual bool is_match_all_calosample() const {return false;};
+
+  virtual const std::set< int > &pdgid() const {return s_no_pdgid;};
   virtual double Ekin_nominal() const {return 0;};
   virtual double Ekin_min() const {return 0;};
   virtual double Ekin_max() const {return 0;};
@@ -81,11 +92,20 @@ public:
   virtual double eta_min() const {return 100;};
   virtual double eta_max() const {return 100;};
 
-  virtual void set_geometry(ICaloGeometry*) {};
+  virtual void set_match_all_pdgid() {SetBit(kMatchAllPDGID);};
+  virtual void reset_match_all_pdgid() {ResetBit(kMatchAllPDGID);};
+
+  virtual void set_geometry(ICaloGeometry* geo);
+  
+  ///Some derived classes have daughter instances of TFCSParametrizationBase objects
+  /// The size() and operator[] methods give general access to these daughters
+  virtual unsigned int size() const {return 0;};
+  virtual const TFCSParametrizationBase* operator[](unsigned int /*ind*/) const {return nullptr;};
+  virtual TFCSParametrizationBase* operator[](unsigned int /*ind*/) {return nullptr;};
 
   // Do some simulation. Result should be returned in simulstate
   // Simulate all energies in calo layers for energy parametrizations
-  // Simulate one HIT for later shape parametrizations (TO BE DISCUSSED!)
+  // Simulate cells for shape simulation
   virtual void simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol);
 
   void Print(Option_t *option = "") const;
@@ -93,10 +113,11 @@ public:
 #if defined(__FastCaloSimStandAlone__)
 public:
   /// Update outputlevel
-  void setLevel(int level) {
+  virtual void setLevel(int level,bool recursive=false) {
     level = (level >= MSG::NUM_LEVELS) ?
       MSG::ALWAYS : (level<MSG::NIL) ? MSG::NIL : level;
     m_level = MSG::Level(level);
+    if(recursive) for(unsigned int i=0;i<size();++i) (*this)[i]->setLevel(m_level,recursive);
   }
   /// Retrieve output level
   MSG::Level level() const {return m_level;}
@@ -128,7 +149,7 @@ private:
 #endif  
   
 private:
-  static std::set< int > m_no_pdgid;
+  static std::set< int > s_no_pdgid;
 
   ClassDef(TFCSParametrizationBase,1)  //TFCSParametrizationBase
 };

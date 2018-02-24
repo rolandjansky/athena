@@ -14,12 +14,14 @@ TFCSHitCellMapping::TFCSHitCellMapping(const char* name, const char* title, ICal
   TFCSLateralShapeParametrizationHitBase(name,title),
   m_geo(geo)
 {
+  set_match_all_pdgid();
 }
 
 void TFCSHitCellMapping::simulate_hit(Hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/)
 {
   int cs=calosample();
   const CaloDetDescrElement* cellele=m_geo->getDDE(cs,hit.eta(),hit.phi());
+  ATH_MSG_DEBUG("HIT: cellele="<<cellele<<" E="<<hit.E()<<" cs="<<cs<<" eta="<<hit.eta()<<" phi="<<hit.phi());
   if(cellele) {
     simulstate.deposit(cellele,hit.E());
   } else {
@@ -30,8 +32,10 @@ void TFCSHitCellMapping::simulate_hit(Hit& hit,TFCSSimulationState& simulstate,c
 void TFCSHitCellMapping::Print(Option_t *option) const
 {
   TString opt(option);
-  if(!opt.IsWhitespace()) opt="";
+  bool shortprint=opt.Index("short")>=0;
+  bool longprint=msgLvl(MSG::DEBUG) || (msgLvl(MSG::INFO) && !shortprint);
+  TString optprint=opt;optprint.ReplaceAll("short","");
   TFCSLateralShapeParametrizationHitBase::Print(option);
 
-  ATH_MSG_INFO(opt <<"  geo="<<m_geo);
+  if(longprint) ATH_MSG_INFO(optprint <<"  geo="<<m_geo);
 }

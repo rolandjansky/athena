@@ -91,8 +91,10 @@ bool TFCSHistoLateralShapeParametrization::Initialize(const char* filepath, cons
 void TFCSHistoLateralShapeParametrization::Print(Option_t *option) const
 {
   TString opt(option);
-  if(!opt.IsWhitespace()) opt="";
+  bool shortprint=opt.Index("short")>=0;
+  bool longprint=msgLvl(MSG::DEBUG) || (msgLvl(MSG::INFO) && !shortprint);
+  TString optprint=opt;optprint.ReplaceAll("short","");
   TFCSLateralShapeParametrizationHitBase::Print(option);
 
-  ATH_MSG_INFO(opt <<"  Histo: "<<m_hist->GetName()<<" : "<<m_hist->GetTitle()<<" ptr="<<m_hist);
+  if(longprint) ATH_MSG_INFO(optprint <<"  Histo: "<<m_hist->GetName()<<" : "<<m_hist->GetTitle()<<" ptr="<<m_hist);
 }

@@ -74,3 +74,30 @@ void TFCSParametrization::set_eta_max(double max)
 {
   m_eta_max=max;
 }
+
+void TFCSParametrization::set_Ekin(const TFCSParametrizationBase& ref)
+{
+  set_Ekin_nominal(ref.Ekin_nominal());
+  set_Ekin_min(ref.Ekin_min());
+  set_Ekin_max(ref.Ekin_max());
+}
+
+void TFCSParametrization::set_eta(const TFCSParametrizationBase& ref)
+{
+  set_eta_nominal(ref.eta_nominal());
+  set_eta_min(ref.eta_min());
+  set_eta_max(ref.eta_max());
+}
+
+void TFCSParametrization::set_Ekin_eta(const TFCSParametrizationBase& ref)
+{
+  set_Ekin(ref);
+  set_eta(ref);
+}
+
+void TFCSParametrization::set_pdgid_Ekin_eta(const TFCSParametrizationBase& ref)
+{
+  set_Ekin_eta(ref);
+  set_pdgid(ref.pdgid());
+}
+
