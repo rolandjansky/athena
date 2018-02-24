@@ -305,10 +305,10 @@ StatusCode ACTSTrackingGeometry::buildTrackingGeometry() {
     Acts::PerigeeSurface surface(pv.position());
 
 
-    #pragma omp parallel num_threads(nthreads)
-    {
+    //#pragma omp parallel num_threads(nthreads)
+    //{
 
-      #pragma omp for
+      //#pragma omp for
       for(size_t pi=0;pi<pv.outgoingParticles().size();++pi) {
         const auto &particle = pv.outgoingParticles().at(pi);
       //for(const auto &particle : pv.outgoingParticles()) {
@@ -353,7 +353,8 @@ StatusCode ACTSTrackingGeometry::buildTrackingGeometry() {
     
           Acts::ExtrapolationCode eCode = exEngine->extrapolate(ecc);
 
-          int tid = omp_get_thread_num();
+          //int tid = omp_get_thread_num();
+          int tid = 0;
           // where do we push?
           results.at(tid).push_back(std::move(ecc));
           
@@ -372,7 +373,7 @@ StatusCode ACTSTrackingGeometry::buildTrackingGeometry() {
         }
       }
     } 
-  }
+  //}
 
   std::vector<Acts::ExtrapolationCell<Acts::TrackParameters>>   cCells;
   cCells.reserve(pgCfg.nParticles);

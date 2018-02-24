@@ -70,6 +70,14 @@ void
 Acts::GeoModelLayerBuilder::buildLayers(LayerVector& layersOutput, int type)
 {
 
+  if (type != 0) return {};
+
+  const InDetDD::SiNumerology* siNums = m_cfg.mng->getNumerology();
+
+  //size_t numLayers = siNums->numLayers();
+  //ACTS_VERBOSE("Numerology reports: " << numLayers << " layers");
+  //ACTS_VERBOSE("                    ")
+
   std::vector<std::shared_ptr<const GeoModelDetectorElement>> elements = getDetectorElements();
 
 
@@ -80,16 +88,19 @@ Acts::GeoModelLayerBuilder::buildLayers(LayerVector& layersOutput, int type)
 
     //auto element
       //= std::make_shared<const GeoModelDetectorElement>(siDetElement);
-
-    // std::cout << "ELEMENT: ";
-    // std::cout << element->bec() << " ";
-    // std::cout << element->layer_disk() << " ";;
-    // std::cout << element->eta_module() << " ";
-    // std::cout << element->phi_module() << " ";
-    // std::cout << "Z = " << element->surface().center().z() << std::endl;
-
-    //IdentityHelper id(element);
+    
+      //IdentityHelper id(element);
     IdentityHelper id = element->identityHelper();
+
+    std::cout << "ELEMENT: ";
+    std::cout << id->bec() << " ";
+    std::cout << id->layer_disk() << " ";;
+    std::cout << id->eta_module() << " ";
+    std::cout << id->phi_module() << " ";
+    std::cout << "Z = " << element->surface().center().z();
+    std::cout << " PHI = " << element->surface().center().phi();
+    std::cout << " R = " << element->surface().center().perp() << std::endl;
+
 
     // wrong subdetector
     //if (m_cfg.subdetector != element->det()) continue;
@@ -127,20 +138,6 @@ Acts::GeoModelLayerBuilder::buildLayers(LayerVector& layersOutput, int type)
 
     // push into correct layer
     layers.at(layerKey).push_back(&element->surface());
-
-    // layer_disk_max appears to be broken, determine empirically
-    // int elementLayer = static_cast<inz>(element->layer_disk());
-    // nLayers             = std::max(nLayers, elementLayer + 1);
-
-    // sort surface into corresponding layer vector
-    // resize layer surface vector if necessary
-    // if (layers.size() < elementLayer + 1) {
-    // layers.resize(elementLayer + 1);
-    //}
-
-    // std::vector<const Surface*>& layerElements
-    //= layers.at(elementLayer);
-    // layerElements.push_back(&element->surface());
   }
 
   for (const auto& layerPair : layers) {
@@ -151,9 +148,9 @@ Acts::GeoModelLayerBuilder::buildLayers(LayerVector& layersOutput, int type)
       // layers and extent are determined, build actual layer
       ProtoLayer pl(layerSurfaces);
       pl.envR    = {0, 0};
-      pl.envZ    = {20, 20};
+      pl.envZ    = {0, 0};
       auto layer = m_cfg.layerCreator->cylinderLayer(
-          layerSurfaces, equidistant, equidistant, pl);
+          layerSurfaces, 16, 20, pl);
 
       layersOutput.push_back(layer);
       // std::cout << (*layer->surfaceArray()) << std::endl;
@@ -165,11 +162,10 @@ Acts::GeoModelLayerBuilder::buildLayers(LayerVector& layersOutput, int type)
       //}
       ProtoLayer pl(layerSurfaces);
       pl.envR    = {0, 0};
-      pl.envZ    = {5, 5};
+      pl.envZ    = {0, 0};
       auto layer = m_cfg.layerCreator->discLayer(
           layerSurfaces, equidistant, equidistant, pl);
       layersOutput.push_back(layer);
-      // std::cout << (*layer->surfaceArray()) << std::endl;
     }
   }
 }

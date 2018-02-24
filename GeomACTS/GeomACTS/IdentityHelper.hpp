@@ -9,6 +9,10 @@
 #ifndef GeomACTS_IdentityHelper_h
 #define GeomACTS_IdentityHelper_h
 
+#ifndef ACTS_PARAMETER_DEFINITIONS_PLUGIN
+#define ACTS_PARAMETER_DEFINITIONS_PLUGIN "ACTS/Utilities/detail/DefaultParameterDefinitions.hpp"
+#endif
+
 namespace InDetDD {
   class SiDetectorElement;
 }
@@ -27,6 +31,8 @@ public:
   int phi_module() const;
   int eta_module() const;
   int side() const;
+  int phi_index() const;
+  int eta_index() const;
 
 private:
   const InDetDD::SiDetectorElement* m_elem;

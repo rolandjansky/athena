@@ -10,6 +10,10 @@
 #ifndef ACTS_GEOMODELPLUGIN_GEOMODELDETECTORELEMENT_H
 #define ACTS_GEOMODELPLUGIN_GEOMODELDETECTORELEMENT_H
 
+#ifndef ACTS_PARAMETER_DEFINITIONS_PLUGIN
+#define ACTS_PARAMETER_DEFINITIONS_PLUGIN "ACTS/Utilities/detail/DefaultParameterDefinitions.hpp"
+#endif
+
 #include <iostream>
 
 #include <boost/variant.hpp>

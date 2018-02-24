@@ -5,6 +5,10 @@
 #ifndef GeomACTS_ACTSTrackingGeometry_h
 #define GeomACTS_ACTSTrackingGeometry_h
 
+#ifndef ACTS_PARAMETER_DEFINITIONS_PLUGIN
+#define ACTS_PARAMETER_DEFINITIONS_PLUGIN "ACTS/Utilities/detail/DefaultParameterDefinitions.hpp"
+#endif
+
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 //#include "CLHEP/Geometry/Transform3D.h"

@@ -9,6 +9,10 @@
 #ifndef ACTFW_OBJ_PLUGINS_HELPER_H
 #define ACTFW_OBJ_PLUGINS_HELPER_H
 
+#ifndef ACTS_PARAMETER_DEFINITIONS_PLUGIN
+#define ACTS_PARAMETER_DEFINITIONS_PLUGIN "ACTS/Utilities/detail/DefaultParameterDefinitions.hpp"
+#endif
+
 #include <fstream>
 #include <vector>
 #include "ACTS/Utilities/Definitions.hpp"
