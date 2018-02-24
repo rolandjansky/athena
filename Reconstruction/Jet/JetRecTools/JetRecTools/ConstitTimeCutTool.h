@@ -1,37 +1,38 @@
-#ifndef JETRECTOOLS_CLUSTERTIMECUTTOOL_H
-#define JETRECTOOLS_CLUSTERTIMECUTTOOL_H
+#ifndef JETRECTOOLS_CONSTITTIMECUTTOOL_H
+#define JETRECTOOLS_CONSTITTIMECUTTOOL_H
 
-// \class ClusterTimeCutTool
+// \class ConstitTimeCutTool
 // \author Jennifer Roloff
 // \date October 2016
 //
-// This tool places cuts on (ECal) clusters based on their timing information
+// This tool places cuts on constituents based on their timing information
 
 
 #include "JetRecTools/JetConstituentModifierBase.h"
 #include "xAODBase/IParticleContainer.h"
-#include "xAODCaloEvent/CaloClusterContainer.h"
-#include "xAODCaloEvent/CaloCluster.h"
 
 #include <string>
 
-class ClusterTimeCutTool : public JetConstituentModifierBase{
-  ASG_TOOL_CLASS(ClusterTimeCutTool, IJetConstituentModifier)
+class ConstitTimeCutTool : public JetConstituentModifierBase{
+  ASG_TOOL_CLASS(ConstitTimeCutTool, IJetConstituentModifier)
 
   public:
   
-  ClusterTimeCutTool(const std::string& name);
-  ~ClusterTimeCutTool();
-  StatusCode process(xAOD::IParticleContainer* cont) const; 
-  StatusCode process(xAOD::CaloClusterContainer* cont) const; // MEN: Might need to rename this process
+  ConstitTimeCutTool(const std::string& name);
+
+  // Check that the configuration is sane
+  StatusCode initialize();
 
   private:
+  StatusCode process_impl(xAOD::IParticleContainer* cont) const; 
+  StatusCode applyTimingCut(xAOD::IParticle* part, float time) const; 
+
   // Properties.
   float m_lambdaCalDivide; 
   float m_qualityCut; 
-  float m_timeCut1; 
-  float m_timeCut2; 
-
+  float m_timeCutLargeQ;
+  float m_timeCutSmallQ; 
+  float m_etaMax;
 		
 };
 
