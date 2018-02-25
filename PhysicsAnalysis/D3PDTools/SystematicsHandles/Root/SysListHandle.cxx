@@ -17,7 +17,6 @@
 #include <AsgTools/MessageCheck.h>
 #include <AsgTools/StatusCode.h>
 #include <PATInterfaces/SystematicSet.h>
-#include <RootCoreUtils/Assert.h>
 #include <SystematicsHandles/ISysHandleBase.h>
 #include <regex>
 

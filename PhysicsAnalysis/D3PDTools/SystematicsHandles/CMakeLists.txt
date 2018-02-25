@@ -10,7 +10,8 @@ atlas_depends_on_subdirs(
 atlas_add_library( SystematicsHandlesLib
    SystematicsHandles/*.h SystematicsHandles/*.icc Root/*.cxx
    PUBLIC_HEADERS SystematicsHandles
-   LINK_LIBRARIES AsgTools AnaAlgorithmLib PATCoreLib PATInterfaces xAODBase )
+   LINK_LIBRARIES AsgTools AnaAlgorithmLib PATCoreLib PATInterfaces xAODBase xAODCore
+   PRIVATE_LINK_LIBRARIES RootCoreUtils )
 
 atlas_add_dictionary( SystematicsHandlesDict
    SystematicsHandles/SystematicsHandlesDict.h

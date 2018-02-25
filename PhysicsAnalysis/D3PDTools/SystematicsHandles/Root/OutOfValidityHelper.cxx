@@ -15,7 +15,6 @@
 #include <AsgTools/MessageCheck.h>
 #include <AsgTools/StatusCode.h>
 #include <PATInterfaces/CorrectionCode.h>
-#include <RootCoreUtils/Assert.h>
 #include <SystematicsHandles/SelectionHelpers.h>
 
 //
@@ -88,8 +87,9 @@ namespace EL
         ANA_MSG_WARNING ("encountered OutOfValidity: " << context);
         return StatusCode::SUCCESS;
       }
-      assert (false);
     }
+    ANA_MSG_ERROR ("invalid enum value encountered " << __FILE__ << ":" << __LINE__);
+    return StatusCode::FAILURE;
   }
 
 

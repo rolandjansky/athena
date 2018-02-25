@@ -14,7 +14,6 @@
 
 #include <SystematicsHandles/Helpers.h>
 
-#include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/StringUtil.h>
 #include <PATInterfaces/SystematicSet.h>
 #include <regex>

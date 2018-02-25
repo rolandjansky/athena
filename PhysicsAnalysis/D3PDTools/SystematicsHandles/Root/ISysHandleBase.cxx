@@ -14,8 +14,6 @@
 
 #include <SystematicsHandles/ISysHandleBase.h>
 
-#include <RootCoreUtils/Assert.h>
-
 //
 // method implementations
 //
