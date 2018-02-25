@@ -102,7 +102,7 @@ namespace EL
 
 /// \brief a helper check macro to work with \ref OutOfValidityHelper
 #define ANA_CHECK_CORRECTION(helper,object,expr)                \
-  if ((helper).check ((object), (expr), #expr).isFailure())     \
-    return StatusCode::FAILURE;
+  { if ((helper).check ((object), (expr), #expr).isFailure())   \
+      return StatusCode::FAILURE; }
 
 #endif

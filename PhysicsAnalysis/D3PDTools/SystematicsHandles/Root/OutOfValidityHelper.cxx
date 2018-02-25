@@ -50,6 +50,7 @@ namespace EL
       }
     } else
     {
+      m_action = Action::SUCCESS;
       m_accessor = std::make_unique<const SG::AuxElement::Accessor<SelectionType> >
         (m_decoName);
     }
@@ -85,7 +86,7 @@ namespace EL
         return StatusCode::SUCCESS;
       case Action::WARNING:
         ANA_MSG_WARNING ("encountered OutOfValidity: " << context);
-        return StatusCode::FAILURE;
+        return StatusCode::SUCCESS;
       }
       assert (false);
     }
