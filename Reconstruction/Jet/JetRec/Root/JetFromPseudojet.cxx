@@ -75,10 +75,16 @@ buildAndSetEMScaleMom(xAOD::Jet* jet,
               (inputtype == xAOD::JetInput::EMTopoOriginCSSK) ||
               (inputtype == xAOD::JetInput::EMTopoOriginVorSK) ||
               (inputtype == xAOD::JetInput::EMTopoOriginTime) ||
+              (inputtype == xAOD::JetInput::EMTopoOriginTimeSK) ||
+              (inputtype == xAOD::JetInput::EMTopoOriginTimeCSSK) ||
+              (inputtype == xAOD::JetInput::EMTopoOriginTimeVorSK) ||
               (inputtype == xAOD::JetInput::EMPFlowSK) ||
               (inputtype == xAOD::JetInput::EMPFlowCSSK) ||
               (inputtype == xAOD::JetInput::EMPFlowVorSK) ||
-              (inputtype == xAOD::JetInput::EMPFlowTime)
+              (inputtype == xAOD::JetInput::EMPFlowTime) ||
+              (inputtype == xAOD::JetInput::EMPFlowTimeSK) ||
+              (inputtype == xAOD::JetInput::EMPFlowTimeCSSK) ||
+              (inputtype == xAOD::JetInput::EMPFlowTimeVorSK)
             ) {
     // fetch and sum the uncalibrated constituent momenta
     xAOD::JetConstituentVector vec = jet->getConstituents();
