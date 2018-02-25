@@ -8,19 +8,19 @@
 //======= TFCSParametrization =========
 //=============================================
 
-TFCSParametrization::TFCSParametrization(const char* name, const char* title):TFCSParametrizationBase(name,title),m_Ekin_nominal(0),m_Ekin_min(0),m_Ekin_max(14000000),m_eta_nominal(0),m_eta_min(-10),m_eta_max(10)
+TFCSParametrization::TFCSParametrization(const char* name, const char* title):TFCSParametrizationBase(name,title),m_Ekin_nominal(init_Ekin_nominal),m_Ekin_min(init_Ekin_min),m_Ekin_max(init_Ekin_max),m_eta_nominal(init_eta_nominal),m_eta_min(init_eta_min),m_eta_max(init_eta_max)
 {
 }
 
 void TFCSParametrization::clear()
 {
   m_pdgid.clear();
-  m_Ekin_nominal=0;
-  m_Ekin_min=0;
-  m_Ekin_max=14000000;
-  m_eta_nominal=0;
-  m_eta_min=-10;
-  m_eta_max=10;
+  m_Ekin_nominal=init_Ekin_nominal;
+  m_Ekin_min=init_Ekin_min;
+  m_Ekin_max=init_Ekin_max;
+  m_eta_nominal=init_eta_nominal;
+  m_eta_min=init_eta_min;
+  m_eta_max=init_eta_max;
 }
 
 void TFCSParametrization::set_pdgid(int id)

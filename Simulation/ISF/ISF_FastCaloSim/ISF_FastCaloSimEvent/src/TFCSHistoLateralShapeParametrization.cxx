@@ -40,7 +40,7 @@ void TFCSHistoLateralShapeParametrization::simulate_hit(Hit& hit,TFCSSimulationS
 
   double alpha, r;
   
-  m_hist->GetRandom2(r,alpha);
+  m_hist->GetRandom2(alpha,r);
   const double delta_eta_mm = r * cos(alpha);
   const double delta_phi_mm = r * sin(alpha);
 
@@ -52,6 +52,8 @@ void TFCSHistoLateralShapeParametrization::simulate_hit(Hit& hit,TFCSSimulationS
 
   hit.eta() = center_eta + delta_eta;
   hit.phi() = center_phi + delta_phi;
+
+  ATH_MSG_DEBUG("HIT: E="<<hit.E()<<" cs="<<cs<<" eta="<<hit.eta()<<" phi="<<hit.phi()<<" r="<<r<<" alpha="<<alpha);
 }
 
 
