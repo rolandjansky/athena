@@ -1,4 +1,3 @@
-Warning in <TInterpreter::ReadRootmapFile>: class  Event found in libG4AtlasControlDict.so  is already in libtest_GPyTestDict.so 
 Preloading tcmalloc_minimal.so
 Athena               INFO including file "AthenaCommon/Preparation.py"
 Athena               INFO including file "AthenaCommon/Bootstrap.py"
@@ -33,10 +32,11 @@ PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'Conn
 PoolSvc              INFO Frontier compression level set to 5
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc             DEBUG OutputLevel is 2
-PoolSvc              INFO Re-initializing PoolSvc
+PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc              INFO POOL WriteCatalog is file:Catalog1.xml
 XMLFileCatalog Info Connecting to the catalog
 PoolXMLFileCatalog Info Xerces-c initialization Number 0
+PoolSvc              INFO Re-initializing PoolSvc
 Stream1             DEBUG input handles: 0
 Stream1             DEBUG output handles: 0
 Stream1             DEBUG Data Deps for Stream1
@@ -1125,9 +1125,6 @@ SimplePoolFile4.root Debug --->Reading Param:PFN=[SimplePoolFile4.root]
 SimplePoolFile4.root Debug --->Reading Param:POOL_VSN=[1.1]
 SimplePoolFile4.root Debug --->Reading Param:FORMAT_VSN=[1.1]
 ##Params Debug No objects passing selection criteria... Container has 4 Entries in total.
-RootDatabase.setOption Debug Request TREE_AUTO_FLUSH 
-RootDatabase.setOption Debug File name SimplePoolFile4.root
-RootDatabase.setOption Debug Demand to set AUTO_FLUSH for TTree: POOLContainer with value: 0
 Stream1              INFO Identified a total of 1 objects to write out:
 Stream1              INFO 0: ExampleHitContainer#PedestalAppendData#PedestalAppendData
 SimplePoolFile4.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] ConditionsContainer(ExampleHitContainer_p1/PedestalAppendData)
@@ -1138,7 +1135,6 @@ SimplePoolFile4.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLC
 ???? Debug Opened container POOLContainerForm(DataHeaderForm) of type ROOT_Tree
 SimplePoolFile4.root Debug --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLContainer(DataHeader)
 ???? Debug Opened container POOLContainer(DataHeader) of type ROOT_Tree
-POOLContainer(DataHeader) Debug Setting AUTO_FLUSH for TTree: POOLContainer to value: 0
 Stream1              INFO Written 1 objects to output stream
 Stream1              INFO Objects NOT registered in IOV database
 ReadData             INFO in finalize()
