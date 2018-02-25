@@ -82,8 +82,8 @@ class IPixelCablingSvc: virtual public IInterface {
     enum moduletype {DBM, IBL, PIX_BARREL, PIX_ENDCAP, NONE};
     virtual moduletype getModuleType(const Identifier& id) = 0;
 
-    enum pixeltype {NORMAL, LONG, GANGED};
-    virtual pixeltype getPixelType(Identifier *pixelId) = 0;
+//    enum pixeltype {NORMAL, LONG, GANGED};
+//    virtual pixeltype getPixelType(Identifier *pixelId) = 0;
 
     virtual int getHitDiscCnfg(const uint32_t robId, const int link) = 0;
     virtual int getHitDiscCnfg(Identifier* pixelId) = 0;
