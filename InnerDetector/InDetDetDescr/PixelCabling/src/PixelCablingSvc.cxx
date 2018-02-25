@@ -1040,6 +1040,7 @@ PixelCablingSvc::moduletype PixelCablingSvc::getModuleType(const Identifier& id)
   return isType;
 }
 
+/*
 PixelCablingSvc::pixeltype PixelCablingSvc::getPixelType(Identifier *pixelId) {
   Identifier offlineId = m_idHelper->wafer_id(*pixelId);
   uint32_t row = getRow(pixelId,offlineId);
@@ -1084,7 +1085,7 @@ PixelCablingSvc::pixeltype PixelCablingSvc::getPixelType(Identifier *pixelId) {
   }
   return NORMAL;
 }
-
+*/
 
 ////////////////////////
 // getHitDiscCnfg - wrapper function to PixelCablingData::getHitDiscCnfg
