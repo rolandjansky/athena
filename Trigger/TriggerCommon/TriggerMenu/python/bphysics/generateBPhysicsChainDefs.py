@@ -106,7 +106,10 @@ def _addTopoInfo(theChainDef,chainDict,doAtL2AndEF=True, doL2MultiTrack = False)
     elif (ntopos ==1) & (topoAlgs[0] in SameConfigTopos):
         theChainDef = bSingleOptionTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom, doL2MultiTrack)
     else:
-        theChainDef = bMultipleOptionTopos(theChainDef,chainDict,inputTEsL2, inputTEsEF, topoStartFrom, doL2MultiTrack)
+        if 'PEB' in topoAlgs:
+           theChainDef = bMultipleOptionTopos(theChainDef,chainDict,inputTEsL2, inputTEsEF, topoStartFrom, doL2MultiTrack, True)
+        else:
+           theChainDef = bMultipleOptionTopos(theChainDef,chainDict,inputTEsL2, inputTEsEF, topoStartFrom, doL2MultiTrack, False)
 
     return theChainDef
 
@@ -584,7 +587,7 @@ def bSingleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStart
 
 ###################################################################################
 ###################################################################################
-def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStartFrom, doL2MultiTrack = False):
+def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoStartFrom, doL2MultiTrack = False, doPEB = False):
 
     topoAlgs = chainDict["topo"]
     TEname = findL2teBaseName(chainDict['chainName'],topoAlgs)
@@ -847,6 +850,14 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
         from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_Jpsi_noId
         from TrigBphysHypo.TrigEFBMuMuFexConfig import EFBMuMuFex_noId
         from TrigBphysHypo.TrigEFBMuMuHypoConfig import EFBMuMuHypo_Jpsi_noId
+        
+        if doPEB:
+            from TrigDetCalib.TrigDetCalibConfig import TrigCheckForMuons_peb075
+            bphysROBWriter = TrigCheckForMuons_peb075("bphysROBWriter_peb075")
+            EFTEname = "EF_" + chainDict['chainName']+"_1"
+            inputTEsEF = theChainDef.signatureList[-1]['listOfTriggerElements']
+            theChainDef.addSequence([bphysROBWriter],inputTEsEF, EFTEname)
+            theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFTEname]+inputTEsEF)
 
         if 'noL1' in chainDict['chainName'] : # OI then L2 is not available and L2Fex makes no sense
             L2Fex = None
