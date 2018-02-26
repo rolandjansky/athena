@@ -4,7 +4,7 @@ class SCT_FlaggedConditionRHSvcSetup:
     "Class to simplify setup of SCT_FlaggedConditionRHSvc"
 
     def __init__(self):
-        self.svcName = "InDetSCT_FlaggedConditionRHSvc"
+        self.svcName = "InDetSCT_FlaggedConditionSvc"
         self.svc = None
 
     def setSvc(self):

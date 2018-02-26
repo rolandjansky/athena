@@ -18,7 +18,6 @@
 #include "AthenaBaseComps/AthService.h"
 #include "SCT_ConditionsServices/ISCT_FlaggedConditionSvc.h"
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
-#include "SCT_ConditionsData/SCT_FlaggedCondData.h"
 #include "StoreGate/ReadHandleKey.h"
 
 // Forward declarations

@@ -24,7 +24,6 @@
 // Local
 #include "SCT_ConditionsServices/ISCT_FlaggedConditionSvc.h"
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
-#include "SCT_ConditionsData/SCT_FlaggedCondData.h"
 
 // Forward declarations
 template <class TYPE> class SvcFactory;
@@ -93,7 +92,7 @@ public:
   inline int numBadIds() const {return m_badIds.size();}
 
   /**Get IdentifierHashs ofwafers flagged as bad + reason (per event)*/
-  inline const std::map<IdentifierHash, std::string>* getBadIds() const {return &m_badIds;}
+  inline const SCT_FlaggedCondData* getBadIds() const {return &m_badIds;}
 
   /**Reset between events*/
   virtual void resetBadIds();
