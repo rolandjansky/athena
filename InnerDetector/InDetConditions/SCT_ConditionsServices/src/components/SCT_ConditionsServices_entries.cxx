@@ -11,6 +11,7 @@
 #include "../SCT_MonitorConditionsSvc.h"
 
 #include "../SCT_FlaggedConditionSvc.h"
+#include "../SCT_FlaggedConditionRHSvc.h"
 
 #include "../SCT_ReadCalibDataSvc.h"
 
@@ -37,6 +38,7 @@ DECLARE_COMPONENT( SCT_DCSConditionsSvc )
 DECLARE_COMPONENT( SCT_ByteStreamErrorsSvc )
 DECLARE_COMPONENT( SCT_MonitorConditionsSvc )
 DECLARE_COMPONENT( SCT_FlaggedConditionSvc )
+DECLARE_COMPONENT( SCT_FlaggedConditionRHSvc )
 DECLARE_COMPONENT( SCT_ReadCalibDataSvc )
 DECLARE_COMPONENT( SCT_ReadCalibChipDataSvc )
 DECLARE_COMPONENT( SCT_SiliconConditionsSvc )
