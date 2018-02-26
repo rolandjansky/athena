@@ -37,8 +37,6 @@ PuppiWeightTool::PuppiWeightTool(const std::string& name) : JetConstituentModifi
 StatusCode PuppiWeightTool::initialize() {
   ATH_MSG_INFO("Initializing tool " << name() << "...");
   
-  //ATH_CHECK(m_vertexContainer_key.initialize());
-
   return StatusCode::SUCCESS;
 }
 
