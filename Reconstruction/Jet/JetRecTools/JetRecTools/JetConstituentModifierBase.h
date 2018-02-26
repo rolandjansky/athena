@@ -36,7 +36,7 @@ public:
     return StatusCode::FAILURE;
   }
 
-  int execute() const override final;
+  int execute() const;
 
 protected:
   // Define four-momentum setters that will handle type-specific operations
