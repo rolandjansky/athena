@@ -120,8 +120,9 @@ namespace met {
       declareProperty("ConfigJetPhiResoFile", m_configJetPhiResoFile  = "jet_unc.root" );
 
       // properties to delete eventually
-      declareProperty("IsData",      m_isData     = false   );
-      declareProperty("IsAFII",      m_isAFII     = false   );
+      declareProperty("IsDataJet",   m_isDataJet     = true    );
+      declareProperty("IsDataMuon",  m_isDataMuon    = true    );
+      declareProperty("IsAFII",      m_isAFII        = false   );
 
       // Phi resolution
       std::string configpath  = PathResolverFindCalibFile(m_configPrefix+m_configJetPhiResoFile);
@@ -159,22 +160,26 @@ namespace met {
 	m_jerTool.setTypeAndName("JERTool/STAutoConf_"+toolName);
 	ATH_CHECK(m_jerTool.setProperty("PlotFileName", "JetResolution/Prerec2015_xCalib_2012JER_ReducedTo9NP_Plots_v2.root"));
 	ATH_CHECK(m_jerTool.setProperty("CollectionName", jetcoll));
+	ATH_CHECK(m_jerTool.retrieve());
 
 	ATH_MSG_INFO("Set up MuonCalibrationAndSmearing tools");
 	toolName = "MuonCalibrationAndSmearingTool";
 	m_muonCalibrationAndSmearingTool.setTypeAndName("CP::MuonCalibrationAndSmearingTool/STAutoConf_"+toolName);
+	ATH_CHECK(m_muonCalibrationAndSmearingTool.retrieve());
 
 	ATH_MSG_DEBUG( "Initialising EgcalibTool " );
 	toolName = "EgammaCalibrationAndSmearingTool";
 	m_egammaCalibTool.setTypeAndName("CP::EgammaCalibrationAndSmearingTool/STAutoConf_" + toolName);
-	ATH_CHECK(m_egammaCalibTool.setProperty("ESModel", "es2017_R21_PRE"));
+	ATH_CHECK(m_egammaCalibTool.setProperty("ESModel", "es2017_R21_v0"));
 	ATH_CHECK(m_egammaCalibTool.setProperty("decorrelationModel", "1NP_v1"));
 	if(m_isAFII) ATH_CHECK(m_egammaCalibTool.setProperty("useAFII", 1));
 	else ATH_CHECK(m_egammaCalibTool.setProperty("useAFII", 0));
+	ATH_CHECK( m_egammaCalibTool.retrieve() );
 
 	toolName = "TauPerfTool";
 	m_tCombinedP4FromRecoTaus.setTypeAndName("CombinedP4FromRecoTaus/STAutoConf_" + toolName);
 	ATH_CHECK(m_tCombinedP4FromRecoTaus.setProperty("WeightFileName", "CalibLoopResult_v04-04.root"));
+	ATH_CHECK( m_tCombinedP4FromRecoTaus.retrieve() );
 
         return StatusCode::SUCCESS;
     }
@@ -423,7 +428,7 @@ namespace met {
 
     xAOD::Muon *my_muon = NULL;
     ATH_CHECK(m_muonCalibrationAndSmearingTool->correctedCopy(*muon,my_muon)==CP::CorrectionCode::Ok);
-    pt_reso=m_muonCalibrationAndSmearingTool->expectedResolution(dettype,*my_muon,!m_isData);
+    pt_reso=m_muonCalibrationAndSmearingTool->expectedResolution(dettype,*my_muon,!m_isDataMuon);
     if(m_doPhiReso) phi_reso = my_muon->pt()*0.001;
     ATH_MSG_VERBOSE("muon: " << pt_reso << " dettype: " << dettype << " " << muon->pt() << " " << muon->p4().Eta() << " " << muon->p4().Phi());
     delete my_muon;
@@ -462,8 +467,8 @@ namespace met {
   void METSignificance::AddJet(const xAOD::IParticle* obj, float &pt_reso, float &phi_reso){
 
     const xAOD::Jet* jet(static_cast<const xAOD::Jet*>(obj));
-    if(m_isData) pt_reso = m_jerTool->getRelResolutionData(jet);
-    else         pt_reso = m_jerTool->getRelResolutionMC(jet);
+    if(m_isDataJet) pt_reso = m_jerTool->getRelResolutionData(jet);
+    else            pt_reso = m_jerTool->getRelResolutionMC(jet);
     ATH_MSG_VERBOSE("jet: " << pt_reso  << " jetpT: " << jet->pt() << " " << jet->p4().Eta() << " " << jet->p4().Phi());
     //
     // Add extra uncertainty for PU jets based on JVT

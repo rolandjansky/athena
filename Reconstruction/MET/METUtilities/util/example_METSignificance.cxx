@@ -87,9 +87,9 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
   ANA_CHECK( ASG_MAKE_ANA_TOOL( jetCalibrationTool, JetCalibrationTool ) );
   jetCalibrationTool.setName("jetCalibTool");
   ANA_CHECK( jetCalibrationTool.setProperty("JetCollection", jetType) );
-  ANA_CHECK( jetCalibrationTool.setProperty("ConfigFile", "JES_MC15cRecommendation_May2016_rel21.config") );
-  ANA_CHECK( jetCalibrationTool.setProperty("CalibSequence", "JetArea_Residual_EtaJES_GSC") );
-  ANA_CHECK( jetCalibrationTool.setProperty("IsData", false) );
+  ANA_CHECK( jetCalibrationTool.setProperty("ConfigFile", "JES_data2017_2016_2015_Recommendation_Feb2018_rel21.config") );
+  ANA_CHECK( jetCalibrationTool.setProperty("CalibSequence", "JetArea_Residual_EtaJES_GSC_Insitu") );
+  ANA_CHECK( jetCalibrationTool.setProperty("IsData", true) );
   ANA_CHECK( jetCalibrationTool.retrieve() );
 
   //this test file should work.  Feel free to contact me if there is a problem with the file.

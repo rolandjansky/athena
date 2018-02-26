@@ -147,7 +147,8 @@ namespace met {
     bool   m_doPhiReso;
     bool   m_applyBias;
 
-    bool m_isData;
+    bool m_isDataJet;
+    bool m_isDataMuon;
     bool m_isAFII;
 
     double m_scalarBias;
