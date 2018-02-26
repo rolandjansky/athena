@@ -20,7 +20,6 @@
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/ThreadGaudi.h"
 #include "StoreGate/StoreGateSvc.h"
 
 
@@ -68,11 +67,8 @@ void MakeLArCellFromRaw::initialize( const LArRoI_Map* roiMap ,
 
   const CaloDetDescrManager* man = CaloDetDescrManager::instance();
 
-  ThreadGaudi* threadGaudi = ThreadGaudi::instance();
-
   IToolSvc* p_toolSvc;
-  StatusCode status = svcLoc->service( "ToolSvc"+threadGaudi->getThreadID(),p_toolSvc );
-  //StatusCode status   = svcLoc->service( "ToolSvc",p_toolSvc  );
+  StatusCode status = svcLoc->service( "ToolSvc",p_toolSvc );
   if(status.isFailure())
   {
     log <<MSG::ERROR << "cannot find ToolSvc in MakeLArCellFromRaw " << endmsg;

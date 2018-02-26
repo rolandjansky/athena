@@ -19,7 +19,6 @@ PURPOSE: Data preparation from Cells
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/ThreadGaudi.h"
 
 // should use this, but needs fixes
 //#include "TrigT2CaloCommon/ITrigDataAccess.h" 
@@ -86,7 +85,7 @@ StatusCode T2CaloJetGridFromCells::initialize()
     }
     else{
       
-      std::string prefix = getGaudiThreadGenericName(name()) + ":";
+      std::string prefix = name() + ":";
 
      // Define now the timers:
       std::string label = prefix+"LArUnpck";
