@@ -120,7 +120,7 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
   // reconstruct the MET
   asg::AnaToolHandle<IMETMaker> metMaker;
   metMaker.setTypeAndName("met::METMaker/metMaker");
-  ANA_CHECK( metMaker.setProperty("DoMuonEloss", true) );
+  ANA_CHECK( metMaker.setProperty("DoMuonEloss", false) );
   ANA_CHECK( metMaker.setProperty("DoRemoveMuonJets", true) );
   ANA_CHECK( metMaker.setProperty("DoSetMuonJetEMScale", true) );
   ANA_CHECK( metMaker.retrieve() );
@@ -241,7 +241,7 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
 				    calibJets,       //using this jet collection to calculate jet met
 				    coreMet,         //core met container
 				    metMap,          //with this association map
-				    false            //don't apply jet jvt cut
+				    true             //apply jet jvt cut
 				    )
 	     );
 
