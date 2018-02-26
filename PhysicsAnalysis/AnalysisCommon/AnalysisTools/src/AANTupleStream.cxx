@@ -456,7 +456,7 @@ StatusCode AANTupleStream::getRef(CLID id, const std::string& key, std::string& 
       ATH_MSG_ERROR 
 	("Could not get string from IOpaqueAddress for clid " << id
 	 << " " << key
-	 << " is BAD_STORAGE_TYPE: "<< (sc == IConverter::BAD_STORAGE_TYPE));
+	 << " is BAD_STORAGE_TYPE: "<< (sc == IConversionSvc::Status::BAD_STORAGE_TYPE));
       return( StatusCode::FAILURE);
     }
 		    
