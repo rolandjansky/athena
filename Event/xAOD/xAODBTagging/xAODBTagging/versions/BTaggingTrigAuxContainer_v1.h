@@ -166,12 +166,12 @@ namespace xAOD {
      // std::vector< std::vector< float > > rnnip_pTFrac;
      // std::vector< std::vector< float > > rnnip_dR;
      // std::vector< std::vector< float > > rnnip_dEta;
-     std::vector< std::vector< bool  > > rnnip_fromV0;
-     std::vector< std::vector< int   > > rnnip_grade;
+     std::vector< std::vector< float > > rnnip_fromV0;
+     std::vector< std::vector< float > > rnnip_grade;
 
 
      std::vector< double > SMT_discriminant;
-     std::vector< std::vector< ElementLink< xAOD::MuonContainer > > > SMT_mu_link;
+     std::vector< ElementLink< xAOD::MuonContainer > > SMT_mu_link;
 
      // std::vector<float> SMT_mu_pt;
      // std::vector<float> SMT_dR;     
@@ -200,18 +200,19 @@ namespace xAOD {
      std::vector< double >  DL1mu_pb;
      std::vector< double >  DL1mu_pc;
 
-     std::vector< int > JetFitter_nTrk_vtx1; 
-     std::vector< float > JetFitter_mass_first_vtx;
-     std::vector< float > JetFitter_e_first_vtx;
-     std::vector< float > JetFitter_e_frac_vtx1;
-     std::vector< float > JetFitter_closestVtx_L3D;
-     std::vector< float > JetFitter_JF_Lxy1;
-     std::vector< float > JetFitter_vtx1_MaxTrkRapidity_jf_path;
-     std::vector< float > JetFitter_vtx1_AvgTrkRapidity_jf_path;
-     std::vector< float > JetFitter_vtx1_MinTrkRapidity_jf_path;
-     std::vector< float > JetFitter_MaxTrkRapidity_jf_path;
-     std::vector< float > JetFitter_MinTrkRapidity_jf_path;
-     std::vector< float > JetFitter_AvgTrkRapidity_jf_path;
+
+     std::vector< int > nTrk_vtx1; 
+     std::vector< float > mass_first_vtx;
+     std::vector< float > e_first_vtx;
+     std::vector< float > e_frac_vtx1;
+     std::vector< float > closestVtx_L3D;
+     std::vector< float > JF_Lxy1;
+     std::vector< float > vtx1_MaxTrkRapidity_jf_path;
+     std::vector< float > vtx1_AvgTrkRapidity_jf_path;
+     std::vector< float > vtx1_MinTrkRapidity_jf_path;
+     std::vector< float > MaxTrkRapidity_jf_path;
+     std::vector< float > MinTrkRapidity_jf_path;
+     std::vector< float > AvgTrkRapidity_jf_path;
      
    }; // class BTaggingTrigAuxContainer_v1
 

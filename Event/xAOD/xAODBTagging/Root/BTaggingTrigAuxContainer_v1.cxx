@@ -130,10 +130,12 @@ namespace xAOD {
      AUX_VARIABLE( rnnip_d0sig );
      AUX_VARIABLE( rnnip_z0 );
      AUX_VARIABLE( rnnip_z0sig );
+
      // AUX_VARIABLE( rnnip_dphi );
      // AUX_VARIABLE( rnnip_pTFrac );
-     // AUX_VARIABLE( rnnip_dR )
+     // AUX_VARIABLE( rnnip_dR );
      // AUX_VARIABLE( rnnip_dEta );
+
      AUX_VARIABLE( rnnip_fromV0 );
      AUX_VARIABLE( rnnip_grade );
 
@@ -169,19 +171,20 @@ namespace xAOD {
      AUX_VARIABLE( DL1mu_pu );
      AUX_VARIABLE( DL1mu_pc );
 
+
      // Additional JetFitter variables for DL1
-     AUX_VARIABLE( JetFitter_nTrk_vtx1 );
-     AUX_VARIABLE( JetFitter_mass_first_vtx );
-     AUX_VARIABLE( JetFitter_e_first_vtx );
-     AUX_VARIABLE( JetFitter_e_frac_vtx1 );
-     AUX_VARIABLE( JetFitter_closestVtx_L3D );
-     AUX_VARIABLE( JetFitter_JF_Lxy1 );
-     AUX_VARIABLE( JetFitter_vtx1_MaxTrkRapidity_jf_path );
-     AUX_VARIABLE( JetFitter_vtx1_AvgTrkRapidity_jf_path );
-     AUX_VARIABLE( JetFitter_vtx1_MinTrkRapidity_jf_path );
-     AUX_VARIABLE( JetFitter_MaxTrkRapidity_jf_path );
-     AUX_VARIABLE( JetFitter_MinTrkRapidity_jf_path );
-     AUX_VARIABLE( JetFitter_AvgTrkRapidity_jf_path );
+     AUX_VARIABLE( nTrk_vtx1 );
+     AUX_VARIABLE( mass_first_vtx );
+     AUX_VARIABLE( e_first_vtx );
+     AUX_VARIABLE( e_frac_vtx1 );
+     AUX_VARIABLE( closestVtx_L3D );
+     AUX_VARIABLE( JF_Lxy1 );
+     AUX_VARIABLE( vtx1_MaxTrkRapidity_jf_path );
+     AUX_VARIABLE( vtx1_AvgTrkRapidity_jf_path );
+     AUX_VARIABLE( vtx1_MinTrkRapidity_jf_path );
+     AUX_VARIABLE( MaxTrkRapidity_jf_path );
+     AUX_VARIABLE( MinTrkRapidity_jf_path );
+     AUX_VARIABLE( AvgTrkRapidity_jf_path );
 
    }
 
