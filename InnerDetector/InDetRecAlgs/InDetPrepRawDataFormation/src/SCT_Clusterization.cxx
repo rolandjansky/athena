@@ -17,7 +17,6 @@
 #include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"    
 #include "InDetIdentifier/SCT_ID.h"
-#include "SCT_ConditionsServices/ISCT_FlaggedConditionSvc.h"
 #include "SiClusterizationTool/ISCT_ClusteringTool.h"
 
 #include "StoreGate/WriteHandle.h"
@@ -42,7 +41,6 @@ namespace InDet{
     m_manager(nullptr),
     m_maxRDOs(384), //(77),
     m_pSummarySvc("SCT_ConditionsSummarySvc", name),
-    m_flaggedConditionSvc("SCT_FlaggedConditionSvc",name),
     m_checkBadModules(true),
     m_flaggedModules(),
     m_maxTotalOccupancyPercent(10),
@@ -57,7 +55,6 @@ namespace InDet{
     declareProperty("isRoI_Seeded", m_roiSeeded, "Use RoI");
     declareProperty("maxRDOs", m_maxRDOs);
     declareProperty("checkBadModules",m_checkBadModules);
-    declareProperty("FlaggedConditionService", m_flaggedConditionSvc);
     declareProperty("maxTotalOccupancyInPercent",m_maxTotalOccupancyPercent);
     declareProperty("ClustersName", m_clusterContainerKey, "SCT cluster container");    
     declareProperty("ClustersLinkName_", m_clusterContainerLinkKey, "SCT cluster container link name (don't set this)");
@@ -84,8 +81,6 @@ namespace InDet{
     ATH_CHECK(m_clusterContainerLinkKey.initialize());
     ATH_CHECK(m_clusterContainerCacheKey.initialize(!m_clusterContainerCacheKey.key().empty()));
     ATH_CHECK(m_flaggedCondDataKey.initialize());
-    // Get the flagged conditions service
-    ATH_CHECK(m_flaggedConditionSvc.retrieve());
 
     // Get the clustering tool
     ATH_CHECK (m_clusteringTool.retrieve());
@@ -168,7 +163,6 @@ namespace InDet{
           if ((not rd->empty()) and goodModule){
             // If more than a certain number of RDOs set module to bad
             if (m_maxRDOs and (rd->size() > m_maxRDOs)) {
-              m_flaggedConditionSvc->flagAsBad(rd->identifyHash(), moduleFailureReason);
               m_flaggedModules.insert(rd->identifyHash());
               flaggedCondData->insert(std::make_pair(rd->identifyHash(), moduleFailureReason));
               continue;

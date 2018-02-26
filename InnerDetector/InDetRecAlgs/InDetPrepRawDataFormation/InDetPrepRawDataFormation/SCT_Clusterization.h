@@ -42,7 +42,6 @@ class SCT_ChannelStatusAlg;
 class SiDetectorManager;
 class ISvcLocator;
 class StatusCode;
-class ISCT_FlaggedConditionSvc;
 
 class IInDetConditionsSvc;
 namespace InDetDD{
@@ -99,7 +98,6 @@ private:
   const InDetDD::SiDetectorManager*        m_manager;
   unsigned int                             m_maxRDOs;
   ServiceHandle<IInDetConditionsSvc>       m_pSummarySvc;
-  ServiceHandle<ISCT_FlaggedConditionSvc>   m_flaggedConditionSvc;
   bool                                     m_checkBadModules;
   std::set<IdentifierHash>                 m_flaggedModules;
   unsigned int                             m_maxTotalOccupancyPercent;

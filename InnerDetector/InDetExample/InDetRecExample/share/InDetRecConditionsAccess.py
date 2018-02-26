@@ -319,6 +319,14 @@ if DetFlags.haveRIO.SCT_on():
     
     if (InDetFlags.doPrintConfigurables()):
         print InDetSCT_ConditionsSummarySvc
+
+    # Conditions summary service without InDetSCT_FlaggedConditionSvc
+    sct_ConditionsSummarySvcSetupWithoutFlagged = SCT_ConditionsSummarySvcSetup()
+    sct_ConditionsSummarySvcSetupWithoutFlagged.setSvcName("InDetSCT_ConditionsSummarySvcWithoutFlagged")
+    sct_ConditionsSummarySvcSetupWithoutFlagged.setup()
+    InDetSCT_ConditionsSummarySvcWithoutFlagged = sct_ConditionsSummarySvcSetupWithoutFlagged.getSvc()    
+    InDetSCT_ConditionsSummarySvcWithoutFlagged.ConditionsServices = InDetSCT_ConditionsSummarySvc.ConditionsServices
+    InDetSCT_ConditionsSummarySvcWithoutFlagged.ConditionsServices.remove(sct_FlaggedConditionSvcSetup.getSvcName())
         
     # Setup Lorentz angle service.
     from SiLorentzAngleSvc.SCTLorentzAngleSvcSetup import SCTLorentzAngleSvcSetup
