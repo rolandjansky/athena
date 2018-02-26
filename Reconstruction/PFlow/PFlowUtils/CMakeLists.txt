@@ -25,7 +25,8 @@ find_package( ROOT COMPONENTS Core RIO Hist Tree PyROOT )
 # Generate a dictionary:
 atlas_add_root_dictionary( PFlowUtilsLib PFlowUtilsDictSource
                            ROOT_HEADERS PFlowUtils/*.h Root/LinkDef.h
-                           EXTERNAL_PACKAGES ROOT )
+                           EXTERNAL_PACKAGES ROOT 
+			   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODPFlow )
 
 # Component(s) in the package:
 atlas_add_library( PFlowUtilsLib
