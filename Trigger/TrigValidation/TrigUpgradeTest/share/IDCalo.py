@@ -222,7 +222,6 @@ if TriggerFlags.doID:
                                                       DataObjectName          = InDetKeys.SCT_RDOs(),
                                                       ClustersName            = "SCT_TrigClusters",
                                                       conditionsService       = InDetSCT_ConditionsSummarySvcWithoutFlagged,
-                                                      # FlaggedConditionService = InDetSCT_FlaggedConditionSvc,
                                                       OutputLevel = INFO)
   
   allViewAlgorithms += InDetSCT_Clusterization

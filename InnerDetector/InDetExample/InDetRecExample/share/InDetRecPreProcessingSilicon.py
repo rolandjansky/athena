@@ -207,7 +207,6 @@ if InDetFlags.doPRDFormation():
                                                           DataObjectName          = InDetKeys.SCT_RDOs(),
                                                           ClustersName            = InDetKeys.SCT_Clusters(),
                                                           conditionsService       = InDetSCT_ConditionsSummarySvcWithoutFlagged)
-                                                          # FlaggedConditionService = InDetSCT_FlaggedConditionSvc)
       if InDetFlags.cutSCTOccupancy():
         InDetSCT_Clusterization.maxRDOs = 384 #77
       else:
@@ -224,7 +223,6 @@ if InDetFlags.doPRDFormation():
                                                               DataObjectName          = InDetKeys.SCT_PU_RDOs(),
                                                               ClustersName            = InDetKeys.SCT_PU_Clusters(),
                                                               conditionsService       = InDetSCT_ConditionsSummarySvcWithoutFlagged)
-                                                              # FlaggedConditionService = InDetSCT_FlaggedConditionSvc)
         if InDetFlags.cutSCTOccupancy():
           InDetSCT_ClusterizationPU.maxRDOs = 384 #77
         else:
