@@ -46,7 +46,7 @@ proc = subprocess.Popen(shlex.split(cmd))
 proc.wait()
 
 # -- Print the art-result return code
-print "art-result: " + proc.returncode
+print "art-result: " + str(proc.returncode)
 
 # -- Check the return code and exit this script with that --
 sys.exit( proc.returncode )
