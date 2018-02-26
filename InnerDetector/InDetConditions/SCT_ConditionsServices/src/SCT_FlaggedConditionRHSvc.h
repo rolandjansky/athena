@@ -11,26 +11,22 @@
 #ifndef SCT_FlaggedConditionRHSvc_h
 #define SCT_FlaggedConditionRHSvc_h
  
-// STL
-#include <map>
-#include <string>
-
 // Gaudi
-#include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IIncidentListener.h"
-#include "GaudiKernel/IIncidentSvc.h"
 
-// Local
+// Athena
+#include "AthenaBaseComps/AthService.h"
 #include "SCT_ConditionsServices/ISCT_FlaggedConditionSvc.h"
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
 #include "SCT_ConditionsData/SCT_FlaggedCondData.h"
+#include "StoreGate/ReadHandleKey.h"
 
 // Forward declarations
 template <class TYPE> class SvcFactory;
 class ISvcLocator;
 
 class Identifier;
+class IdentifierHash;
 class SCT_ID;
 class StoreGateSvc;
 
@@ -39,7 +35,7 @@ class StoreGateSvc;
  * Service allowing one to flag detector elements as 'bad' with a reason
  */
 
-class SCT_FlaggedConditionRHSvc: virtual public ISCT_FlaggedConditionSvc, virtual public IIncidentListener, virtual public AthService {
+class SCT_FlaggedConditionRHSvc: virtual public ISCT_FlaggedConditionSvc, virtual public AthService {
   friend class SvcFactory<SCT_FlaggedConditionRHSvc>;
 
 public:
@@ -51,7 +47,6 @@ public:
   virtual StatusCode finalize() override;
   virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
   static const InterfaceID & interfaceID();
-  virtual void handle(const Incident& inc) override;
   //@}
 
   /**Can the service report about the given component? (chip, module...)*/
@@ -63,7 +58,6 @@ public:
 
   /**Manually get the data*/
   virtual StatusCode fillData() override {
-    m_filled = true;
     return StatusCode::SUCCESS;
   }
 
@@ -73,7 +67,7 @@ public:
   }
   
   /**Are the data available?*/
-  virtual bool filled() const override {return m_filled;}
+  virtual bool filled() const override {return true;}
 
   /**Can the data be filled during the initialize phase?*/
   virtual bool canFillDuringInitialize() override { return false; }
@@ -89,20 +83,21 @@ public:
   virtual const std::string& details(const IdentifierHash& id) const override;
 
   /**Get number flagged as bad (per event)*/
-  inline virtual int numBadIds() const override {return m_badIds.size();}
+  virtual int numBadIds() const override;
 
   /**Get IdentifierHashs ofwafers flagged as bad + reason (per event)*/
-  inline virtual const std::map<IdentifierHash, std::string>* getBadIds() const override {return &m_badIds;}
+  virtual const SCT_FlaggedCondData* getBadIds() const override;
 
   /**Reset between events*/
   virtual void resetBadIds() override;
 
  private:
-  bool                                                m_filled;      //!< Has this been filles
-  SCT_FlaggedCondData m_badIds;  //!< Map of bad IdentiferHash and reason
+  SG::ReadHandleKey<SCT_FlaggedCondData> m_badIds;
 
-  ServiceHandle<StoreGateSvc>                         m_detStore;    //!< Handle on detector store
-  const SCT_ID*                                       m_sctID;       //!< ID helper for SCT
+  ServiceHandle<StoreGateSvc> m_detStore; //!< Handle on detector store
+  const SCT_ID* m_sctID; //!< ID helper for SCT
+
+  const SCT_FlaggedCondData* getCondData() const;
 };
 
 #endif // SCT_FlaggedConditionRHSvc_h
