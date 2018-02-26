@@ -12,7 +12,7 @@
 #include "ArrayBM.h"
 
 ArrayBM::ArrayBM(const std::string& name,ISvcLocator* svc)
-  : AthService(name,svc)
+  : base_class(name,svc)
   , m_maxBunchCrossingPerOrbit(3564)
   , m_t0Offset(0)
   , m_intensityPatternProp()
@@ -109,17 +109,4 @@ float ArrayBM::normFactor(int iXing) const
                   << " index " << index
                   << ") is = " <<  m_largestElementInPattern*m_intensityPattern[ index ]);
   return m_largestElementInPattern*m_intensityPattern[ index ];
-}
-
-
-StatusCode ArrayBM::queryInterface(const InterfaceID& riid, void** ppvInterface)
-{
-  if ( IBeamIntensity::interfaceID().versionMatch(riid) )
-    {
-      *ppvInterface = (IBeamIntensity*)this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-  // Interface is not directly available: try out the base class
-  return AthService::queryInterface(riid, ppvInterface);
 }
