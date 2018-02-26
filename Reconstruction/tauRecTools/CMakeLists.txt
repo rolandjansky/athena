@@ -96,6 +96,7 @@ atlas_add_root_dictionary( tauRecToolsLib tauRecToolsLibCintDict
   tauRecTools/TauChargedPFOCreator.h
   tauRecTools/TauWPDecorator.h
   tauRecTools/TauJetBDTEvaluator.h
+  tauRecTools/TauJetRNNEvaluator.h
   tauRecTools/TauIDVarCalculator.h
   tauRecTools/TauEleOLRDecorator.h
   tauRecTools/TauProcessorTool.h
