@@ -28,6 +28,12 @@
 #include <list>
 #include <vector>
 
+#include "fastjet/ClusterSequence.hh"
+#include <fastjet/contrib/EnergyCorrelator.hh>
+#include <fastjet/contrib/Nsubjettiness.hh>
+#include "JetSubStructureUtils/Qw.h"
+#include "JetSubStructureUtils/KtSplittingScale.h"
+
 // Forward declaration(s):
 namespace xAOD{
     class SystematicEvent;
@@ -84,7 +90,8 @@ private:
     float m_radius;
     float m_minradius;
     float m_massscale;
-
+    bool  m_useJSS;
+    
     std::string m_egamma;
     std::string m_jetsyst;
     std::string m_muonsyst;

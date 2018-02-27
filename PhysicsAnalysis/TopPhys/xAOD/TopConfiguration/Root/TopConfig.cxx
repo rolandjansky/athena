@@ -692,7 +692,11 @@ namespace top{
     this->RCJetRadius(std::stof(settings->value("RCJetRadius")) );
     if (settings->value("UseRCJets") == "True" || settings->value("UseRCJets") == "true")
       this->m_useRCJets = true;
-
+    if (settings->value("UseRCJetSubstructure") == "True" || settings->value("UseRCJetSubstructure") == "true")
+      this->m_useRCJetSubstructure = true;
+    else
+      this->m_useRCJetSubstructure = false;
+   
     this->VarRCJetPtcut(std::stof(settings->value("VarRCJetPt")) );
     this->VarRCJetEtacut(std::stof(settings->value("VarRCJetEta")) );
     this->VarRCJetTrimcut(std::stof(settings->value("VarRCJetTrim")) );

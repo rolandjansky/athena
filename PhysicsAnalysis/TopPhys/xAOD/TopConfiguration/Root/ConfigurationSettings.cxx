@@ -111,6 +111,8 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("RCJetEta",    "Reclustered Jet eta cut for object selection. Default 2.0.",   "2.0");
     registerParameter("RCJetTrim",   "Reclustered Jet trimming cut for object selection. Default 0.05.", "0.05");
     registerParameter("RCJetRadius", "Reclustered Jet radius for object selection. Default 1.0",   "1.0");
+    registerParameter("UseRCJetSubstructure", "Calculate Reclustered Jet Substructure Variables. Default False",   "False");
+    
     registerParameter("UseRCJets",   "Use Reclustered Jets. Default False.", "False");
 
     registerParameter("VarRCJetPt",        "Reclustered Jet (variable-R) pT cut for object selection (in MeV). Default 100000 MeV.", "100000.");
