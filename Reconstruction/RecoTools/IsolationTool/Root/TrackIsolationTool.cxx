@@ -2,15 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//////////////////////////////////////////////////////////////////////////////
 // TrackIsolationTool
-//
-//  (c) ATLAS software
-//////////////////////////////////////////////////////////////////////////////
 
 //<<<<<< INCLUDES                                                       >>>>>>
 #include "IsolationTool/TrackIsolationTool.h"
-// #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODPrimitives/IsolationFlavour.h"
 #include "xAODPrimitives/IsolationConeSize.h"
@@ -20,28 +15,26 @@
 #include "xAODPrimitives/tools/getIsolationCorrectionAccessor.h"
 #include "xAODMuon/Muon.h"
 
-#include <iomanip>
-
 namespace xAOD {
- 
+  
   //<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
 
   TrackIsolationTool::TrackIsolationTool (const std::string& name):
     asg::AsgTool(name)
 #ifndef XAOD_ANALYSIS
     , m_tracksInConeTool("xAOD::TrackParticlesInConeTool/TrackParticlesInConeTool"),
-	m_trkselTool( "InDet::InDetTrackSelectionTool/TrackSelectionTool", this )
+    m_trkselTool( "InDet::InDetTrackSelectionTool/TrackSelectionTool", this )
 #endif // XAOD_ANALYSIS
   {
 #ifndef XAOD_ANALYSIS
-    declareInterface<ITrackIsolationTool>(this);
-    //declareInterface<IChargedEFlowIsolationTool>(this);
     declareProperty("TracksInConeTool", m_tracksInConeTool);
 #endif // XAOD_ANALYSIS
-    declareProperty("TrackParticleLocation",m_indetTrackParticleLocation = "InDetTrackParticles");
-    declareProperty("SimpleIsolation",  m_simpleIsolation = false);
-    declareProperty("OverlapCone",      m_overlapCone2 = 0.1); // will be squared later
-    declareProperty("TrackSelectionTool", m_trkselTool );
+    declareProperty("TrackParticleLocation",      m_indetTrackParticleLocation = "InDetTrackParticles");
+    declareProperty("SimpleIsolation",            m_simpleIsolation = false);
+    declareProperty("UseTTVAtool",                m_useTTVAtool = false);
+    declareProperty("OverlapCone",                m_overlapCone2 = 0.1); // will be squared later
+    declareProperty("TrackSelectionTool",         m_trkselTool );
+    declareProperty("TrackVertexAssociationTool", m_ttvaTool );
   }
 
   TrackIsolationTool::~TrackIsolationTool()
@@ -49,25 +42,23 @@ namespace xAOD {
 
   //<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
 
-  StatusCode TrackIsolationTool::initialize() 
-  {
+  StatusCode TrackIsolationTool::initialize() {
 #ifndef XAOD_ANALYSIS
     if( !m_simpleIsolation ) ATH_CHECK(m_tracksInConeTool.retrieve());
 #endif // XAOD_ANALYSIS
 
-      if(m_trkselTool.retrieve().isFailure()){
-	ATH_MSG_FATAL("Could not retrieve InDetTrackSelectionTool");    
-	return 0.;
-      }
+    if(m_trkselTool.retrieve().isFailure()){
+      ATH_MSG_FATAL("Could not retrieve InDetTrackSelectionTool");    
+      return 0.;
+    }
+    if(m_useTTVAtool && m_ttvaTool.retrieve().isFailure()){
+      ATH_MSG_FATAL("Could not retrieve TrackVertexAssociationTool");    
+      return 0.;
+    }
 
     /** square cone */
     m_overlapCone2 *= m_overlapCone2;
     
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode TrackIsolationTool::finalize() 
-  {
     return StatusCode::SUCCESS;
   }
 
@@ -130,7 +121,7 @@ namespace xAOD {
                                            TrackCorrection corrbitset, 
 					   const Vertex* vertex, 
                                            const std::set<const TrackParticle*>* exclusionSet,
-                                           const TrackParticleContainer* indetTrackParticles ) 
+                                           const TrackParticleContainer* indetTrackParticles )  const
   {
     /// prepare input
     // If not vertex is given, use the ID best one. If one does not want to cut on z0sinT, use the TrackSelectionTool config
@@ -182,7 +173,7 @@ namespace xAOD {
       }else{
         msg(MSG::DEBUG) << "Calculated track isolation: ";
         for( unsigned int i = 0; i< result.ptcones.size();++i ){
-          msg(MSG::DEBUG) << " coneSizeSquared " << std::setw(3) << input.coneSizesSquared[i] << " value " << result.ptcones[i];
+          msg(MSG::DEBUG) << " coneSizeSquared " << input.coneSizesSquared[i] << " value " << result.ptcones[i];
         }
         msg(MSG::DEBUG) << endmsg;
       }
@@ -195,7 +186,7 @@ namespace xAOD {
                                              TrackCorrection corrections, 
                                              const Vertex* vertex, 
                                              const std::set<const TrackParticle*>* exclusionSet, 
-                                             const TrackParticleContainer* indetTrackParticles ) {
+                                             const TrackParticleContainer* indetTrackParticles ) const {
     
     // calculate the isolation
     TrackIsolation result;
@@ -268,22 +259,22 @@ namespace xAOD {
   }
 
 
-  bool TrackIsolationTool::binnedIsolation( TrackIsolationInput& input, TrackIsolation& result ) 
+  bool TrackIsolationTool::binnedIsolation( TrackIsolationInput& input, TrackIsolation& result )  const
   {
     /// prepare look-up structure
     std::vector<const TrackParticle*> tps;
 #ifndef XAOD_ANALYSIS
-     if( !m_tracksInConeTool->particlesInCone(input.particle->eta(),input.particle->phi(),input.maxRadius,tps) ) return false;
+    if( !m_tracksInConeTool->particlesInCone(input.particle->eta(),input.particle->phi(),input.maxRadius,tps) ) return false;
 #else
-     if( !getparticlesInCone(input.particle->eta(),input.particle->phi(),input.maxRadius,tps) ) return false;
+    if( !getparticlesInCone(input.particle->eta(),input.particle->phi(),input.maxRadius,tps) ) return false;
 #endif
     
     for( const auto& tp : tps ) {
-      if( ! m_trkselTool->accept( *tp , input.vertex ) ){
+      if( ! m_trkselTool->accept( *tp , input.vertex ) || (m_useTTVAtool && !m_ttvaTool->isCompatible(*tp,*input.vertex)) ){
 	ATH_MSG_DEBUG("reject track pt = " << tp->pt());
 	continue;
-      } else 
-	ATH_MSG_DEBUG("Accept track, pt = " << tp->pt());
+      }
+      ATH_MSG_DEBUG("Accept track, pt = " << tp->pt());
       add( input,*tp, result );
 
     }
@@ -300,7 +291,7 @@ namespace xAOD {
 
     // loop over all track particles
     for( const auto& tp : *indetTrackParticles ) {
-      if( ! m_trkselTool->accept( *tp , input.vertex ) ){
+      if( ! m_trkselTool->accept( *tp , input.vertex ) || (m_useTTVAtool && !m_ttvaTool->isCompatible(*tp,*input.vertex)) ){
 	ATH_MSG_DEBUG("[2] reject track pt = " << tp->pt());
 	continue;
       }
@@ -315,12 +306,12 @@ namespace xAOD {
   {
     // check if track pointer matches the one of input or one of the exclusion set
     if(input.corrections.trackbitset.test(static_cast<unsigned int>(Iso::coreTrackPtr))){
-	 if(input.particle == &tp2 || (input.exclusionSet && input.exclusionSet->count(&tp2))){
-	   ATH_MSG_DEBUG("track pointer " << &tp2 << ", track pt = " << tp2.pt() << ", input pt = " << input.particle->pt()) ;
-	   result.coreCorrections[Iso::coreTrackPtr] += tp2.pt();
-	   return;
-	 }
-       }
+      if(input.particle == &tp2 || (input.exclusionSet && input.exclusionSet->count(&tp2))){
+	ATH_MSG_DEBUG("track pointer " << &tp2 << ", track pt = " << tp2.pt() << ", input pt = " << input.particle->pt()) ;
+	result.coreCorrections[Iso::coreTrackPtr] += tp2.pt();
+	return;
+      }
+    }
 
     // check eta
     float deta = input.particle->eta()-tp2.eta();
@@ -352,7 +343,7 @@ namespace xAOD {
 
   void TrackIsolationTool::initresult(TrackIsolation& result, 
 				      TrackCorrection corrlist, 
-				      unsigned int typesize){
+				      unsigned int typesize) const {
 
     result.corrlist = corrlist;
     result.coreCorrections.clear();
@@ -368,7 +359,7 @@ namespace xAOD {
   }
 
 #ifdef XAOD_ANALYSIS
-  bool TrackIsolationTool::getparticlesInCone( float eta, float phi, float dr, std::vector< const TrackParticle*>& output ) {
+  bool TrackIsolationTool::getparticlesInCone( float eta, float phi, float dr, std::vector< const TrackParticle*>& output ) const {
 
     /// retrieve container
     const TrackParticleContainer* trks = retrieveTrackParticleContainer();
