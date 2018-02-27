@@ -120,9 +120,10 @@ _add_test( AtlFindBSEvent4_test
 _add_test( AtlCopyBSEvent5_test
    "AtlCopyBSEvent -e 14350,14356,14382 -o test_infl.data test_defl.data"
    DEPENDS ByteStreamCnvSvc_AtlFindBSEvent4_test_ctest )
-_add_test( AtlCopyBSEvent6_test
-   "AtlCopyBSEvent -e all -o empty.data /afs/cern.ch/atlas/maxidisk/d108/cranshaw/nightlies/RAW.01524408._005549.data.1"
-   DEPENDS ByteStreamCnvSvc_AtlFindBSEvent4_test_ctest )
+# Input file has vanished.
+#_add_test( AtlCopyBSEvent6_test
+#   "AtlCopyBSEvent -e all -o empty.data /afs/cern.ch/atlas/maxidisk/d108/cranshaw/nightlies/RAW.01524408._005549.data.1"
+#   DEPENDS ByteStreamCnvSvc_AtlFindBSEvent4_test_ctest )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

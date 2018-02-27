@@ -58,7 +58,7 @@ add_definitions(-DHAVE_BOOST_IOSTREAMS)
 # Component(s) in the package:
 atlas_add_root_dictionary( TrigFTKSimLib
                            TrigFTKSimLibDictSource
-                           ROOT_HEADERS TrigFTKSim/FTKRoad.h TrigFTKSim/FTKTruthTrack.h TrigFTKSim/FTKRawHit.h TrigFTKSim/FTKHit.h TrigFTKSim/FTKTrack.h TrigFTKSim/FTKRoadStream.h TrigFTKSim/FTKTrackStream.h TrigFTKSim/FTKSS.h TrigFTKSim/MultiTruth.h TrigFTKSim/FTKPattern.h TrigFTKSim/TrigFTKSimLinkDef.h
+                           ROOT_HEADERS TrigFTKSim/FTKRoad.h TrigFTKSim/FTKTruthTrack.h TrigFTKSim/FTKRawHit.h TrigFTKSim/FTKHit.h TrigFTKSim/FTKTrack.h TrigFTKSim/FTKSSMap.h TrigFTKSim/FTKRoadStream.h TrigFTKSim/FTKTrackStream.h TrigFTKSim/FTKSS.h TrigFTKSim/MultiTruth.h TrigFTKSim/FTKPattern.h TrigFTKSim/TrigFTKSimLinkDef.h
                            EXTERNAL_PACKAGES  ROOT Boost HepPDT Eigen HepMC TBB )
 
 atlas_add_library( TrigFTKSimLib

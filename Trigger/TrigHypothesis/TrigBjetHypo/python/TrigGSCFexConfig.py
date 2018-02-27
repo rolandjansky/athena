@@ -27,15 +27,15 @@ def getGSCFexSplitInstance( instance):
 
 def getGSCFexFTKInstance( instance ):
     return GSCFexSplit( instance=instance, name=instance+"GSCFexFTK_EFID",
-                        PriVtxKey = "HLT_PrimVertexFTK", TrackKey="InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig")
+                        PriVtxKey = "PrimVertexFTK", TrackKey="InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig")
 
 def getGSCFexFTKRefitInstance( instance):
     return GSCFexSplit( instance=instance, name=instance+"GSCFexFTKRefit_EFID",
-                        PriVtxKey = "HLT_PrimVertexFTK", TrackKey="InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig")
+                        PriVtxKey = "PrimVertexFTK", TrackKey="InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig")
 
 def getGSCFexFTKVtxInstance( instance ):
     return GSCFexSplit( instance=instance, name=instance+"GSCFexFTKVtx_EFID",
-                        PriVtxKey = "HLT_PrimVertexFTK", TrackKey  = "InDetTrigTrackingxAODCnv_Bjet_IDTrig")
+                        PriVtxKey = "PrimVertexFTK", TrackKey  = "InDetTrigTrackingxAODCnv_Bjet_IDTrig")
                         
 
 class GSCFex (TrigGSCFex):

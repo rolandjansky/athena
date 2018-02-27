@@ -92,6 +92,7 @@ $(SCRIPTDIR)/%.sh : %.xml
 
 artfiles : 
 	../utils/mkartlist
+	../utils/submit.sh
 
 duff: 
 	echo $(patsubst %.xml,../scripts/%.sh,$(JOBS))

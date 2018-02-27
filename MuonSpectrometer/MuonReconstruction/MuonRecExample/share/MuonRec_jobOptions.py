@@ -98,6 +98,8 @@ if rec.doTruth() and DetFlags.makeRIO.Muon_on():
    getService("AtlasTrackingGeometrySvc")
    from MuonTruthAlgs.MuonTruthAlgsConf import Muon__MuonTruthDecorationAlg
    topSequence += Muon__MuonTruthDecorationAlg("MuonTruthDecorationAlg")
+   from AthenaCommon import CfgGetter
+   topSequence.MuonTruthDecorationAlg.MCTruthClassifier = CfgGetter.getPublicTool("MCTruthClassifier")
 
    try:
        from RecExConfig.InputFilePeeker import inputFileSummary

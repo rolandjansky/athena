@@ -99,6 +99,5 @@ from AthenaCommon.AppMgr import ServiceMgr
 ServiceMgr.MessageSvc.enableSuppression = False
 
 from AthenaCommon.AlgSequence import AlgSequence
-topSequence = AlgSequence()
-topSequence.StreamRDO.ItemList += ["InDet::SCT_ClusterContainer#SCT_Clusters"]
-#topSequence.StreamRDO.ItemList += ["InDet::SiClusterContainer#SiClusters"]
+AlgSequence("Streams").StreamRDO.ItemList += ["InDet::SCT_ClusterContainer#SCT_Clusters"]
+#AlgSequence("Streams").StreamRDO.ItemList += ["InDet::SiClusterContainer#SiClusters"]

@@ -18,6 +18,7 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/EtaEtAsymmetricCondition.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/DijetDEtaMassCondition.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/DijetDPhiCondition.h"
+#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/DijetCondition.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HTCondition.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/TLACondition.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/conditionsFactory2.h"
@@ -62,6 +63,43 @@ Conditions conditionsFactorysinglemass(const std::vector<double>& etaMins,
 //    }
 
     conditions.push_back(ConditionBridge(pCondition));      
+  }
+  return conditions;
+}
+
+
+Conditions conditionsFactoryDijet(const std::vector<double>& etThresholds1,
+                                  const std::vector<double>& etThresholds2,
+                                  const std::vector<double>& etaMins1,
+                                  const std::vector<double>& etaMaxs1,
+                                  const std::vector<double>& etaMins2,
+                                  const std::vector<double>& etaMaxs2,
+                                  const std::vector<double>& massMins,
+                                  const std::vector<double>& massMaxs,
+                                  const std::vector<double>& detaMins,
+                                  const std::vector<double>& detaMaxs,
+                                  const std::vector<double>& dphiMins,
+                                  const std::vector<double>& dphiMaxs){
+  
+  Conditions conditions;
+
+  
+  for(std::size_t i = 0; i < etThresholds1.size(); ++i){
+    std::shared_ptr<ICondition>
+      pCondition(new DijetCondition(etThresholds1[i],
+                                    etThresholds2[i],
+                                    etaMins1[i],
+                                    etaMaxs1[i],
+                                    etaMins2[i],
+                                    etaMaxs2[i],
+                                    massMins[i],
+                                    massMaxs[i],
+                                    detaMins[i],
+                                    detaMaxs[i],
+                                    dphiMins[i],
+                                    dphiMaxs[i]));
+    
+    conditions.push_back(ConditionBridge(pCondition));
   }
   return conditions;
 }

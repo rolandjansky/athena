@@ -52,7 +52,8 @@ namespace pool {
   };
 }
 struct CharDbArray : public pool::DbArray<char> { public: CharDbArray() {}; virtual ~CharDbArray() {} }; 
-struct UCharDbArray : public pool::DbArray<unsigned char> { public: UCharDbArray() {}; virtual ~UCharDbArray() {} }; 
+// Avoid name collision with UCharDbArray in RootCnv.
+struct UCharDbArrayAthena : public pool::DbArray<unsigned char> { public: UCharDbArrayAthena() {}; virtual ~UCharDbArrayAthena() {} }; 
 struct ShortDbArray : public pool::DbArray<short> { public: ShortDbArray() {}; virtual ~ShortDbArray() {} }; 
 struct UShortDbArray : public pool::DbArray<unsigned short> { public: UShortDbArray() {}; virtual ~UShortDbArray() {} }; 
 struct IntDbArray : public pool::DbArray<int> { public: IntDbArray() {}; virtual ~IntDbArray() {} }; 

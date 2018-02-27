@@ -88,6 +88,9 @@ AllowedTopos_jet = ['muvtx',
                     'invm600',
                     'invm700',
                     'invm800',
+                    'invm900j0',
+                    'invm900j50',
+                    'invm900j0',
                     'invm900',
                     'invm1000']
 AllowedTopos_Tau = ['ditauL', 'ditauM', 'ditauT','tautsf','notautsf','50mVis10000','60mVis10000','03dR27','03dR30']
@@ -142,6 +145,8 @@ JetChainParts = {
     
     # Et cut by the jet build tool (ptminFilter)
     'recoCutCalib': ['rccDefault', 'rcc0', 'rcc5'],
+    # 'dPhi': ['dphi24', 'dphi26'],
+
 }
 
 
@@ -172,6 +177,8 @@ JetChainParts_Default = {
     'trkopt'       : 'notrk',
     'recoCutUncalib': 'rcuDefault',
     'recoCutCalib': 'rccDefault',
+    'dj'           : '',
+    # 'dPhi'         : ''
     }
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
@@ -215,7 +222,7 @@ MuonChainParts = {
     'L2SAAlg'        : ['muFast', 'l2muonSA',],
     'L2CBAlg'        : ['muComb',],
     'EFAlg'          : ['SuperEF'],
-    'addInfo'        : ['cosmicEF', 'cosmic','IdTest','fsperf', 'ds1', 'ds2','ds3', 'r1extr', 'perf', 'noEF','10invm30','pt2','z10','llns','noComb','zROItest','invm1','inTimeRoI','dRl1','z2mm','tstight','tsloose'],
+    'addInfo'        : ['cosmicEF', 'cosmic','IdTest','fsperf', 'ds1', 'ds2','ds3', 'r1extr', 'perf', 'noEF','10invm30','pt2','z10','llns','noComb','zROItest','invm1','inTimeRoI','dRl1','tstight','tsloose'],
     'overlapRemoval' : ['wOvlpRm', 'noOvlpRm', 'noMuCombOvlpRm'],
     'topo'           : AllowedTopos_mu,
     'flavour'        : ['hf'],
@@ -274,8 +281,8 @@ TauChainParts = {
     'L1item'       : '',
     'chainPartName': '',
     'threshold'    : '',
-    'preselection' : ['r1', 'FTK', 'FTKRefit', 'FTKNoPrec', 'calo', 'track', 'mvonly', 'ptonly', 'caloonly', 'trackonly', 'tracktwo', 'tracktwoEF', 'tracktwoEFmvaTES', 'trackcalo', 'tracktwocalo','tracktwo2015', 'tracktwomva'],
-    'selection'    : ['medium0','loose1', 'medium1', 'medium1NoPt', 'tight1', 'perf', 'perf0', 'r1medium1', 'r1perf', 'cosmic', 'kaonpi1', 'kaonpi2', 'dipion1', 'dipion1loose', 'dipion2', 'dipion3', 'dikaon', 'dikaontight', 'dikaonmass', 'dikaonmasstight', 'singlepion', 'singlepiontight',  'medium1HighptL', 'medium1HighptM', 'medium1HighptH'],
+    'preselection' : ['r1', 'FTK', 'FTKRefit', 'FTKNoPrec', 'calo', 'track', 'mvonly', 'ptonly', 'caloonly', 'trackonly', 'tracktwo', 'tracktwoEF', 'tracktwoEFmvaTES', 'trackcalo', 'tracktwocalo','tracktwo2015', 'tracktwoMVA'],
+    'selection'    : ['medium0','loose1', 'medium1', 'medium1NoPt', 'tight1', 'perf', 'perf0', 'r1medium1', 'r1perf', 'cosmic', 'kaonpi1', 'kaonpi2', 'dipion1', 'dipion1loose', 'dipion2', 'dipion3', 'dikaon', 'dikaontight', 'dikaonmass', 'dikaonmasstight', 'singlepion', 'singlepiontight', 'verylooseRNN', 'looseRNN', 'mediumRNN', 'tightRNN'],
     'multiplicity' : '',
     'trigType'     : ['tau'],   
     'trkInfo'      : ['idperf'],

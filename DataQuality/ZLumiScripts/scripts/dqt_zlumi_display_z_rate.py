@@ -2,11 +2,23 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration                  
 
 import ROOT
-import sys
+import sys, os
 import array
+import argparse
+import time
 
-runnum = sys.argv[1].split('_')[0]
-f = ROOT.TFile.Open(sys.argv[1], 'UPDATE')
+parser = argparse.ArgumentParser()
+parser.add_argument('infile', type=str, help='input HIST file')
+parser.add_argument('--indir', type=str, help='Directory with input file',
+                    default='')
+parser.add_argument('--plotdir', type=str, help='Directory to dump plots',
+                    default='plots')
+args = parser.parse_args()
+
+# runnum = sys.argv[1].split('_')[0]
+runnum = args.infile.split('_')[0]
+# f = ROOT.TFile.Open(sys.argv[1], 'UPDATE')
+f = ROOT.TFile.Open(os.path.join(args.indir, args.infile), 'UPDATE')
 c1 = ROOT.TCanvas()
 lumitree = f.lumitree
 #get range
@@ -32,11 +44,10 @@ if lumitree.GetSelectedRows() > 0:
     gr.SetTitle('')
     f.WriteTObject(gr, 'fid_z_rate')
     c1.Update()
-    c1.Print('%s_fidyield.eps' % runnum)
+    c1.Print(os.path.join(args.plotdir, '%s_fidyield.eps' % runnum))
 
 # dump CSV
-import time
-csvout = open('%s_zrate.csv' % runnum, 'w')
+csvout = open(os.path.join(args.plotdir, '%s_zrate.csv' % runnum), 'w')
 lumitree.Draw("zrate:lbwhen[0]:lbwhen[1]:lhcfill:lblive:offlumi", "", "goff,para")
 timeformat = '%y/%m/%d %H:%M:%S'
 #timeformat = '%m/%d %H:%M:%S'
@@ -80,7 +91,7 @@ if lumitree.GetSelectedRows() > 0:
     leg.AddEntry(gr2, 'Official', 'l')
     leg.Draw()
     c1.Update()
-    c1.Print('%s_lumicomp.eps' % runnum)
+    c1.Print(os.path.join(args.plotdir, '%s_lumicomp.eps' % runnum))
     f.WriteTObject(c1, 'lumicomp_canvas')
     zlumirat = array.array('d', [_[0]/_[1] for _ in zip(zlumi, offlumi)])
     zlumiraterr = array.array('d', [_[0]/_[1] for _ in zip(zlumierr, offlumi)])
@@ -91,6 +102,6 @@ if lumitree.GetSelectedRows() > 0:
     gr3.SetTitle(titlestr)
     gr3.GetHistogram().SetXTitle('LB')
     gr3.GetHistogram().SetYTitle('Z Counting/Official Lumi')
-    c1.Print('%s_lumicompratio.eps' % runnum)
+    c1.Print(os.path.join(args.plotdir, '%s_lumicompratio.eps' % runnum))
     f.WriteTObject(c1, 'lumicompratio_canvas')
     

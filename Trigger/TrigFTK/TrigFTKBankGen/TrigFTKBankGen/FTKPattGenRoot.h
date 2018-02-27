@@ -136,7 +136,7 @@ protected:
       float rMin,rMax,zMin,zMax;
    } RZminmax_t;
 
-   std::map<int,RZminmax_t > m_moduleBounds;
+   std::map<int,RZminmax_t > m_moduleBoundsPixel,m_moduleBoundsSCT;
 
 private:
    double getRandom();

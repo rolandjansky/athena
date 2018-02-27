@@ -323,8 +323,8 @@ def getCTB_CALOEnvelope(name="CTB_CALO", **kwargs):
     #calo.df.SetDeltaPhi(math.radians(60)) #FIXME - missing functionality
     kwargs.setdefault("NSurfaces", 3)
     kwargs.setdefault("InnerRadii", [2269.,950.,950.]) #FIXME Units?
-    kwargs.setdefault("OuterRadii", [5140.,5140.,5140.]) #FIXME Units?
-    kwargs.setdefault("ZSurfaces",  [-2830.,-1050.,6310.]) #FIXME Units?
+    kwargs.setdefault("OuterRadii", [5145.,5145.,5145.]) #FIXME Units?
+    kwargs.setdefault("ZSurfaces",  [-3400.,-1050.,6600.]) #FIXME Units?
     SubDetectorList=[]
     kwargs.setdefault("SubDetectors", SubDetectorList)
     return CfgMgr.PolyconicalEnvelope(name, **kwargs)

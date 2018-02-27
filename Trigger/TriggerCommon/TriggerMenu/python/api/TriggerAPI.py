@@ -8,7 +8,7 @@ from TriggerMenu.api.TriggerInfo import TriggerInfo
 from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
 
 class TriggerAPI:
-    centralPickleFile = "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/TriggerMenu/TriggerInfo.pickle"
+    centralPickleFile = "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/TriggerMenu/TriggerInfo_180219.pickle"
     privatePickleFile = "TriggerInfo.pickle"
     dbQueries = None
     privatedbQueries = {}
@@ -108,12 +108,19 @@ class TriggerAPI:
     def _loadTriggerPeriod(cls, period, reparse):
         cls.init()
         if (period,cls.customGRL) not in cls.dbQueries:
-            cls.dbQueries[(period,cls.customGRL)] = TriggerInfo(period,cls.customGRL)
-            cls.privatedbQueries[(period,cls.customGRL)] = cls.dbQueries[(period,cls.customGRL)]
-            if not period & TriggerPeriod.future or period >= TriggerPeriod.runNumber: 
-                #Don't pickle TM information since it can change, very cheap to retrieve anyway
-                with open(cls.privatePickleFile, 'w') as f:
-                    pickle.dump( cls.privatedbQueries , f)
+            if period >= TriggerPeriod.runNumber or (isinstance(period,TriggerPeriod) and period.isBasePeriod()):
+                cls.dbQueries[(period,cls.customGRL)] = TriggerInfo(period,cls.customGRL)
+                cls.privatedbQueries[(period,cls.customGRL)] = cls.dbQueries[(period,cls.customGRL)]
+                if not period & TriggerPeriod.future or period >= TriggerPeriod.runNumber: 
+                    #Don't pickle TM information since it can change, very cheap to retrieve anyway
+                    with open(cls.privatePickleFile, 'w') as f:
+                        pickle.dump( cls.privatedbQueries , f)
+            else:
+                basePeriods = [tp for tp in TriggerPeriod.basePeriods() if tp & period]
+                for bp in basePeriods:
+                    cls._loadTriggerPeriod(bp,reparse)
+                cls.dbQueries[(period,cls.customGRL)] = TriggerInfo.merge([cls.dbQueries[(bp,cls.customGRL)] for bp in basePeriods])
+                cls.privatedbQueries[(period,cls.customGRL)] = cls.dbQueries[(period,cls.customGRL)]
         if reparse: cls.dbQueries[(period,cls.customGRL)].reparse()
 
 def main():

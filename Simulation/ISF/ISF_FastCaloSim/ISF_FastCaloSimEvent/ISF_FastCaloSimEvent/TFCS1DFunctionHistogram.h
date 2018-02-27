@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FASTCALOSIMEVENT_TFCS1DFunctionHistogram_h
@@ -41,5 +41,9 @@ class TFCS1DFunctionHistogram:public TFCS1DFunction
   ClassDef(TFCS1DFunctionHistogram,1)  //TFCS1DFunctionHistogram
 
 };
+
+#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
+#pragma link C++ class TFCS1DFunctionHistogram+;
+#endif
 
 #endif
