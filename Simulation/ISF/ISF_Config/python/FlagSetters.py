@@ -131,8 +131,7 @@ def configureFlagsATLFASTIIF():
     from G4AtlasApps.SimFlags import simFlags
     simFlags.SimulationFlavour = "ATLFASTIIF"
     from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
-    TrkDetFlags.MaterialVersion=20
-    TrkDetFlags.MaterialSubVersion='f'
+    TrkDetFlags.MaterialVersion=21
     TrkDetFlags.TRT_BuildStrawLayers=True
     return
 
@@ -160,8 +159,7 @@ def configureFlagsG4HS_FastPileup():
     from ISF_Config.ISF_jobProperties import ISF_Flags
     ISF_Flags.UsingGeant4 = True
     from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
-    TrkDetFlags.MaterialVersion=20
-    TrkDetFlags.MaterialSubVersion='f'
+    TrkDetFlags.MaterialVersion=21
     TrkDetFlags.TRT_BuildStrawLayers=True
     return
 
