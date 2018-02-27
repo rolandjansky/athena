@@ -50,7 +50,6 @@ class SCT_ChannelStatusAlg;
 class ISCT_ByteStreamErrorsSvc;
 
 class IInDetConditionsSvc;
-class ISCT_FlaggedConditionSvc;
 
 class IROBDataProviderSvc;
 
@@ -131,7 +130,6 @@ namespace InDet {
 
     //conditions
     ServiceHandle<IInDetConditionsSvc>       m_pSummarySvc;
-    ServiceHandle<ISCT_FlaggedConditionSvc>  m_flaggedConditionSvc;
     bool                                     m_checkBadModules;
     unsigned int                             m_maxRDOs;
     std::set<IdentifierHash>                 m_flaggedModules;

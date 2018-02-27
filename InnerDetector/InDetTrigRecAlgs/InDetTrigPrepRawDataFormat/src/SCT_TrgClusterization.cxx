@@ -32,7 +32,6 @@
 
 #include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 #include "SCT_ConditionsServices/ISCT_ByteStreamErrorsSvc.h"
-#include "SCT_ConditionsServices/ISCT_FlaggedConditionSvc.h"
 
 //Trigger
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
@@ -70,7 +69,6 @@ namespace InDet{
     m_bsErrorSvc("SCT_ByteStreamErrorsSvc",name),
     m_robDataProvider("ROBDataProviderSvc", name),
     m_pSummarySvc("SCT_ConditionsSummarySvc", name),
-    m_flaggedConditionSvc("SCT_FlaggedConditionSvc",name),
     m_checkBadModules(true),
     m_maxRDOs(0),
     m_doTimeOutChecks(true),
@@ -94,7 +92,6 @@ namespace InDet{
 
     declareProperty("conditionsSummarySvc", m_pSummarySvc);
     declareProperty("bytestreamErrorSvc",   m_bsErrorSvc);
-    declareProperty("flaggedConditionsSvc", m_flaggedConditionSvc);
     declareProperty("checkBadModules",      m_checkBadModules);
     declareProperty("maxRDOs",              m_maxRDOs);
     declareProperty("doTimeOutChecks",      m_doTimeOutChecks);
@@ -266,11 +263,6 @@ namespace InDet{
 	ATH_MSG_ERROR( "Could not retrieve " << m_pSummarySvc );
       } else {
 	ATH_MSG_INFO( "Using " << m_pSummarySvc << " in clusterization" );
-      }
-      if (m_flaggedConditionSvc.retrieve().isFailure()){
-	ATH_MSG_ERROR( "Could not retrieve " << m_flaggedConditionSvc );
-      } else {
-	ATH_MSG_INFO( "Flagging bad modules with " <<  m_flaggedConditionSvc );
       }
     }
 
