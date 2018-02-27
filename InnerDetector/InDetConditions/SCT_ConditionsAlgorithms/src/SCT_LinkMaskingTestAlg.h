@@ -18,15 +18,12 @@
 
 //Gaudi
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 
 //Athena
-#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
+#include "SCT_ConditionsTools/ISCT_ConditionsTool.h"
 
-//Forward declarations
-class ISCT_ConditionsSvc;
-
-///Example class to show calling the SCT_LinkMaskingSvc
+///Example class to show calling the SCT_LinkMaskingTool
 class SCT_LinkMaskingTestAlg : public AthAlgorithm {
  public:
   SCT_LinkMaskingTestAlg(const std::string& name, ISvcLocator* pSvcLocator);
@@ -37,7 +34,7 @@ class SCT_LinkMaskingTestAlg : public AthAlgorithm {
   StatusCode finalize() override;
    
  private:
-  ServiceHandle<ISCT_ConditionsSvc> m_linkMaskingSvc;
+  ToolHandle<ISCT_ConditionsTool> m_linkMaskingTool{this, "LinkMaskingTool", "SCT_LinkMaskingTool", "Tool to retrieve masked links"};
 }; 
 
 #endif // SCT_LinkMaskingTestAlg_H

@@ -16,7 +16,6 @@
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/ThreadGaudi.h"
 #include "GaudiKernel/MsgStream.h"
 
 #include "eformat/SourceIdentifier.h" 
@@ -343,9 +342,8 @@ void TileHid2RESrcID::setROD2ROBmap (const eformat::FullEventFragment<const uint
     // only frag5 in the data - make sure that TileROD_Decoder is configured properly
     StatusCode sc;
     ISvcLocator* svcLoc = Gaudi::svcLocator( );
-    ThreadGaudi* threadGaudi = ThreadGaudi::instance();
     IToolSvc* toolSvc;
-    sc = svcLoc->service( "ToolSvc"+threadGaudi->getThreadID(),toolSvc);
+    sc = svcLoc->service( "ToolSvc",toolSvc);
     if(sc.isFailure()){
       log << MSG::WARNING << "TileHid2RESrcID: Can not retrieve ToolSvc" << endmsg;
       return;
@@ -400,9 +398,8 @@ void TileHid2RESrcID::setROD2ROBmap (const eformat::FullEventFragment<const uint
   if (nDataFrag[0] == 0 && (do_merge || nDataFrag[2]+nDataFrag[3]+nDataFrag[4] > 0) && nDataFrag[5] == 0 ) {
     StatusCode sc;
     ISvcLocator* svcLoc = Gaudi::svcLocator( );
-    ThreadGaudi* threadGaudi = ThreadGaudi::instance();
     IToolSvc* toolSvc;
-    sc = svcLoc->service( "ToolSvc"+threadGaudi->getThreadID(),toolSvc);
+    sc = svcLoc->service( "ToolSvc",toolSvc);
     if(sc.isFailure()){
       log << MSG::WARNING << "TileHid2RESrcID: Can not retrieve ToolSvc" << endmsg;
       return;

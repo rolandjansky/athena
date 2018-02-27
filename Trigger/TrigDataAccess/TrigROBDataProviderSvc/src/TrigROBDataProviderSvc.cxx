@@ -15,7 +15,6 @@
 #include "TrigMonitorBase/TrigLockedHist.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/ThreadGaudi.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/Property.h"
@@ -1255,7 +1254,7 @@ void TrigROBDataProviderSvc::handle(const Incident& incident) {
   }
       
   // *-- booking path
-  std::string path = std::string("/EXPERT/")+getGaudiThreadGenericName(name())+"/";
+  std::string path = std::string("/EXPERT/")+name()+"/";
 
   // *-- number of bins for sub detector plots (55 SubDet max.)
   uint32_t n_bins_partEBSubDet = eformat::helper::SubDetectorDictionary.size();

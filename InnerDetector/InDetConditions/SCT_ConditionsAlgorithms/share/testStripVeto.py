@@ -5,8 +5,8 @@ from AthenaCommon.AppMgr import ServiceMgr
 from GaudiSvc.GaudiSvcConf import AuditorSvc
 ServiceMgr += AuditorSvc()
 theAuditorSvc = ServiceMgr.AuditorSvc
-theAuditorSvc.Auditors  += [ "ChronoAuditor"]
-theAuditorSvc.Auditors  += [ "MemStatAuditor" ]
+theAuditorSvc.Auditors  += ["ChronoAuditor"]
+theAuditorSvc.Auditors  += ["MemStatAuditor"]
 theApp.AuditAlgorithms=True
 
 
@@ -66,31 +66,31 @@ IOVDbSvc = Service("IOVDbSvc")
 from IOVDbSvc.CondDB import conddb
 IOVDbSvc.GlobalTag="OFLCOND-MC16-SDR-18"
 
-### Use COOL database for SCT_ModuleVetoSvc
+### Use COOL database for SCT_StripVetoSvc
 useDB = True # False
 
-from SCT_ConditionsServices.SCT_ModuleVetoSvcSetup import SCT_ModuleVetoSvcSetup
-sct_ModuleVetoSvcSetup = SCT_ModuleVetoSvcSetup()
-if useDB:
-    sct_ModuleVetoSvcSetup.setFolderTag("SCTManualBadModules-000-00")
+from SCT_ConditionsTools.SCT_StripVetoToolSetup import SCT_StripVetoToolSetup
+sct_StripVetoToolSetup = SCT_StripVetoToolSetup()
+sct_StripVetoToolSetup.setup()
+SCT_StripVetoTool = sct_StripVetoToolSetup.getTool()
+# Identifiers should be given as strings and decimal. 
+# Identifier::compact() method returns unsigned long long.
+SCT_StripVetoTool.BadStripIdentifiers=[
+    "576522359582752768",
+    "576522475009998848",
+    "576522475278434304",
+    # "576522475546869760",
+    # "576522475815305216",
+    # "576522476083740672",
+    ]
 
-sct_ModuleVetoSvcSetup.setUseDB(useDB)
-sct_ModuleVetoSvcSetup.setup()
-SCT_ModuleVetoSvc = sct_ModuleVetoSvcSetup.getSvc()
-if useDB:
-    SCT_ModuleVetoSvc.BadModuleIdentifiers=["database"]
-else:
-    SCT_ModuleVetoSvc.BadModuleIdentifiers=["1", "2"]
+SCT_StripVetoTool.OutputLevel=DEBUG
 
-SCT_ModuleVetoSvc.OutputLevel=DEBUG
-
-from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_ModuleVetoTestAlg
-job+= SCT_ModuleVetoTestAlg()
-
+from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_StripVetoTestAlg
+job+= SCT_StripVetoTestAlg()
 
 import AthenaCommon.AtlasUnixGeneratorJob
 
-
 ServiceMgr.EventSelector.RunNumber = 300000 # MC16c 2017 run number
 ServiceMgr.EventSelector.InitialTimeStamp = 1500000000 # MC16c 2017 time stamp
-theApp.EvtMax = 1
+theApp.EvtMax = 2

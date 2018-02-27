@@ -18,17 +18,16 @@
 #include "Identifier/Identifier.h"
 
 SCT_ModuleVetoTestAlg::SCT_ModuleVetoTestAlg(const std::string& name, ISvcLocator* pSvcLocator) : 
-  AthAlgorithm(name, pSvcLocator), 
-  m_pModuleVetoSvc("SCT_ModuleVetoSvc", name) {
+  AthAlgorithm(name, pSvcLocator)
+{
   //nop
 }
 
 //Initialize
 StatusCode 
 SCT_ModuleVetoTestAlg::initialize() {
-  StatusCode sc{StatusCode::SUCCESS};
   ATH_MSG_INFO("Calling initialize");
-  sc = m_pModuleVetoSvc.retrieve();
+  StatusCode sc{m_pModuleVetoTool.retrieve()};
   if (StatusCode::SUCCESS not_eq sc) {
     ATH_MSG_ERROR("Could not retrieve the veto service");
   }
@@ -44,27 +43,27 @@ SCT_ModuleVetoTestAlg::execute() {
   ATH_MSG_INFO("Calling execute");
 
   ATH_MSG_INFO("Dummy call to module id 0: module is ");
-  bool result{m_pModuleVetoSvc->isGood(Identifier{0})};
+  bool result{m_pModuleVetoTool->isGood(Identifier{0})};
   ATH_MSG_INFO((result ? "good" : "bad"));
 
   ATH_MSG_INFO("Dummy call to module id 1:  module is ");
-  result=m_pModuleVetoSvc->isGood(Identifier{1});
+  result=m_pModuleVetoTool->isGood(Identifier{1});
   ATH_MSG_INFO((result ? "good" : "bad"));
 
   ATH_MSG_INFO("Dummy call to module id 2:  module is ");
-  result=m_pModuleVetoSvc->isGood(Identifier{2});
+  result=m_pModuleVetoTool->isGood(Identifier{2});
   ATH_MSG_INFO((result ? "good" : "bad"));
 
   ATH_MSG_INFO("Dummy call to module id 3:  module is ");
-  result=m_pModuleVetoSvc->isGood(Identifier{3});
+  result=m_pModuleVetoTool->isGood(Identifier{3});
   ATH_MSG_INFO((result ? "good" : "bad"));
 
   ATH_MSG_INFO("Dummy call to module id 151040000:  module is ");
-  result=m_pModuleVetoSvc->isGood(Identifier{151040000});
+  result=m_pModuleVetoTool->isGood(Identifier{151040000});
   ATH_MSG_INFO((result ? "good" : "bad"));
 
   ATH_MSG_INFO("Using Identifier Hash method:  with number 2137 ");
-  result=m_pModuleVetoSvc->isGood(IdentifierHash{2137});
+  result=m_pModuleVetoTool->isGood(IdentifierHash{2137});
   ATH_MSG_INFO((result ? "good" : "bad"));
 
   return StatusCode::SUCCESS;

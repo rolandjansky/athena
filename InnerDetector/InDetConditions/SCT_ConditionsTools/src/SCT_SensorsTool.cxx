@@ -1,48 +1,37 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
- * @file SCT_SensorsSvc.cxx
- * implementation file for SCT conditions service giving sensors Vdep, crystal orientation and Mfr
+ * @file SCT_SensorsTool.cxx
+ * implementation file for SCT conditions tool giving sensors Vdep, crystal orientation and Mfr
  * @author shaun.roe@cern.ch
  **/
 
-#include "SCT_SensorsSvc.h"
+#include "SCT_SensorsTool.h"
 
-SCT_SensorsSvc::SCT_SensorsSvc(const std::string& name, ISvcLocator* pSvcLocator):
-  AthService(name, pSvcLocator),
+SCT_SensorsTool::SCT_SensorsTool(const std::string& type, const std::string& name, const IInterface* parent) : 
+  base_class(type, name, parent),
   m_mutex{},
   m_cache{},
   m_condData{},
   m_condKey{"SCT_SensorsCondData"} {
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-StatusCode SCT_SensorsSvc::initialize() {
+StatusCode SCT_SensorsTool::initialize() {
   // Read Cond Handle Key
   ATH_CHECK(m_condKey.initialize());
   
   return StatusCode::SUCCESS;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-StatusCode SCT_SensorsSvc::finalize() {
-  return StatusCode::SUCCESS;
-}
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
-StatusCode SCT_SensorsSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
-  if (ISCT_SensorsSvc::interfaceID().versionMatch(riid)) {
-    *ppvInterface = this;
-  } else {
-    // Interface is not directly available : try out a base class
-    return AthService::queryInterface(riid, ppvInterface);
-  }
-  addRef();
+StatusCode SCT_SensorsTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-const SCT_SensorCondData* SCT_SensorsSvc::getSensorsData(const unsigned int truncatedSerialNumber) const {
+const SCT_SensorCondData* SCT_SensorsTool::getSensorsData(const unsigned int truncatedSerialNumber) const {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
   const SCT_SensorsCondData* condData{getCondData(ctx)};
   if (condData==nullptr) return nullptr;
@@ -52,14 +41,14 @@ const SCT_SensorCondData* SCT_SensorsSvc::getSensorsData(const unsigned int trun
   return nullptr;
 }
 
-void SCT_SensorsSvc::getSensorsData(std::vector<std::string>& userVector) {
-  ATH_MSG_WARNING("This void SCT_SensorsSvc::getSensorsData(std::vector<std::string>& userVector) method is not implemented.");
+void SCT_SensorsTool::getSensorsData(std::vector<std::string>& userVector) {
+  ATH_MSG_WARNING("This void SCT_SensorsTool::getSensorsData(std::vector<std::string>& userVector) method is not implemented.");
   for (unsigned int i{0};i!=m_sensorsValues.size(); ++i) {
     userVector.push_back(m_sensorsValues[i]);
   }
 }
 
-std::string SCT_SensorsSvc::getManufacturer(unsigned int truncatedSerialNumber) {
+std::string SCT_SensorsTool::getManufacturer(unsigned int truncatedSerialNumber) {
   std::string manufacturer{""};
   
   const EventContext& ctx{Gaudi::Hive::currentContext()};
@@ -73,7 +62,7 @@ std::string SCT_SensorsSvc::getManufacturer(unsigned int truncatedSerialNumber) 
   return manufacturer;
 }
 
-void SCT_SensorsSvc::printManufacturers() {
+void SCT_SensorsTool::printManufacturers() {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
   const SCT_SensorsCondData* condData{getCondData(ctx)};
   if (condData==nullptr) return;
@@ -83,12 +72,8 @@ void SCT_SensorsSvc::printManufacturers() {
   }
 }
 
-StatusCode SCT_SensorsSvc::fillSensorsData(int& /*i*/, std::list<std::string>& /*keys*/) {
-  return StatusCode::SUCCESS;
-}
-
 const SCT_SensorsCondData*
-SCT_SensorsSvc::getCondData(const EventContext& ctx) const {
+SCT_SensorsTool::getCondData(const EventContext& ctx) const {
   static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
   EventContext::ContextID_t slot{ctx.slot()};
   EventContext::ContextEvt_t evt{ctx.evt()};

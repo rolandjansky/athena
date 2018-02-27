@@ -1,7 +1,5 @@
 #include "../SCT_ConditionsSummarySvc.h"
 
-#include "../SCT_StripVetoSvc.h"
-
 #include "../SCT_ModuleVetoSvc.h"
 
 #include "../SCT_DCSConditionsSvc.h"
@@ -20,13 +18,7 @@
 
 #include "../SCT_SiliconConditionsSvc.h"
 
-#include "../SCT_LinkMaskingSvc.h"
-
 #include "../SCT_TdaqEnabledSvc.h"
-
-#include "../SCT_ConditionsParameterSvc.h"
-
-#include "../SCT_SensorsSvc.h"
 
 #include "../SCT_MajorityConditionsSvc.h"
 
@@ -40,7 +32,6 @@
 DECLARE_COMPONENT( SCT_ConditionsSummarySvc )
 DECLARE_COMPONENT( SCT_CachedSummarySvc )
 DECLARE_COMPONENT( SCT_ModuleVetoSvc )
-DECLARE_COMPONENT( SCT_StripVetoSvc )
 DECLARE_COMPONENT( SCT_ConfigurationConditionsSvc )
 DECLARE_COMPONENT( SCT_DCSConditionsSvc )
 DECLARE_COMPONENT( SCT_ByteStreamErrorsSvc )
@@ -49,10 +40,7 @@ DECLARE_COMPONENT( SCT_FlaggedConditionSvc )
 DECLARE_COMPONENT( SCT_ReadCalibDataSvc )
 DECLARE_COMPONENT( SCT_ReadCalibChipDataSvc )
 DECLARE_COMPONENT( SCT_SiliconConditionsSvc )
-DECLARE_COMPONENT( SCT_LinkMaskingSvc )
 DECLARE_COMPONENT( SCT_TdaqEnabledSvc )
-DECLARE_COMPONENT( SCT_ConditionsParameterSvc )
-DECLARE_COMPONENT( SCT_SensorsSvc )
 DECLARE_COMPONENT( SCT_MajorityConditionsSvc )
 DECLARE_COMPONENT( SCT_ChargeTrappingSvc )
 DECLARE_COMPONENT( SCT_RadDamageSummarySvc )

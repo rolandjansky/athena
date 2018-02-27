@@ -1,13 +1,13 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
-class SCT_SiPropertiesSvcSetup:
-    "Class to simplify setup of SCT_SiPropertiesSvc and required conditions algorithms"
+class SCT_SiPropertiesToolSetup:
+    "Class to simplify setup of SCT_SiPropertiesTool and required conditions algorithm"
 
     def __init__(self):
         self.algName = "SCTSiPropertiesCondAlg"
         self.alg = None
-        self.svcName = "SCT_SiPropertiesSvc"
-        self.svc = None
+        self.toolName = "SCT_SiPropertiesTool"
+        self.tool = None
         self.siliconSvc = None
 
     def getAlgName(self):
@@ -16,14 +16,17 @@ class SCT_SiPropertiesSvcSetup:
     def setAlgName(self, algName):
         self.algName = algName
 
-    def getSvcName(self):
-        return self.svcName
+    def getAlg(self):
+        return self.alg
 
-    def setSvcName(self, svcName):
-        self.svcName = svcName
+    def getToolName(self):
+        return self.toolName
 
-    def getSvc(self):
-        return self.svc
+    def setToolName(self, toolName):
+        self.toolName = toolName
+
+    def getTool(self):
+        return self.tool
 
     def setSiliconSvc(self, siliconSvc):
         self.siliconSvc = siliconSvc
@@ -41,15 +44,15 @@ class SCT_SiPropertiesSvcSetup:
                                                   SiConditionsServices = self.siliconSvc)
         self.alg = getattr(condSeq, self.algName)
 
-    def setSvc(self):
-        from AthenaCommon.AppMgr import ServiceMgr
-        if not hasattr(ServiceMgr, self.svcName):
-            from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesCHSvc
-            ServiceMgr += SiPropertiesCHSvc(name = self.svcName,
-                                            DetectorName = "SCT",
-                                            ReadKey = "SCTSiliconPropertiesVector")
-        self.svc = getattr(ServiceMgr, self.svcName)
+    def setTool(self):
+        from AthenaCommon.AppMgr import ToolSvc
+        if not hasattr(ToolSvc, self.toolName):
+            from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesTool
+            ToolSvc += SiPropertiesTool(name = self.toolName,
+                                        DetectorName = "SCT",
+                                        ReadKey = "SCTSiliconPropertiesVector")
+        self.tool = getattr(ToolSvc, self.toolName)
 
     def setup(self):
         self.setAlg()
-        self.setSvc()
+        self.setTool()

@@ -9,7 +9,8 @@ atlas_subdir( SCT_ConditionsData )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
                           Database/AthenaPOOL/AthenaPoolUtilities
-                          DetectorDescription/Identifier )
+                          DetectorDescription/Identifier
+                          InnerDetector/InDetConditions/SCT_ConditionsServices )
 
 # Component(s) in the package:
 atlas_add_library( SCT_ConditionsData

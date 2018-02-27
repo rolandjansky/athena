@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
-class SCT_ConditionsParameterSvcSetup:
-    "Class to simplify setup of SCT_ConditionsParameterSvc and required conditions algorithms"
+class SCT_ConditionsParameterToolSetup:
+    "Class to simplify setup of SCT_ConditionsParameterTool and required conditions algorithms"
 
     def __init__(self):
         self.folder = "/SCT/DAQ/Configuration/Chip"
@@ -9,8 +9,8 @@ class SCT_ConditionsParameterSvcSetup:
         self.dbInstance = "SCT"
         self.algName = "SCT_ConditionsParameterCondAlg"
         self.alg = None
-        self.svcName = "SCT_ConditionsParameterSvc"
-        self.svc = None
+        self.toolName = "SCT_ConditionsParameterTool"
+        self.tool = None
 
     def getFolder(self):
         return self.folder
@@ -49,17 +49,17 @@ class SCT_ConditionsParameterSvcSetup:
                                                       ReadKey = self.folder)
         self.alg = getattr(condSeq, self.algName)
 
-    def setSvc(self):
-        from AthenaCommon.AppMgr import ServiceMgr
-        if not hasattr(ServiceMgr, self.svcName):
-            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConditionsParameterSvc
-            ServiceMgr += SCT_ConditionsParameterSvc(name = self.svcName)
-        self.svc = getattr(ServiceMgr, self.svcName)
+    def setTool(self):
+        from AthenaCommon.AppMgr import ToolSvc
+        if not hasattr(ToolSvc, self.toolName):
+            from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ConditionsParameterTool
+            ToolSvc += SCT_ConditionsParameterTool(name = self.toolName)
+        self.tool = getattr(ToolSvc, self.toolName)
 
-    def getSvc(self):
-        return self.svc
+    def getTool(self):
+        return self.tool
 
     def setup(self):
         self.setFolders()
         self.setAlgs()
-        self.setSvc()
+        self.setTool()

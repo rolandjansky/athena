@@ -70,16 +70,17 @@ import AtlasGeoModel.GeoModelInit
 ServiceMgr.GeoModelSvc.DetectorTools['PixelDetectorTool'].LorentzAngleSvc=""
 ServiceMgr.GeoModelSvc.DetectorTools['SCT_DetectorTool'].LorentzAngleSvc=""
 
-from SCT_ConditionsServices.SCT_SensorsSvcSetup import SCT_SensorsSvcSetup
-sct_SensorsSvcSetup = SCT_SensorsSvcSetup()
-sct_SensorsSvcSetup.setFolderTag("SctSensors-Sep03-14")
-sct_SensorsSvcSetup.setup()
+from SCT_ConditionsTools.SCT_SensorsToolSetup import SCT_SensorsToolSetup
+sct_SensorsToolSetup = SCT_SensorsToolSetup()
+sct_SensorsToolSetup.setFolderTag("SctSensors-Sep03-14")
+sct_SensorsToolSetup.setup()
 
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
 
 from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_SensorsTestAlg
-job+= SCT_SensorsTestAlg()
+job+= SCT_SensorsTestAlg(name="SCT_SensorsTestAlg",
+                         SCT_SensorsTool=sct_SensorsToolSetup.getTool())
 
 import AthenaCommon.AtlasUnixGeneratorJob
 

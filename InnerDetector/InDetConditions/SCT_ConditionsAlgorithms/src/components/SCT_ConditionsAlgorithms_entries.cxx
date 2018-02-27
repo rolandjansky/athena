@@ -29,6 +29,7 @@
 #include "../SCT_SiliconConditionsTestAlg.h"
 #include "../SCT_SiliconHVCondAlg.h"
 #include "../SCT_SiliconTempCondAlg.h"
+#include "../SCT_StripVetoTestAlg.h"
 #include "../SCT_TdaqEnabledCondAlg.h"
 #include "../SCT_TdaqEnabledTestAlg.h"
 
@@ -63,5 +64,6 @@ DECLARE_COMPONENT( SCT_SensorsTestAlg )
 DECLARE_COMPONENT( SCT_SiliconConditionsTestAlg )
 DECLARE_COMPONENT( SCT_SiliconHVCondAlg )
 DECLARE_COMPONENT( SCT_SiliconTempCondAlg )
+DECLARE_COMPONENT( SCT_StripVetoTestAlg )
 DECLARE_COMPONENT( SCT_TdaqEnabledCondAlg )
 DECLARE_COMPONENT( SCT_TdaqEnabledTestAlg )

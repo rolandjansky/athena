@@ -10,7 +10,6 @@
 #include "GaudiKernel/IToolSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ThreadGaudi.h"
 
 #include <iostream> 
 
@@ -44,9 +43,8 @@ StatusCode Hid2RESrcID::initialize()
   MsgStream log(msgSvc, "Hid2RESrcID");
 
   // Cabling Service
-  ThreadGaudi* threadGaudi = ThreadGaudi::instance();
   IToolSvc* toolSvc;
-  sc   = Gaudi::svcLocator()->service("ToolSvc"+threadGaudi->getThreadID(),toolSvc  );
+  sc   = Gaudi::svcLocator()->service("ToolSvc",toolSvc  );
   if(sc.isSuccess())
     {
       sc = toolSvc->retrieveTool("LArCablingService",m_cablingSvc);

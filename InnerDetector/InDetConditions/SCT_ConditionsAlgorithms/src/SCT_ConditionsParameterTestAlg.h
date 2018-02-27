@@ -12,8 +12,9 @@
 
 // Include Athena stuff
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "Identifier/Identifier.h"
+#include "SCT_ConditionsTools/ISCT_ConditionsParameterTool.h"
 
 // Read Handle Key
 #include "StoreGate/ReadHandleKey.h"
@@ -24,7 +25,6 @@
 #include <string>
 
 // Forward declarations
-class ISCT_ConditionsParameterSvc;
 namespace InDetDD{class SCT_DetectorManager;}
 
 /** This class acts as a test/sample client the ConditionsParameter class.
@@ -42,7 +42,7 @@ class SCT_ConditionsParameterTestAlg : public AthAlgorithm {
     
  private:
   SG::ReadHandleKey<xAOD::EventInfo> m_currentEventKey;  //!< Current event
-  ServiceHandle<ISCT_ConditionsParameterSvc> m_conditionsParameterSvc;
+  ToolHandle<ISCT_ConditionsParameterTool> m_conditionsParameterTool{this, "SCT_ConditionsParameterTool", "SCT_ConditionsParameterTool", "Tool to retrieve SCT conditions parameters"};
   std::string m_histoString;
 };
 

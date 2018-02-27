@@ -68,15 +68,15 @@ conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/Geog", "/SCT/DAQ/Config/Geog")
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/RODMUR", "/SCT/DAQ/Config/RODMUR")
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/MUR", "/SCT/DAQ/Config/MUR")
 
-from SCT_ConditionsServices.SCT_LinkMaskingSvcSetup import SCT_LinkMaskingSvcSetup
-sct_LinkMaskingSvcSetup = SCT_LinkMaskingSvcSetup()
-sct_LinkMaskingSvcSetup.setFolderDb("<dbConnection>sqlite://;schema=LinkMasking.db;dbname=CONDBR2</dbConnection>/purple/pants")
+from SCT_ConditionsTools.SCT_LinkMaskingToolSetup import SCT_LinkMaskingToolSetup
+sct_LinkMaskingToolSetup = SCT_LinkMaskingToolSetup()
+sct_LinkMaskingToolSetup.setFolderDb("<dbConnection>sqlite://;schema=LinkMasking.db;dbname=CONDBR2</dbConnection>/purple/pants")
 # This folder can be created by SCT_ConditionsServices/python/createLinkMaskingSQLiteFile.py
-sct_LinkMaskingSvcSetup.setup()
+sct_LinkMaskingToolSetup.setup()
 
 from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_LinkMaskingTestAlg
 LinkMaskingTestAlg = SCT_LinkMaskingTestAlg(name = "SCT_LinkMaskingTestAlg")
-LinkMaskingTestAlg.LinkMaskingSvc = sct_LinkMaskingSvcSetup.getSvc()
+LinkMaskingTestAlg.LinkMaskingTool = sct_LinkMaskingToolSetup.getTool()
 job += LinkMaskingTestAlg
 
 import AthenaCommon.AtlasUnixGeneratorJob

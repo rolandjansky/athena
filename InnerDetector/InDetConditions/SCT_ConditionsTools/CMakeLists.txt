@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/AthenaBaseComps
                           Control/StoreGate
+                          InnerDetector/InDetConditions/SCT_ConditionsData
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetDetDescr/SCT_Cabling )
@@ -25,7 +26,7 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 atlas_add_component ( SCT_ConditionsTools
                       src/components/*.cxx
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel Identifier GaudiKernel AthenaBaseComps StoreGateLib SGtests InDetIdentifier InDetReadoutGeometry SCT_CablingLib SCT_ConditionsToolsLib )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel Identifier GaudiKernel AthenaBaseComps StoreGateLib SGtests SCT_ConditionsData InDetIdentifier InDetReadoutGeometry SCT_CablingLib SCT_ConditionsToolsLib )
 
 
 atlas_add_library( SCT_ConditionsToolsLib
@@ -33,9 +34,10 @@ atlas_add_library( SCT_ConditionsToolsLib
                    src/components/*.cxx
                    PUBLIC_HEADERS SCT_ConditionsTools
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel Identifier GaudiKernel AthenaBaseComps StoreGateLib SGtests InDetIdentifier InDetReadoutGeometry SCT_CablingLib )
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel Identifier GaudiKernel AthenaBaseComps StoreGateLib SGtests SCT_ConditionsData InDetIdentifier InDetReadoutGeometry SCT_CablingLib )
 
 # Add unit tests
 
 # Install files from the package:
 atlas_install_headers( SCT_ConditionsTools )
+atlas_install_python_modules( python/*.py )
