@@ -155,17 +155,12 @@ namespace xAOD {
      std::vector< double > rnnip_pb;
      std::vector< double > rnnip_pu;
      std::vector< double > rnnip_pc;
-     //std::vector< std::vector< ElementLink< xAOD::TrackParticleContainer > > > rnnip_TrackParticles;
      std::vector< std::vector< ElementLink< TrackParticleContainer > > > rnnip_TrackParticleLinks; 
 
      std::vector< std::vector< float > > rnnip_d0;
      std::vector< std::vector< float > > rnnip_d0sig;
      std::vector< std::vector< float > > rnnip_z0;
      std::vector< std::vector< float > > rnnip_z0sig;
-     // std::vector< std::vector< float > > rnnip_dphi;
-     // std::vector< std::vector< float > > rnnip_pTFrac;
-     // std::vector< std::vector< float > > rnnip_dR;
-     // std::vector< std::vector< float > > rnnip_dEta;
      std::vector< std::vector< float > > rnnip_fromV0;
      std::vector< std::vector< float > > rnnip_grade;
 
@@ -173,14 +168,8 @@ namespace xAOD {
      std::vector< double > SMT_discriminant;
      std::vector< ElementLink< xAOD::MuonContainer > > SMT_mu_link;
 
-     // std::vector<float> SMT_mu_pt;
-     // std::vector<float> SMT_dR;     
-     // std::vector<float> SMT_qOverPratio;
      std::vector<float> SMT_mombalsignif;
      std::vector<float> SMT_scatneighsignif;
-     // std::vector<float> SMT_pTrel;
-     // std::vector<float> SMT_mu_d0;
-     // std::vector<float> SMT_mu_z0;
      std::vector<float> SMT_ID_qOverP;
 
 
