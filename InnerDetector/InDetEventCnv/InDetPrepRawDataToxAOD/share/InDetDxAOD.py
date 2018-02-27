@@ -593,9 +593,23 @@ IDTRKVALIDStream.AddItem("xAOD::EventAuxInfo#*")
 # Add track particles collection and traclets (if available)
 IDTRKVALIDStream.AddItem("xAOD::TrackParticleContainer#InDetTrackParticles")
 IDTRKVALIDStream.AddItem("xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux."+excludedAuxData)
+
+if InDetFlags.doStoreTrackSeeds():
+   IDTRKVALIDStream.AddItem('xAOD::TrackParticleContainer#'+InDetKeys.SiSPSeedSegments()+"TrackParticle")
+   IDTRKVALIDStream.AddItem('xAOD::TrackParticleAuxContainer#'+InDetKeys.SiSPSeedSegments()+"TrackParticle"+'Aux.' + excludedAuxData)
+
+if InDetFlags.doStoreTrackCandidates():
+   IDTRKVALIDStream.AddItem('xAOD::TrackParticleContainer#'+InDetKeys.xAODSiSPTrackCandidates()+"TrackParticle")
+   IDTRKVALIDStream.AddItem('xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODSiSPTrackCandidates()+"TrackParticle"+'Aux.' + excludedAuxData)
+
 if InDetFlags.doTrackSegmentsPixel():
     IDTRKVALIDStream.AddItem("xAOD::TrackParticleContainer#InDetPixelTrackParticles")
     IDTRKVALIDStream.AddItem("xAOD::TrackParticleAuxContainer#InDetPixelTrackParticlesAux."+excludedAuxData)
+
+if InDetFlags.doTrackSegmentsPixelThreeLayer():
+   IDTRKVALIDStream.AddItem('xAOD::TrackParticleContainer#'+InDetKeys.xAODPixelThreeLayerTrackParticleContainer())
+   IDTRKVALIDStream.AddItem('xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODPixelThreeLayerTrackParticleContainer()+'Aux.' + excludedAuxData)
+
 # Add split tracks, if requested
 if makeSplitTracks:
     IDTRKVALIDStream.AddItem("xAOD::TrackParticleContainer#InDetSplitTrackParticles")

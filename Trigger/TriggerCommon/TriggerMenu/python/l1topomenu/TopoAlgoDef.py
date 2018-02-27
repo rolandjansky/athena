@@ -1576,9 +1576,9 @@ class TopoAlgoDef:
 
 
 
-        # added for b-phys
+        # added for b-phys, 0DR03-EM7ab-CJ15ab
         for x in [  
-            {"minDr": 0, "maxDr": 4, "otype1" : "EM" ,"ocut1": 7,  "olist1" : "ab", "otype2" : "CJ", "ocut2": 15, "olist2" : "ab"} 
+            {"minDr": 0, "maxDr": 3, "otype1" : "EM" ,"ocut1": 7,  "olist1" : "ab", "otype2" : "CJ", "ocut2": 15, "olist2" : "ab"} 
             ]:
 
             for k in x:

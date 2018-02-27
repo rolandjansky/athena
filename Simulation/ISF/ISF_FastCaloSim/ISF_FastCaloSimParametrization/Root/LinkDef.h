@@ -3,7 +3,6 @@
 */
 
 #ifdef __CINT__
-#pragma link C++ class TFCSLateralShapeParametrization+;
 #pragma link C++ class TFCSNNLateralShapeParametrization+;
 #pragma link C++ class TFCSSimpleLateralShapeParametrization+;
 #pragma link C++ class MeanAndRMS;
@@ -24,7 +23,6 @@
 #ifndef CaloGeometryFromFile_h
 #pragma link C++ class CaloGeometryLookup;
 #pragma link C++ class CaloGeometry;
-#pragma link C++ class ICaloGeometry;
 #endif
 #endif
 

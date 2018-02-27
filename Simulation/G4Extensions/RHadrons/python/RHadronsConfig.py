@@ -13,3 +13,11 @@ def getSG_StepNtupleTool(name="G4UA::SG_StepNtupleTool", **kwargs):
         return False
     from RHadrons.RHadronsConf import G4UA__SG_StepNtupleTool
     return G4UA__SG_StepNtupleTool(name, **kwargs)
+
+def getRHadronsPythiaPhysicsTool(name='RHadronsPythiaPhysicsTool', **kwargs):
+    kwargs.setdefault('UsePythia8',False)
+    return CfgMgr.RHadronsPhysicsTool(name,**kwargs)
+
+def getRHadronsPythia8PhysicsTool(name='RHadronsPythia8PhysicsTool', **kwargs):
+    kwargs.setdefault('UsePythia8',True)
+    return CfgMgr.RHadronsPhysicsTool(name,**kwargs)

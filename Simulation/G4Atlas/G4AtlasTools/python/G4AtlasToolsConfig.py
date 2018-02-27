@@ -191,6 +191,7 @@ def generateTestBeamSensitiveDetectorList():
             SensitiveDetectorList += [ 'TileCTBGeoG4CalibSD' ] # mode 1 : With CaloCalibrationHits
         else:
             SensitiveDetectorList += [ 'TileCTBGeoG4SD' ]      # mode 0 : No CaloCalibrationHits
+            SensitiveDetectorList += [ 'MuonWallSD' ]
     if DetFlags.geometry.Muon_on():
         SensitiveDetectorList += [ 'MuonEntryRecord' ]
     SensitiveDetectorList += generateMuonSensitiveDetectorList()
