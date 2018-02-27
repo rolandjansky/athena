@@ -228,8 +228,8 @@ if DetFlags.haveRIO.SCT_on():
         print InDetSCT_ReadCalibDataSvc
     
     # Load flagged condition service
-    from SCT_ConditionsServices.SCT_FlaggedConditionRHSvcSetup import SCT_FlaggedConditionRHSvcSetup
-    sct_FlaggedConditionSvcSetup = SCT_FlaggedConditionRHSvcSetup()
+    from SCT_ConditionsServices.SCT_FlaggedConditionSvcSetup import SCT_FlaggedConditionSvcSetup
+    sct_FlaggedConditionSvcSetup = SCT_FlaggedConditionSvcSetup()
     sct_FlaggedConditionSvcSetup.setup()
     InDetSCT_FlaggedConditionSvc = sct_FlaggedConditionSvcSetup.getSvc()
     if (InDetFlags.doPrintConfigurables()):

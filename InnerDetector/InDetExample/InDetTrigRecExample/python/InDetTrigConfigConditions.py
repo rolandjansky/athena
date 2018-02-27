@@ -301,8 +301,8 @@ class SCT_ConditionsServicesSetup:
 
   def initFlaggedSvc(self, instanceName):
     "Init flagged conditions service"
-    from SCT_ConditionsServices.SCT_FlaggedConditionRHSvcSetup import SCT_FlaggedConditionRHSvcSetup
-    sct_FlaggedConditionSvcSetup = SCT_FlaggedConditionRHSvcSetup()
+    from SCT_ConditionsServices.SCT_FlaggedConditionSvcSetup import SCT_FlaggedConditionSvcSetup
+    sct_FlaggedConditionSvcSetup = SCT_FlaggedConditionSvcSetup()
     sct_FlaggedConditionSvcSetup.setSvcName(instanceName)
     sct_FlaggedConditionSvcSetup.setup()
     flaggedSvc = sct_FlaggedConditionSvcSetup.getSvc()
