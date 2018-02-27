@@ -62,7 +62,7 @@ namespace CP {
                 m_nReplicas(100),
                 m_ReplicaRandomSeed(12345) {
       
-        declareProperty("MuonQuality", m_muonquality); // HighPt,Tight,Medium,Loose
+        declareProperty("MuonQuality", m_muonquality); // HighPt,Tight,Medium,Loose,LowPt
         declareProperty("CalibrationRelease", m_calibration_version);
         // these are for debugging / testing, *not* for general use!
         declareProperty("filename", m_fileName);
@@ -133,6 +133,8 @@ namespace CP {
         static const std::vector<std::string> systematic { "nominal", "stat_up", "stat_down", "syst_up", "syst_down" };
 
         const std::string quality = m_muonquality;
+	if(m_muonquality == "LowPt")
+	  m_muonquality == "Medium";
         TDirectory* qualityDirectory = file->GetDirectory(m_muonquality.c_str());
         if (qualityDirectory == nullptr) {
             ATH_MSG_FATAL("MuonTriggerScaleFactors::initialize cannot find directory with selected quality");
@@ -246,14 +248,6 @@ namespace CP {
 	return CorrectionCode::Error;
       }
 
-      unsigned int run = getRunNumber();
-      auto year = getYear(run);
-      if(year == 2017 && m_muonquality=="HighPt"){
-	ATH_MSG_ERROR("Scale factors for HighPt working point are currently not supported for 2017. Returning 1. Update coming soon, so please stay tuned.");
-	triggersf = 1.;
-	return CorrectionCode::Ok;
-      }
-      
       TrigMuonEff::Configuration configuration;
 
       if (trigger == "HLT_mu8noL1")
@@ -270,14 +264,6 @@ namespace CP {
             ATH_MSG_ERROR("MuonTriggerScaleFactors::getTriggerScaleFactor Trigger must have value.");
             return CorrectionCode::Error;
         }
-
-	unsigned int run = getRunNumber();
-	auto year = getYear(run);
-	if(year == 2017 && m_muonquality=="HighPt"){
-	  ATH_MSG_ERROR("Scale factors for HighPt working point are currently not supported for 2017. Returning 1. Update coming soon, so please stay tuned.");
-	  triggersf = 1.;
-	  return CorrectionCode::Ok;
-	}
 
         TrigMuonEff::Configuration configuration;
 
@@ -334,9 +320,9 @@ namespace CP {
         static const CP::SystematicVariation syst_down("MUON_EFF_TrigSystUncertainty", -1);
 
         std::string systype = "";
-        if (appliedSystematics().matchSystematic(syst_down)) {
+        if (appliedSystematics().matchSystematic(syst_down) && !dataType) {
             systype = "syst_down";
-        } else if (appliedSystematics().matchSystematic(syst_up)) {
+        } else if (appliedSystematics().matchSystematic(syst_up) && !dataType) {
             systype = "syst_up";
         } else if (appliedSystematics().matchSystematic(stat_down)) {
             systype = "stat_down";
@@ -355,7 +341,6 @@ namespace CP {
             configuration.replicaIndex = getReplica_index(appliedSystematics().begin()->basename(), trigger);
             if (configuration.replicaIndex != -1) systype = "replicas";
         }
-
         CorrectionCode cc = getMuonEfficiency(efficiency, configuration, mu, trigger, systype);
         return cc;
     }
@@ -426,6 +411,7 @@ namespace CP {
 
     }
     TH1_Ptr MuonTriggerScaleFactors::getEfficiencyHistogram(unsigned int year, const std::string& period, const std::string& trigger, bool isData, const std::string& Systematic, bool isBarrel) const {
+      
         EffiHistoIdent Ident = EffiHistoIdent(YearPeriod(year, period), encodeHistoName(period, trigger, isData, Systematic, isBarrel));
         EfficiencyMap::const_iterator Itr = m_efficiencyMap.find(Ident);
         if (Itr == m_efficiencyMap.end()) {
@@ -629,7 +615,6 @@ namespace CP {
         if ((mucont.size()) and (fabs(1. - rate_not_fired_mc) > 0.0001)) {
 
             event_SF = (1. - rate_not_fired_data) / (1. - rate_not_fired_mc);
-
         }
         TriggerSF = event_SF;
 
@@ -642,8 +627,6 @@ namespace CP {
         if (result != CorrectionCode::Ok)
 	  return result;
 
-        double rate_not_fired_data = 1.;
-        double rate_not_fired_mc = 1.;
 	double eff_data = 0., eff_mc = 0.;
 
 	if (mu.pt() < threshold) {
@@ -694,11 +677,10 @@ namespace CP {
 	CorrectionCode result_mc = getMuonEfficiency(eff_mc, configuration, mu, muon_trigger_name, mc_err);
 	if (result_mc != CorrectionCode::Ok)
 	  return result_data;
-	if (1 - rate_not_fired_data == 0)
+	if (eff_data == 0)
 	  TriggerSF =  0;
-        if (fabs(1. - rate_not_fired_mc) > 0.0001)
-	  TriggerSF = (1. - rate_not_fired_data) / (1. - rate_not_fired_mc);
-
+        if (fabs(eff_mc) > 0.0001)
+	  TriggerSF = eff_data / eff_mc;
         return CorrectionCode::Ok;
   }
   
