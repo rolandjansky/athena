@@ -851,13 +851,6 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
         from TrigBphysHypo.TrigEFBMuMuFexConfig import EFBMuMuFex_noId
         from TrigBphysHypo.TrigEFBMuMuHypoConfig import EFBMuMuHypo_Jpsi_noId
         
-        if doPEB:
-            from TrigDetCalib.TrigDetCalibConfig import TrigCheckForMuons_peb075
-            bphysROBWriter = TrigCheckForMuons_peb075("bphysROBWriter_peb075")
-            EFTEname = "EF_" + chainDict['chainName']+"_1"
-            inputTEsEF = theChainDef.signatureList[-1]['listOfTriggerElements']
-            theChainDef.addSequence([bphysROBWriter],inputTEsEF, EFTEname)
-            theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFTEname]+inputTEsEF)
 
         if 'noL1' in chainDict['chainName'] : # OI then L2 is not available and L2Fex makes no sense
             L2Fex = None
@@ -1144,6 +1137,14 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoSta
         theChainDef.addSequence([EFFex, EFHypo],inputTEsEF, EFTEname, topo_start_from = topo2StartFrom)
     theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFTEname])       
 
+    if doPEB:
+        from TrigDetCalib.TrigDetCalibConfig import TrigCheckForMuons_peb075
+        bphysROBWriter = TrigCheckForMuons_peb075("bphysROBWriter_peb075")
+        EFTEname = "EF_" + chainDict['chainName']+"_1"
+        inputTEsEF = theChainDef.signatureList[-1]['listOfTriggerElements']
+        theChainDef.addSequence([bphysROBWriter],inputTEsEF, EFTEname)
+        theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFTEname]+inputTEsEF)
+        
     return theChainDef
 
 
