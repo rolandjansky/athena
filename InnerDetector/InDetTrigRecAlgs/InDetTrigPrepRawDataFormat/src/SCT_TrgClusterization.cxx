@@ -60,7 +60,6 @@ namespace InDet{
     m_flaggedCondDataName("SCT_FlaggedCondData"),
     m_idHelper(0),
     m_clusterContainer(nullptr),
-    m_flaggedCondData(nullptr),
     m_regionSelector("RegSelSvc", name),
     m_doFullScan(false),
     m_etaHalfWidth(0.1),
@@ -207,27 +206,6 @@ namespace InDet{
     }
     m_clusterContainer->addRef();
 
-    // Prepare SCT_FlaggedCondData
-    if (!store()->transientContains<SCT_FlaggedCondData>(m_flaggedCondDataName)) {
-      m_flaggedCondData = new SCT_FlaggedCondData{};
-
-      if (store()->record(m_flaggedCondData, m_flaggedCondDataName).isFailure()) {
-	ATH_MSG_WARNING( "Container " << m_flaggedCondDataName << " could not be recorded in StoreGate !" );
-      }
-      else {
-	ATH_MSG_INFO( "Container " << m_flaggedCondDataName << " recorded in StoreGate" );
-      }
-    }
-    else {
-      if (store()->retrieve(m_flaggedCondData, m_flaggedCondDataName).isFailure()) {
-        ATH_MSG_ERROR( "Container " << m_flaggedCondDataName << " could not be retrieved from StoreGate !" );
-        return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
-      }
-      else {
-        ATH_MSG_INFO( "Container " << m_flaggedCondDataName << " is retrieved from TDS: " );
-      }
-    }
-
     //symlink the collection
     const SiClusterContainer* symSiContainer(0);
     sc = store()->symLink(m_clusterContainer, symSiContainer);
@@ -325,11 +303,11 @@ namespace InDet{
     }
     
     // Prepare SCT_FlaggedCondData
+    SCT_FlaggedCondData* flaggedCondData{nullptr};
     if (!store()->transientContains<SCT_FlaggedCondData>(m_flaggedCondDataName)) {
-      // The data is cleaned up only at the begining of the event.
-      m_flaggedCondData->clear();
+      flaggedCondData = new SCT_FlaggedCondData{};
 
-      if (store()->record(m_flaggedCondData, m_flaggedCondDataName, false).isFailure()) {
+      if (store()->record(flaggedCondData, m_flaggedCondDataName, true, true).isFailure()) {
         ATH_MSG_WARNING(" Container " << m_flaggedCondDataName << " could not be recorded in StoreGate !");
       }
       else {
@@ -338,6 +316,10 @@ namespace InDet{
     }
     else {
       ATH_MSG_DEBUG( "Container '" << m_flaggedCondDataName << "' existed already  in StoreGate. " );
+      if (!store()->retrieve(flaggedCondData, m_flaggedCondDataName)) {
+        ATH_MSG_WARNING(m_flaggedCondDataName <<" could not be retrieved from StoreGate !" );
+        return HLT::OK;
+      }
     }
 
     if(doTiming()) m_timerSGate->pause();
@@ -507,7 +489,7 @@ namespace InDet{
 	const size_t rdosize = RDO_Collection->size();
 	if (m_maxRDOs >0 && rdosize>m_maxRDOs){
           const int hid = RDO_Collection->identifyHash();
-          m_flaggedCondData->insert(std::make_pair(hid, maxRDOsReached));
+          flaggedCondData->insert(std::make_pair(hid, maxRDOsReached));
           m_flaggedModules.insert(hid);
           m_occupancyHashId.push_back(hid);
 	  continue;
@@ -583,7 +565,7 @@ namespace InDet{
 	
 	if (m_maxRDOs >0 && rdosize>m_maxRDOs){
           const int hid = rd->identifyHash();
-          m_flaggedCondData->insert(std::make_pair(hid, maxRDOsReached));
+          flaggedCondData->insert(std::make_pair(hid, maxRDOsReached));
           m_flaggedModules.insert(hid);
           m_occupancyHashId.push_back(hid);
 	  continue;
@@ -648,7 +630,6 @@ namespace InDet{
     ATH_MSG_INFO( "SCT_TrgClusterization::hltFinalize()" );
 
     m_clusterContainer->cleanup();
-    m_flaggedCondData->clear();
 
     //delete m_globalPosAlg;  
     //delete m_clusterContainer;

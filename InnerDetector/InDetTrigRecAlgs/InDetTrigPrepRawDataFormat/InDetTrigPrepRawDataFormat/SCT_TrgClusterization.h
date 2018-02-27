@@ -116,7 +116,6 @@ namespace InDet {
     const SCT_ID*           m_idHelper;
     
     SCT_ClusterContainer*   m_clusterContainer;
-    SCT_FlaggedCondData*   m_flaggedCondData;
     const InDetDD::SiDetectorManager* m_manager;
     
     // !<  Trigger part
