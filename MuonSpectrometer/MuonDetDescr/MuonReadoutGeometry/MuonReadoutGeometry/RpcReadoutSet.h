@@ -46,6 +46,9 @@ private:
    Identifier m_id; // this is a detectorId
    const RpcIdHelper*  m_helper;
    const MuonDetectorManager* m_mgr;
+   mutable unsigned int m_nreadoutelemets;
+   mutable unsigned int m_ndoubletz;
+   mutable unsigned int m_nsegmenteddoubletz;
 };
 
 } // namespace MuonGM
