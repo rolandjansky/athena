@@ -30,7 +30,11 @@ namespace xAOD {
        ///neutral eflow
        neflowisol = 4,
 
-       numIsolationFlavours=5
+       ///ptvarcone for high mu
+       ptvarcone_TightTTVA_pt500 = 5,
+       ptvarcone_TightTTVA_pt1000 = 6,
+
+       numIsolationFlavours=7
 
      }; // enum IsolationFlavour
 
@@ -41,6 +45,8 @@ namespace xAOD {
        case topoetcone: return "topoetcone";
        case ptvarcone:  return "ptvarcone";
        case neflowisol: return "neflowisol";
+       case ptvarcone_TightTTVA_pt500:  return "ptvarcone_TightTTVA_pt500";
+       case ptvarcone_TightTTVA_pt1000:  return "ptvarcone_TightTTVA_pt1000";
        default:         return "[Unknown IsolationFlavour]";	
        }
      }
