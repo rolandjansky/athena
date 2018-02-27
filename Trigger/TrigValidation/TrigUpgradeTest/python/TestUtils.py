@@ -44,7 +44,12 @@ class MenuTest:
     METThresholdToChainMapping = ["UNUSED : HLT_xe10",
                                   "UNUSED : HLT_xs20",
                                   "UNUSED : HLT_te15"]
-
+def applyMenu(l1decoder ):
+    l1decoder.ctpUnpacker.CTPToChainMapping = MenuTest.CTPToChainMapping
+    l1decoder.roiUnpackers["MURoIsUnpackingTool"].ThresholdToChainMapping = MenuTest.MUThresholdToChainMapping
+    l1decoder.roiUnpackers["EMRoIsUnpackingTool"].ThresholdToChainMapping = MenuTest.EMThresholdToChainMapping
+    l1decoder.roiUnpackers["METRoIsUnpackingTool"].ThresholdToChainMapping = MenuTest.METThresholdToChainMapping
+        
     
 # L1Decoder for bytestream
 from L1Decoder.L1DecoderConf import L1Decoder
