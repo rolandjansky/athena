@@ -22,6 +22,7 @@ from DerivationFrameworkJetEtMiss.JetCommon import (
     OutputJets, addJetOutputs)
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import (
     addDefaultTrimmedJets, replaceAODReducedJets)
+from JetRec.JetRecStandard import jtm
 
 # tracking
 from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import (
@@ -77,6 +78,7 @@ FTAG5HbbThinningTool = HbbThinner(
     largeJetEtaCut = 2.1,
     smallJetPtCut = 7e3,
     nLeadingSubjets = 3,
+    addSubjetGhosts = True,
     addConstituents = True,
     addConeAssociated = True)
 ToolSvc += FTAG5HbbThinningTool
@@ -135,7 +137,7 @@ addVRJets(FTAG5Seq,
           VRJetName="AntiKtVR30Rmax4Rmin02Track",
           VRGhostLabel="GhostVR30Rmax4Rmin02TrackJet",
           VRJetAlg="AntiKt", VRJetRadius=0.4,
-          VRJetInputs="pv0track", #or should this be lctopo?
+          VRJetInputs='pv0track',
           ghostArea = 0 , ptmin = 2000, ptminFilter = 7000,
           variableRMinRadius = 0.02, variableRMassScale = 30000,
           calibOpt = "none")

@@ -23,16 +23,29 @@ if globalflags.DataSource()=='geant4':
   isMC = True
 
 #====================================================================
+# SET UP STREAM   
+#====================================================================
+streamName = derivationFlags.WriteDAOD_EXOT3Stream.StreamName
+fileName   = buildFileName( derivationFlags.WriteDAOD_EXOT3Stream )
+EXOT3Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+EXOT3Stream.AcceptAlgs(["EXOT3Kernel"])
+
+#====================================================================
 # THINNING TOOL 
 #====================================================================
 
+#thinning helper
+from DerivationFrameworkCore.ThinningHelper import ThinningHelper
+EXOT3ThinningHelper = ThinningHelper( "EXOT3ThinningHelper" )
+EXOT3ThinningHelper.AppendToStream( EXOT3Stream )
+  
 thinningTools = []
 
 # Track thinning
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 thinExpression = '(InDetTrackParticles.d0 < 1.5) && ((DFCommonInDetTrackZ0AtPV * sin(InDetTrackParticles.theta )) <= 1.5)'
 EXOT3TPThinningTool = DerivationFramework__TrackParticleThinning(name                    = "EXOT3TPThinningTool",
-                                                                 ThinningService         = "EXOT3ThinningSvc",
+                                                                 ThinningService         = EXOT3ThinningHelper.ThinningSvc(),
                                                                  SelectionString         = thinExpression,
                                                                  InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += EXOT3TPThinningTool
@@ -41,7 +54,7 @@ thinningTools.append(EXOT3TPThinningTool)
 # Tracks and CaloClusters associated with TCCs
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TCCTrackParticleThinning
 EXOT3TCCTPThinningTool = DerivationFramework__TCCTrackParticleThinning(name                         = "EXOT3TCCTPThinningTool",
-                                                                       ThinningService              = "EXOT3ThinningSvc",
+                                                                       ThinningService              = EXOT3ThinningHelper.ThinningSvc(),
                                                                        JetKey                       = "AntiKt10TrackCaloClusterJets",
                                                                        TCCKey                       = "TrackCaloClustersCombinedAndNeutral",
                                                                        InDetTrackParticlesKey       = "InDetTrackParticles",
@@ -54,7 +67,7 @@ thinningTools.append(EXOT3TCCTPThinningTool)
 # Tracks associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 EXOT3MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "EXOT3MuonTPThinningTool",
-                                                                         ThinningService         = "EXOT3ThinningSvc",
+                                                                         ThinningService         = EXOT3ThinningHelper.ThinningSvc(),
                                                                          MuonKey                 = "Muons",
                                                                          InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += EXOT3MuonTPThinningTool
@@ -63,7 +76,7 @@ thinningTools.append(EXOT3MuonTPThinningTool)
 # Tracks associated with Electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 EXOT3ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = "EXOT3ElectronTPThinningTool",
-                                                                               ThinningService         = "EXOT3ThinningSvc",
+                                                                               ThinningService         = EXOT3ThinningHelper.ThinningSvc(),
                                                                                SGKey             	   = "Electrons",
                                                                                InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += EXOT3ElectronTPThinningTool
@@ -71,7 +84,7 @@ thinningTools.append(EXOT3ElectronTPThinningTool)
 
 # Tracks associated with Photons
 EXOT3PhotonTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = "EXOT3PhotonTPThinningTool",
-                                                                             ThinningService         = "EXOT3ThinningSvc",
+                                                                             ThinningService         = EXOT3ThinningHelper.ThinningSvc(),
                                                                              SGKey             	     = "Photons",
                                                                              InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += EXOT3PhotonTPThinningTool
@@ -79,22 +92,22 @@ thinningTools.append(EXOT3PhotonTPThinningTool)
 
 #Tracks associated with Jets
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
-EXOT3AKt10JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name               = "EXOT3AKt10JetTPThinningTool",
-                                                                        ThinningService         = "EXOT3ThinningSvc",
-                                                                        JetKey                  = "AntiKt10LCTopoJets",
-                                                                        SelectionString         = "AntiKt10LCTopoJets.pt > 150*GeV && abs(AntiKt10LCTopoJets.eta) < 2.8",
-                                                                        InDetTrackParticlesKey  = "InDetTrackParticles")
+EXOT3AKt10JetTPThinningTool = DerivationFramework__JetTrackParticleThinning(name                    = "EXOT3AKt10JetTPThinningTool",
+                                                                            ThinningService         = EXOT3ThinningHelper.ThinningSvc(),
+                                                                            JetKey                  = "AntiKt10LCTopoJets",
+                                                                            SelectionString         = "AntiKt10LCTopoJets.pt > 150*GeV && abs(AntiKt10LCTopoJets.eta) < 2.8",
+                                                                            InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += EXOT3AKt10JetTPThinningTool
 thinningTools.append(EXOT3AKt10JetTPThinningTool)
 
 # Calo-cluster thinning
 from DerivationFrameworkCalo.DerivationFrameworkCaloConf import DerivationFramework__JetCaloClusterThinning
-EXOT3AKt10CCThinningTool = DerivationFramework__JetCaloClusterThinning(name                 = "EXOT3Ak10CCThinningTool",
-                                                                      ThinningService       = "EXOT3ThinningSvc",
-                                                                      SGKey                 = "AntiKt10LCTopoJets",
-                                                                      TopoClCollectionSGKey = "CaloCalTopoClusters",
-                                                                      SelectionString       = "AntiKt10LCTopoJets.pt > 150*GeV && abs(AntiKt10LCTopoJets.eta) < 2.8",
-                                                                      AdditionalClustersKey = ["LCOriginTopoClusters"])
+EXOT3AKt10CCThinningTool = DerivationFramework__JetCaloClusterThinning(name                  = "EXOT3Ak10CCThinningTool",
+                                                                       ThinningService       = EXOT3ThinningHelper.ThinningSvc(),
+                                                                       SGKey                 = "AntiKt10LCTopoJets",
+                                                                       TopoClCollectionSGKey = "CaloCalTopoClusters",
+                                                                       SelectionString       = "AntiKt10LCTopoJets.pt > 150*GeV && abs(AntiKt10LCTopoJets.eta) < 2.8",
+                                                                       AdditionalClustersKey = ["LCOriginTopoClusters"])
 ToolSvc += EXOT3AKt10CCThinningTool
 thinningTools.append(EXOT3AKt10CCThinningTool)
 
@@ -102,7 +115,7 @@ thinningTools.append(EXOT3AKt10CCThinningTool)
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
 EXOT3MCThinningTool = DerivationFramework__MenuTruthThinning(
         name                = "EXOT3MCThinningTool",
-        ThinningService     = "EXOT3ThinningSvc",
+        ThinningService     = EXOT3ThinningHelper.ThinningSvc(),
         WriteEverything     = False,
         WritePartons        = False,
         WriteHadrons        = True,
@@ -274,8 +287,6 @@ addVRJets(exot3Seq, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJet"
 # use alias for VR jets
 from BTagging.BTaggingFlags import BTaggingFlags
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
-from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
-FlavorTagInit(JetCollections = ["AntiKtVR30Rmax4Rmin02TrackJets"], Sequencer = exot3Seq)
 
 #some jets collections are not included in the new jet restoring mechanism and need to be added the old way
 #trimmed jets
@@ -289,19 +300,6 @@ applyJetCalibration_CustomColl("AntiKt10LCTopoTrimmedPtFrac5SmallR20", exot3Seq)
 #=======================================
 exot3Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT3Kernel_skim", SkimmingTools = [EXOT3FinalSkimmingTool])
 exot3Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT3Kernel", ThinningTools = thinningTools)
-
-#====================================================================
-# SET UP STREAM   
-#====================================================================
-streamName = derivationFlags.WriteDAOD_EXOT3Stream.StreamName
-fileName   = buildFileName( derivationFlags.WriteDAOD_EXOT3Stream )
-EXOT3Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-EXOT3Stream.AcceptAlgs(["EXOT3Kernel"])
-# Thinning
-from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-augStream = MSMgr.GetStream( streamName )
-evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="EXOT3ThinningSvc", outStreams=[evtStream] )
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
