@@ -208,20 +208,23 @@ namespace InDet{
     m_clusterContainer->addRef();
 
     // Prepare SCT_FlaggedCondData
-    if (not store()->transientContains<SCT_FlaggedCondData>(m_flaggedCondDataName)) {
+    if (!store()->transientContains<SCT_FlaggedCondData>(m_flaggedCondDataName)) {
       m_flaggedCondData = new SCT_FlaggedCondData{};
 
       if (store()->record(m_flaggedCondData, m_flaggedCondDataName).isFailure()) {
-	ATH_MSG_WARNING("Container " << m_flaggedCondDataName << " could not be recorded in StoreGate !");
-      } else {
-	ATH_MSG_INFO("Container " << m_flaggedCondDataName << " recorded in StoreGate");
+	ATH_MSG_WARNING( "Container " << m_flaggedCondDataName << " could not be recorded in StoreGate !" );
       }
-    } else {    
+      else {
+	ATH_MSG_INFO( "Container " << m_flaggedCondDataName << " recorded in StoreGate" );
+      }
+    }
+    else {
       if (store()->retrieve(m_flaggedCondData, m_flaggedCondDataName).isFailure()) {
-        ATH_MSG_ERROR("Container " << m_flaggedCondDataName << " could not be retrieved from StoreGate !");
+        ATH_MSG_ERROR( "Container " << m_flaggedCondDataName << " could not be retrieved from StoreGate !" );
         return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
-      } else { 
-        ATH_MSG_INFO("Container " << m_flaggedCondDataName << " is retrieved from TDS: ");
+      }
+      else {
+        ATH_MSG_INFO( "Container " << m_flaggedCondDataName << " is retrieved from TDS: " );
       }
     }
 
@@ -321,6 +324,21 @@ namespace InDet{
 		     << "' existed already  in StoreGate. " );
     }
     
+    // Prepare SCT_FlaggedCondData
+    if (!store()->transientContains<SCT_FlaggedCondData>(m_flaggedCondDataName)) {
+      // The data is cleaned up only at the begining of the event.
+      m_flaggedCondData->clear();
+
+      if (store()->record(m_flaggedCondData, m_flaggedCondDataName, false).isFailure()) {
+        ATH_MSG_WARNING(" Container " << m_flaggedCondDataName << " could not be recorded in StoreGate !");
+      }
+      else {
+	ATH_MSG_DEBUG( "REGTEST: Container " << m_flaggedCondDataName << " registered  in StoreGate" );
+      }
+    }
+    else {
+      ATH_MSG_DEBUG( "Container '" << m_flaggedCondDataName << "' existed already  in StoreGate. " );
+    }
 
     if(doTiming()) m_timerSGate->pause();
 
@@ -630,6 +648,7 @@ namespace InDet{
     ATH_MSG_INFO( "SCT_TrgClusterization::hltFinalize()" );
 
     m_clusterContainer->cleanup();
+    m_flaggedCondData->clear();
 
     //delete m_globalPosAlg;  
     //delete m_clusterContainer;
