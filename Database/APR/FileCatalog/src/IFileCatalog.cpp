@@ -82,9 +82,7 @@ registerPFN( const std::string& pfn, const std::string& ftype, std::string& fid 
    if( existsPFN(pfn) ) {
       throw pool::Exception(std::string("PFN '") + pfn + "' already registered", "registerPFN", "FileCatalog");
    }
-   std::cout << "registerPFN: " << pfn << " GUID=" << fid << std::endl;
    if( fid.empty() ) fid = createFID();
-   std::cout << "registerPFN: " << pfn << " GUID=" << fid << std::endl;
    ATH_MSG_DEBUG("Registering PFN=" << pfn << " of type=" << ftype << " GUID=" << fid);
    _fc->registerPFN(fid, pfn, ftype);
 }
