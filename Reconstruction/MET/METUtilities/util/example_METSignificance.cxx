@@ -88,8 +88,8 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
   jetCalibrationTool.setName("jetCalibTool");
   ANA_CHECK( jetCalibrationTool.setProperty("JetCollection", jetType) );
   ANA_CHECK( jetCalibrationTool.setProperty("ConfigFile", "JES_data2017_2016_2015_Recommendation_Feb2018_rel21.config") );
-  ANA_CHECK( jetCalibrationTool.setProperty("CalibSequence", "JetArea_Residual_EtaJES_GSC_Insitu") );
-  ANA_CHECK( jetCalibrationTool.setProperty("IsData", true) );
+  ANA_CHECK( jetCalibrationTool.setProperty("CalibSequence", "JetArea_Residual_EtaJES_GSC") );
+  ANA_CHECK( jetCalibrationTool.setProperty("IsData", false) );
   ANA_CHECK( jetCalibrationTool.retrieve() );
 
   //this test file should work.  Feel free to contact me if there is a problem with the file.
@@ -115,6 +115,8 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
   ANA_CHECK( metSignif.setProperty("SoftTermParam", met::Random) );
   ANA_CHECK( metSignif.setProperty("TreatPUJets",   true) );
   ANA_CHECK( metSignif.setProperty("DoPhiReso",     true) );
+  ANA_CHECK( metSignif.setProperty("IsDataJet",     false) );
+  if(debug) ANA_CHECK( metSignif.setProperty("OutputLevel", MSG::VERBOSE) );
   ANA_CHECK( metSignif.retrieve() );
   
   // reconstruct the MET
@@ -157,10 +159,13 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
     //this is a non-const copy of the jet collection that you can calibrate.
     xAOD::JetContainer* calibJets = jets_shallowCopy.first;
     xAOD::setOriginalObjectLink(*jets,*calibJets);
+    unsigned ij=0;
     for ( const auto& jet : *calibJets ) {
       //Shallow copy is needed (see links below)
       if(!jetCalibrationTool->applyCalibration(*jet))//apply the calibration
 	return 1;
+      if(debug) std::cout << " jet: " << ij << " pt: " << jet->pt() << " eta: "<< jet->eta() << std::endl;
+      ++ij;
     }
 
     //retrieve the MET association map

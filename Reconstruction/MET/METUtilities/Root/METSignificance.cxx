@@ -120,8 +120,8 @@ namespace met {
       declareProperty("ConfigJetPhiResoFile", m_configJetPhiResoFile  = "jet_unc.root" );
 
       // properties to delete eventually
-      declareProperty("IsDataJet",   m_isDataJet     = true    );
-      declareProperty("IsDataMuon",  m_isDataMuon    = true    );
+      declareProperty("IsDataJet",   m_isDataJet     = false   );
+      declareProperty("IsDataMuon",  m_isDataMuon    = false   );
       declareProperty("IsAFII",      m_isAFII        = false   );
 
       // Phi resolution
