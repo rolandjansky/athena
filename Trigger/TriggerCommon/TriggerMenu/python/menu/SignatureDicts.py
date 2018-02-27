@@ -65,7 +65,7 @@ AllowedTopos_bphys = ['bJpsi', 'bTau', 'bDimu', 'bDimu2700', 'bNocut','bVertex2'
                       '11invm60','18invm60', 'bUpsi',
                       'Trkloose',  'TrkPEB', 'TrkPEBmon', "lowpt",'Zmumu', 'noL2', 'noEFbph',
                       'noinvm', 'ss', 'BpmumuKp', 'Taumumux', 'Dsmumux', 'LbmumuLambda',
-                      'trkTau', 'bTauTrk', 'bDsPhiX', 'bPhi','bDsPhiXtight',
+                      'trkTau', 'bTauTrk', 'bDsPhiX', 'bPhi','bDsPhiXtight', 'bTauTight',
                       '11invm24', '24invm60',
                       'tightChi2', 'Lxy0', 'Ftk','legacyVtx',
                       'BsmumuPhi', 'BsJpsiPhi']
@@ -218,7 +218,7 @@ MuonChainParts = {
     'extra'          : ['noL1', '3layersEC'],
     'IDinfo'         : [],
     'isoInfo'        : ['iloose', 'imedium', 'itight', 'ivarloose', 'ivarmedium','icalo','iloosecalo','imediumcalo','iloosems', 'ivarloosecalo', 'ivarmediumcalo', 'ivartight', 'ivarverytight'],
-    'reccalibInfo'   : ['msonly', 'l2msonly', 'l2idonly', 'nomucomb', 'idperf','muoncalib', 'mucombTag','muL2', 'mgonly'],
+    'reccalibInfo'   : ['msonly', 'l2msonly', 'l2idonly', 'nomucomb', 'idperf','muoncalib', 'mucombTag','muL2', 'mgonly', 'btrk'],
     'trkInfo'        : ['fasttr', 'hlttr', 'IDT'],
     'hypoInfo'       : [],
     'FSinfo'         : ['FTKFS', 'nscan03', 'l2nscan03', 'nscan05', 'l2nscan05', 'JpsimumuFS', 'JpsimumuL2','calotag'],
