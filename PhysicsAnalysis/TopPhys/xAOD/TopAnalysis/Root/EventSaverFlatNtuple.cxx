@@ -1249,10 +1249,12 @@ namespace top {
               m_weight_photonSF = m_sfRetriever->photonSF(event, top::topSFSyst::nominal);
 
             for( auto& tagWP : m_config -> bTagWP_available()) {
+	      if (std::find(m_config->bTagWP_calibrated().begin(), m_config->bTagWP_calibrated().end(), tagWP) == m_config->bTagWP_calibrated().end()) continue;
               m_weight_bTagSF[tagWP] = m_sfRetriever->btagSF(event, top::topSFSyst::nominal, tagWP);
             }
             if (m_config->useTrackJets()) {
               for( auto& tagWP : m_config -> bTagWP_available_trkJet()) {
+		if (std::find(m_config->bTagWP_calibrated().begin(), m_config->bTagWP_calibrated().end(), tagWP) == m_config->bTagWP_calibrated().end()) continue;
                 m_weight_trackjet_bTagSF[tagWP] = m_sfRetriever->btagSF(event, top::topSFSyst::nominal, tagWP, true);
               }
             }
