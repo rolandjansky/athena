@@ -1223,7 +1223,7 @@ namespace top{
     else if (raw_WP=="85%") return "FixedCutBEff_85";
     else return raw_WP;
   }
-  
+
   void TopConfig::setBTagWP_available( std::string btagging_WP ) {
     m_available_btaggingWP.push_back(btagging_WP);
   }
