@@ -271,7 +271,7 @@ class SCT_ConditionsServicesSetup:
     self.dcsSvc      = self.initDcsSvc('InDetSCT_DCSConditionsSvc')     
     self.lorentzSvc  = self.initLorentzAngleSvc('SCTLorentzAngleSvc')
 
-    self.summarySvcWoFlagged = self.initSummarySvcWithoutFlagged('InDetSCT_ConditionsSummarySvcWithoutFlagged')
+    self.summarySvcWoFlagged = self.initSummarySvcWithoutFlagged(self.instanceName('InDetSCT_ConditionsSummarySvcWithoutFlagged'))
 
     pass
 
