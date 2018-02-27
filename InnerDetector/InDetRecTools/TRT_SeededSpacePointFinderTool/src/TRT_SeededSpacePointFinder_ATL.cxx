@@ -851,7 +851,7 @@ InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const Trk::TrackParameters
   zSP.reserve(spcount);
 
   // // // // // // <Fill m_prod_bypass and the local array // // // //
-  for (long i = 0; r != re; i++, r++) {
+  for (; r != re; r++) {
 	  const Trk::SpacePoint *vrpi = (*r).first;
 
 	  geo_info.push_back((*r).second);
