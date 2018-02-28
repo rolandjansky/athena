@@ -1,5 +1,5 @@
-#ifndef _TupleStore_h_
-#define _TupleStore_h_
+#ifndef QATDATAANALYSIS_TUPLESTORE_H
+#define QATDATAANALYSIS_TUPLESTORE_H
 #include "CLHEP/GenericFunctions/RCBase.hh"
 #include "QatDataAnalysis/TupleConstLink.h"
 #include "QatDataAnalysis/TupleLink.h"
@@ -35,7 +35,7 @@ protected:
   virtual ~TupleStore();
 
   // Data:
-  mutable bool _lock;
+  mutable bool m_lock;
 
   // Silence compiler warnings about solitude
   friend class ImaginaryFriend;
@@ -72,7 +72,7 @@ class SimpleStore: public TupleStore {
   SimpleStore & operator = (const SimpleStore & );
   
   // Data:
-  std::vector<TupleConstLink> _tVector;
+  std::vector<TupleConstLink> m_tVector;
 
   // Silence compiler warnings about solitude
   friend class ImaginaryFriend;
@@ -109,7 +109,7 @@ class CompoundStore: public TupleStore {
   
 
   // Data:
-  std::vector<TupleStoreLink> _sVector;
+  std::vector<TupleStoreLink> m_sVector;
   
   // Silence compiler warnings about solitude
   friend class ImaginaryFriend;

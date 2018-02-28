@@ -22,48 +22,48 @@
 
 class Tuple;
 inline Attribute::Attribute(const std::string & name, const std::type_info & type):       
-  _name(name),                                                          
-  _type(typeOf(type)),                                               
-  _attrId(-1){}                                                         
+  m_name(name),                                                          
+  m_type(typeOf(type)),                                               
+  m_attrId(-1){}                                                         
 //                                                                      
 inline Attribute::Attribute(const std::string & name):                                    
-  _name(name),                                                          
-  _type(UNKNOWN),                                                        
-  _attrId(-1){}                                                         
+  m_name(name),                                                          
+  m_type(UNKNOWN),                                                        
+  m_attrId(-1){}                                                         
 
-inline std::string & Attribute::name() {return _name;}                                    
+inline std::string & Attribute::name() {return m_name;}                                    
 
-inline const std::string & Attribute::name() const {return _name;}                        
+inline const std::string & Attribute::name() const {return m_name;}                        
 
 
-inline std::string  Attribute::typeName() const {return typenameOf(_type);}                
+inline std::string  Attribute::typeName() const {return typenameOf(m_type);}                
 
-inline const Attribute::Type & Attribute::type() const { return _type;}
+inline const Attribute::Type & Attribute::type() const { return m_type;}
 
-inline int & Attribute::attrId() { return _attrId;}                          
-inline unsigned int  Attribute::attrId() const { return _attrId;}                          
+inline int & Attribute::attrId() { return m_attrId;}                          
+inline unsigned int  Attribute::attrId() const { return m_attrId;}                          
 
 //                                                                      
 // Relational operators                                                 
 inline bool Attribute::operator < (const Attribute & a) const {                           
-  return (_attrId != -1 && _attrId < a._attrId ) || _name < a._name;    
+  return (m_attrId != -1 && m_attrId < a.m_attrId ) || m_name < a.m_name;    
 }                                                                       
 //                                                                      
 // Equality operator:                                                   
 inline bool Attribute::operator== (const Attribute & a) const {                           
-  return (_attrId != -1 && _attrId ==a._attrId ) || _name == a._name;   
+  return (m_attrId != -1 && m_attrId ==a.m_attrId ) || m_name == a.m_name;   
 }                                                                       
 //                                                                      
                                                                           
 //                                                                      
 class Attribute::NameEquals {                                                      
 public:                                                                 
-  NameEquals(const std::string & name) : _name(name) {}                 
+  NameEquals(const std::string & name) : m_name(name) {}                 
   bool operator () (const Attribute & a ) const {                       
-    return _name==a.name();                                             
+    return m_name==a.name();                                             
   }                                                                     
 private:                                                                
-  std::string _name;                                                    
+  std::string m_name;                                                    
 };                                                                      
 
 inline Attribute::Type Attribute::typeOf(const std::type_info & type ) {

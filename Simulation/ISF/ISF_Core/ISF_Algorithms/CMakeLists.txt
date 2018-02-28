@@ -29,6 +29,7 @@ find_package( Boost COMPONENTS filesystem thread system )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 find_package( GTest )
 find_package( GMock )
+find_package( Eigen )
 
 # Component(s) in the package:
 atlas_add_component( ISF_Algorithms
@@ -52,9 +53,23 @@ atlas_add_test(collection_merger_helpers_tests
                SCRIPT python/test/test_collection_merger_helpers.py)
 
 atlas_add_test( SimKernelMT_test
-                SOURCES test/SimKernelMT_test.cxx src/SimKernelMT.cxx
-                INCLUDE_DIRS ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
-                LINK_LIBRARIES ${GTEST_LIBRARIES} ${GMOCK_LIBRARIES} AthenaBaseComps GeneratorObjects
+                SOURCES
+                test/SimKernelMT_test.cxx
+                src/SimKernelMT.cxx
+                INCLUDE_DIRS
+                ${EIGEN_INCLUDE_DIRS}
+                ${GTEST_INCLUDE_DIRS}
+                ${GMOCK_INCLUDE_DIRS}
+                LINK_LIBRARIES
+                ISF_Event
+                ISF_Interfaces
+                ${EIGEN_LIBRARIES}
+                ${GTEST_LIBRARIES}
+                ${GMOCK_LIBRARIES}
+                AthenaBaseComps
+                GeneratorObjects
+                ENVIRONMENT
+                "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/test"
                 )
 
 # Install files from the package:

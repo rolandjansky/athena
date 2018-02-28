@@ -50,7 +50,6 @@
 #include "TrigSteering/Lvl1ConsistencyChecker.h"
 
 #include "TrigTimeAlgs/TrigTimerSvc.h"
-#include "GaudiKernel/ThreadGaudi.h"
 
 using namespace HLT;
 
@@ -108,12 +107,12 @@ ErrorCode Lvl1Converter::hltInitialize()
       return HLT::ERROR;
     }
     ATH_MSG_ERROR("Got timing service TrigTimerSvc");
-    m_totalTime = m_timerSvc->addItem(getGaudiThreadGenericName(name())+":TotalTime");
-    m_sgTime = m_timerSvc->addItem(getGaudiThreadGenericName(name())+":RetrievalTime");
-    m_lvl1ItemsTime = m_timerSvc->addItem(getGaudiThreadGenericName(name())+":ItemsTime");
-    m_caloTime = m_timerSvc->addItem(getGaudiThreadGenericName(name())+":EMTauTime");
-    m_muonTime = m_timerSvc->addItem(getGaudiThreadGenericName(name())+":MuonTime");
-    m_jetTime = m_timerSvc->addItem(getGaudiThreadGenericName(name())+":JetEnergyTime");
+    m_totalTime =     m_timerSvc->addItem(name()+":TotalTime");
+    m_sgTime =        m_timerSvc->addItem(name()+":RetrievalTime");
+    m_lvl1ItemsTime = m_timerSvc->addItem(name()+":ItemsTime");
+    m_caloTime =      m_timerSvc->addItem(name()+":EMTauTime");
+    m_muonTime =      m_timerSvc->addItem(name()+":MuonTime");
+    m_jetTime =       m_timerSvc->addItem(name()+":JetEnergyTime");
   }
 
   sc = m_lvl1Tool->updateConfig(m_useL1Muon, m_useL1Calo, m_useL1JetEnergy);

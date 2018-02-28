@@ -24,7 +24,6 @@ is computed from components using the DK calibration
 #include "TrigEFMissingET/EFMissingETFromHelper.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/ThreadGaudi.h"
 #include "CxxUtils/StrFormat.h"
 //#include "GaudiKernel/MsgStream.h"
 //#include "GaudiKernel/IToolSvc.h"
