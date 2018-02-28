@@ -304,6 +304,8 @@ namespace CP {
 
       double GetRunAverageMu(int run) { return m_runs[run].inputHists["None"]->GetMean(); }
 
+      
+
   protected:
       virtual bool runLbnOK(Int_t /*runNbr*/, Int_t /*lbn*/) { return true; } //override in the ASG tool
       virtual bool passTriggerBeforePrescale(const TString& trigger) const { 
@@ -441,8 +443,10 @@ public:
          std::map<Int_t,Double_t> badBins; 
          Double_t lumi; //total data in run
          std::map<UInt_t, std::pair<Double_t,Double_t> > lumiByLbn; //key=lbn, value = <lumi,mu>
-         TH1D* muDist; //mu distribution for this run
+         std::unique_ptr< TH1 > muDist; //mu distribution for this run
+         bool nominalFromHists = false; //flag if nominal 'None' hist came from histogram files (rather than lumicalc files)
       };
+      std::map<UInt_t, Run>& GetRunMap() { return m_runs; }
 protected:
       std::map<Int_t, Period*> m_periods; //periods mapped by id. -1 = the "global" period (0->9999999). Uses a pointer so can easily implement remap as two entries pointing at same period
       std::map<UInt_t, Run> m_runs; //runs mapped by runNumber
