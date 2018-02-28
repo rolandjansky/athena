@@ -3,13 +3,15 @@ __author__  = 'Javier Montejo'
 __version__="$Revision: 1.01 $"
 __doc__="Interface to retrieve lists of unprescaled triggers according to types and periods"
 
-import sys, pickle
+import sys, pickle, os.path
 from TriggerMenu.api.TriggerInfo import TriggerInfo
 from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
-from AthenaCommon.Logging                 import logging
+from PathResolver import PathResolver
+from AthenaCommon.Logging import logging
 
 class TriggerAPI:
-    centralPickleFile = "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/TriggerMenu/TriggerInfo_180219.pickle"
+    centralPickleFile = PathResolver.FindCalibFile("TriggerInfo_20180228.pickle")
+    centralPickleFile = os.path.realpath(centralPickleFile)
     privatePickleFile = "TriggerInfo.pickle"
     dbQueries = None
     privatedbQueries = {}
@@ -19,18 +21,22 @@ class TriggerAPI:
     @classmethod
     def init(cls):
         if cls.dbQueries: return
-        try:
-            with open(cls.centralPickleFile, 'r') as f:
-                cls.log.info("Reading cached information")
-                cls.dbQueries = pickle.load(f)
-        except Exception:
-            cls.log.info("Reading cached information failed")
+        if cls.centralPickleFile:
+            try:
+                with open(cls.centralPickleFile, 'r') as f:
+                    cls.log.info("Reading cached information")
+                    cls.dbQueries = pickle.load(f)
+            except pickle.PickleError:
+                cls.log.info("Reading cached information failed")
+                cls.dbQueries = {}
+        else:
             cls.dbQueries = {}
         try:
             with open(cls.privatePickleFile, 'r') as f:
                 cls.privatedbQueries = pickle.load(f)
                 cls.dbQueries.update(cls.privatedbQueries)
-        except Exception:
+        except pickle.PickleError:
+            cls.log.error("Error unpickling the private file")
             pass
 
     @classmethod
@@ -131,6 +137,7 @@ def main():
         unprescaled = TriggerAPI.getLowestUnprescaled(332303,triggerType)
         print triggerType
         print sorted(unprescaled)
+    print TriggerAPI.getLowestUnprescaled(TriggerPeriod.future1p8e34,TriggerType.j_single)
 
 if __name__ == "__main__":
         sys.exit(main())
