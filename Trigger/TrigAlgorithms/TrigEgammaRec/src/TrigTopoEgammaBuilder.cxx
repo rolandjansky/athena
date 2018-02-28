@@ -928,10 +928,7 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
     ATH_MSG_DEBUG( "before topoclustercopier" );
 
     //First run the egamma Topo Copier that will select copy over cluster of interest to egammaTopoCluster
-    {
-        //smallChrono timer(m_timingProfile,this->name()+"_"+m_egammaTopoClusterCopier->name());
-        TRIG_CHECK_SC(m_topoclustercopier->hltExecute(inputShallowcopy, viewCopy));
-    }
+    TRIG_CHECK_SC(m_topoclustercopier->hltExecute(inputShallowcopy, viewCopy));
 
     //Then retrieve them
     const xAOD::CaloClusterContainer *clusters_copy = viewCopy->asDataVector();
@@ -1021,18 +1018,15 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
     xAOD::CaloClusterAuxContainer electron_CSCAux;
     electron_CSCContainer->setStore(&electron_CSCAux);
 
-  {
-//    smallChrono timer(m_timingProfile, this->name()+"_"+m_electronSuperClusterBuilder->name());
     TRIG_CHECK_SC(m_electronSCBuilder->hltExecute(m_eg_container,
                                                             electronSuperRecs,
                                                             electron_CSCContainer));
-  }
+
 
   //Track Match the final electron SuperClusters
     ATH_MSG_DEBUG("Size of electronSuperClusterRecContainer: " << electronSuperRecs->size());
 
     if (m_doTrackMatching){
-      //smallChrono timer(m_timingProfile,this->name()+"_"+m_trackMatchBuilder->name()+"_FinalClusters");
       for (auto egRec : *electronSuperRecs) {
         if (m_trackMatchBuilder->trackExecute(egRec, pTrackParticleContainer).isFailure()){
           ATH_MSG_ERROR("Problem executing TrackMatchBuilder");
@@ -1052,18 +1046,15 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
     photon_CSCContainer->setStore(&photon_CSCAux);
 
 
-  {
-//    smallChrono timer(m_timingProfile,this->name()+"_"+m_photonSuperClusterBuilder->name());
     TRIG_CHECK_SC(m_photonSCBuilder->hltExecute(m_eg_container,
                                                           photonSuperRecs,
                                                           photon_CSCContainer));
-  }
+
 
     ATH_MSG_DEBUG("Size of photonSuperClusterRecContainer: " << photonSuperRecs->size());
 
     //Redo conversion matching given the super cluster
     if (m_doConversions) {
-      //smallChrono timer(m_timingProfile,this->name()+"_"+m_conversionBuilder->name()+"_FinalClusters");
       for (auto egRec : *photonSuperRecs) {
         if (m_conversionBuilder->hltExecute(egRec, pVxContainer).isFailure()){
           ATH_MSG_ERROR("Problem executing conversioBuilder on photonSuperRecs");
@@ -1352,54 +1343,6 @@ bool TrigTopoEgammaBuilder::getElectron(const egammaRec* egRec,
     static const SG::AuxElement::Accessor<uint8_t> acc("ambiguityType");
     acc(*electron)=type;
 
-//
-//    This is the code from TrigEgammaRec
-//
-//    std::vector< ElementLink< xAOD::CaloClusterContainer > > el_clusterLinks;
-//    for (unsigned int i = 0 ; i < egRec->getNumberOfClusters(); ++i){
-//        const xAOD::CaloCluster *clus = egRec->caloCluster(i);
-//        // Also check the original (non-calibrated cluster)
-//        static SG::AuxElement::Accessor<ElementLink<xAOD::CaloClusterContainer> > orig ("originalCaloCluster");
-//        if (!orig.isAvailable(*clus) || !orig(*clus).isValid()){
-//            ATH_MSG_DEBUG("Problem with original cluster link");
-//        }
-//        else {
-//            const xAOD::CaloCluster *origClus = *orig(*clus); 
-//            ATH_MSG_DEBUG("REGTEST:: Compare new and old clusters");
-//            ATH_MSG_DEBUG("REGTEST:: Original Cluster e,eta,phi " << origClus->e() << " " <<  origClus->eta() << " " << origClus->phi());
-//            ATH_MSG_DEBUG("REGTEST:: MVA      Cluster e,eta,phi " << clus->e() << " " <<  clus->eta() << " " << clus->phi());
-//        }
-//
-//        ATH_MSG_DEBUG("Try to find ElementLink for CC with pT = " << clus->pt());
-//        for(const auto cl_link : clusterLinks){
-//            if(!cl_link.isValid()) continue;
-//            ATH_MSG_DEBUG("Try next EleLink, pt = " << (*cl_link)->pt());
-//            if( *cl_link == clus ){
-//                el_clusterLinks.push_back(cl_link);
-//                ATH_MSG_DEBUG("Found matching CaloClusterLink to CaloCluster object in egRec, pt = "<< (*cl_link)->pt());
-//            }
-//        }
-//    }
-//    electron->setCaloClusterLinks( el_clusterLinks);
-//
-//    std::vector< ElementLink< xAOD::TrackParticleContainer > > el_trackLinks;
-//    for (unsigned int i = 0 ; i < egRec->getNumberOfTrackParticles(); ++i){
-//        const xAOD::TrackParticle *trk = egRec->trackParticle(i);
-//        ATH_MSG_DEBUG("Try to find ElementLink for TP with pT = " << trk->pt());
-//        for(const auto trk_link : trackLinks){
-//            if(!trk_link.isValid()) continue;
-//            ATH_MSG_DEBUG("Try next EleLink, pt = " << (*trk_link)->pt());
-//            if( *trk_link == trk ){
-//                el_trackLinks.push_back(trk_link);
-//                ATH_MSG_DEBUG("Found matching TrackParticleLink to TrackParticle object in egRec, pt = "<< (*trk_link)->pt());
-//            }
-//        }
-//    }
-//    electron->setTrackParticleLinks( el_trackLinks);
-
-//
-//    Now use information from egRec of this Supercluster
-//
     std::vector< ElementLink< xAOD::CaloClusterContainer > > clusterLinks;
     for (size_t i = 0 ; i < egRec->getNumberOfClusters(); ++i){
         clusterLinks.push_back( egRec->caloClusterElementLink(i) );
@@ -1462,50 +1405,6 @@ bool TrigTopoEgammaBuilder::getPhoton(const egammaRec* egRec,
     static const SG::AuxElement::Accessor<uint8_t> acc("ambiguityType");
     acc(*photon)=type;
 
-//
-//    This is the code from TrigEgammaRec
-//
-//    std::vector< ElementLink< xAOD::CaloClusterContainer > > ph_clusterLinks;
-//    for (unsigned int i = 0 ; i < egRec->getNumberOfClusters(); ++i){
-//        const xAOD::CaloCluster *clus = egRec->caloCluster(i);
-//        static SG::AuxElement::Accessor<ElementLink<xAOD::CaloClusterContainer> > orig ("originalCaloCluster");
-//        if (!orig.isAvailable(*clus) || !orig(*clus).isValid()){
-//            ATH_MSG_DEBUG("Problem with original cluster link");
-//        }
-//        else {
-//            const xAOD::CaloCluster *origClus = *orig(*clus); 
-//            ATH_MSG_DEBUG("REGTEST:: Compare new and old clusters");
-//            ATH_MSG_DEBUG("REGTEST:: Original Cluster e,eta,phi" << origClus->e() << " " <<  origClus->eta() << " " << origClus->phi());
-//            ATH_MSG_DEBUG("REGTEST:: MVA      Cluster e,eta,phi" << clus->e() << " " <<  clus->eta() << " " << clus->phi());
-//        }
-//        ATH_MSG_DEBUG("Try to find ElementLink for CC with pT = " << clus->pt());
-//        for(const auto cl_link : clusterLinks){
-//            if(!cl_link.isValid()) continue;
-//            ATH_MSG_DEBUG("Try next EleLink, pt = " << (*cl_link)->pt());
-//            if( *cl_link == clus ){
-//                ph_clusterLinks.push_back(cl_link);
-//                ATH_MSG_DEBUG("Found matching CaloClusterLink to CaloCluster object in egRec, pt = "<< (*cl_link)->pt());
-//            }
-//        }
-//    }
-//    photon->setCaloClusterLinks( ph_clusterLinks);
-//    std::vector< ElementLink< xAOD::VertexContainer > > ph_vxLinks;
-//    for (unsigned int i = 0 ; i < egRec->getNumberOfVertices(); ++i){
-//        const xAOD::Vertex *vx = egRec->vertex(i);
-//        for(const auto vx_link : vxLinks){
-//            if(!vx_link.isValid()) continue;
-//            if( *vx_link == vx ){
-//                ph_vxLinks.push_back(vx_link);
-//                ATH_MSG_DEBUG("Found matching VertexLink to Vertex object in egRec");
-//            }
-//        }
-//    }
-//    photon->setVertexLinks( ph_vxLinks);
-
-
-//
-//    Now use information from egRec of this Supercluster
-//
     // Transfer the links to the clusters
     std::vector< ElementLink< xAOD::CaloClusterContainer > > clusterLinks;
     for (size_t i = 0 ; i < egRec->getNumberOfClusters(); ++i){
