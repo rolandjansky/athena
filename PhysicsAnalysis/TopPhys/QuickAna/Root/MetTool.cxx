@@ -114,7 +114,7 @@ namespace ana
   inputTypes () const
   {
     return (1 << OBJECT_ELECTRON) | (1 << OBJECT_PHOTON) | (1 << OBJECT_TAU) |
-           (1 << OBJECT_MUON) | (1 << OBJECT_JET);
+      (1 << OBJECT_MUON) | (1 << OBJECT_JET) | (1 << OBJECT_EVENTINFO);
   }
 
 
