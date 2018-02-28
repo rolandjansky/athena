@@ -40,6 +40,7 @@
 #include <RootCoreUtils/Assert.h>
 
 #include <METUtilities/METMaker.h>
+#include <METUtilities/METSignificance.h>
 #include <METInterface/IMETSystematicsTool.h>
 #ifdef ROOTCORE
 #include <METUtilities/METSystematicsTool.h>
@@ -63,6 +64,7 @@ namespace ana
       m_doFJVT(false),
       m_metutil ("maker", this),
       m_metSystTool ("systTool", this),
+      m_metSigni ("metSigni", this),
       m_fjvtTool ("fjvtTool", this),
       m_accessor ("dummy")
   {
@@ -200,6 +202,13 @@ namespace ana
       ATH_CHECK( m_metSystTool.initialize() );
       registerTool(&*m_metSystTool);
     }
+
+    ATH_CHECK( ASG_MAKE_ANA_TOOL(m_metSigni, met::METSignificance) );   
+    ATH_CHECK( m_metSigni.setProperty("SoftTermParam", 0) );
+    ATH_CHECK( m_metSigni.setProperty("TreatPUJets",   true) );
+    ATH_CHECK( m_metSigni.setProperty("IsData",   true) );
+    ATH_CHECK( m_metSigni.setProperty("IsAFII",   m_isAF2) );
+    ATH_CHECK( m_metSigni.retrieve() ); 
 
     return StatusCode::SUCCESS;
   }
@@ -356,6 +365,11 @@ namespace ana
 
     ATH_CHECK( m_metutil->buildMETSum("Final", met, (*met)[softTerm]->source()) );
 
+    ATH_CHECK( m_metSigni->varianceMET(met, "RefJet", softTerm, "Final"));
+
+    std::string met_signi = "met_signi_"+m_jetSelection;
+    objects.eventinfo()->auxdata<float>(met_signi) = m_metSigni->GetSignificance();
+
     return StatusCode::SUCCESS;
   }
 
@@ -396,7 +410,8 @@ namespace ana
   QUICK_ANA_MET_DEFINITION_MAKER( "noTauTerm", makeMetTool(args,false) )
   QUICK_ANA_MET_DEFINITION_MAKER( "trackmet",  makeMetTool(args,true,true,true,true) )
   QUICK_ANA_MET_DEFINITION_MAKER( "susy2L",    makeMetTool(args,true,true,true,false,true,true) )
-  QUICK_ANA_MET_DEFINITION_MAKER( "metZHinv",  makeMetTool(args,true,true,true,false,true,true,"Loose") )
+  QUICK_ANA_MET_DEFINITION_MAKER( "metZHinv",  makeMetTool(args,true,true,true,false,true,true,"Tight") )
+  QUICK_ANA_MET_DEFINITION_MAKER( "metZHinv_loose",  makeMetTool(args,true,true,true,false,true,true,"Loose") )
   QUICK_ANA_MET_DEFINITION_MAKER( "noTauCST",  makeMetTool(args,false,false) )
   QUICK_ANA_MET_DEFINITION_MAKER( "CST",       makeMetTool(args,true,false,false) )
 
