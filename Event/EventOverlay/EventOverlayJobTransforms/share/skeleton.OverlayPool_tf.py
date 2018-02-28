@@ -28,6 +28,7 @@ from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
 from OverlayCommonAlgs.OverlayFlags import overlayFlags
 
 globalflags.isOverlay.set_Value_and_Lock(True)
+overlayFlags.isDataOverlay.set_Value_and_Lock(False)
 
 if hasattr(runArgs,"skipEvents"): athenaCommonFlags.SkipEvents.set_Value_and_Lock( runArgs.skipEvents )
 if hasattr(runArgs,"maxEvents"): athenaCommonFlags.EvtMax.set_Value_and_Lock( runArgs.maxEvents )
