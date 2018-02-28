@@ -128,6 +128,8 @@ def generateChainDefs(chainDict):
     isIsoLep     = (not chainDict['chainName'].find("ivarmedium") == -1 or not chainDict['chainName'].find("ivarloose") == -1)
     isSingleJet  = ( (len(chainDict['chainParts']) == 1) and (int(chainDict['chainParts'][0]['multiplicity']) == 1))
 
+    hasTRTon = chainDict['chainName'].find("noTRT") == -1
+
     #
     # Only run the All TE on split chains
     #
@@ -148,17 +150,16 @@ def generateChainDefs(chainDict):
     #  so dont use all TE here either
     #
     if isMuDz or isMuDr or isIsoLep: doAllTEConfig = False
-    
 
     if doAllTEConfig:
         log.debug("Doing new buildBjetChainsAllTE")
-        theFinalChainDef = buildBjetChainsAllTE(theJetChainDef, bjetchainDicts)
+        theFinalChainDef = buildBjetChainsAllTE( theJetChainDef, bjetchainDicts, useTRT=hasTRTon )
     else:
         log.debug("Doing buildBjetChains")
         theListOfChainDefs = []
         for subChainDict in bjetchainDicts:
             theJetChainDef1 = deepcopy(theJetChainDef)
-            theBjetChainDef = buildBjetChains(theJetChainDef1, subChainDict, len(bjetchainDicts))    
+            theBjetChainDef = buildBjetChains(theJetChainDef1, subChainDict, len(bjetchainDicts), TRTstatus=hasTRTon)    
             theListOfChainDefs += [theBjetChainDef] 
     
 
@@ -183,7 +184,7 @@ def generateChainDefs(chainDict):
 #
 #  New AllTE Building (Only do it for split chains and non FTK)
 #
-def buildBjetChainsAllTE(theChainDef, bjetdict, numberOfSubChainDicts=1):
+def buildBjetChainsAllTE(theChainDef, bjetdict, numberOfSubChainDicts=1, useTRT=True):
     log.debug("In buildBjetChainsAllTE")
     inputTEsEF = theChainDef.signatureList[-1]['listOfTriggerElements'][0]
 
@@ -235,7 +236,10 @@ def buildBjetChainsAllTE(theChainDef, bjetdict, numberOfSubChainDicts=1):
     #
     #  PV Tracking
     #
-    [trkvtx, trkftf, trkprec] = TrigInDetSequence("Bjet", "bjet", "IDTrig", sequenceFlavour=["2step","noTRT"]).getSequence() # new
+    if useTRT :
+        [trkvtx, trkftf, trkprec] = TrigInDetSequence("Bjet", "bjet", "IDTrig", sequenceFlavour=["2step"]).getSequence() # new
+    else :
+        [trkvtx, trkftf, trkprec] = TrigInDetSequence("Bjet", "bjet", "IDTrig", sequenceFlavour=["2step","noTRT"]).getSequence() # new
     tracking        = "IDTrig"
     superTrackingTE = superTE+tracking
     theChainDef.addSequence(trkvtx,  superTE,      superTrackingTE) 
@@ -352,17 +356,17 @@ def buildBjetChainsAllTE(theChainDef, bjetdict, numberOfSubChainDicts=1):
 
 ###########################################################################
 ###########################################################################
-def buildBjetChains(jchaindef,bjetdict,numberOfSubChainDicts=1):
+def buildBjetChains(jchaindef,bjetdict,numberOfSubChainDicts=1,TRTstatus=True):
     log.debug("In buildBjetChains")
     inputTEsEF = jchaindef.signatureList[-1]['listOfTriggerElements'][0]
 
     bjetparts = bjetdict['chainParts']
 
     if ('split' in bjetparts['bConfig']):
-        theBjetChainDef = myBjetConfig_split(jchaindef, bjetdict, inputTEsEF,numberOfSubChainDicts) 
+        theBjetChainDef = myBjetConfig_split(jchaindef, bjetdict, inputTEsEF,numberOfSubChainDicts,useTRT=TRTstatus) 
         theBjetChainDef.chain_name = 'HLT_'+bjetdict['chainName']
     else:
-        theBjetChainDef = myBjetConfig1(jchaindef, bjetdict, inputTEsEF,numberOfSubChainDicts) 
+        theBjetChainDef = myBjetConfig1(jchaindef, bjetdict, inputTEsEF,numberOfSubChainDicts,useTRT=TRTstatus) 
         theBjetChainDef.chain_name = 'HLT_'+bjetdict['chainName']
 
     log.debug("Left buildBjetChains")
@@ -372,7 +376,7 @@ def buildBjetChains(jchaindef,bjetdict,numberOfSubChainDicts=1):
 ###################################################################################
 ###################################################################################
 
-def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=1):
+def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=1,useTRT=True):
     log.debug("In myBjetConfig_split")    
 
     EFChainName = "EF_bjet_" + chainDict['chainName']
@@ -437,7 +441,9 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
         [ftkvtx, trkftf, trkprec] = TrigInDetFTKSequence("Bjet", "bjet", sequenceFlavour=["FTKVtx","refit","PT"]).getSequence() # new
     elif 'FTK' in chainParts['bTracking']:
         [ftkvtx, trkftf, trkprec] = TrigInDetFTKSequence("Bjet", "bjet", sequenceFlavour=["FTKVtx","PT"]).getSequence() # new
-    else:
+    elif useTRT :
+        [trkvtx, trkftf, trkprec] = TrigInDetSequence("Bjet", "bjet", "IDTrig", sequenceFlavour=["2step"]).getSequence() # new
+    else :
         [trkvtx, trkftf, trkprec] = TrigInDetSequence("Bjet", "bjet", "IDTrig", sequenceFlavour=["2step","noTRT"]).getSequence() # new
 
     # for b-tagging
@@ -630,7 +636,7 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
 
 ###################################################################################
 
-def myBjetConfig1(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=1):
+def myBjetConfig1(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=1,useTRT=True):
     EFChainName = "EF_bjet_" + chainDict['chainName']
 
     chainParts = chainDict['chainParts']
@@ -647,7 +653,10 @@ def myBjetConfig1(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=1):
     else                         : ef_ethypo_startseq = getBjetEtHypoInstance("EF","StartSequence","35GeV")
 
     # tracking
-    [trkvtx, trkftf, trkprec] = TrigInDetSequence("Bjet", "bjet", "IDTrig", sequenceFlavour=["2step","noTRT"]).getSequence() 
+    if useTRT :
+        [trkvtx, trkftf, trkprec] = TrigInDetSequence("Bjet", "bjet", "IDTrig", sequenceFlavour=["2step"]).getSequence() 
+    else :
+        [trkvtx, trkftf, trkprec] = TrigInDetSequence("Bjet", "bjet", "IDTrig", sequenceFlavour=["2step","noTRT"]).getSequence() 
     ef_bjet_tracks = trkftf+trkprec
 
 

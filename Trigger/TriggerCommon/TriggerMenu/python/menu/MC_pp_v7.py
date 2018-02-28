@@ -602,6 +602,7 @@ def setupMenu():
 
 
         # boffperf_split
+        ['j300_boffperf_split_noTRT', 'L1_J75', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
         ['j300_boffperf_split', 'L1_J75', [], [PhysicsStream], ['RATE:SingleBJet', 'BW:BJet'], -1],
         
         # tagged
