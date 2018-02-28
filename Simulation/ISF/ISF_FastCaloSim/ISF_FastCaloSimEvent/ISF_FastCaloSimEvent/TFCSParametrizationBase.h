@@ -62,13 +62,24 @@ class TFCSExtrapolationState;
   #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #endif
 
+/** Base class for all FastCaloSim parametrizations
+Functionality in derivde classes is  provided through the simulate method. The simulate method takes a TFCSTruthState and a TFCSExtrapolationState object as input and provides output in a TFCSSimulationState.
+Parametrizations contain information on the pdgid, range in Ekin and range in eta of particles 
+to which they can be applied.
+Several basic types of parametrization exists:
+- classes derived from TFCSEnergyParametrization simulate energy information which is written into TFCSSimulationState
+- classes derived from TFCSLateralShapeParametrization simulate cell level information for specific calorimeter layers and bins "Ebin" in the energy parametrization
+- classes derived from TFCSParametrizationChain call other parametrization. Depending on the derived class, these other parametrization are only called under special conditions
+- a special case of TFCSLateralShapeParametrization is TFCSLateralShapeParametrizationHitBase for hit level shape simulation through the simulate_hit method. Hit level simulation is controlled through the special chain TFCSLateralShapeParametrizationHitChain.
+*/
+
 class TFCSParametrizationBase:public TNamed {
 public:
   TFCSParametrizationBase(const char* name=nullptr, const char* title=nullptr);
 
+  ///Status bit for FCS needs
   enum FCSStatusBits {
-     /// Set this bit in the TObject bit field if valid for all PDGID
-     kMatchAllPDGID = BIT(14)
+     kMatchAllPDGID = BIT(14) ///< Set this bit in the TObject bit field if valid for all PDGID
   };
 
   virtual bool is_match_pdgid(int /*id*/) const {return TestBit(kMatchAllPDGID);};
@@ -95,19 +106,25 @@ public:
   virtual void set_match_all_pdgid() {SetBit(kMatchAllPDGID);};
   virtual void reset_match_all_pdgid() {ResetBit(kMatchAllPDGID);};
 
+  ///Method to set the geometry access pointer. Loops over daughter objects if present
   virtual void set_geometry(ICaloGeometry* geo);
   
   ///Some derived classes have daughter instances of TFCSParametrizationBase objects
-  /// The size() and operator[] methods give general access to these daughters
+  ///The size() and operator[] methods give general access to these daughters
   virtual unsigned int size() const {return 0;};
+  
+  ///Some derived classes have daughter instances of TFCSParametrizationBase objects
+  ///The size() and operator[] methods give general access to these daughters
   virtual const TFCSParametrizationBase* operator[](unsigned int /*ind*/) const {return nullptr;};
+  
+  ///Some derived classes have daughter instances of TFCSParametrizationBase objects
+  ///The size() and operator[] methods give general access to these daughters
   virtual TFCSParametrizationBase* operator[](unsigned int /*ind*/) {return nullptr;};
 
-  // Do some simulation. Result should be returned in simulstate
-  // Simulate all energies in calo layers for energy parametrizations
-  // Simulate cells for shape simulation
+  ///Method in all derived classes to do some simulation
   virtual void simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol);
 
+  ///Print object information. 
   void Print(Option_t *option = "") const;
   
 #if defined(__FastCaloSimStandAlone__)
@@ -135,11 +152,16 @@ private:
 public:
   /// Update outputlevel
   void setLevel(int level) {s_msg->get().setLevel(level);}
+
   /// Retrieve output level
   MSG::Level level() const {return s_msg->get().level();}
+
   /// Log a message using the Athena controlled logging system
   MsgStream& msg() const { return s_msg->get(); }
+
+  /// Log a message using the Athena controlled logging system
   MsgStream& msg( MSG::Level lvl ) const { return *s_msg << lvl; }
+
   /// Check whether the logging system is active at the provided verbosity level
   bool msgLvl( MSG::Level lvl ) const { return s_msg->get().level() <= lvl; }
   

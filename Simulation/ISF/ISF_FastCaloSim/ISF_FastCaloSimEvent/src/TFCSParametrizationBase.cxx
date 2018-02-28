@@ -32,11 +32,15 @@ void TFCSParametrizationBase::set_geometry(ICaloGeometry* geo)
   for(unsigned int i=0;i<size();++i) (*this)[i]->set_geometry(geo);
 }
 
+///Result should be returned in simulstate.
+///Simulate all energies in calo layers for energy parametrizations.
+///Simulate cells for shape simulation.
 void TFCSParametrizationBase::simulate(TFCSSimulationState& /*simulstate*/,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/)
 {
   ATH_MSG_ERROR("now in TFCSParametrizationBase::simulate(). This should normally not happen");
 }
 
+///If called with argument "short", only a one line summary will be printed
 void TFCSParametrizationBase::Print(Option_t *option) const
 {
   TString opt(option);

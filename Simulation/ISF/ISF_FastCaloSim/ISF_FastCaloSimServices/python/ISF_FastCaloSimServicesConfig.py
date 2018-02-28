@@ -95,13 +95,9 @@ def getFastCaloSimSvcV2(name="ISF_FastCaloSimSvcV2", **kwargs):
     kwargs.setdefault("CaloCellMakerTools_setup"         , [ 'ISF_EmptyCellBuilderTool' ] )
     kwargs.setdefault("CaloCellMakerTools_release"       , [ 'ISF_CaloCellContainerFinalizerTool',
                                                            'ISF_FastHitConvertTool' ])
-    kwargs.setdefault("DoRandomFluctuations"             , False )
-    kwargs.setdefault("useOneDShapeParametrisation"      , False                                             )
-    kwargs.setdefault("nHits"                            , 100                                             )
     kwargs.setdefault("ParamsInputFilename"              , ISF_FastCaloSimFlags.ParamsInputFilename())
-    kwargs.setdefault("Extrapolator"                     , 'TimedExtrapolator')
+    kwargs.setdefault("ParamsInputObject"                , 'SelPDGID')
     kwargs.setdefault("FastCaloSimCaloExtrapolation"     , 'FastCaloSimCaloExtrapolation')
-    kwargs.setdefault("useFastCaloSimCaloExtrapolation"             , True )
 
     # register the FastCaloSim random number streams
     from G4AtlasApps.SimFlags import simFlags
