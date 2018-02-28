@@ -2,22 +2,22 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "G4STauPlus.hh"
+#include "G4STau1Plus.hh"
 // ######################################################################
-// ###                         STauPlus                              ###
+// ###                         STau1Plus                              ###
 // ######################################################################
 
 
-G4STauPlus* G4STauPlus::theInstance = NULL;
+G4STau1Plus* G4STau1Plus::theInstance = NULL;
 
-G4STauPlus* G4STauPlus::Definition(G4double mass, G4double width, G4double charge, G4double PDG, G4bool stable, G4double lifetime, G4bool shortlived)
+G4STau1Plus* G4STau1Plus::Definition(G4double mass, G4double width, G4double charge, G4double PDG, G4bool stable, G4double lifetime, G4bool shortlived)
 {
 
   if (theInstance !=0 && (mass>=0. || width>=0. || lifetime>=0.) )
     {
       G4ExceptionDescription description;
-      description << "Trying to redefine the G4STau Plus properties after it has been constructed is not allowed";
-      G4Exception("G4STauPlus", "FailedRedefinition", FatalException, description);
+      description << "Trying to redefine the G4STau1 Plus properties after it has been constructed is not allowed";
+      G4Exception("G4STau1Plus", "FailedRedefinition", FatalException, description);
       abort();
   }
 
@@ -42,16 +42,16 @@ G4STauPlus* G4STauPlus::Definition(G4double mass, G4double width, G4double charg
                                0,                  0,               0,
                                "slepton",   1,               0,          PDG,
                                stable,               lifetime,            NULL,
-                               shortlived,              "STauPlus");
+                               shortlived,              "STau1Plus");
 
-    theInstance = reinterpret_cast<G4STauPlus*>(anInstance);
+    theInstance = reinterpret_cast<G4STau1Plus*>(anInstance);
     return theInstance;
   }
   else
     {
       G4ExceptionDescription description;
       description << "Trying to create a particle with default constructor is not allowed";
-      G4Exception("G4STauPlus", "DefaultConstructorCalled", FatalException, description);
+      G4Exception("G4STau1Plus", "DefaultConstructorCalled", FatalException, description);
       abort();
     }
 }
