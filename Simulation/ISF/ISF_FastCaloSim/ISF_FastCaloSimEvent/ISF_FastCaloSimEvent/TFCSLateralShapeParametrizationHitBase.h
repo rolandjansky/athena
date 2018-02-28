@@ -13,7 +13,7 @@ class TFCSLateralShapeParametrizationHitBase:public TFCSLateralShapeParametrizat
 public:
   TFCSLateralShapeParametrizationHitBase(const char* name=nullptr, const char* title=nullptr);
 
-  // Call get_number_of_hits() only once per shower simulation, as it could be build with random numbers and give different results each time
+  ///Call get_number_of_hits() only once per shower simulation, as it could be calculated with random numbers and give different results each time
   virtual int get_number_of_hits(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const;
 
   class Hit

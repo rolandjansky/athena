@@ -46,14 +46,6 @@ public:
   virtual void set_Ekin_eta(const TFCSParametrizationBase& ref);
   virtual void set_pdgid_Ekin_eta(const TFCSParametrizationBase& ref);
 
-protected:
-  const double init_Ekin_nominal=0;
-  const double init_Ekin_min=0;
-  const double init_Ekin_max=14000000;
-  const double init_eta_nominal=0;
-  const double init_eta_min=-100;
-  const double init_eta_max=100;
-
 private:
   std::set< int > m_pdgid;
   double m_Ekin_nominal,m_Ekin_min,m_Ekin_max;

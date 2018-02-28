@@ -96,12 +96,12 @@ public:
   virtual bool is_match_all_calosample() const {return false;};
 
   virtual const std::set< int > &pdgid() const {return s_no_pdgid;};
-  virtual double Ekin_nominal() const {return 0;};
-  virtual double Ekin_min() const {return 0;};
-  virtual double Ekin_max() const {return 0;};
-  virtual double eta_nominal() const {return 100;};
-  virtual double eta_min() const {return 100;};
-  virtual double eta_max() const {return 100;};
+  virtual double Ekin_nominal() const {return init_Ekin_nominal;};
+  virtual double Ekin_min() const {return init_Ekin_min;};
+  virtual double Ekin_max() const {return init_Ekin_max;};
+  virtual double eta_nominal() const {return init_eta_nominal;};
+  virtual double eta_min() const {return init_eta_min;};
+  virtual double eta_max() const {return init_eta_max;};
 
   virtual void set_match_all_pdgid() {SetBit(kMatchAllPDGID);};
   virtual void reset_match_all_pdgid() {ResetBit(kMatchAllPDGID);};
@@ -126,7 +126,15 @@ public:
 
   ///Print object information. 
   void Print(Option_t *option = "") const;
-  
+
+protected:
+  const double init_Ekin_nominal=0;
+  const double init_Ekin_min=0;
+  const double init_Ekin_max=14000000;
+  const double init_eta_nominal=0;
+  const double init_eta_min=-100;
+  const double init_eta_max=100;
+
 #if defined(__FastCaloSimStandAlone__)
 public:
   /// Update outputlevel
