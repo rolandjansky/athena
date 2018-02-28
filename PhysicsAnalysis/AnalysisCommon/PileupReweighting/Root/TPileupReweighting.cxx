@@ -1688,6 +1688,9 @@ Double_t CP::TPileupReweighting::GetDataWeight(Int_t runNumber, const TString& t
    Int_t bin=(m_doPrescaleWeight) ? numerHist->FindFixBin(x) : //DO NOT SHIFT IF GETTING A PRESCALE WEIGHT - applied to MC, we only shift incoming mu if we are data
      numerHist->FindFixBin(x*m_dataScaleFactorX); //if getting a data weight (i.e. running on data) MUST SCALE BY THE DATA SCALE FACTOR! (assume incoming is raw unscaled)
    
+   //we also need to redirect the binning if necessary (unrepData=3)
+   if( (!m_doPrescaleWeight) && m_unrepresentedDataAction==3) bin = p->inputBinRedirect[bin];
+   
    if(!denomHist->GetBinContent(bin)) {
      if(m_doPrescaleWeight) return -1; //happens if trigger was disabled/unavailable for that mu, even though that mu is in the dataset
       Error("GetDataWeight","Unrecognised mu value %f ... are you sure you included all lumicalc files",x);
