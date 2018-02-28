@@ -388,7 +388,8 @@ namespace CP {
     bool isBarrel = fabs(mu_eta) < muon_barrel_endcap_boundary;
     TH1_Ptr cit = getEfficiencyHistogram(trigger, true, "nominal", isBarrel);
     if(!cit.get()){
-      ATH_MSG_ERROR("Could not find efficiency map for muon with eta: " << mu_eta << " and phi: " << mu_phi << ". Something is inconsistent. Please check your settings for year, mc and trigger." );
+      if(!m_allowZeroSF)
+	ATH_MSG_ERROR("Could not find efficiency map for muon with eta: " << mu_eta << " and phi: " << mu_phi << ". Something is inconsistent. Please check your settings for year, mc and trigger." );
       return -1;
     }
     auto eff_h2 = cit;
