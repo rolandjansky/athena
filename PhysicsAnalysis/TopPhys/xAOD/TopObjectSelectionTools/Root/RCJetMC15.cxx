@@ -232,26 +232,6 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
         top::check( evtStore()->tds()->record( std::move( rcjets ), m_InputJetContainer ), "Failed to put jets in TStore for re-clustering" );
     } // end if jet container exists
 
-    // const xAOD::JetContainer* smalljets(nullptr);
-    // top::check(evtStore()->retrieve(smalljets, "AntiKt4EMTopoJets"), "hi mike it ***REMOVED***ed up");
-    //  for (auto smalljet : *smalljets){
-
-    //     if (smalljet->getConstituents().size() < 1) {
-    // 	  std::cout << "constituents have been thinned, skipping" << std::endl;
-    // 	  ATH_MSG_WARNING("Jet Constituents have been thinned - will not be included in RCJet JSS calculation");
-    // 	}
-    // 	if (smalljet->jetP4("DFCommonJets_Calib").pt()/1000 < 7.0){
-    // 	  std::cout << "constituents have been thinned, skipping" << std::endl;
-    // 	  std::cout << "smalljet->getConstituents().size() = " << smalljet->getConstituents().size() << std::endl;
-    // 	  std::cout << " pt 0 = " << smalljet->getConstituents()[0].pt() << std::endl;
-    // 	  if (!smalljet->getConstituents()[0].pt()) continue;
-    // 	  for (auto consti : smalljet->getConstituents())
-    // 	    { std::cout << " get consti " << std::endl;}
-    // 	  ATH_MSG_WARNING("Jet Constituents have been thinned - will not be included in RCJet JSS calculation");
-    // 	}
-    //}
-	
-
     // --- EXECUTE --- //
     // only execute if the jet container doesn't exist 
     // (do not re-make the 'nominal' jet container over & over again!)
