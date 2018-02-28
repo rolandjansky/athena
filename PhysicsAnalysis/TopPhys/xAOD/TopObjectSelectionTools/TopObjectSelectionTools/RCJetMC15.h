@@ -28,12 +28,6 @@
 #include <list>
 #include <vector>
 
-#include "fastjet/ClusterSequence.hh"
-#include <fastjet/contrib/EnergyCorrelator.hh>
-#include <fastjet/contrib/Nsubjettiness.hh>
-#include "JetSubStructureUtils/Qw.h"
-#include "JetSubStructureUtils/KtSplittingScale.h"
-
 // Forward declaration(s):
 namespace xAOD{
     class SystematicEvent;
@@ -42,6 +36,19 @@ namespace xAOD{
 namespace top{
     class TopConfig;
     class Event;
+}
+
+namespace fastjet{
+  class JetDefinition;
+  namespace contrib{
+    class Nsubjettiness;
+    class EnergyCorrelator;
+  }
+}
+
+namespace JetSubStructureUtils{
+  class KtSplittingScale;
+  class Qw;
 }
 
 class RCJetMC15 final : public asg::AsgTool{
@@ -113,12 +120,25 @@ private:
         {"m_z",91188.},
         {"m_h",125090.}};
 
+    //Substructure tool definitions
+    fastjet::JetDefinition* m_jet_def_rebuild; 	  
+    fastjet::contrib::Nsubjettiness* m_nSub1_beta1;
+    fastjet::contrib::Nsubjettiness* m_nSub2_beta1;
+    fastjet::contrib::Nsubjettiness* m_nSub3_beta1;
+    fastjet::contrib::EnergyCorrelator* m_ECF1;
+    fastjet::contrib::EnergyCorrelator* m_ECF2;
+    fastjet::contrib::EnergyCorrelator* m_ECF3;
+    JetSubStructureUtils::KtSplittingScale* m_split12;
+    JetSubStructureUtils::KtSplittingScale* m_split23;
+    JetSubStructureUtils::Qw* m_qw;
+    
     //re-clustered jets
     //  -> need unordered map for systematics
     std::unordered_map<std::size_t, JetReclusteringTool*> m_jetReclusteringTool;
     typedef std::unordered_map<std::size_t, JetReclusteringTool*>::iterator m_tool_iterator;
 
     ClassDef(RCJetMC15, 0);
+
 };
 
 #endif

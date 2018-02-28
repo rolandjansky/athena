@@ -27,7 +27,11 @@
 #include "xAODBase/IParticleHelpers.h"
 #include "PATInterfaces/SystematicsUtil.h"
 
-
+#include "fastjet/ClusterSequence.hh"
+#include <fastjet/contrib/EnergyCorrelator.hh>
+#include <fastjet/contrib/Nsubjettiness.hh>
+#include "JetSubStructureUtils/Qw.h"
+#include "JetSubStructureUtils/KtSplittingScale.h"
 
 RCJetMC15::RCJetMC15( const std::string& name ) :
   asg::AsgTool( name ),
@@ -48,6 +52,16 @@ RCJetMC15::RCJetMC15( const std::string& name ) :
   m_InputJetContainer(  "AntiKt4EMTopoJets_RC"),
   m_OutputJetContainer( "AntiKtRCJets"),
   m_loose_hashValue(2),
+  m_jet_def_rebuild(nullptr),
+  m_nSub1_beta1(nullptr),
+  m_nSub2_beta1(nullptr),
+  m_nSub3_beta1(nullptr),
+  m_ECF1(nullptr),
+  m_ECF2(nullptr),
+  m_ECF3(nullptr),
+  m_split12(nullptr),
+  m_split23(nullptr),
+  m_qw(nullptr),
   m_unique_syst(false){
     declareProperty( "config" , m_config );
     declareProperty( "VarRCjets", m_VarRCjets=false);
@@ -86,7 +100,40 @@ StatusCode RCJetMC15::initialize(){
         m_radius = std::stof( configSettings->value("RCJetRadius") ); // for initialize    
         m_minradius = -1.0;
         m_massscale = -1.0;
-	if (configSettings->value("UseRCJetSubstructure") == "True" || configSettings->value("UseRCJetSubstructure") == "true") m_useJSS = true;
+	if (configSettings->value("UseRCJetSubstructure") == "True" || configSettings->value("UseRCJetSubstructure") == "true"){
+	  m_useJSS = true;
+	  ATH_MSG_INFO("Calculating RCJet Substructure");
+
+
+	  // clean up the null ptrs
+	  delete m_jet_def_rebuild;
+	  delete m_nSub1_beta1;
+	  delete m_nSub2_beta1;
+	  delete m_nSub3_beta1;
+	  delete m_ECF1;
+	  delete m_ECF2;
+	  delete m_ECF3;
+	  delete m_split12;
+	  delete m_split23;
+	  delete m_qw;
+	  
+	  // Setup a bunch of FastJet stuff
+	  //define the type of jets you will build (http://fastjet.fr/repo/doxygen-3.0.3/classfastjet_1_1JetDefinition.html)
+	  m_jet_def_rebuild = new fastjet::JetDefinition(fastjet::antikt_algorithm, 1.0, fastjet::E_scheme, fastjet::Best);
+	  
+	  //Substructure tool definitions
+	  m_nSub1_beta1 = new fastjet::contrib::Nsubjettiness(1, fastjet::contrib::OnePass_WTA_KT_Axes(), fastjet::contrib::UnnormalizedMeasure(1.0));
+	  m_nSub2_beta1 = new fastjet::contrib::Nsubjettiness(2, fastjet::contrib::OnePass_WTA_KT_Axes(), fastjet::contrib::UnnormalizedMeasure(1.0));
+	  m_nSub3_beta1 = new fastjet::contrib::Nsubjettiness(3, fastjet::contrib::OnePass_WTA_KT_Axes(), fastjet::contrib::UnnormalizedMeasure(1.0));
+	  m_ECF1 = new fastjet::contrib::EnergyCorrelator(1, 1.0, fastjet::contrib::EnergyCorrelator::pt_R);
+	  m_ECF2 = new fastjet::contrib::EnergyCorrelator(2, 1.0, fastjet::contrib::EnergyCorrelator::pt_R);
+	  m_ECF3 = new fastjet::contrib::EnergyCorrelator(3, 1.0, fastjet::contrib::EnergyCorrelator::pt_R);
+	  
+	  m_split12 = new JetSubStructureUtils::KtSplittingScale(1);
+	  m_split23 = new JetSubStructureUtils::KtSplittingScale(2);
+
+	  m_qw = new JetSubStructureUtils::Qw();
+	}
     }
 
     for (auto treeName : *m_config->systAllTTreeNames()) {
@@ -185,6 +232,25 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
         top::check( evtStore()->tds()->record( std::move( rcjets ), m_InputJetContainer ), "Failed to put jets in TStore for re-clustering" );
     } // end if jet container exists
 
+    // const xAOD::JetContainer* smalljets(nullptr);
+    // top::check(evtStore()->retrieve(smalljets, "AntiKt4EMTopoJets"), "hi mike it ***REMOVED***ed up");
+    //  for (auto smalljet : *smalljets){
+
+    //     if (smalljet->getConstituents().size() < 1) {
+    // 	  std::cout << "constituents have been thinned, skipping" << std::endl;
+    // 	  ATH_MSG_WARNING("Jet Constituents have been thinned - will not be included in RCJet JSS calculation");
+    // 	}
+    // 	if (smalljet->jetP4("DFCommonJets_Calib").pt()/1000 < 7.0){
+    // 	  std::cout << "constituents have been thinned, skipping" << std::endl;
+    // 	  std::cout << "smalljet->getConstituents().size() = " << smalljet->getConstituents().size() << std::endl;
+    // 	  std::cout << " pt 0 = " << smalljet->getConstituents()[0].pt() << std::endl;
+    // 	  if (!smalljet->getConstituents()[0].pt()) continue;
+    // 	  for (auto consti : smalljet->getConstituents())
+    // 	    { std::cout << " get consti " << std::endl;}
+    // 	  ATH_MSG_WARNING("Jet Constituents have been thinned - will not be included in RCJet JSS calculation");
+    // 	}
+    //}
+	
 
     // --- EXECUTE --- //
     // only execute if the jet container doesn't exist 
@@ -225,28 +291,13 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
  	      TLorentzVector temp_p4;
  	      temp_p4.SetPtEtaPhiM(clus_itr->pt(), clus_itr->eta(), clus_itr->phi(), clus_itr->m());
  	      clusters.push_back(fastjet::PseudoJet(temp_p4.Px(),temp_p4.Py(),temp_p4.Pz(),temp_p4.E()));
- 	    }
+	    }
  	  }
  	
  	}
-     
- 	// Setup a bunch of FastJet stuff
- 	//define the type of jets you will build (http://fastjet.fr/repo/doxygen-3.0.3/classfastjet_1_1JetDefinition.html)
- 	fastjet::JetDefinition jet_def_rebuild = fastjet::JetDefinition(fastjet::antikt_algorithm, 1.0, fastjet::E_scheme, fastjet::Best); 
-    
- 	//Substructure tool definitions
- 	fastjet::contrib::Nsubjettiness nSub1_beta1(1, fastjet::contrib::OnePass_WTA_KT_Axes(), fastjet::contrib::UnnormalizedMeasure(1.0));
- 	fastjet::contrib::Nsubjettiness nSub2_beta1(2, fastjet::contrib::OnePass_WTA_KT_Axes(), fastjet::contrib::UnnormalizedMeasure(1.0));
- 	fastjet::contrib::Nsubjettiness nSub3_beta1(3, fastjet::contrib::OnePass_WTA_KT_Axes(), fastjet::contrib::UnnormalizedMeasure(1.0));
- 	fastjet::contrib::EnergyCorrelator ECF1(1, 1.0, fastjet::contrib::EnergyCorrelator::pt_R);
- 	fastjet::contrib::EnergyCorrelator ECF2(2, 1.0, fastjet::contrib::EnergyCorrelator::pt_R);
- 	fastjet::contrib::EnergyCorrelator ECF3(3, 1.0, fastjet::contrib::EnergyCorrelator::pt_R);
- 	JetSubStructureUtils::KtSplittingScale m_split12(1);
- 	JetSubStructureUtils::KtSplittingScale m_split23(2);
- 	static JetSubStructureUtils::Qw m_qw; 
-       
+            
  	// Now rebuild the large jet from the small jet constituents aka the original clusters
- 	fastjet::ClusterSequence clust_seq_rebuild = fastjet::ClusterSequence(clusters, jet_def_rebuild);
+ 	fastjet::ClusterSequence clust_seq_rebuild = fastjet::ClusterSequence(clusters, *m_jet_def_rebuild);
  	std::vector<fastjet::PseudoJet> my_pjets =  fastjet::sorted_by_pt(clust_seq_rebuild.inclusive_jets(0.0) );
  
  	fastjet::PseudoJet correctedJet;
@@ -258,9 +309,9 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
  	// Now finally we can calculate some substructure!
  	double tau32 = -1, tau21 = -1, D2 = -1;
      
- 	double tau1 = nSub1_beta1(correctedJet);
- 	double tau2 = nSub2_beta1(correctedJet);
- 	double tau3 = nSub3_beta1(correctedJet);
+ 	double tau1 = m_nSub1_beta1->result(correctedJet);
+ 	double tau2 = m_nSub2_beta1->result(correctedJet);
+ 	double tau3 = m_nSub3_beta1->result(correctedJet);
  
  	if(fabs(tau1) > 1e-8)
  	  tau21 = tau2/tau1;
@@ -271,17 +322,17 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
  	else
  	  tau32 = -999.0;
  
- 	double vECF1 = ECF1(correctedJet);
- 	double vECF2 = ECF2(correctedJet);
- 	double vECF3 = ECF3(correctedJet);
+ 	double vECF1 = m_ECF1->result(correctedJet);
+ 	double vECF2 = m_ECF2->result(correctedJet);
+ 	double vECF3 = m_ECF3->result(correctedJet);
  	if(fabs(vECF2) > 1e-8)
  	  D2 = vECF3 * pow(vECF1,3) / pow(vECF2,3);
  	else
  	  D2 = -999.0;
        
- 	double split12 = m_split12.result(correctedJet);
- 	double split23 = m_split23.result(correctedJet);
- 	double qw = m_qw.result(correctedJet);
+ 	double split12 = m_split12->result(correctedJet);
+ 	double split23 = m_split23->result(correctedJet);
+ 	double qw = m_qw->result(correctedJet);
        
  	// now attach the results to the original jet
  	rcjet->auxdecor<float>("Tau32_clstr") = tau32;
@@ -322,6 +373,18 @@ StatusCode RCJetMC15::finalize() {
         delete x.second;
     m_jetReclusteringTool.clear();
 
+    // clean up the JSS stuff
+    delete m_jet_def_rebuild;
+    delete m_nSub1_beta1;
+    delete m_nSub2_beta1;
+    delete m_nSub3_beta1;
+    delete m_ECF1;
+    delete m_ECF2;
+    delete m_ECF3;
+    delete m_split12;
+    delete m_split23;
+    delete m_qw;
+    
     return StatusCode::SUCCESS;
 }
 
