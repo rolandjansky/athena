@@ -25,8 +25,6 @@
 
 #include "InDetReadoutGeometry/SiCellId.h"
 #include "InDetReadoutGeometry/SiReadoutCellId.h"
-#include "InDetReadoutGeometry/SCT_ModuleSideDesign.h"
-#include "InDetReadoutGeometry/StripStereoAnnulusDesign.h"
 
 
 #include "InDetReadoutGeometry/SiCommonItems.h"
@@ -158,8 +156,11 @@ SiDetectorElement::updateCache() const
   const HepGeom::Transform3D & geoTransform = transformHit();
 
   double radialShift = 0.;
-  const InDetDD::StripStereoAnnulusDesign * testDesign = dynamic_cast<const InDetDD::StripStereoAnnulusDesign*>(m_design);
-  if(testDesign) radialShift = testDesign->localModuleCentreRadius(); 
+  //TO:
+  auto testDesign = m_design;
+
+  if(testDesign->IsSiDesignType(SiDesignType::SCT|SiDesignType::Stereo|SiDesignType::AnnulusDesign)) 
+     radialShift = testDesign->localModuleCentreRadius(); 
       
   HepGeom::Point3D<double> centerGeoModel(radialShift, 0., 0.);
   m_centerCLHEP = geoTransform * centerGeoModel;
@@ -861,7 +862,8 @@ void SiDetectorElement::getExtent(double &rMin, double &rMax,
 	       double &phiMin, double &phiMax) const
 {
 
-  const InDetDD::StripStereoAnnulusDesign * testDesign = dynamic_cast<const InDetDD::StripStereoAnnulusDesign*>(m_design);
+  //TO:
+  auto testDesign = m_design;
 
   HepGeom::Point3D<double> corners[4];
   getCorners(corners);
@@ -871,12 +873,16 @@ void SiDetectorElement::getExtent(double &rMin, double &rMax,
   double phiOffset = 0.;
 
   double radialShift = 0.;
-  if(testDesign) radialShift = testDesign->localModuleCentreRadius();//additional radial shift for sensors centred on beamline
+  //TO: check if testdesign is a StripStereoAnnulusDesign, and provide a virtual method in base design
+  if (testDesign->IsSiDesignType(SiDesignType::SCT|SiDesignType::Stereo|SiDesignType::AnnulusDesign)) 
+      radialShift = testDesign->localModuleCentreRadius(); // additional radial shift for sensors centred on beamline
+
   const HepGeom::Transform3D rShift = HepGeom::TranslateX3D(radialShift);//in local frame, radius is x
 
   for (int i = 0; i < 4; i++) {
-
-    if(testDesign) corners[i].transform(rShift);
+    //TO:
+    if(testDesign->IsSiDesignType(SiDesignType::SCT|SiDesignType::Stereo|SiDesignType::AnnulusDesign)) 
+       corners[i].transform(rShift);
 
     HepGeom::Point3D<double> globalPoint = globalPosition(corners[i]);
 
