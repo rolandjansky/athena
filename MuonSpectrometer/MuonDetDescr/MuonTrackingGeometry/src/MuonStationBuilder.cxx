@@ -41,6 +41,7 @@
 #include "TrkVolumes/BoundarySurfaceFace.h"
 #include "TrkSurfaces/DiscBounds.h"
 #include "TrkSurfaces/DiamondBounds.h"
+#include "TrkSurfaces/RotatedDiamondBounds.h"
 #include "TrkSurfaces/RectangleBounds.h"
 #include "TrkSurfaces/TrapezoidBounds.h"
 #include "TrkSurfaces/RotatedTrapezoidBounds.h"
@@ -222,12 +223,14 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 	  const Trk::RotatedTrapezoidBounds* rtrd=nullptr;
 	  const Trk::TrapezoidBounds* trd=nullptr;
 	  const Trk::DiamondBounds* dia=nullptr;
+	  const Trk::RotatedDiamondBounds* rdia=nullptr;
 	  Amg::Transform3D layTransf(Trk::s_idTransform);
 	  if (m_muonMgr->stgcIdHelper()->is_stgc(nswId)) {
 	    const MuonGM::sTgcReadoutElement* stgc=m_muonMgr->getsTgcReadoutElement(nswId);
 	    if (stgc) rtrd = dynamic_cast<const Trk::RotatedTrapezoidBounds*> (&stgc->bounds(nswId));
 	    if (stgc) trd = dynamic_cast<const Trk::TrapezoidBounds*> (&stgc->bounds(nswId));
 	    if (stgc) dia = dynamic_cast<const Trk::DiamondBounds*> (&stgc->bounds(nswId));
+	    if (stgc) rdia = dynamic_cast<const Trk::RotatedDiamondBounds*> (&stgc->bounds(nswId));
             if (stgc) layTransf = stgc->transform(nswId);
             if(stgc) ATH_MSG_DEBUG( " STGC readout element " );
             if(!stgc) ATH_MSG_DEBUG( " STGC and NO readout element " );
@@ -247,7 +250,7 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 
 	  const Trk::Layer* layer=0;
 
-          if (!rtrd && !dia && !trd) {    // translate from GeoModel ( spacer & non-identified stuff )
+          if (!rtrd && !dia && !trd && !rdia) {    // translate from GeoModel ( spacer & non-identified stuff )
             // This used to be a !rtrd check as we either had a rotatedTrap or nothing
             // Now we included trapezoid and diamond shape for the sTGC
 	    ATH_MSG_DEBUG( " translate from GeoModel " << protoName );
@@ -264,6 +267,14 @@ const std::vector<const Trk::DetachedTrackingVolume*>* Muon::MuonStationBuilder:
 	  } else if (dia) {
 	    // create active layer for diamond shape of NSW-sTGC QL3
 	    Trk::DiamondBounds* tbounds = new Trk::DiamondBounds(dia->minHalflengthX(),dia->medHalflengthX(),dia->maxHalflengthX(),dia->halflengthY1(),dia->halflengthY2());
+	    Trk::SharedObject<const Trk::SurfaceBounds> bounds(tbounds);
+	    Trk::OverlapDescriptor* od=0;
+	    double thickness=(mat.fullMaterial(layTransf.translation()))->thickness();
+	    layer = new Trk::PlaneLayer(new Amg::Transform3D(layTransf*Amg::AngleAxis3D(-0.5*M_PI,Amg::Vector3D(0.,0.,1.))),
+				bounds, mat,thickness, od, 1 );
+	  } else if (rdia) {
+	    // create active layer for diamond shape of NSW-sTGC QL3
+	    Trk::DiamondBounds* tbounds = new Trk::DiamondBounds(rdia->minHalflengthX(),rdia->medHalflengthX(),rdia->maxHalflengthX(),rdia->halflengthY1(),rdia->halflengthY2());
 	    Trk::SharedObject<const Trk::SurfaceBounds> bounds(tbounds);
 	    Trk::OverlapDescriptor* od=0;
 	    double thickness=(mat.fullMaterial(layTransf.translation()))->thickness();
