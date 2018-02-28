@@ -37,11 +37,23 @@ namespace EL
 
 
 
-  void SysListHandle ::
-  addAffectingSystematics (const CP::SystematicSet& /*affectingSystematics*/)
+  StatusCode SysListHandle ::
+  addAffectingSystematics (const CP::SystematicSet& affectingSystematics)
   {
     assert (!isInitialized());
-    // no-op
+    bool failures = false;
+    std::regex expr (m_affectingRegex);
+    for (const CP::SystematicVariation& sys : affectingSystematics)
+    {
+      if (!regex_match (sys.basename(), expr))
+      {
+        ANA_MSG_ERROR ("algorithm reports affecting systematic " << sys << " which doesn't match user supplied pattern " << m_affectingRegex);
+        failures = true;
+      }
+    }
+    if (failures)
+      return StatusCode::FAILURE;
+    return StatusCode::SUCCESS;
   }
 
 
