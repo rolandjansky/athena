@@ -262,9 +262,17 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
  	for (auto subjet : rcjet->getConstituents() ){
  	  const xAOD::Jet* subjet_raw = static_cast<const xAOD::Jet*>(subjet->rawConstituent());
  
- 	  // Avoid trying to access jets that have had the clusters thinned in TOPQ1
- 	  // Is there a better way to do this?
- 	  if (subjet_raw->jetP4("DFCommonJets_Calib").pt()/1000 < 7.0){ continue;}
+ 	  // Make sure we don't try to access jets that have had the clusters thinned
+	  bool hasConstituents=true;
+	  auto links = subjet_raw->constituentLinks();
+	  for(auto link : links) {
+	    if(!link.isValid()) {
+	      ATH_MSG_WARNING("Some of the RC Jet Constituents have been thinned - will not be included in RCJet JSS calculation");
+	      hasConstituents=false;
+	      break;
+	    }
+	  }
+	  if (!hasConstituents) {continue;}
  
  	  for (auto clus_itr : subjet_raw->getConstituents() ){
  	    if(clus_itr->e() > 0){
@@ -272,8 +280,7 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
  	      temp_p4.SetPtEtaPhiM(clus_itr->pt(), clus_itr->eta(), clus_itr->phi(), clus_itr->m());
  	      clusters.push_back(fastjet::PseudoJet(temp_p4.Px(),temp_p4.Py(),temp_p4.Pz(),temp_p4.E()));
 	    }
- 	  }
- 	
+ 	  }	
  	}
             
  	// Now rebuild the large jet from the small jet constituents aka the original clusters
