@@ -2,22 +2,21 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "G4SElectronPlus.hh"
+#include "G4SMuonLPlus.hh"
 // ######################################################################
-// ###                         SElectronPlus                              ###
+// ###                         SMuonLPlus                              ###
 // ######################################################################
 
+G4SMuonLPlus* G4SMuonLPlus::theInstance = NULL;
 
-G4SElectronPlus* G4SElectronPlus::theInstance = NULL;
-
-G4SElectronPlus* G4SElectronPlus::Definition(G4double mass, G4double width, G4double charge, G4double PDG, G4bool stable, G4double lifetime, G4bool shortlived)
+G4SMuonLPlus* G4SMuonLPlus::Definition(G4double mass, G4double width, G4double charge, G4double PDG, G4bool stable, G4double lifetime, G4bool shortlived)
 {
 
   if (theInstance !=0 && (mass>=0. || width>=0. || lifetime>=0.) )
     {
       G4ExceptionDescription description;
-      description << "Trying to redefine the G4SElectron Plus properties after it has been constructed is not allowed";
-      G4Exception("G4SElectronPlus", "FailedRedefinition", FatalException, description);
+      description << "Trying to redefine the G4SMuonL Plus properties after it has been constructed is not allowed";
+      G4Exception("G4SMuonLPlus", "FailedRedefinition", FatalException, description);
       abort();
     }
 
@@ -37,21 +36,22 @@ G4SElectronPlus* G4SElectronPlus::Definition(G4double mass, G4double width, G4do
   if (mass >= 0) {
 
     G4ParticleDefinition* anInstance =
-      new G4ParticleDefinition("s_e_plus_R",     mass,    width,    charge,
+      new G4ParticleDefinition("s_mu_plus_L",     mass,    width,    charge,
                                0,                  0,               0,
                                0,                  0,               0,
                                "slepton",   1,               0,          PDG,
                                stable,               lifetime,            NULL,
-                               shortlived,              "SElectronPlus");
+                               shortlived,              "SMuonLPlus");
 
-    theInstance = reinterpret_cast<G4SElectronPlus*>(anInstance);
+    theInstance = reinterpret_cast<G4SMuonLPlus*>(anInstance);
     return theInstance;
+
   }
   else
     {
       G4ExceptionDescription description;
       description << "Trying to create a particle with default constructor is not allowed";
-      G4Exception("G4SElectronPlus", "DefaultConstructorCalled", FatalException, description);
+      G4Exception("G4SMuonLPlus", "DefaultConstructorCalled", FatalException, description);
       abort();
     }
 }
