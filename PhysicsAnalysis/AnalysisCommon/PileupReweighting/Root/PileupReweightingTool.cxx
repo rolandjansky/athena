@@ -50,11 +50,11 @@ PileupReweightingTool::PileupReweightingTool( const std::string& name ) :CP::TPi
    declareProperty("UnrepresentedDataThreshold",m_unrepDataTolerance=0.05,"When unrepresented data is above this level, will require the PRW config file to be repaired");
    declareProperty("UseMultiPeriods",m_useMultiPeriods=true,"If true, will try to treat each mc runNumber in a single mc dataset (channel) as a modelling a distinct period of data taking");
    declareProperty("UseRunDependentPrescaleWeight",m_useRunDependentPrescaleWeight=false,"If true, prescale weights in the getCombinedWeight method with Trigger string are determined with the specific random run number");
-   declareProperty("DataScaleFactor",m_dataScaleFactorX=1./1.09);
+   declareProperty("DataScaleFactor",m_dataScaleFactorX=1./1.03);
    declareProperty("UsePeriodConfig",m_usePeriodConfig="auto","Use this period configuration when in config generating mode. Set to 'auto' to auto-detect");
    declareProperty("IgnoreBadChannels",m_ignoreBadChannels=true,"If true, will ignore channels with too much unrepresented data, printing a warning for them");
-   declareProperty("DataScaleFactorUP",m_upVariation=1./1.,"Set to a value representing the 'up' fluctuation - will report a PRW_DATASF uncertainty to Systematic Registry");
-   declareProperty("DataScaleFactorDOWN",m_downVariation=1./1.18,"Set to a value representing the 'down' fluctuation - will report a PRW_DATASF uncertainty to Systematic Registry");
+   declareProperty("DataScaleFactorUP",m_upVariation=1./0.99,"Set to a value representing the 'up' fluctuation - will report a PRW_DATASF uncertainty to Systematic Registry");
+   declareProperty("DataScaleFactorDOWN",m_downVariation=1./1.07,"Set to a value representing the 'down' fluctuation - will report a PRW_DATASF uncertainty to Systematic Registry");
    declareProperty("VaryRandomRunNumber",m_varyRunNumber=false,"If true, then when doing systematic variations, RandomRunNumber will fluctuate as well. Off by default as believed to lead to overestimated uncertainties");
    
    declareProperty("GRLTool", m_grlTool, "If you provide a GoodRunsListSelectionTool, any information from lumicalc files will be automatically filtered" );

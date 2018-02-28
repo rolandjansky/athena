@@ -56,6 +56,10 @@ namespace xAOD {
          DEFINE_ISO_ACCESSOR(ptvarcone20);
          DEFINE_ISO_ACCESSOR(ptvarcone30);
          DEFINE_ISO_ACCESSOR(ptvarcone40);
+         // Mini-Isolation (http://arxiv.org/abs/1007.2221) variables for high mu:
+         DEFINE_ISO_ACCESSOR(ptvarcone20_TightTTVA_pt500);
+         DEFINE_ISO_ACCESSOR(ptvarcone30_TightTTVA_pt500);
+         DEFINE_ISO_ACCESSOR(ptvarcone40_TightTTVA_pt500);
          // neutral eflow
          DEFINE_ISO_ACCESSOR(neflowisol20);
          DEFINE_ISO_ACCESSOR(neflowisol30);

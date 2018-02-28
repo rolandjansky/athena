@@ -97,7 +97,7 @@ enum sel {
 
 std::vector<std::string> getTokens(TString line, TString delim){
   std::vector<std::string> vtokens;
-  TObjArray* tokens = TString(line).Tokenize(delim); //delimiters                                                                                                                             
+  TObjArray* tokens = TString(line).Tokenize(delim); //delimiters
   if(tokens->GetEntriesFast()) {
     TIter iString(tokens);
     TObjString* os=0;
@@ -137,7 +137,6 @@ int main( int argc, char* argv[] ) {
   int isAtlfast = -1;
   int NoSyst = 1;
   int debug = 1;
-  int JESNPset = -99;
 
   int doRTT=0; //if running on RTT DxAODs
   int SUSYx=1; //SUSY DxAOD flavour
@@ -161,7 +160,6 @@ int main( int argc, char* argv[] ) {
     if (strcmp(key, "ConfigFile") == 0) config_file = std::string(val);
     if (strcmp(key, "PRWFile") == 0) prw_file = std::string(val);
     if (strcmp(key, "ilumicalcFile") == 0) ilumicalc_file = std::string(val);
-    if (strcmp(key, "JESNPset") == 0) JESNPset = atoi(val);
     if (strcmp(key, "doRTT") == 0) doRTT = atoi(val);
     if (strcmp(key, "SUSYx") == 0) SUSYx = atoi(val);
     if (strcmp(key, "maxEvents") == 0) entries = atoi(val);
@@ -174,7 +172,7 @@ int main( int argc, char* argv[] ) {
     return 10;
   }
   ST::ISUSYObjDef_xAODTool::DataSource datasource = (isData ? ST::ISUSYObjDef_xAODTool::Data : (isAtlfast ? ST::ISUSYObjDef_xAODTool::AtlfastII : ST::ISUSYObjDef_xAODTool::FullSim));
- 
+
   ///
   static SG::AuxElement::Accessor<int> acc_susyid("SUSY_procID");
 
@@ -239,8 +237,9 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
     m_grl.setTypeAndName("GoodRunsListSelectionTool/grl");
     m_grl.isUserConfigured();
     std::vector<std::string> myGRLs;
-    myGRLs.push_back(PathResolverFindCalibFile("GoodRunsLists/data15_13TeV/20160720/physics_25ns_20.7.xml"));
-    myGRLs.push_back(PathResolverFindCalibFile("GoodRunsLists/data16_13TeV/20161101/physics_25ns_20.7.xml"));
+    myGRLs.push_back(PathResolverFindCalibFile("GoodRunsLists/data15_13TeV/20170619/physics_25ns_21.0.19.xml"));
+    myGRLs.push_back(PathResolverFindCalibFile("GoodRunsLists/data16_13TeV/20180129/physics_25ns_21.0.19.xml"));
+    //myGRLs.push_back(PathResolverFindCalibFile("GoodRunsLists/data17_13TeV/20171130/physics_25ns_Triggerno17e33prim.xml"));
 
     ANA_CHECK( m_grl.setProperty("GoodRunsListVec", myGRLs) );
     ANA_CHECK( m_grl.setProperty("PassThrough", false) );
@@ -255,10 +254,10 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
     //my_XsecDB = new SUSY::CrossSectionDB(gSystem->ExpandPathName("$ROOTCOREBIN/data/SUSYTools/mc15_13TeV/"));
     my_XsecDB = new SUSY::CrossSectionDB(PathResolverFindCalibDirectory("SUSYTools/mc15_13TeV/"));
     //my_XsecDB = new SUSY::CrossSectionDB("/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/SUSYTools/mc15_13TeV/");
-    
+
     Info(APP_NAME, "xsec DB initialized" );
-        
-    // In case you want to overwrite the default with your local values 
+
+    // In case you want to overwrite the default with your local values
     // my_XsecDB->loadFile( <PATH_TO_YOUR_XSECTION_FILE> );
   }
 
@@ -277,7 +276,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
   ANA_CHECK( objTool.setBoolProperty("METDoCaloSyst", false) );
 
   ///////////////////////////////////////////////////////////////////////////////////////////
-  ////                                            
+  ////
   ////       ****     THESE FILES ARE MEANT FOR EXAMPLES OF USAGE ONLY        ****       ////
   ////       ****        AND SHOULD NOT BE USED FOR SERIOUS ANALYSIS          ****       ////
   ////                                                                                   ////
@@ -285,20 +284,20 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
   if ( autoconfigPRW != 1 ) {
     std::vector<std::string> prw_conf;
     if (prw_file == "DUMMY") {
-      prw_conf.push_back("dev/PileupReweighting/mc15ab_defaults.NotRecommended.prw.root");
-      prw_conf.push_back("dev/PileupReweighting/mc15c_v2_defaults.NotRecommended.prw.root");
+      prw_conf.push_back("dev/SUSYTools/merged_prw_mc16a_latest.root");
+      //prw_conf.push_back("dev/SUSYTools/merged_prw_mc16c_latest.root");
     }
     else {
       prw_conf = getTokens(prw_file,",");
       //    prw_conf.push_back(prw_file);
     }
     ANA_CHECK( objTool.setProperty("PRWConfigFiles", prw_conf) );
-  } 
+  }
 
   std::vector<std::string> prw_lumicalc;
   if (ilumicalc_file == "DUMMY") {
-    prw_lumicalc.push_back(PathResolverFindCalibFile("GoodRunsLists/data15_13TeV/20160720/physics_25ns_20.7.lumicalc.OflLumi-13TeV-005.root"));
-    prw_lumicalc.push_back(PathResolverFindCalibFile("GoodRunsLists/data16_13TeV/20160720/physics_25ns_20.7.lumicalc.OflLumi-13TeV-005.root"));
+    prw_lumicalc.push_back(PathResolverFindCalibFile("GoodRunsLists/data15_13TeV/20170619/PHYS_StandardGRL_All_Good_25ns_276262-284484_OflLumi-13TeV-008.root"));
+    prw_lumicalc.push_back(PathResolverFindCalibFile("GoodRunsLists/data16_13TeV/20180129/PHYS_StandardGRL_All_Good_25ns_297730-311481_OflLumi-13TeV-009.root"));
     //prw_lumicalc.push_back(PathResolverFindCalibFile("GoodRunsLists/data17_13TeV/20171130/physics_25ns_Triggerno17e33prim.lumicalc.OflLumi-13TeV-001.root"));
   }
   else {
@@ -307,19 +306,15 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
   ANA_CHECK( objTool.setProperty("PRWLumiCalcFiles", prw_lumicalc) );
   ///////////////////////////////////////////////////////////////////////////////////////////
 
-  ANA_CHECK(objTool.setProperty("JESNuisanceParameterSet", JESNPset) );
-
-  //ANA_CHECK(objTool.setBoolProperty("UseBtagging", false) );
-
-  //Guess shower type for btagging MC/MC SFs 
+  //Guess shower type for btagging MC/MC SFs
   if(!isData){
     //unsigned int ishower = objTool.getMCShowerType("mc15_13TeV.Sherpa_blabla"); //
-    int ishower = objTool.getMCShowerType("mc15_13TeV.PowhegPythiaEvtGen_blabla"); //get your sample name here!
+    int ishower = objTool.getMCShowerType("mc15_13TeV.PowhegPythia8EvtGen_blabla"); //get your sample name here!
     ANA_CHECK( objTool.setProperty("ShowerType", (int)ishower) );
   }
 
   //// Don't touch these unless you know what you are after!!! FOR EFF TESTS ONLY
-  // ANA_CHECK( objTool.setBoolProperty("EleForceNoId", false) ); 
+  // ANA_CHECK( objTool.setBoolProperty("EleForceNoId", false) );
   // ANA_CHECK( objTool.setBoolProperty("MuForceNoId", false) );
   ////
 
@@ -387,7 +382,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
   m_clock0.Start();
   TStopwatch m_clock1;
   m_clock1.Start();
-  TStopwatch m_clock2; 
+  TStopwatch m_clock2;
 
   int period = debug ? 1 : 100;
 
@@ -400,7 +395,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
       // CALLGRIND_TOGGLE_COLLECT;
       // ProfilerStart("gperftools.profile.out");
     }
-  
+
 
     // Tell the object which entry to look at:
     event.getEntry( entry );
@@ -413,16 +408,16 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
       if (!event.retrieveMetaInput(completeCBC, "CutBookkeepers").isSuccess()) {
         Error( APP_NAME, "Failed to retrieve CutBookkeepers from MetaData! Exiting.");
       }
-      
+
       // Let's find the right CBK (latest with StreamAOD input before derivations)
       const xAOD::CutBookkeeper* allEventsCBK = 0;
       int maxcycle=-1;
       for ( auto cbk : *completeCBC ) {
-        std::cout << cbk->nameIdentifier() << " : " << cbk->name() << " : desc = " << cbk->description() 
-                  << " : inputStream = " << cbk->inputStream()  << " : outputStreams = " << (cbk->outputStreams().size() ? cbk->outputStreams()[0] : "") 
-                  << " : cycle = " << cbk->cycle() << " :  allEvents = " << cbk->nAcceptedEvents() 
+        std::cout << cbk->nameIdentifier() << " : " << cbk->name() << " : desc = " << cbk->description()
+                  << " : inputStream = " << cbk->inputStream()  << " : outputStreams = " << (cbk->outputStreams().size() ? cbk->outputStreams()[0] : "")
+                  << " : cycle = " << cbk->cycle() << " :  allEvents = " << cbk->nAcceptedEvents()
                   << std::endl;
-        
+
         if ( cbk->name() == "AllExecutedEvents" && TString(cbk->inputStream()).Contains("StreamDAOD")){ //guess DxAOD flavour
           xStream = TString(cbk->inputStream()).ReplaceAll("Stream","");
           std::cout << "xStream = " << xStream << "  (i.e. indentified DxAOD flavour)" << std::endl;
@@ -432,7 +427,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
           allEventsCBK = cbk;
         }
       }
-      
+
       if (allEventsCBK) {
         uint64_t nEventsProcessed  = allEventsCBK->nAcceptedEvents();
         double sumOfWeights        = allEventsCBK->sumOfEventWeights();
@@ -445,10 +440,10 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
 #endif
 
       } else { Info( APP_NAME, "No relevent CutBookKeepers found" ); }
-      
+
     }
 
-   
+
     ANA_CHECK( objTool.ApplyPRWTool());
 
     //if(debug) Info( APP_NAME, "PRW Weight = %f", objTool.GetPileupWeight());
@@ -494,19 +489,19 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
         UInt_t  procID = 0;
         int pdgid1 = 0;
         int pdgid2 = 0;
-        
+
         if( objTool.FindSusyHP(pdgid1, pdgid2) != StatusCode::SUCCESS ){
           Error(APP_NAME, "--- SOMETHING IS WRONG WITH THE SUSY PROC FINDING... ---");
           return StatusCode::FAILURE;
         }
-        
+
         if( pdgid1!=0 && pdgid2!=0){ //(just to avoid warnings)
           procID = SUSY::finalState(pdgid1, pdgid2); // get prospino proc ID
           Info(APP_NAME , "--- SIGNAL ID1     : %d", pdgid1);
           Info(APP_NAME , "    SIGNAL ID2     : %d", pdgid2);
           Info(APP_NAME , "    SIGNAL PROC ID : %d", procID);
 
-	  if ( acc_susyid.isAvailable(*ei)  ) 
+	  if ( acc_susyid.isAvailable(*ei)  )
 	    Info(APP_NAME , "    SIGNAL PROC ID (DECO) : %d", acc_susyid(*ei) );
 
           Info(APP_NAME , "--- XSECTION DETAILS");
@@ -517,7 +512,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
         }
       }
     }
-    
+
     //Check PV in the event
     if (objTool.GetPrimVtx() == nullptr) {
       Warning(APP_NAME , "No PV found for this event! Skipping...");
@@ -558,27 +553,27 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
     for (const auto& muon : *muons_nominal){
       if (debug && entry<10){
               std::cout << "--------------------------------------" << std::endl;
-        std::cout << "Muon pt = " << muon->pt()*0.001 << " , " 
+        std::cout << "Muon pt = " << muon->pt()*0.001 << " , "
                   << "baseline = " << (int)muon->auxdata<char>("baseline") << " ,"
                   << "bad = " << (int)muon->auxdata<char>("bad") << " ,"
                   << "IsHighPt(deco) = " << (int)muon->auxdata<char>("passedHighPtCuts") << " , "
                   << "IsHighPt(only) = " << (int)objTool.IsHighPtMuon(*muon) << std::endl;
       }
     }
-    
+
 
     // Jets
     xAOD::JetContainer* jets_nominal(0);
     xAOD::ShallowAuxContainer* jets_nominal_aux(0);
     ANA_CHECK( objTool.GetJets(jets_nominal, jets_nominal_aux) );
-    
+
     // FatJets
     const xAOD::JetContainer* FJC(0);
     xAOD::JetContainer* fatjets_nominal(0);
     xAOD::ShallowAuxContainer* fatjets_nominal_aux(0);
     if(xStream.Contains("SUSY10")){
       if( event.retrieve(FJC, "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets").isSuccess() ){
-        
+
         ANA_CHECK( objTool.GetFatJets(fatjets_nominal, fatjets_nominal_aux) );
         if (debug && entry < 10) {
           for (const auto& fatjet : *fatjets_nominal) {
@@ -591,7 +586,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
         //        std::cout << "Warning :: LargeR jet collection AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets not available in input file. Skipping this part of the test!" << std::endl;
       }
     }
-    
+
     //Taus
     xAOD::TauJetContainer* taus_nominal(0);
     xAOD::ShallowAuxContainer* taus_nominal_aux(0);
@@ -606,10 +601,14 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
     metcst_nominal->setStore(metcst_nominal_aux);
     metcst_nominal->reserve(10);
 
+    double metsig_cst (0.);
+
     xAOD::MissingETContainer* mettst_nominal = new xAOD::MissingETContainer;
     xAOD::MissingETAuxContainer* mettst_nominal_aux = new xAOD::MissingETAuxContainer;
     mettst_nominal->setStore(mettst_nominal_aux);
     mettst_nominal->reserve(10);
+
+    double metsig_tst (0.);
 
     // Set up the event weights
     // Base should include all weights that do not depend on individual objects
@@ -619,7 +618,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
       //Check for the new Sherpa 2.2 Reweighting function
       if(debug && entry < 5){
         float RW_sh22 = objTool.getSherpaVjetsNjetsWeight("AntiKt4TruthJets");
-        Info(APP_NAME , "--- SHERPA2.2 REWEIGHTING : %f", RW_sh22); 
+        Info(APP_NAME , "--- SHERPA2.2 REWEIGHTING : %f", RW_sh22);
       }
     }
 
@@ -695,7 +694,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
 
       xAOD::JetContainer* goodJets = new xAOD::JetContainer(SG::VIEW_ELEMENTS);
       //ANA_CHECK( store.record(goodJets, "MySelJets" + sys.name()) ); //NOT WORKING? //MT,WB
-      
+
       // Tell the SUSYObjDef_xAOD which variation to apply
       if (objTool.applySystematicVariation(sys) != CP::SystematicCode::Ok) {
         Error(APP_NAME, "Cannot configure SUSYTools for systematic var. %s", (sys.name()).c_str() );
@@ -866,7 +865,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
           goodJets->push_back(jet);
         }
       }
-      
+
       if (isNominal || sysInfo.affectsKinematics) {
         if(xStream.Contains("SUSY3")){
 	  if (debug) Info(APP_NAME, "METCST?");
@@ -879,6 +878,17 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
                                     false, // CST
 				    false) ); // No JVT if you use CST
 
+	  if (debug) Info(APP_NAME, "METSignificance CST?");
+	  ANA_CHECK( objTool.GetMETSig(*metcst,
+				       metsig_cst,
+	  			       jets,
+	  			       electrons,
+	  			       muons,
+	  			       photons,
+	  			       taus, // taus
+				       false,
+				       false) );
+
 	  if (debug) Info(APP_NAME, "METTST?");
 	  ANA_CHECK( objTool.GetMET(*mettst,
 				    jets,
@@ -887,6 +897,18 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
 				    photons,
 				    taus,
 				    true) );
+
+	  if (debug) Info(APP_NAME, "METSignificance TST?");
+	  ANA_CHECK( objTool.GetMETSig(*mettst,
+				       metsig_tst,
+	  			       jets,
+	  			       electrons,
+	  			       muons,
+	  			       photons,
+	  			       taus, // taus
+				       true,
+				       true) );
+
 	}
 	else{
 	  if (debug) Info(APP_NAME, "METCST?");
@@ -899,6 +921,17 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
 	  			    false, // CST
 	  			    false) ); // No JVT if you use CST
 
+	  if (debug) Info(APP_NAME, "METSignificance CST?");
+	  ANA_CHECK( objTool.GetMETSig(*metcst,
+				       metsig_cst,
+	  			       jets,
+	  			       electrons,
+	  			       muons,
+	  			       photons,
+	  			       0, // taus
+				       false,
+				       false) );
+
           if (debug) Info(APP_NAME, "METTST?");
           ANA_CHECK( objTool.GetMET(*mettst,
                                     jets,
@@ -908,10 +941,22 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
                                     0, // taus,
                                     true) );
 
+	  if (debug) Info(APP_NAME, "METSignificance TST?");
+	  ANA_CHECK( objTool.GetMETSig(*mettst,
+				       metsig_tst,
+	  			       jets,
+	  			       electrons,
+	  			       muons,
+	  			       photons,
+	  			       0, // taus
+				       true,
+				       true) );
+
+
         }
         if (debug) Info(APP_NAME, "MET done");
       }
-      
+
       float elecSF = 1.0;
       int el_idx[nSel] = {0};
       for (const auto& el : *electrons) {
@@ -925,18 +970,18 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
           el_idx[signallep]++;
           if ( el->pt() > 20000. ) {
             el_idx[goodpt]++;
-            
+
             bool passTM=false;
             for(const auto& t : el_triggers){
               passTM |= objTool.IsTrigMatched(el, t);
               //passTM |= objTool.IsTrigMatchedDeco(el, t);
-            }              
+            }
             if(passTM)
-              el_idx[trgmatch]++; 
+              el_idx[trgmatch]++;
 
 
 	    //check ChID BDT
-	    //Info(APP_NAME, "electron passChID : %d ,  BDT : %.3f", el->auxdata<char>("passChID") , el->auxdata<double>("ecisBDT"));            
+	    //Info(APP_NAME, "electron passChID : %d ,  BDT : %.3f", el->auxdata<char>("passChID") , el->auxdata<double>("ecisBDT"));
           }
         }
       }
@@ -954,10 +999,10 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
       float muonSF = 1.0;
       int mu_idx[nSel] = {0};
       bool passTMtest = false;
-      
+
       TString muTrig2015 = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50"; //"HLT_mu18_mu8noL1"; //"HLT_mu20_iloose_L1MU15_OR_HLT_mu50";
       TString muTrig2016 = "HLT_mu24_imedium"; //"HLT_mu20_mu8noL1";  //HLT_mu20_iloose_L1MU15_OR_HLT_mu50
-      
+
       for (const auto& mu : *muons) {
         if ( mu->auxdata<char>("passOR") == 0  ) {
           mu_idx[passOR]++;
@@ -973,15 +1018,15 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
           mu_idx[signallep]++;
           if ( mu->pt() > 20000. )  {
             mu_idx[goodpt]++;
-            
+
             bool passTM=false;
             for(const auto& t : mu_triggers){
               //std::cout << "Pass " << t << " : " << (int)objTool.IsTrigMatched(mu, t) << std::endl;
               passTM |= objTool.IsTrigMatched(mu, t);
             }
             if(passTM)
-              mu_idx[trgmatch]++;              
-            
+              mu_idx[trgmatch]++;
+
           }
 
           if(!isData){
@@ -1005,7 +1050,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
       //         for (const auto& mu : *muons) {
       //           std::cout << "TRIGMUTEST Muon "<< imudbg << " pass 2mu14 = " << objTool.IsTrigMatched(mu, "HLT_2mu14") << std::endl;
       //           imudbg++;
-      //         }      
+      //         }
       //         if( mu_idx[goodpt] == 2 ){
       //           std::cout << "TRIGMUTEST MuonPair pass 2mu14 = " << objTool.IsTrigMatched(muons->at(0), muons->at(1), "HLT_2mu14") << std::endl;
       //         }
@@ -1018,7 +1063,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
           //std::cout << "MUON BEFORE SF = " << muonSF << "   " << objTool.treatAsYear() << "   "  << objTool.GetRandomRunNumber() << "    " <<  objTool.GetPileupWeight() << std::endl;
           if(objTool.treatAsYear()==2015)
             muonSF = objTool.GetTotalMuonSF(*muons, true, true, muTrig2015.Data());
-          else 
+          else
             muonSF = objTool.GetTotalMuonSF(*muons, true, true, muTrig2016.Data());
 
           //std::cout << "MUON AFTER SF = " << muonSF << "   " << objTool.treatAsYear() << "   "  << objTool.GetRandomRunNumber() << "    " <<  objTool.GetPileupWeight() << std::endl;
@@ -1040,7 +1085,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
           // if(objTool.applySystematicVariation(testSet) != CP::SystematicCode::Ok){
           //   Error( APP_NAME, "Problems with tau trig eff systematic settings!");
           // }
-          
+
           for (const auto& tau : *taus){
                    Info( APP_NAME, " Tau pt = %.5f, idSF = %.5f, trigSF = %.5F, totSF = %.5f",
                          tau->pt()*1e-3,
@@ -1129,7 +1174,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
 
       // Clean up the systematics copies
       if (sysInfo.affectsKinematics) {
-        delete metcst; 
+        delete metcst;
         delete metcst_aux;
         delete mettst;
         delete mettst_aux;
@@ -1151,7 +1196,6 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
     //  Unfortunately, this manipulation is needed in order for the METMaker to find all of its
     //  objects.  See also ATLASG-801
     //event.fill();
-
 
     // The containers created by the shallow copy are owned by you. Remember to delete them.
     // In our case, all of these were put into the store

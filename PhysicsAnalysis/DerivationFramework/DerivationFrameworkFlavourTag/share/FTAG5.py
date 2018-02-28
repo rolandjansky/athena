@@ -22,8 +22,7 @@ from DerivationFrameworkJetEtMiss.JetCommon import (
     OutputJets, addJetOutputs)
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import (
     addDefaultTrimmedJets, replaceAODReducedJets)
-from DerivationFrameworkJetEtMiss.AntiKt4EMTopoJetsCPContent import (
-    AntiKt4EMTopoJetsCPContent)
+from JetRec.JetRecStandard import jtm
 
 # tracking
 from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import (
@@ -31,6 +30,23 @@ from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import (
 
 # flavor tagging
 from DerivationFrameworkFlavourTag.HbbCommon import addVRJets
+from DerivationFrameworkFlavourTag import BTaggingContent as bvars
+from DerivationFrameworkJetEtMiss.JSSVariables import JSSHighLevelVariables
+
+#====================================================================
+# SET UP STREAM
+#====================================================================
+
+# The base name (DAOD_FTAG5 here) must match the string in
+streamName = derivationFlags.WriteDAOD_FTAG5Stream.StreamName
+fileName   = buildFileName( derivationFlags.WriteDAOD_FTAG5Stream )
+FTAG5Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+# Only events that pass the filters listed below are written out.
+# Name must match that of the kernel above
+# AcceptAlgs  = logical OR of filters
+# RequireAlgs = logical AND of filters
+FTAG5Stream.AcceptAlgs(["FTAG5Kernel"])
+
 
 #====================================================================
 # SKIMMING TOOLS
@@ -43,6 +59,30 @@ FTAG5StringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(
 
 ToolSvc += FTAG5StringSkimmingTool
 print FTAG5StringSkimmingTool
+
+#=====================================================================
+# Thinning tools
+#=====================================================================
+
+FTAG5ThinningHelper = ThinningHelper( "FTAG5ThinningHelper" )
+FTAG5ThinningHelper.TriggerChains = ''
+FTAG5ThinningHelper.AppendToStream( FTAG5Stream )
+
+
+from DerivationFrameworkFlavourTag.DerivationFrameworkFlavourTagConf import (
+    DerivationFramework__HbbTrackThinner as HbbThinner )
+FTAG5HbbThinningTool = HbbThinner(
+    name = "FTAG5HbbThinningTool",
+    thinningService = FTAG5ThinningHelper.ThinningSvc(),
+    largeJetPtCut = 200e3,
+    largeJetEtaCut = 2.1,
+    smallJetPtCut = 7e3,
+    nLeadingSubjets = 3,
+    addSubjetGhosts = True,
+    addConstituents = True,
+    addConeAssociated = True)
+ToolSvc += FTAG5HbbThinningTool
+print FTAG5HbbThinningTool
 
 #====================================================================
 # TRUTH SETUP
@@ -76,9 +116,11 @@ DerivationFrameworkJob += FTAG5Seq
 #put custom jet names here
 OutputJets["FTAG5"] = ["AntiKtVR30Rmax4Rmin02TrackJets"]
 
+# I don't understand why we need some of these. We don't use
+# AntiKt4PV0TrackJets in the output, but without them we get a crash
 reducedJetList = ["AntiKt2PV0TrackJets",
-                  "AntiKt4PV0TrackJets",
-                  "AntiKt10LCTopoJets",
+                  "AntiKt4PV0TrackJets", # <- Crashes without this,
+                  "AntiKt10LCTopoJets", # <- while building this collection
                   "AntiKt4TruthJets"]
 replaceAODReducedJets(reducedJetList,FTAG5Seq,"FTAG5")
 
@@ -89,27 +131,24 @@ addDefaultTrimmedJets(FTAG5Seq,"FTAG5",dotruth=True)
 #===================================================================
 
 # Create variable-R trackjets and dress AntiKt10LCTopo with ghost VR-trkjet
-addVRJets(FTAG5Seq, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJet",
-          VRJetAlg="AntiKt", VRJetRadius=0.4, VRJetInputs="pv0track", #or should this be lctopo?
+# Note that the ghost association to the 'AntiKt10LCTopo' jets is
+# hardcoded within this function "for now".
+addVRJets(FTAG5Seq,
+          VRJetName="AntiKtVR30Rmax4Rmin02Track",
+          VRGhostLabel="GhostVR30Rmax4Rmin02TrackJet",
+          VRJetAlg="AntiKt", VRJetRadius=0.4,
+          VRJetInputs='pv0track',
           ghostArea = 0 , ptmin = 2000, ptminFilter = 7000,
-          variableRMinRadius = 0.02, variableRMassScale = 30000, calibOpt = "none")
+          variableRMinRadius = 0.02, variableRMassScale = 30000,
+          calibOpt = "none")
 
 # alias for VR
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
 
-#===================================================================
-# Tag custom or pre-built jet collections
-#===================================================================
-
-# FlavorTagInit(JetCollections  = ['AntiKt4EMPFlowJets',
-#                                  'AntiKt4EMTopoJets'], Sequencer = FTAG5Seq)
-
 #==================================================================
 # Augment tracks in jets with additional information
 #==================================================================
-# NOTE: this is commented out until we figure out why the tool can't
-# find jet collections.
-#
+
 FTAG5Seq += CfgMgr.BTagVertexAugmenter()
 for jc in OutputJets["FTAG5"]:
    if 'Truth' in jc:
@@ -126,98 +165,47 @@ for jc in OutputJets["FTAG5"]:
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS
 #====================================================================
 
-FTAG5Seq += CfgMgr.DerivationFramework__DerivationKernel("FTAG5Kernel",
-                                                         SkimmingTools = [FTAG5StringSkimmingTool],
-                                                         AugmentationTools = []
-                                                         )
+FTAG5Seq += CfgMgr.DerivationFramework__DerivationKernel(
+    "FTAG5Kernel",
+    SkimmingTools = [FTAG5StringSkimmingTool],
+    ThinningTools = [FTAG5HbbThinningTool],
+    AugmentationTools = []
+)
 
 
 #====================================================================
-# SET UP STREAM
+# Add slimming tools
 #====================================================================
-
-# The base name (DAOD_FTAG5 here) must match the string in
-streamName = derivationFlags.WriteDAOD_FTAG5Stream.StreamName
-fileName   = buildFileName( derivationFlags.WriteDAOD_FTAG5Stream )
-FTAG5Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-# Only events that pass the filters listed below are written out.
-# Name must match that of the kernel above
-# AcceptAlgs  = logical OR of filters
-# RequireAlgs = logical AND of filters
-FTAG5Stream.AcceptAlgs(["FTAG5Kernel"])
 
 FTAG5SlimmingHelper = SlimmingHelper("FTAG5SlimmingHelper")
 
-# nb: BTagging_AntiKt4EMTopo smart collection includes both AntiKt4EMTopoJets and BTagging_AntiKt4EMTopo 
-# container variables. Thus BTagging_AntiKt4EMTopo is needed in SmartCollections as well as AllVariables
-FTAG5SlimmingHelper.SmartCollections = ["Electrons","Muons",
-                                        "InDetTrackParticles"]
+fatJetCollection = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"
+subJetCollection = "AntiKtVR30Rmax4Rmin02TrackJets"
 
-FTAG5SlimmingHelper.AllVariables = [
-    "BTagging_AntiKtVR30Rmax4Rmin02Track",
-    "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtx",
-    "PrimaryVertices",
-    "TruthEvents",
-    "TruthParticles",
-    "TruthVertices",
-    "MET_Truth",
-    "MET_TruthRegions"]
+FTAG5SlimmingHelper.SmartCollections = [
+    "Muons",
+    "InDetTrackParticles",
+    "BTagging_AntiKtVR30Rmax4Rmin02Track_expert",
+    fatJetCollection]
 
-# for FT5_bjetTriggerVtx in FTAllVars_bjetTriggerVtx:
-#     FTAG5SlimmingHelper.AllVariables.append(FT5_bjetTriggerVtx)
+jssVariables = ['.'.join([fatJetCollection] + JSSHighLevelVariables) ]
+FTAG5SlimmingHelper.ExtraVariables += jssVariables
 
-FTAG5SlimmingHelper.ExtraVariables += [AntiKt4EMTopoJetsCPContent[1].replace("AntiKt4EMTopoJetsAux","AntiKt10LCTopoJets"),
-                                       "InDetTrackParticles.truthMatchProbability.x.y.z.vx.vy.vz",
-                                       "InDetTrackParticles.numberOfContribPixelLayers.numberOfTRTHits.numberOfInnermostPixelLayerSharedHits.numberOfNextToInnermostPixelLayerSharedHits",
-                                       "InDetTrackParticles.numberOfPixelSplitHits.numberOfInnermostPixelLayerSplitHits.numberOfNextToInnermostPixelLayerSplitHits", 
-                                       "InDetTrackParticles.hitPattern.radiusOfFirstHit",
-                                       #"InDetTrackParticles.FTAG5_unbiased_d0.FTAG5_unbiased_z0.FTAG5_unbiased_d0Sigma.FTAG5_unbiased_z0Sigma",
-                                       "CombinedMuonTrackParticles.vx.vy.vz",
-                                       "ExtrapolatedMuonTrackParticles.vx.vy.vz",
-                                       "MSOnlyExtrapolatedMuonTrackParticles.vx.vy.vz",
-                                       "MuonSpectrometerTrackParticles.vx.vy.vz",
-                                       "InDetForwardTrackParticles.phi.qOverP.theta",
-                                       "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtx.-vxTrackAtVertex",
-                                       "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet.GhostVR30Rmax4Rmin02TrackJetPt.GhostVR30Rmax4Rmin02TrackJetCount",
-                                       "InDetTrackParticles.btag_z0.btag_d0.btag_ip_d0.btag_ip_z0.btag_ip_phi.btag_ip_d0_sigma.btag_ip_z0_sigma.btag_track_displacement.btag_track_momentum"]
+FTAG5SlimmingHelper.ExtraVariables += [
+    "InDetTrackParticles.truthMatchProbability.x.y.z.vx.vy.vz",
+    "InDetTrackParticles.numberOfContribPixelLayers.numberOfTRTHits.numberOfInnermostPixelLayerSharedHits.numberOfNextToInnermostPixelLayerSharedHits",
+    "InDetTrackParticles.numberOfPixelSplitHits.numberOfInnermostPixelLayerSplitHits.numberOfNextToInnermostPixelLayerSplitHits",
+    "InDetTrackParticles.hitPattern.radiusOfFirstHit",
+    "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet.GhostVR30Rmax4Rmin02TrackJetPt.GhostVR30Rmax4Rmin02TrackJetCount.GhostHBosonsCount",
+    "InDetTrackParticles.btag_z0.btag_d0.btag_ip_d0.btag_ip_z0.btag_ip_phi.btag_ip_d0_sigma.btag_ip_z0_sigma.btag_track_displacement.btag_track_momentum",
+]
 
-addJetOutputs(FTAG5SlimmingHelper,["FTAG5"],[],[])
 
-#----------------------------------------------------------------------
-# Add needed dictionary stuff
-FTAG5SlimmingHelper.AppendToDictionary = {      
-  "BTagging_AntiKt4EMPFlow"                        :   "xAOD::BTaggingContainer", 
-  "BTagging_AntiKt4EMPFlowAux"                     :   "xAOD::BTaggingAuxContainer", 
-  "BTagging_AntiKt4EMPFlowJFVtx"                   :   "xAOD::BTaggingContainer",
-  "BTagging_AntiKt4EMPFlowJFVtxAux"                :   "xAOD::BTaggingAuxContainer",
-  "AntiKtVR30Rmax4Rmin02Track"                     :   "xAOD::JetContainer"        ,
-  "AntiKtVR30Rmax4Rmin02TrackAux"                  :   "xAOD::JetAuxContainer"     ,
-  "BTagging_AntiKtVR30Rmax4Rmin02Track"            :   "xAOD::BTaggingContainer"   ,
-  "BTagging_AntiKtVR30Rmax4Rmin02TrackAux"         :   "xAOD::BTaggingAuxContainer",
-  "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtx"       :   "xAOD::BTagVertexContainer" ,
-  "BTagging_AntiKtVR30Rmax4Rmin02TrackJFVtxAux"    :   "xAOD::BTagVertexAuxContainer",
-  "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtx"      :   "xAOD::VertexContainer"   ,
-  "BTagging_AntiKtVR30Rmax4Rmin02TrackSecVtxAux"   :   "xAOD::VertexAuxContainer",
-  "BTagging_AntiKt2Track"                          :   "xAOD::BTaggingContainer"   ,
-  "BTagging_AntiKt2TrackAux"                       :   "xAOD::BTaggingAuxContainer",
-  "BTagging_AntiKt2TrackJFVtx"                     :   "xAOD::BTagVertexContainer"   ,
-  "BTagging_AntiKt2TrackJFVtxAux"                  :   "xAOD::BTagVertexAuxContainer",
-  "BTagging_AntiKt2TrackSecVtx"                    :   "xAOD::VertexContainer"   ,
-  "BTagging_AntiKt2TrackSecVtxAux"                 :   "xAOD::VertexAuxContainer",
-}
-#----------------------------------------------------------------------
-
-addJetOutputs(FTAG5SlimmingHelper,["FTAG5"])
 
 FTAG5SlimmingHelper.IncludeMuonTriggerContent = False
 FTAG5SlimmingHelper.IncludeEGammaTriggerContent = False
 FTAG5SlimmingHelper.IncludeJetTriggerContent = False
 FTAG5SlimmingHelper.IncludeEtMissTriggerContent = False
 FTAG5SlimmingHelper.IncludeBJetTriggerContent = False
-
-#FTAG5 TrigNav Thinning
-FTAG5ThinningHelper = ThinningHelper( "FTAG5ThinningHelper" )
-FTAG5ThinningHelper.TriggerChains = ''
-FTAG5ThinningHelper.AppendToStream( FTAG5Stream )
 
 FTAG5SlimmingHelper.AppendContentToStream(FTAG5Stream)

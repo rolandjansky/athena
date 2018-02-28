@@ -482,6 +482,17 @@ StatusCode SUSYToolsAlg::execute() {
                 << ", et=" << (*metcst_nominal)["Final"]->met()
                 << ", sumet=" << (*metcst_nominal)["Final"]->sumet());
 
+  double metsig_cst(0.);
+
+  CHECK( m_SUSYTools->GetMETSig(*metcst_nominal,
+        			metsig_cst,
+                             	jets_nominal,
+                             	electrons_nominal,
+                             	muons_nominal,
+                             	photons_nominal, 0, false, false) );
+
+  ATH_MSG_DEBUG("METSignificance = " << metsig_cst);
+
   xAOD::MissingETContainer* mettst_nominal = new xAOD::MissingETContainer;
   xAOD::MissingETAuxContainer* mettst_nominal_aux = new xAOD::MissingETAuxContainer;
   mettst_nominal->setStore(mettst_nominal_aux);
@@ -498,6 +509,16 @@ StatusCode SUSYToolsAlg::execute() {
                 << ", et=" << (*mettst_nominal)["Final"]->met()
                 << ", sumet=" << (*mettst_nominal)["Final"]->sumet());
   
+  double metsig_tst(0.);
+
+  CHECK( m_SUSYTools->GetMETSig(*mettst_nominal,
+        			metsig_tst,
+                             	jets_nominal,
+                             	electrons_nominal,
+                             	muons_nominal,
+                             	photons_nominal, 0, true, true) );
+
+  ATH_MSG_DEBUG("METSignificance = " << metsig_tst);
 
   TH1* met_et    = hist("met_et");
   TH1* met_sumet = hist("met_sumet");

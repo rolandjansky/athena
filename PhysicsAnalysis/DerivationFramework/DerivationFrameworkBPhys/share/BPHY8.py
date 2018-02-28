@@ -391,6 +391,8 @@ assert len(BPHY8cf.doChannels) > 0
 #====================================================================
 BPHY8cf.GlobalBMassUpperCut      = 7000.
 BPHY8cf.GlobalBMassLowerCut      = 3500.
+BPHY8cf.GlobalTrksMassUpperCut   = 7500.
+BPHY8cf.GlobalTrksMassLowerCut   = 3000.
 BPHY8cf.GlobalDiMuonMassUpperCut = 7000.
 BPHY8cf.GlobalDiMuonMassLowerCut = 2000.
 BPHY8cf.GlobalJpsiMassUpperCut   = 7000.
@@ -401,6 +403,8 @@ BPHY8cf.GlobalBlindUpperCut      = 5526.
 if BPHY8cf.doUseWideMuMuMassRange:
     BPHY8cf.GlobalBMassUpperCut      = 10000.
     BPHY8cf.GlobalBMassLowerCut      =  3250.
+    BPHY8cf.GlobalTrksMassUpperCut   = 10500.
+    BPHY8cf.GlobalTrksMassLowerCut   =  2750.
     BPHY8cf.GlobalDiMuonMassUpperCut = 10000.
     BPHY8cf.GlobalDiMuonMassLowerCut =  2000.
     BPHY8cf.GlobalJpsiMassUpperCut   = 10000.
@@ -546,6 +550,7 @@ for BPHY8_reco in BPHY8_recoList:
             trackThresholdPt            = BPHY8cf.JfTrackThresholdPt,
             invMassUpper                = BPHY8cf.GlobalDiMuonMassUpperCut,
             invMassLower                = BPHY8cf.GlobalDiMuonMassLowerCut,
+            # For JpsiFinder the cut is really on chi2 and not on chi2/ndf
             Chi2Cut                     = BPHY8cf.Chi2Cut2Prong,
             oppChargesOnly	        = True,
             sameChargesOnly             = False,
@@ -575,6 +580,8 @@ for BPHY8_reco in BPHY8_recoList:
             trkThresholdPt              = BPHY8cf.GlobalKaonPtCut,
             trkMaxEta                   = BPHY8cf.GlobalKaonEtaCut,
             BThresholdPt                = 1000.,
+            TrkTrippletMassUpper        = BPHY8cf.GlobalTrksMassUpperCut,
+            TrkTrippletMassLower        = BPHY8cf.GlobalTrksMassLowerCut,
             BMassUpper                  = BPHY8cf.GlobalBMassUpperCut,
             BMassLower                  = BPHY8cf.GlobalBMassLowerCut,
             JpsiContainerKey            = BPHY8cf.DerivationName+"DiMuonCandidates",
@@ -584,6 +591,8 @@ for BPHY8_reco in BPHY8_recoList:
             TrackParticleCollection     = BPHY8cf.TrkPartContName,
             TrkVertexFitterTool         = BPHY8_VertexTools[BPHY8_reco].TrkVKalVrtFitter,        # VKalVrt vertex fitter
             TrackSelectorTool           = BPHY8_VertexTools[BPHY8_reco].InDetTrackSelectorTool,
+            # This JO should rather be named Chi2byNdfCut
+            Chi2Cut                     = BPHY8cf.GlobalChi2CutBase,
             UseMassConstraint           = True)
     
 # c) for BsJpsiPhi
@@ -597,6 +606,8 @@ for BPHY8_reco in BPHY8_recoList:
             trkThresholdPt              = BPHY8cf.GlobalKaonPtCut,
             trkMaxEta                   = BPHY8cf.GlobalKaonEtaCut,
             BThresholdPt                = 1000.,
+            TrkQuadrupletMassUpper      = BPHY8cf.GlobalTrksMassUpperCut,
+            TrkQuadrupletMassLower      = BPHY8cf.GlobalTrksMassLowerCut,
             BMassUpper                  = BPHY8cf.GlobalBMassUpperCut,
             BMassLower                  = BPHY8cf.GlobalBMassLowerCut,
             JpsiContainerKey            = BPHY8cf.DerivationName+"DiMuonCandidates",
@@ -606,6 +617,8 @@ for BPHY8_reco in BPHY8_recoList:
             TrackParticleCollection     = BPHY8cf.TrkPartContName,
             TrkVertexFitterTool         = BPHY8_VertexTools[BPHY8_reco].TrkVKalVrtFitter,        # VKalVrt vertex fitter
             TrackSelectorTool           = BPHY8_VertexTools[BPHY8_reco].InDetTrackSelectorTool,
+            # This JO should rather be named Chi2byNdfCut
+            Chi2Cut                     = BPHY8cf.GlobalChi2CutBase,
             UseMassConstraint           = True)
         
 ToolSvc += BPHY8_FinderTools.values()

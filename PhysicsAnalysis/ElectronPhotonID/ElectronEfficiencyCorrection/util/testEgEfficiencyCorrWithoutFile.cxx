@@ -4,37 +4,28 @@
 
 // System include(s):
 #include <memory>
-#include <cstdlib>
-#include <iomanip>
 #include <string>
-#include <numeric>
 // ROOT include(s):
 #include <TFile.h>
 #include <TString.h>
-
 // Infrastructure include(s):
 #ifdef ROOTCORE
 #include "xAODRootAccess/Init.h"
 #include "xAODRootAccess/TEvent.h"
 #include "xAODRootAccess/TStore.h"
 #endif // ROOTCORE
-
 //Asg includes
-#include "PATInterfaces/SystematicsUtil.h"
-#include "PATInterfaces/MakeSystematicsVector.h"
 #include "ElectronEfficiencyCorrection/AsgElectronEfficiencyCorrectionTool.h"
-
 //Local includes
 #include "Messaging.h"
 #include "CreateDummyEl.h"
+#include "SFHelpers.h"
 //
 #include <boost/program_options.hpp>
-
 
 int main( int argc, char* argv[] ) {
     xAOD::TReturnCode::enableFailure();
     MSGHELPERS::getMsgStream().msg().setLevel(MSG::INFO); 
-
     /*
      * Parse the input from the command line
      */
@@ -113,19 +104,9 @@ int main( int argc, char* argv[] ) {
     MSGHELPERS::getMsgStream().msg().setLevel(mylevel); 
     CHECK( xAOD::Init( APP_NAME ) );
 
-    /*
-     * create and then retrieve the dummy electrons (in this case is 1)
-     * This also setups the store,so for done before the tool init
-     * it really is a pseudo "reconstruction"
-     */
+    //Initialize the store
     static  xAOD::TEvent event( xAOD::TEvent::kClassAccess );  
     static xAOD::TStore store;   
-    
-    std::vector< std::pair<double,double>> pt_eta{{pt,eta}}; 
-    CHECK(getElectrons(pt_eta,runno,store).isSuccess());
-    
-    const xAOD::ElectronContainer* electrons(nullptr);
-    CHECK(store.retrieve(electrons,"MyElectrons").isSuccess());
 
     //Configure the tool based on the inputs
     AsgElectronEfficiencyCorrectionTool ElEffCorrectionTool ("ElEffCorrectionTool");   
@@ -152,8 +133,25 @@ int main( int argc, char* argv[] ) {
     CHECK( ElEffCorrectionTool.setProperty("OutputLevel", mylevel ));
     CHECK( ElEffCorrectionTool.setProperty("CorrelationModel", model )); 
     CHECK( ElEffCorrectionTool.initialize());  
-    asg::ToolStore::dumpToolConfig();
-
+    if ( mylevel < MSG::INFO){
+        asg::ToolStore::dumpToolConfig();
+    }
+    /*
+     * create and then retrieve the dummy electrons (in this case is 1)
+     * This also setups the store,so for done before the tool init
+     * it really is a pseudo "reconstruction"
+     */
+    std::vector< std::pair<double,double>> pt_eta{{pt,eta}}; 
+    CHECK(getElectrons(pt_eta,runno,store).isSuccess());
+    const xAOD::ElectronContainer* electrons(nullptr);
+    CHECK(store.retrieve(electrons,"MyElectrons").isSuccess());
+    //Loop over electrons , here it is one    
+    xAOD::Electron el= *(electrons->at(0));
+    /*
+     * Potentiallly we can make this part more clever, for now since it is an
+     * util I did not try to optimise too much.
+     */
+    int index =ElEffCorrectionTool.systUncorrVariationIndex(el);
     /*
      * Set up the systematic variations
      * 2 cases one for "continuous" one for "toys"
@@ -162,99 +160,10 @@ int main( int argc, char* argv[] ) {
     double nominalSF{};
     double totalNeg{};
     double totalPos{}; 
-    CP::SystematicSet systs = ElEffCorrectionTool.recommendedSystematics();  
-    /*
-     * Potentiallly we can make this part more clever, for now since it is an
-     * util I did not tried to optimise too much.
-     */
-    if(!isToys){
-        /*
-         * Split the variation in up and down
-         * Do it before any loop
-         * This is obviously more of a sanity check
-         * as they are currently symmetric so is mainly
-         * about inspecting them both 
-         */
-        std::vector<CP::SystematicVariation> positiveVar{};
-        std::vector<CP::SystematicVariation> negativeVar{};
-        for(const auto& sys : systs){
-            float param =sys.parameter() ;    
-            if(param<0) {
-                negativeVar.push_back(sys);  
-            }
-            else{
-                positiveVar.push_back(sys) ;  
-            }   
-        }
-        //Helper function as a lamda
-        auto totalSyst = [&ElEffCorrectionTool] (xAOD::Electron el, const std::vector<CP::SystematicVariation>& variations, 
-                const double nominal, double&result ){
-            double total2{} ; 
-            double systematic{}; 
-            for(const auto& sys : variations){
-                if(ElEffCorrectionTool.applySystematicVariation({sys})!=CP::SystematicCode::Ok ||
-                        ElEffCorrectionTool.getEfficiencyScaleFactor(el,systematic) != CP::CorrectionCode::Ok){   
-                    MSG_ERROR("Error in setting/getting " << sys.name());
-                    return CP::CorrectionCode::Error;    
-                }
-                MSG_INFO( ElEffCorrectionTool.appliedSystematics().name()
-                        << " Result : " << systematic<< " Value :  "<<systematic-nominal );  
-                total2 += (nominal-systematic)*(nominal-systematic) ;  
-            }
-            result=std::sqrt(total2);
-            return CP::CorrectionCode::Ok;
-        };
-        //Loop over electrons , here it is one    
-        xAOD::Electron el= *(electrons->at(0));
-        MSG_INFO( "Electron pt/eta index : " << ElEffCorrectionTool.systUncorrVariationIndex(el) );
-        //Do the work 
-        CHECK(ElEffCorrectionTool.getEfficiencyScaleFactor(el,nominalSF) == CP::CorrectionCode::Ok);
-        CHECK(totalSyst(el,negativeVar,nominalSF,totalNeg));
-        CHECK(totalSyst(el,positiveVar,nominalSF,totalPos));
-   }
-    else{
-        CP::MakeSystematicsVector sysVec;
-        sysVec.addGroup("toys");
-        sysVec.setToys(ElEffCorrectionTool.getNumberOfToys());
-        sysVec.calc(systs);
-        std::vector<CP::SystematicSet> toys=sysVec.result("toys");
-        std::vector<double> toysVal{};
-        toysVal.reserve(toys.size());
+    CHECK(SFHelpers::result(ElEffCorrectionTool,el,nominalSF, totalPos,totalNeg,isToys)==0);
 
-        //Do the work
-        xAOD::Electron el= *(electrons->at(0));
-        MSG_INFO( "Electron pt/eta index : " << ElEffCorrectionTool.systUncorrVariationIndex(el) );
-        for (const auto& sys : toys){
-            double systematic{};
-            CHECK(ElEffCorrectionTool.applySystematicVariation(sys)==CP::SystematicCode::Ok &&
-                ElEffCorrectionTool.getEfficiencyScaleFactor(el,systematic) == CP::CorrectionCode::Ok); 
-            MSG_INFO( ElEffCorrectionTool.appliedSystematics().name() << " toy Result : " <<systematic)
-            toysVal.push_back(systematic);
-        }
-         /*
-         *  B. P. Welford 1962  
-         *  Donald KnutArt of Computer Programming, Vol 2, page
-         *  232, 3rd edition
-         */
-        //1st element,initilize 
-        double meanK{toysVal[0]}; //current mean
-        double meanK_1{toysVal[0]};//next mean
-        double s{0};
-        size_t k{1};
-        const size_t N=toysVal.size();
-        //subsequent ones 
-        for (size_t i=1; i!=N;++i){            
-            const double x{toysVal[i]};
-            const double invk {(1.0/(++k))};   
-            meanK_1= meanK + (x-meanK)*invk;
-            s+=(x-meanK_1)*(x-meanK);
-            meanK=meanK_1;
-        }
-        const double variance= s/(N-1);
-        nominalSF=meanK;
-        totalNeg=sqrt(variance);
-        totalPos=sqrt(variance);
-    }
-    MSG_INFO("===> " <<model << " : SF = "<< nominalSF << " + " << totalPos << " - " <<totalNeg );
+    MSG_INFO("===> Model : " <<model << "| electron : Pt = " << el.pt() << " : eta = " << el.eta() 
+            << " : Bin index = " <<index   <<" : SF = "<< nominalSF 
+            << " + " << totalPos << " - " <<totalNeg << " <===");
     return 0;
 }

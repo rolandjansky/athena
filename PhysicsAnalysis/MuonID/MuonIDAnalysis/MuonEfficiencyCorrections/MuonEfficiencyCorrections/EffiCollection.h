@@ -79,22 +79,22 @@ namespace CP {
                     CollectionContainer(const CollectionContainer & other);
                     virtual ~CollectionContainer();
 
-                    EfficiencyScaleFactor_Ptr retrieve(unsigned int RunNumer);
+                    EfficiencyScaleFactor_Ptr retrieve(unsigned int RunNumer) const;
                     bool CheckConsistency() const;
-                    std::string sysname();
+                    std::string sysname() const;
                     bool SetSystematicBin(unsigned int Bin);
                     unsigned int nBins() const;
                     std::string GetBinName(unsigned int Bin) const;
                     int FindBinSF(const xAOD::Muon &mu) const;
 
                     EffiCollection::CollectionType type() const;
-
-                protected:
-                    bool LoadPeriod(unsigned int RunNumber);
+                    
+                private:
+                    bool LoadPeriod(unsigned int RunNumber) const;
                     typedef std::pair<unsigned int, unsigned int> RunRanges;
 
-                    std::map<RunRanges, EfficiencyScaleFactor_Ptr> m_SF;
-                    std::map<RunRanges, EfficiencyScaleFactor_Ptr>::const_iterator m_currentSF;
+                    std::vector<EfficiencyScaleFactor_Ptr> m_SF;
+                    mutable EfficiencyScaleFactor_Ptr m_currentSF;
                     EffiCollection::CollectionType m_FileType;
             };
 

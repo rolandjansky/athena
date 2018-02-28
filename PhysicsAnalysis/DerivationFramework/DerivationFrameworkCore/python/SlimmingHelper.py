@@ -38,6 +38,8 @@ from DerivationFrameworkCore.CompulsoryContent import *
 from DerivationFrameworkCore.ContentHandler import *
 from DerivationFrameworkCore.ContainersForExpansion import ContainersForExpansion
 from DerivationFrameworkCore.ContainersOnTheFly import ContainersOnTheFly
+from DerivationFrameworkCore.AllVariablesDisallowed import AllVariablesDisallowed
+from DerivationFrameworkCore.FullListOfSmartContainers import FullListOfSmartContainers
 from AthenaCommon.BeamFlags import jobproperties
 from AthenaCommon.GlobalFlags  import globalflags
 import PyUtils.Logging as L
@@ -132,7 +134,12 @@ class SlimmingHelper:
                 allVariablesList = []          
                 # Add all-variable collections
                 if len(self.AllVariables)>0:
+                        formatName = Stream.Name.strip("Stream_DAOD")
                         for item in self.AllVariables:
+                                # Block AllVariables for containers with smart slimming lists, for those formats for which it is disallowed
+                                if (formatName in AllVariablesDisallowed) and (item in FullListOfSmartContainers):
+                                        msg.error("Using AllVariables for a container with a smart slimming list ("+item+") is not permitted for the format "+formatName+" - please use smart slimming and/or ExtraVariables")
+                                        raise RuntimeError("AllVariables not permitted for requested DAOD format")
                                 masterItemList.extend(self.GetWholeContentItems(item))
                 for item in masterItemList:
                         if "Aux." in item:
@@ -182,7 +189,6 @@ class SlimmingHelper:
                 if len(self.SmartCollections)>0:
                         for collection in self.SmartCollections:
                                 masterItemList.extend(self.GetSmartItems(collection))
-                                #masterItemList.extend(self.GetKinematicsItems(collection))
 
                 # Run some basic tests to prevent clashes with CompulsoryContent content                
                 self.CheckList(masterItemList)
@@ -318,17 +324,16 @@ class SlimmingHelper:
         def GetSmartItems(self,collectionName):
                 # Look up what is needed for this container type
                 items = []
+                if collectionName not in FullListOfSmartContainers:
+                        raise RuntimeError("Smart slimming container "+collectionName+" does not exist or does not have a smart slimming list")
                 if collectionName=="Electrons":
                         from DerivationFrameworkEGamma.ElectronsCPContent import ElectronsCPContent
-                        #from DerivationFrameworkCore.ElectronsCPContent import ElectronsCPContent
                         items.extend(ElectronsCPContent)
                 elif collectionName=="Photons":
                         from DerivationFrameworkEGamma.PhotonsCPContent import PhotonsCPContent
-                        #from DerivationFrameworkCore.PhotonsCPContent import PhotonsCPContent
                         items.extend(PhotonsCPContent)
                 elif collectionName=="Muons":
                         from DerivationFrameworkMuons.MuonsCPContent import MuonsCPContent
-#                       from DerivationFrameworkCore.MuonsCPContent import MuonsCPContent
                         items.extend(MuonsCPContent)
                 elif collectionName=="TauJets":
                         from DerivationFrameworkTau.TauJetsCPContent import TauJetsCPContent
@@ -415,16 +420,23 @@ class SlimmingHelper:
                         items.extend(BTaggingStandardContent("AntiKt4EMPFlowJets"))
                 elif collectionName=="BTagging_AntiKt2Track":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
-                        items.extend(BTaggingStandardContent("AntiKt2TrackJets"))
+                        items.extend(BTaggingStandardContent("AntiKt2PV0TrackJets"))
                 elif collectionName=="BTagging_AntiKt3Track":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
-                        items.extend(BTaggingStandardContent("AntiKt3TrackJets"))
+                        items.extend(BTaggingStandardContent("AntiKt3PV0TrackJets"))
                 elif collectionName=="BTagging_AntiKt4Track":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
-                        items.extend(BTaggingStandardContent("AntiKt4TrackJets"))
+                        items.extend(BTaggingStandardContent("AntiKt4PV0TrackJets"))
                 elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02Track":
                         from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingStandardContent
+                        # note that for other track jet collections,
+                        # "PV0" appears in the name. unfortunately
+                        # all the derivations I see using VR track
+                        # jets leave out the "PV0".
                         items.extend(BTaggingStandardContent("AntiKtVR30Rmax4Rmin02TrackJets"))
+                elif collectionName=="BTagging_AntiKtVR30Rmax4Rmin02Track_expert":
+                        from DerivationFrameworkFlavourTag.BTaggingContent import BTaggingExpertContent
+                        items.extend(BTaggingExpertContent("AntiKtVR30Rmax4Rmin02TrackJets"))
                 elif collectionName=="InDetTrackParticles":
                         #from DerivationFrameworkInDet.InDetTrackParticlesCPContent import InDetTrackParticlesCPContent
                         from DerivationFrameworkCore.InDetTrackParticlesCPContent import InDetTrackParticlesCPContent

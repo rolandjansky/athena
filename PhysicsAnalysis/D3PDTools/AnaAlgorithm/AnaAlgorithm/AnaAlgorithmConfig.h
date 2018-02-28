@@ -16,6 +16,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <vector>
 
 class StatusCode;
 
@@ -49,6 +50,15 @@ namespace EL
     AnaAlgorithmConfig ();
 
 
+    /// \brief initializing constructor
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   out of memory II
+  public:
+    explicit AnaAlgorithmConfig (const std::string& val_typeAndName);
+
+
     /// \brief the type of the algorithm
     /// \par Guarantee
     ///   no-fail
@@ -61,7 +71,7 @@ namespace EL
     /// \par Failures
     ///   out of memory II
   public:
-    void setType (const std::string val_type) noexcept;
+    void setType (const std::string& val_type) noexcept;
 
 
     /// \brief the name of the algorithm
@@ -76,7 +86,16 @@ namespace EL
     /// \par Failures
     ///   out of memory II
   public:
-    void setName (const std::string val_name) noexcept;
+    void setName (const std::string& val_name) noexcept;
+
+
+    /// \brief set \ref type and \ref name at the same time
+    /// \par Guarantee
+    ///   basic
+    /// \par Failures
+    ///   out of memory II
+  public:
+    void setTypeAndName (const std::string& val_typeAndName);
 
 
     /// \brief whether we use XAODs
@@ -113,14 +132,58 @@ namespace EL
                                 const std::string& value);
 
 
+    /// \brief create a private tool of the given name and type
+    ///
+    /// This is the only way you can configure tool properties through
+    /// \ref AnaAlgorithmConfig: You need to add it the tool to the
+    /// algorithm configuration and then you can set individual
+    /// properties on the tool, using the property name
+    /// "tool.property".
+    ///
+    /// If you want to add a subtool for a tool, you can do this by
+    /// calling it "tool.subtool".  Note that you will have to create
+    /// both the tool and the subtool this way, i.e. you can't
+    /// configure a subtool without also configuring the tool that
+    /// owns it.
+    ///
+    /// You can apply this to tools held by either \ref ToolHandle or
+    /// \ref asg::AnaToolHandle, but if you configure a tool held by
+    /// an AnaToolHandle this way it will completely replace teh tool
+    /// configuration done in the algorithm itself.
+    ///
+    /// The calling convention is somewhat inverted compared to
+    /// setTypeAndName() calls, but otherwise they would be inverted
+    /// compared to the setProperty() calls. :(
+    ///
+    /// \par Guarantee
+    ///   strong
+    /// \par Failures
+    ///   out of memory II
+  public:
+    ::StatusCode createPrivateTool (const std::string& name,
+                                    const std::string& toolType);
+
+
     /// \brief make an algorithm with the given configuration
+    ///
+    /// Note that generally users won't call this function.  The
+    /// typical workflow is to fully configure this object and then
+    /// hand it over to EventLoop which will take care of creating the
+    /// actual algorithm.
+    ///
+    /// An exception may be unit tests.  If this turns out to be too
+    /// cumbersome for unit testing we may need to revisit it at that
+    /// point.  For now it is unclear whether we'll even be able to do
+    /// algorithm unit testing either way.
+    ///
     /// \par Guarantee
     ///   strong
     /// \par Failures
     ///   configuration errors\n
     ///   algorithm creation/initialization errors
   public:
-    ::StatusCode makeAlgorithm (std::unique_ptr<AnaAlgorithm>& algorithm) const;
+    ::StatusCode
+    makeAlgorithm (std::unique_ptr<AnaAlgorithm>& algorithm) const;
 
 
 
@@ -139,6 +202,10 @@ namespace EL
     /// \brief the value of \ref useXAODs
   private:
     bool m_useXAODs = true;
+
+    /// \brief the map of private tools to create
+  private:
+    std::map<std::string,std::string> m_privateTools;
 
     /// \brief the map of property values
   private:

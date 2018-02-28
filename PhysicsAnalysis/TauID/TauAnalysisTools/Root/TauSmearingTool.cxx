@@ -21,7 +21,7 @@ TauSmearingTool::TauSmearingTool( const std::string& sName )
   declareProperty( "RecommendationTag",   m_sRecommendationTag = "mc16-prerec" );
   declareProperty( "SkipTruthMatchCheck", m_bSkipTruthMatchCheck = false );
   declareProperty( "ApplyFading",         m_bApplyFading = true);
-  declareProperty( "ApplyMVATES",         m_bApplyMVATES = false);
+  declareProperty( "ApplyMVATES",         m_bApplyMVATES = true);
   declareProperty( "ApplyCombinedTES",    m_bApplyCombinedTES = false);
   declareProperty("ApplyMVATESQualityCheck", m_bApplyMVATESQualityCheck = true );
 

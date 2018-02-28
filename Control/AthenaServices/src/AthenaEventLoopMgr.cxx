@@ -85,6 +85,9 @@ AthenaEventLoopMgr::AthenaEventLoopMgr(const std::string& nam,
 		  "(DEFAULT). 2: RECOVERABLE and FAILURE skip to next events");
   declareProperty("EventPrintoutInterval", m_eventPrintoutInterval=1,
                   "Print event heartbeat printouts every m_eventPrintoutInterval events");
+  declareProperty("IntervalInSeconds",  m_intervalInSeconds = 0, 
+		  "heartbeat time interval is seconds rather than events"
+		  "you also get a nice event rate printout then");
   declareProperty("UseDetailChronoStat",m_doChrono=false);
   declareProperty("ClearStorePolicy",
 		  m_clearStorePolicy = "EndEvent",
@@ -763,14 +766,25 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
       }
   }
 
+  if(m_nev==0 && m_intervalInSeconds) {
+    m_lastTime = time(nullptr); //initialize timer
+  }
 
   uint64_t evtNumber = pEvent->event_ID()->event_number();
-  bool doEvtHeartbeat(m_eventPrintoutInterval.value() > 0 && 
-                      0 == (m_nev % m_eventPrintoutInterval.value()));
-  if (doEvtHeartbeat)  {
-   if(!m_useTools) m_msg << MSG::INFO
+  bool doEvtHeartbeat( m_eventPrintoutInterval.value() > 0 && 
+		       ( (!m_intervalInSeconds && 0 == (m_nev % m_eventPrintoutInterval.value())) || 
+			 (m_intervalInSeconds && (time(nullptr)-m_lastTime)>m_intervalInSeconds) ) );
+  if (doEvtHeartbeat) {
+    if(!m_useTools) {
+      m_msg << MSG::INFO
 	<< "  ===>>>  start processing event #" << evtNumber << ", run #" << m_currentRun 
-	<< " " << m_nev << " events processed so far  <<<===" << endreq;
+	    << " " << m_nev << " events processed so far  <<<===";
+      if(m_intervalInSeconds) {
+	m_msg << MSG::INFO << double(m_nev-m_lastNev)/(time(nullptr)-m_lastTime) << " Hz";
+	m_lastNev = m_nev; m_lastTime = time(nullptr);
+      }
+      m_msg << MSG::INFO << endreq;
+    }
    else m_msg << MSG::INFO
 	<< "  ===>>>  start processing event #" << evtNumber << ", run #" << m_currentRun 
 	<< " " << m_nev << " events read and " << m_proc 
@@ -845,14 +859,17 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* /*par*/)
   ++m_proc;
   }  // end of toolsPassed test
   ++m_nev;
+
   if (doEvtHeartbeat) {
-   if(!m_useTools) m_msg << MSG::INFO
+    if(!m_intervalInSeconds) {
+      if(!m_useTools) m_msg << MSG::INFO
 	<< "  ===>>>  done processing event #" << evtNumber << ", run #" << m_currentRun 
 	<< " " << m_nev << " events processed so far  <<<===" << endreq;
-   else m_msg << MSG::INFO
+      else m_msg << MSG::INFO
 	<< "  ===>>>  done processing event #" << evtNumber << ", run #" << m_currentRun 
 	<< " " << m_nev << " events read and " << m_proc 
         << " events processed so far <<<===" << endreq;
+    }
    std::ofstream outfile( "eventLoopHeartBeat.txt");
    if ( !outfile ) {
      m_msg << MSG::ERROR << " unable to open: eventLoopHeartBeat.txt" << endreq;

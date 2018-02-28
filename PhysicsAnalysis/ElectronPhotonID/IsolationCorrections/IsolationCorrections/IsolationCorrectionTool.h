@@ -62,8 +62,8 @@ class IsolationCorrectionTool  : virtual public IIsolationCorrectionTool,
         float GetEtaPointing(const xAOD::Egamma* input) {return m_isol_corr->GetEtaPointing(input);};
 
         std::string m_corr_file;
-        std::string m_corr_ddshift_2015_file;
-        std::string m_corr_ddshift_file;
+        std::string m_corr_ddshift_2015_2016_file;
+        std::string m_corr_ddshift_2017_file;
         std::string m_corr_ddsmearing_file;
         IsolationCorrection* m_isol_corr;
         std::string m_tool_ver_str;

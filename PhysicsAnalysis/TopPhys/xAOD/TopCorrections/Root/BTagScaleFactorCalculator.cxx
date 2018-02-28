@@ -84,15 +84,6 @@ namespace top{
         m_config->setBTaggingSFSysts( WP, base_names, true );
       }
     }
-    // DL1 decoration
-    m_btagSelToolsDL1Decor["DL1"] = "BTaggingSelectionTool_forEventSaver_DL1_"+m_config->sgKeyJets();    
-    m_btagSelToolsDL1Decor["DL1mu"] = "BTaggingSelectionTool_forEventSaver_DL1mu_"+m_config->sgKeyJets();
-    m_btagSelToolsDL1Decor["DL1rnn"] = "BTaggingSelectionTool_forEventSaver_DL1rnn_"+m_config->sgKeyJets();
-    top::check(m_btagSelToolsDL1Decor["DL1"].retrieve(), "Failed to retrieve eventsaver btagging selector");
-    top::check(m_btagSelToolsDL1Decor["DL1mu"].retrieve(), "Failed to retrieve eventsaver btagging selector");
-    top::check(m_btagSelToolsDL1Decor["DL1rnn"].retrieve(), "Failed to retrieve eventsaver btagging selector");
-    // Store a lightweight flag to limit error messages if the DL1 weights are not present
-    m_DL1Possible = true;
 
     return StatusCode::SUCCESS;
   }
@@ -115,28 +106,13 @@ namespace top{
     ///-- Loop over all jet collections --///
     ///-- Lets assume that we're not doing ElectronInJet subtraction --///
     for (auto currentSystematic : *jet_syst_collections) {
-      const xAOD::JetContainer* jets(nullptr);
-      top::check(evtStore()->retrieve(jets, currentSystematic.second), "failed to retrieve jets");
+       const xAOD::JetContainer* jets(nullptr);
+       top::check(evtStore()->retrieve(jets, currentSystematic.second), "failed to retrieve jets");
 
-      ///-- Tell the SF tools to use the nominal systematic --///
-
-      /// -- Loop over all jets in each collection --///
-      for (auto jetPtr : *jets) {
-	// Decorate with the DL1 variable before checking selection (required)
-	for( auto alg_tool: m_btagSelToolsDL1Decor ){
-	  ToolHandle<IBTaggingSelectionTool>& tool = alg_tool.second;
-	  double tag_weight = -999;
-	  // For older p-tags, we cannot access the DL1 weights, so this fails (but should not crash)
-	  if(m_DL1Possible){
-	    if(!tool->getTaggerWeight(*jetPtr, tag_weight)){
-	      tag_weight = -999;
-	      ATH_MSG_WARNING("The b-tagging tool indicates that the DL1 weights are not available to calculate DL1(x).");
-	      m_DL1Possible = false;
-	    }
-	  }
-	  jetPtr->auxdecor<float>("AnalysisTop_"+alg_tool.first) = tag_weight;
-	}
-
+       ///-- Tell the SF tools to use the nominal systematic --///
+       /// -- Loop over all jets in each collection --///
+       for (auto jetPtr : *jets) {
+	 
 	bool passSelection(false);
 	if (jetPtr->isAvailable<char>("passPreORSelection")) {
 	  if (jetPtr->auxdataConst<char>("passPreORSelection") == 1) {
@@ -192,7 +168,7 @@ namespace top{
 	    float btag_SF(1.0);
             bool  isTagged = false;//unused in case of Continuous
             if (std::fabs(jetPtr->eta()) <= 2.5 ) {
-              if (tagWP != "Continuous") {
+              if (tagWP.find("Continuous") == std::string::npos) {
                 isTagged = btagsel->accept(*jetPtr);
                 if(isTagged)
                   top::check( btageff->getScaleFactor(*jetPtr, btag_SF),
@@ -218,7 +194,7 @@ namespace top{
                 top::check( btageff->applySystematicVariation(syst_set),
                             "Failed to set new b-tagging systematic variation "+syst_set.name() );
                 if (std::fabs(jetPtr->eta()) <= 2.5 ) {
-                  if (tagWP != "Continuous") {
+                  if (tagWP.find("Continuous") == std::string::npos) {
                     if (isTagged)
                       top::check( btageff->getScaleFactor(*jetPtr, btag_SF),
                                   "Failed to get b-tagging SF for variation "+syst_set.name() );

@@ -448,6 +448,9 @@ namespace top{
     this->setGrlDir( settings->value("GRLDir") );
     this->setGrlFile( settings->value("GRLFile") );
 
+    // Set TDP file name
+    this->setTDPPath( settings->value("TDPPath") );
+
     //we need storegate keys so people can pick different collections / met / jets etc.
     this->sgKeyPhotons( settings->value("PhotonCollectionName") );
     this->sgKeyElectrons( settings->value("ElectronCollectionName") );
@@ -979,6 +982,12 @@ namespace top{
     }
   }
 
+  void TopConfig::setTDPPath( const std::string& s){
+    if (!m_configFixed) {
+      m_topDataPreparationPath = s;
+    }
+  }
+
   void TopConfig::jetUncertainties_NPModel( const std::string& s )
   {
     if (!m_configFixed) {
@@ -1214,7 +1223,7 @@ namespace top{
     else if (raw_WP=="85%") return "FixedCutBEff_85";
     else return raw_WP;
   }
-  
+
   void TopConfig::setBTagWP_available( std::string btagging_WP ) {
     m_available_btaggingWP.push_back(btagging_WP);
   }

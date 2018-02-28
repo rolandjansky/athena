@@ -190,7 +190,8 @@ STDM7SlimmingHelper.ExtraVariables += BTaggingStandardContent("AntiKt4EMTopoJets
 ExtraDictionary["BTagging_AntiKt4EMTopo"]    = "xAOD::BTaggingContainer"
 ExtraDictionary["BTagging_AntiKt4EMTopoAux"] = "xAOD::BTaggingAuxContainer"
 
-STDM7SlimmingHelper.AllVariables = ExtraContainersAll
+STDM7SlimmingHelper.AllVariables = [ "AFPSiHitContainer", "AFPToFHitContainer"]
+STDM7SlimmingHelper.AllVariables += ExtraContainersAll
 STDM7SlimmingHelper.AllVariables += ["Electrons"]
 
 if globalflags.DataSource()=='geant4':

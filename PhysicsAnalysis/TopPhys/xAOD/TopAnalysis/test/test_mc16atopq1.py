@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 
-# art-description: DxAOD MC16a TOPQ1 : top-xaod validation-cuts.txt
+# art-description: DxAOD MC16a TOPQ1 - top-xaod validation-cuts.txt
 # art-type: grid
 # art-output: output.root
 
 import ROOT
 from PathResolver import PathResolver
-import subprocess, sys, shlex
+import subprocess, sys, shlex, random, shutil, os
 
 # -- Settings --
 cutfilename   = "validation-cuts.txt"
@@ -39,6 +39,9 @@ inputfilepath.close()
 cmd  = "top-xaod %s input.txt"%(cutfilename)
 proc = subprocess.Popen(shlex.split(cmd))
 proc.wait()
+
+# -- Print the art-result return code
+print "art-result: " + str(proc.returncode)
 
 # -- Check the return code and exit this script with that --
 sys.exit( proc.returncode )

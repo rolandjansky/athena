@@ -20,6 +20,7 @@
 // Local include(s):
 #include "TauAnalysisTools/IDiTauTruthMatchingTool.h"
 #include "tauRecTools/BuildTruthTaus.h"
+#include "xAODBase/IParticle.h"
 
 namespace TauAnalysisTools
 {
@@ -54,11 +55,12 @@ public:                         // Interface functions
 private:                        // private helper functions
 
   StatusCode findTruthTau(const xAOD::DiTauJet& xDiTau);
-  StatusCode checkTruthMatch (const xAOD::DiTauJet& xDiTau, const xAOD::TruthParticleContainer& xTauContainer) const;
+  StatusCode checkTruthMatch (const xAOD::DiTauJet& xDiTau, const xAOD::TruthParticleContainer& xTauContainer);
   StatusCode truthMatch (const TLorentzVector& vSubjetTLV,
                          const xAOD::TruthParticleContainer& xTruthTauContainer, 
                          const xAOD::TruthParticle* &xTruthMatch,
                          TruthMatchedParticleType &eTruthMatchedParticleType) const;
+  ElementLink<xAOD::TruthParticleContainer> checkTruthLepton(const xAOD::IParticle* pLepton) const;
 
 private:                        // steering variables
 
@@ -70,7 +72,6 @@ private:                        // private helper variables
   SG::AuxElement::ConstAccessor<double> m_accEtaVis;
   SG::AuxElement::ConstAccessor<double> m_accPhiVis;
   SG::AuxElement::ConstAccessor<double> m_accMVis;
-
 }; // class DiTauTruthMatchingTool
 
 }

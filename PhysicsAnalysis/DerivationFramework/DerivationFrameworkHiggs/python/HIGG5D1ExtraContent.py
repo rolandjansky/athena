@@ -12,7 +12,8 @@ ExtraContent=[
     "TauJets.IsTruthMatched.truthJetLink.truthParticleLink.ptDetectorAxis.etaDetectorAxis.phiDetectorAxis.mDetectorAxis",
     "BTagging_AntiKt4EMTopo.MV2cl100_discriminant",
     "BTagging_AntiKtVR30Rmax4Rmin02Track.MV2c10_discriminant",
-    "AntiKtVR30Rmax4Rmin02TrackJets.-JetConstitScaleMomentum_pt.-JetConstitScaleMomentum_eta.-JetConstitScaleMomentum_phi.-JetConstitScaleMomentum_m.-constituentLinks.-constituentWeight.-ConstituentScale"    
+    "AntiKtVR30Rmax4Rmin02TrackJets.-JetConstitScaleMomentum_pt.-JetConstitScaleMomentum_eta.-JetConstitScaleMomentum_phi.-JetConstitScaleMomentum_m.-constituentLinks.-constituentWeight.-ConstituentScale",
+    "AntiKt10LCTopoJets.GhostVR30Rmax4Rmin02TrackJet"
     ]
 #    "BTagging_AntiKt2Track.DL1_pc.DL1_pb.DL1_pu.DL1mu_pu.DL1mu_pc.DL1mu_pb.DL1rnn_pu.DL1rnn_pb.DL1rnn_pc.MV2cl100_discriminant.MV2c100_discriminant.MV2c10mu_discriminant.MV2c10_discriminant.MV2c10rnn_discriminant",
 

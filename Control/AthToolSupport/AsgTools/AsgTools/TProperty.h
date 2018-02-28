@@ -35,9 +35,11 @@ public:
    /// Set value using that from another property
    virtual int setFrom( const Property& rhs );
 
-  virtual StatusCode getString (std::string& result) const;
+   virtual StatusCode getString (std::string& result) const;
 
-  virtual StatusCode setString (const std::string& value);
+   virtual StatusCode getCastString (std::string& result) const;
+
+   virtual StatusCode setString (const std::string& value);
 
 private:
    /// The address of the wrapped variable
@@ -48,9 +50,10 @@ private:
 /// @name Declare specialization(s) for TProperty::setFrom
 /// @{
 
-/// Special handling so float can be assigned from double
+/// Special handling for strings to interpret the user supplied string
 template<>
-int TProperty< float >::setFrom( const Property& rhs );
+int TProperty< std::string >::setFrom( const Property& rhs );
+/// Special handling for strings to get casts right
 
 /// @}
 

@@ -27,16 +27,16 @@
 #include "PATInterfaces/ISystematicsTool.h"
 
 class BTaggingEfficiencyTool: public asg::AsgTool,
-			      public virtual IBTaggingEfficiencyTool, 
-			      public virtual CP::ISystematicsTool {
+            public virtual IBTaggingEfficiencyTool
+   {
   //  typedef double (xAOD::BTagging::* tagWeight_member_t)() const;
 
   /// Create a proper constructor for Athena
   ASG_TOOL_CLASS2( BTaggingEfficiencyTool , IBTaggingEfficiencyTool, ISystematicsTool )
-  
+
   public:
-  
-  
+
+
   /// Create a constructor for standalone usage
   BTaggingEfficiencyTool( const std::string& name );
 
@@ -45,7 +45,7 @@ class BTaggingEfficiencyTool: public asg::AsgTool,
 
   // For now, disable the generation of a default copy constructor (since it would not be constructed correctly)
   // BTaggingEfficiencyTool(const BTaggingEfficiencyTool& other) = delete;
-  
+
   // /// Silly copy constructor for the benefit of dictionary generation
   // BTaggingEfficiencyTool(const BTaggingEfficiencyTool& other);
 
@@ -63,7 +63,7 @@ class BTaggingEfficiencyTool: public asg::AsgTool,
    */
   CP::CorrectionCode getEfficiency( const xAOD::Jet & jet,
 				    float & eff) const;
-  
+
   /** Computes the data inefficiency for the given jet.
       The tagger and operating point under consideration are part of the configuration and hence aren't function arguments.
    */
@@ -108,7 +108,7 @@ class BTaggingEfficiencyTool: public asg::AsgTool,
    */
   CP::CorrectionCode getInefficiencyScaleFactor( int flavour, const Analysis::CalibrationDataVariables& v,
 						 float & sf) const;
-  
+
   /** Computes the MC efficiency for the jet, given its kinematics, (possibly) tagger weight and truth flavour.
       The tagger and operating point under consideration are part of the configuration and hence aren't function arguments.
    */
@@ -116,12 +116,12 @@ class BTaggingEfficiencyTool: public asg::AsgTool,
 				      float & eff) const;
 
   /// @}
-  
+
   /// @name Other methods implementing the IBTagEfficiencyTool interface
   /// @{
 
   /** Initialise the tool.
-   *  
+   *
    *  This is the stage at which all of the configuration is done and the underlying @c CalibrationDataInferfaceROOT object is instantiated.
    *  The properties that can be set are documented in the
    *  <a href="https://twiki.cern.ch/twiki/bin/view/AtlasProtected/BTaggingCalibrationDataInterface#xAOD_interface">xAOD interface</a> section
@@ -170,13 +170,13 @@ class BTaggingEfficiencyTool: public asg::AsgTool,
 
   /// Retrieve the name of the tagger (as specified in the calibration file)
   std::string getTaggerName() const { return m_taggerName;}
-  
+
   /// Retrieve the operating point (as specified in the calibration file)
   std::string getOperatingPoint() const { return m_OP;}
-  
+
   /// Retrieve the jet collection name (as specified in the calibration file) for which this tool was setup
   std::string getJetAuthor() const { return m_jetAuthor;}
-  
+
   // /// Returns false if the tool isn't initialised yet (it has to be initialised before processing jets)
   // bool isInitialized() const { return m_initialised;}
 
@@ -207,7 +207,7 @@ private:
 
   /// generate names for the eigenvector variations for the given jet flavour
   std::vector<std::string> makeEigenSyst(const std::string & flav, int number);
-  
+
   /// helper function for retrieving object indices
   bool getIndices(unsigned int flavour, unsigned int & sf, unsigned int & ef) const;
 
@@ -298,14 +298,14 @@ private:
   bool m_oldConeFlavourLabel;
   // bool m_excludeJESFromEV;
   /// @}
-  
+
   /// @name Cached variables
   /// @{
 
   /// flag to indicate tool is initialized correctly when set
   bool m_initialised;
 
-  
+
   bool m_applySyst;
   SystInfo m_applyThisSyst;
 
@@ -324,7 +324,7 @@ private:
   std::map<unsigned int, unsigned int> m_SFIndices;
   /// actual information identifying efficiency calibration objects
   std::map<unsigned int, unsigned int> m_EffIndices;
-  
+
   /// @}
 
 };

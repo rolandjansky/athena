@@ -12,9 +12,10 @@ dfInputIsEVNT = False # Flag to distinguish EVNT from AOD input
 if objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
     DerivationFrameworkJob.insert(0,xAODMaker__xAODTruthCnvAlg("GEN_EVNT2xAOD",AODContainerName="GEN_EVENT"))
     dfInputIsEVNT = True
-# Input file is HITS
+# Input file is HITS and translation hasn't been scheduled - careful with the name difference!
 elif objKeyStore.isInInput( "McEventCollection", "TruthEvent"):
-    DerivationFrameworkJob.insert(0,xAODMaker__xAODTruthCnvAlg("GEN_EVNT2xAOD",AODContainerName="TruthEvent"))
+    if not hasattr(DerivationFrameworkJob,'GEN_AOD2xAOD'):
+        DerivationFrameworkJob.insert(0,xAODMaker__xAODTruthCnvAlg("GEN_EVNT2xAOD",AODContainerName="TruthEvent"))
     dfInputIsEVNT = True
 # If it isn't available, make a truth meta data object (will hold MC Event Weights)
 if not objKeyStore.isInInput( "xAOD::TruthMetaDataContainer", "TruthMetaData" ) and not dfInputIsEVNT:
@@ -247,6 +248,27 @@ def addTausAndDownstreamParticles(kernel=None, generations=-1):
     kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonTausAndDecaysKernel",
                                                              AugmentationTools = [DFCommonTausAndDecaysTool] )
 
+# Add W bosons and their downstream particles (immediate and further decay products) in a special collection
+def addWbosonsAndDownstreamParticles(kernel=None, generations=1):
+    # Ensure that we are adding it to something
+    if kernel is None:
+        from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
+        kernel = DerivationFrameworkJob
+    if hasattr(kernel,'MCTruthCommonWbosonsAndDecaysKernel'):
+        # Already there!  Carry on...
+        return
+    # Set up a tool to keep the W bosons and all downstream particles
+    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthDecayCollectionMaker
+    DFCommonWbosonsAndDecaysTool = DerivationFramework__TruthDecayCollectionMaker( name="DFCommonWbosonsAndDecaysTool",
+                                                                   NewCollectionName="TruthWbosonWithDecay",
+                                                                        PDGIDsToKeep=[24],
+                                                                         Generations=generations)
+    from AthenaCommon.AppMgr import ToolSvc
+    ToolSvc += DFCommonWbosonsAndDecaysTool
+    from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
+    kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonWbosonsAndDecaysKernel",
+                                                             AugmentationTools = [DFCommonWbosonsAndDecaysTool] )
+
 # Add electrons, photons, and their downstream particles in a special collection
 def addEgammaAndDownstreamParticles(kernel=None, generations=-1):
     # Ensure that we are adding it to something
@@ -277,7 +299,7 @@ def addHFAndDownstreamParticles(kernel=None, addB=True, addC=True, generations=-
     if hasattr(kernel,'MCTruthCommonHFAndDecaysKernel'):
         # Already there!  Carry on...
         return
-    # Set up a tool to keep the taus and all downstream particles
+    # Set up a tool to keep b- and c-quarks and all downstream particles
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthDecayCollectionMaker
     DFCommonHFAndDecaysTool = DerivationFramework__TruthDecayCollectionMaker( name="DFCommonHFAndDecaysTool",
                                                                    NewCollectionName="TruthHFWithDecay",

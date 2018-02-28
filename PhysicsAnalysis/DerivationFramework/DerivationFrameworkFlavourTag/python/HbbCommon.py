@@ -148,6 +148,13 @@ def addVRJets(sequence, VRJetName, VRGhostLabel, VRJetAlg="AntiKt", VRJetRadius=
 
     from BTagging.BTaggingConfiguration import defaultTrackAssoc, defaultMuonAssoc
 
+    pseudoJetGetters = jtm.gettersMap[VRJetInputs]
+
+    # We want to include ghost associated tracks in the pv0 tracks so that
+    # we can use the looser ghost association criteria for b-tagging.
+    if VRJetInputs == "pv0track":
+        pseudoJetGetters = pseudoJetGetters + ["gtrackget"]
+
     if VRJetAlgName in DFJetAlgs:
         print "Algorithm", VRJetAlgName, "already built before"
 
@@ -164,10 +171,19 @@ def addVRJets(sequence, VRJetName, VRGhostLabel, VRJetAlg="AntiKt", VRJetRadius=
         else:
             print "   Create JetRecTool", VRJetRecToolName
             #can only run trackjetdrlabeler with truth labels, so MC only
+
+            mods = [defaultTrackAssoc, defaultMuonAssoc, btag_vrjets]
+
             if globalflags.DataSource()!='data': 
-                jtm.addJetFinder(VRJetRecToolName, VRJetAlg, VRJetRadius, VRJetInputs, modifiersin=[defaultTrackAssoc, defaultMuonAssoc, btag_vrjets,jtm.trackjetdrlabeler], **VRJetOptions) 
-            else:
-                jtm.addJetFinder(VRJetRecToolName, VRJetAlg, VRJetRadius, VRJetInputs, modifiersin=[defaultTrackAssoc, defaultMuonAssoc, btag_vrjets], **VRJetOptions)
+                mods.append(jtm.trackjetdrlabeler)
+
+            jtm.addJetFinder(
+                VRJetRecToolName,
+                VRJetAlg,
+                VRJetRadius,
+                pseudoJetGetters,
+                modifiersin=mods,
+                **VRJetOptions)
 
         from JetRec.JetRecConf import JetAlgorithm
         jetalg_smallvr30_track = JetAlgorithm(VRJetAlgName, Tools = [ jtm[VRJetRecToolName] ])

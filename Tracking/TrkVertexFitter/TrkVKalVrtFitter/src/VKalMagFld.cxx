@@ -42,7 +42,7 @@
 namespace Trk{
 //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 //                  ATLAS magnetic field access
-  VKalAtlasMagFld::VKalAtlasMagFld(): mm(1.) {
+  VKalAtlasMagFld::VKalAtlasMagFld(): m_mm(1.) {
      m_VKalAthenaField=0; 
      m_FIXED_ATLAS_FIELD=1.997;
      m_magFrameX=0.;
@@ -75,14 +75,14 @@ namespace Trk{
                                     double &bx, double &by, double &bz)
   {   
       double fieldXYZ[3];  double BField[3];
-      fieldXYZ[0]= (x +m_magFrameX) *mm;
-      fieldXYZ[1]= (y +m_magFrameY) *mm;
-      fieldXYZ[2]= (z +m_magFrameZ) *mm;
+      fieldXYZ[0]= (x +m_magFrameX) *m_mm;
+      fieldXYZ[1]= (y +m_magFrameY) *m_mm;
+      fieldXYZ[2]= (z +m_magFrameZ) *m_mm;
       if( m_VKalAthenaField ) {
 	 double Shift= (m_saveXpos-fieldXYZ[0])*(m_saveXpos-fieldXYZ[0])
 	              +(m_saveYpos-fieldXYZ[1])*(m_saveYpos-fieldXYZ[1])
 	              +(m_saveZpos-fieldXYZ[2])*(m_saveZpos-fieldXYZ[2]);
-         if(Shift < -1.*1.*mm*mm){   //17.03.2010 VK no caching - mag.field is steplike
+         if(Shift < -1.*1.*m_mm*m_mm){   //17.03.2010 VK no caching - mag.field is steplike
 	   bx=m_saveBX;
 	   by=m_saveBY;
 	   bz=m_saveBZ;
@@ -117,7 +117,7 @@ namespace Trk{
      //m_fitField->getMagFld(0.,0.,0.,Bx,By,Bz);
      //m_fitField->setAtlasMag(Bz);
      if(m_PropagatorType == 0) m_PropagatorType = 1;  // set up Runge-Kutta propagator from Core
-     isFieldInitialized = true;   //  to signal end of mag.field init procedure 
+     m_isFieldInitialized = true;   //  to signal end of mag.field init procedure 
   }
 
 
@@ -126,6 +126,6 @@ namespace Trk{
      m_fitField->setAtlasMag( Field );
      if(m_PropagatorType == 1) m_PropagatorType = 0;  // set up constant field propagator if Runge-Kutta was
                                                       // used before. Otherwise use what is set.
-     isFieldInitialized = true;   //  to signal end of mag.field init procedure 
+     m_isFieldInitialized = true;   //  to signal end of mag.field init procedure 
   }
 }

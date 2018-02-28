@@ -39,17 +39,19 @@ thinningTools=[]
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 HIGG2D1ThinningHelper = ThinningHelper("HIGG2D1ThinningHelper")
 #trigger navigation content
-HIGG2D1ThinningHelper.TriggerChains = 'HLT_e.*|HLT_2e.*|HLT_3e.*|HLT_mu.*|HLT_2mu.*|HLT_3mu.*'
+HIGG2D1ThinningHelper.TriggerChains = "^(?!.*_[0-9]*(j|xe|tau|ht|xs|te))HLT_(([2-4]*e.*)|([2-4]*mu.*))"
+# Triggers starting with HLT_e, HLT_2e, HLT_3e, HLT_4e, HLT_mu, HLT_2mu, HLT_3mu, HLT_4mu
+# and not containing any of _j, _xe, _tau, _ht, _xs and _te.
+# https://twiki.cern.ch/twiki/bin/view/AtlasProtected/DaodRecommendations#Trigger
 HIGG2D1ThinningHelper.AppendToStream(HIGG2D1Stream)
 
-# MET/Jet tracks
-thinning_expression = "(InDetTrackParticles.pt > 0.5*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 5) && (abs(DFCommonInDetTrackZ0AtPV) < 1.5)"
+# ID tracks (https://twiki.cern.ch/twiki/bin/view/AtlasProtected/DaodRecommendations#Tracking)
+thinning_expression = "(InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV) < 1.5*mm && InDetTrackParticles.pt > 10*GeV)"
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 HIGG2D1TPThinningTool = DerivationFramework__TrackParticleThinning(name                   = "HIGG2D1TPThinningTool",
                                                                    ThinningService        = HIGG2D1ThinningHelper.ThinningSvc(),
                                                                    SelectionString        = thinning_expression,
-                                                                   InDetTrackParticlesKey = "InDetTrackParticles",
-                                                                   ApplyAnd               = True)
+                                                                   InDetTrackParticlesKey = "InDetTrackParticles")
 ToolSvc += HIGG2D1TPThinningTool
 thinningTools.append(HIGG2D1TPThinningTool)
 
@@ -57,8 +59,7 @@ from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFram
 HIGG2D1EMJetTPThinningTool = DerivationFramework__JetTrackParticleThinning(name                   = "HIGG2D1EMJetTPThinningTool",
                                                                            ThinningService        = HIGG2D1ThinningHelper.ThinningSvc(),
                                                                            JetKey                 = "AntiKt4EMTopoJets",
-                                                                           InDetTrackParticlesKey = "InDetTrackParticles",
-                                                                           ApplyAnd               = True)
+                                                                           InDetTrackParticlesKey = "InDetTrackParticles")
 ToolSvc += HIGG2D1EMJetTPThinningTool
 thinningTools.append(HIGG2D1EMJetTPThinningTool)
 
@@ -176,25 +177,7 @@ print "HIGG2D1.py thinningTools", thinningTools
 ## Trigger requirement 
 from AthenaCommon.BeamFlags import jobproperties
 print "HIGG2D1.py jobproperties.Beam.energy()", jobproperties.Beam.energy()
-# 13 TeV
-singleElectronTriggerRequirement=["HLT_e.*"]
-diElectronTriggerRequirement=["HLT_2e.*", "HLT_3e.*"]
-singleMuonTriggerRequirement=["HLT_mu.*"]
-diMuonTriggerRequirement=["HLT_2mu.*", "HLT_3mu.*"]
-electronMuonTriggerRequirement=[]
-if jobproperties.Beam.energy()==4000000.0:
-    # 8 TeV
-    singleElectronTriggerRequirement=["EF_e24vhi_medium1", "EF_e60_medium1"]
-    diElectronTriggerRequirement=["EF_2e12Tvh_loose1", "EF_2e12Tvh_loose1_L2StarB"]
-    singleMuonTriggerRequirement=["EF_mu24i_tight", "EF_mu36_tight"]
-    diMuonTriggerRequirement=["EF_2mu13", "EF_mu18_tight_mu8_EFFS"]
-    electronMuonTriggerRequirement=["EF_e12Tvh_medium1_mu8", "EF_e24vhi_loose1_mu8"]
-triggerRequirement=singleElectronTriggerRequirement+diElectronTriggerRequirement+singleMuonTriggerRequirement+diMuonTriggerRequirement+electronMuonTriggerRequirement
-# 8 TeV MC does not have trigger information
-SkipTriggerRequirement=(DerivationFrameworkIsMonteCarlo and (jobproperties.Beam.energy()==4000000.0))
-print "HIGG2D1.py SkipTriggerRequirement", SkipTriggerRequirement
-if SkipTriggerRequirement:
-    triggerRequirement=[]
+triggerRequirement=[HIGG2D1ThinningHelper.TriggerChains]
 print "HIGG2D1.py triggerRequirement", triggerRequirement
 
 Do4LVertexing = True
@@ -280,6 +263,10 @@ HIGG2D1SlimmingHelper.SmartCollections = ["Electrons",
                                           "BTagging_AntiKt4EMPFlow",
                                           "InDetTrackParticles",
                                           "PrimaryVertices"]
+if DerivationFrameworkIsMonteCarlo:
+        # https://twiki.cern.ch/twiki/bin/view/AtlasProtected/DaodRecommendations#Jets_MET
+        HIGG2D1SlimmingHelper.SmartCollections += ["AntiKt4TruthJets",
+                                                   "AntiKt4TruthWZJets"]
 
 HIGG2D1SlimmingHelper.ExtraVariables = HIGG2D1ExtraContent
 HIGG2D1SlimmingHelper.AllVariables = HIGG2D1ExtraContainers
@@ -294,9 +281,6 @@ if DerivationFrameworkIsMonteCarlo:
                                                      'TruthBSMAux':'xAOD::TruthParticleAuxContainer',
                                                      'TruthBoson':'xAOD::TruthParticleContainer',
                                                      'TruthBosonAux':'xAOD::TruthParticleAuxContainer'})
-
-# Add MET_RefFinalFix
-addMETOutputs(HIGG2D1SlimmingHelper,["Track"])
 
 HIGG2D1SlimmingHelper.IncludeMuonTriggerContent = True
 HIGG2D1SlimmingHelper.IncludeEGammaTriggerContent = True

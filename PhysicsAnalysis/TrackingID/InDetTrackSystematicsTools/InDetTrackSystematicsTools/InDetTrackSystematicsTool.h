@@ -41,7 +41,6 @@ namespace InDet {
 
   protected:
     /// open and return a file with the given name.
-    /// the location in which to search depends on whether in athena or rootcore
     TFile* getFile( const std::string& ) const;
 
     /// a function to initialize an object from a root file
@@ -53,7 +52,7 @@ namespace InDet {
 
     const CP::SystematicSet* m_activeSysts = nullptr;
 
-    bool isActive( TrackSystematic ) const;    
+    bool isActive( TrackSystematic ) const;
   };
 
 

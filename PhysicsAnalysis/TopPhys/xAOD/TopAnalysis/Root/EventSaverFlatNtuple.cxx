@@ -657,10 +657,11 @@ namespace top {
                   systematicTree->makeOutputVariable(m_jet_truthflav, "jet_truthflav");
                   systematicTree->makeOutputVariable(m_jet_truthPartonLabel, "jet_truthPartonLabel");
                   systematicTree->makeOutputVariable(m_jet_isTrueHS, "jet_isTrueHS");
+		  systematicTree->makeOutputVariable(m_jet_HadronConeExclExtendedTruthLabelID, "jet_truthflavExtended");
                 }
                 for( auto& tagWP : m_config -> bTagWP_available()){
-                  if (tagWP!= "Continuous") systematicTree->makeOutputVariable(m_jet_isbtagged[tagWP] , "jet_isbtagged_"+shortBtagWP(tagWP));
-                  else systematicTree->makeOutputVariable(m_jet_tagWeightBin , "jet_tagWeightBin");
+                  if (tagWP.find("Continuous") == std::string::npos) systematicTree->makeOutputVariable(m_jet_isbtagged[tagWP] , "jet_isbtagged_"+shortBtagWP(tagWP));
+                  else systematicTree->makeOutputVariable(m_jet_tagWeightBin[tagWP] , "jet_tagWeightBin_"+tagWP);
                 }
 		// R21 - new b-tagging variables
 		if(m_config->getReleaseSeries() == 25){
@@ -710,8 +711,8 @@ namespace top {
                 systematicTree->makeOutputVariable(m_tjet_mv2c10,  "tjet_mv2c10");
                 systematicTree->makeOutputVariable(m_tjet_mv2c20,  "tjet_mv2c20");
                 for( auto& tagWP : m_config -> bTagWP_available_trkJet()){
-                  if (tagWP!= "Continuous") systematicTree->makeOutputVariable(m_tjet_isbtagged[tagWP] , "tjet_isbtagged_"+shortBtagWP(tagWP));
-                  else systematicTree->makeOutputVariable(m_tjet_tagWeightBin , "tjet_tagWeightBin");
+                  if (tagWP.find("Continuous") == std::string::npos) systematicTree->makeOutputVariable(m_tjet_isbtagged[tagWP] , "tjet_isbtagged_"+shortBtagWP(tagWP));
+                  else systematicTree->makeOutputVariable(m_tjet_tagWeightBin[tagWP] , "tjet_tagWeightBin_"+tagWP);
                 }
             }
 
@@ -866,11 +867,11 @@ namespace top {
                     systematicTree->makeOutputVariable(m_klfitter_model_lj1_from_top1_E,"klfitter_model_lj1_from_top1_E");
                     systematicTree->makeOutputVariable(m_klfitter_model_lj1_from_top1_jetIndex,"klfitter_model_lj1_from_top1_jetIndex");
 
-                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top1_pt,"klfitter_model_lj1_from_top1_pt");
-                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top1_eta,"klfitter_model_lj1_from_top1_eta");
-                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top1_phi,"klfitter_model_lj1_from_top1_phi");
-                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top1_E,"klfitter_model_lj1_from_top1_E");
-                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top1_jetIndex,"klfitter_model_lj1_from_top1_jetIndex");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top1_pt,"klfitter_model_lj2_from_top1_pt");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top1_eta,"klfitter_model_lj2_from_top1_eta");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top1_phi,"klfitter_model_lj2_from_top1_phi");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top1_E,"klfitter_model_lj2_from_top1_E");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top1_jetIndex,"klfitter_model_lj2_from_top1_jetIndex");
 
                     systematicTree->makeOutputVariable(m_klfitter_model_lj1_from_top2_pt,"klfitter_model_lj1_from_top2_pt");
                     systematicTree->makeOutputVariable(m_klfitter_model_lj1_from_top2_eta,"klfitter_model_lj1_from_top2_eta");
@@ -878,11 +879,11 @@ namespace top {
                     systematicTree->makeOutputVariable(m_klfitter_model_lj1_from_top2_E,"klfitter_model_lj1_from_top2_E");
                     systematicTree->makeOutputVariable(m_klfitter_model_lj1_from_top2_jetIndex,"klfitter_model_lj1_from_top2_jetIndex");
 
-                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top2_pt,"klfitter_model_lj1_from_top2_pt");
-                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top2_eta,"klfitter_model_lj1_from_top2_eta");
-                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top2_phi,"klfitter_model_lj1_from_top2_phi");
-                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top2_E,"klfitter_model_lj1_from_top2_E");
-                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top2_jetIndex,"klfitter_model_lj1_from_top2_jetIndex");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top2_pt,"klfitter_model_lj2_from_top2_pt");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top2_eta,"klfitter_model_lj2_from_top2_eta");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top2_phi,"klfitter_model_lj2_from_top2_phi");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top2_E,"klfitter_model_lj2_from_top2_E");
+                    systematicTree->makeOutputVariable(m_klfitter_model_lj2_from_top2_jetIndex,"klfitter_model_lj2_from_top2_jetIndex");
 
                   }
                 }
@@ -1248,10 +1249,12 @@ namespace top {
               m_weight_photonSF = m_sfRetriever->photonSF(event, top::topSFSyst::nominal);
 
             for( auto& tagWP : m_config -> bTagWP_available()) {
+	      if (std::find(m_config->bTagWP_calibrated().begin(), m_config->bTagWP_calibrated().end(), tagWP) == m_config->bTagWP_calibrated().end()) continue;
               m_weight_bTagSF[tagWP] = m_sfRetriever->btagSF(event, top::topSFSyst::nominal, tagWP);
             }
             if (m_config->useTrackJets()) {
               for( auto& tagWP : m_config -> bTagWP_available_trkJet()) {
+		if (std::find(m_config->bTagWP_calibrated().begin(), m_config->bTagWP_calibrated().end(), tagWP) == m_config->bTagWP_calibrated().end()) continue;
                 m_weight_trackjet_bTagSF[tagWP] = m_sfRetriever->btagSF(event, top::topSFSyst::nominal, tagWP, true);
               }
             }
@@ -1710,10 +1713,11 @@ namespace top {
               m_jet_truthflav.resize(event.m_jets.size());
               m_jet_truthPartonLabel.resize(event.m_jets.size());
               m_jet_isTrueHS.resize(event.m_jets.size());
+	      m_jet_HadronConeExclExtendedTruthLabelID.resize(event.m_jets.size());
             }
             for( auto& tagWP : m_config -> bTagWP_available()){
-              if (tagWP!= "Continuous") m_jet_isbtagged[tagWP].resize(event.m_jets.size());
-              else m_jet_tagWeightBin.resize(event.m_jets.size());
+              if (tagWP.find("Continuous") == std::string::npos) m_jet_isbtagged[tagWP].resize(event.m_jets.size());
+              else m_jet_tagWeightBin[tagWP].resize(event.m_jets.size());
             }
             for (const auto* const jetPtr : event.m_jets) {
                 m_jet_pt[i] = jetPtr->pt();
@@ -1741,17 +1745,21 @@ namespace top {
                   if(jetPtr->isAvailable<char>("AnalysisTop_isHS")){
                     jetPtr->getAttribute("AnalysisTop_isHS", m_jet_isTrueHS[i]);
                   }
+		  m_jet_HadronConeExclExtendedTruthLabelID[i] = -99;
+		  if(jetPtr->isAvailable<int>("HadronConeExclExtendedTruthLabelID")){
+		    jetPtr->getAttribute("HadronConeExclExtendedTruthLabelID", m_jet_HadronConeExclExtendedTruthLabelID[i]);
+		  }
                 }
                 for( auto& tagWP : m_config -> bTagWP_available()){
-                  if (tagWP!= "Continuous") {
+                  if (tagWP.find("Continuous") == std::string::npos) {
                     m_jet_isbtagged[tagWP][i] = false;
                     if(jetPtr->isAvailable<char>("isbtagged_"+tagWP))
                       m_jet_isbtagged[tagWP][i] = jetPtr->auxdataConst<char>("isbtagged_"+tagWP);
                   }
                   else {
-                    m_jet_tagWeightBin[i] = -2;// AT default value
-                    if(jetPtr->isAvailable<int>("tagWeightBin"))
-                      m_jet_tagWeightBin[i] = jetPtr->auxdataConst<int>("tagWeightBin");
+                    m_jet_tagWeightBin[tagWP][i] = -2;// AT default value
+                    if(jetPtr->isAvailable<int>("tagWeightBin_"+tagWP))
+                      m_jet_tagWeightBin[tagWP][i] = jetPtr->auxdataConst<int>("tagWeightBin_"+tagWP);
                   }
                 }
 
@@ -1897,8 +1905,8 @@ namespace top {
             m_tjet_mv2c10.resize(event.m_trackJets.size());
             m_tjet_mv2c20.resize(event.m_trackJets.size());
             for( auto& tagWP : m_config -> bTagWP_available_trkJet()) {
-              if (tagWP!= "Continuous") m_tjet_isbtagged[tagWP].resize(event.m_trackJets.size());
-              else m_tjet_tagWeightBin.resize(event.m_trackJets.size());
+              if (tagWP.find("Continuous") == std::string::npos) m_tjet_isbtagged[tagWP].resize(event.m_trackJets.size());
+              else m_tjet_tagWeightBin[tagWP].resize(event.m_trackJets.size());
             }
             for (const auto* const jetPtr : event.m_trackJets) {
                 m_tjet_pt[i] = jetPtr->pt();
@@ -1918,15 +1926,15 @@ namespace top {
                 if (btag) btag->MVx_discriminant("MV2c20", mvx);
                 m_tjet_mv2c20[i] = mvx;
                 for( auto& tagWP : m_config -> bTagWP_available_trkJet()){
-                  if (tagWP!= "Continuous") {
+                  if (tagWP.find("Continuous") == std::string::npos) {
                     m_tjet_isbtagged[tagWP][i] = false;
                     if(jetPtr->isAvailable<char>("isbtagged_"+tagWP))
                       m_tjet_isbtagged[tagWP][i] = jetPtr->auxdataConst<char>("isbtagged_"+tagWP);
                   }
                   else {
-                    m_tjet_tagWeightBin[i] = -2;// AT default value
-                    if(jetPtr->isAvailable<int>("tagWeightBin"))
-                      m_tjet_tagWeightBin[i] = jetPtr->auxdataConst<int>("tagWeightBin");
+                    m_tjet_tagWeightBin[tagWP][i] = -2;// AT default value
+                    if(jetPtr->isAvailable<int>("tagWeightBin_"+tagWP))
+                      m_tjet_tagWeightBin[tagWP][i] = jetPtr->auxdataConst<int>("tagWeightBin_"+tagWP);
                   }
                 }
                 ++i;
