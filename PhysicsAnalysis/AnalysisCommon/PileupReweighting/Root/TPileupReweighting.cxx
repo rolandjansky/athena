@@ -747,6 +747,31 @@ Int_t CP::TPileupReweighting::AddDistribution(TH1* hist,Int_t runNumber, Int_t c
 
    //iterator over bins of histogram, filling the TH1 stored in the data map
    Double_t numEntries = inputHist->GetEntries();
+   
+   TH1* tmpHist = 0;
+   if(channelNumber<0) {
+    m_runs[runNumber].nominalFromHists = true;
+    //for data we will do an interpolation to build the shape and then scale it to the integral ...
+    tmpHist = static_cast<TH1*>(inputHist->Clone("tmpHist"));
+    tmpHist->Reset();
+    Int_t bin,binx,biny;
+    for(biny=1; biny<=tmpHist->GetNbinsY(); biny++) {
+      for(binx=1; binx<=tmpHist->GetNbinsX(); binx++) {
+         bin = tmpHist->GetBin(binx,biny);
+         Double_t x = tmpHist->GetXaxis()->GetBinCenter(binx)/m_dataScaleFactorX;
+         Double_t y = tmpHist->GetYaxis()->GetBinCenter(biny)/m_dataScaleFactorY;
+         if(tmpHist->GetDimension()==1){
+          tmpHist->SetBinContent(bin, hist->Interpolate(x));
+         } else {
+          tmpHist->SetBinContent(bin, hist->Interpolate(x,y));
+         }
+      }
+    }
+    tmpHist->Scale( hist->Integral() / tmpHist->Integral() );
+    tmpHist->SetEntries( hist->GetEntries() );
+    hist = tmpHist;
+   }
+   
    Int_t bin,binx,biny;
    for(biny=1; biny<=hist->GetNbinsY(); biny++) {
       for(binx=1; binx<=hist->GetNbinsX(); binx++) {
@@ -756,7 +781,7 @@ Int_t CP::TPileupReweighting::AddDistribution(TH1* hist,Int_t runNumber, Int_t c
          Double_t y = hist->GetYaxis()->GetBinCenter(biny);
          //shift x,y,z by the MCScaleFactors as appropriate 
          if(channelNumber>=0) {x *= m_mcScaleFactorX; y *= m_mcScaleFactorY;}
-         else { x *= m_dataScaleFactorX; y *= m_dataScaleFactorY; }
+         //else { x *= m_dataScaleFactorX; y *= m_dataScaleFactorY; } ... now dealt with in above interpolation
          Int_t inBin = inputHist->FindFixBin(x,y);
          Double_t inValue = inputHist->GetBinContent(inBin);
          inputHist->SetBinContent(inBin,inValue+value);
@@ -766,6 +791,9 @@ Int_t CP::TPileupReweighting::AddDistribution(TH1* hist,Int_t runNumber, Int_t c
    //also keep track of the number of entries 
    //SetBinContent screws with the entry count, so had to record it before the loops above
    inputHist->SetEntries(numEntries+hist->GetEntries());
+   
+   if(tmpHist) delete tmpHist;
+   
    m_countingMode=false;
    return 0;
 
@@ -821,6 +849,9 @@ Int_t CP::TPileupReweighting::AddLumiCalcFile(const TString& fileName, const TSt
 
                Run& r = m_runs[runNbr];
                if(trigger=="None") {r.lumiByLbn[lbn].first += intLumi; r.lumiByLbn[lbn].second = mu;}
+               
+               if(r.nominalFromHists) continue; //don't fill runs that we already filled from hists
+               
                //rescale the mu value  ... do this *after* having stored the mu value in the lumiByLbn map
                mu *= m_dataScaleFactorX; 
                //fill into input data histograms 
