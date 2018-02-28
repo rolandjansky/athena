@@ -35,7 +35,7 @@
         Warning(#Arg,"Unsupported systematic (in line %i) ",__LINE__); \
     }      
 
-static const std::vector<std::string> qualities { "HighPt", "Tight", "Medium", "Loose" };
+static const std::vector<std::string> qualities { "HighPt", "Tight", "Medium", "Loose", "LowPt" };
 static const std::vector<std::string> binnings { "coarse", "fine" };
 static const std::vector<std::string> types { "data", "mc" };
 

@@ -131,10 +131,9 @@ namespace CP {
         //Why loading coarse binning if you never use it?!
 //        static const std::vector<std::string> bins { "coarse", "fine" };
         static const std::vector<std::string> systematic { "nominal", "stat_up", "stat_down", "syst_up", "syst_down" };
-
-        const std::string quality = m_muonquality;
-	if(m_muonquality == "LowPt")
-	  m_muonquality == "Medium";
+	if(m_muonquality.compare("LowPt") == 0)
+	  m_muonquality = "Medium";
+	const std::string quality = m_muonquality;
         TDirectory* qualityDirectory = file->GetDirectory(m_muonquality.c_str());
         if (qualityDirectory == nullptr) {
             ATH_MSG_FATAL("MuonTriggerScaleFactors::initialize cannot find directory with selected quality");
