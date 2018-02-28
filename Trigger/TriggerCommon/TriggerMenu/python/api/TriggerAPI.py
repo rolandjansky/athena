@@ -6,6 +6,7 @@ __doc__="Interface to retrieve lists of unprescaled triggers according to types 
 import sys, pickle
 from TriggerMenu.api.TriggerInfo import TriggerInfo
 from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
+from AthenaCommon.Logging                 import logging
 
 class TriggerAPI:
     centralPickleFile = "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/TriggerMenu/TriggerInfo_180219.pickle"
@@ -13,16 +14,17 @@ class TriggerAPI:
     dbQueries = None
     privatedbQueries = {}
     customGRL = None
+    log = logging.getLogger( 'TriggerMenu.api.TriggerAPI.py' )
 
     @classmethod
     def init(cls):
         if cls.dbQueries: return
         try:
             with open(cls.centralPickleFile, 'r') as f:
-                print "Reading cached information"
+                cls.log.info("Reading cached information")
                 cls.dbQueries = pickle.load(f)
         except Exception:
-            print "Reading cached information failed"
+            cls.log.info("Reading cached information failed")
             cls.dbQueries = {}
         try:
             with open(cls.privatePickleFile, 'r') as f:
@@ -36,8 +38,8 @@ class TriggerAPI:
         if TriggerInfo.testCustomGRL(grl):
             cls.customGRL = grl
         else:
-            print "Couldn't set GRL:",grl
-            print "Will use default GRL"
+            cls.log.warning("Couldn't set GRL: "+grl)
+            cls.log.warning("Will use default GRL")
             cls.customGRL = None
 
     @classmethod
