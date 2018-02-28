@@ -171,11 +171,10 @@ namespace xAOD {
       if( !success ){
         ATH_MSG_DEBUG(" Track isolation calculation failed");
       }else{
-        msg(MSG::DEBUG) << "Calculated track isolation: ";
+        ATH_MSG_DEBUG("Calculated track isolation: ");
         for( unsigned int i = 0; i< result.ptcones.size();++i ){
-          msg(MSG::DEBUG) << " coneSizeSquared " << input.coneSizesSquared[i] << " value " << result.ptcones[i];
+          ATH_MSG_DEBUG(" coneSizeSquared " << input.coneSizesSquared[i] << " value " << result.ptcones[i]);
         }
-        msg(MSG::DEBUG) << endmsg;
       }
     }
     return success;
