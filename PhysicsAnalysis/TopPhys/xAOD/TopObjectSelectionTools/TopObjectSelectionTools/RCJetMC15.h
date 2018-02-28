@@ -107,18 +107,7 @@ private:
     std::string m_OutJetContainerBase;
     std::string m_InputJetContainer;
     std::string m_OutputJetContainer;
-    int m_loose_hashValue; 
-    bool m_unique_syst;
-
-    typedef std::map<std::size_t,std::string>::iterator m_iterator;
-    std::map<std::size_t,std::string> m_inputContainerNames;
-    std::map<std::size_t,std::string> m_outputContainerNames;
-
-    std::map<std::string,float> mass_scales = {
-        {"m_t",172500.},
-        {"m_w",80385.},
-        {"m_z",91188.},
-        {"m_h",125090.}};
+    int m_loose_hashValue;
 
     //Substructure tool definitions
     fastjet::JetDefinition* m_jet_def_rebuild; 	  
@@ -132,6 +121,18 @@ private:
     JetSubStructureUtils::KtSplittingScale* m_split23;
     JetSubStructureUtils::Qw* m_qw;
     
+    bool m_unique_syst;
+
+    typedef std::map<std::size_t,std::string>::iterator m_iterator;
+    std::map<std::size_t,std::string> m_inputContainerNames;
+    std::map<std::size_t,std::string> m_outputContainerNames;
+
+    std::map<std::string,float> mass_scales = {
+        {"m_t",172500.},
+        {"m_w",80385.},
+        {"m_z",91188.},
+        {"m_h",125090.}};
+
     //re-clustered jets
     //  -> need unordered map for systematics
     std::unordered_map<std::size_t, JetReclusteringTool*> m_jetReclusteringTool;
