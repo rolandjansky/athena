@@ -20,8 +20,8 @@
 // --------------------------------------------------------------------------//
 
 
-#ifndef _Selection_h_
-#define _Selection_h_
+#ifndef QATDATAANALYSIS_SELECTION_H
+#define QATDATAANALYSIS_SELECTION_H
 #include "QatDataAnalysis/Table.h"
 #include "QatDataAnalysis/Tuple.h"
 #include "CLHEP/GenericFunctions/CutBase.hh"
@@ -51,7 +51,7 @@ class Selection {
 
  private:
   
-  const Cut<Tuple> * _cut;
+  const Cut<Tuple> * m_cut;
   
 };
 

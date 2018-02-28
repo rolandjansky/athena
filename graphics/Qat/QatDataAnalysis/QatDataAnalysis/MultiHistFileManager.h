@@ -28,8 +28,8 @@
 //----------------------------------------------------------------------------------------------//
 
 
-#ifndef _MultiHistFileManager_h_
-#define _MultiHistFileManager_h_
+#ifndef QATDATAANALYSIS_MULTIHISTFILEMANAGER_H
+#define QATDATAANALYSIS_MULTIHISTFILEMANAGER_H
 #include "QatDataAnalysis/IOLoader.h"
 #include <vector>
 #include <string>
@@ -66,13 +66,13 @@ class MultiHistFileManager {
   MultiHistFileManager(const MultiHistFileManager &);
 
   // Member data:
-  std::vector<const HistogramManager *> _inputFileManager;
-  std::vector<HistogramManager       *> _outputFileManager;
-  std::vector<std::string>              _inputFileName,    _outputFileName;
-  std::vector<FileFormat>               _inputFileFormat,  _outputFileFormat;
-  std::vector<const IODriver *>         _inputDrivers,     _outputDrivers;
+  std::vector<const HistogramManager *> m_inputFileManager;
+  std::vector<HistogramManager       *> m_outputFileManager;
+  std::vector<std::string>              m_inputFileName,    m_outputFileName;
+  std::vector<FileFormat>               m_inputFileFormat,  m_outputFileFormat;
+  std::vector<const IODriver *>         m_inputDrivers,     m_outputDrivers;
 
-  IOLoader                              _loader;
+  IOLoader                              m_loader;
   
   
 };

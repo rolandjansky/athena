@@ -20,8 +20,8 @@
 // --------------------------------------------------------------------------//
 
 
-#ifndef _TupleCut_h_
-#define _TupleCut_h_
+#ifndef QATDATAANALYSIS_TUPLECUT_H
+#define QATDATAANALYSIS_TUPLECUT_H
 #include "QatDataAnalysis/Tuple.h"
 #include "CLHEP/GenericFunctions/CutBase.hh"
 #include "CLHEP/GenericFunctions/AbsFunction.hh"
@@ -62,10 +62,10 @@ class TupleCut : public Cut<Tuple> {
 
  private:
   
-  const Genfun::AbsFunction *_f;
-  Type                       _t;
-  double                    _v1;
-  double                    _v2;
+  const Genfun::AbsFunction *m_f;
+  Type                       m_t;
+  double                     m_v1;
+  double                     m_v2;
   
 };
 
