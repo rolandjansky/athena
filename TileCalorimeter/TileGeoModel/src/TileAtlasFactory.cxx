@@ -54,27 +54,19 @@ TileAtlasFactory::TileAtlasFactory(StoreGateSvc *pDetStore,
                                    TileDetDescrManager *manager,
                                    bool addPlates,
                                    int ushape,
+                                   int glue,
                                    MsgStream *log,
 				   bool fullGeo)
   : m_detectorStore(pDetStore)
   , m_detectorManager(manager)
   , m_log(log) 
   , m_addPlatesToCellVolume(addPlates)
-  , m_Ushape(ushape)
+  , m_uShape(ushape)
+  , m_glue(glue)
   , m_testbeamGeometry(false)
   , m_verbose(log->level()<=MSG::VERBOSE) 
   , m_fullGeo(fullGeo)
 {
-  /** addPlatesToCellVolume should be the same as PlateToCell  
-      flag in TileSimInfoLoader if we want to have self-consistent
-      cell volumes for calibration hits, but it's not
-      possible to read this parameter from TileSimInfoLoader 
-      because TileSimInfoLoader is in another project (AtlasSimulation)
-
-     Ushape value should ne the same as in TileSimInfoLoader 
-     but it's not possible to read this parameter from TileSimInfoLoader 
-     because TileSimInfoLoader is in another project (AtlasSimulation)
-  */
 }
   
 // Destructor: 
@@ -114,7 +106,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 
   // -------- -------- SECTION BUILDER  -------- ----------
   TileDddbManager* dbManager = m_detectorManager->getDbManager();
-  TileGeoSectionBuilder* sectionBuilder = new TileGeoSectionBuilder(theMaterialManager,dbManager,m_Ushape,m_log);
+  TileGeoSectionBuilder* sectionBuilder = new TileGeoSectionBuilder(theMaterialManager,dbManager,m_uShape,m_glue,m_log);
 
   double DzSaddleSupport = 0, RadiusSaddle = 0;
   if (dbManager->BoolSaddle())
@@ -1209,6 +1201,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 				       dbManager->TILErmax(),
 				       dbManager->TILBrmax(),
 				       deltaPhi,
+				       m_testbeamGeometry,
 				       ModuleNcp,
 				       BFingerLengthPos*(1./CLHEP::cm)); 
 
@@ -1241,6 +1234,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
 				       dbManager->TILErmax(),
 				       dbManager->TILBrmax(),
 				       deltaPhi,
+				       m_testbeamGeometry,
 				       ModuleNcp*100,
 				       BFingerLengthNeg*(1./CLHEP::cm));
 
@@ -1466,6 +1460,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
                                       dbManager->TILErmax(),
                                       dbManager->TILBrmax(),
                                       deltaPhi,
+                                      m_testbeamGeometry,
                                       ModuleNcp);
 	 }
         GeoTransform* xtraModFingerPos  = new GeoTransform(HepGeom::TranslateX3D(
@@ -1687,6 +1682,7 @@ void TileAtlasFactory::create(GeoPhysVol *world)
                                       dbManager->TILErmax(),
                                       dbManager->TILBrmax(),
                                       deltaPhi,
+                                      m_testbeamGeometry,
                                       ModuleNcp*100);
          }
         GeoTransform* xtraModFingerNeg  = new GeoTransform(HepGeom::TranslateX3D(
