@@ -1911,10 +1911,8 @@ class argSubstepString(argSubstep):
         if value is None:
             self._value = {}
         elif isinstance(value, str):
-            self._value = {self._defaultSubstep: value}
-        elif isinstance(value, str):
             subStepList = self._parseStringAsSubstep(value)
-            self._value = dict([(subStep[0], strToBool(subStep[1])) for subStep in subStepList])
+            self._value = dict([(subStep[0], subStep[1]) for subStep in subStepList])
         elif isinstance(value, (list, tuple)):
             # This is a list of strings to parse
             self._value = {}
@@ -1923,13 +1921,13 @@ class argSubstepString(argSubstep):
                     raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 'Failed to convert list item {0!s} to substep (should be a string)'.format(item))
                 subStepList = self._parseStringAsSubstep(item)
                 for subStep in subStepList:
-                    self._value[subStep[0]] = strToBool(subStep[1])
+                    self._value[subStep[0]] = subStep[1]
         elif isinstance(value, dict):
             for k, v in value.iteritems():
                 if not isinstance(k, str):
                     raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 'Dictionary key {0!s} for substep is not a string'.format(k))
-                if not isinstance(v, bool):
-                    raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 'Dictionary value {0!s} for substep is not a bool'.format(v))
+                if not isinstance(v, str):
+                    raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 'Dictionary value {0!s} for substep is not a string'.format(v))
             self._value = value
         else:
             raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 'Setter value {0!s} (type {1}) for substep argument cannot be parsed'.format(value, type(value)))
