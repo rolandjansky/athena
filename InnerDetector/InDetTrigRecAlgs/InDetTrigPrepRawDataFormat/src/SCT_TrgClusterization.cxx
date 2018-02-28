@@ -57,7 +57,7 @@ namespace InDet{
     m_clusteringTool("InDet::SCT_ClusteringTool"),
     m_managerName("SCT"),
     m_clustersName("SCT_TrigClusters"),
-    m_flaggedCondDataName("SCT_FlaggedCondData"),
+    m_flaggedCondDataName("SCT_FlaggedCondData_TRIG"),
     m_idHelper(0),
     m_clusterContainer(nullptr),
     m_regionSelector("RegSelSvc", name),

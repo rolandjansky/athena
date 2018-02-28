@@ -306,6 +306,10 @@ class SCT_ConditionsServicesSetup:
     sct_FlaggedConditionSvcSetup.setSvcName(instanceName)
     sct_FlaggedConditionSvcSetup.setup()
     flaggedSvc = sct_FlaggedConditionSvcSetup.getSvc()
+    if self.prefix == "InDetTrig":
+      # SCT_FlaggedCondData_TRIG created by SCT_TrgClusterization is used.
+      flaggedSvc.SCT_FlaggedCondData = "SCT_FlaggedCondData_TRIG"
+      # Otherwise, SCT_FlaggedCondData created by SCT_Clusterization
     if self._print:  print flaggedSvc
     if not (instanceName in self.summarySvc.ConditionsServices):
       self.summarySvc.ConditionsServices+=[instanceName]

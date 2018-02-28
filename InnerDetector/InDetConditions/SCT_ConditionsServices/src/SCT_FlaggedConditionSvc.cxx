@@ -14,6 +14,8 @@
 SCT_FlaggedConditionSvc::SCT_FlaggedConditionSvc(const std::string& name, ISvcLocator* pSvcLocator):
   AthService(name, pSvcLocator),
   m_badIds{"SCT_FlaggedCondData"},
+  // SCT_FlaggedCondData created by SCT_Clusterization
+  // SCT_FlaggedCondData_TRIG created by SCT_TrgClusterization for InDetTrigInDetSCT_FlaggedConditionSvc
   m_detStore{"DetectorStore", name},
   m_sctID{nullptr}
 {
