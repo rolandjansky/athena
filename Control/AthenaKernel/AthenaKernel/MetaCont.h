@@ -196,7 +196,7 @@ bool MetaCont<T>::find(const SourceID& it, T*& t) const {
     //t=0;
     typename MetaContSet::const_iterator it=m_metaSet.begin();
     for (; it != m_metaSet.end(); ++it) {
-      std::cerr << "BLARG Container has SID=" << it->first << std::endl;
+      std::cerr << "Container has SID=" << it->first << std::endl;
     }
   }
 
