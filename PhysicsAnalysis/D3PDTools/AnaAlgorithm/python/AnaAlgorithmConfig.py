@@ -117,6 +117,80 @@ class AnaAlgorithmConfig( ROOT.EL.AnaAlgorithmConfig ):
         self._props[ key ] = value
         pass
 
+    def addPrivateTool (self, name, type) :
+        """create a private tool for the algorithm"""
+        super( AnaAlgorithmConfig,
+               self ).createPrivateTool( name, type ).ignore ()
+        self._props[name] = PrivateToolConfig (self, name, type)
+        pass
+
+    pass
+
+
+
+class PrivateToolConfig( object ):
+    """Standalone Private Tool Configuration
+    """
+
+    def __init__( self, algorithm, prefix, type ):
+        """Constructor for an private tool configuration object
+        """
+
+        self._algorithm = algorithm
+        self._prefix = prefix
+        self._type = type
+
+        pass
+
+    def __getattr__( self, name ):
+        """Get a previously set property value from the configuration
+
+        This function allows us to retrieve the value of a property that was
+        already set for the algorithm, to possibly use it in some configuration
+        decisions in the Python code itself.
+
+        Keyword arguments:
+          name -- The name of the property
+        """
+
+        fullName = self._prefix + "." + name
+
+        # Fail if the property was not (yet) set:
+        if not fullName in self._algorithm._props:
+            raise AttributeError( 'Property \'%s\' was not set on \'%s/%s.%s\'' %
+                                  ( name, self._algorithm.type(), self._algorithm.name(), self._prefix) )
+
+        # Return the property value:
+        return self._algorithm._props[ fullName ]
+
+    def __setattr__( self, key, value ):
+        """Set an algorithm property on an existing configuration object
+
+        This function allows us to set/override properties on an algorithm
+        configuration object. Allowing for the following syntax:
+
+           alg = ...
+           alg.IntProperty = 66
+           alg.FloatProperty = 3.141592
+           alg.StringProperty = "Foo"
+
+        Keyword arguments:
+          key   -- The key/name of the property
+          value -- The value to set for the property
+        """
+
+        # Private variables should be set directly:
+        if key[ 0 ] == '_':
+            return super( PrivateToolConfig, self ).__setattr__( key, value )
+
+        fullName = self._prefix + "." + key
+
+        # Set the property, and remember its value:
+        super( AnaAlgorithmConfig,
+               self._algorithm ).setPropertyFromString( fullName, stringPropValue( value ) )
+        self._algorithm._props[ fullName ] = value
+        pass
+
     pass
 
 
