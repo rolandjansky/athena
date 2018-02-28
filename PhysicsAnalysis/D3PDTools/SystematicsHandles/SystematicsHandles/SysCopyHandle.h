@@ -103,12 +103,18 @@ namespace EL
     std::function<StoreGateSvc*()> m_evtStoreGetter;
 #endif
 
-    /// \brief the message object we are using
-    ///
-    /// Note that this violates the ATLAS naming convention to be
-    /// compatible with the ATLAS messaging macros.
+
+    /// \brief the message stream we use
   private:
-    std::function<MsgStream& (const MSG::Level lvl)> msg;
+    MsgStream *m_msg {nullptr};
+
+    /// \brief helper for message macros
+  private:
+    MsgStream& msg( ) const;
+
+    /// \brief helper for message macros
+  private:
+    MsgStream& msg( const MSG::Level lvl ) const;
   };
 }
 

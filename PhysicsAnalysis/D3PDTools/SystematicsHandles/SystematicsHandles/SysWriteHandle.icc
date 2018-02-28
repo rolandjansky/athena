@@ -21,13 +21,32 @@
 
 namespace EL
 {
+  template<typename T,typename Aux> inline MsgStream& SysWriteHandle<T,Aux> ::
+  msg () const
+  {
+    assert (m_msg != nullptr);
+    return *m_msg;
+  }
+
+
+
+  template<typename T,typename Aux> inline MsgStream& SysWriteHandle<T,Aux> ::
+  msg (MSG::Level lvl) const
+  {
+    assert (m_msg != nullptr);
+    *m_msg << lvl;
+    return *m_msg;
+  }
+
+
+
   template<typename T,typename Aux> template<typename T2> SysWriteHandle<T,Aux> ::
   SysWriteHandle (T2 *owner, const std::string& propertyName,
                  const std::string& propertyValue,
                  const std::string& propertyDescription)
     : m_outputName (propertyValue)
     , m_evtStoreGetter ([owner] () {return &*owner->evtStore();})
-    , msg ([owner] (const MSG::Level lvl) -> MsgStream& {return owner->msg (lvl);})
+    , m_msg (&owner->msg())
   {
     owner->declareProperty (propertyName, m_outputName, propertyDescription);
   }
@@ -42,7 +61,7 @@ namespace EL
     if (cache == m_outputNameCache.end())
     {
       std::string newName = detail::makeSystematicsName (m_outputName, sys);
-      ANA_MSG_INFO ("SysWriteHandle: " << newName << " (" << sys.name() << ")");
+      ANA_MSG_DEBUG ("SysWriteHandle: " << newName << " (" << sys.name() << ")");
       m_outputNameCache.insert (std::make_pair (sys, newName));
       cache = m_outputNameCache.find (sys);
       assert (cache != m_outputNameCache.end());
@@ -67,13 +86,32 @@ namespace EL
 
 
 
+  template<typename T> inline MsgStream& SysWriteHandle<T,void> ::
+  msg () const
+  {
+    assert (m_msg != nullptr);
+    return *m_msg;
+  }
+
+
+
+  template<typename T> inline MsgStream& SysWriteHandle<T,void> ::
+  msg (MSG::Level lvl) const
+  {
+    assert (m_msg != nullptr);
+    *m_msg << lvl;
+    return *m_msg;
+  }
+
+
+
   template<typename T> template<typename T2> SysWriteHandle<T,void> ::
   SysWriteHandle (T2 *owner, const std::string& propertyName,
                  const std::string& propertyValue,
                  const std::string& propertyDescription)
     : m_outputName (propertyValue)
     , m_evtStoreGetter ([owner] () {return &*owner->evtStore();})
-    , msg ([owner] (const MSG::Level lvl) -> MsgStream& {return owner->msg (lvl);})
+    , m_msg (&owner->msg())
   {
     owner->declareProperty (propertyName, m_outputName, propertyDescription);
   }
@@ -87,7 +125,7 @@ namespace EL
     if (cache == m_outputNameCache.end())
     {
       std::string newName = detail::makeSystematicsName (m_outputName, sys);
-      ANA_MSG_INFO ("SysWriteHandle: " << newName << " (" << sys.name() << ")");
+      ANA_MSG_DEBUG ("SysWriteHandle: " << newName << " (" << sys.name() << ")");
       m_outputNameCache.insert (std::make_pair (sys, newName));
       cache = m_outputNameCache.find (sys);
       assert (cache != m_outputNameCache.end());

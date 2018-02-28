@@ -22,13 +22,32 @@
 
 namespace EL
 {
+  template<typename T> inline MsgStream& SysCopyHandle<T> ::
+  msg () const
+  {
+    assert (m_msg != nullptr);
+    return *m_msg;
+  }
+
+
+
+  template<typename T> inline MsgStream& SysCopyHandle<T> ::
+  msg (MSG::Level lvl) const
+  {
+    assert (m_msg != nullptr);
+    *m_msg << lvl;
+    return *m_msg;
+  }
+
+
+
   template<typename T> template<typename T2> SysCopyHandle<T> ::
   SysCopyHandle (T2 *owner, const std::string& propertyName,
                  const std::string& propertyValue,
                  const std::string& propertyDescription)
     : m_inputName (propertyValue)
     , m_evtStoreGetter ([owner] () {return &*owner->evtStore();})
-    , msg ([owner] (const MSG::Level lvl) -> MsgStream& {return owner->msg (lvl);})
+    , m_msg (&owner->msg())
   {
     owner->declareProperty (propertyName, m_inputName, propertyDescription);
     owner->declareProperty (propertyName + "Regex", m_affectingRegex, "affecting systematics for " + propertyDescription);
@@ -45,7 +64,7 @@ namespace EL
     {
       std::string inputName = detail::makeSystematicsName (m_inputName, m_affectingRegex, sys);
       std::string outputName = detail::makeSystematicsName (m_outputName, sys);
-      ANA_MSG_INFO ("SysCopyHandle: " << inputName << " -> " << outputName << " (" << sys.name() << ")");
+      ANA_MSG_DEBUG ("SysCopyHandle: " << inputName << " -> " << outputName << " (" << sys.name() << ")");
       m_nameCache.insert (std::make_pair (sys, std::make_tuple (inputName, outputName, outputName+"Aux.")));
       cache = m_nameCache.find (sys);
       assert (cache != m_nameCache.end());

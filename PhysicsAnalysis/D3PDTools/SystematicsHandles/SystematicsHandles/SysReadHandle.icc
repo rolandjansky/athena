@@ -22,13 +22,32 @@
 
 namespace EL
 {
+  template<typename T> inline MsgStream& SysReadHandle<T> ::
+  msg () const
+  {
+    assert (m_msg != nullptr);
+    return *m_msg;
+  }
+
+
+
+  template<typename T> inline MsgStream& SysReadHandle<T> ::
+  msg (MSG::Level lvl) const
+  {
+    assert (m_msg != nullptr);
+    *m_msg << lvl;
+    return *m_msg;
+  }
+
+
+
   template<typename T> template<typename T2> SysReadHandle<T> ::
   SysReadHandle (T2 *owner, const std::string& propertyName,
                  const std::string& propertyValue,
                  const std::string& propertyDescription)
     : m_inputName (propertyValue)
     , m_evtStoreGetter ([owner] () {return &*owner->evtStore();})
-    , msg ([owner] (const MSG::Level lvl) -> MsgStream& {return owner->msg (lvl);})
+    , m_msg (&owner->msg())
   {
     owner->declareProperty (propertyName, m_inputName, propertyDescription);
     owner->declareProperty (propertyName + "Regex", m_affectingRegex, "affecting systematics for " + propertyDescription);
@@ -44,7 +63,7 @@ namespace EL
     {
       std::string newName = detail::makeSystematicsName
         (m_inputName, m_affectingRegex, sys);
-      ANA_MSG_INFO ("SysReadHandle: " << newName << " (" << sys.name() << ")");
+      ANA_MSG_DEBUG ("SysReadHandle: " << newName << " (" << sys.name() << ")");
       m_inputNameCache.insert (std::make_pair (sys, newName));
       cache = m_inputNameCache.find (sys);
       assert (cache != m_inputNameCache.end());

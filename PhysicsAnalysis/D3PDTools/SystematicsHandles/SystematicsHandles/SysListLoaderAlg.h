@@ -73,6 +73,10 @@ namespace EL
     /// \brief the list of actual systematics
   private:
     std::vector<CP::SystematicSet> m_systematicsVector;
+
+    /// \brief whether the next event will be the first event
+  private:
+    bool m_firstEvent = true;
   };
 }
 

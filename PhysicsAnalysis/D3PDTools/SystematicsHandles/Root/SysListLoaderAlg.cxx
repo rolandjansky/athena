@@ -78,16 +78,45 @@ namespace EL
   StatusCode SysListLoaderAlg ::
   execute ()
   {
-    if (m_systematicsVector.empty())
+    if (m_firstEvent)
     {
-      assert (m_sigmaRecommended > 0);
-      CP::MakeSystematicsVector sys;
-      sys.setSigma (m_sigmaRecommended);
-      sys.calc (CP::SystematicRegistry::getInstance().recommendedSystematics());
-      for (const CP::SystematicSet& mysys : sys.result(""))
+      m_firstEvent = false;
+      const CP::SystematicSet recommended
+        = CP::SystematicRegistry::getInstance().recommendedSystematics();
+      const CP::SystematicSet affecting
+        = CP::SystematicRegistry::getInstance().globalSystematics();
+
+      for (const CP::SystematicVariation& mysys : affecting)
       {
-        ANA_MSG_INFO ("configuring systematic: " << mysys.name());
-        m_systematicsVector.push_back (mysys);
+        if (recommended.find (mysys) == recommended.end())
+          ANA_MSG_INFO ("found systematic: (" << mysys << ")");
+        else
+          ANA_MSG_INFO ("found systematic: " << mysys);
+      }
+      bool error = false;
+      for (const CP::SystematicVariation& mysys : recommended)
+      {
+        if (affecting.find (mysys) == affecting.end())
+        {
+          ANA_MSG_ERROR ("systematic is only registered as recommended, not affecting: " << mysys);
+          error = true;
+        }
+      }
+      if (error)
+        return StatusCode::FAILURE;
+
+
+      if (m_systematicsVector.empty())
+      {
+        assert (m_sigmaRecommended > 0);
+        CP::MakeSystematicsVector sys;
+        sys.setSigma (m_sigmaRecommended);
+        sys.calc (recommended);
+        for (const CP::SystematicSet& mysys : sys.result(""))
+        {
+          ANA_MSG_INFO ("configuring systematic: " << mysys.name());
+          m_systematicsVector.push_back (mysys);
+        }
       }
     }
 
