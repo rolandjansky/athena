@@ -492,7 +492,10 @@ reLog() << MSG::INFO<<"initDesign  Sum Height Check: "<<stgc->GetName()<<" stgc-
       //std::cerr<<"center of wire plane, layer:"<<layer<<","<< m_surfaceData->m_layerCenters.back().perp()<< std::endl;
 
       // strip plane moved along normal, pad plane in the opposite direction
-      double shift = 0.5*m_etaDesign[layer].thickness;
+      // We no longer want the readout elements to be seperated by the gas gas volume
+      // We place all 3 readouts at the center of the gas gap in z, with a 10 micron offset to seperate them
+      // Alexandre Laurier 2018-02-28
+      double shift = 0.01;
       if (layer%2) shift = -shift; // In layers indexed 1 and 3, order is reversed
 
       // identifier of the first channel - strip plane
