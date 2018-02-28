@@ -51,4 +51,6 @@ if( XAOD_STANDALONE )
    atlas_install_python_modules( python/*.py )
    atlas_add_test( PythonUnitTests
       SCRIPT python -m unittest AnaAlgorithm.AnaAlgorithmConfig )
+else()
+   atlas_install_python_modules( python/__init__.py python/DualUseConfig.py )
 endif()
