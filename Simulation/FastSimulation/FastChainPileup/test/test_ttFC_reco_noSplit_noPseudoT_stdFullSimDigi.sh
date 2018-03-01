@@ -26,5 +26,5 @@ ArtPackage=$1
 ArtJobName=$2
 art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName}  
 echo  "art-result: $? regression"
-#rootcomp.py -o comparison -c /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/AOD_
-echo  "art-result: $? histcomp"
+rootcomp.py -o comparison -c /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/AOD_Split_stdFullSimDigi.pool.root AOD_Split_stdFullSimDigi.pool.root_
+echo  "art-result: $? histcomp test"

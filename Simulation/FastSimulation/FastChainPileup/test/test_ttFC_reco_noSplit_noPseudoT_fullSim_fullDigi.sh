@@ -13,7 +13,7 @@ echo "art-result: $? AOD step"
 
 ArtPackage=$1
 ArtJobName=$2
-art.py compare grid --entries 10  
+art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName}
 echo  "art-result: $? regression"
-#rootcomp.py -o comparison -c /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/ISF_Validation/ISF_G4_WriteCalHitsTest.truth.root truth.root
+rootcomp.py -o comparison -c /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/AOD_noSplit_noPseudoT_fullSim_fullDigi.pool.root AOD_noSplit_noPseudoT_fullSim_fullDigi.pool.root
 echo  "art-result: $? histcomp"
