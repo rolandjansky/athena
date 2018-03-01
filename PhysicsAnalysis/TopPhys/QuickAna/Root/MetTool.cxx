@@ -206,8 +206,8 @@ namespace ana
     ATH_CHECK( ASG_MAKE_ANA_TOOL(m_metSigni, met::METSignificance) );   
     ATH_CHECK( m_metSigni.setProperty("SoftTermParam", 0) );
     ATH_CHECK( m_metSigni.setProperty("TreatPUJets",   true) );
-    ATH_CHECK( m_metSigni.setProperty("IsData",   true) );
-    ATH_CHECK( m_metSigni.setProperty("IsAFII",   m_isAF2) );
+    // ATH_CHECK( m_metSigni.setProperty("IsData",   true) );
+    // ATH_CHECK( m_metSigni.setProperty("IsAFII",   m_isAF2) );
     ATH_CHECK( m_metSigni.retrieve() ); 
 
     return StatusCode::SUCCESS;
