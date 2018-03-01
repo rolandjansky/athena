@@ -45,7 +45,7 @@
 - Control/DataModelTest/.*
 - Control/PileUp.*
 - Control/StoreGateTests
-- Control/Valkyrie
++ Control/Valkyrie
 + Control/.*
 
 # Database package(s):
