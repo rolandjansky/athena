@@ -26,71 +26,19 @@ def addStandardJetsForTop(algseq, outputGroup):
   # RESTORE AOD-REDUCED JET COLLECTIONS
   #=======================================
   from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
-  reducedJetList = [ # Only include those ones that you use. The order in the list is not significant.
-                                      "AntiKt2PV0TrackJets", # This collection will be flavour-tagged automatically
-                                      "AntiKt4PV0TrackJets",
-                                      "AntiKt10LCTopoJets",
-                                      "AntiKt4TruthJets",
-                                      "AntiKt4TruthWZJets",
-                                      "AntiKt10TruthJets"]
+  # Only include those ones that you use. The order in the list is not significant
+  reducedJetList = ["AntiKt2PV0TrackJets", # This collection will be flavour-tagged automatically
+                    "AntiKt4PV0TrackJets",
+                    "AntiKt10LCTopoJets",
+                    "AntiKt4TruthJets",
+                    "AntiKt4TruthWZJets",
+                    "AntiKt10TruthJets"]
   replaceAODReducedJets(reducedJetList, algseq, outputGroup)
 
   # If you use AntiKt10*PtFrac5SmallR20Jets, these must be scheduled
   # *AFTER* the other collections are replaced
   from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDefaultTrimmedJets
   addDefaultTrimmedJets(algseq, outputGroup)
-
-  # # OLD pre DerivationFrameworkJetEtMiss-00-04-29 CODE
-  # from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
-  # from DerivationFrameworkJetEtMiss.JetCommon import addStandardJets
-
-  # from AthenaCommon.GlobalFlags import globalflags
-  # DFisMC = (globalflags.DataSource()=='geant4')
-
-  # # AntiKt2PV0TrackJets
-  # addStandardJets("AntiKt", 0.2, "PV0Track", 2000, mods="track_ungroomed", algseq=algseq, outputGroup=outputGroup)
-  # print "TOPQCommonJets: Adding jet container AntiKt2PV0TrackJets"
-  # FlavorTagInit(JetCollections=['AntiKt2PV0TrackJets'], Sequencer=algseq)
-
-  # print "TOPQCommonJets: Adding btagging fro jet container AntiKt2PV0TrackJets"
-
-  # # AntiKt4PV0TrackJets
-  # addStandardJets("AntiKt", 0.4, "PV0Track", 2000, mods="track_ungroomed", algseq=algseq, outputGroup=outputGroup)
-  # print "TOPQCommonJets: Adding jet container AntiKt4PV0TrackJets"
-
-  # # AntiKt10LCTopoJets
-  # addStandardJets("AntiKt", 1.0, "LCTopo", mods="lctopo_ungroomed", ptmin=40000, ptminFilter=50000, calibOpt="none", algseq=algseq, outputGroup=outputGroup)
-  # print "TOPQCommonJets: Adding jet container AntiKt10LCTopoJets"
-
-  # if DFisMC:
-  #   # AntiKt4TruthJets
-  #   addStandardJets("AntiKt", 0.4, "Truth", 5000, mods="truth_ungroomed", algseq=algseq, outputGroup=outputGroup)
-  #   print "TOPQCommonJets: Adding jet container AntiKt4TruthJets"
-
-  #   # AntiKt4TruthWZJets
-  #   addStandardJets("AntiKt", 0.4, "TruthWZ", 5000, mods="truth_ungroomed", algseq=algseq, outputGroup=outputGroup)
-  #   print "TOPQCommonJets: Adding jet container AntiKt4TruthWZJets"
-
-  #   # AntiKt10TruthJets
-  #   addStandardJets("AntiKt", 1.0, "Truth", 40000, mods="truth_ungroomed", algseq=algseq, outputGroup=outputGroup)
-  #   print "TOPQCommonJets: Adding jet container AntiKt10TruthJets"
-
-  # # This must be imported _AFTER_ the jet containers have been restored (which is done above)
-  # from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
-  # addDefaultTrimmedJets(algseq, outputGroup)
-
-#==============
-# JET MODIFIERS
-#==============
-
-# For Release 20, in release 21, this is already provided, for the moment, we'll just comment it out.
-# from JetRec.JetRecStandard import jtm
-# jtm.modifiersMap["dfgroomed"] += [jtm.ktsplitter]
-# jtm.modifiersMap["calib"] += [jtm.jvf]
-# jtm.modifiersMap["lctopo"] += [jtm.jvf]
-# jtm.modifiersMap["emtopo"] += [jtm.jvf]
-# jtm.modifiersMap["calib_topo_ungroomed"] += [jtm.jvf]
-# jtm.modifiersMap["topo_ungroomed"] += [jtm.jvf]
 
 #==================
 # CamKt15LCTopoJets
