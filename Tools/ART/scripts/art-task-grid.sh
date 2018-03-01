@@ -59,13 +59,6 @@ case ${TYPE} in
             shift
             shift
         fi
-        NCORES=""
-        if [ $1 == "--nCores" ]; then
-            NCORES=""
-            [ $2 -gt 1 ] && NCORES="--nCore=$2"
-            shift
-            shift
-        fi
         SPLIT=""
         LARGE_JOB="--long --memory 4096"
         if [ $1 == "--split" ]; then
@@ -170,7 +163,7 @@ case ${TYPE} in
     'single')
         # <script_directory> <sequence_tag> <package> <outfile> <job_name>
         INTERNAL_COMMAND="grid single"
-        PATHENA_TYPE_OPTIONS="${LARGE_JOB} ${NCORES} ${INDS} ${NFILES} ${NFILES_PER_JOB}"
+        PATHENA_TYPE_OPTIONS="${LARGE_JOB} ${INDS} ${NFILES} ${NFILES_PER_JOB}"
         ARGS="${JOB_NAME}"
         echo "PATHENA_TYPE_OPTIONS=${PATHENA_TYPE_OPTIONS}"
         echo "ARGS=${ARGS}"

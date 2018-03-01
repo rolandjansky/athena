@@ -24,7 +24,6 @@ class ArtHeader(object):
     ART_INPUT_NFILES = 'art-input-nfiles'
     ART_INPUT_SPLIT = 'art-input-split'
     ART_OUTPUT = 'art-output'
-    ART_NCORES = 'art-ncores'
     ART_TYPE = 'art-type'
 
     def __init__(self, filename):
@@ -50,7 +49,6 @@ class ArtHeader(object):
         self.add(ArtHeader.ART_OUTPUT, ListType, [])
         self.add(ArtHeader.ART_INPUT, StringType, None)
         self.add(ArtHeader.ART_INPUT_NFILES, IntType, 1)
-        self.add(ArtHeader.ART_NCORES, IntType, 1)
         self.add(ArtHeader.ART_INPUT_SPLIT, IntType, 0)
 
         self.read(filename)
