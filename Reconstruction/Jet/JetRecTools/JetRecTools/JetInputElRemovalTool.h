@@ -69,6 +69,7 @@ public:
      
      @return The number of removed clusters
   */
+  int filterElectronClusters(std::vector<const xAOD::Electron*>&selected_el,ConstDataVector<xAOD::CaloClusterContainer> & selected_cl) const ;
   int fillSelectedClusters(std::vector<const xAOD::Electron*>&selected_el, ConstDataVector<xAOD::CaloClusterContainer> & selected_cl) const ;
   int fillSelectedClustersInJets(std::vector<const xAOD::Electron*>&selected_el, ConstDataVector<xAOD::CaloClusterContainer> & selected_cl) const ;
   

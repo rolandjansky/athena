@@ -61,18 +61,20 @@ int JetInputElRemovalTool::execute() const{
   
   //Select the electrons with given properties
   std::vector<const xAOD::Electron*> el_vector=selectElectron();
-  
+  int nb_removed_clusters=0;
   //Select the clusters away from electrons
   
   //Use all the clusters in the event
   if(!m_useOnlyclInJets){
-    fillSelectedClusters(el_vector,*filtered_clusters);
+    //nb_removed_clusters=fillSelectedClusters(el_vector,*filtered_clusters);
+    nb_removed_clusters=filterElectronClusters(el_vector,*filtered_clusters);    
   }
   //Use only the cluster from jets in the event
   else{
-    fillSelectedClustersInJets(el_vector,*filtered_clusters);
+    nb_removed_clusters=fillSelectedClustersInJets(el_vector,*filtered_clusters);
+
   }
-  
+  ATH_MSG_WARNING("number of removed clusters = "<<nb_removed_clusters);
   //Record clusters vector
   StatusCode sc=evtStore()->record( filtered_clusters ,  m_clOutputContainer );
   
@@ -137,7 +139,7 @@ std::vector<const xAOD::Electron*> JetInputElRemovalTool::selectElectron()const{
     
     if (! isTight) continue ;
     
-    
+    ATH_MSG_WARNING("pass electron id");
     //Select only el with pt>25GeV
     if (electron_itr->pt()<m_elPt) continue;
     
@@ -152,6 +154,87 @@ std::vector<const xAOD::Electron*> JetInputElRemovalTool::selectElectron()const{
 }
 
 
+int JetInputElRemovalTool::filterElectronClusters(std::vector<const xAOD::Electron*>&selected_el,ConstDataVector<xAOD::CaloClusterContainer> & selected_cl)const{
+  
+  //Initialiaze variables
+  
+  int m_countRemoved_clusters=0;
+  //double propEM=0;
+  
+  //Get the Topo clusters of the event
+  const xAOD::CaloClusterContainer* clusterContainer;
+  
+  StatusCode sc=evtStore()->retrieve( clusterContainer, m_clInputContainer );
+  
+  if (sc.isFailure()){
+    ATH_MSG_WARNING("Unable to retrieve clusters");
+    return 0;
+  }
+  
+  //Loop over all the clusters
+  for (const xAOD::CaloCluster* cluster_itr : *clusterContainer){
+    
+    //Compute the EMP proportion of the cluster
+    //propEM=0;
+    
+    //double EMB_Enegy=cluster_itr->eSample(CaloSampling::CaloSample::PreSamplerB)+cluster_itr->eSample(CaloSampling::CaloSample::EMB1)+cluster_itr->eSample(CaloSampling::CaloSample::EMB2)+cluster_itr->eSample(CaloSampling::CaloSample::EMB3);
+    
+    //double EMEC_Energy=cluster_itr->eSample(CaloSampling::CaloSample::PreSamplerE)+cluster_itr->eSample(CaloSampling::CaloSample::EME1)+cluster_itr->eSample(CaloSampling::CaloSample::EME2)+cluster_itr->eSample(CaloSampling::CaloSample::EME3);
+    
+    //Remove clusters w/o energy
+    //if (cluster_itr->rawE()==0) {
+    //  continue;
+    //}
+    //propEM=(EMB_Enegy+EMEC_Energy)/cluster_itr->rawE();
+    
+    
+    
+    //Check if close to electron
+    bool is_elclus=false;
+    
+    std::vector<const xAOD::Electron*>::iterator it=selected_el.begin();
+    std::vector<const xAOD::Electron*>::iterator itE =selected_el.end();
+    //For each el in the vector
+    for ( ; it != itE ;++it){
+      ATH_MSG_DEBUG( "Deleta R electron cluster = "<<(*it)->p4().DeltaR(cluster_itr->p4()) );
+      //Check if electron close to cluster
+      //if ((*it)->p4().DeltaR(cluster_itr->p4())<m_clRemovRadius){
+      const xAOD::CaloCluster* el_clus=(*it)->caloCluster();
+      std::cout<<"el_clus initial seed cluster ="<<el_clus->altE()<<" cluster"<<cluster_itr->e()<<std::endl;
+      
+      if (el_clus->pt()==cluster_itr->pt()){
+	
+	is_elclus=true;
+	std::cout<<"pt Match found"<<std::endl;
+	std::cout<<"el_clus="<<el_clus->eta()<<" cluster"<<cluster_itr->eta()<<std::endl;
+	//if ((*it)->caloCluster()->p4().DeltaR(cluster_itr->p4())<m_clRemovRadius){
+	
+	//if (TMath::Abs((*it)->caloCluster()->etaBE(2))<1.52 && TMath::Abs((*it)->caloCluster()->etaBE(2))>1.37){
+	//if (TMath::Abs(cluster_itr->eta())<1.52 && TMath::Abs(cluster_itr->eta())>1.37){
+	//  closetoel=true;
+	//}
+	
+	//Check if the proportion of EM enegy above threshold
+	//else if(propEM>=m_clEMFrac){
+	//  closetoel=true;
+      }
+    }
+      
+    //}
+    //If the cluster not used as electron it is kept
+    if (!is_elclus){
+      selected_cl.push_back(dynamic_cast<const xAOD::CaloCluster*> (cluster_itr));
+    }
+    else{ //else it is removed
+      m_countRemoved_clusters+=1;
+    }
+  }//End loop over clusters
+  
+  
+  //ANA_CHECK(evtStore()->record( filtered_clusters , "CaloCalTopoClustersNoElec" ));
+  
+  return  m_countRemoved_clusters;
+}//End of FilterElClusters()
 
 
 
