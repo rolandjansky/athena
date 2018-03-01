@@ -109,9 +109,9 @@ ObjSurfaceWriter::write(const Acts::Surface& surface)
     
       auto cylinderSurface = dynamic_cast<const Acts::CylinderSurface*>(&surface);
 
-      //Acts::PolyhedronRepresentation ph = cylinderSurface->polyhedronRepresentation();
-      //(*(m_cfg.outputStream)) << ph.objString(m_vtnCounter.vcounter);
-      //m_vtnCounter.vcounter += ph.vertices.size();
+      Acts::PolyhedronRepresentation ph = cylinderSurface->polyhedronRepresentation();
+      (*(m_cfg.outputStream)) << ph.objString(m_vtnCounter.vcounter);
+      m_vtnCounter.vcounter += ph.vertices.size();
 
     }
   }

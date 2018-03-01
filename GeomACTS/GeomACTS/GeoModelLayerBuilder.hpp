@@ -10,9 +10,7 @@
 #ifndef ACTS_GEOMODELPLUGIN_GEOMODELLAYERBUILDER_H
 #define ACTS_GEOMODELPLUGIN_GEOMODELLAYERBUILDER_H
 
-#ifndef ACTS_PARAMETER_DEFINITIONS_PLUGIN
-#define ACTS_PARAMETER_DEFINITIONS_PLUGIN "ACTS/Utilities/detail/DefaultParameterDefinitions.hpp"
-#endif
+
 // ATHENA INCLUDES
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"

@@ -11,9 +11,6 @@
 #define ACTS_GEOMODELPLUGIN_GEOMODELSTRAWLAYERBUILDER_H
 
 
-#ifndef ACTS_PARAMETER_DEFINITIONS_PLUGIN
-#define ACTS_PARAMETER_DEFINITIONS_PLUGIN "ACTS/Utilities/detail/DefaultParameterDefinitions.hpp"
-#endif
 // ATHENA INCLUDES
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 

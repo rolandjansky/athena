@@ -87,4 +87,3 @@ Acts::IdentityHelper::side() const
     return getSCTIDHelper()->side(id);
   }
 }
-

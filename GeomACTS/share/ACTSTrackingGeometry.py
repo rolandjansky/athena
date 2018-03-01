@@ -21,8 +21,7 @@ globalflags.DataSource='geant4'
 #globalflags.DataSource='data'
 
 # Select the geometry version. 
-globalflags.DetDescrVersion = 'ATLAS-P2-ITK-20-00-00'
-# globalflags.DetDescrVersion = 'ATLAS-R2-2016-00-00-00'
+globalflags.DetDescrVersion = 'ATLAS-R2-2016-00-00-00'
 
 # print "HERE"
 # print globalflags.DetDescrVersion

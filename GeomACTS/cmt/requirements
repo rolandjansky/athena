@@ -4,49 +4,23 @@ author Grant Gorfine <Grant.Gorfine@cern.ch>
 
 use AtlasPolicy    AtlasPolicy-* 
 use AthenaBaseComps  AthenaBaseComps-* Control
+use StoreGate      StoreGate-*       Control
 use GaudiInterface GaudiInterface-*  External 
+use AtlasCLHEP	   AtlasCLHEP-*	     External
 use GeoPrimitives          GeoPrimitives-*        DetectorDescription
-
 
 use InDetReadoutGeometry InDetReadoutGeometry-*    InnerDetector/InDetDetDescr
 use Identifier		 Identifier-*	           DetectorDescription
 use InDetIdentifier	 InDetIdentifier-*	   InnerDetector/InDetDetDescr
 
-#use RegionSelector       RegionSelector-*	   DetectorDescription
+use RegionSelector       RegionSelector-*	   DetectorDescription
 use GeoModelInterfaces   GeoModelInterfaces-*	   DetectorDescription/GeoModel
 
-#use InDetCondServices    InDetCondServices-*       InnerDetector/InDetConditions
-#use SiPropertiesSvc      SiPropertiesSvc-*          InnerDetector/InDetConditions   
-#use InDetConditionsSummaryService InDetConditionsSummaryService-* InnerDetector/InDetConditions
+use InDetCondServices    InDetCondServices-*       InnerDetector/InDetConditions
+use SiPropertiesSvc      SiPropertiesSvc-*          InnerDetector/InDetConditions   
+use InDetConditionsSummaryService InDetConditionsSummaryService-* InnerDetector/InDetConditions
 
-use AtlasBoost AtlasBoost-* External
-use AtlasROOT AtlasROOT-* External
-use TrkSurfaces      TrkSurfaces-*     Tracking/TrkDetDescr
-
-use ACTS ACTS* .
-
-include_dirs "/home/pagessin/dev/install/acts-core/include"
-#include_dirs "/cvmfs/sft.cern.ch/lcg/releases/LCG_91/eigen/3.2.9/x86_64-slc6-gcc62-opt/include"
-
-
-
-library GeomACTS *.cxx *.cpp obj/*.cpp components/*.cxx Extrapolation/*.cpp
+library GeomACTS *.cxx components/*.cxx
 apply_pattern component_library
+
 apply_pattern declare_joboptions files="*.py"
-macro_append GeomACTS_linkopts "-lACTSCore -L/home/pagessin/dev/install/acts-core/lib64"
-
-private
-
-#macro_append GeomACTS_linkopts "" \
-#             notAsNeeded "" \
-#             asNeeded="-lACTSCore"
-
-#macro_append cflags "-lACTSCore"
-
-use ACTSCore ACTSCore* .
-
-use AtlasCLHEP	   AtlasCLHEP-*	     External
-use AtlasEigen	   AtlasEigen-*	     External
-use StoreGate      StoreGate-*       Control
-use GeoModelKernel GeoModelKernel-* DetectorDescription/GeoModel
-
