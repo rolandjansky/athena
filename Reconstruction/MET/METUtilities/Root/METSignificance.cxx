@@ -474,7 +474,7 @@ namespace met {
     // Add extra uncertainty for PU jets based on JVT
     //
     if(m_treatPUJets){
-      double jet_pu_unc  = GetPUProb(jet->eta(), jet->phi(),jet->pt()/m_GeV, acc_jvt(*jet))/4.0;
+      double jet_pu_unc  = GetPUProb(jet->eta(), jet->phi(),jet->pt()/m_GeV, acc_jvt(*jet));
       pt_reso = sqrt(jet_pu_unc*jet_pu_unc + pt_reso*pt_reso);
       ATH_MSG_VERBOSE("jet_pu_unc: " << jet_pu_unc);
     }
@@ -587,11 +587,11 @@ namespace met {
 				    double jet_pt,  double jet_jvt) {
 
     double unc=0.0;
-    if(jet_jvt<0.05 && fabs(jet_eta)<2.7 && jet_pt<150.0e3){
+    if(jet_jvt<0.05 && fabs(jet_eta)<2.7 && jet_pt<150.0){
       unc=0.95;
-    }else if(jet_jvt<0.59 && fabs(jet_eta)<2.7 && jet_pt<100.0e3){
+    }else if(jet_jvt<0.59 && fabs(jet_eta)<2.7 && jet_pt<100.0){
       unc=0.4;
-    }else if(jet_jvt<0.59 && fabs(jet_eta)<2.7 && jet_pt<100.0e3){
+    }else if(jet_jvt<0.59 && fabs(jet_eta)<2.7 && jet_pt<100.0){
       unc=0.4;
     }else if(jet_pt<30.0e3 && fabs(jet_eta)>2.7){
       unc=0.2;
