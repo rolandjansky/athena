@@ -23,6 +23,10 @@ public:
     m_clusters(cluster1, 0),
     m_dphi(dphi),
     m_locT(0.), m_locL(0.),
+    m_original_r(0.),
+    m_original_phi(0.),
+    m_original_x(0.),
+    m_original_y(0.),
     m_elementId(elementId) {};
 
   // Constructor from two clusters using cylindrical co-ordinates, no. errors  
@@ -34,6 +38,10 @@ public:
     TrigSiSpacePointBase(layer, r, phi, z, dr, dz), 
     m_clusters(cluster1, cluster2),
     m_dphi(dphi),
+    m_original_r(0.),
+    m_original_phi(0.),
+    m_original_x(0.),
+    m_original_y(0.),
     m_elementId(elementId) {};
     
  // Destructor
@@ -48,6 +56,11 @@ public:
  double dphi() const {return m_dphi;}
  double locT() const {return m_locT;}
  double locL() const {return m_locL;}
+ double original_r() const {return  m_original_r;}
+ double original_phi() const {return  m_original_phi;}
+ double original_x() const {return  m_original_x;}
+ double original_y() const {return  m_original_y;}
+
 
  // Methods to retrieve data members 
  std::pair < const InDet::SiCluster*, const InDet::SiCluster* > clusters() const {
@@ -60,6 +73,11 @@ private:
   double	m_dphi;
   double	m_locT;
   double	m_locL;
+  double  m_original_r; 
+  double  m_original_phi; 
+  double  m_original_x;
+  double  m_original_y;
+
   const Identifier m_elementId;
 };
 
