@@ -11,7 +11,7 @@ atlas_depends_on_subdirs(
    PhysicsAnalysis/AnalysisCommon/PATInterfaces )
 
 # Component(s) in the package:
-atlas_add_library( TriggerAnalysisInterfaces
+atlas_add_library( TriggerAnalysisInterfacesLib
    TriggerAnalysisInterfaces/*.h
    INTERFACE
    PUBLIC_HEADERS TriggerAnalysisInterfaces
@@ -20,4 +20,4 @@ atlas_add_library( TriggerAnalysisInterfaces
 atlas_add_dictionary( TriggerAnalysisInterfacesDict
    TriggerAnalysisInterfaces/TriggerAnalysisInterfacesDict.h
    TriggerAnalysisInterfaces/selection.xml
-   LINK_LIBRARIES TriggerAnalysisInterfaces )
+   LINK_LIBRARIES TriggerAnalysisInterfacesLib )
