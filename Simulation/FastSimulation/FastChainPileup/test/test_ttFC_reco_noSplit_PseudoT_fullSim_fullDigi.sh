@@ -13,7 +13,7 @@ echo "art-result: $? RDO step"
 
 ArtPackage=$1
 ArtJobName=$2
-art.py compare grid --entries 10  ${ArtPackage} ${ArtJobName} 
+#art.py compare grid --entries 10  ${ArtPackage} ${ArtJobName} 
 echo  "art-result: $? regression"
 rootcomp.py -o comparison -c /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/FastChainPileup/AOD_noSplit_pseudoTracking_fullSim_fullDigi.pool.root AOD_noSplit_pseudoTracking_fullSim_fullDigi.pool.root
 echo  "art-result: $? histcomp"
