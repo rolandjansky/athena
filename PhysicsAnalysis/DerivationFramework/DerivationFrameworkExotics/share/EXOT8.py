@@ -25,7 +25,7 @@ thinningTools=[]
 #########################################
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 EXOT8MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                   = "EXOT8MuonTPThinningTool",
-                                                                         ThinningService        = EXOT8ThinningHelper.ThinningSvc(),
+                                                                         ThinningService        = "EXOT8ThinningSvc",
                                                                          MuonKey                = "Muons",
                                                                          InDetTrackParticlesKey = "InDetTrackParticles",
                                                                          SelectionString        = "Muons.pt > 500*GeV", # Remove tracks with high pt cut
@@ -84,7 +84,7 @@ thinningTools.append(EXOT8ak10UntrimmedThinningTool)
 #########################################
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
 EXOT8TruthTool = DerivationFramework__MenuTruthThinning(name                         = "EXOT8TruthTool",
-                                                        ThinningService              = EXOT8ThinningHelper.ThinningSvc(),
+                                                        ThinningService              = "EXOT8ThinningSvc",
                                                         WritePartons                 = False,
                                                         WriteHadrons                 = False,
                                                         WriteBHadrons                = True,
@@ -247,9 +247,6 @@ addVRJets(exot8Seq, "AntiKtVR30Rmax4Rmin02Track", "GhostVR30Rmax4Rmin02TrackJet"
 # use alias for VR jets
 from BTagging.BTaggingFlags import BTaggingFlags
 BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
-
-from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
-FlavorTagInit(JetCollections = ["AntiKtVR30Rmax4Rmin02TrackJets"], Sequencer = exot8Seq)
 
 #====================================================================
 # Apply jet calibration
