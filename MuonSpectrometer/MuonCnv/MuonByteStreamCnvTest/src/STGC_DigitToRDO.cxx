@@ -51,7 +51,11 @@ StatusCode STGC_DigitToRDO::execute()
     
       for (const sTgcDigit* digit : *digitColl ){
         Identifier id = digit->identify();
-        STGC_RawData* rdo = new STGC_RawData(id);
+	uint16_t bcTag = digit->bcTag();
+	float time   = digit->time();
+	float charge = digit->charge();
+	bool isDead = digit->isDead();
+        STGC_RawData* rdo = new STGC_RawData(id, bcTag, time, charge, isDead);
         coll->push_back(rdo);
       }
     }

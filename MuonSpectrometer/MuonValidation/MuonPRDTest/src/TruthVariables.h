@@ -41,10 +41,7 @@ class TruthVariables : public ValAlgVariables
 
   ~TruthVariables()
   {
-    if( (this->deleteVariables()).isFailure() ){
-      ATH_MSG_ERROR("Failing to delete TruthVariables.");
-      throw;
-    }
+    deleteVariables();
   }
 
   StatusCode initializeVariables();
@@ -56,7 +53,7 @@ class TruthVariables : public ValAlgVariables
     ATH_MSG_ERROR("No Helper for TruthVariables.");
   }
 
-  StatusCode deleteVariables();
+  void deleteVariables();
   StatusCode clearVariables();
 
   int m_Truth_nVertices;

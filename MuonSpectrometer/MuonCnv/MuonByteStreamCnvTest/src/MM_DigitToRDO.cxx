@@ -31,17 +31,28 @@ StatusCode MM_DigitToRDO::initialize()
 
 StatusCode MM_DigitToRDO::execute()
 {  
+  
   using namespace Muon;
   ATH_MSG_DEBUG( "in execute()"  );
   SG::WriteHandle<MM_RawDataContainer> rdos (m_rdoContainer);
   SG::ReadHandle<MmDigitContainer> digits (m_digitContainer);
+
   ATH_CHECK( rdos.record(std::unique_ptr<MM_RawDataContainer>(new MM_RawDataContainer(m_idHelper->module_hash_max())) ) );
 
   if (digits.isValid()){
     for (const MmDigitCollection* digitColl : *digits ){
-    
-      // Making some assumptions here that digit hash == RDO hash. 
-      IdentifierHash hash = digitColl->identifierHash();
+
+      // the identifier of the digit collection is the detector element Id ( multilayer granularity )
+      Identifier digitId = digitColl->identify();
+
+      // get the hash of the RDO collection
+      IdentifierHash hash;
+      int getRdoCollHash = m_idHelper->get_module_hash(digitId,hash);
+      if ( getRdoCollHash!=0 ) {
+	ATH_MSG_ERROR("Could not get the module hash Id");
+	continue;
+      }
+
       MM_RawDataCollection* coll = new MM_RawDataCollection(hash);
       if (rdos->addCollection(coll,hash).isFailure() ){
         ATH_MSG_WARNING("Failed to add collection with hash " << (int)hash );
@@ -51,9 +62,24 @@ StatusCode MM_DigitToRDO::execute()
     
       for (const MmDigit* digit : *digitColl ){
         Identifier id = digit->identify();
-        MM_RawData* rdo = new MM_RawData(id);
-        coll->push_back(rdo);
+
+	// for now keep the digit structure as vector of firing strips
+	// (will have to be reviewed )
+	// number of strips
+	unsigned int nstrips = digit->stripResponsePosition().size();
+
+	for ( unsigned int i=0 ; i<nstrips ; ++i ) {
+
+	  MM_RawData* rdo = new MM_RawData(id,
+					   digit->stripResponsePosition().at(i),
+					   digit->stripResponseTime().at(i),
+					   digit->stripResponseCharge().at(i));
+
+	  coll->push_back(rdo);
+
+	}
       }
+
     }
   } else {
     ATH_MSG_WARNING("Unable to find MM digits");

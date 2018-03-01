@@ -41,10 +41,7 @@ class CSCDigitVariables : public ValAlgVariables
 
   ~CSCDigitVariables()
   {
-    if( (this->deleteVariables()).isFailure() ){
-      ATH_MSG_ERROR("Failing to delete CSCDigitVariables.");
-      throw;
-    }
+    deleteVariables();
   }
 
   StatusCode initializeVariables();
@@ -60,7 +57,7 @@ class CSCDigitVariables : public ValAlgVariables
     }
   }
 
-  StatusCode deleteVariables();
+  void deleteVariables();
   StatusCode clearVariables();
 
   const CscIdHelper* m_CscIdHelper;

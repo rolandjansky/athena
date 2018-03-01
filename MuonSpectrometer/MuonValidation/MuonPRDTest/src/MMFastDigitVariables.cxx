@@ -101,7 +101,7 @@ StatusCode MMFastDigitVariables::fillVariables()
   return StatusCode::SUCCESS;
 }
 
-StatusCode MMFastDigitVariables::deleteVariables()
+void MMFastDigitVariables::deleteVariables()
 {
   delete m_NSWMM_fdg_stationName;
   delete m_NSWMM_fdg_stationEta;
@@ -142,7 +142,7 @@ StatusCode MMFastDigitVariables::deleteVariables()
   m_NSWMM_fdg_truth_hitOnSurfaceX = nullptr; 
   m_NSWMM_fdg_truth_hitOnSurfaceY = nullptr;
 
-  return StatusCode::SUCCESS;
+  return;
 }
 
 

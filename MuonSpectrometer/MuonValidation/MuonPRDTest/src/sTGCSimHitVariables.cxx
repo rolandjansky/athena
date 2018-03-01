@@ -326,7 +326,7 @@ StatusCode sTGCSimHitVariables::clearVariables()
   return StatusCode::SUCCESS;
 }
 
-StatusCode sTGCSimHitVariables::deleteVariables() 
+void sTGCSimHitVariables::deleteVariables() 
 { 
   delete m_NSWsTGC_trackId;
   delete m_NSWsTGC_truthEl;
@@ -450,7 +450,7 @@ StatusCode sTGCSimHitVariables::deleteVariables()
   m_NSWsTGC_off_channel_type = nullptr;
   m_NSWsTGC_off_channel      = nullptr;
 
-  return StatusCode::SUCCESS;
+  return;
 }
 
 StatusCode sTGCSimHitVariables::initializeVariables() 

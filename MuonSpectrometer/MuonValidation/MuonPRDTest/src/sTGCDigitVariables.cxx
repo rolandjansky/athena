@@ -357,7 +357,7 @@ StatusCode sTGCDigitVariables::initializeVariables()
 
 /** ---------- freeing resources and resetting pointers */
 /** ---------- to be called on finalize level of main alg */
-StatusCode sTGCDigitVariables::deleteVariables()
+void sTGCDigitVariables::deleteVariables()
 {
 
   delete m_NSWsTGC_dig_stationName;
@@ -458,5 +458,5 @@ StatusCode sTGCDigitVariables::deleteVariables()
   m_NSWsTGC_dig_truth_globalPosZ = nullptr;
   m_NSWsTGC_dig_truth_XZ_angle   = nullptr;
 
-  return StatusCode::SUCCESS;
+  return;
 }

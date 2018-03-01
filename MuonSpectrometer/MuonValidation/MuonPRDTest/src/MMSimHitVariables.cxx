@@ -326,7 +326,7 @@ StatusCode MMSimHitVariables::clearVariables()
   return StatusCode::SUCCESS;
 }
 
-StatusCode MMSimHitVariables::deleteVariables() 
+void MMSimHitVariables::deleteVariables() 
 { 
   delete m_NSWMM_globalTime;
   delete m_NSWMM_hitGlobalPositionX;
@@ -432,7 +432,7 @@ StatusCode MMSimHitVariables::deleteVariables()
   m_NSWMM_off_gas_gap = nullptr;
   m_NSWMM_off_channel = nullptr;
 
-  return StatusCode::SUCCESS;
+  return;
 }
 
 StatusCode MMSimHitVariables::initializeVariables() 

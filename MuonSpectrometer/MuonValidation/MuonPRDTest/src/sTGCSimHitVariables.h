@@ -76,10 +76,7 @@ class sTGCSimHitVariables : public ValAlgVariables
 
   ~sTGCSimHitVariables()
   {
-    if( (this->deleteVariables()).isFailure() ){
-      ATH_MSG_ERROR("Failing to delete sTGCSimHitVariables.");
-      throw;
-    }
+    this->deleteVariables();
   }
 
 
@@ -96,7 +93,7 @@ class sTGCSimHitVariables : public ValAlgVariables
     }
   }
 
-  StatusCode deleteVariables();
+  void deleteVariables();
   StatusCode clearVariables();
 
   const sTgcIdHelper* m_sTgcIdHelper;

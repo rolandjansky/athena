@@ -35,10 +35,7 @@ class MuEntryVariables : public ValAlgVariables
 
   ~MuEntryVariables()
   {
-    if( (this->deleteVariables()).isFailure() ){
-      ATH_MSG_ERROR("Failing to delete MuEntryVariables.");
-      throw;
-    }
+    deleteVariables();
   }
 
   StatusCode initializeVariables();
@@ -50,7 +47,7 @@ class MuEntryVariables : public ValAlgVariables
     ATH_MSG_ERROR("No Helper for MuEntryVariables.");
   }
 
-  StatusCode deleteVariables();
+  void deleteVariables();
   StatusCode clearVariables();
 
   int m_MuEntry_nParticles;  

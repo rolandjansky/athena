@@ -105,7 +105,7 @@ StatusCode sTGCFastDigitVariables::fillVariables()
   return StatusCode::SUCCESS;
 }
 
-StatusCode sTGCFastDigitVariables::deleteVariables()
+void sTGCFastDigitVariables::deleteVariables()
 {
   delete m_NSWsTGC_fdg_stationName;
   delete m_NSWsTGC_fdg_stationEta;
@@ -151,7 +151,7 @@ StatusCode sTGCFastDigitVariables::deleteVariables()
   m_NSWsTGC_fdg_truth_hitOnSurfaceX = nullptr;
   m_NSWsTGC_fdg_truth_hitOnSurfaceY = nullptr;
 
-  return StatusCode::SUCCESS;
+  return;
 }
 
 

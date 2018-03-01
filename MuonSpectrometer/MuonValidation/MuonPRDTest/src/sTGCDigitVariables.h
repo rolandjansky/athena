@@ -72,10 +72,7 @@ class sTGCDigitVariables : public ValAlgVariables
 
   ~sTGCDigitVariables()
   {
-    if( (this->deleteVariables()).isFailure() ){
-      ATH_MSG_ERROR("Failing to delete sTGCDigitVariables.");
-      throw;
-    }
+    deleteVariables();
   }
 
   StatusCode initializeVariables();
@@ -91,7 +88,7 @@ class sTGCDigitVariables : public ValAlgVariables
     }
   }
 
-  StatusCode deleteVariables();
+  void deleteVariables();
   StatusCode clearVariables();
 
   const sTgcIdHelper* m_sTgcIdHelper;

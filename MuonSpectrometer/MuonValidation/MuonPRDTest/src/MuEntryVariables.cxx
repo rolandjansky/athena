@@ -100,7 +100,7 @@ StatusCode MuEntryVariables::initializeVariables()
 
 /** ---------- freeing resources and resetting pointers */
 /** ---------- to be called on finalize level of main alg */
-StatusCode MuEntryVariables::deleteVariables()
+void MuEntryVariables::deleteVariables()
 {
 
   m_MuEntry_nParticles = 0;
@@ -127,5 +127,5 @@ StatusCode MuEntryVariables::deleteVariables()
   m_MuEntry_positionY = nullptr;
   m_MuEntry_positionZ = nullptr;
 
-  return StatusCode::SUCCESS;
+  return;
 }
