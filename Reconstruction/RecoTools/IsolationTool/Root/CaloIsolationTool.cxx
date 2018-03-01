@@ -790,6 +790,7 @@ namespace xAOD {
 
     // Now for super cluster : the improved one : only constituent clusters go in the core
     double topoCoreSC   = 0;
+    topoCore     = 0; // I overwrite this for a check of onlyEM case...
     if (egObj && egObj->caloCluster()->clusterSize() == CaloCluster::ClusterSize::SuperCluster) {
       ATH_MSG_DEBUG("Now trying the SC-based one");
       const std::vector<const CaloCluster*> assocClus = EgammaHelpers::getAssociatedTopoClusters(egObj->caloCluster());
@@ -816,6 +817,7 @@ namespace xAOD {
 	/// remove TileGap3
 	double ettg3 = cl->eSample(CaloSampling::TileGap3)*st;
 	et -= ettg3;
+	topoCore   += et; // different if onlyEM is true
 
 	/// if only EM
 	double emfrac = 1.;
