@@ -667,7 +667,7 @@ StatusCode PixelMainMon::fillHitsMon(void)  // Called once per event
   }
 
   if (!m_doOnline) {
-    for (int i = 0; i < PixLayer::COUNT; i++) {
+    for (int i = 0; i < PixLayer::COUNT - 1 + (int)(m_doIBL); i++) {  // not include IBL2D and IBL3D
       if (m_modocc_per_lumi[i]) {
         for (int phi = 0; phi < nmod_phi[i]; phi++) {
           for (int eta = 0; eta < nmod_eta[i]; eta++) {

@@ -640,9 +640,9 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="84" partition="1" name="L1_BPH-0DR4-EM7J15" complex_deadtime="0" definition="(0DR04-EM7ab-CJ15ab[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="84" partition="1" name="L1_BPH-0DR3-EM7J15" complex_deadtime="0" definition="(0DR03-EM7ab-CJ15ab[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
-        <TriggerCondition multi="1" name="0DR04-EM7ab-CJ15ab_x1" triggerthreshold="0DR04-EM7ab-CJ15ab"/>
+        <TriggerCondition multi="1" name="0DR03-EM7ab-CJ15ab_x1" triggerthreshold="0DR03-EM7ab-CJ15ab"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -988,10 +988,10 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="134" partition="1" name="L1_BPH-0DR4-EM7J15_MU6" complex_deadtime="0" definition="(MU6[x1]&amp;0DR04-EM7ab-CJ15ab[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="134" partition="1" name="L1_BPH-0DR3-EM7J15_MU6" complex_deadtime="0" definition="(MU6[x1]&amp;0DR03-EM7ab-CJ15ab[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="MU6_x1" triggerthreshold="MU6"/>
-        <TriggerCondition multi="1" name="0DR04-EM7ab-CJ15ab_x1" triggerthreshold="0DR04-EM7ab-CJ15ab"/>
+        <TriggerCondition multi="1" name="0DR03-EM7ab-CJ15ab_x1" triggerthreshold="0DR03-EM7ab-CJ15ab"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -1154,10 +1154,10 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="156" partition="1" name="L1_BPH-0DR4-EM7J15_2MU4" complex_deadtime="0" definition="(MU4[x2]&amp;0DR04-EM7ab-CJ15ab[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+    <TriggerItem ctpid="156" partition="1" name="L1_BPH-0DR3-EM7J15_2MU4" complex_deadtime="0" definition="(MU4[x2]&amp;0DR03-EM7ab-CJ15ab[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="2" name="MU4_x2" triggerthreshold="MU4"/>
-        <TriggerCondition multi="1" name="0DR04-EM7ab-CJ15ab_x1" triggerthreshold="0DR04-EM7ab-CJ15ab"/>
+        <TriggerCondition multi="1" name="0DR03-EM7ab-CJ15ab_x1" triggerthreshold="0DR03-EM7ab-CJ15ab"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -1338,20 +1338,6 @@
       <AND>
         <TriggerCondition multi="1" name="J40.0ETA25_x1" triggerthreshold="J40.0ETA25"/>
         <TriggerCondition multi="1" name="XE50_x1" triggerthreshold="XE50"/>
-        <InternalTrigger name="BGRP0"/>
-        <InternalTrigger name="BGRP1"/>
-      </AND>
-    </TriggerItem>
-    <TriggerItem ctpid="179" partition="1" name="L1_BPH-8M15-MU6MU4" complex_deadtime="0" definition="(8INVM15-MU6ab-MU4ab[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
-      <AND>
-        <TriggerCondition multi="1" name="8INVM15-MU6ab-MU4ab_x1" triggerthreshold="8INVM15-MU6ab-MU4ab"/>
-        <InternalTrigger name="BGRP0"/>
-        <InternalTrigger name="BGRP1"/>
-      </AND>
-    </TriggerItem>
-    <TriggerItem ctpid="180" partition="1" name="L1_BPH-8M15-2MU6" complex_deadtime="0" definition="(8INVM15-2MU6ab[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
-      <AND>
-        <TriggerCondition multi="1" name="8INVM15-2MU6ab_x1" triggerthreshold="8INVM15-2MU6ab"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -2259,30 +2245,6 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="302" partition="1" name="L1_MU6MU4-BO" complex_deadtime="0" definition="(MULT-CMU4ab[x2]&amp;MULT-CMU6ab[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:111|HF:000">
-      <AND>
-        <TriggerCondition multi="2" name="MULT-CMU4ab_x2" triggerthreshold="MULT-CMU4ab"/>
-        <TriggerCondition multi="1" name="MULT-CMU6ab_x1" triggerthreshold="MULT-CMU6ab"/>
-        <InternalTrigger name="BGRP0"/>
-        <InternalTrigger name="BGRP1"/>
-      </AND>
-    </TriggerItem>
-    <TriggerItem ctpid="303" partition="1" name="L1_2MU4-B" complex_deadtime="0" definition="(MU4[x2]&amp;MULT-CMU4ab[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
-      <AND>
-        <TriggerCondition multi="2" name="MU4_x2" triggerthreshold="MU4"/>
-        <TriggerCondition multi="1" name="MULT-CMU4ab_x1" triggerthreshold="MULT-CMU4ab"/>
-        <InternalTrigger name="BGRP0"/>
-        <InternalTrigger name="BGRP1"/>
-      </AND>
-    </TriggerItem>
-    <TriggerItem ctpid="304" partition="1" name="L1_2MU6-B" complex_deadtime="0" definition="(MU6[x2]&amp;MULT-CMU6ab[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
-      <AND>
-        <TriggerCondition multi="2" name="MU6_x2" triggerthreshold="MU6"/>
-        <TriggerCondition multi="1" name="MULT-CMU6ab_x1" triggerthreshold="MULT-CMU6ab"/>
-        <InternalTrigger name="BGRP0"/>
-        <InternalTrigger name="BGRP1"/>
-      </AND>
-    </TriggerItem>
     <TriggerItem ctpid="305" partition="1" name="L1_J15.0ETA25_2J15.31ETA49" complex_deadtime="0" definition="(J15.0ETA25[x1]&amp;J15.31ETA49[x2]&amp;BGRP0&amp;BGRP1)" trigger_type="10000100" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="J15.0ETA25_x1" triggerthreshold="J15.0ETA25"/>
@@ -2307,29 +2269,6 @@
           <TriggerCondition multi="2" name="MBTS_C_x2" triggerthreshold="MBTS_C"/>
           <TriggerCondition multi="1" name="MBTS_C_x1" triggerthreshold="MBTS_C"/>
         </OR>
-        <InternalTrigger name="BGRP0"/>
-        <InternalTrigger name="BGRP1"/>
-      </AND>
-    </TriggerItem>
-    <TriggerItem ctpid="312" partition="1" name="L1_2MU4-BO" complex_deadtime="0" definition="(MULT-CMU4ab[x2]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
-      <AND>
-        <TriggerCondition multi="2" name="MULT-CMU4ab_x2" triggerthreshold="MULT-CMU4ab"/>
-        <InternalTrigger name="BGRP0"/>
-        <InternalTrigger name="BGRP1"/>
-      </AND>
-    </TriggerItem>
-    <TriggerItem ctpid="313" partition="1" name="L1_2MU6-BO" complex_deadtime="0" definition="(MULT-CMU6ab[x2]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
-      <AND>
-        <TriggerCondition multi="2" name="MULT-CMU6ab_x2" triggerthreshold="MULT-CMU6ab"/>
-        <InternalTrigger name="BGRP0"/>
-        <InternalTrigger name="BGRP1"/>
-      </AND>
-    </TriggerItem>
-    <TriggerItem ctpid="314" partition="1" name="L1_MU6_2MU4-B" complex_deadtime="0" definition="(MU6[x1]&amp;MU4[x2]&amp;MULT-CMU4ab[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
-      <AND>
-        <TriggerCondition multi="1" name="MU6_x1" triggerthreshold="MU6"/>
-        <TriggerCondition multi="2" name="MU4_x2" triggerthreshold="MU4"/>
-        <TriggerCondition multi="1" name="MULT-CMU4ab_x1" triggerthreshold="MULT-CMU4ab"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -2934,6 +2873,13 @@
         <InternalTrigger name="BGRP6"/>
       </AND>
     </TriggerItem>
+    <TriggerItem ctpid="407" partition="1" name="L1_AFP_NSA" complex_deadtime="0" definition="(AFP_NSA[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+      <AND>
+        <TriggerCondition multi="1" name="AFP_NSA_x1" triggerthreshold="AFP_NSA"/>
+        <InternalTrigger name="BGRP0"/>
+        <InternalTrigger name="BGRP1"/>
+      </AND>
+    </TriggerItem>
     <TriggerItem ctpid="408" partition="1" name="L1_TAU20IM_2TAU12IM_4J12" complex_deadtime="0" definition="(HA20IM[x1]&amp;HA12IM[x2]&amp;J12[x4]&amp;BGRP0&amp;BGRP1)" trigger_type="10000100" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="HA20IM_x1" triggerthreshold="HA20IM"/>
@@ -2946,6 +2892,13 @@
     <TriggerItem ctpid="409" partition="1" name="L1_2EM12" complex_deadtime="0" definition="(EM12[x2]&amp;BGRP0&amp;BGRP1)" trigger_type="10000100" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="2" name="EM12_x2" triggerthreshold="EM12"/>
+        <InternalTrigger name="BGRP0"/>
+        <InternalTrigger name="BGRP1"/>
+      </AND>
+    </TriggerItem>
+    <TriggerItem ctpid="410" partition="1" name="L1_AFP_NSC" complex_deadtime="0" definition="(AFP_NSC[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+      <AND>
+        <TriggerCondition multi="1" name="AFP_NSC_x1" triggerthreshold="AFP_NSC"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -2978,6 +2931,13 @@
         <InternalTrigger name="BGRP6"/>
       </AND>
     </TriggerItem>
+    <TriggerItem ctpid="415" partition="1" name="L1_AFP_FSA_SIT" complex_deadtime="0" definition="(AFP_FSA_SIT[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+      <AND>
+        <TriggerCondition multi="1" name="AFP_FSA_SIT_x1" triggerthreshold="AFP_FSA_SIT"/>
+        <InternalTrigger name="BGRP0"/>
+        <InternalTrigger name="BGRP1"/>
+      </AND>
+    </TriggerItem>
     <TriggerItem ctpid="416" partition="1" name="L1_HT150-JJ15.ETA49_MJJ-400" complex_deadtime="0" definition="(HT150-AJj15all.ETA49[x1]&amp;400INVM9999-AJ30s6-AJ20s6[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="HT150-AJj15all.ETA49_x1" triggerthreshold="HT150-AJj15all.ETA49"/>
@@ -2989,6 +2949,13 @@
     <TriggerItem ctpid="417" partition="1" name="L1_RD3_FTK" complex_deadtime="0" definition="(RNDM3&amp;BGRP0&amp;BGRP1)" trigger_type="10100000" monitor="LF:000|HF:000">
       <AND>
         <InternalTrigger name="RNDM3"/>
+        <InternalTrigger name="BGRP0"/>
+        <InternalTrigger name="BGRP1"/>
+      </AND>
+    </TriggerItem>
+    <TriggerItem ctpid="418" partition="1" name="L1_AFP_FSC_SIT" complex_deadtime="0" definition="(AFP_FSC_SIT[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+      <AND>
+        <TriggerCondition multi="1" name="AFP_FSC_SIT_x1" triggerthreshold="AFP_FSC_SIT"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -3110,6 +3077,34 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
+    <TriggerItem ctpid="434" partition="1" name="L1_EM7_AFP_A_OR_C" complex_deadtime="0" definition="(((AFP_NSA[x1]&amp;AFP_FSA_SIT[x1])|(AFP_NSC[x1]&amp;AFP_FSC_SIT[x1]))&amp;EM7[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+      <AND>
+        <OR>
+          <AND>
+            <TriggerCondition multi="1" name="AFP_NSA_x1" triggerthreshold="AFP_NSA"/>
+            <TriggerCondition multi="1" name="AFP_FSA_SIT_x1" triggerthreshold="AFP_FSA_SIT"/>
+          </AND>
+          <AND>
+            <TriggerCondition multi="1" name="AFP_NSC_x1" triggerthreshold="AFP_NSC"/>
+            <TriggerCondition multi="1" name="AFP_FSC_SIT_x1" triggerthreshold="AFP_FSC_SIT"/>
+          </AND>
+        </OR>
+        <TriggerCondition multi="1" name="EM7_x1" triggerthreshold="EM7"/>
+        <InternalTrigger name="BGRP0"/>
+        <InternalTrigger name="BGRP1"/>
+      </AND>
+    </TriggerItem>
+    <TriggerItem ctpid="435" partition="1" name="L1_EM7_AFP_A_AND_C" complex_deadtime="0" definition="(AFP_NSA[x1]&amp;AFP_FSA_SIT[x1]&amp;AFP_NSC[x1]&amp;AFP_FSC_SIT[x1]&amp;EM7[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+      <AND>
+        <TriggerCondition multi="1" name="AFP_NSA_x1" triggerthreshold="AFP_NSA"/>
+        <TriggerCondition multi="1" name="AFP_FSA_SIT_x1" triggerthreshold="AFP_FSA_SIT"/>
+        <TriggerCondition multi="1" name="AFP_NSC_x1" triggerthreshold="AFP_NSC"/>
+        <TriggerCondition multi="1" name="AFP_FSC_SIT_x1" triggerthreshold="AFP_FSC_SIT"/>
+        <TriggerCondition multi="1" name="EM7_x1" triggerthreshold="EM7"/>
+        <InternalTrigger name="BGRP0"/>
+        <InternalTrigger name="BGRP1"/>
+      </AND>
+    </TriggerItem>
     <TriggerItem ctpid="436" partition="1" name="L1_AFP_A_OR_C_J12" complex_deadtime="0" definition="(((AFP_NSA[x1]&amp;AFP_FSA_SIT[x1])|(AFP_NSC[x1]&amp;AFP_FSC_SIT[x1]))&amp;J12[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
         <OR>
@@ -3227,6 +3222,23 @@
         <InternalTrigger name="BGRP1"/>
       </AND>
     </TriggerItem>
+    <TriggerItem ctpid="445" partition="1" name="L1_EM12_AFP_A_OR_C" complex_deadtime="0" definition="(((AFP_NSA[x1]&amp;AFP_FSA_SIT[x1])|(AFP_NSC[x1]&amp;AFP_FSC_SIT[x1]))&amp;EM12[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+      <AND>
+        <OR>
+          <AND>
+            <TriggerCondition multi="1" name="AFP_NSA_x1" triggerthreshold="AFP_NSA"/>
+            <TriggerCondition multi="1" name="AFP_FSA_SIT_x1" triggerthreshold="AFP_FSA_SIT"/>
+          </AND>
+          <AND>
+            <TriggerCondition multi="1" name="AFP_NSC_x1" triggerthreshold="AFP_NSC"/>
+            <TriggerCondition multi="1" name="AFP_FSC_SIT_x1" triggerthreshold="AFP_FSC_SIT"/>
+          </AND>
+        </OR>
+        <TriggerCondition multi="1" name="EM12_x1" triggerthreshold="EM12"/>
+        <InternalTrigger name="BGRP0"/>
+        <InternalTrigger name="BGRP1"/>
+      </AND>
+    </TriggerItem>
     <TriggerItem ctpid="446" partition="1" name="L1_AFP_A_AND_C_SPECTOF_J75" complex_deadtime="0" definition="(AFP_FSA_TOF[x1]&amp;AFP_FSC_TOF[x1]&amp;J75[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="AFP_FSA_TOF_x1" triggerthreshold="AFP_FSA_TOF"/>
@@ -3306,6 +3318,17 @@
       <AND>
         <TriggerCondition multi="1" name="MU4_x1" triggerthreshold="MU4"/>
         <TriggerCondition multi="1" name="XE60_x1" triggerthreshold="XE60"/>
+        <InternalTrigger name="BGRP0"/>
+        <InternalTrigger name="BGRP1"/>
+      </AND>
+    </TriggerItem>
+    <TriggerItem ctpid="455" partition="1" name="L1_EM12_AFP_A_AND_C" complex_deadtime="0" definition="(AFP_NSA[x1]&amp;AFP_FSA_SIT[x1]&amp;AFP_NSC[x1]&amp;AFP_FSC_SIT[x1]&amp;EM12[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000000" monitor="LF:000|HF:000">
+      <AND>
+        <TriggerCondition multi="1" name="AFP_NSA_x1" triggerthreshold="AFP_NSA"/>
+        <TriggerCondition multi="1" name="AFP_FSA_SIT_x1" triggerthreshold="AFP_FSA_SIT"/>
+        <TriggerCondition multi="1" name="AFP_NSC_x1" triggerthreshold="AFP_NSC"/>
+        <TriggerCondition multi="1" name="AFP_FSC_SIT_x1" triggerthreshold="AFP_FSC_SIT"/>
+        <TriggerCondition multi="1" name="EM12_x1" triggerthreshold="EM12"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
       </AND>
@@ -3875,8 +3898,8 @@
     <Prescale ctpid="176" cut="000001" value="1"/>
     <Prescale ctpid="177" cut="000001" value="1"/>
     <Prescale ctpid="178" cut="-000001" value="-1"/>
-    <Prescale ctpid="179" cut="000001" value="1"/>
-    <Prescale ctpid="180" cut="000001" value="1"/>
+    <Prescale ctpid="179" cut="-000001" value="-1"/>
+    <Prescale ctpid="180" cut="-000001" value="-1"/>
     <Prescale ctpid="181" cut="000001" value="1"/>
     <Prescale ctpid="182" cut="000001" value="1"/>
     <Prescale ctpid="183" cut="000001" value="1"/>
@@ -3998,9 +4021,9 @@
     <Prescale ctpid="299" cut="000001" value="1"/>
     <Prescale ctpid="300" cut="000001" value="1"/>
     <Prescale ctpid="301" cut="000001" value="1"/>
-    <Prescale ctpid="302" cut="000001" value="1"/>
-    <Prescale ctpid="303" cut="000001" value="1"/>
-    <Prescale ctpid="304" cut="000001" value="1"/>
+    <Prescale ctpid="302" cut="-000001" value="-1"/>
+    <Prescale ctpid="303" cut="-000001" value="-1"/>
+    <Prescale ctpid="304" cut="-000001" value="-1"/>
     <Prescale ctpid="305" cut="000001" value="1"/>
     <Prescale ctpid="306" cut="-000001" value="-1"/>
     <Prescale ctpid="307" cut="-000001" value="-1"/>
@@ -4008,9 +4031,9 @@
     <Prescale ctpid="309" cut="000001" value="1"/>
     <Prescale ctpid="310" cut="-000001" value="-1"/>
     <Prescale ctpid="311" cut="-000001" value="-1"/>
-    <Prescale ctpid="312" cut="000001" value="1"/>
-    <Prescale ctpid="313" cut="000001" value="1"/>
-    <Prescale ctpid="314" cut="000001" value="1"/>
+    <Prescale ctpid="312" cut="-000001" value="-1"/>
+    <Prescale ctpid="313" cut="-000001" value="-1"/>
+    <Prescale ctpid="314" cut="-000001" value="-1"/>
     <Prescale ctpid="315" cut="000001" value="1"/>
     <Prescale ctpid="316" cut="000001" value="1"/>
     <Prescale ctpid="317" cut="000001" value="1"/>
@@ -4103,18 +4126,18 @@
     <Prescale ctpid="404" cut="000001" value="1"/>
     <Prescale ctpid="405" cut="000001" value="1"/>
     <Prescale ctpid="406" cut="000001" value="1"/>
-    <Prescale ctpid="407" cut="-000001" value="-1"/>
+    <Prescale ctpid="407" cut="000001" value="1"/>
     <Prescale ctpid="408" cut="000001" value="1"/>
     <Prescale ctpid="409" cut="000001" value="1"/>
-    <Prescale ctpid="410" cut="-000001" value="-1"/>
+    <Prescale ctpid="410" cut="000001" value="1"/>
     <Prescale ctpid="411" cut="000001" value="1"/>
     <Prescale ctpid="412" cut="000001" value="1"/>
     <Prescale ctpid="413" cut="000001" value="1"/>
     <Prescale ctpid="414" cut="000001" value="1"/>
-    <Prescale ctpid="415" cut="-000001" value="-1"/>
+    <Prescale ctpid="415" cut="000001" value="1"/>
     <Prescale ctpid="416" cut="000001" value="1"/>
     <Prescale ctpid="417" cut="000001" value="1"/>
-    <Prescale ctpid="418" cut="-000001" value="-1"/>
+    <Prescale ctpid="418" cut="000001" value="1"/>
     <Prescale ctpid="419" cut="000001" value="1"/>
     <Prescale ctpid="420" cut="000001" value="1"/>
     <Prescale ctpid="421" cut="000001" value="1"/>
@@ -4130,8 +4153,8 @@
     <Prescale ctpid="431" cut="000001" value="1"/>
     <Prescale ctpid="432" cut="000001" value="1"/>
     <Prescale ctpid="433" cut="000001" value="1"/>
-    <Prescale ctpid="434" cut="-000001" value="-1"/>
-    <Prescale ctpid="435" cut="-000001" value="-1"/>
+    <Prescale ctpid="434" cut="000001" value="1"/>
+    <Prescale ctpid="435" cut="000001" value="1"/>
     <Prescale ctpid="436" cut="000001" value="1"/>
     <Prescale ctpid="437" cut="000001" value="1"/>
     <Prescale ctpid="438" cut="000001" value="1"/>
@@ -4141,7 +4164,7 @@
     <Prescale ctpid="442" cut="000001" value="1"/>
     <Prescale ctpid="443" cut="000001" value="1"/>
     <Prescale ctpid="444" cut="000001" value="1"/>
-    <Prescale ctpid="445" cut="-000001" value="-1"/>
+    <Prescale ctpid="445" cut="000001" value="1"/>
     <Prescale ctpid="446" cut="000001" value="1"/>
     <Prescale ctpid="447" cut="000001" value="1"/>
     <Prescale ctpid="448" cut="000001" value="1"/>
@@ -4151,7 +4174,7 @@
     <Prescale ctpid="452" cut="000001" value="1"/>
     <Prescale ctpid="453" cut="000001" value="1"/>
     <Prescale ctpid="454" cut="000001" value="1"/>
-    <Prescale ctpid="455" cut="-000001" value="-1"/>
+    <Prescale ctpid="455" cut="000001" value="1"/>
     <Prescale ctpid="456" cut="000001" value="1"/>
     <Prescale ctpid="457" cut="000001" value="1"/>
     <Prescale ctpid="458" cut="000001" value="1"/>
@@ -4216,7 +4239,13 @@
     <TriggerCounter name="1AFP_FSA_SIT" type="CTPIN">
       <TriggerCondition name="1AFP_FSA_SIT" triggerthreshold="AFP_FSA_SIT" multi="1"/>
     </TriggerCounter>
+    <TriggerCounter name="1AFP_FSA_SIT" type="CTPMON">
+      <TriggerCondition name="1AFP_FSA_SIT" triggerthreshold="AFP_FSA_SIT" multi="1"/>
+    </TriggerCounter>
     <TriggerCounter name="1AFP_FSA_TOF" type="CTPIN">
+      <TriggerCondition name="1AFP_FSA_TOF" triggerthreshold="AFP_FSA_TOF" multi="1"/>
+    </TriggerCounter>
+    <TriggerCounter name="1AFP_FSA_TOF" type="CTPMON">
       <TriggerCondition name="1AFP_FSA_TOF" triggerthreshold="AFP_FSA_TOF" multi="1"/>
     </TriggerCounter>
     <TriggerCounter name="1AFP_FSC_LOG" type="CTPIN">
@@ -4225,13 +4254,25 @@
     <TriggerCounter name="1AFP_FSC_SIT" type="CTPIN">
       <TriggerCondition name="1AFP_FSC_SIT" triggerthreshold="AFP_FSC_SIT" multi="1"/>
     </TriggerCounter>
+    <TriggerCounter name="1AFP_FSC_SIT" type="CTPMON">
+      <TriggerCondition name="1AFP_FSC_SIT" triggerthreshold="AFP_FSC_SIT" multi="1"/>
+    </TriggerCounter>
     <TriggerCounter name="1AFP_FSC_TOF" type="CTPIN">
+      <TriggerCondition name="1AFP_FSC_TOF" triggerthreshold="AFP_FSC_TOF" multi="1"/>
+    </TriggerCounter>
+    <TriggerCounter name="1AFP_FSC_TOF" type="CTPMON">
       <TriggerCondition name="1AFP_FSC_TOF" triggerthreshold="AFP_FSC_TOF" multi="1"/>
     </TriggerCounter>
     <TriggerCounter name="1AFP_NSA" type="CTPIN">
       <TriggerCondition name="1AFP_NSA" triggerthreshold="AFP_NSA" multi="1"/>
     </TriggerCounter>
+    <TriggerCounter name="1AFP_NSA" type="CTPMON">
+      <TriggerCondition name="1AFP_NSA" triggerthreshold="AFP_NSA" multi="1"/>
+    </TriggerCounter>
     <TriggerCounter name="1AFP_NSC" type="CTPIN">
+      <TriggerCondition name="1AFP_NSC" triggerthreshold="AFP_NSC" multi="1"/>
+    </TriggerCounter>
+    <TriggerCounter name="1AFP_NSC" type="CTPMON">
       <TriggerCondition name="1AFP_NSC" triggerthreshold="AFP_NSC" multi="1"/>
     </TriggerCounter>
     <TriggerCounter name="1BCM_AtoC" type="CTPIN">
@@ -4267,7 +4308,13 @@
     <TriggerCounter name="1BPTX0" type="CTPIN">
       <TriggerCondition name="1BPTX0" triggerthreshold="BPTX0" multi="1"/>
     </TriggerCounter>
+    <TriggerCounter name="1BPTX0" type="CTPMON">
+      <TriggerCondition name="1BPTX0" triggerthreshold="BPTX0" multi="1"/>
+    </TriggerCounter>
     <TriggerCounter name="1BPTX1" type="CTPIN">
+      <TriggerCondition name="1BPTX1" triggerthreshold="BPTX1" multi="1"/>
+    </TriggerCounter>
+    <TriggerCounter name="1BPTX1" type="CTPMON">
       <TriggerCondition name="1BPTX1" triggerthreshold="BPTX1" multi="1"/>
     </TriggerCounter>
     <TriggerCounter name="1CAL0" type="CTPIN">
@@ -4303,22 +4350,43 @@
     <TriggerCounter name="1EM12" type="CTPIN">
       <TriggerCondition name="1EM12" triggerthreshold="EM12" multi="1"/>
     </TriggerCounter>
+    <TriggerCounter name="1EM12" type="CTPMON">
+      <TriggerCondition name="1EM12" triggerthreshold="EM12" multi="1"/>
+    </TriggerCounter>
     <TriggerCounter name="2EM12" type="CTPIN">
+      <TriggerCondition name="2EM12" triggerthreshold="EM12" multi="2"/>
+    </TriggerCounter>
+    <TriggerCounter name="2EM12" type="CTPMON">
       <TriggerCondition name="2EM12" triggerthreshold="EM12" multi="2"/>
     </TriggerCounter>
     <TriggerCounter name="3EM12" type="CTPIN">
       <TriggerCondition name="3EM12" triggerthreshold="EM12" multi="3"/>
     </TriggerCounter>
+    <TriggerCounter name="3EM12" type="CTPMON">
+      <TriggerCondition name="3EM12" triggerthreshold="EM12" multi="3"/>
+    </TriggerCounter>
     <TriggerCounter name="4EM12" type="CTPIN">
+      <TriggerCondition name="4EM12" triggerthreshold="EM12" multi="4"/>
+    </TriggerCounter>
+    <TriggerCounter name="4EM12" type="CTPMON">
       <TriggerCondition name="4EM12" triggerthreshold="EM12" multi="4"/>
     </TriggerCounter>
     <TriggerCounter name="5EM12" type="CTPIN">
       <TriggerCondition name="5EM12" triggerthreshold="EM12" multi="5"/>
     </TriggerCounter>
+    <TriggerCounter name="5EM12" type="CTPMON">
+      <TriggerCondition name="5EM12" triggerthreshold="EM12" multi="5"/>
+    </TriggerCounter>
     <TriggerCounter name="6EM12" type="CTPIN">
       <TriggerCondition name="6EM12" triggerthreshold="EM12" multi="6"/>
     </TriggerCounter>
+    <TriggerCounter name="6EM12" type="CTPMON">
+      <TriggerCondition name="6EM12" triggerthreshold="EM12" multi="6"/>
+    </TriggerCounter>
     <TriggerCounter name="7EM12" type="CTPIN">
+      <TriggerCondition name="7EM12" triggerthreshold="EM12" multi="7"/>
+    </TriggerCounter>
+    <TriggerCounter name="7EM12" type="CTPMON">
       <TriggerCondition name="7EM12" triggerthreshold="EM12" multi="7"/>
     </TriggerCounter>
     <TriggerCounter name="1EM15" type="CTPIN">
@@ -4532,9 +4600,6 @@
       <TriggerCondition name="7EM24VHIM" triggerthreshold="EM24VHIM" multi="7"/>
     </TriggerCounter>
     <TriggerCounter name="1EM3" type="CTPIN">
-      <TriggerCondition name="1EM3" triggerthreshold="EM3" multi="1"/>
-    </TriggerCounter>
-    <TriggerCounter name="1EM3" type="CTPMON">
       <TriggerCondition name="1EM3" triggerthreshold="EM3" multi="1"/>
     </TriggerCounter>
     <TriggerCounter name="2EM3" type="CTPIN">
@@ -5047,22 +5112,43 @@
     <TriggerCounter name="1J20" type="CTPIN">
       <TriggerCondition name="1J20" triggerthreshold="J20" multi="1"/>
     </TriggerCounter>
+    <TriggerCounter name="1J20" type="CTPMON">
+      <TriggerCondition name="1J20" triggerthreshold="J20" multi="1"/>
+    </TriggerCounter>
     <TriggerCounter name="2J20" type="CTPIN">
+      <TriggerCondition name="2J20" triggerthreshold="J20" multi="2"/>
+    </TriggerCounter>
+    <TriggerCounter name="2J20" type="CTPMON">
       <TriggerCondition name="2J20" triggerthreshold="J20" multi="2"/>
     </TriggerCounter>
     <TriggerCounter name="3J20" type="CTPIN">
       <TriggerCondition name="3J20" triggerthreshold="J20" multi="3"/>
     </TriggerCounter>
+    <TriggerCounter name="3J20" type="CTPMON">
+      <TriggerCondition name="3J20" triggerthreshold="J20" multi="3"/>
+    </TriggerCounter>
     <TriggerCounter name="4J20" type="CTPIN">
+      <TriggerCondition name="4J20" triggerthreshold="J20" multi="4"/>
+    </TriggerCounter>
+    <TriggerCounter name="4J20" type="CTPMON">
       <TriggerCondition name="4J20" triggerthreshold="J20" multi="4"/>
     </TriggerCounter>
     <TriggerCounter name="5J20" type="CTPIN">
       <TriggerCondition name="5J20" triggerthreshold="J20" multi="5"/>
     </TriggerCounter>
+    <TriggerCounter name="5J20" type="CTPMON">
+      <TriggerCondition name="5J20" triggerthreshold="J20" multi="5"/>
+    </TriggerCounter>
     <TriggerCounter name="6J20" type="CTPIN">
       <TriggerCondition name="6J20" triggerthreshold="J20" multi="6"/>
     </TriggerCounter>
+    <TriggerCounter name="6J20" type="CTPMON">
+      <TriggerCondition name="6J20" triggerthreshold="J20" multi="6"/>
+    </TriggerCounter>
     <TriggerCounter name="7J20" type="CTPIN">
+      <TriggerCondition name="7J20" triggerthreshold="J20" multi="7"/>
+    </TriggerCounter>
+    <TriggerCounter name="7J20" type="CTPMON">
       <TriggerCondition name="7J20" triggerthreshold="J20" multi="7"/>
     </TriggerCounter>
     <TriggerCounter name="1J20.28ETA31" type="CTPIN">
@@ -5260,7 +5346,13 @@
     <TriggerCounter name="1LUCID_A" type="CTPIN">
       <TriggerCondition name="1LUCID_A" triggerthreshold="LUCID_A" multi="1"/>
     </TriggerCounter>
+    <TriggerCounter name="1LUCID_A" type="CTPMON">
+      <TriggerCondition name="1LUCID_A" triggerthreshold="LUCID_A" multi="1"/>
+    </TriggerCounter>
     <TriggerCounter name="1LUCID_C" type="CTPIN">
+      <TriggerCondition name="1LUCID_C" triggerthreshold="LUCID_C" multi="1"/>
+    </TriggerCounter>
+    <TriggerCounter name="1LUCID_C" type="CTPMON">
       <TriggerCondition name="1LUCID_C" triggerthreshold="LUCID_C" multi="1"/>
     </TriggerCounter>
     <TriggerCounter name="1MBTS_A" type="CTPIN">
@@ -5290,37 +5382,73 @@
     <TriggerCounter name="1MBTS_A0" type="CTPIN">
       <TriggerCondition name="1MBTS_A0" triggerthreshold="MBTS_A0" multi="1"/>
     </TriggerCounter>
+    <TriggerCounter name="1MBTS_A0" type="CTPMON">
+      <TriggerCondition name="1MBTS_A0" triggerthreshold="MBTS_A0" multi="1"/>
+    </TriggerCounter>
     <TriggerCounter name="1MBTS_A1" type="CTPIN">
+      <TriggerCondition name="1MBTS_A1" triggerthreshold="MBTS_A1" multi="1"/>
+    </TriggerCounter>
+    <TriggerCounter name="1MBTS_A1" type="CTPMON">
       <TriggerCondition name="1MBTS_A1" triggerthreshold="MBTS_A1" multi="1"/>
     </TriggerCounter>
     <TriggerCounter name="1MBTS_A10" type="CTPIN">
       <TriggerCondition name="1MBTS_A10" triggerthreshold="MBTS_A10" multi="1"/>
     </TriggerCounter>
+    <TriggerCounter name="1MBTS_A10" type="CTPMON">
+      <TriggerCondition name="1MBTS_A10" triggerthreshold="MBTS_A10" multi="1"/>
+    </TriggerCounter>
     <TriggerCounter name="1MBTS_A12" type="CTPIN">
+      <TriggerCondition name="1MBTS_A12" triggerthreshold="MBTS_A12" multi="1"/>
+    </TriggerCounter>
+    <TriggerCounter name="1MBTS_A12" type="CTPMON">
       <TriggerCondition name="1MBTS_A12" triggerthreshold="MBTS_A12" multi="1"/>
     </TriggerCounter>
     <TriggerCounter name="1MBTS_A14" type="CTPIN">
       <TriggerCondition name="1MBTS_A14" triggerthreshold="MBTS_A14" multi="1"/>
     </TriggerCounter>
+    <TriggerCounter name="1MBTS_A14" type="CTPMON">
+      <TriggerCondition name="1MBTS_A14" triggerthreshold="MBTS_A14" multi="1"/>
+    </TriggerCounter>
     <TriggerCounter name="1MBTS_A2" type="CTPIN">
+      <TriggerCondition name="1MBTS_A2" triggerthreshold="MBTS_A2" multi="1"/>
+    </TriggerCounter>
+    <TriggerCounter name="1MBTS_A2" type="CTPMON">
       <TriggerCondition name="1MBTS_A2" triggerthreshold="MBTS_A2" multi="1"/>
     </TriggerCounter>
     <TriggerCounter name="1MBTS_A3" type="CTPIN">
       <TriggerCondition name="1MBTS_A3" triggerthreshold="MBTS_A3" multi="1"/>
     </TriggerCounter>
+    <TriggerCounter name="1MBTS_A3" type="CTPMON">
+      <TriggerCondition name="1MBTS_A3" triggerthreshold="MBTS_A3" multi="1"/>
+    </TriggerCounter>
     <TriggerCounter name="1MBTS_A4" type="CTPIN">
+      <TriggerCondition name="1MBTS_A4" triggerthreshold="MBTS_A4" multi="1"/>
+    </TriggerCounter>
+    <TriggerCounter name="1MBTS_A4" type="CTPMON">
       <TriggerCondition name="1MBTS_A4" triggerthreshold="MBTS_A4" multi="1"/>
     </TriggerCounter>
     <TriggerCounter name="1MBTS_A5" type="CTPIN">
       <TriggerCondition name="1MBTS_A5" triggerthreshold="MBTS_A5" multi="1"/>
     </TriggerCounter>
+    <TriggerCounter name="1MBTS_A5" type="CTPMON">
+      <TriggerCondition name="1MBTS_A5" triggerthreshold="MBTS_A5" multi="1"/>
+    </TriggerCounter>
     <TriggerCounter name="1MBTS_A6" type="CTPIN">
+      <TriggerCondition name="1MBTS_A6" triggerthreshold="MBTS_A6" multi="1"/>
+    </TriggerCounter>
+    <TriggerCounter name="1MBTS_A6" type="CTPMON">
       <TriggerCondition name="1MBTS_A6" triggerthreshold="MBTS_A6" multi="1"/>
     </TriggerCounter>
     <TriggerCounter name="1MBTS_A7" type="CTPIN">
       <TriggerCondition name="1MBTS_A7" triggerthreshold="MBTS_A7" multi="1"/>
     </TriggerCounter>
+    <TriggerCounter name="1MBTS_A7" type="CTPMON">
+      <TriggerCondition name="1MBTS_A7" triggerthreshold="MBTS_A7" multi="1"/>
+    </TriggerCounter>
     <TriggerCounter name="1MBTS_A8" type="CTPIN">
+      <TriggerCondition name="1MBTS_A8" triggerthreshold="MBTS_A8" multi="1"/>
+    </TriggerCounter>
+    <TriggerCounter name="1MBTS_A8" type="CTPMON">
       <TriggerCondition name="1MBTS_A8" triggerthreshold="MBTS_A8" multi="1"/>
     </TriggerCounter>
     <TriggerCounter name="1MBTS_C" type="CTPIN">
@@ -5350,37 +5478,73 @@
     <TriggerCounter name="1MBTS_C0" type="CTPIN">
       <TriggerCondition name="1MBTS_C0" triggerthreshold="MBTS_C0" multi="1"/>
     </TriggerCounter>
+    <TriggerCounter name="1MBTS_C0" type="CTPMON">
+      <TriggerCondition name="1MBTS_C0" triggerthreshold="MBTS_C0" multi="1"/>
+    </TriggerCounter>
     <TriggerCounter name="1MBTS_C1" type="CTPIN">
+      <TriggerCondition name="1MBTS_C1" triggerthreshold="MBTS_C1" multi="1"/>
+    </TriggerCounter>
+    <TriggerCounter name="1MBTS_C1" type="CTPMON">
       <TriggerCondition name="1MBTS_C1" triggerthreshold="MBTS_C1" multi="1"/>
     </TriggerCounter>
     <TriggerCounter name="1MBTS_C10" type="CTPIN">
       <TriggerCondition name="1MBTS_C10" triggerthreshold="MBTS_C10" multi="1"/>
     </TriggerCounter>
+    <TriggerCounter name="1MBTS_C10" type="CTPMON">
+      <TriggerCondition name="1MBTS_C10" triggerthreshold="MBTS_C10" multi="1"/>
+    </TriggerCounter>
     <TriggerCounter name="1MBTS_C12" type="CTPIN">
+      <TriggerCondition name="1MBTS_C12" triggerthreshold="MBTS_C12" multi="1"/>
+    </TriggerCounter>
+    <TriggerCounter name="1MBTS_C12" type="CTPMON">
       <TriggerCondition name="1MBTS_C12" triggerthreshold="MBTS_C12" multi="1"/>
     </TriggerCounter>
     <TriggerCounter name="1MBTS_C14" type="CTPIN">
       <TriggerCondition name="1MBTS_C14" triggerthreshold="MBTS_C14" multi="1"/>
     </TriggerCounter>
+    <TriggerCounter name="1MBTS_C14" type="CTPMON">
+      <TriggerCondition name="1MBTS_C14" triggerthreshold="MBTS_C14" multi="1"/>
+    </TriggerCounter>
     <TriggerCounter name="1MBTS_C2" type="CTPIN">
+      <TriggerCondition name="1MBTS_C2" triggerthreshold="MBTS_C2" multi="1"/>
+    </TriggerCounter>
+    <TriggerCounter name="1MBTS_C2" type="CTPMON">
       <TriggerCondition name="1MBTS_C2" triggerthreshold="MBTS_C2" multi="1"/>
     </TriggerCounter>
     <TriggerCounter name="1MBTS_C3" type="CTPIN">
       <TriggerCondition name="1MBTS_C3" triggerthreshold="MBTS_C3" multi="1"/>
     </TriggerCounter>
+    <TriggerCounter name="1MBTS_C3" type="CTPMON">
+      <TriggerCondition name="1MBTS_C3" triggerthreshold="MBTS_C3" multi="1"/>
+    </TriggerCounter>
     <TriggerCounter name="1MBTS_C4" type="CTPIN">
+      <TriggerCondition name="1MBTS_C4" triggerthreshold="MBTS_C4" multi="1"/>
+    </TriggerCounter>
+    <TriggerCounter name="1MBTS_C4" type="CTPMON">
       <TriggerCondition name="1MBTS_C4" triggerthreshold="MBTS_C4" multi="1"/>
     </TriggerCounter>
     <TriggerCounter name="1MBTS_C5" type="CTPIN">
       <TriggerCondition name="1MBTS_C5" triggerthreshold="MBTS_C5" multi="1"/>
     </TriggerCounter>
+    <TriggerCounter name="1MBTS_C5" type="CTPMON">
+      <TriggerCondition name="1MBTS_C5" triggerthreshold="MBTS_C5" multi="1"/>
+    </TriggerCounter>
     <TriggerCounter name="1MBTS_C6" type="CTPIN">
+      <TriggerCondition name="1MBTS_C6" triggerthreshold="MBTS_C6" multi="1"/>
+    </TriggerCounter>
+    <TriggerCounter name="1MBTS_C6" type="CTPMON">
       <TriggerCondition name="1MBTS_C6" triggerthreshold="MBTS_C6" multi="1"/>
     </TriggerCounter>
     <TriggerCounter name="1MBTS_C7" type="CTPIN">
       <TriggerCondition name="1MBTS_C7" triggerthreshold="MBTS_C7" multi="1"/>
     </TriggerCounter>
+    <TriggerCounter name="1MBTS_C7" type="CTPMON">
+      <TriggerCondition name="1MBTS_C7" triggerthreshold="MBTS_C7" multi="1"/>
+    </TriggerCounter>
     <TriggerCounter name="1MBTS_C8" type="CTPIN">
+      <TriggerCondition name="1MBTS_C8" triggerthreshold="MBTS_C8" multi="1"/>
+    </TriggerCounter>
+    <TriggerCounter name="1MBTS_C8" type="CTPMON">
       <TriggerCondition name="1MBTS_C8" triggerthreshold="MBTS_C8" multi="1"/>
     </TriggerCounter>
     <TriggerCounter name="1MU10" type="CTPIN">
@@ -5470,22 +5634,43 @@
     <TriggerCounter name="1MU4" type="CTPIN">
       <TriggerCondition name="1MU4" triggerthreshold="MU4" multi="1"/>
     </TriggerCounter>
+    <TriggerCounter name="1MU4" type="CTPMON">
+      <TriggerCondition name="1MU4" triggerthreshold="MU4" multi="1"/>
+    </TriggerCounter>
     <TriggerCounter name="2MU4" type="CTPIN">
+      <TriggerCondition name="2MU4" triggerthreshold="MU4" multi="2"/>
+    </TriggerCounter>
+    <TriggerCounter name="2MU4" type="CTPMON">
       <TriggerCondition name="2MU4" triggerthreshold="MU4" multi="2"/>
     </TriggerCounter>
     <TriggerCounter name="3MU4" type="CTPIN">
       <TriggerCondition name="3MU4" triggerthreshold="MU4" multi="3"/>
     </TriggerCounter>
+    <TriggerCounter name="3MU4" type="CTPMON">
+      <TriggerCondition name="3MU4" triggerthreshold="MU4" multi="3"/>
+    </TriggerCounter>
     <TriggerCounter name="4MU4" type="CTPIN">
+      <TriggerCondition name="4MU4" triggerthreshold="MU4" multi="4"/>
+    </TriggerCounter>
+    <TriggerCounter name="4MU4" type="CTPMON">
       <TriggerCondition name="4MU4" triggerthreshold="MU4" multi="4"/>
     </TriggerCounter>
     <TriggerCounter name="5MU4" type="CTPIN">
       <TriggerCondition name="5MU4" triggerthreshold="MU4" multi="5"/>
     </TriggerCounter>
+    <TriggerCounter name="5MU4" type="CTPMON">
+      <TriggerCondition name="5MU4" triggerthreshold="MU4" multi="5"/>
+    </TriggerCounter>
     <TriggerCounter name="6MU4" type="CTPIN">
       <TriggerCondition name="6MU4" triggerthreshold="MU4" multi="6"/>
     </TriggerCounter>
+    <TriggerCounter name="6MU4" type="CTPMON">
+      <TriggerCondition name="6MU4" triggerthreshold="MU4" multi="6"/>
+    </TriggerCounter>
     <TriggerCounter name="7MU4" type="CTPIN">
+      <TriggerCondition name="7MU4" triggerthreshold="MU4" multi="7"/>
+    </TriggerCounter>
+    <TriggerCounter name="7MU4" type="CTPMON">
       <TriggerCondition name="7MU4" triggerthreshold="MU4" multi="7"/>
     </TriggerCounter>
     <TriggerCounter name="1MU6" type="CTPIN">
@@ -5569,6 +5754,9 @@
     <TriggerCounter name="1TE50" type="CTPIN">
       <TriggerCondition name="1TE50" triggerthreshold="TE50" multi="1"/>
     </TriggerCounter>
+    <TriggerCounter name="1TE50" type="CTPMON">
+      <TriggerCondition name="1TE50" triggerthreshold="TE50" multi="1"/>
+    </TriggerCounter>
     <TriggerCounter name="1TE70.0ETA24" type="CTPIN">
       <TriggerCondition name="1TE70.0ETA24" triggerthreshold="TE70.0ETA24" multi="1"/>
     </TriggerCounter>
@@ -5593,6 +5781,9 @@
     <TriggerCounter name="1XE35" type="CTPIN">
       <TriggerCondition name="1XE35" triggerthreshold="XE35" multi="1"/>
     </TriggerCounter>
+    <TriggerCounter name="1XE35" type="CTPMON">
+      <TriggerCondition name="1XE35" triggerthreshold="XE35" multi="1"/>
+    </TriggerCounter>
     <TriggerCounter name="1XE40" type="CTPIN">
       <TriggerCondition name="1XE40" triggerthreshold="XE40" multi="1"/>
     </TriggerCounter>
@@ -5606,6 +5797,9 @@
       <TriggerCondition name="1XE55" triggerthreshold="XE55" multi="1"/>
     </TriggerCounter>
     <TriggerCounter name="1XE60" type="CTPIN">
+      <TriggerCondition name="1XE60" triggerthreshold="XE60" multi="1"/>
+    </TriggerCounter>
+    <TriggerCounter name="1XE60" type="CTPMON">
       <TriggerCondition name="1XE60" triggerthreshold="XE60" multi="1"/>
     </TriggerCounter>
     <TriggerCounter name="1XE65" type="CTPIN">
@@ -6976,7 +7170,7 @@
         <Signal range_begin="3" range_end="3" clock="1"/>
       </Cable>
     </TriggerThreshold>
-    <TriggerThreshold active="1" bitnum="1" id="192" mapping="36" name="0DR04-EM7ab-CJ15ab" type="TOPO" input="ctpcore" version="1">
+    <TriggerThreshold active="1" bitnum="1" id="192" mapping="36" name="0DR03-EM7ab-CJ15ab" type="TOPO" input="ctpcore" version="1">
       <Cable connector="CON1" input="CTPCORE" name="TOPO1">
         <Signal range_begin="4" range_end="4" clock="1"/>
       </Cable>

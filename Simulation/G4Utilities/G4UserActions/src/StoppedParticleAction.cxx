@@ -14,6 +14,8 @@
 #include "G4Element.hh"
 #include "G4SDManager.hh"
 #include "G4VSensitiveDetector.hh"
+#include "G4VProcess.hh"
+#include "G4ProcessType.hh"
 
 #include <cmath>
 
@@ -51,9 +53,10 @@ namespace G4UA
   void StoppedParticleAction::UserSteppingAction(const G4Step* aStep)
   {
 
-    // Trigger if the energy is below our threshold or if the time is over 150 ns
+    // Trigger if the energy is below our threshold or if the R-hadron is decaying
     int id = std::abs(aStep->GetTrack()->GetDynamicParticle()->GetDefinition()->GetPDGEncoding());
 
+    // Special treatment for SUSY particles and R-hadrons
     if (id>=1000000 && id<=1100000 &&
         isSUSYParticle(id)){
 
@@ -65,7 +68,12 @@ namespace G4UA
           minA=mat->GetElement(i)->GetN();
         }
       }
-      if (aStep->GetPostStepPoint()->GetVelocity()>0.15*std::pow(minA,-2./3.)*CLHEP::c_light) return;
+
+      // Stopping condition
+      if (aStep->GetPostStepPoint()->GetVelocity()>0.15*std::pow(minA,-2./3.)*CLHEP::c_light && // Stopping condition or...
+           ( !aStep->GetPostStepPoint()->GetProcessDefinedStep() || // null pointer?
+             aStep->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessType()!=fDecay) ) // Decaying particle (does not fire for hadronic interactions)
+        return;
 
       if (!m_init){
         m_init = true;

@@ -23,16 +23,16 @@ def getBtagFexSplitInstance( instance, version, algo):
                          PriVtxKey="xPrimVx",TrackKey="InDetTrigTrackingxAODCnv_Bjet_IDTrig")
 
 def getBtagFexFTKInstance( instance, version, algo):
-    return BtagFex( instance=instance, version=version, name=instance+"BtagFexFTK_"+algo,
-                    PriVtxKey="HLT_PrimVertexFTK", TrackKey="InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig")
+    return BtagFexSplit( instance=instance, version=version, name=instance+"BtagFexFTK_"+algo,
+                    PriVtxKey="PrimVertexFTK", TrackKey="InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig")
 
 def getBtagFexFTKRefitInstance( instance, version, algo):
     return BtagFexSplit( instance=instance, version=version, name=instance+"BtagFexFTKRefit_"+algo,
-                         PriVtxKey="HLT_PrimVertexFTK", TrackKey="InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig")
+                         PriVtxKey="PrimVertexFTK", TrackKey="InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig")
 
 def getBtagFexFTKVtxInstance( instance, version, algo):
     return BtagFexSplit( instance=instance, version=version, name=instance+"BtagFexFTKVtx_"+algo, 
-                         PriVtxKey="HLT_PrimVertexFTK", TrackKey="InDetTrigTrackingxAODCnv_Bjet_IDTrig" )
+                         PriVtxKey="PrimVertexFTK", TrackKey="InDetTrigTrackingxAODCnv_Bjet_IDTrig" )
 
 class BtagFex (TrigBtagFex):
     __slots__ = []
