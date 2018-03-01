@@ -51,11 +51,15 @@ class AODFix_r210(AODFix_base):
 
             ###JB
             if "elIso" not in oldMetadataList:
-                #print 'JB '
                 self.elIso_postSystemRec(topSequence)
-                #print 'JB scheduled'
                 pass
-
+            if "felIso" not in oldMetadataList:
+                self.felIso_postSystemRec(topSequence)
+                pass
+            if "phIso" not in oldMetadataList:
+                self.phIso_postSystemRec(topSequence)
+                pass
+    
             if "btagging" not in oldMetadataList and not self.isHI:
                 self.btagging_postSystemRec(topSequence)
                 pass
@@ -142,3 +146,9 @@ class AODFix_r210(AODFix_base):
     def elIso_postSystemRec (self, topSequence):
         from IsolationAlgs.IsoAODFixGetter import isoAODFixGetter               
         isoAODFixGetter("Electrons")        
+    def felIso_postSystemRec (self, topSequence):
+        from IsolationAlgs.IsoAODFixGetter import isoAODFixGetter               
+        isoAODFixGetter("ForwardElectrons")        
+    def phIso_postSystemRec (self, topSequence):
+        from IsolationAlgs.IsoAODFixGetter import isoAODFixGetter               
+        isoAODFixGetter("Photons")        

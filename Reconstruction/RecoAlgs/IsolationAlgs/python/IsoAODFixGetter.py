@@ -68,7 +68,7 @@ CaloIsolationTool = ToolFactory(xAOD__CaloIsolationTool,name = "CaloIsolationToo
                                 HadCaloNums                     = [],
                                 UseEMScale                      = True,
                                 addCaloExtensionDecoration      = False,
-                                OutputLevel                     = 1)
+                                OutputLevel                     = 3)
 
 TrackIsolationTool = ToolFactory(xAOD__TrackIsolationTool, name = 'TrackIsolationTool')
 from AthenaCommon import CfgMgr
@@ -90,14 +90,10 @@ IsoTypesEl =  [
     isoPar.topoetcone30,
     isoPar.topoetcone40 ]
   ]
-IsoCorEl = [
-  [ isoPar.core57cells, isoPar.ptCorrection, isoPar.pileupCorrection ]
-]
-
-IsoTypesEg =  [
-  [ isoPar.ptcone40, 
-    isoPar.ptcone30,
-    isoPar.ptcone20 ]
+IsoTypesPh =  [
+  [ isoPar.topoetcone20, 
+    isoPar.topoetcone30,
+    isoPar.topoetcone40 ]
   ]
 IsoTypesFe =  [
   [ isoPar.topoetcone20, 
@@ -109,20 +105,27 @@ IsoTypesMu =  [
     isoPar.topoetcone30,
     isoPar.topoetcone40 ]
   ]
+
 # And the corrections
 IsoCorEg = [
   [ isoPar.coreTrackPtr ] 
   ]
-#
+
+IsoCorEl = [
+  [ isoPar.core57cells, isoPar.ptCorrection, isoPar.pileupCorrection ]
+]
+
+IsoCorPh = [
+  [ isoPar.core57cells, isoPar.ptCorrection, isoPar.pileupCorrection ]
+]
+
 IsoCorFe = [
   [ isoPar.coreCone, isoPar.pileupCorrection ] 
   ]
-#
+
 IsoCorMu = [
   [ isoPar.coreCone, isoPar.pileupCorrection ] 
   ]
-
-# 
 
 #from IsolationCorrections.IsolationCorrectionsConf import CP__IsolationCorrectionTool as ict
 #leakTool = ict(name     = "LeakageCorrection",
@@ -152,7 +155,7 @@ isoAODFixBuilderElectron = AlgFactory(IsolationBuilder,
                                       #LeakageTool           = leakTool,
                                       LeakageTool           = None,
                                       IsolateEl             = True,
-                                      OutputLevel           = 1)
+                                      OutputLevel           = 3)
 
 isoAODFixBuilderPhoton = AlgFactory(IsolationBuilder,
                                     name                  = "IsolationBuilderPhoton",
@@ -161,14 +164,15 @@ isoAODFixBuilderPhoton = AlgFactory(IsolationBuilder,
                                     MuonCollectionContainerName        = "",
                                     FwdElectronCollectionContainerName = "",
                                     CaloCellIsolationTool = None,
-                                    CaloTopoIsolationTool = None,
+                                    #CaloTopoIsolationTool = None,
+                                    CaloTopoIsolationTool = CaloIsolationTool,
                                     PFlowIsolationTool    = None,
                                     #TrackIsolationTool    = TrackIsolationTool,
                                     TrackIsolationTool    = None, 
                                     FeIsoTypes            = [[]] ,
                                     FeCorTypes            = IsoCorFe,
-                                    EgIsoTypes            = IsoTypesEg,
-                                    EgCorTypes            = IsoCorEg,
+                                    EgIsoTypes            = IsoTypesPh,
+                                    EgCorTypes            = IsoCorPh,
                                     MuIsoTypes            = [[]] ,
                                     MuCorTypes            = IsoCorMu,
                                     IsAODFix              = True,
@@ -207,8 +211,8 @@ isoAODFixBuilderFwdElectron = AlgFactory(IsolationBuilder,
                                          MuonCollectionContainerName        = "",
                                          FwdElectronCollectionContainerName = "ForwardElectrons",
                                          CaloCellIsolationTool = None,
-                                         #CaloTopoIsolationTool = CaloIsolationTool,
-                                         CaloTopoIsolationTool = None,
+                                         CaloTopoIsolationTool = CaloIsolationTool,
+                                         #CaloTopoIsolationTool = None,
                                          PFlowIsolationTool    = None,
                                          TrackIsolationTool    = None, 
                                          FeIsoTypes            = IsoTypesFe,
