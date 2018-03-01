@@ -100,7 +100,7 @@ StatusCode RCJetMC15::initialize(){
         m_radius = std::stof( configSettings->value("RCJetRadius") ); // for initialize    
         m_minradius = -1.0;
         m_massscale = -1.0;
-	if (configSettings->value("UseRCJetSubstructure") == "True" || configSettings->value("UseRCJetSubstructure") == "true"){
+	if (m_config->useRCJetSubstructure()){
 	  m_useJSS = true;
 	  ATH_MSG_INFO("Calculating RCJet Substructure");
 
