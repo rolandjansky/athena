@@ -24,7 +24,7 @@ class TriggerAPI:
         if cls.centralPickleFile:
             try:
                 with open(cls.centralPickleFile, 'r') as f:
-                    cls.log.info("Reading cached information")
+                    cls.log.info("Reading cached information from: "+cls.centralPickleFile)
                     cls.dbQueries = pickle.load(f)
             except pickle.PickleError:
                 cls.log.info("Reading cached information failed")
