@@ -21,75 +21,39 @@ namespace xAOD {
   // Simple debug method using MsgStream
   void TrigT2MbtsBits_v1::print(void) const {
     
-    const std::vector<float> m_triggerEnergies(triggerEnergies());
-    const std::vector<float> m_triggerTimes(triggerTimes());
-    std::vector<float>::const_iterator itr;
-    std::vector<float>::const_iterator itr_end;
-    
-    itr=m_triggerEnergies.begin();
-    itr_end=m_triggerEnergies.end();
-    std::cout << "m_triggerEnergies = { ";
-      for(;itr != itr_end; ++itr) {
-	std::cout << (*itr) << " ";
-      }
-      std::cout << " }" << std::endl;
+    std::cout << "triggerEnergies = { ";
+    for (float x : triggerEnergies()) {
+      std::cout << x << " ";
+    }
+    std::cout << " }" << std::endl;
       
-      itr = m_triggerTimes.begin();
-      itr_end = m_triggerTimes.end();
-      std::cout << "m_triggerTimes = { ";
-	for(;itr != itr_end; ++itr) {
-	  std::cout << (*itr) << " ";
-	}
-	std::cout << " }" << std::endl;
+    for (float x : triggerTimes()) {
+      std::cout << x << " ";
+    }
+    std::cout << " }" << std::endl;
   }
 
-#if 0
-  // Simple debug method using MsgStream
-  void TrigT2MbtsBits_v1::print(MsgStream& log) const {
-    const std::vector<float> m_triggerEnergies(triggerEnergies());
-    const std::vector<float> m_triggerTimes(triggerTimes());
-    std::vector<float>::const_iterator itr;
-    std::vector<float>::const_iterator itr_end;
+// Simple string conversion method.
+std::string str(const TrigT2MbtsBits_v1& trigT2MbtsBits) {
     
-    itr=m_triggerEnergies.begin();
-    itr_end=m_triggerEnergies.end();
-    log << MSG::DEBUG << "m_triggerEnergies = { ";
-      for(;itr != itr_end; ++itr) {
-	log << MSG::DEBUG << (*itr) << " ";
-      }
-      log << MSG::DEBUG << " }" << endmsg;  
-      
-      itr = m_triggerTimes.begin();
-      itr_end = m_triggerTimes.end();
-      log << MSG::DEBUG << "m_triggerTimes = { ";
-	for(;itr != itr_end; ++itr) {
-	  log << MSG::DEBUG << (*itr) << " ";
-	}
-	log << MSG::DEBUG << " }" << endmsg;
+  std::stringstream sstream;
+  std::vector<float> counterValues;
+  std::vector<float>::const_iterator itr;
+  std::vector<float>::const_iterator itr_end;
+    
+  counterValues = trigT2MbtsBits.triggerEnergies();
+  itr = counterValues.begin();
+  itr_end = counterValues.end();
+  sstream << "triggerEnergies = { ";
+  for(;itr != itr_end; ++itr) {
+    sstream << (*itr) << " ";
   }
-#endif // 0
-
-  // Simple string conversion method.
-  std::string str(const TrigT2MbtsBits_v1& trigT2MbtsBits) {
-    
-    std::stringstream sstream;
-    std::vector<float> counterValues;
-    std::vector<float>::const_iterator itr;
-    std::vector<float>::const_iterator itr_end;
-    
-    counterValues = trigT2MbtsBits.triggerEnergies();
-    itr = counterValues.begin();
-    itr_end = counterValues.end();
-    sstream << "m_triggerEnergies = { ";
-      for(;itr != itr_end; ++itr) {
-	sstream << (*itr) << " ";
-      }
-      sstream << " }" << std::endl;         
+  sstream << " }" << std::endl;         
       
-      counterValues = trigT2MbtsBits.triggerTimes();
-      itr = counterValues.begin();
-      itr_end = counterValues.end();
-      sstream << "m_triggerTimes = { ";
+  counterValues = trigT2MbtsBits.triggerTimes();
+  itr = counterValues.begin();
+  itr_end = counterValues.end();
+  sstream << "triggerTimes = { ";
 	for(;itr != itr_end; ++itr) {
 	  sstream << (*itr) << " ";
 	}
