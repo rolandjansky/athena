@@ -62,11 +62,9 @@ StatusCode CopyMcEventCollection::overlayExecute() {
   MsgStream log(msgSvc(), name());
   log << MSG::DEBUG << "CopyMcEventCollection::execute() begin"<< endmsg;
 
-  if (m_realdata){
-
-  //
-  // Copy EventInfo stuff from MC to data...
-  //
+  // Validate Event Info
+  if (m_checkeventnumbers)
+  {
 
   const EventInfo* mcEvtInfo = 0;
   if (m_storeGateMC->retrieve(mcEvtInfo).isSuccess() ) {
@@ -86,7 +84,6 @@ StatusCode CopyMcEventCollection::overlayExecute() {
 	<< " eventflags lar " << mcEvtInfo->eventFlags(EventInfo::LAr)
 	<< " errorstate lar " << mcEvtInfo->errorState(EventInfo::LAr)
 	<< " from store " << m_storeGateMC->name() << endmsg;
-    
   } else {
     log << MSG::WARNING << "Could not retrieve EventInfo from MC store "<< endmsg;  
   }
@@ -113,6 +110,8 @@ StatusCode CopyMcEventCollection::overlayExecute() {
     log << MSG::WARNING << "Could not retrieve EventInfo from Data store "<< endmsg;  
   }
 
+  if (m_realdata)
+  {
   const EventInfo* data2EvtInfo = m_storeGateData2->tryConstRetrieve<EventInfo>();
   if (data2EvtInfo) {
     log << MSG::INFO
@@ -133,6 +132,7 @@ StatusCode CopyMcEventCollection::overlayExecute() {
 	<< " from store " << m_storeGateData2->name() << endmsg;    
   } else {
     log << MSG::INFO << "Could not retrieve EventInfo from Data2 store "<< endmsg;  
+  }
   }
   
   const EventInfo* outEvtInfo = 0;
@@ -157,28 +157,8 @@ StatusCode CopyMcEventCollection::overlayExecute() {
     log << MSG::WARNING << "Could not retrieve EventInfo from Out store "<< endmsg;  
   }
 
-  //Stolen from Event/xAOD/xAODEventInfoCnv/src/EventInfoCnvAlg.cxx
-  //Check if anything needs to be done for xAOD::EventInfo...
-  std::string xaodKey = "EventInfo";
-  if( ! m_storeGateOutput->contains< xAOD::EventInfo >( xaodKey ) ) { 
-    ATH_MSG_INFO( "Making xAOD::EventInfo with key: " << xaodKey );
-
-    // Create the xAOD object(s):
-    xAOD::EventAuxInfo* aux = new xAOD::EventAuxInfo();
-    xAOD::EventInfo* xaod = new xAOD::EventInfo();
-    xaod->setStore( aux );
-
-    // Do the translation:
-    CHECK( m_cnvTool->convert( outEvtInfo, xaod ) );
-
-    //Record the xAOD object(s):
-    CHECK( m_storeGateOutput->record( aux, xaodKey + "Aux." ) );
-    CHECK( m_storeGateOutput->record( xaod, xaodKey ) );
-  }//xAOD::EventInfo
-
-  if (m_checkeventnumbers){
   //Check consistency of output run/event with input runs/events
-  if (outEvtInfo->event_ID()->event_number() != dataEvtInfo->event_ID()->event_number()){
+  if (m_realdata && outEvtInfo->event_ID()->event_number() != dataEvtInfo->event_ID()->event_number()){
     log << MSG::ERROR << "Output event number doesn't match input data event number!" << endmsg;
     return StatusCode::FAILURE;
   }
@@ -190,7 +170,7 @@ StatusCode CopyMcEventCollection::overlayExecute() {
     log << MSG::ERROR << "Output run number doesn't match input data run number!" << endmsg;
     return StatusCode::FAILURE;
   }
-  if (outEvtInfo->event_ID()->run_number() != mcEvtInfo->event_ID()->run_number()){
+  if (m_realdata && outEvtInfo->event_ID()->run_number() != mcEvtInfo->event_ID()->run_number()){
     log << MSG::ERROR << "Output run number doesn't match input MC run number!" << endmsg;
     return StatusCode::FAILURE;
   }
@@ -198,7 +178,7 @@ StatusCode CopyMcEventCollection::overlayExecute() {
     log << MSG::ERROR << "Output time stamp doesn't match input data time stamp!" << endmsg;
     return StatusCode::FAILURE;
   }
-  if (outEvtInfo->event_ID()->time_stamp() != mcEvtInfo->event_ID()->time_stamp()){
+  if (m_realdata && outEvtInfo->event_ID()->time_stamp() != mcEvtInfo->event_ID()->time_stamp()){
     log << MSG::ERROR << "Output time stamp doesn't match input MC time stamp!" << endmsg;
     return StatusCode::FAILURE;
   }
@@ -206,52 +186,29 @@ StatusCode CopyMcEventCollection::overlayExecute() {
     log << MSG::ERROR << "Output lbn doesn't match input data lbn!" << endmsg;
     return StatusCode::FAILURE;
   }
-  if (outEvtInfo->event_ID()->lumi_block() != mcEvtInfo->event_ID()->lumi_block()){
+  if (m_realdata && outEvtInfo->event_ID()->lumi_block() != mcEvtInfo->event_ID()->lumi_block()){
     log << MSG::ERROR << "Output lbn doesn't match input MC lbn!" << endmsg;
     return StatusCode::FAILURE;
   } 
- if (outEvtInfo->event_ID()->bunch_crossing_id() != dataEvtInfo->event_ID()->bunch_crossing_id()){
+  if (outEvtInfo->event_ID()->bunch_crossing_id() != dataEvtInfo->event_ID()->bunch_crossing_id()){
     log << MSG::ERROR << "Output bcid doesn't match input data bcid!" << endmsg;
     return StatusCode::FAILURE;
   }
+  if (outEvtInfo->event_type()->mc_channel_number() != mcEvtInfo->event_type()->mc_channel_number()){
+    log << MSG::ERROR << "Output MC channel number doesn't match input MC channel number!" << endmsg;
+    return StatusCode::FAILURE;
   }
-
-  EventInfo * newEvtInfo = new EventInfo ( *outEvtInfo );
-  newEvtInfo->event_type()->set_mc_channel_number(mcEvtInfo->event_type()->mc_channel_number());
-  newEvtInfo->event_type()->set_mc_event_number(mcEvtInfo->event_type()->mc_event_number());
-  newEvtInfo->event_type()->set_mc_event_weight(mcEvtInfo->event_type()->mc_event_weight());
-  newEvtInfo->setEventFlags(EventInfo::Core, (dataEvtInfo->eventFlags(EventInfo::Core) | mcEvtInfo->eventFlags(EventInfo::Core)));
-  newEvtInfo->setErrorState(EventInfo::Core, std::max(dataEvtInfo->errorState(EventInfo::Core),mcEvtInfo->errorState(EventInfo::Core)));
-
-  //Doesn't seem to actually stop the event from being written out...
-  // if (EventInfo::Error == mcEvtInfo->errorState(EventInfo::Core)){
-  //     log << MSG::WARNING << "Aborting event because EventInfo::Core Error in mcEvtInfo (LooperKiller from G4?)" << endmsg;
-  //     setFilterPassed( false );
-  //   }
-  
-  log << MSG::INFO
-      << "Have newEvtInfo for Out store: " 
-      << " event " << newEvtInfo->event_ID()->event_number() 
-      << " run " << newEvtInfo->event_ID()->run_number()
-      << " timestamp " << newEvtInfo->event_ID()->time_stamp()
-      << " lbn " << newEvtInfo->event_ID()->lumi_block()
-      << " bcid " << newEvtInfo->event_ID()->bunch_crossing_id()
-      << " SIMULATION " << newEvtInfo->event_type()->test(EventType::IS_SIMULATION)
-      << " mc_channel_number " << newEvtInfo->event_type()->mc_channel_number()
-      << " mc_event_number " << newEvtInfo->event_type()->mc_event_number()
-      << " mc_event_weight " << newEvtInfo->event_type()->mc_event_weight() 
-      << " eventflags core " << newEvtInfo->eventFlags(EventInfo::Core)
-      << " errorstate core " << newEvtInfo->errorState(EventInfo::Core)
-      << " eventflags lar " << newEvtInfo->eventFlags(EventInfo::LAr)
-      << " errorstate lar " << newEvtInfo->errorState(EventInfo::LAr)
-      << " to store "<<m_storeGateOutput->name()<< endmsg;
-  if (m_storeGateOutput->contains<EventInfo>(m_infoType) ){ removeAllObjectsOfType<EventInfo>(&*m_storeGateOutput); }
-  if ( m_storeGateOutput->record( newEvtInfo, m_infoType ).isFailure() ) {
-    log << MSG::ERROR << "could not record EventInfo to output storeGate, key= " << m_infoType << endmsg;
+  if (outEvtInfo->event_type()->mc_event_number() != mcEvtInfo->event_type()->mc_event_number()){
+    log << MSG::ERROR << "Output MC event number doesn't match input MC event number!" << endmsg;
+    return StatusCode::FAILURE;
+  }
+  if (outEvtInfo->event_type()->mc_event_weight() != mcEvtInfo->event_type()->mc_event_weight()){
+    log << MSG::ERROR << "Output MC event weight doesn't match input MC event weight!" << endmsg;
     return StatusCode::FAILURE;
   }
 
-  }//m_realdata
+  } // m_checkeventnumbers
+
   
   //
   // Copy the McEventCollection
