@@ -28,8 +28,8 @@
 //                                                                           //
 //                                                                           //
 //---------------------------------------------------------------------------//
-#ifndef _LogRangeDivider_h_
-#define _LogRangeDivider_h_
+#ifndef QATPLOTWIDGETS_LOGRANGEDIVIDER_H
+#define QATPLOTWIDGETS_LOGRANGEDIVIDER_H
 #include "QatPlotWidgets/AbsRangeDivider.h"
 #include <vector>
 class LogRangeDivider:public AbsRangeDivider {
@@ -59,10 +59,10 @@ public:
 
 private:
 
-  double                     _min;
-  double                     _max;
-  std::vector<RangeDivision> _subdivision;
-  void                       _recompute();
+  double                     m_min;
+  double                     m_max;
+  std::vector<RangeDivision> m_subdivision;
+  void                       recompute();
   
 };
 #endif
