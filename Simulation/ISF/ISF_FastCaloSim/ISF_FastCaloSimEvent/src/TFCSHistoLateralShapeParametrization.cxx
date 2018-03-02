@@ -30,6 +30,11 @@ int TFCSHistoLateralShapeParametrization::get_number_of_hits(TFCSSimulationState
   return gRandom->Poisson(m_hist->Integral());
 }
 
+void TFCSHistoLateralShapeParametrization::set_number_of_hits(int nhits)
+{
+  if(m_hist) m_hist->Scale(nhits/m_hist->Integral());
+}
+
 void TFCSHistoLateralShapeParametrization::simulate_hit(Hit& hit,TFCSSimulationState& /*simulstate*/,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* extrapol)
 {
   const int cs=calosample();
@@ -98,5 +103,5 @@ void TFCSHistoLateralShapeParametrization::Print(Option_t *option) const
   TString optprint=opt;optprint.ReplaceAll("short","");
   TFCSLateralShapeParametrizationHitBase::Print(option);
 
-  if(longprint) ATH_MSG_INFO(optprint <<"  Histo: "<<m_hist->GetName()<<" : "<<m_hist->GetTitle()<<" ptr="<<m_hist);
+  if(longprint) ATH_MSG_INFO(optprint <<"  Histo: "<<m_hist->GetName()<<" : "<<m_hist->GetTitle()<<" integral="<<m_hist->Integral()<<" ptr="<<m_hist);
 }
