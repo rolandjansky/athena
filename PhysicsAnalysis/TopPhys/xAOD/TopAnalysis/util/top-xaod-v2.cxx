@@ -360,7 +360,7 @@ void SetMetadata(bool useAodMetaData, std::string usethisfile, std::string input
   std::shared_ptr<TFile> testFile(TFile::Open(usethisfile.c_str()));
 
   // This function reads directly the Metadata object in xAOD file (we don't use it)
-  if(! top::readMetaData(testFile.get()) ){
+  if(! top::readMetaData(testFile.get(), topConfig) ){
     std::cerr << "Unable to access metadata object in this file : " << usethisfile << std::endl;
     std::cerr << "Please report this message" << std::endl;
   }
