@@ -27,6 +27,10 @@
 #include "DerivationFrameworkBPhys/VertexPlus1TrackCascade.h"
 #include "DerivationFrameworkBPhys/TriggerCountToMetadata.h"
 #include "DerivationFrameworkBPhys/MuonExtrapolationTool.h"
+#include "DerivationFrameworkBPhys/CascadeTools.h"
+#include "DerivationFrameworkBPhys/Reco_V0Finder.h"
+#include "DerivationFrameworkBPhys/JpsiPlusV0Cascade.h"
+//#include "DerivationFrameworkBPhys/BPhysPVCascadeTools.h"
 
 using namespace DerivationFramework;
 
@@ -58,6 +62,10 @@ DECLARE_TOOL_FACTORY( BmumuThinningTool )
 DECLARE_TOOL_FACTORY( VertexPlus1TrackCascade )
 DECLARE_TOOL_FACTORY( TriggerCountToMetadata )
 DECLARE_TOOL_FACTORY( MuonExtrapolationTool )
+DECLARE_TOOL_FACTORY( CascadeTools )
+DECLARE_TOOL_FACTORY( Reco_V0Finder )
+DECLARE_TOOL_FACTORY( JpsiPlusV0Cascade )
+//DECLARE_TOOL_FACTORY( BPhysPVCascadeTools )
 
 DECLARE_FACTORY_ENTRIES( DerivationFrameworkBPhys ) {
    DECLARE_TOOL( Reco_mumu )
@@ -88,5 +96,9 @@ DECLARE_FACTORY_ENTRIES( DerivationFrameworkBPhys ) {
    DECLARE_TOOL( VertexPlus1TrackCascade )
    DECLARE_TOOL( TriggerCountToMetadata )
    DECLARE_TOOL( MuonExtrapolationTool )
+   DECLARE_TOOL( CascadeTools )
+   DECLARE_TOOL( Reco_V0Finder )
+   DECLARE_TOOL( JpsiPlusV0Cascade )
+   //DECLARE_TOOL( BPhysPVCascadeTools )
 }
 

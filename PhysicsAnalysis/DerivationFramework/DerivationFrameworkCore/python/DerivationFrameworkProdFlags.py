@@ -752,6 +752,19 @@ class WriteDAOD_STDM9Stream (JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_STDM9Stream)
 listAODtoDPD.append(WriteDAOD_STDM9Stream.StreamName)
 
+class WriteDAOD_STDM10Stream (JobProperty):
+    """STDM Heavy ION Derivation"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_STDM10'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkSM/STDM10.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_STDM10Stream)
+listAODtoDPD.append(WriteDAOD_STDM10Stream.StreamName)
+
 
 
 #################################

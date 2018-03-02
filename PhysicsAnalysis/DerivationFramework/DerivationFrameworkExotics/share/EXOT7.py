@@ -104,9 +104,9 @@ applyJetCalibration_CustomColl("AntiKt10LCTopoTrimmedPtFrac5SmallR20", exot7Seq)
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__DeltaRTool
 EXOT7DeltaRTool = DerivationFramework__DeltaRTool( name = "EXOT7DeltaRTool",
                                                    StoreGateEntryName = "dRkt4kt10",
-                                                   ObjectRequirements = "(AntiKt4LCTopoJets.pt > 300*GeV) && (abs(AntiKt4LCTopoJets.eta)<2.7)",
+                                                   ObjectRequirements = "(AntiKt4EMTopoJets.pt > 300*GeV) && (abs(AntiKt4EMTopoJets.eta)<2.7)",
                                                    SecondObjectRequirements = "(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.pt > 300*GeV) && (abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.eta)<2.2)",
-                                                   ContainerName = "AntiKt4LCTopoJets",
+                                                   ContainerName = "AntiKt4EMTopoJets",
                                                    SecondContainerName = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                                  )
 ToolSvc += EXOT7DeltaRTool
@@ -114,11 +114,11 @@ ToolSvc += EXOT7DeltaRTool
 #=======================================
 # SKIMMING   
 #=======================================
-expression1 = "(( count( AntiKt4LCTopoJets.pt > 300*GeV && abs(AntiKt4LCTopoJets.eta) < 2.7) >= 1) && ( count( AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.pt>300*GeV && abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.eta) < 2.2) > 0) && ( count( dRkt4kt10 > 1.0) >= 1))"
+expression1 = "(( count( AntiKt4EMTopoJets.pt > 300*GeV && abs(AntiKt4EMTopoJets.eta) < 2.7) >= 1) && ( count( AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.pt>300*GeV && abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.eta) < 2.2) > 0) && ( count( dRkt4kt10 > 1.0) >= 1))"
 
 expression2 = "(( count( AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.pt > 250*GeV && abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.eta) < 2.2) >= 1) && (HLT_xe70 || HLT_j80_xe80 || HLT_xe90_mht_L1XE50 || HLT_xe100_mht_L1XE50 || HLT_xe110_mht_L1XE50 || HLT_xe90_tc_lcw_L1XE50 || HLT_noalg_L1J400 || HLT_xe90_pufit_L1XE50 || HLT_xe100_pufit_L1XE55 || HLT_xe100_pufit_L1XE50 || HLT_xe110_pufit_L1XE50 || HLT_xe110_pufit_L1XE55))"
 
-expression3 = "(( count( AntiKt4LCTopoJets.pt > 45*GeV && abs(AntiKt4LCTopoJets.eta) < 2.7) >= 2) && (HLT_xe70 || HLT_j80_xe80 || HLT_xe90_mht_L1XE50 || HLT_xe100_mht_L1XE50 || HLT_xe110_mht_L1XE50 || HLT_xe90_tc_lcw_L1XE50 || HLT_noalg_L1J400 || HLT_xe90_pufit_L1XE50 || HLT_xe100_pufit_L1XE55 || HLT_xe100_pufit_L1XE50 || HLT_xe110_pufit_L1XE50 || HLT_xe110_pufit_L1XE55))"
+expression3 = "(( count( AntiKt4EMTopoJets.pt > 45*GeV && abs(AntiKt4EMTopoJets.eta) < 2.7) >= 2) && (HLT_xe70 || HLT_j80_xe80 || HLT_xe90_mht_L1XE50 || HLT_xe100_mht_L1XE50 || HLT_xe110_mht_L1XE50 || HLT_xe90_tc_lcw_L1XE50 || HLT_noalg_L1J400 || HLT_xe90_pufit_L1XE50 || HLT_xe100_pufit_L1XE55 || HLT_xe100_pufit_L1XE50 || HLT_xe110_pufit_L1XE50 || HLT_xe110_pufit_L1XE55))"
 
 expressionleptonveto = "! (( count( Electrons.Tight && Electrons.pt > 30*GeV && Electrons.eta > -2.4 && Electrons.eta < 2.4) > 0) || ( count( Muons.DFCommonGoodMuon && Muons.pt > 30*GeV && Muons.eta > -2.4 && Muons.eta < 2.4) > 0))"
 

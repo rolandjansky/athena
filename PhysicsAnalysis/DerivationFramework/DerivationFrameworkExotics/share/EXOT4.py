@@ -133,11 +133,6 @@ if isMC:
 
 # in the next lines: actually make the AntiKt4Truth, Track and EMTopo jet using
 # the topo clusters lists that have the electron-matched clusters removed
-if isMC:
-   jfind_noel_truth = jtm.addStandardJets("AntiKt", 0.4, "TruthNoEl", customGetters = "truthNoEl", mods = "truthNoEl",
-                ptmin=10000, algseq = exot4Seq,
-                calibOpt="")
-
 
 # add algorithms in the sequence that calculate the b-tagging variables
 # for the el-subtracted jets
@@ -165,31 +160,21 @@ btag_jetnoel_track = ConfInst.setupJetBTaggerTool(ToolSvc, JetCollection="AntiKt
 jtm.modifiersMap["akt4tracknoel"] = jtm.modifiersMap["track"] + [btag_jetnoel_track]
 jtm.modifiersMap["akt4emtoponoel"] = jtm.modifiersMap["emtopo_ungroomed"] + [btag_jetnoel]
 
-jfind_smallnoel_trk = jtm.addStandardJets("AntiKt", 0.4, "TrackNoEl", customGetters = "TrkJetElRemovalgetter", mods = "akt4tracknoel",
-                ptmin=10000, algseq = exot4Seq)
+addStandardJets("AntiKt", 0.4, "TrackNoEl",
+                ptmin = 10000, ptminFilter = 10000,
+                mods = "akt4tracknoel", calibOpt="none", ghostArea=0.01,
+                customGetters = "TrkJetElRemovalgetter", algseq = exot4Seq, pretools=[EXOT16ElRemovalTool])
 
-jfind_smallnoel_emtopo = jtm.addStandardJets("AntiKt", 0.4, "EMTopoNoEl", customGetters = "JetElRemovalgetter", mods = "akt4emtoponoel",
-                ptmin=10000, algseq = exot4Seq,
-                calibOpt="none")
+addStandardJets("AntiKt", 0.4, "EMTopoNoEl",
+                ptmin = 10000, ptminFilter = 10000,
+                mods = "akt4emtoponoel", calibOpt="none", ghostArea=0.01,
+                customGetters = "JetElRemovalgetter", algseq = exot4Seq, pretools=[])
 
-# the jet finder tool has been created, but
-# the JetAlgorithm is what, added in the exot4Seq actually
-# makes jets (by just calling the finder)
-
-from JetRec.JetRecConf import JetAlgorithm
-
-jetalg_smallnoel_emtopo = JetAlgorithm("jetalgAntiKt4EMTopoNoElJets", Tools = [  jfind_smallnoel_emtopo] )
-jetalg_smallnoel_trk = JetAlgorithm("jetalgAntiKt4trkNoElJets", Tools = [EXOT16ElRemovalTool, jfind_smallnoel_trk] )
 if isMC:
-   jetalg_smallnoel_truth =  JetAlgorithm("jetalgAntiKt4truthNoElJets", Tools = [jtm.truthpartcopyNoEl, jfind_noel_truth] )
-
-# now we have a JetAlgorithm instance that calls the full chain
-# add it in the sequence:
-if isMC:
-   exot4Seq += jetalg_smallnoel_truth
-exot4Seq += jetalg_smallnoel_trk
-exot4Seq += jetalg_smallnoel_emtopo 
-
+  addStandardJets("AntiKt", 0.4, "TruthNoEl",
+                  ptmin = 10000, ptminFilter = 70000,
+                  mods = "truthNoEl", calibOpt="", ghostArea=0.0,
+                  customGetters = "truthNoEl", algseq = exot4Seq, pretools=[jtm.truthpartcopyNoEl])
 
 # at this point we have new on-the-fly jets
 # in the containers AntiKt4TruthNoElJets, AntiKt4TrackNoElJets, AntiKt4EMTopoNoElJets
@@ -745,21 +730,6 @@ exot4Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT4Kernel_jet", Skim
 # the reason it is done here, is only to guarantee that this is only done for the events that pass
 # the jet skimming done above
 exot4Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT4Kernel", ThinningTools = thinningTools, AugmentationTools = augTools)
-
-
-# these lines were removed, due to the change in structure
-# needed to create EXOT4's own sequence
-# in the past all derivations ran in a single sequence
-# the sequence separation makes it easier to avoid that one derivation
-# influences the other a lot
-#
-# SPECIAL LINES FOR THINNING
-# Thinning service name must match the one passed to the thinning tools 
-#from AthenaServices.Configurables import ThinningSvc, createThinningSvc
-#augStream = MSMgr.GetStream( streamName )
-#evtStream = augStream.GetEventStream()
-#svcMgr += createThinningSvc( svcName="EXOT4ThinningSvc", outStreams=[evtStream] )
-
 
 # now that all is said and done, we need to save it all
 # save only what we want for EXOT4

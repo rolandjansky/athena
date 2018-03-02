@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -16,6 +16,7 @@
 #include "tauRecTools/TauChargedPFOCreator.h"
 #include "tauRecTools/TauWPDecorator.h"
 #include "tauRecTools/TauJetBDTEvaluator.h"
+#include "tauRecTools/TauJetRNNEvaluator.h"
 #include "tauRecTools/TauIDVarCalculator.h"
 #include "tauRecTools/TauEleOLRDecorator.h"
 #include "tauRecTools/TauProcessorTool.h"
@@ -40,6 +41,7 @@ REGISTER_TOOL(tauRecTools::TrackMVABDT)
 REGISTER_TOOL(TauChargedPFOCreator)
 REGISTER_TOOL(TauWPDecorator)
 REGISTER_TOOL(TauJetBDTEvaluator)
+REGISTER_TOOL(TauJetRNNEvaluator)
 REGISTER_TOOL(TauEleOLRDecorator)
 REGISTER_TOOL(TauIDVarCalculator)
 REGISTER_TOOL(TauProcessorTool)
