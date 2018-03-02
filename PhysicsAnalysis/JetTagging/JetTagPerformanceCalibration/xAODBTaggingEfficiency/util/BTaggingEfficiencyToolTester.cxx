@@ -3,9 +3,9 @@
 */
 
 
-#ifdef ROOTCORE
+//#ifdef XAOD_STANDALONE
 #   include "xAODRootAccess/TStore.h"
-#endif // ROOTCORE
+//#endif // XAOD_STANDALONE
 
 #include "xAODBTaggingEfficiency/BTaggingEfficiencyTool.h"
 
@@ -30,7 +30,7 @@ int main() {
   code = tool->setProperty("JetAuthor",           "AntiKt4EMTopoJets");
   if (code != StatusCode::SUCCESS) std::cout << "error setting BTaggingEfficiencyTool JetAuthor property" << std::endl;
   // name of the CDI file
-  code = tool->setProperty("ScaleFactorFileName", "13TeV/2016-20_7-13TeV-MC15-CDI-2017-06-07_v2.root");
+  code = tool->setProperty("ScaleFactorFileName", "13TeV/2017-21-13TeV-MC16-CDI-2018-02-09_v1.root");
   if (code != StatusCode::SUCCESS) std::cout << "error setting BTaggingEfficiencyTool ScaleFactorFileName property" << std::endl;
   // calibration specification (there should always be a "default" available so this doesn't need to be set
   // tool->setProperty("ScaleFactorBCalibration", "ttbar_PDF_7b_SF");
