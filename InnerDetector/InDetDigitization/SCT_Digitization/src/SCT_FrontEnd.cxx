@@ -12,8 +12,7 @@
 
 #include "SiDigitization/SiHelper.h"
 #include "SCT_Digitization/ISCT_Amp.h"
-#include "SCT_ConditionsServices/ISCT_ReadCalibChipDataSvc.h" // Calibration
-                                                              // Cond DB data
+
 #include "InDetIdentifier/SCT_ID.h"
 
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
@@ -37,7 +36,6 @@ SCT_FrontEnd::SCT_FrontEnd(const std::string &type, const std::string &name,
     m_sc(0),
     m_SCTdetMgr(0),
     m_sct_id(0),
-    m_ReadCalibChipDataSvc("SCT_ReadCalibChipDataSvc", name),
     m_rndmEngine(nullptr) {
     declareInterface< ISCT_FrontEnd >(this);
 
@@ -77,7 +75,6 @@ SCT_FrontEnd::SCT_FrontEnd(const std::string &type, const std::string &name,
     declareProperty("UseCalibData", m_useCalibData = true,
                     "Flag to use Calib Data");
     declareProperty("MaxStripsPerSide", m_strip_max = 768, "For SLHC studies");
-    declareProperty("SCT_ReadCalibChipDataSvc", m_ReadCalibChipDataSvc);
 }
 
 // Destructor:
@@ -106,8 +103,10 @@ StatusCode SCT_FrontEnd::initialize() {
 
     // Get the SCT_ReadCaliDataSvc
     if (m_useCalibData) {
-        ATH_CHECK(m_ReadCalibChipDataSvc.retrieve());
+        ATH_CHECK(m_ReadCalibChipDataTool.retrieve());
         ATH_MSG_DEBUG("CalibChipData Service located ");
+    } else {
+      m_ReadCalibChipDataTool.disable();
     }
 
     // Get the maximum number of strips of any module
@@ -346,19 +345,19 @@ StatusCode SCT_FrontEnd::prepareGainAndOffset(
     SiChargedDiodeCollection &collection, const int &side, const
     Identifier &moduleId) const {
     // Get chip data from calib DB
-    std::vector<float> gainByChipVect = m_ReadCalibChipDataSvc->getNPtGainData(
+    std::vector<float> gainByChipVect = m_ReadCalibChipDataTool->getNPtGainData(
         moduleId, side, "GainByChip");
     std::vector<float> gainRMSByChipVect =
-        m_ReadCalibChipDataSvc->getNPtGainData(moduleId, side, "GainRMSByChip");
+        m_ReadCalibChipDataTool->getNPtGainData(moduleId, side, "GainRMSByChip");
     std::vector<float> offsetByChipVect =
-        m_ReadCalibChipDataSvc->getNPtGainData(moduleId, side, "OffsetByChip");
+        m_ReadCalibChipDataTool->getNPtGainData(moduleId, side, "OffsetByChip");
     std::vector<float> offsetRMSByChipVect =
-        m_ReadCalibChipDataSvc->getNPtGainData(moduleId, side,
+        m_ReadCalibChipDataTool->getNPtGainData(moduleId, side,
                                                "OffsetRMSByChip");
     std::vector<float> noiseByChipVect(6, 0.0);
 
     if (m_NoiseOn) { // Check if noise should be on or off
-        noiseByChipVect = m_ReadCalibChipDataSvc->getNPtGainData(moduleId, side,
+        noiseByChipVect = m_ReadCalibChipDataTool->getNPtGainData(moduleId, side,
                                                                  "NoiseByChip");
     }
 
@@ -700,9 +699,9 @@ StatusCode SCT_FrontEnd::randomNoise(SiChargedDiodeCollection &collection, const
     }
 
     // Get chip data from calib DB
-    NOByChipVect = m_ReadCalibChipDataSvc->getNoiseOccupancyData(moduleId, side,
+    NOByChipVect = m_ReadCalibChipDataTool->getNoiseOccupancyData(moduleId, side,
                                                                  "OccupancyByChip");
-    ENCByChipVect = m_ReadCalibChipDataSvc->getNPtGainData(moduleId, side,
+    ENCByChipVect = m_ReadCalibChipDataTool->getNPtGainData(moduleId, side,
                                                            "NoiseByChip");
 
     // Need to check if empty, most should have data, but a few old DEAD modules

@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "SCT_ChargeTrappingSvc.h"
+#include "SCT_ChargeTrappingTool.h"
 
-double SCT_ChargeTrappingSvc::GetPotentialValue(int& ix, int& iy) {
+double SCT_ChargeTrappingTool::GetPotentialValue(int& ix, int& iy) {
 double PotentialArray[81][115] = {
 //--- PotentialArray[81][115] 
 //      ix = 0 -  80 : 5um step, 40um - 440 um
