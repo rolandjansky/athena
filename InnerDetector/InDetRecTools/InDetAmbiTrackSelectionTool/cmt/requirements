@@ -31,6 +31,9 @@ use TrkValInterfaces      TrkValInterfaces-*        Tracking/TrkValidation
 use TrkTrack              TrkTrack-*                Tracking/TrkEvent
 use TrkRIO_OnTrack        TrkRIO_OnTrack-*          Tracking/TrkEvent
 use TrkParameters         TrkParameters-*           Tracking/TrkEvent
+use TrkTruthData	  TrkTruthData-*	    Tracking/TrkEvent
+use InDetSimData	  InDetSimData-*	    InnerDetector/InDetRawEvent
+use StoreGate		  StoreGate-*		    Control/StoreGate
 
 
 apply_pattern component_library

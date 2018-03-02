@@ -310,6 +310,8 @@ namespace InDet
       
       /**Observer tool      This tool is used to observe the tracks and their 'score' */
       ToolHandle<Trk::ITrkObserverTool> m_observerTool;
+
+      //bool m_doSCTSplitting; //WPM
       
       /** some cut values */
       int m_minHits;                // Min Number of hits on track            
@@ -369,6 +371,8 @@ namespace InDet
       float m_pairDeltaEta;
 
       bool m_monitorTracks; // to track observeration/monitoring (default is false)
+      bool m_doSCTSplitting; //WPM
+
       
     }; 
 } // end of namespace
