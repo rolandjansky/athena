@@ -64,7 +64,12 @@ namespace Trk
     /**
      *  Evaluate the density function at the specified coordinate along the beam-line.
      */
-    virtual double trackDensity(double z);
+    virtual double trackDensity(double z) const;
+
+    /**
+     *  Evaluate the density and its first two derivatives at the specified coordinate.
+     */
+    virtual void trackDensity(double z, double& density, double& firstDerivative, double& secondDerivativec) const;
 
     /**
      *  Resets the internal state of the tool, forgetting all tracks previously added.
