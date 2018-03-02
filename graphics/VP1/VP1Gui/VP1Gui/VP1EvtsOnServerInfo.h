@@ -51,7 +51,7 @@ private:
   VP1EvtsOnServerInfo & operator= ( const VP1EvtsOnServerInfo & );
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
 };
 
