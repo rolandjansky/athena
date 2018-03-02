@@ -78,6 +78,7 @@ namespace Trk
 
   void GaussianTrackDensity::addTracks(const std::vector<const TrackParameters*>& perigeeList)
   {
+    double significanceCut = m_d0MaxSignificance * m_d0MaxSignificance;
     for (auto iparam : perigeeList)
     {
       const Perigee* itrk = dynamic_cast<const Perigee*>(iparam);
@@ -88,10 +89,12 @@ namespace Trk
 	double z0 = itrk->parameters()[Trk::z0];
 	const AmgSymMatrix(5) & perigeeCov = *(itrk->covariance());
 	double cov_dd = perigeeCov(Trk::d0, Trk::d0);
+	if ( cov_dd <= 0 ) continue;
+	if ( d0*d0/cov_dd > significanceCut ) continue;
 	double cov_zz = perigeeCov(Trk::z0, Trk::z0);
 	double cov_dz = perigeeCov(Trk::d0, Trk::z0);
 	double covDeterminant = cov_dd*cov_zz - cov_dz*cov_dz;
-	if (covDeterminant <= 0) continue;
+	if ( covDeterminant <= 0 ) continue;
 	double constantArg = (d0*d0*cov_zz + z0*z0*cov_dd + 2*d0*z0*cov_dz) / (2*covDeterminant);
 	double constantFactor =  exp(-constantArg) / (2*Gaudi::Units::pi*covDeterminant);
 	double linearTerm = (d0*cov_dz + z0*cov_dd) / covDeterminant ; // minus signs and factors of 2 cancel...

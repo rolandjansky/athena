@@ -113,8 +113,16 @@ namespace Trk
       }
     };
 
+    //  Cache for track information
     std::unordered_map< Trk::Perigee, Trk::GaussianTrackDensity::TrackEntry, hash_perigee, pred_perigee> m_trackMap;
 
+    //  Cuts set by configurable properties
+    
+    //  Maximum allowed d0 significance to use (in sigma)
+    Gaudi::Property<double> m_d0MaxSignificance { this, 
+                                                  "MaxD0Significance", 
+	                                          3.5, 
+                                                  "Maximum radial impact parameter significance to use track" };
 
   };
 }
