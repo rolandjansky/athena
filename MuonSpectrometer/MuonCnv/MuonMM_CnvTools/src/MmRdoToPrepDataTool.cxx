@@ -79,8 +79,6 @@ StatusCode Muon::MmRdoToPrepDataTool::initialize()
   ATH_CHECK(m_mmPrepDataContainerKey.initialize());
 
 
-  //  m_mmPrepDataContainer->addRef();
-  
   ATH_MSG_INFO("initialize() successful in " << name());
   return StatusCode::SUCCESS;
 }
