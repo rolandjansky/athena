@@ -12,7 +12,6 @@
 #define SCT_RODVetoTool_h
 //STL includes
 #include <string>
-#include <set>
 
 //Gaudi includes
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -26,7 +25,6 @@
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
 #include "SCT_ConditionsTools/ISCT_ConditionsTool.h"
-#include "SCT_Cabling/ISCT_CablingSvc.h"
 #include "SCT_ConditionsData/IdentifierSet.h"
 
 //forward declarations
@@ -56,14 +54,12 @@ public:
   virtual bool canReportAbout(InDetConditions::Hierarchy h);
   
   ///Is the detector element good?
-  virtual bool isGood(const Identifier & elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT);
+  virtual bool isGood(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT);
   
   ///is it good?, using wafer hash
-  virtual bool isGood(const IdentifierHash & hashId);
+  virtual bool isGood(const IdentifierHash& hashId);
 
 private:
-
-  ServiceHandle<ISCT_CablingSvc> m_cabling;
 
   const IdentifierSet* getCondData() const;
 
@@ -71,9 +67,7 @@ private:
   // be called and read safely.
   SG::ReadHandleKey<IdentifierSet> m_badModuleIds;
 
-  std::set<Identifier> m_badIds;
-
-  const SCT_ID * m_pHelper;
+  const SCT_ID* m_pHelper;
 };
 
 #endif // SCT_RODVetoTool_h

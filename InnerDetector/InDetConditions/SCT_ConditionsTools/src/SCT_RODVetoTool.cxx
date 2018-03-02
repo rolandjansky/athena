@@ -29,7 +29,6 @@
 // Constructor
 SCT_RODVetoTool::SCT_RODVetoTool(const std::string& type, const std::string& name, const IInterface* parent) :
   base_class(type, name, parent),
-  m_cabling("SCT_CablingSvc",name),
   m_badModuleIds{"BadSCTModuleIds_RODVeto"},
   m_pHelper{nullptr}
   {
@@ -38,9 +37,8 @@ SCT_RODVetoTool::SCT_RODVetoTool(const std::string& type, const std::string& nam
 
 //Initialize
 StatusCode 
-SCT_RODVetoTool::initialize(){
+SCT_RODVetoTool::initialize() {
   ATH_CHECK(detStore()->retrieve(m_pHelper, "SCT_ID"));
-  ATH_CHECK(m_cabling.retrieve());
   ATH_CHECK(m_badModuleIds.initialize());
  
   return  StatusCode::SUCCESS;
@@ -48,31 +46,31 @@ SCT_RODVetoTool::initialize(){
 
 //Finalize
 StatusCode
-SCT_RODVetoTool::finalize(){
+SCT_RODVetoTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
 bool 
-SCT_RODVetoTool::canReportAbout(InDetConditions::Hierarchy h){
+SCT_RODVetoTool::canReportAbout(InDetConditions::Hierarchy h) {
   return ((h==InDetConditions::DEFAULT) or (h==InDetConditions::SCT_SIDE));
 }
 
 bool 
-SCT_RODVetoTool::isGood(const Identifier & elementId, InDetConditions::Hierarchy h){
+SCT_RODVetoTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) {
   if (not canReportAbout(h)) return true;
   const IdentifierSet* badIds{getCondData()};
   if (badIds==nullptr) {
     ATH_MSG_ERROR("IdentifierSet cannot be retrieved in isGood. true is returned.");
     return true;
   }
-  bool result = (badIds->find(elementId) == badIds->end());
+  bool result{badIds->find(elementId) == badIds->end()};
   return result;
 }
 
 bool 
-SCT_RODVetoTool::isGood(const IdentifierHash & hashId){
-  Identifier elementId=m_pHelper->wafer_id(hashId);
-  Identifier moduleId =m_pHelper->module_id(elementId);
+SCT_RODVetoTool::isGood(const IdentifierHash& hashId) {
+  Identifier elementId{m_pHelper->wafer_id(hashId)};
+  Identifier moduleId{m_pHelper->module_id(elementId)};
   return isGood(moduleId);
 }
 
