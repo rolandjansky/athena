@@ -29,7 +29,6 @@
 #include "SCT_ConditionsData/SCT_ModuleVetoCondData.h"
 
 //forward declarations
-class IdentifierHash;
 class SCT_ID;
 
 /**

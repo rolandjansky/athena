@@ -54,7 +54,6 @@ public:
   virtual bool                          isGood(const IdentifierHash& hashId) override;
 
 private:
-  SCT_ModuleVetoCondData                   m_data;      //!< Set of masked link identifiers
   const SCT_ID*                            m_sctHelper; //!< ID helper for SCT
 
   // Mutex to protect the contents.
