@@ -28,14 +28,30 @@ namespace Trk
     return StatusCode::SUCCESS;
   }
 
-  double GaussianTrackDensity::trackDensity(double z)
+  double GaussianTrackDensity::trackDensity(double z) const
   {
     double sum = 0.0;
     for (auto& entry : m_trackMap)
     {
-      sum += entry.second.constant * exp(z*entry.second.c_1 + z*z*entry.second.c_2);
+      sum += entry.second.constant * exp(z*(entry.second.c_1 + z*entry.second.c_2));
     }
     return sum;
+  }
+
+  void GaussianTrackDensity::trackDensity(double z, double& density, double& firstDerivative, double& secondDerivative) const
+  {
+    density = 0.0;
+    firstDerivative = 0.0;
+    secondDerivative = 0.0;
+    for (auto& entry : m_trackMap)
+    {
+      double delta = entry.second.constant * exp(z*(entry.second.c_1 + z*entry.second.c_2));
+      density += delta;
+      double qPrime = entry.second.c_1 + 2*z*entry.second.c_2;
+      double deltaPrime = delta * qPrime;
+      firstDerivative += deltaPrime;
+      secondDerivative += 2*entry.second.c_2*delta + qPrime*deltaPrime;
+    }
   }
 
   void GaussianTrackDensity::addTracks(const std::vector<const Trk::Track*>& vectorTrk)
