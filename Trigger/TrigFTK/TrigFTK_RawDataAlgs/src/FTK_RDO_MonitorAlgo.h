@@ -82,7 +82,7 @@ public:
   bool findHash(unsigned int hash, bool isSCT, unsigned int& tower, unsigned int& sector, unsigned int& plane);
 
   /// Tools and services ///
-  ITHistSvc*    rootHistSvc;
+  ITHistSvc*    m_rootHistSvc;
 
 
   /// Track collections ///
@@ -103,59 +103,59 @@ public:
   const AtlasDetectorID* m_id_helper;
 
   /// Histograms ///
-  TH1D* h_FTK_RawTrack_n;
-  TH1D* h_FTK_pt;
-  TH1D* h_FTK_eta;
-  TH1D* h_FTK_phi;
-  TH1D* h_FTK_d0;
-  TH1D* h_FTK_z0;
-  TH1D* h_FTK_ptEffNum;
-  TH1D* h_FTK_etaEffNum;
-  TH1D* h_FTK_phiEffNum;
-  TH1D* h_FTK_d0EffNum;
-  TH1D* h_FTK_z0EffNum;
-  TH1D* h_offline_n;
-  TH1D* h_offline_nAcc;
-  TH1D* h_offline_pt;
-  TH1D* h_offline_eta;
-  TH1D* h_offline_phi;
-  TH1D* h_offline_d0;
-  TH1D* h_offline_z0;
-  TH1D*  h_IBL_dlocX_fullRange;
-  TH1D*  h_IBL_dlocY_fullRange;
-  TH1D*  h_IBL_locX;
-  TH1D*  h_IBL_locY;
-  TH1D*  h_pixb_locX;
-  TH1D*  h_pixb_locY;
-  TH1D*  h_pixe_locX;
-  TH1D*  h_pixe_locY;
-  TH1D*  h_sctb_locX;
-  TH1D*  h_scte_locX;
-  TProfile* h_missingHits;
-  TH1D* h_FTK_nHitMatch;
-  TH1D* h_FTK_nTrackMatch;
+  TH1D* m_h_FTK_RawTrack_n;
+  TH1D* m_h_FTK_pt;
+  TH1D* m_h_FTK_eta;
+  TH1D* m_h_FTK_phi;
+  TH1D* m_h_FTK_d0;
+  TH1D* m_h_FTK_z0;
+  TH1D* m_h_FTK_ptEffNum;
+  TH1D* m_h_FTK_etaEffNum;
+  TH1D* m_h_FTK_phiEffNum;
+  TH1D* m_h_FTK_d0EffNum;
+  TH1D* m_h_FTK_z0EffNum;
+  TH1D* m_h_offline_n;
+  TH1D* m_h_offline_nAcc;
+  TH1D* m_h_offline_pt;
+  TH1D* m_h_offline_eta;
+  TH1D* m_h_offline_phi;
+  TH1D* m_h_offline_d0;
+  TH1D* m_h_offline_z0;
+  TH1D*  m_h_IBL_dlocX_fullRange;
+  TH1D*  m_h_IBL_dlocY_fullRange;
+  TH1D*  m_h_IBL_locX;
+  TH1D*  m_h_IBL_locY;
+  TH1D*  m_h_pixb_locX;
+  TH1D*  m_h_pixb_locY;
+  TH1D*  m_h_pixe_locX;
+  TH1D*  m_h_pixe_locY;
+  TH1D*  m_h_sctb_locX;
+  TH1D*  m_h_scte_locX;
+  TProfile* m_h_missingHits;
+  TH1D* m_h_FTK_nHitMatch;
+  TH1D* m_h_FTK_nTrackMatch;
 
-  std::vector<std::vector<TH1D*>> h_pixb_dlocX;
-  std::vector<std::vector<TH1D*>> h_pixb_dlocY;
-  std::vector<std::vector<TH1D*>> h_pixe_dlocX;
-  std::vector<std::vector<TH1D*>> h_pixe_dlocY;
-  std::vector<std::vector<TH1D*>> h_sctb_0_dlocX;
-  std::vector<std::vector<TH1D*>> h_sctb_1_dlocX;
-  std::vector<std::vector<TH1D*>> h_scte_0_dlocX;
-  std::vector<std::vector<TH1D*>> h_scte_1_dlocX;
+  std::vector<std::vector<TH1D*>> m_h_pixb_dlocX;
+  std::vector<std::vector<TH1D*>> m_h_pixb_dlocY;
+  std::vector<std::vector<TH1D*>> m_h_pixe_dlocX;
+  std::vector<std::vector<TH1D*>> m_h_pixe_dlocY;
+  std::vector<std::vector<TH1D*>> m_h_sctb_0_dlocX;
+  std::vector<std::vector<TH1D*>> m_h_sctb_1_dlocX;
+  std::vector<std::vector<TH1D*>> m_h_scte_0_dlocX;
+  std::vector<std::vector<TH1D*>> m_h_scte_1_dlocX;
 
-  std::vector<TH1D*> h_pix_row;
-  std::vector<TH1D*> h_pix_col;
-  std::vector<TH1D*> h_sct_coord;
+  std::vector<TH1D*> m_h_pix_row;
+  std::vector<TH1D*> m_h_pix_col;
+  std::vector<TH1D*> m_h_sct_coord;
 
-  std::vector<TH1D*> h_pix_rowW;
-  std::vector<TH1D*> h_pix_colW;
-  std::vector<TH1D*> h_sct_width;
+  std::vector<TH1D*> m_h_pix_rowW;
+  std::vector<TH1D*> m_h_pix_colW;
+  std::vector<TH1D*> m_h_sct_width;
 
-  std::vector<TH1D*> h_ftk_sctb_dlocX;
-  TH1D* h_ftk_sct_clusWidth;
-  TH1D* h_ftk_pix_phiClusWidth;
-  TH1D* h_ftk_pix_etaClusWidth;
+  std::vector<TH1D*> m_h_ftk_sctb_dlocX;
+  TH1D* m_h_ftk_sct_clusWidth;
+  TH1D* m_h_ftk_pix_phiClusWidth;
+  TH1D* m_h_ftk_pix_etaClusWidth;
 
   double m_minPt;
   double m_maxa0;
