@@ -1,15 +1,21 @@
-Wed Dec 13 13:37:55 CET 2017
+Mon Feb 26 04:12:09 CET 2018
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [AthenaWorkDir-22.0.0] [x86_64-slc6-gcc62-dbg] [atlas-work3/5c32a9a2b2] -- built on [2017-12-13T1129]
+Py:Athena            INFO using release [AthenaWorkDir-22.0.1] [x86_64-slc6-gcc62-dbg] [atlas-work3/29795b37319] -- built on [2018-02-25T2039]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "AthExJobOptions/AthExJobOptions_CustomToolJobOptions.py"
-Py:ConfigurableDb    INFO Read module info for 5439 configurables from 37 genConfDb files
-Py:ConfigurableDb    INFO No duplicates have been found: that's good !
-{'TheTool': <ToolUsingTool/YourTopAlg.ToolUsingTool at 0x7f4ff0064470>, 'ErrorMax': '<no value>', 'RndmFactor': '<no value>', 'PublicToolList': PublicToolHandleArray(['ConcreteTool/Tool4','ToolUsingTool/Tool5','ToolSpace::TemplatedTool<double>/Tool6']), 'AuditExecute': '<no value>', 'EmptyPublicTool': PublicToolHandle(''), 'AuditReinitialize': '<no value>', 'EmptyPrivateTool': PrivateToolHandle(''), 'InputKey': '<no value>', 'AuditRestart': '<no value>', 'OutputKey': '<no value>', 'MonitorService': '<no value>', 'Enable': '<no value>', 'Timeline': '<no value>', 'AuditFinalize': '<no value>', 'PrivateToolList': PrivateToolHandleArray(['ConcreteTool/Tool1','ToolUsingTool/Tool2','ToolSpace::TemplatedTool<double>/Tool3']), 'AuditEndRun': '<no value>', 'NeededResources': [], 'AuditBeginRun': '<no value>', 'AutoRetrieveTools': '<no value>', 'FilterCircularDependencies': '<no value>', 'ExtraOutputs': [], 'IsIOBound': '<no value>', 'AuditInitialize': '<no value>', 'OutputLevel': '<no value>', 'ExtraInputs': [], 'AuditStop': '<no value>', 'DetStore': ServiceHandle('StoreGateSvc/DetectorStore'), 'TheSvc': ServiceHandle('ConcreteSvc'), 'Cardinality': '<no value>', 'EvtStore': ServiceHandle('StoreGateSvc'), 'AuditStart': '<no value>', 'RegisterForContextService': '<no value>', 'AuditAlgorithms': '<no value>', 'ThePublicTool': PublicToolHandle('ConcreteTool'), 'ErrorCounter': '<no value>'}
+Py:ConfigurableDb    INFO Read module info for 5459 configurables from 61 genConfDb files
+Py:ConfigurableDb WARNING Found 2 duplicates among the 61 genConfDb files :
+Py:ConfigurableDb WARNING --------------------------------------------------
+Py:ConfigurableDb WARNING   -<component name>: <module> - [ <duplicates> ]
+Py:ConfigurableDb WARNING --------------------------------------------------
+Py:ConfigurableDb WARNING   -IDTrackCaloDepositsDecoratorTool: MuonTPTools.MuonTPToolsConf - ['DerivationFrameworkMuons.DerivationFrameworkMuonsConf']
+Py:ConfigurableDb WARNING   -MuonTPExtrapolationTool: MuonTPTools.MuonTPToolsConf - ['DerivationFrameworkMuons.DerivationFrameworkMuonsConf']
+Py:ConfigurableDb WARNING Fix your cmt/requirements file !!
+{'TheTool': <ToolUsingTool/YourTopAlg.ToolUsingTool at 0x7fed06ae9470>, 'ErrorMax': '<no value>', 'RndmFactor': '<no value>', 'PublicToolList': PublicToolHandleArray(['ConcreteTool/Tool4','ToolUsingTool/Tool5','ToolSpace::TemplatedTool<double>/Tool6']), 'AuditExecute': '<no value>', 'EmptyPublicTool': PublicToolHandle(''), 'AuditReinitialize': '<no value>', 'EmptyPrivateTool': PrivateToolHandle(''), 'InputKey': '<no value>', 'AuditRestart': '<no value>', 'OutputKey': '<no value>', 'MonitorService': '<no value>', 'Enable': '<no value>', 'Timeline': '<no value>', 'AuditFinalize': '<no value>', 'PrivateToolList': PrivateToolHandleArray(['ConcreteTool/Tool1','ToolUsingTool/Tool2','ToolSpace::TemplatedTool<double>/Tool3']), 'AuditEndRun': '<no value>', 'NeededResources': [], 'AuditBeginRun': '<no value>', 'AutoRetrieveTools': '<no value>', 'FilterCircularDependencies': '<no value>', 'ExtraOutputs': [], 'IsIOBound': '<no value>', 'AuditInitialize': '<no value>', 'OutputLevel': '<no value>', 'ExtraInputs': [], 'AuditStop': '<no value>', 'DetStore': ServiceHandle('StoreGateSvc/DetectorStore'), 'TheSvc': ServiceHandle('ConcreteSvc'), 'Cardinality': '<no value>', 'EvtStore': ServiceHandle('StoreGateSvc'), 'AuditStart': '<no value>', 'RegisterForContextService': '<no value>', 'AuditAlgorithms': '<no value>', 'ThePublicTool': PublicToolHandle('ConcreteTool'), 'ErrorCounter': '<no value>'}
 /***** Algorithm AthSequencer/TopAlg ***************************************************************
 |-Atomic                     = False
 |-AuditAlgorithms            = False
@@ -22,7 +28,7 @@ Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 |-AuditRestart               = False
 |-AuditStart                 = False
 |-AuditStop                  = False
-|-AutoRetrieveTools          = False
+|-AutoRetrieveTools          = True
 |-Cardinality                = 1
 |-ContinueEventloopOnFPE     = False
 |-DetStore                   = ServiceHandle('StoreGateSvc/DetectorStore')
@@ -56,7 +62,7 @@ Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 | |-AuditRestart               = False
 | |-AuditStart                 = False
 | |-AuditStop                  = False
-| |-AutoRetrieveTools          = False
+| |-AutoRetrieveTools          = True
 | |-Cardinality                = 1
 | |-DetStore                   = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-EmptyPrivateTool           = PrivateToolHandle('')
@@ -90,7 +96,7 @@ Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 | | |-AuditStart        = False
 | | |-AuditStop         = False
 | | |-AuditTools        = False
-| | |-AutoRetrieveTools = False
+| | |-AutoRetrieveTools = True
 | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
 | | |-EvtStore          = ServiceHandle('StoreGateSvc')
 | | |-ExtraInputs       = []  (default: [])
@@ -109,7 +115,7 @@ Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 | | | |-AuditStart        = False
 | | | |-AuditStop         = False
 | | | |-AuditTools        = False
-| | | |-AutoRetrieveTools = False
+| | | |-AutoRetrieveTools = True
 | | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
 | | | |-EvtStore          = ServiceHandle('StoreGateSvc')
 | | | |-ExtraInputs       = []  (default: [])
@@ -126,7 +132,7 @@ Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 | | | |-AuditStart        = False
 | | | |-AuditStop         = False
 | | | |-AuditTools        = False
-| | | |-AutoRetrieveTools = False
+| | | |-AutoRetrieveTools = True
 | | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
 | | | |-EvtStore          = ServiceHandle('StoreGateSvc')
 | | | |-ExtraInputs       = []  (default: [])
@@ -148,7 +154,7 @@ Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 | |-AuditRestart               = False
 | |-AuditStart                 = False
 | |-AuditStop                  = False
-| |-AutoRetrieveTools          = False
+| |-AutoRetrieveTools          = True
 | |-Cardinality                = 1
 | |-DetStore                   = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-EmptyPrivateTool           = PrivateToolHandle('')
@@ -182,7 +188,7 @@ Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 | | |-AuditStart        = False
 | | |-AuditStop         = False
 | | |-AuditTools        = False
-| | |-AutoRetrieveTools = False
+| | |-AutoRetrieveTools = True
 | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
 | | |-EvtStore          = ServiceHandle('StoreGateSvc')
 | | |-ExtraInputs       = []  (default: [])
@@ -201,7 +207,7 @@ Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 | | | |-AuditStart        = False
 | | | |-AuditStop         = False
 | | | |-AuditTools        = False
-| | | |-AutoRetrieveTools = False
+| | | |-AutoRetrieveTools = True
 | | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
 | | | |-EvtStore          = ServiceHandle('StoreGateSvc')
 | | | |-ExtraInputs       = []  (default: [])
@@ -218,7 +224,7 @@ Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 | | | |-AuditStart        = False
 | | | |-AuditStop         = False
 | | | |-AuditTools        = False
-| | | |-AutoRetrieveTools = False
+| | | |-AutoRetrieveTools = True
 | | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
 | | | |-EvtStore          = ServiceHandle('StoreGateSvc')
 | | | |-ExtraInputs       = []  (default: [])
@@ -236,7 +242,7 @@ Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 | | |-AuditStart        = False
 | | |-AuditStop         = False
 | | |-AuditTools        = False
-| | |-AutoRetrieveTools = False
+| | |-AutoRetrieveTools = True
 | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
 | | |-EvtStore          = ServiceHandle('StoreGateSvc')
 | | |-ExtraInputs       = []  (default: [])
@@ -253,7 +259,7 @@ Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 | | |-AuditStart        = False
 | | |-AuditStop         = False
 | | |-AuditTools        = False
-| | |-AutoRetrieveTools = False
+| | |-AutoRetrieveTools = True
 | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
 | | |-EvtStore          = ServiceHandle('StoreGateSvc')
 | | |-ExtraInputs       = []  (default: [])
@@ -272,7 +278,7 @@ Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 | | | |-AuditStart        = False
 | | | |-AuditStop         = False
 | | | |-AuditTools        = False
-| | | |-AutoRetrieveTools = False
+| | | |-AutoRetrieveTools = True
 | | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
 | | | |-EvtStore          = ServiceHandle('StoreGateSvc')
 | | | |-ExtraInputs       = []  (default: [])
@@ -289,7 +295,7 @@ Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 | | | |-AuditStart        = False
 | | | |-AuditStop         = False
 | | | |-AuditTools        = False
-| | | |-AutoRetrieveTools = False
+| | | |-AutoRetrieveTools = True
 | | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
 | | | |-EvtStore          = ServiceHandle('StoreGateSvc')
 | | | |-ExtraInputs       = []  (default: [])
@@ -307,7 +313,7 @@ Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 | | |-AuditStart        = False
 | | |-AuditStop         = False
 | | |-AuditTools        = False
-| | |-AutoRetrieveTools = False
+| | |-AutoRetrieveTools = True
 | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
 | | |-EvtStore          = ServiceHandle('StoreGateSvc')
 | | |-ExtraInputs       = []  (default: [])
@@ -322,8 +328,8 @@ Py:Athena            INFO including file "AthenaCommon/runbatch.py"
 [?1034hApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v30r0)
-                                          running on lxplus048.cern.ch on Wed Dec 13 13:38:17 2017
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v30r1)
+                                          running on lxplus066.cern.ch on Mon Feb 26 04:12:22 2018
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -331,7 +337,7 @@ ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to leve
 StatusCodeSvc        INFO initialize
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 2318 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 2322 CLIDRegistry entries for module ALL
 ChronoStatSvc        INFO  Number of skipped events for MemStat-1
 CoreDumpSvc          INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
@@ -368,7 +374,7 @@ YourTopAlg           INFO Empty public tool is empty (OK)
 HistogramPersis...WARNING Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr       INFO Application Manager Started successfully
-ClassIDSvc           INFO  getRegistryEntries: read 1358 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 1357 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO   ===>>>  start of run 1    <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #1 0 events processed so far  <<<===
 MyTopAlg             INFO got this quote [Your day will be somewhat dictated by authority].
@@ -526,7 +532,7 @@ ToolSvc              INFO Removing all tools created by ToolSvc
 *****Chrono*****     INFO ****************************************************************************************************
 *****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****     INFO ****************************************************************************************************
-ChronoStatSvc        INFO Time User   : Tot=  280 [ms]                                             #=  1
+ChronoStatSvc        INFO Time User   : Tot=  200 [ms]                                             #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully
