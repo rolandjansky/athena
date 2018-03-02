@@ -8,7 +8,6 @@
 
 #include "Identifier/Identifier.h"
 
-#include "InDetBCM_RawData/BCM_RDO_Container.h"
 
 #include "AthenaKernel/errorcheck.h"
 
@@ -16,37 +15,28 @@
 BcmCollisionTimeAlg:: BcmCollisionTimeAlg(const std::string& name, ISvcLocator* pSvcLocator):
     AthAlgorithm(name,pSvcLocator)
   {
-    //declareProperty("cellContainerName",m_cellsContName);
-    //m_nevt=0;
-    m_timeCut = 6.25;
   }
   
 //__________________________________________________________________________
 //Destructor
   BcmCollisionTimeAlg::~BcmCollisionTimeAlg()
   {
-    ATH_MSG_DEBUG("BcmCollisionTimeAlg destructor called" );
   }
 
 //__________________________________________________________________________
 StatusCode BcmCollisionTimeAlg::initialize()
   {
-    
-    ATH_MSG_INFO( "BcmCollisionTimeAlg initialize()" );
-
-    CHECK( evtStore().retrieve() );
-
-    return StatusCode::SUCCESS; 
-
+    ATH_CHECK( m_bcmContainerName.initialize() );
+    ATH_CHECK( m_bcmCollisionTimeName.initialize() );
+    return StatusCode::SUCCESS;
   }
 
 //__________________________________________________________________________
 StatusCode BcmCollisionTimeAlg::finalize()
   {
-    ATH_MSG_DEBUG("BcmCollisionTimeAlg finalize()"  );
-    return StatusCode::SUCCESS; 
+    return StatusCode::SUCCESS;
   }
-  
+
 //__________________________________________________________________________
 StatusCode BcmCollisionTimeAlg::execute()
   {
@@ -65,49 +55,40 @@ StatusCode BcmCollisionTimeAlg::execute()
    std::vector<deltat_data> deltaTdataA_HG;
    std::vector<deltat_data> deltaTdataC_HG;
 
-   const BCM_RDO_Container *bcmRDO=0;
-   if (StatusCode::SUCCESS!=evtStore()->retrieve(bcmRDO,"BCM_RDOs")) {
-     ATH_MSG_WARNING("Cannot find BCM RDO! " );
-   }   else {
+  SG::ReadHandle<BCM_RDO_Container> bcmRDO(m_bcmContainerName);
+  if( !bcmRDO.isValid() ) {
+    ATH_MSG_WARNING("Cannot find BCM RDO " << m_bcmContainerName.key() << " ! " );
+    return StatusCode::FAILURE; 
+  }
+  else {
      int num_collect = bcmRDO->size();
      if ( num_collect != 16 ){
        ATH_MSG_WARNING( " Number of collections: " << num_collect );
      }
-   
-     BCM_RDO_Container::const_iterator chan_itr = bcmRDO->begin();
-     BCM_RDO_Container::const_iterator chan_itr_end = bcmRDO->end();
-     
      int channelID=0;
      
-     for (; chan_itr != chan_itr_end; chan_itr++) {
-       channelID = (*chan_itr)->getChannel();
+     for (const BCM_RDO_Collection *chan: *bcmRDO) {
+       channelID = chan->getChannel();
        //std::cout << " ChannelID: " << channelID << std::endl;
 
-       
        // Loop over all BCM hits in this collection
-       BCM_RDO_Collection::const_iterator bcm_itr = (*chan_itr)->begin();
-       BCM_RDO_Collection::const_iterator bcm_itr_end = (*chan_itr)->end();
-       
-       for (; bcm_itr != bcm_itr_end; bcm_itr++) {
-         if ((*bcm_itr)->getPulse1Width() != 0 && (*bcm_itr)->getLVL1A()==18) {
-           //std::cout << "Found hit at LVL1A18! " << std::endl;
-           ///                       PLEASE TAG THE EVENT!!!
+       for (const BCM_RawData *bcm: *chan) {
+         if (bcm->getPulse1Width() != 0 && bcm->getLVL1A()==18) {
            if (channelID <8) multiLG++;
            else multiHG++;
-	   deltat_data hit(channelID,(*bcm_itr)->getLVL1A(),(*bcm_itr)->getPulse1Position());
-	   //std::cout << "channel,LVL1A,pos" << channelID << " " << (*bcm_itr)->getLVL1A() << " " << (*bcm_itr)->getPulse1Position() << std::endl;
+	   deltat_data hit(channelID,bcm->getLVL1A(),bcm->getPulse1Position());
+	   //std::cout << "channel,LVL1A,pos" << channelID << " " << bcm_->getLVL1A() << " " << bcm->getPulse1Position() << std::endl;
 	   if (channelID >7 && channelID < 12) deltaTdataA_HG.push_back(hit);
 	   if (channelID >11 ) deltaTdataC_HG.push_back(hit);
 
 
-	   if ((*bcm_itr)->getPulse2Width() != 0) {
-             //std::cout << "Found hit2! " << std::endl;
+	   if (bcm->getPulse2Width() != 0) {
              if (channelID <8) multiLG++;
              else multiHG++;
-	     deltat_data hit2(channelID,(*bcm_itr)->getLVL1A(),(*bcm_itr)->getPulse2Position());
-	     //std::cout << "channel,LVL1A,pos" << channelID << " " << (*bcm_itr)->getLVL1A() << " " << (*bcm_itr)->getPulse2Position() << std::endl;
+	     deltat_data hit2(channelID,bcm->getLVL1A(),bcm->getPulse2Position());
+	     //std::cout << "channel,LVL1A,pos" << channelID << " " << bcm->getLVL1A() << " " << bcm->getPulse2Position() << std::endl;
 	     if (channelID >7 && channelID < 12) deltaTdataA_HG.push_back(hit2);
-	     if (channelID >11 && (*bcm_itr)->getPulse2Width() != 0 ) deltaTdataC_HG.push_back(hit2);
+	     if (channelID >11 && bcm->getPulse2Width() != 0 ) deltaTdataC_HG.push_back(hit2);
 	   }
 
 
@@ -141,13 +122,10 @@ StatusCode BcmCollisionTimeAlg::execute()
   //std::cout << " multiLG, multiHG " << multiLG << " " << multiHG << std::endl;
   //fill object here
   //BcmBkgWord * bbw = new BcmBkgWord(multiLG,multiHG,IsCol,IsBkg,deltaT);
-   std::unique_ptr<BcmCollisionTime> bbw( new BcmCollisionTime(multiLG,multiHG,deltaT) );
-  if (evtStore()->record(bbw.get(),"BcmCollisionTime").isFailure()) {
+  SG::WriteHandle<BcmCollisionTime> bbw(m_bcmCollisionTimeName);
+  if (bbw.record( std::make_unique<BcmCollisionTime>(multiLG,multiHG,deltaT) ).isFailure()) {
     ATH_MSG_WARNING( " Cannot record BcmCollisionTime " );
+    return StatusCode::FAILURE;
   }
-  else {
-    bbw.release();
-  }
-
   return StatusCode::SUCCESS;
 }

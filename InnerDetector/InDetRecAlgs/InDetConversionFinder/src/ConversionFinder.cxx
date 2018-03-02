@@ -18,9 +18,7 @@
 #include "GaudiKernel/MsgStream.h"
 
 
-#include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticle.h"
-#include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexAuxContainer.h"
 
@@ -49,26 +47,14 @@ namespace InDet
 
   StatusCode ConversionFinder::initialize()
   {
-    /* Get the VertexFinderTool */
-    if ( m_VertexFinderTool.retrieve().isFailure() ) {
-       msg(MSG::FATAL) << "Failed to retrieve tool " << m_VertexFinderTool << endmsg;
-       return StatusCode::FAILURE;
-    } else {
-       msg(MSG::INFO) << "Retrieved tool " << m_VertexFinderTool << endmsg;
-    }
+    ATH_CHECK( m_VertexFinderTool.retrieve() );
 
+    m_doExtrapolation &= !m_EMExtrapolationTool.name().empty();
+    ATH_CHECK( m_EMExtrapolationTool.retrieve( EnableTool {m_doExtrapolation} ) );
 
-    if ( m_doExtrapolation && m_EMExtrapolationTool.retrieve().isFailure() ) {
-       msg(MSG::INFO) << "Failed to retrieve tool " << m_EMExtrapolationTool << endmsg;
-       m_doExtrapolation = false;
-    } else {
-       msg(MSG::INFO) << "Retrieved tool " << m_EMExtrapolationTool << endmsg;
-    }
-
-
+    ATH_CHECK( m_tracksName.initialize() );
+    ATH_CHECK( m_InDetConversionOutputName.initialize() );
     resetStatistics();
-
-    msg(MSG::INFO) << "Initialization successful" << endmsg;
 
     return StatusCode::SUCCESS;
   }
@@ -112,19 +98,42 @@ namespace InDet
     m_Trt_Conversions    = 0;
   }
 
+  namespace {
+  class cleanup_pair : public std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>
+  {
+  public:
+    cleanup_pair(const std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> &a_pair) : std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*>(a_pair) {}
+    ~cleanup_pair() {
+      delete this->first;
+      delete this->second;
+    }
+    xAOD::VertexContainer* releaseFirst() {
+      xAOD::VertexContainer *tmp=this->first;
+      this->first=nullptr;
+      return  tmp;
+    }
+    xAOD::VertexAuxContainer* releaseSecond() {
+      xAOD::VertexAuxContainer *tmp=this->second;
+      this->second=nullptr;
+      return  tmp;
+    }
+  };
+  }
+  
   StatusCode ConversionFinder::execute()
   {
   
     m_events_processed++;
 
-    const xAOD::TrackParticleContainer* trackParticleCollection(0);
-    if ( evtStore()->retrieve ( trackParticleCollection, m_tracksName ).isFailure() )
+    SG::ReadHandle<xAOD::TrackParticleContainer> trackParticleCollection(m_tracksName);
+    if ( !trackParticleCollection.isValid())
     {
       ATH_MSG_WARNING( "Could not find xAOD::TrackParticleContainer " << m_tracksName << " in StoreGate.");
+      // @TODO change to failure
       return StatusCode::SUCCESS;
     }
 
-    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> conversions = m_VertexFinderTool->findVertex ( trackParticleCollection );
+    cleanup_pair conversions( m_VertexFinderTool->findVertex ( trackParticleCollection.cptr() ) );
 
     if (!conversions.first || !conversions.second)
     {
@@ -140,7 +149,7 @@ namespace InDet
     // etaAtCalo, phiAtCalo (extrapolate each vertex)
     if(m_doExtrapolation){
       float etaAtCalo = -9999., phiAtCalo = -9999.;
-      for (auto vertex : *(conversions.first))
+      for (xAOD::Vertex *vertex : *(conversions.first))
       {
 
         Amg::Vector3D momentum(0., 0., 0.);
@@ -164,11 +173,13 @@ namespace InDet
     }
     
     analyzeResults(conversions.first);
-  
-    //put the new conversion vertex container and its aux container into StoreGate
-    ATH_MSG_DEBUG("Writing container " << m_InDetConversionOutputName);
-    CHECK( evtStore()->record(conversions.first, m_InDetConversionOutputName) );
-    CHECK( evtStore()->record(conversions.second, m_InDetConversionOutputName + "Aux.") );
+
+    SG::WriteHandle<xAOD::VertexContainer> output(m_InDetConversionOutputName );
+    if (output.record( std::unique_ptr<xAOD::VertexContainer>(conversions.releaseFirst()) ,
+                       std::unique_ptr<xAOD::VertexAuxContainer>(conversions.releaseSecond())).isFailure()) {
+      ATH_MSG_ERROR("Failed to record conversion vertices " << m_InDetConversionOutputName.key());
+      return StatusCode::FAILURE;
+    }
 
     return StatusCode::SUCCESS;
   }

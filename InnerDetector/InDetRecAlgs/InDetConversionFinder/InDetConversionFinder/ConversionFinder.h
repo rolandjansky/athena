@@ -15,7 +15,8 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "xAODTracking/VertexContainerFwd.h"
+#include "xAODTracking/VertexContainer.h"
+#include "xAODTracking/TrackParticleContainer.h"
 
 class IEMExtrapolationTools;
 
@@ -36,8 +37,8 @@ namespace InDet{
     
   protected:
 	    
-    std::string m_tracksName; //!< Name of track container in StoreGate
-    std::string m_InDetConversionOutputName; //!< Name of output container to store results
+    SG::ReadHandleKey<xAOD::TrackParticleContainer> m_tracksName;                //!< Name of track container in StoreGate
+    SG::WriteHandleKey<xAOD::VertexContainer>       m_InDetConversionOutputName; //!< Name of output container to store results
     
     ToolHandle< IVertexFinder > m_VertexFinderTool;  //<! Vertex finder tool
     ToolHandle< IEMExtrapolationTools >  m_EMExtrapolationTool;
