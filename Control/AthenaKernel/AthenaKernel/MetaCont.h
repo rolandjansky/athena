@@ -21,8 +21,6 @@
 #include "AthenaKernel/DataBucketTraitFwd.h"
 #include "AthenaKernel/MetaContDataBucket.h"
 
-//#include "PersistentDataModel/Guid.h"
-
 namespace SG {
   class DataProxy;
   template<class T>
@@ -89,11 +87,8 @@ public:
 
 private:
 
-  //bool findEntry(const EventIDBase& t, const IOVEntryT<T>*&) const;
-
   mutable std::mutex m_mut;
 
-  //typedef std::set<IOVEntryT<T>, typename IOVEntryT<T>::IOVEntryTStartCritereon > MetaContSet;
   typedef std::map<SourceID,T*> MetaContSet;
   MetaContSet m_metaSet;
 
@@ -130,10 +125,7 @@ struct DataBucketTrait<MetaCont<T>, U>
 
 template <typename T>
 MetaCont<T>::~MetaCont<T>() {
-  //  std::cout << "cleaning up - " << typeid( T ).name() << std::endl;
-  
   for (auto itr=m_metaSet.begin(); itr != m_metaSet.end(); ++itr) {
-    //delete itr->objPtr();
     delete itr->second;
   }
   m_metaSet.clear();
@@ -200,50 +192,16 @@ bool MetaCont<T>::find(const SourceID& it, T*& t) const {
     t=itr->second;
     return true;
   }
-/*
   else {
-    t=0;
     typename MetaContSet::const_iterator it=m_metaSet.begin();
     for (; it != m_metaSet.end(); ++it) {
       std::cerr << "Container has SID=" << it->first << std::endl;
     }
   }
-*/
-  return false;
-}
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-/*
-template <typename T>
-bool MetaCont<T>::findEntry(const EventIDBase& it, const IOVEntryT<T>*& t) const {
-  typename MetaContSet::const_iterator itr;
-  
-  std::lock_guard<std::mutex> lock(m_mut);
-
-  // if EventID is BOTH, we need to look in both sets
-  if (it.isRunEvent()) {
-    itr = m_condSet_RE.begin();
-    for (; itr != m_condSet_RE.end(); ++itr) {
-      if ( itr->range().isInRange( it ) ) {
-        t = &(*itr);
-        return true;
-      }
-    }
-  }
-  if (it.isTimeStamp()) {
-    itr = m_condSet_clock.begin();
-    for (; itr != m_condSet_clock.end(); ++itr) {
-      if ( itr->range().isInRange( it ) ) {
-        t = &(*itr);
-        return true;
-      }
-    }
-  }
 
   return false;
 }
-*/
+
     
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 

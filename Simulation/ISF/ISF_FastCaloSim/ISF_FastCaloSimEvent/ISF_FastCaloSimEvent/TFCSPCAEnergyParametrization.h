@@ -1,14 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TFCSPCAEnergyParametrization_h
-#define TFCSPCAEnergyParametrization_h
+#ifndef ISF_FASTCALOSIMEVENT_TFCSPCAEnergyParametrization_h
+#define ISF_FASTCALOSIMEVENT_TFCSPCAEnergyParametrization_h
 
 
 #include "ISF_FastCaloSimEvent/TFCSEnergyParametrization.h"
-#include "ISF_FastCaloSimEvent/IntArray.h"
 #include "ISF_FastCaloSimEvent/TFCS1DFunction.h"
+#include "ISF_FastCaloSimEvent/IntArray.h"
 #include "TMatrixF.h"
 #include "TMatrixDSym.h"
 #include "TVectorF.h"
@@ -17,22 +17,25 @@
 class TFCSPCAEnergyParametrization:public TFCSEnergyParametrization
 {
  public:
-  TFCSPCAEnergyParametrization(const char* name=0, const char* title=0);
+  TFCSPCAEnergyParametrization(const char* name=nullptr, const char* title=nullptr);
 
-  // energies in calo layers should be returned in simulstate
   virtual void simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol);
   
-  int n_pcabins()        { return m_numberpcabins; };
-  IntArray* get_layers() { return m_RelevantLayers; };
+  int n_pcabins() const { return m_numberpcabins; };
+  virtual int n_bins() const {return m_numberpcabins;};
+  const std::vector<int>& get_layers() const { return m_RelevantLayers; };
+
+  virtual bool is_match_Ekin_bin(int Ekin_bin) const;
+  virtual bool is_match_calosample(int calosample) const;
   
   void P2X(TVectorD*, TVectorD* , TMatrixD* , int, double* , double* , int);
   void loadInputs(TFile* file);
   void loadInputs(TFile* file,std::string);
   
+  void Print(Option_t *option = "") const;
  private:
-  // PCA Matrix and NN mapping information should be stored as private member variables here
   
-  IntArray* m_RelevantLayers;
+  std::vector<int>          m_RelevantLayers;
 
   std::vector<TMatrixDSym*> m_symCov;
   std::vector<TVectorD*>    m_MeanValues;
@@ -48,7 +51,7 @@ class TFCSPCAEnergyParametrization:public TFCSEnergyParametrization
  
 };
 
-#if defined(__MAKECINT__)
+#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
 #pragma link C++ class TFCSPCAEnergyParametrization+;
 #endif
 

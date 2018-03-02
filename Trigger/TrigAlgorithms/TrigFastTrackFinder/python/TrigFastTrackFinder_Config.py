@@ -408,6 +408,16 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
                                 TrigFastTrackFinder_OnlineMonitoring("TrigFastTrackFinder_OnlineMonitoring", self.doResMon),
                                 timeHist ]
 
+
+        from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
+        self.TrackSummaryTool = InDetTrigFastTrackSummaryTool
+
+        if self.doResMon:
+            from TrigInDetTrackFitter.TrigInDetTrackFitterConf import TrigL2ResidualCalculator
+            resCalc = TrigL2ResidualCalculator(OfflineClusters=False)
+            ToolSvc += resCalc
+            self.TrigL2ResidualCalculator = resCalc
+
         if type=="FTK" or type=="FTKRefit":
           from TrigFTK_RecExample.TrigFTKLoadTools import theFTK_DataProviderSvc
           self.FTK_DataProviderSvc = theFTK_DataProviderSvc
@@ -527,17 +537,10 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
           TrackMaker_FTF.InputClusterContainerName = ""
           TrackMaker_FTF.InputHadClusterContainerName = ""
           
-          from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
-          self.TrackSummaryTool = InDetTrigFastTrackSummaryTool
-
           if remapped_type == "tauCore":
             from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigTrackSummaryToolWithHoleSearch
             self.TrackSummaryTool = InDetTrigTrackSummaryToolWithHoleSearch
 
-          from TrigInDetTrackFitter.TrigInDetTrackFitterConf import TrigL2ResidualCalculator
-          resCalc = TrigL2ResidualCalculator(OfflineClusters=False)
-          ToolSvc += resCalc
-          self.TrigL2ResidualCalculator = resCalc
           self.doCloneRemoval = InDetTrigSliceSettings[('doCloneRemoval',remapped_type)]
 
 

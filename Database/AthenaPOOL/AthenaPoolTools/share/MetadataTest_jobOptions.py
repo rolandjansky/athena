@@ -16,11 +16,6 @@ from AthenaCommon.Constants   import INFO
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
-from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
-alg = xAODMaker__EventInfoCnvAlg()
-alg.xAODKey = ""
-topSequence += alg
-
 include("EventSelectorAthenaPool/MetaDataSvc_jobOptions.py")
 from AthenaServices.AthenaServicesConf import MetaDataSvc
 svcMgr += MetaDataSvc()
@@ -31,7 +26,7 @@ svcMgr.ProxyProviderSvc.ProviderNames += [ "MetaDataSvc" ]
 from IOVSvc.IOVSvcConf import MetaInputLoader
 metain = MetaInputLoader()
 metain.Dump = True
-#metain.Load = [('EventStreamInfo','StreamAOD'),('EventStreamInfo','DataStream')]
+metain.OutputLevel = DEBUG
 metain.Load = [('EventStreamInfo','StreamAOD'),('xAOD::CutBookkeeperContainer','CutBookkeepers'),('xAOD::CutBookkeeperAuxContainer','CutBookkeepersAux.')]
 topSequence += metain
 

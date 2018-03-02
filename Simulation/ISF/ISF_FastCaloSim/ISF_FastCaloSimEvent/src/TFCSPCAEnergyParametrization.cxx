@@ -1,17 +1,20 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimEvent/TFCSPCAEnergyParametrization.h"
 #include "ISF_FastCaloSimEvent/FastCaloSim_CaloCell_ID.h"
 
+#include "ISF_FastCaloSimEvent/TFCSSimulationState.h"
+#include "ISF_FastCaloSimEvent/TFCSExtrapolationState.h"
+
 #include "TFile.h"
-#include <iostream>
 #include "TKey.h"
 #include "TClass.h"
 #include "TRandom3.h"
 #include "TMatrixD.h"
 #include "TMatrixDSymEigen.h"
+#include "TMath.h"
 
 //=============================================
 //======= TFCSPCAEnergyParametrization =========
@@ -22,6 +25,35 @@ TFCSPCAEnergyParametrization::TFCSPCAEnergyParametrization(const char* name, con
   m_numberpcabins=1;
 }
 
+bool TFCSPCAEnergyParametrization::is_match_Ekin_bin(int Ekin_bin) const 
+{
+  if(Ekin_bin>=1 && Ekin_bin<=n_bins()) return true;
+  return false;
+}
+  
+bool TFCSPCAEnergyParametrization::is_match_calosample(int calosample) const 
+{
+  for(unsigned int i=0;i<m_RelevantLayers.size();i++) {
+    if(m_RelevantLayers[i]==calosample) return true;
+  }  
+  return false;
+}
+
+void TFCSPCAEnergyParametrization::Print(Option_t *option) const
+{
+  TString opt(option);
+  if(!opt.IsWhitespace()) opt="";
+  TFCSEnergyParametrization::Print(option);
+  
+  if(msgLvl(MSG::INFO)) {
+    ATH_MSG(INFO) << opt <<"  #bins="<<m_numberpcabins<<", layers=";
+    for(unsigned int i=0;i<m_RelevantLayers.size();i++) {
+      if(i>0) msg()<<", ";
+      msg()<<m_RelevantLayers[i];
+    }  
+    msg()<<endmsg;
+  }  
+}
 
 void TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/)
 {
@@ -45,8 +77,8 @@ void TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simulstate,cons
 
   std::vector<std::string> layer;
   std::vector<int> layerNr;
-  for(int i=0;i<m_RelevantLayers->GetSize();i++)
-    layerNr.push_back(m_RelevantLayers->GetAt(i));
+  for(unsigned int i=0;i<m_RelevantLayers.size();i++)
+    layerNr.push_back(m_RelevantLayers[i]);
   for(unsigned int i=0;i<layerNr.size();i++)
     {
       std::string thislayer=Form("layer%i",layerNr[i]);
@@ -155,8 +187,8 @@ void TFCSPCAEnergyParametrization::loadInputs(TFile* file, std::string folder)
 
   int trynext=1;
   TString x;
-  if(folder=="")x="bin";
-  else x="folder/bin";
+  if(folder=="") x="bin";
+   else x=folder+"/bin";
   while(trynext)
     {
       IntArray* test  =(IntArray*)file->Get(x+Form("%i/pca/RelevantLayers",m_numberpcabins));
@@ -171,8 +203,13 @@ void TFCSPCAEnergyParametrization::loadInputs(TFile* file, std::string folder)
   m_numberpcabins-=1;
 
   file->cd(x+"1/pca");
-  m_RelevantLayers=(IntArray*)gDirectory->Get("RelevantLayers");
-  if(m_RelevantLayers == NULL) std::cout << "TFCSPCAEnergyParametrization::m_RelevantLayers in first pcabin is null!" << std::endl;
+  IntArray* RelevantLayers=(IntArray*)gDirectory->Get("RelevantLayers");
+  if(RelevantLayers == NULL) {
+    ATH_MSG_ERROR("TFCSPCAEnergyParametrization::m_RelevantLayers in first pcabin is null!");
+  } else {
+    m_RelevantLayers.reserve(RelevantLayers->GetSize());
+    for(int i=0;i<RelevantLayers->GetSize();i++) m_RelevantLayers.push_back(RelevantLayers->GetAt(i));
+  }
 
   for(int bin=1;bin<=m_numberpcabins;bin++)
     {
@@ -186,12 +223,12 @@ void TFCSPCAEnergyParametrization::loadInputs(TFile* file, std::string folder)
       TVectorD* Gauss_rms     =(TVectorD*)gDirectory->Get("Gauss_rms");
       TVectorD* LowerBounds   =(TVectorD*)gDirectory->Get("LowerBounds");
 
-      if(symCov == NULL)         std::cout << "TFCSPCAEnergyParametrization::m_symCov in pcabin "<<bin<<" is null!" << std::endl;
-      if(MeanValues == NULL)     std::cout << "TFCSPCAEnergyParametrization::m_MeanValues in pcabin "<<bin<<" is null!" << std::endl;
-      if(SigmaValues == NULL)    std::cout << "TFCSPCAEnergyParametrization::m_SigmaValues in pcabin "<<bin<<" is null!" << std::endl;
-      if(Gauss_means == NULL)    std::cout << "TFCSPCAEnergyParametrization::m_Gauss_means in pcabin "<<bin<<" is null!" << std::endl;
-      if(Gauss_rms == NULL)      std::cout << "TFCSPCAEnergyParametrization::m_Gause_rms in pcabin "<<bin<<" is null!" << std::endl;
-      if(LowerBounds == NULL)    std::cout << "TFCSPCAEnergyParametrization::m_LowerBounds in pcabin "<<bin<<" is null!" << std::endl;
+      if(symCov == NULL)         ATH_MSG_WARNING("TFCSPCAEnergyParametrization::m_symCov in pcabin "<<bin<<" is null!");
+      if(MeanValues == NULL)     ATH_MSG_WARNING("TFCSPCAEnergyParametrization::m_MeanValues in pcabin "<<bin<<" is null!");
+      if(SigmaValues == NULL)    ATH_MSG_WARNING("TFCSPCAEnergyParametrization::m_SigmaValues in pcabin "<<bin<<" is null!");
+      if(Gauss_means == NULL)    ATH_MSG_WARNING("TFCSPCAEnergyParametrization::m_Gauss_means in pcabin "<<bin<<" is null!");
+      if(Gauss_rms == NULL)      ATH_MSG_WARNING("TFCSPCAEnergyParametrization::m_Gause_rms in pcabin "<<bin<<" is null!");
+      if(LowerBounds == NULL)    ATH_MSG_WARNING("TFCSPCAEnergyParametrization::m_LowerBounds in pcabin "<<bin<<" is null!");
 
       m_symCov.push_back(symCov);
       m_MeanValues.push_back(MeanValues);
@@ -203,8 +240,8 @@ void TFCSPCAEnergyParametrization::loadInputs(TFile* file, std::string folder)
       std::vector<std::string> layer;
       std::vector<int> layerNr;
 
-      for(int i=0;i<m_RelevantLayers->GetSize();i++)
-        layerNr.push_back(m_RelevantLayers->GetAt(i));
+      for(unsigned int i=0;i<m_RelevantLayers.size();i++)
+        layerNr.push_back(m_RelevantLayers[i]);
 
       for(unsigned int i=0;i<layerNr.size();i++)
         {

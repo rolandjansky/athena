@@ -24,22 +24,22 @@ public:
 
 //____________________________________________________________________
 VP1GeoTreeView::VP1GeoTreeView(QWidget * parent)
-  : QTreeView(parent), d(new Imp)
+  : QTreeView(parent), m_d(new Imp)
 {
-  d->updatescheduled = false;
+  m_d->updatescheduled = false;
 }
 
 //____________________________________________________________________
 VP1GeoTreeView::~VP1GeoTreeView()
 {
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
 void VP1GeoTreeView::updateAllNonHiddenIndices()
 {
-  if (d->updatescheduled)
-    d->updatescheduled = false;
+  if (m_d->updatescheduled)
+    m_d->updatescheduled = false;
   bool save = updatesEnabled();
   setUpdatesEnabled(false);
 
@@ -64,7 +64,7 @@ void VP1GeoTreeView::updateAllNonHiddenIndices()
 //____________________________________________________________________
 void VP1GeoTreeView::scheduleUpdateOfAllNonHiddenIndices()
 {
-  if (d->updatescheduled)
+  if (m_d->updatescheduled)
     return;
   QTimer::singleShot(0, this, SLOT(updateAllNonHiddenIndices()));
 }

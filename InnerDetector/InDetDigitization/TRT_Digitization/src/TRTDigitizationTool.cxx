@@ -291,32 +291,35 @@ StatusCode TRTDigitizationTool::processBunchXing(int bunchXing,
   if (m_HardScatterSplittingMode == 1 && m_HardScatterSplittingSkipper )  { return StatusCode::SUCCESS; }
   if (m_HardScatterSplittingMode == 1 && !m_HardScatterSplittingSkipper ) { m_HardScatterSplittingSkipper = true; }
 
-  SubEventIterator iEvt(bSubEvents);
 
-  while (iEvt != eSubEvents) {
-    StoreGateSvc& seStore(*iEvt->ptr()->evtStore());
-    PileUpTimeEventIndex thisEventIndex(PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index()));
-    const TRTUncompressedHitCollection* seHitColl(NULL);
-    if (!seStore.retrieve(seHitColl,m_dataObjectName).isSuccess()) {
-      ATH_MSG_ERROR ( "SubEvent TRTUncompressedHitCollection not found in StoreGate " << seStore.name() );
-      return StatusCode::FAILURE;
-    }
-    ATH_MSG_VERBOSE ( "TRTUncompressedHitCollection found with " << seHitColl->size() << " hits" );
-    //Copy Hit Collection
-    //TRTUncompressedHitCollection* trtHitColl(new TRTUncompressedHitCollection("TRTUncompressedHits"));
-    TRTUncompressedHitCollection* trtHitColl(new TRTUncompressedHitCollection("TRTUncompressedHits", seHitColl->size())); // saves memory
-    TRTUncompressedHitCollection::const_iterator i(seHitColl->begin());
-    TRTUncompressedHitCollection::const_iterator e(seHitColl->end());
-    // Read hits from this collection
-    for (; i!=e; ++i) {
-      const TRTUncompressedHit trthit(*i);
-      trtHitColl->Insert(trthit);
-    }
-    m_thpctrt->insert(thisEventIndex, trtHitColl);
-    //store these for deletion at the end of mergeEvent
-    m_trtHitCollList.push_back(trtHitColl);
+  //TRTUncompressedHit
 
-    ++iEvt;
+  typedef PileUpMergeSvc::TimedList<TRTUncompressedHitCollection>::type TimedHitCollList;
+  TimedHitCollList hitCollList;
+
+  if (!(m_mergeSvc->retrieveSubSetEvtData(m_dataObjectName, hitCollList, bunchXing,
+					  bSubEvents, eSubEvents).isSuccess()) &&
+      hitCollList.size() == 0) {
+    ATH_MSG_ERROR("Could not fill TimedHitCollList");
+    return StatusCode::FAILURE;
+  } else {
+    ATH_MSG_VERBOSE(hitCollList.size() << " TRTUncompressedHitCollection with key " <<
+		    m_dataObjectName << " found");
+  }
+
+  TimedHitCollList::iterator iColl(hitCollList.begin());
+  TimedHitCollList::iterator endColl(hitCollList.end());
+
+  for( ; iColl != endColl; iColl++){
+    TRTUncompressedHitCollection  *hitCollPtr = new TRTUncompressedHitCollection(*iColl->second);
+    PileUpTimeEventIndex timeIndex(iColl->first);
+    ATH_MSG_DEBUG("TRTUncompressedHitCollection found with " << hitCollPtr->size() <<
+		  " hits");
+    ATH_MSG_VERBOSE("time index info. time: " << timeIndex.time()
+		    << " index: " << timeIndex.index()
+		    << " type: " << timeIndex.type());
+    m_thpctrt->insert(timeIndex, hitCollPtr);
+    m_trtHitCollList.push_back(hitCollPtr);
   }
 
   return StatusCode::SUCCESS;

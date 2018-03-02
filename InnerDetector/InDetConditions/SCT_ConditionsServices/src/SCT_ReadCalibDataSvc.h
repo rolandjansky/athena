@@ -27,16 +27,12 @@
 #include "SCT_ConditionsData/SCT_AllGoodStripInfo.h"
 
 // Include top level interface
-#include "InDetConditionsSummaryService/InDetHierarchy.h"
 #include "SCT_ConditionsServices/ISCT_ConditionsSvc.h"
 
 // Include Athena stuff 
 #include "AthenaBaseComps/AthService.h"
-#include "Identifier/Identifier.h"
-#include "Identifier/IdentifierHash.h"
 
 // Forward declarations
-class ISvcLocator;
 class StoreGateSvc;
 class ISCT_CablingSvc;
 class SCT_ID;
@@ -53,31 +49,31 @@ class SCT_ReadCalibDataSvc: virtual public ISCT_ReadCalibDataSvc, virtual public
   //----------Public Member Functions----------//
   // Structors
   SCT_ReadCalibDataSvc(const std::string& name, ISvcLocator* pSvcLocator); //!< Constructor
-  virtual ~SCT_ReadCalibDataSvc();                                         //!< Destructor
+  virtual ~SCT_ReadCalibDataSvc() = default;                               //!< Destructor
   
   // Retrive interface ID
-  virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
+  virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface) override;
   static const InterfaceID& interfaceID();
   
   // Standard Gaudi functions
-  virtual StatusCode initialize(); //!< Gaudi initialiser
-  virtual StatusCode finalize(); //!< Gaudi finaliser
+  virtual StatusCode initialize() override; //!< Gaudi initialiser
+  virtual StatusCode finalize() override; //!< Gaudi finaliser
   
   /// @name Methods to be implemented from virtual baseclass methods, when introduced
   ///Return whether this service can report on the hierarchy level (e.g. module, chip...)
-  virtual bool canReportAbout(InDetConditions::Hierarchy h);
+  virtual bool canReportAbout(InDetConditions::Hierarchy h) override;
   ///Summarise the result from the service as good/bad
-  virtual bool isGood(const Identifier& elementId,InDetConditions::Hierarchy h=InDetConditions::DEFAULT);
+  virtual bool isGood(const Identifier& elementId,InDetConditions::Hierarchy h=InDetConditions::DEFAULT) override;
   ///same thing with id hash, introduced by shaun with dummy method for now
-  virtual bool isGood(const IdentifierHash& /*hashId*/) { return true; }
+  virtual bool isGood(const IdentifierHash& /*hashId*/) override { return true; }
   // Fill the data structures
-  StatusCode fillData() { return StatusCode::FAILURE; }
+  virtual StatusCode fillData() override { return StatusCode::FAILURE; }
   // Fill the data structures from a Callback 
-  StatusCode fillData(int& /*i*/, std::list<std::string>& l);
+  virtual StatusCode fillData(int& /*i*/, std::list<std::string>& l) override;
   // Report whether the map was filled
-  bool filled() const;
+  virtual bool filled() const override;
   // Report whether the service can fill its data during the initialize phase
-  virtual bool canFillDuringInitialize() { return false ; } //PJ need to know IOV/run#
+  virtual bool canFillDuringInitialize() override { return false ; } //PJ need to know IOV/run#
   //@}
   
   // Methods to return calibration defect type and summary

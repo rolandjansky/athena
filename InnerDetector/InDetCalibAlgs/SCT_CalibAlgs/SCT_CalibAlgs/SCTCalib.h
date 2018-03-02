@@ -62,7 +62,6 @@
 #include "SCT_ConditionsServices/ISCT_ConfigurationConditionsSvc.h" //template parameter
 #include "SCT_ConditionsServices/ISCT_ReadCalibDataSvc.h"  //template parameter
 #include "SCT_ConditionsTools/ISCT_DetectorLevelConditionsTool.h" //template parameter
-#include "SCT_ConditionsServices/ISCT_ByteStreamErrorsSvc.h"  //template parameter
 
 // SCT Cabling
 #include "SCT_Cabling/ISCT_CablingSvc.h"  //template parameter
