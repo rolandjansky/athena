@@ -51,117 +51,69 @@ PixelConditionsSummarySvc::PixelConditionsSummarySvc(const std::string& name, IS
   declareProperty("StoreGateSvc", m_detStore);
 }
 
-PixelConditionsSummarySvc::~PixelConditionsSummarySvc(){}
+PixelConditionsSummarySvc::~PixelConditionsSummarySvc() {}
 
-
-//======== Callback
-
-
-StatusCode PixelConditionsSummarySvc::specialPixelMapCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys)){
-
-  if (msgLvl(MSG::INFO))
-    msg(MSG::INFO) << "Special pixel map callback for key " << *keys.begin() << " number " << I << endmsg;
-
-  StatusCode sc = m_detStore->retrieve(m_specialPixelMap, m_specialPixelMapKey);
-
-  if( !sc.isSuccess() ){
-    msg(MSG::ERROR) << "Unable to retrieve special pixel map" << endmsg;
-  }
-
-  return sc;
+StatusCode PixelConditionsSummarySvc::specialPixelMapCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys)) {
+  ATH_MSG_INFO("Special pixel map callback for key " << *keys.begin() << " number " << I);
+  CHECK(m_detStore->retrieve(m_specialPixelMap, m_specialPixelMapKey));
+  return StatusCode::SUCCESS;
 }
 
-
-//======== queryInterface, initialize, finalize
-
-
-StatusCode PixelConditionsSummarySvc::initialize(){
-  msg(MSG::INFO) << "Initializing PixelConditionsSummarySvc" << endmsg;
-
+StatusCode PixelConditionsSummarySvc::initialize() {
+  ATH_MSG_INFO("PixelConditionsSummarySvc::initialize()");
 
   StatusCode sc = setProperties();
   if( !sc.isSuccess() ){
     msg(MSG::FATAL) << "Unable to set properties" << endmsg;
     return StatusCode::FAILURE;
   }
+
   if (m_IBLParameterSvc.retrieve().isFailure()) {
-    msg(MSG::WARNING) << "Could not retrieve IBLParameterSvc" << endmsg;
+    ATH_MSG_WARNING("Could not retrieve IBLParameterSvc");
   }
   else {
     m_IBLParameterSvc->setBoolParameters(m_useSpecialPixelMap,"EnableSpecialPixels");
   }
-  sc = m_detStore.retrieve();
-  if( !sc.isSuccess() ){
-    msg(MSG::FATAL) << "Unable to retrieve detector store" << endmsg;
-    return StatusCode::FAILURE;
+
+  CHECK(m_detStore.retrieve());
+
+  if (m_useDCS) {
+    CHECK(m_pixelDCSSvc.retrieve());
+    ATH_MSG_INFO("PixelDCSSvc retrieved");
   }
 
-  if(m_useDCS){
-    if (StatusCode::SUCCESS!=m_pixelDCSSvc.retrieve()) {
-      msg(MSG::FATAL) << "Unable to retrieve PixelDCSSvc" << endmsg;
-      return StatusCode::FAILURE;
-    }
-    msg(MSG::INFO) << "PixelDCSSvc retrieved" << endmsg;
+  if (m_useBS) {
+    CHECK(m_pixelBSErrorsSvc.retrieve());
+    ATH_MSG_INFO("PixelBSErrorsSvc retrieved");
   }
 
-  if(m_useBS){
-    if (StatusCode::SUCCESS!=m_pixelBSErrorsSvc.retrieve()) {
-      msg(MSG::FATAL) << "Unable to retrieve PixelBSErrorSvc" << endmsg;
-      return StatusCode::FAILURE;
-    }
-    msg(MSG::INFO) << "PixelBSErrorsSvc retrieved" << endmsg;
-  }
+  CHECK(m_detStore->retrieve(m_pixelID,"PixelID"));
 
-  sc = m_detStore->retrieve( m_pixelID, "PixelID" );
-  if( !sc.isSuccess() ){
-    ATH_MSG_FATAL( "Unable to retrieve pixel ID helper" );
-    return StatusCode::FAILURE;
-  }
+  if (m_useSpecialPixelMap) {
+    CHECK(m_specialPixelMapSvc.retrieve());
 
-  if(m_useSpecialPixelMap){
-    sc = m_specialPixelMapSvc.retrieve();
-
-    if( !sc.isSuccess() ){
-      msg(MSG::FATAL) << "Unable to retrieve SpecialPixelMapSvc" << endmsg;
-      return StatusCode::FAILURE;
-    }
-
-    if(m_specialPixelMapSvc->getNPixelMaps() == 0){
-      msg(MSG::WARNING) << "No special pixel maps configured" << endmsg;
-      msg(MSG::WARNING) << "Disabling use of special pixel maps" << endmsg;
+    if (m_specialPixelMapSvc->getNPixelMaps()==0) {
+      ATH_MSG_WARNING("No special pixel maps configured");
+      ATH_MSG_WARNING("Disabling use of special pixel maps");
       m_useSpecialPixelMap = false;
     }
     else{
-      sc = m_detStore->regFcn(&ISpecialPixelMapSvc::IOVCallBack, dynamic_cast<ISpecialPixelMapSvc*>(m_specialPixelMapSvc.operator->()),
-			      &PixelConditionsSummarySvc::specialPixelMapCallBack, this);
-
-      if( !sc.isSuccess()){
-	msg(MSG::FATAL) << "Unable to register callback for special pixel map" << endmsg;
-	return StatusCode::FAILURE;
-      }
+      CHECK(m_detStore->regFcn(&ISpecialPixelMapSvc::IOVCallBack,dynamic_cast<ISpecialPixelMapSvc*>(m_specialPixelMapSvc.operator->()),&PixelConditionsSummarySvc::specialPixelMapCallBack,this));
     }
   }
 
-  if(m_useTDAQ){
-    sc = m_pixelTDAQSvc.retrieve();
-
-    if( !sc.isSuccess() ){
-      ATH_MSG_FATAL("Unable to retrieve PixelTDAQSvc");
-      return StatusCode::FAILURE;
-    }
+  if (m_useTDAQ) {
+    CHECK(m_pixelTDAQSvc.retrieve());
   }
-
   return StatusCode::SUCCESS;
 }
 
-StatusCode PixelConditionsSummarySvc::finalize(){
-  msg(MSG::INFO) << "Finalizing PixelConditionsSummarySvc" << endmsg;
-
+StatusCode PixelConditionsSummarySvc::finalize() {
+  ATH_MSG_INFO("PixelConditionsSummarySvc::finalize()");
   return StatusCode::SUCCESS;
 }
 
-StatusCode PixelConditionsSummarySvc::queryInterface(const InterfaceID& riid, void** ppvIf){
-
+StatusCode PixelConditionsSummarySvc::queryInterface(const InterfaceID& riid, void** ppvIf) {
   if(interfaceID() == riid){
     *ppvIf = dynamic_cast< PixelConditionsSummarySvc* > (this);
   }
@@ -171,43 +123,31 @@ StatusCode PixelConditionsSummarySvc::queryInterface(const InterfaceID& riid, vo
   else{
     return AthService::queryInterface(riid, ppvIf);
   }
-
   addRef();
-
   return StatusCode::SUCCESS;
 }
 
+bool PixelConditionsSummarySvc::isActive(const Identifier & elementId, const InDetConditions::Hierarchy h) {
 
-
-//======== isActive methods
-
-
-bool PixelConditionsSummarySvc::isActive(const Identifier & elementId, const InDetConditions::Hierarchy h){
-
-  //Identifier moduleID       = m_pixelID->wafer_id(elementId);
   IdentifierHash moduleHash = m_pixelID->wafer_hash(elementId);
 
-  if(m_useBS && !m_pixelBSErrorsSvc->isActive(moduleHash)) return false;
+  if (m_useBS && !m_pixelBSErrorsSvc->isActive(moduleHash)) { return false; }
 
-  if(m_useDCS){
-
+  if (m_useDCS) {
     bool isDCSActive = false;
     std::string dcsState = m_pixelDCSSvc->getFSMState(moduleHash);
 
-    for(unsigned int istate=0; istate<m_isActiveStates.size(); istate++){
-      if(m_isActiveStates[istate] == dcsState) isDCSActive = true;
+    for (unsigned int istate=0; istate<m_isActiveStates.size(); istate++) {
+      if (m_isActiveStates[istate]==dcsState) { isDCSActive=true; }
     }
-
-    if(!isDCSActive) return isDCSActive;
-
+    if (!isDCSActive) { return false; }
   }
 
-  if(m_useTDAQ && !(m_pixelTDAQSvc->tdaq_module_enabled(moduleHash)) )
-    return false;
+  if (m_useTDAQ && !(m_pixelTDAQSvc->tdaq_module_enabled(moduleHash))) { return false; }
 
   // SpecialPixelMap is the more detailed conditions DB 
   // (granularity at the pixel level) and must be checked last.
-  if(m_useSpecialPixelMap){
+  if (m_useSpecialPixelMap) {
 
     unsigned int pixel = 0;
     unsigned int mchips = m_specialPixelMap->module(moduleHash)->chipsPerModule(); // number of chips 
@@ -215,128 +155,98 @@ bool PixelConditionsSummarySvc::isActive(const Identifier & elementId, const InD
     mtype +=10*mchips; // 10*mchips + mtype for encodePixelID 
 
     switch (h) {
+      case InDetConditions::DEFAULT:
+      case InDetConditions::PIXEL_MODULE:
+        return !(m_specialPixelMap->module(moduleHash)->moduleStatus() & (1 << 1));
 
-    case InDetConditions::DEFAULT:
-    case InDetConditions::PIXEL_MODULE:
-      return !(m_specialPixelMap->module(moduleHash)->moduleStatus() & (1 << 1));
+      case InDetConditions::PIXEL_CHIP:
+        getID(elementId, pixel,mtype);
+        return !(m_specialPixelMap->module(moduleHash)->chipStatus(pixel % (mchips>2?mchips:2)) & (1 << 1));
 
-    case InDetConditions::PIXEL_CHIP:
-      getID(elementId, pixel,mtype);
-      return !(m_specialPixelMap->module(moduleHash)->chipStatus(pixel % (mchips>2?mchips:2)) & (1 << 1));
+      case InDetConditions::PIXEL_PIXEL:
+        getID(elementId, pixel,mtype);
+        return !m_specialPixelMap->module(moduleHash)->pixelStatusBit(pixel, 1);
 
-    case InDetConditions::PIXEL_PIXEL:
-      getID(elementId, pixel,mtype);
-      return !m_specialPixelMap->module(moduleHash)->pixelStatusBit(pixel, 1);
-
-    default:
-      return false;
+      default:
+        return false;
     }
-
   }
-
   return true;
 }
 
+bool PixelConditionsSummarySvc::isActive(const IdentifierHash & elementHash) {
+  if (m_useBS && !m_pixelBSErrorsSvc->isActive(elementHash)) { return false; }
 
-bool PixelConditionsSummarySvc::isActive(const IdentifierHash & elementHash){
-
-  if(m_useBS && !m_pixelBSErrorsSvc->isActive(elementHash)) return false;
-
-  if(m_useDCS){
-
+  if (m_useDCS) {
     bool isDCSActive = false;
     std::string dcsState = m_pixelDCSSvc->getFSMState(elementHash);
 
-
-    for(unsigned int istate=0; istate<m_isActiveStates.size(); istate++){
-      if(m_isActiveStates[istate] == dcsState) isDCSActive = true;
+    for (unsigned int istate=0; istate<m_isActiveStates.size(); istate++) {
+      if (m_isActiveStates[istate]==dcsState) { isDCSActive=true; }
     }
-
-
-    if(!isDCSActive) return isDCSActive;
-
+    if (!isDCSActive) { return false; }
   }
 
-  if(m_useTDAQ && !(m_pixelTDAQSvc->tdaq_module_enabled(elementHash)) )
-    return false;
+  if (m_useTDAQ && !(m_pixelTDAQSvc->tdaq_module_enabled(elementHash))) { return false; }
 
   // SpecialPixelMap is the more detailed conditions DB 
   // (granularity at the pixel level) and must be checked last.
-  if(m_useSpecialPixelMap){
-
+  if (m_useSpecialPixelMap) {
     return !(m_specialPixelMap->module(elementHash)->moduleStatus() & (1 << 1));
-
   }
-
   return true;
 }
 
-bool PixelConditionsSummarySvc::isActive(const IdentifierHash & elementHash, const Identifier & elementId){
+bool PixelConditionsSummarySvc::isActive(const IdentifierHash & elementHash, const Identifier & elementId) {
+  if (m_useBS && !m_pixelBSErrorsSvc->isActive(elementHash)) { return false; }
 
-  if(m_useBS && !m_pixelBSErrorsSvc->isActive(elementHash)) return false;
-
-  if(m_useDCS){
-
+  if (m_useDCS) {
     bool isDCSActive = false;
     std::string dcsState = m_pixelDCSSvc->getFSMState(elementHash);
 
-    for(unsigned int istate=0; istate<m_isActiveStates.size(); istate++){
-      if(m_isActiveStates[istate] == dcsState) isDCSActive = true;
+    for (unsigned int istate=0; istate<m_isActiveStates.size(); istate++) {
+      if (m_isActiveStates[istate]==dcsState) { isDCSActive=true; }
     }
-
-    if(!isDCSActive) return isDCSActive;
-
+    if (!isDCSActive) { return false; }
   }
 
-  if(m_useTDAQ && !(m_pixelTDAQSvc->tdaq_module_enabled(elementHash)) )
-    return false;
+  if (m_useTDAQ && !(m_pixelTDAQSvc->tdaq_module_enabled(elementHash))) { return false; }
 
   // SpecialPixelMap is the more detailed conditions DB 
   // (granularity at the pixel level) and must be checked last.
-  if(m_useSpecialPixelMap){
-
+  if (m_useSpecialPixelMap) {
     unsigned int pixel = 0;
     unsigned int mchips = m_specialPixelMap->module(elementHash)->chipsPerModule();
     unsigned int mtype = m_specialPixelMap->module(elementHash)->chipType();
     mtype +=mchips*10; // mchips*10+mtype for encodePixelID 
 
     getID(elementId, pixel, mtype);
-
     return !m_specialPixelMap->module(elementHash)->pixelStatusBit(pixel, 1);
-
   }
-
   return true;
 }
 
-double PixelConditionsSummarySvc::activeFraction(const IdentifierHash & elementHash, const Identifier & idStart,
-						 const Identifier & idEnd){
+double PixelConditionsSummarySvc::activeFraction(const IdentifierHash & elementHash, const Identifier & idStart, const Identifier & idEnd) {
+  if (m_useBS && !m_pixelBSErrorsSvc->isActive(elementHash)) { return 0.; }
 
-  if(m_useBS && !m_pixelBSErrorsSvc->isActive(elementHash)) return 0.;
-
-  if(m_useDCS){
-
+  if (m_useDCS) {
     bool isDCSActive = false;
     std::string dcsState = m_pixelDCSSvc->getFSMState(elementHash);
 
-    for(unsigned int istate=0; istate<m_isActiveStates.size(); istate++){
-      if(m_isActiveStates[istate] == dcsState) isDCSActive = true;
+    for (unsigned int istate=0; istate<m_isActiveStates.size(); istate++) {
+      if (m_isActiveStates[istate]==dcsState) { isDCSActive = true; }
     }
-
-    if(!isDCSActive) return 0.;
-
+    if (!isDCSActive) { return 0.; }
   }
 
-  if(m_useTDAQ){
-    if(!m_pixelTDAQSvc->tdaq_module_enabled(elementHash))
-      return 0.;
+  if (m_useTDAQ) {
+    if (!m_pixelTDAQSvc->tdaq_module_enabled(elementHash)) { return 0.; }
   }
 
   // SpecialPixelMap is the only source that can provide an 
   // active fraction different from 0 or 1
   // (granularity at the pixel level) and must be checked last.
-  if(m_useSpecialPixelMap){
-
+  if (m_useSpecialPixelMap) {
     Identifier moduleId = m_pixelID->wafer_id(elementHash);
 
     int endcap = m_pixelID->barrel_ec(moduleId);
@@ -357,217 +267,163 @@ double PixelConditionsSummarySvc::activeFraction(const IdentifierHash & elementH
     unsigned int mtype = m_specialPixelMap->module(elementHash)->chipType();
     mtype +=mchips*10; 
 
-    for(int i = std::min(phiStart, phiEnd); i <= std::max(phiStart, phiEnd); i++){
-      for(int j = std::min(etaStart, etaEnd); j <= std::max(etaStart, etaEnd); j++){
-
-	unsigned int pixel = ModuleSpecialPixelMap::encodePixelID( endcap, phimod, j, i, mtype );
-
-	nActive += m_specialPixelMap->module(elementHash)->pixelStatusBit(pixel, 1) ? 0. : 1.;
+    for (int i = std::min(phiStart, phiEnd); i <= std::max(phiStart, phiEnd); i++) {
+      for (int j = std::min(etaStart, etaEnd); j <= std::max(etaStart, etaEnd); j++) {
+        unsigned int pixel = ModuleSpecialPixelMap::encodePixelID( endcap, phimod, j, i, mtype );
+        nActive += m_specialPixelMap->module(elementHash)->pixelStatusBit(pixel, 1) ? 0. : 1.;
       }
     }
-
-    return nActive / nTotal;
-
+    return nActive/nTotal;
   }
-
   return 1.;
 }
 
-
-
-//======== isGood methods
-
-
-bool PixelConditionsSummarySvc::isGood(const Identifier & elementId, const InDetConditions::Hierarchy h){
-
+bool PixelConditionsSummarySvc::isGood(const Identifier & elementId, const InDetConditions::Hierarchy h) {
 
   Identifier moduleID       = m_pixelID->wafer_id(elementId);
-  //IdentifierHash moduleHash = m_pixelID->wafer_hash(elementId);
   IdentifierHash moduleHash = m_pixelID->wafer_hash(moduleID);
 
-  if(m_useBS && !m_pixelBSErrorsSvc->isGood(moduleHash)) return false;
+  if (m_useBS && !m_pixelBSErrorsSvc->isGood(moduleHash)) { return false; }
 
-  if(m_useDCS){
-
+  if (m_useDCS) {
     bool isDCSActive = false;
     std::string dcsState = m_pixelDCSSvc->getFSMState(moduleHash);
     bool isDCSGood = false;
     std::string dcsStatus = m_pixelDCSSvc->getFSMStatus(moduleHash);
 
-
-    for(unsigned int istate=0; istate<m_isActiveStates.size(); istate++){
-      if(m_isActiveStates[istate] == dcsState) isDCSActive = true;
+    for (unsigned int istate=0; istate<m_isActiveStates.size(); istate++) {
+      if (m_isActiveStates[istate]==dcsState) { isDCSActive = true; }
     }
-    for(unsigned int istatus=0; istatus<m_isActiveStatus.size(); istatus++){
-      if(m_isActiveStatus[istatus] == dcsStatus) isDCSGood = true;
+    for (unsigned int istatus=0; istatus<m_isActiveStatus.size(); istatus++) {
+      if (m_isActiveStatus[istatus]==dcsStatus) { isDCSGood = true; }
     }
-
-    if( !(isDCSActive && isDCSGood) ) return false;
-
+    if(!(isDCSActive && isDCSGood)) { return false; }
   }
 
-  if(m_useTDAQ && !(m_pixelTDAQSvc->tdaq_module_enabled(moduleHash)) )
-    return false;
+  if (m_useTDAQ && !(m_pixelTDAQSvc->tdaq_module_enabled(moduleHash))) { return false; }
 
   // SpecialPixelMap is the more detailed conditions DB 
   // (granularity at the pixel level) and must be checked last.
-  if(m_useSpecialPixelMap){
-
-    
+  if (m_useSpecialPixelMap) {
     unsigned int pixel = 0;
     unsigned int mchips =  m_specialPixelMap->module(moduleHash)->chipsPerModule();
     unsigned int mtype =  m_specialPixelMap->module(moduleHash)->chipType();
     mtype +=mchips*10; // mchips*10+mtype for encodePixelID
 
     switch (h) {
+      case InDetConditions::DEFAULT:
+      case InDetConditions::PIXEL_MODULE:
+        moduleHash = m_pixelID->wafer_hash(elementId);
+        return !(m_specialPixelMap->module(moduleHash)->moduleStatus() & 3);
 
-    case InDetConditions::DEFAULT:
-    case InDetConditions::PIXEL_MODULE:
+      case InDetConditions::PIXEL_CHIP:
+        moduleID = m_pixelID->wafer_id(elementId);
+        moduleHash = m_pixelID->wafer_hash(moduleID);
+        getID(elementId, pixel, mtype);
+        return !(m_specialPixelMap->module(moduleHash)->chipStatus(pixel % (mchips>2?mchips:2)) & 3);
 
-      moduleHash = m_pixelID->wafer_hash(elementId);
+      case InDetConditions::PIXEL_PIXEL:
+        moduleID = m_pixelID->wafer_id(elementId);
+        moduleHash = m_pixelID->wafer_hash(moduleID);
+        getID(elementId, pixel, mtype);
+        return !(m_specialPixelMap->module(moduleHash)->pixelStatus(pixel) & 3 );
 
-      return !(m_specialPixelMap->module(moduleHash)->moduleStatus() & 3);
-
-    case InDetConditions::PIXEL_CHIP:
-
-      moduleID = m_pixelID->wafer_id(elementId);
-      moduleHash = m_pixelID->wafer_hash(moduleID);
-
-      getID(elementId, pixel, mtype);
-
-      return !(m_specialPixelMap->module(moduleHash)->chipStatus(pixel % (mchips>2?mchips:2)) & 3);
-
-    case InDetConditions::PIXEL_PIXEL:
-
-      moduleID = m_pixelID->wafer_id(elementId);
-      moduleHash = m_pixelID->wafer_hash(moduleID);
-
-      getID(elementId, pixel, mtype);
-
-      return !(m_specialPixelMap->module(moduleHash)->pixelStatus(pixel) & 3 );
-
-    default:
-
-      return false;
+      default:
+        return false;
     }
-
   }
-
   return true;
 }
 
-bool PixelConditionsSummarySvc::isGood(const IdentifierHash & elementHash){
+bool PixelConditionsSummarySvc::isGood(const IdentifierHash & elementHash) {
 
-  if(m_useBS && !m_pixelBSErrorsSvc->isGood(elementHash)) return false;
+  if (m_useBS && !m_pixelBSErrorsSvc->isGood(elementHash)) { return false; }
 
-   if(m_useDCS){
-
+  if (m_useDCS) {
     bool isDCSActive = false;
     std::string dcsState = m_pixelDCSSvc->getFSMState(elementHash);
     bool isDCSGood = false;
     std::string dcsStatus = m_pixelDCSSvc->getFSMStatus(elementHash);
 
-    for(unsigned int istate=0; istate<m_isActiveStates.size(); istate++){
-      if(m_isActiveStates[istate] == dcsState) isDCSActive = true;
+    for (unsigned int istate=0; istate<m_isActiveStates.size(); istate++) {
+      if (m_isActiveStates[istate]==dcsState) { isDCSActive=true; }
     }
-    for(unsigned int istatus=0; istatus<m_isActiveStatus.size(); istatus++){
-      if(m_isActiveStatus[istatus] == dcsStatus) isDCSGood = true;
+    for (unsigned int istatus=0; istatus<m_isActiveStatus.size(); istatus++) {
+      if (m_isActiveStatus[istatus]==dcsStatus) { isDCSGood=true; }
     }
+    if (!(isDCSActive && isDCSGood)) { return false; }
+  }
 
-
-    if( !(isDCSActive && isDCSGood) ) return false;
-
-   }
-
-  if(m_useTDAQ && !(m_pixelTDAQSvc->tdaq_module_enabled(elementHash)) )
-    return false;
+  if (m_useTDAQ && !(m_pixelTDAQSvc->tdaq_module_enabled(elementHash))) { return false; }
 
   // SpecialPixelMap is the more detailed conditions DB 
   // (granularity at the pixel level) and must be checked last.
-  if(m_useSpecialPixelMap){
-
+  if (m_useSpecialPixelMap) {
     return !(m_specialPixelMap->module(elementHash)->moduleStatus() & 3);
-
   }
-
   return true;
 }
 
-bool PixelConditionsSummarySvc::isGood(const IdentifierHash & elementHash, const Identifier & elementId){
+bool PixelConditionsSummarySvc::isGood(const IdentifierHash & elementHash, const Identifier & elementId) {
+  if (m_useBS && !m_pixelBSErrorsSvc->isGood(elementHash)) { return false; }
 
-  if(m_useBS && !m_pixelBSErrorsSvc->isGood(elementHash)) return false;
-
-   if(m_useDCS){
-
+  if (m_useDCS) {
     bool isDCSActive = false;
     std::string dcsState = m_pixelDCSSvc->getFSMState(elementHash);
     bool isDCSGood = false;
     std::string dcsStatus = m_pixelDCSSvc->getFSMStatus(elementHash);
 
-    for(unsigned int istate=0; istate<m_isActiveStates.size(); istate++){
-      if(m_isActiveStates[istate] == dcsState) isDCSActive = true;
+    for (unsigned int istate=0; istate<m_isActiveStates.size(); istate++) {
+      if (m_isActiveStates[istate]==dcsState) { isDCSActive=true; }
     }
-    for(unsigned int istatus=0; istatus<m_isActiveStatus.size(); istatus++){
-      if(m_isActiveStatus[istatus] == dcsStatus) isDCSGood = true;
+    for (unsigned int istatus=0; istatus<m_isActiveStatus.size(); istatus++) {
+      if (m_isActiveStatus[istatus]==dcsStatus) { isDCSGood=true; }
     }
+    if (!(isDCSActive && isDCSGood)) { return false; }
+  }
 
-    if( !(isDCSActive && isDCSGood) ) return false;
-   }
-
-  if(m_useTDAQ && !(m_pixelTDAQSvc->tdaq_module_enabled(elementHash)) )
-    return false;
+  if (m_useTDAQ && !(m_pixelTDAQSvc->tdaq_module_enabled(elementHash))) { return false; }
 
   // SpecialPixelMap is the more detailed conditions DB 
   // (granularity at the pixel level) and must be checked last.
-  if(m_useSpecialPixelMap){
-
+  if (m_useSpecialPixelMap) {
     unsigned int pixel = 0;
     unsigned int mchips = m_specialPixelMap->module(elementHash)->chipsPerModule();
     unsigned int mtype = m_specialPixelMap->module(elementHash)->chipType();
     mtype +=mchips*10; // mchips*10+mtype needed for encodePixelID
-
     getID(elementId, pixel, mtype);
-
     return !(m_specialPixelMap->module(elementHash)->pixelStatus(pixel) & 3 );
-
   }
-
   return true;
 }
 
-double PixelConditionsSummarySvc::goodFraction(const IdentifierHash & elementHash, const Identifier & idStart,
-					       const Identifier & idEnd){
+double PixelConditionsSummarySvc::goodFraction(const IdentifierHash & elementHash, const Identifier & idStart, const Identifier & idEnd) {
 
-  if(m_useBS && !m_pixelBSErrorsSvc->isGood(elementHash)) return 0.;
+  if (m_useBS && !m_pixelBSErrorsSvc->isGood(elementHash)) { return 0.; }
 
-  if(m_useDCS){
-
+  if (m_useDCS) {
     bool isDCSActive = false;
     std::string dcsState = m_pixelDCSSvc->getFSMState(elementHash);
     bool isDCSGood = false;
     std::string dcsStatus = m_pixelDCSSvc->getFSMStatus(elementHash);
 
-    for(unsigned int istate=0; istate<m_isActiveStates.size(); istate++){
-      if(m_isActiveStates[istate] == dcsState) isDCSActive = true;
+    for (unsigned int istate=0; istate<m_isActiveStates.size(); istate++) {
+      if (m_isActiveStates[istate]==dcsState) { isDCSActive=true; }
     }
-    for(unsigned int istatus=0; istatus<m_isActiveStatus.size(); istatus++){
-      if(m_isActiveStatus[istatus] == dcsStatus) isDCSGood = true;
+    for (unsigned int istatus=0; istatus<m_isActiveStatus.size(); istatus++) {
+      if (m_isActiveStatus[istatus]==dcsStatus) { isDCSGood=true; }
     }
-
-    if( !(isDCSActive && isDCSGood) ) return 0.;
-
+    if (!(isDCSActive && isDCSGood)) { return 0.; }
   }
 
-  if(m_useTDAQ){
-    if(!m_pixelTDAQSvc->tdaq_module_enabled(elementHash))
-      return 0.;
+  if (m_useTDAQ) {
+    if (!m_pixelTDAQSvc->tdaq_module_enabled(elementHash)) { return 0.; }
   }
 
   // SpecialPixelMap is the only source that can provide an 
   // active fraction different from 0 or 1
   // (granularity at the pixel level) and must be checked last.
-  if(m_useSpecialPixelMap){
-
+  if (m_useSpecialPixelMap) {
     Identifier moduleId = m_pixelID->wafer_id(elementHash);
 
     int endcap = m_pixelID->barrel_ec(moduleId);
@@ -589,29 +445,22 @@ double PixelConditionsSummarySvc::goodFraction(const IdentifierHash & elementHas
     unsigned int mtype = m_specialPixelMap->module(elementHash)->chipType();
     mtype +=mchips*10; // mchips*10 + mtype for encodePixelID
 
-    for(int i = std::min(phiStart, phiEnd); i <= std::max(phiStart, phiEnd); i++){
-      for(int j = std::min(etaStart, etaEnd); j <= std::max(etaStart, etaEnd); j++){
-
-	unsigned int pixel = ModuleSpecialPixelMap::encodePixelID( endcap, phimod, j, i, mtype );
-
-	nGood += (m_specialPixelMap->module(elementHash)->pixelStatus(pixel) & 3 ) ? 0. : 1.;
+    for (int i = std::min(phiStart, phiEnd); i <= std::max(phiStart, phiEnd); i++) {
+      for (int j = std::min(etaStart, etaEnd); j <= std::max(etaStart, etaEnd); j++) {
+        unsigned int pixel = ModuleSpecialPixelMap::encodePixelID( endcap, phimod, j, i, mtype );
+        nGood += (m_specialPixelMap->module(elementHash)->pixelStatus(pixel) & 3 ) ? 0. : 1.;
       }
     }
-
-    return nGood / nTotal;
-
+    return nGood/nTotal;
   }
-
   return 1.;
 }
 
-
-void PixelConditionsSummarySvc::getID(const Identifier& id, unsigned int& pixID, unsigned int& mchips ) const{
-
+void PixelConditionsSummarySvc::getID(const Identifier& id, unsigned int& pixID, unsigned int& mchips ) const {
   int endcap = m_pixelID->barrel_ec(id);
   unsigned int phimod = m_pixelID->phi_module(id);
   unsigned int phipix = m_pixelID->phi_index(id);
   unsigned int etapix = m_pixelID->eta_index(id);
-
   pixID = ModuleSpecialPixelMap::encodePixelID( endcap, phimod, etapix, phipix, mchips );
 }
+

@@ -67,7 +67,7 @@ TileGeoG4SDCalc::TileGeoG4SDCalc(const std::string& name, ISvcLocator *pSvcLocat
   declareProperty( "DeltaTHit" , m_options.deltaTHit );
   declareProperty( "TimeCut" , m_options.timeCut );
   declareProperty( "TileTB" , m_options.tileTB );
-  declareProperty( "Ushape" , m_options.Ushape );
+  declareProperty( "Ushape" , m_options.uShape );
   declareProperty( "DoBirk" , m_options.doBirk );
   declareProperty( "DoTileRow" , m_options.doTileRow );
   declareProperty( "DoTOFCorrection" , m_options.doTOFCorrection );
@@ -92,7 +92,7 @@ StatusCode TileGeoG4SDCalc::initialize() {
   ATH_CHECK(m_geoModSvc.retrieve());
   ATH_MSG_VERBOSE("GeoModelSvc initialized.");
 
-  const int UshapeFromGM = this->getUshapeFromGM();
+  const int uShapeFromGM = this->getUshapeFromGM();
 
   // Unpack TileG4SimOptions from DetectorStore
 
@@ -113,38 +113,38 @@ StatusCode TileGeoG4SDCalc::initialize() {
   m_options.timeCut *= CLHEP::ns;
 
   // Include or not tilecal optical model
-  if (m_options.Ushape == -1) {
-    m_options.Ushape = UshapeFromGM; // U-shape not set, take value from GeoModel
-    ATH_MSG_INFO("Using U-shape flag from GeoModel = " << UshapeFromGM <<
-                 ( (m_options.Ushape > 0) ? "  Scintillator width is equal to width of master plate "
+  if (m_options.uShape == -1) {
+    m_options.uShape = uShapeFromGM; // U-shape not set, take value from GeoModel
+    ATH_MSG_INFO("Using U-shape flag from GeoModel = " << uShapeFromGM <<
+                 ( (m_options.uShape > 0) ? "  Scintillator width is equal to width of master plate "
                    : "  Scintillator width is smaller than width of master plate "));
-  } else if (m_options.Ushape == UshapeFromGM) {
-    ATH_MSG_INFO("Using U-shape = " << m_options.Ushape <<
-                 ((m_options.Ushape > 0) ? "  Scintillator width is equal to width of master plate "
+  } else if (m_options.uShape == uShapeFromGM) {
+    ATH_MSG_INFO("Using U-shape = " << m_options.uShape <<
+                 ((m_options.uShape > 0) ? "  Scintillator width is equal to width of master plate "
                   : "  Scintillator width is smaller than width of master plate "));
   } else {
-    if (UshapeFromGM > 0 && m_options.Ushape > 0) { // both are > 0, so it's fine to use value from SimOptions
-      ATH_MSG_INFO("Using U-shape from Simulation flags = " << m_options.Ushape <<
+    if (uShapeFromGM > 0 && m_options.uShape > 0) { // both are > 0, so it's fine to use value from SimOptions
+      ATH_MSG_INFO("Using U-shape from Simulation flags = " << m_options.uShape <<
                    "  Scintillator width is equal to width of master plate ");
-    } else if (UshapeFromGM == 0 && m_options.Ushape < -1) { // special case - negative value below -1
-      ATH_MSG_INFO("Using U-shape from Simulation flags = " << m_options.Ushape <<
+    } else if (uShapeFromGM == 0 && m_options.uShape < -1) { // special case - negative value below -1
+      ATH_MSG_INFO("Using U-shape from Simulation flags = " << m_options.uShape <<
                    "  Scintillator width is smaller than width of master plate ");
     } else {
-      ATH_MSG_ERROR("U-shape flag in GeoModel = " << UshapeFromGM);
-      ATH_MSG_ERROR("U-shape flag in Simulation = " << m_options.Ushape);
+      ATH_MSG_ERROR("U-shape flag in GeoModel = " << uShapeFromGM);
+      ATH_MSG_ERROR("U-shape flag in Simulation = " << m_options.uShape);
       ATH_MSG_ERROR("Please, use correct GeoModel tag or make sure that you set both " <<
-                    "tileSimInfoConfigurator.Ushape and GeoModelSvc.DetectorTools[ \"TileDetectorTool\" ].Ushape to the same value");
+                    "Ushape parameter for TileGeoG4SD and GeoModelSvc.DetectorTools[ \"TileDetectorTool\" ].Ushape to the same value");
       ATH_MSG_FATAL( "Inconsistent U-shape parameters for TileCal" );
       return StatusCode::FAILURE;
     }
   }
-  if (m_options.Ushape < -2) {
-    ATH_MSG_WARNING("Changing U-shape from " << m_options.Ushape << " to -2");
-    m_options.Ushape = -2;
+  if (m_options.uShape < -2) {
+    ATH_MSG_WARNING("Changing U-shape from " << m_options.uShape << " to -2");
+    m_options.uShape = -2;
   }
-  if (m_options.Ushape > 1 && m_options.Ushape < 10) {
-    ATH_MSG_WARNING("Changing U-shape from " << m_options.Ushape << " to 1");
-    m_options.Ushape = 1;
+  if (m_options.uShape > 1 && m_options.uShape < 10) {
+    ATH_MSG_WARNING("Changing U-shape from " << m_options.uShape << " to 1");
+    m_options.uShape = 1;
   }
 
   if (m_deltaT > 0.0)
@@ -192,7 +192,7 @@ StatusCode TileGeoG4SDCalc::initialize() {
 
   // Read attenuation lengths from file and store them in tilerow
   // Variables to divide deposited energy in scintillators for Up and Down PMTs
-  if (m_options.Ushape == -2) {
+  if (m_options.uShape == -2) {
     static const std::string attFileName = "TileAttenuation.dat";
     static const std::string ratioFileName = "TileOpticalRatio.dat";
     std::string attFile = PathResolver::find_file(attFileName, "DATAPATH");
@@ -218,7 +218,7 @@ StatusCode TileGeoG4SDCalc::queryInterface(const InterfaceID& riid, void** ppvIn
 int TileGeoG4SDCalc::getUshapeFromGM() const {
   const TileDetectorTool* tileDetectorTool =
     dynamic_cast<const TileDetectorTool *>(m_geoModSvc->getTool("TileDetectorTool"));
-  return (tileDetectorTool) ? tileDetectorTool->Ushape() : 0;
+  return (tileDetectorTool) ? tileDetectorTool->uShape() : 0;
 }
 
 TileGeoG4LookupBuilder* TileGeoG4SDCalc::GetLookupBuilder() const
@@ -503,7 +503,7 @@ G4bool TileGeoG4SDCalc::MakePmtEdepTime(const G4Step* aStep, TileHitData& hitDat
           hitData.edep_down = edep;
         }
       } else {
-        switch (m_options.Ushape) {
+        switch (m_options.uShape) {
 
         case 1:  // using the best U-shape known up to now (see #define in header file)
           hitData.edep_up = edep * Tile_1D_profile(hitData.tileSize, yLocal, zLocal, 1, hitData.nDetector, hitData.nSide);
@@ -525,9 +525,9 @@ G4bool TileGeoG4SDCalc::MakePmtEdepTime(const G4Step* aStep, TileHitData& hitDat
         case 22:
         case 23:
           hitData.edep_up = edep * Tile_1D_profileRescaled_zeroBins(hitData.tileSize, yLocal, zLocal, 1, hitData.nDetector, hitData.nSide,
-                                                                    m_options.Ushape - 20);
+                                                                    m_options.uShape - 20);
           hitData.edep_down = edep * Tile_1D_profileRescaled_zeroBins(hitData.tileSize, yLocal, zLocal, 0, hitData.nDetector, hitData.nSide,
-                                                                      m_options.Ushape - 20);
+                                                                      m_options.uShape - 20);
           break;
 
         case 13:
@@ -911,10 +911,10 @@ G4double TileGeoG4SDCalc::BirkLaw(const G4Step* aStep) const
   }
 }
 
-void TileGeoG4SDCalc::pmtEdepFromFCS_StepInfo(TileHitData& hitData, double ene, double yLocal, double halfYLocal, double zLocal, int Ushape) const
+void TileGeoG4SDCalc::pmtEdepFromFCS_StepInfo(TileHitData& hitData, double ene, double yLocal, double halfYLocal, double zLocal, int uShape) const
 {
   /// Code moved here from TileFastCaloSim/src/TileFCSmStepToTileHitVec.cxx
-  switch (Ushape) {
+  switch (uShape) {
   case 1:
     hitData.edep_down = ene * this->Tile_1D_profile(hitData.tileSize, yLocal, zLocal, 0, hitData.nDetector, hitData.nSide);
     hitData.edep_up = ene * this->Tile_1D_profile(hitData.tileSize, yLocal, zLocal, 1, hitData.nDetector, hitData.nSide);
