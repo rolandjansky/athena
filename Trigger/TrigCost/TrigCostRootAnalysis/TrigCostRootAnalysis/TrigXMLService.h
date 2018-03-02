@@ -42,6 +42,7 @@ namespace TrigCostRootAnalysis {
     Float_t getLumiExtrapWeight();
     IntIntMap_t& getBGMap();
     IntIntMap_t& getBGUnbiasedMap();
+    Float_t getLBMuValue(Int_t _lb);
 
     void saveRuleBookXML(CounterCollection_t& _counterCollections, std::string _levelStr);
     void saveXMLElement(std::ofstream& _fout, XMLExport& _xml, CounterBaseRates* _counter);

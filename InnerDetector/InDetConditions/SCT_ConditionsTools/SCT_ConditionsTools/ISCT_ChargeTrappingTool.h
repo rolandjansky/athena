@@ -1,36 +1,36 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
- * @file ISCT_ChargeTrappingSvc.h
+ * @file ISCT_ChargeTrappingTool.h
  * @note primary author for Pixels: Carolina Deluca (carolina.deluca.silberberg@cern.ch)
  * @author for SCT: Peter Vankov (peter.vankov@cern.ch) 
  *                  Marco Filipuzzi (marco.filipuzzi@cern.ch)
  **/
 
-#ifndef ISCT_ChargeTrappingSvc_h
-#define ISCT_ChargeTrappingSvc_h
+#ifndef ISCT_ChargeTrappingTool_h
+#define ISCT_ChargeTrappingTool_h
 
 //Gaudi Includes
-#include "GaudiKernel/IInterface.h"
-#include "AthenaKernel/IOVSvcDefs.h"
+#include "GaudiKernel/IAlgTool.h"
 
 //forward declarations
 class IdentifierHash;
 
 /**
- * @class ISCT_ChargeTrappingSvc
- * Interface class for service providing the charge trapping probability
+ * @class ISCT_ChargeTrappingTool
+ * Interface class for tool providing the charge trapping probability
  * for each charge position
  **/
-class ISCT_ChargeTrappingSvc: virtual public IInterface
+class ISCT_ChargeTrappingTool: virtual public IAlgTool
 {
  public:
-  virtual ~ISCT_ChargeTrappingSvc() {}
-  
-  static const InterfaceID& interfaceID(); //!< reimplemented from IInterface
-  
+  virtual ~ISCT_ChargeTrappingTool() = default;
+
+  /// Creates the InterfaceID and interfaceID() method
+  DeclareInterfaceID(ISCT_ChargeTrappingTool, 1, 0);
+
   virtual double getTrappingProbability(const IdentifierHash& elementHash, const double& pos)=0;
   virtual double getTrappingElectrons(const IdentifierHash& elementHash, const double& pos)=0;
   virtual double getElectricField(const IdentifierHash& elementHash, const double& pos)=0;
@@ -45,9 +45,4 @@ class ISCT_ChargeTrappingSvc: virtual public IInterface
 
 };
 
-inline const InterfaceID& ISCT_ChargeTrappingSvc::interfaceID() {
-  static const InterfaceID IID_ISCT_ChargeTrappingSvc{"ISCT_ChargeTrappingSvc", 1, 0};
-  return IID_ISCT_ChargeTrappingSvc; 
-}
-
-#endif // ISCT_ChargeTrappingSvc_h
+#endif // ISCT_ChargeTrappingTool_h

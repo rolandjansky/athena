@@ -59,8 +59,8 @@ class AttributeList: public Genfun::RCBase {
   // Destructor:
   ~AttributeList();
 
-  std::vector<Attribute> _attrList;
-  bool _locked;
+  std::vector<Attribute> m_attrList;
+  bool m_locked;
 
 };
 

@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
                           Control/StoreGate
                           InnerDetector/InDetConditions/SCT_ConditionsData
+                          InnerDetector/InDetConditions/SiPropertiesSvc
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetDetDescr/SCT_Cabling
@@ -29,7 +30,7 @@ find_package( GMock )
 atlas_add_component ( SCT_ConditionsTools
                       src/components/*.cxx
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel Identifier GaudiKernel AthenaBaseComps StoreGateLib SGtests SCT_ConditionsData InDetIdentifier InDetReadoutGeometry SCT_CablingLib SCT_ConditionsToolsLib )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel Identifier GaudiKernel AthenaBaseComps StoreGateLib SGtests SCT_ConditionsData InDetIdentifier InDetReadoutGeometry SCT_CablingLib SiPropertiesSvcLib SCT_ConditionsToolsLib )
 
 
 atlas_add_library( SCT_ConditionsToolsLib
@@ -37,7 +38,7 @@ atlas_add_library( SCT_ConditionsToolsLib
                    src/components/*.cxx
                    PUBLIC_HEADERS SCT_ConditionsTools
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel Identifier GaudiKernel AthenaBaseComps StoreGateLib SGtests SCT_ConditionsData InDetIdentifier InDetReadoutGeometry SCT_CablingLib )
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel Identifier GaudiKernel AthenaBaseComps StoreGateLib SGtests SCT_ConditionsData SiPropertiesSvcLib InDetIdentifier InDetReadoutGeometry SCT_CablingLib )
 
 # Add unit tests
 atlas_add_test( SCT_RODVetoTool_test

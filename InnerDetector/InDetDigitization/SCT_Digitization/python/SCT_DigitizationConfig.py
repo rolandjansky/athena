@@ -48,12 +48,11 @@ def getSCT_SurfaceChargesGenerator(name="SCT_SurfaceChargesGenerator", **kwargs)
     sct_SiPropertiesToolSetup = SCT_SiPropertiesToolSetup()
     sct_SiPropertiesToolSetup.setSiliconSvc(sct_SiliconConditionsSvcSetup.getSvc())
     sct_SiPropertiesToolSetup.setup()
-    ## Charge trapping service - used by SCT_SurfaceChargesGenerator
-    from AthenaCommon.AppMgr import ServiceMgr
-    if not hasattr(ServiceMgr, "InDetSCT_RadDamageSummarySvc"):
-        from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_RadDamageSummarySvc
-        InDetSCT_RadDamageSummarySvc = SCT_RadDamageSummarySvc(name = "InDetSCT_RadDamageSummarySvc")
-        ServiceMgr += InDetSCT_RadDamageSummarySvc
+    ## Charge trapping tool - used by SCT_SurfaceChargesGenerator
+    from AthenaCommon.AppMgr import ToolSvc
+    if not hasattr(ToolSvc, "InDetSCT_RadDamageSummaryTool"):
+        from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_RadDamageSummaryTool
+        ToolSvc += SCT_RadDamageSummaryTool(name = "InDetSCT_RadDamageSummaryTool")
 
     kwargs.setdefault("FixedTime", -999)
     kwargs.setdefault("SubtractTime", -999)
@@ -80,6 +79,7 @@ def getSCT_SurfaceChargesGenerator(name="SCT_SurfaceChargesGenerator", **kwargs)
         return SCT_DetailedSurfaceChargesGenerator(name, **kwargs)
     else:
         from SCT_Digitization.SCT_DigitizationConf import SCT_SurfaceChargesGenerator
+        kwargs.setdefault("RadDamageSummaryTool", getattr(ToolSvc, "InDetSCT_RadDamageSummaryTool"))
         return SCT_SurfaceChargesGenerator(name, **kwargs)
 
 ######################################################################################
@@ -123,10 +123,10 @@ def getSCT_FrontEnd(name="SCT_FrontEnd", **kwargs):
     kwargs.setdefault("UseCalibData", True)
 
     # Setup the ReadCalibChip folders and Svc
-    from SCT_ConditionsServices.SCT_ReadCalibChipDataSvcSetup import SCT_ReadCalibChipDataSvcSetup
-    sct_ReadCalibChipDataSvcSetup = SCT_ReadCalibChipDataSvcSetup()
-    sct_ReadCalibChipDataSvcSetup.setup()
-    kwargs.setdefault("SCT_ReadCalibChipDataSvc", sct_ReadCalibChipDataSvcSetup.getSvcName())
+    from SCT_ConditionsTools.SCT_ReadCalibChipDataToolSetup import SCT_ReadCalibChipDataToolSetup
+    sct_ReadCalibChipDataToolSetup = SCT_ReadCalibChipDataToolSetup()
+    sct_ReadCalibChipDataToolSetup.setup()
+    kwargs.setdefault("SCT_ReadCalibChipDataTool", sct_ReadCalibChipDataToolSetup.getTool())
     # DataCompressionMode: 1 is level mode x1x (default), 2 is edge mode 01x, 3 is expanded any hit xxx
     from AthenaCommon.BeamFlags import jobproperties
     from AthenaCommon.GlobalFlags import globalflags

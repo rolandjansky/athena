@@ -20,8 +20,8 @@
 // --------------------------------------------------------------------------//
 
 
-#ifndef _HISTOGRAM_MANAGER_H
-#define _HISTOGRAM_MANAGER_H
+#ifndef QATDATAANALYSIS_HISTOGRAM_MANAGER_H
+#define QATDATAANALYSIS_HISTOGRAM_MANAGER_H
 // ---------------------------------------------------//
 //                                                    //
 // HistogramManager                                   //
@@ -78,15 +78,15 @@ public:
   public:                                                                                //
     //                                                                                   //
     // Constructor:                                                                      //
-    NameEq(const std::string & name):_name(name){};                                      //
+    NameEq(const std::string & name):m_name(name){};                                      //
     //                                                                                   //
     // Truth operators:                                                                  //
-    inline bool operator () ( Hist1D * hist ) {return  hist->name() ==_name;}            //
-    inline bool operator () ( Hist2D * hist ) {return  hist->name() ==_name;}            //
-    inline bool operator () ( Table  * table) {return  table->name() ==_name;}           //
-    inline bool operator () ( HistogramManager *m) {return  m->name()==_name;}           //
+    inline bool operator () ( Hist1D * hist ) {return  hist->name() ==m_name;}            //
+    inline bool operator () ( Hist2D * hist ) {return  hist->name() ==m_name;}            //
+    inline bool operator () ( Table  * table) {return  table->name() ==m_name;}           //
+    inline bool operator () ( HistogramManager *m) {return  m->name()==m_name;}           //
   private:                                                                               //
-    const std::string _name;                                                             //
+    const std::string m_name;                                                             //
   };                                                                                     //
   //                                                                                     //
   class SortByName {                                                                     //
@@ -175,11 +175,11 @@ public:
   //-------------------------------------------------------------------------------------//
 private:
 
-  std::string                          _name;
-  std::list<Hist1D *>                  _histograms;
-  std::list<Hist2D *>                  _scatterPlots;
-  std::list<Table  *>                  _tables;
-  std::list<HistogramManager *>        _managers;
+  std::string                          m_name;
+  std::list<Hist1D *>                  m_histograms;
+  std::list<Hist2D *>                  m_scatterPlots;
+  std::list<Table  *>                  m_tables;
+  std::list<HistogramManager *>        m_managers;
 
   // Do not you dare copy or assign a HistogramManager:
   

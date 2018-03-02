@@ -28,17 +28,24 @@ class TileDetectorTool : public GeoModelTool
 
   bool isTestBeam() const { return m_testBeam; }
   bool isAddPlates() const { return m_addPlates; }
-  int Ushape() const { return m_Ushape; }
-  int setUshape(int Ushape) { if (m_not_locked) {m_Ushape = Ushape;} return m_Ushape; }
+  int uShape() const { return m_uShape; }
+  int glue() const { return m_glue; }
 
  private:
 
-  StatusCode initIds(StoreGateSvc* detStore, TileDetDescrManager *manager, MsgStream * log);
-  StatusCode createElements(TileDetDescrManager *manager,MsgStream *log);
+  StatusCode initIds();
+  StatusCode createElements();
+
 
   bool m_testBeam;
   bool m_addPlates;
-  int  m_Ushape;
+  int  m_uShape;
+
+  /** 0: glue layer is removed and replaced by iron,
+      1: simulation with glue,
+      2: glue is replaced by iron + width of iron is modified in order to get the same sampling fraction      */
+  int m_glue;
+
   bool m_not_locked;
   bool m_useNewFactory;
   std::string m_geometryConfig; // FULL, SIMU, RECO

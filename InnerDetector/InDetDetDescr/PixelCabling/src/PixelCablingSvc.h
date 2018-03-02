@@ -25,7 +25,6 @@
 #ifndef PIXELCABLINGSVC_H
 #define PIXELCABLINGSVC_H
 
-#include "PixelFillCablingData.h"
 #include "PixelCabling/IPixelCablingSvc.h"
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -46,6 +45,7 @@ class PixelCablingData;
 class Identifier;
 class IdentifierHash;
 class StoreGateSvc;
+class PixelFillCablingData;
 class IBLParameterSvc;
 
 /**
@@ -193,8 +193,7 @@ public:
   ///@}
   
 private:
-  PublicToolHandle<PixelFillCablingData> m_cablingTool
-     {this,"PixelFillCablingData","PixelFillCablingData",""};
+  ToolHandle<PixelFillCablingData> m_cablingTool;
   ServiceHandle< StoreGateSvc > m_detStore;
   ServiceHandle<IBLParameterSvc> m_IBLParameterSvc; 
   const PixelID* m_idHelper;

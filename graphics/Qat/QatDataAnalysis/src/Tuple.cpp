@@ -27,7 +27,7 @@
 std::ostream & Tuple::print (std::ostream & o) const {
  
   
-  for (unsigned int i=0; i<_attributeList->size();i++) {
+  for (unsigned int i=0; i<m_attributeList->size();i++) {
     o << std::setw(10);
 
     {
@@ -60,7 +60,7 @@ std::ostream & Tuple::print (std::ostream & o) const {
     }
       
 
-    o << (*_attributeList)[i].typeName() << "(?)" ;
+    o << (*m_attributeList)[i].typeName() << "(?)" ;
   }
   o << std::endl;
   return o;
@@ -71,18 +71,18 @@ std::ostream & Tuple::print (std::ostream & o) const {
 const Genfun::Argument & Tuple::asDoublePrec() const {
   
   // No space has ever been allocated.  Allocate it!
-  if (!_doubleRep) {
-    _doubleRep = new Genfun::Argument(_attributeList->size());
+  if (!m_doubleRep) {
+    m_doubleRep = new Genfun::Argument(m_attributeList->size());
     // just to be sure:
-    _doubleRepStale=true;
+    m_doubleRepStale=true;
   }
 
-  if (_doubleRepStale) {
-    Genfun::Argument &a = *_doubleRep;
+  if (m_doubleRepStale) {
+    Genfun::Argument &a = *m_doubleRep;
     
-    unsigned int nAttr=_attributeList->size();
+    unsigned int nAttr=m_attributeList->size();
     for (unsigned int i=0;i<nAttr;i++) {
-      switch ((*_attributeList)[i].type()) {
+      switch ((*m_attributeList)[i].type()) {
       case Attribute::DOUBLE:
 	{
 	  fastread(a[i],i);
@@ -115,8 +115,8 @@ const Genfun::Argument & Tuple::asDoublePrec() const {
 	}
       }
     }
-    _doubleRepStale=false;
+    m_doubleRepStale=false;
   }
-  return *_doubleRep;
+  return *m_doubleRep;
 }
 

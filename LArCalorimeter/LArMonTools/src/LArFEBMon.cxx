@@ -177,7 +177,7 @@ StatusCode LArFEBMon::bookHistograms() {
     (m_rejectedHisto->GetXaxis())->SetBinLabel(1,"Whole event corrupted");
     (m_rejectedHisto->GetXaxis())->SetBinLabel(2,"Single FEB corrupted");
     (m_rejectedHisto->GetXaxis())->SetBinLabel(3,"Accepted");
-    //sc = sc && summaryGroup.regHist(m_rejectedHisto);
+    //sc &= summaryGroup.regHist(m_rejectedHisto);
     
     sc = regHist(m_rejectedHisto,  "/LAr/FEBMon/Summary", run);
     
@@ -186,19 +186,19 @@ StatusCode LArFEBMon::bookHistograms() {
     (m_rejectedYield->GetXaxis())->SetBinLabel(2,"Single FEB corrupted");
     (m_rejectedYield->GetXaxis())->SetBinLabel(3,"Accepted");
     (m_rejectedYield->GetYaxis())->SetTitle("Yield(%)");
-    sc = sc && summaryGroupW.regHist(m_rejectedYield);
+    sc &= summaryGroupW.regHist(m_rejectedYield);
     
     if (m_isOnline){ // Histo useless offline -> switch off in order to avoid merging warning
       m_rejectedLBProfile = TProfile_LW::create("EventsRejectedLB","% of events rejected in current LB (online only)",1,0,1);
       (m_rejectedLBProfile->GetXaxis())->SetBinLabel(1,"% of events");
       m_rejectedLBProfile->SetMinimum(0);
       m_rejectedLBProfile->SetMaximum(100);
-      sc = sc && summaryGroup.regHist(m_rejectedLBProfile);
+      sc &= summaryGroup.regHist(m_rejectedLBProfile);
     }
     
     m_rejBitsHisto = TH1I_LW::create("rejectionBits","Errors at the origin of event rejection",8192,0.5,8191.5);
     (m_rejBitsHisto->GetYaxis())->SetTitle("Number of (rejected) events");
-    sc = sc && summaryGroup.regHist(m_rejBitsHisto);
+    sc &= summaryGroup.regHist(m_rejBitsHisto);
     
     m_LArAllErrors_dE = TH2I_LW::create("NbOfLArFEBMonErrors_dE","# of data corruption errors",13,0.5,13.5,8,-0.5,7.5);
     (m_LArAllErrors_dE->GetXaxis())->SetBinLabel(1,"Parity");
@@ -222,31 +222,31 @@ StatusCode LArFEBMon::bookHistograms() {
     (m_LArAllErrors_dE->GetYaxis())->SetBinLabel(5,"HECC");
     (m_LArAllErrors_dE->GetYaxis())->SetBinLabel(8,"FCALA");
     (m_LArAllErrors_dE->GetYaxis())->SetBinLabel(7,"FCALC");
-    sc = sc && summaryGroup.regHist(m_LArAllErrors_dE);    
+    sc &= summaryGroup.regHist(m_LArAllErrors_dE);
         
     // Number of events per minute vs LB
     m_eventsLB = TH1I_LW::create("NbOfEventsVsLB","Nb of events per LB",m_lumi_blocks+1,-0.5,(float)m_lumi_blocks+0.5);
     (m_eventsLB->GetXaxis())->SetTitle("Luminosity Block");
-    sc = sc && summaryGroup.regHist(m_eventsLB);
+    sc &= summaryGroup.regHist(m_eventsLB);
     
     // Number of events rejected per LB
     m_rejectedYieldLB = TProfile_LW::create("YieldOfRejectedEventsVsLB","Yield of corrupted events",m_lumi_blocks+1,-0.5,(float)m_lumi_blocks+0.5);
     (m_rejectedYieldLB->GetXaxis())->SetTitle("Luminosity Block");
     (m_rejectedYieldLB->GetYaxis())->SetTitle("Yield(%)");
     m_rejectedYieldLB->SetMinimum(-5.);
-    sc = sc && summaryGroup.regHist(m_rejectedYieldLB);
+    sc &= summaryGroup.regHist(m_rejectedYieldLB);
     
     // Number of events rejected per LB outside time veto window
     m_rejectedYieldLBout = TProfile_LW::create("YieldOfRejectedEventsVsLBout","Yield of corrupted events not vetoed by time window",m_lumi_blocks+1,-0.5,(float)m_lumi_blocks+0.5);
     (m_rejectedYieldLBout->GetXaxis())->SetTitle("Luminosity Block");
     m_rejectedYieldLBout->SetMinimum(-5.);
-    sc = sc && summaryGroup.regHist(m_rejectedYieldLBout);
+    sc &= summaryGroup.regHist(m_rejectedYieldLBout);
     
     // Mean event size per LB
     m_eventSizeLB = TProfile_LW::create("eventSizeVsLB","LAr event size (w/o ROS headers)",m_lumi_blocks+1,-0.5,(float)m_lumi_blocks+0.5);
     (m_eventSizeLB->GetXaxis())->SetTitle("Luminosity Block");
     (m_eventSizeLB->GetYaxis())->SetTitle("Megabytes");
-    sc = sc && summaryGroup.regHist(m_eventSizeLB);
+    sc &= summaryGroup.regHist(m_eventSizeLB);
 
     if (m_isOnline){ // Histo useless offline -> switch off in order to avoid merging warning
        // Mean event size per stream per LB
@@ -258,7 +258,7 @@ StatusCode LArFEBMon::bookHistograms() {
              (m_stream_eventSizeLB->GetYaxis())->SetBinLabel(str+1,m_streams[str].c_str());
           }
           (m_stream_eventSizeLB->GetYaxis())->SetBinLabel(nStreams+1,"others");
-          sc = sc && summaryGroup.regHist(m_stream_eventSizeLB);
+          sc &= summaryGroup.regHist(m_stream_eventSizeLB);
        }
     }
    
@@ -269,21 +269,21 @@ StatusCode LArFEBMon::bookHistograms() {
     (m_nbOfEvts2D->GetYaxis())->SetBinLabel(1,"Barrel C");
     (m_nbOfEvts2D->GetYaxis())->SetBinLabel(4,"Endcap A");
     (m_nbOfEvts2D->GetYaxis())->SetBinLabel(3,"Endcap C");
-    sc = sc && perPartitionDataGroup.regHist(m_nbOfEvts2D);
+    sc &= perPartitionDataGroup.regHist(m_nbOfEvts2D);
     
     // Global nb of readout FEB
     m_nbOfFebBlocksTotal = TH1I_LW::create("NbOfReadoutFEBGlobal","# of readout FEB/DSP header",m_FEBnbins,m_FEBmin,m_FEBmax);
-    sc = sc && perPartitionDataGroup.regHist(m_nbOfFebBlocksTotal);
+    sc &= perPartitionDataGroup.regHist(m_nbOfFebBlocksTotal);
     
     // DSP threshold
     m_dspThresholds_ADC = TH1I_LW::create("dspThresholdsADC","DSP thresholds to readout samples",2000,-100.5,1899.5);
     m_dspThresholds_ADC->GetYaxis()->SetTitle("Number of cells");
     m_dspThresholds_ADC->GetXaxis()->SetTitle("Cell threshold in ADC counts");
-    sc = sc && perPartitionDataGroupLowerLB.regHist(m_dspThresholds_ADC);
+    sc &= perPartitionDataGroupLowerLB.regHist(m_dspThresholds_ADC);
     m_dspThresholds_qtime = TH1I_LW::create("dspThresholds_qfactortime","DSP thresholds to readout (qfactor+time)",2000,-100.5,1899.5);
     m_dspThresholds_qtime->GetYaxis()->SetTitle("Number of cells");
     m_dspThresholds_qtime->GetXaxis()->SetTitle("Cell threshold in ADC counts");
-    sc = sc && perPartitionDataGroupLowerLB.regHist(m_dspThresholds_qtime);
+    sc &= perPartitionDataGroupLowerLB.regHist(m_dspThresholds_qtime);
     
     // Event type
     m_eventType = TH1I_LW::create("Eventtype","Event type (1st readout FEB)",5,0.,15.);
@@ -292,37 +292,37 @@ StatusCode LArFEBMon::bookHistograms() {
     (m_eventType->GetXaxis())->SetBinLabel(3,"Calibration");
     (m_eventType->GetXaxis())->SetBinLabel(4,"Pedestals");
     (m_eventType->GetXaxis())->SetBinLabel(5,"Raw data+Result");
-    sc = sc && perPartitionDataGroup.regHist(m_eventType);
+    sc &= perPartitionDataGroup.regHist(m_eventType);
     
     // Trigger types
     m_hTriggerType = TH1I_LW::create("TriggerWord","Number of Events per L1 trigger word (8 bits)", 256, -0.5, 255.5);
     m_hTriggerType->GetXaxis()->SetTitle("L1 trigger word");
-    sc = sc && perPartitionDataGroup.regHist(m_hTriggerType);
+    sc &= perPartitionDataGroup.regHist(m_hTriggerType);
     m_hTriggerTypeAllDSP = TH1I_LW::create("TriggerWordAllDSP","Number L1 trigger word per DSP (8 bits)", 256, -0.5, 255.5);
     m_hTriggerTypeAllDSP->GetXaxis()->SetTitle("L1 trigger word");
     (m_hTriggerTypeAllDSP->GetYaxis())->SetTitle("Number of events");
-    sc = sc && perPartitionDataGroup.regHist(m_hTriggerTypeAllDSP);
+    sc &= perPartitionDataGroup.regHist(m_hTriggerTypeAllDSP);
     
     // Nb of samples
     m_nbOfSamples = TH1I_LW::create("NbOfSamples","# of samples (1st readout FEB)",35,-1.5,33.5);
     (m_nbOfSamples->GetYaxis())->SetTitle("Number of events");
-    sc = sc && perPartitionDataGroup.regHist(m_nbOfSamples);
+    sc &= perPartitionDataGroup.regHist(m_nbOfSamples);
     
     // Nb of cells above DSP samples threshold
     m_totNbSw2 = TH1I_LW::create("NbOfSw2","# of cells with samples readout",2000,-1000,199000);
     (m_totNbSw2->GetXaxis())->SetTitle("Number of cells");
     (m_totNbSw2->GetYaxis())->SetTitle("Number of events");
-    sc = sc && perPartitionDataGroup.regHist(m_totNbSw2);
+    sc &= perPartitionDataGroup.regHist(m_totNbSw2);
     
     // Book per partition set of histograms
-    sc = sc && bookNewPartitionSumm(m_barrelCSummary,"EMBC");
-    sc = sc && bookNewPartitionSumm(m_barrelASummary,"EMBA");
-    sc = sc && bookNewPartitionSumm(m_emecCSummary,"EMECC");
-    sc = sc && bookNewPartitionSumm(m_emecASummary,"EMECA");
-    sc = sc && bookNewPartitionSumm(m_hecCSummary,"HECC");
-    sc = sc && bookNewPartitionSumm(m_hecASummary,"HECA");
-    sc = sc && bookNewPartitionSumm(m_fcalCSummary,"FcalC");
-    sc = sc && bookNewPartitionSumm(m_fcalASummary,"FcalA");
+    sc &= bookNewPartitionSumm(m_barrelCSummary,"EMBC");
+    sc &= bookNewPartitionSumm(m_barrelASummary,"EMBA");
+    sc &= bookNewPartitionSumm(m_emecCSummary,"EMECC");
+    sc &= bookNewPartitionSumm(m_emecASummary,"EMECA");
+    sc &= bookNewPartitionSumm(m_hecCSummary,"HECC");
+    sc &= bookNewPartitionSumm(m_hecASummary,"HECA");
+    sc &= bookNewPartitionSumm(m_fcalCSummary,"FcalC");
+    sc &= bookNewPartitionSumm(m_fcalASummary,"FcalA");
     
     plotMaskedFEB();
     
@@ -936,106 +936,106 @@ StatusCode LArFEBMon::bookNewPartitionSumm(summaryPartition& summ,std::string su
   std::string hName = "Parity"+summName;
   std::string hTitle = "Parity error - " + summName;  
   summ.parity = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
-  sc = sc && m_strHelper->definePartitionSummProp(summ.parity);
-  sc = sc && perPartitionGroup.regHist(summ.parity);
+  sc &= m_strHelper->definePartitionSummProp(summ.parity);
+  sc &= perPartitionGroup.regHist(summ.parity);
   
   hName = "BCID"+summName;
   hTitle = "BCID mismatch betw. 2 halves of FEB - " + summName;
   summ.BCID_2halves = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
-  sc = sc && m_strHelper->definePartitionSummProp(summ.BCID_2halves);
-  sc = sc && perPartitionGroup.regHist(summ.BCID_2halves);
+  sc &= m_strHelper->definePartitionSummProp(summ.BCID_2halves);
+  sc &= perPartitionGroup.regHist(summ.BCID_2halves);
   
   hName = "RADD"+summName;
   hTitle = "Sample header mismatch betw. 2 halves of FEB - " + summName;
   summ.RADD_2halves = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
-  sc = sc && m_strHelper->definePartitionSummProp(summ.RADD_2halves);
-  sc = sc && perPartitionGroup.regHist(summ.RADD_2halves);
+  sc &= m_strHelper->definePartitionSummProp(summ.RADD_2halves);
+  sc &= perPartitionGroup.regHist(summ.RADD_2halves);
   
   hName = "EVTID"+summName;
   hTitle = "EVTID mismatch betw. 2 halves of FEB - " + summName;
   summ.EVTID_2halves = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
-  sc = sc && m_strHelper->definePartitionSummProp(summ.EVTID_2halves);
-  sc = sc && perPartitionGroup.regHist(summ.EVTID_2halves);
+  sc &= m_strHelper->definePartitionSummProp(summ.EVTID_2halves);
+  sc &= perPartitionGroup.regHist(summ.EVTID_2halves);
   
   hName = "SCACStatus"+summName;
   hTitle = "Wrong SCAC status in one half of a FEB - " + summName;
   summ.SCACStatus = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
-  sc = sc && m_strHelper->definePartitionSummProp(summ.SCACStatus);
-  sc = sc && perPartitionGroup.regHist(summ.SCACStatus);
+  sc &= m_strHelper->definePartitionSummProp(summ.SCACStatus);
+  sc &= perPartitionGroup.regHist(summ.SCACStatus);
   
   hName = "scaOutOfRange"+summName;
   hTitle = "Sca out of range - " + summName;
   summ.scaOutOfRange = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
-  sc = sc && m_strHelper->definePartitionSummProp(summ.scaOutOfRange);
-  sc = sc && perPartitionGroup.regHist(summ.scaOutOfRange);
+  sc &= m_strHelper->definePartitionSummProp(summ.scaOutOfRange);
+  sc &= perPartitionGroup.regHist(summ.scaOutOfRange);
   
   hName = "gainMismatch"+summName;
   hTitle = "Gain mismatch within time samples - " + summName;
   summ.gainMismatch = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
-  sc = sc && m_strHelper->definePartitionSummProp(summ.gainMismatch);
-  sc = sc && perPartitionGroup.regHist(summ.gainMismatch);
+  sc &= m_strHelper->definePartitionSummProp(summ.gainMismatch);
+  sc &= perPartitionGroup.regHist(summ.gainMismatch);
   
   hName = "typeMismatch"+summName;
   hTitle = "Event type mismatch - " + summName;
   summ.typeMismatch = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
-  sc = sc && m_strHelper->definePartitionSummProp(summ.typeMismatch);
-  sc = sc && perPartitionGroup.regHist(summ.typeMismatch);
+  sc &= m_strHelper->definePartitionSummProp(summ.typeMismatch);
+  sc &= perPartitionGroup.regHist(summ.typeMismatch);
   
   hName = "badNbOfSamp"+summName;
   hTitle = "Non uniform number of samples - " + summName;
   summ.badNbOfSamp = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
-  sc = sc && m_strHelper->definePartitionSummProp(summ.badNbOfSamp);
-  sc = sc && perPartitionGroup.regHist(summ.badNbOfSamp);
+  sc &= m_strHelper->definePartitionSummProp(summ.badNbOfSamp);
+  sc &= perPartitionGroup.regHist(summ.badNbOfSamp);
   
   hName = "zeroSamp"+summName;
   hTitle = "Empty FEB data blocks - " + summName;
   summ.zeroSamp = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
-  sc = sc && m_strHelper->definePartitionSummProp(summ.zeroSamp);
-  sc = sc && perPartitionGroup.regHist(summ.zeroSamp);
+  sc &= m_strHelper->definePartitionSummProp(summ.zeroSamp);
+  sc &= perPartitionGroup.regHist(summ.zeroSamp);
   
   hName = "checkSum"+summName;
   hTitle = "Checksum / DSP block size - " + summName;
   summ.checkSum = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
-  sc = sc && m_strHelper->definePartitionSummProp(summ.checkSum);
-  sc = sc && perPartitionGroup.regHist(summ.checkSum);
+  sc &= m_strHelper->definePartitionSummProp(summ.checkSum);
+  sc &= perPartitionGroup.regHist(summ.checkSum);
   
   hName = "missingHeader"+summName;
   hTitle = "Missing header " + summName;
   summ.missingHeader = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
-  sc = sc && m_strHelper->definePartitionSummProp(summ.missingHeader);
-  sc = sc && perPartitionGroup.regHist(summ.missingHeader);
+  sc &= m_strHelper->definePartitionSummProp(summ.missingHeader);
+  sc &= perPartitionGroup.regHist(summ.missingHeader);
   
   hName = "badGain"+summName;
   hTitle = "Bad gain " + summName;
   summ.badGain = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
-  sc = sc && m_strHelper->definePartitionSummProp(summ.badGain);
-  sc = sc && perPartitionGroup.regHist(summ.badGain);
+  sc &= m_strHelper->definePartitionSummProp(summ.badGain);
+  sc &= perPartitionGroup.regHist(summ.badGain);
   
   hName = "LArFEBMonErrorsAbsolute"+summName;
   hTitle = "Nb of events with at least one error - " + summName;
   summ.LArAllErrors = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
-  sc = sc && m_strHelper->definePartitionSummProp(summ.LArAllErrors);
-  sc = sc && perPartitionGroup.regHist(summ.LArAllErrors);
+  sc &= m_strHelper->definePartitionSummProp(summ.LArAllErrors);
+  sc &= perPartitionGroup.regHist(summ.LArAllErrors);
   
   hName = "LArFEBMonErrors"+summName;
   hTitle = "% of events with at least one error - " + summName;
   summ.LArAllErrorsYield = TH2F_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
-  sc = sc && m_strHelper->definePartitionSummProp(summ.LArAllErrorsYield);
-  sc = sc && perPartitionYieldGroup.regHist(summ.LArAllErrorsYield);
+  sc &= m_strHelper->definePartitionSummProp(summ.LArAllErrorsYield);
+  sc &= perPartitionYieldGroup.regHist(summ.LArAllErrorsYield);
   
   hName = "knownFaultyFEB"+summName;
   hTitle = "FEB with known errors (1:err. ignored 2:FEB masked) - " + summName;  
   summ.maskedFEB = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
-  sc = sc && m_strHelper->definePartitionSummProp(summ.maskedFEB);
-  sc = sc && perPartitionGroup.regHist(summ.maskedFEB);
+  sc &= m_strHelper->definePartitionSummProp(summ.maskedFEB);
+  sc &= perPartitionGroup.regHist(summ.maskedFEB);
   
   // These are misc histograms-This may be changed in error histograms if needed
   // They are stored in /perPartitionMisc directory
   hName = "missingTriggerType"+summName;
   hTitle = "LVL1 trigger type missing or different from event type - " + summName;  
   summ.missingTriggerType = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
-  sc = sc && m_strHelper->definePartitionSummProp(summ.missingTriggerType);
-  sc = sc && perPartitionMiscGroup.regHist(summ.missingTriggerType);
+  sc &= m_strHelper->definePartitionSummProp(summ.missingTriggerType);
+  sc &= perPartitionMiscGroup.regHist(summ.missingTriggerType);
   
   
   // These are general data histograms
@@ -1043,26 +1043,26 @@ StatusCode LArFEBMon::bookNewPartitionSumm(summaryPartition& summ,std::string su
   hName = "nbOfEvts"+summName;
   hTitle = "Nb of events (DSP header check only) - " + summName;  
   summ.nbOfEvts = TH2I_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
-  sc = sc && m_strHelper->definePartitionSummProp(summ.nbOfEvts);
-  sc = sc && perPartitionDataGroup.regHist(summ.nbOfEvts);
+  sc &= m_strHelper->definePartitionSummProp(summ.nbOfEvts);
+  sc &= perPartitionDataGroup.regHist(summ.nbOfEvts);
   
   hName = "NbOfSweet1PerFEB"+summName;
   hTitle = "Average # of cells with (qfactor+time) readout - " + summName;    
   summ.nbOfSweet1 = TProfile2D_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
-  sc = sc && m_strHelper->definePartitionSummProp(summ.nbOfSweet1);
-  sc = sc && perPartitionDataGroup.regHist(summ.nbOfSweet1);
+  sc &= m_strHelper->definePartitionSummProp(summ.nbOfSweet1);
+  sc &= perPartitionDataGroup.regHist(summ.nbOfSweet1);
   
   hName = "NbOfSweet2PerFEB"+summName;
   hTitle = "Average # of cells with samples readout - " + summName;    
   summ.nbOfSweet2 = TProfile2D_LW::create(hName.c_str(),hTitle.c_str(),nbOfSlot,0.5,slotMax,nbOfFT,-0.5,ftMax);
-  sc = sc && m_strHelper->definePartitionSummProp(summ.nbOfSweet2);
-  sc = sc && perPartitionDataGroup.regHist(summ.nbOfSweet2);
+  sc &= m_strHelper->definePartitionSummProp(summ.nbOfSweet2);
+  sc &= perPartitionDataGroup.regHist(summ.nbOfSweet2);
   
   hName = "nbOfFebBlocks"+summName;
   hTitle = "# of readout FEBs (DSP header check only) - " + summName;  
   summ.nbOfFebBlocks = TH1I_LW::create(hName.c_str(),hTitle.c_str(),600,-99.5,500.5);
   (summ.nbOfFebBlocks)->GetXaxis()->SetTitle("# of readout FEBs");
-  sc = sc && perPartitionDataGroup.regHist(summ.nbOfFebBlocks);
+  sc &= perPartitionDataGroup.regHist(summ.nbOfFebBlocks);
   
   int nStreams=m_streams.size();
   if(m_isOnline && nStreams > 0) { // book 2d histo with asked streams 
@@ -1074,13 +1074,13 @@ StatusCode LArFEBMon::bookNewPartitionSumm(summaryPartition& summ,std::string su
          (summ.stream_eventSizeLB->GetYaxis())->SetBinLabel(str+1,m_streams[str].c_str());
     }
     (summ.stream_eventSizeLB->GetYaxis())->SetBinLabel(nStreams+1,"others");
-    sc = sc && perPartitionDataGroup.regHist(summ.stream_eventSizeLB);
+    sc &= perPartitionDataGroup.regHist(summ.stream_eventSizeLB);
   } else { // book simple profile
     hName = "eventSizeVsLB"+summName;
     hTitle = "LAr event size per LB (w/o ROS headers)" + summName;  
     summ.eventSizeLB = TProfile_LW::create(hName.c_str(),hTitle.c_str(),m_lumi_blocks,-0.5,(float)m_lumi_blocks+0.5);
     (summ.eventSizeLB)->GetXaxis()->SetTitle("Luminosity Block");
-    sc = sc && perPartitionDataGroup.regHist(summ.eventSizeLB);
+    sc &= perPartitionDataGroup.regHist(summ.eventSizeLB);
   }
 
   if(m_isOnline) { 
@@ -1090,7 +1090,7 @@ StatusCode LArFEBMon::bookNewPartitionSumm(summaryPartition& summ,std::string su
     (summ.m_rejectedLBProfilePart)->GetXaxis()->SetBinLabel(1,"% of events");
     (summ.m_rejectedLBProfilePart)->SetMinimum(0);
     (summ.m_rejectedLBProfilePart)->SetMaximum(100);
-    sc = sc && perPartitionDataGroup.regHist(summ.m_rejectedLBProfilePart);
+    sc &= perPartitionDataGroup.regHist(summ.m_rejectedLBProfilePart);
     
     if (sc.isFailure()) {
       ATH_MSG_FATAL( "Unable to book partitions histograms" );

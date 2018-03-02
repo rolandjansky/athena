@@ -21,7 +21,6 @@ PURPOSE: Data preparation from FEB Header (Ex,Ey,Ez)
 #include "GaudiKernel/MsgStream.h"
 
 #include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/ThreadGaudi.h"
 #include "TrigT2CaloCommon/TrigDataAccess.h"
 #include "AthenaKernel/Timeout.h"
 
@@ -61,7 +60,7 @@ StatusCode T2CaloJetGridFromFEBHeader::initialize()
     }
     else{
       
-      std::string prefix = getGaudiThreadGenericName(name()) + ":";
+      std::string prefix = name() + ":";
 
      // Define now the timers:
       std::string label = prefix+"LArUnpck";

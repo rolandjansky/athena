@@ -8,7 +8,6 @@
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/ThreadGaudi.h"
 #include "LArRawUtils/LArRoI_Map.h"
 #include "LArRecUtils/MakeLArCellFromRaw.h"
 #include "LArRecConditions/ILArBadChannelMasker.h"
@@ -34,16 +33,15 @@ std::cout << "LArCellCont \t\t DEBUG \t in initialize" << std::endl;
 
  StatusCode sc;
  ISvcLocator* svcLoc = Gaudi::svcLocator( );
- ThreadGaudi* threadGaudi = ThreadGaudi::instance();
  IToolSvc* toolSvc;
- sc = svcLoc->service( "ToolSvc"+threadGaudi->getThreadID(),toolSvc);
+ sc = svcLoc->service( "ToolSvc",toolSvc);
  if(sc.isFailure()){
    std::cout << "LArCellCont:initialize ERROR: Can not retrieve ToolSvc" << std::endl;
    return StatusCode::FAILURE;
 }
  
  StoreGateSvc* detStore;
- sc=svcLoc->service("DetectorStore"+threadGaudi->getThreadID(),detStore);
+ sc=svcLoc->service("DetectorStore",detStore);
  if(sc.isFailure()){
    std::cout << "LArCellCont:initialize ERROR: Can not retrieve DetectorStore" << std::endl;
    return StatusCode::FAILURE;
