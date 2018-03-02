@@ -10,8 +10,8 @@ from PathResolver import PathResolver
 from AthenaCommon.Logging import logging
 
 class TriggerAPI:
-    centralPickleFile = PathResolver.FindCalibFile("TriggerInfo_20180228.pickle")
-    centralPickleFile = os.path.realpath(centralPickleFile)
+    centralPickleFile = PathResolver.FindCalibFile("TriggerMenu/TriggerInfo_20180228.pickle")
+    if centralPickleFile: centralPickleFile = os.path.realpath(centralPickleFile)
     privatePickleFile = "TriggerInfo.pickle"
     dbQueries = None
     privatedbQueries = {}
@@ -37,6 +37,7 @@ class TriggerAPI:
                 cls.dbQueries.update(cls.privatedbQueries)
         except pickle.PickleError:
             cls.log.error("Error unpickling the private file")
+        except IOError:
             pass
 
     @classmethod
@@ -134,10 +135,9 @@ class TriggerAPI:
 def main():
     ''' Run some tests '''
     for triggerType in TriggerType:
-        unprescaled = TriggerAPI.getLowestUnprescaled(332303,triggerType)
+        unprescaled = TriggerAPI.getLowestUnprescaled(TriggerPeriod.y2017,triggerType)
         print triggerType
         print sorted(unprescaled)
-    print TriggerAPI.getLowestUnprescaled(TriggerPeriod.future1p8e34,TriggerType.j_single)
 
 if __name__ == "__main__":
         sys.exit(main())
