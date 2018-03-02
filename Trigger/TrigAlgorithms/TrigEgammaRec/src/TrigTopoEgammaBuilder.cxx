@@ -1333,7 +1333,7 @@ HLT::ErrorCode TrigTopoEgammaBuilder::hltExecute( const HLT::TriggerElement* inp
 bool TrigTopoEgammaBuilder::getElectron(const egammaRec* egRec,
 				    xAOD::ElectronContainer *electronContainer,
 				    const unsigned int author,
-				    const uint8_t type){
+				    const uint8_t type) const {
 
     if (!egRec || !electronContainer) return false;
 
@@ -1395,7 +1395,7 @@ bool TrigTopoEgammaBuilder::getElectron(const egammaRec* egRec,
 bool TrigTopoEgammaBuilder::getPhoton(const egammaRec* egRec,
 				  xAOD::PhotonContainer *photonContainer,
 				  const unsigned int author,
-				  const uint8_t type){
+				  const uint8_t type) const {
     if (!egRec || !photonContainer) return false;
 
     xAOD::Photon *photon = new xAOD::Photon();
@@ -1436,7 +1436,7 @@ bool TrigTopoEgammaBuilder::getPhoton(const egammaRec* egRec,
 }
 
 /** @brief Decoration debug method for electrons */
-void TrigTopoEgammaBuilder::PrintElectron(xAOD::Electron *eg){
+void TrigTopoEgammaBuilder::PrintElectron(xAOD::Electron *eg) const {
     // This will return exception if string not correct
     // Safe method to pass value to fill
     unsigned int isEMbit=0;
@@ -1535,7 +1535,7 @@ void TrigTopoEgammaBuilder::PrintElectron(xAOD::Electron *eg){
 }
 
 /** @brief Decoration debug method for photons */
-void TrigTopoEgammaBuilder::PrintPhoton(xAOD::Photon *eg){
+void TrigTopoEgammaBuilder::PrintPhoton(xAOD::Photon *eg) const {
     // This will return exception if string not correct
     // Safe method to pass value to fill
     unsigned int isEMbit=0;
