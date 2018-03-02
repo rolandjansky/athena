@@ -7,7 +7,7 @@ def print_available():
     defineMenu()
     available = []
     for i in range(512):
-      if i==463 or  i==464: continue #reserved for L1_RD2_BGRP14 and L1_RD3_BGRP15
+      if i==463: continue #reserved for L1_RD2_BGRP14, L1_RD3_BGRP15 now assigned to 510 for partition 3 ATR-17737
       if i>=509 and i<=511: continue #reserved for CALREQ
       if not i in Lvl1Flags.CtpIdMap().values(): available.append(str(i))
     available.sort()
