@@ -1,22 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCT_ConfigurationConditionsSvc.h"
 
-// Gaudi includes
-#include "GaudiKernel/StatusCode.h"
-
 // Athena includes
 #include "StoreGate/StoreGateSvc.h"
-#include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "SCT_Cabling/SCT_SerialNumber.h"
 
 // in case the chip number cannot be retrieved, this is the invalid value
-static const int invalidChipNumber(-1);
+static const int invalidChipNumber{-1};
 // Constructor
 SCT_ConfigurationConditionsSvc::SCT_ConfigurationConditionsSvc(const std::string& name, ISvcLocator* pSvcLocator) :
   AthService(name, pSvcLocator),

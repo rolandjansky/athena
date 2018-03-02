@@ -1,36 +1,35 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
- * @file ISCT_RadDamageSummarySvc.h
+ * @file ISCT_RadDamageSummaryTool.h
  * @note primary author for Pixels: Carolina Deluca (carolina.deluca.silberberg@cern.ch)
  * @author for SCT: Peter Vankov (peter.vankov@cern.ch)
  *                  Marco Filipuzzi (marco.filipuzzi@cern.ch)
  **/
 
-#ifndef ISCT_RadDamageSummarySvc_h
-#define ISCT_RadDamageSummarySvc_h
+#ifndef ISCT_RadDamageSummaryTool_h
+#define ISCT_RadDamageSummaryTool_h
 
 //Gaudi Includes
-#include "GaudiKernel/IInterface.h"
-// #include "AthenaKernel/IOVSvcDefs.h"
-// #include "CLHEP/Vector/ThreeVector.h"
+#include "GaudiKernel/IAlgTool.h"
 
 //forward declarations
 class IdentifierHash;
 
 /**
- * @class ISCT_RadDamageSummarySvc
- * Interface class for service providing Trapping Probability 
+ * @class ISCT_RadDamageSummaryTool
+ * Interface class for tool providing Trapping Probability 
  * for each charge in the digitization package.
  **/
-class ISCT_RadDamageSummarySvc: virtual public IInterface
+class ISCT_RadDamageSummaryTool: virtual public IAlgTool
 {
  public:
-  virtual ~ISCT_RadDamageSummarySvc() {}
-  
-  static const InterfaceID& interfaceID(); //!< reimplemented from IInterface
+  virtual ~ISCT_RadDamageSummaryTool() = default;
+
+  /// Creates the InterfaceID and interfaceID() method
+  DeclareInterfaceID(ISCT_RadDamageSummaryTool, 1, 0);
 
   virtual double ChargeTrappingProbability(const IdentifierHash& elementHash, const double& zpos) =0;
   virtual double TrappingConstant(const IdentifierHash& elementHash, const double& zpos) =0;
@@ -44,9 +43,4 @@ class ISCT_RadDamageSummarySvc: virtual public IInterface
   virtual void InitPotentialValue()=0;
 };
 
-inline const InterfaceID& ISCT_RadDamageSummarySvc::interfaceID() {
-  static const InterfaceID IID_ISCT_RadDamageSummarySvc{"ISCT_RadDamageSummarySvc", 1, 0};
-  return IID_ISCT_RadDamageSummarySvc;  
-}
-
-#endif // ISCT_RadDamageSummarySvc_h
+#endif // ISCT_RadDamageSummaryTool_h

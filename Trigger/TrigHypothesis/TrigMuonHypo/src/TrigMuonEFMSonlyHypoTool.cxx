@@ -45,6 +45,11 @@ StatusCode TrigMuonEFMSonlyHypoTool::initialize(){
     }
   }
 
+  if ( not m_monTool.name().empty() ) {
+    ATH_CHECK( m_monTool.retrieve() );
+    ATH_MSG_DEBUG("MonTool name: " << m_monTool);
+  }
+
   ATH_MSG_INFO("Initialization completed successfully");
   return StatusCode::SUCCESS;
 }
@@ -57,11 +62,17 @@ StatusCode TrigMuonEFMSonlyHypoTool::decide(TrigMuonEFMSonlyHypoTool::MuonEFInfo
 
   using namespace Monitored;
   //Monitored Variables
-  std::vector<float> fexPt, fexEta, fexPhi;
+  std::vector<float> fexPt, fexEta, fexPhi, selPt, selEta, selPhi;
 
-  auto muonPtMon = MonitoredCollection::declare("MSonlyTrkPt", fexPt);
-  auto muonEtaMon = MonitoredCollection::declare("MSonlyTrkEta", fexEta);
-  auto muonPhiMon = MonitoredCollection::declare("MSonlyTrkPhi", fexPhi);
+  auto muonPtMon = MonitoredCollection::declare("Pt", fexPt);
+  auto muonEtaMon = MonitoredCollection::declare("Eta", fexEta);
+  auto muonPhiMon = MonitoredCollection::declare("Phi", fexPhi);
+
+  auto muonPtSelMon = MonitoredCollection::declare("Pt_sel", selPt);
+  auto muonEtaSelMon = MonitoredCollection::declare("Eta_sel", selEta);
+  auto muonPhiSelMon = MonitoredCollection::declare("Phi_sel", selPhi);
+
+  auto monitorIt	= MonitoredScope::declare(m_monTool, muonPtMon, muonEtaMon, muonPhiMon, muonPtSelMon, muonEtaSelMon, muonPhiSelMon); 
 
   bool result = false;
   //for pass through mode
@@ -102,6 +113,10 @@ StatusCode TrigMuonEFMSonlyHypoTool::decide(TrigMuonEFMSonlyHypoTool::MuonEFInfo
 	  if (absEta > m_ptBins[k] && absEta <= m_ptBins[k+1]) threshold = m_ptThresholds[k];
 	}
 	if (fabs(tr->pt())/CLHEP::GeV > (threshold/CLHEP::GeV)){
+	  selPt.push_back(tr->pt()/CLHEP::GeV);
+	  selEta.push_back(tr->eta());
+	  selPhi.push_back(tr->phi());
+
 	  result = true;
 	}
 	ATH_MSG_DEBUG(" REGTEST muon pt is " << tr->pt()/CLHEP::GeV << " GeV "

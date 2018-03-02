@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
-class SCT_ReadCalibChipDataSvcSetup:
-    "Class to simplify setup of SCT_ReadCalibChipDataSvc and required conditions algorithms"
+class SCT_ReadCalibChipDataToolSetup:
+    "Class to simplify setup of SCT_ReadCalibChipDataTool and required conditions algorithms"
 
     def __init__(self):
         self.noiseFolder = "/SCT/DAQ/Calibration/ChipNoise"
@@ -12,8 +12,8 @@ class SCT_ReadCalibChipDataSvcSetup:
         self.gainAlgName = "SCT_ReadCalibChipGainCondAlg"
         self.noiseAlg = None
         self.gainAlg = None
-        self.svcName = "InDetSCT_ReadCalibChipDataSvc"
-        self.svc = None
+        self.toolName = "InDetSCT_ReadCalibChipDataTool"
+        self.tool = None
 
     def getNoiseFolder(self):
         return self.noiseFolder
@@ -72,23 +72,23 @@ class SCT_ReadCalibChipDataSvcSetup:
                                                     ReadKey=self.gainFolder)
         self.alg = getattr(condSeq, self.gainAlgName)
 
-    def setSvc(self):
-        from AthenaCommon.AppMgr import ServiceMgr
-        if not hasattr(ServiceMgr, self.svcName):
-            from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ReadCalibChipDataSvc
-            ServiceMgr += SCT_ReadCalibChipDataSvc(name = self.svcName)
-        self.svc = getattr(ServiceMgr, self.svcName)
+    def setTool(self):
+        from AthenaCommon.AppMgr import ToolSvc
+        if not hasattr(ToolSvc, self.toolName):
+            from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ReadCalibChipDataTool
+            ToolSvc += SCT_ReadCalibChipDataTool(name = self.toolName)
+        self.tool = getattr(ToolSvc, self.toolName)
 
-    def getSvc(self):
-        return self.svc
+    def getTool(self):
+        return self.tool
 
-    def setSvcName(self, svcName):
-        self.svcName = svcName
+    def setToolName(self, toolName):
+        self.toolName = toolName
 
-    def getSvcName(self):
-        return self.svcName
+    def getToolName(self):
+        return self.toolName
 
     def setup(self):
         self.setFolders()
         self.setAlgs()
-        self.setSvc()
+        self.setTool()

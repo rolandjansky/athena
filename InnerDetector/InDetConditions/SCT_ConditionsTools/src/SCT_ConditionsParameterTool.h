@@ -11,7 +11,6 @@
 #define SCT_ConditionsParameterTool_h
 //STL includes
 #include <list>
-#include <string>
 #include <vector>
 
 //boost include

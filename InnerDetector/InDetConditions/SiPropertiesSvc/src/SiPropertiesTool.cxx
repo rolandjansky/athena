@@ -6,8 +6,7 @@
 
 SiPropertiesTool::SiPropertiesTool(const std::string& type, const std::string& name, const IInterface* parent) : 
   base_class(type, name, parent),
-  m_propertiesVector{"SCTSiliconPropertiesVector"},
-  m_defaultProperties{}
+  m_propertiesVector{"SCTSiliconPropertiesVector"}
 {
   declareProperty("DetectorName", m_detectorName="SCT", "Dectector name: Pixel or SCT");
   declareProperty("ReadKey", m_propertiesVector, "Key of SiliconPropertiesVector");
@@ -53,5 +52,7 @@ SiPropertiesTool::getSiProperties(const IdentifierHash& elementHash) {
   ATH_MSG_WARNING("SG::ReadCondHandle<InDet::SiliconPropertiesVector> is not valid. " << 
                   "Return default InDet::SiliconProperties for IdentifierHash for " <<
                   elementHash);
-  return m_defaultProperties;
+  return s_defaultProperties;
 }
+
+const InDet::SiliconProperties SiPropertiesTool::s_defaultProperties{};

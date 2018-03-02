@@ -1,4 +1,5 @@
-#ifndef _CUSTOMRANGEDIVIDER_H_
+#ifndef QATPLOTWIDGETS_CUSTOMRANGEDIVIDER_H
+#define QATPLOTWIDGETS_CUSTOMRANGEDIVIDER_H
 #include "QatPlotWidgets/AbsRangeDivider.h"
 #include "QatPlotWidgets/RangeDivision.h"
 #include <vector>
@@ -31,9 +32,9 @@ class CustomRangeDivider : public AbsRangeDivider {
 
  private:
 
-  double _min;
-  double _max;
-  std::vector<RangeDivision> _subdivision;
+  double m_min;
+  double m_max;
+  std::vector<RangeDivision> m_subdivision;
 
 };
 #endif

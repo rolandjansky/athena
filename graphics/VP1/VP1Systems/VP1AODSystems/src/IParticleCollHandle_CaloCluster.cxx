@@ -101,28 +101,28 @@ double IParticleCollHandle_CaloCluster::calo_crack_eta = fabs(log(tan(0.5*atan(c
 //____________________________________________________________________
 IParticleCollHandle_CaloCluster::IParticleCollHandle_CaloCluster(AODSysCommonData * cd,
 const QString& name, xAOD::Type::ObjectType type)
-  : IParticleCollHandleBase(cd,name,type), d(new Imp)
+  : IParticleCollHandleBase(cd,name,type), m_d(new Imp)
 {
-  d->theclass = this;
-  d->updateGUICounter = 0;
-  d->collSettingsButton=0;
+  m_d->theclass = this;
+  m_d->updateGUICounter = 0;
+  m_d->collSettingsButton=0;
 
 
-//  d->controller = controller;
-//  d->key = key;
-  d->sephelper = 0;
+//  m_d->controller = controller;
+//  m_d->key = key;
+  m_d->sephelper = 0;
   //We start out with no clusters visible:
-  d->last_highestEnergy = 0;
-  d->showOutlines = false;
-  d->considerTransverseEnergies = true;
+  m_d->last_highestEnergy = 0;
+  m_d->showOutlines = false;
+  m_d->considerTransverseEnergies = true;
 
 //  //==========
 //  // b-tagging
-//  d->bTaggingSwitch=new SoSwitch;
-//  d->bTaggingSwitch->whichChild=SO_SWITCH_ALL;
+//  m_d->bTaggingSwitch=new SoSwitch;
+//  m_d->bTaggingSwitch->whichChild=SO_SWITCH_ALL;
 //  // new b-tagged jets and material
-//  d->bTaggingTexture = new SoTexture2;
-//  d->bTaggingMaterial = new SoMaterial;
+//  m_d->bTaggingTexture = new SoTexture2;
+//  m_d->bTaggingMaterial = new SoMaterial;
 
 
   //The object names should not contain all sorts of funky chars (mat button style sheets wont work for instance):
@@ -137,20 +137,20 @@ const QString& name, xAOD::Type::ObjectType type)
   safetext.replace('>','_');
   safetext.replace('&','_');
 
-  //  d->defaultParametersMaterial = new SoMaterial;
-  //  d->defaultParametersMaterial->setName(("IParticleCollHandle_CaloCluster"+safetext).toStdString().c_str());
-  //  d->defaultParametersMaterial->ref();
-  // d->matButton->setDefaultParameterMaterial(d->defaultParametersMaterial); FIXME
+  //  m_d->defaultParametersMaterial = new SoMaterial;
+  //  m_d->defaultParametersMaterial->setName(("IParticleCollHandle_CaloCluster"+safetext).toStdString().c_str());
+  //  m_d->defaultParametersMaterial->ref();
+  // m_d->matButton->setDefaultParameterMaterial(m_d->defaultParametersMaterial); FIXME
 }
 
 //____________________________________________________________________
 IParticleCollHandle_CaloCluster::~IParticleCollHandle_CaloCluster()
 {
-  //	d->defaultParametersMaterial->unref();
+  //	m_d->defaultParametersMaterial->unref();
 
-//  if (d->bTaggingSwitch) d->bTaggingSwitch->unref();
+//  if (m_d->bTaggingSwitch) m_d->bTaggingSwitch->unref();
 
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
@@ -159,18 +159,18 @@ void IParticleCollHandle_CaloCluster::init(VP1MaterialButtonBase*)
   // std::cout<<"IParticleCollHandle_CaloCluster::init 1"<<std::endl;
 
 
-  //	d->matButton = new CaloClusterCollectionSettingsButton;
-  //	d->matButton->setMaterialText(name());
+  //	m_d->matButton = new CaloClusterCollectionSettingsButton;
+  //	m_d->matButton->setMaterialText(name());
 
   // INIT THE COLLECTION 'MATERIAL' BUTTON
-  d->collSettingsButton = new CaloClusterCollectionSettingsButton;
-  d->collSettingsButton->setMaterialText(name());
+  m_d->collSettingsButton = new CaloClusterCollectionSettingsButton;
+  m_d->collSettingsButton->setMaterialText(name());
 
   // pass a collection pointer to the button
-  d->collSettingsButton->setCollHandle(this);
+  m_d->collSettingsButton->setCollHandle(this);
 
-  // std::cout<<"Calling VP1StdCollection::init with d->matButton (CaloClusterCollectionSettingsButton)="<<d->matButton<<std::endl;
-  VP1StdCollection::init(d->collSettingsButton);//this call is required. Passing in d->collSettingsButton means we have the more complex button.
+  // std::cout<<"Calling VP1StdCollection::init with m_d->matButton (CaloClusterCollectionSettingsButton)="<<m_d->matButton<<std::endl;
+  VP1StdCollection::init(m_d->collSettingsButton);//this call is required. Passing in m_d->collSettingsButton means we have the more complex button.
   setupSettingsFromController(common()->controller());
   connect(this,SIGNAL(visibilityChanged(bool)),this,SLOT(collVisibilityChanged(bool)));
 
@@ -180,30 +180,30 @@ void IParticleCollHandle_CaloCluster::init(VP1MaterialButtonBase*)
   // std::cout<<"sep: "<<collSep()<<std::endl;
   // std::cout<<"mat: "<<material()<<std::endl;
 
-  //	collSwitch()->addChild(d->collSettingsButton->trackLightModel()); // TODO: update for jets
-  //	collSwitch()->addChild(d->collSettingsButton->trackDrawStyle()); // TODO: update for jets
+  //	collSwitch()->addChild(m_d->collSettingsButton->trackLightModel()); // TODO: update for jets
+  //	collSwitch()->addChild(m_d->collSettingsButton->trackDrawStyle()); // TODO: update for jets
 
 //  //==========
 //  // b-tagging
-//  if(d->collSettingsButton->is_bTaggingSkinEnabled()) {
+//  if(m_d->collSettingsButton->is_bTaggingSkinEnabled()) {
 //    std::cout << "switch texture" << std::endl;
-//    setBTaggingSkin(d->collSettingsButton->bTaggingSkin());
-//    //	  d->bTaggingSwitch->addChild(d->bTaggingTexture);
+//    setBTaggingSkin(m_d->collSettingsButton->bTaggingSkin());
+//    //	  m_d->bTaggingSwitch->addChild(m_d->bTaggingTexture);
 //  }
-//  else if (d->collSettingsButton->is_bTaggingMaterialEnabled()) {
+//  else if (m_d->collSettingsButton->is_bTaggingMaterialEnabled()) {
 //    std::cout << "switch material" << std::endl;
 //    setBTaggingMaterial();
-//    //	  d->bTaggingMaterial = controller->bTaggingMaterial();
-//    //	  d->bTaggingSwitch->addChild(d->bTaggingMaterial);
+//    //	  m_d->bTaggingMaterial = controller->bTaggingMaterial();
+//    //	  m_d->bTaggingSwitch->addChild(m_d->bTaggingMaterial);
 //  }
 //  else {
 //    messageVerbose("Info - No b-tag rendering selected.");
 //  }
 //
 //  // we want these nodes to stay around even when removed from nodes, thus we increment the ref count by one
-//  d->bTaggingSwitch->ref();
-//  //  d->bTaggingTexture->ref();
-//  //  d->bTaggingMaterial->ref();
+//  m_d->bTaggingSwitch->ref();
+//  //  m_d->bTaggingTexture->ref();
+//  //  m_d->bTaggingMaterial->ref();
 //  //==========
 
 
@@ -216,7 +216,7 @@ double IParticleCollHandle_CaloCluster::energyToLength(const double&energy) cons
 {
 	VP1Msg::messageDebug("IParticleCollHandle_CaloCluster::energyToLength()");
 
-	return std::max(1*CLHEP::mm, d->scale.second*(d->scale.first?log(1+fabs(energy)):energy));
+	return std::max(1*CLHEP::mm, m_d->scale.second*(m_d->scale.first?log(1+fabs(energy)):energy));
 }
 
 //____________________________________________________________________
@@ -224,7 +224,7 @@ bool IParticleCollHandle_CaloCluster::showOutlines() const
 {
 	VP1Msg::messageDebug("IParticleCollHandle_CaloCluster::showOutlines()");
 
-	return d->showOutlines;
+	return m_d->showOutlines;
 }
 
 //____________________________________________________________________
@@ -242,22 +242,22 @@ void IParticleCollHandle_CaloCluster::setScale(const QPair<bool,double>& s)
   VP1Msg::messageDebug("IParticleCollHandle_CaloCluster::setScale()");
 
 
-  if (d->scale==s) {
+  if (m_d->scale==s) {
 	  VP1Msg::messageDebug("Scale is the same. Returning...");
 	  return;
   }
 
   VP1Msg::messageDebug("setting scale: (" + QString::number(s.first) + ", " + QString::number(s.second) + " )");
-  d->scale=s;
+  m_d->scale=s;
 
   if (!isLoaded()) {
 	  VP1Msg::messageDebug("Collection not loaded/shown. Returning...");
 	  return;
   }
 //  largeChangesBegin();
-//  foreach(Imp::ClusterHandle*cluster,d->clusters)
+//  foreach(Imp::ClusterHandle*cluster,m_d->clusters)
 //    if (cluster->attached())
-//      cluster->updateShapePars(d);
+//      cluster->updateShapePars(m_d);
 //  largeChangesEnd();
 
   largeChangesBegin();
@@ -267,7 +267,7 @@ void IParticleCollHandle_CaloCluster::setScale(const QPair<bool,double>& s)
   {
 	  IParticleHandle_CaloCluster* cluster = dynamic_cast<IParticleHandle_CaloCluster*>(handle);
 	  if (cluster && cluster->has3DObjects()) {
-//		  cluster->setScale(d->scale);
+//		  cluster->setScale(m_d->scale);
 		  cluster->updateShape(this);
 //		  calo->updateHeight();
 	  } else {
@@ -289,7 +289,7 @@ void IParticleCollHandle_CaloCluster::setScale(const QPair<bool,double>& s)
 QPair<bool,double> IParticleCollHandle_CaloCluster::scale() const
 {
 	VP1Msg::messageDebug("IParticleCollHandle_CaloCluster::scale()");
-  return d->scale;
+  return m_d->scale;
 }
 
 
@@ -298,7 +298,7 @@ void IParticleCollHandle_CaloCluster::setupSettingsFromControllerSpecific(AODSys
 
 	VP1Msg::messageDebug("IParticleCollHandle_CaloCluster::setupSettingsFromControllerSpecific()");
 
-  CaloClusterCollectionSettingsButton* controller = d->collSettingsButton;
+  CaloClusterCollectionSettingsButton* controller = m_d->collSettingsButton;
 
   // *** common cuts ***
   connect(controller,SIGNAL(cutAllowedPtChanged(const VP1Interval&)),this,SLOT(setCutAllowedPt(const VP1Interval&)));
@@ -336,26 +336,26 @@ void IParticleCollHandle_CaloCluster::setupSettingsFromControllerSpecific(AODSys
 void IParticleCollHandle_CaloCluster::resetCachedValuesCuts()
 {
 	// kinetic cuts
-	setCutAllowedPt(d->collSettingsButton->cutAllowedPt());
-	setCutAllowedEta(d->collSettingsButton->cutAllowedEta());
-	setCutAllowedPhi(d->collSettingsButton->cutAllowedPhi());
+	setCutAllowedPt(m_d->collSettingsButton->cutAllowedPt());
+	setCutAllowedEta(m_d->collSettingsButton->cutAllowedEta());
+	setCutAllowedPhi(m_d->collSettingsButton->cutAllowedPhi());
 	// other settings
-	setScale( d->collSettingsButton->scale() ); // FIXME:
+	setScale( m_d->collSettingsButton->scale() ); // FIXME:
 
 }
 
 //____________________________________________________________________
 //SoMaterial* IParticleCollHandle_CaloCluster::defaultParameterMaterial() const {
-//	return d->defaultParametersMaterial;
+//	return m_d->defaultParametersMaterial;
 //}
 
 
 //____________________________________________________________________
 const CaloClusterCollectionSettingsButton& IParticleCollHandle_CaloCluster::collSettingsButton() const {
-  if (!d->collSettingsButton){
+  if (!m_d->collSettingsButton){
     messageVerbose("CaloCluster - No collSettingsButton set! Can't call init(), so crash is imminent...");
   }
-  return *d->collSettingsButton;
+  return *m_d->collSettingsButton;
 }
 
 
@@ -374,7 +374,7 @@ void IParticleCollHandle_CaloCluster::rebuildAllObjects()
 bool IParticleCollHandle_CaloCluster::isConsiderTransverseEnergy() const
 {
   VP1Msg::messageVerbose("IParticleCollHandle_CaloCluster::isConsiderTransverseEnergy()");
-  return d->collSettingsButton->isTransverseEnergy();
+  return m_d->collSettingsButton->isTransverseEnergy();
 }
 
 //____________________________________________________________________
@@ -382,9 +382,9 @@ void IParticleCollHandle_CaloCluster::setShowVolumeOutLines(bool b)
 {
 	VP1Msg::messageDebug("IParticleCollHandle_CaloCluster::setShowVolumeOutLines()");
 
-  if (d->showOutlines==b) return;
+  if (m_d->showOutlines==b) return;
 
-  d->showOutlines=b;
+  m_d->showOutlines=b;
 
   if (!isLoaded()) return
   largeChangesBegin();
@@ -434,7 +434,7 @@ bool IParticleCollHandle_CaloCluster::load()
 
   xAOD::CaloClusterContainer::const_iterator it, itEnd = coll->end();
   for ( it = coll->begin() ; it != itEnd; ++it) {
-    d->possiblyUpdateGUI();
+    m_d->possiblyUpdateGUI();
     if (!*it) {
       messageDebug("WARNING: Ignoring null CaloCluster pointer.");
       continue;
@@ -444,7 +444,7 @@ bool IParticleCollHandle_CaloCluster::load()
   }
 
   // get handles list and update locally
-  // d->jets = this->getHandlesList();
+  // m_d->jets = this->getHandlesList();
 
   return true;
 }
@@ -522,7 +522,7 @@ void IParticleCollHandle_CaloCluster::showParametersChanged(bool val) {
 double IParticleCollHandle_CaloCluster::highestVisibleClusterEnergy() const
 {
 	messageDebug("IParticleCollHandle_CaloCluster::highestVisibleClusterEnergy()");
-  return d->last_highestEnergy;
+  return m_d->last_highestEnergy;
 }
 
 
@@ -558,11 +558,11 @@ double IParticleCollHandle_CaloCluster::calculateHighestVisibleClusterEnergy()
 void IParticleCollHandle_CaloCluster::recheckHighestVisibleClusterEnergy()
 {
   //When visibility or cut changes:
-//  double newhighest = d->calculateHighestVisibleClusterEnergy();
+//  double newhighest = m_d->calculateHighestVisibleClusterEnergy();
   double newhighest = calculateHighestVisibleClusterEnergy();
-  if (d->last_highestEnergy == newhighest)
+  if (m_d->last_highestEnergy == newhighest)
     return;
-  d->last_highestEnergy = newhighest;
+  m_d->last_highestEnergy = newhighest;
   emit highestVisibleClusterEnergyChanged();
 }
 
@@ -573,7 +573,7 @@ QByteArray IParticleCollHandle_CaloCluster::persistifiableState() const
 {
   messageDebug("IParticleCollHandle_CaloCluster::persistifiableState() - start...");
 
-  // if (!d->matButton) {
+  // if (!m_d->matButton) {
   //   message("ERROR: persistifiableState() called before init()");
   //   return QByteArray();
   // }
@@ -588,14 +588,14 @@ QByteArray IParticleCollHandle_CaloCluster::persistifiableState() const
   serialise.save(visible());
 
   // SAVE THE MATERIAL BUTTON
-  //Q_ASSERT(d->matButton&&"Did you forget to call init() on this VP1StdCollection?");
-  //serialise.save(d->matButton->saveState());
+  //Q_ASSERT(m_d->matButton&&"Did you forget to call init() on this VP1StdCollection?");
+  //serialise.save(m_d->matButton->saveState());
 
   // SAVE THE EXTRA-STATES
   serialise.save(extraWidgetsState());//version 1+
 
   // SAVE MATERIAL SETTINGS / CUTS
-  serialise.save(d->collSettingsButton->saveState());
+  serialise.save(m_d->collSettingsButton->saveState());
 
   messageDebug("IParticleCollHandle_CaloCluster::persistifiableState() - end.");
   return serialise.result();
@@ -616,7 +616,7 @@ void IParticleCollHandle_CaloCluster::setState(const QByteArray&state)
   bool vis = des.restoreBool();
 
   //	QByteArray matState = des.restoreByteArray();
-  // d->matButton->restoreFromState(matState);
+  // m_d->matButton->restoreFromState(matState);
   QByteArray extraWidgetState = des.version()>=1 ? des.restoreByteArray() : QByteArray();
   setVisible(vis);
 
@@ -625,7 +625,7 @@ void IParticleCollHandle_CaloCluster::setState(const QByteArray&state)
 
   // MATERIAL SETTINGS / CUTS
   messageDebug("restoring material collection button...");
-  des.restore(d->collSettingsButton);
+  des.restore(m_d->collSettingsButton);
 
   messageDebug("reset all caches storing values for cuts...");
   resetCachedValuesCuts();

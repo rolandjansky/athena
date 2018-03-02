@@ -93,19 +93,19 @@ public:
   public:
     // "geomodellocation" contains name of tree tops, or possible a
     // bit more complex info in case of muons.
-    SubSystemInfo( QCheckBox* cb,const QRegExp& _geomodeltreetopregexp, bool _negatetreetopregexp,
-		  const QRegExp& _geomodelchildrenregexp, bool _negatechildrenregexp, VP1GeoFlags::SubSystemFlag _flag,
-		  const std::string& _matname,
+    SubSystemInfo( QCheckBox* cb,const QRegExp& the_geomodeltreetopregexp, bool the_negatetreetopregexp,
+		  const QRegExp& the_geomodelchildrenregexp, bool the_negatechildrenregexp, VP1GeoFlags::SubSystemFlag the_flag,
+		  const std::string& the_matname,
 //		  const QRegExp& _geomodelgrandchildrenregexp=QRegExp(""), bool _negategrandchildrenregexp=false)
-		  const QRegExp& _geomodelgrandchildrenregexp, bool _negategrandchildrenregexp=false)
+		  const QRegExp& the_geomodelgrandchildrenregexp, bool the_negategrandchildrenregexp=false)
       : isbuilt(false), checkbox(cb),
-        geomodeltreetopregexp(_geomodeltreetopregexp),
-        geomodelchildrenregexp(_geomodelchildrenregexp),
-        geomodelgrandchildrenregexp(_geomodelgrandchildrenregexp),
-        negatetreetopregexp(_negatetreetopregexp),
-        negatechildrenregexp(_negatechildrenregexp),
-        negategrandchildrenregexp(_negategrandchildrenregexp),
-        matname(_matname), flag(_flag), soswitch(0)
+        geomodeltreetopregexp(the_geomodeltreetopregexp),
+        geomodelchildrenregexp(the_geomodelchildrenregexp),
+        geomodelgrandchildrenregexp(the_geomodelgrandchildrenregexp),
+        negatetreetopregexp(the_negatetreetopregexp),
+        negatechildrenregexp(the_negatechildrenregexp),
+        negategrandchildrenregexp(the_negategrandchildrenregexp),
+        matname(the_matname), flag(the_flag), soswitch(0)
     {
 
     	muonchambers=false;
@@ -262,7 +262,7 @@ VP1GeometrySystem::VP1GeometrySystem( const VP1GeoFlags::SubSystemFlags& SubSyst
   : IVP13DSystemSimple(name,
 		       "This system displays the geometry as defined by GeoModel.",
 		       "Thomas.Kittelmann@cern.ch"),
-    d(new Imp(this,SubSystemsTurnedOn))
+    m_d(new Imp(this,SubSystemsTurnedOn))
 {
 }
 
@@ -271,49 +271,49 @@ VP1GeometrySystem::VP1GeometrySystem( const VP1GeoFlags::SubSystemFlags& SubSyst
 void VP1GeometrySystem::systemuncreate()
 {
 
-  d->volumetreemodel->cleanup();
-  delete d->matVisAttributes; d->matVisAttributes = 0;
-  delete d->detVisAttributes; d->detVisAttributes = 0;
-  delete d->volVisAttributes; d->volVisAttributes = 0;
+  m_d->volumetreemodel->cleanup();
+  delete m_d->matVisAttributes; m_d->matVisAttributes = 0;
+  delete m_d->detVisAttributes; m_d->detVisAttributes = 0;
+  delete m_d->volVisAttributes; m_d->volVisAttributes = 0;
 
-  foreach (Imp::SubSystemInfo * subsys, d->subsysInfoList)
+  foreach (Imp::SubSystemInfo * subsys, m_d->subsysInfoList)
     delete subsys;
-  d->subsysInfoList.clear();
+  m_d->subsysInfoList.clear();
 
 }
 
 //_____________________________________________________________________________________
 VP1GeometrySystem::~VP1GeometrySystem()
 {
-  delete d;
-  d = 0;
+  delete m_d;
+  m_d = 0;
 }
 
 //_____________________________________________________________________________________
 void VP1GeometrySystem::setGeometrySelectable(bool b) {
    ensureBuildController();
-   d->controller->setGeometrySelectable(b);
+   m_d->controller->setGeometrySelectable(b);
 }
 
 //_____________________________________________________________________________________
 void VP1GeometrySystem::setZoomToVolumeOnClick(bool b) {
    ensureBuildController();
-   d->controller->setZoomToVolumeOnClick(b);
+   m_d->controller->setZoomToVolumeOnClick(b);
 }
 
 //_____________________________________________________________________________________
 void VP1GeometrySystem::setOrientViewToMuonChambersOnClick(bool b)
 {
   ensureBuildController();
-  d->controller->setOrientViewToMuonChambersOnClick(b);
+  m_d->controller->setOrientViewToMuonChambersOnClick(b);
 }
 
 //_____________________________________________________________________________________
 void VP1GeometrySystem::setAutoAdaptMuonChambersToEventData(bool b)
 {
   ensureBuildController();
-  if (d->controller->autoAdaptMuonChambersToEventData()!=b) {
-    d->controller->setAutoAdaptMuonChambersToEventData(b);
+  if (m_d->controller->autoAdaptMuonChambersToEventData()!=b) {
+    m_d->controller->setAutoAdaptMuonChambersToEventData(b);
     if (b)
       adaptMuonChambersToEventData();
   }
@@ -343,32 +343,32 @@ QWidget * VP1GeometrySystem::buildController()
 {
   message("VP1GeometrySystem::buildController");
   
-  d->controller = new GeoSysController(this);
+  m_d->controller = new GeoSysController(this);
 
-  d->phisectormanager = new PhiSectorManager(d->controller->phiSectionWidget(),this,this);
+  m_d->phisectormanager = new PhiSectorManager(m_d->controller->phiSectionWidget(),this,this);
 
 
-  connect(d->controller,SIGNAL(showVolumeOutLinesChanged(bool)),this,SLOT(setShowVolumeOutLines(bool)));
-  setShowVolumeOutLines(d->controller->showVolumeOutLines());
-  connect(d->controller,SIGNAL(saveMaterialsToFile(QString,bool)),this,SLOT(saveMaterialsToFile(QString,bool)));
-  connect(d->controller,SIGNAL(loadMaterialsFromFile(QString)),this,SLOT(loadMaterialsFromFile(QString)));
+  connect(m_d->controller,SIGNAL(showVolumeOutLinesChanged(bool)),this,SLOT(setShowVolumeOutLines(bool)));
+  setShowVolumeOutLines(m_d->controller->showVolumeOutLines());
+  connect(m_d->controller,SIGNAL(saveMaterialsToFile(QString,bool)),this,SLOT(saveMaterialsToFile(QString,bool)));
+  connect(m_d->controller,SIGNAL(loadMaterialsFromFile(QString)),this,SLOT(loadMaterialsFromFile(QString)));
 
-  connect(d->controller,SIGNAL(transparencyChanged(float)),this,SLOT(updateTransparency()));
-  connect (d->controller,SIGNAL(volumeStateChangeRequested(VolumeHandle*,VP1GeoFlags::VOLSTATE)),
+  connect(m_d->controller,SIGNAL(transparencyChanged(float)),this,SLOT(updateTransparency()));
+  connect (m_d->controller,SIGNAL(volumeStateChangeRequested(VolumeHandle*,VP1GeoFlags::VOLSTATE)),
 	   this,SLOT(volumeStateChangeRequested(VolumeHandle*,VP1GeoFlags::VOLSTATE)));
-  connect (d->controller,SIGNAL(volumeResetRequested(VolumeHandle*)),
+  connect (m_d->controller,SIGNAL(volumeResetRequested(VolumeHandle*)),
 	   this,SLOT(volumeResetRequested(VolumeHandle*)));
-  connect(d->controller,SIGNAL(adaptMuonChambersToEventData()),this,SLOT(adaptMuonChambersToEventData()));
-  connect(d->controller,SIGNAL(muonChamberAdaptionStyleChanged(VP1GeoFlags::MuonChamberAdaptionStyleFlags)),
+  connect(m_d->controller,SIGNAL(adaptMuonChambersToEventData()),this,SLOT(adaptMuonChambersToEventData()));
+  connect(m_d->controller,SIGNAL(muonChamberAdaptionStyleChanged(VP1GeoFlags::MuonChamberAdaptionStyleFlags)),
 	  this,SLOT(adaptMuonChambersStyleChanged()));
-  connect(d->controller,SIGNAL(autoExpandByVolumeOrMaterialName(bool,QString)),this,SLOT(autoExpandByVolumeOrMaterialName(bool,QString)));
-  connect(d->controller,SIGNAL(actionOnAllNonStandardVolumes(bool)),this,SLOT(actionOnAllNonStandardVolumes(bool)));
-  connect(d->controller,SIGNAL(autoAdaptPixelsOrSCT(bool,bool,bool,bool,bool,bool)),this,SLOT(autoAdaptPixelsOrSCT(bool,bool,bool,bool,bool,bool)));
-  connect(d->controller,SIGNAL(resetSubSystems(VP1GeoFlags::SubSystemFlags)),this,SLOT(resetSubSystems(VP1GeoFlags::SubSystemFlags)));
+  connect(m_d->controller,SIGNAL(autoExpandByVolumeOrMaterialName(bool,QString)),this,SLOT(autoExpandByVolumeOrMaterialName(bool,QString)));
+  connect(m_d->controller,SIGNAL(actionOnAllNonStandardVolumes(bool)),this,SLOT(actionOnAllNonStandardVolumes(bool)));
+  connect(m_d->controller,SIGNAL(autoAdaptPixelsOrSCT(bool,bool,bool,bool,bool,bool)),this,SLOT(autoAdaptPixelsOrSCT(bool,bool,bool,bool,bool,bool)));
+  connect(m_d->controller,SIGNAL(resetSubSystems(VP1GeoFlags::SubSystemFlags)),this,SLOT(resetSubSystems(VP1GeoFlags::SubSystemFlags)));
 
-  connect(d->controller,SIGNAL(labelsChanged(int)),this,SLOT(setLabels(int)));
-  connect(d->controller,SIGNAL(labelPosOffsetChanged(QList<int>)),this,SLOT(setLabelPosOffsets(QList<int>)));
-  setLabels(d->controller->labels());
+  connect(m_d->controller,SIGNAL(labelsChanged(int)),this,SLOT(setLabels(int)));
+  connect(m_d->controller,SIGNAL(labelPosOffsetChanged(QList<int>)),this,SLOT(setLabelPosOffsets(QList<int>)));
+  setLabels(m_d->controller->labels());
   
 
   /* This is where we define the available different subsystems and their location in the geomodel tree.
@@ -383,73 +383,73 @@ QWidget * VP1GeometrySystem::buildController()
 		                  bool negatechildrenregexp = false); // if we want to negate the children reg expr
    */
 
-  d->addSubSystem( VP1GeoFlags::Pixel,"Pixel");
-  d->addSubSystem( VP1GeoFlags::SCT,"SCT");
-  d->addSubSystem( VP1GeoFlags::TRT,"TRT");
-  d->addSubSystem( VP1GeoFlags::InDetServMat,"InDetServMat");
-  d->addSubSystem( VP1GeoFlags::LAr, ".*LAr.*");
-  d->addSubSystem( VP1GeoFlags::Tile,"Tile");
-  d->addSubSystem( VP1GeoFlags::CavernInfra,"CavernInfra");
-  d->addSubSystem( VP1GeoFlags::BeamPipe,"BeamPipe");
-  d->addSubSystem( VP1GeoFlags::LUCID,".*Lucid.*");
-  d->addSubSystem( VP1GeoFlags::ZDC,".*ZDC.*");
-  d->addSubSystem( VP1GeoFlags::ALFA,".*ALFA.*");
-  d->addSubSystem( VP1GeoFlags::ForwardRegion,".*ForwardRegion.*");
+  m_d->addSubSystem( VP1GeoFlags::Pixel,"Pixel");
+  m_d->addSubSystem( VP1GeoFlags::SCT,"SCT");
+  m_d->addSubSystem( VP1GeoFlags::TRT,"TRT");
+  m_d->addSubSystem( VP1GeoFlags::InDetServMat,"InDetServMat");
+  m_d->addSubSystem( VP1GeoFlags::LAr, ".*LAr.*");
+  m_d->addSubSystem( VP1GeoFlags::Tile,"Tile");
+  m_d->addSubSystem( VP1GeoFlags::CavernInfra,"CavernInfra");
+  m_d->addSubSystem( VP1GeoFlags::BeamPipe,"BeamPipe");
+  m_d->addSubSystem( VP1GeoFlags::LUCID,".*Lucid.*");
+  m_d->addSubSystem( VP1GeoFlags::ZDC,".*ZDC.*");
+  m_d->addSubSystem( VP1GeoFlags::ALFA,".*ALFA.*");
+  m_d->addSubSystem( VP1GeoFlags::ForwardRegion,".*ForwardRegion.*");
 
   //The muon systems require special treatment, since we want to
   //cherrypick below the treetop (this is the main reason for a lot
   //of the ugly stuff in this class):
-  d->addSubSystem( VP1GeoFlags::MuonEndcapStationCSC,"Muon","CS.*","CSC");
-  d->addSubSystem( VP1GeoFlags::MuonEndcapStationTGC,"Muon","T(1|2|3|4).*","TGC");
-  d->addSubSystem( VP1GeoFlags::MuonEndcapStationMDT,"Muon","(EI|EM|EO|EE).*","EndcapMdt");
-  d->addSubSystem( VP1GeoFlags::MuonBarrelStationInner,"Muon","(BI|BEE).*","BarrelInner");
-  d->addSubSystem( VP1GeoFlags::MuonBarrelStationMiddle,"Muon","BM.*","BarrelMiddle");
-  d->addSubSystem( VP1GeoFlags::MuonBarrelStationOuter,"Muon","BO.*","BarrelOuter");
+  m_d->addSubSystem( VP1GeoFlags::MuonEndcapStationCSC,"Muon","CS.*","CSC");
+  m_d->addSubSystem( VP1GeoFlags::MuonEndcapStationTGC,"Muon","T(1|2|3|4).*","TGC");
+  m_d->addSubSystem( VP1GeoFlags::MuonEndcapStationMDT,"Muon","(EI|EM|EO|EE).*","EndcapMdt");
+  m_d->addSubSystem( VP1GeoFlags::MuonBarrelStationInner,"Muon","(BI|BEE).*","BarrelInner");
+  m_d->addSubSystem( VP1GeoFlags::MuonBarrelStationMiddle,"Muon","BM.*","BarrelMiddle");
+  m_d->addSubSystem( VP1GeoFlags::MuonBarrelStationOuter,"Muon","BO.*","BarrelOuter");
 
   //This last one is even more horrible. We want everything from the Muon treetop that is NOT included elsewhere:
-//  d->addSubSystem( VP1GeoFlags::MuonToroidsEtc,"Muon","(CS|T1|T2|T3|T4|EI|EM|EO|EE|BI|BEE|BM|BO).*","Muon",false,true);
+//  m_d->addSubSystem( VP1GeoFlags::MuonToroidsEtc,"Muon","(CS|T1|T2|T3|T4|EI|EM|EO|EE|BI|BEE|BM|BO).*","Muon",false,true);
 
   // Muon NSW
-  d->addSubSystem( VP1GeoFlags::MuonNSW,"Muon",".*ANON.*","MuonNSW",false, false, "NewSmallWheel.*");
-    // d->addSubSystem( VP1GeoFlags::MuonMM,  "Muon",".*ANON.*","MM",false,false,"MM.*");
-  // d->addSubSystem( VP1GeoFlags::MuonsTGC,"Muon",".*ANON.*","sTGC",false,false,"sTGC.*");
+  m_d->addSubSystem( VP1GeoFlags::MuonNSW,"Muon",".*ANON.*","MuonNSW",false, false, "NewSmallWheel.*");
+    // m_d->addSubSystem( VP1GeoFlags::MuonMM,  "Muon",".*ANON.*","MM",false,false,"MM.*");
+  // m_d->addSubSystem( VP1GeoFlags::MuonsTGC,"Muon",".*ANON.*","sTGC",false,false,"sTGC.*");
 
   // Toroid
-  d->addSubSystem( VP1GeoFlags::BarrelToroid,"Muon",".*ANON.*","BarrelToroid", false, false, "BAR_Toroid.*");
-  d->addSubSystem( VP1GeoFlags::ToroidECA,"Muon",".*ANON.*","ToroidECA", false, false, "ECT_Toroids.*");
-//  d->addSubSystem( VP1GeoFlags::ToroidECC,"Muon",".*ANON.*","ToroidECC", false, false, "ECT_Toroids");
+  m_d->addSubSystem( VP1GeoFlags::BarrelToroid,"Muon",".*ANON.*","BarrelToroid", false, false, "BAR_Toroid.*");
+  m_d->addSubSystem( VP1GeoFlags::ToroidECA,"Muon",".*ANON.*","ToroidECA", false, false, "ECT_Toroids.*");
+//  m_d->addSubSystem( VP1GeoFlags::ToroidECC,"Muon",".*ANON.*","ToroidECC", false, false, "ECT_Toroids");
 
   // Muon Feet
-  d->addSubSystem( VP1GeoFlags::MuonFeet,"Muon",".*ANON.*","MuonFeet", false, false, "Feet.*");
+  m_d->addSubSystem( VP1GeoFlags::MuonFeet,"Muon",".*ANON.*","MuonFeet", false, false, "Feet.*");
 
   // Muon shielding
-  d->addSubSystem( VP1GeoFlags::MuonShielding,"Muon",".*ANON.*","Shielding", false, false, "(JDSH|JTSH|JFSH).*");
+  m_d->addSubSystem( VP1GeoFlags::MuonShielding,"Muon",".*ANON.*","Shielding", false, false, "(JDSH|JTSH|JFSH).*");
 
 
   // All muon stuff --> this will be linked to the "Services" checkbox in the GUI
-//  d->addSubSystem( VP1GeoFlags::MuonToroidsEtc,"Muon","(CS|T1|T2|T3|T4|EI|EM|EO|EE|BI|BEE|BM|BO).*","MuonEtc",false,true);
-  d->addSubSystem( VP1GeoFlags::MuonToroidsEtc,"Muon",".*(CS|T1|T2|T3|T4|EI|EM|EO|EE|BI|BEE|BM|BO).*","MuonEtc",false,true,"(ECT_Toroids|BAR_Toroid|Feet|NewSmallWheel|JDSH|JTSH|JFSH).*",true);
+//  m_d->addSubSystem( VP1GeoFlags::MuonToroidsEtc,"Muon","(CS|T1|T2|T3|T4|EI|EM|EO|EE|BI|BEE|BM|BO).*","MuonEtc",false,true);
+  m_d->addSubSystem( VP1GeoFlags::MuonToroidsEtc,"Muon",".*(CS|T1|T2|T3|T4|EI|EM|EO|EE|BI|BEE|BM|BO).*","MuonEtc",false,true,"(ECT_Toroids|BAR_Toroid|Feet|NewSmallWheel|JDSH|JTSH|JFSH).*",true);
   
-  //  d->addSubSystem( VP1GeoFlags::MuonToroidsEtc,"Muon","*.Feet.*","MuonEtc");
+  //  m_d->addSubSystem( VP1GeoFlags::MuonToroidsEtc,"Muon","*.Feet.*","MuonEtc");
 
   //This one MUST be added last. It will get slightly special treatment in various places!
-  d->addSubSystem( VP1GeoFlags::AllUnrecognisedVolumes,".*");
+  m_d->addSubSystem( VP1GeoFlags::AllUnrecognisedVolumes,".*");
 
 
   //Setup models/views for volume tree browser and zapped volumes list:
-  d->volumetreemodel = new VolumeTreeModel(d->controller->volumeTreeBrowser());
-  d->controller->volumeTreeBrowser()->header()->hide();
-  d->controller->volumeTreeBrowser()->uniformRowHeights();
-  d->controller->volumeTreeBrowser()->setModel(d->volumetreemodel);
+  m_d->volumetreemodel = new VolumeTreeModel(m_d->controller->volumeTreeBrowser());
+  m_d->controller->volumeTreeBrowser()->header()->hide();
+  m_d->controller->volumeTreeBrowser()->uniformRowHeights();
+  m_d->controller->volumeTreeBrowser()->setModel(m_d->volumetreemodel);
 
-  return d->controller;
+  return m_d->controller;
 }
 
 
 //_____________________________________________________________________________________
 void VP1GeometrySystem::systemcreate(StoreGateSvc*)
 {
-  d->ensureInitVisAttributes();
+  m_d->ensureInitVisAttributes();
 }
 
 //_____________________________________________________________________________________
@@ -462,7 +462,7 @@ void VP1GeometrySystem::Imp::catchKbdState(void *address, SoEventCallback *CB) {
 //_____________________________________________________________________________________
 void VP1GeometrySystem::buildPermanentSceneGraph(StoreGateSvc*/*detstore*/, SoSeparator *root)
 {
-  d->sceneroot = root;
+  m_d->sceneroot = root;
 
   if (!VP1JobConfigInfo::hasGeoModelExperiment()) {
     message("Error: GeoModel not configured properly in job.");
@@ -478,36 +478,36 @@ void VP1GeometrySystem::buildPermanentSceneGraph(StoreGateSvc*/*detstore*/, SoSe
   
   PVConstLink world(theExpt->getPhysVol());
 
-  if (!d->m_textSep) {
+  if (!m_d->m_textSep) {
     // FIXME!
     //    std::cout<<"Making new Text sep"<<std::endl;
-    d->m_textSep = new SoSeparator;
-    d->m_textSep->setName("TextSep");
-    d->m_textSep->ref();
+    m_d->m_textSep = new SoSeparator;
+    m_d->m_textSep->setName("TextSep");
+    m_d->m_textSep->ref();
   }
-  d->sceneroot->addChild(d->m_textSep);
+  m_d->sceneroot->addChild(m_d->m_textSep);
   
   // Fixme - what if font is missing?
   SoFont *myFont = new SoFont;
   myFont->name.setValue("Arial");
   myFont->size.setValue(12.0);
-  d->m_textSep->addChild(myFont);
+  m_d->m_textSep->addChild(myFont);
   
   bool save = root->enableNotify(false);
 
   //Catch keyboard events:
   SoEventCallback *catchEvents = new SoEventCallback();
-  catchEvents->addEventCallback(SoKeyboardEvent::getClassTypeId(),Imp::catchKbdState, d);
+  catchEvents->addEventCallback(SoKeyboardEvent::getClassTypeId(),Imp::catchKbdState, m_d);
   root->addChild(catchEvents);
 
-  root->addChild(d->controller->drawOptions());
-  root->addChild(d->controller->pickStyle());
+  root->addChild(m_d->controller->drawOptions());
+  root->addChild(m_d->controller->pickStyle());
 
   // we switch on the systems flagged to be turned on at start
-  foreach (Imp::SubSystemInfo * subsys, d->subsysInfoList)
+  foreach (Imp::SubSystemInfo * subsys, m_d->subsysInfoList)
   {
 	messageDebug("Switching on this system: " + QString::fromStdString(subsys->matname) + " - " + subsys->flag);
-    bool on(d->initialSubSystemsTurnedOn & subsys->flag);
+    bool on(m_d->initialSubSystemsTurnedOn & subsys->flag);
     subsys->checkbox->setChecked( on );
     subsys->checkbox->setEnabled(false);
     subsys->checkbox->setToolTip("This sub-system is not available");
@@ -516,7 +516,7 @@ void VP1GeometrySystem::buildPermanentSceneGraph(StoreGateSvc*/*detstore*/, SoSe
 
   //Locate geometry info for the various subsystems, and add the info as appropriate:
 
-  QCheckBox * checkBoxOther = d->controller->subSystemCheckBox(VP1GeoFlags::AllUnrecognisedVolumes);
+  QCheckBox * checkBoxOther = m_d->controller->subSystemCheckBox(VP1GeoFlags::AllUnrecognisedVolumes);
 
   GeoVolumeCursor av(world);
   while (!av.atEnd()) {
@@ -529,7 +529,7 @@ void VP1GeometrySystem::buildPermanentSceneGraph(StoreGateSvc*/*detstore*/, SoSe
 
 	  //Let us see if we recognize this volume:
 	  bool found = false;
-	  foreach (Imp::SubSystemInfo * subsys, d->subsysInfoList) {
+	  foreach (Imp::SubSystemInfo * subsys, m_d->subsysInfoList) {
 		  if (subsys->negatetreetopregexp!=subsys->geomodeltreetopregexp.exactMatch(name.c_str()))
 		  {
 			  if (subsys->checkbox==checkBoxOther&&found) {
@@ -571,28 +571,28 @@ void VP1GeometrySystem::buildPermanentSceneGraph(StoreGateSvc*/*detstore*/, SoSe
     checkBoxOther->setVisible(false);
 
   //Build the geometry for those (available) subsystems that starts out being turned on:
-  foreach (Imp::SubSystemInfo * subsys, d->subsysInfoList) {
+  foreach (Imp::SubSystemInfo * subsys, m_d->subsysInfoList) {
     if (!subsys->soswitch||!subsys->checkbox->isChecked())
       continue;
-    d->buildSystem(subsys);
+    m_d->buildSystem(subsys);
     //Enable in 3D view:
     if (subsys->soswitch->whichChild.getValue() != SO_SWITCH_ALL)
       subsys->soswitch->whichChild = SO_SWITCH_ALL;
     //Enable in tree browser:
-    d->volumetreemodel->enableSubSystem(subsys->flag);
-    //     new ModelTest(d->volumetreemodel, d->treeView_volumebrowser);
+    m_d->volumetreemodel->enableSubSystem(subsys->flag);
+    //     new ModelTest(m_d->volumetreemodel, m_d->treeView_volumebrowser);
   }
-  if (!d->restoredTopvolstates.isEmpty()) {
-    d->applyTopVolStates(d->restoredTopvolstates,false);
-    d->restoredTopvolstates.clear();
+  if (!m_d->restoredTopvolstates.isEmpty()) {
+    m_d->applyTopVolStates(m_d->restoredTopvolstates,false);
+    m_d->restoredTopvolstates.clear();
   }
-  d->phisectormanager->updateRepresentationsOfVolsAroundZAxis();
+  m_d->phisectormanager->updateRepresentationsOfVolsAroundZAxis();
   root->enableNotify(save);
   if (save)
     root->touch();
 
 
-  if (d->controller->autoAdaptMuonChambersToEventData())
+  if (m_d->controller->autoAdaptMuonChambersToEventData())
     adaptMuonChambersToEventData();
 
   //To ensure we emit it once upon startup:
@@ -604,7 +604,7 @@ void VP1GeometrySystem::checkboxChanged()
 {
   QCheckBox * cb = static_cast<QCheckBox*>(sender());
   Imp::SubSystemInfo * subsys(0);
-  foreach (Imp::SubSystemInfo * ss, d->subsysInfoList) {
+  foreach (Imp::SubSystemInfo * ss, m_d->subsysInfoList) {
     if (cb==ss->checkbox) {
       subsys=ss;
       break;
@@ -619,21 +619,21 @@ void VP1GeometrySystem::checkboxChanged()
   if (cb->isChecked()) {
     SbBool save = sw->enableNotify(false);
     if (sw->getNumChildren()==0) {
-      d->buildSystem(subsys);
-      d->phisectormanager->updateRepresentationsOfVolsAroundZAxis();//
+      m_d->buildSystem(subsys);
+      m_d->phisectormanager->updateRepresentationsOfVolsAroundZAxis();//
     }
     if (sw->whichChild.getValue() != SO_SWITCH_ALL)
       sw->whichChild = SO_SWITCH_ALL;
     sw->enableNotify(save);
     //Enable in tree browser:
-    d->volumetreemodel->enableSubSystem(subsys->flag);
-    //     new ModelTest(d->volumetreemodel, d->treeView_volumebrowser);
+    m_d->volumetreemodel->enableSubSystem(subsys->flag);
+    //     new ModelTest(m_d->volumetreemodel, m_d->treeView_volumebrowser);
     if (save)
       sw->touch();
   } else {
     if (sw->whichChild.getValue() != SO_SWITCH_NONE)
       sw->whichChild = SO_SWITCH_NONE;
-    d->volumetreemodel->disableSubSystem(subsys->flag);
+    m_d->volumetreemodel->disableSubSystem(subsys->flag);
   }
 }
 
@@ -694,11 +694,11 @@ void VP1GeometrySystem::userPickedNode(SoNode* , SoPath *pickedPath)
     message("Unexpected picked path");
     return;
   }
-  if (!nodesep||d->sonodesep2volhandle.find(nodesep)==d->sonodesep2volhandle.end()) {
+  if (!nodesep||m_d->sonodesep2volhandle.find(nodesep)==m_d->sonodesep2volhandle.end()) {
     message("Problems finding volume handle");
     return;
   }
-  VolumeHandle * volhandle = d->sonodesep2volhandle[nodesep];
+  VolumeHandle * volhandle = m_d->sonodesep2volhandle[nodesep];
   if (!volhandle) {
     message("Found NULL volume handle");
     return;
@@ -715,21 +715,21 @@ void VP1GeometrySystem::userPickedNode(SoNode* , SoPath *pickedPath)
   //of the inventor and Qt way
 
   bool shift_isdown = (Qt::ShiftModifier & QApplication::keyboardModifiers());
-// 		       || ( d->kbEvent && (SO_KEY_PRESS_EVENT(d->kbEvent, SoKeyboardEvent::LEFT_SHIFT)||
-// 					   SO_KEY_PRESS_EVENT(d->kbEvent, SoKeyboardEvent::RIGHT_SHIFT)) ) );
+// 		       || ( m_d->kbEvent && (SO_KEY_PRESS_EVENT(m_d->kbEvent, SoKeyboardEvent::LEFT_SHIFT)||
+// 					   SO_KEY_PRESS_EVENT(m_d->kbEvent, SoKeyboardEvent::RIGHT_SHIFT)) ) );
 
   if (shift_isdown) {
     //Parent of volume should be put in CONTRACTED state.
     deselectAll();
     if (volhandle->parent())
       volhandle->parent()->setState(VP1GeoFlags::CONTRACTED);
-    d->phisectormanager->updateRepresentationsOfVolsAroundZAxis();
+    m_d->phisectormanager->updateRepresentationsOfVolsAroundZAxis();
     return;
   }
 
   bool ctrl_isdown = (Qt::ControlModifier & QApplication::keyboardModifiers());
-// 		       || ( d->kbEvent && (SO_KEY_PRESS_EVENT(d->kbEvent, SoKeyboardEvent::LEFT_CONTROL)||
-// 					   SO_KEY_PRESS_EVENT(d->kbEvent, SoKeyboardEvent::RIGHT_CONTROL)) ) );
+// 		       || ( m_d->kbEvent && (SO_KEY_PRESS_EVENT(m_d->kbEvent, SoKeyboardEvent::LEFT_CONTROL)||
+// 					   SO_KEY_PRESS_EVENT(m_d->kbEvent, SoKeyboardEvent::RIGHT_CONTROL)) ) );
 
   if (ctrl_isdown) {
     //Volume should be put in EXPANDED state if it has children.
@@ -737,11 +737,11 @@ void VP1GeometrySystem::userPickedNode(SoNode* , SoPath *pickedPath)
     if (volhandle->nChildren()>0) {
       volhandle->setState(VP1GeoFlags::EXPANDED);
     }
-    d->phisectormanager->updateRepresentationsOfVolsAroundZAxis();
+    m_d->phisectormanager->updateRepresentationsOfVolsAroundZAxis();
     return;
   }
 
-  bool z_isdown =  d->kbEvent && SO_KEY_PRESS_EVENT(d->kbEvent,SoKeyboardEvent::Z);
+  bool z_isdown =  m_d->kbEvent && SO_KEY_PRESS_EVENT(m_d->kbEvent,SoKeyboardEvent::Z);
   if (z_isdown) {
     //Volume should be put in ZAPPED state.
     deselectAll();
@@ -757,7 +757,7 @@ void VP1GeometrySystem::userPickedNode(SoNode* , SoPath *pickedPath)
   //////////////////////////////////////////////////////////////////
 
   bool orientedView(false);
-  if (d->controller->orientViewToMuonChambersOnClick() &&  volhandle->isInMuonChamber()) {
+  if (m_d->controller->orientViewToMuonChambersOnClick() &&  volhandle->isInMuonChamber()) {
     //Volume is an, or is daughter of an, MDT, CSC or TGC chamber
     orientViewToMuonChamber(volhandle->topLevelParent()->geoPVConstLink());
     orientedView = true;
@@ -765,7 +765,7 @@ void VP1GeometrySystem::userPickedNode(SoNode* , SoPath *pickedPath)
     //select the correct node corresponding to the clicked volume
     //again (it might have become attached/detached by the call to
     //orientViewToMuonChamber):
-    if (!VP1QtInventorUtils::changePathTail(pickedPath,d->sceneroot,volhandle->nodeSoSeparator())) {
+    if (!VP1QtInventorUtils::changePathTail(pickedPath,m_d->sceneroot,volhandle->nodeSoSeparator())) {
       message("Warning: Failed to relocate picked node.");
       deselectAll();
     }
@@ -776,12 +776,12 @@ void VP1GeometrySystem::userPickedNode(SoNode* , SoPath *pickedPath)
   //////////////////////
 
   //Nb: We don't do this if we already oriented to the muon chamber above.
-  if (!orientedView&&d->controller->zoomToVolumeOnClick()) {
-    if (d->sceneroot&&volhandle->nodeSoSeparator()) {
+  if (!orientedView&&m_d->controller->zoomToVolumeOnClick()) {
+    if (m_d->sceneroot&&volhandle->nodeSoSeparator()) {
       std::set<SoCamera*> cameras = getCameraList();
       std::set<SoCamera*>::iterator it,itE = cameras.end();
       for (it=cameras.begin();it!=itE;++it) {
-	VP1CameraHelper::animatedZoomToSubTree(*it,d->sceneroot,volhandle->nodeSoSeparator(),2.0,1.0);
+	VP1CameraHelper::animatedZoomToSubTree(*it,m_d->sceneroot,volhandle->nodeSoSeparator(),2.0,1.0);
       }
     }
   }
@@ -791,7 +791,7 @@ void VP1GeometrySystem::userPickedNode(SoNode* , SoPath *pickedPath)
   //  Update last-select controls  //
   ///////////////////////////////////
 
-  d->controller->setLastSelectedVolume(volhandle);
+  m_d->controller->setLastSelectedVolume(volhandle);
 
   /////////////////////////////////////////////////////////
   //  OK, time to print some information for the volume  //
@@ -799,23 +799,23 @@ void VP1GeometrySystem::userPickedNode(SoNode* , SoPath *pickedPath)
 
   message("===&gt; Selected Node: "+volhandle->getName());
   // std::cout<<"VolHandle = "<<volhandle<<std::endl;
-  if (d->controller->printInfoOnClick_Shape()) {
+  if (m_d->controller->printInfoOnClick_Shape()) {
     foreach (QString str, DumpShape::shapeToStringList(volhandle->geoPVConstLink()->getLogVol()->getShape()))
       message(str);
   }
 
-  if (d->controller->printInfoOnClick_Material()) {
+  if (m_d->controller->printInfoOnClick_Material()) {
     message("===&gt; Material:");
     foreach (QString line, VP1GeomUtils::geoMaterialToStringList(volhandle->geoMaterial()))
       message("     "+line);
   }
 
-  if ( d->controller->printInfoOnClick_CopyNumber() ) {
+  if ( m_d->controller->printInfoOnClick_CopyNumber() ) {
     int cn = volhandle->copyNumber();
     message("===&gt; CopyNo : "+(cn>=0?QString::number(cn):QString(cn==-1?"Invalid":"Error reconstructing copynumber")));
   }
 
-  if ( d->controller->printInfoOnClick_Transform() ) {
+  if ( m_d->controller->printInfoOnClick_Transform() ) {
 
     float translation_x, translation_y, translation_z, rotaxis_x, rotaxis_y, rotaxis_z, rotangle_radians;
     VP1LinAlgUtils::decodeTransformation( volhandle->getLocalTransformToVolume(),
@@ -844,7 +844,7 @@ void VP1GeometrySystem::userPickedNode(SoNode* , SoPath *pickedPath)
     message("        angle = "+QString::number(rotangle_radians*180.0/M_PI)+" deg");
   }
 
-  if (d->controller->printInfoOnClick_Tree()) {
+  if (m_d->controller->printInfoOnClick_Tree()) {
     std::ostringstream str;
     GeoPrintGraphAction pg(str);
     volhandle->geoPVConstLink()->exec(&pg);
@@ -853,7 +853,7 @@ void VP1GeometrySystem::userPickedNode(SoNode* , SoPath *pickedPath)
       message("     "+line);
   }
 
-  if (d->controller->printInfoOnClick_Mass()) {
+  if (m_d->controller->printInfoOnClick_Mass()) {
     //Fixme: Move the mass calculations to the volume handles, and let
     //the common data cache some of the volume information by
     //logVolume).
@@ -862,15 +862,15 @@ void VP1GeometrySystem::userPickedNode(SoNode* , SoPath *pickedPath)
     message("Exclusive "+QString::number(Imp::exclusiveMass(volhandle->geoPVConstLink())/CLHEP::kilogram)+" kg");
   }
 
-  if (d->controller->printInfoOnClick_MuonStationInfo()&&volhandle->isInMuonChamber()) {
+  if (m_d->controller->printInfoOnClick_MuonStationInfo()&&volhandle->isInMuonChamber()) {
     PVConstLink pvlink = volhandle->topLevelParent()->geoPVConstLink();
-    std::map<PVConstLink,VolumeHandle*>::const_iterator itChamber = d->muonchambers_pv2handles.find(pvlink);
-    if (itChamber!=d->muonchambers_pv2handles.end()) {
-      d->ensureInitPV2MuonStationMap();
-      std::map<GeoPVConstLink,const MuonGM::MuonStation*>::const_iterator itStation(d->pv2MuonStation.find(pvlink));
-      if (itStation!=d->pv2MuonStation.end()) {
+    std::map<PVConstLink,VolumeHandle*>::const_iterator itChamber = m_d->muonchambers_pv2handles.find(pvlink);
+    if (itChamber!=m_d->muonchambers_pv2handles.end()) {
+      m_d->ensureInitPV2MuonStationMap();
+      std::map<GeoPVConstLink,const MuonGM::MuonStation*>::const_iterator itStation(m_d->pv2MuonStation.find(pvlink));
+      if (itStation!=m_d->pv2MuonStation.end()) {
         message("===&gt; Muon station &lt;===");
-        message("     ",d->stationInfo(itStation->second));
+        message("     ",m_d->stationInfo(itStation->second));
       }
     }
   }
@@ -882,7 +882,7 @@ void VP1GeometrySystem::userPickedNode(SoNode* , SoPath *pickedPath)
   QString detFactoryName;  
 
   VolumeHandle *parentVH(volhandle), *childVH(volhandle);
-  d->createPathExtras(volhandle,detFactoryName,extras);
+  m_d->createPathExtras(volhandle,detFactoryName,extras);
 
   do {
     parentVH = parentVH->parent();
@@ -930,7 +930,7 @@ void VP1GeometrySystem::Imp::buildSystem(SubSystemInfo* si)
   ensureInitPV2MuonStationMap(); // Needed for Muon Station names.
 
 //  // DEBUG
-//  foreach(Imp::SubSystemInfo*si,d->subsysInfoList) {
+//  foreach(Imp::SubSystemInfo*si,m_d->subsysInfoList) {
 //	  theclass->messageDebug("vol: " + QString((si->flag).str_c()) );
 //	}
   
@@ -1107,11 +1107,11 @@ QByteArray VP1GeometrySystem::saveState() {
   serialise.save(IVP13DSystemSimple::saveState());
 
   //Controller:
-  serialise.save(d->controller->saveSettings());
+  serialise.save(m_d->controller->saveSettings());
 
   //Subsystem checkboxes:
   QMap<QString,bool> subsysstate;
-  foreach (Imp::SubSystemInfo * subsys, d->subsysInfoList) {
+  foreach (Imp::SubSystemInfo * subsys, m_d->subsysInfoList) {
     serialise.widgetHandled(subsys->checkbox);
     subsysstate.insert(subsys->checkbox->text(),subsys->checkbox->isChecked());
   }
@@ -1119,8 +1119,8 @@ QByteArray VP1GeometrySystem::saveState() {
 
   //Volume states:
   QMap<quint32,QByteArray> topvolstates;
-  foreach (Imp::SubSystemInfo * subsys, d->subsysInfoList) {
-    if (d->controller->autoAdaptMuonChambersToEventData()&&subsys->hasMuonChambers())
+  foreach (Imp::SubSystemInfo * subsys, m_d->subsysInfoList) {
+    if (m_d->controller->autoAdaptMuonChambersToEventData()&&subsys->hasMuonChambers())
       continue;//No need to store muon chamber data which will anyway be auto-adapted away.
     VolumeHandle::VolumeHandleListItr it(subsys->vollist.begin()),itE(subsys->vollist.end());
     for (;it!=itE;++it)
@@ -1128,10 +1128,10 @@ QByteArray VP1GeometrySystem::saveState() {
   }
   serialise.save(topvolstates);
 
-  d->ensureInitVisAttributes();
-  serialise.save(d->detVisAttributes->getState());//version 7+
-  serialise.save(d->matVisAttributes->getState());//version 7+
-  serialise.save(d->volVisAttributes->getState());//version 7+
+  m_d->ensureInitVisAttributes();
+  serialise.save(m_d->detVisAttributes->getState());//version 7+
+  serialise.save(m_d->matVisAttributes->getState());//version 7+
+  serialise.save(m_d->volVisAttributes->getState());//version 7+
 
   serialise.disableUnsavedChecks();//We do the testing in the controller
   return serialise.result();
@@ -1153,37 +1153,37 @@ void VP1GeometrySystem::restoreFromState(QByteArray ba) {
   IVP13DSystemSimple::restoreFromState(state.restoreByteArray());
 
   //Controller:
-  d->controller->restoreSettings(state.restoreByteArray());
+  m_d->controller->restoreSettings(state.restoreByteArray());
 
   //Subsystem checkboxes:
   VP1GeoFlags::SubSystemFlags flags(0);
   QMap<QString,bool> subsysstate = state.restore<QMap<QString,bool> >();
-  foreach (Imp::SubSystemInfo * subsys, d->subsysInfoList) {
+  foreach (Imp::SubSystemInfo * subsys, m_d->subsysInfoList) {
     state.widgetHandled(subsys->checkbox);
     if (subsysstate.contains(subsys->checkbox->text())&&subsysstate[subsys->checkbox->text()])
       flags |= subsys->flag;
   }
-  d->initialSubSystemsTurnedOn = flags;
+  m_d->initialSubSystemsTurnedOn = flags;
 
   //Volume states:
   QMap<quint32,QByteArray> topvolstates;
   topvolstates = state.restore<QMap<quint32,QByteArray> >();
-  if (d->sceneroot)//(for some reason) we already have been in buildPermanentScenegraph
-    d->applyTopVolStates(topvolstates,true);
+  if (m_d->sceneroot)//(for some reason) we already have been in buildPermanentScenegraph
+    m_d->applyTopVolStates(topvolstates,true);
   else
-    d->restoredTopvolstates = topvolstates;//save until buildPermanentScenegraph
+    m_d->restoredTopvolstates = topvolstates;//save until buildPermanentScenegraph
 
   if (state.version()>=7) {
-    d->ensureInitVisAttributes();
-    d->detVisAttributes->applyState(state.restoreByteArray());
-    d->matVisAttributes->applyState(state.restoreByteArray());
-    d->volVisAttributes->applyState(state.restoreByteArray());
+    m_d->ensureInitVisAttributes();
+    m_d->detVisAttributes->applyState(state.restoreByteArray());
+    m_d->matVisAttributes->applyState(state.restoreByteArray());
+    m_d->volVisAttributes->applyState(state.restoreByteArray());
   }
 
   state.disableUnrestoredChecks();//We do the testing in the controller
 
   //Special:
-  if (d->controller->autoAdaptMuonChambersToEventData())
+  if (m_d->controller->autoAdaptMuonChambersToEventData())
     adaptMuonChambersToEventData();
 }
 
@@ -1290,7 +1290,7 @@ void VP1GeometrySystem::setCurvedSurfaceRealism(int val)
      message("setCurvedSurfaceRealism Error: Value "+str(val)+"out of range!");
      return;
    }
-   d->controller->setComplexity(val==100?1.0:(val==0?0.0:val/100.0));
+   m_d->controller->setComplexity(val==100?1.0:(val==0?0.0:val/100.0));
 }
 
 
@@ -1300,15 +1300,15 @@ void VP1GeometrySystem::updateTransparency()
 {
   ensureBuildController();
 
-  float transparency = d->controller->transparency();
+  float transparency = m_d->controller->transparency();
 
-  VolumeHandle* lastSelVol = d->controller->lastSelectedVolume();
-  d->controller->setLastSelectedVolume(0);
-  d->ensureInitVisAttributes();
-  d->detVisAttributes->overrideTransparencies(transparency);
-  d->matVisAttributes->overrideTransparencies(transparency);
-  d->volVisAttributes->overrideTransparencies(transparency);
-  d->controller->setLastSelectedVolume(lastSelVol);
+  VolumeHandle* lastSelVol = m_d->controller->lastSelectedVolume();
+  m_d->controller->setLastSelectedVolume(0);
+  m_d->ensureInitVisAttributes();
+  m_d->detVisAttributes->overrideTransparencies(transparency);
+  m_d->matVisAttributes->overrideTransparencies(transparency);
+  m_d->volVisAttributes->overrideTransparencies(transparency);
+  m_d->controller->setLastSelectedVolume(lastSelVol);
 }
 
 //_____________________________________________________________________________________
@@ -1317,7 +1317,7 @@ void VP1GeometrySystem::resetSubSystems(VP1GeoFlags::SubSystemFlags f)
   if (!f)
     return;
   deselectAll();
-  foreach(Imp::SubSystemInfo*si,d->subsysInfoList) {
+  foreach(Imp::SubSystemInfo*si,m_d->subsysInfoList) {
     if (si->flag & f) {
       if (!si->isbuilt)
 	continue;
@@ -1331,38 +1331,38 @@ void VP1GeometrySystem::resetSubSystems(VP1GeoFlags::SubSystemFlags f)
 //_____________________________________________________________________________________
 void VP1GeometrySystem::adaptMuonChambersToEventData()
 {
-  if (d->muonchambers_pv2handles.empty())
+  if (m_d->muonchambers_pv2handles.empty())
     return;
 
   std::set<GeoPVConstLink> allchambers;
-  if (!d->sender2ChamberList.empty()) {
-    allchambers = (d->sender2ChamberList.begin())->second;
-    std::map<QObject*,std::set<GeoPVConstLink> >::iterator itLists,itListsE(d->sender2ChamberList.end());
-    for (itLists = d->sender2ChamberList.begin(),++itLists;itLists != itListsE;++itLists) {
+  if (!m_d->sender2ChamberList.empty()) {
+    allchambers = (m_d->sender2ChamberList.begin())->second;
+    std::map<QObject*,std::set<GeoPVConstLink> >::iterator itLists,itListsE(m_d->sender2ChamberList.end());
+    for (itLists = m_d->sender2ChamberList.begin(),++itLists;itLists != itListsE;++itLists) {
       allchambers.insert(itLists->second.begin(),itLists->second.end());
     }
   }
 
   //Idea: Maybe just iconise them all and then selectively deiconise the few? Then we can avoid most searches!
-  bool save = d->sceneroot->enableNotify(false);
-  d->phisectormanager->largeChangesBegin();
+  bool save = m_d->sceneroot->enableNotify(false);
+  m_d->phisectormanager->largeChangesBegin();
 
   deselectAll();
-  std::map<PVConstLink,VolumeHandle*>::iterator it, itE=d->muonchambers_pv2handles.end();
+  std::map<PVConstLink,VolumeHandle*>::iterator it, itE=m_d->muonchambers_pv2handles.end();
   std::set<GeoPVConstLink>::iterator itchambersE = allchambers.end();
-  for (it=d->muonchambers_pv2handles.begin();it!=itE;++it) {
+  for (it=m_d->muonchambers_pv2handles.begin();it!=itE;++it) {
     if (allchambers.find(it->first)==itchambersE)
       it->second->setState(VP1GeoFlags::ZAPPED);
     else {
       if (it->second->muonChamberDirty())
-        d->updateTouchedMuonChamber(it->second);
+        m_d->updateTouchedMuonChamber(it->second);
     }
   }
-  d->phisectormanager->updateRepresentationsOfVolsAroundZAxis();
-  d->phisectormanager->largeChangesEnd();
+  m_d->phisectormanager->updateRepresentationsOfVolsAroundZAxis();
+  m_d->phisectormanager->largeChangesEnd();
   if (save) {
-    d->sceneroot->enableNotify(true);
-    d->sceneroot->touch();
+    m_d->sceneroot->enableNotify(true);
+    m_d->sceneroot->touch();
   }
 }
 
@@ -1370,12 +1370,12 @@ void VP1GeometrySystem::adaptMuonChambersToEventData()
 void VP1GeometrySystem::adaptMuonChambersStyleChanged()
 {
   //Make all chamber representations dirty:
-  std::map<PVConstLink,VolumeHandle*>::iterator it, itE=d->muonchambers_pv2handles.end();
-  for (it=d->muonchambers_pv2handles.begin();it!=itE;++it)
+  std::map<PVConstLink,VolumeHandle*>::iterator it, itE=m_d->muonchambers_pv2handles.end();
+  for (it=m_d->muonchambers_pv2handles.begin();it!=itE;++it)
     it->second->setMuonChamberDirty(true);
 
   //Adapt immediately if necessary:
-  if (d->controller->autoAdaptMuonChambersToEventData())
+  if (m_d->controller->autoAdaptMuonChambersToEventData())
     adaptMuonChambersToEventData();
   emit_appropriateMDTProjectionsChanged();
 }
@@ -1383,16 +1383,16 @@ void VP1GeometrySystem::adaptMuonChambersStyleChanged()
 //_____________________________________________________________________________________
 void VP1GeometrySystem::emit_appropriateMDTProjectionsChanged()
 {
-  if (!d->controller) {
+  if (!m_d->controller) {
     message("emit_appropriateMDTProjectionsChanged called before controller built.");
     return;
   }
-  VP1GeoFlags::MuonChamberAdaptionStyleFlags f(d->controller->muonChamberAdaptionStyle());
+  VP1GeoFlags::MuonChamberAdaptionStyleFlags f(m_d->controller->muonChamberAdaptionStyle());
   bool option_openmdtchambers = f & VP1GeoFlags::OpenMDTChambers;
   bool option_hidetubes = f & VP1GeoFlags::HideMDTTubes;
   int i (option_openmdtchambers?(option_hidetubes?0:1):2);
-  if ( d->last_appropriatemdtprojections != i ) {
-    d->last_appropriatemdtprojections = i;
+  if ( m_d->last_appropriatemdtprojections != i ) {
+    m_d->last_appropriatemdtprojections = i;
     appropriateMDTProjectionsChanged(i);
   }
 }
@@ -1401,12 +1401,12 @@ void VP1GeometrySystem::emit_appropriateMDTProjectionsChanged()
 void VP1GeometrySystem::reiconizeToShowSpecificMuonChambers(const std::set<GeoPVConstLink>& chambers)
 {
   //Update map of touched chamber lists:
-  bool listChanged(d->sender2ChamberList.find(sender())!=d->sender2ChamberList.end()?
-		   (chambers != d->sender2ChamberList[sender()]):true);
-  d->sender2ChamberList[sender()] = chambers;
+  bool listChanged(m_d->sender2ChamberList.find(sender())!=m_d->sender2ChamberList.end()?
+		   (chambers != m_d->sender2ChamberList[sender()]):true);
+  m_d->sender2ChamberList[sender()] = chambers;
 
   //Trigger update if list changed and in auto mode:
-  if ( listChanged && d->controller->autoAdaptMuonChambersToEventData() )
+  if ( listChanged && m_d->controller->autoAdaptMuonChambersToEventData() )
     adaptMuonChambersToEventData();
 }
 
@@ -1559,11 +1559,11 @@ VP1GeometrySystem::Imp::SubSystemInfo * VP1GeometrySystem::Imp::chamberPVToMuonS
 //_____________________________________________________________________________________
 void VP1GeometrySystem::orientViewToMuonChamber(const GeoPVConstLink& chamberPV)
 {
-  if (!d->sceneroot)
+  if (!m_d->sceneroot)
     return;
 
   //Find relevant muon subsystem info:
-  Imp::SubSystemInfo * subsys = d->chamberPVToMuonSubSystemInfo(chamberPV);
+  Imp::SubSystemInfo * subsys = m_d->chamberPVToMuonSubSystemInfo(chamberPV);
   if (!subsys) {
     message("Error: Asked to orient view to chamber volume '"
 	    +QString(chamberPV->getLogVol()->getName().c_str())
@@ -1578,12 +1578,12 @@ void VP1GeometrySystem::orientViewToMuonChamber(const GeoPVConstLink& chamberPV)
   }
 
   //Find handle for the muon chamber (possibly ensure that relevant muon subsystem is build):
-  std::map<PVConstLink,VolumeHandle*>::iterator itChamber = d->muonchambers_pv2handles.find(chamberPV);
-  if (itChamber==d->muonchambers_pv2handles.end()) {
+  std::map<PVConstLink,VolumeHandle*>::iterator itChamber = m_d->muonchambers_pv2handles.find(chamberPV);
+  if (itChamber==m_d->muonchambers_pv2handles.end()) {
     //Probably the muon relevant muon system was not initialised. Build and try again:
-    d->buildSystem(subsys);
-    itChamber = d->muonchambers_pv2handles.find(chamberPV);
-    if (itChamber==d->muonchambers_pv2handles.end()) {
+    m_d->buildSystem(subsys);
+    itChamber = m_d->muonchambers_pv2handles.find(chamberPV);
+    if (itChamber==m_d->muonchambers_pv2handles.end()) {
       message("Error: Asked to orient view to chamber volume '"
 	      +QString(chamberPV->getLogVol()->getName().c_str())
 	      +"', but could not find chamber handle!");
@@ -1632,15 +1632,15 @@ void VP1GeometrySystem::orientViewToMuonChamber(const GeoPVConstLink& chamberPV)
       std::pair<SbVec3f,SbVec3f> chamberdirections;
       if (isCSCOrTGC) {
 	//CSC/TGC chamber - look at top TRD shape for directions
-	chamberdirections = d->getClosestCSCOrTGCEdgeDirections(cameraDir,chamberHandle);
+	chamberdirections = m_d->getClosestCSCOrTGCEdgeDirections(cameraDir,chamberHandle);
       } else {
 	//MDT chamber - look at tubes for direction
-	chamberdirections = d->getClosestMuonDriftTubeDirections(cameraDir,cameraUpVec,chamberHandle);
+	chamberdirections = m_d->getClosestMuonDriftTubeDirections(cameraDir,cameraUpVec,chamberHandle);
       }
       SbVec3f newdirection = - chamberdirections.first;
       SbVec3f newup(cameraUpVec);
       const float epsilon(0.00001f);
-      if (d->previousAlignedChamberHandle==chamberHandle&&cameraDir.equals(newdirection,epsilon)) {
+      if (m_d->previousAlignedChamberHandle==chamberHandle&&cameraDir.equals(newdirection,epsilon)) {
 	//If we already zoomed in the direction of the chamber,
 	//subsequent requests aligns the upvector along the other chamber
 	//axes.
@@ -1679,7 +1679,7 @@ void VP1GeometrySystem::orientViewToMuonChamber(const GeoPVConstLink& chamberPV)
       //Zoom to chamber with given orientation - and we make sure the
       //chamber is attached while we initiate the zoom (so the camera
       //helper can use a boundaryboxaction to find the bounding box):
-      VP1CameraHelper::animatedZoomToSubTree(*it,d->sceneroot,chambersep,1.0, 100.0, 100.0, 1.0,newdirection,newup);
+      VP1CameraHelper::animatedZoomToSubTree(*it,m_d->sceneroot,chambersep,1.0, 100.0, 100.0, 1.0,newdirection,newup);
     }
   }
 
@@ -1690,7 +1690,7 @@ void VP1GeometrySystem::orientViewToMuonChamber(const GeoPVConstLink& chamberPV)
     subsys->soswitch->enableNotify(true);
     subsys->soswitch->touch();
   }
-  d->previousAlignedChamberHandle=chamberHandle;
+  m_d->previousAlignedChamberHandle=chamberHandle;
 
 }
 
@@ -1823,11 +1823,11 @@ void VP1GeometrySystem::actionOnAllNonStandardVolumes(bool zap)
   messageVerbose("Action on volumes with non-standard VRML representations. Target state is "+VP1GeoFlags::toString(target));
 
   std::vector<std::pair<VolumeHandle::VolumeHandleListItr,VolumeHandle::VolumeHandleListItr> > roothandles;
-  d->volumetreemodel->getRootHandles(roothandles);
+  m_d->volumetreemodel->getRootHandles(roothandles);
   VolumeHandle::VolumeHandleListItr it, itE;
 
-  bool save = d->sceneroot->enableNotify(false);
-  d->phisectormanager->largeChangesBegin();
+  bool save = m_d->sceneroot->enableNotify(false);
+  m_d->phisectormanager->largeChangesBegin();
 
   deselectAll();
 
@@ -1835,15 +1835,15 @@ void VP1GeometrySystem::actionOnAllNonStandardVolumes(bool zap)
     it = roothandles.at(i).first;
     itE = roothandles.at(i).second;
     for(;it!=itE;++it) {
-      d->changeStateOfVisibleNonStandardVolumesRecursively(*it,target);
+      m_d->changeStateOfVisibleNonStandardVolumesRecursively(*it,target);
     }
   }
 
-  d->phisectormanager->updateRepresentationsOfVolsAroundZAxis();
-  d->phisectormanager->largeChangesEnd();
+  m_d->phisectormanager->updateRepresentationsOfVolsAroundZAxis();
+  m_d->phisectormanager->largeChangesEnd();
   if (save) {
-    d->sceneroot->enableNotify(true);
-    d->sceneroot->touch();
+    m_d->sceneroot->enableNotify(true);
+    m_d->sceneroot->touch();
   }
 }
 
@@ -1861,11 +1861,11 @@ void VP1GeometrySystem::autoExpandByVolumeOrMaterialName(bool bymatname,QString 
   QRegExp selregexp(targetname,Qt::CaseSensitive,QRegExp::Wildcard);
 
   std::vector<std::pair<VolumeHandle::VolumeHandleListItr,VolumeHandle::VolumeHandleListItr> > roothandles;
-  d->volumetreemodel->getRootHandles(roothandles);
+  m_d->volumetreemodel->getRootHandles(roothandles);
   VolumeHandle::VolumeHandleListItr it, itE;
 
-  bool save = d->sceneroot->enableNotify(false);
-  d->phisectormanager->largeChangesBegin();
+  bool save = m_d->sceneroot->enableNotify(false);
+  m_d->phisectormanager->largeChangesBegin();
 
   deselectAll();
 
@@ -1873,14 +1873,14 @@ void VP1GeometrySystem::autoExpandByVolumeOrMaterialName(bool bymatname,QString 
     it = roothandles.at(i).first;
     itE = roothandles.at(i).second;
     for(;it!=itE;++it)
-      d->expandVisibleVolumesRecursively(*it,selregexp,bymatname);
+      m_d->expandVisibleVolumesRecursively(*it,selregexp,bymatname);
   }
 
-  d->phisectormanager->updateRepresentationsOfVolsAroundZAxis();
-  d->phisectormanager->largeChangesEnd();
+  m_d->phisectormanager->updateRepresentationsOfVolsAroundZAxis();
+  m_d->phisectormanager->largeChangesEnd();
   if (save) {
-    d->sceneroot->enableNotify(true);
-    d->sceneroot->touch();
+    m_d->sceneroot->enableNotify(true);
+    m_d->sceneroot->touch();
   }
 }
 
@@ -1974,7 +1974,7 @@ void VP1GeometrySystem::autoAdaptPixelsOrSCT(bool pixel,bool brl, bool ecA, bool
   ////////////////////////////////////////////////////////////////
   //Find subsystem:
   Imp::SubSystemInfo* subsys(0);
-  foreach(Imp::SubSystemInfo*si,d->subsysInfoList) {
+  foreach(Imp::SubSystemInfo*si,m_d->subsysInfoList) {
     if (si->flag == subSysFlag) {
       subsys = si;
       break;
@@ -1992,8 +1992,8 @@ void VP1GeometrySystem::autoAdaptPixelsOrSCT(bool pixel,bool brl, bool ecA, bool
     messageDebug("AutoAdaptPixelsOrSCT: Aborting since subsystem geometry not built yet");
     return;//Disabling now due to phi-sector problems if "click some phi sectors"->"adapt pixel"->"turn on pixel"
   }
-  bool save = d->sceneroot->enableNotify(false);
-  d->phisectormanager->largeChangesBegin();
+  bool save = m_d->sceneroot->enableNotify(false);
+  m_d->phisectormanager->largeChangesBegin();
   VolumeHandle::VolumeHandleListItr it(subsys->vollist.begin()),itE(subsys->vollist.end());
 
   if (pixel) {
@@ -2007,10 +2007,10 @@ void VP1GeometrySystem::autoAdaptPixelsOrSCT(bool pixel,bool brl, bool ecA, bool
 	(*itChl)->setState(VP1GeoFlags::ZAPPED);
 	if (brl&&(*itChl)->hasName("barrelLog")) {
 	  unzap = true;
-	  d->showPixelModules(*itChl);
+	  m_d->showPixelModules(*itChl);
 	} else if ((ec)&&(*itChl)->hasName("EndCapLog")) {
 	  if (((*itChl)->isPositiveZ()?ecA:ecC)) {
-	      d->showPixelModules(*itChl);
+	      m_d->showPixelModules(*itChl);
 	      unzap = true;
 	  }
 	} else if (bcm&&(*itChl)->hasName("bcmModLog")) {
@@ -2033,23 +2033,23 @@ void VP1GeometrySystem::autoAdaptPixelsOrSCT(bool pixel,bool brl, bool ecA, bool
       (*it)->setState(VP1GeoFlags::ZAPPED);
       if (brl&&(*it)->hasName("SCT_Barrel")) {
 	unzap = true;
-	d->showSCTBarrelModules(*it);
+	m_d->showSCTBarrelModules(*it);
       } else if (ecA&&(*it)->hasName("SCT_ForwardA")) {
 	unzap = true;
-	d->showSCTEndcapModules(*it);
+	m_d->showSCTEndcapModules(*it);
       } else if (ecC&&(*it)->hasName("SCT_ForwardC")) {
 	unzap = true;
-	d->showSCTEndcapModules(*it);
+	m_d->showSCTEndcapModules(*it);
       }
       if (unzap)
 	(*it)->setState(VP1GeoFlags::EXPANDED);
     }
   }
-  d->phisectormanager->updateRepresentationsOfVolsAroundZAxis();
-  d->phisectormanager->largeChangesEnd();
+  m_d->phisectormanager->updateRepresentationsOfVolsAroundZAxis();
+  m_d->phisectormanager->largeChangesEnd();
   if (save) {
-    d->sceneroot->enableNotify(true);
-    d->sceneroot->touch();
+    m_d->sceneroot->enableNotify(true);
+    m_d->sceneroot->touch();
   }
 }
 
@@ -2212,7 +2212,7 @@ void VP1GeometrySystem::volumeStateChangeRequested(VolumeHandle*vh,VP1GeoFlags::
     return;
   deselectAll();
   vh->setState(state);
-  d->phisectormanager->updateRepresentationsOfVolsAroundZAxis();
+  m_d->phisectormanager->updateRepresentationsOfVolsAroundZAxis();
 }
 
 //_____________________________________________________________________________________
@@ -2222,14 +2222,14 @@ void VP1GeometrySystem::volumeResetRequested(VolumeHandle*vh)
     return;
   deselectAll();
   vh->reset();
-  d->phisectormanager->updateRepresentationsOfVolsAroundZAxis();
+  m_d->phisectormanager->updateRepresentationsOfVolsAroundZAxis();
 }
 
 //_____________________________________________________________________________________
 void VP1GeometrySystem::setShowVolumeOutLines(bool b)
 {
-  std::map<SoSeparator*,VolumeHandle*>::iterator it,itE(d->sonodesep2volhandle.end());
-  for (it =d->sonodesep2volhandle.begin();it!=itE;++it)
+  std::map<SoSeparator*,VolumeHandle*>::iterator it,itE(m_d->sonodesep2volhandle.end());
+  for (it =m_d->sonodesep2volhandle.begin();it!=itE;++it)
     VolumeHandleSharedData::setShowVolumeOutlines(it->first,b);
 }
 
@@ -2258,13 +2258,13 @@ void VP1GeometrySystem::saveMaterialsToFile(QString filename,bool onlyChangedMat
       return;
   }
 
-  d->ensureInitVisAttributes();
+  m_d->ensureInitVisAttributes();
   VP1Serialise s(0/*version*/,this);
   //Save some file ID info!!
   s.save(QString("VP1GeoMaterialsBegin"));
-  s.save(d->detVisAttributes->getState(onlyChangedMaterials));
-  s.save(d->matVisAttributes->getState(onlyChangedMaterials));
-  s.save(d->volVisAttributes->getState(onlyChangedMaterials));
+  s.save(m_d->detVisAttributes->getState(onlyChangedMaterials));
+  s.save(m_d->matVisAttributes->getState(onlyChangedMaterials));
+  s.save(m_d->volVisAttributes->getState(onlyChangedMaterials));
   s.save(QString("VP1GeoMaterialsEnd"));
   s.disableUnsavedChecks();
 
@@ -2321,41 +2321,41 @@ void VP1GeometrySystem::loadMaterialsFromFile(QString filename)
     return;
   }
 
-  d->ensureInitVisAttributes();
-  d->detVisAttributes->applyState(baDet);
-  d->matVisAttributes->applyState(baMat);
-  d->volVisAttributes->applyState(baVol);
+  m_d->ensureInitVisAttributes();
+  m_d->detVisAttributes->applyState(baDet);
+  m_d->matVisAttributes->applyState(baMat);
+  m_d->volVisAttributes->applyState(baVol);
 
-  VolumeHandle* lastsel = d->controller->lastSelectedVolume();
-  d->controller->setLastSelectedVolume(0);
-  d->controller->setLastSelectedVolume(lastsel);
+  VolumeHandle* lastsel = m_d->controller->lastSelectedVolume();
+  m_d->controller->setLastSelectedVolume(0);
+  m_d->controller->setLastSelectedVolume(lastsel);
 }
 
 //____________________________________________________________________
 void VP1GeometrySystem::setLabelPosOffsets( QList<int> /**offsets*/)
 {
   messageVerbose("setLabelPosOffsets called");
-  setLabels(d->controller->labels());
+  setLabels(m_d->controller->labels());
 }
 
 void VP1GeometrySystem::setLabels(int i){
-  messageVerbose("setLabels "+str(i)+" for this many chambers:"+str(d->muonchambers_pv2handles.size()));
+  messageVerbose("setLabels "+str(i)+" for this many chambers:"+str(m_d->muonchambers_pv2handles.size()));
   // loop over all contained volumes (all visible volumes?) and update labels.
   // Just muons to start with
-  std::map<PVConstLink,VolumeHandle*>::const_iterator it = d->muonchambers_pv2handles.begin(), itEnd = d->muonchambers_pv2handles.end();
+  std::map<PVConstLink,VolumeHandle*>::const_iterator it = m_d->muonchambers_pv2handles.begin(), itEnd = m_d->muonchambers_pv2handles.end();
   for (; it!=itEnd ; ++it){
     if (it->second->isInMuonChamber()) it->second->updateLabels(); // currently only do labels for Muon volumes
   } 
 }
 
 void VP1GeometrySystem::enableMuonChamberLabels(bool t0s, bool hits){
-  d->controller->setLabelsEnabled(t0s,hits);
+  m_d->controller->setLabelsEnabled(t0s,hits);
 }
 
 void VP1GeometrySystem::muonChamberT0sChanged(const std::map<GeoPVConstLink, float>& t0s, int index){
   messageVerbose("muonChamberT0sChanged for this many chambers:"+str(t0s.size()));
-  if (index>=d->chamberT0s.size())
+  if (index>=m_d->chamberT0s.size())
     message("ERROR: chamber t0 index out of bounds!");
   else
-    d->chamberT0s[index]=&t0s;
+    m_d->chamberT0s[index]=&t0s;
 }

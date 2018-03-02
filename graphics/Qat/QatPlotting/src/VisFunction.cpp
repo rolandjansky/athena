@@ -33,65 +33,65 @@ public:
 };
 
 VisFunction::VisFunction(const std::string & name):
-  c(new Clockwork()) 
+  m_c(new Clockwork()) 
 {
-  c->name = name;
+  m_c->name = name;
 }
 
 VisFunction::~VisFunction() 
 {
-  for (unsigned int i=0;i<c->function.size();i++) {
-    delete c->function[i];
-    delete c->domainRestriction[i];
+  for (unsigned int i=0;i<m_c->function.size();i++) {
+    delete m_c->function[i];
+    delete m_c->domainRestriction[i];
   }
-  for (unsigned int i=0;i<c->parameter.size();i++) {
-    delete c->parameter[i];
+  for (unsigned int i=0;i<m_c->parameter.size();i++) {
+    delete m_c->parameter[i];
   }
-  delete c;
+  delete m_c;
 }
 
 
 void VisFunction::addParameter(Genfun::Parameter *p) {
-  c->parameter.push_back(p);
+  m_c->parameter.push_back(p);
 }
 
 unsigned int VisFunction::getNumParameters() const {
-  return c->parameter.size();
+  return m_c->parameter.size();
 }
 
 Genfun::Parameter *VisFunction::getParameter(unsigned int i) const {
-  return c->parameter[i];
+  return m_c->parameter[i];
 }
 
 
 void VisFunction::addFunction(Genfun::GENFUNCTION f, const Cut<double> * domainRestriction) {
-  c->function.push_back(f.clone());
-  c->domainRestriction.push_back(domainRestriction ? domainRestriction->clone(): NULL);
+  m_c->function.push_back(f.clone());
+  m_c->domainRestriction.push_back(domainRestriction ? domainRestriction->clone(): NULL);
 }
 
 unsigned int VisFunction::getNumFunctions() const {
-  return c->function.size();
+  return m_c->function.size();
 }
 
 const Genfun::AbsFunction *VisFunction::getFunction(unsigned int i) const {
-    return c->function[i];
+    return m_c->function[i];
 }
 
 const Cut<double> *VisFunction::getDomainRestriction(unsigned int i) const {
-    return c->domainRestriction[i];
+    return m_c->domainRestriction[i];
 }
 
 
 const std::string & VisFunction::name() const {
-  return c->name;
+  return m_c->name;
 }
 
 
 const QRectF & VisFunction::rectHint() const {
-  return c->rectHint;
+  return m_c->rectHint;
 }
 
 
 QRectF & VisFunction::rectHint() {
-  return c->rectHint;
+  return m_c->rectHint;
 }

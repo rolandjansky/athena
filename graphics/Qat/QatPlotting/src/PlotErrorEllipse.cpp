@@ -55,89 +55,89 @@ class PlotErrorEllipse::Clockwork {
 PlotErrorEllipse::PlotErrorEllipse( 
 				   double x, double y,
 				   double sx2, double sy2, double sxy, Style style)
-  :Plotable(),c(new Clockwork())
+  :Plotable(),m_c(new Clockwork())
 
 {
-  c->X=CLHEP::HepVector(2);
-  c->U0=CLHEP::HepVector(2);
-  c->U1=CLHEP::HepVector(2);
-  c->style=style;
+  m_c->X=CLHEP::HepVector(2);
+  m_c->U0=CLHEP::HepVector(2);
+  m_c->U1=CLHEP::HepVector(2);
+  m_c->style=style;
   
   CLHEP::HepSymMatrix M(2);
   M[0][0]=sx2;
   M[0][1]=sxy;
   M[1][1]=sy2;
 
-  c->X[0]=x;
-  c->X[1]=y;
+  m_c->X[0]=x;
+  m_c->X[1]=y;
   double T = M.trace();
   double D = M.determinant();
   double L0 = (T+sqrt(T*T-4*D))/2.0;
   double L1 = (T-sqrt(T*T-4*D))/2.0;
 
   if (sxy!=0) {
-    c->U0[0]=1;
-    c->U0[1]=(L0-sx2)/sxy;
-    c->U1[0]=1;
-    c->U1[1]=(L1-sx2)/sxy;
-    c->U0 /= c->U0.norm();
-    c->U1 /= c->U1.norm();
-    c->U0 *= sqrt(L0);
-    c->U1 *= sqrt(L1);
+    m_c->U0[0]=1;
+    m_c->U0[1]=(L0-sx2)/sxy;
+    m_c->U1[0]=1;
+    m_c->U1[1]=(L1-sx2)/sxy;
+    m_c->U0 /= m_c->U0.norm();
+    m_c->U1 /= m_c->U1.norm();
+    m_c->U0 *= sqrt(L0);
+    m_c->U1 *= sqrt(L1);
   }
   else {
-    c->U0[0]=sqrt(sx2);
-    c->U0[1]=0;
-    c->U1[0]=0;
-    c->U1[1]=sqrt(sy2);
+    m_c->U0[0]=sqrt(sx2);
+    m_c->U0[1]=0;
+    m_c->U1[0]=0;
+    m_c->U1[1]=sqrt(sy2);
   }
 
   double factor=0;
-  if (c->style==ONEUNITCHI2) {
+  if (m_c->style==ONEUNITCHI2) {
     factor=1;
   }
-  else if (c->style==ONESIGMA) {
+  else if (m_c->style==ONESIGMA) {
     factor=sqrt(2.30);
   }
-  else if (c->style==TWOSIGMA) {
+  else if (m_c->style==TWOSIGMA) {
     factor=sqrt(6.18);
   }
-  else if (c->style==THREESIGMA) {
+  else if (m_c->style==THREESIGMA) {
     factor=sqrt(11.83);
   }
-  else if (c->style==NINETY) {
+  else if (m_c->style==NINETY) {
     factor=sqrt(4.61);
   }
-  else if (c->style==NINETYFIVE) {
+  else if (m_c->style==NINETYFIVE) {
     factor=sqrt(5.99);
   }
-  else if (c->style==NINETYNINE) {
+  else if (m_c->style==NINETYNINE) {
     factor=sqrt(9.21);
   }
 
-  c->U0 *= factor; // For 68% confidence:
-  c->U1 *= factor; // For 68% confidence;
+  m_c->U0 *= factor; // For 68% confidence:
+  m_c->U1 *= factor; // For 68% confidence;
 
   // Now make the bounding box:
   double minX=1E-30,maxX=-1E30;
   double minY=1E-30,maxY=-1E30;
-  if (c->U0[0]>maxX) maxX=c->U0[0];
-  if (c->U0[0]<minX) minX=c->U0[0];
-  if (c->U1[0]>maxX) maxX=c->U1[0];
-  if (c->U1[0]<minX) minX=c->U1[0];
-  if (c->U0[1]>maxY) maxY=c->U0[1];
-  if (c->U0[1]<minY) minY=c->U0[1];
-  if (c->U1[1]>maxY) maxY=c->U1[1];
-  if (c->U1[1]<minY) minY=c->U1[1];
+  if (m_c->U0[0]>maxX) maxX=m_c->U0[0];
+  if (m_c->U0[0]<minX) minX=m_c->U0[0];
+  if (m_c->U1[0]>maxX) maxX=m_c->U1[0];
+  if (m_c->U1[0]<minX) minX=m_c->U1[0];
+  if (m_c->U0[1]>maxY) maxY=m_c->U0[1];
+  if (m_c->U0[1]<minY) minY=m_c->U0[1];
+  if (m_c->U1[1]>maxY) maxY=m_c->U1[1];
+  if (m_c->U1[1]<minY) minY=m_c->U1[1];
 
   minX += x;
   maxX += x;
   minY += y;
   maxY += y;
-  //  c->nRectangle=QRectF(QPointF(minX-(maxX-minX)/2.0,minY+(maxY-minY)/2.0),QSizeF(maxX-minX, maxY-minY));
-  double max = std::max(c->U0.norm(),c->U1.norm());
+  //  m_c->nRectangle=QRectF(QPointF(minX-(maxX-minX)/2.0,minY+(maxY-minY)/2.0),QSizeF(maxX-minX, maxY-minY));
+  double max = std::max(m_c->U0.norm(),m_c->U1.norm());
 
-  c->nRectangle=QRectF(c->X[0]-2*max, c->X[1]-2*max, 4*max, 4*max);
+  m_c->nRectangle=QRectF(m_c->X[0]-2*max, m_c->X[1]-2*max, 4*max, 4*max);
 
 }
 
@@ -145,13 +145,13 @@ PlotErrorEllipse::PlotErrorEllipse(
 
 // Destructor
 PlotErrorEllipse::~PlotErrorEllipse(){
-  delete c;
+  delete m_c;
 }
 
 
 // Get the "natural maximum R"
 const QRectF  PlotErrorEllipse::rectHint() const {
-  return c->nRectangle;
+  return m_c->nRectangle;
 }
 
 
@@ -168,7 +168,7 @@ void PlotErrorEllipse::describeYourselfTo(AbsPlotter *plotter) const{
   QPainterPath path;
   bool started=false;
   for (int i=0;i<360;i++) {
-    CLHEP::HepVector V=c->U0*sin(2*M_PI*i/360.0) + c->U1*cos(2*M_PI*i/360.0)+c->X;
+    CLHEP::HepVector V=m_c->U0*sin(2*M_PI*i/360.0) + m_c->U1*cos(2*M_PI*i/360.0)+m_c->X;
     if (plotter->rect()->contains(QPointF(V[0],V[1]))){
       double x = V[0];
       double y = V[1];
@@ -194,19 +194,19 @@ void PlotErrorEllipse::describeYourselfTo(AbsPlotter *plotter) const{
 
 
 const PlotErrorEllipse::Properties  PlotErrorEllipse::properties() const { 
-  return c->myProperties ? *c->myProperties : c->defaultProperties;
+  return m_c->myProperties ? *m_c->myProperties : m_c->defaultProperties;
 }
 
 void PlotErrorEllipse::setProperties(const Properties &  properties) { 
-  if (!c->myProperties) {
-    c->myProperties = new Properties(properties);
+  if (!m_c->myProperties) {
+    m_c->myProperties = new Properties(properties);
   }
   else {
-    *c->myProperties=properties;
+    *m_c->myProperties=properties;
   }
 }
 
 void PlotErrorEllipse::resetProperties() {
-  delete c->myProperties;
+  delete m_c->myProperties;
 }
 

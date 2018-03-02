@@ -41,11 +41,8 @@ const SCT_SensorCondData* SCT_SensorsTool::getSensorsData(const unsigned int tru
   return nullptr;
 }
 
-void SCT_SensorsTool::getSensorsData(std::vector<std::string>& userVector) {
+void SCT_SensorsTool::getSensorsData(std::vector<std::string>& /*userVector*/) {
   ATH_MSG_WARNING("This void SCT_SensorsTool::getSensorsData(std::vector<std::string>& userVector) method is not implemented.");
-  for (unsigned int i{0};i!=m_sensorsValues.size(); ++i) {
-    userVector.push_back(m_sensorsValues[i]);
-  }
 }
 
 std::string SCT_SensorsTool::getManufacturer(unsigned int truncatedSerialNumber) {
