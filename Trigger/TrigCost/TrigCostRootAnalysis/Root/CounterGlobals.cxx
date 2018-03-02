@@ -84,6 +84,7 @@ namespace TrigCostRootAnalysis {
 
     m_dataStore.newVariable(kVarMonitoringTime).setSavePerEvent(
       "Time Taken by Monitoring Tools Per Event;Time [ms];Events");
+    
 
     TrigXMLService::trigXMLService().parseHLTFarmXML();
     const IntStringMap_t _comp = TrigXMLService::trigXMLService().getComputerTypeToNameMap();
@@ -108,6 +109,9 @@ namespace TrigCostRootAnalysis {
     } else {
       m_CPUBreakDown = kFALSE;
     }
+
+    decorate(kDecLBMuValue, TrigXMLService::trigXMLService().getLBMuValue(_ID));
+
   }
 
   /**

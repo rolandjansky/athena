@@ -34,8 +34,9 @@
 
 #include "SiDigitization/SiChargedDiodeCollection.h"
 
+#include "SCT_ConditionsTools/ISCT_ReadCalibChipDataTool.h"
+
 class ISCT_Amp;
-class ISCT_ReadCalibChipDataSvc;
 class SCT_ID;
 
 namespace InDetDD {
@@ -125,7 +126,7 @@ class  SCT_FrontEnd : public AthAlgTool, virtual public ISCT_FrontEnd {
   const InDetDD::SCT_DetectorManager* m_SCTdetMgr;        //!< Handle to SCT detector manager
   const SCT_ID*                       m_sct_id;           //!< Handle to SCT ID helper
   ToolHandle<ISCT_Amp> m_sct_amplifier{this, "SCT_Amp", "SCT_Amp", "Handle the Amplifier tool"}; //!< Handle the Amplifier tool
-  ServiceHandle<ISCT_ReadCalibChipDataSvc> m_ReadCalibChipDataSvc; //!< Handle to the Calibration ConditionsService
+  ToolHandle<ISCT_ReadCalibChipDataTool> m_ReadCalibChipDataTool{this, "SCT_ReadCalibChipDataTool", "SCT_ReadCalibChipDataTool", "Tool to retrieve chip calibration information"}; //!< Handle to the Calibration ConditionsTool
 
   CLHEP::HepRandomEngine   *m_rndmEngine;        //!< Random number generation engine 
 

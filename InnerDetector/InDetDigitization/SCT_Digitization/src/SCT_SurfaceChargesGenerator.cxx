@@ -24,7 +24,6 @@
 #include "GeneratorObjects/HepMcParticleLink.h"
 #include "SiPropertiesSvc/SiliconProperties.h"
 #include "InDetConditionsSummaryService/ISiliconConditionsSvc.h"
-#include "SCT_ConditionsServices/ISCT_RadDamageSummarySvc.h"
 #include "InDetSimEvent/SiHit.h"        // for SiHit, SiHit::::xDep, etc
 #include "HitManagement/TimedHitPtr.h"  // for TimedHitPtr
 
@@ -86,7 +85,6 @@ SCT_SurfaceChargesGenerator::SCT_SurfaceChargesGenerator(const
     m_h_trap_pos{nullptr},
     m_hashId(0),
     m_siConditionsSvc("SCT_SiliconConditionsSvc", name),
-    m_radDamageSvc("SCT_RadDamageSummarySvc", name),
     m_element(0),
     m_rndmEngine(0),
     m_rndmEngineName("SCT_Digitization") {
@@ -115,7 +113,6 @@ SCT_SurfaceChargesGenerator::SCT_SurfaceChargesGenerator(const
                     "Histogram the charge trapping effect"); //
     declareProperty("doRamo", m_doRamo,
                     "Ramo Potential for charge trapping effect"); //
-    declareProperty("SCT_RadDamageSummarySvc", m_radDamageSvc);
     declareProperty("isOverlay", m_isOverlay=false);
 }
 
@@ -145,7 +142,9 @@ StatusCode SCT_SurfaceChargesGenerator::initialize() {
     if (m_doTrapping) {
         ///////////////////////////////////////////////////
         // -- Get Radiation Damage Service
-        ATH_CHECK(m_radDamageSvc.retrieve());
+        ATH_CHECK(m_radDamageTool.retrieve());
+    } else {
+      m_radDamageTool.disable();
     }
 
     if (m_doHistoTrap) {
@@ -232,7 +231,7 @@ StatusCode SCT_SurfaceChargesGenerator::initialize() {
     // If we want charge trapping effect with Ramo potential let's fill the map
     // only once
     if (m_doTrapping && m_doRamo) {
-        m_radDamageSvc->InitPotentialValue();
+        m_radDamageTool->InitPotentialValue();
     }
 
     // Surface drift time calculation Stuff
@@ -620,7 +619,7 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiHit &phit, const
                                                                          // of
                                                                          // the
                                                                          // loop
-                    m_doCTrap = m_radDamageSvc->doCTrap(m_hashId, spess);   // To
+                    m_doCTrap = m_radDamageTool->doCTrap(m_hashId, spess);   // To
                                                                             // be
                                                                             // called
                                                                             // once
@@ -670,7 +669,7 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiHit &phit, const
                                 double yfin = yStripDist; // mm
                                 double zfin = (m_thickness - trap_pos); // mm
 
-                                m_radDamageSvc->HoleTransport(y0, z0, yfin,
+                                m_radDamageTool->HoleTransport(y0, z0, yfin,
                                                               zfin, Q_m2, Q_m1,
                                                               Q_00, Q_p1, Q_p2);
                                 for (int strip = -2; strip <= 2; strip++) {
@@ -780,18 +779,18 @@ bool SCT_SurfaceChargesGenerator::ChargeIsTrapped(double spess,
                                                   double &trap_pos,
                                                   double &drift_time) const {
     bool isTrapped(false);
-    double electric_field = m_radDamageSvc->ElectricField(m_hashId, spess);
+    double electric_field = m_radDamageTool->ElectricField(m_hashId, spess);
 
     if (m_doHistoTrap) {
-        double mobChar = m_radDamageSvc->HoleDriftMobility(m_hashId, spess);
+        double mobChar = m_radDamageTool->HoleDriftMobility(m_hashId, spess);
         m_h_efieldz->Fill(spess, electric_field);
         m_h_efield->Fill(electric_field);
         m_h_mob_Char->Fill(electric_field, mobChar);
         m_h_vel->Fill(electric_field, electric_field * mobChar);
     }
-    double t_electrode = m_radDamageSvc->TimeToElectrode(m_hashId, spess);
-    drift_time = m_radDamageSvc->TrappingTime(m_hashId, spess);
-    double z_trap = m_radDamageSvc->TrappingPositionZ(m_hashId, spess);
+    double t_electrode = m_radDamageTool->TimeToElectrode(m_hashId, spess);
+    drift_time = m_radDamageTool->TrappingTime(m_hashId, spess);
+    double z_trap = m_radDamageTool->TrappingPositionZ(m_hashId, spess);
     trap_pos = spess - z_trap;
     if (m_doHistoTrap) {
         m_h_drift_time->Fill(drift_time);
@@ -822,7 +821,7 @@ bool SCT_SurfaceChargesGenerator::ChargeIsTrapped(double spess,
     else {
         isTrapped = false;
         if (m_doHistoTrap) {
-            double z_trap = m_radDamageSvc->TrappingPositionZ(m_hashId, spess);
+            double z_trap = m_radDamageTool->TrappingPositionZ(m_hashId, spess);
             m_h_no_ztrap->Fill(z_trap);
             m_h_notrap_drift_t->Fill(drift_time);
         }

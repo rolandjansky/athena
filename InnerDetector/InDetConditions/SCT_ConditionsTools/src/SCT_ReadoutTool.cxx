@@ -234,8 +234,8 @@ bool SCT_ReadoutTool::hasConnectedInput(const SCT_Chip& chip) const {
   // Otherwise it'll never get to an end giving a timeout
   if (inChipId == None) {
 #ifndef NDEBUG
-    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Chip " << chip.id() << " is not an end but port " << chip.inPort() 
-                                                << " is not mapped to anything" << endmsg;
+    ATH_MSG_WARNING("Chip " << chip.id() << " is not an end but port " << chip.inPort() 
+                    << " is not mapped to anything");
 #endif
     return false;
   }
@@ -244,8 +244,8 @@ bool SCT_ReadoutTool::hasConnectedInput(const SCT_Chip& chip) const {
   // Again, otherwise it'll never get to an end giving a timeout
   if (m_chips.at(inChipId)->outPort() != chip.inPort()) {
     
-    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Chip" << chip.id() << " is not an end and is listening on Port " 
-                                                << chip.inPort() << " but nothing is talking to it" << endmsg;
+    ATH_MSG_WARNING("Chip" << chip.id() << " is not an end and is listening on Port " 
+                    << chip.inPort() << " but nothing is talking to it");
     return false;
   }
   return true;
@@ -264,7 +264,7 @@ bool SCT_ReadoutTool::isEndBeingTalkedTo(const SCT_Chip& chip) const {
   
   for (; chipItr != chipEnd; ++chipItr) {
     if (outputChip(*(*chipItr)) == chip.id()) {
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Chip " << chip.id() << " is configured as end but something is trying to talk to it" << endmsg;
+      ATH_MSG_WARNING("Chip " << chip.id() << " is configured as end but something is trying to talk to it");
       return true;
     }
   }
@@ -376,34 +376,35 @@ bool SCT_ReadoutTool::isLinkStandard(int link){
 
 void SCT_ReadoutTool::printStatus(const Identifier& moduleId) {
   // Print status for module (a la online) and whether it is standard or not
+  if (not msgLvl(MSG::DEBUG)) return;
 
   bool standard = (isLinkStandard(0) && isLinkStandard(1));
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Readout status " <<  moduleId << ": "
-                                          << ((m_type == SCT_Parameters::ENDCAP) ? "ENDCAP" : "")
-                                          << ((m_type == SCT_Parameters::BARREL) ? "BARREL" : "")
-                                          << ((m_type == SCT_Parameters::MODIFIED_0) ? "MOD_0" : "")
-                                          << ((m_type == SCT_Parameters::MODIFIED_1) ? "MOD_1" : "");
- 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Link0 = " << std::boolalpha << m_linkActive[0] << " (";
+  msg(MSG::DEBUG) << "Readout status " <<  moduleId << ": "
+                  << ((m_type == SCT_Parameters::ENDCAP) ? "ENDCAP" : "")
+                  << ((m_type == SCT_Parameters::BARREL) ? "BARREL" : "")
+                  << ((m_type == SCT_Parameters::MODIFIED_0) ? "MOD_0" : "")
+                  << ((m_type == SCT_Parameters::MODIFIED_1) ? "MOD_1" : "");
+
+  msg(MSG::DEBUG) << " Link0 = " << std::boolalpha << m_linkActive[0] << " (";
   
   if (m_chipsOnLink0.empty()) {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "X";
+    msg(MSG::DEBUG) << "X";
   } else {
     for (unsigned int ilink0(0); ilink0 < m_chipsOnLink0.size(); ++ilink0)  {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << m_chipsOnLink0.at(ilink0) << " ";
+      msg(MSG::DEBUG) << m_chipsOnLink0.at(ilink0) << " ";
     }
   }
   
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << ") Link1 = " << std::boolalpha << m_linkActive[1] << " (";
+  msg(MSG::DEBUG) << ") Link1 = " << std::boolalpha << m_linkActive[1] << " (";
   
   if (m_chipsOnLink1.empty()) {
-    if (msgLvl(MSG::DEBUG)) msg() << "X";
+    msg(MSG::DEBUG) << "X";
   } else {
     for (unsigned int ilink1(0); ilink1 < m_chipsOnLink1.size(); ++ilink1) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << m_chipsOnLink1.at(ilink1) << " ";
+      msg(MSG::DEBUG) << m_chipsOnLink1.at(ilink1) << " ";
     }
   }
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << ") " << (standard ? "Standard" : "Non-standard") << endmsg; 
+  msg(MSG::DEBUG) << ") " << (standard ? "Standard" : "Non-standard") << endmsg; 
 }

@@ -22,16 +22,16 @@
 
 
 // ConstIterator over attributes:
-inline AttributeList::ConstIterator AttributeList::begin() const {return _attrList.begin();}
-inline AttributeList::ConstIterator AttributeList::end()   const {return _attrList.end();}
+inline AttributeList::ConstIterator AttributeList::begin() const {return m_attrList.begin();}
+inline AttributeList::ConstIterator AttributeList::end()   const {return m_attrList.end();}
 
 
-inline size_t AttributeList::size() const { return _attrList.size();}
+inline size_t AttributeList::size() const { return m_attrList.size();}
 
 inline Attribute & AttributeList::operator[] (size_t i) {
-  return _attrList[i];
+  return m_attrList[i];
 }
 
 inline const Attribute & AttributeList::operator[] (size_t i) const {
-  return _attrList[i];
+  return m_attrList[i];
 }

@@ -103,16 +103,16 @@ def CaloTopoClusterCfg(inputFlags):
 
 if __name__=="__main__":
     cfg=ComponentAccumulator()
-
+    from AthenaConfiguration.CfgLogMsg import cfgLogMsg
+    cfgLogMsg.setLevel("debug")
     cfgFlags=ConfigFlagContainer()
     cfgFlags.set("AthenaConfiguration.GlobalFlags.isMC",False)
     cfgFlags.set("AthenaConfiguration.GlobalFlags.InputFiles",["myESD.pool.root"])
 
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     cfg.executeModule(PoolReadCfg,cfgFlags)
-    
-    cfg.executeModule(CaloTopoClusterCfg,cfgFlags)
 
+    cfg.executeModule(CaloTopoClusterCfg,cfgFlags)
     cfg.getEventAlgo("CaloTopoCluster").ClustersOutputName="CaloCalTopoClustersNew" 
 
     f=open("CaloTopoCluster.pkl","w")

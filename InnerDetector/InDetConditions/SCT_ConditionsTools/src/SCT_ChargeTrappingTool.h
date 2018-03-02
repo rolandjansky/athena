@@ -1,23 +1,21 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
- * @file SCT_ChargeTrappingSvc.h
+ * @file SCT_ChargeTrappingTool.h
  * @author Peter Vankov (peter.vankov@cern.ch)
  * @author Marco Filipuzzi (marco.filipuzzi@cern.ch)
  **/
 
-#ifndef SCT_ChargeTrappingSvc_h
-#define SCT_ChargeTrappingSvc_h
+#ifndef SCT_ChargeTrappingTool_h
+#define SCT_ChargeTrappingTool_h
 
-#include "SCT_ConditionsServices/ISCT_ChargeTrappingSvc.h"
+#include "SCT_ConditionsTools/ISCT_ChargeTrappingTool.h"
 //Gaudi Includes
-#include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "AthenaBaseComps/AthService.h"
-#include "AthenaKernel/IOVSvcDefs.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "SiPropertiesSvc/SiliconProperties.h"
 #include "CLHEP/Geometry/Vector3D.h"
 #include <string>
@@ -29,45 +27,42 @@
 class IdentifierHash;
 class ISiliconConditionsSvc;
 class IGeoModelSvc;
-class StoreGateSvc;
 
 namespace InDetDD {
   class SiDetectorManager;
 }
 
 /**
- * @class SCT_ChargeTrappingSvc
- * Concrete class for service providing quantities related to radiation damage effects
+ * @class SCT_ChargeTrappinTool
+ * Concrete class for tool providing quantities related to radiation damage effects
  * for each detector element:
  * 1) Mean Free Path assuming exponential loss of charge - dependent on Fluence
  * 2) Electric Field dependent on Bias voltage and Fluence
  **/
 
-class SCT_ChargeTrappingSvc:  public AthService, virtual public  ISCT_ChargeTrappingSvc
+class SCT_ChargeTrappingTool: public extends<AthAlgTool, ISCT_ChargeTrappingTool>
 {
 public:
-  SCT_ChargeTrappingSvc(const std::string& name, ISvcLocator* sl);
-  virtual ~SCT_ChargeTrappingSvc();
-  virtual StatusCode initialize();          //!< Service init
-  virtual StatusCode finalize();            //!< Service finalize
-  virtual StatusCode queryInterface(const InterfaceID& riid,  void** ppvInterface);
-  static const InterfaceID & interfaceID();
+  SCT_ChargeTrappingTool(const std::string& type, const std::string& name, const IInterface* parent);
+  virtual ~SCT_ChargeTrappingTool() = default;
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
  
   // -- Get the Electric Field for the charge position under consideration
-  virtual double getElectricField(const IdentifierHash &  elementHash, const double & zpos);
+  virtual double getElectricField(const IdentifierHash &  elementHash, const double & zpos) override;
   // -- Get the Mean Free Path for the charge position under consideration
   virtual double getMeanFreePathElectrons(const IdentifierHash &  elementHash, const double & pos);
   virtual double getMeanFreePathHoles(const IdentifierHash &  elementHash, const double & pos);
-  virtual double getTrappingElectrons(const IdentifierHash &  elementHash, const double & pos);
-  virtual double getTrappingHoles(const IdentifierHash &  elementHash, const double & pos);
-  virtual double getTrappingProbability(const IdentifierHash &  elementHash, const double & pos);
-  virtual double getTrappingTime(const IdentifierHash &  elementHash, const double & pos);
-  virtual double getTimeToElectrode(const IdentifierHash &  elementHash, const double & pos);
-  virtual double getTrappingPositionZ(const IdentifierHash &  elementHash, const double & pos);
-  virtual double getHoleDriftMobility(const IdentifierHash &  elementHash, const double & pos);
-  bool getdoCTrap(const IdentifierHash & elementHash, const  double & pos);
-  virtual void getHoleTransport(double & x0, double & y0, double & xfin, double & yfin, double &  Q_m2, double & Q_m1, double & Q_00, double & Q_p1, double & Q_p2 )const;
-  virtual void getInitPotentialValue();
+  virtual double getTrappingElectrons(const IdentifierHash &  elementHash, const double & pos) override;
+  virtual double getTrappingHoles(const IdentifierHash &  elementHash, const double & pos) override;
+  virtual double getTrappingProbability(const IdentifierHash &  elementHash, const double & pos) override;
+  virtual double getTrappingTime(const IdentifierHash &  elementHash, const double & pos) override;
+  virtual double getTimeToElectrode(const IdentifierHash &  elementHash, const double & pos) override;
+  virtual double getTrappingPositionZ(const IdentifierHash &  elementHash, const double & pos) override;
+  virtual double getHoleDriftMobility(const IdentifierHash &  elementHash, const double & pos) override;
+  virtual bool getdoCTrap(const IdentifierHash & elementHash, const  double & pos) override;
+  virtual void getHoleTransport(double & x0, double & y0, double & xfin, double & yfin, double &  Q_m2, double & Q_m1, double & Q_00, double & Q_p1, double & Q_p2 ) const override;
+  virtual void getInitPotentialValue() override;
   
 private:
   void updateCache(const IdentifierHash & elementHash, const  double & pos);
@@ -89,7 +84,6 @@ private:
   double m_deplVoltage;
   double m_biasVoltage;
   ServiceHandle<ISiliconConditionsSvc> m_siConditionsSvc;
-  ServiceHandle<StoreGateSvc> m_detStore;
   bool m_conditionsSvcValid;
   bool m_conditionsSvcWarning;
   bool m_isSCT;
@@ -119,11 +113,5 @@ private:
   ToolHandle<ISCT_ElectricFieldTool> m_electricFieldTool{this, "SCT_ElectricFieldTool", "SCT_ElectricFieldTool", "SCT electric field tool"};
 
 };
-inline const InterfaceID & SCT_ChargeTrappingSvc::interfaceID(){
-  static const InterfaceID IID_SCT_ChargeTrappingSvc("SCT_ChargeTrappingSvc", 1, 0);
-  return IID_SCT_ChargeTrappingSvc;
- 
-  //  return ISCT_ChargeTrappingSvc::interfaceID();
-}
 
-#endif
+#endif // SCT_ChargeTrappingTool_h
