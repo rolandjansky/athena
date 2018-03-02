@@ -664,7 +664,8 @@ void TileInfoDump::printBadCells() {
   int ncells = m_tileID->cell_hash_max();
 
   TileCablingService* cabling = TileCablingService::getInstance();
-  bool run2 = (cabling->getCablingType() == TileCablingService::RUN2Cabling);
+  bool run2 = (cabling->getCablingType() == TileCablingService::RUN2Cabling ||
+               cabling->getCablingType() == TileCablingService::RUN2aCabling);
 
   std::ostringstream sSum;
   std::ostringstream sDet;

@@ -91,6 +91,7 @@ public:
                            MBTSOnly  = 2,
                            CrackAndMBTS = 3,
                            RUN2Cabling = 4,
+                           RUN2aCabling = 5,
                            UpgradeA = 10,
                            UpgradeBC = 11,
                            UpgradeABC = 12,
@@ -161,9 +162,9 @@ private:
 
            bool         hwid2MBTSconnected_run2 (int ros, int drawer, int channel) const;
            bool         hwid2MBTSconnected_run2 (int ros, int drawer) const;
-           int          hwid2MBTSphi_run2       (int drawer) const;
-           int          hwid2MBTSeta_run2       (int drawer) const;
-           int          MBTS2drawer_run2        (int phi, int eta) const;
+           int          hwid2MBTSphi_run2       (int ros, int drawer) const;
+           int          hwid2MBTSeta_run2       (int ros, int drawer) const;
+           int          MBTS2drawer_run2        (int side, int phi, int eta) const;
            int          MBTS2channel_run2       (int eta) const;
 
            bool         hwid2E4prconnected_run2 (int ros, int drawer, int channel) const;
@@ -201,6 +202,8 @@ private:
     bool m_connected[5][64];
     void setConnected(int section, int side, int modMin, int modMax);
     void setConnected(int ros, int draMin, int draMax);
+    void setRun2Merged();
+    void setRun2aMerged();
 
     enum Partition { Ancillary = 0,
                      LBA = 1,

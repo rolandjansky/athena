@@ -841,7 +841,8 @@ StatusCode TileCellMonTool::fillHistograms() {
       // note that drawer from HWID and module from ID are different for E3 cells near MBTS
       double drawer = (double)drw + 1.0; // range from 1-64
       double module = (double)m_tileID->module(id) + 1.0; // range from 1-64
-      double occ_module = (m_cabling->getCablingType() == TileCablingService::RUN2Cabling) ? module : drawer; // used for occupancy maps
+      double occ_module = (m_cabling->getCablingType() == TileCablingService::RUN2Cabling ||
+                           m_cabling->getCablingType() == TileCablingService::RUN2aCabling) ? module : drawer; // used for occupancy maps
       
       int samp = std::min(m_tileID->sample(id),(int)AllSamp);
 

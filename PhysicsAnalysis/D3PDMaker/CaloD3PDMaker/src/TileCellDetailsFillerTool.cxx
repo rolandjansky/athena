@@ -55,7 +55,8 @@ namespace D3PD{
       CHECK( m_tileBadChanTool.retrieve() );
       m_cabling = TileCablingService::getInstance();
 
-      if (m_cabling->getCablingType() == TileCablingService::RUN2Cabling) {
+      if (m_cabling->getCablingType() == TileCablingService::RUN2Cabling ||
+          m_cabling->getCablingType() == TileCablingService::RUN2aCabling) {
         m_run2 = true;
         for (int ros = 3; ros < 5; ++ros) {
           for (int drawer = 0; drawer < 64; ++drawer) {
