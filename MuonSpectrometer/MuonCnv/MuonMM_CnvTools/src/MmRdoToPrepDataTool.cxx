@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -25,8 +25,6 @@
 // BS access
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
-//#include "MuonMDT_CnvTools/IMDT_RDO_Decoder.h"
-//#include "MuonContainerManager/MuonRdoContainerAccess.h"
 
 using namespace MuonGM;
 using namespace Trk;
@@ -41,14 +39,9 @@ Muon::MmRdoToPrepDataTool::MmRdoToPrepDataTool(const std::string& t,
   m_mmIdHelper(0),
   m_muonIdHelper(0),
   m_mmPrepDataContainer(0)
-  //  m_rawDataProviderTool("Muon::MDT_RawDataProviderTool/MDT_RawDataProviderTool"),
-  //  m_mdtDecoder("Muon::MdtRDO_Decoder/MdtRDO_Decoder"),
 {
   declareInterface<Muon::IMuonRdoToPrepDataTool>(this);
 
-  // tools
-  //  declareProperty ("RawDataProviderTool",      m_rawDataProviderTool);
-  
   //  template for property decalration
   declareProperty("OutputCollection",    m_mmPrepDataContainerKey = std::string("MM_Measurements"),
 		  "Muon::MMPrepDataContainer to record");

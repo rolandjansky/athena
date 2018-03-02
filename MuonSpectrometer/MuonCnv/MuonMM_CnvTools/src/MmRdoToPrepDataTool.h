@@ -38,9 +38,7 @@ namespace Muon
 {
 
   class IMuonRawDataProviderTool;
-  //  class IMDT_RDO_Decoder;
   class MuonIdHelperTool;
-  //  class MMPrepDataContainer;
 
   class MmRdoToPrepDataTool : virtual public IMuonRdoToPrepDataTool, virtual public AthAlgTool
   {
@@ -65,8 +63,6 @@ namespace Muon
     StatusCode processCollection(const MM_RawDataCollection *rdoColl, 
    				 std::vector<IdentifierHash>& idWithDataVect);
 
-    //    StatusCode processCollection(std::vector<IdentifierHash>& idWithDataVect);
-    
     void printInputRdo();
     void printPrepData();
     
@@ -85,12 +81,7 @@ namespace Muon
     Muon::MMPrepDataContainer * m_mmPrepDataContainer;
     SG::WriteHandleKey<Muon::MMPrepDataContainer> m_mmPrepDataContainerKey;
 
-    std::string m_outputCollectionLocation;        
-    
-    // handle tp the MDT_RawDataProviderTool
-    //        ToolHandle<Muon::IMuonRawDataProviderTool> m_rawDataProviderTool;
-    //        ToolHandle<Muon::IMDT_RDO_Decoder> m_mdtDecoder;
-    //	ToolHandle<Muon::MuonIdHelperTool> m_idHelper;
+    std::string m_outputCollectionLocation;            
     
   }; 
 } // end of namespace
