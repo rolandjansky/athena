@@ -268,36 +268,24 @@ class ComponentAccumulator(object):
         #destSubSeq = findSubSequence(self._sequence, sequence)
         #if destSubSeq == None:
         #    raise ConfigurationError( "Nonexistent sequence %s in %s (or its sub-sequences)" % ( sequence, self._sequence.name() ) )          #     
-        # def mergeSequences( dest, src ):        
-        #     for c in src.getChildren():
-        #         if isSequence( c ):
-        #             sub = findSubSequence( dest, c.name() )
-        #             if sub:
-        #                 mergeSequences(sub, c )
-        #             else:
-        #                 self._msg.debug("  Merging sequence %s to a sequnece %s" % ( c.name(), dest.name() ) )          
-        #                 dest += c
-        #         else: # an algorithm
-        #             existingAlg = findAlgorithm( dest, c.name(), depth=1 )
-        #             if existingAlg:
-        #                 if existingAlg != c: # if it is the same we can just skip it, else this indicates an error
-        #                     raise ConfigurationError( "Duplicate algorithm %s in source and destination sequences %s" % ( c.name(), src.name()  ) )           
-        #             else: # absent, adding
-        #                 self._msg.debug("  Merging algorithm %s to a sequnece %s" % ( c.name(), dest.name() ) )          
-        #                 dest += c
+        def mergeSequences( dest, src ):        
+            for c in src.getChildren():
+                if isSequence( c ):
+                    sub = findSubSequence( dest, c.name() )
+                    if sub:
+                        mergeSequences(sub, c )
+                    else:
+                        self._msg.debug("  Merging sequence %s to a sequnece %s" % ( c.name(), dest.name() ) )          
+                        dest += c
+                else: # an algorithm
+                    existingAlg = findAlgorithm( dest, c.name(), depth=1 )
+                    if existingAlg:
+                        if existingAlg != c: # if it is the same we can just skip it, else this indicates an error
+                            raise ConfigurationError( "Duplicate algorithm %s in source and destination sequences %s" % ( c.name(), src.name()  ) )           
+                    else: # absent, adding
+                        self._msg.debug("  Merging algorithm %s to a sequnece %s" % ( c.name(), dest.name() ) )          
+                        dest += c
                         
-        # mergeSequences( destSubSeq, other._sequence )
-        
-        #mergeSequences(self._sequences, other._sequences)
-        # Merge Algorithms per sequence
-        # allkeys=set(self._eventAlgs.keys()) | set(other._eventAlgs.keys())
-        # for k in allkeys:
-        #     if not self._eventAlgs.has_key(k): 
-        #         self._eventAlgs[k]=other._eventAlgs[k] #sequence only known to other
-        #     elif not other._eventAlgs.has_key[k]: #sequence only known to self
-        #         pass 
-        #     else: #sequence known to both self and other
-        #         self._eventAlgs[k]+=other._eventAlgs[k] 
 
 
         # Merge Conditions inputs
