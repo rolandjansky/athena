@@ -1,4 +1,3 @@
-
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 import TrigBjetMonitoring.TrigBjetMonitCategory as bjet
@@ -222,7 +221,7 @@ class HLTMonTriggerList:
 		self.monitoring_muonIso = muon.monitoring_muonIso_HI
 		self.monitoring_MSonly = muon.monitoring_MSonly_HI
 		self.monitoring_muonEFFS = muon.monitoring_muonEFFS_HI
-		self.monitoring_muonLowpt = monitoring_muonLowpt
+		self.monitoring_muonLowpt = muon.monitoring_muonLowpt
 		self.monitoring_muon_Support = muon.monitoring_muon_Support_HI
 
 	def set_HLTMonTrigList_cosmic (self):
