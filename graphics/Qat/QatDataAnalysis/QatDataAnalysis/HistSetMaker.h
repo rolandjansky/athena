@@ -20,8 +20,8 @@
 // --------------------------------------------------------------------------//
 
 
-#ifndef _HISTSETMAKER_H_
-#define _HISTSETMAKER_H_
+#ifndef QATDATAANALYSIS_HISTSETMAKER_H
+#define QATDATAANALYSIS_HISTSETMAKER_H
 //-------------------------------------------------------------------//
 // Class which allows to make a histogram from an ntuple.            //
 //-------------------------------------------------------------------//
@@ -73,7 +73,7 @@ class HistSetMaker {
   HistSetMaker(const HistSetMaker &);
 
   class Clockwork;
-  Clockwork *c;
+  Clockwork *m_c;
 
 };
 

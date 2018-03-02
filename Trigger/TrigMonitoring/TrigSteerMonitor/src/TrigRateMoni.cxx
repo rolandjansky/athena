@@ -17,7 +17,6 @@
 
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/AlgTool.h"
-#include "GaudiKernel/ThreadGaudi.h"
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/Property.h"

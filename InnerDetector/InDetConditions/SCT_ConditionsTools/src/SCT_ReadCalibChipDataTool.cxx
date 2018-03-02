@@ -1,32 +1,27 @@
  /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-/** @file SCT_ReadCalibChipDataSvc.cxx Implementation file for SCT_ReadCalibChipDataSvc.
+/** @file SCT_ReadCalibChipDataTool.cxx Implementation file for SCT_ReadCalibChipDataTool.
     @author Per Johansson (23/03/09), Shaun Roe (17/2/2010)
 */
 
-#include "SCT_ReadCalibChipDataSvc.h"
+#include "SCT_ReadCalibChipDataTool.h"
 
 // Include Athena stuff
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/SCT_ID.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "SCT_ConditionsData/SCT_ModuleCalibParameter.h"
 #include "SCT_ConditionsData/SCT_ModuleGainCalibData.h"
 #include "SCT_ConditionsData/SCT_ModuleNoiseCalibData.h"
 #include "SCT_ConditionsServices/SCT_ReadCalibChipUtilities.h"
 
-// Include Gaudi stuff
-#include "GaudiKernel/StatusCode.h"
-
 using namespace SCT_ConditionsServices;
 using namespace SCT_ReadCalibChipUtilities;
 
 //----------------------------------------------------------------------
-SCT_ReadCalibChipDataSvc::SCT_ReadCalibChipDataSvc (const std::string& name, ISvcLocator* pSvcLocator) :
-  AthService(name, pSvcLocator),
-  m_detStoreSvc{"DetectorStore", name},
+SCT_ReadCalibChipDataTool::SCT_ReadCalibChipDataTool (const std::string& type, const std::string& name, const IInterface* parent) :
+  base_class(type, name, parent),
   m_id_sct{nullptr},
   m_mutex{},
   m_cacheGain{},
@@ -40,16 +35,10 @@ SCT_ReadCalibChipDataSvc::SCT_ReadCalibChipDataSvc (const std::string& name, ISv
   }
 
 //----------------------------------------------------------------------
-SCT_ReadCalibChipDataSvc::~SCT_ReadCalibChipDataSvc() { 
-  //nop
-}
-
-//----------------------------------------------------------------------
-
 StatusCode 
-SCT_ReadCalibChipDataSvc::initialize() {
+SCT_ReadCalibChipDataTool::initialize() {
   // Get SCT helper
-  if (m_detStoreSvc->retrieve(m_id_sct, "SCT_ID").isFailure()) {
+  if (detStore()->retrieve(m_id_sct, "SCT_ID").isFailure()) {
     ATH_MSG_FATAL("Failed to get SCT helper");
     return StatusCode::FAILURE;
   }
@@ -59,63 +48,26 @@ SCT_ReadCalibChipDataSvc::initialize() {
   ATH_CHECK(m_condKeyNoise.initialize());
 
   return StatusCode::SUCCESS;
-} // SCT_ReadCalibChipDataSvc::initialize()
+} // SCT_ReadCalibChipDataTool::initialize()
 
 //----------------------------------------------------------------------
 StatusCode
-SCT_ReadCalibChipDataSvc::finalize() {
+SCT_ReadCalibChipDataTool::finalize() {
   // Print where you are
   return StatusCode::SUCCESS;
-} // SCT_ReadCalibChipDataSvc::finalize()
-
-//----------------------------------------------------------------------
-// Query the interfaces.
-StatusCode
-SCT_ReadCalibChipDataSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
-  if (ISCT_ReadCalibChipDataSvc::interfaceID().versionMatch(riid)) {
-    *ppvInterface = this;
-  } else if (ISCT_ConditionsSvc::interfaceID().versionMatch(riid)) {
-    *ppvInterface = dynamic_cast<ISCT_ConditionsSvc*>(this);
-  } else {
-    return AthService::queryInterface(riid, ppvInterface);
-  }
-  addRef();
-  return StatusCode::SUCCESS;
-}
+} // SCT_ReadCalibChipDataTool::finalize()
 
 //----------------------------------------------------------------------
 //Can only report good/bad at side level
 bool
-SCT_ReadCalibChipDataSvc::canReportAbout(InDetConditions::Hierarchy h) {
+SCT_ReadCalibChipDataTool::canReportAbout(InDetConditions::Hierarchy h) {
   return (h==InDetConditions::SCT_SIDE);
 }
-
-
-//----------------------------------------------------------------------
-// Returns ok if fillData worked properly
-bool
-SCT_ReadCalibChipDataSvc::filled() const {
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
-  const SCT_NoiseCalibData* condDataNoise{getCondDataNoise(ctx)};
-  if (condDataNoise==nullptr) return false;
-  const SCT_GainCalibData* condDataGain{getCondDataGain(ctx)};
-  if (condDataGain==nullptr) return false;
-
-  return true;
-} //SCT_ReadCalibChipDataSvc::filled()
-
-
-//----------------------------------------------------------------------
-// Fill the data structures from a callback
-StatusCode
-SCT_ReadCalibChipDataSvc::fillData(int& /*i*/, std::list<std::string>& /*l*/) {
-  return StatusCode::SUCCESS;
-} //SCT_ReadCalibChipDataSvc::fillData()
 
 //----------------------------------------------------------------------
 // Returns a bool summary of the data
 bool
-SCT_ReadCalibChipDataSvc::isGood(const IdentifierHash& elementHashId) {
+SCT_ReadCalibChipDataTool::isGood(const IdentifierHash& elementHashId) {
   // Retrieve SCT_NoiseCalibData pointer
   const EventContext& ctx{Gaudi::Hive::currentContext()};
   const SCT_NoiseCalibData* condDataNoise{getCondDataNoise(ctx)};
@@ -154,12 +106,12 @@ SCT_ReadCalibChipDataSvc::isGood(const IdentifierHash& elementHashId) {
   float meanNoiseValue{sum/nChips};
   ATH_MSG_DEBUG("Module mean noise: " << meanNoiseValue);
   return (meanNoiseValue < m_noiseLevel);
-} //SCT_ReadCalibChipDataSvc::summary()
+} //SCT_ReadCalibChipDataTool::summary()
 
 //----------------------------------------------------------------------
 // Returns a bool summary of the data
 bool
-SCT_ReadCalibChipDataSvc::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) {
+SCT_ReadCalibChipDataTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) {
   if (h==InDetConditions::SCT_SIDE) { //Could do by chip too
     const IdentifierHash elementIdHash{m_id_sct->wafer_hash(elementId)};
     return isGood(elementIdHash);
@@ -172,7 +124,7 @@ SCT_ReadCalibChipDataSvc::isGood(const Identifier& elementId, InDetConditions::H
 
 //----------------------------------------------------------------------
 std::vector<float> 
-SCT_ReadCalibChipDataSvc::getNPtGainData(const Identifier& moduleId, const int side, const std::string& datatype) {
+SCT_ReadCalibChipDataTool::getNPtGainData(const Identifier& moduleId, const int side, const std::string& datatype) {
   // Print where you are
   ATH_MSG_DEBUG("in getNPtGainData()");
   std::vector<float> waferData;
@@ -212,11 +164,11 @@ SCT_ReadCalibChipDataSvc::getNPtGainData(const Identifier& moduleId, const int s
   } catch (const std::out_of_range& e) {
     return waferData; 
   }
-} //SCT_ReadCalibChipDataSvc::getNPtGainData()
+} //SCT_ReadCalibChipDataTool::getNPtGainData()
 
 //----------------------------------------------------------------------
 std::vector<float>
-SCT_ReadCalibChipDataSvc::getNoiseOccupancyData(const Identifier& moduleId, const int side, const std::string& datatype) {
+SCT_ReadCalibChipDataTool::getNoiseOccupancyData(const Identifier& moduleId, const int side, const std::string& datatype) {
   // Print where you are
   ATH_MSG_DEBUG("in getNoiseOccupancyData()");
   std::vector<float> waferData;
@@ -255,24 +207,24 @@ SCT_ReadCalibChipDataSvc::getNoiseOccupancyData(const Identifier& moduleId, cons
   } catch (const std::out_of_range& e) {
     return waferData; 
   }
-} // SCT_ReadCalibChipDataSvc::getNoiseOccupancyData()
+} // SCT_ReadCalibChipDataTool::getNoiseOccupancyData()
 
 int
-SCT_ReadCalibChipDataSvc::nPtGainIndex(const std::string& dataName) const {
+SCT_ReadCalibChipDataTool::nPtGainIndex(const std::string& dataName) const {
   int i{N_NPTGAIN};
   while (i--) if (dataName==nPtGainParameterNames[i]) break;
   return i;
 }
 
 int
-SCT_ReadCalibChipDataSvc::noiseOccIndex(const std::string& dataName) const {
+SCT_ReadCalibChipDataTool::noiseOccIndex(const std::string& dataName) const {
   int i{N_NOISEOCC};
   while (i--) if (dataName==noiseOccParameterNames[i]) break;
   return i;
 }
 
 const SCT_GainCalibData*
-SCT_ReadCalibChipDataSvc::getCondDataGain(const EventContext& ctx) const {
+SCT_ReadCalibChipDataTool::getCondDataGain(const EventContext& ctx) const {
   static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
   EventContext::ContextID_t slot{ctx.slot()};
   EventContext::ContextEvt_t evt{ctx.evt()};
@@ -292,7 +244,7 @@ SCT_ReadCalibChipDataSvc::getCondDataGain(const EventContext& ctx) const {
 }
 
 const SCT_NoiseCalibData*
-SCT_ReadCalibChipDataSvc::getCondDataNoise(const EventContext& ctx) const {
+SCT_ReadCalibChipDataTool::getCondDataNoise(const EventContext& ctx) const {
   static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
   EventContext::ContextID_t slot{ctx.slot()};
   EventContext::ContextEvt_t evt{ctx.evt()};

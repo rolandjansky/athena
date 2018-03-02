@@ -16,12 +16,6 @@ SCT_ElectricFieldTool::SCT_ElectricFieldTool(const std::string& t, const std::st
 
 StatusCode 
 SCT_ElectricFieldTool::initialize(){
-/**
-  StatusCode sc = AthAlgTool::initialize();
-  if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Unable to initialize the service!" <<  endmsg;
-    return sc;
-  }**/
   return StatusCode::SUCCESS;
 }
 
@@ -50,7 +44,6 @@ double SCT_ElectricFieldTool::getElectricField(double positionZ,
     y = bulkDepth - y;
     
     //------------ find depletion depth for model=0 and 1 -------------
-    // ATH_MSG_INFO ("\tmodel= "<< m_eFieldModel<<" VB= "<< biasVoltage);
     double depletionDepth{bulkDepth};
     if (biasVoltage < fabs(depletionVoltage)) depletionDepth = sqrt(biasVoltage/fabs(depletionVoltage)) * bulkDepth;
     if (y<=depletionDepth){

@@ -1,77 +1,62 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-/** @file SCT_ReadCalibChipDataSvc.h Header file for SCT_ReadCalibChipDataSvc.
+/** @file SCT_ReadCalibChipDataTool.h Header file for SCT_ReadCalibChipDataTool.
     @author Per Johansson, 23/03/09
 */
 
 // Multiple inclusion protection
-#ifndef SCT_READ_CALIB_CHIP_DATA_SVC
-#define SCT_READ_CALIB_CHIP_DATA_SVC
+#ifndef SCT_READ_CALIB_CHIP_DATA_TOOL
+#define SCT_READ_CALIB_CHIP_DATA_TOOL
 
 // Include interface class
-#include "SCT_ConditionsServices/ISCT_ReadCalibChipDataSvc.h"
+#include "SCT_ConditionsTools/ISCT_ReadCalibChipDataTool.h"
 
 // Include STL
 #include <mutex>
 
 // Include Gaudi classes
-#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ContextSpecificPtr.h"
 
 // Include Athena stuff 
-#include "AthenaBaseComps/AthService.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "SCT_ConditionsServices/SCT_ConditionsParameters.h"
 #include "SCT_ConditionsData/SCT_GainCalibData.h"
 #include "SCT_ConditionsData/SCT_NoiseCalibData.h"
 
 // Forward declarations
-class ISvcLocator;
-class StoreGateSvc;
 class SCT_ID;
 
-/** This class contains a Service that reads SCT calibration data and makes it available to 
+/** This class contains a Tool that reads SCT calibration data and makes it available to 
     other algorithms. The current implementation reads the data from a COOL database. 
 */
 
-class SCT_ReadCalibChipDataSvc: virtual public ISCT_ReadCalibChipDataSvc, virtual public AthService {
+class SCT_ReadCalibChipDataTool: public extends<AthAlgTool, ISCT_ReadCalibChipDataTool> {
 
  public:
   //----------Public Member Functions----------//
   // Structors
-  SCT_ReadCalibChipDataSvc(const std::string& name, ISvcLocator* pSvcLocator); //!< Constructor
-  virtual ~SCT_ReadCalibChipDataSvc();                                           //!< Destructor
-  
-  // Retrive interface ID
-  virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
-  static const InterfaceID& interfaceID();
+  SCT_ReadCalibChipDataTool(const std::string& type, const std::string& name, const IInterface* parent); //!< Constructor
+  virtual ~SCT_ReadCalibChipDataTool() = default; //!< Destructor
   
   // Standard Gaudi functions
-  virtual StatusCode initialize(); //!< Gaudi initialiser
-  virtual StatusCode finalize();   //!< Gaudi finaliser
+  virtual StatusCode initialize() override; //!< Gaudi initialiser
+  virtual StatusCode finalize() override; //!< Gaudi finaliser
   
   /// @name Methods to be implemented from virtual baseclass methods, when introduced
   ///Return whether this service can report on the hierarchy level (e.g. module, chip...)
-  virtual bool canReportAbout(InDetConditions::Hierarchy h);
+  virtual bool canReportAbout(InDetConditions::Hierarchy h) override;
   ///Summarise the result from the service as good/bad
-  virtual bool isGood(const Identifier& elementId,InDetConditions::Hierarchy h=InDetConditions::DEFAULT);
+  virtual bool isGood(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) override;
   ///same thing with id hash, introduced by shaun with dummy method for now
-  virtual bool isGood(const IdentifierHash& hashId);
-  // Fill the data structures
-  StatusCode fillData() { return StatusCode::FAILURE; }
-  // Fill the data structures from a Callback 
-  StatusCode fillData(int& /*i*/, std::list<std::string>& l);
-  /// Report whether the map was filled
-  bool filled() const ;
-  // Report whether the service can fill its data during the initialize phase
-  virtual bool canFillDuringInitialize() { return false; } //PJ need to know IOV/run#
+  virtual bool isGood(const IdentifierHash& hashId) override;
   //@}
   
   // Methods to return calibration data
-  virtual std::vector<float> getNPtGainData(const Identifier& moduleId, const int side, const std::string& datatype); //!<Get NPtGain data per wafer
-  virtual std::vector<float> getNoiseOccupancyData(const Identifier& moduleId, const int side, const std::string& datatype); //!<Get NoiseOccupancy data wafer
+  virtual std::vector<float> getNPtGainData(const Identifier& moduleId, const int side, const std::string& datatype) override; //!<Get NPtGain data per wafer
+  virtual std::vector<float> getNoiseOccupancyData(const Identifier& moduleId, const int side, const std::string& datatype) override; //!<Get NoiseOccupancy data wafer
 
  private:
   // Private enums
@@ -85,7 +70,6 @@ class SCT_ReadCalibChipDataSvc: virtual public ISCT_ReadCalibChipDataSvc, virtua
   const SCT_NoiseCalibData* getCondDataNoise(const EventContext& ctx) const;
 
   //----------Private Attributes----------//
-  ServiceHandle<StoreGateSvc>         m_detStoreSvc;       //!< Handle to detector store
   const SCT_ID*                       m_id_sct;            //!< Handle to SCT ID helper
   
   // Mutex to protect the contents.
@@ -105,4 +89,4 @@ class SCT_ReadCalibChipDataSvc: virtual public ISCT_ReadCalibChipDataSvc, virtua
 };
 
 //---------------------------------------------------------------------- 
-#endif // SCT_READ_CALIB_CHIP_DATA_SVC
+#endif // SCT_READ_CALIB_CHIP_DATA_TOOL

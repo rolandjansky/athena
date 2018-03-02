@@ -74,20 +74,8 @@ class PixelLorentzAngleSvcSetup:
         self.pixelSiliconConditionsSvc = pixelSiliconConditionsSvc
         self.PixelSiliconConditionsSvc = pixelSiliconConditionsSvc
 
-
-    # Force the Lorentz angle sercive to use SiliconConditions service (which are assumed to use the DB)
-    # Default is to decide based on GeoModel.
-    def forceUseDB(self) :
-        "Force usage of conditions DB"
-        self.PixelSiliconConditionsSvc.CheckGeoModel = False
-        self.PixelSiliconConditionsSvc.UseDBForHV = True
-        self.PixelLorentzAngleSvc.usePixelDefaults = False
-    
-
-    # Force to use the defaults from GeoModel. In case it is not possible to use DCS
-    def forceUseGeoModel(self) :
-        "Force usage of GeoModel defaults"
-        self.PixelSiliconConditionsSvc.ForceUseGeoModel = True
+        def useDefault(self) :
+          self.PixelSiliconConditionsSvc.UseDB = False 
 
 # configuration instance
 pixelLorentzAngleSvcSetup = PixelLorentzAngleSvcSetup()

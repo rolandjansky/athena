@@ -1,14 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
- * @file SCT_ChargeTrappingSvc.cxx
+ * @file SCT_ChargeTrappingTool.cxx
  * @author Peter Vankov (peter.vankov@cern.ch)
  * @author Marco Filipuzzi (marco.filipuzzi@cern.ch)
  **/
 
-#include "SCT_ChargeTrappingSvc.h"
+#include "SCT_ChargeTrappingTool.h"
 
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
@@ -25,19 +25,14 @@
 
 
 
-#include "StoreGate/StoreGate.h"
-
 #include "InDetConditionsSummaryService/ISiliconConditionsSvc.h"
-
-#include "SCT_ConfigurationConditionsSvc.h"
 
 #include <algorithm>
 #include "TMath.h"
 
-SCT_ChargeTrappingSvc::SCT_ChargeTrappingSvc( const std::string& name,  ISvcLocator* pSvcLocator ) :
-  AthService(name, pSvcLocator),
+SCT_ChargeTrappingTool::SCT_ChargeTrappingTool(const std::string& type, const std::string& name, const IInterface* parent) :
+  base_class(type, name, parent),
   m_siConditionsSvc{"SCT_SiliconConditionsSvc", name},
-  m_detStore{"StoreGateSvc/DetectorStore", name},
   m_conditionsSvcValid{false},
   m_conditionsSvcWarning{false},
   m_isSCT{true},
@@ -57,7 +52,6 @@ SCT_ChargeTrappingSvc::SCT_ChargeTrappingSvc( const std::string& name,  ISvcLoca
   declareProperty("DepletionVoltage", m_deplVoltage = -30.,  "Default depletion voltage in Volt.");
   // declareProperty("IgnoreLocalPos", m_ignoreLocalPos = false,  "Treat methods that take a local position as if one "
   //     "called the methods without a local position" );
-  declareProperty("DetStore", m_detStore);
   
   // -- Radiation damage specific
   declareProperty("CalcHoles", m_calcHoles=true, "Default is to consider holes in signal formation.");
@@ -69,27 +63,14 @@ SCT_ChargeTrappingSvc::SCT_ChargeTrappingSvc( const std::string& name,  ISvcLoca
                   "-- average value from Table 2 in ATL-INDET-2003-014");
 }
 
-SCT_ChargeTrappingSvc::~SCT_ChargeTrappingSvc()
-{}
-
 StatusCode 
-SCT_ChargeTrappingSvc::initialize()
+SCT_ChargeTrappingTool::initialize()
 {
   
-  StatusCode sc = AthService::initialize();
-  if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Unable to initialize the service!" <<  endmsg;
-    return sc;
-  }
-  
-  // Detector store
-  if (m_detStore.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "DetectorStore service not found !" <<  endmsg;
-    return StatusCode::FAILURE;
-  }
+  StatusCode sc{StatusCode::SUCCESS};
   
   if (m_detectorName != "SCT") {
-    msg(MSG::FATAL) << "Invalid detector name: " << m_detectorName  << ". Must be SCT." << endmsg;
+    ATH_MSG_FATAL("Invalid detector name: " << m_detectorName  << ". Must be SCT.");
     return StatusCode::FAILURE;
   }
   m_isSCT = (m_detectorName == "SCT");
@@ -99,7 +80,7 @@ SCT_ChargeTrappingSvc::initialize()
   if (!m_siConditionsSvc.empty()) {
     sc =  m_siConditionsSvc.retrieve();
     if (sc.isFailure()) {
-      msg(MSG::FATAL) << "Unable to to retrieve Conditions Summary  Service" << endmsg;
+      ATH_MSG_FATAL("Unable to to retrieve Conditions Summary  Service");
       return StatusCode::FAILURE;
     } else {
       m_conditionsSvcValid = true;
@@ -109,9 +90,9 @@ SCT_ChargeTrappingSvc::initialize()
   }
   
   // Get the detector manager
-  m_detStore->retrieve(m_detManager, m_detectorName);
+  detStore()->retrieve(m_detManager, m_detectorName);
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not find the detector manager: " <<  m_detectorName << " !" << endmsg;
+    ATH_MSG_FATAL("Could not find the detector manager: " <<  m_detectorName << " !");
     return StatusCode::FAILURE;
   }
   
@@ -120,14 +101,14 @@ SCT_ChargeTrappingSvc::initialize()
   if (m_isSCT) {
     // SCT
     const SCT_ID * idHelper;
-    if (m_detStore->retrieve(idHelper, "SCT_ID").isFailure()) {
-      msg(MSG::FATAL) << "Could not get SCT_ID helper" << endmsg;
+    if (detStore()->retrieve(idHelper, "SCT_ID").isFailure()) {
+      ATH_MSG_FATAL("Could not get SCT_ID helper");
       return StatusCode::FAILURE;
     }
     maxHash = idHelper->wafer_hash_max();
   } else {
-    msg(MSG::FATAL) << "Invalid detector name: " << m_detectorName  << ". Must be SCT." << endmsg;
-    msg(MSG::FATAL) << "Could not get " << m_detectorName << " ID helper" << endmsg;
+    ATH_MSG_FATAL("Invalid detector name: " << m_detectorName  << ". Must be SCT.");
+    ATH_MSG_FATAL("Could not get " << m_detectorName << " ID helper");
     return StatusCode::FAILURE;
   }
   
@@ -150,113 +131,98 @@ SCT_ChargeTrappingSvc::initialize()
 }
 
 
-StatusCode SCT_ChargeTrappingSvc::finalize()
+StatusCode SCT_ChargeTrappingTool::finalize()
 {
   return StatusCode::SUCCESS;
 }
 
-StatusCode SCT_ChargeTrappingSvc::queryInterface(const InterfaceID& riid, void**  ppvInterface)
-{
-  if ( ISCT_ChargeTrappingSvc::interfaceID().versionMatch(riid) ) {
-    *ppvInterface = dynamic_cast<ISCT_ChargeTrappingSvc *>(this);
-  }  else  {
-    // Interface is not directly available: try out a base class
-    return Service::queryInterface(riid, ppvInterface);
-  }
-  addRef();
-  return StatusCode::SUCCESS;
-}
-
-
-bool SCT_ChargeTrappingSvc::getdoCTrap(const IdentifierHash &  elementHash, const double & pos)  
+bool SCT_ChargeTrappingTool::getdoCTrap(const IdentifierHash &  elementHash, const double & pos)  
 {
   updateCache(elementHash, pos);
   return m_getdoCTrap=true;
 }
 
 
-double SCT_ChargeTrappingSvc::getElectricField(const IdentifierHash &  elementHash, const double & pos)
+double SCT_ChargeTrappingTool::getElectricField(const IdentifierHash &  elementHash, const double & pos)
 {
   (void) pos;
   return m_electricField[elementHash];
 }
 
-double SCT_ChargeTrappingSvc::getTrappingElectrons(const IdentifierHash &  elementHash, const double & pos)
+double SCT_ChargeTrappingTool::getTrappingElectrons(const IdentifierHash &  elementHash, const double & pos)
 {
   (void) pos;
   return m_trappingElectrons[elementHash];
 }
 
-double SCT_ChargeTrappingSvc::getTrappingHoles(const IdentifierHash &  elementHash, const double & pos)
+double SCT_ChargeTrappingTool::getTrappingHoles(const IdentifierHash &  elementHash, const double & pos)
 {
   (void) pos;
   return m_trappingHoles[elementHash];
 } 
 
-double SCT_ChargeTrappingSvc::getMeanFreePathElectrons(const IdentifierHash &  elementHash, const double & pos)
+double SCT_ChargeTrappingTool::getMeanFreePathElectrons(const IdentifierHash &  elementHash, const double & pos)
 {
   (void) pos;
   return m_meanFreePathElectrons[elementHash];
 }
 
-double SCT_ChargeTrappingSvc::getMeanFreePathHoles(const IdentifierHash &  elementHash, const double & pos)
+double SCT_ChargeTrappingTool::getMeanFreePathHoles(const IdentifierHash &  elementHash, const double & pos)
 {
   (void) pos;
   return m_meanFreePathHoles[elementHash];
 }
 
-double SCT_ChargeTrappingSvc::getTrappingProbability(const IdentifierHash &  elementHash, const double & pos)
+double SCT_ChargeTrappingTool::getTrappingProbability(const IdentifierHash &  elementHash, const double & pos)
 {
   (void) pos;
   return m_trappingProbability[elementHash];
 }
 
-double SCT_ChargeTrappingSvc::getTrappingTime(const IdentifierHash &  elementHash, const double & pos)
+double SCT_ChargeTrappingTool::getTrappingTime(const IdentifierHash &  elementHash, const double & pos)
 {
   (void) pos;
   return m_trappingTime[elementHash];
 }
 
-double SCT_ChargeTrappingSvc::getTimeToElectrode(const IdentifierHash &  elementHash, const double & pos)
+double SCT_ChargeTrappingTool::getTimeToElectrode(const IdentifierHash &  elementHash, const double & pos)
 {
   (void) pos;
   return m_electrodeTime[elementHash];
 }
 
-double SCT_ChargeTrappingSvc::getTrappingPositionZ(const IdentifierHash &  elementHash, const double & pos)
+double SCT_ChargeTrappingTool::getTrappingPositionZ(const IdentifierHash &  elementHash, const double & pos)
 {
   (void) pos;
   return m_trappingPosition[elementHash];
 }
 
-double SCT_ChargeTrappingSvc::getHoleDriftMobility(const IdentifierHash &  elementHash, const double & pos)
+double SCT_ChargeTrappingTool::getHoleDriftMobility(const IdentifierHash &  elementHash, const double & pos)
 {
   (void) pos;
   return m_holeDriftMobility[elementHash];
 }
 
-void SCT_ChargeTrappingSvc::getHoleTransport(double & x0, double & y0, double & xfin, double & yfin, double & Q_m2, double & Q_m1, double & Q_00, double & Q_p1, double & Q_p2 )const
+void SCT_ChargeTrappingTool::getHoleTransport(double & x0, double & y0, double & xfin, double & yfin, double & Q_m2, double & Q_m1, double & Q_00, double & Q_p1, double & Q_p2 )const
 {
   holeTransport(x0, y0, xfin, yfin, Q_m2, Q_m1, Q_00, Q_p1, Q_p2);
 }
 
-void SCT_ChargeTrappingSvc::getInitPotentialValue()
+void SCT_ChargeTrappingTool::getInitPotentialValue()
 {
   initPotentialValue();
 }
 
 
-void SCT_ChargeTrappingSvc::updateCache(const IdentifierHash & elementHash,  const double & pos) {  
+void SCT_ChargeTrappingTool::updateCache(const IdentifierHash & elementHash,  const double & pos) {  
   
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Updating cache  for elementHash = " << elementHash << endmsg;
+  ATH_MSG_VERBOSE("Updating cache  for elementHash = " << elementHash);
   
   if (m_conditionsSvcWarning) {
     // Only print the warning once.
     m_conditionsSvcWarning = false;
-    msg(MSG::WARNING)
-      << "Conditions Summary Service is not used. Will use temperature and voltages from job options. "
-      << "Effects of radiation damage may be wrong!"
-      << endmsg;
+    ATH_MSG_WARNING("Conditions Summary Service is not used. Will use temperature and voltages from job options. "
+                    << "Effects of radiation damage may be wrong!");
   }
   
   
@@ -289,9 +255,8 @@ void SCT_ChargeTrappingSvc::updateCache(const IdentifierHash & elementHash,  con
   // Protect against invalid temperature
   double temperatureC = temperature -  273.15;
   if (!(temperatureC > m_temperatureMin && temperatureC <  m_temperatureMax)) {
-    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Invalid  temperature: " << temperatureC << " C. "
-                                                << "Setting to "  << m_temperature << " C."
-                                                << endmsg;
+    ATH_MSG_WARNING("Invalid  temperature: " << temperatureC << " C. "
+                    << "Setting to "  << m_temperature << " C.");
     temperature = m_temperature + 273.15;
   }
   
@@ -403,29 +368,22 @@ void SCT_ChargeTrappingSvc::updateCache(const IdentifierHash & elementHash,  con
 
   //-------------------
 
-  if (msgLvl(MSG::VERBOSE)) {
-    msg(MSG::VERBOSE) << "Temperature (C), bias voltage, depletion  voltage: "
-                      << temperature - 273.15 << ", "
-                      << biasVoltage/CLHEP::volt << ", "
-                      << deplVoltage/CLHEP::volt << endmsg;
-    msg(MSG::VERBOSE) << "Depletion depth: " << depletionDepth/CLHEP::mm  << endmsg;
-    msg(MSG::VERBOSE) << "Electric Field: " << electricField/(CLHEP::volt/CLHEP::mm)  << endmsg;
-    msg(MSG::VERBOSE) << "Electron drift mobility (cm2/V/s): " <<  electronDriftMobility/(CLHEP::cm2/ CLHEP::volt/CLHEP::s) << endmsg;
-    msg(MSG::VERBOSE) << "Electron drift velocity (cm/s): " <<   electronDriftVelocity << endmsg;
-    msg(MSG::VERBOSE) << "Electron mean free path (cm): " <<  m_meanFreePathElectrons[elementHash] << endmsg;
-    // msg(MSG::VERBOSE) << "Electron trapping probability: " <<  m_trappingProbability[elementHash] << endmsg;
-    msg(MSG::VERBOSE) << "Electron trapping probability: " <<  trappingProbability_electron << endmsg;
+  ATH_MSG_VERBOSE("Temperature (C), bias voltage, depletion  voltage: "
+                  << temperature - 273.15 << ", "
+                  << biasVoltage/CLHEP::volt << ", "
+                  << deplVoltage/CLHEP::volt);
+  ATH_MSG_VERBOSE("Depletion depth: " << depletionDepth/CLHEP::mm );
+  ATH_MSG_VERBOSE("Electric Field: " << electricField/(CLHEP::volt/CLHEP::mm) );
+  ATH_MSG_VERBOSE("Electron drift mobility (cm2/V/s): " <<  electronDriftMobility/(CLHEP::cm2/ CLHEP::volt/CLHEP::s));
+  ATH_MSG_VERBOSE("Electron drift velocity (cm/s): " <<   electronDriftVelocity);
+  ATH_MSG_VERBOSE("Electron mean free path (cm): " <<  m_meanFreePathElectrons[elementHash]);
+  ATH_MSG_VERBOSE("Electron trapping probability: " <<  trappingProbability_electron);
 
-    
-    if (m_calcHoles) {
-      msg(MSG::VERBOSE) << "Hole drift mobility (cm2/V/s): " <<  holeDriftMobility/(CLHEP::cm2/ CLHEP::volt/CLHEP::s) << endmsg;
-      msg(MSG::VERBOSE) << "Hole drift velocity (cm/s): " <<   holeDriftVelocity << endmsg;
-      msg(MSG::VERBOSE) << "Hole mean free path (cm): " <<  m_meanFreePathHoles[elementHash] << endmsg;
-      // msg(MSG::VERBOSE) << "Hole trapping probability: " <<  m_trappingProbability[elementHash] << endmsg;
-      msg(MSG::VERBOSE) << "Hole trapping probability: " <<  trappingProbability_hole << endmsg;
-
-
-    }
+  if (m_calcHoles) {
+    ATH_MSG_VERBOSE("Hole drift mobility (cm2/V/s): " <<  holeDriftMobility/(CLHEP::cm2/ CLHEP::volt/CLHEP::s));
+    ATH_MSG_VERBOSE("Hole drift velocity (cm/s): " <<   holeDriftVelocity);
+    ATH_MSG_VERBOSE("Hole mean free path (cm): " <<  m_meanFreePathHoles[elementHash]);
+    ATH_MSG_VERBOSE("Hole trapping probability: " <<  trappingProbability_hole);
   }
 }
 
@@ -439,7 +397,7 @@ void SCT_ChargeTrappingSvc::updateCache(const IdentifierHash & elementHash,  con
 //--------------------------------------------------------------
 //   initialize PotentialValue
 //--------------------------------------------------------------
-void SCT_ChargeTrappingSvc::initPotentialValue() {
+void SCT_ChargeTrappingTool::initPotentialValue() {
   for (int ix=0 ; ix <81 ; ix++ ){
     for (int iy=0 ; iy<115 ; iy++ ) {
       m_PotentialValue[ix][iy] = GetPotentialValue(ix,iy);
@@ -451,7 +409,7 @@ void SCT_ChargeTrappingSvc::initPotentialValue() {
 //-------------------------------------------------------------------
 //    calculation of induced charge using Weighting (Ramo) function
 //-------------------------------------------------------------------
-double SCT_ChargeTrappingSvc::induced (int istrip, double x, double y)const{
+double SCT_ChargeTrappingTool::induced (int istrip, double x, double y)const{
   // x and y are the coorlocation of charge (e or hole)
   // induced chardege on the strip "istrip" situated at the height y = d
   // the center of the strip (istrip=0) is x = 0.004 [cm]
@@ -476,10 +434,8 @@ double SCT_ChargeTrappingSvc::induced (int istrip, double x, double y)const{
     + m_PotentialValue[ix1][iy]  *fx*(1.-fy)
     + m_PotentialValue[ix][iy1]  *(1.-fx)*fy
     + m_PotentialValue[ix1][iy1] *fx*fy ;
-#ifdef SCT_DIG_DEBUG
   ATH_MSG_DEBUG("induced: x,y,iy="<<x<<" "<<y<<" "<<iy<<" istrip,xc,dx,ix="
                 <<istrip<<" "<<xc<<" " <<dx<<" "<<ix<<" fx,fy="<<fx <<" " <<fy<< ", P="<<P);
-#endif
   
   return P;
 }
@@ -488,7 +444,7 @@ double SCT_ChargeTrappingSvc::induced (int istrip, double x, double y)const{
 //---------------------------------------------------------------------
 //  holeTransport
 //---------------------------------------------------------------------
-void SCT_ChargeTrappingSvc::holeTransport(double & x0, double & y0, double & xfin, double & yfin, double & Q_m2, double & Q_m1, double& Q_00, double & Q_p1, double & Q_p2 )const{
+void SCT_ChargeTrappingTool::holeTransport(double & x0, double & y0, double & xfin, double & yfin, double & Q_m2, double & Q_m1, double& Q_00, double & Q_p1, double & Q_p2 )const{
   // transport holes in the bulk 
   // T. Kondo, 2010.9.9
   // External parameters to be specified
@@ -508,9 +464,7 @@ void SCT_ChargeTrappingSvc::holeTransport(double & x0, double & y0, double & xfi
 
   for (int istrip = -2 ; istrip < 3 ; istrip++) 
     qstrip[istrip+2] = induced(istrip, x, y);
-#ifdef SCT_DIG_DEBUG 
   ATH_MSG_DEBUG("h:qstrip=" << qstrip[0] << " " << qstrip[1] << " " << qstrip[2] << " " << qstrip[3] << " " << qstrip[4]);
-#endif
   
   // Get induced current by subtracting induced charges
   for (int istrip = -2 ; istrip < 3 ; istrip++) {
@@ -520,9 +474,7 @@ void SCT_ChargeTrappingSvc::holeTransport(double & x0, double & y0, double & xfi
     int jj = istrip + 2;
     double dq = qnew - qstrip[jj];
     qstrip[jj] = qnew ;
-#ifdef SCT_DIG_DEBUG
     ATH_MSG_DEBUG("dq= " << dq);
-#endif
     switch(istrip) {
     case -2: Q_m2 += dq ; break;
     case -1: Q_m1 += dq ; break;
@@ -531,9 +483,7 @@ void SCT_ChargeTrappingSvc::holeTransport(double & x0, double & y0, double & xfi
     case +2: Q_p2 += dq ; break;     
     }
   }  
-#ifdef SCT_DIG_DEBUG  
   ATH_MSG_DEBUG("h:qstrip=" << qstrip[0] << " " << qstrip[1] << " " << qstrip[2] << " " << qstrip[3] << " " << qstrip[4]);
-#endif
   // end of hole tracing 
   //#ifdef SCT_DIG_DEBUG  
   //ATH_MSG_DEBUG("holeTransport : x,y=("<< x0*1.e4<<","<<y0*1.e4<<")->(" << x*1.e4<<"," <<y*1.e4 <<") t="<<t_current);

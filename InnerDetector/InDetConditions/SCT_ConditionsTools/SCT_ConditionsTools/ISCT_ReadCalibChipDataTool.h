@@ -1,34 +1,32 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-/** @file ISCT_ReadCalibDataTool.h Interface file for SCT_ReadCalibDataSvc.
+/** @file ISCT_ReadCalibDataTool.h Interface file for SCT_ReadCalibDataTool.
  */
 
 // Multiple inclusion protection
-#ifndef ISCT_READ_CALIB_CHIP_DATA_SVC
-#define ISCT_READ_CALIB_CHIP_DATA_SVC
+#ifndef ISCT_READ_CALIB_CHIP_DATA_TOOL
+#define ISCT_READ_CALIB_CHIP_DATA_TOOL
 
 //STL includes
 #include <vector>
-#include <list>
-#include <string>
 
 // Include top level interface
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
-#include "SCT_ConditionsServices/ISCT_ConditionsSvc.h"
+#include "SCT_ConditionsTools/ISCT_ConditionsTool.h"
 
-class ISCT_ReadCalibChipDataSvc: virtual public ISCT_ConditionsSvc {
+class ISCT_ReadCalibChipDataTool: virtual public ISCT_ConditionsTool {
 
  public:
   
   //----------Public Member Functions----------//
   // Structors
-  virtual ~ISCT_ReadCalibChipDataSvc() {} //!< Destructor
-  
-  // Retrive interface ID
-  static const InterfaceID& interfaceID();
-  
+  virtual ~ISCT_ReadCalibChipDataTool() = default; //!< Destructor
+
+  /// Creates the InterfaceID and interfaceID() method
+  DeclareInterfaceID(ISCT_ReadCalibChipDataTool, 1, 0);
+
   /// @name Methods to be implemented from virtual baseclass methods, when introduced
   ///Return whether this service can report on the hierarchy level (e.g. module, chip...)
   virtual bool canReportAbout(InDetConditions::Hierarchy)=0;
@@ -36,14 +34,6 @@ class ISCT_ReadCalibChipDataSvc: virtual public ISCT_ConditionsSvc {
   virtual bool isGood(const Identifier&, InDetConditions::Hierarchy)=0;
   ///same thing with id hash, introduced by shaun with dummy method for now
   virtual bool isGood(const IdentifierHash& /*hashId*/)=0;
-  // Fill the data structures
-  StatusCode fillData()=0;
-  // Fill the data structures from a Callback 
-  StatusCode fillData(int&, std::list<std::string>&)=0;
-  // Report whether the map was filled
-  bool filled() const =0;
-  // Report whether the service can fill its data during the initialize phase
-  virtual bool canFillDuringInitialize()=0;
 
   // Methods to return calibration data 
   //PJ change to wafer hash id?!
@@ -52,10 +42,5 @@ class ISCT_ReadCalibChipDataSvc: virtual public ISCT_ConditionsSvc {
 
 };
 
-inline const InterfaceID & ISCT_ReadCalibChipDataSvc::interfaceID() {
-  static const InterfaceID IID_SCT_ReadCalibChipDataSvc{"SCT_ReadCalibChipDataSvc", 1, 0};
-  return IID_SCT_ReadCalibChipDataSvc;
-}
-
 //---------------------------------------------------------------------- 
-#endif // ISCT_READ_CALIB_CHIP_DATA_SVC
+#endif // ISCT_READ_CALIB_CHIP_DATA_TOOL

@@ -55,7 +55,7 @@ TileFCSmStepToTileHitVec::TileFCSmStepToTileHitVec(const std::string& name, ISvc
   , m_calc("TileGeoG4SDCalc", name)
   , m_deltaT(0.5 * Gaudi::Units::nanosecond)
   , m_allHits(0)
-  , m_Ushape(-1)
+  , m_uShape(-1)
 {
   m_FCS_StepInfo  = "MergedEventSteps";
   m_hitVec        = "TileHitVec_FCS";
@@ -91,14 +91,14 @@ StatusCode TileFCSmStepToTileHitVec::initialize()
   ATH_CHECK(m_geoModSvc.retrieve());
   ATH_MSG_VERBOSE("GeoModelSvc initialized.");
 
-  m_Ushape = this->getUshapeFromGM();
-  if (m_Ushape < -2) {
-    ATH_MSG_WARNING("Changing U-shape from " << m_Ushape << " to -2");
-    m_Ushape = -2;
+  m_uShape = this->getUshapeFromGM();
+  if (m_uShape < -2) {
+    ATH_MSG_WARNING("Changing U-shape from " << m_uShape << " to -2");
+    m_uShape = -2;
   }
-  if (m_Ushape > 1 && m_Ushape < 10) {
-    ATH_MSG_WARNING("Changing U-shape from " << m_Ushape << " to 1");
-    m_Ushape = 1;
+  if (m_uShape > 1 && m_uShape < 10) {
+    ATH_MSG_WARNING("Changing U-shape from " << m_uShape << " to 1");
+    m_uShape = 1;
   }
 
   return StatusCode::SUCCESS;
@@ -107,7 +107,7 @@ StatusCode TileFCSmStepToTileHitVec::initialize()
 int TileFCSmStepToTileHitVec::getUshapeFromGM() const {
   const TileDetectorTool* tileDetectorTool =
     dynamic_cast<const TileDetectorTool *>(m_geoModSvc->getTool("TileDetectorTool"));
-  return (tileDetectorTool) ? tileDetectorTool->Ushape() : 0;
+  return (tileDetectorTool) ? tileDetectorTool->uShape() : 0;
 }
 
 
@@ -156,7 +156,7 @@ StatusCode TileFCSmStepToTileHitVec::execute()
       IdentifierHash hit_idhash;
       m_tileID->get_hash(hit_id, hit_idhash, &pmt_context);
 
-      if (m_Ushape < 0) { // do not change anything for negative Ushape values
+      if (m_uShape < 0) { // do not change anything for negative uShape values
 
         if ( ! m_allHits[hit_idhash] ) {
           m_allHits[hit_idhash] = new TileHit(hit_id,ene,time);
@@ -251,7 +251,7 @@ StatusCode TileFCSmStepToTileHitVec::execute()
           hitData.tileSize = tile_ind;
           hitData.nDetector = section;
           hitData.nSide = side;
-          m_calc->pmtEdepFromFCS_StepInfo(hitData, ene, yLocal, halfYLocal, zLocal, m_Ushape);
+          m_calc->pmtEdepFromFCS_StepInfo(hitData, ene, yLocal, halfYLocal, zLocal, m_uShape);
           edep[0] = hitData.edep_down;
           edep[1] = hitData.edep_up;
 
@@ -288,7 +288,7 @@ StatusCode TileFCSmStepToTileHitVec::execute()
 
         }//cell have two pmt
 
-      }//m_UshapeType >= 0
+      }//m_uShape >= 0
 
       ++nHit;
       Etot += ene;
