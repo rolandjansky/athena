@@ -52,6 +52,14 @@ namespace asg
       ANA_MSG_INFO ("using public handle");
       ANA_CHECK (m_subtool2.setProperty (m_propertyName, m_subtool0));
     }
+
+    if (m_propertyName != "regPublicHandle") {
+      ANA_CHECK (m_subtool2.setProperty ("regPublicHandle", ""));
+    }
+    if (m_propertyName != "regPrivateHandle") {
+      ANA_CHECK (m_subtool2.setProperty ("regPrivateHandle", ""));
+    }
+
     ANA_CHECK (m_subtool2.setProperty ("allowEmpty", true));
     ANA_CHECK (m_subtool2.initialize ());
 
