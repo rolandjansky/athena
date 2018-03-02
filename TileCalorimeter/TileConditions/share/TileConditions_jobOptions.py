@@ -11,7 +11,7 @@ tileInfoConfigurator = TileInfoConfigurator()
 import re
 from AthenaCommon.GlobalFlags import globalflags
 gbltg=globalflags.DetDescrVersion()
-patt = re.compile(r'-([A-Z]+)-')
+patt = re.compile(r'-([A-Z]+.)-')
 ss = patt.search(gbltg)
 if (type(ss) != type(None)):
     version = ss.group(1)
@@ -28,6 +28,18 @@ if (type(ss) != type(None)):
         if rn>219651: # choose RUN2 cabling for old geometry tags starting from 26-MAR-2013 
             TileCablingType = 4 
             msg.warning("Forcing RUN2 cabling for run %s with geometry %s" % (rn,gbltg) )
+    if (version=='R2') and (not 'TileCablingType' in dir()):
+        if not 'RunNumber' in dir():
+            from RecExConfig.AutoConfiguration import GetRunNumber
+            rn=GetRunNumber()
+        else:
+            rn=RunNumber
+        if (globalflags.DataSource()!='data' and rn>=310000) or rn>=343000: # choose RUN2a cabling for R2 geometry tags starting from 31-Jan-2018
+            TileCablingType = 5
+            msg.info("Forcing RUN2a (2018) cabling for run %s with geometry %s" % (rn,gbltg) )
+        else:
+            TileCablingType = 4
+            msg.info("Forcing RUN2 (2014-2017) cabling for run %s with geometry %s" % (rn,gbltg) )
 
 if 'TileCablingType' in dir():
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr

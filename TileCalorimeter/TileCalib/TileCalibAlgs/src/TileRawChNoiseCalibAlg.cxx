@@ -878,7 +878,8 @@ void TileRawChNoiseCalibAlg::fillCell(TileRawChannelUnit::UNIT RChUnit, const Ti
     amp = m_tileToolEmscale->channelCalib(drawerIdx, channel, gain, amp, RChUnit, TileRawChannelUnit::MegaElectronVolts);
     int nch = 1;
     
-    if ((m_cabling->getCablingType() == TileCablingService::RUN2Cabling)
+    if ((m_cabling->getCablingType() == TileCablingService::RUN2Cabling ||
+         m_cabling->getCablingType() == TileCablingService::RUN2aCabling)
         && (ros > 2)) { // Ext.barrel modules
         
       if (channel == E1_CHANNEL) { // Raw channel -> E1 cell.

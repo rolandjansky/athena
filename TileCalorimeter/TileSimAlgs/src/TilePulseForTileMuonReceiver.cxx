@@ -123,7 +123,8 @@ StatusCode TilePulseForTileMuonReceiver::initialize() {
   //
   m_cablingService = TileCablingService::getInstance();
 
-  if (m_cablingService->getCablingType() != TileCablingService::RUN2Cabling) {
+  if (m_cablingService->getCablingType() != TileCablingService::RUN2Cabling &&
+      m_cablingService->getCablingType() != TileCablingService::RUN2aCabling) {
     ATH_MSG_INFO("TilePulseForTileMuonReceiver should not be used for RUN1 simulations");
     return StatusCode::SUCCESS;
   } else {
@@ -192,7 +193,8 @@ StatusCode TilePulseForTileMuonReceiver::initialize() {
 
 StatusCode TilePulseForTileMuonReceiver::execute() {
 
-  if (m_cablingService->getCablingType() != TileCablingService::RUN2Cabling) {
+  if (m_cablingService->getCablingType() != TileCablingService::RUN2Cabling &&
+      m_cablingService->getCablingType() != TileCablingService::RUN2aCabling) {
     ATH_MSG_VERBOSE( "ATT: RUN1 settings TilePulseForTileMuonReceiver will end now" );
     return StatusCode::SUCCESS;
   } else {

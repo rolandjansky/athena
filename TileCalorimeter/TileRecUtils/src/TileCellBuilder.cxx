@@ -250,7 +250,8 @@ StatusCode TileCellBuilder::geoInit(IOVSVC_CALLBACK_ARGS) {
   if (m_MBTSContainer.size() > 0)
     ATH_MSG_INFO( "Storing MBTS cells in " << m_MBTSContainer );
 
-  if ( (TileCablingService::getInstance())->getCablingType() != TileCablingService::RUN2Cabling)
+  if ( (TileCablingService::getInstance())->getCablingType() != TileCablingService::RUN2Cabling &&
+       (TileCablingService::getInstance())->getCablingType() != TileCablingService::RUN2aCabling )
     m_E4prContainer = ""; // no E4' container for RUN1
   else if (m_E4prContainer.size() > 0)
     ATH_MSG_INFO( "Storing E4'  cells in " << m_E4prContainer );
@@ -899,7 +900,8 @@ bool TileCellBuilder::maskBadChannels(TileCell* pCell) {
     }
 
     static const TileCablingService * s_cabling = TileCablingService::getInstance();
-    static const bool run2 = (s_cabling->getCablingType() == TileCablingService::RUN2Cabling);
+    static const bool run2 = (s_cabling->getCablingType() == TileCablingService::RUN2Cabling ||
+                              s_cabling->getCablingType() == TileCablingService::RUN2aCabling);
     single_PMT_C10 = (((ros2 == TileHWID::EXTBAR_POS && chan1 == 4)
                       || (ros2 == TileHWID::EXTBAR_NEG && chan2 == 4))
                       && !s_cabling->C10_connected(drawer2));
@@ -1286,8 +1288,9 @@ void TileCellBuilder::build(const ITERATOR & begin, const ITERATOR & end, COLLEC
           , overflow, underflow, overfit);
 
 
-      if ((TileCablingService::getInstance())->getCablingType() == TileCablingService::RUN2Cabling
-          && channel == E1_CHANNEL && ros > 2) { // Raw channel -> E1 cell.
+      if ( ((TileCablingService::getInstance())->getCablingType() == TileCablingService::RUN2Cabling ||
+            (TileCablingService::getInstance())->getCablingType() == TileCablingService::RUN2aCabling)
+           && channel == E1_CHANNEL && ros > 2) { // Raw channel -> E1 cell.
 
        int drawer2 = (TileCablingService::getInstance())->E1_merged_with_run2(ros,drawer);
        if (drawer2 != 0) { // Raw channel splitted into two E1 cells for Run 2.
