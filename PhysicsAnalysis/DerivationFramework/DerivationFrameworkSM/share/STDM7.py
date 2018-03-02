@@ -13,6 +13,7 @@ from DerivationFrameworkCore.WeightMetadata import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 import AthenaCommon.SystemOfUnits as Units
 from DerivationFrameworkSM import STDMTriggers
+from DerivationFrameworkFlavourTag.FlavourTagCommon import *
 
 # Add sumOfWeights metadata for LHE3 multiweights =======
 from DerivationFrameworkCore.LHE3WeightMetadata import *
@@ -160,6 +161,13 @@ DerivationFrameworkJob += STDM7Sequence
 # svcMgr += createThinningSvc( svcName="STDM7ThinningSvc", outStreams=[evtStream] )
 
 #====================================================================
+# Jet reconstruction/retagging
+#====================================================================
+
+#re-tag PFlow jets so they have b-tagging info.
+FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = STDM7Sequence)
+
+#====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
@@ -173,6 +181,9 @@ STDM7SlimmingHelper.SmartCollections = ["Electrons",
                                         "MET_Reference_AntiKt4EMTopo",
                                         "AntiKt4EMTopoJets",
                                         "BTagging_AntiKt4EMTopo",
+                                        "MET_Reference_AntiKt4EMPFlow",
+                                        "AntiKt4EMPFlowJets",
+                                        "BTagging_AntiKt4EMPFlow",
                                         "InDetTrackParticles",
                                         "PrimaryVertices" ]
 
@@ -186,9 +197,12 @@ STDM7SlimmingHelper.ExtraVariables += ["AntiKt4EMTopoJets.JetEMScaleMomentum_pt.
 # btagging variables
 from  DerivationFrameworkFlavourTag.BTaggingContent import *
 STDM7SlimmingHelper.ExtraVariables += BTaggingStandardContent("AntiKt4EMTopoJets")
+STDM7SlimmingHelper.ExtraVariables += BTaggingStandardContent("AntiKt4EMPFlowJets")
 
-ExtraDictionary["BTagging_AntiKt4EMTopo"]    = "xAOD::BTaggingContainer"
-ExtraDictionary["BTagging_AntiKt4EMTopoAux"] = "xAOD::BTaggingAuxContainer"
+ExtraDictionary["BTagging_AntiKt4EMTopo"]     = "xAOD::BTaggingContainer"
+ExtraDictionary["BTagging_AntiKt4EMTopoAux"]  = "xAOD::BTaggingAuxContainer"
+ExtraDictionary["BTagging_AntiKt4EMPFlow"]    = "xAOD::BTaggingContainer"
+ExtraDictionary["BTagging_AntiKt4EMPFlowAux"] = "xAOD::BTaggingAuxContainer"
 
 STDM7SlimmingHelper.AllVariables = [ "AFPSiHitContainer", "AFPToFHitContainer"]
 STDM7SlimmingHelper.AllVariables += ExtraContainersAll
@@ -199,6 +213,7 @@ if globalflags.DataSource()=='geant4':
     STDM7SlimmingHelper.AllVariables += ExtraContainersTruth
     STDM7SlimmingHelper.AppendToDictionary.update(ExtraDictionary)
 
+addMETOutputs(STDM7SlimmingHelper,["AntiKt4EMPFlow"])
     
 STDM7SlimmingHelper.AppendContentToStream(STDM7Stream)
 
