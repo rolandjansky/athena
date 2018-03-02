@@ -8,6 +8,7 @@
 #include "TrkVertexSeedFinderUtils/LocalMax1DClusterFinder.h"
 #include "TrkVertexSeedFinderUtils/VertexImageMaker.h"
 #include "../ImagingSeedTuningAlg.h"
+#include "TrkVertexSeedFinderUtils/GaussianTrackDensity.h"
 
 using namespace Trk ;
 
@@ -21,4 +22,4 @@ DECLARE_COMPONENT( SimpleVertexClusterFinder )
 DECLARE_COMPONENT( LocalMax1DClusterFinder )
 DECLARE_COMPONENT( VertexImageMaker )
 DECLARE_COMPONENT( ImagingSeedTuningAlg )
-
+DECLARE_COMPONENT( GaussianTrackDensity )
