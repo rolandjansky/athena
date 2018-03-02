@@ -11,13 +11,12 @@
 #ifndef SCT_READ_CALIB_CHIP_DATA_TEST_ALG
 #define SCT_READ_CALIB_CHIP_DATA_TEST_ALG
 
-//local and indet stuff
-
+#include "GaudiKernel/ToolHandle.h"
 
 // Include Athena stuff
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "Identifier/Identifier.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "SCT_ConditionsTools/ISCT_ReadCalibChipDataTool.h"
 
 // Read Handle Key
 #include "StoreGate/ReadHandleKey.h"
@@ -28,7 +27,6 @@
 #include <string>
 
 // Forward declarations
-class ISCT_ReadCalibChipDataSvc;
 class SCT_ID;
 
 /** This class acts as a test/sample client to the SCT_ReadSCalibChipDataSvc class.*/
@@ -57,8 +55,8 @@ class SCT_ReadCalibChipDataTestAlg : public AthAlgorithm
   Identifier                          m_waferId;       //!< Wafer identifier
   Identifier                          m_stripId;       //!< Strip identifier
  
-  // Get Service Handle
-  ServiceHandle<ISCT_ReadCalibChipDataSvc> m_ReadCalibChipDataSvc;
+  // Get Tool Handle
+  ToolHandle<ISCT_ReadCalibChipDataTool> m_ReadCalibChipDataTool{this, "SCT_ReadCalibChipDataTool", "SCT_ReadCalibChipDataTool", "Tool to retrieve chip calibration information"};
 
   BooleanProperty                  m_doTestmyConditionsSummary;   //!< Test return bool conditions summary?
   BooleanProperty                  m_doTestmyDataSummary;         //!< Test return data summary?
