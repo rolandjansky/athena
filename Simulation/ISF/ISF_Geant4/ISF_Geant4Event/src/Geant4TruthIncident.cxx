@@ -249,6 +249,48 @@ HepMC::GenParticle* iGeant4::Geant4TruthIncident::childParticle(unsigned short i
 }
 
 
+HepMC::GenParticle* iGeant4::Geant4TruthIncident::updateChildParticle(unsigned short index,
+                                                                      HepMC::GenParticle *existingChild) const {
+  prepareChildren();
+
+  // the G4Track instance for the current child particle
+  const G4Track* thisChildTrack = m_children[index];
+
+  // NB: NOT checking if secondary is actually alive. Even with zero momentum,
+  //     secondary could decay right away and create further particles which pass the
+  //     truth strategies.
+
+  const G4ThreeVector & mom =  thisChildTrack->GetMomentum();
+  const double energy =  thisChildTrack->GetTotalEnergy();
+  const int pdgCode = thisChildTrack->GetDefinition()->GetPDGEncoding();
+  const HepMC::FourVector fourMomentum( mom.x(), mom.y(), mom.z(), energy);
+
+  // This is the case for quasi-stable particle simulation
+  if(existingChild->pdg_id()!=pdgCode) {
+    G4ExceptionDescription description;
+    description << G4String("updateChildParticle: ") + "Wrong PDG ID mismatch between G4Track and GenParticle";
+    G4Exception("iGeant4::Geant4TruthIncident", "PDGIDMisMatch", FatalException, description);
+  }
+  existingChild->set_momentum(fourMomentum);
+
+  TrackHelper tHelper(thisChildTrack);
+  TrackInformation *trackInfo = tHelper.GetTrackInformation();
+
+  // needed to make AtlasG4 work with ISF TruthService
+  if(trackInfo==nullptr) {
+    trackInfo = new TrackInformation( existingChild );
+    thisChildTrack->SetUserInformation( trackInfo );
+  }
+
+  trackInfo->SetParticle(existingChild);
+  trackInfo->SetClassification(RegisteredSecondary);
+  trackInfo->SetRegenerationNr(0);
+
+  //FIXME!!
+  return existingChild;
+}
+
+
 bool iGeant4::Geant4TruthIncident::particleAlive(const G4Track *track) const {
   G4TrackStatus  trackStatus = track->GetTrackStatus();
 
@@ -272,10 +314,10 @@ HepMC::GenParticle* iGeant4::Geant4TruthIncident::convert(const G4Track *track, 
 
   const G4ThreeVector & mom =  track->GetMomentum();
   const double energy =  track->GetTotalEnergy();
-  int pdgCode = track->GetDefinition()->GetPDGEncoding();
-  HepMC::FourVector fourMomentum( mom.x(), mom.y(), mom.z(), energy);
+  const int pdgCode = track->GetDefinition()->GetPDGEncoding();
+  const HepMC::FourVector fourMomentum( mom.x(), mom.y(), mom.z(), energy);
 
-  int status = 1; // stable particle not decayed by EventGenerator
+  const int status = 1; // stable particle not decayed by EventGenerator
   HepMC::GenParticle* newParticle = new HepMC::GenParticle(fourMomentum, pdgCode, status);
 
   // This should be a *secondary* track.  If it has a primary, it was a decay and 
@@ -312,35 +354,29 @@ void iGeant4::Geant4TruthIncident::prepareChildren() const {
 }
 
 /**  The interaction classifications are described as follows:
-     case 0: interaction of a particle without a pre-defined decay;
-     case 1: a particle with a pre-defined decay under-going a
+     STD_VTX: interaction of a particle without a pre-defined decay;
+     QS_SURV_VTX: a particle with a pre-defined decay under-going a
      non-destructive interaction;
-     case 2: a particle with a pre-defined decay under-going a
+     QS_DEST_VTX: a particle with a pre-defined decay under-going a
      destructive interaction other than its pre-defined decay;
-     case 3: a particle under-going its pre-defined decay */
-int iGeant4::Geant4TruthIncident::interactionClassification() const {
+     QS_PREDEF_VTX: a particle under-going its pre-defined decay */
+ISF::InteractionClass_t iGeant4::Geant4TruthIncident::interactionClassification() const {
   G4Track* track=m_step->GetTrack();
   const G4DynamicParticle* dynPart = track->GetDynamicParticle();
   bool parentIsQuasiStable = (nullptr!=(dynPart->GetPreAssignedDecayProducts()));
   const G4VProcess *process = m_step->GetPostStepPoint()->GetProcessDefinedStep();
   const int processType = process->GetProcessType();
   const int processSubType = process->GetProcessSubType();
-  int classification(0); // interaction of a particle without a
-                         // pre-defined decay;
+  ISF::InteractionClass_t classification(ISF::STD_VTX);
   if(parentIsQuasiStable) {
     if(this->parentSurvivesIncident()) {
-      classification = 1; // a particle with a pre-defined decay
-                          // under-going a non-destructive
-                          // interaction;
-
+      classification = ISF::QS_SURV_VTX;
     }
     else if(processType==6 && processSubType==201) {
-      classification = 3; // a particle under-going its pre-defined decay
+      classification = ISF::QS_PREDEF_VTX;
     }
     else {
-      classification = 2; // a particle with a pre-defined decay
-                          // under-going a destructive interaction
-                          // other than its pre-defined decay;
+      classification = ISF::QS_DEST_VTX;
     }
   }
   return classification;
