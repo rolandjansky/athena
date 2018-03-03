@@ -18,7 +18,6 @@
 #include "Identifier/IdentifierHash.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "StoreGate/ReadCondHandleKey.h"
-#include "SiPropertiesSvc/SiliconProperties.h"
 #include "SiLorentzAngleSvc/SiLorentzAngleCondData.h"
 // Amg
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -101,9 +100,8 @@ private:
   SG::ReadCondHandleKey<SiLorentzAngleCondData> m_condData;
 
   // needed services
-  ServiceHandle<MagField::IMagFieldSvc>  m_magFieldSvc;
+  ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc;
 
-  InDet::SiliconProperties m_siProperties;
   const InDetDD::SiDetectorManager* m_detManager;
 
   static const double s_invalidValue;

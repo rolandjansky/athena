@@ -22,6 +22,7 @@
 #include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetIdentifier/SCT_ID.h"
+#include "SiPropertiesSvc/SiliconProperties.h"
 
 SCTSiLorentzAngleCondAlg::SCTSiLorentzAngleCondAlg(const std::string& name, ISvcLocator* pSvcLocator):
   ::AthAlgorithm(name, pSvcLocator),
@@ -236,8 +237,9 @@ StatusCode SCTSiLorentzAngleCondAlg::execute()
     if (depletionDepth>0.) { 
       meanElectricField = biasVoltage / depletionDepth;
     }
-    m_siProperties.setConditions(temperature, meanElectricField);
-    double mobility{m_siProperties.signedHallMobility(element->carrierType())};
+    InDet::SiliconProperties siProperties;
+    siProperties.setConditions(temperature, meanElectricField);
+    double mobility{siProperties.signedHallMobility(element->carrierType())};
 
     // Get magnetic field. This first checks that field cache is valid.
     Amg::Vector3D magneticField{getMagneticField(elementHash)};

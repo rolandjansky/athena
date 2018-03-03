@@ -12,6 +12,7 @@
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SiDetectorManager.h"
+#include "SiPropertiesSvc/SiliconProperties.h"
 
 SiLorentzAngleTool::SiLorentzAngleTool(const std::string& type, const std::string& name, const IInterface* parent):
   base_class(type, name, parent),
@@ -170,8 +171,9 @@ double SiLorentzAngleTool::getValue(const IdentifierHash& elementHash, const Amg
     meanElectricField = biasVoltage / depletionDepth;
   }
   double mobility{0.};
-  m_siProperties.setConditions(temperature, meanElectricField);
-  mobility = m_siProperties.signedHallMobility(element->carrierType());
+  InDet::SiliconProperties siProperties;
+  siProperties.setConditions(temperature, meanElectricField);
+  mobility = siProperties.signedHallMobility(element->carrierType());
   // Get magnetic field.
   Amg::Vector3D magneticField{getMagneticField(elementHash, locPos)};
 
