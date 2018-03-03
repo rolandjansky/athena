@@ -73,7 +73,7 @@ StatusCode TrigTRT_DetElementRoadTool::initialize()  {
   pE=new TrigTRT_EndcapPDAF(m_hitEfficiency,m_noiseProbabilityEndcap,m_hitResolution,m_gateEndcap,m_associationThreshold,
 			    m_makeWireHits);
   m_trtGeo=new TrigTRT_TrackExtensionGeometry(m_trtMgr,m_trigFieldTool,pB,pE,m_trtHelper);
-  //m_trtGeo->m_dump("geo.txt");
+  //m_trtGeo->dump("geo.txt");
   return sc;
 }
 
@@ -98,20 +98,20 @@ TrigTRT_DetElementRoad* TrigTRT_DetElementRoadTool::buildTRT_Road(Trk::TrkTrackS
   TrigTRT_DetElementRoad* pR=NULL;
   double lP[3],gP[3],P[6];
 
-  Trk::TrkPlanarSurface* pS=pTS->m_getSurface();
+  Trk::TrkPlanarSurface* pS=pTS->getSurface();
 
   if(pS!=NULL)
     {
-      lP[0]=pTS->m_getTrackState(0);
-      lP[1]=pTS->m_getTrackState(1);
+      lP[0]=pTS->getTrackState(0);
+      lP[1]=pTS->getTrackState(1);
       lP[2]=0.0;
-      pS->m_transformPointToGlobal(lP,gP);
+      pS->transformPointToGlobal(lP,gP);
       P[0]=gP[0];
       P[1]=gP[1];
       P[2]=gP[2];
-      P[3]=pTS->m_getTrackState(2);
-      P[4]=pTS->m_getTrackState(3);
-      P[5]=pTS->m_getTrackState(4);
+      P[3]=pTS->getTrackState(2);
+      P[4]=pTS->getTrackState(3);
+      P[5]=pTS->getTrackState(4);
       //printf("Initial track params:\n");
       //pTS->m_report();
       pR=m_trtGeo->buildTRT_Road(P);
