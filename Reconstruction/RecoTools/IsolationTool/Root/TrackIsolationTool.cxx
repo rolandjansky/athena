@@ -269,7 +269,7 @@ namespace xAOD {
 #endif
     
     for( const auto& tp : tps ) {
-      if( ! m_trkselTool->accept( *tp , input.vertex ) || (m_useTTVAtool && !m_ttvaTool->isCompatible(*tp,*input.vertex)) ){
+      if( ! m_trkselTool->accept( *tp , input.vertex ) || (m_useTTVAtool && input.vertex && !m_ttvaTool->isCompatible(*tp,*input.vertex)) ){
 	ATH_MSG_DEBUG("reject track pt = " << tp->pt());
 	continue;
       }
@@ -290,7 +290,7 @@ namespace xAOD {
 
     // loop over all track particles
     for( const auto& tp : *indetTrackParticles ) {
-      if( ! m_trkselTool->accept( *tp , input.vertex ) || (m_useTTVAtool && !m_ttvaTool->isCompatible(*tp,*input.vertex)) ){
+      if( ! m_trkselTool->accept( *tp , input.vertex ) || (m_useTTVAtool && input.vertex && !m_ttvaTool->isCompatible(*tp,*input.vertex)) ){
 	ATH_MSG_DEBUG("[2] reject track pt = " << tp->pt());
 	continue;
       }
