@@ -24,12 +24,12 @@
 // 20220330200117 -> 174962688 has link0 modified
 // 20220330200693 -> 175015936 has link1 modified
 
-static bool modified0 (Identifier moduleId) {
+static bool modified0(Identifier moduleId) {
   return ((moduleId==169922560) or (moduleId==170801152) or (moduleId==172556288) or (moduleId==172621824) or 
           (moduleId==174342144) or (moduleId==174610432) or (moduleId==174962688));
 }
 
-static bool modified1 (Identifier moduleId) {
+static bool modified1(Identifier moduleId) {
   return ((moduleId==170983424) or (moduleId==173268992) or (moduleId==174301184) or (moduleId==175015936));
 }
 
@@ -41,7 +41,7 @@ bool sortById(SCT_Chip* a, SCT_Chip* b) {
 }
 
 // Constructor
-SCT_ReadoutTool::SCT_ReadoutTool(const std::string &type, const std::string &name, const IInterface *parent) :
+SCT_ReadoutTool::SCT_ReadoutTool(const std::string& type, const std::string& name, const IInterface* parent):
   base_class(type, name, parent),
   m_sctId{nullptr},
   m_cablingSvc{"SCT_CablingSvc", name},
@@ -153,7 +153,7 @@ StatusCode SCT_ReadoutTool::determineReadout(const int truncatedSerialNumber, st
   // Get moduleId
   const IdentifierHash& hash{m_cablingSvc->getHashFromSerialNumber(truncatedSerialNumber)};
   if (not hash.is_valid()) return StatusCode::SUCCESS;
-  Identifier  moduleId{m_sctId->module_id(m_sctId->wafer_id(hash))};
+  Identifier moduleId{m_sctId->module_id(m_sctId->wafer_id(hash))};
 
   // Call identifier version
   return determineReadout(moduleId, chips, link0ok, link1ok);
@@ -164,8 +164,8 @@ StatusCode SCT_ReadoutTool::determineReadout(const Identifier& moduleId, std::ve
   ATH_MSG_DEBUG("Determining Readout for module ID = " << moduleId );
 
   // Make sure there are 12 chips
-  if (chips.size() != 12) {
-    ATH_MSG_DEBUG ( "Readout must contain exactly 12 chips" );
+  if (chips.size()!=12) {
+    ATH_MSG_DEBUG("Readout must contain exactly 12 chips");
     return StatusCode::SUCCESS;
   }
 
@@ -193,9 +193,7 @@ StatusCode SCT_ReadoutTool::determineReadout(const Identifier& moduleId, std::ve
   // Mask chips not in readout
   maskChipsNotInReadout();
 
-#ifndef NDEBUG
   printStatus(moduleId);
-#endif
 
   return StatusCode::SUCCESS;
 }
@@ -212,10 +210,7 @@ void SCT_ReadoutTool::checkLink(int link) {
     std::vector<int>& chipsOnThisLink{(link==0) ? m_chipsOnLink0 : m_chipsOnLink1};
 
     // Remove chips in that link from the readout
-    std::vector<int>::const_iterator linkItr{chipsOnThisLink.begin()};
-    std::vector<int>::const_iterator linkEnd{chipsOnThisLink.end()};
-    
-    for (; linkItr != linkEnd; ++linkItr) setChipOut(*m_chips.at(*linkItr));
+    for (const int linkItr: chipsOnThisLink) setChipOut(*m_chips.at(linkItr));
 
     // We do not have ERROR/FAILURE if the readout is not sane as it possibly only affects one of the SCT modules
     ATH_MSG_WARNING("Readout for link " << link << " not sane");    
@@ -233,16 +228,14 @@ bool SCT_ReadoutTool::hasConnectedInput(const SCT_Chip& chip) const {
   // The port the chip is listening on should be mapped to an input (if the chip is not an end)
   // Otherwise it'll never get to an end giving a timeout
   if (inChipId == None) {
-#ifndef NDEBUG
     ATH_MSG_WARNING("Chip " << chip.id() << " is not an end but port " << chip.inPort() 
                     << " is not mapped to anything");
-#endif
     return false;
   }
   
   // The mapped chip should be talking on the same port as this chip is listening (if the chip is not an end)
   // Again, otherwise it'll never get to an end giving a timeout
-  if (m_chips.at(inChipId)->outPort() != chip.inPort()) {
+  if (m_chips.at(inChipId)->outPort()!=chip.inPort()) {
     ATH_MSG_WARNING("Chip" << chip.id() << " is not an end and is listening on Port " 
                     << chip.inPort() << " but nothing is talking to it");
     return false;
@@ -255,14 +248,11 @@ bool SCT_ReadoutTool::isEndBeingTalkedTo(const SCT_Chip& chip) const {
   // (can possibly happen as chips must be talking to something)
 
   // Is chip actually an end
-  if (!chip.isEnd()) return false;
+  if (not chip.isEnd()) return false;
 
   // Is anything trying to talk to the end.
-  std::vector<SCT_Chip*>::const_iterator chipItr{m_chips.begin()};
-  std::vector<SCT_Chip*>::const_iterator chipEnd{m_chips.end()};
-  
-  for (; chipItr != chipEnd; ++chipItr) {
-    if (outputChip(*(*chipItr)) == chip.id()) {
+  for (SCT_Chip* chipItr: m_chips) {
+    if (outputChip(*chipItr) == chip.id()) {
       ATH_MSG_WARNING("Chip " << chip.id() << " is configured as end but something is trying to talk to it");
       return true;
     }
@@ -273,8 +263,8 @@ bool SCT_ReadoutTool::isEndBeingTalkedTo(const SCT_Chip& chip) const {
 void SCT_ReadoutTool::maskChipsNotInReadout() {
   // Mask chip (is set mask to 0 0 0 0) if not in readout
   // If the readout of a particular link is not sane mask all chips on that link
-  for (const auto & thisChip:m_chips) {
-    if(!isChipReadOut(*thisChip)) {
+  for (SCT_Chip* thisChip: m_chips) {
+    if (not isChipReadOut(*thisChip)) {
       ATH_MSG_DEBUG( "Masking chip " <<  thisChip->id() );
       uint32_t masked{0};
       thisChip->initializeMaskFromInts(masked, masked, masked, masked);
@@ -294,36 +284,28 @@ bool SCT_ReadoutTool::followReadoutUpstream(int link, const SCT_Chip& chip, int 
   // Can the chip be a master
   if (chip.canBeMaster()) {
 
-#ifndef NDEBUG
     if (chip.id()==link*6) {
       ATH_MSG_DEBUG("Link " << link << " is " << (m_linkActive[link] ? "ENABLED" : "DISABLED"));
     }
-#endif
 
     // Is the link enabled. If not the readout is still sane so return true
-    if (!m_linkActive[link]) return true;
+    if (not m_linkActive[link]) return true;
 
     // Is the chip actually configured as a master
     if (chip.isMaster()) {
-#ifndef NDEBUG
       ATH_MSG_DEBUG("MasterChip");
-#endif
       // Chip will be set in readout below
     } else if (chip.id() == link*6) {      
       // Link is active but the master position for THAT link does not contain a master 
       // This can happen if everything is readout via other link, therefore the readout is still sane.
 
-#ifndef NDEBUG
       ATH_MSG_DEBUG("Link " << link << " is enabled but chip " << chip.id() << " is not a master");
-#endif
 
       return true;
     }
   }
 
-#ifndef NDEBUG
   ATH_MSG_DEBUG("Looking at chip " << chip.id());
-#endif
 
   // Is a slave chip mistakenly configured as a master 
   if (chip.slaveConfiguredAsMaster()) {
@@ -336,16 +318,14 @@ bool SCT_ReadoutTool::followReadoutUpstream(int link, const SCT_Chip& chip, int 
 
   // Is the chip configured as an end (can be master and end)
   if (chip.isEnd()) {
-#ifndef NDEBUG    
     ATH_MSG_DEBUG("End Chip");
-#endif
 
     // End chip is in readout and readout is sane
     return true;
   } 
 
   // Find the next chip if there is one connected
-  if (!hasConnectedInput(chip)) return false;
+  if (not hasConnectedInput(chip)) return false;
   SCT_Chip& nextChip{*m_chips.at(inputChip(chip))};
   return followReadoutUpstream(link, nextChip, remainingDepth-1);  
 }
@@ -355,19 +335,18 @@ bool SCT_ReadoutTool::isLinkStandard(int link) {
   // (i.e link active and 0-5 through link 0 or 6-11 through link 1)
   
   // First, the link must be active
-  if (!m_linkActive[link]) return false;
+  if (not m_linkActive[link]) return false;
 
   std::vector<int>& chipsOnThisLink{(link==0) ? m_chipsOnLink0 : m_chipsOnLink1};
 
   // Then it must have six chips being readout ...
-  if (chipsOnThisLink.size() != 6) return false;
+  if (chipsOnThisLink.size()!=6) return false;
 
-  std::vector<int>::const_iterator linkItr{chipsOnThisLink.begin()};
-  std::vector<int>::const_iterator linkEnd{chipsOnThisLink.end()};
-  
   // ... in the correct order
-  for (int ichip(link*6); linkItr != linkEnd; ++linkItr, ++ichip) {
-    if((*linkItr) != ichip) return false;
+  int ichip{link*6};
+  for (int linkItr: chipsOnThisLink) {
+    if (linkItr!=ichip) return false;
+    ++ichip;
   }
 
   return true;
@@ -399,7 +378,7 @@ void SCT_ReadoutTool::printStatus(const Identifier& moduleId) {
   if (m_chipsOnLink1.empty()) {
     msg(MSG::DEBUG) << "X";
   } else {
-    for (unsigned int ilink1(0); ilink1 < m_chipsOnLink1.size(); ++ilink1) {
+    for (unsigned int ilink1{0}; ilink1 < m_chipsOnLink1.size(); ++ilink1) {
       msg(MSG::DEBUG) << m_chipsOnLink1.at(ilink1) << " ";
     }
   }
