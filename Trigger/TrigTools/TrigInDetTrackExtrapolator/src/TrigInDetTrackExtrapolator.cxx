@@ -84,7 +84,7 @@ TrigInDetTrackExtrapolator::~TrigInDetTrackExtrapolator()
 
 }
 
-Trk::TrkPlanarSurface* TrigInDetTrackExtrapolator::m_createEndSurfaceForBarrel(double pTS[6],double R)
+Trk::TrkPlanarSurface* TrigInDetTrackExtrapolator::createEndSurfaceForBarrel(double pTS[6],double R)
 {
   const double C=0.0299997;
   double Phi,sT,rt,Delta,DeltaPhi,sinf,cosf,Bz,PhiT,
@@ -98,7 +98,7 @@ Trk::TrkPlanarSurface* TrigInDetTrackExtrapolator::m_createEndSurfaceForBarrel(d
   cosB=cos(Beta);sinB=sin(Beta);
 
   for(int i=0;i<3;i++) P[i]=pTS[i];
-  m_getMagneticField(P,&B[0]);
+  getMagneticField(P,&B[0]);
   Bz=B[2];
 
   sinf=sin(pTS[3]);cosf=cos(pTS[3]);
@@ -183,7 +183,7 @@ TrigInDetTrackFitPar* TrigInDetTrackExtrapolator::extrapolateToBarrel(const Trig
       Rk[5]=sin(Theta)/pP->pT();
 
       pInitState = new Trk::TrkTrackState(P);
-      pSE = m_createEndSurfaceForBarrel(Rk,Radius);
+      pSE = createEndSurfaceForBarrel(Rk,Radius);
     }
   else
     {
@@ -211,32 +211,32 @@ TrigInDetTrackFitPar* TrigInDetTrackExtrapolator::extrapolateToBarrel(const Trig
 	}
     }
 
-  Trk::TrkTrackState* pFinalState=m_integrate(pInitState,pSB,pSE);
+  Trk::TrkTrackState* pFinalState=integrate(pInitState,pSB,pSE);
 
   if(pFinalState!=NULL)
     {
       double X[3],Y[3];
 
-      X[0]=pFinalState->m_getTrackState(0);
-      X[1]=pFinalState->m_getTrackState(1);
+      X[0]=pFinalState->getTrackState(0);
+      X[1]=pFinalState->getTrackState(1);
       X[2]=0.0;
-      pSE->m_transformPointToGlobal(X,Y);
+      pSE->transformPointToGlobal(X,Y);
 
       if (m_outputLevel <= MSG::DEBUG) 
 	athenaLog << MSG::DEBUG << "Track coordinates at R="<<Radius<<
 	  "  X="<<Y[0]<<"  Y="<<Y[1]<<"  Z="<<Y[2]<<"  r="<<sqrt(Y[0]*Y[0]+Y[1]*Y[1])<<endmsg;
 
       double Phi0=atan2(Y[1],Y[0]);
-      double eta=-log(sin(0.5*pFinalState->m_getTrackState(3))/cos(0.5*pFinalState->m_getTrackState(3)));
+      double eta=-log(sin(0.5*pFinalState->getTrackState(3))/cos(0.5*pFinalState->getTrackState(3)));
 
       double theta=atan(Radius/fabs(Y[2]))/2.0;
 
       eta=-log(sin(theta)/cos(theta));
       if(Y[2]<0.0) eta=-eta;
 
-      double track_pT=pFinalState->m_getTrackState(4)*sin(pFinalState->m_getTrackState(3));
+      double track_pT=pFinalState->getTrackState(4)*sin(pFinalState->getTrackState(3));
 
-      pEP=new TrigInDetTrackFitPar(Phi0,pFinalState->m_getTrackState(2),
+      pEP=new TrigInDetTrackFitPar(Phi0,pFinalState->getTrackState(2),
 				   Y[2],eta,track_pT,
 				   TrigInDetTrackFitPar::BARREL,Radius);
       delete pFinalState;
@@ -342,15 +342,15 @@ TrigInDetTrackFitPar* TrigInDetTrackExtrapolator::extrapolateToEndcap(const Trig
 	}
     }
 
-  Trk::TrkTrackState* pFinalState=m_integrate(pInitState,pSB,pSE);
+  Trk::TrkTrackState* pFinalState=integrate(pInitState,pSB,pSE);
 
   if(pFinalState!=NULL)
     {
       double X[3],Y[3];
-      X[0]=pFinalState->m_getTrackState(0);
-      X[1]=pFinalState->m_getTrackState(1);
+      X[0]=pFinalState->getTrackState(0);
+      X[1]=pFinalState->getTrackState(1);
       X[2]=0.0;
-      pSE->m_transformPointToGlobal(X,Y);
+      pSE->transformPointToGlobal(X,Y);
 
       if (m_outputLevel <= MSG::DEBUG) 
 	athenaLog << MSG::DEBUG << "Track coordinates at Z="<<Zcoordinate<<
@@ -358,14 +358,14 @@ TrigInDetTrackFitPar* TrigInDetTrackExtrapolator::extrapolateToEndcap(const Trig
 
       double Phi0=atan2(Y[1],Y[0]);
       double R0=sqrt(Y[0]*Y[0]+Y[1]*Y[1]);
-      double eta=-log(sin(0.5*pFinalState->m_getTrackState(3))/cos(0.5*pFinalState->m_getTrackState(3)));
-      double track_pT=pFinalState->m_getTrackState(4)*sin(pFinalState->m_getTrackState(3));
+      double eta=-log(sin(0.5*pFinalState->getTrackState(3))/cos(0.5*pFinalState->getTrackState(3)));
+      double track_pT=pFinalState->getTrackState(4)*sin(pFinalState->getTrackState(3));
 
       double theta=atan(R0/fabs(Zcoordinate))/2.0;
       eta=-log(sin(theta)/cos(theta));
       if(Zcoordinate<0.0) eta=-eta;
 
-      pEP=new TrigInDetTrackFitPar(Phi0,pFinalState->m_getTrackState(2),
+      pEP=new TrigInDetTrackFitPar(Phi0,pFinalState->getTrackState(2),
 				   R0,eta,track_pT,
 				   TrigInDetTrackFitPar::ENDCAP,Zcoordinate);
 
@@ -412,7 +412,7 @@ TrigInDetTrackFitPar* TrigInDetTrackExtrapolator::extrapolateBlindly(const TrigI
   gV[0]=sint*cosf;gV[1]=sint*sinf;gV[2]=cost;CQ=C*sint/pP->pT();
   gP[2]=pP->z0();gP[0]=-pP->a0()*sinf;gP[1]= pP->a0()*cosf;
 
-  m_getMagneticField(gP,gB);
+  getMagneticField(gP,gB);
  
   nStep=0;path=0.0;
   ds=minStep;
@@ -456,7 +456,7 @@ TrigInDetTrackFitPar* TrigInDetTrackExtrapolator::extrapolateBlindly(const TrigI
 	{
 	  gV[i]=V[i];gP[i]=P[i];path+=ds;
 	}
-      m_getMagneticField(gP,gB);
+      getMagneticField(gP,gB);
       nStep++;
     }
 
@@ -601,7 +601,7 @@ StatusCode TrigInDetTrackExtrapolator::extrapolateToCalo(const TrigInDetTrack* p
 }
 
 
-void TrigInDetTrackExtrapolator::m_getMagneticField(double r[3],double* B)
+void TrigInDetTrackExtrapolator::getMagneticField(double r[3],double* B)
 {
   B[0]=0.0;B[1]=0.0;B[2]=0.0;
 	double field[3];
@@ -611,7 +611,7 @@ void TrigInDetTrackExtrapolator::m_getMagneticField(double r[3],double* B)
 
 
 
-Trk::TrkTrackState* TrigInDetTrackExtrapolator::m_integrate(Trk::TrkTrackState* pTS, 
+Trk::TrkTrackState* TrigInDetTrackExtrapolator::integrate(Trk::TrkTrackState* pTS, 
 							    Trk::TrkPlanarSurface* pSB,
 							    Trk::TrkPlanarSurface* pSE)
 {
@@ -620,29 +620,30 @@ Trk::TrkTrackState* TrigInDetTrackExtrapolator::m_integrate(Trk::TrkTrackState* 
 	  
   double sint,cost,sinf,cosf;
   double gP[3],lP[3],gV[3],a,b,c,Rf[5],descr,CQ,Ac,Av;
-  double V[3],P[3],D[4],gB[3],DVx,DVy,DVz;
+  double P[3],D[4],gB[3],DVx,DVy,DVz;
   int i,nStep,nStepMax;
   double sl,ds,path=0.0;
+  double V[3] = {0};
 
-  sint=sin(pTS->m_getTrackState(3));cosf=cos(pTS->m_getTrackState(2));
-  sinf=sin(pTS->m_getTrackState(2));cost=cos(pTS->m_getTrackState(3));
-  gV[0]=sint*cosf;gV[1]=sint*sinf;gV[2]=cost;CQ=C*pTS->m_getTrackState(4);
+  sint=sin(pTS->getTrackState(3));cosf=cos(pTS->getTrackState(2));
+  sinf=sin(pTS->getTrackState(2));cost=cos(pTS->getTrackState(3));
+  gV[0]=sint*cosf;gV[1]=sint*sinf;gV[2]=cost;CQ=C*pTS->getTrackState(4);
 
   if(pSB!=NULL)
     {
-      lP[0]=pTS->m_getTrackState(0);lP[1]=pTS->m_getTrackState(1);lP[2]=0.0;
-      pSB->m_transformPointToGlobal(lP,gP);
+      lP[0]=pTS->getTrackState(0);lP[1]=pTS->getTrackState(1);lP[2]=0.0;
+      pSB->transformPointToGlobal(lP,gP);
     }
   else
     {
-      gP[0]=-pTS->m_getTrackState(0)*sinf;
-      gP[1]= pTS->m_getTrackState(0)*cosf;
-      gP[2]= pTS->m_getTrackState(1);
+      gP[0]=-pTS->getTrackState(0)*sinf;
+      gP[1]= pTS->getTrackState(0)*cosf;
+      gP[2]= pTS->getTrackState(1);
     }
 
-  for(i=0;i<4;i++) D[i]=pSE->m_getPar(i);
+  for(i=0;i<4;i++) D[i]=pSE->getPar(i);
 
-  m_getMagneticField(gP,gB);
+  getMagneticField(gP,gB);
  
   c=D[0]*gP[0]+D[1]*gP[1]+D[2]*gP[2]+D[3];
   b=D[0]*gV[0]+D[1]*gV[1]+D[2]*gV[2];
@@ -695,10 +696,10 @@ Trk::TrkTrackState* TrigInDetTrackExtrapolator::m_integrate(Trk::TrkTrackState* 
 	{
 	  gV[i]=V[i];gP[i]=P[i];
 	}
-      m_getMagneticField(gP,gB);
+      getMagneticField(gP,gB);
       nStep--;
     }
-  pSE->m_transformPointToLocal(gP,lP);
+  pSE->transformPointToLocal(gP,lP);
 
   Rf[0]=lP[0];Rf[1]=lP[1];
   Rf[2]=atan2(V[1],V[0]);
@@ -707,11 +708,11 @@ Trk::TrkTrackState* TrigInDetTrackExtrapolator::m_integrate(Trk::TrkTrackState* 
     return NULL;
 
   Rf[3]=acos(V[2]);
-  Rf[4]=pTS->m_getTrackState(4);
+  Rf[4]=pTS->getTrackState(4);
   
   Trk::TrkTrackState* pTE=new Trk::TrkTrackState(pTS);
-  pTE->m_setTrackState(Rf);
-  pTE->m_attachToSurface(pSE);
+  pTE->setTrackState(Rf);
+  pTE->attachToSurface(pSE);
 
   return pTE;
 }

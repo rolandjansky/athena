@@ -386,10 +386,10 @@ TrigTRT_Trajectory* TrigTRT_CombinedExtensionTool::createTRT_Trajectory(TrigInDe
     {
       Gk[0][0]=100.0;Gk[1][1]=100.0;Gk[2][2]=0.01;Gk[3][3]=0.01;Gk[4][4]=1e-7;
     }
-  pInitState->m_setTrackCovariance(Gk);
+  pInitState->setTrackCovariance(Gk);
 
   if(m_doMultScatt) 
-    pInitState->m_setScatteringMode(1);
+    pInitState->setScatteringMode(1);
 
   if (m_outputLevel <= MSG::DEBUG) 
     athenaLog << MSG::DEBUG << "Initial params: locT="<<Rk[0]<<" locL="<<Rk[1]<<" phi="<<Rk[2]
@@ -399,7 +399,7 @@ TrigTRT_Trajectory* TrigTRT_CombinedExtensionTool::createTRT_Trajectory(TrigInDe
   for(std::vector<Trk::TrkBaseNode*>::iterator it=pTRAJ->getFilteringNodes()->begin();
       it!=pTRAJ->getFilteringNodes()->end();++it)
     {
-      pTRAJ->m_vpTrkSurfaces.push_back((*it)->m_getSurface());
+      pTRAJ->m_vpTrkSurfaces.push_back((*it)->getSurface());
     }
     
   return pTRAJ;
@@ -411,7 +411,7 @@ bool TrigTRT_CombinedExtensionTool::refitTRT_Trajectory(TrigTRT_Trajectory* pTRA
 
   Trk::TrkTrackState* pTS=pTRAJ->getStartingTrackState();
 
-  double mom = 1.0/pTS->m_getTrackState(4);
+  double mom = 1.0/pTS->getTrackState(4);
 
   std::vector<Trk::TrkBaseNode*>& nodes = *(pTRAJ->getFilteringNodes());
   if(fabs(mom)<m_momentumThreshold)
@@ -430,15 +430,15 @@ bool TrigTRT_CombinedExtensionTool::refitTRT_Trajectory(TrigTRT_Trajectory* pTRA
       bool OK=true;
       for(;pnIt!=pnEnd;++pnIt)
 	{
-	  pSE=(*pnIt)->m_getSurface();
+	  pSE=(*pnIt)->getSurface();
 	  Trk::TrkTrackState* pNS=m_fastExtrapolator->extrapolate(pTS,pSB,pSE,true);
 	  pSB=pSE;
 	  if(pNS!=NULL)
 	    {
 	      pTRAJ->addTrackState(pNS);
-	      (*pnIt)->m_validateMeasurement(pNS);
-	      (*pnIt)->m_updateTrackState(pNS);
-	      double Pt=sin(pNS->m_getTrackState(3))/pNS->m_getTrackState(4);
+	      (*pnIt)->validateMeasurement(pNS);
+	      (*pnIt)->updateTrackState(pNS);
+	      double Pt=sin(pNS->getTrackState(3))/pNS->getTrackState(4);
 	      if(fabs(Pt)<500.0)
 		{
 		  if (m_outputLevel <= MSG::DEBUG) 
@@ -468,7 +468,7 @@ bool TrigTRT_CombinedExtensionTool::runPDAF_Tracking(TrigTRT_Trajectory* pTRAJ)
   Trk::TrkTrackState* pTS=pTRAJ->getStartingTrackState();
   TrigTRT_DetElementRoad* pR=pTRAJ->getRoad(); 
    
-  Trk::TrkPlanarSurface *pSB=pTS->m_getSurface();
+  Trk::TrkPlanarSurface *pSB=pTS->getSurface();
 
   TrigTRT_Info* pTI=new TrigTRT_Info();
   pTRAJ->addTRT_SummaryInfo(pTI);
@@ -477,7 +477,7 @@ bool TrigTRT_CombinedExtensionTool::runPDAF_Tracking(TrigTRT_Trajectory* pTRAJ)
 
   Trk::TrkPlanarSurface* pFirstSurface=NULL;
   
-  double pT=sin(pTS->m_getTrackState(3))/pTS->m_getTrackState(4);
+  double pT=sin(pTS->getTrackState(3))/pTS->getTrackState(4);
     
   if(fabs(pT)<500.0)
     {
@@ -507,7 +507,7 @@ bool TrigTRT_CombinedExtensionTool::runPDAF_Tracking(TrigTRT_Trajectory* pTRAJ)
       if(pNS!=NULL)
 	{
 	  if(m_outputLevel <= MSG::VERBOSE)
-	    pNS->m_report();
+	    pNS->report();
 	  pTRAJ->addTrackState(pNS);	  
 	  std::pair<Trk::TrkTrackState*,TrigTRT_DetElementPoint*> trackPair(pNS,pRP);
 
@@ -516,7 +516,7 @@ bool TrigTRT_CombinedExtensionTool::runPDAF_Tracking(TrigTRT_Trajectory* pTRAJ)
 	  if(m_outputLevel <= MSG::VERBOSE) 
 	    {
 	      athenaLog<<MSG::VERBOSE<<"Updated tracks state:"<<endmsg;
-	      pNS->m_report();
+	      pNS->report();
 	    }
 	  pTS=pNS;
 	}
@@ -553,15 +553,15 @@ bool TrigTRT_CombinedExtensionTool::runPDAF_Tracking(TrigTRT_Trajectory* pTRAJ)
 
   double Gk[5][5],Rk[5];
   
-  for(int i=0;i<5;i++) Rk[i]=pTS->m_getTrackState(i);
+  for(int i=0;i<5;i++) Rk[i]=pTS->getTrackState(i);
   memset(Gk,0,sizeof(Gk));
   Gk[0][0]=100.0;Gk[1][1]=100.0;Gk[2][2]=0.01;Gk[3][3]=0.0001;Gk[4][4]=1e-7;
 
   Trk::TrkTrackState* pUS = new Trk::TrkTrackState(Rk);
-  pUS->m_setTrackCovariance(Gk);
-  pUS->m_attachToSurface(pTS->m_getSurface());
+  pUS->setTrackCovariance(Gk);
+  pUS->attachToSurface(pTS->getSurface());
   if(m_doMultScatt) 
-    pUS->m_setScatteringMode(1);
+    pUS->setScatteringMode(1);
 
   std::vector<std::pair<Trk::TrkTrackState*,TrigTRT_DetElementPoint*> >::reverse_iterator rtIt(vRT.rbegin()),
     rtItEnd(vRT.rend());
@@ -571,14 +571,14 @@ bool TrigTRT_CombinedExtensionTool::runPDAF_Tracking(TrigTRT_Trajectory* pTRAJ)
       pTS=(*rtIt).first;
       TrigTRT_DetElementPoint* pRP=(*rtIt).second;
       Trk::TrkPlanarSurface *pSB, *pSE;
-      pSB=pUS->m_getSurface();
-      pSE=pTS->m_getSurface();
+      pSB=pUS->getSurface();
+      pSE=pTS->getSurface();
       Trk::TrkTrackState* pNS=NULL;
       if(pSB!=pSE) pNS=m_fastExtrapolator->extrapolate(pUS,pSB,pSE,false);	
       else 
 	{
 	  pNS=new Trk::TrkTrackState(pUS);
-	  pNS->m_attachToSurface(pTS->m_getSurface());
+	  pNS->attachToSurface(pTS->getSurface());
 	}
       delete pUS;
       if(pNS!=NULL)
@@ -596,7 +596,7 @@ bool TrigTRT_CombinedExtensionTool::runPDAF_Tracking(TrigTRT_Trajectory* pTRAJ)
       delete pTRAJ->getStartingTrackState();pTRAJ->setStartingTrackState(NULL); 
       return false;
     }
-  pUS->m_attachToSurface(pFirstSurface);
+  pUS->attachToSurface(pFirstSurface);
   delete pTRAJ->getStartingTrackState();
   pTRAJ->setStartingTrackState(pUS);
   
@@ -608,7 +608,7 @@ bool TrigTRT_CombinedExtensionTool::runBackwardFilter(TrigTRT_Trajectory* pTRAJ)
   bool OK=true;
   MsgStream athenaLog(msgSvc(), name());
   Trk::TrkTrackState* pTS = pTRAJ->getStartingTrackState();
-  Trk::TrkPlanarSurface* pSB=pTS->m_getSurface();
+  Trk::TrkPlanarSurface* pSB=pTS->getSurface();
   pTRAJ->setStartingTrackState(NULL);
   bool first_step=true;
 
@@ -617,12 +617,12 @@ bool TrigTRT_CombinedExtensionTool::runBackwardFilter(TrigTRT_Trajectory* pTRAJ)
 
   for(;pnrIt!=pnrEnd;++pnrIt)
     {
-      Trk::TrkPlanarSurface* pSE=(*pnrIt)->m_getSurface();
+      Trk::TrkPlanarSurface* pSE=(*pnrIt)->getSurface();
       Trk::TrkTrackState* pNS=NULL;
       double C1,C2,dist=0.0;
       for(int i=0;i<3;i++)
 	{
-	  C1=pSB->m_getCenter()[i];C2=pSE->m_getCenter()[i];dist+=(C2-C1)*(C2-C1);
+	  C1=pSB->getCenter()[i];C2=pSE->getCenter()[i];dist+=(C2-C1)*(C2-C1);
 	}
       dist=sqrt(dist);
       if(dist>60.0)
@@ -632,9 +632,9 @@ bool TrigTRT_CombinedExtensionTool::runBackwardFilter(TrigTRT_Trajectory* pTRAJ)
 	      pNS=extrapolateOffline(pTS,pSB,pSE,-1,true);
 	      /*
 	      printf("Extrapolated to SCT\n");
-	      pNS->m_report();
+	      pNS->report();
 	      printf("At\n");
-	      pSE->m_report();		      
+	      pSE->report();		      
 	      */  
 	    }
 	  else
@@ -647,11 +647,11 @@ bool TrigTRT_CombinedExtensionTool::runBackwardFilter(TrigTRT_Trajectory* pTRAJ)
       if(pNS!=NULL)
 	{
 	  // m_updateFilteringNode((*pnrIt),pNS);
-	  (*pnrIt)->m_validateMeasurement(pNS);
-	  (*pnrIt)->m_updateTrackState(pNS);
+	  (*pnrIt)->validateMeasurement(pNS);
+	  (*pnrIt)->updateTrackState(pNS);
 	  delete pTS;
 	  pTS=pNS;
-	  double Pt=sin(pTS->m_getTrackState(3))/pTS->m_getTrackState(4);
+	  double Pt=sin(pTS->getTrackState(3))/pTS->getTrackState(4);
 	  if(fabs(Pt)<200.0)
 	    {
 	      if (m_outputLevel <= MSG::DEBUG) 
@@ -675,7 +675,7 @@ bool TrigTRT_CombinedExtensionTool::updatePerigee(TrigTRT_Trajectory* pTRAJ)
 {
   bool OK=true;
   Trk::TrkTrackState* pTS = pTRAJ->getStartingTrackState();
-  Trk::TrkPlanarSurface* pSB=pTS->m_getSurface();
+  Trk::TrkPlanarSurface* pSB=pTS->getSurface();
   Trk::TrkPlanarSurface* pSE=NULL;
   Trk::TrkTrackState* pNS=extrapolateOffline(pTS,pSB,pSE,-1);
   delete pTS;pTRAJ->setStartingTrackState(NULL);
@@ -713,34 +713,34 @@ Trk::TrkTrackState* TrigTRT_CombinedExtensionTool::extrapolateOffline(Trk::TrkTr
       // 1a. MeasuredPerigee
       AmgSymMatrix(5)* M = new AmgSymMatrix(5);
       for(int i=0;i<5;i++) for(int j=0;j<5;j++)
-		  (*M)(i,j)=pTS->m_getTrackCovariance(i,j);
+		  (*M)(i,j)=pTS->getTrackCovariance(i,j);
 			Trk::PerigeeSurface dummySurface;
-      pTP=new Trk::Perigee(pTS->m_getTrackState(0),pTS->m_getTrackState(1),
-				   pTS->m_getTrackState(2),pTS->m_getTrackState(3),
-				   pTS->m_getTrackState(4),dummySurface,M);
+      pTP=new Trk::Perigee(pTS->getTrackState(0),pTS->getTrackState(1),
+				   pTS->getTrackState(2),pTS->getTrackState(3),
+				   pTS->getTrackState(4),dummySurface,M);
     }
   else
     {
       if(createTargetSurface && (dir<0))
 	{
-	  Amg::Vector3D colx(pSB->m_getInvRotMatrix(0,0),pSB->m_getInvRotMatrix(1,0),pSB->m_getInvRotMatrix(2,0));
-	  Amg::Vector3D coly(pSB->m_getInvRotMatrix(0,1),pSB->m_getInvRotMatrix(1,1),pSB->m_getInvRotMatrix(2,1));
-	  Amg::Vector3D colz(pSB->m_getInvRotMatrix(0,2),pSB->m_getInvRotMatrix(1,2),pSB->m_getInvRotMatrix(2,2));
-	  Amg::Vector3D tr(pSB->m_getCenter()[0],pSB->m_getCenter()[1],pSB->m_getCenter()[2]);
+	  Amg::Vector3D colx(pSB->getInvRotMatrix(0,0),pSB->getInvRotMatrix(1,0),pSB->getInvRotMatrix(2,0));
+	  Amg::Vector3D coly(pSB->getInvRotMatrix(0,1),pSB->getInvRotMatrix(1,1),pSB->getInvRotMatrix(2,1));
+	  Amg::Vector3D colz(pSB->getInvRotMatrix(0,2),pSB->getInvRotMatrix(1,2),pSB->getInvRotMatrix(2,2));
+	  Amg::Vector3D tr(pSB->getCenter()[0],pSB->getCenter()[1],pSB->getCenter()[2]);
 		Amg::Transform3D* pTrans = new Amg::Transform3D(colx,coly,colz,tr);
 	  pTrkSB = new Trk::PlaneSurface(pTrans);
 	  delete_surf=true;
 	}
       else
 	{
-	  pTrkSB = dynamic_cast<const Trk::PlaneSurface*>(pSB->m_getTrkSurface());
+	  pTrkSB = dynamic_cast<const Trk::PlaneSurface*>(pSB->getTrkSurface());
 	}
 			AmgSymMatrix(5)* M = new AmgSymMatrix(5);
       for(int i=0;i<5;i++) for(int j=0;j<5;j++)
-	(*M)(i,j)=pTS->m_getTrackCovariance(i,j);
-      pTP= pTrkSB->createParameters<5,Trk::Charged>(pTS->m_getTrackState(0),pTS->m_getTrackState(1),
-				    pTS->m_getTrackState(2),pTS->m_getTrackState(3),
-				    pTS->m_getTrackState(4),M);
+	(*M)(i,j)=pTS->getTrackCovariance(i,j);
+      pTP= pTrkSB->createParameters<5,Trk::Charged>(pTS->getTrackState(0),pTS->getTrackState(1),
+				    pTS->getTrackState(2),pTS->getTrackState(3),
+				    pTS->getTrackState(4),M);
     }
 
   // 2. Extrapolation
@@ -750,14 +750,14 @@ Trk::TrkTrackState* TrigTRT_CombinedExtensionTool::extrapolateOffline(Trk::TrkTr
   if(dir>0)
     {
       if(!createTargetSurface)
-	predPar = m_extrapolator->extrapolate(*pTP,*pSE->m_getTrkSurface(),
+	predPar = m_extrapolator->extrapolate(*pTP,*pSE->getTrkSurface(),
 					      Trk::alongMomentum,false,Trk::pion);
       else
 	{
-	  Amg::Vector3D colx(pSB->m_getInvRotMatrix(0,0),pSB->m_getInvRotMatrix(1,0),pSB->m_getInvRotMatrix(2,0));
-	  Amg::Vector3D coly(pSB->m_getInvRotMatrix(0,1),pSB->m_getInvRotMatrix(1,1),pSB->m_getInvRotMatrix(2,1));
-	  Amg::Vector3D colz(pSB->m_getInvRotMatrix(0,2),pSB->m_getInvRotMatrix(1,2),pSB->m_getInvRotMatrix(2,2));
-	  Amg::Vector3D tr(pSB->m_getCenter()[0],pSB->m_getCenter()[1],pSB->m_getCenter()[2]);
+	  Amg::Vector3D colx(pSB->getInvRotMatrix(0,0),pSB->getInvRotMatrix(1,0),pSB->getInvRotMatrix(2,0));
+	  Amg::Vector3D coly(pSB->getInvRotMatrix(0,1),pSB->getInvRotMatrix(1,1),pSB->getInvRotMatrix(2,1));
+	  Amg::Vector3D colz(pSB->getInvRotMatrix(0,2),pSB->getInvRotMatrix(1,2),pSB->getInvRotMatrix(2,2));
+	  Amg::Vector3D tr(pSB->getCenter()[0],pSB->getCenter()[1],pSB->getCenter()[2]);
 		Amg::Transform3D* pTrans = new Amg::Transform3D(colx,coly,colz,tr);
 	  Trk::Surface* pTrkSE = new Trk::PlaneSurface(pTrans);
 	  predPar = m_extrapolator->extrapolate(*pTP,*pTrkSE,
@@ -769,7 +769,7 @@ Trk::TrkTrackState* TrigTRT_CombinedExtensionTool::extrapolateOffline(Trk::TrkTr
     {
       if(pSE!=NULL)
 	{
-	  predPar = m_extrapolator->extrapolate(*pTP,*pSE->m_getTrkSurface(),Trk::oppositeMomentum,false,Trk::pion);	  
+	  predPar = m_extrapolator->extrapolate(*pTP,*pSE->getTrkSurface(),Trk::oppositeMomentum,false,Trk::pion);	  
 	}
       else
 	{
@@ -797,9 +797,9 @@ Trk::TrkTrackState* TrigTRT_CombinedExtensionTool::extrapolateOffline(Trk::TrkTr
 	  
 	    pTE=new Trk::TrkTrackState(Re);
 	    if(m_doMultScatt) 
-	      pTE->m_setScatteringMode(1);
-	    pTE->m_setTrackCovariance(Ge);
-	    pTE->m_attachToSurface(pSE);
+	      pTE->setScatteringMode(1);
+	    pTE->setTrackCovariance(Ge);
+	    pTE->attachToSurface(pSE);
 	  }
 	  else pTE=NULL;
 	}
@@ -818,8 +818,8 @@ Trk::TrkTrackState* TrigTRT_CombinedExtensionTool::extrapolateOffline(Trk::TrkTr
 	      Ge[i][j]=(*M)(i,j);
 	  
 	    pTE=new Trk::TrkTrackState(pTS);
-	    pTE->m_setTrackState(Re);
-	    pTE->m_setTrackCovariance(Ge);
+	    pTE->setTrackState(Re);
+	    pTE->setTrackCovariance(Ge);
 	  }
 	  else pTE=NULL;
 	}
@@ -833,21 +833,21 @@ Trk::TrkTrackState* TrigTRT_CombinedExtensionTool::extrapolateOffline(Trk::TrkTr
 
 void TrigTRT_CombinedExtensionTool::updateFilteringNode(Trk::TrkBaseNode* pN, Trk::TrkTrackState* pTS)
 {
-  if(pTS->m_getSurface()==NULL) return;
+  if(pTS->getSurface()==NULL) return;
 
   AmgSymMatrix(5)* M = new AmgSymMatrix(5);
   for(int i=0;i<5;i++) for(int j=0;j<5;j++)
-    (*M)(i,j)=pTS->m_getTrackCovariance(i,j);
+    (*M)(i,j)=pTS->getTrackCovariance(i,j);
 
-  const Trk::PlaneSurface& pTrkSB = dynamic_cast<const Trk::PlaneSurface&>(pN->m_getPrepRawData()->detectorElement()->surface());
+  const Trk::PlaneSurface& pTrkSB = dynamic_cast<const Trk::PlaneSurface&>(pN->getPrepRawData()->detectorElement()->surface());
 
-	const Trk::TrackParameters* pTP=pTrkSB.createParameters<5,Trk::Charged>(pTS->m_getTrackState(0),pTS->m_getTrackState(1),
-			pTS->m_getTrackState(2),pTS->m_getTrackState(3),
-			pTS->m_getTrackState(4),M);
+	const Trk::TrackParameters* pTP=pTrkSB.createParameters<5,Trk::Charged>(pTS->getTrackState(0),pTS->getTrackState(1),
+			pTS->getTrackState(2),pTS->getTrackState(3),
+			pTS->getTrackState(4),M);
 
 
-  const Trk::RIO_OnTrack* pRIO = m_ROTcreator->correct(*(pN->m_getPrepRawData()),*pTP);
-  pN->m_updateWithRIO(pRIO);
+  const Trk::RIO_OnTrack* pRIO = m_ROTcreator->correct(*(pN->getPrepRawData()),*pTP);
+  pN->updateWithRIO(pRIO);
 
   delete pTP;
   delete pRIO;
@@ -952,7 +952,7 @@ StatusCode TrigTRT_CombinedExtensionTool::propagate(TrigInDetTrackCollection* re
       if(m_outputLevel <= MSG::VERBOSE)
 	{
 	  athenaLog<<MSG::VERBOSE<<"Starting Track state for TRT road"<<endmsg;
-	  pTS->m_report();
+	  pTS->report();
 	}
       TrigTRT_DetElementRoad* pR=m_trtRoadBuilder->buildTRT_Road(pTS);
       (*ptrIt)->addRoad(pR);
@@ -1102,7 +1102,7 @@ StatusCode TrigTRT_CombinedExtensionTool::propagate(TrigInDetTrackCollection* re
 	(*ptrIt)->setStartingTrackState(NULL);
 	TrigTRT_DetElementRoad* pR=(*ptrIt)->getRoad();
       
-	Trk::TrkPlanarSurface *pSB=pTS->m_getSurface(),*pSE=NULL;
+	Trk::TrkPlanarSurface *pSB=pTS->getSurface(),*pSE=NULL;
       
 	TrigTRT_Info* pTI=new TrigTRT_Info();
 	(*ptrIt)->addTRT_SummaryInfo(pTI);
@@ -1110,7 +1110,7 @@ StatusCode TrigTRT_CombinedExtensionTool::propagate(TrigInDetTrackCollection* re
 	std::vector<TrigTRT_DetElementPoint*>::iterator ppIt;
 	bool passedOK=true;
 	bool firstSurf=true;
-	double pT=sin(pTS->m_getTrackState(3))/pTS->m_getTrackState(4);
+	double pT=sin(pTS->getTrackState(3))/pTS->getTrackState(4);
 
 	if(fabs(pT)<500.0)
 	  {
@@ -1131,13 +1131,13 @@ StatusCode TrigTRT_CombinedExtensionTool::propagate(TrigInDetTrackCollection* re
 		    if(pNS!=NULL)
 		      {
 			if(m_outputLevel <= MSG::VERBOSE)
-			  pNS->m_report();
+			  pNS->report();
 			(*ptrIt)->addTrackState(pNS);
 			pRP->updateTrackState(pNS,pTI);
 			if(m_outputLevel <= MSG::VERBOSE) 
 			  {
 			    athenaLog<<MSG::VERBOSE<<"Updated tracks state:"<<endmsg;
-			    pNS->m_report();
+			    pNS->report();
 			  }
 			pTS=pNS;
 		      }
@@ -1187,43 +1187,43 @@ StatusCode TrigTRT_CombinedExtensionTool::propagate(TrigInDetTrackCollection* re
 	  {
 	    //pTS=(*((*ptrIt)->getTrackStates()->begin()));
 	    Trk::TrkTrackState *pTS=(*ptrIt)->getStartingTrackState();
-	    Pt=sin(pTS->m_getTrackState(3))/pTS->m_getTrackState(4);
-	    Phi0 = pTS->m_getTrackState(2);
+	    Pt=sin(pTS->getTrackState(3))/pTS->getTrackState(4);
+	    Phi0 = pTS->getTrackState(2);
 	    if(Phi0>M_PI) Phi0-=2*M_PI;
 	    if(Phi0<-M_PI) Phi0+=2*M_PI;
-	    Eta = -log(sin(0.5*pTS->m_getTrackState(3))/cos(0.5*pTS->m_getTrackState(3)));
-	    Z0 = pTS->m_getTrackState(1);
-	    D0 = pTS->m_getTrackState(0);
+	    Eta = -log(sin(0.5*pTS->getTrackState(3))/cos(0.5*pTS->getTrackState(3)));
+	    Z0 = pTS->getTrackState(1);
+	    D0 = pTS->getTrackState(0);
 	    
-	    errD0 = sqrt(pTS->m_getTrackCovariance(0,0));
-	    errZ0 = sqrt(pTS->m_getTrackCovariance(1,1));
-	    errPhi0 = sqrt(pTS->m_getTrackCovariance(2,2));
-	    errEta = sqrt(pTS->m_getTrackCovariance(3,3))/fabs(sin(pTS->m_getTrackState(3)));
-	    b=cos(pTS->m_getTrackState(3))/pTS->m_getTrackState(4);
-	    c=-Pt/pTS->m_getTrackState(4);
-	    a=-1.0/sin(pTS->m_getTrackState(3));
-	    errPt = sqrt(b*b*(pTS->m_getTrackCovariance(3,3))+c*c*(pTS->m_getTrackCovariance(4,4))+
-			 2.0*b*c*(pTS->m_getTrackCovariance(3,4)));
+	    errD0 = sqrt(pTS->getTrackCovariance(0,0));
+	    errZ0 = sqrt(pTS->getTrackCovariance(1,1));
+	    errPhi0 = sqrt(pTS->getTrackCovariance(2,2));
+	    errEta = sqrt(pTS->getTrackCovariance(3,3))/fabs(sin(pTS->getTrackState(3)));
+	    b=cos(pTS->getTrackState(3))/pTS->getTrackState(4);
+	    c=-Pt/pTS->getTrackState(4);
+	    a=-1.0/sin(pTS->getTrackState(3));
+	    errPt = sqrt(b*b*(pTS->getTrackCovariance(3,3))+c*c*(pTS->getTrackCovariance(4,4))+
+			 2.0*b*c*(pTS->getTrackCovariance(3,4)));
       
 	    pCov=new std::vector<double>;
 	    
-	    CV[0][0]=pTS->m_getTrackCovariance(0,0);
-	    CV[0][1]=pTS->m_getTrackCovariance(0,2);
-	    CV[0][2]=pTS->m_getTrackCovariance(0,1);
-	    CV[0][3]=a*(pTS->m_getTrackCovariance(0,3));
-	    CV[0][4]=b*(pTS->m_getTrackCovariance(0,3))+c*(pTS->m_getTrackCovariance(0,4));
-	    CV[1][1]=pTS->m_getTrackCovariance(2,2);
+	    CV[0][0]=pTS->getTrackCovariance(0,0);
+	    CV[0][1]=pTS->getTrackCovariance(0,2);
+	    CV[0][2]=pTS->getTrackCovariance(0,1);
+	    CV[0][3]=a*(pTS->getTrackCovariance(0,3));
+	    CV[0][4]=b*(pTS->getTrackCovariance(0,3))+c*(pTS->getTrackCovariance(0,4));
+	    CV[1][1]=pTS->getTrackCovariance(2,2);
 	    
-	    CV[1][2]=pTS->m_getTrackCovariance(1,2);
-	    CV[1][3]=a*(pTS->m_getTrackCovariance(2,3));
-	    CV[1][4]=b*(pTS->m_getTrackCovariance(2,3))+c*(pTS->m_getTrackCovariance(2,4));
-	    CV[2][2]=pTS->m_getTrackCovariance(1,1);
-	    CV[2][3]=a*(pTS->m_getTrackCovariance(1,3));
-	    CV[2][4]=b*(pTS->m_getTrackCovariance(1,3))+c*(pTS->m_getTrackCovariance(1,4));
-	    CV[3][3]=a*a*(pTS->m_getTrackCovariance(3,3));
-	    CV[3][4]=a*(b*(pTS->m_getTrackCovariance(3,3))+c*(pTS->m_getTrackCovariance(3,4)));
-	    CV[4][4]=b*b*(pTS->m_getTrackCovariance(3,3))+2.0*b*c*(pTS->m_getTrackCovariance(3,4))+
-	      c*c*(pTS->m_getTrackCovariance(4,4));    
+	    CV[1][2]=pTS->getTrackCovariance(1,2);
+	    CV[1][3]=a*(pTS->getTrackCovariance(2,3));
+	    CV[1][4]=b*(pTS->getTrackCovariance(2,3))+c*(pTS->getTrackCovariance(2,4));
+	    CV[2][2]=pTS->getTrackCovariance(1,1);
+	    CV[2][3]=a*(pTS->getTrackCovariance(1,3));
+	    CV[2][4]=b*(pTS->getTrackCovariance(1,3))+c*(pTS->getTrackCovariance(1,4));
+	    CV[3][3]=a*a*(pTS->getTrackCovariance(3,3));
+	    CV[3][4]=a*(b*(pTS->getTrackCovariance(3,3))+c*(pTS->getTrackCovariance(3,4)));
+	    CV[4][4]=b*b*(pTS->getTrackCovariance(3,3))+2.0*b*c*(pTS->getTrackCovariance(3,4))+
+	      c*c*(pTS->getTrackCovariance(4,4));    
 	    for(int i=0;i<5;i++)
 	      for(int j=i;j<5;j++) pCov->push_back(CV[i][j]);
 	    const TrigInDetTrackFitPar* tidtfp = new TrigInDetTrackFitPar(D0,Phi0,Z0,Eta, Pt,

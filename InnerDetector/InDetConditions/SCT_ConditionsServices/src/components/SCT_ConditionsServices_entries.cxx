@@ -18,12 +18,9 @@
 
 #include "../SCT_TdaqEnabledSvc.h"
 
-#include "../SCT_CachedSummarySvc.h"
-
 #include "../SCT_RODVetoSvc.h"
 
 DECLARE_COMPONENT( SCT_ConditionsSummarySvc )
-DECLARE_COMPONENT( SCT_CachedSummarySvc )
 DECLARE_COMPONENT( SCT_ModuleVetoSvc )
 DECLARE_COMPONENT( SCT_ConfigurationConditionsSvc )
 DECLARE_COMPONENT( SCT_DCSConditionsSvc )

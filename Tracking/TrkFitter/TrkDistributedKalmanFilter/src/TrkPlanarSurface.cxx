@@ -40,16 +40,16 @@ namespace Trk
 	      m_L[i][j]=m[i][j];
     }
     m_Rc=sqrt(m_Rc);
-    m_calculateInverseTransform();
+    calculateInverseTransform();
     m_breakPoint=false;
   }
 
-  const Surface* TrkPlanarSurface::m_getTrkSurface()
+  const Surface* TrkPlanarSurface::getTrkSurface()
   {
     return m_trkSurface;
   }
 
-  void TrkPlanarSurface::m_calculateInverseTransform()
+  void TrkPlanarSurface::calculateInverseTransform()
   {
     m_M[0][0]= m_L[1][1]*m_L[2][2]-m_L[1][2]*m_L[2][1];
     m_M[1][0]=-m_L[1][0]*m_L[2][2]+m_L[1][2]*m_L[2][0];
@@ -65,53 +65,53 @@ namespace Trk
   {
     
   }
-  const double* TrkPlanarSurface::m_getCenter()
+  const double* TrkPlanarSurface::getCenter()
   {
     return &m_Center[0];
   }
-  double TrkPlanarSurface::m_radiusVector()
+  double TrkPlanarSurface::radiusVector()
   {
     return m_Rc;
   }
-  const double* TrkPlanarSurface::m_getNormal()
+  const double* TrkPlanarSurface::getNormal()
   {
     return &m_Normal[0];
   }
-  const double* TrkPlanarSurface::m_getParameters()
+  const double* TrkPlanarSurface::getParameters()
   {
     return &m_Params[0];
   }
-  double TrkPlanarSurface::m_getPar(int i)
+  double TrkPlanarSurface::getPar(int i)
   {
     return m_Params[i];
   }
-  double TrkPlanarSurface::m_getRotMatrix(int i, int j)
+  double TrkPlanarSurface::getRotMatrix(int i, int j)
   {
     return m_M[i][j];
   }
-  double TrkPlanarSurface::m_getInvRotMatrix(int i, int j)
+  double TrkPlanarSurface::getInvRotMatrix(int i, int j)
   {
     return m_L[i][j];
   }
-  double TrkPlanarSurface::m_calculateCombinedMatrix(int i,int j,TrkPlanarSurface* pS)
+  double TrkPlanarSurface::calculateCombinedMatrix(int i,int j,TrkPlanarSurface* pS)
   {
     double rc=0;
     for(int m=0;m<3;m++) rc+=pS->m_M[i][m]*m_L[m][j];
     return rc;
   }
-  void TrkPlanarSurface::m_rotateVectorToLocal(double* X, double* Y)
+  void TrkPlanarSurface::rotateVectorToLocal(double* X, double* Y)
   {
     int i;
     for(i=0;i<3;i++)
       Y[i]=m_M[i][0]*X[0]+m_M[i][1]*X[1]+m_M[i][2]*X[2];
   }
-  void TrkPlanarSurface::m_rotateVectorToGlobal(double* X, double* Y)
+  void TrkPlanarSurface::rotateVectorToGlobal(double* X, double* Y)
   {
     int i;
     for(i=0;i<3;i++)
       Y[i]=m_L[i][0]*X[0]+m_L[i][1]*X[1]+m_L[i][2]*X[2];
   }
-  void TrkPlanarSurface::m_transformPointToLocal(double* X, double* Y)
+  void TrkPlanarSurface::transformPointToLocal(double* X, double* Y)
   {
     int i;
     for(i=0;i<3;i++)
@@ -119,35 +119,35 @@ namespace Trk
 	m_M[i][1]*(X[1]-m_Center[1])+
 	m_M[i][2]*(X[2]-m_Center[2]);
   }
-  void TrkPlanarSurface::m_transformPointToGlobal(double* X, double* Y)
+  void TrkPlanarSurface::transformPointToGlobal(double* X, double* Y)
   {
     int i;
     for(i=0;i<3;i++)
       Y[i]=m_Center[i]+m_L[i][0]*X[0]+m_L[i][1]*X[1]+m_L[i][2]*X[2];
   }
-  double TrkPlanarSurface::m_getRadLength()
+  double TrkPlanarSurface::getRadLength()
   {
     //return 0.022;
     return m_radLength;
   }
 
-  void TrkPlanarSurface::m_setBreakPoint(double u)
+  void TrkPlanarSurface::setBreakPoint(double u)
   {
     m_breakPoint=true;
     m_input=u;
   }
 
-  bool TrkPlanarSurface::m_isBreakPoint()
+  bool TrkPlanarSurface::isBreakPoint()
   {
     return m_breakPoint;
   }
 
-  double TrkPlanarSurface::m_getInput()
+  double TrkPlanarSurface::getInput()
   {
     return m_input;
   }
 
-  void TrkPlanarSurface::m_report()
+  void TrkPlanarSurface::report()
   {
     printf("SURFACE: CENTER x=%f y=%f z=%f R=%f\n",m_Center[0],m_Center[1],m_Center[2],m_Rc);
     printf("         NORMAL nx=%f ny=%f nz=%f\n",m_Normal[0],m_Normal[1],m_Normal[2]);
