@@ -871,6 +871,18 @@ namespace top{
 	       std::istream_iterator<std::string>(),
 	       std::back_inserter(m_pileup_reweighting.lumi_calc_files) );
 
+    std::istringstream pileup_config_FS_ss(settings->value( "PRWConfigFiles_FS" ));
+    std::copy( std::istream_iterator<std::string>(pileup_config_FS_ss),
+               std::istream_iterator<std::string>(),
+               std::back_inserter(m_pileup_reweighting.config_files_FS) );
+
+    std::istringstream pileup_config_AF_ss(settings->value( "PRWConfigFiles_AF" ));
+    std::copy( std::istream_iterator<std::string>(pileup_config_AF_ss),
+               std::istream_iterator<std::string>(),
+               std::back_inserter(m_pileup_reweighting.config_files_AF) );
+
+    m_pileup_reweighting.unrepresented_data_tol = std::stof(settings->value("PRWUnrepresentedDataTolerance"));
+
     m_pileup_reweighting.mu_dependent = (settings->value("PRWMuDependent") == "True");
 
     // now even if the user don't provide a PRWConfigFiles, PRW is done on MC, using the default calibration file

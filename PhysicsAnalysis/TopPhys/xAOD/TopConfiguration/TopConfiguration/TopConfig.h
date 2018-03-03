@@ -751,6 +751,11 @@ class TopConfig final {
   const std::vector<std::string>& PileupLumiCalc(){ return m_pileup_reweighting.lumi_calc_files; };
 
   bool PileupMuDependent(){return m_pileup_reweighting.mu_dependent;};
+
+  // Update for R21
+  const std::vector<std::string>& PileupConfig_FS(){ return m_pileup_reweighting.config_files_FS; };
+  const std::vector<std::string>& PileupConfig_AF(){ return m_pileup_reweighting.config_files_AF; };
+  inline virtual  float PileupDataTolerance() const { return m_pileup_reweighting.unrepresented_data_tol; };
   
   const std::vector<double>& PileUpCustomScaleFactors(){ return m_pileup_reweighting.custom_SF; };
 
@@ -1249,6 +1254,11 @@ class TopConfig final {
     std::vector<std::string> lumi_calc_files = {};
 
     std::vector<std::string> config_files = {};
+
+    // R21 - Need to allow configuration for FS and AF2
+    std::vector<std::string> config_files_FS = {};
+    std::vector<std::string> config_files_AF = {};
+    float unrepresented_data_tol = 0.05;
 
     bool apply = false;
 

@@ -272,7 +272,9 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
                       " Default 'default'",
                       "default");
 
-    registerParameter("PRWConfigFiles", "List of PU config files, seperated by spaces (nothing by default)", " ");
+    registerParameter("PRWConfigFiles",    "List of PU config files, seperated by spaces (nothing by default) - Not compatible with FS/AF options", " ");
+    registerParameter("PRWConfigFiles_FS", "List of PU config files only for full sim samples, seperated by spaces (nothing by default)", " ");
+    registerParameter("PRWConfigFiles_AF", "List of PU config files only for fast sim samples, seperated by spaces (nothing by default)", " ");
     registerParameter("PRWLumiCalcFiles", "List of PU lumicalc files, seperated by spaces (nothing by default)", " ");
     registerParameter("PRWUseGRLTool", "Pass the GRL tool to the PU reweighting tool (False by default)", "False");
     registerParameter("PRWMuDependent",
@@ -284,6 +286,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
                       "Format is \'nominal:up:down\'."
                       "If nothing is set, the default values will be used (recommended).",
                       " ");
+    registerParameter("PRWUnrepresentedDataTolerance", "Specify value between 0 and 1 to represent acceptable fraction of unrepresented data in PRW [default: 0.05]", "0.05");
 
     registerParameter("MuonTriggerSF", "Muon trigger SFs to calculate", "HLT_mu20_iloose_L1MU15_OR_HLT_mu50");
 
