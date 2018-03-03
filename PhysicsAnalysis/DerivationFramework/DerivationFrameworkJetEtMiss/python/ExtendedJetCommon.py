@@ -142,8 +142,9 @@ def addAntiKt4LowPtJets(sequence,outputlist):
     addStandardJets("AntiKt", 0.4, "LCTopo",  namesuffix="LowPt", ptmin=2000, ptminFilter=2000,
                     mods="lctopo_ungroomed", algseq=sequence, outputGroup=outputlist,calibOpt="ar")
     # Commented for now because of problems with underlying PFlow collections
-    # addStandardJets("AntiKt", 0.4, "EMPFlow", namesuffix="LowPt", ptmin=2000, ptminFilter=2000,
-    #                 mods="pflow_ungroomed", algseq=sequence, outputGroup=outputlist="ar:pflow")
+    addCHSPFlowObjects()
+    addStandardJets("AntiKt", 0.4, "EMPFlow", namesuffix="LowPt", ptmin=2000, ptminFilter=2000,
+                    mods="pflow_ungroomed", algseq=sequence, outputGroup=outputlist,calibOpt="ar:pflow")
 
 ##################################################################
 
