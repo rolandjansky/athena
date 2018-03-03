@@ -489,12 +489,14 @@ class TopConfig final {
   inline virtual float RCJetEtacut() const {return m_RCJetEtacut;}
   inline virtual float RCJetTrimcut() const {return m_RCJetTrimcut;}
   inline virtual float RCJetRadius() const {return m_RCJetRadius;}
-
+  inline virtual bool  useRCJetSubstructure() const {return m_useRCJetSubstructure;}
+ 
   inline virtual void RCJetPtcut(const float pt)      {if(!m_configFixed){m_RCJetPtcut = pt;}}
   inline virtual void RCJetEtacut(const float eta)    {if(!m_configFixed){m_RCJetEtacut = eta;}}
   inline virtual void RCJetTrimcut(const float trim)  {if(!m_configFixed){m_RCJetTrimcut = trim;}}
   inline virtual void RCJetRadius(const float radius) {if(!m_configFixed){m_RCJetRadius = radius;}}
-
+  inline virtual void useRCJetSubstructure(const bool use) {if (!m_configFixed){m_useRCJetSubstructure = use;}}
+  
   inline virtual float VarRCJetPtcut() const{return m_VarRCJetPtcut;}
   inline virtual float VarRCJetEtacut() const {return m_VarRCJetEtacut;}
   inline virtual float VarRCJetTrimcut() const {return m_VarRCJetTrimcut;}
@@ -1087,6 +1089,7 @@ class TopConfig final {
   float m_RCJetEtacut;
   float m_RCJetTrimcut;
   float m_RCJetRadius;
+  bool  m_useRCJetSubstructure;
   
   // Jet configuration for variable large-R jets
   float m_VarRCJetPtcut;
