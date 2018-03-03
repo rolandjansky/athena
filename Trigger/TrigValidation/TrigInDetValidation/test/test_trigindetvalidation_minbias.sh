@@ -36,7 +36,9 @@ function converttime {
     ((H=$totes/3600))
     ((M=($totes%3600)/60))
     ((S=$totes%60))
-    echo "$H : $M : $S"
+    [ $M -lt 10 ] && M=0$M
+    [ $S -lt 10 ] && S=0$S
+    echo "$H:$M:$S"
 }
 
 timestamp "starting"
@@ -290,7 +292,7 @@ timestamp "TIDArdict"
 
 
 
-TIDArun-art.sh data-monitor.root data-minBias-reference.root HLT_mb_idperf_L1MBTS_2_InDetTrigTrackingxAODCnv_minBias_EFID -d HLTEF-plots  2>&1 | tee TIDArun_2.log
+TIDArun-art.sh data-monitor.root data-minBias-reference.root HLT_mb_idperf_L1RD1_FILLED_InDetTrigTrackingxAODCnv_minBias_EFID -d HLTEF-plots  2>&1 | tee TIDArun_2.log
 echo "art-result: $? TIDArun_2"
 
 
