@@ -8,12 +8,13 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkVertexFitterInterfaces/IVertexTrackDensityEstimator.h"
 
-#include <unordered_map>
+#include <map>
 
 namespace Trk
 {
 
   class Track;
+  class GaussianTrackDensity;
 
   /**
    @class GaussianTrackDensity
@@ -64,57 +65,62 @@ namespace Trk
     /**
      *  Evaluate the density function at the specified coordinate along the beam-line.
      */
-    virtual double trackDensity(double z) const;
+    virtual double trackDensity(double z);
 
     /**
      *  Evaluate the density and its first two derivatives at the specified coordinate.
      */
-    virtual void trackDensity(double z, double& density, double& firstDerivative, double& secondDerivativec) const;
+    virtual void trackDensity(double z, double& density, double& firstDerivative, double& secondDerivativec);
 
     /**
      *  Resets the internal state of the tool, forgetting all tracks previously added.
      */
     virtual void reset();
 
-
-  private:
-    struct TrackEntry
-    {
-      TrackEntry(double c0, double c1, double c2);
-      // Cached information for a single track
-      double constant; // z-independent factor
-      double c_1;      // linear coefficient in exponent
-      double c_2;      // quadratic coefficient in exponent
-    };
-
-    // functor to hash key for unordered_map
-    struct hash_perigee {
-      size_t operator()(const Trk::Perigee& perigee) const
-      {
-	return 
-	  std::hash<double>()(perigee.parameters()[Trk::d0]) ^
-	  std::hash<double>()(perigee.parameters()[Trk::z0]) ^
-	  std::hash<double>()(perigee.parameters()[Trk::phi]) ^
-	  std::hash<double>()(perigee.parameters()[Trk::theta]) ^
-	  std::hash<double>()(perigee.parameters()[Trk::qOverP]); 
-      }
-    };
-
     // functor to compare two unordered_map Key values for equality
     struct pred_perigee {
       bool operator()(const Trk::Perigee& left, const Trk::Perigee& right) const
       {
-	return 
-	  (left.parameters()[Trk::d0] == right.parameters()[Trk::d0]) &&
-	  (left.parameters()[Trk::z0] == right.parameters()[Trk::z0]) &&
-	  (left.parameters()[Trk::phi] == right.parameters()[Trk::phi]) &&
-	  (left.parameters()[Trk::theta] == right.parameters()[Trk::theta]) &&
-	  (left.parameters()[Trk::qOverP] == right.parameters()[Trk::qOverP]);
+	return left.parameters()[Trk::z0] < right.parameters()[Trk::z0];
       }
     };
 
+    struct TrackEntry
+    {
+      TrackEntry(double c0, double c1, double c2, double covz);
+      // Cached information for a single track
+      double constant; // z-independent factor
+      double c_1;      // linear coefficient in exponent
+      double c_2;      // quadratic coefficient in exponent
+      double cov_z;    // z0 variance from track error matrix
+      std::map< Perigee, TrackEntry, pred_perigee >::const_iterator start;  
+      // will point to the left-most TrackEntry close enough to affect the weight at this one
+      std::map< Perigee, TrackEntry, pred_perigee >::const_iterator finish; 
+      // will point to the right-most TrackEntry close enough to affect the weight at this one
+    };
+
+    typedef std::map< Perigee, 
+                      GaussianTrackDensity::TrackEntry, 
+                      GaussianTrackDensity::pred_perigee > trackMap;
+    typedef std::map< Perigee, 
+                      GaussianTrackDensity::TrackEntry, 
+                      GaussianTrackDensity::pred_perigee >::const_iterator trackMapIterator;
+
+  private:
+
+    trackMapIterator findStart(double z);
+
+    trackMapIterator findFinish(double z);
+
+
     //  Cache for track information
-    std::unordered_map< Trk::Perigee, Trk::GaussianTrackDensity::TrackEntry, hash_perigee, pred_perigee> m_trackMap;
+    //std::unordered_map< Trk::Perigee, Trk::GaussianTrackDensity::TrackEntry, hash_perigee, pred_perigee> m_trackMap;
+    trackMap m_trackMap;
+
+    //  Indicates whether track data needs to be refreshed before evaluation
+    bool m_dirty; 
+
+    void prepareTracks();
 
     //  Cuts set by configurable properties
     
@@ -123,6 +129,10 @@ namespace Trk
                                                   "MaxD0Significance", 
 	                                          3.5, 
                                                   "Maximum radial impact parameter significance to use track" };
+    Gaudi::Property<double> m_z0MaxSignificance { this,
+	                                          "MaxZ0Significance",
+	                                          5.0,
+	                                          "Maximum longitudinal impact parameter significance to include track in weight"};
 
   };
 }
