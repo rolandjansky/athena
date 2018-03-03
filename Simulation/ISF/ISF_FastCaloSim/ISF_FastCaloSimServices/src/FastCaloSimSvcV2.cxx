@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -369,10 +369,10 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
  nCells=0;
  nCells_Tile=0;
  
- for ( ilayer = 0;  ilayer < m_layers->GetSize(); ilayer++)
+ for ( ilayer = 0;  ilayer < m_layers.size(); ilayer++)
  {  
   /** get the layer ID and associated energy */
-  layer =  m_layers->GetAt(ilayer);
+  layer =  m_layers[ilayer];
   layerE = simulstate.E(layer);
   
   // get eta and phi from extrapolator or isfp
@@ -625,7 +625,7 @@ void ISF::FastCaloSimSvcV2::TestCell()
  }
  
  double sum_epara=0.0;
- for(int a=0;a<=ilayer;a++) sum_epara+=simulstate.E(m_layers->GetAt(a));
+ for(unsigned int a=0;a<=ilayer;a++) sum_epara+=simulstate.E(m_layers[a]);
  
  ATH_MSG_DEBUG("ECHECK layer "<<layer<<" esum "<<esum<<" epara "<<sum_epara<<" (this layer: "<<simulstate.E(layer)<<") nCells "<<nCells<<" nCells_Tile "<<nCells_Tile);
 }

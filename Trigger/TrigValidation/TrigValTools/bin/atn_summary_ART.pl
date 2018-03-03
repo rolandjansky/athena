@@ -454,8 +454,10 @@ function showBuildFailures(failures,link) {
                   $postrc = "<font color=\"gray\">N/A</font>";
                 } elsif (($exitcodes{$name} & $ERROR{"POST_TEST_BAD_EXIT"})==0) {
                   $postrc = "OK";
+                  $postrc .= gethistnumber($name);
                 } else {                  
                   $postrc = getposttests($name);
+                  $postrc .= gethistnumber($name);
 		}
 
 	    }
@@ -619,6 +621,21 @@ sub gettestpkgdir(){
         $cwd=$testcwd;
     }
     return basename($cwd);
+}
+
+sub gethistnumber(){
+  my ($testname) = @_;
+  my $text;
+  open POSTRC, "<$testname/post_test_checkHist.log" or return "";
+  while (<POSTRC>){
+    chomp;
+    if ($_ =~ /Total histograms/)
+    {    
+         $text = $_;
+         return "<font size=\"-2\">$text</font>";
+     }
+  }
+  return "No hist number found";
 }
 
 sub getposttests(){

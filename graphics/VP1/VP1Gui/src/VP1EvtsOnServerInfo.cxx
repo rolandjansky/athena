@@ -38,26 +38,26 @@ public:
 
 //____________________________________________________________________
 VP1EvtsOnServerInfo::VP1EvtsOnServerInfo(const QString& infofile)
- : d(new Imp(infofile))
+ : m_d(new Imp(infofile))
 {
 }
 
 //____________________________________________________________________
 VP1EvtsOnServerInfo::~VP1EvtsOnServerInfo()
 {
-  delete d;
+  delete m_d;
 }
 
 //____________________________________________________________________
 bool VP1EvtsOnServerInfo::isValid() const
 {
-  return d->error.isEmpty();
+  return m_d->error.isEmpty();
 }
 
 //____________________________________________________________________
 QString VP1EvtsOnServerInfo::error() const
 {
-  return d->error;
+  return m_d->error;
 }
 
 //____________________________________________________________________
@@ -223,13 +223,13 @@ QString VP1EvtsOnServerInfo::Imp::init(const QString& infofile)
 //____________________________________________________________________
 unsigned long long VP1EvtsOnServerInfo::numberOfEvents() const
 {
-  return d->events.count();
+  return m_d->events.count();
 }
 
 //____________________________________________________________________
 VP1EventFile VP1EvtsOnServerInfo::newestEvent() const
 {
-  return d->events.isEmpty() ? VP1EventFile() : d->events.at(0);
+  return m_d->events.isEmpty() ? VP1EventFile() : m_d->events.at(0);
 }
 
 //____________________________________________________________________
@@ -237,21 +237,21 @@ QList<VP1EventFile> VP1EvtsOnServerInfo::events(int timecut, bool requireNewestR
 {
   //Notice: Logic here must be similar to logic in VP1AvailEvents::isConsideredFresh
 
-  if ( d->events.isEmpty() )
-    return d->events;
+  if ( m_d->events.isEmpty() )
+    return m_d->events;
 
   if (timecut==0) {
     QList<VP1EventFile> l;
-    l << d->events.at(0);
+    l << m_d->events.at(0);
     return l;
   }
-  const unsigned newestRawTime = d->events.at(0).rawTime();
-  const int newestRunNumber = d->events.at(0).runNumber();
+  const unsigned newestRawTime = m_d->events.at(0).rawTime();
+  const int newestRunNumber = m_d->events.at(0).runNumber();
 
   const unsigned minTime = (timecut<0&&unsigned(timecut)>newestRawTime) ? 0 : newestRawTime-timecut;
 
   QList<VP1EventFile> out;
-  foreach (VP1EventFile evt, d->events) {
+  foreach (VP1EventFile evt, m_d->events) {
     if (minTime>0&&evt.rawTime()<minTime)
       continue;
     if (requireNewestRunNumber&&evt.runNumber()!=newestRunNumber)

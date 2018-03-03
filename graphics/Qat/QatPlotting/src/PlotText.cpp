@@ -52,53 +52,53 @@ class PlotText::Clockwork {
 
 
 
-PlotText::PlotText (const PlotText & right):Plotable(),c(new Clockwork()){
-  c->point=right.c->point;
-  c->textDocument=right.c->textDocument->clone();
-  delete c->nRect;
-  c->nRect=new QRectF(*(right.c->nRect));
+PlotText::PlotText (const PlotText & right):Plotable(),m_c(new Clockwork()){
+  m_c->point=right.m_c->point;
+  m_c->textDocument=right.m_c->textDocument->clone();
+  delete m_c->nRect;
+  m_c->nRect=new QRectF(*(right.m_c->nRect));
 }
 
 PlotText & PlotText::operator=(const PlotText & right) {
   if (&right!=this) {
     Plotable::operator=(right);
-    delete c;
-    c=new Clockwork();
-    c->point=right.c->point;
-    if (right.c->textDocument) c->textDocument=right.c->textDocument->clone();
-    c->nRect=new QRectF(*(right.c->nRect));
+    delete m_c;
+    m_c=new Clockwork();
+    m_c->point=right.m_c->point;
+    if (right.m_c->textDocument) m_c->textDocument=right.m_c->textDocument->clone();
+    m_c->nRect=new QRectF(*(right.m_c->nRect));
   }
   return *this;
 }
 
 // Constructor
 PlotText::PlotText(double x, double y, const QString & text)
-  :Plotable(),c(new Clockwork())
+  :Plotable(),m_c(new Clockwork())
 
 {
-  c->point=QPointF(x,y);
-  c->textDocument=new QTextDocument(text);
-  c->nRect=nullptr;
+  m_c->point=QPointF(x,y);
+  m_c->textDocument=new QTextDocument(text);
+  m_c->nRect=nullptr;
 }
 
 
 
 // Destructor
 PlotText::~PlotText(){
-  delete c;
+  delete m_c;
 }
 
 
 // Get the "natural maximum R"
 const QRectF  PlotText::rectHint() const {
-  if (!c->nRect) {
+  if (!m_c->nRect) {
     QGraphicsTextItem aux;
-    aux.setDocument(c->textDocument);
-    aux.setPos(c->point);
+    aux.setDocument(m_c->textDocument);
+    aux.setPos(m_c->point);
     aux.adjustSize();
-    c->nRect = new QRectF( aux.boundingRect());
+    m_c->nRect = new QRectF( aux.boundingRect());
   }
-  return *c->nRect;
+  return *m_c->nRect;
 }
 
 
@@ -109,8 +109,8 @@ void PlotText::describeYourselfTo(AbsPlotter *plotter) const{
   LinToLog *toLogX= plotter->isLogX() ? new LinToLog (plotter->rect()->left(),plotter->rect()->right()) : nullptr;
   LinToLog *toLogY= plotter->isLogY() ? new LinToLog (plotter->rect()->top(),plotter->rect()->bottom()) : nullptr;
 
-  double x=c->point.x();
-  double y=c->point.y();
+  double x=m_c->point.x();
+  double y=m_c->point.y();
 
   QMatrix m=plotter->matrix(),mInverse=m.inverted();
 
@@ -121,15 +121,15 @@ void PlotText::describeYourselfTo(AbsPlotter *plotter) const{
 
   QGraphicsTextItem *item = new QGraphicsTextItem();
   //unused variables (sroe)
-  //QPointF p=c->point;
-  //QPointF p1  = m.map(c->point);
-  //QPointF p2 = mInverse.map(c->point);
+  //QPointF p=m_c->point;
+  //QPointF p1  = m.map(m_c->point);
+  //QPointF p2 = mInverse.map(m_c->point);
  
 
   QPointF P(plotter->rect()->left(), plotter->rect()->bottom());
-  QPointF Q(c->point);
+  QPointF Q(m_c->point);
 
-  item->setDocument(c->textDocument);
+  item->setDocument(m_c->textDocument);
   item->setPos(Q-P);
   item->setMatrix(mInverse);
   plotter->scene()->addItem(item);
@@ -141,8 +141,8 @@ void PlotText::describeYourselfTo(AbsPlotter *plotter) const{
 
 
 void PlotText::setDocument(QTextDocument *document) {
-  delete c->textDocument;
-  c->textDocument=document->clone();
+  delete m_c->textDocument;
+  m_c->textDocument=document->clone();
 }
 
 

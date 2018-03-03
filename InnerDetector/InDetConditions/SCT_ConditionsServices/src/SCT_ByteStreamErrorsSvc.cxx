@@ -151,10 +151,6 @@ SCT_ByteStreamErrorsSvc::handle(const Incident& inc) {
     m_numRODsHVon=0;
     m_numRODsTotal=0;
     if (m_disableRODs) disableRODs();
-    // Set all RODs as not decoded
-    for (auto& rodDecodeStatus: m_rodDecodeStatuses) {
-      rodDecodeStatus.second = false;
-    }
     m_firstTempMaskedChips.clear();
     m_tempMaskedChips.clear();
   }
@@ -600,27 +596,6 @@ SCT_ByteStreamErrorsSvc::getNumberOfErrors(int errorType) {
     return m_numBsErrors[errorType];
   }
   return 0;
-}
-
-void
-SCT_ByteStreamErrorsSvc::setDecodedROD(const boost::uint32_t rodId) {
-  // If the rodId is found, set the ROD as decoded.
-  auto rodDecodeStatus{m_rodDecodeStatuses.find(rodId)};
-  if (rodDecodeStatus!=m_rodDecodeStatuses.end()) {
-    rodDecodeStatus->second = true;
-  }
-}
-
-std::vector<boost::uint32_t>
-SCT_ByteStreamErrorsSvc::getRODOuts() const {
-  std::vector<boost::uint32_t> rodOuts;
-  // Create a vector of undecoded RODs as ROD outs
-  for (auto& rodDecodeStatus: m_rodDecodeStatuses) {
-    if (not rodDecodeStatus.second) {
-      rodOuts.push_back(rodDecodeStatus.first);
-    }
-  }
-  return rodOuts;
 }
 
 void SCT_ByteStreamErrorsSvc::setFirstTempMaskedChip(const IdentifierHash& hashId, const unsigned int firstTempMaskedChip) {

@@ -34,7 +34,7 @@ TrigTRT_BasePDAF::~TrigTRT_BasePDAF()
 }
 
 /*
-double TrigTRT_BasePDAF::m_errorFunction(double x)
+double TrigTRT_BasePDAF::errorFunction(double x)
 {
   return erff(x);
 }
@@ -106,7 +106,7 @@ double TrigTRT_BasePDAF::calculatePDetect(double y1,double y2)
 
 void TrigTRT_BasePDAF::runKalmanFilter(Trk::TrkTrackState* pTS)
 {
-  pTS->m_report();
+  pTS->report();
 
 }
 
@@ -155,13 +155,13 @@ void TrigTRT_BarrelPDAF::update(Trk::TrkTrackState* pTS, TrigTRT_Info* pTI, Trk:
   printf("Barrel PDAF Pbkg=%f\n",m_noiseProbability);
 #endif
   
-  covRes=m_hitResolution*m_hitResolution+pTS->m_getTrackCovariance(0,0);
-  covWire=4.0*m_strawRadius*m_strawRadius/12.0+pTS->m_getTrackCovariance(0,0);
+  covRes=m_hitResolution*m_hitResolution+pTS->getTrackCovariance(0,0);
+  covWire=4.0*m_strawRadius*m_strawRadius/12.0+pTS->getTrackCovariance(0,0);
 
 #ifdef PDAF_DBG
   printf("Track pars: %f %f %f %f %f\n",
-	 pTS->m_getTrackState(0),pTS->m_getTrackState(1),
-	 pTS->m_getTrackState(2),pTS->m_getTrackState(3),pTS->m_getTrackState(4));
+	 pTS->getTrackState(0),pTS->getTrackState(1),
+	 pTS->getTrackState(2),pTS->getTrackState(3),pTS->getTrackState(4));
   printf("sigmaRes=%f sigmaWire=%f\n",sqrt(covRes),sqrt(covWire));
 #endif
 
@@ -174,14 +174,14 @@ void TrigTRT_BarrelPDAF::update(Trk::TrkTrackState* pTS, TrigTRT_Info* pTI, Trk:
       TrigTRT_Straw* pS=(*psIt);
       double x1,x2;
 #ifdef PDAF_DBG
-      printf("Ys=%f\n",pS->m_localCoordinate());     
+      printf("Ys=%f\n",pS->localCoordinate());     
 #endif
 
       x1=pS->localCoordinate()-m_strawRadius;
       x2=pS->localCoordinate()+m_strawRadius;      
       double y1,y2;
-      y1=sqrt(2.0/pTS->m_getTrackCovariance(0,0))*(x1-pTS->m_getTrackState(0));
-      y2=sqrt(2.0/pTS->m_getTrackCovariance(0,0))*(x2-pTS->m_getTrackState(0));
+      y1=sqrt(2.0/pTS->getTrackCovariance(0,0))*(x1-pTS->getTrackState(0));
+      y2=sqrt(2.0/pTS->getTrackCovariance(0,0))*(x2-pTS->getTrackState(0));
       PD=calculatePDetect(y1,y2);
       if(fabs(PD)<1e-8) PD=0.0;
 
@@ -189,7 +189,7 @@ void TrigTRT_BarrelPDAF::update(Trk::TrkTrackState* pTS, TrigTRT_Info* pTI, Trk:
 
 #ifdef PDAF_DBG
       printf("x1=%f tp=%f x2=%f y1=%f y2=%f\n",
-	     x1,pTS->m_getTrackState(0),x2,y1,y2);     
+	     x1,pTS->getTrackState(0),x2,y1,y2);     
 #endif
       //      PD=1.0/pVS->size();
 
@@ -202,20 +202,20 @@ void TrigTRT_BarrelPDAF::update(Trk::TrkTrackState* pTS, TrigTRT_Info* pTI, Trk:
 	  if((pH->localPosition()[0]<0.001)||(m_makeWireHits && (fabs(pH->localPosition()[0]-2.0)<0.001)))
 	    {
 	      pSW->m_nComponents=1;
-	      pSW->m_Resid[0]=pS->localCoordinate()-pTS->m_getTrackState(0);
+	      pSW->m_Resid[0]=pS->localCoordinate()-pTS->getTrackState(0);
 	      pSW->m_Weight[0]=m_hitEfficiency*(1.0-m_noiseProbability)*pSW->m_PD*sQwire*
 		exp(-0.5*pSW->m_Resid[0]*pSW->m_Resid[0]/covWire);
 
 	      if(pUS!=NULL)
 		{
-		  pSW->m_Resid[0]=pS->localCoordinate()-pUS->m_getTrackState(0);
+		  pSW->m_Resid[0]=pS->localCoordinate()-pUS->getTrackState(0);
 		}
 	    }
 	  else
 	    {
 	      pSW->m_nComponents=2;
-	      pSW->m_Resid[0]=pS->localCoordinate()-pH->localPosition()[0]-pTS->m_getTrackState(0);
-	      pSW->m_Resid[1]=pS->localCoordinate()+pH->localPosition()[0]-pTS->m_getTrackState(0);
+	      pSW->m_Resid[0]=pS->localCoordinate()-pH->localPosition()[0]-pTS->getTrackState(0);
+	      pSW->m_Resid[1]=pS->localCoordinate()+pH->localPosition()[0]-pTS->getTrackState(0);
 	      for(i=0;i<2;i++)
 		{
 		  pSW->m_Weight[i]=m_hitEfficiency*(1.0-m_noiseProbability)*pSW->m_PD*sQ*
@@ -223,12 +223,12 @@ void TrigTRT_BarrelPDAF::update(Trk::TrkTrackState* pTS, TrigTRT_Info* pTI, Trk:
 		}
 	      if(pUS!=NULL)
 		{
-		  pSW->m_Resid[0]=pS->localCoordinate()-pH->localPosition()[0]-pUS->m_getTrackState(0);
-		  pSW->m_Resid[1]=pS->localCoordinate()+pH->localPosition()[0]-pUS->m_getTrackState(0);
+		  pSW->m_Resid[0]=pS->localCoordinate()-pH->localPosition()[0]-pUS->getTrackState(0);
+		  pSW->m_Resid[1]=pS->localCoordinate()+pH->localPosition()[0]-pUS->getTrackState(0);
 		}
 	    }
 #ifdef PDAF_DBG
-	  printf("   q=%f PD=%f\n",pH->localPosition()[0],pSW->m_PD);
+	  printf("   q=%f m_PD=%f\n",pH->localPosition()[0],pSW->m_PD);
 	  for(int m=0;m<pSW->m_nComponents;m++)
 	    {
 	      printf("   res=%f beta=%f\n",pSW->m_Resid[m],pSW->m_Weight[m]);
@@ -291,12 +291,12 @@ void TrigTRT_BarrelPDAF::update(Trk::TrkTrackState* pTS, TrigTRT_Info* pTI, Trk:
   
   Trk::TrkTrackState* pAS=(pUS!=NULL)?pUS:pTS;
 
-  covRes=m_hitResolution*m_hitResolution+pAS->m_getTrackCovariance(0,0);
-  covWire=4.0*m_strawRadius*m_strawRadius/12.0+pAS->m_getTrackCovariance(0,0);
+  covRes=m_hitResolution*m_hitResolution+pAS->getTrackCovariance(0,0);
+  covWire=4.0*m_strawRadius*m_strawRadius/12.0+pAS->getTrackCovariance(0,0);
   
   for(i=0;i<5;i++) 
     {
-      Bk[i]=pAS->m_getTrackCovariance(0,i);
+      Bk[i]=pAS->getTrackCovariance(0,i);
       Kd[i]=Bk[i]/covRes;
       Kw[i]=Bk[i]/covWire; 
     }
@@ -313,7 +313,7 @@ void TrigTRT_BarrelPDAF::update(Trk::TrkTrackState* pTS, TrigTRT_Info* pTI, Trk:
       updPar[i]=Kd[i]*weightedResD+Kw[i]*weightedResW;
     }
 
-  pAS->m_updateTrackState(updPar);
+  pAS->updateTrackState(updPar);
 
   for(i=0;i<5;i++)
     for(j=i;j<5;j++)
@@ -324,8 +324,8 @@ void TrigTRT_BarrelPDAF::update(Trk::TrkTrackState* pTS, TrigTRT_Info* pTI, Trk:
  
 #ifdef PDAF_DBG
   printf("weighted resD=%f resW=%f new pars %f %f %f %f %f\n",
-	 weightedResD,weightedResW,pTS->m_getTrackState(0),
-	 pTS->m_getTrackState(1),pTS->m_getTrackState(2),pTS->m_getTrackState(3),pTS->m_getTrackState(4));
+	 weightedResD,weightedResW,pTS->getTrackState(0),
+	 pTS->getTrackState(1),pTS->getTrackState(2),pTS->getTrackState(3),pTS->getTrackState(4));
 #endif
   int idx=0;
   for(i=0;i<5;i++)
@@ -335,7 +335,7 @@ void TrigTRT_BarrelPDAF::update(Trk::TrkTrackState* pTS, TrigTRT_Info* pTI, Trk:
 	idx++;
       }
   
-  pAS->m_updateTrackCovariance(updCov);
+  pAS->updateTrackCovariance(updCov);
   
   if(pTI!=NULL)
     {
@@ -368,7 +368,7 @@ void TrigTRT_BarrelPDAF::update(Trk::TrkTrackState* pTS, TrigTRT_Info* pTI, Trk:
 bool TrigTRT_BarrelPDAF::validateTRT_Hit(Trk::TrkTrackState* pTS, 
                                          TrigTRT_Straw* pS)
 {
-  double res=pS->localCoordinate()-pTS->m_getTrackState(0); 
+  double res=pS->localCoordinate()-pTS->getTrackState(0); 
 
   if(fabs(res)<m_validationCut)
     {
@@ -413,13 +413,13 @@ void TrigTRT_EndcapPDAF::update(Trk::TrkTrackState* pTS, TrigTRT_Info* pTI, Trk:
   printf("Endcap PDAF Pbkg=%f\n",m_noiseProbability);
 #endif
 
-  covRes=m_hitResolution*m_hitResolution+pTS->m_getTrackCovariance(1,1);
-  covWire=4.0*m_strawRadius*m_strawRadius/12.0+pTS->m_getTrackCovariance(1,1);
+  covRes=m_hitResolution*m_hitResolution+pTS->getTrackCovariance(1,1);
+  covWire=4.0*m_strawRadius*m_strawRadius/12.0+pTS->getTrackCovariance(1,1);
 
 #ifdef PDAF_DBG
   printf("Track pars: %f %f %f %f %f\n",
-	 pTS->m_getTrackState(0),pTS->m_getTrackState(1),
-	 pTS->m_getTrackState(2),pTS->m_getTrackState(3),pTS->m_getTrackState(4));
+	 pTS->getTrackState(0),pTS->getTrackState(1),
+	 pTS->getTrackState(2),pTS->getTrackState(3),pTS->getTrackState(4));
   printf("sigmaRes=%f sigmaWire=%f\n",sqrt(covRes),sqrt(covWire));
 #endif
 
@@ -438,16 +438,16 @@ void TrigTRT_EndcapPDAF::update(Trk::TrkTrackState* pTS, TrigTRT_Info* pTI, Trk:
       x1=pS->localCoordinate()-q;
       x2=pS->localCoordinate()+q;      
       double y1,y2,cov;
-      cov=sqrt(2.0/(pTS->m_getTrackCovariance(1,1)));
-      y1=cov*(x1-pTS->m_getTrackState(1));
-      y2=cov*(x2-pTS->m_getTrackState(1));
+      cov=sqrt(2.0/(pTS->getTrackCovariance(1,1)));
+      y1=cov*(x1-pTS->getTrackState(1));
+      y2=cov*(x2-pTS->getTrackState(1));
       PD=calculatePDetect(y1,y2);
       if(fabs(PD)<1e-8) PD=0.0;
       if(pTI!=NULL) pTI->addCrossedStraw(PD);
 
 #ifdef PDAF_DBG
       printf("x1=%f tp=%f x2=%f y1=%f y2=%f\n",
-	     x1,pTS->m_getTrackState(1),x2,y1,y2);     
+	     x1,pTS->getTrackState(1),x2,y1,y2);     
 #endif
 
       const InDet::TRT_DriftCircle* pH=pS->getDC();
@@ -460,21 +460,21 @@ void TrigTRT_EndcapPDAF::update(Trk::TrkTrackState* pTS, TrigTRT_Info* pTI, Trk:
 	  if((pH->localPosition()[0]<0.001)||(m_makeWireHits && (fabs(pH->localPosition()[0]-2.0)<0.001)))
 	    {
 	      pSW->m_nComponents=1;
-	      pSW->m_Resid[0]=pS->localCoordinate()-pTS->m_getTrackState(1);
+	      pSW->m_Resid[0]=pS->localCoordinate()-pTS->getTrackState(1);
 	      pSW->m_Weight[0]=m_hitEfficiency*(1.0-m_noiseProbability)*pSW->m_PD*sQwire*
 		exp(-0.5*pSW->m_Resid[0]*pSW->m_Resid[0]/covWire);
 
 	      if(pUS!=NULL)
 		{
-		  pSW->m_Resid[0]=pS->localCoordinate()-pUS->m_getTrackState(1);
+		  pSW->m_Resid[0]=pS->localCoordinate()-pUS->getTrackState(1);
 		}
 	    }
 	  else
 	    {
 	      pSW->m_nComponents=2;
 	      q=pH->localPosition()[0];
-	      pSW->m_Resid[0]=pS->localCoordinate()-q-pTS->m_getTrackState(1);
-	      pSW->m_Resid[1]=pS->localCoordinate()+q-pTS->m_getTrackState(1);
+	      pSW->m_Resid[0]=pS->localCoordinate()-q-pTS->getTrackState(1);
+	      pSW->m_Resid[1]=pS->localCoordinate()+q-pTS->getTrackState(1);
 	      for(i=0;i<2;i++)
 		{
 		  pSW->m_Weight[i]=m_hitEfficiency*(1.0-m_noiseProbability)*pSW->m_PD*sQ*
@@ -483,12 +483,12 @@ void TrigTRT_EndcapPDAF::update(Trk::TrkTrackState* pTS, TrigTRT_Info* pTI, Trk:
 	      
 	      if(pUS!=NULL)
 		{
-		  pSW->m_Resid[0]=pS->localCoordinate()-q-pUS->m_getTrackState(1);
-		  pSW->m_Resid[1]=pS->localCoordinate()+q-pUS->m_getTrackState(1);
+		  pSW->m_Resid[0]=pS->localCoordinate()-q-pUS->getTrackState(1);
+		  pSW->m_Resid[1]=pS->localCoordinate()+q-pUS->getTrackState(1);
 		}
 	    }
 #ifdef PDAF_DBG
-	  printf("   q=%f PD=%f\n",pH->localPosition()[0],pSW->m_PD);
+	  printf("   q=%f PD=%f\n",pH->localPosition()[0],pSW->PD);
 	  for(int m=0;m<pSW->m_nComponents;m++)
 	    {
 	      printf("   res=%f beta=%f\n",pSW->m_Resid[m],pSW->m_Weight[m]);
@@ -551,14 +551,14 @@ void TrigTRT_EndcapPDAF::update(Trk::TrkTrackState* pTS, TrigTRT_Info* pTI, Trk:
 
   double Kw[5],Kd[5],Bk[5],dGw[5][5],dGd[5][5],Ga[5][5],updPar[5],updCov[15];
 
-  covRes=m_hitResolution*m_hitResolution+pAS->m_getTrackCovariance(1,1);
-  covWire=4.0*m_strawRadius*m_strawRadius/12.0+pAS->m_getTrackCovariance(1,1);
+  covRes=m_hitResolution*m_hitResolution+pAS->getTrackCovariance(1,1);
+  covWire=4.0*m_strawRadius*m_strawRadius/12.0+pAS->getTrackCovariance(1,1);
 
-  Bk[0]=pAS->m_getTrackCovariance(0,1);
-  Bk[1]=pAS->m_getTrackCovariance(1,1);
-  Bk[2]=pAS->m_getTrackCovariance(1,2);
-  Bk[3]=pAS->m_getTrackCovariance(1,3);
-  Bk[4]=pAS->m_getTrackCovariance(1,4);
+  Bk[0]=pAS->getTrackCovariance(0,1);
+  Bk[1]=pAS->getTrackCovariance(1,1);
+  Bk[2]=pAS->getTrackCovariance(1,2);
+  Bk[3]=pAS->getTrackCovariance(1,3);
+  Bk[4]=pAS->getTrackCovariance(1,4);
 
   for(i=0;i<5;i++) 
     {
@@ -577,7 +577,7 @@ void TrigTRT_EndcapPDAF::update(Trk::TrkTrackState* pTS, TrigTRT_Info* pTI, Trk:
       updPar[i]=Kd[i]*weightedResD+Kw[i]*weightedResW;
     }
 
-  pAS->m_updateTrackState(updPar);
+  pAS->updateTrackState(updPar);
 
   for(i=0;i<5;i++)
     for(j=i;j<5;j++)
@@ -588,8 +588,8 @@ void TrigTRT_EndcapPDAF::update(Trk::TrkTrackState* pTS, TrigTRT_Info* pTI, Trk:
  
 #ifdef PDAF_DBG
   printf("weighted resD=%f resW=%f new pars %f %f %f %f %f\n",
-	 weightedResD,weightedResW,pTS->m_getTrackState(0),
-	 pTS->m_getTrackState(1),pTS->m_getTrackState(2),pTS->m_getTrackState(3),pTS->m_getTrackState(4));
+	 weightedResD,weightedResW,pTS->getTrackState(0),
+	 pTS->getTrackState(1),pTS->getTrackState(2),pTS->getTrackState(3),pTS->getTrackState(4));
 #endif
   int idx=0;
   for(i=0;i<5;i++)
@@ -599,7 +599,7 @@ void TrigTRT_EndcapPDAF::update(Trk::TrkTrackState* pTS, TrigTRT_Info* pTI, Trk:
 	idx++;
       }
   
-  pAS->m_updateTrackCovariance(updCov);
+  pAS->updateTrackCovariance(updCov);
 
   if(pTI!=NULL)
     {
@@ -631,7 +631,7 @@ bool TrigTRT_EndcapPDAF::validateTRT_Hit(Trk::TrkTrackState* pTS,
                                          TrigTRT_Straw* pS)
 {
   double res;
-  res=pS->localCoordinate()-pTS->m_getTrackState(1);
+  res=pS->localCoordinate()-pTS->getTrackState(1);
   if(fabs(res)<m_validationCut)
     {
       m_VS.push_back(new TrigTRT_Straw(pS));

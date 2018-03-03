@@ -20,5 +20,11 @@ namespace xAOD {
 // Declare a CLID for the class for Athena:
 #include "xAODCore/CLASS_DEF.h"
 CLASS_DEF( xAOD::TruthMetaDataContainer, 1188015687, 1 )
+#ifndef XAOD_STANDALONE
+#include "AthenaKernel/MetaCont.h"
+CLASS_DEF( MetaCont<xAOD::TruthMetaDataContainer> , 1268016587 , 1 )
+#include "SGTools/BaseInfo.h"
+SG_BASE( MetaCont<xAOD::TruthMetaDataContainer>, MetaContBase );
+#endif // not XAOD_STANDALONE
 
 #endif // XAODTRUTH_TRUTHMETADATACONTAINER_H

@@ -49,27 +49,27 @@ class PlotBox::Clockwork {
 // Constructor
 PlotBox::PlotBox(double x, double y, double dx, double dy) 
 
-  :Plotable(),c(new Clockwork())
+  :Plotable(),m_c(new Clockwork())
 
 {
-  c->rectangle=QRectF(QPointF(x,y),QSizeF(2*dx, 2*dy));
-  c->x=x;
-  c->y=y;
-  c->dx=dx;
-  c->dy=dy;
+  m_c->rectangle=QRectF(QPointF(x,y),QSizeF(2*dx, 2*dy));
+  m_c->x=x;
+  m_c->y=y;
+  m_c->dx=dx;
+  m_c->dy=dy;
 }
 
 
 
 // Destructor
 PlotBox::~PlotBox(){
-  delete c;
+  delete m_c;
 }
 
 
 // Get the "natural maximum R"
 const QRectF PlotBox::rectHint() const {
-  return c->rectangle;
+  return m_c->rectangle;
 }
 
 
@@ -85,15 +85,15 @@ void PlotBox::describeYourselfTo(AbsPlotter *plotter) const{
 
   QPainterPath path;
   bool started=false;
-  static CLHEP::HepVector U0(2); U0[0]=+c->dx; U0[1]=+c->dy;
-  static CLHEP::HepVector U1(2); U1[0]=+c->dx; U1[1]=-c->dy;
-  static CLHEP::HepVector U2(2); U2[0]=-c->dx; U2[1]=-c->dy;
-  static CLHEP::HepVector U3(2); U3[0]=-c->dx; U3[1]=+c->dy;
+  static CLHEP::HepVector U0(2); U0[0]=+m_c->dx; U0[1]=+m_c->dy;
+  static CLHEP::HepVector U1(2); U1[0]=+m_c->dx; U1[1]=-m_c->dy;
+  static CLHEP::HepVector U2(2); U2[0]=-m_c->dx; U2[1]=-m_c->dy;
+  static CLHEP::HepVector U3(2); U3[0]=-m_c->dx; U3[1]=+m_c->dy;
   std::array<CLHEP::HepVector,5> plusU={U0, U1, U2, U3, U0};
   for (int i=0;i<5;i++) {
     CLHEP::HepVector V(2);
-    V[0]=c->x;
-    V[1]=c->y;
+    V[0]=m_c->x;
+    V[1]=m_c->y;
     V+=plusU[i];
     if (plotter->rect()->contains(QPointF(V[0],V[1]))){
       double x = V[0];
@@ -119,19 +119,19 @@ void PlotBox::describeYourselfTo(AbsPlotter *plotter) const{
 
 
 const PlotBox::Properties  PlotBox::properties() const { 
-  return c->myProperties ? *c->myProperties : c->defaultProperties;
+  return m_c->myProperties ? *m_c->myProperties : m_c->defaultProperties;
 }
 
 void PlotBox::setProperties(const Properties &  properties) { 
-  if (!c->myProperties) {
-    c->myProperties = new Properties(properties);
+  if (!m_c->myProperties) {
+    m_c->myProperties = new Properties(properties);
   }
   else {
-    *c->myProperties=properties;
+    *m_c->myProperties=properties;
   }
 }
 
 void PlotBox::resetProperties() {
-  delete c->myProperties;
+  delete m_c->myProperties;
 }
 

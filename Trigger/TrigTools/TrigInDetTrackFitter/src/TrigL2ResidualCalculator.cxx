@@ -124,7 +124,7 @@ Trk::TrkTrackState* TrigL2ResidualCalculator::extrapolate(Trk::TrkTrackState* pT
   if(pSB!=NULL)
     {   
       double diff=0.0;
-      for(i=0;i<4;i++) diff+=fabs(pSE->m_getPar(i)-pSB->m_getPar(i));
+      for(i=0;i<4;i++) diff+=fabs(pSE->getPar(i)-pSB->getPar(i));
       if(diff<1e-5) {
 	samePlane=true;	
 	//std::cout<<"Starting plane and target plane are the same !"<<std::endl;
@@ -141,18 +141,18 @@ Trk::TrkTrackState* TrigL2ResidualCalculator::extrapolate(Trk::TrkTrackState* pT
 
     //m_numericalJacobian(pTS,pSB,pSE,J);
     double sint,cost,sinf,cosf;
-    sint=sin(pTS->m_getTrackState(3));cosf=cos(pTS->m_getTrackState(2));
-    sinf=sin(pTS->m_getTrackState(2));cost=cos(pTS->m_getTrackState(3));
-    gV[0]=sint*cosf;gV[1]=sint*sinf;gV[2]=cost;CQ=C*pTS->m_getTrackState(4);
+    sint=sin(pTS->getTrackState(3));cosf=cos(pTS->getTrackState(2));
+    sinf=sin(pTS->getTrackState(2));cost=cos(pTS->getTrackState(3));
+    gV[0]=sint*cosf;gV[1]=sint*sinf;gV[2]=cost;CQ=C*pTS->getTrackState(4);
 
     memset(&J0[0][0],0,sizeof(J0));
 
     if(pSB!=NULL)
       {    
 	double L[3][3];
-	lP[0]=pTS->m_getTrackState(0);lP[1]=pTS->m_getTrackState(1);lP[2]=0.0;
-	pSB->m_transformPointToGlobal(lP,gP);
-	for(i=0;i<3;i++) for(j=0;j<3;j++) L[i][j]=pSB->m_getInvRotMatrix(i,j);
+	lP[0]=pTS->getTrackState(0);lP[1]=pTS->getTrackState(1);lP[2]=0.0;
+	pSB->transformPointToGlobal(lP,gP);
+	for(i=0;i<3;i++) for(j=0;j<3;j++) L[i][j]=pSB->getInvRotMatrix(i,j);
 	
 	J0[0][0]=L[0][0];J0[0][1]=L[0][1];
 	J0[1][0]=L[1][0];J0[1][1]=L[1][1];
@@ -164,18 +164,18 @@ Trk::TrkTrackState* TrigL2ResidualCalculator::extrapolate(Trk::TrkTrackState* pT
       }
     else
       {
-	gP[0]=-pTS->m_getTrackState(0)*sinf;
-	gP[1]= pTS->m_getTrackState(0)*cosf;
-	gP[2]= pTS->m_getTrackState(1);
-	J0[0][0]=-sinf;J0[0][2]=-pTS->m_getTrackState(0)*cosf;
-	J0[1][0]= cosf;J0[1][2]=-pTS->m_getTrackState(0)*sinf;
+	gP[0]=-pTS->getTrackState(0)*sinf;
+	gP[1]= pTS->getTrackState(0)*cosf;
+	gP[2]= pTS->getTrackState(1);
+	J0[0][0]=-sinf;J0[0][2]=-pTS->getTrackState(0)*cosf;
+	J0[1][0]= cosf;J0[1][2]=-pTS->getTrackState(0)*sinf;
 	J0[2][1]=1.0;
 	J0[3][2]=-sinf*sint;J0[3][3]=cosf*cost;
 	J0[4][2]= cosf*sint;J0[4][3]=sinf*cost;
 	J0[5][3]=-sint;
 	J0[6][4]=1.0;
       }
-    for(i=0;i<4;i++) D[i]=pSE->m_getPar(i);
+    for(i=0;i<4;i++) D[i]=pSE->getPar(i);
     for(i=0;i<3;i++) gPi[i]=gP[i];
   
     getMagneticField(gP,gB);
@@ -290,7 +290,7 @@ Trk::TrkTrackState* TrigL2ResidualCalculator::extrapolate(Trk::TrkTrackState* pT
 	for(i=0;i<3;i++) gB[i]+=dBds[i]*ds;
 	nStep--;
       }
-    pSE->m_transformPointToLocal(gP,lP);
+    pSE->transformPointToLocal(gP,lP);
     Rf[0]=lP[0];Rf[1]=lP[1];
     Rf[2]=atan2(V[1],V[0]);
 
@@ -300,11 +300,11 @@ Trk::TrkTrackState* TrigL2ResidualCalculator::extrapolate(Trk::TrkTrackState* pT
       }
 
     Rf[3]=acos(V[2]);
-    Rf[4]=pTS->m_getTrackState(4);
+    Rf[4]=pTS->getTrackState(4);
     
     gV[0]=sint*cosf;gV[1]=sint*sinf;gV[2]=cost;
 
-    for(i=0;i<4;i++) D[i]=pSE->m_getPar(i);
+    for(i=0;i<4;i++) D[i]=pSE->getPar(i);
     for(i=0;i<3;i++) gP[i]=gPi[i];
 
     for(i=0;i<3;i++)
@@ -352,11 +352,11 @@ Trk::TrkTrackState* TrigL2ResidualCalculator::extrapolate(Trk::TrkTrackState* pT
 
     V[0]=gV[0]+Av*DVx;V[1]=gV[1]+Av*DVy;V[2]=gV[2]+Av*DVz;
     
-    pSE->m_transformPointToLocal(P,lP);
+    pSE->transformPointToLocal(P,lP);
   
     memset(&Jm[0][0],0,sizeof(Jm));
     
-    for(i=0;i<3;i++) for(j=0;j<3;j++) M[i][j]=pSE->m_getRotMatrix(i,j);
+    for(i=0;i<3;i++) for(j=0;j<3;j++) M[i][j]=pSE->getRotMatrix(i,j);
     
     double coeff[3], dadVx,dadVy,dadVz,dadQ,dsdx,dsdy,dsdz,dsdVx,dsdVy,dsdVz,dsdQ;
     coeff[0]=-c*c/(b*b*b);
@@ -474,18 +474,18 @@ Trk::TrkTrackState* TrigL2ResidualCalculator::extrapolate(Trk::TrkTrackState* pT
       }
   }
   else {
-    Rf[0]=pTS->m_getTrackState(0);
-    Rf[1]=pTS->m_getTrackState(1);	
-    Rf[2]=pTS->m_getTrackState(2);
-    Rf[3]=pTS->m_getTrackState(3);
-    Rf[4]=pTS->m_getTrackState(4);
+    Rf[0]=pTS->getTrackState(0);
+    Rf[1]=pTS->getTrackState(1);	
+    Rf[2]=pTS->getTrackState(2);
+    Rf[3]=pTS->getTrackState(3);
+    Rf[4]=pTS->getTrackState(4);
     memset(&J[0][0],0,sizeof(J));
     for(i=0;i<5;i++) J[i][i]=1.0;
   }
 
   for(i=0;i<5;i++) for(j=0;j<5;j++)
     {
-      AG[i][j]=0.0;for(m=0;m<5;m++) AG[i][j]+=J[i][m]*pTS->m_getTrackCovariance(m,j);
+      AG[i][j]=0.0;for(m=0;m<5;m++) AG[i][j]+=J[i][m]*pTS->getTrackCovariance(m,j);
     }
   for(i=0;i<5;i++) for(j=i;j<5;j++)
     {
@@ -502,24 +502,24 @@ Trk::TrkTrackState* TrigL2ResidualCalculator::extrapolate(Trk::TrkTrackState* pT
   for(i=0;i<4;i++) Rtmp[i] = Rf[i];
   Rtmp[4] = 0.001*Rf[4];//GeV->MeV
 
-  pTE->m_setTrackState(Rtmp);
-  pTE->m_setTrackCovariance(Gf);
-  pTE->m_attachToSurface(pSE);
+  pTE->setTrackState(Rtmp);
+  pTE->setTrackCovariance(Gf);
+  pTE->attachToSurface(pSE);
 
-  //  pTE->m_applyMaterialEffects();
+  //  pTE->applyMaterialEffects();
   if(m_doMultScatt)
-    pTE->m_applyMultipleScattering();
+    pTE->applyMultipleScattering();
 
-  pTE->m_setTrackState(Rf);//restore
+  pTE->setTrackState(Rf);//restore
 
   if(m_doBremm) 
-    pTE->m_applyEnergyLoss(1);
+    pTE->applyEnergyLoss(1);
 
   AmgSymMatrix(5) Gi;
   for(i=0;i<5;i++) for(j=i;j<5;j++)
     {
-      Gi(i,j)=pTE->m_getTrackCovariance(i,j);
-      Gi.fillSymmetric(i, j, pTE->m_getTrackCovariance(i,j));
+      Gi(i,j)=pTE->getTrackCovariance(i,j);
+      Gi.fillSymmetric(i, j, pTE->getTrackCovariance(i,j));
     }
   Gi = Gi.inverse();
   //m_matrixInversion5x5(Gi);
@@ -529,8 +529,8 @@ Trk::TrkTrackState* TrigL2ResidualCalculator::extrapolate(Trk::TrkTrackState* pT
       A[i][j]=0.0;
       for(m=0;m<5;m++) A[i][j]+=AG[m][i]*Gi(m,j);
     }
-  pTE->m_setPreviousState(pTS);
-  pTE->m_setSmootherGain(A);
+  pTE->setPreviousState(pTS);
+  pTE->setSmootherGain(A);
 
   return pTE;
 }
@@ -637,11 +637,11 @@ StatusCode TrigL2ResidualCalculator::getResiduals(const TrigInDetTrack* pT, std:
   double Gk[5][5];
   memset(&Gk[0][0],0,sizeof(Gk));
   Gk[0][0]=100.0;Gk[1][1]=100.0;Gk[2][2]=0.01;Gk[3][3]=0.01;Gk[4][4]=1e-6;
-  pTS->m_setTrackCovariance(Gk);
+  pTS->setTrackCovariance(Gk);
   if(m_doMultScatt)  
-    pTS->m_setScatteringMode(1);
+    pTS->setScatteringMode(1);
   if(m_doBremm)
-    pTS->m_setScatteringMode(2);
+    pTS->setScatteringMode(2);
   vpTrackStates.push_back(pTS);
 
 	ATH_MSG_DEBUG("Initial params: locT="<<Rk[0]<<" locL="<<Rk[1]<<" phi="<<Rk[2]
@@ -655,7 +655,7 @@ StatusCode TrigL2ResidualCalculator::getResiduals(const TrigInDetTrack* pT, std:
   
   for(;pnIt!=pnEnd;++pnIt)
     {
-      pSE=(*pnIt)->m_getSurface();
+      pSE=(*pnIt)->getSurface();
       Trk::TrkTrackState* pNS=extrapolate(pTS,pSB,pSE);
       
       pSB=pSE;
@@ -663,11 +663,11 @@ StatusCode TrigL2ResidualCalculator::getResiduals(const TrigInDetTrack* pT, std:
 	{
 	  vpTrackStates.push_back(pNS);
 	  
-	  (*pnIt)->m_validateMeasurement(pNS);
-    ATH_MSG_DEBUG("dChi2="<<(*pnIt)->m_getChi2());
-	  (*pnIt)->m_updateTrackState(pNS);
+	  (*pnIt)->validateMeasurement(pNS);
+    ATH_MSG_DEBUG("dChi2="<<(*pnIt)->getChi2());
+	  (*pnIt)->updateTrackState(pNS);
 	  pTS=pNS;
-	  Pt=sin(pTS->m_getTrackState(3))/pTS->m_getTrackState(4);
+	  Pt=sin(pTS->getTrackState(3))/pTS->getTrackState(4);
 	  if(fabs(Pt)<200.0)
 	    {
 				ATH_MSG_DEBUG("Estimated Pt is too low "<<Pt<<" - skipping fit");
@@ -686,7 +686,7 @@ StatusCode TrigL2ResidualCalculator::getResiduals(const TrigInDetTrack* pT, std:
 
       for(;ptsrIt!=ptsrEnd;++ptsrIt)
 	{
-	  (*ptsrIt)->m_runSmoother();
+	  (*ptsrIt)->runSmoother();
 	}
 
       std::vector<Trk::TrkBaseNode*>::iterator pnIt(vpTrkNodes.begin()),
@@ -699,13 +699,13 @@ StatusCode TrigL2ResidualCalculator::getResiduals(const TrigInDetTrack* pT, std:
 
 	  Trk::TrkTrackState* pNS=(*ptsIt);
 
-	  (*pnIt)->m_validateMeasurement(pNS);
+	  (*pnIt)->validateMeasurement(pNS);
 
 	  double r[2],V[2][2];
 
-	  int nSize=(*pnIt)->m_getResiduals(r);
-	  nSize=(*pnIt)->m_getInverseResidualVariance(V);
-	  const Trk::PrepRawData* pPRD = (*pnIt)->m_getPrepRawData();
+	  int nSize=(*pnIt)->getResiduals(r);
+	  nSize=(*pnIt)->getInverseResidualVariance(V);
+	  const Trk::PrepRawData* pPRD = (*pnIt)->getPrepRawData();
 
 	  Identifier id = pPRD->identify();
 
@@ -750,7 +750,7 @@ StatusCode TrigL2ResidualCalculator::getResiduals(const TrigInDetTrack* pT, std:
   pnIt=vpTrkNodes.begin();pnEnd=vpTrkNodes.end();
   for(;pnIt!=pnEnd;++pnIt) 
     {
-      delete((*pnIt)->m_getSurface());
+      delete((*pnIt)->getSurface());
       delete (*pnIt);
     }
   vpTrkNodes.clear();
@@ -822,11 +822,11 @@ StatusCode TrigL2ResidualCalculator::getUnbiassedResiduals(const TrigInDetTrack*
       double Gk[5][5];
       memset(&Gk[0][0],0,sizeof(Gk));
       Gk[0][0]=100.0;Gk[1][1]=100.0;Gk[2][2]=0.01;Gk[3][3]=0.01;Gk[4][4]=1e-6;
-      pTS->m_setTrackCovariance(Gk);
+      pTS->setTrackCovariance(Gk);
       if(m_doMultScatt)  
-	pTS->m_setScatteringMode(1);
+	pTS->setScatteringMode(1);
       if(m_doBremm)
-	pTS->m_setScatteringMode(2);
+	pTS->setScatteringMode(2);
       vpTrackStates.push_back(pTS);
 
 			ATH_MSG_DEBUG("Initial params: locT="<<Rk[0]<<" locL="<<Rk[1]<<" phi="<<Rk[2]
@@ -837,7 +837,7 @@ StatusCode TrigL2ResidualCalculator::getUnbiassedResiduals(const TrigInDetTrack*
   
       for(pnIt=vpTrkNodes.begin();pnIt!=pnEnd;++pnIt)
 	{
-	  pSE=(*pnIt)->m_getSurface();
+	  pSE=(*pnIt)->getSurface();
 	  Trk::TrkTrackState* pNS=extrapolate(pTS,pSB,pSE);
       
 	  pSB=pSE;
@@ -845,18 +845,18 @@ StatusCode TrigL2ResidualCalculator::getUnbiassedResiduals(const TrigInDetTrack*
 	    {
 	      vpTrackStates.push_back(pNS);
 	  
-	      (*pnIt)->m_validateMeasurement(pNS);
-				ATH_MSG_DEBUG("dChi2="<<(*pnIt)->m_getChi2());
+	      (*pnIt)->validateMeasurement(pNS);
+				ATH_MSG_DEBUG("dChi2="<<(*pnIt)->getChi2());
 	      if((*pnIt)!=pMaskedNode)
 		{
-		  (*pnIt)->m_updateTrackState(pNS);
+		  (*pnIt)->updateTrackState(pNS);
 		}
 	      else
 		{
 		  pMaskedState=pNS;
 		}
 	      pTS=pNS;
-	      Pt=sin(pTS->m_getTrackState(3))/pTS->m_getTrackState(4);
+	      Pt=sin(pTS->getTrackState(3))/pTS->getTrackState(4);
 	      if(fabs(Pt)<200.0)
 		{
 			ATH_MSG_DEBUG("Estimated Pt is too low "<<Pt<<" - skipping fit");
@@ -875,16 +875,16 @@ StatusCode TrigL2ResidualCalculator::getUnbiassedResiduals(const TrigInDetTrack*
 
 	  for(;ptsrIt!=ptsrEnd;++ptsrIt)
 	    {
-	      (*ptsrIt)->m_runSmoother();
+	      (*ptsrIt)->runSmoother();
 	    }
 
-	  pMaskedNode->m_validateMeasurement(pMaskedState);
+	  pMaskedNode->validateMeasurement(pMaskedState);
 	      
 	  double r[2],V[2][2];
 
-	  int nSize=pMaskedNode->m_getResiduals(r);
-	  nSize=pMaskedNode->m_getInverseResidualVariance(V);
-	  const Trk::PrepRawData* pPRD = pMaskedNode->m_getPrepRawData();
+	  int nSize=pMaskedNode->getResiduals(r);
+	  nSize=pMaskedNode->getInverseResidualVariance(V);
+	  const Trk::PrepRawData* pPRD = pMaskedNode->getPrepRawData();
 	      
 	  Identifier id = pPRD->identify();
 	      
@@ -933,7 +933,7 @@ StatusCode TrigL2ResidualCalculator::getUnbiassedResiduals(const TrigInDetTrack*
   pnIt=vpTrkNodes.begin();pnEnd=vpTrkNodes.end();
   for(;pnIt!=pnEnd;++pnIt) 
     {
-      delete((*pnIt)->m_getSurface());
+      delete((*pnIt)->getSurface());
       delete (*pnIt);
     }
   vpTrkNodes.clear();
@@ -1005,11 +1005,11 @@ StatusCode TrigL2ResidualCalculator::getUnbiassedResiduals(const Trk::Track& pT,
                        {0,         0, 0.01, 0,    0},
                        {0,         0, 0,    0.01, 0},
                        {0,         0, 0,    0,   0.1}};
-    pTS->m_setTrackCovariance(Gk);
+    pTS->setTrackCovariance(Gk);
     if(m_doMultScatt)  
-      pTS->m_setScatteringMode(1);
+      pTS->setScatteringMode(1);
     if(m_doBremm)
-      pTS->m_setScatteringMode(2);
+      pTS->setScatteringMode(2);
     vpTrackStates.push_back(pTS);
 
     ATH_MSG_DEBUG("Initial params: locT="<<Rk[0]<<" locL="<<Rk[1]<<" phi="<<Rk[2]
@@ -1020,7 +1020,7 @@ StatusCode TrigL2ResidualCalculator::getUnbiassedResiduals(const Trk::Track& pT,
 
     for(pnIt=vpTrkNodes.begin();pnIt!=pnEnd;++pnIt)
     {
-      pSE=(*pnIt)->m_getSurface();
+      pSE=(*pnIt)->getSurface();
       Trk::TrkTrackState* pNS=extrapolate(pTS,pSB,pSE);
 
       pSB=pSE;
@@ -1028,18 +1028,18 @@ StatusCode TrigL2ResidualCalculator::getUnbiassedResiduals(const Trk::Track& pT,
       {
         vpTrackStates.push_back(pNS);
 
-        (*pnIt)->m_validateMeasurement(pNS);
-        ATH_MSG_DEBUG("dChi2="<<(*pnIt)->m_getChi2());
+        (*pnIt)->validateMeasurement(pNS);
+        ATH_MSG_DEBUG("dChi2="<<(*pnIt)->getChi2());
         if((*pnIt)!=pMaskedNode)
         {
-          (*pnIt)->m_updateTrackState(pNS);
+          (*pnIt)->updateTrackState(pNS);
         }
         else
         {
           pMaskedState=pNS;
         }
         pTS=pNS;
-        Pt=sin(pTS->m_getTrackState(3))/pTS->m_getTrackState(4);
+        Pt=sin(pTS->getTrackState(3))/pTS->getTrackState(4);
         if(fabs(Pt)<0.2)
         {
           ATH_MSG_DEBUG("Estimated Pt is too low "<<Pt<<" - skipping fit");
@@ -1058,16 +1058,16 @@ StatusCode TrigL2ResidualCalculator::getUnbiassedResiduals(const Trk::Track& pT,
 
       for(;ptsrIt!=ptsrEnd;++ptsrIt)
       {
-        (*ptsrIt)->m_runSmoother();
+        (*ptsrIt)->runSmoother();
       }
 
-      pMaskedNode->m_validateMeasurement(pMaskedState);
+      pMaskedNode->validateMeasurement(pMaskedState);
 
       double r[2],V[2][2];
 
-      int nSize=pMaskedNode->m_getResiduals(r);
-      nSize=pMaskedNode->m_getInverseResidualVariance(V);
-      const Trk::PrepRawData* pPRD = pMaskedNode->m_getPrepRawData();
+      int nSize=pMaskedNode->getResiduals(r);
+      nSize=pMaskedNode->getInverseResidualVariance(V);
+      const Trk::PrepRawData* pPRD = pMaskedNode->getPrepRawData();
 
       Identifier id = pPRD->identify();
 
@@ -1116,7 +1116,7 @@ StatusCode TrigL2ResidualCalculator::getUnbiassedResiduals(const Trk::Track& pT,
   pnIt=vpTrkNodes.begin();pnEnd=vpTrkNodes.end();
   for(;pnIt!=pnEnd;++pnIt) 
   {
-    delete((*pnIt)->m_getSurface());
+    delete((*pnIt)->getSurface());
     delete (*pnIt);
   }
   vpTrkNodes.clear();

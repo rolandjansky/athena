@@ -12,7 +12,6 @@
 #define SCT_ConditionTools_SCT_ReadoutTool_h
 
 // C++
-#include <string> 
 #include <vector> 
 #include <bitset>
 

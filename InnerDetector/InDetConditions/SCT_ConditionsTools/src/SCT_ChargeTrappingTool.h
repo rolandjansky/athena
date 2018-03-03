@@ -76,7 +76,6 @@ private:
   
 private:
   // Properties
-  //std::string m_textFile;
   std::string m_detectorName;
   double m_temperature;
   double m_temperatureMin;
@@ -87,14 +86,14 @@ private:
   bool m_conditionsSvcValid;
   bool m_conditionsSvcWarning;
   bool m_isSCT;
-  InDet::SiliconProperties m_siProperties;
-  const InDetDD::SiDetectorManager * m_detManager;
+  const InDetDD::SiDetectorManager* m_detManager;
  
   // -- Radiation damage specific
   bool m_calcHoles;
   double m_fluence;
   double m_betaElectrons;
   double m_betaHoles;
+  // The following vectors are used for caching. Updates are necessary for AthenaMT
   std::vector<double> m_electricField;
   std::vector<double> m_meanFreePathElectrons; 
   std::vector<double> m_meanFreePathHoles;
@@ -105,7 +104,8 @@ private:
   std::vector<double> m_electrodeTime;
   std::vector<double> m_trappingPosition;
   std::vector<double> m_holeDriftMobility;
-  mutable bool m_getdoCTrap;
+
+  bool m_getdoCTrap;
 
   double m_PotentialValue[81][115];
 

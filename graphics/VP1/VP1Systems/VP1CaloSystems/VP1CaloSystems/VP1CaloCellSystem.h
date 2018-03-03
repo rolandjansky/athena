@@ -32,7 +32,7 @@ protected slots:
 
 private:
   class Clockwork;
-  Clockwork* _clockwork;
+  Clockwork* m_clockwork;
 
   // This method is called when either of the following conditins is met:
   //   1. At the beginning of every event

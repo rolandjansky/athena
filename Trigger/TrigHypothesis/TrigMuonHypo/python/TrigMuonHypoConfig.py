@@ -1803,7 +1803,7 @@ class TrigMuonEFMSonlyHypoConfig(TrigMuonEFMSonlyHypoAlg) :
         try:
             TriggerFlags.enableMonitoring = ["Validation"]
             if 'Validation' in TriggerFlags.enableMonitoring() or 'Online' in TriggerFlags.enableMonitoring() or 'Cosmic' in TriggerFlags.enableMonitoring():
-                tool.MonTool = TrigMufastHypoMonitoring() 
+                tool.MonTool = TrigMuonEFMSonlyHypoMonitoring() 
         except AttributeError:
             tool.MonTool = ""
             print name, ' Monitoring Tool failed'

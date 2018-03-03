@@ -77,6 +77,16 @@ StatusCode TgcDigitizationTool::initialize()
     return StatusCode::FAILURE; 
   } 
   ATH_MSG_DEBUG("Retrieved MuonDetectorManager from DetectorStore.");
+
+  if(!m_mergeSvc) {
+    //locate the PileUpMergeSvc
+    const bool CREATEIF = true;
+    if(!(service("PileUpMergeSvc", m_mergeSvc, CREATEIF)).isSuccess() ||
+       !m_mergeSvc) {
+      ATH_MSG_FATAL("Could not find PileUpMergeSvc");
+      return StatusCode::FAILURE;
+    }
+  }
   
   //initialize the TgcIdHelper
   m_idHelper = m_mdManager->tgcIdHelper();
@@ -173,40 +183,40 @@ StatusCode TgcDigitizationTool::processBunchXing(int bunchXing,
                                                  SubEventIterator bSubEvents,
                                                  SubEventIterator eSubEvents) {
   ATH_MSG_DEBUG ("TgcDigitizationTool::processBunchXing() " << bunchXing);
-  
-  SubEventIterator iEvt = bSubEvents;
-  while(iEvt!=eSubEvents)
-    {
-      StoreGateSvc& seStore = *iEvt->ptr()->evtStore();
-      PileUpTimeEventIndex thisEventIndex = PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index());
-      ATH_MSG_VERBOSE("SubEvt StoreGate " << seStore.name() << " :"
-                      << " bunch crossing : " << bunchXing
-                      << " time offset : " << iEvt->time()
-                      << " event number : " << iEvt->ptr()->eventNumber()
-                      << " run number : " << iEvt->ptr()->runNumber());
 
-      const TGCSimHitCollection* seHitColl(nullptr);
-      if(!seStore.retrieve(seHitColl, m_inputHitCollectionName).isSuccess()) {
-        ATH_MSG_FATAL("SubEvent TGCSimHitCollection not found in StoreGate " << seStore.name());
-        return StatusCode::FAILURE;
-      }
-      ATH_MSG_VERBOSE("TGCSimHitCollection found with " << seHitColl->size() << " hits");
-      //Copy Hit Collection
-      TGCSimHitCollection* TGCHitColl = new TGCSimHitCollection("TGC_Hits");
-      TGCSimHitCollection::const_iterator i = seHitColl->begin();
-      TGCSimHitCollection::const_iterator e = seHitColl->end();
-      // Read hits from this collection
-      for(; i!=e; ++i)
-        {
-          TGCHitColl->Emplace(*i);
-        }
-      m_thpcTGC->insert(thisEventIndex, TGCHitColl);
-      //store these for deletion at the end of mergeEvent
-      m_TGCHitCollList.push_back(TGCHitColl);
+  typedef PileUpMergeSvc::TimedList<TGCSimHitCollection>::type TimedHitCollList;
+  TimedHitCollList hitCollList;
 
-      ++iEvt;
-    }
-  
+  if (!(m_mergeSvc->retrieveSubSetEvtData(m_inputHitCollectionName, hitCollList, bunchXing,
+					  bSubEvents, eSubEvents).isSuccess()) &&
+        hitCollList.size() == 0) {
+    ATH_MSG_ERROR("Could not fill TimedHitCollList");
+    return StatusCode::FAILURE;
+  } else {
+    ATH_MSG_VERBOSE(hitCollList.size() << " TGCSimHitCollection with key " <<
+		    m_inputHitCollectionName << " found");
+  }
+
+  TimedHitCollList::iterator iColl(hitCollList.begin());
+  TimedHitCollList::iterator endColl(hitCollList.end());
+
+  // Iterating over the list of collections
+  for( ; iColl != endColl; iColl++){
+
+    TGCSimHitCollection *hitCollPtr = new TGCSimHitCollection(*iColl->second);
+    PileUpTimeEventIndex timeIndex(iColl->first);
+
+    ATH_MSG_DEBUG("TGCSimHitCollection found with " << hitCollPtr->size() <<
+		  " hits");
+    ATH_MSG_VERBOSE("time index info. time: " << timeIndex.time()
+		    << " index: " << timeIndex.index()
+		    << " type: " << timeIndex.type());
+
+    m_thpcTGC->insert(timeIndex, hitCollPtr);
+    m_TGCHitCollList.push_back(hitCollPtr);
+
+  }
+
   return StatusCode::SUCCESS;
 }
 

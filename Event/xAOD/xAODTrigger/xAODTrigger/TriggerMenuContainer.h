@@ -20,5 +20,11 @@ namespace xAOD {
 // Set up a CLID for the container:
 #include "xAODCore/CLASS_DEF.h"
 CLASS_DEF( xAOD::TriggerMenuContainer, 1107011239, 1 )
+#ifndef XAOD_STANDALONE
+#include "AthenaKernel/MetaCont.h"
+CLASS_DEF( MetaCont<xAOD::TriggerMenuContainer> , 11070039 , 1 )
+#include "SGTools/BaseInfo.h"
+SG_BASE( MetaCont<xAOD::TriggerMenuContainer>, MetaContBase );
+#endif // not XAOD_STANDALONE
 
 #endif // XAODTRIGGER_TRIGGERMENUCONTAINER_H

@@ -101,7 +101,7 @@ public:
 private:
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
   void ensureInitSubSysHitInfo() const;
   //	double getBTaggingWeight(std::string tagger);
 

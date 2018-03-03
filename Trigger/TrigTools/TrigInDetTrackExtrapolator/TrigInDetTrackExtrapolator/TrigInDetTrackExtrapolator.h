@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __TRIGINDETTRACKEXTRAPOLATOR_H__
-#define __TRIGINDETTRACKEXTRAPOLATOR_H__
+#ifndef TRIGINDETTRACKEXTRAPOLATOR_TRIGINDETTRACKEXTRAPOLATOR_H
+#define TRIGINDETTRACKEXTRAPOLATOR_TRIGINDETTRACKEXTRAPOLATOR_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -41,10 +41,10 @@ class TrigInDetTrackExtrapolator: public AthAlgTool, virtual public ITrigInDetTr
 
 private:
 
-  void m_getMagneticField(double[3],double*);
-  Trk::TrkPlanarSurface* m_createEndSurfaceForBarrel(double[6],double);
+  void getMagneticField(double[3],double*);
+  Trk::TrkPlanarSurface* createEndSurfaceForBarrel(double[6],double);
 
-  Trk::TrkTrackState* m_integrate(Trk::TrkTrackState*, 
+  Trk::TrkTrackState* integrate(Trk::TrkTrackState*, 
 				  Trk::TrkPlanarSurface*,
 				  Trk::TrkPlanarSurface*);
   TrigInDetTrackFitPar* extrapolateBlindly(const TrigInDetTrack*, double, double);

@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TFCS1DFunctionRegressionTF_h
-#define TFCS1DFunctionRegressionTF_h
+#ifndef ISF_FASTCALOSIMEVENT_TFCS1DFunctionRegressionTF_h
+#define ISF_FASTCALOSIMEVENT_TFCS1DFunctionRegressionTF_h
 
 #include "ISF_FastCaloSimEvent/TFCS1DFunctionRegression.h"
 #include "TH1.h"
@@ -27,13 +27,8 @@ class TFCS1DFunctionRegressionTF:public TFCS1DFunctionRegression
     float m_rangeval;
     float m_startval;
 
-  public:
-    ClassDef(TFCS1DFunctionRegressionTF,1)
+  ClassDef(TFCS1DFunctionRegressionTF,1)
 
 };
-
-#if defined(__MAKECINT__)
-#pragma link C++ class TFCS1DFunctionRegressionTF+;
-#endif
 
 #endif

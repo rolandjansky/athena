@@ -202,6 +202,16 @@ StatusCode RpcDigitizationTool::initialize() {
   }
   ATH_MSG_DEBUG ( "Retrieved GeoModel from DetectorStore." );
 
+  if(!m_mergeSvc) {
+    //locate the PileUpMergeSvc and initialize our local ptr
+    const bool CREATEIF(true);
+    if (!(service("PileUpMergeSvc", m_mergeSvc, CREATEIF)).isSuccess() ||
+	0 == m_mergeSvc) {
+      ATH_MSG_ERROR ("Could not find PileUpMergeSvc" );
+      return StatusCode::FAILURE;
+    }
+  }
+
   m_idHelper = m_GMmgr->rpcIdHelper();
   if(!m_idHelper) {
     return StatusCode::FAILURE;
@@ -414,38 +424,38 @@ StatusCode RpcDigitizationTool::processBunchXing(int bunchXing,
 {
   ATH_MSG_DEBUG ( "RpcDigitizationTool::in processBunchXing()" );
 
-  SubEventIterator iEvt = bSubEvents;
-  while(iEvt!=eSubEvents)
-    {
-      StoreGateSvc& seStore = *iEvt->ptr()->evtStore();
-      PileUpTimeEventIndex thisEventIndex = PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index());
-      ATH_MSG_VERBOSE("SubEvt StoreGate " << seStore.name() << " :"
-                      << " bunch crossing : " << bunchXing
-                      << " time offset : " << iEvt->time()
-                      << " event number : " << iEvt->ptr()->eventNumber()
-                      << " run number : " << iEvt->ptr()->runNumber());
-      const RPCSimHitCollection* seHitColl(nullptr);
-      if (!seStore.retrieve(seHitColl,m_inputHitCollectionName).isSuccess())
-        {
-          ATH_MSG_ERROR ("SubEvent RPCSimHitCollection not found in StoreGate " << seStore.name());
-          return StatusCode::FAILURE;
-        }
-      ATH_MSG_VERBOSE ("RPCSimHitCollection found with " << seHitColl->size() << " hits");
-      //Copy Hit Collection
-      RPCSimHitCollection* RPCHitColl = new RPCSimHitCollection("RPC_Hits");
-      RPCSimHitCollection::const_iterator i = seHitColl->begin();
-      RPCSimHitCollection::const_iterator e = seHitColl->end();
-      // Read hits from this collection
-      for (; i!=e; ++i)
-        {
-          RPCHitColl->Emplace(*i);
-        }
-      m_thpcRPC->insert(thisEventIndex, RPCHitColl);
-      //store these for deletion at the end of mergeEvent
-      m_RPCHitCollList.push_back(RPCHitColl);
+  typedef PileUpMergeSvc::TimedList<RPCSimHitCollection>::type TimedHitCollList;
+  TimedHitCollList hitCollList;
 
-      ++iEvt;
-    }
+  if (!(m_mergeSvc->retrieveSubSetEvtData(m_inputHitCollectionName, hitCollList, bunchXing,
+					  bSubEvents, eSubEvents).isSuccess()) &&
+        hitCollList.size() == 0) {
+    ATH_MSG_ERROR("Could not fill TimedHitCollList");
+    return StatusCode::FAILURE;
+  } else {
+    ATH_MSG_VERBOSE(hitCollList.size() << " RPCSimHitCollection with key " <<
+		    m_inputHitCollectionName << " found");
+  }
+
+  TimedHitCollList::iterator iColl(hitCollList.begin());
+  TimedHitCollList::iterator endColl(hitCollList.end());
+
+  // Iterating over the list of collections
+  for( ; iColl != endColl; iColl++){
+
+    RPCSimHitCollection *hitCollPtr = new RPCSimHitCollection(*iColl->second);
+    PileUpTimeEventIndex timeIndex(iColl->first);
+
+    ATH_MSG_DEBUG("RPCSimHitCollection found with " << hitCollPtr->size() <<
+		  " hits");
+    ATH_MSG_VERBOSE("time index info. time: " << timeIndex.time()
+		    << " index: " << timeIndex.index()
+		    << " type: " << timeIndex.type());
+
+    m_thpcRPC->insert(timeIndex, hitCollPtr);
+    m_RPCHitCollList.push_back(hitCollPtr);
+
+  }
 
   return StatusCode::SUCCESS;
 }

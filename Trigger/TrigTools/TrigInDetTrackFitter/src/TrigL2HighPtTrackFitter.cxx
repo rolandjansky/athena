@@ -79,21 +79,21 @@ StatusCode TrigL2HighPtTrackFitter::finalize()
 
 void TrigL2HighPtTrackFitter::recalibrateFilteringNode(Trk::TrkBaseNode* pN, Trk::TrkTrackState* pTS)
 {
-  if(pTS->m_getSurface()==NULL) return;
+  if(pTS->getSurface()==NULL) return;
   AmgSymMatrix(5)* pM = new AmgSymMatrix(5);
 
   for(int i=0;i<5;i++) 
     for(int j=0;j<5;j++)
-      (*pM)(i,j)=pTS->m_getTrackCovariance(i,j);
+      (*pM)(i,j)=pTS->getTrackCovariance(i,j);
   
-  const Trk::PlaneSurface& pTrkSB = dynamic_cast<const Trk::PlaneSurface&>(pN->m_getPrepRawData()->detectorElement()->surface());
-  Trk::TrackParameters* pTP=new Trk::AtaPlane(pTS->m_getTrackState(0),pTS->m_getTrackState(1),
-					      pTS->m_getTrackState(2),pTS->m_getTrackState(3),
-					      pTS->m_getTrackState(4),pTrkSB,
+  const Trk::PlaneSurface& pTrkSB = dynamic_cast<const Trk::PlaneSurface&>(pN->getPrepRawData()->detectorElement()->surface());
+  Trk::TrackParameters* pTP=new Trk::AtaPlane(pTS->getTrackState(0),pTS->getTrackState(1),
+					      pTS->getTrackState(2),pTS->getTrackState(3),
+					      pTS->getTrackState(4),pTrkSB,
 					      pM);
   
-  const Trk::RIO_OnTrack* pRIO = m_ROTcreator->correct(*(pN->m_getPrepRawData()),*pTP);
-  pN->m_updateWithRIO(pRIO);
+  const Trk::RIO_OnTrack* pRIO = m_ROTcreator->correct(*(pN->getPrepRawData()),*pTP);
+  pN->updateWithRIO(pRIO);
   
   delete pTP;
   delete pRIO;
@@ -115,7 +115,7 @@ Trk::TrkTrackState* TrigL2HighPtTrackFitter::fit(Trk::TrkTrackState* pTS, std::v
 
   for(;pnIt!=pnEnd;++pnIt)
     {
-      pSE=(*pnIt)->m_getSurface();
+      pSE=(*pnIt)->getSurface();
       Trk::TrkTrackState* pNS=m_fastExtrapolator->extrapolate(pTS,pSB,pSE,runSmoother);	  
       pSB=pSE;
       if(pNS!=NULL)
@@ -127,11 +127,11 @@ Trk::TrkTrackState* TrigL2HighPtTrackFitter::fit(Trk::TrkTrackState* pTS, std::v
 	      recalibrateFilteringNode((*pnIt), pNS);
 	    }
 	  
-	  (*pnIt)->m_validateMeasurement(pNS);
-		ATH_MSG_DEBUG("dChi2="<<(*pnIt)->m_getChi2());
-	  (*pnIt)->m_updateTrackState(pNS);
+	  (*pnIt)->validateMeasurement(pNS);
+		ATH_MSG_DEBUG("dChi2="<<(*pnIt)->getChi2());
+	  (*pnIt)->updateTrackState(pNS);
 	  pTS=pNS;
-	  double Pt=sin(pTS->m_getTrackState(3))/pTS->m_getTrackState(4);
+	  double Pt=sin(pTS->getTrackState(3))/pTS->getTrackState(4);
 	  if(fabs(Pt)<200.0)
 	    {
 				ATH_MSG_DEBUG("Estimated Pt is too low "<<Pt<<" - skipping fit");
@@ -151,7 +151,7 @@ Trk::TrkTrackState* TrigL2HighPtTrackFitter::fit(Trk::TrkTrackState* pTS, std::v
 	    ptsEnd(vpTrackStates.rend());
 	  for(;ptsIt!=ptsEnd;++ptsIt)
 	    {
-	      (*ptsIt)->m_runSmoother();
+	      (*ptsIt)->runSmoother();
 	    }
 	  pTS=new Trk::TrkTrackState( (*vpTrackStates.begin()));
 	}
