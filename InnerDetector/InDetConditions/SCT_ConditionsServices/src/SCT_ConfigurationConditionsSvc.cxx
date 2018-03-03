@@ -21,7 +21,6 @@ SCT_ConfigurationConditionsSvc::SCT_ConfigurationConditionsSvc(const std::string
   m_condKey{std::string{"SCT_ConfigurationCondData"}},
   m_detStore{"DetectorStore", name},
   m_pHelper{nullptr},
-  m_cablingSvc{"SCT_CablingSvc", name},
   m_pManager{nullptr},
   m_checkStripsInsideModules{true}
 { 
@@ -32,7 +31,6 @@ SCT_ConfigurationConditionsSvc::SCT_ConfigurationConditionsSvc(const std::string
 StatusCode SCT_ConfigurationConditionsSvc::initialize() {
   ATH_MSG_INFO("Initializing configuration");
 
-  ATH_CHECK(m_cablingSvc.retrieve());
   ATH_CHECK(m_detStore.retrieve());
   ATH_CHECK(m_detStore->retrieve(m_pManager, "SCT"));
   ATH_CHECK(m_detStore->retrieve(m_pHelper, "SCT_ID"));

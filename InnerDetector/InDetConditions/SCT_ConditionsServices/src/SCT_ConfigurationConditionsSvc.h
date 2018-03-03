@@ -26,7 +26,6 @@
 #include "SCT_ConditionsServices/ISCT_ConditionsSvc.h"
 #include "SCT_ConditionsServices/ISCT_ConfigurationConditionsSvc.h"
 #include "SCT_ConditionsData/SCT_ConfigurationCondData.h"
-#include "SCT_Cabling/ISCT_CablingSvc.h" 
 #include "StoreGate/DataHandle.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
@@ -105,7 +104,6 @@ private:
 
   ServiceHandle<StoreGateSvc>           m_detStore;                 //!< Handle on the detector store
   const SCT_ID*                         m_pHelper;                  //!< ID helper for SCT
-  ServiceHandle<ISCT_CablingSvc>        m_cablingSvc;               //!< Handle on SCT cabling service
   const InDetDD::SCT_DetectorManager*   m_pManager;                 //!< SCT detector manager
   bool                                  m_checkStripsInsideModules; //!< Do we want to check if a strip is bad because it is inside a bad module
 
