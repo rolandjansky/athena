@@ -35,9 +35,10 @@ class SCT_ElectricFieldTool: public extends<AthAlgTool, ISCT_ElectricFieldTool>
                                   double depletionVoltage,
                                   double sensorThickness,
                                   double biasVoltage);
-  int m_eFieldModel; //!< 0 uniform E-field model, 1 flat diode model
-
  private:
+  enum FieldModel{UNIFORM_FIELD, FLAT_DIODE};
+
+  int m_eFieldModel; //!< 0 uniform E-field model, 1 flat diode model
   TF1 m_model;
 };
 

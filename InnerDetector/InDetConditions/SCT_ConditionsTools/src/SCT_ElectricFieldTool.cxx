@@ -9,7 +9,7 @@
 SCT_ElectricFieldTool::SCT_ElectricFieldTool(const std::string& t, const std::string& n, const IInterface* p) : 
   base_class(t, n, p),
   m_model{"pol6", "pol6", 0., 0.03} {
-  declareProperty("EFieldModel", m_eFieldModel=1); //!< flat diode model as default
+  declareProperty("EFieldModel", m_eFieldModel=FLAT_DIODE); //!< flat diode model as default
 }
 
 StatusCode 
@@ -37,7 +37,6 @@ double SCT_ElectricFieldTool::getElectricField(double positionZ,
                                                double depletionVoltage,
                                                double sensorThickness,
                                                double biasVoltage) {
-  enum FieldModel{UNIFORM_FIELD, FLAT_DIODE};
   if ((m_eFieldModel == UNIFORM_FIELD) or (m_eFieldModel == FLAT_DIODE)) {
     //--------------------------------------------------------------
     //   Electric Field Ez
