@@ -51,6 +51,7 @@ namespace Prompt
       PtRel,
       DL1mu,
       rnnip,
+      MV2c10,
       MV2c10rnn,
       SV1,
       JetF
