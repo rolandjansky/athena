@@ -29,10 +29,7 @@ class StatusCode;
 namespace CP
 {
   class SystematicSet;
-}
 
-namespace EL
-{
   /// \brief a data handle for writing systematics varied input data
 
   template<typename T,typename Aux = void> class SysWriteHandle final : public ISysHandleBase

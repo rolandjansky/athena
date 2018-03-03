@@ -21,7 +21,7 @@
 // method implementations
 //
 
-namespace EL
+namespace CP
 {
   ::StatusCode OutOfValidityHelper ::
   initialize ()

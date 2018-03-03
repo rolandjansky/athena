@@ -20,7 +20,7 @@
 // method implementations
 //
 
-namespace EL
+namespace CP
 {
   template<typename T> inline MsgStream& SysReadHandle<T> ::
   msg () const
@@ -61,7 +61,7 @@ namespace EL
     auto cache = m_inputNameCache.find (sys);
     if (cache == m_inputNameCache.end())
     {
-      std::string newName = detail::makeSystematicsName
+      std::string newName = makeSystematicsName
         (m_inputName, m_affectingRegex, sys);
       ANA_MSG_DEBUG ("SysReadHandle: " << newName << " (" << sys.name() << ")");
       m_inputNameCache.insert (std::make_pair (sys, newName));

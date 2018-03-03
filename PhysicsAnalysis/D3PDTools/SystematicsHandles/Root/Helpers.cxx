@@ -22,34 +22,31 @@
 // method implementations
 //
 
-namespace EL
+namespace CP
 {
-  namespace detail
+  std::string makeSystematicsName (const std::string& name,
+                                   const CP::SystematicSet& sys)
   {
-    std::string makeSystematicsName (const std::string& name,
-                                     const CP::SystematicSet& sys)
+    std::string sysName = sys.name();
+    if (sysName.empty())
+      sysName = "NOSYS";
+    return RCU::substitute (name, "%SYS%", sysName);
+  }
+
+
+
+  std::string makeSystematicsName (const std::string& name,
+                                   const std::string& affecting,
+                                   const CP::SystematicSet& sys)
+  {
+    CP::SystematicSet mysys;
+    std::regex expr (affecting);
+
+    for (auto& var : sys)
     {
-      std::string sysName = sys.name();
-      if (sysName.empty())
-        sysName = "NOSYS";
-      return RCU::substitute (name, "%SYS%", sysName);
+      if (regex_match (var.basename(), expr))
+        mysys.insert (var);
     }
-
-
-
-    std::string makeSystematicsName (const std::string& name,
-                                     const std::string& affecting,
-                                     const CP::SystematicSet& sys)
-    {
-      CP::SystematicSet mysys;
-      std::regex expr (affecting);
-
-      for (auto& var : sys)
-      {
-        if (regex_match (var.basename(), expr))
-          mysys.insert (var);
-      }
-      return makeSystematicsName (name, mysys);
-    }
+    return makeSystematicsName (name, mysys);
   }
 }

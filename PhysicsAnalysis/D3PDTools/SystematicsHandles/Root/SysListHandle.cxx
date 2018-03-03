@@ -26,7 +26,7 @@
 // method implementations
 //
 
-namespace EL
+namespace CP
 {
   void SysListHandle ::
   addHandle (ISysHandleBase& handle)

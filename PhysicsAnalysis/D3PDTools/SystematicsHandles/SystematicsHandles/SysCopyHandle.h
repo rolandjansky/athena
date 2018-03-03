@@ -29,10 +29,7 @@ class StatusCode;
 namespace CP
 {
   class SystematicSet;
-}
 
-namespace EL
-{
   /// \brief a data handle for copying systematics varied input data
 
   template<typename T> class SysCopyHandle final : public ISysHandleBase

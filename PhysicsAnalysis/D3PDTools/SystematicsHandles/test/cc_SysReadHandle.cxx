@@ -27,10 +27,10 @@ int main ()
   const float *object = nullptr;
 
   EL::AnaAlgorithm *alg = nullptr;
-  EL::SysReadHandle<float> algHandle (alg, "test", "test", "test");
+  CP::SysReadHandle<float> algHandle (alg, "test", "test", "test");
   algHandle.retrieve (object, *sys);
 
   asg::AsgTool *tool = nullptr;
-  EL::SysReadHandle<float> toolHandle (tool, "test", "test", "test");
+  CP::SysReadHandle<float> toolHandle (tool, "test", "test", "test");
   toolHandle.retrieve (object, *sys);
 }

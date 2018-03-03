@@ -22,7 +22,7 @@
 // method implementations
 //
 
-namespace EL
+namespace CP
 {
   SysListLoaderAlg :: 
   SysListLoaderAlg (const std::string& name, 

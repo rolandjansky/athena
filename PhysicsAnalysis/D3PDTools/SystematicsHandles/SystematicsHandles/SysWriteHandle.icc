@@ -19,7 +19,7 @@
 // method implementations
 //
 
-namespace EL
+namespace CP
 {
   template<typename T,typename Aux> inline MsgStream& SysWriteHandle<T,Aux> ::
   msg () const
@@ -60,7 +60,7 @@ namespace EL
     auto cache = m_outputNameCache.find (sys);
     if (cache == m_outputNameCache.end())
     {
-      std::string newName = detail::makeSystematicsName (m_outputName, sys);
+      std::string newName = makeSystematicsName (m_outputName, sys);
       ANA_MSG_DEBUG ("SysWriteHandle: " << newName << " (" << sys.name() << ")");
       m_outputNameCache.insert (std::make_pair (sys, newName));
       cache = m_outputNameCache.find (sys);
@@ -124,7 +124,7 @@ namespace EL
     auto cache = m_outputNameCache.find (sys);
     if (cache == m_outputNameCache.end())
     {
-      std::string newName = detail::makeSystematicsName (m_outputName, sys);
+      std::string newName = makeSystematicsName (m_outputName, sys);
       ANA_MSG_DEBUG ("SysWriteHandle: " << newName << " (" << sys.name() << ")");
       m_outputNameCache.insert (std::make_pair (sys, newName));
       cache = m_outputNameCache.find (sys);

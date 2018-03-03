@@ -20,7 +20,7 @@
 // method implementations
 //
 
-namespace EL
+namespace CP
 {
   template<typename T> inline MsgStream& SysCopyHandle<T> ::
   msg () const
@@ -62,8 +62,8 @@ namespace EL
     auto cache = m_nameCache.find (sys);
     if (cache == m_nameCache.end())
     {
-      std::string inputName = detail::makeSystematicsName (m_inputName, m_affectingRegex, sys);
-      std::string outputName = detail::makeSystematicsName (m_outputName, sys);
+      std::string inputName = makeSystematicsName (m_inputName, m_affectingRegex, sys);
+      std::string outputName = makeSystematicsName (m_outputName, sys);
       ANA_MSG_DEBUG ("SysCopyHandle: " << inputName << " -> " << outputName << " (" << sys.name() << ")");
       m_nameCache.insert (std::make_pair (sys, std::make_tuple (inputName, outputName, outputName+"Aux.")));
       cache = m_nameCache.find (sys);

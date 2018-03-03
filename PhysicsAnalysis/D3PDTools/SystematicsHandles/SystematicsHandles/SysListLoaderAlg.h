@@ -15,11 +15,11 @@
 #include <PATInterfaces/SystematicSet.h>
 #include <SystematicsHandles/SysListType.h>
 
-namespace EL
+namespace CP
 {
   /// \todo add documentation
 
-  class SysListLoaderAlg final : public AnaAlgorithm
+  class SysListLoaderAlg final : public EL::AnaAlgorithm
   {
     //
     // public interface

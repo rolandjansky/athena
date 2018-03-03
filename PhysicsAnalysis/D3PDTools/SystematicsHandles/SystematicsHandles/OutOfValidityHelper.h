@@ -20,10 +20,7 @@ class StatusCode;
 namespace CP
 {
   class CorrectionCode;
-}
 
-namespace EL
-{
   /// \brief a helper to translate a \ref CP::CorrectionCode into a
   /// \ref ::StatusCode
   ///

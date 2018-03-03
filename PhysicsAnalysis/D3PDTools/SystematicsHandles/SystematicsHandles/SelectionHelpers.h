@@ -16,7 +16,7 @@ namespace Root
   class TAccept;
 }
 
-namespace EL
+namespace CP
 {
   /// \brief the type for selection decorations that are meant to hold
   /// a \ref Root::TAccept

@@ -29,12 +29,8 @@ class StatusCode;
 
 namespace CP
 {
-  class SystematicSet;
-}
-
-namespace EL
-{
   class ISysHandleBase;
+  class SystematicSet;
 
   /// \brief a class managing the property to configure the list of
   /// systematics to process

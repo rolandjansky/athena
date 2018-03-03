@@ -18,7 +18,7 @@
 // method implementations
 //
 
-namespace EL
+namespace CP
 {
   SelectionType selectionFromBool (bool accept)
   {

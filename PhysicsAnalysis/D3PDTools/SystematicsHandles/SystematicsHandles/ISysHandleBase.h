@@ -13,7 +13,7 @@
 
 #include <string>
 
-namespace EL
+namespace CP
 {
   /// \brief a basic interface for all systematics handles
   ///

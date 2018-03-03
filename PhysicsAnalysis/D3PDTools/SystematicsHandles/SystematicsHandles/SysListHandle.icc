@@ -18,7 +18,7 @@
 // method implementations
 //
 
-namespace EL
+namespace CP
 {
   template<typename T> SysListHandle ::
   SysListHandle (T *owner, const std::string& propertyName,

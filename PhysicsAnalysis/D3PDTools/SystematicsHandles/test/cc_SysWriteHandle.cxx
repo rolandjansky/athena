@@ -26,10 +26,10 @@ int main ()
   CP::SystematicSet *sys = nullptr;
 
   EL::AnaAlgorithm *alg = nullptr;
-  EL::SysWriteHandle<float> algHandle (alg, "test", "test", "test");
+  CP::SysWriteHandle<float> algHandle (alg, "test", "test", "test");
   algHandle.record (std::unique_ptr<float> (), *sys);
 
   asg::AsgTool *tool = nullptr;
-  EL::SysWriteHandle<float,double> toolHandle (tool, "test", "test", "test");
+  CP::SysWriteHandle<float,double> toolHandle (tool, "test", "test", "test");
   toolHandle.record (std::unique_ptr<float> (), std::unique_ptr<double> (), *sys);
 }

@@ -16,31 +16,25 @@
 namespace CP
 {
   class SystematicSet;
-}
 
-namespace EL
-{
-  namespace detail
-  {
-    /// \brief make the name for the given systematics
-    /// \par Guarantee
-    ///   strong
-    /// \par Failures
-    ///   out of memory II
-    std::string makeSystematicsName (const std::string& name,
-                                     const CP::SystematicSet& sys);
+  /// \brief make the name for the given systematics
+  /// \par Guarantee
+  ///   strong
+  /// \par Failures
+  ///   out of memory II
+  std::string makeSystematicsName (const std::string& name,
+                                   const CP::SystematicSet& sys);
 
 
-    /// \brief make the name for the given systematics, filtered for
-    /// the given affecting pattern
-    /// \par Guarantee
-    ///   strong
-    /// \par Failures
-    ///   out of memory II
-    std::string makeSystematicsName (const std::string& name,
-                                     const std::string& affecting,
-                                     const CP::SystematicSet& sys);
-  }
+  /// \brief make the name for the given systematics, filtered for
+  /// the given affecting pattern
+  /// \par Guarantee
+  ///   strong
+  /// \par Failures
+  ///   out of memory II
+  std::string makeSystematicsName (const std::string& name,
+                                   const std::string& affecting,
+                                   const CP::SystematicSet& sys);
 }
 
 #endif

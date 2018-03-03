@@ -26,14 +26,14 @@
 int main ()
 {
   EL::AnaAlgorithm *alg = nullptr;
-  EL::SysListHandle algProperty (alg);
-  EL::SysReadHandle<float> algHandle (alg, "test", "test", "test");
+  CP::SysListHandle algProperty (alg);
+  CP::SysReadHandle<float> algHandle (alg, "test", "test", "test");
   algProperty.addHandle (algHandle);
 
   // we probably don't want to use SysListHandle with tools, but
   // we may as well allow it for now.
   asg::AsgTool *tool = nullptr;
-  EL::SysListHandle toolProperty (tool);
-  EL::SysReadHandle<float> toolHandle (tool, "test", "test", "test");
+  CP::SysListHandle toolProperty (tool);
+  CP::SysReadHandle<float> toolHandle (tool, "test", "test", "test");
   toolProperty.addHandle (toolHandle);
 }

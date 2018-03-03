@@ -22,7 +22,7 @@ namespace CP
 
 CLASS_DEF( std::vector<CP::SystematicSet> , 79952367 , 1 )
 
-namespace EL
+namespace CP
 {
   /// \brief the type for the systematics list in the event store
   ///

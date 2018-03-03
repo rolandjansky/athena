@@ -4,9 +4,9 @@
 
 #include <SystematicsHandles/SysListLoaderAlg.h>
 
-DECLARE_ALGORITHM_FACTORY (EL::SysListLoaderAlg)
+DECLARE_ALGORITHM_FACTORY (CP::SysListLoaderAlg)
 
 DECLARE_FACTORY_ENTRIES(SystematicsHandles) {
-  DECLARE_ALGORITHM (EL::SysListLoaderAlg)
+  DECLARE_ALGORITHM (CP::SysListLoaderAlg)
 }
 

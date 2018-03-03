@@ -16,7 +16,7 @@
 #include <xAODBase/IParticleHelpers.h>
 #include <xAODCore/ShallowCopy.h>
 
-namespace EL
+namespace CP
 {
   namespace detail
   {

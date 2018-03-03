@@ -30,10 +30,10 @@ int main ()
   xAOD::JetContainer *object2 = nullptr;
 
   EL::AnaAlgorithm *alg = nullptr;
-  EL::SysCopyHandle<xAOD::EventInfo> algHandle (alg, "test", "test", "test");
+  CP::SysCopyHandle<xAOD::EventInfo> algHandle (alg, "test", "test", "test");
   algHandle.getCopy (object1, *sys);
 
   asg::AsgTool *tool = nullptr;
-  EL::SysCopyHandle<xAOD::JetContainer> toolHandle (tool, "test", "test", "test");
+  CP::SysCopyHandle<xAOD::JetContainer> toolHandle (tool, "test", "test", "test");
   toolHandle.getCopy (object2, *sys);
 }

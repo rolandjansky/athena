@@ -20,7 +20,7 @@
 // method implementations
 //
 
-namespace EL
+namespace CP
 {
   const std::string& sysListDefaultName ()
   {
