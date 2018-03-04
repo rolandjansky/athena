@@ -59,7 +59,10 @@ namespace Trk
     double sum = 0.0;
     for (auto itrk = firstLoop; itrk != finalLoop && itrk != m_trackMap.end(); itrk++)
     {
-      sum += exp(itrk->second.c_0+z*(itrk->second.c_1 + itrk->second.c_2));
+      //ATH_MSG_DEBUG("@z=" << z << " adding contrib from z0=" << itrk->first.parameters()[Trk::z0] <<
+      //		    "c_0, c_1, c2 = " << itrk->second.c_0 << " " << itrk->second.c_1 << " " <<
+      //		    itrk->second.c_2 << " arg=" << (itrk->second.c_0+z*(itrk->second.c_1 + z*itrk->second.c_2)));
+      sum += exp(itrk->second.c_0+z*(itrk->second.c_1 + z*itrk->second.c_2));
     }
     return sum;
   }
@@ -105,16 +108,18 @@ namespace Trk
 	double cov_zz = perigeeCov(Trk::z0, Trk::z0);
 	if (cov_zz <= 0 ) continue;
 	double cov_dz = perigeeCov(Trk::d0, Trk::z0);
+	//ATH_MSG_DEBUG("z0:" << z0 << " d0: " << d0 << " covdd, covdz, covzz " << cov_dd << " " << cov_dz << " " << cov_zz);
 	double covDeterminant = cov_dd*cov_zz - cov_dz*cov_dz;
 	if ( covDeterminant <= 0 ) continue;
 	double constantTerm = -(d0*d0*cov_zz + z0*z0*cov_dd + 2*d0*z0*cov_dz) / (2*covDeterminant);
 	double linearTerm = (d0*cov_dz + z0*cov_dd) / covDeterminant ; // minus signs and factors of 2 cancel...
 	double quadraticTerm = -cov_dd / (2*covDeterminant);
-	double discriminant = linearTerm*linearTerm - 4*quadraticTerm*(constantTerm + 2*z0SignificanceCut*cov_zz);
+	double discriminant = linearTerm*linearTerm - 4*quadraticTerm*(constantTerm + 2*z0SignificanceCut);
 	if (discriminant < 0) continue;
 	discriminant = sqrt(discriminant);
-	double zMin = (-linearTerm - discriminant)/(2*quadraticTerm);
-	double zMax = (-linearTerm + discriminant)/(2*quadraticTerm);
+	double zMax = (-linearTerm - discriminant)/(2*quadraticTerm);
+	double zMin = (-linearTerm + discriminant)/(2*quadraticTerm);
+	//ATH_MSG_DEBUG("zMin: " << zMin << " zMax: " << zMax);
 	constantTerm -= log(2*Gaudi::Units::pi*covDeterminant);
 	m_trackMap.emplace(std::piecewise_construct,
                            std::forward_as_tuple(*itrk),
