@@ -21,6 +21,7 @@ ArrayBM::ArrayBM(const std::string& name,ISvcLocator* svc)
   , m_biRandom(nullptr)
   , m_atRndmGenSvc("AtRanluxGenSvc", name)
   , m_largestElementInPattern(1.0)
+  , m_signalPattern(nullptr)
 {
   declareProperty("MaxBunchCrossingPerOrbit", m_maxBunchCrossingPerOrbit, "The number of slots in each LHC beam. Default: 3564.");
   declareProperty("IntensityPattern", m_intensityPatternProp,
@@ -54,7 +55,7 @@ StatusCode ArrayBM::initialize()
     }
 
   // Initialize the signal pattern if we need one different from the intensity pattern
-  delete [] m_signalPattern;
+  if (m_signalPattern) delete [] m_signalPattern;
   if (m_emptyBunches!=0){
     m_signalPattern = new double[m_ipLength];
   }
