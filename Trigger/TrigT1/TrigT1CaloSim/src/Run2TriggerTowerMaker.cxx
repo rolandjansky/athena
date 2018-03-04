@@ -618,6 +618,7 @@ StatusCode LVL1::Run2TriggerTowerMaker::preProcessTower(xAOD::TriggerTower *towe
       printVec(this->msg(MSG::VERBOSE), correction);
     } // in case the correction wasn't enabled in the readout nothing has to be done
   } else {
+      ATH_MSG_DEBUG("::correction: case 3, pedestal correction disabled!");
     // case 3.)
   }
 
