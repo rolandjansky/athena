@@ -802,7 +802,8 @@ class rerunLVL1(_modifier):
 
         # rerun L1calo simulation
         include ("TrigT1CaloByteStream/ReadLVL1CaloBS_jobOptions.py")
-        include ("TrigT1CaloSim/TrigT1CaloSimJobOptions_ReadTT.py" )
+        #include ("TrigT1CaloSim/TrigT1CaloSimJobOptions_ReadTT.py" )
+        include ("TrigT1CaloSim/TrigT1CaloSimJobOptions_ReprocessTT.py")
 
         #rederive MuCTPI inputs to CTP from muon RDO
         #writes this to the usual MuCTPICTP storegate location
