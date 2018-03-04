@@ -13,8 +13,7 @@
 namespace Trk
 {
   GaussianTrackDensity::GaussianTrackDensity(const std::string& t, const std::string& n, const IInterface* p):
-    AthAlgTool(t, n, p),
-    m_dirty(false)
+    AthAlgTool(t, n, p)
   {
     declareInterface<IVertexTrackDensityEstimator>(this);
   }
@@ -29,58 +28,43 @@ namespace Trk
     return StatusCode::SUCCESS;
   }
 
-  GaussianTrackDensity::trackMapIterator GaussianTrackDensity::findStart(double z)
+  void GaussianTrackDensity::trackDensity(double z, double& density, double& firstDerivative, double& secondDerivative) const
   {
-    trackMapIterator result = m_trackMap.cbegin();
-    while (result != m_trackMap.cend() && result->first.parameters()[Trk::z0] <= z) 
-    {
-	result++;
-    }
-    // always goes one past the track immediately to left of z
-    return (--result)->second.start;
-  }
-
-  GaussianTrackDensity::trackMapIterator GaussianTrackDensity::findFinish(double z) 
-  {
-    trackMapIterator result = m_trackMap.cend();
-    result--;
-    while (result != m_trackMap.cbegin() && result->first.parameters()[Trk::z0] > z)
-    {
-      result--;
-    }
-    if (result->first.parameters()[Trk::z0] < z) result++;
-    return result->second.finish;
-  }
-
-  void GaussianTrackDensity::trackDensity(double z, double& density, double& firstDerivative, double& secondDerivative)
-  {
-    if (m_dirty) prepareTracks();
+    TrackEntry target(z);
+    lowerMapIterator first = m_lowerMap.lower_bound(target);
+    upperMapIterator final = m_upperMap.upper_bound(target);
+    trackMapIterator firstLoop = m_trackMap.find(first->second);
+    trackMapIterator finalLoop = m_trackMap.find(final->second);
     density = 0.0;
     firstDerivative = 0.0;
     secondDerivative = 0.0;
-    for (auto it = findStart(z); it != findFinish(z); ++it)
+    for (auto itrk = firstLoop; itrk != finalLoop && itrk != m_trackMap.end(); itrk++)
     {
-      double delta = it->second.constant * exp(z*(it->second.c_1 + z*it->second.c_2));
+      double delta = exp(itrk->second.c_0+z*(itrk->second.c_1 + z*itrk->second.c_2));
       density += delta;
-      double qPrime = it->second.c_1 + 2*z*it->second.c_2;
+      double qPrime = itrk->second.c_1 + 2*z*itrk->second.c_2;
       double deltaPrime = delta * qPrime;
       firstDerivative += deltaPrime;
-      secondDerivative += 2*it->second.c_2*delta + qPrime*deltaPrime;
+      secondDerivative += 2*itrk->second.c_2*delta + qPrime*deltaPrime;
     }
   }
 
-  double GaussianTrackDensity::trackDensity(double z)
+  double GaussianTrackDensity::trackDensity(double z) const
   {
-    if (m_dirty) prepareTracks();
+    TrackEntry target(z);
+    lowerMapIterator first = m_lowerMap.lower_bound(target);
+    upperMapIterator final = m_upperMap.upper_bound(target);
+    trackMapIterator firstLoop = m_trackMap.find(first->second);
+    trackMapIterator finalLoop = m_trackMap.find(final->second);
     double sum = 0.0;
-    for (auto it = findStart(z); it != findFinish(z); ++it)
+    for (auto itrk = firstLoop; itrk != finalLoop && itrk != m_trackMap.end(); itrk++)
     {
-      sum += it->second.constant * exp(z*(it->second.c_1 + z*it->second.c_2));
+      sum += exp(itrk->second.c_0+z*(itrk->second.c_1 + itrk->second.c_2));
     }
     return sum;
   }
 
-  void GaussianTrackDensity::addTracks(const std::vector<const Trk::Track*>& vectorTrk)
+  void GaussianTrackDensity::addTracks(const std::vector<const Track*>& vectorTrk)
   {
     std::vector<const TrackParameters*> perigeeList;
     for (auto itrk : vectorTrk)
@@ -91,7 +75,7 @@ namespace Trk
     addTracks(perigeeList);
   }
 
-  void GaussianTrackDensity::removeTracks(const std::vector<const Trk::Track*>& vectorTrk)
+  void GaussianTrackDensity::removeTracks(const std::vector<const Track*>& vectorTrk)
   {
     std::vector<const TrackParameters*> perigeeList;
     for (auto itrk : vectorTrk)
@@ -104,7 +88,8 @@ namespace Trk
 
   void GaussianTrackDensity::addTracks(const std::vector<const TrackParameters*>& perigeeList)
   {
-    double significanceCut = m_d0MaxSignificance * m_d0MaxSignificance;
+    double d0SignificanceCut = m_d0MaxSignificance * m_d0MaxSignificance;
+    double z0SignificanceCut = m_z0MaxSignificance * m_z0MaxSignificance;
     for (auto iparam : perigeeList)
     {
       const Perigee* itrk = dynamic_cast<const Perigee*>(iparam);
@@ -116,20 +101,30 @@ namespace Trk
 	const AmgSymMatrix(5) & perigeeCov = *(itrk->covariance());
 	double cov_dd = perigeeCov(Trk::d0, Trk::d0);
 	if ( cov_dd <= 0 ) continue;
-	if ( d0*d0/cov_dd > significanceCut ) continue;
+	if ( d0*d0/cov_dd > d0SignificanceCut ) continue;
 	double cov_zz = perigeeCov(Trk::z0, Trk::z0);
 	if (cov_zz <= 0 ) continue;
 	double cov_dz = perigeeCov(Trk::d0, Trk::z0);
 	double covDeterminant = cov_dd*cov_zz - cov_dz*cov_dz;
 	if ( covDeterminant <= 0 ) continue;
-	double constantArg = (d0*d0*cov_zz + z0*z0*cov_dd + 2*d0*z0*cov_dz) / (2*covDeterminant);
-	double constantFactor =  exp(-constantArg) / (2*Gaudi::Units::pi*covDeterminant);
+	double constantTerm = -(d0*d0*cov_zz + z0*z0*cov_dd + 2*d0*z0*cov_dz) / (2*covDeterminant);
 	double linearTerm = (d0*cov_dz + z0*cov_dd) / covDeterminant ; // minus signs and factors of 2 cancel...
 	double quadraticTerm = -cov_dd / (2*covDeterminant);
+	double discriminant = linearTerm*linearTerm - 4*quadraticTerm*(constantTerm + 2*z0SignificanceCut*cov_zz);
+	if (discriminant < 0) continue;
+	discriminant = sqrt(discriminant);
+	double zMin = (-linearTerm - discriminant)/(2*quadraticTerm);
+	double zMax = (-linearTerm + discriminant)/(2*quadraticTerm);
+	constantTerm -= log(2*Gaudi::Units::pi*covDeterminant);
 	m_trackMap.emplace(std::piecewise_construct,
                            std::forward_as_tuple(*itrk),
-			   std::forward_as_tuple(constantFactor, linearTerm, quadraticTerm, cov_zz));
-	m_dirty = true;
+			   std::forward_as_tuple(constantTerm, linearTerm, quadraticTerm, zMin, zMax));
+	m_lowerMap.emplace(std::piecewise_construct,
+			   std::forward_as_tuple(constantTerm, linearTerm, quadraticTerm, zMin, zMax),
+			   std::forward_as_tuple(*itrk));
+	m_upperMap.emplace(std::piecewise_construct,
+			   std::forward_as_tuple(constantTerm, linearTerm, quadraticTerm, zMin, zMax),
+			   std::forward_as_tuple(*itrk));
       }
     }
   }
@@ -142,44 +137,28 @@ namespace Trk
       if (itrk != nullptr)
       {
 	if (m_trackMap.count(*itrk) == 0) continue;
+	const auto& entry = m_trackMap[*itrk];
+	if (m_lowerMap.count(entry) > 0) m_lowerMap.erase(entry);
+	if (m_upperMap.count(entry) > 0) m_upperMap.erase(entry);
 	m_trackMap.erase(*itrk);
-	m_dirty = true;
       }
     }
-  }
-
-  void GaussianTrackDensity::prepareTracks()
-  {
-    trackMapIterator left = m_trackMap.cbegin();
-    double z0Cut = m_z0MaxSignificance * m_z0MaxSignificance;
-    for (auto& entry : m_trackMap)
-    {
-      double myZ0 = entry.first.parameters()[Trk::z0];
-      // left should advance to the left-most track to the left of "entry" that is within n sigma of it,
-      // or no track to the left of "entry" passes, it should stop at "entry" itself
-      while (pow(myZ0 - left->first.parameters()[Trk::z0],2) > z0Cut*left->second.cov_z && 
-	     left->first.parameters()[Trk::z0] < myZ0) 
-	left++;
-      // right should advance to the element after the right-most element within n-sigma of "entry"
-      trackMapIterator right = m_trackMap.cend();
-      while((--right)->first.parameters()[Trk::z0] > myZ0)
-      {
-	if (pow(myZ0 - right->first.parameters()[Trk::z0],2) < z0Cut*right->second.cov_z) break;
-      }
-      entry.second.start = left;
-      entry.second.finish = ++right;
-    }
-    m_dirty = false;
   }
 
   void GaussianTrackDensity::reset()
   {
     m_trackMap.clear();
-    m_dirty = false;
+    m_lowerMap.clear();
+    m_upperMap.clear();
   }
 
-  GaussianTrackDensity::TrackEntry::TrackEntry(double c0, double c1, double c2, double covz) 
-    : constant(c0), c_1(c1), c_2(c2), cov_z(covz), start(), finish() 
+  GaussianTrackDensity::TrackEntry::TrackEntry(double c0, double c1, double c2, double zMin, double zMax) 
+    : c_0(c0), c_1(c1), c_2(c2), lowerBound(zMin), upperBound(zMax)
+{ }
+
+  // Dummy constructor for binary search
+  GaussianTrackDensity::TrackEntry::TrackEntry(double z) 
+    : c_0(0), c_1(0), c_2(0), lowerBound(z), upperBound(z)
 { }
 
 }

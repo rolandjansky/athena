@@ -43,43 +43,43 @@ namespace Trk
     /**
      *   Adds a list of tracks, whose impact parameters will contribute to the density function.
      */
-    virtual void addTracks(const std::vector<const Trk::Track*>& vectorTrk);
+    virtual void addTracks(const std::vector<const Track*>& vectorTrk);
 
     /**
      *  Adds a list of track perigee parameters, whose impact parameters will contribute to 
      *  the density function.
      */
-    virtual void addTracks(const std::vector<const Trk::TrackParameters*>& perigeeList);
+    virtual void addTracks(const std::vector<const TrackParameters*>& perigeeList);
 
     /**
      *  Removes a list of tracks, which will no longer contribute to the density function.
      */
-    virtual void removeTracks(const std::vector<const Trk::Track*>& vectorTrk);
+    virtual void removeTracks(const std::vector<const Track*>& vectorTrk);
 
     /**
      *  Removes a list of track perigee parameters, which will no longer contribute to 
      *  the density function.
      */
-    virtual void removeTracks(const std::vector<const Trk::TrackParameters*>& perigeeList);
+    virtual void removeTracks(const std::vector<const TrackParameters*>& perigeeList);
 
     /**
      *  Evaluate the density function at the specified coordinate along the beam-line.
      */
-    virtual double trackDensity(double z);
+    virtual double trackDensity(double z) const;
 
     /**
      *  Evaluate the density and its first two derivatives at the specified coordinate.
      */
-    virtual void trackDensity(double z, double& density, double& firstDerivative, double& secondDerivativec);
+    virtual void trackDensity(double z, double& density, double& firstDerivative, double& secondDerivativec) const;
 
     /**
      *  Resets the internal state of the tool, forgetting all tracks previously added.
      */
     virtual void reset();
 
-    // functor to compare two unordered_map Key values for equality
+    // functor to compare two Perigee values
     struct pred_perigee {
-      bool operator()(const Trk::Perigee& left, const Trk::Perigee& right) const
+      bool operator()(const Perigee& left, const Perigee& right) const
       {
 	return left.parameters()[Trk::z0] < right.parameters()[Trk::z0];
       }
@@ -87,40 +87,63 @@ namespace Trk
 
     struct TrackEntry
     {
-      TrackEntry(double c0, double c1, double c2, double covz);
+      TrackEntry() { c_0 = 0; c_1 = 0; c_2 = 0; lowerBound = 0; upperBound = 0; }
+      TrackEntry(double c0, double c1, double c2, double zMin, double zMax);
+      TrackEntry(double zProbe);
       // Cached information for a single track
-      double constant; // z-independent factor
+      double c_0;      // z-independent term in exponent
       double c_1;      // linear coefficient in exponent
       double c_2;      // quadratic coefficient in exponent
-      double cov_z;    // z0 variance from track error matrix
-      std::map< Perigee, TrackEntry, pred_perigee >::const_iterator start;  
-      // will point to the left-most TrackEntry close enough to affect the weight at this one
-      std::map< Perigee, TrackEntry, pred_perigee >::const_iterator finish; 
-      // will point to the right-most TrackEntry close enough to affect the weight at this one
+      double lowerBound;
+      double upperBound;
+    };
+
+    // functor to compare two TrackEntry values based on their lower limits (low to high)
+    struct pred_entry_by_min {
+      bool operator()(const TrackEntry& left, const TrackEntry& right) const
+      {
+	return left.lowerBound < right.lowerBound;
+      }
+    };
+
+    // functor to compare two TrackEntry values based on their upper limits (low to high)
+    struct pred_entry_by_max {
+      bool operator()(const TrackEntry& left, const TrackEntry& right) const
+      {
+	return left.upperBound < right.upperBound;
+      }
     };
 
     typedef std::map< Perigee, 
                       GaussianTrackDensity::TrackEntry, 
                       GaussianTrackDensity::pred_perigee > trackMap;
+
     typedef std::map< Perigee, 
                       GaussianTrackDensity::TrackEntry, 
                       GaussianTrackDensity::pred_perigee >::const_iterator trackMapIterator;
 
+    typedef std::map< GaussianTrackDensity::TrackEntry,
+                      Perigee,
+                      GaussianTrackDensity::pred_entry_by_max > lowerMap;
+
+    typedef std::map< GaussianTrackDensity::TrackEntry,
+                      Perigee,
+                      GaussianTrackDensity::pred_entry_by_max >::const_iterator lowerMapIterator;
+
+    typedef std::map< GaussianTrackDensity::TrackEntry,
+                      Perigee,
+                      GaussianTrackDensity::pred_entry_by_min > upperMap;
+
+    typedef std::map< GaussianTrackDensity::TrackEntry,
+                      Perigee,
+                      GaussianTrackDensity::pred_entry_by_min >::const_iterator upperMapIterator;
+
   private:
 
-    trackMapIterator findStart(double z);
-
-    trackMapIterator findFinish(double z);
-
-
     //  Cache for track information
-    //std::unordered_map< Trk::Perigee, Trk::GaussianTrackDensity::TrackEntry, hash_perigee, pred_perigee> m_trackMap;
     trackMap m_trackMap;
-
-    //  Indicates whether track data needs to be refreshed before evaluation
-    bool m_dirty; 
-
-    void prepareTracks();
+    lowerMap m_lowerMap;
+    upperMap m_upperMap;
 
     //  Cuts set by configurable properties
     
