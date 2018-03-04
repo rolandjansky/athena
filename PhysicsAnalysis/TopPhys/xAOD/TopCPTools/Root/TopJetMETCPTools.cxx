@@ -389,7 +389,7 @@ StatusCode JetMETCPTools::setupLargeRJetsCalibration() {
     // so just put it here for now.
     std::string calibConfigLargeR = "";
     const std::string calibChoice = m_config->largeRJESJMSConfig(); 
-    if (calibChoice == "CombinedMass") {
+    if (calibChoice == "CombMass") {
       //calibConfigLargeR = "JES_MC15recommendation_FatJet_Nov2016_QCDCombinationUncorrelatedWeights_rel21.config";
       calibConfigLargeR = "JES_MC16recommendation_FatJet_JMS_comb_19Jan2018.config";
     }
@@ -400,7 +400,7 @@ StatusCode JetMETCPTools::setupLargeRJetsCalibration() {
       calibConfigLargeR = "JES_MC16recommendation_FatJet_JMS_calo_29Nov2017.config";
     }
     else {
-      ATH_MSG_ERROR("Unknown largeRJESJMSConfig (Available options: TrackAssistedMass, CaloMass and CombinedMass) : "+calibChoice);
+      ATH_MSG_ERROR("Unknown largeRJESJMSConfig (Available options: TrackAssistedMass, CaloMass and CombMass) : "+calibChoice);
       return StatusCode::FAILURE;
     }
     const std::string calibSequenceLargeR = "EtaJES_JMS";
