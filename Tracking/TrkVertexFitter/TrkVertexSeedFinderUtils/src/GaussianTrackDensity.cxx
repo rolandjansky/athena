@@ -30,14 +30,15 @@ namespace Trk
 
   void GaussianTrackDensity::trackDensity(double z, double& density, double& firstDerivative, double& secondDerivative) const
   {
-    TrackEntry target(z);
-    lowerMapIterator first = m_lowerMap.lower_bound(target);
-    upperMapIterator final = m_upperMap.upper_bound(target);
-    trackMapIterator firstLoop = m_trackMap.find(first->second);
-    trackMapIterator finalLoop = m_trackMap.find(final->second);
     density = 0.0;
     firstDerivative = 0.0;
     secondDerivative = 0.0;
+    TrackEntry target(z);
+    lowerMapIterator first = m_lowerMap.lower_bound(target);  // first track whose UPPER bound is not less than z
+    upperMapIterator final = m_upperMap.upper_bound(target);  // first track whose LOWER bound is greater than z
+    trackMapIterator firstLoop = m_trackMap.find(first->second);  // this will be the first track we include
+    trackMapIterator finalLoop = m_trackMap.find(final->second);  // this will be the track after the last we include
+    if (firstLoop->second.lowerBound > z || finalLoop->second.upperBound < z) return;
     for (auto itrk = firstLoop; itrk != finalLoop && itrk != m_trackMap.end(); itrk++)
     {
       double delta = exp(itrk->second.c_0+z*(itrk->second.c_1 + z*itrk->second.c_2));
@@ -51,12 +52,13 @@ namespace Trk
 
   double GaussianTrackDensity::trackDensity(double z) const
   {
+    double sum = 0.0;
     TrackEntry target(z);
     lowerMapIterator first = m_lowerMap.lower_bound(target);
     upperMapIterator final = m_upperMap.upper_bound(target);
     trackMapIterator firstLoop = m_trackMap.find(first->second);
     trackMapIterator finalLoop = m_trackMap.find(final->second);
-    double sum = 0.0;
+    if (firstLoop->second.lowerBound > z || finalLoop->second.upperBound < z) return sum;
     for (auto itrk = firstLoop; itrk != finalLoop && itrk != m_trackMap.end(); itrk++)
     {
       //ATH_MSG_DEBUG("@z=" << z << " adding contrib from z0=" << itrk->first.parameters()[Trk::z0] <<
