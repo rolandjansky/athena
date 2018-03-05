@@ -54,10 +54,9 @@ namespace D3PD{
       CHECK( detStore->retrieve(m_tilehwid) );
       CHECK( m_tileBadChanTool.retrieve() );
       m_cabling = TileCablingService::getInstance();
+      m_run2 = m_cabling->isRun2Cabling();
 
-      if (m_cabling->getCablingType() == TileCablingService::RUN2Cabling ||
-          m_cabling->getCablingType() == TileCablingService::RUN2aCabling) {
-        m_run2 = true;
+      if (m_run2) {
         for (int ros = 3; ros < 5; ++ros) {
           for (int drawer = 0; drawer < 64; ++drawer) {
             int drawer2 = m_cabling->E1_merged_with_run2(ros, drawer);
