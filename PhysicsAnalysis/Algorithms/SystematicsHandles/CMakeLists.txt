@@ -16,6 +16,9 @@ atlas_add_library( SystematicsHandlesLib
    SystematicsHandles/*.h SystematicsHandles/*.icc Root/*.cxx
    PUBLIC_HEADERS SystematicsHandles
    LINK_LIBRARIES xAODBase PATInterfaces AnaAlgorithmLib
+   # note that xAODCore is needed indirectly by client packages in Athena
+   # don't remove this until xAODBase is fixed
+   xAODCore
    PRIVATE_LINK_LIBRARIES RootCoreUtils )
 
 add_executable (SystematicsHandles_cc_SysReadHandle test/cc_SysReadHandle.cxx)
