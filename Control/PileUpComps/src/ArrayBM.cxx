@@ -59,7 +59,7 @@ StatusCode ArrayBM::initialize()
     m_signalPattern = new double[m_ipLength];
   }
   // Modification for empty bunches option
-  if (m_emptyBunches<0 || std::abs(m_emptyBunches)>m_ipLength){
+  if (m_emptyBunches<0 || std::abs(m_emptyBunches)>static_cast<int>(m_ipLength)){
     // Easy case: Just flip all the bunches
     for (size_t i=0;i<m_ipLength;++i){
       if (rProp[i]>0.) m_signalPattern[i]=0.;
