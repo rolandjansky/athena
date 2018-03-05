@@ -861,7 +861,7 @@ HLT::ErrorCode TrigL2TrkMassFex::hltExecute(const HLT::TriggerElement*, HLT::Tri
                     }
                     m_mon_Acceptance.push_back( ACCEPT_Each_CalcMother );
                     //vtx_created = true;
-                    if ( msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "Mother particle created: pT " << pL2V->m_getMotherTrack()->pT() << endmsg;
+                    if ( msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "Mother particle created: pT " << pL2V->getMotherTrack()->pT() << endmsg;
                   } else {
                     m_mon_Errors.push_back( ERROR_CalcMother_Fails );
                   }

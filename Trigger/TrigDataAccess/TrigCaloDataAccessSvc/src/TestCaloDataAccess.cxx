@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 #include <iostream>
 #include "tbb/parallel_reduce.h"
@@ -73,10 +73,10 @@ public:
      if ( m_colRef ) { m_colRef->clear(); delete m_colRef; }
   }
 
-  ITrigCaloDataAccessSvc::Status request( LArTT_Selector<LArCellCont>& sel ) const {
+  StatusCode request( LArTT_Selector<LArCellCont>& sel ) const {
       if ( m_roi.isFullscan() ){
       std::cout << "wrong RoI descriptor used for RoI" << std::endl;
-      return  0;
+      return StatusCode::FAILURE;
       }
       else{
       // keep this for test reasons
@@ -85,14 +85,14 @@ public:
       }
     }
 
-  ITrigCaloDataAccessSvc::Status request( ConstDataVector<CaloCellContainer>& c ) const {
+  StatusCode request( ConstDataVector<CaloCellContainer>& c ) const {
       if ( m_roi.isFullscan() ){
       m_svc->loadFullCollections( m_context, c );
-      return  0;
+      return StatusCode::SUCCESS;
       }
       else{
       std::cout << "wrong RoI descriptor used for FS" << std::endl;
-      return  0;
+      return StatusCode::FAILURE;
       }
     }
 
@@ -144,7 +144,7 @@ public:
     double maxEta = -100;
     double minPhi = 100;
     double maxPhi = -100;
-    ITrigCaloDataAccessSvc::Status status;      
+    StatusCode status;
     if ( m_roi.isFullscan() ) {
     status = request( col );      
 
@@ -172,7 +172,7 @@ public:
     std::cout << "callAndCompare : " << m_context << " " << count << " " << etSum << " " << minEta << " " << maxEta << " " << minPhi << " " << maxPhi << " " << " " << m_minEtaRef << " " << m_maxEtaRef << " " << m_minPhiRef << " " << m_maxPhiRef << " " << m_etSumRef << " " << m_countRef << std::endl;
     }
 
-    DIFF( "RoI mask", status.mask(), m_statusRef.mask() );    
+    DIFF( "RoI mask", status.getCode(), m_statusRef.getCode() );
     DIFF( "RoI count ", count , m_countRef );
     DIFF( "RoI etSum ", etSum , m_etSumRef );
     DIFF( "RoI minEta", minEta, m_minEtaRef );
@@ -180,7 +180,7 @@ public:
     DIFF( "RoI minPhi", minPhi, m_minPhiRef );
     DIFF( "RoI maxPhi", maxPhi, m_maxPhiRef );
     
-    bool checkStatus = m_statusRef.mask() == status.mask()
+    bool checkStatus = m_statusRef == status
       and m_countRef == count
       and m_etSumRef == etSum 
       and m_minEtaRef == minEta
@@ -214,7 +214,7 @@ private:
 
   LArTT_Selector<LArCellCont> m_selRef;
   ConstDataVector<CaloCellContainer>* m_colRef;
-  ITrigCaloDataAccessSvc::Status m_statusRef;
+  StatusCode m_statusRef;
   double m_etSumRef = 0;
   size_t m_countRef = 0;
   double m_minEtaRef = 100;

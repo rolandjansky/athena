@@ -353,8 +353,6 @@ class SCT_ConditionsServicesSetup:
 
     sct_DCSConditionsSvcSetup.setup()
     dcsSvc = sct_DCSConditionsSvcSetup.getSvc()
-    if (not self.isMC):
-      dcsSvc.FolderLocation="/SCT/HLT/DCS"
  
     self.summarySvc.ConditionsServices+=[instanceName]
 

@@ -3,7 +3,6 @@
 */
 
 #include "TrigFTKSim/FTKTrack.h"
-
 #include "TrigFTK_RawDataAlgs/FTK_RDO_CreatorAlgo.h"
 #include "TrigFTKSim/MultiTruth.h"
 
@@ -657,14 +656,18 @@ bool FTK_RDO_CreatorAlgo::check_track(const FTKTrack &track, FTK_RawTrack &rdo) 
 	    m_FTK_RawPixelCluster_checkFails[2]+=1;hitOK=false;
 	  }
 	  unsigned int wphi=hit.getPhiWidth();
-	  if (wphi>7) wphi=7; // 3 bits values 0 to 7
+	  if (wphi>8) wphi=8; // expect values 1 to 8
+	  if (wphi<1) wphi=1; // expect values 1 to 8
 	  if (!(this->checkInt(wphi,rdo.getPixelClusters()[i].getRowWidth(),"Pixel RowWidth"))){ 
 	    m_FTK_RawPixelCluster_checkFails[3]+=1;hitOK=false;
+	    ATH_MSG_VERBOSE("Pix PhiWidth Check fails hit.getPhiWidth() " << hit.getPhiWidth()  << " expect "  << wphi << " got " << rdo.getPixelClusters()[i].getRowWidth());
 	  }
 	  unsigned int weta=hit.getEtaWidth(); 
-	  if (weta>7) weta=7; // 3 bits values 0 to 7
+	  if (weta>8) weta=8; // expect values 1 to 8
+	  if (weta<1) weta=1; // expect values 1 to 8
 	  if (!(this->checkInt(weta, rdo.getPixelClusters()[i].getColWidth(),"Pixel ColWidth"))){ 
 	    m_FTK_RawPixelCluster_checkFails[4]+=1;hitOK=false;
+	    ATH_MSG_VERBOSE("Pix EtaWidth Check fails hit.getEtaWidth() " << hit.getEtaWidth()  << " expect "  << weta << " got " << rdo.getPixelClusters()[i].getColWidth());
 	  }
 	} else {
 	  if (!(this->checkInt(hit.getIdentifierHash(), rdo.getSCTClusters()[i-4].getModuleID(), "SCT moduleID"))){
@@ -674,9 +677,11 @@ bool FTK_RDO_CreatorAlgo::check_track(const FTKTrack &track, FTK_RawTrack &rdo) 
 	    m_FTK_RawSCT_Cluster_checkFails[1]+=1;hitOK=false;
 	  }
 	  unsigned int wstrip=hit.getPhiWidth();
-	  if (wstrip>7) wstrip=7; // 3 bits values 0 to 7
+	  if (wstrip>8) wstrip=8; // expect values 1 to 8
+	  if (wstrip<1) wstrip=1; // expect values 1 to 8
 	  if (!(this->checkInt(wstrip,rdo.getSCTClusters()[i-4].getHitWidth(),"SCT cluster width"))){  
 	    m_FTK_RawSCT_Cluster_checkFails[2]+=1;hitOK=false;
+	    ATH_MSG_VERBOSE("SCT clusWidth Check fails hit.getPhiWidth() " << hit.getPhiWidth()  << " expect "  << wstrip << " got " << rdo.getSCTClusters()[i-4].getHitWidth());
 	  }
 	}
 

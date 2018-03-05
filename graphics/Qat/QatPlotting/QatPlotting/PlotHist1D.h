@@ -25,8 +25,8 @@
 // Plottable adaptor for Hist1D's                                                   //
 //                                                                                  //
 //----------------------------------------------------------------------------------//
-#ifndef _PLOTHIST1D_H_
-#define _PLOTHIST1D_H_
+#ifndef QATPLOTTING_PLOTHIST1D_H
+#define QATPLOTTING_PLOTHIST1D_H
 #include "QatPlotting/Plotable.h"
 #include "QatPlotting/PlotHist1DProperties.h"
 #include <QtCore/QRectF>
@@ -80,7 +80,7 @@ public:
 private:
 
   class Clockwork;
-  std::unique_ptr<Clockwork> c;
+  std::unique_ptr<Clockwork> m_c;
   
 };
 #endif

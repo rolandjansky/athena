@@ -1,10 +1,46 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 #include "AthenaMonitoring/MonitoredScope.h"
 #include "TrigCaloDataAccessSvc.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
+
+#include <sstream>
+#include <type_traits>
+
+namespace {
+
+// Helper to convert enum to integral type
+template<typename E>
+constexpr auto to_int(E e)
+{
+  return static_cast<std::underlying_type_t<E>>(e);
+}
+
+struct Category : StatusCode::Category {
+  const char* name() const override { return "TrigCaloDataAccessSvc"; }
+
+  std::string message(StatusCode::code_t code) const override {
+
+    using Status = ITrigCaloDataAccessSvc::Status;
+    std::ostringstream oss;
+    oss << StatusCode::default_category().message(code); // SUCCESS, FAILURE, etc.
+    if (code & to_int(Status::MissingROB)) oss << " MissingROB ";
+    if (code & to_int(Status::RawDataCorrupted)) oss << "RawDataCorrupted ";
+    if (code & to_int(Status::InternalError)) oss << "InternalError ";
+
+    oss << "(LArDecoder: 0x" << std::hex << ((code & to_int(Status::LArDecoderMask)) >> to_int(Status::LArDecoderShift))
+        << ", TileDecoder: 0x" << std::hex << ((code & to_int(Status::TileDecoderMask)) >> to_int(Status::TileDecoderShift))
+        << ")";
+
+    return oss.str();
+  }
+};
+} // namespace
+
+// Register our StatusCode category
+STATUSCODE_ENUM_IMPL(ITrigCaloDataAccessSvc::Status, Category)
 
 TrigCaloDataAccessSvc::TrigCaloDataAccessSvc( const std::string& name, ISvcLocator* pSvcLocator )
   : base_class( name, pSvcLocator ), m_lateInitDone(false), m_nSlots(0) {
@@ -43,30 +79,25 @@ StatusCode TrigCaloDataAccessSvc::finalize() {
 }
 
 
-TrigCaloDataAccessSvc::Status 
-TrigCaloDataAccessSvc::prepareFullCollections( const EventContext& context ) {
+StatusCode TrigCaloDataAccessSvc::prepareFullCollections( const EventContext& context ) {
 
   return prepareLArFullCollections( context );
   
 }
 
 
-TrigCaloDataAccessSvc::Status 
-TrigCaloDataAccessSvc::loadCollections ( const EventContext& context,
-					 const IRoiDescriptor& roi,
-					 const DETID detID,
-					 const int sampling,
-					 LArTT_Selector<LArCellCont>& loadedCells ) {
+StatusCode TrigCaloDataAccessSvc::loadCollections ( const EventContext& context,
+                                                    const IRoiDescriptor& roi,
+                                                    const DETID detID,
+                                                    const int sampling,
+                                                    LArTT_Selector<LArCellCont>& loadedCells ) {
 
   std::vector<IdentifierHash> requestHashIDs;  
-  Status status;
 
   ATH_MSG_DEBUG( "LArTT requested for event " << context << " and RoI " << roi );  
-  status += prepareLArCollections( context, roi, sampling, detID );
-  
-  if ( not status.success() )
-    return status;
-  
+  StatusCode sc = prepareLArCollections( context, roi, sampling, detID );
+
+  if ( !sc ) return sc;
   
   { 
     // this has to be guarded because getTT called on the LArCollection bu other threads updates internal map
@@ -89,14 +120,13 @@ TrigCaloDataAccessSvc::loadCollections ( const EventContext& context,
     std::lock_guard<std::mutex> getCollClock{ m_larcell.get( context )->mutex };       
     loadedCells.setRoIs( requestHashIDs );
   }
-  return status;
+  return sc;
 }
 
-TrigCaloDataAccessSvc::Status 
-TrigCaloDataAccessSvc::loadFullCollections ( const EventContext& context,
-					     ConstDataVector<CaloCellContainer>& cont ) {
+StatusCode TrigCaloDataAccessSvc::loadFullCollections ( const EventContext& context,
+                                                        ConstDataVector<CaloCellContainer>& cont ) {
 
-  Status status = prepareLArFullCollections( context );
+  StatusCode sc = prepareLArFullCollections( context );
 
   std::lock_guard<std::mutex> getCollClock{ m_getCollMutex };   
   CaloCellContainer* cont_to_copy = m_larcell.get(context)->fullcont ;
@@ -104,12 +134,11 @@ TrigCaloDataAccessSvc::loadFullCollections ( const EventContext& context,
   cont.reserve( cont_to_copy->size() );
   for( const CaloCell* c : *cont_to_copy ) cont.push_back( c );
       
-  return status;
+  return sc;
 }
 
 
-TrigCaloDataAccessSvc::Status 
-TrigCaloDataAccessSvc::prepareLArFullCollections( const EventContext& context ) {
+StatusCode TrigCaloDataAccessSvc::prepareLArFullCollections( const EventContext& context ) {
 
   ATH_MSG_DEBUG( "Full Col " << " requested for event " << context );
   if ( !m_lateInitDone && lateInit().isFailure() ) {
@@ -122,9 +151,9 @@ TrigCaloDataAccessSvc::prepareLArFullCollections( const EventContext& context ) 
   std::lock_guard<std::mutex> collectionLock { cache->mutex };  
   lockTime.stop();
 
-  if ( cache->lastFSEvent == context.evt() ) return Status(0);
+  if ( cache->lastFSEvent == context.evt() ) return StatusCode::SUCCESS;
 
-  Status status;
+  StatusCode::code_t status(0);
 
   for( size_t ii=0;ii<m_vrodid32fullDetHG.size();ii++) {
       std::vector<uint32_t>& vrodid32fullDet = m_vrodid32fullDetHG[ii];
@@ -137,12 +166,11 @@ TrigCaloDataAccessSvc::prepareLArFullCollections( const EventContext& context ) 
       }
       cache->container->eventNumber( context.evt() ) ;
       
-      Status status_loc = ( convertROBs( robFrags, ( cache->container ) ) );
-      status.addError(status_loc.mask());
+      status |= convertROBs( robFrags, ( cache->container ) ).getCode();
       
       if ( vrodid32fullDet.size() != robFrags.size() ) {
         ATH_MSG_DEBUG( "Missing ROBs, requested " << vrodid32fullDet.size() << " obtained " << robFrags.size() );
-        status.addError( Status::MissingROB );
+        status |= to_int(Status::MissingROB);
         clearMissing( vrodid32fullDet, robFrags, ( cache->container ) );
       }
 
@@ -154,7 +182,7 @@ TrigCaloDataAccessSvc::prepareLArFullCollections( const EventContext& context ) 
   Monitored::MonitoredScope::declare( m_monTool, lockTime, detidMon );
   // collection prepared
   cache->lastFSEvent = context.evt();
-  return status;  
+  return StatusCode(static_cast<Status>(status));
 }
 
 StatusCode TrigCaloDataAccessSvc::lateInit() { // non-const this thing
@@ -293,10 +321,10 @@ StatusCode TrigCaloDataAccessSvc::lateInit() { // non-const this thing
   return StatusCode::SUCCESS;
 }
 
-TrigCaloDataAccessSvc::Status 
-TrigCaloDataAccessSvc::convertROBs( const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& robFrags, LArCellCont* larcell ) {
+StatusCode TrigCaloDataAccessSvc::convertROBs( const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& robFrags, 
+                                               LArCellCont* larcell ) {
 
-  Status status;
+  StatusCode::code_t status(0);
   for ( auto rob: robFrags ) {
     uint32_t sourceID = rob->source_id();
     const std::vector<LArCellCollection*>::const_iterator it = larcell->find( sourceID );
@@ -316,7 +344,7 @@ TrigCaloDataAccessSvc::convertROBs( const std::vector<const OFFLINE_FRAGMENTS_NA
       			 "event: Bad ROB block ( eformat checks ) : 0x"
       			 << std::hex << sourceID << std::dec );
       	// Data seems corrupted
-      	status.addError( Status::RawDataCorrupted );
+      	status |= to_int(Status::RawDataCorrupted);
       	reset_LArCol ( coll );
 
       } else {
@@ -329,7 +357,7 @@ TrigCaloDataAccessSvc::convertROBs( const std::vector<const OFFLINE_FRAGMENTS_NA
 			   "event: Empty ROD block ( less than 3 words ) : 0x"
 			   << std::hex << sourceID << std::dec );
 	  // Data seems corrupted
-	  status.addError( Status::RawDataCorrupted );
+	  status |= to_int(Status::RawDataCorrupted);
 	  reset_LArCol ( coll );
 	} else { // End of if small size
 	  //TB the converter has state
@@ -338,7 +366,7 @@ TrigCaloDataAccessSvc::convertROBs( const std::vector<const OFFLINE_FRAGMENTS_NA
 
 	  // Accumulates inferior byte from ROD Decoder
 	  // TB the converter has state
-	  status.addError( m_larDecoder->report_error() );
+	  status |= (m_larDecoder->report_error() << to_int(Status::LArDecoderShift));
 
 	  if ( m_applyOffsetCorrection ) larcell->applyBCIDCorrection( sourceID );
 	} 
@@ -349,7 +377,7 @@ TrigCaloDataAccessSvc::convertROBs( const std::vector<const OFFLINE_FRAGMENTS_NA
     }
   }
   ATH_MSG_DEBUG( "finished decoding" );
-  return status;  
+  return StatusCode(static_cast<Status>(status));
 }
 
 void TrigCaloDataAccessSvc::missingROBs( const std::vector<uint32_t>& request,
@@ -381,11 +409,10 @@ void TrigCaloDataAccessSvc::clearMissing( const std::vector<uint32_t>& request,
 }
 
 
-TrigCaloDataAccessSvc::Status 
-TrigCaloDataAccessSvc::prepareLArCollections( const EventContext& context,
-					      const IRoiDescriptor& roi, 
-					      const int sampling,
-					      DETID detector ) {
+StatusCode TrigCaloDataAccessSvc::prepareLArCollections( const EventContext& context,
+                                                         const IRoiDescriptor& roi,
+                                                         const int sampling,
+                                                         DETID detector ) {
 
   // If the full event was already unpacked, don't need to unpack RoI
   if ( !m_lateInitDone && lateInit().isFailure() ) {
@@ -417,11 +444,11 @@ TrigCaloDataAccessSvc::prepareLArCollections( const EventContext& context,
   // same in prepareLArFullCollections
   cache->container->eventNumber( context.evt() );
   
-  Status status = convertROBs( robFrags, ( cache->container ) );
+  StatusCode::code_t status = convertROBs( robFrags, ( cache->container ) ).getCode();
 
   if ( requestROBs.size() != robFrags.size() ) {
     ATH_MSG_DEBUG( "Missing ROBs, requested " << requestROBs.size() << " obtained " << robFrags.size() );
-    status.addError( Status::MissingROB );
+    status |= to_int(Status::MissingROB);
     clearMissing( requestROBs, robFrags, ( cache->container ) );
   }
   auto roiROBs = Monitored::MonitoredScalar::declare( "roiROBs_LAr", robFrags.size() );
@@ -429,6 +456,6 @@ TrigCaloDataAccessSvc::prepareLArCollections( const EventContext& context,
   auto roiPhi = Monitored::MonitoredScalar::declare( "roiPhi_LAr", roi.phi() );
 
   Monitored::MonitoredScope::declare( m_monTool, lockTime, roiEta, roiPhi, roiROBs );
-  return status;
+  return static_cast<Status>(status);
 }
 

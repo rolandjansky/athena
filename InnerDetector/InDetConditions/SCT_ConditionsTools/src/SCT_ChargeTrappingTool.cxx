@@ -45,7 +45,7 @@ SCT_ChargeTrappingTool::SCT_ChargeTrappingTool(const std::string& type, const st
   declareProperty("DetectorName", m_detectorName="SCT",  "Detector name");
   // Temperature and voltages from job options only used if  SiConditionsServices is None or
   // if value read from database is out of range.
-  declareProperty("Temperature",m_temperature = -2., "Default  temperature in Celcius."); 
+  declareProperty("Temperature",m_temperature = -2., "Default temperature in Celcius.");
   declareProperty("TemperatureMin",m_temperatureMin = -80.,  "Minimum temperature allowed in Celcius.");
   declareProperty("TemperatureMax",m_temperatureMax = 100.,  "Maximum temperature allowed in Celcius.");
   declareProperty("BiasVoltage", m_biasVoltage = 150., "Default  bias voltage in Volt.");
@@ -56,10 +56,10 @@ SCT_ChargeTrappingTool::SCT_ChargeTrappingTool(const std::string& type, const st
   // -- Radiation damage specific
   declareProperty("CalcHoles", m_calcHoles=true, "Default is to consider holes in signal formation.");
   // -- Fluence: Need to make it layer-dependent
-  declareProperty("Fluence", m_fluence=(double)3.0E13, "Fluence received by the detector.");
-  declareProperty("BetaElectrons",m_betaElectrons=(double)3.1E-16,"Constant for the trapping model for electrons, in [cm^2/ns] " 
+  declareProperty("Fluence", m_fluence=3.0E13, "Fluence received by the detector.");
+  declareProperty("BetaElectrons",m_betaElectrons=3.1E-16,"Constant for the trapping model for electrons, in [cm^2/ns] "
                   "-- average value from Table 2 in ATL-INDET-2003-014");
-  declareProperty("BetaHoles",m_betaHoles=(double)5.1E-16,"Constant for the trapping model for holes in [cm^2/ns] " 
+  declareProperty("BetaHoles",m_betaHoles=(double)5.1E-16,"Constant for the trapping model for holes in [cm^2/ns] "
                   "-- average value from Table 2 in ATL-INDET-2003-014");
 }
 
@@ -77,7 +77,7 @@ SCT_ChargeTrappingTool::initialize()
   
   // Get conditions summary service.
   m_conditionsSvcValid = false;
-  if (!m_siConditionsSvc.empty()) {
+  if (not m_siConditionsSvc.empty()) {
     sc =  m_siConditionsSvc.retrieve();
     if (sc.isFailure()) {
       ATH_MSG_FATAL("Unable to to retrieve Conditions Summary  Service");
@@ -143,63 +143,53 @@ bool SCT_ChargeTrappingTool::getdoCTrap(const IdentifierHash &  elementHash, con
 }
 
 
-double SCT_ChargeTrappingTool::getElectricField(const IdentifierHash &  elementHash, const double & pos)
+double SCT_ChargeTrappingTool::getElectricField(const IdentifierHash &  elementHash, const double & /*pos*/)
 {
-  (void) pos;
   return m_electricField[elementHash];
 }
 
-double SCT_ChargeTrappingTool::getTrappingElectrons(const IdentifierHash &  elementHash, const double & pos)
+double SCT_ChargeTrappingTool::getTrappingElectrons(const IdentifierHash &  elementHash, const double & /*pos*/)
 {
-  (void) pos;
   return m_trappingElectrons[elementHash];
 }
 
-double SCT_ChargeTrappingTool::getTrappingHoles(const IdentifierHash &  elementHash, const double & pos)
+double SCT_ChargeTrappingTool::getTrappingHoles(const IdentifierHash &  elementHash, const double & /*pos*/)
 {
-  (void) pos;
   return m_trappingHoles[elementHash];
 } 
 
-double SCT_ChargeTrappingTool::getMeanFreePathElectrons(const IdentifierHash &  elementHash, const double & pos)
+double SCT_ChargeTrappingTool::getMeanFreePathElectrons(const IdentifierHash &  elementHash, const double & /*pos*/)
 {
-  (void) pos;
   return m_meanFreePathElectrons[elementHash];
 }
 
-double SCT_ChargeTrappingTool::getMeanFreePathHoles(const IdentifierHash &  elementHash, const double & pos)
+double SCT_ChargeTrappingTool::getMeanFreePathHoles(const IdentifierHash &  elementHash, const double & /*pos*/)
 {
-  (void) pos;
   return m_meanFreePathHoles[elementHash];
 }
 
-double SCT_ChargeTrappingTool::getTrappingProbability(const IdentifierHash &  elementHash, const double & pos)
+double SCT_ChargeTrappingTool::getTrappingProbability(const IdentifierHash &  elementHash, const double & /*pos*/)
 {
-  (void) pos;
   return m_trappingProbability[elementHash];
 }
 
-double SCT_ChargeTrappingTool::getTrappingTime(const IdentifierHash &  elementHash, const double & pos)
+double SCT_ChargeTrappingTool::getTrappingTime(const IdentifierHash &  elementHash, const double & /*pos*/)
 {
-  (void) pos;
   return m_trappingTime[elementHash];
 }
 
-double SCT_ChargeTrappingTool::getTimeToElectrode(const IdentifierHash &  elementHash, const double & pos)
+double SCT_ChargeTrappingTool::getTimeToElectrode(const IdentifierHash &  elementHash, const double & /*pos*/)
 {
-  (void) pos;
   return m_electrodeTime[elementHash];
 }
 
-double SCT_ChargeTrappingTool::getTrappingPositionZ(const IdentifierHash &  elementHash, const double & pos)
+double SCT_ChargeTrappingTool::getTrappingPositionZ(const IdentifierHash &  elementHash, const double & /*pos*/)
 {
-  (void) pos;
   return m_trappingPosition[elementHash];
 }
 
-double SCT_ChargeTrappingTool::getHoleDriftMobility(const IdentifierHash &  elementHash, const double & pos)
+double SCT_ChargeTrappingTool::getHoleDriftMobility(const IdentifierHash &  elementHash, const double & /*pos*/)
 {
-  (void) pos;
   return m_holeDriftMobility[elementHash];
 }
 
@@ -234,7 +224,7 @@ void SCT_ChargeTrappingTool::updateCache(const IdentifierHash & elementHash,  co
   double totalFluence;
   double betaElectrons;
   double betaHoles;
-  if (!m_conditionsSvcValid) {
+  if (not m_conditionsSvcValid) {
     temperature = m_temperature + 273.15;
     deplVoltage = m_deplVoltage * CLHEP::volt;
     biasVoltage = m_biasVoltage * CLHEP::volt;
@@ -245,8 +235,6 @@ void SCT_ChargeTrappingTool::updateCache(const IdentifierHash & elementHash,  co
     temperature = m_siConditionsSvc->temperature(elementHash) +  273.15;
     deplVoltage = m_siConditionsSvc->depletionVoltage(elementHash)  * CLHEP::volt;
     biasVoltage = m_siConditionsSvc->biasVoltage(elementHash) *  CLHEP::volt;
-    // deplVoltage = m_siConditionsSvc->depletionVoltage(elementHash);
-    // biasVoltage = m_siConditionsSvc->biasVoltage(elementHash);
     totalFluence = m_fluence;              // -- this should be read from the Conditions database
     betaElectrons = m_betaElectrons;
     betaHoles = m_betaHoles;
@@ -254,7 +242,7 @@ void SCT_ChargeTrappingTool::updateCache(const IdentifierHash & elementHash,  co
   
   // Protect against invalid temperature
   double temperatureC = temperature -  273.15;
-  if (!(temperatureC > m_temperatureMin && temperatureC <  m_temperatureMax)) {
+  if (not (temperatureC > m_temperatureMin and temperatureC <  m_temperatureMax)) {
     ATH_MSG_WARNING("Invalid  temperature: " << temperatureC << " C. "
                     << "Setting to "  << m_temperature << " C.");
     temperature = m_temperature + 273.15;
@@ -282,7 +270,8 @@ void SCT_ChargeTrappingTool::updateCache(const IdentifierHash & elementHash,  co
 
   m_electricField[elementHash] = electricField;
 
-  m_siProperties.setConditions(temperature, electricField);
+  InDet::SiliconProperties siProperties;
+  siProperties.setConditions(temperature, electricField);
 
 
   // -- Calculate electron and holes drift mobility and velocity for these conditions (temperature, electricField)
@@ -293,11 +282,11 @@ void SCT_ChargeTrappingTool::updateCache(const IdentifierHash & elementHash,  co
   double electronDriftVelocity = 0.;
   double holeDriftVelocity = 0.;
   if(element->carrierType()==InDetDD::electrons){
-    //    electronDriftMobility = m_siProperties.calcElectronDriftMobility(temperature,electricField);
+    //    electronDriftMobility = siProperties.calcElectronDriftMobility(temperature,electricField);
     //    electronDriftVelocity = electronDriftMobility*electricField;
   } else {
     if (m_calcHoles){
-      holeDriftMobility = m_siProperties.calcHoleDriftMobility(temperature,electricField*CLHEP::volt)*CLHEP::volt; //in this way you could put the electric field in V/mm and the mobility will be in [V mm^2 ns^-1]
+      holeDriftMobility = siProperties.calcHoleDriftMobility(temperature,electricField*CLHEP::volt)*CLHEP::volt; //in this way you could put the electric field in V/mm and the mobility will be in [V mm^2 ns^-1]
       m_holeDriftMobility[elementHash] = holeDriftMobility;    
       holeDriftVelocity = holeDriftMobility*electricField;
     }
@@ -305,11 +294,11 @@ void SCT_ChargeTrappingTool::updateCache(const IdentifierHash & elementHash,  co
 
   
   // -- Calculate Trapping Times
-  double trappingElectrons = 1./(double)(totalFluence*betaElectrons);
+  double trappingElectrons = 1./(totalFluence*betaElectrons);
   //  m_trappingElectrons[elementHash] = trappingElectrons;
 
   double trappingHoles = 0.;
-  if (m_calcHoles) {trappingHoles = 1./(double)(totalFluence*betaHoles);
+  if (m_calcHoles) {trappingHoles = 1./(totalFluence*betaHoles);
     m_trappingHoles[elementHash] = trappingHoles;
   }
   

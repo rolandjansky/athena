@@ -67,7 +67,7 @@ private:
   
 
   /// Tools and services ///
-  ITHistSvc*    rootHistSvc;
+  ITHistSvc*    m_rootHistSvc;
   StoreGateSvc* m_StoreGate;
 
 
@@ -114,263 +114,263 @@ private:
   bool m_fillTree;
 
   /// Histograms ///
-  TH1D* h_FTK_RawTrack_n;
-  TH1D* h_FTK_RawTrack_phi;
-  TH1D* h_FTK_RawTrack_d0;
-  TH1D* h_FTK_RawTrack_z0;
-  TH1D* h_FTK_RawTrack_invPt;
-  TH1D* h_FTK_RawTrack_cot;
-  TH1D* h_FTK_RawTrack_eta;
-  TH1D* h_FTK_RawTrack_nPix;
-  TH1D* h_FTK_RawTrack_nSCT;
+  TH1D* m_h_FTK_RawTrack_n;
+  TH1D* m_h_FTK_RawTrack_phi;
+  TH1D* m_h_FTK_RawTrack_d0;
+  TH1D* m_h_FTK_RawTrack_z0;
+  TH1D* m_h_FTK_RawTrack_invPt;
+  TH1D* m_h_FTK_RawTrack_cot;
+  TH1D* m_h_FTK_RawTrack_eta;
+  TH1D* m_h_FTK_RawTrack_nPix;
+  TH1D* m_h_FTK_RawTrack_nSCT;
 
-  TH1D* h_Track_n;
-  TH1D* h_Track_phi;
-  TH1D* h_Track_d0;
-  TH1D* h_Track_z0;
-  TH1D* h_Track_invPt;
-  TH1D* h_Track_cot;
-  TH1D* h_Track_eta;
-  TH1D* h_Track_nPix;
-  TH1D* h_Track_nSCT;
+  TH1D* m_h_Track_n;
+  TH1D* m_h_Track_phi;
+  TH1D* m_h_Track_d0;
+  TH1D* m_h_Track_z0;
+  TH1D* m_h_Track_invPt;
+  TH1D* m_h_Track_cot;
+  TH1D* m_h_Track_eta;
+  TH1D* m_h_Track_nPix;
+  TH1D* m_h_Track_nSCT;
 
-  TH1D* h_refitTrack_n;
-  TH1D* h_refitTrack_phi;
-  TH1D* h_refitTrack_d0;
-  TH1D* h_refitTrack_z0;
-  TH1D* h_refitTrack_invPt;
-  TH1D* h_refitTrack_cot;
-  TH1D* h_refitTrack_eta;
-  TH1D* h_refitTrack_nPix;
-  TH1D* h_refitTrack_nSCT;
+  TH1D* m_h_refitTrack_n;
+  TH1D* m_h_refitTrack_phi;
+  TH1D* m_h_refitTrack_d0;
+  TH1D* m_h_refitTrack_z0;
+  TH1D* m_h_refitTrack_invPt;
+  TH1D* m_h_refitTrack_cot;
+  TH1D* m_h_refitTrack_eta;
+  TH1D* m_h_refitTrack_nPix;
+  TH1D* m_h_refitTrack_nSCT;
 
-  TTree *Tree_ftk;
+  TTree *m_Tree_ftk;
 
-  std::vector<float> fastAlg_FTKraw_vertex_x_position;
-  std::vector<float> fastAlg_FTKraw_vertex_y_position;
-  std::vector<float> fastAlg_FTKraw_vertex_z_position;
-  std::vector<float> fastAlg_FTKraw_vertex_x_error;
-  std::vector<float> fastAlg_FTKraw_vertex_y_error;
-  std::vector<float> fastAlg_FTKraw_vertex_z_error;
-  std::vector<int>   fastAlg_FTKraw_vertex_nTrack;
-  std::vector<int>   fastAlg_FTKraw_vertex_ndf;
-  std::vector<float> fastAlg_FTKraw_vertex_chi2;
-  std::vector<float> fastAlg_FTKraw_vertex_chi2_over_ndf;
+  std::vector<float> m_fastAlg_FTKraw_vertex_x_position;
+  std::vector<float> m_fastAlg_FTKraw_vertex_y_position;
+  std::vector<float> m_fastAlg_FTKraw_vertex_z_position;
+  std::vector<float> m_fastAlg_FTKraw_vertex_x_error;
+  std::vector<float> m_fastAlg_FTKraw_vertex_y_error;
+  std::vector<float> m_fastAlg_FTKraw_vertex_z_error;
+  std::vector<int>   m_fastAlg_FTKraw_vertex_nTrack;
+  std::vector<int>   m_fastAlg_FTKraw_vertex_ndf;
+  std::vector<float> m_fastAlg_FTKraw_vertex_chi2;
+  std::vector<float> m_fastAlg_FTKraw_vertex_chi2_over_ndf;
 
-  std::vector<float> raw_track_theta;
-  std::vector<float> raw_track_eta;
-  std::vector<float> raw_track_phi0;
-  std::vector<float> raw_track_d0;
-  std::vector<float> raw_track_z0;
-  std::vector<float> raw_track_invPt;
-  std::vector<float> raw_track_Pt;
+  std::vector<float> m_raw_track_theta;
+  std::vector<float> m_raw_track_eta;
+  std::vector<float> m_raw_track_phi0;
+  std::vector<float> m_raw_track_d0;
+  std::vector<float> m_raw_track_z0;
+  std::vector<float> m_raw_track_invPt;
+  std::vector<float> m_raw_track_Pt;
 
-  std::vector<float> fastAlg_FTKraw_vertex_associated_track_theta;
-  std::vector<float> fastAlg_FTKraw_vertex_associated_track_eta;
-  std::vector<float> fastAlg_FTKraw_vertex_associated_track_phi0;
-  std::vector<float> fastAlg_FTKraw_vertex_associated_track_d0;
-  std::vector<float> fastAlg_FTKraw_vertex_associated_track_z0;
-  std::vector<float> fastAlg_FTKraw_vertex_associated_track_invPt;
-  std::vector<float> fastAlg_FTKraw_vertex_associated_track_Pt;
-  std::vector<float> fastAlg_FTKraw_vertex_associated_track_cot;
-  std::vector<int>   fastAlg_FTKraw_vertex_associated_track_nVerts;
-  std::vector<int>   fastAlg_FTKraw_vertex_associated_track_VtxNumber;
+  std::vector<float> m_fastAlg_FTKraw_vertex_associated_track_theta;
+  std::vector<float> m_fastAlg_FTKraw_vertex_associated_track_eta;
+  std::vector<float> m_fastAlg_FTKraw_vertex_associated_track_phi0;
+  std::vector<float> m_fastAlg_FTKraw_vertex_associated_track_d0;
+  std::vector<float> m_fastAlg_FTKraw_vertex_associated_track_z0;
+  std::vector<float> m_fastAlg_FTKraw_vertex_associated_track_invPt;
+  std::vector<float> m_fastAlg_FTKraw_vertex_associated_track_Pt;
+  std::vector<float> m_fastAlg_FTKraw_vertex_associated_track_cot;
+  std::vector<int>   m_fastAlg_FTKraw_vertex_associated_track_nVerts;
+  std::vector<int>   m_fastAlg_FTKraw_vertex_associated_track_VtxNumber;
 
-  std::vector<int>   fastAlg_FTKraw_vertex_number;
+  std::vector<int>   m_fastAlg_FTKraw_vertex_number;
   
-  Float_t fastAlg_FTKraw_vertex_sumPt;
-  Float_t fastAlg_FTKraw_vertex_sumPt2;
-  Int_t   fastAlg_FTKraw_vertex_sumPt2_vtxNumber;
+  Float_t m_fastAlg_FTKraw_vertex_sumPt;
+  Float_t m_fastAlg_FTKraw_vertex_sumPt2;
+  Int_t   m_fastAlg_FTKraw_vertex_sumPt2_vtxNumber;
   //
-  std::vector<float> fastAlg_FTKrefit_vertex_x_position;
-  std::vector<float> fastAlg_FTKrefit_vertex_y_position;
-  std::vector<float> fastAlg_FTKrefit_vertex_z_position;
-  std::vector<float> fastAlg_FTKrefit_vertex_x_error;
-  std::vector<float> fastAlg_FTKrefit_vertex_y_error;
-  std::vector<float> fastAlg_FTKrefit_vertex_z_error;
-  std::vector<int>   fastAlg_FTKrefit_vertex_nTrack;
-  std::vector<int>   fastAlg_FTKrefit_vertex_ndf;
-  std::vector<float> fastAlg_FTKrefit_vertex_chi2;
-  std::vector<float> fastAlg_FTKrefit_vertex_chi2_over_ndf;
+  std::vector<float> m_fastAlg_FTKrefit_vertex_x_position;
+  std::vector<float> m_fastAlg_FTKrefit_vertex_y_position;
+  std::vector<float> m_fastAlg_FTKrefit_vertex_z_position;
+  std::vector<float> m_fastAlg_FTKrefit_vertex_x_error;
+  std::vector<float> m_fastAlg_FTKrefit_vertex_y_error;
+  std::vector<float> m_fastAlg_FTKrefit_vertex_z_error;
+  std::vector<int>   m_fastAlg_FTKrefit_vertex_nTrack;
+  std::vector<int>   m_fastAlg_FTKrefit_vertex_ndf;
+  std::vector<float> m_fastAlg_FTKrefit_vertex_chi2;
+  std::vector<float> m_fastAlg_FTKrefit_vertex_chi2_over_ndf;
 
-  std::vector<float> fastAlg_FTKrefit_vertex_associated_track_theta;
-  std::vector<float> fastAlg_FTKrefit_vertex_associated_track_eta;
-  std::vector<float> fastAlg_FTKrefit_vertex_associated_track_phi0;
-  std::vector<float> fastAlg_FTKrefit_vertex_associated_track_d0;
-  std::vector<float> fastAlg_FTKrefit_vertex_associated_track_z0;
-  std::vector<float> fastAlg_FTKrefit_vertex_associated_track_invPt;
-  std::vector<float> fastAlg_FTKrefit_vertex_associated_track_Pt;
-  std::vector<float> fastAlg_FTKrefit_vertex_associated_track_cot;
-  std::vector<int>   fastAlg_FTKrefit_vertex_associated_track_nVerts;
-  std::vector<int>   fastAlg_FTKrefit_vertex_associated_track_VtxNumber;
+  std::vector<float> m_fastAlg_FTKrefit_vertex_associated_track_theta;
+  std::vector<float> m_fastAlg_FTKrefit_vertex_associated_track_eta;
+  std::vector<float> m_fastAlg_FTKrefit_vertex_associated_track_phi0;
+  std::vector<float> m_fastAlg_FTKrefit_vertex_associated_track_d0;
+  std::vector<float> m_fastAlg_FTKrefit_vertex_associated_track_z0;
+  std::vector<float> m_fastAlg_FTKrefit_vertex_associated_track_invPt;
+  std::vector<float> m_fastAlg_FTKrefit_vertex_associated_track_Pt;
+  std::vector<float> m_fastAlg_FTKrefit_vertex_associated_track_cot;
+  std::vector<int>   m_fastAlg_FTKrefit_vertex_associated_track_nVerts;
+  std::vector<int>   m_fastAlg_FTKrefit_vertex_associated_track_VtxNumber;
 
-  std::vector<int>   fastAlg_FTKrefit_vertex_number;
+  std::vector<int>   m_fastAlg_FTKrefit_vertex_number;
   
-  Float_t fastAlg_FTKrefit_vertex_sumPt;
-  Float_t fastAlg_FTKrefit_vertex_sumPt2;
-  Int_t   fastAlg_FTKrefit_vertex_sumPt2_vtxNumber;
+  Float_t m_fastAlg_FTKrefit_vertex_sumPt;
+  Float_t m_fastAlg_FTKrefit_vertex_sumPt2;
+  Int_t   m_fastAlg_FTKrefit_vertex_sumPt2_vtxNumber;
 
 
   //                                         
-  std::vector<float> offlineAlg_FTKconverted_vertex_x_position;
-  std::vector<float> offlineAlg_FTKconverted_vertex_y_position;
-  std::vector<float> offlineAlg_FTKconverted_vertex_z_position;
-  std::vector<float> offlineAlg_FTKconverted_vertex_x_error;
-  std::vector<float> offlineAlg_FTKconverted_vertex_y_error;
-  std::vector<float> offlineAlg_FTKconverted_vertex_z_error;
-  std::vector<int>   offlineAlg_FTKconverted_vertex_nTrack;
-  std::vector<int>   offlineAlg_FTKconverted_vertex_ndf;
-  std::vector<float> offlineAlg_FTKconverted_vertex_chi2;
-  std::vector<float> offlineAlg_FTKconverted_vertex_chi2_over_ndf;
+  std::vector<float> m_offlineAlg_FTKconverted_vertex_x_position;
+  std::vector<float> m_offlineAlg_FTKconverted_vertex_y_position;
+  std::vector<float> m_offlineAlg_FTKconverted_vertex_z_position;
+  std::vector<float> m_offlineAlg_FTKconverted_vertex_x_error;
+  std::vector<float> m_offlineAlg_FTKconverted_vertex_y_error;
+  std::vector<float> m_offlineAlg_FTKconverted_vertex_z_error;
+  std::vector<int>   m_offlineAlg_FTKconverted_vertex_nTrack;
+  std::vector<int>   m_offlineAlg_FTKconverted_vertex_ndf;
+  std::vector<float> m_offlineAlg_FTKconverted_vertex_chi2;
+  std::vector<float> m_offlineAlg_FTKconverted_vertex_chi2_over_ndf;
 
-  std::vector<float> converted_track_theta;
-  std::vector<float> converted_track_eta;
-  std::vector<float> converted_track_phi0;
-  std::vector<float> converted_track_d0;
-  std::vector<float> converted_track_z0;
-  std::vector<float> converted_track_invPt;
-  std::vector<float> converted_track_Pt;
+  std::vector<float> m_converted_track_theta;
+  std::vector<float> m_converted_track_eta;
+  std::vector<float> m_converted_track_phi0;
+  std::vector<float> m_converted_track_d0;
+  std::vector<float> m_converted_track_z0;
+  std::vector<float> m_converted_track_invPt;
+  std::vector<float> m_converted_track_Pt;
 
-  std::vector<float> offlineAlg_FTKconverted_vertex_associated_track_theta;
-  std::vector<float> offlineAlg_FTKconverted_vertex_associated_track_eta;
-  std::vector<float> offlineAlg_FTKconverted_vertex_associated_track_phi0;
-  std::vector<float> offlineAlg_FTKconverted_vertex_associated_track_d0;
-  std::vector<float> offlineAlg_FTKconverted_vertex_associated_track_z0;
-  std::vector<float> offlineAlg_FTKconverted_vertex_associated_track_invPt;
-  std::vector<float> offlineAlg_FTKconverted_vertex_associated_track_Pt;
-  std::vector<float> offlineAlg_FTKconverted_vertex_associated_track_cot;
-  std::vector<int>   offlineAlg_FTKconverted_vertex_associated_track_nVerts;
-  std::vector<int>   offlineAlg_FTKconverted_vertex_associated_track_VtxNumber;
+  std::vector<float> m_offlineAlg_FTKconverted_vertex_associated_track_theta;
+  std::vector<float> m_offlineAlg_FTKconverted_vertex_associated_track_eta;
+  std::vector<float> m_offlineAlg_FTKconverted_vertex_associated_track_phi0;
+  std::vector<float> m_offlineAlg_FTKconverted_vertex_associated_track_d0;
+  std::vector<float> m_offlineAlg_FTKconverted_vertex_associated_track_z0;
+  std::vector<float> m_offlineAlg_FTKconverted_vertex_associated_track_invPt;
+  std::vector<float> m_offlineAlg_FTKconverted_vertex_associated_track_Pt;
+  std::vector<float> m_offlineAlg_FTKconverted_vertex_associated_track_cot;
+  std::vector<int>   m_offlineAlg_FTKconverted_vertex_associated_track_nVerts;
+  std::vector<int>   m_offlineAlg_FTKconverted_vertex_associated_track_VtxNumber;
 
-  std::vector<int>   offlineAlg_FTKconverted_vertex_number;
+  std::vector<int>   m_offlineAlg_FTKconverted_vertex_number;
 
-  Float_t offlineAlg_FTKconverted_vertex_sumPt;
-  Float_t offlineAlg_FTKconverted_vertex_sumPt2;
-  Int_t   offlineAlg_FTKconverted_vertex_sumPt2_vtxNumber;
+  Float_t m_offlineAlg_FTKconverted_vertex_sumPt;
+  Float_t m_offlineAlg_FTKconverted_vertex_sumPt2;
+  Int_t   m_offlineAlg_FTKconverted_vertex_sumPt2_vtxNumber;
 
 
   //                                                                                              
-  std::vector<float> offlineAlg_FTKrefit_vertex_x_position;
-  std::vector<float> offlineAlg_FTKrefit_vertex_y_position;
-  std::vector<float> offlineAlg_FTKrefit_vertex_z_position;
-  std::vector<float> offlineAlg_FTKrefit_vertex_x_error;
-  std::vector<float> offlineAlg_FTKrefit_vertex_y_error;
-  std::vector<float> offlineAlg_FTKrefit_vertex_z_error;
-  std::vector<int>   offlineAlg_FTKrefit_vertex_nTrack;
-  std::vector<int>   offlineAlg_FTKrefit_vertex_ndf;
-  std::vector<float> offlineAlg_FTKrefit_vertex_chi2;
-  std::vector<float> offlineAlg_FTKrefit_vertex_chi2_over_ndf;
+  std::vector<float> m_offlineAlg_FTKrefit_vertex_x_position;
+  std::vector<float> m_offlineAlg_FTKrefit_vertex_y_position;
+  std::vector<float> m_offlineAlg_FTKrefit_vertex_z_position;
+  std::vector<float> m_offlineAlg_FTKrefit_vertex_x_error;
+  std::vector<float> m_offlineAlg_FTKrefit_vertex_y_error;
+  std::vector<float> m_offlineAlg_FTKrefit_vertex_z_error;
+  std::vector<int>   m_offlineAlg_FTKrefit_vertex_nTrack;
+  std::vector<int>   m_offlineAlg_FTKrefit_vertex_ndf;
+  std::vector<float> m_offlineAlg_FTKrefit_vertex_chi2;
+  std::vector<float> m_offlineAlg_FTKrefit_vertex_chi2_over_ndf;
 
 
-  std::vector<float> refit_track_theta;
-  std::vector<float> refit_track_eta;
-  std::vector<float> refit_track_phi0;
-  std::vector<float> refit_track_d0;
-  std::vector<float> refit_track_z0;
-  std::vector<float> refit_track_invPt;
-  std::vector<float> refit_track_Pt;
+  std::vector<float> m_refit_track_theta;
+  std::vector<float> m_refit_track_eta;
+  std::vector<float> m_refit_track_phi0;
+  std::vector<float> m_refit_track_d0;
+  std::vector<float> m_refit_track_z0;
+  std::vector<float> m_refit_track_invPt;
+  std::vector<float> m_refit_track_Pt;
 
 
-  std::vector<float> offlineAlg_FTKrefit_vertex_associated_track_theta;
-  std::vector<float> offlineAlg_FTKrefit_vertex_associated_track_eta;
-  std::vector<float> offlineAlg_FTKrefit_vertex_associated_track_phi0;
-  std::vector<float> offlineAlg_FTKrefit_vertex_associated_track_d0;
-  std::vector<float> offlineAlg_FTKrefit_vertex_associated_track_z0;
-  std::vector<float> offlineAlg_FTKrefit_vertex_associated_track_invPt;
-  std::vector<float> offlineAlg_FTKrefit_vertex_associated_track_Pt;
-  std::vector<float> offlineAlg_FTKrefit_vertex_associated_track_cot;
-  std::vector<int>   offlineAlg_FTKrefit_vertex_associated_track_nVerts;
-  std::vector<int>   offlineAlg_FTKrefit_vertex_associated_track_VtxNumber;
+  std::vector<float> m_offlineAlg_FTKrefit_vertex_associated_track_theta;
+  std::vector<float> m_offlineAlg_FTKrefit_vertex_associated_track_eta;
+  std::vector<float> m_offlineAlg_FTKrefit_vertex_associated_track_phi0;
+  std::vector<float> m_offlineAlg_FTKrefit_vertex_associated_track_d0;
+  std::vector<float> m_offlineAlg_FTKrefit_vertex_associated_track_z0;
+  std::vector<float> m_offlineAlg_FTKrefit_vertex_associated_track_invPt;
+  std::vector<float> m_offlineAlg_FTKrefit_vertex_associated_track_Pt;
+  std::vector<float> m_offlineAlg_FTKrefit_vertex_associated_track_cot;
+  std::vector<int>   m_offlineAlg_FTKrefit_vertex_associated_track_nVerts;
+  std::vector<int>   m_offlineAlg_FTKrefit_vertex_associated_track_VtxNumber;
 
-  std::vector<int>   offlineAlg_FTKrefit_vertex_number;
+  std::vector<int>   m_offlineAlg_FTKrefit_vertex_number;
 
-  Float_t offlineAlg_FTKrefit_vertex_sumPt;
-  Float_t offlineAlg_FTKrefit_vertex_sumPt2;
-  Int_t   offlineAlg_FTKrefit_vertex_sumPt2_vtxNumber;
+  Float_t m_offlineAlg_FTKrefit_vertex_sumPt;
+  Float_t m_offlineAlg_FTKrefit_vertex_sumPt2;
+  Int_t   m_offlineAlg_FTKrefit_vertex_sumPt2_vtxNumber;
 
 
   ////                                                                                            
 
-  std::vector<float> offline_track_theta;
-  std::vector<float> offline_track_eta;
-  std::vector<float> offline_track_phi0;
-  std::vector<float> offline_track_d0;
-  std::vector<float> offline_track_z0;
-  std::vector<float> offline_track_invPt;
-  std::vector<float> offline_track_Pt;
+  std::vector<float> m_offline_track_theta;
+  std::vector<float> m_offline_track_eta;
+  std::vector<float> m_offline_track_phi0;
+  std::vector<float> m_offline_track_d0;
+  std::vector<float> m_offline_track_z0;
+  std::vector<float> m_offline_track_invPt;
+  std::vector<float> m_offline_track_Pt;
 
 
-  std::vector<float> offlineAlg_offlineTracks_vertex_x_position;
-  std::vector<float> offlineAlg_offlineTracks_vertex_y_position;
-  std::vector<float> offlineAlg_offlineTracks_vertex_z_position;
-  std::vector<float> offlineAlg_offlineTracks_vertex_x_error;
-  std::vector<float> offlineAlg_offlineTracks_vertex_y_error;
-  std::vector<float> offlineAlg_offlineTracks_vertex_z_error;
-  std::vector<int>   offlineAlg_offlineTracks_vertex_nTrack;
-  std::vector<int>   offlineAlg_offlineTracks_vertex_ndf;
-  std::vector<float> offlineAlg_offlineTracks_vertex_chi2;
-  std::vector<float> offlineAlg_offlineTracks_vertex_chi2_over_ndf;
+  std::vector<float> m_offlineAlg_offlineTracks_vertex_x_position;
+  std::vector<float> m_offlineAlg_offlineTracks_vertex_y_position;
+  std::vector<float> m_offlineAlg_offlineTracks_vertex_z_position;
+  std::vector<float> m_offlineAlg_offlineTracks_vertex_x_error;
+  std::vector<float> m_offlineAlg_offlineTracks_vertex_y_error;
+  std::vector<float> m_offlineAlg_offlineTracks_vertex_z_error;
+  std::vector<int>   m_offlineAlg_offlineTracks_vertex_nTrack;
+  std::vector<int>   m_offlineAlg_offlineTracks_vertex_ndf;
+  std::vector<float> m_offlineAlg_offlineTracks_vertex_chi2;
+  std::vector<float> m_offlineAlg_offlineTracks_vertex_chi2_over_ndf;
 
-  std::vector<float> offlineAlg_offlineTracks_vertex_associated_track_theta;
-  std::vector<float> offlineAlg_offlineTracks_vertex_associated_track_eta;
-  std::vector<float> offlineAlg_offlineTracks_vertex_associated_track_phi0;
-  std::vector<float> offlineAlg_offlineTracks_vertex_associated_track_d0;
-  std::vector<float> offlineAlg_offlineTracks_vertex_associated_track_z0;
-  std::vector<float> offlineAlg_offlineTracks_vertex_associated_track_invPt;
-  std::vector<float> offlineAlg_offlineTracks_vertex_associated_track_Pt;
-  std::vector<int>   offlineAlg_offlineTracks_vertex_associated_track_nVerts;
-  std::vector<int>   offlineAlg_offlineTracks_vertex_associated_track_VtxNumber;
+  std::vector<float> m_offlineAlg_offlineTracks_vertex_associated_track_theta;
+  std::vector<float> m_offlineAlg_offlineTracks_vertex_associated_track_eta;
+  std::vector<float> m_offlineAlg_offlineTracks_vertex_associated_track_phi0;
+  std::vector<float> m_offlineAlg_offlineTracks_vertex_associated_track_d0;
+  std::vector<float> m_offlineAlg_offlineTracks_vertex_associated_track_z0;
+  std::vector<float> m_offlineAlg_offlineTracks_vertex_associated_track_invPt;
+  std::vector<float> m_offlineAlg_offlineTracks_vertex_associated_track_Pt;
+  std::vector<int>   m_offlineAlg_offlineTracks_vertex_associated_track_nVerts;
+  std::vector<int>   m_offlineAlg_offlineTracks_vertex_associated_track_VtxNumber;
 
-  std::vector<int>   isRawFastHS;
-  std::vector<int>   isRefitFastHS;
-  std::vector<int>   isConvertedOfflineHS;
-  std::vector<int>   isRefitOfflineHS;
-  std::vector<int>   isOfflineOfflineHS;
+  std::vector<int>   m_isRawFastHS;
+  std::vector<int>   m_isRefitFastHS;
+  std::vector<int>   m_isConvertedOfflineHS;
+  std::vector<int>   m_isRefitOfflineHS;
+  std::vector<int>   m_isOfflineOfflineHS;
 
-  std::vector<int>   offlineAlg_offlineTracks_vertex_number;
+  std::vector<int>   m_offlineAlg_offlineTracks_vertex_number;
 
-  Float_t offlineAlg_offlineTracks_vertex_sumPt;
-  Float_t offlineAlg_offlineTracks_vertex_sumPt2;
-  Int_t   offlineAlg_offlineTracks_vertex_sumPt2_vtxNumber;
-
-
-  Double_t truth_x0;
-  Double_t truth_y0;
-  Double_t truth_z0;
-
-  Int_t RunNumber;
-  Int_t EventNumber;
-  Int_t LumiBlock;
-  Int_t BCID;
-  Int_t averageInteractionsPerCrossing;
-  Int_t actualInteractionsPerCrossing;
-  Int_t extendedLevel1ID;
-  Int_t level1TriggerType;
-  std::vector<unsigned int> level1TriggerInfo;
+  Float_t m_offlineAlg_offlineTracks_vertex_sumPt;
+  Float_t m_offlineAlg_offlineTracks_vertex_sumPt2;
+  Int_t   m_offlineAlg_offlineTracks_vertex_sumPt2_vtxNumber;
 
 
-  std::vector<float>   *refit_x_residual;
-  std::vector<float>   *refit_y_residual;
-  std::vector<float>   *refit_locX;
-  std::vector<float>   *refit_locY;
-  std::vector<bool>   *refit_isPixel;
-  std::vector<bool>   *refit_isBarrel;
-  std::vector<bool>   *refit_isSCT;
-  std::vector<int>     *refit_layer;
-  std::vector<int>     *refit_resAssociatedTrack;
-  std::vector<int>     *refit_clustID;
+  Double_t m_truth_x0;
+  Double_t m_truth_y0;
+  Double_t m_truth_z0;
+
+  Int_t m_RunNumber;
+  Int_t m_EventNumber;
+  Int_t m_LumiBlock;
+  Int_t m_BCID;
+  Int_t m_averageInteractionsPerCrossing;
+  Int_t m_actualInteractionsPerCrossing;
+  Int_t m_extendedLevel1ID;
+  Int_t m_level1TriggerType;
+  std::vector<unsigned int> m_level1TriggerInfo;
 
 
-  std::vector<float>   *offline_x_residual;
-  std::vector<float>   *offline_y_residual;
-  std::vector<float>   *offline_locX;
-  std::vector<float>   *offline_locY;
-  std::vector<bool>   *offline_isPixel;
-  std::vector<bool>   *offline_isBarrel;
-  std::vector<bool>   *offline_isSCT;
-  std::vector<int>     *offline_layer;
-  std::vector<int>     *offline_resAssociatedTrack;
-  std::vector<int>     *offline_clustID;
+  std::vector<float>   *m_refit_x_residual;
+  std::vector<float>   *m_refit_y_residual;
+  std::vector<float>   *m_refit_locX;
+  std::vector<float>   *m_refit_locY;
+  std::vector<bool>   *m_refit_isPixel;
+  std::vector<bool>   *m_refit_isBarrel;
+  std::vector<bool>   *m_refit_isSCT;
+  std::vector<int>     *m_refit_layer;
+  std::vector<int>     *m_refit_resAssociatedTrack;
+  std::vector<int>     *m_refit_clustID;
+
+
+  std::vector<float>   *m_offline_x_residual;
+  std::vector<float>   *m_offline_y_residual;
+  std::vector<float>   *m_offline_locX;
+  std::vector<float>   *m_offline_locY;
+  std::vector<bool>   *m_offline_isPixel;
+  std::vector<bool>   *m_offline_isBarrel;
+  std::vector<bool>   *m_offline_isSCT;
+  std::vector<int>     *m_offline_layer;
+  std::vector<int>     *m_offline_resAssociatedTrack;
+  std::vector<int>     *m_offline_clustID;
 
 };
 

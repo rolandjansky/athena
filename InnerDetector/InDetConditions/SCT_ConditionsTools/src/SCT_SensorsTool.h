@@ -12,7 +12,6 @@
 #define SCT_SensorsTool_h
 
 //STL includes
-#include <string>
 #include <vector>
 #include <mutex>
 
@@ -51,8 +50,6 @@ class SCT_SensorsTool: public extends<AthAlgTool, ISCT_SensorsTool> {
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
  private:
-  std::vector<std::string> m_sensorsValues;
-
   // Mutex to protect the contents.
   mutable std::mutex m_mutex;
   // Cache to store events for slots

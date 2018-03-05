@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TrigCaloDataAccessSvc_ITrigCaloDataAccessSvc_h
 #define TrigCaloDataAccessSvc_ITrigCaloDataAccessSvc_h
@@ -15,6 +15,7 @@
 #include "ZdcEvent/ZdcRawChannelCollection.h"
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/IService.h"
+#include "GaudiKernel/StatusCode.h"
 
 // For callbacks
 #include "AthenaKernel/IOVSvcDefs.h"
@@ -24,37 +25,31 @@ class ITrigCaloDataAccessSvc: virtual public IService {
   /** Interface for Virtual Class */
   DeclareInterfaceID(ITrigCaloDataAccessSvc, 1, 0);
   
-  class Status {
-  public:
-    Status() {}
-    Status( uint32_t x) : m_mask( x ) {}
-
-    //! possible, predefined errors
-    enum Mask { MissingROB = 0x10000000, RawDataCorrupted = 0x20000000, InternalError = 0x40000000 };
-    
-    inline void addError( uint32_t m ) { m_mask |= m; }
-    inline bool hasError( uint32_t m ) const { return m & m_mask; }
-    inline bool success() const { return mask() == 0; }
-
-    //!< to be usable with the ATH_CHECK
-    inline operator StatusCode() const { 
-      return success() ? StatusCode::SUCCESS : StatusCode::FAILURE;  
-    }
-    void operator += ( const Status& rhs ) { m_mask &= rhs.m_mask; }
-    //!< raw mask
-    inline uint32_t mask() const { return m_mask; }
-  private:
-    uint32_t m_mask = 0;
+  /** Enum for StatusCode */
+  enum class Status : StatusCode::code_t {
+    // Gaudi defaults
+    FAILURE          = 0,
+    SUCCESS          = 1,
+    RECOVERABLE      = 2,
+    // Our own error codes
+    MissingROB       = 0x10000000,
+    RawDataCorrupted = 0x20000000,
+    InternalError    = 0x40000000,
+    // Masks and bitshifts
+    StatusMask       = 0xff000000,  // 1 byte for our own error codes
+    LArDecoderMask   = 0x00000ff0,  // 1 byte for LAr decoder error
+    LArDecoderShift  = 4,           // error shift (relative to LArRodDecoder::report_error)
+    TileDecoderMask  = 0x00ff0000,  // 1 byte for Tile decoder error
+    TileDecoderShift = 0            // error shift (relative to TileRodDecoder::report_error)
   };
 
-  
   /** 
    * @brief downloads the LAr data for an RoI and makes sure the cache collection is filled wiht decoded cells   
    */
-  virtual Status loadCollections( const EventContext& context,
-				  const IRoiDescriptor& roi,
-				  const DETID detId, const int sampling,
-				  LArTT_Selector<LArCellCont>& loadedCells ) = 0;
+  virtual StatusCode loadCollections( const EventContext& context,
+                                      const IRoiDescriptor& roi,
+                                      const DETID detId, const int sampling,
+                                      LArTT_Selector<LArCellCont>& loadedCells ) = 0;
 	/* /\**  */
 	/* * @brief LoadCollections fetches data via ROBDataProvider */
 	/* * and really provides ByteStream Conversion by calling  */
@@ -100,10 +95,10 @@ class ITrigCaloDataAccessSvc: virtual public IService {
         * @brief Loads the full collection for the missing et computation
         */
 
-  virtual Status prepareFullCollections( const EventContext& context ) = 0;
+  virtual StatusCode prepareFullCollections( const EventContext& context ) = 0;
   
-  virtual Status loadFullCollections ( const EventContext& context,
-				       ConstDataVector<CaloCellContainer>& cont ) = 0;
+  virtual StatusCode loadFullCollections ( const EventContext& context,
+                                           ConstDataVector<CaloCellContainer>& cont ) = 0;
 
         /* /\** */
         /* * @brief Loads the full collection for the missing et computation */
@@ -192,5 +187,8 @@ private :
 	}
 protected:
 };
+
+// Register enum as StatusCode
+STATUSCODE_ENUM_DECL(ITrigCaloDataAccessSvc::Status)
 
 #endif

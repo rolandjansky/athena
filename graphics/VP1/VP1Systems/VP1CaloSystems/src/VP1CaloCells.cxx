@@ -34,8 +34,8 @@
 #define MBTS_EPS 10
 
 // ************ Base Class ***************
-VP1CaloCell::VP1CaloCell(const CaloCell* _caloCell):
-  m_caloCell(_caloCell)
+VP1CaloCell::VP1CaloCell(const CaloCell* caloCell):
+  m_caloCell(caloCell)
 {
   // Cannot draw object if it has no Calo DDE
   const CaloDetDescrElement* ddElement = m_caloCell->caloDDE();
@@ -98,26 +98,26 @@ bool VP1CaloCell::isInsideClipVolume(const VP1CC_GlobalCuts& globalCuts) {
   return false;
 }
 
-void VP1CaloCell::updateScene(VP1CC_SoNode2CCMap* _node2cc,
-			      bool _useEt,
-			      const QPair<bool,double>& _scale,
-			      bool _outline,
+void VP1CaloCell::updateScene(VP1CC_SoNode2CCMap* node2cc,
+			      bool useEt,
+			      const QPair<bool,double>& scale,
+			      bool outline,
 			      const VP1CC_GlobalCuts& globalCuts)
 {
   if(cutPassed(globalCuts))
-    build3DObjects(_node2cc,_useEt,_scale,_outline, globalCuts);
+    build3DObjects(node2cc,useEt,scale,outline, globalCuts);
   else
-    remove3DObjects(_node2cc);
+    remove3DObjects(node2cc);
 }
 
 // ************  LAr  ***************
-VP1CC_LAr::VP1CC_LAr(const CaloCell* _caloCell):
-  VP1CaloCell(_caloCell),
+VP1CC_LAr::VP1CC_LAr(const CaloCell* caloCell):
+  VP1CaloCell(caloCell),
   m_hit(0),
   m_helper(0)
 {
-/** _caloCell was already dereferenced at this point by VP1CaloCell, so cannot be null
-  if(!_caloCell)
+/** caloCell was already dereferenced at this point by VP1CaloCell, so cannot be null
+  if(!caloCell)
     throw std::runtime_error("VP1CC_LAr: 0 pointer to CaloCell");
 **/
 }
@@ -126,33 +126,33 @@ VP1CC_LAr::~VP1CC_LAr()
 {
 }
 
-void VP1CC_LAr::remove3DObjects(VP1CC_SoNode2CCMap* _node2cc)
+void VP1CC_LAr::remove3DObjects(VP1CC_SoNode2CCMap* node2cc)
 {
   if(m_hit) {
-    _node2cc->erase(m_hit);
+    node2cc->erase(m_hit);
     m_helper->removeNode(m_hit);
     m_hit = 0;
   }
 }
 
 // ************  LArEMB  ***************
-VP1CC_LArEMB::VP1CC_LArEMB(const CaloCell* _caloCell,
-				   const VP1CC_SeparatorMap* _separators):
-  VP1CC_LAr(_caloCell)
+VP1CC_LArEMB::VP1CC_LArEMB(const CaloCell* caloCell,
+				   const VP1CC_SeparatorMap* separators):
+  VP1CC_LAr(caloCell)
 {
   // define Separator type depending on Cell energy
-  if(!_separators)
+  if(!separators)
     throw std::runtime_error("VP1CC_LArEMB: 0 pointer to VP1CC Separator Map");
 
   VP1CC_SeparatorTypes mySeparatorType;
-  if(_caloCell->energy()<0)
+  if(caloCell->energy()<0)
     mySeparatorType = VP1CC_SepLArEMBNeg;
   else
     mySeparatorType = VP1CC_SepLArEMBPos;
 
   // get SoSeparator from the map
-  VP1CC_SeparatorMap::const_iterator it = _separators->find(mySeparatorType);
-  if(it ==_separators->end())
+  VP1CC_SeparatorMap::const_iterator it = separators->find(mySeparatorType);
+  if(it ==separators->end())
     throw std::runtime_error("VP1CC_LArEMB: Missing separator helper in the map");
 
   m_helper = it->second;
@@ -165,10 +165,10 @@ VP1CC_LArEMB::~VP1CC_LArEMB()
 {
 }
 
-void VP1CC_LArEMB::build3DObjects(VP1CC_SoNode2CCMap* _node2cc,
-				  bool _useEt,
-				  const QPair<bool,double>& _scale,
-				  bool _outline,
+void VP1CC_LArEMB::build3DObjects(VP1CC_SoNode2CCMap* node2cc,
+				  bool useEt,
+				  const QPair<bool,double>& scale,
+				  bool outline,
           const VP1CC_GlobalCuts& globalCuts)
 {
   bool createNewHit = false;
@@ -186,23 +186,23 @@ void VP1CC_LArEMB::build3DObjects(VP1CC_SoNode2CCMap* _node2cc,
   double phi = ddElement->phi();
   double dphi = ddElement->dphi()*0.5;
   double radius = ddElement->r();
-  double energy = (_useEt ? energyToTransverse(m_caloCell->energy()) : m_caloCell->energy());
+  double energy = (useEt ? energyToTransverse(m_caloCell->energy()) : m_caloCell->energy());
 
   double z = std::fabs(ddElement->z());
   double radialDistance = sqrt(radius*radius + z*z);
 
-  double depth = cellDepth(_scale,energy);
+  double depth = cellDepth(scale,energy);
   depth = std::min(depth, std::fabs(globalCuts.clipRadius - radialDistance ) ) ;
 
   // std::cout<<"z "<<ddElement->z()<<"\t radialDistance "<<radialDistance<<"\t clipRadius "<<globalCuts.clipRadius<<"\t depth "<<depth<<std::endl;
 
   m_hit->setParametersForBarrelEtaPhiCell( eta-deta,eta+deta,phi-dphi,phi+dphi,
 					   depth, radius, 0.9, 0.9 );
-  m_hit->drawEdgeLines = _outline;
+  m_hit->drawEdgeLines = outline;
 
   if(createNewHit) {
     m_helper->addNode(m_hit);
-    (*_node2cc)[m_hit] = this;
+    (*node2cc)[m_hit] = this;
   }
 }
 
@@ -212,8 +212,8 @@ std::vector<std::string> VP1CC_LArEMB::ToString(const CaloCell_ID*, const std::s
   const CaloDetDescrElement* ddElement = m_caloCell->caloDDE();
   std::ostringstream msg, msg1, msg2, msg3;
 
-  std::string _stars("***");
-  result.push_back(_stars);
+  std::string stars("***");
+  result.push_back(stars);
 
   msg << "LAr EMB. ID =  " << m_caloCell->ID().getString() << " " << extrainfos;
 
@@ -232,30 +232,30 @@ std::vector<std::string> VP1CC_LArEMB::ToString(const CaloCell_ID*, const std::s
   result.push_back(msg2.str());
   result.push_back(msg3.str());
 
-  result.push_back(_stars);
+  result.push_back(stars);
   return result;
 }
 
 // ************  LArEMECHEC  ***************
-VP1CC_LArEMECHEC::VP1CC_LArEMECHEC(const CaloCell* _caloCell,
+VP1CC_LArEMECHEC::VP1CC_LArEMECHEC(const CaloCell* caloCell,
 					   const CaloCell_ID*  calo_id,
-					   const VP1CC_SeparatorMap* _separators):
-  VP1CC_LAr(_caloCell)
+					   const VP1CC_SeparatorMap* separators):
+  VP1CC_LAr(caloCell)
 {
-  if(!_separators)
+  if(!separators)
     throw std::runtime_error("VP1CC_LArEMECHEC: 0 pointer to VP1CC Separator Map");
 
   bool isEMEC = false;
-  if(calo_id->is_em_endcap(_caloCell->ID()))
+  if(calo_id->is_em_endcap(caloCell->ID()))
     isEMEC = true;
-  else if(calo_id->is_hec(_caloCell->ID()))
+  else if(calo_id->is_hec(caloCell->ID()))
     isEMEC = false;
   else
     throw std::runtime_error("VP1CC_LArEMECHEC: Calo Cell is neither EMEC nor HEC!");
 
   // define Separator type depending on Cell energy
   VP1CC_SeparatorTypes mySeparatorType;
-  if(_caloCell->energy()<0) {
+  if(caloCell->energy()<0) {
     if(isEMEC)
       mySeparatorType = VP1CC_SepLArEMECNeg;
     else
@@ -268,8 +268,8 @@ VP1CC_LArEMECHEC::VP1CC_LArEMECHEC(const CaloCell* _caloCell,
   }
 
   // get SoSeparator from the map
-  VP1CC_SeparatorMap::const_iterator it = _separators->find(mySeparatorType);
-  if(it ==_separators->end())
+  VP1CC_SeparatorMap::const_iterator it = separators->find(mySeparatorType);
+  if(it ==separators->end())
     throw std::runtime_error("VP1CC_LArEMECHEC: Missing separator in the map");
 
   m_helper = it->second;
@@ -289,8 +289,8 @@ std::vector<std::string> VP1CC_LArEMECHEC::ToString(const CaloCell_ID*  calo_id,
 
   std::ostringstream msg, msg1, msg2, msg3;
 
-  std::string _stars("***");
-  result.push_back(_stars);
+  std::string stars("***");
+  result.push_back(stars);
 
   if(calo_id->is_em_endcap(m_caloCell->ID()))
     msg << "LAr EMEC. ID =  " << m_caloCell->ID().getString();
@@ -313,14 +313,14 @@ std::vector<std::string> VP1CC_LArEMECHEC::ToString(const CaloCell_ID*  calo_id,
   result.push_back(msg2.str());
   result.push_back(msg3.str());
 
-  result.push_back(_stars);
+  result.push_back(stars);
   return result;
 }
 
-void VP1CC_LArEMECHEC::build3DObjects(VP1CC_SoNode2CCMap* _node2cc,
-				      bool _useEt,
-				      const QPair<bool,double>& _scale,
-				      bool _outline,
+void VP1CC_LArEMECHEC::build3DObjects(VP1CC_SoNode2CCMap* node2cc,
+				      bool useEt,
+				      const QPair<bool,double>& scale,
+				      bool outline,
           const VP1CC_GlobalCuts& globalCuts)
 {
   bool createNewHit = false;
@@ -338,27 +338,27 @@ void VP1CC_LArEMECHEC::build3DObjects(VP1CC_SoNode2CCMap* _node2cc,
   double phi = ddElement->phi();
   double dphi = ddElement->dphi()*0.5;
   double z  = ddElement->z();
-  double energy = (_useEt ? energyToTransverse(m_caloCell->energy()) : m_caloCell->energy());
+  double energy = (useEt ? energyToTransverse(m_caloCell->energy()) : m_caloCell->energy());
 
-  double depth = cellDepth(_scale,energy);
+  double depth = cellDepth(scale,energy);
   depth = std::min(depth, std::fabs(globalCuts.clipRadius - z));
 
   m_hit->setParametersForEndCapEtaPhiCell( eta-deta,eta+deta,phi-dphi,phi+dphi,
 					   depth, z, 0.9, 0.9 );
-  m_hit->drawEdgeLines = _outline;
+  m_hit->drawEdgeLines = outline;
 
   if(createNewHit) {
     m_helper->addNode(m_hit);
-    (*_node2cc)[m_hit] = this;
+    (*node2cc)[m_hit] = this;
   }
 }
 
 // ************  LArFCAL  ***************
-VP1CC_LArFCAL::VP1CC_LArFCAL(const CaloCell* _caloCell,
-				     const VP1CC_SeparatorMap* _separators):
-  VP1CC_LAr(_caloCell)
+VP1CC_LArFCAL::VP1CC_LArFCAL(const CaloCell* caloCell,
+				     const VP1CC_SeparatorMap* separators):
+  VP1CC_LAr(caloCell)
 {
-  if(!_separators)
+  if(!separators)
     throw std::runtime_error("VP1CC_LArFCAL: 0 pointer to VP1CC Separator Map");
 
   // define Separator type depending on Cell energy
@@ -369,8 +369,8 @@ VP1CC_LArFCAL::VP1CC_LArFCAL(const CaloCell* _caloCell,
   else
     mySeparatorType = VP1CC_SepLArFCALPos;
 
-  VP1CC_SeparatorMap::const_iterator it = _separators->find(mySeparatorType);
-  if(it ==_separators->end())
+  VP1CC_SeparatorMap::const_iterator it = separators->find(mySeparatorType);
+  if(it ==separators->end())
     throw std::runtime_error("VP1CC_LArFCAL: Missing separator in the map");
 
   m_helper = it->second;
@@ -389,8 +389,8 @@ std::vector<std::string> VP1CC_LArFCAL::ToString(const CaloCell_ID*, const std::
   const CaloDetDescrElement* ddElement = m_caloCell->caloDDE();
   std::ostringstream msg, msg1, msg2, msg3;
 
-  std::string _stars("***");
-  result.push_back(_stars);
+  std::string stars("***");
+  result.push_back(stars);
 
   msg << "LAr FCAL. ID =  " << m_caloCell->ID().getString() << " " << extrainfos;
 
@@ -409,14 +409,14 @@ std::vector<std::string> VP1CC_LArFCAL::ToString(const CaloCell_ID*, const std::
   result.push_back(msg2.str());
   result.push_back(msg3.str());
 
-  result.push_back(_stars);
+  result.push_back(stars);
   return result;
 }
 
-void VP1CC_LArFCAL::build3DObjects( VP1CC_SoNode2CCMap* _node2cc,
-				    bool _useEt,
-				    const QPair<bool,double>& _scale,
-				    bool _outline,
+void VP1CC_LArFCAL::build3DObjects( VP1CC_SoNode2CCMap* node2cc,
+				    bool useEt,
+				    const QPair<bool,double>& scale,
+				    bool outline,
           const VP1CC_GlobalCuts& globalCuts)
 {
   bool createNewHit = false;
@@ -435,27 +435,27 @@ void VP1CC_LArFCAL::build3DObjects( VP1CC_SoNode2CCMap* _node2cc,
   double dy = ddElement->dy()*0.5;
   double z  = ddElement->z();
   double dz = ddElement->dz()*0.5;
-  double energy = (_useEt ? energyToTransverse(m_caloCell->energy()) : m_caloCell->energy());
+  double energy = (useEt ? energyToTransverse(m_caloCell->energy()) : m_caloCell->energy());
 
-  double halfdepth(0.5*cellDepth(_scale,energy));
+  double halfdepth(0.5*cellDepth(scale,energy));
   halfdepth = std::min(halfdepth, std::fabs(0.5 * (globalCuts.clipRadius - std::fabs(z))));
-  // std::cout<<"cellDepth: "<<0.5*cellDepth(_scale,energy)<<"\t halfdepth: "<<halfdepth<<"\t z "<<z<<"\t dz "<<dz<<std::endl;
+  // std::cout<<"cellDepth: "<<0.5*cellDepth(scale,energy)<<"\t halfdepth: "<<halfdepth<<"\t z "<<z<<"\t dz "<<dz<<std::endl;
   if(z>0){
     m_hit->setParametersForBox( dx*0.9, dy*0.9, halfdepth,x,y,z-dz+halfdepth);    
   } else {
     m_hit->setParametersForBox( dx*0.9, dy*0.9, halfdepth,x,y,z+dz-halfdepth);
   }
-  m_hit->drawEdgeLines = _outline;
+  m_hit->drawEdgeLines = outline;
 
   if(createNewHit) {
     m_helper->addNode(m_hit);
-    (*_node2cc)[m_hit] = this;
+    (*node2cc)[m_hit] = this;
   }
 }
 
-VP1CC_Tile::VP1CC_Tile(const CaloCell* _caloCell,
+VP1CC_Tile::VP1CC_Tile(const CaloCell* caloCell,
 			       const TileID* tile_id):
-  VP1CaloCell(_caloCell),
+  VP1CaloCell(caloCell),
   m_tileID(tile_id)
 {
 }
@@ -465,23 +465,23 @@ VP1CC_Tile::~VP1CC_Tile()
 }
 
 // ************  Tile  ***************
-VP1CC_TileBarEc::VP1CC_TileBarEc(const CaloCell* _caloCell,
+VP1CC_TileBarEc::VP1CC_TileBarEc(const CaloCell* caloCell,
 					 const TileID* tile_id,
-					 const VP1CC_SeparatorMap* _separators):
-  VP1CC_Tile(_caloCell,tile_id),
+					 const VP1CC_SeparatorMap* separators):
+  VP1CC_Tile(caloCell,tile_id),
   m_hitUp(0),
   m_hitDown(0)
 {
 /**
-//_caloCell was already dereferenced in the initialiser list, so this is redundant: you've already crashed.
-  if(!_caloCell)
+//caloCell was already dereferenced in the initialiser list, so this is redundant: you've already crashed.
+  if(!caloCell)
     throw std::runtime_error("VP1CC_TileBarEc: 0 pointer to CaloCell");
 **/
-  if(!_separators)
+  if(!separators)
     throw std::runtime_error("VP1CC_TileBarEc: 0 pointer to VP1CC Separator Map");
 
   // The CaloCell has to be of type TileCell
-  const TileCell* tile_cell = dynamic_cast<const TileCell*>(_caloCell);
+  const TileCell* tile_cell = dynamic_cast<const TileCell*>(caloCell);
   if(tile_cell==0)
     throw std::runtime_error("VP1CC_TileBarEc: CaloCell is not TileCell");
 
@@ -492,7 +492,7 @@ VP1CC_TileBarEc::VP1CC_TileBarEc(const CaloCell* _caloCell,
   double energy1 = tile_cell->ene1();
   double energy2 = tile_cell->ene2();
 
-  if(_caloCell->energy()<0)
+  if(caloCell->energy()<0)
   {
     if(energy1>=0)
       mySeparatorTypeDown = VP1CC_SepTileNegativePos;
@@ -517,14 +517,14 @@ VP1CC_TileBarEc::VP1CC_TileBarEc(const CaloCell* _caloCell,
       mySeparatorTypeUp = VP1CC_SepTilePositiveUp;
   }
 
-  VP1CC_SeparatorMap::const_iterator it = _separators->find(mySeparatorTypeDown);
-  if(it ==_separators->end())
+  VP1CC_SeparatorMap::const_iterator it = separators->find(mySeparatorTypeDown);
+  if(it ==separators->end())
     throw std::runtime_error("VP1CC_TileBarEc: Missing separator helper in the map");
 
   m_helperDown = it->second;
 
-  it = _separators->find(mySeparatorTypeUp);
-  if(it ==_separators->end())
+  it = separators->find(mySeparatorTypeUp);
+  if(it ==separators->end())
     throw std::runtime_error("VP1CC_TileBarEc: Missing separator helper in the map");
 
   m_helperUp = it->second;
@@ -560,8 +560,8 @@ std::vector<std::string> VP1CC_TileBarEc::ToString(const CaloCell_ID*, const std
   msg4 << " PMT2 Energy = " << pmt_energy2 << " (Mev)"
        << " PMT2 Time = " << pmt_time2;
 
-  std::string _stars("***");
-  result.push_back(_stars);
+  std::string stars("***");
+  result.push_back(stars);
 
   result.push_back(msg.str());
   result.push_back(msg1.str());
@@ -569,7 +569,7 @@ std::vector<std::string> VP1CC_TileBarEc::ToString(const CaloCell_ID*, const std
   result.push_back(msg3.str());
   result.push_back(msg4.str());
 
-  result.push_back(_stars);
+  result.push_back(stars);
   return result;
 }
 
@@ -579,14 +579,14 @@ int VP1CC_TileBarEc::GetFragChannel(const TileHWID* tile_hw_id,
 					int& channel)
 {
   HWIdentifier hwId;
-  IdContext _context = tile_hw_id->channel_context();
+  IdContext context = tile_hw_id->channel_context();
 
   int result = 0;
 
   if(up)
-    result = tile_hw_id->get_id(m_caloCell->caloDDE()->onl2(),hwId,&_context);
+    result = tile_hw_id->get_id(m_caloCell->caloDDE()->onl2(),hwId,&context);
   else
-    result = tile_hw_id->get_id(m_caloCell->caloDDE()->onl1(),hwId,&_context);
+    result = tile_hw_id->get_id(m_caloCell->caloDDE()->onl1(),hwId,&context);
 
   if(result!=0)
     return result;
@@ -597,10 +597,10 @@ int VP1CC_TileBarEc::GetFragChannel(const TileHWID* tile_hw_id,
   return 0;
 }
 
-void VP1CC_TileBarEc::build3DObjects(VP1CC_SoNode2CCMap* _node2cc,
-				     bool _useEt,
-				     const QPair<bool,double>& _scale,
-				     bool _outline,
+void VP1CC_TileBarEc::build3DObjects(VP1CC_SoNode2CCMap* node2cc,
+				     bool useEt,
+				     const QPair<bool,double>& scale,
+				     bool outline,
           const VP1CC_GlobalCuts& globalCuts)
 {
   bool createNewHit = false;
@@ -612,8 +612,8 @@ void VP1CC_TileBarEc::build3DObjects(VP1CC_SoNode2CCMap* _node2cc,
 
   const TileCell* tile_cell = dynamic_cast<const TileCell*>(m_caloCell);
   if (not tile_cell) return;
-  double energy1 = (_useEt ? energyToTransverse(tile_cell->ene1()) : tile_cell->ene1());
-  double energy2 = (_useEt ? energyToTransverse(tile_cell->ene2()) : tile_cell->ene2());
+  double energy1 = (useEt ? energyToTransverse(tile_cell->ene1()) : tile_cell->ene1());
+  double energy2 = (useEt ? energyToTransverse(tile_cell->ene2()) : tile_cell->ene2());
 
   const CaloDetDescrElement* ddElement = m_caloCell->caloDDE();
 
@@ -629,12 +629,12 @@ void VP1CC_TileBarEc::build3DObjects(VP1CC_SoNode2CCMap* _node2cc,
   double radialDistance = sqrt(minR*minR + z*z);
 
 
-  double depth1 = cellDepth(_scale,energy1);
+  double depth1 = cellDepth(scale,energy1);
   depth1 = std::min(depth1, std::fabs(globalCuts.clipRadius - radialDistance));
-  double depth2 = cellDepth(_scale,energy2);
+  double depth2 = cellDepth(scale,energy2);
   depth2 = std::min(depth2, std::fabs(globalCuts.clipRadius - radialDistance));
   // std::cout<<"VP1CC_TileBarEc clipRadius: "<<globalCuts.clipRadius<<"\t radius "<<radius<<"\t depth1 "
- //           <<cellDepth(_scale,energy1)<<"\t depth2 "<<cellDepth(_scale,energy2)<<"\t cd1 "<<depth1<<"\t cd1 "<<depth1<<std::endl;
+ //           <<cellDepth(scale,energy1)<<"\t depth2 "<<cellDepth(scale,energy2)<<"\t cd1 "<<depth1<<"\t cd1 "<<depth1<<std::endl;
  
   //double etaMin, double etaMax,
   // double phiMin, double phiMax,
@@ -642,14 +642,14 @@ void VP1CC_TileBarEc::build3DObjects(VP1CC_SoNode2CCMap* _node2cc,
   // double etasqueezefact, double phisqueezefact 
   m_hitUp->setParametersForBarrelEtaPhiCell(eta,eta+deta,phi-dphi,phi+dphi,
 					    depth1,radius-dradius,0.9,0.9);
-  m_hitUp->drawEdgeLines = _outline;
+  m_hitUp->drawEdgeLines = outline;
   m_hitDown->setParametersForBarrelEtaPhiCell(eta-deta,eta,phi-dphi,phi+dphi,
 					      depth2,radius-dradius,0.9,0.9);
-  m_hitDown->drawEdgeLines = _outline;
+  m_hitDown->drawEdgeLines = outline;
 
   if(createNewHit) {
-    (*_node2cc)[m_hitUp] = this;
-    (*_node2cc)[m_hitDown] = this;
+    (*node2cc)[m_hitUp] = this;
+    (*node2cc)[m_hitDown] = this;
     m_helperUp->addNode(m_hitUp);
     m_helperDown->addNode(m_hitDown);
   }
@@ -669,12 +669,12 @@ bool VP1CC_TileBarEc::isInsideClipVolume(const VP1CC_GlobalCuts& globalCuts) {
 }
 
 
-void VP1CC_TileBarEc::remove3DObjects(VP1CC_SoNode2CCMap* _node2cc)
+void VP1CC_TileBarEc::remove3DObjects(VP1CC_SoNode2CCMap* node2cc)
 {
   if(m_hitUp) {
     // Remove entries from node2cc map
-    _node2cc->erase(m_hitUp);
-    _node2cc->erase(m_hitDown);
+    node2cc->erase(m_hitUp);
+    node2cc->erase(m_hitDown);
 
     // Drop the hit from the scene and delete hit object
     m_helperUp->removeNode(m_hitUp);
@@ -687,54 +687,54 @@ void VP1CC_TileBarEc::remove3DObjects(VP1CC_SoNode2CCMap* _node2cc)
 
 std::string VP1CC_TileBarEc::id2name(Identifier& id)
 {
-  std::string _name("");
+  std::string name("");
 
   // Barrel/EC
   if(m_tileID->is_tile_barrel(id))
-    _name += std::string("LB");
+    name += std::string("LB");
   else
-    _name += std::string("EB");
+    name += std::string("EB");
 
   // Pos/Neg
   if(m_tileID->side(id)==1)
-    _name += std::string("A");
+    name += std::string("A");
   else
-    _name += std::string("C");
+    name += std::string("C");
 
   // Module number
   std::ostringstream modnum;
   modnum << m_tileID->module(id) + 1;
-  _name += (modnum.str() + std::string(" "));
+  name += (modnum.str() + std::string(" "));
 
   // Sample
-  int _sample = m_tileID->sample(id);
-  switch(_sample)
+  int sample = m_tileID->sample(id);
+  switch(sample)
   {
   case 0:
     {
-      _name += std::string("A");
+      name += std::string("A");
       break;
     }
   case 1:
     {
       if(m_tileID->is_tile_barrel(id))
       {
-	_name += std::string("B");
+	name += std::string("B");
 	if(m_tileID->tower(id)<9)
-	  _name += std::string("C");
+	  name += std::string("C");
       }
       else
       {
 	if(m_tileID->section(id)==2)
-	  _name += std::string("B");
+	  name += std::string("B");
 	else
-	  _name += std::string("C");
+	  name += std::string("C");
       }
       break;
     }
   case 2:
     {
-      _name += std::string("D");
+      name += std::string("D");
       break;
     }
   default:
@@ -748,31 +748,31 @@ std::string VP1CC_TileBarEc::id2name(Identifier& id)
   else
     townum << m_tileID->tower(id)+1;
 
-  _name += townum.str();
-  return _name;
+  name += townum.str();
+  return name;
 }
 
 // ************  TileCrack  ***************
-VP1CC_TileCrack::VP1CC_TileCrack(const CaloCell* _caloCell,const TileID* tile_id,
-  const VP1CC_SeparatorMap* _separators):VP1CC_Tile(_caloCell,tile_id), m_hit(0){
+VP1CC_TileCrack::VP1CC_TileCrack(const CaloCell* caloCell,const TileID* tile_id,
+  const VP1CC_SeparatorMap* separators):VP1CC_Tile(caloCell,tile_id), m_hit(0){
   /**
-  VP1CC_Tile has already dereferenced _caloCell at this point, so it can't be zero anyway
-  if(!_caloCell)
+  VP1CC_Tile has already dereferenced caloCell at this point, so it can't be zero anyway
+  if(!caloCell)
     throw std::runtime_error("VP1CC_TileCrack: 0 pointer to CaloCell");
   **/
-  if(!_separators)
+  if(!separators)
     throw std::runtime_error("VP1CC_TileCrack: 0 pointer to VP1CC Separator Map");
 
   // define Separator type depending on Cell energy
   VP1CC_SeparatorTypes mySeparatorType;
 
-  if(_caloCell->energy()<0)
+  if(caloCell->energy()<0)
     mySeparatorType = VP1CC_SepTileNegativeDown;
   else
     mySeparatorType = VP1CC_SepTilePositiveDown;
 
-  VP1CC_SeparatorMap::const_iterator it = _separators->find(mySeparatorType);
-  if(it ==_separators->end())
+  VP1CC_SeparatorMap::const_iterator it = separators->find(mySeparatorType);
+  if(it ==separators->end())
     throw std::runtime_error("VP1CC_TileCrack: Missing separator in the map");
 
   m_helper = it->second;
@@ -790,8 +790,8 @@ std::vector<std::string> VP1CC_TileCrack::ToString(const CaloCell_ID*  calo_id, 
   std::vector<std::string> result;
   std::ostringstream msg, msg1;
 
-  std::string _stars("***");
-  result.push_back(_stars);
+  std::string stars("***");
+  result.push_back(stars);
   result.push_back(std::string("TileCrack Calo Cell"));
 
   // Create cell name (string)
@@ -839,7 +839,7 @@ std::vector<std::string> VP1CC_TileCrack::ToString(const CaloCell_ID*  calo_id, 
   result.push_back(msg.str());
   result.push_back(msg1.str());
 
-  result.push_back(_stars);
+  result.push_back(stars);
   return result;
 }
 
@@ -849,9 +849,9 @@ int VP1CC_TileCrack::GetFragChannel( const TileHWID* tile_hw_id,
 				     int& channel )
 {
   HWIdentifier hwId;
-  IdContext _context = tile_hw_id->channel_context();
+  IdContext context = tile_hw_id->channel_context();
 
-  int result = tile_hw_id->get_id(m_caloCell->caloDDE()->onl1(),hwId,&_context);
+  int result = tile_hw_id->get_id(m_caloCell->caloDDE()->onl1(),hwId,&context);
 
   if(result!=0)
     return result;
@@ -862,10 +862,10 @@ int VP1CC_TileCrack::GetFragChannel( const TileHWID* tile_hw_id,
   return 0;
 }
 
-void VP1CC_TileCrack::build3DObjects(VP1CC_SoNode2CCMap* _node2cc,
-				     bool _useEt,
-				     const QPair<bool,double>& _scale,
-				     bool _outline,
+void VP1CC_TileCrack::build3DObjects(VP1CC_SoNode2CCMap* node2cc,
+				     bool useEt,
+				     const QPair<bool,double>& scale,
+				     bool outline,
              const VP1CC_GlobalCuts& globalCuts)
 {
   bool createNewHit = false;
@@ -881,28 +881,28 @@ void VP1CC_TileCrack::build3DObjects(VP1CC_SoNode2CCMap* _node2cc,
   double dphi = ddElement->dphi()*0.5;
   double z = ddElement->z();
   double dz = ddElement->dz()*0.5;
-  double energy = (_useEt ? energyToTransverse(m_caloCell->energy()) : m_caloCell->energy());
+  double energy = (useEt ? energyToTransverse(m_caloCell->energy()) : m_caloCell->energy());
 
   double radius = ddElement->r();
   double minZ = std::fabs(z)-dz;
   double radialDistance = sqrt(radius*radius + minZ*minZ);
 
-  double depth = cellDepth(_scale,energy);
+  double depth = cellDepth(scale,energy);
   depth = std::min(depth, std::fabs(globalCuts.clipRadius - radialDistance));
-  // std::cout<<"z "<<z<<"\t dz "<<dz<<"\t r "<<ddElement->r()<<"\t clipRadius"<<globalCuts.clipRadius<<"\t depth "<<depth<<"\t cellDepth "<<cellDepth(_scale,energy)<<std::endl;
+  // std::cout<<"z "<<z<<"\t dz "<<dz<<"\t r "<<ddElement->r()<<"\t clipRadius"<<globalCuts.clipRadius<<"\t depth "<<depth<<"\t cellDepth "<<cellDepth(scale,energy)<<std::endl;
   
   // std::cout<<"VP1CC_TileCrack clipRadius: "<<globalCuts.clipRadius<<"\t radialDistance "<<radialDistance<<"\t depth "
-  //          <<cellDepth(_scale,energy)<<"\t cd1 "<<depth<<std::endl;
+  //          <<cellDepth(scale,energy)<<"\t cd1 "<<depth<<std::endl;
   
       
   // double etaMin, double etaMax, double phiMin, double phiMax,
   // double cellDepth, double cellDistance, double etasqueezefact, double phisqueezefact 
   m_hit->setParametersForEndCapEtaPhiCell( eta-deta,eta+deta,phi-dphi,phi+dphi,
 					   depth,z-dz,0.9,0.9);
-  m_hit->drawEdgeLines = _outline;
+  m_hit->drawEdgeLines = outline;
 
   if(createNewHit) {
-    (*_node2cc)[m_hit] = this;
+    (*node2cc)[m_hit] = this;
     m_helper->addNode(m_hit);
   }
 }
@@ -920,10 +920,10 @@ bool VP1CC_TileCrack::isInsideClipVolume(const VP1CC_GlobalCuts& globalCuts) {
 }
 
 
-void VP1CC_TileCrack::remove3DObjects(VP1CC_SoNode2CCMap* _node2cc)
+void VP1CC_TileCrack::remove3DObjects(VP1CC_SoNode2CCMap* node2cc)
 {
   if(m_hit) {
-    _node2cc->erase(m_hit);
+    node2cc->erase(m_hit);
     m_helper->removeNode(m_hit);
     m_hit = 0;
   }
@@ -935,14 +935,14 @@ void VP1CC_TileCrack::remove3DObjects(VP1CC_SoNode2CCMap* _node2cc)
 //
 // ---------------------------------------------------
 
-VP1Mbts::VP1Mbts(const TileCell*  _cell,
-                const TileTBID*  _idhelper,                                              
-                SoSeparator*     _separator,                                             
-                bool             _run2Geo):                                              
-  m_cell(_cell),
-  m_idhelper(_idhelper),
-  m_separator(_separator),                                                               
-  m_run2Geo(_run2Geo)                                                                    
+VP1Mbts::VP1Mbts(const TileCell*  cell,
+                const TileTBID*  idhelper,                                              
+                SoSeparator*     separator,                                             
+                bool             run2Geo):                                              
+  m_cell(cell),
+  m_idhelper(idhelper),
+  m_separator(separator),                                                               
+  m_run2Geo(run2Geo)                                                                    
 {
 }
 
@@ -950,14 +950,14 @@ VP1Mbts::~VP1Mbts()
 {
 }
 
-bool VP1Mbts::UpdateScene(VP1CC_MbtsScinInfoMap* _drawinfo,
-			  VP1CC_SoNode2MbtsMap* _node2mbts,
-			  double _energy,
-			  bool _outline, 
+bool VP1Mbts::UpdateScene(VP1CC_MbtsScinInfoMap* drawinfo,
+			  VP1CC_SoNode2MbtsMap* node2mbts,
+			  double energy,
+			  bool outline, 
         double clipRadius)
 {
   // Draw object only when cell energy is above threshold
-  if(m_cell->energy() < _energy)
+  if(m_cell->energy() < energy)
     return false;
   
   // FIXME!
@@ -966,81 +966,81 @@ bool VP1Mbts::UpdateScene(VP1CC_MbtsScinInfoMap* _drawinfo,
     return false;
 
   // Decode cell identifier in order to find draw info - shape and transformation
-  Identifier _id = m_cell->ID();
+  Identifier id = m_cell->ID();
 
-  int _type = m_idhelper->type(_id);       // -1 neg, 1 pos
-  int _module = m_idhelper->module(_id);   // 0-7 scintillator copy number
-  int _channel = m_idhelper->channel(_id); // 0 scin1, 1 scin2
+  int type = m_idhelper->type(id);       // -1 neg, 1 pos
+  int module = m_idhelper->module(id);   // 0-7 scintillator copy number
+  int channel = m_idhelper->channel(id); // 0 scin1, 1 scin2
 
-  if(_drawinfo->find(_channel) ==_drawinfo->end())
+  if(drawinfo->find(channel) ==drawinfo->end())
     throw std::runtime_error("Unable to find scintillator global info");
 
-  VP1CC_MbtsScinInfo* _scinInfo = (*_drawinfo)[_channel];
+  VP1CC_MbtsScinInfo* scinInfo = (*drawinfo)[channel];
 
   // Get the transform
-  SoTransform* _scinXF = 0;
-  if(_type == -1) {
-    if(_scinInfo->cTransforms.find(_module)==_scinInfo->cTransforms.end())
+  SoTransform* scinXF = 0;
+  if(type == -1) {
+    if(scinInfo->cTransforms.find(module)==scinInfo->cTransforms.end())
       throw std::runtime_error("Unable to find global transform for the scintillator");
-    _scinXF = VP1LinAlgUtils::toSoTransform(_scinInfo->cTransforms[_module]);
+    scinXF = VP1LinAlgUtils::toSoTransform(scinInfo->cTransforms[module]);
   }
-  else if( _type == 1) {
-    if(_scinInfo->aTransforms.find(_module)==_scinInfo->aTransforms.end())
+  else if( type == 1) {
+    if(scinInfo->aTransforms.find(module)==scinInfo->aTransforms.end())
       throw std::runtime_error("Unable to find global transform for the scintillator");
-    _scinXF = VP1LinAlgUtils::toSoTransform(_scinInfo->aTransforms[_module]);
+    scinXF = VP1LinAlgUtils::toSoTransform(scinInfo->aTransforms[module]);
   } else
     return false;
 
   // 3D object - Trd
-  SoGenericBox* _scinTrd = new SoGenericBox();
-  _scinTrd->setParametersForTrd(_scinInfo->dx1 + MBTS_EPS,
-				_scinInfo->dx2 + MBTS_EPS,
-				_scinInfo->dy1 - MBTS_EPS,
-				_scinInfo->dy2 - MBTS_EPS,
-				_scinInfo->dz  - MBTS_EPS);
-  _scinTrd->drawEdgeLines = _outline;
+  SoGenericBox* scinTrd = new SoGenericBox();
+  scinTrd->setParametersForTrd(scinInfo->dx1 + MBTS_EPS,
+                               scinInfo->dx2 + MBTS_EPS,
+                               scinInfo->dy1 - MBTS_EPS,
+                               scinInfo->dy2 - MBTS_EPS,
+                               scinInfo->dz  - MBTS_EPS);
+  scinTrd->drawEdgeLines = outline;
 
   // Now add the object to the scene
-  SoSeparator* _scinSep = new SoSeparator;
-  _scinSep->addChild(_scinXF);
-  _scinSep->addChild(_scinTrd);
-  m_separator->addChild(_scinSep);
+  SoSeparator* scinSep = new SoSeparator;
+  scinSep->addChild(scinXF);
+  scinSep->addChild(scinTrd);
+  m_separator->addChild(scinSep);
 
   // Keep the pointer to the 3D object in the map
-  (*_node2mbts)[_scinTrd] = this;
+  (*node2mbts)[scinTrd] = this;
 
   // ________________________________________________________________________________________
-  // RUN2: if _channel=1 draw two scintillators instead of one                               
-  if(m_run2Geo && _channel==1) {                                                             
-    SoTransform* _scinXF1 = 0;                                                               
-    if(_type == -1) {                                                                        
-      if(_scinInfo->cTransforms.find(_module+1)==_scinInfo->cTransforms.end())               
+  // RUN2: if channel=1 draw two scintillators instead of one                               
+  if(m_run2Geo && channel==1) {                                                             
+    SoTransform* scinXF1 = 0;                                                               
+    if(type == -1) {                                                                        
+      if(scinInfo->cTransforms.find(module+1)==scinInfo->cTransforms.end())               
        throw std::runtime_error("Unable to find global transform for the scintillator");     
-      _scinXF1 = VP1LinAlgUtils::toSoTransform(_scinInfo->cTransforms[_module+1]);           
+      scinXF1 = VP1LinAlgUtils::toSoTransform(scinInfo->cTransforms[module+1]);           
     }                                                                                        
-    else if( _type == 1) {                                                                   
-      if(_scinInfo->aTransforms.find(_module+1)==_scinInfo->aTransforms.end())               
+    else if( type == 1) {                                                                   
+      if(scinInfo->aTransforms.find(module+1)==scinInfo->aTransforms.end())               
        throw std::runtime_error("Unable to find global transform for the scintillator");     
-      _scinXF1 = VP1LinAlgUtils::toSoTransform(_scinInfo->aTransforms[_module+1]);           
+      scinXF1 = VP1LinAlgUtils::toSoTransform(scinInfo->aTransforms[module+1]);           
     }                                                                                        
-    SoGenericBox* _scinTrd1 = new SoGenericBox();                                            
-    _scinTrd1->setParametersForTrd(_scinInfo->dx1 + MBTS_EPS,                                
-                                  _scinInfo->dx2 + MBTS_EPS,                                 
-                                  _scinInfo->dy1 - MBTS_EPS,                                 
-                                  _scinInfo->dy2 - MBTS_EPS,                                 
-                                  _scinInfo->dz  - MBTS_EPS);                                
-    _scinTrd1->drawEdgeLines = _outline;                                                     
+    SoGenericBox* scinTrd1 = new SoGenericBox();                                            
+    scinTrd1->setParametersForTrd(scinInfo->dx1 + MBTS_EPS,                                
+                                  scinInfo->dx2 + MBTS_EPS,                                 
+                                  scinInfo->dy1 - MBTS_EPS,                                 
+                                  scinInfo->dy2 - MBTS_EPS,                                 
+                                  scinInfo->dz  - MBTS_EPS);                                
+    scinTrd1->drawEdgeLines = outline;                                                     
     // Now add the object to the scene                                                       
-    SoSeparator* _scinSep1 = new SoSeparator();                                              
-    _scinSep1->addChild(_scinXF1);                                                           
-    _scinSep1->addChild(_scinTrd1);                                                          
-    m_separator->addChild(_scinSep1);                                                        
+    SoSeparator* scinSep1 = new SoSeparator();                                              
+    scinSep1->addChild(scinXF1);                                                           
+    scinSep1->addChild(scinTrd1);                                                          
+    m_separator->addChild(scinSep1);                                                        
                                                                                              
     // Keep the pointer to the 3D object in the map                                          
-    (*_node2mbts)[_scinTrd1] = this;                                                         
+    (*node2mbts)[scinTrd1] = this;                                                         
   }                                                                                          
   // ________________________________________________________________________________________
-  // RUN2: if _channel=1 draw two scintillators instead of one                               
+  // RUN2: if channel=1 draw two scintillators instead of one                               
                                                                                              
   return true;
 }
@@ -1050,26 +1050,26 @@ std::vector<std::string> VP1Mbts::ToString()
   std::vector<std::string> result;
 
   // Decode ID
-  Identifier _id = m_cell->ID();
+  Identifier id = m_cell->ID();
 
-  int _type = m_idhelper->type(_id);       // -1 neg, 1 pos
-  int _module = m_idhelper->module(_id);   // 0-7 scintillator copy number
-  int _channel = m_idhelper->channel(_id); // 0 scin1, 1 scin2
+  int type = m_idhelper->type(id);       // -1 neg, 1 pos
+  int module = m_idhelper->module(id);   // 0-7 scintillator copy number
+  int channel = m_idhelper->channel(id); // 0 scin1, 1 scin2
 
 
   std::ostringstream msg, msg1, msg2, msg3;
-  msg  << " MBTS. Side = " << _type << ". Scintillator Type = " << _channel
-       << ", Num = " << _module;
+  msg  << " MBTS. Side = " << type << ". Scintillator Type = " << channel
+       << ", Num = " << module;
   msg1 << " Energy = " << m_cell->energy();
   msg2 << " Time = " << m_cell->time();
 
-  std::string _stars("***");
-  result.push_back(_stars);
+  std::string stars("***");
+  result.push_back(stars);
 
   result.push_back(msg.str());
   result.push_back(msg1.str());
   result.push_back(msg2.str());
 
-  result.push_back(_stars);
+  result.push_back(stars);
   return result;
 }

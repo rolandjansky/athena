@@ -56,7 +56,8 @@ namespace xAOD {
 
     // the read handles
     ATH_CHECK(m_indetTrackParticleLocation.initialize());
-    ATH_CHECK(m_vertexLocation.initialize());
+    if (!m_vertexLocation.key().empty())
+      ATH_CHECK(m_vertexLocation.initialize());
     
     return StatusCode::SUCCESS;
   }
@@ -105,7 +106,7 @@ namespace xAOD {
     /// prepare input
     // If not vertex is given, use the ID best one. If one does not want to cut on z0sinT, use the TrackSelectionTool config
     SG::ReadHandle<VertexContainer> vtxH;
-    if (vertex == 0) { 
+    if (vertex == 0 && !m_vertexLocation.key().empty()) { 
       vtxH = SG::makeHandle(m_vertexLocation);
       if (!vtxH.isValid()) {
 	ATH_MSG_ERROR("Did not find a vertex container with key " << m_vertexLocation.key());

@@ -146,7 +146,7 @@ double TrigPrimaryVertexTrack::PerigeeCovariance(int i, int j) const
   return m_PerigeeCovariance[i][j];
 }
 
-double TrigPrimaryVertexTrack::m_getChi2Distance(class TrigL2Vertex* pV)
+double TrigPrimaryVertexTrack::getChi2Distance(class TrigL2Vertex* pV)
 {
   const double C=0.02997;
   const double B=20.84;
@@ -159,9 +159,9 @@ double TrigPrimaryVertexTrack::m_getChi2Distance(class TrigL2Vertex* pV)
   const double alpha = C*B*1e-3;
   const double inv_alpha = 1. / alpha;
 
-  xv=pV->m_getParametersVector()[0];
-  yv=pV->m_getParametersVector()[1];
-  zv=pV->m_getParametersVector()[2];
+  xv=pV->getParametersVector()[0];
+  yv=pV->getParametersVector()[1];
+  zv=pV->getParametersVector()[2];
 
   phi0=m_q[0];
   theta0=m_q[1];
@@ -245,7 +245,7 @@ double TrigPrimaryVertexTrack::getChi2Contribution()
   return m_dChi2;
 }
 
-void TrigPrimaryVertexTrack::m_updateVertex(class TrigL2Vertex* pV)
+void TrigPrimaryVertexTrack::updateVertex(class TrigL2Vertex* pV)
 {
   int i,j,k;
 
@@ -261,7 +261,7 @@ void TrigPrimaryVertexTrack::m_updateVertex(class TrigL2Vertex* pV)
     }
   for(i=0;i<3;i++)
     {
-      pV->m_getParametersVector()[i]+=K[0][i]*m_resid[0]+K[1][i]*m_resid[1];
+      pV->getParametersVector()[i]+=K[0][i]*m_resid[0]+K[1][i]*m_resid[1];
       for(j=i;j<3;j++)
 	{
 	  pV->m_Gk[i][j]-=K[0][i]*m_D[0][j]+K[1][i]*m_D[1][j];
@@ -270,7 +270,7 @@ void TrigPrimaryVertexTrack::m_updateVertex(class TrigL2Vertex* pV)
     }
 }
 
-MsgStream& TrigPrimaryVertexTrack::m_report( MsgStream& out ) const
+MsgStream& TrigPrimaryVertexTrack::report( MsgStream& out ) const
 {
   int i;
 

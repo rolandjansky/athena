@@ -4,14 +4,12 @@
 
 #include "SCT_SiliconConditionsSvc.h"
 
-#include "Identifier/Identifier.h"
-#include "Identifier/IdentifierHash.h"
-
+#include "GeoModelInterfaces/IGeoModelSvc.h"
+#include "GeoModelUtilities/DecodeVersionKey.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
-#include "GeoModelUtilities/DecodeVersionKey.h"
+#include "StoreGate/StoreGateSvc.h"
 #include "InDetIdentifier/SCT_ID.h"
 
 // Constructor
@@ -45,9 +43,6 @@ SCT_SiliconConditionsSvc::SCT_SiliconConditionsSvc(const std::string& name, ISvc
   m_geoModelBiasVoltage      = m_defaultBiasVoltage;
   m_geoModelDepletionVoltage = m_defaultDepletionVoltage;
 }
-
-// Destructor
-SCT_SiliconConditionsSvc::~SCT_SiliconConditionsSvc() {}
 
 // Initialize
 StatusCode SCT_SiliconConditionsSvc::initialize() {
@@ -116,7 +111,7 @@ float SCT_SiliconConditionsSvc::depletionVoltage(const Identifier& /*elementId*/
 
 // Silicon temperature (by IdentifierHash)
 float SCT_SiliconConditionsSvc::temperature(const IdentifierHash& elementHash) {
-  if (m_useDB and not (m_useGeoModel)) {
+  if (m_useDB and (not m_useGeoModel)) {
     const SCT_DCSFloatCondData* data{getCondDataTemp()};
     if (data==nullptr) return m_defaultTemperature;
     float temperature{m_defaultTemperature};

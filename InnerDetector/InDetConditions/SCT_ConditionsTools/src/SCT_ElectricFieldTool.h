@@ -6,7 +6,7 @@
  * @file SCT_ElectricFieldTool.h
  * @note primary author for Pixels giacinto.piacquadio@cern.ch
  * @author for SCT peter.vankov@cern.ch
-**/
+ **/
 
 
 #ifndef SCT_ElectricFieldTool_h
@@ -15,7 +15,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "SCT_ConditionsTools/ISCT_ElectricFieldTool.h"
 
-class TF1;
+#include "TF1.h"
 
 /**
  * @class Tool to provide electric field in silicon detector at a given depth in the silicon,
@@ -23,7 +23,7 @@ class TF1;
  **/
 class SCT_ElectricFieldTool: public extends<AthAlgTool, ISCT_ElectricFieldTool>
 {
-public:
+ public:
   SCT_ElectricFieldTool(const std::string& t, const std::string& n, const IInterface* p);
 
   virtual ~SCT_ElectricFieldTool() = default;
@@ -35,10 +35,11 @@ public:
                                   double depletionVoltage,
                                   double sensorThickness,
                                   double biasVoltage);
-  int m_eFieldModel;      //!< 0 uniform E-field model, 1 flat diode model
+ private:
+  enum FieldModel{UNIFORM_FIELD, FLAT_DIODE};
 
-private:
-  std::unique_ptr<TF1> m_model;
+  int m_eFieldModel; //!< 0 uniform E-field model, 1 flat diode model
+  TF1 m_model;
 };
 
 #endif // SCT_ElectricFieldTool_h

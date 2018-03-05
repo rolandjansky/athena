@@ -36,9 +36,6 @@ SCTSiPropertiesCondAlg::SCTSiPropertiesCondAlg(const std::string& name, ISvcLoca
   declareProperty("SiConditionsServices", m_siCondSvc, "SiConditionsServices to be used");
 }
 
-SCTSiPropertiesCondAlg::~SCTSiPropertiesCondAlg() {
-}
-
 StatusCode SCTSiPropertiesCondAlg::initialize() {
   ATH_MSG_DEBUG("initialize " << name());
 

@@ -325,7 +325,7 @@ if DetFlags.haveRIO.SCT_on():
     if InDetFlags.useSctDCS():
         # Force Lorentz angle calculation to use DCS for data
         # (Not actually using DCS yet but rather temperature and voltage from joboptions.)
-        if (globalflags.DataSource() == 'data'):            
+        if (globalflags.DataSource() == 'data'):
             forceUseDB = True
     else:
         forceUseGeoModel = True

@@ -67,16 +67,16 @@ int VertexHandle::Imp::nvtxhandles = 0;
 
 //____________________________________________________________________
 VertexHandle::VertexHandle(VertexCollHandle*ch, const xAOD::Vertex *vertex)
-  : AODHandleBase(ch), d(new Imp(this,vertex))
+  : AODHandleBase(ch), m_d(new Imp(this,vertex))
 {
-  d->collHandle=ch;
+  m_d->collHandle=ch;
   ++Imp::nvtxhandles;
 }
 
 //____________________________________________________________________
 VertexHandle::~VertexHandle()
 {
-  delete d;
+  delete m_d;
   --Imp::nvtxhandles;
 }
 
@@ -90,20 +90,20 @@ int VertexHandle::numberOfInstances()
 //____________________________________________________________________
 bool VertexHandle::has3DObjects() 
 {
-  return 0!=d->sep;
+  return 0!=m_d->sep;
 }
 
 //____________________________________________________________________
 void VertexHandle::clear3DObjects(){
   //	VP1Msg::messageVerbose("VertexHandle::clear3DObjects()");
 
-  if (d->sphere) {
-    d->sphere->unref();
-    d->sphere = 0;
+  if (m_d->sphere) {
+    m_d->sphere->unref();
+    m_d->sphere = 0;
   }
-  if (d->sep) {
-    d->sep->unref();
-    d->sep = 0;
+  if (m_d->sep) {
+    m_d->sep->unref();
+    m_d->sep = 0;
   }
 
 }
@@ -113,35 +113,35 @@ SoNode* VertexHandle::nodes(){
 
   VP1Msg::messageVerbose("VertexHandle::nodes()");
 
-  if (d->sep) {
-    VP1Msg::messageVerbose("d->sep already defined (" + VP1Msg::str(d->sep) + "). Returning d->sep.");
-    return d->sep; // FIXME - do we need to check if anything need to be redrawn?
+  if (m_d->sep) {
+    VP1Msg::messageVerbose("d->sep already defined (" + VP1Msg::str(m_d->sep) + "). Returning d->sep.");
+    return m_d->sep; // FIXME - do we need to check if anything need to be redrawn?
   }
-  if (!d->sep) {
+  if (!m_d->sep) {
     VP1Msg::messageVerbose("d->sep not defined. Creating shapes and a new d->sep.");
-    d->sep = new SoSeparator();
-    d->sep->ref();
+    m_d->sep = new SoSeparator();
+    m_d->sep->ref();
   }
 
   // SbVec3f origin(0.,0.,0.);
   /* TODO: ask if origin info is present in xAOD, like in the old Jet class
-  if ( d->m_jet->origin() ) {
-  origin.setValue(d->m_jet->origin()->position().x(),
-  d->m_jet->origin()->position().y(),
-  d->m_jet->origin()->position().z());
+  if ( m_d->m_jet->origin() ) {
+  origin.setValue(m_d->m_jet->origin()->position().x(),
+  m_d->m_jet->origin()->position().y(),
+  m_d->m_jet->origin()->position().z());
   }
   */
 
   VP1Msg::messageVerbose("creating the shapes");
 
   SoTranslation * translation = new SoTranslation;
-  translation->translation.setValue ( d->vertex->x(), d->vertex->y(), d->vertex->z() );
-  d->sep->addChild ( translation );
-  d->sphere = new SoSphere;
-  d->sphere->radius = d->collHandle->collSettingsButton().vertexSize();
-  d->sep->addChild ( d->sphere );
+  translation->translation.setValue ( m_d->vertex->x(), m_d->vertex->y(), m_d->vertex->z() );
+  m_d->sep->addChild ( translation );
+  m_d->sphere = new SoSphere;
+  m_d->sphere->radius = m_d->collHandle->collSettingsButton().vertexSize();
+  m_d->sep->addChild ( m_d->sphere );
 
-  return d->sep;
+  return m_d->sep;
 }
 
 //____________________________________________________________________
@@ -157,7 +157,7 @@ QStringList VertexHandle::baseInfo() const
   QStringList l;
   l << shortInfo() ;
   // vertex position
-  l << "Vx: " << VP1Msg::str(d->vertex->x()) << "Vy: " << VP1Msg::str(d->vertex->y()) << "Vz: " << VP1Msg::str(d->vertex->z());
+  l << "Vx: " << VP1Msg::str(m_d->vertex->x()) << "Vy: " << VP1Msg::str(m_d->vertex->y()) << "Vz: " << VP1Msg::str(m_d->vertex->z());
   return l;
 }
 
@@ -165,7 +165,7 @@ QStringList VertexHandle::baseInfo() const
 QString VertexHandle::vertexType() const {
   using namespace xAOD;
 
-  switch (d->vertex->vertexType()){
+  switch (m_d->vertex->vertexType()){
     case xAOD::VxType::NoVtx:
       return QString("Type: Dummy");
     case xAOD::VxType::PriVtx:
@@ -187,15 +187,15 @@ QString VertexHandle::vertexType() const {
 
 //____________________________________________________________________
 double VertexHandle::getPositionX() const {
-    return d->vertex->x();
+    return m_d->vertex->x();
 }
 //____________________________________________________________________
 double VertexHandle::getPositionY() const {
-    return d->vertex->y();
+    return m_d->vertex->y();
 }
 //____________________________________________________________________
 double VertexHandle::getPositionZ() const {
-    return d->vertex->z();
+    return m_d->vertex->z();
 }
 
 
@@ -212,7 +212,7 @@ QStringList VertexHandle::clicked() const
   l << "--Vertex:";
   l << VertexHandle::baseInfo();
   try {
-    l<< "Has "<<VP1Msg::str(d->vertex->vxTrackAtVertex ().size()) <<" associated tracks.";
+    l<< "Has "<<VP1Msg::str(m_d->vertex->vxTrackAtVertex ().size()) <<" associated tracks.";
   } catch ( SG::ExcBadAuxVar& ) {
     l<<"Vertex is missing links to tracks!";
   }

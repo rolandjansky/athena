@@ -92,8 +92,8 @@ void TrigTRT_Trajectory::smoothTrajectory()
     ptsEnd(m_vpTrackStates.rend());
   for(;ptsIt!=ptsEnd;++ptsIt)
     {
-      // printf("smoothing...");(*ptsIt)->m_report();
-      (*ptsIt)->m_runSmoother();
+      // printf("smoothing...");(*ptsIt)->report();
+      (*ptsIt)->runSmoother();
       // printf("done\n");
     }
 }

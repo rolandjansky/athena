@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -10,25 +10,13 @@
 
 #include "SCT_TdaqEnabledSvc.h"
 
-//STL includes
-#include <iterator>
-#include <iostream>
-
 //Use Event info to determine whether folder is expetd to have valid data
 #include "EventInfo/EventID.h"
-#include "EventInfo/EventInfo.h"
-
-#include "SCT_Cabling/SCT_OnlineId.h"
 
 // Read (Cond) Handle
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/ReadCondHandle.h"
-
-//Gaudi includes
-#include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/ThreadLocalContext.h"
-
-#include "Identifier/IdentifierHash.h"
+#include "StoreGate/StoreGateSvc.h"
 
 #include "InDetIdentifier/SCT_ID.h"
 

@@ -816,9 +816,6 @@ SCT_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& r
     }
   }
 
-  // Set this ROD as decoded in SCT_ByteStreamErrorSvc
-  m_byteStreamErrSvc->setDecodedROD(robid);
-
   if (sc.isFailure()) ATH_MSG_DEBUG("One or more ByteStream errors found ");
   return sc;
 }

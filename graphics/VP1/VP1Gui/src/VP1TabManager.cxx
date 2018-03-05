@@ -110,9 +110,9 @@ public:
 
 //_______________________________________________________________________
 VP1TabManager::VP1TabManager( QObject* parent, VP1TabWidget * tw, VP1ChannelManager* cm )
-  : QObject(parent), d(new Imp(this,tw,cm)) {
+  : QObject(parent), m_d(new Imp(this,tw,cm)) {
 
-  d->dontEmitVisibilityChanges=false;
+  m_d->dontEmitVisibilityChanges=false;
   tw->setTabReorderingEnabled(true);
   connect(tw->getVP1TabBar(),SIGNAL(contextMenu( int, const QPoint& )),
 	  this,SLOT(raiseTabBarContextMenu(int,const QPoint &)));
@@ -124,10 +124,10 @@ VP1TabManager::VP1TabManager( QObject* parent, VP1TabWidget * tw, VP1ChannelMana
 
 //_______________________________________________________________________
 VP1TabManager::~VP1TabManager(){
-  while (d->tabwidget->count()>0) {
-    removeTab( d->tabwidget->tabText(0) );
+  while (m_d->tabwidget->count()>0) {
+    removeTab( m_d->tabwidget->tabText(0) );
   }
-  delete d;
+  delete m_d;
 }
 
 
@@ -235,67 +235,67 @@ QStringList VP1TabManager::Imp::channelsInTab(const QString& tabname)
 //_______________________________________________________________________
 void VP1TabManager::addNewTab(QString tabname,const int& index)
 {
-  if (!d->checkTabnameNotExists(tabname)) return;
-  bool save = d->dontEmitVisibilityChanges;
-  d->dontEmitVisibilityChanges=true;
+  if (!m_d->checkTabnameNotExists(tabname)) return;
+  bool save = m_d->dontEmitVisibilityChanges;
+  m_d->dontEmitVisibilityChanges=true;
 
   QMainWindow * t = new QMainWindow();
   t->setDockNestingEnabled(true);
   if (index==-1)
-    d->tabwidget->addTab(t,tabname);
+    m_d->tabwidget->addTab(t,tabname);
   else
-    d->tabwidget->insertTab(index,t,tabname);
-  //NB: Do not call: t->setParent(d->tabwidget);
-  d->name_2_tab[tabname]=t;
-  d->tab_2_channelwidgets[t] = std::set<IVP1ChannelWidget*>();
+    m_d->tabwidget->insertTab(index,t,tabname);
+  //NB: Do not call: t->setParent(m_d->tabwidget);
+  m_d->name_2_tab[tabname]=t;
+  m_d->tab_2_channelwidgets[t] = std::set<IVP1ChannelWidget*>();
   tabListChanged(tabList());
-  d->dontEmitVisibilityChanges=save;
+  m_d->dontEmitVisibilityChanges=save;
   currentVisibleChanged();
 }
 
 //___________________________________________________________________________________
 void VP1TabManager::dropOutOfFullScreen()
 {
-  if (!(d->fullscreen_dockwidget||d->fullscreen_tab))
+  if (!(m_d->fullscreen_dockwidget||m_d->fullscreen_tab))
     return;
 
-  bool save = d->dontEmitVisibilityChanges;
-  d->dontEmitVisibilityChanges=true;
+  bool save = m_d->dontEmitVisibilityChanges;
+  m_d->dontEmitVisibilityChanges=true;
   qApp->removeEventFilter(this);
   QWidget * focuswidget = qApp->focusWidget();
 
-  if (d->fullscreen_dockwidget) {
-    assert(d->fullscreen_dockwidget&&d->fullscreen_channelwidget);
-    d->fullscreen_dockwidget->ensureCWHasParent();
-    d->fullscreen_channelwidget->showNormal();//fixme? Do inside dockwidget?
-    d->fullscreen_dockwidget=0;
-    d->fullscreen_channelwidget=0;
+  if (m_d->fullscreen_dockwidget) {
+    assert(m_d->fullscreen_dockwidget&&m_d->fullscreen_channelwidget);
+    m_d->fullscreen_dockwidget->ensureCWHasParent();
+    m_d->fullscreen_channelwidget->showNormal();//fixme? Do inside dockwidget?
+    m_d->fullscreen_dockwidget=0;
+    m_d->fullscreen_channelwidget=0;
   } else {
-    assert(d->fullscreen_tab);
-    QWidget * dummywidget=d->tabwidget->widget(d->fullscreen_tabindex);
-    d->tabwidget->removeTab(d->fullscreen_tabindex);
-    d->tabwidget->insertTab(d->fullscreen_tabindex, d->fullscreen_tab, d->fullscreen_tabname );
+    assert(m_d->fullscreen_tab);
+    QWidget * dummywidget=m_d->tabwidget->widget(m_d->fullscreen_tabindex);
+    m_d->tabwidget->removeTab(m_d->fullscreen_tabindex);
+    m_d->tabwidget->insertTab(m_d->fullscreen_tabindex, m_d->fullscreen_tab, m_d->fullscreen_tabname );
     delete dummywidget;
-    d->tabwidget->setCurrentIndex(d->fullscreen_tabindex);
+    m_d->tabwidget->setCurrentIndex(m_d->fullscreen_tabindex);
     //Make dockwidgets in the tab floatable again
-    assert(d->tab_2_channelwidgets.find(d->fullscreen_tab)!=d->tab_2_channelwidgets.end());
-    std::set<IVP1ChannelWidget*>::const_iterator it = d->tab_2_channelwidgets[d->fullscreen_tab].begin();
-    std::set<IVP1ChannelWidget*>::const_iterator itE = d->tab_2_channelwidgets[d->fullscreen_tab].end();
+    assert(m_d->tab_2_channelwidgets.find(m_d->fullscreen_tab)!=m_d->tab_2_channelwidgets.end());
+    std::set<IVP1ChannelWidget*>::const_iterator it = m_d->tab_2_channelwidgets[m_d->fullscreen_tab].begin();
+    std::set<IVP1ChannelWidget*>::const_iterator itE = m_d->tab_2_channelwidgets[m_d->fullscreen_tab].end();
     for (;it!=itE;++it) {
-      assert(d->channelwidget_2_dockwidget.find(*it)!=d->channelwidget_2_dockwidget.end());
-      VP1DockWidget * dock = d->channelwidget_2_dockwidget[*it];
+      assert(m_d->channelwidget_2_dockwidget.find(*it)!=m_d->channelwidget_2_dockwidget.end());
+      VP1DockWidget * dock = m_d->channelwidget_2_dockwidget[*it];
       dock->setFeatures(VP1DockWidget::DockWidgetMovable|VP1DockWidget::DockWidgetFloatable);
-      if (d->fullscreen_floatingdocks.find(dock)!=d->fullscreen_floatingdocks.end())
+      if (m_d->fullscreen_floatingdocks.find(dock)!=m_d->fullscreen_floatingdocks.end())
 	dock->setFloating(true);
     }
-    d->fullscreen_tabname = "";
-    d->fullscreen_tabindex = -1;
-    d->fullscreen_tab = 0;
-    d->fullscreen_floatingdocks.clear();
+    m_d->fullscreen_tabname = "";
+    m_d->fullscreen_tabindex = -1;
+    m_d->fullscreen_tab = 0;
+    m_d->fullscreen_floatingdocks.clear();
   }
   if (focuswidget&&!focuswidget->hasFocus())
     focuswidget->setFocus(Qt::OtherFocusReason);
-  d->dontEmitVisibilityChanges=save;
+  m_d->dontEmitVisibilityChanges=save;
   currentVisibleChanged();
 }
 
@@ -330,13 +330,13 @@ void VP1TabManager::setSelectedDockWidget(VP1DockWidget*dw) {
 
 	VP1Msg::messageDebug("VP1TabManager::setSelectedDockWidget()");
 
-  if ( d->selecteddockwidget == dw )
+  if ( m_d->selecteddockwidget == dw )
     return;
 
-  if (d->selecteddockwidget)
-    d->selecteddockwidget->setUnselected();
+  if (m_d->selecteddockwidget)
+    m_d->selecteddockwidget->setUnselected();
 
-  d->selecteddockwidget=dw;
+  m_d->selecteddockwidget=dw;
   if (dw)
     dw->setSelected();
 
@@ -350,25 +350,25 @@ void VP1TabManager::setSelectedChannelWidget(IVP1ChannelWidget*cw)
     setSelectedDockWidget(0);
     return;
   }
-  assert(d->channelwidget_2_dockwidget.find(cw)!=d->channelwidget_2_dockwidget.end());
-  setSelectedDockWidget(d->channelwidget_2_dockwidget[cw]);
+  assert(m_d->channelwidget_2_dockwidget.find(cw)!=m_d->channelwidget_2_dockwidget.end());
+  setSelectedDockWidget(m_d->channelwidget_2_dockwidget[cw]);
 }
 
 //___________________________________________________________________________________
 void VP1TabManager::showChannelFullScreen(IVP1ChannelWidget*cw) {
   dropOutOfFullScreen();
 
-  assert(d->channelwidget_2_dockwidget.find(cw)!=d->channelwidget_2_dockwidget.end());
-  VP1DockWidget* dock = d->channelwidget_2_dockwidget[cw];
-  bool save = d->dontEmitVisibilityChanges;
-  d->dontEmitVisibilityChanges=true;
-  d->fullscreen_dockwidget=dock;
-  d->fullscreen_channelwidget=cw;
+  assert(m_d->channelwidget_2_dockwidget.find(cw)!=m_d->channelwidget_2_dockwidget.end());
+  VP1DockWidget* dock = m_d->channelwidget_2_dockwidget[cw];
+  bool save = m_d->dontEmitVisibilityChanges;
+  m_d->dontEmitVisibilityChanges=true;
+  m_d->fullscreen_dockwidget=dock;
+  m_d->fullscreen_channelwidget=cw;
   cw->hide();
   dock->ensureCWHasNoParent();
   cw->showFullScreen();
   qApp->installEventFilter(this);
-  d->dontEmitVisibilityChanges=save;
+  m_d->dontEmitVisibilityChanges=save;
   currentVisibleChanged();
 
 
@@ -377,76 +377,76 @@ void VP1TabManager::showChannelFullScreen(IVP1ChannelWidget*cw) {
 //___________________________________________________________________________________
 void VP1TabManager::showCurrentChannelFullScreen()
 {
-  if(!d->selecteddockwidget)
+  if(!m_d->selecteddockwidget)
     return;
-  showChannelFullScreen(d->selecteddockwidget->channelWidget());
+  showChannelFullScreen(m_d->selecteddockwidget->channelWidget());
 }
 
 //___________________________________________________________________________________
 QString VP1TabManager::currentChannelUniqueName() const
 {
-  if(!d->selecteddockwidget)
+  if(!m_d->selecteddockwidget)
     return "";
   else
-    return d->selecteddockwidget->channelWidget()->unique_name();
+    return m_d->selecteddockwidget->channelWidget()->unique_name();
 }
 
 //___________________________________________________________________________________
 void VP1TabManager::showTabFullScreen(QString tabname)
 {
   int index = 0;
-  for (; index < d->tabwidget->count(); ++index) {
-    if (d->tabwidget->tabText(index)==tabname)
+  for (; index < m_d->tabwidget->count(); ++index) {
+    if (m_d->tabwidget->tabText(index)==tabname)
       break;
   }
-  if (index >= d->tabwidget->count())
+  if (index >= m_d->tabwidget->count())
     return;
   dropOutOfFullScreen();
   //Test that we are not already fs:
-  assert(d->fullscreen_tabname.isEmpty());
-  assert(d->fullscreen_tabindex==-1);
-  assert(!d->fullscreen_tab);
-  assert(d->fullscreen_floatingdocks.empty());
+  assert(m_d->fullscreen_tabname.isEmpty());
+  assert(m_d->fullscreen_tabindex==-1);
+  assert(!m_d->fullscreen_tab);
+  assert(m_d->fullscreen_floatingdocks.empty());
 
-  bool save = d->dontEmitVisibilityChanges;
-  d->dontEmitVisibilityChanges=true;
+  bool save = m_d->dontEmitVisibilityChanges;
+  m_d->dontEmitVisibilityChanges=true;
 
   //Set tab info:
-  d->fullscreen_tabindex = index;
-  d->fullscreen_tabname = d->tabwidget->tabText(d->fullscreen_tabindex);
-  assert(d->name_2_tab.find(d->fullscreen_tabname)!=d->name_2_tab.end());
-  d->fullscreen_tab = d->name_2_tab[d->fullscreen_tabname];
+  m_d->fullscreen_tabindex = index;
+  m_d->fullscreen_tabname = m_d->tabwidget->tabText(m_d->fullscreen_tabindex);
+  assert(m_d->name_2_tab.find(m_d->fullscreen_tabname)!=m_d->name_2_tab.end());
+  m_d->fullscreen_tab = m_d->name_2_tab[m_d->fullscreen_tabname];
   //Dock all dockwidgets in the tab that are currently floating, and make them unfloatable:
-  assert(d->tab_2_channelwidgets.find(d->fullscreen_tab)!=d->tab_2_channelwidgets.end());
-  std::set<IVP1ChannelWidget*>::const_iterator it = d->tab_2_channelwidgets[d->fullscreen_tab].begin();
-  std::set<IVP1ChannelWidget*>::const_iterator itE = d->tab_2_channelwidgets[d->fullscreen_tab].end();
+  assert(m_d->tab_2_channelwidgets.find(m_d->fullscreen_tab)!=m_d->tab_2_channelwidgets.end());
+  std::set<IVP1ChannelWidget*>::const_iterator it = m_d->tab_2_channelwidgets[m_d->fullscreen_tab].begin();
+  std::set<IVP1ChannelWidget*>::const_iterator itE = m_d->tab_2_channelwidgets[m_d->fullscreen_tab].end();
   for (;it!=itE;++it) {
-    assert(d->channelwidget_2_dockwidget.find(*it)!=d->channelwidget_2_dockwidget.end());
-    VP1DockWidget * dock = d->channelwidget_2_dockwidget[*it];
+    assert(m_d->channelwidget_2_dockwidget.find(*it)!=m_d->channelwidget_2_dockwidget.end());
+    VP1DockWidget * dock = m_d->channelwidget_2_dockwidget[*it];
     if (dock->isFloating()) {
-      d->fullscreen_floatingdocks.insert(dock);
+      m_d->fullscreen_floatingdocks.insert(dock);
       dock->setFloating(false);
     }
     dock->setFeatures(VP1DockWidget::DockWidgetMovable);
   }
 
   //Remove tab, put a dummy in its place, and go fullscreen:
-  d->tabwidget->removeTab(d->fullscreen_tabindex);
-  d->fullscreen_tab->hide();
-  d->fullscreen_tab->setParent(0);
-  d->tabwidget->insertTab ( d->fullscreen_tabindex, new QWidget(), d->fullscreen_tabname );
-  d->fullscreen_tab->showFullScreen();
+  m_d->tabwidget->removeTab(m_d->fullscreen_tabindex);
+  m_d->fullscreen_tab->hide();
+  m_d->fullscreen_tab->setParent(0);
+  m_d->tabwidget->insertTab ( m_d->fullscreen_tabindex, new QWidget(), m_d->fullscreen_tabname );
+  m_d->fullscreen_tab->showFullScreen();
    //Needs an extra update apparently, to get selection frame properly enlarged
-  it = d->tab_2_channelwidgets[d->fullscreen_tab].begin();
-  itE = d->tab_2_channelwidgets[d->fullscreen_tab].end();
+  it = m_d->tab_2_channelwidgets[m_d->fullscreen_tab].begin();
+  itE = m_d->tab_2_channelwidgets[m_d->fullscreen_tab].end();
   for (;it!=itE;++it) {
-    assert(d->channelwidget_2_dockwidget.find(*it)!=d->channelwidget_2_dockwidget.end());
-    VP1DockWidget * dock = d->channelwidget_2_dockwidget[*it];
+    assert(m_d->channelwidget_2_dockwidget.find(*it)!=m_d->channelwidget_2_dockwidget.end());
+    VP1DockWidget * dock = m_d->channelwidget_2_dockwidget[*it];
     dock->update();
   }
 
   qApp->installEventFilter(this);
-  d->dontEmitVisibilityChanges=save;
+  m_d->dontEmitVisibilityChanges=save;
   currentVisibleChanged();
 
 }
@@ -454,22 +454,22 @@ void VP1TabManager::showTabFullScreen(QString tabname)
 //___________________________________________________________________________________
 void VP1TabManager::showCurrentTabFullScreen()
 {
-  if (d->tabwidget->count()==0)
+  if (m_d->tabwidget->count()==0)
     return;
-  showTabFullScreen(d->tabwidget->tabText(d->tabwidget->currentIndex()));
+  showTabFullScreen(m_d->tabwidget->tabText(m_d->tabwidget->currentIndex()));
 }
 
 
 
 //___________________________________________________________________________________
 IVP1ChannelWidget* VP1TabManager::selectedChannelWidget() const {
-  return d->selecteddockwidget ? d->selecteddockwidget->channelWidget() : 0;
+  return m_d->selecteddockwidget ? m_d->selecteddockwidget->channelWidget() : 0;
 }
 
 //_______________________________________________________________________
 IVP1ChannelWidget * VP1TabManager::addChannelToTab(QString channelbasename,QString tabname) {
 
-  if (d->channelwidget_2_dockwidget.size()&&VP1QtUtils::environmentVariableIsOn("VP1_DISALLOW_MULTIPLE_CHANNELS")) {
+  if (m_d->channelwidget_2_dockwidget.size()&&VP1QtUtils::environmentVariableIsOn("VP1_DISALLOW_MULTIPLE_CHANNELS")) {
     QMessageBox::critical(0, "Error - Not allowed to open channel",
 			  "The possibility to launch multiple channels has been disabled by the environment variable VP1_DISALLOW_MULTIPLE_CHANNELS."
 			  " This was likely set since some badly written 3D drivers have been known to cause crashes when showing multiple 3D views."
@@ -478,12 +478,12 @@ IVP1ChannelWidget * VP1TabManager::addChannelToTab(QString channelbasename,QStri
     return 0;
   }
 
-  if (!d->checkTabnameExists(tabname)) return 0;
-  if (!d->checkChannelNameExists(channelbasename, false)) return 0;
+  if (!m_d->checkTabnameExists(tabname)) return 0;
+  if (!m_d->checkChannelNameExists(channelbasename, false)) return 0;
 
   //Then we get the channel:
   QString err;
-  IVP1ChannelWidget * cw = d->channelmanager->getChannel( channelbasename,err );
+  IVP1ChannelWidget * cw = m_d->channelmanager->getChannel( channelbasename,err );
   if (!err.isEmpty()) {
     QMessageBox::critical(0, "Error - could not get channel: "+channelbasename,
 			  "Could not get channel: "+channelbasename
@@ -492,8 +492,8 @@ IVP1ChannelWidget * VP1TabManager::addChannelToTab(QString channelbasename,QStri
     return 0;
   }
   assert(cw);
-  bool save = d->dontEmitVisibilityChanges;
-  d->dontEmitVisibilityChanges=true;
+  bool save = m_d->dontEmitVisibilityChanges;
+  m_d->dontEmitVisibilityChanges=true;
   cw->setUpdatesEnabled(false);
 
   //Everything went well - go ahead and add the channel to the tab.
@@ -501,39 +501,39 @@ IVP1ChannelWidget * VP1TabManager::addChannelToTab(QString channelbasename,QStri
   connect(dock,SIGNAL(topLevelChanged(bool)),this,SLOT(currentVisibleChanged()));
   connect(dock,SIGNAL(wasSelected(VP1DockWidget*)),this,SLOT(setSelectedDockWidget(VP1DockWidget*)));
 
-  QMainWindow * tab = d->name_2_tab[tabname];
+  QMainWindow * tab = m_d->name_2_tab[tabname];
   tab->addDockWidget(Qt::TopDockWidgetArea, dock);
 
-  assert(d->channelwidget_2_dockwidget.find(cw)==d->channelwidget_2_dockwidget.end());
-  d->channelwidget_2_dockwidget[cw]=dock;
-  assert(d->tab_2_channelwidgets.find(tab)!=d->tab_2_channelwidgets.end());
-  d->tab_2_channelwidgets[tab].insert(cw);
+  assert(m_d->channelwidget_2_dockwidget.find(cw)==m_d->channelwidget_2_dockwidget.end());
+  m_d->channelwidget_2_dockwidget[cw]=dock;
+  assert(m_d->tab_2_channelwidgets.find(tab)!=m_d->tab_2_channelwidgets.end());
+  m_d->tab_2_channelwidgets[tab].insert(cw);
   cw->setUpdatesEnabled(true);
-  d->dontEmitVisibilityChanges=save;
+  m_d->dontEmitVisibilityChanges=save;
   currentVisibleChanged();
   return cw;
 }
 
 //_______________________________________________________________________
 void VP1TabManager::renameTab( QString tabname, QString newtabname ) {
-  if (!d->checkTabnameExists(tabname)) return;
-  if (!d->checkTabnameNotExists(newtabname)) return;
+  if (!m_d->checkTabnameExists(tabname)) return;
+  if (!m_d->checkTabnameNotExists(newtabname)) return;
 
-  QMainWindow * tab = d->name_2_tab[tabname];
+  QMainWindow * tab = m_d->name_2_tab[tabname];
 
-  d->name_2_tab.erase(d->name_2_tab.find(tabname));
-  d->name_2_tab[newtabname]=tab;
-  int tabindex = d->tabwidget->indexOf(tab);
+  m_d->name_2_tab.erase(m_d->name_2_tab.find(tabname));
+  m_d->name_2_tab[newtabname]=tab;
+  int tabindex = m_d->tabwidget->indexOf(tab);
   assert(tabindex!=-1);
-  d->tabwidget->setTabText ( tabindex, newtabname );
+  m_d->tabwidget->setTabText ( tabindex, newtabname );
   tabListChanged(tabList());
 }
 
 //_______________________________________________________________________
 QStringList VP1TabManager::tabList() {
   QStringList l;
-  for (int i = 0; i < d->tabwidget->count(); ++i) {
-    l<<d->tabwidget->tabText(i);
+  for (int i = 0; i < m_d->tabwidget->count(); ++i) {
+    l<<m_d->tabwidget->tabText(i);
   }
   return l;
 }
@@ -542,39 +542,39 @@ QStringList VP1TabManager::tabList() {
 //_______________________________________________________________________
 void VP1TabManager::removeTab( QString tabname ) {
 
-  if (!d->checkTabnameExists(tabname)) return;
-  bool save = d->dontEmitVisibilityChanges;
-  d->dontEmitVisibilityChanges=true;
+  if (!m_d->checkTabnameExists(tabname)) return;
+  bool save = m_d->dontEmitVisibilityChanges;
+  m_d->dontEmitVisibilityChanges=true;
 
-  assert(d->name_2_tab.find(tabname)!=d->name_2_tab.end());
-  QMainWindow * tab = d->name_2_tab[tabname];
+  assert(m_d->name_2_tab.find(tabname)!=m_d->name_2_tab.end());
+  QMainWindow * tab = m_d->name_2_tab[tabname];
   assert(tab);
-  assert(d->tab_2_channelwidgets.find(tab)!=d->tab_2_channelwidgets.end());
+  assert(m_d->tab_2_channelwidgets.find(tab)!=m_d->tab_2_channelwidgets.end());
 
   //First, we turn off updates on all channel widgets in the tab (this
   //prevents some crashes due to poorly written channels):
-  std::set<IVP1ChannelWidget*>::const_iterator it = d->tab_2_channelwidgets[tab].begin();
-  std::set<IVP1ChannelWidget*>::const_iterator itE = d->tab_2_channelwidgets[tab].end();
+  std::set<IVP1ChannelWidget*>::const_iterator it = m_d->tab_2_channelwidgets[tab].begin();
+  std::set<IVP1ChannelWidget*>::const_iterator itE = m_d->tab_2_channelwidgets[tab].end();
   for (;it!=itE;++it) {
     (*it)->setUpdatesEnabled(false);//Fixme: do this on detach/reattach also?
     (*it)->hide();
   }
 
-  while(d->tab_2_channelwidgets[tab].size()>0) {
-    IVP1ChannelWidget * channelwidget = *(d->tab_2_channelwidgets[tab].begin());
+  while(m_d->tab_2_channelwidgets[tab].size()>0) {
+    IVP1ChannelWidget * channelwidget = *(m_d->tab_2_channelwidgets[tab].begin());
     removeChannel(channelwidget->unique_name());
   }
 
   //Remove the tab from the tabwidget (this does not actually delete the tab)
-  d->name_2_tab.erase(d->name_2_tab.find(tabname));
-  int i = d->tabwidget->indexOf(tab);
+  m_d->name_2_tab.erase(m_d->name_2_tab.find(tabname));
+  int i = m_d->tabwidget->indexOf(tab);
   assert(i!=-1);
-  d->tabwidget->removeTab(i);
+  m_d->tabwidget->removeTab(i);
 
   delete tab;
 
   tabListChanged(tabList());
-  d->dontEmitVisibilityChanges=save;
+  m_d->dontEmitVisibilityChanges=save;
   currentVisibleChanged();
 }
 
@@ -583,45 +583,45 @@ void VP1TabManager::removeChannel(QString channeluniquename) {
 
 	VP1Msg::messageDebug("VP1TabManager::removeChannel()");
 
-  if (!d->checkChannelNameExists(channeluniquename, true)) return;
+  if (!m_d->checkChannelNameExists(channeluniquename, true)) return;
 
-  IVP1ChannelWidget* cw = d->channelmanager->uniqueName2Channel(channeluniquename);
+  IVP1ChannelWidget* cw = m_d->channelmanager->uniqueName2Channel(channeluniquename);
   assert(cw);
 
   //Unselect if selected:
-  if (d->selecteddockwidget&&cw==d->selecteddockwidget->channelWidget())
+  if (m_d->selecteddockwidget&&cw==m_d->selecteddockwidget->channelWidget())
     setSelectedDockWidget(0);
 
   QString bn = cw->name();
   cw->setUpdatesEnabled(false);
 
-  assert(d->channelwidget_2_dockwidget.find(cw)!=d->channelwidget_2_dockwidget.end());
-  VP1DockWidget * dw = d->channelwidget_2_dockwidget[cw];
+  assert(m_d->channelwidget_2_dockwidget.find(cw)!=m_d->channelwidget_2_dockwidget.end());
+  VP1DockWidget * dw = m_d->channelwidget_2_dockwidget[cw];
 
   //Update maps:
-  assert(d->channelwidget_2_dockwidget.find(cw)!=d->channelwidget_2_dockwidget.end());
-  d->channelwidget_2_dockwidget.erase(d->channelwidget_2_dockwidget.find(cw));
+  assert(m_d->channelwidget_2_dockwidget.find(cw)!=m_d->channelwidget_2_dockwidget.end());
+  m_d->channelwidget_2_dockwidget.erase(m_d->channelwidget_2_dockwidget.find(cw));
 
   //And remove dock from tab.
-  QMainWindow * tab = d->channel2tab(cw);
+  QMainWindow * tab = m_d->channel2tab(cw);
   assert(tab);
 
-//   int itab = d->tabwidget->indexOf(tab);
+//   int itab = m_d->tabwidget->indexOf(tab);
 //   assert(itab!=-1);
-//   QString tabname = d->tabwidget->tabText(itab);
-  //  d->tabwidget->removeTab(itab);
+//   QString tabname = m_d->tabwidget->tabText(itab);
+  //  m_d->tabwidget->removeTab(itab);
   tab->setUpdatesEnabled(false);
   tab->removeDockWidget(dw);
 
 
   //Update map:
-  assert(d->tab_2_channelwidgets[tab].find(cw)!=d->tab_2_channelwidgets[tab].end());
-  d->tab_2_channelwidgets[tab].erase(d->tab_2_channelwidgets[tab].find(cw));
+  assert(m_d->tab_2_channelwidgets[tab].find(cw)!=m_d->tab_2_channelwidgets[tab].end());
+  m_d->tab_2_channelwidgets[tab].erase(m_d->tab_2_channelwidgets[tab].find(cw));
 
   //delete channel
   cw->hide();
   dw->ensureCWHasNoParent();
-  bool ok=d->channelmanager->deleteChannel(cw->unique_name());
+  bool ok=m_d->channelmanager->deleteChannel(cw->unique_name());
   assert(ok);
   _UNUSED(ok);//To avoid compile warning in opt mode.
 
@@ -629,10 +629,10 @@ void VP1TabManager::removeChannel(QString channeluniquename) {
   delete dw;
 
   tab->setUpdatesEnabled(true);
-  //  d->tabwidget->insertTab(itab,tab,tabname);
+  //  m_d->tabwidget->insertTab(itab,tab,tabname);
 
-  if (d->selecteddockwidget==dw) {
-    d->selecteddockwidget=0;
+  if (m_d->selecteddockwidget==dw) {
+    m_d->selecteddockwidget=0;
     selectedChannelChanged(0);
   }
 
@@ -664,19 +664,19 @@ QMainWindow * VP1TabManager::Imp::name2tab(QString tabname)
 //___________________________________________________________________________________
 void VP1TabManager::moveChannelToTab(QString channeluniquename,QString tabname) {
 
-  if (!d->checkTabnameExists(tabname)) return;
-  if (!d->checkChannelNameExists(channeluniquename, true)) return;
+  if (!m_d->checkTabnameExists(tabname)) return;
+  if (!m_d->checkChannelNameExists(channeluniquename, true)) return;
 
-  QMainWindow * tab_new = d->name_2_tab[tabname];
+  QMainWindow * tab_new = m_d->name_2_tab[tabname];
   assert(tab_new);
-  IVP1ChannelWidget* cw = d->channelmanager->uniqueName2Channel(channeluniquename);
+  IVP1ChannelWidget* cw = m_d->channelmanager->uniqueName2Channel(channeluniquename);
   assert(cw);
 
-  assert(d->channelwidget_2_dockwidget.find(cw)!=d->channelwidget_2_dockwidget.end());
+  assert(m_d->channelwidget_2_dockwidget.find(cw)!=m_d->channelwidget_2_dockwidget.end());
 
-  VP1DockWidget* dw = d->channelwidget_2_dockwidget[cw];
+  VP1DockWidget* dw = m_d->channelwidget_2_dockwidget[cw];
   assert(dw);
-  QMainWindow * tab_old = d->channel2tab(cw);
+  QMainWindow * tab_old = m_d->channel2tab(cw);
   assert(tab_old);
 
   if (tab_old==tab_new)//Fixme: Make warning here instead, and ensure that the interface does not allow this.
@@ -688,20 +688,20 @@ void VP1TabManager::moveChannelToTab(QString channeluniquename,QString tabname) 
   dw->show();
 
   //Update tab_2_channelwidgets:
-  assert(d->tab_2_channelwidgets.find(tab_old)!=d->tab_2_channelwidgets.end());
-  assert(d->tab_2_channelwidgets.find(tab_new)!=d->tab_2_channelwidgets.end());
-  assert(d->tab_2_channelwidgets[tab_old].find(cw)!=d->tab_2_channelwidgets[tab_old].end());
-  assert(d->tab_2_channelwidgets[tab_new].find(cw)==d->tab_2_channelwidgets[tab_new].end());//dies!
-  d->tab_2_channelwidgets[tab_old].erase(d->tab_2_channelwidgets[tab_old].find(cw));
-  d->tab_2_channelwidgets[tab_new].insert(cw);
+  assert(m_d->tab_2_channelwidgets.find(tab_old)!=m_d->tab_2_channelwidgets.end());
+  assert(m_d->tab_2_channelwidgets.find(tab_new)!=m_d->tab_2_channelwidgets.end());
+  assert(m_d->tab_2_channelwidgets[tab_old].find(cw)!=m_d->tab_2_channelwidgets[tab_old].end());
+  assert(m_d->tab_2_channelwidgets[tab_new].find(cw)==m_d->tab_2_channelwidgets[tab_new].end());//dies!
+  m_d->tab_2_channelwidgets[tab_old].erase(m_d->tab_2_channelwidgets[tab_old].find(cw));
+  m_d->tab_2_channelwidgets[tab_new].insert(cw);
 
 }
 
 //___________________________________________________________________________________
 void VP1TabManager::cloneChannelToTab(QString channeluniquename,QString tabname) {
-  if (!d->checkTabnameExists(tabname)) return;
-  if (!d->checkChannelNameExists(channeluniquename, true)) return;
-  IVP1ChannelWidget* cw = d->channelmanager->uniqueName2Channel(channeluniquename);
+  if (!m_d->checkTabnameExists(tabname)) return;
+  if (!m_d->checkChannelNameExists(channeluniquename, true)) return;
+  IVP1ChannelWidget* cw = m_d->channelmanager->uniqueName2Channel(channeluniquename);
   assert(cw);
   IVP1ChannelWidget * newcw = addChannelToTab(cw->name(),tabname);
   if (newcw) {
@@ -714,18 +714,18 @@ void VP1TabManager::cloneChannelToTab(QString channeluniquename,QString tabname)
 //___________________________________________________________________________________
 void VP1TabManager::cloneTab(QString oldtabname,QString newtabname)
 {
-  if (!d->checkTabnameExists(oldtabname)) return;
-  if (!d->checkTabnameNotExists(newtabname)) return;
+  if (!m_d->checkTabnameExists(oldtabname)) return;
+  if (!m_d->checkTabnameNotExists(newtabname)) return;
 
   addNewTab(newtabname);
 
-  assert(d->name_2_tab.find(newtabname)!=d->name_2_tab.end());
+  assert(m_d->name_2_tab.find(newtabname)!=m_d->name_2_tab.end());
 
-  QMainWindow * oldtab = d->name_2_tab[oldtabname];
+  QMainWindow * oldtab = m_d->name_2_tab[oldtabname];
 
-  assert(d->tab_2_channelwidgets.find(oldtab)!=d->tab_2_channelwidgets.end());
-  std::set<IVP1ChannelWidget*>::const_iterator it = d->tab_2_channelwidgets[oldtab].begin();
-  std::set<IVP1ChannelWidget*>::const_iterator itE = d->tab_2_channelwidgets[oldtab].end();
+  assert(m_d->tab_2_channelwidgets.find(oldtab)!=m_d->tab_2_channelwidgets.end());
+  std::set<IVP1ChannelWidget*>::const_iterator it = m_d->tab_2_channelwidgets[oldtab].begin();
+  std::set<IVP1ChannelWidget*>::const_iterator itE = m_d->tab_2_channelwidgets[oldtab].end();
 
   for (;it!=itE;++it) {
     IVP1ChannelWidget * newcw = addChannelToTab((*it)->name(),newtabname);
@@ -736,7 +736,7 @@ void VP1TabManager::cloneTab(QString oldtabname,QString newtabname)
     }
   }
 
-  QMainWindow * newtab = d->name_2_tab[newtabname];
+  QMainWindow * newtab = m_d->name_2_tab[newtabname];
   QByteArray state = oldtab->saveState();
   if (!newtab->restoreState(state))
     QMessageBox::warning(0, "Warning - Problems cloning channel arrangement",
@@ -781,7 +781,7 @@ void VP1TabManager::saveConfigurationToFile(QString filename,const bool& askonov
   //Serialise :
   QMap<QString,QMultiMap<QString,ChanState> > tab2channels;
   QMap<QString,QByteArray> tab2arrangements;
-  d->serializeTabAndChannelConfigInfo(tab2channels, tab2arrangements);
+  m_d->serializeTabAndChannelConfigInfo(tab2channels, tab2arrangements);
 
   //Put into bytearray:
   QByteArray byteArray;
@@ -789,7 +789,7 @@ void VP1TabManager::saveConfigurationToFile(QString filename,const bool& askonov
   buffer.open(QIODevice::WriteOnly);
   QDataStream out(&buffer);
   out<<QString("This is an automatically generated config file for VP1. [cfg version 003]" );
-  out<<d->channelmanager->serializePluginInfo();
+  out<<m_d->channelmanager->serializePluginInfo();
   out<<tab2channels;
   out<<tab2arrangements;
   out<<tabList();//For tab *order*
@@ -883,8 +883,8 @@ void VP1TabManager::loadConfigurationFromFile(QString filename,const QMap<QStrin
     }
     QString pfabsolute = availableplugins[pf];
     QString err;
-    if (d->channelmanager->channelsInPluginFile(pfabsolute).empty())
-      err = d->channelmanager->loadPluginFile(pfabsolute);
+    if (m_d->channelmanager->channelsInPluginFile(pfabsolute).empty())
+      err = m_d->channelmanager->loadPluginFile(pfabsolute);
     if (!err.isEmpty()) {
       pf_withproblem<<pfabsolute;
       errormessage<<err;
@@ -916,23 +916,23 @@ void VP1TabManager::loadConfigurationFromFile(QString filename,const QMap<QStrin
 
     //We are about to add a new tab. If there is already one with
     //that name we remove it if it is empty:
-    QMainWindow * existingtab = d->name2tab(newtabname_infile);
+    QMainWindow * existingtab = m_d->name2tab(newtabname_infile);
     if (existingtab) {
-      if (d->tab_2_channelwidgets.find(existingtab)==d->tab_2_channelwidgets.end()
-	  ||d->tab_2_channelwidgets[existingtab].empty())
+      if (m_d->tab_2_channelwidgets.find(existingtab)==m_d->tab_2_channelwidgets.end()
+	  ||m_d->tab_2_channelwidgets[existingtab].empty())
 	removeTab(newtabname_infile);
     }
 
     //Special case: If there are presently no loaded channels, and
     //only one existing tab named 'My Tab', then we remove that one
-    if (d->channelwidget_2_dockwidget.empty()
-	&&d->name_2_tab.size()==1
-	&&d->name_2_tab.begin()->first=="My Tab")
+    if (m_d->channelwidget_2_dockwidget.empty()
+	&&m_d->name_2_tab.size()==1
+	&&m_d->name_2_tab.begin()->first=="My Tab")
       removeTab("My Tab");
 
     QString newtabname = suggestNewTabName(newtabname_infile);
     addNewTab(newtabname);
-    if (!d->checkTabnameExists(newtabname))
+    if (!m_d->checkTabnameExists(newtabname))
       return;
     lastaddedtab=newtabname;
 
@@ -942,7 +942,7 @@ void VP1TabManager::loadConfigurationFromFile(QString filename,const QMap<QStrin
       it.next();
       //it.key(): Channel base name.
       //it.value(): Channel state info.
-      if (!d->channelmanager->baseNameExists(it.key())) {
+      if (!m_d->channelmanager->baseNameExists(it.key())) {
 	channelsFailureMsg += it.key()+" (tab "+newtabname+")"+"\n";
       } else {
 	IVP1ChannelWidget * cw = addChannelToTab( it.key(), newtabname );
@@ -954,8 +954,8 @@ void VP1TabManager::loadConfigurationFromFile(QString filename,const QMap<QStrin
     }
 
     //Setup layout state:
-    assert(d->name_2_tab.find(newtabname)!=d->name_2_tab.end());
-    QMainWindow * tab = d->name_2_tab.find(newtabname)->second;
+    assert(m_d->name_2_tab.find(newtabname)!=m_d->name_2_tab.end());
+    QMainWindow * tab = m_d->name_2_tab.find(newtabname)->second;
     QByteArray state = tab2arrangements.value(newtabname_infile);
 
     if (!state.isEmpty()) {
@@ -1009,21 +1009,21 @@ void VP1TabManager::Imp::serializeTabAndChannelConfigInfo(QMap<QString,QMultiMap
 QString VP1TabManager::suggestNewTabName(QString oldtabname) const {
   QString newtabname=oldtabname;
   int i = 1;
-  while (d->name_2_tab.find(newtabname)!=d->name_2_tab.end())
+  while (m_d->name_2_tab.find(newtabname)!=m_d->name_2_tab.end())
     newtabname=oldtabname+" "+QString::number(++i);
   return newtabname;
 }
 
 //___________________________________________________________________________________
 QString VP1TabManager::currentTab() const {
-  if (d->tabwidget->count()==0)
+  if (m_d->tabwidget->count()==0)
     return "";
-  return d->tabwidget->tabText(d->tabwidget->currentIndex());
+  return m_d->tabwidget->tabText(m_d->tabwidget->currentIndex());
 }
 
 //___________________________________________________________________________________
 int VP1TabManager::nTabs() const {
-  return d->tabwidget->count();
+  return m_d->tabwidget->count();
 }
 
 //___________________________________________________________________________________
@@ -1059,28 +1059,28 @@ QMainWindow* VP1TabManager::Imp::previousTab(){
 //___________________________________________________________________________________
 bool VP1TabManager::showTab(QString tabname){
   int itarget(-1);
-  for (int i = 0; i < d->tabwidget->count(); ++i) {
-    if (d->tabwidget->tabText(i)==tabname) {
+  for (int i = 0; i < m_d->tabwidget->count(); ++i) {
+    if (m_d->tabwidget->tabText(i)==tabname) {
       itarget = i;
       break;
     }
   }
   if (itarget<0)
     return false;
-  if (itarget==d->tabwidget->currentIndex())
+  if (itarget==m_d->tabwidget->currentIndex())
     return true;
 
-  bool save = d->dontEmitVisibilityChanges;
-  d->dontEmitVisibilityChanges=true;
+  bool save = m_d->dontEmitVisibilityChanges;
+  m_d->dontEmitVisibilityChanges=true;
 
-  bool fullscreentab = (d->fullscreen_tab!=0);
-  if (d->fullscreen_channelwidget||d->fullscreen_tab)
+  bool fullscreentab = (m_d->fullscreen_tab!=0);
+  if (m_d->fullscreen_channelwidget||m_d->fullscreen_tab)
     dropOutOfFullScreen();
 
-  d->tabwidget->setCurrentIndex(itarget);
+  m_d->tabwidget->setCurrentIndex(itarget);
   if (fullscreentab)
     showCurrentTabFullScreen();
-  d->dontEmitVisibilityChanges=save;
+  m_d->dontEmitVisibilityChanges=save;
   currentVisibleChanged();
   return true;
 }
@@ -1088,38 +1088,38 @@ bool VP1TabManager::showTab(QString tabname){
 
 //___________________________________________________________________________________
 void VP1TabManager::showNextTab(){
-  if (d->tabwidget->count()<=1)
+  if (m_d->tabwidget->count()<=1)
     return;
-  assert(!d->fullscreen_channelwidget);
-  if (d->fullscreen_tab) {
-    bool save = d->dontEmitVisibilityChanges;
-    d->dontEmitVisibilityChanges=true;
+  assert(!m_d->fullscreen_channelwidget);
+  if (m_d->fullscreen_tab) {
+    bool save = m_d->dontEmitVisibilityChanges;
+    m_d->dontEmitVisibilityChanges=true;
     dropOutOfFullScreen();
     showNextTab();
     showCurrentTabFullScreen();
-    d->dontEmitVisibilityChanges=save;
+    m_d->dontEmitVisibilityChanges=save;
   }
-  d->tabwidget->setCurrentIndex((d->tabwidget->currentIndex() + 1) % d->tabwidget->count());
+  m_d->tabwidget->setCurrentIndex((m_d->tabwidget->currentIndex() + 1) % m_d->tabwidget->count());
 }
 
 //___________________________________________________________________________________
 void VP1TabManager::showPreviousTab() {
-  assert(!d->fullscreen_channelwidget);
-  assert(!d->fullscreen_tab);//Fixme: as above.
-  if (d->tabwidget->count()<=1)
+  assert(!m_d->fullscreen_channelwidget);
+  assert(!m_d->fullscreen_tab);//Fixme: as above.
+  if (m_d->tabwidget->count()<=1)
     return;
-  int newindex = d->tabwidget->currentIndex() - 1;
+  int newindex = m_d->tabwidget->currentIndex() - 1;
   if (newindex<0)
-    newindex += d->tabwidget->count();
-  d->tabwidget->setCurrentIndex( newindex % d->tabwidget->count());
+    newindex += m_d->tabwidget->count();
+  m_d->tabwidget->setCurrentIndex( newindex % m_d->tabwidget->count());
 }
 
 //___________________________________________________________________________________
 void VP1TabManager::raiseTabBarContextMenu(int i,const QPoint & p) {
 
-  QString tabname = d->tabwidget->tabText(i);
+  QString tabname = m_d->tabwidget->tabText(i);
 
-  QMenu menu(d->tabwidget);
+  QMenu menu(m_d->tabwidget);
 
   //Construct menu:
   //   menu.addAction("Tab: "+tabname)->setEnabled(false);
@@ -1135,13 +1135,13 @@ void VP1TabManager::raiseTabBarContextMenu(int i,const QPoint & p) {
   QAction* pAddChannelAction = menu.addAction("&Add channel");
   QAction* pRemoveChannelAction = menu.addAction("R&emove channel");
 
-  QMenu menu_addchan(d->tabwidget);
-  QStringList chnls = d->channelmanager->availableChannelList();
+  QMenu menu_addchan(m_d->tabwidget);
+  QStringList chnls = m_d->channelmanager->availableChannelList();
   if (chnls.empty()) {
     menu_addchan.addAction("No channels available")->setEnabled(false);
   } else {
     foreach (QString chnl, chnls) {
-      QString iconloc = d->channelmanager->getIconLocation(chnl, true);
+      QString iconloc = m_d->channelmanager->getIconLocation(chnl, true);
       QAction* pChnlAct;
       if (iconloc.isEmpty())
 	pChnlAct = menu_addchan.addAction(chnl);
@@ -1151,15 +1151,15 @@ void VP1TabManager::raiseTabBarContextMenu(int i,const QPoint & p) {
     }
   }
   pAddChannelAction->setMenu(&menu_addchan);
-  QStringList chnls_rem = d->channelsInTab(tabname);
+  QStringList chnls_rem = m_d->channelsInTab(tabname);
   if (chnls_rem.empty())
     pFullScreenAction->setEnabled(false);
-  QMenu menu_remchan(d->tabwidget);
+  QMenu menu_remchan(m_d->tabwidget);
   if (chnls_rem.empty()) {
     menu_remchan.addAction("No channels in tab")->setEnabled(false);
   } else {
     foreach (QString chnl, chnls_rem) {
-      QString iconloc = d->channelmanager->getIconLocation(chnl, false);
+      QString iconloc = m_d->channelmanager->getIconLocation(chnl, false);
       QAction* pChnlAct;
       if (iconloc.isEmpty())
 	pChnlAct = menu_remchan.addAction(chnl);
@@ -1228,7 +1228,7 @@ void VP1TabManager::raiseTabBarContextMenu(int i,const QPoint & p) {
 
 //___________________________________________________________________________________
 void VP1TabManager::currentVisibleChanged() {
-  if (d->dontEmitVisibilityChanges)
+  if (m_d->dontEmitVisibilityChanges)
     return;
 
   QSet<IVP1ChannelWidget*> visible;
@@ -1239,25 +1239,25 @@ void VP1TabManager::currentVisibleChanged() {
   ////////////////////////////   VISIBLE   ////////////////////////////
   /////////////////////////////////////////////////////////////////////
 
-  if (d->fullscreen_dockwidget) {
+  if (m_d->fullscreen_dockwidget) {
     //Thats an easy one:
-    visible << d->fullscreen_dockwidget->channelWidget();
-  } else if (d->fullscreen_tab) {
+    visible << m_d->fullscreen_dockwidget->channelWidget();
+  } else if (m_d->fullscreen_tab) {
     //Add all channel widgets from this tab:
-    assert(d->tab_2_channelwidgets.find(d->fullscreen_tab)!=d->tab_2_channelwidgets.end());
+    assert(m_d->tab_2_channelwidgets.find(m_d->fullscreen_tab)!=m_d->tab_2_channelwidgets.end());
     std::set<IVP1ChannelWidget*>::iterator  it,itE;
-    itE = d->tab_2_channelwidgets[d->fullscreen_tab].end();
-    for (it = d->tab_2_channelwidgets[d->fullscreen_tab].begin();it!=itE;++it) {
+    itE = m_d->tab_2_channelwidgets[m_d->fullscreen_tab].end();
+    for (it = m_d->tab_2_channelwidgets[m_d->fullscreen_tab].begin();it!=itE;++it) {
       visible << *it;
     }
-    std::cout<<"fullscreen tab:"<<d->fullscreen_tab<<std::endl;
+    std::cout<<"fullscreen tab:"<<m_d->fullscreen_tab<<std::endl;
   } else {
     //Go through the tabs, if it is the current tab we add all dock
     //widgets, otherwise we add those that are floating:
-    QWidget * currentTab = d->tabwidget->currentWidget();
-    std::map<QMainWindow*,std::set<IVP1ChannelWidget*> >::iterator tabIt,tabItE = d->tab_2_channelwidgets.end();
+    QWidget * currentTab = m_d->tabwidget->currentWidget();
+    std::map<QMainWindow*,std::set<IVP1ChannelWidget*> >::iterator tabIt,tabItE = m_d->tab_2_channelwidgets.end();
     std::set<IVP1ChannelWidget*>::iterator  it,itE;
-    for (tabIt=d->tab_2_channelwidgets.begin();tabIt!=tabItE;++tabIt) {
+    for (tabIt=m_d->tab_2_channelwidgets.begin();tabIt!=tabItE;++tabIt) {
       //Loop over channels;
       it = tabIt->second.begin();
       itE = tabIt->second.end();
@@ -1266,10 +1266,10 @@ void VP1TabManager::currentVisibleChanged() {
 	  //Add all:
 	  visible << *it;
 	} else {
-	  if (!d->fullscreen_tab) {
+	  if (!m_d->fullscreen_tab) {
 	    //Add only if floating and not a fullscreen tab:
-	    assert(d->channelwidget_2_dockwidget.find(*it)!=d->channelwidget_2_dockwidget.end());
-	    if (d->channelwidget_2_dockwidget[*it]->isFloating())
+	    assert(m_d->channelwidget_2_dockwidget.find(*it)!=m_d->channelwidget_2_dockwidget.end());
+	    if (m_d->channelwidget_2_dockwidget[*it]->isFloating())
 	      visible << *it;
 	  }
 	}
@@ -1281,56 +1281,56 @@ void VP1TabManager::currentVisibleChanged() {
   /////////////////////////   SOON VISIBLE   //////////////////////////
   /////////////////////////////////////////////////////////////////////
 
-  if (d->fullscreen_dockwidget) {
-    assert(!d->tabcruisemode);
+  if (m_d->fullscreen_dockwidget) {
+    assert(!m_d->tabcruisemode);
     //Soon visible: All floating channels (not this one) and all channels in the present tab.
     soonbonus = 2000;//We are afterall quite sure here what will soon be visible.
-    QWidget * currentTab = d->tabwidget->currentWidget();
-    std::map<QMainWindow*,std::set<IVP1ChannelWidget*> >::iterator tabIt, tabItE = d->tab_2_channelwidgets.end();
+    QWidget * currentTab = m_d->tabwidget->currentWidget();
+    std::map<QMainWindow*,std::set<IVP1ChannelWidget*> >::iterator tabIt, tabItE = m_d->tab_2_channelwidgets.end();
     std::set<IVP1ChannelWidget*>::iterator  it,itE;
-    for (tabIt=d->tab_2_channelwidgets.begin();tabIt!=tabItE;++tabIt) {
+    for (tabIt=m_d->tab_2_channelwidgets.begin();tabIt!=tabItE;++tabIt) {
       //Loop over channels;
       itE = tabIt->second.end();
       for (it=tabIt->second.begin();it!=itE;++it) {
 	if (currentTab==tabIt->first) {
 	  //Add all except the fullscreen'ed one:
-	  if (*it!=d->fullscreen_dockwidget->channelWidget())
+	  if (*it!=m_d->fullscreen_dockwidget->channelWidget())
 	    soonvisible << *it;
 	} else {
 	  //Add only if floating:
-	  assert(d->channelwidget_2_dockwidget.find(*it)!=d->channelwidget_2_dockwidget.end());
-	  if (d->channelwidget_2_dockwidget[*it]->isFloating())
+	  assert(m_d->channelwidget_2_dockwidget.find(*it)!=m_d->channelwidget_2_dockwidget.end());
+	  if (m_d->channelwidget_2_dockwidget[*it]->isFloating())
 	    soonvisible << *it;
 	}
       }
     }
-  } else if (d->fullscreen_tab) {
-    if (d->tabcruisemode&&d->tab_2_channelwidgets.size()>1) {
+  } else if (m_d->fullscreen_tab) {
+    if (m_d->tabcruisemode&&m_d->tab_2_channelwidgets.size()>1) {
       //Everything in the next tab.
       soonbonus = 10000;//Very important that the stuff in the next tab gets a high priority!
-      QMainWindow * nexttab = d->nextTab();
+      QMainWindow * nexttab = m_d->nextTab();
       assert(nexttab);
-      std::cout<<"fullscreen tab:"<<d->fullscreen_tab<<std::endl;
+      std::cout<<"fullscreen tab:"<<m_d->fullscreen_tab<<std::endl;
       std::cout<<"nexttab:"<<nexttab<<std::endl;
-      assert(d->tab_2_channelwidgets.find(nexttab)!=d->tab_2_channelwidgets.end());
-      std::set<IVP1ChannelWidget*>::iterator  it,itE=d->tab_2_channelwidgets[nexttab].end();
-      for(it=d->tab_2_channelwidgets[nexttab].begin();it!=itE;++it){
+      assert(m_d->tab_2_channelwidgets.find(nexttab)!=m_d->tab_2_channelwidgets.end());
+      std::set<IVP1ChannelWidget*>::iterator  it,itE=m_d->tab_2_channelwidgets[nexttab].end();
+      for(it=m_d->tab_2_channelwidgets[nexttab].begin();it!=itE;++it){
 	soonvisible << *it;
       }
     } else {
       //All floating channels not in the present tab
       soonbonus = 1000;//We are rather sure here what will soon be visible.
-      QWidget * currentTab = d->tabwidget->currentWidget();
-      std::map<QMainWindow*,std::set<IVP1ChannelWidget*> >::iterator tabIt, tabItE = d->tab_2_channelwidgets.end();
+      QWidget * currentTab = m_d->tabwidget->currentWidget();
+      std::map<QMainWindow*,std::set<IVP1ChannelWidget*> >::iterator tabIt, tabItE = m_d->tab_2_channelwidgets.end();
       std::set<IVP1ChannelWidget*>::iterator  it,itE;
-      for (tabIt=d->tab_2_channelwidgets.begin();tabIt!=tabItE;++tabIt) {
+      for (tabIt=m_d->tab_2_channelwidgets.begin();tabIt!=tabItE;++tabIt) {
 	//Loop over channels;
 	itE = tabIt->second.end();
 	for (it=tabIt->second.begin();it!=itE;++it) {
-	  if (d->fullscreen_tab!=tabIt->first&&currentTab!=tabIt->first) {
+	  if (m_d->fullscreen_tab!=tabIt->first&&currentTab!=tabIt->first) {
 	    //Add only if floating:
-	    assert(d->channelwidget_2_dockwidget.find(*it)!=d->channelwidget_2_dockwidget.end());
-	    if (d->channelwidget_2_dockwidget[*it]->isFloating())
+	    assert(m_d->channelwidget_2_dockwidget.find(*it)!=m_d->channelwidget_2_dockwidget.end());
+	    if (m_d->channelwidget_2_dockwidget[*it]->isFloating())
 	      soonvisible << *it;
 	  }
 	}
@@ -1339,15 +1339,15 @@ void VP1TabManager::currentVisibleChanged() {
   } else {
     //Add everything non-floating from the next tab.
     soonbonus = 200;//A weak guess (fixme: Stronger if tab cruise mode).
-    if (d->tabwidget->count()>=2) {
-      int nexttabindex = (d->tabwidget->currentIndex() + 1) % d->tabwidget->count();
-      QMainWindow* tab = static_cast<QMainWindow*>(d->tabwidget->widget(nexttabindex));
+    if (m_d->tabwidget->count()>=2) {
+      int nexttabindex = (m_d->tabwidget->currentIndex() + 1) % m_d->tabwidget->count();
+      QMainWindow* tab = static_cast<QMainWindow*>(m_d->tabwidget->widget(nexttabindex));
       assert(tab);
-      assert(d->tab_2_channelwidgets.find(tab)!=d->tab_2_channelwidgets.end());
-      std::set<IVP1ChannelWidget*>::iterator  it,itE=d->tab_2_channelwidgets[tab].end();
-      for (it=d->tab_2_channelwidgets[tab].begin();it!=itE;++it) {
-	assert(d->channelwidget_2_dockwidget.find(*it)!=d->channelwidget_2_dockwidget.end());
-	if (!d->channelwidget_2_dockwidget[*it]->isFloating())
+      assert(m_d->tab_2_channelwidgets.find(tab)!=m_d->tab_2_channelwidgets.end());
+      std::set<IVP1ChannelWidget*>::iterator  it,itE=m_d->tab_2_channelwidgets[tab].end();
+      for (it=m_d->tab_2_channelwidgets[tab].begin();it!=itE;++it) {
+	assert(m_d->channelwidget_2_dockwidget.find(*it)!=m_d->channelwidget_2_dockwidget.end());
+	if (!m_d->channelwidget_2_dockwidget[*it]->isFloating())
 	  soonvisible << *it;
       }
     }
@@ -1363,23 +1363,23 @@ void VP1TabManager::currentVisibleChanged() {
   assert(tmp.empty());
 #endif
 
-  if (visible!=d->lastvisible||soonvisible!=d->lastsoonvisible) {
-    d->lastvisible=visible;
-    d->lastsoonvisible=soonvisible;
+  if (visible!=m_d->lastvisible||soonvisible!=m_d->lastsoonvisible) {
+    m_d->lastvisible=visible;
+    m_d->lastsoonvisible=soonvisible;
     visibleChannelsChanged(visible,soonvisible,soonbonus);
 
     //To ensure that we dont show controllers for channels that are
     //not visible:
-    if (d->selecteddockwidget) {
-      if (!visible.contains(d->selecteddockwidget->channelWidget()))
+    if (m_d->selecteddockwidget) {
+      if (!visible.contains(m_d->selecteddockwidget->channelWidget()))
 	setSelectedDockWidget(0);
     }
 
     //To make sure we automatically select a channel if it is the only
     //one visible:
-    if (visible.count()==1&&(!d->selecteddockwidget||*(visible.begin())!=d->selecteddockwidget->channelWidget())) {
-      assert(d->channelwidget_2_dockwidget.find(*(visible.begin()))!=d->channelwidget_2_dockwidget.end());
-      setSelectedDockWidget(d->channelwidget_2_dockwidget[*(visible.begin())]);
+    if (visible.count()==1&&(!m_d->selecteddockwidget||*(visible.begin())!=m_d->selecteddockwidget->channelWidget())) {
+      assert(m_d->channelwidget_2_dockwidget.find(*(visible.begin()))!=m_d->channelwidget_2_dockwidget.end());
+      setSelectedDockWidget(m_d->channelwidget_2_dockwidget[*(visible.begin())]);
     }
   }
 }
@@ -1387,12 +1387,12 @@ void VP1TabManager::currentVisibleChanged() {
 //___________________________________________________________________________________
 QString VP1TabManager::channelToTab(IVP1ChannelWidget*cw)
 {
-  QMainWindow * tab = d->channel2tab(cw);
+  QMainWindow * tab = m_d->channel2tab(cw);
   if (!tab)
     return "VP1TabManager::channelToTab ERROR: Unknown CW";
 
-  std::map<QString,QMainWindow *>::const_iterator it, itE = d->name_2_tab.end();
-  for ( it = d->name_2_tab.begin(); it!=itE; ++it ) {
+  std::map<QString,QMainWindow *>::const_iterator it, itE = m_d->name_2_tab.end();
+  for ( it = m_d->name_2_tab.begin(); it!=itE; ++it ) {
     if (it->second == tab)
       return it->first;
   }
@@ -1402,7 +1402,7 @@ QString VP1TabManager::channelToTab(IVP1ChannelWidget*cw)
 //___________________________________________________________________________________
 bool VP1TabManager::hasTab(QString tabname) const
 {
-  return d->name_2_tab.find(tabname)!=d->name_2_tab.end();
+  return m_d->name_2_tab.find(tabname)!=m_d->name_2_tab.end();
 }
 
 //___________________________________________________________________________________
@@ -1411,7 +1411,7 @@ bool VP1TabManager::showFirstChannelWithGivenBasename(QString basename) {
   std::set<IVP1ChannelWidget*>::const_iterator it2,it2E;
 
   std::map<QMainWindow*,std::set<IVP1ChannelWidget*> >::const_iterator
-    it = d->tab_2_channelwidgets.begin(), itE=d->tab_2_channelwidgets.end();
+    it = m_d->tab_2_channelwidgets.begin(), itE=m_d->tab_2_channelwidgets.end();
   for (;it!=itE;++it) {
     it2=it->second.begin();
     it2E=it->second.end();
@@ -1419,7 +1419,7 @@ bool VP1TabManager::showFirstChannelWithGivenBasename(QString basename) {
       if ((*it2)->name()==basename) {
 	//Figure out the tabname:
 	std::map<QString,QMainWindow *>::const_iterator it3,it3E;
-	it3=d->name_2_tab.begin();it3E=d->name_2_tab.end();
+	it3=m_d->name_2_tab.begin();it3E=m_d->name_2_tab.end();
 	for (;it3!=it3E;++it3) {
 	  if (it3->second==it->first)
 	    return showTab(it3->first);
@@ -1437,8 +1437,8 @@ bool VP1TabManager::showFirstChannelWithGivenBasename(QString basename) {
 QList<IVP1ChannelWidget*> VP1TabManager::allChannels() const
 {
   QList<IVP1ChannelWidget*> l;
-  std::map<IVP1ChannelWidget*,VP1DockWidget*>::iterator it, itE(d->channelwidget_2_dockwidget.end());
-  for(it=d->channelwidget_2_dockwidget.begin();it!=itE;++it) {
+  std::map<IVP1ChannelWidget*,VP1DockWidget*>::iterator it, itE(m_d->channelwidget_2_dockwidget.end());
+  for(it=m_d->channelwidget_2_dockwidget.begin();it!=itE;++it) {
     l <<it->first;
   }
   return l;
@@ -1448,29 +1448,29 @@ QList<IVP1ChannelWidget*> VP1TabManager::allChannels() const
 //___________________________________________________________________________________
 const QSet<IVP1ChannelWidget*>& VP1TabManager::visibleChannels() const
 {
-  return d->lastvisible;
+  return m_d->lastvisible;
 }
 //___________________________________________________________________________________
 const QSet<IVP1ChannelWidget*>& VP1TabManager::soonVisibleChannels() const
 {
-  return d->lastsoonvisible;
+  return m_d->lastsoonvisible;
 }
 
 
 //___________________________________________________________________________________
 bool VP1TabManager::isVisible(IVP1ChannelWidget*cw) const
 {
-  return d->lastvisible.contains(cw);
+  return m_d->lastvisible.contains(cw);
 }
 
 //___________________________________________________________________________________
 void VP1TabManager::setTabCruiseMode(const bool& b) {
-  if (d->tabcruisemode==b)
+  if (m_d->tabcruisemode==b)
     return;
-  bool save = d->dontEmitVisibilityChanges;
-  d->dontEmitVisibilityChanges = true;
-  d->tabcruisemode = b;
-//   if (d->tabcruisemode) {
+  bool save = m_d->dontEmitVisibilityChanges;
+  m_d->dontEmitVisibilityChanges = true;
+  m_d->tabcruisemode = b;
+//   if (m_d->tabcruisemode) {
 //     assert(!fullscreen_dockwidget);//We cant be in FS single-channel mode.
 //     if (fullscreen_tab) {
 //       //Dock all floating (in other tabs) immediately (fixme: only when they need to be shown!.
@@ -1480,7 +1480,7 @@ void VP1TabManager::setTabCruiseMode(const bool& b) {
 //   } else {
 //   }
   //Soonvisible might have changed - so emit changes:
-  d->dontEmitVisibilityChanges=save;
+  m_d->dontEmitVisibilityChanges=save;
   currentVisibleChanged();
 }
 
@@ -1490,17 +1490,17 @@ void VP1TabManager::setTabCruiseMode(const bool& b) {
 //___________________________________________________________________________________
 void VP1TabManager::removeChannelAfterQueueEmpties(const QString& chnlun)
 {
-  d->channelWithPendingRemoval = chnlun;
+  m_d->channelWithPendingRemoval = chnlun;
   QTimer::singleShot(0, this, SLOT(executePendingChannelRemoval()));
 }
 
 //___________________________________________________________________________________
 void VP1TabManager::executePendingChannelRemoval()
 {
-  if (d->channelWithPendingRemoval.isEmpty())
+  if (m_d->channelWithPendingRemoval.isEmpty())
     return;
-  removeChannel(d->channelWithPendingRemoval);
-  d->channelWithPendingRemoval="";
+  removeChannel(m_d->channelWithPendingRemoval);
+  m_d->channelWithPendingRemoval="";
 }
 
 //___________________________________________________________________________________
