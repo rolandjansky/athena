@@ -115,6 +115,6 @@ conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/Geog", "/SCT/DAQ/Config/Geog")
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/RODMUR", "/SCT/DAQ/Config/RODMUR")
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/MUR", "/SCT/DAQ/Config/MUR")
 
-from SCT_ConditionsServices.SCT_TdaqEnabledSvcSetup import SCT_TdaqEnabledSvcSetup
-sct_TdaqEnabledSvcSetup = SCT_TdaqEnabledSvcSetup()
-sct_TdaqEnabledSvcSetup.setup()
+from SCT_ConditionsTools.SCT_TdaqEnabledToolSetup import SCT_TdaqEnabledToolSetup
+sct_TdaqEnabledToolSetup = SCT_TdaqEnabledToolSetup()
+sct_TdaqEnabledToolSetup.setup()

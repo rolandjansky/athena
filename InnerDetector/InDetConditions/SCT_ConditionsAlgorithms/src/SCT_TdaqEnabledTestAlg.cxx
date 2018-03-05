@@ -20,8 +20,8 @@
 #include "Identifier/Identifier.h"
 
 SCT_TdaqEnabledTestAlg::SCT_TdaqEnabledTestAlg(const std::string& name, ISvcLocator* pSvcLocator) : 
-  AthAlgorithm(name, pSvcLocator),
-  m_pTdaqEnabledSvc{"SCT_TdaqEnabledSvc", name} {
+  AthAlgorithm(name, pSvcLocator)
+{
   //nop
 }
 
@@ -30,7 +30,7 @@ StatusCode
 SCT_TdaqEnabledTestAlg::initialize() {
   StatusCode sc{StatusCode::SUCCESS, true};
   ATH_MSG_INFO("Calling initialize");
-  sc = m_pTdaqEnabledSvc.retrieve();
+  sc = m_pTdaqEnabledTool.retrieve();
   if (StatusCode::SUCCESS not_eq sc) {
     ATH_MSG_ERROR("Could not retrieve the veto service");
   }
@@ -45,26 +45,26 @@ SCT_TdaqEnabledTestAlg::execute() {
   StatusCode sc{StatusCode::SUCCESS, true};
   ATH_MSG_INFO("Calling execute");
   ATH_MSG_INFO("Dummy call to module idHash 0: module is ");
-  bool result{m_pTdaqEnabledSvc->isGood(IdentifierHash{0})};
+  bool result{m_pTdaqEnabledTool->isGood(IdentifierHash{0})};
   ATH_MSG_INFO((result ? "good" : "bad"));
   ATH_MSG_INFO("Dummy call to module Identifier 1: module is ");
-  result=m_pTdaqEnabledSvc->isGood(Identifier{1});
+  result=m_pTdaqEnabledTool->isGood(Identifier{1});
   ATH_MSG_INFO((result ? "good" : "bad"));
   ATH_MSG_INFO("Using Identifier Hash method: with number 2137 ");
-  result=m_pTdaqEnabledSvc->isGood(IdentifierHash{2137});
+  result=m_pTdaqEnabledTool->isGood(IdentifierHash{2137});
   ATH_MSG_INFO((result ? "good" : "bad"));
   ATH_MSG_INFO("Dummy call to module idHash 3: module is ");
-  result=m_pTdaqEnabledSvc->isGood(IdentifierHash{3});
+  result=m_pTdaqEnabledTool->isGood(IdentifierHash{3});
   ATH_MSG_INFO((result ? "good" : "bad"));
   unsigned int printNbad{10}, printNgood{10};
   ATH_MSG_INFO("Printing the first " << printNbad << " bad modules, and the first " << printNgood << " good modules.");
   for (unsigned int i{0}; i<8176; ++i) {
     IdentifierHash idh{i};
-    if (printNbad and (not m_pTdaqEnabledSvc->isGood(idh))) {
+    if (printNbad and (not m_pTdaqEnabledTool->isGood(idh))) {
       ATH_MSG_INFO(i << " is bad.");
       --printNbad;
     }
-    if (printNgood and m_pTdaqEnabledSvc->isGood(idh)) {
+    if (printNgood and m_pTdaqEnabledTool->isGood(idh)) {
       ATH_MSG_INFO(i << " is good.");
       --printNgood;
     }

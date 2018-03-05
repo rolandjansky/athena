@@ -64,12 +64,12 @@ job = AlgSequence()
 # Local stuff
 #------------------------------------------------------------
 
-from SCT_ConditionsServices.SCT_MonitorConditionsSvcSetup import SCT_MonitorConditionsSvcSetup
-sct_MonitorConditionsSvcSetup = SCT_MonitorConditionsSvcSetup()
-sct_MonitorConditionsSvcSetup.setup()
+from SCT_ConditionsTools.SCT_MonitorConditionsToolSetup import SCT_MonitorConditionsToolSetup
+sct_MonitorConditionsToolSetup = SCT_MonitorConditionsToolSetup()
+sct_MonitorConditionsToolSetup.setup()
 
-SCT_MonitorConditionsSvc=sct_MonitorConditionsSvcSetup.getSvc()
-SCT_MonitorConditionsSvc.OutputLevel = DEBUG
+SCT_MonitorConditionsTool=sct_MonitorConditionsToolSetup.getTool()
+SCT_MonitorConditionsTool.OutputLevel = DEBUG
 
 from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_MonitorConditionsTestAlg
 job+= SCT_MonitorConditionsTestAlg()
