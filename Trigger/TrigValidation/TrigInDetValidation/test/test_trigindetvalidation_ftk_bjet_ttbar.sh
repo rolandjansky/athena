@@ -37,7 +37,9 @@ function converttime {
     ((H=$totes/3600))
     ((M=($totes%3600)/60))
     ((S=$totes%60))
-    echo "$H : $M : $S"
+    [ $M -lt 10 ] && M=0$M
+    [ $S -lt 10 ] && S=0$S
+    echo "$H:$M:$S"
 }
 
 timestamp "starting"
@@ -300,7 +302,7 @@ timestamp "TIDArun-art.sh"
 
 
 
-TIDArun-art.sh data-bjet-FTK.root data-FTK_bjet_ttbar-reference.root HLT_j55_boffperf_split_InDetTrigTrackingxAODCnv_Bjet_IDTrig_forID HLT_j55_boffperf_split_FTKVtx_InDetTrigTrackingxAODCnv_Bjet_IDTrig HLT_j55_boffperf_split_FTK_InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig HLT_j55_boffperf_split_FTKRefit_InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig -d HLTEF-plots  2>&1 | tee TIDArun_3.log
+TIDArun-art.sh data-bjet-FTK.root data-FTK_bjet_ttbar-reference.root HLT_j55_boffperf_split_InDetTrigTrackingxAODCnv_Bjet_IDTrig_forID HLT_j55_boffperf_split_FTKVtx_InDetTrigTrackingxAODCnv_Bjet_IDTrig HLT_j55_boffperf_split_FTK_InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig_SplitJet HLT_j55_boffperf_split_FTKRefit_InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig_SplitJet -d HLTEF-plots  2>&1 | tee TIDArun_3.log
 echo "art-result: $? TIDArun_3"
 
 
