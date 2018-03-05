@@ -19,7 +19,7 @@
 # art-output: *perfmon*
 # art-output: TotalEventsProcessed.txt
 
-export NAME="mc_pp_v7_triggertool_grid"
+export NAME="mc_pp_v7_trigdecisiontool_grid"
 export JOB_LOG="athena.log"
 export TEST="TrigAnalysisTest"
 export DS='["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigAnalysisTest/AthenaTrigAOD_TrigEDMandTDTCheck_MC_pp_v7_chain/AOD.pool.root"]'
