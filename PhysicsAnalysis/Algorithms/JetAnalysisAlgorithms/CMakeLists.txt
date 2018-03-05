@@ -28,3 +28,5 @@ if( NOT XAOD_STANDALONE )
       src/*.h src/*.cxx src/components/*.cxx
       LINK_LIBRARIES GaudiKernel JetAnalysisAlgorithmsLib )
 endif()
+
+atlas_install_python_modules( python/*.py )
