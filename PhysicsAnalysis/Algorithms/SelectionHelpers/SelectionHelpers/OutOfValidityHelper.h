@@ -5,9 +5,8 @@
 /// @author Nils Krumnack
 
 
-
-#ifndef SYSTEMATICS_HANDLES__OUT_OF_VALIDITY_HELPER_H
-#define SYSTEMATICS_HANDLES__OUT_OF_VALIDITY_HELPER_H
+#ifndef SELECTION_HELPERS__OUT_OF_VALIDITY_HELPER_H
+#define SELECTION_HELPERS__OUT_OF_VALIDITY_HELPER_H
 
 #include <AsgTools/MsgStream.h>
 #include <AthContainers/AuxElement.h>
