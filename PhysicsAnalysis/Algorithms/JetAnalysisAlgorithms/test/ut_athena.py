@@ -1,3 +1,8 @@
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+#
+# @author Nils Krumnack
+
+
 import AthenaRootComps.ReadAthenaxAODHybrid
 
 theApp.EvtMax = 500

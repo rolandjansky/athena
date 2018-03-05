@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+#
+# @author Nils Krumnack
+
+
 # Read the submission directory as a command line argument. You can
 # extend the list of arguments with your private ones later on.
 import optparse
