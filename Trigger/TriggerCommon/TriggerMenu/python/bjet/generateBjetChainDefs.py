@@ -128,8 +128,6 @@ def generateChainDefs(chainDict):
     isIsoLep     = (not chainDict['chainName'].find("ivarmedium") == -1 or not chainDict['chainName'].find("ivarloose") == -1)
     isSingleJet  = ( (len(chainDict['chainParts']) == 1) and (int(chainDict['chainParts'][0]['multiplicity']) == 1))
 
-    hasTRTon = chainDict['chainName'].find("noTRT") == -1
-
     #
     # Only run the All TE on split chains
     #
@@ -153,13 +151,13 @@ def generateChainDefs(chainDict):
 
     if doAllTEConfig:
         log.debug("Doing new buildBjetChainsAllTE")
-        theFinalChainDef = buildBjetChainsAllTE( theJetChainDef, bjetchainDicts, useTRT=hasTRTon )
+        theFinalChainDef = buildBjetChainsAllTE( theJetChainDef, bjetchainDicts)
     else:
         log.debug("Doing buildBjetChains")
         theListOfChainDefs = []
         for subChainDict in bjetchainDicts:
             theJetChainDef1 = deepcopy(theJetChainDef)
-            theBjetChainDef = buildBjetChains(theJetChainDef1, subChainDict, len(bjetchainDicts), TRTstatus=hasTRTon)    
+            theBjetChainDef = buildBjetChains(theJetChainDef1, subChainDict, len(bjetchainDicts))    
             theListOfChainDefs += [theBjetChainDef] 
     
 
@@ -184,9 +182,11 @@ def generateChainDefs(chainDict):
 #
 #  New AllTE Building (Only do it for split chains and non FTK)
 #
-def buildBjetChainsAllTE(theChainDef, bjetdict, numberOfSubChainDicts=1, useTRT=True):
+def buildBjetChainsAllTE(theChainDef, bjetdict, numberOfSubChainDicts=1):
     log.debug("In buildBjetChainsAllTE")
     inputTEsEF = theChainDef.signatureList[-1]['listOfTriggerElements'][0]
+
+    useTRT = 'noTRT' not in bjetdict[0]['chainParts']['extra']
 
     #
     #  Initial Config
@@ -230,17 +230,19 @@ def buildBjetChainsAllTE(theChainDef, bjetdict, numberOfSubChainDicts=1, useTRT=
     # super ROI building
     #
     theSuperRoi=getSuperRoiBuilderAllTEInstance()
-    superTE = "HLT_super"
+    superTE = "HLT_super" 
     theChainDef.addSequence(theSuperRoi,      inputTEsEF,   superTE)
 
     #
     #  PV Tracking
     #
     if useTRT :
-        [trkvtx, trkftf, trkprec] = TrigInDetSequence("Bjet", "bjet", "IDTrig", sequenceFlavour=["2step"]).getSequence() # new
+        [trkvtx, trkftf, trkprec] = TrigInDetSequence("Bjet", "bjet", "IDTrig", sequenceFlavour=["2step"]).getSequence()
     else :
-        [trkvtx, trkftf, trkprec] = TrigInDetSequence("Bjet", "bjet", "IDTrig", sequenceFlavour=["2step","noTRT"]).getSequence() # new
-    tracking        = "IDTrig"
+        [trkvtx, trkftf, trkprec] = TrigInDetSequence("Bjet", "bjet", "IDTrig", sequenceFlavour=["2step","noTRT"]).getSequence()
+    tracking = "IDTrig"
+    if not useTRT : tracking = tracking + "_noTRT"
+
     superTrackingTE = superTE+tracking
     theChainDef.addSequence(trkvtx,  superTE,      superTrackingTE) 
 
@@ -259,7 +261,9 @@ def buildBjetChainsAllTE(theChainDef, bjetdict, numberOfSubChainDicts=1, useTRT=
     theJetSplit=getJetSplitterAllTEInstance()
     jetHypoTE       = "HLT_j"+str(minBTagThreshold)+"_eta"
     jetSplitTE      = jetHypoTE+"_jsplit"
-    theChainDef.addSequence(theJetSplit,  [inputTEsEF, comboPrmVtxTE], jetSplitTE)
+    if not useTRT : jetSplitTE = jetSplitTE + "_noTRT"
+
+    theChainDef.addSequence(theJetSplit,  [inputTEsEF, comboPrmVtxTE], jetSplitTE) 
 
     #
     # If do the btagging in away muons 
@@ -271,11 +275,13 @@ def buildBjetChainsAllTE(theChainDef, bjetdict, numberOfSubChainDicts=1, useTRT=
     #
     theBjetEtHypo   = getBjetEtHypoInstance(algoInstance, "Btagging", str(minBTagThreshold)+"GeV" )
     jetEtHypoTE     = "HLT_j"+str(minBTagThreshold)
+    if not useTRT: jetEtHypoTE = jetEtHypoTE + "_noTRT" 
     theChainDef.addSequence(theBjetEtHypo,  jetSplitTE,       jetEtHypoTE )
 
     #
     #  Precision tracking
     #
+    if not useTRT : jetSplitTE = jetSplitTE.replace("_noTRT","") # remove noTRT since we are adding tracking !!!!
     jetTrackTE      = jetSplitTE+"_"+tracking
     theBjetTracks = trkftf+trkprec
     theChainDef.addSequence(theBjetTracks,  jetEtHypoTE, jetTrackTE)       
@@ -299,7 +305,7 @@ def buildBjetChainsAllTE(theChainDef, bjetdict, numberOfSubChainDicts=1, useTRT=
         gsc_jetTrackTE        = "HLT_gsc"+str(minGSCThreshold)+"_eta"+"_jsplit"+"_"+tracking
         theGSCEtHypo   = getBjetEtHypoInstance(algoInstance, "Btagging", str(minGSCThreshold) +"GeV" )
         theChainDef.addSequence(theGSCEtHypo,   gsc_jetTrackTEPreCut,           gsc_jetTrackTE )
-        jetsForBTagging = gsc_jetTrackTE
+        jetsForBTagging = gsc_jetTrackTE 
     else:
         log.debug("No GSC Calculation")
         jetsForBTagging = secVtxTE
@@ -318,6 +324,8 @@ def buildBjetChainsAllTE(theChainDef, bjetdict, numberOfSubChainDicts=1, useTRT=
     #
     log.debug("Getting tagging hypo")
     lastTEout = "HLT_"+bjetdict[0]['chainName']
+    if not useTRT : lastTEout = lastTEout + "_noTRT" 
+
     topoThresh = bjetdict[0]['topoThreshold']
     topoStartFrom = setupTopoStartFrom(topoThresh,theChainDef) if topoThresh else None
     if topoStartFrom:         lastTEout = lastTEout+'_tsf'
@@ -356,17 +364,17 @@ def buildBjetChainsAllTE(theChainDef, bjetdict, numberOfSubChainDicts=1, useTRT=
 
 ###########################################################################
 ###########################################################################
-def buildBjetChains(jchaindef,bjetdict,numberOfSubChainDicts=1,TRTstatus=True):
+def buildBjetChains(jchaindef,bjetdict,numberOfSubChainDicts=1):
     log.debug("In buildBjetChains")
     inputTEsEF = jchaindef.signatureList[-1]['listOfTriggerElements'][0]
 
     bjetparts = bjetdict['chainParts']
 
     if ('split' in bjetparts['bConfig']):
-        theBjetChainDef = myBjetConfig_split(jchaindef, bjetdict, inputTEsEF,numberOfSubChainDicts,useTRT=TRTstatus) 
+        theBjetChainDef = myBjetConfig_split(jchaindef, bjetdict, inputTEsEF,numberOfSubChainDicts) 
         theBjetChainDef.chain_name = 'HLT_'+bjetdict['chainName']
     else:
-        theBjetChainDef = myBjetConfig1(jchaindef, bjetdict, inputTEsEF,numberOfSubChainDicts,useTRT=TRTstatus) 
+        theBjetChainDef = myBjetConfig1(jchaindef, bjetdict, inputTEsEF,numberOfSubChainDicts) 
         theBjetChainDef.chain_name = 'HLT_'+bjetdict['chainName']
 
     log.debug("Left buildBjetChains")
@@ -376,7 +384,10 @@ def buildBjetChains(jchaindef,bjetdict,numberOfSubChainDicts=1,TRTstatus=True):
 ###################################################################################
 ###################################################################################
 
-def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=1,useTRT=True):
+def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=1):
+
+    useTRT = 'noTRT' not in chainDict['chainParts']['extra']
+
     log.debug("In myBjetConfig_split")    
 
     EFChainName = "EF_bjet_" + chainDict['chainName']
@@ -445,6 +456,7 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
         [trkvtx, trkftf, trkprec] = TrigInDetSequence("Bjet", "bjet", "IDTrig", sequenceFlavour=["2step"]).getSequence() # new
     else :
         [trkvtx, trkftf, trkprec] = TrigInDetSequence("Bjet", "bjet", "IDTrig", sequenceFlavour=["2step","noTRT"]).getSequence() # new
+
 
     # for b-tagging
     theBjetTracks = trkftf+trkprec
@@ -526,6 +538,7 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
     # TE naming
     #-----------------------------------------------------------------------------------
     
+
     tracking        = "IDTrig"
     if 'FTKVtx' in chainParts['bTracking']:
         tracking    = "IDtrig"
@@ -533,13 +546,20 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
         tracking    = "FTKRefit"
     elif 'FTK' in chainParts['bTracking']:
         tracking    = "FTK"
-
+    elif 'noTRT' in chainParts['extra']:
+        tracking    = "IDTrig_noTRT"
 
     jetEtHypoTE     = "HLT_j"+btagthresh+ftk
     jetHypoTE       = "HLT_j"+btagthresh+ftk+"_eta"
     jetSplitTE      = jetHypoTE+"_jsplit"
-    jetFarawayTE    = jetSplitTE+"_faraway"
     jetTrackTE      = jetSplitTE+"_"+tracking
+
+    if not useTRT: 
+        jetEtHypoTE = jetEtHypoTE + "_noTRT"
+        jetSplitTE = jetSplitTE + "_noTRT"
+
+    jetFarawayTE    = jetSplitTE+"_faraway"
+
 
     gsc_jetTrackTEPreCut  = "HLT_precut_gsc"+btagthresh+ftk+"_eta"+"_jsplit"+"_"+tracking
     gsc_jetTrackTE        = "HLT_"+gscthresh+ftk+"_eta"+"_jsplit"+"_"+tracking
@@ -568,9 +588,13 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
     secVtxTE        = jetTrackTE+"__"+"secVtx"
     lastTEout       = "HLT_bjet_"+chainParts['chainPartName'] if numberOfSubChainDicts>1 else EFChainName
 
+    if not useTRT:
+        lastTEout = lastTEout + "_noTRT"
+
+
     if 'FTKVtx' in chainParts['bTracking'] or 'FTK' in chainParts['bTracking']  or 'FTKRefit' in chainParts['bTracking']:
         comboPrmVtxTE="HLT_FTKVtx_Combo"
- 
+    
 
     topoThresh = chainDict['topoThreshold']
     topoStartFrom = setupTopoStartFrom(topoThresh,theChainDef) if topoThresh else None
@@ -592,7 +616,7 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
         theChainDef.addSequence(trkvtx,  superTE,      superTrackingTE) 
         theChainDef.addSequence([EFHistoPrmVtxAllTE_Jet()], superTrackingTE, prmVertexTE)
         theChainDef.addSequence([EFHistoPrmVtxCombo_Jet()], [superTrackingTE,prmVertexTE], comboPrmVtxTE)
-
+        
         # b-tagging part of the chain (requires PV)
         theChainDef.addSequence(theJetSplit,    [inputTEsEF, comboPrmVtxTE], jetSplitTE)
 
@@ -620,6 +644,7 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
     #GSC
     if ('gscThreshold' in chainParts) and chainParts['gscThreshold']:
         log.debug("Doing GSC Calculation:"+chainParts["gscThreshold"])
+        print 'gsc_jetTrackTEPreCut =',gsc_jetTrackTEPreCut
         theChainDef.addSequence(theGSCFex,      secVtxTE                ,       gsc_jetTrackTEPreCut )
         theChainDef.addSequence(theGSCEtHypo,   gsc_jetTrackTEPreCut,           gsc_jetTrackTE )
         jetsForBTagging = gsc_jetTrackTE
@@ -630,13 +655,15 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
         #secVtxTE        = jetTrackTE+"__"+"superVtx"
 
     theChainDef.addSequence([theBjetFex, theBtagReq], jetsForBTagging, lastTEout, topo_start_from = topoStartFrom)
-
     theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [lastTEout]*int(btagmult))
     return theChainDef
 
 ###################################################################################
 
-def myBjetConfig1(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=1,useTRT=True):
+def myBjetConfig1(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=1):
+
+    useTRT = 'noTRT' not in chainDict['chainParts']['extra']
+
     EFChainName = "EF_bjet_" + chainDict['chainName']
 
     chainParts = chainDict['chainParts']
@@ -685,23 +712,36 @@ def myBjetConfig1(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=1,use
 
     #------- 2012 EF Sequences based on j35 intput TE-------
     # TE naming
+
     ef2 ='HLT_Bj'
     ef3 ='HLT_Bj_EtCut%s' % btagthresh
     if ('EFID' in chainParts['bTracking']):
         ef4 ='HLT_Bj_EtCut%s_EFID'  % btagthresh
         ef5 ='HLT_Bj_EtCut%s_AllTEPrmVtx_EFID'  % btagthresh
         ef6 ='HLT_Bj_EtCut%s_ComboPrmVtx_EFID'  % btagthresh
+    elif not useTRT:
+        ef4 ='HLT_Bj_EtCut%s_IDTrig_noTRT'  % btagthresh
+        ef5 ='HLT_Bj_EtCut%s_AllTEPrmVtx_IDTrig_noTRT'  % btagthresh
+        ef6 ='HLT_Bj_EtCut%s_ComboPrmVtx_IDTrig_noTRT'  % btagthresh
     else:
         ef4 ='HLT_Bj_EtCut%s_IDTrig'  % btagthresh
         ef5 ='HLT_Bj_EtCut%s_AllTEPrmVtx_IDTrig'  % btagthresh
         ef6 ='HLT_Bj_EtCut%s_ComboPrmVtx_IDTrig'  % btagthresh
+
     if (btagmult == '1'):
-        ef7 = 'EF_b%s_%s_%s_SecVxBhypo' % (btagthresh, btagcut, chainParts['chainPartName'].replace("_"+chainParts['bTracking'],""), )
+        if not useTRT: 
+            ef7 = 'EF_b%s_%s_%s_SecVxBhypo' % (btagthresh, btagcut, chainParts['chainPartName'].replace("_"+chainParts['bTracking']+"_noTRT",""), )
+        else:
+            ef7 = 'EF_b%s_%s_%s_SecVxBhypo' % (btagthresh, btagcut, chainParts['chainPartName'].replace("_"+chainParts['bTracking'],""), )
     else:
-        ef7 = 'EF_%sb%s_%s_%s_SecVxBhypo' % (btagmult, btagthresh, btagcut, chainParts['chainPartName'].replace("_"+chainParts['bTracking'],""))
+        if not useTRT:
+            ef7 = 'EF_%sb%s_%s_%s_SecVxBhypo' % (btagmult, btagthresh, btagcut, chainParts['chainPartName'].replace("_"+chainParts['bTracking']+"noTRT",""))
+        else:
+            ef7 = 'EF_%sb%s_%s_%s_SecVxBhypo' % (btagmult, btagthresh, btagcut, chainParts['chainPartName'].replace("_"+chainParts['bTracking'],""))
+
 
     lastTEout = "EF_bj_"+chainParts['chainPartName'] if numberOfSubChainDicts>1 else EFChainName
-
+    if not useTRT: lastTEout = lastTEout + "_noTRT"
 
     topoThresh = chainDict['topoThreshold']
     topoStartFrom = setupTopoStartFrom(topoThresh,theChainDef) if topoThresh else None
