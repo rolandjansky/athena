@@ -11,7 +11,8 @@ LArNoisyROSummary::LArNoisyROSummary():
   m_SatMediumFlaggedPartitions(0), 
   m_SatTightFlaggedPartitions(0),
   m_MNBLooseFlaggedPartitions(0),
-  m_MNBTightFlaggedPartitions(0)
+  m_MNBTightFlaggedPartitions(0),
+  m_MNBTightFlaggedPartitions_PsVeto(0)
 {
 }
 
@@ -31,6 +32,7 @@ void LArNoisyROSummary::clear()
   m_SatTightFlaggedPartitions = 0;
   m_MNBLooseFlaggedPartitions = 0;
   m_MNBTightFlaggedPartitions = 0;
+  m_MNBTightFlaggedPartitions_PsVeto = 0;
 }
 
 
