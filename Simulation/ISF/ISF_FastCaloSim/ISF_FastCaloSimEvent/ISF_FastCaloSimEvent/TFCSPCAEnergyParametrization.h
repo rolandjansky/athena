@@ -27,6 +27,8 @@ class TFCSPCAEnergyParametrization:public TFCSEnergyParametrization
 
   virtual bool is_match_Ekin_bin(int Ekin_bin) const;
   virtual bool is_match_calosample(int calosample) const;
+  virtual bool is_match_all_Ekin_bin() const {return true;};
+  virtual bool is_match_all_calosample() const {return false;};
   
   void P2X(TVectorD*, TVectorD* , TMatrixD* , int, double* , double* , int);
   void loadInputs(TFile* file);
