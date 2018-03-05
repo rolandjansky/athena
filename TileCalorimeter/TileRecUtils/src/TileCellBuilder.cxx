@@ -247,7 +247,8 @@ StatusCode TileCellBuilder::geoInit(IOVSVC_CALLBACK_ARGS) {
   //=== get TileCondToolTiming
   CHECK( m_tileToolTiming.retrieve() );
 
-  m_run2 = TileCablingService::getInstance()->isRun2Cabling();
+  m_cabling = TileCablingService::getInstance();
+  m_run2 = m_cabling->isRun2Cabling();
 
   reset(true, false);
 
