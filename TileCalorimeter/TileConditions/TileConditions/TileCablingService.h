@@ -283,6 +283,7 @@ public:
     inline bool                getTestBeam()       const { return m_testBeam; }
     inline bool  connected (int ros, int drawer)   const { return m_connected[ros][drawer]; }
     inline int                 getCablingType()    const { return m_cablingType; }
+    inline bool                isRun2Cabling()     const { return m_run2; }
 
 };
 

@@ -88,6 +88,7 @@ TileCellBuilder::TileCellBuilder(const std::string& type, const std::string& nam
   , m_tileID(0)
   , m_tileTBID(0)
   , m_tileHWID(0)
+  , m_cabling(0)
   , m_DQstatus(0)
   , m_tileBadChanTool("TileBadChanTool")
   , m_tileToolEmscale("TileCondToolEmscale")
@@ -101,6 +102,7 @@ TileCellBuilder::TileCellBuilder(const std::string& type, const std::string& nam
   , m_RChType(TileFragHash::Default)
   , m_RChUnit(TileRawChannelUnit::ADCcounts)
   , m_maxTimeCorr(75.0)
+  , m_run2(false)
 {
   declareInterface<ICaloCellMakerTool>( this );
   declareInterface<TileCellBuilder>( this );
@@ -245,16 +247,18 @@ StatusCode TileCellBuilder::geoInit(IOVSVC_CALLBACK_ARGS) {
   //=== get TileCondToolTiming
   CHECK( m_tileToolTiming.retrieve() );
 
+  m_run2 = TileCablingService::getInstance()->isRun2Cabling();
+
   reset(true, false);
 
   if (m_MBTSContainer.size() > 0)
     ATH_MSG_INFO( "Storing MBTS cells in " << m_MBTSContainer );
 
-  if ( (TileCablingService::getInstance())->getCablingType() != TileCablingService::RUN2Cabling &&
-       (TileCablingService::getInstance())->getCablingType() != TileCablingService::RUN2aCabling )
+  if (!m_run2) {
     m_E4prContainer = ""; // no E4' container for RUN1
-  else if (m_E4prContainer.size() > 0)
+  } else if (m_E4prContainer.size() > 0) {
     ATH_MSG_INFO( "Storing E4'  cells in " << m_E4prContainer );
+  }
 
   ATH_MSG_INFO( "TileCellBuilder initialization completed" );
 
@@ -899,12 +903,9 @@ bool TileCellBuilder::maskBadChannels(TileCell* pCell) {
       }
     }
 
-    static const TileCablingService * s_cabling = TileCablingService::getInstance();
-    static const bool run2 = (s_cabling->getCablingType() == TileCablingService::RUN2Cabling ||
-                              s_cabling->getCablingType() == TileCablingService::RUN2aCabling);
     single_PMT_C10 = (((ros2 == TileHWID::EXTBAR_POS && chan1 == 4)
                       || (ros2 == TileHWID::EXTBAR_NEG && chan2 == 4))
-                      && !s_cabling->C10_connected(drawer2));
+                      && !m_cabling->C10_connected(drawer2));
     if (single_PMT_C10) {
       // for special C10 disconnected channel might be masked in DB
       // and energy of good channel is taken twice with correct weight
@@ -918,12 +919,12 @@ bool TileCellBuilder::maskBadChannels(TileCell* pCell) {
         << drawer2+1 << " status " << chan1 << "/" << chan2 << " "
         << (chStatus1.isBad()?"bad":"good") << "/"
         << (chStatus2.isBad()?"bad":"good") << "/"
-        << ((run2)?" RUN2 cabling": "RUN1 cabling")
+        << ((m_run2)?" RUN2 cabling": "RUN1 cabling")
         << std::endl;
       }
 #endif
       if (chan1 == 4) {
-        if (run2 || !chStatus1.isBad()) {
+        if (m_run2 || !chStatus1.isBad()) {
 #ifdef ALLOW_DEBUG_COUT
           if (cnt < 17) {
             std::cout << "Ene of chan1 was " << pCell->ene1() << " changing to half of " << pCell->ene2()
@@ -936,7 +937,7 @@ bool TileCellBuilder::maskBadChannels(TileCell* pCell) {
           --m_drawerEvtStatus[ros1][drawer1].nMaskedChannels; // since it's fake masking, decrease counter by 1 in advance
         }
       } else {
-        if (run2 || !chStatus2.isBad()) {
+        if (m_run2 || !chStatus2.isBad()) {
 #ifdef ALLOW_DEBUG_COUT
           if (cnt < 17) {
             std::cout << "Ene of chan2 was " << pCell->ene2() << " changing to half of " << pCell->ene1()
@@ -1288,9 +1289,7 @@ void TileCellBuilder::build(const ITERATOR & begin, const ITERATOR & end, COLLEC
           , overflow, underflow, overfit);
 
 
-      if ( ((TileCablingService::getInstance())->getCablingType() == TileCablingService::RUN2Cabling ||
-            (TileCablingService::getInstance())->getCablingType() == TileCablingService::RUN2aCabling)
-           && channel == E1_CHANNEL && ros > 2) { // Raw channel -> E1 cell.
+      if (m_run2 && channel == E1_CHANNEL && ros > 2) { // Raw channel -> E1 cell.
 
        int drawer2 = (TileCablingService::getInstance())->E1_merged_with_run2(ros,drawer);
        if (drawer2 != 0) { // Raw channel splitted into two E1 cells for Run 2.

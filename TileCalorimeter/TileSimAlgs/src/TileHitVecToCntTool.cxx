@@ -135,8 +135,7 @@ StatusCode TileHitVecToCntTool::initialize() {
   CHECK(m_cablingSvc.retrieve());
   m_cabling = m_cablingSvc->cablingService();
 
-  m_run2 = (m_cabling->getCablingType() == TileCablingService::RUN2Cabling ||
-            m_cabling->getCablingType() == TileCablingService::RUN2aCabling);
+  m_run2 = m_cabling->isRun2Cabling();
 
   for (int i = 0; i < 7; ++i) {
     Identifier pmt_id;
