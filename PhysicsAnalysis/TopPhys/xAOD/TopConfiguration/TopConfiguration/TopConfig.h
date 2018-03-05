@@ -119,6 +119,10 @@ class TopConfig final {
   inline std::string getDerivationStream() const { return m_derivationStream;}
   inline void setDerivationStream(const std::string value) {if(!m_configFixed){m_derivationStream = value;}}
 
+  // AMI tag from metadata
+  std::string const & getAmiTag() const;
+  void setAmiTag(std::string const & amiTag);
+
   inline unsigned int getDSID() const {return m_DSID;}
   inline void setDSID(unsigned int value) {
     // Check here if this is a sherpa 2.2 V+jets sample
@@ -928,6 +932,8 @@ class TopConfig final {
   bool m_isPrimaryxAOD;
   bool m_isTruthDxAOD = false;
   std::string m_derivationStream;
+  std::string m_amiTag;
+  int m_amiTagSet = 0;
 
   // Do fakes MM weights calculation? - only for data loose
   bool m_doFakesMMWeights;

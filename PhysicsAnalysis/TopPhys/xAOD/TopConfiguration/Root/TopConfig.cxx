@@ -7,6 +7,7 @@
 #include "TopConfiguration/AodMetaDataAccess.h"
 #include "TopConfiguration/ConfigurationSettings.h"
 #include <algorithm>
+#include <cassert>
 #include <iterator>
 #include <sstream>
 #include <stdexcept>
@@ -2565,6 +2566,23 @@ TopConfig::TopConfig( const top::TopPersistentSettings* settings ) :
       m_release_series = 25;
     }
     return;
+  }
+
+  void TopConfig::setAmiTag(std::string const & amiTag) {
+    assert(!m_configFixed);
+    if (m_amiTagSet == 0) {
+      m_amiTag = amiTag;
+      m_amiTagSet = 1;
+    }
+    else if (m_amiTagSet > 0 && m_amiTag != amiTag) {
+      m_amiTag.clear();
+      m_amiTagSet = -1;
+    }
+  }
+
+  std::string const & TopConfig::getAmiTag() const {
+    assert(m_configFixed);
+    return m_amiTag;
   }
 
   // Function to return the year of data taking based on either run number (data) or random run number (MC)

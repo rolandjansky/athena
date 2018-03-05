@@ -171,6 +171,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
 
     registerParameter("LibraryNames", "Names of any libraries that need loading");
     registerParameter("UseAodMetaData", "Whether to read xAOD meta-data from input files (default: False)", "False");
+    registerParameter("WriteTrackingData", "Whether to generate and store analysis-tracking data (default: True)", "True");
     registerParameter("ObjectSelectionName", "Code used to define objects, e.g. ObjectLoaderStandardCuts");
     registerParameter("OutputFormat", "Format, can be user defined, e.g. top::EventSaverFlatNtuple");
     registerParameter("OutputEvents", "AllEvents (saves all events + decison bits), SelectedEvents (saves only the events passing your cuts)");
