@@ -160,7 +160,7 @@ else:
         DetFlags.LVL1_setOn()
 
     DetFlags.BCM_setOn()
-    DetFlags.Lucid_on()
+    DetFlags.Lucid_setOn()
     DetFlags.simulateLVL1.Lucid_setOff()
     #DetFlags.simulateLVL1.LAr_setOn()
     #DetFlags.simulateLVL1.Tile_setOn()

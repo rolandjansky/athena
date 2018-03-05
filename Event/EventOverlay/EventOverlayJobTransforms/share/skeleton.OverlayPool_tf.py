@@ -60,19 +60,13 @@ if hasattr(runArgs,"digiRndmSvc"): digitizationFlags.rndmSvc=runArgs.digiRndmSvc
 if hasattr(runArgs, "AddCaloDigi"): digitizationFlags.experimentalDigi+=["AddCaloDigi"]
 
 readBS = False
-if hasattr(runArgs, 'ReadByteStream'):
-    readBS = runArgs.ReadByteStream
 isRealData = False
 
 from RecExConfig.RecFlags import rec
 rec.projectName = 'IS_SIMULATION'
 
-if readBS:
-   globalflags.InputFormat.set_Value_and_Lock('bytestream')
-   DataInputCollections=runArgs.inputPileUpBSFile
-else:
-   DataInputCollections=runArgs.inputRDO_BKGFile
-   athenaCommonFlags.PoolRDOInput=runArgs.inputRDO_BKGFile
+DataInputCollections=runArgs.inputRDO_BKGFile
+athenaCommonFlags.PoolRDOInput=runArgs.inputRDO_BKGFile
 
 import MagFieldServices.SetupField
 
