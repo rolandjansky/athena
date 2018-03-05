@@ -105,7 +105,7 @@ def makeJetAnalysisSequence (jetContainer,dataType,runJvtUpdate=True,runJvtEffic
 
 
 
-    alg = createAlgorithm( 'CP::ObjectCutFlowDumperAlg', 'JetCutFlowDumperAlg' )
+    alg = createAlgorithm( 'CP::ObjectCutFlowHistAlg', 'JetCutFlowDumperAlg' )
     alg.histPattern = "jet_cflow_%SYS%"
     alg.selection = ['clean_jet','jvt_selection']
     alg.selectionNCuts = [1,1]
