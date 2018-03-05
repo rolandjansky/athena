@@ -119,7 +119,7 @@ def makeJetAnalysisSequence (jetContainer,dataType,runJvtUpdate=True,runJvtEffic
 
 
 
-    alg = createAlgorithm( 'CP::KinematicTestDumperAlg', 'JetKinematicDumperAlg' )
+    alg = createAlgorithm( 'CP::KinematicHistAlg', 'JetKinematicDumperAlg' )
     alg.histPattern = "jet_%VAR%_%SYS%"
     sequence.append ( {"alg" : alg, "in" : "input"} )
 
