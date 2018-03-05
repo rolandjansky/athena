@@ -13,31 +13,31 @@
 
 namespace MuonCalib {
 
-  TgcTruthHitNtupleBranch::TgcTruthHitNtupleBranch(std::string branchName) : m_branchName(branchName), branchesInit(false), index(0)
+  TgcTruthHitNtupleBranch::TgcTruthHitNtupleBranch(std::string branchName) : m_branchName(branchName), m_branchesInit(false), m_index(0)
   {}
 
   bool  TgcTruthHitNtupleBranch::fillBranch( const MuonCalibTgcTruthHit &hit ) {
-    // check if branches where initialized
-    if( !branchesInit ) {
-      //std::cout << "TgcTruthHitNtupleBranch::fillBranch  ERROR <branches where not initialized>"
+    // check if branches were initialized
+    if( !m_branchesInit ) {
+      //std::cout << "TgcTruthHitNtupleBranch::fillBranch  ERROR <branches were not initialized>"
       //	<<  std::endl;
       return false;    
     }
 
     // check if index not out of range 
-    if( index >= m_blockSize || index < 0 ) {
+    if( m_index >= m_blockSize || m_index < 0 ) {
       //std::cout << "TgcTruthHitNtupleBranch::fillBranch  ERROR <index out of range, hit not added to ntuple> "
-      //	<<  index << std::endl;
+      //	<<  m_index << std::endl;
       return false;
     }
 
     // copy values 
-    id[index] = hit.identify().getIdInt();
-    barCode[index] = hit.barCode();
-    time[index] = hit.time();
+    m_id[m_index] = hit.identify().getIdInt();
+    m_barCode[m_index] = hit.barCode();
+    m_time[m_index] = hit.time();
 
     // increment hit index
-    ++index;
+    ++m_index;
   
     return true;
   }
@@ -56,17 +56,17 @@ namespace MuonCalib {
     std::string index_name ="nTgcTruthHit";
 
     // create a branch for every data member
-    branchCreator.createBranch( tree, index_name, &index, "/I");
+    branchCreator.createBranch( tree, index_name, &m_index, "/I");
 
     // all entries of same size, the number of hits in the event
     std::string array_size( std::string("[") + m_branchName + index_name + std::string("]") );
 
     // create the branches
-    branchCreator.createBranch( tree, "id",      &id,      array_size + "/I" );
-    branchCreator.createBranch( tree, "barCode", &barCode, array_size + "/I" );
-    branchCreator.createBranch( tree, "time",    &time,    array_size + "/D" );
+    branchCreator.createBranch( tree, "id",      &m_id,      array_size + "/I" );
+    branchCreator.createBranch( tree, "barCode", &m_barCode, array_size + "/I" );
+    branchCreator.createBranch( tree, "time",    &m_time,    array_size + "/D" );
 
-    branchesInit = true;
+    m_branchesInit = true;
   
     // reset branch
     reset();
