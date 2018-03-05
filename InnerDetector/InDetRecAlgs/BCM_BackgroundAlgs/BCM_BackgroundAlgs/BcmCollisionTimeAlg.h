@@ -39,7 +39,7 @@ class BcmCollisionTimeAlg : public AthAlgorithm {
 };
 
 class deltat_data{
- public: 
+ public:
   deltat_data();
   deltat_data( unsigned int channel, unsigned int bcid, unsigned int position );
 

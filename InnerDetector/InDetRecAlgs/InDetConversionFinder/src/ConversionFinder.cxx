@@ -27,7 +27,7 @@
 
 namespace InDet
 {
-  ConversionFinder::ConversionFinder(const std::string& name, ISvcLocator* pSvcLocator) 
+  ConversionFinder::ConversionFinder(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
   m_tracksName("InDetTrackParticles"),
   m_InDetConversionOutputName("InDetConversion"),
@@ -42,7 +42,7 @@ namespace InDet
     declareProperty("ExtrapolationTool", m_EMExtrapolationTool, "Handle of the extrapolation tool");
     declareProperty("doExtrapolation", m_doExtrapolation );
 	}
-    
+
   ConversionFinder::~ConversionFinder(){}
 
   StatusCode ConversionFinder::initialize()
@@ -119,10 +119,10 @@ namespace InDet
     }
   };
   }
-  
+
   StatusCode ConversionFinder::execute()
   {
-  
+
     m_events_processed++;
 
     SG::ReadHandle<xAOD::TrackParticleContainer> trackParticleCollection(m_tracksName);
@@ -143,9 +143,9 @@ namespace InDet
     ATH_MSG_DEBUG("New conversion container size: " << conversions.first->size());
 
     m_Gamma_stored += conversions.first->size();
-  
-  
-    // Decorate the vertices with the momentum at the conversion point and 
+
+
+    // Decorate the vertices with the momentum at the conversion point and
     // etaAtCalo, phiAtCalo (extrapolate each vertex)
     if(m_doExtrapolation){
       float etaAtCalo = -9999., phiAtCalo = -9999.;
@@ -160,18 +160,18 @@ namespace InDet
         vertex->auxdata<float>("px") = momentum.x();
         vertex->auxdata<float>("py") = momentum.y();
         vertex->auxdata<float>("pz") = momentum.z();
-    
+
         if (!m_EMExtrapolationTool->getEtaPhiAtCalo(vertex, &etaAtCalo, &phiAtCalo))
-        { 
+        {
           ATH_MSG_DEBUG("getEtaPhiAtCalo failed!");
         }
-    
+
         // Decorate vertex with etaAtCalo, phiAtCalo
         vertex->auxdata<float>("etaAtCalo") = etaAtCalo;
         vertex->auxdata<float>("phiAtCalo") = phiAtCalo;
       }
     }
-    
+
     analyzeResults(conversions.first);
 
     SG::WriteHandle<xAOD::VertexContainer> output(m_InDetConversionOutputName );
@@ -192,17 +192,17 @@ namespace InDet
       if  (numTracksPerVertex == 2) m_Double_Conversions++;
       else                          m_Single_Conversions++;
 
-      bool isTrt1 = false; bool isSi1 = false; bool isTrt2 = false; bool isSi2 = false; 
+      bool isTrt1 = false; bool isSi1 = false; bool isTrt2 = false; bool isSi2 = false;
       for (unsigned int i = 0; i < fz->nTrackParticles() ; ++i) {
         auto trackParticle = fz->trackParticle( i );
         if(!trackParticle) continue;
         uint8_t temp(0);
         uint8_t ncl(0);
-        uint8_t ntrt(0); 
-                 
-        if( trackParticle->summaryValue( temp , xAOD::numberOfPixelHits) ) ncl += temp; 
-        if( trackParticle->summaryValue( temp , xAOD::numberOfSCTHits)   ) ncl += temp; 
-        if( trackParticle->summaryValue( temp , xAOD::numberOfTRTHits)   ) ntrt += temp; 
+        uint8_t ntrt(0);
+
+        if( trackParticle->summaryValue( temp , xAOD::numberOfPixelHits) ) ncl += temp;
+        if( trackParticle->summaryValue( temp , xAOD::numberOfSCTHits)   ) ncl += temp;
+        if( trackParticle->summaryValue( temp , xAOD::numberOfTRTHits)   ) ntrt += temp;
         if(i==0) {
           if(ncl>0) isSi1 = true;
           if(ncl==0 && ntrt>0) isTrt1 = true;

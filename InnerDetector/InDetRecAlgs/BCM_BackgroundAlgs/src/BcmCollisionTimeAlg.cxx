@@ -16,7 +16,7 @@ BcmCollisionTimeAlg:: BcmCollisionTimeAlg(const std::string& name, ISvcLocator* 
     AthAlgorithm(name,pSvcLocator)
   {
   }
-  
+
 //__________________________________________________________________________
 //Destructor
   BcmCollisionTimeAlg::~BcmCollisionTimeAlg()
@@ -41,7 +41,7 @@ StatusCode BcmCollisionTimeAlg::finalize()
 StatusCode BcmCollisionTimeAlg::execute()
   {
     //.............................................
-    
+
     ATH_MSG_DEBUG( "BcmCollisionTimeAlg execute()" );
 
    //declare variables here
@@ -58,7 +58,7 @@ StatusCode BcmCollisionTimeAlg::execute()
   SG::ReadHandle<BCM_RDO_Container> bcmRDO(m_bcmContainerName);
   if( !bcmRDO.isValid() ) {
     ATH_MSG_WARNING("Cannot find BCM RDO " << m_bcmContainerName.key() << " ! " );
-    return StatusCode::FAILURE; 
+    return StatusCode::FAILURE;
   }
   else {
      int num_collect = bcmRDO->size();
@@ -66,7 +66,7 @@ StatusCode BcmCollisionTimeAlg::execute()
        ATH_MSG_WARNING( " Number of collections: " << num_collect );
      }
      int channelID=0;
-     
+
      for (const BCM_RDO_Collection *chan: *bcmRDO) {
        channelID = chan->getChannel();
        //std::cout << " ChannelID: " << channelID << std::endl;

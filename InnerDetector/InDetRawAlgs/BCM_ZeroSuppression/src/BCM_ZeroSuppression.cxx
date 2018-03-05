@@ -36,7 +36,7 @@ StatusCode BCM_ZeroSuppression::execute() {
   // Retrieve BCM RDO
   SG::ReadHandle<BCM_RDO_Container> bcm_rdo(m_bcmContainerName);
   if( !bcm_rdo.isValid() ) {
-    // There is a warning from StoreGate anyways at this point. 
+    // There is a warning from StoreGate anyways at this point.
     // @TODO return failure instead ?
     return StatusCode::SUCCESS;
   }
@@ -67,10 +67,10 @@ StatusCode BCM_ZeroSuppression::execute() {
     if (!my_collection->empty()) {
       ATH_MSG_VERBOSE("Container '" << m_bcmOutputName.key()  << "' is being filled");
       bcm_compact_DO->push_back(my_collection.release());
-    }     
-    
+    }
+
   }//end of container loop
-  
+
   return StatusCode::SUCCESS;
 }
 

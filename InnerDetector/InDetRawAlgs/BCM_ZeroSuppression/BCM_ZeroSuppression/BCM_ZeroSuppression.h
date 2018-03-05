@@ -15,10 +15,10 @@
     
   @author Bilge M. Demirkoz <demirkoz@cern.ch>
 
-  This algorithm takes the BCM RDO and zero-suppresses it 
+  This algorithm takes the BCM RDO and zero-suppresses it
   providing a smaller object to go into the AOD.
 
-*/  
+*/
 class BCM_ZeroSuppression : public AthAlgorithm {
  public:
   BCM_ZeroSuppression(const std::string& name, ISvcLocator* pSvcLocator);
