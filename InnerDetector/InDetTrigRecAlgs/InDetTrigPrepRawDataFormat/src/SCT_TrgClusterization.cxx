@@ -32,7 +32,6 @@
 
 #include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 #include "SCT_ConditionsServices/ISCT_ByteStreamErrorsSvc.h"
-#include "SCT_ConditionsServices/ISCT_FlaggedConditionSvc.h"
 
 //Trigger
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
@@ -58,7 +57,9 @@ namespace InDet{
     m_clusteringTool("InDet::SCT_ClusteringTool"),
     m_managerName("SCT"),
     m_clustersName("SCT_TrigClusters"),
+    m_flaggedCondDataName("SCT_FlaggedCondData_TRIG"),
     m_idHelper(0),
+    m_clusterContainer(nullptr),
     m_regionSelector("RegSelSvc", name),
     m_doFullScan(false),
     m_etaHalfWidth(0.1),
@@ -67,7 +68,6 @@ namespace InDet{
     m_bsErrorSvc("SCT_ByteStreamErrorsSvc",name),
     m_robDataProvider("ROBDataProviderSvc", name),
     m_pSummarySvc("SCT_ConditionsSummarySvc", name),
-    m_flaggedConditionSvc("SCT_FlaggedConditionSvc",name),
     m_checkBadModules(true),
     m_maxRDOs(0),
     m_doTimeOutChecks(true),
@@ -81,6 +81,7 @@ namespace InDet{
     declareProperty("SCT_RDOContainerName",m_sctRDOContainerName);
     declareProperty("clusteringTool",      m_clusteringTool);
     declareProperty("ClustersName",        m_clustersName);
+    declareProperty("FlaggedCondDataName", m_flaggedCondDataName);
     declareProperty("RegionSelectorTool",  m_regionSelector );
     declareProperty("doFullScan",          m_doFullScan );
 
@@ -90,7 +91,6 @@ namespace InDet{
 
     declareProperty("conditionsSummarySvc", m_pSummarySvc);
     declareProperty("bytestreamErrorSvc",   m_bsErrorSvc);
-    declareProperty("flaggedConditionsSvc", m_flaggedConditionSvc);
     declareProperty("checkBadModules",      m_checkBadModules);
     declareProperty("maxRDOs",              m_maxRDOs);
     declareProperty("doTimeOutChecks",      m_doTimeOutChecks);
@@ -245,11 +245,6 @@ namespace InDet{
       } else {
 	ATH_MSG_INFO( "Using " << m_pSummarySvc << " in clusterization" );
       }
-      if (m_flaggedConditionSvc.retrieve().isFailure()){
-	ATH_MSG_ERROR( "Could not retrieve " << m_flaggedConditionSvc );
-      } else {
-	ATH_MSG_INFO( "Flagging bad modules with " <<  m_flaggedConditionSvc );
-      }
     }
 
     m_timerSGate   = addTimer("SGate");
@@ -307,6 +302,25 @@ namespace InDet{
 		     << "' existed already  in StoreGate. " );
     }
     
+    // Prepare SCT_FlaggedCondData
+    SCT_FlaggedCondData* flaggedCondData{nullptr};
+    if (!store()->transientContains<SCT_FlaggedCondData>(m_flaggedCondDataName)) {
+      flaggedCondData = new SCT_FlaggedCondData{};
+
+      if (store()->record(flaggedCondData, m_flaggedCondDataName, true, true).isFailure()) {
+        ATH_MSG_WARNING(" Container " << m_flaggedCondDataName << " could not be recorded in StoreGate !");
+      }
+      else {
+	ATH_MSG_DEBUG( "REGTEST: Container " << m_flaggedCondDataName << " registered  in StoreGate" );
+      }
+    }
+    else {
+      ATH_MSG_DEBUG( "Container '" << m_flaggedCondDataName << "' existed already  in StoreGate. " );
+      if (!store()->retrieve(flaggedCondData, m_flaggedCondDataName)) {
+        ATH_MSG_WARNING(m_flaggedCondDataName <<" could not be retrieved from StoreGate !" );
+        return HLT::OK;
+      }
+    }
 
     if(doTiming()) m_timerSGate->pause();
 
@@ -474,12 +488,10 @@ namespace InDet{
 	
 	const size_t rdosize = RDO_Collection->size();
 	if (m_maxRDOs >0 && rdosize>m_maxRDOs){
-	  if (m_flaggedConditionSvc){
-	    const int hid = RDO_Collection->identifyHash();
-	    m_flaggedConditionSvc->flagAsBad(hid, maxRDOsReached);
-	    m_flaggedModules.insert(hid);
-	    m_occupancyHashId.push_back(hid);
-	  }
+          const int hid = RDO_Collection->identifyHash();
+          flaggedCondData->insert(std::make_pair(hid, maxRDOsReached));
+          m_flaggedModules.insert(hid);
+          m_occupancyHashId.push_back(hid);
 	  continue;
 	}
 	
@@ -552,12 +564,10 @@ namespace InDet{
 	
 	
 	if (m_maxRDOs >0 && rdosize>m_maxRDOs){
-	  if (m_flaggedConditionSvc){
-	    const int hid = rd->identifyHash();
-	    m_flaggedConditionSvc->flagAsBad(hid, maxRDOsReached);
-	    m_flaggedModules.insert(hid);
-	    m_occupancyHashId.push_back(hid);
-	  }
+          const int hid = rd->identifyHash();
+          flaggedCondData->insert(std::make_pair(hid, maxRDOsReached));
+          m_flaggedModules.insert(hid);
+          m_occupancyHashId.push_back(hid);
 	  continue;
 	}
 
