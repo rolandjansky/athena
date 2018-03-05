@@ -5,6 +5,4 @@
 # pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
-#include "SystematicsHandles/SysListLoaderAlg.h"
-
 #endif

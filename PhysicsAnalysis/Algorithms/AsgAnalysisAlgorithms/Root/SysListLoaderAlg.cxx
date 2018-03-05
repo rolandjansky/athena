@@ -12,7 +12,7 @@
 // includes
 //
 
-#include <SystematicsHandles/SysListLoaderAlg.h>
+#include <AsgAnalysisAlgorithms/SysListLoaderAlg.h>
 
 #include <AsgTools/MessageCheck.h>
 #include <PATInterfaces/MakeSystematicsVector.h>

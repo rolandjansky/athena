@@ -1,0 +1,6 @@
+#ifndef ASG_ANALYSIS_ALGORITHMS__ASG_ANALYSIS_ALGORITHMS_DICT_H
+#define ASG_ANALYSIS_ALGORITHMS__ASG_ANALYSIS_ALGORITHMS_DICT_H
+
+#include "AsgAnalysisAlgorithms/SysListLoaderAlg.h"
+
+#endif

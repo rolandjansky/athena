@@ -2,4 +2,4 @@
 
 #include "GaudiKernel/LoadFactoryEntries.h"
 
-LOAD_FACTORY_ENTRIES(SystematicsHandles)
+LOAD_FACTORY_ENTRIES(AsgAnalysisAlgorithms)
