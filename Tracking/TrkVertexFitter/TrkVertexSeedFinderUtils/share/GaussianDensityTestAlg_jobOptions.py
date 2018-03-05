@@ -98,11 +98,16 @@ InDetTrackSelectorTool = InDet__InDetTrackSelectionTool(name = "InDetDetailedTra
                                                         Extrapolator = InDetExtrapolator)
 ToolSvc += InDetTrackSelectorTool
 
+from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__TrackToVertexIPEstimator
+IPTool = Trk__TrackToVertexIPEstimator( name =          "IPEstimator",
+                                        Extrapolator =  InDetExtrapolator )
+
 
 from TrkVertexSeedFinderUtils.TrkVertexSeedFinderUtilsConf import Trk__GaussianDensityTestAlg
 myAlg =   Trk__GaussianDensityTestAlg( name                   = "TestAlg",
                                        Estimator              = GaussianDensity,
-                                       TrackSelector          = InDetTrackSelectorTool)
+                                       TrackSelector          = InDetTrackSelectorTool,
+                                       IPEstimator            = IPTool)
 myAlg.OutputLevel = DEBUG
 algSeq += myAlg
 

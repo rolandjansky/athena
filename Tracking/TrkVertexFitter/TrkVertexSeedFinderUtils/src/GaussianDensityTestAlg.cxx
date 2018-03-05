@@ -54,14 +54,21 @@ StatusCode GaussianDensityTestAlg::initialize()
   ATH_MSG_INFO ("Initializing " << name() << "...");
 
   ATH_CHECK( m_trackParticlesKey.initialize() );
+  ATH_CHECK( m_truthEventsKey.initialize() );
+  ATH_CHECK( m_pileupEventsKey.initialize() );
 
   ATH_CHECK( m_estimator.retrieve() );
   ATH_CHECK( m_trackFilter.retrieve() );
+  ATH_CHECK( m_ipEstimator.retrieve() );
 
   // setup histograms/trees
   m_h_density = new TH1F("Density", "Density", 800, -200.0, 200.0);
+  m_h_truthDensity = new TH1F("Truth", "Truth", 800, -200.0, 200.0);
+  m_h_truthVertices = new TH1F("TruthVertices", "TruthVertices", 800, -200.0, 200.0);
 
   CHECK( m_iTHistSvc->regHist("/file1/h/density", m_h_density) );
+  CHECK( m_iTHistSvc->regHist("/file1/h/truth", m_h_truthDensity) );
+  CHECK( m_iTHistSvc->regHist("/file1/h/truthvertices", m_h_truthVertices) );
 
   return StatusCode::SUCCESS;
 }
@@ -78,24 +85,28 @@ StatusCode GaussianDensityTestAlg::execute()
 
   SG::ReadHandle<xAOD::TrackParticleContainer> trackParticles(m_trackParticlesKey);
 
+  ATH_MSG_VERBOSE("Selecting tracks");
   std::vector<Trk::ITrackLink*> trackVector;
   selectTracks(trackParticles.cptr(), trackVector);
 
   std::vector<const Trk::TrackParameters*> perigeeList;
   analyzeTracks(trackVector, perigeeList);
 
+  ATH_MSG_VERBOSE("Using density estimator");
   m_estimator->reset();
   m_estimator->addTracks(perigeeList);
-
-  //ATH_MSG_DEBUG("Added " << perigeeList.size() << " tracks to density estimator");
 
   for (int i = 0; i < 800; i++)
   {
     double z = -200.0 + 0.25 + i*0.5;
     double density = m_estimator->trackDensity(z);
-    //ATH_MSG_ALWAYS(" z: " << z << " Density: " << density);
     m_h_density->Fill((float) z, (float) density);
   }
+  ATH_MSG_VERBOSE("Analyzing MC truth");
+  std::vector<Amg::Vector3D> truth;
+  ATH_CHECK( findTruth(trackVector, truth) );
+  ATH_MSG_VERBOSE("Filling truth vertex histogram");
+  for (auto& v : truth) m_h_truthVertices->Fill( v[2] );
 
 
   return StatusCode::SUCCESS;
@@ -152,4 +163,147 @@ void GaussianDensityTestAlg::selectTracks(const xAOD::TrackParticleContainer* tr
 /////////////////////////////////////////////////////////////////// 
 // Const methods: 
 ///////////////////////////////////////////////////////////////////
+  StatusCode GaussianDensityTestAlg::findTruth(const std::vector<Trk::ITrackLink*>& trackVector, std::vector<Amg::Vector3D>& truth) const
+  {
+    xAOD::TrackParticle::ConstAccessor<ElementLink<xAOD::TruthParticleContainer> > truthParticleAssoc("truthParticleLink");
+
+    SG::ReadHandle<xAOD::TruthEventContainer> signalEvents(m_truthEventsKey);
+    if ( signalEvents.isValid() )
+    {
+      ATH_MSG_VERBOSE("Found signalEvents");
+      for (const xAOD::TruthEventBase* evt : *signalEvents)
+      {
+	const xAOD::TruthVertex* vLink = *(evt->truthVertexLink(0));
+	if (vLink == nullptr) ATH_MSG_ERROR("Invalid truthVertexLink from signalEvents");
+	Amg::Vector3D vTruth(vLink->x(),vLink->y(),vLink->z());
+	int nGoodTracks = 0;
+	for (auto trk : trackVector)
+	{
+	    Trk::LinkToXAODTrackParticle* lxtp = dynamic_cast<Trk::LinkToXAODTrackParticle*>(trk);
+	    if (lxtp)
+	    {
+		bool isAssoc = truthParticleAssoc(**(*lxtp)).isValid();
+		if (isAssoc)
+	        {
+		    auto assocParticle = truthParticleAssoc(**(*lxtp));
+		    ATH_MSG_VERBOSE("Found associated truth particle");
+		    for (auto truthParticle : evt->truthParticleLinks())
+		    {
+		        if (!truthParticle.isValid()) continue;
+			if (assocParticle == truthParticle)
+		        {
+			  ATH_MSG_VERBOSE("Calling ipSignificance");
+			    double significance = ipSignificance(trk->parameters(), &vTruth);
+			    ATH_MSG_VERBOSE("ipSignificance returned " << significance);
+			    if (significance <= m_significanceTruthCut) 
+			    {
+			      ATH_MSG_VERBOSE("Adding good track");
+			      nGoodTracks++;
+			      const Trk::Perigee* perigee = dynamic_cast<const Trk::Perigee*>(trk->parameters());
+			      if (perigee == nullptr) ATH_MSG_ERROR("Invalid Perigee");
+			      m_h_truthDensity->Fill(vLink->z());
+			      ATH_MSG_VERBOSE("Filled truth density histogram");
+			    }
+			    break;
+			}
+		    }
+	        }
+                else
+		{
+		  ATH_MSG_VERBOSE("No associated truth particle found");
+		}
+	    }
+        }
+        if (nGoodTracks >= m_truthVertexTracks)
+        {
+    	  truth.push_back(vTruth);
+        }
+      }
+    }
+    else
+    {
+      ATH_MSG_WARNING("No TruthEventContainer found");
+    }
+
+    SG::ReadHandle<xAOD::TruthPileupEventContainer> pileupEvents(m_pileupEventsKey);
+    if ( pileupEvents.isValid() )
+    {
+      ATH_MSG_VERBOSE("Found pileupEvents");
+      for (const xAOD::TruthEventBase* evt : *pileupEvents)
+      {
+	const xAOD::TruthVertex* vLink = *(evt->truthVertexLink(0));
+	if (vLink == nullptr) ATH_MSG_ERROR("Invalid truthVertexLink from pileupEvents");
+	Amg::Vector3D vTruth(vLink->x(),vLink->y(),vLink->z());
+	int nGoodTracks = 0;
+	for (auto trk : trackVector)
+	{
+	    Trk::LinkToXAODTrackParticle* lxtp = dynamic_cast<Trk::LinkToXAODTrackParticle*>(trk);
+	    if (lxtp)
+	    {
+		bool isAssoc = truthParticleAssoc(**(*lxtp)).isValid();
+		if (isAssoc)
+	        {
+		    auto assocParticle = truthParticleAssoc(**(*lxtp));
+		    ATH_MSG_VERBOSE("Found associated truth particle");
+		    for (auto truthParticle : evt->truthParticleLinks())
+		    {
+		        if (!truthParticle.isValid()) continue;
+			if (assocParticle == truthParticle)
+		        {
+			  ATH_MSG_VERBOSE("Calling ipSignificance");
+			    double significance = ipSignificance(trk->parameters(), &vTruth);
+			    ATH_MSG_VERBOSE("ipSignificance returned " << significance);
+			    if (significance <= m_significanceTruthCut) 
+			    {
+			      ATH_MSG_VERBOSE("Adding good track");
+			      nGoodTracks++;
+			      const Trk::Perigee* perigee = dynamic_cast<const Trk::Perigee*>(trk->parameters());
+			      if (perigee == nullptr) ATH_MSG_ERROR("Invalid Perigee");
+			      m_h_truthDensity->Fill(vLink->z());
+			      ATH_MSG_VERBOSE("Filled truth density histogram");
+			    }
+			    break;
+			}
+		    }
+	        }
+                else
+		{
+		  ATH_MSG_VERBOSE("No associated truth particle found");
+		}
+	    }
+        }
+        if (nGoodTracks >= m_truthVertexTracks)
+	{
+	    truth.push_back(vTruth);
+	}
+      }
+    }
+    else
+    {
+      ATH_MSG_WARNING("No TruthPileupEventContainer found");
+    }
+    return StatusCode::SUCCESS;
+  }
+
+  double GaussianDensityTestAlg::ipSignificance( const Trk::TrackParameters* params, 
+                                                 const Amg::Vector3D * vertex ) const
+  {
+    xAOD::Vertex v;
+    v.makePrivateStore();
+    v.setPosition(*vertex);
+    v.setCovariancePosition(AmgSymMatrix(3)::Zero(3,3));
+    v.setFitQuality(0., 0.);
+
+    double significance = 0.0;
+    const ImpactParametersAndSigma* ipas = m_ipEstimator->estimate( params, &v );
+    if ( ipas != nullptr )
+    {  
+      if ( ipas->sigmad0 > 0 && ipas->sigmaz0 > 0)
+      {
+	significance = sqrt( pow(ipas->IPd0/ipas->sigmad0,2) + pow(ipas->IPz0/ipas->sigmaz0,2) );
+      }
+      delete ipas;
+    }
+    return significance;
+  }
 }
