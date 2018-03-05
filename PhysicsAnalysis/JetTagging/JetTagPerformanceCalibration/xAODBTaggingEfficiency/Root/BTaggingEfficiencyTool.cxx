@@ -421,7 +421,7 @@ StatusCode BTaggingEfficiencyTool::initialize() {
   // Finally, also initialise the selection tool, if needed (for now this is the case only for DL1 tag weight computations,
   // so we do this only when DL1 is specified)
   if (m_taggerName.find("DL1") != std::string::npos) {
-    m_selectionTool.setTypeAndName("Analysis::BTagSelectionTool/" + name() + "_selection");
+    m_selectionTool.setTypeAndName("BTaggingSelectionTool/" + name() + "_selection");
     ATH_CHECK( m_selectionTool.setProperty("FlvTagCutDefinitionsFileName", m_SFFile) );
     ATH_CHECK( m_selectionTool.setProperty("TaggerName",                   m_taggerName) );
     ATH_CHECK( m_selectionTool.setProperty("OperatingPoint",               m_OP) );

@@ -13,8 +13,12 @@ if( XAOD_STANDALONE )
    set( extra_deps Control/xAODRootAccess )
    set( extra_libs xAODRootAccess )
 else()
-   set( extra_deps Control/AthenaBaseComps PRIVATE PhysicsAnalysis/POOLRootAccess GaudiKernel )
-   set( extra_libs AthAnalysisBaseCompsLib )
+   if ( XAOD_ANALYSIS AND NOT ROOTCORE )
+      set( extra_deps Control/AthenaBaseComps PRIVATE PhysicsAnalysis/POOLRootAccess GaudiKernel )
+      set( extra_libs AthAnalysisBaseCompsLib )
+   else()
+      set( extra_deps Control/AthenaBaseComps GaudiKernel )
+   endif()
 endif()
 
 # Declare the package's dependencies:
@@ -60,14 +64,14 @@ if( XAOD_ANALYSIS OR XAOD_STANDALONE )
       util/BTaggingEfficiencyToolTester.cxx
       LINK_LIBRARIES xAODRootAccess xAODBTaggingEfficiencyLib )
 endif()
-if ( XAOD_ANALYSIS )
+if ( XAOD_ANALYSIS AND NOT ROOTCORE )
    atlas_add_executable( BTaggingSelectionToolTester
       util/BTaggingSelectionToolTester.cxx
       LINK_LIBRARIES xAODJet xAODBTagging xAODBTaggingEfficiencyLib POOLRootAccessLib GaudiKernel )
-elseif( XAOD_STANDALONE )
+elseif( XAOD_STANDALONE OR ROOTCORE )
    atlas_add_executable( BTaggingSelectionToolTester
       util/BTaggingSelectionToolTester.cxx
-      LINK_LIBRARIES xAODJet xAODBTagging xAODBTaggingEfficiencyLib xAODRootAccessLib )
+      LINK_LIBRARIES xAODJet xAODBTagging xAODBTaggingEfficiencyLib xAODRootAccess )
 endif()
 
 # Install files from the package:

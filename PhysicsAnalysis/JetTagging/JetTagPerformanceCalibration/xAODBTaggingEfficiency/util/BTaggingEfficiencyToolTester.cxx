@@ -21,7 +21,7 @@ int main() {
 
   BTaggingEfficiencyTool * tool = new BTaggingEfficiencyTool("BTagTest");
   // tagger name as specified in the CDI file
-  StatusCode code = tool->setProperty("TaggerName",          "MV2c10");
+  StatusCode code = tool->setProperty("TaggerName",          "DL1");
   if (code != StatusCode::SUCCESS) std::cout << "error setting BTaggingEfficiencyTool TaggerName property" << std::endl;
   // operating point as specified in the CDI file
   code = tool->setProperty("OperatingPoint",      "FixedCutBEff_77");
