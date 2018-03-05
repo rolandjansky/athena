@@ -11,7 +11,7 @@
 
 #include <AsgTools/MsgStream.h>
 #include <AthContainers/AuxElement.h>
-#include <SystematicsHandles/SelectionHelpers.h>
+#include <SelectionHelpers/SelectionHelpers.h>
 #include <xAODBase/IParticle.h>
 #include <memory>
 
