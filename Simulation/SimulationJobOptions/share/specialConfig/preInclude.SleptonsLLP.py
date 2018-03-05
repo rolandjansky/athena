@@ -5,7 +5,7 @@
 def get_and_fix_PDGTABLE(replace):
     import os, shutil, re
 
-    # Download generic PDGTABLE (overwrite existing one if it exists)
+    # Download generic PDGTABLE (do not overwrite existing one if it exists, use existing one instead) 
     os.system('get_files -data PDGTABLE.MeV')
     shutil.move('PDGTABLE.MeV', 'PDGTABLE.MeV.org')
 
@@ -52,15 +52,6 @@ def load_files_for_sleptonLLP_scenario(simdict):
         get_and_fix_PDGTABLE([
                 (1000039, eval(simdict.get("GMSBGravitino",'0')), '~G', '0'),
                 ])
-#    get_and_fix_PDGTABLE([
-#            (1000039, eval(simdict.get("GMSBGravitino",'0')), '~G', '0'),
-#            (2000011, eval(simdict.get("GMSBSlepton",'0')), '~e(R)', '-'),
-#            (2000013, eval(simdict.get("GMSBSlepton",'0')), '~mu(R)', '-'),            
-#            (2000015, eval(simdict.get("GMSBStau",'0')), '~tau(R)', '-'),            
-#            (1000011, eval(simdict.get("GMSBSlepton",'0')), '~e(L)', '-'),
-#            (1000013, eval(simdict.get("GMSBSlepton",'0')), '~mu(L)', '-'),
-#            (1000015, eval(simdict.get("GMSBStau",'0')), '~tau(L)', '-'),
-#            ])
 
 doG4SimConfig = True
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
@@ -92,13 +83,5 @@ if doG4SimConfig:
     if "GMSBStau" in simdict:
         simFlags.PhysicsOptions += ["STauRPlusToTauGravitino","STauLPlusToTauGravitino"]
         simFlags.PhysicsOptions += ["STauRMinusToTauGravitino","STauLMinusToTauGravitino"]
-
-    def gmsb_applycalomctruthstrategy():
-    ## Applying the MCTruth strategies: add decays in the Calorimeter
-        from G4AtlasApps import AtlasG4Eng
-        myDecay = AtlasG4Eng.G4Eng.Dict_MCTruthStrg.get('Decay')
-        myDecay.add_Volumes('CALO::CALO', 1)
-
-    simFlags.InitFunctions.add_function("postInit", gmsb_applycalomctruthstrategy)
 
 del doG4SimConfig, simdict
