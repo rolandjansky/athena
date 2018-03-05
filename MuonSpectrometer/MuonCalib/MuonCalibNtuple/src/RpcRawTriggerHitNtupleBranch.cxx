@@ -13,35 +13,35 @@
 
 namespace MuonCalib {
 
-  RpcRawTriggerHitNtupleBranch::RpcRawTriggerHitNtupleBranch(std::string branchName) : m_branchName(branchName), branchesInit(false), index(0)
+  RpcRawTriggerHitNtupleBranch::RpcRawTriggerHitNtupleBranch(std::string branchName) : m_branchName(branchName), m_branchesInit(false), m_index(0)
   {}
 
   bool RpcRawTriggerHitNtupleBranch::fillBranch(const MuonCalibRawRpcTriggerHit &hit ) {
-    // check if branches where initialized
-    if( !branchesInit )
+    // check if branches were initialized
+    if( !m_branchesInit )
       return false;    
     
     // check if index not out of range 
-    if( index >= m_blockSize || index < 0 )
+    if( m_index >= m_blockSize || m_index < 0 )
       return false;
 
     // copy values 
-    sector[index] = hit.sector();
-    padId[index]  = hit.padId();
-    status[index] = hit.status();
-    ercode[index] = hit.errorCode();
-    cmaId[index]  = hit.cmaId();
-    fel1Id[index] = hit.fel1Id();
-    febcId[index] = hit.febcId();
-    crc[index]    = hit.crc();
-    bcId[index]   = hit.bcId();
-    ticks[index]  = hit.time();
-    ijk[index]    = hit.ijk();
-    cmachan[index] = hit.channel();
-    overlap[index] = hit.overlap();
-    threshold[index] = hit.threshold();
+    m_sector[m_index] = hit.sector();
+    m_padId[m_index]  = hit.padId();
+    m_status[m_index] = hit.status();
+    m_ercode[m_index] = hit.errorCode();
+    m_cmaId[m_index]  = hit.cmaId();
+    m_fel1Id[m_index] = hit.fel1Id();
+    m_febcId[m_index] = hit.febcId();
+    m_crc[m_index]    = hit.crc();
+    m_bcId[m_index]   = hit.bcId();
+    m_ticks[m_index]  = hit.time();
+    m_ijk[m_index]    = hit.ijk();
+    m_cmachan[m_index] = hit.channel();
+    m_overlap[m_index] = hit.overlap();
+    m_threshold[m_index] = hit.threshold();
 
-    ++index;
+    ++m_index;
    
     return true;
   }  //end RpcRawTriggerHitNtupleBranch::fillBranch
@@ -57,28 +57,28 @@ namespace MuonCalib {
     std::string index_name ="fchan";   //index counting the number of fired channels
     
     // create a branch for every data member
-    branchCreator.createBranch( tree, index_name, &index, "/I");
+    branchCreator.createBranch( tree, index_name, &m_index, "/I");
 
     // all entries of same size, the number of hits in the event
     std::string array_size( std::string("[") + m_branchName + index_name + std::string("]") );
 
     // create the branches
-    branchCreator.createBranch( tree, "sector",    &sector,   array_size + "/I" );
-    branchCreator.createBranch( tree, "padId",     &padId,    array_size + "/I" );
-    branchCreator.createBranch( tree, "status",    &status,   array_size + "/I" );
-    branchCreator.createBranch( tree, "ercode",    &ercode,   array_size + "/I" );
-    branchCreator.createBranch( tree, "cmaId",     &cmaId,    array_size + "/I" );
-    branchCreator.createBranch( tree, "fel1Id",    &fel1Id,   array_size + "/I" );
-    branchCreator.createBranch( tree, "febcId",    &febcId,   array_size + "/I" );
-    branchCreator.createBranch( tree, "crc",       &crc,      array_size + "/I" );  
-    branchCreator.createBranch( tree, "bcId",      &bcId,     array_size + "/I" );  
-    branchCreator.createBranch( tree, "ticks",     &ticks,    array_size + "/I" );  
-    branchCreator.createBranch( tree, "ijk",       &ijk,      array_size + "/I" );  
-    branchCreator.createBranch( tree, "cmachan",   &cmachan,  array_size + "/I" );  
-    branchCreator.createBranch( tree, "overlap",   &overlap,  array_size + "/I" );  
-    branchCreator.createBranch( tree, "threshold", &threshold,array_size + "/I" );  
+    branchCreator.createBranch( tree, "sector",    &m_sector,   array_size + "/I" );
+    branchCreator.createBranch( tree, "padId",     &m_padId,    array_size + "/I" );
+    branchCreator.createBranch( tree, "status",    &m_status,   array_size + "/I" );
+    branchCreator.createBranch( tree, "ercode",    &m_ercode,   array_size + "/I" );
+    branchCreator.createBranch( tree, "cmaId",     &m_cmaId,    array_size + "/I" );
+    branchCreator.createBranch( tree, "fel1Id",    &m_fel1Id,   array_size + "/I" );
+    branchCreator.createBranch( tree, "febcId",    &m_febcId,   array_size + "/I" );
+    branchCreator.createBranch( tree, "crc",       &m_crc,      array_size + "/I" );  
+    branchCreator.createBranch( tree, "bcId",      &m_bcId,     array_size + "/I" );  
+    branchCreator.createBranch( tree, "ticks",     &m_ticks,    array_size + "/I" );  
+    branchCreator.createBranch( tree, "ijk",       &m_ijk,      array_size + "/I" );  
+    branchCreator.createBranch( tree, "cmachan",   &m_cmachan,  array_size + "/I" );  
+    branchCreator.createBranch( tree, "overlap",   &m_overlap,  array_size + "/I" );  
+    branchCreator.createBranch( tree, "threshold", &m_threshold,array_size + "/I" );  
 
-    branchesInit = true;
+    m_branchesInit = true;
   
     // reset branch
     reset();

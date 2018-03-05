@@ -18,15 +18,16 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 
 //Gaudi
-#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 
 // Read Handle Key
 #include "StoreGate/ReadHandleKey.h"
 // Event Info
 #include "xAODEventInfo/EventInfo.h"
 
+#include "SCT_ConditionsTools/ISCT_MonitorConditionsTool.h"
+
 //Forward declarations
-class ISCT_MonitorConditionsSvc;
 class SCT_ID;
 
 ///Example class to show calling the SCT_MonitorConditions
@@ -40,8 +41,8 @@ class SCT_MonitorConditionsTestAlg : public AthAlgorithm {
   StatusCode finalize() override;
    
  private:
-  ServiceHandle<ISCT_MonitorConditionsSvc> m_pMonitorConditionsSvc;
-  const SCT_ID*                            m_sctId;
+  ToolHandle<ISCT_MonitorConditionsTool> m_pMonitorConditionsTool{this, "SCT_MonitorConditionsTool", "SCT_MonitorConditionsTool", "Tool to retrieve noisy strip information"};
+  const SCT_ID* m_sctId;
 
   // Parameters to control the db access 
   SG::ReadHandleKey<xAOD::EventInfo>       m_evtKey;
