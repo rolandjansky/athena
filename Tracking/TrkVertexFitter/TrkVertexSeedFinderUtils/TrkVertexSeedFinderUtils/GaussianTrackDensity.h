@@ -154,7 +154,7 @@ namespace Trk
                                                   "Maximum radial impact parameter significance to use track" };
     Gaudi::Property<double> m_z0MaxSignificance { this,
 	                                          "MaxZ0Significance",
-	                                          5.0,
+	                                          12.0,
 	                                          "Maximum longitudinal impact parameter significance to include track in weight"};
 
   };

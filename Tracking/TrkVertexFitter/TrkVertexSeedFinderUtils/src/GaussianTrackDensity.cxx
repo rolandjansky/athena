@@ -110,7 +110,6 @@ namespace Trk
 	double cov_zz = perigeeCov(Trk::z0, Trk::z0);
 	if (cov_zz <= 0 ) continue;
 	double cov_dz = perigeeCov(Trk::d0, Trk::z0);
-	//ATH_MSG_DEBUG("z0:" << z0 << " d0: " << d0 << " covdd, covdz, covzz " << cov_dd << " " << cov_dz << " " << cov_zz);
 	double covDeterminant = cov_dd*cov_zz - cov_dz*cov_dz;
 	if ( covDeterminant <= 0 ) continue;
 	double constantTerm = -(d0*d0*cov_zz + z0*z0*cov_dd + 2*d0*z0*cov_dz) / (2*covDeterminant);
@@ -121,8 +120,7 @@ namespace Trk
 	discriminant = sqrt(discriminant);
 	double zMax = (-linearTerm - discriminant)/(2*quadraticTerm);
 	double zMin = (-linearTerm + discriminant)/(2*quadraticTerm);
-	//ATH_MSG_DEBUG("zMin: " << zMin << " zMax: " << zMax);
-	constantTerm -= log(2*Gaudi::Units::pi*covDeterminant);
+	constantTerm -= log(2*Gaudi::Units::pi*sqrt(covDeterminant));
 	m_trackMap.emplace(std::piecewise_construct,
                            std::forward_as_tuple(*itrk),
 			   std::forward_as_tuple(constantTerm, linearTerm, quadraticTerm, zMin, zMax));
