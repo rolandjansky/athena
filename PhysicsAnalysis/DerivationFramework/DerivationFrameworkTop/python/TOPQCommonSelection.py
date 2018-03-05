@@ -42,6 +42,13 @@
 # IMPORTS
 #================================
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
+from DerivationFrameworkInDet.InDetCommon import *
+from DerivationFrameworkJetEtMiss.JetCommon import *
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
+from DerivationFrameworkJetEtMiss.METCommon import *
+from DerivationFrameworkEGamma.EGammaCommon import *
+from DerivationFrameworkMuons.MuonsCommon import *
+from AthenaCommon.GlobalFlags import globalflags
 
 #================
 # ELECTRONS
@@ -53,17 +60,19 @@ EL15_tight = "(Electrons.pt > 15*GeV && abs(Electrons.eta) < 2.5 && Electrons.DF
 EL17 = "(Electrons.pt > 17*GeV && abs(Electrons.eta) < 2.5 && Electrons.DFCommonElectronsLHLoose)"
 EL20 = "(Electrons.pt > 20*GeV && abs(Electrons.eta) < 2.5 && Electrons.DFCommonElectronsLHLoose)"
 EL22 = "(Electrons.pt > 22*GeV && abs(Electrons.eta) < 2.5 && Electrons.DFCommonElectronsLHLoose)"
+EL25 = "(Electrons.pt > 25*GeV && abs(Electrons.eta) < 2.5 && Electrons.DFCommonElectronsLHLoose)"
 
 #================
 # MUONS
 #================
-MU10 = "(Muons.pt > 10*GeV && abs(Muons.eta) < 2.5 && Muons.muonType == 0 && Muons.DFCommonGoodMuon)"
-MU13 = "(Muons.pt > 13*GeV && abs(Muons.eta) < 2.5 && Muons.muonType == 0 && Muons.DFCommonGoodMuon)"
-MU15 = "(Muons.pt > 15*GeV && abs(Muons.eta) < 2.5 && Muons.muonType == 0 && Muons.DFCommonGoodMuon)"
-MU15_tight = "(Muons.pt > 15*GeV && abs(Muons.eta) < 2.5 && Muons.muonType == 0 && Muons.DFCommonGoodMuon && Muons.DFCommonMuonsTight)"
-MU17 = "(Muons.pt > 17*GeV && abs(Muons.eta) < 2.5 && Muons.muonType == 0 && Muons.DFCommonGoodMuon)"
-MU20 = "(Muons.pt > 20*GeV && abs(Muons.eta) < 2.5 && Muons.muonType == 0 && Muons.DFCommonGoodMuon)"
-MU22 = "(Muons.pt > 22*GeV && abs(Muons.eta) < 2.5 && Muons.muonType == 0 && Muons.DFCommonGoodMuon)"
+MU10 = "(Muons.pt > 10*GeV && abs(Muons.eta) < 2.7 && Muons.muonType == 0 && Muons.DFCommonGoodMuon)"
+MU13 = "(Muons.pt > 13*GeV && abs(Muons.eta) < 2.7 && Muons.muonType == 0 && Muons.DFCommonGoodMuon)"
+MU15 = "(Muons.pt > 15*GeV && abs(Muons.eta) < 2.7 && Muons.muonType == 0 && Muons.DFCommonGoodMuon)"
+MU15_tight = "(Muons.pt > 15*GeV && abs(Muons.eta) < 2.7 && Muons.muonType == 0 && Muons.DFCommonGoodMuon && Muons.DFCommonMuonsTight)"
+MU17 = "(Muons.pt > 17*GeV && abs(Muons.eta) < 2.7 && Muons.muonType == 0 && Muons.DFCommonGoodMuon)"
+MU20 = "(Muons.pt > 20*GeV && abs(Muons.eta) < 2.7 && Muons.muonType == 0 && Muons.DFCommonGoodMuon)"
+MU22 = "(Muons.pt > 22*GeV && abs(Muons.eta) < 2.7 && Muons.muonType == 0 && Muons.DFCommonGoodMuon)"
+MU25 = "(Muons.pt > 25*GeV && abs(Muons.eta) < 2.7 && Muons.muonType == 0 && Muons.DFCommonGoodMuon)"
    
 #================
 # JETS
@@ -97,9 +106,22 @@ def setup_lep(TOPQname, ToolSvc):
 
   skimmingTools_lep=[]  
 
-  # TOPQ5 is passed as 'TOPQ1' in shared/TOPQ5.py but do the 'or' just in case
-  if TOPQname == 'TOPQ1' or TOPQname == 'TOPQ5':
-    TOPQ_Selection_lep = "( (count("+MU20+") >= 1) || (count("+EL20+") >= 1) )"
+#=============================
+# YEAR dependent selection
+#=============================
+  #year=int(rec.projectName()[4:6])
+  print "TOPQ.py: Project tag: " + rec.projectName() 
+  #+  " Year: " +  str(year)
+
+  if (rec.projectName.get_Value() in ['data16_13TeV', 'data17_13TeV','data18_13TeV']) :  
+    EL = EL25
+    MU = MU25
+  else :
+    EL = EL20
+    MU = MU20
+
+  if TOPQname == 'TOPQ1':
+    TOPQ_Selection_lep = "( (count("+MU+") >= 1) || (count("+EL+") >= 1) )"
   elif TOPQname == 'TOPQ2':
     TOPQ2_LEP10 = "( (count("+EL10+") >= 2) || (count("+MU10+") >= 2) || (count("+EL10+")>= 1 && count("+MU10+") >= 1) )" 
     TOPQ2_LEP15 = "( (count("+EL15+") >= 2) || (count("+MU15+") >= 2) || (count("+EL15+")>= 1 && count("+MU15+") >= 1) )"
@@ -111,6 +133,8 @@ def setup_lep(TOPQname, ToolSvc):
     TOPQ_Selection_lep = "( (count("+MU13+") >= 1) || (count("+EL13+") >= 1) )"
   elif TOPQname == 'TOPQ4':
     TOPQ_Selection_lep = "1" 
+  elif TOPQname == 'TOPQ5':
+    TOPQ_Selection_lep = "( (count("+MU+") >= 1) || (count("+EL+") >= 1) )"
   else: 
     TOPQ_Selection_lep = "1"
     
@@ -135,8 +159,7 @@ def setup_jet(TOPQname, ToolSvc):
 
   skimmingTools_jet=[]
   
-  # TOPQ5 is passed as 'TOPQ1' in shared/TOPQ5.py but do the 'or' just in case
-  if TOPQname == 'TOPQ1' or TOPQname == 'TOPQ5':
+  if TOPQname == 'TOPQ1':
     TOPQ_Selection_jet = "1"
   elif TOPQname == 'TOPQ2':
     TOPQ_Selection_jet = "1"
@@ -155,6 +178,8 @@ def setup_jet(TOPQname, ToolSvc):
     # TOPQ_Selection_jet = "( (count("+akt4EMcalib_20+") >= 5) || (count("+largeR_350+") >= 1) )" # boosted_350GeV
     # TOPQ_Selection_jet = "( (count("+akt4EMcalib_20+") >= 5) || (count("+largeR_200+") >= 2) )" # boosted_2jets
     # TOPQ_Selection_jet = "( (count("+akt4EMcalib_20+") >= 5) || (count("+largeR_200_masscut+") >= 1) )" # boosted_masscut
+  elif TOPQname == 'TOPQ5':
+    TOPQ_Selection_jet = "1"
   else: 
     TOPQ_Selection_jet = "1"
   

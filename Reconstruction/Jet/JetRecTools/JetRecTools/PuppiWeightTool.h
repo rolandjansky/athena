@@ -39,7 +39,6 @@ class PuppiWeightTool: public JetConstituentModifierBase {
   bool m_applyWeight;
 
   std::string m_vertexContainer_key{"PrimaryVertices"};
-
 };
 
 #endif

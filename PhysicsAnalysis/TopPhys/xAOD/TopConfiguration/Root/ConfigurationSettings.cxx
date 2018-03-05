@@ -111,6 +111,8 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
     registerParameter("RCJetEta",    "Reclustered Jet eta cut for object selection. Default 2.0.",   "2.0");
     registerParameter("RCJetTrim",   "Reclustered Jet trimming cut for object selection. Default 0.05.", "0.05");
     registerParameter("RCJetRadius", "Reclustered Jet radius for object selection. Default 1.0",   "1.0");
+    registerParameter("UseRCJetSubstructure", "Calculate Reclustered Jet Substructure Variables. Default False",   "False");
+    
     registerParameter("UseRCJets",   "Use Reclustered Jets. Default False.", "False");
 
     registerParameter("VarRCJetPt",        "Reclustered Jet (variable-R) pT cut for object selection (in MeV). Default 100000 MeV.", "100000.");
@@ -169,6 +171,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
 
     registerParameter("LibraryNames", "Names of any libraries that need loading");
     registerParameter("UseAodMetaData", "Whether to read xAOD meta-data from input files (default: False)", "False");
+    registerParameter("WriteTrackingData", "Whether to generate and store analysis-tracking data (default: True)", "True");
     registerParameter("ObjectSelectionName", "Code used to define objects, e.g. ObjectLoaderStandardCuts");
     registerParameter("OutputFormat", "Format, can be user defined, e.g. top::EventSaverFlatNtuple");
     registerParameter("OutputEvents", "AllEvents (saves all events + decison bits), SelectedEvents (saves only the events passing your cuts)");
@@ -270,7 +273,9 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
                       " Default 'default'",
                       "default");
 
-    registerParameter("PRWConfigFiles", "List of PU config files, seperated by spaces (nothing by default)", " ");
+    registerParameter("PRWConfigFiles",    "List of PU config files, seperated by spaces (nothing by default) - Not compatible with FS/AF options", " ");
+    registerParameter("PRWConfigFiles_FS", "List of PU config files only for full sim samples, seperated by spaces (nothing by default)", " ");
+    registerParameter("PRWConfigFiles_AF", "List of PU config files only for fast sim samples, seperated by spaces (nothing by default)", " ");
     registerParameter("PRWLumiCalcFiles", "List of PU lumicalc files, seperated by spaces (nothing by default)", " ");
     registerParameter("PRWUseGRLTool", "Pass the GRL tool to the PU reweighting tool (False by default)", "False");
     registerParameter("PRWMuDependent",
@@ -282,6 +287,7 @@ ConfigurationSettings::ConfigurationSettings() : m_configured(false) {
                       "Format is \'nominal:up:down\'."
                       "If nothing is set, the default values will be used (recommended).",
                       " ");
+    registerParameter("PRWUnrepresentedDataTolerance", "Specify value between 0 and 1 to represent acceptable fraction of unrepresented data in PRW [default: 0.05]", "0.05");
 
     registerParameter("MuonTriggerSF", "Muon trigger SFs to calculate", "HLT_mu20_iloose_L1MU15_OR_HLT_mu50");
 

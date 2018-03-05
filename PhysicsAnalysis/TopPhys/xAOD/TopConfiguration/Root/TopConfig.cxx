@@ -7,6 +7,7 @@
 #include "TopConfiguration/AodMetaDataAccess.h"
 #include "TopConfiguration/ConfigurationSettings.h"
 #include <algorithm>
+#include <cassert>
 #include <iterator>
 #include <sstream>
 #include <stdexcept>
@@ -692,7 +693,11 @@ namespace top{
     this->RCJetRadius(std::stof(settings->value("RCJetRadius")) );
     if (settings->value("UseRCJets") == "True" || settings->value("UseRCJets") == "true")
       this->m_useRCJets = true;
-
+    if (settings->value("UseRCJetSubstructure") == "True" || settings->value("UseRCJetSubstructure") == "true")
+      this->m_useRCJetSubstructure = true;
+    else
+      this->m_useRCJetSubstructure = false;
+   
     this->VarRCJetPtcut(std::stof(settings->value("VarRCJetPt")) );
     this->VarRCJetEtacut(std::stof(settings->value("VarRCJetEta")) );
     this->VarRCJetTrimcut(std::stof(settings->value("VarRCJetTrim")) );
@@ -866,6 +871,18 @@ namespace top{
     std::copy( std::istream_iterator<std::string>(pileup_lumi_ss),
 	       std::istream_iterator<std::string>(),
 	       std::back_inserter(m_pileup_reweighting.lumi_calc_files) );
+
+    std::istringstream pileup_config_FS_ss(settings->value( "PRWConfigFiles_FS" ));
+    std::copy( std::istream_iterator<std::string>(pileup_config_FS_ss),
+               std::istream_iterator<std::string>(),
+               std::back_inserter(m_pileup_reweighting.config_files_FS) );
+
+    std::istringstream pileup_config_AF_ss(settings->value( "PRWConfigFiles_AF" ));
+    std::copy( std::istream_iterator<std::string>(pileup_config_AF_ss),
+               std::istream_iterator<std::string>(),
+               std::back_inserter(m_pileup_reweighting.config_files_AF) );
+
+    m_pileup_reweighting.unrepresented_data_tol = std::stof(settings->value("PRWUnrepresentedDataTolerance"));
 
     m_pileup_reweighting.mu_dependent = (settings->value("PRWMuDependent") == "True");
 
@@ -2549,6 +2566,23 @@ TopConfig::TopConfig( const top::TopPersistentSettings* settings ) :
       m_release_series = 25;
     }
     return;
+  }
+
+  void TopConfig::setAmiTag(std::string const & amiTag) {
+    assert(!m_configFixed);
+    if (m_amiTagSet == 0) {
+      m_amiTag = amiTag;
+      m_amiTagSet = 1;
+    }
+    else if (m_amiTagSet > 0 && m_amiTag != amiTag) {
+      m_amiTag.clear();
+      m_amiTagSet = -1;
+    }
+  }
+
+  std::string const & TopConfig::getAmiTag() const {
+    assert(m_configFixed);
+    return m_amiTag;
   }
 
   // Function to return the year of data taking based on either run number (data) or random run number (MC)

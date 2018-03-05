@@ -647,7 +647,7 @@ int Prompt::DecoratePromptLepton::getJetVariables(const xAOD::Jet* jet, Prompt::
   //
   // r21 MV2 vars
   //
-  std::vector<VarPair> MV2Vars = {std::make_pair(Prompt::Def::MV2c10rnn, -100.0)};
+  std::vector<VarPair> MV2Vars = {std::make_pair(Prompt::Def::MV2c10rnn, -100.0),std::make_pair(Prompt::Def::MV2c10, -100.0)};
 
   for(VarPair &var: MV2Vars) {
     if(!btag->MVx_discriminant(Prompt::Def::AsStr(var.first), var.second)) {	

@@ -142,8 +142,9 @@ def addAntiKt4LowPtJets(sequence,outputlist):
     addStandardJets("AntiKt", 0.4, "LCTopo",  namesuffix="LowPt", ptmin=2000, ptminFilter=2000,
                     mods="lctopo_ungroomed", algseq=sequence, outputGroup=outputlist,calibOpt="ar")
     # Commented for now because of problems with underlying PFlow collections
-    # addStandardJets("AntiKt", 0.4, "EMPFlow", namesuffix="LowPt", ptmin=2000, ptminFilter=2000,
-    #                 mods="pflow_ungroomed", algseq=sequence, outputGroup=outputlist="ar:pflow")
+    addCHSPFlowObjects()
+    addStandardJets("AntiKt", 0.4, "EMPFlow", namesuffix="LowPt", ptmin=2000, ptminFilter=2000,
+                    mods="pflow_ungroomed", algseq=sequence, outputGroup=outputlist,calibOpt="ar:pflow")
 
 ##################################################################
 
@@ -422,3 +423,28 @@ def addOriginCorrectedClusters(slimhelper,writeLC=False,writeEM=False):
             slimhelper.AppendToDictionary["EMOriginTopoClusters"]='xAOD::CaloClusterContainer'
             slimhelper.AppendToDictionary["EMOriginTopoClustersAux"]='xAOD::ShallowAuxContainer'
             slimhelper.ExtraVariables.append('EMOriginTopoClusters.calE.calEta.calPhi')
+
+##################################################################
+# Helper to manually schedule PFO constituent modifications
+# Only use this while the automatic addition in JetAlgorithm.py
+# is disabled
+##################################################################
+def addCHSPFlowObjects():
+    # Only act if the collection does not already exist
+    from RecExConfig.AutoConfiguration import IsInInputFile
+    if not IsInInputFile("xAOD::PFOContainer","CHSParticleFlowObjects"):
+        # Check that an alg doing this has not already been inserted
+        from AthenaCommon.AlgSequence import AlgSequence
+        job = AlgSequence()
+        from JetRec.JetRecStandard import jtm
+        if not hasattr(job,"jetalgCHSPFlow") and not hasattr(jtm,"jetconstitCHSPFlow"):
+            from JetRec.JetRecConf import JetToolRunner
+            jtm += JetToolRunner("jetconstitCHSPFlow",
+                                 EventShapeTools=[],
+                                 Tools=[jtm.JetConstitSeq_PFlowCHS])
+            # Add this tool runner to the JetAlgorithm instance "jetalg"
+            # which runs all preparatory tools
+            # This was added by JetCommon
+            job.jetalg.Tools.append(jtm.jetconstitCHSPFlow)
+            extjetlog.info("Added CHS PFlow sequence to \'jetalg\'")
+            extjetlog.info(job.jetalg.Tools)

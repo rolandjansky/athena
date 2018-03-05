@@ -119,6 +119,10 @@ class TopConfig final {
   inline std::string getDerivationStream() const { return m_derivationStream;}
   inline void setDerivationStream(const std::string value) {if(!m_configFixed){m_derivationStream = value;}}
 
+  // AMI tag from metadata
+  std::string const & getAmiTag() const;
+  void setAmiTag(std::string const & amiTag);
+
   inline unsigned int getDSID() const {return m_DSID;}
   inline void setDSID(unsigned int value) {
     // Check here if this is a sherpa 2.2 V+jets sample
@@ -489,12 +493,14 @@ class TopConfig final {
   inline virtual float RCJetEtacut() const {return m_RCJetEtacut;}
   inline virtual float RCJetTrimcut() const {return m_RCJetTrimcut;}
   inline virtual float RCJetRadius() const {return m_RCJetRadius;}
-
+  inline virtual bool  useRCJetSubstructure() const {return m_useRCJetSubstructure;}
+ 
   inline virtual void RCJetPtcut(const float pt)      {if(!m_configFixed){m_RCJetPtcut = pt;}}
   inline virtual void RCJetEtacut(const float eta)    {if(!m_configFixed){m_RCJetEtacut = eta;}}
   inline virtual void RCJetTrimcut(const float trim)  {if(!m_configFixed){m_RCJetTrimcut = trim;}}
   inline virtual void RCJetRadius(const float radius) {if(!m_configFixed){m_RCJetRadius = radius;}}
-
+  inline virtual void useRCJetSubstructure(const bool use) {if (!m_configFixed){m_useRCJetSubstructure = use;}}
+  
   inline virtual float VarRCJetPtcut() const{return m_VarRCJetPtcut;}
   inline virtual float VarRCJetEtacut() const {return m_VarRCJetEtacut;}
   inline virtual float VarRCJetTrimcut() const {return m_VarRCJetTrimcut;}
@@ -749,6 +755,11 @@ class TopConfig final {
   const std::vector<std::string>& PileupLumiCalc(){ return m_pileup_reweighting.lumi_calc_files; };
 
   bool PileupMuDependent(){return m_pileup_reweighting.mu_dependent;};
+
+  // Update for R21
+  const std::vector<std::string>& PileupConfig_FS(){ return m_pileup_reweighting.config_files_FS; };
+  const std::vector<std::string>& PileupConfig_AF(){ return m_pileup_reweighting.config_files_AF; };
+  inline virtual  float PileupDataTolerance() const { return m_pileup_reweighting.unrepresented_data_tol; };
   
   const std::vector<double>& PileUpCustomScaleFactors(){ return m_pileup_reweighting.custom_SF; };
 
@@ -921,6 +932,8 @@ class TopConfig final {
   bool m_isPrimaryxAOD;
   bool m_isTruthDxAOD = false;
   std::string m_derivationStream;
+  std::string m_amiTag;
+  int m_amiTagSet = 0;
 
   // Do fakes MM weights calculation? - only for data loose
   bool m_doFakesMMWeights;
@@ -1087,6 +1100,7 @@ class TopConfig final {
   float m_RCJetEtacut;
   float m_RCJetTrimcut;
   float m_RCJetRadius;
+  bool  m_useRCJetSubstructure;
   
   // Jet configuration for variable large-R jets
   float m_VarRCJetPtcut;
@@ -1246,6 +1260,11 @@ class TopConfig final {
     std::vector<std::string> lumi_calc_files = {};
 
     std::vector<std::string> config_files = {};
+
+    // R21 - Need to allow configuration for FS and AF2
+    std::vector<std::string> config_files_FS = {};
+    std::vector<std::string> config_files_AF = {};
+    float unrepresented_data_tol = 0.05;
 
     bool apply = false;
 

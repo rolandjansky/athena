@@ -155,6 +155,7 @@ namespace Analysis {
     : AthAlgTool(t,n,p),
       //m_secVxFinderNameForV0Removal("InDetVKalVxInJetTool"),
       //m_secVxFinderNameForIPSign("InDetVKalVxInJetTool"),
+      m_tagNameSuffix(""),
       m_unbiasIPEstimation(true),
       m_calibrationDirectory("RNNIP"),
       m_secVxFinderName("InDetVKalVxInJetTool"),
@@ -177,6 +178,7 @@ namespace Analysis {
     declareProperty("use2DSignForIP3D"    , m_use2DSignForIP3D    = false);
     declareProperty("useD0SignForZ0"      , m_useD0SignForZ0      = false);
     declareProperty("RejectBadTracks"     , m_rejectBadTracks     = true);
+    declareProperty("tagNameSuffix"       , m_tagNameSuffix);
     declareProperty("unbiasIPEstimation"  , m_unbiasIPEstimation);
     declareProperty("writeInputsToBtagObject",
                     m_writeInputsToBtagObject = false);
@@ -441,14 +443,15 @@ namespace Analysis {
 
       // inner loop is over the networks that use this sort function
       for (const auto& network: networks) {
+        std::string name = network.name + m_tagNameSuffix;
         if (track_info.size() == 0) {
           ATH_MSG_DEBUG("no tracks, filling with defaults");
-          fill_posteriors(tag, network.name, network.outputs);
+          fill_posteriors(tag, name, network.outputs);
           continue;
         }
         try {
           lwt::ValueMap out = network.network->reduce(inputs);
-          fill_posteriors(tag, network.name, network.outputs, out);
+          fill_posteriors(tag, name, network.outputs, out);
           if (msgLvl(MSG::DEBUG)) {
             std::string op = "output for " + network.name + ": ";
             for (const auto& pr: out) {
@@ -459,7 +462,7 @@ namespace Analysis {
         } catch (lwt::NNEvaluationException& e) {
           ATH_MSG_WARNING(e.what() << " tagging with " + network.name
                           + ", will fill with defaults");
-          fill_posteriors(tag, network.name, network.outputs);
+          fill_posteriors(tag, name, network.outputs);
         }
       } // end loop over networks
       // for each sorting, store inputs

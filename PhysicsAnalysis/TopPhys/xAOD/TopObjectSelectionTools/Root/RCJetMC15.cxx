@@ -27,7 +27,11 @@
 #include "xAODBase/IParticleHelpers.h"
 #include "PATInterfaces/SystematicsUtil.h"
 
-
+#include "fastjet/ClusterSequence.hh"
+#include <fastjet/contrib/EnergyCorrelator.hh>
+#include <fastjet/contrib/Nsubjettiness.hh>
+#include "JetSubStructureUtils/Qw.h"
+#include "JetSubStructureUtils/KtSplittingScale.h"
 
 RCJetMC15::RCJetMC15( const std::string& name ) :
   asg::AsgTool( name ),
@@ -39,6 +43,7 @@ RCJetMC15::RCJetMC15( const std::string& name ) :
   m_radius(0.),
   m_minradius(0.),
   m_massscale(0.),
+  m_useJSS(false),
   m_egamma("EG_"),
   m_jetsyst("JET_"),
   m_muonsyst("MUONS_"),
@@ -47,6 +52,16 @@ RCJetMC15::RCJetMC15( const std::string& name ) :
   m_InputJetContainer(  "AntiKt4EMTopoJets_RC"),
   m_OutputJetContainer( "AntiKtRCJets"),
   m_loose_hashValue(2),
+  m_jet_def_rebuild(nullptr),
+  m_nSub1_beta1(nullptr),
+  m_nSub2_beta1(nullptr),
+  m_nSub3_beta1(nullptr),
+  m_ECF1(nullptr),
+  m_ECF2(nullptr),
+  m_ECF3(nullptr),
+  m_split12(nullptr),
+  m_split23(nullptr),
+  m_qw(nullptr),
   m_unique_syst(false){
     declareProperty( "config" , m_config );
     declareProperty( "VarRCjets", m_VarRCjets=false);
@@ -85,6 +100,40 @@ StatusCode RCJetMC15::initialize(){
         m_radius = std::stof( configSettings->value("RCJetRadius") ); // for initialize    
         m_minradius = -1.0;
         m_massscale = -1.0;
+	if (m_config->useRCJetSubstructure()){
+	  m_useJSS = true;
+	  ATH_MSG_INFO("Calculating RCJet Substructure");
+
+
+	  // clean up the null ptrs
+	  delete m_jet_def_rebuild;
+	  delete m_nSub1_beta1;
+	  delete m_nSub2_beta1;
+	  delete m_nSub3_beta1;
+	  delete m_ECF1;
+	  delete m_ECF2;
+	  delete m_ECF3;
+	  delete m_split12;
+	  delete m_split23;
+	  delete m_qw;
+	  
+	  // Setup a bunch of FastJet stuff
+	  //define the type of jets you will build (http://fastjet.fr/repo/doxygen-3.0.3/classfastjet_1_1JetDefinition.html)
+	  m_jet_def_rebuild = new fastjet::JetDefinition(fastjet::antikt_algorithm, 1.0, fastjet::E_scheme, fastjet::Best);
+	  
+	  //Substructure tool definitions
+	  m_nSub1_beta1 = new fastjet::contrib::Nsubjettiness(1, fastjet::contrib::OnePass_WTA_KT_Axes(), fastjet::contrib::UnnormalizedMeasure(1.0));
+	  m_nSub2_beta1 = new fastjet::contrib::Nsubjettiness(2, fastjet::contrib::OnePass_WTA_KT_Axes(), fastjet::contrib::UnnormalizedMeasure(1.0));
+	  m_nSub3_beta1 = new fastjet::contrib::Nsubjettiness(3, fastjet::contrib::OnePass_WTA_KT_Axes(), fastjet::contrib::UnnormalizedMeasure(1.0));
+	  m_ECF1 = new fastjet::contrib::EnergyCorrelator(1, 1.0, fastjet::contrib::EnergyCorrelator::pt_R);
+	  m_ECF2 = new fastjet::contrib::EnergyCorrelator(2, 1.0, fastjet::contrib::EnergyCorrelator::pt_R);
+	  m_ECF3 = new fastjet::contrib::EnergyCorrelator(3, 1.0, fastjet::contrib::EnergyCorrelator::pt_R);
+	  
+	  m_split12 = new JetSubStructureUtils::KtSplittingScale(1);
+	  m_split23 = new JetSubStructureUtils::KtSplittingScale(2);
+
+	  m_qw = new JetSubStructureUtils::Qw();
+	}
     }
 
     for (auto treeName : *m_config->systAllTTreeNames()) {
@@ -183,7 +232,6 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
         top::check( evtStore()->tds()->record( std::move( rcjets ), m_InputJetContainer ), "Failed to put jets in TStore for re-clustering" );
     } // end if jet container exists
 
-
     // --- EXECUTE --- //
     // only execute if the jet container doesn't exist 
     // (do not re-make the 'nominal' jet container over & over again!)
@@ -200,6 +248,107 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
             m_jetReclusteringTool.at(hash_factor*m_config->nominalHashValue())->execute();
     }
 
+      if (m_useJSS){     
+       // get the rcjets
+       xAOD::JetContainer* myJets(nullptr);
+       top::check(evtStore()->retrieve(myJets,m_OutputJetContainer),"Failed to retrieve RC JetContainer");
+   
+       // get the subjets and clusters of the rcjets
+       for (auto rcjet : *myJets){
+       
+ 	std::vector<fastjet::PseudoJet> clusters;
+ 	clusters.clear();
+ 
+ 	for (auto subjet : rcjet->getConstituents() ){
+ 	  const xAOD::Jet* subjet_raw = static_cast<const xAOD::Jet*>(subjet->rawConstituent());
+ 
+ 	  // Make sure we don't try to access jets that have had the clusters thinned
+	  bool hasConstituents=true;
+	  auto links = subjet_raw->constituentLinks();
+	  for(auto link : links) {
+	    if(!link.isValid()) {
+	      ATH_MSG_WARNING("Some of the RC Jet Constituents have been thinned - will not be included in RCJet JSS calculation");
+	      hasConstituents=false;
+	      break;
+	    }
+	  }
+	  if (!hasConstituents) {continue;}
+ 
+ 	  for (auto clus_itr : subjet_raw->getConstituents() ){
+ 	    if(clus_itr->e() > 0){
+ 	      TLorentzVector temp_p4;
+ 	      temp_p4.SetPtEtaPhiM(clus_itr->pt(), clus_itr->eta(), clus_itr->phi(), clus_itr->m());
+ 	      clusters.push_back(fastjet::PseudoJet(temp_p4.Px(),temp_p4.Py(),temp_p4.Pz(),temp_p4.E()));
+	    }
+ 	  }	
+ 	}
+            
+ 	// Now rebuild the large jet from the small jet constituents aka the original clusters
+ 	fastjet::ClusterSequence clust_seq_rebuild = fastjet::ClusterSequence(clusters, *m_jet_def_rebuild);
+ 	std::vector<fastjet::PseudoJet> my_pjets =  fastjet::sorted_by_pt(clust_seq_rebuild.inclusive_jets(0.0) );
+ 
+ 	fastjet::PseudoJet correctedJet;
+ 	correctedJet = my_pjets[0];
+ 	//Sometimes fastjet splits the jet into two, so need to correct for that!!
+ 	if(my_pjets.size() > 1)
+ 	  correctedJet += my_pjets[1]; 
+ 
+ 	// Now finally we can calculate some substructure!
+ 	double tau32 = -1, tau21 = -1, D2 = -1;
+     
+ 	double tau1 = m_nSub1_beta1->result(correctedJet);
+ 	double tau2 = m_nSub2_beta1->result(correctedJet);
+ 	double tau3 = m_nSub3_beta1->result(correctedJet);
+ 
+ 	if(fabs(tau1) > 1e-8)
+ 	  tau21 = tau2/tau1;
+ 	else
+ 	  tau21 = -999.0;
+ 	if(fabs(tau2) > 1e-8)
+ 	  tau32 = tau3/tau2;
+ 	else
+ 	  tau32 = -999.0;
+ 
+ 	double vECF1 = m_ECF1->result(correctedJet);
+ 	double vECF2 = m_ECF2->result(correctedJet);
+ 	double vECF3 = m_ECF3->result(correctedJet);
+ 	if(fabs(vECF2) > 1e-8)
+ 	  D2 = vECF3 * pow(vECF1,3) / pow(vECF2,3);
+ 	else
+ 	  D2 = -999.0;
+       
+ 	double split12 = m_split12->result(correctedJet);
+ 	double split23 = m_split23->result(correctedJet);
+ 	double qw = m_qw->result(correctedJet);
+       
+ 	// now attach the results to the original jet
+ 	rcjet->auxdecor<float>("Tau32_clstr") = tau32;
+ 	rcjet->auxdecor<float>("Tau21_clstr") = tau21;
+       
+ 	// lets also write out the components so we can play with them later 
+ 	rcjet->auxdecor<float>("Tau3_clstr") = tau3;
+ 	rcjet->auxdecor<float>("Tau2_clstr") = tau2;
+ 	rcjet->auxdecor<float>("Tau1_clstr") = tau1;
+ 
+ 	rcjet->auxdecor<float>("D2_clstr") = D2;
+ 	rcjet->auxdecor<float>("ECF1_clstr") = vECF1;
+ 	rcjet->auxdecor<float>("ECF2_clstr") = vECF2;
+ 	rcjet->auxdecor<float>("ECF3_clstr") = vECF3;
+ 
+ 	rcjet->auxdecor<float>("d12_clstr") = split12;
+ 	rcjet->auxdecor<float>("d23_clstr") = split23;
+ 	rcjet->auxdecor<float>("Qw_clstr") = qw;
+       
+ 	// lets also store the rebuilt jet incase we need it later
+ 	rcjet->auxdecor<float>("RRCJet_pt") = correctedJet.pt();
+ 	rcjet->auxdecor<float>("RRCJet_eta") = correctedJet.eta();
+ 	rcjet->auxdecor<float>("RRCJet_phi") = correctedJet.phi();
+ 	rcjet->auxdecor<float>("RRCJet_e") = correctedJet.e();
+       } // end of rcjet loop
+     }// end of if useJSS
+
+    
+
     return StatusCode::SUCCESS;
 } // end execute()
 
@@ -211,6 +360,18 @@ StatusCode RCJetMC15::finalize() {
         delete x.second;
     m_jetReclusteringTool.clear();
 
+    // clean up the JSS stuff
+    delete m_jet_def_rebuild;
+    delete m_nSub1_beta1;
+    delete m_nSub2_beta1;
+    delete m_nSub3_beta1;
+    delete m_ECF1;
+    delete m_ECF2;
+    delete m_ECF3;
+    delete m_split12;
+    delete m_split23;
+    delete m_qw;
+    
     return StatusCode::SUCCESS;
 }
 

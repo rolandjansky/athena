@@ -32,6 +32,7 @@
 class IMETMaker;
 class IMETSystematicsTool;
 class IJetModifier;
+class IMETSignificance;
 
 namespace ana
 {
@@ -118,6 +119,7 @@ namespace ana
     /// description: the MET tool
     asg::AnaToolHandle<IMETMaker> m_metutil;
     asg::AnaToolHandle<IMETSystematicsTool> m_metSystTool;
+    asg::AnaToolHandle<IMETSignificance> m_metSigni;
     /// description: the fJVT tool
     asg::AnaToolHandle<IJetModifier> m_fjvtTool;
 
