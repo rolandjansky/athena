@@ -184,8 +184,10 @@ def minBiasChains(doIDNewTracking):
 
 # idTrigChainlist.append(['mb_idperf_L1MBTS_2', 'L1_MBTS_2', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1])
   idTrigChainlist.append(['mb_idperf_L1MBTS_2', 'L1_RD1_FILLED', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1])
+  idTrigChainlist.append(['mb_idperf_L1RD1_FILLED', 'L1_RD1_FILLED', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1])
   tidaAnalysischains.append('HLT_mb_idperf_L1MBTS_2:InDetTrigParticleCreation_minBias_EFID')
   tidaAnalysischains.append('HLT_mb_idperf_L1MBTS_2:InDetTrigTrackingxAODCnv_minBias_EFID') 
-  
+  tidaAnalysischains.append('HLT_mb_idperf_L1RD1_FILLED:InDetTrigTrackingxAODCnv_minBias_EFID')
+
   return (idTrigChainlist, tidaAnalysischains)
 
