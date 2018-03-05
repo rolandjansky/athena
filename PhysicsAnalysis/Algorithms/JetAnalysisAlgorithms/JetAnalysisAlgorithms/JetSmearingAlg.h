@@ -5,7 +5,6 @@
 /// @author Nils Krumnack
 
 
-
 #ifndef JET_ANALYSIS_ALGORITHMS__JET_SMEARING_ALG_H
 #define JET_ANALYSIS_ALGORITHMS__JET_SMEARING_ALG_H
 

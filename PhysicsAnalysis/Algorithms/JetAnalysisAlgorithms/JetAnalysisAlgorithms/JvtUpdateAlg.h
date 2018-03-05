@@ -5,7 +5,6 @@
 /// @author Nils Krumnack
 
 
-
 #ifndef JET_ANALYSIS_ALGORITHMS__JVT_UPDATE_ALG_H
 #define JET_ANALYSIS_ALGORITHMS__JVT_UPDATE_ALG_H
 
