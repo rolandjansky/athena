@@ -14,6 +14,8 @@
 #include "CscSegmentMakers/ICscSegmentUtilTool.h"
 #include "CscClusterization/ICscClusterUtilTool.h"
 #include "MuonCondInterface/CscICoolStrSvc.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "StoreGate/ReadHandleKey.h"
 //#include "CscClusterization/CalibCscStripFitter.h"
 //#include "CscClusterization/ICscStripFitter.h"
 
@@ -123,7 +125,7 @@ private:  // data
   ToolHandle<ICscStripFitter>   m_stripFitter;
   ServiceHandle<MuonCalib::CscICoolStrSvc> m_cscCoolStrSvc;
 
-  StoreGateSvc* m_storeGateSvc;
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"EventInfo","EventInfo","event info"};
 
   // Convert a local 2D segment to MuonSegment
   Muon::MuonSegment*  build_segment(const ICscSegmentFinder::Segment& seg, bool measphi, Identifier chid, bool use2Lay) const;
