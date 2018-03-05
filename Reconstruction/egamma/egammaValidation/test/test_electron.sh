@@ -11,6 +11,8 @@ Reco_tf.py --inputRDOFile=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/egam
 
 echo  "art-result: $? reconstruction"
 
+set +e
+
 checkFile.py ART_Rec_electron.pool.root > checkFile_ART_electron.txt
 checkxAOD.py ART_Rec_electron.pool.root > checkxAOD_ART_electron.txt
 
