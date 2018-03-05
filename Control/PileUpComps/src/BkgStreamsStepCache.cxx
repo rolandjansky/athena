@@ -33,7 +33,7 @@
 BkgStreamsStepCache::BkgStreamsStepCache( const std::string& type,
                                           const std::string& name,
                                           const IInterface* parent)
-  : AthAlgTool( type, name, parent )
+  : base_class( type, name, parent )
   , p_activeStore(nullptr)
   , m_firstEvent(true)
   , m_currentXing(0)
@@ -82,17 +82,6 @@ BkgStreamsStepCache::~BkgStreamsStepCache()
   delete m_collXingPoisson;
   delete m_chooseEventRand;
   delete m_readEventRand;
-}
-
-StatusCode BkgStreamsStepCache::queryInterface(const InterfaceID& riid, void** ppvif)
-{
-  if ( riid == IBkgStreamsCache::interfaceID() )
-    {
-      *ppvif = (IBkgStreamsCache*)this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-  return AlgTool::queryInterface( riid, ppvif );
 }
 
 void

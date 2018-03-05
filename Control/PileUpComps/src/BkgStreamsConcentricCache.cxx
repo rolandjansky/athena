@@ -32,10 +32,10 @@
 
 using namespace std;
 
-BkgStreamsConcentricCache::BkgStreamsConcentricCache( const std::string& type, 
-						      const std::string& name,
-						      const IInterface* parent) : 
-  AthAlgTool( type, name, parent ),
+BkgStreamsConcentricCache::BkgStreamsConcentricCache( const std::string& type,
+                                                      const std::string& name,
+                                                      const IInterface* parent) :
+  base_class( type, name, parent ),
   p_activeStore(0),
   m_cursor(),
   m_streams(),
@@ -83,16 +83,6 @@ BkgStreamsConcentricCache::~BkgStreamsConcentricCache() {
   delete m_collXingPoisson;
   delete m_chooseEventRand;
   delete m_readEventRand;
-}
-
-StatusCode
-BkgStreamsConcentricCache::queryInterface(const InterfaceID& riid, void** ppvif) {
-  if ( riid == IBkgStreamsCache::interfaceID() ) {
-    *ppvif = (IBkgStreamsCache*)this;
-    addRef();
-    return StatusCode::SUCCESS;
-  }
-  return AthAlgTool::queryInterface( riid, ppvif );
 }
 
 void
