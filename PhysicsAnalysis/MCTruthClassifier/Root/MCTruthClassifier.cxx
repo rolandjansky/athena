@@ -72,7 +72,6 @@ MCTruthClassifier::MCTruthClassifier(const std::string& type)
 #ifndef XAOD_ANALYSIS // Add properties used/available only in Athena
   declareProperty("ParticleCaloExtensionTool",   m_caloExtensionTool );
   declareProperty("TruthInConeTool",               m_truthInConeTool );
-  declareProperty("xAODTruthLinkVector"            , m_truthLinkVecName="xAODTruthLinks");
   declareProperty("FwdElectronTruthExtrEtaCut" , m_FwdElectronTruthExtrEtaCut = 2.4, 
                   "Cut on the eta of the truth Particles to be extrapolated for Fwd electrons");
   declareProperty("FwdElectronTruthExtrEtaWindowCut" , m_FwdElectronTruthExtrEtaWindowCut = 0.15, 

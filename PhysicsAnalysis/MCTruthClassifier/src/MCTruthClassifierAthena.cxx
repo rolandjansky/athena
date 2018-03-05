@@ -43,13 +43,13 @@ MCTruthClassifier::particleTruthClassifier(const HepMC::GenParticle  *thePart,
   if (!thePart) return std::make_pair(partType,partOrig); 
 	
   // Retrieve the links between HepMC and xAOD::TruthParticle
-  const xAODTruthParticleLinkVector* truthParticleLinkVec = 0;
-  if(evtStore()->retrieve(truthParticleLinkVec, m_truthLinkVecName).isFailure()){
-    ATH_MSG_WARNING("Cannot retrieve TruthParticleLinkVector");
+  SG::ReadHandle<xAODTruthParticleLinkVector> truthParticleLinkVecReadHandle(m_truthLinkVecReadHandleKey);
+  if (!truthParticleLinkVecReadHandle.isValid()){
+    ATH_MSG_WARNING(" Invalid ReadHandle for xAODTruthParticleLinkVector with key: " <<  truthParticleLinkVecReadHandle.key());
     return std::make_pair(partType,partOrig); 
   }
  
-  for( const auto& entry : *truthParticleLinkVec ) {
+  for( const auto& entry : *truthParticleLinkVecReadHandle ) {
     if(entry->first.isValid() && entry->second.isValid()
        && entry->first.cptr()->barcode() == thePart->barcode()) {
       const xAOD::TruthParticle* truthParticle = *entry->second;

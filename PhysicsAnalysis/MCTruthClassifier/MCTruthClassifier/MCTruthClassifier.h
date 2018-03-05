@@ -25,6 +25,7 @@ Updated:
 
 #ifndef XAOD_ANALYSIS
 #include "GaudiKernel/ToolHandle.h"
+#include "GeneratorObjects/xAODTruthParticleLink.h"
 #include "ParticlesInConeTools/ITruthParticlesInConeTool.h"
 namespace HepMC {
  class GenParticle;
@@ -151,7 +152,7 @@ class MCTruthClassifier : virtual public IMCTruthClassifier , public asg::AsgToo
 #ifndef XAOD_ANALYSIS
    ToolHandle< Trk::IParticleCaloExtensionTool >  m_caloExtensionTool;
    ToolHandle<xAOD::ITruthParticlesInConeTool> m_truthInConeTool;
-   std::string m_truthLinkVecName;             
+   SG::ReadHandleKey<xAODTruthParticleLinkVector> m_truthLinkVecReadHandleKey{this,"xAODTruthLinkVector","xAODTruthLinks","ReadHandleKey for xAODTruthParticleLinkVector"};
    float m_FwdElectronTruthExtrEtaCut;
    float m_FwdElectronTruthExtrEtaWindowCut;
    float m_partExtrConeEta;
@@ -164,7 +165,8 @@ class MCTruthClassifier : virtual public IMCTruthClassifier , public asg::AsgToo
    bool  m_ROICone;
 #endif
 
-   std::string m_xaodTruthParticleContainerName ;
+
+  std::string m_xaodTruthParticleContainerName ;
    float m_deltaRMatchCut;
    float m_deltaPhiMatchCut;
    int   m_NumOfSiHitsCut;
