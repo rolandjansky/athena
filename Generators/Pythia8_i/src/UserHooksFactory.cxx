@@ -1,10 +1,11 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "Pythia8_i/UserHooksFactory.h"
 
 #include <stdexcept>
 
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
 namespace Pythia8_UserHooks{
  
   UserHooks *UserHooksFactory::create(const string &name){

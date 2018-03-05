@@ -27,8 +27,8 @@ atlas_add_tpcnv_library( GeneratorObjectsTPCnv
                          src/*.cxx
                          PUBLIC_HEADERS GeneratorObjectsTPCnv
                          INCLUDE_DIRS ${HEPMC_INCLUDE_DIRS}
-                         PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                         LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPMC_LIBRARIES} SGTools AthenaPoolCnvSvcLib GaudiKernel GeneratorObjects AthAllocators AthenaKernel TestTools )
+                         PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
+                         LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} SGTools AthenaPoolCnvSvcLib GaudiKernel GeneratorObjects AthAllocators AthenaKernel TestTools )
 
 atlas_add_dictionary( GeneratorObjectsTPCnvDict
                       GeneratorObjectsTPCnv/GeneratorObjectsTPCnvDict.h
