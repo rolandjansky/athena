@@ -165,8 +165,7 @@ class MCTruthClassifier : virtual public IMCTruthClassifier , public asg::AsgToo
    bool  m_ROICone;
 #endif
 
-
-  std::string m_xaodTruthParticleContainerName ;
+  SG::ReadHandleKey<xAOD::TruthParticleContainer> m_truthParticleContainerKey{this,"xAODTruthParticleContainerName","TruthParticles","ReadHandleKey for xAOD::TruthParticleContainer"};
    float m_deltaRMatchCut;
    float m_deltaPhiMatchCut;
    int   m_NumOfSiHitsCut;

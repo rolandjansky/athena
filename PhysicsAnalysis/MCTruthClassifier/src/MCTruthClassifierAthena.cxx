@@ -96,15 +96,15 @@ MCTruthClassifier::egammaClusMatch(const xAOD::CaloCluster* clus,
   const xAOD::TruthParticle* theMatchPart=0;
 
   //retrieve collection and get a pointer
- 
-  const xAOD::TruthParticleContainer  * xTruthParticleContainer;
-  StatusCode sc = evtStore()->retrieve(xTruthParticleContainer, m_xaodTruthParticleContainerName);
-  if (sc.isFailure()||!xTruthParticleContainer){
-    ATH_MSG_WARNING( "No  xAODTruthParticleContainer "<<m_xaodTruthParticleContainerName<<" found" ); 
+  SG::ReadHandle<xAOD::TruthParticleContainer> truthParticleContainerReadHandle(m_truthParticleContainerKey);
+
+  if (!truthParticleContainerReadHandle.isValid()){
+    ATH_MSG_WARNING(" Invalid ReadHandle for xAOD::TruthParticleContainer with key: " << truthParticleContainerReadHandle.key());
     return theMatchPart;
   }
-  ATH_MSG_DEBUG( "xAODTruthParticleContainer  " << m_xaodTruthParticleContainerName<<" successfully retrieved " );
-
+  
+  ATH_MSG_DEBUG( "xAODTruthParticleContainer with key  " << truthParticleContainerReadHandle.key() << " has valid ReadHandle " );
+  
   const xAOD::TruthParticle* theEgamma(0);
   const xAOD::TruthParticle* theLeadingPartInCone(0);
   const xAOD::TruthParticle* theBestPartOutCone(0);
@@ -155,7 +155,7 @@ MCTruthClassifier::egammaClusMatch(const xAOD::CaloCluster* clus,
     bool isExt = genPartToCalo(clus, thePart,isFwrdEle, dR, isNCone);
     if (!isExt) continue;
 
-    theMatchPart = barcode_to_particle(xTruthParticleContainer,thePart->barcode()%m_barcodeShift);
+    theMatchPart = barcode_to_particle(truthParticleContainerReadHandle.ptr(),thePart->barcode()%m_barcodeShift);
 
     if (info) {
       info->egPartPtr.push_back(thePart);
@@ -191,19 +191,19 @@ MCTruthClassifier::egammaClusMatch(const xAOD::CaloCluster* clus,
   }// end cycle for Gen particle 
   
   if(theEgamma!=0) {
-    theMatchPart = barcode_to_particle(xTruthParticleContainer,theEgamma->barcode()%m_barcodeShift);
+    theMatchPart = barcode_to_particle(truthParticleContainerReadHandle.ptr(),theEgamma->barcode()%m_barcodeShift);
     if (info)
       info->deltaRMatch=LeadingPhtdR;
   } else if(theLeadingPartInCone!=0) {
-    theMatchPart = barcode_to_particle(xTruthParticleContainer,theLeadingPartInCone->barcode()%m_barcodeShift);
+    theMatchPart = barcode_to_particle(truthParticleContainerReadHandle.ptr(),theLeadingPartInCone->barcode()%m_barcodeShift);
     if (info)
       info->deltaRMatch=LeadingPartdR;
   } else if(theBestPartOutCone!=0) {
-    theMatchPart = barcode_to_particle(xTruthParticleContainer,theBestPartOutCone->barcode()%m_barcodeShift);
+    theMatchPart = barcode_to_particle(truthParticleContainerReadHandle.ptr(),theBestPartOutCone->barcode()%m_barcodeShift);
     if (info)
       info->deltaRMatch=BestPartdR;
   } else if(isFwrdEle&&theBestPartdR!=0) {
-    theMatchPart = barcode_to_particle(xTruthParticleContainer,theBestPartdR->barcode()%m_barcodeShift);
+    theMatchPart = barcode_to_particle(truthParticleContainerReadHandle.ptr(),theBestPartdR->barcode()%m_barcodeShift);
     if (info)
       info->deltaRMatch=BestPartdR;
   } else {
@@ -240,7 +240,7 @@ MCTruthClassifier::egammaClusMatch(const xAOD::CaloCluster* clus,
     bool isExt = genPartToCalo(clus, thePart, false , dR, isNCone);
     if(!isExt) continue;
     
-    theMatchPart = barcode_to_particle(xTruthParticleContainer,thePart->barcode()%m_barcodeShift);
+    theMatchPart = barcode_to_particle(truthParticleContainerReadHandle.ptr(),thePart->barcode()%m_barcodeShift);
     
     if (info) {
       info->egPartPtr.push_back(thePart);
@@ -268,15 +268,15 @@ MCTruthClassifier::egammaClusMatch(const xAOD::CaloCluster* clus,
   } // end cycle for G4 particle
   
   if( theEgamma!=0){
-    theMatchPart = barcode_to_particle(xTruthParticleContainer,theEgamma->barcode()%m_barcodeShift);
+    theMatchPart = barcode_to_particle(truthParticleContainerReadHandle.ptr(),theEgamma->barcode()%m_barcodeShift);
     if (info)
       info->deltaRMatch=LeadingPhtdR;
   } else if( theLeadingPartInCone!=0) {
-    theMatchPart = barcode_to_particle(xTruthParticleContainer,theLeadingPartInCone->barcode()%m_barcodeShift);
+    theMatchPart = barcode_to_particle(truthParticleContainerReadHandle.ptr(),theLeadingPartInCone->barcode()%m_barcodeShift);
     if (info)
       info->deltaRMatch=LeadingPartdR;
   } else if( theBestPartOutCone!=0) { 
-    theMatchPart = barcode_to_particle(xTruthParticleContainer,theBestPartOutCone->barcode()%m_barcodeShift);
+    theMatchPart = barcode_to_particle(truthParticleContainerReadHandle.ptr(),theBestPartOutCone->barcode()%m_barcodeShift);
     if (info)
       info->deltaRMatch=BestPartdR;
   } else {
