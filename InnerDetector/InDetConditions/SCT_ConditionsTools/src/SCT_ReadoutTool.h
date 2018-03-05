@@ -11,9 +11,10 @@
 #ifndef SCT_ConditionTools_SCT_ReadoutTool_h
 #define SCT_ConditionTools_SCT_ReadoutTool_h
 
-// C++
+// C++ STL
 #include <vector> 
 #include <bitset>
+#include <mutex>
 
 // Gaudi
 #include "GaudiKernel/ServiceHandle.h"
@@ -96,6 +97,9 @@ class SCT_ReadoutTool : public extends<AthAlgTool, ISCT_ReadoutTool> {
   SCT_Parameters::ModuleType          m_type;                //!< The type of this module (Barrel, Modified Barrel (0 or 1), Endcap)
   std::vector<int>                    m_chipsOnLink0;        //!< The chips read out on link 0
   std::vector<int>                    m_chipsOnLink1;        //! <The chips read out on link 1
+
+  // Mutex to protect the contents.
+  std::mutex m_mutex;
 
   /** Find the ID of the input chip for chip*/ 
   inline SCT_Parameters::ChipType inputChip(const SCT_Chip& chip) const {
