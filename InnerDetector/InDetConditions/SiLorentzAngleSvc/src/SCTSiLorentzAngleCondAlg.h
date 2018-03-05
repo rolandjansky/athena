@@ -16,7 +16,6 @@
 // Athena includes
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadCondHandleKey.h"
-#include "SiPropertiesSvc/SiliconProperties.h"
 #include "SCT_ConditionsData/SCT_DCSFloatCondData.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "StoreGate/WriteCondHandleKey.h"
@@ -71,7 +70,6 @@ class SCTSiLorentzAngleCondAlg: public AthAlgorithm
   bool                     m_sctDefaults;
   bool                     m_useGeoModel;
   unsigned int             m_maxHash;
-  InDet::SiliconProperties m_siProperties;
   double                   m_temperatureMin;
   double                   m_temperatureMax;
 

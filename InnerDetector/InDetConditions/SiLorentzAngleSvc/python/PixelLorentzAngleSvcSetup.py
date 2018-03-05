@@ -75,7 +75,7 @@ class PixelLorentzAngleSvcSetup:
         self.PixelSiliconConditionsSvc = pixelSiliconConditionsSvc
 
     def useDefault(self) :
-      self.PixelSiliconConditionsSvc.UseDB = False 
+        self.PixelSiliconConditionsSvc.UseDB = False
 
 # configuration instance
 pixelLorentzAngleSvcSetup = PixelLorentzAngleSvcSetup()

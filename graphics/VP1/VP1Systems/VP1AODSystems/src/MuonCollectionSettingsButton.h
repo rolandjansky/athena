@@ -97,7 +97,7 @@ protected:
 private:
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
     
   private slots:
   void updateTrackDrawStyle();

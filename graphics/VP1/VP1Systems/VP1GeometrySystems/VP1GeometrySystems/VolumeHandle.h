@@ -122,7 +122,7 @@ private:
   VolumeHandle(const VolumeHandle & );
   VolumeHandle & operator= (const VolumeHandle & );
 
-  Imp * d;
+  Imp * m_d;
 
   //Here for inline methods:
   const int m_childNumber;//0 if the first child of parent, 1 if the second, etc.

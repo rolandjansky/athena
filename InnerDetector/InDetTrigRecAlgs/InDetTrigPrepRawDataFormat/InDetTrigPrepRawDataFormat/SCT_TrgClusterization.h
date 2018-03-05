@@ -39,7 +39,7 @@
 //typedefs - cannot be declared forward
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "InDetPrepRawData/SCT_ClusterCollection.h"
-
+#include "SCT_ConditionsData/SCT_FlaggedCondData.h"
 
 
 class IRegSelSvc;
@@ -50,7 +50,6 @@ class SCT_ChannelStatusAlg;
 class ISCT_ByteStreamErrorsSvc;
 
 class IInDetConditionsSvc;
-class ISCT_FlaggedConditionSvc;
 
 class IROBDataProviderSvc;
 
@@ -113,6 +112,7 @@ namespace InDet {
     ToolHandle<ISCT_ClusteringTool> m_clusteringTool; //!<  clustering algorithm
     std::string             m_managerName; //!< detector manager name in StoreGate
     std::string             m_clustersName; 
+    std::string             m_flaggedCondDataName;
     const SCT_ID*           m_idHelper;
     
     SCT_ClusterContainer*   m_clusterContainer;
@@ -129,7 +129,6 @@ namespace InDet {
 
     //conditions
     ServiceHandle<IInDetConditionsSvc>       m_pSummarySvc;
-    ServiceHandle<ISCT_FlaggedConditionSvc>  m_flaggedConditionSvc;
     bool                                     m_checkBadModules;
     unsigned int                             m_maxRDOs;
     std::set<IdentifierHash>                 m_flaggedModules;

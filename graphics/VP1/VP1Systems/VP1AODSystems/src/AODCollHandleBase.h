@@ -181,7 +181,7 @@ public slots:
 private:
 
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
   int m_nshownhandles;
   xAOD::Type::ObjectType   m_type;

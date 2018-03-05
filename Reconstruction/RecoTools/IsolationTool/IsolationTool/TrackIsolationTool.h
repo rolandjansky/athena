@@ -139,8 +139,6 @@ namespace xAOD {
     ToolHandle<InDet::IInDetTrackSelectionTool> m_trkselTool {this,
 	"TrackSelectionTool", "InDet::InDetTrackSelectionTool/TrackSelectionTool"};
 
-    // JM: I made it to require the vertex container; if we need to use it
-    //    without a vertex container, we need to modify the initialization a bit.
     SG::ReadHandleKey<VertexContainer> m_vertexLocation {this,
 	"VertexLocation", "PrimaryVertices"};
 

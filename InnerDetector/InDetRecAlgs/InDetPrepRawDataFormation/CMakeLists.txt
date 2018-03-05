@@ -12,6 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/IRegionSelector
                           DetectorDescription/Identifier
                           GaudiKernel
+                          InnerDetector/InDetConditions/SCT_ConditionsData
                           InnerDetector/InDetRawEvent/InDetRawData
                           InnerDetector/InDetRecEvent/InDetPrepRawData
                           InnerDetector/InDetRecTools/SiClusterizationTool

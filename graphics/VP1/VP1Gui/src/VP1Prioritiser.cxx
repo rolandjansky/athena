@@ -44,7 +44,7 @@ public:
     const bool m_accumulator;
     VisibilityState m_vs;
     void calcPriority();
-    Imp *d;
+    Imp *m_d;
     void removeFromPriMap();
     QQueue<double> m_timemeasurements;
   };
@@ -74,17 +74,17 @@ public:
 /////////////////////////////////////////////////////////////////////
 
 //____________________________________________________________________
-inline VP1Prioritiser::Imp::SystemInfo::SystemInfo(IVP1System*s,Imp *_d,IVP1ChannelWidget * cw, const VisibilityState& vs )
+inline VP1Prioritiser::Imp::SystemInfo::SystemInfo(IVP1System*s,Imp *d,IVP1ChannelWidget * cw, const VisibilityState& vs )
   :  system(s), m_priority(117117.117),
-     m_accumulator(cw->isAccumulator()),m_vs(vs),d(_d)
+     m_accumulator(cw->isAccumulator()),m_vs(vs),m_d(d)
 {
   //If another system with the same name exists already, we use that
   //timing as a reasonable guess. Otherwise we use the average of the
   //other channels. Failing that we use a default of 500ms.:
   double tmp(0);
   bool found(false);
-  QHash<IVP1System*,Imp::SystemInfo*>::iterator itE = d->sys2info.end();
-  for (QHash<IVP1System*,Imp::SystemInfo*>::iterator it=d->sys2info.begin();it!=itE;++it) {
+  QHash<IVP1System*,Imp::SystemInfo*>::iterator itE = m_d->sys2info.end();
+  for (QHash<IVP1System*,Imp::SystemInfo*>::iterator it=m_d->sys2info.begin();it!=itE;++it) {
     if ( it.key()->name() == s->name() ) {
       m_timing=it.value()->refreshtime();
       found=true;
@@ -92,8 +92,8 @@ inline VP1Prioritiser::Imp::SystemInfo::SystemInfo(IVP1System*s,Imp *_d,IVP1Chan
     }
     tmp += m_timing=it.value()->refreshtime();
   }
-  if (!found&&!d->sys2info.empty())
-    m_timing = tmp/d->sys2info.count();
+  if (!found&&!m_d->sys2info.empty())
+    m_timing = tmp/m_d->sys2info.count();
   else
     m_timing=500;
 
@@ -147,7 +147,7 @@ inline void VP1Prioritiser::Imp::SystemInfo::addTimeMeasurement(const double&t)
 //____________________________________________________________________
 inline void VP1Prioritiser::Imp::SystemInfo::calcPriority()
 {
-  //1) Remove from d->priority2sys map
+  //1) Remove from m_d->priority2sys map
 
   if (m_priority!=117117.117)
     removeFromPriMap();
@@ -159,23 +159,23 @@ inline void VP1Prioritiser::Imp::SystemInfo::calcPriority()
   //soonvisible, and accumulators gets priority they get a bonus of
   //30s, XXXms, and 100ms respectively (where XXX depends on the scenario):
 
-  m_priority = m_timing + (m_vs==VISIBLE?-30000.0:(m_vs==SOONVISIBLE?-d->soonvisbonus:0.0)) + (m_accumulator?-100.0:0.0);
+  m_priority = m_timing + (m_vs==VISIBLE?-30000.0:(m_vs==SOONVISIBLE?-m_d->soonvisbonus:0.0)) + (m_accumulator?-100.0:0.0);
 
-  //3) Add to d->priority2sys map
+  //3) Add to m_d->priority2sys map
 
   std::pair<double,IVP1System*> a(m_priority,system);
-  d->priority2sys.insert(a);
+  m_d->priority2sys.insert(a);
 }
 
 //____________________________________________________________________
 inline void VP1Prioritiser::Imp::SystemInfo::removeFromPriMap()
 {
   //Fixme: Cache itp and it (in class Imp even?)!
-  std::pair<Pri2SysMap::iterator, Pri2SysMap::iterator> itp(d->priority2sys.equal_range(m_priority));
+  std::pair<Pri2SysMap::iterator, Pri2SysMap::iterator> itp(m_d->priority2sys.equal_range(m_priority));
   Pri2SysMap::iterator it = itp.first;
   for (;it!=itp.second;++it) {
     if (it->second==system) {
-      d->priority2sys.erase(it);
+      m_d->priority2sys.erase(it);
       break;
     }
   }
@@ -188,25 +188,25 @@ inline void VP1Prioritiser::Imp::SystemInfo::removeFromPriMap()
 
 //____________________________________________________________________
 VP1Prioritiser::VP1Prioritiser(QObject*parent)
- : QObject(parent), d(new Imp)
+ : QObject(parent), m_d(new Imp)
 {
-  d->prioritiser=this;
-  d->stopwatch = new QTime();
-  d->currenttimedsystem=0;
-  d->soonvisbonus=0;
+  m_d->prioritiser=this;
+  m_d->stopwatch = new QTime();
+  m_d->currenttimedsystem=0;
+  m_d->soonvisbonus=0;
 }
 
 //____________________________________________________________________
 VP1Prioritiser::~VP1Prioritiser()
 {
-  delete d->stopwatch;
-  delete d; d=0;
+  delete m_d->stopwatch;
+  delete m_d; m_d=0;
 }
 
 //___________________________________________________________________
 IVP1System* VP1Prioritiser::nextErasedActiveSystemByPriority() {
-  Imp::Pri2SysMap::iterator itE = d->priority2sys.end();
-  for (Imp::Pri2SysMap::iterator it=d->priority2sys.begin();it!=itE;++it) {
+  Imp::Pri2SysMap::iterator itE = m_d->priority2sys.end();
+  for (Imp::Pri2SysMap::iterator it=m_d->priority2sys.begin();it!=itE;++it) {
     if ( it->second->state()==IVP1System::ERASED &&it->second->activeState()==IVP1System::ON )
       return it->second;
   }
@@ -216,8 +216,8 @@ IVP1System* VP1Prioritiser::nextErasedActiveSystemByPriority() {
 //___________________________________________________________________
 QList<IVP1System*> VP1Prioritiser::getSystemsToEraseByPriority() {
   QList<IVP1System*> tmp;
-  Imp::Pri2SysMap::iterator itE = d->priority2sys.end();
-  for (Imp::Pri2SysMap::iterator it=d->priority2sys.begin();it!=itE;++it) {
+  Imp::Pri2SysMap::iterator itE = m_d->priority2sys.end();
+  for (Imp::Pri2SysMap::iterator it=m_d->priority2sys.begin();it!=itE;++it) {
     if ( it->second->state()==IVP1System::REFRESHED )
       tmp << it->second;
   }
@@ -229,8 +229,8 @@ QList<IVP1System*> VP1Prioritiser::getSystemsToEraseByPriority() {
 double VP1Prioritiser::estimateRemainingCalcTime() const
 {
   double tmp(0);
-  QHash<IVP1System*,Imp::SystemInfo*>::iterator itE = d->sys2info.end();
-  for (QHash<IVP1System*,Imp::SystemInfo*>::iterator it=d->sys2info.begin();it!=itE;++it) {
+  QHash<IVP1System*,Imp::SystemInfo*>::iterator itE = m_d->sys2info.end();
+  for (QHash<IVP1System*,Imp::SystemInfo*>::iterator it=m_d->sys2info.begin();it!=itE;++it) {
     if ( it.key()->state()==IVP1System::ERASED &&it.key()->activeState()==IVP1System::ON )
       tmp += it.value()->refreshtime();
   }
@@ -240,36 +240,36 @@ double VP1Prioritiser::estimateRemainingCalcTime() const
 //___________________________________________________________________
 double VP1Prioritiser::beginTiming_Refresh(IVP1System*s)
 {
-  assert(!d->currenttimedsystem);
-  d->stopwatch->start();
-  d->currenttimedsystem=s;
-  assert(d->sys2info.contains(s));
-  return d->sys2info[s]->refreshtime();
+  assert(!m_d->currenttimedsystem);
+  m_d->stopwatch->start();
+  m_d->currenttimedsystem=s;
+  assert(m_d->sys2info.contains(s));
+  return m_d->sys2info[s]->refreshtime();
 }
 
 
 //___________________________________________________________________
 double VP1Prioritiser::elapsedTiming_Refresh()
 {
-  return static_cast<double>(d->stopwatch->elapsed());
+  return static_cast<double>(m_d->stopwatch->elapsed());
 }
 
 //___________________________________________________________________
 double VP1Prioritiser::endTiming_Refresh()
 {
-  assert(d->currenttimedsystem);
-  double timing = static_cast<double>(d->stopwatch->elapsed());
-  if (d->sys2info.contains(d->currenttimedsystem)) {//This check, since the corresponding channel might have become uncreated in the meantime.
-    d->sys2info[d->currenttimedsystem]->addTimeMeasurement(timing);
+  assert(m_d->currenttimedsystem);
+  double timing = static_cast<double>(m_d->stopwatch->elapsed());
+  if (m_d->sys2info.contains(m_d->currenttimedsystem)) {//This check, since the corresponding channel might have become uncreated in the meantime.
+    m_d->sys2info[m_d->currenttimedsystem]->addTimeMeasurement(timing);
   }
-  d->currenttimedsystem=0;
+  m_d->currenttimedsystem=0;
   return timing;
 }
 
 //____________________________________________________________________
 void VP1Prioritiser::setupSysItr(IVP1ChannelWidget*cw) {
-  d->itsys = cw->systems().begin();
-  d->itsysE = cw->systems().end();
+  m_d->itsys = cw->systems().begin();
+  m_d->itsysE = cw->systems().end();
 }
 
 //___________________________________________________________________
@@ -289,41 +289,41 @@ void VP1Prioritiser::visibleChannelsChanged(const QSet<IVP1ChannelWidget*>&newvi
 					    const QSet<IVP1ChannelWidget*>&newsoonvis,
 					    const double& soonvisbonus)
 {
-  if (d->visiblechannels==newvis&&d->soonvisiblechannels==newsoonvis&&d->soonvisbonus==soonvisbonus)
+  if (m_d->visiblechannels==newvis&&m_d->soonvisiblechannels==newsoonvis&&m_d->soonvisbonus==soonvisbonus)
     return;
-  d->updateSysinfoWithVisibilityState(d->visiblechannels,Imp::SystemInfo::NOTVISIBLE);
-  d->updateSysinfoWithVisibilityState(d->soonvisiblechannels,Imp::SystemInfo::NOTVISIBLE);
-  d->updateSysinfoWithVisibilityState(newvis,Imp::SystemInfo::VISIBLE);
-  d->updateSysinfoWithVisibilityState(newsoonvis,Imp::SystemInfo::SOONVISIBLE);
-  d->visiblechannels = newvis;
-  d->soonvisiblechannels = newsoonvis;
-  d->soonvisbonus = soonvisbonus;
+  m_d->updateSysinfoWithVisibilityState(m_d->visiblechannels,Imp::SystemInfo::NOTVISIBLE);
+  m_d->updateSysinfoWithVisibilityState(m_d->soonvisiblechannels,Imp::SystemInfo::NOTVISIBLE);
+  m_d->updateSysinfoWithVisibilityState(newvis,Imp::SystemInfo::VISIBLE);
+  m_d->updateSysinfoWithVisibilityState(newsoonvis,Imp::SystemInfo::SOONVISIBLE);
+  m_d->visiblechannels = newvis;
+  m_d->soonvisiblechannels = newsoonvis;
+  m_d->soonvisbonus = soonvisbonus;
 }
 
 //___________________________________________________________________
 void VP1Prioritiser::channelCreated(IVP1ChannelWidget* cw)
 {
-  bool visible = d->visiblechannels.contains(cw);
-  bool soonvisible = d->soonvisiblechannels.contains(cw);
+  bool visible = m_d->visiblechannels.contains(cw);
+  bool soonvisible = m_d->soonvisiblechannels.contains(cw);
   assert(!(visible&&soonvisible));
-  for (setupSysItr(cw);d->itsys!=d->itsysE;++d->itsys) {
-    assert(!d->sys2info.contains(*(d->itsys)));
-    Imp::SystemInfo* info = new Imp::SystemInfo(*(d->itsys),d,cw,
+  for (setupSysItr(cw);m_d->itsys!=m_d->itsysE;++m_d->itsys) {
+    assert(!m_d->sys2info.contains(*(m_d->itsys)));
+    Imp::SystemInfo* info = new Imp::SystemInfo(*(m_d->itsys),m_d,cw,
 						(visible?Imp::SystemInfo::VISIBLE:(soonvisible?Imp::SystemInfo::SOONVISIBLE:Imp::SystemInfo::NOTVISIBLE)));
-    d->sys2info.insert(*(d->itsys),info);
+    m_d->sys2info.insert(*(m_d->itsys),info);
   }
 }
 
 //___________________________________________________________________
 void VP1Prioritiser::channelUncreated(IVP1ChannelWidget* cw)
 {
-  for (setupSysItr(cw);d->itsys!=d->itsysE;++d->itsys) {
-    assert(d->sys2info.contains(*(d->itsys)));
-    delete d->sys2info[*(d->itsys)];
-    d->sys2info.remove(*(d->itsys));
+  for (setupSysItr(cw);m_d->itsys!=m_d->itsysE;++m_d->itsys) {
+    assert(m_d->sys2info.contains(*(m_d->itsys)));
+    delete m_d->sys2info[*(m_d->itsys)];
+    m_d->sys2info.remove(*(m_d->itsys));
   }
-  if (d->visiblechannels.contains(cw))
-    d->visiblechannels.remove(cw);
-  if (d->soonvisiblechannels.contains(cw))
-    d->soonvisiblechannels.remove(cw);
+  if (m_d->visiblechannels.contains(cw))
+    m_d->visiblechannels.remove(cw);
+  if (m_d->soonvisiblechannels.contains(cw))
+    m_d->soonvisiblechannels.remove(cw);
 }

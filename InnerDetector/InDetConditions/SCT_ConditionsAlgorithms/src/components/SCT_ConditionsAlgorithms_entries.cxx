@@ -1,4 +1,3 @@
-#include "../SCT_CachedSummaryTestAlg.h"
 #include "../SCT_ConditionsParameterCondAlg.h"
 #include "../SCT_ConditionsParameterTestAlg.h"
 #include "../SCT_ConditionsSummaryTestAlg.h"
@@ -33,7 +32,6 @@
 #include "../SCT_TdaqEnabledCondAlg.h"
 #include "../SCT_TdaqEnabledTestAlg.h"
 
-DECLARE_COMPONENT( SCT_CachedSummaryTestAlg )
 DECLARE_COMPONENT( SCT_ConditionsParameterCondAlg )
 DECLARE_COMPONENT( SCT_ConditionsParameterTestAlg )
 DECLARE_COMPONENT( SCT_ConditionsSummaryTestAlg )

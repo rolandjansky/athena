@@ -9,7 +9,6 @@
 
 // Include SCT_ReadCalibDataTestAlg and Svc
 #include "SCT_ReadCalibDataTestAlg.h"
-#include "SCT_ConditionsServices/ISCT_ReadCalibDataSvc.h"
 
 // Include Athena stuff
 #include "Identifier/IdentifierHash.h"
@@ -30,7 +29,6 @@ SCT_ReadCalibDataTestAlg::SCT_ReadCalibDataTestAlg(const std::string& name, ISvc
   m_moduleId{0},
   m_waferId{0},
   m_stripId{0},
-  m_ReadCalibDataSvc{"SCT_ReadCalibDataSvc", name},
   m_cabling{"SCT_CablingSvc", name},
   m_doTestmyConditionsSummary{false},
   m_doTestmyDefectIsGood{false},
@@ -39,7 +37,6 @@ SCT_ReadCalibDataTestAlg::SCT_ReadCalibDataTestAlg(const std::string& name, ISvc
   m_doTestmyDefectList{false},
   m_moduleOfflinePosition{}
 {
-  declareProperty("SCT_ReadCalibDataSvc",        m_ReadCalibDataSvc);
   declareProperty("DoTestmyConditionsSummary",   m_doTestmyConditionsSummary = false, "Test return bool conditions summary?");
   declareProperty("DoTestmyDefectIsGood",        m_doTestmyDefectIsGood      = false, "Test return defect type summary?");
   declareProperty("DoTestmyDefectType",          m_doTestmyDefectType        = false, "Test return defect type summary?");
@@ -72,8 +69,8 @@ StatusCode SCT_ReadCalibDataTestAlg::initialize()
     ATH_MSG_DEBUG("Processed jobOpt properties");
   }
 
-  // Get the SCT_ReadCaliDataSvc
-  m_sc = m_ReadCalibDataSvc.retrieve();
+  // Get the SCT_ReadCaliDataTool
+  m_sc = m_ReadCalibDataTool.retrieve();
   if (m_sc.isFailure()) {
     ATH_MSG_FATAL("Cannot locate CalibData service");
     return StatusCode::FAILURE;
@@ -139,18 +136,13 @@ StatusCode SCT_ReadCalibDataTestAlg::execute()
   // Print where you are
   ATH_MSG_DEBUG("in execute()");
   
-  //Make sure data was filled
-  bool CalibDataFilled = m_ReadCalibDataSvc->filled();  
-  if (CalibDataFilled) {
-    
-    //Test ConditionsSummary
-    if (m_doTestmyConditionsSummary) {
-      // Test summmary, ask status of strip in module
-      Identifier IdM{m_moduleId};
-      Identifier IdS{m_stripId};
-      bool Sok{m_ReadCalibDataSvc->isGood(IdS, InDetConditions::SCT_STRIP)};
-      ATH_MSG_INFO("Strip " << IdS << " on module " << IdM << " is " << (Sok?"good":"bad"));
-    }
+  //Test ConditionsSummary
+  if (m_doTestmyConditionsSummary) {
+    // Test summmary, ask status of strip in module
+    Identifier IdM{m_moduleId};
+    Identifier IdS{m_stripId};
+    bool Sok{m_ReadCalibDataTool->isGood(IdS, InDetConditions::SCT_STRIP)};
+    ATH_MSG_INFO("Strip " << IdS << " on module " << IdM << " is " << (Sok?"good":"bad"));
   }
 
   // Loop over all strips and check if good or not using isGood, and print the bad ones
@@ -174,7 +166,7 @@ StatusCode SCT_ReadCalibDataTestAlg::execute()
           Identifier IdS{m_id_sct->strip_id(waferId,stripIndex)};
           const int stripId{m_id_sct->strip(IdS)};
           const int side{m_id_sct->side(IdS)};
-          const bool stripOk{m_ReadCalibDataSvc->isGood(IdS, InDetConditions::SCT_STRIP)};
+          const bool stripOk{m_ReadCalibDataTool->isGood(IdS, InDetConditions::SCT_STRIP)};
           if (stripOk) ++ngood;
 	  else ++nbad; 
           if (not stripOk) { // Print info on all bad strips

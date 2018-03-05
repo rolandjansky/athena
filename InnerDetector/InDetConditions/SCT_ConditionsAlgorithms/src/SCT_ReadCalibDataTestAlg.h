@@ -12,19 +12,19 @@
 #define SCT_READ_CALIB_DATA_TEST_ALG
 
 //local and indet stuff
-
+#include "SCT_ConditionsTools/ISCT_ReadCalibDataTool.h"
 
 // Include Athena stuff
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "Identifier/Identifier.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 
 // Include STL stuff
 #include <string>
 
 // Forward declarations
 class ISvcLocator;
-class ISCT_ReadCalibDataSvc;
 class SCT_ID;
 class ISCT_CablingSvc;
 
@@ -53,8 +53,9 @@ class SCT_ReadCalibDataTestAlg:public AthAlgorithm
   Identifier                          m_waferId;       //!< Wafer identifier
   Identifier                          m_stripId;       //!< Strip identifier
  
+  // Get Tool Handle
+  ToolHandle<ISCT_ReadCalibDataTool> m_ReadCalibDataTool{this, "SCT_ReadCalibDataTool", "SCT_ReadCalibDataTool", "Tool to retrieve calibration information"};
   // Get Service Handle
-  ServiceHandle<ISCT_ReadCalibDataSvc> m_ReadCalibDataSvc;
   ServiceHandle<ISCT_CablingSvc>       m_cabling;           //!< Handle to SCT cabling service
 
   BooleanProperty                  m_doTestmyConditionsSummary;   //!< Test return bool conditions summary?

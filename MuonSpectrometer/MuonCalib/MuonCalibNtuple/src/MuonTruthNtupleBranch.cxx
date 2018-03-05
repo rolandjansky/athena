@@ -16,23 +16,23 @@
 
 namespace MuonCalib {
 
-  MuonTruthNtupleBranch::MuonTruthNtupleBranch(std::string branchName) : m_branchName(branchName),  branchesInit(false), m_first(true), index(0)
+  MuonTruthNtupleBranch::MuonTruthNtupleBranch(std::string branchName) : m_branchName(branchName),  m_branchesInit(false), m_first(true), m_index(0)
   {}
 
   bool MuonTruthNtupleBranch::fillBranch(const MuonCalibTruth &truth) {
 //    std::cout << "Fill Truth Branch" << std::endl;
-    // check if branches where initialized
-    if( !branchesInit ){
-      //std::cout << "MuonTruthNtupleBranch::fillBranch  ERROR <branches where not initialized>"
+    // check if branches were initialized
+    if( !m_branchesInit ){
+      //std::cout << "MuonTruthNtupleBranch::fillBranch  ERROR <branches were not initialized>"
       //	<<  std::endl;
       return false;    
     }
 
     // check if index not out of range 
-    if( index >= m_blockSize || index < 0 ){
+    if( m_index >= m_blockSize || m_index < 0 ){
       if (m_first == true) {
-	//std::cout << "MuonTruthNtupleBranch::fillBranch  ERROR <index out of range, truth not added to ntuple> "
-	//  << index << std::endl;
+	//std::cout << "MuonTruthNtupleBranch::fillBranch  ERROR <index out of range; truth not added to ntuple> "
+	//  << m_index << std::endl;
 	m_first = false;
       }
       return false;
@@ -41,18 +41,18 @@ namespace MuonCalib {
     //    TrackRecord truth( const_cast<TrackRecord&>(ctruth) ); //Looks nasty, but TrackRecord.Get*() const is not defined=
 
     // copy values 
-    kinEnergy[index] = truth.kinEnergy();
-    gPosX[index] = truth.position().x();
-    gPosY[index] = truth.position().y();
-    gPosZ[index] = truth.position().z();
-    pX[index] = truth.momentum().x();
-    pY[index] = truth.momentum().y();
-    pZ[index] = truth.momentum().z();
-    PDGCode[index] = truth.PDGCode();
-    barCode[index] = truth.barCode();
+    m_kinEnergy[m_index] = truth.kinEnergy();
+    m_gPosX[m_index] = truth.position().x();
+    m_gPosY[m_index] = truth.position().y();
+    m_gPosZ[m_index] = truth.position().z();
+    m_pX[m_index] = truth.momentum().x();
+    m_pY[m_index] = truth.momentum().y();
+    m_pZ[m_index] = truth.momentum().z();
+    m_PDGCode[m_index] = truth.PDGCode();
+    m_barCode[m_index] = truth.barCode();
 
     // increment truth index
-    ++index;
+    ++m_index;
   
     return true;
   }  //end MuonTruthNtupleBranch::fillBranch
@@ -71,23 +71,23 @@ namespace MuonCalib {
     std::string index_name = "nTruth";
 
     // create a branch for every data member
-    branchCreator.createBranch( tree, index_name, &index, "/I");
+    branchCreator.createBranch( tree, index_name, &m_index, "/I");
 
     // all entries of same size, the number of hits in the event
     std::string array_size( std::string("[") + m_branchName + index_name + std::string("]") );
 
     // create the branches
-    branchCreator.createBranch( tree, "kinEnergy", &kinEnergy,  array_size + "/D" );
-    branchCreator.createBranch( tree, "gPosX",     &gPosX,      array_size + "/D" );
-    branchCreator.createBranch( tree, "gPosY",     &gPosY,      array_size + "/D" );
-    branchCreator.createBranch( tree, "gPosZ",     &gPosZ,      array_size + "/D" );
-    branchCreator.createBranch( tree, "pX"   ,     &pX   ,      array_size + "/D" );
-    branchCreator.createBranch( tree, "pY"   ,     &pY   ,      array_size + "/D" );
-    branchCreator.createBranch( tree, "pZ"   ,     &pZ   ,      array_size + "/D" );
-    branchCreator.createBranch( tree, "PDGCode",   &PDGCode,    array_size + "/I" );
-    branchCreator.createBranch( tree, "barCode",   &barCode,    array_size + "/I" );
+    branchCreator.createBranch( tree, "kinEnergy", &m_kinEnergy,  array_size + "/D" );
+    branchCreator.createBranch( tree, "gPosX",     &m_gPosX,      array_size + "/D" );
+    branchCreator.createBranch( tree, "gPosY",     &m_gPosY,      array_size + "/D" );
+    branchCreator.createBranch( tree, "gPosZ",     &m_gPosZ,      array_size + "/D" );
+    branchCreator.createBranch( tree, "pX"   ,     &m_pX   ,      array_size + "/D" );
+    branchCreator.createBranch( tree, "pY"   ,     &m_pY   ,      array_size + "/D" );
+    branchCreator.createBranch( tree, "pZ"   ,     &m_pZ   ,      array_size + "/D" );
+    branchCreator.createBranch( tree, "PDGCode",   &m_PDGCode,    array_size + "/I" );
+    branchCreator.createBranch( tree, "barCode",   &m_barCode,    array_size + "/I" );
 
-    branchesInit = true;
+    m_branchesInit = true;
 
     // reset branch
     reset();

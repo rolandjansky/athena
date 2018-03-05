@@ -104,9 +104,6 @@ public:
 
   virtual void disableRODs();
 
-  virtual void setDecodedROD(const boost::uint32_t rodId);
-  virtual std::vector<boost::uint32_t> getRODOuts() const;
-
   virtual void setFirstTempMaskedChip(const IdentifierHash& hashId, const unsigned int firstTempMaskedChip);
   virtual unsigned int getFirstTempMaskedChip(const IdentifierHash& hashId) const;
   virtual const std::map<Identifier, unsigned int>* tempMaskedChips() const {return &m_tempMaskedChips;}
@@ -145,8 +142,6 @@ private:
   bool m_disableRODs;
   double m_rodFailureFraction;
   unsigned int m_randomSeed; // The seed of random numbers for ROD disabling
-
-  std::map<boost::uint32_t, bool> m_rodDecodeStatuses;
 
   const InDetDD::SCT_DetectorManager* m_pManager; //!< SCT detector manager
 

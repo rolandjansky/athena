@@ -26,6 +26,8 @@ DetFlags.ID_setOn()
 DetFlags.Calo_setOn()
 DetFlags.Muon_setOff()
 DetFlags.Forward_setOff()
+DetFlags.pileup.all_setOff()
+DetFlags.overlay.all_setOff()
 
 from ISF_FastCaloSimParametrization.ISF_FastCaloSimParametrizationConf import ISF_HitAnalysis
 topSequence += ISF_HitAnalysis()

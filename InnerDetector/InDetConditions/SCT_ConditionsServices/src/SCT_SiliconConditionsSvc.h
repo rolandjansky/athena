@@ -15,14 +15,11 @@
 
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "InDetConditionsSummaryService/ISiliconConditionsSvc.h"
-#include "SCT_ConditionsServices/ISCT_DCSConditionsSvc.h"
 
 #include "SCT_ConditionsData/SCT_DCSFloatCondData.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
-class ISvcLocator;
 class IGeoModelSvc;
 class IRDBAccessSvc;
 class StoreGateSvc;
@@ -42,35 +39,35 @@ class SCT_SiliconConditionsSvc: public AthService,
   /** Constructor */
   SCT_SiliconConditionsSvc(const std::string& type, ISvcLocator* sl);
   /** Destructor */
-  virtual ~SCT_SiliconConditionsSvc();
+  virtual ~SCT_SiliconConditionsSvc() = default;
 
   /** Initialise */
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
   /** Finalise */
-  virtual StatusCode finalize();
+  virtual StatusCode finalize() override;
   /** Service queryInterface method */
-  virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvIf); 
+  virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvIf) override;
   /** Obtain service's interface ID */
   static const InterfaceID& interfaceID();
 
   /** Silicon temperature by Identifier */
-  virtual float temperature(const Identifier& elementId);
+  virtual float temperature(const Identifier& elementId) override;
   /** Silicon bias voltage by Identifier */
-  virtual float biasVoltage(const Identifier& elementId);
+  virtual float biasVoltage(const Identifier& elementId) override;
   /** Silicon depletion voltage by Identifier */
-  virtual float depletionVoltage(const Identifier& elementId);
+  virtual float depletionVoltage(const Identifier& elementId) override;
 
   /** Silicon temperature by IdentifierHash */
-  virtual float temperature(const IdentifierHash& elementHash);
+  virtual float temperature(const IdentifierHash& elementHash) override;
   /** Silicon bias voltage by IdentifierHash */
-  virtual float biasVoltage(const IdentifierHash& elementHash);
+  virtual float biasVoltage(const IdentifierHash& elementHash) override;
   /** Silicon depletion voltage by IdentifierHash */
-  virtual float depletionVoltage(const IdentifierHash& elementHash);
+  virtual float depletionVoltage(const IdentifierHash& elementHash) override;
 
   /** IOV CallBack */
-  virtual StatusCode callBack(int&, std::list<std::string>&);
+  virtual StatusCode callBack(int&, std::list<std::string>&) override;
   /** Query whether a CallBack has been registered. */
-  virtual bool hasCallBack();
+  virtual bool hasCallBack() override;
 
  private:
  
@@ -101,7 +98,7 @@ class SCT_SiliconConditionsSvc: public AthService,
   const SCT_DCSFloatCondData* getCondDataTemp() const;
   };
 
-inline const InterfaceID& SCT_SiliconConditionsSvc::interfaceID(){
+inline const InterfaceID& SCT_SiliconConditionsSvc::interfaceID() {
   return ISiliconConditionsSvc::interfaceID();
 }
 

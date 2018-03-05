@@ -15,7 +15,6 @@
 #include <iterator>
 
 //Athena includes
-#include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
 
 static const std::string databaseSignature{"database"};
@@ -43,16 +42,16 @@ SCT_ModuleVetoTool::SCT_ModuleVetoTool(const std::string &type, const std::strin
 //Initialize
 StatusCode 
 SCT_ModuleVetoTool::initialize() {
-  if (m_maskLayers and !m_layersToMask.size() and !m_disksToMask.size()) {
+  if (m_maskLayers and m_layersToMask.size()==0 and m_disksToMask.size()==0) {
     ATH_MSG_INFO("Layer/Disk masking enabled, but no layer/disk specified!");
     m_maskLayers = false;
   }
   
-  if (!m_maskLayers and (m_layersToMask.size() or m_disksToMask.size())) {
+  if ((not m_maskLayers) and (m_layersToMask.size() or m_disksToMask.size())) {
     ATH_MSG_INFO("Layer/Disk to mask specified, but masking is disabled!");
   } 
 
-  if (!m_maskLayers and m_maskSide!=-1) {
+  if ((not m_maskLayers) and m_maskSide!=-1) {
     ATH_MSG_INFO("Layer/Disk side to mask specified, but masking is disabled!");
   } 
   
@@ -131,7 +130,7 @@ SCT_ModuleVetoTool::fillData() {
 
   // Fill data based on properties
   StatusCode sc{StatusCode::SUCCESS};
-  if ((m_badElements.value().size() - static_cast<int>(m_useDatabase)) == 0 and !m_maskLayers) {
+  if ((m_badElements.value().size() - static_cast<int>(m_useDatabase)) == 0 and (not m_maskLayers)) {
     ATH_MSG_INFO("No bad modules in job options.");
     return sc;
   } 
