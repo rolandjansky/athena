@@ -6,6 +6,9 @@ import re
 import ast
 import sys
 
+
+from PyCool import coral
+
 def read_metadata(filenames, file_type=None, mode='lite'):
     """
     This tool is independent of Athena framework and returns the metadata from a given file.
@@ -81,6 +84,8 @@ def read_metadata(filenames, file_type=None, mode='lite'):
                 # fill metadata_items
                 metaDict[filename]['metadata_items'].append(('DataHeader', ';00;MetaDataSvc'))
 
+                metadata = {}
+
                 for name, cls in meta_data_srv:
                     try:
                         a = evt.retrieveMetaInput(cls, name)
@@ -89,20 +94,56 @@ def read_metadata(filenames, file_type=None, mode='lite'):
 
                     # fill metadata_items
                     metaDict[filename]['metadata_items'].append((cls, name))
+                    # print("{0} {1}".format(cls, name))
 
                     if cls == 'IOVMetaDataContainer':
-                        metaDict[filename][name] = __convert_IOVMetaDataContainer(a)
+                        metadata[name] = __convert_IOVMetaDataContainer(a)
                     if cls == 'xAOD::EventFormat':
-                        metaDict[filename][name] = __convert_EventFormat(a)
+                        metadata[name] = __convert_EventFormat(a)
                     if cls == 'EventStreamInfo':
-                        metaDict[filename][name] = __convert_EventStreamInfo(a)
+                        metadata[name] = __convert_EventStreamInfo(a)
 
-                # if the flag full is set to true then grab all metadata
-                if mode == 'lite':
-                    for key in list(metaDict[filename]):
-                        if key not in ['file_type', 'file_size', 'file_guid', 'nentries', 'run_number']:
-                            metaDict[filename].pop(key, None)
 
+                # Aggregate common information who needs to be promoted up one level
+                promote_list = {
+                    'EventStreamInfo': [
+                        ('run_number', 'run_number'),
+                        ('processing_tags', 'stream_names'),
+                        ('lumi_block', 'lumi_block'),
+                        ('evt_number', 'evt_number'),
+                        ('mc_channel_number', 'mc_channel_number'),
+                        ('mc_event_weight', 'mc_event_weight'),
+                        ('evt_type', 'evt_type'),
+                        ('detdescr_tags', 'detdescr_tags'),
+                    ],
+                    'IOVMetaDataContainer': [
+                        ('beam_energy', 'beam_energy'),
+                        ('beam_type', 'beam_type'),
+                        ('GeoAtlas', 'geometry'),
+                        ('IOVDbGlobalTag', 'conditions_tag')
+                    ]
+                }
+
+                for cls, cls_name in metaDict[filename]['metadata_items']:
+                    if cls in promote_list:
+                        for name_orig, name_new in promote_list[cls]:
+
+                            if name_new not in metaDict[filename]:
+                                metaDict[filename][name_new] = []
+
+                            if name_orig in metadata[cls_name]:
+
+                                value = metadata[cls_name][name_orig]
+
+                                if isinstance(value, (list, tuple)):
+                                    metaDict[filename][name_new] += value
+                                else:
+                                    metaDict[filename][name_new].append(value)
+
+                if mode == 'full':
+                    metaDict[filename]['metadata'] = metadata
+                else:
+                    metaDict[filename]['metadata'] = list(metadata.keys())
 
         # ----------------------------------------------------------------------------------------------------------------#
         # retrieves metadata from bytestream (BS) files (RAW, DRAW)
@@ -187,7 +228,6 @@ def read_metadata(filenames, file_type=None, mode='lite'):
                     print('This is the lite version for BS files')
                     pass
 
-
         # ----------------------------------------------------------------------------------------------------------------#
         # Thow an error if the user provide other file types
         else:
@@ -214,9 +254,9 @@ def __convert_EventStreamInfo(esi):
         d['mc_event_weight'].append(evt_type.mc_event_weight())
         d['detdescr_tags'].append(evt_type.get_detdescr_tags())
 
-        d['evt_type'].append( 'IS_SIMULATION' if evt_type.test(evt_type.IS_SIMULATION) else 'IS_DATA')
-        d['evt_type'].append( 'IS_TESTBEAM' if evt_type.test(evt_type.IS_TESTBEAM) else 'IS_ATLAS')
-        d['evt_type'].append( 'IS_CALIBRATION' if evt_type.test(evt_type.IS_CALIBRATION) else 'IS_PHYSICS')
+        d['evt_type'].append('IS_SIMULATION' if evt_type.test(evt_type.IS_SIMULATION) else 'IS_DATA')
+        d['evt_type'].append('IS_TESTBEAM' if evt_type.test(evt_type.IS_TESTBEAM) else 'IS_ATLAS')
+        d['evt_type'].append('IS_CALIBRATION' if evt_type.test(evt_type.IS_CALIBRATION) else 'IS_PHYSICS')
 
     d['eventdata_items'] = []
     for e in esi.getItemList():
@@ -231,27 +271,20 @@ def __convert_EventStreamInfo(esi):
 
 
 def __convert_IOVMetaDataContainer(iovmetadata):
-    return [__convert_CondAttributeList(e) for e in iovmetadata.payloadContainer()]
+    data = {}
 
+    for cond_attr_list_collection in iovmetadata.payloadContainer():
 
-def __convert_CondAttributeList(condattrlist):
-    r = []
-    for i in range(0, condattrlist.size()):
-        chanNum = condattrlist.chanNum(i)
+        for pair_attr_list in cond_attr_list_collection:
+            # i = pair_attr_list.first
+            attr_list = pair_attr_list.second
+            spec = attr_list.specification()
 
-        d = dict(condattrlist.attributeList(chanNum))
+            for i in range(len(spec)):
+                # print("{0}: {1} ({2})".format(spec[i].name(), attr_list[i], spec[i].typeName()))
+                data[spec[i].name()] = attr_list[i]
 
-        chanName = condattrlist.chanName(chanNum)
-        if chanName is not '':
-            d['chanName'] = chanName
-
-        for k, v in d.iteritems():
-            try: # to cast the strings into relevant Python types/data structures
-                d[k] = ast.literal_eval(v)
-            except:
-                pass
-        r.append(d)
-    return r
+    return data
 
 
 def __convert_EventFormat(evfmt):
