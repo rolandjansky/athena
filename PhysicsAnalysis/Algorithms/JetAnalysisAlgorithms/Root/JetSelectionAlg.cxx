@@ -12,7 +12,7 @@
 
 #include <JetAnalysisAlgorithms/JetSelectionAlg.h>
 
-#include <SystematicsHandles/SelectionHelpers.h>
+#include <SelectionHelpers/SelectionHelpers.h>
 
 //
 // method implementations

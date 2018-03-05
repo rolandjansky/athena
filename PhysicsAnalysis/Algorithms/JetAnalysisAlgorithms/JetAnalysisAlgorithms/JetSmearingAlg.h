@@ -11,7 +11,7 @@
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <JetResolution/IJERSmearingTool.h>
-#include <SystematicsHandles/OutOfValidityHelper.h>
+#include <SelectionHelpers/OutOfValidityHelper.h>
 #include <SystematicsHandles/SysCopyHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <xAODJet/JetContainer.h>

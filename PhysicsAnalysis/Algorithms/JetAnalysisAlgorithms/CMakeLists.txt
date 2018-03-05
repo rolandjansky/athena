@@ -10,7 +10,7 @@ atlas_depends_on_subdirs(
 atlas_add_library( JetAnalysisAlgorithmsLib
    JetAnalysisAlgorithms/*.h JetAnalysisAlgorithms/*.icc Root/*.cxx
    PUBLIC_HEADERS JetAnalysisAlgorithms
-   LINK_LIBRARIES SystematicsHandlesLib JetCalibToolsLib JetInterface JetResolutionLib JetCPInterfaces JetJvtEfficiencyLib
+   LINK_LIBRARIES SelectionHelpersLib SystematicsHandlesLib JetCalibToolsLib JetInterface JetResolutionLib JetCPInterfaces JetJvtEfficiencyLib
    PRIVATE_LINK_LIBRARIES RootCoreUtils )
 
 atlas_add_dictionary( JetAnalysisAlgorithmsDict

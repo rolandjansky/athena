@@ -11,8 +11,8 @@
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
 #include <JetJvtEfficiency/IJetJvtEfficiency.h>
-#include <SystematicsHandles/OutOfValidityHelper.h>
-#include <SystematicsHandles/SelectionHelpers.h>
+#include <SelectionHelpers/OutOfValidityHelper.h>
+#include <SelectionHelpers/SelectionHelpers.h>
 #include <SystematicsHandles/SysCopyHandle.h>
 #include <SystematicsHandles/SysListHandle.h>
 #include <xAODJet/JetContainer.h>
