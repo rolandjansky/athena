@@ -3375,13 +3375,6 @@
         <InternalTrigger name="BGRP0"/>
       </AND>
     </TriggerItem>
-    <TriggerItem ctpid="464" partition="3" name="L1_RD3_BGRP15" complex_deadtime="0" definition="(RNDM3&amp;BGRP0&amp;BGRP15)" trigger_type="0001" monitor="LF:000|HF:000">
-      <AND>
-        <InternalTrigger name="RNDM3"/>
-        <InternalTrigger name="BGRP0"/>
-        <InternalTrigger name="BGRP15"/>
-      </AND>
-    </TriggerItem>
     <TriggerItem ctpid="465" partition="1" name="L1_J40.0ETA25_2J30_J20.31ETA49" complex_deadtime="0" definition="(J40.0ETA25[x1]&amp;J30[x2]&amp;J20.31ETA49[x1]&amp;BGRP0&amp;BGRP1)" trigger_type="10000100" monitor="LF:000|HF:000">
       <AND>
         <TriggerCondition multi="1" name="J40.0ETA25_x1" triggerthreshold="J40.0ETA25"/>
@@ -3701,6 +3694,13 @@
         <TriggerCondition multi="1" name="J100_x1" triggerthreshold="J100"/>
         <InternalTrigger name="BGRP0"/>
         <InternalTrigger name="BGRP1"/>
+      </AND>
+    </TriggerItem>
+    <TriggerItem ctpid="510" partition="3" name="L1_RD3_BGRP15" complex_deadtime="0" definition="(RNDM3&amp;BGRP0&amp;BGRP15)" trigger_type="0001" monitor="LF:000|HF:000">
+      <AND>
+        <InternalTrigger name="RNDM3"/>
+        <InternalTrigger name="BGRP0"/>
+        <InternalTrigger name="BGRP15"/>
       </AND>
     </TriggerItem>
     <TriggerItem ctpid="511" partition="1" name="L1_CALREQ2" complex_deadtime="0" definition="(CAL2[x1]&amp;BGRP0&amp;BGRP2)" trigger_type="00110100" monitor="LF:000|HF:000">
@@ -4176,7 +4176,7 @@
     <Prescale ctpid="461" cut="000001" value="1"/>
     <Prescale ctpid="462" cut="000001" value="1"/>
     <Prescale ctpid="463" cut="-000001" value="-1"/>
-    <Prescale ctpid="464" cut="000001" value="1"/>
+    <Prescale ctpid="464" cut="-000001" value="-1"/>
     <Prescale ctpid="465" cut="000001" value="1"/>
     <Prescale ctpid="466" cut="000001" value="1"/>
     <Prescale ctpid="467" cut="000001" value="1"/>
@@ -4222,7 +4222,7 @@
     <Prescale ctpid="507" cut="000001" value="1"/>
     <Prescale ctpid="508" cut="000001" value="1"/>
     <Prescale ctpid="509" cut="-000001" value="-1"/>
-    <Prescale ctpid="510" cut="-000001" value="-1"/>
+    <Prescale ctpid="510" cut="000001" value="1"/>
     <Prescale ctpid="511" cut="000001" value="1"/>
   </PrescaleSet>
   <TriggerCounterList>

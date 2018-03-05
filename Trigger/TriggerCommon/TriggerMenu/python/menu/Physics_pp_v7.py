@@ -4387,8 +4387,8 @@ def setupMenu():
         ['noalg_L1XE70',  'L1_XE70',   [], [PhysicsStream], ["RATE:SeededStreamers", "BW:MET"], -1 ],
         ['noalg_L1XE60',  'L1_XE60',   [], [PhysicsStream], ["RATE:SeededStreamers", "BW:MET"], -1 ],
         ['noalg_L1XE55',  'L1_XE55',   [], [PhysicsStream], ["RATE:SeededStreamers", "BW:MET"], -1 ],
-        ['noalg_L1XE50',  'L1_XE50',   [], [PhysicsStream], ["RATE:SeededStreamers", "BW:MET"], -1 ],
-        ['noalg_L1XE45',  'L1_XE45',   [], [PhysicsStream, 'express'], ["RATE:SeededStreamers", "BW:MET"], -1 ],
+        ['noalg_L1XE50',  'L1_XE50',   [], [PhysicsStream, 'express'], ["RATE:SeededStreamers", "BW:MET"], -1 ],
+        ['noalg_L1XE45',  'L1_XE45',   [], [PhysicsStream], ["RATE:SeededStreamers", "BW:MET"], -1 ],
         ['noalg_L1XE40',  'L1_XE40',   [], [PhysicsStream], ["RATE:SeededStreamers", "BW:MET"], -1 ],
 	
         ['noalg_L1TE15',  'L1_TE15',   [], [PhysicsStream], ["RATE:SeededStreamers", "BW:MET"], -1 ],
@@ -5493,6 +5493,7 @@ chain_list=[
     'mb_sptrk',
     'mb_sptrk_L1RD0_EMPTY',
     'mb_sptrk_L1RD0_UNPAIRED_ISO',
+    'mb_sp_L1RD0_FILLED',
     'mb_sp_L1RD0_UNPAIRED_ISO',
     'mb_sp_ncb_L1RD0_UNPAIRED_ISO',
     'mb_sp_blayer_L1RD0_UNPAIRED_ISO',
