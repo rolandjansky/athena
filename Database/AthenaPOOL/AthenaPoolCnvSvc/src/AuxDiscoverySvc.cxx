@@ -89,13 +89,17 @@ bool AuxDiscoverySvc::setAuxStore() {
 SG::auxid_t AuxDiscoverySvc::getAuxID(const std::string& attrName, const std::string& elemName, const std::string& typeName) {
    SG::AuxTypeRegistry& registry = SG::AuxTypeRegistry::instance();
    SG::auxid_t auxid = registry.findAuxID(attrName);
-   if (auxid == SG::null_auxid) {
-      RootUtils::Type elemType(elemName);
-      const std::type_info* eti = elemType.getTypeInfo();
-      if (eti == nullptr || m_storeInt == nullptr) {
+   if (auxid == SG::null_auxid && m_storeInt != nullptr) {
+      try {
+         RootUtils::Type elemType(elemName);
+         const std::type_info* eti = elemType.getTypeInfo();
+         if (eti == nullptr) {
+            return SG::null_auxid;
+         }
+         auxid = SG::getDynamicAuxID(*eti, attrName, elemName, typeName, m_storeInt->standalone());
+      } catch (...) {
          return SG::null_auxid;
       }
-      auxid = SG::getDynamicAuxID(*eti, attrName, elemName, typeName, m_storeInt->standalone());
    }
    return auxid;
 }
@@ -186,7 +190,9 @@ StatusCode AuxDiscoverySvc::receiveStore(const IAthenaSerializeSvc* serSvc, cons
             SG::auxid_t auxid = this->getAuxID(static_cast<char*>(attrName),
 	            static_cast<char*>(elemName),
 	            static_cast<char*>(typeName));
-            this->setData(auxid, dynAttr, type);
+            if (auxid != SG::null_auxid) {
+               this->setData(auxid, dynAttr, type);
+            }
          }
       }
       this->setAuxStore();
