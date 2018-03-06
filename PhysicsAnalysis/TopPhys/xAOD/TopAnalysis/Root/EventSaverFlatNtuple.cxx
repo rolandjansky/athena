@@ -1211,6 +1211,24 @@ namespace top {
        m_upgradeTreeManager->makeOutputVariable(m_jet_Ghosts_BHadron_Final_Count, "jet_nGhosts_bHadron");
        m_upgradeTreeManager->makeOutputVariable(m_jet_Ghosts_CHadron_Final_Count, "jet_nGhosts_cHadron");
 
+       //large R jets
+       if ( m_config->useTruthLargeRJets() ){
+           m_upgradeTreeManager->makeOutputVariable(m_ljet_pt, "ljet_pt");
+           m_upgradeTreeManager->makeOutputVariable(m_ljet_eta, "ljet_eta");
+           m_upgradeTreeManager->makeOutputVariable(m_ljet_phi, "ljet_phi");
+          m_upgradeTreeManager->makeOutputVariable(m_ljet_e, "ljet_e");
+
+           m_upgradeTreeManager->makeOutputVariable(m_ljet_Ghosts_BHadron_Final_Count, "ljet_nGhosts_bHadron");
+           m_upgradeTreeManager->makeOutputVariable(m_ljet_Ghosts_CHadron_Final_Count, "ljet_nGhosts_cHadron");
+       }
+
+       if (m_config->useTruthPhotons()) {
+           m_upgradeTreeManager->makeOutputVariable(m_ph_pt, "ph_pt");
+           m_upgradeTreeManager->makeOutputVariable(m_ph_eta, "ph_eta");
+           m_upgradeTreeManager->makeOutputVariable(m_ph_phi, "ph_phi");
+           m_upgradeTreeManager->makeOutputVariable(m_ph_e, "ph_e");
+       }
+
        // MET
        m_upgradeTreeManager->makeOutputVariable(m_met_met, "met_met");
        m_upgradeTreeManager->makeOutputVariable(m_met_phi, "met_phi");
@@ -3173,6 +3191,46 @@ namespace top {
 
          ++i;
        }
+
+       //large R jets
+       if ( m_config->useTruthLargeRJets() ){
+           unsigned int i = 0;
+
+           m_ljet_pt.resize(upgradeEvent.m_largeRJets->size());
+           m_ljet_eta.resize(upgradeEvent.m_largeRJets->size());
+           m_ljet_phi.resize(upgradeEvent.m_largeRJets->size());
+           m_ljet_e.resize(upgradeEvent.m_largeRJets->size());
+           m_ljet_Ghosts_BHadron_Final_Count.resize(upgradeEvent.m_largeRJets->size());
+           m_ljet_Ghosts_CHadron_Final_Count.resize(upgradeEvent.m_largeRJets->size());
+           for (const auto & jetPtr : * upgradeEvent.m_largeRJets) {
+               m_ljet_pt[i] = jetPtr->pt();
+               m_ljet_eta[i] = jetPtr->eta();
+               m_ljet_phi[i] = jetPtr->phi();
+               m_ljet_e[i] = jetPtr->e();
+
+               m_ljet_Ghosts_BHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostBHadronsFinalCount" );
+               m_ljet_Ghosts_CHadron_Final_Count[i] = jetPtr->auxdata<int>( "GhostCHadronsFinalCount" );
+
+               ++i;
+           }
+       }
+
+       //photons
+        if (m_config->useTruthPhotons()) {
+            unsigned int i(0);
+            m_ph_pt.resize(upgradeEvent.m_photons->size());
+            m_ph_eta.resize(upgradeEvent.m_photons->size());
+            m_ph_phi.resize(upgradeEvent.m_photons->size());
+            m_ph_e.resize(upgradeEvent.m_photons->size());
+            for (const auto* const phPtr : * upgradeEvent.m_photons) {
+                m_ph_pt[i] = phPtr->pt();
+                m_ph_eta[i] = phPtr->eta();
+                m_ph_phi[i] = phPtr->phi();
+                m_ph_e[i] = phPtr->e();
+
+                ++i;
+            }
+        }
 
        // MET
        m_met_met = upgradeEvent.m_met->met();
