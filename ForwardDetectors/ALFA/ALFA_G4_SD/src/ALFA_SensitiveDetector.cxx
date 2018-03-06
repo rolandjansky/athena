@@ -34,12 +34,12 @@ ALFA_SensitiveDetector::ALFA_SensitiveDetector(const std::string& name, const st
   m_numberOfHits = 0;
   m_numberOfODHits = 0;
 
-  pos1 = 0;
-  pos2 = 0;
+  m_pos1 = 0;
+  m_pos2 = 0;
 
-  num[0] = 0;
-  num[1] = 0;
-  num[2] = 0;
+  m_num[0] = 0;
+  m_num[1] = 0;
+  m_num[2] = 0;
 
 }
 
@@ -129,15 +129,15 @@ bool ALFA_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
   if (vol_test_str.compare("ALFA_Fi") == 0)
     {
       if (std::abs(energyDeposit)<std::numeric_limits<double>::epsilon()) { return true; }
-      pos2 = 10;
+      m_pos2 = 10;
       std::string substring (vol_name);
       std::string num_string (vol_name);
 
       ////ATH_MSG_DEBUG(" volume name is " << vol_test_str  );
-      ////ATH_MSG_DEBUG("string slope is " << substring.substr(pos2,1)  );
+      ////ATH_MSG_DEBUG("string slope is " << substring.substr(m_pos2,1)  );
 
       std::string test_str ("A");
-      test_str = substring.substr(pos2,1);
+      test_str = substring.substr(m_pos2,1);
       int sign_fiber(0);
       if (test_str.compare("U") == 0)
         {
@@ -154,22 +154,22 @@ bool ALFA_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
 
       for ( int k = 0; k < 3; k++ )
         {
-          substring = substring.substr(pos2+1);
+          substring = substring.substr(m_pos2+1);
           ////ATH_MSG_DEBUG("remaining string is " << substring  );
-          pos1 = int(substring.find("["));
-          ////ATH_MSG_DEBUG("position 1 is " << pos1  );
-          pos2 = int(substring.find("]"));
-          ////ATH_MSG_DEBUG("position 2 is " << pos1  );
-          num_string = substring.substr(pos1+1,pos2-1);
+          m_pos1 = int(substring.find("["));
+          ////ATH_MSG_DEBUG("position 1 is " << m_pos1  );
+          m_pos2 = int(substring.find("]"));
+          ////ATH_MSG_DEBUG("position 2 is " << m_pos1  );
+          num_string = substring.substr(m_pos1+1,m_pos2-1);
           ////ATH_MSG_DEBUG("num_string is " << substring );
           std::istringstream is(num_string);
-          is >> num[k];
-          ////ATH_MSG_DEBUG("number got is " << num[k] );
+          is >> m_num[k];
+          ////ATH_MSG_DEBUG("number got is " << m_num[k] );
         }
 
-      n_station = num[0];
-      n_plate   = num[1];
-      n_fiber   = num[2];
+      n_station = m_num[0];
+      n_plate   = m_num[1];
+      n_fiber   = m_num[2];
 
       ////ATH_MSG_DEBUG("station=" << n_station << ", plate=" << n_plate << ", fiber=" << n_fiber << ", sign=" << sign_fiber );
 
@@ -199,15 +199,15 @@ bool ALFA_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
   if (vol_test_str.compare("ODFiber") == 0)
     {
       if (std::abs(energyDeposit)<std::numeric_limits<double>::epsilon()) { return true; }
-      pos2 = 7;
+      m_pos2 = 7;
       std::string substring (vol_name);
       std::string num_string (vol_name);
 
       //////ATH_MSG_DEBUG(" volume name is " << vol_test_str  );
-      //////ATH_MSG_DEBUG("string slope is " << substring.substr(pos2,1)  );
+      //////ATH_MSG_DEBUG("string slope is " << substring.substr(m_pos2,1)  );
 
       std::string test_str ("A");
-      test_str = substring.substr(pos2,1);
+      test_str = substring.substr(m_pos2,1);
       int sign_fiber(0);
       if (test_str.compare("U") == 0)
         {
@@ -222,7 +222,7 @@ bool ALFA_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
         }
 
       std::string test_str_side ("A");
-      test_str_side = substring.substr(pos2+1,1);
+      test_str_side = substring.substr(m_pos2+1,1);
 
       //////ATH_MSG_DEBUG("remaining string is " << test_str_side );
       int OD_side(0);
@@ -240,22 +240,22 @@ bool ALFA_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
 
       for ( int k = 0; k < 3; k++ )
         {
-          substring = substring.substr(pos2+1);
+          substring = substring.substr(m_pos2+1);
           ////ATH_MSG_DEBUG("OD: remaining string is " << substring  );
-          pos1 = int(substring.find("["));
-          ////ATH_MSG_DEBUG("OD: position 1 is " << pos1  );
-          pos2 = int(substring.find("]"));
-          ////ATH_MSG_DEBUG("OD: position 2 is " << pos1  );
-          num_string = substring.substr(pos1+1,pos2-1);
+          m_pos1 = int(substring.find("["));
+          ////ATH_MSG_DEBUG("OD: position 1 is " << m_pos1  );
+          m_pos2 = int(substring.find("]"));
+          ////ATH_MSG_DEBUG("OD: position 2 is " << m_pos1  );
+          num_string = substring.substr(m_pos1+1,m_pos2-1);
           ////ATH_MSG_DEBUG("OD: num_string is " << substring );
           std::istringstream is(num_string);
-          is >> num[k];
-          ////ATH_MSG_DEBUG("OD: number got is " << num[k] );
+          is >> m_num[k];
+          ////ATH_MSG_DEBUG("OD: number got is " << m_num[k] );
         }
 
-      n_station = num[0];
-      n_plate   = num[1];
-      n_fiber   = num[2];
+      n_station = m_num[0];
+      n_plate   = m_num[1];
+      n_fiber   = m_num[2];
 
       ////ATH_MSG_DEBUG("station=" << n_station << ", side=" << OD_side << ", plate= "<< n_plate << ", fiber=" << n_fiber << ", sign=" << sign_fiber );
       if(m_ODHitCollection.isValid())
