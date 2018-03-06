@@ -132,7 +132,8 @@ namespace PMGTools
 
     // Validate weight caches against event information
     if (m_weightNames.size() != m_evtInfo->mcEventWeights().size()) {
-      ATH_MSG_ERROR("Expected " << m_weightNames.size() << " from the metadata but this event has " << m_weightIndices.size());
+      ATH_MSG_ERROR("Expected " << m_weightNames.size() << " weights from the metadata but this event has " << m_evtInfo->mcEventWeights().size());
+      ATH_MSG_ERROR("Perhaps this sample was made using a release which did not correctly propagate the event weights.");
       return StatusCode::FAILURE;
     }
 
