@@ -1,5 +1,6 @@
 #include "../SCT_ChargeTrappingTool.h"
 #include "../SCT_ConditionsParameterTool.h"
+#include "../SCT_DCSConditionsTool.h"
 #include "../SCT_ElectricFieldTool.h"
 #include "../SCT_LinkMaskingTool.h"
 #include "../SCT_MajorityConditionsTool.h"
@@ -16,6 +17,7 @@
 
 DECLARE_COMPONENT( SCT_ChargeTrappingTool )
 DECLARE_COMPONENT( SCT_ConditionsParameterTool )
+DECLARE_COMPONENT( SCT_DCSConditionsTool )
 DECLARE_COMPONENT( SCT_ElectricFieldTool )
 DECLARE_COMPONENT( SCT_LinkMaskingTool )
 DECLARE_COMPONENT( SCT_MajorityConditionsTool )

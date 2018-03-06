@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-// New SCT_DCSConditions Service, based on existing tool in SCT_ConditionsAlgs
+// New SCT_DCSConditions Tool, based on existing tool in SCT_ConditionsAlgs
 // A. R-Veronneau 26/02/08
 
-#include "SCT_DCSConditionsSvc.h"
+#include "SCT_DCSConditionsTool.h"
 #include "SCT_ConditionsServices/SCT_SlhcIdConverter.h"
 #include "InDetIdentifier/SCT_ID.h"
 
@@ -13,14 +13,12 @@
 
 using SCT_ConditionsServices::castId;
 
-const Identifier SCT_DCSConditionsSvc::s_invalidId;
-const float SCT_DCSConditionsSvc::s_defaultHV{-30.}; 
-const float SCT_DCSConditionsSvc::s_defaultTemperature{-40.};
+const Identifier SCT_DCSConditionsTool::s_invalidId;
+const float SCT_DCSConditionsTool::s_defaultHV{-30.}; 
+const float SCT_DCSConditionsTool::s_defaultTemperature{-40.};
 
-SCT_DCSConditionsSvc::SCT_DCSConditionsSvc(const std::string& name,
-                                           ISvcLocator* pSvcLocator) :
-  AthService(name, pSvcLocator),
-  m_detStore{"DetectorStore", name},
+SCT_DCSConditionsTool::SCT_DCSConditionsTool(const std::string& type, const std::string& name, const IInterface* parent) :
+  base_class(type, name, parent),
   m_readAllDBFolders{true},
   m_returnHVTemp{true},
   m_barrel_correction{-3.7},
@@ -39,7 +37,6 @@ SCT_DCSConditionsSvc::SCT_DCSConditionsSvc(const std::string& name,
   m_pHelper{nullptr}
 { 
     //declare variables which will be filled by jobOptions
-    declareProperty("DetectorStore", m_detStore);
     declareProperty("ReadAllDBFolders", m_readAllDBFolders);
     declareProperty("ReturnHVTemp", m_returnHVTemp);
     declareProperty("TempBarrelCorrection", m_barrel_correction);
@@ -47,13 +44,8 @@ SCT_DCSConditionsSvc::SCT_DCSConditionsSvc(const std::string& name,
     declareProperty("TempEcOuterCorrection", m_ecOuter_correction);
 }
 
-StatusCode SCT_DCSConditionsSvc::initialize() {
-  if (AthService::initialize().isFailure()) return StatusCode::FAILURE;
-  if (m_detStore.retrieve().isFailure()) {
-    ATH_MSG_ERROR(" Cannot retrieve detector store ");
-    return StatusCode::FAILURE;
-  }
-  if (m_detStore->retrieve(m_pHelper,"SCT_ID").isFailure()) {
+StatusCode SCT_DCSConditionsTool::initialize() {
+  if (detStore()->retrieve(m_pHelper,"SCT_ID").isFailure()) {
     ATH_MSG_ERROR("SCT helper failed to retrieve ");
     return StatusCode::FAILURE;
   }
@@ -70,42 +62,17 @@ StatusCode SCT_DCSConditionsSvc::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode SCT_DCSConditionsSvc::finalize() { 
+StatusCode SCT_DCSConditionsTool::finalize() { 
   return StatusCode::SUCCESS;
-}
-
-//////////////////////////////
-// From s.binet
-// Query the interfaces.
-//   Input: riid, Requested interface ID
-//          ppvInterface, Pointer to requested interface
-//   Return: StatusCode indicating SUCCESS or FAILURE.
-// N.B. Don't forget to release the interface after use!!!
-StatusCode SCT_DCSConditionsSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
-  if (ISCT_DCSConditionsSvc::interfaceID().versionMatch(riid)) {
-    *ppvInterface = this;
-  } else if (ISCT_ConditionsSvc::interfaceID().versionMatch(riid)) {
-    *ppvInterface = dynamic_cast<ISCT_ConditionsSvc*>(this);
-  } else {
-    // Interface is not directly available : try out a base class
-    return AthService::queryInterface(riid, ppvInterface);
-  }
-  addRef();
-  return StatusCode::SUCCESS;
-}
-
-//returns if fillData worked correctly
-bool SCT_DCSConditionsSvc::filled() const {
-  return true;
 }
 
 //Can report about the module as a whole or the wafer
-bool SCT_DCSConditionsSvc::canReportAbout(InDetConditions::Hierarchy h) {
+bool SCT_DCSConditionsTool::canReportAbout(InDetConditions::Hierarchy h) {
   return (h==InDetConditions::SCT_MODULE or h==InDetConditions::SCT_SIDE or h==InDetConditions::SCT_STRIP);
 }   
 
 //returns the module ID (int), or returns -1 if not able to report
-Identifier SCT_DCSConditionsSvc::getModuleID(const Identifier& elementId, InDetConditions::Hierarchy h) {
+Identifier SCT_DCSConditionsTool::getModuleID(const Identifier& elementId, InDetConditions::Hierarchy h) {
   if (not canReportAbout(h)) return s_invalidId;  
 
   Identifier moduleId;
@@ -122,7 +89,7 @@ Identifier SCT_DCSConditionsSvc::getModuleID(const Identifier& elementId, InDetC
 }
 
 //Returns if element Id is good or bad
-bool SCT_DCSConditionsSvc::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) {
+bool SCT_DCSConditionsTool::isGood(const Identifier& elementId, InDetConditions::Hierarchy h) {
   Identifier moduleId=getModuleID(elementId, h);
   if (not moduleId.is_valid()) return true; // not canreportabout
 
@@ -138,7 +105,7 @@ bool SCT_DCSConditionsSvc::isGood(const Identifier& elementId, InDetConditions::
 }
 
 //Does the same for hashIds
-bool SCT_DCSConditionsSvc::isGood(const IdentifierHash& hashId) {
+bool SCT_DCSConditionsTool::isGood(const IdentifierHash& hashId) {
   Identifier waferId = m_pHelper->wafer_id(hashId);
   Identifier moduleId = m_pHelper->module_id(waferId);
   return isGood(moduleId, InDetConditions::SCT_MODULE);
@@ -148,7 +115,7 @@ bool SCT_DCSConditionsSvc::isGood(const IdentifierHash& hashId) {
 
 // some lame helper methods: 
 // returns HV (s_defaultHV(-30) if there is no information)
-float SCT_DCSConditionsSvc::modHV(const Identifier& elementId, InDetConditions::Hierarchy h) {
+float SCT_DCSConditionsTool::modHV(const Identifier& elementId, InDetConditions::Hierarchy h) {
   Identifier moduleId = getModuleID(elementId, h);
   if (not moduleId.is_valid()) return s_defaultHV; // not canreportabout, return s_defaultHV(-30)
 
@@ -164,14 +131,14 @@ float SCT_DCSConditionsSvc::modHV(const Identifier& elementId, InDetConditions::
 }
 
 //Does the same for hashIds
-float SCT_DCSConditionsSvc::modHV(const IdentifierHash& hashId) {
+float SCT_DCSConditionsTool::modHV(const IdentifierHash& hashId) {
   Identifier waferId = m_pHelper->wafer_id(hashId);
   Identifier moduleId = m_pHelper->module_id(waferId);
   return modHV(moduleId,InDetConditions::SCT_MODULE);
 } 
 
 //Returns temp0 (s_defaultTemperature(-40) if there is no information)
-float SCT_DCSConditionsSvc::hybridTemperature(const Identifier& elementId, InDetConditions::Hierarchy h) {
+float SCT_DCSConditionsTool::hybridTemperature(const Identifier& elementId, InDetConditions::Hierarchy h) {
   Identifier moduleId = getModuleID(elementId, h);
   if (not moduleId.is_valid()) return s_defaultTemperature; // not canreportabout
 
@@ -187,14 +154,14 @@ float SCT_DCSConditionsSvc::hybridTemperature(const Identifier& elementId, InDet
 } 
 
 //Does the same for hashIds
-float SCT_DCSConditionsSvc::hybridTemperature(const IdentifierHash& hashId) {
+float SCT_DCSConditionsTool::hybridTemperature(const IdentifierHash& hashId) {
   Identifier waferId = m_pHelper->wafer_id(hashId);
   Identifier moduleId = m_pHelper->module_id(waferId);
   return hybridTemperature(moduleId, InDetConditions::SCT_MODULE);
 }
 
 //Returns temp0 + correction for Lorentz angle calculation (s_defaultTemperature(-40) if there is no information)
-float SCT_DCSConditionsSvc::sensorTemperature(const Identifier& elementId, InDetConditions::Hierarchy h) {
+float SCT_DCSConditionsTool::sensorTemperature(const Identifier& elementId, InDetConditions::Hierarchy h) {
   Identifier moduleId = getModuleID(elementId, h);
   if (not moduleId.is_valid()) return s_defaultTemperature; // not canreportabout
 
@@ -220,7 +187,7 @@ float SCT_DCSConditionsSvc::sensorTemperature(const Identifier& elementId, InDet
 } 
 
 //Does the same for hashIds
-float SCT_DCSConditionsSvc::sensorTemperature(const IdentifierHash& hashId) {
+float SCT_DCSConditionsTool::sensorTemperature(const IdentifierHash& hashId) {
   Identifier waferId = m_pHelper->wafer_id(hashId);
   Identifier moduleId = m_pHelper->module_id(waferId);
   return sensorTemperature(moduleId, InDetConditions::SCT_MODULE);
@@ -228,15 +195,8 @@ float SCT_DCSConditionsSvc::sensorTemperature(const IdentifierHash& hashId) {
 
 ///////////////////////////////////
 
-// This is kept for SiLorentzAngleSvc callback of SCT_SiliconConditionsSvc and SCT_DCSConditionsSvc
-// (2017-09-29)
-StatusCode SCT_DCSConditionsSvc::fillData(int& /* i */, std::list<std::string>& /*keys*/) {
-  ATH_MSG_FATAL("SCT_DCSConditionsSvc::fillData should not be used anymore!");
-  return StatusCode::FAILURE;
-}
-
 const SCT_DCSStatCondData*
-SCT_DCSConditionsSvc::getCondDataState(const EventContext& ctx) const {
+SCT_DCSConditionsTool::getCondDataState(const EventContext& ctx) const {
   static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
   EventContext::ContextID_t slot{ctx.slot()};
   EventContext::ContextEvt_t evt{ctx.evt()};
@@ -256,7 +216,7 @@ SCT_DCSConditionsSvc::getCondDataState(const EventContext& ctx) const {
 }
 
 const SCT_DCSFloatCondData*
-SCT_DCSConditionsSvc::getCondDataHV(const EventContext& ctx) const {
+SCT_DCSConditionsTool::getCondDataHV(const EventContext& ctx) const {
   static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
   EventContext::ContextID_t slot{ctx.slot()};
   EventContext::ContextEvt_t evt{ctx.evt()};
@@ -276,7 +236,7 @@ SCT_DCSConditionsSvc::getCondDataHV(const EventContext& ctx) const {
 }
 
 const SCT_DCSFloatCondData*
-SCT_DCSConditionsSvc::getCondDataTemp0(const EventContext& ctx) const {
+SCT_DCSConditionsTool::getCondDataTemp0(const EventContext& ctx) const {
   static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
   EventContext::ContextID_t slot{ctx.slot()};
   EventContext::ContextEvt_t evt{ctx.evt()};
