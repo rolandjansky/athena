@@ -14,9 +14,9 @@ class TFCS1DFunctionHistogram:public TFCS1DFunction
 
   public:
     TFCS1DFunctionHistogram() {};
-    TFCS1DFunctionHistogram(TH1* hist, int,double);
+    TFCS1DFunctionHistogram(TH1* hist, double);
 
-    void Initialize(TH1* hist, int,double);
+    void Initialize(TH1* hist, double);
 
     virtual double rnd_to_fct(double rnd);
     TH1* vector_to_histo();
