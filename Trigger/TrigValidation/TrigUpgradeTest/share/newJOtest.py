@@ -1,4 +1,6 @@
-
+#
+#  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+#
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ConfigFlags import ConfigFlagContainer    
@@ -30,17 +32,17 @@ acc.executeModule( GeoModelCfg, flags )
 #     acc.addSequence( parOR("hltStep%d" %s ), sequence="hltSteps" )
 
 # for now we run trivial tester, 
-from AthenaCommon.Constants import DEBUG
-from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ROBDataProviderMTTest
-acc.addEventAlgo( ROBDataProviderMTTest("Tester", OutputLevel=DEBUG) )
+#from AthenaCommon.Constants import DEBUG
+#from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ROBDataProviderMTTest
+#acc.addEventAlgo( ROBDataProviderMTTest("Tester", OutputLevel=DEBUG) )
 
 
 # that is how the L1 decoder can be added but it needs more work to bring all needed services (i.e. TrigConfiguration)
-# from L1Decoder.L1DecoderMod import L1DecoderMod
-# acc.executeModule( L1DecoderMod, flags )
-# l1 = acc.getEventAlgo( "L1Decoder" )
-# from TrigUpgradeTest.TestUtils import applyMenu
-# applyMenu( l1 )
+from L1Decoder.L1DecoderMod import L1DecoderMod
+acc.executeModule( L1DecoderMod, flags )
+l1 = acc.getEventAlgo( "L1Decoder" )
+from TrigUpgradeTest.TestUtils import applyMenu
+applyMenu( l1 )
 
 #acc.printConfig() waiting for MR 8533 is there
 
