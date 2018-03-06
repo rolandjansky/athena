@@ -116,7 +116,12 @@ void test1()
   {
     RCUObject<Payload>* optr = nullptr;
     {
-      RCUObject<Payload> rcuo (svc, 3);
+      RCUObject<Payload> rcuo1 (svc, 3);
+      assert (svc.m_removed == nullptr);
+      RCUObject<Payload> rcuo (std::move (rcuo1));
+      assert (svc.m_removed == &rcuo1);
+      svc.m_removed = nullptr;
+      
       RCURead<Payload> r (rcuo);
       r->check(3);
       

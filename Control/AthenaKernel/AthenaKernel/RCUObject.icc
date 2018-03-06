@@ -123,6 +123,20 @@ RCUObject<T>::RCUObject (size_t nslots, Args&&... args)
 
 
 /**
+ * @brief Move constructor.
+ *
+ * Allow passing these objects via move.
+ */
+template <class T>
+RCUObject<T>::RCUObject (RCUObject&& other)
+  : IRCUObject (std::move (other)),
+    m_obj (static_cast<const T*> (other.m_obj)),
+    m_objs (std::move (other.m_objs))
+{
+}
+
+
+/**
  * @brief Return a reader for this @c RCUObject.
  */
 template <class T>
