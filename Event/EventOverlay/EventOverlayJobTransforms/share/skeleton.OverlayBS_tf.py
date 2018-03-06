@@ -29,7 +29,8 @@ larCondFlags.useShape.set_Value_and_Lock(True)
 larCondFlags.OFCShapeFolder.set_Value_and_Lock("")
 
 globalflags.isOverlay.set_Value_and_Lock(True)
-isRealData = globalflags.isOverlay()
+overlayFlags.isDataOverlay.set_Value_and_Lock(True)
+isRealData = True
 
 from AthenaCommon.BeamFlags import jobproperties
 jobproperties.Beam.beamType.set_Value_and_Lock("collisions")
