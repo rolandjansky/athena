@@ -44,11 +44,7 @@ class TFCS1DFunctionHistogram:public TFCS1DFunction
 
 };
 
-<<<<<<< HEAD
 #if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-=======
-#if defined(__MAKECINT__) && defined(__FastCaloSimStandAlone__)
->>>>>>> 21c89eb728cd64a1fd53fdee5823966a9eced97e
 #pragma link C++ class TFCS1DFunctionHistogram+;
 #endif
 
