@@ -96,3 +96,4 @@ atlas_add_test( ut_PRWDataWeightExample_test
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 atlas_install_data( share/*.root )
+atlas_install_scripts( scripts/PURW_create_actual_mu_profile.py )
