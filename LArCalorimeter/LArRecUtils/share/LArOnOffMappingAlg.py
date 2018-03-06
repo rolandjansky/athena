@@ -8,6 +8,6 @@ else:
 condSequence = AthSequencer("AthCondSeq")  
 from LArRecUtils.LArRecUtilsConf import LArOnOffMappingAlg
 
-condSequence+=LArOnOffMappingAlg(ReadKey="/LAR/Identifier/OnOffIdMap",OutputLevel=DEBUG)
+condSequence+=LArOnOffMappingAlg(ReadKey="/LAR/Identifier/OnOffIdMap")
 
 
