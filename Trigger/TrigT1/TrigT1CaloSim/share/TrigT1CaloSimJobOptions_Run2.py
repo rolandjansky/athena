@@ -31,15 +31,16 @@ if not 'inputFileSummary' in dir():
         from RecExConfig.InputFilePeeker import inputFileSummary
     except ImportError:
         pass
-
-from AthenaCommon.DetFlags import DetFlags
-if DetFlags.overlay.LVL1_on() is True:
+      
+from AthenaCommon.GlobalFlags import globalflags
+if globalflags.isOverlay() is True:
     _doPC = False
     from AthenaCommon import CfgMgr
     from AthenaCommon.AppMgr import ToolSvc
     if not hasattr(ToolSvc, "LumiBlockMuTool"):
-        ToolSvc += CfgMgr.LumiBlockMuTool("LumiBlockMuTool")  
-    job += LVL1__Run2TriggerTowerMaker('Run2TriggerTowerMaker', 
+        ToolSvc += CfgMgr.LumiBlockMuTool("LumiBlockMuTool")
+    from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__OverlayRun2TriggerTowerMaker
+    job += LVL1__OverlayRun2TriggerTowerMaker('Run2TriggerTowerMaker', 
                                       CellType = 3, 
                                       ZeroSuppress = True, 
                                       DoOverlay = True )
