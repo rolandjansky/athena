@@ -155,7 +155,8 @@ bool std_align::is_nominal()const{
   return true;
 }
 
-gcm_key::gcm_key(int _pt,int _ct,int _mis,int corr,int _eta,int _qt,int _bg):pt(_pt),ct(_ct),mis(_mis),correct(corr),eta(_eta),qt(_qt),bgcode(_bg){}
+gcm_key::gcm_key(int the_pt,int the_ct,int the_mis,int the_corr,int the_eta,int the_qt,int the_bg)
+ :pt(the_pt),ct(the_ct),mis(the_mis),correct(the_corr),eta(the_eta),qt(the_qt),bgcode(the_bg){}
 
 bool gcm_key::operator==(const gcm_key& rhs) const{
   if(this->pt==rhs.pt&&this->ct==rhs.ct&&this->mis==rhs.mis&&this->correct==rhs.correct&&this->eta==rhs.eta&&this->qt==rhs.qt&&this->bgcode==rhs.bgcode) return true;
@@ -213,8 +214,8 @@ int gcm_key::get_var(int var)const{
   return -999;
 }
 
-par_par::par_par(double _h,int xct,int uvct,double uver,const string& set,bool ql,bool dlm,bool qbg,double _qt,std_align mis,std_align cor,bool fill_tab,int cs,const string&pd,const string&tg):
-  h(_h),ctx(xct),ctuv(uvct),uverr(uver),setup(set),islarge(ql),q_dlm(dlm),genbg(qbg),qt(_qt),misal(mis),corr(cor),fill_val(fill_tab),colskip(cs),pcrep_dir(pd),tag(tg) {}
+par_par::par_par(double the_h,int xct,int uvct,double uver,const string& set,bool ql,bool dlm,bool qbg,double the_qt,std_align mis,std_align cor,bool fill_tab,int cs,const string&pd,const string&tg):
+  h(the_h),ctx(xct),ctuv(uvct),uverr(uver),setup(set),islarge(ql),q_dlm(dlm),genbg(qbg),qt(the_qt),misal(mis),corr(cor),fill_val(fill_tab),colskip(cs),pcrep_dir(pd),tag(tg) {}
 
 string par_par::print_pars(const vector<int>&hide) const{
   vector<bool>sho(gcm_key().varmax(),true);
@@ -237,7 +238,7 @@ string par_par::detail()const{
   return misal.detail()+"; "+corr.detail();
 }
 
-MMT_Parameters::MMT_Parameters(par_par inputParams, char wedgeSize, const MuonGM::MuonDetectorManager* m_detManager){
+MMT_Parameters::MMT_Parameters(par_par inputParams, char wedgeSize, const MuonGM::MuonDetectorManager* detManager){
   if(inputParams.misal.is_nominal())inputParams.misal.type=0;
   //can still do sim_corrections for nominal
   if(inputParams.corr.is_nominal()&&inputParams.corr.type==2)inputParams.corr.type=0;
@@ -300,11 +301,11 @@ MMT_Parameters::MMT_Parameters(par_par inputParams, char wedgeSize, const MuonGM
   //Only changes for small or large and per module. Phi, layer, etc don't matter (just set to 1)
 //const MuonGM::MuonDetectorManager* m_MuonGeoMgr;
   std::string wedgeString = (wedgeSize=='L' ? "MML" : "MMS");
-  // Identifier id_top    = m_detManager->mmIdHelper()->channelID(wedgeString,/*eta*/ 2,1,1, 1, 1);
-  // Identifier id_bottom = m_detManager->mmIdHelper()->channelID(wedgeString,/*eta*/ 1,1,1, 1, 1);
+  // Identifier id_top    = detManager->mmIdHelper()->channelID(wedgeString,/*eta*/ 2,1,1, 1, 1);
+  // Identifier id_bottom = detManager->mmIdHelper()->channelID(wedgeString,/*eta*/ 1,1,1, 1, 1);
 
-  // int chMax_top    = m_detManager->mmIdHelper()->channelMax(id_top);
-  // int chMax_bottom = m_detManager->mmIdHelper()->channelMax(id_bottom);
+  // int chMax_top    = detManager->mmIdHelper()->channelMax(id_top);
+  // int chMax_bottom = detManager->mmIdHelper()->channelMax(id_bottom);
 
   // double dY_top    = 0.5*(maxYSize_top-minYSize_top);//-2.*design_top->deadS);
   // double dY_bottom = 0.5*(maxYSize_bottom-minYSize_bottom);//-2.*design_top->deadS);
@@ -329,7 +330,7 @@ MMT_Parameters::MMT_Parameters(par_par inputParams, char wedgeSize, const MuonGM
   // retrieve the z-position of the planes
   z_nominal.clear();
   int eta = 1;
-  for (auto pos: MM_firststrip_positions(m_detManager, wedgeString, eta)){
+  for (auto pos: MM_firststrip_positions(detManager, wedgeString, eta)){
     z_nominal.push_back(float32fixed<18>(pos.z()));
   }
 
@@ -386,7 +387,7 @@ MMT_Parameters::MMT_Parameters(par_par inputParams, char wedgeSize, const MuonGM
 
   for (unsigned int eta = 1; eta <= 2; eta++){
     unsigned int layer = 1;
-    for (auto pos: MM_firststrip_positions(m_detManager, wedgeString, eta)){
+    for (auto pos: MM_firststrip_positions(detManager, wedgeString, eta)){
 
       if (wedgeString=="MMS"){
         x_rotated = pos.x()*cos_rotation - pos.y()*sin_rotation;
@@ -544,7 +545,7 @@ MMT_Parameters::MMT_Parameters(par_par inputParams, char wedgeSize, const MuonGM
   }
 }
 
-std::vector<Amg::Vector3D> MMT_Parameters::MM_firststrip_positions(const MuonGM::MuonDetectorManager* m_detManager, const std::string& wedge, int eta){
+std::vector<Amg::Vector3D> MMT_Parameters::MM_firststrip_positions(const MuonGM::MuonDetectorManager* detManager, const std::string& wedge, int eta){
 
   std::vector<Amg::Vector3D> positions;
   positions.clear();
@@ -556,8 +557,8 @@ std::vector<Amg::Vector3D> MMT_Parameters::MM_firststrip_positions(const MuonGM:
     for (unsigned int layer = 1; layer <= n_layers; layer++) {
 
       Amg::Vector3D pos(0.0, 0.0, 0.0);
-      strip_id = m_detManager->mmIdHelper()->channelID(wedge, eta, phi, mult, layer, strip);
-      const MuonGM::MMReadoutElement* readout = m_detManager->getMMReadoutElement(strip_id);
+      strip_id = detManager->mmIdHelper()->channelID(wedge, eta, phi, mult, layer, strip);
+      const MuonGM::MMReadoutElement* readout = detManager->getMMReadoutElement(strip_id);
       readout->stripGlobalPosition(strip_id, pos);
       positions.push_back(pos);
 
@@ -918,11 +919,11 @@ void MMT_Parameters::Slope_Components_ROI(){
       int xdex=ix,ydex=jy+1;
       if(xdex==0)xdex++;
 
-      double m_x = ( m_x_min + h_mx * xdex ).getFixed();
-      double m_y = ( m_y_min + h_my * ydex ).getFixed();
+      double M_x = ( m_x_min + h_mx * xdex ).getFixed();
+      double M_y = ( m_y_min + h_my * ydex ).getFixed();
 
-      double theta = atan(sqrt(m_x*m_x+m_y*m_y));
-      double phi=atan2(m_y,m_x);
+      double theta = atan(sqrt(M_x*M_x+M_y*M_y));
+      double phi=atan2(M_y,M_x);
       if(minimum_large_phi>phi || maximum_large_phi<phi) phi=999;
       if(minimum_large_theta>theta || maximum_large_theta<theta) theta=0;
       Slope_to_ROI[jy][ix][0] = theta;
@@ -1085,25 +1086,25 @@ void hitData_key::print()const{
 }
 
 
-hitData_info::hitData_info(int pl,int station_eta,int strip,MMT_Parameters *m_par,const TVector3&tru,double tpos,double ppos):plane(pl){
+hitData_info::hitData_info(int pl,int station_eta,int strip,MMT_Parameters *par,const TVector3&tru,double tpos,double ppos):plane(pl){
   (void) tru;
-  // ATH_MSG_DEBUG( "BEGIN hitData_info construtor for plane "<<pl<<", esta "<<station_eta<<", m_par: "<<m_par<<", (truth theta: "<<tpos<<",phi: "<<ppos<<") print tru....");
+  // ATH_MSG_DEBUG( "BEGIN hitData_info construtor for plane "<<pl<<", esta "<<station_eta<<", par: "<<par<<", (truth theta: "<<tpos<<",phi: "<<ppos<<") print tru....");
   // ATH_MSG_DEBUG(tru.Print() );
-  //The idea here is to calculate/assign a y and a z to a given hit based on its pl/station/strip, the geometry of the detector (in m_par), and misalignment based on position.
+  //The idea here is to calculate/assign a y and a z to a given hit based on its pl/station/strip, the geometry of the detector (in par), and misalignment based on position.
   //We start by assigning the plane dependent strip width (the stereo planes come in skew and so get divided by cos(stereo_angle)
-  char schar=m_par->setup[plane];
+  char schar=par->setup[plane];
   bool horizontal=(schar=='x'||schar=='X');
   // ATH_MSG_DEBUG("We have a "<<(horizontal?"horizontal":"stereo")<<" hit in plane "<<plane<<", station_eta "<<station_eta<<", strip# "<<strip);
-  double swidth=m_par->strip_width.getFixed();
-  double base=m_par->ybases[plane][station_eta-1].getFixed();
-  // double zplane=m_par->z_nominal[plane].getFixed();
-  // double planebase=m_par->ybases[plane].front().getFixed();
-  if(!horizontal)swidth/=cos(TMath::DegToRad()*(m_par->stereo_degree.getFixed()));
+  double swidth=par->strip_width.getFixed();
+  double base=par->ybases[plane][station_eta-1].getFixed();
+  // double zplane=par->z_nominal[plane].getFixed();
+  // double planebase=par->ybases[plane].front().getFixed();
+  if(!horizontal)swidth/=cos(TMath::DegToRad()*(par->stereo_degree.getFixed()));
   //Next, we initialize some constants--y will eventually be calculated as y=base+scale*(width*strip+delta_y(misalignment,correction)).
-  //The correction portion of delta_y is done in in the calculations on the ybases object in m_par
+  //The correction portion of delta_y is done in in the calculations on the ybases object in par
   //yup, or "y up" is the portion of y above the base of the plane (i.e. in the detector)
-  double delta_y=mis_dy(pl,m_par,tpos,ppos),yup_scale=1.;
-//   if(plane<4&&m_par->correct.type==2){yup_scale*=cos(m_par->correct.rotate.X());delta_y+=m_par->correct.translate.Y();}
+  double delta_y=mis_dy(pl,par,tpos,ppos),yup_scale=1.;
+//   if(plane<4&&par->correct.type==2){yup_scale*=cos(par->correct.rotate.X());delta_y+=par->correct.translate.Y();}
   // ATH_MSG_DEBUG("and a delta_y of "<<delta_y);
   double yflt=-999;
   yflt=base+(strip*swidth+delta_y)*yup_scale;
@@ -1111,14 +1112,14 @@ hitData_info::hitData_info(int pl,int station_eta,int strip,MMT_Parameters *m_pa
   //Note that ybin should be calculated on the basis of a misaligned y, not a corrected one (to get the position on the wedge just right),
   //but the difference for this part of the calculation should be negligible (an effect of <~ misal/(bin length) ~ (5 mm/(3600 mm/15)) ~ %.
   // double bozoY = sqrt(tru.X()*tru.X() + tru.Y()*tru.Y());
-  int bin=m_par->ybin(yflt,plane);
+  int bin=par->ybin(yflt,plane);
   // ATH_MSG_DEBUG("....which leads to finding a bin in y of "<<bin<<"....");
 
   //We have here both the "perfect" and binned z calculations/lookups; the commented out one is there for reference
-  double zflt=m_par->z_large[bin][plane].getFixed();
-//   if(m_par->correct.type==2&&plane<4&&m_par->correct.rotate.X()!=0){
+  double zflt=par->z_large[bin][plane].getFixed();
+//   if(par->correct.type==2&&plane<4&&par->correct.rotate.X()!=0){
 //     // double fltyup=(base+(strip*swidth+delta_y)-planebase);
-//     double angle=m_par->correct.rotate.X();
+//     double angle=par->correct.rotate.X();
 // //     yflt=planebase+fltyup*cos(angle);
 // //     zflt=zplane+0.5*fltyup*sin(angle)*cos(angle)*(1-tan(angle)*base/zplane)/(1-tan(angle)*1.*yflt/zplane);
 // //   }
@@ -1134,12 +1135,12 @@ hitData_info::hitData_info(int pl,int station_eta,int strip,MMT_Parameters *m_pa
 
 }
 
-double hitData_info::mis_dy(int plane,MMT_Parameters *m_par,double tpos,double ppos)const{
+double hitData_info::mis_dy(int plane,MMT_Parameters *par,double tpos,double ppos)const{
   // bool quack=false&&debug;
-  if(m_par->misal.type!=1||plane>3)return 0.;
-  // double swidth=m_par->strip_width.getFixed();
-  double zplane=m_par->z_nominal[plane].getFixed();
-  double base=m_par->ybases[plane].front().getFixed();
+  if(par->misal.type!=1||plane>3)return 0.;
+  // double swidth=par->strip_width.getFixed();
+  double zplane=par->z_nominal[plane].getFixed();
+  double base=par->ybases[plane].front().getFixed();
 
   // double s_z0=zplane;
   double s_x0=zplane*tan(tpos)*sin(ppos);
@@ -1148,16 +1149,16 @@ double hitData_info::mis_dy(int plane,MMT_Parameters *m_par,double tpos,double p
   // ATH_MSG_DEBUG("Projected truth position ("<<s_x0<<","<<s_y0<<","<<s_z0<<") or, in local coordinates, ("<<s_x0<<","<<s_y0-base<<","<<s_z0-zplane<<")");
   double hats_z0=cos(tpos),hats_x0=sin(tpos)*sin(ppos),hats_y0=sin(tpos)*cos(ppos);//muon track unit vector
   double zeta_y0=s_y0-base;//height in y in the wedge local coordinates--this is what we have to compare in the end
-  double alpha=m_par->misal.rotate.Z(),beta=m_par->misal.rotate.Y(),gamma=m_par->misal.rotate.X();//rotation angles
-  double ds=m_par->misal.translate.X(),dz=m_par->misal.translate.Y(),dt=-1.*m_par->misal.translate.Z();//t comes in -z
+  double alpha=par->misal.rotate.Z(),beta=par->misal.rotate.Y(),gamma=par->misal.rotate.X();//rotation angles
+  double ds=par->misal.translate.X(),dz=par->misal.translate.Y(),dt=-1.*par->misal.translate.Z();//t comes in -z
   // ATH_MSG_DEBUG("MISALIGNMENT PARAMETERS: (ds,dz,dt;gamma,beta,alpha)=("<<ds<<","<<dz<<","<<dt<<";"<<gamma<<","<<beta<<","<<alpha<<")");
   double O_bxf=ds,O_byf=base+dz,O_bzf=zplane+dt;//position of bottom of the wedge in global coordinates; subtract this from the final y position (s_yf) for final zeta (comparison to add to y position)
   // ATH_MSG_DEBUG("MISALIGNMENT plane base moves from: ("<<0<<","<<base<<","<<zplane<<") to ("<<O_bxf<<","<<O_byf<<","<<O_bzf<<")...");
   double yhat_x=-1.*sin(alpha)*cos(beta),yhat_y=(cos(alpha)*cos(gamma)-sin(alpha)*sin(beta)*sin(gamma)),yhat_z=(cos(alpha)*sin(gamma)+sin(alpha)*sin(beta)*cos(gamma));//new y direction after rotations; horizontal case
-  char schar=m_par->setup[plane];
+  char schar=par->setup[plane];
   if(!(schar=='x'||schar=='X')){
     //if we're in a stereo plane, calculate different coefficients.
-    double omega=TMath::DegToRad()*(m_par->stereo_degree.getFixed());
+    double omega=TMath::DegToRad()*(par->stereo_degree.getFixed());
     double pm=(schar=='u'||schar=='U'?1.:-1.);
     yhat_x=pm*cos(alpha)*cos(beta)*sin(omega)-sin(alpha)*cos(beta)*cos(omega);
     yhat_y=pm*sin(omega)*(sin(alpha)*cos(gamma)+cos(alpha)*sin(beta)*sin(gamma))+cos(omega)*(cos(alpha)*cos(gamma)-sin(alpha)*sin(beta)*sin(gamma));
@@ -1181,9 +1182,10 @@ double hitData_info::mis_dy(int plane,MMT_Parameters *m_par,double tpos,double p
   return zetayf_yhatf-zeta_y0;
 }
 
-hitData_info::hitData_info(int pl,double _y,double _z):plane(pl),y(_y),z(_z){
-  if(_z==0||_z==-999)slope=-999;
-  else slope=_y/_z;
+hitData_info::hitData_info(int the_pl,double the_y,double the_z)
+ : plane(the_pl),y(the_y),z(the_z){
+  if(the_z==0||the_z==-999)slope=-999;
+  else slope=the_y/the_z;
 }
 
 string hitData_info::hdr()const{
@@ -1227,25 +1229,25 @@ void Hit::print() const{
 hitData_entry::hitData_entry(int ev, double gt, double q, int vmm, int pl, int st, int est, double tr_the, double tru_phi,
 		       bool q_tbg, int bct, double t, const TVector3& tru, const TVector3& rec,
 		       double fit_the, double fit_ph, double fit_dth, double tru_dth,// double tru_thl, double tru_thg,
-		       double mxg, double mug, double mvg, double mxl, double _mx, double _my, int _roi):
+		       double mxg, double mug, double mvg, double mxl, double the_mx, double the_my, int the_roi):
   event(ev),gtime(gt),charge(q),VMM_chip(vmm),plane(pl),strip(st),station_eta(est),tru_theta_ip(tr_the),tru_phi_ip(tru_phi),truth_nbg(q_tbg),
   BC_time(bct),time(t),truth(tru),recon(rec),fit_theta(fit_the),fit_phi(fit_ph),fit_dtheta(fit_dth),tru_dtheta(tru_dth),
-  /*tru_theta_local(tru_thl),tru_theta_global(tru_thg),*/M_x_global(mxg),M_u_global(mug),M_v_global(mvg),M_x_local(mxl),mx(_mx),my(_my),roi(_roi) {}
+  /*tru_theta_local(tru_thl),tru_theta_global(tru_thg),*/M_x_global(mxg),M_u_global(mug),M_v_global(mvg),M_x_local(mxl),mx(the_mx),my(the_my),roi(the_roi) {}
 
-Hit hitData_entry::entry_hit(MMT_Parameters *m_par)const{
-  return Hit(entry_key(),entry_info(m_par));
+Hit hitData_entry::entry_hit(MMT_Parameters *par)const{
+  return Hit(entry_key(),entry_info(par));
 }
 hitData_key hitData_entry::entry_key() const{
   return hitData_key(BC_time,time,gtime,VMM_chip,event);
 }
 
-hitData_info hitData_entry::entry_info(MMT_Parameters *m_par)const{
-  hitData_info spade(plane,station_eta,strip,m_par,recon,tru_theta_ip,tru_phi_ip);//truth or recon? doesn't matter too much--it's for misalignment
+hitData_info hitData_entry::entry_info(MMT_Parameters *par)const{
+  hitData_info spade(plane,station_eta,strip,par,recon,tru_theta_ip,tru_phi_ip);//truth or recon? doesn't matter too much--it's for misalignment
 //   spade.y=recon.Y();
   return spade;
 }
-void hitData_entry::fit_fill(float32fixed<4> fthe,float32fixed<4> fphi, float32fixed<2> fdth, float32fixed<2> mxg, float32fixed<2> mug, float32fixed<2> mvg, float32fixed<2> mxl, float32fixed<2> m_x, float32fixed<2> m_y, int king){
-  this->fit_theta=fthe; this->fit_phi=fphi; this->fit_dtheta=fdth; this->M_x_global=mxg; this->M_u_global=mug; this->M_v_global=mvg; this->M_x_local=mxl; this->mx=m_x; this->my=m_y; this->roi=king;
+void hitData_entry::fit_fill(float32fixed<4> fthe,float32fixed<4> fphi, float32fixed<2> fdth, float32fixed<2> mxg, float32fixed<2> mug, float32fixed<2> mvg, float32fixed<2> mxl, float32fixed<2> M_x, float32fixed<2> M_y, int king){
+  this->fit_theta=fthe; this->fit_phi=fphi; this->fit_dtheta=fdth; this->M_x_global=mxg; this->M_u_global=mug; this->M_v_global=mvg; this->M_x_local=mxl; this->mx=M_x; this->my=M_y; this->roi=king;
 }
 
 void hitData_entry::print() const{
@@ -1264,8 +1266,8 @@ void hitData_entry::print() const{
   //     <<"%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
 }
 
-finder_entry::finder_entry(bool _is_hit, int _clock,const Hit& k):
-  is_hit(_is_hit), clock(_clock), hit(k) {}
+finder_entry::finder_entry(bool the_is_hit, int the_clock,const Hit& the_k):
+  is_hit(the_is_hit), clock(the_clock), hit(the_k) {}
 
 
 bool finder_entry::operator==(const finder_entry& merp) const{
@@ -1276,8 +1278,8 @@ bool finder_entry::operator!=(const finder_entry& merp) const{
   return !(*this!=merp);
 }
 
-ROI::ROI(double _theta, double _phi, double _m_x, double _m_y, int _roi):
-  theta(_theta), phi(_phi), m_x(_m_x), m_y(_m_y), roi(_roi) {}
+ROI::ROI(double the_theta, double the_phi, double the_m_x, double the_m_y, int the_roi):
+  theta(the_theta), phi(the_phi), m_x(the_m_x), m_y(the_m_y), roi(the_roi) {}
 
 
 athena_header::athena_header(const TLorentzVector& par, int tpn, double etp, double ete, double php, double phe, int mun, const TVector3& ver):

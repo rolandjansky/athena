@@ -17,10 +17,10 @@
 
 //Gaudi
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 
 //Athena
-#include "SCT_ConditionsServices/ISCT_ConditionsSvc.h"
+#include "SCT_ConditionsTools/ISCT_ConditionsTool.h"
 
 ///Example algorithm to show calling the SCT_ModuleVeto to exclude bad components
 class SCT_TdaqEnabledTestAlg : public AthAlgorithm {
@@ -33,7 +33,7 @@ class SCT_TdaqEnabledTestAlg : public AthAlgorithm {
   StatusCode finalize() override;
    
  private:
-  ServiceHandle<ISCT_ConditionsSvc> m_pTdaqEnabledSvc;
+  ToolHandle<ISCT_ConditionsTool> m_pTdaqEnabledTool{this, "SCT_TdaqEnabledTool", "SCT_TdaqEnabledTool", "Tool to retrieve active/inactive SCT ROD information"};
 }; //end of class
 
 #endif // SCT_TdaqEnabledTestAlg_H

@@ -18,10 +18,10 @@
 
 //Gaudi
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 
 //Athena
-#include "SCT_ConditionsServices/ISCT_DetectorLevelConditionsSvc.h"
+#include "SCT_ConditionsTools/ISCT_DetectorLevelConditionsTool.h"
 
 ///Example class to show calling the SCT_MajorityConditionsSvc
 class SCT_MajorityConditionsTestAlg : public AthAlgorithm {
@@ -34,7 +34,7 @@ class SCT_MajorityConditionsTestAlg : public AthAlgorithm {
   StatusCode finalize() override;
    
  private:
-  ServiceHandle<ISCT_DetectorLevelConditionsSvc> m_majoritySvc;
+  ToolHandle<ISCT_DetectorLevelConditionsTool> m_majorityTool{this, "MajorityTool", "SCT_MajorityConditionTool", "Tool to retrieve the majority detector status"};
 }; 
 
 #endif // SCT_MajorityConditionsTestAlg_H

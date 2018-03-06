@@ -119,32 +119,32 @@ namespace MuonCalib {
     IMdtSegmentFitter *m_fitter;                //!< DCSLFitter instance
     LocalSegmentResolver m_resolver;            //!< Segment resolver instance
 
-    int   event;                                //!< event counter
+    int   m_event;                                //!< m_event counter
 
-    MuonEventNtupleBranch   eventBranch;
+    MuonEventNtupleBranch   m_eventBranch;
 
-    MuonTruthNtupleBranch   *truthBranch;
-    MdtTruthHitNtupleBranch *mdtTruthBranch;
-    RpcTruthHitNtupleBranch *rpcTruthBranch;
-    TgcTruthHitNtupleBranch *tgcTruthBranch;
-    CscTruthHitNtupleBranch *cscTruthBranch;
+    MuonTruthNtupleBranch   *m_truthBranch;
+    MdtTruthHitNtupleBranch *m_mdtTruthBranch;
+    RpcTruthHitNtupleBranch *m_rpcTruthBranch;
+    TgcTruthHitNtupleBranch *m_tgcTruthBranch;
+    CscTruthHitNtupleBranch *m_cscTruthBranch;
 
-    MuonPatternNtupleBranch patBranch;
-    MuonSegmentNtupleBranch segBranch;
+    MuonPatternNtupleBranch m_patBranch;
+    MuonSegmentNtupleBranch m_segBranch;
 
-    MdtCalibHitNtupleBranch mdtHitBranch;
-    RpcCalibHitNtupleBranch rpcHitBranch;
-    TgcCalibHitNtupleBranch tgcHitBranch;
-    CscCalibHitNtupleBranch cscHitBranch;
+    MdtCalibHitNtupleBranch m_mdtHitBranch;
+    RpcCalibHitNtupleBranch m_rpcHitBranch;
+    TgcCalibHitNtupleBranch m_tgcHitBranch;
+    CscCalibHitNtupleBranch m_cscHitBranch;
 
-    MdtRawHitNtupleBranch rawMdtHitBranch;
-    RpcRawHitNtupleBranch rawRpcHitBranch;
-    TgcRawHitNtupleBranch rawTgcHitBranch;
-    TgcRawCoinNtupleBranch rawTgcCoinBranch;
-    RpcRawCoinNtupleBranch rawRpcCoinBranch;
-    CscRawHitNtupleBranch rawCscHitBranch;
-    MuonCalibRpcSectorLogicBranch rpcSlBranch;
-    RpcRawTriggerHitNtupleBranch rawRpcTriggerHitBranch;
+    MdtRawHitNtupleBranch m_rawMdtHitBranch;
+    RpcRawHitNtupleBranch m_rawRpcHitBranch;
+    TgcRawHitNtupleBranch m_rawTgcHitBranch;
+    TgcRawCoinNtupleBranch m_rawTgcCoinBranch;
+    RpcRawCoinNtupleBranch m_rawRpcCoinBranch;
+    CscRawHitNtupleBranch m_rawCscHitBranch;
+    MuonCalibRpcSectorLogicBranch m_rpcSlBranch;
+    RpcRawTriggerHitNtupleBranch m_rawRpcTriggerHitBranch;
 
     int m_printLevel;                         //!< print level
 

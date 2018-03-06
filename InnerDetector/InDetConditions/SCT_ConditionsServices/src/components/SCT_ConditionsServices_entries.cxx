@@ -18,8 +18,6 @@
 
 #include "../SCT_TdaqEnabledSvc.h"
 
-#include "../SCT_MajorityConditionsSvc.h"
-
 #include "../SCT_RODVetoSvc.h"
 
 DECLARE_COMPONENT( SCT_ConditionsSummarySvc )
@@ -32,7 +30,6 @@ DECLARE_COMPONENT( SCT_FlaggedConditionSvc )
 DECLARE_COMPONENT( SCT_ReadCalibDataSvc )
 DECLARE_COMPONENT( SCT_SiliconConditionsSvc )
 DECLARE_COMPONENT( SCT_TdaqEnabledSvc )
-DECLARE_COMPONENT( SCT_MajorityConditionsSvc )
 DECLARE_COMPONENT( SCT_RODVetoSvc )
 
 

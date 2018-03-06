@@ -222,13 +222,13 @@ namespace NSWL1 {
     std::vector<double>* m_fitThe;
     std::vector<double>* m_fitPhi;
     std::vector<double>* m_fitDth;
-    std::vector<double>* tru_etarange;
-    std::vector<double>* tru_ptrange;
-    std::vector<double>* fit_etarange;
-    std::vector<double>* fit_ptrange;
-    std::vector<double>* res_the;
-    std::vector<double>* res_phi;
-    std::vector<double>* res_dth;
+    std::vector<double>* m_tru_etarange;
+    std::vector<double>* m_tru_ptrange;
+    std::vector<double>* m_fit_etarange;
+    std::vector<double>* m_fit_ptrange;
+    std::vector<double>* m_res_the;
+    std::vector<double>* m_res_phi;
+    std::vector<double>* m_res_dth;
 
 
     /*

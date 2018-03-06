@@ -92,28 +92,28 @@ from IOVDbSvc.CondDB import conddb
 IOVDbSvc.GlobalTag='CONDBR2-BLKPA-2017-06'
 IOVDbSvc.OutputLevel = DEBUG
 
-from SCT_ConditionsServices.SCT_ReadCalibDataSvcSetup import SCT_ReadCalibDataSvcSetup
-sct_ReadCalibDataSvcSetup = SCT_ReadCalibDataSvcSetup()
-sct_ReadCalibDataSvcSetup.setup()
+from SCT_ConditionsTools.SCT_ReadCalibDataToolSetup import SCT_ReadCalibDataToolSetup
+sct_ReadCalibDataToolSetup = SCT_ReadCalibDataToolSetup()
+sct_ReadCalibDataToolSetup.setup()
 
-SCT_ReadCalibDataCondAlg = sct_ReadCalibDataSvcSetup.getAlg()
-SCT_ReadCalibDataSvc = sct_ReadCalibDataSvcSetup.getSvc()
+SCT_ReadCalibDataCondAlg = sct_ReadCalibDataToolSetup.getAlg()
+SCT_ReadCalibDataTool = sct_ReadCalibDataToolSetup.getTool()
 
 from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_ReadCalibDataTestAlg
 topSequence+= SCT_ReadCalibDataTestAlg()
 
-#SCT_ReadCalibDataSvc.RecoOnly = False
+#SCT_ReadCalibDataTool.RecoOnly = False
 # <-999 setting ignores the defect, otherwise it will be checked against the set value
 SCT_ReadCalibDataCondAlg.IgnoreDefects = ["NOISE_SLOPE","OFFSET_SLOPE","GAIN_SLOPE","BAD_OPE"]
 SCT_ReadCalibDataCondAlg.IgnoreDefectsParameters = [-1000,-1000,-1000,-1000]
-#SCT_ReadCalibDataSvc.IgnoreDefects = ["BADFIT","NOISE_SLOPE","OFFSET_SLOPE","GAIN_SLOPE","BAD_OPE"]
-#SCT_ReadCalibDataSvc.IgnoreDefectsParameters = [-1000,-1000,-1000,-1000,-1000]
-#SCT_ReadCalibDataSvc.IgnoreDefects = ["NOISE_SLOPE","OFFSET_SLOPE","GAIN_SLOPE"]
-#SCT_ReadCalibDataSvc.IgnoreDefectsParameters = [-1000,-1000,-1000]
-#SCT_ReadCalibDataSvc.IgnoreDefects = ["DEAD","STUCKON","UNDER","OVER","BADFIT","VLO_GAIN","LO_GAIN","HI_GAIN","LO_OFFSET","HI_OFFSET","UNBONDED","PARTBONDED","NOISY","V_NOISY","NOISE_SLOPE","OFFSET_SLOPE","GAIN_SLOPE","BAD_OPE","NO_HI"]
-#SCT_ReadCalibDataSvc.IgnoreDefectsParameters = [-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1,0.015]
-#SCT_ReadCalibDataSvc.IgnoreDefects = ["NO_IGNORE"]
-#SCT_ReadCalibDataSvc.IgnoreDefectsParameters = [-1000]
+#SCT_ReadCalibDataTool.IgnoreDefects = ["BADFIT","NOISE_SLOPE","OFFSET_SLOPE","GAIN_SLOPE","BAD_OPE"]
+#SCT_ReadCalibDataTool.IgnoreDefectsParameters = [-1000,-1000,-1000,-1000,-1000]
+#SCT_ReadCalibDataTool.IgnoreDefects = ["NOISE_SLOPE","OFFSET_SLOPE","GAIN_SLOPE"]
+#SCT_ReadCalibDataTool.IgnoreDefectsParameters = [-1000,-1000,-1000]
+#SCT_ReadCalibDataTool.IgnoreDefects = ["DEAD","STUCKON","UNDER","OVER","BADFIT","VLO_GAIN","LO_GAIN","HI_GAIN","LO_OFFSET","HI_OFFSET","UNBONDED","PARTBONDED","NOISY","V_NOISY","NOISE_SLOPE","OFFSET_SLOPE","GAIN_SLOPE","BAD_OPE","NO_HI"]
+#SCT_ReadCalibDataTool.IgnoreDefectsParameters = [-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1000,-1,0.015]
+#SCT_ReadCalibDataTool.IgnoreDefects = ["NO_IGNORE"]
+#SCT_ReadCalibDataTool.IgnoreDefectsParameters = [-1000]
 
 ##Modules to test:
 ##136523776, strips 0-255 BAD_OPE=good
@@ -145,7 +145,7 @@ ServiceMgr.EventSelector.RunNumber = 310809
 #--------------------------------------------------------------
 ServiceMgr.MessageSvc.OutputLevel = INFO
 ServiceMgr.MessageSvc.Format = "% F%50W%S%7W%R%T %0W%M"
-SCT_ReadCalibDataSvc.OutputLevel = INFO
+SCT_ReadCalibDataTool.OutputLevel = INFO
 topSequence.SCT_ReadCalibDataTestAlg.OutputLevel = INFO
 
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/MUR", "/SCT/DAQ/Config/MUR")
@@ -188,5 +188,5 @@ else:
 
 #Print out defects maps
 if PrintOutCalibDefectMaps:
-    SCT_ReadCalibDataSvc.PrintCalibDefectMaps = True
+    SCT_ReadCalibDataTool.PrintCalibDefectMaps = True
 
