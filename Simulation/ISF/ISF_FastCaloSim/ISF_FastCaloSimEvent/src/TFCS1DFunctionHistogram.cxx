@@ -238,7 +238,7 @@ TH1D* TFCS1DFunctionHistogram::smart_rebin(TH1D* h_input)
 
 double TFCS1DFunctionHistogram::rnd_to_fct(double rnd)
 {
-  //double value1=sample_from_histovalues(rnd);
+  
   double value2=get_inverse(rnd);
   return value2;
 
@@ -293,7 +293,6 @@ double TFCS1DFunctionHistogram::get_inverse(double rnd)
       y2=1;
      }
      double x=linear(y1,y2,x1,x2,rnd);
-     //cout<<" y1 "<<y1<<" y2 "<<y2<<" x1 "<<x1<<" x2 "<<x2<<" x "<<x<<" rnd "<<rnd<<endl;
      value=x;
      break;
     }
