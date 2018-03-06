@@ -23,13 +23,10 @@ acc.executeModule( TrigBSReadCfg, flags )
 
 from AtlasGeoModel.GeoModelConfig import GeoModelCfg
 acc.executeModule( GeoModelCfg, flags )
+flags.set("L1Decoder.Flags.doMuon",False)
 
-# HLT top CF, will be able to add it once MR 8533 is there
-# This commented could should stay 
-# acc.addSequence( seqOR( "hltTop") )
-# acc.addSequence( seqAND("hltSteps" ), sequence="hltTop" )
-# for step in range(1, 6):
-#     acc.addSequence( parOR("hltStep%d" %s ), sequence="hltSteps" )
+
+acc.addSequence( seqOR( "hltTop") )
 
 # for now we run trivial tester, 
 #from AthenaCommon.Constants import DEBUG
@@ -41,8 +38,8 @@ acc.executeModule( GeoModelCfg, flags )
 from L1Decoder.L1DecoderMod import L1DecoderMod
 acc.executeModule( L1DecoderMod, flags )
 l1 = acc.getEventAlgo( "L1Decoder" )
-from TrigUpgradeTest.TestUtils import applyMenu
-applyMenu( l1 )
+#from TrigUpgradeTest.TestUtils import applyMenu
+#applyMenu( l1 )
 
 #acc.printConfig() waiting for MR 8533 is there
 

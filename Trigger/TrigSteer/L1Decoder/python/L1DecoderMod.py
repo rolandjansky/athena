@@ -2,11 +2,12 @@
 #  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #
 
-from AthenaCommon.Configurable import Configurable,ConfigurableService,ConfigurableAlgorithm,ConfigurableAlgTool
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-
 
 def L1DecoderMod(flags):
+    flags.dump()
+    from AthenaCommon.Configurable import Configurable,ConfigurableService,ConfigurableAlgorithm,ConfigurableAlgTool
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+
     from L1Decoder.L1DecoderConf import L1Decoder, CTPUnpackingTool, EMRoIsUnpackingTool, MURoIsUnpackingTool, METRoIsUnpackingTool
     from L1Decoder.L1DecoderMonitoring import CTPUnpackingMonitoring, RoIsUnpackingMonitoring
 
