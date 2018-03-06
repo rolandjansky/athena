@@ -10,6 +10,7 @@
 #include "../SCT_ReadCalibDataTool.h"
 #include "../SCT_ReadoutTool.h"
 #include "../SCT_SensorsTool.h"
+#include "../SCT_SiliconConditionsTool.h"
 #include "../SCT_StripVetoTool.h"
 #include "../SCT_TdaqEnabledTool.h"
 
@@ -25,5 +26,6 @@ DECLARE_COMPONENT( SCT_ReadCalibChipDataTool )
 DECLARE_COMPONENT( SCT_ReadCalibDataTool )
 DECLARE_COMPONENT( SCT_ReadoutTool )
 DECLARE_COMPONENT( SCT_SensorsTool )
+DECLARE_COMPONENT( SCT_SiliconConditionsTool )
 DECLARE_COMPONENT( SCT_StripVetoTool )
 DECLARE_COMPONENT( SCT_TdaqEnabledTool )
