@@ -22,9 +22,8 @@ namespace CxxUtils {
  * @param nbits Initial number of bits to allocate for the map.
  */
 ConcurrentBitset::ConcurrentBitset (bit_t nbits /*= 0*/)
-  : m_impl (newImpl (nbits))
+  : m_impl (new (nbits) Impl (nbits))
 {
-  new (m_impl) Impl (nbits);
 }
 
 
@@ -36,9 +35,8 @@ ConcurrentBitset::ConcurrentBitset (bit_t nbits /*= 0*/)
  * to @c other, then the copy may have this update only partially completed.
  */
 ConcurrentBitset::ConcurrentBitset (const ConcurrentBitset& other)
-  : m_impl (newImpl ((*other.m_impl).nbits()))
+  : m_impl (new ((*other.m_impl).nbits()) Impl ((*other.m_impl)))
 {
-  new (m_impl) Impl ((*other.m_impl));
 }
 
 
@@ -65,8 +63,7 @@ ConcurrentBitset::ConcurrentBitset (std::initializer_list<bit_t> l,
     // Round up.
     nbits = (nbits + BLOCKSIZE-1) & ~MASK;
   }
-  m_impl = newImpl (nbits);
-  new (m_impl) Impl (nbits);
+  m_impl = new (nbits) Impl (nbits);
   for (bit_t b : l) {
     set (b);
   }
@@ -78,7 +75,7 @@ ConcurrentBitset::ConcurrentBitset (std::initializer_list<bit_t> l,
  */
 ConcurrentBitset::~ConcurrentBitset()
 {
-  free (m_impl);
+  delete m_impl;
   emptyGarbage();
 }
 
@@ -132,8 +129,7 @@ void ConcurrentBitset::expandOol (bit_t new_nbits)
   if (new_nbits > nbits) {
     // We need to expand.  Allocate a new implementation and initialize it,
     // copying from the existing implementation.
-    Impl* i = newImpl (new_nbits);
-    new (i) Impl (*m_impl, new_nbits);
+    Impl* i = new (new_nbits) Impl (*m_impl, new_nbits);
 
     // Remember that we need to delete the old object.
     m_garbage.push_back (m_impl);

@@ -766,6 +766,35 @@ ConcurrentBitset::find (bit_t bit) const
 
 
 /**
+ * @brief Allocate an Impl structure.
+ * @param sz Size of an Impl structure.
+ * @param nbits Number of bits to allocate.
+ *
+ * The storage for the bits follows contiguously after the Impl structure itself
+ * (to save a memory reference); hence, we use a custom allocator.
+ */
+inline
+void* ConcurrentBitset::Impl::operator new (size_t /*sz*/,
+                                            ConcurrentBitset::bit_t nbits)
+{
+  bit_t nblocks = nBlocks (nbits);
+  // The Impl structure contains one Block_t at the end.
+  return malloc (sizeof(Impl) + (nblocks-1)*sizeof(Block_t));
+}
+
+
+/*
+ * @brief Free an Impl structure.
+ * @param p Pointer to the object to free.
+ */
+inline
+void ConcurrentBitset::Impl::operator delete (void* p)
+{
+  free (p);
+}
+
+
+/**
  * @brief Find number of blocks needed to hold a given number of bits.
  * @param nbits The number of bits.
  */
