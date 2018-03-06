@@ -115,6 +115,9 @@ CaloNoiseToolDB::initialize()
     ATH_CHECK( detStore()->regFcn(&ILArCellHVCorrTool::LoadCalibration, &(*m_larHVCellCorrTool),&CaloNoiseToolDB::clearCache, this) );
     ATH_MSG_INFO( "Regestered callback on ILArCellHVCorrTool::LoadCalibration"  );
   }
+  else {
+    m_larHVCellCorrTool.disable();
+  }
 
   ATH_MSG_INFO( "CaloNoiseToolDB geoInit() end"  );
 
