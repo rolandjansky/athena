@@ -19,4 +19,9 @@ def makeMuonAnalysisSequence (dataType) :
     alg.selectionDecoration = "good_muon"
     sequence.append ( {"alg" : alg, "in" : "muons", "out" : "muonsOut" } )
 
+    alg = createAlgorithm( 'CP::MuonIsolationAlg', 'MuonIsolationAlg' )
+    addPrivateTool (alg, "isolationTool", "CP::IsolationSelectionTool")
+    alg.isolationDecoration = "isolated_muon"
+    sequence.append ( {"alg" : alg, "in" : "muons", "out" : "muonsOut" } )
+
     return sequence
