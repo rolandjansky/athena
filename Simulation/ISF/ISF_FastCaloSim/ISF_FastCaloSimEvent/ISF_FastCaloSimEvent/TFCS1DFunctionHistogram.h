@@ -20,14 +20,16 @@ class TFCS1DFunctionHistogram:public TFCS1DFunction
 
     virtual double rnd_to_fct(double rnd);
     TH1* vector_to_histo();
-          double get_inverse(double rnd);
-          double linear(double x1,double x2,double y1,double y2,double x);
-
-    void smart_rebin_loop(TH1* hist, int,double);
-    TH1D* smart_rebin(TH1D* , double );
+    double get_inverse(double rnd);
+    double linear(double x1,double x2,double y1,double y2,double x);
+    
+    double  get_maxdev(TH1*, TH1D*);
+    void    smart_rebin_loop(TH1* hist, double);
+    double  get_change(TH1*);
+    TH1D*   smart_rebin(TH1D*);
     double* histo_to_array(TH1*);
-    double sample_from_histo(TH1* hist, double);
-    double sample_from_histovalues(double);
+    double  sample_from_histo(TH1* hist, double);
+    double  sample_from_histovalues(double);
 
     vector<float> get_HistoBorders() {return m_HistoBorders;};
     vector<float> get_HistoContents()  {return m_HistoContents;};
@@ -42,7 +44,11 @@ class TFCS1DFunctionHistogram:public TFCS1DFunction
 
 };
 
+<<<<<<< HEAD
 #if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
+=======
+#if defined(__MAKECINT__) && defined(__FastCaloSimStandAlone__)
+>>>>>>> 21c89eb728cd64a1fd53fdee5823966a9eced97e
 #pragma link C++ class TFCS1DFunctionHistogram+;
 #endif
 
