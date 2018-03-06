@@ -13,4 +13,10 @@ def makeMuonAnalysisSequence (dataType) :
     sequence.append ( {"alg" : alg, "in" : "muons", "out" : "muonsOut",
                        "sys" : "(^MUON_ID$)|(^MUON_MS$)|(^MUON_SAGITTA_.*)|(^MUON_SCALE$)"} )
 
+
+    alg = createAlgorithm( 'CP::MuonSelectionAlg', 'MuonSelectionAlg' )
+    addPrivateTool (alg, "selectionTool", "CP::MuonSelectionTool")
+    alg.selectionDecoration = "good_muon"
+    sequence.append ( {"alg" : alg, "in" : "muons", "out" : "muonsOut" } )
+
     return sequence
