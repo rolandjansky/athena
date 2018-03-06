@@ -150,12 +150,21 @@ def makeInDetAlgs():
   InDetPixelClusterization.ClusterContainerCacheKey = InDetCacheCreatorTrigViews.Pixel_ClusterKey 
 
   viewAlgs.append(InDetPixelClusterization)
+
+  from SCT_ConditionsServices.SCT_FlaggedConditionSvcSetup import SCT_FlaggedConditionSvcSetup
+  sct_FlaggedConditionSvcSetup = SCT_FlaggedConditionSvcSetup()
+  sct_FlaggedConditionSvcSetup.setup()
+  InDetSCT_FlaggedConditionSvc = sct_FlaggedConditionSvcSetup.getSvc()
   
   from SCT_ConditionsServices.SCT_ConditionsSummarySvcSetup import SCT_ConditionsSummarySvcSetup
-  sct_ConditionsSummarySvcSetup = SCT_ConditionsSummarySvcSetup()
-  sct_ConditionsSummarySvcSetup.setup()
-  InDetSCT_ConditionsSummarySvc = sct_ConditionsSummarySvcSetup.getSvc()
-  
+  sct_ConditionsSummarySvcSetupWithoutFlagged = SCT_ConditionsSummarySvcSetup()
+  sct_ConditionsSummarySvcSetupWithoutFlagged.setSvcName("InDetSCT_ConditionsSummarySvcWithoutFlagged")
+  sct_ConditionsSummarySvcSetupWithoutFlagged.setup()
+  InDetSCT_ConditionsSummarySvcWithoutFlagged = sct_ConditionsSummarySvcSetupWithoutFlagged.getSvc()    
+  condSvcs = InDetSCT_ConditionsSummarySvcWithoutFlagged.ConditionsServices
+  if sct_FlaggedConditionSvcSetup.getSvcName() in condSvcs:
+    condSvcs = [x for x in condSvcs if x != sct_FlaggedConditionSvcSetup.getSvcName()]
+  InDetSCT_ConditionsSummarySvcWithoutFlagged.ConditionsServices = condSvcs
   
   #
   # --- SCT_ClusteringTool (public)
@@ -163,14 +172,11 @@ def makeInDetAlgs():
   from SiClusterizationTool.SiClusterizationToolConf import InDet__SCT_ClusteringTool
   InDetSCT_ClusteringTool = InDet__SCT_ClusteringTool(name              = "InDetSCT_ClusteringTool",
                                                       globalPosAlg      = InDetClusterMakerTool,
-                                                      conditionsService = InDetSCT_ConditionsSummarySvc)
+                                                      conditionsService = InDetSCT_ConditionsSummarySvcWithoutFlagged)
   #
   # --- SCT_Clusterization algorithm
   #
-  from SCT_ConditionsServices.SCT_FlaggedConditionSvcSetup import SCT_FlaggedConditionSvcSetup
-  sct_FlaggedConditionSvcSetup = SCT_FlaggedConditionSvcSetup()
-  sct_FlaggedConditionSvcSetup.setup()
-  InDetSCT_FlaggedConditionSvc = sct_FlaggedConditionSvcSetup.getSvc()
+
   from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__SCT_Clusterization
   InDetSCT_Clusterization = InDet__SCT_Clusterization(name                    = "InDetSCT_Clusterization",
                                                       clusteringTool          = InDetSCT_ClusteringTool,
@@ -178,8 +184,7 @@ def makeInDetAlgs():
                                                       DetectorManagerName     = InDetKeys.SCT_Manager(),
                                                       DataObjectName          = InDetKeys.SCT_RDOs(),
                                                       ClustersName            = "SCT_TrigClusters",
-                                                      conditionsService       = InDetSCT_ConditionsSummarySvc,
-                                                      FlaggedConditionService = InDetSCT_FlaggedConditionSvc,)# OutputLevel = INFO)
+                                                      conditionsService       = InDetSCT_ConditionsSummarySvcWithoutFlagged)
   InDetSCT_Clusterization.isRoI_Seeded = True
   InDetSCT_Clusterization.RoIs = "EMViewRoIs"
   InDetSCT_Clusterization.ClusterContainerCacheKey = InDetCacheCreatorTrigViews.SCT_ClusterKey 
