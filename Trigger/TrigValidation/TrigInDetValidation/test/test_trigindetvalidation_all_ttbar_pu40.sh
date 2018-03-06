@@ -45,7 +45,9 @@ function converttime {
     ((H=$totes/3600))
     ((M=($totes%3600)/60))
     ((S=$totes%60))
-    echo "$H : $M : $S"
+    [ $M -lt 10 ] && M=0$M
+    [ $S -lt 10 ] && S=0$S
+    echo "$H:$M:$S"
 }
 
 timestamp "starting"

@@ -22,7 +22,6 @@
 
 //for CondDB
 #include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
-#include "SCT_ConditionsServices/ISCT_FlaggedConditionSvc.h"
 #include "SCT_ConditionsServices/ISCT_ConfigurationConditionsSvc.h"
 #include "SCT_Monitoring/SCT_MonitoringNumbers.h"
 
@@ -215,7 +214,6 @@ class SCTErrMonTool : public ManagedMonitorToolBase
 
   //SCT_ModuleConditionsTool* m_ModuleConditions;
   ServiceHandle<ISCT_ConfigurationConditionsSvc> m_ConfigurationSvc;
-  ServiceHandle<ISCT_FlaggedConditionSvc>   m_flaggedSvc;
   StatusCode fillCondDBMaps();
   StatusCode fillConfigurationDetails();
   StatusCode resetCondDBMaps();

@@ -1105,18 +1105,13 @@ SCTHitEffMonTool::fillHistograms() {
   VERBOSE("SCTHitEffMonTool::fillHistograms()");
   Double_t timecor(-20.);
   if (m_useTRTPhase or m_isCosmic) {
-    if (evtStore()->contains<ComTime>(m_comTimeName.key())) {
-      SG::ReadHandle<ComTime> theComTime(m_comTimeName);
-      if (theComTime.isValid()) {
-        timecor = theComTime->getTime();
-        VERBOSE("Retrieved ComTime object with name " << m_comTimeName.key() << " found: Time = " << timecor);
-      } else {
-        timecor = -18.;
-        WARNING("ComTime object not found with name " << m_comTimeName.key());
-      }
+    SG::ReadHandle<ComTime> theComTime(m_comTimeName);
+    if (theComTime.isValid()) {
+      timecor = theComTime->getTime();
+      VERBOSE("Retrieved ComTime object with name " << m_comTimeName.key() << " found: Time = " << timecor);
     } else {
-      timecor = -16.;
-      ERROR("ComTime object not in store  with name " << m_comTimeName.key());
+      timecor = -18.;
+      WARNING("ComTime object not found with name " << m_comTimeName.key());
     }
   }
   // If we are going to use TRT phase in anger, need run-dependent corrections.
@@ -1134,22 +1129,14 @@ SCTHitEffMonTool::fillHistograms() {
 
   // ---- First try if m_tracksName is a TrackCollection
   SG::ReadHandle<TrackCollection>tracks(m_TrackName);
-  if (evtStore()->contains<TrackCollection> (m_TrackName.key())) {
-    if (not tracks.isValid()) {
-      WARNING("Tracks not found: " << tracks << " / " << m_TrackName.key());
-      if (m_chronotime) {
-        m_chrono->chronoStop("SCTHitEff");
-      }
-      return StatusCode::SUCCESS;
-    }else {
-      VERBOSE("Successfully retrieved " << m_TrackName.key() << " : " << tracks->size() << " items");
-    }
-  } else {
-    WARNING("Collection " << m_TrackName.key() << " not found");
+  if (not tracks.isValid()) {
+    WARNING("Tracks not found: " << tracks << " / " << m_TrackName.key());
     if (m_chronotime) {
       m_chrono->chronoStop("SCTHitEff");
     }
     return StatusCode::SUCCESS;
+  } else {
+    VERBOSE("Successfully retrieved " << m_TrackName.key() << " : " << tracks->size() << " items");
   }
 
   SG::ReadHandle<InDet::SCT_ClusterContainer> p_sctclcontainer(m_sctContainerName);

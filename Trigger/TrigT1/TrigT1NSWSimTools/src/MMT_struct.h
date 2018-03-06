@@ -44,13 +44,13 @@ template<unsigned char T> class float32fixed
 {
 
 private:
-  float fixp_content;
+  float m_fixp_content;
 
 public:
-  float32fixed(){ fixp_content=0; }
-  float32fixed(int value){  fixp_content=value; }
-  float32fixed(float value){  fixp_content=value; }
-  float32fixed(double value){  fixp_content=value; }
+  float32fixed(){ m_fixp_content=0; }
+  float32fixed(int value){  m_fixp_content=value; }
+  float32fixed(float value){  m_fixp_content=value; }
+  float32fixed(double value){  m_fixp_content=value; }
   ~float32fixed(){}
 
 
@@ -62,57 +62,57 @@ public:
     nBits -= 1;
     //=== get scale
     int   scale  = 0;
-    float absVal = std::fabs(fixp_content);
+    float absVal = std::fabs(m_fixp_content);
     if(absVal != 0.){
       scale = static_cast<int>( ::truncf(std::log((std::pow(2., static_cast<int>(nBits)) - 1.)/absVal)*(1./std::log(2.))) );
     }
     //=== return input value with fixed point precision
-    return ::roundf(fixp_content * std::pow(2., scale)) / std::pow(2., scale);
+    return ::roundf(m_fixp_content * std::pow(2., scale)) / std::pow(2., scale);
 
-    // return fixedPointPrecision(T, fixp_content);
+    // return fixedPointPrecision(T, m_fixp_content);
   }
 
 
 
   // assignment
-  float32fixed<T> operator=(float other){ this->fixp_content = other; return *this;  }
+  float32fixed<T> operator=(float other){ this->m_fixp_content = other; return *this;  }
   template<unsigned char S>
-  float32fixed<T> operator=(float32fixed<S> other){ this->fixp_content = other.getFixed(); return *this;  }
+  float32fixed<T> operator=(float32fixed<S> other){ this->m_fixp_content = other.getFixed(); return *this;  }
 
   // Float operators
-  float32fixed<T> operator+(float other) const {return float32fixed<T>( this->fixp_content + float32fixed<T>(other).getFixed() );  }
-  float32fixed<T> operator-(float other) const {return float32fixed<T>( this->fixp_content - float32fixed<T>(other).getFixed() );  }
-  float32fixed<T> operator*(float other) const {return float32fixed<T>( this->fixp_content * float32fixed<T>(other).getFixed() );  }
-  float32fixed<T> operator/(float other) const {return float32fixed<T>( this->fixp_content / float32fixed<T>(other).getFixed() );  }
-  float32fixed<T> operator+=(float other) { *this = float32fixed<T>( (*this).fixp_content +  float32fixed<T>(other).getFixed() );   return *this;  }
-  float32fixed<T> operator-=(float other) { *this = float32fixed<T>( (*this).fixp_content -  float32fixed<T>(other).getFixed() );   return *this;  }
-  float32fixed<T> operator*=(float other) { *this = float32fixed<T>( (*this).fixp_content *  float32fixed<T>(other).getFixed() );   return *this;  }
-  float32fixed<T> operator/=(float other) { *this = float32fixed<T>( (*this).fixp_content /  float32fixed<T>(other).getFixed() );   return *this;  }
-  bool operator<(double other) const {return this->fixp_content<   float32fixed<T>(other).getFixed();}
-  bool operator>(double other) const {return this->fixp_content>   float32fixed<T>(other).getFixed();}
-  bool operator<=(double other) const {return this->fixp_content<= float32fixed<T>(other).getFixed();}
-  bool operator>=(double other) const {return this->fixp_content>= float32fixed<T>(other).getFixed();}
-  bool operator==(double other) const {return this->fixp_content== float32fixed<T>(other).getFixed();}
+  float32fixed<T> operator+(float other) const {return float32fixed<T>( this->m_fixp_content + float32fixed<T>(other).getFixed() );  }
+  float32fixed<T> operator-(float other) const {return float32fixed<T>( this->m_fixp_content - float32fixed<T>(other).getFixed() );  }
+  float32fixed<T> operator*(float other) const {return float32fixed<T>( this->m_fixp_content * float32fixed<T>(other).getFixed() );  }
+  float32fixed<T> operator/(float other) const {return float32fixed<T>( this->m_fixp_content / float32fixed<T>(other).getFixed() );  }
+  float32fixed<T> operator+=(float other) { *this = float32fixed<T>( (*this).m_fixp_content +  float32fixed<T>(other).getFixed() );   return *this;  }
+  float32fixed<T> operator-=(float other) { *this = float32fixed<T>( (*this).m_fixp_content -  float32fixed<T>(other).getFixed() );   return *this;  }
+  float32fixed<T> operator*=(float other) { *this = float32fixed<T>( (*this).m_fixp_content *  float32fixed<T>(other).getFixed() );   return *this;  }
+  float32fixed<T> operator/=(float other) { *this = float32fixed<T>( (*this).m_fixp_content /  float32fixed<T>(other).getFixed() );   return *this;  }
+  bool operator<(double other) const {return this->m_fixp_content<   float32fixed<T>(other).getFixed();}
+  bool operator>(double other) const {return this->m_fixp_content>   float32fixed<T>(other).getFixed();}
+  bool operator<=(double other) const {return this->m_fixp_content<= float32fixed<T>(other).getFixed();}
+  bool operator>=(double other) const {return this->m_fixp_content>= float32fixed<T>(other).getFixed();}
+  bool operator==(double other) const {return this->m_fixp_content== float32fixed<T>(other).getFixed();}
 
 
   // float32fixed operators
-  float32fixed<T> operator+ (float32fixed<T> other) const {return float32fixed<T>( this->fixp_content + other.getFixed()  );  }
-  float32fixed<T> operator- (float32fixed<T> other) const {return float32fixed<T>( this->fixp_content - other.getFixed()  );  }
-  float32fixed<T> operator* (float32fixed<T> other) const {return float32fixed<T>( this->fixp_content * other.getFixed()  );  }
-  float32fixed<T> operator/ (float32fixed<T> other) const {return float32fixed<T>( this->fixp_content / other.getFixed()  );  }
-  float32fixed<T> operator+=(float32fixed<T> other) { *this = float32fixed<T>( (*this).fixp_content + other.getFixed()  );   return *this;  }
-  float32fixed<T> operator-=(float32fixed<T> other) { *this = float32fixed<T>( (*this).fixp_content - other.getFixed()  );   return *this;  }
-  float32fixed<T> operator*=(float32fixed<T> other) { *this = float32fixed<T>( (*this).fixp_content * other.getFixed()  );   return *this;  }
-  float32fixed<T> operator/=(float32fixed<T> other) { *this = float32fixed<T>( (*this).fixp_content / other.getFixed()  );   return *this;  }
-  bool operator< (float32fixed<T> other) const {return this->fixp_content<other.getFixed() ;}
-  bool operator> (float32fixed<T> other) const {return this->fixp_content>other.getFixed() ;}
-  bool operator<=(float32fixed<T> other) const {return this->fixp_content<=other.getFixed() ;}
-  bool operator>=(float32fixed<T> other) const {return this->fixp_content>=other.getFixed() ;}
-  bool operator==(float32fixed<T> other) const {return this->fixp_content==other.getFixed() ;}
+  float32fixed<T> operator+ (float32fixed<T> other) const {return float32fixed<T>( this->m_fixp_content + other.getFixed()  );  }
+  float32fixed<T> operator- (float32fixed<T> other) const {return float32fixed<T>( this->m_fixp_content - other.getFixed()  );  }
+  float32fixed<T> operator* (float32fixed<T> other) const {return float32fixed<T>( this->m_fixp_content * other.getFixed()  );  }
+  float32fixed<T> operator/ (float32fixed<T> other) const {return float32fixed<T>( this->m_fixp_content / other.getFixed()  );  }
+  float32fixed<T> operator+=(float32fixed<T> other) { *this = float32fixed<T>( (*this).m_fixp_content + other.getFixed()  );   return *this;  }
+  float32fixed<T> operator-=(float32fixed<T> other) { *this = float32fixed<T>( (*this).m_fixp_content - other.getFixed()  );   return *this;  }
+  float32fixed<T> operator*=(float32fixed<T> other) { *this = float32fixed<T>( (*this).m_fixp_content * other.getFixed()  );   return *this;  }
+  float32fixed<T> operator/=(float32fixed<T> other) { *this = float32fixed<T>( (*this).m_fixp_content / other.getFixed()  );   return *this;  }
+  bool operator< (float32fixed<T> other) const {return this->m_fixp_content<other.getFixed() ;}
+  bool operator> (float32fixed<T> other) const {return this->m_fixp_content>other.getFixed() ;}
+  bool operator<=(float32fixed<T> other) const {return this->m_fixp_content<=other.getFixed() ;}
+  bool operator>=(float32fixed<T> other) const {return this->m_fixp_content>=other.getFixed() ;}
+  bool operator==(float32fixed<T> other) const {return this->m_fixp_content==other.getFixed() ;}
 
   float32fixed<T> fabs() const{ return ((*this)>0.) ? *this : (*this)*-1.0 ; }
 
-  explicit operator float () {return (double) this->fixp_content; }
+  explicit operator float () {return (double) this->m_fixp_content; }
 
 
 };
@@ -143,7 +143,7 @@ struct std_align{
 };
 
 struct gcm_key{
-  gcm_key(int _pt=0,int _ct=0,int _mis=0,int corr=0,int _eta=-1,int _qt=0,int _bg=0);
+  gcm_key(int the_pt=0,int the_ct=0,int the_mis=0,int the_corr=0,int the_eta=-1,int the_qt=0,int the_bg=0);
   bool operator==(const gcm_key& merp) const;
   bool operator!=(const gcm_key& merp) const;
   bool operator<(const gcm_key& merp) const;
@@ -168,7 +168,7 @@ struct gcm_key{
 };
 
 struct par_par{
-  par_par(double _h,
+  par_par(double the_h,
           int xct=0,
           int uvct=0,
           double uver=0,
@@ -176,7 +176,7 @@ struct par_par{
           bool ql=true,
           bool q_dlm=false,
           bool qbg=0,
-          double _qt=1.,
+          double the_qt=1.,
           std_align mis=std_align(0),
           std_align cor=std_align(0),
           bool fill_tab=true,
@@ -211,9 +211,9 @@ struct par_par{
 
 class MMT_Parameters{
  public:
-  MMT_Parameters(par_par inputParams,char wedgeSize, const MuonGM::MuonDetectorManager* m_detManager);
+  MMT_Parameters(par_par inputParams,char wedgeSize, const MuonGM::MuonDetectorManager* detManager);
 
-  std::vector<Amg::Vector3D> MM_firststrip_positions(const MuonGM::MuonDetectorManager* m_detManager, const std::string& wedge, int eta);
+  std::vector<Amg::Vector3D> MM_firststrip_positions(const MuonGM::MuonDetectorManager* detManager, const std::string& wedge, int eta);
   int is_x(int plane);
   int is_u(int plane);
   int is_v(int plane);
@@ -420,8 +420,8 @@ struct evAna_entry{
 };
 
 struct hitData_info{
-  hitData_info(int plane,int station_eta,int strip,MMT_Parameters *m_par,const TVector3& tru,double tpos,double ppos);
-  hitData_info(int pl=0,double _y=0,double _z=-999);
+  hitData_info(int plane,int station_eta,int strip,MMT_Parameters *par,const TVector3& tru,double tpos,double ppos);
+  hitData_info(int the_pl=0,double the_y=0,double the_z=-999);
   hitData_info(const hitData_info& info){plane=info.plane;y=info.y;z=info.z;slope=info.slope;}
   double mis_dy(int pl,MMT_Parameters *m_par,double tpos,double ppos)const;
   string hdr()const;
@@ -464,7 +464,7 @@ struct hitData_entry{
   hitData_entry(int ev=0, double gt=0, double q=0, int vmm=0, int pl=0, int st=0, int est=0, double tr_the=0, double tru_phi=0,
 	     bool q_tbg=0, int bct=0, double time=0,const TVector3& tru=TVector3(), const TVector3& rec=TVector3(),
 	     double fit_the=0, double fit_phi=0, double fit_dth=0, double tru_dth=0,// double tru_thl=0, double tru_thg=0,
-	     double mxg=0, double mug=0, double mvg=0, double mxl=0, double _mx=0, double _my=0, int _roi=0);
+	     double mxg=0, double mug=0, double mvg=0, double mxl=0, double the_mx=0, double the_my=0, int the_roi=0);
 
   Hit entry_hit(MMT_Parameters *m_par)const;
   hitData_key entry_key() const;
@@ -491,7 +491,7 @@ struct hitData_entry{
 
 struct finder_entry{
   //make a well-behaved constructor
-  finder_entry(bool _is_hit=0, int _clock=-1,const Hit& k=Hit());
+  finder_entry(bool the_is_hit=0, int the_clock=-1,const Hit& the_k=Hit());
   bool operator==(const finder_entry& merp) const;
   bool operator!=(const finder_entry& merp) const;
 
@@ -504,7 +504,7 @@ struct finder_entry{
 
 struct ROI{
   //make a well-behaved constructor
-  ROI(double _theta, double _phi, double _m_x, double _m_y, int _roi);
+  ROI(double the_theta, double the_phi, double the_m_x, double the_m_y, int the_roi);
 
   //the members:
   float32fixed<4> theta,phi;

@@ -17,7 +17,6 @@
 #include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"    
 #include "InDetIdentifier/SCT_ID.h"
-#include "SCT_ConditionsServices/ISCT_FlaggedConditionSvc.h"
 #include "SiClusterizationTool/ISCT_ClusteringTool.h"
 
 #include "StoreGate/WriteHandle.h"
@@ -38,10 +37,10 @@ namespace InDet{
     m_roiSeeded(false),
     m_clusterContainerKey("SCT_Clusters"),
     m_clusterContainerLinkKey("SCT_Clusters"),
+    m_flaggedCondDataKey("SCT_FlaggedCondData"),
     m_manager(nullptr),
     m_maxRDOs(384), //(77),
     m_pSummarySvc("SCT_ConditionsSummarySvc", name),
-    m_flaggedConditionSvc("SCT_FlaggedConditionSvc",name),
     m_checkBadModules(true),
     m_flaggedModules(),
     m_maxTotalOccupancyPercent(10),
@@ -56,10 +55,10 @@ namespace InDet{
     declareProperty("isRoI_Seeded", m_roiSeeded, "Use RoI");
     declareProperty("maxRDOs", m_maxRDOs);
     declareProperty("checkBadModules",m_checkBadModules);
-    declareProperty("FlaggedConditionService", m_flaggedConditionSvc);
     declareProperty("maxTotalOccupancyInPercent",m_maxTotalOccupancyPercent);
     declareProperty("ClustersName", m_clusterContainerKey, "SCT cluster container");    
     declareProperty("ClustersLinkName_", m_clusterContainerLinkKey, "SCT cluster container link name (don't set this)");
+    declareProperty("SCT_FlaggedCondData", m_flaggedCondDataKey, "SCT flagged conditions data");
     declareProperty("ClusterContainerCacheKey", m_clusterContainerCacheKey);
   }
 
@@ -81,8 +80,7 @@ namespace InDet{
     ATH_CHECK(m_clusterContainerKey.initialize());
     ATH_CHECK(m_clusterContainerLinkKey.initialize());
     ATH_CHECK(m_clusterContainerCacheKey.initialize(!m_clusterContainerCacheKey.key().empty()));
-    // Get the flagged conditions service
-    ATH_CHECK(m_flaggedConditionSvc.retrieve());
+    ATH_CHECK(m_flaggedCondDataKey.initialize());
 
     // Get the clustering tool
     ATH_CHECK (m_clusteringTool.retrieve());
@@ -118,14 +116,14 @@ namespace InDet{
    ATH_CHECK(clusterContainer.isValid());
    ATH_MSG_DEBUG( "SCT clusters '" << clusterContainer.name() << "' symlinked in StoreGate");
 
-   
+   SG::WriteHandle<SCT_FlaggedCondData> flaggedCondData(m_flaggedCondDataKey);
+   ATH_CHECK(flaggedCondData.record(std::make_unique<SCT_FlaggedCondData>()));
 
   // First, we have to retrieve and access the container, not because we want to 
   // use it, but in order to generate the proxies for the collections, if they 
   // are being provided by a container converter.
     SG::ReadHandle<SCT_RDO_Container> rdoContainer(m_rdoContainerKey);
     ATH_CHECK(rdoContainer.isValid());
-
 
   // Anything to dereference the DataHandle will trigger the converter
     SCT_RDO_Container::const_iterator rdoCollections    = rdoContainer->begin();
@@ -154,13 +152,9 @@ namespace InDet{
     
         for(; rdoCollections != rdoCollectionsEnd; ++rdoCollections){
           const InDetRawDataCollection<SCT_RDORawData>* rd(*rdoCollections);
-    #ifndef NDEBUG
           ATH_MSG_DEBUG("RDO collection size=" << rd->size() << ", Hash=" << rd->identifyHash());
-    #endif
           if( clusterContainer->tryFetch( rdoCollections.hashId() )){ 
-    #ifndef NDEBUG
             ATH_MSG_DEBUG("Item already in cache , Hash=" << rd->identifyHash());
-    #endif
             continue;
           }
 
@@ -169,8 +163,8 @@ namespace InDet{
           if ((not rd->empty()) and goodModule){
             // If more than a certain number of RDOs set module to bad
             if (m_maxRDOs and (rd->size() > m_maxRDOs)) {
-              m_flaggedConditionSvc->flagAsBad(rd->identifyHash(), moduleFailureReason);
               m_flaggedModules.insert(rd->identifyHash());
+              flaggedCondData->insert(std::make_pair(rd->identifyHash(), moduleFailureReason));
               continue;
             }
             // Use one of the specific clustering AlgTools to make clusters    
@@ -180,13 +174,9 @@ namespace InDet{
                 //Using get because I'm unsure of move semantec status
                 ATH_CHECK(clusterContainer->addOrDelete(std::move(clusterCollection), clusterCollection->identifyHash()));
 
-    #ifndef NDEBUG
                  ATH_MSG_DEBUG("Clusters with key '" << clusterCollection->identifyHash() << "' added to Container\n");
-    #endif                
               } else { 
-    #ifndef NDEBUG
                 ATH_MSG_DEBUG("Don't write empty collections\n");
-    #endif    
               }
             } else { 
                 ATH_MSG_DEBUG("Clustering algorithm found no clusters\n");
@@ -203,17 +193,13 @@ namespace InDet{
          for (; roi!=roiE; ++roi) {
           listOfSCTIds.clear(); //Prevents needless memory reallocations
           m_regionSelector->DetHashIDList( SCT, **roi, listOfSCTIds);
-#ifndef NDEBUG
           ATH_MSG_VERBOSE(**roi);     
           ATH_MSG_VERBOSE( "REGTEST: SCT : Roi contains " 
 		     << listOfSCTIds.size() << " det. Elements" );
-#endif
           for (size_t i=0; i < listOfSCTIds.size(); i++) {
 
             if( clusterContainer->tryFetch( listOfSCTIds[i] )){
-              #ifndef NDEBUG
               ATH_MSG_DEBUG("Item already in cache , Hash=" << listOfSCTIds[i]);
-              #endif
               continue;
             }
             
@@ -224,10 +210,8 @@ namespace InDet{
           // Use one of the specific clustering AlgTools to make clusters
             std::unique_ptr<SCT_ClusterCollection> clusterCollection (m_clusteringTool->clusterize(*RDO_Collection, *m_manager, *m_idHelper));
             if (clusterCollection && !clusterCollection->empty()){
-#ifndef NDEBUG 
               ATH_MSG_VERBOSE( "REGTEST: SCT : clusterCollection contains " 
                 << clusterCollection->size() << " clusters" );
-#endif
               ATH_CHECK(clusterContainer->addOrDelete( std::move(clusterCollection), clusterCollection->identifyHash() ));
           }else{
               ATH_MSG_DEBUG("No SCTClusterCollection to write");
