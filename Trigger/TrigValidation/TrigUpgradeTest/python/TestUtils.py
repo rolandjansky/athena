@@ -46,7 +46,9 @@ class MenuTest:
                                   "UNUSED : HLT_te15"]
 def applyMenu(l1decoder ):
     l1decoder.ctpUnpacker.CTPToChainMapping = MenuTest.CTPToChainMapping
-    l1decoder.roiUnpackers["MURoIsUnpackingTool"].ThresholdToChainMapping = MenuTest.MUThresholdToChainMapping
+    if "MURoIsUnpackingTool" in  l1decoder.roiUnpackers:
+        l1decoder.roiUnpackers["MURoIsUnpackingTool"].ThresholdToChainMapping = MenuTest.MUThresholdToChainMapping
+        
     l1decoder.roiUnpackers["EMRoIsUnpackingTool"].ThresholdToChainMapping = MenuTest.EMThresholdToChainMapping
     l1decoder.roiUnpackers["METRoIsUnpackingTool"].ThresholdToChainMapping = MenuTest.METThresholdToChainMapping
         

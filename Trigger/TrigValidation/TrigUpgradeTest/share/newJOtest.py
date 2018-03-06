@@ -13,9 +13,12 @@ from AthenaCommon.AppMgr import theApp
 cfgLogMsg.setLevel("debug")
 flags = ConfigFlagContainer()
 
-flags.set("AthenaConfiguration.GlobalFlags.isMC",False)
-flags.set("AthenaConfiguration.GlobalFlags.InputFiles",
-          ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"])
+flags.set( "AthenaConfiguration.GlobalFlags.isMC", False )
+flags.set( "AthenaConfiguration.GlobalFlags.InputFiles",
+           ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"] )
+
+flags.set( "TrigConfigSvc.Flags.inputLVL1configFile", "LVL1config_Physics_pp_v7.xml" )
+flags.set( "L1Decoder.Flags.doMuon", False )
 
 acc = ComponentAccumulator()
 from ByteStreamCnvSvc.ByteStreamConfig import TrigBSReadCfg
@@ -23,10 +26,9 @@ acc.executeModule( TrigBSReadCfg, flags )
 
 from AtlasGeoModel.GeoModelConfig import GeoModelCfg
 acc.executeModule( GeoModelCfg, flags )
-flags.set("L1Decoder.Flags.doMuon",False)
 
 
-acc.addSequence( seqOR( "hltTop") )
+
 
 # for now we run trivial tester, 
 #from AthenaCommon.Constants import DEBUG
@@ -35,15 +37,24 @@ acc.addSequence( seqOR( "hltTop") )
 
 
 # that is how the L1 decoder can be added but it needs more work to bring all needed services (i.e. TrigConfiguration)
+
+acc.addSequence( seqOR( "hltTop") )
 from L1Decoder.L1DecoderMod import L1DecoderMod
-acc.executeModule( L1DecoderMod, flags )
+acc.executeModule( L1DecoderMod, flags, sequence="hltTop" )
 l1 = acc.getEventAlgo( "L1Decoder" )
-#from TrigUpgradeTest.TestUtils import applyMenu
-#applyMenu( l1 )
+from TrigUpgradeTest.TestUtils import applyMenu
+applyMenu( l1 )
 
-#acc.printConfig() waiting for MR 8533 is there
 
-with file("newJOtest.pkl", "w") as p:
+acc.addSequence( seqAND( "hltSteps"), sequenceName="hltTop" )
+for step in range(1, 6):
+    acc.addSequence( parOR( "hltStep%d" % step), sequenceName="hltSteps" )
+
+
+
+acc.printConfig()
+fname = "newJOtest.pkl"
+print "Storing config in the config", fname
+with file(fname, "w") as p:
     acc.store( p )
     p.close()
-

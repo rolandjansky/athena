@@ -15,7 +15,11 @@ def TrigBSReadCfg( inputFlags ):
     
     from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamCnvSvc, ByteStreamEventStorageInputSvc, EventSelectorByteStream
 
+    from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoSelectorTool 
+    xconv = xAODMaker__EventInfoSelectorTool()
+
     eventSelector = EventSelectorByteStream("EventSelector")
+    eventSelector.HelperTools += [xconv]
     acc.addService( eventSelector )
     acc.setAppProperty( "EvtSel", eventSelector.name() )
 
@@ -105,5 +109,8 @@ def TrigBSReadCfg( inputFlags ):
         #from IOVDbSvc.CondDB import conddb
         #conddb.addFolder( 'TDAQ', '/TDAQ/RunCtrl/SOR_Params' )
         #acc.addService( conddb )    
+
+    # creation of xAOD::EventInfo
+
 
     return acc

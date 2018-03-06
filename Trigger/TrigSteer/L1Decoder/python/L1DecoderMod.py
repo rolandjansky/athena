@@ -29,8 +29,17 @@ def L1DecoderMod(flags):
                                                           OutputTrigRoIs = "MURoIs",
                                                           MonTool = RoIsUnpackingMonitoring( prefix="MU", maxCount=20 ) ) ]        
     
+    from AthenaCommon.Constants import DEBUG
+    decoderAlg.OutputLevel=DEBUG
+    for u in decoderAlg.roiUnpackers:
+        u.OutputLevel=DEBUG
 
     acc.addEventAlgo(decoderAlg)
+    
+
+    from TrigConfigSvc.TrigConfigSvcMod import TrigConfigSvcMod
+    acc.addConfig( TrigConfigSvcMod, flags )
+
     return acc
 
 if __name__ == "__main__":
