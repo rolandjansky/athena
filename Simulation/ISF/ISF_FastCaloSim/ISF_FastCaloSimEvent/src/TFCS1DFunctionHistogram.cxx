@@ -19,13 +19,7 @@ TFCS1DFunctionHistogram::TFCS1DFunctionHistogram(TH1* hist, int verbose, double 
 
 void TFCS1DFunctionHistogram::Initialize(TH1* hist, int verbose,double cut_maxdev)
 {
-<<<<<<< HEAD
-  smart_rebin_loop(hist, verbose,cut_maxdev);
-=======
-  
   smart_rebin_loop(hist, cut_maxdev);
-  
->>>>>>> 21c89eb728cd64a1fd53fdee5823966a9eced97e
 }
 
 double* TFCS1DFunctionHistogram::histo_to_array(TH1* hist)
