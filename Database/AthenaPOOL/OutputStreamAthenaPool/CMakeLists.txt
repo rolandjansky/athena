@@ -21,7 +21,6 @@ atlas_depends_on_subdirs( PRIVATE
 
 # Component(s) in the package:
 atlas_add_component( OutputStreamAthenaPool
-                     src/AthenaPoolOutputStreamTool.cxx
                      src/MakeEventStreamInfo.cxx
                      src/CopyEventStreamInfo.cxx
                      src/MakeInputDataHeader.cxx
