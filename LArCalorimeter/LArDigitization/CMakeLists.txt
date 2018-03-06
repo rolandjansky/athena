@@ -22,10 +22,11 @@ atlas_depends_on_subdirs( PUBLIC
                           LArCalorimeter/LArElecCalib
                           LArCalorimeter/LArIdentifier
                           LArCalorimeter/LArRawEvent
+                          LArCalorimeter/LArSimEvent
                           LArCalorimeter/LArRecConditions
                           PRIVATE
-                          Generators/GeneratorObjects
-                          LArCalorimeter/LArSimEvent )
+                          Generators/GeneratorObjects )
+
 
 # External dependencies:
 find_package( CLHEP )
@@ -37,13 +38,13 @@ atlas_add_library( LArDigitizationLib
                    PUBLIC_HEADERS LArDigitization
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES CaloIdentifier AthenaBaseComps AthenaKernel SGTools Identifier xAODEventInfo GaudiKernel LArIdentifier LArRawEvent LArRecConditions CaloDetDescrLib PileUpToolsLib StoreGateLib SGtests LArCablingLib
-                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} GeneratorObjects LArSimEvent )
+                   LINK_LIBRARIES CaloIdentifier AthenaBaseComps AthenaKernel SGTools Identifier xAODEventInfo GaudiKernel LArIdentifier LArRawEvent LArSimEvent LArRecConditions CaloDetDescrLib PileUpToolsLib StoreGateLib SGtests LArCablingLib
+                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} GeneratorObjects )
 
 atlas_add_component( LArDigitization
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} CaloDetDescrLib CaloIdentifier AthenaBaseComps AthenaKernel PileUpToolsLib SGTools StoreGateLib SGtests Identifier xAODEventInfo GaudiKernel LArCablingLib LArIdentifier LArRawEvent LArRecConditions GeneratorObjects LArSimEvent LArDigitizationLib )
+                     LINK_LIBRARIES LArDigitizationLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

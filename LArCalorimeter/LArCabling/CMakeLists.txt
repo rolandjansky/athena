@@ -33,7 +33,7 @@ atlas_add_library( LArCablingLib
 atlas_add_component( LArCabling
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} CaloIdentifier AthenaBaseComps AthenaKernel StoreGateLib SGtests AthenaPoolUtilities Identifier GaudiKernel LArIdentifier PathResolver LArCablingLib )
+                     LINK_LIBRARIES LArCablingLib )
 
 atlas_add_dictionary( LArCablingDict
                       LArCabling/LArCablingDict.h
