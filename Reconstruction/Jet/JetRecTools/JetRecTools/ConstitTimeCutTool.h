@@ -25,7 +25,7 @@ class ConstitTimeCutTool : public JetConstituentModifierBase{
 
   private:
   StatusCode process_impl(xAOD::IParticleContainer* cont) const; 
-  StatusCode applyTimingCut(xAOD::IParticle* part, float time) const; 
+  StatusCode applyTimingCut(xAOD::IParticle* part, const float& time, const float& quality, const float& lambda_center) const; 
 
   // Properties.
   float m_lambdaCalDivide; 
