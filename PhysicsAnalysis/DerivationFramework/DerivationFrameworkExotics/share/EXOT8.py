@@ -16,6 +16,22 @@ from JetRec.JetRecFlags import jetFlags
 exot8Seq = CfgMgr.AthSequencer("EXOT8Sequence")
 
 #========================================================================================================================================
+# Set up Stream
+#========================================================================================================================================
+streamName  = derivationFlags.WriteDAOD_EXOT8Stream.StreamName
+fileName    = buildFileName( derivationFlags.WriteDAOD_EXOT8Stream )
+EXOT8Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+EXOT8Stream.AcceptAlgs(["EXOT8Kernel"])
+
+#
+#  Trigger Nav thinning
+#
+from DerivationFrameworkCore.ThinningHelper import ThinningHelper
+EXOT8ThinningHelper = ThinningHelper( "EXOT8ThinningHelper" )
+EXOT8ThinningHelper.TriggerChains = 'HLT_.*gsc.*|HLT_.*bmv2c.*|HLT_e.*|HLT_mu.*|HLT_j.*a10.*'
+EXOT8ThinningHelper.AppendToStream( EXOT8Stream )
+
+#========================================================================================================================================
 # Thinning Tools
 #========================================================================================================================================
 thinningTools=[]
@@ -25,7 +41,7 @@ thinningTools=[]
 #########################################
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 EXOT8MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                   = "EXOT8MuonTPThinningTool",
-                                                                         ThinningService        = "EXOT8ThinningSvc",
+                                                                         ThinningService        = EXOT8ThinningHelper.ThinningSvc(),
                                                                          MuonKey                = "Muons",
                                                                          InDetTrackParticlesKey = "InDetTrackParticles",
                                                                          SelectionString        = "Muons.pt > 500*GeV", # Remove tracks with high pt cut
@@ -38,7 +54,7 @@ thinningTools.append(EXOT8MuonTPThinningTool)
 #########################################
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 EXOT8ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                   = "EXOT8ElectronTPThinningTool",
-                                                                                ThinningService        = "EXOT8ThinningSvc",
+                                                                                ThinningService        = EXOT8ThinningHelper.ThinningSvc(),
                                                                                 SGKey                  = "Electrons",
                                                                                 InDetTrackParticlesKey = "InDetTrackParticles",
                                                                                 SelectionString        = "Electrons.pt > 500*GeV", # Remove tracks with high pt cut
@@ -50,7 +66,7 @@ thinningTools.append(EXOT8ElectronTPThinningTool)
 # Thin ak4 jets
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
 EXOT8ak4ThinningTool = DerivationFramework__GenericObjectThinning(name            = "EXOT8ak4ThinningTool",
-                                                                  ThinningService = "EXOT8ThinningSvc",
+                                                                  ThinningService = EXOT8ThinningHelper.ThinningSvc(),
                                                                   ContainerName   = "AntiKt4EMTopoJets",
                                                                   ApplyAnd        = False,
                                                                   SelectionString = "AntiKt4EMTopoJets.DFCommonJets_Calib_pt > 20*GeV")
@@ -60,7 +76,7 @@ thinningTools.append(EXOT8ak4ThinningTool)
 # Thin ak10 jets
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
 EXOT8ak10ThinningTool = DerivationFramework__GenericObjectThinning(name            = "EXOT8ak10ThinningTool",
-                                                                   ThinningService = "EXOT8ThinningSvc",
+                                                                   ThinningService = EXOT8ThinningHelper.ThinningSvc(),
                                                                    ContainerName   = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                                                    ApplyAnd        = False,
                                                                    SelectionString = "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 200*GeV")
@@ -71,7 +87,7 @@ thinningTools.append(EXOT8ak10ThinningTool)
 # Thin ak10 untrimmed jets
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
 EXOT8ak10UntrimmedThinningTool = DerivationFramework__GenericObjectThinning(name            = "EXOT8ak10UntrimmedThinningTool",
-                                                                             ThinningService = "EXOT8ThinningSvc",
+                                                                             ThinningService = EXOT8ThinningHelper.ThinningSvc(),
                                                                              ContainerName   = "AntiKt10LCTopoJets",
                                                                              ApplyAnd        = False,
                                                                              SelectionString = "AntiKt10LCTopoJets.pt > 200*GeV")
@@ -84,7 +100,7 @@ thinningTools.append(EXOT8ak10UntrimmedThinningTool)
 #########################################
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
 EXOT8TruthTool = DerivationFramework__MenuTruthThinning(name                         = "EXOT8TruthTool",
-                                                        ThinningService              = "EXOT8ThinningSvc",
+                                                        ThinningService              = EXOT8ThinningHelper.ThinningSvc(),
                                                         WritePartons                 = False,
                                                         WriteHadrons                 = False,
                                                         WriteBHadrons                = True,
@@ -259,21 +275,6 @@ exot8Seq += CfgMgr.DerivationFramework__DerivationKernel("EXOT8Kernel", Thinning
                                                                         AugmentationTools = augmentationTools)
 
 
-#========================================================================================================================================
-# Set up Stream
-#========================================================================================================================================
-streamName  = derivationFlags.WriteDAOD_EXOT8Stream.StreamName
-fileName    = buildFileName( derivationFlags.WriteDAOD_EXOT8Stream )
-EXOT8Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-EXOT8Stream.AcceptAlgs(["EXOT8Kernel"])
-
-#
-#  Trigger Nav thinning
-#
-from DerivationFrameworkCore.ThinningHelper import ThinningHelper
-EXOT8ThinningHelper = ThinningHelper( "EXOT8ThinningHelper" )
-EXOT8ThinningHelper.TriggerChains = 'HLT_.*gsc.*|HLT_.*bmv2c.*|HLT_e.*|HLT_mu.*|HLT_j.*a10.*'
-EXOT8ThinningHelper.AppendToStream( EXOT8Stream )
 
 
 # Add the containers to the output stream - slimming done here
