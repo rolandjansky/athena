@@ -800,7 +800,7 @@ class rerunLVL1(_modifier):
         topSequence += RoIBuilder("RoIBuilder")
         # For backwards compatibility with 16.1.X (see Savannah #85927)
         if "RoIOutputLocation_Rerun" in topSequence.CTPSimulation.properties():
-            topSequence.RoIBuilder.CTPSLinkLocation = '/Event/CTPSLinkLocation_Rerun'
+            topSequence.RoIBuilder.CTPSLinkLocation = 'CTPSLinkLocation_Rerun'
 
         # Get run number from input file if running in athena
         global _run_number
