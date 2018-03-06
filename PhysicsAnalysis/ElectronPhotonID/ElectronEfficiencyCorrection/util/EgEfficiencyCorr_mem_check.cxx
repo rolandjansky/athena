@@ -23,13 +23,19 @@ http://valgrind.org/docs/manual/faq.html#faq.deflost
 // xAOD include(s):
 #   include "xAODRootAccess/TEvent.h"
 #endif // ASGTOOL_STANDALONE
+#include "CxxUtils/ubsan_suppress.h"
+#include "TInterpreter.h"
+
 
 int main( ) {
 
+    // Suppress known ubsan warning we get from cling.
+    CxxUtils::ubsan_suppress ([]() { TInterpreter::Instance(); });
+    
 #ifdef ASGTOOL_STANDALONE
     xAOD::TEvent event;
 #endif
-    
+
     using namespace asg::msgUserCode;
     ANA_CHECK_SET_TYPE (int);
 
