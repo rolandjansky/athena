@@ -10,5 +10,6 @@
 
 #include <MuonAnalysisAlgorithms/MuonCalibrationAndSmearingAlg.h>
 #include <MuonAnalysisAlgorithms/MuonIsolationAlg.h>
+#include <MuonAnalysisAlgorithms/MuonEfficiencyScaleFactorAlg.h>
 
 #endif
