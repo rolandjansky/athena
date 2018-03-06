@@ -9,5 +9,6 @@
 #define MUON_ANALYSIS_ALGORITHMS__MUON_ANALYSIS_ALGORITHMS_DICT_H
 
 #include <MuonAnalysisAlgorithms/MuonCalibrationAndSmearingAlg.h>
+#include <MuonAnalysisAlgorithms/MuonIsolationAlg.h>
 
 #endif

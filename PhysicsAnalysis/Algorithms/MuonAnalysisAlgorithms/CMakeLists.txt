@@ -16,7 +16,7 @@ atlas_add_library( MuonAnalysisAlgorithmsLib
    MuonAnalysisAlgorithms/*.h MuonAnalysisAlgorithms/*.icc Root/*.cxx
    PUBLIC_HEADERS MuonAnalysisAlgorithms
    LINK_LIBRARIES SelectionHelpersLib SystematicsHandlesLib
-   MuonAnalysisInterfacesLib
+   MuonAnalysisInterfacesLib IsolationSelectionLib
    PRIVATE_LINK_LIBRARIES RootCoreUtils )
 
 atlas_add_dictionary( MuonAnalysisAlgorithmsDict
