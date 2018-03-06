@@ -396,7 +396,10 @@ EXOT5SkimmingTool = DerivationFramework__SkimmingToolEXOT5(
     MonoJetPtCut        = 100000.,
     LeadingJetPtCut     = 40000.,
     SubleadingJetPtCut  = 40000.,
-    DiJetMassCut        = 150000.)
+    DiJetMassCut        = 150000.,
+    VBFJetThresh        = 40000.,
+    DiJetMassMaxCut     = 150000.,
+    DiJetDEtaCut        = 2.5)
 ToolSvc += EXOT5SkimmingTool
 skimmingTools.append(EXOT5SkimmingTool)
 
@@ -458,7 +461,7 @@ EXOT5SlimmingHelper.ExtraVariables = [
     'LVL1EnergySumRoI.energyX.energyY',
     'LVL1JetRoIs.eta.phi.et8x8',
     'LVL1MuonRoIs.eta.phi.thrValue',
-    'Muons.EnergyLoss.energyLossType',    
+    'Muons.EnergyLoss.energyLossType',
     'TriggerMenu.smk.l1psk.hltpsk.itemCtpIds.itemNames.itemPrescales.chainIds.chainNames.chainParentNames.chainPrescales.chainRerunPrescales.chainPassthroughPrescales.chainSignatureCounters.chainSignatureLogics.chainSignatureOutputTEs.sequenceInputTEs.sequenceOutputTEs.sequenceAlgorithms.bunchGroupBunches',
     'xTrigDecision.bgCode.tav.tap.tbp.lvl2PassedRaw.efPassedRaw.lvl2PassedThrough.efPassedThrough.lvl2Prescaled.efPrescaled.lvl2Resurrected.efResurrected'
     ]
@@ -475,8 +478,8 @@ if DerivationFrameworkIsMonteCarlo:
         'xAOD::TruthParticleAuxContainer#TruthTausAux.',
         ]
     EXOT5SlimmingHelper.ExtraVariables += [
-        'AntiKt4TruthJets.pt.eta.phi.m.ConstituentScale.JetConstitScaleMomentum_pt.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_m.InputType.AlgorithmType.SizeParameter.JetGhostArea.PartonTruthLabelID.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.Width.WidthPhi.ActiveArea.ActiveArea4vec_eta.ActiveArea4vec_m.ActiveArea4vec_phi.ActiveArea4vec_pt.ConeExclBHadronsFinal.ConeExclCHadronsFinal.ConeExclTausFinal.ConeTruthLabelID.GhostBHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostBHadronsInitial.GhostBHadronsInitialCount.GhostBHadronsInitialPt.GhostBQuarksFinal.GhostBQuarksFinalCount.GhostBQuarksFinalPt.GhostCHadronsFinal.GhostCHadronsFinalCount.GhostCHadronsFinalPt.GhostCHadronsInitial.GhostCHadronsInitialCount.GhostCHadronsInitialPt.GhostCQuarksFinal.GhostCQuarksFinalCount.GhostCQuarksFinalPt.GhostHBosons.GhostHBosonsCount.GhostHBosonsPt.GhostPartons.GhostPartonsCount.GhostPartonsPt.GhostTQuarksFinal.GhostTQuarksFinalCount.GhostTQuarksFinalPt.GhostTausFinal.GhostTausFinalCount.GhostTausFinalPt.GhostWBosons.GhostWBosonsCount.GhostWBosonsPt.GhostZBosons.GhostZBosonsCount.GhostZBosonsPt.HadronConeExclExtendedTruthLabelID.HadronConeExclTruthLabelID', 
-        'MET_Truth.name.mpx.mpy.source.sumet', 
+        'AntiKt4TruthJets.pt.eta.phi.m.ConstituentScale.JetConstitScaleMomentum_pt.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_m.InputType.AlgorithmType.SizeParameter.JetGhostArea.PartonTruthLabelID.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.Width.WidthPhi.ActiveArea.ActiveArea4vec_eta.ActiveArea4vec_m.ActiveArea4vec_phi.ActiveArea4vec_pt.ConeExclBHadronsFinal.ConeExclCHadronsFinal.ConeExclTausFinal.ConeTruthLabelID.GhostBHadronsFinal.GhostBHadronsFinalCount.GhostBHadronsFinalPt.GhostBHadronsInitial.GhostBHadronsInitialCount.GhostBHadronsInitialPt.GhostBQuarksFinal.GhostBQuarksFinalCount.GhostBQuarksFinalPt.GhostCHadronsFinal.GhostCHadronsFinalCount.GhostCHadronsFinalPt.GhostCHadronsInitial.GhostCHadronsInitialCount.GhostCHadronsInitialPt.GhostCQuarksFinal.GhostCQuarksFinalCount.GhostCQuarksFinalPt.GhostHBosons.GhostHBosonsCount.GhostHBosonsPt.GhostPartons.GhostPartonsCount.GhostPartonsPt.GhostTQuarksFinal.GhostTQuarksFinalCount.GhostTQuarksFinalPt.GhostTausFinal.GhostTausFinalCount.GhostTausFinalPt.GhostWBosons.GhostWBosonsCount.GhostWBosonsPt.GhostZBosons.GhostZBosonsCount.GhostZBosonsPt.HadronConeExclExtendedTruthLabelID.HadronConeExclTruthLabelID',
+        'MET_Truth.name.mpx.mpy.source.sumet',
         'TruthEvents.truthParticleLinks.truthVertexLinks.signalProcessVertexLink.beamParticle1Link.beamParticle2Link.crossSectionError.weights.PDFID1.PDFID2.PDGID1.PDGID2.Q.X1.X2.XF1.XF2.crossSection',
         'TruthParticles.px.py.pz.pdgId.status.e.barcode.prodVtxLink'
         'AntiKt4EMPFlowJets.GhostTruthAssociationLink.HadronConeExclTruthLabelID.PartonTruthLabelID',

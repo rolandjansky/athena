@@ -42,11 +42,20 @@ namespace DerivationFramework {
       double m_leadingJetPt;
       double m_subleadingJetPt;
       double m_Mjj;
+      double m_Mjj_Max;
       double m_DEta;
+      double m_VBFjet;
 
       mutable bool m_isMC;
       mutable unsigned int m_ntot;
       mutable unsigned int m_npass;
+
+      bool  passSkimCuts(const std::unique_ptr<xAOD::JetContainer> & jets) const;
+      void  computeMaxjj(const std::unique_ptr<xAOD::JetContainer> & jets) const;
+      void  computeMassjj(const std::unique_ptr<xAOD::JetContainer> & jets) const;
+      mutable double e_DiJetMass;
+      mutable double e_JetsDEta_Max;
+      mutable double e_DiJetMass_Max;
 
   };
 
