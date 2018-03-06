@@ -12,12 +12,12 @@ using namespace std;
 //======= TFCS1DFunctionHistogram =========
 //=============================================
 
-TFCS1DFunctionHistogram::TFCS1DFunctionHistogram(TH1* hist, int verbose, double cut_maxdev)
+TFCS1DFunctionHistogram::TFCS1DFunctionHistogram(TH1* hist, double cut_maxdev)
 {
-  Initialize(hist, verbose,cut_maxdev);
+  Initialize(hist, cut_maxdev);
 }
 
-void TFCS1DFunctionHistogram::Initialize(TH1* hist, int verbose,double cut_maxdev)
+void TFCS1DFunctionHistogram::Initialize(TH1* hist, double cut_maxdev)
 {
   smart_rebin_loop(hist, cut_maxdev);
 }
@@ -103,9 +103,13 @@ void TFCS1DFunctionHistogram::smart_rebin_loop(TH1* hist, double cut_maxdev)
     
     TH1D* h_out;
     if(i==0)
+    {
      h_out=(TH1D*)h_input->Clone("h_out");
+    }
     else
+    {
      h_out=smart_rebin(h_input); h_out->SetName("h_out");
+    }
     
     maxdev=get_maxdev(hist,h_out);
     maxdev*=100.0;
