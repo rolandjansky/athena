@@ -8,6 +8,9 @@ msg = logging.getLogger( 'TileConditions_jobOptions.py' )
 from TileConditions.TileInfoConfigurator import TileInfoConfigurator
 tileInfoConfigurator = TileInfoConfigurator()
 
+if not 'RunNumber' in dir() and '_run_number' in dir() and _run_number is not None:
+    RunNumber = _run_number
+
 import re
 from AthenaCommon.GlobalFlags import globalflags
 gbltg=globalflags.DetDescrVersion()
@@ -62,8 +65,11 @@ if not 'TileUseDCS' in dir():
         TileCheckOFC=True
 
     if TileUseDCS:
-        from RecExConfig.AutoConfiguration import GetRunNumber
-        rn=GetRunNumber()
+        if not 'RunNumber' in dir():
+            from RecExConfig.AutoConfiguration import GetRunNumber
+            rn=GetRunNumber()
+        else:
+            rn=RunNumber
         TileUseDCS = ((rn>171194 and rn<222222) or rn>232498); # use DCS only for 2011 data and later, excluding shutdown period
 
 if TileUseDCS or ('TileCheckOFC' in dir() and TileCheckOFC) or ('RunOflOFC' in dir()):
