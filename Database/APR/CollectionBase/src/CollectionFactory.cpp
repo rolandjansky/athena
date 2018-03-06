@@ -14,8 +14,6 @@
 
 #include "Gaudi/PluginService.h"
 
-//#include "PersistencySvc/ISession.h"
-
 #include "CoralBase/MessageStream.h"
 
 #include "PersistentDataModel/Guid.h"
@@ -129,7 +127,7 @@ pool::CollectionFactory::createAndRegister( const pool::ICollectionDescription& 
                                             pool::IFileCatalog* collectionCatalog,
                                             bool overwrite,
                                             std::string logicalName,
-                                            pool::MetaDataEntry* metadata,
+                                            pool::MetaDataEntry*,
                                             pool::ISession* session ) const
 {
   if( !_description.hasEventReferenceColumn() )  {
@@ -185,9 +183,6 @@ pool::CollectionFactory::createAndRegister( const pool::ICollectionDescription& 
   }
   if( logicalName.length() ) {
      collectionCatalog->registerLFN( guid, logicalName );
-  }
-  if( metadata ) {
-     // fcRegister.registerMetaData( guid, *metadata );
   }
   // add collection ID
   collection->metadata().setValueForKey( CollectionBaseNames::CollIDMdataKey(), guid );
@@ -266,7 +261,7 @@ pool::CollectionFactory::registerExisting( pool::ICollection* collection,
 					   bool overwrite,
                                            pool::IFileCatalog* collectionCatalog,
                                            std::string logicalName,
-                                           pool::MetaDataEntry* metadata,
+                                           pool::MetaDataEntry*,
                                            pool::ISession* ) const
 {
    if( !collectionCatalog) collectionCatalog = getDefaultCatalog();
@@ -318,9 +313,6 @@ pool::CollectionFactory::registerExisting( pool::ICollection* collection,
    collectionCatalog->registerPFN( physicalName, c_fileType, guid );
    if( logicalName.length() )  {
       collectionCatalog->registerLFN( guid, logicalName );
-   }
-   if( metadata )  {
-      // fcRegister.registerMetaData( guid, *metadata );
    }
    collectionCatalog->commit();
    if( !has_id && collection->openMode() != ICollection::READ ) try {
