@@ -116,7 +116,7 @@ namespace {
   }
 }
 
-BTaggingEfficiencyTool::BTaggingEfficiencyTool( const std::string & name) : asg::AsgTool( name ) {
+BTaggingEfficiencyTool::BTaggingEfficiencyTool( const std::string & name) : asg::AsgTool( name ), m_selectionTool("") {
   declareProperty("TaggerName",                          m_taggerName="",               "tagging algorithm name as specified in CDI file");
   declareProperty("OperatingPoint",                      m_OP="",                       "operating point as specified in CDI file");
   declareProperty("JetAuthor",                           m_jetAuthor="",                "jet collection & JVF/JVT specification in CDI file");
@@ -150,6 +150,9 @@ BTaggingEfficiencyTool::BTaggingEfficiencyTool( const std::string & name) : asg:
   // m_getTagWeight = 0;
   m_applySyst = false;
   m_isContinuous = false;
+
+  // declare the selection tool to be private (not absolutely sure this is needed?)
+  m_selectionTool.declarePropertyFor(this, "BTaggingSelectionTool", "selection tool to be used internally");
 }
 
 BTaggingEfficiencyTool::~BTaggingEfficiencyTool() {
@@ -415,6 +418,17 @@ StatusCode BTaggingEfficiencyTool::initialize() {
   if( registry.registerSystematics(*this) != SystematicCode::Ok) 
     return StatusCode::FAILURE;
 
+  // Finally, also initialise the selection tool, if needed (for now this is the case only for DL1 tag weight computations,
+  // so we do this only when DL1 is specified)
+  if (m_taggerName.find("DL1") != std::string::npos) {
+    m_selectionTool.setTypeAndName("BTaggingSelectionTool/" + name() + "_selection");
+    ATH_CHECK( m_selectionTool.setProperty("FlvTagCutDefinitionsFileName", m_SFFile) );
+    ATH_CHECK( m_selectionTool.setProperty("TaggerName",                   m_taggerName) );
+    ATH_CHECK( m_selectionTool.setProperty("OperatingPoint",               m_OP) );
+    ATH_CHECK( m_selectionTool.setProperty("JetAuthor",                    m_jetAuthor) );
+    ATH_CHECK( m_selectionTool.retrieve() );
+  }
+  
   m_initialised = true;
   return StatusCode::SUCCESS;
 }
@@ -911,7 +925,12 @@ BTaggingEfficiencyTool::fillVariables( const xAOD::Jet & jet, CalibrationDataVar
     const xAOD::BTagging* tagInfo = jet.btagging();
     if (!tagInfo) return false;
     // x.jetTagWeight = (tagInfo->*m_getTagWeight)();
-    return tagInfo->MVx_discriminant(m_taggerName, x.jetTagWeight);
+    // For now, we defer the tag weight computation to the selection tool only in the case of DL1* (this is likely to be revisited)
+    if (m_taggerName.find("DL1") != std::string::npos) {
+      return (m_selectionTool->getTaggerWeight(jet, x.jetTagWeight) == CP::CorrectionCode::Ok);
+    } else {
+      return tagInfo->MVx_discriminant(m_taggerName, x.jetTagWeight);
+    }
   }
   return true;
 }
