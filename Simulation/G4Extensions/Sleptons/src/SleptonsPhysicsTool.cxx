@@ -5,12 +5,18 @@
 // class header
 #include "SleptonsPhysicsTool.h"
 // package headers
-#include "G4SElectronMinus.hh"
-#include "G4SElectronPlus.hh"
-#include "G4SMuonMinus.hh"
-#include "G4SMuonPlus.hh"
-#include "G4STauMinus.hh"
-#include "G4STauPlus.hh"
+#include "G4SElectronLMinus.hh"
+#include "G4SElectronLPlus.hh"
+#include "G4SMuonLMinus.hh"
+#include "G4SMuonLPlus.hh"
+#include "G4STau1Minus.hh"
+#include "G4STau1Plus.hh"
+#include "G4SElectronRMinus.hh"
+#include "G4SElectronRPlus.hh"
+#include "G4SMuonRMinus.hh"
+#include "G4SMuonRPlus.hh"
+#include "G4STau2Minus.hh"
+#include "G4STau2Plus.hh"
 // Geant4 headers
 #include "G4hIonisation.hh"
 #include "G4hMultipleScattering.hh"
@@ -39,63 +45,114 @@
 SleptonsPhysicsTool::SleptonsPhysicsTool( const std::string& type,
                                           const std::string& name,const IInterface* parent )
   : base_class ( type, name , parent )
-  , m_theSElectronMinus(nullptr)
-  , m_theSElectronPlus(nullptr)
-  , m_theSMuonMinus(nullptr)
-  , m_theSMuonPlus(nullptr)
-  , m_theSTauMinus(nullptr)
-  , m_theSTauPlus(nullptr)
+  , m_theSElectronLMinus(nullptr)
+  , m_theSElectronLPlus(nullptr)
+  , m_theSMuonLMinus(nullptr)
+  , m_theSMuonLPlus(nullptr)
+  , m_theSTau1Minus(nullptr)
+  , m_theSTau1Plus(nullptr)
+  , m_theSElectronRMinus(nullptr)
+  , m_theSElectronRPlus(nullptr)
+  , m_theSMuonRMinus(nullptr)
+  , m_theSMuonRPlus(nullptr)
+  , m_theSTau2Minus(nullptr)
+  , m_theSTau2Plus(nullptr)
 {
-  declareProperty("G4SElectronMinusMass",m_G4SElectronMinusMass=100.00*CLHEP::GeV,"G4SElectronMinus Mass");
-  declareProperty("G4SElectronMinusWidth",m_G4SElectronMinusWidth=0.0*CLHEP::MeV,"G4SElectronMinus Width");
-  declareProperty("G4SElectronMinusCharge",m_G4SElectronMinusCharge=-1.*CLHEP::eplus,"G4SElectronMinus charge");
-  declareProperty("G4SElectronMinusPDGCode",m_G4SElectronMinusPDGCode=2000011,"G4SElectronMinus PDG CODE");
-  declareProperty("G4SElectronMinusStable",m_G4SElectronMinusStable=true,"G4SElectronMinus Stable");
-  declareProperty("G4SElectronMinusLifetime",m_G4SElectronMinusLifetime=-1,"G4SElectronMinus Lifetime");
-  declareProperty("G4SElectronMinusShortlived",m_G4SElectronMinusShortlived=false,"G4SElectronMinus Shortlived");
+  declareProperty("G4SElectronLMinusMass",m_G4SElectronLMinusMass=100.00*CLHEP::GeV,"G4SElectronLMinus Mass");
+  declareProperty("G4SElectronLMinusWidth",m_G4SElectronLMinusWidth=0.0*CLHEP::MeV,"G4SElectronLMinus Width");
+  declareProperty("G4SElectronLMinusCharge",m_G4SElectronLMinusCharge=-1.*CLHEP::eplus,"G4SElectronLMinus charge");
+  declareProperty("G4SElectronLMinusPDGCode",m_G4SElectronLMinusPDGCode=2000011,"G4SElectronLMinus PDG CODE");
+  declareProperty("G4SElectronLMinusStable",m_G4SElectronLMinusStable=true,"G4SElectronLMinus Stable");
+  declareProperty("G4SElectronLMinusLifetime",m_G4SElectronLMinusLifetime=-1,"G4SElectronLMinus Lifetime");
+  declareProperty("G4SElectronLMinusShortlived",m_G4SElectronLMinusShortlived=false,"G4SElectronLMinus Shortlived");
 
-  declareProperty("G4SElectronPlusMass",m_G4SElectronPlusMass= 100.0*CLHEP::GeV,"G4SElectronPlus Mass");
-  declareProperty("G4SElectronPlusWidth",m_G4SElectronPlusWidth=0.0*CLHEP::MeV,"G4SElectronPlus Width");
-  declareProperty("G4SElectronPlusCharge",m_G4SElectronPlusCharge=+1.*CLHEP::eplus,"G4SElectronPlus charge");
-  declareProperty("G4SElectronPlusPDGCode",m_G4SElectronPlusPDGCode=-2000011,"G4SElectronPlus PDG CODE");
-  declareProperty("G4SElectronPlusStable",m_G4SElectronPlusStable=true,"G4SElectronPlus Stable");
-  declareProperty("G4SElectronPlusLifetime",m_G4SElectronPlusLifetime=-1,"G4SElectronPlus Lifetime");
-  declareProperty("G4SElectronPlusShortlived",m_G4SElectronPlusShortlived=false,"G4SElectronPlus Shortlived");
+  declareProperty("G4SElectronLPlusMass",m_G4SElectronLPlusMass= 100.0*CLHEP::GeV,"G4SElectronLPlus Mass");
+  declareProperty("G4SElectronLPlusWidth",m_G4SElectronLPlusWidth=0.0*CLHEP::MeV,"G4SElectronLPlus Width");
+  declareProperty("G4SElectronLPlusCharge",m_G4SElectronLPlusCharge=+1.*CLHEP::eplus,"G4SElectronLPlus charge");
+  declareProperty("G4SElectronLPlusPDGCode",m_G4SElectronLPlusPDGCode=-2000011,"G4SElectronLPlus PDG CODE");
+  declareProperty("G4SElectronLPlusStable",m_G4SElectronLPlusStable=true,"G4SElectronLPlus Stable");
+  declareProperty("G4SElectronLPlusLifetime",m_G4SElectronLPlusLifetime=-1,"G4SElectronLPlus Lifetime");
+  declareProperty("G4SElectronLPlusShortlived",m_G4SElectronLPlusShortlived=false,"G4SElectronLPlus Shortlived");
 
-  declareProperty("G4SMuonMinusMass",m_G4SMuonMinusMass= 100.0*CLHEP::GeV,"G4SMuonMinus Mass");
-  declareProperty("G4SMuonMinusWidth",m_G4SMuonMinusWidth=0.0*CLHEP::MeV,"G4SMuonMinus Width");
-  declareProperty("G4SMuonMinusCharge",m_G4SMuonMinusCharge=-1.*CLHEP::eplus,"G4SMuonMinus charge");
-  declareProperty("G4SMuonMinusPDGCode",m_G4SMuonMinusPDGCode=2000013,"G4SMuonMinus PDG CODE");
-  declareProperty("G4SMuonMinusStable",m_G4SMuonMinusStable=true,"G4SMuonMinus Stable");
-  declareProperty("G4SMuonMinusLifetime",m_G4SMuonMinusLifetime=-1,"G4SMuonMinus Lifetime");
-  declareProperty("G4SMuonMinusShortlived",m_G4SMuonMinusShortlived=false,"G4SMuonMinus Shortlived");
+  declareProperty("G4SMuonLMinusMass",m_G4SMuonLMinusMass= 100.0*CLHEP::GeV,"G4SMuonLMinus Mass");
+  declareProperty("G4SMuonLMinusWidth",m_G4SMuonLMinusWidth=0.0*CLHEP::MeV,"G4SMuonLMinus Width");
+  declareProperty("G4SMuonLMinusCharge",m_G4SMuonLMinusCharge=-1.*CLHEP::eplus,"G4SMuonLMinus charge");
+  declareProperty("G4SMuonLMinusPDGCode",m_G4SMuonLMinusPDGCode=2000013,"G4SMuonLMinus PDG CODE");
+  declareProperty("G4SMuonLMinusStable",m_G4SMuonLMinusStable=true,"G4SMuonLMinus Stable");
+  declareProperty("G4SMuonLMinusLifetime",m_G4SMuonLMinusLifetime=-1,"G4SMuonLMinus Lifetime");
+  declareProperty("G4SMuonLMinusShortlived",m_G4SMuonLMinusShortlived=false,"G4SMuonLMinus Shortlived");
 
-  declareProperty("G4SMuonPlusMass",m_G4SMuonPlusMass= 100.0*CLHEP::GeV,"G4SMuonPlus Mass");
-  declareProperty("G4SMuonPlusWidth",m_G4SMuonPlusWidth=0.0*CLHEP::MeV,"G4SMuonPlus Width");
-  declareProperty("G4SMuonPlusCharge",m_G4SMuonPlusCharge=1.*CLHEP::eplus,"G4SMuonPlus charge");
-  declareProperty("G4SMuonPlusPDGCode",m_G4SMuonPlusPDGCode=-2000013,"G4SMuonPlus PDG CODE");
-  declareProperty("G4SMuonPlusStable",m_G4SMuonPlusStable=true,"G4SMuonPlus Stable");
-  declareProperty("G4SMuonPlusLifetime",m_G4SMuonPlusLifetime=-1,"G4SMuonPlus Lifetime");
-  declareProperty("G4SMuonPlusShortlived",m_G4SMuonPlusShortlived=false,"G4SMuonPlus Shortlived");
+  declareProperty("G4SMuonLPlusMass",m_G4SMuonLPlusMass= 100.0*CLHEP::GeV,"G4SMuonLPlus Mass");
+  declareProperty("G4SMuonLPlusWidth",m_G4SMuonLPlusWidth=0.0*CLHEP::MeV,"G4SMuonLPlus Width");
+  declareProperty("G4SMuonLPlusCharge",m_G4SMuonLPlusCharge=1.*CLHEP::eplus,"G4SMuonLPlus charge");
+  declareProperty("G4SMuonLPlusPDGCode",m_G4SMuonLPlusPDGCode=-2000013,"G4SMuonLPlus PDG CODE");
+  declareProperty("G4SMuonLPlusStable",m_G4SMuonLPlusStable=true,"G4SMuonLPlus Stable");
+  declareProperty("G4SMuonLPlusLifetime",m_G4SMuonLPlusLifetime=-1,"G4SMuonLPlus Lifetime");
+  declareProperty("G4SMuonLPlusShortlived",m_G4SMuonLPlusShortlived=false,"G4SMuonLPlus Shortlived");
 
-  declareProperty("G4STauMinusMass",m_G4STauMinusMass= 100.0*CLHEP::GeV,"G4STauMinus Mass");
-  declareProperty("G4STauMinusWidth",m_G4STauMinusWidth=0.0*CLHEP::MeV,"G4STauMinus Width");
-  declareProperty("G4STauMinusCharge",m_G4STauMinusCharge=-1.*CLHEP::eplus,"G4STauMinus charge");
-  declareProperty("G4STauMinusPDGCode",m_G4STauMinusPDGCode= 1000015,"G4STauMinus PDG CODE");
-  declareProperty("G4STauMinusStable",m_G4STauMinusStable=true,"G4STauMinus Stable");
-  declareProperty("G4STauMinusLifetime",m_G4STauMinusLifetime=-1,"G4STauMinus Lifetime");
-  declareProperty("G4STauMinusShortlived",m_G4STauMinusShortlived=false,"G4STauMinus Shortlived");
+  declareProperty("G4STau1MinusMass",m_G4STau1MinusMass= 100.0*CLHEP::GeV,"G4STau1Minus Mass");
+  declareProperty("G4STau1MinusWidth",m_G4STau1MinusWidth=0.0*CLHEP::MeV,"G4STau1Minus Width");
+  declareProperty("G4STau1MinusCharge",m_G4STau1MinusCharge=-1.*CLHEP::eplus,"G4STau1Minus charge");
+  declareProperty("G4STau1MinusPDGCode",m_G4STau1MinusPDGCode= 1000015,"G4STau1Minus PDG CODE");
+  declareProperty("G4STau1MinusStable",m_G4STau1MinusStable=true,"G4STau1Minus Stable");
+  declareProperty("G4STau1MinusLifetime",m_G4STau1MinusLifetime=-1,"G4STau1Minus Lifetime");
+  declareProperty("G4STau1MinusShortlived",m_G4STau1MinusShortlived=false,"G4STau1Minus Shortlived");
 
-  declareProperty("G4STauPlusMass",m_G4STauPlusMass= 100.0*CLHEP::GeV,"G4STauPlus Mass");
-  declareProperty("G4STauPlusWidth",m_G4STauPlusWidth=0.0*CLHEP::MeV,"G4STauPlus Width");
-  declareProperty("G4STauPlusCharge",m_G4STauPlusCharge=+1.*CLHEP::eplus,"G4STauPlus charge");
-  declareProperty("G4STauPlusPDGCode",m_G4STauPlusPDGCode=-1000015,"G4STauPlus PDG CODE");
-  declareProperty("G4STauPlusStable",m_G4STauPlusStable=true,"G4STauPlus Stable");
-  declareProperty("G4STauPlusLifetime",m_G4STauPlusLifetime=-1,"G4STauPlus Lifetime");
-  declareProperty("G4STauPlusShortlived",m_G4STauPlusShortlived=false,"G4STauPlus Shortlived");
+  declareProperty("G4STau1PlusMass",m_G4STau1PlusMass= 100.0*CLHEP::GeV,"G4STau1Plus Mass");
+  declareProperty("G4STau1PlusWidth",m_G4STau1PlusWidth=0.0*CLHEP::MeV,"G4STau1Plus Width");
+  declareProperty("G4STau1PlusCharge",m_G4STau1PlusCharge=+1.*CLHEP::eplus,"G4STau1Plus charge");
+  declareProperty("G4STau1PlusPDGCode",m_G4STau1PlusPDGCode=-1000015,"G4STau1Plus PDG CODE");
+  declareProperty("G4STau1PlusStable",m_G4STau1PlusStable=true,"G4STau1Plus Stable");
+  declareProperty("G4STau1PlusLifetime",m_G4STau1PlusLifetime=-1,"G4STau1Plus Lifetime");
+  declareProperty("G4STau1PlusShortlived",m_G4STau1PlusShortlived=false,"G4STau1Plus Shortlived");
 
+  declareProperty("G4SElectronRMinusMass",m_G4SElectronRMinusMass=100.00*CLHEP::GeV,"G4SElectronRMinus Mass");
+  declareProperty("G4SElectronRMinusWidth",m_G4SElectronRMinusWidth=0.0*CLHEP::MeV,"G4SElectronRMinus Width");
+  declareProperty("G4SElectronRMinusCharge",m_G4SElectronRMinusCharge=-1.*CLHEP::eplus,"G4SElectronRMinus charge");
+  declareProperty("G4SElectronRMinusPDGCode",m_G4SElectronRMinusPDGCode=2000011,"G4SElectronRMinus PDG CODE");
+  declareProperty("G4SElectronRMinusStable",m_G4SElectronRMinusStable=true,"G4SElectronRMinus Stable");
+  declareProperty("G4SElectronRMinusLifetime",m_G4SElectronRMinusLifetime=-1,"G4SElectronRMinus Lifetime");
+  declareProperty("G4SElectronRMinusShortlived",m_G4SElectronRMinusShortlived=false,"G4SElectronRMinus Shortlived");
 
+  declareProperty("G4SElectronRPlusMass",m_G4SElectronRPlusMass= 100.0*CLHEP::GeV,"G4SElectronRPlus Mass");
+  declareProperty("G4SElectronRPlusWidth",m_G4SElectronRPlusWidth=0.0*CLHEP::MeV,"G4SElectronRPlus Width");
+  declareProperty("G4SElectronRPlusCharge",m_G4SElectronRPlusCharge=+1.*CLHEP::eplus,"G4SElectronRPlus charge");
+  declareProperty("G4SElectronRPlusPDGCode",m_G4SElectronRPlusPDGCode=-2000011,"G4SElectronRPlus PDG CODE");
+  declareProperty("G4SElectronRPlusStable",m_G4SElectronRPlusStable=true,"G4SElectronRPlus Stable");
+  declareProperty("G4SElectronRPlusLifetime",m_G4SElectronRPlusLifetime=-1,"G4SElectronRPlus Lifetime");
+  declareProperty("G4SElectronRPlusShortlived",m_G4SElectronRPlusShortlived=false,"G4SElectronRPlus Shortlived");
 
+  declareProperty("G4SMuonRMinusMass",m_G4SMuonRMinusMass= 100.0*CLHEP::GeV,"G4SMuonRMinus Mass");
+  declareProperty("G4SMuonRMinusWidth",m_G4SMuonRMinusWidth=0.0*CLHEP::MeV,"G4SMuonRMinus Width");
+  declareProperty("G4SMuonRMinusCharge",m_G4SMuonRMinusCharge=-1.*CLHEP::eplus,"G4SMuonRMinus charge");
+  declareProperty("G4SMuonRMinusPDGCode",m_G4SMuonRMinusPDGCode=2000013,"G4SMuonRMinus PDG CODE");
+  declareProperty("G4SMuonRMinusStable",m_G4SMuonRMinusStable=true,"G4SMuonRMinus Stable");
+  declareProperty("G4SMuonRMinusLifetime",m_G4SMuonRMinusLifetime=-1,"G4SMuonRMinus Lifetime");
+  declareProperty("G4SMuonRMinusShortlived",m_G4SMuonRMinusShortlived=false,"G4SMuonRMinus Shortlived");
+
+  declareProperty("G4SMuonRPlusMass",m_G4SMuonRPlusMass= 100.0*CLHEP::GeV,"G4SMuonRPlus Mass");
+  declareProperty("G4SMuonRPlusWidth",m_G4SMuonRPlusWidth=0.0*CLHEP::MeV,"G4SMuonRPlus Width");
+  declareProperty("G4SMuonRPlusCharge",m_G4SMuonRPlusCharge=1.*CLHEP::eplus,"G4SMuonRPlus charge");
+  declareProperty("G4SMuonRPlusPDGCode",m_G4SMuonRPlusPDGCode=-2000013,"G4SMuonRPlus PDG CODE");
+  declareProperty("G4SMuonRPlusStable",m_G4SMuonRPlusStable=true,"G4SMuonRPlus Stable");
+  declareProperty("G4SMuonRPlusLifetime",m_G4SMuonRPlusLifetime=-1,"G4SMuonRPlus Lifetime");
+  declareProperty("G4SMuonRPlusShortlived",m_G4SMuonRPlusShortlived=false,"G4SMuonRPlus Shortlived");
+
+  declareProperty("G4STau2MinusMass",m_G4STau2MinusMass= 100.0*CLHEP::GeV,"G4STau2Minus Mass");
+  declareProperty("G4STau2MinusWidth",m_G4STau2MinusWidth=0.0*CLHEP::MeV,"G4STau2Minus Width");
+  declareProperty("G4STau2MinusCharge",m_G4STau2MinusCharge=-1.*CLHEP::eplus,"G4STau2Minus charge");
+  declareProperty("G4STau2MinusPDGCode",m_G4STau2MinusPDGCode= 1000015,"G4STau2Minus PDG CODE");
+  declareProperty("G4STau2MinusStable",m_G4STau2MinusStable=true,"G4STau2Minus Stable");
+  declareProperty("G4STau2MinusLifetime",m_G4STau2MinusLifetime=-1,"G4STau2Minus Lifetime");
+  declareProperty("G4STau2MinusShortlived",m_G4STau2MinusShortlived=false,"G4STau2Minus Shortlived");
+
+  declareProperty("G4STau2PlusMass",m_G4STau2PlusMass= 100.0*CLHEP::GeV,"G4STau2Plus Mass");
+  declareProperty("G4STau2PlusWidth",m_G4STau2PlusWidth=0.0*CLHEP::MeV,"G4STau2Plus Width");
+  declareProperty("G4STau2PlusCharge",m_G4STau2PlusCharge=+1.*CLHEP::eplus,"G4STau2Plus charge");
+  declareProperty("G4STau2PlusPDGCode",m_G4STau2PlusPDGCode=-1000015,"G4STau2Plus PDG CODE");
+  declareProperty("G4STau2PlusStable",m_G4STau2PlusStable=true,"G4STau2Plus Stable");
+  declareProperty("G4STau2PlusLifetime",m_G4STau2PlusLifetime=-1,"G4STau2Plus Lifetime");
+  declareProperty("G4STau2PlusShortlived",m_G4STau2PlusShortlived=false,"G4STau2Plus Shortlived");
 }
 
 //=============================================================================
@@ -127,18 +184,53 @@ void SleptonsPhysicsTool::ConstructParticle()
 {
   ATH_MSG_DEBUG("ConstructParticle for the Sleptons being run");
 
+  if (m_G4SElectronRMinusMass>0. && std::abs(m_G4SElectronRMinusPDGCode)>=2000000){
+    m_theSElectronRMinus = G4SElectronRMinus::Definition(m_G4SElectronRMinusMass, m_G4SElectronRMinusWidth, m_G4SElectronRMinusCharge, m_G4SElectronRMinusPDGCode, m_G4SElectronRMinusStable, m_G4SElectronRMinusLifetime, m_G4SElectronRMinusShortlived );
+  }
 
-  m_theSElectronMinus = G4SElectronMinus::Definition(m_G4SElectronMinusMass, m_G4SElectronMinusWidth, m_G4SElectronMinusCharge, m_G4SElectronMinusPDGCode, m_G4SElectronMinusStable, m_G4SElectronMinusLifetime, m_G4SElectronMinusShortlived );
+  if (m_G4SElectronRPlusMass>0. && std::abs(m_G4SElectronRPlusPDGCode)>=2000000){
+    m_theSElectronRPlus  = G4SElectronRPlus::Definition(m_G4SElectronRPlusMass, m_G4SElectronRPlusWidth, m_G4SElectronRPlusCharge, m_G4SElectronRPlusPDGCode, m_G4SElectronRPlusStable, m_G4SElectronRPlusLifetime, m_G4SElectronRPlusShortlived );
+  }
 
-  m_theSElectronPlus  = G4SElectronPlus::Definition(m_G4SElectronPlusMass, m_G4SElectronPlusWidth, m_G4SElectronPlusCharge, m_G4SElectronPlusPDGCode, m_G4SElectronPlusStable, m_G4SElectronPlusLifetime, m_G4SElectronPlusShortlived );
+  if (m_G4SMuonRMinusMass>0. && std::abs(m_G4SMuonRMinusPDGCode)>=2000000){
+    m_theSMuonRMinus     = G4SMuonRMinus::Definition(m_G4SMuonRMinusMass, m_G4SMuonRMinusWidth, m_G4SMuonRMinusCharge, m_G4SMuonRMinusPDGCode, m_G4SMuonRMinusStable, m_G4SMuonRMinusLifetime, m_G4SMuonRMinusShortlived );
+  }
 
-  m_theSMuonMinus     = G4SMuonMinus::Definition(m_G4SMuonMinusMass, m_G4SMuonMinusWidth, m_G4SMuonMinusCharge, m_G4SMuonMinusPDGCode, m_G4SMuonMinusStable, m_G4SMuonMinusLifetime, m_G4SMuonMinusShortlived );
+  if (m_G4SMuonRPlusMass>0. && std::abs(m_G4SMuonRPlusPDGCode)>=2000000){
+    m_theSMuonRPlus      = G4SMuonRPlus::Definition(m_G4SMuonRPlusMass, m_G4SMuonRPlusWidth, m_G4SMuonRPlusCharge, m_G4SMuonRPlusPDGCode, m_G4SMuonRPlusStable, m_G4SMuonRPlusLifetime, m_G4SMuonRPlusShortlived );
+  }
 
-  m_theSMuonPlus      = G4SMuonPlus::Definition(m_G4SMuonPlusMass, m_G4SMuonPlusWidth, m_G4SMuonPlusCharge, m_G4SMuonPlusPDGCode, m_G4SMuonPlusStable, m_G4SMuonPlusLifetime, m_G4SMuonPlusShortlived );
+  if (m_G4STau1MinusMass>0. && std::abs(m_G4STau1MinusPDGCode)<2000000){
+    m_theSTau1Minus=G4STau1Minus::Definition(m_G4STau1MinusMass, m_G4STau1MinusWidth, m_G4STau1MinusCharge, m_G4STau1MinusPDGCode, m_G4STau1MinusStable, m_G4STau1MinusLifetime, m_G4STau1MinusShortlived );
+  }
 
-  m_theSTauMinus=G4STauMinus::Definition(m_G4STauMinusMass, m_G4STauMinusWidth, m_G4STauMinusCharge, m_G4STauMinusPDGCode, m_G4STauMinusStable, m_G4STauMinusLifetime, m_G4STauMinusShortlived );
+  if (m_G4STau1PlusMass>0. && std::abs(m_G4STau1PlusPDGCode)<2000000){
+    m_theSTau1Plus=G4STau1Plus::Definition(m_G4STau1PlusMass, m_G4STau1PlusWidth, m_G4STau1PlusCharge, m_G4STau1PlusPDGCode, m_G4STau1PlusStable, m_G4STau1PlusLifetime, m_G4STau1PlusShortlived );
+  }
 
-  m_theSTauPlus=G4STauPlus::Definition(m_G4STauPlusMass, m_G4STauPlusWidth, m_G4STauPlusCharge, m_G4STauPlusPDGCode, m_G4STauPlusStable, m_G4STauPlusLifetime, m_G4STauPlusShortlived );
+  if (m_G4SElectronLMinusMass>0. && std::abs(m_G4SElectronLMinusPDGCode)<2000000){
+    m_theSElectronLMinus = G4SElectronLMinus::Definition(m_G4SElectronLMinusMass, m_G4SElectronLMinusWidth, m_G4SElectronLMinusCharge, m_G4SElectronLMinusPDGCode, m_G4SElectronLMinusStable, m_G4SElectronLMinusLifetime, m_G4SElectronLMinusShortlived );
+  }
+
+  if (m_G4SElectronLPlusMass>0. && std::abs(m_G4SElectronLPlusPDGCode)<2000000){
+    m_theSElectronLPlus  = G4SElectronLPlus::Definition(m_G4SElectronLPlusMass, m_G4SElectronLPlusWidth, m_G4SElectronLPlusCharge, m_G4SElectronLPlusPDGCode, m_G4SElectronLPlusStable, m_G4SElectronLPlusLifetime, m_G4SElectronLPlusShortlived );
+  }
+
+  if (m_G4SMuonLMinusMass>0. && std::abs(m_G4SMuonLMinusPDGCode)<2000000){
+    m_theSMuonLMinus     = G4SMuonLMinus::Definition(m_G4SMuonLMinusMass, m_G4SMuonLMinusWidth, m_G4SMuonLMinusCharge, m_G4SMuonLMinusPDGCode, m_G4SMuonLMinusStable, m_G4SMuonLMinusLifetime, m_G4SMuonLMinusShortlived );
+  }
+
+  if (m_G4SMuonLPlusMass>0. && std::abs(m_G4SMuonLPlusPDGCode)<2000000){
+    m_theSMuonLPlus      = G4SMuonLPlus::Definition(m_G4SMuonLPlusMass, m_G4SMuonLPlusWidth, m_G4SMuonLPlusCharge, m_G4SMuonLPlusPDGCode, m_G4SMuonLPlusStable, m_G4SMuonLPlusLifetime, m_G4SMuonLPlusShortlived );
+  }
+
+  if (m_G4STau2MinusMass>0. && std::abs(m_G4STau2MinusPDGCode)>=2000000){
+    m_theSTau2Minus=G4STau2Minus::Definition(m_G4STau2MinusMass, m_G4STau2MinusWidth, m_G4STau2MinusCharge, m_G4STau2MinusPDGCode, m_G4STau2MinusStable, m_G4STau2MinusLifetime, m_G4STau2MinusShortlived );
+  }
+
+  if (m_G4STau2PlusMass>0. && std::abs(m_G4STau2PlusPDGCode)>=2000000){
+    m_theSTau2Plus=G4STau2Plus::Definition(m_G4STau2PlusMass, m_G4STau2PlusWidth, m_G4STau2PlusCharge, m_G4STau2PlusPDGCode, m_G4STau2PlusStable, m_G4STau2PlusLifetime, m_G4STau2PlusShortlived );
+  }
 
 }
 
@@ -149,7 +241,7 @@ void SleptonsPhysicsTool::ConstructProcess()
   while( (*PARTICLEITERATOR)() ){
     G4ParticleDefinition* particle = PARTICLEITERATOR->value();
     int pdgcode=std::abs(particle->GetPDGEncoding());
-    if (pdgcode==2000011 || pdgcode==2000013 || pdgcode==1000015)
+    if (pdgcode==2000011 || pdgcode==2000013 || pdgcode==1000015 || pdgcode==1000011 || pdgcode==1000013 || pdgcode==2000015)
       {
         G4ProcessManager* proc=particle->GetProcessManager();
         proc->AddProcess(new G4hMultipleScattering,-1,1,1);
