@@ -1068,9 +1068,8 @@ Root::TElectronEfficiencyCorrectionTool::setup(const TObjArray& hists,
                 << "! Could NOT find histogram with name *_sf in folder");
         return 0;
     }
-    TH2 *tmpHist(0);
     for (int i = 0; i < hists.GetEntries(); ++i) {
-        tmpHist = (TH2 *) hists.At(i);
+        TH1* tmpHist = (TH1 *) hists.At(i);
         tmpHist->SetDirectory(0);
     }
     // Now, we have all the needed info. Fill the vectors accordingly

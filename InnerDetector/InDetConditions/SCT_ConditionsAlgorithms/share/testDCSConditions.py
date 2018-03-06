@@ -74,10 +74,10 @@ topSequence = AlgSequence()
 from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_DCSConditionsTestAlg
 topSequence+= SCT_DCSConditionsTestAlg()
 
-# Set up SCT_DCSConditionsSvc and required conditions folders and conditions algorithms
-from SCT_ConditionsServices.SCT_DCSConditionsSvcSetup import SCT_DCSConditionsSvcSetup
-sct_DCSConditionsSvcSetup = SCT_DCSConditionsSvcSetup()
-sct_DCSConditionsSvcSetup.setup()
+# Set up SCT_DCSConditionsTool and required conditions folders and conditions algorithms
+from SCT_ConditionsTools.SCT_DCSConditionsToolSetup import SCT_DCSConditionsToolSetup
+sct_DCSConditionsToolSetup = SCT_DCSConditionsToolSetup()
+sct_DCSConditionsToolSetup.setup()
 
 #--------------------------------------------------------------
 # Event selector settings. Use McEventSelector

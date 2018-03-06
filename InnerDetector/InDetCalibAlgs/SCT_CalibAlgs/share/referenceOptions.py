@@ -275,21 +275,21 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 InDetFlags.useDCS = UseDCS #True if run HVTrip search
 include( "InDetRecExample/InDetRecConditionsAccess.py" )
 
-#--- for MajorityConditionsSvc
-from  SCT_ConditionsServices.SCT_MajorityConditionsSvcSetup import SCT_MajorityConditionsSvcSetup
-sct_MajorityConditionsSvcSetup = SCT_MajorityConditionsSvcSetup()
+#--- for MajorityConditionsTool
+from  SCT_ConditionsTools.SCT_MajorityConditionsToolSetup import SCT_MajorityConditionsToolSetup
+sct_MajorityConditionsToolSetup = SCT_MajorityConditionsToolSetup()
 year=int(projectName[4:6])
 if (year > 13):
-    sct_MajorityConditionsSvcSetup.setFolderDb("<db>COOLOFL_DCS/CONDBR2</db> /SCT/DCS/MAJ")
+    sct_MajorityConditionsToolSetup.setFolderDb("<db>COOLOFL_DCS/CONDBR2</db> /SCT/DCS/MAJ")
 else:
-    sct_MajorityConditionsSvcSetup.setFolderDb("<db>COOLOFL_DCS/COMP200</db> /SCT/DCS/MAJ")
-sct_MajorityConditionsSvcSetup.setFolder("/SCT/DCS/MAJ")
-sct_MajorityConditionsSvcSetup.setup()
-InDetSCT_MajorityConditionsSvc = sct_MajorityConditionsSvcSetup.getSvc()
-InDetSCT_MajorityConditionsSvc.UseOverall       = True
-InDetSCT_MajorityConditionsSvc.MajorityFraction = 0.9
+    sct_MajorityConditionsToolSetup.setFolderDb("<db>COOLOFL_DCS/COMP200</db> /SCT/DCS/MAJ")
+sct_MajorityConditionsToolSetup.setFolder("/SCT/DCS/MAJ")
+sct_MajorityConditionsToolSetup.setup()
+InDetSCT_MajorityConditionsTool = sct_MajorityConditionsToolSetup.getTool()
+InDetSCT_MajorityConditionsTool.UseOverall       = True
+InDetSCT_MajorityConditionsTool.MajorityFraction = 0.9
 if ( InDetFlags.doPrintConfigurables() ):
-    print InDetSCT_MajorityConditionsSvc
+    print InDetSCT_MajorityConditionsTool
 
 #--- conditions tag
 conddb.setGlobalTag( globalflags.ConditionsTag() ) 

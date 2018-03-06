@@ -233,7 +233,7 @@ InDetPixelClusterization.ClusterContainerCacheKey = InDetCacheCreatorTrigViews.P
 from SiClusterizationTool.SiClusterizationToolConf import InDet__SCT_ClusteringTool
 InDetSCT_ClusteringTool = InDet__SCT_ClusteringTool(name              = "InDetSCT_ClusteringTool",
                                                     globalPosAlg      = InDetClusterMakerTool,
-                                                    conditionsService = InDetSCT_ConditionsSummarySvc)
+                                                    conditionsService = InDetSCT_ConditionsSummarySvcWithoutFlagged)
 #
 # --- SCT_Clusterization algorithm
 #
@@ -244,8 +244,7 @@ InDetSCT_Clusterization = InDet__SCT_Clusterization(name                    = "I
                                                     DetectorManagerName     = InDetKeys.SCT_Manager(),
                                                     DataObjectName          = InDetKeys.SCT_RDOs(),
                                                     ClustersName            = "SCT_TrigClusters",
-                                                    conditionsService       = InDetSCT_ConditionsSummarySvc,
-                                                    FlaggedConditionService = InDetSCT_FlaggedConditionSvc, 
+                                                    conditionsService       = InDetSCT_ConditionsSummarySvcWithoutFlagged,
                                                     isRoI_Seeded            = True )
 
 

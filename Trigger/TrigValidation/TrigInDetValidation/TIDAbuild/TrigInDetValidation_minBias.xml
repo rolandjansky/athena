@@ -35,7 +35,9 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-monitor.root data-minBias-reference.root HLT_mb_idperf_L1MBTS_2_InDetTrigTrackingxAODCnv_minBias_EFID -d HLTEF-plots </argvalue>
+
+                <argvalue>data-monitor.root data-minBias-reference.root HLT_mb_idperf_L1RD1_FILLED_InDetTrigTrackingxAODCnv_minBias_EFID -d HLTEF-plots </argvalue>
+
               </arg>
             </action>
 

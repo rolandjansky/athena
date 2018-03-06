@@ -11,10 +11,19 @@
 
 #include "ISF_FastCaloSimEvent/TFCSParametrizationBase.h"
 #include "ISF_FastCaloSimEvent/TFCSParametrization.h"
+#include "ISF_FastCaloSimEvent/TFCSInitWithEkin.h"
 #include "ISF_FastCaloSimEvent/TFCSParametrizationChain.h"
+#include "ISF_FastCaloSimEvent/TFCSParametrizationBinnedChain.h"
+#include "ISF_FastCaloSimEvent/TFCSParametrizationFloatSelectChain.h"
+#include "ISF_FastCaloSimEvent/TFCSParametrizationPDGIDSelectChain.h"
+#include "ISF_FastCaloSimEvent/TFCSParametrizationEbinChain.h"
+#include "ISF_FastCaloSimEvent/TFCSParametrizationEkinSelectChain.h"
+#include "ISF_FastCaloSimEvent/TFCSParametrizationEtaSelectChain.h"
+#include "ISF_FastCaloSimEvent/TFCSParametrizationAbsEtaSelectChain.h"
 
 #include "ISF_FastCaloSimEvent/TFCSEnergyParametrization.h"
 #include "ISF_FastCaloSimEvent/TFCSPCAEnergyParametrization.h"
+#include "ISF_FastCaloSimEvent/TFCSEnergyBinParametrization.h"
 
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrization.h"
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitBase.h"
@@ -38,10 +47,19 @@
 
 #pragma link C++ class TFCSParametrizationBase+;
 #pragma link C++ class TFCSParametrization+;
+#pragma link C++ class TFCSInitWithEkin+;
 #pragma link C++ class TFCSParametrizationChain+;
+#pragma link C++ class TFCSParametrizationBinnedChain+;
+#pragma link C++ class TFCSParametrizationFloatSelectChain+;
+#pragma link C++ class TFCSParametrizationPDGIDSelectChain+;
+#pragma link C++ class TFCSParametrizationEbinChain+;
+#pragma link C++ class TFCSParametrizationEkinSelectChain+;
+#pragma link C++ class TFCSParametrizationEtaSelectChain+;
+#pragma link C++ class TFCSParametrizationAbsEtaSelectChain+;
 
 #pragma link C++ class TFCSEnergyParametrization+;
 #pragma link C++ class TFCSPCAEnergyParametrization+;
+#pragma link C++ class TFCSEnergyBinParametrization+;
 
 #pragma link C++ class TFCSLateralShapeParametrization+;
 #pragma link C++ class TFCSLateralShapeParametrizationHitBase+;

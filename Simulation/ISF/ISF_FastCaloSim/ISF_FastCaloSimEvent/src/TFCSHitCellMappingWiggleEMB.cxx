@@ -80,8 +80,10 @@ void TFCSHitCellMappingWiggleEMB::simulate_hit(Hit& hit,TFCSSimulationState& sim
   double wiggle = 0.0;
   if(cs < 4 && cs > 0) wiggle = doWiggle();
 
+  ATH_MSG_DEBUG("HIT: E="<<hit.E()<<" cs="<<cs<<" eta="<<hit.eta()<<" phi="<<hit.phi()<<" wiggle="<<wiggle);
+
   double hit_phi_shifted=hit.phi()-wiggle;
   hit.phi()=TVector2::Phi_mpi_pi(hit_phi_shifted);
-  
+
   TFCSHitCellMapping::simulate_hit(hit,simulstate,truth,extrapol);
 }

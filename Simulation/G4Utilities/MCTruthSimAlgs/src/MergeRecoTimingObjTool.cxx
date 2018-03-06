@@ -17,7 +17,6 @@ MergeRecoTimingObjTool::MergeRecoTimingObjTool(const std::string& type,
   m_recTimingObjKey("EVNTtoHITS_timings"),
   m_firstSubEvent(true)
 {
-  declareInterface<IPileUpTool>(this);
   declareProperty("RecoTimingObjKey", m_recTimingObjKey);//=std::string("EVNTtoHITS_timings"));
 }
 
