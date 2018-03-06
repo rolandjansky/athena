@@ -39,8 +39,8 @@ StatusCode HadMuBuilder::execute()
   xAOD::DiTauJetAuxContainer* xDiTauJetAuxContainerHadMu  = new xAOD::DiTauJetAuxContainer();
   xDiTauJetContainerHadMu->setStore(xDiTauJetAuxContainerHadMu);
   
-  ANA_CHECK(evtStore()->record(xDiTauJetContainerHadMu, m_sDiTauHadMuContainerName));
-  ANA_CHECK(evtStore()->record(xDiTauJetAuxContainerHadMu, m_sDiTauHadMuAuxContainerName));
+  CHECK(evtStore()->record(xDiTauJetContainerHadMu, m_sDiTauHadMuContainerName));
+  CHECK(evtStore()->record(xDiTauJetAuxContainerHadMu, m_sDiTauHadMuAuxContainerName));
     
   const xAOD::MuonContainer* muonContainer = evtStore()->retrieve<const xAOD::MuonContainer>(m_sMuonContainerName);
   const xAOD::TauJetContainer* tauContainer = evtStore()->retrieve<const xAOD::TauJetContainer>(m_sTauContainerName);
