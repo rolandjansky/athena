@@ -24,4 +24,17 @@ def makeMuonAnalysisSequence (dataType) :
     alg.isolationDecoration = "isolated_muon"
     sequence.append ( {"alg" : alg, "in" : "muons", "out" : "muonsOut" } )
 
+    alg = createAlgorithm( 'CP::MuonEfficiencyScaleFactorAlg', 'MuonEfficiencyScaleFactorAlg' )
+    addPrivateTool (alg, "efficiencyScaleFactorTool", "CP::MuonEfficiencyScaleFactors")
+    if dataType == "data" :
+        alg.isData = 1
+        pass
+    else :
+        alg.isData = 0
+        pass
+    alg.efficiencyDecoration = "muon_eff"
+    alg.outOfValidity = "bad_eff"
+    sequence.append ( {"alg" : alg, "in" : "muons", "out" : "muonsOut",
+                       "sys" : "(^MUON_EFF_.*)"} )
+
     return sequence
