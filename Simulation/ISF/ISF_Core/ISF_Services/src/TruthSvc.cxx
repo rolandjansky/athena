@@ -216,19 +216,11 @@ void ISF::TruthSvc::registerTruthIncident( ISF::ITruthIncident& ti) {
 
 #ifdef DEBUG_TRUTHSVC
       const std::string survival = (ti.parentSurvivesIncident()) ? "parent survives" : "parent destroyed";
-      const ISF::InteractionClass_t classification = ti.interactionClassification();
-      if(classification!=ISF::STD_VTX) {
-        ATH_MSG_INFO("TruthSvc: Quasi-stable vertex + " << survival
-                                                        << ", TI Class: " << ti.interactionClassification()
-                                                        << ", ProcessType: " << ti.physicsProcessCategory()
-                                                        << ", ProcessSubType: " << ti.physicsProcessCode());
-    }
-      else {
-        ATH_MSG_INFO("TruthSvc: Normal vertex + " << survival
-                                                  << ", TI Class: " << ti.interactionClassification()
-                                                  << ", ProcessType: " << ti.physicsProcessCategory()
-                                                  << ", ProcessSubType: " << ti.physicsProcessCode());
-    }
+      const std::string vtxType = (ti.interactionClassification()==ISF::STD_VTX) ? "Normal" : "Quasi-stable";
+      ATH_MSG_INFO("TruthSvc: " << vtxType << " vertex + " << survival
+                   << ", TI Class: " << ti.interactionClassification()
+                   << ", ProcessType: " << ti.physicsProcessCategory()
+                   << ", ProcessSubType: " << ti.physicsProcessCode());
 #endif
 
     }
@@ -253,19 +245,12 @@ void ISF::TruthSvc::recordIncidentToMCTruth( ISF::ITruthIncident& ti) {
   HepMC::GenVertex *vtx = createGenVertexFromTruthIncident(ti, replaceVertex);
   const ISF::InteractionClass_t classification = ti.interactionClassification();
 #ifdef DEBUG_TRUTHSVC
-  std::string survival = (ti.parentSurvivesIncident()) ? "parent survives" : "parent destroyed";
-  if (classification!=ISF::STD_VTX) {
-  ATH_MSG_INFO("TruthSvc: Quasi-stable vertex + " << survival
-                                                  << ", TI Class: " << ti.interactionClassification()
-                                                  << ", ProcessType: " << ti.physicsProcessCategory()
-                                                  << ", ProcessSubType: " << ti.physicsProcessCode());
-}
-  else {
-  ATH_MSG_INFO("TruthSvc: Normal vertex + " << survival
-                                            << ", TI Class: " << ti.interactionClassification()
-                                                  << ", ProcessType: " << ti.physicsProcessCategory()
-                                                  << ", ProcessSubType: " << ti.physicsProcessCode());
-}
+  const std::string survival = (ti.parentSurvivesIncident()) ? "parent survives" : "parent destroyed";
+  const std::string vtxType = (ti.interactionClassification()==ISF::STD_VTX) ? "Normal" : "Quasi-stable";
+  ATH_MSG_INFO("TruthSvc: " << vtxType << " vertex + " << survival
+               << ", TI Class: " << ti.interactionClassification()
+               << ", ProcessType: " << ti.physicsProcessCategory()
+               << ", ProcessSubType: " << ti.physicsProcessCode());
 #endif
 
   ATH_MSG_VERBOSE ( "Outgoing particles:" );
