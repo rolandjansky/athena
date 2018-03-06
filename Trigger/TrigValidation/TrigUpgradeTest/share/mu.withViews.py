@@ -674,14 +674,14 @@ if TriggerFlags.doMuon==True:
   if doL2SA==True and doL2CB==False:
     from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg 
     summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
-    summary.L1Decision = "HLTChains" 
+    summary.InputDecision = "HLTChains" 
     summary.FinalDecisions = [ trigMufastHypo.Decisions ]
     summary.OutputLevel = DEBUG 
     step0 = parOR("step0", [ muFastStep ] )
     HLTsteps = seqAND("HLTsteps", [ step0, summary ]  ) 
 
     mon = TriggerSummaryAlg( "TriggerMonitoringAlg" ) 
-    mon.L1Decision = "HLTChains" 
+    mon.InputDecision = "HLTChains" 
     mon.FinalDecisions = [ trigMufastHypo.Decisions, "WhateverElse" ] 
     mon.HLTSummary = "MonitoringSummary" 
     mon.OutputLevel = DEBUG 
@@ -701,7 +701,7 @@ if TriggerFlags.doMuon==True and TriggerFlags.doID==True:
   if doL2SA==True and doL2CB==True:
     from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg 
     summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
-    summary.L1Decision = "HLTChains" 
+    summary.InputDecision = "HLTChains" 
     summary.FinalDecisions = [ trigmuCombHypo.Decisions ]
     summary.OutputLevel = DEBUG 
     step0 = parOR("step0", [ muFastStep ] )
@@ -709,7 +709,7 @@ if TriggerFlags.doMuon==True and TriggerFlags.doID==True:
     HLTsteps = seqAND("HLTsteps", [ step0, step1, summary ]  ) 
 
     mon = TriggerSummaryAlg( "TriggerMonitoringAlg" ) 
-    mon.L1Decision = "HLTChains" 
+    mon.InputDecision = "HLTChains" 
     mon.FinalDecisions = [ trigmuCombHypo.Decisions, "WhateverElse" ] 
     mon.HLTSummary = "MonitoringSummary" 
     mon.OutputLevel = DEBUG 
