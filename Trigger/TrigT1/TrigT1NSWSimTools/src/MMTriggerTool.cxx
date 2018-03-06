@@ -150,12 +150,12 @@ namespace NSWL1 {
         return StatusCode::SUCCESS;
       }
 
-      MMLoadVariables m_load = MMLoadVariables(&(*(evtStore())), m_detManager, m_MmIdHelper, m_par);
+      MMLoadVariables load = MMLoadVariables(&(*(evtStore())), m_detManager, m_MmIdHelper, m_par);
 
       std::vector<digitWrapper> entries;
 
-      m_load.getMMDigitsInfo(entries, Hits_Data_Set_Time, Event_Info);
-      this->fillNtuple(m_load);
+      load.getMMDigitsInfo(entries, Hits_Data_Set_Time, Event_Info);
+      this->fillNtuple(load);
 
       //Originally boom, this is the saved "particle_info" (originally primer)
       evInf_entry truth_info(Event_Info.find(pevt->event_ID()->event_number())->second);
@@ -189,14 +189,14 @@ namespace NSWL1 {
         //////////////////////////////////////////////////////////////
 
         //Initialization of the finder: defines all the roads
-        MMT_Finder m_find = MMT_Finder(m_par, 1);
+        MMT_Finder find = MMT_Finder(m_par, 1);
 
-        ATH_MSG_DEBUG(  "Number of Roads Configured " <<  m_find.get_roads()  );
+        ATH_MSG_DEBUG(  "Number of Roads Configured " <<  find.get_roads()  );
 
         //Convert hits to slopes and fill the buffer
         map<pair<int,int>,finder_entry> hitBuffer;
         for(int ihds=0; ihds<(int)hitDatas.size(); ihds++){
-          m_find.fillHitBuffer( hitBuffer,                       // Map (road,plane) -> Finder entry
+          find.fillHitBuffer( hitBuffer,                       // Map (road,plane) -> Finder entry
                                 hitDatas[ihds].entry_hit(m_par) );  // Hit object
 
           hitData_info hitInfo = hitDatas[ihds].entry_hit(m_par).info;
@@ -228,13 +228,13 @@ namespace NSWL1 {
         //                                                          //
         //////////////////////////////////////////////////////////////
 
-        MMT_Fitter m_fit = MMT_Fitter(m_par);
+        MMT_Fitter fit = MMT_Fitter(m_par);
 
         //First loop over the roads and planes and apply the fitter
         int fits_occupied=0;
         const int nfit_max=1;  //MOVE THIS EVENTUALLY
         // int correct_bcid=2;    //THIS TOO
-        int nRoads = m_find.get_roads();
+        int nRoads = find.get_roads();
 
         vector<evFit_entry> road_fits = vector<evFit_entry>(nRoads,evFit_entry());
 
@@ -251,21 +251,21 @@ namespace NSWL1 {
           vector<Hit> track;
 
           //Check if there are hits in the buffer
-          m_find.checkBufferForHits(  plane_is_hit, // Empty, To be filled by function.
+          find.checkBufferForHits(  plane_is_hit, // Empty, To be filled by function.
                                       track, // Empty, To be filled by function.
                                       iRoad, // roadID
                                       hitBuffer // All hits. Map ( (road,plane) -> finder_entry  )
                                     );
 
           //Look for coincidences
-          int road_num=m_find.Coincidence_Gate(plane_is_hit);
+          int road_num=find.Coincidence_Gate(plane_is_hit);
 
           if(road_num>0){
 
             if(fits_occupied>=nfit_max) break;
 
             //Perform the fit -> calculate local, global X, UV slopes -> calculate ROI and TriggerTool signal (theta, phi, deltaTheta)
-            evFit_entry candidate=m_fit.fit_event(event,track,hitDatas,fits_occupied,mxmy,mxl,mvGlobal,muGlobal);
+            evFit_entry candidate=fit.fit_event(event,track,hitDatas,fits_occupied,mxmy,mxl,mvGlobal,muGlobal);
 
             ATH_MSG_DEBUG( "THETA " << candidate.fit_theta.getFixed() << " PHI " << candidate.fit_phi.getFixed() << " DTH " << candidate.fit_dtheta.getFixed() );
             road_fits[iRoad]=candidate;
