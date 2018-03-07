@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "sTGCDigitVariables.h"
@@ -30,7 +30,7 @@ StatusCode sTGCDigitVariables::fillVariables()
   
   // get truth information container of digitization
   const MuonSimDataCollection* nsw_sTgcSdoContainer = nullptr;
-  // CHECK( m_evtStore->retrieve(nsw_sTgcSdoContainer, "sTGC_SDO") );
+  CHECK( m_evtStore->retrieve(nsw_sTgcSdoContainer, "sTGC_SDO") );
   
   const sTgcDigitContainer* nsw_sTgcDigitContainer = nullptr;
   CHECK( m_evtStore->retrieve(nsw_sTgcDigitContainer, "sTGC_DIGITS") );
@@ -300,36 +300,37 @@ StatusCode sTGCDigitVariables::initializeVariables()
   m_NSWsTGC_dig_truth_XZ_angle   = new std::vector<float>();
 
   if(m_tree) {
-    m_tree->Branch("Digit_sTGC", 						 &m_NSWsTGC_nDigits, "Digits_sTGC_n/i");
-    m_tree->Branch("Digit_sTGC_Pad_Digits", 						 &m_NSWsTGC_nPadDigits, "Digit_sTGC_Pad_Digits_n/i");
-    m_tree->Branch("Digit_sTGC_time",       "std::vector< double >", &m_NSWsTGC_dig_time);
-    m_tree->Branch("Digit_sTGC_bctag",       "std::vector< int >", &m_NSWsTGC_dig_bctag);
-    m_tree->Branch("Digit_sTGC_charge",     "std::vector< double >", &m_NSWsTGC_dig_charge);
-    m_tree->Branch("Digit_sTGC_isDead",     "std::vector< bool >",   &m_NSWsTGC_dig_isDead);
-    m_tree->Branch("Digit_sTGC_isPileup",   "std::vector< bool >",  &m_NSWsTGC_dig_isPileup);
-    m_tree->Branch("Digit_sTGC_stationName", &m_NSWsTGC_dig_stationName);
-    m_tree->Branch("Digit_sTGC_stationEta",  &m_NSWsTGC_dig_stationEta);
-    m_tree->Branch("Digit_sTGC_stationPhi",  &m_NSWsTGC_dig_stationPhi);
-    m_tree->Branch("Digit_sTGC_multiplet",   &m_NSWsTGC_dig_multiplet);
-    m_tree->Branch("Digit_sTGC_gas_gap",     &m_NSWsTGC_dig_gas_gap);
-    m_tree->Branch("Digit_sTGC_channel_type",&m_NSWsTGC_dig_channel_type);
-    m_tree->Branch("Digit_sTGC_channel",     &m_NSWsTGC_dig_channel);
-    m_tree->Branch("Digit_sTGC_stationEtaMin",  &m_NSWsTGC_dig_stationEtaMin);
-    m_tree->Branch("Digit_sTGC_stationEtaMax",  &m_NSWsTGC_dig_stationEtaMax);
-    m_tree->Branch("Digit_sTGC_stationPhiMin",  &m_NSWsTGC_dig_stationPhiMin);
-    m_tree->Branch("Digit_sTGC_stationPhiMax",  &m_NSWsTGC_dig_stationPhiMax);
-    m_tree->Branch("Digit_sTGC_gas_gapMin",  &m_NSWsTGC_dig_gas_gapMin);
-    m_tree->Branch("Digit_sTGC_gas_gapMax",  &m_NSWsTGC_dig_gas_gapMax);
-    m_tree->Branch("Digit_sTGC_padEta",  &m_NSWsTGC_dig_padEta);
-    m_tree->Branch("Digit_sTGC_padPhi",  &m_NSWsTGC_dig_padPhi);
-    m_tree->Branch("Digit_sTGC_numberOfMultilayers",  &m_NSWsTGC_dig_numberOfMultilayers);
-    m_tree->Branch("Digit_sTGC_multilayerMin",  &m_NSWsTGC_dig_multilayerMin);
-    m_tree->Branch("Digit_sTGC_multilayerMax",  &m_NSWsTGC_dig_multilayerMax);
-    m_tree->Branch("Digit_sTGC_channelTypeMin",  &m_NSWsTGC_dig_channelTypeMin);
-    m_tree->Branch("Digit_sTGC_channelTypeMax",  &m_NSWsTGC_dig_channelTypeMax);
-    m_tree->Branch("Digit_sTGC_channelMin",  &m_NSWsTGC_dig_channelMin);
-    m_tree->Branch("Digit_sTGC_channelMax",  &m_NSWsTGC_dig_channelMax);
-    m_tree->Branch("Digit_sTGC_channelNumber",  &m_NSWsTGC_dig_channelNumber);
+    ATH_MSG_DEBUG("sTGC digit:  init m_tree ");
+    m_tree->Branch("Digits_sTGC",              &m_NSWsTGC_nDigits, "Digits_sTGC_n/i");
+    m_tree->Branch("Digits_sTGC_Pad_Digits",             &m_NSWsTGC_nPadDigits, "Digits_sTGC_Pad_Digits_n/i");
+    m_tree->Branch("Digits_sTGC_time",       "std::vector< double >", &m_NSWsTGC_dig_time);
+    m_tree->Branch("Digits_sTGC_bctag",       "std::vector< int >", &m_NSWsTGC_dig_bctag);
+    m_tree->Branch("Digits_sTGC_charge",     "std::vector< double >", &m_NSWsTGC_dig_charge);
+    m_tree->Branch("Digits_sTGC_isDead",     "std::vector< bool >",   &m_NSWsTGC_dig_isDead);
+    m_tree->Branch("Digits_sTGC_isPileup",   "std::vector< bool >",  &m_NSWsTGC_dig_isPileup);
+    m_tree->Branch("Digits_sTGC_stationName", &m_NSWsTGC_dig_stationName);
+    m_tree->Branch("Digits_sTGC_stationEta",  &m_NSWsTGC_dig_stationEta);
+    m_tree->Branch("Digits_sTGC_stationPhi",  &m_NSWsTGC_dig_stationPhi);
+    m_tree->Branch("Digits_sTGC_multiplet",   &m_NSWsTGC_dig_multiplet);
+    m_tree->Branch("Digits_sTGC_gas_gap",     &m_NSWsTGC_dig_gas_gap);
+    m_tree->Branch("Digits_sTGC_channel_type",&m_NSWsTGC_dig_channel_type);
+    m_tree->Branch("Digits_sTGC_channel",     &m_NSWsTGC_dig_channel);
+    m_tree->Branch("Digits_sTGC_stationEtaMin",  &m_NSWsTGC_dig_stationEtaMin);
+    m_tree->Branch("Digits_sTGC_stationEtaMax",  &m_NSWsTGC_dig_stationEtaMax);
+    m_tree->Branch("Digits_sTGC_stationPhiMin",  &m_NSWsTGC_dig_stationPhiMin);
+    m_tree->Branch("Digits_sTGC_stationPhiMax",  &m_NSWsTGC_dig_stationPhiMax);
+    m_tree->Branch("Digits_sTGC_gas_gapMin",  &m_NSWsTGC_dig_gas_gapMin);
+    m_tree->Branch("Digits_sTGC_gas_gapMax",  &m_NSWsTGC_dig_gas_gapMax);
+    m_tree->Branch("Digits_sTGC_padEta",  &m_NSWsTGC_dig_padEta);
+    m_tree->Branch("Digits_sTGC_padPhi",  &m_NSWsTGC_dig_padPhi);
+    m_tree->Branch("Digits_sTGC_numberOfMultilayers",  &m_NSWsTGC_dig_numberOfMultilayers);
+    m_tree->Branch("Digits_sTGC_multilayerMin",  &m_NSWsTGC_dig_multilayerMin);
+    m_tree->Branch("Digits_sTGC_multilayerMax",  &m_NSWsTGC_dig_multilayerMax);
+    m_tree->Branch("Digits_sTGC_channelTypeMin",  &m_NSWsTGC_dig_channelTypeMin);
+    m_tree->Branch("Digits_sTGC_channelTypeMax",  &m_NSWsTGC_dig_channelTypeMax);
+    m_tree->Branch("Digits_sTGC_channelMin",  &m_NSWsTGC_dig_channelMin);
+    m_tree->Branch("Digits_sTGC_channelMax",  &m_NSWsTGC_dig_channelMax);
+    m_tree->Branch("Digits_sTGC_channelNumber",  &m_NSWsTGC_dig_channelNumber);
 
     m_tree->Branch("Digits_sTGC_channelPosX", "std::vector< double >", &m_NSWsTGC_dig_channelPosX);
     m_tree->Branch("Digits_sTGC_channelPosY", "std::vector< double >", &m_NSWsTGC_dig_channelPosY);

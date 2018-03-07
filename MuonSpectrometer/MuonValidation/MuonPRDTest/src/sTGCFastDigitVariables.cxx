@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "sTGCFastDigitVariables.h"
@@ -16,7 +16,7 @@ StatusCode sTGCFastDigitVariables::fillVariables()
   CHECK( this->clearVariables() );
 
   const MuonSimDataCollection* nsw_sTgcSdoContainer = nullptr;
-  CHECK( m_evtStore->retrieve(nsw_sTgcSdoContainer, "STGC_SDO") );
+  CHECK( m_evtStore->retrieve(nsw_sTgcSdoContainer, "sTGCfast_SDO") );
 
   const Muon::sTgcPrepDataContainer *nsw_sTgcPrepDataContainer = nullptr; 
   CHECK( m_evtStore->retrieve(nsw_sTgcPrepDataContainer, m_ContainerName.c_str()) );

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MMSimHitVariables.h"
@@ -171,14 +171,11 @@ StatusCode MMSimHitVariables::fillVariables()
     Amg::Vector3D rSurface_pos = surf.transform().inverse()*hpos;
      
     Amg::Vector2D  posOnSurfUnProjected(rSurface_pos.x(),rSurface_pos.y());
-//    double gasGapThickness = detEl->getDesign(offId)->gasGapThickness();
+    // double gasGapThickness = detEl->getDesign(offId)->gasGapThickness();
 
     // check where the readout plane is located and compute the local direction accordingly 
     Amg::Vector3D ldir(0., 0., 0.);
-    if ((roParam.stereoAngel).at(m_MmIdHelper->gasGap(offId)-1)==1)
-      ldir = surf.transform().inverse().linear()*Amg::Vector3D(hit.globalDirection().x(), hit.globalDirection().y(), hit.globalDirection().z());
-    else
-      ldir = surf.transform().inverse().linear()*Amg::Vector3D(hit.globalDirection().x(), hit.globalDirection().y(), -hit.globalDirection().z());
+    ldir = surf.transform().inverse().linear()*Amg::Vector3D(hit.globalDirection().x(), hit.globalDirection().y(), hit.globalDirection().z());
   
     double scale, scaletop;
     double gasgap = 5.;
@@ -194,7 +191,7 @@ StatusCode MMSimHitVariables::fillVariables()
         
   
     int stripNumber = detEl->stripNumber(posOnSurf,offId);
-//    int LastStripNumber = detEl->stripNumber(posOnTopSurf, offId);
+    //  int LastStripNumber = detEl->stripNumber(posOnTopSurf, offId);
      
     // perform bound check
     if( !surf.insideBounds(posOnSurf) ) continue;
@@ -235,6 +232,9 @@ StatusCode MMSimHitVariables::fillVariables()
     m_NSWMM_off_stationPhi    ->push_back(off_stationPhi);
     m_NSWMM_off_multiplet     ->push_back(off_multiplet);
     m_NSWMM_off_gas_gap       ->push_back(off_gas_gap);
+    // The offline IdHelper class will be updated to assign wiregroup ID to SimHit. 
+    // As a temporary solution stripnumber is used directly (also in sTGC)
+    off_channel = stripNumber;
     m_NSWMM_off_channel       ->push_back(off_channel);
 
 

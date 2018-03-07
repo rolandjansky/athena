@@ -27,7 +27,8 @@
 #include "MuonIdHelpers/sTgcIdHelper.h"
 #include "MuonIdHelpers/CscIdHelper.h"
 
-#include "xAODEventInfo/EventInfo.h"
+#include "EventInfo/EventInfo.h"
+#include "EventInfo/EventID.h"
 
 NSWPRDValAlg::NSWPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
@@ -180,14 +181,15 @@ StatusCode NSWPRDValAlg::execute()
   ATH_MSG_INFO("execute()");
 
   // Event information
-  const xAOD::EventInfo *pevt = nullptr;
-  if( ! ( evtStore()->retrieve(pevt).isSuccess() ) ) {
-    ATH_MSG_WARNING("Could not retrieve event info!");
-    m_runNumber = -999999;
-    m_eventNumber = -999999;
+  const EventInfo* pevt(0);
+  if( evtStore()->retrieve(pevt).isSuccess() ) {
+    m_runNumber = pevt->event_ID()->run_number();
+    m_eventNumber = pevt->event_ID()->event_number();
+    ATH_MSG_DEBUG("Now processing event number:" << m_eventNumber << ", run number:" << m_runNumber);
   } else {
-    m_runNumber = pevt->runNumber();
-    m_eventNumber = pevt->eventNumber();
+    ATH_MSG_WARNING("Could not retrieve event info!");
+    m_runNumber = -1;
+    m_eventNumber = -1;
   }
 
   if (m_doTruth) ATH_CHECK( m_TruthVar->fillVariables() );
@@ -196,7 +198,7 @@ StatusCode NSWPRDValAlg::execute()
 
   if (m_doSTGCHit) ATH_CHECK( m_sTgcSimHitVar->fillVariables() );
 
-  if (m_doSTGCFastDigit) ATH_CHECK( m_sTgcDigitVar->fillVariables() );
+  if (m_doSTGCFastDigit) ATH_CHECK( m_sTgcFastDigitVar->fillVariables() );
 
   if (m_doSTGCDigit) ATH_CHECK( m_sTgcDigitVar->fillVariables() );
 

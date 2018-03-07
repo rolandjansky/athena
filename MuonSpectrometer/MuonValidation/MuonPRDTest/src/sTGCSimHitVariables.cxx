@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "sTGCSimHitVariables.h"
@@ -142,117 +142,119 @@ StatusCode sTGCSimHitVariables::fillVariables()
     ATH_MSG_DEBUG("sTGC geometry, retrieving detector element for: isSmall " << isSmall << " eta " << m_sTgcIdHelper->stationEta(offId)
                   << " phi " << m_sTgcIdHelper->stationPhi(offId) << " ml " << m_sTgcIdHelper->multilayer(offId) );
 
-    int phiCor = m_sTgcIdHelper->stationPhi(offId);
-
-    if( sim_stationPhi == 15 && hit.globalPosition().phi() > -0.4 ) phiCor = 1;
-
-    int mlCor = m_sTgcIdHelper->multilayer(offId);
-
-    if( !isSmall ){
-      if( mlCor == 1 ) mlCor = 2;
-      else             mlCor = 1;
-    }
-
-    const MuonGM::sTgcReadoutElement* detEl = m_detManager->getsTgcRElement_fromIdFields(isSmall,m_sTgcIdHelper->stationEta(offId),phiCor,mlCor );
+    const MuonGM::sTgcReadoutElement* detEl = m_detManager->getsTgcReadoutElement(offId);
     if( !detEl ){
       ATH_MSG_WARNING("sTGC geometry, failed to retrieve detector element for: isSmall " << isSmall << " eta " << m_sTgcIdHelper->stationEta(offId)
                       << " phi " << m_sTgcIdHelper->stationPhi(offId) << " ml " << m_sTgcIdHelper->multilayer(offId) );
       continue;
     }
 
-    // compute hit position within the detector element/surfaces
-    const Trk::PlaneSurface& surf = detEl->surface(offId);
-    Amg::Transform3D     gToL = detEl->absTransform().inverse();
-    Amg::Vector3D hpos(hit.globalPosition().x(),hit.globalPosition().y(),hit.globalPosition().z());
-    Amg::Vector3D dSurface_pos = gToL*hpos;
+    // SimHits do not have channel type (1 is assigned as dummy value).
+    // Compute channel type in Val Alg to be able to validate
+    for( int type=0;type<=2;++type ){ 
+      if( type == 2 && abs(m_sTgcIdHelper->stationEta(offId)) < 3 ) continue;
+      Identifier newId = m_sTgcIdHelper->channelID(m_sTgcIdHelper->parentID(offId), m_sTgcIdHelper->multilayer(offId), m_sTgcIdHelper->gasGap(offId),type,1,0);
+      
+      // compute hit position within the detector element/surfaces
+      const Trk::PlaneSurface& surf = detEl->surface(newId);
+      Amg::Transform3D     gToL = detEl->absTransform().inverse();
+      Amg::Vector3D hpos(hit.globalPosition().x(),hit.globalPosition().y(),hit.globalPosition().z());
+      Amg::Vector3D dSurface_pos = gToL*hpos;
 
-    // compute the hit position on the readout plane (same as in MuonFastDigitization)
-    Amg::Vector3D rSurface_pos = surf.transform().inverse()*hpos;
-    Amg::Vector3D ldir = surf.transform().inverse().linear()*Amg::Vector3D(hit.globalDirection().x(),hit.globalDirection().y(),hit.globalDirection().z());
+      // compute the hit position on the readout plane (same as in MuonFastDigitization)
+      Amg::Vector3D rSurface_pos = surf.transform().inverse()*hpos;
+      Amg::Vector3D ldir = surf.transform().inverse().linear()*Amg::Vector3D(hit.globalDirection().x(),hit.globalDirection().y(),hit.globalDirection().z());
 
-    double scale = -rSurface_pos.z()/ldir.z();
-    Amg::Vector3D hitOnSurface = rSurface_pos + scale*ldir;
+      ATH_MSG_DEBUG("sTGC channel type:" << type);
 
-    // hitOnSurface.x() will be susequent smeared to simulate the detector resolution, here we do not apply any smearing
-    Amg::Vector2D  posOnSurf(hitOnSurface.x(), rSurface_pos.y());
+      double scale = -rSurface_pos.z()/ldir.z();
+      Amg::Vector3D hitOnSurface = rSurface_pos + scale*ldir;
 
-    int stripNumber = detEl->stripNumber(posOnSurf,offId);
-    if( stripNumber == -1 ){
-      ATH_MSG_WARNING("sTGC validation: failed to obtain strip number " << m_sTgcIdHelper->print_to_string(offId) );
-      ATH_MSG_WARNING(" pos " << posOnSurf << " z " << rSurface_pos.z() );
-      stripNumber = 1;
+      // hitOnSurface.x() will be susequent smeared to simulate the detector resolution, here we do not apply any smearing
+      Amg::Vector2D  posOnSurf(hitOnSurface.x(), rSurface_pos.y());
+
+      int stripNumber = detEl->stripNumber(posOnSurf,newId);
+      if( stripNumber == -1 ){
+        ATH_MSG_WARNING("sTGC validation: failed to obtain strip number " << m_sTgcIdHelper->print_to_string(offId) );
+        ATH_MSG_WARNING(" pos " << posOnSurf << " z " << rSurface_pos.z() );
+        //stripNumber = 1;
+      }
+      Identifier oldId = offId;
+      offId = m_sTgcIdHelper->channelID(offId, m_sTgcIdHelper->multilayer(offId), m_sTgcIdHelper->gasGap(offId),1,stripNumber);
+      if( m_sTgcIdHelper->gasGap(offId) != sim_layer ) {
+        ATH_MSG_WARNING("sTGC validation: sTgc id has bad layer field(2)! " << std::endl << " " << m_sTgcIdHelper->print_to_string(offId) << std::endl
+                        << " " << m_sTgcIdHelper->print_to_string(oldId) << " stripN " << stripNumber );
+      }
+
+      Amg::Vector2D fastDigitPos(0,0);
+      if( !detEl->stripPosition(offId,fastDigitPos) ){
+        ATH_MSG_WARNING("sTGC validation: failed to obtain local position for identifier " << m_sTgcIdHelper->print_to_string(offId) );
+        continue;
+      }
+
+      Amg::Vector3D detpos = detEl->globalPosition();
+      ATH_MSG_DEBUG("sTGC Global hit: r " << hit.globalPosition().perp() << ", phi " << hit.globalPosition().phi() << ", z " << hit.globalPosition().z()
+                      << "; detEl: r " << detpos.perp()     << ", phi " << detpos.phi()   << ", z " << detpos.z()
+                      << "; surf z "   << surf.center().z() << ", ml "  << sim_multilayer << ", l " << sim_layer );
+
+      ATH_MSG_DEBUG("sTGC Local hit : x " << hit.localPosition().x() << " y " << hit.localPosition().y() << " z " << hit.localPosition().z()
+                      << " detEl: x " << dSurface_pos.x() << " y " << dSurface_pos.y() << " z " << dSurface_pos.z());
+      ATH_MSG_DEBUG("sTGC Fast digit: x " << fastDigitPos.x() << " y " << fastDigitPos.y()
+                      << ", gToL: x " << rSurface_pos.x() << " y " << rSurface_pos.y() << " z " << rSurface_pos.z() );
+
+
+
+      // Fill Ntuple with offline ID data
+      m_NSWsTGC_off_stationName   ->push_back(stName);
+      m_NSWsTGC_off_stationEta    ->push_back(off_stationEta);                                         
+      m_NSWsTGC_off_stationPhi    ->push_back(off_stationPhi);
+      m_NSWsTGC_off_multiplet     ->push_back(off_multiplet);
+      m_NSWsTGC_off_gas_gap       ->push_back(off_gas_gap);
+      m_NSWsTGC_off_channel_type  ->push_back(type);
+      // The offline IdHelper class will be updated to assign wiregroup ID to SimHit. 
+      // As a temporary solution stripnumber is used directly (also in MM)
+      off_channel = stripNumber;
+      m_NSWsTGC_off_channel       ->push_back(off_channel);
+
+
+      // Fill ntuple with the hit/surface/digit positions
+      m_NSWsTGC_detector_globalPositionX->push_back( detpos.x() );
+      m_NSWsTGC_detector_globalPositionY->push_back( detpos.y() );
+      m_NSWsTGC_detector_globalPositionZ->push_back( detpos.z() );
+      m_NSWsTGC_detector_globalPositionR->push_back( detpos.perp() );
+      m_NSWsTGC_detector_globalPositionP->push_back( detpos.phi() );
+
+      m_NSWsTGC_hitToDsurfacePositionX->push_back( dSurface_pos.x() );
+      m_NSWsTGC_hitToDsurfacePositionY->push_back( dSurface_pos.y() );
+      m_NSWsTGC_hitToDsurfacePositionZ->push_back( dSurface_pos.z() );
+
+      m_NSWsTGC_hitToRsurfacePositionX->push_back( rSurface_pos.x() );
+      m_NSWsTGC_hitToRsurfacePositionY->push_back( rSurface_pos.y() );
+      m_NSWsTGC_hitToRsurfacePositionZ->push_back( rSurface_pos.z() );
+
+      m_NSWsTGC_FastDigitRsurfacePositionX->push_back( posOnSurf.x() );
+      m_NSWsTGC_FastDigitRsurfacePositionY->push_back( posOnSurf.y() );
+
+      
+
+      m_NSWsTGC_stripNumber->push_back(stripNumber);
+      m_NSWsTGC_wireNumber->push_back(-999);
+
+      ATH_MSG_DEBUG("---------- Hit processing ends!");
+      /*
+      ATH_MSG_DEBUG(     " NSW Hits E = "      << hit.depositEnergy()
+          << ", Global X sTGC = "  << globalPosition.x()
+          << ", Global Y sTGC = "  << globalPosition.y()
+          << ", Global Z sTGC = "  << globalPosition.z()
+          << ", Local X sTGC = "   << localPosition.x()
+          << ", Local Y sTGC = "   << localPosition.y()
+          << ", Local Z sTGC = "   << localPosition.z()
+          << ", time = "           << hit.globalTime()
+          << ", step length = "    << hit.StepLength() );
+      */    
+      m_NSWsTGC_nSimHits++;
     }
-    Identifier oldId = offId;
-    offId = m_sTgcIdHelper->channelID(offId, m_sTgcIdHelper->multilayer(offId), m_sTgcIdHelper->gasGap(offId),1,stripNumber);
-    if( m_sTgcIdHelper->gasGap(offId) != sim_layer ) {
-      ATH_MSG_WARNING("sTGC validation: sTgc id has bad layer field(2)! " << std::endl << " " << m_sTgcIdHelper->print_to_string(offId) << std::endl
-                      << " " << m_sTgcIdHelper->print_to_string(oldId) << " stripN " << stripNumber );
-    }
-
-    Amg::Vector2D fastDigitPos(0,0);
-    if( !detEl->stripPosition(offId,fastDigitPos) ){
-      ATH_MSG_WARNING("sTGC validation: failed to obtain local position for identifier " << m_sTgcIdHelper->print_to_string(offId) );
-      continue;
-    }
-
-    Amg::Vector3D detpos = detEl->globalPosition();
-    ATH_MSG_DEBUG("sTGC Global hit: r " << hit.globalPosition().perp() << ", phi " << hit.globalPosition().phi() << ", z " << hit.globalPosition().z()
-                    << "; detEl: r " << detpos.perp()     << ", phi " << detpos.phi()   << ", z " << detpos.z()
-                    << "; surf z "   << surf.center().z() << ", ml "  << sim_multilayer << ", l " << sim_layer );
-
-    ATH_MSG_DEBUG("sTGC Local hit : x " << hit.localPosition().x() << " y " << hit.localPosition().y() << " z " << hit.localPosition().z()
-                    << " detEl: x " << dSurface_pos.x() << " y " << dSurface_pos.y() << " z " << dSurface_pos.z());
-    ATH_MSG_DEBUG("sTGC Fast digit: x " << fastDigitPos.x() << " y " << fastDigitPos.y()
-                    << ", gToL: x " << rSurface_pos.x() << " y " << rSurface_pos.y() << " z " << rSurface_pos.z() );
-
-
-
-    // Fill Ntuple with offline ID data
-    m_NSWsTGC_off_stationName   ->push_back(stName);
-    m_NSWsTGC_off_stationEta    ->push_back(off_stationEta);                                         
-    m_NSWsTGC_off_stationPhi    ->push_back(off_stationPhi);
-    m_NSWsTGC_off_multiplet     ->push_back(off_multiplet);
-    m_NSWsTGC_off_gas_gap       ->push_back(off_gas_gap);
-    m_NSWsTGC_off_channel_type  ->push_back(off_channel_type);
-    m_NSWsTGC_off_channel       ->push_back(off_channel);
-
-    // Fill ntuple with the hit/surface/digit positions
-    m_NSWsTGC_detector_globalPositionX->push_back( detpos.x() );
-    m_NSWsTGC_detector_globalPositionY->push_back( detpos.y() );
-    m_NSWsTGC_detector_globalPositionZ->push_back( detpos.z() );
-    m_NSWsTGC_detector_globalPositionR->push_back( detpos.perp() );
-    m_NSWsTGC_detector_globalPositionP->push_back( detpos.phi() );
-
-    m_NSWsTGC_hitToDsurfacePositionX->push_back( dSurface_pos.x() );
-    m_NSWsTGC_hitToDsurfacePositionY->push_back( dSurface_pos.y() );
-    m_NSWsTGC_hitToDsurfacePositionZ->push_back( dSurface_pos.z() );
-
-    m_NSWsTGC_hitToRsurfacePositionX->push_back( rSurface_pos.x() );
-    m_NSWsTGC_hitToRsurfacePositionY->push_back( rSurface_pos.y() );
-    m_NSWsTGC_hitToRsurfacePositionZ->push_back( rSurface_pos.z() );
-
-    m_NSWsTGC_FastDigitRsurfacePositionX->push_back( posOnSurf.x() );
-    m_NSWsTGC_FastDigitRsurfacePositionY->push_back( posOnSurf.y() );
-
-    
-
-    m_NSWsTGC_stripNumber->push_back(stripNumber);
-    m_NSWsTGC_wireNumber->push_back(-999);
-
-    ATH_MSG_DEBUG("---------- Hit processing ends!");
-/*
-    ATH_MSG_DEBUG(     " NSW Hits E = "      << hit.depositEnergy()
-		    << ", Global X sTGC = "  << globalPosition.x()
-		    << ", Global Y sTGC = "  << globalPosition.y()
-		    << ", Global Z sTGC = "  << globalPosition.z()
-		    << ", Local X sTGC = "   << localPosition.x()
-		    << ", Local Y sTGC = "   << localPosition.y()
-		    << ", Local Z sTGC = "   << localPosition.z()
-		    << ", time = "           << hit.globalTime()
-		    << ", step length = "    << hit.StepLength() );
-*/    
-    m_NSWsTGC_nSimHits++;
-  }
+ }
 
   ATH_MSG_INFO("processed " << m_NSWsTGC_nSimHits << " sTGC sim hits");
   return StatusCode::SUCCESS;

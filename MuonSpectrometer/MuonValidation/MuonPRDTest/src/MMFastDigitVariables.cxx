@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MMFastDigitVariables.h"
@@ -21,7 +21,7 @@ StatusCode MMFastDigitVariables::fillVariables()
   CHECK( this->clearVariables() );
 
   const MuonSimDataCollection* nsw_MmSdoContainer = nullptr;
-  CHECK( m_evtStore->retrieve(nsw_MmSdoContainer, "MM_SDO") );
+  CHECK( m_evtStore->retrieve(nsw_MmSdoContainer, "MMfast_SDO") );
 
   const Muon::MMPrepDataContainer *nsw_MMPrepDataContainer = nullptr;
   CHECK( m_evtStore->retrieve(nsw_MMPrepDataContainer, m_ContainerName.c_str()) );
