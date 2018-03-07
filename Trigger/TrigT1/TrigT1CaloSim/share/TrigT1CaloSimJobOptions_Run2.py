@@ -81,7 +81,7 @@ job += LVL1__CPCMX( 'CPCMX' )
 job += LVL1__JetCMX( 'JetCMX' )
 job += LVL1__EnergyCMX( 'EnergyCMX' )
 job += LVL1__RoIROD( 'RoIROD' )
-job += LVL1__Tester( 'Tester' )
+#job += LVL1__Tester( 'Tester' )
 
 from AthenaCommon import CfgMgr
 from AthenaCommon.AppMgr import ToolSvc
