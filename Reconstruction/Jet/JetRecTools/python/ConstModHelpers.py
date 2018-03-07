@@ -58,7 +58,7 @@ def getConstModSeq(sequence,inputtype,suffix=""):
         modlist.append('chsPFO')
     else:
         containertemplate = {"EMTopo":"EM{0}TopoClusters",
-                             "LCTopo":"EM{0}TopoClusters"}[inputtype]
+                             "LCTopo":"LC{0}TopoClusters"}[inputtype]
         inputcontainer = "CaloCalTopoClusters"
         outputcontainer = containertemplate.format(sequencestr)
 
