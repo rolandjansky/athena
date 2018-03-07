@@ -38,7 +38,6 @@ Muon::MmRdoToPrepDataTool::MmRdoToPrepDataTool(const std::string& t,
   m_muonMgr(0),
   m_mmIdHelper(0),
   m_muonIdHelper(0),
-  m_fullEventDone(false),
   m_mmPrepDataContainer(0)
 {
   declareInterface<Muon::IMuonRdoToPrepDataTool>(this);
@@ -94,91 +93,19 @@ StatusCode Muon::MmRdoToPrepDataTool::finalize()
 StatusCode Muon::MmRdoToPrepDataTool::processCollection(const MM_RawDataCollection *rdoColl, 
 							std::vector<IdentifierHash>& idWithDataVect)
 {
-  ATH_MSG_DEBUG(" ***************** Start of process MM Collection");
+  ATH_MSG_DEBUG(" ***************** Start of processCsm");
 
 
   return StatusCode::SUCCESS;
 }
 
-
-Muon::MmRdoToPrepDataTool::SetupMM_PrepDataContainerStatus Muon::MmRdoToPrepDataTool::setupMM_PrepDataContainer() 
-{
-
-  if(!evtStore()->contains<Muon::MMPrepDataContainer>(m_mmPrepDataContainerKey.key())){    
-    m_fullEventDone=false;
-    
-    SG::WriteHandle< Muon::MMPrepDataContainer > handle(m_mmPrepDataContainerKey);
-    StatusCode status = handle.record(std::make_unique<Muon::MMPrepDataContainer>(m_mmIdHelper->module_hash_max()));
-    
-    if (status.isFailure() || !handle.isValid() )   {
-      ATH_MSG_FATAL("Could not record container of MicroMega PrepData Container at " << m_mmPrepDataContainerKey.key()); 
-      return FAILED;
-    }
-    m_mmPrepDataContainer = handle.ptr();
-    return ADDED;
-  }
-  return ALREADYCONTAINED;
-}
-
-
-const MM_RawDataContainer* Muon::MmRdoToPrepDataTool::getRdoContainer() {
-
-  auto rdoContainerHandle  = SG::makeHandle(m_rdoContainerKey);
-  if(rdoContainerHandle.isValid()) {
-    ATH_MSG_DEBUG("MM_getRdoContainer success");
-    return rdoContainerHandle.cptr();  
-  }
-  ATH_MSG_WARNING("Retrieval of MM_RawDataContainer failed !");
-
-  return nullptr;
-}
-
-
-void Muon::MmRdoToPrepDataTool::processRDOContainer( std::vector<IdentifierHash>& idWithDataVect ) 
-{
-
-  ATH_MSG_DEBUG("In processRDOContainer");
-  const MM_RawDataContainer* rdoContainer = getRdoContainer();
-  if (!rdoContainer) {
-    return;
-  }
-  
-  // run in unseeded mode
-  for (MM_RawDataContainer::const_iterator it = rdoContainer->begin(); it != rdoContainer->end(); ++it ) {
-    
-    auto rdoColl = *it;
-    if (rdoColl->empty()) continue;
-    ATH_MSG_DEBUG("New RDO collection with " << rdoColl->size() << "MM Hits");
-    if(processCollection(rdoColl, idWithDataVect).isFailure()) {
-      ATH_MSG_DEBUG("processCsm returns a bad StatusCode - keep going for new data collections in this event");
-    }
-  } 
-  
-  
-  return;
-}
-
-
 // methods for ROB-based decoding
 StatusCode Muon::MmRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idVect, 
-					       std::vector<IdentifierHash>& idWithDataVect )
+					       std::vector<IdentifierHash>& selectedIdVect )
 {
-  // clear the output vector of selected data
-  idWithDataVect.clear();
-  
-  SetupMM_PrepDataContainerStatus containerRecordStatus = setupMM_PrepDataContainer();
+  ATH_MSG_DEBUG("Size of Hashes" << idVect.size() );
+  ATH_MSG_DEBUG("Size of selected Hashes" << selectedIdVect.size() );
 
-  if ( containerRecordStatus == FAILED ) {
-    return StatusCode::FAILURE;
-  } 
-
-  // check if the full event has already been decoded
-  if ( m_fullEventDone ) {
-    ATH_MSG_DEBUG ("Full event dcoded, nothing to do");
-    return StatusCode::SUCCESS;
-  } 
-
- 
   return StatusCode::SUCCESS;
 } 
 

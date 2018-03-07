@@ -13,13 +13,9 @@ namespace Muon
                           const Amg::Vector2D& locpos,
                           const std::vector<Identifier>& rdoList,
                           const Amg::MatrixX* locErrMat,
-                          const MuonGM::MMReadoutElement* detEl,
-			  const int time, 
-			  const int charge ) :
+                          const MuonGM::MMReadoutElement* detEl ) :
     MuonCluster(RDOId, idDE, locpos, rdoList, locErrMat), //call base class constructor
-    m_detEl(detEl),
-    m_time(time),
-    m_charge(charge)
+    m_detEl(detEl)
   { }
 
   // Destructor:
@@ -31,25 +27,19 @@ namespace Muon
   // Default constructor:
   MMPrepData::MMPrepData():
     MuonCluster(),
-    m_detEl(0),
-    m_time(0),
-    m_charge(0)
+    m_detEl(0)
   { }
 
   //copy constructor:
   MMPrepData::MMPrepData(const MMPrepData& RIO):
     MuonCluster(RIO),
-    m_detEl( RIO.m_detEl ),
-    m_time(0),
-    m_charge(0)
+    m_detEl( RIO.m_detEl )
   { }
 
   //move constructor:
   MMPrepData::MMPrepData(MMPrepData&& RIO):
     MuonCluster(std::move(RIO)),
-    m_detEl( RIO.m_detEl ),
-    m_time(0),
-    m_charge(0)
+    m_detEl( RIO.m_detEl )
   { }
 
   //assignment operator
