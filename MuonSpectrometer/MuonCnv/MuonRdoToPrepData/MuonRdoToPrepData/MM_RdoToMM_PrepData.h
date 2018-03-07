@@ -1,12 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef CSCRDOTOCSCPREPDATA_H
-#define CSCRDOTOCSCPREPDATA_H
+#ifndef MM_RDOTOMM_PREPDATA_H
+#define MM_RDOTOMM_PREPDATA_H
 
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
+
 
 class MM_RdoToMM_PrepData : public AthAlgorithm {
 
@@ -19,6 +21,11 @@ public:
   StatusCode finalize();
 
 private:
+
+  ToolHandle< Muon::IMuonRdoToPrepDataTool >    m_tool; //!< Tool used to do actual decoding.
+  
+  bool                                    m_print_inputRdo; //!<< If true, will dump information about the input RDOs.
+  bool                                    m_print_prepData; //!<< If true, will dump information about the resulting PRDs.
 
 };
 
