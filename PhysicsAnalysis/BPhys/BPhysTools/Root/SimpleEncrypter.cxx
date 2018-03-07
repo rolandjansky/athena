@@ -185,15 +185,16 @@ namespace xAOD {
   void SimpleEncrypter::genKeyPairInternal() {
 
     // Generate prime numbers p != q
-    LLI_t p(1);
-    LLI_t q(1);
+    ULLI_t p(1);
+    ULLI_t q(1);
     // Euler's phi function
-    LLI_t phi(1);
+    ULLI_t phi(1);
     
     // reset encryption and decryption exponent
     m_e = 0;
     m_d = 0;
-    while ( p == q || m_e*m_d % phi != 1 ) { 
+    while ( p == q || m_e < 2 || m_e >= phi || m_d < 2
+            || m_e*m_d % phi != 1 ) {
       double dlog2 = 0.;
       while ( p == q || dlog2 < 0.1 || dlog2 > 30. ) {
         p = genPrime();
@@ -213,10 +214,10 @@ namespace xAOD {
   //--------------------------------------------------------------------------
   SimpleEncrypter::ULLI_t SimpleEncrypter::genPrime() const {
     
-    LLI_t t = (m_MINRANGE + rand()) % (m_MAXRANGE-1);
+    ULLI_t t = (m_MINRANGE + rand()) % (m_MAXRANGE-1);
     do {
       t++;
-    } while ( !isPrime(t) );
+    } while ( !isPrime(t) || t < m_MINRANGE );
     return t;
   }
   //--------------------------------------------------------------------------
@@ -257,7 +258,7 @@ namespace xAOD {
   SimpleEncrypter::ULLI_t SimpleEncrypter::genCoprime(ULLI_t n) const {
     
     // make sure coprime is larger than 5th Fermat number (2^16+1 = 65537)
-    LLI_t i = (65537 + rand()) % (m_MAXRANGE -1);
+    ULLI_t i = (65537 + rand()) % (m_MAXRANGE -1);
     do {
       ++i;
     } while (greatestCommonDenominator(n, i) != 1);
