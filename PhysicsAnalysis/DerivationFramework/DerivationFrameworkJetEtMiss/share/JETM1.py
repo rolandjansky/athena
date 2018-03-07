@@ -120,9 +120,9 @@ replaceAODReducedJets(reducedJetList,jetm1Seq,"JETM1")
 addDefaultTrimmedJets(jetm1Seq,"JETM1")
 
 # Add jets with constituent-level pileup suppression
-addConstModJets("AntiKt",0.4,"EMTopo",["CS","SK06"],jetm1Seq,"JETM1",
+addConstModJets("AntiKt",0.4,"EMTopo",["CS","SK"],jetm1Seq,"JETM1",
                 ptmin=2000,ptminFilter=2000)
-addConstModJets("AntiKt",0.4,"EMPFlow",["CS","SK06"],jetm1Seq,"JETM1",
+addConstModJets("AntiKt",0.4,"EMPFlow",["CS","SK"],jetm1Seq,"JETM1",
                 ptmin=2000,ptminFilter=2000)
 
 #=======================================

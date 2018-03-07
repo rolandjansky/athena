@@ -166,8 +166,8 @@ ctm = ConstituentToolManager()
     
 # -----------------------------------
 # add standard tools to ctm
-ctm.add( CfgMgr.SoftKillerWeightTool("JetConstit_SoftKiller06", SKGridSize=0.6) ,
-         alias = 'softkiller06' )
+ctm.add( CfgMgr.SoftKillerWeightTool("JetConstit_SoftKiller", SKGridSize=0.6) ,
+         alias = 'softkiller' )
 
 ctm.add( CfgMgr.ClusterAtEMScaleTool("JetConstit_ClusEM") ,
          alias = 'clus_emscale' )

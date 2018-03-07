@@ -14,7 +14,7 @@ constmodlog = Logging.logging.getLogger('ConstModHelpers')
 def getConstModSeq(sequence,inputtype,suffix=""):
 
     tooltypes = {
-        "SK06":"softkiller06",
+        "SK":"softkiller",
         "CS":"constsub",
         "Vor":"voronoi",
     }
@@ -46,8 +46,8 @@ def getConstModSeq(sequence,inputtype,suffix=""):
                 tool = CfgMgr.VoronoiWeightTool(toolname, doSpread=False, nSigma=0)
             elif step=="CS":
                 tool = CfgMgr.ConstituentSubtractorTool(toolname)
-            elif step=="SK06":
-                tool = CfgMgr.SoftKillerWeightTool(toolname, SKGridSize=0.6)
+            elif step=="SK":
+                tool = CfgMgr.SoftKillerWeightTool(toolname)
             if "PFlow" in inputtype:
                 tool.InputType = xAOD.Type.ParticleFlow
                 tool.IgnoreChargedPFO=True
@@ -62,8 +62,8 @@ def getConstModSeq(sequence,inputtype,suffix=""):
         outputcontainer=sequencestr
         modlist.append('chsPFO')
     else:
-        containertemplate = {"EMTopo":"EM{0}TopoClusters",
-                             "LCTopo":"LC{0}TopoClusters"}[inputtype]
+        containertemplate = {"EMTopo":"EMOrigin{0}TopoClusters",
+                             "LCTopo":"LCOrigin{0}TopoClusters"}[inputtype]
         inputcontainer = "CaloCalTopoClusters"
         outputcontainer = containertemplate.format(sequencestr)
 
