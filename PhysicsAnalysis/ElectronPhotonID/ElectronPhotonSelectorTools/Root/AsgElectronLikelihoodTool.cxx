@@ -301,11 +301,6 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
     return m_acceptDummy;
   }
 
-  if( eg->author() == xAOD::EgammaParameters::AuthorFwdElectron ){
-    ATH_MSG_WARNING("Failed, this is a forward electron! The AsgElectronLikelihoodTool is only suitable for central electrons!");
-    return m_acceptDummy;
-  }
-  
   const xAOD::CaloCluster* cluster = eg->caloCluster();
   if ( !cluster ){
     ATH_MSG_ERROR("exiting because cluster is NULL " << cluster);
@@ -320,6 +315,10 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
   const double energy =  cluster->e();
   const float eta = (cluster->etaBE(2)); 
 
+  if( isForwardElectron(eg,eta) ){
+    return m_acceptDummy;
+  }
+  
   // transverse energy of the electron (using the track eta) 
   //  const double et = eg->pt(); 
   double et = 0.;
@@ -444,11 +443,6 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg, 
     return accept(el, mu); 
   }
 
-  if( eg->author() == xAOD::EgammaParameters::AuthorFwdElectron ){
-    ATH_MSG_WARNING("Failed, this is a forward electron! The AsgElectronLikelihoodTool is only suitable for central electrons!");
-    return m_acceptDummy;
-  }
-  
   const xAOD::CaloCluster* cluster = eg->caloCluster();
   if ( !cluster ){
     ATH_MSG_ERROR ("Failed, no cluster.");
@@ -462,6 +456,10 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg, 
   
   const double energy =  cluster->e();
   const float eta = (cluster->etaBE(2)); 
+
+  if( isForwardElectron(eg,eta) ){
+    return m_acceptDummy;
+  }
   
   const double et  = ( cosh(eta) != 0.) ? energy/cosh(eta) : 0.;
   
@@ -543,11 +541,6 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
     return m_resultDummy;
   }
 
-  if( eg->author() == xAOD::EgammaParameters::AuthorFwdElectron ){
-    ATH_MSG_WARNING("Failed, this is a forward electron! The AsgElectronLikelihoodTool is only suitable for central electrons!");
-    return m_resultDummy;
-  }
-  
   const xAOD::CaloCluster* cluster = eg->caloCluster();
   if ( !cluster ){
     ATH_MSG_ERROR ("Failed, no cluster.");
@@ -561,7 +554,11 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
 
   const double energy =  cluster->e();
   const float eta = cluster->etaBE(2); 
-  
+
+  if( isForwardElectron(eg,eta) ){
+    return m_resultDummy;
+  }
+
   //double et = cluster->e()/cosh(eta); 
   // transverse energy of the electron (using the track eta) 
   //const double et = eg->pt(); 
@@ -751,11 +748,6 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Egamma* e
     return calculate(el, mu);
   }
 
-  if( eg->author() == xAOD::EgammaParameters::AuthorFwdElectron ){
-    ATH_MSG_WARNING("Failed, this is a forward electron! The AsgElectronLikelihoodTool is only suitable for central electrons!");
-    return m_resultDummy;
-  }
-  
   const xAOD::CaloCluster* cluster = eg->caloCluster();
   if ( !cluster ){
     ATH_MSG_ERROR ("Failed, no cluster.");
@@ -769,6 +761,10 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Egamma* e
   
   const double energy =  cluster->e();
   const float eta = cluster->etaBE(2); 
+
+  if( isForwardElectron(eg,eta) ){
+    return m_resultDummy;
+  }
   
   const double et  = ( cosh(eta) != 0.) ? energy/cosh(eta) : 0.;
 
@@ -977,3 +973,26 @@ double AsgElectronLikelihoodTool::getFcalEt() const
   return fcalEt;
 }
 
+bool AsgElectronLikelihoodTool::isForwardElectron( const xAOD::Egamma* eg, const float eta ) const{
+
+  static const SG::AuxElement::ConstAccessor< uint16_t > accAuthor( "author" );
+
+  if( accAuthor.isAvailable(*eg) ){
+    
+    // cannot just do eg->author() because it isn't always filled
+    // at trigger level
+    if( accAuthor(*eg) == xAOD::EgammaParameters::AuthorFwdElectron ){
+      ATH_MSG_WARNING("Failed, this is a forward electron! The AsgElectronLikelihoodTool is only suitable for central electrons!");
+      return true;
+    }
+  }
+  else{
+    //Check for fwd via eta range the old logic 
+    if ( fabs(eta) > 2.5 ) {
+      ATH_MSG_WARNING("Failed, cluster->etaBE(2) range due to " << eta << " seems like a fwd electron" );
+      return true;
+    }
+  }
+
+  return false;
+}
