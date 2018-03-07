@@ -86,23 +86,29 @@ class ComponentAccumulator(object):
         self._msg.info( self._outputPerStream )
 
 
-    def addSequence(self, newseq, sequenceName = CurrentSequence.get().name() ):
+    def addSequence(self, newseq, sequence = None ):
         """ Adds new sequence. If second argument is present then it is added under another sequence  """
-        
-        seq = findSubSequence(self._sequence, sequenceName )
+        seq =  CurrentSequence.get()
+        if sequence:
+            seq = findSubSequence(seq, sequence )
         if seq == None:
-            raise ConfigurationError("Missing sequence %s to add new sequence to" % sequenceName )                
+            raise ConfigurationError("Missing sequence %s to add new sequence to" % sequence )
         if findSubSequence( self._sequence, newseq.name() ):
             raise ConfigurationError("Sequence %s already present" % newseq.name() )
-        seq += newseq
+        seq.Members += [ newseq ]
 
-    def addEventAlgo(self, algo ):                
+    def addEventAlgo(self, algo,sequence=None):                
         if not isinstance(algo, ConfigurableAlgorithm):
             raise TypeError("Attempt to add wrong type: %s as event algorithm" % type( algo ).__name__)
-            pass
+            pass        
         seq = CurrentSequence.get()
-        seq += algo
+        if sequence != None:
+            seq = findSubSequence( seq, sequence )
+            if seq == None:
+                raise ConfigurationError("Unable to add %s to sequence %s as it is missing" % ( algo.getFullName(), seq.name()) )
+
         self._msg.debug("Adding %s to sequence %s" % ( algo.getFullName(), seq.name()) )
+        seq += algo
         pass
 
 

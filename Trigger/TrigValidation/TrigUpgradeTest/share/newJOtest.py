@@ -46,11 +46,12 @@ from TrigUpgradeTest.TestUtils import applyMenu
 applyMenu( l1 )
 
 # here the menu starts
-acc.addSequence( seqAND( "hltSteps"), sequenceName="hltTop" )
+acc.addSequence( seqAND( "hltSteps"), sequence="hltTop" )
 for step in range(1, 6):
-    acc.addSequence( parOR( "hltStep%d" % step), sequenceName="hltSteps" )
+    acc.addSequence( parOR( "hltStep%d" % step), sequence="hltSteps" )
 
-
+from TrigUpgradeTest.EgammaCaloMod import EgammaCaloMod
+acc.addConfig( EgammaCaloMod, flags, sequence="hltStep1" )
 
 acc.printConfig()
 fname = "newJOtest.pkl"
