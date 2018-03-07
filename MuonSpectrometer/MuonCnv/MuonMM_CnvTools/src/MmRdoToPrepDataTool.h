@@ -68,7 +68,16 @@ namespace Muon
     
   private:
     
-    
+    enum SetupMM_PrepDataContainerStatus {
+      FAILED = 0, ADDED, ALREADYCONTAINED
+    };
+
+    SetupMM_PrepDataContainerStatus setupMM_PrepDataContainer();
+
+    const MM_RawDataContainer* getRdoContainer();
+
+    void processRDOContainer( std::vector<IdentifierHash>& idWithDataVect );
+
     /// Muon Detector Descriptor
     const MuonGM::MuonDetectorManager * m_muonMgr;
     
@@ -76,10 +85,12 @@ namespace Muon
     const MmIdHelper * m_mmIdHelper;
     const MuonIdHelper * m_muonIdHelper;
     
+    bool m_fullEventDone;
     
     /// MdtPrepRawData containers
     Muon::MMPrepDataContainer * m_mmPrepDataContainer;
     SG::WriteHandleKey<Muon::MMPrepDataContainer> m_mmPrepDataContainerKey;
+    SG::ReadHandleKey< MM_RawDataContainer >         m_rdoContainerKey;
 
     std::string m_outputCollectionLocation;            
     
