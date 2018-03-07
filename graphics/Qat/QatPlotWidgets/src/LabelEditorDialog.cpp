@@ -10,33 +10,33 @@ public:
 };
 
 LabelEditorDialog::~LabelEditorDialog() {
-  delete c;
+  delete m_c;
 }
-LabelEditorDialog::LabelEditorDialog(QWidget *parent): QDialog(parent) ,c(new Clockwork()){
-  c->ui.setupUi(this);
-  connect (c->ui.boldButton,         SIGNAL(clicked()), this, SLOT(textBold()));
-  connect (c->ui.italicButton,       SIGNAL(clicked()), this, SLOT(textItalic()));
-  connect (c->ui.scriptButton,       SIGNAL(clicked()), this, SLOT(textScript()));
-  connect (c->ui.fontComboBox,       SIGNAL(activated( const QString & ) ), this, SLOT(textFamily(const QString &)));
-  connect (c->ui.fontSizeSpinBox,    SIGNAL(valueChanged(int)),             this, SLOT(textSize(int)));
-  connect (c->ui.colorButton,        SIGNAL(clicked()),                     this, SLOT(textColor()));        
-  connect (c->ui.specialCButton,     SIGNAL(clicked()),                     this, SLOT(toggleChars()));
+LabelEditorDialog::LabelEditorDialog(QWidget *parent): QDialog(parent) ,m_c(new Clockwork()){
+  m_c->ui.setupUi(this);
+  connect (m_c->ui.boldButton,         SIGNAL(clicked()), this, SLOT(textBold()));
+  connect (m_c->ui.italicButton,       SIGNAL(clicked()), this, SLOT(textItalic()));
+  connect (m_c->ui.scriptButton,       SIGNAL(clicked()), this, SLOT(textScript()));
+  connect (m_c->ui.fontComboBox,       SIGNAL(activated( const QString & ) ), this, SLOT(textFamily(const QString &)));
+  connect (m_c->ui.fontSizeSpinBox,    SIGNAL(valueChanged(int)),             this, SLOT(textSize(int)));
+  connect (m_c->ui.colorButton,        SIGNAL(clicked()),                     this, SLOT(textColor()));        
+  connect (m_c->ui.specialCButton,     SIGNAL(clicked()),                     this, SLOT(toggleChars()));
   QColor color("black");
 
-  QPalette palette = c->ui.colorButton->palette();
+  QPalette palette = m_c->ui.colorButton->palette();
   palette.setColor(QPalette::Button,color);
-  c->ui.colorButton->setAutoFillBackground(true);
-  c->ui.colorButton->setPalette(palette);
+  m_c->ui.colorButton->setAutoFillBackground(true);
+  m_c->ui.colorButton->setPalette(palette);
 
-  c->cw=new CharacterWidget(0);
-  c->ui.frame->setWidget(c->cw);
-  connect (c->ui.fontComboBox,       SIGNAL(activated( const QString &)),   c->cw,   SLOT(updateFamily(const QString & )));
-  connect (c->cw, SIGNAL(characterSelected(const QString &)), c->ui.textEdit, SLOT(insertPlainText(const QString & )));
+  m_c->cw=new CharacterWidget(0);
+  m_c->ui.frame->setWidget(m_c->cw);
+  connect (m_c->ui.fontComboBox,       SIGNAL(activated( const QString &)),   m_c->cw,   SLOT(updateFamily(const QString & )));
+  connect (m_c->cw, SIGNAL(characterSelected(const QString &)), m_c->ui.textEdit, SLOT(insertPlainText(const QString & )));
   
-  c->cw->updateSize("12");
+  m_c->cw->updateSize("12");
 
-  connect(c->ui.textEdit, SIGNAL(currentCharFormatChanged(const QTextCharFormat &)), this, SLOT(updateCharFormat(const QTextCharFormat &)));
-  c->ui.frame->hide();
+  connect(m_c->ui.textEdit, SIGNAL(currentCharFormatChanged(const QTextCharFormat &)), this, SLOT(updateCharFormat(const QTextCharFormat &)));
+  m_c->ui.frame->hide();
   setMinimumSize(600,200);
   resize(minimumSize());
 
@@ -45,18 +45,18 @@ LabelEditorDialog::LabelEditorDialog(QWidget *parent): QDialog(parent) ,c(new Cl
   font.setFamily("Arial");
   font.setPointSize(24);
   format.setFont(font);
-  c->ui.textEdit->setCurrentCharFormat(format);
-  c->ui.textEdit->setFocus();
-  c->ui.textEdit->setText(QString(""));
+  m_c->ui.textEdit->setCurrentCharFormat(format);
+  m_c->ui.textEdit->setFocus();
+  m_c->ui.textEdit->setText(QString(""));
 }
 
 const QTextEdit *LabelEditorDialog::textEdit() const {
-  return c->ui.textEdit;
+  return m_c->ui.textEdit;
 }
 
 
 QTextEdit *LabelEditorDialog::textEdit() {
-  return c->ui.textEdit;
+  return m_c->ui.textEdit;
 }
 
 
@@ -64,7 +64,7 @@ QTextEdit *LabelEditorDialog::textEdit() {
 
 void LabelEditorDialog::textFamily( const QString &f )
 {
-  QTextEdit * tE = c->ui.textEdit;
+  QTextEdit * tE = m_c->ui.textEdit;
   QTextCharFormat format; 
   format.setFontFamily(f);
   tE->mergeCurrentCharFormat(format);
@@ -73,7 +73,7 @@ void LabelEditorDialog::textFamily( const QString &f )
 
 void LabelEditorDialog::textSize( int i )
 {
-  QTextEdit * tE = c->ui.textEdit;
+  QTextEdit * tE = m_c->ui.textEdit;
   QTextCharFormat format; 
   format.setFontPointSize(i);
   tE->mergeCurrentCharFormat(format);
@@ -83,14 +83,14 @@ void LabelEditorDialog::textSize( int i )
 void LabelEditorDialog::textBold()
 {
  
-  QFont font=c->ui.boldButton->font();
+  QFont font=m_c->ui.boldButton->font();
   bool flag=font.bold();
   flag = !flag;
   font.setBold(flag);
-  c->ui.boldButton->setFont(font);
+  m_c->ui.boldButton->setFont(font);
 
 
-  QTextEdit * tE = c->ui.textEdit;
+  QTextEdit * tE = m_c->ui.textEdit;
   QTextCharFormat format; 
   format.setFontWeight(flag ?  QFont::Bold : QFont::Normal );
   tE->mergeCurrentCharFormat(format);
@@ -99,14 +99,14 @@ void LabelEditorDialog::textBold()
 
 void LabelEditorDialog::textItalic()
 {
-  QFont font=c->ui.italicButton->font();
+  QFont font=m_c->ui.italicButton->font();
   bool flag=font.italic();
   flag = !flag;
   font.setItalic(flag);
-  c->ui.italicButton->setFont(font);
+  m_c->ui.italicButton->setFont(font);
 
 
-  QTextEdit * tE = c->ui.textEdit;
+  QTextEdit * tE = m_c->ui.textEdit;
   QTextCharFormat format; 
   format.setFontItalic(flag);
   tE->mergeCurrentCharFormat(format);
@@ -115,20 +115,20 @@ void LabelEditorDialog::textItalic()
 
 void LabelEditorDialog::textScript()
 {
-  QTextEdit * tE = c->ui.textEdit;
+  QTextEdit * tE = m_c->ui.textEdit;
   QTextCharFormat format;
 
-  QString  text = c->ui.scriptButton->text();
+  QString  text = m_c->ui.scriptButton->text();
   if (text==QString("-")) {
-    c->ui.scriptButton->setText(QString("^"));
+    m_c->ui.scriptButton->setText(QString("^"));
     format.setVerticalAlignment(QTextCharFormat::AlignSuperScript);
   }
   if (text==QString("^")){
-    c->ui.scriptButton->setText(QString("_"));  
+    m_c->ui.scriptButton->setText(QString("_"));  
     format.setVerticalAlignment(QTextCharFormat::AlignSubScript);
   } 
   if (text==QString("_")) {
-    c->ui.scriptButton->setText(QString("-"));
+    m_c->ui.scriptButton->setText(QString("-"));
     format.setVerticalAlignment(QTextCharFormat::AlignNormal);
   }
   
@@ -142,19 +142,19 @@ void LabelEditorDialog::textColor()
   QColor col = QColorDialog::getColor(textColorVal, this );
   if ( !col.isValid() ) return;
 
-  QPalette palette = c->ui.colorButton->palette();
+  QPalette palette = m_c->ui.colorButton->palette();
   palette.setColor(QPalette::Button,col);
-  c->ui.colorButton->setAutoFillBackground(true);
-  c->ui.colorButton->setPalette(palette);
+  m_c->ui.colorButton->setAutoFillBackground(true);
+  m_c->ui.colorButton->setPalette(palette);
 
-  QTextEdit * tE = c->ui.textEdit;
+  QTextEdit * tE = m_c->ui.textEdit;
   tE->setTextColor(col);
 }
 
 void LabelEditorDialog::updateCharFormat(const QTextCharFormat &f) {
   
   // Don't update if cursor moves to select text, it is damn annoying.
-  if (c->ui.textEdit->textCursor().selectionStart()!=c->ui.textEdit->textCursor().selectionEnd()) return;
+  if (m_c->ui.textEdit->textCursor().selectionStart()!=m_c->ui.textEdit->textCursor().selectionEnd()) return;
 
   static QTextCharFormat df;
   df.setVerticalAlignment(QTextCharFormat::AlignNormal);
@@ -164,44 +164,44 @@ void LabelEditorDialog::updateCharFormat(const QTextCharFormat &f) {
   df.setFontFamily("Arial");
 
   QTextCharFormat F = f.fontPointSize()!=0.0 ? f: df;
-  if (F.verticalAlignment()==QTextCharFormat::AlignNormal)     c->ui.scriptButton->setText(QString("-"));
-  if (F.verticalAlignment()==QTextCharFormat::AlignSubScript)  c->ui.scriptButton->setText(QString("_"));
-  if (F.verticalAlignment()==QTextCharFormat::AlignSuperScript)  c->ui.scriptButton->setText(QString("^"));
+  if (F.verticalAlignment()==QTextCharFormat::AlignNormal)     m_c->ui.scriptButton->setText(QString("-"));
+  if (F.verticalAlignment()==QTextCharFormat::AlignSubScript)  m_c->ui.scriptButton->setText(QString("_"));
+  if (F.verticalAlignment()==QTextCharFormat::AlignSuperScript)  m_c->ui.scriptButton->setText(QString("^"));
   {
-    QFont font=c->ui.italicButton->font(); 
+    QFont font=m_c->ui.italicButton->font(); 
     font.setItalic (F.fontItalic()); 
-    c->ui.italicButton->setFont(font); 
+    m_c->ui.italicButton->setFont(font); 
   }
   {
-    QFont font=c->ui.boldButton->font(); 
+    QFont font=m_c->ui.boldButton->font(); 
     font.setBold(F.fontWeight()==QFont::Bold);
-    c->ui.boldButton->setFont(font); 
+    m_c->ui.boldButton->setFont(font); 
   }
 
-  c->ui.fontSizeSpinBox->setValue(int(F.fontPointSize()+0.5));
+  m_c->ui.fontSizeSpinBox->setValue(int(F.fontPointSize()+0.5));
 
   QString fam=F.fontFamily();
-  c->ui.fontComboBox->setEditText(fam);
+  m_c->ui.fontComboBox->setEditText(fam);
 
   
   QColor color=F.foreground().color();
-  QPalette palette = c->ui.colorButton->palette();
+  QPalette palette = m_c->ui.colorButton->palette();
   palette.setColor(QPalette::Button,color);
-  c->ui.colorButton->setAutoFillBackground(true);
-  c->ui.colorButton->setPalette(palette);
+  m_c->ui.colorButton->setAutoFillBackground(true);
+  m_c->ui.colorButton->setPalette(palette);
 }
 
 
 
 void LabelEditorDialog::toggleChars() {
-  if (c->ui.frame->isHidden()) {
-    c->ui.frame->show();
+  if (m_c->ui.frame->isHidden()) {
+    m_c->ui.frame->show();
     setMinimumSize(600,600);
     resize(minimumSize());
   }
   else {
     
-    c->ui.frame->hide();
+    m_c->ui.frame->hide();
     setMinimumSize(600,200);
     resize(minimumSize());
   }

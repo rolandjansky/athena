@@ -77,42 +77,42 @@ public:
 //____________________________________________________________________
 void PhiSectorManager::registerSubSystemSeparator(VP1GeoFlags::SubSystemFlag flag,SoSeparator * subsystemsep)
 {
-  assert(d->subsysflag2sep.find(flag)==d->subsysflag2sep.end());
-  assert(d->subsysflag_2_iphi2sephelper.find(flag)==d->subsysflag_2_iphi2sephelper.end());
-  d->subsysflag_2_iphi2sephelper[flag] = std::map<int,VP1ExtraSepLayerHelper*>();
-  d->subsysflag2sep[flag] = subsystemsep;
+  assert(m_d->subsysflag2sep.find(flag)==m_d->subsysflag2sep.end());
+  assert(m_d->subsysflag_2_iphi2sephelper.find(flag)==m_d->subsysflag_2_iphi2sephelper.end());
+  m_d->subsysflag_2_iphi2sephelper[flag] = std::map<int,VP1ExtraSepLayerHelper*>();
+  m_d->subsysflag2sep[flag] = subsystemsep;
   
-  assert(d->subsysflag2labelsep.find(flag)==d->subsysflag2labelsep.end());
-  assert(d->subsysflag_2_iphi2labelsephelper.find(flag)==d->subsysflag_2_iphi2labelsephelper.end());
-  d->subsysflag_2_iphi2labelsephelper[flag] = std::map<int,VP1ExtraSepLayerHelper*>();
-  d->subsysflag2labelsep[flag] = subsystemsep;
+  assert(m_d->subsysflag2labelsep.find(flag)==m_d->subsysflag2labelsep.end());
+  assert(m_d->subsysflag_2_iphi2labelsephelper.find(flag)==m_d->subsysflag_2_iphi2labelsephelper.end());
+  m_d->subsysflag_2_iphi2labelsephelper[flag] = std::map<int,VP1ExtraSepLayerHelper*>();
+  m_d->subsysflag2labelsep[flag] = subsystemsep;
 }
 
 //____________________________________________________________________
 VP1ExtraSepLayerHelper * PhiSectorManager::getSepHelperForNode(VP1GeoFlags::SubSystemFlag flag, int iphi)
 {
   assert(iphi>=-1);
-  assert(d->subsysflag2sep.find(flag)!=d->subsysflag2sep.end());
-  assert(d->subsysflag_2_iphi2sephelper.find(flag)!=d->subsysflag_2_iphi2sephelper.end());
+  assert(m_d->subsysflag2sep.find(flag)!=m_d->subsysflag2sep.end());
+  assert(m_d->subsysflag_2_iphi2sephelper.find(flag)!=m_d->subsysflag_2_iphi2sephelper.end());
 
-  if (d->subsysflag_2_iphi2sephelper[flag].find(iphi)!=d->subsysflag_2_iphi2sephelper[flag].end()) {
-    return d->subsysflag_2_iphi2sephelper[flag][iphi];
+  if (m_d->subsysflag_2_iphi2sephelper[flag].find(iphi)!=m_d->subsysflag_2_iphi2sephelper[flag].end()) {
+    return m_d->subsysflag_2_iphi2sephelper[flag][iphi];
   }
 
   SoSwitch * sw = new SoSwitch;
-  sw->whichChild = (iphi>=0 ? d->phisectionwidget->virtualSectorEnabled(iphi,NPHISECTORS):!d->phisectionwidget->allSectorsOff()) ? SO_SWITCH_ALL : SO_SWITCH_NONE;
+  sw->whichChild = (iphi>=0 ? m_d->phisectionwidget->virtualSectorEnabled(iphi,NPHISECTORS):!m_d->phisectionwidget->allSectorsOff()) ? SO_SWITCH_ALL : SO_SWITCH_NONE;
 
-  if (d->iphi2switches.find(iphi)==d->iphi2switches.end())
-    d->iphi2switches[iphi] = std::set<SoSwitch*>();
-  d->iphi2switches[iphi].insert(sw);
+  if (m_d->iphi2switches.find(iphi)==m_d->iphi2switches.end())
+    m_d->iphi2switches[iphi] = std::set<SoSwitch*>();
+  m_d->iphi2switches[iphi].insert(sw);
 
   SoSeparator * sep = new SoSeparator;
   sep->ref();
   VP1ExtraSepLayerHelper * sephelper = new VP1ExtraSepLayerHelper(sep);
-  d->subsysflag_2_iphi2sephelper[flag][iphi] = sephelper;
+  m_d->subsysflag_2_iphi2sephelper[flag][iphi] = sephelper;
 
   sw->addChild(sep);
-  d->subsysflag2sep[flag]->addChild(sw);
+  m_d->subsysflag2sep[flag]->addChild(sw);
   return sephelper;
 }
 
@@ -120,27 +120,27 @@ VP1ExtraSepLayerHelper * PhiSectorManager::getSepHelperForNode(VP1GeoFlags::SubS
 VP1ExtraSepLayerHelper * PhiSectorManager::getLabelSepHelperForNode(VP1GeoFlags::SubSystemFlag flag, int iphi)
 {
   assert(iphi>=-1);
-  assert(d->subsysflag2labelsep.find(flag)!=d->subsysflag2labelsep.end());
-  assert(d->subsysflag_2_iphi2labelsephelper.find(flag)!=d->subsysflag_2_iphi2labelsephelper.end());
+  assert(m_d->subsysflag2labelsep.find(flag)!=m_d->subsysflag2labelsep.end());
+  assert(m_d->subsysflag_2_iphi2labelsephelper.find(flag)!=m_d->subsysflag_2_iphi2labelsephelper.end());
   
-  if (d->subsysflag_2_iphi2labelsephelper[flag].find(iphi)!=d->subsysflag_2_iphi2labelsephelper[flag].end()) {
-    return d->subsysflag_2_iphi2labelsephelper[flag][iphi];
+  if (m_d->subsysflag_2_iphi2labelsephelper[flag].find(iphi)!=m_d->subsysflag_2_iphi2labelsephelper[flag].end()) {
+    return m_d->subsysflag_2_iphi2labelsephelper[flag][iphi];
   }
   
   SoSwitch * sw = new SoSwitch;
-  sw->whichChild = (iphi>=0 ? d->phisectionwidget->virtualSectorEnabled(iphi,NPHISECTORS):!d->phisectionwidget->allSectorsOff()) ? SO_SWITCH_ALL : SO_SWITCH_NONE;
+  sw->whichChild = (iphi>=0 ? m_d->phisectionwidget->virtualSectorEnabled(iphi,NPHISECTORS):!m_d->phisectionwidget->allSectorsOff()) ? SO_SWITCH_ALL : SO_SWITCH_NONE;
   
-  if (d->iphi2Labelswitches.find(iphi)==d->iphi2Labelswitches.end())
-    d->iphi2Labelswitches[iphi] = std::set<SoSwitch*>();
-  d->iphi2Labelswitches[iphi].insert(sw);
+  if (m_d->iphi2Labelswitches.find(iphi)==m_d->iphi2Labelswitches.end())
+    m_d->iphi2Labelswitches[iphi] = std::set<SoSwitch*>();
+  m_d->iphi2Labelswitches[iphi].insert(sw);
   
   SoSeparator * sep = new SoSeparator;
   sep->ref();
   VP1ExtraSepLayerHelper * sephelper = new VP1ExtraSepLayerHelper(sep);
-  d->subsysflag_2_iphi2labelsephelper[flag][iphi] = sephelper;
+  m_d->subsysflag_2_iphi2labelsephelper[flag][iphi] = sephelper;
   
   sw->addChild(sep);
-  d->subsysflag2labelsep[flag]->addChild(sw);
+  m_d->subsysflag2labelsep[flag]->addChild(sw);
   return sephelper;
 }
 
@@ -169,14 +169,14 @@ VP1ExtraSepLayerHelper * PhiSectorManager::registerVolumeAroundZAxis( VP1GeoFlag
 
   // Register the shape according to type:
   if (shape->getTypeId()==SoTubs::getClassTypeId()) {
-    d->volaroundZ_tubs[sw] = std::pair<SoTubs*,SoSeparator*>(static_cast<SoTubs*>(shape),sep);
+    m_d->volaroundZ_tubs[sw] = std::pair<SoTubs*,SoSeparator*>(static_cast<SoTubs*>(shape),sep);
   } else if (shape->getTypeId()==SoPcons::getClassTypeId()) {
-      d->volaroundZ_pcons[sw] = std::pair<SoPcons*,SoSeparator*>(static_cast<SoPcons*>(shape),sep);
+      m_d->volaroundZ_pcons[sw] = std::pair<SoPcons*,SoSeparator*>(static_cast<SoPcons*>(shape),sep);
   } else if (shape->getTypeId()==SoCons::getClassTypeId()) {
-    d->volaroundZ_cons[sw] = std::pair<SoCons*,SoSeparator*>(static_cast<SoCons*>(shape),sep);
+    m_d->volaroundZ_cons[sw] = std::pair<SoCons*,SoSeparator*>(static_cast<SoCons*>(shape),sep);
   } else {
     assert(shape->getTypeId()==SoLAr::getClassTypeId());
-    d->volaroundZ_lar[sw] = std::pair<SoLAr*,SoSeparator*>(static_cast<SoLAr*>(shape),sep);
+    m_d->volaroundZ_lar[sw] = std::pair<SoLAr*,SoSeparator*>(static_cast<SoLAr*>(shape),sep);
   }
 
   //Test: Are we roughly given by a rotation around the y-axis?
@@ -199,19 +199,19 @@ VP1ExtraSepLayerHelper * PhiSectorManager::registerVolumeAroundZAxis( VP1GeoFlag
   rotation.multVec(unitx,transfunitx);
   transfunitx.getValue(x,y,z);
   double phirot = VP1LinAlgUtils::phiFromXY(x, y );
-  d->volaroundZ_switch2transfinfo[sw] = std::pair<double,bool>(phirot,rotaroundy);
+  m_d->volaroundZ_switch2transfinfo[sw] = std::pair<double,bool>(phirot,rotaroundy);
 
   //Return the sephelper for this subsystems volumes around Z:
-  if (d->subsysflag_2_volAroundZSepHelper.find(flag)!=d->subsysflag_2_volAroundZSepHelper.end())
-    return d->subsysflag_2_volAroundZSepHelper[flag];
+  if (m_d->subsysflag_2_volAroundZSepHelper.find(flag)!=m_d->subsysflag_2_volAroundZSepHelper.end())
+    return m_d->subsysflag_2_volAroundZSepHelper[flag];
 
   SoSeparator * subsyssep_volaroundZ = new SoSeparator;
-  assert(d->subsysflag2sep.find(flag)!=d->subsysflag2sep.end());
-  d->subsysflag2sep[flag]->addChild(subsyssep_volaroundZ);
+  assert(m_d->subsysflag2sep.find(flag)!=m_d->subsysflag2sep.end());
+  m_d->subsysflag2sep[flag]->addChild(subsyssep_volaroundZ);
 
   subsyssep_volaroundZ->ref();
   VP1ExtraSepLayerHelper * sephelper = new VP1ExtraSepLayerHelper(subsyssep_volaroundZ);
-  d->subsysflag_2_volAroundZSepHelper[flag] = sephelper;
+  m_d->subsysflag_2_volAroundZSepHelper[flag] = sephelper;
   return sephelper;
 }
 
@@ -251,7 +251,7 @@ int PhiSectorManager::getVolumeType(const SbMatrix& transform, SoNode * shape) c
       //shape cannot be NULL here, so 'false' case is redundant (coverity 16272)
       //std::string Typenametest = shape ? shape->getTypeId().getName().getString() : "NULL";
       std::string Typenametest = shape->getTypeId().getName().getString();
-      d->system->message("WARNING: Unknown volume type (boolean?) for volume around Z-axis (type "
+      m_d->system->message("WARNING: Unknown volume type (boolean?) for volume around Z-axis (type "
 			 +QString(Typenametest.c_str())+"). Phi-sector cuts won't work for this!");
       return -1;
     }
@@ -264,12 +264,12 @@ int PhiSectorManager::getVolumeType(const SbMatrix& transform, SoNode * shape) c
 
 //____________________________________________________________________
 PhiSectorManager::PhiSectorManager(PhiSectionWidget * psw, IVP1System * sys, QObject*parent)
-  : QObject(parent), d(new Imp)
+  : QObject(parent), m_d(new Imp)
 {
-  d->phisectionwidget = psw;
-  d->system=sys;
-  d->nactivelargechanges = 0;
-  d->currentlyEnabledPhiSectors = QVector<bool>(NPHISECTORS,false);
+  m_d->phisectionwidget = psw;
+  m_d->system=sys;
+  m_d->nactivelargechanges = 0;
+  m_d->currentlyEnabledPhiSectors = QVector<bool>(NPHISECTORS,false);
   QList<int> l; l << 4 << 6 << 9 << 12 << 18 << NPHISECTORS;//NB: All must be divisors in NPHISECTORS
   psw->setNumberOfSectors(12);
   psw->setAllowedNumberOfSectors(l);
@@ -282,8 +282,8 @@ PhiSectorManager::PhiSectorManager(PhiSectionWidget * psw, IVP1System * sys, QOb
 PhiSectorManager::~PhiSectorManager()
 {
 
-  std::map<VP1GeoFlags::SubSystemFlag,std::map<int,VP1ExtraSepLayerHelper*> >::iterator it, itE = d->subsysflag_2_iphi2sephelper.end();
-  for (it = d->subsysflag_2_iphi2sephelper.begin();it!=itE;++it) {
+  std::map<VP1GeoFlags::SubSystemFlag,std::map<int,VP1ExtraSepLayerHelper*> >::iterator it, itE = m_d->subsysflag_2_iphi2sephelper.end();
+  for (it = m_d->subsysflag_2_iphi2sephelper.begin();it!=itE;++it) {
     std::map<int,VP1ExtraSepLayerHelper*>::iterator it2(it->second.begin()),it2E(it->second.end());
     for (;it2!=it2E;++it2) {
       SoSeparator * sep = it2->second->topSeparator();
@@ -292,8 +292,8 @@ PhiSectorManager::~PhiSectorManager()
     }
   }
   
-  std::map<VP1GeoFlags::SubSystemFlag,std::map<int,VP1ExtraSepLayerHelper*> >::iterator it4, itE4 = d->subsysflag_2_iphi2labelsephelper.end();
-  for (it4 = d->subsysflag_2_iphi2labelsephelper.begin();it4!=itE4;++it4) {
+  std::map<VP1GeoFlags::SubSystemFlag,std::map<int,VP1ExtraSepLayerHelper*> >::iterator it4, itE4 = m_d->subsysflag_2_iphi2labelsephelper.end();
+  for (it4 = m_d->subsysflag_2_iphi2labelsephelper.begin();it4!=itE4;++it4) {
     std::map<int,VP1ExtraSepLayerHelper*>::iterator it5(it4->second.begin()),it5E(it4->second.end());
     for (;it5!=it5E;++it5) {
       SoSeparator * sep = it5->second->topSeparator();
@@ -301,44 +301,44 @@ PhiSectorManager::~PhiSectorManager()
       sep->unref();
     }
   }
-  std::map<VP1GeoFlags::SubSystemFlag,VP1ExtraSepLayerHelper*>::iterator it3,it3E = d->subsysflag_2_volAroundZSepHelper.end();
-  for (it3 = d->subsysflag_2_volAroundZSepHelper.begin();it3!=it3E;++it3) {
+  std::map<VP1GeoFlags::SubSystemFlag,VP1ExtraSepLayerHelper*>::iterator it3,it3E = m_d->subsysflag_2_volAroundZSepHelper.end();
+  for (it3 = m_d->subsysflag_2_volAroundZSepHelper.begin();it3!=it3E;++it3) {
     SoSeparator * sep = it3->second->topSeparator();
     delete (it3->second);
     sep->unref();
   }
-  delete d; d=0;
+  delete m_d; m_d=0;
 }
 
 //_____________________________________________________________________________________
 void PhiSectorManager::enabledPhiSectorsChanged()
 {
-  QVector<bool> v =  d->phisectionwidget->virtualSectorsEnabled(NPHISECTORS);
-  if (d->currentlyEnabledPhiSectors == v)
+  QVector<bool> v =  m_d->phisectionwidget->virtualSectorsEnabled(NPHISECTORS);
+  if (m_d->currentlyEnabledPhiSectors == v)
     return;
   QList<int> changedPhiSectors;
   for (int iphi = 0; iphi < NPHISECTORS; ++iphi)
-    if (d->currentlyEnabledPhiSectors[iphi]!=v[iphi])
+    if (m_d->currentlyEnabledPhiSectors[iphi]!=v[iphi])
       changedPhiSectors << iphi;
-  d->currentlyEnabledPhiSectors = v;
+  m_d->currentlyEnabledPhiSectors = v;
   foreach (int iphi,changedPhiSectors)
     updateEnabledPhiSections(iphi);
 }
 
 //_____________________________________________________________________________________
 void PhiSectorManager::updateEnabledPhiSections(int iphi) {
-  bool turnedon = d->currentlyEnabledPhiSectors.at(iphi);
-  if (d->iphi2switches.find(iphi)!=d->iphi2switches.end()) {
-    std::set<SoSwitch*>::iterator it, itE = d->iphi2switches[iphi].end();
-    for (it = d->iphi2switches[iphi].begin();it!=itE;++it) {
+  bool turnedon = m_d->currentlyEnabledPhiSectors.at(iphi);
+  if (m_d->iphi2switches.find(iphi)!=m_d->iphi2switches.end()) {
+    std::set<SoSwitch*>::iterator it, itE = m_d->iphi2switches[iphi].end();
+    for (it = m_d->iphi2switches[iphi].begin();it!=itE;++it) {
       if ((*it)->whichChild.getValue() != (turnedon?SO_SWITCH_ALL:SO_SWITCH_NONE))
         (*it)->whichChild = (turnedon?SO_SWITCH_ALL:SO_SWITCH_NONE);
     }
   }
   
-  if (d->iphi2Labelswitches.find(iphi)!=d->iphi2Labelswitches.end()) {
-    std::set<SoSwitch*>::iterator it, itE = d->iphi2Labelswitches[iphi].end();
-    for (it = d->iphi2Labelswitches[iphi].begin();it!=itE;++it) {
+  if (m_d->iphi2Labelswitches.find(iphi)!=m_d->iphi2Labelswitches.end()) {
+    std::set<SoSwitch*>::iterator it, itE = m_d->iphi2Labelswitches[iphi].end();
+    for (it = m_d->iphi2Labelswitches[iphi].begin();it!=itE;++it) {
       if ((*it)->whichChild.getValue() != (turnedon?SO_SWITCH_ALL:SO_SWITCH_NONE))
         (*it)->whichChild = (turnedon?SO_SWITCH_ALL:SO_SWITCH_NONE);
     }
@@ -346,9 +346,9 @@ void PhiSectorManager::updateEnabledPhiSections(int iphi) {
   // FIXME - need to find a way to turn on labels for recently made visible phi sections, OR build them all by default. 
   
   //Update the switches for boolean, etc., volumes around the Z axis.
-  bool alloff = d->phisectionwidget->allSectorsOff();
-  std::map<int,std::set<SoSwitch*> >::iterator it_zax_switches = d->iphi2switches.find(-1);
-  if (it_zax_switches!=d->iphi2switches.end()) {
+  bool alloff = m_d->phisectionwidget->allSectorsOff();
+  std::map<int,std::set<SoSwitch*> >::iterator it_zax_switches = m_d->iphi2switches.find(-1);
+  if (it_zax_switches!=m_d->iphi2switches.end()) {
     std::set<SoSwitch*>::iterator it, itE = it_zax_switches->second.end();
     for (it = it_zax_switches->second.begin();it!=itE;++it) {
       if ((*it)->whichChild.getValue() != (alloff?SO_SWITCH_NONE:SO_SWITCH_ALL))
@@ -486,25 +486,25 @@ void PhiSectorManager::Imp::updateRepresentationsOfVolsAroundZAxis_Specific(std:
 //_____________________________________________________________________________________
 void PhiSectorManager::updateRepresentationsOfVolsAroundZAxis()
 {
-  d->updateRepresentationsOfVolsAroundZAxis_Specific<SoTubs>(d->volaroundZ_tubs);
-  d->updateRepresentationsOfVolsAroundZAxis_Specific<SoPcons>(d->volaroundZ_pcons);
-  d->updateRepresentationsOfVolsAroundZAxis_Specific<SoCons>(d->volaroundZ_cons);
-  d->updateRepresentationsOfVolsAroundZAxis_Specific<SoLAr>(d->volaroundZ_lar);
+  m_d->updateRepresentationsOfVolsAroundZAxis_Specific<SoTubs>(m_d->volaroundZ_tubs);
+  m_d->updateRepresentationsOfVolsAroundZAxis_Specific<SoPcons>(m_d->volaroundZ_pcons);
+  m_d->updateRepresentationsOfVolsAroundZAxis_Specific<SoCons>(m_d->volaroundZ_cons);
+  m_d->updateRepresentationsOfVolsAroundZAxis_Specific<SoLAr>(m_d->volaroundZ_lar);
 }
 
 //_____________________________________________________________________________________
 void PhiSectorManager::largeChangesBegin()
 {
-  if (++(d->nactivelargechanges)==1) {
+  if (++(m_d->nactivelargechanges)==1) {
     VP1Msg::messageVerbose("PhiSectorManager disabling notifications begin");
-    std::map<VP1GeoFlags::SubSystemFlag,std::map<int,VP1ExtraSepLayerHelper*> >::iterator it, itE = d->subsysflag_2_iphi2sephelper.end();
-    for (it = d->subsysflag_2_iphi2sephelper.begin();it!=itE;++it) {
+    std::map<VP1GeoFlags::SubSystemFlag,std::map<int,VP1ExtraSepLayerHelper*> >::iterator it, itE = m_d->subsysflag_2_iphi2sephelper.end();
+    for (it = m_d->subsysflag_2_iphi2sephelper.begin();it!=itE;++it) {
       std::map<int,VP1ExtraSepLayerHelper*>::iterator it2(it->second.begin()),it2E(it->second.end());
       for (;it2!=it2E;++it2)
         it2->second->largeChangesBegin();
     }
-    std::map<VP1GeoFlags::SubSystemFlag,VP1ExtraSepLayerHelper*>::iterator it3,it3E = d->subsysflag_2_volAroundZSepHelper.end();
-    for (it3 = d->subsysflag_2_volAroundZSepHelper.begin();it3!=it3E;++it3)
+    std::map<VP1GeoFlags::SubSystemFlag,VP1ExtraSepLayerHelper*>::iterator it3,it3E = m_d->subsysflag_2_volAroundZSepHelper.end();
+    for (it3 = m_d->subsysflag_2_volAroundZSepHelper.begin();it3!=it3E;++it3)
       it3->second->largeChangesBegin();
     VP1Msg::messageVerbose("PhiSectorManager disabling notifications end");
   }
@@ -513,16 +513,16 @@ void PhiSectorManager::largeChangesBegin()
 //_____________________________________________________________________________________
 void PhiSectorManager::largeChangesEnd()
 {
-  if (--(d->nactivelargechanges)==0) {
+  if (--(m_d->nactivelargechanges)==0) {
     VP1Msg::messageVerbose("PhiSectorManager enabling notifications begin");
-    std::map<VP1GeoFlags::SubSystemFlag,std::map<int,VP1ExtraSepLayerHelper*> >::iterator it, itE = d->subsysflag_2_iphi2sephelper.end();
-    for (it = d->subsysflag_2_iphi2sephelper.begin();it!=itE;++it) {
+    std::map<VP1GeoFlags::SubSystemFlag,std::map<int,VP1ExtraSepLayerHelper*> >::iterator it, itE = m_d->subsysflag_2_iphi2sephelper.end();
+    for (it = m_d->subsysflag_2_iphi2sephelper.begin();it!=itE;++it) {
       std::map<int,VP1ExtraSepLayerHelper*>::iterator it2(it->second.begin()),it2E(it->second.end());
       for (;it2!=it2E;++it2)
         it2->second->largeChangesEnd();
     }
-    std::map<VP1GeoFlags::SubSystemFlag,VP1ExtraSepLayerHelper*>::iterator it3,it3E = d->subsysflag_2_volAroundZSepHelper.end();
-    for (it3 = d->subsysflag_2_volAroundZSepHelper.begin();it3!=it3E;++it3)
+    std::map<VP1GeoFlags::SubSystemFlag,VP1ExtraSepLayerHelper*>::iterator it3,it3E = m_d->subsysflag_2_volAroundZSepHelper.end();
+    for (it3 = m_d->subsysflag_2_volAroundZSepHelper.begin();it3!=it3E;++it3)
       it3->second->largeChangesEnd();
     VP1Msg::messageVerbose("PhiSectorManager enabling notifications end");
   }

@@ -1,14 +1,20 @@
-Wed Dec 13 13:37:55 CET 2017
+Mon Feb 26 04:15:51 CET 2018
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [AthenaWorkDir-22.0.0] [x86_64-slc6-gcc62-dbg] [atlas-work3/5c32a9a2b2] -- built on [2017-12-13T1129]
+Py:Athena            INFO using release [AthenaWorkDir-22.0.1] [x86_64-slc6-gcc62-dbg] [atlas-work3/29795b37319] -- built on [2018-02-25T2039]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "AthExJobOptions/AthExJobOptions_BasicJobOptions.py"
-Py:ConfigurableDb    INFO Read module info for 5439 configurables from 37 genConfDb files
-Py:ConfigurableDb    INFO No duplicates have been found: that's good !
+Py:ConfigurableDb    INFO Read module info for 5459 configurables from 61 genConfDb files
+Py:ConfigurableDb WARNING Found 2 duplicates among the 61 genConfDb files :
+Py:ConfigurableDb WARNING --------------------------------------------------
+Py:ConfigurableDb WARNING   -<component name>: <module> - [ <duplicates> ]
+Py:ConfigurableDb WARNING --------------------------------------------------
+Py:ConfigurableDb WARNING   -IDTrackCaloDepositsDecoratorTool: MuonTPTools.MuonTPToolsConf - ['DerivationFrameworkMuons.DerivationFrameworkMuonsConf']
+Py:ConfigurableDb WARNING   -MuonTPExtrapolationTool: MuonTPTools.MuonTPToolsConf - ['DerivationFrameworkMuons.DerivationFrameworkMuonsConf']
+Py:ConfigurableDb WARNING Fix your cmt/requirements file !!
 Py:Athena            INFO Can't set int to string property (this is correct)
 Py:Athena            INFO Can't set non-existing property (this is correct)
 /***** Algorithm AthSequencer/TopAlg ***************************************************************
@@ -23,7 +29,7 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 |-AuditRestart               = False
 |-AuditStart                 = False
 |-AuditStop                  = False
-|-AutoRetrieveTools          = False
+|-AutoRetrieveTools          = True
 |-Cardinality                = 1
 |-ContinueEventloopOnFPE     = False
 |-DetStore                   = ServiceHandle('StoreGateSvc/DetectorStore')
@@ -57,7 +63,7 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 | |-AuditRestart               = False
 | |-AuditStart                 = False
 | |-AuditStop                  = False
-| |-AutoRetrieveTools          = False
+| |-AutoRetrieveTools          = True
 | |-Cardinality                = 1
 | |-DetStore                   = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-EmptyPrivateTool           = PrivateToolHandle('')
@@ -92,7 +98,7 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 | | |-AuditStart        = False
 | | |-AuditStop         = False
 | | |-AuditTools        = False
-| | |-AutoRetrieveTools = False
+| | |-AutoRetrieveTools = True
 | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
 | | |-EvtStore          = ServiceHandle('StoreGateSvc')
 | | |-ExtraInputs       = []  (default: [])
@@ -109,7 +115,7 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 | | |-AuditStart        = False
 | | |-AuditStop         = False
 | | |-AuditTools        = False
-| | |-AutoRetrieveTools = False
+| | |-AutoRetrieveTools = True
 | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
 | | |-EvtStore          = ServiceHandle('StoreGateSvc')
 | | |-ExtraInputs       = []  (default: [])
@@ -126,7 +132,7 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 | | |-AuditStart        = False
 | | |-AuditStop         = False
 | | |-AuditTools        = False
-| | |-AutoRetrieveTools = False
+| | |-AutoRetrieveTools = True
 | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
 | | |-EvtStore          = ServiceHandle('StoreGateSvc')
 | | |-ExtraInputs       = []  (default: [])
@@ -145,7 +151,7 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 | | | |-AuditStart        = False
 | | | |-AuditStop         = False
 | | | |-AuditTools        = False
-| | | |-AutoRetrieveTools = False
+| | | |-AutoRetrieveTools = True
 | | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
 | | | |-EvtStore          = ServiceHandle('StoreGateSvc')
 | | | |-ExtraInputs       = []  (default: [])
@@ -162,7 +168,7 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 | | | |-AuditStart        = False
 | | | |-AuditStop         = False
 | | | |-AuditTools        = False
-| | | |-AutoRetrieveTools = False
+| | | |-AutoRetrieveTools = True
 | | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
 | | | |-EvtStore          = ServiceHandle('StoreGateSvc')
 | | | |-ExtraInputs       = []  (default: [])
@@ -180,7 +186,7 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 | | |-AuditStart        = False
 | | |-AuditStop         = False
 | | |-AuditTools        = False
-| | |-AutoRetrieveTools = False
+| | |-AutoRetrieveTools = True
 | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
 | | |-EvtStore          = ServiceHandle('StoreGateSvc')
 | | |-ExtraInputs       = []  (default: [])
@@ -201,7 +207,7 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 | |-AuditRestart               = False
 | |-AuditStart                 = False
 | |-AuditStop                  = False
-| |-AutoRetrieveTools          = False
+| |-AutoRetrieveTools          = True
 | |-Cardinality                = 1
 | |-DetStore                   = ServiceHandle('StoreGateSvc/DetectorStore')
 | |-EmptyPrivateTool           = PrivateToolHandle('')
@@ -237,7 +243,7 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 | | |-AuditStart        = False
 | | |-AuditStop         = False
 | | |-AuditTools        = False
-| | |-AutoRetrieveTools = False
+| | |-AutoRetrieveTools = True
 | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
 | | |-EvtStore          = ServiceHandle('StoreGateSvc')
 | | |-ExtraInputs       = []  (default: [])
@@ -254,7 +260,7 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 | | |-AuditStart        = False
 | | |-AuditStop         = False
 | | |-AuditTools        = False
-| | |-AutoRetrieveTools = False
+| | |-AutoRetrieveTools = True
 | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
 | | |-EvtStore          = ServiceHandle('StoreGateSvc')
 | | |-ExtraInputs       = []  (default: [])
@@ -271,7 +277,7 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 | | |-AuditStart        = False
 | | |-AuditStop         = False
 | | |-AuditTools        = False
-| | |-AutoRetrieveTools = False
+| | |-AutoRetrieveTools = True
 | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
 | | |-EvtStore          = ServiceHandle('StoreGateSvc')
 | | |-ExtraInputs       = []  (default: [])
@@ -288,7 +294,7 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 | | |-AuditStart        = False
 | | |-AuditStop         = False
 | | |-AuditTools        = False
-| | |-AutoRetrieveTools = False
+| | |-AutoRetrieveTools = True
 | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
 | | |-EvtStore          = ServiceHandle('StoreGateSvc')
 | | |-ExtraInputs       = []  (default: [])
@@ -305,7 +311,7 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 | | |-AuditStart        = False
 | | |-AuditStop         = False
 | | |-AuditTools        = False
-| | |-AutoRetrieveTools = False
+| | |-AutoRetrieveTools = True
 | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
 | | |-EvtStore          = ServiceHandle('StoreGateSvc')
 | | |-ExtraInputs       = []  (default: [])
@@ -326,7 +332,7 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 | | | |-AuditStart        = False
 | | | |-AuditStop         = False
 | | | |-AuditTools        = False
-| | | |-AutoRetrieveTools = False
+| | | |-AutoRetrieveTools = True
 | | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
 | | | |-EvtStore          = ServiceHandle('StoreGateSvc')
 | | | |-ExtraInputs       = []  (default: [])
@@ -343,7 +349,7 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 | | | |-AuditStart        = False
 | | | |-AuditStop         = False
 | | | |-AuditTools        = False
-| | | |-AutoRetrieveTools = False
+| | | |-AutoRetrieveTools = True
 | | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
 | | | |-EvtStore          = ServiceHandle('StoreGateSvc')
 | | | |-ExtraInputs       = []  (default: [])
@@ -361,7 +367,7 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 | | |-AuditStart        = False
 | | |-AuditStop         = False
 | | |-AuditTools        = False
-| | |-AutoRetrieveTools = False
+| | |-AutoRetrieveTools = True
 | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
 | | |-EvtStore          = ServiceHandle('StoreGateSvc')
 | | |-ExtraInputs       = []  (default: [])
@@ -380,7 +386,7 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 | | | |-AuditStart        = False
 | | | |-AuditStop         = False
 | | | |-AuditTools        = False
-| | | |-AutoRetrieveTools = False
+| | | |-AutoRetrieveTools = True
 | | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
 | | | |-EvtStore          = ServiceHandle('StoreGateSvc')
 | | | |-ExtraInputs       = []  (default: [])
@@ -397,7 +403,7 @@ Py:Athena            INFO Can't set non-existing property (this is correct)
 | | | |-AuditStart        = False
 | | | |-AuditStop         = False
 | | | |-AuditTools        = False
-| | | |-AutoRetrieveTools = False
+| | | |-AutoRetrieveTools = True
 | | | |-DetStore          = ServiceHandle('StoreGateSvc/DetectorStore')
 | | | |-EvtStore          = ServiceHandle('StoreGateSvc')
 | | | |-ExtraInputs       = []  (default: [])
@@ -413,8 +419,8 @@ Py:Athena            INFO including file "AthenaCommon/runbatch.py"
 [?1034hApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level= 'PluginDebugLevel':0
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v30r0)
-                                          running on lxplus048.cern.ch on Wed Dec 13 13:38:17 2017
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v30r1)
+                                          running on lxplus066.cern.ch on Mon Feb 26 04:16:04 2018
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -422,7 +428,7 @@ ApplicationMgr                     INFO Updating Gaudi::PluginService::SetDebug(
 StatusCodeSvc                      INFO initialize
 AthDictLoaderSvc                   INFO in initialize...
 AthDictLoaderSvc                   INFO acquired Dso-registry
-ClassIDSvc                         INFO  getRegistryEntries: read 2318 CLIDRegistry entries for module ALL
+ClassIDSvc                         INFO  getRegistryEntries: read 2322 CLIDRegistry entries for module ALL
 ChronoStatSvc                      INFO  Number of skipped events for MemStat-1
 CoreDumpSvc                        INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc                        INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
@@ -439,8 +445,8 @@ TopAlgorithm.Tool2.CxxDefault...  DEBUG Property update for OutputLevel : new va
 TopAlgorithm.Tool2                 INFO Retrieved TheToolToolArray = PrivateToolHandleArray(['ConcreteTool/CxxDefaultTool'])
 TopAlgorithm.Tool2                DEBUG Registering all Tools in ToolHandleArray TheToolToolArray
 TopAlgorithm.Tool2                DEBUG Adding private ToolHandle tool TopAlgorithm.Tool2.CxxDefaultTool (ConcreteTool) from ToolHandleArray TheToolToolArray
-TopAlgorithm.Tool2                DEBUG Adding Public ToolHandle tool ToolSvc.PublicConcreteTool (ConcreteTool)
-TopAlgorithm.Tool2                DEBUG Adding Private ToolHandle tool TopAlgorithm.Tool2.ConcreteTool (ConcreteTool)
+TopAlgorithm.Tool2                DEBUG Adding public ToolHandle tool ToolSvc.PublicConcreteTool (ConcreteTool)
+TopAlgorithm.Tool2                DEBUG Adding private ToolHandle tool TopAlgorithm.Tool2.ConcreteTool (ConcreteTool)
 TopAlgorithm.Tool3                DEBUG Property update for OutputLevel : new value = 2
 TopAlgorithm                       INFO Retrieved PrivateToolList = PrivateToolHandleArray(['ConcreteTool/Tool1','ToolUsingTool/Tool2','ToolSpace::TemplatedTool<double>/Tool3'])
 ToolSvc.Tool5                      INFO Retrieved TheToolPubTool = PublicToolHandle('ConcreteTool/PublicConcreteTool')
@@ -474,8 +480,8 @@ MyAlg.ToolUsingTool.CxxDefaul...  DEBUG Property update for OutputLevel : new va
 MyAlg.ToolUsingTool                INFO Retrieved TheToolToolArray = PrivateToolHandleArray(['ConcreteTool/CxxDefaultTool'])
 MyAlg.ToolUsingTool               DEBUG Registering all Tools in ToolHandleArray TheToolToolArray
 MyAlg.ToolUsingTool               DEBUG Adding private ToolHandle tool MyAlg.ToolUsingTool.CxxDefaultTool (ConcreteTool) from ToolHandleArray TheToolToolArray
-MyAlg.ToolUsingTool               DEBUG Adding Public ToolHandle tool ToolSvc.PublicConcreteTool (ConcreteTool)
-MyAlg.ToolUsingTool               DEBUG Adding Private ToolHandle tool MyAlg.ToolUsingTool.ConcreteTool (ConcreteTool)
+MyAlg.ToolUsingTool               DEBUG Adding public ToolHandle tool ToolSvc.PublicConcreteTool (ConcreteTool)
+MyAlg.ToolUsingTool               DEBUG Adding private ToolHandle tool MyAlg.ToolUsingTool.ConcreteTool (ConcreteTool)
 MyAlg                              INFO Retrieved TheTool = PrivateToolHandle('ToolUsingTool/ToolUsingTool')
 MyAlg.PyCT1                       DEBUG Property update for OutputLevel : new value = 2
 MyAlg.PyCT2                       DEBUG Property update for OutputLevel : new value = 2
@@ -489,8 +495,8 @@ MyAlg.Special.PySpSubTool         DEBUG Property update for OutputLevel : new va
 MyAlg.Special                      INFO Retrieved TheToolToolArray = PrivateToolHandleArray(['ConcreteTool/PySpSubTool'])
 MyAlg.Special                     DEBUG Registering all Tools in ToolHandleArray TheToolToolArray
 MyAlg.Special                     DEBUG Adding private ToolHandle tool MyAlg.Special.PySpSubTool (ConcreteTool) from ToolHandleArray TheToolToolArray
-MyAlg.Special                     DEBUG Adding Public ToolHandle tool ToolSvc.PublicConcreteTool (ConcreteTool)
-MyAlg.Special                     DEBUG Adding Private ToolHandle tool MyAlg.Special.PyTSTTSp1 (ToolSpace::TemplatedTool<double>)
+MyAlg.Special                     DEBUG Adding public ToolHandle tool ToolSvc.PublicConcreteTool (ConcreteTool)
+MyAlg.Special                     DEBUG Adding private ToolHandle tool MyAlg.Special.PyTSTTSp1 (ToolSpace::TemplatedTool<double>)
 MyAlg                              INFO Retrieved PrivateToolList = PrivateToolHandleArray(['ConcreteTool/PyCT1','ConcreteTool/PyCT2','ToolSpace::TemplatedTool<double>/PyTSTT3','ToolSpace::TemplatedTool<double>/PyTSTT4','ToolUsingTool/Special'])
 MyAlg                              INFO Retrieved PublicToolList = PublicToolHandleArray(['ConcreteTool/Tool4','ToolUsingTool/Tool5','ToolSpace::TemplatedTool<double>/Tool6','ConcreteTool/PyCT5','ToolSpace::TemplatedTool<double>/PyTSTT7'])
 QotdSvc                            INFO Initializing QotdSvc...
@@ -518,7 +524,7 @@ MyAlg                             DEBUG Data Deps for MyAlg
 HistogramPersistencySvc         WARNING Histograms saving not required.
 ApplicationMgr                     INFO Application Manager Initialized successfully
 ApplicationMgr                     INFO Application Manager Started successfully
-ClassIDSvc                         INFO  getRegistryEntries: read 1358 CLIDRegistry entries for module ALL
+ClassIDSvc                         INFO  getRegistryEntries: read 1357 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr                 INFO   ===>>>  start of run 1    <<<===
 AthenaEventLoopMgr                 INFO   ===>>>  start processing event #1, run #1 0 events processed so far  <<<===
 TopAlgorithm                       INFO got this quote [Your day will be somewhat dictated by authority].
@@ -707,7 +713,7 @@ ToolSvc                            INFO Removing all tools created by ToolSvc
 *****Chrono*****                   INFO ****************************************************************************************************
 *****Chrono*****                   INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****                   INFO ****************************************************************************************************
-ChronoStatSvc                      INFO Time User   : Tot=  260 [ms]                                             #=  1
+ChronoStatSvc                      INFO Time User   : Tot=  220 [ms]                                             #=  1
 *****Chrono*****                   INFO ****************************************************************************************************
 ChronoStatSvc.finalize()           INFO  Service finalized successfully 
 ApplicationMgr                     INFO Application Manager Finalized successfully

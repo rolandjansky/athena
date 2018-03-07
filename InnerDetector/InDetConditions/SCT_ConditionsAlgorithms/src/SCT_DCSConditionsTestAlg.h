@@ -12,14 +12,14 @@
 
 // Include Athena stuff
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "Identifier/Identifier.h"
+#include "SCT_ConditionsTools/ISCT_DCSConditionsTool.h"
 
 // Include STL stuff
 #include <string>
 
 // Forward declarations
-class ISCT_DCSConditionsSvc;
 namespace InDetDD{class SCT_DetectorManager;}
 
   /** This class acts as a test/sample client the DCSConditions class. 
@@ -36,7 +36,7 @@ public:
     StatusCode finalize() override;   //!< Gaudi finaliser
     
 private:
-    ServiceHandle<ISCT_DCSConditionsSvc> m_DCSConditionsSvc;
+    ToolHandle<ISCT_DCSConditionsTool> m_DCSConditionsTool{this, "SCT_DCSConditionsTool", "SCT_DCSConditionsTool", "Tool to retrieve SCT DCS information"};
    };
 
 #endif // SCT_TestDCSConditions_H

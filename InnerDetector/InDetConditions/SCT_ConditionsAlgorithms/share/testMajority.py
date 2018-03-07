@@ -81,13 +81,13 @@ conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/Geog", "/SCT/DAQ/Config/Geog")
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/RODMUR", "/SCT/DAQ/Config/RODMUR")
 conddb.addFolderSplitMC("SCT", "/SCT/DAQ/Config/MUR", "/SCT/DAQ/Config/MUR")
 
-from SCT_ConditionsServices.SCT_MajorityConditionsSvcSetup import SCT_MajorityConditionsSvcSetup
-sct_MajorityConditionsSvcSetup = SCT_MajorityConditionsSvcSetup()
-sct_MajorityConditionsSvcSetup.setup()
+from SCT_ConditionsTools.SCT_MajorityConditionsToolSetup import SCT_MajorityConditionsToolSetup
+sct_MajorityConditionsToolSetup = SCT_MajorityConditionsToolSetup()
+sct_MajorityConditionsToolSetup.setup()
 
 from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_MajorityConditionsTestAlg
 MajorityConditionsTestAlg = SCT_MajorityConditionsTestAlg(name = "SCT_MajorityConditionsTestAlg")
-MajorityConditionsTestAlg.MajoritySvc = sct_MajorityConditionsSvcSetup.getSvc()
+MajorityConditionsTestAlg.MajorityTool = sct_MajorityConditionsToolSetup.getTool()
 job += MajorityConditionsTestAlg
 
 import AthenaCommon.AtlasUnixGeneratorJob

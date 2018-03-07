@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigCaloDataAccessSvc_TrigCaloDataAccessSvc_h
@@ -33,18 +33,18 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
   
-  virtual Status loadCollections ( const EventContext& context,
-				   const IRoiDescriptor& roi,
-				   const DETID detID,
-				   const int sampling,
-				   LArTT_Selector<LArCellCont>& loadedCells ) override;
+  virtual StatusCode loadCollections ( const EventContext& context,
+                                       const IRoiDescriptor& roi,
+                                       const DETID detID,
+                                       const int sampling,
+                                       LArTT_Selector<LArCellCont>& loadedCells ) override;
   
 
 
-  virtual Status prepareFullCollections( const EventContext& context ) override;
+  virtual StatusCode prepareFullCollections( const EventContext& context ) override;
   
-  virtual Status loadFullCollections ( const EventContext& context,
-				       ConstDataVector<CaloCellContainer>& cont ) override;
+  virtual StatusCode loadFullCollections ( const EventContext& context,
+                                           ConstDataVector<CaloCellContainer>& cont ) override;
   
  private:
   
@@ -102,7 +102,7 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
   StatusCode lateInit();
   bool m_lateInitDone = false;
 
-  Status convertROBs(const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& robFrags, LArCellCont* larcell );
+  StatusCode convertROBs(const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& robFrags, LArCellCont* larcell );
 
 
   /**
@@ -122,13 +122,13 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
   /**
    * @brief LAr TT collections preparation code
    **/
-  Status prepareLArCollections( const EventContext& context,
+  StatusCode prepareLArCollections( const EventContext& context,
 				const IRoiDescriptor& roi, 
 				const int sampling,
 				DETID detector );
 
 
-  Status prepareLArFullCollections( const EventContext& context );
+  StatusCode prepareLArFullCollections( const EventContext& context );
 
   std::vector<uint32_t> m_vrodid32fullDet;
   std::vector<std::vector<uint32_t> > m_vrodid32fullDetHG;

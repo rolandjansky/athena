@@ -52,7 +52,7 @@ protected:
   void resizeEvent ( QResizeEvent * event );
 protected:
   class Imp;
-  Imp * d;
+  Imp * m_d;
 };
 
 #endif

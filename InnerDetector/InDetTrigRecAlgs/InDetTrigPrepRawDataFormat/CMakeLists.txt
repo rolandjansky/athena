@@ -28,6 +28,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetRecTools/SiClusterizationTool
                           InnerDetector/InDetRecTools/TRT_DriftCircleTool
                           InnerDetector/InDetTrigRecTools/InDetTrigToolInterfaces
+                          InnerDetector/InDetConditions/SCT_ConditionsData
                           Tracking/TrkEvent/TrkTrack
                           Trigger/TrigFTK/FTK_DataProviderInterfaces
                           Trigger/TrigEvent/TrigSteeringEvent

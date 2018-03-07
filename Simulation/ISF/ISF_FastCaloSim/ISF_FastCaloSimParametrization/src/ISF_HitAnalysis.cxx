@@ -42,6 +42,7 @@
 #include "EventInfo/EventID.h"
 
 #include "TTree.h"
+#include "TFile.h"
 #include "TString.h"
 #include "TVector3.h"
 #include <sstream>
@@ -430,6 +431,7 @@ if( detStore()->contains< AthenaAttributeList >( m_MC_DIGI_PARAM ) )
   return StatusCode::FAILURE;
  }
  //#########################
+ std::unique_ptr<TFile> dummyFile = std::unique_ptr<TFile>(TFile::Open("dummyFile.root", "RECREATE")); //This is added to suppress the error messages about memory-resident trees
  m_tree = new TTree("FCS_ParametrizationInput", "FCS_ParametrizationInput");
  std::string fullNtupleName =  "/"+m_ntupleFileName+"/"+m_ntupleTreeName;
  sc = m_thistSvc->regTree(fullNtupleName, m_tree);
@@ -603,7 +605,7 @@ if( detStore()->contains< AthenaAttributeList >( m_MC_DIGI_PARAM ) )
   m_tree->Branch("newTTC_AngleEta",&m_newTTC_AngleEta);
 
  }
-
+ dummyFile->Close();
  return StatusCode::SUCCESS;
 
 } //initialize
@@ -612,7 +614,7 @@ StatusCode ISF_HitAnalysis::finalize()
 {
 
  ATH_MSG_INFO( "doing finalize()" );
-
+ std::unique_ptr<TFile> dummyGeoFile = std::unique_ptr<TFile>(TFile::Open("dummyGeoFile.root", "RECREATE")); //This is added to suppress the error messages about memory-resident trees
  TTree* geo = new TTree( m_geoModel->atlasVersion().c_str() , m_geoModel->atlasVersion().c_str() );
  std::string fullNtupleName =  "/"+m_geoFileName+"/"+m_geoModel->atlasVersion();
  StatusCode sc = m_thistSvc->regTree(fullNtupleName, geo);
@@ -705,7 +707,7 @@ StatusCode ISF_HitAnalysis::finalize()
 
   ATH_MSG_INFO( ncells<<" cells found" );
  }
-
+ dummyGeoFile->Close();
  return StatusCode::SUCCESS;
 } //finalize
 

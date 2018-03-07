@@ -16,7 +16,7 @@ class MMT_Fitter{
   ~MMT_Fitter(){}
   void Get_Fit(vector<Hit>& track, map<int,evFit_entry>& Event_Fit, map<hitData_key,hitData_entry>& Hits_Data_Set_Time);
   evFit_entry fit_event(int event, vector<Hit>& track, vector<hitData_entry>& hitDatas, int& nfit, vector<pair<double,double> >&mxmy, double& mxl, double& mv, double& mu) const;
-  int get_last() const {return last;}
+  int get_last() const {return m_last;}
   int SC_ROI_n_x() const {return m_par->n_x;}
   int SC_ROI_n_y() const {return m_par->n_y;}
 /*   vector<int> xent,yent; */
@@ -29,7 +29,7 @@ class MMT_Fitter{
   bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
 
  protected:
-  int last;
+  int m_last;
   //some variables
   MMT_Parameters *m_par;
 
@@ -53,8 +53,8 @@ class MMT_Fitter{
   double ideal_zbar(const vector<Hit>& Track)const;
 
   //translated from Table_Generators.m
-  float32fixed<2> LG_lgr(int ilgr, double a, int number_LG_regions, float32fixed<2> _min, float32fixed<2> _max) const;
-  float32fixed<2> mult_factor_lgr(int ilgr, double a, int number_LG_regions, float32fixed<2> _min, float32fixed<2> _max) const;
+  float32fixed<2> LG_lgr(int ilgr, double a, int number_LG_regions, float32fixed<2> min, float32fixed<2> max) const;
+  float32fixed<2> mult_factor_lgr(int ilgr, double a, int number_LG_regions, float32fixed<2> min, float32fixed<2> max) const;
   float32fixed<4> Slope_Components_ROI_val(int jy, int ix, int thetaphi) const;
   float32fixed<4> Slope_Components_ROI_theta(int jy, int ix) const;
   float32fixed<4> Slope_Components_ROI_phi(int jy, int ix) const;
@@ -66,8 +66,8 @@ class MMT_Fitter{
   vector<Hit> q_hits(const string& type,const vector<Hit>& hits) const;
 
   //Fitter components
-  int number_LG_regions,n_fit;
-  float32fixed<2> LG_min,LG_max;
+  int m_number_LG_regions,m_n_fit;
+  float32fixed<2> m_LG_min,m_LG_max;
   vector<int> q_planes(char type) const;//return position of what planes are where
 
   /// Private message stream member

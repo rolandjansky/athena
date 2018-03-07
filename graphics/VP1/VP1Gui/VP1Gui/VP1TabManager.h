@@ -95,7 +95,7 @@ signals:
 
 protected:
   class Imp;
-  Imp * d;
+  Imp * m_d;
 
   bool eventFilter ( QObject *, QEvent * );
   typedef QPair<QByteArray,QMultiMap<QString,QByteArray> > ChanState;

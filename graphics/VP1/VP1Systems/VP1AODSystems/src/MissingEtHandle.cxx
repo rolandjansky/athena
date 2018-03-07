@@ -106,29 +106,29 @@ public:
 
 //____________________________________________________________________
 MissingEtHandle::MissingEtHandle(AODCollHandleBase* ch, const xAOD::MissingET *met)
-  : AODHandleBase(ch), d(new Imp)
+  : AODHandleBase(ch), m_d(new Imp)
 { 
   VP1Msg::messageVerbose("MissingEtHandle::MissingEtHandle() - constructor");
-  d->theclass = this;
-  d->m_met = met;
+  m_d->theclass = this;
+  m_d->m_met = met;
 
-  d->sep = 0;
-  d->cone = 0;
-  //	d->m_randomMat = 0;
+  m_d->sep = 0;
+  m_d->cone = 0;
+  //	m_d->m_randomMat = 0;
 
-  //	d->theCollHandle = dynamic_cast<const MissingEtCollHandle*>(collHandle());
-  d->theCollHandle = 0;
+  //	m_d->theCollHandle = dynamic_cast<const MissingEtCollHandle*>(collHandle());
+  m_d->theCollHandle = 0;
 }
 
 //____________________________________________________________________
 MissingEtHandle::~MissingEtHandle()
 {
   //	VP1Msg::messageVerbose("MissingEtHandle::~MissingEtHandle() - destructor");
-  //	if (d->m_randomMat) d->m_randomMat->unref();
-  if (d->cone) d->cone->unref();
-  if (d->base) d->base->unref();
-  if (d->sep) d->sep->unref();
-  delete d;
+  //	if (m_d->m_randomMat) m_d->m_randomMat->unref();
+  if (m_d->cone) m_d->cone->unref();
+  if (m_d->base) m_d->base->unref();
+  if (m_d->sep) m_d->sep->unref();
+  delete m_d;
 }
 
 //____________________________________________________________________
@@ -140,16 +140,16 @@ SoMaterial * MissingEtHandle::determineMaterial() {
 
 // Setter
 //____________________________________________________________________
-void MissingEtHandle::setScale( const double& sc) { d->scale = sc; }
+void MissingEtHandle::setScale( const double& sc) { m_d->scale = sc; }
 
 ////____________________________________________________________________
-//void MissingEtHandle::rerandomiseMaterial() {d->rerandomiseMaterial(); }
+//void MissingEtHandle::rerandomiseMaterial() {m_d->rerandomiseMaterial(); }
 
 //____________________________________________________________________
 bool MissingEtHandle::has3DObjects()
 {
   //	VP1Msg::messageVerbose("MissingEtHandle::has3DObjects()");
-  return 0 != d->sep;
+  return 0 != m_d->sep;
 }
 
 
@@ -157,17 +157,17 @@ bool MissingEtHandle::has3DObjects()
 void MissingEtHandle::clear3DObjects(){
   //	VP1Msg::messageVerbose("MissingEtHandle::clear3DObjects()");
 
-  //	if (d->m_randomMat) {
-  //		d->m_randomMat->unref();
-  //		d->m_randomMat = 0;
+  //	if (m_d->m_randomMat) {
+  //		m_d->m_randomMat->unref();
+  //		m_d->m_randomMat = 0;
   //	}
-  if (d->cone) {
-    d->cone->unref();
-    d->cone = 0;
+  if (m_d->cone) {
+    m_d->cone->unref();
+    m_d->cone = 0;
   }
-  if (d->sep) {
-    d->sep->unref();
-    d->sep = 0;
+  if (m_d->sep) {
+    m_d->sep->unref();
+    m_d->sep = 0;
   }
 
 }
@@ -182,26 +182,26 @@ SoNode* MissingEtHandle::nodes(){
 
   VP1Msg::messageVerbose("MissingEtHandle::nodes()");
 
-  if (d->sep) {
-    VP1Msg::messageVerbose("d->sep already defined (" + VP1Msg::str(d->sep) + "). Returning d->sep.");
-    return d->sep; // FIXME - do we need to check if anything need to be redrawn?
+  if (m_d->sep) {
+    VP1Msg::messageVerbose("d->sep already defined (" + VP1Msg::str(m_d->sep) + "). Returning d->sep.");
+    return m_d->sep; // FIXME - do we need to check if anything need to be redrawn?
   }
-  if (!d->sep) {
+  if (!m_d->sep) {
     VP1Msg::messageVerbose("d->sep not defined. Creating shapes and a new d->sep.");
-    d->sep = new SoSeparator();
-    d->sep->ref();
+    m_d->sep = new SoSeparator();
+    m_d->sep->ref();
   }
 
-  d->theCollHandle = dynamic_cast<const MissingEtCollHandle*>(collHandle());
-  d->theCollSettingsButton = &(d->theCollHandle->collSettingsButton());
+  m_d->theCollHandle = dynamic_cast<const MissingEtCollHandle*>(collHandle());
+  m_d->theCollSettingsButton = &(m_d->theCollHandle->collSettingsButton());
 
 
 //  SbVec3f origin(0.,0.,0.);
   /* TODO: ask if origin info is present in xAOD, like in the old Jet class
-  if ( d->m_met->origin() ) {
-  origin.setValue(d->m_met->origin()->position().x(),
-  d->m_met->origin()->position().y(),
-  d->m_met->origin()->position().z());
+  if ( m_d->m_met->origin() ) {
+  origin.setValue(m_d->m_met->origin()->position().x(),
+  m_d->m_met->origin()->position().y(),
+  m_d->m_met->origin()->position().z());
   }
   */
 
@@ -211,14 +211,14 @@ SoNode* MissingEtHandle::nodes(){
   /*
   * Here the 3D shapes are created
   */
-  d->createShapeFromJetParameters();
+  m_d->createShapeFromJetParameters();
 
-  return d->sep;
+  return m_d->sep;
 }
 
 //____________________________________________________________________
 void MissingEtHandle::updateHeight() {
-  d->updateConeHeightParameters();
+  m_d->updateConeHeightParameters();
 }
 
 
@@ -367,12 +367,12 @@ QStringList MissingEtHandle::clicked() const
 	// they go in the "Information" column in the Browser window
 	// see: http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/Event/xAOD/xAODMissingET/xAODMissingET/versions/MissingET_v1.h
 	//
-	l +="   - Name: " + d->name();
-	l +="   - MissingEt: " + QString::number(d->met() / Gaudi::Units::GeV) +" [GeV]";
-	l +="   - Phi: " + QString::number(d->phi());
-	l +="   - SumEt: " + QString::number(d->sumet() / Gaudi::Units::GeV) +" [GeV]";
-	l +="   - mpx: " + QString::number(d->mpx() / Gaudi::Units::GeV) +" [GeV]" ;
-	l +="   - mpy: " + QString::number(d->mpy() / Gaudi::Units::GeV) +" [GeV]";
+	l +="   - Name: " + m_d->name();
+	l +="   - MissingEt: " + QString::number(m_d->met() / Gaudi::Units::GeV) +" [GeV]";
+	l +="   - Phi: " + QString::number(m_d->phi());
+	l +="   - SumEt: " + QString::number(m_d->sumet() / Gaudi::Units::GeV) +" [GeV]";
+	l +="   - mpx: " + QString::number(m_d->mpx() / Gaudi::Units::GeV) +" [GeV]" ;
+	l +="   - mpy: " + QString::number(m_d->mpy() / Gaudi::Units::GeV) +" [GeV]";
 
 	return l;
 }
@@ -381,7 +381,7 @@ QStringList MissingEtHandle::clicked() const
 //____________________________________________________________________
 Amg::Vector3D MissingEtHandle::momentum() const
 {
-const Trk::Perigee& p = d->trackparticle->perigeeParameters();
+const Trk::Perigee& p = m_d->trackparticle->perigeeParameters();
 return p.momentum();
 }
 */
@@ -389,14 +389,14 @@ return p.momentum();
 ////____________________________________________________________________
 //const xAOD::IParticle& MissingEtHandle::iParticle() const
 //{
-//	return *(d->m_met);
+//	return *(m_d->m_met);
 //}
 
 
 ////____________________________________________________________________
 //double MissingEtHandle::charge() const
 //{
-//	//return d->trackparticle->charge(); // TODO: check in Jet interface if a "charge" is defined
+//	//return m_d->trackparticle->charge(); // TODO: check in Jet interface if a "charge" is defined
 //	return 0; // FIXME: dummy value now
 //}
 
@@ -411,7 +411,7 @@ return p.momentum();
 unsigned MissingEtHandle::summaryValue(xAOD::SummaryType type) const
 { 
 uint8_t num = 0;
-if (d->trackparticle->summaryValue(num,type)){
+if (m_d->trackparticle->summaryValue(num,type)){
 return num;
 }
 // else...
@@ -431,9 +431,9 @@ QString MissingEtHandle::shortInfo() const
 
   QString l;
 
-  l += d->name();
-  l += ", met: " + QString::number(d->met() / Gaudi::Units::GeV) +" [GeV]";
-  l += ", phi: " + QString::number(d->phi());
+  l += m_d->name();
+  l += ", met: " + QString::number(m_d->met() / Gaudi::Units::GeV) +" [GeV]";
+  l += ", phi: " + QString::number(m_d->phi());
 
   return l;
 }
@@ -457,13 +457,13 @@ void MissingEtHandle::fillObjectBrowser( QList<QTreeWidgetItem *>& listOfItems)
   // info and parameters,
   // they go in the "Information" column in the Browser window
   dParameters+="name: ";
-  dParameters+=d->name();
+  dParameters+=m_d->name();
   dParameters+=", met: ";
-  dParameters+=QString::number(d->met());
+  dParameters+=QString::number(m_d->met());
   dParameters+=", phi: ";
-  dParameters+=QString::number(d->phi());
+  dParameters+=QString::number(m_d->phi());
   dParameters+=", sumet: ";
-  dParameters+=QString::number(d->sumet());
+  dParameters+=QString::number(m_d->sumet());
 
   dParameters+="";
 
@@ -477,19 +477,19 @@ void MissingEtHandle::fillObjectBrowser( QList<QTreeWidgetItem *>& listOfItems)
   * TODO: check jets parameters
   */
   /*
-  for (unsigned int i=0; i<d->trackparticle->numberOfParameters() ; ++i){
+  for (unsigned int i=0; i<m_d->trackparticle->numberOfParameters() ; ++i){
 
   QTreeWidgetItem* TSOSitem = new QTreeWidgetItem(browserTreeItem());
   TSOSitem->setText(0, QString("Parameter "+QString::number( i+1 ) ) );
   QString pos(", Position = (");  
-  pos+=QString::number(d->trackparticle->parameterX(i));
+  pos+=QString::number(m_d->trackparticle->parameterX(i));
   pos+=", ";    
-  pos+=QString::number(d->trackparticle->parameterY(i));
+  pos+=QString::number(m_d->trackparticle->parameterY(i));
   pos+=", ";
-  pos+=QString::number(d->trackparticle->parameterZ(i));
+  pos+=QString::number(m_d->trackparticle->parameterZ(i));
   pos+=")";
 
-  switch (d->trackparticle->parameterPosition(i)){
+  switch (m_d->trackparticle->parameterPosition(i)){
   case xAOD::BeamLine: 
   TSOSitem->setText(1, QString("BeamLine" )+pos );
   break;
@@ -524,27 +524,27 @@ void MissingEtHandle::fillObjectBrowser( QList<QTreeWidgetItem *>& listOfItems)
 //____________________________________________________________________
 double MissingEtHandle::phi() const {
   /*VP1Msg::messageVerbose("phi: " + QString::number(m_met->phi()) );*/
-  return d->phi();
+  return m_d->phi();
 }
 
 
 //____________________________________________________________________
 double MissingEtHandle::met() const {
   /*VP1Msg::messageVerbose("eta: " + QString::number(m_met->eta()) );*/
-  return d->met();
+  return m_d->met();
 }
 
 
 ////____________________________________________________________________
-//double MissingEtHandle::energy() const { return d->energy(); }
+//double MissingEtHandle::energy() const { return m_d->energy(); }
 //
 //
 ////____________________________________________________________________
-//double MissingEtHandle::energyForCuts() const { return d->energyForLengthAndCuts(); }
+//double MissingEtHandle::energyForCuts() const { return m_d->energyForLengthAndCuts(); }
 //
 //
 ////____________________________________________________________________
-//double MissingEtHandle::transverseEnergy() const { return d->transverseEnergy(); } //sin(2*atan(exp(-fabs(eta()))))*energy();
+//double MissingEtHandle::transverseEnergy() const { return m_d->transverseEnergy(); } //sin(2*atan(exp(-fabs(eta()))))*energy();
 
 
 ////____________________________________________________________________
@@ -600,20 +600,20 @@ void MissingEtHandle::updateMaterial(bool isRandomColors)
   VP1Msg::messageVerbose("MissingEtHandle::Imp::updateMaterial()");
 
   // check if we have 3D objects; if not, return
-  if ( d->sep == 0 )
+  if ( m_d->sep == 0 )
     return;
 
-  //	if (!isRandomColors && !d->m_randomMat)
+  //	if (!isRandomColors && !m_d->m_randomMat)
   //		return;//m_randomMat can never have been attached
   //
-  //	if (isRandomColors && !d->m_randomMat) {
-  //		d->m_randomMat = new SoMaterial;
-  //		d->m_randomMat->ref();
+  //	if (isRandomColors && !m_d->m_randomMat) {
+  //		m_d->m_randomMat = new SoMaterial;
+  //		m_d->m_randomMat->ref();
   //		rerandomiseMaterial();
   //	}
 
 
-  //	int i = d->sep->findChild(d->m_randomMat);
+  //	int i = m_d->sep->findChild(m_d->m_randomMat);
   //
   //	if ( (i>=0) == isRandomColors ) {
   //		VP1Msg::messageVerbose("(i>=0)==isRandomColors. Returning.");
@@ -621,8 +621,8 @@ void MissingEtHandle::updateMaterial(bool isRandomColors)
   //	}
   //
   //	if (!isRandomColors )
-  //		d->sep->removeChild(d->m_randomMat);
+  //		m_d->sep->removeChild(m_d->m_randomMat);
   //	else
-  //		d->sep->insertChild(d->m_randomMat, d->sep->getNumChildren()-1);
+  //		m_d->sep->insertChild(m_d->m_randomMat, m_d->sep->getNumChildren()-1);
 }
 */

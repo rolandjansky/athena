@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -166,7 +166,6 @@ SCTCalib::SCTCalib( const std::string& name, ISvcLocator* pSvcLocator ) :
     m_DCSConditionsSvc          ("SCT_DCSConditionsSvc",name),
     m_ConfigurationConditionsSvc("SCT_ConfigurationConditionsSvc",name),
     m_ReadCalibDataSvc          ("SCT_ReadCalibDataSvc",name),
-    m_MajorityConditionsSvc     ("SCT_MajorityConditionsSvc",name),
     m_CablingSvc                ("SCT_CablingSvc",name),
     m_calibHitmapSvc            ("SCT_CalibHitmapSvc",name),
     m_calibBsErrSvc             ("SCT_CalibBsErrorSvc",name),
@@ -350,7 +349,7 @@ StatusCode SCTCalib::initialize() {
     if ( !m_useMajority ) {
         ATH_MSG_DEBUG( "MajorityConditionsSvc was removed in initialization" );
     } else {
-        if ( not retrievedService(m_MajorityConditionsSvc)) return StatusCode::FAILURE;
+      if (m_MajorityConditionsTool.retrieve().isFailure()) return StatusCode::FAILURE;
     }
 
     if ( not retrievedService(m_calibHitmapSvc)) return StatusCode::FAILURE;
@@ -503,7 +502,7 @@ StatusCode SCTCalib::beginRun() {
 
 StatusCode SCTCalib::execute() {
 
-    const bool majorityIsGoodOrUnused=( m_useMajority and m_MajorityConditionsSvc->isGood() ) or !m_useMajority;
+    const bool majorityIsGoodOrUnused=( m_useMajority and m_MajorityConditionsTool->isGood() ) or !m_useMajority;
     //--- Fill histograms for (1) Number of events and (2) Hitmaps
     if ( m_doHitMaps  and majorityIsGoodOrUnused ) m_calibHitmapSvc->fill(m_readBS);
 

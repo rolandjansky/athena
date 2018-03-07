@@ -11,10 +11,10 @@
 #ifndef SCT_ConditionTools_SCT_ReadoutTool_h
 #define SCT_ConditionTools_SCT_ReadoutTool_h
 
-// C++
-#include <string> 
+// C++ STL
 #include <vector> 
 #include <bitset>
+#include <mutex>
 
 // Gaudi
 #include "GaudiKernel/ServiceHandle.h"
@@ -38,11 +38,11 @@ namespace SCT_Parameters {
 /**
  * @class SCT_PortMap
  * Helper class to map the input/output ports of a chip
-**/
+ **/
 
 class SCT_PortMap {
 
-public:
+ public:
 
   /** Constuctor from input and output chip types*/
   SCT_PortMap(SCT_Parameters::ChipType in0, SCT_Parameters::ChipType in1, SCT_Parameters::ChipType out0, SCT_Parameters::ChipType out1) {
@@ -58,7 +58,7 @@ public:
   inline SCT_Parameters::ChipType input(int port) const  { return m_input[port];}
   inline SCT_Parameters::ChipType output(int port) const { return m_output[port];}
 
-private:
+ private:
 
   SCT_Parameters::ChipType m_input[2];   //!<  Port type for the chip's two inputs
   SCT_Parameters::ChipType m_output[2];  //!<  Port type for the chip's two outputs
@@ -67,14 +67,14 @@ private:
 /**
  * @class SCT_ReadoutTool
  * Class to represent the SCT module readout
-**/
+ **/
 
 class SCT_ReadoutTool : public extends<AthAlgTool, ISCT_ReadoutTool> {
 
-public:
+ public:
 
   /** Usual framework methods for an AlgTool*/
-  SCT_ReadoutTool(const std::string &type, const std::string &name, const IInterface *parent);
+  SCT_ReadoutTool(const std::string& type, const std::string& name, const IInterface* parent);
   virtual ~SCT_ReadoutTool() = default;
   StatusCode initialize() override;
   StatusCode finalize() override;
@@ -83,13 +83,13 @@ public:
   StatusCode determineReadout(const Identifier& moduleId, std::vector<SCT_Chip*>& chips, bool link0ok, bool link1ok);
   /** Determine which chips are in the readout for a module of a particular type by truncated serial number*/
   StatusCode determineReadout(const int truncatedSerialNumber, std::vector<SCT_Chip*>& chips, bool link0ok, bool link1ok);
-  //unsigned int chipsInReadout() {return static_cast<unsigned int>(m_chipInReadout.to_ulong());}
 
-private:
+ private:
 
   /** Private data*/
   const SCT_ID*                       m_sctId;               //!< ID helper for SCT
   ServiceHandle<ISCT_CablingSvc>      m_cablingSvc;          //!< Service handle for SCT Cabling
+
   std::vector<SCT_Chip*>              m_chips;               //!< Vector of actual SCT Chips for that module
   std::vector<SCT_PortMap>            m_chipMap;             //!< Vector of port mapping from the chips in an SCT module 
   bool                                m_linkActive[2];       //!< Links status for link 0 and 1
@@ -97,6 +97,9 @@ private:
   SCT_Parameters::ModuleType          m_type;                //!< The type of this module (Barrel, Modified Barrel (0 or 1), Endcap)
   std::vector<int>                    m_chipsOnLink0;        //!< The chips read out on link 0
   std::vector<int>                    m_chipsOnLink1;        //! <The chips read out on link 1
+
+  // Mutex to protect the contents.
+  std::mutex m_mutex;
 
   /** Find the ID of the input chip for chip*/ 
   inline SCT_Parameters::ChipType inputChip(const SCT_Chip& chip) const {
@@ -140,4 +143,4 @@ private:
 
 };
 
-#endif
+#endif // SCT_ConditionTools_SCT_ReadoutTool_h

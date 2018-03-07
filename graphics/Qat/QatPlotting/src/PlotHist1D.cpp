@@ -76,10 +76,10 @@ public:
 
 
 PlotHist1D::PlotHist1D(const Hist1D & histogram):
-  Plotable(),c(new Clockwork())
+  Plotable(),m_c(new Clockwork())
 {
 
-  c->histogram=&histogram;
+  m_c->histogram=&histogram;
 
   double yMin=FLT_MAX;
   double yMax=FLT_MIN;
@@ -100,17 +100,17 @@ PlotHist1D::PlotHist1D(const Hist1D & histogram):
     yMin-=marge;
   }
 
-  QPointF lowerRight(c->histogram->min(),yMin);
-  QPointF upperLeft (c->histogram->max(),yMax);
-  c->nRectangle.setLeft  (histogram.min());
-  c->nRectangle.setRight(histogram.max());
-  c->nRectangle.setTop(yMin);
-  c->nRectangle.setBottom(yMax);
+  QPointF lowerRight(m_c->histogram->min(),yMin);
+  QPointF upperLeft (m_c->histogram->max(),yMax);
+  m_c->nRectangle.setLeft  (histogram.min());
+  m_c->nRectangle.setRight(histogram.max());
+  m_c->nRectangle.setTop(yMin);
+  m_c->nRectangle.setBottom(yMax);
 }
 
 // Copy constructor:
 PlotHist1D::PlotHist1D(const PlotHist1D & source):
-  Plotable(),c(new Clockwork(*(source.c)))
+  Plotable(),m_c(new Clockwork(*(source.m_c)))
 {
 
 }
@@ -119,7 +119,7 @@ PlotHist1D::PlotHist1D(const PlotHist1D & source):
 PlotHist1D & PlotHist1D::operator=(const PlotHist1D & source)
 {
   if (&source!=this) {
-    c.reset(new Clockwork(*(source.c)));
+    m_c.reset(new Clockwork(*(source.m_c)));
   }
   return *this;
 } 
@@ -127,7 +127,7 @@ PlotHist1D & PlotHist1D::operator=(const PlotHist1D & source)
 
 // Destructor
 PlotHist1D::~PlotHist1D(){
-  //delete c;
+  //delete m_c;
 }
 
 
@@ -135,18 +135,18 @@ const QRectF  PlotHist1D::rectHint() const {
 
   double yMin=FLT_MAX;
   double yMax=FLT_MIN;
-  for (unsigned int i=0;i<c->histogram->nBins();i++) {
-    double yplus  = c->histogram->bin(i) + c->histogram->binError(i);
-    double yminus = c->histogram->bin(i) - c->histogram->binError(i);
+  for (unsigned int i=0;i<m_c->histogram->nBins();i++) {
+    double yplus  = m_c->histogram->bin(i) + m_c->histogram->binError(i);
+    double yminus = m_c->histogram->bin(i) - m_c->histogram->binError(i);
     yMin = std::min(yMin,yminus);
     yMax = std::max(yMax,yplus);
   }   
 
-  c->nRectangle.setLeft  (c->histogram->min());
-  c->nRectangle.setRight(c->histogram->max());
-  c->nRectangle.setTop(yMin);
-  c->nRectangle.setBottom(yMax);
-  return c->nRectangle;
+  m_c->nRectangle.setLeft  (m_c->histogram->min());
+  m_c->nRectangle.setRight(m_c->histogram->max());
+  m_c->nRectangle.setTop(yMin);
+  m_c->nRectangle.setBottom(yMax);
+  return m_c->nRectangle;
 }
 
 
@@ -164,11 +164,11 @@ void PlotHist1D::describeYourselfTo(AbsPlotter *plotter) const {
 
   if (properties().plotStyle==PlotHist1DProperties::SYMBOLS) {
 
-    for (unsigned int i=0;i<c->histogram->nBins();i++) {
-      double x = plotter->isLogX() ? (*toLogX) (c->histogram->binCenter(i)) : c->histogram->binCenter(i);
-      double y = plotter->isLogY() ? (*toLogY) (c->histogram->bin(i)) : c->histogram->bin(i);
-      double  ydyp = plotter->isLogY() ? (*toLogY)(c->histogram->bin(i)+c->histogram->binError(i)) : c->histogram->bin(i)+c->histogram->binError(i);
-      double  ydym = plotter->isLogY() ? (*toLogY)(c->histogram->bin(i)-c->histogram->binError(i)) : c->histogram->bin(i)-c->histogram->binError(i);
+    for (unsigned int i=0;i<m_c->histogram->nBins();i++) {
+      double x = plotter->isLogX() ? (*toLogX) (m_c->histogram->binCenter(i)) : m_c->histogram->binCenter(i);
+      double y = plotter->isLogY() ? (*toLogY) (m_c->histogram->bin(i)) : m_c->histogram->bin(i);
+      double  ydyp = plotter->isLogY() ? (*toLogY)(m_c->histogram->bin(i)+m_c->histogram->binError(i)) : m_c->histogram->bin(i)+m_c->histogram->binError(i);
+      double  ydym = plotter->isLogY() ? (*toLogY)(m_c->histogram->bin(i)-m_c->histogram->binError(i)) : m_c->histogram->bin(i)-m_c->histogram->binError(i);
       
       if (plotter->isLogY() && !finite(ydym)) ydym=plotter->rect()->top()+FLT_MIN;
 
@@ -334,11 +334,11 @@ void PlotHist1D::describeYourselfTo(AbsPlotter *plotter) const {
     double minX=plotter->rect()->left();
     double maxX=plotter->rect()->right();
     bool started=false;
-    for (unsigned int i=0;i<c->histogram->nBins();i++) {
-      double y = plotter->isLogY() ? (*toLogY) (c->histogram->bin(i)) : c->histogram->bin(i);
+    for (unsigned int i=0;i<m_c->histogram->nBins();i++) {
+      double y = plotter->isLogY() ? (*toLogY) (m_c->histogram->bin(i)) : m_c->histogram->bin(i);
       if (plotter->isLogY() && !finite(y)) y=minY;
-      double binLow = c->histogram->binLowerEdge(i);
-      double binHi  = c->histogram->binUpperEdge(i);
+      double binLow = m_c->histogram->binLowerEdge(i);
+      double binHi  = m_c->histogram->binUpperEdge(i);
       if (toLogX) binLow=(*toLogX)(binLow);
       if (toLogX) binHi =(*toLogX)(binHi);
 
@@ -371,7 +371,7 @@ void PlotHist1D::describeYourselfTo(AbsPlotter *plotter) const {
 	  path.lineTo(m.map(upperPoint));
 	}
 	// AND:
-	if (i==c->histogram->nBins()-1) {
+	if (i==m_c->histogram->nBins()-1) {
 	  path.lineTo(m.map(QPointF(binHi,zEff)));
 	}
       }
@@ -389,34 +389,34 @@ void PlotHist1D::describeYourselfTo(AbsPlotter *plotter) const {
 }
 
 std::string PlotHist1D::title() const {
-  return c->histogram->name();
+  return m_c->histogram->name();
 }
 
 std::string PlotHist1D::textSummary() const {
     std::ostringstream textSummaryStream;
     textSummaryStream << std::setprecision(3) << std::showpoint << std::setfill(' ');
-    textSummaryStream << "Area: "   << std::setw(9)        << c->histogram->sum()             << '\t'
-		      << "Mean: "   << std::setw(9)        << c->histogram->mean()            << '\t'
-		      << "Sigma:"   << std::setw(8)        << sqrt(c->histogram->variance())  << '\t';
+    textSummaryStream << "Area: "   << std::setw(9)        << m_c->histogram->sum()             << '\t'
+		      << "Mean: "   << std::setw(9)        << m_c->histogram->mean()            << '\t'
+		      << "Sigma:"   << std::setw(8)        << sqrt(m_c->histogram->variance())  << '\t';
     return textSummaryStream.str();
 }
 
 // Get the histogram:
 const Hist1D *PlotHist1D::histogram() const {
-  return c->histogram;
+  return m_c->histogram;
 }
 
 const PlotHist1D::Properties  PlotHist1D::properties() const { 
-  return c->myProperties ? *c->myProperties : c->defaultProperties;
+  return m_c->myProperties ? *m_c->myProperties : m_c->defaultProperties;
 }
 
 void PlotHist1D::setProperties(const Properties &  properties) { 
-  delete c->myProperties;
-  c->myProperties= new Properties(properties);
+  delete m_c->myProperties;
+  m_c->myProperties= new Properties(properties);
 }
 
 void PlotHist1D::resetProperties() {
-  delete c->myProperties;
-  c->myProperties=nullptr;
+  delete m_c->myProperties;
+  m_c->myProperties=nullptr;
 }
 

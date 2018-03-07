@@ -183,7 +183,6 @@ SCTErrMonTool::SCTErrMonTool(const std::string &type, const std::string &name, c
   m_dataObjectName(std::string("SCT_RDOs")),
   m_pSCTHelper{},
   m_ConfigurationSvc("InDetSCT_ConfigurationConditionsSvc", name),
-  m_flaggedSvc("InDetSCT_FlaggedConditionSvc", name),
   m_Conf{},
   m_ConfRN{},
   m_ConfNew{},
@@ -246,7 +245,6 @@ SCTErrMonTool::SCTErrMonTool(const std::string &type, const std::string &name, c
      declareProperty("EvtsBins", m_evtsbins = 5000);
      declareProperty("MakeConfHisto", m_makeConfHisto = true);
      declareProperty("conditionsService", m_ConfigurationSvc);
-     declareProperty("flaggedService", m_flaggedSvc);
 
      // Thresholds for the SCTConf histogram
      declareProperty("error_threshold", m_errThreshold = 0.7);
@@ -570,11 +568,9 @@ SCTErrMonTool::SCTErrMonTool(const std::string &type, const std::string &name, c
   ATH_CHECK(detStore()->retrieve(mgr, "SCT"));
   ATH_CHECK(detStore()->retrieve(m_pSCTHelper, "SCT_ID"));
 
-  // Services for Summary Histograms: SCT_ModuleConditionsTool from CondDB and flagged conditions service
+  // Services for Summary Histograms: SCT_ModuleConditionsTool from CondDB
   ATH_MSG_INFO("Checking for CondDB");
   ATH_CHECK(m_ConfigurationSvc.retrieve());
-  ATH_MSG_INFO("Checking for Flagged Service");
-  ATH_CHECK(m_flaggedSvc.retrieve());
 
   // get a handle on the histogramming service //
   ATH_CHECK(m_thistSvc.retrieve());
@@ -2192,18 +2188,6 @@ SCTErrMonTool::fillCondDBMaps() {
     int barrel_ec = m_pSCTHelper->barrel_ec(planeId);
     int element = 2 * m_pSCTHelper->layer_disk(planeId) + m_pSCTHelper->side(planeId);
     int IN = (m_ConfigurationSvc->isGood(planeId, InDetConditions::SCT_SIDE) ? 0 : 1);
-    if (m_flaggedSvc->numBadIds() != 0) {
-      Flagged[iGEN] += (m_flaggedSvc->isGood(planeId, InDetConditions::SCT_SIDE) ? 0 : 1);
-      if (barrel_ec == BARREL) {
-        Flagged[iBARREL] += (m_flaggedSvc->isGood(planeId, InDetConditions::SCT_SIDE) ? 0 : 1);
-      }
-      if (barrel_ec == ENDCAP_A) {
-        Flagged[iECp] += (m_flaggedSvc->isGood(planeId, InDetConditions::SCT_SIDE) ? 0 : 1);
-      }
-      if (barrel_ec == ENDCAP_C) {
-        Flagged[iECm] += (m_flaggedSvc->isGood(planeId, InDetConditions::SCT_SIDE) ? 0 : 1);
-      }
-    }
     if (m_pSCTHelper->side(planeId) == 0) {
       if (IN == 1) {
         MOut[iGEN]++;

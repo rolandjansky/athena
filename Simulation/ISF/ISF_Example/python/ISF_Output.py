@@ -132,6 +132,10 @@ class ISF_HITSStream:
         ## Write geometry tag info
         import EventInfoMgt.EventInfoMgtInit
 
+        ## Patch metadata if required
+        from ISF_Example.ISF_Metadata import patch_mc_channel_numberMetadata
+        patch_mc_channel_numberMetadata()
+
         ## Instantiate StreamHITS
         ## NB. Two-arg constructor is needed, since otherwise metadata writing fails!
         stream1 = None

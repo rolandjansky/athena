@@ -11,9 +11,6 @@
 
 #include "SiPropertiesSvc/ISiPropertiesTool.h"
 
-//Gaudi Includes
-#include "GaudiKernel/IInterface.h"
-
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "SiPropertiesSvc/SiliconPropertiesVector.h"
 #include "StoreGate/ReadCondHandleKey.h"
@@ -40,7 +37,7 @@ private:
   std::string m_detectorName;
   SG::ReadCondHandleKey<InDet::SiliconPropertiesVector> m_propertiesVector;
 
-  InDet::SiliconProperties m_defaultProperties;
+  static const InDet::SiliconProperties s_defaultProperties;
 };
 
 #endif // SiPropertiesTool_h

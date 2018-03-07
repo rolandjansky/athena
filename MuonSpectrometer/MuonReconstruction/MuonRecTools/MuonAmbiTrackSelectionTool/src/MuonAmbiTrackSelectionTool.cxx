@@ -102,11 +102,7 @@ const Trk::Track* Muon::MuonAmbiTrackSelectionTool::getCleanedOutTrack(const Trk
   ATH_MSG_VERBOSE("New Track " << m_printer->print(*ptrTrack));
 
   std::map<Muon::MuonStationIndex::StIndex,int> sharedPrecisionPerLayer;
-  std::map<Muon::MuonStationIndex::StIndex,int> sharedTriggerEtaPerLayer;
-  std::map<Muon::MuonStationIndex::StIndex,int> sharedPhiPerLayer;
   std::map<Muon::MuonStationIndex::StIndex,int> precisionPerLayer;
-  std::map<Muon::MuonStationIndex::StIndex,int> triggerEtaPerLayer;
-  std::map<Muon::MuonStationIndex::StIndex,int> phiPerLayer;
   
   // loop over TSOS
   DataVector<const Trk::TrackStateOnSurface>::const_iterator iTsos    = tsos->begin();
@@ -123,63 +119,39 @@ const Trk::Track* Muon::MuonAmbiTrackSelectionTool::getCleanedOutTrack(const Trk
 
     const Trk::RIO_OnTrack* rot = dynamic_cast <const Trk::RIO_OnTrack*> (meas);
     if (!rot) {
-      // could be a Pseudo-Measurement
+      // we are only interested in precision hits since only they have the resolution to distinguish between close-by tracks
+      // so we only take competing ROTs if they are CSC eta hits
       const Trk::CompetingRIOsOnTrack* competingROT = dynamic_cast <const Trk::CompetingRIOsOnTrack*> (meas);
-      if (competingROT) {
-	bool measPhi = false;
-	++numhits;
-	const unsigned int numROTs = competingROT->numberOfContainedROTs();
-	bool overlap = false;
-	Muon::MuonStationIndex::StIndex stIndex = Muon::MuonStationIndex::StUnknown;
-	for( unsigned int i=0;i<numROTs;++i ){
-	  const Trk::RIO_OnTrack* rot = &competingROT->rioOnTrack(i);
-	  if( !rot || !rot->prepRawData() || !m_idHelperTool->isMuon(rot->identify()) ) continue;
-	  stIndex = m_idHelperTool->stationIndex(rot->identify());
-	  measPhi = m_idHelperTool->measuresPhi(rot->identify());
-
+      if(competingROT){
+        const unsigned int numROTs = competingROT->numberOfContainedROTs();
+        for( unsigned int i=0;i<numROTs;++i ){
+          const Trk::RIO_OnTrack* rot = &competingROT->rioOnTrack(i);
+          if( !rot || !rot->prepRawData() || !m_idHelperTool->isMuon(rot->identify()) ) continue;
+          //only use precision hits for muon track overlap
+          if(!m_idHelperTool->isMdt(rot->identify()) && !(m_idHelperTool->isCsc(rot->identify()) && !m_idHelperTool->measuresPhi(rot->identify()))) continue;
+	  Muon::MuonStationIndex::StIndex stIndex = m_idHelperTool->stationIndex(rot->identify());
+	  ++precisionPerLayer[stIndex];
 	  if ( m_assoTool->isUsed(*(rot->prepRawData()))) {
 	    ATH_MSG_VERBOSE("Track overlap found! " << m_idHelperTool->toString(rot->identify()));
-	    overlap = true;
-	    break;
+	    ++numshared;
+	    ++sharedPrecisionPerLayer[stIndex];
 	  }
 	}
-	
-	if( overlap ){
-	  ++numshared;
-	  if( measPhi ) ++sharedPhiPerLayer[stIndex];
-	  else          ++sharedTriggerEtaPerLayer[stIndex];
-	}else{
-	  if( measPhi ) ++phiPerLayer[stIndex];
-	  else          ++triggerEtaPerLayer[stIndex];
-	}
-
       }
     }else{
 
       if(!m_idHelperTool->isMuon(rot->identify())) continue;
+      if(!m_idHelperTool->isMdt(rot->identify()) && !(m_idHelperTool->isCsc(rot->identify()) && !m_idHelperTool->measuresPhi(rot->identify()))) continue; //only precision hits used for overlap
 
       ++numhits;
 
       Muon::MuonStationIndex::StIndex stIndex = m_idHelperTool->stationIndex(rot->identify());
-      bool measPhi = m_idHelperTool->measuresPhi(rot->identify());
-      bool isTrigger = m_idHelperTool->isTrigger(rot->identify());
-      if( measPhi ) {
-	++phiPerLayer[stIndex];
-      }else{
-	if( isTrigger ) ++triggerEtaPerLayer[stIndex];
-	else            ++precisionPerLayer[stIndex];
-      }
+      ++precisionPerLayer[stIndex];
       // allow no overlap
       if ( m_assoTool->isUsed(*(rot->prepRawData()))) {
 	ATH_MSG_VERBOSE("Track overlap found! " << m_idHelperTool->toString(rot->identify()));
 	++numshared;
-
-	if( measPhi ) {
-	  ++sharedPhiPerLayer[stIndex];
-	}else{
-	  if( isTrigger ) ++sharedTriggerEtaPerLayer[stIndex];
-	  else            ++sharedPrecisionPerLayer[stIndex];
-	}
+	++sharedPrecisionPerLayer[stIndex];
       }
     }
   }

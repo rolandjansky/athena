@@ -38,7 +38,6 @@ ZDC_PileUpTool::ZDC_PileUpTool(const std::string& type,
   m_DumpStrip(false),
   m_DumpPixel(false)
 {
-  declareInterface<IPileUpTool>(this);
  
   // NOTE: The following variables are actually re-initialized by ZDC_DigiTop::initialize() or ZDC_PileUpTool::initialize()
   m_GainRatio_Strip[0] = 10.0; m_GainRatioError_Strip[0] = 0.5;

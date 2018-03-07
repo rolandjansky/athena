@@ -33,12 +33,12 @@ public:
 
 //____________________________________________________________________
 VP1TcpServer::VP1TcpServer()
-  : QObject(), d(new Imp)
+  : QObject(), m_d(new Imp)
 {
-  d->lastemit_listen=-1;
-  d->tcpserv=this;
-  d->port=0;
-  connect(&d->tcpserver, SIGNAL(newConnection()),this, SLOT(acceptConnection()));
+  m_d->lastemit_listen=-1;
+  m_d->tcpserv=this;
+  m_d->port=0;
+  connect(&m_d->tcpserver, SIGNAL(newConnection()),this, SLOT(acceptConnection()));
 
   //
   QTimer * timer = new QTimer(this);
@@ -50,21 +50,21 @@ VP1TcpServer::VP1TcpServer()
 VP1TcpServer::~VP1TcpServer()
 {
   close();
-  delete d; d=0;
+  delete m_d; m_d=0;
 }
 
 //____________________________________________________________________
 bool VP1TcpServer::listen(QString& err, const quint16& port) {
   if (isListening())
     close();
-  bool success = d->tcpserver.listen(QHostAddress::LocalHost,port);
+  bool success = m_d->tcpserver.listen(QHostAddress::LocalHost,port);
   if (!success) {
-    err = d->tcpserver.errorString();
-    d->port=0;
+    err = m_d->tcpserver.errorString();
+    m_d->port=0;
     listenStateMightHaveChanged();
     return false;
   }
-  d->port=port;
+  m_d->port=port;
   err.clear();
 
   listenStateMightHaveChanged();
@@ -74,13 +74,13 @@ bool VP1TcpServer::listen(QString& err, const quint16& port) {
 //____________________________________________________________________
 quint16 VP1TcpServer::port() const
 {
-  return d->port;
+  return m_d->port;
 }
 
 //____________________________________________________________________
 bool VP1TcpServer::isListening()
 {
-  return d->tcpserver.isListening();
+  return m_d->tcpserver.isListening();
 }
 
 //____________________________________________________________________
@@ -88,35 +88,35 @@ void VP1TcpServer::close()
 {
   if (!isListening())
     return;
-  disconnect(&d->tcpserver, SIGNAL(newConnection()),this, SLOT(acceptConnection()));
+  disconnect(&m_d->tcpserver, SIGNAL(newConnection()),this, SLOT(acceptConnection()));
 
-  QMapIterator<QTcpSocket *,quint16> it(d->sockets2blocksize);
+  QMapIterator<QTcpSocket *,quint16> it(m_d->sockets2blocksize);
   while (it.hasNext()) {
     it.next();
     QTcpSocket * socket = it.key();
     delete socket;
   }
-  d->sockets2blocksize.clear();
+  m_d->sockets2blocksize.clear();
 
-  d->tcpserver.close();
-  d->port=0;
+  m_d->tcpserver.close();
+  m_d->port=0;
   listenStateMightHaveChanged();
 }
 
 //____________________________________________________________________
 void VP1TcpServer::acceptConnection()
 {
-  if (!d->tcpserver.hasPendingConnections())
+  if (!m_d->tcpserver.hasPendingConnections())
     return;
-  QTcpSocket * socket = d->tcpserver.nextPendingConnection();
-  if (d->sockets2blocksize.contains(socket)) {
+  QTcpSocket * socket = m_d->tcpserver.nextPendingConnection();
+  if (m_d->sockets2blocksize.contains(socket)) {
     //we are already dealing with this one, but look back here in a
     //short while to se if anything else is queued.
     QTimer::singleShot(100, this, SLOT(acceptConnection()));
     return;
   }
-  assert(!d->sockets2blocksize.contains(socket));
-  d->sockets2blocksize.insert(socket,0);
+  assert(!m_d->sockets2blocksize.contains(socket));
+  m_d->sockets2blocksize.insert(socket,0);
   connect(socket, SIGNAL(readyRead()),this, SLOT(readData()));
   connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(handleError(QAbstractSocket::SocketError)));
   connect(socket, SIGNAL(disconnected()),socket, SLOT(deleteLater()));
@@ -129,20 +129,20 @@ void VP1TcpServer::handleError(QAbstractSocket::SocketError se)
 {
   if (se == QTcpSocket::RemoteHostClosedError)
     return;
-  QTcpSocket * socket = d->recognisedSocket(sender());
+  QTcpSocket * socket = m_d->recognisedSocket(sender());
   if (!socket)
     return;
   if (socket->state()!=QAbstractSocket::UnconnectedState) {
     socket->disconnectFromHost();
   }
-  //   std::cout << "VP1TcpServer::Error during connection:"<<d->tcpserver.errorString().toStdString()<<std::endl;
+  //   std::cout << "VP1TcpServer::Error during connection:"<<m_d->tcpserver.errorString().toStdString()<<std::endl;
   listenStateMightHaveChanged();
 }
 
 //____________________________________________________________________
 void VP1TcpServer::readData()
 {
-  QTcpSocket * socket = d->recognisedSocket(sender());
+  QTcpSocket * socket = m_d->recognisedSocket(sender());
   if (!socket)
     return;
   if (socket->state()!=QAbstractSocket::ConnectedState) {
@@ -154,21 +154,21 @@ void VP1TcpServer::readData()
   in.setVersion(QDataStream::Qt_4_2);
 
   //Make sure that we can read enough to determine the data length:
-  if (d->sockets2blocksize[socket] == 0) {
+  if (m_d->sockets2blocksize[socket] == 0) {
     if (socket->bytesAvailable() < (int)sizeof(quint16))
       return;
-    in >> d->sockets2blocksize[socket];
+    in >> m_d->sockets2blocksize[socket];
   }
 
   //Make sure that we can read all of the data:
-  if (socket->bytesAvailable() < d->sockets2blocksize[socket])
+  if (socket->bytesAvailable() < m_d->sockets2blocksize[socket])
     return;
 
   QString data;
   in >> data;
   //   qDebug(QString("Got: "+data).toStdString().c_str());
 
-  if (d->sockets2blocksize.contains(socket)) {
+  if (m_d->sockets2blocksize.contains(socket)) {
     socket->disconnectFromHost();
   }
 
@@ -198,17 +198,17 @@ void VP1TcpServer::socketDestroyed ( QObject * obj )
   QTcpSocket * socket = static_cast<QTcpSocket *>(obj);
   if (!socket)
     return;
-  if (d->sockets2blocksize.contains(socket))
-    d->sockets2blocksize.remove(socket);
+  if (m_d->sockets2blocksize.contains(socket))
+    m_d->sockets2blocksize.remove(socket);
   listenStateMightHaveChanged();
 }
 //____________________________________________________________________
 void VP1TcpServer::listenStateMightHaveChanged()
 {
   bool l = isListening();
-  bool last = d->lastemit_listen == 1 ? true : false;
-  if (d->lastemit_listen==-1||(l!=last)) {
+  bool last = m_d->lastemit_listen == 1 ? true : false;
+  if (m_d->lastemit_listen==-1||(l!=last)) {
     listenStateChanged(l);
   }
-  d->lastemit_listen = l ? 1 : 0;
+  m_d->lastemit_listen = l ? 1 : 0;
 }

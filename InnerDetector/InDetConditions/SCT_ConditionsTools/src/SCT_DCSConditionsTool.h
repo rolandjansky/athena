@@ -1,0 +1,101 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef SCT_DCSConditionsTool_h
+#define SCT_DCSConditionsTool_h
+/**
+ * @file SCT_DCSConditionsTool.h
+ *
+ * @brief Header file for the SCT_DCSConditionsTool class 
+ *  in package SCT_ConditionsTools
+ *
+ * @author A. R-Veronneau 26/02/07, Shaun Roe 4/4/2008
+ **/
+
+//
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/Property.h"
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ContextSpecificPtr.h"
+//
+#include "InDetConditionsSummaryService/InDetHierarchy.h"
+#include "SCT_ConditionsTools/ISCT_DCSConditionsTool.h"
+#include "Identifier/Identifier.h"
+#include "Identifier/IdentifierHash.h"
+#include "SCT_ConditionsData/SCT_DCSFloatCondData.h"
+#include "SCT_ConditionsData/SCT_DCSStatCondData.h"
+//STL
+#include <list>
+#include <string>
+#include <map>
+#include <mutex>
+
+class SCT_ID;
+
+/**
+ * Class to provide DCS information about modules from the COOL database
+ **/
+class SCT_DCSConditionsTool: public extends<AthAlgTool, ISCT_DCSConditionsTool> {
+  
+public:
+  SCT_DCSConditionsTool(const std::string& type, const std::string& name, const IInterface* parent);
+  virtual ~SCT_DCSConditionsTool() = default;
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
+  
+  /// @name Methods to be implemented from virtual baseclass methods, when introduced
+  //@{
+  ///Return whether this service can report on the hierarchy level (e.g. module, chip...)
+  virtual bool canReportAbout(InDetConditions::Hierarchy h) override;
+  //returns the module ID (int), or returns 9999 (not a valid module number) if not able to report
+  virtual Identifier getModuleID(const Identifier& elementId, InDetConditions::Hierarchy h);
+  ///Summarise the result from the service as good/bad
+  virtual bool isGood(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) override;
+  ///is it good?, using wafer hash
+  virtual bool isGood(const IdentifierHash& hashId) override;
+  //Returns HV (0 if there is no information)
+  virtual float modHV(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) override;
+  //Does the same for hashIds
+  virtual float modHV(const IdentifierHash& hashId) override;
+  //Returns temp0 (0 if there is no information)
+  virtual float hybridTemperature(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) override;
+  //Does the same for hashIds
+  virtual float hybridTemperature(const IdentifierHash& hashId) override;
+  //Returns temp0 + correction for Lorentz angle calculation (0 if there is no information)
+  virtual float sensorTemperature(const Identifier& elementId, InDetConditions::Hierarchy h=InDetConditions::DEFAULT) override;
+  //Does the same for hashIds
+  virtual float sensorTemperature(const IdentifierHash& hashId) override;
+  //@}
+    
+private:
+  //Key for DataHandle
+  BooleanProperty m_readAllDBFolders;
+  BooleanProperty m_returnHVTemp;
+  float m_barrel_correction;
+  float m_ecInner_correction;
+  float m_ecOuter_correction;
+  // Mutex to protect the contents.
+  mutable std::mutex m_mutex;
+  // Cache to store events for slots
+  mutable std::vector<EventContext::ContextEvt_t> m_cacheState;
+  mutable std::vector<EventContext::ContextEvt_t> m_cacheHV;
+  mutable std::vector<EventContext::ContextEvt_t> m_cacheTemp0;
+  // Pointer of SCT_DCSStatCondData
+  mutable Gaudi::Hive::ContextSpecificPtr<const SCT_DCSStatCondData> m_pBadModules;
+  // Pointers of SCT_DCSFloatCondData
+  mutable Gaudi::Hive::ContextSpecificPtr<const SCT_DCSFloatCondData> m_pModulesHV;
+  mutable Gaudi::Hive::ContextSpecificPtr<const SCT_DCSFloatCondData> m_pModulesTemp0;
+  SG::ReadCondHandleKey<SCT_DCSStatCondData> m_condKeyState;
+  SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKeyHV;
+  SG::ReadCondHandleKey<SCT_DCSFloatCondData> m_condKeyTemp0;
+  const SCT_ID* m_pHelper;
+  static const Identifier s_invalidId;
+  static const float s_defaultHV;
+  static const float s_defaultTemperature;
+  const SCT_DCSStatCondData* getCondDataState(const EventContext& ctx) const;
+  const SCT_DCSFloatCondData* getCondDataHV(const EventContext& ctx) const;
+  const SCT_DCSFloatCondData* getCondDataTemp0(const EventContext& ctx) const;
+};
+
+#endif // SCT_DCSConditionsTool_h 

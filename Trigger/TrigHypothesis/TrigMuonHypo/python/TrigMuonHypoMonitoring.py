@@ -424,6 +424,28 @@ class TrigMuonEFExtrapolatorHypoOnlineMonitoring(TrigGenericMonitoringToolConfig
         self.Histograms = [ defineHistogram('Pt', type='TH1F', title="P_{T} reconstruction from #TrigMuonEFExtrapolatorHypo; P_{T} (MeV)",
                                             xbins=200, xmin=-100, xmax=100) ]
 
+######## Run 3 MS hypo####################33
+class TrigMuonEFMSonlyHypoMonitoring(GenericMonitoringTool):
+
+    def __init__ (self, name="TrigMuonEFMSonlyHypoMonitoring"):
+        super(TrigMuonEFMSonlyHypoMonitoring, self).__init__(name)
+        self.HistPath = name  
+
+        self.Histograms = [ defineHistogram('Pt', type='TH1F', title="P_{T} reconstruction from #TrigMuonEFMSonlyHypo; P_{T} (MeV)",
+                                            xbins=200, xmin=-100, xmax=100) ]
+        self.Histograms += [ defineHistogram('Eta', type='TH1F', title="Eta reconstruction from #TrigMuonEFMSonlyHypo; Eta",
+                                            xbins=100, xmin=-3.2, xmax=3.2) ]
+        self.Histograms += [ defineHistogram('Phi', type='TH1F', title="Phi reconstruction from #TrigMuonEFMSonlyHypo; Phi",
+                                    xbins=100, xmin=-3.15, xmax=3.15) ]
+        self.Histograms += [ defineHistogram('Pt_sel', type='TH1F', title="Selected P_{T} reconstruction from #TrigMuonEFMSonlyHypo; P_{T} (MeV)",
+                                            xbins=200, xmin=-100, xmax=100) ]
+        self.Histograms += [ defineHistogram('Eta_sel', type='TH1F', title="Selected Eta reconstruction from #TrigMuonEFMSonlyHypo; Eta",
+                                            xbins=100, xmin=-3.2, xmax=3.2) ]
+        self.Histograms += [ defineHistogram('Phi_sel', type='TH1F', title="Selected Phi reconstruction from #TrigMuonEFMSonlyHypo; Phi",
+                                    xbins=100, xmin=-3.15, xmax=3.15) ]
+
+
+###################################################
 
 class TrigMuonEFCombinerHypoValidationMonitoring(TrigGenericMonitoringToolConfig):
     def __init__ (self, name="TrigMuonEFCombinerHypoValidationMonitoring"):

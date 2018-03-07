@@ -46,23 +46,23 @@ public:
 //____________________________________________________________________
 class VP1DockWidget::Imp::FilterItem : public QObject {
 public:
-  FilterItem(VP1DockWidget* _dw) : QObject(_dw),dw(_dw) {}
-  VP1DockWidget* dw;
+  FilterItem(VP1DockWidget* dw) : QObject(dw),m_dw(dw) {}
+  VP1DockWidget* m_dw;
 
   void init() {
-    installEventFilterRecursively(dw);
-    activationevents.insert(QEvent::ContextMenu);
-    //activationevents.insert(QEvent::EnterEditFocus); --> Does not compile.
-    activationevents.insert(QEvent::FocusIn);
-    activationevents.insert(QEvent::KeyPress);
-    activationevents.insert(QEvent::MouseButtonDblClick);
-    activationevents.insert(QEvent::MouseButtonPress);
-    activationevents.insert(QEvent::TabletPress);
-    activationevents.insert(QEvent::Wheel);
+    installEventFilterRecursively(m_dw);
+    m_activationevents.insert(QEvent::ContextMenu);
+    //m_activationevents.insert(QEvent::EnterEditFocus); --> Does not compile.
+    m_activationevents.insert(QEvent::FocusIn);
+    m_activationevents.insert(QEvent::KeyPress);
+    m_activationevents.insert(QEvent::MouseButtonDblClick);
+    m_activationevents.insert(QEvent::MouseButtonPress);
+    m_activationevents.insert(QEvent::TabletPress);
+    m_activationevents.insert(QEvent::Wheel);
   }
 
 protected:
-  QSet<QEvent::Type> activationevents;
+  QSet<QEvent::Type> m_activationevents;
 
   bool eventFilter ( QObject * watched, QEvent * event ) {
 
@@ -75,12 +75,12 @@ protected:
       return false;
     }
 
-    if ( !dw->d->selected && activationevents.contains(event->type()) ) {
-      dw->setSelected();
-      dw->wasSelected(dw);
+    if ( !m_dw->m_d->selected && m_activationevents.contains(event->type()) ) {
+      m_dw->setSelected();
+      m_dw->wasSelected(m_dw);
     }
-    //     if ( watched==dw && event->type() == QEvent::Enter )
-    //       dw->channelWidget()->setFocus(Qt::OtherFocusReason);
+    //     if ( watched==m_dw && event->type() == QEvent::Enter )
+    //       m_dw->channelWidget()->setFocus(Qt::OtherFocusReason);
 
     return false;
   }
@@ -100,15 +100,15 @@ protected:
 };
 
 //____________________________________________________________________
-VP1DockWidget::Imp::Imp(VP1DockWidget*_dw,IVP1ChannelWidget * cw,VP1TabManager * _tabmanager)
-  : filteritem(new FilterItem(_dw)), dw(_dw), frame(0), vboxLayout(0),channelwidget(cw),
-    unselectedmargin(0),selected(false),tabmanager(_tabmanager) {}
+VP1DockWidget::Imp::Imp(VP1DockWidget* the_dw,IVP1ChannelWidget * cw,VP1TabManager * the_tabmanager)
+  : filteritem(new FilterItem(dw)), dw(the_dw), frame(0), vboxLayout(0),channelwidget(cw),
+    unselectedmargin(0),selected(false),tabmanager(the_tabmanager) {}
 
 //____________________________________________________________________
 VP1DockWidget::~VP1DockWidget()
 {
-  delete d->filteritem;
-  delete d; d=0;
+  delete m_d->filteritem;
+  delete m_d; m_d=0;
 }
 
 //______________________________________________________________________
@@ -119,7 +119,7 @@ QString VP1DockWidget::highlightStyle()
 
 //______________________________________________________________________
 VP1DockWidget::VP1DockWidget ( IVP1ChannelWidget * cw, VP1TabManager* tm )
-  : QDockWidget ( cw->unique_name(), 0 ), d(new Imp(this,cw,tm))
+  : QDockWidget ( cw->unique_name(), 0 ), m_d(new Imp(this,cw,tm))
 {
 
   setObjectName("VP1DockWidget:"+cw->name());//For storing/saving the layout of the dock widgets within the dock area.
@@ -129,20 +129,20 @@ VP1DockWidget::VP1DockWidget ( IVP1ChannelWidget * cw, VP1TabManager* tm )
   setAllowedAreas(Qt::TopDockWidgetArea);
   setFeatures(VP1DockWidget::DockWidgetMovable | VP1DockWidget::DockWidgetFloatable);
 
-  d->selectedstylesheet="QFrame#VP1DockWidgetFrame { "+highlightStyle()+" } ";
+  m_d->selectedstylesheet="QFrame#VP1DockWidgetFrame { "+highlightStyle()+" } ";
 
   //Add frame, which will light up on selection:
-  d->frame = new QFrame(this);
-  d->frame->setObjectName("VP1DockWidgetFrame");
+  m_d->frame = new QFrame(this);
+  m_d->frame->setObjectName("VP1DockWidgetFrame");
   cw->setObjectName("IVP1ChannelWidget:"+cw->name());
   ensureCWHasParent();//setup the cw in the frame
 
   //Figure out what margin our drawn frame imposes:
   setSelected();
   int marg_left, marg_top, marg_right, marg_bottom;
-  d->frame->getContentsMargins ( &marg_left, &marg_top, &marg_right, &marg_bottom );
+  m_d->frame->getContentsMargins ( &marg_left, &marg_top, &marg_right, &marg_bottom );
   Q_ASSERT(marg_left==marg_top&&marg_left==marg_right&&marg_left==marg_bottom&&"Qt changed its margin behaviour for QFrame!!");
-  d->unselectedmargin=marg_left;
+  m_d->unselectedmargin=marg_left;
 
   //Channel starts unselected:
   setUnselected();
@@ -151,7 +151,7 @@ VP1DockWidget::VP1DockWidget ( IVP1ChannelWidget * cw, VP1TabManager* tm )
   connect(cw,SIGNAL(systemRefreshInfoChanged(QString,int,int)),this,SLOT(systemRefreshInfoChanged(QString,int,int)));
 
   //Setup a watch for selections:
-  d->filteritem->init();
+  m_d->filteritem->init();
 
 }
 
@@ -162,9 +162,9 @@ void VP1DockWidget::ensureCWHasNoParent()
     return;
   channelWidget()->setParent(0);
   setWidget(0);
-  if (d->frame->layout()&&d->frame->layout()->indexOf(d->channelwidget)>=0) {
-    assert(d->vboxLayout);
-    d->vboxLayout->removeWidget(d->channelwidget);
+  if (m_d->frame->layout()&&m_d->frame->layout()->indexOf(m_d->channelwidget)>=0) {
+    assert(m_d->vboxLayout);
+    m_d->vboxLayout->removeWidget(m_d->channelwidget);
   }
 }
 
@@ -173,17 +173,17 @@ void VP1DockWidget::ensureCWHasParent()
 {
   if (!channelWidget()||channelWidget()->parent())
     return;
-  if (!d->frame->layout()) {
-    assert(!d->vboxLayout);
-    d->vboxLayout = new QVBoxLayout(0);
-    d->frame->setLayout(d->vboxLayout);
-    d->vboxLayout->setObjectName("vp1dock-frame-layout");
-    d->vboxLayout->setSpacing(0);
+  if (!m_d->frame->layout()) {
+    assert(!m_d->vboxLayout);
+    m_d->vboxLayout = new QVBoxLayout(0);
+    m_d->frame->setLayout(m_d->vboxLayout);
+    m_d->vboxLayout->setObjectName("vp1dock-frame-layout");
+    m_d->vboxLayout->setSpacing(0);
   }
-  if (d->frame->layout()->indexOf(d->channelwidget)<0)
-    d->frame->layout()->addWidget(d->channelwidget);
-  channelWidget()->setParent(d->frame);
-  setWidget(d->frame);
+  if (m_d->frame->layout()->indexOf(m_d->channelwidget)<0)
+    m_d->frame->layout()->addWidget(m_d->channelwidget);
+  channelWidget()->setParent(m_d->frame);
+  setWidget(m_d->frame);
 }
 
 //______________________________________________________________________
@@ -192,15 +192,15 @@ void VP1DockWidget::systemRefreshInfoChanged(QString sysrefreshing, int nsysOn, 
   assert(nsysOnRefreshed<=nsysOn);
   if (nsysOn==nsysOnRefreshed) {
     //    assert(sysrefreshing.isEmpty());
-    d->title_refreshpart.clear();
+    m_d->title_refreshpart.clear();
     updateTitle();
     return;
   }
   assert(nsysOnRefreshed<nsysOn);
   if (sysrefreshing.isEmpty()) {
-    d->title_refreshpart = " [Refreshed "+QString::number(nsysOnRefreshed)+"/"+QString::number(nsysOn)+"]";
+    m_d->title_refreshpart = " [Refreshed "+QString::number(nsysOnRefreshed)+"/"+QString::number(nsysOn)+"]";
   } else {
-    d->title_refreshpart = " [Refreshing "+QString::number(nsysOnRefreshed+1)+"/"+QString::number(nsysOn)+": "+sysrefreshing+" ]";
+    m_d->title_refreshpart = " [Refreshing "+QString::number(nsysOnRefreshed+1)+"/"+QString::number(nsysOn)+": "+sysrefreshing+" ]";
   }
   updateTitle();
 }
@@ -208,55 +208,55 @@ void VP1DockWidget::systemRefreshInfoChanged(QString sysrefreshing, int nsysOn, 
 //______________________________________________________________________
 void VP1DockWidget::updateTitle()
 {
-  if (d->selected)
-    setWindowTitle(">>> "+d->channelwidget->unique_name()+d->title_refreshpart+" <<<");
+  if (m_d->selected)
+    setWindowTitle(">>> "+m_d->channelwidget->unique_name()+m_d->title_refreshpart+" <<<");
   else
-    setWindowTitle(d->channelwidget->unique_name()+d->title_refreshpart);
+    setWindowTitle(m_d->channelwidget->unique_name()+m_d->title_refreshpart);
 }
 
 //______________________________________________________________________
 void VP1DockWidget::setSelected()
 {
-  if (d->selected)
+  if (m_d->selected)
     return;
-  d->selected=true;
-  d->frame->setStyleSheet(d->selectedstylesheet);
-  assert(d->vboxLayout);
-  d->vboxLayout->setMargin(0);
-  d->frame->setFrameShape(QFrame::StyledPanel);
+  m_d->selected=true;
+  m_d->frame->setStyleSheet(m_d->selectedstylesheet);
+  assert(m_d->vboxLayout);
+  m_d->vboxLayout->setMargin(0);
+  m_d->frame->setFrameShape(QFrame::StyledPanel);
   updateTitle();
 }
 
 //______________________________________________________________________
 void VP1DockWidget::setUnselected()
 {
-  if (!d->selected)
+  if (!m_d->selected)
     return;
-  d->selected=false;
-  d->frame->setStyleSheet("");
-  assert(d->vboxLayout);
-  d->vboxLayout->setMargin(d->unselectedmargin);
-  d->frame->setFrameShape(QFrame::NoFrame);
+  m_d->selected=false;
+  m_d->frame->setStyleSheet("");
+  assert(m_d->vboxLayout);
+  m_d->vboxLayout->setMargin(m_d->unselectedmargin);
+  m_d->frame->setFrameShape(QFrame::NoFrame);
   updateTitle();
 }
 
 //______________________________________________________________________
 IVP1ChannelWidget * VP1DockWidget::channelWidget() const
 {
-  return d->channelwidget;
+  return m_d->channelwidget;
 }
 
 //______________________________________________________________________
 bool VP1DockWidget::isSelected() const
 {
-  return d->selected;
+  return m_d->selected;
 }
 
 //______________________________________________________________________
 void VP1DockWidget::contextMenuEvent ( QContextMenuEvent * event )
 {
   //Inside the frame, we use the normal behaviour:
-  if (d->frame->geometry().contains(event->pos())) {
+  if (m_d->frame->geometry().contains(event->pos())) {
     QDockWidget::contextMenuEvent ( event );
     return;
   }
@@ -264,7 +264,7 @@ void VP1DockWidget::contextMenuEvent ( QContextMenuEvent * event )
 
   //Construct menu:
   QMenu menu(this);
-//   menu.addAction("Channel: "+d->channelwidget->unique_name())->setEnabled(false);
+//   menu.addAction("Channel: "+m_d->channelwidget->unique_name())->setEnabled(false);
 //   menu.addSeparator();
 
   QAction* pFullScreenAction = menu.addAction("Show &full Screen");
@@ -273,12 +273,12 @@ void VP1DockWidget::contextMenuEvent ( QContextMenuEvent * event )
   menu.addSeparator ();
   QAction* pMoveChannelAction = menu.addAction("&Move to tab");
 
-  QStringList tablist = d->tabmanager->tabList();
+  QStringList tablist = m_d->tabmanager->tabList();
   QMenu menu_movechan(this);
   if (tablist.count()==1) {
     menu_movechan.addAction("No other tabs available")->setEnabled(false);
   } else {
-    QString thistab = d->tabmanager->channelToTab(d->channelwidget);
+    QString thistab = m_d->tabmanager->channelToTab(m_d->channelwidget);
     foreach (QString tab, tablist) {
       if (tab!=thistab)
 	menu_movechan.addAction(tab)->setData("MOVECHAN");
@@ -292,15 +292,15 @@ void VP1DockWidget::contextMenuEvent ( QContextMenuEvent * event )
   if (!selAct)
     return;
   if (selAct==pFullScreenAction) {
-    d->tabmanager->showChannelFullScreen(d->channelwidget);
+    m_d->tabmanager->showChannelFullScreen(m_d->channelwidget);
     return;
   }
   if (selAct==pRemoveAction) {
-    d->tabmanager->removeChannelAfterQueueEmpties(d->channelwidget->unique_name());
+    m_d->tabmanager->removeChannelAfterQueueEmpties(m_d->channelwidget->unique_name());
     return;
   }
   if (selAct->data()=="MOVECHAN") {
-    d->tabmanager->moveChannelToTab(d->channelwidget->unique_name(),selAct->text());
+    m_d->tabmanager->moveChannelToTab(m_d->channelwidget->unique_name(),selAct->text());
     return;
   }
   std::cout<<"ERROR in VP1DockWidget::contextMenuEvent!!!!!"<<std::endl;
@@ -310,6 +310,6 @@ void VP1DockWidget::contextMenuEvent ( QContextMenuEvent * event )
 //______________________________________________________________________
 void VP1DockWidget::resizeEvent ( QResizeEvent * event )
 {
-  d->channelwidget->dockResized();
+  m_d->channelwidget->dockResized();
   QDockWidget::resizeEvent(event);
 }

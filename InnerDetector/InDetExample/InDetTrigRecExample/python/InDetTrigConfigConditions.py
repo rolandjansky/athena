@@ -267,10 +267,13 @@ class SCT_ConditionsServicesSetup:
 
     self.dcsSvc      = self.initDcsSvc('InDetSCT_DCSConditionsSvc')     
     self.lorentzSvc  = self.initLorentzAngleSvc('SCTLorentzAngleSvc')
+
+    self.summarySvcWoFlagged = self.initSummarySvcWithoutFlagged(self.instanceName('InDetSCT_ConditionsSummarySvcWithoutFlagged'))
+
     pass
 
   def initSummarySvc(self, instanceName):
-    "Init summary conditions servic"
+    "Init summary conditions service"
     from SCT_ConditionsServices.SCT_ConditionsSummarySvcSetup import SCT_ConditionsSummarySvcSetup
     sct_ConditionsSummarySvcSetup = SCT_ConditionsSummarySvcSetup()
     sct_ConditionsSummarySvcSetup.setSvcName(instanceName)
@@ -279,6 +282,20 @@ class SCT_ConditionsServicesSetup:
     if self._print:  print summarySvc
     return summarySvc
 
+  def initSummarySvcWithoutFlagged(self, instanceName):
+    "Init summary conditions service without flaggedConditionSvc"
+    from SCT_ConditionsServices.SCT_ConditionsSummarySvcSetup import SCT_ConditionsSummarySvcSetup
+    sct_ConditionsSummarySvcSetupWithoutFlagged = SCT_ConditionsSummarySvcSetup()
+    sct_ConditionsSummarySvcSetupWithoutFlagged.setSvcName(instanceName)
+    sct_ConditionsSummarySvcSetupWithoutFlagged.setup()
+    summarySvcWoFlagged = sct_ConditionsSummarySvcSetupWithoutFlagged.getSvc()
+    condSvcs = self.summarySvc.ConditionsServices
+    if self.flaggedSvc.name() in condSvcs:
+      condSvcs = [x for x in condSvcs if x != self.flaggedSvc.name()]
+    summarySvcWoFlagged.ConditionsServices = condSvcs
+    if self._print:  print summarySvcWoFlagged
+    return summarySvcWoFlagged
+
   def initFlaggedSvc(self, instanceName):
     "Init flagged conditions service"
     from SCT_ConditionsServices.SCT_FlaggedConditionSvcSetup import SCT_FlaggedConditionSvcSetup
@@ -286,8 +303,13 @@ class SCT_ConditionsServicesSetup:
     sct_FlaggedConditionSvcSetup.setSvcName(instanceName)
     sct_FlaggedConditionSvcSetup.setup()
     flaggedSvc = sct_FlaggedConditionSvcSetup.getSvc()
+    if self.prefix == "InDetTrig":
+      # SCT_FlaggedCondData_TRIG created by SCT_TrgClusterization is used.
+      flaggedSvc.SCT_FlaggedCondData = "SCT_FlaggedCondData_TRIG"
+      # Otherwise, SCT_FlaggedCondData created by SCT_Clusterization
     if self._print:  print flaggedSvc
-    self.summarySvc.ConditionsServices+=[instanceName]
+    if not (instanceName in self.summarySvc.ConditionsServices):
+      self.summarySvc.ConditionsServices+=[instanceName]
     return flaggedSvc
 
   def initConfigSvc(self, instanceName):
@@ -312,7 +334,8 @@ class SCT_ConditionsServicesSetup:
     sct_ConfigurationConditionsSvcSetup.setup()
     configSvc = sct_ConfigurationConditionsSvcSetup.getSvc()
     if self._print:  print configSvc
-    self.summarySvc.ConditionsServices+=[instanceName]
+    if not (instanceName in self.summarySvc.ConditionsServices):
+      self.summarySvc.ConditionsServices+=[instanceName]
 
     if self._print:  print self.condDB
     return configSvc
@@ -324,7 +347,8 @@ class SCT_ConditionsServicesSetup:
     sct_MonitorConditionsSvcSetup.setSvcName(instanceName)
     sct_MonitorConditionsSvcSetup.setup()
     monitorSvc = sct_MonitorConditionsSvcSetup.getSvc()
-    self.summarySvc.ConditionsServices+=[instanceName]
+    if not (instanceName in self.summarySvc.ConditionsServices):
+      self.summarySvc.ConditionsServices+=[instanceName]
     return monitorSvc
 
   def initDcsSvc(self, instanceName):
@@ -353,10 +377,9 @@ class SCT_ConditionsServicesSetup:
 
     sct_DCSConditionsSvcSetup.setup()
     dcsSvc = sct_DCSConditionsSvcSetup.getSvc()
-    if (not self.isMC):
-      dcsSvc.FolderLocation="/SCT/HLT/DCS"
  
-    self.summarySvc.ConditionsServices+=[instanceName]
+    if not (instanceName in self.summarySvc.ConditionsServices):
+      self.summarySvc.ConditionsServices+=[instanceName]
 
     if self.isMC:
       if not self.condDB.folderRequested("/SCT/DCS/MPS/LV"):
@@ -373,7 +396,8 @@ class SCT_ConditionsServicesSetup:
     sct_ByteStreamErrorsSvcSetup.setup()
     bsErrSvc =sct_ByteStreamErrorsSvcSetup.getSvc()
     if self._print:  print bsErrSvc
-    self.summarySvc.ConditionsServices+=[instanceName]
+    if not (instanceName in self.summarySvc.ConditionsServices):
+      self.summarySvc.ConditionsServices+=[instanceName]
     return  bsErrSvc
 
   def initCalibSvc(self, instanceName):
@@ -385,7 +409,8 @@ class SCT_ConditionsServicesSetup:
       sct_ReadCalibDataSvcSetup.setSvcName(instanceName)
       sct_ReadCalibDataSvcSetup.setup()
       calibSvc = sct_ReadCalibDataSvcSetup.getSvc()
-      self.summarySvc.ConditionsServices+=[instanceName]
+      if not (instanceName in self.summarySvc.ConditionsServices):
+        self.summarySvc.ConditionsServices+=[instanceName]
       return  calibSvc
     else:
       return None

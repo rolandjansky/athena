@@ -17,14 +17,12 @@
 #include "GaudiKernel/StatusCode.h"
 
 //Athena includes
-#include "SCT_ConditionsServices/ISCT_MonitorConditionsSvc.h"
 #include "Identifier/IdentifierHash.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "StoreGate/ReadHandle.h"
 
 SCT_MonitorConditionsTestAlg::SCT_MonitorConditionsTestAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthAlgorithm( name, pSvcLocator ), 
-  m_pMonitorConditionsSvc("SCT_MonitorConditionsSvc",name),
   m_sctId{nullptr},
   m_evtKey(std::string("EventInfo")),
   m_select_run(1),
@@ -46,7 +44,7 @@ StatusCode SCT_MonitorConditionsTestAlg::initialize()
   }
   ATH_MSG_DEBUG("Found SCT_ID Tool");
 
-  sc = m_pMonitorConditionsSvc.retrieve();
+  sc = m_pMonitorConditionsTool.retrieve();
   if (StatusCode::SUCCESS not_eq sc) {
     ATH_MSG_ERROR("Could not retrieve the monitor conditions service");
     return StatusCode::FAILURE;
@@ -112,7 +110,7 @@ StatusCode SCT_MonitorConditionsTestAlg::execute()
     Identifier waferId = *waferItr;
     for(int i=0; i<768; i++){
       Identifier stripId = m_sctId->strip_id(waferId,i);
-      if(!(m_pMonitorConditionsSvc->isGood(stripId, InDetConditions::SCT_STRIP)))
+      if(!(m_pMonitorConditionsTool->isGood(stripId, InDetConditions::SCT_STRIP)))
 	n_bad++;
     }
   }
@@ -126,7 +124,7 @@ StatusCode SCT_MonitorConditionsTestAlg::execute()
   ATH_MSG_DEBUG("(MonitorTest): moduleid = " << moduleid1);
   //    SCT_ComponentIdentifier compid = SCT_ComponentIdentifier(stripid1,"STRIP");
   //    SCT_Conditions::SCT_ComponentIdentifier compid(stripid1,"STRIP");
-  bool isthisGood = m_pMonitorConditionsSvc->isGood(stripid1, InDetConditions::SCT_STRIP);
+  bool isthisGood = m_pMonitorConditionsTool->isGood(stripid1, InDetConditions::SCT_STRIP);
   if( isthisGood ){
     ATH_MSG_INFO("isGood(): strip(0,3,41,-4,1,703) is not noisy ");
   } else {
@@ -137,7 +135,7 @@ StatusCode SCT_MonitorConditionsTestAlg::execute()
   waferid1 = m_sctId->wafer_id(stripid1);
   moduleid1 = m_sctId->module_id(waferid1);
   //    compid = SCT_Conditions::SCT_ComponentIdentifier(stripid1,"STRIP");
-  isthisGood = m_pMonitorConditionsSvc->isGood(stripid1, InDetConditions::SCT_STRIP);
+  isthisGood = m_pMonitorConditionsTool->isGood(stripid1, InDetConditions::SCT_STRIP);
   if( isthisGood ){
     ATH_MSG_INFO("isGood(): strip(0,3,41,-4,0,703) is not noisy ");
   } else {
@@ -150,7 +148,7 @@ StatusCode SCT_MonitorConditionsTestAlg::execute()
   moduleid1 = m_sctId->module_id(waferid1);
   ATH_MSG_DEBUG("(MonitorTest): stripid  = " << stripid1);
   ATH_MSG_DEBUG("(MonitorTest): moduleid = " << moduleid1);
-  isthisGood = m_pMonitorConditionsSvc->isGood(stripid1, InDetConditions::SCT_STRIP);
+  isthisGood = m_pMonitorConditionsTool->isGood(stripid1, InDetConditions::SCT_STRIP);
   if( isthisGood ){
     ATH_MSG_INFO("isGood(): strip(0,2,39,-1,0,397) is not noisy ");
   } else {
@@ -162,7 +160,7 @@ StatusCode SCT_MonitorConditionsTestAlg::execute()
   moduleid1 = m_sctId->module_id(waferid1);
   ATH_MSG_DEBUG("(MonitorTest): stripid  = " << stripid1);
   ATH_MSG_DEBUG("(MonitorTest): moduleid = " << moduleid1);
-  isthisGood = m_pMonitorConditionsSvc->isGood(stripid1, InDetConditions::SCT_STRIP);
+  isthisGood = m_pMonitorConditionsTool->isGood(stripid1, InDetConditions::SCT_STRIP);
   if( isthisGood ){
     ATH_MSG_INFO("isGood(): strip(0,2,39,-1,0,396) is not noisy ");
   } else {
@@ -174,7 +172,7 @@ StatusCode SCT_MonitorConditionsTestAlg::execute()
   moduleid1 = m_sctId->module_id(waferid1);
   ATH_MSG_DEBUG("(MonitorTest): stripid  = " << stripid1);
   ATH_MSG_DEBUG("(MonitorTest): moduleid = " << moduleid1);
-  isthisGood = m_pMonitorConditionsSvc->isGood(stripid1, InDetConditions::SCT_STRIP);
+  isthisGood = m_pMonitorConditionsTool->isGood(stripid1, InDetConditions::SCT_STRIP);
   if( isthisGood ){
     ATH_MSG_INFO("isGood(): strip(0,2,39,-1,0,398) is not noisy ");
   } else {
@@ -183,7 +181,7 @@ StatusCode SCT_MonitorConditionsTestAlg::execute()
   
   stripid1 = m_sctId->strip_id(0,3,13,-3,0,567);
   //    compid = SCT_Conditions::SCT_ComponentIdentifier(stripid1,"STRIP");
-  isthisGood = m_pMonitorConditionsSvc->isGood(stripid1, InDetConditions::SCT_STRIP);
+  isthisGood = m_pMonitorConditionsTool->isGood(stripid1, InDetConditions::SCT_STRIP);
   if( isthisGood ){
     ATH_MSG_INFO("isGood(): strip(0,3,13,-3,0,567) is not noisy ");
   } else {
@@ -192,7 +190,7 @@ StatusCode SCT_MonitorConditionsTestAlg::execute()
   
   stripid1 = m_sctId->strip_id(0,3,13,-3,0,566);
   //    compid = SCT_Conditions::SCT_ComponentIdentifier(stripid1,"STRIP");
-  isthisGood = m_pMonitorConditionsSvc->isGood(stripid1, InDetConditions::SCT_STRIP);
+  isthisGood = m_pMonitorConditionsTool->isGood(stripid1, InDetConditions::SCT_STRIP);
   if( isthisGood ){
     ATH_MSG_INFO("isGood(): strip(0,3,13,-3,0,566) is not noisy ");
   } else {
@@ -201,7 +199,7 @@ StatusCode SCT_MonitorConditionsTestAlg::execute()
   
   stripid1 = m_sctId->strip_id(0,3,13,-3,1,567);
   //    compid = SCT_Conditions::SCT_ComponentIdentifier(stripid1,"STRIP");
-  isthisGood = m_pMonitorConditionsSvc->isGood(stripid1, InDetConditions::SCT_STRIP);
+  isthisGood = m_pMonitorConditionsTool->isGood(stripid1, InDetConditions::SCT_STRIP);
   if( isthisGood ){
     ATH_MSG_INFO("isGood(): strip(0,3,13,-3,1,567) is not noisy ");
   } else {
@@ -210,7 +208,7 @@ StatusCode SCT_MonitorConditionsTestAlg::execute()
 
   stripid1 = m_sctId->strip_id(0,0,7,2,0,700);
   //    compid = SCT_Conditions::SCT_ComponentIdentifier(stripid1,"STRIP");
-  isthisGood = m_pMonitorConditionsSvc->isGood(stripid1, InDetConditions::SCT_STRIP);
+  isthisGood = m_pMonitorConditionsTool->isGood(stripid1, InDetConditions::SCT_STRIP);
   if( isthisGood ){
     ATH_MSG_INFO("isGood(): strip(0,0,7,2,0,700) is not noisy ");
   } else {
@@ -219,7 +217,7 @@ StatusCode SCT_MonitorConditionsTestAlg::execute()
   
   stripid1 = m_sctId->strip_id(0,0,7,2,1,700);
   //    compid = SCT_Conditions::SCT_ComponentIdentifier(stripid1,"STRIP");
-  isthisGood = m_pMonitorConditionsSvc->isGood(stripid1, InDetConditions::SCT_STRIP);
+  isthisGood = m_pMonitorConditionsTool->isGood(stripid1, InDetConditions::SCT_STRIP);
   if( isthisGood ){
     ATH_MSG_INFO("isGood(): strip(0,0,7,2,1,700) is not noisy ");
   } else {
@@ -229,7 +227,7 @@ StatusCode SCT_MonitorConditionsTestAlg::execute()
   // check if chip is noisy
   stripid1 = m_sctId->strip_id(0,0,8,-4,0,100);
   //    compid = SCT_Conditions::SCT_ComponentIdentifier(stripid1,"CHIP");
-  isthisGood = m_pMonitorConditionsSvc->isGood(stripid1, InDetConditions::SCT_CHIP);
+  isthisGood = m_pMonitorConditionsTool->isGood(stripid1, InDetConditions::SCT_CHIP);
   if( isthisGood ){
     ATH_MSG_INFO("isGood(): chip(0,0,8,-4,0,100) is not noisy ");
   } else {
@@ -238,7 +236,7 @@ StatusCode SCT_MonitorConditionsTestAlg::execute()
   
   stripid1 = m_sctId->strip_id(0,3,13,-3,0,567);
   //    compid = SCT_Conditions::SCT_ComponentIdentifier(stripid1,"CHIP");
-  isthisGood = m_pMonitorConditionsSvc->isGood(stripid1, InDetConditions::SCT_CHIP);
+  isthisGood = m_pMonitorConditionsTool->isGood(stripid1, InDetConditions::SCT_CHIP);
   if( isthisGood ){
     ATH_MSG_INFO("isGood(): chip(0,3,13,-3,0,567) is not noisy ");
   } else {
@@ -248,7 +246,7 @@ StatusCode SCT_MonitorConditionsTestAlg::execute()
   // check if wafer is noisy
   stripid1 = m_sctId->strip_id(0,0,8,-4,0,100);
   //    compid = SCT_Conditions::SCT_ComponentIdentifier(stripid1,"WAFER");
-  isthisGood = m_pMonitorConditionsSvc->isGood(stripid1, InDetConditions::SCT_SIDE);
+  isthisGood = m_pMonitorConditionsTool->isGood(stripid1, InDetConditions::SCT_SIDE);
   if( isthisGood ){
     ATH_MSG_INFO("isGood(): wafer(0,0,8,-4,0,100) is not noisy ");
   } else {
@@ -258,7 +256,7 @@ StatusCode SCT_MonitorConditionsTestAlg::execute()
   // check if module is noisy
   stripid1 = m_sctId->strip_id(0,0,8,-4,0,100);
   //    compid = SCT_Conditions::SCT_ComponentIdentifier(stripid1,"MODULE");
-  isthisGood = m_pMonitorConditionsSvc->isGood(stripid1, InDetConditions::SCT_MODULE);
+  isthisGood = m_pMonitorConditionsTool->isGood(stripid1, InDetConditions::SCT_MODULE);
   if( isthisGood ){
     ATH_MSG_INFO("isGood(): module(0,0,8,-4,0,100) is not noisy ");
   } else {

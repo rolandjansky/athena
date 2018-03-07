@@ -23,16 +23,16 @@
 #include "QatPlotting/RealArg.h"
 namespace RealArg {
 
-  Eq::Eq(double value): _value(value){}
-  bool Eq::operator() (const double & x) const {return x==_value;}
+  Eq::Eq(double value): m_value(value){}
+  bool Eq::operator() (const double & x) const {return x==m_value;}
   Eq *Eq::clone() const { return new Eq(*this);}
 
-  Lt::Lt(double value): _value(value){}
-  bool Lt::operator() (const double & x) const {return x<_value;}
+  Lt::Lt(double value): m_value(value){}
+  bool Lt::operator() (const double & x) const {return x<m_value;}
   Lt *Lt::clone() const { return new Lt(*this);}
 
-  Gt::Gt(double value): _value(value) {}
-  bool Gt::operator() (const double & x) const {return x>_value;}
+  Gt::Gt(double value): m_value(value) {}
+  bool Gt::operator() (const double & x) const {return x>m_value;}
   Gt *Gt::clone() const { return new Gt(*this);}
 
 }

@@ -93,13 +93,13 @@ topSequence = AlgSequence()
 from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
 topSequence +=xAODMaker__EventInfoCnvAlg(OutputLevel=2)
 
-from SCT_ConditionsServices.SCT_ReadCalibChipDataSvcSetup import SCT_ReadCalibChipDataSvcSetup
-sct_ReadCalibChipDataSvcSetup = SCT_ReadCalibChipDataSvcSetup()
-sct_ReadCalibChipDataSvcSetup.setNoiseFolderTag("SctDaqCalibrationChipNoise-UPD1-002-00")
-sct_ReadCalibChipDataSvcSetup.setGainFolderTag("SctDaqCalibrationChipGain-UPD1-002-00")
-sct_ReadCalibChipDataSvcSetup.setup()
+from SCT_ConditionsTools.SCT_ReadCalibChipDataToolSetup import SCT_ReadCalibChipDataToolSetup
+sct_ReadCalibChipDataToolSetup = SCT_ReadCalibChipDataToolSetup()
+sct_ReadCalibChipDataToolSetup.setNoiseFolderTag("SctDaqCalibrationChipNoise-UPD1-002-00")
+sct_ReadCalibChipDataToolSetup.setGainFolderTag("SctDaqCalibrationChipGain-UPD1-002-00")
+sct_ReadCalibChipDataToolSetup.setup()
 
-SCT_ReadCalibChipDataSvc=sct_ReadCalibChipDataSvcSetup.getSvc()
+SCT_ReadCalibChipDataTool=sct_ReadCalibChipDataToolSetup.getTool()
 
 from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_ReadCalibChipDataTestAlg
 topSequence+= SCT_ReadCalibChipDataTestAlg()
@@ -128,7 +128,7 @@ theApp.EvtMax                    = 1
 # Set output lvl (VERBOSE, DEBUG, INFO, WARNING, ERROR, FATAL)
 #--------------------------------------------------------------
 ServiceMgr.MessageSvc.OutputLevel = INFO
-SCT_ReadCalibChipDataSvc.OutputLevel = INFO
+SCT_ReadCalibChipDataTool.OutputLevel = INFO
 SCT_ReadCalibChipDataTestAlg.OutputLevel = INFO
 
 #--------------------------------------------------------------

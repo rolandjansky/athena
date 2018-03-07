@@ -15,7 +15,7 @@
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/Property.h"
 
-class NoProfileSvc : virtual public IBeamLuminosity, public AthService
+class NoProfileSvc : public extends<AthService, IBeamLuminosity>
 {
 public:
   /// \name Constructor / Destructor
@@ -26,7 +26,6 @@ public:
   /// \name AthService methods
   //@{
   virtual StatusCode initialize() override final;
-  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override final;
   //@}
   /// \name IBeamLuminosity methods
   //@{
