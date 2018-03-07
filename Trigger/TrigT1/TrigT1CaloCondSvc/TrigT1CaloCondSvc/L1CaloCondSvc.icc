@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOCONDSVC_L1CALOCONDSVC_ICC
@@ -264,8 +264,8 @@ StatusCode L1CaloCondSvc::retrieve(T*& pobj, const FolderMapping& folderKeyMap, 
 template <typename T>
 StatusCode L1CaloCondSvc::retrieveImpl( T*& pobj, const std::string& key) {
   // common parts of the two public retrieve methods. pobj must be a valid object.
-  ATH_MSG_INFO(  "*** L1CaloCondSvc::retrieveImpl() ***" );
-  ATH_MSG_INFO(  " -> Key: "<< key );
+  ATH_MSG_VERBOSE(  "*** L1CaloCondSvc::retrieveImpl() ***" );
+  ATH_MSG_VERBOSE(  " -> Key: "<< key );
 
   // store objects without key.
   // contains<T>("") somehow returns false as soon as more than one object is stored
@@ -284,14 +284,14 @@ StatusCode L1CaloCondSvc::retrieveImpl( T*& pobj, const std::string& key) {
    
   //register object to storegate
   ATH_CHECK( m_detStore->record(pobj, key) );
-  ATH_MSG_INFO(  "Stored Container in DetStore, key: "<< key );
+  ATH_MSG_DEBUG(  "Stored Container in DetStore, key: "<< key );
   return StatusCode::SUCCESS;
 }
 
 template <typename T>
 StatusCode L1CaloCondSvc::registerCondition(T*& pObj, const std::string& mykey) {
-  ATH_MSG_INFO(  "L1CaloCondSvc::registerCondition(T*& pObj))" );
-  ATH_MSG_INFO(  " -> Specified key: "<< mykey );
+  ATH_MSG_DEBUG(  "L1CaloCondSvc::registerCondition(T*& pObj))" );
+  ATH_MSG_DEBUG(  " -> Specified key: "<< mykey );
   if(!pObj) {
     ATH_MSG_ERROR(  "IL1CaloPersistenceCapable* pObj is NULL in L1CaloCondSvc::registerCondition()" );
     return StatusCode::FAILURE;
@@ -347,7 +347,7 @@ StatusCode L1CaloCondSvc::registerCondition(T*& pObj, const std::string& mykey) 
       std::string key = *it;
 
       lKeys.push_back(key);
-      ATH_MSG_INFO("Adding keys to maps: "<<key);
+      ATH_MSG_DEBUG("Adding keys to maps: "<<key);
 
       m_mConditions[key].push_back(pObj);
       m_map_conditions2key[pObj].push_back(key);//ACH
@@ -362,7 +362,7 @@ StatusCode L1CaloCondSvc::registerCondition(T*& pObj, const std::string& mykey) 
         // the CondAttrListCollection the condition is depending on have been registered
         ATH_CHECK( m_detStore->regFcn(&L1CaloCondSvc::updateConditions, this, dh, key, false) );
 
-	ATH_MSG_INFO("Added "<<key<<" to m_mDataHandleAttrListColl");
+        ATH_MSG_DEBUG("Added "<<key<<" to m_mDataHandleAttrListColl");
       }
     }
 
