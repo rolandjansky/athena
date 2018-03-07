@@ -20,6 +20,45 @@ namespace CP
 {
   class CorrectionCode;
 
+
+  /// \brief the action to perform on encountering an
+  /// OutOfValidityRange in \ref OutOfValidityHelper
+  ///
+  /// This is in addition to possibly setting a selection decoration
+  /// (if that has been configured.
+  ///
+  /// This is not a member enum of \ref OutOfValidityHelper to void
+  /// problems with member enums in dictionary generation, etc.
+
+  enum class OutOfValidityAction
+  {
+    /// \brief print an error message and return a failure status code
+    /// (triggering an abort)
+    ///
+    /// This is currently the default, as it forces users to think
+    /// about what they want to do with OutOfValidityRange results.
+    /// That is fairly safe, as most tools don't actually report
+    /// OutOfValidityRange and we don't want to add a lot of
+    /// meaningless selection decorations to each object.
+    ABORT,
+
+    /// \brief print a warning message and return a success status
+    /// code.
+    ///
+    /// This should only be used if OutOfValidity is a *rare* event,
+    /// or otherwise it will completely clobber the log file.
+    WARNING,
+
+    /// \brief don't print anything and return success
+    ///
+    /// This should (normally) be combined with a selection decoration
+    /// that records OutOfValidity results, allowing to retrieve that
+    /// information subsequently.
+    SILENT
+  };
+
+
+
   /// \brief a helper to translate a \ref CP::CorrectionCode into a
   /// \ref ::StatusCode
   ///
@@ -34,8 +73,7 @@ namespace CP
   public:
     template<typename T>
     OutOfValidityHelper (T *owner, const std::string& propertyName = "outOfValidity",
-                         const std::string& propertyDescription = "how to handle out of validity results",
-                         const std::string& defaultValue = "FAILURE");
+                         const std::string& propertyDescription = "how to handle out of validity results");
 
 
     /// \brief standard initialize
@@ -49,26 +87,9 @@ namespace CP
                         const char *context) const;
 
 
-    /// \brief either the name of the decoration we use, or a special
-    /// keyword for the action we apply when encountering
-    /// OutOfValidity
-  private:
-    std::string m_decoName;
-
-    /// \brief the action to perform on encountering an
-    /// OutOfValidityRange
-  private:
-    enum class Action
-    {
-      UNDEFINED,
-      SUCCESS,
-      FAILURE,
-      WARNING
-    };
-
     /// \brief the action to take
   private:
-    Action m_action {Action::UNDEFINED};
+    OutOfValidityAction m_action {OutOfValidityAction::ABORT};
 
     /// \brief the message stream we use
   private:
@@ -77,6 +98,20 @@ namespace CP
     /// \brief the accessor if we apply one
   private:
     std::unique_ptr<const SG::AuxElement::Accessor<SelectionType> > m_accessor;
+
+    /// \brief the decoration name we use (if we have one)
+  private:
+    std::string m_decorationName;
+
+    /// \brief whether we have been initialized
+    ///
+    /// This is only used in debug mode to indicate a programming
+    /// fault.  Otherwise it is too easy for users to forget to
+    /// initialize this object.
+  private:
+#ifndef NDEBUG
+    bool m_isInitialized = false;
+#endif
 
     /// \brief helper for message macros
   private:
@@ -87,12 +122,13 @@ namespace CP
 
   template<typename T> OutOfValidityHelper ::
   OutOfValidityHelper (T *owner, const std::string& propertyName,
-                       const std::string& propertyDescription,
-                       const std::string& defaultValue)
+                       const std::string& propertyDescription)
     : m_msg (&owner->msg())
   {
-    owner->declareProperty (propertyName, m_decoName = defaultValue,
+    owner->declareProperty (propertyName, m_action,
                             propertyDescription);
+    owner->declareProperty (propertyName + "Deco", m_decorationName,
+                            "decoration to set alongside action described by " + propertyName);
   }
 }
 

@@ -17,3 +17,8 @@ atlas_add_library( SelectionHelpersLib
    PUBLIC_HEADERS SelectionHelpers
    LINK_LIBRARIES PATCoreLib xAODBase PATInterfaces
    PRIVATE_LINK_LIBRARIES RootCoreUtils )
+
+atlas_add_dictionary( SelectionHelpersDict
+   SelectionHelpers/SelectionHelpersDict.h
+   SelectionHelpers/selection.xml
+   LINK_LIBRARIES SelectionHelpersLib )
