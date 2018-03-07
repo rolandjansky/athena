@@ -15,7 +15,7 @@ def getConstModSeq(sequence,inputtype,suffix=""):
 
     tooltypes = {
         "Origin":"origin",
-        "SK":"softkiller",
+        "SK06":"softkiller06",
         "CS":"constsub",
         "Vor":"voronoi",
     }
@@ -39,7 +39,7 @@ def getConstModSeq(sequence,inputtype,suffix=""):
                 tool = CfgMgr.VoronoiWeightTool(toolname, doSpread=False, nSigma=0)
             elif step=="CS":
                 tool = CfgMgr.ConstituentSubtractorTool(toolname)
-            elif step=="SK":
+            elif step=="SK06":
                 tool = CfgMgr.SoftKillerWeightTool(toolname, SKGridSize=0.6)
             if "PFlow" in inputtype:
                 tool.InputType = xAOD.Type.ParticleFlow
