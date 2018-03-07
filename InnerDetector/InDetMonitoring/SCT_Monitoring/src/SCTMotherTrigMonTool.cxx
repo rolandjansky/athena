@@ -45,8 +45,8 @@ SCTMotherTrigMonTool::initialize() {
 // ---------------------------------------------------------
 StatusCode
 SCTMotherTrigMonTool::checkTriggers() {
-  if (evtStore()->contains<EventInfo>(m_eventInfoKey.key())) {
-    SG::ReadHandle<EventInfo> evtInfo(m_eventInfoKey);
+  SG::ReadHandle<EventInfo> evtInfo(m_eventInfoKey);
+  if (evtInfo.isValid()) {
     m_firedTriggers = evtInfo->trigger_info()->level1TriggerType();
 
     return StatusCode::SUCCESS;

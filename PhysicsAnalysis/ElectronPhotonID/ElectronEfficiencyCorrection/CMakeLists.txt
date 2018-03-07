@@ -64,7 +64,7 @@ atlas_add_dictionary( ElectronEfficiencyCorrectionDict
 # Utilities provided by the package:
 atlas_add_executable( EgEfficiencyCorr_mem_check
    util/EgEfficiencyCorr_mem_check.cxx
-   LINK_LIBRARIES AsgTools ElectronEfficiencyCorrectionLib )
+   LINK_LIBRARIES AsgTools ElectronEfficiencyCorrectionLib CxxUtils )
 
 #Test
 atlas_add_test(ut_SimpleInitTest

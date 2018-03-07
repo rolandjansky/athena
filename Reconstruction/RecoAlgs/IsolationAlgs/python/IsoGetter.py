@@ -169,6 +169,8 @@ tit = CfgMgr.xAOD__TrackIsolationTool('TrackIsolationTool')
 tit.TrackSelectionTool.maxZ0SinTheta = 3
 tit.TrackSelectionTool.minPt         = 1000
 tit.TrackSelectionTool.CutLevel      = "Loose"
+if not useVertices:
+  tit.VertexLocation = ''
 
 import ROOT, cppyy
 # Need to be sure base dict is loaded first.

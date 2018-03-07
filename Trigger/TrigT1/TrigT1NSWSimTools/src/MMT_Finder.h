@@ -16,7 +16,7 @@ class MMT_Finder{
   MMT_Finder(MMT_Parameters *par, int nUVRoads = 1, int outputLevel = MSG::WARNING);
   ~MMT_Finder(){}
   int Coincidence_Gate(const vector<bool>& plane_hits) const;
-  void set_roads(int _roads) { m_nRoads=_roads; }
+  void set_roads(int roads) { m_nRoads=roads; }
   int get_roads() const {return m_nRoads;}
   void fillHitBuffer(map<pair<int,int>,finder_entry>& hitBuffer, const Hit& hit) const;
   void checkBufferForHits(vector<bool>& plane_is_hit, vector<Hit>& track, int road, map<pair<int,int>,finder_entry> hitBuffer) const;

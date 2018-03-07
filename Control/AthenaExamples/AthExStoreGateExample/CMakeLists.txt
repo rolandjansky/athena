@@ -44,13 +44,13 @@ atlas_add_component( AthExStoreGateExample
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel SGTools TestTools AthContainers AthLinks AthenaBaseComps CxxUtils PileUpToolsLib StoreGateLib SGtests EventInfo GaudiKernel SGTutorialLib SGTutorial )
+                     LINK_LIBRARIES SGTutorialLib )
 
 atlas_add_component( AthExDFlow
                      src_dflow/*.cxx
                      src_dflow/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel SGTools TestTools AthContainers AthLinks AthenaBaseComps CxxUtils PileUpToolsLib StoreGateLib SGtests EventInfo GaudiKernel SGTutorialLib SGTutorial )
+                     LINK_LIBRARIES SGTutorialLib )
 
 atlas_add_dictionary( AthExStoreGateExampleDict
                       AthExStoreGateExample/AthExStoreGateExampleDict.h

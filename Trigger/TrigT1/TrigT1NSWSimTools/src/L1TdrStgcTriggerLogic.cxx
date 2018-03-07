@@ -41,7 +41,7 @@ L1stl::L1TdrStgcTriggerLogic() :
     m_writePickle(false),
     m_picklePrefix("./")
 {
-	rand.SetSeed(0);
+	m_rand.SetSeed(0);
 }
 //-------------------------------------
 L1stl::~L1TdrStgcTriggerLogic() {
@@ -166,7 +166,7 @@ nsw::vsize_t L1stl::removeRandomPadIndices(const vsize_t &padIndices)
   vsize_t out;
   out.reserve(padIndices.size());
   for(size_t i=0; i<padIndices.size(); ++i){
-    if(rand.Uniform(1) < padTimingEfficiency) out.push_back(padIndices[i]);
+    if(m_rand.Uniform(1) < padTimingEfficiency) out.push_back(padIndices[i]);
   }
   return out;
 }

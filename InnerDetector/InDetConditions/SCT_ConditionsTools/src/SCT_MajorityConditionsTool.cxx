@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "SCT_MajorityConditionsSvc.h"
+#include "SCT_MajorityConditionsTool.h"
 
 // Gaudi includes
 #include "GaudiKernel/StatusCode.h"
@@ -12,12 +12,9 @@
 
 using namespace SCT_ConditionsServices;
 
-// Static folder name
-// const std::string SCT_MajorityConditionsSvc::s_coolMajorityFolderName{"/SCT/DCS/MAJ"};
-
 // Constructor
-SCT_MajorityConditionsSvc::SCT_MajorityConditionsSvc(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthService(name, pSvcLocator),
+SCT_MajorityConditionsTool::SCT_MajorityConditionsTool(const std::string& type, const std::string& name, const IInterface* parent) :
+  base_class(type, name, parent),
   m_overall{false},
   m_majorityFraction{0.9},
   m_mutex{},
@@ -30,8 +27,8 @@ SCT_MajorityConditionsSvc::SCT_MajorityConditionsSvc(const std::string& name, IS
 }
 
 // Initialize
-StatusCode SCT_MajorityConditionsSvc::initialize() {
-  ATH_MSG_INFO("Initializing SCT_MajorityConditionsSvc");
+StatusCode SCT_MajorityConditionsTool::initialize() {
+  ATH_MSG_INFO("Initializing SCT_MajorityConditionsTool");
 
   // Read Cond Handle Key
   ATH_CHECK(m_condKey.initialize());
@@ -40,27 +37,14 @@ StatusCode SCT_MajorityConditionsSvc::initialize() {
 }
 
 // Finalize
-StatusCode SCT_MajorityConditionsSvc::finalize() {
-  ATH_MSG_INFO("Finalizing SCT_MajorityConditionsSvc");
-
-  return StatusCode::SUCCESS;
-}
-
-// Query interfaces.
-StatusCode SCT_MajorityConditionsSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
-  if (ISCT_DetectorLevelConditionsSvc::interfaceID().versionMatch(riid)) {
-    *ppvInterface = this;
-  } else {
-    // Interface is not directly available : try out a base class
-    return AthService::queryInterface(riid, ppvInterface);
-  }
-  addRef();
+StatusCode SCT_MajorityConditionsTool::finalize() {
+  ATH_MSG_INFO("Finalizing SCT_MajorityConditionsTool");
 
   return StatusCode::SUCCESS;
 }
 
 // Is the detector good?
-bool SCT_MajorityConditionsSvc::isGood() {
+bool SCT_MajorityConditionsTool::isGood() {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
   const SCT_MajorityCondData* condData{getCondData(ctx)};
   if (!condData) return false;
@@ -78,7 +62,7 @@ bool SCT_MajorityConditionsSvc::isGood() {
 }
 
 // Is a barrel/endcap good?
-bool SCT_MajorityConditionsSvc::isGood(int bec) {
+bool SCT_MajorityConditionsTool::isGood(int bec) {
   const EventContext& ctx{Gaudi::Hive::currentContext()};
   const SCT_MajorityCondData* condData{getCondData(ctx)};
   if (!condData) return false;
@@ -100,15 +84,7 @@ bool SCT_MajorityConditionsSvc::isGood(int bec) {
   return result;
 }
 
-// Is the information filled?
-bool SCT_MajorityConditionsSvc::filled() const {
-  const EventContext& ctx{Gaudi::Hive::currentContext()};
-  const SCT_MajorityCondData* condData{getCondData(ctx)};
-  if (!condData) return false;
-  return condData->isFilled();
-}
-
-const SCT_MajorityCondData* SCT_MajorityConditionsSvc::getCondData(const EventContext& ctx) const {
+const SCT_MajorityCondData* SCT_MajorityConditionsTool::getCondData(const EventContext& ctx) const {
   static const EventContext::ContextEvt_t invalidValue{EventContext::INVALID_CONTEXT_EVT};
   EventContext::ContextID_t slot{ctx.slot()};
   EventContext::ContextEvt_t evt{ctx.evt()};

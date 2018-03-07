@@ -12,7 +12,7 @@
 #include "ArrayBM.h"
 
 ArrayBM::ArrayBM(const std::string& name,ISvcLocator* svc)
-  : AthService(name,svc)
+  : base_class(name,svc)
   , m_maxBunchCrossingPerOrbit(3564)
   , m_t0Offset(0)
   , m_intensityPatternProp()
@@ -21,6 +21,7 @@ ArrayBM::ArrayBM(const std::string& name,ISvcLocator* svc)
   , m_biRandom(nullptr)
   , m_atRndmGenSvc("AtRanluxGenSvc", name)
   , m_largestElementInPattern(1.0)
+  , m_signalPattern(nullptr)
 {
   declareProperty("MaxBunchCrossingPerOrbit", m_maxBunchCrossingPerOrbit, "The number of slots in each LHC beam. Default: 3564.");
   declareProperty("IntensityPattern", m_intensityPatternProp,
@@ -54,7 +55,7 @@ StatusCode ArrayBM::initialize()
     }
 
   // Initialize the signal pattern if we need one different from the intensity pattern
-  delete [] m_signalPattern;
+  if (m_signalPattern) delete [] m_signalPattern;
   if (m_emptyBunches!=0){
     m_signalPattern = new double[m_ipLength];
   }
@@ -154,17 +155,4 @@ float ArrayBM::normFactor(int iXing) const
                   << " index " << index
                   << ") is = " <<  m_largestElementInPattern*m_intensityPattern[ index ]);
   return m_largestElementInPattern*m_intensityPattern[ index ];
-}
-
-
-StatusCode ArrayBM::queryInterface(const InterfaceID& riid, void** ppvInterface)
-{
-  if ( IBeamIntensity::interfaceID().versionMatch(riid) )
-    {
-      *ppvInterface = (IBeamIntensity*)this;
-      addRef();
-      return StatusCode::SUCCESS;
-    }
-  // Interface is not directly available: try out the base class
-  return AthService::queryInterface(riid, ppvInterface);
 }

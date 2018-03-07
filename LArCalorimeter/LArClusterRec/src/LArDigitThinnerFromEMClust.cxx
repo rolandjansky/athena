@@ -13,141 +13,83 @@
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "CaloEvent/CaloCell.h"
 #include "AthContainers/ConstDataVector.h"
-
+#include "LArRecConditions/LArOnOffIdMapping.h"
 
 
 LArDigitThinnerFromEMClust::LArDigitThinnerFromEMClust(const std::string& name,
 				 ISvcLocator* pSvcLocator) :
-    AthAlgorithm(name, pSvcLocator)
-    , m_larCablingSvc("LArCablingService") 
+    AthReentrantAlgorithm(name, pSvcLocator)
     , m_onlineID(0)
-    , m_inputContainerName("FREE")
-    , m_outputContainerName("LArDigitContainer_EMClust")
-    , m_nchannels(0)
-    , m_nevent(0)
-    , m_ncells(0)
+    , m_inputContainerKey("FREE")
+    , m_outputContainerKey("LArDigitContainer_EMClust")
+    , m_larCablingKey("LArOnOffIdMap") 
 {
-  declareProperty("InputContainerName", m_inputContainerName);
-  declareProperty("OutputContainerName",m_outputContainerName);
-  declareProperty("ClusterContainer",m_clusterContainerName);
+  declareProperty("InputContainerName", m_inputContainerKey);
+  declareProperty("OutputContainerName",m_outputContainerKey);
+  declareProperty("ClusterContainer",m_clusterContainerKey);
+  declareProperty("LArOnOffMap",m_larCablingKey);
 }
 
 LArDigitThinnerFromEMClust::~LArDigitThinnerFromEMClust() { }
 
 
 StatusCode LArDigitThinnerFromEMClust::initialize() {
-
-  ATH_CHECK( m_larCablingSvc.retrieve() );
-  ATH_CHECK(  detStore()->retrieve(m_onlineID, "LArOnlineID") );
-
-  m_nchannels = m_onlineID->channelHashMax();
-
-  m_listCells.resize(m_nchannels);
-
-  ATH_MSG_INFO( " Number of LAr online channels " << m_nchannels  );
-
-  m_nevent=0;
-  m_ncells=0;
-  
+  ATH_CHECK( detStore()->retrieve(m_onlineID, "LArOnlineID") );
+  ATH_CHECK( m_inputContainerKey.initialize());
+  ATH_CHECK( m_outputContainerKey.initialize());
+  ATH_CHECK( m_clusterContainerKey.initialize());
+  ATH_CHECK( m_larCablingKey.initialize());
   return StatusCode::SUCCESS;
 }
 
-StatusCode LArDigitThinnerFromEMClust::finalize()
-{
-  ATH_MSG_INFO( "LArDigitThinnerFromEMClust Finalize"  );
-  ATH_MSG_INFO( " Number of events " << m_nevent  );
-  ATH_MSG_INFO( " Number of digits written " << m_ncells  );
-
+StatusCode LArDigitThinnerFromEMClust::finalize() {
   return StatusCode::SUCCESS;
 }
 
 
-StatusCode LArDigitThinnerFromEMClust::execute() {
-  StatusCode sc;
+StatusCode LArDigitThinnerFromEMClust::execute_r(const EventContext& ctx) const {
 
-  // Create the new digit container
-  ConstDataVector<LArDigitContainer>* outputContainer = new ConstDataVector<LArDigitContainer>(SG::VIEW_ELEMENTS);
-  if (!outputContainer){
-    ATH_MSG_WARNING( "Could not allocate a new LArDigitContainer"  );
-    return StatusCode::SUCCESS;	  
-  }
-  
-  sc = evtStore()->record(outputContainer , m_outputContainerName);
-  if (sc.isFailure()) {
-    ATH_MSG_WARNING( "Could not record output LArDigitContainer with key " 
-                     << m_outputContainerName  );
-    return StatusCode::SUCCESS;
-  }
+  //Get inputs from read handles:
+  SG::ReadHandle<LArDigitContainer> inputContainer(m_inputContainerKey,ctx);
+  SG::ReadHandle<xAOD::CaloClusterContainer> clusterContainer(m_clusterContainerKey,ctx); 
 
-  const LArDigitContainer* inputContainer = 0;
-  sc = evtStore()->retrieve(inputContainer, m_inputContainerName);
-  
-  if (sc.isFailure()) { 
-    ATH_MSG_WARNING( "Input LArDigitContainer not found with key"
-                     << m_inputContainerName  );
-    return StatusCode::SUCCESS;
-  }
+  //Write output via write handle
+  SG::WriteHandle<ConstDataVector<LArDigitContainer> >outputContainer(m_outputContainerKey,ctx);
+  ATH_CHECK(outputContainer.record(std::make_unique<ConstDataVector<LArDigitContainer> >(SG::VIEW_ELEMENTS)));
 
+  //Get cable map via read conditions handle
+  SG::ReadCondHandle<LArOnOffIdMapping> larCablingHdl(m_larCablingKey,ctx);
+  const LArOnOffIdMapping* larCabling=*larCablingHdl;
 
-  ATH_CHECK( getCells() );
+  std::bitset<200000> clusteredDigits;
 
-  m_nevent++;
+  //Loop over Clusters:
+  for (const xAOD::CaloCluster* clus : *clusterContainer) {
 
-  for (LArDigitContainer::const_iterator chan = inputContainer->begin(); 
-       chan != inputContainer->end(); ++chan) 
-  {       
-
-    HWIdentifier channelID = (*chan)->channelID();
-    IdentifierHash idHash = m_onlineID->channel_Hash(channelID);
-    size_t index = (size_t) (idHash);
- 
-    if (!m_listCells[index]) continue;
-
-    outputContainer->push_back(*chan);
-    m_ncells++;
-  }
-
-  
-  ATH_MSG_DEBUG("Copied " << outputContainer->size() << " of " << inputContainer->size() << " digits.");
-  
-  return StatusCode::SUCCESS;
-}
-  
-
-
-
-StatusCode  LArDigitThinnerFromEMClust::getCells()
-{
-  
-  for (size_t i=0;i<m_nchannels;i++) m_listCells[i]=false;
-    
-  const xAOD::CaloClusterContainer* clusterCollection=0;
-  StatusCode sc = evtStore()->retrieve(clusterCollection, m_clusterContainerName);
-    
-  if ( sc.isFailure() || !clusterCollection) {
-    ATH_MSG_WARNING( " Cluster collection not found " );
-    return StatusCode::SUCCESS;
-  }
-
-  xAOD::CaloClusterContainer::const_iterator clusB = clusterCollection->begin();
-  xAOD::CaloClusterContainer::const_iterator clusE = clusterCollection->end();
-  for ( ; clusB!= clusE; ++clusB) {
-    const xAOD::CaloCluster* clus = (*clusB);
-    // loop over cells
+    //Loop over cells in cluster:
     xAOD::CaloCluster::const_cell_iterator cellIter    = clus->cell_begin();
     xAOD::CaloCluster::const_cell_iterator cellIterEnd = clus->cell_end();
     for( ;cellIter!=cellIterEnd;cellIter++) { 
       const CaloCell* cell = (*cellIter);
       if (cell) {
-         Identifier id = cell->ID();
-         HWIdentifier hwid = m_larCablingSvc->createSignalChannelID(id);
-         IdentifierHash idHash =  m_onlineID->channel_Hash(hwid);
-         size_t index = (size_t) (idHash);
-         m_listCells[index]=true;
+	Identifier id = cell->ID();
+	HWIdentifier hwid = larCabling->createSignalChannelID(id);
+	IdentifierHash idHash =  m_onlineID->channel_Hash(hwid);
+	size_t index = (size_t) (idHash);
+	clusteredDigits.set(index);
       }
-    }
+    }//end loop over cells in cluster
+  }//end loop over cluster
+
+
+  for (const LArDigit* dig : *inputContainer) {
+    HWIdentifier channelID = dig->channelID();
+    IdentifierHash idHash = m_onlineID->channel_Hash(channelID);
+    size_t index = (size_t) (idHash);
+    if (clusteredDigits.test(index)) outputContainer->push_back(dig);
   }
 
-  return StatusCode::SUCCESS; 
-
+  ATH_MSG_DEBUG("Copied " << outputContainer->size() << " of " << inputContainer->size() << " digits.");
+  
+  return StatusCode::SUCCESS;
 }
