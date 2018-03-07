@@ -18,7 +18,6 @@ else()
    set( extra_deps GaudiKernel
       Reconstruction/RecoTools/ParticlesInConeTools
       PRIVATE
-      Generators/GeneratorObjects
       Generators/TruthUtils
       Reconstruction/RecoTools/RecoToolInterfaces
       Tracking/TrkEvent/TrkEventPrimitives
@@ -39,6 +38,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODMuon
    Event/xAOD/xAODTracking
    Event/xAOD/xAODTruth
+   Generators/GeneratorObjects
    Generators/TruthUtils
    ${extra_deps} )
 
