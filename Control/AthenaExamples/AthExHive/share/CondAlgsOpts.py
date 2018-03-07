@@ -43,7 +43,7 @@ AlgScheduler.EnableConditions( True )
 AlgScheduler.setDataLoaderAlg( "SGInputLoader" )
 
 from IOVSvc.IOVSvcConf import CondSvc
-svcMgr += CondSvc( OutputLevel=DEBUG )
+svcMgr += CondSvc( OutputLevel=VERBOSE )
 
 #-----------------------------------------------------------------------------#
 
@@ -67,9 +67,6 @@ svcMgr += CondSvc( OutputLevel=DEBUG )
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
-from SGComps.SGCompsConf import SGInputLoader
-topSequence+=SGInputLoader(OutputLevel=DEBUG, ShowEventDump=False)
-
 from AthExHive.AthExHiveConf import *
 topSequence+=AlgA(OutputLevel=DEBUG)
 topSequence+=AlgB(OutputLevel=DEBUG, Key_R1="a1", Key_W1="a3")
@@ -78,20 +75,31 @@ topSequence+=AlgC("AlgC2", OutputLevel=DEBUG, Key_R1="a1", Key_CH="X2")
 topSequence+=AlgD("AlgD1", OutputLevel=DEBUG, Key_R1="a3", Key_CH1="X1", Key_CH2="X2")
 #topSequence+=AlgD("AlgD2", OutputLevel=DEBUG, Key_R1="a1", Key_CH1="Y1", Key_CH2="Y2")
 
-topSequence+=CondAlgX("CondAlgX1", OutputLevel=DEBUG, Key_CH="X1", Key_DB="X1")
-topSequence+=CondAlgX("CondAlgX2", OutputLevel=DEBUG, Key_CH="X2", Key_DB="X2")
+from AthenaCommon.AlgSequence import AthSequencer 
+condSeq = AthSequencer("AthCondSeq") 
 
-topSequence+=CondAlgY("CondAlgY1", OutputLevel=DEBUG, Key_CH1="Y1", Key_CH2="Y2", Key_DB1="Y1", Key_DB2="Y2")
+condSeq+=CondAlgX("CondAlgX1", OutputLevel=DEBUG, Key_CH="X1", Key_DB="X1")
+condSeq+=CondAlgX("CondAlgX2", OutputLevel=DEBUG, Key_CH="X2", Key_DB="X2")
+
+condSeq+=CondAlgY("CondAlgY1", OutputLevel=DEBUG, Key_CH1="Y1", Key_CH2="Y2", Key_DB1="Y1", Key_DB2="Y2")
 
 
 condDbFile = "condDb.txt"
-import os.path
-if (not os.path.isfile(condDbFile)):
+import os
+import string
+for dir in string.split( (".:"+os.environ.get('DATAPATH')),":"):
+   cdb = os.path.join(dir,condDbFile)
+   if (os.path.isfile( cdb ) ) :
+      found = 1
+      break
+
+if (found == 0):
    msg.fatal('ASCII condDb file \"' + condDbFile + '\" not found')
    sys.exit(AthenaCommon.ExitCodes.CONFIGURATION_ERROR)
+else:
+   msg.info( "using ASCIICondDb file from " + cdb )
 
-
-svcMgr += ASCIICondDbSvc( OutputLevel=DEBUG, CondFile = condDbFile )
+svcMgr += ASCIICondDbSvc( OutputLevel=DEBUG, CondFile = cdb )
 
 
 #--------------------------------------------------------------
