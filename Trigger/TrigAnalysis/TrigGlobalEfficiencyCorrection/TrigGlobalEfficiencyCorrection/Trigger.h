@@ -23,8 +23,9 @@ class UnusedArg { public: static constexpr xAOD::Type::ObjectType object() { ret
 template<TriggerType tt, unsigned nE, unsigned nMu, typename Cast1 = UnusedArg, typename Cast2 = UnusedArg>
 class Trigger
 {
+public:
+   template<typename Key> using flat_set = boost::container::flat_set<Key>;
 private:
-	template<typename Key> using flat_set = boost::container::flat_set<Key>;
 	static constexpr bool extraCheck(xAOD::Type::ObjectType obj) { return (object()==obj || obj==xAOD::Type::Other); }
 public:
 	std::array<std::size_t, nE+nMu> legs;
