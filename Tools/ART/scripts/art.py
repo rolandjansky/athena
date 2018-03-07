@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 """
 ART - ATLAS Release Tester.
 
@@ -7,15 +7,14 @@ You need to setup for an ATLAS release before using ART.
 
 Usage:
   art.py run             [-v -q --type=<T> --max-jobs=<N> --ci] <script_directory> <sequence_tag>
-  art.py grid            [-v -q --type=<T> -n] <script_directory> <sequence_tag>
-  art.py submit          [-v -q --type=<T> -n --config=<file>] <sequence_tag> [<package>]
-  art.py copy            [-v -q --user=<user> --dst=<dir>] <package>
+  art.py grid            [-v -q --type=<T> --max-jobs=<N> --config=<file> --copy -n] <script_directory> <sequence_tag>
+  art.py submit          [-v -q --type=<T> --max-jobs=<N> --config=<file> -n] <sequence_tag> [<package>]
+  art.py copy            [-v -q --user=<user> --dst=<dir>] <indexed_package>
   art.py validate        [-v -q] <script_directory>
   art.py included        [-v -q --type=<T> --test-type=<TT>] <script_directory>
   art.py compare grid    [-v -q --days=<D> --user=<user> --entries=<entries>] <package> <test_name>
   art.py compare ref     [-v -q --entries=<entries>] <path> <ref_path>
-  art.py download        [-v -q] <input_file>
-  art.py list grid       [-v -q --user=<user> --json --type=<T> --test-type=<TT> --nogrid] <package>
+  art.py list grid       [-v -q --user=<user> --json --test-type=<TT>] <package>
   art.py log grid        [-v -q --user=<user>] <package> <test_name>
   art.py output grid     [-v -q --user=<user>] <package> <test_name>
   art.py config          [-v -q --config=<file>] <package>
@@ -23,6 +22,7 @@ Usage:
 Options:
   --ci                   Run Continuous Integration tests only (using env: AtlasBuildBranch)
   --config=<file>        Use specific config file [default: art-configuration.yml]
+  --copy                 Run the copy after running the jobs
   --days=<D>             Number of days ago to pick up reference for compare [default: 1]
   --dst=<dir>            Destination directory for downloaded files
   --entries=<entries>    Number of entries to compare [default: 10]
@@ -30,7 +30,6 @@ Options:
   --json                 Output in json format
   --max-jobs=<N>         Maximum number of concurrent jobs to run [default: 0]
   -n --no-action         No real submit will be done
-  --nogrid               Do not retrieve grid indices
   -q --quiet             Show less information, only warnings and errors
   --test-type=<TT>       Type of test (e.g. all, batch or single) [default: all]
   --type=<T>             Type of job (e.g. grid, build)
@@ -46,14 +45,13 @@ Sub-commands:
   validate          Check headers in tests
   included          Show list of files which will be included for art submit/art grid
   compare           Compare the output of a job
-  download          Download a file from rucio
   list              List the jobs of a package
   log               Show the log of a job
   output            Get the output of a job
   config            Show configuration
 
 Arguments:
-  input_file        Input file to download (e.g. CONTAINER_ID:ENTRY_NAME)
+  indexed_package   Package of the test or indexed package (e.g. MooPerformance.4)
   package           Package of the test (e.g. Tier0ChainTests)
   path              Directory or File to compare
   ref_path          Directory or File to compare to
@@ -73,7 +71,7 @@ Tests are called with:
 """
 
 __author__ = "Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>"
-__version__ = '0.7.21'
+__version__ = '0.8.20'
 
 import logging
 import os
@@ -110,7 +108,7 @@ def compare_grid(package, test_name, **kwargs):
     days = int(kwargs['days'])
     entries = kwargs['entries']
     user = kwargs['user']
-    exit(ArtGrid(art_directory, nightly_release, project, platform, nightly_tag).compare(package, test_name, days, user, entries))
+    exit(ArtGrid(art_directory, nightly_release, project, platform, nightly_tag).compare(package, test_name, days, user, entries=entries, shell=True))
 
 
 @dispatch.on('list', 'grid')
@@ -119,12 +117,11 @@ def list(package, **kwargs):
     set_log(kwargs)
     art_directory = os.path.dirname(os.path.realpath(sys.argv[0]))
     (nightly_release, project, platform, nightly_tag) = get_atlas_env()
-    job_type = 'grid' if kwargs['type'] is None else kwargs['type']
+    job_type = 'grid'
     index_type = kwargs['test_type']
     json_format = kwargs['json']
     user = kwargs['user']
-    nogrid = kwargs['nogrid']
-    exit(ArtGrid(art_directory, nightly_release, project, platform, nightly_tag).list(package, job_type, index_type, json_format, user, nogrid))
+    exit(ArtGrid(art_directory, nightly_release, project, platform, nightly_tag).list(package, job_type, index_type, json_format, user))
 
 
 @dispatch.on('log', 'grid')
@@ -158,7 +155,7 @@ def submit(sequence_tag, **kwargs):
     config = kwargs['config']
     no_action = kwargs['no_action']
     wait_and_copy = True
-    exit(ArtGrid(art_directory, nightly_release, project, platform, nightly_tag).task_list(job_type, sequence_tag, package, no_action, wait_and_copy, config))
+    exit(ArtGrid(art_directory, nightly_release, project, platform, nightly_tag, max_jobs=int(kwargs['max_jobs'])).task_list(job_type, sequence_tag, package, no_action, wait_and_copy, config))
 
 
 @dispatch.on('grid')
@@ -169,10 +166,10 @@ def grid(script_directory, sequence_tag, **kwargs):
     (nightly_release, project, platform, nightly_tag) = get_atlas_env()
     job_type = 'grid' if kwargs['type'] is None else kwargs['type']
     package = None
+    config = kwargs['config']
     no_action = kwargs['no_action']
-    wait_and_copy = False
-    config = None
-    exit(ArtGrid(art_directory, nightly_release, project, platform, nightly_tag, script_directory, True).task_list(job_type, sequence_tag, package, no_action, wait_and_copy, config))
+    wait_and_copy = kwargs['copy']
+    exit(ArtGrid(art_directory, nightly_release, project, platform, nightly_tag, script_directory=script_directory, skip_setup=True, max_jobs=int(kwargs['max_jobs'])).task_list(job_type, sequence_tag, package, no_action, wait_and_copy, config))
 
 
 @dispatch.on('run')
@@ -186,7 +183,7 @@ def run(script_directory, sequence_tag, **kwargs):
 
 
 @dispatch.on('copy')
-def copy(package, **kwargs):
+def copy(indexed_package, **kwargs):
     """Copy outputs to eos area."""
     set_log(kwargs)
     art_directory = os.path.dirname(os.path.realpath(sys.argv[0]))
@@ -194,7 +191,7 @@ def copy(package, **kwargs):
     # NOTE: default depends on USER, not set it here but in ArtGrid.copy
     dst = kwargs['dst']
     user = kwargs['user']
-    exit(ArtGrid(art_directory, nightly_release, project, platform, nightly_tag).copy(package, dst, user))
+    exit(ArtGrid(art_directory, nightly_release, project, platform, nightly_tag).copy(indexed_package, dst=dst, user=user))
 
 
 @dispatch.on('validate')
@@ -211,9 +208,9 @@ def included(script_directory, **kwargs):
     set_log(kwargs)
     art_directory = os.path.dirname(os.path.realpath(sys.argv[0]))
     (nightly_release, project, platform, nightly_tag) = get_atlas_env()
-    art_type = 'grid' if kwargs['type'] is None else kwargs['type']
+    job_type = kwargs['type']   # None will list all types
     index_type = kwargs['test_type']
-    exit(ArtBase(art_directory).included(script_directory, art_type, index_type, nightly_release, project, platform))
+    exit(ArtBase(art_directory).included(script_directory, job_type, index_type, nightly_release, project, platform))
 
 
 @dispatch.on('config')
@@ -224,14 +221,6 @@ def config(package, **kwargs):
     (nightly_release, project, platform, nightly_tag) = get_atlas_env()
     config = kwargs['config']
     exit(ArtBase(art_directory).config(package, nightly_release, project, platform, config))
-
-
-@dispatch.on('download')
-def download(input_file, **kwargs):
-    """Download a file from rucio."""
-    set_log(kwargs)
-    art_directory = os.path.dirname(os.path.realpath(sys.argv[0]))
-    exit(ArtBase(art_directory).download(input_file))
 
 
 if __name__ == '__main__':

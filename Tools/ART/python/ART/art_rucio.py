@@ -1,16 +1,13 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 """Class to interact with RUCIO."""
 
 __author__ = "Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>"
 
-import atexit
 import json
 import logging
 import os
 import re
-import shutil
-import tarfile
 import tempfile
 
 try:
@@ -29,15 +26,17 @@ class ArtRucio(object):
 
     ART_JOB = 'art-job.json'
     ATHENA_STDOUT = 'athena_stdout.txt'
-    JOB_TAR = 'job.tar'
     JSON = '_EXT0'
-    LOG = '.log'
-    LOG_TGZ = 'log.tgz'
-    OUTPUT = '_EXT1'
 
-    def __init__(self):
+    def __init__(self, art_directory, nightly_release, project, platform, nightly_tag):
         """Keep arguments."""
-        pass
+        self.art_directory = art_directory
+        self.nightly_release = nightly_release
+        self.project = project
+        self.platform = platform
+        self.nightly_tag = nightly_tag
+
+        self.table = None
 
     def exit_if_no_rucio(self):
         """Exit if RUCIO is not available."""
@@ -50,13 +49,21 @@ class ArtRucio(object):
         """Return scope."""
         return '.'.join(('user', user))
 
-    def download(self, did, dst_dir):
+    def download(self, did, dst_dir, shell=False):
         """Download did into temp directory."""
         log = logging.getLogger(MODULE)
         self.exit_if_no_rucio()
 
         # rucio downloads cache properly
-        (exit_code, out, err) = run_command("rucio download --dir " + dst_dir + " " + did)
+        log.info("Shell = %s", shell)
+        env = os.environ.copy()
+        if shell:
+            cmd = ' '.join((os.path.join(self.art_directory, 'art-download.sh'), did, dst_dir))
+            env['PATH'] = '.:' + env['PATH']
+        else:
+            cmd = ' '.join(('rucio', 'download', '--dir', dst_dir, did))
+
+        (exit_code, out, err) = run_command(cmd, env=env)
         if (exit_code != 0):
             log.error(err)
         log.info(out)
@@ -76,142 +83,180 @@ class ArtRucio(object):
         # log.info(out)
         return exit_code
 
-    def get_outfile(self, user, package, nightly_release, project, platform, nightly_tag, sequence_tag='*', test_name=None):
-        """Create outfile from parameters."""
-        if nightly_tag is None:
-            nightly_tag = self.nightly_tag
+    def __parse_outfile(self, outfile):
+        """Parse outfile and return tuple (sequence_tag, single_index) or None."""
+        #
+        # Matching: user.artprod.atlas.master.Athena.x86_64-slc6-gcc62-opt.2018-01-21T2301.284099.MuonRecRTT.6.log.13062437.000001.log.tgz
+        #           user.artprod.atlas.master.Athena.x86_64-slc6-gcc62-opt.2018-01-21T2301.284099.MuonRecRTT.6
+        #           user.artprod.atlas.master.Athena.x86_64-slc6-gcc62-opt.2018-01-19T2301.283573.TrigAnalysisTest
+        #
+        PATTERN = r"user\.([^\.]+)\.([^\.]+)\." + self.nightly_release + "\." + self.project + "\." + self.platform + "\." + self.nightly_tag + "\.(.+)"
+        match = re.search(PATTERN, outfile)
+        if not match:
+            return None
 
-        outfile = '.'.join(('user', user, 'atlas', nightly_release, project, platform, nightly_tag, sequence_tag, package))
-        if sequence_tag == '*':
-            self.exit_if_no_rucio()
-            rucio_client = rucio.client.Client()
-            for out in rucio_client.list_dids(self.get_scope(user), {'name': '.'.join((outfile, 'log'))}):
-                outfile = os.path.splitext(out)[0]
+        (user, experiment, rest) = match.groups()
+
+        items = rest.split(".")
+        sequence_tag = items[0] if len(items) > 0 else -1
+        try:
+            single_index = int(items[2]) if len(items) > 2 else -1
+        except ValueError:
+            single_index = -1
+
+        if single_index < 0:
+            grid_index = int(items[4]) if len(items) > 4 else -1
+        else:
+            grid_index = int(items[5]) if len(items) > 5 else -1
+
+        # print outfile, sequence_tag, single_index, grid_index
+
+        return (sequence_tag, single_index, grid_index)
+
+    def get_sequence_tag(self, outfile):
+        """Return sequence tag or None."""
+        result = self.__parse_outfile(outfile)
+        return result[0] if result is not None else None
+
+    def get_single_index(self, outfile):
+        """Return single index or -1."""
+        result = self.__parse_outfile(outfile)
+        return result[1] if result is not None else -1
+
+    def get_grid_index(self, outfile):
+        """Return frid index or -1."""
+        result = self.__parse_outfile(outfile)
+        return result[2] if result is not None else -1
+
+    def get_outfile_name(self, user, package, sequence_tag, test_name=None, nightly_tag=None):
+        """Create outfile name based on parameters."""
+        nightly_tag = self.nightly_tag if nightly_tag is None else nightly_tag
+        outfile = '.'.join(('user', user, 'atlas', self.nightly_release, self.project, self.platform, nightly_tag, sequence_tag, package))
         return outfile if test_name is None else '.'.join((outfile, test_name))
 
-    # private
-    def get_rucio_map(self, user, outfile):
-        """Return map of entries by grid_index into { source, rucio_name }."""
+    def get_outfiles(self, user, package, nightly_tag=None):
+        """
+        Create list of outfiles from parameters.
+
+        example: ['user.artprod.atlas.master.Athena.x86_64-slc6-gcc62-opt.2018-01-21T2301.284099.MuonRecRTT.3']
+        """
         log = logging.getLogger(MODULE)
-        log.debug("Looking for %s", outfile)
+        nightly_tag = self.nightly_tag if nightly_tag is None else nightly_tag
+
         self.exit_if_no_rucio()
-
-        CERN = 'CERN-PROD_SCRATCHDISK'
-
-        LOG_PATTERN = r"\.(\d{6})\.log\.tgz"
-        JSON_PATTERN = r"\._(\d{6})\.art-job\.json"
-        OUTPUT_PATTERN = r"\._(\d{6})\.tar"
-        table = {}
         rucio_client = rucio.client.Client()
-        for rep in rucio_client.list_replicas([{'scope': self.get_scope(user), 'name': outfile}], schemes=['root']):
-            source = None
-            rucio_name = None
-            log.debug("Found in %s", rep['states'].keys())
-            # first look at CERN
-            if CERN in rep['states'].keys() and rep['states'][CERN] == 'AVAILABLE':
-                source = CERN
-                rucio_name = rep['rses'][CERN][0]
-            else:
-                for rse in rep['states'].keys():
-                    if rep['states'][rse] == 'AVAILABLE' and len(rep['rses'][rse]) >= 1:
-                        source = rse
-                        rucio_name = rep['rses'][rse][0]
-                        break
 
-            # maybe not found at all
-            if rucio_name is not None:
-                log.debug("Found rucio name %s in %s", rucio_name, source)
-                pattern = JSON_PATTERN if outfile.endswith(ArtRucio.JSON) else LOG_PATTERN if outfile.endswith(ArtRucio.LOG) else OUTPUT_PATTERN
-                match = re.search(pattern, rucio_name)
-                if match:
-                    number = int(match.group(1))
-                else:
-                    log.warning("%s does not contain test number using pattern %s skipped...", rucio_name, pattern)
-                    continue
+        result = []
 
-                table[number] = {'source': source, 'rucio_name': rucio_name}
+        # look for "batch" outfile, and take latest (by sequence tag)
+        pattern = self.get_outfile_name(user, package, '*', None, nightly_tag)
+        outfile = None
+        sequence = None
+        for out in rucio_client.list_dids(self.get_scope(user), {'name': '.'.join((pattern, 'log'))}):
+            sequence_tag = self.get_sequence_tag(out)
+            if sequence is None or sequence_tag > sequence:
+                outfile = os.path.splitext(out)[0]
+                sequence = sequence_tag
 
-        if not table:
-            log.warning("Outfile %s not found or empty", outfile)
-        return table
+        if outfile is not None:
+            log.debug("Adding 'batch': %s", outfile)
+            result.append(outfile)
 
-    def get_index_map(self, user, sequence_tag, package, nightly_release, project, platform, nightly_tag):
-        """Return grid map of job_name to index."""
-        outfile = self.get_outfile(user, package, nightly_release, project, platform, nightly_tag, sequence_tag)
+        # look for "single" outfile, deduce sequence_tag
+        pattern = self.get_outfile_name(user, package, '*', '*', nightly_tag)
+        log.debug("Trying pattern %s", pattern)
+        outfile = None
+        sequence = None
+        for out in rucio_client.list_dids(self.get_scope(user), {'name': '.'.join((pattern, 'log'))}):
+            sequence_tag = self.get_sequence_tag(out)
+            if sequence is None or sequence_tag > sequence:
+                outfile = os.path.splitext(out)[0]
+                sequence = sequence_tag
 
-        # if outfile in self.index_map_cache:
-        #    return self.index_map_cache[outfile]
+        if outfile is not None:
+            log.debug("Found %s", outfile)
+            sequence_tag = self.get_sequence_tag(outfile)
+            if sequence_tag is not None:
+                # found sequence_tag, find all 'single' outfiles
+                pattern = self.get_outfile_name(user, package, sequence_tag, '*', nightly_tag)
+                for out in rucio_client.list_dids(self.get_scope(user), {'name': '.'.join((pattern, 'log'))}):
+                    outfile = os.path.splitext(out)[0]
+                    log.debug("Adding 'single': %s", outfile)
+                    result.append(outfile)
 
-        result = {}
-        for index in self.get_indices(user, outfile + ArtRucio.LOG):
-            test_name = self.get_job_name(user, index, package, sequence_tag, nightly_release, project, platform, nightly_tag)
-            if test_name is None:
-                # log.warning("JSON Lookup failed for test %s", rucio_log_name if rucio_name is None else rucio_name)
-                continue
-
-            result[test_name] = int(index)
-
-        # self.index_map_cache[outfile] = result
         return result
 
-    def get_rucio_name(self, user, outfile, index):
-        """Return rucio name for given outfile and index."""
-        rucio_map = self.get_rucio_map(user, outfile)
-        return rucio_map[index]['rucio_name'] if index in rucio_map else None
-
-    def get_indices(self, user, outfile):
-        """Return list of indices."""
-        return self.get_rucio_map(user, outfile).keys()
-
-    def get_job_name(self, user, index, package, sequence_tag, nightly_release, project, platform, nightly_tag):
-        """
-        Return job name for index.
-
-        job_name is without .sh or .py
-        """
+    def get_table(self, user, package, nightly_tag=None, shell=False):
+        """Get full table with grid_index, single_index and test_name for particular package and nightly_tag."""
         log = logging.getLogger(MODULE)
+
+        if self.table is not None:
+            return self.table
+
         self.exit_if_no_rucio()
 
-        outfile = self.get_outfile(user, package, nightly_release, project, platform, nightly_tag, sequence_tag)
-        log.debug("outfile %s", outfile)
+        table = []
 
-        tmp_dir = tempfile.mkdtemp()
-        atexit.register(shutil.rmtree, tmp_dir)
+        nightly_tag = self.nightly_tag if nightly_tag is None else nightly_tag
 
-        tmp_json = os.path.join(tmp_dir, ArtRucio.ART_JOB)
-        rucio_name = self.get_rucio_name(user, outfile + ArtRucio.JSON, index)
-        if self.xrdcp(rucio_name, tmp_json, force=True) == 0:
-            log.debug("copied json %s", rucio_name)
-            with open(tmp_json) as json_file:
-                info = json.load(json_file)
-                job_name = os.path.splitext(info['name'])[0]
-                return job_name
+        outfiles = self.get_outfiles(user, package, nightly_tag)
 
-        tmp_log = os.path.join(tmp_dir, ArtRucio.LOG_TGZ)
-        rucio_log_name = self.get_rucio_name(user, outfile + ArtRucio.LOG, index)
-        if self.xrdcp(rucio_log_name, tmp_log, force=True) == 0:
-            log.debug("copied log %s %s", rucio_log_name, tmp_log)
-            tar = tarfile.open(tmp_log)
-            for name in tar.getnames():
-                if ArtRucio.ATHENA_STDOUT in name:
-                    log.debug("Found %s", ArtRucio.ATHENA_STDOUT)
-                    info = tar.extractfile(name).read()
-                    # try art-job-name
-                    match = re.search(r"art-job-name:\s(\S+)", info)
-                    if match:
-                        log.debug("Found 'art-job-name'")
-                        return os.path.splitext(match.group(1))[0]
+        outfiles_str = [x + ArtRucio.JSON for x in outfiles]
+        outfiles_str = ' '.join(outfiles_str)
 
-                    # try Job Name
-                    match = re.search(r"Job Name:\s(\S+)", info)
-                    if match:
-                        log.debug("Found 'Job Name:'")
-                        return os.path.splitext(match.group(1))[0]
+        tmp_dir = tempfile.gettempdir()
+        dst_dir = tmp_dir
+    
+        log.info("Shell = %s", shell)
+        exit_code = self.download(outfiles_str, dst_dir, shell)
+        if exit_code != 0:
+            log.error("Failed to execute rucio download %d", exit_code)
+            return table
 
-        log.debug("Cannot retrieve job_name from art-job.json or logfile")
-        return None
+        for outfile in outfiles:
+            single_index = self.get_single_index(outfile)
 
-    def get_index(self, user, sequence_tag, package, job_name, nightly_release, project, platform, nightly_tag):
-        """Return index for job_name."""
-        index_map = self.get_index_map(user, sequence_tag, package, nightly_release, project, platform, nightly_tag)
-        return index_map[job_name] if job_name in index_map else -1
+            json_directory = os.path.join(dst_dir, outfile + ArtRucio.JSON)
+            if not os.path.isdir(json_directory):
+                # print single_index, rucio_name
+                table.append({
+                    'single_index': single_index,
+                    'grid_index': -1,
+                    'file_index': -1,
+                    'job_index': -1,
+                    'outfile': outfile,
+                    'job_name': None
+                })
+                continue
+
+            for json_file in os.listdir(json_directory):
+                json_path = os.path.join(json_directory, json_file)
+                if os.path.isfile(json_path):
+                    with open(json_path) as json_fd:
+                        info = json.load(json_fd)
+                        job_name = os.path.splitext(info['name'])[0]
+
+                        # Match: user.artprod.13199077.EXT0._000002.art-job.json
+                        # Match: user.artprod.13199077.EXT0._000003.art-job.json.4
+                        # job_index = 13199077, grid_index = 3, file_index = 4
+                        match = re.search(r"user\.([^\.]+)\.(\d+)\.EXT0\._(\d+)\.art-job.json(?:\.(\d+))?", json_file)
+                        if match:
+                            job_index = int(match.group(2))
+                            grid_index = int(match.group(3))
+                            file_index = -1 if match.group(4) is None else int(match.group(4))
+                        else:
+                            job_index = -1
+                            grid_index = -1
+                            file_index = -1
+
+                        table.append({
+                            'single_index': single_index,
+                            'grid_index': grid_index,
+                            'file_index': file_index,
+                            'job_index': job_index,
+                            'outfile': outfile,
+                            'job_name': job_name
+                        })
+
+        self.table = table
+        return table
