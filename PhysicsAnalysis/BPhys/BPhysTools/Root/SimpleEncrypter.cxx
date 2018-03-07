@@ -19,7 +19,7 @@
 namespace xAOD {
 
   //--------------------------------------------------------------------------
-  // Static constants
+  // Private static constants
   //--------------------------------------------------------------------------
   const SimpleEncrypter::ULLI_t SimpleEncrypter::m_MAXRANGE =
     (SimpleEncrypter::ULLI_t)pow(std::numeric_limits<ULLI_t>::max(), 0.25);
@@ -99,14 +99,14 @@ namespace xAOD {
   //--------------------------------------------------------------------------
   // Get private key
   //--------------------------------------------------------------------------
-  std::string SimpleEncrypter::getPrivKey() {
+  std::string SimpleEncrypter::getPrivKey() const {
   
     return keyToString(m_n, m_d);
   }
   //--------------------------------------------------------------------------
   // Get public key
   //--------------------------------------------------------------------------
-  std::string SimpleEncrypter::getPubKey() {
+  std::string SimpleEncrypter::getPubKey() const {
 
     return keyToString(m_e, m_n);    
   }
@@ -211,7 +211,7 @@ namespace xAOD {
   //--------------------------------------------------------------------------
   // Find a prime number
   //--------------------------------------------------------------------------
-  SimpleEncrypter::ULLI_t SimpleEncrypter::genPrime() {
+  SimpleEncrypter::ULLI_t SimpleEncrypter::genPrime() const {
     
     LLI_t t = (m_MINRANGE + rand()) % (m_MAXRANGE-1);
     do {
@@ -222,7 +222,7 @@ namespace xAOD {
   //--------------------------------------------------------------------------
   // Test for being a prime number
   //--------------------------------------------------------------------------
-  bool SimpleEncrypter::isPrime(ULLI_t n) {
+  bool SimpleEncrypter::isPrime(ULLI_t n) const {
     
     bool isPrime = true;
     if (n != 2) {
@@ -239,7 +239,7 @@ namespace xAOD {
   // Greatest common denominator
   //--------------------------------------------------------------------------
   SimpleEncrypter::ULLI_t
-  SimpleEncrypter::greatestCommonDenominator(ULLI_t n1, ULLI_t n2) {
+  SimpleEncrypter::greatestCommonDenominator(ULLI_t n1, ULLI_t n2) const {
 
     std::vector<LLI_t> r;
     LLI_t i = 1;
@@ -254,7 +254,7 @@ namespace xAOD {
   //--------------------------------------------------------------------------
   // Find coprime number
   //--------------------------------------------------------------------------
-  SimpleEncrypter::ULLI_t SimpleEncrypter::genCoprime(ULLI_t n) {
+  SimpleEncrypter::ULLI_t SimpleEncrypter::genCoprime(ULLI_t n) const {
     
     // make sure coprime is larger than 5th Fermat number (2^16+1 = 65537)
     LLI_t i = (65537 + rand()) % (m_MAXRANGE -1);
@@ -267,7 +267,7 @@ namespace xAOD {
   // Find decryption exponent
   //--------------------------------------------------------------------------
   SimpleEncrypter::ULLI_t
-  SimpleEncrypter::genDecryptionExponent(ULLI_t phi, ULLI_t e) {
+  SimpleEncrypter::genDecryptionExponent(ULLI_t phi, ULLI_t e) const {
     
     for (ULLI_t i=1; i<m_MAXRANGE; ++i) {
       if ( ((phi * i + 1) % e) == 0 ) {
@@ -279,7 +279,7 @@ namespace xAOD {
   //--------------------------------------------------------------------------
   // Convert key to a hex string
   //--------------------------------------------------------------------------
-  std::string SimpleEncrypter::keyToString(ULLI_t a, ULLI_t b) {
+  std::string SimpleEncrypter::keyToString(ULLI_t a, ULLI_t b) const {
 
     // length of keys w.r.t. hex digits
     unsigned int ra = (unsigned int)(log(a)/log(16.))+1;
@@ -301,7 +301,7 @@ namespace xAOD {
   // Convert hex string to two integers
   //--------------------------------------------------------------------------
   std::pair<SimpleEncrypter::ULLI_t, SimpleEncrypter::ULLI_t>
-  SimpleEncrypter::decodeKeyString(std::string hstr) {
+  SimpleEncrypter::decodeKeyString(std::string hstr) const {
     
     std::pair<ULLI_t, ULLI_t> keys(0,0);
     
@@ -330,7 +330,7 @@ namespace xAOD {
   //--------------------------------------------------------------------------
   // Interpret bits of positive floating point number as integer
   //--------------------------------------------------------------------------
-  SimpleEncrypter::ULLI_t SimpleEncrypter::floatBitsToInt(float val) {
+  SimpleEncrypter::ULLI_t SimpleEncrypter::floatBitsToInt(float val) const {
 
     ULLI_t res(0);
 
@@ -367,7 +367,7 @@ namespace xAOD {
   //--------------------------------------------------------------------------
   // Interpret bits of positive integer as floating point number
   //--------------------------------------------------------------------------
-  float SimpleEncrypter::intBitsToFloat(ULLI_t val) {
+  float SimpleEncrypter::intBitsToFloat(ULLI_t val) const {
 
     float res(0.);
 
@@ -404,7 +404,7 @@ namespace xAOD {
   // Encrypt using format preserving encryption w.r.t. RSA modulus
   // via cycling
   //--------------------------------------------------------------------------
-  SimpleEncrypter::ULLI_t SimpleEncrypter::encryptFPECycle(ULLI_t a) {
+  SimpleEncrypter::ULLI_t SimpleEncrypter::encryptFPECycle(ULLI_t a) const {
     
     ULLI_t enc = 0;
     if ( a > 0 ) {
@@ -423,7 +423,7 @@ namespace xAOD {
   // Decrypt using format preserving encryption w.r.t. RSA modulus
   // via cycling
   //--------------------------------------------------------------------------
-  SimpleEncrypter::ULLI_t SimpleEncrypter::decryptFPECycle(ULLI_t enc) {
+  SimpleEncrypter::ULLI_t SimpleEncrypter::decryptFPECycle(ULLI_t enc) const {
 
     ULLI_t dec = 0;
     if ( enc > 0 ) {
@@ -441,14 +441,14 @@ namespace xAOD {
   //--------------------------------------------------------------------------
   // Encrypt integer
   //--------------------------------------------------------------------------
-  SimpleEncrypter::ULLI_t SimpleEncrypter::encryptInternal(ULLI_t x) {
+  SimpleEncrypter::ULLI_t SimpleEncrypter::encryptInternal(ULLI_t x) const {
     
     return powerMod(x, m_e, m_n);
   }
   //--------------------------------------------------------------------------
   // Decrypt integer
   //--------------------------------------------------------------------------
-  SimpleEncrypter::ULLI_t SimpleEncrypter::decryptInternal(ULLI_t x) {
+  SimpleEncrypter::ULLI_t SimpleEncrypter::decryptInternal(ULLI_t x) const {
     
     return powerMod(x, m_d, m_n);
   }
@@ -456,7 +456,7 @@ namespace xAOD {
   // Exponentiate a with d observing modulus n
   //--------------------------------------------------------------------------
   SimpleEncrypter::ULLI_t
-  SimpleEncrypter::powerMod(ULLI_t a, ULLI_t d, ULLI_t n) {
+  SimpleEncrypter::powerMod(ULLI_t a, ULLI_t d, ULLI_t n) const {
 
     int    bin[sizeof(ULLI_t)*CHAR_BIT];
     ULLI_t dec[sizeof(ULLI_t)*CHAR_BIT];

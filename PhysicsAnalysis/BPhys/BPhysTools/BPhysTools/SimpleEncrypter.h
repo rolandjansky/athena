@@ -40,12 +40,6 @@ namespace xAOD {
     typedef long long int          LLI_t;
     typedef unsigned long long int ULLI_t;
 
-    /// @brief Approximate range for prime numbers to be generated in
-    static const ULLI_t m_MAXRANGE;
-    static const ULLI_t m_MINRANGE;
-    /// @brief maximum number of hex digits for key parts
-    static const unsigned int m_MAXHEXDIGITS;
-    
     ///
     /// @brief Main constructor
     ///
@@ -84,14 +78,14 @@ namespace xAOD {
     ///
     /// @returns hex string with private key
     ///
-    virtual std::string getPrivKey();
+    virtual std::string getPrivKey() const;
 
     ///
     /// @brief Get public key
     ///
     /// @returns hex string with public key
     ///
-    virtual std::string getPubKey();
+    virtual std::string getPubKey() const;
 
     ///
     /// @brief Encrypt a positive integer value
@@ -141,23 +135,23 @@ namespace xAOD {
     ///
     /// @brief Find a prime number
     ///
-    virtual ULLI_t genPrime();
+    virtual ULLI_t genPrime() const;
     ///
     /// @brief Check for being a prime number
     ///
-    virtual bool isPrime(ULLI_t n);
+    virtual bool isPrime(ULLI_t n) const;
     ///
     /// @brief Find greatest common denominator
     ///
-    virtual ULLI_t greatestCommonDenominator(ULLI_t n1, ULLI_t n2);
+    virtual ULLI_t greatestCommonDenominator(ULLI_t n1, ULLI_t n2) const;
     ///
     /// @brief Find a coprime number
     ///
-    virtual ULLI_t genCoprime(ULLI_t n);
+    virtual ULLI_t genCoprime(ULLI_t n) const;
     ///
     /// @brief Find decryption exponent
     ///
-    virtual ULLI_t genDecryptionExponent(ULLI_t phi, ULLI_t e);
+    virtual ULLI_t genDecryptionExponent(ULLI_t phi, ULLI_t e) const;
     ///
     /// @}
     ///
@@ -166,11 +160,11 @@ namespace xAOD {
     ///
     /// @brief Convert key to hex string
     ///    
-    virtual std::string keyToString(ULLI_t a, ULLI_t b);
+    virtual std::string keyToString(ULLI_t a, ULLI_t b) const;
     ///
     /// @brief Decode hex string to two integers
     ///
-    virtual std::pair<ULLI_t, ULLI_t> decodeKeyString(std::string str);
+    virtual std::pair<ULLI_t, ULLI_t> decodeKeyString(std::string str) const;
     /// @}
     ///
     /// @name float <-> int conversion utilities
@@ -178,11 +172,11 @@ namespace xAOD {
     ///
     /// @brief Interpret bits of floating point number as integer
     ///    
-    virtual ULLI_t floatBitsToInt(float val);
+    virtual ULLI_t floatBitsToInt(float val) const;
     ///
     /// @brief Interpret bits of integer as floating point number
     ///    
-    virtual float intBitsToFloat(ULLI_t val);
+    virtual float intBitsToFloat(ULLI_t val) const;
     /// @}
     ///
     /// @name Internal en-/decryption methods
@@ -190,23 +184,23 @@ namespace xAOD {
     ///
     /// @brief Encrypt using format preserving encryption w.r.t. RSA modulus
     ///
-    ULLI_t encryptFPECycle(ULLI_t a);
+    ULLI_t encryptFPECycle(ULLI_t a) const;
     ///
     /// @brief Decrypt using format preserving encryption w.r.t. RSA modulus
     ///
-    ULLI_t decryptFPECycle(ULLI_t a); 
+    ULLI_t decryptFPECycle(ULLI_t a) const; 
     ///
     /// @brief Encrypt integer (internal)
     ///
-    ULLI_t encryptInternal(ULLI_t x);
+    ULLI_t encryptInternal(ULLI_t x) const;
     ///
     /// @brief Decrypt integer (internal)
     ///
-    ULLI_t decryptInternal(ULLI_t x);
+    ULLI_t decryptInternal(ULLI_t x) const;
     ///
     /// @brief Exponentiate a with d observing modulus n
     ///
-    ULLI_t powerMod(ULLI_t a, ULLI_t d, ULLI_t n);
+    ULLI_t powerMod(ULLI_t a, ULLI_t d, ULLI_t n) const;
     ///
     /// @brief Check setup readiness for encryption
     ///
@@ -219,6 +213,15 @@ namespace xAOD {
     /// @}
     
   private:
+    ///
+    /// @name Internal static consts
+    ///
+    /// @brief Approximate range for prime numbers to be generated in
+    static const ULLI_t m_MAXRANGE;
+    static const ULLI_t m_MINRANGE;
+    /// @brief maximum number of hex digits for key parts
+    static const unsigned int m_MAXHEXDIGITS;
+    
     ///
     /// @name Internal member variables
     ///
