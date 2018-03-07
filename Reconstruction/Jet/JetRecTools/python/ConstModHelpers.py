@@ -23,13 +23,10 @@ def getConstModSeq(sequence,inputtype,suffix=""):
     from JetRecTools.JetRecToolsConfig import ctm
 
     # May wish to pass an empty sequence for regular PFlow
-    steps = []
-    if sequence:
-        steps = sequence.split('_')
     modlist = []
     if inputtype=="EMPFlow":
         modlist.append("correctPFO")
-    for step in steps:
+    for step in sequence:
         tool = None
         toolname = "ConstitMod{0}_{1}{2}".format(inputtype,step,suffix)
         alias = tooltypes[step]+inputtype+suffix
@@ -51,19 +48,19 @@ def getConstModSeq(sequence,inputtype,suffix=""):
             ctm.add(tool,alias)
         modlist.append(alias)
 
-    sequenceshort = "".join(steps)
-    seqname = "ConstitMod{0}_{1}{2}".format(sequenceshort,inputtype,suffix)
+    sequencestr = "".join(sequence)
+    seqname = "ConstitMod{0}_{1}{2}".format(sequencestr,inputtype,suffix)
     inputcontainer = ""
     outputcontainer = ""
     if inputtype=="EMPFlow":
         inputcontainer="JetETMiss"
-        outputcontainer=sequenceshort
+        outputcontainer=sequencestr
         modlist.append('chsPFO')
     else:
         containertemplate = {"EMTopo":"EM{0}TopoClusters",
                              "LCTopo":"EM{0}TopoClusters"}[inputtype]
         inputcontainer = "CaloCalTopoClusters"
-        outputcontainer = containertemplate.format(sequenceshort)
+        outputcontainer = containertemplate.format(sequencestr)
 
     inputenum = {"Topo":xAOD.Type.CaloCluster,"PFlow":xAOD.Type.ParticleFlow}[inputtype[2:]]
     modseq = ctm.buildConstitModifSequence( seqname, InputType=inputenum,
