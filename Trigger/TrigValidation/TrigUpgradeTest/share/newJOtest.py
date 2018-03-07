@@ -30,14 +30,8 @@ acc.executeModule( GeoModelCfg, flags )
 
 
 
-# for now we run trivial tester, 
-#from AthenaCommon.Constants import DEBUG
-#from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ROBDataProviderMTTest
-#acc.addEventAlgo( ROBDataProviderMTTest("Tester", OutputLevel=DEBUG) )
 
-
-# that is how the L1 decoder can be added but it needs more work to bring all needed services (i.e. TrigConfiguration)
-
+# that is how the L1 decoder can be added but it needs more work to bring all needed services (i.e. muon rois decoding)
 acc.addSequence( seqOR( "hltTop") )
 from L1Decoder.L1DecoderMod import L1DecoderMod
 acc.executeModule( L1DecoderMod, flags, sequence="hltTop" )
@@ -50,10 +44,12 @@ acc.addSequence( seqAND( "hltSteps"), sequence="hltTop" )
 for step in range(1, 6):
     acc.addSequence( parOR( "hltStep%d" % step), sequence="hltSteps" )
 
-from TrigUpgradeTest.EgammaCaloMod import EgammaCaloMod
-acc.addConfig( EgammaCaloMod, flags, sequence="hltStep1" )
+# adding calo requires  more infrastructure than we actually have
+#from TrigUpgradeTest.EgammaCaloMod import EgammaCaloMod
+#acc.addConfig( EgammaCaloMod, flags, sequence="hltStep1" )
 
 acc.printConfig()
+
 fname = "newJOtest.pkl"
 print "Storing config in the config", fname
 with file(fname, "w") as p:

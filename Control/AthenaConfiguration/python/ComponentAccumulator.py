@@ -95,7 +95,7 @@ class ComponentAccumulator(object):
             raise ConfigurationError("Missing sequence %s to add new sequence to" % sequence )
         if findSubSequence( self._sequence, newseq.name() ):
             raise ConfigurationError("Sequence %s already present" % newseq.name() )
-        seq.Members += [ newseq ]
+        seq += newseq
 
     def addEventAlgo(self, algo,sequence=None):                
         if not isinstance(algo, ConfigurableAlgorithm):

@@ -24,3 +24,4 @@ atlas_add_test( ConfigurableUnitTests SCRIPT test/test_ConfigurableUnitTests.sh 
 atlas_add_test( JobOptionsUnitTests SCRIPT test/test_JobOptionsUnitTests.sh )
 atlas_add_test( JobPropertiesUnitTests SCRIPT test/test_JobPropertiesUnitTests.sh )
 atlas_add_test( KeyStoreUnitTests SCRIPT test/test_KeyStoreUnitTests.sh )
+atlas_add_test( CFElementsTest SCRIPT test/test_CFElements.sh ) 

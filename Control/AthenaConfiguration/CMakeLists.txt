@@ -12,3 +12,4 @@ atlas_subdir( AthenaConfiguration )
 atlas_install_python_modules( python/*.py )
 atlas_install_runtime(python/*.pkl )
 
+atlas_add_test( ComponentAccumulatorTest SCRIPT test/test_ComponentAccumulator.sh ) 

@@ -4,6 +4,14 @@ from AthenaCommon.CFElements import parOR, seqOR, seqAND
 def EgammaCaloMod( flags ):
     from AthenaCommon.Constants import DEBUG
     acc = ComponentAccumulator()
+
+    # load Calo geometry
+    from LArGeoAlgsNV.LArGMConfig import LArGMCfg
+    from TileGeoModel.TileGMConfig import TileGMCfg    
+    acc.addConfig( LArGMCfg,  flags )
+    acc.addConfig( TileGMCfg, flags )
+
+    # setup algorithms
     acc.addSequence( seqAND("L2CaloEgamma") )
     from DecisionHandling.DecisionHandlingConf import RoRSeqFilter
     filterL1RoIsAlg = RoRSeqFilter("filterL1RoIsAlg")
