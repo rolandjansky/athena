@@ -11,6 +11,7 @@
 #include "MuonReadoutGeometry/MMReadoutElement.h"
 
 class MMPrepDataContainerCnv;
+class IdentifierHash;
 
 namespace Muon 
 {
@@ -50,7 +51,9 @@ namespace Muon
 		const Amg::Vector2D& locpos,
 		const std::vector<Identifier>& rdoList,
 		const Amg::MatrixX* locErrMat,
-		const MuonGM::MMReadoutElement* detEl );
+		const MuonGM::MMReadoutElement* detEl, 
+		const int time,
+		const int charge );
 
 
 
@@ -64,6 +67,12 @@ namespace Muon
 	The pointer will be zero if the det el is not defined (i.e. it was not passed in by the ctor)*/
     const MuonGM::MMReadoutElement* detectorElement() const;
 
+    /** @brief Returns the TDC counts */
+    int time() const;
+
+    /** @brief Returns the ADC counts */
+    int charge() const;
+
     /** @brief Dumps information about the PRD*/
     MsgStream&    dump( MsgStream&    stream) const;
 
@@ -72,9 +81,15 @@ namespace Muon
 
   private:
 
-    /** Cached pointer to the detector element - should never be zero.*/
+    /** @brief Cached pointer to the detector element - should never be zero.*/
     const MuonGM::MMReadoutElement* m_detEl;
-   
+
+    /** @brief measured time */
+    int m_time;
+
+    /** @brief measured charge */
+    int m_charge;
+
   };
 
   inline const MuonGM::MMReadoutElement* MMPrepData::detectorElement() const
@@ -89,7 +104,18 @@ namespace Muon
     if (m_globalPosition==0) throw Trk::PrepRawDataUndefinedVariable();
     return *m_globalPosition;
   }
+
+  inline int MMPrepData::time() const 
+  {
+    return m_time;
+  }
+  
+  inline int MMPrepData::charge() const 
+  {
+    return m_charge;
+  }
+
 }
 
-#endif // MUONPREPRAWDATA_RPCPREPDATA_H
+#endif // MUONPREPRAWDATA_MMREPDATA_H
 
