@@ -85,7 +85,7 @@ namespace HLTTest {
       ATH_MSG_DEBUG("Number of positive decisions for this input: " << objDecisions.size() );
 
       for ( TrigCompositeUtils::DecisionID id : objDecisions ) {
-       	ATH_MSG_DEBUG( " --- found decision " << HLT::Identifier( id ) );
+       	ATH_MSG_DEBUG( " --- found new decision " << HLT::Identifier( id ) );
       }  
 
     }

@@ -80,6 +80,8 @@ fastCaloViewsMaker.Views = "EMCaloViews"
 fastCaloViewsMaker.ViewNodeName = "fastCaloInViewAlgs"
 theFastCaloAlgo.RoIs = fastCaloViewsMaker.InViewRoIs
 
+CaloViewVerify = CfgMgr.AthViews__ViewDataVerifier("FastCaloViewDataVerifier")
+CaloViewVerify.DataObjects = [('TrigRoiDescriptorCollection' , 'StoreGateSvc+fastCaloViewsMaker_InViewRoIs_out')]
 
 
 
@@ -189,21 +191,27 @@ egammaIDStep = stepSeq("egammaIDStep", filterCaloRoIsAlg, [ electronSequence,  e
 
 # CF construction
 
+from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg
+summaryStep0 = TriggerSummaryAlg( "TriggerSummaryStep1" )
+summaryStep0.InputDecision = "HLTChains"
+summaryStep0.HLTSummary = "MonitoringSummaryStep1"
+summaryStep0.FinalDecisions = [ theFastCaloHypo.Decisions ]
+summaryStep0.OutputLevel = DEBUG
 
 
-step0 = parOR("step0", [ egammaCaloStep ] )
+step0 = parOR("step0", [ egammaCaloStep, summaryStep0 ] )
 step1 = parOR("step1", [ egammaIDStep ] )
 
-from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg
+
 summary = TriggerSummaryAlg( "TriggerSummaryAlg" )
-summary.L1Decision = "HLTChains"
+summary.InputDecision = "HLTChains"
 summary.FinalDecisions = [ "ElectronL2Decisions", "MuonL2Decisions" ]
 summary.OutputLevel = DEBUG
 
 steps = seqAND("HLTSteps", [ step0, step1, summary ]  )
 
 mon = TriggerSummaryAlg( "TriggerMonitoringAlg" )
-mon.L1Decision = "HLTChains"
+mon.InputDecision = "HLTChains"
 mon.FinalDecisions = [ "ElectronL2Decisions", "MuonL2Decisions", "WhateverElse" ]
 mon.HLTSummary = "MonitoringSummary"
 mon.OutputLevel = DEBUG
