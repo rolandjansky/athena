@@ -14,7 +14,6 @@ theApp.AuditAlgorithms=True
 # Load Geometry
 #--------------------------------------------------------------
 from AthenaCommon.GlobalFlags import globalflags
-#globalflags.DetDescrVersion="ATLAS-GEO-16-00-00"
 globalflags.DetDescrVersion = "ATLAS-R2-2015-03-01-00"
 globalflags.DetGeo="atlas"
 globalflags.InputFormat="pool"
@@ -131,17 +130,17 @@ else:
   ServiceMgr+=SCT_CablingSvc()
   ServiceMgr.SCT_CablingSvc.DataSource='COOLVECTOR'
 
-from SCT_ConditionsServices.SCT_ConfigurationConditionsSvcSetup import SCT_ConfigurationConditionsSvcSetup
-sct_ConfigurationConditionsSvcSetup = SCT_ConfigurationConditionsSvcSetup()
-sct_ConfigurationConditionsSvcSetup.setChannelFolderDb("<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/Chip <tag>SctDaqConfigChip-PERFECT-Oct2016_00</tag><forceRunNumber>200805</forceRunNumber>")
-sct_ConfigurationConditionsSvcSetup.setModuleFolderDb("<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/Module <tag>SctDaqConfigModule-PERFECT-Oct2016_00</tag><forceRunNumber>200805</forceRunNumber>")
-sct_ConfigurationConditionsSvcSetup.setMurFolderDb("<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/MUR <tag>SctDaqConfigMur-PERFECT-Oct2016_00</tag><forceRunNumber>200805</forceRunNumber>")
-sct_ConfigurationConditionsSvcSetup.setDbInstance("")
-sct_ConfigurationConditionsSvcSetup.setup()
+from SCT_ConditionsTools.SCT_ConfigurationConditionsToolSetup import SCT_ConfigurationConditionsToolSetup
+sct_ConfigurationConditionsToolSetup = SCT_ConfigurationConditionsToolSetup()
+sct_ConfigurationConditionsToolSetup.setChannelFolderDb("<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/Chip <tag>SctDaqConfigChip-PERFECT-Oct2016_00</tag><forceRunNumber>200805</forceRunNumber>")
+sct_ConfigurationConditionsToolSetup.setModuleFolderDb("<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/Module <tag>SctDaqConfigModule-PERFECT-Oct2016_00</tag><forceRunNumber>200805</forceRunNumber>")
+sct_ConfigurationConditionsToolSetup.setMurFolderDb("<db>COOLOFL_SCT/OFLP200</db> /SCT/DAQ/Config/MUR <tag>SctDaqConfigMur-PERFECT-Oct2016_00</tag><forceRunNumber>200805</forceRunNumber>")
+sct_ConfigurationConditionsToolSetup.setDbInstance("")
+sct_ConfigurationConditionsToolSetup.setup()
 
 from SCT_ConditionsAlgorithms.SCT_ConditionsAlgorithmsConf import SCT_ConfigurationConditionsTestAlg
 MyConfigTestAlg = SCT_ConfigurationConditionsTestAlg("MyConfigTestAlg")
-MyConfigTestAlg.ConfigConditions = sct_ConfigurationConditionsSvcSetup.getSvc()
+MyConfigTestAlg.SCT_ConfigurationConditionsTool = sct_ConfigurationConditionsToolSetup.getTool()
 job += MyConfigTestAlg
 
 import AthenaCommon.AtlasUnixGeneratorJob
