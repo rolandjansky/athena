@@ -34,6 +34,4 @@ atlas_add_component( SCT_ConditionsAlgorithms
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
                      LINK_LIBRARIES ${Boost_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests Identifier GaudiKernel SCT_ConditionsData SCT_CablingLib EventInfo xAODEventInfo AthenaPoolUtilities InDetIdentifier InDetReadoutGeometry SCT_ConditionsServicesLib SCT_ConditionsToolsLib )
 
-# Add unit tests
-
 # Install files from the package:

@@ -22,6 +22,7 @@
 ///Athena includes
 #include "AthenaBaseComps/AthService.h"
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
+#include "SCT_Cabling/ISCT_CablingSvc.h"
 #include "SCT_ConditionsServices/ISCT_ByteStreamErrorsSvc.h"
 #include "InDetByteStreamErrors/InDetBSErrContainer.h"
 /** needs to be included here for gcc 4.3 compatibility */
@@ -39,7 +40,6 @@ class ISvcLocator;
 class SCT_ID;
 class IdentifierHash;
 class StatusCode;
-class ISCT_CablingSvc;
 class ISCT_ConfigurationConditionsSvc;
 namespace InDetDD {
   class SCT_DetectorManager;
