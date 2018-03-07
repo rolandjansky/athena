@@ -58,7 +58,7 @@ namespace top{
     return StatusCode::SUCCESS;
   }
     
-  StatusCode TauObjectCollectionMaker::execute()
+  StatusCode TauObjectCollectionMaker::execute(bool executeNominal)
   {
     ///-- Get base taus from xAOD --///
     const xAOD::TauJetContainer* xaod(nullptr);
@@ -67,6 +67,10 @@ namespace top{
     ///-- Loop over all systematics --///
     for( auto systematic : m_specifiedSystematics ){
 
+      ///-- if executeNominal, skip other systematics (and vice-versa) --///
+      if(executeNominal && !m_config->isSystNominal(systematic)) continue;
+      if(!executeNominal && m_config->isSystNominal(systematic)) continue;
+        
       ///-- Tell tool which systematic to use --///
       top::check( m_calibrationTool->applySystematicVariation( systematic ) , "Failed to applySystematicVariation" );
       

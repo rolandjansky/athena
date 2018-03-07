@@ -85,7 +85,7 @@ namespace top{
     return StatusCode::SUCCESS;
   }
     
-  StatusCode MuonObjectCollectionMaker::execute()
+  StatusCode MuonObjectCollectionMaker::execute(bool executeNominal)
   {
 
     const xAOD::EventInfo* eventInfo(nullptr);
@@ -112,6 +112,10 @@ namespace top{
     ///-- Loop over all systematics --///
     for( auto systematic : m_specifiedSystematics ){
 
+      ///-- if executeNominal, skip other systematics (and vice-versa) --///
+      if(executeNominal && !m_config->isSystNominal(systematic)) continue;
+      if(!executeNominal && m_config->isSystNominal(systematic)) continue;
+        
       ///-- Tell tool which systematic to use --///
       if(thisYear == "2015" || thisYear == "2016")	 
 	top::check( m_calibrationTool->applySystematicVariation( systematic ) , "Failed to applySystematicVariation" );
@@ -124,8 +128,8 @@ namespace top{
       std::pair< xAOD::MuonContainer*, xAOD::ShallowAuxContainer* > shallow_xaod_copy = xAOD::shallowCopyContainer( *xaod );
       
       ///-- Loop over the xAOD Container and apply corrections--///
-      for( auto muon : *(shallow_xaod_copy.first) ){      
-
+      for( auto muon : *(shallow_xaod_copy.first) ){
+          
 	///-- Apply momentum correction --///
         if (muon->primaryTrackParticle()) {
 	  if(thisYear == "2015" || thisYear == "2016")

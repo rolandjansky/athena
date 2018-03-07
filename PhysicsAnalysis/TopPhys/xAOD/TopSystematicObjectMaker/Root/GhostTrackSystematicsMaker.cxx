@@ -255,7 +255,7 @@ namespace top {
         return StatusCode::SUCCESS;
     }
 
-    StatusCode GhostTrackSystematicsMaker::execute(){
+    StatusCode GhostTrackSystematicsMaker::execute(bool executeNominal){
         ATH_MSG_DEBUG(" top::GhostTrackSystematicsMaker execute:" );
 
         // We don't want to do anything on Data -> bail early so that we can
@@ -264,6 +264,9 @@ namespace top {
             return StatusCode::SUCCESS;
         }
 
+        ///-- Only run this on the systematic execution --///
+        if(executeNominal) continue;
+        
         ///-- Get nominal jets --///
         xAOD::JetContainer * nominalJets(nullptr);
         top::check(evtStore()->retrieve(nominalJets,

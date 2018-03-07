@@ -251,33 +251,42 @@ StatusCode JetObjectCollectionMaker::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode JetObjectCollectionMaker::executeJets() {
+StatusCode JetObjectCollectionMaker::executeJets(bool executeNominal) {
   bool isLargeR(false);
-  return execute( isLargeR );
+  return execute( isLargeR, executeNominal );
 }
 
-StatusCode JetObjectCollectionMaker::executeLargeRJets() {
+StatusCode JetObjectCollectionMaker::executeLargeRJets(bool executeNominal) {
   bool isLargeR(true);
-  return execute( isLargeR );
+  return execute( isLargeR, executeNominal );
 }
 
-StatusCode JetObjectCollectionMaker::execute( const bool isLargeR ) {
-  // decorating the HS jets with truth info on which are HS jets
-  if (!isLargeR & m_config->isMC()) {
-    top::check( decorateHSJets() , "Failed to decorate jets with truth info of which are HS - this is needed for JVT scale-factors!");
-  }
+StatusCode JetObjectCollectionMaker::execute( const bool isLargeR, bool executeNominal ) {
+    
+  ///-- Run nominal first, if executing nominal
+  if(executeNominal){
+    // decorating the HS jets with truth info on which are HS jets
+    if (!isLargeR & m_config->isMC()) {
+      top::check( decorateHSJets() , "Failed to decorate jets with truth info of which are HS - this is needed for JVT scale-factors!");
+    }
   
-  // Decorate the DL1 variable
-  top::check( decorateDL1() , "Failed to decorate jets with DL1 b-tagging discriminant");
+    // Decorate the DL1 variable
+    top::check( decorateDL1() , "Failed to decorate jets with DL1 b-tagging discriminant");
 
-  ///-- First calibrate the nominal jets, everything else comes from this, so let's only do it once not 3000 times --///
-  top::check( calibrate( isLargeR ) , "Failed to calibrate jets");
-
+    ///-- First calibrate the nominal jets, everything else comes from this, so let's only do it once not 3000 times --///
+    top::check( calibrate( isLargeR ) , "Failed to calibrate jets");
+    
+    ///-- Return after calibrating the nominal --///
+    return StatusCode::SUCCESS;
+  }
+    
+  ///-- Systematics from here --///
+    
   // No uncertainties yet for pflow
   // - return SUCCESS after calibration
   if (m_config->useParticleFlowJets())
     return StatusCode::SUCCESS;
-
+    
   ///-- JES, JER regular atk4 for now --///
   if (!isLargeR) {
     ///-- JES --///
@@ -552,8 +561,11 @@ StatusCode JetObjectCollectionMaker::applySystematic(ToolHandle<IJERSmearingTool
   return StatusCode::SUCCESS;
 }
 
-StatusCode JetObjectCollectionMaker::executeTrackJets() {
+StatusCode JetObjectCollectionMaker::executeTrackJets(bool executeNominal) {
   ///-- No calibrations or systematics yet --///
+  ///-- Only run this on the nominal execution --///
+  if(!executeNominal) continue;
+    
   ///-- Just make a shallow copy to keep these in line with everything else --///
 
   const xAOD::JetContainer* xaod(nullptr);

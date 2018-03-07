@@ -74,7 +74,7 @@ namespace top{
     return StatusCode::SUCCESS;
   }
 
-  StatusCode MissingETObjectCollectionMaker::recalculateMET()
+  StatusCode MissingETObjectCollectionMaker::recalculateMET(bool executeNominal)
   {
 
     // met core contains the soft terms we need to add to our met calculation
@@ -90,18 +90,24 @@ namespace top{
       const xAOD::SystematicEventContainer* systEvents(nullptr);
       top::check( evtStore()->retrieve(systEvents,m_config->sgKeyTopSystematicEvents()) , "Failed to retrieve TopEvents" );
 
-      for (auto x : *systEvents) 
-        top::check( recalculateEventMET( x, xaod_met_core, xaod_met_map ), 
-                    "Failed to recalculate MET for event");
+        for (auto x : *systEvents){
+          ///-- if executeNominal, skip other systematics (and vice-versa) --///
+          if(!executeNominal && m_config->isSystNominal(m_config->systematicName(x->hashValue()))) continue;
+          if(executeNominal && !m_config->isSystNominal(m_config->systematicName(x->hashValue()))) continue;
+          top::check( recalculateEventMET( x, xaod_met_core, xaod_met_map ), "Failed to recalculate MET for event");
+        }
     } // tight events
     if (m_config->doLooseEvents()) {
       // All the loose systematic events
       const xAOD::SystematicEventContainer* systEventsLoose(nullptr);
       top::check( evtStore()->retrieve(systEventsLoose,m_config->sgKeyTopSystematicEventsLoose()) , "Failed to retrieve TopEventsLoose" );
 
-      for (auto x : *systEventsLoose) 
-        top::check( recalculateEventMET( x, xaod_met_core, xaod_met_map ), 
-                    "Failed to recalculate MET for loose event");
+      for (auto x : *systEventsLoose){
+        ///-- if executeNominal, skip other systematics (and vice-versa) --///
+        if(!executeNominal && m_config->isSystNominal(m_config->systematicName(x->hashValue()))) continue;
+        if(executeNominal && !m_config->isSystNominal(m_config->systematicName(x->hashValue()))) continue;
+        top::check( recalculateEventMET( x, xaod_met_core, xaod_met_map ), "Failed to recalculate MET for loose event");
+      }
     } // Loose events
 
     return StatusCode::SUCCESS;

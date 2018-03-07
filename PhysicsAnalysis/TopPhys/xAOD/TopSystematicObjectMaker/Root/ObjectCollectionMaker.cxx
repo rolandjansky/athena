@@ -74,23 +74,56 @@ namespace top{
     return StatusCode::SUCCESS;
   }
 
-  StatusCode ObjectCollectionMaker::execute()
-  {
-
-    if( m_config->usePhotons()    ){ top::check( m_egammaMaker->executePhotons() ,   "Failed to executePhotons()"    ); }
-    if( m_config->useElectrons()  ){ top::check( m_egammaMaker->executeElectrons() , "Failed to executeElectrons()"  ); }
-    if( m_config->useMuons()      ){ top::check( m_muonMaker->execute() ,            "Failed to executeMuons()"      ); }
-    if( m_config->useTaus()       ){ top::check( m_tauMaker->execute() ,             "Failed to executeTaus()"       ); }
-    if( m_config->useJets()       ){ top::check( m_jetMaker->executeJets() ,         "Failed to executeJets()"       ); }
-    if( m_config->useLargeRJets() ){ top::check( m_jetMaker->executeLargeRJets() ,   "Failed to executeLargeRJets()" ); }
-    if( m_config->useTrackJets()  ){ top::check( m_jetMaker->executeTrackJets()  ,   "Failed to executeTrackJets() " ); }
-
-    // This must come _AFTER_ the jets have been calibrated!
-    if( m_config->useJets() && m_config->useJetGhostTrack() ){ top::check( m_ghostTrackSystMaker->execute()  ,   "Failed to executeGhostTrackSystematics() " ); }
-
-    
+  StatusCode ObjectCollectionMaker::execute(bool executeNominal){
+    if(executeNominal){
+      top::check(this->executeNominal(), "Failed to executeNominal()");
+    }
+    else{
+      top::check(this->executeSystematics(), "Failed to executeSystematics()");
+    }
     return StatusCode::SUCCESS;
   }
+    
+  StatusCode ObjectCollectionMaker::executeNominal()
+  {
+
+    if( m_config->usePhotons()    ){ top::check( m_egammaMaker->executePhotons(true) ,   "Failed to executePhotons()"    ); }
+    if( m_config->useElectrons()  ){ top::check( m_egammaMaker->executeElectrons(true) , "Failed to executeElectrons()"  ); }
+    if( m_config->useMuons()      ){ top::check( m_muonMaker->execute(true) ,            "Failed to executeMuons()"      ); }
+    if( m_config->useTaus()       ){ top::check( m_tauMaker->execute(true) ,             "Failed to executeTaus()"       ); }
+    if( m_config->useJets()       ){ top::check( m_jetMaker->executeJets(true) ,         "Failed to executeJets()"       ); }
+    if( m_config->useLargeRJets() ){ top::check( m_jetMaker->executeLargeRJets(true) ,   "Failed to executeLargeRJets()" ); }
+    if( m_config->useTrackJets()  ){ top::check( m_jetMaker->executeTrackJets(true)  ,   "Failed to executeTrackJets() " ); }
+
+    // This must come _AFTER_ the jets have been calibrated!
+    if( m_config->useJets() && m_config->useJetGhostTrack() ){ top::check( m_ghostTrackSystMaker->execute(true)  ,   "Failed to executeGhostTrackSystematics() " ); }
+
+    m_config->setNominalAvailable(true);
+      
+    return StatusCode::SUCCESS;
+  }
+    
+  StatusCode ObjectCollectionMaker::executeSystematics()
+  {
+      if(m_config->isNominalAvailable() == false){
+          ATH_MSG_ERROR("ObjectCollectionMaker::executeNominal has not been called before executeSystematics");
+          return StatusCode::FAILURE;
+      }
+      
+      if( m_config->usePhotons()    ){ top::check( m_egammaMaker->executePhotons(false) ,   "Failed to executePhotons()"    ); }
+      if( m_config->useElectrons()  ){ top::check( m_egammaMaker->executeElectrons(false) , "Failed to executeElectrons()"  ); }
+      if( m_config->useMuons()      ){ top::check( m_muonMaker->execute(false) ,            "Failed to executeMuons()"      ); }
+      if( m_config->useTaus()       ){ top::check( m_tauMaker->execute(false) ,             "Failed to executeTaus()"       ); }
+      if( m_config->useJets()       ){ top::check( m_jetMaker->executeJets(false) ,         "Failed to executeJets()"       ); }
+      if( m_config->useLargeRJets() ){ top::check( m_jetMaker->executeLargeRJets(false) ,   "Failed to executeLargeRJets()" ); }
+      if( m_config->useTrackJets()  ){ top::check( m_jetMaker->executeTrackJets(false)  ,   "Failed to executeTrackJets() " ); }
+      
+      // This must come _AFTER_ the jets have been calibrated!
+      if( m_config->useJets() && m_config->useJetGhostTrack() ){ top::check( m_ghostTrackSystMaker->execute(false)  ,   "Failed to executeGhostTrackSystematics() " ); }
+      
+      return StatusCode::SUCCESS;
+  }
+    
 
   StatusCode ObjectCollectionMaker::recalculateMET()
   {

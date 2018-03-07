@@ -869,6 +869,10 @@ class TopConfig final {
   // Just a function that might need to be used in multiple places - return the running year (2015, 2016, 2017)
   const std::string getYear(unsigned int runnumber);
 
+  // Setter and getter functions for recording whether we have configured the nominal objects
+  inline virtual void setNominalAvailable(const bool s){m_isNominalAvailable = s;}
+  inline bool isNominalAvailable() const { return m_isNominalAvailable;}
+    
  private:
   // Prevent any more configuration
   bool m_configFixed;
@@ -918,6 +922,9 @@ class TopConfig final {
 
   std::string m_jetSubstructureName;
 
+  // Store in config a boolean which lets us know if we called the nominal object setup
+  bool m_isNominalAvailable;
+    
   // Do systematics? - this needs many more configuration options
   std::string m_systematics;
   std::string m_nominalSystName;

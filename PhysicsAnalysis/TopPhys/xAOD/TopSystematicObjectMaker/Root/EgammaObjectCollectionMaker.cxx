@@ -126,7 +126,7 @@ namespace top{
     return StatusCode::SUCCESS;
   }
   
-  StatusCode EgammaObjectCollectionMaker::executePhotons()
+  StatusCode EgammaObjectCollectionMaker::executePhotons(bool executeNominal)
   {
     ///-- Get base photons from xAOD --///
     const xAOD::PhotonContainer* xaod(nullptr);
@@ -134,7 +134,11 @@ namespace top{
 
     ///-- Loop over all systematics --///
     for( auto systematic : m_specifiedSystematicsPhotons ){
-      
+        
+      ///-- if executeNominal, skip other systematics (and vice-versa) --///
+      if(executeNominal && !m_config->isSystNominal(systematic)) continue;
+      if(!executeNominal && m_config->isSystNominal(systematic)) continue;
+
       ///-- Tell tool which systematic to use --///
       top::check( m_calibrationTool->applySystematicVariation( systematic ) , "Failed to applySystematicVariation" ); 
       

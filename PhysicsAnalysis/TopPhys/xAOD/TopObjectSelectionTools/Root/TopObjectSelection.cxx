@@ -15,6 +15,8 @@
 #include "xAODTau/TauJetContainer.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODMissingET/MissingETContainer.h"
+#include "xAODEventInfo/EventInfo.h"
+
 
 namespace top {
 
@@ -147,11 +149,14 @@ void TopObjectSelection::overlapRemovalPostSelection(OverlapRemovalBase* ptr) {
     m_overlapRemovalToolPostSelection.reset(ptr);
 }
 
-StatusCode TopObjectSelection::execute() 
+StatusCode TopObjectSelection::execute(bool executeNominal)
 {
+  // Set variable to tell us if we are doing this execution on nominal or systematic events
+  m_executeNominal = executeNominal;
   applySelectionPreOverlapRemoval();
   top::check( applyOverlapRemoval() , "Failed to apply overlap removal" );
-  return StatusCode::SUCCESS;  
+
+  return StatusCode::SUCCESS;
 }
 
 void TopObjectSelection::applySelectionPreOverlapRemoval() 
@@ -181,80 +186,90 @@ void TopObjectSelection::applySelectionPreOverlapRemoval()
 }
 
 void TopObjectSelection::applySelectionPreOverlapRemovalPhotons() {
-  for (auto currentSystematic : *m_config->systSgKeyMapPhotons()) {
-    const xAOD::PhotonContainer* photons(nullptr);
-    top::check(evtStore()->retrieve(photons, currentSystematic.second), "TopObjectSelection::applySelectionPreOverlapRemovalPhotons() failed to retrieve photons");
-    ATH_MSG_DEBUG(" Cut on Photons with key = "<<currentSystematic.second);
-    
-    for (auto photonPtr : *photons) {
-      photonPtr->auxdecor<char>( m_passPreORSelection ) = m_photonSelection->passSelection(*photonPtr);
-      photonPtr->auxdecor<char>( m_ORToolDecoration ) = photonPtr->auxdataConst<char>( m_passPreORSelection ) * 2;
-      if (m_doLooseCuts) {
-	photonPtr->auxdecor<char>( m_passPreORSelectionLoose ) = m_photonSelection->passSelectionLoose(*photonPtr);
-        photonPtr->auxdecor<char>( m_ORToolDecorationLoose ) = photonPtr->auxdataConst<char>( m_passPreORSelectionLoose ) * 2;
-      }
+    for (auto currentSystematic : *m_config->systSgKeyMapPhotons()) {
+        ///-- if executeNominal, skip other systematics (and vice-versa) --///
+        if(m_executeNominal && !m_config->isSystNominal(m_config->systematicName(currentSystematic.first))) continue;
+        if(!m_executeNominal && m_config->isSystNominal(m_config->systematicName(currentSystematic.first))) continue;
+        
+        const xAOD::PhotonContainer* photons(nullptr);
+        top::check(evtStore()->retrieve(photons, currentSystematic.second), "TopObjectSelection::applySelectionPreOverlapRemovalPhotons() failed to retrieve photons");
+        ATH_MSG_DEBUG(" Cut on Photons with key = "<<currentSystematic.second);
+        
+        for (auto photonPtr : *photons) {
+            photonPtr->auxdecor<char>( m_passPreORSelection ) = m_photonSelection->passSelection(*photonPtr);
+            photonPtr->auxdecor<char>( m_ORToolDecoration ) = photonPtr->auxdataConst<char>( m_passPreORSelection ) * 2;
+            if (m_doLooseCuts) {
+                photonPtr->auxdecor<char>( m_passPreORSelectionLoose ) = m_photonSelection->passSelectionLoose(*photonPtr);
+                photonPtr->auxdecor<char>( m_ORToolDecorationLoose ) = photonPtr->auxdataConst<char>( m_passPreORSelectionLoose ) * 2;
+            }
+        }
     }
-  }
 }
 
 /**
  * @brief For each systematic load each of the electrons and test if they pass
  * the object selection.
  */
-void TopObjectSelection::applySelectionPreOverlapRemovalElectrons() 
-{
+void TopObjectSelection::applySelectionPreOverlapRemovalElectrons() {
     for (auto currentSystematic : *m_config->systSgKeyMapElectrons()) {
+        ///-- if executeNominal, skip other systematics (and vice-versa) --///
+        if(m_executeNominal && !m_config->isSystNominal(m_config->systematicName(currentSystematic.first))) continue;
+        if(!m_executeNominal && m_config->isSystNominal(m_config->systematicName(currentSystematic.first))) continue;
+        
         const xAOD::ElectronContainer* electrons(nullptr);
         top::check(evtStore()->retrieve(electrons, currentSystematic.second), "TopObjectSelection::applySelectionPreOverlapRemovalElectrons() failed to retrieve electrons");
         ATH_MSG_DEBUG(" Cut on Electrons with key = "<<currentSystematic.second);
-
+        
         for (auto electronPtr : *electrons) {
-          electronPtr->auxdecor<char>( m_passPreORSelection ) = m_electronSelection->passSelection(*electronPtr);
-          electronPtr->auxdecor<char>( m_ORToolDecoration ) = electronPtr->auxdataConst<char>( m_passPreORSelection ) * 2;
-          if (m_doLooseCuts) {
-            electronPtr->auxdecor<char>( m_passPreORSelectionLoose ) = m_electronSelection->passSelectionLoose(*electronPtr);
-            electronPtr->auxdecor<char>( m_ORToolDecorationLoose ) = electronPtr->auxdataConst<char>( m_passPreORSelectionLoose ) * 2;
-          }
+            electronPtr->auxdecor<char>( m_passPreORSelection ) = m_electronSelection->passSelection(*electronPtr);
+            electronPtr->auxdecor<char>( m_ORToolDecoration ) = electronPtr->auxdataConst<char>( m_passPreORSelection ) * 2;
+            if (m_doLooseCuts) {
+                electronPtr->auxdecor<char>( m_passPreORSelectionLoose ) = m_electronSelection->passSelectionLoose(*electronPtr);
+                electronPtr->auxdecor<char>( m_ORToolDecorationLoose ) = electronPtr->auxdataConst<char>( m_passPreORSelectionLoose ) * 2;
+            }
         }
     }
 }
 
-void TopObjectSelection::applySelectionPreOverlapRemovalMuons() 
-{
+void TopObjectSelection::applySelectionPreOverlapRemovalMuons() {
     for (auto currentSystematic : *m_config->systSgKeyMapMuons()) {
+        ///-- if executeNominal, skip other systematics (and vice-versa) --///
+        if(m_executeNominal && !m_config->isSystNominal(m_config->systematicName(currentSystematic.first))) continue;
+        if(!m_executeNominal && m_config->isSystNominal(m_config->systematicName(currentSystematic.first))) continue;
         const xAOD::MuonContainer* muons(nullptr);
         top::check(evtStore()->retrieve(muons, currentSystematic.second) , "TopObjectSelection::applySelectionPreOverlapRemovalMuons() failed to retrieve muons" );
-
+        
         for (auto muonPtr : *muons) {
-          muonPtr->auxdecor<char>( m_passPreORSelection ) = m_muonSelection->passSelection(*muonPtr);
-          muonPtr->auxdecor<char>( m_ORToolDecoration ) = muonPtr->auxdataConst<char>( m_passPreORSelection ) * 2;
-          if (m_doLooseCuts) {
-            muonPtr->auxdecor<char>( m_passPreORSelectionLoose ) = m_muonSelection->passSelectionLoose(*muonPtr);
-            muonPtr->auxdecor<char>( m_ORToolDecorationLoose ) = muonPtr->auxdataConst<char>( m_passPreORSelectionLoose ) * 2;
-          }
+            muonPtr->auxdecor<char>( m_passPreORSelection ) = m_muonSelection->passSelection(*muonPtr);
+            muonPtr->auxdecor<char>( m_ORToolDecoration ) = muonPtr->auxdataConst<char>( m_passPreORSelection ) * 2;
+            if (m_doLooseCuts) {
+                muonPtr->auxdecor<char>( m_passPreORSelectionLoose ) = m_muonSelection->passSelectionLoose(*muonPtr);
+                muonPtr->auxdecor<char>( m_ORToolDecorationLoose ) = muonPtr->auxdataConst<char>( m_passPreORSelectionLoose ) * 2;
+            }
         }
     }
 }
 
-void TopObjectSelection::applySelectionPreOverlapRemovalTaus() 
-{
+void TopObjectSelection::applySelectionPreOverlapRemovalTaus() {
     for (auto currentSystematic : *m_config->systSgKeyMapTaus()) {
+        ///-- if executeNominal, skip other systematics (and vice-versa) --///
+        if(m_executeNominal && !m_config->isSystNominal(m_config->systematicName(currentSystematic.first))) continue;
+        if(!m_executeNominal && m_config->isSystNominal(m_config->systematicName(currentSystematic.first))) continue;
         const xAOD::TauJetContainer* taus(nullptr);
         top::check(evtStore()->retrieve(taus, currentSystematic.second) , "TopObjectSelection::applySelectionPreOverlapRemovalTaus() failed to retrieve taus" );
-
+        
         for (auto tauPtr : *taus) {
-          tauPtr->auxdecor<char>( m_passPreORSelection ) = m_tauSelection->passSelection(*tauPtr);
-          tauPtr->auxdecor<char>( m_ORToolDecoration ) = tauPtr->auxdataConst<char>( m_passPreORSelection ) * 2;
-          if (m_doLooseCuts) {
-            tauPtr->auxdecor<char>( m_passPreORSelectionLoose ) = m_tauSelection->passSelectionLoose(*tauPtr);
-            tauPtr->auxdecor<char>( m_ORToolDecorationLoose ) = tauPtr->auxdataConst<char>( m_passPreORSelectionLoose ) * 2;
-          }
+            tauPtr->auxdecor<char>( m_passPreORSelection ) = m_tauSelection->passSelection(*tauPtr);
+            tauPtr->auxdecor<char>( m_ORToolDecoration ) = tauPtr->auxdataConst<char>( m_passPreORSelection ) * 2;
+            if (m_doLooseCuts) {
+                tauPtr->auxdecor<char>( m_passPreORSelectionLoose ) = m_tauSelection->passSelectionLoose(*tauPtr);
+                tauPtr->auxdecor<char>( m_ORToolDecorationLoose ) = tauPtr->auxdataConst<char>( m_passPreORSelectionLoose ) * 2;
+            }
         }
     }  
 }
 
-void TopObjectSelection::applySelectionPreOverlapRemovalJets() 
-{
+void TopObjectSelection::applySelectionPreOverlapRemovalJets() {
   
   // Boosted analysis subtract electrons from jets 
   // If we use Loose electrons we end up with loose jet collections
@@ -262,6 +277,10 @@ void TopObjectSelection::applySelectionPreOverlapRemovalJets()
   bool isLooseJets(false);
   
   for (auto currentSystematic : *m_config->systSgKeyMapJets(isLooseJets)) {
+    ///-- if executeNominal, skip other systematics (and vice-versa) --///
+    if(m_executeNominal && !m_config->isSystNominal(m_config->systematicName(currentSystematic.first))) continue;
+    if(!m_executeNominal && m_config->isSystNominal(m_config->systematicName(currentSystematic.first))) continue;
+      
     const xAOD::JetContainer* jets(nullptr);
     top::check(evtStore()->retrieve(jets, currentSystematic.second) , "TopObjectSelection::applySelectionPreOverlapRemovalJets() failed to retrieve jets" );
     ATH_MSG_DEBUG(" Cut on Jets with key = "<<currentSystematic.second);
@@ -311,6 +330,10 @@ void TopObjectSelection::applySelectionPreOverlapRemovalJets()
   // Are we using the ElectronInJetSubtraction and running with loose lepton definitons
   if (m_doLooseCuts && m_config->applyElectronInJetSubtraction()) {
     for (auto currentSystematic : *m_config->systSgKeyMapJets(m_doLooseCuts)) {
+      ///-- if executeNominal, skip other systematics (and vice-versa) --///
+      if(m_executeNominal && !m_config->isSystNominal(m_config->systematicName(currentSystematic.first))) continue;
+      if(!m_executeNominal && m_config->isSystNominal(m_config->systematicName(currentSystematic.first))) continue;
+        
       const xAOD::JetContainer* jets(nullptr);
       top::check(evtStore()->retrieve(jets, currentSystematic.second) , "TopObjectSelection::applySelectionPreOverlapRemovalJets() failed to retrieve jets" );
       ATH_MSG_DEBUG(" Cut on Jets with key = "<<currentSystematic.second);
@@ -362,6 +385,10 @@ void TopObjectSelection::applySelectionPreOverlapRemovalJets()
 void TopObjectSelection::applySelectionPreOverlapRemovalLargeRJets() 
 {
     for (auto currentSystematic : *m_config->systSgKeyMapLargeRJets()) {
+        ///-- if executeNominal, skip other systematics (and vice-versa) --///
+        if(m_executeNominal && !m_config->isSystNominal(m_config->systematicName(currentSystematic.first))) continue;
+        if(!m_executeNominal && m_config->isSystNominal(m_config->systematicName(currentSystematic.first))) continue;
+        
         const xAOD::JetContainer* jets(nullptr);
         top::check(evtStore()->retrieve(jets, currentSystematic.second) , "TopObjectSelection::applySelectionPreOverlapRemovalLargeRJets() failed to retrieve large R jets" );
 
@@ -393,6 +420,9 @@ void TopObjectSelection::applySelectionPreOverlapRemovalLargeRJets()
 
 void TopObjectSelection::applySelectionPreOverlapRemovalTrackJets() 
 {
+  ///-- if executeNominal, skip other systematics (and vice-versa) --///
+  if(!m_executeNominal) return;
+    
   const xAOD::JetContainer* jets(nullptr);
   top::check(evtStore()->retrieve(jets, m_config->sgKeyTrackJets()) , "TopObjectSelection::applySelectionPreOverlapRemovalTrackJets() failed to retrieve track jets" );
   for (auto jetPtr : *jets) {
@@ -403,7 +433,7 @@ void TopObjectSelection::applySelectionPreOverlapRemovalTrackJets()
     }
     std::vector<std::string> availableWPs = m_config->bTagWP_available_trkJet();
     for (auto& WP : availableWPs) {
-      if (WP!= "Continuous") {
+        if (WP.find("Continuous") == std::string::npos){
         bool  isTagged = false;
         if (std::fabs(jetPtr->eta()) < 2.5 ) {
           ToolHandle<IBTaggingSelectionTool>& btagsel = m_trkjet_btagSelTools[WP];
@@ -459,8 +489,11 @@ StatusCode TopObjectSelection::applyOverlapRemoval(const bool isLoose,const std:
 	      else return (this->m_config->systematicName(lhs) < this->m_config->systematicName(rhs));
             });
 
-  //for (auto systematicNumber : *m_config->systHashAll()) {
   for (auto systematicNumber : sortedSystHashAll) {
+    ///-- if executeNominal, skip other systematics (and vice-versa) --///
+    if(m_executeNominal && !m_config->isSystNominal(m_config->systematicName(systematicNumber))) continue;
+    if(!m_executeNominal && m_config->isSystNominal(m_config->systematicName(systematicNumber))) continue;
+      
     xAOD::SystematicEvent* systEvent = new xAOD::SystematicEvent{};
     systEventCont->push_back( systEvent );
     systEvent->setHashValue( systematicNumber );
@@ -468,9 +501,8 @@ StatusCode TopObjectSelection::applyOverlapRemoval(const bool isLoose,const std:
     if (!isLoose) {systEvent->setTtreeIndex( m_config->ttreeIndex( systematicNumber ) );}
     if (isLoose)  {systEvent->setTtreeIndex( m_config->ttreeIndexLoose( systematicNumber ) );}
     systEvent->auxdecor<char> (m_config->passEventSelectionDecoration()) = 0;
-    
     top::check( applyOverlapRemoval( systEvent ) , "Failed to apply overlap removal" );
-  }  
+  }
   
   // Save to StoreGate / TStore
   std::string outputSGKeyAux = sgKey + "Aux.";
@@ -583,7 +615,9 @@ StatusCode TopObjectSelection::applyOverlapRemoval(xAOD::SystematicEvent* curren
   currentSystematic->setGoodJets( goodJets );
   currentSystematic->setGoodLargeRJets( goodLargeRJets );
   currentSystematic->setGoodTrackJets( goodTrackJets );
-  
+    
+  decorateEventInfoPostOverlapRemoval(hash, goodJets.size(), currentSystematic->isLooseEvent());
+    
   return StatusCode::SUCCESS;
 }
 
@@ -682,6 +716,25 @@ void TopObjectSelection::decorateMuonsPostOverlapRemoval(const xAOD::MuonContain
   return;
 }
 
+void TopObjectSelection::decorateEventInfoPostOverlapRemoval(std::size_t hash, int nGoodJets, bool isLoose){
+    ///-- Decorate event info with number of nominal jets for flavour composition
+    // Only continue if this is nominal processing
+    if(!m_executeNominal) return;
+    bool UseLooseNJets = false;
+    // If we only run on loose nominal, we need to use loose event, otherwise use tight
+    if (m_config->doLooseEvents() && !m_config->doTightEvents()) UseLooseNJets = true;
+    // If we use loose, but this is tight, skip
+    if (UseLooseNJets && !isLoose) return;
+    // Get the EventInfo object
+    const xAOD::EventInfo* eventInfo(nullptr);
+    top::check( evtStore()->retrieve( eventInfo, m_config->sgKeyEventInfo() ), "Failed to retrieve EventInfo");
+    // Decorate with number of good jets
+    event.m_info->auxdecor< int >("Njet") = nGoodJets;
+    
+    return;
+}
+    
+    
 void TopObjectSelection::print() const
 {
   asg::AsgTool::print();

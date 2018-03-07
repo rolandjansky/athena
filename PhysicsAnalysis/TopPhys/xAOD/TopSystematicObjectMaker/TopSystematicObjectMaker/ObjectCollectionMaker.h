@@ -50,8 +50,10 @@ namespace top{
       ObjectCollectionMaker(ObjectCollectionMaker&& rhs) = delete;
       ObjectCollectionMaker& operator=(const ObjectCollectionMaker& rhs) = delete;
 
-      StatusCode initialize(); 
-      StatusCode execute();
+      StatusCode initialize();
+      StatusCode execute(bool);
+      StatusCode executeNominal();
+      StatusCode executeSystematics();
       StatusCode recalculateMET();
       StatusCode printout();
       

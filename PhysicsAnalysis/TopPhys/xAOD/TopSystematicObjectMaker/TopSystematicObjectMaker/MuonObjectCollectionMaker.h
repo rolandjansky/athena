@@ -55,7 +55,7 @@ namespace top{
       MuonObjectCollectionMaker& operator=(const MuonObjectCollectionMaker& rhs) = delete;
 
       StatusCode initialize();
-      StatusCode execute();
+      StatusCode execute(bool);
 
       StatusCode printout();
 

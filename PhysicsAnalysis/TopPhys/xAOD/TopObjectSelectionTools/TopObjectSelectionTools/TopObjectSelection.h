@@ -81,7 +81,7 @@ public:
      *
      * @param topEvt The top event containing all the systematic variations.
      */
-    StatusCode execute();
+    StatusCode execute(bool);
 
     /**
      * @brief Set the code used to select electrons.
@@ -266,6 +266,11 @@ private:
     ToolHandle<SmoothedWZTagger>  m_WTag80;
     ToolHandle<SmoothedWZTagger>  m_ZTag50;
     ToolHandle<SmoothedWZTagger>  m_ZTag80;
+    
+    // Boolean to handle only running selection on nominal/systematics
+    bool m_executeNominal;
+    // Function to decorate event info
+    decorateEventInfoPostOverlapRemoval(std::size_t, int, bool);
 };
 }
 #endif

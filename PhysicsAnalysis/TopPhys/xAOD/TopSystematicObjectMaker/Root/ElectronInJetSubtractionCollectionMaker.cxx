@@ -35,7 +35,7 @@ namespace top{
     return StatusCode::SUCCESS;
   }
   
-  StatusCode ElectronInJetSubtractionCollectionMaker::execute()
+  StatusCode ElectronInJetSubtractionCollectionMaker::execute(bool executeNominal)
   {
     // Loop over nominal, all electron syst and all jet syst
     // For each:
@@ -47,6 +47,10 @@ namespace top{
     
     for (auto currentSystematic : *m_config->systHashElectronInJetSubtraction()) {
       
+      ///-- if executeNominal, skip other systematics (and vice-versa) --///
+      if(executeNominal && !m_config->isSystNominal(systematic)) continue;
+      if(!executeNominal && m_config->isSystNominal(systematic)) continue;
+        
       // Get the Electrons
       const xAOD::ElectronContainer* electrons(nullptr);
       top::check(evtStore()->retrieve(electrons, m_config->sgKeyElectronsStandAlone( currentSystematic ) ) , "ElectronInJetSubtractionCollectionMaker::execute() Failed to retrieve electrons" );
