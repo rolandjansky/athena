@@ -21,6 +21,11 @@ IsoCorrectionTool = ToolFactory(ICT,
 doPFlow = False
 PFlowObjectsInConeTool = None
 from RecExConfig.RecAlgsFlags import recAlgs
+from AthenaCommon.BeamFlags import jobproperties
+useVertices = True
+if jobproperties.Beam.beamType == 'cosmics':
+  useVertices = False
+
 if recAlgs.doEFlow() :
 
   doPFlow = True
@@ -30,11 +35,6 @@ if recAlgs.doEFlow() :
   PFlowObjectsInConeTool = ToolFactory(xAOD__PFlowObjectsInConeTool,
                                        name = "PFlowObjectsInConeTool")
 
-  from AthenaCommon.BeamFlags import jobproperties
-  useVertices = True
-  if jobproperties.Beam.beamType == 'cosmics':
-    useVertices = False
-  
   from JetRec.JetRecStandard import jtm
   #from JetRec.JetRecConf import PseudoJetGetter
   from JetRecTools.JetRecToolsConf import PFlowPseudoJetGetter
