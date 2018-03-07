@@ -170,12 +170,9 @@ def getMvaTESEvaluator():
 
 ########################################################################
 # Tau cell variables calculation
-def getCellVariables(cellConeSize=0.2, prefix=''):
-    #if prefix is not given, take global one 
-    if not prefix: 
-        prefix=sPrefix 
+def getCellVariables(cellConeSize=0.2):
  
-    _name = prefix + 'CellVariables'
+    _name = sPrefix + 'CellVariables'
     
     if _name in cached_instances:
         return cached_instances[_name]
@@ -714,10 +711,7 @@ def getTrackToVertexTool():
 
 ########################################################################
 # Tau-Track Association
-def getTauTrackFinder(applyZ0cut=False, maxDeltaZ0=2, noSelector = False, prefix=''):
-    #if prefix is not given, take global one
-    if not prefix:
-        prefix=sPrefix
+def getTauTrackFinder(applyZ0cut=False, maxDeltaZ0=2, noSelector = False):
     _name = sPrefix + 'TauTrackFinder'
     
     if _name in cached_instances:
@@ -869,8 +863,8 @@ def getTauWPDecoratorJetRNN():
     from AthenaCommon.AppMgr import ToolSvc
     from tauRecTools.tauRecToolsConf import TauWPDecorator
     TauWPDecorator = TauWPDecorator( name=_name,
-                                     flatteningFile1Prong = "rnnid_flat_deep_1p_v0.root",
-                                     flatteningFile3Prong = "rnnid_flat_deep_3p_v0.root",
+                                     flatteningFile1Prong = "rnnid_flat_deep_1p_v0_fix.root",
+                                     flatteningFile3Prong = "rnnid_flat_deep_3p_v0_fix.root",
                                      CutEnumVals =
                                      [ ROOT.xAOD.TauJetParameters.JetRNNSigVeryLoose, ROOT.xAOD.TauJetParameters.JetRNNSigLoose,
                                        ROOT.xAOD.TauJetParameters.JetRNNSigMedium, ROOT.xAOD.TauJetParameters.JetRNNSigTight ],
