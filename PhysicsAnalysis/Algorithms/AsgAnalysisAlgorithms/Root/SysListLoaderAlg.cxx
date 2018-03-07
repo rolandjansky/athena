@@ -85,6 +85,9 @@ namespace CP
 
       for (const CP::SystematicVariation& mysys : affecting)
       {
+        // this logic checks whether a systematic is recommended and
+        // affecting, or only affecting.  if it is only the later, it
+        // reports the systematic in parenthesis to set it apart.
         if (recommended.find (mysys) == recommended.end())
           ANA_MSG_INFO ("found systematic: (" << mysys << ")");
         else
