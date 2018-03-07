@@ -85,8 +85,13 @@ namespace CP
 
       assert (inputObject != nullptr);
       auto copy = detail::ShallowCopyCore<T>::copy (*inputObject);
-      assert (copy.first != nullptr);
-      assert (copy.second != nullptr);
+      if (!copy.first || !copy.second)
+      {
+        ANA_MSG_ERROR ("failed to shallow copy object: " << std::get<0>(cache->second));
+        ANA_MSG_ERROR ("likely shallow copying a view container");
+        return StatusCode::FAILURE;
+      }
+
       if (detail::ShallowCopyCore<T>::setLink (*inputObject, *copy.first).isFailure())
         return StatusCode::FAILURE;
 
