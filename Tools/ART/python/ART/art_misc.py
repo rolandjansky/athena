@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 """Miscellaneous functions."""
 
 __author__ = "Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>"
