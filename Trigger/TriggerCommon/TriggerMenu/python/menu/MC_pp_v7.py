@@ -194,6 +194,8 @@ def setupMenu():
         ['3mu4_nomucomb_mu4noL1',  'L1_3MU4', ['L1_3MU4',''], [BMultiMuonStream], [RATE_BMultiMuonTag, BW_BphysTag], -1,['serial',-1,['3mu4_nomucomb','mu4noL1']]],
         ['4mu4_nomucomb',          'L1_4MU4', ['L1_4MU4',''], [BMultiMuonStream], [RATE_BMultiMuonTag, BW_BphysTag], -1,['serial',-1,['4mu4_nomucomb','']]],
 
+        #multi-muon TagandProbe chains
+        ['mu22_mu8noL1_TagandProbe', 'L1_MU20MU21', ['L1_MU20',''], [PhysicsStream], ['Primary:17000','RATE:MultiMuon','BW:Muon'], -1,['serial',-1,['mu22','mu8noL1']]],                                                                                                                                                                   
 
         # Narrow scan
         # notes: see ATR-11846
