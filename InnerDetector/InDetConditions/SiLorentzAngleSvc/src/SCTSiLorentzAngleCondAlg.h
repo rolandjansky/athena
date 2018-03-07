@@ -21,10 +21,9 @@
 #include "StoreGate/WriteCondHandleKey.h"
 #include "SiLorentzAngleSvc/SiLorentzAngleCondData.h"
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "InDetConditionsSummaryService/ISiliconConditionsTool.h"
 
 // forward declarations
-class ISiliconConditionsSvc;
-
 namespace InDetDD {
   class SiDetectorManager;
 }  
@@ -55,8 +54,9 @@ class SCTSiLorentzAngleCondAlg: public AthAlgorithm
 
   // needed services
   ServiceHandle<ICondSvc> m_condSvc;
-  ServiceHandle<ISiliconConditionsSvc> m_siConditionsSvc;
   ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc;
+
+  ToolHandle<ISiliconConditionsTool> m_siConditionsTool{this, "SiConditionsTool", "SCT_SiliconConditionsTool", "Tool to retrieve SCT silicon information"};
 
   const InDetDD::SiDetectorManager* m_detManager;
 

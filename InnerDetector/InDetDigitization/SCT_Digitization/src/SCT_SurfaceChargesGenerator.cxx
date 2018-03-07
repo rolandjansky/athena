@@ -23,7 +23,6 @@
 // Athena
 #include "GeneratorObjects/HepMcParticleLink.h"
 #include "SiPropertiesSvc/SiliconProperties.h"
-#include "InDetConditionsSummaryService/ISiliconConditionsSvc.h"
 #include "InDetSimEvent/SiHit.h"        // for SiHit, SiHit::::xDep, etc
 #include "HitManagement/TimedHitPtr.h"  // for TimedHitPtr
 
@@ -84,7 +83,6 @@ SCT_SurfaceChargesGenerator::SCT_SurfaceChargesGenerator(const
     m_h_mobility_trap{nullptr},
     m_h_trap_pos{nullptr},
     m_hashId(0),
-    m_siConditionsSvc("SCT_SiliconConditionsSvc", name),
     m_element(0),
     m_rndmEngine(0),
     m_rndmEngineName("SCT_Digitization") {
@@ -99,7 +97,6 @@ SCT_SurfaceChargesGenerator::SCT_SurfaceChargesGenerator(const
                                                                 // time
     declareProperty("NumberOfCharges", m_numberOfCharges = 1);
     declareProperty("SmallStepLength", m_smallStepLength = 5);
-    declareProperty("SiConditionsSvc", m_siConditionsSvc);
     //  declareProperty("rndmEngineName",m_rndmEngineName="SCT_Digitization");
     declareProperty("doDistortions", m_doDistortions,
                     "Simulation of module distortions");
@@ -137,7 +134,7 @@ StatusCode SCT_SurfaceChargesGenerator::initialize() {
     ATH_CHECK(m_siPropertiesTool.retrieve());
 
     // Get ISiliconConditionsSvc
-    ATH_CHECK(m_siConditionsSvc.retrieve());
+    ATH_CHECK(m_siConditionsTool.retrieve());
 
     if (m_doTrapping) {
         ///////////////////////////////////////////////////
@@ -836,8 +833,8 @@ void SCT_SurfaceChargesGenerator::setVariables() {
   m_design = dynamic_cast<const SCT_ModuleSideDesign *>(&(m_element ->design()));
 
   if (m_useSiCondDB) {
-    m_depletionVoltage = m_siConditionsSvc->depletionVoltage(m_hashId) * CLHEP::volt;
-    m_biasVoltage = m_siConditionsSvc->biasVoltage(m_hashId) * CLHEP::volt;
+    m_depletionVoltage = m_siConditionsTool->depletionVoltage(m_hashId) * CLHEP::volt;
+    m_biasVoltage = m_siConditionsTool->biasVoltage(m_hashId) * CLHEP::volt;
   } else {
     m_depletionVoltage = m_vdepl * CLHEP::volt;
     m_biasVoltage = m_vbias * CLHEP::volt;

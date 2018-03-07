@@ -8,7 +8,7 @@ class SCT_SiPropertiesToolSetup:
         self.alg = None
         self.toolName = "SCT_SiPropertiesTool"
         self.tool = None
-        self.siliconSvc = None
+        self.siliconTool = None
 
     def getAlgName(self):
         return self.algName
@@ -28,8 +28,8 @@ class SCT_SiPropertiesToolSetup:
     def getTool(self):
         return self.tool
 
-    def setSiliconSvc(self, siliconSvc):
-        self.siliconSvc = siliconSvc
+    def setSiliconTool(self, siliconTool):
+        self.siliconTool = siliconTool
 
     def setAlg(self):
         from AthenaCommon.AlgSequence import AthSequencer
@@ -37,11 +37,11 @@ class SCT_SiPropertiesToolSetup:
 
         if not hasattr(condSeq, self.algName):
             from SiPropertiesSvc.SiPropertiesSvcConf import SCTSiPropertiesCondAlg
-            if self.siliconSvc is None:
+            if self.siliconTool is None:
                 condSeq += SCTSiPropertiesCondAlg(name = self.algName)
             else:
                 condSeq += SCTSiPropertiesCondAlg(name = self.algName,
-                                                  SiConditionsServices = self.siliconSvc)
+                                                  SiConditionsTool = self.siliconTool)
         self.alg = getattr(condSeq, self.algName)
 
     def setTool(self):

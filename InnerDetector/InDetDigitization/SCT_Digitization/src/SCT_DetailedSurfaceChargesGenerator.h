@@ -27,6 +27,7 @@
 
 // Athena
 #include "Identifier/IdentifierHash.h"
+#include "InDetConditionsSummaryService/ISiliconConditionsTool.h"
 
 // Charges and hits
 class SiHit;
@@ -43,8 +44,6 @@ namespace InDetDD{
 namespace CLHEP {
   class HepRandomEngine;
 }
-
-class ISiliconConditionsSvc;
 
 /**
  * Class to take calculate Charge Transport in the SCT with a detailed charge transport model.
@@ -191,8 +190,7 @@ class SCT_DetailedSurfaceChargesGenerator : public AthAlgTool, virtual public IS
   //ToolHandles
   ToolHandle<ISCT_ModuleDistortionsTool> m_distortionsTool{this, "SCTDistortionsTool", "SCT_DistortionsTool", "Tool to retrieve SCT distortions"};
   ToolHandle<ISiPropertiesTool> m_siPropertiesTool{this, "SiPropertiesTool", "SCT_SiPropertiesTool", "Tool to retrieve SCT silicon properties"};
-  //ServiceHandles
-  ServiceHandle<ISiliconConditionsSvc> m_siConditionsSvc;
+  ToolHandle<ISiliconConditionsTool> m_siConditionsTool{this, "SiConditionsTool", "SCT_SiliconConditionsTool", "Tool to retrieve SCT silicon information"};
 
   const InDetDD::SiDetectorElement * m_element;   
   CLHEP::HepRandomEngine *           m_rndmEngine;          //!< Random Engine
