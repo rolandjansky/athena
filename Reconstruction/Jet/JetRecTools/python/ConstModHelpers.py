@@ -38,7 +38,7 @@ def getConstModSeq(sequence,inputtype,suffix=""):
             elif step=="Vor":
                 tool = CfgMgr.VoronoiWeightTool(toolname, doSpread=False, nSigma=0)
             elif step=="CS":
-                tool = CfgMgr.ConstituentSubtractorTool(toolname,MaxEta=5)
+                tool = CfgMgr.ConstituentSubtractorTool(toolname)
             elif step=="SK":
                 tool = CfgMgr.SoftKillerWeightTool(toolname, SKGridSize=0.6)
             if "PFlow" in inputtype:
