@@ -203,7 +203,7 @@ regHist( TH1* h )
       m_map.insert( valToInsert );
       return m_tool->regHist( h, *this );
    }
-
+   std::cout << "Julia, m_tool is "<<m_tool<< ", end of if part"<< std::endl;
    return StatusCode::FAILURE;
 }
 

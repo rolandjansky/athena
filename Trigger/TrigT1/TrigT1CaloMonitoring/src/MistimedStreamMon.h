@@ -26,10 +26,9 @@
 
 #include "xAODTrigL1Calo/TriggerTower.h"
 #include "xAODTrigL1Calo/TriggerTowerContainer.h"
+#include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
 class TH1F_LW;
-class TH2F_LW;
-class TH2I_LW;
 
 class L1CaloCondSvc;
 class L1CaloRunParametersContainer;
@@ -37,6 +36,7 @@ class L1CaloReadoutConfigContainer;
 
 class StatusCode;
 class EventInfo;
+class ITHistSvc;
 
 namespace Trig {
   class TrigDecisionTool;
@@ -82,19 +82,18 @@ class MistimedStreamMon: public ManagedMonitorToolBase
 private:
     
   StatusCode retrieveConditions();
-  void bookEventHistograms(std::string number);
+  void fillEtaPhiMap(TH2F* hist, double eta, double phi, double weight, bool shrinkEtaBins = true);
+  TH2F* createEtaPhiMap(std::string name, std::string title, bool isHADLayer = false, bool shrinkEtaBins = true);
   bool pulseQuality(std::vector<uint16_t> ttPulse, int peakSlice);
-  
+   
   /// Tool to retrieve bytestream errors
-  ToolHandle<ITrigT1CaloMonErrorTool>     m_errorTool;
+  ToolHandle<ITrigT1CaloMonErrorTool>   m_errorTool;
   /// Histogram helper tool
-  ToolHandle<TrigT1CaloLWHistogramTool>   m_histTool;
+  ToolHandle<TrigT1CaloLWHistogramTool> m_histTool;
   /// TT simulation tool for Identifiers
-  ToolHandle<LVL1::IL1TriggerTowerTool>   m_ttTool;
+  ToolHandle<LVL1::IL1TriggerTowerTool> m_ttTool;
   /// Tool to retrieve the trigger decision
   ToolHandle<Trig::TrigDecisionTool> m_trigDec;
-  
-  int m_selectedEventCounter; //count number of selected events globally; only fill detailed histos for first 10 events
 
   /// Histograms booked flag
   bool m_histBooked;
@@ -105,41 +104,7 @@ private:
   TH1F_LW* m_h_1d_cutFlow_mistimedStreamAna;  
   // Selected events per lumi block
   TH1F_LW* m_h_1d_selectedEvents_mistimedStreamAna;
-  
-  // Detailed histos per selected event
-  // eta-phi Map of EM TT classification
-  std::vector<TH2F_LW*> m_v_em_2d_etaPhi_tt_classification_mistimedStreamAna;
-  // eta-phi Map of HAD TT classification
-  std::vector<TH2F_LW*> m_v_had_2d_etaPhi_tt_classification_mistimedStreamAna;
-  // eta-phi Map of EM PSE bits
-  std::vector<TH2F_LW*> m_v_em_2d_etaPhi_tt_pseBits_mistimedStreamAna;
-  // eta-phi Map of HAD PSE bits
-  std::vector<TH2F_LW*> m_v_had_2d_etaPhi_tt_pseBits_mistimedStreamAna;
-  // eta-phi Map of EM lut-cp for timeslice 0 = BCID-1 
-  std::vector<TH2F_LW*> m_v_em_2d_etaPhi_tt_lut0_mistimedStreamAna;
-  // eta-phi Map of EM lut-cp for timeslice 1 = BCID
-  std::vector<TH2F_LW*> m_v_em_2d_etaPhi_tt_lut1_mistimedStreamAna;
-  // eta-phi Map of EM lut-cp for timeslice 2 = BCID+1
-  std::vector<TH2F_LW*> m_v_em_2d_etaPhi_tt_lut2_mistimedStreamAna;
-  // eta-phi Map of HAD lut-cp for timeslice 0 = BCID-1
-  std::vector<TH2F_LW*> m_v_had_2d_etaPhi_tt_lut0_mistimedStreamAna;
-  // eta-phi Map of HAD lut-cp for timeslice 1 = BCID
-  std::vector<TH2F_LW*> m_v_had_2d_etaPhi_tt_lut1_mistimedStreamAna;
-  // eta-phi Map of HAD lut-cp for timeslice 2 = BCID+1
-  std::vector<TH2F_LW*> m_v_had_2d_etaPhi_tt_lut2_mistimedStreamAna;
-  // eta-phi Map of EM lut-jep for timeslice 0 = BCID-1 
-  std::vector<TH2F_LW*> m_v_em_2d_etaPhi_tt_lut_jep0_mistimedStreamAna;
-  // eta-phi Map of EM lut-jep for timeslice 1 = BCID
-  std::vector<TH2F_LW*> m_v_em_2d_etaPhi_tt_lut_jep1_mistimedStreamAna;
-  // eta-phi Map of EM lut-jep for timeslice 2 = BCID+1
-  std::vector<TH2F_LW*> m_v_em_2d_etaPhi_tt_lut_jep2_mistimedStreamAna;
-  // eta-phi Map of HAD lut-jep for timeslice 0 = BCID-1
-  std::vector<TH2F_LW*> m_v_had_2d_etaPhi_tt_lut_jep0_mistimedStreamAna;
-  // eta-phi Map of HAD lut-jep for timeslice 1 = BCID
-  std::vector<TH2F_LW*> m_v_had_2d_etaPhi_tt_lut_jep1_mistimedStreamAna;
-  // eta-phi Map of HAD lut-jep for timeslice 2 = BCID+1
-  std::vector<TH2F_LW*> m_v_had_2d_etaPhi_tt_lut_jep2_mistimedStreamAna;
-  
+    
   //Variables for the properties
   /// Root directory
   std::string m_PathInRootFile;
@@ -151,7 +116,9 @@ private:
   L1CaloRunParametersContainer* m_runParametersContainer;
   /// Database container for the readout configuration
   L1CaloReadoutConfigContainer* m_readoutConfigContainer;
-    
+  
+  //  Athena hist service
+  ServiceHandle<ITHistSvc> m_thistSvc;
 };
 
 // ============================================================================
