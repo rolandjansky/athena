@@ -8,8 +8,12 @@ msg = logging.getLogger( 'TileConditions_jobOptions.py' )
 from TileConditions.TileInfoConfigurator import TileInfoConfigurator
 tileInfoConfigurator = TileInfoConfigurator()
 
-if not 'RunNumber' in dir() and '_run_number' in dir() and _run_number is not None:
-    RunNumber = _run_number
+if 'RunNumber' in dir():
+    rn = RunNumber
+elif '_run_number' in dir():
+    rn = _run_number
+else:
+    rn = None
 
 import re
 from AthenaCommon.GlobalFlags import globalflags
@@ -23,21 +27,17 @@ if (type(ss) != type(None)):
         TileUseCOOL = False
         TileFrameLength = 9
     if (version=='GEO') and (not 'TileCablingType' in dir()):
-        if not 'RunNumber' in dir():
+        if rn is None:
             from RecExConfig.AutoConfiguration import GetRunNumber
             rn=GetRunNumber()
-        else:
-            rn=RunNumber
         if rn>219651: # choose RUN2 cabling for old geometry tags starting from 26-MAR-2013 
             TileCablingType = 4 
             msg.warning("Forcing RUN2 cabling for run %s with geometry %s" % (rn,gbltg) )
     if (version=='R2') and (not 'TileCablingType' in dir()):
-        if not 'RunNumber' in dir():
+        if rn is None:
             from RecExConfig.AutoConfiguration import GetRunNumber
             rn=GetRunNumber()
-        else:
-            rn=RunNumber
-        if (globalflags.DataSource()!='data' and rn>=310000) or rn>=343000: # choose RUN2a cabling for R2 geometry tags starting from 31-Jan-2018
+        if (globalflags.DataSource()!='data' and rn>=310000) or rn>=343000 or rn<1: # choose RUN2a cabling for R2 geometry tags starting from 31-Jan-2018
             TileCablingType = 5
             msg.info("Forcing RUN2a (2018) cabling for run %s with geometry %s" % (rn,gbltg) )
         else:
@@ -65,19 +65,15 @@ if not 'TileUseDCS' in dir():
         TileCheckOFC=True
 
     if TileUseDCS:
-        if not 'RunNumber' in dir():
+        if rn is None:
             from RecExConfig.AutoConfiguration import GetRunNumber
             rn=GetRunNumber()
-        else:
-            rn=RunNumber
         TileUseDCS = ((rn>171194 and rn<222222) or rn>232498); # use DCS only for 2011 data and later, excluding shutdown period
 
 if TileUseDCS or ('TileCheckOFC' in dir() and TileCheckOFC) or ('RunOflOFC' in dir()):
-    if not 'RunNumber' in dir():
+    if rn is None:
         from RecExConfig.AutoConfiguration import GetRunNumber
         rn=GetRunNumber()
-    else:
-        rn=RunNumber
     if not 'RunOflOFC' in dir():
         RunOflOFC=314450
     if rn<RunOflOFC: # use OFC stored in online folder for all runs before 2017
