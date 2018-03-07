@@ -64,7 +64,13 @@ namespace xAOD {
       typedef IParticle::FourMom_t FourMom_t;
       
       /// The full 4-momentum of the particle.
-      virtual const FourMom_t& p4() const;
+      virtual FourMom_t p4() const;
+
+      /// Base 4 Momentum type for TrackParticle
+      typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<double> > NeutralFourMom_t;
+
+      /// The full 4-momentum of the particle : GenVector form
+      NeutralFourMom_t neutralP4() const;
       
       /// The type of the object as a simple enumeration
       virtual Type::ObjectType type() const;
@@ -129,13 +135,8 @@ namespace xAOD {
       //  void setVertex(const ElementLink< VertexContainer >& vertex);
 
     private:
-      /// Cached 4-momentum object.
-      mutable FourMom_t m_p4;
-      /// Cache state of the internal 4-momentum (reset from the streamer).
-      mutable bool m_p4Cached;
-
       /// Set to false if anything related to the perigee was changed
-      /// (and so it needs updating);
+      /// (and so it needs updating);  *** NEEDS TO CHANGE FOR ATHENAMT ***
       mutable bool m_perigeeCached;
 
 #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) ) && ( ! defined(__GCCXML__) ) && !defined(__CLING__)

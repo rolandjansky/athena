@@ -64,7 +64,7 @@ namespace xAOD {
       typedef TLorentzVector FourMom_t;
 
       /// The full 4-momentum of the particle
-      virtual const FourMom_t& p4() const = 0;
+      virtual FourMom_t        p4() const = 0;
 
       /// @}
 

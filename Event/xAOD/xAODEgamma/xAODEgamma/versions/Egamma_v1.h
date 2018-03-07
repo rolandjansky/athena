@@ -36,6 +36,9 @@
 //std Include
 #include <stdint.h>
 
+// ROOT include(s):
+#include "Math/Vector4D.h"
+
 namespace xAOD {
 
   /// @class xAOD::Egamma
@@ -104,7 +107,7 @@ namespace xAOD {
     typedef IParticle::FourMom_t FourMom_t;
 
     /// @brief The full 4-momentum of the particle as a TLoretzVector
-    virtual const FourMom_t& p4() const ATH_FINAL;
+    virtual FourMom_t         p4() const ATH_FINAL;
 
     /// @brief The type of the object as a simple enumeration, remains pure virtual in e/gamma.
     virtual Type::ObjectType type() const ATH_OVERRIDE =0 ; 
@@ -114,6 +117,12 @@ namespace xAOD {
 
     /// @name xAOD::Egamma 4-Mom functions
     /// @{
+
+    /// Base 4 Momentum type for egamma
+    typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > EgammaFourMom_t;
+
+    ///  The full 4-momentum of the particle : internal egamma type.
+    EgammaFourMom_t egammaP4() const; 
     
     /// @brief set the 4-vec
     void setP4(float pt, float eta, float phi, float m);
@@ -403,17 +412,6 @@ namespace xAOD {
 
     ///@}
 
-  private:
-    ///
-
-    /// Cached 4-momentum object
-    mutable FourMom_t m_p4;
-    ///
-
-    /// Cache state of the internal 4-momentum (reset from the streamer)
-    mutable bool m_p4Cached;
-
-      
     
   }; // class Egamma
 

@@ -31,6 +31,9 @@ extern "C" {
 #endif // not XAOD_MANACORE
 #endif // not XAOD_STANDALONE
 
+// ROOT include(s):
+#include "Math/Vector4D.h"
+
 namespace xAOD {
 
   /// Class describing a TrackParticle.
@@ -70,7 +73,13 @@ namespace xAOD {
         typedef IParticle::FourMom_t FourMom_t;
 
         /// The full 4-momentum of the particle.
-        virtual const FourMom_t& p4() const;
+        virtual FourMom_t p4() const;
+
+        /// Base 4 Momentum type for TrackParticle
+        typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<double> > TrackFourMom_t;
+
+        /// The full 4-momentum of the particle : GenVector form
+        TrackFourMom_t trackP4() const;
 
         /// The type of the object as a simple enumeration
         virtual Type::ObjectType type() const;
@@ -315,13 +324,9 @@ namespace xAOD {
          const Vertex* vertex() const; 
       /// @}
     private:
-      /// Cached 4-momentum object.
-      mutable FourMom_t m_p4;
-      /// Cache state of the internal 4-momentum (reset from the streamer).
-      mutable bool m_p4Cached;
 
      /// Set to false if anything related to the perigee was changed
-     /// (and so it needs updating);
+     /// (and so it needs updating);  *** NEEDS UPDATING FOR MT ***
      mutable bool m_perigeeCached;
 
 #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) ) && ( ! defined(__GCCXML__) )  && !defined(__CLING__)

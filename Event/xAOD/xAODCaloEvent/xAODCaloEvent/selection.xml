@@ -4,27 +4,11 @@
   <!-- CaloCluster(Container> --> 
 
   <class name="xAOD::CaloCluster_v1" >
-    <field name="m_p4" transient="true" />
-    <field name="m_pt" transient="true" />
-    <field name="m_p4Cached" transient="true" />
-    <field name="m_ptCached" transient="true" />
     <field name="m_signalState"  transient="true" />
     <field name="m_cellLinks"    transient="true" />
     <field name="m_ownCellLinks"    transient="true" />
     <field name="m_recoStatus"    transient="true" />
   </class>
-  <read sourceClass="xAOD::CaloCluster_v1" version="[1-]"
-        targetClass="xAOD::CaloCluster_v1" source="" target="m_p4Cached" >
-    <![CDATA[
-       m_p4Cached.reset();
-    ]]>
-  </read>
- <read sourceClass="xAOD::CaloCluster_v1" version="[1-]"
-        targetClass="xAOD::CaloCluster_v1" source="" target="m_ptCached" >
-    <![CDATA[
-       m_ptCached.reset();
-    ]]>
-  </read>
   <read sourceClass="xAOD::CaloCluster_v1" version="[1-]"
         targetClass="xAOD::CaloCluster_v1" source="" target="m_signalState" >
     <![CDATA[

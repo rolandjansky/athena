@@ -23,7 +23,7 @@
 namespace xAOD {
 
   TrackParticle_v1::TrackParticle_v1()
-  : IParticle(), m_p4(), m_p4Cached( false ), m_perigeeCached(false) {
+  : IParticle(), m_perigeeCached(false) {
     // std::cout<<"TrackParticle_v1 CTOR this="<<this<<", \tm_perigeeCached="<<m_perigeeCached<<", \tm_perigeeParameters="<<m_perigeeParameters<<std::endl;
 #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
     m_perigeeParameters=0;
@@ -31,7 +31,7 @@ namespace xAOD {
   }
   
   TrackParticle_v1::TrackParticle_v1(const TrackParticle_v1& tp ) 
-  : IParticle( tp ), m_p4(tp.m_p4), m_p4Cached( tp.m_p4Cached ), m_perigeeCached(tp.m_perigeeCached) {
+  : IParticle( tp ), m_perigeeCached(tp.m_perigeeCached) {
     makePrivateStore( tp );
     #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
     m_perigeeParameters = tp.m_perigeeParameters;
@@ -59,45 +59,54 @@ namespace xAOD {
 #endif // not XAOD_STANDALONE and not XAOD_MANACORE
   }
   double TrackParticle_v1::pt() const {
-    return p4().Pt();
+    return trackP4().Pt();
   }
 
   double TrackParticle_v1::eta() const {
-    return p4().Eta(); 
+    return trackP4().Eta(); 
   }
 
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST(TrackParticle_v1,float,double,phi)
 
   double TrackParticle_v1::m() const {
-    return p4().M();
+    return 139.570; /// @todo Get value from somewhere. Also, the TrackParticle took the Pion mass - do we really want to do this? We have ParticleHypo?
   }
 
   double TrackParticle_v1::e() const {
-    return p4().E(); 
+    return trackP4().E(); 
   }
   double TrackParticle_v1::rapidity() const {
-    return p4().Rapidity();
+    return trackP4().Rapidity();
   }
 
-  const TrackParticle_v1::FourMom_t& TrackParticle_v1::p4() const {
+  TrackParticle_v1::TrackFourMom_t& TrackParticle_v1::trackP4() const {
     using namespace std;
-  // Check if we need to reset the cached object:
-    if( ! m_p4Cached ) {
-      float p = 10.e6; // 10 TeV (default value for very high pt muons, with qOverP==0)
-      if (fabs(qOverP())>0.) p = 1/fabs(qOverP());
-      float thetaT = theta();
-      float phiT = phi();
-      float sinTheta= sin(thetaT);
-      float px = p*sinTheta*cos(phiT);
-      float py = p*sinTheta*sin(phiT);
-      float pz = p*cos(thetaT);
-      float e  =  pow (139.570,2) + /// @todo Get value from somewhere. Also, the TrackParticle took the Pion mass - do we really want to do this? We have ParticleHypo?
-        pow( px,2) + pow( py,2) + pow( pz,2);
-      m_p4.SetPxPyPzE( px, py, pz, sqrt(e) ); 
-      m_p4Cached = true;
-    }
-  // Return the cached object:
-    return m_p4;
+    float p = 10.e6; // 10 TeV (default value for very high pt muons, with qOverP==0)
+    if (fabs(qOverP())>0.) p = 1/fabs(qOverP());
+    float thetaT = theta();
+    float phiT = phi();
+    float sinTheta= sin(thetaT);
+    float px = p*sinTheta*cos(phiT);
+    float py = p*sinTheta*sin(phiT);
+    float pz = p*cos(thetaT);
+    return TrackFourMom_t(px, py, pz, m());
+  }
+
+  TrackParticle_v1::FourMom_t TrackParticle_v1::p4() const {
+    TrackParticle_v1::FourMom_t p4;
+    using namespace std;
+    float p = 10.e6; // 10 TeV (default value for very high pt muons, with qOverP==0)
+    if (fabs(qOverP())>0.) p = 1/fabs(qOverP());
+    float thetaT = theta();
+    float phiT = phi();
+    float sinTheta= sin(thetaT);
+    float px = p*sinTheta*cos(phiT);
+    float py = p*sinTheta*sin(phiT);
+    float pz = p*cos(thetaT);
+    float e  =  pow (m(),2) + 
+      pow( px,2) + pow( py,2) + pow( pz,2);
+    p4.SetPxPyPzE( px, py, pz, sqrt(e) ); 
+    return p4;
   }
 
   Type::ObjectType TrackParticle_v1::type() const {
@@ -148,7 +157,6 @@ namespace xAOD {
     static Accessor< float > acc5( "qOverP" );
     acc5( *this ) = qOverP;
 
-    m_p4Cached = false;
     return;
   }
 

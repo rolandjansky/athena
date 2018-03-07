@@ -25,7 +25,6 @@ namespace xAOD {
    CaloCluster_v1::CaloCluster_v1()
      : IParticle(), 
        m_samplingPattern(0), 
-       m_p4(),
        m_cellLinks(0),
        m_ownCellLinks(false)
    {
@@ -36,7 +35,6 @@ namespace xAOD {
   CaloCluster_v1::CaloCluster_v1(const CaloCluster_v1& other)
     : IParticle(), //IParticel does not have a copy constructor. AuxElement has one with same behavior as default ctor
       m_samplingPattern(other.samplingPattern()), 
-      m_p4(), 
       m_cellLinks(0), 
       m_ownCellLinks(false),
       m_recoStatus(other.m_recoStatus) {
@@ -59,7 +57,6 @@ namespace xAOD {
     if (this == &other) return *this;
 
     SG::AuxElement::operator=( other ); //Call assignment operator of base-class
-    m_p4Cached.reset();
     m_recoStatus=other.m_recoStatus;
     setSignalState(other.signalState());
     m_samplingPattern=other.m_samplingPattern;
@@ -154,49 +151,45 @@ namespace xAOD {
   /// @returns The transverse momentum of the cluster
   ///
   double CaloCluster_v1::pt(const State s) const {
-    if (!m_ptCached.test(s)) {
-      // Calculate the momentum of the object:
-      double theE = 0;
-      double theM = 0;
-      switch (s) {
-      case CALIBRATED:
-	theE=calE();
-	theM=calM();
-	break;
-      case UNCALIBRATED:
-	theE=rawE();
-	theM=rawM();
-	break;
-      case ALTCALIBRATED:
-	theE=altE();
-	theM=altM();
-	break;
-      default:
-	break;
-      }
+    // Calculate the momentum of the object:
+    double theE = 0;
+    double theM = 0;
+    switch (s) {
+    case CALIBRATED:
+      theE=calE();
+      theM=calM();
+      break;
+    case UNCALIBRATED:
+      theE=rawE();
+      theM=rawM();
+      break;
+    case ALTCALIBRATED:
+      theE=altE();
+      theM=altM();
+      break;
+    default:
+      break;
+    }
 
-      double p = 0.0;
-      if( std::abs( theM ) < 0.00001 ) {
-	p = theE;
-      } else {
-	p = std::sqrt( theE * theE - theM * theM );
-	if( theE < 0 ) {
-	  p = -p;
-	}
+    double p = 0.0;
+    if( std::abs( theM ) < 0.00001 ) {
+      p = theE;
+    } else {
+      p = std::sqrt( theE * theE - theM * theM );
+      if( theE < 0 ) {
+	p = -p;
       }
+    }
 
-      // Calculate sinTh:
-      double aEta = std::abs( eta(s) );
-      if( aEta > 710.0 ) {
-	aEta = 710.0;
-      }
-      const double sinTh = 1.0 / std::cosh( aEta );
-
-      // Calculate pT from these two:
-      m_pt[s]= p * sinTh;
-      m_ptCached.set(s);
-    }//end if not cached
-    return m_pt[s];
+    // Calculate sinTh:
+    double aEta = std::abs( eta(s) );
+    if( aEta > 710.0 ) {
+      aEta = 710.0;
+    }
+    const double sinTh = 1.0 / std::cosh( aEta );
+    
+    // Calculate pT from these two:
+    return p * sinTh;
   }
 
   /**
@@ -289,28 +282,21 @@ namespace xAOD {
   void CaloCluster_v1::setRawE(const CaloCluster_v1::flt_t value) {
     static const Accessor<CaloCluster_v1::flt_t> accRawE("rawE");
     accRawE(*this)=value;
-    m_ptCached.reset(UNCALIBRATED);
-    m_p4Cached.reset(UNCALIBRATED);
   }
 
   void CaloCluster_v1::setRawEta(const CaloCluster_v1::flt_t value) {
     static const Accessor<CaloCluster_v1::flt_t> accRawEta("rawEta");
     accRawEta(*this)=value;
-    m_ptCached.reset(UNCALIBRATED);
-    m_p4Cached.reset(UNCALIBRATED);
   }
 
   void CaloCluster_v1::setRawPhi(const CaloCluster_v1::flt_t value) {
     static const Accessor<CaloCluster_v1::flt_t> accRawPhi("rawPhi");
     accRawPhi(*this)=value;
-    m_ptCached.reset(UNCALIBRATED);
   }
 
   void CaloCluster_v1::setRawM(const CaloCluster_v1::flt_t value) {
     static const Accessor<CaloCluster_v1::flt_t> accRawM("rawM");
     accRawM(*this)=value;
-    m_ptCached.reset(UNCALIBRATED);
-    m_p4Cached.reset(UNCALIBRATED);
   }  
 
   //----------------------------------------------------------------
@@ -318,28 +304,21 @@ namespace xAOD {
   void CaloCluster_v1::setCalE(const CaloCluster_v1::flt_t value) {
     static const Accessor<CaloCluster_v1::flt_t> accCalE("calE");
     accCalE(*this)=value;
-    m_ptCached.reset(CALIBRATED);
-    m_p4Cached.reset(CALIBRATED);
   }
 
   void CaloCluster_v1::setCalEta(const CaloCluster_v1::flt_t value) {
     static const Accessor<CaloCluster_v1::flt_t> accCalEta("calEta");
     accCalEta(*this)=value;
-    m_ptCached.reset(CALIBRATED);
-    m_p4Cached.reset(CALIBRATED);
   }
 
   void CaloCluster_v1::setCalPhi(const CaloCluster_v1::flt_t value) {
     static const Accessor<CaloCluster_v1::flt_t> accCalPhi("calPhi");
     accCalPhi(*this)=value;
-    m_ptCached.reset(CALIBRATED);
   }
 
   void CaloCluster_v1::setCalM(const CaloCluster_v1::flt_t value) {
     static const Accessor<CaloCluster_v1::flt_t> accCalM("calM");
     accCalM(*this)=value;
-    m_ptCached.reset(CALIBRATED);
-    m_p4Cached.reset(CALIBRATED);
   }  
 
   //----------------------------------------------------------------
@@ -347,28 +326,21 @@ namespace xAOD {
   void CaloCluster_v1::setAltE(const CaloCluster_v1::flt_t value) {
     static const Accessor<CaloCluster_v1::flt_t> accAltE("altE");
     accAltE(*this)=value;
-    m_ptCached.reset(ALTCALIBRATED);
-    m_p4Cached.reset(ALTCALIBRATED);
   }
 
   void CaloCluster_v1::setAltEta(const CaloCluster_v1::flt_t value) {
     static const Accessor<CaloCluster_v1::flt_t> accAltEta("altEta");
     accAltEta(*this)=value;
-    m_ptCached.reset(ALTCALIBRATED);
-    m_p4Cached.reset(ALTCALIBRATED);
   }
 
   void CaloCluster_v1::setAltPhi(const CaloCluster_v1::flt_t value) {
     static const Accessor<CaloCluster_v1::flt_t> accAltPhi("altPhi");
     accAltPhi(*this)=value;
-    m_ptCached.reset(ALTCALIBRATED);
   }
 
   void CaloCluster_v1::setAltM(const CaloCluster_v1::flt_t value) {
     static const Accessor<CaloCluster_v1::flt_t> accAltM("altM");
     accAltM(*this)=value;
-    m_ptCached.reset(ALTCALIBRATED);
-    m_p4Cached.reset(ALTCALIBRATED);
   } 
 
   AUXSTORE_PRIMITIVE_GETTER( CaloCluster_v1, CaloCluster_v1::flt_t,  rawE)	           		 
@@ -542,40 +514,54 @@ namespace xAOD {
     */
   }
   
-   double CaloCluster_v1::rapidity() const {
-      return p4().Rapidity();
-   }
 
-   const CaloCluster_v1::FourMom_t& CaloCluster_v1::p4() const {
-     return p4(m_signalState);
-   }
+  CaloCluster_v1::CaloFourMom_t caloP4(const State s) const {
+  case CALIBRATED:
+    return CaloFourMom_t(pt(s),calEta(),calPhi(),calM());   
+  case UNCALIBRATED:
+    return CaloFourMom_t(pt(s),rawEta(),rawPhi(), rawM());  
+  case ALTCALIBRATED:
+    return CaloFourMom_t(pt(s),altEta(),altPhi(), altM());  
+  default:
+    return CaloFourMom_t();  
+  }
 
+  CaloCluster_v1::CaloFourMom_t caloP4() const {
+    return caloP4(m_signalState);
+  }
 
-  const CaloCluster_v1::FourMom_t&  CaloCluster_v1::p4(const CaloCluster_v1::State s) const  {
-    if (!m_p4Cached.test(s)) {
-      switch(s) {
-      case CALIBRATED:
-	m_p4[s].SetPtEtaPhiM(pt(s),calEta(),calPhi(),calM());	
-	break;
-      case UNCALIBRATED:
-	m_p4[s].SetPtEtaPhiM(pt(s),rawEta(),rawPhi(), rawM());	
-	break;
-      case ALTCALIBRATED:
-	m_p4[s].SetPtEtaPhiM(pt(s),altEta(),altPhi(), altM());	
-	break;
-      default:
-	break;
-      }
-      m_p4Cached.set(s);
-    }
-    return m_p4[s];
+  double CaloCluster_v1::rapidity() const {
+    return caloP4().Rapidity();
+  }
+  
+  CaloCluster_v1::FourMom_t CaloCluster_v1::p4() const {
+    return p4(m_signalState);
   }
 
 
-   Type::ObjectType CaloCluster_v1::type() const {
-      return Type::CaloCluster;
-   }
+  CaloCluster_v1::FourMom_t  CaloCluster_v1::p4(const CaloCluster_v1::State s) const  {
+    CaloCluster_v1::FourMom_t p4;
+    switch(s) {
+    case CALIBRATED:
+      p4.SetPtEtaPhiM(pt(s),calEta(),calPhi(),calM());   
+      break;
+    case UNCALIBRATED:
+      p4.SetPtEtaPhiM(pt(s),rawEta(),rawPhi(), rawM());  
+      break;
+    case ALTCALIBRATED:
+      p4.SetPtEtaPhiM(pt(s),altEta(),altPhi(), altM());  
+      break;
+    default:
+      break;
+    }
+    return p4;
+  }
 
+  
+  Type::ObjectType CaloCluster_v1::type() const {
+    return Type::CaloCluster;
+  }
+  
   
   float CaloCluster_v1::getSamplVarFromAcc(const Accessor< std::vector <float > >& acc , const CaloSample sampling, const float errorvalue) const {
     const std::vector<float>& vec=acc(*this);

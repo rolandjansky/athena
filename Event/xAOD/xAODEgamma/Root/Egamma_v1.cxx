@@ -15,6 +15,8 @@
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 #include <stdexcept>
 
+#include <Math/GenVector/PtEtaPhiM4D.h>
+
 namespace xAOD {
 
 namespace MatrixHelpers{
@@ -45,10 +47,10 @@ namespace MatrixHelpers{
 }
 
   Egamma_v1::Egamma_v1()
-    : IParticle(), m_p4(), m_p4Cached( false ) {
+    : IParticle() {
   }
   
-  Egamma_v1::Egamma_v1(const Egamma_v1& eg) : IParticle(eg), m_p4(eg.m_p4), m_p4Cached(eg.m_p4Cached) {
+  Egamma_v1::Egamma_v1(const Egamma_v1& eg) : IParticle(eg) {
   }
 
  Egamma_v1& Egamma_v1::operator=(const Egamma_v1& eg ){
@@ -58,13 +60,10 @@ namespace MatrixHelpers{
 	  makePrivateStore();
       }
       this->IParticle::operator=( eg );
-      this->m_p4 = eg.m_p4;
-      this->m_p4Cached = eg.m_p4Cached;
     }
     // by convention, always return *this
     return *this;
  }
-
 
   double Egamma_v1::pt() const {
     static const Accessor< float > acc( "pt" );
@@ -85,21 +84,24 @@ namespace MatrixHelpers{
     static const Accessor< float> acc( "m" );
     return acc( *this );
   }
+
+  // depend on return value optimization
+  Egamma_v1::EgammaFourMom_t Egamma_v1::egammaP4() const {
+    return EgammaFourMom_t(pt(), eta(), phi(), m());
+  }
   
   double Egamma_v1::e() const{
-    return p4().E(); 
+    return egammaP4().E(); 
   }
   
   double Egamma_v1::rapidity() const {
-    return p4().Rapidity();	
+    return egammaP4().Rapidity();	
   }
   
-  const Egamma_v1::FourMom_t& Egamma_v1::p4() const {
-    if( ! m_p4Cached ) {
-      m_p4.SetPtEtaPhiM( pt(), eta(), phi(),m()); 
-      m_p4Cached=true;
-    }
-    return m_p4;	
+  Egamma_v1::FourMom_t Egamma_v1::p4() const {
+    FourMom_t p4;
+    p4.SetPtEtaPhiM( pt(), eta(), phi(),m()); 
+    return p4;	
   }
   
   void Egamma_v1::setP4(float pt, float eta, float phi, float m){
@@ -111,36 +113,26 @@ namespace MatrixHelpers{
     acc3( *this ) = phi;
     static const Accessor< float > acc4( "m" );
     acc4( *this ) = m;
-    //Need to recalculate m_p4 if requested after update
-    m_p4Cached=false;
   }
   
   void Egamma_v1::setPt(float pt){
     static const Accessor< float > acc( "pt" );
     acc( *this ) = pt;
-    //Need to recalculate m_p4 if requested after update
-    m_p4Cached=false;
   }
   
   void Egamma_v1::setEta(float eta){
     static const Accessor< float > acc( "eta" );
     acc( *this ) = eta;
-    //Need to recalculate m_p4 if requested after update
-    m_p4Cached=false;
   }
 
   void Egamma_v1::setPhi(float phi){
     static const Accessor< float > acc( "phi" );
     acc( *this ) = phi;
-    //Need to recalculate m_p4 if requested after update
-    m_p4Cached=false;
   }
 
   void Egamma_v1::setM(float m){
     static const Accessor< float > acc( "m" );
     acc( *this ) = m;
-    //Need to recalculate m_p4 if requested after update
-    m_p4Cached=false;
   }
 
   Egamma_v1::EgammaCovMatrix_t Egamma_v1::covMatrix() const{

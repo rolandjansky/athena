@@ -13,11 +13,6 @@ double xAOD::CaloTower_v1::m_towerMass = 0.;
 
 xAOD::CaloTower_v1::CaloTower_v1() 
   : IParticle() 
-  , m_fourmom(0.,0.,0.,0.)
-  , m_eta(0.)
-  , m_phi(0.)
-  , m_invcosheta(0.)
-  , m_isComplete(false) 
   {}
 
 
@@ -39,38 +34,65 @@ void xAOD::CaloTower_v1::reset() {
   m_isComplete=false;
 }
 
-const xAOD::IParticle::FourMom_t& xAOD::CaloTower_v1::p4() const { this->setupFourMom(); return m_fourmom; }
+
 
 double xAOD::CaloTower_v1::e()        const { return f_val_e(); }
-double xAOD::CaloTower_v1::eta()      const { this->setupFourMom(); return m_eta; }
-double xAOD::CaloTower_v1::phi()      const { this->setupFourMom(); return m_phi; }
+
+double xAOD::CaloTower_v1::eta()      const { 
+  const CaloTowerContainer_v1* pTowCont =
+      static_cast<const CaloTowerContainer_v1*>(container());
+  return pTowCont->eta(index());
+}
+ 
+double xAOD::CaloTower_v1::phi()      const { 
+  const CaloTowerContainer_v1* pTowCont =
+      static_cast<const CaloTowerContainer_v1*>(container());
+  return pTowCont->phi(index());
+}
+
 double xAOD::CaloTower_v1::m()        const { return m_towerMass; }
-double xAOD::CaloTower_v1::rapidity() const { return this->eta(); }
-double xAOD::CaloTower_v1::pt()       const { this->setupFourMom(); return this->e()*m_invcosheta; } 
+double xAOD::CaloTower_v1::rapidity() const { return eta(); }
+double xAOD::CaloTower_v1::pt()       const { return caloP4().Pt() } 
 
 // FIXME!!!
 xAOD::Type::ObjectType xAOD::CaloTower_v1::type() const { return Type::ObjectType::Other; }
 
 
-void xAOD::CaloTower_v1::setupFourMom() const {
-  if (m_isComplete) return;
+const xAOD::CaloTower_v1::FourMom_t xAOD::CaloTower_v1::p4() const { 
 
-  //const CaloTowerContainer_v1* pTowCont = dynamic_cast<const CaloTowerContainer_v1*>(this->container());
-  //assert (pTowCont);
-  const CaloTowerContainer_v1* pTowCont=static_cast<const CaloTowerContainer_v1*>(this->container());
+  FourMom_t p4;
 
-
-  m_eta=pTowCont->eta(this->index());
-  m_phi=pTowCont->phi(this->index());
-  m_invcosheta = 1./std::cosh(m_eta);
-
-  if (this->e() <= 0. ) {// negative energy towers do not have a valid four-momentum representation (but a valid energy, eta, phi)
-     m_fourmom = FourMom_t(0.,0.,0.,0.); 
+  if (e() <= 0) {
+    // negative energy towers do not have a valid four-momentum representation (but a valid energy, eta, phi)
+    return p4;
   }
-  else {
-    const double pt=this->e()*m_invcosheta;
-    m_fourmom.SetPtEtaPhiM(pt,m_eta,m_phi,this->m()); 
+
+  const CaloTowerContainer_v1* pTowCont =
+    static_cast<const CaloTowerContainer_v1*>(container());
+
+
+  const double eta=pTowCont->eta(index());
+  const double phi=pTowCont->phi(index());
+  const double invcosheta = 1./std::cosh(eta);
+  const double pt=e()*m_invcosheta;
+  p4.SetPtEtaPhiM(pt,eta,phi,m()); 
+  return p4;
+}
+
+const xAOD::CaloTower_v1::CaloFourMom_t xAOD::CaloTower_v1::caloP4() const { 
+
+  if (e() <= 0) {
+    // negative energy towers do not have a valid four-momentum representation (but a valid energy, eta, phi)
+    return CaloFourMom_t();
   }
-  m_isComplete=true;
-  return;
+
+  const CaloTowerContainer_v1* pTowCont =
+    static_cast<const CaloTowerContainer_v1*>(container());
+
+
+  const double eta=pTowCont->eta(index());
+  const double phi=pTowCont->phi(index());
+  const double invcosheta = 1./std::cosh(eta);
+  const double pt=e()*m_invcosheta;
+  return CaloFourMom_t(pt,eta,phi,m()); 
 }

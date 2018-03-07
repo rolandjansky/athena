@@ -18,14 +18,14 @@
 namespace xAOD {
 
   NeutralParticle_v1::NeutralParticle_v1()
-  : IParticle(), m_p4(), m_p4Cached( false ), m_perigeeCached(false) {
+  : IParticle(), m_perigeeCached(false) {
 #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
     m_perigeeParameters=0;
 #endif // not XAOD_STANDALONE and not XAOD_MANACORE
   }
   
   NeutralParticle_v1::NeutralParticle_v1(const NeutralParticle_v1& tp ) 
-  : IParticle( tp ), m_p4(tp.m_p4), m_p4Cached( tp.m_p4Cached ), m_perigeeCached(tp.m_perigeeCached) {
+  : IParticle( tp ), m_perigeeCached(tp.m_perigeeCached) {
     makePrivateStore( tp );
     #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
     m_perigeeParameters = tp.m_perigeeParameters;
@@ -50,45 +50,55 @@ namespace xAOD {
   }
   
   double NeutralParticle_v1::pt() const {
-    return p4().Pt();
+    return neutralP4().Pt();
   }
 
   double NeutralParticle_v1::eta() const {
-    return p4().Eta(); 
+    return neutralP4().Eta(); 
   }
 
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST(NeutralParticle_v1,float,double,phi)
 
 
   double NeutralParticle_v1::m() const {
-    return p4().M();
+    return 139.570; /// @todo Get value from somewhere. Also, the TrackParticle took the Pion mass - do we really want to do this? We have ParticleHypo?
   }
 
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( NeutralParticle_v1, float, double, e)
 
 
   double NeutralParticle_v1::rapidity() const {
-    return p4().Rapidity();
+    return neutralP4().Rapidity();
   }
 
-  const NeutralParticle_v1::FourMom_t& NeutralParticle_v1::p4() const {
+  NeutralParticle_v1::NeutralFourMom_t NeutralParticle_v1::neutralP4() const {
     using namespace std;
-  // Check if we need to reset the cached object:
-    if( ! m_p4Cached ) {
-      float p = 1/fabs(oneOverP());
-      float thetaT = theta();
-      float phiT = phi();
-      float sinTheta= sin(thetaT);
-      float px = p*sinTheta*cos(phiT);
-      float py = p*sinTheta*sin(phiT);
-      float pz = p*cos(thetaT);
-      float e  =  pow (139.570,2) + /// @todo Get value from somewhere. Also, the TrackParticle took the Pion mass - do we really want to do this? We have ParticleHypo?
-        pow( px,2) + pow( py,2) + pow( pz,2);
-      m_p4.SetPxPyPzE( px, py, pz, sqrt(e) ); 
-      m_p4Cached = true;
-    }
-  // Return the cached object:
-    return m_p4;
+    // Check if we need to reset the cached object:
+    float p = 1/fabs(oneOverP());
+    float thetaT = theta();
+    float phiT = phi();
+    float sinTheta= sin(thetaT);
+    float px = p*sinTheta*cos(phiT);
+    float py = p*sinTheta*sin(phiT);
+    float pz = p*cos(thetaT);
+    return NeutralFourMom_t(px, py, pz, m());
+  }
+
+  NeutralParticle_v1::FourMom_t NeutralParticle_v1::p4() const {
+    using namespace std;
+    FourMom_t p4;
+    // Check if we need to reset the cached object:
+    float p = 1/fabs(oneOverP());
+    float thetaT = theta();
+    float phiT = phi();
+    float sinTheta= sin(thetaT);
+    float px = p*sinTheta*cos(phiT);
+    float py = p*sinTheta*sin(phiT);
+    float pz = p*cos(thetaT);
+    float e  =  pow (m(),2) + 
+      pow( px,2) + pow( py,2) + pow( pz,2);
+    p4.SetPxPyPzE( px, py, pz, sqrt(e) ); 
+    return p4;
   }
 
   Type::ObjectType NeutralParticle_v1::type() const {

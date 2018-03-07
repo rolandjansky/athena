@@ -2,18 +2,10 @@
 <lcgdict>
 
   <!-- Egamma_v1 dictionaries: -->
-  <class name="xAOD::Egamma_v1">
-    <field name="m_p4" transient="true" />
-    <field name="m_p4Cached" transient="true" />
-  </class>
+  <class name="xAOD::Egamma_v1" />
+
   <class name="xAOD::EgammaContainer_v1"
          id="CE53CD7A-0B8E-44F5-9AB1-997E87713BC5" />
-  <read sourceClass="xAOD::Egamma_v1" version="[1-]"
-        targetClass="xAOD::Egamma_v1" source="" target="m_p4Cached" >
-    <![CDATA[
-       m_p4Cached = false;
-    ]]>
-  </read>
 
   <class name="xAOD::EgammaAuxContainer_v1"
          id="01A7F3AA-D5CA-4FCF-A314-20F822FF6CA0" />

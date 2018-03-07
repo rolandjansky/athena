@@ -23,6 +23,7 @@ atlas_depends_on_subdirs(
 
 # External dependencies:
 find_package( Eigen )
+find_package( ROOT COMPONENTS Core GenVector )
 
 # Component(s) in the package:
 atlas_add_library( xAODEgamma

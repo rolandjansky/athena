@@ -9,6 +9,9 @@
 
 #include "xAODBase/IParticle.h"
 
+// ROOT include(s):
+#include "Math/Vector4D.h"
+
 namespace xAOD {
 
   class CaloTower_v1 : public IParticle
@@ -50,7 +53,16 @@ namespace xAOD {
     virtual double rapidity() const;                ///< @brief rapidity @f$ y @f$
     virtual double m()   const;                     ///< @brief mass @f$ m = 0 @f$ (by convention)
     virtual double e()   const;                     ///< @brief energy @f$ E @f$
-    virtual const IParticle::FourMom_t& p4() const; ///< @brief Four-momentum representation
+
+    /// Definition of the 4-momentum type
+    typedef IParticle::FourMom_t FourMom_t;
+
+    /// Base 4 Momentum type for calo
+    typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > CaloFourMom_t;
+
+    virtual CaloFourMom_t caloP4() const; ///< @brief Four-momentum representation: GenVector
+
+    virtual FourMom_t p4() const; ///< @brief Four-momentum representation
     /// @}
 
     /// @name Implementations of the other @c IParticle interface methods
@@ -71,18 +83,7 @@ namespace xAOD {
 
     /// @name Transient four-momentum store
     /// @{
-    mutable IParticle::FourMom_t m_fourmom;  ///> @brief Transient four-momentum store
-    mutable double m_eta;                    ///> @brief Transient store for @f$ \eta @f$
-    mutable double m_phi;                    ///> @brief Transient store for @f$ \phi @f$
-    mutable double m_invcosheta;             ///> @brief Speed-up conversion @f$ e \to p_{\mathrm{T}} @f$ using @f$ \eta @f$
     static  double m_towerMass;              ///> @brief Convention @f$ m_{\mathrm{tower}} = 0 @f$.
-    /// @}
-    /// @name Transient store helpers (internal)
-    /// @{
-    /// @brief compute four-momentum 
-    /// This function is invoked internally compute the kinematics based on the index in the container 
-    void setupFourMom() const;
-    mutable bool m_isComplete; ///> @brief Store status tag (@c true if tower is completely set up, i.e. has valid @f$ ( \eta, \phi ) @f$
     /// @}
   };
 }

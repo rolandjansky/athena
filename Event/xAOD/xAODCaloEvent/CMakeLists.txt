@@ -26,6 +26,7 @@ atlas_depends_on_subdirs(
 
 # External dependencies:
 find_package( Eigen )
+find_package( ROOT COMPONENTS Core GenVector )
 
 # Extra source(s), based on what environment we are in:
 if( NOT XAOD_ANALYSIS AND NOT SIMULATIONBASE )

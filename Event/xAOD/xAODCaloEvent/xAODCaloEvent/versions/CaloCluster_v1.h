@@ -24,12 +24,16 @@ extern "C" {
 #include "xAODCaloEvent/CaloClusterContainerFwd.h"
 #include "AthLinks/ElementLink.h"
 
+
 #ifndef XAOD_ANALYSIS
 #ifndef SIMULATIONBASE
 #include "CaloEvent/CaloClusterCellLinkContainer.h"
 #include "CaloEvent/CaloRecoStatus.h"
 #endif // not SIMULATIONBASE
 #endif // not XAOD_ANALYSIS
+
+// ROOT include(s):
+#include "Math/Vector4D.h"
 
 // Declare a dummy CaloClusterCellLink definition for standalone compilation:
 #if defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
@@ -267,10 +271,19 @@ namespace xAOD {
      /// Definition of the 4-momentum type
      typedef IParticle::FourMom_t FourMom_t;
 
-      /// The full 4-momentum of the particle
-     virtual const FourMom_t& p4() const;
+     /// Base 4 Momentum type for calo
+     typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > CaloFourMom_t;
 
-     const FourMom_t& p4(const State s) const;
+     ///  The full 4-momentum of the particle : internal calo type.
+     CaloFourMom_t caloP4() const; 
+
+     ///  The full 4-momentum of the particle : internal calo type.
+     CaloFourMom_t caloP4(const State s) const; 
+
+      /// The full 4-momentum of the particle
+     virtual FourMom_t p4() const;
+
+     FourMom_t p4(const State s) const;
      
      /// The type of the object as a simple enumeration
      virtual Type::ObjectType type() const;
@@ -539,16 +552,8 @@ namespace xAOD {
    private:
      /// bit-pattern describing the calo samplings contributing to this cluster
      unsigned m_samplingPattern;
-     /// Cached 4-momentum objects (one per signal state)
-     mutable FourMom_t m_p4[xAOD::CaloCluster_v1::NSTATES];
-     /// Cache state of the internal 4-momentum (reset from the streamer)
-     mutable std::bitset<xAOD::CaloCluster_v1::NSTATES> m_p4Cached;
 
-     mutable double m_pt[xAOD::CaloCluster_v1::NSTATES];
-     /// Cache state of the internal 4-momentum (reset from the streamer)
-     mutable std::bitset<xAOD::CaloCluster_v1::NSTATES> m_ptCached;
-
-     /// Current signal state
+     /// Current signal state *** NEED TO UPDATE FOR ATHENAMT ***
      mutable State m_signalState;
      ///Non-const ptr to cell links (for cluster building, transient-only)
      CaloClusterCellLink* m_cellLinks;
