@@ -96,6 +96,39 @@ StatusCode Muon::MmRdoToPrepDataTool::processCollection(const MM_RawDataCollecti
 {
   ATH_MSG_DEBUG(" ***************** Start of process MM Collection");
 
+  IdentifierHash hash = rdoColl->identifierHash();
+
+  MMPrepDataCollection* prdColl = nullptr;
+  
+  // check if the collection already exists, otherwise add it
+  if ( m_mmPrepDataContainer->indexFind(hash) != m_mmPrepDataContainer->end() ) {
+
+    ATH_MSG_DEBUG("In processCollection: collection already contained in the MM PrepData container");
+    return StatusCode::FAILURE;
+  } 
+  else {
+    prdColl = new MMPrepDataCollection(hash);
+    idWithDataVect.push_back(hash);
+
+    if (StatusCode::SUCCESS != m_mmPrepDataContainer->addCollection(prdColl, hash)) {
+      ATH_MSG_DEBUG("In processCollection - Couldn't record in the Container MM Collection with hashID = "
+		    << (int)hash );
+      return StatusCode::FAILURE;
+    }
+
+  }
+
+  // convert the RDO collection to a PRD collection
+  MM_RawDataCollection::const_iterator it = rdoColl->begin();
+  for ( ; it != rdoColl->end() ; ++it ) {
+
+    
+
+  }
+  
+
+
+
 
   return StatusCode::SUCCESS;
 }
