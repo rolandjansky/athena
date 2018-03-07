@@ -406,7 +406,7 @@ eventCleanLoose_xAODColl("AntiKt4EMTopo")
 eventCleanTight_xAODColl("AntiKt4EMTopo")
 
 ##################################################################
-# Helpter to add origin corrected clusters
+# Helper to add origin corrected clusters
 ##################################################################
 def addOriginCorrectedClusters(slimhelper,writeLC=False,writeEM=False):
 
