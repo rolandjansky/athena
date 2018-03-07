@@ -26,6 +26,8 @@ def getConstModSeq(sequence,inputtype,suffix=""):
     modlist = []
     if inputtype=="EMPFlow":
         modlist.append("correctPFO")
+    elif inputtype=="EMTopo":
+        modlist.append("clus_emscale")
     for step in sequence:
         tool = None
         toolname = "ConstitMod{0}_{1}{2}".format(inputtype,step,suffix)
