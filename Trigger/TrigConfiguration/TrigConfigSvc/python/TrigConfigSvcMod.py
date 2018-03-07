@@ -1,6 +1,6 @@
 
 
-def TrigConfigSvcMod(flags):
+def TrigConfigSvcMod( flags ):
     from AthenaConfiguration.CfgLogMsg import cfgLogMsg
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()
@@ -17,3 +17,13 @@ def TrigConfigSvcMod(flags):
 
     acc.addService( l1ConfigSvc )
     return acc
+
+if __name__ == "__main__":
+    from AthenaConfiguration.ConfigFlags import ConfigFlagContainer
+    flags = ConfigFlagContainer()
+    acc = TrigConfigSvcMod( flags )
+    
+    acc = TrigConfigSvcMod( flags )
+    acc.store( file( "test.pkl", "w" ) )
+    print "All OK"
+    

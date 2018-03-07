@@ -9,7 +9,7 @@ def TrigBSReadCfg( inputFlags ):
     """
     Creates accumulator for BS reading
     """
-    filenames=inputFlags.get("AthenaConfiguration.GlobalFlags.InputFiles")
+    filenames = inputFlags.get("AthenaConfiguration.GlobalFlags.InputFiles")
     
     acc = ComponentAccumulator()
     
@@ -110,7 +110,13 @@ def TrigBSReadCfg( inputFlags ):
         #conddb.addFolder( 'TDAQ', '/TDAQ/RunCtrl/SOR_Params' )
         #acc.addService( conddb )    
 
-    # creation of xAOD::EventInfo
-
-
     return acc
+
+if __name__ == "__main__":
+    from AthenaConfiguration.ConfigFlags import ConfigFlagContainer
+    flags = ConfigFlagContainer()
+    flags.set("AthenaConfiguration.GlobalFlags.InputFiles", ["dummy.data"]) 
+
+    acc = TrigBSReadCfg( flags )
+    acc.store( file( "test.pkl", "w" ) )
+    print "All OK"
