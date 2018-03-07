@@ -119,6 +119,12 @@ replaceAODReducedJets(reducedJetList,jetm1Seq,"JETM1")
 # AntiKt10*PtFrac5Rclus20
 addDefaultTrimmedJets(jetm1Seq,"JETM1")
 
+# Add jets with constituent-level pileup suppression
+addConstModJets("AntiKt",0.4,"EMTopo",["CS","SK06"],jetm1Seq,"JETM1",
+                ptmin=2000,ptminFilter=2000)
+addConstModJets("AntiKt",0.4,"EMPFlow",["CS","SK06"],jetm1Seq,"JETM1",
+                ptmin=2000,ptminFilter=2000)
+
 #=======================================
 # SCHEDULE SMALL-R JETS WITH LOW PT CUT
 #=======================================
@@ -132,6 +138,8 @@ if DerivationFrameworkIsMonteCarlo:
     addJetPtAssociation(jetalg="AntiKt4EMTopoLowPt",  truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlg")
     addJetPtAssociation(jetalg="AntiKt4LCTopoLowPt",  truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlg")
     addJetPtAssociation(jetalg="AntiKt4EMPFlowLowPt", truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlg")
+    addJetPtAssociation(jetalg="AntiKt4EMTopoSK",  truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlg")
+    addJetPtAssociation(jetalg="AntiKt4EMPFlowSK", truthjetalg="AntiKt4TruthJets", sequence=jetm1Seq, algname="JetPtAssociationAlg")
 
 if jetFlags.useTruth:
     # CamKt R=1.2 jets
