@@ -21,18 +21,17 @@ rec.doEgamma=False
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 muonCombinedRecFlags.doCaloTrkMuId = False
 
-from IsolationAlgs.IsoGetter import isoGetter
-isoGetter (disable=True)
-
 from RecExConfig.RecAlgsFlags import recAlgs
 recAlgs.doTrackParticleCellAssociation = False
-
 
 include ("RecExCond/RecExCommon_flags.py")
 rec.AutoConfiguration = ['everything']
 import RecExConfig.AutoConfiguration as auto
 auto.ConfigureFromListOfKeys(rec.AutoConfiguration())
 
+# If Calo/tracking is off, this needs to be off too.
+from IsolationAlgs.IsoGetter import isoGetter
+isoGetter (disable=True)
 
 # main jobOption
 include ("RecExCommon/RecExCommon_topOptions.py")
