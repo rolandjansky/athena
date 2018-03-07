@@ -644,7 +644,6 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
     #GSC
     if ('gscThreshold' in chainParts) and chainParts['gscThreshold']:
         log.debug("Doing GSC Calculation:"+chainParts["gscThreshold"])
-        print 'gsc_jetTrackTEPreCut =',gsc_jetTrackTEPreCut
         theChainDef.addSequence(theGSCFex,      secVtxTE                ,       gsc_jetTrackTEPreCut )
         theChainDef.addSequence(theGSCEtHypo,   gsc_jetTrackTEPreCut,           gsc_jetTrackTE )
         jetsForBTagging = gsc_jetTrackTE
