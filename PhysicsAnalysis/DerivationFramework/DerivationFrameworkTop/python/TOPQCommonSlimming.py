@@ -107,6 +107,9 @@ def setup(TOPQname, stream):
     TOPQSlimmingHelper.ExtraVariables +  TOPQExtraVariables_LVL1EnergySumRoI
   # at truth level
   if DFisMC:
+    TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4TruthJets
+    TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt4TruthWZJets
+    #TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt10TruthJets
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_TruthEvents  
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_TruthParticles  
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_TruthVertices
@@ -152,7 +155,7 @@ def setup(TOPQname, stream):
   # needs to be after where AllVariables[] and StaticContent[] are created
   # adds METAssoc_XXXX, MET_Core_XXXX, and MET_Reference_XXXX
   # uses DerivationFrameworkJetEtMiss.METCommon.py
-  addMETOutputs(TOPQSlimmingHelper,["AntiKt4EMPFlow"], [TOPQname])
+  addMETOutputs(TOPQSlimmingHelper, [TOPQname], ["AntiKt4EMTopo","AntiKt4EMPFlow"])
 
   #=======================
   # ADD CUSTOM JET OUTPUT 
