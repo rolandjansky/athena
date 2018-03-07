@@ -73,7 +73,15 @@ int JetConstitFourMomTool::modify(xAOD::JetContainer& jets) const {
     if(!m_altColls[iScale].empty()) { // retrieve alternate constituent collections
       const xAOD::Jet& leadjet = *jets.front();
       if(leadjet.getInputType()==xAOD::JetInput::LCTopo || leadjet.getInputType()==xAOD::JetInput::EMTopo
-	 || leadjet.getInputType()==xAOD::JetInput::LCTopoOrigin || leadjet.getInputType()==xAOD::JetInput::EMTopoOrigin) {
+	 || leadjet.getInputType()==xAOD::JetInput::LCTopoOrigin || leadjet.getInputType()==xAOD::JetInput::EMTopoOrigin
+	 || leadjet.getInputType()==xAOD::JetInput::LCTopoOriginSK || leadjet.getInputType()==xAOD::JetInput::EMTopoOriginSK
+	 || leadjet.getInputType()==xAOD::JetInput::LCTopoOriginCS || leadjet.getInputType()==xAOD::JetInput::EMTopoOriginCS
+	 || leadjet.getInputType()==xAOD::JetInput::LCTopoOriginVor || leadjet.getInputType()==xAOD::JetInput::EMTopoOriginVor
+	 || leadjet.getInputType()==xAOD::JetInput::LCTopoOriginCSSK || leadjet.getInputType()==xAOD::JetInput::EMTopoOriginCSSK
+	 || leadjet.getInputType()==xAOD::JetInput::LCTopoOriginVorSK || leadjet.getInputType()==xAOD::JetInput::EMTopoOriginVorSK
+	 || leadjet.getInputType()==xAOD::JetInput::EMPFlowSK
+	 || leadjet.getInputType()==xAOD::JetInput::EMPFlowCS || leadjet.getInputType()==xAOD::JetInput::EMPFlowCSSK
+	 || leadjet.getInputType()==xAOD::JetInput::EMPFlowVor || leadjet.getInputType()==xAOD::JetInput::EMPFlowVorSK) {
 	const xAOD::CaloClusterContainer* altclusters(0);
 	ATH_CHECK( evtStore()->retrieve(altclusters,m_altColls[iScale]) );
 	if(!altclusters) {
