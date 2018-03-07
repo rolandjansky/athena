@@ -96,7 +96,7 @@ StatusCode Muon::MmRdoToPrepDataTool::processCollection(const MM_RawDataCollecti
 {
   ATH_MSG_DEBUG(" ***************** Start of process MM Collection");
 
-  IdentifierHash hash = rdoColl->identifierHash();
+  const IdentifierHash hash = rdoColl->identifierHash();
 
   MMPrepDataCollection* prdColl = nullptr;
   
@@ -122,11 +122,38 @@ StatusCode Muon::MmRdoToPrepDataTool::processCollection(const MM_RawDataCollecti
   MM_RawDataCollection::const_iterator it = rdoColl->begin();
   for ( ; it != rdoColl->end() ; ++it ) {
 
+    ATH_MSG_DEBUG("Adding a new MM PrepRawData");
+
+    const MM_RawData* rdo = *it;
+    const Identifier rdoId = rdo->identify();
+    const Identifier elementId = m_mmIdHelper->elementID(rdoId);
+    const int time = rdo->time();
+    const int charge = rdo->charge();
+    std::vector<Identifier> rdoList;
+    rdoList.push_back(rdoId);
     
+    // get the local and global positions
+    const MuonGM::MMReadoutElement* detEl = m_muonMgr->getMMReadoutElement(elementId);
+    Amg::Vector2D localPos;
+
+    bool getLocalPos = detEl->stripPosition(rdoId,localPos);
+    if ( !getLocalPos ) {
+      ATH_MSG_ERROR("Could not get the local strip position for MM");
+      return StatusCode::FAILURE;
+    } 
+
+    // get for now a temporary error matrix -> to be fixed
+    double resolution = 0.07;
+    Amg::MatrixX* cov = new Amg::MatrixX(1,1);
+    cov->setIdentity();
+    (*cov)(0,0) = resolution*resolution;  
+
+    MMPrepData* mmPrd = new MMPrepData(rdoId,hash,localPos,
+				       rdoList,cov,detEl,time,charge);
+
+    prdColl->push_back(mmPrd);
 
   }
-  
-
 
 
 

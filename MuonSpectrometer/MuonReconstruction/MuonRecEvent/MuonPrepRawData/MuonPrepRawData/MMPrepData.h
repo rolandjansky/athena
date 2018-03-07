@@ -51,10 +51,17 @@ namespace Muon
 		const Amg::Vector2D& locpos,
 		const std::vector<Identifier>& rdoList,
 		const Amg::MatrixX* locErrMat,
+		const MuonGM::MMReadoutElement* detEl);
+
+    /** @full constructor including time and charge */
+    MMPrepData( const Identifier& RDOId,
+		const IdentifierHash &idDE,
+		const Amg::Vector2D& locpos,
+		const std::vector<Identifier>& rdoList,
+		const Amg::MatrixX* locErrMat,
 		const MuonGM::MMReadoutElement* detEl, 
 		const int time,
 		const int charge );
-
 
 
     /** @brief Destructor: */

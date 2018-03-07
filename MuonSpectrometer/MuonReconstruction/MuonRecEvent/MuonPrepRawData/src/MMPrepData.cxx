@@ -22,6 +22,18 @@ namespace Muon
     m_charge(charge)
   { }
 
+  MMPrepData::MMPrepData( const Identifier& RDOId,
+                          const IdentifierHash &idDE,
+                          const Amg::Vector2D& locpos,
+                          const std::vector<Identifier>& rdoList,
+                          const Amg::MatrixX* locErrMat,
+                          const MuonGM::MMReadoutElement* detEl) :
+    MuonCluster(RDOId, idDE, locpos, rdoList, locErrMat), //call base class constructor
+    m_detEl(detEl),
+    m_time(0),
+    m_charge(0)
+  { }
+
   // Destructor:
   MMPrepData::~MMPrepData()
   {
