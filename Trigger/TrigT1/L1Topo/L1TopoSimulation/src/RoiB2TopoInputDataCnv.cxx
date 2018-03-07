@@ -69,7 +69,7 @@ LVL1::RoiB2TopoInputDataCnv::execute_r (const EventContext& ctx) const
       ATH_MSG_WARNING("DataVector<CPCMXTopoData> with SG key '" << m_emTauLocation.key() << "' already exists in SG, will not create a new one.");
    } else {
       ATH_MSG_DEBUG("Recording DataVector<CPCMXTopoData> with SG key '" << m_emTauLocation.key() << "'.");
-      emtauTopoData.record(std::make_unique< DataVector<CPCMXTopoData> >());
+      ATH_CHECK(emtauTopoData.record(std::make_unique< DataVector<CPCMXTopoData> >()));
       m_datamaker->makeCPCMXTopoData(roibResult.cptr(), emtauTopoData.ptr());
    }
    
@@ -79,7 +79,7 @@ LVL1::RoiB2TopoInputDataCnv::execute_r (const EventContext& ctx) const
       ATH_MSG_WARNING("DataVector<JetCMXTopoData> with SG key '" << m_jetLocation.key() << "' already exists in SG, will not create a new one.");
    } else {
       ATH_MSG_DEBUG("Recording DataVector<JetCMXTopoData> with SG key '" << m_jetLocation.key() << "'.");
-      jetTopoData.record(std::make_unique<DataVector<JetCMXTopoData>>());
+      ATH_CHECK(jetTopoData.record(std::make_unique<DataVector<JetCMXTopoData>>()));
       m_datamaker->makeJetCMXTopoData(roibResult.cptr(), jetTopoData.ptr());
    }
 
@@ -89,7 +89,7 @@ LVL1::RoiB2TopoInputDataCnv::execute_r (const EventContext& ctx) const
       ATH_MSG_WARNING("EnergyTopoData with SG key '" << m_energyLocation.key() << "' already exists in SG, will not create a new one.");
    } else {
       ATH_MSG_DEBUG("Recording EnergyTopoData with SG key '" << m_energyLocation.key() << "'.");
-      energyTopoData.record(std::make_unique<EnergyTopoData>());
+      ATH_CHECK(energyTopoData.record(std::make_unique<EnergyTopoData>()));
       m_datamaker->makeEnergyTopoData(roibResult.cptr(), energyTopoData.ptr());
    }
 
