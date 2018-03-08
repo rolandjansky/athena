@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-   # @PowhegControl PowhegConfig_jj
+# @PowhegControl PowhegConfig_jj
 #  Powheg configuration for jj subprocess
 #
 #  Authors: James Robinson  <james.robinson@cern.ch>

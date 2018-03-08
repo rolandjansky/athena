@@ -8,8 +8,6 @@
 
 #! /usr/bin/env python
 from AthenaCommon.Logging import logging
-import itertools as it
-import numpy as np
 from ..utility import LHEUtils
 
 # Initialise logging handler
@@ -19,7 +17,14 @@ logger = logging.getLogger("PowhegControl")
 def afterburner_mean_event_weight_calculator(LHE_file_name):
     logger.info("Born-level suppression is enabled so the cross-section MUST be recalculated!")
     # LHEUtils returns a generator, since the input file may be large
-    sum_of_weights, n_events = reduce(np.add, it.izip(LHEUtils.event_weight_iterator(LHE_file_name), it.repeat(1)))
+    sum_of_weights, n_events = 0., 0
+    for event_weight in LHEUtils.event_weight_iterator(LHE_file_name):
+        sum_of_weights += event_weight
+        n_events += 1
+    # import numpy as np
+    # import itertools as it
+    # sum_of_weights, n_events = reduce(np.add, it.izip(LHEUtils.event_weight_iterator(LHE_file_name), it.repeat(1)))
+
     # Print statistics to logger
     logger.info("... sum of event weights is:    {}".format(sum_of_weights))
     logger.info("... number of events generated: {}".format(int(n_events)))

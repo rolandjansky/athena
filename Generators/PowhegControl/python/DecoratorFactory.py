@@ -14,7 +14,8 @@ import decorators
 #  @param decorator decorator name
 #  @param kwargs arguments to pass to the decorator
 def decorate(powheg_process, decorator, **kwargs):
-    decorator_name_to_class_name = dict([(cls.name, name) for name, cls in decorators.__dict__.items() if isinstance(cls, type)])
+    # Construct dictionary of decorator string to class name
+    decorator_name_to_class_name = dict([(_class.name, name) for name, _class in decorators.__dict__.items() if (isinstance(_class, type) and hasattr(_class, "name"))])
     try:
         powheg_process.logger.debug("Applying decorator: {}.".format(decorator))
         getattr(decorators, decorator_name_to_class_name[decorator])(powheg_process, **kwargs)

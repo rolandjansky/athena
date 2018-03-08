@@ -20,8 +20,8 @@ class SecondGenerationQuarkMassDecorator(object):
         self.decorated = decorated
 
         if "lhfm" in prefix:
-            self.decorated.add_parameter("mass_b", ATLASCommonParameters.mass_b, desc="b-quark mass in GeV",                              parameter="lhfm/bmass")
-            self.decorated.add_parameter("mass_c", ATLASCommonParameters.mass_c, desc="c-quark mass in GeV",                              parameter="lhfm/cmass")
+            self.decorated.add_parameter("mass_b", ATLASCommonParameters.mass_b, desc="b-quark mass in GeV", parameter="lhfm/bmass")
+            self.decorated.add_parameter("mass_c", ATLASCommonParameters.mass_c, desc="c-quark mass in GeV", parameter="lhfm/cmass")
         if "lhe" in prefix:
             self.decorated.add_parameter("mass_b", ATLASCommonParameters.mass_b, desc="set b-quark mass in GeV for momentum reshuffling", parameter="bmass_lhe")
             self.decorated.add_parameter("mass_c", ATLASCommonParameters.mass_c, desc="set c-quark mass in GeV for momentum reshuffling", parameter="cmass_lhe")

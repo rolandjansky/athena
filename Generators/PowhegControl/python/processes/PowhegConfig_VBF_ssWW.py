@@ -54,7 +54,7 @@ class PowhegConfig_VBF_ssWW(PowhegConfig_base):
                                     "WpWpemuvemuv", "WpWpemuvlv",
                                     "WmWmemuvemuv", "WmWmemuvlv",
                                     "WpWplvlv", "WmWmlvlv"]
-        self.decay_mode = "WpWplvlv"
-        self.withdamp   = 1
+        self.decay_mode          = "WpWplvlv"
+        self.withdamp            = 1
 
         self.populate_default_strings()

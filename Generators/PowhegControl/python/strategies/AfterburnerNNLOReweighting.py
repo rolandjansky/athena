@@ -18,8 +18,6 @@ from ..utility import LHEUtils, ProcessHandling
 logger = logging.getLogger("PowhegControl")
 
 # Convenience function to set up an instance of the reweighting class
-
-
 def afterburner_NNLO_reweighting(configurator):
     reweighter = AfterburnerNNLOReweighting(configurator)
     reweighter.run_NNLO_executable()
