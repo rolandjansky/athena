@@ -5,8 +5,6 @@
 #   Script to configure Powheg HWJ subprocess
 #
 #   Authors: James Robinson  <james.robinson@cern.ch>
-#            Daniel Hayden   <danhayden0@googlemail.com>
-#            Stephen Bieniek <stephen.paul.bieniek@cern.ch>
 #
 #########################################################################################################################
 
@@ -22,7 +20,7 @@ import SMParams
 ###############################################################################
 class PowhegConfig_HWJ(PowhegConfig_base) :
   # These are process specific - put generic properties in PowhegConfig_base
-  idvecbos = -24
+  idvecbos    = -24
   mass_W_low  = 10.
   mass_W_high = 1000.
 
@@ -33,7 +31,8 @@ class PowhegConfig_HWJ(PowhegConfig_base) :
 
     # Add decorators
     PowhegDecorators.decorate( self, 'Higgs v2' )
-    PowhegDecorators.decorate( self, 'HVJ' )
+    PowhegDecorators.decorate( self, 'HJ' )
+    PowhegDecorators.decorate( self, 'HV' )
 
     # Set optimised integration parameters
     self.ncall1   = 30000 # 60000

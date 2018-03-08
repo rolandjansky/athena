@@ -5,8 +5,6 @@
 #   Script to configure Powheg HZJ subprocess
 #
 #   Authors: James Robinson  <james.robinson@cern.ch>
-#            Daniel Hayden   <danhayden0@googlemail.com>
-#            Stephen Bieniek <stephen.paul.bieniek@cern.ch>
 #
 #########################################################################################################################
 
@@ -32,7 +30,8 @@ class PowhegConfig_HZJ(PowhegConfig_base) :
 
     # Add decorators
     PowhegDecorators.decorate( self, 'Higgs v2' )
-    PowhegDecorators.decorate( self, 'HVJ' )
+    PowhegDecorators.decorate( self, 'HJ' )
+    PowhegDecorators.decorate( self, 'HV' )
 
     # Set optimised integration parameters
     self.ncall1   = 80000

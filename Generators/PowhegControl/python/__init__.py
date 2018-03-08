@@ -12,6 +12,7 @@ from PowhegConfig_tt import *
 from PowhegConfig_VBF_H import *
 from PowhegConfig_W import *
 from PowhegConfig_Wj import *
+from PowhegConfig_Wt_DR import *
 from PowhegConfig_WW import *
 from PowhegConfig_WZ import *
 from PowhegConfig_Z import *

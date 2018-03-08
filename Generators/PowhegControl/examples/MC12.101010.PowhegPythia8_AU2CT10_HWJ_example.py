@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #--------------------------------------------------------------
-# Powheg ggH setup starting from ATLAS defaults
+# Powheg HWJ setup starting from ATLAS defaults
 #--------------------------------------------------------------
 include('PowhegControl/PowhegControl_HWJ_Common.py')
 PowhegConfig.generateRunCard()
