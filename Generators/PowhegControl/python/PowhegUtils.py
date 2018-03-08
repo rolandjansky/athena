@@ -837,6 +837,7 @@ class PowhegConfig_W(PowhegConfig_base) :
 
     # Override defaults
     self._use_scale_damp_parameters = True
+    self.withdamp                   = 1
 
   def generateRunCard(self) :
     self.generateRunCardSharedOptions()
