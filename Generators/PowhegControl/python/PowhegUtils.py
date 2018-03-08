@@ -15,41 +15,33 @@ import os,sys,time,subprocess,shutil
 from AthenaCommon import Logging
 mglog = Logging.logging.getLogger('PowhegUtils')
 
-
 class PowhegConfig_base():
   # As this is a dummy file now it might as well be generic - don't change this
-  outputEventsName = 'PowhegOutput._1.events'
+  outputEventsBaseName = 'PowhegOutput._1'
+  outputEventsName = 'events.lhe' 
   # This must be defined by each derived class - don't change it in the jobOptions
   executablePath = os.environ['POWHEGPATH']
   # These can be changed in the jobOptions - default values are set here.
   # Put process-specific options in the appropriate class instead
-  nEvents = 1000
-  energy = 4000
-  muF = 1.0
-  muR = 1.0
-  pdf = 10800 #(CT10) - POWHEG can set each proton with a different PDF, for now sticking to using the same value for each one
-  storePdfInfo = 1
-  use_old_grid = 1
-  use_old_ubound = 1
-  ncall1 = 20000
-  ncall2 = 100000
-  itmx1 = 5
-  itmx2 = 5
-  foldcsi = 5
-  foldy = 5
-  foldphi = 2
-  nubound = 500000
-  withnegweights = 1
-  randomSeed = 228096305
   runArgs = None
-  filter = ""
-  filterRunArgs = ""
+  nEvents = 5200
+  energy = 4000
+  randomSeed = 1
+  muF, muR = 1.0, 1.0
+  pdf = 10800 #(CT10) - POWHEG can set each proton with a different PDF, for now sticking to using the same value for each one
+  storePdfInfo, use_old_grid, use_old_ubound = 1, 1, 1
+  ncall1, ncall2, nubound = 20000, 100000, 500000
+  itmx1, itmx2 = 5, 5
+  foldcsi, foldy, foldphi = 5, 10, 2
+  withnegweights = 1
+  filter, filterRunArgs = "", ""
 
   def __init__(self,runArgs=None):
     self.runArgs = runArgs
     if runArgs == None :
       mglog.warning('No run arguments found! Using defaults.')
     else :
+      # Add inputGeneratorFile to runArgs
       # Read values from runArgs
       if hasattr(self.runArgs,'ecmEnergy'):
         self.energy = 0.5 * self.runArgs.ecmEnergy
@@ -58,17 +50,18 @@ class PowhegConfig_base():
           self.nEvents = self.runArgs.maxEvents
       if hasattr(self.runArgs,'randomSeed'):
         self.randomSeed = self.runArgs.randomSeed
-
+      if hasattr(runArgs,'inputGeneratorFile'):
+        genFileList = self.runArgs.inputGeneratorFile.split(".")
+        self.outputEventsName = genFileList[0]+"."+genFileList[1]+".events"
   
   # All runcard options which are generic here
   def generateRunCardSharedOptions(self):
-    TestArea = os.environ['TestArea']
+    TestArea = os.environ['PWD']
     mglog.info("Writing POWHEG runcard to "+str(TestArea)+"/powheg.input")
 
     with open( str(TestArea)+'/powheg.input','w') as f:        
       f.write( "iseed "+str(self.randomSeed)+"      ! Start the random number generator with seed iseed\n" )
       f.write( "numevts "+str(self.nEvents)+"       ! number of events to be generated\n" )
-      # The varaibles ih1 and ih2 are needed by powheg, but not used in event generation
       f.write( "ih1 1                               ! hadron 1 type\n" )
       f.write( "ih2 1                               ! hadron 2 type\n" )
       f.write( "lhans1 "+str(self.pdf)+"            ! pdf set for hadron 1 (LHA numbering)\n" )
@@ -78,7 +71,7 @@ class PowhegConfig_base():
       f.write( "facscfact "+str(self.muF)+"         ! factorization scale factor: mufact=muref*facscfact\n" )
       f.write( "renscfact "+str(self.muR)+"         ! renormalization scale factor: muren=muref*renscfact\n" )
       f.write( "pdfreweight "+str(self.storePdfInfo)+"\n" )
-      f.write( "! Parameters to allow-disallow use of stored data\n" )
+      f.write( "! Parameters to allow/disallow use of stored data\n" )
       f.write( "use-old-grid "+str(self.use_old_grid)+"      ! If 1 use old grid if file pwggrids.dat is present (<> 1 regenerate)\n" )
       f.write( "use-old-ubound "+str(self.use_old_ubound)+"  ! If 1 use norm of upper bounding function stored in pwgubound.dat, if present; <> 1 regenerate\n" )
       f.write( "! A typical call uses 1/1400 seconds (1400 calls per second)\n" )
@@ -98,21 +91,28 @@ class PowhegConfig_base():
 
   def generateEvents(self):
     # Start
-    mglog.info('Starting Generating POWHEG LHEF events at '+str(time.asctime()))
-    
+    mglog.info('Starting POWHEG LHEF event generation at '+str(time.asctime()))
+       
+    # try:
+    #   with open('filename'): pass
+    # except IOError:
+    #   print 'Oh dear.'
+
     # Generate the events and move output to correctly named file
     mglog.info('Running ' + str(self.executablePath))
+    os.system( 'pwd; ls -alh' )
     generate = subprocess.Popen( [self.executablePath,''])
     generate.wait()
     os.rename('pwgevents.lhe',self.outputEventsName)
 
     # Finish
+    os.system( 'pwd; ls -alh' )
     mglog.info('Finished at '+str(time.asctime()))
     return 0
 
   def generateFilteredEvents(self):
     # Start
-    mglog.info('Starting Generating POWHEG LHEF events at '+str(time.asctime()))
+    mglog.info('Starting POWHEG LHEF event generation at '+str(time.asctime()))
     filterPath = os.environ['LHEFPATH']
     filterPath += '/'+self.filter
     filterRunArgs.insert(0,'PowhegOutput._1.events')
@@ -132,7 +132,7 @@ class PowhegConfig_base():
     # Start Filter and wait until quota has been filled
     mglog.info("Running filter with the following commmand:")
     mglog.info(str(filterPath))
-    filter = subprocess.Popen( self.filterRunArgs)
+    filter = subprocess.Popen( self.filterRunArgs )
     filter.wait()
     outputline = filter.communicate()
     mglog.info(outputline)
@@ -143,6 +143,41 @@ class PowhegConfig_base():
     # Finish
     mglog.info('Finished at '+str(time.asctime()))
     return 0
+
+###############################################################################
+#
+#  Dijet
+#
+###############################################################################
+class PowhegConfig_Dijet(PowhegConfig_base):
+  # These are user configurable - put generic properties in PowhegConfig_base
+  bornktmin = 30
+  bornsuppfact = -1
+  fixspikes = True
+  
+  # Set process-dependent paths in the constructor
+  def __init__(self,runArgs=None):
+    PowhegConfig_base.__init__(self,runArgs)
+    self.executablePath += '/Dijet/pwhg_main'
+    mglog.info('In PowhegConfig_Dijet __init__')
+    #os.system( 'pwd; ls -alh' )
+    
+  def generateRunCard(self):
+    mglog.info('In PowhegConfig_Dijet generateRunCard')
+    #os.system( 'pwd; ls -alh' )
+    self.generateRunCardSharedOptions()
+    mglog.info('In PowhegConfig_Dijet generateRunCard after shared options')
+    #os.system( 'pwd; ls -alh' )
+
+    TestArea = os.environ['TestArea']
+    with open( str(TestArea)+'/powheg.input','a') as f:
+      f.write( "bornktmin "+str(self.bornktmin)+"      ! (default 0d0) Generation cut: minimum kt in underlying Born\n" )
+      f.write( "bornsuppfact "+str(self.bornsuppfact)+"     ! (default 0d0) Mass parameter for Born suppression factor. If < 0 suppfact = 1\n" )
+      if self.fixspikes == True :
+        f.write( "doublefsr 1          ! fix problem with spikes in final observables\n" )
+        f.write( "par_diexp 4          ! recommended additional options to be used with doublefsr\n" )
+        f.write( "par_dijexp 4         ! (by Paolo Nason, private communication)\n" )
+        f.write( "par_2gsupp 4         ! not sure of what happens if these are omitted!\n" )
 
 ###############################################################################
 #
@@ -175,54 +210,6 @@ class PowhegConfig_hvq(PowhegConfig_base):
       f.write( "iymax "+str(self.iymax)+"           ! <= 10, normalization of upper bounding function in iunorm X iunorm square in y, log\n" )
       f.write( "ixmax "+str(self.ixmax)+"           ! <= 10, normalization of upper bounding function in iunorm X iunorm square in y, log\n" )
       f.write( "xupbound  "+str(self.xupbound)+"       ! increase upper bound for radiation generation\n" )
-
-###############################################################################
-#
-#  Dijet
-#
-###############################################################################
-class PowhegConfig_Dijet(PowhegConfig_base):
-  # These are user configurable - put generic properties in PowhegConfig_base
-  bornktmin = 1
-  bornsuppfact = -1
-  
-  # Set process-dependent paths in the constructor
-  def __init__(self,runArgs=None):
-    PowhegConfig_base.__init__(self,runArgs)
-    self.executablePath += '/Dijet/pwhg_main'
-
-  def generateRunCard(self):
-    self.generateRunCardSharedOptions()
-
-    TestArea = os.environ['TestArea']
-    with open( str(TestArea)+'/powheg.input','a') as f:
-      f.write( "bornktmin "+str(self.bornktmin)+"      ! (default 0d0) Generation cut: minimum kt in underlying Born\n" )
-      f.write( "bornsuppfact "+str(self.bornsuppfact)+"     ! (default 0d0) Mass parameter for Born suppression factor. If < 0 suppfact = 1\n" )
-
-###############################################################################
-#
-#  ZZ
-#
-###############################################################################
-class PowhegConfig_ZZ(PowhegConfig_base):
-  # These are user configurable - put generic properties in PowhegConfig_base
-  vdecaymodeZ1 = 11
-  vdecaymodeZ2 = 11
-  mllmin = 20
-  
-  # Set process-dependent paths in the constructor
-  def __init__(self,runArgs=None):
-    PowhegConfig_base.__init__(self,runArgs)
-    self.executablePath += '/ZZ/pwhg_main'
-
-  def generateRunCard(self):
-    self.generateRunCardSharedOptions()
-
-    TestArea = os.environ['TestArea']
-    with open( str(TestArea)+'/powheg.input','a') as f:
-      f.write( "vdecaymodeZ1 "+str(self.vdecaymodeZ1)+"  ! PDG code for charged decay product of the vector boson (11:e-; -11:e+; ...)\n" )  
-      f.write( "vdecaymodeZ2 "+str(self.vdecaymodeZ2)+"  ! PDG code for charged decay product of the vector boson (11:e-; -11:e+; ...)\n" )
-      f.write( "mllmin  "+str(self.mllmin)+"    ! Minimum invariant mass of lepton pairs from Z decay\n" )
 
 ###############################################################################
 #
@@ -302,3 +289,27 @@ class PowhegConfig_WZ(PowhegConfig_base):
       f.write( "bornonly   "+str(self.bornonly)+"    ! (default 0) if 1 do Born only\n" )
       f.write( "wllmin  "+str(self.wllmin)+"        ! default 1d-5 GeV this is min invar mass for W leptons\n" )
 
+###############################################################################
+#
+#  ZZ
+#
+###############################################################################
+class PowhegConfig_ZZ(PowhegConfig_base):
+  # These are user configurable - put generic properties in PowhegConfig_base
+  vdecaymodeZ1 = 11
+  vdecaymodeZ2 = 11
+  mllmin = 20
+  
+  # Set process-dependent paths in the constructor
+  def __init__(self,runArgs=None):
+    PowhegConfig_base.__init__(self,runArgs)
+    self.executablePath += '/ZZ/pwhg_main'
+
+  def generateRunCard(self):
+    self.generateRunCardSharedOptions()
+
+    TestArea = os.environ['TestArea']
+    with open( str(TestArea)+'/powheg.input','a') as f:
+      f.write( "vdecaymodeZ1 "+str(self.vdecaymodeZ1)+"  ! PDG code for charged decay product of the vector boson (11:e-; -11:e+; ...)\n" )  
+      f.write( "vdecaymodeZ2 "+str(self.vdecaymodeZ2)+"  ! PDG code for charged decay product of the vector boson (11:e-; -11:e+; ...)\n" )
+      f.write( "mllmin  "+str(self.mllmin)+"    ! Minimum invariant mass of lepton pairs from Z decay\n" )
