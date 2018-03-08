@@ -323,7 +323,7 @@ class TopDecorator :
     self.decorated = decorated
 
     self.decorated.topdecaymode     = 10000
-    self.decorated.tdec_elbranching = 0.108
+    self.decorated.tdec_elbranching = SMParams.tdec_elbranching
 
   def append_to_run_card( self ) :
     with open( str(self.decorated.TestArea)+'/powheg.input', 'a' ) as f :
