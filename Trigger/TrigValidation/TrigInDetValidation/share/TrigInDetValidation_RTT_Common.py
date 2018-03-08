@@ -139,6 +139,7 @@ InDetFlags.doV0Finder=False
 InDetFlags.doSlimming=False
 InDetFlags.preProcessing=doIDNewTracking
 InDetFlags.postProcessing=doIDNewTracking
+InDetFlags.doCaloSeededBrem=False
 
 
 
