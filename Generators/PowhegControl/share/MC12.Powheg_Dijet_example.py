@@ -2,7 +2,6 @@
 # Powheg_Dijet setup with sensible defaults
 #--------------------------------------------------------------
 include('PowhegControl/PowhegControl_Dijet_Common.py')
-PowhegConfig.bornktmin = 30
 PowhegConfig.generateRunCard()
 PowhegConfig.generateEvents()
 

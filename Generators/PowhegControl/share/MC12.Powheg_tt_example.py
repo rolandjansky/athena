@@ -1,21 +1,9 @@
 #--------------------------------------------------------------
-# Powheg_hvq setup with sensible defaults
+# Powheg_tt setup with sensible defaults
 #--------------------------------------------------------------
-include('PowhegControl/PowhegControl_hvq_Common.py')
-PowhegConfig.quarkMass        = 172.5
-PowhegConfig.tdec_wmass       = 80.399
-PowhegConfig.tdec_wwidth      = 2.085
-PowhegConfig.tdec_bmass       = 4.95
-PowhegConfig.tdec_twidth      = 1.3200
-PowhegConfig.tdec_elbranching = 0.108
-PowhegConfig.tdec_emass       = 0.00051
-PowhegConfig.tdec_mumass      = 0.1057
-PowhegConfig.tdec_taumass     = 1.777
-PowhegConfig.tdec_dmass       = 0.320
-PowhegConfig.tdec_umass       = 0.320
-PowhegConfig.tdec_smass       = 0.5
-PowhegConfig.tdec_cmass       = 1.55
-PowhegConfig.tdec_sin2cabibbo = 0.051
+include('PowhegControl/PowhegControl_tt_Common.py')
+PowhegConfig.bornsuppfact = -1  # if generation of events weighted in pT is desired
+PowhegConfig.bornktmin    = 5.0 # the kt cut-off in GeV - this should be set to a non-zero value when using bornsuppfact
 PowhegConfig.generateRunCard()
 PowhegConfig.generateEvents()
 
