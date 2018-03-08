@@ -21,6 +21,6 @@ topAlg.Pythia8.UserHook  = 'Main31'
 #--------------------------------------------------------------
 evgenConfig.description = 'POWHEG+Pythia8 WW production with AU2 CT10 tune'
 evgenConfig.keywords    = [ 'SM', 'ww' ]
-evgenConfig.contact     = [ 'daniel.hayden@cern.ch' ]
+evgenConfig.contact     = [ 'james.robinson@cern.ch' ]
 evgenConfig.generators += [ 'Powheg', 'Pythia8' ]
 evgenConfig.minevents   = 10

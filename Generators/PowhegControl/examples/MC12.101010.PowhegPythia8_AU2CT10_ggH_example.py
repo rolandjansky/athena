@@ -16,11 +16,10 @@ topAlg.Pythia8.Commands += [ 'SpaceShower:pTmaxMatch = 2'
                            ]
 topAlg.Pythia8.UserHook  = 'Main31'
 
-
 #--------------------------------------------------------------
 # EVGEN configuration
 #--------------------------------------------------------------
-evgenConfig.description = 'POWHEG+Pythia8 dijet production with AU2 CT10 tune'
+evgenConfig.description = 'POWHEG+Pythia8 ggH production with AU2 CT10 tune'
 evgenConfig.keywords    = [ 'Higgs' ]
 evgenConfig.contact     = [ 'james.robinson@cern.ch' ]
 evgenConfig.generators += [ 'Powheg', 'Pythia8' ]
