@@ -62,7 +62,6 @@ namespace pool {
       m_session( 0 ),
       m_open( false ),
       m_readOnly( mode == ICollection::READ ? true : false ),
-      m_fileCatalog(0),
       m_poolOut( "RootCollection"),
       m_schemaEditor( 0 ),
       m_dataEditor( 0 ),
@@ -231,7 +230,7 @@ namespace pool {
         m_fileName = "";
 
         if(!m_fileCatalog)
-           m_fileCatalog = new pool::IFileCatalog;
+           m_fileCatalog = make_unique<pool::IFileCatalog>();
         
         if( m_mode == ICollection::CREATE ){
           string fid = retrieveFID();

@@ -226,7 +226,7 @@ namespace pool {
         bool                                 m_open;
         bool                                 m_readOnly;
         
-        mutable IFileCatalog*                 m_fileCatalog;
+        mutable std::unique_ptr<pool::IFileCatalog> m_fileCatalog;
         mutable coral::MessageStream        m_poolOut;
 
         RootCollectionSchemaEditor*        m_schemaEditor;
