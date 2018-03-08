@@ -2442,6 +2442,10 @@ def setupMenu():
 
         # ATR-16314
         ['mu11_mu6_bTau',                  'L1_MU11_2MU6', ['L1_MU11','L1_MU6'], [BPhysicsStream, 'express'], [RATE_BphysTag,BW_BphysTag], -1],
+        # ATR-17617
+        ['mu20_mu6btrk_bTauTight',        'L1_MU20MU21', ['L1_MU20','L2_mu20'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1,['serial',-1,['mu20','mu6btrk']]],
+        ['mu20_2mu2btrk_bTauTight',       'L1_MU20MU21', ['L1_MU20','L2_mu20'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1,['serial',-1,['mu20','2mu2btrk']]],
+        ['mu11_2mu2btrk_bTauTight_L1MU11_2MU6', 'L1_MU11_2MU6', ['L1_MU11','L2_mu11'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1,['serial',-1,['mu11','2mu2btrk']]],
         
         # support triggers ATR-15851
         ['mu11_mu6_bNocut',                 'L1_MU11_2MU6', ['L1_MU11','L1_MU6'], [BPhysicsStream], [RATE_BphysTag,BW_BphysTag], -1],
