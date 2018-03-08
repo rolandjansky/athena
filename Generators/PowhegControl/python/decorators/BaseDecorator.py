@@ -65,7 +65,7 @@ class BaseDecorator(object) :
     self.decorated.add_parameter( 'bottomthrpdf', 5.0, desc='(default 5.0) PDF bottom threshold in GeV' )
     self.decorated.add_parameter( 'charmthr', 1.5,     desc='(default 1.5) charm threshold for gluon splitting in GeV' )
     self.decorated.add_parameter( 'charmthrpdf', 1.5,  desc='(default 1.5) PDF charm threshold in GeV' )
-    self.decorated.add_parameter( 'par_2gsupp', 1 )
+    self.decorated.add_parameter( 'par_2gsupp', 1,     desc='(default 1)' )
     self.decorated.add_parameter( 'par_diexp', 1,      desc='(default 1) ISR singularity exponent (p1)' )
     self.decorated.add_parameter( 'par_dijexp', 1,     desc='(default 1) FSR singularity exponent (p2)' )
     self.decorated.add_parameter( 'ptsqmin', 0.8,      desc='(default 0.8) minimum pT in GeV for generation of radiation' )

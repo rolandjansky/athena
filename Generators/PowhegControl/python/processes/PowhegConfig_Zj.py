@@ -25,6 +25,7 @@ class PowhegConfig_Zj(PowhegConfig_base) :
     self.add_parameter_set( 'lepton mass' )
     self.add_parameter_set( 'LHEv3' )
     self.add_parameter_set( 'MiNLO NNLL' )
+    self.add_parameter_set( 'NNLO reweighting' )
     self.add_parameter_set( 'running scales' )
     self.add_parameter_set( 'sin**2 theta W' )
     self.add_parameter_set( 'single vector boson' )
@@ -34,10 +35,10 @@ class PowhegConfig_Zj(PowhegConfig_base) :
     self.add_parameter_set( 'Z mass window' )
 
     ## Set optimised integration parameters
-    self.ncall1   = 120000
-    self.ncall2   = 80000
-    self.nubound  = 60000
-    self.xupbound = 3
+    self.ncall1   = 20000
+    self.ncall2   = 300000
+    self.nubound  = 2000000
+    self.xupbound = 20
     self.foldx    = 5
     self.foldy    = 5
     self.foldphi  = 5

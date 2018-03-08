@@ -4,6 +4,16 @@
 # Powheg Hj setup starting from ATLAS defaults
 #--------------------------------------------------------------
 include('PowhegControl/PowhegControl_Hj_Common.py')
+# # To construct three additional event weights with user-defined names
+# PowhegConfig.bmass_in_minlo   = [ 0, 0, 1 ]
+# PowhegConfig.quarkmasseffects = [ 1, 0, 1 ]
+# PowhegConfig.define_weight_group( group_name='quark_mass_variation', weight_names=['mtmb','mtinf','mtmb-bminlo'] )
+# # To combine the user-defined weights with NNLOPS
+# PowhegConfig.NNLO_reweighting_inputs   = { 'nn-mtinf':'H1250_CM13_CT10_APX0_11.top', 'nn-mtmb':'H1250_CM13_CT10_APX2_22.top' }
+# PowhegConfig.NNLO_output_weights = { 'nnlops-mtmb':"combine 'nn-mtmb' and 'mtmb'",\
+#                                      'nnlops-mtinf':"combine 'nn-mtinf' and 'mtinf'",\
+#                                      'nnlops-mtmb-bminlo':"combines 'nn-mtmb' and 'mtmb-bminlo'"
+#                                    }
 PowhegConfig.generate()
 
 #--------------------------------------------------------------

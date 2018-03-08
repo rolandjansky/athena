@@ -28,7 +28,7 @@ class IntegrationGridTester(object):
   def output_results( cls, logger ) :
     ## Read in integration quality metrics from output files
     #  Allow any check to fail, since this output is not a critical part of generation
-    inclusive_xs, inclusive_xs_error, sum_of_negative_weights, sum_of_total_weights, n_events, n_upper_bound_failures = 0, 0, 0, 0, 0, 0
+    inclusive_xs, inclusive_xs_error, negative_weights, total_weights, n_events, n_upper_bound_failures = 0, 0, 0, 0, 0, 0
     for file_name in glob.glob( 'pwg*stat*.dat' ) :
       if os.path.isfile( file_name ) :
         # Inclusive cross-section uncertainty
@@ -46,8 +46,8 @@ class IntegrationGridTester(object):
           try :
             matched_lines = [ line.replace('+-','') for line in data_file if re.match(r'(.*)(btilde \|neg\.\| weights|btilde Total \(pos.-\|neg.\|\))(.*)[0-9](.*)\+\-(.*)[0-9](.*)', line) ]
             if len(matched_lines) > 0 :
-              sum_of_negative_weights += map( float, re.findall( cls.__re_match_floats, [line for line in matched_lines if 'btilde |neg.|' in line][0] ) )[0]
-              sum_of_total_weights += map( float, re.findall( cls.__re_match_floats, [line for line in matched_lines if 'btilde Total' in line][0] ) )[0]
+              negative_weights += map( float, re.findall( cls.__re_match_floats, [line for line in matched_lines if 'btilde |neg.|' in line][0] ) )[0]
+              total_weights += map( float, re.findall( cls.__re_match_floats, [line for line in matched_lines if 'btilde Total' in line][0] ) )[0]
           except : # catch all exceptions
             pass
 
@@ -69,7 +69,7 @@ class IntegrationGridTester(object):
     except : # catch all exceptions
       inclusive_xs_test = float('nan')
     try :
-      negative_weight_test = 100 * sum_of_negative_weights / sum_of_total_weights
+      negative_weight_test = 100 * negative_weights / total_weights
     except : # catch all exceptions
       negative_weight_test = float('nan')
     try :
@@ -79,8 +79,8 @@ class IntegrationGridTester(object):
 
     # Write output
     try :
-      getattr( logger, ['warning','info'][0.0 < inclusive_xs_test < 1.0] )( 'Integration test :: {0:>25} : {1:.2f}%'.format('cross-section uncertainty', inclusive_xs_test) )
-      getattr( logger, ['warning','info'][0.0 < negative_weight_test < 1.0] )( 'Integration test :: {0:>25} : {1:.2f}%'.format('negative weight fraction', negative_weight_test) )
-      getattr( logger, ['warning','info'][0.0 < upper_bound_test < 1.0] )( 'Integration test :: {0:>25} : {1:.2f}%'.format('upper bound violations', upper_bound_test) )
+      getattr( logger, ['warning','info'][0.0 <= inclusive_xs_test < 1.0] )( 'Integration test :: {0:>25} : {1:.2f}%'.format('cross-section uncertainty', inclusive_xs_test) )
+      getattr( logger, ['warning','info'][0.0 <= negative_weight_test < 1.0] )( 'Integration test :: {0:>25} : {1:.2f}%'.format('negative weight fraction', negative_weight_test) )
+      getattr( logger, ['warning','info'][0.0 <= upper_bound_test < 1.0] )( 'Integration test :: {0:>25} : {1:.2f}%'.format('upper bound violations', upper_bound_test) )
     except : # catch all exceptions
       pass
