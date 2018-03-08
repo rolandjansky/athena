@@ -1,0 +1,286 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
+from AthenaCommon import Logging
+from decorators import timed
+from algorithms import Scheduler
+from utility import HeartbeatTimer
+import collections
+import processes
+import os
+
+## Get handle to Athena logging
+logger = Logging.logging.getLogger("PowhegControl")
+
+
+class PowhegControl(object):
+    """! Provides PowhegConfig objects which are user-configurable in the jobOptions.
+
+    All subprocesses inherit from this class.
+
+    @author James Robinson  <james.robinson@cern.ch>
+    """
+
+    def __init__(self, process_name, run_args=None, run_opts=None):
+        """! Constructor.
+
+        @param run_args  Generate_tf run arguments
+        @param run_opts  athena run options
+        """
+        ## Current directory
+        self.__run_directory = os.environ["PWD"]
+
+        ## Name of output LHE file used by Generate_tf for showering
+        self.__output_LHE_file = "PowhegOTF._1.events"
+
+        ## Number of cores to use
+        self.__cores = int(os.environ.pop("ATHENA_PROC_NUMBER", 1))
+
+        # Dictionary of named groups of event weights
+        self.__event_weight_groups = collections.OrderedDict()
+
+        # Scheduler to determine algorithm ordering
+        self.scheduler = Scheduler()
+
+        # Load run arguments
+        process_kwargs = {}
+        if run_args is None:
+            logger.warning("No run arguments found! Using defaults.")
+        else:
+            # Read values from run_args
+            if hasattr(run_args, "ecmEnergy"):
+                process_kwargs["beam_energy"] = 0.5 * run_args.ecmEnergy
+            if hasattr(run_args, "maxEvents") and run_args.maxEvents > 0:
+                process_kwargs["nEvents"] = int(1.1 * run_args.maxEvents + 0.5)
+            if hasattr(run_args, "randomSeed"):
+                process_kwargs["random_seed"] = run_args.randomSeed
+            if hasattr(run_args, "outputTXTFile"):
+                for tarball_suffix in [x for x in [".tar.gz", ".tgz"] if x in run_args.outputTXTFile]:
+                    ## Name of output LHE file
+                    self.__output_LHE_file = run_args.outputTXTFile.split(tarball_suffix)[0] + ".events"
+                    self.scheduler.add("output tarball preparer", self.__output_LHE_file, run_args.outputTXTFile)
+            # Set inputGeneratorFile to match output events file - otherwise Generate_tf check will fail
+            run_args.inputGeneratorFile = self.__output_LHE_file
+
+        # Load correct process
+        self.process = getattr(processes.powheg, process_name)(os.environ["POWHEGPATH"].replace("POWHEG-BOX", ""), **process_kwargs)
+
+        # Expose all keyword parameters as attributes of this config object
+        for parameter in self.process.parameters:
+            if parameter.is_visible:
+                setattr(self, parameter.name, parameter.value)
+
+        # Expose all external parameters as attributes of this config object
+        for external in self.process.externals.values():
+            for parameter in external.parameters:
+                if parameter.is_visible:
+                    setattr(self, parameter.name, parameter.value)
+
+        # Add validation of the output file
+        self.scheduler.add("output validator")
+
+        # Schedule correct output file naming
+        self.scheduler.add("output file renamer", self.__output_LHE_file)
+
+        # Enable parallel mode if AthenaMP mode is enabled
+        if self.__cores == 1:
+            self.scheduler.add("singlecore", self.process)
+        else:
+            # Try to modify the transform opts to suppress athenaMP mode
+            logger.info("This job is running with an athenaMP-like whole-node setup, requesting {} cores".format(self.__cores))
+            self.scheduler.add("multicore", self.process, self.__cores)
+            self.process.parameters_by_name("manyseeds")[0].value = 1
+            if hasattr(run_opts, "nprocs"):
+                logger.info("Re-configuring to keep athena running serially while parallelising Powheg generation.")
+                run_opts.nprocs = 0
+            else:
+                logger.warning("Running in multicore mode but no 'nprocs' option was provided!")
+
+        # Freeze the interface so that no new attributes can be added
+        self.interface_frozen = True
+
+        # Print executable being used
+        logger.info("Configured for event generation with: {}".format(self.process.executable))
+
+    def generate(self, external_run_card=False, run_card_only=False):
+        """! Run normal event generation.
+
+        @param external_run_card Use a user-provided run card.
+        @param run_card_only     Only generate the run card.
+        """
+        if not external_run_card:
+            self.__generate_run_card()
+        if not run_card_only:
+            self.__generate_events()
+
+    def __generate_run_card(self):
+        """! Initialise runcard with appropriate options."""
+        # Check that event generation is correctly set up
+        if (hasattr(self, "bornsuppfact") and self.bornsuppfact > 0.0) and (hasattr(self, "bornktmin") and self.bornktmin <= 0.0):
+            logger.warning("These settings: bornsuppfact = {} and bornktmin = {} cannot be used to generate events!".format(self.bornsuppfact, self.bornktmin))
+            logger.warning("Only fixed-order distributions can be produced with these settings!")
+
+        # Scale-down number of events produced in each run if running in multicore mode
+        if self.__cores > 1:
+            self.scheduler.add("merge output", self.__cores, self.nEvents)
+            logger.info("Preparing to parallelise: running with {} jobs".format(self.__cores))
+            self.process.prepare_to_parallelise(self.__cores)
+
+        # Print list of configurable parameters for users
+        parameters_by_name = [x[1] for x in sorted(dict((p.name.lower(), p) for p in self.process.parameters).items(), key=lambda x: x[0])]
+        logger.info("===================================================================================================")
+        logger.info("|                          User configurable parameters for this process                          |")
+        logger.info("===================================================================================================")
+        logger.info("|     Option name     |    ATLAS default    |                     Description                     |")
+        logger.info("===================================================================================================")
+        for parameter in [p for p in parameters_by_name if p.is_visible]:
+            logger.info("| {:<19} | {:>19} | {}".format(parameter.name, parameter.default_value, parameter.description))
+        logger.info("==================================================================================================")
+
+        # Print list of parameters that have been changed by the user
+        parameters_changed = [p for p in parameters_by_name if p.value != p.default_value]
+        logger.info("In these jobOptions {} parameters have been changed from their default value:".format(len(parameters_changed)))
+        for idx, parameter in enumerate(parameters_changed):
+            logger.info("  {:<3} {:<19} {:>15} => {}".format("{})".format(idx + 1), "{}:".format(parameter.name), parameter.default_value, parameter.value))
+
+        # Validate any parameters which need validation/processing
+        self.process.validate_parameters()
+
+        # Check for parameters which can result in non-equal event weights being used
+        event_weight_options = []
+
+        # Write out final runcard
+        run_card_path = "{}/powheg.input".format(self.__run_directory)
+        logger.info("Writing Powheg runcard to {}".format(run_card_path))
+        with open(run_card_path, "w") as f_runcard:
+            for parameter in sorted(self.process.parameters, key=lambda p: p.keyword.lower()):
+                if parameter.name == "bornsuppfact" and parameter.value > 0:
+                    event_weight_options.append(("Born-level suppression", "magnitude"))
+                if parameter.name == "withnegweights" and parameter.value > 0:
+                    event_weight_options.append(("negative event weights", "sign"))
+                # PDF variations
+                if parameter.name == "PDF" and isinstance(parameter.value, collections.Iterable):
+                    self.define_event_weight_group("PDF_variation", ["PDF"], combination_method="hessian")
+                    for PDF in map(int, parameter.value[1:]):
+                        self.add_weight_to_group("PDF_variation", "PDF set = {:d}".format(PDF), [PDF])
+                # Scale variations
+                if parameter.name == "mu_F" and isinstance(parameter.value, collections.Iterable):
+                    self.define_event_weight_group("scale_variation", ["mu_R", "mu_F"], combination_method="envelope")
+                    mu_Rs = self.process.parameters_by_name("mu_R")[0].value
+                    mu_Fs = self.process.parameters_by_name("mu_F")[0].value
+                    if len(mu_Rs) != len(mu_Fs):
+                        raise ValueError("Number of mu_R and mu_F variations must be the same.")
+                    for mu_R, mu_F in zip(map(float, mu_Rs[1:]), map(float, mu_Fs[1:])):
+                        self.add_weight_to_group("scale_variation", "muR = {:.2f}, muF = {:.2f}".format(mu_R, mu_F), [mu_R, mu_F])
+                f_runcard.write("{}\n".format(parameter))
+
+        # Schedule cross-section_calculator
+        if len(event_weight_options) > 0:
+            self.scheduler.add("cross section calculator")
+            logger.warning("Powheg has been configured to run with {}".format(" and ".join([x[0] for x in event_weight_options])))
+            logger.warning("This means that event weights will vary in {}".format(" and ".join([x[1] for x in event_weight_options])))
+            logger.warning("The cross-section passed to the parton shower will be inaccurate.")
+            logger.warning("Please use the cross-section printed in the log file before showering begins.")
+
+        # Schedule reweighting if more than the nominal weight is requested
+        if len(self.__event_weight_groups) > 0:
+            # # Add nominal weight as a final group - not needed when rwl_format_rwgt is set
+            # self.define_event_weight_group("nominal", [])
+            # self.add_weight_to_group("nominal", "nominal", [])
+            # Reverse the order so that scale comes first and user-defined is last
+            self.__event_weight_groups = collections.OrderedDict(reversed(list(self.__event_weight_groups.items())))
+            for group_name, event_weight_group in self.__event_weight_groups.items():
+                logger.info("Defining new weight group '{}' which alters {} parameters".format(group_name, len(event_weight_group["parameter_names"])))
+                for parameter_name in event_weight_group["parameter_names"]:
+                    logger.info("... {}".format(parameter_name))
+            # Add reweighting to scheduler
+            self.scheduler.add("reweighter", self.process, self.__event_weight_groups)
+
+    @timed("Powheg LHE event generation")
+    def __generate_events(self):
+        """! Generate events according to the scheduler."""
+        # Setup heartbeat thread
+        heartbeat = HeartbeatTimer(600., "{}/eventLoopHeartBeat.txt".format(self.__run_directory))
+        heartbeat.setName("heartbeat thread")
+        heartbeat.daemon = True  # Allow program to exit if this is the only live thread
+        heartbeat.start()
+
+        # Print executable being used
+        logger.info("Using executable: {}".format(self.process.executable))
+
+        # Additional arguments needed by some algorithms
+        extra_args = {"quark colour fixer": [self.process]}
+
+        # Schedule external processes (eg. MadSpin, PHOTOS, NNLO reweighting)
+        for algorithm, external in self.process.externals.items():
+            if external.needs_scheduling(self.process):
+                self.scheduler.add(algorithm, external, *extra_args.get(algorithm, []))
+
+        # Schedule additional algorithms (eg. quark colour fixer)
+        for algorithm in self.process.algorithms:
+            self.scheduler.add(algorithm, *extra_args.get(algorithm, []))
+
+        # Output the schedule
+        self.scheduler.print_structure()
+
+        # Run pre-processing
+        self.scheduler.run_preprocessors()
+
+        # Run event generation
+        self.scheduler.run_generators()
+
+        # Run post-processing
+        self.scheduler.run_postprocessors()
+
+        # Kill heartbeat thread
+        heartbeat.cancel()
+
+    def define_event_weight_group(self, group_name, parameters_to_vary, combination_method="none"):
+        """! Add a new named group of event weights.
+
+        @param group_name         Name of the group of weights.
+        @param parameters_to_vary Names of the parameters to vary.
+        @param combination_method Method for combining the weights.
+        """
+        self.__event_weight_groups[group_name] = collections.OrderedDict()
+        self.__event_weight_groups[group_name]["parameter_names"] = parameters_to_vary
+        self.__event_weight_groups[group_name]["combination_method"] = combination_method
+        self.__event_weight_groups[group_name]["keywords"] = [[p.keyword for p in self.process.parameters_by_name(parameter)] for parameter in parameters_to_vary]
+
+    def add_weight_to_group(self, group_name, weight_name, parameter_values):
+        """! Add a new event weight to an existing group.
+
+        @param group_name       Name of the group of weights that this weight belongs to.
+        @param weight_name      Name of this event weight.
+        @param parameter_values Values of the parameters.
+        """
+        if group_name not in self.__event_weight_groups.keys():
+            raise ValueError("Weight group '{}' has not been defined.".format(group_name))
+        n_expected = len(self.__event_weight_groups[group_name]["parameter_names"])
+        if len(parameter_values) != n_expected:
+            raise ValueError("Expected {} parameter values but only got {}".format(n_expected, len(parameter_values)))
+        self.__event_weight_groups[group_name][weight_name] = []
+        for parameter_name, value in zip(self.__event_weight_groups[group_name]["parameter_names"], parameter_values):
+            self.__event_weight_groups[group_name][weight_name].append((parameter_name, value))
+
+    def __setattr__(self, key, value):
+        """! Override default attribute setting to stop users setting non-existent attributes.
+
+        @param key   Attribute name.
+        @param value Value to set the attribute to.
+        """
+        # If this is a known parameter then keep the values in sync
+        if hasattr(self, "process"):
+            # ... for parameters of the process
+            for parameter in self.process.parameters_by_name(key):
+                parameter.ensure_default()
+                parameter.value = value
+            # ... and for parameters of any external processes
+            for external in self.process.externals.values():
+                for parameter in external.parameters_by_name(key):
+                    parameter.ensure_default()
+                    parameter.value = value
+        # If the interface is frozen then raise an attribute error
+        if hasattr(self, "interface_frozen") and self.interface_frozen:
+            if not hasattr(self, key):
+                raise AttributeError("This Powheg process has no option '{}'".format(key))
+        object.__setattr__(self, key, value)
