@@ -11,12 +11,17 @@ PowhegConfig.generateEvents()
 # Pythia8 showering with new, main31-style shower
 #--------------------------------------------------------------
 include('MC12JobOptions/Pythia8_AU2_CT10_Common.py')
+topAlg.Pythia8.Commands += [ 'SpaceShower:pTmaxMatch = 2'
+                           , 'TimeShower:pTmaxMatch = 2'
+                           ]
+topAlg.Pythia8.UserHook  = 'Main31'
+
 
 #--------------------------------------------------------------
 # EVGEN configuration
 #--------------------------------------------------------------
 evgenConfig.description = 'POWHEG+Pythia8 W^{+} production with AU2 CT10 tune'
 evgenConfig.keywords    = [ 'SM', 'Wp' ]
-evgenConfig.contact     = [ 'stephen.paul.bieniek@cern.ch' ]
+evgenConfig.contact     = [ 'james.robinson@cern.ch' ]
 evgenConfig.generators += [ 'Powheg', 'Pythia8' ]
 

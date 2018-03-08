@@ -1,9 +1,9 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #--------------------------------------------------------------
-# Powheg_Z setup with sensible defaults
+# Powheg_ggH setup with sensible defaults
 #--------------------------------------------------------------
-include('PowhegControl/PowhegControl_Z_Common.py')
+include('PowhegControl/PowhegControl_ggH_Common.py')
 PowhegConfig.generateRunCard()
 PowhegConfig.generateEvents()
 
@@ -20,8 +20,8 @@ topAlg.Pythia8.UserHook  = 'Main31'
 #--------------------------------------------------------------
 # EVGEN configuration
 #--------------------------------------------------------------
-evgenConfig.description = 'POWHEG+Pythia8 Z production with AU2 CT10 tune'
-evgenConfig.keywords    = [ 'SM', 'Z' ]
-evgenConfig.contact     = [ 'stephen.paul.bieniek@cern.ch' ]
+evgenConfig.description = 'POWHEG+Pythia8 dijet production with AU2 CT10 tune'
+evgenConfig.keywords    = [ 'Higgs' ]
+evgenConfig.contact     = [ 'james.robinson@cern.ch' ]
 evgenConfig.generators += [ 'Powheg', 'Pythia8' ]
-
+evgenConfig.minevents   = 10
