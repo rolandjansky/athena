@@ -30,7 +30,7 @@ public:
   virtual StatusCode finalize() override;
 
   /// Get properties for the detector element.
-  virtual const InDet::SiliconProperties& getSiProperties(const IdentifierHash& elementHash);
+  virtual const InDet::SiliconProperties& getSiProperties(const IdentifierHash& elementHash) override;
 
 private:
   // Properties
