@@ -7,7 +7,7 @@ from ..powheg_V1 import PowhegV1
 logger = Logging.logging.getLogger("PowhegControl")
 
 
-class t_sch(PowhegV1):
+class t_sch(PowhegV2):
     """! Default Powheg configuration for single-top production in the s-channel.
 
     Create a configurable object with all applicable Powheg options.

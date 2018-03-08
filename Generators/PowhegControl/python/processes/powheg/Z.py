@@ -63,7 +63,7 @@ class Z(PowhegV1):
         self.add_keyword("lhans2")
         self.add_keyword("manyseeds")
         self.add_keyword("mass_high", 2.0 * self.parameters_by_name("beam_energy")[0].value)
-        self.add_keyword("mass_low", 10.0)
+        self.add_keyword("mass_low", 60.0)
         self.add_keyword("masswindow_high")
         self.add_keyword("masswindow_low")
         self.add_keyword("ncall1", 40000)

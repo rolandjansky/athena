@@ -85,7 +85,6 @@ def reweighter(process, weight_groups, powheg_LHE_output):
         if weight.xml_compatible:
             keyword_pairs = ["{}={}".format(k, v) for p, v in weight.parameter_settings for k in weight.keywords[p]]
             xml_lines.append("<weight id='{}'> {} </weight>".format(weight.ID, " ".join(keyword_pairs)))
-            print "group {}, <weight id='{}'> {} </weight>".format(current_weightgroup, weight.ID, " ".join(keyword_pairs))
         else:
             non_xml_weight_list.append(weight)
     xml_lines.append(xml_lines.pop(0)) # move the closing tag to the end
@@ -124,9 +123,14 @@ def reweighter(process, weight_groups, powheg_LHE_output):
             shutil.move(powheg_LHE_output.replace(".lhe", "-rwgt.lhe"), powheg_LHE_output)
 
     # Remove rwgt and pdf lines, which crash Pythia
-    FileParser(powheg_LHE_output).text_remove("^#pdf")
-    FileParser(powheg_LHE_output).text_remove("^#rwgt")
-    FileParser(powheg_LHE_output).text_remove("^#new weight")
+    # FileParser(powheg_LHE_output).text_remove("^#pdf")
+    # FileParser(powheg_LHE_output).text_remove("^#rwgt")
+    # FileParser(powheg_LHE_output).text_remove("^#new weight")
+
+    # Strip NaN values from rwgt and pdf lines, which crash Pythia
+    FileParser(powheg_LHE_output).text_replace("NaN", "0", regex_line_match="^#pdf")
+    FileParser(powheg_LHE_output).text_replace("NaN", "0", regex_line_match="^#rwgt")
+    FileParser(powheg_LHE_output).text_replace("NaN", "0", regex_line_match="^#new weight")
 
     # Rename all weights
     for weight in weight_list:

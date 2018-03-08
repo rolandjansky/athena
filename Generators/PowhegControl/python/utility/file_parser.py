@@ -31,18 +31,20 @@ class FileParser(object):
             with open(input_file_name, "ab") as f_input:
                 f_input.write(string_append + "\n")
 
-    def text_replace(self, regex_find, string_replace, count=0):
+    def text_replace(self, regex_find, string_replace, count=0, regex_line_match=None):
         """! Replace regex_find by regex_replace in input_file_name.
 
-        @param regex_find     Regular expression to search for.
-        @param string_replace String to replace by.
-        @param count          If non-zero then only replace first count occurences in each line.
+        @param regex_find        Regular expression to search for.
+        @param string_replace    String to replace by.
+        @param count             If non-zero then only replace first count occurences in each line.
+        @param regex_line_match  If not 'None' then only do replacement on lines matching this
         """
         for input_file_name in self.__input_file_names:
             shutil.move(input_file_name, "{}.text_replace_backup".format(input_file_name))
             with open("{}.text_replace_backup".format(input_file_name), "rb") as f_input:
                 with open(input_file_name, "wb") as f_output:
                     for line in f_input:
+                        if regex_line_match is not None and not re.search(regex_line_match, line): continue
                         new_line = re.sub(regex_find, string_replace, line.rstrip(), count)
                         f_output.write(new_line + "\n")
             os.remove("{}.text_replace_backup".format(input_file_name))

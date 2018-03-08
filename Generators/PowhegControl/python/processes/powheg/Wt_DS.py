@@ -7,7 +7,7 @@ from ..powheg_V1 import PowhegV1
 logger = Logging.logging.getLogger("PowhegControl")
 
 
-class Wt_DS(PowhegV1):
+class Wt_DS(PowhegV2):
     """! Default Powheg configuration for single top production with an associated W-boson through the t-channel (diagram subtraction).
 
     Create a configurable object with all applicable Powheg options.

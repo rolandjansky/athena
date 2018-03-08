@@ -65,17 +65,14 @@ def __construct_inputs(input_LHE_events, process):
         if process.MadSpin_taus_are_leptons:
             f_madspin_LHE.write("define l+ = e+ mu+ ta+\n")
             f_madspin_LHE.write("define l- = e- mu- ta-\n")
-            f_madspin_LHE.write("define vl = ve vm vt\n")
-            f_madspin_LHE.write("define vl~ = ve~ vm~ vt~\n")
         else:
             f_madspin_LHE.write("define l+ = e+ mu+\n")
             f_madspin_LHE.write("define l- = e- mu-\n")
-            f_madspin_LHE.write("define vl = ve vm\n")
-            f_madspin_LHE.write("define vl~ = ve~ vm~\n")
         f_madspin_LHE.write("{}\n".format(process.MadSpin_process))
         f_madspin_LHE.write("output tchan\n")
         f_madspin_LHE.write("</mg5proccard>\n")
         f_madspin_LHE.write("<mgruncard>\n")
+        f_madspin_LHE.write("#0.01 = req_acc_FO ! needed for determining LO/NLO - see AGENE-1459\n")
         f_madspin_LHE.write("{} = nevents\n".format(LHE.event_counter(input_LHE_events)))
         f_madspin_LHE.write("1   =  lpp1     ! beam 1 type (0 = no PDF)\n")
         f_madspin_LHE.write("1   =  lpp2     ! beam 2 type (0 = no PDF)\n")
