@@ -143,7 +143,7 @@ class PowhegConfig_base(object) :
         if 'lhrwgt' in name : value = '\'{}\''.format( value ) # lhrwgt parameters need to be in quotes
         # Set starting value to first in list when multiple values are provided
         if isinstance(value,list) :
-          if name in ['PDF','mu_R','mu_F'] : self.__enable_reweighting = True
+          if name in sum( [ self.configurable_to_parameters[x] for x in ['PDF','mu_R','mu_F'] ], [] ) : self.__enable_reweighting = True
           value = value[0]
         f.write( '{0:<30}! [ATLAS default: {1}] {2}\n'.format( '{} {}'.format(name,value), default, desc ) )
         # Print warnings for specific parameters
