@@ -54,11 +54,11 @@ class BaseDecorator(object) :
     self.decorated.add_parameter( 'bornktmin', -1,                         desc='(default -1, disabled) Generation cut: minimum kt in underlying Born' )
     self.decorated.fix_parameter( 'bornonly', [0,1][self.decorated.is_LO], desc='(default process-dependent) calculate Born only' )
     self.decorated.add_parameter( 'bornsuppfact', -1,                      desc='(default -1, disabled) Mass parameter for Born suppression factor. If > 0 suppfact = 1' )
-    self.decorated.fix_parameter( 'bornzerodamp', -1,                      desc='(default -1, disabled)' )
+    self.decorated.fix_parameter( 'bornzerodamp', 1,                       desc='(default 1, enabled) Use damping in regions where the Born is strongly suppressed (or 0), such as W production.' )
     self.decorated.add_parameter( 'hdamp', -1,                             desc='(default -1, disabled) Born-zero damping factor' )
     self.decorated.add_parameter( 'hfact', -1,                             desc='(default -1, disabled) apply dump factor for high-pt radiation: dumpfac=h**2/(pt2+h**2)' )
     self.decorated.fix_parameter( 'ptsupp', -1,                            desc='(default -1, disabled) deprecated, but some processes complain if it is missing' )
-    self.decorated.add_parameter( 'withdamp', -1,                          desc='(default -1, disabled) use Born-zero damping factor' )
+    self.decorated.fix_parameter( 'withdamp', 1,                           desc='(default 1, enabled) use Born-zero damping factor' )
     self.decorated.add_parameter( 'withnegweights', 1,                     desc='(default 1, enabled) allow negative weights' )
     # Parton splitting settings
     self.decorated.add_parameter( 'bottomthr', 5.0,    desc='(default 5.0) bottom threshold for gluon splitting in GeV' )
