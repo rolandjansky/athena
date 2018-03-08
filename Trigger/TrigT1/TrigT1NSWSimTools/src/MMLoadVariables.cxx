@@ -16,6 +16,13 @@
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 
+using std::map;
+using std::vector;
+using std::string;
+using std::cerr;
+using std::endl;
+
+
 // using namespace std;
 
 MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetectorManager* detManager, const MmIdHelper* idhelper, MMT_Parameters *par){
