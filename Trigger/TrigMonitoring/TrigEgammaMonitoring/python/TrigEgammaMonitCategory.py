@@ -44,6 +44,7 @@ monitoring_jpsitags = [
     'HLT_e5_lhtight_nod0_e4_etcut',
     'HLT_e5_lhtight_nod0_e4_etcut_Jpsiee',
     'HLT_e5_lhtight_nod0_e4_etcut_Jpsiee_L1RD0_FILLED',
+    'HLT_e5_lhtight_nod0_e4_etcut_L1JPSI-1M5',
     'HLT_e5_lhtight_nod0_e9_etcut_Jpsiee_L1JPSI-1M5-EM7',
     'HLT_e9_lhtight_nod0_e4_etcut_Jpsiee_L1JPSI-1M5-EM7',
     'HLT_e5_lhtight_nod0_e14_etcut_Jpsiee_L1JPSI-1M5-EM12',
