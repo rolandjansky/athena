@@ -44,7 +44,9 @@ class FileParser(object):
             with open("{}.text_replace_backup".format(input_file_name), "rb") as f_input:
                 with open(input_file_name, "wb") as f_output:
                     for line in f_input:
-                        if regex_line_match is not None and not re.search(regex_line_match, line): continue
+                        if regex_line_match is not None and not re.search(regex_line_match, line):
+                            f_output.write(line)
+                            continue
                         new_line = re.sub(regex_find, string_replace, line.rstrip(), count)
                         f_output.write(new_line + "\n")
             os.remove("{}.text_replace_backup".format(input_file_name))

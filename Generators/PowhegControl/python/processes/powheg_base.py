@@ -50,6 +50,9 @@ class PowhegBase(Configurable):
         ## Switch to determine whether reweighting is allowed
         self.is_reweightable = is_reweightable
 
+        ## Switch to determine whether XML reweighting is fully supported
+        self.has_XML_support = True
+
     def add_algorithm(self, alg_or_process):
         """! Add an algorithm or external process to the sequence.
 

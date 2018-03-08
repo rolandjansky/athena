@@ -82,6 +82,7 @@ class ttH(PowhegV2):
         self.add_keyword("lhrwgt_group_name")
         self.add_keyword("lhrwgt_id")
         self.add_keyword("LOevents")
+        self.add_keyword("max_io_bufsize")
         self.add_keyword("manyseeds")
         self.add_keyword("minlo")
         self.add_keyword("ncall1", 8000)

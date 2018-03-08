@@ -79,6 +79,7 @@ class bblvlv(PowhegRES):
         self.add_keyword("lhans2")
         self.add_keyword("LOevents")
         self.add_keyword("manyseeds")
+        self.add_keyword("max_io_bufsize")
         self.add_keyword("maxseeds")
         self.add_keyword("minlo")
         self.add_keyword("mint_density_map")

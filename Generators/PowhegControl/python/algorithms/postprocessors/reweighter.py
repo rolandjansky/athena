@@ -40,11 +40,11 @@ def reweighter(process, weight_groups, powheg_LHE_output):
         logger.info("Preparing weight group: {:<19} with {} weights".format(group_name, len(weight_group) - len(non_weight_attributes)))
 
         # Name -> keyword dictionary is different if this is an XML reweighting
-        is_xml_compatible = all([k in xml_kwds.keys() for _kw_set in weight_group["keywords"] for k in _kw_set])
+        is_xml_compatible = process.has_XML_support and all([k in xml_kwds.keys() for _kw_set in weight_group["keywords"] for k in _kw_set])
         if is_xml_compatible:
             _keywords = [list(set([xml_kwds[k] for k in _kw_set])) for _kw_set in weight_group["keywords"]]
         else:
-            logger.warning("... this weight group is incompatible with XML-style reweighting. Will use (slow) old method.")
+            logger.warning("... this weight group and/or process is incompatible with XML-style reweighting. Will use (slow) old method.")
             _keywords = weight_group["keywords"]
         keyword_dict = dict((n, k) for n, k in zip(weight_group["parameter_names"], _keywords))
 
@@ -89,6 +89,16 @@ def reweighter(process, weight_groups, powheg_LHE_output):
             non_xml_weight_list.append(weight)
     xml_lines.append(xml_lines.pop(0)) # move the closing tag to the end
 
+    # Make backup of generation statistics
+    if os.path.isfile("pwgcounters.dat"):
+        shutil.copy("pwgcounters.dat", "pwgcounters.dat.bak")
+
+    # .. and also backup unweighted events
+    try:
+        shutil.copy(powheg_LHE_output, "{}.unweighted".format(powheg_LHE_output))
+    except IOError:
+        raise IOError("Nominal LHE file could not be found. Probably POWHEG-BOX crashed during event generation.")
+
     # Write xml output
     n_xml_weights = len(weight_list) - len(non_xml_weight_list)
     if n_xml_weights > 0:
@@ -98,22 +108,19 @@ def reweighter(process, weight_groups, powheg_LHE_output):
                 f_rwgt.write("{}\n".format(xml_line))
             f_rwgt.write("</initrwgt>")
 
-        # Make backup of generation statistics
-        if os.path.isfile("pwgcounters.dat"):
-            shutil.copy("pwgcounters.dat", "pwgcounters.dat.bak")
-
         # Add reweighting lines to runcard
         FileParser("powheg.input").text_replace("rwl_file .*", "rwl_file 'reweighting_input.xml'")
         FileParser("powheg.input").text_replace("rwl_add .*", "rwl_add 1")
         FileParser("powheg.input").text_replace("clobberlhe .*", "clobberlhe 1")
 
-        # Copy the old events and then run the reweighter
-        shutil.copy(powheg_LHE_output, "{}.unweighted".format(powheg_LHE_output))
         logger.info("Preparing simultaneous calculation of {} additional weights for generated events.".format(n_xml_weights))
         singlecore_untimed(process)
 
         # Move the reweighted file back
-        shutil.move(powheg_LHE_output.replace(".lhe", "-rwgt.lhe"), powheg_LHE_output)
+        try:
+            shutil.move(powheg_LHE_output.replace(".lhe", "-rwgt.lhe"), powheg_LHE_output)
+        except IOError:
+            raise IOError("Reweighted LHE file could not be found. Probably POWHEG-BOX crashed during reweighting.")
 
     # Iterate over any variations which require old-style reweighting
     if len(non_xml_weight_list) > 0:

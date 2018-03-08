@@ -183,15 +183,19 @@ class PowhegControl(object):
 
         # Schedule reweighting if more than the nominal weight is requested
         if len(self.__event_weight_groups) > 0:
-            # # Add nominal weight as a final group - not needed when rwl_format_rwgt is set
-            # self.define_event_weight_group("nominal", [])
-            # self.add_weight_to_group("nominal", "nominal", [])
             # Reverse the order so that scale comes first and user-defined is last
             self.__event_weight_groups = collections.OrderedDict(reversed(list(self.__event_weight_groups.items())))
             for group_name, event_weight_group in self.__event_weight_groups.items():
-                logger.info("Defining new weight group '{}' which alters {} parameters".format(group_name, len(event_weight_group["parameter_names"])))
-                for parameter_name in event_weight_group["parameter_names"]:
-                    logger.info("... {}".format(parameter_name))
+                _n_weights = len(event_weight_group) - 3 # there are always three entries: parameter_names, combination_method and keywords
+                # Sanitise weight groups, removing any with no entries
+                if _n_weights <= 0:
+                    logger.warning("Ignoring weight group '{}' as it does not have any variations defined. Check your jobOptions!".format(group_name))
+                    del self.__event_weight_groups[group_name] # this is allowed because items() makes a temporary copy of the dictionary
+                # Otherwise print weight group information for the user
+                else:
+                    logger.info("Adding new weight group '{}' which contains {} weights defined by varying {} parameters".format(group_name, _n_weights, len(event_weight_group["parameter_names"])))
+                    for parameter_name in event_weight_group["parameter_names"]:
+                        logger.info("... {}".format(parameter_name))
             # Add reweighting to scheduler
             self.scheduler.add("reweighter", self.process, self.__event_weight_groups)
 

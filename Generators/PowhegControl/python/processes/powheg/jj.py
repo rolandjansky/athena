@@ -18,6 +18,7 @@ class jj(PowhegV2):
         @param kwargs          dictionary of arguments from Generate_tf.
         """
         super(self.__class__, self).__init__(base_directory, "dijet", **kwargs)
+        # self.has_XML_support = False
 
         # Add all keywords for this process, overriding defaults if required
         self.add_keyword("bornktmin", 10.0)
@@ -74,6 +75,7 @@ class jj(PowhegV2):
         self.add_keyword("lhrwgt_id")
         self.add_keyword("LOevents")
         self.add_keyword("manyseeds")
+        self.add_keyword("max_io_bufsize")
         self.add_keyword("maxseeds")
         self.add_keyword("minlo")
         self.add_keyword("mintupbratlim")
@@ -99,7 +101,9 @@ class jj(PowhegV2):
         self.add_keyword("rand2")
         self.add_keyword("renscfact")
         self.add_keyword("rwl_add")
+        self.add_keyword("rwl_file")
         self.add_keyword("rwl_format_rwgt")
+        self.add_keyword("rwl_group_events")
         self.add_keyword("skipextratests")
         self.add_keyword("smartsig")
         self.add_keyword("softtest")

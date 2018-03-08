@@ -29,8 +29,12 @@ class ProcessManager(object):
         while len(self.__process_list) > 0:
             for process in list(self.__process_list):
                 if not process.has_output():
+                    _return_code = process.return_code
                     self.__process_list.remove(process)
-                    logger.info("Finished process #{}: there are now {}/{} running".format(process.id_number, len(self.__process_list), self.__n_initial))
+                    if _return_code == 0:
+                        logger.info("Finished process #{}: there are now {}/{} running".format(process.id_number, len(self.__process_list), self.__n_initial))
+                    else:
+                        logger.warning("Process #{} terminated unexpectedly (return code {}): there are now {}/{} running".format(process.id_number, _return_code, len(self.__process_list), self.__n_initial))
 
 
 class SingleProcessThread(object):
@@ -111,6 +115,11 @@ class SingleProcessThread(object):
                     self.log(output, self.log_level[stream])
                 if queue_size == 0:
                     break
+
+    @property
+    def return_code(self):
+        """! Return code of underlying process."""
+        return self.__process.returncode
 
     @property
     def stdout(self):
