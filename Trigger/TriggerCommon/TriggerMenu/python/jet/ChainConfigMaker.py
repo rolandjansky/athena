@@ -285,8 +285,10 @@ def _get_dijet_string3(parts):
 
     dijet_string = _get_topo(parts, 'invm')
     phi_string = _get_topo(parts, 'dphi')
+    eta_string = _get_topo(parts,'deta')
     # phi_string = _get_phi_string(parts)
     dijet_string += phi_string
+    dijet_string += eta_string
     if dijet_re.match(dijet_string):
         _update_cache('dijet_string', dijet_string)
         return dijet_string
@@ -403,8 +405,12 @@ def _get_hypo_type(parts):
     invm_string = _get_invm_string(parts)
     deta_string = _get_deta_string(parts)
     dphi_string = _get_dphi_string(parts)
-    dimass_deta_flag = bool(invm_string) or bool(deta_string)
-    dimass_deta_dphi_flag = dimass_deta_flag and bool(dphi_string)
+    if dijet_flag: 
+        dimass_deta_flag = False
+        dimass_deta_dphi_flag = False 
+    else:
+        dimass_deta_flag = bool(invm_string) or  bool(deta_string)
+        dimass_deta_dphi_flag = dimass_deta_flag and bool(dphi_string)
     jetmass_flag = _get_jetmass_flag(parts)
     trig_type = _get_trig_type(parts)
     
@@ -418,23 +424,22 @@ def _get_hypo_type(parts):
 
     if htype is None:
         msg = '%s: cannot determine hypo type from\n' \
-              'trigger type: %s \n'\
-              'jetmass_flag %s \n'\
-              'test flag: %s \n' \
-              'TLA: %s \n' \
-              'dimass_eta: %s \n'\
-              'dimass_deta_dphi: %s \n' \
-              'jetmass flag: %s \n' \
-              'dijet flag: %s' % (err_hdr,
-                                  str(trig_type),
-                                  str(jetmass_flag),
-                                  str(tla_flag),
-                                  str(dimass_deta_flag),
-                                  str(dimass_deta_dphi_flag),
-                                  str(dijet_flag),
-                                  str(test_flag),
-              )
-
+            'trigger type: %s \n'\
+            'jetmass_flag %s \n'\
+            'test flag: %s \n' \
+            'TLA: %s \n' \
+            'dimass_eta: %s \n'\
+            'dimass_deta_dphi: %s \n' \
+            'dijet flag: %s' % (err_hdr,
+                                str(trig_type),
+                                str(jetmass_flag),
+                                str(test_flag),
+                                str(tla_flag),
+                                str(dimass_deta_flag),
+                                str(dimass_deta_dphi_flag),
+                                str(dijet_flag),
+                                )
+            
         raise RuntimeError(msg)
 
     return htype
