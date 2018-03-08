@@ -24,7 +24,7 @@ class PowhegConfig_ggF_H(PowhegConfig_base) :
     ## Add process specific options
     self.add_parameter( 'bwshape', 1,                        desc='(default 1). Functional form of Breit-Wigner used to distribute Higgs virtuality. 1:running width; 2:hwidth' )
     self.add_parameter( 'ew', 1,                             desc='(default 1, enabled). Enable EW corrections' )
-    self.fix_parameter( 'gfermi', ATLASCommonParameters.G_F, desc='(default ATLAS). Fermi constant' )
+    self.add_parameter( 'gfermi', ATLASCommonParameters.G_F, desc='(default ATLAS). Fermi constant' )
     self.add_parameter( 'massren', 0,                        desc='(default 0). 0 = OS, 1 = MSBAR, 2 = DRBAR' )
     self.add_parameter( 'model', 0,                          desc='(default 0). 0 = SM' )
 

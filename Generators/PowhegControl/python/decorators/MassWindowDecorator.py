@@ -19,5 +19,5 @@ class MassWindowDecorator(object) :
 
     self.decorated.add_parameter( 'mass_low', -1,        desc='(default -1) If set then require M_object > mass_low; otherwise allow internal Powheg computation.' )
     self.decorated.add_parameter( 'mass_high', -1,       desc='(default -1) If set then require M_object < mass_high; otherwise allow internal Powheg computation.' )
-    self.decorated.fix_parameter( 'masswindow_low', -1,  desc='(default -1, disabled) use mass_low instead' )
-    self.decorated.fix_parameter( 'masswindow_high', -1, desc='(default -1, disabled) use mass_high instead' )
+    self.decorated.add_parameter( 'masswindow_low', -1,  desc='(default -1, disabled) use mass_low instead' )
+    self.decorated.add_parameter( 'masswindow_high', -1, desc='(default -1, disabled) use mass_high instead' )

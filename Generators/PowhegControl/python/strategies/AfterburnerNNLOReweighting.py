@@ -28,6 +28,7 @@ class AfterburnerNNLOReweighting :
     self._LHEF_nnlo_name = 'pwgevents.lhe.nnlo'
     self._NNLO_reweighting_inputs = configurator.NNLO_reweighting_inputs
     self._NNLO_output_weights = configurator.NNLO_output_weights
+    self._nominal_group_name = [ x[1] for x in configurator.fixed_parameters if x[0] == 'lhrwgt_group_name' ][0]
 
     ## Strip comment strings from input LHEF file - reweighter will crash otherwise
     self._logger.info( 'Removing comments from input LHE file' )
@@ -145,12 +146,12 @@ class AfterburnerNNLOReweighting :
         for input_line in f_input :
           output_line = input_line
           for idx, weight_ID, weight_description in self._NNLO_weight_descriptors :
+            # Switch weight ID/description naming
             if "id='{0}'".format(weight_ID) in output_line :
-              # Switch weight ID/description naming
               output_line = output_line.replace( weight_ID, str(idx) ).replace( weight_description, weight_ID )
+          # Convert exponential delimiter
           if "wgt id=" in output_line :
-            # Convert exponential delimiter
-            output_line = output_line.replace( 'D+', 'E+' ).replace( 'D-', 'E-' )
+            output_line = output_line.replace('D+','E+').replace('D-','E-')
           if len(output_line) > 1 : # strip empty lines
             f_output.write( output_line )
 
@@ -179,16 +180,32 @@ class AfterburnerNNLOReweighting :
     if header_elem.find('initrwgt') is None :
       header_elem.append( ElementTree.fromstring('<initrwgt></initrwgt>') )
 
-    ## Add weight names to header
-    existing_weights = sorted( [ int(weight_elem.attrib['id']) for weight_elem in header_elem.getiterator(tag='weight') ] )
-    first_unused_weight = max( [ w for w in existing_weights if 4000<=w<5000 ]+[4000] ) + 1
+    ## Add nominal and DYNNLO weightgroups to the header
+    weightgroups = [ x for x in header_elem.find('initrwgt').findall('weightgroup') ]
+    for weightgroup_name in [ self._nominal_group_name, 'dynnlo' ] :
+      if not any( [ weightgroup.attrib['name'] == weightgroup_name for weightgroup in weightgroups ] ) :
+        header_elem.find('initrwgt').append( ElementTree.fromstring('<weightgroup combine="none" name="{0}"></weightgroup>'.format(weightgroup_name)) )
+        self._logger.info( 'Adding LHEv3 weightgroup: {0}'.format(weightgroup_name) )
+
+    ## Add nominal weight name to header
+    weightgroup = [ x for x in header_elem.find('initrwgt').findall('weightgroup') if x.attrib['name'] == self._nominal_group_name ][0]
+    if not any( [ weight.attrib['id'] == '0' for weight in weightgroup.findall('weight') ] ) :
+      weightgroup.append( ElementTree.fromstring("<weight id='0'> nominal </weight>") )
+      self._logger.info( 'Adding LHEv3 weight: nominal' )
+
+    ## Add DYNNLO weight names to header
+    try :
+      weight_elems = header_elem.iter(tag='weight') # needs python >= 2.7
+    except AttributeError :
+      weight_elems = header_elem.getiterator(tag='weight')
+    existing_weights = sorted( [ int(weight_elem.attrib['id']) for weight_elem in weight_elems ] )
+    weight_number_offset = max( [ w for w in existing_weights if 4000<=w<5000 ]+[4000] ) + 1
+    weightgroup = [ x for x in header_elem.find('initrwgt').findall('weightgroup') if x.attrib['name'] == 'dynnlo' ][0]
     weight_name_to_id = {}
-    header_elem.find('initrwgt').append( ElementTree.fromstring('<weightgroup combine="none" name="dynnlo"></weightgroup>') )
-    for weightgroup_elem in header_elem.find('initrwgt').findall('weightgroup') :
-      if weightgroup_elem.attrib['name'] == 'dynnlo' :
-        for idx, weight in enumerate(weights) :
-          weight_name_to_id[weight[0]] = first_unused_weight+idx
-          weightgroup_elem.append( ElementTree.fromstring('<weight id="{0}">{1}</weight>'.format(weight_name_to_id[weight[0]],weight[0])) )
+    for idx, weight in enumerate(weights) :
+      weight_name_to_id[weight[0]] = weight_number_offset+idx
+      weightgroup.append( ElementTree.fromstring('<weight id="{0}"> {1} </weight>'.format(weight_name_to_id[weight[0]],weight[0])) )
+      self._logger.info( 'Adding LHEv3 weight: {0}'.format(weight[0]) )
     self.reindent(header_elem)
 
     ## Process input events
@@ -202,8 +219,11 @@ class AfterburnerNNLOReweighting :
           if '<event>' in line : in_event = True
           if in_event : event_lines += line
           if '</event>' in line :
+            # Construct LHEv3 weight lines
             if '#new weight,renfact,facfact,pdf1,pdf2' in event_lines :
-              if not '<rwgt>' in event_lines : event_lines = event_lines[:event_lines.find('#')] + '<rwgt>\n</rwgt>\n' + event_lines[event_lines.find('#'):]
+              if not '<rwgt>' in event_lines :
+                nominal_weight = [ x for x in event_lines.split('\n')[1].split(' ') if len(x) > 0 ][2]
+                event_lines = event_lines[:event_lines.find('#')] + "<rwgt>\n<wgt id='0'> {0} </wgt>\n</rwgt>\n".format(nominal_weight) + event_lines[event_lines.find('#'):]
               weight_lines = ''.join( [ "<wgt id='{0}'> {1} </wgt>\n".format( weight_name_to_id[weight[0]], weight[1] ) for weight in LHEHandler.weights_from_event( event_lines ) ] )
               output_lines = event_lines[:event_lines.find('</rwgt>')] + weight_lines + event_lines[event_lines.find('</rwgt>'):event_lines.find('#new weight,renfact,facfact,pdf1,pdf2')]+'</event>\n'
             else :

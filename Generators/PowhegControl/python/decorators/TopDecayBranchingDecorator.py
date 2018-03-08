@@ -19,10 +19,10 @@ class TopDecayBranchingDecorator(object) :
     self.decorated = decorated
 
     if tdec_prefix :
-      self.decorated.fix_parameter( 'tdec/elbranching', ATLASCommonParameters.W_lepton_BR, desc='(default ATLAS) W electronic branching fraction' )
-      self.decorated.fix_parameter( 'tdec/emass', ATLASCommonParameters.mass_e,            desc='(default ATLAS) electron mass' )
-      self.decorated.fix_parameter( 'tdec/mumass', ATLASCommonParameters.mass_mu,          desc='(default ATLAS) mu mass' )
-      self.decorated.fix_parameter( 'tdec/taumass', ATLASCommonParameters.mass_tau,        desc='(default ATLAS) tau mass' )
+      self.decorated.add_parameter( 'tdec/elbranching', ATLASCommonParameters.W_lepton_BR, desc='(default ATLAS) W electronic branching fraction' )
+      self.decorated.add_parameter( 'tdec/emass', ATLASCommonParameters.mass_e,            desc='(default ATLAS) electron mass' )
+      self.decorated.add_parameter( 'tdec/mumass', ATLASCommonParameters.mass_mu,          desc='(default ATLAS) mu mass' )
+      self.decorated.add_parameter( 'tdec/taumass', ATLASCommonParameters.mass_tau,        desc='(default ATLAS) tau mass' )
     else :
-      self.decorated.fix_parameter( 'elbranching', ATLASCommonParameters.W_lepton_BR,      desc='(default ATLAS) W electronic branching fraction' )
+      self.decorated.add_parameter( 'elbranching', ATLASCommonParameters.W_lepton_BR,      desc='(default ATLAS) W electronic branching fraction' )
     self.decorated.add_parameter( 'topwidth', ATLASCommonParameters.width_t,               desc='(default ATLAS) top width' )

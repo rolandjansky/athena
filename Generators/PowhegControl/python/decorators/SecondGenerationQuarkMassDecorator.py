@@ -18,5 +18,5 @@ class SecondGenerationQuarkMassDecorator(object) :
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.fix_parameter( 'bmass_lhe', ATLASCommonParameters.mass_b, desc='(default ATLAS) Set b-quark mass for momentum reshuffling' )
-    self.decorated.fix_parameter( 'cmass_lhe', ATLASCommonParameters.mass_c, desc='(default ATLAS) Set c-quark mass for momentum reshuffling' )
+    self.decorated.add_parameter( 'bmass_lhe', ATLASCommonParameters.mass_b, desc='(default ATLAS) Set b-quark mass for momentum reshuffling' )
+    self.decorated.add_parameter( 'cmass_lhe', ATLASCommonParameters.mass_c, desc='(default ATLAS) Set c-quark mass for momentum reshuffling' )

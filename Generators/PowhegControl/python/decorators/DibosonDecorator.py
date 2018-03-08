@@ -29,4 +29,4 @@ class DibosonDecorator(object) :
       self.decorated.logger.warning( 'Decay mode {0} not recognised!'.format( self.decorated.decay_mode) )
     ## Add entry for each decay mode
     for decay_mode in self.decorated.allowed_decay_modes :
-      self.decorated.fix_parameter( decay_mode, [-1,1][decay_mode==self.decorated.decay_mode], desc='Diboson decay mode, 1:enabled; -1:disabled' )
+      self.decorated.fix_parameter( decay_mode, [-1,1][decay_mode==self.decorated.decay_mode], desc='(default user-configured) Diboson decay mode, 1:enabled; -1:disabled' )
