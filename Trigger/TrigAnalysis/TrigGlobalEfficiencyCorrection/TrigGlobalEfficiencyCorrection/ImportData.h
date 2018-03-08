@@ -15,6 +15,7 @@
 #include <cctype>
 #include <vector>
 #include <map>
+#include <array>
 
 namespace TrigGlobEffCorr
 {
