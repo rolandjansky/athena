@@ -28,7 +28,7 @@ atlas_add_library( TileL2AlgsLib
 
 atlas_add_component( TileL2Algs
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel TileEvent TileIdentifier CaloDetDescrLib CaloIdentifier AthenaKernel TileCalibBlobObjs TileConditionsLib TileDetDescr TileL2AlgsLib )
+                     LINK_LIBRARIES TileL2AlgsLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

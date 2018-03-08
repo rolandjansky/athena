@@ -74,185 +74,24 @@ doEFSA=False
  
 ### Used the algorithms as Step2 "muComb step" ###
 if TriggerFlags.doID:
-  from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__CacheCreator
-  InDetCacheCreatorTrigViews = InDet__CacheCreator(name = "InDetCacheCreatorTrigViews",
-                                                   Pixel_ClusterKey = "PixelTrigClustersCache",
-                                                   SCT_ClusterKey   = "SCT_ClustersCache",
-                                                   SpacePointCachePix = "PixelSpacePointCache",
-                                                   SpacePointCacheSCT   = "SctSpacePointCache",
-                                                   SCTRDOCacheKey       = "SctRDOCache",
-                                                   PixRDOCacheKey = "PixRDOCache",
-                                                   OutputLevel=DEBUG)
-  ### Pixel ###
-  from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConf import PixelRodDecoder
-  InDetPixelRodDecoder = PixelRodDecoder(name = "InDetPixelRodDecoder")
-  ToolSvc += InDetPixelRodDecoder
-  
-  from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConf import PixelRawDataProviderTool
-  InDetPixelRawDataProviderTool = PixelRawDataProviderTool(name    = "InDetPixelRawDataProviderTool",
-                                                           Decoder = InDetPixelRodDecoder)
-  ToolSvc += InDetPixelRawDataProviderTool
-  
-  ### load the PixelRawDataProvider ###
-  from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConf import PixelRawDataProvider
-  InDetPixelRawDataProvider = PixelRawDataProvider(name         = "InDetPixelRawDataProvider",
-                                                   RDOKey       = InDetKeys.PixelRDOs(),
-                                                   ProviderTool = InDetPixelRawDataProviderTool,
-                                                   RDOCacheKey  = InDetCacheCreatorTrigViews.PixRDOCacheKey,
-                                                   isRoI_Seeded = True,
-                                                   OutputLevel = INFO )
-  
-  ### SCT ###
-  from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCT_RodDecoder
-  InDetSCTRodDecoder = SCT_RodDecoder(name        = "InDetSCTRodDecoder",
-                                      TriggerMode = False)
-  ToolSvc += InDetSCTRodDecoder
-  
-  from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCTRawDataProviderTool
-  InDetSCTRawDataProviderTool = SCTRawDataProviderTool(name    = "InDetSCTRawDataProviderTool",
-                                                      Decoder = InDetSCTRodDecoder)
-  ToolSvc += InDetSCTRawDataProviderTool
-  
-  ### load the SCTRawDataProvider###
-  from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCTRawDataProvider
-  InDetSCTRawDataProvider = SCTRawDataProvider(name         = "InDetSCTRawDataProvider",
-                                               RDOKey       = InDetKeys.SCT_RDOs(),
-                                               ProviderTool = InDetSCTRawDataProviderTool,
-                                               isRoI_Seeded = True )
-  
-  InDetSCTRawDataProvider.RDOCacheKey = InDetCacheCreatorTrigViews.SCTRDOCacheKey
-  
-  ### TRT ###
-  from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbSvc
-  InDetTRTCalDbSvc = TRT_CalDbSvc()
-  ServiceMgr += InDetTRTCalDbSvc
-  
-  from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummarySvc
-  InDetTRTStrawStatusSummarySvc = TRT_StrawStatusSummarySvc(name = "InDetTRTStrawStatusSummarySvc")
-  ServiceMgr += InDetTRTStrawStatusSummarySvc
-  
-  from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConf import TRT_RodDecoder
-  InDetTRTRodDecoder = TRT_RodDecoder(name = "InDetTRTRodDecoder",
-                                      LoadCompressTableDB = True)#(globalflags.DataSource() != 'geant4'))  
-  ToolSvc += InDetTRTRodDecoder
-    
-  from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConf import TRTRawDataProviderTool
-  InDetTRTRawDataProviderTool = TRTRawDataProviderTool(name    = "InDetTRTRawDataProviderTool",
-                                                        Decoder = InDetTRTRodDecoder)
-  ToolSvc += InDetTRTRawDataProviderTool
-  
-    
-  #### load the TRTRawDataProvider ###
-  from TRT_RawDataByteStreamCnv.TRT_RawDataByteStreamCnvConf import TRTRawDataProvider
-  InDetTRTRawDataProvider = TRTRawDataProvider(name         = "InDetTRTRawDataProvider",
-                                               RDOKey       = "TRT_RDOs",
-                                               ProviderTool = InDetTRTRawDataProviderTool,
-                                               isRoI_Seeded = True
-                                               )
-  
-  ### Pixel clusterisation ###
-  from SiClusterizationTool.SiClusterizationToolConf import InDet__ClusterMakerTool
-  InDetClusterMakerTool = InDet__ClusterMakerTool(name                 = "InDetClusterMakerTool",
-      PixelCalibSvc        = None,
-      PixelOfflineCalibSvc = None,
-      UsePixelCalibCondDB  = False)
-  
-  ToolSvc += InDetClusterMakerTool
-  
-  
-  from SiClusterizationTool.SiClusterizationToolConf import InDet__MergedPixelsTool
-  InDetMergedPixelsTool = InDet__MergedPixelsTool(name                    = "InDetMergedPixelsTool",
-                                                  globalPosAlg            = InDetClusterMakerTool,
-                                                  MinimalSplitSize        = 0,
-                                                  MaximalSplitSize        = 49,
-                                                  MinimalSplitProbability = 0,
-                                                  DoIBLSplitting = True,
-                                                  SplitClusterAmbiguityMap= InDetKeys.SplitClusterAmbiguityMap())
-  ToolSvc += InDetMergedPixelsTool
-  
-  from SiClusterizationTool.SiClusterizationToolConf import InDet__PixelGangedAmbiguitiesFinder
-  InDetPixelGangedAmbiguitiesFinder = InDet__PixelGangedAmbiguitiesFinder(name = "InDetPixelGangedAmbiguitiesFinder")
-  ToolSvc += InDetPixelGangedAmbiguitiesFinder
-  
-  from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__PixelClusterization
-  InDetPixelClusterization = InDet__PixelClusterization(name                    = "InDetPixelClusterization",
-                                                        clusteringTool          = InDetMergedPixelsTool,
-                                                        gangedAmbiguitiesFinder = InDetPixelGangedAmbiguitiesFinder,
-                                                        DetectorManagerName     = InDetKeys.PixelManager(),
-                                                        DataObjectName          = InDetKeys.PixelRDOs(),
-                                                        ClustersName            = "PixelTrigClusters",
-                                                        isRoI_Seeded            = True)
-  
-  
-  InDetPixelClusterization.ClusterContainerCacheKey = InDetCacheCreatorTrigViews.Pixel_ClusterKey
-  
-  #
-  # --- SCT_ClusteringTool (public)
-  #
-  from SiClusterizationTool.SiClusterizationToolConf import InDet__SCT_ClusteringTool
-  InDetSCT_ClusteringTool = InDet__SCT_ClusteringTool(name              = "InDetSCT_ClusteringTool",
-                                                      globalPosAlg      = InDetClusterMakerTool,
-                                                      conditionsService = InDetSCT_ConditionsSummarySvcWithoutFlagged)
-  #
-  # --- SCT_Clusterization algorithm
-  #
-  from InDetPrepRawDataFormation.InDetPrepRawDataFormationConf import InDet__SCT_Clusterization
-  InDetSCT_Clusterization = InDet__SCT_Clusterization(name                    = "InDetSCT_Clusterization",
-                                                      clusteringTool          = InDetSCT_ClusteringTool,
-                                                      # ChannelStatus         = InDetSCT_ChannelStatusAlg,
-                                                      DetectorManagerName     = InDetKeys.SCT_Manager(),
-                                                      DataObjectName          = InDetKeys.SCT_RDOs(),
-                                                      ClustersName            = "SCT_TrigClusters",
-                                                      conditionsService       = InDetSCT_ConditionsSummarySvcWithoutFlagged,
-                                                      isRoI_Seeded            = True )
-  
-  
-  InDetSCT_Clusterization.ClusterContainerCacheKey = InDetCacheCreatorTrigViews.SCT_ClusterKey
-  
-  ### #Space points and FTF ###
-  from SiSpacePointTool.SiSpacePointToolConf import InDet__SiSpacePointMakerTool
-  InDetSiSpacePointMakerTool = InDet__SiSpacePointMakerTool(name = "InDetSiSpacePointMakerTool")
-  ToolSvc += InDetSiSpacePointMakerTool
-  
-  from SiSpacePointFormation.SiSpacePointFormationConf import InDet__SiTrackerSpacePointFinder
-  InDetSiTrackerSpacePointFinder = InDet__SiTrackerSpacePointFinder(name                   = "InDetSiTrackerSpacePointFinder",
-                                                                    SiSpacePointMakerTool  = InDetSiSpacePointMakerTool,
-                                                                    PixelsClustersName     = "PixelTrigClusters",
-                                                                    SCT_ClustersName       = "SCT_TrigClusters",
-                                                                    SpacePointsPixelName   = "PixelTrigSpacePoints",
-                                                                    SpacePointsSCTName     = "SCT_TrigSpacePoints",
-                                                                    SpacePointsOverlapName = InDetKeys.OverlapSpacePoints(),
-                                                                    ProcessPixels          = DetFlags.haveRIO.pixel_on(),
-                                                                    ProcessSCTs            = DetFlags.haveRIO.SCT_on(),
-                                                                    ProcessOverlaps        = DetFlags.haveRIO.SCT_on(),
-                                                                    OutputLevel=DEBUG)
-  
-  InDetSiTrackerSpacePointFinder.SpacePointCacheSCT = InDetCacheCreatorTrigViews.SpacePointCacheSCT
-  InDetSiTrackerSpacePointFinder.SpacePointCachePix = InDetCacheCreatorTrigViews.SpacePointCachePix
 
+  from TrigUpgradeTest.InDetSetup import makeInDetAlgs
 
-  ### load TrigFastTrackFainder_Muon for muComb ###  
+  (viewAlgs, eventAlgs) = makeInDetAlgs()
+
   from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_Muon
   theFTF = TrigFastTrackFinder_Muon()
   theFTF.OutputLevel = DEBUG
   theFTF.TracksName = "TrigFastTrackFinder_MuTracks"
+  theFTF.isRoI_Seeded = True
+  viewAlgs.append(theFTF)
   
   ### A simple algorithm to confirm that data has been inherited from parent view ###
   ### Required to satisfy data dependencies                                       ###
   ViewVerify = CfgMgr.AthViews__ViewDataVerifier("muFastViewDataVerifier")
   ViewVerify.DataObjects = [('xAOD::L2StandAloneMuonContainer','StoreGateSvc+MuonL2SAInfo')]
+  viewAlgs.append(ViewVerify)
   
-  from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
-  from TrigInDetConf.TrigInDetPostTools import  InDetTrigParticleCreatorToolFTF
-  
-  from InDetTrigParticleCreation.InDetTrigParticleCreationConf import InDet__TrigTrackingxAODCnvMT
-  theTrackParticleCreatorAlg = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg",
-                                                           doIBLresidual = False,
-                                                           TrackName = theFTF.TracksName,
-                                                           TrackParticlesName = "xAODTracks",
-                                                           ParticleCreatorTool = InDetTrigParticleCreatorToolFTF)
-
-  IDSequence = [ InDetPixelRawDataProvider, InDetSCTRawDataProvider, InDetTRTRawDataProvider, InDetPixelClusterization, InDetSCT_Clusterization, InDetSiTrackerSpacePointFinder, theFTF, ViewVerify, theTrackParticleCreatorAlg ]
  
 
 ### Used the algorithms as Step1 "muFast step" ###
@@ -541,11 +380,15 @@ if TriggerFlags.doMuon:
 
     ### Define input data of Inner Detector algorithms  ###
     ### and Define EventViewNodes to run the algprithms ###
-    theTrackParticleCreatorAlg.roiCollectionName = l2muCombViewsMaker.InViewRoIs
-    for idAlg in IDSequence:
-      l2muCombViewNode += idAlg
-      if idAlg.properties().has_key("RoIs"):
-        idAlg.RoIs = l2muCombViewsMaker.InViewRoIs
+    TrackParticlesName = ""
+    for viewAlg in viewAlgs:
+      l2muCombViewNode += viewAlg
+      if viewAlg.properties().has_key("RoIs"):
+        viewAlg.RoIs = l2muCombViewsMaker.InViewRoIs
+      if viewAlg.properties().has_key("roiCollectionName"):
+        viewAlg.roiCollectionName = l2muCombViewsMaker.InViewRoIs
+      if viewAlg.name() == "InDetTrigTrackParticleCreatorAlg":
+        TrackParticlesName = viewAlg.TrackParticlesName
 
     ### please read out TrigmuCombMTConfig file ###
     ### and set up to run muCombMT algorithm    ###
@@ -553,7 +396,7 @@ if TriggerFlags.doMuon:
     muCombAlg = TrigmuCombMTConfig("Muon", theFTF.getName())
     muCombAlg.OutputLevel = DEBUG
     muCombAlg.L2StandAloneMuonContainerName = muFastAlg.MuonL2SAInfo
-    muCombAlg.TrackParticlesContainerName = theTrackParticleCreatorAlg.TrackParticlesName
+    muCombAlg.TrackParticlesContainerName = TrackParticlesName
     muCombAlg.L2CombinedMuonContainerName = "MuonL2CBInfo"
 
     l2muCombViewNode += muCombAlg
@@ -573,7 +416,7 @@ if TriggerFlags.doMuon:
     muCombDecisionsDumper = DumpDecisions("muCombDecisionsDumper", OutputLevel=DEBUG, Decisions = trigmuCombHypo.Decisions )
  
     ### Define a Sequence to run for muComb ### 
-    l2muCombSequence = seqAND("l2muCombSequence", [ InDetCacheCreatorTrigViews, l2muCombViewsMaker, l2muCombViewNode, trigmuCombHypo ] )
+    l2muCombSequence = seqAND("l2muCombSequence", eventAlgs + [l2muCombViewsMaker, l2muCombViewNode, trigmuCombHypo ] )
     muCombStep = stepSeq("muCombStep", filterL2SAAlg, [ l2muCombSequence,  muCombDecisionsDumper ] )
 
 
@@ -674,14 +517,14 @@ if TriggerFlags.doMuon==True:
   if doL2SA==True and doL2CB==False:
     from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg 
     summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
-    summary.L1Decision = "HLTChains" 
+    summary.InputDecision = "HLTChains" 
     summary.FinalDecisions = [ trigMufastHypo.Decisions ]
     summary.OutputLevel = DEBUG 
     step0 = parOR("step0", [ muFastStep ] )
     HLTsteps = seqAND("HLTsteps", [ step0, summary ]  ) 
 
     mon = TriggerSummaryAlg( "TriggerMonitoringAlg" ) 
-    mon.L1Decision = "HLTChains" 
+    mon.InputDecision = "HLTChains" 
     mon.FinalDecisions = [ trigMufastHypo.Decisions, "WhateverElse" ] 
     mon.HLTSummary = "MonitoringSummary" 
     mon.OutputLevel = DEBUG 
@@ -701,7 +544,7 @@ if TriggerFlags.doMuon==True and TriggerFlags.doID==True:
   if doL2SA==True and doL2CB==True:
     from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg 
     summary = TriggerSummaryAlg( "TriggerSummaryAlg" ) 
-    summary.L1Decision = "HLTChains" 
+    summary.InputDecision = "HLTChains" 
     summary.FinalDecisions = [ trigmuCombHypo.Decisions ]
     summary.OutputLevel = DEBUG 
     step0 = parOR("step0", [ muFastStep ] )
@@ -709,7 +552,7 @@ if TriggerFlags.doMuon==True and TriggerFlags.doID==True:
     HLTsteps = seqAND("HLTsteps", [ step0, step1, summary ]  ) 
 
     mon = TriggerSummaryAlg( "TriggerMonitoringAlg" ) 
-    mon.L1Decision = "HLTChains" 
+    mon.InputDecision = "HLTChains" 
     mon.FinalDecisions = [ trigmuCombHypo.Decisions, "WhateverElse" ] 
     mon.HLTSummary = "MonitoringSummary" 
     mon.OutputLevel = DEBUG 

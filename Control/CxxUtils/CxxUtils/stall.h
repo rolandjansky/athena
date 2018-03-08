@@ -15,6 +15,11 @@
 #define CXXUTILS_STALL_H
 
 
+#if defined(__i386__) || defined(__x86_64__)
+# include <xmmintrin.h>
+#endif
+
+
 namespace CxxUtils {
 
 
@@ -32,8 +37,8 @@ namespace CxxUtils {
 inline
 void stall()
 {
-#if defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__))
-  __builtin_ia32_pause();
+#if defined(__i386__) || defined(__x86_64__)
+  _mm_pause();
 #endif
 }
 

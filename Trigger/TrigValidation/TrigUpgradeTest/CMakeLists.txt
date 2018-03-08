@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/AthenaBaseComps
                           Trigger/TrigEvent/TrigSteeringEvent
+			  Control/AthViews			  
                           )
 
 find_package( Boost COMPONENTS filesystem thread system )
@@ -30,7 +31,7 @@ atlas_add_component( TrigUpgradeTest
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                      LINK_LIBRARIES ${Boost_LIBRARIES}
                      ${ROOT_LIBRARIES} GaudiKernel
-                     AthenaBaseComps TrigUpgradeTestLib )
+                     AthenaBaseComps TrigUpgradeTestLib AthViews )
 
 
 atlas_add_test( ViewSchedule1 SCRIPT test/test_view_schedule.sh
@@ -43,9 +44,11 @@ atlas_add_test( ViewSchedule64 SCRIPT test/test_view_schedule.sh
 # out until we find a way to properly invoke tests from other packages
 # atlas_add_test( creatingEVTest SCRIPT forward.sh ViewAlgsTest/test/creatingEVTest.sh )
 
-atlas_add_test( merge SCRIPT test/test_merge.sh)
+atlas_add_test( merge
+		SCRIPT test/test_merge.sh)
 
-atlas_add_test( IDRunMC SCRIPT test/test_id_run_mc.sh
+atlas_add_test( IDRunMC
+		SCRIPT test/test_id_run_mc.sh
                 PROPERTIES TIMEOUT 500
               )
 
@@ -58,22 +61,39 @@ atlas_add_test( IDRunData SCRIPT test/test_id_run_data.sh
 #              )
 # replaced by complete egamma test
 
-atlas_add_test( egammaRunData SCRIPT test/test_egamma_run_data.sh
+atlas_add_test( egammaRunData
+		SCRIPT test/test_egamma_run_data.sh
+                PROPERTIES TIMEOUT 500
+              )
+#		EXTRA_PATTERNS "TriggerSummary"
+
+atlas_add_test( egammaMenu
+		SCRIPT test/test_egamma_menu.sh
+                PROPERTIES TIMEOUT 500
+              )
+#		EXTRA_PATTERNS "TriggerSummary"
+
+atlas_add_test( muRunData
+		SCRIPT test/test_mu_run_data.sh
                 PROPERTIES TIMEOUT 500
               )
 
-atlas_add_test( muRunData SCRIPT test/test_mu_run_data.sh
+
+atlas_add_test( idCaloRunData
+		SCRIPT test/test_id_calo_run_data.sh
                 PROPERTIES TIMEOUT 500
               )
 
+atlas_add_test( EmuL1Decoding
+		SCRIPT test/test_emu_l1_decoding.sh
+		)
+
+atlas_add_test( EmuStepProcessing
+		SCRIPT	test/test_emu_step_processing.sh
+		)
+#	EXTRA_PATTERNS "TriggerSummary"
 
 
-atlas_add_test( idCaloRunData   SCRIPT test/test_id_calo_run_data.sh
-                PROPERTIES TIMEOUT 500
-              )
-
-atlas_add_test( EmuL1Decoding SCRIPT test/test_emu_l1_decoding.sh)
-atlas_add_test( EmuStepProcessing SCRIPT test/test_emu_step_processing.sh)
 
 atlas_add_test( NewJO SCRIPT test/test_newJO.sh)
 

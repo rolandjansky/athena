@@ -17,9 +17,11 @@ public:
   virtual void simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol);
 
   virtual void set_geometry(ICaloGeometry* geo);
-  
+
   typedef std::vector< TFCSLateralShapeParametrizationHitBase* > Chain_t;
-  Chain_t::size_type size() const {return m_chain.size();};
+  virtual unsigned int size() const {return m_chain.size();};
+  virtual const TFCSParametrizationBase* operator[](unsigned int ind) const {return m_chain[ind];};
+  virtual TFCSParametrizationBase* operator[](unsigned int ind) {return m_chain[ind];};
   const Chain_t& chain() const {return m_chain;};
   Chain_t& chain() {return m_chain;};
   void push_back( const Chain_t::value_type& value ) {m_chain.push_back(value);};
@@ -30,6 +32,16 @@ public:
   virtual int get_number_of_hits(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const;
 
   void Print(Option_t *option = "") const;
+
+#if defined(__FastCaloSimStandAlone__)
+  /// Update outputlevel
+  virtual void setLevel(int level,bool recursive=false) {
+    TFCSLateralShapeParametrization::setLevel(level,recursive);
+    if(recursive) if(m_number_of_hits_simul) m_number_of_hits_simul->setLevel(level,recursive);
+  }
+#endif
+
+
 private:
   Chain_t m_chain;
   TFCSLateralShapeParametrizationHitBase* m_number_of_hits_simul;

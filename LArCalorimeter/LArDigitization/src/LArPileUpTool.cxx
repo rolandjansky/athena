@@ -63,7 +63,6 @@ LArPileUpTool::LArPileUpTool(const std::string& type, const std::string& name, c
   m_larOFC(nullptr)
 {
 
-   declareInterface<IPileUpTool>(this);
    declareInterface<ILArPileUpTool>(this);
 
  // default properties

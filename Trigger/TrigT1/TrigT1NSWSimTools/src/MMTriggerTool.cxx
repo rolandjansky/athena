@@ -28,6 +28,15 @@
 #include "TVector3.h"
 
 
+using std::vector;
+using std::map;
+using std::pair;
+using std::string;
+using std::ios;
+using std::setfill;
+using std::setw;
+
+
 namespace NSWL1 {
 
   MMTriggerTool::MMTriggerTool( const std::string& type, const std::string& name, const IInterface* parent) :

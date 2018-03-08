@@ -40,13 +40,14 @@ namespace HLTTest {
   
   StatusCode TestHypoTool::decide( DecisionContainer* decisions ) const  {
     ATH_MSG_DEBUG( "Making new decisions " << name() );
+    size_t counter = 0;
     for ( auto d: *decisions )  {
       //get previous decisions
       auto previousDecisions = d->objectLink<DecisionContainer>( "previousDecisions" );    
       TrigCompositeUtils::DecisionIDContainer objDecisions;      
       TrigCompositeUtils::decisionIDs( *previousDecisions, objDecisions );
       
-      ATH_MSG_DEBUG("Number of previous decisions for this input: " << objDecisions.size() );
+      ATH_MSG_DEBUG("Number of previous decisions for input "<< counter <<"= " << objDecisions.size() );
       
       for ( TrigCompositeUtils::DecisionID id : objDecisions ) {
 	ATH_MSG_DEBUG( " -- found decision " << HLT::Identifier( id ) );
@@ -76,6 +77,7 @@ namespace HLTTest {
 	for ( const HLT::Identifier& id: m_chains )
 	  ATH_MSG_DEBUG( "Configured to require chain " << id );
       }
+      counter++;
     }
     
     return StatusCode::SUCCESS;

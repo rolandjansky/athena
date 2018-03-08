@@ -1,3 +1,5 @@
+include("LArRecUtils/LArOnOffMappingAlg.py")
+
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
