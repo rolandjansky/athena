@@ -216,6 +216,7 @@ namespace top{
 
     // HL LHC studies
     m_HLLHC(false),
+    m_HLLHCFakes(false),
 
     // Selections
     m_allSelectionNames(nullptr),
@@ -771,6 +772,7 @@ namespace top{
 
     // Upgrade studies
     if(settings->value("HLLHC")=="True") this->HLLHC( true );
+    if(settings->value("HLLHCFakes")=="True") this->HLLHCFakes( true );
 
     // LHAPDF Reweighting configuration
     std::istringstream lha_pdf_ss(settings->value( "LHAPDFSets" ));
