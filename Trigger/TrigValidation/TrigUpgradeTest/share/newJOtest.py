@@ -39,10 +39,6 @@ l1 = acc.getEventAlgo( "L1Decoder" )
 from TrigUpgradeTest.TestUtils import applyMenu
 applyMenu( l1 )
 
-# here the menu starts
-acc.addSequence( seqAND( "hltSteps"), sequence="hltTop" )
-for step in range(1, 6):
-    acc.addSequence( parOR( "hltStep%d" % step), sequence="hltSteps" )
 
 # adding calo requires  more infrastructure than we actually have
 #from TrigUpgradeTest.EgammaCaloMod import EgammaCaloMod
