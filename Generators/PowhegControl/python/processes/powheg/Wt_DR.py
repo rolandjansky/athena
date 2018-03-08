@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import Logging
-from ..powheg_V1 import PowhegV1
+from ..powheg_V2 import PowhegV2
 
 ## Get handle to Athena logging
 logger = Logging.logging.getLogger("PowhegControl")
