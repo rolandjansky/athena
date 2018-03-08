@@ -1,16 +1,16 @@
 include.block ( "TrigT1CaloCalibConditions/L1CaloCalibConditionsMC_jobOptions.py" )
-
-_L1CaloFolderList = [
+if globalflags.DataSource() is not "data":
+  _L1CaloFolderList = [
         "/TRIGGER/L1Calo/V2/Calibration/Physics/PprChanCalib",
         "/TRIGGER/L1Calo/V2/Calibration/PpmDeadChannels",
         "/TRIGGER/L1Calo/V2/Conditions/DisabledTowers",
         "/TRIGGER/L1Calo/V2/Configuration/PprChanDefaults",
-]
+  ]
 
-from IOVDbSvc.CondDB import conddb
-for k in _L1CaloFolderList:
-	conddb.addFolder("TRIGGER_OFL", folder=k)
-del _L1CaloFolderList
+  from IOVDbSvc.CondDB import conddb
+  for k in _L1CaloFolderList:
+    conddb.addFolder("TRIGGER_OFL", folder=k)
+  del _L1CaloFolderList
 
 # fix for ATR-XXXX necessary when writing database folders
 #_name_type_overrides = [

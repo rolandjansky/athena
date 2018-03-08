@@ -3,6 +3,7 @@
 */
 
 #include "ISF_FastCaloSimEvent/TFCSTruthState.h"
+#include <iostream>
 
 //=============================================
 //======= TFCSTruthState =========
@@ -17,3 +18,7 @@ TFCSTruthState::TFCSTruthState(Double_t x, Double_t y, Double_t z, Double_t t, i
   m_pdgid=pdgid;
 }
 
+void TFCSTruthState::Print(Option_t *) const
+{
+  std::cout<<"PDGID="<<m_pdgid<<" pT="<<Pt()<<" eta="<<Eta()<<" phi="<<Phi()<<" E="<<E()<<std::endl;
+}

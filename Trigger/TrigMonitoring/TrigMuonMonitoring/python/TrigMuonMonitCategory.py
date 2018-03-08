@@ -24,3 +24,5 @@ monitoring_muonEFFS_pp = ['HLT_mu24_mu8noL1']
 monitoring_muon_Support = ['HLT_mu6_idperf','HLT_mu20_idperf']
 monitoring_muon_Support_HI = ['HLT_noalg_L1MU4','HLT_noalg_L1MU6']
 monitoring_muon_Support_pp = ['HLT_mu6_idperf','HLT_mu6_idperf']
+
+monitoring_muonLowpt = ["HLT_mu14"]

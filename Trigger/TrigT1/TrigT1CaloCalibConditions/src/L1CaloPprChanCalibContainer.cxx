@@ -115,11 +115,15 @@ DataObject* L1CaloPprChanCalibContainer::makePersistent() const
 void L1CaloPprChanCalibContainer::makeTransient(const std::map<std::string, CondAttrListCollection*> condAttrListCollectionMap)
 {
   clear();
+  
+// //   auto it = condAttrListCollectionMap.find(m_coolFolderKey);
 
-  auto it = condAttrListCollectionMap.find(m_coolFolderKey);
-  if(it == std::end(condAttrListCollectionMap)) return;
+  if (condAttrListCollectionMap.empty()) return;
+  auto it = condAttrListCollectionMap.rbegin();
+//   std::cout<<"JOHN - L1CaloPprChanCalibContainer::makeTransient - taking first map element, with key: "<< (it->first) <<" whereas m_coolFolderKey is: "<<m_coolFolderKey<<std::endl;
 
   auto attrListCollection = it->second;
+
   for(const auto& item : *attrListCollection) {
     auto chanNum = item.first;
     const auto& attrList = item.second;
@@ -161,6 +165,8 @@ void L1CaloPprChanCalibContainer::makeTransient(const std::map<std::string, Cond
 
     addPprChanCalib(L1CaloPprChanCalib(chanNum, errorCode, pedMean, pedValue, pedFirSum, extBcidThreshold, satBcidThreshLow, satBcidThreshHigh, satBcidLevel, bcidEnergyRangeLow, bcidEnergyRangeHigh, firStartBit, firCoeff1, firCoeff2, firCoeff3, firCoeff4, firCoeff5, lutCpStrategy, lutCpOffset, lutCpNoiseCut, lutCpSlope, lutCpPar1, lutCpPar2, lutCpPar3, lutCpPar4, lutCpScale, lutJepStrategy, lutJepOffset, lutJepNoiseCut, lutJepSlope, lutJepPar1, lutJepPar2, lutJepPar3, lutJepPar4, lutJepScale));
   }
+  
+//   }
 }
 
 const L1CaloPprChanCalib* L1CaloPprChanCalibContainer::pprChanCalib(unsigned int channelId) const

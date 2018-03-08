@@ -96,14 +96,12 @@ class CaloClusterTopoFromTowerGetter ( Configured )  :
                                                           OrderClusterByPt=jobproperties.CaloTopoClusterFromTowerFlags.orderByPt.get_Value())
 
         # moment makers
-        from LArRecUtils.LArHVScaleRetrieverDefault import LArHVScaleRetrieverDefault
         TopoMoments = CaloClusterMomentsMaker ("TopoMoments")
         TopoMoments.MaxAxisAngle = 20*deg
         TopoMoments.CaloNoiseTool = theCaloNoiseTool
         TopoMoments.UsePileUpNoise = True
         TopoMoments.TwoGaussianNoise = jobproperties.CaloTopoClusterFlags.doTwoGaussianNoise()
         TopoMoments.MinBadLArQuality = 4000
-        TopoMoments.LArHVScaleRetriever=LArHVScaleRetrieverDefault()
         TopoMoments.MomentsNames = ["AVG_LAR_Q"
                                     ,"AVG_TILE_Q"
                                     ,"BAD_CELLS_CORR_E"
@@ -119,7 +117,6 @@ class CaloClusterTopoFromTowerGetter ( Configured )  :
                                     ,"DELTA_PHI"
                                     ,"DELTA_THETA"
                                     ,"ENG_BAD_CELLS"
-                                    ,"ENG_BAD_HV_CELLS"
                                     ,"ENG_FRAC_CORE" 
                                     ,"ENG_FRAC_EM" 
                                     ,"ENG_FRAC_MAX" 
@@ -132,13 +129,21 @@ class CaloClusterTopoFromTowerGetter ( Configured )  :
                                     ,"LONGITUDINAL"
                                     ,"MASS"
                                     ,"N_BAD_CELLS"
-                                    ,"N_BAD_HV_CELLS"
                                     ,"N_BAD_CELLS_CORR"
                                     ,"PTD"
                                     ,"SECOND_ENG_DENS" 
                                     ,"SECOND_LAMBDA"
                                     ,"SECOND_R" 
                                     ,"SIGNIFICANCE"]
+
+        # only add HV related moments if it is offline.
+        from IOVDbSvc.CondDB import conddb
+        if not conddb.isOnline:
+            from LArRecUtils.LArHVScaleRetrieverDefault import LArHVScaleRetrieverDefault
+            TopoMoments.LArHVScaleRetriever=LArHVScaleRetrieverDefault()
+            TopoMoments.MomentsNames += ["ENG_BAD_HV_CELLS"
+                                         ,"N_BAD_HV_CELLS"
+                                         ]
 
         # cluster maker
         CaloTopoCluster = CaloClusterMaker(jobproperties.CaloTopoClusterFromTowerFlags.clusterMakerName.get_Value())

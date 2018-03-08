@@ -18,6 +18,8 @@
 #include "GaudiKernel/SystemOfUnits.h"
 // Barcode
 #include "BarcodeInterfaces/IBarcodeSvc.h"
+//
+#include "TruthUtils/HepMCHelpers.h" // for MC::findChildren(...)
 // HepMC includes
 #include "HepMC/SimpleVector.h"
 #include "HepMC/GenParticle.h"
@@ -28,6 +30,10 @@
 
 // DetectorDescription
 #include "AtlasDetDescr/AtlasRegionHelper.h"
+
+#include <sstream>
+
+#undef DEBUG_TRUTHSVC
 
 /** Constructor **/
 ISF::TruthSvc::TruthSvc(const std::string& name,ISvcLocator* svc) :
@@ -45,23 +51,23 @@ ISF::TruthSvc::TruthSvc(const std::string& name,ISvcLocator* svc) :
   m_secondaryParticleBcOffset(Barcode::fUndefinedBarcode),
   m_myLowestVertexBC(Barcode::fUndefinedBarcode)
 {
-    // the barcode service (used to compute Vertex Barco des)
-    declareProperty("BarcodeSvc",                        m_barcodeSvc              );
-    // MCTruth writing strategies
-    declareProperty("SkipIfNoChildren",                  m_skipIfNoChildren        );
-    declareProperty("SkipIfNoParentBarcode",             m_skipIfNoParentBarcode   );
-    declareProperty("IgnoreUndefinedBarcodes",           m_ignoreUndefinedBarcodes );
-    declareProperty("PassWholeVertices",                 m_passWholeVertex         );
-    // the truth strategies for the different AtlasDetDescr regions
-    declareProperty("BeamPipeTruthStrategies",           m_geoStrategyHandles[AtlasDetDescr::fAtlasForward] );
-    declareProperty("IDTruthStrategies",                 m_geoStrategyHandles[AtlasDetDescr::fAtlasID]      );
-    declareProperty("CaloTruthStrategies",               m_geoStrategyHandles[AtlasDetDescr::fAtlasCalo]    );
-    declareProperty("MSTruthStrategies",                 m_geoStrategyHandles[AtlasDetDescr::fAtlasMS]      );
-    declareProperty("CavernTruthStrategies",             m_geoStrategyHandles[AtlasDetDescr::fAtlasCavern]  );
-    // attach end-vertex if parent particle dies for the different AtlasDetDescr regions
-    declareProperty("ForceEndVtxInRegions",              m_forceEndVtxRegionsVec );
+  // the barcode service (used to compute Vertex Barco des)
+  declareProperty("BarcodeSvc",                        m_barcodeSvc              );
+  // MCTruth writing strategies
+  declareProperty("SkipIfNoChildren",                  m_skipIfNoChildren        );
+  declareProperty("SkipIfNoParentBarcode",             m_skipIfNoParentBarcode   );
+  declareProperty("IgnoreUndefinedBarcodes",           m_ignoreUndefinedBarcodes );
+  declareProperty("PassWholeVertices",                 m_passWholeVertex         );
+  // the truth strategies for the different AtlasDetDescr regions
+  declareProperty("BeamPipeTruthStrategies",           m_geoStrategyHandles[AtlasDetDescr::fAtlasForward] );
+  declareProperty("IDTruthStrategies",                 m_geoStrategyHandles[AtlasDetDescr::fAtlasID]      );
+  declareProperty("CaloTruthStrategies",               m_geoStrategyHandles[AtlasDetDescr::fAtlasCalo]    );
+  declareProperty("MSTruthStrategies",                 m_geoStrategyHandles[AtlasDetDescr::fAtlasMS]      );
+  declareProperty("CavernTruthStrategies",             m_geoStrategyHandles[AtlasDetDescr::fAtlasCavern]  );
+  // attach end-vertex if parent particle dies for the different AtlasDetDescr regions
+  declareProperty("ForceEndVtxInRegions",              m_forceEndVtxRegionsVec );
 
-    declareProperty("QuasiStableParticlesIncluded",      m_quasiStableParticlesIncluded);
+  declareProperty("QuasiStableParticlesIncluded",      m_quasiStableParticlesIncluded);
 }
 
 ISF::TruthSvc::~TruthSvc()
@@ -71,52 +77,52 @@ ISF::TruthSvc::~TruthSvc()
 /** framework methods */
 StatusCode ISF::TruthSvc::initialize()
 {
-    ATH_MSG_VERBOSE( "initialize()" );
+  ATH_MSG_VERBOSE( "initialize()" );
 
-    // Screen output
-    ATH_MSG_DEBUG("--------------------------------------------------------");
+  // Screen output
+  ATH_MSG_DEBUG("--------------------------------------------------------");
 
-    // retrieve BarcodeSvc
-    if ( m_barcodeSvc.retrieve().isFailure() ) {
-      ATH_MSG_FATAL("Could not retrieve BarcodeService. Abort.");
+  // retrieve BarcodeSvc
+  if ( m_barcodeSvc.retrieve().isFailure() ) {
+    ATH_MSG_FATAL("Could not retrieve BarcodeService. Abort.");
+    return StatusCode::FAILURE;
+  }
+
+  // retrieve the strategies for each atlas region (Athena Alg Tools)
+  // and setup whether we want to write end-vertices in this region whenever a truth particle dies
+  for ( unsigned short geoID=AtlasDetDescr::fFirstAtlasRegion; geoID<AtlasDetDescr::fNumAtlasRegions; ++geoID) {
+    if ( m_geoStrategyHandles[geoID].retrieve().isFailure() ) {
+      ATH_MSG_FATAL("Could not retrieve TruthStrategy Tool Array for SimGeoID="
+                    << AtlasDetDescr::AtlasRegionHelper::getName(geoID) << ". Abort.");
       return StatusCode::FAILURE;
     }
 
-    // retrieve the strategies for each atlas region (Athena Alg Tools)
-    // and setup whether we want to write end-vertices in this region whenever a truth particle dies
-    for ( unsigned short geoID=AtlasDetDescr::fFirstAtlasRegion; geoID<AtlasDetDescr::fNumAtlasRegions; ++geoID) {
-      if ( m_geoStrategyHandles[geoID].retrieve().isFailure() ) {
-        ATH_MSG_FATAL("Could not retrieve TruthStrategy Tool Array for SimGeoID="
-                      << AtlasDetDescr::AtlasRegionHelper::getName(geoID) << ". Abort.");
-        return StatusCode::FAILURE;
-      }
-
-      // copy a pointer to the strategy instance to the local
-      // array of pointers (for faster access)
-      unsigned short curNumStrategies = m_geoStrategyHandles[geoID].size();
-      m_numStrategies[geoID] = curNumStrategies;
-      m_geoStrategies[geoID] = new ISF::ITruthStrategy*[curNumStrategies];
-      for ( unsigned short i = 0; i < curNumStrategies; ++i) {
-        m_geoStrategies[geoID][i] = &(*m_geoStrategyHandles[geoID][i]);
-      }
-
-      // create an end-vertex for all truth particles ending in the current AtlasRegion?
-      bool forceEndVtx = std::find( m_forceEndVtxRegionsVec.begin(),
-                                    m_forceEndVtxRegionsVec.end(),
-                                    geoID ) != m_forceEndVtxRegionsVec.end();
-      m_forceEndVtx[geoID] = forceEndVtx;
+    // copy a pointer to the strategy instance to the local
+    // array of pointers (for faster access)
+    unsigned short curNumStrategies = m_geoStrategyHandles[geoID].size();
+    m_numStrategies[geoID] = curNumStrategies;
+    m_geoStrategies[geoID] = new ISF::ITruthStrategy*[curNumStrategies];
+    for ( unsigned short i = 0; i < curNumStrategies; ++i) {
+      m_geoStrategies[geoID][i] = &(*m_geoStrategyHandles[geoID][i]);
     }
 
-    ATH_MSG_VERBOSE("initialize() successful");
-    return StatusCode::SUCCESS;
+    // create an end-vertex for all truth particles ending in the current AtlasRegion?
+    bool forceEndVtx = std::find( m_forceEndVtxRegionsVec.begin(),
+                                  m_forceEndVtxRegionsVec.end(),
+                                  geoID ) != m_forceEndVtxRegionsVec.end();
+    m_forceEndVtx[geoID] = forceEndVtx;
+  }
+
+  ATH_MSG_VERBOSE("initialize() successful");
+  return StatusCode::SUCCESS;
 }
 
 
 /** framework methods */
 StatusCode ISF::TruthSvc::finalize()
 {
-    ATH_MSG_VERBOSE("Finalizing ...");
-    return StatusCode::SUCCESS;
+  ATH_MSG_VERBOSE("Finalizing ...");
+  return StatusCode::SUCCESS;
 }
 
 
@@ -134,9 +140,9 @@ void ISF::TruthSvc::deleteChildVertex(HepMC::GenVertex *vtx) {
 
   for (HepMC::GenVertex::particles_out_const_iterator iter = vtx->particles_out_const_begin();
        iter != vtx->particles_out_const_end(); ++iter) {
-     if( (*iter) && (*iter)->end_vertex() ) {
-       verticesToDelete.push_back( (*iter)->end_vertex() );
-     }
+    if( (*iter) && (*iter)->end_vertex() ) {
+      verticesToDelete.push_back( (*iter)->end_vertex() );
+    }
   }
 
   vtx->parent_event()->remove_vertex(vtx);
@@ -194,6 +200,7 @@ void ISF::TruthSvc::registerTruthIncident( ISF::ITruthIncident& ti) {
   }
 
   if (pass) {
+    ATH_MSG_VERBOSE("At least one TruthStrategy passed.");
     // at least one truth strategy returned true
     //  -> record incident
     recordIncidentToMCTruth( ti);
@@ -201,10 +208,21 @@ void ISF::TruthSvc::registerTruthIncident( ISF::ITruthIncident& ti) {
   } else {
     // none of the truth strategies returned true
     //  -> child particles will NOT be added to the TruthEvent collection
-    
     // attach parent particle end vertex if it gets killed by this interaction
     if ( m_forceEndVtx[geoID] && !ti.parentSurvivesIncident() ) {
-      createGenVertexFromTruthIncident( ti);
+      ATH_MSG_VERBOSE("No TruthStrategies passed and parent destroyed - create end vertex.");
+      const bool replaceVertex(true);
+      this->createGenVertexFromTruthIncident( ti, replaceVertex );
+
+#ifdef DEBUG_TRUTHSVC
+      const std::string survival = (ti.parentSurvivesIncident()) ? "parent survives" : "parent destroyed";
+      const std::string vtxType = (ti.interactionClassification()==ISF::STD_VTX) ? "Normal" : "Quasi-stable";
+      ATH_MSG_INFO("TruthSvc: " << vtxType << " vertex + " << survival
+                   << ", TI Class: " << ti.interactionClassification()
+                   << ", ProcessType: " << ti.physicsProcessCategory()
+                   << ", ProcessSubType: " << ti.physicsProcessCode());
+#endif
+
     }
 
     //  -> assign shared barcode to all child particles (if barcode service supports it)
@@ -216,75 +234,168 @@ void ISF::TruthSvc::registerTruthIncident( ISF::ITruthIncident& ti) {
 
 /** Record the given truth incident to the MC Truth */
 void ISF::TruthSvc::recordIncidentToMCTruth( ISF::ITruthIncident& ti) {
-
+#ifdef  DEBUG_TRUTHSVC
+  ATH_MSG_INFO("Starting recordIncidentToMCTruth(...)");
+#endif
   Barcode::PhysicsProcessCode processCode = ti.physicsProcessCode();
   Barcode::ParticleBarcode       parentBC = ti.parentBarcode();
 
   // record the GenVertex
-  HepMC::GenVertex *vtx = createGenVertexFromTruthIncident(ti);
+  const bool replaceVertex(false);
+  HepMC::GenVertex *vtx = createGenVertexFromTruthIncident(ti, replaceVertex);
+  const ISF::InteractionClass_t classification = ti.interactionClassification();
+#ifdef DEBUG_TRUTHSVC
+  const std::string survival = (ti.parentSurvivesIncident()) ? "parent survives" : "parent destroyed";
+  const std::string vtxType = (ti.interactionClassification()==ISF::STD_VTX) ? "Normal" : "Quasi-stable";
+  ATH_MSG_INFO("TruthSvc: " << vtxType << " vertex + " << survival
+               << ", TI Class: " << ti.interactionClassification()
+               << ", ProcessType: " << ti.physicsProcessCategory()
+               << ", ProcessSubType: " << ti.physicsProcessCode());
+#endif
 
   ATH_MSG_VERBOSE ( "Outgoing particles:" );
   // update parent barcode and add it to the vertex as outgoing particle
-  Barcode::ParticleBarcode newPrimBC = m_barcodeSvc->incrementBarcode( parentBC, processCode);
+  Barcode::ParticleBarcode newPrimBC = Barcode::fUndefinedBarcode;
+  if (classification == ISF::QS_SURV_VTX) {
+    // Special case when a particle with a pre-defined decay interacts
+    // and survives.
+    // Set the barcode to the next available value below the simulation
+    // barcode offset.
+    newPrimBC = this->maxGeneratedParticleBarcode(ti.parentParticle()->parent_event())+1;
+  }
+  else {
+    newPrimBC = m_barcodeSvc->incrementBarcode( parentBC, processCode);
+  }
   if ( newPrimBC == Barcode::fUndefinedBarcode) {
     if (m_ignoreUndefinedBarcodes) {
       ATH_MSG_WARNING("Unable to generate new Particle Barcode. Continuing due to 'IgnoreUndefinedBarcodes'==True");
     } else {
-      ATH_MSG_ERROR("Unable to generate new Particle Barcode. Aborting");
+      ATH_MSG_FATAL("Unable to generate new Particle Barcode. Aborting");
       abort();
     }
   }
 
-  HepMC::GenParticle *parentAfterIncident = ti.parentParticleAfterIncident( newPrimBC );
+  HepMC::GenParticle *parentBeforeIncident = ti.parentParticle();
+  HepMC::GenParticle *parentAfterIncident = ti.parentParticleAfterIncident( newPrimBC ); // This call changes ti.parentParticle() output
   if(parentAfterIncident) {
     ATH_MSG_VERBOSE ( "Parent After Incident: " << *parentAfterIncident);
-    vtx->add_particle_out( parentAfterIncident );
+    if (classification==ISF::QS_SURV_VTX) {
+      // Special case when a particle with a pre-defined decay
+      // interacts and survives.
+      // 1) As the parentParticleAfterIncident has a pre-defined decay
+      // its status should be to 2.
+      parentAfterIncident->set_status(2);
+      // 2) A new GenVertex for the intermediate interaction should be
+      // added.
+      std::unique_ptr<HepMC::GenVertex> newVtx = std::make_unique<HepMC::GenVertex>( vtx->position(), vtx->id(), vtx->weights() );
+#ifdef DEBUG_TRUTHSVC
+      ATH_MSG_INFO("New GenVertex 1: " << *(newVtx.get()) );
+      ATH_MSG_INFO("New QS GenVertex 1: " << *(newVtx.get()) );
+#endif
+      HepMC::GenEvent *mcEvent = parentBeforeIncident->parent_event();
+      newVtx->suggest_barcode( this->maxGeneratedVertexBarcode(mcEvent)-1 );
+#ifdef DEBUG_TRUTHSVC
+      ATH_MSG_INFO("New QSGenVertex 2: " << *(newVtx.get()) );
+#endif
+      auto tmpVtx = newVtx.get();
+#ifdef DEBUG_TRUTHSVC
+      ATH_MSG_INFO("New QS GenVertex 3: " << (*tmpVtx) );
+#endif
+      if(!mcEvent->add_vertex( newVtx.release() )) {
+        ATH_MSG_FATAL("Failed to add GenVertex to GenEvent.");
+        abort();
+      }
+      tmpVtx->add_particle_in( parentBeforeIncident );
+      tmpVtx->add_particle_out( parentAfterIncident );
+      vtx->add_particle_in( parentAfterIncident );
+      vtx = tmpVtx;
+    }
+    else {
+      vtx->add_particle_out( parentAfterIncident );
+    }
   }
 
+  const bool isQuasiStableVertex = (classification == ISF::QS_PREDEF_VTX); // QS_DEST_VTX and QS_SURV_VTX should be treated as normal from now on.
   // add child particles to the vertex
   unsigned short numSec = ti.numberOfChildren();
+  if (isQuasiStableVertex) {
+    // Here we are checking if the existing GenVertex has the same
+    // number of child particles as the truth incident.
+    // FIXME should probably make this part a separate function and
+    // also check if the pdgids of the child particles are the same
+    // too.
+    unsigned short nVertexChildren=vtx->particles_out_size();
+    if(parentAfterIncident) { nVertexChildren-=1; }
+    if(nVertexChildren!=numSec) {
+      ATH_MSG_WARNING("Existing vertex has " << nVertexChildren << " children. " <<
+                      "Number of secondaries in current truth incident = " << numSec);
+    }
+    ATH_MSG_VERBOSE("Existing vertex has " << nVertexChildren << " children. " <<
+                 "Number of secondaries in current truth incident = " << numSec);
+  }
+  const std::vector<HepMC::GenParticle*> childParticleVector = (isQuasiStableVertex) ? MC::findChildren(ti.parentParticle()) : std::vector<HepMC::GenParticle*>();
+  std::vector<HepMC::GenParticle*> matchedChildParticles;
   for ( unsigned short i=0; i<numSec; ++i) {
 
-    bool writeOutChild = m_passWholeVertex || ti.childPassedFilters(i);
+    bool writeOutChild = isQuasiStableVertex || m_passWholeVertex || ti.childPassedFilters(i);
 
     if (writeOutChild) {
-      // generate a new barcode for the child particle
-      Barcode::ParticleBarcode secBC = m_barcodeSvc->newSecondary( parentBC, processCode);
-      if ( secBC == Barcode::fUndefinedBarcode) {
-        if (m_ignoreUndefinedBarcodes)
-          ATH_MSG_WARNING("Unable to generate new Secondary Particle Barcode. Continuing due to 'IgnoreUndefinedBarcodes'==True");
-        else {
-          ATH_MSG_ERROR("Unable to generate new Secondary Particle Barcode. Aborting");
-          abort();
+      HepMC::GenParticle *p = nullptr;
+      if(isQuasiStableVertex) {
+        //Find matching GenParticle in GenVertex
+        const int childPDGcode= ti.childPdgCode(i);
+        bool noMatch(true);
+        for(auto childParticle : childParticleVector) {
+          if( (childParticle->pdg_id() == childPDGcode) && std::count(matchedChildParticles.begin(),matchedChildParticles.end(),childParticle)==0) {
+            noMatch=false;
+            ATH_MSG_VERBOSE("Found a matching Quasi-stable GenParticle with PDGcode " << childPDGcode << ":\n\t" << *childParticle );
+            matchedChildParticles.push_back(childParticle);
+            // FIXME There is a weakness in the code here for
+            // vertices with multiple children with the same
+            // pdgid. The code relies on the order of the children in
+            // childParticleVector being the same as in the
+            // truthIncident...
+            p = ti.updateChildParticle( i, childParticle );
+            break;
+          }
+        }
+        if (noMatch) {
+          std::ostringstream warnStream;
+          warnStream << "Failed to find a Quasi-stable GenParticle with PDGID " << childPDGcode << ". Options are: \n";
+          for(auto childParticle : childParticleVector) {
+            warnStream << childParticle->pdg_id() <<"\n";
+          }
+          ATH_MSG_WARNING(warnStream.str());
         }
       }
-      HepMC::GenParticle *p = ti.childParticle(i, secBC );
+      else {
+        // generate a new barcode for the child particle
+        Barcode::ParticleBarcode secBC = m_barcodeSvc->newSecondary( parentBC, processCode);
+        if ( secBC == Barcode::fUndefinedBarcode) {
+          if (m_ignoreUndefinedBarcodes)
+            ATH_MSG_WARNING("Unable to generate new Secondary Particle Barcode. Continuing due to 'IgnoreUndefinedBarcodes'==True");
+          else {
+            ATH_MSG_ERROR("Unable to generate new Secondary Particle Barcode. Aborting");
+            abort();
+          }
+        }
+        p = ti.childParticle( i, secBC );
+        // add particle to vertex
+        vtx->add_particle_out( p);
+      }
       ATH_MSG_VERBOSE ( "Writing out " << i << "th child particle: " << *p);
-      // add particle to vertex
-      vtx->add_particle_out( p);
-
-      // Check to see if this is meant to be a "parent" vertex
-      if ( p && p->barcode() < m_secondaryParticleBcOffset ){
-        vtx->suggest_barcode( m_myLowestVertexBC );
-        ++m_myLowestVertexBC;
-        if (m_quasiStableParticlesIncluded){
-          ATH_MSG_VERBOSE( "Found a case of low barcode (" << p->barcode() << " < " <<
-                           m_secondaryParticleBcOffset  << " changing vtx barcode to " << m_myLowestVertexBC+1 );
-        } else {
-          ATH_MSG_WARNING( "Modifying vertex barcode, but no apparent quasi-stable particle simulation enabled." );
-          ATH_MSG_WARNING( "This means that you have encountered a very strange configuration.  Watch out!" );
-        }
-      }
     } // <-- if write out child particle
     else {
       ATH_MSG_VERBOSE ( "Not writing out " << i << "th child particle." );
     }
 
   } // <-- loop over all child particles
+  ATH_MSG_VERBOSE("--------------------------------------------------------");
 }
 
 /** Record the given truth incident to the MC Truth */
-HepMC::GenVertex *ISF::TruthSvc::createGenVertexFromTruthIncident( ISF::ITruthIncident& ti) {
+HepMC::GenVertex *ISF::TruthSvc::createGenVertexFromTruthIncident( ISF::ITruthIncident& ti,
+                                                                   bool replaceExistingGenVertex) {
 
   Barcode::PhysicsProcessCode processCode = ti.physicsProcessCode();
   Barcode::ParticleBarcode       parentBC = ti.parentBarcode();
@@ -319,7 +430,7 @@ HepMC::GenVertex *ISF::TruthSvc::createGenVertexFromTruthIncident( ISF::ITruthIn
     }
   }
   int vtxID = 1000 + static_cast<int>(processCode);
-  HepMC::GenVertex *vtx = new HepMC::GenVertex( ti.position(), vtxID, weights );
+  std::unique_ptr<HepMC::GenVertex> vtx = std::make_unique<HepMC::GenVertex>( ti.position(), vtxID, weights );
   vtx->suggest_barcode( vtxbcode );
 
   if (parent->end_vertex()){
@@ -329,31 +440,49 @@ HepMC::GenVertex *ISF::TruthSvc::createGenVertexFromTruthIncident( ISF::ITruthIn
       ATH_MSG_WARNING("is not yet validated in ISF, so you'd better know what you're doing.");
       ATH_MSG_WARNING("Will delete the old vertex and swap in the new one.");
     }
-
-    // Remove the old vertex from the event
-    //parent->parent_event()->remove_vertex( parent->end_vertex() );
-     
-    // KB: Remove the old vertex and their all child vertices  from the event
-    verticesToDelete.resize(0);
-    verticesToDelete.push_back(parent->end_vertex());
-    for ( unsigned short i = 0; i<verticesToDelete.size(); ++i ) {
-       this->deleteChildVertex(verticesToDelete.at(i));
+    auto* oldVertex = parent->end_vertex();
+#ifdef DEBUG_TRUTHSVC
+    ATH_MSG_VERBOSE("createGVfromTI Existing QS GenVertex 1: " << *oldVertex );
+    ATH_MSG_VERBOSE("createGVfromTI QS Parent 1: " << *parent);
+#endif
+    if(replaceExistingGenVertex) {
+      vtx->add_particle_in( parent );
+      ATH_MSG_VERBOSE("createGVfromTI Replacement QS GenVertex: " << *(vtx.get()) );
+      mcEvent->add_vertex( vtx.release() );
+      // Delete oldVertex and children here
+      verticesToDelete.resize(0);
+      verticesToDelete.push_back(oldVertex);
+      for ( unsigned short i = 0; i<verticesToDelete.size(); ++i ) {
+        this->deleteChildVertex(verticesToDelete.at(i));
+      }
     }
-
-    // Now add the new vertex to the new parent
-    vtx->add_particle_in( parent );
-    ATH_MSG_VERBOSE ( "QS End Vertex representing process: " << processCode << ", for parent with barcode "<<parentBC<<". Creating." );
-    ATH_MSG_VERBOSE ( "Parent: " << *parent);
+    else {
+#ifdef DEBUG_TRUTHSVC
+      ATH_MSG_VERBOSE("createGVfromTI Existing QS GenVertex 2: " << *oldVertex );
+#endif
+      //oldVertex->suggest_barcode( vtxbcode );
+      oldVertex->set_position( ti.position() );
+      oldVertex->set_id( vtxID );
+      oldVertex->weights() = weights;
+    }
+#ifdef DEBUG_TRUTHSVC
+    ATH_MSG_VERBOSE ( "createGVfromTI QS End Vertex representing process: " << processCode << ", for parent with barcode "<<parentBC<<". Creating." );
+    ATH_MSG_VERBOSE ( "createGVfromTI QS Parent 2: " << *parent);
+#endif
   } else { // Normal simulation
+#ifdef DEBUG_TRUTHSVC
+    ATH_MSG_VERBOSE ("createGVfromTI Parent 1: " << *parent);
+#endif
     // add parent particle to vtx
     vtx->add_particle_in( parent );
-    ATH_MSG_VERBOSE ( "End Vertex representing process: " << processCode << ", for parent with barcode "<<parentBC<<". Creating." );
-    ATH_MSG_VERBOSE ( "Parent: " << *parent);
+#ifdef DEBUG_TRUTHSVC
+    ATH_MSG_VERBOSE ( "createGVfromTI End Vertex representing process: " << processCode << ", for parent with barcode "<<parentBC<<". Creating." );
+    ATH_MSG_VERBOSE ( "createGVfromTI Parent 2: " << *parent);
+#endif
+    mcEvent->add_vertex( vtx.release() );
   }
 
-  mcEvent->add_vertex( vtx );
-
-  return vtx;
+  return parent->end_vertex();
 }
 
 /** Set shared barcode for child particles particles */
@@ -371,4 +500,30 @@ void ISF::TruthSvc::setSharedChildParticleBarcode( ISF::ITruthIncident& ti) {
   if (childBC != Barcode::fUndefinedBarcode) {
     ti.setAllChildrenBarcodes( childBC );
   }
+}
+
+int ISF::TruthSvc::maxGeneratedParticleBarcode(HepMC::GenEvent *genEvent) const {
+  int maxBarcode=0;
+  const int firstSecondaryParticleBarcode(m_barcodeSvc->secondaryParticleBcOffset());
+  HepMC::GenEvent::particle_const_iterator currentGenParticleIter;
+  for (currentGenParticleIter= genEvent->particles_begin();
+       currentGenParticleIter!= genEvent->particles_end();
+       ++currentGenParticleIter) {
+    const int barcode((*currentGenParticleIter)->barcode());
+    if(barcode > maxBarcode && barcode < firstSecondaryParticleBarcode) { maxBarcode=barcode; }
+  }
+  return maxBarcode;
+}
+
+int ISF::TruthSvc::maxGeneratedVertexBarcode(HepMC::GenEvent *genEvent) const {
+  int maxBarcode=0;
+  const int firstSecondaryVertexBarcode(m_barcodeSvc->secondaryVertexBcOffset());
+  HepMC::GenEvent::vertex_const_iterator currentGenVertexIter;
+  for (currentGenVertexIter= genEvent->vertices_begin();
+       currentGenVertexIter!= genEvent->vertices_end();
+       ++currentGenVertexIter) {
+    const int barcode((*currentGenVertexIter)->barcode());
+    if(barcode < maxBarcode && barcode > firstSecondaryVertexBarcode) { maxBarcode=barcode; }
+  }
+  return maxBarcode;
 }

@@ -274,7 +274,7 @@ if DQMonFlags.doMonitoring():
             local_logger.info('Stream is express and we will add ready tool for %s', tool)
             tool.FilterTools += [monAtlasReadyFilterTool]
          # unless prevented: configure a generic event cleaning tool
-         if not any(re.match(_, tool.name()) for _ in DQMonFlags.excludeFromCleaning()):
+         if not athenaCommonFlags.isOnline() and not any(re.match(_, tool.name()) for _ in DQMonFlags.excludeFromCleaning()):
             if tool.name() in DQMonFlags.specialCleaningConfiguration():
                config_ = DQMonFlags.specialCleaningConfiguration()[tool.name()].copy()
                for _ in config_:

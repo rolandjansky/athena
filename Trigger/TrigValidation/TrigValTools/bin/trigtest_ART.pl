@@ -938,12 +938,15 @@ sub run_test($){
     #print "-------------------------------------------------------\n";
     if ($athenarc == 0 and not $timeout){
 	print "=== $name OK: Athena exited normally\n";
+        print "art-result: 0 athena.$name\n";
     } elsif ($timeout){
     # or $athenarc == 35584 -> sometimes this exit code is just a seg fault
 	print "=== $name $warnkey: Athena exceeded time limit and was killed\n";
+        print "art-result: 1 athena.$name\n";
 	push @statuscodes, 'ATN_TIME_LIMIT';
     } else {
 	print "=== $name $failkey : Athena exited abnormally! Exit code: $athenarc\n";
+        print "art-result: 2 athena.$name\n";
 	push @statuscodes, 'ATHENA_BAD_EXIT';
     }
 
@@ -1059,7 +1062,10 @@ sub run_test($){
       systemcall("cat $checklogout");
       if ($logrc != 0){
 	print "=== $name $failkey : problem detected in log file\n";
+        print "art-result: 1 $name.CheckLog\n";
 	push @statuscodes, 'ATHENA_ERROR_IN_LOG';
+      } else {
+        print "art-result: 0 $name.CheckLog\n";
       }
       # WARNINGs
       $rc = systemcall("check_log.pl $checklog_opts --noerrors --warnings $logfile > $warnout 2>&1");
@@ -1086,17 +1092,21 @@ sub run_test($){
 	my $rc=systemcall("$config{$id}->{'rootcomp_cmd'} $rootcomp_file1 $rootcomp_file2 > $rootcompout 2>&1", TRUE);
  	if ($rc != 0){
 	    print "=== $name WARNING: monitoring histogram mismatch detected by rootcomp\n";
+            print "art-result: 1 $name.RootComp\n";
 	    push @statuscodes, 'ROOTCOMP_MISMATCH';
 	} else {
 	    print "=== $name: rootcomp: monitoring histograms match. \n";
+            print "art-result: 0 $name.RootComp\n";
 	}
         }
         else {
             print "=== Alert: $rootcomp_file2 does not exist \n";
+            print "art-result: 2 $name.RootComp\n";
         }
     }
         else {
             print "=== Alert: $rootcomp_file1 does not exist \n";
+            print "art-result: 2 $name.RootComp\n";
         }
 	#systemcall("cat $rootcompout");
         if (-e $rootcompout) {
@@ -1118,9 +1128,11 @@ sub run_test($){
 	my $rc=systemcall("$checkcount_cmd $checkcount_tolerance $checkcount_file $checkcount_level > $checkcountout 2>&1", TRUE);
  	if ($rc != 0){
 	    print "=== $name WARNING: trigger count mismatch detected by checkcount\nSee $checkcountout for details.\n";
+            print "art-result: 1 $name.CheckCounts\n";
 	    push @statuscodes, 'CHECKCOUNTS_FAILED';
 	} else {
 	    print "=== $name: countcheck: trigger counts match. \n";
+            print "art-result: 0 $name.CheckCounts\n";
 	}
 	#systemcall("cat $rootcompout");
         #Grep for FAILURE here so that bad runs will be flagged as such  
@@ -1144,9 +1156,11 @@ sub run_test($){
 
  	if ($rc != 0){
 	    print "=== $name WARNING: Errors detected by checkmerge\nSee $checkmergeout for details.\n";
+            print "art-result: 1 $name.CheckMerge\n";  
 	    push @statuscodes, 'POST_TEST_BAD_EXIT';
 	} else {
 	    print "=== $name: mergecheck: the test passed successfully. \n";
+            print "art-result: 0 $name.CheckMerge\n";
 	}
 	systemcall("grep 'ERROR' $checkmergeout");
 	systemcall("grep 'WARNING' $checkmergeout");
@@ -1177,9 +1191,11 @@ sub run_test($){
 	my $rc=systemcall("$truncalgoname -f $edmfile -r $edmreffile >>$edmcheckout 2>&1", TRUE);
         if ($rc != 0){
 	    print "=== $name WARNING: trigger edmcheck mismatch detected by $truncalgoname\nSee $edmcheckout for details.\n";
-            print "=== $name if differences are understood cp $edmfile  $edmreffile \n"; 
+            print "=== $name if differences are understood cp $edmfile  $edmreffile \n";
+            print "art-result: 1 $name.EdmCheck\n"; 
 	} else {
 	    print "=== $name: edmcheck: files matched \n";
+            print "art-result: 0 $name.EdmCheck\n";  
 	}
     }
 
@@ -1221,10 +1237,10 @@ sub run_test($){
 	print "$prog debug: truncated algoname $truncalgoname\n" if ($debug);
 	# extract regression test lines for this algorithm from log file
 	open NEW, ">$newfile"
-	    or die "$prog: error: failed opening $newfile to write: $!\n";
+	    or die "$prog: error: failed opening $newfile to write: $!\nart-result: 2 $name.Regtest\n";
 	if (! open LOG, "<$logfile"){
 	    print "$prog: error: failed opening $logfile to read: $!\n";
-	    print "-> $warnkey Aborting this test\n";
+	    print "-> $warnkey Aborting this test\nart-result: 2 $name.Regtest\n";
 	    return FALSE; # go on to next test
 	}
 	my $lines=0;
@@ -1258,6 +1274,7 @@ sub run_test($){
 	if ($lines == 0){
 	    # print failure keyword here to flag it as an error
 	    print "=== Alert! $warnkey no lines matching $match were found for $truncalgoname in log file\n";
+            print "art-result: 2 $name.Regtest\n";
 	    $regtestresult = FALSE;
 	    next REGTEST;
 	}
@@ -1294,6 +1311,7 @@ sub run_test($){
 	}
 	if ($rc == 0){
 	    print "=== Output is the same as reference for $algoname\n";
+            print "art-result: 0 $name.Regtest\n";
 	} else {
 	    # print failure keyword here to flag it as an error
 	    print "=== Alert! $warnkey Output differs from reference for $algoname\n";
@@ -1303,12 +1321,14 @@ sub run_test($){
 	    } else {
 		print ".\n";
 	    }
+            print "art-result: 1 $name.Regtest\n";
 	    $regtestresult = FALSE;
 	    next REGTEST;
 	}
         }
         else {
           print "=== Alert! old/reference file: $reffile does not exist - check if this is a new release!\n";  
+          print "art-result: 2 $name.Regtest\n";
         }
     }
     if (!$regtestresult){

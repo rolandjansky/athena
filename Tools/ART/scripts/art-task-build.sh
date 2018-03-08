@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 # arguments: RELEASE_BASE, PROJECT, PLATFORM, DATESTAMP
 # author : Tulay Cuhadar Donszelmann <tcuhadar@cern.ch>, Emil Obreshkov <Emil.Obreshkov@cern.ch>
 
@@ -37,6 +37,7 @@ export AtlasBuildBranch=$BRANCH
 export AtlasProject=$PROJECT
 export ${AtlasProject}_PLATFORM=$PLATFORM
 export AtlasBuildStamp=$DATESTAMP
+export AtlasVersion=${AtlasBuildStamp}
 
 ART_DIRECTORY=`which art.py`
 ART_VERSION=`art.py --version`

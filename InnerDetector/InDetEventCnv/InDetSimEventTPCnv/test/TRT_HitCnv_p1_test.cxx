@@ -16,11 +16,25 @@
 #include <cassert>
 #include <iostream>
 
+#include "GeneratorObjectsTPCnv/initMcEventCollection.h"
+#include "HepMC/GenParticle.h"
+#include "HepMC/GenEvent.h"
+
+void compare (const HepMcParticleLink& p1,
+              const HepMcParticleLink& p2)
+{
+  assert ( p1.isValid() == p2.isValid() );
+  assert ( p1.barcode() == p2.barcode() );
+  assert ( p1.eventIndex() == p2.eventIndex() );
+  assert ( p1.cptr() == p2.cptr() );
+  assert ( p1 == p2 );
+}
 
 void compare (const TRTUncompressedHit& p1,
               const TRTUncompressedHit& p2)
 {
   assert (p1.GetHitID() == p2.GetHitID());
+  compare(p1.particleLink(), p2.particleLink());
   assert (p1.particleLink() == p2.particleLink());
   assert (p1.GetParticleEncoding() == p2.GetParticleEncoding());
   assert (p1.GetKineticEnergy() == p2.GetKineticEnergy());
@@ -48,22 +62,30 @@ void testit (const TRTUncompressedHit& trans1)
 }
 
 
-void test1()
+void test1(std::vector<HepMC::GenParticle*>& genPartVector)
 {
   std::cout << "test1\n";
-
-  TRTUncompressedHit trans1 (101, 102, 103,
+  const HepMC::GenParticle* pGenParticle = genPartVector.at(0);
+  HepMcParticleLink trkLink(pGenParticle->barcode(),0);
+  TRTUncompressedHit trans1 (101, trkLink, pGenParticle->pdg_id(),
                              104.5, 105.5,
-                             106.5, 107.5, 108.5, 
+                             106.5, 107.5, 108.5,
                              109.5, 110.5, 111.5,
                              112.5);
-    
+
   testit (trans1);
 }
 
 
 int main()
 {
-  test1();
+  ISvcLocator* pSvcLoc = nullptr;
+  std::vector<HepMC::GenParticle*> genPartVector;
+  if (!Athena_test::initMcEventCollection(pSvcLoc, genPartVector)) {
+    std::cerr << "This test can not be run" << std::endl;
+    return 0;
+  }
+
+  test1(genPartVector);
   return 0;
 }

@@ -84,13 +84,13 @@ namespace iGeant4 {
       void                      setAllChildrenBarcodes(Barcode::ParticleBarcode bc) override final;
 
       /**  The interaction classifications are described as follows:
-           case 0: interaction of a particle without a pre-defined decay;
-           case 1: a particle with a pre-defined decay under-going a
+           STD_VTX: interaction of a particle without a pre-defined decay;
+           QS_SURV_VTX: a particle with a pre-defined decay under-going a
            non-destructive interaction;
-           case 2: a particle with a pre-defined decay under-going a
+           QS_DEST_VTX: a particle with a pre-defined decay under-going a
            destructive interaction other than its pre-defined decay;
-           case 3: a particle under-going its pre-defined decay */
-      int                        interactionClassification() const override final;
+           QS_PREDEF_VTX: a particle under-going its pre-defined decay */
+      ISF::InteractionClass_t interactionClassification() const override final;
 
       // only called once accepted
 
@@ -100,7 +100,12 @@ namespace iGeant4 {
           Barcode to the simulator particle */
       HepMC::GenParticle*       childParticle(unsigned short index,
                                               Barcode::ParticleBarcode bc) const override final;
-
+      /** Update the properties of a child particle from a pre-defined
+          interaction based on the properties of the ith child of the
+          current TruthIncident (only used in quasi-stable particle
+          simulation). */
+      HepMC::GenParticle* updateChildParticle(unsigned short index,
+                                              HepMC::GenParticle *existingChild) const override final;
     private:
       Geant4TruthIncident();
       /** prepare the child particles */

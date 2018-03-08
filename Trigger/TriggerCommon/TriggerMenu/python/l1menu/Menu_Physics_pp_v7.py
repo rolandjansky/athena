@@ -28,7 +28,7 @@ def defineMenu():
    #Make sure these triggers don't get assigned random CTPIDs
     Lvl1Flags.CtpIdMap().update({
         #'L1_RD2_BGRP14' : 463,
-        'L1_RD3_BGRP15' : 464,
+        'L1_RD3_BGRP15' : 510,
     })
 
     #---------------------------------

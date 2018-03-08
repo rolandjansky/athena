@@ -51,12 +51,20 @@ endif()
 find_package( AthenaPoolUtilitiesTest )
 
 if( ATHENAPOOLUTILITIESTEST_FOUND )
-  run_tpcnv_test( TrkEventTPCnv_14.5.0   AOD-14.5.0-full )
-  run_tpcnv_test( TrkEventTPCnv_15.6.7   AOD-15.6.7-full )
-  run_tpcnv_test( TrkEventTPCnv_16.6.2.1 AOD-16.6.2.1-full )
-  run_tpcnv_test( TrkEventTPCnv_17.2.8   AOD-17.2.8-full )
-  run_tpcnv_test( TrkEventTPCnv_18.0.0   AOD-18.0.0-full )
-  run_tpcnv_test( TrkEventTPCnv_20.1.7.2 ESD-20.1.7.2 )
+  set( TRKEVENTATHENAPOOL_REFERENCE_TAG
+       TrkEventAthenaPoolReference-01-00-00 )
+  run_tpcnv_test( TrkEventTPCnv_14.5.0   AOD-14.5.0-full
+                  REFERENCE_TAG ${TRKEVENTATHENAPOOL_REFERENCE_TAG} )
+  run_tpcnv_test( TrkEventTPCnv_15.6.7   AOD-15.6.7-full
+                  REFERENCE_TAG ${TRKEVENTATHENAPOOL_REFERENCE_TAG} )
+  run_tpcnv_test( TrkEventTPCnv_16.6.2.1 AOD-16.6.2.1-full
+                  REFERENCE_TAG ${TRKEVENTATHENAPOOL_REFERENCE_TAG} )
+  run_tpcnv_test( TrkEventTPCnv_17.2.8   AOD-17.2.8-full
+                  REFERENCE_TAG ${TRKEVENTATHENAPOOL_REFERENCE_TAG} )
+  run_tpcnv_test( TrkEventTPCnv_18.0.0   AOD-18.0.0-full
+                  REFERENCE_TAG ${TRKEVENTATHENAPOOL_REFERENCE_TAG} )
+  run_tpcnv_test( TrkEventTPCnv_20.1.7.2 ESD-20.1.7.2
+                  REFERENCE_TAG ${TRKEVENTATHENAPOOL_REFERENCE_TAG} )
 else()
    message( WARNING "Couldn't find AthenaPoolUtilitiesTest. No test(s) set up." )
 endif()   
