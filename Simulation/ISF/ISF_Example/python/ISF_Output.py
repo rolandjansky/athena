@@ -116,7 +116,7 @@ class ISF_HITSStream:
     from G4AtlasApps.SimFlags import simFlags
     from ISF_Config.ISF_jobProperties import ISF_Flags
     from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-    if athenaCommonFlags.PoolHitsOutput.statusOn or (hasattr(simFlags, "WriteTR") and simFlags.WriteTR.statusOn):
+    if athenaCommonFlags.PoolHitsOutput.statusOn or (hasattr(simFlags, "WriteTR") and simFlags.WriteTR.statusOn) or (hasattr(simFlags,'StoppedParticleFile') and simFlags.StoppedParticleFile.statusOn):
         ## Write hits in POOL
         isfoplog.info("ISF_HITSStream starting")
 
@@ -131,6 +131,10 @@ class ISF_HITSStream:
 
         ## Write geometry tag info
         import EventInfoMgt.EventInfoMgtInit
+
+        ## Patch metadata if required
+        from ISF_Example.ISF_Metadata import patch_mc_channel_numberMetadata
+        patch_mc_channel_numberMetadata()
 
         ## Instantiate StreamHITS
         ## NB. Two-arg constructor is needed, since otherwise metadata writing fails!

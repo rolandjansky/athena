@@ -40,6 +40,7 @@ class TauIDVarCalculator: public TauRecToolBase
 
   std::string m_vertexContainerKey;
   int m_nVtx;
+  float m_mu;
 };
 
 #endif

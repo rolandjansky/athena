@@ -73,7 +73,7 @@ move :
 	mv ../test/$(XMLFILE) ../test/$(XMLFILE).bak
 	mv $(XMLFILE) ../test	
 
-all: $(XMLFILE) artfiles
+all: $(XMLFILE) artfiles checkdata
 
 $(FILES) : $(JOBS)
 
@@ -92,6 +92,10 @@ $(SCRIPTDIR)/%.sh : %.xml
 
 artfiles : 
 	../utils/mkartlist
+
+checkdata : artfiles 
+	../utils/submit.sh
+
 
 duff: 
 	echo $(patsubst %.xml,../scripts/%.sh,$(JOBS))

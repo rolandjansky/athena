@@ -11,7 +11,7 @@
 #include <map>
 #include <iostream>
 
-#include "ISF_FastCaloSimParametrization/ICaloGeometry.h"
+#include "ISF_FastCaloSimEvent/ICaloGeometry.h"
 #include "ISF_FastCaloSimParametrization/CaloGeometryLookup.h"
 #include "ISF_FastCaloSimParametrization/MeanAndRMS.h"
 #include "ISF_FastCaloSimParametrization/FSmap.h"

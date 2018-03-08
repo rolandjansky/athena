@@ -339,9 +339,9 @@ Visit( const MiniConfigTreeNode* node ) const
   TObject* obj;
   std::string name = node->GetAttribute("name");
   std::string fileName = node->GetAttribute("file");
-  fileName = SplitReference(node->GetAttribute("location"), fileName);
-  std::string refInfo = node->GetAttribute("info");
   if( fileName != "" && name != "" && name != "same_name" ) {
+    fileName = SplitReference(node->GetAttribute("location"), fileName);
+    std::string refInfo = node->GetAttribute("info");
     std::auto_ptr<TFile> infile( TFile::Open(fileName.c_str()) );
     TKey* key = getObjKey( infile.get(), name );
     if( key == 0 ) {

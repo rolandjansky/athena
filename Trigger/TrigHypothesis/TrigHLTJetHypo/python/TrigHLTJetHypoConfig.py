@@ -16,7 +16,12 @@ from TrigHLTJetHypo.TrigHLTJetHypo2Monitoring import (
 
 from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
 
-
+from GaudiKernel.Constants import (VERBOSE,
+                                   DEBUG,
+                                   INFO,
+                                   WARNING,
+                                   ERROR,
+                                   FATAL,)
 class TrigHLTJetHypo2 (TrigHLTJetHypoConf.TrigHLTJetHypo2):
     __slots__ = []
     def __init__(self, name, **kwargs):
@@ -137,4 +142,24 @@ class TrigHLTJetHypo_TLA (TrigHLTJetHypoConf.TrigHLTJetHypo_TLA):
             
             self.AthenaMonTools = [ time, validation, online, cosmic ]
 
+
+
+
+class TrigHLTJetHypo_Dijet (TrigHLTJetHypoConf.TrigHLTJetHypo_Dijet):
+    __slots__ = []
+    def __init__(self, name, **kwargs):
+        super( TrigHLTJetHypo_Dijet, self ).__init__( name, **kwargs )
+
+        self.OutputLevel=VERBOSE
+        
+        if  KeepMonitoring(self.chain_name,
+                           JetChainsToKeepMonitoring,
+                           strictComparison=True):
+            validation = TrigHLTJetHypo2ValidationMonitoring()
+            online = TrigHLTJetHypo2OnlineMonitoring()
+            cosmic = TrigHLTJetHypo2CosmicMonitoring()
             
+            time = TrigTimeHistToolConfig("HLTJetHypo_Dijet_Time")
+            
+            self.AthenaMonTools = [ time, validation, online, cosmic ]
+

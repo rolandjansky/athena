@@ -10,6 +10,7 @@
 #include "../InDetGlobalBeamSpotMonTool.h"
 #include "../InDetGlobalPrimaryVertexMonTool.h"
 #include "../InDetGlobalErrorMonTool.h"
+#include "../InDetGlobalBackgroundMonTool.h"
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
 DECLARE_ALGORITHM_FACTORY(InDetGlobalManager)
@@ -23,6 +24,7 @@ DECLARE_TOOL_FACTORY(InDetGlobalPixelTool)
 DECLARE_TOOL_FACTORY(InDetGlobalBeamSpotMonTool)
 DECLARE_TOOL_FACTORY(InDetGlobalPrimaryVertexMonTool)
 DECLARE_TOOL_FACTORY(InDetGlobalErrorMonTool)
+DECLARE_TOOL_FACTORY(InDetGlobalBackgroundMonTool)
 
 
 
@@ -38,5 +40,6 @@ DECLARE_FACTORY_ENTRIES(InDetGlobalMonitoring) {
   DECLARE_ALGTOOL(InDetGlobalBeamSpotMonTool);
   DECLARE_ALGTOOL(InDetGlobalPrimaryVertexMonTool);
   DECLARE_ALGTOOL(InDetGlobalErrorMonTool);
+  DECLARE_ALGTOOL(InDetGlobalBackgroundMonTool);
 }
 

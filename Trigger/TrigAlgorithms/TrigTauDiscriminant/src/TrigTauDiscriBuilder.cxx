@@ -118,8 +118,20 @@ HLT::ErrorCode TrigTauDiscriBuilder::hltExecute(const HLT::TriggerElement* /*inp
 	//	return HLT::OK;
 	//}
 
+	ToolHandleArray<ITauToolBase>::iterator tool_it = m_tools.begin();
+	ToolHandleArray<ITauToolBase>::iterator tool_end = m_tools.end();
+
+	for(; tool_it != tool_end; ++tool_it ) {
+	  StatusCode sc = (*tool_it)->eventInitialize();
+	  if( sc.isFailure() ) {
+	    msg() << MSG::FATAL << "eventInitialize failed in tool " << tool_it->name() << endmsg;
+	    return HLT::TOOL_FAILURE;
+	  }
+	}
+
 	xAOD::TauJetContainer::iterator tau_it(tau_container->begin());
 	xAOD::TauJetContainer::iterator tau_end(tau_container->end());
+
 	// Loop over tau's:
 	for (; tau_it != tau_end; ++tau_it) {
 	        //if (!this->manager->update(**tau_it)) {
@@ -130,15 +142,10 @@ HLT::ErrorCode TrigTauDiscriBuilder::hltExecute(const HLT::TriggerElement* /*inp
 
 		//-----------------------------------------------------------------
 		// Process the candidate
-		//-----------------------------------------------------------------
-		ToolHandleArray<ITauToolBase>::iterator tool_it(this->m_tools.begin());
-		ToolHandleArray<ITauToolBase>::iterator tool_end(this->m_tools.end());
-
-		//-----------------------------------------------------------------
 		// Loop stops when Failure indicated by one of the tools
 		//-----------------------------------------------------------------
 		std::vector<TrigTimer* >::iterator itimer =  m_mytimers.begin();
-		for(; tool_it != tool_end; ++tool_it ) {
+		for(tool_it = m_tools.begin(); tool_it != tool_end; ++tool_it ) {
 			msg() << MSG::VERBOSE << "Invoking tool " << tool_it->name() << endmsg;
 			if ( doTiming() && itimer != m_mytimers.end() ) {  (*itimer)->start();}
 
@@ -155,6 +162,14 @@ HLT::ErrorCode TrigTauDiscriBuilder::hltExecute(const HLT::TriggerElement* /*inp
 		m_BDTScore = (*tau_it)->discriminant(xAOD::TauJetParameters::BDTJetScore);
 	}
 
+	for(tool_it = m_tools.begin(); tool_it != tool_end; ++tool_it ) {
+	  StatusCode sc = (*tool_it)->eventFinalize();
+	  if( sc.isFailure() ) {
+	    msg() << MSG::FATAL << "eventFinalize failed in tool " << tool_it->name() << endmsg;
+	    return HLT::TOOL_FAILURE;
+	  }
+	}
+	
 	return HLT::OK;
 }
 

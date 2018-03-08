@@ -13,6 +13,10 @@ function usage {
 }
 
 
+function timestamp { 
+    echo -e "\n\necho \"TIMESTAMP: \$(date)\"\n\n"
+}
+
 DIR=$PWD
 
 if [ -x /usr/local/bin/sed ]; then 
@@ -126,8 +130,16 @@ for xmlfile in $FILES; do
 
 #   echo "if [ ! -z \"\$ArtInFile\" ]; then " >>  $outfile 
     
-    echo "fileList=\"['\${ArtInFile//,/', '}']\"" >> $outfile 
-    echo "echo \"List of files = \$fileList\""    >> $outfile 
+
+
+
+    echo "if [ \$# -gt 0 -a \"x\$1\" == \"x--local\" ]; then" >> $outfile
+    echo "       ARGS=\"XMLDataSet='\$RTTJOBNAME'\""    >> $outfile
+    echo "else"                                         >> $outfile 
+    echo "      fileList=\"['\${ArtInFile//,/', '}']\"" >> $outfile 
+    echo "      echo \"List of files = \$fileList\""    >> $outfile 
+    echo "      ARGS=\"ARTConfig=\$fileList\""          >> $outfile
+    echo "fi" >> $outfile 
 
 #   echo "else"                       >> $outfile
 #   echo "  fileList=[\"$DATASET\"]"  >> $outfile
@@ -151,8 +163,7 @@ for xmlfile in $FILES; do
     
 
     if [ "x$joboptions" != "x" ]; then
-         echo >> $outfile
-         echo  "get_files -jo $joboptions.py" >> $outfile
+
 #        echo  "athena.py  -c 'include("\"$pyfile\"";$cmdlineflags' $joboptions.py" >> $_file.sh
 #        echo  "athena.py  -c 'XMLDataSet="\"$jobid\"";$cmdlineflags' $joboptions.py" >> $outfile
 
@@ -176,10 +187,26 @@ for xmlfile in $FILES; do
  
 #        echo  "athena.py  -c 'import glob;from AthenaCommon.AthenaCommonFlags import athenaCommonFlags;athenaCommonFlags.FilesInput=glob.glob(\"$DATASET/*\");$cmdlineflags' $joboptions.py" >> $outfile
 #        echo  "athena.py  -c 'ARTConfig=[\"$DATASET\"];$cmdlineflags' $joboptions.py" >> $outfile
-         echo  "athena.py  -c \"ARTConfig=\$fileList;$cmdlineflags\" $joboptions.py" >> $outfile
+
+         echo "ARGS=\"\$ARGS;$cmdlineflags\"" >> $outfile 
+
+         echo "echo \"\$ARGS\"" >> $outfile
+
+	 echo >> $outfile
+
+         echo -e "get_files -jo $joboptions.py\n" >> $outfile
+
+	 timestamp >> $outfile
+
+#        echo  "athena.py  -c \"ARTConfig=\$fileList;$cmdlineflags\" $joboptions.py 2>&1 | tee athena-local.log" >> $outfile
+         echo  "athena.py  -c \"\$ARGS\" $joboptions.py 2>&1 | tee &> athena-local.log" >> $outfile
 
 	 echo  "echo \"art-result: \$? athena_$COUNTER\"" >> $outfile
 	 echo  "" >> $outfile
+
+	 timestamp >> $outfile
+
+	 echo -e "\nls -l\n" >> $outfile
 
 	 ((COUNTER++))
 
@@ -224,10 +251,13 @@ for xmlfile in $FILES; do
 	        "$arg" == "RunTrigCostD3PDe" ]; then 
 
                if [ "$command" != "" ]; then 
-#	          echo  "$command"
-                  echo  "$command"               >> $outfile
-		  echo  "echo \"art-result: \$? ${oldcommand}_$COUNTER\"" >> $outfile
-                  echo  ""                       >> $outfile
+#	          echo    "$command"
+#                 echo    "$command"               >> $outfile
+		  echo -e "\n$command  2>&1 | tee ${oldcommand}_$COUNTER.log" >> $outfile
+		  echo    "echo \"art-result: \$? ${oldcommand}_$COUNTER\"" >> $outfile
+                  echo    ""                       >> $outfile
+       	          timestamp >> $outfile
+
 		  ((COUNTER++))
 	       fi	  
               
@@ -284,14 +314,21 @@ for xmlfile in $FILES; do
     done
 
     if [ "$command" != "" ]; then
+
+	  command=$(echo $command | sed 's|\.exe | |g')
  
-#         echo  "$command"
-          echo  "$command"               >> $outfile
-	  echo  "echo \"art-result: \$? ${oldcommand}_$COUNTER\"" >> $outfile
+#         echo    "$command"
+          echo -e "\n$command  2>&1 | tee ${oldcommand}_$COUNTER.log"  >> $outfile
+	  echo -e "echo \"art-result: \$? ${oldcommand}_$COUNTER\"\n" >> $outfile
 	  oldcommand=$(echo $runcommand | sed 's|\..*||g')
-#	  echo  "JOBSTATUS_$COUNTER=\$?" >> $outfile
-          echo  ""                       >> $outfile
+#	  echo -e "JOBSTATUS_$COUNTER=\$?\n" >> $outfile
+          echo    ""                         >> $outfile
+
+ 	  timestamp >> $outfile
+
 	  ((COUNTER++))
+
+
     fi
 
     if [ -e  $outfile ]; then 

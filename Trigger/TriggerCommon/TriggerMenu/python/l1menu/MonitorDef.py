@@ -62,16 +62,21 @@ class MonitorDef:
 
         counters = []
 
-        from operator import attrgetter
-        emthresholds = sorted([thr for thr in thresholds if thr.ttype=='EM'], key = attrgetter('mapping'))
-        
-        thrNames = [thr.name for thr in thresholds]
-        if "MBTS_A" in thrNames:
-            counters += [ Lvl1CtpmonCounter("MBTS_A",1) ]
-        if "MBTS_C" in thrNames:
-            counters += [ Lvl1CtpmonCounter("MBTS_C",1) ]
-        if emthresholds:
-            counters += [ Lvl1CtpmonCounter(emthresholds[0].name,1) ] # lowest EM threshold
+        tomonitor = [
+        "1MBTS_A0","1MBTS_A1","1MBTS_A2","1MBTS_A3","1MBTS_A4","1MBTS_A5","1MBTS_A6","1MBTS_A7","1MBTS_A8","1MBTS_A10","1MBTS_A12","1MBTS_A14",
+        "1MBTS_C0","1MBTS_C1","1MBTS_C2","1MBTS_C3","1MBTS_C4","1MBTS_C5","1MBTS_C6","1MBTS_C7","1MBTS_C8","1MBTS_C10","1MBTS_C12","1MBTS_C14",
+        "1MBTS_A","1MBTS_C","1LUCID_A","1LUCID_C",
+        "1AFP_FSA_SIT","1AFP_FSA_TOF","1AFP_FSC_SIT","1AFP_FSC_TOF","1AFP_NSA","1AFP_NSC",
+        "1MU4","2MU4","3MU4","4MU4","5MU4","6MU4","7MU4",
+        "1J20","2J20","3J20","4J20","5J20","6J20","7J20",
+        "1XE35","1XE60","1TE50",
+        "1BPTX0","1BPTX1",
+        ]
+
+        for item in tomonitor:
+            mult = int(item[0])
+            item = item[1:]
+            counters += [ Lvl1CtpmonCounter(item,mult) ]
 
         return counters
 
@@ -134,43 +139,44 @@ class MonitorDef:
 
 
         monItems[TBP|TAP|TAV] = [
-            "L1_AFP_NSA_BGRP0", "L1_AFP_NSC_BGRP0",
-            "L1_AFP_FSA_SIT_BGRP0", "L1_AFP_FSC_SIT_BGRP0",
-            "L1_AFP_A_SPECTOF_BGRP0", "L1_AFP_C_SPECTOF_BGRP0",
             "L1_EM12", "L1_EM22VHI", "L1_EM24VHI", "L1_EM24VHIM",
-            "L1_MU4", "L1_MU10", "L1_MU11", "L1_MU21", "L1_MU20",
+            "L1_MU10", "L1_MU11", "L1_MU21", "L1_MU20",
             "L1_TAU12IM", "L1_TAU20", "L1_TAU40", "L1_TAU100",
-            "L1_J20", "L1_J100",
+            "L1_J100",
             "L1_J75.31ETA49",
             "L1_4J15.0ETA25",
-            "L1_XE35", "L1_XE60",
-            "L1_TE50",
-            "L1_MBTS_4_A", "L1_MBTS_4_C",
-            "L1_LUCID",
             "L1_ZB",
             "L1_BPTX0_BGRP0", "L1_BPTX1_BGRP0",
-            "L1_LAR-EM", "L1_LAR-J",
+            "L1_LAR-EM", "L1_LAR-ZEE",
             "L1_HT150-J20s5.ETA31",
-            "L1_MJJ-700",
             "L1_EM15TAU12I-J25",
             "L1_DY-BOX-2MU6",
-            "L1_BPH-2M9-2MU6_BPH-2DR15-2MU6",
-            "L1_MU6MU4-BO",
+            "L1_BPH-2M9-2MU6_BPH-2DR15-2MU6", "L1BPH-0M9-EM7-EM5_MU6", 
+            "L1_BPH-0DR3-EM7J15_MU6",
             "L1_BTAG-MU4J15",
             "L1_LFV-EM8I",
-            "L1_SC85-CJ15",
+            "L1_SC111-CJ15",
             "L1_LFV-MU",
             "L1_HT150-J20.ETA31",
-            "L1_DR-TAU20ITAU12I",
-            "L1_KF-XE40",
             "L1_DR-TAU20ITAU12I-J25",
-            "L1_JPSI-1M5",
             "L1_JPSI-1M5-EM7",
-            "L1_JPSI-1M5-EM12",
             "L1_LATE-MU10_XE40",
             "L1_LATE-MU10_J50",
+            "L1_FTK-J",
+            "L1_MJJ-500-NFF",
+            "L1_DPHI-2EM3",
+            "L1_EM18VHI_MJJ-300",
+            "L1_2MU4_J20_XE40_DPHI-J20s2XE30",
+            "L1_J50_DETA20-J50J",
             "L1_LUCID_BGRP9",
             "L1_LUCID_BGRP11",
+            "L1_ALFA_ANY",
+            "L1_ALFA_ELAST15", "L1_ALFA_ELAST18",
+            "L1_ALFA_SYST17", "L1_ALFA_SYST18",
+            "L1_ALFA_B7L1U", "L1_ALFA_B7L1L",
+            "L1_ALFA_A7L1U", "L1_ALFA_A7L1L",
+            "L1_ALFA_A7R1U", "L1_ALFA_A7R1L",
+            "L1_ALFA_B7R1U", "L1_ALFA_B7R1L",
             ]
 
         monItemsHF[TBP|TAP|TAV] = [

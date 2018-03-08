@@ -34,7 +34,7 @@ if rec.doFTK():
     alg += FTK_RDO_Reader 
     
 
-    if rec.doTruth():
+    if rec.doTruth() and (rec.doWriteAOD() or rec.doWriteESD()):
         include ('FTK_RecExample/ConfiguredFTK_TrackTruth.py')
         FTK_TracksTruth = ConfiguredFTK_TrackTruth(Tracks="FTK_TrackCollection",
                                                 TracksTruth = "FTK_Tracks_TruthCollection",

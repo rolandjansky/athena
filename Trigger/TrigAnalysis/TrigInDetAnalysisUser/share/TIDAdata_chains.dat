@@ -4,9 +4,6 @@ testChains = {
     //  "Electrons",
     //  "Truth",
 
-    "Truth",
-
-    
     // "L2_e22vh_medium_IDTrkNoCut:TrigL2SiTrackFinder_eGamma:0",
     // "L2_e22vh_medium_IDTrkNoCut:TrigL2SiTrackFinder_eGamma:1",
     // "L2_e22vh_medium_IDTrkNoCut:TrigL2SiTrackFinder_eGamma:2",
@@ -175,21 +172,21 @@ testChains = {
 #endif
     "HLT_j55_bperf_split_FTKVtx:InDetTrigTrackingxAODCnv_Bjet_IDTrig",
     "HLT_j55_bperf_split_FTKVtx:InDetTrigTrackingxAODCnv_Bjet_FTF",
-    "HLT_j55_bperf_split_FTK:InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig",
-    "HLT_j55_bperf_split_FTK:InDetTrigTrackingxAODCnv_Bjet_FTK",
-    "HLT_j55_bperf_split_FTKRefit:InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig",
-    "HLT_j55_bperf_split_FTKRefit:InDetTrigTrackingxAODCnv_Bjet_FTKRefit",
+    "HLT_j55_bperf_split_FTK:InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig:SplitJet",
+    "HLT_j55_bperf_split_FTK:InDetTrigTrackingxAODCnv_Bjet_FTK:SplitJet",
+    "HLT_j55_bperf_split_FTKRefit:InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig:SplitJet",
+    "HLT_j55_bperf_split_FTKRefit:InDetTrigTrackingxAODCnv_Bjet_FTKRefit:SplitJet",
     "HLT_j55_boffperf_split_FTKVtx:InDetTrigTrackingxAODCnv_Bjet_IDTrig",
     "HLT_j55_boffperf_split_FTKVtx:InDetTrigTrackingxAODCnv_Bjet_FTF",
-    "HLT_j55_boffperf_split_FTK:InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig",
-    "HLT_j55_boffperf_split_FTK:InDetTrigTrackingxAODCnv_Bjet_FTK",
-    "HLT_j55_boffperf_split_FTKRefit:InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig",
-    "HLT_j55_boffperf_split_FTKRefit:InDetTrigTrackingxAODCnv_Bjet_FTKRefit",
+    "HLT_j55_boffperf_split_FTK:InDetTrigTrackingxAODCnv_Bjet_FTK_IDTrig:SplitJet",
+    "HLT_j55_boffperf_split_FTK:InDetTrigTrackingxAODCnv_Bjet_FTK:SplitJet",
+    "HLT_j55_boffperf_split_FTKRefit:InDetTrigTrackingxAODCnv_Bjet_FTKRefit_IDTrig:SplitJet",
+    "HLT_j55_boffperf_split_FTKRefit:InDetTrigTrackingxAODCnv_Bjet_FTKRefit:SplitJet",
 
     "HLT_j55_EFID_bperf:InDetTrigParticleCreation_Bjet_EFID",
     "HLT_j55_EFID_bperf:InDetTrigTrackingxAODCnv_Bjet_EFID",
 
-    "HLT_mb_idperf_L1MBTS_2:InDetTrigTrackingxAODCnv_minBias_EFID",
+    "HLT_mb_idperf_L1RD1_FILLED:InDetTrigTrackingxAODCnv_minBias_EFID",
 
     "HLT_id_cosmic:InDetTrigTrackingxAODCnvIOTRT_CosmicsN_EFID",
 

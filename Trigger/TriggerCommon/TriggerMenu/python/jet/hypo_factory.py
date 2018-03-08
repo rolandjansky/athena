@@ -11,6 +11,7 @@ def hypo_factory(key, args):
         'HLThypo2_tla': HLThypo2_tla,
         'HLThypo2_dimass_deta': HLThypo2_dimass_deta,
         'HLThypo2_dimass_deta_dphi': HLThypo2_dimass_deta_dphi,
+        'HLThypo2_dijet': HLThypo2_dijet,
          }.get(key)
 
     if klass == None:
@@ -282,7 +283,6 @@ class HLThypo2_dimass_deta(HypoAlg):
         return s
 
 
-
 class HLThypo2_dimass_deta_dphi(HLThypo2_dimass_deta):
     """ Store parameters for the dijet mass DEtaDPhi hypoAlg"""
 
@@ -308,3 +308,85 @@ class HLThypo2_dimass_deta_dphi(HLThypo2_dimass_deta):
         s +=  '_dphi_' + str(int(self.dPhi_max))
 
         return s
+
+
+class HLThypo2_dijet(HypoAlg):
+    """ Store parameters for the TrigHLTJetRc using the dijet scenario"""
+
+    def __init__(self, ddict):
+        HypoAlg.__init__(self, ddict)
+        self.hypo_type = 'HLThypo2_dijet'
+
+    def _check_args(self, ddict):
+        """check the constructor args"""
+        
+        must_have = (
+            'aet_mins',
+            'aet_maxs',
+
+            'aeta_mins',
+            'aeta_maxs',
+
+            'bet_mins',
+            'bet_maxs',
+
+            'beta_mins',
+            'beta_maxs',
+            
+            'm_mins',
+            'm_maxs',
+
+            'deta_mins',
+            'deta_maxs',
+
+            'dphi_mins',
+            'dphi_maxs',
+        )
+
+        HypoAlg.check_missing_args(self, must_have, ddict)
+
+    def attributes_toString(self):
+        # use ints for invm, deta as this string is used
+        # in the Algorithm name, and Gausi does not allow '.'
+        # in names.
+
+
+        todump = (
+            'aet_mins',
+            'aet_maxs',
+            
+            'aeta_mins',
+            'aeta_maxs',
+
+            'bet_mins',
+            'bet_maxs',
+
+            'beta_mins',
+            'beta_maxs',
+            
+            'm_mins',
+            'm_maxs',
+
+            'deta_mins',
+            'deta_maxs',
+
+            'dphi_mins',
+            'dphi_maxs',
+        )
+
+        s = ''
+        for td in todump:
+            s +=  '\n%s %s' (td, str(self.__dict__[td]))
+
+
+        return s
+
+if __name__ == '__main__':
+    d =  {'m_mins': [900.0], 'm_maxs': [-1.0], 'beta_maxs': [-1.0],
+          'chain_name': 'HLT_j70_j50_0eta490_invm900j50_dPhi24_L1MJJ-500-NFF',
+          'beta_mins': [0.0], 'aeta_mins': [0.0], 'dijet_string': 'invm900j50dPhi24',
+          'deta_maxs': [-1.0], 'deta_mins': [0.0], 'aet_maxs': [-1.0],
+          'dphi_mins': [0.0], 'aet_mins': [50.0], 'dphi_maxs': [2.4000000000000004],
+          'bet_maxs': [-1.0], 'aeta_maxs': [-1.0], 'bet_mins': [50.0]}
+
+    print hypo_factory('HLThypo2_dijet', d)

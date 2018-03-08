@@ -306,6 +306,76 @@ namespace DerivationFramework {
         decoratorTRTusedHits_noHT_divByL (*track) = m_TRTdEdxTool->usedHits( trkTrack, true, false);
       }
 
+      // Track extrapolation
+      std::unique_ptr<const Trk::TrackParameters> perigee( m_extrapolator->extrapolate(*trkTrack,(trkTrack->perigeeParameters())->associatedSurface(),Trk::oppositeMomentum,true, Trk::pion, Trk::addNoise));
+
+      Trk::CylinderSurface cylSurfIBL(29.5,3000.0);
+      Trk::CylinderSurface cylSurfBL(50.5,3000.0);
+      Trk::CylinderSurface cylSurfL1(88.5,3000.0);
+      Trk::CylinderSurface cylSurfL2(122.5,3000.0);
+      std::unique_ptr<const Trk::TrackParameters> outputParamsIBL(m_extrapolator->extrapolate(*perigee,cylSurfIBL,Trk::alongMomentum,true,Trk::pion,Trk::removeNoise));
+      std::unique_ptr<const Trk::TrackParameters> outputParamsBL(m_extrapolator->extrapolate(*perigee,cylSurfBL,Trk::alongMomentum,true,Trk::pion,Trk::removeNoise));
+      std::unique_ptr<const Trk::TrackParameters> outputParamsL1(m_extrapolator->extrapolate(*perigee,cylSurfL1,Trk::alongMomentum,true,Trk::pion,Trk::removeNoise));
+      std::unique_ptr<const Trk::TrackParameters> outputParamsL2(m_extrapolator->extrapolate(*perigee,cylSurfL2,Trk::alongMomentum,true,Trk::pion,Trk::removeNoise));
+
+      SG::AuxElement::Decorator<float> decoratorTrkIBLX("TrkIBLX");
+      SG::AuxElement::Decorator<float> decoratorTrkIBLY("TrkIBLY");
+      SG::AuxElement::Decorator<float> decoratorTrkIBLZ("TrkIBLZ");
+      if (outputParamsIBL.get()) {
+        decoratorTrkIBLX(*track) = outputParamsIBL->position().x();
+        decoratorTrkIBLY(*track) = outputParamsIBL->position().y();
+        decoratorTrkIBLZ(*track) = outputParamsIBL->position().z();
+      }
+      else {
+        decoratorTrkIBLX(*track) = 0.0;
+        decoratorTrkIBLY(*track) = 0.0;
+        decoratorTrkIBLZ(*track) = 0.0;
+      }
+
+      SG::AuxElement::Decorator<float> decoratorTrkBLX("TrkBLX");
+      SG::AuxElement::Decorator<float> decoratorTrkBLY("TrkBLY");
+      SG::AuxElement::Decorator<float> decoratorTrkBLZ("TrkBLZ");
+      if (outputParamsBL.get()) {
+        decoratorTrkBLX(*track) = outputParamsBL->position().x();
+        decoratorTrkBLY(*track) = outputParamsBL->position().y();
+        decoratorTrkBLZ(*track) = outputParamsBL->position().z();
+      }
+      else {
+        decoratorTrkBLX(*track) = 0.0;
+        decoratorTrkBLY(*track) = 0.0;
+        decoratorTrkBLZ(*track) = 0.0;
+      }
+
+      SG::AuxElement::Decorator<float> decoratorTrkL1X("TrkL1X");
+      SG::AuxElement::Decorator<float> decoratorTrkL1Y("TrkL1Y");
+      SG::AuxElement::Decorator<float> decoratorTrkL1Z("TrkL1Z");
+      if (outputParamsL1.get()) {
+        decoratorTrkL1X(*track) = outputParamsL1->position().x();
+        decoratorTrkL1Y(*track) = outputParamsL1->position().y();
+        decoratorTrkL1Z(*track) = outputParamsL1->position().z();
+      }
+      else {
+        decoratorTrkL1X(*track) = 0.0;
+        decoratorTrkL1Y(*track) = 0.0;
+        decoratorTrkL1Z(*track) = 0.0;
+      }
+
+      SG::AuxElement::Decorator<float> decoratorTrkL2X("TrkL2X");
+      SG::AuxElement::Decorator<float> decoratorTrkL2Y("TrkL2Y");
+      SG::AuxElement::Decorator<float> decoratorTrkL2Z("TrkL2Z");
+      if (outputParamsL2.get()) {
+        decoratorTrkL2X(*track) = outputParamsL2->position().x();
+        decoratorTrkL2Y(*track) = outputParamsL2->position().y();
+        decoratorTrkL2Z(*track) = outputParamsL2->position().z();
+      }
+      else {
+        decoratorTrkL2X(*track) = 0.0;
+        decoratorTrkL2Y(*track) = 0.0;
+        decoratorTrkL2Z(*track) = 0.0;
+      }
+
+
+
       
       // -- Add Track states to the current track, filtering on their type
       std::vector<const Trk::TrackStateOnSurface*> tsoss;

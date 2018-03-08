@@ -60,7 +60,7 @@ class ParamsInputFilename(JobProperty):
     """ Filename of the input parametrizations file. """
     statusOn     = True
     allowedTypes = ['str']
-    StoredValue  = '/afs/cern.ch/atlas/groups/Simulation/FastCaloSimV2/FCSParams.root'
+    StoredValue  = '/afs/cern.ch/atlas/groups/Simulation/FastCaloSimV2/TFCSparam.root'
 
 ##-----------------------------------------------------------------------------
 ## 2nd step

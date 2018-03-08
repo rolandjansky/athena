@@ -30,6 +30,7 @@ DetFlags.FCal_setOff()
 DetFlags.HEC_setOff()
 DetFlags.em_setOff()
 #
+from AthenaCommon.GlobalFlags import globalflags
 globalflags.DataSource = "geant4"
 globalflags.DetGeo = "ctbh8"
 # mgallas this is a hack! needed for GeoModel and IOVDbSvc
@@ -334,6 +335,10 @@ if not simFlags.ISFRun:
 
         ## Write geometry tag info
         import EventInfoMgt.EventInfoMgtInit
+
+        ## Patch metadata if required
+        from G4AtlasApps.G4Atlas_Metadata import patch_mc_channel_numberMetadata
+        patch_mc_channel_numberMetadata()
 
         ## Instantiate StreamHITS
         if athenaCommonFlags.PoolHitsOutput.statusOn:

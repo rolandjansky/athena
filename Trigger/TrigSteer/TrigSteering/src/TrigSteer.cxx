@@ -160,12 +160,19 @@ StatusCode TrigSteer::initialize()
    CHECK( m_robDataProvider.retrieve());
   
    // Setup the HLT ROB Data Provider Service when configured
+   ATH_MSG_INFO(" Enable ROB prefetching = " << m_enableRobRequestPreparation);
    if ( m_robDataProvider.isValid() ) {
       m_trigROBDataProvider = SmartIF<ITrigROBDataProviderSvc>( &*m_robDataProvider );
       if (m_trigROBDataProvider.isValid()) {
         ATH_MSG_INFO(" A ROBDataProviderSvc implementing the HLT interface ITrigROBDataProviderSvc was found.");
       } else {
         ATH_MSG_INFO(" No ROBDataProviderSvc implementing the HLT interface ITrigROBDataProviderSvc was found.");
+      }
+      m_trigROBDataProviderPrefetch = SmartIF<ITrigROBDataProviderSvcPrefetch>( &*m_robDataProvider );
+      if (m_trigROBDataProviderPrefetch.isValid()) {
+        ATH_MSG_INFO(" A ROBDataProviderSvc implementing the HLT interface ITrigROBDataProviderSvcPrefetch was found.");
+      } else {
+        ATH_MSG_INFO(" No ROBDataProviderSvc implementing the HLT interface ITrigROBDataProviderSvcPrefetch was found.");
       }
    }
 
@@ -183,6 +190,8 @@ StatusCode TrigSteer::initialize()
    m_config->setStoreGate(&*evtStore());
    m_config->setSteeringOPILevel(m_doOperationalInfo);
    m_config->setRobRequestInfo(new RobRequestInfo());
+   // allow the ROBDataProviderSvc access to the RobRequestInfo object
+   if (m_trigROBDataProviderPrefetch.isValid()) m_trigROBDataProviderPrefetch->setRobRequestInfo( m_config->robRequestInfo() ); 
 
    // set the trigger level of this instance
    if (m_hltLevel == "L2")          m_config->setHLTLevel(HLT::L2);
@@ -434,6 +443,9 @@ StatusCode TrigSteer::finalize()
    m_sequences.clear();
    m_algos.clear();
    ATH_MSG_DEBUG("finalized sequences");
+
+   // reset the Robrequestinfo object in the ROB data provider
+   if (m_trigROBDataProviderPrefetch.isValid()) m_trigROBDataProviderPrefetch->setRobRequestInfo( 0 ); 
 
    delete m_config; m_config=0;
 

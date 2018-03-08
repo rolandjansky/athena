@@ -84,6 +84,8 @@ BOOST_PYTHON_MODULE(libpyhlttestapps)
 
   def("set_ros2rob_map", &Event::set_ros2rob_map, docstr);
   def("set_l1r_robs", &Event::set_l1r_robs, docstr);
+  def("set_dcm_strategy", &Event::set_dcm_strategy, docstr);
+  def("print_ros_hit_map", &Event::debug_print_ros_hit_map, docstr);
   def("python_prompt", &python_prompt, docstr);
   def("python_exec", &python_exec, docstr);
   def("python_execfile", &python_execfile, docstr);
@@ -96,5 +98,4 @@ BOOST_PYTHON_MODULE(libpyhlttestapps)
   def("ers_error", &ers_error, docstr);
   def("ers_fatal", &ers_fatal, docstr);
   def("ipc_init", &ipc_init, docstr);
-
 }

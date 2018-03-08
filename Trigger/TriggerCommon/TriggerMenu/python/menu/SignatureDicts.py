@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
@@ -63,9 +63,9 @@ AllowedTopos_bphys = ['bJpsi', 'bTau', 'bDimu', 'bDimu2700', 'bNocut','bVertex2'
                       'BcmumuDs' ,   'BcmumuDsloose' ,
                       '7invm9', 'noos', 'noid', 'novtx',
                       '11invm60','18invm60', 'bUpsi',
-                      'Trkloose',  'TrkPEB', 'TrkPEBmon', "lowpt",'Zmumu', 'noL2', 'noEFbph',
+                      'Trkloose',  'TrkPEB', 'TrkPEBmon', "lowpt",'Zmumu', 'noL2', 'noEFbph', 'PEB',
                       'noinvm', 'ss', 'BpmumuKp', 'Taumumux', 'Dsmumux', 'LbmumuLambda',
-                      'trkTau', 'bTauTrk', 'bDsPhiX', 'bPhi','bDsPhiXtight',
+                      'trkTau', 'bTauTrk', 'bDsPhiX', 'bPhi','bDsPhiXtight', 'bTauTight',
                       '11invm24', '24invm60',
                       'tightChi2', 'Lxy0', 'Ftk','legacyVtx',
                       'BsmumuPhi', 'BsJpsiPhi']
@@ -84,12 +84,19 @@ AllowedTopos_jet = ['muvtx',
                     'dphi26',
                     'invm250',
                     'invm400',
+                    'invm400j40',
                     'invm500',
                     'invm600',
                     'invm700',
+                    'invm700j50',
                     'invm800',
+                    'invm900j0',
+                    'invm900j50',
+                    'invm900j0',
                     'invm900',
-                    'invm1000']
+                    'invm1000',
+                    'invm1000j50',
+                    ]
 AllowedTopos_Tau = ['ditauL', 'ditauM', 'ditauT','tautsf','notautsf','50mVis10000','60mVis10000','03dR27','03dR30']
 AllowedTopos_comb = ['taumass', 'dr05', 'dz02','dz99']
 
@@ -114,7 +121,7 @@ JetChainParts = {
     'gscThreshold' : ['gsc'],
     'trigType'     : ['j'],
     'extra'        : ['noL1','test1','test2','test3', 'test4',
-                      'test5', 'test6', 'delayed','AND'],
+                      'test5', 'test6', 'delayed','AND','noTRT'],
     'cleaning'     : ['cleanL','cleanT','cleanLLP',
                       'cleanLA','cleanTA','cleanLLPA', 'noCleaning'
                       ],
@@ -142,6 +149,8 @@ JetChainParts = {
     
     # Et cut by the jet build tool (ptminFilter)
     'recoCutCalib': ['rccDefault', 'rcc0', 'rcc5'],
+    # 'dPhi': ['dphi24', 'dphi26'],
+
 }
 
 
@@ -172,6 +181,8 @@ JetChainParts_Default = {
     'trkopt'       : 'notrk',
     'recoCutUncalib': 'rcuDefault',
     'recoCutCalib': 'rccDefault',
+    'dj'           : '',
+    # 'dPhi'         : ''
     }
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
@@ -207,10 +218,10 @@ MuonChainParts = {
     'extra'          : ['noL1', '3layersEC'],
     'IDinfo'         : [],
     'isoInfo'        : ['iloose', 'imedium', 'itight', 'ivarloose', 'ivarmedium','icalo','iloosecalo','imediumcalo','iloosems', 'ivarloosecalo', 'ivarmediumcalo', 'ivartight', 'ivarverytight'],
-    'reccalibInfo'   : ['msonly', 'l2msonly', 'l2idonly', 'nomucomb', 'idperf','muoncalib', 'mucombTag','muL2', 'mgonly'],
+    'reccalibInfo'   : ['msonly', 'l2msonly', 'l2idonly', 'nomucomb', 'idperf','muoncalib', 'mucombTag','muL2', 'mgonly', 'btrk'],
     'trkInfo'        : ['fasttr', 'hlttr', 'IDT'],
     'hypoInfo'       : [],
-    'FSinfo'         : ['FTKFS', 'nscan03', 'l2nscan03', 'nscan05', 'l2nscan05', 'JpsimumuFS', 'JpsimumuL2','calotag'],
+    'FSinfo'         : ['FTKFS', 'nscan03', 'l2nscan03', 'nscan05', 'l2nscan05', 'JpsimumuFS', 'JpsimumuL2','calotag','TagandProbe'],
     'L2IDAlg'        : ['L2Star','IdScan','FTK','FTKRefit'],
     'L2SAAlg'        : ['muFast', 'l2muonSA',],
     'L2CBAlg'        : ['muComb',],
@@ -274,8 +285,8 @@ TauChainParts = {
     'L1item'       : '',
     'chainPartName': '',
     'threshold'    : '',
-    'preselection' : ['r1', 'FTK', 'FTKRefit', 'FTKNoPrec', 'calo', 'track', 'mvonly', 'ptonly', 'caloonly', 'trackonly', 'tracktwo', 'tracktwoEF', 'tracktwoEFmvaTES', 'trackcalo', 'tracktwocalo','tracktwo2015', 'tracktwomva'],
-    'selection'    : ['medium0','loose1', 'medium1', 'medium1NoPt', 'tight1', 'perf', 'perf0', 'r1medium1', 'r1perf', 'cosmic', 'kaonpi1', 'kaonpi2', 'dipion1', 'dipion1loose', 'dipion2', 'dipion3', 'dikaon', 'dikaontight', 'dikaonmass', 'dikaonmasstight', 'singlepion', 'singlepiontight',  'medium1HighptL', 'medium1HighptM', 'medium1HighptH'],
+    'preselection' : ['r1', 'FTK', 'FTKRefit', 'FTKNoPrec', 'calo', 'track', 'mvonly', 'ptonly', 'caloonly', 'trackonly', 'tracktwo', 'tracktwoEF', 'tracktwoEFmvaTES', 'trackcalo', 'tracktwocalo','tracktwo2015', 'tracktwoMVA'],
+    'selection'    : ['medium0','loose1', 'medium1', 'medium1NoPt', 'tight1', 'perf', 'perf0', 'r1medium1', 'r1perf', 'cosmic', 'kaonpi1', 'kaonpi2', 'dipion1', 'dipion1loose', 'dipion2', 'dipion3', 'dikaon', 'dikaontight', 'dikaonmass', 'dikaonmasstight', 'singlepion', 'singlepiontight', 'verylooseRNN', 'looseRNN', 'mediumRNN', 'tightRNN'],
     'multiplicity' : '',
     'trigType'     : ['tau'],   
     'trkInfo'      : ['idperf'],
