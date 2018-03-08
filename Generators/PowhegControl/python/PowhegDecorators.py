@@ -367,7 +367,7 @@ class V2Decorator :
       if self.decorated.PDF_info_type == 1 :
         f.write( 'storeinfo_rwgt 1                                  ! enable new-style PDF information: nominal\n' )
         f.write( 'compute_rwgt 0                                    ! enable new-style PDF information: nominal\n' )
-      elif self.decoratedPDF_info_type == 2 :
+      elif self.decorated.PDF_info_type == 2 :
         f.write( 'storeinfo_rwgt 0                                  ! enable new-style PDF information: reweight to new PDF\n' )
         f.write( 'compute_rwgt 1                                    ! enable new-style PDF information: reweight to new PDF\n' )
       f.write( 'doublefsr '+str(self.decorated.doublefsr)+'         ! fix problem with spikes in final observables, see arXiv:1303.3922\n' )
