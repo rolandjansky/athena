@@ -114,7 +114,7 @@ class DibosonDecorator :
           for decay_mode in self.decorated.allowed_decay_modes :
             f.write( decay_mode+' {0}                                     ! Diboson decay mode\n'.format([-1,1][decay_mode==self.decorated.decay_mode]) )
         else :
-          self.decorated_logger.warning( 'Decay mode {0} not recognised!'.format( self.decorated.decay_mode) )
+          self.decorated._logger.warning( 'Decay mode {0} not recognised!'.format( self.decorated.decay_mode) )
 
 ###############################################################################
 #
