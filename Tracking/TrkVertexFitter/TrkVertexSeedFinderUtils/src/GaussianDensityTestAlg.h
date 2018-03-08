@@ -133,6 +133,7 @@ class GaussianDensityTestAlg
   TH1* m_h_density;
   TH1* m_h_truthDensity;
   TH1* m_h_truthVertices;
+  TH1* m_h_modeCheck;
 
 }; // class
 }  // namespace

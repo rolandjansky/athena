@@ -44,7 +44,6 @@ namespace Trk
 	*/
        static const InterfaceID& interfaceID() { return IID_IVertexTrackDensityEstimator; };
 
-
        /**
         *   Adds a list of tracks, whose impact parameters will contribute to the density function.
         */
@@ -76,6 +75,11 @@ namespace Trk
         *  Evaluate the density function and its first two derivatives at the specified coordinate.
         */
        virtual void trackDensity(double z, double& density, double& firstDerivative, double& secondDerivative) const = 0;
+
+       /*
+	*  Find position of global maximum for density function
+	*/
+       virtual double globalMaximum() const = 0;
 
        /**
         *  Resets the internal state of the tool, forgetting all tracks previously added.

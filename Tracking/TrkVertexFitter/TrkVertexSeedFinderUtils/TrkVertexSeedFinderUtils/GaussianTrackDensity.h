@@ -73,6 +73,11 @@ namespace Trk
     virtual void trackDensity(double z, double& density, double& firstDerivative, double& secondDerivativec) const;
 
     /**
+     *  Find location of global maximum for density function
+     */
+    virtual double globalMaximum() const;
+
+    /**
      *  Resets the internal state of the tool, forgetting all tracks previously added.
      */
     virtual void reset();
@@ -139,6 +144,13 @@ namespace Trk
                       GaussianTrackDensity::pred_entry_by_min >::const_iterator upperMapIterator;
 
   private:
+    inline void updateMaximum(double trialZ, double trialValue, double& maxZ, double& maxValue) const
+    { if (trialValue > maxValue) { maxZ = trialZ; maxValue = trialValue; } }
+
+      
+    inline double stepSize(double y, double dy, double ddy) const
+    { return ( m_gaussStep ? 1/(dy/y-ddy/dy) : -dy/ddy ); }
+
 
     //  Cache for track information
     trackMap m_trackMap;
@@ -152,11 +164,19 @@ namespace Trk
                                                   "MaxD0Significance", 
 	                                          3.5, 
                                                   "Maximum radial impact parameter significance to use track" };
+
+    // Tracks within this many sigma(z) are added to weight; increasing cut trades CPU efficiency for improved smoothness in tails
     Gaudi::Property<double> m_z0MaxSignificance { this,
 	                                          "MaxZ0Significance",
 	                                          12.0,
 	                                          "Maximum longitudinal impact parameter significance to include track in weight"};
 
+    // Assumed shape of density function near peak; Gaussian (true) or parabolic (false)
+    Gaudi::Property<bool> m_gaussStep           { this,
+	                                          "GaussianStep",
+	                                          true,
+	                                          "Peak search: True means assume Gaussian behavior, False means Newton/parabolic" };
+                            
   };
 }
 #endif

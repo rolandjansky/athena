@@ -61,12 +61,47 @@ namespace Trk
     if (firstLoop->second.lowerBound > z || finalLoop->second.upperBound < z) return sum;
     for (auto itrk = firstLoop; itrk != finalLoop && itrk != m_trackMap.end(); itrk++)
     {
-      //ATH_MSG_DEBUG("@z=" << z << " adding contrib from z0=" << itrk->first.parameters()[Trk::z0] <<
-      //		    "c_0, c_1, c2 = " << itrk->second.c_0 << " " << itrk->second.c_1 << " " <<
-      //		    itrk->second.c_2 << " arg=" << (itrk->second.c_0+z*(itrk->second.c_1 + z*itrk->second.c_2)));
       sum += exp(itrk->second.c_0+z*(itrk->second.c_1 + z*itrk->second.c_2));
     }
     return sum;
+  }
+
+  double GaussianTrackDensity::globalMaximum() const
+  {
+    // strategy:
+    // the global maximum must be somewhere near a track...
+    // since we can calculate the first and second derivatives, at each point we can determine
+    // a) whether the function is curved up (minimum) or down (maximum)
+    // b) the distance to nearest maximum, assuming either Newton (parabolic) or Gaussian local behavior
+    //
+    // For each track where the second derivative is negative, find step to nearest maximum
+    // Take that step, and then do one final refinement
+    // The largest density encountered in this procedure (after checking all tracks) is considered the maximum
+    //
+    double maximumPosition = 0.0;
+    double maximumDensity = 0.0;
+    
+    for (const auto& entry : m_trackMap)
+    {
+      double trialZ = entry.first.parameters()[Trk::z0];
+      double density   = 0.0;
+      double slope     = 0.0;
+      double curvature = 0.0;
+      trackDensity( trialZ, density, slope, curvature );
+      if ( curvature >= 0.0 || density <= 0.0 ) continue; 
+      updateMaximum( trialZ, density, maximumPosition, maximumDensity );
+      trialZ += stepSize( density, slope, curvature );
+      trackDensity( trialZ, density, slope, curvature );
+      if ( curvature >= 0.0 || density <= 0.0 ) continue;
+      updateMaximum( trialZ, density, maximumPosition, maximumDensity );
+      trialZ += stepSize( density, slope, curvature );
+      trackDensity( trialZ, density, slope, curvature );
+      if ( curvature >= 0.0 || density <= 0.0) continue;
+      updateMaximum( trialZ, density, maximumPosition, maximumDensity );
+    }
+    if ( maximumDensity <= 0 ) ATH_MSG_WARNING("Global maximum at density of 0; track map contains " << 
+					       m_trackMap.size() << " tracks");
+    return maximumPosition;
   }
 
   void GaussianTrackDensity::addTracks(const std::vector<const Track*>& vectorTrk)

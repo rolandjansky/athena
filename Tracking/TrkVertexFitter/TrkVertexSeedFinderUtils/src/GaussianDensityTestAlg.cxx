@@ -65,10 +65,12 @@ StatusCode GaussianDensityTestAlg::initialize()
   m_h_density = new TH1F("Density", "Density", 800, -200.0, 200.0);
   m_h_truthDensity = new TH1F("Truth", "Truth", 800, -200.0, 200.0);
   m_h_truthVertices = new TH1F("TruthVertices", "TruthVertices", 800, -200.0, 200.0);
+  m_h_modeCheck = new TH1F("ModeOffset", "ModeOffset", 100, -10.0, 10.0);
 
   CHECK( m_iTHistSvc->regHist("/file1/h/density", m_h_density) );
   CHECK( m_iTHistSvc->regHist("/file1/h/truth", m_h_truthDensity) );
   CHECK( m_iTHistSvc->regHist("/file1/h/truthvertices", m_h_truthVertices) );
+  CHECK( m_iTHistSvc->regHist("/file1/h/modeoffset", m_h_modeCheck) );
 
   return StatusCode::SUCCESS;
 }
@@ -96,17 +98,17 @@ StatusCode GaussianDensityTestAlg::execute()
   m_estimator->reset();
   m_estimator->addTracks(perigeeList);
 
-  for (int i = 0; i < 800; i++)
-  {
-    double z = -200.0 + 0.25 + i*0.5;
-    double density = m_estimator->trackDensity(z);
-    m_h_density->Fill((float) z, (float) density);
-  }
+  //  for (int i = 0; i < 800; i++)
+  //  {
+  //    double z = -200.0 + 0.25 + i*0.5;
+  //    double density = m_estimator->trackDensity(z);
+  //    m_h_density->Fill((float) z, (float) density);
+  //  }
   ATH_MSG_VERBOSE("Analyzing MC truth");
   std::vector<Amg::Vector3D> truth;
   ATH_CHECK( findTruth(trackVector, truth) );
   ATH_MSG_VERBOSE("Filling truth vertex histogram");
-  for (auto& v : truth) m_h_truthVertices->Fill( v[2] );
+  //for (auto& v : truth) m_h_truthVertices->Fill( v[2] );
 
 
   return StatusCode::SUCCESS;
@@ -165,6 +167,9 @@ void GaussianDensityTestAlg::selectTracks(const xAOD::TrackParticleContainer* tr
 ///////////////////////////////////////////////////////////////////
   StatusCode GaussianDensityTestAlg::findTruth(const std::vector<Trk::ITrackLink*>& trackVector, std::vector<Amg::Vector3D>& truth) const
   {
+    double modeClosestDistance = std::numeric_limits<double>::max();
+    double mode = m_estimator->globalMaximum();
+
     xAOD::TrackParticle::ConstAccessor<ElementLink<xAOD::TruthParticleContainer> > truthParticleAssoc("truthParticleLink");
 
     SG::ReadHandle<xAOD::TruthEventContainer> signalEvents(m_truthEventsKey);
@@ -201,7 +206,7 @@ void GaussianDensityTestAlg::selectTracks(const xAOD::TrackParticleContainer* tr
 			      nGoodTracks++;
 			      const Trk::Perigee* perigee = dynamic_cast<const Trk::Perigee*>(trk->parameters());
 			      if (perigee == nullptr) ATH_MSG_ERROR("Invalid Perigee");
-			      m_h_truthDensity->Fill(vLink->z());
+			      //m_h_truthDensity->Fill(vLink->z());
 			      ATH_MSG_VERBOSE("Filled truth density histogram");
 			    }
 			    break;
@@ -217,6 +222,7 @@ void GaussianDensityTestAlg::selectTracks(const xAOD::TrackParticleContainer* tr
         if (nGoodTracks >= m_truthVertexTracks)
         {
     	  truth.push_back(vTruth);
+	  modeClosestDistance = std::min(modeClosestDistance, mode - vTruth[2]);
         }
       }
     }
@@ -275,6 +281,7 @@ void GaussianDensityTestAlg::selectTracks(const xAOD::TrackParticleContainer* tr
         if (nGoodTracks >= m_truthVertexTracks)
 	{
 	    truth.push_back(vTruth);
+ 	    modeClosestDistance = std::min(modeClosestDistance, mode - vTruth[2]);
 	}
       }
     }
@@ -282,6 +289,8 @@ void GaussianDensityTestAlg::selectTracks(const xAOD::TrackParticleContainer* tr
     {
       ATH_MSG_WARNING("No TruthPileupEventContainer found");
     }
+
+    m_h_modeCheck->Fill( modeClosestDistance );
     return StatusCode::SUCCESS;
   }
 
