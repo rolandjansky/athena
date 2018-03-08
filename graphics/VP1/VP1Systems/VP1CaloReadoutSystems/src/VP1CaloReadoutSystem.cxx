@@ -200,25 +200,25 @@ public:
 
 VP1CaloReadoutSystem::VP1CaloReadoutSystem()
   :IVP13DSystemSimple("CaloReadout","Display the calorimeter readout segmentation","boudreau@pitt.edu"),
-   _clockwork(new Clockwork())
+   m_clockwork(new Clockwork())
 {
-  _clockwork->hvInit=false;
-  _clockwork->permInit=false;
+  m_clockwork->hvInit=false;
+  m_clockwork->permInit=false;
 }
 
 VP1CaloReadoutSystem::~VP1CaloReadoutSystem()
 {
-  delete _clockwork;
-  _clockwork = 0;
+  delete m_clockwork;
+  m_clockwork = 0;
 }
 
 #define INSERTCHECKBOX(checkboxname) \
-_clockwork->checkBoxNamesMap.insert(_clockwork->ui.checkboxname, _clockwork->ui.checkboxname->objectName())
+m_clockwork->checkBoxNamesMap.insert(m_clockwork->ui.checkboxname, m_clockwork->ui.checkboxname->objectName())
 
 QWidget* VP1CaloReadoutSystem::buildController()
 {
   QWidget* controller = new QWidget(0);
-  _clockwork->ui.setupUi(controller);
+  m_clockwork->ui.setupUi(controller);
 
   // Populate Check Box Names Map
   INSERTCHECKBOX(embS0CheckBox);
@@ -276,31 +276,31 @@ QWidget* VP1CaloReadoutSystem::buildController()
   INSERTCHECKBOX(missingHVDisplayCheckBox);
   INSERTCHECKBOX(normalHVDisplayCheckBox);
 
-  _clockwork->currentlyEnabledPhiSectors = QVector<bool>(NPHISECTORS,false);
+  m_clockwork->currentlyEnabledPhiSectors = QVector<bool>(NPHISECTORS,false);
   QList<int> l; l << 4 << 8 << NPHISECTORS;//NB: All must be divisors in NPHISECTORS
-  _clockwork->ui.phiSectionWidget->setNumberOfSectors(16);
-  _clockwork->ui.phiSectionWidget->setAllowedNumberOfSectors(l);
+  m_clockwork->ui.phiSectionWidget->setNumberOfSectors(16);
+  m_clockwork->ui.phiSectionWidget->setAllowedNumberOfSectors(l);
 
   // Populate Check Box Map and connect slots
-  foreach(QCheckBox* cb,_clockwork->checkBoxNamesMap.keys())
+  foreach(QCheckBox* cb,m_clockwork->checkBoxNamesMap.keys())
   {
     connect(cb,SIGNAL(toggled(bool)),this,SLOT(checkboxChanged()));
-    _clockwork->checkBoxMap.insert(_clockwork->checkBoxNamesMap[cb],cb);
+    m_clockwork->checkBoxMap.insert(m_clockwork->checkBoxNamesMap[cb],cb);
   }
 
-  if (_clockwork->ui.frontRadioButton->isChecked())   _clockwork->pos=VP1CaloReadoutSystem::FRONT;
-  if (_clockwork->ui.backRadioButton->isChecked())    _clockwork->pos=VP1CaloReadoutSystem::BACK;
-  if (_clockwork->ui.centerRadioButton->isChecked())  _clockwork->pos=VP1CaloReadoutSystem::CENTER;
+  if (m_clockwork->ui.frontRadioButton->isChecked())   m_clockwork->pos=VP1CaloReadoutSystem::FRONT;
+  if (m_clockwork->ui.backRadioButton->isChecked())    m_clockwork->pos=VP1CaloReadoutSystem::BACK;
+  if (m_clockwork->ui.centerRadioButton->isChecked())  m_clockwork->pos=VP1CaloReadoutSystem::CENTER;
 
-  connect(_clockwork->ui.frontRadioButton, SIGNAL(clicked()), this, SLOT(positionOptionChanged()));
-  connect(_clockwork->ui.backRadioButton, SIGNAL(clicked()), this, SLOT(positionOptionChanged()));
-  connect(_clockwork->ui.centerRadioButton, SIGNAL(clicked()), this, SLOT(positionOptionChanged()));
-  connect(_clockwork->ui.acceptHVPushButton, SIGNAL(clicked()), this, SLOT(acceptHV()));
+  connect(m_clockwork->ui.frontRadioButton, SIGNAL(clicked()), this, SLOT(positionOptionChanged()));
+  connect(m_clockwork->ui.backRadioButton, SIGNAL(clicked()), this, SLOT(positionOptionChanged()));
+  connect(m_clockwork->ui.centerRadioButton, SIGNAL(clicked()), this, SLOT(positionOptionChanged()));
+  connect(m_clockwork->ui.acceptHVPushButton, SIGNAL(clicked()), this, SLOT(acceptHV()));
 
-  connect(_clockwork->ui.geomSelectableCheckBox, SIGNAL(toggled(bool)), this, SLOT(setGeomSelectable(bool)));
+  connect(m_clockwork->ui.geomSelectableCheckBox, SIGNAL(toggled(bool)), this, SLOT(setGeomSelectable(bool)));
 
   // Connect the PhiSectionWidget:
-  connect(_clockwork->ui.phiSectionWidget,SIGNAL(enabledPhiRangesChanged(const QList<VP1Interval>&)),
+  connect(m_clockwork->ui.phiSectionWidget,SIGNAL(enabledPhiRangesChanged(const QList<VP1Interval>&)),
 	  this,SLOT(enabledPhiSectorsChanged()));
 
   return controller;
@@ -309,13 +309,13 @@ QWidget* VP1CaloReadoutSystem::buildController()
 void VP1CaloReadoutSystem::enabledPhiSectorsChanged()
 {
 
-  QVector<bool> v =  _clockwork->ui.phiSectionWidget->virtualSectorsEnabled(NPHISECTORS);
-   if (_clockwork->currentlyEnabledPhiSectors == v)
+  QVector<bool> v =  m_clockwork->ui.phiSectionWidget->virtualSectorsEnabled(NPHISECTORS);
+   if (m_clockwork->currentlyEnabledPhiSectors == v)
      return;
    QList<int> justEnabledPhiSectors;
    QList<int> justDisabledPhiSectors;
    for (int iphi = 0; iphi < NPHISECTORS; ++iphi) {
-     bool currentstate=_clockwork->currentlyEnabledPhiSectors[iphi];
+     bool currentstate=m_clockwork->currentlyEnabledPhiSectors[iphi];
      if (currentstate!=v[iphi]) {
        if (currentstate)
 	 justDisabledPhiSectors << iphi;
@@ -323,7 +323,7 @@ void VP1CaloReadoutSystem::enabledPhiSectorsChanged()
 	 justEnabledPhiSectors << iphi;
      }
    }
-   _clockwork->currentlyEnabledPhiSectors = v;
+   m_clockwork->currentlyEnabledPhiSectors = v;
    foreach (int iphi,justDisabledPhiSectors)
      phiSectorTurnoff(iphi);
    foreach (int iphi,justEnabledPhiSectors)
@@ -336,8 +336,8 @@ void VP1CaloReadoutSystem::systemcreate(StoreGateSvc* )
 
 void VP1CaloReadoutSystem::buildPermanentSceneGraph(StoreGateSvc*, SoSeparator *root) {
 
-  if (_clockwork->permInit) return;
-  _clockwork->permInit = true;
+  if (m_clockwork->permInit) return;
+  m_clockwork->permInit = true;
 
   //  Styles & cet:
   SoDrawStyle *drawStyle = new SoDrawStyle();
@@ -347,20 +347,20 @@ void VP1CaloReadoutSystem::buildPermanentSceneGraph(StoreGateSvc*, SoSeparator *
   SoLightModel *lightModel = new SoLightModel();
   lightModel->model=SoLightModel::BASE_COLOR;
 
-  _clockwork->pickStyle = new SoPickStyle();
-  _clockwork->pickStyle->style = _clockwork->ui.geomSelectableCheckBox->isChecked() ? SoPickStyleElement::SHAPE : SoPickStyleElement::UNPICKABLE;
-  _clockwork->ui.etaBoundariesCheckBox->setEnabled(_clockwork->ui.geomSelectableCheckBox->isChecked());
-  _clockwork->ui.phiBoundariesCheckBox->setEnabled(_clockwork->ui.geomSelectableCheckBox->isChecked());
-  _clockwork->ui.fcalTubesCheckBox->setEnabled(_clockwork->ui.geomSelectableCheckBox->isChecked());
-  _clockwork->ui.highVoltageCheckBox->setEnabled(_clockwork->ui.geomSelectableCheckBox->isChecked());
-  _clockwork->ui.indicesCheckBox->setEnabled(_clockwork->ui.geomSelectableCheckBox->isChecked());
+  m_clockwork->pickStyle = new SoPickStyle();
+  m_clockwork->pickStyle->style = m_clockwork->ui.geomSelectableCheckBox->isChecked() ? SoPickStyleElement::SHAPE : SoPickStyleElement::UNPICKABLE;
+  m_clockwork->ui.etaBoundariesCheckBox->setEnabled(m_clockwork->ui.geomSelectableCheckBox->isChecked());
+  m_clockwork->ui.phiBoundariesCheckBox->setEnabled(m_clockwork->ui.geomSelectableCheckBox->isChecked());
+  m_clockwork->ui.fcalTubesCheckBox->setEnabled(m_clockwork->ui.geomSelectableCheckBox->isChecked());
+  m_clockwork->ui.highVoltageCheckBox->setEnabled(m_clockwork->ui.geomSelectableCheckBox->isChecked());
+  m_clockwork->ui.indicesCheckBox->setEnabled(m_clockwork->ui.geomSelectableCheckBox->isChecked());
 
 
-  root->addChild(_clockwork->pickStyle);
+  root->addChild(m_clockwork->pickStyle);
   root->addChild(drawStyle);
   root->addChild(lightModel);
 
-  _clockwork->volatileSeparator = new SoSeparator();
+  m_clockwork->volatileSeparator = new SoSeparator();
 //   SoMaterial *red = new SoMaterial();
 //   red->diffuseColor.setValue(1,0,0);
 
@@ -371,334 +371,334 @@ void VP1CaloReadoutSystem::buildPermanentSceneGraph(StoreGateSvc*, SoSeparator *
 //   blue->diffuseColor.setValue(0,0,1);
 
   root->addChild(white);
-  root->addChild(_clockwork->volatileSeparator);
+  root->addChild(m_clockwork->volatileSeparator);
 
   // Blue, basically:
-  _clockwork->embMaterial= new SoMaterial();
-  _clockwork->embMaterial->diffuseColor.setValue(0,0,1);
+  m_clockwork->embMaterial= new SoMaterial();
+  m_clockwork->embMaterial->diffuseColor.setValue(0,0,1);
 
   // Green, basically:
-  _clockwork->fcalMaterial= new SoMaterial();
-  _clockwork->fcalMaterial->diffuseColor.setValue(0 , 1, 0);
+  m_clockwork->fcalMaterial= new SoMaterial();
+  m_clockwork->fcalMaterial->diffuseColor.setValue(0 , 1, 0);
 
   // Yaller, basically:
-  _clockwork->hecMaterial= new SoMaterial();
-  _clockwork->hecMaterial->diffuseColor.setValue(0, 1.00, 1.00);
+  m_clockwork->hecMaterial= new SoMaterial();
+  m_clockwork->hecMaterial->diffuseColor.setValue(0, 1.00, 1.00);
 
   // Pink, basically:
-  _clockwork->emecMaterial = new SoMaterial();
-  _clockwork->emecMaterial->diffuseColor.setValue(1.00,0.00, 1.00);
+  m_clockwork->emecMaterial = new SoMaterial();
+  m_clockwork->emecMaterial->diffuseColor.setValue(1.00,0.00, 1.00);
 
   // White, totally:
-  _clockwork->embAccMaterial = new SoMaterial();
-  _clockwork->embAccMaterial->diffuseColor.setValue(1.00,1.00, 1.00);
+  m_clockwork->embAccMaterial = new SoMaterial();
+  m_clockwork->embAccMaterial->diffuseColor.setValue(1.00,1.00, 1.00);
 
-  _clockwork->ui.embColorSel->setMaterial(_clockwork->embMaterial);
-  _clockwork->ui.emecColorSel->setMaterial(_clockwork->emecMaterial);
-  _clockwork->ui.hecColorSel->setMaterial(_clockwork->hecMaterial);
-  _clockwork->ui.fcalColorSel->setMaterial(_clockwork->fcalMaterial);
+  m_clockwork->ui.embColorSel->setMaterial(m_clockwork->embMaterial);
+  m_clockwork->ui.emecColorSel->setMaterial(m_clockwork->emecMaterial);
+  m_clockwork->ui.hecColorSel->setMaterial(m_clockwork->hecMaterial);
+  m_clockwork->ui.fcalColorSel->setMaterial(m_clockwork->fcalMaterial);
 
 //   SoPickStyle *hvPickStyle=new SoPickStyle();
 //   hvPickStyle->style = SoPickStyleElement::UNPICKABLE;
 
   for (int i=0;i<3;i++) {
-    _clockwork->fcalSwitch[i]     = new SoSwitch();
-    _clockwork->fcalHVSwitch[i]   = new SoSwitch();
-    _clockwork->fcalNormalSwitch[i]   = new SoSwitch();
-    _clockwork->fcalBadSwitch[i]   = new SoSwitch();
-    _clockwork->fcalMissingSwitch[i]   = new SoSwitch();
-    _clockwork->fcalSeparator[i]  = new SoSeparator();
-    _clockwork->fcalHVSeparator[i]= new SoSeparator();
-    //    _clockwork->fcalHVSeparator[i]->addChild(hvPickStyle);
-    _clockwork->fcalSwitch[i]->addChild(_clockwork->fcalSeparator[i]);
-    _clockwork->fcalHVSwitch[i]->addChild(_clockwork->fcalHVSeparator[i]);
+    m_clockwork->fcalSwitch[i]     = new SoSwitch();
+    m_clockwork->fcalHVSwitch[i]   = new SoSwitch();
+    m_clockwork->fcalNormalSwitch[i]   = new SoSwitch();
+    m_clockwork->fcalBadSwitch[i]   = new SoSwitch();
+    m_clockwork->fcalMissingSwitch[i]   = new SoSwitch();
+    m_clockwork->fcalSeparator[i]  = new SoSeparator();
+    m_clockwork->fcalHVSeparator[i]= new SoSeparator();
+    //    m_clockwork->fcalHVSeparator[i]->addChild(hvPickStyle);
+    m_clockwork->fcalSwitch[i]->addChild(m_clockwork->fcalSeparator[i]);
+    m_clockwork->fcalHVSwitch[i]->addChild(m_clockwork->fcalHVSeparator[i]);
 
-    _clockwork->fcalSeparator[i]->addChild(_clockwork->fcalMaterial);
-    _clockwork->fcalSubSep[i]= new SoSeparator();
-    _clockwork->fcalSeparator[i]->addChild(_clockwork->fcalSubSep[i]);
+    m_clockwork->fcalSeparator[i]->addChild(m_clockwork->fcalMaterial);
+    m_clockwork->fcalSubSep[i]= new SoSeparator();
+    m_clockwork->fcalSeparator[i]->addChild(m_clockwork->fcalSubSep[i]);
 
-    _clockwork->fcalHVSeparator[i]->addChild(drawStyle);
-    _clockwork->fcalHVSeparator[i]->addChild(lightModel);
+    m_clockwork->fcalHVSeparator[i]->addChild(drawStyle);
+    m_clockwork->fcalHVSeparator[i]->addChild(lightModel);
 
-    _clockwork->fcalHVSeparator[i]->addChild(_clockwork->fcalNormalSwitch[i]);
-    _clockwork->fcalHVSeparator[i]->addChild(_clockwork->fcalBadSwitch[i]);
-    _clockwork->fcalHVSeparator[i]->addChild(_clockwork->fcalMissingSwitch[i]);
+    m_clockwork->fcalHVSeparator[i]->addChild(m_clockwork->fcalNormalSwitch[i]);
+    m_clockwork->fcalHVSeparator[i]->addChild(m_clockwork->fcalBadSwitch[i]);
+    m_clockwork->fcalHVSeparator[i]->addChild(m_clockwork->fcalMissingSwitch[i]);
 
-    _clockwork->fcalNormalSep[i] =new SoSeparator(); _clockwork->fcalNormalSwitch[i] ->addChild(_clockwork->fcalNormalSep[i]);
-    _clockwork->fcalBadSep[i]    =new SoSeparator(); _clockwork->fcalBadSwitch[i]    ->addChild(_clockwork->fcalBadSep[i]);
-    _clockwork->fcalMissingSep[i]=new SoSeparator(); _clockwork->fcalMissingSwitch[i]->addChild(_clockwork->fcalMissingSep[i]);
+    m_clockwork->fcalNormalSep[i] =new SoSeparator(); m_clockwork->fcalNormalSwitch[i] ->addChild(m_clockwork->fcalNormalSep[i]);
+    m_clockwork->fcalBadSep[i]    =new SoSeparator(); m_clockwork->fcalBadSwitch[i]    ->addChild(m_clockwork->fcalBadSep[i]);
+    m_clockwork->fcalMissingSep[i]=new SoSeparator(); m_clockwork->fcalMissingSwitch[i]->addChild(m_clockwork->fcalMissingSep[i]);
 
-    root->addChild(_clockwork->fcalSwitch[i]);
-    root->addChild(_clockwork->fcalHVSwitch[i]);
+    root->addChild(m_clockwork->fcalSwitch[i]);
+    root->addChild(m_clockwork->fcalHVSwitch[i]);
   }
 
   {
-    _clockwork->embModsSwitch = new SoSwitch();
-    _clockwork->embModsSeparator = new SoSeparator();
-    _clockwork->embModsSwitch->addChild(_clockwork->embModsSeparator);
-    _clockwork->embModsSeparator->addChild(drawStyle);
-    _clockwork->embModsSeparator->addChild(lightModel);
+    m_clockwork->embModsSwitch = new SoSwitch();
+    m_clockwork->embModsSeparator = new SoSeparator();
+    m_clockwork->embModsSwitch->addChild(m_clockwork->embModsSeparator);
+    m_clockwork->embModsSeparator->addChild(drawStyle);
+    m_clockwork->embModsSeparator->addChild(lightModel);
 
 
-    _clockwork->embHVSwitch = new SoSwitch();
-    _clockwork->embHVSeparator = new SoSeparator();
-    _clockwork->embHVSwitch->addChild(_clockwork->embHVSeparator);
-    _clockwork->embHVSeparator->addChild(drawStyle);
-    _clockwork->embHVSeparator->addChild(lightModel);
+    m_clockwork->embHVSwitch = new SoSwitch();
+    m_clockwork->embHVSeparator = new SoSeparator();
+    m_clockwork->embHVSwitch->addChild(m_clockwork->embHVSeparator);
+    m_clockwork->embHVSeparator->addChild(drawStyle);
+    m_clockwork->embHVSeparator->addChild(lightModel);
     
-    _clockwork->embNormalSep = new SoSeparator();
-    _clockwork->embNormalSwitch = new SoSwitch();
-    _clockwork->embNormalSwitch->addChild(_clockwork->embNormalSep);
-    _clockwork->embHVSeparator->addChild(_clockwork->embNormalSwitch);
+    m_clockwork->embNormalSep = new SoSeparator();
+    m_clockwork->embNormalSwitch = new SoSwitch();
+    m_clockwork->embNormalSwitch->addChild(m_clockwork->embNormalSep);
+    m_clockwork->embHVSeparator->addChild(m_clockwork->embNormalSwitch);
     
-    _clockwork->embMissingSep = new SoSeparator();
-    _clockwork->embMissingSwitch = new SoSwitch();
-    _clockwork->embMissingSwitch->addChild(_clockwork->embMissingSep);
-    _clockwork->embHVSeparator->addChild(_clockwork->embMissingSwitch);
+    m_clockwork->embMissingSep = new SoSeparator();
+    m_clockwork->embMissingSwitch = new SoSwitch();
+    m_clockwork->embMissingSwitch->addChild(m_clockwork->embMissingSep);
+    m_clockwork->embHVSeparator->addChild(m_clockwork->embMissingSwitch);
     
-    _clockwork->embBadSep = new SoSeparator();
-    _clockwork->embBadSwitch = new SoSwitch();
-    _clockwork->embBadSwitch->addChild(_clockwork->embBadSep);
-    _clockwork->embHVSeparator->addChild(_clockwork->embBadSwitch);
-    
-  }
-
-  {
-    _clockwork->embPreModsSwitch = new SoSwitch();
-    _clockwork->embPreModsSeparator = new SoSeparator();
-    _clockwork->embPreModsSwitch->addChild(_clockwork->embPreModsSeparator);
-    _clockwork->embPreModsSeparator->addChild(drawStyle);
-    _clockwork->embPreModsSeparator->addChild(lightModel);
-
-    _clockwork->embPreHVSwitch = new SoSwitch();
-    _clockwork->embPreHVSeparator = new SoSeparator();
-    _clockwork->embPreHVSwitch->addChild(_clockwork->embPreHVSeparator);
-    _clockwork->embPreHVSeparator->addChild(drawStyle);
-    _clockwork->embPreHVSeparator->addChild(lightModel);
-    
-    _clockwork->embPreNormalSep = new SoSeparator();
-    _clockwork->embPreNormalSwitch = new SoSwitch();
-    _clockwork->embPreNormalSwitch->addChild(_clockwork->embPreNormalSep);
-    _clockwork->embPreHVSeparator->addChild(_clockwork->embPreNormalSwitch);
-    
-    _clockwork->embPreMissingSep = new SoSeparator();
-    _clockwork->embPreMissingSwitch = new SoSwitch();
-    _clockwork->embPreMissingSwitch->addChild(_clockwork->embPreMissingSep);
-    _clockwork->embPreHVSeparator->addChild(_clockwork->embPreMissingSwitch);
-    
-    _clockwork->embPreBadSep = new SoSeparator();
-    _clockwork->embPreBadSwitch = new SoSwitch();
-    _clockwork->embPreBadSwitch->addChild(_clockwork->embPreBadSep);
-    _clockwork->embPreHVSeparator->addChild(_clockwork->embPreBadSwitch);
+    m_clockwork->embBadSep = new SoSeparator();
+    m_clockwork->embBadSwitch = new SoSwitch();
+    m_clockwork->embBadSwitch->addChild(m_clockwork->embBadSep);
+    m_clockwork->embHVSeparator->addChild(m_clockwork->embBadSwitch);
     
   }
 
   {
-    _clockwork->emecModsSwitch = new SoSwitch();
-    _clockwork->emecModsSeparator = new SoSeparator();
-    _clockwork->emecModsSwitch->addChild(_clockwork->emecModsSeparator);
-    _clockwork->emecModsSeparator->addChild(drawStyle);
-    _clockwork->emecModsSeparator->addChild(lightModel);
+    m_clockwork->embPreModsSwitch = new SoSwitch();
+    m_clockwork->embPreModsSeparator = new SoSeparator();
+    m_clockwork->embPreModsSwitch->addChild(m_clockwork->embPreModsSeparator);
+    m_clockwork->embPreModsSeparator->addChild(drawStyle);
+    m_clockwork->embPreModsSeparator->addChild(lightModel);
+
+    m_clockwork->embPreHVSwitch = new SoSwitch();
+    m_clockwork->embPreHVSeparator = new SoSeparator();
+    m_clockwork->embPreHVSwitch->addChild(m_clockwork->embPreHVSeparator);
+    m_clockwork->embPreHVSeparator->addChild(drawStyle);
+    m_clockwork->embPreHVSeparator->addChild(lightModel);
     
-    _clockwork->emecHVSwitch = new SoSwitch();
-    _clockwork->emecHVSeparator = new SoSeparator();
-    _clockwork->emecHVSwitch->addChild(_clockwork->emecHVSeparator);
-    _clockwork->emecHVSeparator->addChild(drawStyle);
-    _clockwork->emecHVSeparator->addChild(lightModel);
+    m_clockwork->embPreNormalSep = new SoSeparator();
+    m_clockwork->embPreNormalSwitch = new SoSwitch();
+    m_clockwork->embPreNormalSwitch->addChild(m_clockwork->embPreNormalSep);
+    m_clockwork->embPreHVSeparator->addChild(m_clockwork->embPreNormalSwitch);
     
-    _clockwork->emecNormalSep = new SoSeparator();
-    _clockwork->emecNormalSwitch = new SoSwitch();
-    _clockwork->emecNormalSwitch->addChild(_clockwork->emecNormalSep);
-    _clockwork->emecHVSeparator->addChild(_clockwork->emecNormalSwitch);
+    m_clockwork->embPreMissingSep = new SoSeparator();
+    m_clockwork->embPreMissingSwitch = new SoSwitch();
+    m_clockwork->embPreMissingSwitch->addChild(m_clockwork->embPreMissingSep);
+    m_clockwork->embPreHVSeparator->addChild(m_clockwork->embPreMissingSwitch);
     
-    _clockwork->emecMissingSep = new SoSeparator();
-    _clockwork->emecMissingSwitch = new SoSwitch();
-    _clockwork->emecMissingSwitch->addChild(_clockwork->emecMissingSep);
-    _clockwork->emecHVSeparator->addChild(_clockwork->emecMissingSwitch);
+    m_clockwork->embPreBadSep = new SoSeparator();
+    m_clockwork->embPreBadSwitch = new SoSwitch();
+    m_clockwork->embPreBadSwitch->addChild(m_clockwork->embPreBadSep);
+    m_clockwork->embPreHVSeparator->addChild(m_clockwork->embPreBadSwitch);
     
-    _clockwork->emecBadSep = new SoSeparator();
-    _clockwork->emecBadSwitch = new SoSwitch();
-    _clockwork->emecBadSwitch->addChild(_clockwork->emecBadSep);
-    _clockwork->emecHVSeparator->addChild(_clockwork->emecBadSwitch);
   }
 
   {
-    _clockwork->emecPreModsSwitch = new SoSwitch();
-    _clockwork->emecPreModsSeparator = new SoSeparator();
-    _clockwork->emecPreModsSwitch->addChild(_clockwork->emecPreModsSeparator);
-    _clockwork->emecPreModsSeparator->addChild(drawStyle);
-    _clockwork->emecPreModsSeparator->addChild(lightModel);
+    m_clockwork->emecModsSwitch = new SoSwitch();
+    m_clockwork->emecModsSeparator = new SoSeparator();
+    m_clockwork->emecModsSwitch->addChild(m_clockwork->emecModsSeparator);
+    m_clockwork->emecModsSeparator->addChild(drawStyle);
+    m_clockwork->emecModsSeparator->addChild(lightModel);
+    
+    m_clockwork->emecHVSwitch = new SoSwitch();
+    m_clockwork->emecHVSeparator = new SoSeparator();
+    m_clockwork->emecHVSwitch->addChild(m_clockwork->emecHVSeparator);
+    m_clockwork->emecHVSeparator->addChild(drawStyle);
+    m_clockwork->emecHVSeparator->addChild(lightModel);
+    
+    m_clockwork->emecNormalSep = new SoSeparator();
+    m_clockwork->emecNormalSwitch = new SoSwitch();
+    m_clockwork->emecNormalSwitch->addChild(m_clockwork->emecNormalSep);
+    m_clockwork->emecHVSeparator->addChild(m_clockwork->emecNormalSwitch);
+    
+    m_clockwork->emecMissingSep = new SoSeparator();
+    m_clockwork->emecMissingSwitch = new SoSwitch();
+    m_clockwork->emecMissingSwitch->addChild(m_clockwork->emecMissingSep);
+    m_clockwork->emecHVSeparator->addChild(m_clockwork->emecMissingSwitch);
+    
+    m_clockwork->emecBadSep = new SoSeparator();
+    m_clockwork->emecBadSwitch = new SoSwitch();
+    m_clockwork->emecBadSwitch->addChild(m_clockwork->emecBadSep);
+    m_clockwork->emecHVSeparator->addChild(m_clockwork->emecBadSwitch);
+  }
 
-    _clockwork->emecPreHVSwitch = new SoSwitch();
-    _clockwork->emecPreHVSeparator = new SoSeparator();
-    _clockwork->emecPreHVSwitch->addChild(_clockwork->emecPreHVSeparator);
-    _clockwork->emecPreHVSeparator->addChild(drawStyle);
-    _clockwork->emecPreHVSeparator->addChild(lightModel);
+  {
+    m_clockwork->emecPreModsSwitch = new SoSwitch();
+    m_clockwork->emecPreModsSeparator = new SoSeparator();
+    m_clockwork->emecPreModsSwitch->addChild(m_clockwork->emecPreModsSeparator);
+    m_clockwork->emecPreModsSeparator->addChild(drawStyle);
+    m_clockwork->emecPreModsSeparator->addChild(lightModel);
+
+    m_clockwork->emecPreHVSwitch = new SoSwitch();
+    m_clockwork->emecPreHVSeparator = new SoSeparator();
+    m_clockwork->emecPreHVSwitch->addChild(m_clockwork->emecPreHVSeparator);
+    m_clockwork->emecPreHVSeparator->addChild(drawStyle);
+    m_clockwork->emecPreHVSeparator->addChild(lightModel);
     
-    _clockwork->emecPreNormalSep = new SoSeparator();
-    _clockwork->emecPreNormalSwitch = new SoSwitch();
-    _clockwork->emecPreNormalSwitch->addChild(_clockwork->emecPreNormalSep);
-    _clockwork->emecPreHVSeparator->addChild(_clockwork->emecPreNormalSwitch);
+    m_clockwork->emecPreNormalSep = new SoSeparator();
+    m_clockwork->emecPreNormalSwitch = new SoSwitch();
+    m_clockwork->emecPreNormalSwitch->addChild(m_clockwork->emecPreNormalSep);
+    m_clockwork->emecPreHVSeparator->addChild(m_clockwork->emecPreNormalSwitch);
     
-    _clockwork->emecPreMissingSep = new SoSeparator();
-    _clockwork->emecPreMissingSwitch = new SoSwitch();
-    _clockwork->emecPreMissingSwitch->addChild(_clockwork->emecPreMissingSep);
-    _clockwork->emecPreHVSeparator->addChild(_clockwork->emecPreMissingSwitch);
+    m_clockwork->emecPreMissingSep = new SoSeparator();
+    m_clockwork->emecPreMissingSwitch = new SoSwitch();
+    m_clockwork->emecPreMissingSwitch->addChild(m_clockwork->emecPreMissingSep);
+    m_clockwork->emecPreHVSeparator->addChild(m_clockwork->emecPreMissingSwitch);
     
-    _clockwork->emecPreBadSep = new SoSeparator();
-    _clockwork->emecPreBadSwitch = new SoSwitch();
-    _clockwork->emecPreBadSwitch->addChild(_clockwork->emecPreBadSep);
-    _clockwork->emecPreHVSeparator->addChild(_clockwork->emecPreBadSwitch);
+    m_clockwork->emecPreBadSep = new SoSeparator();
+    m_clockwork->emecPreBadSwitch = new SoSwitch();
+    m_clockwork->emecPreBadSwitch->addChild(m_clockwork->emecPreBadSep);
+    m_clockwork->emecPreHVSeparator->addChild(m_clockwork->emecPreBadSwitch);
     
   }
 
-  root->addChild(_clockwork->embHVSwitch);
-  root->addChild(_clockwork->embPreHVSwitch);
-  root->addChild(_clockwork->emecPreHVSwitch);
-  root->addChild(_clockwork->emecHVSwitch);
-  root->addChild(_clockwork->embModsSwitch);
-  root->addChild(_clockwork->emecModsSwitch);
-  root->addChild(_clockwork->embPreModsSwitch);
-  root->addChild(_clockwork->emecPreModsSwitch);
+  root->addChild(m_clockwork->embHVSwitch);
+  root->addChild(m_clockwork->embPreHVSwitch);
+  root->addChild(m_clockwork->emecPreHVSwitch);
+  root->addChild(m_clockwork->emecHVSwitch);
+  root->addChild(m_clockwork->embModsSwitch);
+  root->addChild(m_clockwork->emecModsSwitch);
+  root->addChild(m_clockwork->embPreModsSwitch);
+  root->addChild(m_clockwork->emecPreModsSwitch);
 
   for (int i=0;i<4;i++) {
-    _clockwork->embSwitch[i] = new SoSwitch();
-    _clockwork->embSeparator[i] = new SoSeparator();
-    _clockwork->embSwitch[i]->addChild(_clockwork->embSeparator[i]);
-    _clockwork->embSeparator[i]->addChild(_clockwork->embMaterial);
+    m_clockwork->embSwitch[i] = new SoSwitch();
+    m_clockwork->embSeparator[i] = new SoSeparator();
+    m_clockwork->embSwitch[i]->addChild(m_clockwork->embSeparator[i]);
+    m_clockwork->embSeparator[i]->addChild(m_clockwork->embMaterial);
 
     for (int p=0;p<NPHISECTORS;p++) {
-      _clockwork->embSubSwitch[i][p] = new SoSwitch();
-      _clockwork->embSubSep   [i][p] = new SoSeparator();
-      _clockwork->embSubSwitch[i][p]->addChild(_clockwork->embSubSep[i][p]);
-      _clockwork->embSeparator[i]->addChild(_clockwork->embSubSwitch[i][p]);
-	_clockwork->embSubSwitch[i][p]->whichChild= SO_SWITCH_ALL;
+      m_clockwork->embSubSwitch[i][p] = new SoSwitch();
+      m_clockwork->embSubSep   [i][p] = new SoSeparator();
+      m_clockwork->embSubSwitch[i][p]->addChild(m_clockwork->embSubSep[i][p]);
+      m_clockwork->embSeparator[i]->addChild(m_clockwork->embSubSwitch[i][p]);
+	m_clockwork->embSubSwitch[i][p]->whichChild= SO_SWITCH_ALL;
     }
 
-    root->addChild(_clockwork->embSwitch[i]);
+    root->addChild(m_clockwork->embSwitch[i]);
 
-    _clockwork->emecSwitch[i] = new SoSwitch();
-    _clockwork->emecSeparator[i] = new SoSeparator();
-    _clockwork->emecSwitch[i]->addChild(_clockwork->emecSeparator[i]);
-    _clockwork->emecSeparator[i]->addChild(_clockwork->emecMaterial);
+    m_clockwork->emecSwitch[i] = new SoSwitch();
+    m_clockwork->emecSeparator[i] = new SoSeparator();
+    m_clockwork->emecSwitch[i]->addChild(m_clockwork->emecSeparator[i]);
+    m_clockwork->emecSeparator[i]->addChild(m_clockwork->emecMaterial);
 
     for (int p=0;p<NPHISECTORS;p++) {
-      _clockwork->emecSubSwitch[i][p] = new SoSwitch();
-      _clockwork->emecSubSep   [i][p] = new SoSeparator();
-      _clockwork->emecSubSwitch[i][p]->addChild(_clockwork->emecSubSep[i][p]);
-      _clockwork->emecSeparator[i]->addChild(_clockwork->emecSubSwitch[i][p]);
-      _clockwork->emecSubSwitch[i][p]->whichChild= SO_SWITCH_ALL;
+      m_clockwork->emecSubSwitch[i][p] = new SoSwitch();
+      m_clockwork->emecSubSep   [i][p] = new SoSeparator();
+      m_clockwork->emecSubSwitch[i][p]->addChild(m_clockwork->emecSubSep[i][p]);
+      m_clockwork->emecSeparator[i]->addChild(m_clockwork->emecSubSwitch[i][p]);
+      m_clockwork->emecSubSwitch[i][p]->whichChild= SO_SWITCH_ALL;
     }
 
-    root->addChild(_clockwork->emecSwitch[i]);
+    root->addChild(m_clockwork->emecSwitch[i]);
 
-    _clockwork->hecSwitch[i] = new SoSwitch();
-    _clockwork->hecHVSwitch[i] = new SoSwitch();
-    _clockwork->hecHVSeparator[i] = new SoSeparator();
-    _clockwork->hecHVSwitch[i]->addChild(_clockwork->hecHVSeparator[i]);
-    _clockwork->hecHVSeparator[i]->addChild(drawStyle);
-    _clockwork->hecHVSeparator[i]->addChild(lightModel);
+    m_clockwork->hecSwitch[i] = new SoSwitch();
+    m_clockwork->hecHVSwitch[i] = new SoSwitch();
+    m_clockwork->hecHVSeparator[i] = new SoSeparator();
+    m_clockwork->hecHVSwitch[i]->addChild(m_clockwork->hecHVSeparator[i]);
+    m_clockwork->hecHVSeparator[i]->addChild(drawStyle);
+    m_clockwork->hecHVSeparator[i]->addChild(lightModel);
 
-    _clockwork->hecNormalSep[i] = new SoSeparator();
-    _clockwork->hecNormalSwitch[i] = new SoSwitch();
-    _clockwork->hecNormalSwitch[i]->addChild(_clockwork->hecNormalSep[i]);
-    _clockwork->hecHVSeparator[i]->addChild(_clockwork->hecNormalSwitch[i]);
+    m_clockwork->hecNormalSep[i] = new SoSeparator();
+    m_clockwork->hecNormalSwitch[i] = new SoSwitch();
+    m_clockwork->hecNormalSwitch[i]->addChild(m_clockwork->hecNormalSep[i]);
+    m_clockwork->hecHVSeparator[i]->addChild(m_clockwork->hecNormalSwitch[i]);
 
-    _clockwork->hecMissingSep[i] = new SoSeparator();
-    _clockwork->hecMissingSwitch[i] = new SoSwitch();
-    _clockwork->hecMissingSwitch[i]->addChild(_clockwork->hecMissingSep[i]);
-    _clockwork->hecHVSeparator[i]->addChild(_clockwork->hecMissingSwitch[i]);
+    m_clockwork->hecMissingSep[i] = new SoSeparator();
+    m_clockwork->hecMissingSwitch[i] = new SoSwitch();
+    m_clockwork->hecMissingSwitch[i]->addChild(m_clockwork->hecMissingSep[i]);
+    m_clockwork->hecHVSeparator[i]->addChild(m_clockwork->hecMissingSwitch[i]);
 
-    _clockwork->hecBadSep[i] = new SoSeparator();
-    _clockwork->hecBadSwitch[i] = new SoSwitch();
-    _clockwork->hecBadSwitch[i]->addChild(_clockwork->hecBadSep[i]);
-    _clockwork->hecHVSeparator[i]->addChild(_clockwork->hecBadSwitch[i]);
+    m_clockwork->hecBadSep[i] = new SoSeparator();
+    m_clockwork->hecBadSwitch[i] = new SoSwitch();
+    m_clockwork->hecBadSwitch[i]->addChild(m_clockwork->hecBadSep[i]);
+    m_clockwork->hecHVSeparator[i]->addChild(m_clockwork->hecBadSwitch[i]);
 
-    _clockwork->hecSeparator[i] = new SoSeparator();
-    _clockwork->hecSwitch[i]->addChild(_clockwork->hecSeparator[i]);
-    _clockwork->hecSeparator[i]->addChild(_clockwork->hecMaterial);
+    m_clockwork->hecSeparator[i] = new SoSeparator();
+    m_clockwork->hecSwitch[i]->addChild(m_clockwork->hecSeparator[i]);
+    m_clockwork->hecSeparator[i]->addChild(m_clockwork->hecMaterial);
 
     for (int p=0;p<NPHISECTORS;p++) {
-      _clockwork->hecSubSwitch[i][p] = new SoSwitch();
-      _clockwork->hecSubSep   [i][p] = new SoSeparator();
-      _clockwork->hecSubSwitch[i][p]->addChild(_clockwork->hecSubSep[i][p]);
-      _clockwork->hecSeparator[i]->addChild(_clockwork->hecSubSwitch[i][p]);
-      _clockwork->hecSubSwitch[i][p]->whichChild= SO_SWITCH_ALL;
+      m_clockwork->hecSubSwitch[i][p] = new SoSwitch();
+      m_clockwork->hecSubSep   [i][p] = new SoSeparator();
+      m_clockwork->hecSubSwitch[i][p]->addChild(m_clockwork->hecSubSep[i][p]);
+      m_clockwork->hecSeparator[i]->addChild(m_clockwork->hecSubSwitch[i][p]);
+      m_clockwork->hecSubSwitch[i][p]->whichChild= SO_SWITCH_ALL;
 
     }
 
-    root->addChild(_clockwork->hecSwitch[i]);
-    root->addChild(_clockwork->hecHVSwitch[i]);
+    root->addChild(m_clockwork->hecSwitch[i]);
+    root->addChild(m_clockwork->hecHVSwitch[i]);
   }
 
-  _clockwork->emecFocalSwitch = new SoSwitch();
-  _clockwork->emecFocalSwitch->addChild(_clockwork->emecMaterial);
-  root->addChild(_clockwork->emecFocalSwitch);
+  m_clockwork->emecFocalSwitch = new SoSwitch();
+  m_clockwork->emecFocalSwitch->addChild(m_clockwork->emecMaterial);
+  root->addChild(m_clockwork->emecFocalSwitch);
 
-  _clockwork->hecFocalSwitch = new SoSwitch();
-  _clockwork->hecFocalSwitch->addChild(_clockwork->hecMaterial);
-  root->addChild(_clockwork->hecFocalSwitch);
+  m_clockwork->hecFocalSwitch = new SoSwitch();
+  m_clockwork->hecFocalSwitch->addChild(m_clockwork->hecMaterial);
+  root->addChild(m_clockwork->hecFocalSwitch);
 
-  _clockwork->embAccViewSwitch = new SoSwitch();
-  _clockwork->embAccViewSwitch->addChild(_clockwork->embAccMaterial);
-  root->addChild(_clockwork->embAccViewSwitch);
+  m_clockwork->embAccViewSwitch = new SoSwitch();
+  m_clockwork->embAccViewSwitch->addChild(m_clockwork->embAccMaterial);
+  root->addChild(m_clockwork->embAccViewSwitch);
 
   for (int p=0;p<NPHISECTORS;p++) {
-    _clockwork->accordionSubSwitch[p] = new SoSwitch();
-    _clockwork->accordionSubSep   [p] = new SoSeparator();
-    _clockwork->accordionSubSwitch[p]->addChild(_clockwork->accordionSubSep[p]);
-    _clockwork->embAccViewSwitch->addChild(_clockwork->accordionSubSwitch[p]);
-    _clockwork->accordionSubSwitch[p]->whichChild= SO_SWITCH_ALL;
+    m_clockwork->accordionSubSwitch[p] = new SoSwitch();
+    m_clockwork->accordionSubSep   [p] = new SoSeparator();
+    m_clockwork->accordionSubSwitch[p]->addChild(m_clockwork->accordionSubSep[p]);
+    m_clockwork->embAccViewSwitch->addChild(m_clockwork->accordionSubSwitch[p]);
+    m_clockwork->accordionSubSwitch[p]->whichChild= SO_SWITCH_ALL;
   }
 
 
-  _clockwork->switchMap["embS0CheckBox"] = _clockwork->embSwitch[0];
-  _clockwork->switchMap["embS1CheckBox"] = _clockwork->embSwitch[1];
-  _clockwork->switchMap["embS2CheckBox"] = _clockwork->embSwitch[2];
-  _clockwork->switchMap["embS3CheckBox"] = _clockwork->embSwitch[3];
+  m_clockwork->switchMap["embS0CheckBox"] = m_clockwork->embSwitch[0];
+  m_clockwork->switchMap["embS1CheckBox"] = m_clockwork->embSwitch[1];
+  m_clockwork->switchMap["embS2CheckBox"] = m_clockwork->embSwitch[2];
+  m_clockwork->switchMap["embS3CheckBox"] = m_clockwork->embSwitch[3];
 
-  _clockwork->switchMap["emecS0CheckBox"] = _clockwork->emecSwitch[0];
-  _clockwork->switchMap["emecS1CheckBox"] = _clockwork->emecSwitch[1];
-  _clockwork->switchMap["emecS2CheckBox"] = _clockwork->emecSwitch[2];
-  _clockwork->switchMap["emecS3CheckBox"] = _clockwork->emecSwitch[3];
+  m_clockwork->switchMap["emecS0CheckBox"] = m_clockwork->emecSwitch[0];
+  m_clockwork->switchMap["emecS1CheckBox"] = m_clockwork->emecSwitch[1];
+  m_clockwork->switchMap["emecS2CheckBox"] = m_clockwork->emecSwitch[2];
+  m_clockwork->switchMap["emecS3CheckBox"] = m_clockwork->emecSwitch[3];
 
-  _clockwork->switchMap["hecS0CheckBox"] = _clockwork->hecSwitch[0];
-  _clockwork->switchMap["hecS1CheckBox"] = _clockwork->hecSwitch[1];
-  _clockwork->switchMap["hecS2CheckBox"] = _clockwork->hecSwitch[2];
-  _clockwork->switchMap["hecS3CheckBox"] = _clockwork->hecSwitch[3];
+  m_clockwork->switchMap["hecS0CheckBox"] = m_clockwork->hecSwitch[0];
+  m_clockwork->switchMap["hecS1CheckBox"] = m_clockwork->hecSwitch[1];
+  m_clockwork->switchMap["hecS2CheckBox"] = m_clockwork->hecSwitch[2];
+  m_clockwork->switchMap["hecS3CheckBox"] = m_clockwork->hecSwitch[3];
 
-  _clockwork->switchMap["fcalS0CheckBox"] = _clockwork->fcalSwitch[0];
-  _clockwork->switchMap["fcalS1CheckBox"] = _clockwork->fcalSwitch[1];
-  _clockwork->switchMap["fcalS2CheckBox"] = _clockwork->fcalSwitch[2];
+  m_clockwork->switchMap["fcalS0CheckBox"] = m_clockwork->fcalSwitch[0];
+  m_clockwork->switchMap["fcalS1CheckBox"] = m_clockwork->fcalSwitch[1];
+  m_clockwork->switchMap["fcalS2CheckBox"] = m_clockwork->fcalSwitch[2];
 
-  _clockwork->switchMap["fcalS0CheckBoxHV"] = _clockwork->fcalHVSwitch[0];
-  _clockwork->switchMap["fcalS1CheckBoxHV"] = _clockwork->fcalHVSwitch[1];
-  _clockwork->switchMap["fcalS2CheckBoxHV"] = _clockwork->fcalHVSwitch[2];
+  m_clockwork->switchMap["fcalS0CheckBoxHV"] = m_clockwork->fcalHVSwitch[0];
+  m_clockwork->switchMap["fcalS1CheckBoxHV"] = m_clockwork->fcalHVSwitch[1];
+  m_clockwork->switchMap["fcalS2CheckBoxHV"] = m_clockwork->fcalHVSwitch[2];
 
-  _clockwork->switchMap["hecS0CheckBoxHV"] = _clockwork->hecHVSwitch[0];
-  _clockwork->switchMap["hecS1CheckBoxHV"] = _clockwork->hecHVSwitch[1];
-  _clockwork->switchMap["hecS2CheckBoxHV"] = _clockwork->hecHVSwitch[2];
-  _clockwork->switchMap["hecS3CheckBoxHV"] = _clockwork->hecHVSwitch[3];
+  m_clockwork->switchMap["hecS0CheckBoxHV"] = m_clockwork->hecHVSwitch[0];
+  m_clockwork->switchMap["hecS1CheckBoxHV"] = m_clockwork->hecHVSwitch[1];
+  m_clockwork->switchMap["hecS2CheckBoxHV"] = m_clockwork->hecHVSwitch[2];
+  m_clockwork->switchMap["hecS3CheckBoxHV"] = m_clockwork->hecHVSwitch[3];
 
-  _clockwork->switchMap["emecCheckBoxHV"] = _clockwork->emecHVSwitch;
-  _clockwork->switchMap["embCheckBoxHV"]  = _clockwork->embHVSwitch;
-  _clockwork->switchMap["emecCheckBoxMods"] = _clockwork->emecModsSwitch;
-  _clockwork->switchMap["embCheckBoxMods"]  = _clockwork->embModsSwitch;
+  m_clockwork->switchMap["emecCheckBoxHV"] = m_clockwork->emecHVSwitch;
+  m_clockwork->switchMap["embCheckBoxHV"]  = m_clockwork->embHVSwitch;
+  m_clockwork->switchMap["emecCheckBoxMods"] = m_clockwork->emecModsSwitch;
+  m_clockwork->switchMap["embCheckBoxMods"]  = m_clockwork->embModsSwitch;
 
-  _clockwork->switchMap["embPresamplerCheckBoxHV"]  = _clockwork->embPreHVSwitch;
-  _clockwork->switchMap["embPresamplerCheckBoxMods"]  = _clockwork->embPreModsSwitch;
-  _clockwork->switchMap["emecPresamplerCheckBoxHV"]  = _clockwork->emecPreHVSwitch;
-  _clockwork->switchMap["emecPresamplerCheckBoxMods"]  = _clockwork->emecPreModsSwitch;
+  m_clockwork->switchMap["embPresamplerCheckBoxHV"]  = m_clockwork->embPreHVSwitch;
+  m_clockwork->switchMap["embPresamplerCheckBoxMods"]  = m_clockwork->embPreModsSwitch;
+  m_clockwork->switchMap["emecPresamplerCheckBoxHV"]  = m_clockwork->emecPreHVSwitch;
+  m_clockwork->switchMap["emecPresamplerCheckBoxMods"]  = m_clockwork->emecPreModsSwitch;
 
-  _clockwork->switchMap["emecFocalCheckBox"] = _clockwork->emecFocalSwitch;
-  _clockwork->switchMap["hecFocalCheckBox"] = _clockwork->hecFocalSwitch;
-  _clockwork->switchMap["embAccordionCheckBox"] = _clockwork->embAccViewSwitch;
+  m_clockwork->switchMap["emecFocalCheckBox"] = m_clockwork->emecFocalSwitch;
+  m_clockwork->switchMap["hecFocalCheckBox"] = m_clockwork->hecFocalSwitch;
+  m_clockwork->switchMap["embAccordionCheckBox"] = m_clockwork->embAccViewSwitch;
 
   createEtaPhi();
 
   //Finally, make sure we start in a correct state:
-  _clockwork->currentlyEnabledPhiSectors = QVector<bool>(NPHISECTORS,true);//we need this line for some reason...
-  QMapIterator<QString,QCheckBox*> it(_clockwork->checkBoxMap);
+  m_clockwork->currentlyEnabledPhiSectors = QVector<bool>(NPHISECTORS,true);//we need this line for some reason...
+  QMapIterator<QString,QCheckBox*> it(m_clockwork->checkBoxMap);
   while (it.hasNext()) {
     it.next();
     if (it.value()->isChecked())
@@ -709,8 +709,8 @@ void VP1CaloReadoutSystem::buildPermanentSceneGraph(StoreGateSvc*, SoSeparator *
 
 void VP1CaloReadoutSystem::createHV() {
 
-  if (_clockwork->hvInit) return;
-  _clockwork->hvInit=true;
+  if (m_clockwork->hvInit) return;
+  m_clockwork->hvInit=true;
 
 
   SoMaterial *red = new SoMaterial();
@@ -726,43 +726,43 @@ void VP1CaloReadoutSystem::createHV() {
   blue->ref();
 
   for (int i=0;i<3;i++) {
-    _clockwork->fcalNormalSep[i]->addChild(blue);
-    _clockwork->fcalBadSep[i]->addChild(red);
-    _clockwork->fcalMissingSep[i]->addChild(white);
+    m_clockwork->fcalNormalSep[i]->addChild(blue);
+    m_clockwork->fcalBadSep[i]->addChild(red);
+    m_clockwork->fcalMissingSep[i]->addChild(white);
   }
 
   for (int i=0;i<4;i++) {
-    _clockwork->hecNormalSep[i]->addChild(blue);
-    _clockwork->hecBadSep[i]->addChild(red);
-    _clockwork->hecMissingSep[i]->addChild(white);
+    m_clockwork->hecNormalSep[i]->addChild(blue);
+    m_clockwork->hecBadSep[i]->addChild(red);
+    m_clockwork->hecMissingSep[i]->addChild(white);
 
   }
-  _clockwork->emecNormalSep->addChild(blue);
-  _clockwork->emecBadSep->addChild(red);
-  _clockwork->emecMissingSep->addChild(white);
-  _clockwork->emecModsSeparator->addChild(white);
+  m_clockwork->emecNormalSep->addChild(blue);
+  m_clockwork->emecBadSep->addChild(red);
+  m_clockwork->emecMissingSep->addChild(white);
+  m_clockwork->emecModsSeparator->addChild(white);
 
-  _clockwork->embNormalSep->addChild(blue);
-  _clockwork->embBadSep->addChild(red);
-  _clockwork->embMissingSep->addChild(white);
-  _clockwork->embModsSeparator->addChild(white);
+  m_clockwork->embNormalSep->addChild(blue);
+  m_clockwork->embBadSep->addChild(red);
+  m_clockwork->embMissingSep->addChild(white);
+  m_clockwork->embModsSeparator->addChild(white);
 
-  _clockwork->embPreNormalSep->addChild(blue);
-  _clockwork->embPreBadSep->addChild(red);
-  _clockwork->embPreMissingSep->addChild(white);
-  _clockwork->embPreModsSeparator->addChild(white);
+  m_clockwork->embPreNormalSep->addChild(blue);
+  m_clockwork->embPreBadSep->addChild(red);
+  m_clockwork->embPreMissingSep->addChild(white);
+  m_clockwork->embPreModsSeparator->addChild(white);
 
-  _clockwork->emecPreNormalSep->addChild(blue);
-  _clockwork->emecPreBadSep->addChild(red);
-  _clockwork->emecPreMissingSep->addChild(white);
-  _clockwork->emecPreModsSeparator->addChild(white);
+  m_clockwork->emecPreNormalSep->addChild(blue);
+  m_clockwork->emecPreBadSep->addChild(red);
+  m_clockwork->emecPreMissingSep->addChild(white);
+  m_clockwork->emecPreModsSeparator->addChild(white);
 
   red->unref();
   white->unref();
   blue->unref();
 
 
-  int tolerance =_clockwork->ui.hvToleranceSpinBox->value();
+  int tolerance =m_clockwork->ui.hvToleranceSpinBox->value();
 
   const LArHVManager *larHVManager=NULL;
   if (!VP1SGAccessHelper(this,true).retrieve(larHVManager,"LArHVManager")) {
@@ -798,7 +798,7 @@ void VP1CaloReadoutSystem::createHV() {
 	    SoLineSet *ls = new SoLineSet();
 	    ls->numVertices=5;
 	    ls->vertexProperty=vtxProperty;
-	    _clockwork->embModsSeparator->addChild(ls);
+	    m_clockwork->embModsSeparator->addChild(ls);
 	  }
 
 
@@ -807,7 +807,7 @@ void VP1CaloReadoutSystem::createHV() {
 
 	    double voltage0 = electrode->voltage(0);
 	    double voltage1 = electrode->voltage(1);
-	    double nominalVoltage = _clockwork->ui.embNominalSpinBox->value();
+	    double nominalVoltage = m_clockwork->ui.embNominalSpinBox->value();
 	    bool outOfTolerance = (fabs(voltage0-nominalVoltage) > double (tolerance))  || (fabs(voltage1-nominalVoltage) > double (tolerance))  ;
 	    bool missing        = voltage0 == -99999 || voltage1 == -99999;
 	    {
@@ -821,15 +821,15 @@ void VP1CaloReadoutSystem::createHV() {
 	      ls->vertexProperty=vtxProperty;
 
 	      if (missing) {
-		_clockwork->embMissingSep->addChild(ls);
+		m_clockwork->embMissingSep->addChild(ls);
 	      }
 	      else if (outOfTolerance) {
-		_clockwork->embBadSep->addChild(ls);
+		m_clockwork->embBadSep->addChild(ls);
 	      }
 	      else {
-		_clockwork->embNormalSep->addChild(ls);
+		m_clockwork->embNormalSep->addChild(ls);
 	      }
-	      _clockwork->EMBHVMap[ls]=electrode;
+	      m_clockwork->EMBHVMap[ls]=electrode;
 	    }
 	  }
 	}
@@ -861,40 +861,40 @@ void VP1CaloReadoutSystem::createHV() {
 	  SoLineSet *ls = new SoLineSet();
 	  ls->numVertices=5;
 	  ls->vertexProperty=vtxProperty;
-	  _clockwork->embPreModsSeparator->addChild(ls);
+	  m_clockwork->embPreModsSeparator->addChild(ls);
 	  
 	  double voltage0 = embMod->voltage(0);
 	  double voltage1 = embMod->voltage(1);
-	  double nominalVoltage = _clockwork->ui.embPresamplerNominalSpinBox->value();
+	  double nominalVoltage = m_clockwork->ui.embPresamplerNominalSpinBox->value();
 	  bool outOfTolerance = (fabs(voltage0-nominalVoltage) > double (tolerance))  || (fabs(voltage1-nominalVoltage) > double (tolerance))  ;
 	  bool missing        = voltage0 == -99999 || voltage1 == -99999;
 	  
 	  
 	  if (missing) {
-	    _clockwork->embPreMissingSep->addChild(ls);
+	    m_clockwork->embPreMissingSep->addChild(ls);
 	  }
 	  else if (outOfTolerance) {
-	    _clockwork->embPreBadSep->addChild(ls);
+	    m_clockwork->embPreBadSep->addChild(ls);
 	  }
 	  else {
-	    _clockwork->embPreNormalSep->addChild(ls);
+	    m_clockwork->embPreNormalSep->addChild(ls);
 	  }
-	  _clockwork->embPreModsSeparator->addChild(ls);
-	  //_clockwork->EMBPresamplerHVMap[ls]=embMod;
+	  m_clockwork->embPreModsSeparator->addChild(ls);
+	  //m_clockwork->EMBPresamplerHVMap[ls]=embMod;
 	}
       }
     }
   }
 
-  QSpinBox *emecSpinBoxOuter[]=	      {_clockwork->ui.emecNominalSpinBox_1,
-				       _clockwork->ui.emecNominalSpinBox_2,
-				       _clockwork->ui.emecNominalSpinBox_3,
-				       _clockwork->ui.emecNominalSpinBox_4,
-				       _clockwork->ui.emecNominalSpinBox_5,
-				       _clockwork->ui.emecNominalSpinBox_6,
-				       _clockwork->ui.emecNominalSpinBox_7};
-  QSpinBox *emecSpinBoxInner[]=	      {_clockwork->ui.emecNominalSpinBox_8,
-				       _clockwork->ui.emecNominalSpinBox_9};
+  QSpinBox *emecSpinBoxOuter[]=	      {m_clockwork->ui.emecNominalSpinBox_1,
+				       m_clockwork->ui.emecNominalSpinBox_2,
+				       m_clockwork->ui.emecNominalSpinBox_3,
+				       m_clockwork->ui.emecNominalSpinBox_4,
+				       m_clockwork->ui.emecNominalSpinBox_5,
+				       m_clockwork->ui.emecNominalSpinBox_6,
+				       m_clockwork->ui.emecNominalSpinBox_7};
+  QSpinBox *emecSpinBoxInner[]=	      {m_clockwork->ui.emecNominalSpinBox_8,
+				       m_clockwork->ui.emecNominalSpinBox_9};
 
 
   for (int t=0;t<2;t++) {
@@ -930,7 +930,7 @@ void VP1CaloReadoutSystem::createHV() {
 	    SoLineSet *ls = new SoLineSet();
 	    ls->numVertices=5;
 	    ls->vertexProperty=vtxProperty;
-	    _clockwork->emecModsSeparator->addChild(ls);
+	    m_clockwork->emecModsSeparator->addChild(ls);
 
 	    for (unsigned int i=0;i<emecMod->getNumElectrodes();i++) {
 	      EMECHVElectrodeConstLink electrode = emecMod->getElectrode(i);
@@ -955,15 +955,15 @@ void VP1CaloReadoutSystem::createHV() {
 		ls->vertexProperty=vtxProperty;
 
 		if (missing) {
-		  _clockwork->emecMissingSep->addChild(ls);
+		  m_clockwork->emecMissingSep->addChild(ls);
 		}
 		else if (outOfTolerance) {
-		  _clockwork->emecBadSep->addChild(ls);
+		  m_clockwork->emecBadSep->addChild(ls);
 		}
 		else {
-		  _clockwork->emecNormalSep->addChild(ls);
+		  m_clockwork->emecNormalSep->addChild(ls);
 		}
-		_clockwork->EMECHVMap[ls]=electrode;
+		m_clockwork->EMECHVMap[ls]=electrode;
 	      }
 	    }
 	  }
@@ -998,25 +998,25 @@ void VP1CaloReadoutSystem::createHV() {
       SoLineSet *ls = new SoLineSet();
       ls->numVertices=5;
       ls->vertexProperty=vtxProperty;
-      _clockwork->emecPreModsSeparator->addChild(ls);
+      m_clockwork->emecPreModsSeparator->addChild(ls);
       
       double voltage0 = emecMod->voltage(0);
       double voltage1 = emecMod->voltage(1);
-      double nominalVoltage = _clockwork->ui.emecPresamplerNominalSpinBox->value();
+      double nominalVoltage = m_clockwork->ui.emecPresamplerNominalSpinBox->value();
       bool outOfTolerance = (fabs(voltage0-nominalVoltage) > double (tolerance))  || (fabs(voltage1-nominalVoltage) > double (tolerance))  ;
       bool missing        = voltage0 == -99999 || voltage1 == -99999;
       
       if (missing) {
-	_clockwork->emecPreMissingSep->addChild(ls);
+	m_clockwork->emecPreMissingSep->addChild(ls);
       }
       else if (outOfTolerance) {
-	_clockwork->emecPreBadSep->addChild(ls);
+	m_clockwork->emecPreBadSep->addChild(ls);
       }
       else {
-	_clockwork->emecPreNormalSep->addChild(ls);
+	m_clockwork->emecPreNormalSep->addChild(ls);
       }
-      _clockwork->emecPreModsSeparator->addChild(ls);
-      //_clockwork->EMECPreHVMap[ls]=module;
+      m_clockwork->emecPreModsSeparator->addChild(ls);
+      //m_clockwork->EMECPreHVMap[ls]=module;
     }
   }
 
@@ -1030,7 +1030,7 @@ void VP1CaloReadoutSystem::createHV() {
 	for (unsigned int i=0;i<hecMod->getNumSubgaps();i++) {
 	  HECHVSubgapConstLink subgap = hecMod->getSubgap(i);
 	  double voltage = subgap->voltage();
-	  double nominalVoltage = _clockwork->ui.hecNominalSpinBox->value();
+	  double nominalVoltage = m_clockwork->ui.hecNominalSpinBox->value();
 	  bool outOfTolerance = fabs(voltage-nominalVoltage) > double (tolerance);
 	  bool missing        = voltage == -99999;
 
@@ -1039,8 +1039,8 @@ void VP1CaloReadoutSystem::createHV() {
 
 	  // we comment out to avoid compilation warnings, because they're not used, apparently
 //	  HECCell::CELLPOS pos=HECCell::FRONT;
-//	  if (_clockwork->pos==BACK) pos=HECCell::BACK;
-//	  if (_clockwork->pos==CENTER) pos=HECCell::CENTER;
+//	  if (m_clockwork->pos==BACK) pos=HECCell::BACK;
+//	  if (m_clockwork->pos==CENTER) pos=HECCell::CENTER;
 
 	  const HECDetectorManager *hecManager = VP1DetInfo::hecDetMgr();
 	  const HECDetectorRegion  *region = hecManager->getDetectorRegion(element->getEndcapIndex(),element->getSamplingIndex(),element->getRegionIndex());
@@ -1067,15 +1067,15 @@ void VP1CaloReadoutSystem::createHV() {
 	  ls->numVertices=5;
 	  ls->vertexProperty=vtxProperty;
 	  if (missing) {
-	    _clockwork->hecMissingSep[s]->addChild(ls);
+	    m_clockwork->hecMissingSep[s]->addChild(ls);
 	  }
 	  else if (outOfTolerance) {
-	    _clockwork->hecBadSep[s]->addChild(ls);
+	    m_clockwork->hecBadSep[s]->addChild(ls);
 	  }
 	  else {
-	    _clockwork->hecNormalSep[s]->addChild(ls);
+	    m_clockwork->hecNormalSep[s]->addChild(ls);
 	  }
-	  _clockwork->HECHVMap[ls]=subgap;
+	  m_clockwork->HECHVMap[ls]=subgap;
 
 	}
       }
@@ -1097,7 +1097,7 @@ void VP1CaloReadoutSystem::createHV() {
 	      // Determine whether this is in bounds, or not..
 	      //
 
-	      const QSpinBox *fcalSpin[] = {_clockwork->ui.fcal1NominalSpinBox,_clockwork->ui.fcal2NominalSpinBox,_clockwork->ui.fcal3NominalSpinBox};
+	      const QSpinBox *fcalSpin[] = {m_clockwork->ui.fcal1NominalSpinBox,m_clockwork->ui.fcal2NominalSpinBox,m_clockwork->ui.fcal3NominalSpinBox};
 	      const QSpinBox *spinBox=fcalSpin[s];
 	      double nominalVoltage = double (spinBox->value());
 
@@ -1130,8 +1130,8 @@ void VP1CaloReadoutSystem::createHV() {
 		    //              double zb = fcalMod->getEndcapIndex()== 0 ?  -fcalMod->getFullDepthZ(*t)/2.0 : +fcalMod->getFullDepthZ(*t)/2.0;
 
 		    double z=zf;
-		    //if (_clockwork->pos==CENTER) z=zc;
-		    //if (_clockwork->pos==BACK)   z=zb;
+		    //if (m_clockwork->pos==CENTER) z=zc;
+		    //if (m_clockwork->pos==BACK)   z=zb;
 
 		    for (unsigned int p=0;p<(*t).getNumTubes();p++) {
 		      FCALTubeConstLink   T    = (*t).getTube(p);
@@ -1146,15 +1146,15 @@ void VP1CaloReadoutSystem::createHV() {
 		  ps->vertexProperty=vtxProperty;
 		  sep->addChild(ps);
 		  if (missing) {
-		    _clockwork->fcalMissingSep[fcalMod->getModuleIndex()-1]->addChild(sep);
+		    m_clockwork->fcalMissingSep[fcalMod->getModuleIndex()-1]->addChild(sep);
 		  }
 		  else if (outOfTolerance) {
-		    _clockwork->fcalBadSep[fcalMod->getModuleIndex()-1]->addChild(sep);
+		    m_clockwork->fcalBadSep[fcalMod->getModuleIndex()-1]->addChild(sep);
 		  }
 		  else {
-		    _clockwork->fcalNormalSep[fcalMod->getModuleIndex()-1]->addChild(sep);
+		    m_clockwork->fcalNormalSep[fcalMod->getModuleIndex()-1]->addChild(sep);
 		  }
-		  _clockwork->FCALHVMap[ps]=fcalLine;
+		  m_clockwork->FCALHVMap[ps]=fcalLine;
 		}
 	      }
 	    }
@@ -1188,8 +1188,8 @@ void VP1CaloReadoutSystem::createEtaPhi() {
 
 
 	    EMBCell::CELLPOS pos=EMBCell::FRONT;
-	    if (_clockwork->pos==BACK) pos=EMBCell::BACK;
-	    if (_clockwork->pos==CENTER) pos=EMBCell::CENTER;
+	    if (m_clockwork->pos==BACK) pos=EMBCell::BACK;
+	    if (m_clockwork->pos==CENTER) pos=EMBCell::CENTER;
 
 
 	    EMBCellConstLink cellPtr = region->getEMBCell(iEta,iPhi);
@@ -1210,7 +1210,7 @@ void VP1CaloReadoutSystem::createEtaPhi() {
 	    SoLineSet *ls = new SoLineSet();
 	    ls->numVertices=5;
 	    ls->vertexProperty=vtxProperty;
-	    _clockwork->EMBMap[ls]=cellPtr;
+	    m_clockwork->EMBMap[ls]=cellPtr;
 	    int p = int ((cellPtr->getPhiMaxNominal() + cellPtr->getPhiMinNominal())/2.0 * NPHISECTORS/2.0/M_PI);
 	    if (p < 0) {
 	      messageDebug("P LT 0; repairing that..."+str(p));
@@ -1223,7 +1223,7 @@ void VP1CaloReadoutSystem::createEtaPhi() {
 	    sep[p]->addChild(ls);
 	  }
 	}
-	for (int p=0;p<NPHISECTORS;p++) _clockwork->embSubSep[region->getSamplingIndex()][p]->addChild(sep[p]);
+	for (int p=0;p<NPHISECTORS;p++) m_clockwork->embSubSep[region->getSamplingIndex()][p]->addChild(sep[p]);
       }
     }
  }
@@ -1261,7 +1261,7 @@ void VP1CaloReadoutSystem::createEtaPhi() {
        sep[p]->addChild(ls);
 
      }
-     for (int p=0;p<NPHISECTORS;p++) _clockwork->accordionSubSep[p]->addChild(sep[p]);
+     for (int p=0;p<NPHISECTORS;p++) m_clockwork->accordionSubSep[p]->addChild(sep[p]);
 
    }
  }
@@ -1287,7 +1287,7 @@ void VP1CaloReadoutSystem::createEtaPhi() {
 	    sphere->radius=10.0;
 	    fsep->addChild(soxf);
 	    fsep->addChild(sphere);
-	    _clockwork->emecFocalSwitch->addChild(fsep);
+	    m_clockwork->emecFocalSwitch->addChild(fsep);
 	  }
 	}
 	// This will be the case of the presampler.
@@ -1309,8 +1309,8 @@ void VP1CaloReadoutSystem::createEtaPhi() {
 	    EMECCellConstLink cellPtr = region->getEMECCell(iEta,iPhi);
 
 	    EMECCell::CELLPOS pos=EMECCell::FRONT;
-	    if (_clockwork->pos==BACK) pos=EMECCell::BACK;
-	    if (_clockwork->pos==CENTER) pos=EMECCell::CENTER;
+	    if (m_clockwork->pos==BACK) pos=EMECCell::BACK;
+	    if (m_clockwork->pos==CENTER) pos=EMECCell::CENTER;
 
 
 
@@ -1332,7 +1332,7 @@ void VP1CaloReadoutSystem::createEtaPhi() {
 	    SoLineSet *ls = new SoLineSet();
 	    ls->numVertices=5;
 	    ls->vertexProperty=vtxProperty;
-	    _clockwork->EMECMap[ls]=cellPtr;
+	    m_clockwork->EMECMap[ls]=cellPtr;
 	    int p = int ((cellPtr->getPhiMaxNominal() + cellPtr->getPhiMinNominal())/2.0 * NPHISECTORS/2.0/M_PI);
 	    if (p < 0) {
 	      messageDebug("P LT 0; repairing that..."+str(p));
@@ -1345,7 +1345,7 @@ void VP1CaloReadoutSystem::createEtaPhi() {
 	    sep[p]->addChild(ls);
 	  }
 	}
-	for (int p=0;p<NPHISECTORS;p++) _clockwork->emecSubSep[region->getSamplingIndex()][p]->addChild(sep[p]);
+	for (int p=0;p<NPHISECTORS;p++) m_clockwork->emecSubSep[region->getSamplingIndex()][p]->addChild(sep[p]);
       }
     }
  }
@@ -1370,7 +1370,7 @@ void VP1CaloReadoutSystem::createEtaPhi() {
 	  sphere->radius=10.0;
 	  fsep->addChild(soxf);
 	  fsep->addChild(sphere);
-	  _clockwork->hecFocalSwitch->addChild(fsep);
+	  m_clockwork->hecFocalSwitch->addChild(fsep);
 	}
 
 	// Then grid:
@@ -1394,8 +1394,8 @@ void VP1CaloReadoutSystem::createEtaPhi() {
 	      //              double rMax   = cellPtr->getRMax(0);
 
 	      HECCell::CELLPOS pos=HECCell::FRONT;
-	      if (_clockwork->pos==BACK) pos=HECCell::BACK;
-	      if (_clockwork->pos==CENTER) pos=HECCell::CENTER;
+	      if (m_clockwork->pos==BACK) pos=HECCell::BACK;
+	      if (m_clockwork->pos==CENTER) pos=HECCell::CENTER;
 
 
 	      double z    = cellPtr->getZLocal(pos);
@@ -1418,7 +1418,7 @@ void VP1CaloReadoutSystem::createEtaPhi() {
 	      ls->numVertices=5;
 	      ls->vertexProperty=vtxProperty;
 
-	      _clockwork->HECMap[ls]=cellPtr;
+	      m_clockwork->HECMap[ls]=cellPtr;
 	      int p = int ((cellPtr->getPhiMaxNominal() + cellPtr->getPhiMinNominal())/2.0 * NPHISECTORS/2.0/M_PI);
 	      if (p < 0) {
 		messageDebug("P LT 0; repairing that..."+str(p));
@@ -1432,7 +1432,7 @@ void VP1CaloReadoutSystem::createEtaPhi() {
 	    }
 	  }
 	}
-	for (int p=0;p<NPHISECTORS;p++) _clockwork->hecSubSep[region->getSamplingIndex()][p]->addChild(sep[p]);
+	for (int p=0;p<NPHISECTORS;p++) m_clockwork->hecSubSep[region->getSamplingIndex()][p]->addChild(sep[p]);
       }
     }
   }
@@ -1463,8 +1463,8 @@ void VP1CaloReadoutSystem::createEtaPhi() {
 	 double zb = fcalMod->getEndcapIndex()== 0 ?  -fcalMod->getFullDepthZ(*t)/2.0 : +fcalMod->getFullDepthZ(*t)/2.0;
 
 	 double z=zf;
-	 if (_clockwork->pos==CENTER) z=zc;
-	 if (_clockwork->pos==BACK)   z=zb;
+	 if (m_clockwork->pos==CENTER) z=zc;
+	 if (m_clockwork->pos==BACK)   z=zb;
 
 	 int cc=0;
 	 SoVertexProperty *vtxProperty = new SoVertexProperty();
@@ -1479,10 +1479,10 @@ void VP1CaloReadoutSystem::createEtaPhi() {
 	 ls->vertexProperty=vtxProperty;
 	 sep->addChild(ls);
 
-	 _clockwork->TileMap[ls]=&(*t);
+	 m_clockwork->TileMap[ls]=&(*t);
        }
        int sp = fcalMod->getModuleIndex()-1;
-       _clockwork->fcalSubSep[sp]->addChild(sep);
+       m_clockwork->fcalSubSep[sp]->addChild(sep);
 
      }
    }
@@ -1498,57 +1498,57 @@ void VP1CaloReadoutSystem::buildEventSceneGraph(StoreGateSvc* , SoSeparator *)
 
 void VP1CaloReadoutSystem::setGeomSelectable (bool flag) {
 
-  if (!_clockwork->permInit) return; // do not change switches
+  if (!m_clockwork->permInit) return; // do not change switches
   // if the switches are not yet built!!
 
 
-  _clockwork->pickStyle->style = flag ? SoPickStyleElement::SHAPE : SoPickStyleElement::UNPICKABLE;
-  _clockwork->ui.etaBoundariesCheckBox->setEnabled(flag);
-  _clockwork->ui.phiBoundariesCheckBox->setEnabled(flag);
-  _clockwork->ui.fcalTubesCheckBox->setEnabled(flag);
-  _clockwork->ui.highVoltageCheckBox->setEnabled(flag);
-  _clockwork->ui.indicesCheckBox->setEnabled(flag);
+  m_clockwork->pickStyle->style = flag ? SoPickStyleElement::SHAPE : SoPickStyleElement::UNPICKABLE;
+  m_clockwork->ui.etaBoundariesCheckBox->setEnabled(flag);
+  m_clockwork->ui.phiBoundariesCheckBox->setEnabled(flag);
+  m_clockwork->ui.fcalTubesCheckBox->setEnabled(flag);
+  m_clockwork->ui.highVoltageCheckBox->setEnabled(flag);
+  m_clockwork->ui.indicesCheckBox->setEnabled(flag);
 }
 
 void VP1CaloReadoutSystem::positionOptionChanged() {
-  if (!_clockwork->permInit) return; // do not change switches
+  if (!m_clockwork->permInit) return; // do not change switches
   // if the switches are not yet built!!
 
 
   VP1CaloReadoutSystem::POSITION pos=FRONT;
 
-  if (_clockwork->ui.frontRadioButton->isChecked())   pos=FRONT;
-  if (_clockwork->ui.backRadioButton->isChecked())    pos=BACK;
-  if (_clockwork->ui.centerRadioButton->isChecked())  pos=CENTER;
+  if (m_clockwork->ui.frontRadioButton->isChecked())   pos=FRONT;
+  if (m_clockwork->ui.backRadioButton->isChecked())    pos=BACK;
+  if (m_clockwork->ui.centerRadioButton->isChecked())  pos=CENTER;
 
 
- if (pos!=_clockwork->pos) {
+ if (pos!=m_clockwork->pos) {
 
 
-    _clockwork->pos=pos;
+    m_clockwork->pos=pos;
     for (int i=0;i<4;i++) {
-      if (i<3) _clockwork->fcalSubSep[i]->removeAllChildren();
+      if (i<3) m_clockwork->fcalSubSep[i]->removeAllChildren();
       for (int p=0;p<NPHISECTORS;p++) {
-	_clockwork->embSubSep[i][p]->removeAllChildren();
-	_clockwork->emecSubSep[i][p]->removeAllChildren();
-	_clockwork->hecSubSep[i][p]->removeAllChildren();
+	m_clockwork->embSubSep[i][p]->removeAllChildren();
+	m_clockwork->emecSubSep[i][p]->removeAllChildren();
+	m_clockwork->hecSubSep[i][p]->removeAllChildren();
       }
     }
-    _clockwork->emecFocalSwitch->removeAllChildren();
-    _clockwork->hecFocalSwitch->removeAllChildren();
+    m_clockwork->emecFocalSwitch->removeAllChildren();
+    m_clockwork->hecFocalSwitch->removeAllChildren();
 
-    for (int p=0;p<NPHISECTORS;p++) _clockwork->accordionSubSep[p]->removeAllChildren();
+    for (int p=0;p<NPHISECTORS;p++) m_clockwork->accordionSubSep[p]->removeAllChildren();
 
-    _clockwork->TileMap.erase(_clockwork->TileMap.begin(),_clockwork->TileMap.end());
-    _clockwork->HECMap.erase(_clockwork->HECMap.begin(),_clockwork->HECMap.end());
-    _clockwork->EMECMap.erase(_clockwork->EMECMap.begin(),_clockwork->EMECMap.end());
-    _clockwork->EMBMap.erase(_clockwork->EMBMap.begin(),_clockwork->EMBMap.end());
-    _clockwork->EMBHVMap.erase(_clockwork->EMBHVMap.begin(),_clockwork->EMBHVMap.end());
-    _clockwork->EMECHVMap.erase(_clockwork->EMECHVMap.begin(),_clockwork->EMECHVMap.end());
-    _clockwork->HECHVMap.erase(_clockwork->HECHVMap.begin(),_clockwork->HECHVMap.end());
-    _clockwork->FCALHVMap.erase(_clockwork->FCALHVMap.begin(),_clockwork->FCALHVMap.end());
+    m_clockwork->TileMap.erase(m_clockwork->TileMap.begin(),m_clockwork->TileMap.end());
+    m_clockwork->HECMap.erase(m_clockwork->HECMap.begin(),m_clockwork->HECMap.end());
+    m_clockwork->EMECMap.erase(m_clockwork->EMECMap.begin(),m_clockwork->EMECMap.end());
+    m_clockwork->EMBMap.erase(m_clockwork->EMBMap.begin(),m_clockwork->EMBMap.end());
+    m_clockwork->EMBHVMap.erase(m_clockwork->EMBHVMap.begin(),m_clockwork->EMBHVMap.end());
+    m_clockwork->EMECHVMap.erase(m_clockwork->EMECHVMap.begin(),m_clockwork->EMECHVMap.end());
+    m_clockwork->HECHVMap.erase(m_clockwork->HECHVMap.begin(),m_clockwork->HECHVMap.end());
+    m_clockwork->FCALHVMap.erase(m_clockwork->FCALHVMap.begin(),m_clockwork->FCALHVMap.end());
 
-    _clockwork->volatileSeparator->removeAllChildren();
+    m_clockwork->volatileSeparator->removeAllChildren();
 
     createEtaPhi();
   }
@@ -1556,21 +1556,21 @@ void VP1CaloReadoutSystem::positionOptionChanged() {
 }
 
 void VP1CaloReadoutSystem::phiSectorTurnon(int p) {
-  if (_clockwork->currentlyEnabledPhiSectors.isEmpty())
+  if (m_clockwork->currentlyEnabledPhiSectors.isEmpty())
     return;
-  for (int i=0;i<4;i++) _clockwork->embSubSwitch[i][p]->whichChild=SO_SWITCH_ALL;
-  for (int i=0;i<4;i++) _clockwork->emecSubSwitch[i][p]->whichChild=SO_SWITCH_ALL;
-  for (int i=0;i<4;i++) _clockwork->hecSubSwitch[i][p]->whichChild=SO_SWITCH_ALL;
-  _clockwork->accordionSubSwitch[p]->whichChild=SO_SWITCH_ALL;
+  for (int i=0;i<4;i++) m_clockwork->embSubSwitch[i][p]->whichChild=SO_SWITCH_ALL;
+  for (int i=0;i<4;i++) m_clockwork->emecSubSwitch[i][p]->whichChild=SO_SWITCH_ALL;
+  for (int i=0;i<4;i++) m_clockwork->hecSubSwitch[i][p]->whichChild=SO_SWITCH_ALL;
+  m_clockwork->accordionSubSwitch[p]->whichChild=SO_SWITCH_ALL;
 }
 
 void VP1CaloReadoutSystem::phiSectorTurnoff(int p) {
-  if (_clockwork->currentlyEnabledPhiSectors.isEmpty())
+  if (m_clockwork->currentlyEnabledPhiSectors.isEmpty())
     return;
-  for (int i=0;i<4;i++) _clockwork->embSubSwitch[i][p]->whichChild=SO_SWITCH_NONE;
-  for (int i=0;i<4;i++) _clockwork->emecSubSwitch[i][p]->whichChild=SO_SWITCH_NONE;
-  for (int i=0;i<4;i++) _clockwork->hecSubSwitch[i][p]->whichChild=SO_SWITCH_NONE;
-  _clockwork->accordionSubSwitch[p]->whichChild=SO_SWITCH_NONE;
+  for (int i=0;i<4;i++) m_clockwork->embSubSwitch[i][p]->whichChild=SO_SWITCH_NONE;
+  for (int i=0;i<4;i++) m_clockwork->emecSubSwitch[i][p]->whichChild=SO_SWITCH_NONE;
+  for (int i=0;i<4;i++) m_clockwork->hecSubSwitch[i][p]->whichChild=SO_SWITCH_NONE;
+  m_clockwork->accordionSubSwitch[p]->whichChild=SO_SWITCH_NONE;
 }
 
 void VP1CaloReadoutSystem::checkboxChanged()
@@ -1580,14 +1580,14 @@ void VP1CaloReadoutSystem::checkboxChanged()
 
 void VP1CaloReadoutSystem::checkboxChanged(QCheckBox * cb)
 {
-  if (!_clockwork->permInit) return; // do not change switches
+  if (!m_clockwork->permInit) return; // do not change switches
   // if the switches are not yet built!!
 
 
-  if(cb && _clockwork->checkBoxNamesMap.contains(cb))
+  if(cb && m_clockwork->checkBoxNamesMap.contains(cb))
   {
     // Get technology name
-    QString swName = _clockwork->checkBoxNamesMap[cb];
+    QString swName = m_clockwork->checkBoxNamesMap[cb];
 
 
     // See if HV needs to be updated:
@@ -1613,43 +1613,43 @@ void VP1CaloReadoutSystem::checkboxChanged(QCheckBox * cb)
  
 
 
-    if(_clockwork->switchMap.contains(swName))
+    if(m_clockwork->switchMap.contains(swName))
     {
       // Get swtich
-      SoSwitch* _switch = _clockwork->switchMap[swName];
+      SoSwitch* sw = m_clockwork->switchMap[swName];
       if(cb->isChecked())
       {
-	_switch->whichChild = SO_SWITCH_ALL;
+	sw->whichChild = SO_SWITCH_ALL;
       }
       else
-	_switch->whichChild = SO_SWITCH_NONE;
+	sw->whichChild = SO_SWITCH_NONE;
     }
     else if (swName=="badHVDisplayCheckBox")
       {
-	for (int i=0;i<3;i++) _clockwork->fcalBadSwitch[i]->whichChild = cb->isChecked() ? SO_SWITCH_ALL: SO_SWITCH_NONE;
-	for (int i=0;i<4;i++) _clockwork->hecBadSwitch[i]->whichChild = cb->isChecked() ? SO_SWITCH_ALL: SO_SWITCH_NONE;
-	_clockwork->emecBadSwitch->whichChild = cb->isChecked() ? SO_SWITCH_ALL: SO_SWITCH_NONE;
-	_clockwork->embBadSwitch->whichChild = cb->isChecked() ? SO_SWITCH_ALL: SO_SWITCH_NONE;
-	_clockwork->embPreBadSwitch->whichChild = cb->isChecked() ? SO_SWITCH_ALL: SO_SWITCH_NONE;
-	_clockwork->emecPreBadSwitch->whichChild = cb->isChecked() ? SO_SWITCH_ALL: SO_SWITCH_NONE;
+	for (int i=0;i<3;i++) m_clockwork->fcalBadSwitch[i]->whichChild = cb->isChecked() ? SO_SWITCH_ALL: SO_SWITCH_NONE;
+	for (int i=0;i<4;i++) m_clockwork->hecBadSwitch[i]->whichChild = cb->isChecked() ? SO_SWITCH_ALL: SO_SWITCH_NONE;
+	m_clockwork->emecBadSwitch->whichChild = cb->isChecked() ? SO_SWITCH_ALL: SO_SWITCH_NONE;
+	m_clockwork->embBadSwitch->whichChild = cb->isChecked() ? SO_SWITCH_ALL: SO_SWITCH_NONE;
+	m_clockwork->embPreBadSwitch->whichChild = cb->isChecked() ? SO_SWITCH_ALL: SO_SWITCH_NONE;
+	m_clockwork->emecPreBadSwitch->whichChild = cb->isChecked() ? SO_SWITCH_ALL: SO_SWITCH_NONE;
       }
     else if (swName=="missingHVDisplayCheckBox")
       {
-	for (int i=0;i<3;i++) _clockwork->fcalMissingSwitch[i]->whichChild = cb->isChecked() ? SO_SWITCH_ALL: SO_SWITCH_NONE;
-	for (int i=0;i<4;i++) _clockwork->hecMissingSwitch[i]->whichChild = cb->isChecked() ? SO_SWITCH_ALL: SO_SWITCH_NONE;
-	_clockwork->emecMissingSwitch->whichChild = cb->isChecked() ? SO_SWITCH_ALL: SO_SWITCH_NONE;
-	_clockwork->embMissingSwitch->whichChild = cb->isChecked() ? SO_SWITCH_ALL: SO_SWITCH_NONE;
-	_clockwork->embPreMissingSwitch->whichChild = cb->isChecked() ? SO_SWITCH_ALL: SO_SWITCH_NONE;
-	_clockwork->emecPreMissingSwitch->whichChild = cb->isChecked() ? SO_SWITCH_ALL: SO_SWITCH_NONE;
+	for (int i=0;i<3;i++) m_clockwork->fcalMissingSwitch[i]->whichChild = cb->isChecked() ? SO_SWITCH_ALL: SO_SWITCH_NONE;
+	for (int i=0;i<4;i++) m_clockwork->hecMissingSwitch[i]->whichChild = cb->isChecked() ? SO_SWITCH_ALL: SO_SWITCH_NONE;
+	m_clockwork->emecMissingSwitch->whichChild = cb->isChecked() ? SO_SWITCH_ALL: SO_SWITCH_NONE;
+	m_clockwork->embMissingSwitch->whichChild = cb->isChecked() ? SO_SWITCH_ALL: SO_SWITCH_NONE;
+	m_clockwork->embPreMissingSwitch->whichChild = cb->isChecked() ? SO_SWITCH_ALL: SO_SWITCH_NONE;
+	m_clockwork->emecPreMissingSwitch->whichChild = cb->isChecked() ? SO_SWITCH_ALL: SO_SWITCH_NONE;
       }
     else if (swName=="normalHVDisplayCheckBox")
       {
-	for (int i=0;i<3;i++) _clockwork->fcalNormalSwitch[i]->whichChild = cb->isChecked() ? SO_SWITCH_ALL: SO_SWITCH_NONE;
-	for (int i=0;i<4;i++) _clockwork->hecNormalSwitch[i]->whichChild = cb->isChecked() ? SO_SWITCH_ALL: SO_SWITCH_NONE;
-	_clockwork->emecNormalSwitch->whichChild = cb->isChecked() ? SO_SWITCH_ALL: SO_SWITCH_NONE;
-	_clockwork->embNormalSwitch->whichChild = cb->isChecked() ? SO_SWITCH_ALL: SO_SWITCH_NONE;
-	_clockwork->embPreNormalSwitch->whichChild = cb->isChecked() ? SO_SWITCH_ALL: SO_SWITCH_NONE;
-	_clockwork->emecPreNormalSwitch->whichChild = cb->isChecked() ? SO_SWITCH_ALL: SO_SWITCH_NONE;
+	for (int i=0;i<3;i++) m_clockwork->fcalNormalSwitch[i]->whichChild = cb->isChecked() ? SO_SWITCH_ALL: SO_SWITCH_NONE;
+	for (int i=0;i<4;i++) m_clockwork->hecNormalSwitch[i]->whichChild = cb->isChecked() ? SO_SWITCH_ALL: SO_SWITCH_NONE;
+	m_clockwork->emecNormalSwitch->whichChild = cb->isChecked() ? SO_SWITCH_ALL: SO_SWITCH_NONE;
+	m_clockwork->embNormalSwitch->whichChild = cb->isChecked() ? SO_SWITCH_ALL: SO_SWITCH_NONE;
+	m_clockwork->embPreNormalSwitch->whichChild = cb->isChecked() ? SO_SWITCH_ALL: SO_SWITCH_NONE;
+	m_clockwork->emecPreNormalSwitch->whichChild = cb->isChecked() ? SO_SWITCH_ALL: SO_SWITCH_NONE;
       }
     else {
 
@@ -1660,7 +1660,7 @@ void VP1CaloReadoutSystem::checkboxChanged(QCheckBox * cb)
 
 void VP1CaloReadoutSystem::userClickedOnBgd() {
   messageVerbose("VP1CaloReadoutSystem::userClickedOnBgd");
-  _clockwork->volatileSeparator->removeAllChildren();
+  m_clockwork->volatileSeparator->removeAllChildren();
   deselectAll();
 }
 
@@ -1668,19 +1668,19 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
 {
 
 
-  _clockwork->volatileSeparator->removeAllChildren();
+  m_clockwork->volatileSeparator->removeAllChildren();
   deselectAll();
   SoPickStyle *pickStyle = new SoPickStyle();
   pickStyle->style=SoPickStyleElement::UNPICKABLE;
-  _clockwork->volatileSeparator->addChild(pickStyle);
+  m_clockwork->volatileSeparator->addChild(pickStyle);
 
 
   std::ostringstream indexStream, etaBoundaryStream, phiBoundaryStream;
 
   // EMB HV
   {
-    std::map < SoNode *, EMBHVElectrodeConstLink>::const_iterator p = _clockwork->EMBHVMap.find(mySelectedNode);
-    if (p!=_clockwork->EMBHVMap.end()) {
+    std::map < SoNode *, EMBHVElectrodeConstLink>::const_iterator p = m_clockwork->EMBHVMap.find(mySelectedNode);
+    if (p!=m_clockwork->EMBHVMap.end()) {
 
       EMBHVElectrodeConstLink electrode  = (*p).second;
       std::ostringstream outstream;
@@ -1690,8 +1690,8 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
   }
   // EMEC HV
   {
-    std::map < SoNode *, EMECHVElectrodeConstLink>::const_iterator p = _clockwork->EMECHVMap.find(mySelectedNode);
-    if (p!=_clockwork->EMECHVMap.end()) {
+    std::map < SoNode *, EMECHVElectrodeConstLink>::const_iterator p = m_clockwork->EMECHVMap.find(mySelectedNode);
+    if (p!=m_clockwork->EMECHVMap.end()) {
 
       EMECHVElectrodeConstLink electrode  = (*p).second;
       std::ostringstream outstream;
@@ -1702,8 +1702,8 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
 
   // HEC HV
   {
-    std::map < SoNode *, HECHVSubgapConstLink>::const_iterator p = _clockwork->HECHVMap.find(mySelectedNode);
-    if (p!=_clockwork->HECHVMap.end()) {
+    std::map < SoNode *, HECHVSubgapConstLink>::const_iterator p = m_clockwork->HECHVMap.find(mySelectedNode);
+    if (p!=m_clockwork->HECHVMap.end()) {
 
       HECHVSubgapConstLink subgap  = (*p).second;
       std::ostringstream outstream;
@@ -1713,8 +1713,8 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
   }
   // FCAL HV
   {
-    std::map < SoNode *, FCALHVLineConstLink>::const_iterator p = _clockwork->FCALHVMap.find(mySelectedNode);
-    if (p!=_clockwork->FCALHVMap.end()) {
+    std::map < SoNode *, FCALHVLineConstLink>::const_iterator p = m_clockwork->FCALHVMap.find(mySelectedNode);
+    if (p!=m_clockwork->FCALHVMap.end()) {
 
       FCALHVLineConstLink line  = (*p).second;
       std::ostringstream outstream;
@@ -1725,14 +1725,14 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
 
   // See if it is in the FCAL
   {
-    std::map < SoNode *, const FCALTile *>::const_iterator p = _clockwork->TileMap.find(mySelectedNode);
-    if (p!=_clockwork->TileMap.end()) {
+    std::map < SoNode *, const FCALTile *>::const_iterator p = m_clockwork->TileMap.find(mySelectedNode);
+    if (p!=m_clockwork->TileMap.end()) {
 
       const FCALTile *element  = (*p).second;
       indexStream       << "Element selected  has identifier of " << element->identify() <<  std::endl;
       indexStream       << "I index of                          " << element->getIndexI() <<  std::endl;
       indexStream       << "J index of                          " << element->getIndexJ() <<  std::endl;
-      if (_clockwork->ui.highVoltageCheckBox->isChecked()) {
+      if (m_clockwork->ui.highVoltageCheckBox->isChecked()) {
 	std::ostringstream highVoltageStream;
 	highVoltageStream << "There are " << element->getNumHVLines() << " high voltage lines. Status: " << std::endl;
 	message(highVoltageStream.str().c_str());
@@ -1746,7 +1746,7 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
 
 
 
-      if (_clockwork->ui.highVoltageCheckBox->isChecked()) {
+      if (m_clockwork->ui.highVoltageCheckBox->isChecked()) {
 
 	const FCALModule *fcalMod=element->getModule();
 
@@ -1762,8 +1762,8 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
 	double zb = fcalMod->getEndcapIndex()== 0 ?  -fcalMod->getFullDepthZ(*element)/2.0 : +fcalMod->getFullDepthZ(*element)/2.0;
 
 	double z=zf;
-	if (_clockwork->pos==CENTER) z=zc;
-	if (_clockwork->pos==BACK)   z=zb;
+	if (m_clockwork->pos==CENTER) z=zc;
+	if (m_clockwork->pos==BACK)   z=zb;
 
 	SoMaterial *white = new SoMaterial();
 	white->diffuseColor.setValue(1.00,1.00, 1.00);
@@ -1796,9 +1796,9 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
 	ps->numPoints=cc;
 	ps->vertexProperty=vtxProperty;
 	sep->addChild(ps);
-	_clockwork->volatileSeparator->addChild(sep);
+	m_clockwork->volatileSeparator->addChild(sep);
       }
-      if (_clockwork->ui.fcalTubesCheckBox->isChecked()) {
+      if (m_clockwork->ui.fcalTubesCheckBox->isChecked()) {
 	const FCALModule *fcalMod=element->getModule();
 	const HepGeom::Transform3D &xf          =  fcalMod->getAbsoluteTransform();
 	SoTransform  *XF = VP1LinAlgUtils::toSoTransform(xf);
@@ -1811,8 +1811,8 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
 	double zb = fcalMod->getEndcapIndex()== 0 ?  -fcalMod->getFullDepthZ(*element)/2.0 : +fcalMod->getFullDepthZ(*element)/2.0;
 
 	double z=zf;
-	if (_clockwork->pos==CENTER) z=zc;
-	if (_clockwork->pos==BACK)   z=zb;
+	if (m_clockwork->pos==CENTER) z=zc;
+	if (m_clockwork->pos==BACK)   z=zb;
 
 	SoMaterial *white = new SoMaterial();
 	white->diffuseColor.setValue(1.00,1.00, 1.00);
@@ -1838,7 +1838,7 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
 	ps->numPoints=cc;
 	ps->vertexProperty=vtxProperty;
 	sep->addChild(ps);
-	_clockwork->volatileSeparator->addChild(sep);
+	m_clockwork->volatileSeparator->addChild(sep);
       }
     }
   }
@@ -1846,21 +1846,21 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
 
   // See if it is in the HEC:
   {
-    std::map < SoNode *, HECCellConstLink>::const_iterator p = _clockwork->HECMap.find(mySelectedNode);
-    if (p!=_clockwork->HECMap.end()) {
+    std::map < SoNode *, HECCellConstLink>::const_iterator p = m_clockwork->HECMap.find(mySelectedNode);
+    if (p!=m_clockwork->HECMap.end()) {
 
       HECCellConstLink element  = (*p).second;
       indexStream << "Sampling Region,Eta,Phi indices of   " << element->getSamplingIndex() << "," << element->getRegionIndex() << "," << element->getEtaIndex() << "," << element->getPhiIndex() <<  std::endl;
       phiBoundaryStream << "Phi min & max (CLHEP::deg) =" <<  element->getPhiLocalLower()*180/M_PI << "    " << element->getPhiLocalUpper()*180/M_PI << std::endl;
       etaBoundaryStream << "Eta Min and Max   " << element->getEtaMinNominal() << "," << element->getEtaMaxNominal() <<  std::endl;
-      if (_clockwork->ui.highVoltageCheckBox->isChecked()) {
+      if (m_clockwork->ui.highVoltageCheckBox->isChecked()) {
 	std::ostringstream highVoltageStream;
 	highVoltageStream << "There are " << element->getNumSubgaps() << " subgaps. Status: " << std::endl;
 	message (highVoltageStream.str().c_str());
       }
       std::set<HECHVModuleConstLink> modSet;
       for (unsigned int i=0;i<element->getNumSubgaps();i++) {
-	if (_clockwork->ui.highVoltageCheckBox->isChecked()) {
+	if (m_clockwork->ui.highVoltageCheckBox->isChecked()) {
 	  std::ostringstream highVoltageStream;
 	  highVoltageStream << i << " Status "  << element->getSubgap(i)->hvOn() << " voltage: " << element->getSubgap(i)->voltage() << " current: " << element->getSubgap(i)->current() <<  std::endl;
 	  message(highVoltageStream.str().c_str());
@@ -1872,7 +1872,7 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
 
 	if (!module) continue;
 
-	if (!_clockwork->ui.highVoltageCheckBox->isChecked()) continue;
+	if (!m_clockwork->ui.highVoltageCheckBox->isChecked()) continue;
 
 	SoSeparator * sep = new SoSeparator();
 
@@ -1889,8 +1889,8 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
 
 	// we comment out to avoid compilation warnings, because they're not used, apparently
 //	HECCell::CELLPOS pos=HECCell::FRONT;
-//	if (_clockwork->pos==BACK) pos=HECCell::BACK;
-//	if (_clockwork->pos==CENTER) pos=HECCell::CENTER;
+//	if (m_clockwork->pos==BACK) pos=HECCell::BACK;
+//	if (m_clockwork->pos==CENTER) pos=HECCell::CENTER;
 
 
 	const HECDetectorManager *hecManager = VP1DetInfo::hecDetMgr();
@@ -1924,14 +1924,14 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
 	  ls->vertexProperty=vtxProperty;
 	  sep->addChild(ls);
 	}
-	_clockwork->volatileSeparator->addChild(sep);
+	m_clockwork->volatileSeparator->addChild(sep);
       }
     }
   }
   // See if it is in the EMEC:
   {
-    std::map < SoNode *, EMECCellConstLink>::const_iterator p = _clockwork->EMECMap.find(mySelectedNode);
-    if (p!=_clockwork->EMECMap.end()) {
+    std::map < SoNode *, EMECCellConstLink>::const_iterator p = m_clockwork->EMECMap.find(mySelectedNode);
+    if (p!=m_clockwork->EMECMap.end()) {
 
       EMECCellConstLink element  = (*p).second;
       indexStream<< "Sampling Region,Eta,Phi indices of   " << element->getSamplingIndex() << "," << element->getRegionIndex() << "," << element->getEtaIndex() << "," << element->getPhiIndex() <<  std::endl;
@@ -1941,7 +1941,7 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
       
       if (element->getSamplingIndex()==0) {
 
-	 if (_clockwork->ui.highVoltageCheckBox->isChecked()) {
+	 if (m_clockwork->ui.highVoltageCheckBox->isChecked()) {
 	  EMECPresamplerHVModuleConstLink module = element->getPresamplerHVModule();
 	  std::ostringstream highVoltageStream;
 	  highVoltageStream << "Presampler cell. HV Status: " << '\n';
@@ -1967,8 +1967,8 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
 	  
 	  
 	  EMECCell::CELLPOS pos=EMECCell::FRONT;
-	  if (_clockwork->pos==BACK) pos=EMECCell::BACK;
-	  if (_clockwork->pos==CENTER) pos=EMECCell::CENTER;
+	  if (m_clockwork->pos==BACK) pos=EMECCell::BACK;
+	  if (m_clockwork->pos==CENTER) pos=EMECCell::CENTER;
 	  
 	  
 	  double z      = (element->getZLocal(pos)+
@@ -1999,19 +1999,19 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
 	  ls->numVertices=5;
 	  ls->vertexProperty=vtxProperty;
 	  sep->addChild(ls);
-	  _clockwork->volatileSeparator->addChild(sep);
+	  m_clockwork->volatileSeparator->addChild(sep);
 	}
       }
       else {
 	
-	if (_clockwork->ui.highVoltageCheckBox->isChecked()) {
+	if (m_clockwork->ui.highVoltageCheckBox->isChecked()) {
 	  std::ostringstream highVoltageStream;
 	  highVoltageStream << "There are " << element->getNumElectrodes() << " electrodes. Status: " << std::endl;
 	  message(highVoltageStream.str().c_str());
 	}
 	std::set<EMECHVModuleConstLink> modSet;
 	for (unsigned int i=0;i<element->getNumElectrodes();i++) {
-	  if (_clockwork->ui.highVoltageCheckBox->isChecked()) {
+	  if (m_clockwork->ui.highVoltageCheckBox->isChecked()) {
 	    {
 	      std::ostringstream highVoltageStream;
 	      highVoltageStream << i << ' ' << element->getElectrode(i)->getElectrodeIndex() << ") status: " << element->getElectrode(i)->hvOn(0) << ' ' << element->getElectrode(i)->hvOn(1) <<  std::endl;
@@ -2036,7 +2036,7 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
 	  if (!module) continue;
 	  
 	  
-	  if (!_clockwork->ui.highVoltageCheckBox->isChecked()) continue;
+	  if (!m_clockwork->ui.highVoltageCheckBox->isChecked()) continue;
 	  
 	  SoSeparator * sep = new SoSeparator();
 	  
@@ -2052,8 +2052,8 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
 	  
 	  
 	  EMECCell::CELLPOS pos=EMECCell::FRONT;
-	  if (_clockwork->pos==BACK) pos=EMECCell::BACK;
-	  if (_clockwork->pos==CENTER) pos=EMECCell::CENTER;
+	  if (m_clockwork->pos==BACK) pos=EMECCell::BACK;
+	  if (m_clockwork->pos==CENTER) pos=EMECCell::CENTER;
 	  
 	  
 	  double z      = (element->getZLocal(pos)+
@@ -2099,7 +2099,7 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
 	    sep->addChild(ls);
 	  }
 	  
-	  _clockwork->volatileSeparator->addChild(sep);
+	  m_clockwork->volatileSeparator->addChild(sep);
 	}
       }
     }
@@ -2108,8 +2108,8 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
 
   // See if it is in the EMB:
   {
-    std::map < SoNode *, EMBCellConstLink>::const_iterator p = _clockwork->EMBMap.find(mySelectedNode);
-    if (p!=_clockwork->EMBMap.end()) {
+    std::map < SoNode *, EMBCellConstLink>::const_iterator p = m_clockwork->EMBMap.find(mySelectedNode);
+    if (p!=m_clockwork->EMBMap.end()) {
       
       EMBCellConstLink element  = (*p).second;
       //element->print();
@@ -2117,7 +2117,7 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
       etaBoundaryStream<< "Eta Min and Max   " << element->getEtaMin() << "," << element->getEtaMax() <<  std::endl;
       phiBoundaryStream<< "Phi min & max (CLHEP::deg) =" <<  element->getPhiLocalLower()*180/M_PI << "    " << element->getPhiLocalUpper()*180/M_PI << '\n';
       //
-      if (_clockwork->ui.highVoltageCheckBox->isChecked()) {
+      if (m_clockwork->ui.highVoltageCheckBox->isChecked()) {
 	if (element->getSamplingIndex()==0) {
 	  EMBPresamplerHVModuleConstLink module = element->getPresamplerHVModule();
 	  
@@ -2144,8 +2144,8 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
 	  
 	  
 	  EMBCell::CELLPOS pos=EMBCell::FRONT;
-	  if (_clockwork->pos==BACK) pos=EMBCell::BACK;
-	  if (_clockwork->pos==CENTER) pos=EMBCell::CENTER;
+	  if (m_clockwork->pos==BACK) pos=EMBCell::BACK;
+	  if (m_clockwork->pos==CENTER) pos=EMBCell::CENTER;
 	  
 	  
 	  double r      = element->getRLocal(pos);
@@ -2172,7 +2172,7 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
 	  ls->vertexProperty=vtxProperty;
 	  sep->addChild(ls);
 	  
-	  _clockwork->volatileSeparator->addChild(sep);
+	  m_clockwork->volatileSeparator->addChild(sep);
 	}
 	else {
 	  std::ostringstream highVoltageStream;
@@ -2189,7 +2189,7 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
 	    //
 	    EMBHVModuleConstLink module = element->getElectrode(i)->getModule();
 	    
-	    if (!_clockwork->ui.highVoltageCheckBox->isChecked()) continue;
+	    if (!m_clockwork->ui.highVoltageCheckBox->isChecked()) continue;
 	    
 	    SoSeparator * sep = new SoSeparator();
 	    
@@ -2205,8 +2205,8 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
 	    
 	    
 	    EMBCell::CELLPOS pos=EMBCell::FRONT;
-	    if (_clockwork->pos==BACK) pos=EMBCell::BACK;
-	    if (_clockwork->pos==CENTER) pos=EMBCell::CENTER;
+	    if (m_clockwork->pos==BACK) pos=EMBCell::BACK;
+	    if (m_clockwork->pos==CENTER) pos=EMBCell::CENTER;
 	    
 	    
 	    double r      = element->getRLocal(pos);
@@ -2250,20 +2250,20 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
 	      sep->addChild(ls);
 	    }
 	    
-	    _clockwork->volatileSeparator->addChild(sep);
+	    m_clockwork->volatileSeparator->addChild(sep);
 	  }
 	}
       }
     }
   }
 
-  if (_clockwork->ui.etaBoundariesCheckBox->isChecked()) {
+  if (m_clockwork->ui.etaBoundariesCheckBox->isChecked()) {
     message(etaBoundaryStream.str().c_str());
   }
-  if (_clockwork->ui.phiBoundariesCheckBox->isChecked()) {
+  if (m_clockwork->ui.phiBoundariesCheckBox->isChecked()) {
     message(phiBoundaryStream.str().c_str());
   }
-  if (_clockwork->ui.indicesCheckBox->isChecked()) {
+  if (m_clockwork->ui.indicesCheckBox->isChecked()) {
     message(indexStream.str().c_str());
   }
 }
@@ -2277,7 +2277,7 @@ QByteArray VP1CaloReadoutSystem::saveState()
   serialise.save(IVP13DSystemSimple::saveState());
 
   //Checkboxes (by name for greater stability in case we change content of map):
-  QMapIterator<QString,QCheckBox*> it(_clockwork->checkBoxMap);
+  QMapIterator<QString,QCheckBox*> it(m_clockwork->checkBoxMap);
   QMap<QString,bool> checkboxstate;
   while (it.hasNext()) {
     it.next();
@@ -2286,33 +2286,33 @@ QByteArray VP1CaloReadoutSystem::saveState()
   }
   serialise.save(checkboxstate);
 
-  serialise.save(_clockwork->ui.phiSectionWidget);//Versions <=2 saved in old format
-  serialise.save(_clockwork->ui.frontRadioButton,
-		 _clockwork->ui.backRadioButton,
-		 _clockwork->ui.centerRadioButton);
-  serialise.save(_clockwork->ui.embColorSel);
-  serialise.save(_clockwork->ui.emecColorSel);
-  serialise.save(_clockwork->ui.hecColorSel);
-  serialise.save(_clockwork->ui.fcalColorSel);
-  serialise.save(_clockwork->ui.hvToleranceSpinBox);
-  serialise.save(_clockwork->ui.embNominalSpinBox);
-  serialise.save(_clockwork->ui.hecNominalSpinBox);
-  serialise.save(_clockwork->ui.fcal1NominalSpinBox);
-  serialise.save(_clockwork->ui.fcal2NominalSpinBox);
-  serialise.save(_clockwork->ui.fcal3NominalSpinBox);
-  serialise.save(_clockwork->ui.emecNominalSpinBox_1);
-  serialise.save(_clockwork->ui.emecNominalSpinBox_2);
-  serialise.save(_clockwork->ui.emecNominalSpinBox_3);
-  serialise.save(_clockwork->ui.emecNominalSpinBox_4);
-  serialise.save(_clockwork->ui.emecNominalSpinBox_5);
-  serialise.save(_clockwork->ui.emecNominalSpinBox_6);
-  serialise.save(_clockwork->ui.emecNominalSpinBox_7);
-  serialise.save(_clockwork->ui.emecNominalSpinBox_8);
-  serialise.save(_clockwork->ui.emecNominalSpinBox_9);
-  serialise.save(_clockwork->ui.embPresamplerNominalSpinBox);
-  serialise.save(_clockwork->ui.emecPresamplerNominalSpinBox);
+  serialise.save(m_clockwork->ui.phiSectionWidget);//Versions <=2 saved in old format
+  serialise.save(m_clockwork->ui.frontRadioButton,
+		 m_clockwork->ui.backRadioButton,
+		 m_clockwork->ui.centerRadioButton);
+  serialise.save(m_clockwork->ui.embColorSel);
+  serialise.save(m_clockwork->ui.emecColorSel);
+  serialise.save(m_clockwork->ui.hecColorSel);
+  serialise.save(m_clockwork->ui.fcalColorSel);
+  serialise.save(m_clockwork->ui.hvToleranceSpinBox);
+  serialise.save(m_clockwork->ui.embNominalSpinBox);
+  serialise.save(m_clockwork->ui.hecNominalSpinBox);
+  serialise.save(m_clockwork->ui.fcal1NominalSpinBox);
+  serialise.save(m_clockwork->ui.fcal2NominalSpinBox);
+  serialise.save(m_clockwork->ui.fcal3NominalSpinBox);
+  serialise.save(m_clockwork->ui.emecNominalSpinBox_1);
+  serialise.save(m_clockwork->ui.emecNominalSpinBox_2);
+  serialise.save(m_clockwork->ui.emecNominalSpinBox_3);
+  serialise.save(m_clockwork->ui.emecNominalSpinBox_4);
+  serialise.save(m_clockwork->ui.emecNominalSpinBox_5);
+  serialise.save(m_clockwork->ui.emecNominalSpinBox_6);
+  serialise.save(m_clockwork->ui.emecNominalSpinBox_7);
+  serialise.save(m_clockwork->ui.emecNominalSpinBox_8);
+  serialise.save(m_clockwork->ui.emecNominalSpinBox_9);
+  serialise.save(m_clockwork->ui.embPresamplerNominalSpinBox);
+  serialise.save(m_clockwork->ui.emecPresamplerNominalSpinBox);
 
-  serialise.save(_clockwork->ui.caloReadoutToolBox); //Version 2+
+  serialise.save(m_clockwork->ui.caloReadoutToolBox); //Version 2+
   serialise.warnUnsaved(controllerWidget());
   return serialise.result();
 
@@ -2334,7 +2334,7 @@ void VP1CaloReadoutSystem::restoreFromState(QByteArray ba)
 
   //Checkboxes (by name for greater stability in case we change content of map):
   QMap<QString,bool> checkboxstate(state.restore<QMap<QString,bool> >());
-  QMapIterator<QString,QCheckBox*> it(_clockwork->checkBoxMap);
+  QMapIterator<QString,QCheckBox*> it(m_clockwork->checkBoxMap);
   while (it.hasNext()) {
     it.next();
     state.widgetHandled(it.value());
@@ -2347,57 +2347,57 @@ void VP1CaloReadoutSystem::restoreFromState(QByteArray ba)
 
   if (state.version()<=2) {
     state.ignoreObsoletePhiSectionWidgetState();
-    state.ignoreWidget(_clockwork->ui.phiSectionWidget);
+    state.ignoreWidget(m_clockwork->ui.phiSectionWidget);
   } else {
-    state.restore(_clockwork->ui.phiSectionWidget);
+    state.restore(m_clockwork->ui.phiSectionWidget);
   }
-  state.restore(_clockwork->ui.frontRadioButton,
-		_clockwork->ui.backRadioButton,
-		_clockwork->ui.centerRadioButton);
-  state.restore(_clockwork->ui.embColorSel);
-  state.restore(_clockwork->ui.emecColorSel);
-  state.restore(_clockwork->ui.hecColorSel);
-  state.restore(_clockwork->ui.fcalColorSel);
-  state.restore(_clockwork->ui.hvToleranceSpinBox);
-  state.restore(_clockwork->ui.embNominalSpinBox);
-  state.restore(_clockwork->ui.hecNominalSpinBox);
-  state.restore(_clockwork->ui.fcal1NominalSpinBox);
-  state.restore(_clockwork->ui.fcal2NominalSpinBox);
-  state.restore(_clockwork->ui.fcal3NominalSpinBox);
-  state.restore(_clockwork->ui.emecNominalSpinBox_1);
-  state.restore(_clockwork->ui.emecNominalSpinBox_2);
-  state.restore(_clockwork->ui.emecNominalSpinBox_3);
-  state.restore(_clockwork->ui.emecNominalSpinBox_4);
-  state.restore(_clockwork->ui.emecNominalSpinBox_5);
-  state.restore(_clockwork->ui.emecNominalSpinBox_6);
-  state.restore(_clockwork->ui.emecNominalSpinBox_7);
-  state.restore(_clockwork->ui.emecNominalSpinBox_8);
-  state.restore(_clockwork->ui.emecNominalSpinBox_9);
-  state.restore(_clockwork->ui.embPresamplerNominalSpinBox);
-  state.restore(_clockwork->ui.emecPresamplerNominalSpinBox);
+  state.restore(m_clockwork->ui.frontRadioButton,
+		m_clockwork->ui.backRadioButton,
+		m_clockwork->ui.centerRadioButton);
+  state.restore(m_clockwork->ui.embColorSel);
+  state.restore(m_clockwork->ui.emecColorSel);
+  state.restore(m_clockwork->ui.hecColorSel);
+  state.restore(m_clockwork->ui.fcalColorSel);
+  state.restore(m_clockwork->ui.hvToleranceSpinBox);
+  state.restore(m_clockwork->ui.embNominalSpinBox);
+  state.restore(m_clockwork->ui.hecNominalSpinBox);
+  state.restore(m_clockwork->ui.fcal1NominalSpinBox);
+  state.restore(m_clockwork->ui.fcal2NominalSpinBox);
+  state.restore(m_clockwork->ui.fcal3NominalSpinBox);
+  state.restore(m_clockwork->ui.emecNominalSpinBox_1);
+  state.restore(m_clockwork->ui.emecNominalSpinBox_2);
+  state.restore(m_clockwork->ui.emecNominalSpinBox_3);
+  state.restore(m_clockwork->ui.emecNominalSpinBox_4);
+  state.restore(m_clockwork->ui.emecNominalSpinBox_5);
+  state.restore(m_clockwork->ui.emecNominalSpinBox_6);
+  state.restore(m_clockwork->ui.emecNominalSpinBox_7);
+  state.restore(m_clockwork->ui.emecNominalSpinBox_8);
+  state.restore(m_clockwork->ui.emecNominalSpinBox_9);
+  state.restore(m_clockwork->ui.embPresamplerNominalSpinBox);
+  state.restore(m_clockwork->ui.emecPresamplerNominalSpinBox);
 
   if (state.version()>=2)
-    state.restore(_clockwork->ui.caloReadoutToolBox);
+    state.restore(m_clockwork->ui.caloReadoutToolBox);
 
   state.warnUnrestored(controllerWidget());
 }
 
 void VP1CaloReadoutSystem::acceptHV() {
-  if (!_clockwork->permInit) return; // do not change switches
+  if (!m_clockwork->permInit) return; // do not change switches
   // if the switches are not yet built!!
 
   for (int i=0;i<4;i++) {
-    if (i<3) _clockwork->fcalNormalSep[i]->removeAllChildren();
-    if (i<3) _clockwork->fcalMissingSep[i]->removeAllChildren();
-    if (i<3) _clockwork->fcalBadSep[i]->removeAllChildren();
-    _clockwork->hecNormalSep[i]->removeAllChildren();
-    _clockwork->hecMissingSep[i]->removeAllChildren();
-    _clockwork->hecBadSep[i]->removeAllChildren();
-    _clockwork->embModsSeparator->removeAllChildren();
-    _clockwork->embPreModsSeparator->removeAllChildren();
-    _clockwork->emecPreModsSeparator->removeAllChildren();
-    _clockwork->emecModsSeparator->removeAllChildren();
+    if (i<3) m_clockwork->fcalNormalSep[i]->removeAllChildren();
+    if (i<3) m_clockwork->fcalMissingSep[i]->removeAllChildren();
+    if (i<3) m_clockwork->fcalBadSep[i]->removeAllChildren();
+    m_clockwork->hecNormalSep[i]->removeAllChildren();
+    m_clockwork->hecMissingSep[i]->removeAllChildren();
+    m_clockwork->hecBadSep[i]->removeAllChildren();
+    m_clockwork->embModsSeparator->removeAllChildren();
+    m_clockwork->embPreModsSeparator->removeAllChildren();
+    m_clockwork->emecPreModsSeparator->removeAllChildren();
+    m_clockwork->emecModsSeparator->removeAllChildren();
   }
-  _clockwork->hvInit=false;
+  m_clockwork->hvInit=false;
   createHV();
 }

@@ -51,7 +51,7 @@ class VP1CaloReadoutSystem: public IVP13DSystemSimple
  private:
 
   class Clockwork;
-  Clockwork* _clockwork;
+  Clockwork* m_clockwork;
 
 
 };
