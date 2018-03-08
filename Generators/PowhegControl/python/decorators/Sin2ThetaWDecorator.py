@@ -18,4 +18,4 @@ class Sin2ThetaWDecorator(object) :
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.add_parameter( 'sthw2', ATLASCommonParameters.sin2thW_eff, desc='(default ATLAS) sin**2 theta w' )
+    self.decorated.add_parameter( 'sthw2', ATLASCommonParameters.sin2thW_eff, default='{0}', desc='sin**2 theta w' )

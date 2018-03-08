@@ -17,4 +17,4 @@ class HPlusJetsDecorator(object) :
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.add_parameter( 'bwcutoff', 15, desc='(default 15) Mass window is hmass +/- bwcutoff * hwidth' )
+    self.decorated.add_parameter( 'bwcutoff', 15, default='{0}', desc='Mass window is hmass +/- bwcutoff * hwidth' )

@@ -48,3 +48,5 @@ class PowhegConfig_Wj(PowhegConfig_base) :
     self.mass_W_low  = 2.5
     self.mass_W_high = 2.0 * self.beam_energy
     self.withdamp    = 1
+
+    self.populate_default_strings()

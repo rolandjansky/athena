@@ -18,6 +18,6 @@ class LeptonMassDecorator(object) :
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.add_parameter( 'lhfm/emass', ATLASCommonParameters.mass_e,     desc='(default ATLAS) electron mass' )
-    self.decorated.add_parameter( 'lhfm/mumass', ATLASCommonParameters.mass_mu,   desc='(default ATLAS) mu mass' )
-    self.decorated.add_parameter( 'lhfm/taumass', ATLASCommonParameters.mass_tau, desc='(default ATLAS) tau mass' )
+    self.decorated.add_parameter( 'lhfm/emass', ATLASCommonParameters.mass_e,     default='{0}', desc='electron mass' )
+    self.decorated.add_parameter( 'lhfm/mumass', ATLASCommonParameters.mass_mu,   default='{0}', desc='mu mass' )
+    self.decorated.add_parameter( 'lhfm/taumass', ATLASCommonParameters.mass_tau, default='{0}', desc='tau mass' )

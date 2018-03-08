@@ -17,4 +17,4 @@ class SemileptonicDecorator(object) :
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.add_parameter( 'semileptonic', -1, desc='(default -1, use Powheg default) only accept semileptonic decays' )
+    self.decorated.add_parameter( 'semileptonic', -1, default='{0}', desc='(-1:use Powheg default) only accept semileptonic decays' )

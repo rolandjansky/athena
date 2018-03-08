@@ -50,3 +50,5 @@ class PowhegConfig_HZj(PowhegConfig_base) :
     self.doublefsr   = 1
     self.mass_Z_low  = 60.0
     self.mass_Z_high = 2.0 * self.beam_energy
+
+    self.populate_default_strings()

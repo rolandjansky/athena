@@ -6,16 +6,16 @@
 #  Authors: James Robinson  <james.robinson@cern.ch>
 
 #! /usr/bin/env python
-from ..utility import ProcessHandling
+from ..utility import FileParser, ProcessHandling
 
-##  Run multiple Powheg processes
+## Run multiple Powheg processes
 def generate_v1_multi_core(configurator) :
   # Construct random seeds - increment by 1e6 each time
   configurator.logger.info( 'Running in multicore mode with {0} subjobs'.format(configurator.cores) )
   with open('pwgseeds.dat','wb') as random_seed_list : [ random_seed_list.write( str( configurator.random_seed + int(idx*1e6) )+'\n' ) for idx in range(configurator.cores) ]
 
   # Remove iseed if providing seeds from pwgseeds.dat
-  subprocess.call( 'sed -i "/^iseed/d" powheg*.input', shell=True )
+  FileParser('powheg.input').text_remove( '^iseed' )
   configurator.logger.debug( 'Disabling iseed variable when multiple seeds are used' )
 
   # Run in multicore mode

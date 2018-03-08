@@ -17,4 +17,4 @@ class WIDDecorator(object) :
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.add_parameter( 'idvecbos', 24, desc='(default 24, W+) PDG code for vector boson to be produced' )
+    self.decorated.add_parameter( 'idvecbos', 24, default='{0}', desc='PDG ID for vector boson to be produced' )

@@ -1,23 +1,27 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-## @PowhegControl MergeLHE
-#  PowhegControl LHE merger
+## @PowhegControl LHEHandler
+#  PowhegControl Generic LHE file utilities
 #
 #  Authors: James Robinson  <james.robinson@cern.ch>
 
 #! /usr/bin/env python
 
+## Generic LHE file utilities
 class LHEHandler :
 
+  ## Initialise with a logging handler
   def __init__(self, logger=None):
     self._logger = logger
 
 
+  ## Write to the logger with appropriate log-level
   def log(self, message, level='info') :
     if self._logger is not None :
       getattr( self._logger, level )( message )
 
 
+  ## Merge many input LHE files into a single output file
   def merge( self, output_file, input_file_list ) :
     self.log( 'Preparing to create {0} from {1} input files'.format( output_file, len(input_file_list) ) )
     nEvents = 0
@@ -56,9 +60,9 @@ class LHEHandler :
     self.log( 'Wrote {0} events to {1}'.format( nEvents, output_file ) )
 
 
+  ## Get new-style event weights from an input event string
   @staticmethod
   def weights_from_event(input_event) :
-    ## Get new-style event weights from an input event string
     comment_lines = input_event[input_event.find('#'):].replace('\n',' ').replace('</event>','')
     weight_lines = [ ' '.join(line.split()) for line in comment_lines.split('#') if 'new weight,renfact,facfact,pdf1,pdf2' in line ]
     return [ (line.split(' ')[-1],line.split(' ')[2]) for line in weight_lines ]

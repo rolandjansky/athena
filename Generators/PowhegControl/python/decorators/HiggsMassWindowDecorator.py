@@ -17,5 +17,5 @@ class HiggsMassWindowDecorator(object) :
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.add_parameter( 'mass_H_low', 10.,    desc='(default 10) M_H > mass low', parameter='min_h_mass' )
-    self.decorated.add_parameter( 'mass_H_high', 1000., desc='(default 1000) M_H < mass high', parameter='max_h_mass' )
+    self.decorated.add_parameter( 'mass_H_low', 10.,    default='{0}', desc='M_H > mass low', parameter='min_h_mass' )
+    self.decorated.add_parameter( 'mass_H_high', 1000., default='{0}', desc='M_H < mass high', parameter='max_h_mass' )

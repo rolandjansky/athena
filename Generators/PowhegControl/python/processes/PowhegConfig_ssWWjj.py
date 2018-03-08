@@ -55,3 +55,5 @@ class PowhegConfig_ssWWjj(PowhegConfig_base) :
                                  'WpWplvlv', 'WmWmlvlv' ]
     self.decay_mode = 'WpWplvlv'
     self.minlo      = -1
+
+    self.populate_default_strings()

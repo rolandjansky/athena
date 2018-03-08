@@ -18,8 +18,8 @@ class HVJDecorator(object) :
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.add_parameter( 'bmass', ATLASCommonParameters.mass_b, desc='(default ATLAS) b quark mass' )
-    self.decorated.add_parameter( 'kappa_ghb', 1.0,                      desc='(default 1.0) multiplicative kappa-factor of the Higgs-bottom coupling' )
-    self.decorated.add_parameter( 'kappa_ght', 1.0,                      desc='(default 1.0) multiplicative kappa-factor of the Higgs-top coupling' )
-    self.decorated.add_parameter( 'use_massive_b', 1,                    desc='(default 1, enabled) enable bottom quark loops', parameter='massivebottom' )
-    self.decorated.add_parameter( 'use_massive_t', 1,                    desc='(default 1, enabled) enable charm quark loops', parameter='massivetop' )
+    self.decorated.add_parameter( 'bmass', ATLASCommonParameters.mass_b, default='{0}', desc='b quark mass' )
+    self.decorated.add_parameter( 'kappa_ghb', 1.0,                      default='{0}', desc='multiplicative kappa-factor of the Higgs-bottom coupling' )
+    self.decorated.add_parameter( 'kappa_ght', 1.0,                      default='{0}', desc='multiplicative kappa-factor of the Higgs-top coupling' )
+    self.decorated.add_parameter( 'use_massive_b', 1,                    default='{0}', desc='(0:disabled; 1:enabled) enable bottom quark loops', parameter='massivebottom' )
+    self.decorated.add_parameter( 'use_massive_t', 1,                    default='{0}', desc='(0:disabled; 1:enabled) enable top quark loops', parameter='massivetop' )
