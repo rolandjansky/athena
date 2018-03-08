@@ -36,6 +36,7 @@ class Wj(PowhegV2):
 
         # Add all keywords for this process, overriding defaults if required
         self.add_keyword("alphaem")
+        self.add_keyword("alphas_from_lhapdf")
         self.add_keyword("bornktmin", 5.0)
         self.add_keyword("bornonly")
         self.add_keyword("bornsuppfact")

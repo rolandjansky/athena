@@ -35,18 +35,14 @@ def __construct_inputs(input_LHE_events, process):
     """
     # Find insertion point for MadSpin header
     logger.info("Constructing MadSpin runcard header")
-    opening_string = LHE.get_opening_string(input_LHE_events)
-    closing_string = LHE.get_closing_string(input_LHE_events)
-    if opening_string.find("<header>") != -1:
-        pre_header = opening_string[: opening_string.find("<header>")]
-        post_header = opening_string[opening_string.find("<header>") + 8: opening_string.find("</header>") + 10]
-    else:
-        pre_header = opening_string[: opening_string.find("<init>")]
-        post_header = "</header>\n" + opening_string[opening_string.find("<init>"): opening_string.find("</init>") + 8]
+    pre_header  = "\n".join([elem for elem in [LHE.opening_tag(input_LHE_events), LHE.comment_block(input_LHE_events)] if elem])
+    header_contents = LHE.header_block(input_LHE_events).replace("<header>", "").replace("</header>", "").strip("\n")
+    post_header  = LHE.init_block(input_LHE_events)
+    postamble  = LHE.postamble(input_LHE_events)
 
     # Write events to LHE file with MadSpin information
     with open("madspin_LHE_input.lhe", "wb") as f_madspin_LHE:
-        f_madspin_LHE.write(pre_header)
+        f_madspin_LHE.write("{}\n".format(pre_header))
         f_madspin_LHE.write("<header>\n")
         f_madspin_LHE.write("<mgversion>\n")
         f_madspin_LHE.write("{}\n".format(os.environ["MADPATH"].split("/")[-1].split("v")[-1].split("_p")[0].replace("_", ".")))
@@ -58,12 +54,24 @@ def __construct_inputs(input_LHE_events, process):
         f_madspin_LHE.write("set gauge unitary\n")
         f_madspin_LHE.write("set complex_mass_scheme False\n")
         f_madspin_LHE.write("import model {}\n".format(process.MadSpin_model))
-        f_madspin_LHE.write("define p = g u c d s u~ c~ d~ s~\n")
-        f_madspin_LHE.write("define j = g u c d s u~ c~ d~ s~\n")
-        f_madspin_LHE.write("define l+ = e+ mu+ ta+\n")
-        f_madspin_LHE.write("define l- = e- mu- ta-\n")
-        f_madspin_LHE.write("define vl = ve vm vt\n")
-        f_madspin_LHE.write("define vl~ = ve~ vm~ vt~\n")
+        if int(process.MadSpin_nFlavours) == 4:
+            f_madspin_LHE.write("define p = g u c d s u~ c~ d~ s~\n")
+            f_madspin_LHE.write("define j = g u c d s u~ c~ d~ s~\n")
+        elif int(process.MadSpin_nFlavours) == 5:
+            f_madspin_LHE.write("define p = g u c d s b u~ c~ d~ s~ b~\n")
+            f_madspin_LHE.write("define j = g u c d s b u~ c~ d~ s~ b~\n")
+        else:
+            raise ValueError("'MadSpin_nFlavours' must be set to 4 or 5")
+        if process.MadSpin_taus_are_leptons:
+            f_madspin_LHE.write("define l+ = e+ mu+ ta+\n")
+            f_madspin_LHE.write("define l- = e- mu- ta-\n")
+            f_madspin_LHE.write("define vl = ve vm vt\n")
+            f_madspin_LHE.write("define vl~ = ve~ vm~ vt~\n")
+        else:
+            f_madspin_LHE.write("define l+ = e+ mu+\n")
+            f_madspin_LHE.write("define l- = e- mu-\n")
+            f_madspin_LHE.write("define vl = ve vm\n")
+            f_madspin_LHE.write("define vl~ = ve~ vm~\n")
         f_madspin_LHE.write("{}\n".format(process.MadSpin_process))
         f_madspin_LHE.write("output tchan\n")
         f_madspin_LHE.write("</mg5proccard>\n")
@@ -216,10 +224,12 @@ def __construct_inputs(input_LHE_events, process):
         f_madspin_LHE.write("#      PDG        Width\n")
         f_madspin_LHE.write("DECAY  82   0.000000e+00\n")
         f_madspin_LHE.write("</slha>\n")
-        f_madspin_LHE.write(post_header)
+        f_madspin_LHE.write("{}\n".format(header_contents))
+        f_madspin_LHE.write("</header>\n")
+        f_madspin_LHE.write("{}\n".format(post_header))
         for event in LHE.event_iterator(input_LHE_events):
             f_madspin_LHE.write(event)
-        f_madspin_LHE.write(closing_string)
+        f_madspin_LHE.write(postamble)
 
     # Rename LHE files
     shutil.move(input_LHE_events, "{}.undecayed".format(input_LHE_events))
@@ -254,32 +264,25 @@ def __prepare_outputs(input_LHE_events):
     subprocess.call("gunzip pwgevents_decayed.lhe.gz 2> /dev/null", shell=True)
     shutil.move("pwgevents_decayed.lhe", "{}.decayed".format(input_LHE_events))
 
-    # Combine headers
-    pwg_opening_string = LHE.get_opening_string("{}.undecayed".format(input_LHE_events))
-    pwg_closing_string = LHE.get_closing_string("{}.undecayed".format(input_LHE_events))
-    madspin_opening_string = LHE.get_opening_string("{}.decayed".format(input_LHE_events))
-
-    # Split Powheg headers to insert MadSpin information
-    if pwg_opening_string.find("<header>") != -1:
-        pwg_pre_header = pwg_opening_string[: pwg_opening_string.find("<header>") + 8]
-        pwg_post_header = pwg_opening_string[pwg_opening_string.find("</header>") + 10:]
-    else:
-        pwg_pre_header = pwg_opening_string[: pwg_opening_string.find("<init>")] + "<header>"
-        pwg_post_header = pwg_opening_string[pwg_opening_string.find("<init>"):]
-    madspin_header = madspin_opening_string[madspin_opening_string.find("<header>") + 8: madspin_opening_string.find("</header>") + 10]
+    # Get appropriate header sections from Powheg and MadSpin LHE
+    powheg_LHE, madspin_LHE = "{}.undecayed".format(input_LHE_events), "{}.decayed".format(input_LHE_events)
+    pre_header = "\n".join([elem for elem in [LHE.opening_tag(powheg_LHE), LHE.comment_block(powheg_LHE)] if elem])
+    header = LHE.header_block(madspin_LHE)
+    post_header = LHE.init_block(powheg_LHE)
+    postamble = LHE.postamble(powheg_LHE)
 
     # Write events to LHE file with MadSpin information
     with open("pwgevents_with_MadSpin.lhe", "wb") as f_combined_LHE:
-        f_combined_LHE.write(pwg_pre_header)
-        f_combined_LHE.write(madspin_header)
-        f_combined_LHE.write(pwg_post_header)
+        f_combined_LHE.write("{}\n".format(pre_header))
+        f_combined_LHE.write("{}\n".format(header))
+        f_combined_LHE.write("{}\n".format(post_header))
         for event in LHE.event_iterator("{}.decayed".format(input_LHE_events)):
             f_combined_LHE.write(event)
-        f_combined_LHE.write(pwg_closing_string)
+        f_combined_LHE.write(postamble)
 
     # Rename output file
     if os.path.isfile(input_LHE_events):
-        shutil.move(input_LHE_events, "madspin_LHE.input")
+        shutil.move(input_LHE_events, "{}.undecayed_ready_for_madspin".format(input_LHE_events))
     shutil.move("pwgevents_with_MadSpin.lhe", input_LHE_events)
 
     for LHE_tarball in list(set(glob.glob("*lhe*.gz") + glob.glob("*events*.gz"))):

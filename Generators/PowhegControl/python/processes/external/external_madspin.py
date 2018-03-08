@@ -36,7 +36,9 @@ class ExternalMadSpin(ExternalBase):
         self.add_keyword("MadSpin_enabled")
         self.add_keyword("MadSpin_model")
         self.add_keyword("MadSpin_mode")
+        self.add_keyword("MadSpin_nFlavours")
         self.add_keyword("MadSpin_process", process)
+        self.add_keyword("MadSpin_taus_are_leptons")
         self.add_keyword("mass_b")
         self.add_keyword("mass_H")
         self.add_keyword("mass_t")
@@ -70,7 +72,7 @@ class ExternalMadSpin(ExternalBase):
             return False
         # Check that decay list has at least one entry otherwise add defaults
         if len(self.MadSpin_decays) == 0:
-            logger.info("No MadSpin decays specified, so defaults will be used (only relevant if MadSpin is enabled)")
+            logger.warning("No MadSpin decays specified, so defaults will be used.")
             for decay in ("t > w+ b, w+ > l+ vl", "t~ > w- b~, w- > l- vl~", "t > w+ b, w+ > j j", "t~ > w- b~, w- > j j"):
                 logger.info("... adding MadSpin decay: 'decay {0}'".format(decay))
                 self.parameters_by_name("MadSpin_decays")[0].value.append("decay {0}".format(decay))

@@ -60,7 +60,6 @@ def acquire_NNLO_inputs(aux_directory, NNLO_reweighting_inputs):
 def run_NNLO_executable(process, powheg_LHE_output, output_LHE_name):
     """! Run the NNLO executable."""
     # Run NNLOPS
-    # process.executable, process.NNLO_reweighting_inputs,
     NNLO_executable = process.executable
     if "nnlopsreweighter" in NNLO_executable:
         process.NNLO_weight_list = construct_NNLOPS_weight_list(process.NNLO_output_weights, powheg_LHE_output)
@@ -158,20 +157,15 @@ def reformat_NNLOPS_events(NNLO_weight_list, powheg_LHE_output, output_LHE_name)
                     f_output.write(output_line)
 
 
-def reformat_DYNNLO_events(powheg_LHE_output, output_LHE_name):
+def reformat_DYNNLO_events(powheg_LHE_output, input_LHE_name):
     """! Reformat DYNNLO events to fit ATLAS conventions."""
     logger.info("Converting output to LHEv3 format")
 
     # Extract intro, header and footer
-    opening_string = LHE.get_opening_string(output_LHE_name)
-    closing_string = LHE.get_closing_string(output_LHE_name)
-    if opening_string.find("<header>") != -1:
-        intro = opening_string[: opening_string.find("<header>")]
-        header = opening_string[opening_string.find("<header>"): opening_string.find("</header>") + 9]
-    else:
-        intro = opening_string[: opening_string.find("<init>")]
-        header = "<header></header>"
-    init = opening_string[opening_string.find("<init>"): opening_string.find("</init>") + 8]
+    intro = "\n".join([elem for elem in [LHE.opening_tag(input_LHE_name), LHE.comment_block(input_LHE_name)] if elem])
+    header = LHE.header_block(input_LHE_events)
+    init = LHE.init_block(input_LHE_events)
+    closing_string = LHE.postamble(input_LHE_name)
     if closing_string.find("<LesHouchesEvents>") != -1:
         footer = closing_string[closing_string.find("</LesHouchesEvents>"):]
     else:
@@ -179,8 +173,6 @@ def reformat_DYNNLO_events(powheg_LHE_output, output_LHE_name):
 
     # Add nominal weight to header
     logger.info("Adding LHEv3 weight: nominal")
-    # self._nominal_group_name = [x[1] for x in configurator.fixed_parameters if x[0] == "lhrwgt_group_name"][0]
-    # header_elem = LHE.add_weight_to_header(header, self._nominal_group_name, "nominal", 0)
     header_elem = LHE.add_weight_to_header(header, "nominal", "nominal", 0)
 
     # Get list of any weights already used in the range 4000-5000
@@ -192,7 +184,7 @@ def reformat_DYNNLO_events(powheg_LHE_output, output_LHE_name):
     weight_number_offset = max(filter(lambda w: 4000 <= w < 5000, [int(w_elem.attrib["id"]) for w_elem in w_elems]) + [4000])
 
     # Add DYNNLO weights to header
-    dynnlo_weight_names = [x[0] for x in LHE.string_to_weight(LHE.get_first_event(output_LHE_name))]
+    dynnlo_weight_names = [x[0] for x in LHE.string_to_weight(LHE.get_first_event(input_LHE_name))]
     for idx, weight_name in enumerate(dynnlo_weight_names, start=1):
         logger.info("Adding LHEv3 weight: {}".format(weight_name))
         weight_name_to_id[weight_name] = weight_number_offset + idx
@@ -201,10 +193,10 @@ def reformat_DYNNLO_events(powheg_LHE_output, output_LHE_name):
     # Convert Powheg input events to LHEv3 output ones
     logger.info("Converting Powheg output into LHEv3 format")
     with open(powheg_LHE_output, "wb") as f_output:
-        f_output.write(intro)
+        f_output.write("{}\n".format(intro))
         ElementTree.ElementTree(header_elem).write(f_output)
-        f_output.write(init)
-        for event in LHE.event_iterator(output_LHE_name):
+        f_output.write("{}\n".format(init))
+        for event in LHE.event_iterator(input_LHE_name):
             f_output.write(LHE.Powheg2LHEv3(event, weight_name_to_id))
         f_output.write(footer)
 

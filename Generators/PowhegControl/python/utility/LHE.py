@@ -27,9 +27,9 @@ def merge(input_file_pattern, output_file):
     with open(output_file, "ab") as f_output:
         logger.info("... reading metadata from {}".format(input_file_list[0]))
         # Start with the first file and extract opening/closing string
-        opening_string = get_opening_string(input_file_list[0])
-        closing_string = get_closing_string(input_file_list[0])
-        f_output.write(opening_string)
+        s_preamble = preamble(input_file_list[0])
+        s_postamble = postamble(input_file_list[0])
+        f_output.write(s_preamble)
 
         # Now write events from all files to output
         # Use sanitised list in case output_file matches the pattern
@@ -37,7 +37,7 @@ def merge(input_file_pattern, output_file):
             f_output.write(event)
 
         # Finally add the footer
-        f_output.write(closing_string)
+        f_output.write(s_postamble)
 
     # Write the event count to the logger
     logger.info("Wrote {} events to {}".format(nEvents + 1, output_file))
@@ -57,9 +57,10 @@ def event_iterator(input_files, verbose=True):
         # Group all lines inside an XML event element
         with open(file_name, "rb") as f_input:
             for line in f_input:
-                if "<event>" in line:
+                # Both <event ...> and <event> are permitted
+                if "<event" in line:
                     in_event = True
-                    line = line[line.index("<event>"):]  # catch cases like "</init><event>"
+                    line = line[line.index("<event"):]  # catch cases like "</init><event>"
                 if in_event:
                     event_lines += line
                 if "</event>" in line:
@@ -105,7 +106,7 @@ def add_weight_to_header(header, weightgroup_name, weight_name, weight_id):
     return header_elem
 
 
-def get_opening_string(input_LHE_file):
+def preamble(input_LHE_file):
     """! Get opening lines from file as a string."""
     with open(input_LHE_file, "rb") as f_input:
         s_input = mmap.mmap(f_input.fileno(), 0, access=mmap.ACCESS_READ)
@@ -113,19 +114,55 @@ def get_opening_string(input_LHE_file):
     return s_output
 
 
-def get_first_event(input_LHE_file):
-    """! Get first event from file as a string."""
-    with open(input_LHE_file, "rb") as f_input:
-        s_input = mmap.mmap(f_input.fileno(), 0, access=mmap.ACCESS_READ)
-        s_output = s_input[s_input.find("<event>"): s_input.find("</event>") + 8]
-    return s_output
-
-
-def get_closing_string(input_LHE_file):
+def postamble(input_LHE_file):
     """! Get closing lines from file as a string."""
     with open(input_LHE_file, "rb") as f_input:
         s_input = mmap.mmap(f_input.fileno(), 0, access=mmap.ACCESS_READ)
         s_output = s_input[s_input.rfind("</event>") + 9:]
+    return s_output
+
+
+def opening_tag(input_LHE_file):
+    """! Get <LesHouchesEvents> opening tag from file as a string."""
+    s_opening = preamble(input_LHE_file)
+    if s_opening.find("<LesHouchesEvents") != -1:
+        return s_opening[s_opening.find("<LesHouchesEvents"): s_opening.find(">") + 1].strip("\n")
+    return ""
+
+
+def comment_block(input_LHE_file):
+    """! Get comment block from file as a string."""
+    s_opening = preamble(input_LHE_file)
+    if s_opening.find("<!--") != -1:
+        return s_opening[s_opening.find("<!--"): s_opening.find("-->") + 3].strip("\n")
+    return ""
+
+
+def header_block(input_LHE_file):
+    """! Get <header> block from file as a string."""
+    s_opening = preamble(input_LHE_file)
+    if s_opening.find("<header>") != -1:
+        return s_opening[s_opening.find("<header>"): s_opening.find("</header>") + 9].strip("\n")
+    return "<header>\n</header>"
+
+
+def init_block(input_LHE_file):
+    """! Get <init> block from file as a string."""
+    s_opening = preamble(input_LHE_file)
+    # Both <init ...> and <init> are permitted
+    if s_opening.find("<init>") != -1:
+        return s_opening[s_opening.find("<init>"): s_opening.find("</init>") + 7].strip("\n")
+    if s_opening.find("<init ") != -1:
+        return s_opening[s_opening.find("<init "): s_opening.find("</init>") + 7].strip("\n")
+    return "<init>\n</init>"
+
+
+def get_first_event(input_LHE_file):
+    """! Get first event from file as a string."""
+    with open(input_LHE_file, "rb") as f_input:
+        s_input = mmap.mmap(f_input.fileno(), 0, access=mmap.ACCESS_READ)
+        # Both <event ...> and <event> are permitted
+        s_output = s_input[s_input.find("<event"): s_input.find("</event>") + 8]
     return s_output
 
 
