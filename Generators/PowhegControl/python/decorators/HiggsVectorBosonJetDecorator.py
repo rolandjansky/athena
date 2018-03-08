@@ -19,8 +19,6 @@ class HiggsVectorBosonJetDecorator(object) :
     self.decorated = decorated
 
     self.decorated.add_parameter( 'bornsuppfactV', -1,                   desc='(-1:Powheg default)' )
-    self.decorated.add_parameter( 'kappa_ghb', 1.0,                      desc='multiplicative kappa-factor of the Higgs-bottom coupling' )
-    self.decorated.add_parameter( 'kappa_ght', 1.0,                      desc='multiplicative kappa-factor of the Higgs-top coupling' )
     self.decorated.add_parameter( 'ptVhigh', -1,                         desc='(-1:Powheg default)' )
     self.decorated.add_parameter( 'ptVlow', -1,                          desc='(-1:Powheg default)' )
     self.decorated.add_parameter( 'use_massive_b', 1,                    desc='(0:disabled; 1:enabled) enable bottom quark loops', parameter='massivebottom' )

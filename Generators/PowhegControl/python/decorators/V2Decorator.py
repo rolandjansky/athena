@@ -27,6 +27,8 @@ class V2Decorator(object) :
     self.decorated.add_parameter( 'evenmaxrat', 1,                         desc='(0:disabled; 1:enabled) speed up upper-bound calculation by taking maximum of identical processes.' )
     self.decorated.add_parameter( 'fastbtlbound', 1,                       desc='(0:disabled; 1:enabled) use fast btilde bound.' )
     self.decorated.add_parameter( 'fixedgrid', -1,                         desc='(-1:use Powheg default)' )
+    self.decorated.add_parameter( 'fullrwgt', -1,                          desc='(-1:use Powheg default) experimental! Must ONLY be used for processes with no Born-level parton radiation.' )
+    self.decorated.add_parameter( 'fullrwgtmode', -1,                      desc='(-1:use Powheg default)' )
     self.decorated.add_parameter( 'itmx1rm', -1,                           desc='(-1:use Powheg default) number of iterations for initializing the integration grid for the remnant.' )
     self.decorated.add_parameter( 'itmx2rm', -1,                           desc='(-1:use Powheg default) number of iterations for computing the integral and finding upper bound for the remnant.' )
     self.decorated.fix_parameter( 'lhrwgt_descr', 'nominal',               desc='weight description.' )
@@ -49,8 +51,7 @@ class V2Decorator(object) :
   def finalise( self ) :
     ## Set up parallelisation parameters if in multicore mode
     if self.decorated.cores > 1 :
-      if self.decorated.ncall1rm != -1 : self.decorated.ncall1rm = int( self.decorated.ncall1rm / self.decorated.cores + 0.5 )
-      # if self.decorated.ncall2rm != -1 : self.decorated.ncall2rm = int( self.decorated.ncall2rm / self.decorated.cores + 0.5 )
+      if self.decorated.ncall1rm != -1 : self.decorated.ncall1rm = int( math.ceil( float(self.decorated.ncall1rm) / self.decorated.cores ) )
       self.decorated.parallelstage = 1
 
     ## Fix integration parameters before printing list for user

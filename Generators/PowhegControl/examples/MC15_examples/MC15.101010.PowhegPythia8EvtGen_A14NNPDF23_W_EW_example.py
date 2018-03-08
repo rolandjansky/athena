@@ -1,9 +1,9 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #--------------------------------------------------------------
-# Powheg WZ setup starting from ATLAS defaults
+# Powheg W_EW setup starting from ATLAS defaults
 #--------------------------------------------------------------
-include('PowhegControl/PowhegControl_WZ_Common.py')
+include('PowhegControl/PowhegControl_W_EW_Common.py')
 PowhegConfig.generate()
 
 #--------------------------------------------------------------
@@ -15,6 +15,6 @@ include('MC15JobOptions/Pythia8_Powheg.py')
 #--------------------------------------------------------------
 # EVGEN configuration
 #--------------------------------------------------------------
-evgenConfig.description = 'POWHEG+Pythia8 WZ production with A14 NNPDF2.3 tune'
-evgenConfig.keywords    = [ 'SM', 'diboson', 'W', 'Z' ]
+evgenConfig.description = 'POWHEG+Pythia8 W production plus EW effects with A14 NNPDF2.3 tune'
+evgenConfig.keywords    = [ 'SM', 'W' ]
 evgenConfig.contact     = [ 'james.robinson@cern.ch' ]

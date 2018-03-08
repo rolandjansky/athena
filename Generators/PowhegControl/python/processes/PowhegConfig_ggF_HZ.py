@@ -21,7 +21,7 @@ class PowhegConfig_ggF_HZ(PowhegConfig_base) :
     self._powheg_executable += '/ggHZ/pwhg_main'
 
     ## Decorate with generic option sets
-    self.add_parameter_set( 'Higgs + vector boson' )
+    self.add_parameter_set( 'Higgs + vector boson', boson='Z' )
     self.add_parameter_set( 'Higgs fixed width' )
     self.add_parameter_set( 'Higgs properties' )
     self.add_parameter_set( 'PDF reweighting' )
