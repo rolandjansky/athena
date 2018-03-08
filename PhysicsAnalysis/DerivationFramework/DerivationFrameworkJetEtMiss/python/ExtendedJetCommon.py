@@ -209,7 +209,7 @@ def applyJetCalibration(jetalg,algname,sequence,fatjetconfig = 'comb'):
         isdata=False
 
         #fatjetconfig selects config file for AntiKt10LCTopoTrimmedPtFrac5SmallR20, default is JES_MC16recommendation_FatJet_JMS_comb_19Jan2018.config
-        if not (fatjetconfig == 'comb' or fatjetconfig == 'calo' or fatjetconfig == 'TA'):
+        if not fatjetconfig in ['comb','calo','TA']:
             extjetlog.warning('*** Wrong value for fatjetconfig!  Only \'comb\' (default), \'calo\' or \'TA\' can be used. ***')
 
         configdict = {'AntiKt4EMTopo':('JES_data2017_2016_2015_Recommendation_Feb2018_rel21.config',
