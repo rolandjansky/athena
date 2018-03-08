@@ -9,7 +9,7 @@
     <atn/>
     <kv/>
     <rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
-        <rttContactPerson>Hass AbouZeid</rttContactPerson>
+        <rttContactPerson>James Beacham, Tamara Vazquez Schroeder</rttContactPerson>
         
         <jobList>
             <chain>
@@ -195,147 +195,6 @@
                             
                         </chainElement>
                         
-                        <!-- Cosmics Reconstruction job -->
-                        <chainElement>
-                            
-                            <jobTransform userJobId="Run00184074_IDCosmic0">
-                                <doc>RecoTrf</doc>
-                                <jobTransformJobName>Run00184074_IDCosmic0</jobTransformJobName>
-                                <jobTransformCmd>
-                                    tct_recotrf.py --jobnum=0 --nfiles=3 --maxEvents=500 --trigStream=IDCosmic --runnum=00184074 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00184074/physics_IDCosmic --lumiblock=100,102 --dropDESDs --dropDRAWs --dropNTUPs --dropDAODs --preExec "'rec.doTrigger=False;'"
-                                </jobTransformCmd>
-                                <group>TCTTransform</group>
-                                <queue>medium</queue>
-                                <batchWallTime>420</batchWallTime>
-                                <castorSvcClass>t0atlas</castorSvcClass>
-                                
-                                <test>
-                                    <modulename>RttLibraryTools</modulename>
-                                    <testname>FileGrepper</testname>
-                                    <arg>
-                                        <argname>inputFile</argname>
-                                        <argvalue>log.???to???</argvalue> <!-- put this one if you use job log -->
-                                    </arg>
-                                    <arg>
-                                        <argname>outputFile</argname>
-                                        <argvalue>Run00184074_IDCosmic0.summary.txt</argvalue>
-                                    </arg>
-                                    <arg>
-                                        <argname>searchList</argname>
-                                        <argvalue>successful run</argvalue> <!-- put here the string you should find to mean all ok -->
-                                    </arg>
-                                </test>
-                                
-                            </jobTransform>
-                            
-                        </chainElement>
-                        
-                        <!-- Collisions Reconstruction job -->
-                        <chainElement>
-                            
-                            <jobTransform userJobId="Run00183021_MinBias0_Collisions">
-                                <doc>RecoTrf with beamType=collisions</doc>
-                                <jobTransformJobName>Run00183021_MinBias0_Collisions</jobTransformJobName>
-                                <jobTransformCmd>
-                                    tct_recotrf.py --jobnum=0 --nfiles=3 --maxEvents=500 --trigStream=MinBias --runnum=00183021 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00183021/physics_MinBias --lumiblock=550,552 --dropDESDs --dropDRAWs --dropNTUPs --dropDAODs --preExec "'rec.doTrigger=False;'"
-                                </jobTransformCmd>
-                                <group>TCTTransform</group>
-                                <queue>medium</queue>
-                                <batchWallTime>420</batchWallTime>
-                                <castorSvcClass>t0atlas</castorSvcClass>
-                                
-                                <test>
-                                    <modulename>RttLibraryTools</modulename>
-                                    <testname>FileGrepper</testname>
-                                    <arg>
-                                        <argname>inputFile</argname>
-                                        <argvalue>log.???to???</argvalue> <!-- put this one if you use job log -->
-                                    </arg>
-                                    <arg>
-                                        <argname>outputFile</argname>
-                                        <argvalue>Run00183021_MinBias0_Collisions.summary.txt</argvalue>
-                                    </arg>
-                                    <arg>
-                                        <argname>searchList</argname>
-                                        <argvalue>successful run</argvalue> <!-- put here the string you should find to mean all ok -->
-                                    </arg>
-                                </test>
-                                
-                            </jobTransform>
-                            
-                        </chainElement>
-                        
-                        <!-- Reconstruction job -->
-                        <chainElement>
-                            
-                            <jobTransform userJobId="Run00183021_JetTauEtmiss0_Collisions">
-                                <doc>RecoTrf with beamType=collisions</doc>
-                                <jobTransformJobName>Run00183021_JetTauEtmiss0_Collisions</jobTransformJobName>
-                                <jobTransformCmd>
-                                    tct_recotrf.py --jobnum=0 --nfiles=3 --maxEvents=500 --trigStream=JetTauEtmiss --runnum=00183021 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00183021/physics_JetTauEtmiss --lumiblock=550,552 --dropDESDs --dropDRAWs --dropNTUPs --dropDAODs --preExec "'rec.doTrigger=False;'"
-                                </jobTransformCmd>
-                                <group>TCTTransform</group>
-                                <queue>medium</queue>
-                                <batchWallTime>420</batchWallTime>
-                                <castorSvcClass>t0atlas</castorSvcClass>
-                                
-                                <test>
-                                    <modulename>RttLibraryTools</modulename>
-                                    <testname>FileGrepper</testname>
-                                    <arg>
-                                        <argname>inputFile</argname>
-                                        <argvalue>log.???to???</argvalue> <!-- put this one if you use job log -->
-                                    </arg>
-                                    <arg>
-                                        <argname>outputFile</argname>
-                                        <argvalue>Run00183021_JetTauEtmiss0_Collisions.summary.txt</argvalue>
-                                    </arg>
-                                    <arg>
-                                        <argname>searchList</argname>
-                                        <argvalue>successful run</argvalue> <!-- put here the string you should find to mean all ok -->
-                                    </arg>
-                                </test>
-                                
-                            </jobTransform>
-                            
-                        </chainElement>
-                        
-                        <!-- Reconstruction job -->
-                        <chainElement>
-                            
-                            <jobTransform userJobId="Run00183021_Muons_Collisions">
-                                <doc>RecoTrf with beamType=collisions</doc>
-                                <jobTransformJobName>Run00183021_Muons_Collisions</jobTransformJobName>
-                                <jobTransformCmd>
-                                    tct_recotrf.py --jobnum=0 --nfiles=3 --maxEvents=500 --trigStream=Muons --runnum=00183021 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00183021/physics_Muons --lumiblock=550,552 --dropDESDs --dropDRAWs --dropNTUPs --dropDAODs --preExec "'rec.doTrigger=False;'"
-                                </jobTransformCmd>
-                                <group>TCTTransform</group>
-                                <queue>medium</queue>
-                                <batchWallTime>420</batchWallTime>
-                                <castorSvcClass>t0atlas</castorSvcClass>
-                                
-                                <test>
-                                    <modulename>RttLibraryTools</modulename>
-                                    <testname>FileGrepper</testname>
-                                    <arg>
-                                        <argname>inputFile</argname>
-                                        <argvalue>log.???to???</argvalue> <!-- put this one if you use job log -->
-                                    </arg>
-                                    <arg>
-                                        <argname>outputFile</argname>
-                                        <argvalue>Run00183021_Muons0_Collisions.summary.txt</argvalue>
-                                    </arg>
-                                    <arg>
-                                        <argname>searchList</argname>
-                                        <argvalue>successful run</argvalue> <!-- put here the string you should find to mean all ok -->
-                                    </arg>
-                                </test>
-                                
-                            </jobTransform>
-                            
-                            
-                        </chainElement>
-                        
                         <!-- Reconstruction job -->
                         <chainElement>
                             
@@ -372,152 +231,7 @@
                             
                         </chainElement>
                         
-                        <!-- Reconstruction job, using 2012 data with high pileup -->
-                        <!-- Joao Firmino da Costa 31 May2012 -->
-                        
-                        
-                        <!-- Run 00204073 with pileup 30 -->
-                        
-                        <!-- EGAMMA STREAM -->
-                        <chainElement>
-                            
-                            <jobTransform userJobId="EgammaStream_Run204073_Pileup_30_Collisions">
-                                <doc>RecoTrf</doc>
-                                <jobTransformJobName>EgammaStream_Run204073_Pileup_30_Collisions</jobTransformJobName>
-                                <jobTransformCmd>
-                                    tct_recotrf.py --jobnum=0 --trigStream=Egamma --nfiles=2 --maxEvents=300 --runnum=00204073 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00204073/physics_Egamma/ --autoConfiguration=everything --conditionsTag=COMCOND-BLKPA-RUN1-05 --geometryVersion=ATLAS-R1-2012-03-00-00 --lumiblock=144,145 --dropDESDs --dropDRAWs --dropNTUPs --dropDAODs --preExec "'rec.doTrigger=False;'"
-                                </jobTransformCmd>
-                                <group>TCTTransform</group>
-                                <queue>medium</queue>
-                                <batchWallTime>420</batchWallTime>
-                                <castorSvcClass>t0atlas</castorSvcClass>
-                                
-                                <test>
-                                    <modulename>RttLibraryTools</modulename>
-                                    <testname>FileGrepper</testname>
-                                    <arg>
-                                        <argname>inputFile</argname>
-                                        <argvalue>log.???to???</argvalue> <!-- put this one if you use job log -->
-                                    </arg>
-                                    <arg>
-                                        <argname>outputFile</argname>
-                                        <argvalue>EgammaStream_Run204073_Pileup_30_Collisions.summary.txt</argvalue>
-                                    </arg>
-                                    <arg>
-                                        <argname>searchList</argname>
-                                        <argvalue>successful run</argvalue> <!-- put here the string you should find to mean all ok -->
-                                    </arg>
-                                </test>
-                                
-                            </jobTransform>
-                            
-                        </chainElement>
-                        
-                        <!-- Muons STREAM -->
-                        <chainElement>
-                            
-                            <jobTransform userJobId="MuonsStream_Run204073_Pileup_30_Collisions">
-                                <doc>RecoTrf</doc>
-                                <jobTransformJobName>MuonsStream_Run204073_Pileup_30_Collisions</jobTransformJobName>
-                                <jobTransformCmd>
-                                    tct_recotrf.py --jobnum=0 --trigStream=Muons --nfiles=2 --maxEvents=300 --runnum=00204073 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00204073/physics_Muons/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-BLKPA-RUN1-05 --geometryVersion=ATLAS-R1-2012-03-00-00 --lumiblock=144,145 --dropDESDs --dropDRAWs --dropNTUPs --dropDAODs --preExec "'rec.doTrigger=False;'" --conditionsTag="COMCOND-BLKPA-RUN1-07"
-                                </jobTransformCmd>
-                                <group>TCTTransform</group>
-                                <queue>medium</queue>
-                                <batchWallTime>420</batchWallTime>
-                                <castorSvcClass>t0atlas</castorSvcClass>
-                                
-                                <test>
-                                    <modulename>RttLibraryTools</modulename>
-                                    <testname>FileGrepper</testname>
-                                    <arg>
-                                        <argname>inputFile</argname>
-                                        <argvalue>log.???to???</argvalue> <!-- put this one if you use job log -->
-                                    </arg>
-                                    <arg>
-                                        <argname>outputFile</argname>
-                                        <argvalue>MuonsStream_Run204073_Pileup_30_Collisions.summary.txt</argvalue>
-                                    </arg>
-                                    <arg>
-                                        <argname>searchList</argname>
-                                        <argvalue>successful run</argvalue> <!-- put here the string you should find to mean all ok -->
-                                    </arg>
-                                </test>
-                                
-                            </jobTransform>
-                            
-                        </chainElement>
-                        
-                        <!-- JetTauEtmiss STREAM -->
-                        <chainElement>
-                            
-                            <jobTransform userJobId="JetTauEtmissStream_Run204073_Pileup_30_Collisions">
-                                <doc>RecoTrf</doc>
-                                <jobTransformJobName>JetTauEtmissStream_Run204073_Pileup_30_Collisions</jobTransformJobName>
-                                <jobTransformCmd>
-                                    tct_recotrf.py --jobnum=0 --trigStream=JetTauEtmiss --nfiles=2 --maxEvents=300 --runnum=00204073 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00204073/physics_JetTauEtmiss/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-BLKPA-RUN1-05 --geometryVersion=ATLAS-R1-2012-03-00-00 --lumiblock=144,145 --dropDESDs --dropDRAWs --dropNTUPs --dropDAODs --preExec "'rec.doTrigger=False;'" --conditionsTag="COMCOND-BLKPA-RUN1-07"
-                                </jobTransformCmd>
-                                <group>TCTTransform</group>
-                                <queue>medium</queue>
-                                <batchWallTime>420</batchWallTime>
-                                <castorSvcClass>t0atlas</castorSvcClass>
-                                
-                                <test>
-                                    <modulename>RttLibraryTools</modulename>
-                                    <testname>FileGrepper</testname>
-                                    <arg>
-                                        <argname>inputFile</argname>
-                                        <argvalue>log.???to???</argvalue> <!-- put this one if you use job log -->
-                                    </arg>
-                                    <arg>
-                                        <argname>outputFile</argname>
-                                        <argvalue>JetTauEtmissStream_Run204073_Pileup_30_Collisions.summary.txt</argvalue>
-                                    </arg>
-                                    <arg>
-                                        <argname>searchList</argname>
-                                        <argvalue>successful run</argvalue> <!-- put here the string you should find to mean all ok -->
-                                    </arg>
-                                </test>
-                                
-                            </jobTransform>
-                            
-                        </chainElement>
-                        
-                        <!-- MinBias STREAM -->
-                        <chainElement>
-                            
-                            <jobTransform userJobId="MinBiasStream_Run204073_Pileup_30_Collisions">
-                                <doc>RecoTrf</doc>
-                                <jobTransformJobName>MinBiasStream_Run204073_Pileup_30_Collisions</jobTransformJobName>
-                                <jobTransformCmd>
-                                    tct_recotrf.py --jobnum=0 --trigStream=MinBias --nfiles=2 --maxEvents=300 --runnum=00204073 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00204073/physics_MinBias/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-BLKPA-RUN1-05 --geometryVersion=ATLAS-R1-2012-03-00-00 --lumiblock=144,145 --dropDESDs --dropDRAWs --dropNTUPs --dropDAODs --preExec "'rec.doTrigger=False;'" --conditionsTag="COMCOND-BLKPA-RUN1-07"
-                                </jobTransformCmd>
-                                <group>TCTTransform</group>
-                                <queue>medium</queue>
-                                <batchWallTime>420</batchWallTime>
-                                <castorSvcClass>t0atlas</castorSvcClass>
-                                
-                                <test>
-                                    <modulename>RttLibraryTools</modulename>
-                                    <testname>FileGrepper</testname>
-                                    <arg>
-                                        <argname>inputFile</argname>
-                                        <argvalue>log.???to???</argvalue> <!-- put this one if you use job log -->
-                                    </arg>
-                                    <arg>
-                                        <argname>outputFile</argname>
-                                        <argvalue>MinBiasStream_Run204073_Pileup_30_Collisions.summary.txt</argvalue>
-                                    </arg>
-                                    <arg>
-                                        <argname>searchList</argname>
-                                        <argvalue>successful run</argvalue> <!-- put here the string you should find to mean all ok -->
-                                    </arg>
-                                </test>
-                                
-                            </jobTransform>
-                            
-                        </chainElement>                        
-                        
+                                              
 			<sequential> <!-- Pileup20 jobs first run in parallel, then we compare those without monitoring to those with it -->
                             <parallel> <!-- Define pileup20 jobs -->
                                 
@@ -1255,41 +969,7 @@
                             </jobTransform>
                         </chainElement>
 
-                        <!-- Reconstruction job, using latest castor collections -->
-                        <chainElement>
-                            
-                            <jobTransform userJobId="M11_cosmics">
-                                <doc>RecoTrf</doc>
-                                <jobTransformJobName>M11_cosmics</jobTransformJobName>
-                                <jobTransformCmd>
-				  tct_recotrf.py --jobnum=0 --AMI=x383 --nfiles=1 --maxEvents=50 --trigStream=Main --runnum=00289954 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00289954/physics_Main --lumiblock=844 --dropDESDs --dropDRAWs --dropNTUPs --dropDAODs --geometryVersion=ATLAS-R2-2015-04-00-00
-                                </jobTransformCmd>
-                                <group>TCTTransform</group>
-                                <queue>medium</queue>
-                                <batchWallTime>420</batchWallTime>
-                                <castorSvcClass>t0atlas</castorSvcClass>
-                                
-                                <test>
-                                    <modulename>RttLibraryTools</modulename>
-                                    <testname>FileGrepper</testname>
-                                    <arg>
-                                        <argname>inputFile</argname>
-                                        <argvalue>log.???to???</argvalue> <!-- put this one if you use job log -->
-                                    </arg>
-                                    <arg>
-                                        <argname>outputFile</argname>
-                                        <argvalue>M11_cosmics.summary.txt</argvalue> 
-                                    </arg>
-                                    <arg>
-                                        <argname>searchList</argname>
-                                        <argvalue>successful run</argvalue> <!-- put here the string you should find to mean all ok -->
-                                    </arg>
-                                </test>
-                                
-                            </jobTransform>
-                        </chainElement>
-
-                        
+                       
                         <!-- Standard reco test job q220 -->
                         <chainElement>
                             <jobTransform userJobId="q220">
@@ -1396,37 +1076,7 @@
           		        </jobTransform>
           		    </chainElement>
         		</sequential> 
-                        <!-- Standard reco test job q222 -->
-                        <chainElement>
-                            <jobTransform userJobId="q222">
-                                <doc>RecoTrf</doc>
-                                <jobTransformJobName>q222</jobTransformJobName>
-                                <jobTransformCmd>
-                                    Reco_tf.py --AMI=q222
-                                </jobTransformCmd>
-                                <group>TCTTransform</group>
-                                <queue>medium</queue>
-                                <batchWallTime>420</batchWallTime>
-                                <castorSvcClass>t0atlas</castorSvcClass>
-                                <test>
-                                    <modulename>RttLibraryTools</modulename>
-                                    <testname>FileGrepper</testname>
-                                    <arg>
-                                        <argname>inputFile</argname>
-                                        <argvalue>log.???to???</argvalue> <!-- put this one if you use job log -->
-                                    </arg>
-                                    <arg>
-                                        <argname>outputFile</argname>
-                                        <argvalue>q222.summary.txt</argvalue>
-                                    </arg>
-                                    <arg>
-                                        <argname>searchList</argname>
-                                        <argvalue>successful run</argvalue> <!-- put here the string you should find to mean all ok -->
-                                    </arg>
-                                </test>
-                            </jobTransform>
-                        </chainElement>
-                        
+                 
                         <!-- Standard reco test job q223 -->
                         <chainElement>
                             <jobTransform userJobId="q223">
@@ -1643,38 +1293,7 @@
                                 </test>
                             </jobTransform>
                         </chainElement>			
-                        
-			<!-- MC16a reco test job -->
-                        <chainElement>
-                            <jobTransform userJobId="Reco_MC16a">
-                                <doc>RecoTrf</doc>
-                                <jobTransformJobName>Reco_MC16a</jobTransformJobName>
-                                <jobTransformCmd>
-                                    Reco_tf.py --digiSteeringConf 'StandardSignalOnlyTruth' --conditionsTag 'default:OFLCOND-MC16-SDR-17' --valid 'True' --pileupFinalBunch '6' --numberOfHighPtMinBias '0.152593389' --autoConfiguration 'everything' --numberOfLowPtMinBias '58.3474065525' --steering 'doRDO_TRIG' --preInclude 'HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_25ns_Config1.py,RunDependentSimData/configLumi_run284500_mc16a.py' --postExec 'all:CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' 'ESDtoAOD:fixedAttrib=[s if "CONTAINER_SPLITLEVEL = \"99\"" not in s else "" for s in svcMgr.AthenaPoolCnvSvc.PoolAttributes];svcMgr.AthenaPoolCnvSvc.PoolAttributes=fixedAttrib' 'RDOtoRDOTrigger:conddb.addOverride("/CALO/Ofl/Noise/PileUpNoiseLumi","CALOOflNoisePileUpNoiseLumi-mc15-mu30-dt25ns")' --postInclude 'default:PyJobTransforms/UseFrontier.py' --preExec 'all:rec.Commissioning.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)' 'all:from InDetRecExample.InDetJobProperties import InDetFlags; InDetFlags.doWriteTracksToESD.set_Value_and_Lock(True)' 'ESDtoAOD:from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.AODEDMSet.set_Value_and_Lock("AODFULL");' 'RDOtoRDOTrigger:from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup.set_Value_and_Lock("MC_pp_v6_tight_mc_prescale");' 'RAWtoESD:from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup.set_Value_and_Lock("MC_pp_v6_tight_mc_prescale");' 'all:from TriggerJobOpts.TriggerFlags import TriggerFlags as TF;TF.run2Config="2016"' --geometryVersion 'default:ATLAS-R2-2016-01-00-01' --numberOfCavernBkg '0' --inputHITSFile=/afs/cern.ch/work/g/gencomm/public/MC16_Samples/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.simul.HITS.e4993_s3091/\* --maxEvents=100 --outputAODFile=myAOD.pool.root --outputRDOFile="myRDO.pool.root" --outputESDFile="myESD.pool.root" --outputTAGFile="myTAG.root" --runNumber=410000 --jobNumber=1 --inputLowPtMinbiasHitsFile=/afs/cern.ch/work/g/gencomm/public/MC16_Samples/mc16_13TeV.361238.Pythia8EvtGen_A3NNPDF23LO_minbias_inelastic_low.merge.HITS.e4981_s3087_s3089/\* --inputHighPtMinbiasHitsFile=/afs/cern.ch/work/g/gencomm/public/MC16_Samples/mc16_13TeV.361239.Pythia8EvtGen_A3NNPDF23LO_minbias_inelastic_high.merge.HITS.e4981_s3087_s3089/\*
-                                </jobTransformCmd>
-                                <group>TCTTransform</group>
-                                <queue>long</queue>
-                                <batchWallTime>420</batchWallTime>
-                                <castorSvcClass>t0atlas</castorSvcClass>
-                                <test>
-                                    <modulename>RttLibraryTools</modulename>
-                                    <testname>FileGrepper</testname>
-                                    <arg>
-                                        <argname>inputFile</argname>
-                                        <argvalue>log.???to???</argvalue> <!-- put this one if you use job log -->
-                                    </arg>
-                                    <arg>
-                                        <argname>outputFile</argname>
-                                        <argvalue>Reco_MC16a.summary.txt</argvalue>
-                                    </arg>
-                                    <arg>
-                                        <argname>searchList</argname>
-                                        <argvalue>successful run</argvalue> <!-- put here the string you should find to mean all ok -->
-                                    </arg>
-                                </test>
-                            </jobTransform>
-                        </chainElement>
-
+        
 			<!-- MC16c reco test job -->
                         <chainElement>
                             <jobTransform userJobId="Reco_MC16c">
@@ -1737,82 +1356,9 @@
                             </jobTransform>
                         </chainElement>
 			
-			
-                        <sequential> <!-- DigitizationTest, Reconstruct_ttbar_RDO_Collisions -->
-                            <!-- Run digitization on a fixed RDO file -->
-                            <chainElement>
-                                
-                                <jobTransform userJobId="DigitizationTest">
-                                    <doc>Run digitization on a fixed HITS file</doc>
-                                    <jobTransformJobName>DigitizationTest</jobTransformJobName>
-                                    <jobTransformCmd>
-				        Digi_tf.py --inputHITSFile '/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/MC15_13TeV/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.simul.HITS.e3099_s2578_tid04919495_00/HITS.04919495._0004*.pool.root*' --digiSeedOffset1 '1' --digiSeedOffset2 '2' --geometryVersion 'ATLAS-R2-2015-03-01-00' --conditionsTag 'OFLCOND-RUN12-SDR-28' --DataRunNumber '222525' --maxEvents '50' --outputRDOFile 'MCtest_ttbar.digit.pool.root'
-                                    </jobTransformCmd> 
-                                    <group>TCTTransform</group>
-                                    <queue>short</queue>
-                                    <batchWallTime>60</batchWallTime>
-                                    <castorSvcClass>atlcal</castorSvcClass>
-                                    
-                                </jobTransform>
-                                
-                                <chainfileout>MCtest_ttbar.digit.pool.root</chainfileout> <!-- Used by Reconstruct_ttbar_RDO_Collisions -->
-                                
-                            </chainElement>
-                            
-                            <!-- Reconstruction job from MC RDO -->
-                            <chainElement>
-                                
-                                <jobTransform userJobId="Reconstruct_ttbar_RDO_Collisions">
-                                    <doc>Reconstruction job from MC RDO</doc>
-                                    <jobTransformJobName>Reconstruct_ttbar_RDO_Collisions</jobTransformJobName>
-                                    <jobTransformCmd>		  
-                                        Reco_tf.py --outputTAGFile=myTAG_ttbar_2.root --outputHISTFile=myMergedMonitoring_ttbar_2.root --maxEvents=500 --outputESDFile=myESD_ttbar_2.pool.root --outputAODFile=myAOD_ttbar_2.AOD.pool.root --inputRDOFile=MCtest_ttbar.digit.pool.root --autoConfiguration=everything --triggerConfig=NONE --preExec 'rec.doTrigger=False;'
-                                    </jobTransformCmd> 
-                                    <group>TCTTransform</group>	
-                                    <chaindataset_info>
-                                        <jobTransformData/>
-                                        <chaindatasetName>MCtest_ttbar.digit.pool.root</chaindatasetName> <!-- Made by DigitizationTest -->
-                                        <dataset_info>
-                                            <jobTransformData/>
-                                            <datasetName>/afs/cern.ch/atlas/offline/external/FullChainTest/tier0-vol3/rtt/fallbackfiles/job_IDCosmic_0.AOD.pool.root</datasetName>
-                                        </dataset_info>
-                                    </chaindataset_info>
-                                    <queue>medium</queue>
-                                    <batchWallTime>420</batchWallTime>
-                                    <castorSvcClass>atlcal</castorSvcClass>
-                                </jobTransform>
-                            </chainElement>
-
-                        </sequential>
-                    </parallel>
+		    </parallel>
                     
-                    <parallel> <!-- Parallel jobs for tag upload and output comparison -->
-                        
-                        <!-- Test tagfile uploading for produced tagfile -->
-                        <chainElement>
-                            <jobTransform userJobId="tagUpload_trf">
-                                <doc>TagUpload</doc>
-                                <jobTransformJobName>tagUpload_trf</jobTransformJobName>
-                                <jobTransformCmd>
-                                    tct_tagupload.sh MergedTAG.root
-                                </jobTransformCmd>
-                                <group>TCTTransform</group>
-                                <chaindataset_info>
-                                    <jobTransformData/>
-                                    <chaindatasetName>MergedTAG.root</chaindatasetName> <!-- Made by MergeJobTAG -->
-                                    <dataset_info>
-                                        <jobTransformData/>
-                                        <datasetName>/afs/cern.ch/atlas/offline/external/FullChainTest/tier0-vol3/rtt/fallbackfiles/myTag.pool.root</datasetName>
-                                    </dataset_info>
-                                </chaindataset_info>
-                                <queue>short</queue>
-                                <batchWallTime>60</batchWallTime>
-                                <testToRemove>  <!-- No POOL output produced -->
-                                    <jobGroupName>Top</jobGroupName>
-                                    <testidentifier>CheckFileRunner0</testidentifier>
-                                </testToRemove>
-                            </jobTransform>
-                        </chainElement>
+                    <parallel> <!-- Parallel jobs for output comparison -->
                         
                         <!-- Compare ESD and TAGCOMM files between today and yesterday -->
                         <chainElement>
