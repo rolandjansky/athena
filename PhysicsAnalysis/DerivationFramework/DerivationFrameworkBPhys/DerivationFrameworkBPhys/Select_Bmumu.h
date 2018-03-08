@@ -72,6 +72,7 @@ namespace DerivationFramework {
     private:
       void ProcessVertex(xAOD::BPhysHypoHelper&, xAOD::BPhysHelper::pv_type) const;
       bool massCuts(float mass) const;
+      bool massInBlindedRegion(float mass) const;
 
       bool pass(const SG::AuxElement& em, std::string hypo) const;
       bool setPass(SG::AuxElement& em, std::string hypo, bool passVal) const;
@@ -96,6 +97,7 @@ namespace DerivationFramework {
       double m_blindMassMin;                //!< blinding mass range
       double m_blindMassMax;                //!< blinding mass range
       bool   m_doBlinding;                  //!< enable blinding range
+      bool   m_doCutBlinded;                //!< enable cutting blinded vertices
       bool   m_useMuCalcMass;               //!< also check against MUCALC mass
 
       std::vector<std::string> m_subDecVtxContNames; //!< names of sub-decay vertex containers
