@@ -123,14 +123,14 @@ def reweighter(process, weight_groups, powheg_LHE_output):
             shutil.move(powheg_LHE_output.replace(".lhe", "-rwgt.lhe"), powheg_LHE_output)
 
     # Remove rwgt and pdf lines, which crash Pythia
-    # FileParser(powheg_LHE_output).text_remove("^#pdf")
-    # FileParser(powheg_LHE_output).text_remove("^#rwgt")
-    # FileParser(powheg_LHE_output).text_remove("^#new weight")
+    FileParser(powheg_LHE_output).text_remove("^#pdf")
+    FileParser(powheg_LHE_output).text_remove("^#rwgt")
+    FileParser(powheg_LHE_output).text_remove("^#new weight")
 
-    # Strip NaN values from rwgt and pdf lines, which crash Pythia
-    FileParser(powheg_LHE_output).text_replace("NaN", "0", regex_line_match="^#pdf")
-    FileParser(powheg_LHE_output).text_replace("NaN", "0", regex_line_match="^#rwgt")
-    FileParser(powheg_LHE_output).text_replace("NaN", "0", regex_line_match="^#new weight")
+    # # Strip NaN values from rwgt and pdf lines, which crash Pythia (even versions which accept the comment lines)
+    # FileParser(powheg_LHE_output).text_replace("NaN", "0", regex_line_match="^#pdf")
+    # FileParser(powheg_LHE_output).text_replace("NaN", "0", regex_line_match="^#rwgt")
+    # FileParser(powheg_LHE_output).text_replace("NaN", "0", regex_line_match="^#new weight")
 
     # Rename all weights
     for weight in weight_list:
