@@ -250,6 +250,24 @@ class PowhegConfig_Dijet(PowhegConfig_base) :
 
 ###############################################################################
 #
+#  trijet
+#
+###############################################################################
+class PowhegConfig_trijet(PowhegConfig_base) :
+  # These are user configurable - put generic properties in PowhegConfig_base
+  bornktmin = 5.0
+
+  # Set process-dependent paths in the constructor
+  def __init__(self,runArgs=None) :
+    PowhegConfig_base.__init__(self,runArgs)
+    self._powheg_executable += '/trijet/pwhg_main'
+
+  def generateRunCard(self) :
+    self.generateRunCardSharedOptions()
+
+
+###############################################################################
+#
 #  tt
 #
 ###############################################################################
@@ -305,31 +323,6 @@ class PowhegConfig_tt(PowhegConfig_base) :
       f.write( 'tdec/smass '+str(self.tdec_smass)+'             ! s mass\n' )
       f.write( 'tdec/cmass '+str(self.tdec_cmass)+'             ! c mass\n' )
       f.write( 'tdec/sin2cabibbo '+str(self.tdec_sin2cabibbo)+' ! sine of Cabibbo angle squared\n' )
-
-###############################################################################
-#
-#  WW
-#
-###############################################################################
-class PowhegConfig_WW(PowhegConfig_base) :
-  # These are user configurable - put generic properties in PowhegConfig_base
-  vdecaymodeWp = -11
-  vdecaymodeWm = 13
-  mllmin = 20
-
-  # Set process-dependent paths in the constructor
-  def __init__(self,runArgs=None) :
-    PowhegConfig_base.__init__(self,runArgs)
-    self._powheg_executable += '/WW/pwhg_main'
-
-  def generateRunCard(self) :
-    self.generateRunCardSharedOptions()
-
-    with open( str(self.TestArea)+'/powheg.input','a') as f :
-      f.write( 'vdecaymodeWp '+str(self.vdecaymodeWp)+' ! PDG code for charged decay product of the vector boson (1:dbar; 3: sbar; 7: dbar or sbar; -11:e+; -13:mu+; -15:tau+)\n' )
-      f.write( 'vdecaymodeWm '+str(self.vdecaymodeWm)+' ! PDG code for charged decay product of the vector boson (1:d; 3: s; 7: d or s; 11:e-; 13:mu-; 15:tau-)\n' )
-      f.write( 'mllmin '+str(self.mllmin)+'             ! Minimum invariant mass of lepton pairs from Z decay\n' )
-
 
 ###############################################################################
 #
@@ -417,6 +410,34 @@ class PowhegConfig_Wj(PowhegConfig_base) :
       f.write( 'hfact '+str(self.hfact)+'               ! (default no dumping factor) dump factor for high-pt radiation: > 0 dumpfac=h**2/(pt2+h**2)\n' )
       f.write( 'testsuda '+str(self.testsuda)+'         ! (default 0, do not test) test Sudakov form factor\n' )
       f.write( 'radregion '+str(self.radregion)+'       ! (default all regions) only generate radiation in the selected singular region\n' )
+
+###############################################################################
+#
+#  WW
+#
+###############################################################################
+class PowhegConfig_WW(PowhegConfig_base) :
+  # These are user configurable - put generic properties in PowhegConfig_base
+  vdecaymodeWp = -11
+  vdecaymodeWm = 13
+  mllmin = 20
+
+  # Set process-dependent paths in the constructor
+  def __init__(self,runArgs=None) :
+    PowhegConfig_base.__init__(self,runArgs)
+    self._powheg_executable += '/WW/pwhg_main'
+
+    # Set optimised integration parameters
+    self.ncall1, self.ncall2, self.nubound = 1000000, 1000000, 1000000
+    self.itmx1, self.itmx2, self.xupbound = 4, 4, 4
+
+  def generateRunCard(self) :
+    self.generateRunCardSharedOptions()
+
+    with open( str(self.TestArea)+'/powheg.input','a') as f :
+      f.write( 'vdecaymodeWp '+str(self.vdecaymodeWp)+' ! PDG code for charged decay product of the vector boson (1:dbar; 3: sbar; 7: dbar or sbar; -11:e+; -13:mu+; -15:tau+)\n' )
+      f.write( 'vdecaymodeWm '+str(self.vdecaymodeWm)+' ! PDG code for charged decay product of the vector boson (1:d; 3: s; 7: d or s; 11:e-; 13:mu-; 15:tau-)\n' )
+      f.write( 'mllmin '+str(self.mllmin)+'             ! Minimum invariant mass of lepton pairs from Z decay\n' )
 
 
 ###############################################################################
@@ -561,8 +582,8 @@ class PowhegConfig_ZZ(PowhegConfig_base) :
     self._powheg_executable += '/ZZ/pwhg_main'
 
     # Set optimised integration parameters
-    self.ncall1, self.ncall2, self.nubound = 1000000, 1500000, 1000000
-    self.itmx1, self.itmx2, self.xupbound = 4, 4, 4
+    self.ncall1, self.ncall2, self.nubound = 1000000, 1000000, 1000000
+    self.itmx1, self.itmx2, self.xupbound = 4, 6, 4
 
   def generateRunCard(self) :
     self.generateRunCardSharedOptions()
