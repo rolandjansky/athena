@@ -21,16 +21,16 @@ struct DescendingPt:std::function<bool(const xAOD::IParticle*, const xAOD::IPart
 
 template<typename T, typename... Args>
 std::unique_ptr<T> make_unique(Args&&... args) {
-    return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
+  return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
 }
 
 DerivationFramework::SkimmingToolEXOT5::SkimmingToolEXOT5(const std::string& t,
-                                                            const std::string& n,
-                                                            const IInterface* p) :
-  AthAlgTool(t, n, p),
-  m_jetCalibrationTool("JetCalibrationTool/EXOT5JESTool"),
-  m_ntot(0),
-  m_npass(0)
+  const std::string& n,
+  const IInterface* p) :
+AthAlgTool(t, n, p),
+m_jetCalibrationTool("JetCalibrationTool/EXOT5JESTool"),
+m_ntot(0),
+m_npass(0)
 {
 
   declareInterface<DerivationFramework::ISkimmingTool>(this);
@@ -43,7 +43,14 @@ DerivationFramework::SkimmingToolEXOT5::SkimmingToolEXOT5(const std::string& t,
   declareProperty("LeadingJetPtCut",       m_leadingJetPt = 40000.);
   declareProperty("SubleadingJetPtCut",    m_subleadingJetPt = 40000.);
   declareProperty("DiJetMassCut",          m_Mjj = 150000.);
+  declareProperty("DiJetMassMaxCut",       m_Mjj_Max = 150000.);
+  declareProperty("DiJetDEtaCut",          m_DEta = 2.5);
+  declareProperty("VBFJetThresh",          m_VBFjet = 40000.);
+
   m_isMC = true;
+  e_JetsDEta_Max = 0;
+  e_DiJetMass_Max = 0;
+  e_DiJetMass = 0;
 }
 
 DerivationFramework::SkimmingToolEXOT5::~SkimmingToolEXOT5() {
@@ -83,7 +90,6 @@ bool DerivationFramework::SkimmingToolEXOT5::eventPassesFilter() const
   const xAOD::EventInfo* eventInfo = nullptr;
   ATH_CHECK(evtStore()->retrieve(eventInfo));
   m_isMC = eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION);
-
   const xAOD::JetContainer* jets = nullptr;
   ATH_CHECK(evtStore()->retrieve(jets, m_jetSGKey));
 
@@ -109,15 +115,12 @@ bool DerivationFramework::SkimmingToolEXOT5::eventPassesFilter() const
   delete jets_shallowCopy.first;
   delete jets_shallowCopy.second;
 
-  if (recoJets->size() > 1) std::partial_sort(recoJets->begin(), recoJets->begin()+2, recoJets->end(), DescendingPt());
-  float mjj = 0;
-  if (recoJets->size() > 1) {
-    TLorentzVector jet1 = recoJets->at(0)->p4();
-    TLorentzVector jet2 = recoJets->at(1)->p4();
-    auto dijet = jet1 + jet2;
-    mjj = dijet.M();
-  }
-  if ((recoJets->size() > 0 && recoJets->at(0)->pt() > m_monoJetPt) || (recoJets->size() > 1 && recoJets->at(0)->pt() > m_leadingJetPt && recoJets->at(1)->pt() > m_subleadingJetPt && mjj > m_Mjj)) passRecoJetCuts = true;
+  // Compute the leading dijet mass
+  computeMassjj(recoJets);
+  // Compute dijet max Mjj, max Deta for VBF h>Inv
+  computeMaxjj(recoJets);
+  // Skim for MonoJet, MET+X, VBF h>Inv
+  passRecoJetCuts = passSkimCuts(recoJets);
 
   if (m_isMC) {
     const xAOD::JetContainer* truthJetContainer = nullptr;
@@ -133,15 +136,12 @@ bool DerivationFramework::SkimmingToolEXOT5::eventPassesFilter() const
       truthJets->push_back(newTruthJet);
     }
 
-    if (truthJets->size() > 1) std::partial_sort(truthJets->begin(), truthJets->begin()+2, truthJets->end(), DescendingPt());
-    float truthMjj = 0;
-    if (truthJets->size() > 1) {
-      TLorentzVector truthJet1 = truthJets->at(0)->p4();
-      TLorentzVector truthJet2 = truthJets->at(1)->p4();
-      auto truthDijet = truthJet1 + truthJet2;
-      truthMjj = truthDijet.M();
-    }
-    if ((truthJets->size() > 0 && truthJets->at(0)->pt() > m_monoJetPt) || (truthJets->size() > 1 && truthJets->at(0)->pt() > m_leadingJetPt && truthJets->at(1)->pt() > m_subleadingJetPt && truthMjj > m_Mjj)) passTruthJetCuts = true;
+  // Compute the leading dijet mass
+  computeMassjj(truthJets);
+  // Compute dijet max Mjj, max Deta for VBF h>Inv
+  computeMaxjj(truthJets);
+  // Skim for MonoJet, MET+X, VBF h>Inv
+  passTruthJetCuts = passSkimCuts(truthJets);
   }
 
   bool acceptEvent = passUncalibMonojetCut || passRecoJetCuts || passTruthJetCuts;
@@ -150,3 +150,49 @@ bool DerivationFramework::SkimmingToolEXOT5::eventPassesFilter() const
   return acceptEvent;
 
 }
+
+void DerivationFramework::SkimmingToolEXOT5::computeMaxjj(const std::unique_ptr<xAOD::JetContainer> & jets) const
+{
+  e_JetsDEta_Max = 0;
+  e_DiJetMass_Max = 0;
+  std::vector<TLorentzVector> jet_tlv;
+  TLorentzVector jet_tmp;
+  int num_jet = 0;
+  float tmpJetMass, tmpDEta;
+  for (auto jet : *jets)
+    if(jet->pt() > m_VBFjet){
+      jet_tmp.SetPtEtaPhiE(jet->pt(),jet->eta(),jet->phi(),jet->e());
+      jet_tlv.push_back(jet_tmp);
+      num_jet++;
+    }
+  if (num_jet >= 2)
+   for (int i = 0; i < num_jet; i++)
+     for (int j = i + 1; j < num_jet; j++) {
+       TLorentzVector jet_sum = jet_tlv.at(i) + jet_tlv.at(j);
+       tmpDEta = fabs(jet_tlv.at(i).Eta()-jet_tlv.at(j).Eta());
+       tmpJetMass = (jet_sum).M();
+       if (tmpJetMass > e_DiJetMass_Max) e_DiJetMass_Max = tmpJetMass;
+       if (tmpDEta > e_JetsDEta_Max) e_JetsDEta_Max = tmpDEta;
+     }
+}
+
+void DerivationFramework::SkimmingToolEXOT5::computeMassjj(const std::unique_ptr<xAOD::JetContainer> & jets) const
+{
+  if (jets->size() > 1) std::partial_sort(jets->begin(), jets->begin()+2, jets->end(), DescendingPt());
+  e_DiJetMass = 0;
+  if (jets->size() > 1) {
+    TLorentzVector jet1 = jets->at(0)->p4();
+    TLorentzVector jet2 = jets->at(1)->p4();
+    auto dijet = jet1 + jet2;
+    e_DiJetMass = dijet.M();
+  }
+}
+
+bool DerivationFramework::SkimmingToolEXOT5::passSkimCuts(const std::unique_ptr<xAOD::JetContainer> & jets) const
+{
+  bool passMonoJetSkim = (jets->size() > 0 && jets->at(0)->pt() > m_monoJetPt);
+  bool passMETXSkim    = (jets->size() > 1 && jets->at(0)->pt() > m_leadingJetPt && jets->at(1)->pt() > m_subleadingJetPt && e_DiJetMass > m_Mjj);
+  bool passVBFSkim     = (jets->size() > 1 && jets->at(0)->pt() > m_leadingJetPt && jets->at(1)->pt() > m_subleadingJetPt && e_DiJetMass_Max > m_Mjj_Max && e_JetsDEta_Max > m_DEta);
+  return (passMonoJetSkim || passMETXSkim || passVBFSkim);
+}
+
