@@ -87,7 +87,7 @@ class Wbbj(PowhegV2):
         self.add_keyword("manyseeds")
         self.add_keyword("max_w_mass")
         self.add_keyword("maxseeds")
-        self.add_keyword("min_w_mass", 1.0)
+        self.add_keyword("min_w_mass")
         self.add_keyword("minlo", 1)
         self.add_keyword("minloscfac")
         self.add_keyword("mintupbratlim")

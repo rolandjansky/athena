@@ -24,7 +24,7 @@ class jjj(PowhegV2):
         self.add_keyword("bornktmin", 10.0)
         self.add_keyword("bornonly")
         self.add_keyword("bornsuppfact", 800.0)
-        self.add_keyword("bornzerodamp", 1)
+        self.add_keyword("bornzerodamp")
         self.add_keyword("bottomthr")
         self.add_keyword("bottomthrpdf")
         self.add_keyword("brpar_diexp")

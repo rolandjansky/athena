@@ -34,7 +34,7 @@ class Wjj(PowhegV2):
         self.add_keyword("bornktmin", 10.0)
         self.add_keyword("bornonly")
         self.add_keyword("bornsuppfact")
-        self.add_keyword("bornzerodamp", 1)
+        self.add_keyword("bornzerodamp")
         self.add_keyword("bottomthr")
         self.add_keyword("bottomthrpdf")
         self.add_keyword("btildeborn")
@@ -133,7 +133,7 @@ class Wjj(PowhegV2):
         self.add_keyword("withsubtr")
         self.add_keyword("wmass")
         self.add_keyword("xgriditeration")
-        self.add_keyword("xupbound", 1)
+        self.add_keyword("xupbound")
         self.add_keyword("zfixedwidth")
         self.add_keyword("zmass")
 
