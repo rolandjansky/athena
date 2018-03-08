@@ -26,12 +26,12 @@
 namespace TrigCostRootAnalysis {
   /**
    * Evenr Profile counter - What is the typical event like? Can be broken down into differnt
-   * @param _name Const ref to name of the counter, by default this is of the form 'LumiBlock_xxx'.
-   * @param _ID Lumi block this counter is monitoring
+   * @param name Const ref to name of the counter, by default this is of the form 'LumiBlock_xxx'.
+   * @param ID Lumi block this counter is monitoring
    */
-  CounterEventProfile::CounterEventProfile(const TrigCostData* _costData, const std::string& _name, Int_t _ID,
-                                           UInt_t _detailLevel, MonitorBase* _parent)
-    : CounterBase(_costData, _name, _ID, _detailLevel, _parent) {
+  CounterEventProfile::CounterEventProfile(const TrigCostData* costData, const std::string& name, Int_t ID,
+                                           UInt_t detailLevel, MonitorBase* parent)
+    : CounterBase(costData, name, ID, detailLevel, parent) {
     m_dataStore.newVariable(kVarCalls).setSavePerCall();
     m_dataStore.newVariable(kVarTimeElapsed).setSavePerCall();
     m_dataStore.newVariable(kVarCPUTime).setSavePerCall();
@@ -56,56 +56,53 @@ namespace TrigCostRootAnalysis {
 
   /**
    * This alg was called at this counter's position in the execute sequence
-   * @param _e Unused
-   * @param _f Unused
-   * @param _weight Event weight.
+   * @param e Unused
+   * @param f Unused
+   * @param weight Event weight.
    */
-  void CounterEventProfile::processEventCounter(UInt_t _e, UInt_t _f, Float_t _weight) {
+  void CounterEventProfile::processEventCounter(UInt_t e, UInt_t f, Float_t weight) {
     ++m_calls;
-    _weight = 1.; // Don't use weighting
+    weight = 1.; // Don't use weighting
 
-    if (Config::config().debug()) debug(_e);
+    if (Config::config().debug()) debug(e);
 
-    m_dataStore.store(kVarCalls, 1., _weight);
-    m_dataStore.store(kVarAlgCaches, m_costData->getSeqAlgIsCached(_e, _f), _weight);
-    m_dataStore.store(kVarROSCalls, m_costData->getSeqAlgROSCalls(_e, _f), _weight);
-    m_dataStore.store(kVarROBReqSize, m_costData->getSeqAlgROBRequestSize(_e, _f), _weight);
-    m_dataStore.store(kVarROBRetSize, m_costData->getSeqAlgROBRetrievalSize(_e, _f), _weight);
-    Float_t _ROSTime = m_costData->getSeqAlgROSTime(_e, _f);
-    m_dataStore.store(kVarROSTime, _ROSTime, _weight);
-    m_dataStore.store(kVarCPUTime, m_costData->getSeqAlgTimer(_e, _f) - _ROSTime, _weight);
+    m_dataStore.store(kVarCalls, 1., weight);
+    m_dataStore.store(kVarAlgCaches, m_costData->getSeqAlgIsCached(e, f), weight);
+    m_dataStore.store(kVarROSCalls, m_costData->getSeqAlgROSCalls(e, f), weight);
+    m_dataStore.store(kVarROBReqSize, m_costData->getSeqAlgROBRequestSize(e, f), weight);
+    m_dataStore.store(kVarROBRetSize, m_costData->getSeqAlgROBRetrievalSize(e, f), weight);
+    Float_t ROSTime = m_costData->getSeqAlgROSTime(e, f);
+    m_dataStore.store(kVarROSTime, ROSTime, weight);
+    m_dataStore.store(kVarCPUTime, m_costData->getSeqAlgTimer(e, f) - ROSTime, weight);
 
-    Float_t _timeOffset = Config::config().getFloat(kEventTimeOffset);
-    Float_t _time = m_costData->getSeqAlgTimeStartSec(_e, _f);
-    _time += m_costData->getSeqAlgTimeStartMicroSec(_e, _f) / 1e6;
-    _time -= _timeOffset;
+    Float_t timeOffset = Config::config().getFloat(kEventTimeOffset);
+    Float_t time = m_costData->getSeqAlgTimeStartSec(e, f);
+    time += m_costData->getSeqAlgTimeStartMicroSec(e, f) / 1e6;
+    time -= timeOffset;
 
-    if (_time < 0.) {
-      _time += 3600.; // Hour boundary crossed
+    if (time < 0.) {
+      time += 3600.; // Hour boundary crossed
       if (Config::config().getDisplayMsg(kMsgLargeSteerTime) == kTRUE) {
-        Info("CounterEventProfile::processEventCounter", "Hour boundary crossed - corrected time is %f", _time);
+        Info("CounterEventProfile::processEventCounter", "Hour boundary crossed - corrected time is %f", time);
       }
     }
-    m_dataStore.store(kVarTimeElapsed, _time, _weight);
+    m_dataStore.store(kVarTimeElapsed, time, weight);
   }
 
-  Double_t CounterEventProfile::getPrescaleFactor(UInt_t _e) {
-    UNUSED(_e);
+  Double_t CounterEventProfile::getPrescaleFactor(UInt_t /*e*/) {
     return 1.;
   }
 
   /**
    * Perform end-of-event monitoring on the DataStore.
    */
-  void CounterEventProfile::endEvent(Float_t _weight) {
-    UNUSED(_weight);
+  void CounterEventProfile::endEvent(Float_t /*weight*/) {
     m_dataStore.endEvent();
   }
 
   /**
    * Output debug information on this call to the console
    */
-  void CounterEventProfile::debug(UInt_t _e) {
-    UNUSED(_e);
+  void CounterEventProfile::debug(UInt_t /*e*/) {
   }
 } // namespace TrigCostRootAnalysis
