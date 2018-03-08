@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #--------------------------------------------------------------
-# Powheg_Zj setup with sensible defaults
+# Powheg Zj setup starting from ATLAS defaults
 #--------------------------------------------------------------
 include('PowhegControl/PowhegControl_Zj_Common.py')
 PowhegConfig.generateRunCard()
@@ -23,4 +23,3 @@ evgenConfig.description = 'POWHEG+Pythia8 Zj production with AU2 CT10 tune'
 evgenConfig.keywords    = [ 'SM', 'zj' ]
 evgenConfig.contact     = [ 'james.robinson@cern.ch' ]
 evgenConfig.generators += [ 'Powheg', 'Pythia8' ]
-

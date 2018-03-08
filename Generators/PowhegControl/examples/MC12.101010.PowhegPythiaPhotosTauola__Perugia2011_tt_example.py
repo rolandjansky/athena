@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #--------------------------------------------------------------
-# Powheg_tt setup with sensible defaults
+# Powheg tt setup starting from ATLAS defaults
 #--------------------------------------------------------------
 include('PowhegControl/PowhegControl_tt_Common.py')
 PowhegConfig.generateRunCard()
@@ -26,4 +26,3 @@ evgenConfig.description = 'POWHEG+Pythia6 ttbar production with Perugia 2011c tu
 evgenConfig.keywords    = [ 'top', 'ttbar', 'leptonic' ]
 evgenConfig.contact     = [ 'james.robinson@cern.ch' ]
 evgenConfig.generators += [ 'Powheg', 'Pythia' ]
-evgenConfig.minevents   = 10

@@ -1,9 +1,9 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #--------------------------------------------------------------
-# Powheg_ggH setup with sensible defaults
+# Powheg ggH setup starting from ATLAS defaults
 #--------------------------------------------------------------
-include('PowhegControl/PowhegControl_ggH_Common.py')
+include('PowhegControl/PowhegControl_ggH_quark_mass_effects_Common.py')
 PowhegConfig.generateRunCard()
 PowhegConfig.generateEvents()
 
@@ -19,8 +19,7 @@ topAlg.Pythia8.UserHook  = 'Main31'
 #--------------------------------------------------------------
 # EVGEN configuration
 #--------------------------------------------------------------
-evgenConfig.description = 'POWHEG+Pythia8 ggH production with AU2 CT10 tune'
+evgenConfig.description = 'POWHEG+Pythia8 ggH_quark_mass_effects production with AU2 CT10 tune'
 evgenConfig.keywords    = [ 'Higgs' ]
 evgenConfig.contact     = [ 'james.robinson@cern.ch' ]
 evgenConfig.generators += [ 'Powheg', 'Pythia8' ]
-evgenConfig.minevents   = 10

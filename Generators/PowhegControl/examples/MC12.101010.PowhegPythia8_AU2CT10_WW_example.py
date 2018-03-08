@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #--------------------------------------------------------------
-# Powheg_WW setup with sensible defaults
+# Powheg WW setup starting from ATLAS defaults
 #--------------------------------------------------------------
 include('PowhegControl/PowhegControl_WW_Common.py')
 PowhegConfig.generateRunCard()
@@ -23,4 +23,3 @@ evgenConfig.description = 'POWHEG+Pythia8 WW production with AU2 CT10 tune'
 evgenConfig.keywords    = [ 'SM', 'ww' ]
 evgenConfig.contact     = [ 'james.robinson@cern.ch' ]
 evgenConfig.generators += [ 'Powheg', 'Pythia8' ]
-evgenConfig.minevents   = 10

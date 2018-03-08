@@ -1,9 +1,9 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #--------------------------------------------------------------
-# Powheg Dijet setup starting from ATLAS defaults
+# Powheg VBF_H setup starting from ATLAS defaults
 #--------------------------------------------------------------
-include('PowhegControl/PowhegControl_Dijet_Common.py')
+include('PowhegControl/PowhegControl_VBF_H_Common.py')
 PowhegConfig.generateRunCard()
 PowhegConfig.generateEvents()
 
@@ -19,7 +19,7 @@ topAlg.Pythia8.UserHook  = 'Main31'
 #--------------------------------------------------------------
 # EVGEN configuration
 #--------------------------------------------------------------
-evgenConfig.description = 'POWHEG+Pythia8 dijet production with AU2 CT10 tune'
-evgenConfig.keywords    = [ 'QCD', 'dijet', 'jets' ]
+evgenConfig.description = 'POWHEG+Pythia8 VBF_H production with AU2 CT10 tune'
+evgenConfig.keywords    = [ 'Higgs' ]
 evgenConfig.contact     = [ 'james.robinson@cern.ch' ]
 evgenConfig.generators += [ 'Powheg', 'Pythia8' ]

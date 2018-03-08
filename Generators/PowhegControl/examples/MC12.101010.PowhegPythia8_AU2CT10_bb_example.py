@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #--------------------------------------------------------------
-# Powheg_bb setup with sensible defaults
+# Powheg bb setup starting from ATLAS defaults
 #--------------------------------------------------------------
 include('PowhegControl/PowhegControl_bb_Common.py')
 PowhegConfig.generateRunCard()
@@ -23,4 +23,3 @@ evgenConfig.description = 'POWHEG+Pythia8 bb production with AU2 CT10 tune'
 evgenConfig.keywords    = [ 'SM', 'bb' ]
 evgenConfig.contact     = [ 'james.robinson@cern.ch' ]
 evgenConfig.generators += [ 'Powheg', 'Pythia8' ]
-evgenConfig.minevents   = 10
