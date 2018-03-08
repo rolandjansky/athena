@@ -29,7 +29,6 @@ class PowhegConfig_base(object) :
 
   ## This must be defined by each derived class - don't change it in the jobOptions!
   _powheg_executable = os.environ['POWHEGPATH']
-  print 'executable:',_powheg_executable
 
   ## Switch to determine which version of Powheg this process belongs to
   _powheg_version_type = 1
@@ -59,8 +58,8 @@ class PowhegConfig_base(object) :
         self.beam_energy = 0.5 * runArgs.ecmEnergy
       if hasattr(runArgs,'maxEvents') and runArgs.maxEvents > 0 :
         self.nEvents = int( 1.1 * runArgs.maxEvents + 0.5 )
-      if hasattr(runArgs,'random_seed') :
-        self.random_seed = runArgs.random_seed
+      if hasattr(runArgs,'randomSeed') :
+        self.random_seed = runArgs.randomSeed
       ## Set inputGeneratorFile to match output events file. Otherwise Generate_trf check will fail.
       runArgs.inputGeneratorFile = self.output_events_file_name
 
@@ -97,18 +96,18 @@ class PowhegConfig_base(object) :
       self.ncall2 = int( self.ncall2 / self.cores + 0.5 )
       self.nubound = int( self.nubound / self.cores + 0.5  )
 
-    ## Add registered decorators
+    ## Finalise registered decorators
     for run_card_decorator in self.run_card_decorators :
       if hasattr( run_card_decorator, 'finalise' ) : run_card_decorator.finalise()
 
     ## Print list of configurable parameters for users
     self.logger.info( '** User configurable parameters for this process **' )
-    for parameter, value_tuple in sorted( self.configurable_parameters.items(), key=lambda x: x[1][0].lower() ) :
-      self.logger.info( ' : {0:<20} : {1}'.format( *value_tuple ) )
+    self.logger.info( ': Configurable parameter : Current value : Description' )
+    for value_tuple in sorted( self.configurable_parameters.values(), key=lambda x: x[0].lower() ) :
+      self.logger.info( ': {0:<22} : {1:>13} : {2}'.format( value_tuple[0], getattr(self, value_tuple[0]), value_tuple[1] ) )
 
     ## Add configurable parameters to fixed list
-    parameters_to_add = { k : self.configurable_parameters.pop(k) for k in self.configurable_parameters.keys() }
-    [ self.fix_parameter( parameter, getattr(self, value_tuple[0]), value_tuple[1] ) for parameter, value_tuple in parameters_to_add.items() ]
+    [ self.fix_parameter( parameter=value_tuple[0], desc=value_tuple[1] ) for value_tuple in self.configurable_parameters.values() ]
 
     ## Write out final runcard
     self.logger.info( 'Writing Powheg runcard to {0}'.format( self.run_card_path ) )
@@ -119,6 +118,9 @@ class PowhegConfig_base(object) :
         if isinstance(value,list) : value = value[0]            # Set starting value to first in list when multiple values are provided
         output_line = '{0:<30}! {1}'.format( '{0} {1}'.format( name, value ), desc )
         f.write( output_line+'\n' )
+
+    ## Print final preparation message
+    self.logger.info( 'Ready to run executable: {0}'.format( self._powheg_executable ) )
 
 
   ## Run normal event generation
@@ -133,7 +135,7 @@ class PowhegConfig_base(object) :
 
     ## Generate the events in the external Powheg process
     time_start = time.time()
-    self.logger.info( 'Running ' + str(self._powheg_executable) )
+    self.logger.info( 'Running {0}'.format( self._powheg_executable ) )
 
     ## Setup heartbeat thread
     heartbeat = RepeatingTimer( 600., lambda: self.emit_heartbeat( time.time() - time_start ) )
@@ -156,7 +158,7 @@ class PowhegConfig_base(object) :
     ## Concatenate output events if running in multicore mode
     if self.manyseeds >= 1 :
       self.logger.info( 'Concatenating {0} output LHE files'.format( self.cores ) )
-      subprocess.call( 'cat pwgevents*.lhe > pwgevents.lhe', shell=True ) # NB. shell=True is unsafe if combined with user input
+      subprocess.call( 'cat pwgevents*.lhe > pwgevents.lhe', shell=True )
 
     ## Move output to correctly named file
     try :
@@ -234,10 +236,10 @@ class PowhegConfig_base(object) :
 
 
   ## Register configurable parameter
-  def add_parameter( self, name, value, desc='', parameter=None ) :
-    setattr( self, name, value ) # add new attribute
-    powheg_parameter = parameter if parameter is not None else name
-    self.configurable_parameters[powheg_parameter] = ( name, desc )
+  def add_parameter( self, configurable_name, value, desc='', parameter=None ) :
+    setattr( self, configurable_name, value ) # add new attribute
+    powheg_parameter = parameter if parameter is not None else configurable_name
+    self.configurable_parameters[powheg_parameter] = ( configurable_name, desc )
 
 
   ## Alias to PowhegDecorators.decorate
@@ -253,16 +255,17 @@ class PowhegConfig_base(object) :
 
 
   ## Register non-configurable parameter
-  def fix_parameter( self, name, value=None, desc='' ) :
+  def fix_parameter( self, parameter, value=None, desc='' ) :
     # Get previously set value if not overwriting
-    if value is None : value = getattr( self, name )
+    if value is None : value = getattr( self, parameter )
     # Remove it from the configurable list if it was there
-    for powheg_parameter, name_tuple in self.configurable_parameters.items() :
-      if name == name_tuple[0] :
-        # Retrieve Powheg parameter name and description
-        name, desc = powheg_parameter, name_tuple[1]
-        self.configurable_parameters.pop(name)
-    self.fixed_parameters.append( (name, value, desc) )
+    for powheg_parameter, configurable_name_tuple in self.configurable_parameters.items() :
+      # Retrieve Powheg parameter name and description if there is a match
+      if parameter == configurable_name_tuple[0] :
+        parameter, desc = powheg_parameter, configurable_name_tuple[1]
+        self.configurable_parameters.pop(powheg_parameter)
+        break
+    self.fixed_parameters.append( (parameter, value, desc) )
 
 
   ## Remove parameter from list

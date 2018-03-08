@@ -28,16 +28,35 @@ def runPowhegV2Multicore(configurator) :
 
   # Set up four passes to run each parallelstage
   for idx_stage in range(1,5) :
-    random_seed_indices = [ open('seed_index{0}.input'.format(idx),'rb') for idx in range(configurator.cores) ]
     configurator.logger.info( 'Now running stage {0}/4'.format(idx_stage) )
 
-    # Run the multiprocess step and wait for output collector to terminate
-    time_start = time.time()
-    [ runPowhegSingleThread( configurator, stdin=random_seed_indices[idx], output_prefix='Seed #{0}: '.format(idx), display_output=False ) for idx in range(configurator.cores) ]
-    write_output( configurator.running_processes, configurator.logger )
+    # Set number of xgriditerations to itmx1
+    n_xgriditerations = configurator.itmx1
+    current_xgriditeration = 0
+
+    # Inner loop to allow multiple xgrid iterations
+    while True :
+      # Open random seed files
+      random_seed_indices = [ open('seed_index{0}.input'.format(idx),'rb') for idx in range(configurator.cores) ]
+
+      # For stage 1, we need itmx1 iterations
+      if idx_stage == 1 :
+        current_xgriditeration += 1
+        subprocess.call( 'sed -i "s/xgriditeration.*/xgriditeration {0}/g" powheg.input'.format(current_xgriditeration), shell=True )
+        configurator.logger.info( 'Now running xgriditeration {0}/{1}'.format(current_xgriditeration,n_xgriditerations) )
+
+      # Run the multiprocess step and wait for output collector to terminate
+      time_start = time.time()
+      [ runPowhegSingleThread( configurator, stdin=random_seed_indices[idx], output_prefix='Seed #{0}: '.format(idx), display_output=False ) for idx in range(configurator.cores) ]
+      write_output( configurator.running_processes, configurator.logger )
+
+      # Close random seed files
+      [ random_seed_index.close() for random_seed_index in random_seed_indices ]
+
+      # Exit inner loop
+      if idx_stage != 1 or current_xgriditeration >= n_xgriditerations : break
 
     # Increment parallelstage and repeat
-    subprocess.call( 'sed -i "s/parallelstage {0}/parallelstage {1}/g" powheg.input'.format(idx_stage, idx_stage+1), shell=True ) # NB. shell=True is unsafe if combined with user input
-    [ random_seed_index.close() for random_seed_index in random_seed_indices ]
+    subprocess.call( 'sed -i "s/parallelstage {0}/parallelstage {1}/g" powheg.input'.format(idx_stage, idx_stage+1), shell=True )
     configurator.logger.info( 'Finished stage {0}/4 in {1}'.format( idx_stage, RepeatingTimer.human_readable_time_interval(time.time() - time_start)) )
 

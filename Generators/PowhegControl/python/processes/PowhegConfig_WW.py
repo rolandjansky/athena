@@ -38,7 +38,7 @@ class PowhegConfig_WW(PowhegConfig_base) :
     ## Override defaults
     # See https://docs.google.com/spreadsheets/d/1Aa7FwB74ppHbXles5LyHrKGlvUFi5PxbZC-Mrc3Lz90 for meanings
     self.allowed_decay_modes = [ 'WpWmevev', 'WpWmmuvmuv', 'WpWmtauvtauv', 'WpWmevmuv', 'WpWmmuvev',\
-                                 'WpWmevtauv', 'WpWmtauvev', 'WpWmuvtauv', 'WpWmtauvmuv', 'WWevmuv',\
+                                 'WpWmevtauv', 'WpWmtauvev', 'WpWmmuvtauv', 'WpWmtauvmuv', 'WWevmuv',\
                                  'WWmuvtauv', 'WWevtauv', 'WWlvlv', 'WWqqqq', 'WWlvqq' ]
     self.decay_mode = 'WWlvlv'
     self.minlo      = -1
