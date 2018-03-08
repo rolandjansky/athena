@@ -41,8 +41,8 @@ class PowhegConfig_Z(PowhegConfig_base) :
     # Override defaults
     self.withsubtr       = 1
     self.withnegweights  = 1
-    self.masswindow_low  = 60.
-    self.masswindow_high = 2.0 * self.beam_energy
+    self.mass_low        = 60.0
+    self.mass_high       = 2.0 * self.beam_energy
 
   # Implement base-class function
   def generateRunCard(self) :

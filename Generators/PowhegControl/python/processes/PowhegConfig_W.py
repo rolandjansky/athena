@@ -43,8 +43,8 @@ class PowhegConfig_W(PowhegConfig_base) :
     self.withdamp        = 1
     self.withsubtr       = 1
     self.withnegweights  = 1
-    self.masswindow_low  = 2.5
-    self.masswindow_high = 2.0 * self.beam_energy
+    self.mass_low        = 2.5
+    self.mass_high       = 2.0 * self.beam_energy
 
   # Implement base-class function
   def generateRunCard(self) :
