@@ -67,7 +67,7 @@ class PowhegConfig_base(object) :
       if hasattr(runArgs,'randomSeed') :
         self.random_seed = runArgs.randomSeed
       if hasattr(runArgs,'outputTXTFile') :
-        self.output_events_file_name = runArgs.outputTXTFile.split('.tar.gz')[0]+'.events'
+        self.__output_events_file_name = runArgs.outputTXTFile.split('.tar.gz')[0]+'.events'
       ## Set inputGeneratorFile to match output events file. Otherwise Generate_trf check will fail.
       runArgs.inputGeneratorFile = self.output_events_file_name
 
@@ -80,7 +80,6 @@ class PowhegConfig_base(object) :
         # Try to modify the transform opts to suppress athenaMP mode
         if hasattr(opts,'nprocs') : opts.nprocs = 0
         else : self.logger.warning( 'No "nprocs" options provided!')
-        self.logger.info( 'Scaling number of events per job from {0} down to {1}'.format( self.nEvents, int(self.nEvents / self.cores + 0.5) ) )
       else :
         self.__ncores = 1
 
@@ -102,6 +101,7 @@ class PowhegConfig_base(object) :
 
     ## Scale-down number of events produced in each run if running in multicore mode
     if self.cores > 1 :
+      self.logger.info( 'Scaling number of events per job from {0} down to {1}'.format( self.nEvents, int(self.nEvents / self.cores + 0.5) ) )
       self.nEvents = 0.5 + self.nEvents / self.cores
       self.ncall1 = 0.5 + self.ncall1 / self.cores
       self.ncall2 = 0.5 + self.ncall2 / self.cores
@@ -132,6 +132,9 @@ class PowhegConfig_base(object) :
           self.__enable_reweighting = True
         output_line = '{0:<30}! {1}'.format( '{0} {1}'.format( name, value ), desc )
         f.write( '{0}\n'.format(output_line) )
+        # Print warnings for specific parameters
+        if name == 'bornsuppfact' and value > 0 :
+          self.logger.warning( 'Born-level suppression is enabled: using this in conjunction with J-slicing may give problems.' )
 
     ## Print final preparation message
     self.logger.info( 'Using executable: {0}'.format( self._powheg_executable ) )
@@ -173,6 +176,7 @@ class PowhegConfig_base(object) :
     if self.manyseeds >= 1 :
       self.logger.info( 'Concatenating {0} output LHE files'.format( self.cores ) )
       subprocess.call( 'cat pwgevents*.lhe > pwgevents.lhe', shell=True )
+      subprocess.call( 'rm pwgevents-*.lhe 2> /dev/null', shell=True )
 
     ## Run Powheg afterburners
     self.runPowhegAfterburners()
@@ -219,9 +223,8 @@ class PowhegConfig_base(object) :
       strategies.runPowhegReweightingAfterburner( self )
 
     ## Run NNLOPS if requested
-    if hasattr( self, 'NNLOPS_input' ) and self.NNLOPS_input is not None :
+    if hasattr( self, 'NNLOPS_input' ) and len(self.NNLOPS_input) > 0 :
       strategies.runPowhegNNLOPSAfterburner( self )
-
 
 
   ## Register configurable parameter

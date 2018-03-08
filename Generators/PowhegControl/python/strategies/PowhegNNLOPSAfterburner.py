@@ -35,8 +35,11 @@ def runPowhegNNLOPSAfterburner(configurator) :
     for label, HNNLO_file_name in configurator.NNLOPS_input.items() :
       f.write( "'{0}' {1}\n".format( label, HNNLO_file_name ) )
       if not os.path.isfile( HNNLO_file_name ) :
-        print HNNLO_file_name,'does not exist'
-        shutil.copy( glob.glob( '{0}/../AuxFiles/*/{1}'.format( configurator.powheg_directory, HNNLO_file_name ) )[0], HNNLO_file_name )
+        configurator.logger.info( 'Looking for {0}'.format( HNNLO_file_name ) )
+        try :
+          shutil.copy( glob.glob( '{0}/../AuxFiles/*/{1}'.format( configurator.powheg_directory, HNNLO_file_name ) )[0], HNNLO_file_name )
+        except OSError :
+          configurator.logger.warning( '{0} does not exist!'.format( HNNLO_file_name ) )          
     f.write( "\n" )
 
     ## NNLOPS weights, in LHEv3 format: can be grouped as prefered with arbitrary IDs
@@ -47,21 +50,15 @@ def runPowhegNNLOPSAfterburner(configurator) :
     f.write( "<initrwgt>\n" )
     f.write( "<weightgroup name='NNLOPS'>\n" )
     for idx, weight_ID, weight_description in NNLOPS_weight_descriptors : #configurator.NNLOPS_weights.items() :
-      # replacements = [ x for x in configurator.variations if x.weight_description in NNLOPS_description ]
-      # for replacement in replacements :
-      #   NNLOPS_description = NNLOPS_description.replace( "\'{0}\'".format(replacement.weight_description), "\'{0}\'".format(replacement.weight_ID) )
       f.write( "<weight id='{0}'> {1} </weight>\n".format( weight_ID, weight_description ) )
     f.write( "</weightgroup>\n" )
     f.write( "</initrwgt>\n" )
 
   os.system( 'ls {0}/../AuxFiles/*/'.format( configurator.powheg_directory) )
-  # os.system( 'ls -alh; pwd' )
   NNLOPS_executable = (configurator._powheg_executable).replace('pwhg_main','nnlopsreweighter')
-  # print glob.glob( NNLOPS_executable )
 
   configurator.running_processes.append( (subprocess.Popen( [NNLOPS_executable,''], stdout=subprocess.PIPE, stdin=None, stderr=subprocess.STDOUT ), '') )
   write_output( configurator.running_processes, configurator.logger )
-  # os.system( 'ls -alh' )
 
   ## Rename NNLOPS weights to fit ATLAS conventions - could be rewritten to use XML parsing, but this may be overkill
   configurator.logger.info( 'Reformatting NNLOPS reweighting output' )

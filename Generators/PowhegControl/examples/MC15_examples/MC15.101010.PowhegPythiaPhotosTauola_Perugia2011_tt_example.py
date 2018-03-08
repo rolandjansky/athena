@@ -4,9 +4,9 @@
 # Powheg tt setup starting from ATLAS defaults
 #--------------------------------------------------------------
 include('PowhegControl/PowhegControl_tt_Common.py')
-#PowhegConfig.PDF = range(10800,10853)
-#PowhegConfig.mu_F = [ 1.0, 0.5, 0.5, 1.0, 1.0, 2.0, 2.0 ]
-#PowhegConfig.mu_R = [ 1.0, 0.5, 1.0, 0.5, 2.0, 1.0, 2.0 ]
+PowhegConfig.PDF = range(10800,10853)
+PowhegConfig.mu_F = [ 1.0, 0.5, 0.5, 1.0, 1.0, 2.0, 2.0 ]
+PowhegConfig.mu_R = [ 1.0, 0.5, 1.0, 0.5, 2.0, 1.0, 2.0 ]
 PowhegConfig.generate()
 
 #--------------------------------------------------------------

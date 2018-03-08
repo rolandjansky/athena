@@ -29,7 +29,8 @@ class PowhegConfig_jj(PowhegConfig_base) :
     ## Set optimised integration parameters
     self.ncall1   = 40000
     self.ncall2   = 25000
-    self.nubound  = 50000
+    self.nubound  = 100000
+    self.xupbound = 4
     self.foldx    = 10
     self.foldy    = 10
     self.foldphi  = 5
@@ -37,8 +38,7 @@ class PowhegConfig_jj(PowhegConfig_base) :
     ## Override defaults
     self.bornktmin = 5.0
     self.minlo     = -1
-    ## Fix problem with spikes in final observables
-    # Options recommended by Paolo Nason to be used with doublefsr (private communication)
+    ## Fix problem with spikes in final observables: from Paolo Nason (private communication)
     self.doublefsr  = 1
     self.par_2gsupp = 5
     self.par_diexp  = 4

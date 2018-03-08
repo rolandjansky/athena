@@ -26,6 +26,7 @@ class PowhegConfig_DMGG(PowhegConfig_base) :
     self.add_parameter_set( 'CKKW' )
     self.add_parameter_set( 'dark matter' )
     self.add_parameter_set( 'dark matter phi' )
+    self.add_parameter_set( 'extra tests' )
     self.add_parameter_set( 'LHEv3' )
     self.add_parameter_set( 'mass window' )
     self.add_parameter_set( 'running scale' )
