@@ -1,4 +1,2 @@
 #!/bin/sh
-
-env
-python ${WorkDir_DIR}/python/AthenaCommon/CFElements.py
+python -m AthenaCommon.CFElements
