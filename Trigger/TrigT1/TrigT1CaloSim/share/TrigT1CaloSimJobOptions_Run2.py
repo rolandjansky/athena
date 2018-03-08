@@ -30,32 +30,45 @@ if not 'inputFileSummary' in dir():
         from RecExConfig.InputFilePeeker import inputFileSummary
     except ImportError:
         pass
-
-try:
-    if not 'inputFileSummary' in dir():
-        raise RuntimeError('Input file summary not available.')
-
-    try:
-        digiParam = inputFileSummary['metadata']['/Digitization/Parameters']
-    except KeyError:
-        raise RuntimeError('Collection /Digitization/Parameters not found in file metadata.')
-
-    if 'intraTrainBunchSpacing' not in digiParam or not digiParam['intraTrainBunchSpacing']:
-        raise RuntimeError('No key "intraTrainBunchSpacing" in /Digitization/Parameters.')
-    _bunchSpacing = digiParam['intraTrainBunchSpacing']
-except RuntimeError, re:
-    log.warning('Could not determine bunch-spacing from input file: %s' % re)
-    log.warning('Configuring for 25ns w/o pedestal correction - a wrong configuration might yield non sensible results!')
-    _bunchSpacing = 25
-    _doPC = False # not enough information to configure pedestal correction
-
-if _bunchSpacing in _alg:
-    log.info("Scheduling %s" %  _alg[_bunchSpacing].__name__)
-    job += _alg[_bunchSpacing]( 'Run2TriggerTowerMaker' )
-else:
-    log.warning('No tuned configuration for a bunch-spacing of %s available. Using 25ns settings w/o pedestal correction.' % _bunchSpacing)
-    job += _alg[25]( 'Run2TriggerTowerMaker' )
+      
+from AthenaCommon.GlobalFlags import globalflags
+if globalflags.isOverlay() is True:
     _doPC = False
+    from AthenaCommon import CfgMgr
+    from AthenaCommon.AppMgr import ToolSvc
+    if not hasattr(ToolSvc, "LumiBlockMuTool"):
+        ToolSvc += CfgMgr.LumiBlockMuTool("LumiBlockMuTool")
+    from TrigT1CaloSim.TrigT1CaloSimConf import LVL1__OverlayRun2TriggerTowerMaker
+    job += LVL1__OverlayRun2TriggerTowerMaker('Run2TriggerTowerMaker', 
+                                      CellType = 3, 
+                                      ZeroSuppress = True, 
+                                      DoOverlay = True )
+else:
+    try:
+        if not 'inputFileSummary' in dir():
+            raise RuntimeError('Input file summary not available.')
+
+        try:
+            digiParam = inputFileSummary['metadata']['/Digitization/Parameters']
+        except KeyError:
+            raise RuntimeError('Collection /Digitization/Parameters not found in file metadata.')
+
+        if 'intraTrainBunchSpacing' not in digiParam or not digiParam['intraTrainBunchSpacing']:
+            raise RuntimeError('No key "intraTrainBunchSpacing" in /Digitization/Parameters.')
+        _bunchSpacing = digiParam['intraTrainBunchSpacing']
+    except RuntimeError, re:
+        log.warning('Could not determine bunch-spacing from input file: %s' % re)
+        log.warning('Configuring for 25ns w/o pedestal correction - a wrong configuration might yield non sensible results!')
+        _bunchSpacing = 25
+        _doPC = False # not enough information to configure pedestal correction
+
+    if _bunchSpacing in _alg:
+        log.info("Scheduling %s" %  _alg[_bunchSpacing].__name__)
+        job += _alg[_bunchSpacing]( 'Run2TriggerTowerMaker' )
+    else:
+        log.warning('No tuned configuration for a bunch-spacing of %s available. Using 25ns settings w/o pedestal correction.' % _bunchSpacing)
+        job += _alg[25]( 'Run2TriggerTowerMaker' )
+        _doPC = False
 
 log.info("Scheduling CPMTowerMaker, JetElementMaker, CPMSim, JEMJetSim, JEMEnergySim, CPCMX, JetCMX, EnergyCMX, RoIROD, Tester")
 
@@ -68,7 +81,7 @@ job += LVL1__CPCMX( 'CPCMX' )
 job += LVL1__JetCMX( 'JetCMX' )
 job += LVL1__EnergyCMX( 'EnergyCMX' )
 job += LVL1__RoIROD( 'RoIROD' )
-job += LVL1__Tester( 'Tester' )
+#job += LVL1__Tester( 'Tester' )
 
 from AthenaCommon import CfgMgr
 from AthenaCommon.AppMgr import ToolSvc
